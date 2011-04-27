@@ -39,6 +39,12 @@ bool ticker::empty()
 }
 
 
+void ticker::clear_ticker()
+{
+	list.clear();
+}
+
+
 void ticker::add_msg(const char* txt, koord pos, int color)
 {
 	// don't store more than 4 messages, it's useless.

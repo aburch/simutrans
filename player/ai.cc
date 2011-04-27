@@ -11,6 +11,7 @@
 
 #include "../simcity.h"
 #include "../simhalt.h"
+#include "../simintr.h"
 #include "../simmenu.h"
 #include "../simmesg.h"
 #include "../simskin.h"
@@ -25,6 +26,8 @@
 #include "../besch/haus_besch.h"
 
 #include "../dings/zeiger.h"
+
+#include "../utils/cbuffer_t.h"
 
 #include "../vehicle/simvehikel.h"
 
@@ -362,15 +365,12 @@ bool ai_t::built_update_headquarter()
 			const char *err="No suitable ground!";
 			if(  place!=koord::invalid  ) {
 				err = werkzeug_t::general_tool[WKZ_HEADQUARTER]->work( welt, this, welt->lookup_kartenboden(place)->get_pos() );
-
-				// catching more errors
+				// success
 				if(  err==NULL  ) {
-					// tell the player
-					char buf[256];
-					sprintf(buf, translator::translate("%s s\nheadquarter now\nat (%i,%i)."), get_name(), place.x, place.y );
-					welt->get_message()->add_message(buf, place, message_t::ai, PLAYER_FLAG|player_nr, welt->lookup_kartenboden(place)->find<gebaeude_t>()->get_tile()->get_hintergrund(0,0,0) );
+					return true;
 				}
 			}
+			// failed
 			if(  place==koord::invalid  ||  err!=NULL  ) {
 				dbg->warning( "ai_t::built_update_headquarter()", "HQ failed with : %s", translator::translate(err) );
 			}
@@ -502,7 +502,7 @@ DBG_MESSAGE("ai_passenger_t::create_simple_road_transport()","Already connection
 	INT_CHECK("simplay 846");
 
 	bauigel.calc_route(welt->lookup_kartenboden(platz1)->get_pos(),welt->lookup_kartenboden(platz2)->get_pos());
-	if(bauigel.get_count()-1 > 1) {
+	if(bauigel.get_count() > 2) {
 DBG_MESSAGE("ai_t::create_simple_road_transport()","building simple road from %d,%d to %d,%d",platz1.x, platz1.y, platz2.x, platz2.y);
 		bauigel.baue();
 		return true;

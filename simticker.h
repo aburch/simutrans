@@ -41,6 +41,8 @@ namespace ticker
 	 * Ticker text redraw after resize
 	 */
 	void redraw_ticker();
+
+	void clear_ticker();
 };
 
 #endif

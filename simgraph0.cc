@@ -8,6 +8,7 @@
  * Usage for Iso-Angband is granted.
  */
 
+#ifdef COMMAND_LINE_SERVER
 #include "simconst.h"
 #include "simsys.h"
 #include "simdebug.h"
@@ -92,6 +93,10 @@ sint16 display_get_height(void)
 sint16 display_set_height(KOORD_VAL)
 {
 	return 0;
+}
+
+void display_set_actual_width(KOORD_VAL)
+{
 }
 
 int display_get_light(void)
@@ -248,6 +253,14 @@ int display_text_proportional_len_clip(KOORD_VAL, KOORD_VAL, const char*, int, c
 	return 0;
 }
 
+void display_outline_proportional(KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, PLAYER_COLOR_VAL, const char *, int)
+{
+}
+
+void display_shadow_proportional(KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, PLAYER_COLOR_VAL, const char *, int)
+{
+}
+
 void display_ddd_box(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, PLAYER_COLOR_VAL)
 {
 }
@@ -338,3 +351,4 @@ void clear_all_poly_clip()
 void activate_ribi_clip(int)
 {
 }
+#endif

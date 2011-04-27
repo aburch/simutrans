@@ -4,6 +4,10 @@
 #include <stdlib.h>
 #include "simtools.h"
 #include "dataobj/umgebung.h"
+#ifdef DEBUG_SIMRAND_CALLS
+#include "simworld.h"
+#include "utils/cbuffer_t.h"
+#endif
 
 /* This is the mersenne random generator: More random and faster! */
 
@@ -91,11 +95,26 @@ uint32 simrand_plain(void)
 	return y;
 }
 
-
 /* generates a random number on [0,max-1]-interval */
-uint32 simrand(const uint32 max)
+#ifdef DEBUG_SIMRAND_CALLS
+uint32 simrand(const uint32 max, const char* caller)
+#else
+uint32 simrand(const uint32 max, const char*)
+#endif
 {
-	assert( random_origin!=1  );
+	assert( (random_origin&INTERACTIVE_RANDOM) == 0  );
+
+#ifdef DEBUG_SIMRAND_CALLS
+	char* buf = new char[256];
+	sprintf(buf, "%s (%i)", caller, get_random_seed());
+	dbg->warning("simrand", buf);
+	if(karte_t::print_randoms)
+	{
+		printf("%s\n", buf);
+	}
+
+	karte_t::random_callers.add_to_head(buf);
+#endif
 
 	if(max<=1) {	// may rather assert this?
 		return 0;
@@ -123,9 +142,21 @@ double simrand_gauss(const double mean, const double sigma)
 	return(mean + z * sigma);
 }
 
+void clear_random_mode( uint16 mode )
+{
+	random_origin &= ~mode;
+}
+
+
 void set_random_mode( uint16 mode )
 {
 	random_origin |= mode;
+}
+
+
+uint16 get_random_mode()
+{
+	return random_origin;
 }
 
 
@@ -142,14 +173,6 @@ uint32 sim_async_rand( uint32 max )
 
 	return (rand_seed >> 8) % max;
 }
-
-
-
-void clear_random_mode( uint16 mode )
-{
-	random_origin &= ~mode;
-}
-
 
 static uint32 noise_seed = 0;
 

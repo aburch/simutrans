@@ -1,6 +1,7 @@
 /* completely overhauled by prissi Oct-2005 */
 
 #include <stdio.h>
+#include <ctype.h>
 
 #include "../simdebug.h"
 #include "../simwin.h"
@@ -52,6 +53,7 @@ void schedule_t::copy_from(const schedule_t *src)
 	set_aktuell( src->get_aktuell() );
 
 	abgeschlossen = src->ist_abgeschlossen();
+	spacing = src->get_spacing();
 	bidirectional = src->is_bidirectional();
 	mirrored = src->is_mirrored();
 }
@@ -215,7 +217,8 @@ void schedule_t::rdwr(loadsave_t *file)
 	else {
 		file->rdwr_byte(aktuell);
 		file->rdwr_byte(size);
-		if( file->get_version()>=102003 && file->get_experimental_version()>=9 ) {
+		if( file->get_version()>=102003 && (file->get_experimental_version() >= 9 || file->get_experimental_version() == 0))
+		{
 			file->rdwr_bool(bidirectional);
 			file->rdwr_bool(mirrored);
 		}
@@ -253,9 +256,16 @@ void schedule_t::rdwr(loadsave_t *file)
 	if(file->is_loading()) {
 		abgeschlossen = true;
 	}
-	if(aktuell>=eintrag.get_count()) {
-		dbg->error("fahrplan_t::rdwr()","aktuell %i >count %i => aktuell = 0", aktuell, eintrag.get_count() );
+	if(aktuell>=eintrag.get_count()  ) {
+		if(  eintrag.get_count()>0  ) {
+			dbg->error("fahrplan_t::rdwr()","aktuell %i >count %i => aktuell = 0", aktuell, eintrag.get_count() );
+		}
 		aktuell = 0;
+	}
+
+	if(file->get_experimental_version() >= 9)
+	{
+		file->rdwr_short(spacing);
 	}
 }
 
@@ -263,7 +273,7 @@ void schedule_t::rdwr(loadsave_t *file)
 
 void schedule_t::rotate90( sint16 y_size )
 {
- 	// now we have to rotate all entries ...
+	// now we have to rotate all entries ...
 	for(  uint8 i = 0;  i<eintrag.get_count();  i++  ) {
 		eintrag[i].pos.rotate90(y_size);
 	}
@@ -291,6 +301,9 @@ bool schedule_t::matches(karte_t *welt, const schedule_t *fpl)
 	// unequal count => not equal
 	const uint8 min_count = min( fpl->eintrag.get_count(), eintrag.get_count() );
 	if(  min_count==0  &&  fpl->eintrag.get_count()!=eintrag.get_count()  ) {
+		return false;
+	}
+	if ( this->spacing != fpl->spacing ) {
 		return false;
 	}
 	// now we have to check all entries ...
@@ -375,7 +388,9 @@ void schedule_t::increment_index(uint8 *index, bool *reversed) const {
 void schedule_t::sprintf_schedule( cbuffer_t &buf ) const
 {
 	buf.append( aktuell );
-	buf.printf( ",%i,%i", bidirectional, mirrored );
+	buf.printf( ",%i,%i,%i", bidirectional, mirrored, spacing );
+	buf.append( "|" );
+	buf.append( (int)get_type() );
 	buf.append( "|" );
 	for(  uint8 i = 0;  i<eintrag.get_count();  i++  ) {
 		buf.printf( "%s,%i,%i|", eintrag[i].pos.get_str(), (int)eintrag[i].ladegrad, (int)eintrag[i].waiting_time_shift );
@@ -392,20 +407,36 @@ bool schedule_t::sscanf_schedule( const char *ptr )
 	}
 	//  first get aktuell pointer
 	aktuell = atoi( p );
-	while(  *p  &&  (*p!=','  &&  *p!='|')  ) {
-		p++;
-	}
-	if( *p==',' ) { p++; }
+	while ( *p && isdigit(*p) ) { p++; }
+	if ( *p && *p == ',' ) { p++; }
+	//bidirectional flag
 	if( *p && (*p!=','  &&  *p!='|') ) { bidirectional = bool(atoi(p)); }
-	while(  *p  &&  (*p!=','  &&  *p!='|')  ) {
-		p++;
-	}
-	if( *p==',' ) { p++; }
+	while ( *p && isdigit(*p) ) { p++; }
+	if ( *p && *p == ',' ) { p++; }
+	// mirrored flag
 	if( *p && (*p!=','  &&  *p!='|') ) { mirrored = bool(atoi(p)); }
-	while(  *p  &&  (*p!=','  &&  *p!='|')  ) {
+	while ( *p && isdigit(*p) ) { p++; }
+	if ( *p && *p == ',' ) { p++; }
+	// spacing
+	if( *p && (*p!=','  &&  *p!='|') ) { spacing = atoi(p); }
+	while ( *p && isdigit(*p) ) { p++; }
+	if ( *p && *p == ',' ) { p++; }
+
+	if(  *p!='|'  ) {
+		dbg->error( "schedule_t::sscanf_schedule()","incomplete entry termination!" );
+		return false;
+	}
+	p++;
+	//  then schedule type
+	int type = atoi( p );
+	//  .. check for correct type
+	if(  type != (int)get_type()) {
+		dbg->error( "schedule_t::sscanf_schedule()","schedule has wrong type (%d)! should have been %d.", type, get_type() );
+		return false;
+	}
+	while(  *p  &&  *p!='|'  ) {
 		p++;
 	}
-
 	if(  *p!='|'  ) {
 		dbg->error( "schedule_t::sscanf_schedule()","incomplete entry termination!" );
 		return false;

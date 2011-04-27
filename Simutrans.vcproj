@@ -43,7 +43,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;G:\Projects\SDL-1.2.10\include&quot;;&quot;G:\Program Files\PlatformSDK\Include&quot;;G:\Projects\zlib\include"
-				PreprocessorDefinitions="ZLIB_WINAPI;LITTLE_ENDIAN;STEPS16;USE_C;WIN32;DEBUG=3"
+				PreprocessorDefinitions="ZLIB_WINAPI;LITTLE_ENDIAN;DEBUG=3"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -125,7 +125,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="&quot;G:\Projects\SDL-1.2.10\include&quot;;&quot;G:\Program Files\PlatformSDK\Include&quot;;G:\Projects\zlib\include"
-				PreprocessorDefinitions="ZLIB_WINAPI;LITTLE_ENDIAN;STEPS16;USE_C;WIN32"
+				PreprocessorDefinitions="ZLIB_WINAPI;LITTLE_ENDIAN;NDEBUG;REVISION=&quot;4353&quot;"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -692,7 +692,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dataobj\network_cmp_pakset.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\dataobj\network_file_transfer.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\dataobj\network_packet.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\dataobj\network_socket_list.cc"
 				>
 			</File>
 			<File
@@ -805,6 +817,10 @@
 			</File>
 			<File
 				RelativePath=".\dings\signal.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\gui\signal_spacing.cc"
 				>
 			</File>
 			<File
@@ -1756,7 +1772,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dataobj\network_cmp_pakset.h"
+				>
+			</File>
+			<File
+				RelativePath=".\dataobj\network_file_transfer.h"
+				>
+			</File>
+			<File
 				RelativePath=".\dataobj\network_packet.h"
+				>
+			</File>
+			<File
+				RelativePath=".\dataobj\network_socket_list.h"
 				>
 			</File>
 			<File
@@ -1920,6 +1948,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gui\signal_spacing.h"
+				>
+			</File>
+			<File
 				RelativePath=".\simcity.h"
 				>
 			</File>
@@ -2057,6 +2089,10 @@
 			</File>
 			<File
 				RelativePath=".\simware.h"
+				>
+			</File>
+			<File
+				RelativePath=".\simwerkz-dialogs.h"
 				>
 			</File>
 			<File

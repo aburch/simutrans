@@ -20,15 +20,33 @@ INIT_NUM( "intercity_road_length", umgebung_t::intercity_road_length);
 INIT_NUM( "diagonal_multiplier", pak_diagonal_multiplier);
 */
 
-static const char *version[6]=
+static const char *version[9]=
 {
 	"0.99.17",
 	"0.100.0",
 	"0.101.0",
 	"0.102.1",
 	"0.102.2",
-	"0.102.3"
+	"0.102.3",
+	"0.102.5",
+	"0.110.0",
+	"0.110.1"
 };
+
+static const char *version_ex[10]=
+{
+	"", /*Ex version 0 has no Ex string at all*/
+	".1",
+	".2",
+	".3",
+	".4",
+	".5",
+	".6",
+	".7",
+	".8",
+	".9"
+};
+
 
 
 // just free memory
@@ -123,7 +141,7 @@ void settings_stats_t::set_cell_component(gui_component_table_t &tbl, gui_kompon
 void settings_experimental_general_stats_t::init( einstellungen_t *sets )
 {
 	INIT_INIT;
-	INIT_NUM( "distance_per_tile_percent", sets->get_distance_per_tile_percent(), 1, 1000, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "distance_per_tile", sets->get_distance_per_tile(), 1, 1000, gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR;
 	INIT_NUM( "min_bonus_max_distance", sets->get_min_bonus_max_distance(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "median_bonus_distance", sets->get_median_bonus_distance(), 10, 1000, gui_numberinput_t::AUTOLINEAR, false );
@@ -137,8 +155,8 @@ void settings_experimental_general_stats_t::init( einstellungen_t *sets )
 		set_cell_component(tbl, new_textarea(koord(2, 0), translator::translate("get\nrevenue $")), 2, 0);
 		row++;
 		set_cell_component(tbl, new_label(koord(2, 3), "travelling post office"), 0, row);
-		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_tpo_min_minutes(), 0, 14400), 1, row);
-		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_tpo_revenue(), 0, 10000), 2, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_tpo_min_minutes(), 0, 14400, 1), 1, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_tpo_revenue(), 0, 10000, 1), 2, row);
 		INIT_TABLE_END(tbl);
 	}
 	SEPERATOR;
@@ -150,31 +168,31 @@ void settings_experimental_general_stats_t::init( einstellungen_t *sets )
 	{
 		gui_component_table_t &tbl = new_table(koord(0, ypos), 2, 9);
 		int row = 8;
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_default_increase_maintenance_after_years(overheadlines_wt), 0, 1000), 0, row);
+		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_default_increase_maintenance_after_years(overheadlines_wt), 0, 1000, 1), 0, row);
 		set_cell_component(tbl, new_label(koord(2, 0), "default_increase_maintenance_after_years_other"), 1, row);
 		row = 0;
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_default_increase_maintenance_after_years(road_wt), 0, 1000), 0, row);
+		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_default_increase_maintenance_after_years(road_wt), 0, 1000, 1), 0, row);
 		set_cell_component(tbl, new_label(koord(2, 0), "default_increase_maintenance_after_years_road"), 1, row);
 		row++;
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_default_increase_maintenance_after_years(track_wt), 0, 1000), 0, row);
+		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_default_increase_maintenance_after_years(track_wt), 0, 1000, 1), 0, row);
 		set_cell_component(tbl, new_label(koord(2, 0), "default_increase_maintenance_after_years_rail"), 1, row);
 		row++;
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_default_increase_maintenance_after_years(water_wt), 0, 1000), 0, row);
+		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_default_increase_maintenance_after_years(water_wt), 0, 1000, 1), 0, row);
 		set_cell_component(tbl, new_label(koord(2, 0), "default_increase_maintenance_after_years_water"), 1, row);
 		row++;
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_default_increase_maintenance_after_years(monorail_wt), 0, 1000), 0, row);
+		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_default_increase_maintenance_after_years(monorail_wt), 0, 1000, 1), 0, row);
 		set_cell_component(tbl, new_label(koord(2, 0), "default_increase_maintenance_after_years_monorail"), 1, row);
 		row++;
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_default_increase_maintenance_after_years(maglev_wt), 0, 1000), 0, row);
+		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_default_increase_maintenance_after_years(maglev_wt), 0, 1000, 1), 0, row);
 		set_cell_component(tbl, new_label(koord(2, 0), "default_increase_maintenance_after_years_maglev"), 1, row);
 		row++;
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_default_increase_maintenance_after_years(tram_wt), 0, 1000), 0, row);
+		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_default_increase_maintenance_after_years(tram_wt), 0, 1000, 1), 0, row);
 		set_cell_component(tbl, new_label(koord(2, 0), "default_increase_maintenance_after_years_tram"), 1, row);
 		row++;
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_default_increase_maintenance_after_years(narrowgauge_wt), 0, 1000), 0, row);
+		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_default_increase_maintenance_after_years(narrowgauge_wt), 0, 1000, 1), 0, row);
 		set_cell_component(tbl, new_label(koord(2, 0), "default_increase_maintenance_after_years_narrowgauge"), 1, row);
 		row++;
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_default_increase_maintenance_after_years(air_wt), 0, 1000), 0, row);
+		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_default_increase_maintenance_after_years(air_wt), 0, 1000, 1), 0, row);
 		set_cell_component(tbl, new_label(koord(2, 0), "default_increase_maintenance_after_years_air"), 1, row);
 		INIT_TABLE_END(tbl);
 	}	
@@ -186,7 +204,7 @@ void settings_experimental_general_stats_t::init( einstellungen_t *sets )
 void settings_experimental_general_stats_t::read(einstellungen_t *sets)
 {
 	READ_INIT;
-	READ_NUM( sets->set_distance_per_tile_percent );
+	READ_NUM( sets->set_distance_per_tile );
 
 	READ_NUM( sets->set_min_bonus_max_distance );
 	READ_NUM( sets->set_median_bonus_distance );
@@ -241,22 +259,22 @@ void settings_experimental_revenue_stats_t::init( einstellungen_t *sets )
 		set_cell_component(tbl, new_textarea(koord(2, 0), translator::translate("waiting\ntolerance\nmax. min")), 5, 0);
 		row++;
 		set_cell_component(tbl, new_label(koord(2, 3), "local"), 0, row);
-		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_local_passengers_max_distance(), 0, 1000), 2, row);
-		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_passenger_routing_local_chance(), 0, 100), 3, row);
-		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_min_local_tolerance() / 10, 2, 4800), 4, row);
-		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_max_local_tolerance() / 10, 2, 4800), 5, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_local_passengers_max_distance(), 0, 1000, 1), 2, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_passenger_routing_local_chance(), 0, 100, 1), 3, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_min_local_tolerance() / 10, 2, 4800, 1), 4, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_max_local_tolerance() / 10, 2, 4800, 1), 5, row);
 		row++;
 		set_cell_component(tbl, new_label(koord(2, 0), "mid range"), 0, row);
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_midrange_passengers_min_distance(), 0, 1000), 1, row);
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_midrange_passengers_max_distance(), 0, 10000), 2, row);
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_passenger_routing_midrange_chance(), 0, 100), 3, row);
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_min_midrange_tolerance() / 10, 2, 4800), 4, row);
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_max_midrange_tolerance() / 10, 2, 4800), 5, row);
+		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_midrange_passengers_min_distance(), 0, 1000, 1), 1, row);
+		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_midrange_passengers_max_distance(), 0, 10000, 1), 2, row);
+		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_passenger_routing_midrange_chance(), 0, 100, 1), 3, row);
+		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_min_midrange_tolerance() / 10, 2, 4800, 1), 4, row);
+		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_max_midrange_tolerance() / 10, 2, 4800, 1), 5, row);
 		row++;
 		set_cell_component(tbl, new_label(koord(2, 0), "long dist."), 0, row);
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_longdistance_passengers_min_distance(), 0, 1000), 1, row);
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_min_longdistance_tolerance() / 10, 2, 4800), 4, row);
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_max_longdistance_tolerance() / 10, 2, 4800), 5, row);
+		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_longdistance_passengers_min_distance(), 0, 1000, 1), 1, row);
+		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_min_longdistance_tolerance() / 10, 2, 4800, 1), 4, row);
+		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_max_longdistance_tolerance() / 10, 2, 4800, 1), 5, row);
 		INIT_TABLE_END(tbl);
 	}
 	{
@@ -267,24 +285,24 @@ void settings_experimental_revenue_stats_t::init( einstellungen_t *sets )
 		set_cell_component(tbl, new_textarea(koord(2, 0), translator::translate("min comfort\nrating")), 2, 0);
 		row++;
 		set_cell_component(tbl, new_label(koord(2, 3), "short time"), 0, row);
-		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_tolerable_comfort_short_minutes(), 0, 120), 1, row);
-		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_tolerable_comfort_short(), 0, 255), 2, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_tolerable_comfort_short_minutes(), 0, 120, 1), 1, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_tolerable_comfort_short(), 0, 255, 1), 2, row);
 		row++;
 		set_cell_component(tbl, new_label(koord(2, 0), "median short time"), 0, row);
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_tolerable_comfort_median_short_minutes(), 0, 720), 1, row);
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_tolerable_comfort_median_short(), 0, 255), 2, row);
+		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_tolerable_comfort_median_short_minutes(), 0, 720, 1), 1, row);
+		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_tolerable_comfort_median_short(), 0, 255, 1), 2, row);
 		row++;
 		set_cell_component(tbl, new_label(koord(2, 0), "median median time"), 0, row);
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_tolerable_comfort_median_median_minutes(), 0, 1440), 1, row);
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_tolerable_comfort_median_median(), 0, 255), 2, row);
+		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_tolerable_comfort_median_median_minutes(), 0, 1440, 1), 1, row);
+		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_tolerable_comfort_median_median(), 0, 255, 1), 2, row);
 		row++;
 		set_cell_component(tbl, new_label(koord(2, 0), "median long time"), 0, row);
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_tolerable_comfort_median_long_minutes(), 0, 1440*7), 1, row);
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_tolerable_comfort_median_long(), 0, 255), 2, row);
+		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_tolerable_comfort_median_long_minutes(), 0, 1440*7, 1), 1, row);
+		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_tolerable_comfort_median_long(), 0, 255, 1), 2, row);
 		row++;
 		set_cell_component(tbl, new_label(koord(2, 0), "long time"), 0, row);
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_tolerable_comfort_long_minutes(), 0, 1440*30), 1, row);
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_tolerable_comfort_long(), 0, 255), 2, row);
+		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_tolerable_comfort_long_minutes(), 0, 1440*30, 1), 1, row);
+		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_tolerable_comfort_long(), 0, 255, 1), 2, row);
 		INIT_TABLE_END(tbl);
 	}
 	{
@@ -295,12 +313,12 @@ void settings_experimental_revenue_stats_t::init( einstellungen_t *sets )
 		set_cell_component(tbl, new_textarea(koord(2, 0), translator::translate("percent")), 2, 0);
 		row++;
 		set_cell_component(tbl, new_label(koord(2, 3), "max luxury bonus"), 0, row);
-		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_max_luxury_bonus_differential(), 0, 250), 1, row);
-		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_max_luxury_bonus_percent(), 0, 1000), 2, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_max_luxury_bonus_differential(), 0, 250, 1), 1, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_max_luxury_bonus_percent(), 0, 1000, 1), 2, row);
 		row++;
 		set_cell_component(tbl, new_label(koord(2, 0), "max discomfort penalty"), 0, row);
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_max_discomfort_penalty_differential(), 0, 250), 1, row);
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_max_discomfort_penalty_percent(), 0, 1000), 2, row);
+		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_max_discomfort_penalty_differential(), 0, 250, 1), 1, row);
+		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_max_discomfort_penalty_percent(), 0, 1000, 1), 2, row);
 		INIT_TABLE_END(tbl);
 	}
 	{
@@ -311,27 +329,27 @@ void settings_experimental_revenue_stats_t::init( einstellungen_t *sets )
 		set_cell_component(tbl, new_textarea(koord(2, 0), translator::translate("max catering\nrevenue $")), 2, 0);
 		row++;
 		set_cell_component(tbl, new_label(koord(2, 3), "min traveltime"), 0, row);
-		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_catering_min_minutes(), 0, 14400), 1, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_catering_min_minutes(), 0, 14400, 1), 1, row);
 		row++;
 		set_cell_component(tbl, new_label(koord(2, 0), "catering level 1"), 0, row);
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_catering_level1_minutes(), 0, 14400), 1, row);
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_catering_level1_max_revenue(), 0, 10000), 2, row);
+		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_catering_level1_minutes(), 0, 14400, 1), 1, row);
+		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_catering_level1_max_revenue(), 0, 10000, 1), 2, row);
 		row++;
 		set_cell_component(tbl, new_label(koord(2, 0), "catering level 2"), 0, row);
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_catering_level2_minutes(), 0, 14400), 1, row);
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_catering_level2_max_revenue(), 0, 10000), 2, row);
+		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_catering_level2_minutes(), 0, 14400, 1), 1, row);
+		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_catering_level2_max_revenue(), 0, 10000, 1), 2, row);
 		row++;
 		set_cell_component(tbl, new_label(koord(2, 0), "catering level 3"), 0, row);
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_catering_level3_minutes(), 0, 14400), 1, row);
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_catering_level3_max_revenue(), 0, 10000), 2, row);
+		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_catering_level3_minutes(), 0, 14400, 1), 1, row);
+		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_catering_level3_max_revenue(), 0, 10000, 1), 2, row);
 		row++;
 		set_cell_component(tbl, new_label(koord(2, 0), "catering level 4"), 0, row);
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_catering_level4_minutes(), 0, 14400), 1, row);
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_catering_level4_max_revenue(), 0, 10000), 2, row);
+		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_catering_level4_minutes(), 0, 14400, 1), 1, row);
+		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_catering_level4_max_revenue(), 0, 10000, 1), 2, row);
 		row++;
 		set_cell_component(tbl, new_label(koord(2, 0), "catering level 5"), 0, row);
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_catering_level5_minutes(), 0, 14400), 1, row);
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_catering_level5_max_revenue(), 0, 10000), 2, row);
+		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_catering_level5_minutes(), 0, 14400, 1), 1, row);
+		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_catering_level5_max_revenue(), 0, 10000, 1), 2, row);
 		INIT_TABLE_END(tbl);
 	}
 	clear_dirty();
@@ -389,10 +407,18 @@ void settings_experimental_revenue_stats_t::read(einstellungen_t *sets)
 
 bool settings_general_stats_t::action_triggered(gui_action_creator_t *komp, value_t v)
 {
-	assert( komp==&savegame );
+	assert( komp==&savegame || komp==&savegame_ex );
 
-	if(  v.i==-1  ) {
-		savegame.set_selection( 0 );
+	if(  v.i==-1  ) 
+	{
+		if(komp==&savegame)
+		{
+			savegame.set_selection( 0 );
+		}
+		else if( komp==&savegame_ex )
+		{
+			savegame_ex.set_selection( 0 );
+		}
 	}
 	return true;
 }
@@ -410,10 +436,11 @@ void settings_general_stats_t::init(einstellungen_t *sets)
 	SEPERATOR
 	INIT_BOOL( "numbered_stations", sets->get_numbered_stations() );
 	INIT_NUM( "show_names", umgebung_t::show_names, 0, 3, gui_numberinput_t::AUTOLINEAR, true );
-	INIT_NUM( "show_month", umgebung_t::show_month, 0, 4, gui_numberinput_t::AUTOLINEAR, true );
+	INIT_NUM( "show_month", umgebung_t::show_month, 0, 7, gui_numberinput_t::AUTOLINEAR, true );
+	INIT_BOOL( "add_player_name_to_message", umgebung_t::add_player_name_to_message );
 	SEPERATOR
 	INIT_NUM( "bits_per_month", sets->get_bits_per_month(), 16, 24, gui_numberinput_t::AUTOLINEAR, false );
-	INIT_NUM( "use_timeline", sets->get_use_timeline(), 0, 2, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "use_timeline", sets->get_use_timeline(), 0, 3, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "starting_year", sets->get_starting_year(), 0, 2999, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "starting_month", sets->get_starting_month(), 0, 11, gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR
@@ -449,7 +476,7 @@ void settings_general_stats_t::init(einstellungen_t *sets)
 	savegame.set_groesse( koord(70,BUTTON_HEIGHT) );
 	for(  int i=0;  i<lengthof(version);  i++  ) {
 		savegame.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( version[i]+2, COL_BLACK ) );
-		if(  strcmp(version[i],SAVEGAME_VER_NR)==0  ) {
+		if(  strcmp(version[i],umgebung_t::savegame_version_str)==0  ) {
 			savegame.set_selection( i );
 		}
 	}
@@ -459,6 +486,35 @@ void settings_general_stats_t::init(einstellungen_t *sets)
 	INIT_LB( "savegame version" );
 	label.back()->set_pos( koord( 76, label.back()->get_pos().y ) );
 	clear_dirty();
+
+	SEPERATOR
+	// combobox for Experimental savegame version
+	savegame_ex.set_pos( koord(2,ypos-2) );
+	savegame_ex.set_groesse( koord(70,BUTTON_HEIGHT) );
+	for(  int i=0;  i<lengthof(version_ex);  i++  ) 
+	{
+		if(i == 0)
+		{
+			savegame_ex.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( "0", COL_BLACK ) );
+		}
+		else
+		{
+			savegame_ex.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( version_ex[i]+1, COL_BLACK ) );
+		}
+		if(  strcmp(version_ex[i],EXPERIMENTAL_VER_NR)==0  ) 
+		{
+			savegame_ex.set_selection( i );
+		}
+	}
+	savegame_ex.set_focusable( false );
+	add_komponente( &savegame_ex );
+	savegame_ex.add_listener( this );
+	INIT_LB( "savegame Experimental version" );
+	label.back()->set_pos( koord( 76, label.back()->get_pos().y ) );
+	clear_dirty();
+
+	ypos+=105;
+
 	set_groesse( koord(width, ypos) );
 }
 
@@ -473,6 +529,7 @@ void settings_general_stats_t::read(einstellungen_t *sets)
 	READ_BOOL_VALUE( sets->numbered_stations );
 	READ_NUM_VALUE( umgebung_t::show_names );
 	READ_NUM_VALUE( umgebung_t::show_month );
+	READ_BOOL_VALUE( umgebung_t::add_player_name_to_message );
 
 	READ_NUM_VALUE( sets->bits_per_month );
 	READ_NUM_VALUE( sets->use_timeline );
@@ -505,7 +562,15 @@ void settings_general_stats_t::read(einstellungen_t *sets)
 	READ_NUM_VALUE( umgebung_t::cursor_overlay_color );
 	READ_BOOL_VALUE( umgebung_t::left_to_right_graphs );
 
-	umgebung_t::savegame_version_str = version[ savegame.get_selection() ];
+	int selected = savegame.get_selection();
+	if(  0 <= selected  &&  selected < lengthof(version)  ) {
+		umgebung_t::savegame_version_str = version[ selected ];
+	}
+
+	const int selected_ex = savegame_ex.get_selection();
+	if (0 <= selected_ex  &&  selected_ex < lengthof(version_ex)) {
+		umgebung_t::savegame_ex_version_str = version_ex[ selected_ex ];
+	}
 }
 
 
@@ -563,6 +628,7 @@ void settings_economy_stats_t::init(einstellungen_t *sets)
 	INIT_BOOL( "first_beginner", sets->get_beginner_mode() );
 	INIT_NUM( "beginner_price_factor", sets->get_beginner_price_factor(), 1, 25000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_BOOL( "allow_buying_obsolete_vehicles", sets->get_allow_buying_obsolete_vehicles() );
+	INIT_NUM( "used_vehicle_reduction", sets->get_used_vehicle_reduction(), 0, 1000, gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR
 	INIT_BOOL( "just_in_time", sets->get_just_in_time() );
 	INIT_BOOL( "crossconnect_factories", sets->is_crossconnect_factories() );
@@ -590,7 +656,7 @@ void settings_economy_stats_t::init(einstellungen_t *sets)
 	SEPERATOR
 	INIT_BOOL( "random_pedestrians", sets->get_random_pedestrians() );
 	INIT_BOOL( "stop_pedestrians", sets->get_show_pax() );
-	INIT_NUM( "citycar_level", sets->get_verkehr_level(), 0, 16, 12, false );
+	INIT_NUM( "citycar_level", sets->get_verkehr_level(), 0, 16, 1, false );
 	INIT_NUM( "default_citycar_life", sets->get_stadtauto_duration(), 1, 1200, 12, false );
 
 	clear_dirty();
@@ -610,6 +676,7 @@ void settings_economy_stats_t::read( einstellungen_t *sets )
 	READ_BOOL_VALUE( sets->beginner_mode );
 	READ_NUM_VALUE( sets->beginner_price_factor );
 	READ_BOOL_VALUE( sets->allow_buying_obsolete_vehicles );
+	READ_NUM_VALUE( sets->used_vehicle_reduction );
 
 	READ_BOOL_VALUE( sets->just_in_time );
 	READ_BOOL_VALUE( sets->crossconnect_factories );

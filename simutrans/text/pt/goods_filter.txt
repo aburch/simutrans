@@ -43,7 +43,7 @@ O <em>valor</em> é a renda recebida pelo transporte de uma unidade daquela carga
 </p>
 <p>
 A <em>porcentagem</em> é a porcentagem de lucro extra recebido caso o <a href="convoiinfo.txt">Comboio</a> utilizado seja capaz de transportar a carga na velocidade necessária para ganhar o bônus (ou em alguns casos em penalidade, caso o Comboio seja muito lento).<br>
-A fórmula usada para calcular o lucro é muito complexa e consideraa velocidade máxima de um Comboio com a média da velocidade máxima dos outros veículos (e não apenas do veículo visto no jogo).
+A fórmula usada para calcular o lucro é muito complexa e considera a velocidade máxima de um Comboio com a média da velocidade máxima dos outros veículos (e não apenas do veículo visto no jogo).
 </p>
 <p>
 A <em>categoria da carga</em> indica o tipo de veículo necessário para o transporte daquela carga. Cargas especiais precisam de veículos específicos.<br>

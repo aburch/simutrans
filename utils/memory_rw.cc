@@ -4,12 +4,11 @@
 #include <stdlib.h>
 #include "../simdebug.h"
 
-#undef SIM_BIG_ENDIAN
 
-void memory_rw_t::init( void *start, uint32 max, bool rw )
+memory_rw_t::memory_rw_t( void *ptr, uint32 max, bool saving )
 {
-	saving = rw;
-	ptr = (char *)start;
+	this->saving = saving;
+	this->ptr = (char *)ptr;
 	index = 0;
 	max_size = max;
 	overflow = false;
@@ -81,11 +80,11 @@ void memory_rw_t::rdwr_short(uint16 &i)
 void memory_rw_t::rdwr_long(sint32 &l)
 {
 #ifdef SIM_BIG_ENDIAN
-	uint32 ii;
+	sint32 ii;
 	if(is_saving()) {
 		ii = endian(l);
 	}
-	rdwr(&ii, sizeof(uint32));
+	rdwr(&ii, sizeof(sint32));
 	if(is_loading()) {
 		l = endian(ii);
 	}
@@ -145,4 +144,18 @@ void memory_rw_t::rdwr_str(char *&s)
 			s[len] = '\0';
 		}
 	}
+}
+
+
+void memory_rw_t::append(const memory_rw_t &mem)
+{
+	assert(saving  &&  mem.saving);
+	rdwr(mem.ptr, mem.get_current_index());
+}
+
+
+void memory_rw_t::append_tail(const memory_rw_t &mem)
+{
+	assert(saving  &&  !mem.saving);
+	rdwr(mem.ptr + mem.get_current_index(), mem.max_size - mem.get_current_index());
 }

@@ -15,10 +15,14 @@
 #include "components/list_button.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/network.h"
+#include "../dataobj/network_file_transfer.h"
+#include "../dataobj/network_cmp_pakset.h"
 #include "../dataobj/umgebung.h"
 #include "../dataobj/pakset_info.h"
+#include "../player/simplay.h"
 #include "server_frame.h"
 #include "messagebox.h"
+#include "help_frame.h"
 
 
 
@@ -34,29 +38,29 @@ server_frame_t::server_frame_t(karte_t* w) :
 	update_info();
 
 	sint16 pos_y = 4;
-	serverlist.set_pos( koord(2,pos_y) );
-	serverlist.set_groesse( koord(236,BUTTON_HEIGHT) );
-	serverlist.add_listener(this);
-	serverlist.set_selection( 0 );
-	add_komponente( &serverlist );
 
-	pos_y += 6+BUTTON_HEIGHT;
-	add.init( button_t::box, "add server", koord( 4, pos_y ), koord( 112, BUTTON_HEIGHT) );
-	add.add_listener(this);
-	add_komponente( &add );
+	// only show serverlist, when not already in network mode
+	if(  !umgebung_t::networkmode  ) {
+		serverlist.set_pos( koord(2,pos_y) );
+		serverlist.set_groesse( koord(236,BUTTON_HEIGHT) );
+		serverlist.add_listener(this);
+		serverlist.set_selection( 0 );
+		add_komponente( &serverlist );
+		pos_y += 6+BUTTON_HEIGHT;
 
-	if(  !show_all_rev.pressed  ) {
-		show_all_rev.init( button_t::square_state, "show all", koord( 124, pos_y+2 ), koord( 112, BUTTON_HEIGHT) );
-		show_all_rev.set_tooltip( "Show even servers with wrong version or pakset" );
-		show_all_rev.add_listener(this);
-		add_komponente( &show_all_rev );
+		add.init( button_t::box, "add server", koord( 4, pos_y ), koord( 112, BUTTON_HEIGHT) );
+		add.add_listener(this);
+		add_komponente( &add );
+
+		if(  !show_all_rev.pressed  ) {
+			show_all_rev.init( button_t::square_state, "Show all", koord( 124, pos_y+2 ), koord( 112, BUTTON_HEIGHT) );
+			show_all_rev.set_tooltip( "Show even servers with wrong version or pakset" );
+			show_all_rev.add_listener(this);
+			add_komponente( &show_all_rev );
+		}
+		pos_y += BUTTON_HEIGHT+8;
 	}
 
-	pos_y += BUTTON_HEIGHT+8;
-	date.set_pos( koord( 4, pos_y ) );
-	add_komponente( &date );
-
-	pos_y += 8*LINESPACE;
 	revision.set_pos( koord( 4, pos_y ) );
 	add_komponente( &revision );
 	show_all_rev.pressed = gi.get_game_engine_revision()==0;
@@ -71,19 +75,30 @@ server_frame_t::server_frame_t(karte_t* w) :
 	add_komponente( &pakset_checksum );
 #endif
 
-	pos_y += 5+LINESPACE;
+	pos_y += LINESPACE+8;
+	date.set_pos( koord( 240-4, pos_y ) );
+	date.set_align( gui_label_t::right );
+	add_komponente( &date );
 
-	find_mismatch.init( button_t::box, "find mismatch", koord( 4, pos_y ), koord( 112, BUTTON_HEIGHT) );
-	find_mismatch.add_listener(this);
-	add_komponente( &find_mismatch );
+	pos_y += LINESPACE*8+8;
 
-	join.init( button_t::box, "join game", koord( 124, pos_y ), koord( 112, BUTTON_HEIGHT) );
-	join.add_listener(this);
-	add_komponente( &join );
+	if(  !umgebung_t::networkmode  ) {
+		find_mismatch.init( button_t::box, "find mismatch", koord( 4, pos_y ), koord( 112, BUTTON_HEIGHT) );
+		find_mismatch.add_listener(this);
+		add_komponente( &find_mismatch );
 
-	update_serverlist( gi.get_game_engine_revision()*show_all_rev.pressed, show_all_rev.pressed ? NULL : gi.get_pak_name() );
+		join.init( button_t::box, "join game", koord( 124, pos_y ), koord( 112, BUTTON_HEIGHT) );
+		join.add_listener(this);
+		add_komponente( &join );
 
-	pos_y += 6+BUTTON_HEIGHT+16;
+		// only update serverlist, when not already in network mode
+		// otherwise desync to current game may happen
+		update_serverlist( gi.get_game_engine_revision()*show_all_rev.pressed, show_all_rev.pressed ? NULL : gi.get_pak_name() );
+
+		pos_y += 6+BUTTON_HEIGHT;
+	}
+	pos_y += 16;
+
 	set_fenstergroesse( koord( 240, pos_y ) );
 	set_min_windowsize( koord( 240, pos_y ) );
 	set_resizemode( no_resize );
@@ -168,11 +183,14 @@ void server_frame_t::update_info()
 		case umgebung_t::DATE_FMT_GERMAN:
 		case umgebung_t::DATE_FMT_MONTH:
 		case umgebung_t::DATE_FMT_SEASON:
+		case umgebung_t::DATE_FMT_GERMAN_NO_SEASON:
 			time.printf( "%s %d", month, gi.get_current_year() );
 			break;
 
 		case umgebung_t::DATE_FMT_US:
 		case umgebung_t::DATE_FMT_JAPANESE:
+		case umgebung_t::DATE_FMT_JAPANESE_NO_SEASON:
+		case umgebung_t::DATE_FMT_US_NO_SEASON:
 			time.printf( "%i/%s", gi.get_current_year(), month );
 			break;
 	}
@@ -183,7 +201,7 @@ void server_frame_t::update_info()
 bool server_frame_t::update_serverlist( uint revision, const char *pakset )
 {
 	// download list from main server
-	if(  const char *err = network_download_http( "simutrans-germany.com:80", "/serverlist/data/serverlist.txt", "serverlist.txt" )  ) {
+	if(  const char *err = network_download_http( "simutrans-germany.com:80", "/serverlist_ex/data/serverlist.txt", "serverlist.txt" )  ) {
 		dbg->warning( "server_frame_t::update_serverlist", "could not download list: %s", err );
 		return false;
 	}
@@ -243,10 +261,11 @@ bool server_frame_t::update_serverlist( uint revision, const char *pakset )
 
 bool server_frame_t::infowin_event(const event_t *ev)
 {
+	bool swallowed = gui_frame_t::infowin_event( ev );
 	if(  ev->ev_class == EVENT_KEYBOARD  &&  ev->ev_code == SIM_KEY_ENTER  ) {
 		action_triggered( &serverlist, value_t(serverlist.get_selection()) );
 	}
-	return gui_frame_t::infowin_event( ev );
+	return swallowed;
 }
 
 
@@ -254,9 +273,9 @@ bool server_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 {
 	if(  &serverlist == komp  ) {
 		if(  p.i<=-1  ) {
+			join.disable();
 			gi = gameinfo_t(welt);
 			update_info();
-			join.disable();
 		}
 		else {
 			join.disable();
@@ -284,14 +303,30 @@ bool server_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 		update_serverlist( gi.get_game_engine_revision()*show_all_rev.pressed, show_all_rev.pressed ? NULL : gi.get_pak_name() );
 	}
 	else if(  &join == komp  ) {
-		std::string filename = "net:";
-		filename += serverlist.get_element(serverlist.get_selection())->get_text();
-		destroy_win(this);
-		welt->get_message()->clear();
-		welt->laden(filename.c_str());
+		if(  serverlist.get_selection()==-1  ) {
+			dbg->error( "server_frame_t::action_triggered()", "join pressed without valid selection" );
+			join.disable();
+		}
+		else {
+			std::string filename = "net:";
+			filename += serverlist.get_element(serverlist.get_selection())->get_text();
+			destroy_win(this);
+			welt->laden(filename.c_str());
+		}
 	}
 	else if(  &find_mismatch == komp  ) {
-		// to be implemented
+		if (gui_frame_t *info = win_get_magic(magic_pakset_info_t)) {
+			top_win(info);
+		}
+		else {
+			std::string msg;
+			network_compare_pakset_with_server(serverlist.get_element(serverlist.get_selection())->get_text(), msg);
+			if(  !msg.empty()  ) {
+				help_frame_t *win = new help_frame_t();
+				win->set_text(msg.c_str());
+				create_win(win, w_info, magic_pakset_info_t);
+			}
+		}
 	}
 	return true;
 }
@@ -301,23 +336,31 @@ void server_frame_t::zeichnen(koord pos, koord gr)
 {
 	gui_frame_t::zeichnen( pos, gr );
 
-	sint16 pos_y = pos.y+16+14+BUTTON_HEIGHT*2;
-	display_ddd_box_clip( pos.x+4, pos_y, 240-8, 0, MN_GREY0, MN_GREY4);
+	sint16 pos_y = pos.y+16;
+	if(  !umgebung_t::networkmode  ) {
+		pos_y += 10+BUTTON_HEIGHT*2+4;
+		display_ddd_box_clip( pos.x+4, pos_y, 240-8, 0, MN_GREY0, MN_GREY4);
+	}
 
-	pos_y += 6+LINESPACE;
-	const koord mapsize( gi.get_map()->get_width(), gi.get_map()->get_height() );
-
-	display_ddd_box_clip(pos.x+3, pos_y-1, mapsize.x+2, mapsize.y+2, MN_GREY0,MN_GREY4);
-	display_array_wh(pos.x+4, pos_y, mapsize.x, mapsize.y, gi.get_map()->to_array() );
-
-	display_multiline_text( pos.x+4+max(mapsize.x,proportional_string_width(date.get_text_pointer()))+2+10, date.get_pos().y+pos.y+16, buf, COL_BLACK );
 #if DEBUG>=4
-	pos_y += 10*LINESPACE - 1;
-#else
-	pos_y += 9*LINESPACE - 1;
+	pos_y += LINESPACE;
 #endif
+	pos_y += LINESPACE*2+8;
 	display_ddd_box_clip( pos.x+4, pos_y, 240-8, 0, MN_GREY0, MN_GREY4);
 
-	// drawing twice, but otherwise it will not overlay image
-	serverlist.zeichnen( pos+koord(0,16) );
+	pos_y += 4;
+	display_multiline_text( pos.x+4, pos_y, buf, COL_BLACK );
+
+	pos_y += LINESPACE*8;
+	const koord mapsize( gi.get_map()->get_width(), gi.get_map()->get_height() );
+	display_ddd_box_clip( pos.x+240-7-mapsize.x, pos_y-mapsize.y-3, mapsize.x+2, mapsize.y+2, MN_GREY0,MN_GREY4);
+	display_array_wh( pos.x+240-6-mapsize.x, pos_y-mapsize.y-2, mapsize.x, mapsize.y, gi.get_map()->to_array() );
+
+	if(  !umgebung_t::networkmode  ) {
+		pos_y += 4;
+		display_ddd_box_clip( pos.x+4, pos_y, 240-8, 0, MN_GREY0, MN_GREY4);
+
+		// drawing twice, but otherwise it will not overlay image
+		serverlist.zeichnen( pos+koord(0,16) );
+	}
 }

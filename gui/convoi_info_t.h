@@ -18,6 +18,7 @@
 #include "../convoihandle_t.h"
 #include "../linehandle_t.h"
 #include "../simconvoi.h"
+#include "../simwin.h"
 
 #include "../utils/cbuffer_t.h"
 
@@ -31,6 +32,7 @@
 #define BUTTON_COUNT MAX_CONVOI_COST
 #endif
 
+
 /**
  * Displays an information window for a convoi
  *
@@ -43,6 +45,8 @@ public:
 	enum sort_mode_t { by_destination = 0, by_via = 1, by_amount_via = 2, by_amount = 3, by_origin = 4, by_origin_sum = 5, SORT_MODES = 6 };
 
 private:
+	static karte_t *welt;
+
 	gui_scrollpane_t scrolly;
 	gui_textarea_t text;
 	ding_view_t view;
@@ -81,17 +85,26 @@ private:
 	*/
 	cbuffer_t freight_info;
 
-
 #ifdef ACCELERATION_BUTTON
 	//Bernd Gabriel, Sep, 24 2009: acceleration curve:
 	sint64 physics_curves[MAX_MONTHS][1];
 #endif
 
-	char cnv_name[256];
+	char cnv_name[256],old_cnv_name[256];
+
+	// resets textinput to current convoi name
+	// necessary after convoi was renamed
+	void reset_cnv_name();
+
+	// rename selected convoi
+	// checks if possible / necessary
+	void rename_cnv();
 
 	static bool route_search_in_progress;
 
 	static const char *sort_text[SORT_MODES];
+
+	void show_hide_statistics( bool show );
 
 public:
 	//static bool route_search_in_progress;
@@ -115,10 +128,10 @@ public:
 	void zeichnen(koord pos, koord gr);
 
 	/**
-	 * resize window in response to a resize event
+	 * Set window size and adjust component sizes and/or positions accordingly
 	 * @author Hj. Malthaner
 	 */
-	void resize(const koord delta);
+	virtual void set_fenstergroesse(koord groesse);
 
 	/**
 	 * This method is called if an action is triggered
@@ -129,4 +142,16 @@ public:
 	 * V.Meyer
 	 */
 	bool action_triggered( gui_action_creator_t *komp, value_t extra);
+
+	/**
+	 * called when convoi was renamed
+	 */
+	void update_data() { reset_cnv_name(); set_dirty(); }
+
+	// this contructor is only used during loading
+	convoi_info_t(karte_t *welt);
+
+	void rdwr( loadsave_t *file );
+
+	uint32 get_rdwr_id() { return magic_convoi_info; }
 };

@@ -44,9 +44,7 @@ public:
 	static uint8 convoi_to_line_catgory[MAX_CONVOI_COST];
 
 protected:
-	simline_t(karte_t* welt, spieler_t*sp);
-
-	schedule_t * fpl,  *old_fpl;
+	schedule_t * fpl;
 	spieler_t *sp;
 	linetype type;
 
@@ -58,15 +56,10 @@ private:
 
 	/**
 	 * Handle for ourselves. Can be used like the 'this' pointer
+	 * Initialized by constructors
 	 * @author Hj. Malthaner
 	 */
 	linehandle_t self;
-
-	/*
-	 * the line id
-	 * @author hsiegeln
-	 */
-	uint16 id;
 
 	/*
 	 * the current state saved as color
@@ -92,6 +85,11 @@ private:
 	 */
 	sint64 financial_history[MAX_MONTHS][MAX_LINE_COST];
 
+	/**
+	 * creates empty schedule with type depending on line-type
+	 */
+	void create_schedule();
+
 	void init_financial_history();
 
 	/*
@@ -102,6 +100,9 @@ private:
 	bool start_reversed;
 
 public:
+	simline_t(karte_t* welt, spieler_t *sp, linetype type);
+	simline_t(karte_t* welt, spieler_t *sp, linetype type, loadsave_t *file);
+
 	~simline_t();
 
 	linehandle_t get_handle() const { return self; }
@@ -110,7 +111,7 @@ public:
 	 * add convoy to route
 	 * @author hsiegeln
 	 */
-	void add_convoy(convoihandle_t cnv);
+	void add_convoy(convoihandle_t cnv, bool from_loading = false);
 
 	/*
 	 * remove convoy from route
@@ -142,11 +143,7 @@ public:
 	 */
 	schedule_t * get_schedule() { return fpl; }
 
-	void set_schedule(schedule_t* fpl)
-	{
-		delete this->fpl;
-		this->fpl = fpl;
-	}
+	void set_schedule(schedule_t* fpl);
 
 	/*
 	 * get name of line
@@ -155,14 +152,15 @@ public:
 	const char *get_name() const { return name.c_str(); }
 	void set_name(const char *str) { name = str; }
 
-	uint16 get_line_id() const {return id;}
-
-	void set_line_id(uint32 id);
-
 	/*
 	 * load or save the line
 	 */
 	void rdwr(loadsave_t * file);
+
+	/**
+	 * method to load/save linehandles
+	 */
+	static void rdwr_linehandle_t(loadsave_t *file, linehandle_t &line);
 
 	/*
 	 * register line with stop
@@ -181,14 +179,6 @@ public:
 	 * renew line registration for stops
 	 */
 	void renew_stops();
-
-	int operator==(const simline_t &s) {
-		return id == s.id;
-	}
-
-	int operator!=(const simline_t &s) {
-		return ! (*this == s);
-	}
 
 	sint64* get_finance_history() { return *financial_history; }
 
@@ -210,14 +200,7 @@ public:
 
 	void new_month();
 
-	/*
-	 * called from line_management_gui.cc to prepare line for a change of its schedule
-	 */
-	void prepare_for_update();
-
 	linetype get_linetype() { return type; }
-
-	void set_linetype(linetype lt) { type = lt; }
 
 	const minivec_tpl<uint8> &get_goods_catg_index() const { return goods_catg_index; }
 
@@ -237,96 +220,10 @@ public:
 
 	bool get_withdraw() const { return withdraw; }
 
-public:
 	spieler_t *get_besitzer() const {return sp;}
 
 	void recalc_status();
 
-	// Added by : Knightly
-	bool is_schedule_updated() const;
-
-};
-
-
-
-class truckline_t : public simline_t
-{
-	public:
-		truckline_t(karte_t* welt, spieler_t* sp) : simline_t(welt, sp)
-		{
-			type = truckline;
-			set_schedule(new autofahrplan_t());
-		}
-};
-
-class trainline_t : public simline_t
-{
-	public:
-		trainline_t(karte_t* welt, spieler_t* sp) : simline_t(welt, sp)
-		{
-			type = trainline;
-			set_schedule(new zugfahrplan_t());
-		}
-};
-
-class shipline_t : public simline_t
-{
-	public:
-		shipline_t(karte_t* welt, spieler_t* sp) : simline_t(welt, sp)
-		{
-			type = shipline;
-			set_schedule(new schifffahrplan_t());
-		}
-};
-
-class airline_t : public simline_t
-{
-	public:
-		airline_t(karte_t* welt, spieler_t* sp) : simline_t(welt, sp)
-		{
-			type = airline;
-			set_schedule(new airfahrplan_t());
-		}
-};
-
-class monorailline_t : public simline_t
-{
-	public:
-		monorailline_t(karte_t* welt, spieler_t* sp) : simline_t(welt, sp)
-		{
-			type = monorailline;
-			set_schedule(new monorailfahrplan_t());
-		}
-};
-
-class tramline_t : public simline_t
-{
-	public:
-		tramline_t(karte_t* welt, spieler_t* sp) : simline_t(welt, sp)
-		{
-			type = tramline;
-			set_schedule(new tramfahrplan_t());
-		}
-};
-
-class narrowgaugeline_t : public simline_t
-{
-	public:
-		narrowgaugeline_t(karte_t* welt, spieler_t* sp) : simline_t(welt, sp)
-		{
-			type = narrowgaugeline;
-			set_schedule(new narrowgaugefahrplan_t());
-		}
-};
-
-class maglevline_t : public simline_t
-{
-	public:
-		maglevline_t(karte_t* welt, spieler_t* sp) : simline_t(welt, sp)
-		{
-			type = maglevline;
-			set_schedule(new maglevfahrplan_t());
-		}
 };
 
 #endif

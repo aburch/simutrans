@@ -31,7 +31,7 @@ private:
 	 * Die eigentliche Routensuche
 	 * @author Hj. Malthaner
 	 */
-	bool intern_calc_route(karte_t *w, koord3d start, koord3d ziel, fahrer_t *fahr, const uint32 max_kmh, const uint32 max_cost, const uint32 max_weight);
+	bool intern_calc_route(karte_t *w, koord3d start, koord3d ziel, fahrer_t *fahr, const sint32 max_kmh, const uint32 max_cost, const uint32 max_weight);
 
 	koord3d_vector_t route;           // Die Koordinaten fuer die Fahrtroute
 
@@ -151,17 +151,17 @@ public:
 	 */
 	bool append_straight_route( karte_t *w, koord3d );
 
-	/* find the route to an unknow location (where tile_found becomes true)
+	/* find the route to an unknown location (where tile_found becomes true)
 	* the max_depth is the maximum length of a route
 	* @author prissi
 	*/
-	bool find_route(karte_t *w, const koord3d start, fahrer_t *fahr, const uint32 max_khm, uint8 start_dir, uint32 max_depth );
+	bool find_route(karte_t *w, const koord3d start, fahrer_t *fahr, const uint32 max_khm, uint8 start_dir, uint32 weight, uint32 max_depth );
 
 	/**
 	 * berechnet eine route von start nach ziel.
 	 * @author Hj. Malthaner
 	 */
-	bool calc_route(karte_t *welt, koord3d start, koord3d ziel, fahrer_t *fahr, const uint32 max_speed_kmh, const uint32 weight, const uint32 max_cost=0xFFFFFFFF);
+	bool calc_route(karte_t *welt, koord3d start, koord3d ziel, fahrer_t *fahr, const sint32 max_speed_kmh, const uint32 weight, const uint32 max_cost=0xFFFFFFFF);
 
 	/**
 	 * Lädt/speichert eine Route

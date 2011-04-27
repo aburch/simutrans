@@ -13,9 +13,9 @@
 
 #include "../bauer/brueckenbauer.h"
 
-#include "../boden/grund.h"
+#include "../besch/bruecke_besch.h"
 
-#include "../gui/thing_info.h"
+#include "../boden/grund.h"
 
 #include "../dataobj/loadsave.h"
 #include "../dings/pillar.h"

@@ -15,8 +15,7 @@
 
 news_window::news_window(const char* t, PLAYER_COLOR_VAL title_color) :
 	gui_frame_t("Meldung"),
-	text(strdup(translator::translate(t))),
-	textarea(text, 160),
+	textarea(translator::translate(t), 160),
 	color(title_color)
 {
 	textarea.set_pos( koord(10, 10) );
@@ -42,13 +41,6 @@ void news_window::extend_window_with_component(gui_komponente_t *const component
 		textarea.recalc_size();
 		set_fenstergroesse( koord(textarea.get_groesse().x + 20, textarea.get_groesse().y + 36) );
 	}
-}
-
-
-news_window::~news_window()
-{
-	// allocated by strdup() ...
-	free( text );
 }
 
 

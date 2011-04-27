@@ -76,9 +76,9 @@ settings_frame_t::settings_frame_t(einstellungen_t *s) : gui_frame_t("Setting"),
 	tabs_experimental.add_tab(&scrolly_exp_revenue, translator::translate("Passengers"));
 
 	height += tabs.get_pos().y + tabs.HEADER_VSIZE + 20;
-	set_fenstergroesse(koord(420, height));
+	set_fenstergroesse(koord(460, height));
 	// a min-size for the window
-	set_min_windowsize(koord(420, 200));
+	set_min_windowsize(koord(460, 200));
 
 	set_resizemode(diagonal_resize);
 	resize(koord(0,0));

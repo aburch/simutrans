@@ -8,8 +8,11 @@
 #ifndef banner_h
 #define banner_h
 
+#include "components/gui_button.h"
+#include "components/gui_image.h"
 #include "gui_frame.h"
 
+class karte_t;
 
 /**
  * Eine Klasse, die ein Fenster zur Auswahl von bis zu acht
@@ -17,17 +20,24 @@
  *
  * @author Hj. Malthaner
  */
-class banner_t : public gui_frame_t
+class banner_t : public gui_frame_t, action_listener_t
 {
 private:
 	sint32 last_ms;
 	int line;
 	sint16 xoff, yoff;
 
+	button_t new_map, load_map, join_map, quit;
+	gui_image_t logo;
+
+	karte_t *welt;
+
 public:
-	banner_t();
+	banner_t( karte_t *w );
 
 	bool has_sticky() const { return false; }
+
+	virtual bool has_title() const { return false; }
 
 	/**
 	* Fenstertitel
@@ -41,11 +51,6 @@ public:
 	* @author Hj. Malthaner
 	*/
 	PLAYER_COLOR_VAL get_titelcolor() const {return WIN_TITEL; }
-
-	/**
-	* @return gibt wunschgroesse für das beobachtungsfenster zurueck
-	*/
-	koord get_fenstergroesse() const { return koord(display_get_width(),display_get_height()+48); }
 
 	/* returns true, if inside window area ...
 	* @author Hj. Malthaner
@@ -65,6 +70,8 @@ public:
 	* @author Hj. Malthaner
 	*/
 	void zeichnen(koord pos, koord gr);
+
+	bool action_triggered( gui_action_creator_t *komp, value_t extra);
 };
 
 #endif

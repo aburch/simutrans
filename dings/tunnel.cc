@@ -45,9 +45,13 @@ tunnel_t::tunnel_t(karte_t *welt, koord3d pos, spieler_t *sp, const tunnel_besch
 }
 
 
+waytype_t tunnel_t::get_waytype() const
+{
+	return besch ? besch->get_waytype() : invalid_wt;
+}
 
-void
-tunnel_t::calc_bild()
+
+void tunnel_t::calc_bild()
 {
 	const grund_t *gr = welt->lookup(get_pos());
 	if(gr->ist_karten_boden()) {
@@ -118,7 +122,7 @@ void tunnel_t::laden_abschliessen()
 	}
 
 	if(sp) {
-		// change maintainance
+		// change maintenance
 		weg_t *weg = gr->get_weg(besch->get_waytype());
 		if(weg) {
 			weg->set_max_speed(besch->get_topspeed());
@@ -131,7 +135,7 @@ void tunnel_t::laden_abschliessen()
 
 
 
-// correct speed and maitainace
+// correct speed and maintenance
 void tunnel_t::entferne( spieler_t *sp2 )
 {
 	if(sp2==NULL) {

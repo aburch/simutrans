@@ -1,37 +1,37 @@
-<h1>Simutrans Általános Leírása</h1>
+<h1>Simutrans ÃltalÃ¡nos LeÃ­rÃ¡sa</h1>
 
 <p>
-A Simutrans egy ingyenesen letölthetõ gazdasági szimulációs program.
-Fõ cél a közlekedési hálózat felépítése és gazdaságos mûködtetése.
-Egyelõre közúti, villamos, vasúti és tengeri közlekedési vonalakat építhetsz.
-Minden egyes gazdasági egység szerzõdésben áll egy õt kiszolgáló vagy
-az õ termékét felhasználó egységgel. Ezeket kell összekötni a
-leggazdaságosaban. Alapvetõen 3 fajta termék létezik: nyersanyag,
-darabárú és szolgáltatás. Minden egyes termékcsoport szállítható
-olyan szerelvénnyel ami ugyanabba csoportba tartozik. Csak bizonyos
-anyagok igényelnek speciális szállítóeszközöket. Talán az elsõ és
-könnyebb lépés az árúk szálltása. Ez a játék elsõ felében könnyebb elérni.
-A második fázisban jönnek a szolgáltatások, vagyis az utas- és a
-postaszállítás. Ez már egy picit nehezebb elérni ugyanakkor sokkal
-jövedelmezõbb. A játékhoz több úgymond játékcsomag alkalmazható.
-Jelenleg a 64x64 pixeles és a 128x128 pixeles felbontású variációk a
-legelterjedtebbek. Azt, hogy a játék melyéket alkalmazza a <em>\config\simuconf.tab</em>
-fájlban lehet beállítani.
-Létezik egy csak japán épületeket és jármûveket tartalmazó csomag is.
-További infók a <em>forum.simutrans.com</em> vagy <em>128.simutrans.com</em> honlapokon.
+A Simutrans egy ingyenesen letÃ¶lthetÃµ gazdasÃ¡gi szimulÃ¡ciÃ³s program.
+FÃµ cÃ©l a kÃ¶zlekedÃ©si hÃ¡lÃ³zat felÃ©pÃ­tÃ©se Ã©s gazdasÃ¡gos mÃ»kÃ¶dtetÃ©se.
+EgyelÃµre kÃ¶zÃºti, villamos, vasÃºti Ã©s tengeri kÃ¶zlekedÃ©si vonalakat Ã©pÃ­thetsz.
+Minden egyes gazdasÃ¡gi egysÃ©g szerzÃµdÃ©sben Ã¡ll egy Ãµt kiszolgÃ¡lÃ³ vagy
+az Ãµ termÃ©kÃ©t felhasznÃ¡lÃ³ egysÃ©ggel. Ezeket kell Ã¶sszekÃ¶tni a
+leggazdasÃ¡gosaban. AlapvetÃµen 3 fajta termÃ©k lÃ©tezik: nyersanyag,
+darabÃ¡rÃº Ã©s szolgÃ¡ltatÃ¡s. Minden egyes termÃ©kcsoport szÃ¡llÃ­thatÃ³
+olyan szerelvÃ©nnyel ami ugyanabba csoportba tartozik. Csak bizonyos
+anyagok igÃ©nyelnek speciÃ¡lis szÃ¡llÃ­tÃ³eszkÃ¶zÃ¶ket. TalÃ¡n az elsÃµ Ã©s
+kÃ¶nnyebb lÃ©pÃ©s az Ã¡rÃºk szÃ¡lltÃ¡sa. Ez a jÃ¡tÃ©k elsÃµ felÃ©ben kÃ¶nnyebb elÃ©rni.
+A mÃ¡sodik fÃ¡zisban jÃ¶nnek a szolgÃ¡ltatÃ¡sok, vagyis az utas- Ã©s a
+postaszÃ¡llÃ­tÃ¡s. Ez mÃ¡r egy picit nehezebb elÃ©rni ugyanakkor sokkal
+jÃ¶vedelmezÃµbb. A jÃ¡tÃ©khoz tÃ¶bb Ãºgymond jÃ¡tÃ©kcsomag alkalmazhatÃ³.
+Jelenleg a 64x64 pixeles Ã©s a 128x128 pixeles felbontÃ¡sÃº variÃ¡ciÃ³k a
+legelterjedtebbek. Azt, hogy a jÃ¡tÃ©k melyÃ©ket alkalmazza a <em>\config\simuconf.tab</em>
+fÃ¡jlban lehet beÃ¡llÃ­tani.
+LÃ©tezik egy csak japÃ¡n Ã©pÃ¼leteket Ã©s jÃ¡rmÃ»veket tartalmazÃ³ csomag is.
+TovÃ¡bbi infÃ³k a <em>forum.simutrans.com</em> vagy <em>128.simutrans.com</em> honlapokon.
 
 </p>
 <p>
-<a href="keys.txt">Billentyûzet parancsok</a>
+<a href="keys.txt">BillentyÃ»zet parancsok</a>
 </p>
 
 <p>
-A játék eredeti kiötlõje: (c) Hj. Malthaner
+A jÃ¡tÃ©k eredeti kiÃ¶tlÃµje: (c) Hj. Malthaner
 </p>
 <p>
-A mostani verziót a Simutrans Team csapata fejleszti.
+A mostani verziÃ³t a Simutrans Team csapata fejleszti.
 </p>
 <p>
-0.86.10.04 (2005.10.16.) verziót magyarra fordította:<br>Phritzy <em>(phritzy74@freemail.hu)</em><br>
-(hibajelzéseket a fenti e-mail címre várok :) )
+0.86.10.04 (2005.10.16.) verziÃ³t magyarra fordÃ­totta:<br>Phritzy <em>(phritzy74@freemail.hu)</em><br>
+(hibajelzÃ©seket a fenti e-mail cÃ­mre vÃ¡rok :) )
 </p>

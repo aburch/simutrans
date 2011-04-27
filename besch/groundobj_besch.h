@@ -36,7 +36,7 @@ class groundobj_besch_t : public obj_besch_std_name_t {
 	climate_bits allowed_climates;
 	uint16 distribution_weight;
 	uint8  number_of_seasons;
-	uint32  speed;
+	sint32  speed;
 	uint16 index;
 	bool  trees_on_top;
 	waytype_t waytype;
@@ -61,7 +61,7 @@ public:
 
 	uint8 get_seasons() const { return number_of_seasons; }
 
-	uint32 get_speed() const { return speed; }
+	sint32 get_speed() const { return speed; }
 
 	bool can_built_trees_here() const { return trees_on_top; }
 

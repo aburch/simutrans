@@ -32,3 +32,4 @@
 人工的な造成地やその周囲を、できる限り自然な状態に戻します。<br>
 線路/道路の終端上では使用できません。
 </p>
+<style type="text/css"><!-- i { color: #000000; font-style: normal; background-color: #ffff99; } --></style>

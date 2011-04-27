@@ -143,7 +143,7 @@ private:
 	
 	uint16 tractive_effort; // tractive effort / force in kN
 
-	float air_resistance; // The "cf" value in physics calculations.
+	uint16 air_resistance; // The "cf" value in physics calculations.
 
 	// these values are not stored and therefore calculated in loaded():
 	uint32 geared_power; // @author: Bernd Gabriel, Nov  4, 2009: == leistung * gear in kW
@@ -354,7 +354,7 @@ public:
 	waytype_t get_waytype() const { return static_cast<waytype_t>(typ); }
 	uint16 get_zuladung() const { return zuladung; }
 	uint32 get_preis() const { return preis; }
-	uint16 get_geschw() const { return geschw; }
+	sint32 get_geschw() const { return geschw; }
 	uint16 get_gewicht() const { return gewicht; }
 	uint16 get_betriebskosten() const { return betriebskosten; }
 	uint16 get_betriebskosten(karte_t *welt) const; //Overloaded method - includes increase for obsolescence.
@@ -372,12 +372,12 @@ public:
 
 	// BG, 15.06.2009: the formula for obsolescence formerly implemented twice in get_betriebskosten() and get_fixed_maintenance()
 	uint32 calc_running_cost(const karte_t *welt, uint32 base_cost) const;	
-	float get_power_force_ratio() const;
+	uint16 get_power_force_ratio_percentage() const;
 	uint32 calc_max_force(const uint32 power) const { 
-		return power ? (uint32)(power / get_power_force_ratio() + 0.5f) : 0; 
+		return power ? (uint32)(power / get_power_force_ratio_percentage() + 50) / 100 : 0; 
 	}
 	uint32 calc_max_power(const uint32 force) const { 
-		return force ? (uint32)(force * get_power_force_ratio() + 0.5f) : 0; 
+		return force ? (uint32)(force * get_power_force_ratio_percentage() + 50) / 100 : 0; 
 	}
 	uint32 get_leistung() const { 
 		return leistung ? leistung : calc_max_power(tractive_effort); 
@@ -453,7 +453,8 @@ public:
 
 	bool get_can_be_at_rear() const { return can_be_at_rear; }
 
-	float get_air_resistance() const { return air_resistance; }
+	//uint16 get_air_resistance() const { return air_resistance; }
+	double get_air_resistance() const { return (double)air_resistance / 100.0; }
 	
 	const way_constraints_of_vehicle_t& get_way_constraints() const { return way_constraints; }
 	void set_way_constraints(const way_constraints_of_vehicle_t& value) { way_constraints = value; }
@@ -462,11 +463,12 @@ public:
 	*@author: jamespetts*/
 	uint8 get_catering_level() const { return catering_level; }
 
-	void set_scale(float scale_factor)
+	void set_scale(uint16 scale_factor)
 	{ 
-		// BG: 29.08.2009: explicit typecasts avoid warnings
-		preis = (uint32)(preis == 0 ? 0 : (preis * scale_factor >= 1 ? preis * scale_factor : 1));
-		fixed_maintenance = (uint32)(fixed_maintenance == 0 ? 0 : (fixed_maintenance * scale_factor >= 1 ? fixed_maintenance * scale_factor : 1));
+		const uint32 scaled_price = set_scale_generic<uint32>(preis, scale_factor);
+		const uint32 scaled_maintenance =  set_scale_generic<uint32>(fixed_maintenance, scale_factor);
+		preis = (preis == 0 ? 0 : (scaled_price >= 1 ? scaled_price : 1));
+		fixed_maintenance = (uint32)(fixed_maintenance == 0 ? 0 :(scaled_maintenance >= 1 ? scaled_maintenance : 1));
 	}
 
 	/**
@@ -475,7 +477,7 @@ public:
 	 * Effective force in kN: force_index * welt->get_einstellungen()->get_global_power_factor() / GEAR_FACTOR
 	 * @author Bernd Gabriel
 	 */
-	uint32 get_effective_force_index(uint16 speed /* in m/s */ ) const;
+	uint32 get_effective_force_index(sint32 speed /* in m/s */ ) const;
 
 	/**
 	 * Get effective power index. 
@@ -483,7 +485,7 @@ public:
 	 * Effective power in kW: power_index * welt->get_einstellungen()->get_global_power_factor() / GEAR_FACTOR
 	 * @author Bernd Gabriel
 	 */
-	uint32 get_effective_power_index(uint16 speed /* in m/s */ ) const;
+	uint32 get_effective_power_index(sint32 speed /* in m/s */ ) const;
 
 	void calc_checksum(checksum_t *chk) const;
 };

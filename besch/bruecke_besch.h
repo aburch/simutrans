@@ -32,14 +32,16 @@ class bruecke_besch_t : public obj_besch_std_name_t {
     friend class bridge_reader_t;
 
 private:
-	uint32  topspeed;
+	sint32  topspeed;
 	uint32  preis;
+	uint32 scaled_price; // The price after scaling. @author: jamespetts
 
 	/**
 	* Maintenance cost per square/month
 	* @author Hj. Malthaner
 	*/
 	uint32 maintenance;
+	uint32 scaled_maintenance;
 
 	uint8  wegtyp;
 	uint8 pillars_every;	// =0 off
@@ -112,15 +114,27 @@ public:
 
 	waytype_t get_waytype() const { return static_cast<waytype_t>(wegtyp); }
 
-	sint32 get_preis() const { return preis; }
+	sint32 get_preis() const { return scaled_price; }
 
-	sint32 get_wartung() const { return maintenance; }
+	sint32 get_base_price() const { return preis; }
+
+	sint32 get_wartung() const { return scaled_maintenance; }
+
+	sint32 get_base_maintenance() const { return maintenance; }
+
+	void set_scale(uint16 scale_factor) 
+	{ 
+		const uint32 scaled_price_preliminary =  set_scale_generic<uint32>(preis, scale_factor);
+		const uint32 scaled_maintenance_preliminary =  set_scale_generic<uint32>(maintenance, scale_factor);
+		scaled_price = scaled_price_preliminary > 0 ? scaled_price_preliminary : 1; 
+		scaled_maintenance = scaled_maintenance_preliminary > 0 ? scaled_maintenance_preliminary : 1;
+	}
 
 	/**
 	 * Determines max speed in km/h allowed on this bridge
 	 * @author Hj. Malthaner
 	 */
-	uint32  get_topspeed() const { return topspeed; }
+	sint32  get_topspeed() const { return topspeed; }
 
 	/**
 	 * Determines max weight in tonnes for vehicles allowed on this bridge

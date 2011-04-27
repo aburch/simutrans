@@ -42,9 +42,9 @@ static const sint8 hours2night[] =
 
 
 
-void
-karte_ansicht_t::display(bool force_dirty)
+void karte_ansicht_t::display(bool force_dirty)
 {
+	DBG_DEBUG4("karte_ansicht_t::display", "starting ...");
 	display_set_image_proc(true);
 
 	uint32 rs = get_random_seed();
@@ -115,6 +115,7 @@ karte_ansicht_t::display(bool force_dirty)
 					+ 4*(menu_height -IMG_SIZE) -IMG_SIZE/2-1) / IMG_SIZE;
 
 	// first display ground
+	DBG_DEBUG4("karte_ansicht_t::display", "display ground");
 	int	y;
 	for(y=y_min; y<dpy_height+4*4; y++) {
 
@@ -153,6 +154,7 @@ karte_ansicht_t::display(bool force_dirty)
 
 	// and then things (and other ground)
 	// especially necessary for vehicles
+	DBG_DEBUG4("karte_ansicht_t::display", "display things");
 	for(y=y_min; y<dpy_height+4*4; y++) {
 
 		const sint16 ypos = y*(IMG_SIZE/4) + const_y_off;
@@ -201,6 +203,7 @@ karte_ansicht_t::display(bool force_dirty)
 	}
 
 	// and finally overlays (station coverage and signs)
+	DBG_DEBUG4("karte_ansicht_t::display", "display overlays");
 	for(y=y_min; y<dpy_height+4*4; y++) {
 
 		const sint16 ypos = y*(IMG_SIZE/4) + const_y_off;
@@ -231,6 +234,7 @@ karte_ansicht_t::display(bool force_dirty)
 		}
 	}
 	ding_t *zeiger = welt->get_zeiger();
+	DBG_DEBUG4("karte_ansicht_t::display", "display pointer");
 	if(zeiger) {
 		// better not try to twist your brain to follow the retransformation ...
 		const sint16 rasterweite=get_tile_raster_width();
@@ -260,8 +264,9 @@ karte_ansicht_t::display(bool force_dirty)
 		zeiger->clear_flag(ding_t::dirty);
 	}
 
+	DBG_DEBUG4("karte_ansicht_t::display", "display ticker");
 	if(welt) {
-		// finally update the ticker
+		// show players income/cost messages
 		for(int x=0; x<MAX_PLAYER_COUNT; x++) {
 			if(  welt->get_spieler(x)  ) {
 				welt->get_spieler(x)->display_messages();
@@ -274,4 +279,5 @@ karte_ansicht_t::display(bool force_dirty)
 	if(force_dirty) {
 		mark_rect_dirty_wc( 0, 0, display_get_width(), display_get_height() );
 	}
+	DBG_DEBUG4("karte_ansicht_t::display", "... ready");
 }

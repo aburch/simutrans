@@ -165,62 +165,62 @@ halt_list_filter_frame_t::~halt_list_filter_frame_t()
  */
 bool halt_list_filter_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 {
-    int i;
+	int i;
 
-    for(i = 0; i < FILTER_BUTTONS; i++) {
-	if(komp == filter_buttons + i) {
-	    main_frame->set_filter(filter_buttons_types[i], !main_frame->get_filter(filter_buttons_types[i]));
-	    main_frame->display_list();
-    	    return true;
+	for (i = 0; i < FILTER_BUTTONS; i++) {
+		if (komp == filter_buttons + i) {
+			main_frame->set_filter(filter_buttons_types[i], !main_frame->get_filter(filter_buttons_types[i]));
+			main_frame->display_list();
+			return true;
+		}
 	}
-    }
-    if(komp == &ware_alle_ab) {
-	main_frame->set_alle_ware_filter_ab(1);
-	main_frame->display_list();
-    	return true;
-    }
-    if(komp == &ware_keine_ab) {
-	main_frame->set_alle_ware_filter_ab(0);
-	main_frame->display_list();
-    	return true;
-    }
-    if(komp == &ware_invers_ab) {
-	main_frame->set_alle_ware_filter_ab(-1);
-	main_frame->display_list();
-    	return true;
-    }
-    if(komp == &ware_alle_an) {
-	main_frame->set_alle_ware_filter_an(1);
-	main_frame->display_list();
-    	return true;
-    }
-    if(komp == &ware_keine_an) {
-	main_frame->set_alle_ware_filter_an(0);
-	main_frame->display_list();
-    	return true;
-    }
-    if(komp == &ware_invers_an) {
-	main_frame->set_alle_ware_filter_an(-1);
-	main_frame->display_list();
-    	return true;
-    }
-    if(komp == &name_filter_input) {
-	main_frame->display_list();
-	return true;
-    }
-    return false;
+	if (komp == &ware_alle_ab) {
+		main_frame->set_alle_ware_filter_ab(1);
+		main_frame->display_list();
+		return true;
+	}
+	if (komp == &ware_keine_ab) {
+		main_frame->set_alle_ware_filter_ab(0);
+		main_frame->display_list();
+		return true;
+	}
+	if (komp == &ware_invers_ab) {
+		main_frame->set_alle_ware_filter_ab(-1);
+		main_frame->display_list();
+		return true;
+	}
+	if (komp == &ware_alle_an) {
+		main_frame->set_alle_ware_filter_an(1);
+		main_frame->display_list();
+		return true;
+	}
+	if (komp == &ware_keine_an) {
+		main_frame->set_alle_ware_filter_an(0);
+		main_frame->display_list();
+		return true;
+	}
+	if (komp == &ware_invers_an) {
+		main_frame->set_alle_ware_filter_an(-1);
+		main_frame->display_list();
+		return true;
+	}
+	if (komp == &name_filter_input) {
+		main_frame->display_list();
+		return true;
+	}
+	return false;
 }
 
 
 void halt_list_filter_frame_t::ware_item_triggered(const ware_besch_t *ware_ab, const ware_besch_t *ware_an)
 {
-    if(ware_ab) {
-	main_frame->set_ware_filter_ab(ware_ab, -1);
-    }
-    if(ware_an) {
-	main_frame->set_ware_filter_an(ware_an, -1);
-    }
-    main_frame->display_list();
+	if (ware_ab) {
+		main_frame->set_ware_filter_ab(ware_ab, -1);
+	}
+	if (ware_an) {
+		main_frame->set_ware_filter_an(ware_an, -1);
+	}
+	main_frame->display_list();
 }
 
 

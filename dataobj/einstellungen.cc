@@ -13,6 +13,7 @@
 #include "../simtools.h"
 #include "../simtypes.h"
 #include "../simdebug.h"
+#include "../simworld.h"
 #include "../bauer/wegbauer.h"
 #include "../besch/weg_besch.h"
 #include "../utils/simstring.h"
@@ -21,6 +22,8 @@
 #include "loadsave.h"
 #include "tabfile.h"
 #include "translator.h"
+
+#include "../tpl/minivec_tpl.h"
 
 
 #define NEVER 0xFFFFU
@@ -183,11 +186,21 @@ einstellungen_t::einstellungen_t() :
 			automaten[i] = false;
 			spieler_type[i] = spieler_t::EMPTY;
 		}
+		// undefined colors
+		default_player_color[i][0] = 255;
+		default_player_color[i][1] = 255;
 	}
+	default_player_color_random = false;
 
 	/* the big cost section */
 	freeplay = false;
 	starting_money = 20000000;
+	for(  int i=0; i<10; i++  ) {
+		startingmoneyperyear[i].year = 0;
+		startingmoneyperyear[i].money = 0;
+		startingmoneyperyear[i].interpol = 0;
+	}
+
 	maint_building = 5000;	// normal buildings
 
 	// stop buildings
@@ -231,48 +244,48 @@ einstellungen_t::einstellungen_t() :
 	// @author: jamespetts
 	max_corner_limit[waytype_t(road_wt)] = 200;
 	min_corner_limit[waytype_t(road_wt)] = 30;
-	max_corner_adjustment_factor[waytype_t(road_wt)] = 0.75F;
-	min_corner_adjustment_factor[waytype_t(road_wt)] = 0.97F;
+	max_corner_adjustment_factor[waytype_t(road_wt)] = 75;
+	min_corner_adjustment_factor[waytype_t(road_wt)] = 97;
 	min_direction_steps[waytype_t(road_wt)] = 3;
 	max_direction_steps[waytype_t(road_wt)] = 6;
 	curve_friction_factor[waytype_t(road_wt)] = 0;
 
 	max_corner_limit[waytype_t(track_wt)] = 425;
 	min_corner_limit[waytype_t(track_wt)] = 45;
-	max_corner_adjustment_factor[waytype_t(track_wt)] = 0.5F;
-	min_corner_adjustment_factor[waytype_t(track_wt)] = 0.85F;
+	max_corner_adjustment_factor[waytype_t(track_wt)] = 50;
+	min_corner_adjustment_factor[waytype_t(track_wt)] = 95;
 	min_direction_steps[waytype_t(track_wt)] = 4;
 	max_direction_steps[waytype_t(track_wt)] = 14;
 	curve_friction_factor[waytype_t(track_wt)] = 0;
 
 	max_corner_limit[waytype_t(tram_wt)] = 250;
 	min_corner_limit[waytype_t(tram_wt)] = 30;
-	max_corner_adjustment_factor[waytype_t(tram_wt)] = 0.6F;
-	min_corner_adjustment_factor[waytype_t(tram_wt)] = 0.9F;	
+	max_corner_adjustment_factor[waytype_t(tram_wt)] = 60;
+	min_corner_adjustment_factor[waytype_t(tram_wt)] = 90;	
 	min_direction_steps[waytype_t(tram_wt)] = 3;
 	max_direction_steps[waytype_t(tram_wt)] = 10;
 	curve_friction_factor[waytype_t(tram_wt)] = 0;
 
 	max_corner_limit[waytype_t(monorail_wt)] = 425;
 	min_corner_limit[waytype_t(monorail_wt)] = 75;
-	max_corner_adjustment_factor[waytype_t(monorail_wt)] = 0.5F;
-	min_corner_adjustment_factor[waytype_t(monorail_wt)] = 0.85F;	
+	max_corner_adjustment_factor[waytype_t(monorail_wt)] = 50;
+	min_corner_adjustment_factor[waytype_t(monorail_wt)] = 85;	
 	min_direction_steps[waytype_t(monorail_wt)] = 5;
 	max_direction_steps[waytype_t(monorail_wt)] = 16;
 	curve_friction_factor[waytype_t(monorail_wt)] =0;
 
 	max_corner_limit[waytype_t(maglev_wt)] = 500;
 	min_corner_limit[waytype_t(maglev_wt)] = 50;
-	max_corner_adjustment_factor[waytype_t(maglev_wt)] = 0.4F;
-	min_corner_adjustment_factor[waytype_t(maglev_wt)] = 0.8F;
+	max_corner_adjustment_factor[waytype_t(maglev_wt)] = 40;
+	min_corner_adjustment_factor[waytype_t(maglev_wt)] = 80;
 	min_direction_steps[waytype_t(maglev_wt)] = 4;
 	max_direction_steps[waytype_t(maglev_wt)] = 16;
 	curve_friction_factor[waytype_t(maglev_wt)] = 0;
 
 	max_corner_limit[waytype_t(narrowgauge_wt)] = 250;
 	min_corner_limit[waytype_t(narrowgauge_wt)] = 30;
-	max_corner_adjustment_factor[waytype_t(narrowgauge_wt)] = 0.67F;
-	min_corner_adjustment_factor[waytype_t(narrowgauge_wt)] = 0.92F;
+	max_corner_adjustment_factor[waytype_t(narrowgauge_wt)] = 67;
+	min_corner_adjustment_factor[waytype_t(narrowgauge_wt)] = 92;
 	min_direction_steps[waytype_t(narrowgauge_wt)] = 3;
 	max_direction_steps[waytype_t(narrowgauge_wt)] = 8;
 	curve_friction_factor[waytype_t(narrowgauge_wt)] = 0;
@@ -283,7 +296,7 @@ einstellungen_t::einstellungen_t() :
 	max_bonus_min_distance = 256;
 	median_bonus_distance = 0;
 	max_bonus_multiplier_percent = 300;
-	distance_per_tile = 0.25F;
+	distance_per_tile = 25;
 	tolerable_comfort_short = 15;
 	tolerable_comfort_median_short = 60;
 	tolerable_comfort_median_median = 100;
@@ -357,7 +370,7 @@ einstellungen_t::einstellungen_t() :
 
 	// Global power factor
 	// @author: jamespetts
-	global_power_factor = 1.0F;
+	global_power_factor_percent = 100;
 
 	avoid_overcrowding = false;
 
@@ -365,19 +378,15 @@ einstellungen_t::einstellungen_t() :
 	// @author: jamespetts
 	enforce_weight_limits = 1;
 
-	speed_bonus_multiplier = 1.0F;
+	speed_bonus_multiplier = 100;
 
 	allow_buying_obsolete_vehicles = true;
 
 	// default: load also private extensions of the pak file
 	with_private_paks = true;
 
-
 	// The default is a selective refresh.
 	default_path_option = 2;
-
-	// The default is using multimedia timer functions.
-	system_time_option = 0;
 
 	// The defaults for journey time tolerance.
 	// Applies to passengers only.
@@ -397,6 +406,8 @@ einstellungen_t::einstellungen_t() :
 	//max_longdistance_tolerance = 150;
 
 	max_walking_distance = 4;
+
+	used_vehicle_reduction = 0;
 
 	// some network thing to keep client in sync
 	random_counter = 0;	// will be set when actually saving
@@ -420,6 +431,7 @@ einstellungen_t::einstellungen_t() :
 			default_increase_maintenance_after_years[i] = 15;
 		}
 	}
+	server_frames_ahead = 4;
 }
 
 
@@ -617,7 +629,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_long(stadtauto_duration );
 
 			file->rdwr_bool( numbered_stations);
-			if(  file->get_version()<=102002 || file->get_experimental_version() < 8)
+			if(  file->get_version()<=102002 || (file->get_experimental_version() < 8 && file->get_experimental_version() != 0))
 			{
 				if(  file->is_loading()  ) 
 				{
@@ -638,7 +650,6 @@ void einstellungen_t::rdwr(loadsave_t *file)
 					dbg->fatal( "einstellungen_t::rdwr()", "Too many (%i) city roads!", num_city_roads );
 				}
 				for(  int i=0;  i<num_city_roads;  i++  ) {
-					const sint64 TEST = lengthof(city_roads[i].name);
 					file->rdwr_str(city_roads[i].name, lengthof(city_roads[i].name) );
 					file->rdwr_short(city_roads[i].intro );
 					file->rdwr_short(city_roads[i].retire );
@@ -689,15 +700,25 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			else {
 				// compatibility code
 				sint64 save_starting_money = starting_money;
-				if(file->is_saving()) {
-					if(save_starting_money==0) save_starting_money = get_starting_money(starting_year );
-					if(save_starting_money==0) save_starting_money = umgebung_t::default_einstellungen.get_starting_money(starting_year );
-					if(save_starting_money==0) save_starting_money = 20000000;
+				if(  file->is_saving()  ) {
+					if(save_starting_money==0) {
+						save_starting_money = get_starting_money(starting_year );
+					}
+					if(save_starting_money==0) {
+						save_starting_money = umgebung_t::default_einstellungen.get_starting_money(starting_year );
+					}
+					if(save_starting_money==0) {
+						save_starting_money = 20000000;
+					}
 				}
 				file->rdwr_longlong(save_starting_money );
 				if(file->is_loading()) {
-					if(save_starting_money==0) save_starting_money = umgebung_t::default_einstellungen.get_starting_money(starting_year );
-					if(save_starting_money==0) save_starting_money = 20000000;
+					if(save_starting_money==0) {
+						save_starting_money = umgebung_t::default_einstellungen.get_starting_money(starting_year );
+					}
+					if(save_starting_money==0) {
+						save_starting_money = 20000000;
+					}
 					starting_money = save_starting_money;
 				}
 			}
@@ -806,12 +827,12 @@ void einstellungen_t::rdwr(loadsave_t *file)
 				frames_per_step = umgebung_t::network_frames_per_step;
 			}
 			file->rdwr_bool( allow_buying_obsolete_vehicles);
-			if(file->get_experimental_version() >= 8 || (file->get_experimental_version() == 0 && file->get_version()>=102003))
+			if(file->get_experimental_version() >= 8 || file->get_experimental_version() == 0)
 			{
 				file->rdwr_long( factory_worker_minimum_towns);
 				file->rdwr_long( factory_worker_maximum_towns);
 			}
-			if(file->get_experimental_version() >= 9 || (file->get_experimental_version() == 0 && file->get_version()>=102003))
+			if(file->get_experimental_version() >= 9 || file->get_experimental_version() == 0)
 			{
 				// forest stuff
 				file->rdwr_byte( forest_base_size);
@@ -848,15 +869,22 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			{
 				file->rdwr_short(median_bonus_distance);
 				file->rdwr_short(max_bonus_multiplier_percent);
-				uint16 distance_per_tile_integer = distance_per_tile * 100.0F;
-				file->rdwr_short(distance_per_tile_integer);
+				file->rdwr_short(distance_per_tile);
 				if(file->get_experimental_version() < 5 && file->get_experimental_version() >= 1)
 				{
 					// In earlier versions, the default was set to a higher level. This
 					// is a problem when the new journey time tolerance features is used.
-					distance_per_tile_integer *= 0.8F;
+					if(file->is_loading())
+					{
+						distance_per_tile *= 100;
+						distance_per_tile /= 80;
+					}
+					else
+					{
+						distance_per_tile *= 125;
+						distance_per_tile /= 100;
+					}
 				}		
-				distance_per_tile = distance_per_tile_integer / 100.0F;
 				
 				file->rdwr_byte(tolerable_comfort_short);
 				file->rdwr_byte(tolerable_comfort_median_short);
@@ -891,17 +919,25 @@ void einstellungen_t::rdwr(loadsave_t *file)
 
 			if(file->get_experimental_version() < 6)
 			{
-				min_bonus_max_distance /= distance_per_tile;
-				max_bonus_min_distance /= distance_per_tile;
+				min_bonus_max_distance = ((uint32)min_bonus_max_distance * 100) / distance_per_tile;
+				max_bonus_min_distance = ((uint32)max_bonus_min_distance * 100) / distance_per_tile;
 				// Scale the costs to match the scale factor.
-				cst_multiply_dock *= distance_per_tile;
-				cst_multiply_station *= distance_per_tile;
-				cst_multiply_roadstop *= distance_per_tile;
-				cst_multiply_airterminal *= distance_per_tile;
-				cst_multiply_post *= distance_per_tile;
-				maint_building *= distance_per_tile;
-				cst_buy_land *= distance_per_tile;
-				cst_remove_tree *= distance_per_tile;
+				cst_multiply_dock *= 100;
+				cst_multiply_dock /= distance_per_tile;
+				cst_multiply_station *= 100;
+				cst_multiply_station /= distance_per_tile;
+				cst_multiply_roadstop *= 100;
+				cst_multiply_roadstop /= distance_per_tile;
+				cst_multiply_airterminal *= 100;
+				cst_multiply_airterminal /=	distance_per_tile;
+				cst_multiply_post *= 100;
+				cst_multiply_post /= distance_per_tile;
+				maint_building *= 100;
+				maint_building /= distance_per_tile;
+				cst_buy_land *= 100;
+				maint_building /= distance_per_tile;
+				cst_remove_tree *= 100;
+				cst_remove_tree /= distance_per_tile;
 			}
 
 			file->rdwr_short(obsolete_running_cost_increase_percent);
@@ -972,65 +1008,53 @@ void einstellungen_t::rdwr(loadsave_t *file)
 				}
 			}
 
-			file->rdwr_long(max_corner_limit[waytype_t(road_wt)]);
-			file->rdwr_long(min_corner_limit[waytype_t(road_wt)]);
-			double tmp = (double)max_corner_adjustment_factor[waytype_t(road_wt)];
-			file->rdwr_double(tmp);
-			tmp = (double)min_corner_adjustment_factor[waytype_t(road_wt)];
-			file->rdwr_double(tmp);
-			file->rdwr_byte(min_direction_steps[waytype_t(road_wt)]);
-			file->rdwr_byte(max_direction_steps[waytype_t(road_wt)]);
-			file->rdwr_byte(curve_friction_factor[waytype_t(road_wt)]);
+			waytype_t wt = road_wt;
+			for(int n = 1; n < 7; n ++)
+			{
+				switch(n)
+				{
+				case 1:
+					wt = road_wt;
+					break;
+				case 2:
+					wt = track_wt;
+					break;
+				case 3:
+					wt = tram_wt;
+					break;
+				case 4:
+					wt = monorail_wt;
+					break;
+				case 5:
+					wt = maglev_wt;
+					break;
+				case 6:
+					wt = narrowgauge_wt;
+					break;
+				default:
+					dbg->fatal("einstellungen_t::rdwr", "Invalid waytype");
+				}
 
-			file->rdwr_long(max_corner_limit[waytype_t(track_wt)]);
-			file->rdwr_long(min_corner_limit[waytype_t(track_wt)]);
-			tmp = (double)max_corner_adjustment_factor[waytype_t(track_wt)];
-			file->rdwr_double(tmp);
-			tmp = (double)min_corner_adjustment_factor[waytype_t(track_wt)];
-			file->rdwr_double(tmp);
-			file->rdwr_byte(min_direction_steps[waytype_t(track_wt)]);
-			file->rdwr_byte(max_direction_steps[waytype_t(track_wt)]);
-			file->rdwr_byte(curve_friction_factor[waytype_t(track_wt)]);
-
-			file->rdwr_long(max_corner_limit[waytype_t(tram_wt)]);
-			file->rdwr_long(min_corner_limit[waytype_t(tram_wt)]);
-			tmp = (double)max_corner_adjustment_factor[waytype_t(tram_wt)];
-			file->rdwr_double(tmp);
-			tmp = (double)min_corner_adjustment_factor[waytype_t(tram_wt)];
-			file->rdwr_double(tmp);
-			file->rdwr_byte(min_direction_steps[waytype_t(tram_wt)]);
-			file->rdwr_byte(max_direction_steps[waytype_t(tram_wt)]);
-			file->rdwr_byte(curve_friction_factor[waytype_t(tram_wt)]);
-
-			file->rdwr_long(max_corner_limit[waytype_t(monorail_wt)]);
-			file->rdwr_long(min_corner_limit[waytype_t(monorail_wt)]);
-			tmp = (double)max_corner_adjustment_factor[waytype_t(monorail_wt)];
-			file->rdwr_double(tmp);
-			tmp = (double)min_corner_adjustment_factor[waytype_t(monorail_wt)];
-			file->rdwr_double(tmp);
-			file->rdwr_byte(min_direction_steps[waytype_t(monorail_wt)]);
-			file->rdwr_byte(max_direction_steps[waytype_t(monorail_wt)]);
-			file->rdwr_byte(curve_friction_factor[waytype_t(monorail_wt)]);
-
-			file->rdwr_long(max_corner_limit[waytype_t(maglev_wt)]);
-			file->rdwr_long(min_corner_limit[waytype_t(maglev_wt)]);
-			tmp = (double)max_corner_adjustment_factor[waytype_t(maglev_wt)];
-			file->rdwr_double(tmp);
-			tmp = (double)min_corner_adjustment_factor[waytype_t(maglev_wt)];
-			file->rdwr_double(tmp);
-			file->rdwr_byte(min_direction_steps[waytype_t(maglev_wt)]);
-			file->rdwr_byte(max_direction_steps[waytype_t(maglev_wt)]);
-			file->rdwr_byte(curve_friction_factor[waytype_t(maglev_wt)]);
-
-			file->rdwr_long(max_corner_limit[waytype_t(narrowgauge_wt)]);
-			file->rdwr_long(min_corner_limit[waytype_t(narrowgauge_wt)]);
-			tmp = (double)max_corner_adjustment_factor[waytype_t(narrowgauge_wt)];
-			file->rdwr_double(tmp);
-			tmp = min_corner_adjustment_factor[waytype_t(narrowgauge_wt)];
-			file->rdwr_double(tmp);
-			file->rdwr_byte(min_direction_steps[waytype_t(narrowgauge_wt)]);
-			file->rdwr_byte(max_direction_steps[waytype_t(narrowgauge_wt)]);
-			file->rdwr_byte(curve_friction_factor[waytype_t(narrowgauge_wt)]);
+				file->rdwr_long(max_corner_limit[waytype_t(wt)]);
+				file->rdwr_long(min_corner_limit[waytype_t(wt)]);
+				if(file->get_experimental_version() < 10)
+				{
+					double tmp = (double)max_corner_adjustment_factor[waytype_t(wt)] / 100.0;
+					file->rdwr_double(tmp);
+					max_corner_adjustment_factor[waytype_t(wt)] = tmp * 100.0;
+					tmp = (double)min_corner_adjustment_factor[waytype_t(wt)] / 100.0;
+					file->rdwr_double(tmp);
+					min_corner_adjustment_factor[waytype_t(wt)] = tmp * 100.0;
+				}
+				else
+				{
+					file->rdwr_short(max_corner_adjustment_factor[waytype_t(wt)]);
+					file->rdwr_short(min_corner_adjustment_factor[waytype_t(wt)]);
+				}
+				file->rdwr_byte(min_direction_steps[waytype_t(wt)]);
+				file->rdwr_byte(max_direction_steps[waytype_t(wt)]);
+				file->rdwr_byte(curve_friction_factor[waytype_t(wt)]);
+			}
 
 			file->rdwr_short(factory_max_years_obsolete);
 
@@ -1046,9 +1070,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 
 		if(file->get_experimental_version() >= 2)
 		{
-			uint16 global_power_factor_percent = global_power_factor * 100;
 			file->rdwr_short(global_power_factor_percent);
-			global_power_factor = (float)global_power_factor_percent / 100;
 			if(file->get_experimental_version() <= 7)
 			{
 				uint16 old_passenger_max_wait;
@@ -1072,9 +1094,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 				file->rdwr_short(dummy);
 			}
 			file->rdwr_byte(enforce_weight_limits);
-			uint16 speed_bonus_multiplier_percent = speed_bonus_multiplier * 100;
-			file->rdwr_short(speed_bonus_multiplier_percent);
-			speed_bonus_multiplier = (float)speed_bonus_multiplier_percent / 100.0F;
+			file->rdwr_short(speed_bonus_multiplier);
 		}
 		else
 		{
@@ -1099,19 +1119,46 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_short(min_longdistance_tolerance);
 			file->rdwr_short(max_longdistance_tolerance);
 		}
-	}
-	
-	if(file->get_experimental_version() >= 8)
-	{
-		file->rdwr_short(max_walking_distance);
-		file->rdwr_bool(quick_city_growth);
-		file->rdwr_bool(assume_everywhere_connected_by_road);
-		for(uint8 i = 0; i < 17; i ++)
-		{
-			file->rdwr_short(default_increase_maintenance_after_years[i]);
+
+		if(  file->get_version()>=110000  ) {
+			if(  !umgebung_t::networkmode  ||  umgebung_t::server  ) {
+				server_frames_ahead = umgebung_t::server_frames_ahead;
+			}
+			file->rdwr_long( server_frames_ahead );
+			if(  !umgebung_t::networkmode  ||  umgebung_t::server  ) {
+				server_frames_ahead = umgebung_t::server_frames_ahead;
+			}
+			file->rdwr_short( used_vehicle_reduction );
 		}
-		file->rdwr_long(capital_threshold_size);
-		file->rdwr_long(city_threshold_size);
+		
+		if(file->get_experimental_version() >= 8)
+		{
+			file->rdwr_short(max_walking_distance);
+			file->rdwr_bool(quick_city_growth);
+			file->rdwr_bool(assume_everywhere_connected_by_road);
+			for(uint8 i = 0; i < 17; i ++)
+			{
+				file->rdwr_short(default_increase_maintenance_after_years[i]);
+			}
+			file->rdwr_long(capital_threshold_size);
+			file->rdwr_long(city_threshold_size);
+		}
+		
+		if(  file->get_version()>=110001  ) {
+			file->rdwr_bool( default_player_color_random );
+			for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
+				file->rdwr_byte( default_player_color[i][0] );
+				file->rdwr_byte( default_player_color[i][1] );
+			}
+		}
+		else if(  file->is_loading()  ) {
+			default_player_color_random = false;
+			for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
+				// default colors for player ...
+				default_player_color[i][0] = 255;
+				default_player_color[i][1] = 255;
+			}
+		}
 	}
 }
 
@@ -1127,8 +1174,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 
 	// This needs to be first as other settings are based on this.
 	// @author: jamespetts
-	uint16 distance_per_tile_integer = distance_per_tile * 100;
-	distance_per_tile = contents.get_int("distance_per_tile", distance_per_tile_integer) / 100.0F;
+	distance_per_tile = contents.get_int("distance_per_tile", distance_per_tile);
 
 	umgebung_t::water_animation = contents.get_int("water_animation_ms", umgebung_t::water_animation);
 	umgebung_t::ground_object_probability = contents.get_int("random_grounds_probability", umgebung_t::ground_object_probability);
@@ -1141,6 +1187,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	umgebung_t::townhall_info = contents.get_int("townhall_info", umgebung_t::townhall_info) != 0;
 	umgebung_t::single_info = contents.get_int("only_single_info", umgebung_t::single_info );
 
+	umgebung_t::window_snap_distance = contents.get_int("window_snap_distance", umgebung_t::window_snap_distance );
 	umgebung_t::window_buttons_right = contents.get_int("window_buttons_right", umgebung_t::window_buttons_right );
 	umgebung_t::left_to_right_graphs = contents.get_int("left_to_right_graphs", umgebung_t::left_to_right_graphs );
 	umgebung_t::window_frame_active = contents.get_int("window_frame_active", umgebung_t::window_frame_active );
@@ -1157,6 +1204,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	umgebung_t::toolbar_max_width = contents.get_int("toolbar_max_width", umgebung_t::toolbar_max_width );
 	umgebung_t::toolbar_max_height = contents.get_int("toolbar_max_height", umgebung_t::toolbar_max_height );
 	umgebung_t::cursor_overlay_color = contents.get_int("cursor_overlay_color", umgebung_t::cursor_overlay_color );
+	umgebung_t::add_player_name_to_message = contents.get_int("add_player_name_to_message", umgebung_t::add_player_name_to_message );
 
 	// display stuff
 	umgebung_t::show_names = contents.get_int("show_names", umgebung_t::show_names );
@@ -1165,11 +1213,13 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 
 	// network stuff
 	umgebung_t::server_frames_ahead = contents.get_int("server_frames_ahead", umgebung_t::server_frames_ahead );
-	umgebung_t::server_ms_ahead = contents.get_int("network_ms_ahead", umgebung_t::server_ms_ahead );
+	umgebung_t::additional_client_frames_behind = contents.get_int("additional_client_frames_behind", umgebung_t::additional_client_frames_behind);
 	umgebung_t::network_frames_per_step = contents.get_int("server_frames_per_step", umgebung_t::network_frames_per_step );
 	umgebung_t::server_sync_steps_between_checks = contents.get_int("server_frames_between_checks", umgebung_t::server_sync_steps_between_checks );
 
 	umgebung_t::announce_server = contents.get_int("announce_server", umgebung_t::announce_server );
+	umgebung_t::announce_server = contents.get_int("server_announce", umgebung_t::announce_server );
+	umgebung_t::announce_server_intervall = contents.get_int("server_announce_intervall", umgebung_t::announce_server );
 	if(  *contents.get("server_name")  ) {
 		umgebung_t::server_name = ltrim(contents.get("server_name"));
 	}
@@ -1327,6 +1377,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	verkehr_level = contents.get_int("citycar_level", verkehr_level );	// ten normal years
 	stadtauto_duration = contents.get_int("default_citycar_life", stadtauto_duration );	// ten normal years
 	allow_buying_obsolete_vehicles = contents.get_int("allow_buying_obsolete_vehicles", allow_buying_obsolete_vehicles );
+	used_vehicle_reduction  = clamp( contents.get_int("used_vehicle_reduction", used_vehicle_reduction ), 0, 1000 );
 
 	// starting money
 	starting_money = contents.get_int64("starting_money", starting_money );
@@ -1362,7 +1413,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 			else {
 				startingmoneyperyear[k].interpol = false;
 			}
-			printf("smpy[%d] year=%d money=%lld\n",k,startingmoneyperyear[k].year,startingmoneyperyear[k].money);
+//			printf("smpy[%d] year=%d money=%lld\n",k,startingmoneyperyear[k].year,startingmoneyperyear[k].money);
 			j++;
 		}
 		else {
@@ -1373,16 +1424,30 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	// at least one found => use this now!
 	if(  j>0  &&  startingmoneyperyear[0].money>0  ) {
 		starting_money = 0;
+		// fill remaining entries
+		for(  int i=j+1; i<10; i++  ) {
+			startingmoneyperyear[i].year = 0;
+			startingmoneyperyear[i].money = 0;
+			startingmoneyperyear[i].interpol = 0;
+		}
 	}
-	// fill remaining entries
-	for(  int i=j+1; i<10; i++  ) {
-		startingmoneyperyear[i].year = 0;
-		startingmoneyperyear[i].money = 0;
-		startingmoneyperyear[i].interpol = 0;
+
+	// player colors
+	default_player_color_random = contents.get_int("random_player_colors", default_player_color_random ) != 0;
+	for(  int i = 0;  i<MAX_PLAYER_COUNT;  i++  ) {
+		char name[32];
+		sprintf( name, "player_color[%i]", i );
+		const char *command = contents.get(name);
+		int c1, c2;
+		if(  sscanf( command, "%i,%i", &c1, &c2 )==2  ) {
+			default_player_color[i][0] = c1;
+			default_player_color[i][1] = c2;
+		}
 	}
 
 	maint_building = contents.get_int("maintenance_building", maint_building);
 	maint_building *= distance_per_tile;
+	maint_building /= 100;
 
 	numbered_stations = contents.get_int("numbered_stations", numbered_stations );
 	station_coverage_size = contents.get_int("station_coverage", station_coverage_size );
@@ -1419,11 +1484,11 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	beginner_mode = contents.get_int("first_beginner", beginner_mode ); /* start in beginner mode */
 
 	/* now the cost section */
-	cst_multiply_dock = (contents.get_int64("cost_multiply_dock", cst_multiply_dock/(-100) ) * -100) * distance_per_tile;
-	cst_multiply_station = (contents.get_int64("cost_multiply_station", cst_multiply_station/(-100) ) * -100) * distance_per_tile;
-	cst_multiply_roadstop = (contents.get_int64("cost_multiply_roadstop", cst_multiply_roadstop/(-100) ) * -100) * distance_per_tile;
-	cst_multiply_airterminal = (contents.get_int64("cost_multiply_airterminal", cst_multiply_airterminal/(-100) ) * -100) * distance_per_tile;
-	cst_multiply_post = (contents.get_int64("cost_multiply_post", cst_multiply_post/(-100) ) * -100) * distance_per_tile;
+	cst_multiply_dock = ((contents.get_int64("cost_multiply_dock", cst_multiply_dock/(-100) ) * -100) * distance_per_tile) / 100;
+	cst_multiply_station = ((contents.get_int64("cost_multiply_station", cst_multiply_station/(-100) ) * -100) * distance_per_tile) / 100;
+	cst_multiply_roadstop = ((contents.get_int64("cost_multiply_roadstop", cst_multiply_roadstop/(-100) ) * -100) * distance_per_tile) / 100;
+	cst_multiply_airterminal = ((contents.get_int64("cost_multiply_airterminal", cst_multiply_airterminal/(-100) ) * -100) * distance_per_tile) / 100;
+	cst_multiply_post = ((contents.get_int64("cost_multiply_post", cst_multiply_post/(-100) ) * -100) * distance_per_tile) / 100;
 	cst_multiply_headquarter = contents.get_int64("cost_multiply_headquarter", cst_multiply_headquarter/(-100) ) * -100;
 	cst_depot_air = contents.get_int64("cost_depot_air", cst_depot_air/(-100) ) * -100;
 	cst_depot_rail = contents.get_int64("cost_depot_rail", cst_depot_rail/(-100) ) * -100;
@@ -1431,13 +1496,13 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	cst_depot_ship = contents.get_int64("cost_depot_ship", cst_depot_ship/(-100) ) * -100;
 
 	// alter landscape
-	cst_buy_land = (contents.get_int64("cost_buy_land", cst_buy_land/(-100) ) * -100) * distance_per_tile;
+	cst_buy_land = ((contents.get_int64("cost_buy_land", cst_buy_land/(-100) ) * -100) * distance_per_tile) / 100;
 	cst_alter_land = contents.get_int64("cost_alter_land", cst_alter_land/(-100) ) * -100;
 	cst_set_slope = contents.get_int64("cost_set_slope", cst_set_slope/(-100) ) * -100;
 	cst_found_city = contents.get_int64("cost_found_city", cst_found_city/(-100) ) * -100;
 	cst_multiply_found_industry = contents.get_int64("cost_multiply_found_industry", cst_multiply_found_industry/(-100) ) * -100;
-	cst_remove_tree = (contents.get_int64("cost_remove_tree", cst_remove_tree/(-100) ) * -100) * distance_per_tile;
-	cst_multiply_remove_haus = (contents.get_int64("cost_multiply_remove_haus", cst_multiply_remove_haus/(-100) ) * -100) * distance_per_tile;
+	cst_remove_tree = ((contents.get_int64("cost_remove_tree", cst_remove_tree/(-100) ) * -100) * distance_per_tile) / 100;
+	cst_multiply_remove_haus = ((contents.get_int64("cost_multiply_remove_haus", cst_multiply_remove_haus/(-100) ) * -100) * distance_per_tile) / 100;
 	cst_multiply_remove_field = contents.get_int64("cost_multiply_remove_field", cst_multiply_remove_field/(-100) ) * -100;
 	// powerlines
 	cst_transformer = contents.get_int64("cost_transformer", cst_transformer/(-100) ) * -100;
@@ -1455,9 +1520,9 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 
 	// Revenue calibration settings
 	// @author: jamespetts
-	min_bonus_max_distance = contents.get_int("min_bonus_max_distance", min_bonus_max_distance) / distance_per_tile;
-	max_bonus_min_distance = contents.get_int("max_bonus_min_distance", max_bonus_min_distance) / distance_per_tile;
-	median_bonus_distance = contents.get_int("median_bonus_distance", median_bonus_distance) / distance_per_tile;
+	min_bonus_max_distance = (contents.get_int("min_bonus_max_distance", min_bonus_max_distance) * 100) / distance_per_tile;
+	max_bonus_min_distance = (contents.get_int("max_bonus_min_distance", max_bonus_min_distance) * 100) / distance_per_tile;
+	median_bonus_distance = (contents.get_int("median_bonus_distance", median_bonus_distance) * 100) / distance_per_tile;
 	max_bonus_multiplier_percent = contents.get_int("max_bonus_multiplier_percent", max_bonus_multiplier_percent);
 	tolerable_comfort_short = contents.get_int("tolerable_comfort_short", tolerable_comfort_short);
 	tolerable_comfort_long = contents.get_int("tolerable_comfort_long", tolerable_comfort_long);
@@ -1494,12 +1559,12 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	obsolete_running_cost_increase_phase_years = contents.get_int("obsolete_running_cost_increase_phase_years", obsolete_running_cost_increase_phase_years);
 
 	// Passenger destination ranges
-	local_passengers_min_distance = contents.get_int("local_passengers_min_distance", local_passengers_min_distance) / distance_per_tile;
-	local_passengers_max_distance = contents.get_int("local_passengers_max_distance", local_passengers_max_distance) / distance_per_tile;
-	midrange_passengers_min_distance = contents.get_int("midrange_passengers_min_distance", midrange_passengers_min_distance) / distance_per_tile;
-	midrange_passengers_max_distance = contents.get_int("midrange_passengers_max_distance", midrange_passengers_max_distance) / distance_per_tile;
-	longdistance_passengers_min_distance = contents.get_int("longdistance_passengers_min_distance", longdistance_passengers_min_distance) / distance_per_tile;
-	longdistance_passengers_max_distance = contents.get_int("longdistance_passengers_max_distance", longdistance_passengers_max_distance) / distance_per_tile;
+	local_passengers_min_distance = (contents.get_int("local_passengers_min_distance", local_passengers_min_distance) * 100) / distance_per_tile;
+	local_passengers_max_distance = (contents.get_int("local_passengers_max_distance", local_passengers_max_distance) * 100) / distance_per_tile;
+	midrange_passengers_min_distance = (contents.get_int("midrange_passengers_min_distance", midrange_passengers_min_distance) * 100) / distance_per_tile;
+	midrange_passengers_max_distance = (contents.get_int("midrange_passengers_max_distance", midrange_passengers_max_distance) * 100) / distance_per_tile;
+	longdistance_passengers_min_distance = (contents.get_int("longdistance_passengers_min_distance", longdistance_passengers_min_distance) * 100) / distance_per_tile;
+	longdistance_passengers_max_distance = (contents.get_int("longdistance_passengers_max_distance", longdistance_passengers_max_distance) * 100) / distance_per_tile;
 
 	// Passenger routing settings
 	passenger_routing_packet_size = contents.get_int("passenger_routing_packet_size", passenger_routing_packet_size);
@@ -1523,63 +1588,50 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	congestion_density_factor = contents.get_int("congestion_density_factor", congestion_density_factor);
 
 	// Cornering settings
-	int factor_tmp;
 	max_corner_limit[waytype_t(road_wt)] = contents.get_int("max_corner_limit_road", max_corner_limit[waytype_t(road_wt)]);
 	min_corner_limit[waytype_t(road_wt)] = contents.get_int("min_corner_limit_road", min_corner_limit[waytype_t(road_wt)]);
-	factor_tmp = contents.get_int("max_corner_adjustment_factor_road", max_corner_adjustment_factor[waytype_t(road_wt)] * 100);
-	max_corner_adjustment_factor[waytype_t(road_wt)] = (float)factor_tmp / 100.0F;
-	factor_tmp = contents.get_int("min_corner_adjustment_factor_road", min_corner_adjustment_factor[waytype_t(road_wt)] * 100);
-	min_corner_adjustment_factor[waytype_t(road_wt)] = (float)factor_tmp / 100.0F;
+	max_corner_adjustment_factor[waytype_t(road_wt)] = contents.get_int("max_corner_adjustment_factor_road", max_corner_adjustment_factor[waytype_t(road_wt)]);
+	min_corner_adjustment_factor[waytype_t(road_wt)] = contents.get_int("min_corner_adjustment_factor_road", min_corner_adjustment_factor[waytype_t(road_wt)]);
 	min_direction_steps[waytype_t(road_wt)] = contents.get_int("min_direction_steps_road", min_direction_steps[waytype_t(road_wt)]);
 	max_direction_steps[waytype_t(road_wt)] = contents.get_int("max_direction_steps_road", max_direction_steps[waytype_t(road_wt)]);
 	curve_friction_factor[waytype_t(road_wt)] = contents.get_int("curve_friction_factor_road", curve_friction_factor[waytype_t(road_wt)]);
 
 	max_corner_limit[waytype_t(track_wt)] = contents.get_int("max_corner_limit_track", max_corner_limit[waytype_t(track_wt)]);
 	min_corner_limit[waytype_t(track_wt)] = contents.get_int("min_corner_limit_track", min_corner_limit[waytype_t(track_wt)]);
-	factor_tmp = contents.get_int("max_corner_adjustment_factor_track", max_corner_adjustment_factor[waytype_t(track_wt)] * 100);
-	max_corner_adjustment_factor[waytype_t(track_wt)] = (float)factor_tmp / 100.0F;
-	factor_tmp = contents.get_int("min_corner_adjustment_factor_track", min_corner_adjustment_factor[waytype_t(track_wt)] * 100);
-	min_corner_adjustment_factor[waytype_t(track_wt)] = (float)factor_tmp / 100.0F;
+	max_corner_adjustment_factor[waytype_t(track_wt)] = contents.get_int("max_corner_adjustment_factor_track", max_corner_adjustment_factor[waytype_t(track_wt)]);
+	min_corner_adjustment_factor[waytype_t(track_wt)] = contents.get_int("min_corner_adjustment_factor_track", min_corner_adjustment_factor[waytype_t(track_wt)]);
 	min_direction_steps[waytype_t(track_wt)] = contents.get_int("min_direction_steps_track", min_direction_steps[waytype_t(track_wt)]);
 	max_direction_steps[waytype_t(track_wt)] = contents.get_int("max_direction_steps_track", max_direction_steps[waytype_t(track_wt)]);
 	curve_friction_factor[waytype_t(track_wt)] = contents.get_int("curve_friction_factor_track", curve_friction_factor[waytype_t(track_wt)]);
 
 	max_corner_limit[waytype_t(tram_wt)] = contents.get_int("max_corner_limit_tram", max_corner_limit[waytype_t(tram_wt)]);
 	min_corner_limit[waytype_t(tram_wt)] = contents.get_int("min_corner_limit_tram", min_corner_limit[waytype_t(tram_wt)]);
-	factor_tmp = contents.get_int("max_corner_adjustment_factor_tram", max_corner_adjustment_factor[waytype_t(tram_wt)] * 100);
-	max_corner_adjustment_factor[waytype_t(tram_wt)] = (float)factor_tmp / 100.0F;
-	factor_tmp = contents.get_int("min_corner_adjustment_factor_tram", min_corner_adjustment_factor[waytype_t(tram_wt)] * 100);
-	min_corner_adjustment_factor[waytype_t(tram_wt)] = (float)factor_tmp / 100.0F;	
+	max_corner_adjustment_factor[waytype_t(tram_wt)] = contents.get_int("max_corner_adjustment_factor_tram", max_corner_adjustment_factor[waytype_t(tram_wt)]);
+	min_corner_adjustment_factor[waytype_t(tram_wt)] = contents.get_int("min_corner_adjustment_factor_tram", min_corner_adjustment_factor[waytype_t(tram_wt)]);
 	min_direction_steps[waytype_t(tram_wt)] = contents.get_int("min_direction_steps_tram", min_direction_steps[waytype_t(tram_wt)]);
 	max_direction_steps[waytype_t(tram_wt)] = contents.get_int("max_direction_steps_tram", max_direction_steps[waytype_t(tram_wt)]);
 	curve_friction_factor[waytype_t(tram_wt)] = contents.get_int("curve_friction_factor_tram", curve_friction_factor[waytype_t(tram_wt)]);
 
 	max_corner_limit[waytype_t(monorail_wt)] = contents.get_int("max_corner_limit_monorail", max_corner_limit[waytype_t(monorail_wt)]);
 	min_corner_limit[waytype_t(monorail_wt)] = contents.get_int("min_corner_limit_monorail", min_corner_limit[waytype_t(monorail_wt)]);
-	factor_tmp = contents.get_int("max_corner_adjustment_factor_monorail", max_corner_adjustment_factor[waytype_t(monorail_wt)] * 100);
-	max_corner_adjustment_factor[waytype_t(monorail_wt)] = (float)factor_tmp / 100.0F;	
-	factor_tmp = contents.get_int("min_corner_adjustment_factor_monorail", min_corner_adjustment_factor[waytype_t(monorail_wt)] * 100);
-	min_corner_adjustment_factor[waytype_t(monorail_wt)] = (float)factor_tmp / 100.0F;	
+	max_corner_adjustment_factor[waytype_t(monorail_wt)] = contents.get_int("max_corner_adjustment_factor_monorail", max_corner_adjustment_factor[waytype_t(monorail_wt)]);
+	min_corner_adjustment_factor[waytype_t(monorail_wt)] = contents.get_int("min_corner_adjustment_factor_monorail", min_corner_adjustment_factor[waytype_t(monorail_wt)]);
 	min_direction_steps[waytype_t(monorail_wt)] = contents.get_int("min_direction_steps_monorail", min_direction_steps[waytype_t(monorail_wt)]);
 	max_direction_steps[waytype_t(monorail_wt)] = contents.get_int("max_direction_steps_monorail", max_direction_steps[waytype_t(monorail_wt)]);
 	curve_friction_factor[waytype_t(monorail_wt)] = contents.get_int("curve_friction_factor_monorail", curve_friction_factor[waytype_t(monorail_wt)]);
 
 	max_corner_limit[waytype_t(maglev_wt)] = contents.get_int("max_corner_limit_maglev", max_corner_limit[waytype_t(maglev_wt)]);
 	min_corner_limit[waytype_t(maglev_wt)] = contents.get_int("min_corner_limit_maglev", min_corner_limit[waytype_t(maglev_wt)]);
-	factor_tmp = contents.get_int("max_corner_adjustment_factor_maglev", max_corner_adjustment_factor[waytype_t(maglev_wt)] * 100);
-	max_corner_adjustment_factor[waytype_t(maglev_wt)] = (float)factor_tmp / 100.0F;	
-	factor_tmp = contents.get_int("min_corner_adjustment_factor_maglev", min_corner_adjustment_factor[waytype_t(maglev_wt)]  * 100);
-	min_corner_adjustment_factor[waytype_t(maglev_wt)] = (float)factor_tmp / 100.0F;
+	max_corner_adjustment_factor[waytype_t(maglev_wt)] = contents.get_int("max_corner_adjustment_factor_maglev", max_corner_adjustment_factor[waytype_t(maglev_wt)]);
+	min_corner_adjustment_factor[waytype_t(maglev_wt)] = contents.get_int("min_corner_adjustment_factor_maglev", min_corner_adjustment_factor[waytype_t(maglev_wt)]);
 	min_direction_steps[waytype_t(maglev_wt)] = contents.get_int("min_direction_steps_maglev", min_direction_steps[waytype_t(maglev_wt)] );
 	max_direction_steps[waytype_t(maglev_wt)] = contents.get_int("max_direction_steps_maglev", max_direction_steps[waytype_t(maglev_wt)]);
 	curve_friction_factor[waytype_t(maglev_wt)] = contents.get_int("curve_friction_factor_maglev", curve_friction_factor[waytype_t(maglev_wt)]);
 
 	max_corner_limit[waytype_t(narrowgauge_wt)] = contents.get_int("max_corner_limit_narrowgauge", max_corner_limit[waytype_t(narrowgauge_wt)]);
 	min_corner_limit[waytype_t(narrowgauge_wt)] = contents.get_int("min_corner_limit_narrowgauge", min_corner_limit[waytype_t(narrowgauge_wt)]);
-	factor_tmp =  contents.get_int("max_corner_adjustment_factor_narrowgauge", max_corner_adjustment_factor[waytype_t(narrowgauge_wt)] * 100);
-	max_corner_adjustment_factor[waytype_t(narrowgauge_wt)] = (float)factor_tmp / 100.0F;
-	factor_tmp = contents.get_int("min_corner_adjustment_factor_narrowgauge", min_corner_adjustment_factor[waytype_t(narrowgauge_wt)] * 100);
-	min_corner_adjustment_factor[waytype_t(narrowgauge_wt)] = (float)factor_tmp / 100.0F;
+	max_corner_adjustment_factor[waytype_t(narrowgauge_wt)]  =  contents.get_int("max_corner_adjustment_factor_narrowgauge", max_corner_adjustment_factor[waytype_t(narrowgauge_wt)]);
+	min_corner_adjustment_factor[waytype_t(narrowgauge_wt)] = contents.get_int("min_corner_adjustment_factor_narrowgauge", min_corner_adjustment_factor[waytype_t(narrowgauge_wt)]);
 	min_direction_steps[waytype_t(narrowgauge_wt)] = contents.get_int("min_direction_steps_narrowgauge", min_direction_steps[waytype_t(narrowgauge_wt)]);
 	max_direction_steps[waytype_t(narrowgauge_wt)] = contents.get_int("max_direction_steps_narrowgauge", max_direction_steps[waytype_t(narrowgauge_wt)]);
 	curve_friction_factor[waytype_t(narrowgauge_wt)] = contents.get_int("curve_friction_factor_narrowgauge", curve_friction_factor[waytype_t(narrowgauge_wt)]);
@@ -1601,27 +1653,16 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 
 	// Global power factor
 	// @author: jamespetts
-	uint16 global_power_factor_percent = 100;
 	global_power_factor_percent = contents.get_int("global_power_factor_percent", global_power_factor_percent);
-	global_power_factor = (float)global_power_factor_percent / 100;
 
 	// How and whether weight limits are enforced.
 	// @author: jamespetts
 	enforce_weight_limits = contents.get_int("enforce_weight_limits", enforce_weight_limits);
 
-	uint16 speed_bonus_multiplier_percent = 100;
-	speed_bonus_multiplier_percent = contents.get_int("speed_bonus_multiplier_percent", speed_bonus_multiplier_percent);
-	speed_bonus_multiplier = (float)speed_bonus_multiplier_percent / 100.0F;
+	speed_bonus_multiplier = contents.get_int("speed_bonus_multiplier_percent", speed_bonus_multiplier);
 
 	bool path_searching_approach = contents.get_int("path_searching_approach", default_path_option == 2);
 	default_path_option = path_searching_approach ? 2 : 1;
-
-	// Added by : Knightly
-	system_time_option = contents.get_int("system_time_functions", system_time_option);
-	if (system_time_option > 1)
-	{
-		system_time_option = 1;
-	}
 
 	// Multiply by 10 because journey times are measured in tenths of minutes.
 	//@author: jamespetts
@@ -1638,8 +1679,8 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	const uint16 max_longdistance_tolerance_minutes = contents.get_int("max_longdistance_tolerance", (max_longdistance_tolerance / 10));
 	max_longdistance_tolerance = max_longdistance_tolerance_minutes * 10;
 
-	const float max_walking_distance_km = (contents.get_int("max_walking_distance_km_tenth", (max_walking_distance * (distance_per_tile * 10))) / 10.0);
-	max_walking_distance = max_walking_distance_km / distance_per_tile;
+	const uint16 max_walking_distance_km = contents.get_int("max_walking_distance_km_tenth", ((max_walking_distance * distance_per_tile) / 10));
+	max_walking_distance = (max_walking_distance_km * 10) / distance_per_tile;
 
 	quick_city_growth = (bool)(contents.get_int("quick_city_growth", quick_city_growth));
 
@@ -1723,7 +1764,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 int einstellungen_t::get_name_language_id() const
 {
 	int lang = -1;
-	if(  umgebung_t::networkmode  &&  !umgebung_t::server  ) {
+	if(  umgebung_t::networkmode  ) {
 		lang = translator::get_language( language_code_names );
 	}
 	if(  lang == -1  ) {
@@ -1832,3 +1873,77 @@ void einstellungen_t::copy_city_road( einstellungen_t &other )
 		city_roads[i] = other.city_roads[i];
 	}
 }
+
+
+// returns default player colors for new players
+void einstellungen_t::set_default_player_color( spieler_t *sp ) const
+{
+	COLOR_VAL color1 = default_player_color[sp->get_player_nr()][0];
+	if(  color1 == 255  ) {
+		if(  default_player_color_random  ) {
+			// build a vector with all colors
+			minivec_tpl<uint8>all_colors1(28);
+			for(  uint8 i=0;  i<28;  i++  ) {
+				all_colors1.append(i);
+			}
+			// remove all used colors
+			for(  uint8 i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
+				spieler_t *test_sp = sp->get_welt()->get_spieler(i);
+				if(  test_sp  &&  sp!=test_sp  ) {
+					uint8 rem = 1<<(sp->get_player_color1()/8);
+					if(  all_colors1.is_contained(rem)  ) {
+						all_colors1.remove( rem );
+					}
+				}
+				else if(  default_player_color[i][0]!=255  ) {
+					uint8 rem = default_player_color[i][0];
+					if(  all_colors1.is_contained(rem)  ) {
+						all_colors1.remove( rem );
+					}
+				}
+			}
+			// now choose a random empty color
+			color1 = all_colors1[simrand(all_colors1.get_count(), "einstellungen_t::set_default_player_color()")];
+		}
+		else {
+			color1 = sp->get_player_nr();
+		}
+	}
+
+	COLOR_VAL color2 = default_player_color[sp->get_player_nr()][1];
+	if(  color2 == 255  ) {
+		if(  default_player_color_random  ) {
+			// build a vector with all colors
+			minivec_tpl<uint8>all_colors2(28);
+			for(  uint8 i=0;  i<28;  i++  ) {
+				all_colors2.append(i);
+			}
+			// remove color1
+			all_colors2.remove( color1/8 );
+			// remove all used colors
+			for(  uint8 i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
+				spieler_t *test_sp = sp->get_welt()->get_spieler(i);
+				if(  test_sp  &&  sp!=test_sp  ) {
+					uint8 rem = 1<<(sp->get_player_color2()/8);
+					if(  all_colors2.is_contained(rem)  ) {
+						all_colors2.remove( rem );
+					}
+				}
+				else if(  default_player_color[i][1]!=255  ) {
+					uint8 rem = default_player_color[i][1];
+					if(  all_colors2.is_contained(rem)  ) {
+						all_colors2.remove( rem );
+					}
+				}
+			}
+			// now choose a random empty color
+			color2 = all_colors2[simrand(all_colors2.get_count(), "einstellungen_t::set_default_player_color()")];
+		}
+		else {
+			color2 = sp->get_player_nr() + 3;
+		}
+	}
+
+	sp->set_player_color( color1*8, color2*8 );
+}
+

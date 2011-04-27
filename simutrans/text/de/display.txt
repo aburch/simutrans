@@ -4,8 +4,8 @@
 
 <p>
 · <em>Untergrundansicht</em>: In diesem Modus kann man Tunnelstrecken bauen, sofern schon eine Strecke unter der Erde besteht.<br>
-· <em>Tag und Nacht wechseln</em>: Soll es nachts dunkel werden in Simutrans? Gebäudefenster, Fahrzeuge und Signalmittel zeigen sich in Nachtbeleuchtung.
-· <em>Helligkeit</em>: Lege mit den Pfeiltasten die Helligkeit des Spiels fest. Nutze auch die Tasten <em>+</em> (heller) und <em>-</em> (dunkler). Werte über 0 lassen sich nur über die Tastatur einstellen. Die Einstellbarkeit ist nach oben und unten nicht begrenzt, es kommt aber sehr bald zu einer Falschfarbenanzeige.<br>
+· <em>Tag und Nacht wechseln</em>: Soll es nachts dunkel werden in Simutrans? Gebäudefenster, Fahrzeuge und Signalmittel zeigen sich in Nachtbeleuchtung.<br>
+· <em>Helligkeit</em>: Lege mit den Pfeiltasten die Helligkeit des Spiels fest. Nutze auch die Tasten <em>)</em> (heller) und <em>(</em> (dunkler). Werte über 0 lassen sich nur über die Tastatur einstellen. Die Einstellbarkeit ist nach oben und unten nicht begrenzt, es kommt aber sehr bald zu einer Falschfarbenanzeige.<br>
 · <em>Inverses Scrolling</em>: Kehre die Scrollrichtung bei Bedarf um, die Karte bewegt sich dann in Mausrichtung.<br>
 · <em>Scrollgeschwindigkeit</em>: Die Einstellung liefert den Multiplikator für die Kartenscrollgeschwindigkeit.
 </p>

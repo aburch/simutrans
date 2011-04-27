@@ -15,10 +15,8 @@
 
 #include "simtypes.h"
 
-#define IMG_LEER         0xFFFF
-
 typedef uint16 image_id;
 
-// spezielle gebaeude
+#define IMG_LEER ((image_id)0xFFFF)
 
 #endif

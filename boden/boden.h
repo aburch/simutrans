@@ -24,8 +24,10 @@ protected:
 	virtual void calc_bild_internal();
 
 public:
-	boden_t(karte_t *welt, loadsave_t *file, koord pos ) : grund_t( welt, koord3d(pos,0) ) { rdwr(file); }
+	boden_t(karte_t *welt, loadsave_t *file, koord pos );
 	boden_t(karte_t *welt, koord3d pos, hang_t::typ slope);
+
+	virtual void rdwr(loadsave_t *file);
 
 	inline bool ist_natur() const { return !hat_wege()  &&  !is_halt(); }
 

@@ -1,16 +1,16 @@
 /*
- * Copyright 1997, 2001 Hansjörg Malthaner
+ * Copyright 1997, 2001 Hj. Malthaner
  * hansjoerg.malthaner@gmx.de
  * Copyright 2010 Simutrans contributors
  * Available under the Artistic License (see license.txt)
  *
  */
 
+#ifndef COMMAND_LINE_SERVER
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
-#include <limits.h>
 
 #include "macros.h"
 #include "simtypes.h"
@@ -32,6 +32,24 @@
 #	include <sys/stat.h>
 #	include <fcntl.h>
 #	include <unistd.h>
+#endif
+
+// first: find out, which copy routines we may use!
+#ifndef  __GNUC__
+# undef USE_C
+# define USE_C
+# ifndef  _M_IX86
+#  define ALIGN_COPY
+# endif
+#else
+# if defined(USE_C)  ||  !defined(__i386__)
+#  undef USE_C
+#  define USE_C
+#  if (__GNUC__>=4  &&  __GNUC_MINOR__>=2)  ||  !defined(__i386__)
+#   define ALIGN_COPY
+#   warning "Needs to use slower copy with GCC > 4.2.x"
+#  endif
+# endif
 #endif
 
 #include "simgraph.h"
@@ -73,7 +91,8 @@ static struct clip_dimension clip_rect;
  * associated to some clipline
  */
 struct xrange {
-	int xmin,xmax,sx,sy,y;
+	int sx,sy;
+	KOORD_VAL y;
 	bool non_convex_active;
 };
 
@@ -182,8 +201,9 @@ struct imd {
 #define NEED_PLAYER_RECODE (128)
 
 
-static sint16 disp_width  = 640;
-static sint16 disp_height = 480;
+static KOORD_VAL disp_width  = 640;
+static KOORD_VAL disp_actual_width  = 640;
+static KOORD_VAL disp_height = 480;
 
 
 /*
@@ -541,7 +561,14 @@ KOORD_VAL display_set_base_raster_width(KOORD_VAL new_raster)
 
 sint16 display_get_width(void)
 {
-	return disp_width;
+	return disp_actual_width;
+}
+
+
+// only use, if you are really really sure!
+void display_set_actual_width(KOORD_VAL w)
+{
+	disp_actual_width = w;
 }
 
 
@@ -700,62 +727,56 @@ public:
 	// -- initialize the clipping
 	//    has to be called before image will be drawn
 	//    return interval for x coordinate
-	inline void get_x_range(int y, xrange &r) const {
+	inline void get_x_range(KOORD_VAL y, xrange &r) const {
+		// do everything for the previous row
+		y--;
 		r.y = y;
 		r.non_convex_active = false;
 		if (non_convex  &&  y<y0  &&  y<(y0+dy)) {
 			r.non_convex_active = true;
-			const bool left = dy<0;
-			r.xmin = left ? INT_MIN : x0+1;
-			r.xmax = left ? x0+dx   : INT_MAX;
 		}
 		else if (dy != 0) {
+			// init Bresenham algorithm
 			const int t = ((y-y0) << 16) / sdy;
 			// sx >> 16 = x
 			// sy >> 16 = y
 			r.sx = t * sdx + inc + (x0 << 16);
 			r.sy = t * sdy + (y0 << 16);
-			if (dy > 0) {
-				r.xmin = r.sx >> 16;
-				r.xmax = INT_MAX;
-			}
-			else {
-				r.xmin = INT_MIN;
-				r.xmax = r.sx >> 16;
-			}
-		}
-		else {
-			const bool clip = dx*(y-y0)>0;
-			r.xmin = clip ? INT_MAX : INT_MIN;
-			r.xmax = clip ? INT_MIN : INT_MAX;
 		}
 	}
 
 	// -- step one line down, return interval for x coordinate
-	inline void inc_y(xrange &r) const {
+	inline void inc_y(xrange &r, int &xmin, int &xmax) const {
 		r.y ++;
 		// switch between clip vertical and along ray
 		if (r.non_convex_active) {
 			if (r.y==min(y0,y0+dy)) {
 				r.non_convex_active = false;
 				if (dy != 0) {
+					// init Bresenham algorithm
 					const int t = ((r.y-y0) << 16) / sdy;
 					// sx >> 16 = x
 					// sy >> 16 = y
 					r.sx = t * sdx + inc + (x0 << 16);
 					r.sy = t * sdy + (y0 << 16);
 					if (dy > 0) {
-						r.xmin = r.sx >> 16;
-						r.xmax = INT_MAX;
+						const int r_xmin = r.sx >> 16;
+						if (xmin < r_xmin) xmin = r_xmin;
 					}
 					else {
-						r.xmin = INT_MIN;
-						r.xmax = r.sx >> 16;
+						const int r_xmax = r.sx >> 16;
+						if (xmax > r_xmax) xmax = r_xmax;
 					}
 				}
+			}
+			else {
+				if (dy<0) {
+					const int r_xmax = x0+dx;
+					if (xmax > r_xmax) xmax = r_xmax;
+				}
 				else {
-					r.xmin = INT_MIN;
-					r.xmax = INT_MAX;
+					const int r_xmin = x0+1;
+					if (xmin < r_xmin) xmin = r_xmin;
 				}
 			}
 		}
@@ -766,21 +787,26 @@ public:
 					r.sx += sdx;
 					r.sy += sdy;
 				} while ((r.sy >> 16) < r.y);
-				r.xmin = r.sx >> 16;
+				const int r_xmin = r.sx >> 16;
+				if (xmin < r_xmin) xmin = r_xmin;
 			}
 			else {
 				do {
 					r.sx -= sdx;
 					r.sy -= sdy;
 				} while ((r.sy >> 16) < r.y);
-				r.xmax = r.sx >> 16;
+				const int r_xmax = r.sx >> 16;
+				if (xmax > r_xmax) xmax = r_xmax;
 			}
 		}
 		// horicontal clip
 		else {
 			const bool clip = dx*(r.y-y0)>0;
-			r.xmin = clip ? INT_MAX : INT_MIN;
-			r.xmax = clip ? INT_MIN : INT_MAX;
+			if (clip) {
+				// invisible row
+				xmin = +1;
+				xmax = -1;
+			}
 		}
 	}
 };
@@ -848,13 +874,7 @@ inline void get_xrange_and_step_y(int &xmin, int &xmax)
 	xmax = clip_rect.xx;
 	for (uint8 i=0; i<number_of_clips; i++) {
 		if (clip_ribi[i] & active_ribi) {
-			if (xmin < xranges[i].xmin) {
-				xmin = xranges[i].xmin;
-			}
-			if (xmax > xranges[i].xmax) {
-				xmax = xranges[i].xmax;
-			}
-			poly_clips[i].inc_y(xranges[i]);
+			poly_clips[i].inc_y(xranges[i], xmin, xmax);
 		}
 	}
 }
@@ -864,7 +884,7 @@ inline void get_xrange_and_step_y(int &xmin, int &xmax)
 
 
 /*
- * simutrans keeps a list of dirty areas, i.e. places that recieved new graphics
+ * simutrans keeps a list of dirty areas, i.e. places that received new graphics
  * and must be copied to the screen after an update
  */
 static inline void mark_tile_dirty(const int x, const int y)
@@ -1069,7 +1089,7 @@ static void recode(void)
 	unsigned n;
 
 	for (n = 0; n < anz_images; n++) {
-		// tut jetzt on demand recode_img() für jedes Bild einzeln
+		// recode images only if the recoded image is needed
 		images[n].recode_flags |= FLAG_NORMAL_RECODE;
 		images[n].player_flags = NEED_PLAYER_RECODE;
 	}
@@ -1246,7 +1266,6 @@ static void rezoom_img(const image_id n)
 			static PIXVAL *baseimage2 = NULL;
 			PIXVAL *src = images[n].base_data;
 			PIXVAL *dest = NULL;
-			sint32 x, y;
 			// embed the baseimage in an image with margin ~ remainder
 			const sint16 x_rem = (images[n].base_x*zoom_num[zoom_factor]) % zoom_den[zoom_factor];
 			const sint16 y_rem = (images[n].base_y*zoom_num[zoom_factor]) % zoom_den[zoom_factor];
@@ -1266,17 +1285,17 @@ static void rezoom_img(const image_id n)
 			// we will upack, resample, pack it
 
 			// thus the unpack buffer must at least fit the window => find out maximum size
-			x = newzoomwidth*(newzoomheight+3)*sizeof(PIXVAL);
-			y = (xl_margin+orgzoomwidth+xr_margin)*(yl_margin+orgzoomheight+yr_margin)*4;
-			if(y>x) {
-				x = y;
+			size_t new_size = newzoomwidth*(newzoomheight+6)*sizeof(PIXVAL);
+			size_t unpack_size = (xl_margin+orgzoomwidth+xr_margin)*(yl_margin+orgzoomheight+yr_margin)*4;
+			if( unpack_size > new_size ) {
+				new_size = unpack_size;
 			}
-			if(size < (uint32)x) {
+			if(size < new_size) {
 				free( baseimage );
 				free( baseimage2 );
-				size = x;
-				baseimage  = MALLOCN(uint8, size);
-				baseimage2 = (PIXVAL*)malloc(size);
+				size = new_size;
+				baseimage  = MALLOCN( uint8, size );
+				baseimage2 = (PIXVAL *)MALLOCN( uint8, size );
 			}
 			memset( baseimage, 255, size ); // fill with invalid data to mark transparent regions
 
@@ -1285,7 +1304,7 @@ static void rezoom_img(const image_id n)
 			sint32 basewidth = xl_margin+orgzoomwidth+xr_margin;
 
 			// now: unpack the image
-			for(  y=0;  y<images[n].base_h;  y++  ) {
+			for (sint32 y = 0; y < images[n].base_h; ++y) {
 				uint16 runlen;
 				uint8 *p = baseimage + baseoff + y*(basewidth*4);
 
@@ -1741,9 +1760,6 @@ void display_set_player_color_scheme(const int player, const COLOR_VAL col1, con
 }
 
 
-/**
- * Fügt ein Image aus anderer Quelle hinzu
- */
 void register_image(struct bild_t* bild)
 {
 	struct imd* image;
@@ -1755,13 +1771,17 @@ void register_image(struct bild_t* bild)
 		return;
 	}
 
-	if(  anz_images >= 65535  ) {
-		fprintf(stderr, "FATAL:\n*** Out of images (more than 65534!) ***\n");
-		abort();
-	}
-
 	if(  anz_images == alloc_images  ) {
-		alloc_images += 128;
+		if(  images==NULL  ) {
+			alloc_images = 510;
+		}
+		else {
+			alloc_images += 512;
+		}
+		if(  anz_images > alloc_images  ) {
+			// overflow
+			dbg->fatal( "register_image", "*** Out of images (more than 65534!) ***" );
+		}
 		images = REALLOC(images, imd, alloc_images);
 	}
 
@@ -1919,7 +1939,7 @@ static inline void colorpixcopy(PIXVAL *dest, const PIXVAL *src, const PIXVAL * 
  */
 enum pixcopy_routines {
 	plain = 0,	/// simply copies the pixels
- 	colored = 1	/// replaces player colors
+	colored = 1	/// replaces player colors
 };
 
 template<pixcopy_routines copyroutine> void templated_pixcopy(PIXVAL *dest, const PIXVAL *src, const PIXVAL * const end);
@@ -2045,7 +2065,7 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 				// jetzt kommen farbige pixel
 				runlen = *sp++;
 #ifdef USE_C
-#if 1
+#ifndef ALIGN_COPY
 				{
 					// "classic" C code (why is it faster!?!)
 					const uint32 *ls;
@@ -2068,6 +2088,7 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 				// some architectures: faster with inline of memory functions!
 				memcpy( p, sp, runlen*sizeof(PIXVAL) );
 				sp += runlen;
+				p += runlen;
 #endif
 #else
 				// this code is sometimes slower, mostly 5% faster, not really clear why and when (cache alignment?)
@@ -3110,23 +3131,37 @@ static void display_fb_internal(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_V
 		PIXVAL *p = textur + xp + yp * disp_width;
 		int dx = disp_width - w;
 		const PIXVAL colval = specialcolormap_all_day[color & 0xFF];
-		const unsigned int longcolval = (colval << 16) | colval;
+#if !defined( USE_C )  ||  !defined( ALIGN_COPY )
+		const uint32 longcolval = (colval << 16) | colval;
+#endif
 
-		if (dirty) mark_rect_dirty_nc(xp, yp, xp + w - 1, yp + h - 1);
+		if (dirty) {
+			mark_rect_dirty_nc(xp, yp, xp + w - 1, yp + h - 1);
+		}
 
 		do {
-			unsigned int count = w;
 #ifdef USE_C
+			KOORD_VAL count = w;
+#ifdef ALIGN_COPY
+			// unfourtunately the GCC > 4.1.x has a bug in the optimizer
+			while(  count-- != 0  ) {
+				*p++ = colval;
+			}
+#else
 			uint32 *lp;
 
-			if (count & 1) *p++ = longcolval;
+			if(  count & 1  ) {
+				*p++ = colval;
+			}
 			count >>= 1;
 			lp = (uint32 *)p;
-			while (count-- != 0) {
+			while(  count-- != 0  ) {
 				*lp++ = longcolval;
 			}
 			p = (PIXVAL *)lp;
+#endif
 #else
+			unsigned int count = w;
 			asm volatile (
 				// uneven words to copy?
 				"shrl %1\n\t"
@@ -3142,7 +3177,6 @@ static void display_fb_internal(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_V
 				: "cc", "memory"
 			);
 #endif
-
 			p += dx;
 		} while (--h != 0);
 	}
@@ -3460,7 +3494,7 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
 	const PIXVAL color = specialcolormap_all_day[color_index & 0xFF];
 #ifndef USE_C
 	// faster drawing with assembler
-	const unsigned long color2 = (color << 16) | color;
+	const uint32 color2 = (color << 16) | color;
 #endif
 
 	// TAKE CARE: Clipping area may be larger than actual screen size ...
@@ -3640,6 +3674,23 @@ void display_ddd_box(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PLAYE
 }
 
 
+void display_outline_proportional(KOORD_VAL xpos, KOORD_VAL ypos, PLAYER_COLOR_VAL text_color, PLAYER_COLOR_VAL shadow_color, const char *text, int dirty)
+{
+	const int flags = ALIGN_LEFT | DT_CLIP | (dirty ? DT_DIRTY : 0);
+	display_text_proportional_len_clip(xpos - 1, ypos - 1 + (12 - large_font_height) / 2, text, flags, shadow_color, -1);
+	display_text_proportional_len_clip(xpos + 1, ypos + 1 + (12 - large_font_height) / 2, text, flags, shadow_color, -1);
+	display_text_proportional_len_clip(xpos, ypos + (12 - large_font_height) / 2, text, flags, text_color, -1);
+}
+
+
+void display_shadow_proportional(KOORD_VAL xpos, KOORD_VAL ypos, PLAYER_COLOR_VAL text_color, PLAYER_COLOR_VAL shadow_color, const char *text, int dirty)
+{
+	const int flags = ALIGN_LEFT | DT_CLIP | (dirty ? DT_DIRTY : 0);
+	display_text_proportional_len_clip(xpos + 1, ypos + 1 + (12 - large_font_height) / 2, text, flags, shadow_color, -1);
+	display_text_proportional_len_clip(xpos, ypos + (12 - large_font_height) / 2, text, flags, text_color, -1);
+}
+
+
 /**
  * Zeichnet schattiertes Rechteck
  * @author Hj. Malthaner
@@ -3765,9 +3816,6 @@ void display_set_progress_text(const char *t)
 // draws a progress bar and flushes the display
 void display_progress(int part, int total)
 {
-	const int disp_width=display_get_width();
-	const int disp_height=display_get_height();
-
 	const int width=disp_width/2;
 	part = (part*width)/total;
 
@@ -3784,7 +3832,7 @@ void display_progress(int part, int total)
 	display_fillbox_wh(width/2, disp_height/2-5, part, 12, COL_NO_ROUTE, TRUE);
 
 	if(progress_text) {
-		display_proportional(width,display_get_height()/2-4,progress_text,ALIGN_MIDDLE,COL_WHITE,0);
+		display_proportional(width,disp_height/2-4,progress_text,ALIGN_MIDDLE,COL_WHITE,0);
 	}
 	dr_flush();
 }
@@ -3836,7 +3884,7 @@ void display_flush_buffer(void)
 			x++;
 		} while (x < tiles_per_line);
 	}
-	dr_textur(0, 0, disp_width, disp_height);
+	dr_textur(0, 0, disp_actual_width, disp_height);
 #else
 	for (y = 0; y < tile_lines; y++) {
 		x = 0;
@@ -3939,13 +3987,13 @@ int simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 {
 	int i;
 
-	// make sure it something of 16 (also better for caching ... )
-	width = (width + 15) & 0x7FF0;
+	disp_actual_width = width;
+	disp_height = height;
 
-	if (dr_os_open(width, height, 16, full_screen)) {
+	// get real width from os-dependent routines
+	disp_width = dr_os_open(width, height, 16, full_screen);
+	if(  disp_width>0  ) {
 
-		disp_width = width;
-		disp_height = height;
 
 		textur = dr_textur_init();
 
@@ -3953,7 +4001,8 @@ int simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 		large_font.screen_width = NULL;
 		large_font.char_data = NULL;
 		display_load_font(FONT_PATH_X "prop.fnt");
-	} else {
+	}
+	else {
 		puts("Error  : can't open window!");
 		exit(-1);
 	}
@@ -4053,35 +4102,33 @@ int simgraph_exit()
  */
 void simgraph_resize(KOORD_VAL w, KOORD_VAL h)
 {
-	// some cards need those alignments
-	w = (w + 15) & 0x7FF0;
-	if(  w<=0  ) {
-		w = 16;
-	}
+	disp_actual_width = max( 16, w );
 	if(  h<=0  ) {
 		h = 64;
 	}
 	// only resize, if internal values are different
 	if (disp_width != w || disp_height != h) {
-		disp_width = w;
-		disp_height = h;
+		KOORD_VAL new_width = dr_textur_resize(&textur, w, h, 16);
+		if(  new_width!=disp_width  ||  disp_height != h) {
 
-		guarded_free(tile_dirty);
-		guarded_free(tile_dirty_old);
+			disp_width = new_width;
+			disp_height = h;
 
-		dr_textur_resize(&textur, disp_width, disp_height, 16);
+			guarded_free(tile_dirty);
+			guarded_free(tile_dirty_old);
 
-		tiles_per_line     = (disp_width  + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;
-		tile_lines         = (disp_height + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;
-		tile_buffer_length = (tile_lines * tiles_per_line + 7) / 8;
+			tiles_per_line     = (disp_width  + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;
+			tile_lines         = (disp_height + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;
+			tile_buffer_length = (tile_lines * tiles_per_line + 7) / 8;
 
-		tile_dirty     = MALLOCN(unsigned char, tile_buffer_length);
-		tile_dirty_old = MALLOCN(unsigned char, tile_buffer_length);
+			tile_dirty     = MALLOCN(unsigned char, tile_buffer_length);
+			tile_dirty_old = MALLOCN(unsigned char, tile_buffer_length);
 
-		memset(tile_dirty,     255, tile_buffer_length);
-		memset(tile_dirty_old, 255, tile_buffer_length);
+			memset(tile_dirty,     255, tile_buffer_length);
+			memset(tile_dirty_old, 255, tile_buffer_length);
 
-		display_set_clip_wh(0, 0, disp_width, disp_height);
+			display_set_clip_wh(0, 0, disp_actual_width, disp_height);
+		}
 	}
 }
 
@@ -4096,7 +4143,7 @@ void display_snapshot()
 
 	char buf[80];
 
-#ifdef WIN32
+#ifdef _WIN32
 	mkdir(SCRENSHOT_PATH);
 #else
 	mkdir(SCRENSHOT_PATH, 0700);
@@ -4114,5 +4161,4 @@ void display_snapshot()
 
 	dr_screenshot(buf);
 }
-
-
+#endif

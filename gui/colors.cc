@@ -22,6 +22,7 @@
 #include "../dings/zeiger.h"
 #include "../simgraph.h"
 #include "../simmenu.h"
+#include "../player/simplay.h"
 
 #include "../utils/simstring.h"
 
@@ -65,8 +66,7 @@
 #define SEPERATE5						(LOOP_DATA+13)
 
 #define CENTRALISED_SEARCH				(SEPERATE5+7)
-#define USE_PERFORMANCE_COUNTER			(CENTRALISED_SEARCH+13)
-#define PHASE_REBUILD_CONNEXIONS		(USE_PERFORMANCE_COUNTER+13)
+#define PHASE_REBUILD_CONNEXIONS		(CENTRALISED_SEARCH+13)
 #define PHASE_FILTER_ELIGIBLE			(PHASE_REBUILD_CONNEXIONS+13)
 #define PHASE_FILL_MATRIX				(PHASE_FILTER_ELIGIBLE+13)
 #define PHASE_EXPLORE_PATHS				(PHASE_FILL_MATRIX+13)
@@ -78,7 +78,6 @@
 
 // x coordinates
 #define RIGHT_WIDTH (220)
-#define NUMBER_INP (170)
 
 
 color_gui_t::color_gui_t(karte_t *welt) :
@@ -86,13 +85,19 @@ color_gui_t::color_gui_t(karte_t *welt) :
 {
 	this->welt = welt;
 
+	// underground slice
+	inp_underground_level.set_pos( koord(RIGHT_WIDTH-10-50, SLICE) );
+	inp_underground_level.set_groesse( koord( 50, BUTTON_HEIGHT-1 ) );
+	inp_underground_level.set_value( grund_t::underground_mode==grund_t::ugm_level ? grund_t::underground_level : welt->get_zeiger()->get_pos().z);
+	inp_underground_level.set_limits(welt->get_grundwasser()-10, 32);
+	inp_underground_level.add_listener(this);
+
 	// brightness
 	brightness.set_pos( koord(RIGHT_WIDTH-10-40,BRIGHTNESS) );
 	brightness.set_groesse( koord( 40, BUTTON_HEIGHT-1 ) );
 	brightness.set_value( umgebung_t::daynight_level );
 	brightness.set_limits( 0, 9 );
 	brightness.add_listener(this);
-	add_komponente(&brightness);
 
 	// scrollspeed
 	scrollspeed.set_pos( koord(RIGHT_WIDTH-10-40,SCROLL_SPEED) );
@@ -100,15 +105,13 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	scrollspeed.set_value( abs(umgebung_t::scroll_multi) );
 	scrollspeed.set_limits( 1, 9 );
 	scrollspeed.add_listener(this);
-	add_komponente(&scrollspeed);
 
 	// traffic density
-	traffic_density.set_pos( koord(RIGHT_WIDTH-10-50,DENS_TRAFFIC) );
-	traffic_density.set_groesse( koord( 50, BUTTON_HEIGHT-1 ) );
+	traffic_density.set_pos( koord(RIGHT_WIDTH-10-45,DENS_TRAFFIC) );
+	traffic_density.set_groesse( koord( 45, BUTTON_HEIGHT-1 ) );
 	traffic_density.set_value( welt->get_einstellungen()->get_verkehr_level() );
 	traffic_density.set_limits( 0, 16 );
 	traffic_density.add_listener(this);
-	add_komponente(&traffic_density);
 
 	uint8 b = 5;
 
@@ -190,16 +193,17 @@ color_gui_t::color_gui_t(karte_t *welt) :
 
 	//18
 	buttons[++b].set_pos( koord(10,SHOW_STATION_SIGNS) );
-	buttons[b].set_typ(button_t::square_state);
-	buttons[b].set_text("show station names");
-	buttons[b].pressed = umgebung_t::show_names&1;
+	buttons[b].set_typ(button_t::arrowright);
+	//buttons[b].set_tooltip("show station names");
+/*	buttons[b].set_text("show station names");
+	buttons[b].pressed = umgebung_t::show_names&1;*/
 	buttons[b].set_tooltip("Shows the names of the individual stations in the main game window.");
 
 	//19	
 	buttons[++b].set_pos( koord(10,SHOW_STATION_GOODS) );
 	buttons[b].set_typ(button_t::square_state);
 	buttons[b].set_text("show waiting bars");
-	buttons[b].pressed = umgebung_t::show_names&1;
+	buttons[b].pressed = umgebung_t::show_names&2;
 	buttons[b].set_tooltip("Shows a bar graph representing the number of passengers/mail/goods waiting at stops.");
 
 	//20
@@ -208,6 +212,9 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	buttons[b].set_text("Centralised path searching");
 	buttons[b].pressed = welt->get_einstellungen()->get_default_path_option() == 2;
 	buttons[b].set_tooltip("Use centralised instead of distributed path searching system.");
+	if(  umgebung_t::networkmode  ) {
+		buttons[b].disable();
+	}
 
 	//21
 	buttons[++b].set_pos( koord(10,SLICE) );
@@ -215,18 +222,7 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	buttons[b].set_text("sliced underground mode");
 	buttons[b].set_tooltip("See under the ground, one layer at a time. Toggle with CTRL + U. Move up/down in layers with HOME and END.");
 
-	// Added by : Knightly
 	//22
-	buttons[++b].set_pos( koord(10,USE_PERFORMANCE_COUNTER) );
-	buttons[b].set_typ(button_t::square_state);
-	buttons[b].set_text("Use performance counter");
-	buttons[b].pressed = umgebung_t::default_einstellungen.get_system_time_option() == 1;
-	buttons[b].set_tooltip("Read-only option for Windows/GDI version only: configurable in simuconf.tab");
-#if ( !WIN32 || SDL )
-	buttons[b].disable();
-#endif
-	
-	//23
 	buttons[++b].set_pos( koord(10, LEFT_TO_RIGHT_GRAPHS) );
 	buttons[b].set_typ(button_t::square_state);
 	buttons[b].set_text("Inverse graphs");
@@ -238,14 +234,7 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	//buttons[b].set_typ(button_t::square_state);
 	//buttons[b].set_text("Inverse graphs (other)");
 	//buttons[b].pressed = !umgebung_t::left_to_right_graphs;
-	//buttons[b].set_tooltip("Graphs showing non-financial information will appear from right to left instead of left to right");
-
-	inp_underground_level.set_pos(koord(NUMBER_INP, SLICE) );
-	inp_underground_level.set_groesse( koord(50,12));
-	inp_underground_level.set_limits(welt->get_grundwasser()-10, 32);
-	inp_underground_level.set_value( grund_t::underground_mode==grund_t::ugm_level ? grund_t::underground_level : welt->get_zeiger()->get_pos().z);
-	add_komponente(&inp_underground_level);
-	inp_underground_level.add_listener(this);
+	//buttons[b].set_tooltip("Graphs showing non-financial information will appear from right to left instead of left to right")
 
 	// left/right for convoi tooltips
 	buttons[0].set_pos( koord(10,CONVOI_TOOLTIPS) );
@@ -255,12 +244,56 @@ color_gui_t::color_gui_t(karte_t *welt) :
 
 	for(int i=0;  i<COLORS_MAX_BUTTONS;  i++ ) {
 		buttons[i].add_listener(this);
-		add_komponente( buttons+i );
+	//		add_komponente( buttons+i );
 	}
 
+	// add buttons for sensible keyboard tab order
+	add_komponente( buttons+17 );
+	add_komponente( buttons+16 );
+	add_komponente( buttons+20 );
+	add_komponente( &inp_underground_level );
+	add_komponente( buttons+9 );
+	add_komponente( &brightness );
+	add_komponente( buttons+6 );
+	add_komponente( &scrollspeed );
+	add_komponente( buttons+10 );
+	add_komponente( buttons+11 );
+	add_komponente( buttons+12 );
+	add_komponente( buttons+13 );
+	add_komponente( buttons+14 );
+	add_komponente( buttons+15 );
+	add_komponente( buttons+18 );
+	add_komponente( buttons+19 );
+	add_komponente( buttons+8 );
+	add_komponente( buttons+7 );
+	add_komponente( &traffic_density );
+	add_komponente( buttons+0 );
+	add_komponente( buttons+1 );
+
+	// unused buttons
+	// add_komponente( buttons+2 );
+	// add_komponente( buttons+3 );
+	// add_komponente( buttons+4 );
+	// add_komponente( buttons+5 );
+
+
+	set_resizemode(gui_frame_t::horizonal_resize);
+	set_min_windowsize( koord(RIGHT_WIDTH, BOTTOM) );
 	set_fenstergroesse( koord(RIGHT_WIDTH, BOTTOM) );
 }
 
+
+void color_gui_t::set_fenstergroesse(koord groesse)
+{
+	gui_frame_t::set_fenstergroesse(groesse);
+	const sint16 w = groesse.x;
+	inp_underground_level.set_pos( koord(w-10-50, SLICE) );
+	brightness.set_pos( koord(w-10-40,BRIGHTNESS) );
+	scrollspeed.set_pos( koord(w-10-40,SCROLL_SPEED) );
+	traffic_density.set_pos( koord(w-10-45,DENS_TRAFFIC) );
+	buttons[1].set_pos( koord(w-10-10,CONVOI_TOOLTIPS) );
+	buttons[13].set_pos( koord(w-10-10,HIDE_CITY_HOUSES) );
+}
 
 
 bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
@@ -322,7 +355,18 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	} else if((buttons+17)==komp) {
 		grund_t::toggle_grid();
 	} else if((buttons+18)==komp) {
-		umgebung_t::show_names ^= 1;
+		if(  umgebung_t::show_names&1  ) {
+			if(  (umgebung_t::show_names>>2) == 2  ) {
+				umgebung_t::show_names &= 2;
+			}
+			else {
+				umgebung_t::show_names += 4;
+			}
+		}
+		else {
+			umgebung_t::show_names &= 2;
+			umgebung_t::show_names |= 1;
+		}
 	} else if((buttons+19)==komp) {
 		umgebung_t::show_names ^= 2;
 	} else if((buttons+21)==komp) {
@@ -357,12 +401,12 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 			buttons[20].pressed = true;
 			path_explorer_t::full_instant_refresh();
 		}
-		/*else
+		else
 		{
-			welt->get_einstellungen()->set_default_path_option(1);
+			welt->access_einstellungen()->set_default_path_option(1);
 			buttons[20].pressed = false;
 			haltestelle_t::prepare_pathing_data_structures();
-		}*/
+		}
 	}
 
 	welt->set_dirty();
@@ -383,18 +427,37 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 	buttons[15].pressed = umgebung_t::station_coverage_show;
 	buttons[16].pressed = grund_t::underground_mode == grund_t::ugm_all;
 	buttons[17].pressed = grund_t::show_grid;
-	buttons[18].pressed = umgebung_t::show_names&1;
+	//buttons[18].pressed = umgebung_t::show_names&1;
 	buttons[19].pressed = (umgebung_t::show_names&2)!=0;
 	buttons[21].pressed = grund_t::underground_mode == grund_t::ugm_level;
 
 	gui_frame_t::zeichnen(pos, gr);
 
+	// draw the lable stype
+	if(  umgebung_t::show_names&1  ) {
+		PLAYER_COLOR_VAL pc = welt->get_active_player() ? welt->get_active_player()->get_player_color1()+4 : COL_ORANGE;
+		const char *text = translator::translate("show station names");
+		switch( umgebung_t::show_names >> 2 ) {
+			case 0:
+				display_ddd_proportional_clip( 16+x+buttons[18].get_pos().x, y+buttons[18].get_pos().y+(LINESPACE/2), proportional_string_width(text)+7, 0, pc, COL_BLACK, text, 1 );
+				break;
+			case 1:
+				display_outline_proportional( 16+x+buttons[18].get_pos().x, y+buttons[18].get_pos().y, pc+1, COL_BLACK, text, 1 );
+				break;
+			case 2:
+				display_outline_proportional( 16+x+buttons[18].get_pos().x+16, y+buttons[18].get_pos().y, COL_YELLOW, COL_BLACK, text, 1 );
+				display_ddd_box_clip( 16+x+buttons[18].get_pos().x, y+buttons[18].get_pos().y, LINESPACE, LINESPACE, pc-2, pc+2 );
+				display_fillbox_wh( 16+x+buttons[18].get_pos().x+1, y+buttons[18].get_pos().y+1, LINESPACE-2, LINESPACE-2, pc, 1 );
+				break;
+		}
+	}
+
 	// seperator
-	display_ddd_box_clip(x+10, y+SEPERATE1, RIGHT_WIDTH-20, 0, MN_GREY0, MN_GREY4);
-	display_ddd_box_clip(x+10, y+SEPERATE2, RIGHT_WIDTH-20, 0, MN_GREY0, MN_GREY4);
-	display_ddd_box_clip(x+10, y+SEPERATE3, RIGHT_WIDTH-20, 0, MN_GREY0, MN_GREY4);
-	display_ddd_box_clip(x+10, y+SEPERATE4, RIGHT_WIDTH-20, 0, MN_GREY0, MN_GREY4);
-	display_ddd_box_clip(x+10, y+SEPERATE5, RIGHT_WIDTH-20, 0, MN_GREY0, MN_GREY4);
+	const sint16 w = this->get_fenstergroesse().x;
+	display_ddd_box_clip(x+10, y+SEPERATE1, w-20, 0, MN_GREY0, MN_GREY4);
+	display_ddd_box_clip(x+10, y+SEPERATE2, w-20, 0, MN_GREY0, MN_GREY4);
+	display_ddd_box_clip(x+10, y+SEPERATE3, w-20, 0, MN_GREY0, MN_GREY4);
+	display_ddd_box_clip(x+10, y+SEPERATE4, w-20, 0, MN_GREY0, MN_GREY4);
 
 	display_proportional_clip(x+10, y+BRIGHTNESS+1, translator::translate("1LIGHT_CHOOSE"), ALIGN_LEFT, COL_BLACK, true);
 

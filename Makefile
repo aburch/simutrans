@@ -4,7 +4,7 @@ CONFIG ?= config.default
 
 BACKENDS      = allegro gdi sdl mixer_sdl x11 posix
 COLOUR_DEPTHS = 0 8 16
-OSTYPES       = beos cygwin freebsd haiku linux mingw mac
+OSTYPES       = amiga beos cygwin freebsd haiku linux mingw mac
 
 ifeq ($(findstring $(BACKEND), $(BACKENDS)),)
   $(error Unkown BACKEND "$(BACKEND)", must be one of "$(BACKENDS)")
@@ -23,6 +23,12 @@ ifeq ($(BACKEND), x11)
   $(warning ATTENTION: X11 backend is broken)
 endif
 
+
+ifeq ($(OSTYPE),amiga)
+  STD_LIBS ?= -lz -lbz2 -lunix -lpthread -lSDL_mixer -lsmpeg -lvorbisfile -lvorbis -logg
+  CFLAGS += -mcrt=newlib -DUSE_C -DBIG_ENDIAN -gstabs+
+  LDFLAGS += -Bstatic -non_shared
+endif
 
 ifeq ($(OSTYPE),beos)
   LIBS += -lz -lnet -lbz2
@@ -56,6 +62,7 @@ ifeq ($(OSTYPE),mingw)
   CC ?= gcc
   SOURCES += simsys_w32_png.cc
   CFLAGS  += -mno-cygwin -DPNG_STATIC -DZLIB_STATIC -march=pentium
+  LDFLAGS += -static-libgcc -static-libstdc++
   ifeq ($(BACKEND),gdi)
     LIBS += -lunicows
   endif
@@ -103,7 +110,7 @@ ifneq ($(PROFILE),)
 endif
 
 ifneq ($(WITH_REVISION),)
-  REV = $(shell svnversion)
+  REV = $(shell git log|head -1|tail -c +8|cksum| awk '{print $1}')
   ifneq ($(REV),)
     CFLAGS  += -DREVISION="$(REV)"
   endif
@@ -181,7 +188,10 @@ SOURCES += dataobj/loadsave.cc
 SOURCES += dataobj/marker.cc
 SOURCES += dataobj/network.cc
 SOURCES += dataobj/network_cmd.cc
+SOURCES += dataobj/network_cmp_pakset.cc
+SOURCES += dataobj/network_file_transfer.cc
 SOURCES += dataobj/network_packet.cc
+SOURCES += dataobj/network_socket_list.cc
 SOURCES += dataobj/pakset_info.cc
 SOURCES += dataobj/powernet.cc
 SOURCES += dataobj/replace_data.cc
@@ -349,9 +359,9 @@ SOURCES += vehicle/simverkehr.cc
 
 SOURCES += simgraph$(COLOUR_DEPTH).cc
 
-ifdef DBG_WEIGHTMAP
+ifdef DEBUG_WEIGHTMAPS
   SOURCES += utils/dbg_weightmap.cc
-  CFLAGS += -DDBG_WEIGHTMAP
+  CFLAGS += -DDEBUG_WEIGHTMAPS
 endif
 
 ifeq ($(BACKEND),allegro)
@@ -450,10 +460,12 @@ ifneq ($(findstring $(OSTYPE), cygwin mingw),)
   WINDRES ?= windres
 endif
 
+CCFLAGS += -DUSE_INDEPENDENT_PATH_POOL -DDEBUG_SIMRAND_CALLS
+
 CCFLAGS  += $(CFLAGS)
 CXXFLAGS += $(CFLAGS)
 
-PROG ?= sim
+PROG ?= simutrans-experimental	
 
 
 include common.mk

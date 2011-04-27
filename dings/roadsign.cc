@@ -94,7 +94,7 @@ void roadsign_t::set_dir(ribi_t::ribi dir)
 		weg->count_sign();
 	}
 	if(besch->is_single_way()  ||  besch->is_signal()  ||  besch->is_pre_signal()  ||  besch->is_longblock_signal()) {
-		// set mask, if it is a signle way ...
+		// set mask, if it is a single way ...
 		weg->count_sign();
 		if(ribi_t::ist_einfach(dir)) {
 			weg->set_ribi_maske(dir);

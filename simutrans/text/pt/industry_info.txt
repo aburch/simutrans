@@ -16,7 +16,7 @@ Conforme as <a href="citywindow.txt">áreas urbanas</a> crescem, mais indústrias 
 {Dicas: adicione indústrias a uma área urbana usando a ferramenta <a href="edittools.txt">Construir mercado</a> nas ferramentas de edição do mapa. Mude quando novas indústrias são geradas no arquivo cityrules.tab (industry_increase_every = 0) o valor zero não gera nenhuma indústria nova}.
 </p>
 <p>
-Clique em uma indústria na área de jogo com a ferramenta <a href="inspection_tool.txt">verificar</a> ou em uma indústria listada na <a href="factorylist_filter.txt">lista das fábricas</a> para abrir as <strong>informações das indústrias</strong>.<br>
+Clique em uma indústria na área de jogo com a ferramenta <a href="inspection_tool.txt">Consultar</a> ou em uma indústria listada na <a href="factorylist_filter.txt">lista das fábricas</a> para abrir as <strong>informações das indústrias</strong>.<br>
 Use a <a href="mouse.txt">barra de rolagem</a> para percorrer os itens que não estiverem visíveis.
 </p>
 <p>

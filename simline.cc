@@ -15,61 +15,86 @@ uint8 simline_t::convoi_to_line_catgory[MAX_CONVOI_COST]={LINE_CAPACITY, LINE_TR
 
 karte_t *simline_t::welt=NULL;
 
-
-simline_t::simline_t(karte_t* welt, spieler_t* sp)
+simline_t::simline_t(karte_t* welt, spieler_t* sp, linetype type)
 {
 	self = linehandle_t(this);
 	char printname[128];
-	sprintf( printname, "(%i) %s", self.get_id(), translator::translate("Line") );
+	sprintf( printname, "(%i) %s", self.get_id(), translator::translate("Line",welt->get_einstellungen()->get_name_language_id()) );
 	name = printname;
+
 	init_financial_history();
-	this->id = INVALID_LINE_ID;
+	this->type = type;
 	this->welt = welt;
-	this->old_fpl = NULL;
 	this->fpl = NULL;
 	this->sp = sp;
 	withdraw = false;
 	state_color = COL_YELLOW;
+
 	for(uint8 i = 0; i < MAX_LINE_COST; i ++)
 	{	
 		rolling_average[i] = 0;
 		rolling_average_count[i] = 0;
 	}
 	start_reversed = false;
+
+	create_schedule();
 }
 
 
-
-void simline_t::set_line_id(uint32 id)
+simline_t::simline_t(karte_t* welt, spieler_t* sp, linetype type, loadsave_t *file)
 {
-	this->id = id;
-	char printname[128];
-	sprintf( printname, "(%i) %s", self.get_id(), translator::translate("Line") );
-	name = printname;
+	// id will be read and assigned during rdwr
+	self = linehandle_t();
+	this->type = type;
+	this->welt = welt;
+	this->fpl = NULL;
+	this->sp = sp;
+	create_schedule();
+	rdwr(file);
+	// now self has the right id but the this-pointer is not assigned to the quickstone handle yet
+	// do this explicitly
+	// some savegames have line_id=0, resolve that in laden_abschliessen
+	if (self.get_id()!=0) {
+		self = linehandle_t(this, self.get_id());
+	}
 }
-
 
 
 simline_t::~simline_t()
 {
-	DBG_DEBUG("simline_t::~simline_t()", "deleting fpl=%p and old_fpl=%p", fpl, old_fpl);
+	DBG_DEBUG("simline_t::~simline_t()", "deleting fpl=%p", fpl);
 
 	assert(count_convoys()==0);
 	unregister_stops();
 
 	delete fpl;
-	delete old_fpl;
 	self.detach();
-
-	DBG_MESSAGE("simline_t::~simline_t()", "line %d (%p) destroyed", id, this);
+	DBG_MESSAGE("simline_t::~simline_t()", "line %d (%p) destroyed", self.get_id(), this);
 }
 
 
-
-void simline_t::add_convoy(convoihandle_t cnv)
+void simline_t::create_schedule()
 {
-	if (line_managed_convoys.empty()) {
+	switch(type) {
+		case simline_t::truckline:       set_schedule(new autofahrplan_t()); break;
+		case simline_t::trainline:       set_schedule(new zugfahrplan_t()); break;
+		case simline_t::shipline:        set_schedule(new schifffahrplan_t()); break;
+		case simline_t::airline:         set_schedule(new airfahrplan_t()); break;
+		case simline_t::monorailline:    set_schedule(new monorailfahrplan_t()); break;
+		case simline_t::tramline:        set_schedule(new tramfahrplan_t()); break;
+		case simline_t::maglevline:      set_schedule(new maglevfahrplan_t()); break;
+		case simline_t::narrowgaugeline: set_schedule(new narrowgaugefahrplan_t()); break;
+		default:
+			dbg->fatal( "simline_t::create_schedule()", "Cannot create default schedule!" );
+	}
+}
+
+
+void simline_t::add_convoy(convoihandle_t cnv, bool from_loading)
+{
+	if (line_managed_convoys.empty()  &&  self.is_bound()) {
 		// first convoi -> ok, now we can announce this connection to the stations
+		// unbound self can happen during loading if this line had line_id=0
 		register_stops(fpl);
 	}
 
@@ -134,7 +159,7 @@ void simline_t::add_convoy(convoihandle_t cnv)
 	}
 
 	// if the schedule is flagged as bidirectional, set the initial convoy direction
-	if( fpl->is_bidirectional() ) {
+	if( fpl->is_bidirectional() && !from_loading ) {
 		cnv->set_reverse_schedule(start_reversed);
 		start_reversed = !start_reversed;
 	}
@@ -155,6 +180,33 @@ void simline_t::remove_convoy(convoihandle_t cnv)
 	}
 }
 
+// invalid line id prior to 110.0
+#define INVALID_LINE_ID_OLD ((uint16)(-1))
+// invalid line id from 110.0 on
+#define INVALID_LINE_ID ((uint16)(0))
+
+void simline_t::rdwr_linehandle_t(loadsave_t *file, linehandle_t &line)
+{
+	uint16 id;
+	if (file->is_saving()) {
+		id = line.is_bound() ? line.get_id(): (file->get_version() < 110000  ? INVALID_LINE_ID_OLD : INVALID_LINE_ID);
+	}
+	if(file->get_version()<88003) {
+		sint32 dummy=id;
+		file->rdwr_long(dummy);
+		id = (uint16)dummy;
+	}
+	else {
+		file->rdwr_short(id);
+	}
+	if (file->is_loading()) {
+		// invalid line_id's: 0 and 65535
+		if (id == INVALID_LINE_ID_OLD) {
+			id = 0;
+		}
+		line.set_id(id);
+	}
+}
 
 
 void simline_t::rdwr(loadsave_t *file)
@@ -174,14 +226,8 @@ void simline_t::rdwr(loadsave_t *file)
 		file->rdwr_str(name, lengthof(name));
 	}
 
-	if(file->get_version()<88003) {
-		sint32 dummy=id;
-		file->rdwr_long(dummy);
-		id = (uint16)dummy;
-	}
-	else {
-		file->rdwr_short(id);
-	}
+	rdwr_linehandle_t(file, self);
+
 	fpl->rdwr(file);
 
 	//financial history
@@ -199,7 +245,10 @@ void simline_t::rdwr(loadsave_t *file)
 					// Thus, this value must be skipped properly to
 					// assign the values. Likewise, versions of Experimental < 8
 					// did not store refund information.
-					financial_history[k][j] = 0;
+					if(file->is_loading())
+					{
+						financial_history[k][j] = 0;
+					}
 					continue;
 				}
 				file->rdwr_longlong(financial_history[k][j]);
@@ -224,7 +273,10 @@ void simline_t::rdwr(loadsave_t *file)
 					// Thus, this value must be skipped properly to
 					// assign the values. Likewise, versions of Experimental < 8
 					// did not store refund information.
-					financial_history[k][j] = 0;
+					if(file->is_loading())
+					{
+						financial_history[k][j] = 0;
+					}
 					continue;
 				}
 				file->rdwr_longlong(financial_history[k][j]);
@@ -259,6 +311,12 @@ void simline_t::rdwr(loadsave_t *file)
 
 void simline_t::laden_abschliessen()
 {
+	if(  !self.is_bound()  ) {
+		// get correct handle
+		self = sp->simlinemgmt.get_line_with_id_zero();
+		assert( self.get_rep() == this );
+		DBG_MESSAGE("simline_t::laden_abschliessen", "assigned id=%d to line %s", self.get_id(), get_name());
+	}
 	if(  line_managed_convoys.get_count()>0  ) {
 		register_stops(fpl);
 	}
@@ -310,25 +368,28 @@ void simline_t::unregister_stops(schedule_t * fpl)
 }
 
 
-
 void simline_t::renew_stops()
 {
 	if(  line_managed_convoys.get_count()>0  ) 
 	{
-		if(  old_fpl  ) 
-		{
-			unregister_stops( old_fpl );
-
-			// Added by : Knightly
-			haltestelle_t::refresh_routing(old_fpl, goods_catg_index, sp, 0);
-		}
 		register_stops( fpl );
 	
 		// Added by Knightly
 		haltestelle_t::refresh_routing(fpl, goods_catg_index, sp, welt->get_einstellungen()->get_default_path_option());
 		
-		DBG_DEBUG("simline_t::renew_stops()", "Line id=%d, name='%s'", id, name.c_str());
+		DBG_DEBUG("simline_t::renew_stops()", "Line id=%d, name='%s'", self.get_id(), name.c_str());
 	}
+}
+
+void simline_t::set_schedule(schedule_t* fpl)
+{
+	if (this->fpl) 
+	{
+		haltestelle_t::refresh_routing(fpl, goods_catg_index, sp, 0);
+		unregister_stops();
+		delete this->fpl;
+	}
+	this->fpl = fpl;
 }
 
 
@@ -350,19 +411,6 @@ void simline_t::new_month()
 		rolling_average_count[i] = 0;
 	}
 }
-
-
-
-/*
- * called from line_management_gui.cc to prepare line for a change of its schedule
- */
-void simline_t::prepare_for_update()
-{
-	DBG_DEBUG("simline_t::prepare_for_update()", "line %d (%p)", id, this);
-	delete old_fpl;
-	old_fpl = fpl->copy();
-}
-
 
 
 void simline_t::init_financial_history()
@@ -494,14 +542,3 @@ void simline_t::set_withdraw( bool yes_no )
 	}
 }
 
-
-// Added by : Knightly
-bool simline_t::is_schedule_updated() const
-{
-	if (!fpl)
-		return false;
-	else if (!old_fpl)
-		return true;
-	else  // Case : Both fpl and old_fpl contains a schedule
-		return !old_fpl->matches(welt, fpl);
-}

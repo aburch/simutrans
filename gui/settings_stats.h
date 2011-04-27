@@ -32,7 +32,7 @@ class einstellungen_t;
 
 // call this befor any init is done ...
 #define INIT_INIT \
-	width = 16;\
+	width = 18;\
 	sint16 ypos = 4;\
 	remove_all();\
 	free_all();\
@@ -40,7 +40,7 @@ class einstellungen_t;
 
 #define INIT_NUM(t,a,b,c,d,e) \
 {\
-	width = max(width, proportional_string_width(t)+66);\
+	width = max(width, proportional_string_width(t)+68);\
 	gui_numberinput_t *ni = new gui_numberinput_t();\
 	ni->init( (a), (b), (c), (d), (e) );\
 	ni->set_pos( koord( 2, ypos ) );\
@@ -57,7 +57,7 @@ class einstellungen_t;
 
 #define INIT_COST(t,a,b,c,d,e) \
 {\
-	width = max(width, proportional_string_width(t)+66);\
+	width = max(width, proportional_string_width(t)+68);\
 	gui_numberinput_t *ni = new gui_numberinput_t();\
 	ni->init( (a)/(sint64)100, (b), (c), (d), (e) );\
 	ni->set_pos( koord( 2, ypos ) );\
@@ -74,7 +74,7 @@ class einstellungen_t;
 
 #define INIT_LB(t) \
 {\
-	width = max(width, proportional_string_width(t)+4);\
+	width = max(width, proportional_string_width(t)+6);\
 	gui_label_t *lb = new gui_label_t();\
 	lb->set_text_pointer(t);\
 	lb->set_pos( koord( 4, ypos ) );\
@@ -85,7 +85,7 @@ class einstellungen_t;
 
 #define INIT_BOOL(t,a) \
 {\
-	width = max(width, proportional_string_width(t)+20);\
+	width = max(width, proportional_string_width(t)+22);\
 	button_t *bt = new button_t();\
 	bt->init( button_t::square_automatic, (t), koord( 2, ypos ) );\
 	bt->pressed = (a);\
@@ -152,7 +152,7 @@ protected:
 	void free_all();
 
 public:
-	settings_stats_t() { width = 16; }
+	settings_stats_t() { width = 18; }
 	~settings_stats_t() { free_all(); }
 
 	void init( einstellungen_t *sets );
@@ -169,6 +169,7 @@ public:
 class settings_general_stats_t : public settings_stats_t, public action_listener_t
 {
 	gui_combobox_t savegame;
+	gui_combobox_t savegame_ex;
 public:
 	// needed for savegame combobox
 	bool action_triggered(gui_action_creator_t *komp, value_t extra);

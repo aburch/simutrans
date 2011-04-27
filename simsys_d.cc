@@ -323,10 +323,10 @@ char *dr_query_homedir(void)
 	}
 	return NULL;
 #else
-#ifndef __MACOS__
+#ifndef __APPLE__
 	sprintf( buffer, "%s/simutrans", getenv("HOME") );
 #else
-	sprintf( buffer, "%s/Documents/simutrans", getenv("HOME") );
+	sprintf( buffer, "%s/Library/Simutrans", getenv("HOME") );
 #endif
 	int err = mkdir( buffer, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH );
 	if(err  &&  err!=EEXIST) {
@@ -364,11 +364,13 @@ unsigned short* dr_textur_init(void)
 	return (unsigned short *)(texture_map->line[0]);
 }
 
+extern void display_set_actual_width(KOORD_VAL w);
 
-// reiszes screen (Not allowed)
+// resizes screen (Not allowed)
 int dr_textur_resize(unsigned short** textur, int w, int h, int bpp)
 {
-	return FALSE;
+	display_set_actual_width( width );
+	return width;
 }
 
 
@@ -423,7 +425,7 @@ void dr_flush(void)
 
 #ifdef WIN32
 // try saving png using gdiplus.dll
-extern "C" int dr_screenshot_png(const char *filename,  int w, int h, unsigned short *data, int bitdepth );
+extern "C" int dr_screenshot_png(const char *filename,  int w, int h, int maxwidth, unsigned short *data, int bitdepth );
 #endif
 
 /**
@@ -435,7 +437,7 @@ extern "C" int dr_screenshot_png(const char *filename,  int w, int h, unsigned s
 int dr_screenshot(const char *filename)
 {
 #ifdef WIN32
-	if(dr_screenshot_png(filename, width, height, (short unsigned int *)texture_map, 16)) {
+	if(dr_screenshot_png(filename, width-1, height, width, (short unsigned int *)texture_map, 16)) {
 		return 1;
 	}
 #endif
@@ -608,18 +610,20 @@ int main(int argc, char **argv)
 	argv[0] = pathname;
 #else
 #ifndef __BEOS__
-#	if defined __GLIBC__
+#  if defined(__GLIBC__)  &&  !defined(__AMIGA__)
 	/* glibc has a non-standard extension */
 	char* buffer2 = NULL;
-#else
+#  else
 	char buffer2[PATH_MAX];
-#endif
+#  endif
+#  ifndef __AMIGA__
 	char buffer[PATH_MAX];
 	int length = readlink("/proc/self/exe", buffer, lengthof(buffer) - 1);
 	if (length != -1) {
 		buffer[length] = '\0'; /* readlink() does not NUL-terminate */
 		argv[0] = buffer;
 	}
+#  endif
 	// no process file system => need to parse argv[0]
 	/* should work on most unix or gnu systems */
 	argv[0] = realpath (argv[0], buffer2);

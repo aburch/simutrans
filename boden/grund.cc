@@ -256,6 +256,12 @@ void grund_t::rdwr(loadsave_t *file)
 			if(++i < 2) {
 				switch(wtyp) {
 					default:
+#if DEBUG
+						if(  wtyp != invalid_wt  ) {
+							dbg->error( "grund_t::rdwr()", "invalid waytype %i!", (int)wtyp );
+							wtyp = invalid_wt;
+						}
+#endif
 						break;
 
 					case road_wt:
@@ -368,7 +374,7 @@ void grund_t::rdwr(loadsave_t *file)
 
 	// need to add a crossing for old games ...
 	if (file->is_loading()  &&  ist_uebergang()  &&  !find<crossing_t>(2)) {
-		const kreuzung_besch_t *cr_besch = crossing_logic_t::get_crossing( ((weg_t *)obj_bei(0))->get_waytype(), ((weg_t *)obj_bei(1))->get_waytype(), 0 );
+		const kreuzung_besch_t *cr_besch = crossing_logic_t::get_crossing( ((weg_t *)obj_bei(0))->get_waytype(), ((weg_t *)obj_bei(1))->get_waytype(), ((weg_t *)obj_bei(0))->get_max_speed(), ((weg_t *)obj_bei(1))->get_max_speed(), 0 );
 		if(cr_besch==0) {
 			dbg->fatal("crossing_t::crossing_t()","requested for waytypes %i and %i but nothing defined!", ((weg_t *)obj_bei(0))->get_waytype(), ((weg_t *)obj_bei(1))->get_waytype() );
 		}
@@ -647,7 +653,7 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 
 	// check for foundation
 	if(k.x>0  &&  k.y>0) {
-		const grund_t *gr=welt->lookup(k+koord(-1,-1))->get_kartenboden();
+		const grund_t *gr=welt->lookup_kartenboden(k+koord(-1,-1));
 		if(gr) {
 			const sint16 left_hgt=gr->get_disp_height()/Z_TILE_STEP;
 			const sint8 slope=gr->get_disp_slope();
@@ -665,7 +671,7 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 
 	// now enter the left two height differences
 	if(k.x>0) {
-		const grund_t *gr=welt->lookup(k+koord(-1,0))->get_kartenboden();
+		const grund_t *gr=welt->lookup_kartenboden(k+koord(-1,0));
 		if(gr) {
 			const sint16 left_hgt=gr->get_disp_height()/Z_TILE_STEP;
 			const sint8 slope=gr->get_disp_slope();
@@ -727,7 +733,7 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 
 	// now enter the back two height differences
 	if(k.y>0) {
-		const grund_t *gr=welt->lookup(k+koord(0,-1))->get_kartenboden();
+		const grund_t *gr=welt->lookup_kartenboden(k+koord(0,-1));
 		if(gr) {
 			const sint16 back_hgt=gr->get_disp_height()/Z_TILE_STEP;
 			const sint8 slope=gr->get_disp_slope();
@@ -789,7 +795,7 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 	}
 
 	// not ground -> then not draw first ...
-	if(welt->lookup(k)->get_kartenboden()!=this) {
+	if(welt->lookup_kartenboden(k)!=this) {
 		clear_flag(grund_t::draw_as_ding);
 	}
 
@@ -1191,12 +1197,27 @@ void grund_t::display_overlay(const sint16 xpos, const sint16 ypos)
 	const bool dirty = get_flag(grund_t::dirty);
 
 	// marker/station text
-	if(get_flag(has_text)  &&  umgebung_t::show_names) {
-		const char *text = get_text();
-		if(umgebung_t::show_names & 1) {
+	if(  get_flag(has_text)  &&  umgebung_t::show_names  ) {
+		if(  umgebung_t::show_names&1  ) {
+			const char *text = get_text();
 			const sint16 raster_tile_width = get_tile_raster_width();
 			const int width = proportional_string_width(text)+7;
-			display_ddd_proportional_clip(xpos - (width - raster_tile_width)/2, ypos, width, 0, text_farbe(), COL_BLACK, text, dirty);
+			int new_xpos = xpos - (width-raster_tile_width)/2;
+			PLAYER_COLOR_VAL pc = text_farbe();
+
+			switch( umgebung_t::show_names >> 2 ) {
+				case 0:
+					display_ddd_proportional_clip( new_xpos, ypos, width, 0, pc, COL_BLACK, text, dirty );
+					break;
+				case 1:
+					display_outline_proportional( new_xpos, ypos-(LINESPACE/2), pc+3, COL_BLACK, text, dirty );
+					break;
+				case 2:
+					display_outline_proportional( 16+new_xpos, ypos-(LINESPACE/2), COL_YELLOW, COL_BLACK, text, dirty );
+					display_ddd_box_clip( new_xpos, ypos-(LINESPACE/2), LINESPACE, LINESPACE, pc-2, pc+2 );
+					display_fillbox_wh( new_xpos+1, ypos-(LINESPACE/2)+1, LINESPACE-2, LINESPACE-2, pc, dirty );
+					break;
+			}
 		}
 
 		// display station waiting information/status
@@ -1236,6 +1257,16 @@ ribi_t::ribi grund_t::get_weg_ribi_unmasked(waytype_t typ) const
 }
 
 
+/**
+* Falls es hier ein Depot gibt, dieses zurueckliefern
+* @author Volker Meyer
+*/
+depot_t* grund_t::get_depot() const
+{
+	return dynamic_cast<depot_t *>(first_obj());
+}
+
+
 bool grund_t::weg_erweitern(waytype_t wegtyp, ribi_t::ribi ribi)
 {
 	weg_t   *weg = get_weg(wegtyp);
@@ -1271,28 +1302,20 @@ bool grund_t::weg_erweitern(waytype_t wegtyp, ribi_t::ribi ribi)
 /**
  * remove trees and groundobjs on this tile
  * called before building way or powerline
- * @returns costs
+ * @return costs
  */
 sint64 grund_t::remove_trees()
 {
 	sint64 cost=0;
 	// remove all trees ...
-	while(1) {
-		baum_t *d=find<baum_t>(0);
-		if(d==NULL) {
-			break;
-		}
+	while (baum_t* const d = find<baum_t>(0)) {
 		// we must mark it by hand, sinc ewe want to join costs
 		d->mark_image_dirty( get_bild(), 0 );
 		delete d;
 		cost -= welt->get_einstellungen()->cst_remove_tree;
 	}
 	// remove all groundobjs ...
-	while(1) {
-		groundobj_t *d=find<groundobj_t>(0);
-		if(d==NULL) {
-			break;
-		}
+	while (groundobj_t* const d = find<groundobj_t>(0)) {
 		cost += d->get_besch()->get_preis();
 		delete d;
 	}
@@ -1320,6 +1343,7 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 			flags |= has_way1;
 		}
 		else {
+			weg_t *other = (weg_t *)obj_bei(0);
 			// another way will be added
 			if(flags&has_way2) {
 				dbg->fatal("grund_t::neuen_weg_bauen()","cannot built more than two ways on %i,%i,%i!",pos.x,pos.y,pos.z);
@@ -1332,8 +1356,8 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 			flags |= has_way2;
 			if(ist_uebergang()) {
 				// no tram => crossing needed!
-				waytype_t w2 =  ((weg_t *)obj_bei( obj_bei(0)==weg ? 1 : 0 ))->get_waytype();
-				const kreuzung_besch_t *cr_besch = crossing_logic_t::get_crossing( weg->get_waytype(), w2, welt->get_timeline_year_month() );
+				waytype_t w2 =  other->get_waytype();
+				const kreuzung_besch_t *cr_besch = crossing_logic_t::get_crossing( weg->get_waytype(), w2, weg->get_max_speed(), other->get_besch()->get_topspeed(), welt->get_timeline_year_month() );
 				if(cr_besch==0) {
 					dbg->fatal("crossing_t::crossing_t()","requested for waytypes %i and %i but nothing defined!", weg->get_waytype(), w2 );
 				}

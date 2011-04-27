@@ -8,6 +8,47 @@
 
 typedef uint16 PIXVAL;
 
+/*
+ * Definition of special colors
+ * @author Hj. Malthaner
+ */
+const uint32 bild_besch_t::rgbtab[SPECIAL] = {
+	0x244B67, // Player color 1
+	0x395E7C,
+	0x4C7191,
+	0x6084A7,
+	0x7497BD,
+	0x88ABD3,
+	0x9CBEE9,
+	0xB0D2FF,
+
+	0x7B5803, // Player color 2
+	0x8E6F04,
+	0xA18605,
+	0xB49D07,
+	0xC6B408,
+	0xD9CB0A,
+	0xECE20B,
+	0xFFF90D,
+
+	0x57656F, // Dark windows, lit yellowish at night
+	0x7F9BF1, // Lighter windows, lit blueish at night
+	0xFFFF53, // Yellow light
+	0xFF211D, // Red light
+	0x01DD01, // Green light
+	0x6B6B6B, // Non-darkening grey 1 (menus)
+	0x9B9B9B, // Non-darkening grey 2 (menus)
+	0xB3B3B3, // non-darkening grey 3 (menus)
+	0xC9C9C9, // Non-darkening grey 4 (menus)
+	0xDFDFDF, // Non-darkening grey 5 (menus)
+	0xE3E3FF, // Nearly white light at day, yellowish light at night
+	0xC1B1D1, // Windows, lit yellow
+	0x4D4D4D, // Windows, lit yellow
+	0xFF017F, // purple light
+	0x0101FF, // blue light
+};
+
+
 /* rotate_image_data - produces a (rotated) bild_besch
  * only rotates by 90 degrees or multiples thereof, and assumes a square image
  * Otherwise it will only succeed for angle=0;
@@ -61,3 +102,57 @@ bild_besch_t *bild_besch_t::copy_rotate(const sint16 angle) const
 	}
 	return target_besch;
 }
+
+
+
+/**
+ * decodes an image into a 32 bit bitmap
+ */
+void bild_besch_t::decode_img(sint16 xoff, sint16 yoff, uint32 *target, uint32 target_width, uint32 target_height )
+{
+	// Hajo: may this image be zoomed
+	if(  pic.h > 0  && pic.w > 0  ) {
+
+		// since offset is implicit within image, do not "xoff += pic.x;"!
+		yoff += pic.y;
+
+		// now: unpack the image
+		uint16 *src = pic.data;
+		for(  sint32 y = yoff; y < pic.h+yoff; y++  ) {
+			uint16 runlen;
+			uint8 *p = (uint8 *)(target + max(0,xoff) + y*target_width);
+			sint16 max_w = xoff;
+
+			// decode line
+			runlen = *src++;
+			do {
+				// clear run
+				p += runlen*4;
+				// color pixel
+				runlen = *src++;
+				while (runlen--) {
+					// get rgb components
+					uint16 s = *src++;
+					if(  max_w>=0  &&  max_w<target_width  &&  y>=0  ) {
+						if(  s>=0x8000  ) {
+							// special color
+							*p++ = 0;
+							*p++ = rgbtab[s&0x001F]>>16;
+							*p++ = rgbtab[s&0x001F]>>8;
+							*p++ = rgbtab[s&0x001F];
+						}
+						else {
+							*p++ = 0;
+							*p++ = ((s>>10)&31)<<3;
+							*p++ = ((s>>5)&31)<<3;
+							*p++ = ((s)&31)<<3;
+						}
+					}
+					max_w ++;
+				}
+				runlen = *src++;
+			} while(  runlen!=0  &&  y<target_height  );
+		}
+	}
+}
+

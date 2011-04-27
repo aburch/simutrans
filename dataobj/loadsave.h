@@ -9,11 +9,12 @@
 #define loadsave_h
 
 #include <stdio.h>
-#include "../bzlib.h"
-//#include <bzlib.h>
+#include <bzlib.h>
 #include <string>
 
 #include "../simtypes.h"
+
+#define INVALID_RDWR_ID (-1)
 
 /**
  * loadsave_t:
@@ -59,8 +60,6 @@ private:
 
 	void rdwr_xml_number(sint64 &s, const char *typ);
 
-	bool save_experimental;
-
 public:
 	
 	struct combined_version { uint32 version; uint32 experimental_version; };
@@ -68,12 +67,11 @@ public:
 	static mode_t save_mode;	// default to use for saving
 	static combined_version int_version(const char *version_text, int *mode, char *pak);
 
-	loadsave_t(bool experimental);
 	loadsave_t();
 	~loadsave_t();
 
 	bool rd_open(const char *filename);
-	bool wr_open(const char *filename, mode_t mode, const char *pak_extension, const char *svaegame_version );
+	bool wr_open(const char *filename, mode_t mode, const char *pak_extension, const char *savegame_version, const char *savegame_version_ex );
 	const char *close();
 
 	static void set_savemode(mode_t mode) { save_mode = mode; }
@@ -91,7 +89,6 @@ public:
 	uint32 get_version() const { return version; }
 	uint32 get_experimental_version() const { return experimental_version; }
 	const char *get_pak_extension() const { return pak_extension; }
-	bool get_save_experimental() const { return save_experimental; }
 
 	void rdwr_byte(sint8 &c);
 	void rdwr_byte(uint8 &c);

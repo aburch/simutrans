@@ -7,6 +7,8 @@
 
 #define COLORS_MAX_BUTTONS (25)
 
+class karte_t;
+
 /**
  * Menü zur Änderung der Anzeigeeinstellungen.
  * @author Hj. Malthaner
@@ -39,6 +41,8 @@ public:
 	 * V.Meyer
 	 */
 	bool action_triggered( gui_action_creator_t *komp, value_t extra);
+
+	virtual void set_fenstergroesse(koord groesse);
 };
 
 #endif

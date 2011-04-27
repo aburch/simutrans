@@ -20,7 +20,7 @@ As ferramentas para a construção de paradas estão disponíveis nas respectivas ba
 (Dicas: Veículos aquáticos podem usar qualquer quadro de água na área de captura de uma doca para pegar e deixar cargas e passageiros. Parada maiores podem ser construídas simplesmente adicionando mais quadros de parada. Uma parada pode aceitar mais de um tipo de veículo adicionando-se os quadros adequados nas vias próprias; ou seja, uma estação de trem pode ser colocada ao lado de uma parada de ônibus, desde que haja um trilho passando ao lado da rua onde está a parada.)
 </p>
 <p>
-Clique numa parada na tela do jogo com a ferramenta <a href="inspection_tool.txt">Verificar</a> ou numa parada listada na<a href="haltlist.txt">Lista de paradas</a> ou <a href="linemanagement.txt">Gerenciador de Linhas</a> para abrir as informações das <strong>paradas</strong> que mostra o nome da parada em sua barra de título.<br>
+Clique numa parada na tela do jogo com a ferramenta <a href="inspection_tool.txt">Consultar</a> ou numa parada listada na<a href="haltlist.txt">Lista de paradas</a> ou <a href="linemanagement.txt">Gerenciador de Linhas</a> para abrir as informações das <strong>paradas</strong> que mostra o nome da parada em sua barra de título.<br>
 A janela das <strong>paradas</strong> contém uma caixa de nome, uma vista da parada, informações sobre a parada, botões de opção e uma lista de todos os bens e passageiros prontos para serem transportados. Se não for possível ver todos os bens, ou todas as informações sobre eles, redimensione a janela da <strong>parada</strong> ou use as barras de rolagem para mostrar os itens:
 </p>
 <p>

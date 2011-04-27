@@ -80,7 +80,7 @@ private:
 	sint32 next_contruction_steps;
 
 	/* start and end stop position (and their size) */
-	koord platz1, size1, platz2, size2;
+	koord platz1, size1, platz2, size2, harbour;
 
 	// KI helper class
 	class fabconnection_t{
@@ -131,7 +131,7 @@ public:
 	virtual ~ai_goods_t() {}
 
 	// this type of AIs identifier
-	virtual uint8 get_ai_id() { return AI_GOODS; }
+	virtual uint8 get_ai_id() const { return AI_GOODS; }
 
 	virtual void rdwr(loadsave_t *file);
 

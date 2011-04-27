@@ -1,9 +1,10 @@
 
 #include "../simdebug.h"
 #include "network_packet.h"
+#include "network_socket_list.h"
 
 
-void packet_t::rdwr_header( uint16 &size )
+void packet_t::rdwr_header()
 {
 	rdwr_short( size );
 	rdwr_short( version );
@@ -13,76 +14,121 @@ void packet_t::rdwr_header( uint16 &size )
 	}
 }
 
+packet_t::packet_t() : memory_rw_t(buf,MAX_PACKET_LEN,true),
+	size(0),
+	version(NETWORK_VERSION),
+	id(0),
+	sock(INVALID_SOCKET),
+	error(false),
+	ready(false),
+	count(0)
+{
+	set_index(HEADER_SIZE);
+}
+
+packet_t::packet_t(const packet_t &p) : memory_rw_t(buf,MAX_PACKET_LEN,true)
+{
+	version = p.version;
+	id      = p.id;
+	error   = p.error;
+	ready   = p.ready;
+	sock  = INVALID_SOCKET;
+	size  = 0;
+	count = 0;
+	uint16 index = p.get_current_index();
+	for(uint16 i = 0; i<index; i++) {
+		buf[i] = p.buf[i];
+	}
+	set_index(index);
+}
 
 packet_t::packet_t(SOCKET sender) : memory_rw_t(buf,MAX_PACKET_LEN,false)
 {
 	// initialize data
-	error = false;
-	ready = true;
+	error = ( sender==INVALID_SOCKET );
+	ready = false;
 	version = 0;
-	uint16 size = 0;
-
-	if(sender==INVALID_SOCKET  ) {
-		error = true;
-		return;
-	}
-
-	// read the header
-	if(  network_receive_data(sender,buf,HEADER_SIZE)!=HEADER_SIZE ) {
-		error = true;
-		network_remove_client( sender );
-		return;
-	}
-	init( buf, HEADER_SIZE, false );
-	rdwr_header( size );
-
-	if (size > MAX_PACKET_LEN) {
-		error = true;
-		return;
-	}
-
-	// receive the rest of the packet
-	if(  network_receive_data( sender, buf+HEADER_SIZE, size-HEADER_SIZE )!=size-HEADER_SIZE  ) {
-		error = true;
-		network_remove_client( sender );
-		return;
-	}
-	init( buf+HEADER_SIZE, size-HEADER_SIZE, false );
-
-	// received succesfully, remember sender
+	count = 0;
+	size = 0;
+	id = 0;
+	version = 0;
 	sock = sender;
 }
 
 
-void packet_t::send(SOCKET s)
+void packet_t::recv()
 {
-	if (!has_failed()) {
-		uint16 size = get_current_size()+HEADER_SIZE;
-
-		if (!ready) {
-			uint16 index = get_current_size();
-			// write header at right place
-			init( buf, HEADER_SIZE, true );
-			rdwr_header( size );
-			// reset values
-			init( buf+HEADER_SIZE, MAX_PACKET_LEN-HEADER_SIZE, true );
-			set_index(index);
-
-			ready = true;
-		}
-
-		int sent = ::send(s, (const char*) buf, size, 0);
-		if (sent!=size) {
-			dbg->warning("packet_t::send", "sent %d bytes to socket[%d]; id=%d, size=%d", sent, s, id, size);
-			// TODO: send the rest of the packet later
-			network_remove_client( s );
+	if (error  ||  ready) {
+		return;
+	}
+	uint16 received = 0;
+	// receive header
+	if (count < HEADER_SIZE) {
+		if (!network_receive_data(sock, buf + count, HEADER_SIZE - count, received, 0)) {
+			error = true;
 			return;
 		}
+		count += received;
+		if (count == HEADER_SIZE) {
+			// read header
+			set_max_size(HEADER_SIZE);
+			set_index(0);
+			rdwr_header();
+
+			if (size < HEADER_SIZE  ||  size > MAX_PACKET_LEN) {
+				dbg->warning("packet_t::recv", "packet from [%d] has wrong size (%d)", sock, size);
+				error = true;
+				return;
+			}
+		}
 		else {
-			dbg->message("packet_t::send", "sent %d bytes to socket[%d]; id=%d, size=%d", sent, s, id, size);
+			return;
 		}
 	}
+	if (count >= HEADER_SIZE) {
+		received = 0;
+		if (!network_receive_data(sock, buf + count, size - count, received, 0)) {
+			error = true;
+			return;
+		}
+		count += received;
+		if (count == size) {
+			set_max_size(size);
+			ready = true;
+		}
+	}
+}
+
+
+void packet_t::send(SOCKET s, bool complete)
+{
+	if (has_failed()) {
+		return;
+	}
+	// header written ?
+	if (size == 0) {
+		size = get_current_index();
+		// write header at right place
+		set_index(0);
+		set_max_size(HEADER_SIZE);
+		rdwr_header();
+	}
+
+	uint16 sent;
+	const int timeout_ms = complete ? 250 : 0;
+	if ( !network_send_data(s, (const char*) buf+count, size-count, sent, timeout_ms) ) {
+		dbg->warning("packet_t::send", "error while sending to [%d]", s);
+		error = true;
+		return;
+	}
+	count += sent;
+
+	// ready ?
+	if (count == size) {
+		ready = true;
+		dbg->message("packet_t::send", "sent %d bytes to socket[%d]; id=%d, size=%d", count, s, id, size);
+	}
 	else {
-		dbg->error("packet_t::send", "error in creation!");
+		dbg->message("packet_t::send", "sent %d bytes to socket[%d]; id=%d, size=%d, left=%d", count, s, id, size, size-count);
 	}
 }

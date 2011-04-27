@@ -22,16 +22,17 @@
 #include "tpl/weighted_vector_tpl.h"
 #include "tpl/vector_tpl.h"
 #include "tpl/slist_tpl.h"
-#include "tpl/ptrhashtable_tpl.h"
 
 #include "dataobj/marker.h"
 #include "dataobj/einstellungen.h"
 
 #include "simplan.h"
 
-#include "simintr.h"
-
 #include "simdebug.h"
+#ifdef DEBUG_SIMRAND_CALLS
+#include "utils/cbuffer_t.h"
+#include "tpl/fixed_list_tpl.h"
+#endif
 
 
 struct event_t;
@@ -50,6 +51,29 @@ class message_t;
 class weg_besch_t;
 class tunnel_besch_t;
 class network_world_command_t;
+class memory_rw_t;
+
+
+struct checklist_t
+{
+	uint32 random_seed;
+	uint16 halt_entry;
+	uint16 line_entry;
+	uint16 convoy_entry;
+
+	checklist_t() : random_seed(0), halt_entry(0), line_entry(0), convoy_entry(0) { }
+	checklist_t(uint32 _random_seed, uint16 _halt_entry, uint16 _line_entry, uint16 _convoy_entry)
+		: random_seed(_random_seed), halt_entry(_halt_entry), line_entry(_line_entry), convoy_entry(_convoy_entry) { }
+
+	bool operator == (const checklist_t &other) const
+	{
+		return ( random_seed==other.random_seed && halt_entry==other.halt_entry && line_entry==other.line_entry && convoy_entry==other.convoy_entry );
+	}
+	bool operator != (const checklist_t &other) const { return !( (*this)==other ); }
+
+	void rdwr(memory_rw_t *buffer);
+	int print(char *buffer, const char *entity) const;
+};
 
 
 /**
@@ -61,6 +85,10 @@ class network_world_command_t;
 class karte_t
 {
 public:
+
+#ifdef DEBUG_SIMRAND_CALLS
+	static bool print_randoms;
+#endif
 	/**
 	* Hoehe eines Punktes der Karte mit "perlin noise"
 	*
@@ -77,9 +105,9 @@ public:
 		WORLD_FACTORIES,	// number of all consuming only factories
 		WORLD_CONVOIS,	// total number of convois
 		WORLD_CITYCARS,	// number of citycars generated
-		WORLD_PAS_RATIO,	// percentage of passengers that started suceessful
+		WORLD_PAS_RATIO,	// percentage of passengers that started successful
 		WORLD_PAS_GENERATED,	// total number generated
-		WORLD_MAIL_RATIO,	// percentage of mail that started sucessful
+		WORLD_MAIL_RATIO,	// percentage of mail that started successful
 		WORLD_MAIL_GENERATED,	// all letters generated
 		WORLD_GOODS_RATIO, // ratio of chain completeness
 		WORLD_TRANSPORTED_GOODS, // all transported goods
@@ -96,13 +124,13 @@ public:
 	// @author:jamespetts
 	slist_tpl<stadtauto_t *> unassigned_cars;
 	
-	void add_unassigned_car(stadtauto_t* car) { unassigned_cars.append(car); outstanding_cars --; } 
+	void add_unassigned_car(stadtauto_t* car) { unassigned_cars.append(car); } 
 
 	enum { NORMAL=0, PAUSE_FLAG = 0x01, FAST_FORWARD=0x02, FIX_RATIO=0x04 };
 
 
 private:
-	// die Einstellungen
+	// the settings
 	einstellungen_t *einstellungen;
 
 	// aus performancegruenden werden einige Einstellungen local gecached
@@ -142,7 +170,7 @@ private:
 	koord ansicht_ij_off;
 
 	/**
-	 * Mauszeigerposition, intern
+	 * Position of the mouse pointer (internal)
 	 * @author Hj. Malthaner
 	 */
 	sint32 mi, mj;
@@ -219,11 +247,6 @@ private:
 	sint64 finance_history_year[MAX_WORLD_HISTORY_YEARS][MAX_WORLD_COST];
 	sint64 finance_history_month[MAX_WORLD_HISTORY_MONTHS][MAX_WORLD_COST];
 	
-	// The number of cars that should be in the world somewhere, but are not
-	// in any particular city's list.
-	//@author: jamespetts
-	sint32 outstanding_cars;
-
 	// word record of speed ...
 	class speed_record_t {
 	public:
@@ -249,7 +272,7 @@ private:
 	/**
 	 * Raise tile (x,y): height of each corner is given
 	 */
-	bool can_raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, uint8 ctest=15) const;
+	bool can_raise_to(sint16 x, sint16 y, bool keep_water, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, uint8 ctest=15) const;
 	int  raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw);
 	/**
 	 * Raise grid point (x,y), used during map creation/enlargement
@@ -262,23 +285,16 @@ private:
 	bool can_lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, uint8 ctest=15) const;
 	int  lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw);
 	/**
-	 * Lwer grid point (x,y), used during map creation/enlargement
+	 * Lower grid point (x,y), used during map creation/enlargement
 	 */
 	int  lower_to(sint16 x, sint16 y, sint8 h, bool set_slopes);
 
 	/**
-	 * Die fraktale Erzugung der Karte ist nicht perfekt.
+	 * Die fraktale Erzeugung der Karte ist nicht perfekt.
 	 * cleanup_karte() beseitigt etwaige Fehler.
 	 * @author Hj. Malthaner
 	 */
 	void cleanup_karte( int xoff, int yoff );
-
-	/**
-	 * entfernt alle objecte, loescht alle datenstrukturen
-	 * gibt allen erreichbaren speicher frei
-	 * @author Hj. Malthaner
-	 */
-	void destroy();
 
 	void blick_aendern(event_t *ev);
 	void bewege_zeiger(const event_t *ev);
@@ -291,10 +307,10 @@ private:
 	marker_t marker;
 
 	/**
-	 * Die Spieler
+	 * The players of the game
 	 * @author Hj. Malthaner
 	 */
-	spieler_t *spieler[MAX_PLAYER_COUNT];   // Mensch ist spieler Nr. 0 "Humans are player no. 0"
+	spieler_t *spieler[MAX_PLAYER_COUNT];   // Human player has index 0 (zero)
 	uint8 player_password_hash[MAX_PLAYER_COUNT][20];
 	spieler_t *active_player;
 	uint8 active_player_nr;
@@ -308,10 +324,10 @@ private:
 	uint8 schedule_counter;
 
 	/**
-	 * Die Zeit in ms
+	 * The time in ms (milliseconds)
 	 * @author Hj. Malthaner
 	 */
-	sint64 ticks;		      // Anzahl ms seit Erzeugung
+	sint64 ticks;		      // ms since creation
 	sint64 last_step_ticks; // ticks counter at last steps
 	sint64 next_month_ticks;	// from now on is next month
 
@@ -322,11 +338,14 @@ private:
 
 	// Variables used in interactive()
 	uint32 sync_steps;
+#define LAST_CHECKLISTS_COUNT 64
+	checklist_t last_checklists[LAST_CHECKLISTS_COUNT];
+#define LCHKLST(x) (last_checklists[(x) % LAST_CHECKLISTS_COUNT])
 	uint8  network_frame_count;
 	uint32 fix_ratio_frame_time; // set in reset_timer()
 
 	/**
-	 * fuer performancevergleiche
+	 * For performance comparison
 	 * @author Hj. Malthaner
 	 */
 	uint32 realFPS;
@@ -338,7 +357,7 @@ private:
 	uint8 last_frame_idx;
 	uint32 last_interaction;	// ms, when the last time events were handled
 	uint32 last_step_time;	// ms, when the last step was done
-	uint32 next_step_time;	// ms, when the next steps is to be done
+	uint32 next_step_time;	// ms, when the next step is to be done
 //	sint32 time_budget;	// takes care of how many ms I am lagging or are in front of
 	uint32 idle_time;
 
@@ -348,9 +367,9 @@ private:
 
 	uint8 season;	// current season
 
-	long steps;          // Anzahl steps seit Erzeugung
+	long steps;          // number of steps since creation
 	bool is_sound;       // flag, that now no sound will play
-	bool finish_loop;    // flag fuer simulationsabbruch (false == abbruch)
+	bool finish_loop;    // flag for ending simutrans (true -> end simutrans)
 
 	// may change due to timeline
 	const weg_besch_t *city_road;
@@ -358,23 +377,26 @@ private:
 	// Data for maintaining industry density even
 	// after industries close
 	// @author: jamespetts
-	double industry_density_proportion;
-	double actual_industry_density;
+	uint32 industry_density_proportion;
+	uint32 actual_industry_density;
 
 	// what game objectives
 	scenario_t *scenario;
 
 	message_t *msg;
 
-	int average_speed[8];
+	sint32 average_speed[8];
 
 	uint32 tile_counter;
+
+	// to identify different stages of the same game
+	uint32 map_counter;
 
 	// recalculated speed boni for different vehicles
 	void recalc_average_speed();
 
-	void neuer_monat();      // Monatliche Aktionen
-	void neues_jahr();       // Jaehrliche Aktionen
+	void neuer_monat();      // monthly actions
+	void neues_jahr();       // yearly actions
 
 	/**
 	 * internal saving method
@@ -411,7 +433,7 @@ private:
 	// @author: jamespetts
 	void set_scale();
 
-	uint16 citycar_speed_average;
+	sint32 citycar_speed_average;
 
 	void set_citycar_speed_average();
 
@@ -426,6 +448,20 @@ private:
 	uint16 generic_road_speed_intercity;
 
 	uint32 max_road_check_depth;
+
+	// when this month is reached, server will do next announcement
+	uint32 server_next_announce_month;
+
+	// announce server and current state to listserver
+	// will be done in step when client number changed
+	void announce_server();
+
+	// The month in which the next city generated will update its private car 
+	// routes if an update is needed. This spreads the computational load over
+	// a year instead of forcing it all into a month, thus improving 
+	// performance.
+	// @author: jamespetts, February 2011
+	uint8 next_private_car_update_month;
 
 public:
 	/* reads height data from 8 or 25 bit bmp or ppm files
@@ -445,7 +481,7 @@ public:
 	inline uint32 get_last_month() const { return letzter_monat; }
 
 	// @author hsiegeln
-	inline sint32 get_last_year() { return letztes_jahr; }
+	inline sint32 get_last_year() const { return letztes_jahr; }
 
 	/**
 	 * dirty: redraw whole screen
@@ -467,15 +503,15 @@ public:
 	* Returns the finance history for player
 	* @author hsiegeln
 	*/
-	sint64 get_finance_history_year(int year, int type) { return finance_history_year[year][type]; }
-	sint64 get_finance_history_month(int month, int type) { return finance_history_month[month][type]; }
+	sint64 get_finance_history_year(int year, int type) const { return finance_history_year[year][type]; }
+	sint64 get_finance_history_month(int month, int type) const { return finance_history_month[month][type]; }
 
 	/**
 	 * Returns pointer to finance history for player
 	 * @author hsiegeln
 	 */
-	sint64* get_finance_history_year() { return *finance_history_year; }
-	sint64* get_finance_history_month() { return *finance_history_month; }
+	const sint64* get_finance_history_year() const { return *finance_history_year; }
+	const sint64* get_finance_history_month() const { return *finance_history_month; }
 
 	// recalcs all map images
 	void update_map();
@@ -489,7 +525,7 @@ public:
 	 */
 	koord get_world_position() const { return ij_off; }
 
-	// fine offset within the viewprt tile
+	// fine offset within the viewport tile
 	int get_x_off() const {return x_off;}
 	int get_y_off() const {return y_off;}
 
@@ -515,7 +551,7 @@ public:
 	void set_scroll_lock(bool yesno);
 
 	/* functions for following a convoi on the map
-	* give an unboud handle to unset
+	* give an unbound handle to unset
 	*/
 	void set_follow_convoi(convoihandle_t cnv) { follow_convoi = cnv; }
 	convoihandle_t get_follow_convoi() const { return follow_convoi; }
@@ -524,7 +560,7 @@ public:
 	einstellungen_t *access_einstellungen() const { return einstellungen; }
 
 	// returns current speed bonus
-	int get_average_speed(waytype_t typ) const { return average_speed[ (typ==16 ? 3 : (int)(typ-1)&7 ) ]; }
+	sint32 get_average_speed(waytype_t typ) const { return average_speed[ (typ==16 ? 3 : (int)(typ-1)&7 ) ]; }
 
 	// speed record management
 	sint32 get_record_speed( waytype_t w ) const;
@@ -547,7 +583,7 @@ public:
 	 * marks an area using the grund_t mark flag
 	 * @author prissi
 	 */
-	void mark_area( const koord3d center, const koord radius, const bool mark );
+	void mark_area( const koord3d center, const koord radius, const bool mark ) const;
 
 	/**
 	 * Player management here
@@ -558,13 +594,14 @@ public:
 	uint8 get_active_player_nr() const { return active_player_nr; }
 	void set_player_password_hash( uint8 player_nr, uint8 *hash );
 	const uint8 *get_player_password_hash( uint8 player_nr ) const { return player_password_hash[player_nr]; }
-	void switch_active_player(uint8 nr);
+	void switch_active_player(uint8 nr, bool silent);
 	const char *new_spieler( uint8 nr, uint8 type );
+	void clear_player_password_hashes();
 
 	// if a schedule is changed, it will increment the schedule counter
-	// every step the haltstelle will check and reroute the goods if needed
+	// every step the haltestelle will check and reroute the goods if needed
 	uint8 get_schedule_counter() const { return schedule_counter; }
-	void set_schedule_counter() { schedule_counter++; }
+	void set_schedule_counter();
 
 	// often used, therefore found here
 	bool use_timeline() const { return einstellungen->get_use_timeline(); }
@@ -588,7 +625,7 @@ public:
 	* number ticks per day in bits (Babelfish)
 	*/
 
-	sint64 ticks_per_world_month_shift;
+	sint64 ticks_per_world_month_shift; 
 
 
 	/**
@@ -599,12 +636,8 @@ public:
 	*/
 
 	sint64 ticks_per_world_month;
-#ifdef _MSC_VER
-	void set_ticks_per_world_month_shift(sint64 bits) {ticks_per_world_month_shift = bits; ticks_per_world_month = (1i64 << ticks_per_world_month_shift); }
-#else
-	// GCC complains about the i64 - it requires its own 64-bit denotation.
-	void set_ticks_per_world_month_shift(sint64 bits) {ticks_per_world_month_shift = bits; ticks_per_world_month = (1ll << ticks_per_world_month_shift); }
-#endif
+
+	void set_ticks_per_world_month_shift(sint64 bits) {ticks_per_world_month_shift = bits; ticks_per_world_month = (1LL << ticks_per_world_month_shift); }
 
 	sint32 get_time_multiplier() const { return time_multiplier; }
 	void change_time_multiplier( sint32 delta );
@@ -791,7 +824,7 @@ public:
 		// prissi: since negative values will make the whole result negative, we can use bitwise or
 		// faster, since pentiums and other long pipeline processors do not like jumps
 		return (k.x|k.y|(cached_groesse_karte_x-k.x)|(cached_groesse_karte_y-k.y))>=0;
-		// this is omly 67% of the above speed
+		// this is only 67% of the above speed
 		//return k.x>=0 &&  k.y>=0  &&  cached_groesse_karte_x>=k.x  &&  cached_groesse_karte_y>=k.y;
 	}
 
@@ -845,7 +878,7 @@ public:
 
 	/**
 	 * Inline because called very frequently!
-	 * @return grund at the bottom (where house will be built)
+	 * @return grund at the bottom (where house will be build)
 	 * @author Hj. Malthaner
 	 */
 	inline grund_t * lookup_kartenboden(const koord pos) const
@@ -856,7 +889,7 @@ public:
 	}
 
 	/**
-	 * returns the natural slope a a position
+	 * returns the natural slope at a position
 	 * uses the corner height for the best slope
 	 * @author prissi
 	 */
@@ -894,11 +927,11 @@ public:
 	inline bool ist_markiert(const grund_t* gr) const { return marker.ist_markiert(gr); }
 
 	// Getter/setter methods for maintaining the industry density
-	inline double get_target_industry_density() const { return finance_history_month[0][WORLD_CITICENS] * industry_density_proportion; }
-	inline double get_actual_industry_density() const { return actual_industry_density; }
+	inline uint32 get_target_industry_density() const { return finance_history_month[0][WORLD_CITICENS] * industry_density_proportion; }
+	inline uint32 get_actual_industry_density() const { return actual_industry_density; }
 	
-	inline void decrease_actual_industry_density(double value) { actual_industry_density -= value; }
-	inline void increase_actual_industry_density(double value) { actual_industry_density += value; }
+	inline void decrease_actual_industry_density(uint32 value) { actual_industry_density -= value; }
+	inline void increase_actual_industry_density(uint32 value) { actual_industry_density += value; }
 
 	 /**
 	 * Initialize map.
@@ -915,6 +948,13 @@ public:
 	karte_t();
 
 	~karte_t();
+
+	/**
+	 * entfernt alle objecte, loescht alle datenstrukturen
+	 * gibt allen erreichbaren speicher frei
+	 * @author Hj. Malthaner
+	 */
+	void destroy();
 
 	// return an index to a halt (or creates a new one)
 	// only used during loading
@@ -974,10 +1014,10 @@ public:
 	int lower(koord pos);
 
 	// mostly used by AI: Ask to flatten a tile
-	bool can_ebne_planquadrat(koord pos, sint8 hgt);
+	bool can_ebne_planquadrat(koord pos, sint8 hgt, bool keep_water=false) const;
 	bool ebne_planquadrat(spieler_t *sp, koord pos, sint8 hgt);
 
-	// the convois are also handled each steps => thus we keep track of them too
+	// the convois are also handled each step => thus we keep track of them too
 	void add_convoi(convoihandle_t &cnv);
 	void rem_convoi(convoihandle_t& cnv);
 	uint32 get_convoi_count() const {return convoi_array.get_count();}
@@ -1008,8 +1048,8 @@ public:
 
 	bool add_fab(fabrik_t *fab);
 	bool rem_fab(fabrik_t *fab);
-	int get_fab_index(fabrik_t* fab) { return fab_list.index_of(fab); }
-	fabrik_t* get_fab(unsigned index) { return index < fab_list.get_count() ? fab_list[index] : NULL; }
+
+	int get_fab_index(fabrik_t* fab)  const { return fab_list.index_of(fab); }
 	const vector_tpl<fabrik_t*>& get_fab_list() const { return fab_list; }
 
 	/* sucht zufaellig eine Fabrik aus der Fabrikliste
@@ -1032,7 +1072,7 @@ public:
 	void set_nosave() { nosave = true; }
 	void set_nosave_warning() { nosave_warning = true; }
 
-	// rotate map view by 90 degree
+	// rotate map view by 90 degrees
 	void rotate90();
 
 	bool sync_add(sync_steppable *obj);
@@ -1042,11 +1082,11 @@ public:
 
 	void step();
 
-	inline planquadrat_t *access(int i, int j) {
+	inline planquadrat_t *access(int i, int j) const {
 		return ist_in_kartengrenzen(i, j) ? &plan[i + j*cached_groesse_gitter_x] : NULL;
 	}
 
-	inline planquadrat_t *access(koord k) {
+	inline planquadrat_t *access(koord k) const {
 		return ist_in_kartengrenzen(k) ? &plan[k.x + k.y*cached_groesse_gitter_x] : NULL;
 	}
 
@@ -1103,7 +1143,7 @@ public:
 	 * @param pos Position an der das Ereignis stattfand
 	 * @author Hj. Malthaner
 	 */
-	bool play_sound_area_clipped(koord pos, sound_info info);
+	bool play_sound_area_clipped(koord pos, sound_info info) const;
 
 	void mute_sound( bool state ) { is_sound = !state; }
 
@@ -1112,7 +1152,7 @@ public:
 	 * @param filename name of the file to write
 	 * @author Hj. Malthaner
 	 */
-	void speichern(const char *filename, const char *version, bool silent);
+	void speichern(const char *filename, const char *version, const char *ex_version, bool silent);
 
 	/**
 	 * Loads a map from a file
@@ -1131,7 +1171,7 @@ public:
 	void beenden(bool b);
 
 	/**
-	 * main loop with even handling;
+	 * main loop with event handling;
 	 * returns false to exit
 	 * @author Hj. Malthaner
 	 */
@@ -1142,14 +1182,21 @@ public:
 
 	uint32 get_sync_steps() const { return sync_steps; }
 
-	void command_queue_append(network_world_command_t*);
+	// check whether checklist is available, ie given sync_step is not too far into past
+	bool is_checklist_available(const uint32 sync_step) const { return sync_step + LAST_CHECKLISTS_COUNT > sync_steps; }
+	const checklist_t& get_checklist_at(const uint32 sync_step) const { return LCHKLST(sync_step); }
+	void set_checklist_at(const uint32 sync_step, const checklist_t &chklst) { LCHKLST(sync_step) = chklst; }
 
-	// announce server and current state to listserver
-	void announce_server();
+	const checklist_t& get_last_checklist() const { return LCHKLST(sync_steps); }
+	uint32 get_last_checklist_sync_step() const { return sync_steps; }
+
+	void command_queue_append(network_world_command_t*) const;
+
+	void clear_command_queue() const;
 
 	void network_disconnect();
 
-	uint16 get_citycar_speed_average() const { return citycar_speed_average; }
+	sint32 get_citycar_speed_average() const { return citycar_speed_average; }
 
 	void set_recheck_road_connexions() { recheck_road_connexions = true; }
 
@@ -1163,16 +1210,44 @@ public:
 	uint16 get_generic_road_speed_city() const { return generic_road_speed_city; }
 	uint16 get_generic_road_speed_intercity() const { return generic_road_speed_intercity; };
 
-	uint16 calc_generic_road_speed(const weg_besch_t* besch);
+	sint32 calc_generic_road_speed(const weg_besch_t* besch);
 
 	uint32 get_max_road_check_depth() const { return max_road_check_depth; }
 
+	/**
+	 * to identify the current map
+	 */
+	uint32 get_map_counter() const { return map_counter; }
+
+	void set_map_counter(uint32 new_map_counter);
+
+	/**
+	 * called by the server before sending the sync commands
+	 */
+
+	uint32 generate_new_map_counter() const;
+
+	uint8 step_next_private_car_update_month() 
+	{ 
+		uint8 tmp = next_private_car_update_month;
+		next_private_car_update_month ++ ; 
+		if(next_private_car_update_month > 12)
+		{
+			next_private_car_update_month = 1;
+		}
+		return tmp;
+	}
+
+#ifdef DEBUG_SIMRAND_CALLS
+	static fixed_list_tpl<const char*, 256> random_callers;
+#endif
+
 private:
-		
+
 	void calc_generic_road_speed_city() { generic_road_speed_city = calc_generic_road_speed(city_road); }
 	void calc_generic_road_speed_intercity();
 	void calc_max_road_check_depth();
-
 };
 
 #endif
+

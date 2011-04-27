@@ -47,7 +47,7 @@ bool gui_convoiinfo_t::infowin_event(const event_t *ev)
 			return true;
 		}
 		else if(IS_RIGHTRELEASE(ev)) {
-			cnv->get_welt()->change_world_position(cnv->front()->get_pos());
+			cnv->get_welt()->change_world_position(cnv->get_pos());
 			return true;
 		}
 	}

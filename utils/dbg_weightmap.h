@@ -1,6 +1,6 @@
+#ifdef DEBUG_WEIGHTMAPS
 #ifndef DBG_WEIGHTMAP_H
 #define DBG_WEIGHTMAP_H
-#ifdef DBG_WEIGHTMAP
 
 #include <string>
 #include "../tpl/array2d_tpl.h"

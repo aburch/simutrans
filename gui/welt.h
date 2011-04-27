@@ -17,7 +17,7 @@
 #include "components/gui_numberinput.h"
 
 class einstellungen_t;
-
+class karte_t;
 
 /**
  * Ein Dialog mit Einstellungen fuer eine neue Karte
@@ -50,21 +50,18 @@ private:
 
 	button_t random_map, load_map;
 
-	gui_numberinput_t inp_number_of_towns,
+	gui_numberinput_t
+		inp_number_of_towns,
 		inp_number_of_big_cities,
 		inp_number_of_clusters,
 		inp_cluster_size,
 		inp_town_size,
 		inp_intercity_road_len,
-		inp_traffic_density,
 		inp_other_industries,
-
-		inp_electric_producer,
 		inp_tourist_attractions,
 		inp_intro_date;
 
-	button_t use_intro_dates;
-	button_t allow_player_change;
+	button_t use_intro_dates, use_beginner_mode;
 
 	button_t open_climate_gui, open_setting_gui;
 
@@ -101,13 +98,6 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	const char * get_hilfe_datei() const {return "new_world.txt";}
-
-	bool get_load_heightfield() const {return load_heightfield;}
-	bool get_scenario() const {return scenario;}
-	bool get_load() const {return load;}
-	bool get_start() const {return start;}
-	bool get_close() const {return close;}
-	bool get_quit() const {return quit;}
 
 	einstellungen_t* get_sets() const { return sets; }
 

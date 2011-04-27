@@ -23,14 +23,14 @@ class factory_field_class_writer_t : public obj_writer_t {
 };
 
 
-class factory_field_writer_t : public obj_writer_t {
+class factory_field_group_writer_t : public obj_writer_t {
 	private:
-		static factory_field_writer_t the_instance;
+		static factory_field_group_writer_t the_instance;
 
-		factory_field_writer_t() { register_writer(false); }
+		factory_field_group_writer_t() { register_writer(false); }
 
 	public:
-		static factory_field_writer_t* instance() { return &the_instance; }
+		static factory_field_group_writer_t* instance() { return &the_instance; }
 
 		virtual obj_type get_type() const { return obj_ffield; }
 		virtual const char* get_type_name() const { return "factory field"; }

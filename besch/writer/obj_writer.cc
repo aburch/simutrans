@@ -122,7 +122,7 @@ string obj_writer_t::name_from_next_node(FILE* fp) const
 		buf = new char[node.size];
 		fread(buf, node.size, 1, fp);
 		ret = buf;
-		delete buf;
+		delete [] buf;
 
 		return ret;
 	}

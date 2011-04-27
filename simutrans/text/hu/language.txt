@@ -1,20 +1,20 @@
-<title>Nyelv választás Sugó</title>
+<title>Nyelv vÃ¡lasztÃ¡s SugÃ³</title>
 
 <h1>Nyelv ablak</h1>
 
 <p>
-A Simutrans sok nyelvre lett lefordítva. Többek között magyarra is. Az egyes nyelvek
-kiválasztásakor a játék összes szövege azonnal átvált.<br>
-A már létezõ városok neve nem fog megváltozni, hanem az új térkép generálása közben kapott néven marad.
-Ha azt akarod, hogy a városok egyértelmûen a kiválsztott
-nyelven jelenjenek meg, akkor az új térkép beindítása elõtt válaszd ki a nyelvet. A Simutrans alapvetõen
-két módszert használ a városneveknél, az elsõ egy szótagókból álló véletlenszerû névgenerálás a másik módszer
-pedig \text vagy \pak128\text vagy \pak könyvtárakban található városlistákból szedi ki véletlenszerûen a
-városok nevét.
+A Simutrans sok nyelvre lett lefordÃ­tva. TÃ¶bbek kÃ¶zÃ¶tt magyarra is. Az egyes nyelvek
+kivÃ¡lasztÃ¡sakor a jÃ¡tÃ©k Ã¶sszes szÃ¶vege azonnal Ã¡tvÃ¡lt.<br>
+A mÃ¡r lÃ©tezÃµ vÃ¡rosok neve nem fog megvÃ¡ltozni, hanem az Ãºj tÃ©rkÃ©p generÃ¡lÃ¡sa kÃ¶zben kapott nÃ©ven marad.
+Ha azt akarod, hogy a vÃ¡rosok egyÃ©rtelmÃ»en a kivÃ¡lsztott
+nyelven jelenjenek meg, akkor az Ãºj tÃ©rkÃ©p beindÃ­tÃ¡sa elÃµtt vÃ¡laszd ki a nyelvet. A Simutrans alapvetÃµen
+kÃ©t mÃ³dszert hasznÃ¡l a vÃ¡rosneveknÃ©l, az elsÃµ egy szÃ³tagÃ³kbÃ³l Ã¡llÃ³ vÃ©letlenszerÃ» nÃ©vgenerÃ¡lÃ¡s a mÃ¡sik mÃ³dszer
+pedig \text vagy \pak128\text vagy \pak kÃ¶nyvtÃ¡rakban talÃ¡lhatÃ³ vÃ¡roslistÃ¡kbÃ³l szedi ki vÃ©letlenszerÃ»en a
+vÃ¡rosok nevÃ©t.
 </p>
 
 <p>
-Ha netán mégis hiányzik a kívánt fordítás akkor a
+Ha netÃ¡n mÃ©gis hiÃ¡nyzik a kÃ­vÃ¡nt fordÃ­tÃ¡s akkor a
 <br>
 <strong>
 http://128.simutrans.com
@@ -24,6 +24,6 @@ http://forum.simutrans.com
 http://www.simutrans.de
 </strong>
 <br>
-honlapokon kutakodhaszt tovább. Figyelem egyes fordítások nem biztos,
-hogy tartalmazzák a legutobbi fejlesztések leírását.
+honlapokon kutakodhaszt tovÃ¡bb. Figyelem egyes fordÃ­tÃ¡sok nem biztos,
+hogy tartalmazzÃ¡k a legutobbi fejlesztÃ©sek leÃ­rÃ¡sÃ¡t.
 </p>

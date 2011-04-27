@@ -14,6 +14,7 @@
 #include "../dataobj/translator.h"
 #include "kennfarbe.h"
 #include "../simgraph.h"
+#include "../player/simplay.h"
 
 
 farbengui_t::farbengui_t(spieler_t *sp) :

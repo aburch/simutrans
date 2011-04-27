@@ -5,7 +5,7 @@
  */
 
 #ifndef SDL
-#ifndef WIN32
+#ifndef _WIN32
 #error "Only Windows has GDI!"
 #endif
 
@@ -69,12 +69,12 @@ const wchar_t* const title =
 #ifdef _MSC_VER
 #define TOW_(x) L#x
 #define TOW(x) TOW_(x)
-			L"Simutrans " WIDE_VERSION_NUMBER EXPERIMENTAL_VERSION;
+			L"Simutrans " WIDE_VERSION_NUMBER EXPERIMENTAL_VERSION
 #ifdef REVISION
 			L" - r" TOW(REVISION)
 #endif
 #else
-			L"" SAVEGAME_PREFIX " " VERSION_NUMBER NARROW_EXPERIMENTAL_VERSION " - " VERSION_DATE;
+			L"" SAVEGAME_PREFIX " " VERSION_NUMBER NARROW_EXPERIMENTAL_VERSION " - " VERSION_DATE
 #ifdef REVISION
 			" - r" QUOTEME(REVISION)
 #endif	
@@ -106,23 +106,7 @@ int dr_os_init(const int* parameter)
 	sys_event.type = SIM_NOEVENT;
 	sys_event.code = 0;
 
-	// Added by : Knightly
-	if ( umgebung_t::default_einstellungen.get_system_time_option() == 0 )
-	{
-		// set precision to 1ms if multimedia timer functions are used
-		timeBeginPeriod(1);
-	}
-	else
-	{
-		// although performance counter is selected, it may not be supported
-		LARGE_INTEGER f;
-		if ( QueryPerformanceFrequency(&f) == 0 )
-		{
-			// performance counter not supported
-			umgebung_t::default_einstellungen.set_system_time_option(0); // reset to using multimedia timer
-			timeBeginPeriod(1);	// set precision to 1ms
-		}
-	}
+	timeBeginPeriod(1);
 
 	return TRUE;
 }
@@ -176,8 +160,8 @@ int dr_query_screen_height()
 // open the window
 int dr_os_open(int w, int h, int bpp, int fullscreen)
 {
-	MaxSize.right = (w+16)&0x7FF0;
-	MaxSize.bottom = h;
+	MaxSize.right = (w+15)&0x7FF0;
+	MaxSize.bottom = h+1;
 
 	// fake fullscreen
 	if (fullscreen) {
@@ -251,7 +235,7 @@ int dr_os_open(int w, int h, int bpp, int fullscreen)
 	*((DWORD*)(AllDib + 1) + 1) = 0x000007E0;
 	*((DWORD*)(AllDib + 1) + 2) = 0x0000001F;
 #endif
-	return TRUE;
+	return MaxSize.right;
 }
 
 
@@ -266,12 +250,7 @@ int dr_os_close(void)
 	AllDib = NULL;
 	ChangeDisplaySettings(NULL, 0);
 
-	// Added by : Knightly
-	if ( umgebung_t::default_einstellungen.get_system_time_option() == 0 )
-	{
-		// reset precision if multimedia timer functions have been used
-		timeEndPeriod(1);
-	}
+	timeEndPeriod(1);
 
 	return TRUE;
 }
@@ -281,19 +260,28 @@ int dr_os_close(void)
 int dr_textur_resize(unsigned short **textur, int w, int h, int bpp)
 {
 	WAIT_FOR_SCREEN();
-	if(w>MaxSize.right  ||  h>MaxSize.bottom) {
+
+	// some cards need those alignments
+	w = (w + 15) & 0x7FF0;
+	if(  w<=0  ) {
+		w = 16;
+	}
+
+	if(w>MaxSize.right  ||  h>=MaxSize.bottom) {
 		// since the query routines that return the desktop data do not take into account a change of resolution
 		free(AllDibData);
 		AllDibData = NULL;
-		MaxSize.right = (w+16) & 0xFFF0;
-		MaxSize.bottom = h;
+		MaxSize.right = w;
+		MaxSize.bottom = h+1;
 		AllDibData = MALLOCN(unsigned short, MaxSize.right * MaxSize.bottom );
 		*textur = AllDibData;
 	}
+
 	AllDib->biWidth   = w;
+	AllDib->biHeight  = h;
 	WindowSize.right  = w;
 	WindowSize.bottom = h;
-	return TRUE;
+	return w;
 }
 
 
@@ -370,14 +358,22 @@ void dr_flush()
 
 void dr_textur(int xp, int yp, int w, int h)
 {
-	AllDib->biHeight = h+1;
-	StretchDIBits(
-		hdc,
-		xp, yp, w, h,
-		xp, h + 1, w, -h,
-		(LPSTR)(AllDibData + yp * WindowSize.right), (LPBITMAPINFO)AllDib,
-		DIB_RGB_COLORS, SRCCOPY
-	);
+	// make really sure we are not beyond screen coordinates
+	h = min( yp+h, WindowSize.bottom ) - yp;
+#ifdef DEBUG
+	w = min( xp+w, WindowSize.right ) - xp;
+	if(  h>1  &&  w>0  )
+#endif
+	{
+		AllDib->biHeight = h+1;
+		StretchDIBits(
+			hdc,
+			xp, yp, w, h,
+			xp, h + 1, w, -h,
+			(LPSTR)(AllDibData + yp * WindowSize.right), (LPBITMAPINFO)AllDib,
+			DIB_RGB_COLORS, SRCCOPY
+		);
+	}
 }
 
 
@@ -399,7 +395,7 @@ void set_pointer(int loading)
 
 
 // try using GDIplus to save an screenshot
-extern "C" bool dr_screenshot_png(char const* filename, int w, int h, unsigned short* data, int bpp);
+extern "C" bool dr_screenshot_png(char const* filename, int w, int h, int maxsize, unsigned short* data, int bpp);
 
 /**
  * Some wrappers can save screenshots.
@@ -410,15 +406,18 @@ extern "C" bool dr_screenshot_png(char const* filename, int w, int h, unsigned s
 int dr_screenshot(const char *filename)
 {
 #ifdef USE_16BIT_DIB
-	if(!dr_screenshot_png(filename,AllDib->biWidth,WindowSize.bottom + 1,AllDibData,16)) {
+	if(  !dr_screenshot_png(filename,display_get_width()-1,WindowSize.bottom + 1,AllDib->biWidth,AllDibData,16)  ) {
 #else
-	if(!dr_screenshot_png(filename,AllDib->biWidth,WindowSize.bottom + 1,AllDibData,15)) {
+	if(  !dr_screenshot_png(filename,AllDib->biWidth,WindowSize.bottom + 1,AllDibData,15)  ) {
 #endif
 		// not successful => save as BMP
 		FILE *fBmp = fopen(filename, "wb");
 		if (fBmp) {
 			BITMAPFILEHEADER bf;
 
+			// since the number of drawn pixel can be smaller than the actual width => only use the drawn pixel for bitmap
+			LONG old_width = AllDib->biWidth;
+			AllDib->biWidth = display_get_width()-1;
 			AllDib->biHeight = WindowSize.bottom + 1;
 
 			bf.bfType = 0x4d42; //"BM"
@@ -430,8 +429,10 @@ int dr_screenshot(const char *filename)
 			fwrite(AllDib, sizeof(BITMAPINFOHEADER) + sizeof(DWORD) * 3, 1, fBmp);
 
 			for(  LONG i = 0; i < AllDib->biHeight; i++) {
-				fwrite(AllDibData + (AllDib->biHeight - 1 - i) * AllDib->biWidth, AllDib->biWidth, 2, fBmp);
+				// row must be alsway even number of pixel
+				fwrite(AllDibData + (AllDib->biHeight - 1 - i) * old_width, (AllDib->biWidth + 1) & 0xFFFE, 2, fBmp);
 			}
+			AllDib->biWidth = old_width;
 
 			fclose(fBmp);
 		}
@@ -742,25 +743,7 @@ void ex_ord_update_mx_my()
 
 unsigned long dr_time(void)
 {
-
-	// Modified by : Knightly
-	// declare and initialize once
-	static LARGE_INTEGER t;		// for storing current time in counts
-	static LARGE_INTEGER f;		// for storing performance counter frequency, which is fixed when system is running
-	static const bool support_performance_counter = ( QueryPerformanceFrequency(&f) != 0 );
-		
-	if ( umgebung_t::default_einstellungen.get_system_time_option() == 1 )
-	{
-		// Case : use performance counter functions
-		QueryPerformanceCounter(&t);
-		return (unsigned long) (t.QuadPart * 1000 / f.QuadPart);
-	}
-	else
-	{
-		// Case : use multimedia timer functions
-
-		return timeGetTime();
-	}
+	return timeGetTime();
 }
 
 

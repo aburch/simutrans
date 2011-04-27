@@ -218,7 +218,7 @@ void weg_t::rdwr(loadsave_t *file)
 		ribi_maske = 0;	// maske will be restored by signal/roadsing
 	}
 
-	uint16 dummy16=max_speed;
+	sint16 dummy16=max_speed;
 	file->rdwr_short(dummy16);
 	max_speed=dummy16;
 
@@ -354,7 +354,7 @@ void weg_t::count_sign()
 			flags |= HAS_CROSSING;
 			i = 3;
 			const crossing_t* cr = gr->find<crossing_t>();
-			uint32 top_speed = cr->get_besch()->get_maxspeed( cr->get_besch()->get_waytype(0)==get_waytype() ? 0 : 1);
+			sint32 top_speed = cr->get_besch()->get_maxspeed( cr->get_besch()->get_waytype(0)==get_waytype() ? 0 : 1);
 			if(  top_speed < max_speed  ) {
 				max_speed = top_speed;
 			}
@@ -504,7 +504,7 @@ void weg_t::calc_bild()
 			}
 		}
 	}
-	if (bild!=old_bild) {
+	if (bild!=old_bild && from != NULL) {
 		mark_image_dirty(old_bild, from->get_weg_yoff());
 	}
 }
@@ -601,7 +601,7 @@ void weg_t::neuer_monat()
 }
 
 
-// correct speed and maitainace
+// correct speed and maintenance
 void weg_t::laden_abschliessen()
 {
 	spieler_t *sp=get_besitzer();

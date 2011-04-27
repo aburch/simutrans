@@ -19,6 +19,7 @@
 
 #include "../dataobj/fahrplan.h"
 #include "../dataobj/translator.h"
+#include "../dataobj/loadsave.h"
 #include "fahrplan_gui.h"
 // @author hsiegeln
 #include "../simlinemgmt.h"
@@ -26,11 +27,16 @@
 #include "../boden/grund.h"
 #include "messagebox.h"
 
+#include "../player/simplay.h"
+
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
 
 #include "components/gui_chart.h"
 #include "components/list_button.h"
+
+karte_t *convoi_detail_t::welt = NULL;
+
 
 convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
 : gui_frame_t(cnv->get_name(), cnv->get_besitzer()),
@@ -38,6 +44,7 @@ convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
   veh_info(cnv)
 {
 	this->cnv = cnv;
+	welt = cnv->get_welt();
 
 	sale_button.init(button_t::roundbox, "verkaufen", koord(BUTTON4_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
 	sale_button.add_listener(this);
@@ -68,7 +75,6 @@ convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
 	set_resizemode(diagonal_resize);
 	resize(koord(0,0));
 }
-
 
 
 void convoi_detail_t::zeichnen(koord pos, koord gr)
@@ -211,17 +217,87 @@ bool convoi_detail_t::action_triggered(gui_action_creator_t *komp,value_t /* */)
 
 
 /**
- * Resize the contents of the window
+ * Set window size and adjust component sizes and/or positions accordingly
  * @author Markus Weber
  */
-void convoi_detail_t::resize(const koord delta)
+void convoi_detail_t::set_fenstergroesse(koord groesse)
 {
-	gui_frame_t::resize(delta);
+	gui_frame_t::set_fenstergroesse(groesse);
 	scrolly.set_groesse(get_client_windowsize()-scrolly.get_pos());
 }
 
 
+// dummy for loading
+convoi_detail_t::convoi_detail_t(karte_t *w)
+: gui_frame_t("", NULL ),
+  scrolly(&veh_info),
+  veh_info(convoihandle_t())
+{
+	welt = w;
+}
 
+
+void convoi_detail_t::rdwr(loadsave_t *file)
+{
+	koord3d cnv_pos;
+	char name[128];
+	koord gr = get_fenstergroesse();
+	sint32 xoff = scrolly.get_scroll_x();
+	sint32 yoff = scrolly.get_scroll_y();
+	if(  file->is_saving()  ) {
+		cnv_pos = cnv->front()->get_pos();
+		tstrncpy(name, cnv->get_name(), lengthof(name));
+	}
+	cnv_pos.rdwr( file );
+	file->rdwr_str( name, lengthof(name) );
+	gr.rdwr( file );
+	file->rdwr_long( xoff );
+	file->rdwr_long( yoff );
+	if(  file->is_loading()  ) {
+		// find convoi by name and position
+		if(  grund_t *gr = welt->lookup(cnv_pos)  ) {
+			for(  uint8 i=0;  i<gr->get_top();  i++  ) {
+				if(  gr->obj_bei(i)->is_moving()  ) {
+					vehikel_t const* const v = ding_cast<vehikel_t>(gr->obj_bei(i));
+					if(  v  &&  v->get_convoi()  ) {
+						if(  strcmp(v->get_convoi()->get_name(),name)==0  ) {
+							cnv = v->get_convoi()->self;
+							break;
+						}
+					}
+				}
+			}
+		}
+		// we might be unlucky, then search all convois for a convoi with this name
+		if(  !cnv.is_bound()  ) {
+			for(  vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end();  i != end;  ++i  ) {
+				if(  strcmp( (*i)->get_name(),name)==0  ) {
+					cnv = *i;
+					break;
+				}
+			}
+		}
+		// still not found?
+		if(  !cnv.is_bound()  ) {
+			dbg->error( "convoi_detail_t::rdwr()", "Could not restore convoi detail window of %s", name );
+			destroy_win( this );
+			return;
+		}
+		// now we can open the window ...
+		KOORD_VAL xpos = win_get_posx( this );
+		KOORD_VAL ypos = win_get_posy( this );
+		convoi_detail_t *w = new convoi_detail_t(cnv);
+		create_win( xpos, ypos, w, w_info, magic_convoi_detail+cnv.get_id() );
+		w->set_fenstergroesse( gr );
+		w->scrolly.set_scroll_position( xoff, yoff );
+		// we must invalidate halthandle
+		cnv = convoihandle_t();
+		destroy_win( this );
+	}
+}
+
+
+// component for vehicle display
 gui_vehicleinfo_t::gui_vehicleinfo_t(convoihandle_t cnv)
 {
 	this->cnv = cnv;
@@ -422,3 +498,7 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 	// the size will change as soon something is loaded ...
 	set_groesse( get_groesse()+koord(0,total_height) );
 }
+
+
+
+

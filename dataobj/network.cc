@@ -10,59 +10,52 @@
 #include <time.h>
 
 #include "network.h"
+#include "network_socket_list.h"
 #include "network_cmd.h"
-
-#include "loadsave.h"
-#include "gameinfo.h"
-
+#include "network_cmp_pakset.h"
+#include "network_file_transfer.h"
 #include "../simconst.h"
 
-#include "../simdebug.h"
-#include "../simgraph.h"
-#include "../simworld.h"
-#include "../simwerkz.h"
-#include "../simmesg.h"
-
-#include "../dataobj/translator.h"
 #include "../dataobj/umgebung.h"
 
 #include "../utils/simstring.h"
 #include "../tpl/slist_tpl.h"
-#include "../tpl/vector_tpl.h"
-#include "../tpl/slist_tpl.h"
-
-
-static char const* network_receive_file(SOCKET s, char const* save_as, long length);
-
 
 static bool network_active = false;
-// local server cocket
-static vector_tpl<SOCKET> my_socket;
-// local client socket
-static SOCKET my_client_socket = INVALID_SOCKET;
-//static slist_tpl<const char *>pending_list;
 
-// to query all open sockets, we maintain this list
-static vector_tpl<SOCKET> clients;
-static uint32 active_clients;
+// list of received commands
+static slist_tpl<network_command_t *> received_command_queue;
 
-// list of commands on the server
-static slist_tpl<network_command_t *> server_command_queue;
+void clear_command_queue()
+{
+	while(!received_command_queue.empty()) {
+		network_command_t *nwc = received_command_queue.remove_first();
+		if (nwc) {
+			delete nwc;
+		}
+	}
+}
 
-#ifdef WIN32
-#define RET_ERR_STR { FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM,NULL,WSAGetLastError(),MAKELANGID(LANG_NEUTRAL,SUBLANG_NEUTRAL),err_str,sizeof(err_str),NULL); return err_str; }
+#ifdef _WIN32
+#define RET_ERR_STR { FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM,NULL,WSAGetLastError(),MAKELANGID(LANG_NEUTRAL,SUBLANG_NEUTRAL),err_str,sizeof(err_str),NULL); err = err_str; return INVALID_SOCKET; }
 #else
-#define RET_ERR_STR return err_str
+#define RET_ERR_STR { err = err_str; return INVALID_SOCKET; }
 #endif
-
 
 
 // global client id
 static uint32 client_id;
+
+void network_set_client_id(uint32 id)
+{
+	client_id = id;
+}
+
 uint32 network_get_client_id()
 {
 	return client_id;
 }
+
 
 /**
  * Initializes the network core (as that is needed for some platforms
@@ -71,24 +64,26 @@ uint32 network_get_client_id()
 bool network_initialize()
 {
 	if(!network_active) {
-#ifdef WIN32
+		socket_list_t::reset();
+
+#ifdef _WIN32
 		/* Let's load the network in windows */
 		WSADATA wsa;
 		if(int err = WSAStartup( MAKEWORD(2, 2), &wsa)) {
-			dbg->error("NetworkInitialize()","failed loading windows socket library");
+			dbg->error("NetworkInitialize()","failed loading windows socket library with %i", err);
 			return false;
 		}
-#endif /* WIN32 */
+#endif /* _WIN32 */
 	}
 	network_active = true;
 	return true;
 }
 
 
-
 // open a socket or give a decent error message
-const char *network_open_address( const char *cp, long timeout_ms )
+SOCKET network_open_address( const char *cp, long timeout_ms, const char * &err)
 {
+	err = NULL;
 #ifdef USE_IP4_ONLY
 	// Network load. Address format e.g.: "128.0.0.1:13353"
 	char address[32];
@@ -104,13 +99,14 @@ const char *network_open_address( const char *cp, long timeout_ms )
 
 	// now activate network
 	if(  !network_initialize()  ) {
-		return "Cannot init network!";
+		err = "Cannot init network!";
+		return INVALID_SOCKET;
 	}
 
 	struct sockaddr_in server_name;
 	memset(&server_name,0,sizeof(server_name));
 	server_name.sin_family=AF_INET;
-#ifdef  WIN32
+#ifdef  _WIN32
 	bool ok = true;
 	server_name.sin_addr.s_addr = inet_addr(cp);	// for windows we must first try to resolve the number
 	if((int)server_name.sin_addr.s_addr==-1) {// Bad address
@@ -136,13 +132,14 @@ const char *network_open_address( const char *cp, long timeout_ms )
 	else {// Bad address
 #endif
 		sprintf( err_str, "Bad address %s", cp );
-		return err_str;
+		RET_ERR_STR;
 	}
 	server_name.sin_port=htons(port);
 
-	my_client_socket = socket(AF_INET,SOCK_STREAM,0);
+	SOCKET my_client_socket = socket(AF_INET,SOCK_STREAM,0);
 	if(my_client_socket==INVALID_SOCKET) {
-		return "Cannot create socket";
+		err = "Cannot create socket";
+		return INVALID_SOCKET;
 	}
 
 #if !defined(__BEOS__)  &&  !defined(__HAIKU__)
@@ -150,21 +147,23 @@ const char *network_open_address( const char *cp, long timeout_ms )
 		// use non-blocking sockets to have a shorter timeout
 		fd_set fds;
 		struct timeval timeout;
-#ifdef  WIN32
+#ifdef  _WIN32
 		unsigned long opt =1;
 		ioctlsocket(my_client_socket, FIONBIO, &opt);
 #else
 		int opt;
 		if(  (opt = fcntl(my_client_socket, F_GETFL, NULL)) < 0  ) {
-			return "fcntl error";
+			err = "fcntl error";
+			return INVALID_SOCKET;
 		}
 		opt |= O_NONBLOCK;
 		if( fcntl(my_client_socket, F_SETFL, opt) < 0) {
-			return "fcntl error";
+			err = "fcntl error";
+			return INVALID_SOCKET;
 		}
 #endif
 		if(  !connect(my_client_socket, (struct sockaddr*) &server_name, sizeof(server_name))   ) {
-#ifdef  WIN32
+#ifdef  _WIN32
 			// WSAEWOULDBLOCK indicate, that it may still succeed
 			if (WSAGetLastError() != WSAEWOULDBLOCK) {
 				FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM,NULL,WSAGetLastError(),MAKELANGID(LANG_NEUTRAL,SUBLANG_NEUTRAL),err_str,sizeof(err_str),NULL);
@@ -173,7 +172,8 @@ const char *network_open_address( const char *cp, long timeout_ms )
 			if(  errno != EINPROGRESS  ) {
 				sprintf( err_str, "Could not connect to %s", cp );
 #endif
-				return err_str;
+				err = err_str;
+				return INVALID_SOCKET;
 			}
 		}
 
@@ -186,19 +186,21 @@ const char *network_open_address( const char *cp, long timeout_ms )
 		timeout.tv_usec = ((timeout_ms%1000)*1000);
 
 		// and wait ...
-		if(  !select(my_client_socket + 1, NULL, &fds, NULL, &timeout)  ) {
+		if(  !select( FD_SETSIZE, NULL, &fds, NULL, &timeout)  ) {
 			// some other problem?
-			return "Call to select failed";
+			err = "Call to select failed";
+			return INVALID_SOCKET;
 		}
 
 		// is this socket ok?
 		if (FD_ISSET(my_client_socket, &fds) == 0) {
 			// not in set => timeout
-			return "Server did not respond!";
+			err = "Server did not respond!";
+			return INVALID_SOCKET;
 		}
 
 		// make a blocking socket out of it
-#ifdef  WIN32
+#ifdef  _WIN32
 		opt = 0;
 		ioctlsocket(my_client_socket, FIONBIO, &opt);
 #else
@@ -209,13 +211,8 @@ const char *network_open_address( const char *cp, long timeout_ms )
 #endif
 	{
 		if(connect(my_client_socket,(struct sockaddr *)&server_name,sizeof(server_name))==-1) {
-#ifdef  WIN32
-			FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM,NULL,WSAGetLastError(),MAKELANGID(LANG_NEUTRAL,SUBLANG_NEUTRAL),err_str,sizeof(err_str),NULL);
-#else
 			sprintf( err_str, "Could not connect to %s", cp );
-#endif
-			dbg->warning( "network_open_address", err_str );
-			return err_str;
+			RET_ERR_STR;
 		}
 	}
 #else
@@ -246,7 +243,8 @@ const char *network_open_address( const char *cp, long timeout_ms )
 
 	// now activate network
 	if(  !network_initialize()  ) {
-		return "Cannot init network!";
+		err = "Cannot init network!";
+		return INVALID_SOCKET;
 	}
 
 	char port_nr[8];
@@ -263,7 +261,7 @@ const char *network_open_address( const char *cp, long timeout_ms )
 		RET_ERR_STR;
 	}
 
-	my_client_socket = INVALID_SOCKET;
+	SOCKET my_client_socket = INVALID_SOCKET;
 	struct addrinfo *walk;
 	for(  walk = res;  walk != NULL;  walk = walk->ai_next  ) {
 		my_client_socket = socket( walk->ai_family, walk->ai_socktype, walk->ai_protocol );
@@ -272,11 +270,7 @@ const char *network_open_address( const char *cp, long timeout_ms )
 			continue;
 		}
 		if(  connect(my_client_socket, walk->ai_addr, walk->ai_addrlen) != 0  ) {
-#ifdef WIN32
-			closesocket(my_client_socket);
-#else
-			close(my_client_socket);
-#endif
+			network_close_socket(my_client_socket);
 			my_client_socket = INVALID_SOCKET;
 			/* could not connect with this! */
 			continue;
@@ -290,23 +284,26 @@ const char *network_open_address( const char *cp, long timeout_ms )
 		RET_ERR_STR;
 	}
 #endif
-	return NULL;
+	return my_client_socket;
 }
 
 
 // download a http file from server address="www.simutrans.com:88" at path "/b/xxx.htm" to file localname="list.txt"
 const char *network_download_http( const char *address, const char *name, const char *localname )
 {
-	SOCKET old_my = my_client_socket;
 	// open from network
-	const char *err = network_open_address( address, 5000 );
+	const char *err = NULL;
+	SOCKET my_client_socket = network_open_address( address, 5000, err );
 	if(  err==NULL  ) {
 		char uri[1024];
 		int const len = sprintf(uri, "GET %s HTTP/1.1\r\nHost: %s\r\n\r\n", name, address);
-		send( my_client_socket, uri, len, 0 );
+		uint16 dummy;
+		if(  !network_send_data(my_client_socket, uri, len, dummy, 250)  ) {
+			err = "Server did not respond!";
+		}
 		// read the header
 		char line[1024], rbuf;
-		int pos = 0;
+		unsigned int pos = 0;
 		long length = 0;
 		while(1) {
 			int i = recv( my_client_socket, &rbuf, 1, 0 );
@@ -335,129 +332,6 @@ const char *network_download_http( const char *address, const char *name, const 
 		if(  localname  &&  *localname  ) {
 			err = network_receive_file( my_client_socket, localname, length );
 		}
-		network_close_socket( my_client_socket );
-	}
-	my_client_socket = old_my;
-	return err;
-}
-
-
-// connect to address (cp), receive gameinfo, close
-const char *network_gameinfo(const char *cp, gameinfo_t *gi)
-{
-	// open from network
-	SOCKET old_my_client_socket = my_client_socket;
-	const char *err = network_open_address( cp, 5000 );
-	if(  err==NULL  ) {
-		{
-			nwc_gameinfo_t nwgi;
-			nwgi.rdwr();
-			nwgi.send(my_client_socket);
-		}
-		network_add_client( my_client_socket );
-		// wait for join command (tolerate some wrong commands)
-		network_command_t *nwc = NULL;
-		nwc = network_check_activity( NULL, 10000 );	// 10s should be enough for reply ...
-		if (nwc==NULL) {
-			err = "Server did not respond!";
-			goto end;
-		}
-		nwc_gameinfo_t *nwgi = dynamic_cast<nwc_gameinfo_t*>(nwc);
-		if (nwgi==NULL) {
-			err = "Protocoll error (expected NWC_GAMEINFO)";
-			goto end;
-		}
-		if (nwgi->len==0) {
-			err = "Server busy";
-			goto end;
-		}
-		uint32 len = nwgi->len;
-		char filename[1024];
-		sprintf( filename, "client%i-network.sve", nwgi->len );
-		err = network_receive_file( my_client_socket, filename, len );
-		// now into gameinfo
-		loadsave_t fd;
-		if(  fd.rd_open( filename )  ) {
-			gameinfo_t *pgi = new gameinfo_t( &fd );
-			*gi = *pgi;
-			delete pgi;
-			fd.close();
-		}
-		remove( filename );
-		network_remove_client( my_client_socket );
-	}
-end:
-	my_client_socket = old_my_client_socket;
-	if(err) {
-		dbg->warning("network_connect", err);
-	}
-	return err;
-}
-
-
-// connect to address (cp), receive game, save to client%i-network.sve
-const char *network_connect(const char *cp)
-{
-	// open from network
-	const char *err = network_open_address( cp, 0 );
-	if(  err==NULL  ) {
-		// want to join
-		{
-			nwc_join_t nwc_join;
-			nwc_join.rdwr();
-			nwc_join.send(my_client_socket);
-		}
-		active_clients = 0;
-		network_add_client( my_client_socket );
-		// wait for join command (tolerate some wrong commands)
-		network_command_t *nwc = NULL;
-		for(uint8 i=0; i<5; i++) {
-			nwc = network_check_activity( NULL, 10000 );
-			if (nwc  &&  nwc->get_id() == NWC_JOIN) break;
-		}
-		if (nwc==NULL) {
-			err = "Server did not respond!";
-			goto end;
-		}
-		nwc_join_t *nwj = dynamic_cast<nwc_join_t*>(nwc);
-		if (nwj==NULL) {
-			err = "Protocoll error (expected NWC_JOIN)";
-			goto end;
-		}
-		if (nwj->answer!=1) {
-			err = "Server busy";
-			goto end;
-		}
-		client_id = nwj->client_id;
-		// ignore the next (nwc_sync_t) command
-		// wait for sync command (tolerate some wrong commands)
-		for(uint8 i=0; i<5; i++) {
-			nwc = network_check_activity( NULL, 10000 );
-			if (nwc  &&  nwc->get_id() == NWC_SYNC) break;
-		}
-		if (nwc == NULL  ||  nwc->get_id()!=NWC_SYNC  ||  ((nwc_sync_t*)nwc)->client_id!= client_id) {
-			err = "Protocoll error (expected NWC_SYNC)";
-			goto end;
-		}
-		// receive nwc_game_t
-		// wait for sync command (tolerate some wrong commands)
-		for(uint8 i=0; i<2; i++) {
-			nwc = network_check_activity( NULL, 60000 );
-			if (nwc  &&  nwc->get_id() == NWC_GAME) break;
-		}
-		if (nwc == NULL  ||  nwc->get_id()!=NWC_GAME) {
-			err = "Protocoll error (expected NWC_GAME)";
-			goto end;
-		}
-		int len = ((nwc_game_t*)nwc)->len;
-		// garanteed individual file name ...
-		char filename[256];
-		sprintf( filename, "client%i-network.sve", client_id );
-		err = network_receive_file( my_client_socket, filename, len );
-	}
-end:
-	if(err) {
-		dbg->warning("network_connect", err);
 		network_close_socket( my_client_socket );
 	}
 	return err;
@@ -489,9 +363,7 @@ bool network_init_server( int port )
 		return false;
 	}
 
-	active_clients = 0;
-	my_socket.append( my );
-	network_add_client( my );
+	socket_list_t::add_server( my );
 #else
 	struct addrinfo *res;
 	struct addrinfo hints;
@@ -532,206 +404,132 @@ bool network_init_server( int port )
 			continue;
 		}
 
-		my_socket.append( fd );
+		socket_list_t::add_server( fd );
 	}
 	freeaddrinfo(res);
 
-	dbg->message("network_init_server", "add server %d sockets", my_socket.get_count());
-	for(  uint32 i=0;  i<my_socket.get_count();  i++  ) {
-		network_add_client( my_socket[i] );
-	}
-	active_clients = my_socket.get_count();
+	dbg->message("network_init_server", "added server %d sockets", socket_list_t::get_server_sockets());
 #endif
 	client_id = 0;
-	server_command_queue.clear();
+	clear_command_queue();
+	nwc_ready_t::clear_map_counters();
 	return true;
 }
 
 
-void network_add_client( SOCKET sock )
+void network_set_socket_nodelay( SOCKET sock )
 {
-	dbg->message("network_add_client", "add client socket[%d]", sock);
-	if(  !clients.is_contained(sock)  ) {
-		// purge it first
-		while(  !clients.empty()  &&  clients.back() == INVALID_SOCKET  ) {
-			clients.remove_at(clients.get_count()-1);
-		}
-#ifdef TCP_NODELAY
-		// do not wait to join small (command) packets when sending (may cause 200ms delay!)
-		setsockopt( sock, SOL_SOCKET, TCP_NODELAY, NULL, 0 );
+#if defined(TCP_NODELAY)  &&  !defined(__APPLE__)
+	// do not wait to join small (command) packets when sending (may cause 200ms delay!)
+	int b = 1;
+	setsockopt( sock, IPPROTO_TCP, TCP_NODELAY, (const char*)&b, sizeof(b) );
+#else
+	(void)sock;
 #endif
-		/* do not give old client ids as long as possible
-		if (active_clients < clients.get_count()) {
-			for(uint32 i=0; i<clients.get_count(); i++) {
-				if (clients[i]==INVALID_SOCKET) {
-					clients[i]=sock;
-					active_clients++;
-					break;
-				}
-			}
-		}
-		else */ {
-			clients.append( sock );
-			active_clients++;
-		}
-	}
 }
 
 
-void network_remove_client( SOCKET sock )
+network_command_t* network_get_received_command()
 {
-	dbg->message("network_remove_client", "remove client socket[%d]", sock);
-	if(  clients.is_contained(sock)  ) {
-		assert(active_clients>0);
-		uint32 ind = clients.index_of(sock);
-		clients[ind] = INVALID_SOCKET;
-		// just decrease count
-		active_clients--;
-		// and maybe purge it
-		while(  !clients.empty()  &&  clients.back() == INVALID_SOCKET  ) {
-			clients.remove_at(clients.get_count()-1);
-		}
-		network_close_socket(sock);
+	if (!received_command_queue.empty()) {
+		return received_command_queue.remove_first();
 	}
+	return NULL;
 }
 
 
-uint32 network_get_client_id( SOCKET sock )
-{
-	if(  clients.is_contained(sock)  ) {
-		return clients.index_of(sock);
-	}
-	return 0; // 0 is the index of the server
-}
-
-
-// number of currently active clients
-int network_get_clients()
-{
-	// all clients except ourselves
-	return max(1,active_clients) - 1;
-}
-
-
-SOCKET network_get_socket( uint32 client_id )
-{
-	if (client_id < clients.get_count()) {
-		return clients[client_id];
-	}
-	else {
-		return INVALID_SOCKET;
-	}
-}
-
-
-static int fill_set(fd_set *fds)
-{
-	int s_max = 0;
-	for(uint32 i=0; i<clients.get_count(); i++) {
-		if (clients[i]!=INVALID_SOCKET) {
-			SOCKET s = clients[i];
-			s_max = max( (int)s, (int)s_max );
-			FD_SET( s, fds );
-		}
-	}
-	return s_max+1;
-}
-
-
-/* do appropriate action for network server:
- * - either connect to a new client
- * - receive commands
+/* do appropriate action for network games:
+ * - server: accept connection to a new client
+ * - all: receive commands and puts them to the received_command_queue
  */
-network_command_t* network_check_activity(karte_t *welt, int timeout)
+network_command_t* network_check_activity(karte_t *, int timeout)
 {
-	if (umgebung_t::server  &&  !server_command_queue.empty()) {
-		return server_command_queue.remove_first();
-	}
-
 	fd_set fds;
 	FD_ZERO(&fds);
 
-	int s_max = fill_set(&fds);
+	socket_list_t::fill_set(&fds);
 
-	// time out
+	// time out: MAC complains about too long timeouts
 	struct timeval tv;
-	tv.tv_sec = 0; // seconds
-	tv.tv_usec = max(0, timeout) * 1000; // micro-seconds
+	tv.tv_sec = timeout / 1000;
+	tv.tv_usec = (timeout % 1000) * 1000ul;
 
-	int action = select(s_max, &fds, NULL, NULL, &tv );
-
+	int action = select( FD_SETSIZE, &fds, NULL, NULL, &tv );
 	if(  action<=0  ) {
-		// timeout
-		return NULL;
+		// timeout: return command from the queue
+		return network_get_received_command();
 	}
 
 	// accept new connection
-	int nr = -1;
-	for(  int i=0;  i<my_socket.get_count();  i++  ) {
-		if(  FD_ISSET(my_socket[i], &fds)  ) {
-			nr = i;
-			break;
-		}
-	}
-	if(  nr>=0  ) {
-		struct sockaddr_in client_name;
-		socklen_t size = sizeof(client_name);
-		SOCKET s = accept(my_socket[nr], (struct sockaddr *)&client_name, &size);
-		if(  s!=INVALID_SOCKET  ) {
-#ifdef  __BEOS__
-			dbg->message("check_activity()", "Accepted connection from: %lh.\n", client_name.sin_addr.s_addr );
-#else
-			dbg->message("check_activity()", "Accepted connection from: %s.\n", inet_ntoa(client_name.sin_addr) );
-#endif
-			network_add_client(s);
-		}
-		// not a request
-		return NULL;
-	}
-	else {
-		SOCKET sender = INVALID_SOCKET;
-		for(uint32 i=0; i<clients.get_count(); i++) {
-			if (clients[i]!=INVALID_SOCKET) {
-				if(  FD_ISSET(clients[i], &fds )  ) {
-					sender = clients[i];
-					break;
-				}
+	socket_list_t::server_socket_iterator_t iter_s(&fds);
+	while(iter_s.next()) {
+		SOCKET accept_sock = iter_s.get_current();
+
+		if(  accept_sock!=INVALID_SOCKET  ) {
+			struct sockaddr_in client_name;
+			socklen_t size = sizeof(client_name);
+			SOCKET s = accept(accept_sock, (struct sockaddr *)&client_name, &size);
+			if(  s!=INVALID_SOCKET  ) {
+	#ifdef  __BEOS__
+				dbg->message("check_activity()", "Accepted connection from: %lh.", client_name.sin_addr.s_addr );
+	#else
+				dbg->message("check_activity()", "Accepted connection from: %s.", inet_ntoa(client_name.sin_addr) );
+	#endif
+				socket_list_t::add_client(s);
 			}
 		}
-		if(  sender==INVALID_SOCKET  ) {
-			return NULL;
-		}
-		// receive only one command
-		FD_ZERO(&fds);
-		FD_SET(sender,&fds);
-		tv.tv_usec = 0;
-		if(  select((int)sender+1, &fds, NULL, NULL, &tv )!=1  ) {
-			return NULL;
-		}
-		network_command_t *nwc = network_command_t::read_from_socket(sender);
-		// something failed
-		if (nwc == NULL) {
-			network_remove_client(sender);
-			if(  welt  &&  umgebung_t::server  ) {
-				// add message via tool!
-				cbuffer_t buf(256);
-				buf.printf( translator::translate("Now %u clients connected.",welt->get_einstellungen()->get_name_language_id()), network_get_clients() );
-				werkzeug_t *w = create_tool( WKZ_ADD_MESSAGE_TOOL | SIMPLE_TOOL );
-				w->set_default_param( buf );
-				welt->set_werkzeug( w, NULL );
-				// since init always returns false, it is save to delete immediately
-				delete w;
-				// give new status
-				welt->announce_server();
-			}
-		}
-		else {
-			dbg->warning( "network_check_activity()", "received cmd id=%d %s from socket[%d]", nwc->get_id(), nwc->get_name(), sender);
-		}
-		// read something sucessful
-		return nwc;
 	}
-	return NULL;
+
+	// receive from clients
+	socket_list_t::client_socket_iterator_t iter_c(&fds);
+	while(iter_c.next()) {
+		SOCKET sender = iter_c.get_current();
+
+		if (sender != INVALID_SOCKET  &&  socket_list_t::has_client(sender)) {
+			uint32 client_id = socket_list_t::get_client_id(sender);
+			network_command_t *nwc = socket_list_t::get_client(client_id).receive_nwc();
+			if (nwc) {
+				received_command_queue.append(nwc);
+				dbg->warning( "network_check_activity()", "received cmd id=%d %s from socket[%d]", nwc->get_id(), nwc->get_name(), sender );
+			}
+			// errors are caught and treated in socket_info_t::receive_nwc
+		}
+	}
+	return network_get_received_command();
+}
+
+
+void network_process_send_queues(int timeout)
+{
+	fd_set fds;
+	FD_ZERO(&fds);
+
+	socket_list_t::fill_set(&fds);
+
+	// time out
+	struct timeval tv;
+	tv.tv_sec = timeout / 1000;
+	tv.tv_usec = (timeout % 1000) * 1000ul;
+
+	int action = select( FD_SETSIZE, NULL, &fds, NULL, &tv );
+
+	if(  action<=0  ) {
+		// timeout: return
+		return;
+	}
+
+	// send to clients
+	socket_list_t::client_socket_iterator_t iter_c(&fds);
+	while(iter_c.next()  &&  action>0) {
+		SOCKET sock = iter_c.get_current();
+
+		if (sock != INVALID_SOCKET  &&  socket_list_t::has_client(sock)) {
+			uint32 client_id = socket_list_t::get_client_id(sock);
+			socket_list_t::get_client(client_id).process_send_queue();
+			// errors are caught and treated in socket_info_t::process_send_queue
+		}
+		action --;
+	}
 }
 
 
@@ -740,7 +538,8 @@ bool network_check_server_connection()
 	if(  !umgebung_t::server  ) {
 		// I am client
 
-		if(  clients.get_count()==0  ||  clients[0]==INVALID_SOCKET) {
+		// If I am playing, playing_clients should be at least one.
+		if( socket_list_t::get_playing_clients()==0 ) {
 			return false;
 		}
 
@@ -749,9 +548,9 @@ bool network_check_server_connection()
 		tv.tv_sec = 0;
 		tv.tv_usec = 0;
 		FD_ZERO(&fds);
-		FD_SET(clients[0],&fds);
+		socket_list_t::fill_set(&fds);
 
-		int action = select((int)clients[0]+1, NULL, &fds, NULL, &tv );
+		int action = select( FD_SETSIZE, NULL, &fds, NULL, &tv );
 		if(  action<=0  ) {
 			// timeout
 			return false;
@@ -761,26 +560,16 @@ bool network_check_server_connection()
 }
 
 
-
-// send data to all clients
+// send data to all PLAYING clients
 // nwc is invalid after the call
 void network_send_all(network_command_t* nwc, bool exclude_us )
 {
 	if (nwc) {
 		nwc->prepare_to_send();
-		for(uint32 i=0; i<clients.get_count(); i++) {
-			if (clients[i]!=INVALID_SOCKET) {
-				SOCKET s = clients[i];
-				// if we are server do not send to ourselves
-				if(my_socket.is_contained(s)) {
-					continue;
-				}
-				nwc->send(s);
-			}
-		}
+		socket_list_t::send_all(nwc, true);
 		if(  !exclude_us  &&  umgebung_t::server  ) {
 			// I am the server
-			server_command_queue.append(nwc);
+			received_command_queue.append(nwc);
 		}
 		else {
 			delete nwc;
@@ -797,128 +586,110 @@ void network_send_server(network_command_t* nwc )
 		nwc->prepare_to_send();
 		if(  !umgebung_t::server  ) {
 			// I am client
-			nwc->send(clients[0]);
+			socket_list_t::send_all(nwc, true);
 			delete nwc;
 		}
 		else {
 			// I am the server
-			server_command_queue.append(nwc);
+			received_command_queue.append(nwc);
 		}
 	}
 }
 
 
-
-uint16 network_receive_data( SOCKET sender, void *dest, const uint16 length )
+/**
+ * send data to dest
+ * @param buf the data
+ * @param size length of buffer and number of bytes to be sent
+ * @return true if data was completely send, false if an error occurs and connection needs to be closed
+ */
+bool network_send_data( SOCKET dest, const char *buf, const uint16 size, uint16 &count, const int timeout_ms )
 {
-	fd_set fds;
-	uint16 bytes = 0;
-	char *ptr = (char *)dest;
-	// time out
-	struct timeval tv;
-
-	do {
-		FD_ZERO(&fds);
-		FD_SET(sender,&fds);
-		tv.tv_sec = 0;
-		tv.tv_usec = 250000ul;	// maximum 250ms timeout
-		if(  select((int)sender+1, &fds, NULL, NULL, &tv )!=1  ) {
-			return bytes;
-		}
-		if(  recv( sender, ptr+bytes, 1, 0 )==0  ) {
-			network_remove_client( sender );
-			return 0;
-		}
-		bytes ++;
-	} while(  bytes<length  );
-
-	return length;
-}
-
-
-
-const char *network_send_file( uint32 client_id, const char *filename )
-{
-	FILE *fp = fopen(filename,"rb");
-	char buffer[1024];
-
-	// find out length
-	fseek(fp, 0, SEEK_END);
-	long length = (long)ftell(fp);
-	rewind(fp);
-
-	// socket
-	SOCKET s = INVALID_SOCKET;
-	if (client_id < clients.get_count()) {
-		s = clients[client_id];
-	}
-	if (s==INVALID_SOCKET) {
-		return "Client closed connection during transfer";
-	}
-	// send size of file
-	nwc_game_t nwc(length);
-	nwc.send(s);
-
-	// good place to show a progress bar
-	if(is_display_init()  &&  length>0) {
-		display_set_progress_text(translator::translate("Transferring game ..."));
-		display_progress(0, length);
-	}
-	long bytes_sent = 0;
-	while(  !feof(fp)  ) {
-		int bytes_read = (int)fread( buffer, 1, sizeof(buffer), fp );
-		if(  send(s,buffer,bytes_read,0)==-1) {
-			network_remove_client(s);
-			return "Client closed connection during transfer";
-		}
-		bytes_sent += bytes_read;
-		display_progress(bytes_sent, length);
-	}
-
-	// ok, new client has savegame
-	return NULL;
-}
-
-
-static char const* network_receive_file(SOCKET const s, char const* const save_as, long const length)
-{
-	// ok, we have a socket to connect
-	remove(save_as);
-
-	DBG_MESSAGE("network_receive_file","Game size %li", length );
-
-	if(is_display_init()  &&  length>0) {
-		display_set_progress_text(translator::translate("Transferring game ..."));
-		display_progress(0, length);
-	}
-	else {
-		printf("\n");fflush(NULL);
-	}
-
-	// good place to show a progress bar
-	char rbuf[4096];
-	sint32 length_read = 0;
-	if (FILE* const f = fopen(save_as, "wb")) {
-		while (length_read < length) {
-			int i = recv(s, rbuf, length_read + 4096 < length ? 4096 : length - length_read, 0);
-			if (i > 0) {
-				fwrite(rbuf, i, 1, f);
-				display_progress(length_read, length);
-				length_read += i;
+	count = 0;
+	while (count < size) {
+		int sent = ::send(dest, buf+count, size-count, 0);
+		if (sent == -1) {
+			int err = GET_LAST_ERROR();
+			if (err != EWOULDBLOCK) {
+				dbg->warning("network_send_data", "error %d while sending to [%d]", err, dest);
+				return false;
+			}
+			if (timeout_ms <= 0) {
+				// no timeout, continue sending later
+				return true;
 			}
 			else {
-				if (i < 0) {
-					dbg->error("loadsave_t::rd_open()", "recv failed with %i", i);
+				// try again, test whether sending is possible
+				fd_set fds;
+				FD_ZERO(&fds);
+				FD_SET(dest,&fds);
+				struct timeval tv;
+				tv.tv_sec = timeout_ms / 1000;
+				tv.tv_usec = (timeout_ms % 1000) * 1000ul;
+				// can we write?
+				if(  select( FD_SETSIZE, NULL, &fds, NULL, &tv )!=1  ) {
+					dbg->warning("network_send_data", "could not write to [%s]", dest);
+					return false;
 				}
-				break;
 			}
+			continue;
 		}
-		fclose(f);
+		if (sent == 0) {
+			// connection closed
+			dbg->error("network_send_data", "connection [%d] already closed (sent %d of &d)", dest, count, size );
+			return false;
+		}
+		count += sent;
+		DBG_DEBUG4("network_send_data", "sent %d bytes to socket[%d]; size=%d, left=%d", count, dest, size, size-count );
 	}
-	if(  length_read<length  ) {
-		return "Not enough bytes transferred";
-	}
-	return NULL;
+	// we reach here only if data are sent completely
+	return true;
+}
+
+
+/**
+ * receive data from sender
+ * @param dest the destination buffer
+ * @param len length of destination buffer and number of bytes to be received
+ * @param received number of received bytes is returned here
+ * @return true if connection is still valid, false if an error occurs and connection needs to be closed
+ */
+bool network_receive_data( SOCKET sender, void *dest, const uint16 len, uint16 &received, const int timeout_ms )
+{
+	received = 0;
+	char *ptr = (char *)dest;
+
+	do {
+		fd_set fds;
+		FD_ZERO(&fds);
+		FD_SET(sender,&fds);
+		struct timeval tv;
+		tv.tv_sec = timeout_ms / 1000;
+		tv.tv_usec = (timeout_ms % 1000) * 1000ul;
+		// can we read?
+		if(  select( FD_SETSIZE, &fds, NULL, NULL, &tv )!=1  ) {
+			return true;
+		}
+		// now receive
+		int res = recv( sender, ptr+received, len-received, 0 );
+		if (res == -1) {
+			int err = GET_LAST_ERROR();
+			if (err != EWOULDBLOCK) {
+				dbg->warning("network_receive_data", "error %d while receiving from [%d]", err, sender);
+				return false;
+			}
+			// try again later
+			return true;
+		}
+		if (res == 0) {
+			// connection closed
+			dbg->error("network_receive_data", "connection [%d] already closed", sender);
+			return false;
+		}
+		received += res;
+	} while(  received<len  );
+
+	return true;
 }
 
 
@@ -927,23 +698,28 @@ void network_close_socket( SOCKET sock )
 	if(  sock != INVALID_SOCKET  ) {
 #if defined(__HAIKU__)
 		// no closesocket() ?!?
-#elif defined(WIN32)  ||  defined(__BEOS__)
+#elif defined(_WIN32)  ||  defined(__BEOS__)
 		closesocket( sock );
 #else
 		close( sock );
 #endif
 		// reset all the special / static socket variables
-		if(  my_socket.is_contained(sock)  ) {
-			my_socket.remove( sock );
-		}
-		if(  sock==my_client_socket  ) {
-			my_client_socket = INVALID_SOCKET;
-		}
 		if(  sock==nwc_join_t::pending_join_client  ) {
 			nwc_join_t::pending_join_client = INVALID_SOCKET;
+			DBG_MESSAGE( "network_close_socket()", "Close pending_join_client [%d]", nwc_join_t::pending_join_client );
 		}
-		clients.remove( sock );
+		if(  sock==nwc_pakset_info_t::server_receiver) {
+			nwc_pakset_info_t::server_receiver = INVALID_SOCKET;
+		}
 	}
+}
+
+
+void network_reset_server()
+{
+	clear_command_queue();
+	socket_list_t::reset_clients();
+	nwc_ready_t::clear_map_counters();
 }
 
 
@@ -952,14 +728,16 @@ void network_close_socket( SOCKET sock )
  */
 void network_core_shutdown()
 {
-	while(  my_socket.get_count()!=0  ) {
-		network_close_socket( my_socket.back() );
-	}
-	network_close_socket( my_client_socket );
+	clear_command_queue();
+
+	socket_list_t::reset();
+
 	if(network_active) {
-#if defined(WIN32)
+#if defined(_WIN32)
 		WSACleanup();
 #endif
 	}
+
 	network_active = false;
+	umgebung_t::networkmode = false;
 }

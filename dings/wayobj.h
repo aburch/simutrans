@@ -77,6 +77,11 @@ public:
 	*/
 	typ get_typ() const { return wayobj; }
 
+	/**
+	 * waytype associated with this object
+	 */
+	waytype_t get_waytype() const { return besch ? besch->get_wtyp() : invalid_wt; }
+
 	void calc_bild();
 
 	/**

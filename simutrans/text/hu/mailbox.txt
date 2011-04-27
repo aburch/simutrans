@@ -1,30 +1,30 @@
-<title>Postaláda/Postaláda opciók Sugó</title>
+<title>PostalÃ¡da/PostalÃ¡da opciÃ³k SugÃ³</title>
 
-<h1>Postaláda/Postaláda opciók</h1>
+<h1>PostalÃ¡da/PostalÃ¡da opciÃ³k</h1>
 <p>
-A játék során felbukkanó összes üzenet itt mentõdik. Ugyanakkor itt tudod beállítani azt, hogy mirõl és hogyan kérsz figyelmeztetést.
+A jÃ¡tÃ©k sorÃ¡n felbukkanÃ³ Ã¶sszes Ã¼zenet itt mentÃµdik. Ugyanakkor itt tudod beÃ¡llÃ­tani azt, hogy mirÃµl Ã©s hogyan kÃ©rsz figyelmeztetÃ©st.
 </p>
 <p>
-Az <em>Opciók</em> gomb a "Postaláda opciók" nevû ablakot hozza fel. Itt lehet beállítani, hogy a különbözõ események üzenetei hogyan jelenjenek meg. Alapvetõen három módot lehet beállítani:
+Az <em>OpciÃ³k</em> gomb a "PostalÃ¡da opciÃ³k" nevÃ» ablakot hozza fel. Itt lehet beÃ¡llÃ­tani, hogy a kÃ¼lÃ¶nbÃ¶zÃµ esemÃ©nyek Ã¼zenetei hogyan jelenjenek meg. AlapvetÃµen hÃ¡rom mÃ³dot lehet beÃ¡llÃ­tani:
 <br>
-1. A kis bal oldali kocka aktiválása az jelenti, hogy az üzenetek futó szövegként a játék fõ ablakának alján jelennek meg (scroll text).
+1. A kis bal oldali kocka aktivÃ¡lÃ¡sa az jelenti, hogy az Ã¼zenetek futÃ³ szÃ¶vegkÃ©nt a jÃ¡tÃ©k fÃµ ablakÃ¡nak aljÃ¡n jelennek meg (scroll text).
 <br>
-2. A közbelsõ kocka aktiválása azt jelenti, hogy az üzenetek egy felugró ablakban jelennek meg, amit csakis kézzel lehet lezárni.
+2. A kÃ¶zbelsÃµ kocka aktivÃ¡lÃ¡sa azt jelenti, hogy az Ã¼zenetek egy felugrÃ³ ablakban jelennek meg, amit csakis kÃ©zzel lehet lezÃ¡rni.
 <br>
-3. A jobb kis kocka aktiválása azt jelenti, hogy az üzenetek egy felugró ablakban jelennek meg ami egy idõ után magától lezáródik.
+3. A jobb kis kocka aktivÃ¡lÃ¡sa azt jelenti, hogy az Ã¼zenetek egy felugrÃ³ ablakban jelennek meg ami egy idÃµ utÃ¡n magÃ¡tÃ³l lezÃ¡rÃ³dik.
 </p>
 <p>
 From top to bottom, the following messages are adjustable:<br>
--<em>Új év:</em> Üzenet küldése új év kezdetekor.<br>
--<em>AI (mesters. int.):</em> Üzenet a számítógép álltal vezérelt játékos (AI) új vonaláról.<br>
--<em>Új város:</em> Üzenet nagyobb városháza építésekor.<br>
--<em>Eltévedt jármû:</em> Üzenet olyan jármûvekrõl, melyek nem találják az utat.<br>
--<em>Új ipari egység:</em> Üzenet új ipari lánc kialakításáról.<br>
--<em>Turisták:</em> Üzenet új turista atrakció vagy emlékmû építésérõl.<br>
--<em>Új jármû:</em> Üzenet új jármû érkezésérõl.<br>
--<em>Tároló telítvel:</em> Üzenet a túlterhelt megállókról.<br>
--<em>Egyéb problémák:</em> Üzenet egyébb kritikus hibákról.
+-<em>Ãšj Ã©v:</em> Ãœzenet kÃ¼ldÃ©se Ãºj Ã©v kezdetekor.<br>
+-<em>AI (mesters. int.):</em> Ãœzenet a szÃ¡mÃ­tÃ³gÃ©p Ã¡lltal vezÃ©relt jÃ¡tÃ©kos (AI) Ãºj vonalÃ¡rÃ³l.<br>
+-<em>Ãšj vÃ¡ros:</em> Ãœzenet nagyobb vÃ¡roshÃ¡za Ã©pÃ­tÃ©sekor.<br>
+-<em>EltÃ©vedt jÃ¡rmÃ»:</em> Ãœzenet olyan jÃ¡rmÃ»vekrÃµl, melyek nem talÃ¡ljÃ¡k az utat.<br>
+-<em>Ãšj ipari egysÃ©g:</em> Ãœzenet Ãºj ipari lÃ¡nc kialakÃ­tÃ¡sÃ¡rÃ³l.<br>
+-<em>TuristÃ¡k:</em> Ãœzenet Ãºj turista atrakciÃ³ vagy emlÃ©kmÃ» Ã©pÃ­tÃ©sÃ©rÃµl.<br>
+-<em>Ãšj jÃ¡rmÃ»:</em> Ãœzenet Ãºj jÃ¡rmÃ» Ã©rkezÃ©sÃ©rÃµl.<br>
+-<em>TÃ¡rolÃ³ telÃ­tvel:</em> Ãœzenet a tÃºlterhelt megÃ¡llÃ³krÃ³l.<br>
+-<em>EgyÃ©b problÃ©mÃ¡k:</em> Ãœzenet egyÃ©bb kritikus hibÃ¡krÃ³l.
 </p>
 <p>
-Minden egyes üzenetkor, az üzenetre vagy az üzenet melletti képre kattintva ráugrasz a problémás területre.
+Minden egyes Ã¼zenetkor, az Ã¼zenetre vagy az Ã¼zenet melletti kÃ©pre kattintva rÃ¡ugrasz a problÃ©mÃ¡s terÃ¼letre.
 </p>

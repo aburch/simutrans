@@ -16,6 +16,7 @@
 
 #include "../halthandle_t.h"
 #include "../utils/cbuffer_t.h"
+#include "../simwin.h"
 
 class spieler_t;
 
@@ -47,6 +48,7 @@ private:
 	slist_tpl<button_t *>linebuttons;
 	slist_tpl<gui_label_t *> convoylabels;
 	slist_tpl<button_t *> convoybuttons;
+	slist_tpl<const char *> label_names;
 
 public:
 	halt_detail_t(halthandle_t halt);
@@ -67,6 +69,13 @@ public:
 
 	// only defined to update schedule, if changed
 	void zeichnen( koord pos, koord gr );
+
+	// this contructor is only used during loading
+	halt_detail_t(karte_t *welt);
+
+	void rdwr( loadsave_t *file );
+
+	uint32 get_rdwr_id() { return magic_halt_detail; }
 };
 
 #endif

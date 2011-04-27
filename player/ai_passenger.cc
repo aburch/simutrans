@@ -10,6 +10,7 @@
 #include "../simcity.h"
 #include "../simfab.h"
 #include "../simhalt.h"
+#include "../simline.h"
 #include "../simmenu.h"
 #include "../simtools.h"
 #include "../simmesg.h"
@@ -804,13 +805,13 @@ void ai_passenger_t::create_bus_transport_vehikel(koord startpos2d,int anz_vehik
 {
 DBG_MESSAGE("ai_passenger_t::create_bus_transport_vehikel()","bus at (%i,%i)",startpos2d.x,startpos2d.y);
 	// now start all vehicle one field before, so they load immediately
-	koord3d startpos = welt->lookup(startpos2d)->get_kartenboden()->get_pos();
+	koord3d startpos = welt->lookup_kartenboden(startpos2d)->get_pos();
 
 	// since 86.01 we use lines for road vehicles ...
 	schedule_t *fpl=new autofahrplan_t();
 	// do not start at current stop => wont work ...
 	for(int j=0;  j<anzahl;  j++) {
-		fpl->append(welt->lookup(stops[j])->get_kartenboden(), j == 0 || !do_wait ? 0 : 10);
+		fpl->append(welt->lookup_kartenboden(stops[j]), j == 0 || !do_wait ? 0 : 10);
 	}
 	fpl->set_aktuell( stops[0]==startpos2d );
 	fpl->eingabe_abschliessen();
@@ -994,7 +995,7 @@ void ai_passenger_t::step()
 
 			const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
 			int anzahl = staedte.get_count();
-			int offset = (anzahl>1) ? simrand(anzahl-1) : 0;
+			int offset = (anzahl>1) ? simrand(anzahl-1, "ai_passenger_t::step()") : 0;
 			// start with previous target
 			const stadt_t* last_start_stadt=start_stadt;
 			start_stadt = end_stadt;
@@ -1005,7 +1006,7 @@ void ai_passenger_t::step()
 			// if no previous town => find one
 			if(start_stadt==NULL) {
 				// larger start town preferred
-				start_stadt = staedte.at_weight( simrand(staedte.get_sum_weight()) );
+				start_stadt = staedte.at_weight( simrand(staedte.get_sum_weight(), "ai_passenger_t::step()") );
 				offset = staedte.index_of(start_stadt);
 			}
 DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using city %s for start",start_stadt->get_name());
@@ -1021,14 +1022,14 @@ if(!start_halt.is_bound()) {
 			}
 DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using place (%i,%i) for start",platz1.x,platz1.y);
 
-			if(anzahl==1  ||  simrand(3)==0) {
+			if(anzahl==1  ||  simrand(3, "ai_passenger_t::step()")==0) {
 DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","searching attraction");
 				// 25 % of all connections are tourist attractions
 				const weighted_vector_tpl<gebaeude_t*> &ausflugsziele = welt->get_ausflugsziele();
 				// this way, we are sure, our factory is connected to this town ...
 				const weighted_vector_tpl<fabrik_t *> &fabriken = start_stadt->get_arbeiterziele();
 				unsigned	last_dist = 0xFFFFFFFF;
-				bool ausflug=simrand(2)!=0;	// holidays first ...
+				bool ausflug=simrand(2, "ai_passenger_t::step()")!=0;	// holidays first ...
 				int ziel_count=ausflug?ausflugsziele.get_count():fabriken.get_count();
 				for( int i=0;  i<ziel_count;  i++  ) {
 					unsigned	dist;
@@ -1061,7 +1062,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","searching attraction");
 						if(  !haltestelle_t::get_halt(welt,test_platz,this).is_bound()  ) {
 							// not served
 							dist = koord_distance(platz1,test_platz);
-							if(dist+simrand(50)<last_dist  &&   dist>3) {
+							if(dist+simrand(50, "ai_passenger_t::step()")<last_dist  &&   dist>3) {
 								// but closer than the others
 								if(ausflug) {
 									end_ausflugsziel = ausflugsziele[i];
@@ -1278,7 +1279,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 		case NR_SUCCESS:
 		{
 			state = CHECK_CONVOI;
-			next_contruction_steps = welt->get_steps() + simrand( construction_speed/16 );
+			next_contruction_steps = welt->get_steps() + simrand( construction_speed/16, "ai_passenger_t::step()" );
 		}
 		break;
 
@@ -1288,11 +1289,11 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 		{
 			// next time: do something different
 			state = NR_INIT;
-			next_contruction_steps = welt->get_steps() + simrand( construction_speed ) + 25;
+			next_contruction_steps = welt->get_steps() + simrand( construction_speed, "ai_passenger_t::step()" ) + 25;
 
 			vector_tpl<linehandle_t> lines(0);
 			simlinemgmt.get_lines( simline_t::line, &lines);
-			const uint32 offset = simrand(lines.get_count());
+			const uint32 offset = simrand(lines.get_count(), "ai_passenger_t::step()");
 			for (uint32 i = 0;  i<lines.get_count();  i++  ) {
 				linehandle_t line = lines[(i+offset)%lines.get_count()];
 				if(line->get_linetype()!=simline_t::airline  &&  line->get_linetype()!=simline_t::truckline) {
@@ -1416,7 +1417,7 @@ void ai_passenger_t::rdwr(loadsave_t *file)
 	if(file->get_version()<101000) {
 		// ignore saving, reinit on loading
 		if(  file->is_loading()  ) {
-			next_contruction_steps = welt->get_steps()+simrand(construction_speed);
+			next_contruction_steps = welt->get_steps()+simrand(construction_speed, "ai_passenger_t::rdwr()");
 		}
 		return;
 	}
@@ -1471,31 +1472,10 @@ void ai_passenger_t::rdwr(loadsave_t *file)
  */
 void ai_passenger_t::bescheid_vehikel_problem(convoihandle_t cnv,const koord3d ziel)
 {
-	switch(cnv->get_state()) {
-
-		case convoi_t::NO_ROUTE:
-DBG_MESSAGE("ai_passenger_t::bescheid_vehikel_problem","Vehicle %s can't find a route to (%i,%i)!", cnv->get_name(),ziel.x,ziel.y);
-			if(this==welt->get_active_player()) {
-				char buf[256];
-				sprintf(buf,translator::translate("Vehicle %s can't find a route!"), cnv->get_name());
-				welt->get_message()->add_message(buf, cnv->get_pos().get_2d(), message_t::convoi, PLAYER_FLAG | player_nr, cnv->front()->get_basis_bild());
-			}
-			else {
-				cnv->self_destruct();
-			}
-			break;
-
-		case convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH:
-		case convoi_t::CAN_START_ONE_MONTH:
-DBG_MESSAGE("ai_passenger_t::bescheid_vehikel_problem","Vehicle %s stucked!", cnv->get_name(),ziel.x,ziel.y);
-			if(this==welt->get_active_player()) {
-				char buf[256];
-				sprintf(buf,translator::translate("Vehicle %s is stucked!"), cnv->get_name());
-				welt->get_message()->add_message(buf, cnv->get_pos().get_2d(), message_t::convoi, PLAYER_FLAG | player_nr, cnv->front()->get_basis_bild());
-			}
-			break;
-
-		default:
-DBG_MESSAGE("ai_passenger_t::bescheid_vehikel_problem","Vehicle %s, state %i!", cnv->get_name(), cnv->get_state());
+	if(  cnv->get_state() == convoi_t::NO_ROUTE  &&  this!=welt->get_active_player()  ) {
+			DBG_MESSAGE("ai_passenger_t::bescheid_vehikel_problem","Vehicle %s can't find a route to (%i,%i)!", cnv->get_name(),ziel.x,ziel.y);
+			cnv->self_destruct();
+			return;
 	}
+	spieler_t::bescheid_vehikel_problem( cnv, ziel );
 }

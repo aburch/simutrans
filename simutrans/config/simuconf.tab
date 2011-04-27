@@ -147,7 +147,8 @@ beginner_price_factor = 1500
 
 ##################################factory stuff#################################
 
-# when a city reaches 2^n of this number then a new factory chain is spawned
+# when a city reaches 2^n times of this number
+# then a factory is extended, or a new factory chain is spawned
 #industry_increase_every = 2000
 
 # smallest distance between two adjacent factories
@@ -171,6 +172,17 @@ just_in_time = 1
 first_beginner = 0
 
 ##################################display stuff#################################
+
+# player color can be fixed for several players or set totally random
+# in the latter case each player will get unique but random coloring
+# (default 0)
+random_player_colors = 0
+
+# when set here, the player will always get these player colors, even
+# if random colors were enabled.
+# color values range from 0 to 27 for first and second player color
+# and there are 0...15 player in the game
+player_color[1] = 1,4
 
 # how long is a diagonal (512: faktor 2=1024/512, old way, 724: sqrt(2)=1024/724
 # THIS WILL BE ONLY USED, WHEN THIS FILE IS IN THE pakxyz/config!
@@ -235,7 +247,10 @@ townhall_info = 0
 # 1 = station names
 # 2 = statistics
 # 3 = names and statistics
-#
+# The visual style is added to this number:
+#   0 = black name in color box
+#   4 = name in player color with outline
+#   8 = box left of name in yellow outline
 show_names = 3
 
 # Color of cursor overlay, which is blended over marked ground tiles
@@ -264,6 +279,10 @@ bottom_window_bar_color = 3
 # some colors are 215-white, 240-blck 208-214- all shades of gray
 front_window_text_color = 215
 bottom_window_text_color = 209
+
+# when moving, you can use windows to snap onto each other seamlessly
+# if you do not like it, set the catch radius to zero
+window_snap_distance = 8
 
 # show tooltips (default 1=show)
 show_tooltips = 1
@@ -300,6 +319,10 @@ left_to_right_graphs  = 0
 
 # allow buying obsolete vehicles (=1) in depot
 allow_buying_obsolete_vehicles = 1
+
+# vehicle can loose a part of their value, when the are once used
+# the loss is given in 1/1000th, i.e 300 mean the value will be 70%
+used_vehicle_reduction = 0
 
 # Maintenance costs of buildings
 #maintenance_building = 2000
@@ -436,7 +459,10 @@ starting_year = 1930
 # Starting month of the game for people who want to start in summer (default 1=January)
 starting_month = 1
 
-# Should month be shown in date? (0=no, 1=yes, 2>=show day in japan format=2, us format=3, german=4)
+# Should month be shown in date?
+# 0=no, 1=yes
+# 2>=show day in japan format=2, us format=3, german=4
+# 5>=show no season but everything else in japan format=5, us format=5, german=6
 # This is most useful, if you use longer months than the default length (see below)
 #show_month = 1
 
@@ -475,6 +501,8 @@ autosave = 0
 toolbar_max_width = 0
 toolbar_max_height = 0
 
+# if 1, print the company name in front of a message
+#add_player_name_to_message = 1
 
 # How many frames per second to use? Display may look pretty until 10 or so
 # (depends very much on computer, game complexity and graphics driver)
@@ -486,22 +514,23 @@ fast_forward = 50
 ###################################network stuff##############################
 #
 # Synchronized networking is always a trade off between fast respone and safe
-# connections. A more relaxed timing will cuase delay of commands but is more
+# connections. A more relaxed timing will cause delay of commands but is more
 # likely to compensate for clients running slightly faster than the rest.
 #
 
-# How much comands should be delayed before sending back to clients.
-# A larger number will catch even cleints running slightly ahead but cause delays
-#server_frames_ahead = 1
+# How much delay before comands are executed on the clients.
+# A larger number will catch even clients running slightly ahead but cause delay.
+# This is set by the server side.
+#server_frames_ahead = 4
+
+# How much extra delay in command execution on the client side, on top of server_frames_ahead.
+# A larger number can compensate for larger fluctuations in communication latency.
+# This is set by the client side.
+#additional_client_frames_behind = 0
 
 # In network mode, there will be a fixed number of screen updates before a step.
 # Reasonable values should result in 2-5 steps per second.
 #server_frames_per_step = 4
-
-# Clients can decide to deliberately running a few ms behind to avoid running ahead
-# of the server; in later versions this value might be set by the roundtrip timer (like
-# simutrans PING). Larger values cause longer delay for commands.
-network_ms_ahead = 250
 
 # The server sends after a fixed number of steps some information to the clients.
 # Large values here means: reduced server communication (if that is of importance...)
@@ -511,9 +540,13 @@ network_ms_ahead = 250
 # Automatically announce server on the central server directory
 # 0 (default) = off, any other number is ID from
 # http://simutrans-germany.com/serverlist/
-#announce_server = 0
+#server_announce = 0
 
-# DNS name or IP of your server also IPv& is accepted
+# intervall of announcement (if enabled)
+# 0=only on start/exit, -1=on join/leave, intervall>0 every x month
+#server_announce_intervall = 0
+
+# DNS name or IP of your server also IPv6 is accepted
 #server_name = 127.0.0.1
 
 # Additionally comment on your server; will be shown on game-info

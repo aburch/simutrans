@@ -3,7 +3,7 @@
 <h1><strong>Removal Tool</strong></h1>
 
 <p>
-<strong>Removal Tool</strong> is used to destroy and remove unwanted items and obstructions to construction on a single ?game-square in <a href="window.txt">game-view</a>.
+<strong>Removal Tool</strong> is used to destroy and remove unwanted items and obstructions to construction on a single game-tile in <a href="window.txt">game-view</a>.
 </p>
 <p>
 To Use: Click red-cross-icon (<it>bulldozer-icon</it> in pak128) at top of game-view or press <a href="keys.txt">[a]</a> to open <strong>Removal Tool</strong> (changes cursor to a red-cross-over-dust-cloud).<br>

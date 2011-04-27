@@ -81,7 +81,7 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			{
 				if(experimental_version == 0)
 				{
-					besch->max_weight =  decode_uint32(p);
+					besch->max_weight = decode_uint32(p);
 					way_constraints.set_permissive(decode_uint8(p));
 					way_constraints.set_prohibitive(decode_uint8(p));
 				}

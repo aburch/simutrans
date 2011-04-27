@@ -39,7 +39,6 @@ To plant a tree: click on tool to select (changes cursor to tree), then click re
 <p>
 <em>Build Power Transmission Line:</em> tool builds powerlines that supply power between transformer stations at power plants and <a href="industry_info.txt">industry</a> (to increase productivity). The supply of power generates income. These powerlines cannot cross diagonal tracks and roads.<br>
 To build a high power transmission line: click on to tool or press [l] to select (changes cursor to power lines), then click on a transformer station placed next to a power station, & finally click on a transformer station at an industry to supply it with power to increase production.<br>
-{Tips: Powerlines can be built in stages, click at required points in game-view. Remove powerlines with Destroy/Remove.}
 </p>
 <p>
 <em>Transformer station</em> tool builds a transformer station at power plants or <a href="industry_info.txt">industry</a> for connection to high power transmission lines.<br>

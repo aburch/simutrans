@@ -44,6 +44,12 @@ private:
 	int	icnv;
 
 	/**
+	 * The previous convoy being displayed
+	 * @author Knightly
+	 */
+	convoihandle_t prev_cnv;
+
+	/**
 	 * Gui elements
 	 * @author Volker Meyer
 	 * @date  09.06.2003
@@ -94,6 +100,7 @@ private:
 	char txt_convois[40];
 
 	char txt_cnv_name[118];
+	char txt_old_cnv_name[118];
 
 	char txt_convoi_value[40];
 	char txt_convoi_line[128];
@@ -127,8 +134,21 @@ public:
 	 */
 	void update_data();
 
+	/**
+	 * Reset convoy name
+	 * @author Knightly
+	 */
+	void reset_convoy_name(convoihandle_t cnv);
+
+	/**
+	 * Rename the convoy
+	 * @author Knightly
+	 */
+	void rename_convoy(convoihandle_t cnv);
+
 	// more general functions ...
 	depot_frame_t(depot_t* depot);
+	~depot_frame_t();
 
 	/**
 	 * Setzt die Fenstergroesse

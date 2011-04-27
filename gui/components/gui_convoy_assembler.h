@@ -118,7 +118,7 @@ class gui_convoy_assembler_t :
 	gui_container_t cont_loks;
 	gui_container_t cont_waggons;
 
-	char txt_convoi_count[80];
+	char txt_convoi_count[120];
 	char txt_convoi_speed[120];
 
 	enum { va_append, va_insert, va_sell };
@@ -155,7 +155,7 @@ class gui_convoy_assembler_t :
 	// add a single vehicle (helper function)
 	void add_to_vehicle_list(const vehikel_besch_t *info);
 
-	static const sint16 VINFO_HEIGHT = 186;
+	static const sint16 VINFO_HEIGHT = 186 + 12;
 
 public:
 	// Used for listeners to know what has happened

@@ -1,0 +1,7 @@
+<title>Scenario help</title>
+
+<h1><strong>Scenarios</strong></h1>
+
+<p>
+You can play scenarios with simutrans. Here you have to fulfill certain goals: connect a factory, get rich as soon as possible, or erect a monumental headquarter.
+</p>

@@ -36,25 +36,35 @@ public:
 	// version for which the savegames should be created
 	static const char *savegame_version_str;
 
+	// version for which the savegames should be created
+	static const char *savegame_ex_version_str;
+
 	static std::string objfilename;
 
 	// true, if we are in networkmode
 	static bool networkmode;
 	static long server_frames_ahead;
-	static long server_ms_ahead;
+	static long additional_client_frames_behind;
 	static long network_frames_per_step;
 	// how often to synchronize
 	static uint32 server_sync_steps_between_checks;
+	static bool restore_UI;	// when true, restore the windows from a savegame
 
 	// if we are the server, we are at this port ...
 	static uint16 server;
 
 	static uint32 announce_server;
+	static sint32 announce_server_intervall;
 	static std::string server_name;
 	static std::string server_comment;
 
 	// scrollrichtung
 	static sint16 scroll_multi;
+
+	// messages with player name
+	static bool add_player_name_to_message;
+
+	static sint16 window_snap_distance;
 
 	/**
 	* tag-nacht wechsel zeigen ?
@@ -90,6 +100,7 @@ public:
 
 	/**
 	* Namen (Städte, Haltestellen) anzeigen? (0 .. 3)
+	* lable type 4..7
 	*
 	* @author Hj. Malthaner
 	*/
@@ -187,7 +198,10 @@ public:
 		DATE_FMT_MONTH    = 1,
 		DATE_FMT_JAPANESE = 2,
 		DATE_FMT_US       = 3,
-		DATE_FMT_GERMAN   = 4
+		DATE_FMT_GERMAN   = 4,
+		DATE_FMT_JAPANESE_NO_SEASON = 5,
+		DATE_FMT_US_NO_SEASON       = 6,
+		DATE_FMT_GERMAN_NO_SEASON   = 7
 	};
 
 	/**

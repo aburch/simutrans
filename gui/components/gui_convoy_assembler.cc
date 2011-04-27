@@ -28,6 +28,7 @@
 #include "../../utils/simstring.h"
 #include "../../vehicle/simvehikel.h"
 #include "../../besch/haus_besch.h"
+#include "../../player/simplay.h"
 
 #include "../../utils/cbuffer_t.h"
 
@@ -324,8 +325,9 @@ void gui_convoy_assembler_t::layout()
 	 */
 	convoi.set_grid(koord(grid.x - grid_dx, grid.y));
 	convoi.set_placement(koord(placement.x - placement_dx, placement.y));
-	convoi.set_pos(koord((groesse.x-get_convoy_image_width())/2, 0));
+	convoi.set_pos(koord((max(get_pos().x + 10, groesse.x-get_convoy_image_width())/2), 0));
 	convoi.set_groesse(koord(get_convoy_image_width(), get_convoy_image_height()));
+	
 
 	sint16 CINFO_VSTART = get_convoy_image_height();
 	lb_convoi_count.set_pos(koord(4, CINFO_VSTART));
@@ -469,11 +471,11 @@ void gui_convoy_assembler_t::zeichnen(koord parent_pos)
 		potential_convoy_t convoy(*welt, vehicles);
 		const vehicle_summary_t &vsum = convoy.get_vehicle_summary();
 		sint32 friction = convoy.get_current_friction();
-		uint32 allowed_speed = vsum.max_speed;
-		uint32 min_weight = vsum.weight;
-		uint32 max_weight = min_weight + convoy.get_freight_summary().max_freight_weight;
-		uint32 min_speed = convoy.calc_max_speed(weight_summary_t(max_weight, friction));
-		uint32 max_speed = min_speed;
+		sint32 allowed_speed = vsum.max_speed;
+		sint32 min_weight = vsum.weight;
+		sint32 max_weight = min_weight + convoy.get_freight_summary().max_freight_weight;
+		sint32 min_speed = convoy.calc_max_speed(weight_summary_t(max_weight, friction));
+		sint32 max_speed = min_speed;
 		uint32 txt_convoi_speed_offs = sprintf(txt_convoi_speed, "%s", translator::translate("Max. speed:"));
 		int col_convoi_speed = COL_BLACK;
 		if (min_speed == 0)
@@ -591,6 +593,7 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 	}
 	else {
 		// list only matching ones
+
 		slist_iterator_tpl<vehikel_besch_t*> vehinfo(vehikelbauer_t::get_info(way_type));
 		while (vehinfo.next()) {
 			const vehikel_besch_t* info = vehinfo.get_current();
@@ -657,9 +660,26 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 					}
 					else
 					{
-						if(info->is_available_only_as_upgrade() && (depot_frame && !depot_frame->get_depot()->find_oldest_newest(info, false)))
+						if(info->is_available_only_as_upgrade())
 						{
-							append = false;
+							if(depot_frame && !depot_frame->get_depot()->find_oldest_newest(info, false))
+							{
+								append = false;
+							}
+							else if(replace_frame)
+							{
+								append = false;
+								convoihandle_t cnv = replace_frame->get_convoy();
+								const uint8 count = cnv->get_vehikel_anzahl();
+								for(uint8 i = 0; i < count; i++)
+								{
+									if(cnv->get_vehikel(i)->get_besch() == info)
+									{
+										append = true;
+										break;
+									}
+								}
+							}
 						}
 					}
 					const uint8 shifter = 1 << info->get_engine_type();
@@ -820,16 +840,36 @@ void gui_convoy_assembler_t::image_from_storage_list(gui_image_list_t::image_dat
 			bild_data->lcolor != COL_PURPLE &&
 			!((bild_data->lcolor == COL_DARK_ORANGE || bild_data->rcolor == COL_DARK_ORANGE)
 			&& veh_action != va_sell
-			&& depot_frame != NULL && !depot_frame->get_depot()->find_oldest_newest(info, true))) 
+			/*&& depot_frame != NULL && !depot_frame->get_depot()->find_oldest_newest(info, true)*/)) 
 		{
 			//replace_frame->replace.add_vehicle(info);
-			if(veh_action == va_insert)
+			if(upgrade == u_upgrade)
 			{
-				vehicles.insert_at(0, info);
+				uint8 count;
+				ITERATE(vehicles,n)
+				{
+					count = vehicles[n]->get_upgrades_count();
+					for(int i = 0; i < count; i++)
+					{
+						if(vehicles[n]->get_upgrades(i) == info)
+						{
+							vehicles.insert_at(n, info);
+							vehicles.remove_at(n+1);
+							return;
+						}
+					}
+				}
 			}
-			else if(veh_action == va_append)
+			else
 			{
-				vehicles.append(info);
+				if(veh_action == va_insert)
+				{
+					vehicles.insert_at(0, info);
+				}
+				else if(veh_action == va_append)
+				{
+					vehicles.append(info);
+				}
 			}
 			// No action for sell - not available in the replacer window.
 		}
@@ -980,22 +1020,22 @@ void gui_convoy_assembler_t::update_data()
 			iter1.get_current_value()->rcolor = COL_DARK_PURPLE;
 			vector_tpl<const vehikel_besch_t*> vehicle_list;
 
-			if(replace_frame == NULL)
-			{
+			//if(replace_frame == NULL)
+			//{
 				ITERATE(vehicles,i)
 				{
 					vehicle_list.append(vehicles[i]);
 				}
-			}
-			else
-			{
-				const convoihandle_t cnv = replace_frame->get_convoy();
-			
-				for(uint8 i = 0; i < cnv->get_vehikel_anzahl(); i ++)
-				{
-					vehicle_list.append(cnv->get_vehikel(i)->get_besch());
-				}
-			}
+			//}
+			//else
+			//{
+			//	const convoihandle_t cnv = replace_frame->get_convoy();
+			//
+			//	for(uint8 i = 0; i < cnv->get_vehikel_anzahl(); i ++)
+			//	{
+			//		vehicle_list.append(cnv->get_vehikel(i)->get_besch());
+			//	}
+			//}
 
 			ITERATE(vehicle_list, i)
 			{
@@ -1070,10 +1110,32 @@ void gui_convoy_assembler_t::update_data()
 		}
 		else
 		{
-			if(info->is_available_only_as_upgrade() && (depot_frame && !depot_frame->get_depot()->find_oldest_newest(info, false)))
+			if(info->is_available_only_as_upgrade())
 			{
-				iter1.get_current_value()->lcolor = COL_PURPLE;
-				iter1.get_current_value()->rcolor = COL_PURPLE;
+				bool purple = false;
+				if(depot_frame && !depot_frame->get_depot()->find_oldest_newest(info, false))
+				{
+						purple = true;
+				}
+				else if(replace_frame)
+				{
+					purple = true;
+					convoihandle_t cnv = replace_frame->get_convoy();
+					const uint8 count = cnv->get_vehikel_anzahl();
+					for(uint8 i = 0; i < count; i++)
+					{
+						if(cnv->get_vehikel(i)->get_besch() == info)
+						{
+							purple = false;
+							break;
+						}
+					}
+				}
+				if(purple)
+				{
+					iter1.get_current_value()->lcolor = COL_PURPLE;
+					iter1.get_current_value()->rcolor = COL_PURPLE;
+				}
 			}
 		}
 
@@ -1186,6 +1248,8 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 {
 	char buf[1024];
 	const char *c;
+	const koord size = depot_frame ? depot_frame->get_fenstergroesse() : replace_frame->get_fenstergroesse();
+	PUSH_CLIP(pos.x, pos.y, size.x-1, size.y-1);
 
 	gui_komponente_t const* const tab = tabs.get_aktives_tab();
 	gui_image_list_t const* const lst =
@@ -1262,10 +1326,10 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 
 			vehicle_as_potential_convoy_t convoy(*get_welt(), *veh_type);
 			sint32 friction = convoy.get_current_friction();
-			uint32 max_weight = convoy.calc_max_starting_weight(friction);
-			uint32 min_speed = convoy.calc_max_speed(weight_summary_t(max_weight, friction));
-			uint32 min_weight = convoy.calc_max_weight(friction);
-			uint32 max_speed = convoy.get_vehicle_summary().max_speed;
+			sint32 max_weight = convoy.calc_max_starting_weight(friction);
+			sint32 min_speed = convoy.calc_max_speed(weight_summary_t(max_weight, friction));
+			sint32 min_weight = convoy.calc_max_weight(friction);
+			sint32 max_speed = convoy.get_vehicle_summary().max_speed;
 			if (min_weight < convoy.get_vehicle_summary().weight)
 			{
 				min_weight = convoy.get_vehicle_summary().weight;
@@ -1519,6 +1583,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 
 		display_multiline_text( pos.x + 220, pos.y + tabs.get_pos().y + tabs.get_groesse().y + 31 + LINESPACE*3 + 4, buf, COL_BLACK);
 	}
+	POP_CLIP();
 }
 
 

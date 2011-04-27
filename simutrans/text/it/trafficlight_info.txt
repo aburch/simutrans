@@ -1,0 +1,7 @@
+<title>Aiuto - Semafori</title>
+
+<h1><strong>Semafori</strong></h1>
+
+<p>
+E' possibile controllare la durata del verde e del rosso dei semafori. I numeri che si possono impostare sono la durata del verde (in secondi) per le direzioni nord/sud ed est/ovest.
+</p>

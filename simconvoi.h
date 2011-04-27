@@ -93,7 +93,6 @@ private:
 	* @author hsiegeln
 	*/
 	linehandle_t line;
-	uint16 line_id;
 
 	/**
 	* holds id of line with pendig update
@@ -137,6 +136,12 @@ private:
 	sint32 loading_limit;
 
 	/**
+	 * Free seats for passengers, calculated in convoi_t::calc_loading
+	 * @author Inkelyad
+	 */
+	sint32 free_seats;
+
+	/**
 	* The vehicles of this convoi
 	*
 	* @author Hj. Malthaner
@@ -161,13 +166,13 @@ private:
 
 	static karte_t *welt;
 
- 	/**
+	/**
 	* the convoi is being withdrawn from service
 	* @author kierongreen
 	*/
 	bool withdraw;
 
- 	/**
+	/**
 	* nothing will be loaded onto this convoi
 	* @author kierongreen
 	*/
@@ -256,8 +261,10 @@ private:
 	// cached values
 	// will be recalculated if
 	// recalc_data is true
+	bool recalc_brake_soll;
 	bool recalc_data;
-	uint32 speed_limit;
+	sint32 sum_friction_weight;
+	sint32 speed_limit;
 
 	/**
 	* Lowest top speed of all vehicles. Doesn't get saved, but calculated
@@ -301,7 +308,7 @@ private:
 	// the odometer was last incremented.
 	// Used for converting tiles to km.
 	// @author: jamespetts
-	float tiles_since_last_odometer_increment;
+	sint64 tile_hundredths_since_last_odometer_increment;
 
 	/**
 	* Set, when there was a income calculation (avoids some cheats)
@@ -315,6 +322,7 @@ private:
 	koord record_pos;
 
 	// needed for speed control/calculation
+	sint32 brake_speed_soll;    // brake target speed
 	sint32 akt_speed;	        // current speed
 	sint32 sp_soll;           // steps to go
 	sint32 previous_delta_v;  // Stores the previous delta_v value; otherwise these digits are lost during calculation and vehicle do not accelrate
@@ -346,6 +354,11 @@ private:
 	bool can_go_alte_richtung();
 
 	/**
+	 * remove all track reservations (trains only)
+	 */
+	void unreserve_route();
+
+	/**
 	* Mark first and last vehicle.
 	* @author Hanjsörg Malthaner
 	*/
@@ -373,13 +386,6 @@ private:
 	 * needed for driving, entering and leaving a depot)
 	 */
 	void calc_acceleration(long delta_t);
-
-	/**
-	* Convoi haelt an Haltestelle und setzt quote fuer Fracht
-	* "Convoi holds by stop and sets ratio for freight" (Babelfish)
-	* @author Hj. Malthaner
-	*/
-	void hat_gehalten(koord k, halthandle_t halt);
 
 	/*
 	* struct holds new financial history for convoi
@@ -460,7 +466,14 @@ private:
 	void advance_schedule();
 
 public:
-	inline route_t* get_route() { return &route; }
+	/**
+	* Convoi haelt an Haltestelle und setzt quote fuer Fracht
+	* @author Hj. Malthaner
+	*/
+	void hat_gehalten(halthandle_t halt);
+
+	route_t* get_route() { return &route; }
+	route_t* access_route() { return &route; }
 
 	/**
 	* Checks if this convoi has a driveable route
@@ -487,6 +500,12 @@ public:
 	 * for list of commands and parameter see werkzeug_t::wkz_change_convoi_t
 	 */
 	void call_convoi_tool( const char function, const char *extra = NULL );
+
+	/**
+	* set state: only use by werkzeug_t convoi tool, or not networking!
+	* @author hsiegeln
+	*/
+	void set_state( uint16 new_state ) { assert(new_state<MAX_STATES); state = (states)new_state; }
 
 	/**
 	* get state
@@ -761,7 +780,7 @@ public:
 	* Set whether the convoi is traversing its schedule in reverse.
 	* @author yobbobandana
 	*/
-	void set_reverse_schedule(bool reverse = true) { reverse_schedule = reverse; }
+	void set_reverse_schedule(bool reverse) { reverse_schedule = reverse; }
 
 #if 0
 private:
@@ -841,6 +860,17 @@ public:
 	inline const sint32 &get_loading_limit() const { return loading_limit; }
 
 	/**
+	 * Format remained loading time from go_on_ticks
+	 */
+	void snprintf_remained_loading_time(char *p, size_t size) const;
+
+	/**
+	 * How many free seats for passengers in convoy? Used in overcrowded loading
+	 * @auhor Inkelyad
+	 */
+	inline const sint32 &get_free_seats() const { return free_seats; }
+
+	/**
 	* Schedule convoid for self destruction. Will be executed
 	* upon next sync step
 	* @author Hj. Malthaner
@@ -906,8 +936,8 @@ public:
 	* The slowdown ist done by the vehicle routines
 	* @author prissi
 	*/
-	inline uint16 get_next_stop_index() const {return next_stop_index;}
-	inline void set_next_stop_index(uint16 n) {next_stop_index=n;}
+	uint16 get_next_stop_index() const {return next_stop_index;}
+	void set_next_stop_index(uint16 n);
 
 	/* the current state of the convoi */
 	uint8 get_status_color() const;
@@ -963,6 +993,7 @@ public:
 	bool has_no_cargo() const;
 
 	void must_recalc_data() { recalc_data = true; }
+	void must_recalc_brake_soll() { recalc_brake_soll = true; }
 
 	// Overtaking for convois
 	virtual bool can_overtake(overtaker_t *other_overtaker, int other_speed, int steps_other, int diagonal_length);

@@ -18,7 +18,6 @@
 #include "simhalt.h"
 #include "player/simplay.h"
 #include "simworld.h"
-#include "simio.h"
 #include "simdepot.h"
 #include "simline.h"
 #include "simlinemgmt.h"
@@ -41,6 +40,7 @@
 #include "besch/haus_besch.h"
 
 #define CREDIT_MESSAGE "That would exceed\nyour credit limit."
+#include "utils/cbuffer_t.h"
 
 slist_tpl<depot_t *> depot_t::all_depots;
 
@@ -148,7 +148,7 @@ void depot_t::call_depot_tool( char tool, convoihandle_t cnv, const char *extra)
 
 /* this is called on two occasions:
  * first a convoy reaches the depot during its journey
- * second during loading a covoi is stored in a depot => only store it again
+ * second during loading a convoi is stored in a depot => only store it again
  */
 void depot_t::convoi_arrived(convoihandle_t acnv, bool fpl_adjust)
 {
@@ -295,17 +295,16 @@ void depot_t::sell_vehicle(vehikel_t* veh)
 }
 
 
-
 convoihandle_t depot_t::add_convoi()
 {
 	convoi_t* new_cnv = new convoi_t(get_besitzer());
 	new_cnv->set_home_depot(get_pos());
-    convois.append(new_cnv->self);
+	convois.append(new_cnv->self);
 	depot_frame_t *win = dynamic_cast<depot_frame_t *>(win_get_magic( (long)this ));
 	if(  win  ) {
 		win->activate_convoi( new_cnv->self );
 	}
-    return new_cnv->self;
+	return new_cnv->self;
 }
 
 
@@ -374,7 +373,8 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv)
 				win->activate_convoi( new_cnv );
 			}
 		}
-		return new_cnv->self;
+
+		return new_cnv;
 	}
 	return convoihandle_t();
 }
@@ -383,13 +383,9 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv)
 
 bool depot_t::disassemble_convoi(convoihandle_t cnv, bool sell)
 {
-	if(cnv.is_bound()) 
-	{
-		if(  cnv->get_line().is_bound()  ) {
-			cnv->set_schedule( NULL );
-		}
-		if(!sell)
-		{
+	if(cnv.is_bound()) {
+
+		if(!sell) {
 			// store vehicles in depot
 			vehikel_t *v;
 			while(  (v=cnv->remove_vehikel_bei(0))!=NULL  ) {
@@ -440,12 +436,12 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 			cnv->get_schedule()->advance();
 		}
 
-		// pruefen ob zug vollstaendig
+		// check if convoi is complete
 		if(cnv->get_sum_leistung() == 0 || !cnv->pruefe_alle()) {
 			if (local_execution) {
 				create_win( new news_img("Diese Zusammenstellung kann nicht fahren!\n"), w_time_delete, magic_none);
 			}
-		} else if (!cnv->front()->calc_route(this->get_pos(), cur_pos, cnv->get_min_top_speed(), cnv->get_route())) {
+		} else if (!cnv->front()->calc_route(this->get_pos(), cur_pos, cnv->get_min_top_speed(), cnv->access_route())) {
 			// no route to go ...
 			if (local_execution) {
 				static char buf[256];
@@ -461,7 +457,7 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 			sint32 icnv = (sint32)convois.index_of( cnv );
 			if (convois.remove(cnv)) {
 				// actually removed cnv from depot, here icnv>=0
-				// make another the current selected convoi
+				// make another convoi the current selected one
 				depot_frame_t *win = dynamic_cast<depot_frame_t *>(win_get_magic( (long)this ));
 				if(  win  ) {
 					if (local_execution) {
@@ -503,8 +499,7 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 
 
 // attention! this will not be used for railway depots! They will be loaded by hand ...
-void
-depot_t::rdwr(loadsave_t *file)
+void depot_t::rdwr(loadsave_t *file)
 {
 	gebaeude_t::rdwr(file);
 
@@ -518,8 +513,7 @@ depot_t::rdwr(loadsave_t *file)
 
 
 
-void
-depot_t::rdwr_vehikel(slist_tpl<vehikel_t *> &list, loadsave_t *file)
+void depot_t::rdwr_vehikel(slist_tpl<vehikel_t *> &list, loadsave_t *file)
 {
 // read/write vehicles in the depot, which are not part of a convoi.
 
@@ -568,7 +562,7 @@ depot_t::rdwr_vehikel(slist_tpl<vehikel_t *> &list, loadsave_t *file)
 				DBG_MESSAGE("depot_t::vehikel_laden()","loaded %s", besch->get_name());
 				list.insert( v );
 				// BG, 06.06.2009: fixed maintenance for vehicles in the depot, which are not part of a convoi
-				spieler_t::add_maintenance(get_besitzer(), besch->get_fixed_maintenance(get_welt()), spieler_t::MAINT_VEHICLE);
+				spieler_t::add_maintenance(get_besitzer(), besch->get_fixed_maintenance(get_welt()) / 20, spieler_t::MAINT_VEHICLE);
 			}
 			else {
 				dbg->error("depot_t::vehikel_laden()","vehicle has no besch => ignored");
@@ -585,7 +579,7 @@ depot_t::rdwr_vehikel(slist_tpl<vehikel_t *> &list, loadsave_t *file)
 }
 
 /**
- * @returns NULL wenn OK, ansonsten eine Fehlermeldung
+ * @return NULL wenn OK, ansonsten eine Fehlermeldung
  * @author Hj. Malthaner
  */
 const char * depot_t::ist_entfernbar(const spieler_t *sp)
@@ -700,7 +694,7 @@ bool bahndepot_t::can_convoi_start(convoihandle_t cnv) const
 	}
 
 	// reserve the next segments of the train
-	route_t *route=cnv->get_route();
+	const route_t *route=cnv->get_route();
 	bool success = true;
 	uint16 tiles = cnv->get_tile_length();
 	uint32 i;
@@ -718,7 +712,7 @@ bool bahndepot_t::can_convoi_start(convoihandle_t cnv) const
 	}
 
 	if(!success  &&  i>0) {
-		// free reservation, since we were not sucessfull
+		// free reservation, since we were not sucessful
 		i--;
 		sch0->unreserve(cnv);
 		for(uint32 j=0; j<i; j++) {

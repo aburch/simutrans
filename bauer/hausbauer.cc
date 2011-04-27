@@ -447,7 +447,7 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int org
 				// Hajo: after staring a new map, build fake old buildings
 				gb->add_alter(10000);
 			}
-			grund_t *gr = welt->lookup(pos.get_2d() + k)->get_kartenboden();
+			grund_t *gr = welt->lookup_kartenboden(pos.get_2d() + k);
 			if(gr->ist_wasser()) {
 				gr->obj_add(gb);
 			} else if (besch->get_utyp() == haus_besch_t::hafen) {
@@ -470,16 +470,16 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int org
 				gr = gr2;
 //DBG_DEBUG("hausbauer_t::baue()","ground count now %i",gr->obj_count());
 				gr->obj_add( gb );
-				gb->set_pos( gr->get_pos() );
 				if(lt) {
 					gr->obj_add( lt );
 				}
-				if(needs_ground_recalc  &&  welt->ist_in_kartengrenzen(pos.get_2d()+koord(1,1))  &&  (k.y+1==dim.y  ||  k.x+1==dim.x)) {
-					welt->lookup(pos.get_2d()+k+koord(1,0))->get_kartenboden()->calc_bild();
-					welt->lookup(pos.get_2d()+k+koord(0,1))->get_kartenboden()->calc_bild();
-					welt->lookup(pos.get_2d()+k+koord(1,1))->get_kartenboden()->calc_bild();
+				if(needs_ground_recalc  &&  welt->ist_in_kartengrenzen(pos.get_2d()+k+koord(1,1))  &&  (k.y+1==dim.y  ||  k.x+1==dim.x)) {
+					welt->lookup_kartenboden(pos.get_2d()+k+koord(1,0))->calc_bild();
+					welt->lookup_kartenboden(pos.get_2d()+k+koord(0,1))->calc_bild();
+					welt->lookup_kartenboden(pos.get_2d()+k+koord(1,1))->calc_bild();
 				}
 			}
+			gb->set_pos( gr->get_pos() );
 			if(besch->ist_ausflugsziel()) {
 				welt->add_ausflugsziel( gb );
 			}
@@ -634,6 +634,9 @@ hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int built
 		(*static_cast<halthandle_t *>(param))->add_grund(gr);
 		gr->calc_bild();
 	}
+	else {
+		gb->calc_bild();
+	}
 
 	if(besch->ist_ausflugsziel()) {
 		welt->add_ausflugsziel( gb );
@@ -676,7 +679,7 @@ const haus_besch_t* hausbauer_t::get_random_station(const haus_besch_t::utyp uty
 			}
 		}
 	}
-	return stops.empty() ? NULL : stops.at_weight(simrand(stops.get_sum_weight()));
+	return stops.empty() ? NULL : stops.at_weight(simrand(stops.get_sum_weight(), "const haus_besch_t* hausbauer_t::get_random_station"));
 }
 
 
@@ -705,7 +708,7 @@ const haus_besch_t* hausbauer_t::get_special(int bev, haus_besch_t::utyp utype, 
 		return auswahl.front();
 	}
 	// now there is something to choose
-	return auswahl.at_weight( simrand(auswahl.get_sum_weight()) );
+	return auswahl.at_weight( simrand(auswahl.get_sum_weight(), "const haus_besch_t* hausbauer_t::get_special") );
 }
 
 
@@ -723,7 +726,7 @@ static const haus_besch_t* get_aus_liste(const vector_tpl<const haus_besch_t*>& 
 	const haus_besch_t *besch_at_least=NULL;
 	for (vector_tpl<const haus_besch_t*>::const_iterator i = liste.begin(), end = liste.end(); i != end; ++i) {
 		const haus_besch_t* besch = *i;
-		const uint16 random = simrand(100);
+		const uint16 random = simrand(100, "static const haus_besch_t* get_aus_liste");
 		if(	besch->is_allowed_climate(cl)  &&
 			besch->get_chance()>0  &&
 			(time==0  ||  (besch->get_intro_year_month()<=time  &&  ((allow_earlier && random > 65) || besch->get_retire_year_month()>time)))) {
@@ -760,7 +763,7 @@ static const haus_besch_t* get_aus_liste(const vector_tpl<const haus_besch_t*>& 
 		return auswahl.front();
 	}
 	// now there is something to choose
-	return auswahl.at_weight( simrand(auswahl.get_sum_weight()) );
+	return auswahl.at_weight( simrand(auswahl.get_sum_weight(), "static const haus_besch_t* get_aus_liste") );
 }
 
 
@@ -815,7 +818,7 @@ const haus_besch_t *hausbauer_t::waehle_aus_liste(vector_tpl<const haus_besch_t 
 			return auswahl.front();
 		}
 		// now there is something to choose
-		return auswahl.at_weight( simrand(auswahl.get_sum_weight()) );
+		return auswahl.at_weight( simrand(auswahl.get_sum_weight(), "const haus_besch_t *hausbauer_t::waehle_aus_liste") );
 	}
 	return NULL;
 }

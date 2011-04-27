@@ -15,11 +15,13 @@
 #include "../dataobj/koord.h"
 #include "../simgraph.h"
 #include "gui_container.h"
-#include "../player/simplay.h"
 #include "../simcolor.h"
 
 // height of titlebar
 #define TITLEBAR_HEIGHT (16)
+
+class loadsave_t;
+class spieler_t;
 
 /**
  * Eine Klasse für Fenster mit Komponenten.
@@ -107,12 +109,19 @@ public:
 	 */
 	void set_name(const char *name) { this->name=name; }
 
+	/* this returns an unique id, if the dialoge can be saved
+	 * if this is defined, you better define a matching constructor with karte_t * and loadsave_t *
+	 */
+	virtual uint32 get_rdwr_id() { return 0; }
+
+	virtual void rdwr( loadsave_t * ) {}
+
 	/**
 	 * gibt farbinformationen fuer Fenstertitel, -ränder und -körper
 	 * zurück
 	 * @author Hj. Malthaner
 	 */
-	virtual PLAYER_COLOR_VAL get_titelcolor() const { return owner ? PLAYER_FLAG|(owner->get_player_color1()+1) : WIN_TITEL; }
+	virtual PLAYER_COLOR_VAL get_titelcolor() const;
 
 	/**
 	 * @return gibt wunschgroesse für das Darstellungsfenster zurueck
@@ -176,6 +185,9 @@ public:
 	virtual bool has_prev() const {return has_next();}
 
 	virtual bool has_sticky() const { return true; }
+
+	// if false, title and all gadgets will be not drawn
+	virtual bool has_title() const { return true; }
 
 	/**
 	 * Set resize mode

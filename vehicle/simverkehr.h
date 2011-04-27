@@ -20,8 +20,6 @@
 #include "../ifc/sync_steppable.h"
 //#include "../slisthandle_t.h"
 
-#define DESTINATION_CITYCARS
-
 class stadtauto_besch_t;
 class karte_t;
 
@@ -80,10 +78,12 @@ private:
 	
 	slist_tpl<stadtauto_t*> * current_list;
 
+	koord origin;
+
 	const stadtauto_besch_t *besch;
 
-	route_t route;
-	uint16 route_index;
+	//route_t route;
+	//uint16 route_index;
 
 	// prissi: time to life in blocks
 #ifdef DESTINATION_CITYCARS
@@ -101,7 +101,7 @@ private:
 
 	bool hop_check();
 	bool ist_weg_frei(const grund_t *gr);
-	bool calc_route(const koord3d ziel, const koord3d start);
+	//bool calc_route(const koord3d ziel, const koord3d start);
 
 protected:
 	void rdwr(loadsave_t *file);
@@ -159,11 +159,13 @@ public:
 	virtual overtaker_t *get_overtaker() { return this; }
 
 	// Overtaking for city cars
-	virtual bool can_overtake(overtaker_t *other_overtaker, int other_speed, int steps_other, int diagonal_length);
+	virtual bool can_overtake(overtaker_t *other_overtaker, sint32 other_speed, int steps_other, int diagonal_length);
 
 	// Sets the list in which the vehicle is referenced, so that
 	// it can be removed from the list when it is deleted. 
 	void set_list(slist_tpl<stadtauto_t*> *this_list) { current_list = this_list; }
+
+	uint16 get_current_speed() const { return current_speed; }
 };
 
 #endif

@@ -146,7 +146,7 @@ void citylist_stats_t::zeichnen(koord offset)
 		buf.append( " (" );
 		buf.append( total_growth/10.0, 1 );
 		buf.append( ")" );
-		tstrncpy( total_bev_string, buf, 128 );
+		tstrncpy(total_bev_string, buf, lengthof(total_bev_string));
 	}
 	else {
 		total_bev_string[0] = 0;

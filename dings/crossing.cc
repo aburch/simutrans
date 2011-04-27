@@ -21,7 +21,6 @@
 #include "../dataobj/loadsave.h"
 #include "../dataobj/umgebung.h"
 
-#include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
 
 #include "crossing.h"
@@ -86,8 +85,7 @@ void crossing_t::state_changed()
  * Dient zur Neuberechnung des Bildes
  * @author Hj. Malthaner
  */
-void
-crossing_t::calc_bild()
+void crossing_t::calc_bild()
 {
 	if(logic) {
 		zustand = logic->get_state();
@@ -95,7 +93,7 @@ crossing_t::calc_bild()
 	const bool snow_image = get_pos().z >= welt->get_snowline();
 	// recalc bild each step ...
 	const bild_besch_t *a = besch->get_bild_after( ns, zustand!=crossing_logic_t::CROSSING_CLOSED, snow_image );
-	if (a==NULL  &&  snow_image) {
+	if(  a==NULL  &&  snow_image  ) {
 		// no snow image? take normal one
 		a = besch->get_bild_after( ns, zustand!=crossing_logic_t::CROSSING_CLOSED, 0);
 	}
@@ -110,8 +108,7 @@ crossing_t::calc_bild()
 
 
 
-void
-crossing_t::rdwr(loadsave_t *file)
+void crossing_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t d( file, "crossing_t" );
 
@@ -126,21 +123,36 @@ crossing_t::rdwr(loadsave_t *file)
 		uint8 bdummy=0;
 		file->rdwr_byte(bdummy);
 		file->rdwr_long(ldummy);
+		dbg->fatal("crossing_t::rdwr()","I should be never force to load old style crossings!" );
 	}
 	// which waytypes?
+	uint8 w1, w2;
+	sint32 speedlimit0 = 999;
+	sint32 speedlimit1 = 999;
 	if(file->is_saving()) {
-		uint8 wt = besch->get_waytype(0);
-		file->rdwr_byte(wt);
-		wt = besch->get_waytype(1);
-		file->rdwr_byte(wt);
+		w1 = besch->get_waytype(0);
+		w2 = besch->get_waytype(1);
+		speedlimit0 = besch->get_maxspeed(0);
+		speedlimit1 = besch->get_maxspeed(1);
 	}
-	else {
-		uint8 w1, w2;
-		file->rdwr_byte(w1);
-		file->rdwr_byte(w2);
-		besch = crossing_logic_t::get_crossing( (waytype_t)w1, (waytype_t)w2, 0);
+
+	file->rdwr_byte(w1);
+	file->rdwr_byte(w2);
+	if(  file->get_version()>=110000  ) {
+		file->rdwr_long( speedlimit0 );
+	}
+	if(  file->get_version()>=110001 || (file->get_version() >= 110000 && file->get_experimental_version() >= 9)  ) {
+		file->rdwr_long( speedlimit1 );
+	}
+
+	if(  file->is_loading()  ) {
+		besch = crossing_logic_t::get_crossing( (waytype_t)w1, (waytype_t)w2, speedlimit0, speedlimit1, welt->get_timeline_year_month());
 		if(besch==NULL) {
-			dbg->fatal("crossing_t::crossing_t()","requested for waytypes %i and %i but nothing defined!", w1, w2 );
+			dbg->warning("crossing_t::rdwr()","requested for waytypes %i and %i not available, try to load object without timeline", w1, w2 );
+			besch = crossing_logic_t::get_crossing( (waytype_t)w1, (waytype_t)w2, speedlimit0, speedlimit1, 0);
+		}
+		if(besch==NULL) {
+			dbg->fatal("crossing_t::rdwr()","requested for waytypes %i and %i but nothing defined!", w1, w2 );
 		}
 		crossing_logic_t::add( welt, this, static_cast<crossing_logic_t::crossing_state_t>(zustand) );
 	}
@@ -162,10 +174,15 @@ void crossing_t::laden_abschliessen()
 		dbg->error("crossing_t::laden_abschliessen","way/ground missing at %i,%i => ignore", get_pos().x, get_pos().y );
 	}
 	else {
-		// after loading restore speedlimits
+		// try to find crossing that matches way max speed
 		weg_t *w1=gr->get_weg(besch->get_waytype(0));
-		w1->count_sign();
 		weg_t *w2=gr->get_weg(besch->get_waytype(1));
+		const kreuzung_besch_t *test = crossing_logic_t::get_crossing( besch->get_waytype(0), besch->get_waytype(1), w1->get_besch()->get_topspeed(), w2->get_besch()->get_topspeed(), welt->get_timeline_year_month());
+		if (test  &&  test!=besch) {
+			besch = test;
+		}
+		// after loading restore speedlimits
+		w1->count_sign();
 		w2->count_sign();
 		ns = ribi_t::ist_gerade_ns(w2->get_ribi_unmasked());
 		crossing_logic_t::add( welt, this, static_cast<crossing_logic_t::crossing_state_t>(zustand) );

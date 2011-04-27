@@ -20,10 +20,10 @@ class spieler_t;
 
 /**
  * Von der Klasse ding_t sind alle Objekte in Simutrans abgeleitet.
- * since everything is a ding on the map, we need to make this a compact and fast as possible
+ * Since everything is a 'ding' on the map, we need to make this as compact and fast as possible.
  *
  * @author Hj. Malthaner
- * @see planqadrat_t
+ * @see planquadrat_t
  */
 class ding_t
 {
@@ -76,7 +76,7 @@ private:
 protected:
 	ding_t(karte_t *welt);
 
-	// since we need often access during loading
+	// since we often need access during loading
 	void set_player_nr(uint8 s) { besitzer_n = s; }
 
 	/**
@@ -88,7 +88,7 @@ protected:
 
 
 public:
-	// needed for drawinf images
+	// needed for drawing images
 	sint8 get_player_nr() const { return besitzer_n; }
 
 	/**
@@ -140,7 +140,7 @@ public:
 		narrowgaugedepot=31,
 
 		// after this only moving stuff
-		// vehikel sind von 64 bis 95
+		// reserved values for vehicles: 64 to 95
 		fussgaenger=64,
 		verkehr=65,
 		automobil=66,
@@ -175,7 +175,7 @@ public:
 	// true for all moving objects
 	inline bool is_moving() const { return flags&is_vehicle; }
 
-	// true for all moving objects
+	// true for ways
 	inline bool is_way() const { return flags&is_wayding; }
 
 	// while in principle, this should trigger the dirty, it takes just too much time to do it
@@ -232,6 +232,11 @@ public:
 	 */
 	virtual typ get_typ() const = 0;
 
+	/**
+	 * waytype associated with this object
+	 */
+	virtual waytype_t get_waytype() const { return invalid_wt; }
+
 	/*
 	* called whenever the snowline height changes
 	* return false and the ding_t will be deleted
@@ -246,8 +251,8 @@ public:
 	virtual void rotate90();
 
 	/**
-	 * Jedes Objekt braucht ein Bild.
-	 * @return Die Nummer des aktuellen Bildes für das Objekt.
+	 * Every object needs an image.
+	 * @return number of current image for that object
 	 * @author Hj. Malthaner
 	 */
 	virtual image_id get_bild() const = 0;
@@ -260,14 +265,14 @@ public:
 	virtual image_id get_bild(int /*height*/) const {return IMG_LEER;}
 
 	/**
-	 * this image is draw after all get_bild() on this tile
+	 * this image is drawn after all get_bild() on this tile
 	 * Currently only single height is supported for this feature
 	 */
 	virtual image_id get_after_bild() const {return IMG_LEER;}
 
 	/**
-	 * if a function return here a value with TRANSPARENT_FLAGS set
-	 * then a transparent outline with the color form the lower 8 Bit is drawn
+	 * if a function returns a value here with TRANSPARENT_FLAGS set
+	 * then a transparent outline with the color from the lower 8 bit is drawn
 	 * @author kierongreen
 	 */
 	virtual PLAYER_COLOR_VAL get_outline_colour() const {return 0;}
@@ -315,19 +320,19 @@ public:
 	virtual void info(cbuffer_t & buf) const;
 
 	/**
-	 * Öffnet ein neues Beobachtungsfenster für das Objekt.
+	 * Opens a new info window for the object
 	 * @author Hj. Malthaner
 	 */
 	virtual void zeige_info();
 
 	/**
-	 * @returns NULL wenn OK, ansonsten eine Fehlermeldung
+	 * @return NULL if OK, otherwise an error message
 	 * @author Hj. Malthaner
 	 */
 	virtual const char *ist_entfernbar(const spieler_t *sp);
 
 	/**
-	 * Ding zeichnen
+	 * Draw the thing.
 	 * @author Hj. Malthaner
 	 */
 	void display(int xpos, int ypos, bool dirty) const;
@@ -340,13 +345,13 @@ public:
 
 	/*
 	* when a vehicle moves or a cloud moves, it needs to mark the old spot as dirty (to copy to screen)
-	* sometimes they have an extra offset, this the yoff parameter
+	* sometimes they have an extra offset, this is the yoff parameter
 	* @author prissi
 	*/
 	void mark_image_dirty(image_id bild,sint16 yoff) const;
 
 	/**
-	 * Dient zur Neuberechnung des Bildes
+	 * Function for recalculating the image.
 	 * @author Hj. Malthaner
 	 */
 	virtual void calc_bild() {}

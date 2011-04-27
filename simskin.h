@@ -39,6 +39,10 @@ public:
 	static const skin_besch_t *narrowgaugehaltsymbol;
 	static const skin_besch_t *bushaltsymbol;
 	static const skin_besch_t *tramhaltsymbol;
+	static const skin_besch_t *networksymbol;
+	static const skin_besch_t *timelinesymbol;
+	static const skin_besch_t *fastforwardsymbol;
+	static const skin_besch_t *pausesymbol;
 
 	// haltstatus
 	static const skin_besch_t *passagiere;

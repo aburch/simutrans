@@ -17,6 +17,9 @@
 #include "../bauer/warenbauer.h"
 
 #include "../dataobj/translator.h"
+#include "../dataobj/loadsave.h"
+
+#include "../player/simplay.h"
 
 #include "schedule_list.h"
 
@@ -67,6 +70,29 @@ halt_detail_t::~halt_detail_t()
 		cont.remove_komponente( b );
 		delete b;
 	}
+	while(!linelabels.empty()) {
+		gui_label_t *l = linelabels.remove_first();
+		cont.remove_komponente( l );
+		delete l;
+	}
+	while(!linebuttons.empty()) {
+		button_t *b = linebuttons.remove_first();
+		cont.remove_komponente( b );
+		delete b;
+	}
+	while(!convoylabels.empty()) {
+		gui_label_t *l = convoylabels.remove_first();
+		cont.remove_komponente( l );
+		delete l;
+	}
+	while(!convoybuttons.empty()) {
+		button_t *b = convoybuttons.remove_first();
+		cont.remove_komponente( b );
+		delete b;
+	}
+	while(!label_names.empty()) {
+		free( (void *)(label_names.remove_first()) );
+	}
 }
 
 
@@ -102,12 +128,15 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 		cont.remove_komponente( b );
 		delete b;
 	}
+	while(!label_names.empty()) {
+		free( (void *)(label_names.remove_first()) );
+	}
 	buf.clear();
 
 	const slist_tpl<fabrik_t *> & fab_list = halt->get_fab_list();
 	slist_tpl<const ware_besch_t *> nimmt_an;
 
-	sint16 offset_y = 20;
+	sint16 offset_y = 22;
 	buf.append(translator::translate("Fabrikanschluss"));
 	buf.append("\n");
 	offset_y += LINESPACE;
@@ -201,7 +230,8 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 			}
 
 			// Line labels with color of player
-			gui_label_t *l = new gui_label_t(halt->registered_lines[i]->get_name(),PLAYER_FLAG|(halt->registered_lines[i]->get_besitzer()->get_player_color1()+0));
+			label_names.append( strdup(halt->registered_lines[i]->get_name()) );
+			gui_label_t *l = new gui_label_t( label_names.back(), PLAYER_FLAG|(halt->registered_lines[i]->get_besitzer()->get_player_color1()+0) );
 			l->set_pos( koord(26, offset_y) );
 			linelabels.append( l );
 			cont.add_komponente( l );
@@ -235,7 +265,8 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 			cont.add_komponente( b );
 
 			// Line labels with color of player
-			gui_label_t *l = new gui_label_t( halt->registered_convoys[i]->get_name(), PLAYER_FLAG|(halt->registered_convoys[i]->get_besitzer()->get_player_color1()+0) );
+			label_names.append( strdup(halt->registered_convoys[i]->get_name()) );
+			gui_label_t *l = new gui_label_t( label_names.back(), PLAYER_FLAG|(halt->registered_convoys[i]->get_besitzer()->get_player_color1()+0) );
 			l->set_pos( koord(26, offset_y) );
 			convoylabels.append( l );
 			cont.add_komponente( l );
@@ -299,7 +330,7 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 					buf.append(cnx->journey_time / 10); // Convert from tenths
 					buf.append(translator::translate(" mins. travelling"));
 					buf.append(", ");
-					if(cnx->waiting_time > 9)
+					if(cnx->waiting_time > 39)
 					{
 						buf.append(cnx->waiting_time / 10); // Convert from tenths
 						buf.append(translator::translate(" mins. waiting)"));
@@ -383,4 +414,41 @@ void halt_detail_t::zeichnen(koord pos, koord gr)
 		}
 	}
 	gui_frame_t::zeichnen( pos, gr );
+}
+
+
+halt_detail_t::halt_detail_t(karte_t *):
+	gui_frame_t("", NULL),
+	scrolly(&cont),
+	txt_info(""),
+	cb_info_buffer(0)
+{
+	// just a dummy
+}
+
+
+void halt_detail_t::rdwr(loadsave_t *file)
+{
+	koord3d halt_pos;
+	koord gr = get_fenstergroesse();
+	sint32 xoff = scrolly.get_scroll_x();
+	sint32 yoff = scrolly.get_scroll_y();
+	if(  file->is_saving()  ) {
+		halt_pos = halt->get_basis_pos3d();
+	}
+	halt_pos.rdwr( file );
+	gr.rdwr( file );
+	file->rdwr_long( xoff );
+	file->rdwr_long( yoff );
+	if(  file->is_loading()  ) {
+		halt = haltestelle_t::get_welt()->lookup( halt_pos )->get_halt();
+		// now we can open the window ...
+		KOORD_VAL xpos = win_get_posx( this );
+		KOORD_VAL ypos = win_get_posy( this );
+		halt_detail_t *w = new halt_detail_t(halt);
+		create_win( xpos, ypos, w, w_info, magic_halt_detail+halt.get_id() );
+		w->set_fenstergroesse( gr );
+		w->scrolly.set_scroll_position( xoff, yoff );
+		destroy_win( this );
+	}
 }

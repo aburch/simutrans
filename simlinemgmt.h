@@ -17,15 +17,13 @@ class spieler_t;
 class schedule_list_gui_t;
 class karte_t;
 
-#define INVALID_LINE_ID ((uint16)(-1))
-
 class simlinemgmt_t
 {
 public:
 	simlinemgmt_t(karte_t* welt);
 	~simlinemgmt_t();
 
-	void zeige_info(spieler_t *);
+	void line_management_window(spieler_t *);
 
 	/*
 	 * add a line
@@ -44,12 +42,6 @@ public:
 	 * @author hsiegeln
 	 */
 	void update_line(linehandle_t line);
-
-	/*
-	* return a line by its ID
-	* @author hsiegeln
-	*/
-	linehandle_t get_line_by_id(uint16 line);
 
 	/*
 	 * load or save the linemanagement
@@ -73,13 +65,6 @@ public:
 
 	void rotate90( sint16 y_size );
 
-	/**
-	 * Creates a unique line id.
-	 * @author Hj. Malthaner
-	 */
-	static uint16 get_unique_line_id();
-	static void init_line_ids();
-
 	void new_month();
 
 	/**
@@ -93,6 +78,12 @@ public:
 	 * @author prissi
 	 */
 	linehandle_t create_line(int ltype, spieler_t * sp, schedule_t * fpl);
+
+
+	/**
+	 * If there was a line with id=0 map it to non-zero handle
+	 */
+	linehandle_t get_line_with_id_zero() const {return line_with_id_zero; }
 
 	/*
 	 * fill the list with all lines of a certain type
@@ -115,13 +106,13 @@ public:
 	void show_lineinfo(spieler_t *sp, linehandle_t line);
 
 private:
-	static uint8 used_ids[8192];
-
 	vector_tpl<linehandle_t> all_managed_lines;
 
 	static karte_t * welt;
 
 	schedule_list_gui_t *schedule_list_gui;  // Use with caution.  Valid only afer zeige_info
+
+	linehandle_t line_with_id_zero;
 };
 
 #endif

@@ -17,13 +17,13 @@ a a¾ potom spusti novú hru.
 </p>
 <p>
 Ak chýba Tvoj po¾adovaný jazyk, skús pohµada» ïal¹ie preklady na:<br>
-<a href="i-net.txt">http://www.simutrans.de</a><br>
-<a href="i-net.txt">http://www.simutrans.cjb.net</a><br>
+http://www.simutrans.de<br>
+http://www.simutrans.cjb.net<br>
 v sekcii <strong>,,Download''</strong>.<br>
 <br>
 Èeské stránky venované tejto hre nájde¹ na:<br>
 http://www.simutrans.wz.cz
-<p>
+</p>
 <p>Pozn. : Ale mô¾u to byt' star¹ie verzie prekladov.
 Väè¹ina textov vsak býva bezprostredne aktualizovaná.
 </p>

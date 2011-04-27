@@ -1,0 +1,13 @@
+# Simutranslator settings for Simutrans-Experimental texts
+# Addendum 1 for version 9.1
+#
+# Author: jamespetts
+# Created: May 2010
+#
+obj=program_text
+name=reverse route
+note=Label for the button in the schedule window that determines whether vehicles follow their schedules in reverse order.
+-
+obj=program_text
+name=When this is set, the vehicle will visit stops in reverse order.
+note=Tooltip for hte button in the schedule window.

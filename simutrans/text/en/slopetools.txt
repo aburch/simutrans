@@ -24,7 +24,7 @@ Tools also open with <a href="keys.txt">[u]</a> and [d].
 Cursor is a yellow-cube outline which positions slope.
 </p>
 <p>
-<em>?Lower Square</em>/<em>?Raise Square:</em> lowers/raises a specific square of terrain. May create an artificial vertical surface in the process.<br>
+<em>Lower Square</em>/<em>Raise Square:</em> lowers/raises a specific square of terrain. May create an artificial vertical surface in the process. This tool can be used to create slope in tunnels.<br>
 Cursor is a yellow-cube outline which selects square.
 </p>
 <p>

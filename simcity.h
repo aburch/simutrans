@@ -15,7 +15,7 @@
 #include "tpl/weighted_vector_tpl.h"
 #include "tpl/array2d_tpl.h"
 #include "tpl/slist_tpl.h"
-#include "tpl/ptrhashtable_tpl.h"
+#include "tpl/koordhashtable_tpl.h"
 
 #include "vehicle/simverkehr.h"
 #include "tpl/sparse_tpl.h"
@@ -35,7 +35,7 @@ class rule_t;
 #define MAX_CITY_HISTORY_YEARS  (12) // number of years to keep history
 #define MAX_CITY_HISTORY_MONTHS (12) // number of months to keep history
 
-#define PAX_DESTINATIONS_SIZE (128) // size of the minimap.
+#define PAX_DESTINATIONS_SIZE (128) // size of the minimap in the city window.
 
 enum city_cost {
 	HIST_CITICENS=0,// total people
@@ -59,7 +59,9 @@ enum route_status
 {
 	no_route = 0,
 	too_slow = 1,
-	good = 2
+	good = 2,
+	private_car_only = 3,
+	can_walk = 4
 };
 
 class road_destination_finder_t : public fahrer_t
@@ -86,7 +88,7 @@ public:
 
 	virtual ribi_t::ribi get_ribi( const grund_t* gr) const;
 
-	virtual int get_kosten( const grund_t* gr, uint32 max_speed) const;
+	virtual int get_kosten( const grund_t* gr, const sint32 max_speed, koord from_pos) const;
 
 	~road_destination_finder_t()
 	{
@@ -137,7 +139,7 @@ public:
 	static bool cityrules_init(const std::string &objpathname);
 	static void privatecar_init(const std::string &objfilename);
 	sint16 get_private_car_ownership(sint32 monthyear);
-	float get_electricity_consumption(sint32 monthyear) const;
+	uint16 get_electricity_consumption(sint32 monthyear) const;
 	static void electricity_consumption_init(const std::string &objfilename);
 
 	/**
@@ -163,7 +165,7 @@ private:
 	// this counter will increment by one for every change => dialogs can question, if they need to update map
 	unsigned long pax_destinations_new_change;
 
-	koord pos;			// Gruendungsplanquadrat der Stadt
+	koord pos;			// Gruendungsplanquadrat der Stadt ("founding grid square" - Google)
 	koord townhall_road; // road in front of townhall
 	koord lo, ur;		// max size of housing area
 	bool  has_low_density;	// in this case extend borders by two
@@ -221,7 +223,7 @@ private:
 	*/
 	void roll_history(void);
 
-	inline void set_private_car_trip(int passengers, stadt_t* destination_town);
+	void set_private_car_trip(int passengers, stadt_t* destination_town);
 
 	// This is needed to prevent double counting of incoming traffic.
 	sint32 incoming_private_cars;
@@ -238,18 +240,28 @@ private:
 	enum journey_distance_type { local, midrange, longdistance };
 
 	// Hashtable of all cities/attractions/industries connected by road from this city.
-	// Key: city pointer.
+	// Key: city (etc.) location
 	// Value: journey time per tile (equiv. straight line distance)
 	// (in 10ths of minutes); 65535 = unreachable.
-	// @author: jamespetts, April 2010
-	ptrhashtable_tpl<stadt_t*, uint16> connected_cities;
-	ptrhashtable_tpl<const fabrik_t*, uint16> connected_industries;
-	ptrhashtable_tpl<const gebaeude_t*, uint16> connected_attractions;
+	// @author: jamespetts, April 2010, modified December 2010 to koords rather than poiners
+	// so as to be network safe
+	koordhashtable_tpl<koord, uint16> connected_cities;
+	koordhashtable_tpl<koord, uint16> connected_industries;
+	koordhashtable_tpl<koord, uint16> connected_attractions;
 
 	road_destination_finder_t *finder;
 	route_t *private_car_route;
 
 	vector_tpl<senke_t*> substations;
+
+	// The month in which this city will update its private car routes
+	// if an update is needed. This spreads the computational load over
+	// a year instead of forcing it all into a month, thus improving 
+	// performance.
+	// @author: jamespetts, February 2011
+	uint8 private_car_update_month;
+
+	sint32 number_of_cars;
 
 public:
 	/**
@@ -289,6 +301,12 @@ public:
 	void add_power(uint32 p) { city_history_month[0][HIST_POWER_RECIEVED] += p; city_history_year[0][HIST_POWER_RECIEVED] += p; }
 
 	void add_power_demand(uint32 p) { city_history_month[0][HIST_POWER_NEEDED] += p; city_history_year[0][HIST_POWER_NEEDED] += p; }
+
+	//@ 9th of February 2011. 
+	/*
+	 * Used for recording congestion in cases where there is a traffic jam specifically noted.
+	 */
+	void add_congestion(uint32 c) { city_history_month[0][HIST_CONGESTION] += c; city_history_year[0][HIST_CONGESTION] += c; }
 
 	/* end of history related thingies */
 private:
@@ -643,6 +661,13 @@ public:
 	// @author: jamespetts
 	// September 2010
 	uint16 get_max_dimension();
+
+	/*@author: jamespetts
+	 * February 2011
+	 */
+	void add_car(stadtauto_t* car);
+
+	slist_tpl<stadtauto_t *> * get_current_cars() { return &current_cars; }
 
 };
 

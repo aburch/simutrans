@@ -30,7 +30,7 @@
 //#define AUTOMATIC_TUNNELS
 
 /* citycars have a destination; if they could get near, they dissolve */
-//#define DESTINATION_CITYCARS
+#define DESTINATION_CITYCARS
 
 /* need to emulate the mouse pointer with a graphic */
 //#define USE_SOFTPOINTER
@@ -39,8 +39,8 @@
  * needed i.e. for MSVC and PowerPC */
 //#define USE_C
 
-// maximum distance to look ahead for tiles (if undefined, uses all the route, recommended)
-//#define MAX_CHOOSE_BLOCK_TILES (64)
+// maximum distance to look ahead for tiles (if undefined, it is unlimited)
+#define MAX_CHOOSE_BLOCK_TILES (64)
 
 // The wind (i.e. approach direction) is random all over the map (not recommended, since it confuses players)
 //#define USE_DIFFERENT_WIND
@@ -61,6 +61,9 @@
 
 /* shows with block needed update and which not */
 //#define DEBUG_FLUSH_BUFFER
+
+/* Provides debugging for random calls to diagnose network desyncs*/
+//#define DEBUG_SIMRAND_CALLS
 
 /**************************** automatic stuff ********************************/
 
@@ -100,6 +103,10 @@
 #define height_scaling(i) (i)
 #define height_unscaling(i) (i)
 #endif
+
+#define INVALID_INDEX (65530u)
+
+//#define SPEED_UNLIMITED (INT_MAX)
 
 /*
  * Global vehicle speed conversion factor between Simutrans speed

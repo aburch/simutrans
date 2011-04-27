@@ -18,7 +18,7 @@ Clique nos botões para alternar ordem (o nome do botão muda ao clicar):
 - <em>Geração de viagens</em> lista de atrações em ordem de popularidade ou destinos de passageiros ou correio.
 </p>
 <p>
-- <em>Crescente</em> / <em>Decrecente</em> reverte a ordem da lista.
+- <em>Crescente</em> / <em>Decrescente</em> reverte a ordem da lista.
 </p>
 <p>
 Clique no item listado na <strong>Lista de Atrações</strong> para abrir uma nova janela com informações sobre o local.<br>

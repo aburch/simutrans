@@ -44,7 +44,7 @@ public:
 
 	static stringhashtable_tpl <tunnel_besch_t *> * get_all_tunnels();
 
-	static const tunnel_besch_t *find_tunnel(const waytype_t wtyp, const uint32 min_speed,const uint16 time);
+	static const tunnel_besch_t *find_tunnel(const waytype_t wtyp, const sint32 min_speed,const uint16 time);
 
 	static void fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, sint16 sound_ok, const karte_t *welt);
 

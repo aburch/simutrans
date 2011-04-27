@@ -19,11 +19,11 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 
 	obj_node_t node(this, 28, &parent);
 
-	uint32 topspeed    = obj.get_int("topspeed",    999);
+	sint32 topspeed    = obj.get_int("topspeed",    1000);
 	uint32 preis       = obj.get_int("cost",          0);
 	uint32 maintenance = obj.get_int("maintenance",1000);
 	uint8 wegtyp       = get_waytype(obj.get("waytype"));
-	uint32 max_weight = obj.get_int("max_weight",  999);
+	uint32 max_weight = obj.get_int("max_weight",  1000);
 
 	// prissi: timeline
 	uint16 intro_date  = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
@@ -81,7 +81,7 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	version += 0x100;
 
 	node.write_uint16(fp, version,						0);
-	node.write_uint32(fp, topspeed,						2);
+	node.write_sint32(fp, topspeed,						2);
 	node.write_uint32(fp, preis,						6);
 	node.write_uint32(fp, maintenance,					10);
 	node.write_uint8 (fp, wegtyp,						14);
@@ -90,16 +90,6 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	node.write_uint32(fp, max_weight,					20);
 	node.write_uint8(fp, permissive_way_constraints,	24);
 	node.write_uint8(fp, prohibitive_way_constraints,	25);
-	string strng = obj.get("way");
-	if (strng.length() > 0) 
-	{
-		xref_writer_t::instance()->write_obj(fp, node, obj_way, strng.c_str(), true);
-		node.write_sint8(fp, 1, 26);
-	}
-	else 
-	{
-		node.write_sint8(fp, 0, 26);
-	}
 
 	sint8 number_seasons = 0;
 	uint8 number_portals = 1;
@@ -166,10 +156,10 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	str = obj.get("way");
 	if (str.size() > 0) {
 		xref_writer_t::instance()->write_obj(fp, node, obj_way, str.c_str(), true);
-		node.write_sint8(fp, 1, 20);
+		node.write_sint8(fp, 1, 26);
 	}
 	else {
-		node.write_sint8(fp, 0, 20);
+		node.write_sint8(fp, 0, 26);
 	}
 
 	cursorkeys.clear();

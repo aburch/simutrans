@@ -1,21 +1,44 @@
 #ifndef sim_network_h
 #define sim_network_h
 
+
 // windows headers
-#ifdef WIN32
+#ifdef _WIN32
+// must be include before all simutrans stuff!
+
+// first: we must find out version number
+#ifndef WINVER
+#	define _WINSOCKAPI_
+#	include <windows.h>
+#	undef _WINSOCKAPI_
+#endif
+
+// then we know which winsock version to use
+#if WINVER < 0x0500
+#	include <winsock.h>
+#	define USE_IP4_ONLY
+#	define socklen_t int
+#else
+#	include <Windows.h>
 #	include <WinSock2.h>
 #	include <ws2tcpip.h>
+#endif
 #	undef min
 #	undef max
-
 #	ifndef IPV6_V6ONLY
 #		define IPV6_V6ONLY (27)
 #	endif
+
+#	define GET_LAST_ERROR() WSAGetLastError()
+#	include <errno.h>
+#	undef  EWOULDBLOCK
+#	define EWOULDBLOCK WSAEWOULDBLOCK
 #else
 	// beos specific headers
 #	ifdef  __BEOS__
 #		include <net/netdb.h>
 #		include <net/sockets.h>
+
 	// non-beos / non-windows
 #	else
 #		include <sys/types.h>
@@ -28,12 +51,14 @@
 #   ifdef  __HAIKU__
 #		include <sys/select.h>
 #   endif
-// non-windows
+
+// all non-windows
 #	include <fcntl.h>
 #	include <errno.h>
 	// to keep compatibility to MS windows
 	typedef int SOCKET;
 #	define INVALID_SOCKET -1
+#	define GET_LAST_ERROR() (errno)
 #endif
 
 #if 0
@@ -54,6 +79,7 @@
 #include <netinet/tcp.h>
 #endif
 #endif
+#	define GET_LAST_ERROR() (errno)
 #endif
 
 #include "../simtypes.h"
@@ -69,38 +95,58 @@ bool network_initialize();
 // connect to address with patch name receive to localname, close
 const char *network_download_http( const char *address, const char *name, const char *localname );
 
-// connect to address (cp), receive gameinfo, close
-const char *network_gameinfo(const char *cp, gameinfo_t *gi);
-
-// connects to server at (cp), receives game, save to client%i-network.sve
-const char* network_connect(const char *cp);
-
 void network_close_socket( SOCKET sock );
 
-void network_add_client( SOCKET sock );
-void network_remove_client( SOCKET sock  );
-uint32 network_get_client_id( SOCKET sock );
-SOCKET network_get_socket( uint32 client_id );
+void network_set_socket_nodelay( SOCKET sock );
+
+// open a socket or give a decent error message
+SOCKET network_open_address( const char *cp, long timeout_ms, const char * &err);
 
 // if sucessful, starts a server on this port
 bool network_init_server( int port );
 
-/* do appropriate action for network server:
- * - either connect to a new client
- * - receive commands
+/**
  * returns pointer to commmand or NULL
- * timeout in milliseconds
+ */
+network_command_t* network_get_received_command();
+
+/**
+ * do appropriate action for network games:
+ * - server: accept connection to a new client
+ * - all: receive commands and puts them to the received_command_queue
+ *
+ * @param timeout in milliseconds
+ * @return pointer to first received commmand
+ * more commands can be obtained by call to network_get_received_command
  */
 network_command_t* network_check_activity(karte_t *welt, int timeout);
 
-// receives x bytes from socket sender
-uint16 network_receive_data( SOCKET sender, void *dest, const uint16 length );
+/**
+ * send data to dest:
+ * if timeout_ms is positive:
+ *    try to send all data, return true if all data are sent otherwise false
+ * if timeout_ms is not positive:
+ *    try to send as much as possible but return after one send attempt
+ *    return true if connection is still open and sending can be continued later
+ *
+ * @param buf the data
+ * @param count length of buffer and number of bytes to be sent
+ * @param sent number of bytes sent
+ * @param timeout_ms time-out in milli-seconds
+ */
+bool network_send_data( SOCKET dest, const char *buf, const uint16 size, uint16 &count, const int timeout_ms );
 
-// before calling this, the server should have saved the current game as "server-network.sve"
-const char *network_send_file( uint32 client_id, const char *filename );
+/**
+ * receive data from sender
+ * @param dest the destination buffer
+ * @param len length of destination buffer and number of bytes to be received
+ * @param received number of received bytes is returned here
+ * @param timeout_ms time-out in milli-seconds
+ * @return true if connection is still valid, false if an error occurs and connection needs to be closed
+ */
+bool network_receive_data( SOCKET sender, void *dest, const uint16 len, uint16 &received, const int timeout_ms );
 
-// number of currently active clients
-int network_get_clients();
+void network_process_send_queues(int timeout);
 
 // true, if I can wrinte on the server connection
 bool network_check_server_connection();
@@ -113,9 +159,12 @@ void network_send_all(network_command_t* nwc, bool exclude_us );
 // nwc is invalid after the call
 void network_send_server(network_command_t* nwc );
 
+void network_reset_server();
+
 void network_core_shutdown();
 
-// get our id on the server
+// get & set our id on the server
 uint32 network_get_client_id();
+void network_set_client_id(uint32 id);
 
 #endif

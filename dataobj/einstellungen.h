@@ -15,6 +15,7 @@
  * April 2000
  */
 
+class spieler_t;
 class loadsave_t;
 class tabfile_t;
 class weg_besch_t;
@@ -216,8 +217,8 @@ public:
 	
 	uint32 max_corner_limit[10];
 	uint32 min_corner_limit[10];
-	float max_corner_adjustment_factor[10];
-	float min_corner_adjustment_factor[10];
+	uint16 max_corner_adjustment_factor[10];
+	uint16 min_corner_adjustment_factor[10];
 	uint8 min_direction_steps[10];
 	uint8 max_direction_steps[10];
 	uint8 curve_friction_factor[10];
@@ -238,7 +239,7 @@ public:
 	uint16 max_bonus_min_distance;
 	uint16 median_bonus_distance;
 	uint16 max_bonus_multiplier_percent;
-	float distance_per_tile;
+	uint16 distance_per_tile;
 	uint8 tolerable_comfort_short;
 	uint8 tolerable_comfort_median_short;
 	uint8 tolerable_comfort_median_median;
@@ -315,7 +316,7 @@ public:
 	uint16 turntable_reverse_time;
 
 	//@author: jamespetts
-	float global_power_factor; 
+	uint16 global_power_factor_percent; 
 	
 	// Whether and how weight limits are enforced
 	// @author: jamespetts
@@ -324,7 +325,7 @@ public:
 	// Adjustment of the speed bonus for use with
 	// speedbonus.tab files from Simutrans-Standard
 	// @author: jamespetts
-	float speed_bonus_multiplier;
+	uint16 speed_bonus_multiplier;
 	
 private:
 
@@ -335,13 +336,6 @@ private:
 	// 1 = distributed approach
 	// 2 = centralised approach
 	uint8 default_path_option;
-
-	// Added by : Knightly
-	// Windows specific setting : determine what time functions to use in dr_time()
-	// This option is *not* saved to save game
-	// 0 = multimedia timer functions
-	// 1 = performance counter functions
-	uint8 system_time_option;
 	
 public:
 
@@ -364,10 +358,13 @@ private:
 
 	// if true, you can buy obsolete stuff
 	bool allow_buying_obsolete_vehicles;
+	// vehicle value is decrease by this factor/1000 when a vehicle leaved the depot
+	sint16 used_vehicle_reduction;
 
 	uint32 random_counter;
 	uint32 frames_per_second;	// only used in network mode ...
 	uint32 frames_per_step;
+	uint32 server_frames_ahead;
 
 public:
 	/* the big cost section */
@@ -427,6 +424,10 @@ public:
 
 	uint32 city_threshold_size;
 	uint32 capital_threshold_size;
+
+	// player color suggestions for new games
+	bool default_player_color_random;
+	uint8 default_player_color[MAX_PLAYER_COUNT][2];
 
 public:
 	/**
@@ -566,13 +567,11 @@ public:
 	uint16 get_max_bonus_min_distance() const { return max_bonus_min_distance; }
 	void   set_max_bonus_min_distance(uint16 value) { max_bonus_min_distance = value; }
 
-	float  get_max_bonus_multiplier() const { return (float)max_bonus_multiplier_percent * 0.01F; }
-	uint16 get_max_bonus_multiplier_percent() { return max_bonus_multiplier_percent; }
+	uint16 get_max_bonus_multiplier_percent() const { return max_bonus_multiplier_percent; }
 	void   set_max_bonus_multiplier_percent(uint16 value) { max_bonus_multiplier_percent = value; }
 
-	float  get_distance_per_tile() const { return distance_per_tile; }
-	uint16 get_distance_per_tile_percent() const { return (uint16)(distance_per_tile * 100); }
-	void   set_distance_per_tile_percent(uint16 value) { distance_per_tile = value / 100.0f; }
+	uint16  get_distance_per_tile() const { return distance_per_tile; }
+	void   set_distance_per_tile(uint16 value) { distance_per_tile = value; }
 
 	uint8  get_tolerable_comfort_short() const { return tolerable_comfort_short; }
 	void   set_tolerable_comfort_short(uint8 value) { tolerable_comfort_short = value; }
@@ -673,10 +672,10 @@ public:
 	uint8 get_base_car_preference_percent () const { return base_car_preference_percent; }
 	uint8 get_congestion_density_factor () const { return congestion_density_factor; }
 
-	uint32 get_max_corner_limit(waytype_t waytype) const { return kmh_to_speed(max_corner_limit[waytype]); }
-	uint32 get_min_corner_limit (waytype_t waytype) const { return kmh_to_speed(min_corner_limit[waytype]); }
-	float get_max_corner_adjustment_factor (waytype_t waytype) const { return max_corner_adjustment_factor[waytype]; }
-	float get_min_corner_adjustment_factor (waytype_t waytype) const {  return  min_corner_adjustment_factor[waytype]; }
+	sint32 get_max_corner_limit(waytype_t waytype) const { return kmh_to_speed(max_corner_limit[waytype]); }
+	sint32 get_min_corner_limit (waytype_t waytype) const { return kmh_to_speed(min_corner_limit[waytype]); }
+	uint16 get_max_corner_adjustment_factor (waytype_t waytype) const { return max_corner_adjustment_factor[waytype]; }
+	uint16 get_min_corner_adjustment_factor (waytype_t waytype) const {  return  min_corner_adjustment_factor[waytype]; }
 	uint8 get_min_direction_steps (waytype_t waytype) const { return min_direction_steps[waytype]; }
 	uint8 get_max_direction_steps (waytype_t waytype) const { return max_direction_steps[waytype]; }
 	uint8 get_curve_friction_factor (waytype_t waytype) const { return curve_friction_factor[waytype]; }
@@ -691,11 +690,11 @@ public:
 	uint16 get_hauled_reverse_time() const { return hauled_reverse_time; }
 	uint16 get_turntable_reverse_time() const { return turntable_reverse_time; }
 
-	float get_global_power_factor() const { return global_power_factor; }
+	uint16 get_global_power_factor_percent() const { return global_power_factor_percent; }
 
 	uint8 get_enforce_weight_limits() const { return enforce_weight_limits; }
 
-	float get_speed_bonus_multiplier() const { return speed_bonus_multiplier; }
+	uint16 get_speed_bonus_multiplier() const { return speed_bonus_multiplier; }
 	// allowed modes are 0,1,2
 	enum { TO_PREVIOUS=0, TO_TRANSFER, TO_DESTINATION };
 
@@ -717,10 +716,6 @@ public:
 
 	inline uint8 get_default_path_option() const { return default_path_option; }
 	inline void set_default_path_option(const uint8 value) { default_path_option = value; }
-
-	// Added by : Knightly
-	inline uint8 get_system_time_option() const { return system_time_option; }
-	inline void set_system_time_option(const uint8 value) { system_time_option = value; }
 
 	// @author: jamespetts
 	uint16 get_min_local_tolerance() const { return min_local_tolerance; }
@@ -758,9 +753,11 @@ public:
 
 	// any factory will be connected to at least this number of next cities
 	uint32 get_factory_worker_minimum_towns() const { return factory_worker_minimum_towns; }
+	void set_factory_worker_minimum_towns(uint32 n) { factory_worker_minimum_towns = n; }
 
 	// any factory will be connected to not more than this number of next cities
 	uint32 get_factory_worker_maximum_towns() const { return factory_worker_maximum_towns; }
+	void set_factory_worker_maximum_towns(uint32 n) { factory_worker_maximum_towns = n; }
 
 	// disallow using obsolete vehicles in depot
 	bool get_allow_buying_obsolete_vehicles() const { return allow_buying_obsolete_vehicles; }
@@ -778,7 +775,11 @@ public:
 
 	uint32 get_industry_increase_every() const { return industry_increase; }
 	uint32 get_city_isolation_factor() const { return city_isolation_factor; }
-	
+
+	sint16 get_used_vehicle_reduction() const { return used_vehicle_reduction; }
+
+	void set_default_player_color( spieler_t *sp ) const;
+
 	// usually only used in network mode => no need to set them!
 	uint32 get_random_counter() const { return random_counter; }
 	uint32 get_frames_per_second() const { return frames_per_second; }
@@ -797,6 +798,7 @@ public:
 
 	uint16 get_default_increase_maintenance_after_years(waytype_t wtype) const { return default_increase_maintenance_after_years[wtype]; }
 	void set_default_increase_maintenance_after_years(waytype_t wtype, uint16 value) { default_increase_maintenance_after_years[wtype] = value; }
+	uint32 get_server_frames_ahead() const { return server_frames_ahead; }
 };
 
 #endif

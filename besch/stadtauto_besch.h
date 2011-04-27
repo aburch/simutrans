@@ -50,7 +50,7 @@ public:
 
 	int get_gewichtung() const { return gewichtung; }
 
-	int get_geschw() const { return geschw; }
+	sint32 get_geschw() const { return geschw; }
 
 	/**
 	* @return introduction year

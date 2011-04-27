@@ -7,16 +7,23 @@
  */
 
 #include <string.h>
+#ifdef _MSC_VER
+#include <new.h> // for _set_new_handler
+#include <direct.h>
+#else
+#include <unistd.h>
+#endif
 
 #include "welt.h"
 #include "karte.h"
 
 #include "../simdebug.h"
-#include "../simio.h"
 #include "../simworld.h"
 #include "../simwin.h"
 #include "../simimg.h"
+#include "../simmesg.h"
 #include "../simtools.h"
+#include "../simversion.h"
 
 #include "../bauer/hausbauer.h"
 #include "../bauer/wegbauer.h"
@@ -24,6 +31,7 @@
 #include "../besch/haus_besch.h"
 
 #include "../dataobj/einstellungen.h"
+#include "../dataobj/loadsave.h"
 #include "../dataobj/umgebung.h"
 #include "../dataobj/translator.h"
 
@@ -32,6 +40,7 @@
 #include "../dings/baum.h"
 #include "../simcity.h"
 #include "../vehicle/simvehikel.h"
+#include "../player/simplay.h"
 
 #include "../simcolor.h"
 
@@ -45,6 +54,10 @@
 #include "sprachen.h"
 #include "climates.h"
 #include "settings_frame.h"
+#include "loadsave_frame.h"
+#include "load_relief_frame.h"
+#include "messagebox.h"
+#include "scenario_frame.h"
 
 #define START_HEIGHT (28)
 
@@ -70,19 +83,25 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	this->old_lang = -1;
 	this->sets->beginner_mode = umgebung_t::default_einstellungen.get_beginner_mode();
 
-	// find earliest start date ...
-	uint16 game_start = 2999;
+	// find earliest start and end date ...
+	uint16 game_start = 4999;
+	uint16 game_ends = 0;
 	// first townhalls
 	const vector_tpl<const haus_besch_t *> *s = hausbauer_t::get_list(haus_besch_t::rathaus);
 	for (uint32 i = 0; i<s->get_count(); i++) {
 		const haus_besch_t *besch = (*s)[i];
-		uint16 year = (besch->get_intro_year_month()+11)/12;
-		if(  year<game_start  ) {
-			game_start = year;
+		uint16 intro_year = (besch->get_intro_year_month()+11)/12;
+		if(  intro_year<game_start  ) {
+			game_start = intro_year;
+		}
+		uint16 retire_year = (besch->get_retire_year_month()+11)/12;
+		if(  retire_year>game_ends  ) {
+			game_ends = retire_year;
 		}
 	}
 	// then streets
 	game_start = max( game_start, (wegbauer_t::get_earliest_way(road_wt)->get_intro_year_month()+11)/12 );
+	game_ends = min( game_ends, (wegbauer_t::get_latest_way(road_wt)->get_retire_year_month()+11)/12 );
 
 	loaded_heightfield = load_heightfield = false;
 	load = start = close = scenario = quit = false;
@@ -90,14 +109,13 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	sets->heightfield = "";
 
 	// select map stuff ..
+	inp_map_number.init( abs(sets->get_karte_nummer()), 0, 0x7FFFFFFF, 1, true );
 	inp_map_number.set_pos(koord(LEFT_ARROW, intTopOfButton));
 	inp_map_number.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
-	inp_map_number.set_limits(0,0x7FFFFFFF);
-	inp_map_number.set_value(abs(sets->get_karte_nummer())%9999);
 	inp_map_number.add_listener( this );
 	add_komponente( &inp_map_number );
 	intTopOfButton += 12;
-
+	
 	// maps etc.
 	intTopOfButton += 2;
 	random_map.set_pos( koord(10, intTopOfButton) );
@@ -117,23 +135,17 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 
 	intTopOfButton += 12 + 8;
 
+	inp_x_size.init( sets->get_groesse_x(), 8, min(32000,4194304/sets->get_groesse_y()), sets->get_groesse_x()>=512 ? 128 : 64, false );
 	inp_x_size.set_pos(koord(RIGHT_COLUMN,intTopOfButton) );
-	inp_x_size.set_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
+	inp_x_size.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
 	inp_x_size.add_listener(this);
-	inp_x_size.set_value( sets->get_groesse_x() );
-	inp_x_size.set_limits( 8, min(32000,4194304/sets->get_groesse_y()) );
-	inp_x_size.set_increment_mode( sets->get_groesse_x()>=512 ? 128 : 64 );
-	inp_x_size.wrap_mode( false );
 	add_komponente( &inp_x_size );
 	intTopOfButton += 12;
 
+	inp_y_size.init( sets->get_groesse_y(), 8, min(32000,4194304/sets->get_groesse_x()), sets->get_groesse_y()>=512 ? 128 : 64, false );
 	inp_y_size.set_pos(koord(RIGHT_COLUMN,intTopOfButton) );
-	inp_y_size.set_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
+	inp_y_size.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
 	inp_y_size.add_listener(this);
-	inp_y_size.set_limits( 8, min(32000,4194304/sets->get_groesse_x()) );
-	inp_y_size.set_value( sets->get_groesse_y() );
-	inp_y_size.set_increment_mode( sets->get_groesse_y()>=512 ? 128 : 64 );
-	inp_y_size.wrap_mode( false );
 	add_komponente( &inp_y_size );
 	intTopOfButton += 12;
 
@@ -194,30 +206,13 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	add_komponente( &inp_intercity_road_len );
 	intTopOfButton += 12;
 
-	inp_traffic_density.set_pos(koord(RIGHT_COLUMN,intTopOfButton) );
-	inp_traffic_density.set_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
-	inp_traffic_density.add_listener(this);
-	inp_traffic_density.set_limits(0,16);
-	inp_traffic_density.set_value(abs(sets->get_verkehr_level()) );
-	add_komponente( &inp_traffic_density );
-	intTopOfButton += 12;
-
 	// industry stuff
-//	intTopOfButton += 5;
 	inp_other_industries.set_pos(koord(RIGHT_COLUMN,intTopOfButton) );
 	inp_other_industries.set_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
 	inp_other_industries.add_listener(this);
 	inp_other_industries.set_limits(0,999);
 	inp_other_industries.set_value(abs(sets->get_land_industry_chains()) );
 	add_komponente( &inp_other_industries );
-	intTopOfButton += 12;
-
-	inp_electric_producer.set_pos(koord(RIGHT_COLUMN,intTopOfButton) );
-	inp_electric_producer.set_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
-	inp_electric_producer.add_listener(this);
-	inp_electric_producer.set_limits(0,100);
-	inp_electric_producer.set_value(abs(sets->get_electric_promille()/10) );
-	add_komponente( &inp_electric_producer );
 	intTopOfButton += 12;
 
 	inp_tourist_attractions.set_pos(koord(RIGHT_COLUMN,intTopOfButton) );
@@ -239,20 +234,20 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	inp_intro_date.set_pos(koord(RIGHT_COLUMN,intTopOfButton) );
 	inp_intro_date.set_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
 	inp_intro_date.add_listener(this);
-	inp_intro_date.set_limits(game_start,2999);
+	inp_intro_date.set_limits(game_start,game_ends);
 	inp_intro_date.set_increment_mode(10);
 	inp_intro_date.set_value(abs(sets->get_starting_year()) );
 	add_komponente( &inp_intro_date );
 	intTopOfButton += 12;
 
-	allow_player_change.set_pos( koord(10,intTopOfButton) );
-	allow_player_change.set_typ( button_t::square_state );
-	allow_player_change.add_listener( this );
-	allow_player_change.pressed = sets->get_allow_player_change();
-	add_komponente( &allow_player_change );
+	use_beginner_mode.set_pos( koord(10,intTopOfButton) );
+	use_beginner_mode.set_typ( button_t::square_state );
+	use_beginner_mode.pressed = sets->get_beginner_mode();
+	use_beginner_mode.add_listener( this );
+	add_komponente( &use_beginner_mode );
 	intTopOfButton += 12;
 
-	intTopOfButton += 8;
+	intTopOfButton += 10;
 	open_setting_gui.set_pos( koord(10,intTopOfButton) );
 	open_setting_gui.set_groesse( koord(80, 14) );
 	open_setting_gui.set_typ( button_t::roundbox );
@@ -312,8 +307,7 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
  * @param filename name of heightfield file
  * @author Hajo/prissi
  */
-bool
-welt_gui_t::update_from_heightfield(const char *filename)
+bool welt_gui_t::update_from_heightfield(const char *filename)
 {
 	DBG_MESSAGE("welt_gui_t::update_from_heightfield()",filename);
 
@@ -365,8 +359,7 @@ welt_gui_t::update_from_heightfield(const char *filename)
  * Berechnet Preview-Karte neu. Inititialisiert RNG neu!
  * @author Hj. Malthaner
  */
-void
-welt_gui_t::update_preview()
+void welt_gui_t::update_preview()
 {
 	const int mx = sets->get_groesse_x()/preview_size;
 	const int my = sets->get_groesse_y()/preview_size;
@@ -394,8 +387,7 @@ welt_gui_t::update_preview()
  * This method is called if an action is triggered
  * @author Hj. Malthaner
  */
-bool
-welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
+bool welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 {
 	// check for changed map (update preview for any event)
 	int knr = inp_map_number.get_value(); //
@@ -454,14 +446,8 @@ welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		umgebung_t::intercity_road_length = v.i;
 		inp_intercity_road_len.set_increment_mode( v.i>=1000 ? 100 : 20 );
 	}
-	else if(komp==&inp_traffic_density) {
-		sets->set_verkehr_level( v.i );
-	}
 	else if(komp==&inp_other_industries) {
 		sets->set_land_industry_chains( v.i );
-	}
-	else if(komp==&inp_electric_producer) {
-		sets->electric_promille = v.i*10;
 	}
 	else if(komp==&inp_tourist_attractions) {
 		sets->set_tourist_attractions( v.i );
@@ -470,7 +456,7 @@ welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		sets->set_starting_year( v.i );
 	}
 	else if(komp==&random_map) {
-		knr = simrand(9999);
+		knr = simrand(9999, "bool welt_gui_t::action_triggered");
 		inp_map_number.set_value(knr);
 		sets->heightfield = "";
 		loaded_heightfield = false;
@@ -492,9 +478,9 @@ welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 			use_intro_dates.pressed = sets->get_use_timeline()&1;
 		}
 	}
-	else if(komp==&allow_player_change) {
-		sets->set_allow_player_change( allow_player_change.pressed^1 );
-		allow_player_change.pressed = sets->get_allow_player_change();
+	else if(komp==&use_beginner_mode) {
+		sets->beginner_mode = sets->get_beginner_mode()^1;
+		use_beginner_mode.pressed = sets->get_beginner_mode();
 	}
 	else if(komp==&open_setting_gui) {
 		gui_frame_t *sg = win_get_magic( magic_settings_frame_t );
@@ -520,21 +506,43 @@ welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		}
 	}
 	else if(komp==&load_game) {
-		load = true;
+		welt->get_message()->clear();
+		create_win( new loadsave_frame_t(welt, true), w_info, magic_load_t);
 	}
 	else if(komp==&load_scenario) {
-		scenario = true;
+		char path[1024];
+		sprintf( path, "%s%sscenario/", umgebung_t::program_dir, umgebung_t::objfilename.c_str() );
+		chdir( path );
+		destroy_all_win(true);
+		welt->get_message()->clear();
+		create_win( new scenario_frame_t(welt), w_info, magic_load_t );
+		chdir( umgebung_t::user_dir );
 	}
 	else if(komp==&start_game) {
+		destroy_all_win(true);
+		welt->get_message()->clear();
+		create_win(200, 100, new news_img("Erzeuge neue Karte.\n", skinverwaltung_t::neueweltsymbol->get_bild_nr(0)), w_info, magic_none);
 		if(loaded_heightfield) {
-			load_heightfield = true;
+			welt->load_heightfield(&umgebung_t::default_einstellungen);
 		}
 		else {
-			start = true;
+			umgebung_t::default_einstellungen.heightfield = "";
+			welt->init( &umgebung_t::default_einstellungen, 0 );
+		}
+		destroy_all_win(true);
+		welt->step_month( umgebung_t::default_einstellungen.get_starting_month() );
+		welt->set_pause(false);
+		// save setting ...
+		loadsave_t file;
+		if(file.wr_open("default.sve",loadsave_t::binary,"settings only",SAVEGAME_VER_NR, EXPERIMENTAL_VER_NR)) {
+			// save default setting
+			umgebung_t::default_einstellungen.rdwr(&file);
+			file.close();
 		}
 	}
 	else if(komp==&quit_game) {
-		quit = true;
+		destroy_all_win(true);
+		umgebung_t::quit_simutrans = true;
 	}
 
 	if(knr>=0) {
@@ -580,8 +588,8 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 		load_map.set_text("Lade Relief");
 		load_map.set_tooltip("load height data from file");
 		use_intro_dates.set_text("Use timeline start year");
-		allow_player_change.set_text("Allow player change");
-//		use_beginner_mode.set_text("Beginner mode");
+		use_beginner_mode.set_text("Use beginner mode");
+		use_beginner_mode.set_tooltip("Higher transport fees, crossconnect all factories");
 		open_setting_gui.set_text("Setting");
 		open_climate_gui.set_text("Climate Control");
 		load_game.set_text("Load game");
@@ -594,6 +602,9 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 
 	open_climate_gui.pressed = win_get_magic( magic_climate );
 	open_setting_gui.pressed = win_get_magic( magic_settings_frame_t );
+
+	use_intro_dates.pressed = sets->get_use_timeline()&1;
+	use_beginner_mode.pressed = sets->get_beginner_mode();
 
 	gui_frame_t::zeichnen(pos, gr);
 
@@ -628,7 +639,7 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 			sizeof(void*) * 4
 		) * sx * sy
 	) / (1024 * 1024);
-	const float tile_km = sets->get_distance_per_tile();
+	const float tile_km = (float) sets->get_distance_per_tile() / 100.0F;
 	
 	sprintf(buf, "%s (%ld MByte, %.2f km/%s):", translator::translate("Size"), memory, tile_km, translator::translate("tile"));
 	display_proportional_clip(x, y, buf, ALIGN_LEFT, COL_BLACK, true);
@@ -659,20 +670,24 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 	y += 12;
 	display_proportional_clip(x, y, translator::translate("Intercity road len:"), ALIGN_LEFT, COL_BLACK, true);
 	y += 12;
-	display_proportional_clip(x, y, translator::translate("6WORLD_CHOOSE"), ALIGN_LEFT, COL_BLACK, true);
-	y += 12;
 
 	display_proportional_clip(x, y, translator::translate("Land industries"), ALIGN_LEFT, COL_BLACK, true);
 	y += 12;
-	display_proportional_clip(x, y, translator::translate("Percent Electricity"), ALIGN_LEFT, COL_BLACK, true);
-	y += 12;
 	display_proportional_clip(x, y, translator::translate("Tourist attractions"), ALIGN_LEFT, COL_BLACK, true);
-	y += 12;
+
+	y += 12+12+5;
+	y += 12+5;
+	y += 5;
+
+	//y += 12+5;
+	//y += 12+5;
+	//y += 5;
+
 
 	y += 12;
-	y += 12 + 3;
+	//y += 12 + 3;
+
+	display_ddd_box_clip(x, y - 22, 240, 0, MN_GREY0, MN_GREY4);
 
 	display_ddd_box_clip(x, y, 240, 0, MN_GREY0, MN_GREY4);
-
-	display_ddd_box_clip(x, y + 22, 240, 0, MN_GREY0, MN_GREY4);
 }

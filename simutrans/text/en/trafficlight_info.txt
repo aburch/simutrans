@@ -1,0 +1,7 @@
+<title>Traffic light control help</title>
+
+<h1><strong>Traffic light control</strong></h1>
+
+<p>
+You can control the frequency of red and green phases for traffic lights. The numbers you can choose here, is the duration of the green phase in seconds for north/south and east/west directions.
+</p>

@@ -36,3 +36,38 @@ obj=program_text
 name=Cluster size
 note=Text for the setting for the size of clusters in which cities are generated in the "new world" dialogue
 -
+obj=program_text
+name=savegame Experimental version
+note=Text for determining the save version for Experimental games in the settings dialogue
+-
+obj=program_text
+name=Placing cities ...
+note=Map progress bar information
+-
+obj=program_text
+name=Growing cities ...
+note=Map progress bar information
+-
+obj=program_text
+name=Connecting cities ...
+note=Map progress bar information
+-
+obj=program_text
+name=Placing trees ...
+note=Map progress bar information
+-
+obj=program_text
+name=Spacing cnv/month
+note=Shown in the shcedule dialogue for the spacing feature
+-
+obj=program_text
+name=Placing industries ...
+note=Map progress bar information
+-
+obj=program_text
+name=Placing attractions ...
+note=Map progress bar information
+-
+obj=program_text
+name=Finalising ...
+note=Map progress bar information

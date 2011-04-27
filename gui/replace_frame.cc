@@ -10,6 +10,8 @@
 #include "../simcolor.h"
 #include "../simwin.h"
 #include "../simworld.h"
+#include "../player/simplay.h"
+#include "../simline.h"
 
 #include "../dataobj/translator.h"
 #include "../dataobj/replace_data.h"
@@ -100,7 +102,6 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 		}
 		convoy_assembler.set_vehicles(existing_vehicles);
 	}
-	add_komponente(&convoy_assembler);
 
 	bt_replace_line.set_typ(button_t::square);
 	bt_replace_line.set_text("replace all in line");
@@ -155,6 +156,8 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	bt_allow_using_existing_vehicles.set_tooltip("Use any vehicles already present in the depot, if available, instead of buying new ones or upgrading.");
 	bt_allow_using_existing_vehicles.add_listener(this);
 	add_komponente(&bt_allow_using_existing_vehicles);
+	/* This must be *last* of add_komponente */
+	add_komponente(&convoy_assembler);
 
 	rpl = cnv->get_replace() ? new replace_data_t(cnv->get_replace()) : new replace_data_t();
 
@@ -275,8 +278,8 @@ void replace_frame_t::layout(koord *gr)
 	current_y+=LINESPACE+2;
 
 	bt_replace_line.set_pos(koord(margin,current_y));
-	bt_retain_in_depot.set_pos(koord(margin + 128,current_y));
-	bt_allow_using_existing_vehicles.set_pos(koord(margin + (128 *2),current_y));
+	bt_retain_in_depot.set_pos(koord(margin + 162,current_y));
+	bt_allow_using_existing_vehicles.set_pos(koord(margin + (162 *2),current_y));
 	lb_sell.set_pos(koord(fgr.x-166,current_y));
 	numinp[state_sell].set_pos( koord( fgr.x-110, current_y ) );
 	numinp[state_sell].set_groesse( koord( 50, a_button_height ) );
@@ -284,7 +287,7 @@ void replace_frame_t::layout(koord *gr)
 	current_y+=LINESPACE+2;
 
 	bt_replace_all.set_pos(koord(margin,current_y));
-	bt_use_home_depot.set_pos(koord(margin + 128,current_y));
+	bt_use_home_depot.set_pos(koord(margin + 162,current_y));
 	lb_skip.set_pos(koord(fgr.x-166,current_y));
 	numinp[state_skip].set_pos( koord( fgr.x-110, current_y ) );
 	numinp[state_skip].set_groesse( koord( 50, a_button_height ) );
@@ -324,30 +327,19 @@ void replace_frame_t::update_data()
 	if (replace_line) {
 		linehandle_t line=cnv.is_bound()?cnv->get_line():linehandle_t();
 		if (line.is_bound()) {
-			for (uint32 i=0; i<line->count_convoys(); i++) {
+			for (uint32 i=0; i<line->count_convoys(); i++)
+			{
 				convoihandle_t cnv_aux=line->get_convoy(i);
-				if (cnv->has_same_vehicles(cnv_aux)) {
+				if (cnv->has_same_vehicles(cnv_aux))
+				{
 					uint8 present_state=get_present_state();
-					if (present_state==(uint8)(-1)) {
+					if (present_state==(uint8)(-1))
+					{
 						continue;
 					}
-					switch(convoy_assembler.get_action())
-					{
-						
-					case gui_convoy_assembler_t::clear_convoy_action:
-						money = 0;
-						n[present_state]++;
-						break;
 
-					case gui_convoy_assembler_t::remove_vehicle_action:
-						money += base_total_cost;
-						n[present_state]++;
-						break;
-
-					default:
-						money -= base_total_cost;
-						n[present_state]++;
-					};
+					money -= base_total_cost;
+					n[present_state]++;
 				}
 			}
 		}
@@ -363,23 +355,8 @@ void replace_frame_t::update_data()
 					continue;
 				}
 
-				switch(convoy_assembler.get_action())
-				{
-					
-				case gui_convoy_assembler_t::clear_convoy_action:
-					money = 0;
-					n[present_state]++;
-					break;
-
-				case gui_convoy_assembler_t::remove_vehicle_action:
-					money += base_total_cost;
-					n[present_state]++;
-					break;
-
-				default:
-					money -= base_total_cost;
-					n[present_state]++;
-				};	
+				money -= base_total_cost;
+				n[present_state]++;
 			}
 		}
 	}

@@ -344,7 +344,7 @@ void leitung_t::laden_abschliessen()
 {
 	verbinde();
 	calc_neighbourhood();
-	grund_t *gr = welt->lookup(get_pos());
+	const grund_t *gr = welt->lookup(get_pos());
 	assert(gr);
 	spieler_t::add_maintenance(get_besitzer(), besch->get_wartung());
 }
@@ -394,7 +394,7 @@ void leitung_t::rdwr(loadsave_t *file)
 	if(get_typ()==leitung) 
 	{
 		/* ATTENTION: during loading thus MUST not be called from the constructor!!!
-		 * (Otherwise it will be always true!
+		 * (Otherwise it will be always true!)
 		 */
 		if(file->get_version() > 102002 && (file->get_experimental_version() >= 8 || file->get_experimental_version() == 0))
 		{
@@ -484,7 +484,7 @@ pumpe_t::~pumpe_t()
 {
 	if(fab) {
 		fab->set_prodfaktor( max(16,fab->get_prodfaktor()/2) );
-		fab->set_transformer_connected( false );
+		fab->set_transformer_connected( NULL );
 		pumpe_list.remove( this );
 		fab = NULL;
 	}
@@ -530,7 +530,7 @@ void pumpe_t::laden_abschliessen()
 
 	if(fab==NULL  &&  get_net()) {
 		fab = leitung_t::suche_fab_4(get_pos().get_2d());
-		fab->set_transformer_connected( true );
+		fab->set_transformer_connected( this );
 	}
 	pumpe_list.insert( this );
 
@@ -609,7 +609,7 @@ senke_t::~senke_t()
 		if(fab)
 		{
 			fab->set_prodfaktor( 16 );
-			fab->set_transformer_connected( false );
+			fab->set_transformer_connected( NULL );
 		}
 		if(city)
 		{
@@ -639,17 +639,18 @@ void senke_t::step(long delta_t)
 	uint32 municipal_power_load = 0;
 
 	/* First add up all sources of demand and add the demand to the net. */
-	if (fab != NULL) {
-		fab_power_demand = fab->get_power_demand();
+	if (fab != NULL && fab->get_city() == NULL)
+	{
+		// Factories in cities are dealt with separetely.
+		fab_power_demand = fab->step_power_demand();
 	}
+
 	if(city != NULL)
 	{
 		const vector_tpl<fabrik_t*>& city_factories = city->get_city_factories();
 		ITERATE(city_factories, i)
 		{
-			if (city_factories[i] != fab) { // don't double-count for the factory supplied above
-				municipal_power_demand += city_factories[i]->get_power_demand();
-			}
+			municipal_power_demand += city_factories[i]->get_power_demand();
 		}
 		// Add the demand for the population
 		municipal_power_demand += city->get_power_demand();
@@ -657,7 +658,7 @@ void senke_t::step(long delta_t)
 
 	power_demand = fab_power_demand + municipal_power_demand;
 	uint32 shared_power_demand = power_demand;
-	double load_proportion = 1.0;
+	uint32 load_proportion = 100;
 
 	bool supply_max = false;
 	if(city)
@@ -729,13 +730,15 @@ void senke_t::step(long delta_t)
 	
 	if(city && city->get_substations()->get_count() > 1)
 	{
-		load_proportion = (double)shared_power_demand / (double)power_demand;
+		load_proportion = (shared_power_demand * 100) / power_demand;
 	}
 
 	power_load = get_power_load();
 
-	/* Now actually feed the power through to the factories and city */
-	if (fab != NULL) {
+	/* Now actually feed the power through to the factories and city
+	 * Note that a substation cannot supply both a city and factory at once.
+	 */
+	if (fab != NULL && fab->get_city() == NULL) {
 		// the connected fab gets priority access to the power supply if there's a shortage
 		// This should use 'min', but the current version of that in simtypes.h 
 		// would cast to signed int (12.05.10)  FIXME.
@@ -760,29 +763,29 @@ void senke_t::step(long delta_t)
 		const vector_tpl<fabrik_t*>& city_factories = city->get_city_factories();
 		ITERATE(city_factories, i)
 		{
-			if (city_factories[i] != fab) { //don't produce twice for the factory supplied above
-				const uint32 current_factory_demand = city_factories[i]->get_power_demand() * load_proportion;
-				const uint32 current_factory_load = (
-						current_factory_demand
-						* (municipal_power_load << 5)
-						/ municipal_power_demand
-					) >> 5; // <<5 for same reasons as above, FIXME
-				city_factories[i]->add_power( current_factory_load );
-				if (current_factory_demand > current_factory_load) {
-					// this allows subsequently stepped senke to supply demand
-					// which this senke couldn't
-					city_factories[i]->add_power_demand( current_factory_demand - current_factory_load );
-				}
-
+			city_factories[i]->set_transformer_connected(this);
+			const uint32 current_factory_demand = (city_factories[i]->step_power_demand() * load_proportion) / 100;
+			const uint32 current_factory_load = municipal_power_demand == 0 ? current_factory_demand : 
+				(
+					current_factory_demand
+					* ((municipal_power_load << 5)
+					/ municipal_power_demand
+				)) >> 5; // <<5 for same reasons as above, FIXME
+			city_factories[i]->add_power( current_factory_load );
+			if (current_factory_demand > current_factory_load) 
+			{
+				// this allows subsequently stepped senke to supply demand
+				// which this senke couldn't
+				city_factories[i]->add_power_demand( current_factory_demand - current_factory_load );
 			}
 		}
 		// City gets growth credit for power for both citizens and city factories
-		city->add_power((municipal_power_load>>POWER_TO_MW) * load_proportion);
-		city->add_power_demand((municipal_power_demand>>POWER_TO_MW) * (load_proportion * load_proportion));
+		city->add_power(((municipal_power_load>>POWER_TO_MW) * load_proportion) / 100);
+		city->add_power_demand((municipal_power_demand>>POWER_TO_MW) * (load_proportion * load_proportion) / 10000);
 	}
 	// Income
 	max_einkommen += last_power_demand * delta_t / PRODUCTION_DELTA_T;
-	einkommen += ((power_load  * delta_t / PRODUCTION_DELTA_T) * load_proportion);
+	einkommen += (((power_load  * delta_t / PRODUCTION_DELTA_T) * load_proportion) / 100);
 
 	// Income rollover
 	if(max_einkommen>(2000<<11)) {
@@ -817,7 +820,7 @@ uint32 senke_t::get_power_load() const
 bool senke_t::sync_step(long delta_t)
 {
 	if( fab == NULL && city == NULL) {
-		return false;
+		return true;
 	}
 
 	delta_sum += delta_t;
@@ -874,16 +877,25 @@ void senke_t::laden_abschliessen()
 	leitung_t::laden_abschliessen();
 	spieler_t::add_maintenance(get_besitzer(), -welt->get_einstellungen()->cst_maintain_transformer);
 
-	if(fab == NULL && city == NULL && get_net()) 
-	{
-		fab = leitung_t::suche_fab_4(get_pos().get_2d());
-		fab->set_transformer_connected( true );
-	}
+	check_industry_connexion();
+
 	senke_list.insert( this );
 	welt->sync_add(this);
 
 	set_bild(skinverwaltung_t::senke->get_bild_nr(0));
 	is_crossing = false;
+}
+
+void senke_t::check_industry_connexion()
+{
+	if(fab == NULL && city == NULL && get_net()) 
+	{
+		fab = leitung_t::suche_fab_4(get_pos().get_2d());
+		if(fab)
+		{
+			fab->set_transformer_connected(this);
+		}
+	}
 }
 
 
@@ -892,7 +904,7 @@ void senke_t::info(cbuffer_t & buf) const
 	ding_t::info( buf );
 
 	buf.printf( translator::translate("Net ID: %u\n"), (unsigned long)get_net() );
-	buf.printf( translator::translate("Demand %u MW\n"), last_power_demand>>POWER_TO_MW );
+	buf.printf( translator::translate("Demand: %u MW\n"), last_power_demand>>POWER_TO_MW );
 	buf.printf( translator::translate("Act. load: %u MW\n"), power_load>>POWER_TO_MW );
 	buf.printf( translator::translate("Usage: %u %%"), (100*power_load)/(last_power_demand>0?last_power_demand:1) );
 	if(city)

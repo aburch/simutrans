@@ -17,6 +17,7 @@
 
 #include "../dataobj/umgebung.h"
 #include "../dataobj/tabfile.h"
+#include "../dataobj/loadsave.h"
 
 #include "../besch/bildliste_besch.h"
 #include "../besch/vehikel_besch.h"
@@ -35,12 +36,16 @@ static inthashtable_tpl<waytype_t, slist_tpl<vehikel_besch_t*> > typ_fahrzeuge;
 
 class bonus_record_t {
 public:
-	sint32 year;
+	sint64 year;
 	sint32 speed;
-	bonus_record_t( sint32 y=0, sint32 kmh=0 ) {
+	bonus_record_t( sint64 y=0, sint32 kmh=0 ) {
 		year = y*12;
 		speed = kmh;
 	};
+	void rdwr(loadsave_t *file) {
+		file->rdwr_longlong(year);
+		file->rdwr_long(speed);
+	}
 };
 
 // speed boni
@@ -90,7 +95,6 @@ bool vehikelbauer_t::speedbonus_init(const std::string &objfilename)
 }
 
 
-
 sint32 vehikelbauer_t::get_speedbonus( sint32 monthyear, waytype_t wt )
 {
 	const int typ = wt==air_wt ? 3 : (wt-1)&7;
@@ -116,7 +120,7 @@ sint32 vehikelbauer_t::get_speedbonus( sint32 monthyear, waytype_t wt )
 		else {
 			// interpolate linear
 			const sint32 delta_speed = speedbonus[typ][i].speed - speedbonus[typ][i-1].speed;
-			const sint32 delta_years = speedbonus[typ][i].year - speedbonus[typ][i-1].year;
+			const sint64 delta_years = speedbonus[typ][i].year - speedbonus[typ][i-1].year;
 			return ( (delta_speed*(monthyear-speedbonus[typ][i-1].year)) / delta_years ) + speedbonus[typ][i-1].speed;
 		}
 	}
@@ -144,6 +148,23 @@ sint32 vehikelbauer_t::get_speedbonus( sint32 monthyear, waytype_t wt )
 }
 
 
+void vehikelbauer_t::rdwr_speedbonus(loadsave_t *file)
+{
+	for(  int j=0;  j<8;  j++  ) {
+		uint32 count = speedbonus[j].get_count();
+		file->rdwr_long(count);
+		if (file->is_loading()) {
+			speedbonus[j].clear();
+			speedbonus[j].resize(count);
+		}
+		for(uint32 i=0; i<count; i++) {
+			if (file->is_loading()) {
+				speedbonus[j].append(bonus_record_t());
+			}
+			speedbonus[j][i].rdwr(file);
+		}
+	}
+}
 
 
 vehikel_t* vehikelbauer_t::baue(koord3d k, spieler_t* sp, convoi_t* cnv, const vehikel_besch_t* vb, bool upgrade )
@@ -340,7 +361,7 @@ slist_tpl<vehikel_besch_t*>* vehikelbauer_t::get_modifiable_info(waytype_t typ)
  * tries to get best with but adds a little random action
  * @author prissi
  */
-const vehikel_besch_t *vehikelbauer_t::vehikel_search( waytype_t wt, const uint16 month_now, const uint32 target_weight, const uint32 target_speed, const ware_besch_t * target_freight, bool include_electric, bool not_obsolete )
+const vehikel_besch_t *vehikelbauer_t::vehikel_search( waytype_t wt, const uint16 month_now, const uint32 target_weight, const sint32 target_speed, const ware_besch_t * target_freight, bool include_electric, bool not_obsolete )
 {
 	const vehikel_besch_t *besch = NULL;
 	long besch_index=-100000;
@@ -409,7 +430,7 @@ const vehikel_besch_t *vehikelbauer_t::vehikel_search( waytype_t wt, const uint1
 					}
 				}
 				// ok, final check
-				if(  besch==NULL  ||  difference<(int)simrand(25)    ) {
+				if(  besch==NULL  ||  difference<(int)simrand(25, "vehikelbauer_t::vehikel_search")    ) {
 					// then we want this vehicle!
 					besch = test_besch;
 					DBG_MESSAGE( "vehikelbauer_t::vehikel_search","Found car %s",besch->get_name());
@@ -422,7 +443,7 @@ const vehikel_besch_t *vehikelbauer_t::vehikel_search( waytype_t wt, const uint1
 					continue;
 				}
 				// finally, we might be able to use this vehicle
-				uint32 speed = test_besch->get_geschw();
+				sint32 speed = test_besch->get_geschw();
 				uint32 max_weight = power/( (speed*speed)/2500 + 1 );
 
 				// we found a useful engine
@@ -435,7 +456,7 @@ const vehikel_besch_t *vehikelbauer_t::vehikel_search( waytype_t wt, const uint1
 				if(  max_weight < target_weight+test_besch->get_gewicht()  ) {
 					current_index += max_weight - (sint32)(target_weight+test_besch->get_gewicht());
 				}
-				current_index += simrand(100);
+				current_index += simrand(100, "vehikelbauer_t::vehikel_search");
 				if(  current_index > besch_index  ) {
 					// then we want this vehicle!
 					besch = test_besch;
@@ -459,7 +480,7 @@ const vehikel_besch_t *vehikelbauer_t::vehikel_search( waytype_t wt, const uint1
  * if prev_besch==NULL, then the convoi must be able to lead a convoi
  * @author prissi
  */
-const vehikel_besch_t *vehikelbauer_t::get_best_matching( waytype_t wt, const uint16 month_now, const uint32 target_weight, const uint32 target_power, const uint32 target_speed, const ware_besch_t * target_freight, bool not_obsolete, const vehikel_besch_t *prev_veh, bool is_last )
+const vehikel_besch_t *vehikelbauer_t::get_best_matching( waytype_t wt, const uint16 month_now, const uint32 target_weight, const uint32 target_power, const sint32 target_speed, const ware_besch_t * target_freight, bool not_obsolete, const vehikel_besch_t *prev_veh, bool is_last )
 {
 	const vehikel_besch_t *besch = NULL;
 	long besch_index=-100000;
@@ -544,7 +565,7 @@ const vehikel_besch_t *vehikelbauer_t::get_best_matching( waytype_t wt, const ui
 			}
 			else {
 				// finally, we might be able to use this vehicle
-				uint32 speed = test_besch->get_geschw();
+				sint32 speed = test_besch->get_geschw();
 				uint32 max_weight = power/( (speed*speed)/2500 + 1 );
 
 				// we found a useful engine

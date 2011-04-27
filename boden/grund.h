@@ -12,7 +12,6 @@
 #include "../halthandle_t.h"
 #include "../simimg.h"
 #include "../simcolor.h"
-#include "../simdepot.h"
 #include "../dataobj/koord3d.h"
 #include "../dataobj/dingliste.h"
 #include "wege/weg.h"
@@ -474,7 +473,7 @@ public:
 	 * @param is_global set to true, if this is called during the whole screen update
 	 * @param draw_ways if true then draw images of ways
 	 * @param visible if false then draw only grids and markers
-	 * @returns index of first vehicle on the tile
+	 * @return index of first vehicle on the tile
 	 * @author dwachs
 	 */
 	uint8 display_dinge_bg(const sint16 xpos, const sint16 ypos, const bool is_global, const bool draw_ways, const bool visible) const;
@@ -520,7 +519,7 @@ public:
 	void take_obj_from( grund_t *gr);
 
 	/**
-	* @returns NULL wenn OK, oder Meldung, warum nicht
+	* @return NULL wenn OK, oder Meldung, warum nicht
 	* @author Hj. Malthaner
 	*/
 	const char * kann_alle_obj_entfernen(const spieler_t *sp) const { return dinge.kann_alle_entfernen(sp,offsets[flags/has_way1]); }
@@ -534,7 +533,7 @@ public:
 	* Falls es hier ein Depot gibt, dieses zurueckliefern
 	* @author Volker Meyer
 	*/
-	depot_t *get_depot() const { return dynamic_cast<depot_t *>(first_obj()); }
+	depot_t *get_depot() const;
 
 	/*
 	* Interface zur Abfrage der Wege
@@ -651,7 +650,7 @@ public:
 	/**
 	 * remove trees and groundobjs on this tile
 	 * called before building way or powerline
-	 * @returns costs
+	 * @return costs
 	 */
 	sint64 remove_trees();
 

@@ -3,7 +3,7 @@
 <h1>Les dépôts</h1>
 <p>
 Dans un dépôt, vous pouvez acheter, vendre et définir les trajets
-de tous les véhicules d'un type particulier, par exemple: véhicules
+de tous les véhicules d'un type particulier, par exemple : véhicules
 routiers si vous êtes dans un dépôt routier.
 </p>
 <p>

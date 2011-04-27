@@ -24,6 +24,7 @@ template<class T> class slist_tpl;
 class werkzeug_waehler_t;
 class spieler_t;
 class toolbar_t;
+class memory_rw_t;
 
 enum {
 	// general tools
@@ -63,7 +64,7 @@ enum {
 	WKZ_REMOVE_WAYOBJ,
 	WKZ_SLICED_AND_UNDERGROUND_VIEW,
 	WKZ_BUY_HOUSE,
- 	WKZ_CITYROAD,
+	WKZ_CITYROAD,
 	GENERAL_TOOL_COUNT,
 	GENERAL_TOOL = 0x1000
 };
@@ -203,16 +204,25 @@ public:
 	virtual image_id get_icon(spieler_t *) const { return icon; }
 	void set_icon(image_id i) { icon = i; }
 
-	virtual const char* get_default_param(spieler_t *sp=NULL) const { (void) sp; return default_param; }
+	// returns default_param of this tool for player sp
+	// if sp==NULL returns default_param that was used to create the tool
+	virtual const char* get_default_param(spieler_t* = NULL) const { return default_param; }
 	void set_default_param(const char* str) { default_param = str; }
+
+	// transfer additional information in networkgames
+	virtual void rdwr_custom_data(uint8 /* player_nr */, memory_rw_t*) { }
 
 	// this will draw the tool with some indication, if active
 	virtual bool is_selected(karte_t *welt) const;
 
 	// when true, local execution would do no harm
 	virtual bool is_init_network_save() const { return false; }
-	virtual bool is_work_network_save() const { return false; }
 	virtual bool is_move_network_save(spieler_t *) const { return false; }
+	// if is_work_network_save()==false
+	// and is_work_here_network_save(...)==false
+	// then work-command is sent over network
+	virtual bool is_work_network_save() const { return false; }
+	virtual bool is_work_here_network_save(karte_t *, spieler_t *, koord3d) { return false; }
 
 	// will draw a dark frame, if selected
 	virtual void draw_after( karte_t *w, koord pos ) const;
@@ -221,6 +231,8 @@ public:
 
 	// returning false on init will automatically invoke previous tool
 	virtual bool init( karte_t *, spieler_t * ) { return true; }
+
+	// returning true on exit will have werkzeug_waehler resets to query-tool on right-click
 	virtual bool exit( karte_t *, spieler_t * ) { return true; }
 
 	/* the return string can have different meanings:
@@ -254,13 +266,15 @@ public:
 		MEMZERO(start_marker);
 	}
 
+	virtual void rdwr_custom_data(uint8 player_nr, memory_rw_t*);
 	virtual bool init( karte_t *, spieler_t * );
 	virtual bool exit( karte_t *welt, spieler_t *sp ) { return init( welt, sp ); }
 
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
 	virtual const char *move( karte_t *, spieler_t *, uint16 /* buttonstate */, koord3d );
 
-	virtual bool is_move_network_save(spieler_t *sp) const { return !is_first_click(sp); }
+	virtual bool is_move_network_save(spieler_t *) const { return true; }
+	virtual bool is_work_here_network_save(karte_t *, spieler_t *, koord3d);
 
 	bool is_first_click(spieler_t *sp) const;
 	void cleanup( spieler_t *, bool delete_start_marker );
@@ -323,6 +337,8 @@ public:
 	virtual image_id get_icon(spieler_t *) const;
 	bool is_selected(karte_t *welt) const;
 	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
+	virtual bool is_move_network_save(spieler_t *) const { return true; }
 	// show this toolbar
 	virtual bool init(karte_t *w, spieler_t *sp);
 	// close this toolbar

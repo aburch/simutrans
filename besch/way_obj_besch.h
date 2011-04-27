@@ -58,7 +58,7 @@ private:
      * Max speed
      * @author Hj. Malthaner
      */
-    uint32 topspeed;
+    sint32 topspeed;
 
     /**
      * Introduction date
@@ -99,18 +99,19 @@ public:
 
 	sint32 get_base_maintenance() const { return maintenance; }
 
-	void set_scale(float scale_factor)
+	void set_scale(uint16 scale_factor)
 	{
-		// BG: 29.08.2009: explicit typecasts avoid warnings
-		scaled_price = (uint32)(price * scale_factor > 0 ? price * scale_factor : 1);
-		scaled_maintenance = (uint32)(maintenance * scale_factor > 0 ? maintenance * scale_factor : 1);
+		const uint32 scaled_price_preliminary =  set_scale_generic<uint32>(price, scale_factor);
+		const uint32 scaled_maintenance_preliminary =  set_scale_generic<uint32>(maintenance, scale_factor);
+		scaled_price = scaled_price_preliminary > 0 ? scaled_price_preliminary : 1;
+		scaled_maintenance = scaled_maintenance_preliminary > 0 ? scaled_maintenance_preliminary : 1;
 	}
 
 	/**
 	 * Determines max speed in km/h allowed on this way
 	 * @author Hj. Malthaner
 	 */
-	uint32 get_topspeed() const { return topspeed; }
+	sint32 get_topspeed() const { return topspeed; }
 
 	/**
 	 * get way type

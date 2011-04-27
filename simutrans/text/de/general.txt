@@ -7,6 +7,7 @@
 <br/>·<a href="simutrans.txt">Simutrans</a>
 <br/>·<a href="use.txt">Nutzung der Hilfe</a>
 <br/>·<a href="game_control.txt">Spielsteuerung</a>
+<br/>··<a href="underground.txt">Untergrund</a>
 <br/>·<a href="keys.txt">Tastaturbelegung</a>
 <br/>·<a href="mainmenu.txt">Hauptmenü</a>
 <br/>·<a href="new_world.txt">Neue Welt</a>
@@ -26,7 +27,7 @@
 <br/>·<a href="special.txt">Spezialbauwerkzeuge</a>
 <br/>· Löschwerkzeug
 <br/>
-<br/>·<a href="linelist.txt">Linienverwaltung</a>
+<br/>·<a href="linemanagement.txt">Linienverwaltung</a>
 <br/>·<a href="list.txt">Listenverwaltung</a>
 <br/>· ·<a href="haltlist.txt">Haltestellenliste</a> mit <a href="haltlist_filter.txt">Filtereinstellungen</a>
 <br/>· · öffnet <a href="station.txt">Haltestellenfenster</a> und <a href="station_details.txt">Haltestellen Detailinformation</a>

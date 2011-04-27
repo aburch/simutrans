@@ -1,0 +1,8 @@
+<title>Map enlargement help</title>
+
+<h1><strong>Enlarge map</strong></h1>
+
+<p>Here, one can extend the map to the right and the bottom. If one wants to extend to the left / top, one has to rotate the map first, enlarge then, and rotate back.
+<br>
+A preview of the enlarged map is shown in the top-right of the dialoge window.
+</p>

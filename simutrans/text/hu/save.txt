@@ -1,11 +1,29 @@
-<title>Ment�s Sug�</title>
+<title>Mentés Sugó</title>
 
-<h1>Ment�s</h1>
+<h1>Mentés</h1>
 
 <p>
-A megfelel� f�jln�v megad�s�val lehet kimenteni az aktu�lis j�t�kmenetet,
-ami k�s�bb a <a href="load.txt">"Bet�lt�s"</a> men�pontban b�rmikor visszat�lthet�.
+A megfelelõ fájlnév megadásával lehet kimenteni az aktuális játékmenetet,
+ami késõbb a <a href="load.txt">"Betöltés"</a> menûpontban bármikor visszatölthetõ.
 </p>
 <p>
-Figyelem! Nagy verzi�v�lt�sokn�l t�bb mint val�sz�n� a r�gebbi j�t�kok nem t�lthet�k be.
+Figyelem! Nagy verzióváltásoknál több mint valószínû a régebbi játékok nem tölthetõk be.
+</p>
+<title>Menetrend Sugó</title>
+
+<h1>Menetrend ablak</h1>
+
+<p>
+Itt határozod meg. hogy konvojod milyen pontok között közlekedjen.
+Hat gombot találhatsz az ablak alsó részén:"Hozzáadás", "Beszúrás"
+"Törlés", "Kész","Új vonal", "Visszaút". A "Hozzáad" gombbal megállokat adsz hozzá a menetrendhez.
+A "Beszúrás" gombbal az aktuális megálló elé szúrsz be egy újabb megállót.
+Az aktuális megálló egy dupla ">>" jelezve van. A "Töröl" gombbal tudsz
+megállókat törölni, mégpedig úgy, hogy ha benyomod a "Töröl" gombot és
+utána a megfelelõ megállóra kattintasz a bal egérgombbal akkor az törlödik.
+Minden egyes megállóban meg tudod határozni, hogy a jármû kapacitásának,
+hány százaléka teljen fel mielõtt az elindulna. Tudni kell, hogy ha magasabb
+százalékra rakod és a termelõegység nem tudja egybõl megtölteni a jármûvet,
+akkor az addig marad a megállóban míg a megfelelõ százalékban fel nem telik.
+Az "Új vonal" új vonal tervezését teszi lehetõvé. A "Visszaút" pedig értelemszerû.
 </p>

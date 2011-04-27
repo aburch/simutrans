@@ -36,7 +36,7 @@ class tunnel_besch_t : public obj_besch_std_name_t {
 private:
 	static int hang_indices[16];
 
-	uint32 topspeed;	// speed in km/h
+	sint32 topspeed;	// speed in km/h
 	uint32 preis;	// 1/100 credits
 	uint32 scaled_price; // The price after scaling. @author: jamespetts
 	uint32 maintenance;	// monthly cost for bits_per_month=18
@@ -62,9 +62,9 @@ private:
 	*/
 	uint8 has_way;
 
- 	/* Has broad portals?
- 	 */
- 	uint8 broad_portals;
+	/* Has broad portals?
+	 */
+	uint8 broad_portals;
 
 	werkzeug_t *builder;
 
@@ -107,13 +107,15 @@ public:
 
 	sint32 get_base_maintenance() const { return maintenance; }
 
-	void set_scale(float scale_factor) 
+	void set_scale(uint16 scale_factor) 
 	{ 
-		scaled_price = preis * scale_factor > 0 ? (uint32) (preis * scale_factor) : 1; 
-		scaled_maintenance = maintenance * scale_factor > 0 ? (uint32) (maintenance * scale_factor) : 1;
+		const uint32 scaled_price_preliminary =  set_scale_generic<uint32>(preis, scale_factor);
+		const uint32 scaled_maintenance_preliminary =  set_scale_generic<uint32>(maintenance, scale_factor);
+		scaled_price = scaled_price_preliminary > 0 ? scaled_price_preliminary : 1; 
+		scaled_maintenance = scaled_maintenance_preliminary > 0 ? scaled_maintenance_preliminary : 1;
 	}
 
-	uint32  get_topspeed() const { return topspeed; }
+	sint32  get_topspeed() const { return topspeed; }
 
 	uint32  get_max_weight() const { return max_weight; }
 

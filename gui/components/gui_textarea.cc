@@ -14,8 +14,8 @@
 
 gui_textarea_t::gui_textarea_t(const char *text)
 {
- 	set_text(text);
- 	recalc_size();
+	set_text(text);
+	recalc_size();
 }
 
 

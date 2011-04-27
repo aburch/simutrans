@@ -1,54 +1,54 @@
-<title>Térkép ablak Sugó</title>
+<title>TÃ©rkÃ©p ablak SugÃ³</title>
 
-<h1>Térkép ablak</h1>
+<h1>TÃ©rkÃ©p ablak</h1>
 
 <p>
-Az egész "világról" mutat egy madártávlat típusú térképet. Alapállásban a térképen nincs feltüntetve semmi.
-Azt, hogy mi látszodjon a kis térképen azt a "Jelmagyarázat" ablakban tudod beállítani.
+Az egÃ©sz "vilÃ¡grÃ³l" mutat egy madÃ¡rtÃ¡vlat tÃ­pusÃº tÃ©rkÃ©pet. AlapÃ¡llÃ¡sban a tÃ©rkÃ©pen nincs feltÃ¼ntetve semmi.
+Azt, hogy mi lÃ¡tszodjon a kis tÃ©rkÃ©pen azt a "JelmagyarÃ¡zat" ablakban tudod beÃ¡llÃ­tani.
 </p>
 <p>
-A "Jelmagyarázat" ablakban a következõ dolgokat lehet a kis térképre kihelyezni:
+A "JelmagyarÃ¡zat" ablakban a kÃ¶vetkezÃµ dolgokat lehet a kis tÃ©rkÃ©pre kihelyezni:
 <br>
-<em>Városok</em> - Megjeleníti a városok nevét illetve helyét.
+<em>VÃ¡rosok</em> - MegjelenÃ­ti a vÃ¡rosok nevÃ©t illetve helyÃ©t.
 <br>
-<em>Utas</em> - Megjeleníti azokat a pontokat ahol utasok tartozkodnak. A terhelési színekbõl lehet következtetni
-(lásd az ablak felsõ részén a minimum és maximum színkódjait), hogy egy adott állomás vagy megálló mennyire zsúfolt.
+<em>Utas</em> - MegjelenÃ­ti azokat a pontokat ahol utasok tartozkodnak. A terhelÃ©si szÃ­nekbÃµl lehet kÃ¶vetkeztetni
+(lÃ¡sd az ablak felsÃµ rÃ©szÃ©n a minimum Ã©s maximum szÃ­nkÃ³djait), hogy egy adott Ã¡llomÃ¡s vagy megÃ¡llÃ³ mennyire zsÃºfolt.
 <br>
-<em>Posta</em> - Feltünteti a posták helyét.
+<em>Posta</em> - FeltÃ¼nteti a postÃ¡k helyÃ©t.
 <br>
-<em>Rakomány</em> - Megjeleníti azokat a pontokat ahol rakomány van (legyen az árú, vagy nyersanyag, vagy posta).
+<em>RakomÃ¡ny</em> - MegjelenÃ­ti azokat a pontokat ahol rakomÃ¡ny van (legyen az Ã¡rÃº, vagy nyersanyag, vagy posta).
 <br>
-<em>Státusz</em> - Megjeleníti azokat a helyeket, ahol túlterheltség vagy zsúfoltság van.
+<em>StÃ¡tusz</em> - MegjelenÃ­ti azokat a helyeket, ahol tÃºlterheltsÃ©g vagy zsÃºfoltsÃ¡g van.
 <br>
-<em>Szerviz</em> - Jelzi azokat az útvonalakat és egységeket melyek szervizelést igényelnek.
+<em>Szerviz</em> - Jelzi azokat az Ãºtvonalakat Ã©s egysÃ©geket melyek szervizelÃ©st igÃ©nyelnek.
 <br>
-<em>Forgalom</em> - A forgalom nagyságát jelzi utakon vasútakon.
+<em>Forgalom</em> - A forgalom nagysÃ¡gÃ¡t jelzi utakon vasÃºtakon.
 <br>
-<em>Kiindulás</em> - Kijelöli azokat az állomásokat vagy megállókat ahonnan az árúk, utasok kiindulnak illetve itt lehet követni azt,
-hogy honnan indul ki a legtöbb utas vagy árú.
+<em>KiindulÃ¡s</em> - KijelÃ¶li azokat az Ã¡llomÃ¡sokat vagy megÃ¡llÃ³kat ahonnan az Ã¡rÃºk, utasok kiindulnak illetve itt lehet kÃ¶vetni azt,
+hogy honnan indul ki a legtÃ¶bb utas vagy Ã¡rÃº.
 <br>
-<em>Célállomás</em> - Jelzi azokat a célállomásokat és megállókat ahova a legtöbb utas vagy árú tart.
+<em>CÃ©lÃ¡llomÃ¡s</em> - Jelzi azokat a cÃ©lÃ¡llomÃ¡sokat Ã©s megÃ¡llÃ³kat ahova a legtÃ¶bb utas vagy Ã¡rÃº tart.
 <br>
-<em>Várakozik</em> - Kijelöli azokat a megállókat vagy állomásokat ahol a legtöbb árú vagy utas várakozik.
+<em>VÃ¡rakozik</em> - KijelÃ¶li azokat a megÃ¡llÃ³kat vagy Ã¡llomÃ¡sokat ahol a legtÃ¶bb Ã¡rÃº vagy utas vÃ¡rakozik.
 <br>
-<em>Vonalak</em> - Megjeleníti az összes vasúti és közúti vonalat.
+<em>Vonalak</em> - MegjelenÃ­ti az Ã¶sszes vasÃºti Ã©s kÃ¶zÃºti vonalat.
 <br>
-<em>Sebes.korlát.</em> - Kijelzi azokat a szakaszokat ahol sebességkorlátozás van.
+<em>Sebes.korlÃ¡t.</em> - Kijelzi azokat a szakaszokat ahol sebessÃ©gkorlÃ¡tozÃ¡s van.
 <br>
-<em>Elektr.hálóz.</em> - Megjeleníti az egész elektromos hálózatot.
+<em>Elektr.hÃ¡lÃ³z.</em> - MegjelenÃ­ti az egÃ©sz elektromos hÃ¡lÃ³zatot.
 <br>
-<em>Turisták</em> - Kijelzi azokat a helyeket ahol turisták illetve turistacélpontok vannak.
+<em>TuristÃ¡k</em> - Kijelzi azokat a helyeket ahol turistÃ¡k illetve turistacÃ©lpontok vannak.
 <br>
-<em>Gyárak</em> - Megjeleníti az összes termelõ egységet (gyárakat, bányákat, iparegységeket).
+<em>GyÃ¡rak</em> - MegjelenÃ­ti az Ã¶sszes termelÃµ egysÃ©get (gyÃ¡rakat, bÃ¡nyÃ¡kat, iparegysÃ©geket).
 </p>
 
 <p>
-Minden egyes termelési egység külön színnel van feltüntetve. A részletes színkódott a térkép alján
-találod.A minimum és maximum értéket is színkód jelzi (vagyis azt, hogy sok az utas vagy kevés, túlterhelt egy állomás
+Minden egyes termelÃ©si egysÃ©g kÃ¼lÃ¶n szÃ­nnel van feltÃ¼ntetve. A rÃ©szletes szÃ­nkÃ³dott a tÃ©rkÃ©p aljÃ¡n
+talÃ¡lod.A minimum Ã©s maximum Ã©rtÃ©ket is szÃ­nkÃ³d jelzi (vagyis azt, hogy sok az utas vagy kevÃ©s, tÃºlterhelt egy Ã¡llomÃ¡s
 vagy nem, nagy forgalom vagy kicsi stb.).
 </p>
 
 <p>
-A madártávlat térképre kétfoklozatú nagyítás alkalmazható. Bármelyék részére az egér jobb gombjával, vagy a középsõ görgõvel
-ráklikkelve változtathatód a nagyítás mértékét.
+A madÃ¡rtÃ¡vlat tÃ©rkÃ©pre kÃ©tfoklozatÃº nagyÃ­tÃ¡s alkalmazhatÃ³. BÃ¡rmelyÃ©k rÃ©szÃ©re az egÃ©r jobb gombjÃ¡val, vagy a kÃ¶zÃ©psÃµ gÃ¶rgÃµvel
+rÃ¡klikkelve vÃ¡ltoztathatÃ³d a nagyÃ­tÃ¡s mÃ©rtÃ©kÃ©t.
 </p>

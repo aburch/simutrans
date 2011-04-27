@@ -113,6 +113,7 @@ SOLO_SOURCES += ../besch/writer/way_writer.cc
 SOLO_SOURCES += ../besch/writer/way_obj_writer.cc
 SOLO_SOURCES += ../besch/writer/xref_writer.cc
 SOLO_SOURCES += ../utils/dr_rdpng.cc
+SHARED_SOURCES += ../besch/bild_besch.cc
 SHARED_SOURCES += ../dataobj/freelist.cc
 SHARED_SOURCES += ../dataobj/tabfile.cc
 SHARED_SOURCES += ../simdebug.cc

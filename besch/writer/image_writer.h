@@ -11,10 +11,6 @@ class obj_node_t;
 struct dimension;
 
 
-typedef unsigned int   PIXRGB;
-typedef unsigned short PIXVAL;
-
-
 class image_writer_t : public obj_writer_t {
 	private:
 		static image_writer_t the_instance;
@@ -42,7 +38,7 @@ class image_writer_t : public obj_writer_t {
 	private:
 		bool block_laden(const char* fname);
 
-		static PIXRGB block_getpix(int x, int y)
+		static uint32 block_getpix(int x, int y)
 		{
 			return
 				(block[y * width * 3 + x * 3 + 0] << 16) +
@@ -56,7 +52,7 @@ class image_writer_t : public obj_writer_t {
 		 *
 		 * @author Hj. Malthaner
 		 */
-		static PIXVAL* encode_image(int x, int y, dimension* dim, int* len);
+		static uint16* encode_image(int x, int y, dimension* dim, int* len);
 };
 
 #endif

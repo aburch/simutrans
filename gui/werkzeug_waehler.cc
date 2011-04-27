@@ -11,24 +11,27 @@
 #include "../simskin.h"
 #include "../simwin.h"
 #include "../simgraph.h"
-#include "../simwerkz.h"
+#include "../simmenu.h"
 #include "../besch/skin_besch.h"
 #include "../besch/sound_besch.h"
 #include "../dataobj/umgebung.h"
 #include "werkzeug_waehler.h"
 
+#define MIN_WIDTH (80)
 
 
-werkzeug_waehler_t::werkzeug_waehler_t(karte_t* welt, const char* titel, const char *helpfile, koord icon, bool allow_break) :
+werkzeug_waehler_t::werkzeug_waehler_t(karte_t* welt, const char* titel, const char *helpfile, uint32 toolbar_id, koord icon, bool allow_break) :
 	gui_frame_t(titel), tools(0)
 {
+	this->toolbar_id = toolbar_id;
 	this->allow_break = allow_break;
-    this->welt = welt;
-    this->hilfe_datei = helpfile;
+	this->welt = welt;
+	this->hilfe_datei = helpfile;
 	this->icon = icon;
 	this->tool_icon_disp_start = 0;
 	this->tool_icon_disp_end = 0;
-	set_fenstergroesse( icon );
+	has_prev_next= false;
+	set_fenstergroesse( koord(max(icon.x,MIN_WIDTH), TITLEBAR_HEIGHT) );
     dirty = true;
 }
 
@@ -49,29 +52,29 @@ void werkzeug_waehler_t::add_werkzeug(werkzeug_t *w)
 
 	int ww = max(2,(display_get_width()/icon.x)-2);	// to avoid zero or negative ww on posix (no graphic) backends
 	tool_icon_width = tools.get_count();
-DBG_DEBUG("werkzeug_waehler_t::add_tool()","ww=%i, tool_icon_width=%i",ww,tool_icon_width);
+DBG_DEBUG4("werkzeug_waehler_t::add_tool()","ww=%i, tool_icon_width=%i",ww,tool_icon_width);
 	if(allow_break  &&  (ww<tool_icon_width  ||  (umgebung_t::toolbar_max_width>0  &&  umgebung_t::toolbar_max_width<tool_icon_width))) {
 		//break them
 		int rows = (tool_icon_width/ww)+1;
-DBG_DEBUG("werkzeug_waehler_t::add_tool()","ww=%i, rows=%i",ww,rows);
+DBG_DEBUG4("werkzeug_waehler_t::add_tool()","ww=%i, rows=%i",ww,rows);
 		// assure equal distribution if more than a single row is needed
 		tool_icon_width = (tool_icon_width+rows-1)/rows;
 		if(  umgebung_t::toolbar_max_width > 0  ) {
 			// At least, 3 rows is needed to drag toolbar
 			tool_icon_width = min( tool_icon_width, max(umgebung_t::toolbar_max_width, 3) );
 		}
-  	}
+	}
 	tool_icon_height = max( (display_get_height()/icon.y)-3, 1 );
 	if(  umgebung_t::toolbar_max_height > 0  ) {
 		tool_icon_height = min(tool_icon_height, umgebung_t::toolbar_max_height);
 	}
 	dirty = true;
-	gui_frame_t::set_fenstergroesse( koord( tool_icon_width*icon.x, min(tool_icon_height, ((tools.get_count()-1)/tool_icon_width)+1)*icon.y+16 ) );
+	gui_frame_t::set_fenstergroesse( koord( tool_icon_width*icon.x, min(tool_icon_height, ((tools.get_count()-1)/tool_icon_width)+1)*icon.y+TITLEBAR_HEIGHT ) );
 	tool_icon_disp_start = 0;
 	tool_icon_disp_end = min( tool_icon_disp_start+tool_icon_width*tool_icon_height, tools.get_count() );
 	has_prev_next = (tool_icon_width*tool_icon_height < tools.get_count());
 
-DBG_DEBUG("werkzeug_waehler_t::add_tool()", "at position %i (width %i)", tools.get_count(), tool_icon_width);
+DBG_DEBUG4("werkzeug_waehler_t::add_tool()", "at position %i (width %i)", tools.get_count(), tool_icon_width);
 }
 
 
@@ -83,7 +86,7 @@ void werkzeug_waehler_t::reset_tools()
 		i--;
 		tools.remove_at(i);
 	}
-	gui_frame_t::set_fenstergroesse( koord( icon.x, TITLEBAR_HEIGHT ) );
+	gui_frame_t::set_fenstergroesse( koord(max(icon.x,MIN_WIDTH), TITLEBAR_HEIGHT) );
 	tool_icon_width = 0;
 	tool_icon_disp_start = 0;
 	tool_icon_disp_end = 0;
@@ -94,7 +97,8 @@ bool werkzeug_waehler_t::getroffen(int x, int y)
 {
 	int dx = x/icon.x;
 	int	dy = (y-16)/icon.y;
-	if(  x>=0 && dx<tool_icon_width  &&  y>=0  &&  (y<TITLEBAR_HEIGHT  ||  dy<tool_icon_height)  ) {
+	// either click in titlebar or on an icon
+	if(  x>=0   &&  y>=0  &&  (y<TITLEBAR_HEIGHT  ||  (dx<tool_icon_width  &&  dy<tool_icon_height) )  ) {
 		return y < TITLEBAR_HEIGHT || dx + tool_icon_width * dy + tool_icon_disp_start < (int)tools.get_count();
 	}
 	return false;
@@ -118,20 +122,27 @@ bool werkzeug_waehler_t::infowin_event(const event_t *ev)
 					welt->set_werkzeug( tools[wz_idx], welt->get_active_player() );
 				}
 				else {
-				// right-click on toolbar icon closes toolbar
-					if (tools[wz_idx]  &&  tools[wz_idx]->is_selected(welt)  &&  (tools[wz_idx]->get_id()&TOOLBAR_TOOL)) {
-						tools[wz_idx]->exit(welt, welt->get_active_player());
-						// triggers werkzeug_waehler_t::infowin_event if the other toolbar,
+					// right-click on toolbar icon closes toolbars and dialogues. Resets selectable simple and general tools to the query-tool
+					if (tools[wz_idx]  &&  tools[wz_idx]->is_selected(welt)  ) {
+						// ->exit triggers werkzeug_waehler_t::infowin_event in the closing toolbar,
 						// which resets active tool to query tool
+						if(  tools[wz_idx]->exit(welt, welt->get_active_player())  ) {
+							welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], welt->get_active_player() );
+						}
 					}
 				}
 			}
 			return true;
 		}
 	}
-	/* this resets to query-tool, when closing toolsbar ... */
+	// this resets to query-tool, when closing toolsbar - but only for selected general tools in the closing toolbar
 	else if(ev->ev_class==INFOWIN &&  ev->ev_code==WIN_CLOSE) {
-		welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], welt->get_active_player() );
+		for(  int i=0;  i<(int)tools.get_count();  i++) {
+			if(  tools[i]->is_selected(welt)   &&  (tools[i]->get_id()&GENERAL_TOOL)  ) {
+				welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], welt->get_active_player() );
+				break;
+			}
+		}
 	}
 	if(IS_WINDOW_CHOOSE_NEXT(ev)) {
 		if(ev->ev_code==NEXT_WINDOW) {

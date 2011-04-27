@@ -55,7 +55,11 @@ private:
 				return i;
 			}
 		}
+		return enlarge();
+	}
 
+	static uint16 enlarge()
+	{
 		// no free entry found, extend array if possible
 		uint16 newsize;
 		if (size == 65535) {
@@ -130,25 +134,37 @@ public:
 		}
 	}
 
+	// creates handle with id, fails if already taken
+	quickstone_tpl(T* p, uint16 id)
+	{
+		if(p) {
+			if(  id == 0  ) {
+				dbg->fatal("quickstone<T>::quickstone_tpl(T*,uint16)","wants to assign non-null pointer to null index");
+			}
+			while(  id >= size  ) {
+				enlarge();
+			}
+			if(  data[id]!=NULL  &&  data[id]!=p  ) {
+				dbg->fatal("quickstone<T>::quickstone_tpl(T*,uint16)","slot (%d) already taken", id);
+			}
+			entry = id;
+			data[entry] = p;
+		}
+		else {
+			if(  id!=0  ) {
+				dbg->fatal("quickstone<T>::quickstone_tpl(T*,uint16)","wants to assign null pointer to non-null index");
+			}
+			assert(id==0);
+			// all NULL pointers are mapped to entry 0
+			entry = 0;
+		}
+	}
+
 	quickstone_tpl(const quickstone_tpl& r) : entry(r.entry) {}
 
-#if 0	// shoudl be unneccessary, since compiler handles this much faster
-	/**
-	 * Assignment operator. Adjusts counters if one handle is
-	 * assigned ot another one.
-	 *
-	 * @author Hj. Malthaner
-	 */
-	quickstone_tpl operator=(const quickstone_tpl &other)
-	{
-		entry = other.entry;
-		return *this;
-	}
-#endif
-
 	// returns true, if no handles left
-	static bool is_exhausted() {
-
+	static bool is_exhausted()
+	{
 		if(  size==65535  ) {
 			// scan  array
 			for(  uint16 i = 1; i<size; i++) {
@@ -213,15 +229,9 @@ public:
 	 */
 	T* operator->() const { return data[entry]; }
 
-	bool operator== (const quickstone_tpl<T> &other) const
-	{
-		return entry == other.entry;
-	}
+	bool operator== (const quickstone_tpl<T> &other) const { return entry == other.entry; }
 
-	bool operator!= (const quickstone_tpl<T> &other) const
-	{
-		return entry != other.entry;
-	}
+	bool operator!= (const quickstone_tpl<T> &other) const { return entry != other.entry; }
 
 	// Added by : Knightly
 	// Purpose  : For sorting of handles according to internal value of entry
@@ -232,6 +242,12 @@ public:
 
 	static uint16 get_size() { return size; }
 
+	/**
+	 * For checking the consistency of handle allocation
+	 * among the server and the clients in network mode
+	 * @author Knightly
+	 */
+	static uint16 get_next_check() { return next; }
 };
 
 template <class T> T** quickstone_tpl<T>::data = 0;

@@ -24,7 +24,7 @@ public:
 	};
 
 protected:
-	schedule_t() : abgeschlossen(false), bidirectional(false), mirrored(false), aktuell(0) {}
+	schedule_t() : abgeschlossen(false), bidirectional(false), mirrored(false), aktuell(0), spacing(0) {}
 
 public:
 	minivec_tpl<struct linieneintrag_t> eintrag;
@@ -108,6 +108,8 @@ public:
 	inline bool ist_abgeschlossen() const { return abgeschlossen; }
 	void eingabe_abschliessen() { abgeschlossen = true; }
 	void eingabe_beginnen() { abgeschlossen = false; }
+	inline int get_spacing() const { return spacing; }
+	inline void set_spacing( int s ) { spacing = s; }
 
 	virtual ~schedule_t() {}
 
@@ -171,6 +173,7 @@ private:
 	bool bidirectional;
 	bool mirrored;
 	uint8 aktuell;
+	sint16 spacing;
 
 	static struct linieneintrag_t dummy_eintrag;
 };

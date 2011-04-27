@@ -15,7 +15,6 @@
 #include "../dataobj/translator.h"
 
 #include "../gui/ground_info.h"
-#include "../tpl/ptrhashtable_tpl.h"
 #include "../utils/cbuffer_t.h"
 
 #include "brueckenboden.h"

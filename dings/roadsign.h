@@ -42,7 +42,8 @@ protected:
 	const roadsign_besch_t *besch;
 
 public:
-	enum signalzustand {rot=0, gruen=1, naechste_rot=2 };
+	// "Signal state" (Google)
+	enum signalzustand {rot=0, gruen=1, naechste_rot=2 }; // "Red, green, next red" (Google)
 
 	/*
 	 * return direction or the state of the traffic light
@@ -56,6 +57,11 @@ public:
 
 	typ get_typ() const { return roadsign; }
 	const char* get_name() const { return "Roadsign"; }
+
+	/**
+	 * waytype associated with this object
+	 */
+	waytype_t get_waytype() const { return besch ? besch->get_wtyp() : invalid_wt; }
 
 	roadsign_t(karte_t *welt, loadsave_t *file);
 	roadsign_t(karte_t *welt, spieler_t *sp, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t* besch);

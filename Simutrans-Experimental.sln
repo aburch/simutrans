@@ -5,20 +5,29 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Simutrans-Experimental", "S
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug (command-line server)|Win32 = Debug (command-line server)|Win32
+		Debug (network)|Win32 = Debug (network)|Win32
 		Debug (SDL)|Win32 = Debug (SDL)|Win32
 		Debug SDL|Win32 = Debug SDL|Win32
 		Debug|Win32 = Debug|Win32
+		Release (command-line server)|Win32 = Release (command-line server)|Win32
 		Release (SDL)|Win32 = Release (SDL)|Win32
 		Release SDL|Win32 = Release SDL|Win32
 		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (command-line server)|Win32.ActiveCfg = Debug (command-line server)|Win32
+		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (command-line server)|Win32.Build.0 = Debug (command-line server)|Win32
+		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (network)|Win32.ActiveCfg = Debug (network)|Win32
+		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (network)|Win32.Build.0 = Debug (network)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (SDL)|Win32.ActiveCfg = Debug (SDL)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (SDL)|Win32.Build.0 = Debug (SDL)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Debug SDL|Win32.ActiveCfg = Debug (SDL)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Debug SDL|Win32.Build.0 = Debug (SDL)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Debug|Win32.ActiveCfg = Debug|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Debug|Win32.Build.0 = Debug|Win32
+		{0621B295-BEB7-4767-82F1-F27995610323}.Release (command-line server)|Win32.ActiveCfg = Release (command-line server)|Win32
+		{0621B295-BEB7-4767-82F1-F27995610323}.Release (command-line server)|Win32.Build.0 = Release (command-line server)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Release (SDL)|Win32.ActiveCfg = Release (SDL)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Release (SDL)|Win32.Build.0 = Release (SDL)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Release SDL|Win32.ActiveCfg = Release (SDL)|Win32

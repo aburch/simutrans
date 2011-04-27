@@ -34,22 +34,34 @@
 
 #include "dataobj/translator.h"
 #include "dataobj/umgebung.h"
+#include "dataobj/loadsave.h"
 
 #include "besch/skin_besch.h"
 
 #include "dings/zeiger.h"
 
+#include "gui/map_frame.h"
 #include "gui/help_frame.h"
 #include "gui/messagebox.h"
-#include "gui/werkzeug_waehler.h"
-
 #include "gui/gui_frame.h"
 
 #include "player/simplay.h"
-
 #include "tpl/vector_tpl.h"
-
 #include "utils/simstring.h"
+#include "utils/cbuffer_t.h"
+
+// needed to restore/save them
+#include "gui/werkzeug_waehler.h"
+#include "gui/player_frame_t.h"
+#include "gui/money_frame.h"
+#include "gui/halt_detail.h"
+#include "gui/halt_info.h"
+#include "gui/convoi_detail_t.h"
+#include "gui/convoi_info_t.h"
+#include "gui/fahrplan_gui.h"
+#include "gui/line_management_gui.h"
+#include "gui/schedule_list.h"
+
 
 
 #define dragger_size 12
@@ -60,8 +72,9 @@
 class simwin_gadget_flags_t
 {
 public:
-	simwin_gadget_flags_t( void ) : close( false ) , help( false ) , prev( false ), size( false ), next( false ), sticky( false ) { }
+	simwin_gadget_flags_t( void ) : title(true), close( false ), help( false ), prev( false ), size( false ), next( false ), sticky( false ) { }
 
+	bool title:1;
 	bool close:1;
 	bool help:1;
 	bool prev:1;
@@ -140,12 +153,12 @@ static int display_gadget_box(simwin_gadget_et const  code,
 			      int const color,
 			      bool const pushed)
 {
-	display_vline_wh(x,    y,   16, color+1, false);
-	display_vline_wh(x+15, y+1, 14, COL_BLACK, false);
-	display_vline_wh(x+16, y+1, 14, color+1, false);
+	display_vline_wh_clip(x,    y,   16, color+1, false);
+	display_vline_wh_clip(x+15, y+1, 14, COL_BLACK, false);
+	display_vline_wh_clip(x+16, y+1, 14, color+1, false);
 
 	if(pushed) {
-		display_fillbox_wh(x+1, y+1, 14, 14, color+1, false);
+		display_fillbox_wh_clip(x+1, y+1, 14, 14, color+1, false);
 	}
 
 	if(  skinverwaltung_t::window_skin  ) {
@@ -377,6 +390,92 @@ bool win_is_top(const gui_frame_t *ig)
 
 // window functions
 
+
+// save/restore all dialogues
+void rdwr_all_win(loadsave_t *file)
+{
+	//FIXME: This does not work in Experimental, so disable this code for now.
+	//return;
+
+	if(  file->get_version()>102003  ) {
+		if(  file->is_saving()  ) {
+			for ( uint32 i=0;  i < wins.get_count();  i++ ) {
+				uint32 id = wins[i].gui->get_rdwr_id();
+				if(  id!=magic_reserved  ) {
+					file->rdwr_long( id );
+					wins[i].pos.rdwr( file );
+					file->rdwr_byte( wins[i].wt );
+					file->rdwr_bool( wins[i].sticky );
+					file->rdwr_bool( wins[i].rollup );
+					wins[i].gui->rdwr( file );
+				}
+			}
+			uint32 end = magic_none;
+			file->rdwr_long( end );
+		}
+		else {
+			// restore windows
+			while(1) {
+				uint32 id;
+				file->rdwr_long(id);
+				// create the matching
+				gui_frame_t *w = NULL;
+				switch(id) {
+
+					// end of dialogues
+					case magic_none: return;
+
+					// actual dialogues to restore
+					case magic_convoi_info:    w = new convoi_info_t(wl); break;
+					case magic_convoi_detail:  w = new convoi_detail_t(wl); break;
+					case magic_halt_info:      w = new halt_info_t(wl); break;
+					case magic_halt_detail:    w = new halt_detail_t(wl); break;
+					case magic_reliefmap:      w = new map_frame_t(wl); break;
+					case magic_ki_kontroll_t:  w = new ki_kontroll_t(wl); break;
+					case magic_schedule_rdwr_dummy: w = new fahrplan_gui_t(wl); break;
+					case magic_line_schedule_rdwr_dummy: w = new line_management_gui_t(wl); break;
+
+
+					default:
+						if(  id>=magic_finances_t  &&  id<magic_finances_t+MAX_PLAYER_COUNT  ) {
+							w = new money_frame_t( wl->get_spieler(id-magic_finances_t) );
+						}
+						else if(  id>=magic_line_management_t  &&  id<magic_line_management_t+MAX_PLAYER_COUNT  ) {
+							w = new schedule_list_gui_t( wl->get_spieler(id-magic_line_management_t) );
+						}
+						else if(  id>=magic_toolbar  &&  id<magic_toolbar+256  ) {
+							werkzeug_t::toolbar_tool[id-magic_toolbar]->update(wl,wl->get_active_player());
+							w = werkzeug_t::toolbar_tool[id-magic_toolbar]->get_werkzeug_waehler();
+						}
+						else {
+							dbg->fatal( "rdwr_all_win()", "No idea how to restore magic $%Xlu", id );
+						}
+				}
+				/* sequece is now the same for all dialogues
+				 * restore coordinates
+				 * create window
+				 * read state
+				 * restore content
+				 * restore state - gui_frame_t::rdwr() might create its own window ->> want to restore state to that window
+				 */
+				koord p;
+				p.rdwr(file);
+				uint8 win_type;
+				file->rdwr_byte( win_type );
+				create_win( p.x, p.y, w, (wintype)win_type, id );
+				bool sticky, rollup;
+				file->rdwr_bool( sticky );
+				file->rdwr_bool( rollup );
+				w->rdwr( file );
+				wins.back().sticky = sticky;
+				wins.back().rollup = rollup;
+			}
+		}
+	}
+}
+
+
+
 int create_win(gui_frame_t* const gui, wintype const wt, long const magic)
 {
 	return create_win( -1, -1, gui, wt, magic);
@@ -419,6 +518,7 @@ int create_win(int x, int y, gui_frame_t* const gui, wintype const wt, long cons
 		// (Mathew Hounsell) Make Sure Closes Aren't Forgotten.
 		// Must Reset as the entries and thus flags are reused
 		win.flags.close = true;
+		win.flags.title = gui->has_title();
 		win.flags.help = ( gui->get_hilfe_datei() != NULL );
 		win.flags.prev = gui->has_prev();
 		win.flags.next = gui->has_next();
@@ -536,6 +636,14 @@ static void destroy_framed_win(simwin_t *wins)
 	}
 
 	if(  (wins->wt&w_do_not_delete)==0  ) {
+		// remove from kill list first
+		// otherwise delete will be called again on that window
+		for(  uint j = 0;  j < kill_list.get_count();  j++  ) {
+			if(  kill_list[j].gui == wins->gui  ) {
+				kill_list.remove_at(j);
+				break;
+			}
+		}
 		delete wins->gui;
 	}
 	windows_dirty = true;
@@ -561,8 +669,9 @@ void destroy_win(const gui_frame_t *gui)
 				kill_list.append_unique(wins[i]);
 			}
 			else {
-				destroy_framed_win(&wins[i]);
+				simwin_t win = wins[i];
 				wins.remove_at(i);
+				destroy_framed_win(&win);
 			}
 			break;
 		}
@@ -643,21 +752,24 @@ void display_win(int win)
 
 	// %HACK (Mathew Hounsell) So draw will know if gadget is needed.
 	wins[win].flags.help = ( komp->get_hilfe_datei() != NULL );
-	win_draw_window_title(wins[win].pos,
-			gr,
-			title_color,
-			translator::translate(komp->get_name()),
-			text_color,
-			wins[win].closing,
-			wins[win].sticky,
-			( & wins[win].flags ) );
+	if(  wins[win].flags.title  ) {
+		win_draw_window_title(wins[win].pos,
+				gr,
+				title_color,
+				translator::translate(komp->get_name()),
+				text_color,
+				wins[win].closing,
+				wins[win].sticky,
+				( & wins[win].flags ) );
+	}
 	// mark top window, if requested
 	if(umgebung_t::window_frame_active  &&  (unsigned)win==wins.get_count()-1) {
+		const int y_off = wins[win].flags.title ? 0 : 16;
 		if(!wins[win].rollup) {
-			display_ddd_box( wins[win].pos.x-1, wins[win].pos.y-1, gr.x+2, gr.y+2 , title_color, title_color+1 );
+			display_ddd_box( wins[win].pos.x-1, wins[win].pos.y-1 + y_off, gr.x+2, gr.y+2 - y_off, title_color, title_color+1 );
 		}
 		else {
-			display_ddd_box( wins[win].pos.x-1, wins[win].pos.y-1, gr.x+2, 18, title_color, title_color+1 );
+			display_ddd_box( wins[win].pos.x-1, wins[win].pos.y-1 + y_off, gr.x+2, 18 - y_off, title_color, title_color+1 );
 		}
 	}
 	if(!wins[win].rollup) {
@@ -724,49 +836,204 @@ static void remove_old_win()
 }
 
 
-void move_win(int win, event_t *ev)
+static inline void snap_check_distance( sint16 *r, const sint16 a, const sint16 b )
 {
-	koord gr = wins[win].gui->get_fenstergroesse();
-
-	// need to mark all old position dirty
-	mark_rect_dirty_wc( wins[win].pos.x, wins[win].pos.y, wins[win].pos.x+gr.x, wins[win].pos.y+gr.y );
-
-	int xfrom = ev->cx;
-	int yfrom = ev->cy;
-	int xto = ev->mx;
-	int yto = ev->my;
-	int x,y, xdelta, ydelta;
-
-	// CLIP(wert,min,max)
-	x = CLIP(wins[win].pos.x + (xto-xfrom), 8-gr.x, display_get_width()-16);
-	y = CLIP(wins[win].pos.y + (yto-yfrom), 32, display_get_height()-24);
-
-	// delta is actual window movement.
-	xdelta = x - wins[win].pos.x;
-	ydelta = y - wins[win].pos.y;
-
-	wins[win].pos.x += xdelta;
-	wins[win].pos.y += ydelta;
-
-	// and to mark new position also dirty ...
-	mark_rect_dirty_wc( wins[win].pos.x, wins[win].pos.y, wins[win].pos.x+gr.x, wins[win].pos.y+gr.y );
-
-	change_drag_start(xdelta, ydelta);
+	if(  abs(a-b)<=umgebung_t::window_snap_distance  ) {
+		*r = a;
+	}
 }
 
 
-void resize_win(int i, event_t *ev)
+void snap_check_win( const int win, koord *r, const koord from_pos, const koord from_gr, const koord to_pos, const koord to_gr )
+{
+	bool resize;
+	if(  from_gr==to_gr  &&  from_pos!=to_pos  ) { // check if we're moving
+		resize = false;
+	}
+	else if(  from_gr!=to_gr  &&  from_pos==from_pos  ) { // or resizing the window
+		resize = true;
+	}
+	else {
+		return; // or nothing to do.
+	}
+
+	const int wins_count = wins.get_count();
+
+	for(  int i=0;  i<=wins_count;  i++  ) {
+		if(  i==win  ) {
+			// Don't snap to self
+			continue;
+		}
+
+		koord other_gr, other_pos;
+		if(  i==wins_count  ) {
+			// Allow snap to screen edge
+			other_pos.x = 0;
+			other_pos.y = 32;
+			other_gr.x = display_get_width();
+			other_gr.y = display_get_height()-16-32;
+			if(  show_ticker  ) {
+				other_gr.y -= 16;
+			}
+		}
+		else {
+			// Snap to other window
+			other_gr = wins[i].gui->get_fenstergroesse();
+			other_pos = wins[i].pos;
+			if(  wins[i].rollup  ) {
+				other_gr.y = 18;
+			}
+		}
+
+		// my bottom below other top  and  my top above other bottom  ---- in same vertical band
+		if(  from_pos.y+from_gr.y>=other_pos.y  &&  from_pos.y<=other_pos.y+other_gr.y  ) {
+			if(  resize  ) {
+				// other right side and my new right side within snap
+				snap_check_distance( &r->x, other_pos.x+other_gr.x-from_pos.x, to_gr.x );  // snap right - align right sides
+			}
+			else {
+				// other right side and my new right side within snap
+				snap_check_distance( &r->x, other_pos.x+other_gr.x-from_gr.x, to_pos.x );  // snap right - align right sides
+
+				// other left side and my new left side within snap
+				snap_check_distance( &r->x, other_pos.x, to_pos.x );  // snap left - align left sides
+			}
+		}
+
+		// my new bottom below other top  and  my new top above other bottom  ---- in same vertical band
+		if(  resize  ) {
+			if(  from_pos.y+to_gr.y>other_pos.y  &&  from_pos.y<other_pos.y+other_gr.y  ) {
+				// other left side and my new right side within snap
+				snap_check_distance( &r->x, other_pos.x-from_pos.x, to_gr.x );  // snap right - align my right to other left
+			}
+		}
+		else {
+			if(  to_pos.y+from_gr.y>other_pos.y  &&  to_pos.y<other_pos.y+other_gr.y  ) {
+				// other left side and my new right side within snap
+				snap_check_distance( &r->x, other_pos.x-from_gr.x, to_pos.x );  // snap right - align my right to other left
+
+				// other right side and my new left within snap
+				snap_check_distance( &r->x, other_pos.x+other_gr.x, to_pos.x );  // snap left - align my left to other right
+			}
+		}
+
+		// my right side right of other left side  and  my left side left of other right side  ---- in same horizontal band
+		if(  from_pos.x+from_gr.x>=other_pos.x  &&  from_pos.x<=other_pos.x+other_gr.x  ) {
+			if(  resize  ) {
+				// other bottom and my new bottom within snap
+				snap_check_distance( &r->y, other_pos.y+other_gr.y-from_pos.y, to_gr.y );  // snap down - align bottoms
+			}
+			else {
+				// other bottom and my new bottom within snap
+				snap_check_distance( &r->y, other_pos.y+other_gr.y-from_gr.y, to_pos.y );  // snap down - align bottoms
+
+				// other top and my new top within snap
+				snap_check_distance( &r->y, other_pos.y, to_pos.y );  // snap up - align tops
+			}
+		}
+
+		// my new right side right of other left side  and  my new left side left of other right side  ---- in same horizontal band
+		if (  resize  ) {
+			if(  from_pos.x+to_gr.x>other_pos.x  &&  from_pos.x<other_pos.x+other_gr.x  ) {
+				// other top and my new bottom within snap
+				snap_check_distance( &r->y, other_pos.y-from_pos.y, to_gr.y );  // snap down - align my bottom to other top
+			}
+		}
+		else {
+			if(  to_pos.x+from_gr.x>other_pos.x  &&  to_pos.x<other_pos.x+other_gr.x  ) {
+				// other top and my new bottom within snap
+				snap_check_distance( &r->y, other_pos.y-from_gr.y, to_pos.y );  // snap down - align my bottom to other top
+
+				// other bottom and my new top within snap
+				snap_check_distance( &r->y, other_pos.y+other_gr.y, to_pos.y );  // snap up - align my top to other bottom
+			}
+		}
+	}
+}
+
+
+void move_win(int win, event_t *ev)
+{
+	const koord mouse_from( ev->cx, ev->cy );
+	const koord mouse_to( ev->mx, ev->my );
+
+	const koord from_pos = wins[win].pos;
+	koord from_gr = wins[win].gui->get_fenstergroesse();
+	if(  wins[win].rollup  ) {
+		from_gr.y = 18;
+	}
+
+	koord to_pos = wins[win].pos+(mouse_to-mouse_from);
+	const koord to_gr = from_gr;
+
+	if(  umgebung_t::window_snap_distance>0  ) {
+		snap_check_win( win, &to_pos, from_pos, from_gr, to_pos, to_gr );
+	}
+
+	// CLIP(wert,min,max)
+	to_pos.x = CLIP( to_pos.x, 8-to_gr.x, display_get_width()-16 );
+	to_pos.y = CLIP( to_pos.y, 32, display_get_height()-24 );
+
+	// delta is actual window movement.
+	const koord delta = to_pos - from_pos;
+
+	wins[win].pos += delta;
+
+	// need to mark all of old and new positions dirty
+	mark_rect_dirty_wc( from_pos.x, from_pos.y, from_pos.x+from_gr.x, from_pos.y+from_gr.y );
+	mark_rect_dirty_wc( to_pos.x, to_pos.y, to_pos.x+to_gr.x, to_pos.y+to_gr.y );
+
+	change_drag_start( delta.x, delta.y );
+}
+
+
+void resize_win(int win, event_t *ev)
 {
 	event_t wev = *ev;
 	wev.ev_class = WINDOW_RESIZE;
 	wev.ev_code = 0;
 
+	const koord mouse_from( wev.cx, wev.cy );
+	const koord mouse_to( wev.mx, wev.my );
+
+	const koord from_pos = wins[win].pos;
+	const koord from_gr = wins[win].gui->get_fenstergroesse();
+
+	const koord to_pos = from_pos;
+	koord to_gr = from_gr+(mouse_to-mouse_from);
+
+	if(  umgebung_t::window_snap_distance>0  ) {
+		snap_check_win( win, &to_gr, from_pos, from_gr, to_pos, to_gr );
+	}
+
 	// since we may be smaller afterwards
-	koord gr = wins[i].gui->get_fenstergroesse();
-	mark_rect_dirty_wc( wins[i].pos.x, wins[i].pos.y, wins[i].pos.x+gr.x, wins[i].pos.y+gr.y );
-	translate_event(&wev, -wins[i].pos.x, -wins[i].pos.y);
-	wins[i].gui->infowin_event( &wev );
+	mark_rect_dirty_wc( from_pos.x, from_pos.y, from_pos.x+from_gr.x, from_pos.y+from_gr.y );
+
+	// adjust event mouse koord per snap
+	wev.mx = wev.cx + to_gr.x - from_gr.x;
+	wev.my = wev.cy + to_gr.y - from_gr.y;
+
+	wins[win].gui->infowin_event( &wev );
 }
+
+
+
+// returns true, if gui is a open window handle
+bool win_is_open(gui_frame_t *gui)
+{
+	for(  uint i=0;  i<wins.get_count();  i++  ) {
+		if(  wins[i].gui == gui  ) {
+			for(  uint j = 0;  j < kill_list.get_count();  j++  ) {
+				if(  kill_list[j].gui == gui  ) {
+					return false;
+				}
+			}
+			return true;
+		}
+	}
+	return false;
+}
+
 
 
 int win_get_posx(gui_frame_t *gui)
@@ -842,19 +1109,8 @@ bool check_pos_win(event_t *ev)
 		tooltip_register_time = 0;
 	}
 
-	// swallow all events in the infobar
-	if(  y>display_get_height()-32  ) {
-		// goto infowin koordinate, if ticker is active
-		if(  show_ticker  &&  y<=display_get_height()-16  &&  IS_LEFTCLICK(ev)  ) {
-			koord p = ticker::get_welt_pos();
-			if(wl->ist_in_kartengrenzen(p)) {
-				wl->change_world_position(koord3d(p,wl->min_hgt(p)));
-			}
-			return true;
-		}
-	}
-	else if(  werkzeug_t::toolbar_tool.get_count()>0  &&  werkzeug_t::toolbar_tool[0]->get_werkzeug_waehler()  &&  y<werkzeug_t::toolbar_tool[0]->iconsize.y  &&  ev->ev_class!=EVENT_KEYBOARD  ) {
-		// click in main menu
+	// click in main menu?
+	if(  werkzeug_t::toolbar_tool.get_count()>0  &&  werkzeug_t::toolbar_tool[0]->get_werkzeug_waehler()  &&  y<werkzeug_t::toolbar_tool[0]->iconsize.y  &&  ev->ev_class!=EVENT_KEYBOARD  ) {
 		event_t wev = *ev;
 		inside_event_handling = werkzeug_t::toolbar_tool[0];
 		werkzeug_t::toolbar_tool[0]->get_werkzeug_waehler()->infowin_event( &wev );
@@ -885,6 +1141,25 @@ bool check_pos_win(event_t *ev)
 		return true;
 	}
 
+	// swallow all other events in the infobar
+	if(  y > display_get_height()-16  ) {
+		// swallow event
+		return true;
+	}
+
+	// swallow all other events in ticker (if there)
+	if(  show_ticker  &&  y > display_get_height()-32  ) {
+		if(  IS_LEFTCLICK(ev)  ) {
+			// goto infowin koordinate, if ticker is active
+			koord p = ticker::get_welt_pos();
+			if(wl->ist_in_kartengrenzen(p)) {
+				wl->change_world_position(koord3d(p,wl->min_hgt(p)));
+			}
+		}
+		// swallow event
+		return true;
+	}
+
 	// handle all the other events
 	for(  int i=wins.get_count()-1;  i>=0  &&  !swallowed;  i=min(i,wins.get_count())-1  ) {
 
@@ -901,7 +1176,7 @@ bool check_pos_win(event_t *ev)
 			}
 
 			// Hajo: if within title bar && window needs decoration
-			if(  y<wins[i].pos.y+16  ) {
+			if(  y<wins[i].pos.y+16  &&  wins[i].flags.title  ) {
 				// no more moving
 				is_moving = -1;
 
@@ -1061,6 +1336,8 @@ void win_display_flush(double konto)
 		}
 		else {
 			show_ticker = true;
+			// need to adapt tooltip_y coordinates
+			tooltip_ypos = min(tooltip_ypos, disp_height-15-10-16);
 		}
 	}
 
@@ -1080,12 +1357,12 @@ void win_display_flush(double konto)
 				unsigned long elapsed_time;
 				if(  !tooltip_owner  ||  ((elapsed_time=dr_time()-tooltip_register_time)>umgebung_t::tooltip_delay  &&  elapsed_time<=umgebung_t::tooltip_delay+umgebung_t::tooltip_duration)  ) {
 					const sint16 width = proportional_string_width(tooltip_text)+7;
-					display_ddd_proportional(min(tooltip_xpos,disp_width-width), max(menu_height+7,tooltip_ypos), width, 0, umgebung_t::tooltip_color, umgebung_t::tooltip_textcolor, tooltip_text, true);
+					display_ddd_proportional_clip(min(tooltip_xpos,disp_width-width), max(menu_height+7,tooltip_ypos), width, 0, umgebung_t::tooltip_color, umgebung_t::tooltip_textcolor, tooltip_text, true);
 				}
 			}
 			else if(static_tooltip_text!=NULL  &&  *static_tooltip_text) {
 				const sint16 width = proportional_string_width(static_tooltip_text)+7;
-				display_ddd_proportional(min(get_maus_x()+16,disp_width-width), max(menu_height+7,get_maus_y()-16), width, 0, umgebung_t::tooltip_color, umgebung_t::tooltip_textcolor, static_tooltip_text, true);
+				display_ddd_proportional_clip(min(get_maus_x()+16,disp_width-width), max(menu_height+7,get_maus_y()-16), width, 0, umgebung_t::tooltip_color, umgebung_t::tooltip_textcolor, static_tooltip_text, true);
 			}
 			// Knightly : reset owner and group if no tooltip has been registered
 			if(  !tooltip_text  ) {
@@ -1130,9 +1407,6 @@ void win_display_flush(double konto)
 	}
 
 	char time [128];
-	char info [256];
-	char stretch_text[256];
-	char delta_pos[64];
 
 //DBG_MESSAGE("umgebung_t::show_month","%d",umgebung_t::show_month);
 	// @author hsiegeln - updated to show month
@@ -1142,6 +1416,21 @@ void win_display_flush(double konto)
 	char const* const season = translator::translate(seasons[wl->get_jahreszeit()]);
 	char const* const month_ = translator::get_month_name(month % 12);
 	switch (umgebung_t::show_month) {
+		case umgebung_t::DATE_FMT_GERMAN_NO_SEASON:
+			sprintf(time, "%d. %s %lld %d:%02dh", tage, month_, year, stunden, minuten);
+			break;
+
+		case umgebung_t::DATE_FMT_US_NO_SEASON: {
+			uint32 hours_ = stunden % 12;
+			if (hours_ == 0) hours_ = 12;
+			sprintf(time, "%s %d %lld %2d:%02d%s", month_, tage, year, hours_, minuten, stunden < 12 ? "am" : "pm");
+			break;
+		}
+
+		case umgebung_t::DATE_FMT_JAPANESE_NO_SEASON:
+			sprintf(time, "%lld/%s/%d %2d:%02dh", year, month_, tage, stunden, minuten);
+			break;
+
 		case umgebung_t::DATE_FMT_GERMAN:
 			sprintf(time, "%s, %d. %s %lld %d:%02dh", season, tage, month_, year, stunden, minuten);
 			break;
@@ -1166,46 +1455,104 @@ void win_display_flush(double konto)
 			break;
 	}
 
-	// time multiplier text
-	if(wl->is_fast_forward()) {
-		sprintf(stretch_text, ">> (T~%1.2f)", wl->get_simloops()/50.0 );
-	}
-	else if(wl->is_paused()) {
-		strcpy( stretch_text, translator::translate("GAME PAUSED") );
-	}
-	else {
-		sprintf(stretch_text, "(T=%1.2f)", wl->get_time_multiplier()/16.0 );
-	}
-
-#ifdef DEBUG
-	if(  umgebung_t::verbose_debug>3  ) {
-		if(  haltestelle_t::get_rerouting_status()==RESCHEDULING  ) {
-			strcat(stretch_text, "+" );
-		}
-		else if(  haltestelle_t::get_rerouting_status()==REROUTING  ) {
-			strcat(stretch_text, "*" );
-		}
-	}
-#endif
-
-	if(wl->show_distance!=koord3d::invalid  &&  wl->show_distance!=pos) {
-		sprintf(delta_pos,"-(%d,%d) ", wl->show_distance.x-pos.x, wl->show_distance.y-pos.y );
-	}
-	else {
-		delta_pos[0] = 0;
-	}
-	sprintf(info,"(%d,%d,%d)%s %s  %s", pos.x, pos.y, pos.z/Z_TILE_STEP, delta_pos, stretch_text, translator::translate(wl->use_timeline()?"timeline":"no timeline") );
-
-	// bottom text line
+	// bottom text background
 	display_set_clip_wh( 0, 0, disp_width, disp_height );
 	display_fillbox_wh(0, disp_height-16, disp_width, 1, MN_GREY4, false);
 	display_fillbox_wh(0, disp_height-15, disp_width, 15, MN_GREY1, false);
 
-	display_color_img( skinverwaltung_t::seasons_icons->get_bild_nr(wl->get_jahreszeit()), 2, disp_height-15, 0, false, true );
+	bool tooltip_check = get_maus_y()>disp_height-15;
+	if(  tooltip_check  ) {
+		tooltip_xpos = get_maus_x();
+		tooltip_ypos = disp_height-15-10-16*show_ticker;
+	}
 
-	int w_left = 20+display_proportional(20, disp_height-12, time, ALIGN_LEFT, COL_BLACK, true);
-	int w_right = 10+display_proportional(disp_width-10, disp_height-12, info, ALIGN_RIGHT, COL_BLACK, true);
-	int middle = (disp_width+((w_left+8)&0xFFF0)-((w_right+8)&0xFFF0))/2;
+	// season color
+	display_color_img( skinverwaltung_t::seasons_icons->get_bild_nr(wl->get_jahreszeit()), 2, disp_height-15, 0, false, true );
+	if(  tooltip_check  &&  tooltip_xpos<14  ) {
+		tooltip_text = translator::translate(seasons[wl->get_jahreszeit()]);
+		tooltip_check = false;
+	}
+
+	KOORD_VAL right_border = disp_width-4;
+
+	// shown if timeline game
+	if(  wl->use_timeline()  &&  skinverwaltung_t::timelinesymbol  ) {
+		right_border -= 14;
+		display_color_img( skinverwaltung_t::timelinesymbol->get_bild_nr(0), right_border, disp_height-15, 0, false, true );
+		if(  tooltip_check  &&  tooltip_xpos>=right_border  ) {
+			tooltip_text = translator::translate("timeline");
+			tooltip_check = false;
+		}
+	}
+
+	// shown if connected
+	if(  umgebung_t::networkmode  &&  skinverwaltung_t::networksymbol  ) {
+		right_border -= 14;
+		display_color_img( skinverwaltung_t::networksymbol->get_bild_nr(0), right_border, disp_height-15, 0, false, true );
+		if(  tooltip_check  &&  tooltip_xpos>=right_border  ) {
+			tooltip_text = translator::translate("Connected with server");
+			tooltip_check = false;
+		}
+	}
+
+	// put pause icon
+	if(  wl->is_paused()  &&  skinverwaltung_t::pausesymbol  ) {
+		right_border -= 14;
+		display_color_img( skinverwaltung_t::pausesymbol->get_bild_nr(0), right_border, disp_height-15, 0, false, true );
+		if(  tooltip_check  &&  tooltip_xpos>=right_border  ) {
+			tooltip_text = translator::translate("GAME PAUSED");
+			tooltip_check = false;
+		}
+	}
+
+	// put fast forward icon
+	if(  wl->is_fast_forward()  &&  skinverwaltung_t::fastforwardsymbol  ) {
+		right_border -= 14;
+		display_color_img( skinverwaltung_t::fastforwardsymbol->get_bild_nr(0), right_border, disp_height-15, 0, false, true );
+		if(  tooltip_check  &&  tooltip_xpos>=right_border  ) {
+			tooltip_text = translator::translate("Fast forward");
+			tooltip_check = false;
+		}
+	}
+
+
+	static cbuffer_t info(256);
+	info.clear();
+	if(  pos!=koord3d::invalid  ) {
+		info.printf( "(%s)", pos.get_str() );
+	}
+	if(  skinverwaltung_t::timelinesymbol==NULL  ) {
+		info.printf( " %s", translator::translate(wl->use_timeline()?"timeline":"no timeline") );
+	}
+	if(wl->show_distance!=koord3d::invalid  &&  wl->show_distance!=pos) {
+		info.printf("-(%d,%d)", wl->show_distance.x-pos.x, wl->show_distance.y-pos.y );
+	}
+	if(  !umgebung_t::networkmode  ) {
+		// time multiplier text
+		if(wl->is_fast_forward()) {
+			info.printf(" %s(T~%1.2f)", skinverwaltung_t::fastforwardsymbol?"":">> ", wl->get_simloops()/50.0 );
+		}
+		else if(!wl->is_paused()) {
+			info.printf(" (T=%1.2f)", wl->get_time_multiplier()/16.0 );
+		}
+		else if(  skinverwaltung_t::pausesymbol==NULL  ) {
+			info.printf( " %s", translator::translate("GAME PAUSED") );
+		}
+	}
+#ifdef DEBUG
+	if(  umgebung_t::verbose_debug>3  ) {
+		if(  haltestelle_t::get_rerouting_status()==RESCHEDULING  ) {
+			info.append( " +" );
+		}
+		else if(  haltestelle_t::get_rerouting_status()==REROUTING  ) {
+			info.append( " *" );
+		}
+	}
+#endif
+
+	KOORD_VAL w_left = 20+display_proportional(20, disp_height-12, time, ALIGN_LEFT, COL_BLACK, true);
+	KOORD_VAL w_right  = display_proportional(right_border-4, disp_height-12, info, ALIGN_RIGHT, COL_BLACK, true);
+	KOORD_VAL middle = (disp_width+((w_left+8)&0xFFF0)-((w_right+8)&0xFFF0))/2;
 
 	if(wl->get_active_player()) {
 		char buffer[256];

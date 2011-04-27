@@ -151,7 +151,7 @@ private:
 	uint32 delta_menge;
 
 	// true if the factory has a transformer adjacent
-	bool transformer_connected;
+	leitung_t* transformer_connected;
 
 	// true, if the factory did produce enough in the last step to require power
 	bool currently_producing;
@@ -256,7 +256,8 @@ public:
 	uint32 get_power() { uint32 p=power; power=0; return p; }
 
 	// returns power wanted by the factory for next step and sets to 0 to prevent multiple senkes on same powernet
-	uint32 get_power_demand() { uint32 p=power_demand; power_demand=0; return p; }
+	uint32 step_power_demand() { uint32 p=power_demand; power_demand=0; return p; }
+	uint32 get_power_demand() const { return power_demand; }
 
 	// give power to the factory to consume ...
 	void add_power(uint32 p) { power += p; }
@@ -269,8 +270,9 @@ public:
 	bool is_currently_producing() const { return currently_producing; }
 
 	// used to limit transformers to 1 per factory
-	bool is_transformer_connected() const { return transformer_connected; }
-	void set_transformer_connected(bool connected) { transformer_connected = connected; }
+	bool is_transformer_connected() const { return (bool)transformer_connected; }
+	leitung_t* get_transformer_connected() { return transformer_connected; }
+	void set_transformer_connected(leitung_t* connected) { transformer_connected = connected; }
 
 	/**
 	 * @return 1 wenn verbrauch,
@@ -278,10 +280,9 @@ public:
 	 * -1 wenn Ware nicht verarbeitet wird
 	 */
 	sint32 verbraucht(const ware_besch_t *);             // Nimmt fab das an ?? ("Notes to the fab?")
-	sint32 hole_ab(const ware_besch_t *, sint32 menge );     // jemand will waren abholen ("someone wants to pick up were")
 	sint32 liefere_an(const ware_besch_t *, sint32 menge);
 
-	sint32 get_abgabe_letzt(sint32 t) { return ausgang[t].abgabe_letzt; }
+	sint32 get_abgabe_letzt(sint32 t) const { return ausgang[t].abgabe_letzt; }
 
 	void step(long delta_t);                  // fabrik muss auch arbeiten ("factory must also work")
 	void neuer_monat();

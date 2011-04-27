@@ -15,6 +15,7 @@
 #include "components/gui_label.h"
 #include "components/action_listener.h"                                // 28-Dec-2001  Markus Weber    Added
 #include "components/gui_button.h"
+#include "../tpl/vector_tpl.h"
 
 class spieler_t;
 class ware_besch_t;

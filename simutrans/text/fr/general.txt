@@ -10,6 +10,7 @@ sur la logique à tenir pour vous déployer : le fabriquant de meubles ne peut
 travailler s'il n'a pas de planches, donc il est inutile de développer le transport
 des meubles vers le supermarché avant le transport du bois vers la scierie, puis
 des planches vers le fabriquant de meubles.
+</p>
 <p>
 ·<a href="keys.txt">Aide sur les touches</a><br>
 ·<a href="param.txt">Aide sur les différents paramètres</a> que l'on peut passer

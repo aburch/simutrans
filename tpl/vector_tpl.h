@@ -36,7 +36,7 @@ template<class T> class vector_tpl
 		vector_tpl(const vector_tpl& copy_from) :
 			data( copy_from.get_size() > 0 ? new T[ copy_from.get_size() ] : 0 ),
 			size( copy_from.get_size() ),
-			count( copy_from.get_size() ) {
+			count( copy_from.get_count() ) {
 				for( uint32 i = 0; i < count; i++ ) {
 					data[i] = copy_from.data[i];
 				}
@@ -173,7 +173,7 @@ template<class T> class vector_tpl
 
 		/**
 		 * put the data at a certain position
- 		 * BEWARE: using this function will create default objects, depending on
+		 * BEWARE: using this function will create default objects, depending on
 		 * the type of the vector
 		 */
 		void store_at(const uint32 pos, const T& elem)

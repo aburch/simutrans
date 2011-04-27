@@ -22,8 +22,7 @@ Arrow-buttons adjust income received and the speed a Convoy must be capable of t
 Click on option-buttons to cycle through options (changes name of option-button):
 </p>
 <p>
-- <em>unsorted</em> ?is a random order.<br>
-- <em>by name</em> ?in alphabetical order.<br>
+- <em>by name</em> in alphabetical order.<br>
 - <em>by revenue</em> orders by income received for transport of one unit by one game-square.<br>
 - <em>by bonus</em> orders by % speed bonus (% extra income if <a href="convoiinfo.txt">Convoy</a> used is capable of necessary required speed to qualify).
 </p>

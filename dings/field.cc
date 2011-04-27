@@ -13,34 +13,12 @@
 
 #include "../boden/grund.h"
 
-#include "../gui/thing_info.h"
-
 #include "../dataobj/loadsave.h"
-#include "../dataobj/umgebung.h"
+
+#include "../player/simplay.h"
 
 #include "field.h"
 
-// ***************** static ***********************
-
-stringhashtable_tpl<const field_class_besch_t *> field_t::besch_table;
-
-void field_t::register_besch(field_class_besch_t *besch, const char *name)
-{
-	// remove duplicates
-	if(  besch_table.remove( name )  ) {
-		dbg->warning( "field_t::register_besch()", "Object %s was overlaid by addon!", name );
-	}
-	besch_table.put(name, besch);
-}
-
-const field_class_besch_t *field_t::get_besch(const char *name)
-{
-	return besch_table.get(name);
-}
-
-
-
-// ***************** normal ***********************
 
 field_t::field_t(karte_t *welt, koord3d p, spieler_t *sp, const field_class_besch_t *besch, fabrik_t *fab) : ding_t(welt)
 {
@@ -63,7 +41,7 @@ field_t::~field_t()
 const char *field_t::ist_entfernbar(const spieler_t *)
 {
 	// we allow removal, if there is less than
-	return (fab->get_field_count() > fab->get_besch()->get_field()->get_min_fields()) ? NULL : "Not enough fields would remain.";
+	return (fab->get_field_count() > fab->get_besch()->get_field_group()->get_min_fields()) ? NULL : "Not enough fields would remain.";
 }
 
 

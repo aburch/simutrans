@@ -16,7 +16,7 @@
 #include "components/gui_chart.h"
 #include "components/location_view_t.h"
 
-class spieler_t;
+#include "../player/simplay.h"
 
 /**
  * Finances dialog
@@ -143,6 +143,11 @@ public:
 	 * V.Meyer
 	 */
 	bool action_triggered( gui_action_creator_t *komp, value_t extra);
+
+	// saving/restore stuff
+	uint32 get_rdwr_id();
+
+	void rdwr( loadsave_t *file );
 };
 
 #endif

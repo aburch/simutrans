@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hansjï¿½rg Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  */
@@ -34,7 +34,7 @@
  */
 void log_t::debug(const char *who, const char *format, ...)
 {
-	if(log_debug  &&  debuglevel>3) {
+	if(log_debug  &&  debuglevel==4) {
 		va_list argptr;
 		va_start(argptr, format);
 
@@ -47,7 +47,9 @@ void log_t::debug(const char *who, const char *format, ...)
 				fflush(log);
 			}
 		}
+		va_end(argptr);
 
+		va_start(argptr, format);
 		if( tee ) {                         /* nur loggen wenn schon ein log */
 			fprintf(tee, "Debug: %s:\t",who);      /* geoeffnet worden ist */
 			vfprintf(tee, format, argptr);
@@ -78,13 +80,14 @@ void log_t::message(const char *who, const char *format, ...)
 				fflush(log);
 			}
 		}
+		va_end(argptr);
 
+		va_start(argptr, format);
 		if( tee ) {                         /* nur loggen wenn schon ein log */
 			fprintf(tee, "Message: %s:\t",who);      /* geoeffnet worden ist */
 			vfprintf(tee, format, argptr);
 			fprintf(tee,"\n");
 		}
-
 		va_end(argptr);
 	}
 }
@@ -109,6 +112,9 @@ void log_t::warning(const char *who, const char *format, ...)
 				fflush(log);
 			}
 		}
+		va_end(argptr);
+
+		va_start(argptr, format);
 		if( tee ) {                         /* nur loggen wenn schon ein log */
 			fprintf(tee, "Warning: %s:\t",who);      /* geoeffnet worden ist */
 			vfprintf(tee, format, argptr);
@@ -141,6 +147,9 @@ void log_t::error(const char *who, const char *format, ...)
 			fprintf(log ,"Please report all errors to\n");
 			fprintf(log ,"team@64.simutrans.com\n");
 		}
+		va_end(argptr);
+
+		va_start(argptr, format);
 		if( tee ) {                         /* nur loggen wenn schon ein log */
 			fprintf(tee, "ERROR: %s:\t",who);      /* geoeffnet worden ist */
 			vfprintf(tee, format, argptr);
@@ -231,7 +240,7 @@ void log_t::fatal(const char *who, const char *format, ...)
 	}
 
 #ifdef DEBUG
- 	if(old_level>4) {
+	if (old_level > 4) {
 		// generate a division be zero error, if the user request it
 		static int make_this_a_division_by_zero = 0;
 		printf("%i", 15 / make_this_a_division_by_zero);
@@ -245,7 +254,7 @@ void log_t::fatal(const char *who, const char *format, ...)
 
 
 // create a logfile for log_debug=true
-log_t::log_t(const char *logfilename, bool force_flush, bool log_debug, bool log_console)
+log_t::log_t(const char *logfilename, bool force_flush, bool log_debug, bool log_console, const char *greeting )
 {
 	log = NULL;
 	this->force_flush = force_flush;    /* wenn true wird jedesmal geflusht */
@@ -272,7 +281,16 @@ log_t::log_t(const char *logfilename, bool force_flush, bool log_debug, bool log
 	if (!log_console) {
 	    tee = NULL;
 	}
-//	message("log_t::log_t","Starting logging to %s", logfilename);
+
+	if(  greeting  ) {
+		if( log ) {
+			fputs( greeting, log );
+//			message("log_t::log_t","Starting logging to %s", logfilename);
+		}
+		if( tee ) {
+			fputs( greeting, tee );
+		}
+	}
 }
 
 

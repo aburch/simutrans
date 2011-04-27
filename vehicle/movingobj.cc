@@ -53,8 +53,12 @@ bool movingobj_t::alles_geladen()
 	movingobj_typen.resize(besch_names.get_count());
 	stringhashtable_iterator_tpl<groundobj_besch_t *>iter(besch_names);
 	while(  iter.next()  ) {
-		iter.access_current_value()->index = movingobj_typen.get_count();
 		movingobj_typen.insert_ordered( iter.get_current_value(), compare_groundobj_besch );
+	}
+	// iterate again to assign the index
+	stringhashtable_iterator_tpl<groundobj_besch_t *>iter2(besch_names);
+	while(  iter2.next()  ) {
+		iter2.access_current_value()->index = movingobj_typen.index_of( iter2.get_current_value());
 	}
 
 	if(besch_names.empty()) {
@@ -99,7 +103,7 @@ const groundobj_besch_t *movingobj_t::random_movingobj_for_climate(climate cl)
 
 	// now weight their distribution
 	if (weight > 0) {
-		const int w=simrand(weight);
+		const int w=simrand(weight, "const groundobj_besch_t *movingobj_t::random_movingobj_for_climate");
 		weight = 0;
 		for( unsigned i=0; i<movingobj_typen.get_count();  i++  ) {
 			if(  movingobj_typen[i]->is_allowed_climate(cl) ) {
@@ -223,13 +227,15 @@ void movingobj_t::rdwr(loadsave_t *file)
 		file->rdwr_str(bname, lengthof(bname));
 		groundobj_besch_t *besch = besch_names.get(bname);
 		if(  besch_names.empty()  ||  besch==NULL  ) {
-			groundobjtype = simrand(movingobj_typen.get_count());
+			groundobjtype = simrand(movingobj_typen.get_count(), "void movingobj_t::rdwr");
 		}
 		else {
 			groundobjtype = besch->get_index();
 		}
 		// if not there, besch will be zero
 		use_calc_height = true;
+		// not saved, recalculate
+		hoff = calc_height();
 	}
 	weg_next = 0;
 }
@@ -314,7 +320,8 @@ bool movingobj_t::ist_befahrbar( const grund_t *gr ) const
 		if(gr->get_typ()!=grund_t::boden  ||  !hang_t::ist_wegbar(gr->get_grund_hang())) {
 			return false;
 		}
-		if(gr->hat_wege()  &&  !gr->hat_weg(road_wt)) {
+		// only on roads, do not walk in cities
+		if(gr->hat_wege()  &&  (!gr->hat_weg(road_wt)  ||  gr->get_weg(road_wt)->hat_gehweg())) {
 			return false;
 		}
 		if(!besch->can_built_trees_here()) {
@@ -361,7 +368,7 @@ bool movingobj_t::hop_check()
 
 	if(timetochange==0  ||  !ist_befahrbar(welt->lookup_kartenboden(pos_next_next))) {
 		// direction change needed
-		timetochange = simrand(speed_to_kmh(get_besch()->get_speed())/3);
+		timetochange = simrand(speed_to_kmh(get_besch()->get_speed())/3, "bool movingobj_t::hop_check()");
 		const koord pos=pos_next.get_2d();
 		const grund_t *to[4];
 		uint8 until=0;
@@ -374,13 +381,12 @@ bool movingobj_t::hop_check()
 		}
 		// if nothing found, return
 		if(until==0) {
-			pos_next = get_pos();
-			pos_next_next = get_pos().get_2d() - koord(fahrtrichtung);
+			pos_next_next = get_pos().get_2d();
 			// (better would be destruction?)
 		}
 		else {
 			// else prepare for direction change
-			const grund_t *next = to[simrand(until)];
+			const grund_t *next = to[simrand(until, "bool movingobj_t::hop_check()")];
 			pos_next_next = next->get_pos().get_2d();
 		}
 	}

@@ -43,15 +43,16 @@ public:
 	 * Finds a way with a given speed limit for a given waytype
 	 * @author prissi
 	 */
-	static const weg_besch_t *  weg_search(const waytype_t wtyp,const uint32 speed_limit, const uint16 time, const weg_t::system_type system_type);
-
-	static const weg_besch_t *  weg_search(const waytype_t wtyp,const uint32 speed_limit, const uint32 weight_limit, const uint16 time, const weg_t::system_type system_type);
+	static const weg_besch_t *  weg_search(const waytype_t wtyp,const sint32 speed_limit, const uint32 weight_limit, const uint16 time, const weg_t::system_type system_type);
+	static const weg_besch_t *  weg_search(const waytype_t wtyp,const sint32 speed_limit, const uint16 time, const weg_t::system_type system_type);
 
 	static const weg_besch_t * get_besch(const char *way_name,const uint16 time=0);
 
 	static stringhashtable_tpl <weg_besch_t *> * get_all_ways();
 
 	static const weg_besch_t *get_earliest_way(const waytype_t wtyp);
+
+	static const weg_besch_t *get_latest_way(const waytype_t wtyp);
 
 	/**
 	 * Fill menu with icons of given waytype
@@ -77,13 +78,18 @@ public:
 	};
 
 private:
+	enum build_type_t {
+		build_straight = 1
+	};
+
 	struct next_gr_t
 	{
 		next_gr_t() {}
-		next_gr_t(grund_t* gr_, long cost_) : gr(gr_), cost(cost_) {}
+		next_gr_t(grund_t* gr_, long cost_, uint8 flag_=0) : gr(gr_), cost(cost_), flag(flag_) {}
 
 		grund_t* gr;
-		long		cost;
+		long     cost;
+		uint8    flag;
 	};
 	vector_tpl<next_gr_t> next_gr;
 
@@ -128,9 +134,6 @@ private:
 	uint32 maximum;    // hoechste Suchtiefe
 
 	koord3d_vector_t route;
-
-	// allowed slope?
-	bool check_slope( const grund_t *from, const grund_t *to );
 
 	/* This is the core routine for the way search
 	* it will check
@@ -213,6 +216,8 @@ public:
 	bool check_owner( const spieler_t *sp1, const spieler_t *sp2 ) const;
 	// checks whether buildings on the tile allow to leave in direction dir
 	bool check_building( const grund_t *to, const koord dir ) const;
+	// allowed slope?
+	static bool check_slope( const grund_t *from, const grund_t *to );
 
 	void baue();
 };

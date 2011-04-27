@@ -39,7 +39,8 @@ uint32 vehikel_besch_t::calc_running_cost(const karte_t *welt, uint32 base_cost)
 	}
 
 	// Current month is within the months_of_increasing_costs --> proportionally increased obsolescence cost.
-	return (uint32)((max_cost - base_cost) * (float)months_of_obsolescence / (float)months_of_increasing_costs) + base_cost;
+	const uint32 percentage = ((months_of_obsolescence * 100) / months_of_increasing_costs) + (base_cost * 100);
+	return (max_cost - base_cost) * (percentage / 100);
 }
 
 // Get running costs. Running costs increased if the vehicle is obsolete.
@@ -63,11 +64,11 @@ uint32 vehikel_besch_t::get_adjusted_monthly_fixed_maintenance(karte_t *welt) co
  * Get the ratio of power to force from either given power and force or according to given waytype.
  * Will never return 0, promised.
  */
-float vehikel_besch_t::get_power_force_ratio() const
+uint16 vehikel_besch_t::get_power_force_ratio_percentage() const
 {
 	if (leistung != 0 && tractive_effort != 0)
 	{
-		return leistung / (tractive_effort * 1.0f);
+		return (leistung * 100) / tractive_effort;
 	}
 
 	switch (get_waytype())
@@ -86,20 +87,20 @@ float vehikel_besch_t::get_power_force_ratio() const
 				* We assume, that the given power is meant for the half of the engines allowed maximum speed and get the constant force:
 				*/
 				// Steamers are constant force machines unless about half of maximum speed, when steam runs short.
-				return geschw / (3.6f * 2.0f);
+				return (geschw * 10000) / (360 * 200);
 			}
 			/* else fall through */
 
 		//case water_wt:
 			// Ships are constant force machines at all speeds, but the pak sets are balanced for constant power. 
-			//return geschw / 3.6f;
+			//(return geschw * 1000) / 360;
 
 		case air_wt: 
 			// Aircrafts are constant force machines at all speeds, but the pak sets are balanced for constant power. 
 			// We recommend for simutrans experimental to set the tractive effort manually. The existing aircraft power values are very roughly estimated.
 			if (geschw)
 			{
-				return geschw / (3.6f * 2.0f);
+				return (geschw * 10000) / (360 * 200);
 			}
 			/* else fall through */
 
@@ -115,7 +116,7 @@ float vehikel_besch_t::get_power_force_ratio() const
 			*
 			* In simutrans these engines can be simulated by setting the power to 2200, max speed to 140 resp. 100 and the gear to 1.136 resp. 1.545.
 			*/
-			return 10.0f;
+			return 1000;
 	}
 }
 
@@ -142,22 +143,23 @@ void vehikel_besch_t::loaded()
 	* Above this threshold the engine works as constant power engine.
 	*/
 
-	float power_force_ratio = get_power_force_ratio();
-	force_threshold_speed = (uint16)(power_force_ratio + 0.5f);
+	const uint16 pfr = get_power_force_ratio_percentage();
+	const uint16 power_force_ratio = pfr > 0 ? pfr : 1;
+	force_threshold_speed = (uint16)(power_force_ratio + 50) / 100;
 	geared_power = leistung * gear;
 	geared_force = (uint32)tractive_effort * gear;
 	if (geared_power != 0)
 	{
 		if (geared_force == 0)
 		{
-			geared_force = max(GEAR_FACTOR, (uint32)(geared_power / power_force_ratio + 0.5f));
+			geared_force = max(GEAR_FACTOR, (uint32)(geared_power / power_force_ratio + 50) / 100);
 		}
 	}
 	else
 	{
 		if (geared_force != 0)
 		{
-			geared_power = max(GEAR_FACTOR, (uint32)(geared_force * power_force_ratio + 0.5f));
+			geared_power = max(GEAR_FACTOR, (uint32)(geared_force * power_force_ratio + 50) / 100);
 		}
 	}
 }
@@ -166,7 +168,7 @@ void vehikel_besch_t::loaded()
  * Get effective force in kN at given speed in m/s: effective_force_index * welt->get_einstellungen()->get_global_power_factor() / GEAR_FACTOR
  * @author Bernd Gabriel, Dec 14, 2009
  */
-uint32 vehikel_besch_t::get_effective_force_index(uint16 speed /* in m/s */ ) const
+uint32 vehikel_besch_t::get_effective_force_index(sint32 speed /* in m/s */ ) const
 {
 	if (geared_force == 0) 
 	{
@@ -180,7 +182,7 @@ uint32 vehikel_besch_t::get_effective_force_index(uint16 speed /* in m/s */ ) co
  * Get effective power in kW at given speed in m/s: effective_power_index * welt->get_einstellungen()->get_global_power_factor() / GEAR_FACTOR
  * @author Bernd Gabriel, Dec 14, 2009
  */
-uint32 vehikel_besch_t::get_effective_power_index(uint16 speed /* in m/s */ ) const
+uint32 vehikel_besch_t::get_effective_power_index(sint32 speed /* in m/s */ ) const
 {
 	if (geared_power == 0) 
 	{

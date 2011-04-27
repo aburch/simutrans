@@ -25,15 +25,16 @@
 #include "../dataobj/umgebung.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/koord.h"
+#include "../dataobj/loadsave.h"
 #include "../besch/fabrik_besch.h"
 
 
 static koord old_ij=koord::invalid;
 
 koord map_frame_t::size=koord(0,0);
-uint8 map_frame_t::legend_visible=false;
-uint8 map_frame_t::scale_visible=false;
-uint8 map_frame_t::directory_visible=false;
+bool map_frame_t::legend_visible=false;
+bool map_frame_t::scale_visible=false;
+bool map_frame_t::directory_visible=false;
 bool map_frame_t::is_cursor_hidden=false;
 
 // Hajo: we track our position onscreen
@@ -192,6 +193,8 @@ map_frame_t::map_frame_t(karte_t *welt) :
 	const koord win_size = gr-s_gr;	// this is the visible area
 	scrolly.set_scroll_position(  max(0,min(ij.x-win_size.x/2,gr.x)), max(0, min(ij.y-win_size.y/2,gr.y)) );
 
+	old_ij = koord::invalid;
+
 	// Hajo: Trigger layouting
 	set_resizemode(diagonal_resize);
 
@@ -202,10 +205,55 @@ map_frame_t::map_frame_t(karte_t *welt) :
 }
 
 
+void map_frame_t::rdwr( loadsave_t *file )
+{
+	file->rdwr_bool( reliefkarte_t::get_karte()->rotate45 );
+	file->rdwr_bool( reliefkarte_t::get_karte()->is_show_schedule );
+	file->rdwr_bool( reliefkarte_t::get_karte()->is_show_fab );
+	file->rdwr_short( reliefkarte_t::get_karte()->zoom_in );
+	file->rdwr_short( reliefkarte_t::get_karte()->zoom_out );
+	bool show_legend_state = legend_visible;
+	file->rdwr_bool( show_legend_state );
+	file->rdwr_bool( scale_visible );
+	file->rdwr_bool( directory_visible );
+	file->rdwr_byte( umgebung_t::default_mapmode );
+
+	if(  file->is_loading()  ) {
+		koord savesize;
+		savesize.rdwr(file);
+		set_fenstergroesse( savesize );
+		resize( koord(0,0) );
+		// notify minimap of new settings
+		reliefkarte_t::get_karte()->calc_map_groesse();
+		scrolly.set_groesse( scrolly.get_groesse() );
+
+		sint32 xoff;
+		file->rdwr_long( xoff );
+		sint32 yoff;
+		file->rdwr_long( yoff );
+		scrolly.set_scroll_position( xoff, yoff );
+
+		reliefkarte_t::get_karte()->set_mode((reliefkarte_t::MAP_MODES)umgebung_t::default_mapmode);
+		for (int i=0;i<MAX_BUTTON_TYPE;i++) {
+			filter_buttons[i].pressed = i==umgebung_t::default_mapmode;
+		}
+		if(  legend_visible!=show_legend_state  ) {
+			action_triggered( &b_show_legend, (long)0 );
+		}
+	}
+	else {
+		koord gr = get_fenstergroesse();
+		gr.rdwr(file);
+		sint32 xoff = scrolly.get_scroll_x();
+		file->rdwr_long( xoff );
+		sint32 yoff = scrolly.get_scroll_y();
+		file->rdwr_long( yoff );
+	}
+}
+
 
 // button pressed
-bool
-map_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
+bool map_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 {
 	if(komp==&b_show_legend) {
 		if(!legend_visible) {
@@ -273,6 +321,7 @@ map_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 	filter_buttons[18].set_tooltip("Passenger destinations");
 	return true;
 }
+
 
 void map_frame_t::zoom(bool zoom_out)
 {
@@ -371,7 +420,6 @@ bool map_frame_t::infowin_event(const event_t *ev)
 }
 
 
-
 /**
  * size window in response and save it in static size
  * @author (Mathew Hounsell)
@@ -386,7 +434,6 @@ void map_frame_t::set_fenstergroesse(koord groesse)
 	map_frame_t::size = get_fenstergroesse();
 DBG_MESSAGE("map_frame_t::set_fenstergroesse()","gr.x=%i, gr.y=%i",size.x,size.y );
 }
-
 
 
 /**
@@ -452,11 +499,8 @@ void map_frame_t::resize(const koord delta)
 	if(offset_y>groesse.y) {
 		groesse.y = offset_y;
 	}
-	old_ij = koord::invalid;
-
 	set_fenstergroesse( groesse );
 }
-
 
 
 /**
@@ -477,18 +521,17 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 	koord ij = welt->get_world_position();
 	if(welt->ist_in_kartengrenzen(ij)) {
 		reliefkarte_t::get_karte()->karte_to_screen(ij);
-		// only recenter by zoom or position change; we want still be able to scroll
-		if(old_ij!=ij) {
-			koord groesse = scrolly.get_groesse();
-			if(	zoomed  ||
-				(scrolly.get_scroll_x()>ij.x  ||  scrolly.get_scroll_x()+groesse.x<=ij.x) ||
-				(scrolly.get_scroll_y()>ij.y  ||  scrolly.get_scroll_y()+groesse.y<=ij.y) ) {
+		// only recenter if zoomed or world position has changed and its outside visible area
+		const koord groesse = scrolly.get_groesse();
+		if(zoomed  ||  ( old_ij != ij  &&
+				( scrolly.get_scroll_x()>ij.x  ||  scrolly.get_scroll_x()+groesse.x<=ij.x  ||
+				  scrolly.get_scroll_y()>ij.y  ||  scrolly.get_scroll_y()+groesse.y<=ij.y ) ) ) {
 				// recenter cursor by scrolling
 				scrolly.set_scroll_position( max(0,ij.x-(groesse.x/2)), max(0,ij.y-(groesse.y/2)) );
-				old_ij = ij;
 				zoomed = false;
-			}
 		}
+		// remember world position, we do not want to have surprises when scrolling later on
+		old_ij = ij;
 	}
 
 	b_rotate45.pressed = reliefkarte_t::get_karte()->rotate45;
@@ -522,16 +565,17 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 		display_proportional(bar_pos.x + 26, bar_pos.y, translator::translate("min"), ALIGN_RIGHT, COL_BLACK, false);
 		display_proportional(bar_pos.x + size.x - 26, bar_pos.y, translator::translate("max"), ALIGN_LEFT, COL_BLACK, false);
 		char scale_text[64] = "NULL";
-		if(fmod(1, welt->get_einstellungen()->get_distance_per_tile()) == 0)
+		const float dpt =  welt->get_einstellungen()->get_distance_per_tile() / 100.0F;
+		if(fmod(1, dpt) == 0)
 		{
 			// Can use integer
-			sprintf(scale_text, "%i %s %s", (uint16)(1 / welt->get_einstellungen()->get_distance_per_tile()), translator::translate("tiles"), translator::translate("per 1 km"));
+			sprintf(scale_text, "%i %s %s", (uint16)(1 / dpt), translator::translate("tiles"), translator::translate("per 1 km"));
 		}
 		else
 		{
 			// Otherwise, must use float
 			
-			sprintf(scale_text, "%f %s %s", (1 / welt->get_einstellungen()->get_distance_per_tile()), translator::translate("tiles"), translator::translate("per 1 km"));
+			sprintf(scale_text, "%f %s %s", (1 / dpt), translator::translate("tiles"), translator::translate("per 1 km"));
 		}
 		display_proportional(bar_pos.x + 4, bar_pos.y + 16, scale_text, ALIGN_LEFT, COL_BLACK, false);
 		offset_y += LINESPACE+24;

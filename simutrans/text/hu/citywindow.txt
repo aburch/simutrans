@@ -1,14 +1,14 @@
-<title>Város statisztikák Sugó</title>
+<title>VÃ¡ros statisztikÃ¡k SugÃ³</title>
 
-<h1>Város statisztikák</h1>
+<h1>VÃ¡ros statisztikÃ¡k</h1>
 
 <p>
-Itt lehet a városról infókat szerezni. Kijelzi a város méretét (lakosszámban kell érteni), munkanélkülieket, hajléktalanokat stb.
+Itt lehet a vÃ¡rosrÃ³l infÃ³kat szerezni. Kijelzi a vÃ¡ros mÃ©retÃ©t (lakosszÃ¡mban kell Ã©rteni), munkanÃ©lkÃ¼lieket, hajlÃ©ktalanokat stb.
 </p>
 <p>
-A két kis térképen nyomonkövetheted az e havi és múlt havi szállítmányozási célállomásokat.
+A kÃ©t kis tÃ©rkÃ©pen nyomonkÃ¶vetheted az e havi Ã©s mÃºlt havi szÃ¡llÃ­tmÃ¡nyozÃ¡si cÃ©lÃ¡llomÃ¡sokat.
 </p>
 <p>
-A grafikon pedig segít követni a városlakok számának változását, a város növekedését stb. (értelemszerûen válaszd ki a grafikon alatt lávõ gombokat, aktiváld õket és voila meglesz a grafikon :) )
+A grafikon pedig segÃ­t kÃ¶vetni a vÃ¡roslakok szÃ¡mÃ¡nak vÃ¡ltozÃ¡sÃ¡t, a vÃ¡ros nÃ¶vekedÃ©sÃ©t stb. (Ã©rtelemszerÃ»en vÃ¡laszd ki a grafikon alatt lÃ¡vÃµ gombokat, aktivÃ¡ld Ãµket Ã©s voila meglesz a grafikon :) )
 </p>
 <p>

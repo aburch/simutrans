@@ -36,9 +36,9 @@ void factory_field_class_writer_t::write_obj(FILE* outfp, obj_node_t& parent, co
 
 
 
-void factory_field_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
+void factory_field_group_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	field_besch_t besch;
+	field_group_besch_t besch;
 	obj_node_t node(this, 10, &parent);
 
 	if(  *obj.get("fields")  ) {
@@ -236,7 +236,7 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	if(  *obj.get("fields")  ||  *obj.get("fields[0]")  ) {
 		// Knightly : at least one field class available
 		besch.fields = 1;
-		factory_field_writer_t::instance()->write_obj(fp, node, obj);
+		factory_field_group_writer_t::instance()->write_obj(fp, node, obj);
 	}
 
 	uint16 electricity_percent = obj.get_int("electricity_percent", 17);

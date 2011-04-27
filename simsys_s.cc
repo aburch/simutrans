@@ -51,6 +51,7 @@
 #include "simevent.h"
 #include "simgraph.h"
 #include "./dataobj/umgebung.h"
+#include "simdebug.h"
 
 // try to use hardware double buffering ...
 // this is equivalent on 16 bpp and much slower on 32 bpp
@@ -108,8 +109,8 @@ static Uint8 hourglass_cursor_mask[] = {
 
 
 static SDL_Surface *screen;
-static int width = 640;
-static int height = 480;
+static int width = 16;
+static int height = 16;
 
 // switch off is a little faster (<3%)
 static int sync_blit = 0;
@@ -139,11 +140,6 @@ int dr_os_init(const int* parameter)
 	sys_event.code = 0;
 
 	atexit(SDL_Quit); // clean up on exit
-
-	// Added by : Knightly
-	// Note		: SDL will call timeBeginPeriod(1) even if we don't call SDL_GetTicks()
-	//			  Thus, there is no benefit of using performance counter with SDL version
-	umgebung_t::default_einstellungen.set_system_time_option(0); // reset to using multimedia timer
 
 	return TRUE;
 }
@@ -197,12 +193,20 @@ int dr_query_screen_height()
 }
 
 
+extern void display_set_actual_width(KOORD_VAL w);
 
 
 // open the window
 int dr_os_open(int w, int h, int bpp, int fullscreen)
 {
 	Uint32 flags = sync_blit ? 0 : SDL_ASYNCBLIT;
+
+	// some cards need those alignments
+	// especially 64bit want a border of 8bytes
+	w = (w + 15) & 0x7FF0;
+	if(  w<=0  ) {
+		w = 16;
+	}
 
 	width = w;
 	height = h;
@@ -221,10 +225,12 @@ int dr_os_open(int w, int h, int bpp, int fullscreen)
 	screen = SDL_SetVideoMode(w, h, bpp, flags);
 	if (screen == NULL) {
 		fprintf(stderr, "Couldn't open the window: %s\n", SDL_GetError());
-		return FALSE;
-	} else {
+		return 0;
+	}
+	else {
 		fprintf(stderr, "Screen Flags: requested=%x, actual=%x\n", flags, screen->flags);
 	}
+	DBG_MESSAGE("dr_os_open(SDL)", "SDL realized screen size width=%d, height=%d (requested w=%d, h=%d)", screen->w, screen->h, w, h);
 
 	SDL_EnableUNICODE(TRUE);
 	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
@@ -235,7 +241,8 @@ int dr_os_open(int w, int h, int bpp, int fullscreen)
 	arrow = SDL_GetCursor();
 	hourglass = SDL_CreateCursor(hourglass_cursor, hourglass_cursor_mask, 16, 22, 8, 11);
 
-	return TRUE;
+	display_set_actual_width( w );
+	return w;
 }
 
 
@@ -251,21 +258,42 @@ int dr_os_close(void)
 }
 
 
-// reiszes screen
+// resizes screen
 int dr_textur_resize(unsigned short** textur, int w, int h, int bpp)
 {
 #ifdef USE_HW
 	SDL_UnlockSurface(screen);
 #endif
 	int flags = screen->flags;
-	width = w;
-	height = h;
 
-	screen = SDL_SetVideoMode(width, height, bpp, flags);
-	printf("textur_resize()::screen=%p\n", screen);
-	fflush(NULL);
+
+	display_set_actual_width( w );
+	// some cards need those alignments
+	// especially 64bit want a border of 8bytes
+	w = (w + 15) & 0x7FF0;
+	if(  w<=0  ) {
+		w = 16;
+	}
+
+	if(  w!=screen->w  ||  h!=screen->h  ) {
+
+		width = w;
+		height = h;
+
+		screen = SDL_SetVideoMode(w, h, bpp, flags);
+		printf("textur_resize()::screen=%p\n", screen);
+		if (screen) {
+			DBG_MESSAGE("dr_textur_resize(SDL)", "SDL realized screen size width=%d, height=%d (requested w=%d, h=%d)", screen->w, screen->h, w, h);
+		}
+		else {
+			if (dbg) {
+				dbg->warning("dr_textur_resize(SDL)", "screen is NULL. Good luck!");
+			}
+		}
+		fflush(NULL);
+	}
 	*textur = (unsigned short*)screen->pixels;
-	return 1;
+	return w;
 }
 
 
@@ -296,10 +324,10 @@ char *dr_query_homedir(void)
 	}
 	return NULL;
 #else
-#ifndef __MACOS__
+#ifndef __APPLE__
 	sprintf( buffer, "%s/simutrans", getenv("HOME") );
 #else
-	sprintf( buffer, "%s/Documents/simutrans", getenv("HOME") );
+	sprintf( buffer, "%s/Library/Simutrans", getenv("HOME") );
 #endif
 	int err = mkdir( buffer, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH );
 	if(err  &&  err!=EEXIST) {
@@ -376,9 +404,19 @@ void dr_textur(int xp, int yp, int w, int h)
 {
 #ifndef USE_HW
 	// make sure the given rectangle is completely on screen
-	if (xp + w > screen->w) w = screen->w - xp;
-	if (yp + h > screen->h) h = screen->h - yp;
-	SDL_UpdateRect(screen, xp, yp, w, h);
+	if (xp + w > screen->w) {
+		w = screen->w - xp;
+	}
+	if (yp + h > screen->h) {
+		h = screen->h - yp;
+	}
+#ifdef DEBUG
+	// make sure both are positive numbers
+	if(  w*h>0  )
+#endif
+	{
+		SDL_UpdateRect(screen, xp, yp, w, h);
+	}
 #endif
 }
 
@@ -400,7 +438,7 @@ void set_pointer(int loading)
 
 
 // try saving png using gdiplus.dll
-extern "C" int dr_screenshot_png(const char *filename,  int w, int h, unsigned short *data, int bitdepth );
+extern "C" int dr_screenshot_png(const char *filename,  int w, int h, int max_width, unsigned short *data, int bitdepth );
 
 /**
  * Some wrappers can save screenshots.
@@ -411,7 +449,7 @@ extern "C" int dr_screenshot_png(const char *filename,  int w, int h, unsigned s
 int dr_screenshot(const char *filename)
 {
 #ifdef WIN32
-	if(dr_screenshot_png(filename, width, height, ( unsigned short *)(screen->pixels), screen->format->BitsPerPixel)) {
+	if(dr_screenshot_png(filename, display_get_width(), height, width, ( unsigned short *)(screen->pixels), screen->format->BitsPerPixel)) {
 		return 1;
 	}
 #endif
@@ -712,18 +750,20 @@ int main(int argc, char **argv)
 	}
 	argv[argc] = NULL;
 #elif !defined __BEOS__
-#	if defined __GLIBC__
+#  if defined(__GLIBC__)  &&  !defined(__AMIGA__)
 	/* glibc has a non-standard extension */
 	char* buffer2 = NULL;
-#	else
+#  else
 	char buffer2[PATH_MAX];
-#	endif
+#  endif
+#  ifndef __AMIGA__
 	char buffer[PATH_MAX];
 	int length = readlink("/proc/self/exe", buffer, lengthof(buffer) - 1);
 	if (length != -1) {
 		buffer[length] = '\0'; /* readlink() does not NUL-terminate */
 		argv[0] = buffer;
 	}
+#  endif
 	// no process file system => need to parse argv[0]
 	/* should work on most unix or gnu systems */
 	argv[0] = realpath(argv[0], buffer2);

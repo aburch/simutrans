@@ -80,7 +80,7 @@ public:
 	 */
 	waytype_t get_wtyp() const { return (waytype_t)wtyp; }
 
-	int get_min_speed() const { return min_speed; }
+	sint32 get_min_speed() const { return min_speed; }
 
 	sint32 get_preis() const { return cost; }
 

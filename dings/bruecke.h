@@ -28,6 +28,11 @@ public:
 	const char *get_name() const {return "Bruecke";}
 	typ get_typ() const { return bruecke; }
 
+	/**
+	 * waytype associated with this object
+	 */
+	waytype_t get_waytype() const { return besch ? besch->get_waytype() : invalid_wt; }
+
 	const bruecke_besch_t *get_besch() const { return besch; }
 
 	// we will always replace first way image
@@ -43,7 +48,7 @@ public:
 
 	void rotate90();
 	/**
-	 * @returns NULL wenn OK, ansonsten eine Fehlermeldung
+	 * @return NULL wenn OK, ansonsten eine Fehlermeldung
 	 * @author Hj. Malthaner
 	 */
 	virtual const char *ist_entfernbar(const spieler_t *sp);

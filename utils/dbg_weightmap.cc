@@ -1,3 +1,4 @@
+#ifdef DEBUG_WEIGHTMAPS
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -31,4 +32,4 @@ void dbg_weightmap(array2d_tpl<double> &map, array2d_tpl< vector_tpl<koord> > &p
 	}
 	file.close();
 }
-
+#endif

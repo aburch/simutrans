@@ -247,8 +247,7 @@ void gebaeude_t::set_fab(fabrik_t *fb)
 /* sets the corresponding city
  * @author prissi
  */
-void
-gebaeude_t::set_stadt(stadt_t *s)
+void gebaeude_t::set_stadt(stadt_t *s)
 {
 	if(is_factory  &&  ptr.fab!=NULL) {
 		dbg->fatal("gebaeude_t::set_stadt()","building already bound to factory!");
@@ -262,8 +261,7 @@ gebaeude_t::set_stadt(stadt_t *s)
 
 
 /* make this building without construction */
-void
-gebaeude_t::add_alter(uint32 a)
+void gebaeude_t::add_alter(uint32 a)
 {
 	insta_zeit -= min(a,insta_zeit);
 }
@@ -271,8 +269,7 @@ gebaeude_t::add_alter(uint32 a)
 
 
 
-void
-gebaeude_t::set_tile(const haus_tile_besch_t *new_tile)
+void gebaeude_t::set_tile(const haus_tile_besch_t *new_tile)
 {
 	insta_zeit = welt->get_zeit_ms();
 
@@ -300,7 +297,7 @@ gebaeude_t::set_tile(const haus_tile_besch_t *new_tile)
 	}
 	else if(new_tile->get_phasen()>1  ||  zeige_baugrube) {
 		// needs now animation
-		count = simrand(new_tile->get_phasen());
+		count = simrand(new_tile->get_phasen(), "void gebaeude_t::set_tile");
 		anim_time = 0;
 		welt->sync_add(this);
 		sync = true;
@@ -541,6 +538,24 @@ const char *gebaeude_t::get_name() const
 	return "Gebaeude";
 }
 
+
+/**
+ * waytype associated with this object
+ */
+waytype_t gebaeude_t::get_waytype() const
+{
+	const haus_besch_t *besch = tile->get_besch();
+	waytype_t wt = invalid_wt;
+	if (besch->get_typ() == gebaeude_t::unbekannt) {
+		const haus_besch_t::utyp utype = besch->get_utyp();
+		if (utype == haus_besch_t::depot  ||  utype == haus_besch_t::generic_stop  ||  utype == haus_besch_t::generic_extension) {
+			wt = (waytype_t)besch->get_extra();
+		}
+	}
+	return wt;
+}
+
+
 bool gebaeude_t::ist_rathaus() const
 {
 	return tile->get_besch()->ist_rathaus();
@@ -589,7 +604,7 @@ DBG_MESSAGE("gebaeude_t::zeige_info()", "at %d,%d - name is '%s'", get_pos().x, 
 		}
 		else if(ist_firmensitz()) {
 			int old_count = win_get_open_count();
-			create_win( new money_frame_t(get_besitzer()), w_info, (long)get_besitzer() );
+			create_win( new money_frame_t(get_besitzer()), w_info, magic_finances_t+get_besitzer()->get_player_nr() );
 			// already open?
 			if(umgebung_t::townhall_info  &&  old_count==win_get_open_count()) {
 				create_win( new ding_infowin_t(this), w_info, (long)this);
@@ -808,7 +823,7 @@ void gebaeude_t::rdwr(loadsave_t *file)
 					}
 					level --;
 				}
-				// we try to replace citybuildings with their mathing counterparts
+				// we try to replace citybuildings with their matching counterparts
 				// if none are matching, we try again without climates and timeline!
 				switch(type) {
 					case gebaeude_t::wohnung:
@@ -817,8 +832,10 @@ void gebaeude_t::rdwr(loadsave_t *file)
 							if(hb==NULL) {
 								hb = hausbauer_t::get_wohnhaus(level,0, MAX_CLIMATES );
 							}
-							dbg->message("gebaeude_t::rwdr", "replace unknown building %s with residence level %i by %s",buf,level,hb->get_name());
-							tile = hb->get_tile(0);
+							if( hb) {
+								dbg->message("gebaeude_t::rwdr", "replace unknown building %s with residence level %i by %s",buf,level,hb->get_name());
+								tile = hb->get_tile(0);
+							}
 						}
 						break;
 
@@ -828,8 +845,10 @@ void gebaeude_t::rdwr(loadsave_t *file)
 							if(hb==NULL) {
 								hb = hausbauer_t::get_gewerbe(level,0, MAX_CLIMATES );
 							}
-							dbg->message("gebaeude_t::rwdr", "replace unknown building %s with commercial level %i by %s",buf,level,hb->get_name());
-							tile = hb->get_tile(0);
+							if(hb) {
+								dbg->message("gebaeude_t::rwdr", "replace unknown building %s with commercial level %i by %s",buf,level,hb->get_name());
+								tile = hb->get_tile(0);
+							}
 						}
 						break;
 
@@ -842,8 +861,10 @@ void gebaeude_t::rdwr(loadsave_t *file)
 									hb = hausbauer_t::get_gewerbe(level,0, MAX_CLIMATES );
 								}
 							}
-							dbg->message("gebaeude_t::rwdr", "replace unknown building %s with industrie level %i by %s",buf,level,hb->get_name());
-							tile = hb->get_tile(0);
+							if (hb) {
+								dbg->message("gebaeude_t::rwdr", "replace unknown building %s with industrie level %i by %s",buf,level,hb->get_name());
+								tile = hb->get_tile(0);
+							}
 						}
 						break;
 
@@ -906,14 +927,10 @@ void gebaeude_t::laden_abschliessen()
 {
 	calc_bild();
 
-	sint64 maint;
-	if(tile->get_besch()->get_base_station_maintenance() == 2147483647)
+	sint64 maint = tile->get_besch()->get_station_maintenance();
+	if(maint == 2147483647) 
 	{
 		maint = welt->get_einstellungen()->maint_building*tile->get_besch()->get_level();
-	}
-	else
-	{
-		maint = tile->get_besch()->get_station_maintenance();
 	}
 	spieler_t::add_maintenance(get_besitzer(), maint);
 
@@ -1014,7 +1031,11 @@ void gebaeude_t::entferne(spieler_t *sp)
 			}
 		}
 	}
+	mark_images_dirty();
+}
 
+void gebaeude_t::mark_images_dirty() const
+{
 	// remove all traces from the screen
 	image_id img;
 	if(  zeige_baugrube  ||

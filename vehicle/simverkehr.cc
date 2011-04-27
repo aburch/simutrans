@@ -23,6 +23,7 @@
 #include "../simimg.h"
 #include "../simconst.h"
 #include "../simtypes.h"
+#include "../simcity.h"
 
 #include "simverkehr.h"
 #ifdef DESTINATION_CITYCARS
@@ -40,7 +41,6 @@
 #include "../boden/grund.h"
 #include "../boden/wege/weg.h"
 #include "../boden/wege/strasse.h"
-
 #include "../besch/stadtauto_besch.h"
 #include "../besch/roadsign_besch.h"
 
@@ -96,7 +96,7 @@ verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt, koord3d pos) :
 	ribi_t::ribi liste[4];
 	int count = 0;
 
-	weg_next = simrand(65535);
+	weg_next = simrand(65535, "verkehrsteilnehmer_t::verkehrsteilnehmer_t (weg_next)");
 	hoff = 0;
 
 	// verfügbare ribis in liste eintragen
@@ -105,7 +105,7 @@ verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt, koord3d pos) :
 			liste[count++] = ribi_t::nsow[r];
 		}
 	}
-	fahrtrichtung = count ? liste[simrand(count)] : ribi_t::nsow[simrand(4)];
+	fahrtrichtung = count ? liste[simrand(count, "verkehrsteilnehmer_t::verkehrsteilnehmer_t (fahrtrichtung 1)")] : ribi_t::nsow[simrand(4, "verkehrsteilnehmer_t::verkehrsteilnehmer_t (fahrtrichtung 2)")];
 
 	switch(fahrtrichtung) {
 		case ribi_t::nord:
@@ -129,7 +129,7 @@ verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt, koord3d pos) :
 		from->get_neighbour(to, road_wt, fahrtrichtung);
 		pos_next = to->get_pos();
 	} else {
-		pos_next = welt->lookup(pos.get_2d() + koord(fahrtrichtung))->get_kartenboden()->get_pos();
+		pos_next = welt->lookup_kartenboden(pos.get_2d() + koord(fahrtrichtung))->get_pos();
 	}
 	set_besitzer( welt->get_spieler(1) );
 }
@@ -190,7 +190,7 @@ void verkehrsteilnehmer_t::hop()
 	}
 
 	if(count > 1) {
-		pos_next = liste[simrand(count)]->get_pos();
+		pos_next = liste[simrand(count, "void verkehrsteilnehmer_t::hop()")]->get_pos();
 		fahrtrichtung = calc_set_richtung(get_pos().get_2d(), pos_next.get_2d());
 	} else if(count==1) {
 		pos_next = liste[0]->get_pos();
@@ -429,13 +429,6 @@ stadtauto_t::stadtauto_t(karte_t *welt, loadsave_t *file) :
 {
 	rdwr(file);
 		
-	//No provision for saving the destinations yet.
-	target = koord::invalid;
-	
-	current_list = &welt->unassigned_cars;
-	welt->add_unassigned_car(this);
-
-	ms_traffic_jam = 0;
 	if(besch) {
 		welt->sync_add(this);
 	}
@@ -446,11 +439,11 @@ stadtauto_t::stadtauto_t(karte_t *welt, loadsave_t *file) :
 #ifdef DESTINATION_CITYCARS
 stadtauto_t::stadtauto_t(karte_t *welt, koord3d pos, koord target, slist_tpl<stadtauto_t*>* car_list)
 #else
-stadtauto_t::stadtauto_t(karte_t *welt, koord3d pos, koord )
+stadtauto_t::stadtauto_t(karte_t *welt, koord3d pos, koord, slist_tpl<stadtauto_t*>* car_list )
 #endif
 	: verkehrsteilnehmer_t(welt, pos)
 {
-	besch = liste_timeline.empty() ? NULL : liste_timeline.at_weight(simrand(liste_timeline.get_sum_weight()));
+	besch = liste_timeline.empty() ? NULL : liste_timeline.at_weight(simrand(liste_timeline.get_sum_weight(), "stadtauto_t::stadtauto_t("));
 	pos_next_next = koord3d::invalid;
 	time_to_life = welt->get_einstellungen()->get_stadtauto_duration() << welt->ticks_per_world_month_shift;
 	current_speed = 48;
@@ -461,6 +454,7 @@ stadtauto_t::stadtauto_t(karte_t *welt, koord3d pos, koord )
 	calc_bild();
 	welt->buche( +1, karte_t::WORLD_CITYCARS );
 	current_list = car_list;
+	origin = pos.get_2d();
 }
 
 
@@ -484,9 +478,10 @@ bool stadtauto_t::sync_step(long delta_t)
 				current_speed = 48;
 			}
 			else {
-				if(ms_traffic_jam>welt->ticks_per_world_month  &&  old_ms_traffic_jam<=welt->ticks_per_world_month) {
+				if(ms_traffic_jam>welt->ticks_per_world_month  &&  old_ms_traffic_jam<=welt->ticks_per_world_month) 
+				{
 					// message after two month, reset waiting timer
-					welt->get_message()->add_message( translator::translate("Excess traffic \nresults in traffic jams.\n"), get_pos().get_2d(), message_t::warnings, COL_ORANGE );
+					welt->get_message()->add_message( translator::translate("To heavy traffic\nresults in traffic jam.\n"), get_pos().get_2d(), message_t::traffic_jams, COL_ORANGE );
 				}
 			}
 		}
@@ -494,10 +489,17 @@ bool stadtauto_t::sync_step(long delta_t)
 	}
 	else {
 		weg_next += current_speed*delta_t;
-		weg_next -= fahre_basis( weg_next );
+		const uint32 distance = fahre_basis( weg_next );
+		// hop_check could have set weg_next to zero, check for possible underflow here
+		if (weg_next > distance) {
+			weg_next -= distance;
+		}
+		else {
+			weg_next = 0;
+		}
 	}
 
-	return time_to_life>0;
+	return time_to_life > 0;
 }
 
 
@@ -519,7 +521,7 @@ void stadtauto_t::rdwr(loadsave_t *file)
 
 		if(  besch == 0  &&  !liste_timeline.empty()  ) {
 			dbg->warning("stadtauto_t::rdwr()", "Object '%s' not found in table, trying random stadtauto object type",s);
-			besch = liste_timeline.at_weight(simrand(liste_timeline.get_sum_weight()));
+			besch = liste_timeline.at_weight(simrand(liste_timeline.get_sum_weight(), "stadtauto_t::rdwr()"));
 		}
 
 		if(besch == 0) {
@@ -531,7 +533,7 @@ void stadtauto_t::rdwr(loadsave_t *file)
 	}
 
 	if(file->get_version() <= 86001) {
-		time_to_life = simrand(1000000)+10000;
+		time_to_life = simrand(1000000, "void stadtauto_t::rdwr")+10000;
 	}
 	else if(file->get_version() <= 89004) {
 		file->rdwr_long(time_to_life);
@@ -564,6 +566,41 @@ void stadtauto_t::rdwr(loadsave_t *file)
 	else {
 		file->rdwr_byte(tiles_overtaking);
 		set_tiles_overtaking( tiles_overtaking );
+	}
+
+	if(file->get_experimental_version() >= 9 && file->get_version() >= 1100000)
+	{
+		file->rdwr_long(ms_traffic_jam);
+#ifdef DESTINATION_CITYCARS
+		target.rdwr(file);
+#else
+		koord dummy;
+		dummy.rdwr(file);
+#endif
+
+		origin.rdwr(file);
+		stadt_t* const city = welt->get_city(origin);
+		if(city)
+		{
+			city->add_car(this);
+			current_list = city->get_current_cars();
+		}
+		else
+		{
+			current_list = &welt->unassigned_cars;
+			welt->add_unassigned_car(this);
+		}
+	}
+
+	else if(file->is_loading())
+	{
+		ms_traffic_jam = 0;
+#ifdef DESTINATION_CITYCARS
+		target = koord::invalid;
+#endif
+		origin = koord::invalid;
+		current_list = &welt->unassigned_cars;
+		welt->add_unassigned_car(this);
 	}
 
 	// do not start with zero speed!
@@ -640,11 +677,11 @@ bool stadtauto_t::ist_weg_frei(const grund_t *gr) //Frie = "freely" (Babelfish)
 								// otherwise the overtaken car would stop for us ...
 								if (automobil_t const* const car = ding_cast<automobil_t>(dt)) {
 									convoi_t* const cnv = car->get_convoi();
-									if(  cnv==NULL  ||  !can_overtake( cnv, cnv->get_min_top_speed(), cnv->get_length()*16, diagonal_length)  ) {
+									if(  cnv==NULL  ||  !can_overtake( cnv, cnv->get_akt_speed(), cnv->get_length()*16, diagonal_length)  ) {
 										frei = false;
 									}
 								} else if (stadtauto_t* const caut = ding_cast<stadtauto_t>(dt)) {
-									if ( !can_overtake(caut, caut->get_besch()->get_geschw(), 256, diagonal_length) ) {
+									if ( !can_overtake(caut, caut->get_current_speed(), 256, diagonal_length) ) {
 										frei = false;
 									}
 								}
@@ -812,7 +849,7 @@ bool stadtauto_t::hop_check()
 				continue;
 			}
 #else
-		const uint8 offset = ribi_t::ist_einfach(ribi) ? 0 : simrand(4);
+		const uint8 offset = ribi_t::ist_einfach(ribi) ? 0 : simrand(4, "bool stadtauto_t::hop_check");
 		for(uint8 i = 0; i < 4; i++) {
 			const uint8 r = (i+offset)&3;
 #endif
@@ -861,7 +898,7 @@ bool stadtauto_t::hop_check()
 		}
 #ifdef DESTINATION_CITYCARS
 		if(posliste.get_count()>0) {
-			pos_next_next = posliste.at_weight(simrand(posliste.get_sum_weight()));
+			pos_next_next = posliste.at_weight(simrand(posliste.get_sum_weight(), "bool stadtauto_t::hop_check"));
 		}
 		else {
 			pos_next_next = get_pos();
@@ -943,7 +980,7 @@ void stadtauto_t::calc_bild()
 void stadtauto_t::calc_current_speed()
 {
 	const weg_t * weg = welt->lookup(get_pos())->get_weg(road_wt);
-	uint16 max_speed;
+	sint32 max_speed;
 	if(besch != NULL)
 	{
 		max_speed = besch->get_geschw();
@@ -952,7 +989,7 @@ void stadtauto_t::calc_current_speed()
 	{
 		max_speed = kmh_to_speed(90);
 	}
-	const uint16 speed_limit = weg ? kmh_to_speed(weg->get_max_speed()) : max_speed;
+	const sint32 speed_limit = weg ? kmh_to_speed(weg->get_max_speed()) : max_speed;
 	current_speed += max_speed>>2;
 	if(current_speed > max_speed) {
 		current_speed = max_speed;
@@ -965,7 +1002,16 @@ void stadtauto_t::calc_current_speed()
 
 void stadtauto_t::info(cbuffer_t & buf) const
 {
+	const stadt_t* const origin_city = welt->get_city(origin);
+#ifdef DESTINATION_CITYCARS
+	const stadt_t* const destination_city = welt->get_city(target);
+#else
+	const stadt_t* const destination_city = NULL;
+#endif
+	const char* origin_name = origin_city ? origin_city->get_name() : translator::translate("keine");
+	const char* destination_name = destination_city ? destination_city->get_name() : translator::translate("keine");
 	buf.printf(translator::translate("%s\nspeed %i\nmax_speed %i\ndx:%i dy:%i"), translator::translate(besch->get_name()), speed_to_kmh(current_speed), speed_to_kmh(besch->get_geschw()), dx, dy);
+	buf.printf(translator::translate("\nOrigin: %s\nDestination: %s"), origin_name, destination_name);
 }
 
 
@@ -1062,7 +1108,8 @@ bool stadtauto_t::can_overtake(overtaker_t *other_overtaker, int other_speed, in
 		}
 
 		// street gets too slow (TODO: should be able to be correctly accounted for)
-		if(  besch->get_geschw() > kmh_to_speed(str->get_max_speed())  ) {
+		//if(  besch->get_geschw() > kmh_to_speed(str->get_max_speed())  ) {
+		if(  current_speed > kmh_to_speed(str->get_max_speed())  ) {
 			return false;
 		}
 
@@ -1129,6 +1176,10 @@ bool stadtauto_t::can_overtake(overtaker_t *other_overtaker, int other_speed, in
 	//   Each empty tile will substract tile_dimension/max_street_speed.
 	//   If time is exhausted, we are guaranteed that no facing traffic will
 	//   invade the dangerous zone.
+	if(current_speed == 0)
+	{
+		return false;
+	}
 	time_overtaking = (time_overtaking << 16)/(sint32)current_speed;
 	do {
 		// we can allow crossings or traffic lights here, since they will stop also oncoming traffic

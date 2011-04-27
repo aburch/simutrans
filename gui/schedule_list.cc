@@ -26,8 +26,9 @@
 #include "../vehicle/simvehikel.h"
 #include "../simwin.h"
 #include "../simlinemgmt.h"
-#include "../simwerkz.h"
+#include "../simmenu.h"
 #include "../utils/simstring.h"
+#include "../player/simplay.h"
 
 #include "../bauer/vehikelbauer.h"
 
@@ -125,8 +126,7 @@ static bool compare_lines(line_scrollitem_t* a, line_scrollitem_t* b)
 
 // Hajo: 17-Jan-04: changed layout to make components fit into
 // a width of 400 pixels -> original size was unuseable in 640x480
-
-schedule_list_gui_t::schedule_list_gui_t(spieler_t* sp_) :
+schedule_list_gui_t::schedule_list_gui_t(spieler_t *sp_) :
 	gui_frame_t("Line Management", sp_),
 	sp(sp_),
 	scrolly(&cont),
@@ -281,22 +281,11 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t* sp_) :
 	build_line_list(0);
 }
 
+
 schedule_list_gui_t::~schedule_list_gui_t()
 {
 	// change line name if necessary
-	if (line.is_bound()) {
-		const char *t = inp_name.get_text();
-		if(  t  &&  t[0]  &&  strcmp(t, line->get_name())) {
-			// text changed => call tool
-			cbuffer_t buf(300);
-			buf.printf( "l%u,%s", line.get_id(), t );
-			werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
-			w->set_default_param( buf );
-			sp->get_welt()->set_werkzeug( w, NULL );
-			// since init always returns false, it is save to delete immediately
-			delete w;
-		}
-	}
+	rename_line();
 }
 
 
@@ -320,7 +309,6 @@ bool schedule_list_gui_t::infowin_event(const event_t *ev)
 }
 
 
-
 bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t v )           // 28-Dec-01    Markus Weber    Added
 {
 	if (komp == &bt_change_line) {
@@ -334,7 +322,8 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t 
 		// update line schedule via tool!
 		werkzeug_t *w = create_tool( WKZ_LINE_TOOL | SIMPLE_TOOL );
 		cbuffer_t buf(128);
-		buf.printf( "c,0,%i,%ld,0|,", (int)tabs_to_lineindex[tabs.get_active_tab_index()], 0 );
+		int type = tabs_to_lineindex[tabs.get_active_tab_index()];
+		buf.printf( "c,0,%i,0,0|%i|", type, type );
 		w->set_default_param(buf);
 		sp->get_welt()->set_werkzeug( w, sp );
 		// since init always returns false, it is save to delete immediately
@@ -435,7 +424,7 @@ void schedule_list_gui_t::rename_line()
 			// since init always returns false, it is save to delete immediately
 			delete w;
 			// do not trigger this command again
-			tstrncpy(old_line_name, line->get_name(), sizeof(old_line_name));
+			tstrncpy(old_line_name, t, sizeof(old_line_name));
 		}
 	}
 }
@@ -456,7 +445,6 @@ void schedule_list_gui_t::zeichnen(koord pos, koord gr)
 		display(pos);
 	}
 }
-
 
 
 void schedule_list_gui_t::display(koord pos)
@@ -509,10 +497,9 @@ void schedule_list_gui_t::display(koord pos)
 }
 
 
-
-void schedule_list_gui_t::resize(const koord delta)
+void schedule_list_gui_t::set_fenstergroesse(koord groesse)
 {
-	gui_frame_t::resize(delta);
+	gui_frame_t::set_fenstergroesse(groesse);
 
 	int rest_width = get_fenstergroesse().x-LINE_NAME_COLUMN_WIDTH;
 	int button_per_row=max(1,rest_width/(BUTTON_WIDTH+BUTTON_SPACER));
@@ -530,7 +517,6 @@ void schedule_list_gui_t::resize(const koord delta)
 		filterButtons[i].set_pos( koord(LINE_NAME_COLUMN_WIDTH+(i%button_per_row)*(BUTTON_WIDTH+BUTTON_SPACER),y+(i/button_per_row)*(BUTTON_HEIGHT+BUTTON_SPACER))  );
 	}
 }
-
 
 
 void schedule_list_gui_t::build_line_list(int filter)
@@ -564,8 +550,6 @@ void schedule_list_gui_t::build_line_list(int filter)
 
 	old_line_count = sp->simlinemgmt.get_line_count();
 }
-
-
 
 
 /* hides show components */
@@ -609,7 +593,6 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		}
 		bt_change_line.enable();
 
-		new_line->recalc_catg_index();	// update withdraw info
 		bt_withdraw_line.pressed = new_line->get_withdraw();
 
 		// fill haltestellen container with info of line's haltestellen
@@ -711,5 +694,44 @@ void schedule_list_gui_t::update_data(linehandle_t changed_line)
 		if (changed_line.get_id() == line.get_id()) {
 			reset_line_name();
 		}
+	}
+}
+
+
+uint32 schedule_list_gui_t::get_rdwr_id()
+{
+	return magic_line_management_t+sp->get_player_nr();
+}
+
+
+void schedule_list_gui_t::rdwr( loadsave_t *file )
+{
+	koord gr;
+	sint32 cont_xoff, cont_yoff, halt_xoff, halt_yoff;
+	if(  file->is_saving()  ) {
+		gr = get_fenstergroesse();
+		cont_xoff = scrolly.get_scroll_x();
+		cont_yoff = scrolly.get_scroll_y();
+		halt_xoff = scrolly_haltestellen.get_scroll_x();
+		halt_yoff = scrolly_haltestellen.get_scroll_y();
+	}
+	gr.rdwr( file );
+	simline_t::rdwr_linehandle_t(file, line);
+	for (int i=0; i<MAX_LINE_COST; i++) {
+		bool b = filterButtons[i].pressed;
+		file->rdwr_bool( b );
+		filterButtons[i].pressed = b;
+	}
+	file->rdwr_long( cont_xoff );
+	file->rdwr_long( cont_yoff );
+	file->rdwr_long( halt_xoff );
+	file->rdwr_long( halt_yoff );
+	// open dialoge
+	if(  file->is_loading()  ) {
+		show_lineinfo( line );
+		set_fenstergroesse( gr );
+		resize( koord(0,0) );
+		scrolly.set_scroll_position( cont_xoff, cont_yoff );
+		scrolly_haltestellen.set_scroll_position( halt_xoff, halt_yoff );
 	}
 }

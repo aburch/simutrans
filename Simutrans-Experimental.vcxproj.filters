@@ -735,6 +735,21 @@
     <ClCompile Include="besch\fabrik_besch.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="dataobj\network_cmp_pakset.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dataobj\network_socket_list.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\dbg_weightmap.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="simgraph0.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dataobj\network_file_transfer.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gui\components\action_listener.h">
@@ -807,9 +822,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="besch\writer\building_writer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="bzlib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="utils\cbuffer_t.h">
@@ -1724,6 +1736,12 @@
     <ClInclude Include="dataobj\pakset_info.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="utils\dbg_weightmap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\network_file_transfer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="base_texts_experimental.dat">
@@ -1774,11 +1792,25 @@
     <None Include="..\simutrans-experimental-binaries\config\simuconf.tab">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="makeobj\Makefile" />
     <None Include="base_texts_experimental_forgotten_items_1.dat">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="base_texts_experimental_9.0.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="base_texts_experimental_9.1.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\..\Simutrans\simu.log">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\..\Simutrans\simu-server.log">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="base_texts_experimental_forgotten_items_2.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="base_texts_experimental_9.3.dat">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

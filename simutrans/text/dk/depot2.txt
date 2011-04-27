@@ -12,7 +12,7 @@ ved, at køretøjet er det eneste, der vil benytte denne rute. Ifald du vil
 indsætte flere køretøjer på den samme rute, er det bedre først at definere
 ruten ved et trykke på 'Ny rute' og udfylde den fremkomne
 <a href='schedule.txt'>ruteplansdialog</a>. Derefter figurerer ruten, som den
-aktuelle rute i rutelisten og kan tilknyttes det aktuelle køretøj ved at
+aktuelle rute i rutelisten og kan tilknyttes det aktuelle køretøj ved a
 trykke på 'Tilknyt rute' knappen.
 </p>
 
@@ -55,6 +55,6 @@ knappen, hvorefter ruten slettes fra rutelisten.
 
 <p>
 For senere at sende et køretøj tilbage i depotet, skal du indføje depotet i
-køretøjets ruteplan - f.eks som næste rutemål. Efter køretøjet er kommet
+køretøjets ruteplan - f.eks som næste rutemål. Efter køretøjet er komme
 tilbage i depotet figurerer det i køretøjslisten og kan efter behag udbygges,
 adskilles, tildeles rute eller sælges.

@@ -19,18 +19,11 @@
 
 loadsave_t::mode_t loadsave_t::save_mode = bzip2;	// default to use for saving
 
-loadsave_t::loadsave_t(bool experimental) : filename()
-{
-	fp = NULL;
-	save_experimental = experimental;
-}
-
 loadsave_t::loadsave_t() : filename()
 {
 	mode = 0;
 	saving = false;
 	fp = NULL;
-	save_experimental = true;
 	bzfp = NULL;
 	bse = BZ_OK+1;
 }
@@ -160,7 +153,7 @@ bool loadsave_t::rd_open(const char *filename)
 
 
 
-bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extension, const char *savegame_version)
+bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extension, const char *savegame_version, const char *savegame_version_ex)
 {
 	mode = m;
 	close();
@@ -213,11 +206,11 @@ bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extensi
 	const char *end = pak_extension + strlen(pak_extension)-1;
 	const char *c = pak_extension;
 	
-	// Use Experimental version numbering if appropriate.
+	// Add Experimental version numbering.
 	std::string savegame_ver = savegame_version;
-	if(save_experimental)
+	if(savegame_version_ex && savegame_version_ex != savegame_version)
 	{
-		savegame_ver.append(EXPERIMENTAL_VER_NR);
+		savegame_ver.append(savegame_version_ex);
 	}
 
 	// find the start
@@ -859,34 +852,35 @@ void loadsave_t::end_tag(const char *tag)
 
 void loadsave_t::wr_obj_id(sint16 id)
 {
-	if(saving) {
-		if(!is_xml()) {
-			lsputc( id );
-		}
-		else {
-			sint64 ll=id;
-			rdwr_xml_number( ll, "id" );
-		}
+	if(!saving) {
+		dbg->fatal( "loadsave_t::rd_obj_id()", "must be only called during saving!" );
+	}
+	if(!is_xml()) {
+		lsputc( id );
+	}
+	else {
+		sint64 ll=id;
+		rdwr_xml_number( ll, "id" );
 	}
 }
 
 
 sint16 loadsave_t::rd_obj_id()
 {
-	sint16 id;
-	if(!saving) {
-		if(!is_xml()) {
-			sint8 idc;
-			read(&idc, sizeof(sint8));
-			id = (sint16)idc;
-		}
-		else {
-			sint64 ll;
-			rdwr_xml_number( ll, "id" );
-			return (sint16)ll;
-		}
+	if(saving) {
+		dbg->fatal( "loadsave_t::rd_obj_id()", "must be only called during reading!" );
+		return INVALID_RDWR_ID;
 	}
-	return id;
+	if(!is_xml()) {
+		sint8 idc;
+		read(&idc, sizeof(sint8));
+		return (sint8)idc;
+	}
+	else {
+		sint64 ll;
+		rdwr_xml_number( ll, "id" );
+		return (sint16)ll;
+	}
 }
 
 

@@ -1,35 +1,35 @@
-<title>Speciális eszközök Sugó</title>
+<title>SpeciÃ¡lis eszkÃ¶zÃ¶k SugÃ³</title>
 
-<h1>Speciális eszközök</h1>
+<h1>SpeciÃ¡lis eszkÃ¶zÃ¶k</h1>
 <p>
-Itt találhatók azok az eszközök melyekkel a posta szállítási vonalakat felépítheted, illetve olyan eszközök melyekkel az egyes állomások, megállók/rakodóudvarok kapacitását megnövelheted.
+Itt talÃ¡lhatÃ³k azok az eszkÃ¶zÃ¶k melyekkel a posta szÃ¡llÃ­tÃ¡si vonalakat felÃ©pÃ­theted, illetve olyan eszkÃ¶zÃ¶k melyekkel az egyes Ã¡llomÃ¡sok, megÃ¡llÃ³k/rakodÃ³udvarok kapacitÃ¡sÃ¡t megnÃ¶velheted.
 </p>
 <p>
-Eszközök:
+EszkÃ¶zÃ¶k:
 <br>
 <br>
-<em>- Posta:</em> több fajta postai épületet lehet építeni.
+<em>- Posta:</em> tÃ¶bb fajta postai Ã©pÃ¼letet lehet Ã©pÃ­teni.
 <br>
 <br>
-<em>- Egy állomás kapacitását növelõ épületek:</em> ezeket az épületeket egy már meglévõ megálló vagy állomás mellé kell építeni.
+<em>- Egy Ã¡llomÃ¡s kapacitÃ¡sÃ¡t nÃ¶velÃµ Ã©pÃ¼letek:</em> ezeket az Ã©pÃ¼leteket egy mÃ¡r meglÃ©vÃµ megÃ¡llÃ³ vagy Ã¡llomÃ¡s mellÃ© kell Ã©pÃ­teni.
 <br>
 <br>
-<em>- Játékos váltás:</em> nagy P betûvel válthatsz az AI vezérelte játékosok és magad álltal kontrolált játékos között. Azt, hogy épp melyék játékos aktív az a képernyõ alján látható. Illetve itt érhetõek el egyébb <a href="edittools.txt">"Szerkesztõ"</a> eszközök.
+<em>- JÃ¡tÃ©kos vÃ¡ltÃ¡s:</em> nagy P betÃ»vel vÃ¡lthatsz az AI vezÃ©relte jÃ¡tÃ©kosok Ã©s magad Ã¡lltal kontrolÃ¡lt jÃ¡tÃ©kos kÃ¶zÃ¶tt. Azt, hogy Ã©pp melyÃ©k jÃ¡tÃ©kos aktÃ­v az a kÃ©pernyÃµ aljÃ¡n lÃ¡thatÃ³. Illetve itt Ã©rhetÃµek el egyÃ©bb <a href="edittools.txt">"SzerkesztÃµ"</a> eszkÃ¶zÃ¶k.
 <br>
 <br>
-<em>- Új város alapítása:</em> ezt az eszközt kell alkalmazs, ha egy teljesen új várost akarsz építeni.
+<em>- Ãšj vÃ¡ros alapÃ­tÃ¡sa:</em> ezt az eszkÃ¶zt kell alkalmazs, ha egy teljesen Ãºj vÃ¡rost akarsz Ã©pÃ­teni.
 <br>
 <br>
-<em>- Faültetés:</em> minél több fát ültetsz annál nyereségesebb az egész rendszer.
+<em>- FaÃ¼ltetÃ©s:</em> minÃ©l tÃ¶bb fÃ¡t Ã¼ltetsz annÃ¡l nyeresÃ©gesebb az egÃ©sz rendszer.
 <br>
 <br>
-<em>- Elektromos hálózat építése:</em> ezzel az eszközzel építheted ki az elektromos hálózatodat. A vezetékek a termelõegységekhez egy Trafóállomáson keresztül csatlakoznak.
+<em>- Elektromos hÃ¡lÃ³zat Ã©pÃ­tÃ©se:</em> ezzel az eszkÃ¶zzel Ã©pÃ­theted ki az elektromos hÃ¡lÃ³zatodat. A vezetÃ©kek a termelÃµegysÃ©gekhez egy TrafÃ³Ã¡llomÃ¡son keresztÃ¼l csatlakoznak.
 <br>
 <br>
-<em>- Trafóállomás építése:</em> ez az eszköz szükséges a Trafóállomások felépítéséhez. A Trafóállomást közel kell építeni a termelõ egységekhez. A villamos vezetékek ide kell csatlakozzanak.
+<em>- TrafÃ³Ã¡llomÃ¡s Ã©pÃ­tÃ©se:</em> ez az eszkÃ¶z szÃ¼ksÃ©ges a TrafÃ³Ã¡llomÃ¡sok felÃ©pÃ­tÃ©sÃ©hez. A TrafÃ³Ã¡llomÃ¡st kÃ¶zel kell Ã©pÃ­teni a termelÃµ egysÃ©gekhez. A villamos vezetÃ©kek ide kell csatlakozzanak.
 <br>
 <br>
-<em>- Jelzõtábla:</em> a térképen jelzõtáblákat helyezhetsz el a jobb tájékozódást elõsegítve.
+<em>- JelzÃµtÃ¡bla:</em> a tÃ©rkÃ©pen jelzÃµtÃ¡blÃ¡kat helyezhetsz el a jobb tÃ¡jÃ©kozÃ³dÃ¡st elÃµsegÃ­tve.
 </p>
 <p>
 

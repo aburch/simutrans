@@ -42,6 +42,8 @@ protected:
 
 	const weg_besch_t *besch;
 
+	fabrik_t *fab;
+
 	/**
 	* Connect this piece of powerline to its neighbours
 	* -> this can merge power networks
@@ -84,6 +86,11 @@ public:
 	const char *get_name() const {return "Leitung"; }
 
 	/**
+	 * waytype associated with this object
+	 */
+	waytype_t get_waytype() const { return powerline_wt; }
+
+	/**
 	* @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
 	* Beobachtungsfenster angezeigt wird.
 	* @author Hj. Malthaner
@@ -122,6 +129,8 @@ public:
 	virtual void rdwr(loadsave_t *file);
 
 	stadt_t *city;
+
+	void clear_factory() { fab = NULL; }
 };
 
 
@@ -135,7 +144,6 @@ public:
 private:
 	static slist_tpl<pumpe_t *> pumpe_list;
 
-	fabrik_t *fab;
 	uint32 supply;
 
 	void step(long delta_t);
@@ -164,13 +172,12 @@ class senke_t : public leitung_t, public sync_steppable
 public:
 	static void neue_karte();
 	static void step_all(long delta_t);
-
-private:
 	static slist_tpl<senke_t *> senke_list;
 
+private:
+	
 	sint32 einkommen;
 	sint32 max_einkommen;
-	fabrik_t *fab;
 	sint32 delta_sum;
 	sint32 next_t;
 	uint32 last_power_demand;
@@ -198,6 +205,10 @@ public:
 	void calc_bild() {}	// otherwise it will change to leitung
 
 	uint32 get_power_load() const;
+
+	void set_city(stadt_t* c) { city = c; }
+
+	void check_industry_connexion();
 };
 
 
