@@ -1,11 +1,30 @@
 /*
- * fraction_t.cc
+ * fraction64_t.cc
  *
  *  Created on: 27.04.2011
  *      Author: Bernd Gabriel
  */
 
-#include "fraction_t.h"
+#ifdef DEBUG_COUT
+#include <iostream>
+using namespace std;
+#endif
+
+#include "fraction64_t.h"
+
+#define BITS 64
+
+// used by shrink()
+static const int64 top4 	= 0x7800000000000000LL;
+static const int64 top33	= 0xffffffff80000000LL;
+
+// used by ild()
+static const int64 top16	= 0xffff000000000000LL;
+static const int64 top32	= 0xffffffff00000000LL;
+static const int64 top48	= 0xffffffffffff0000LL;
+
+// used by fraction64_t(double)
+static const int64 maxlonglong 	= 0x7fffffffffffffffLL;
 
 const int64 common_factor(int64 a, int64 b)
 // Returns the largest common factor in a and be or 1, if there is no common factor.
@@ -86,22 +105,24 @@ const int ild(int64 x)
 	return r;
 }
 
-const fraction_t log(const fraction_t &x)
+const fraction64_t log(const fraction64_t &x)
 {
 	// requires x > 0
-	fraction_t t1 = fraction_t(x.n - x.d, x.n + x.d);
+	fraction64_t t1 = fraction64_t(x.n - x.d, x.n + x.d);
 	t1.shorten();
-	fraction_t t2 = t1 * t1;
-	fraction_t r = t1;
-	fraction_t l = r;
+	fraction64_t t2 = t1 * t1;
+	fraction64_t r = t1;
+	fraction64_t l = r;
 	int64 n = 1;
 	while ((n += 2) < 50)
 	{
 		t1 *= t2;
 		r += t1 / n;
 		r.shorten();
-//		cout << n << ": log(" << x.n << " / " << x.d << ") = " << 2 * r.n << " / " << r.d << " = " << (double) 2 * r.n / r.d << "\n";
-//		cout.flush();
+#ifdef DEBUG_COUT
+		cout << n << ": log(" << x.n << " / " << x.d << ") = " << 2 * r.n << " / " << r.d << " = " << (double) 2 * r.n / r.d << "\n";
+		cout.flush();
+#endif
 		if (r == l)
 			break;
 		l = r;
@@ -109,20 +130,22 @@ const fraction_t log(const fraction_t &x)
 	return r * 2;
 }
 
-const fraction_t exp(const fraction_t &x)
+const fraction64_t exp(const fraction64_t &x)
 {
-	fraction_t t = x.shorten();
-	fraction_t t1 = t;
-	fraction_t r = (x + 1).shorten();
-	fraction_t l = r;
+	fraction64_t t = x.shorten();
+	fraction64_t t1 = t;
+	fraction64_t r = (x + 1).shorten();
+	fraction64_t l = r;
 	int64 n = 1;
 	while (++n < 30)
 	{
 		t1 *= t / n;
 		r += t1;
 		r.shorten();
-//		cout << n << ": exp(" << x.n << " / " << x.d << ") = " << r.n << " / " << r.d << " = " << (double) r.n / r.d << "\n";
-//		cout.flush();
+#ifdef DEBUG_COUT
+		cout << n << ": exp(" << x.n << " / " << x.d << ") = " << r.n << " / " << r.d << " = " << (double) r.n / r.d << "\n";
+		cout.flush();
+#endif
 		if (r == l)
 			break;
 		l = r;
@@ -130,7 +153,7 @@ const fraction_t exp(const fraction_t &x)
 	return r;
 }
 
-fraction_t::fraction_t(double value)
+fraction64_t::fraction64_t(double value)
 {
 	double a = fabs(value);
 	if (a > maxlonglong)
@@ -152,46 +175,46 @@ fraction_t::fraction_t(double value)
 	}
 }
 
-const fraction_t & fraction_t::operator += (const fraction_t &f)
+const fraction64_t & fraction64_t::operator += (const fraction64_t &f)
 {
 	if (d == f.d)
 	{
 		int iun = ild(n), ivn = ild(f.n);
-		if (iun + ivn < 127)
+		if (iun + ivn < 2 * BITS - 1)
 		{
 			n += f.n;
 			return *this;
 		}
 	}
 
-	fraction_t v(f.n, f.d);
+	fraction64_t v(f.n, f.d);
 	int iun = ild(n), ivd = ild(v.d);
-	if (iun + ivd >= 64)
+	if (iun + ivd >= BITS)
 	{
-		if (iun >= 32)
+		if (iun >= BITS/2)
 			shrink();
-		if (ivd >= 32)
+		if (ivd >= BITS/2)
 		{
 			v.shrink();
 			ivd = ild(v.d);
 		}
 	}
 	int iud = ild(d), ivn = ild(v.n);
-	if (iud + ivn >= 64)
+	if (iud + ivn >= BITS)
 	{
-		if (iud >= 32)
+		if (iud >= BITS/2)
 		{
 			shrink();
 			iud = ild(d);
 		}
-		if (ivn >= 32)
+		if (ivn >= BITS/2)
 			v.shrink();
 	}
-	if (iud + ivd >= 64)
+	if (iud + ivd >= BITS)
 	{
-		if (iud >= 32)
+		if (iud >= BITS/2)
 			shrink();
-		if (ivd >= 32)
+		if (ivd >= BITS/2)
 			v.shrink();
 	}
 	n = n * v.d + d * v.n;
@@ -199,23 +222,23 @@ const fraction_t & fraction_t::operator += (const fraction_t &f)
 	return *this;
 }
 
-const fraction_t & fraction_t::operator *= (const fraction_t &f)
+const fraction64_t & fraction64_t::operator *= (const fraction64_t &f)
 {
-	fraction_t v(f.n, f.d);
+	fraction64_t v(f.n, f.d);
 	int iun = ild(n), ivn = ild(v.n);
-	if (iun + ivn >= 64)
+	if (iun + ivn >= BITS)
 	{
-		if (iun >= 32)
+		if (iun >= BITS/2)
 			shrink();
-		if (ivn >= 32)
+		if (ivn >= BITS/2)
 			v.shrink();
 	}
 	int iud = ild(d), ivd = ild(v.d);
-	if (iud + ivd >= 64)
+	if (iud + ivd >= BITS)
 	{
-		if (iud >= 32)
+		if (iud >= BITS/2)
 			shrink();
-		if (ivd >= 32)
+		if (ivd >= BITS/2)
 			v.shrink();
 	}
 	n *= v.n;
@@ -223,9 +246,9 @@ const fraction_t & fraction_t::operator *= (const fraction_t &f)
 	return *this;
 }
 
-const fraction_t fraction_t::shrink() const
+const fraction64_t fraction64_t::shrink() const
 {
-	fraction_t r = *this;
+	fraction64_t r = *this;
 	int64 an = n >= 0 ? n : -n;
 	int64 ad = d >= 0 ? d : -d;;
 	if (an & top33 || ad & top33)
@@ -246,7 +269,7 @@ const fraction_t fraction_t::shrink() const
 	return r;
 }
 
-const fraction_t & fraction_t::shrink()
+const fraction64_t & fraction64_t::shrink()
 {
 	int64 an = n >= 0 ? n : -n;
 	int64 ad = d >= 0 ? d : -d;;
