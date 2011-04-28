@@ -69,8 +69,6 @@ a = (F - cf * v^2 - Frs) / m
 #include "simworld.h"
 
 // CF_*: constants related to air resistance
-// TODO: Add a "streamline" value to road/rail
-// which reduces the CF value.
 
 //#define CF_TRACK 0.7 / 2 * 10 * 1.2
 //#define CF_TRACK 4.2
@@ -276,6 +274,7 @@ private:
 	 * Get force in N that holds the given speed v or maximum available force, what ever is lesser.
 	 */
 	double calc_speed_holding_force(double speed /* in m/s */, double Frs /* in N */); /* in N */
+	sint32 new_calc_speed_holding_force_100(sint32 speed /* in m/s */, sint32 Frs /* in N */); /* in N */
 protected:
 	vehicle_summary_t vehicle;
 	adverse_summary_t adverse;

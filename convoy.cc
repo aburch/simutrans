@@ -180,6 +180,12 @@ double convoy_t::calc_speed_holding_force(double speed /* in m/s */, double Frs 
 	return double_min(adverse.cf * speed * speed, get_force(speed) - Frs); /* in N */
 }
 
+sint32 convoy_t::new_calc_speed_holding_force_100(sint32 speed /* in m/s x 100 */, sint32 Frs /* in N x 100*/)
+{
+	return min((adverse.cf * speed * speed) / 100, get_force(speed) - Frs); /* in N x 100 */
+	//return min((adverse.cf * speed * speed) / 10000, get_force(speed) - new_frs_100); // USE THIS WHEN CF IS 100 x
+}
+
 // The timeslice to calculate acceleration, speed and covered distance in reasonable small chuncks. 
 #define DT_TIME_FACTOR 64
 #define DT_SLICE_SECONDS 2
@@ -230,7 +236,7 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor, const weight_summa
 
 			if (v < 0.999 * vmax)
 			{
-				assert(new_v_10000 < (999 * new_vmax_100) / 10);
+				//assert(new_v_10000 < (999 * new_vmax_100) / 10);
 				// Below set speed: full acceleration
 				// If set speed is far below the convoy max speed as e.g. aircrafts on ground reduce force.
 				// If set speed is at most a 10th of convoy's maximum, we reduce force to its 10th.
@@ -238,7 +244,7 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor, const weight_summa
 				new_f_100 = (get_force(new_v_10000) / 100) - new_frs_100;
 				if (f > 1000000.0) // reducing force does not apply to 'weak' convoy's, thus we can save a lot of time skipping this code.
 				{
-					assert(new_f_100 > 100000000);
+					//assert(new_f_100 > 100000000);
 					if (speed_ratio == 0) // speed_ratio is a constant within this function. So calculate it once only.
 					{
 						speed_ratio = 3.6 * vmax / vehicle.max_speed;
@@ -246,30 +252,30 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor, const weight_summa
 					}
 					if (speed_ratio < 0.1)
 					{
-						assert(new_speed_ratio_100 < 10);
+						//assert(new_speed_ratio_100 < 10);
 						fvmax = calc_speed_holding_force(vmax, Frs);
 						new_fvmax_100 = fvmax * 100; /*TEMPORARY - need to re-do method called */
 						if (f > fvmax)
 						{
-							assert(new_f_100 > new_fvmax_100);
+							//assert(new_f_100 > new_fvmax_100);
 
 							f = (f - fvmax) * 0.1 + fvmax;
 
 							new_f_100 = (new_f_100 - new_fvmax_100) * 10 + new_fvmax_100;
-							assert(new_f_100 == ((uint32)f * 100));
+							//assert(new_f_100 == ((uint32)f * 100));
 						}
 					}
 				}
 			}
 			else if (v < 1.001 * vmax)
 			{
-				assert(new_v_10000 < (1001 * new_vmax_100) / 10);
+				//assert(new_v_10000 < (1001 * new_vmax_100) / 10);
 				// at or slightly above set speed: hold this speed
 				if (fvmax == 0) // fvmax is a constant within this function. So calculate it once only.
 				{
 					fvmax = calc_speed_holding_force(vmax, Frs);
-					new_fvmax_100 = calc_speed_holding_force(new_vmax_100, new_frs_100);
-					assert(fvmax * 100 == new_fvmax_100);
+					new_fvmax_100 = new_calc_speed_holding_force_100(new_vmax_100, new_frs_100);
+					///assert((sint32)(fvmax * 100) == new_fvmax_100);
 				}
 				f = fvmax;
 				new_f_100 = new_fvmax_100;
@@ -277,19 +283,19 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor, const weight_summa
 			}
 			else if (v < 1.1 * vmax)
 			{
-				assert(new_v_10000 < 110 * new_vmax_100);
+				//assert(new_v_10000 < 110 * new_vmax_100);
 				// slightly above set speed: coasting 'til back to set speed.
 				f = -Frs;
 				new_f_100 = -new_frs_100;
 			}
 			else if (v < 1.5 * vmax)
 			{
-				assert(new_v_10000 <  150 * new_vmax_100);
+				///assert(new_v_10000 <  150 * new_vmax_100);
 				is_breaking = true;
 				// running too fast, apply the breaks! 
 				// hill-down Frs might become negative and works against the brake.
 				f = -(get_starting_force() + Frs);
-				new_f_100 -(get_starting_force() * 100 + new_frs_100);
+				new_f_100 = -(get_starting_force() * 100 + new_frs_100);
 			}
 			else
 			{
@@ -298,7 +304,7 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor, const weight_summa
 				// assuming the brakes are up to 5 times stronger than the start-up force.
 				// hill-down Frs might become negative and works against the brake.
 				f = -(5 * get_starting_force() + Frs);
-				new_f_100 -(500 * get_starting_force() + new_frs_100);
+				new_f_100 = -(500 * get_starting_force() + new_frs_100);
 			}
 
 			// accelerate: calculate new speed according to acceleration within the passed second(s).
@@ -308,13 +314,13 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor, const weight_summa
 			sint32 new_df_100 = (simtime_factor * (new_f_100 - sgn<sint32>(new_v_10000) * adverse.cf * new_v_100 * new_v_100)) / 1000000; /* Will need to be / 100000000 when cf is *100*/
 			if (delta_t >= DT_SLICE && (sint32)abs(df) > weight.weight / (10 * DT_SLICE_SECONDS))
 			{
-				assert(delta_t >= DT_SLICE && abs(new_df_100) > weight.weight * 10 / (DT_SLICE_SECONDS));
+				//assert(delta_t >= DT_SLICE && abs(new_df_100) > weight.weight * 10 / (DT_SLICE_SECONDS));
 				// This part is important for acceleration/deceleration phases only.
 				// When a small force produces small speed change, we can add it at once in the 'else' section.
 				//count2++;
 				v += (DT_SLICE_SECONDS * df) / weight.weight; 
 				new_v_10000 += (DT_SLICE_SECONDS * 100 * new_df_100) / weight.weight; 
-				assert(new_v_10000 ==  v * 10000);
+				//assert(new_v_10000 ==  v * 10000);
 				dt = DT_SLICE;
 			}
 			else
@@ -328,14 +334,14 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor, const weight_summa
 			{
 				if (v < vmax)
 				{
-					assert(new_v_10000 < new_vmax_100 * 100);
+					//assert(new_v_10000 < new_vmax_100 * 100);
 					v = vmax;
 					new_v_10000 = new_vmax_100 * 100;
 				}
 			}
 			else if (/* is_breaking */ f < 0 && v < 1)
 			{
-				assert(new_f_100 < 0 && new_v_10000 < 10000);
+				//assert(new_f_100 < 0 && new_v_10000 < 10000);
 				v = 1;
 				new_v_10000 = 10000;
 			}
@@ -344,14 +350,15 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor, const weight_summa
 			delta_t -= dt; // another DT_SLICE_SECONDS passed
 		}
 		akt_speed = v_to_speed(v); // akt_speed in simutrans vehicle speed, v in m/s
-		assert(akt_speed == v_to_speed(new_v_10000) / 10000);
+		const sint32 shadow_akt_speed = v_to_speed(new_v_10000) / 10000;
+		//assert(akt_speed >= shadow_akt_speed - 50 && akt_speed <= shadow_akt_speed + 50);
 		dx = x_to_steps(dx);
 		new_dx_100 = x_to_steps(new_dx_100);
-		assert(dx == new_dx_100 / 100);
 	}
 	if (dx < KMH_SPEED_UNLIMITED - sp_soll)
 	{
 		sp_soll += (sint32) dx;
+		/*sp_soll += dx / 100; */
 	}	
 	else
 	{
