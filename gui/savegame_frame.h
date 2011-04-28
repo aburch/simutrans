@@ -31,9 +31,6 @@ private:
 	 */
 	const char *suffix;
 
-	// path, to be put in front
-	const char *fullpath;
-
 	// search for directories (pak_selector gui)
 	bool only_directories;
 
@@ -44,6 +41,10 @@ private:
 	bool in_action;
 
 protected:
+	// path, to be put in front
+	const char *fullpath;
+
+
 	gui_textinput_t input;
 	gui_divider_t divider1;                               // 30-Oct-2001  Markus Weber    Added
 	button_t savebutton;                                  // 29-Oct-2001  Markus Weber    Added
