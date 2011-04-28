@@ -283,6 +283,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="clipboard_w32.cc" />
+    <ClCompile Include="dataobj\gameinfo.cc" />
+    <ClCompile Include="dataobj\pakset_info.cc" />
+    <ClCompile Include="gui\line_item.cc" />
+    <ClCompile Include="gui\server_frame.cc" />
     <ClCompile Include="player\ai.cc" />
     <ClCompile Include="player\ai_goods.cc" />
     <ClCompile Include="player\ai_passenger.cc" />
@@ -393,6 +397,7 @@
     <ClCompile Include="gui\load_relief_frame.cc" />
     <ClCompile Include="dataobj\loadsave.cc" />
     <ClCompile Include="gui\loadsave_frame.cc" />
+    <ClCompile Include="utils\checksum.cc" />
     <ClCompile Include="utils\log.cc" />
     <ClCompile Include="boden\wege\maglev.cc" />
     <ClCompile Include="gui\map_frame.cc" />
