@@ -3042,7 +3042,7 @@ void stadt_t::step_passagiere()
 						const uint32 distance = accurate_distance(destinations[current_destination].location, k);			
 						
 						//Weighted random.
-						uint16 private_car_chance = (uint16)simrand(100, "void stadt_t::step_passagiere() (private car chance?)");
+						const uint16 private_car_chance = (uint16)simrand(100, "void stadt_t::step_passagiere() (private car chance?)");
 						if(private_car_chance <= always_prefer_car_percent)
 						{
 							route_good = private_car_only;

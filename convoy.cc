@@ -183,14 +183,15 @@ sint32 convoy_t::calc_max_weight(sint32 sin_alpha)
 		return 0;
 	}
 	const fraction32_t comparator = fraction32_t(981, 10) * (adverse.fr + fraction32_t(1, 1000) * sin_alpha);
-	return abs(min(get_starting_force(), f.integer()) / comparator.integer());
+	const sint32 comp_int = comparator.integer();
+	return abs(min(get_starting_force(), f.integer()) / (comp_int == 0 ? 1 : comp_int));
 }
 
 sint32 convoy_t::calc_max_starting_weight(sint32 sin_alpha)
 {
 	const fraction32_t denominator = (fraction32_t(101, 100) * fraction32_t(981, 100) * (adverse.fr + fraction32_t(1, 1000) * sin_alpha));
 	const sint32 d_int = denominator.integer();
-	return abs(get_starting_force() / d_int == 0 ? 1 : d_int); // 1.01 to compensate inaccuracy of calculation 
+	return abs(get_starting_force() / (d_int == 0 ? 1 : d_int)); // 1.01 to compensate inaccuracy of calculation 
 }
 
 fraction32_t convoy_t::calc_speed_holding_force(fraction32_t speed /* in m/s */, fraction32_t Frs /* in N */)

@@ -217,8 +217,14 @@ const fraction32_t & fraction32_t::operator += (const fraction32_t &f)
 		if (ivd >= BITS/2)
 			v.shrink();
 	}
+	const bool negative = v.d < 0;
 	n = n * v.d + d * v.n;
 	d = d * v.d;
+	if(negative)
+	{
+		n = -n;
+		d = -d;
+	}
 	return *this;
 }
 
