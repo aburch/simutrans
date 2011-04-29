@@ -17,6 +17,7 @@
 #include "../dataobj/way_constraints.h"
 #include "../simworld.h"
 #include "../simtypes.h"
+#include "../utils/fraction_t.h"
 
 
 // GEAR_FACTOR: a gear of 1.0 is stored as 64
@@ -372,12 +373,26 @@ public:
 
 	// BG, 15.06.2009: the formula for obsolescence formerly implemented twice in get_betriebskosten() and get_fixed_maintenance()
 	uint32 calc_running_cost(const karte_t *welt, uint32 base_cost) const;	
-	uint16 get_power_force_ratio_percentage() const;
-	uint32 calc_max_force(const uint32 power) const { 
-		return power ? (uint32)(power / get_power_force_ratio_percentage() + 50) / 100 : 0; 
+
+	fraction_t get_power_force_ratio() const;
+	uint32 calc_max_force(const uint32 power) const 
+	{ 
+		if(!power)
+		{
+			return 0;
+		}
+		const fraction_t return_value = fraction_t((sint32)power) / get_power_force_ratio() + fraction_t(1,2);
+		return return_value.integer();
 	}
-	uint32 calc_max_power(const uint32 force) const { 
-		return force ? (uint32)(force * get_power_force_ratio_percentage() + 50) / 100 : 0; 
+
+	uint32 calc_max_power(const uint32 force) const 
+	{ 
+		if(!force)
+		{
+			return 0;
+		}
+		const fraction_t return_value = fraction_t((sint32)force) * get_power_force_ratio() + fraction_t(1,2);
+		return return_value.integer();
 	}
 	uint32 get_leistung() const { 
 		return leistung ? leistung : calc_max_power(tractive_effort); 

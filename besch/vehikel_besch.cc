@@ -64,11 +64,11 @@ uint32 vehikel_besch_t::get_adjusted_monthly_fixed_maintenance(karte_t *welt) co
  * Get the ratio of power to force from either given power and force or according to given waytype.
  * Will never return 0, promised.
  */
-uint16 vehikel_besch_t::get_power_force_ratio_percentage() const
+fraction_t vehikel_besch_t::get_power_force_ratio() const
 {
 	if (leistung != 0 && tractive_effort != 0)
 	{
-		return (leistung * 100) / tractive_effort;
+		return fraction_t(leistung, tractive_effort);
 	}
 
 	switch (get_waytype())
@@ -87,7 +87,8 @@ uint16 vehikel_besch_t::get_power_force_ratio_percentage() const
 				* We assume, that the given power is meant for the half of the engines allowed maximum speed and get the constant force:
 				*/
 				// Steamers are constant force machines unless about half of maximum speed, when steam runs short.
-				return (geschw * 10000) / (360 * 200);
+				const fraction_t denominator(36, 5);
+				return fraction_t(geschw) / denominator;
 			}
 			/* else fall through */
 
@@ -96,11 +97,12 @@ uint16 vehikel_besch_t::get_power_force_ratio_percentage() const
 			//(return geschw * 1000) / 360;
 
 		case air_wt: 
-			// Aircrafts are constant force machines at all speeds, but the pak sets are balanced for constant power. 
+			// Aircraft are constant force machines at all speeds, but the pak sets are balanced for constant power. 
 			// We recommend for simutrans experimental to set the tractive effort manually. The existing aircraft power values are very roughly estimated.
 			if (geschw)
 			{
-				return (geschw * 10000) / (360 * 200);
+				const fraction_t denominator(36, 5);
+				return fraction_t(geschw) / denominator;
 			}
 			/* else fall through */
 
@@ -116,7 +118,7 @@ uint16 vehikel_besch_t::get_power_force_ratio_percentage() const
 			*
 			* In simutrans these engines can be simulated by setting the power to 2200, max speed to 140 resp. 100 and the gear to 1.136 resp. 1.545.
 			*/
-			return 1000;
+			return fraction_t(1);
 	}
 }
 
@@ -143,23 +145,28 @@ void vehikel_besch_t::loaded()
 	* Above this threshold the engine works as constant power engine.
 	*/
 
-	const uint16 pfr = get_power_force_ratio_percentage();
-	const uint16 power_force_ratio = pfr > 0 ? pfr : 1;
-	force_threshold_speed = (uint16)((power_force_ratio * 100) + 50) / 100;
+	const fraction_t pfr = get_power_force_ratio();
+	const fraction_t power_force_ratio = pfr > 0 ? pfr : 1;
+	const fraction_t fts =  power_force_ratio + fraction_t(1,2);
+	force_threshold_speed = (uint16)fts.integer();
 	geared_power = leistung * gear;
 	geared_force = (uint32)tractive_effort * gear;
 	if (geared_power != 0)
 	{
 		if (geared_force == 0)
 		{
-			geared_force = max(GEAR_FACTOR, (uint32)((geared_power * 100) / (power_force_ratio * 100) + 50));
+			const fraction_t pfr_2 = power_force_ratio + fraction_t(1,2);
+			const fraction_t mx = fraction_t((sint32)geared_power) / power_force_ratio + pfr_2;
+			geared_force = max(GEAR_FACTOR, mx.integer());
 		}
 	}
 	else
 	{
 		if (geared_force != 0)
 		{
-			geared_power = max(GEAR_FACTOR, (uint32)(geared_force * (power_force_ratio * 100) + 50) / 100);
+			const fraction_t pfr_2 = power_force_ratio + fraction_t(1,2);
+			const fraction_t mx = fraction_t((sint32)geared_force) / power_force_ratio + pfr_2;
+			geared_power = max(GEAR_FACTOR, mx.integer());
 		}
 	}
 }
