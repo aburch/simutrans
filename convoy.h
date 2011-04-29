@@ -108,7 +108,12 @@ inline fraction32_t speed_to_v(sint32 speed)
 inline sint32 v_to_speed(fraction32_t v)
 {
 	const fraction32_t return_value = (v * (fraction32_t(36, 10) * fraction32_t(1024)) + VEHICLE_SPEED_FACTOR - 1) / VEHICLE_SPEED_FACTOR;
-	return return_value.n;
+	const fraction32_t TEST_1 = v * (fraction32_t(36, 10));
+	const fraction32_t TEST_2 = TEST_1 *  fraction32_t(1024);
+	const fraction32_t TEST_3 = TEST_2 + VEHICLE_SPEED_FACTOR;
+	const fraction32_t TEST_4 = TEST_3 - 1;
+	const fraction32_t TEST_5 = TEST_4 / VEHICLE_SPEED_FACTOR;
+	return return_value.integer();
 }
 
 inline fraction32_t x_to_steps(fraction32_t v)
@@ -239,7 +244,7 @@ struct weight_summary_t
 
 	inline void clear()
 	{
-		weight_cos = weight_sin = 0.0;
+		weight_cos = weight_sin = 0;
 		weight = 0;
 	}
 

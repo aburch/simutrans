@@ -57,6 +57,12 @@ public:
 
 	/*fraction32_t(double value);*/
 
+		// operators: conversion
+	
+	/*inline operator sint32() const { return n / d; }*/
+
+	inline sint32 integer() const { return n / (d == 0 ? 1 : d); }
+
 	// operators: additon and subtraction
 
 	const fraction32_t & operator += (const fraction32_t &f);
