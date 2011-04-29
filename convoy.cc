@@ -351,6 +351,9 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 			else
 			{
 				//count3++;
+				const fraction_t TEST_1 = (fraction_t(delta_t) * df) / (DT_TIME_FACTOR * weight.weight);
+				const sint32 TEST_2 = TEST_1.integer();
+				const sint32 TEST_3 = df.integer();
 				v += (fraction_t(delta_t) * df) / (DT_TIME_FACTOR * weight.weight); 
 				/*new_v_10000 += (delta_t * new_df_100 * 100) / (DT_TIME_FACTOR * weight.weight);*/ 
 				dt = delta_t;
