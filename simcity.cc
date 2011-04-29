@@ -2727,6 +2727,7 @@ void stadt_t::step_passagiere()
 	const uint8 passenger_packet_size = welt->get_einstellungen()->get_passenger_routing_packet_size();
 	const uint8 passenger_routing_local_chance = welt->get_einstellungen()->get_passenger_routing_local_chance();
 	const uint8 passenger_routing_midrange_chance = welt->get_einstellungen()->get_passenger_routing_midrange_chance();
+	const uint8 always_prefer_car_percent = welt->get_einstellungen()->get_always_prefer_car_percent();
 
 	//	DBG_MESSAGE("stadt_t::step_passagiere()", "%s step_passagiere called (%d,%d - %d,%d)\n", name, li, ob, re, un);
 	//	long t0 = get_current_time_millis();
@@ -2990,7 +2991,7 @@ void stadt_t::step_passagiere()
 
 				INT_CHECK("simcity.cc 2993");
 
-				if(has_private_car) /*car_minutes = 300;*/
+				if(has_private_car) 
 				{
 					const uint32 straight_line_distance = accurate_distance(k, destinations[current_destination].location);
 					uint16 time_per_tile = 65535;
@@ -3042,15 +3043,16 @@ void stadt_t::step_passagiere()
 						
 						//Weighted random.
 						uint16 private_car_chance = (uint16)simrand(100, "void stadt_t::step_passagiere() (private car chance?)");
-						if(private_car_chance >= 1)
+						if(private_car_chance <= always_prefer_car_percent)
+						{
+							route_good = private_car_only;
+						}
+						else
 						{
 							// The basic preference for using a private car if available.
 							uint16 car_preference = welt->get_einstellungen()->get_base_car_preference_percent();
 										
 							// Firstly, congestion. Drivers will turn to public transport if the origin or destination towns are congested.
-
-							// This percentage of drivers will prefer to use the car however congested that it is.
-							const uint8 always_prefer_car_percent = welt->get_einstellungen()->get_always_prefer_car_percent();
 
 							//Average congestion of origin and destination towns, and, at the same time, reduce factor.
 							uint16 congestion_total;
@@ -3063,7 +3065,7 @@ void stadt_t::step_passagiere()
 							{
 								congestion_total = (city_history_month[0][HIST_CONGESTION] * 100) / 133;
 							}
-							car_preference = ((car_preference - congestion_total) > always_prefer_car_percent) ? car_preference - congestion_total : always_prefer_car_percent;
+							car_preference -= congestion_total;
 
 							// Secondly, adjust for service quality of the public transport.
 							// Compare best journey speed on public transport with the 
