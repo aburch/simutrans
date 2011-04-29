@@ -14,19 +14,19 @@
 const sint64 common_factor(sint64 a, sint64 b);
 const int ild(sint64 x);
 
-inline sint64 min(sint64 a, sint64 b)
-{
-	if (a <= b)
-		return a;
-	return b;
-}
-
-inline sint64 max(sint64 a, sint64 b)
-{
-	if (a >= b)
-		return a;
-	return b;
-}
+//inline sint64 min(sint64 a, sint64 b)
+//{
+//	if (a <= b)
+//		return a;
+//	return b;
+//}
+//
+//inline sint64 max(sint64 a, sint64 b)
+//{
+//	if (a >= b)
+//		return a;
+//	return b;
+//}
 
 class fraction64_t {
 public:
@@ -62,6 +62,8 @@ public:
 	}
 
 	/*fraction64_t(double value);*/
+
+	inline sint32 integer() const { return n / (d == 0 ? 1 : d); }
 
 	// operators: additon and subtraction
 

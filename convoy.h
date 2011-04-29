@@ -72,23 +72,23 @@ a = (F - cf * v^2 - Frs) / m
 // CF_*: constants related to air resistance
 
 //#define CF_TRACK 0.7 / 2 * 10 * 1.2
-//#define CF_TRACK fraction32_t(42, 10)
-#define CF_TRACK fraction32_t(13)
-#define CF_MAGLEV fraction32_t(10)
+//#define CF_TRACK fraction_t(42, 10)
+#define CF_TRACK fraction_t(13)
+#define CF_MAGLEV fraction_t(10)
 //#define CF_ROAD 0.7 / 2 * 6 * 1.2
-#define CF_ROAD fraction32_t(252, 100)
-#define CF_WATER fraction32_t(25)
-#define CF_AIR fraction32_t(1)
+#define CF_ROAD fraction_t(252, 100)
+#define CF_WATER fraction_t(25)
+#define CF_AIR fraction_t(1)
 
 // FR_*: constants related to roll resistance
 
 //should be 0.0015, but for game balance it is higher 
 //#define FR_TRACK 0.0015
-#define FR_MAGLEV fraction32_t(15, 10000)
-#define FR_TRACK fraction32_t(51, 10000)
-#define FR_ROAD  fraction32_t(15, 10000)
-#define FR_WATER fraction32_t(1, 1000)
-#define FR_AIR fraction32_t(1, 1000)
+#define FR_MAGLEV fraction_t(15, 10000)
+#define FR_TRACK fraction_t(51, 10000)
+#define FR_ROAD  fraction_t(15, 10000)
+#define FR_WATER fraction_t(1, 1000)
+#define FR_AIR fraction_t(1, 1000)
 
 // GEAR_FACTOR: a gear of 1.0 is stored as 64
 #define GEAR_FACTOR 64
@@ -100,25 +100,29 @@ a = (F - cf * v^2 - Frs) / m
 /**
  * Convert simutrans speed to m/s
  */
-inline fraction32_t speed_to_v(sint32 speed)
+inline fraction_t speed_to_v(sint32 speed)
 {
-	return (fraction32_t(speed) * (fraction32_t(VEHICLE_SPEED_FACTOR))) * (fraction32_t(1) / (fraction32_t(36, 10) * (fraction32_t(1024))));
+	return (fraction_t(speed) * (fraction_t(VEHICLE_SPEED_FACTOR))) * (fraction_t(1) / (fraction_t(36, 10) * (fraction_t(1024))));
 }
 
-inline sint32 v_to_speed(fraction32_t v)
+inline sint32 v_to_speed(fraction_t v)
 {
-	const fraction32_t return_value = (v * (fraction32_t(36, 10) * fraction32_t(1024)) + VEHICLE_SPEED_FACTOR - 1) / VEHICLE_SPEED_FACTOR;
-	const fraction32_t TEST_1 = v * (fraction32_t(36, 10));
-	const fraction32_t TEST_2 = TEST_1 *  fraction32_t(1024);
-	const fraction32_t TEST_3 = TEST_2 + VEHICLE_SPEED_FACTOR;
-	const fraction32_t TEST_4 = TEST_3 - 1;
-	const fraction32_t TEST_5 = TEST_4 / VEHICLE_SPEED_FACTOR;
+	const fraction_t return_value = (v * (fraction_t(36, 10) * fraction_t(1024)) + VEHICLE_SPEED_FACTOR - 1) / VEHICLE_SPEED_FACTOR;
+	const fraction_t TEST_1 = v * (fraction_t(36, 10));
+	const fraction_t TEST_2 = TEST_1 *  fraction_t(1024);
+	const fraction_t TEST_3 = TEST_2 + VEHICLE_SPEED_FACTOR;
+	const fraction_t TEST_4 = TEST_3 - 1;
+	const fraction_t TEST_5 = TEST_4 / VEHICLE_SPEED_FACTOR;
 	return return_value.integer();
 }
 
-inline fraction32_t x_to_steps(fraction32_t v)
+inline fraction_t x_to_steps(fraction_t v)
 {
-	return (v * (fraction32_t(36, 10) * fraction32_t(1024, 10)) + VEHICLE_SPEED_FACTOR - 1) / VEHICLE_SPEED_FACTOR;
+	const fraction_t TEST_1 = fraction_t(36, 10) * fraction_t(1024, 10);
+	const fraction_t TEST_2 = v * TEST_1;
+	const fraction_t TEST_3 = TEST_2 + (VEHICLE_SPEED_FACTOR - 1);
+	const fraction_t TEST_4 = TEST_3 / VEHICLE_SPEED_FACTOR;
+	return (v * (fraction_t(36, 10) * fraction_t(1024, 10)) + VEHICLE_SPEED_FACTOR - 1) / VEHICLE_SPEED_FACTOR;
 }
 
 /******************************************************************************/
@@ -160,8 +164,8 @@ struct vehicle_summary_t
 // but "environ" is the name of a defined macro. 
 struct adverse_summary_t
 {
-	fraction32_t cf;	// air resistance constant: cf = cw/2 * A * rho. Depends on rho, which depends on altitude.
-	fraction32_t fr;	// roll resistance: depends on way
+	fraction_t cf;	// air resistance constant: cf = cw/2 * A * rho. Depends on rho, which depends on altitude.
+	fraction_t fr;	// roll resistance: depends on way
 	sint32 max_speed;
 
 	inline void clear()
@@ -229,8 +233,8 @@ struct freight_summary_t
 struct weight_summary_t
 {
 	sint32 weight;			// vehicle and freight weight in kg. depends on vehicle (weight) and freight (weight)
-	fraction32_t weight_cos;		// vehicle and freight weight in kg multiplied by cos(alpha). depends on adverse (way/inclination), vehicle and freight
-	fraction32_t weight_sin;		// vehicle and freight weight in kg multiplied by sin(alpha). depends on adverse (way/inclination), vehicle and freight
+	fraction_t weight_cos;		// vehicle and freight weight in kg multiplied by cos(alpha). depends on adverse (way/inclination), vehicle and freight
+	fraction_t weight_sin;		// vehicle and freight weight in kg multiplied by sin(alpha). depends on adverse (way/inclination), vehicle and freight
 
 	weight_summary_t()
 	{
@@ -271,7 +275,7 @@ private:
 	/**
 	 * Get force in N according to current speed in m/s
 	 */
-	inline sint32 get_force(fraction32_t speed) 
+	inline sint32 get_force(fraction_t speed) 
 	{
 		sint32 v = abs(speed.n);
 		return (v == 0) ? get_starting_force() : get_force_summary(v) * 1000;
@@ -279,7 +283,7 @@ private:
 	/*
 	 * Get force in N that holds the given speed v or maximum available force, what ever is lesser.
 	 */
-	fraction32_t calc_speed_holding_force(fraction32_t speed /* in m/s */, fraction32_t Frs /* in N */); /* in N */
+	fraction_t calc_speed_holding_force(fraction_t speed /* in m/s */, fraction_t Frs /* in N */); /* in N */
 	sint32 new_calc_speed_holding_force_100(sint32 speed /* in m/s */, sint32 Frs /* in N */); /* in N */
 
 protected:
