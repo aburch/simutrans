@@ -168,9 +168,9 @@ fraction32_t::fraction32_t(double value)
 	}
 	else
 	{
-		int m = (int)(log(maxlong) / log(10));
-		int x = (int)(log(a) / log(10));
-		d = (int32) exp(min(m - x, 8) * log(10));
+		int m = (int)(log((float)maxlong) / log((float)10.0));
+		int x = (int)(log(a) / log((float)10.0));
+		d = (int32) exp(min(m - x, 8) * log((float)10.0));
 		n = (int32) (value * d);
 	}
 }

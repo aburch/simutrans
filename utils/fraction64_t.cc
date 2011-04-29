@@ -168,9 +168,9 @@ fraction64_t::fraction64_t(double value)
 	}
 	else
 	{
-		int m = (int)(log(maxlonglong) / log(10));
-		int x = (int)(log(a) / log(10));
-		d = (int64) exp(min(m - x, 12) * log(10));
+		int m = (int)(log((float)maxlonglong) / log((float)10.0));
+		int x = (int)(log(a) / log((float)10.0));
+		d = (int64) exp(min(m - x, 12) * log((float)10.0));
 		n = (int64) (value * d);
 	}
 }
