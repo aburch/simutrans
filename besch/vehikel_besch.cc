@@ -145,21 +145,21 @@ void vehikel_besch_t::loaded()
 
 	const uint16 pfr = get_power_force_ratio_percentage();
 	const uint16 power_force_ratio = pfr > 0 ? pfr : 1;
-	force_threshold_speed = (uint16)(power_force_ratio + 50) / 100;
+	force_threshold_speed = (uint16)((power_force_ratio * 100) + 50) / 100;
 	geared_power = leistung * gear;
 	geared_force = (uint32)tractive_effort * gear;
 	if (geared_power != 0)
 	{
 		if (geared_force == 0)
 		{
-			geared_force = max(GEAR_FACTOR, (uint32)(geared_power / power_force_ratio + 50) / 100);
+			geared_force = max(GEAR_FACTOR, (uint32)((geared_power * 100) / (power_force_ratio * 100) + 50));
 		}
 	}
 	else
 	{
 		if (geared_force != 0)
 		{
-			geared_power = max(GEAR_FACTOR, (uint32)(geared_force * power_force_ratio + 50) / 100);
+			geared_power = max(GEAR_FACTOR, (uint32)(geared_force * (power_force_ratio * 100) + 50) / 100);
 		}
 	}
 }
