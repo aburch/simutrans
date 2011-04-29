@@ -15,18 +15,18 @@ using namespace std;
 #define BITS 64
 
 // used by shrink()
-static const int64 top4 	= 0x7800000000000000LL;
-static const int64 top33	= 0xffffffff80000000LL;
+static const sint64 top4 	= 0x7800000000000000LL;
+static const sint64 top33	= 0xffffffff80000000LL;
 
 // used by ild()
-static const int64 top16	= 0xffff000000000000LL;
-static const int64 top32	= 0xffffffff00000000LL;
-static const int64 top48	= 0xffffffffffff0000LL;
+static const sint64 top16	= 0xffff000000000000LL;
+static const sint64 top32	= 0xffffffff00000000LL;
+static const sint64 top48	= 0xffffffffffff0000LL;
 
 // used by fraction64_t(double)
-static const int64 maxlonglong 	= 0x7fffffffffffffffLL;
+static const sint64 maxlonglong 	= 0x7fffffffffffffffLL;
 
-const int64 common_factor(int64 a, int64 b)
+const sint64 common_factor(sint64 a, sint64 b)
 // Returns the largest common factor in a and be or 1, if there is no common factor.
 {
 	if (a < 0)
@@ -34,7 +34,7 @@ const int64 common_factor(int64 a, int64 b)
 	if (b < 0)
 		b = -b;
 
-	int64 c;
+	sint64 c;
 
 	if (a < b)
 	{
@@ -53,7 +53,7 @@ const int64 common_factor(int64 a, int64 b)
 	return b;
 }
 
-const int ild(int64 x)
+const int ild(sint64 x)
 // "integer logarithmus digitalis"
 // Returns the number of the highest used bit of abs(x):
 // 0: no bits in use x == 0
@@ -65,7 +65,7 @@ const int ild(int64 x)
 //
 // function is used to foresee integer overflow.
 {
-	int64 msk;
+	sint64 msk;
 	int r;
 	if (x < 0)
 		x = -x;
@@ -113,7 +113,7 @@ const fraction64_t log(const fraction64_t &x)
 	fraction64_t t2 = t1 * t1;
 	fraction64_t r = t1;
 	fraction64_t l = r;
-	int64 n = 1;
+	sint64 n = 1;
 	while ((n += 2) < 50)
 	{
 		t1 *= t2;
@@ -136,7 +136,7 @@ const fraction64_t exp(const fraction64_t &x)
 	fraction64_t t1 = t;
 	fraction64_t r = (x + 1).shorten();
 	fraction64_t l = r;
-	int64 n = 1;
+	sint64 n = 1;
 	while (++n < 30)
 	{
 		t1 *= t / n;
@@ -153,27 +153,27 @@ const fraction64_t exp(const fraction64_t &x)
 	return r;
 }
 
-fraction64_t::fraction64_t(double value)
-{
-	double a = fabs(value);
-	if (a > maxlonglong)
-	{
-		n = 1;
-		d = 0;
-	}
-	else if (a < 1/maxlonglong)
-	{
-		n = 0;
-		d = 1;
-	}
-	else
-	{
-		int m = (int)(log(maxlonglong) / log(10));
-		int x = (int)(log(a) / log(10));
-		d = (int64) exp(min(m - x, 12) * log(10));
-		n = (int64) (value * d);
-	}
-}
+//fraction64_t::fraction64_t(double value)
+//{
+//	double a = fabs(value);
+//	if (a > maxlonglong)
+//	{
+//		n = 1;
+//		d = 0;
+//	}
+//	else if (a < 1/maxlonglong)
+//	{
+//		n = 0;
+//		d = 1;
+//	}
+//	else
+//	{
+//		int m = (int)(log(maxlonglong) / log(10));
+//		int x = (int)(log(a) / log(10));
+//		d = (sint64) exp(min(m - x, 12) * log(10));
+//		n = (sint64) (value * d);
+//	}
+//}
 
 const fraction64_t & fraction64_t::operator += (const fraction64_t &f)
 {
@@ -249,11 +249,11 @@ const fraction64_t & fraction64_t::operator *= (const fraction64_t &f)
 const fraction64_t fraction64_t::shrink() const
 {
 	fraction64_t r = *this;
-	int64 an = n >= 0 ? n : -n;
-	int64 ad = d >= 0 ? d : -d;;
+	sint64 an = n >= 0 ? n : -n;
+	sint64 ad = d >= 0 ? d : -d;;
 	if (an & top33 || ad & top33)
 	{
-		int64 mask = top4;
+		sint64 mask = top4;
 		int s, sn = 0, sd = 0;
 		for (s = 16; s-- > 8 && sn == 0 && sd == 0; mask >>= 4)
 		{
@@ -271,11 +271,11 @@ const fraction64_t fraction64_t::shrink() const
 
 const fraction64_t & fraction64_t::shrink()
 {
-	int64 an = n >= 0 ? n : -n;
-	int64 ad = d >= 0 ? d : -d;;
+	sint64 an = n >= 0 ? n : -n;
+	sint64 ad = d >= 0 ? d : -d;;
 	if (an & top33 || ad & top33)
 	{
-		int64 mask = top4;
+		sint64 mask = top4;
 		int s, sn = 0, sd = 0;
 		for (s = 16; s-- >= 8 && sn == 0 && sd == 0; mask >>= 4)
 		{

@@ -9,20 +9,19 @@
 #define FRACTION64_T_H_
 
 #include <math.h>
+#include "../simtypes.h"
 
-typedef long long int64;
+const sint64 common_factor(sint64 a, sint64 b);
+const int ild(sint64 x);
 
-const int64 common_factor(int64 a, int64 b);
-const int ild(int64 x);
-
-inline int64 min(int64 a, int64 b)
+inline sint64 min(sint64 a, sint64 b)
 {
 	if (a <= b)
 		return a;
 	return b;
 }
 
-inline int64 max(int64 a, int64 b)
+inline sint64 max(sint64 a, sint64 b)
 {
 	if (a >= b)
 		return a;
@@ -31,14 +30,14 @@ inline int64 max(int64 a, int64 b)
 
 class fraction64_t {
 public:
-	int64 n;
-	int64 d;
+	sint64 n;
+	sint64 d;
 
 	// constructors
 
 	inline fraction64_t() {}
 
-	inline fraction64_t(int64 nominator, int64 denominator)
+	inline fraction64_t(sint64 nominator, sint64 denominator)
 	{
 		n = nominator;
 		d = denominator;
@@ -56,13 +55,13 @@ public:
 		d = 1;
 	}
 
-	inline fraction64_t(int64 value)
+	inline fraction64_t(sint64 value)
 	{
 		n = value;
 		d = 1;
 	}
 
-	fraction64_t(double value);
+	/*fraction64_t(double value);*/
 
 	// operators: additon and subtraction
 
@@ -85,23 +84,23 @@ public:
 		return r += fraction64_t(-f.n, f.d);
 	}
 
-	inline const fraction64_t & operator += (int64 value)
+	inline const fraction64_t & operator += (sint64 value)
 	{
 		return *this += fraction64_t(value, 1);
 	}
 
-	inline const fraction64_t & operator -= (int64 value)
+	inline const fraction64_t & operator -= (sint64 value)
 	{
 		return *this += fraction64_t(value, -1);
 	}
 
-	inline const fraction64_t operator + (int64 value) const
+	inline const fraction64_t operator + (sint64 value) const
 	{
 		fraction64_t r(n, d);
 		return r += fraction64_t(value, 1);
 	}
 
-	inline const fraction64_t operator - (int64 value) const
+	inline const fraction64_t operator - (sint64 value) const
 	{
 		fraction64_t r(n, d);
 		return r += fraction64_t(value, -1);
@@ -128,23 +127,23 @@ public:
 		return r *= fraction64_t(f.d, f.n);
 	}
 
-	inline const fraction64_t & operator *= (int64 value)
+	inline const fraction64_t & operator *= (sint64 value)
 	{
 		return *this *= fraction64_t(value, 1);
 	}
 
-	inline const fraction64_t & operator /= (int64 value)
+	inline const fraction64_t & operator /= (sint64 value)
 	{
 		return *this *= fraction64_t(1, value);
 	}
 
-	inline const fraction64_t operator * (int64 value) const
+	inline const fraction64_t operator * (sint64 value) const
 	{
 		fraction64_t r(n, d);
 		return r *= fraction64_t(value, 1);
 	}
 
-	inline const fraction64_t operator / (int64 value) const
+	inline const fraction64_t operator / (sint64 value) const
 	{
 		fraction64_t r(n, d);
 		return r *= fraction64_t(1, value);
@@ -218,7 +217,7 @@ public:
 	inline const fraction64_t shorten() const
 	{
 		fraction64_t r;
-		int64 factor = common_factor(n, d);
+		sint64 factor = common_factor(n, d);
 		if (factor > 1)
 		{
 			r.n = n / factor;
@@ -234,7 +233,7 @@ public:
 
 	inline const fraction64_t & shorten()
 	{
-		int64 factor = common_factor(n, d);
+		sint64 factor = common_factor(n, d);
 		if (factor > 1)
 		{
 			n /= factor;

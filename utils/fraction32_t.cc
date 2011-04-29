@@ -15,18 +15,18 @@ using namespace std;
 #define BITS 32
 
 // used by shrink()
-static const int32 top2 	= 0x60000000L;
-static const int32 top17	= 0xffff8000L;
+static const sint32 top2 	= 0x60000000L;
+static const sint32 top17	= 0xffff8000L;
 
 // used by ild()
-static const int32 top8	= 0xff000000L;
-static const int32 top16	= 0xffff0000L;
-static const int32 top24	= 0xffffff00L;
+static const sint32 top8	= 0xff000000L;
+static const sint32 top16	= 0xffff0000L;
+static const sint32 top24	= 0xffffff00L;
 
 // used by fraction32_t(double)
-static const int32 maxlong = 0x7fffffffL;
+static const sint32 maxlong = 0x7fffffffL;
 
-const int32 common_factor(int32 a, int32 b)
+const sint32 common_factor(sint32 a, sint32 b)
 // Returns the largest common factor in a and be or 1, if there is no common factor.
 {
 	if (a < 0)
@@ -34,7 +34,7 @@ const int32 common_factor(int32 a, int32 b)
 	if (b < 0)
 		b = -b;
 
-	int32 c;
+	sint32 c;
 
 	if (a < b)
 	{
@@ -53,7 +53,7 @@ const int32 common_factor(int32 a, int32 b)
 	return b;
 }
 
-const int ild(int32 x)
+const int ild(sint32 x)
 // "integer logarithmus digitalis"
 // Returns the number of the highest used bit of abs(x):
 // 0: no bits in use x == 0
@@ -65,7 +65,7 @@ const int ild(int32 x)
 //
 // function is used to foresee integer overflow.
 {
-	int32 msk;
+	sint32 msk;
 	int r;
 	if (x < 0)
 		x = -x;
@@ -113,7 +113,7 @@ const fraction32_t log(const fraction32_t &x)
 	fraction32_t t2 = t1 * t1;
 	fraction32_t r = t1;
 	fraction32_t l = r;
-	int32 n = 1;
+	sint32 n = 1;
 	while ((n += 2) < 50)
 	{
 		t1 *= t2;
@@ -136,7 +136,7 @@ const fraction32_t exp(const fraction32_t &x)
 	fraction32_t t1 = t;
 	fraction32_t r = (x + 1).shorten();
 	fraction32_t l = r;
-	int32 n = 1;
+	sint32 n = 1;
 	while (++n < 30)
 	{
 		t1 *= t / n;
@@ -153,27 +153,27 @@ const fraction32_t exp(const fraction32_t &x)
 	return r;
 }
 
-fraction32_t::fraction32_t(double value)
-{
-	double a = fabs(value);
-	if (a > maxlong)
-	{
-		n = 1;
-		d = 0;
-	}
-	else if (a < 1/maxlong)
-	{
-		n = 0;
-		d = 1;
-	}
-	else
-	{
-		int m = (int)(log(maxlong) / log(10));
-		int x = (int)(log(a) / log(10));
-		d = (int32) exp(min(m - x, 8) * log(10));
-		n = (int32) (value * d);
-	}
-}
+//fraction32_t::fraction32_t(double value)
+//{
+//	double a = fabs(value);
+//	if (a > maxlong)
+//	{
+//		n = 1;
+//		d = 0;
+//	}
+//	else if (a < 1/maxlong)
+//	{
+//		n = 0;
+//		d = 1;
+//	}
+//	else
+//	{
+//		int m = (int)(log(maxlong) / log(10));
+//		int x = (int)(log(a) / log(10));
+//		d = (sint32) exp(min(m - x, 8) * log(10));
+//		n = (sint32) (value * d);
+//	}
+//}
 
 const fraction32_t & fraction32_t::operator += (const fraction32_t &f)
 {
@@ -249,11 +249,11 @@ const fraction32_t & fraction32_t::operator *= (const fraction32_t &f)
 const fraction32_t fraction32_t::shrink() const
 {
 	fraction32_t r = *this;
-	int32 an = n >= 0 ? n : -n;
-	int32 ad = d >= 0 ? d : -d;;
+	sint32 an = n >= 0 ? n : -n;
+	sint32 ad = d >= 0 ? d : -d;;
 	if (an & top17 || ad & top17)
 	{
-		int32 mask = top2;
+		sint32 mask = top2;
 		int s, sn = 0, sd = 0;
 		for (s = 16; s-- > 8 && sn == 0 && sd == 0; mask >>= 2)
 		{
@@ -271,11 +271,11 @@ const fraction32_t fraction32_t::shrink() const
 
 const fraction32_t & fraction32_t::shrink()
 {
-	int32 an = n >= 0 ? n : -n;
-	int32 ad = d >= 0 ? d : -d;;
+	sint32 an = n >= 0 ? n : -n;
+	sint32 ad = d >= 0 ? d : -d;;
 	if (an & top17 || ad & top17)
 	{
-		int32 mask = top2;
+		sint32 mask = top2;
 		int s, sn = 0, sd = 0;
 		for (s = 16; s-- >= 8 && sn == 0 && sd == 0; mask >>= 2)
 		{
