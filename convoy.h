@@ -277,7 +277,7 @@ private:
 	 */
 	inline sint32 get_force(fraction_t speed) 
 	{
-		sint32 v = abs(speed.n);
+		sint32 v = abs(speed.integer());
 		return (v == 0) ? get_starting_force() : get_force_summary(v) * 1000;
 	}
 	/*
