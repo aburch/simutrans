@@ -214,7 +214,7 @@ fraction32_t convoy_t::calc_speed_holding_force(fraction32_t speed /* in m/s */,
 
 void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll)
 {
-	fraction32_t simtime_factor = (simtime_factor_integer, 100);
+	const fraction32_t simtime_factor(simtime_factor_integer, 100);
 	fraction32_t dx = 0;
 	/*sint32 new_dx_100 = 0;*/
 	if (adverse.max_speed < KMH_SPEED_UNLIMITED)
