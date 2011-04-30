@@ -334,7 +334,7 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 
 			// accelerate: calculate new speed according to acceleration within the passed second(s).
 			long dt;
-			fraction_t df = (simtime_factor * (f - fraction_t(sgn(v.n), v.d)) * adverse.cf * v * v);
+			fraction_t df = simtime_factor * f - (fraction_t(sgn<fraction_t>(v)) * adverse.cf * v * v);
 			/*const sint32 new_v_100 = new_v_10000 / 100;*/
 			//sint32 new_df_100 = (simtime_factor * (new_f_100 - sgn<sint32>(new_v_10000) * adverse.cf * new_v_100 * new_v_100)) / 1000000; /* Will need to be / 100000000 when cf is *100*/
 			if (delta_t >= DT_SLICE && (sint32)abs(df.integer()) > weight.weight / (10 * DT_SLICE_SECONDS))
