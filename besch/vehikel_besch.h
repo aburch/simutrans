@@ -468,8 +468,8 @@ public:
 
 	bool get_can_be_at_rear() const { return can_be_at_rear; }
 
-	//uint16 get_air_resistance() const { return air_resistance; }
-	double get_air_resistance() const { return (double)air_resistance / 100.0; }
+	uint16 get_air_resistance() const { return air_resistance; }
+	/*double get_air_resistance() const { return (double)air_resistance / 100.0; }*/
 	
 	const way_constraints_of_vehicle_t& get_way_constraints() const { return way_constraints; }
 	void set_way_constraints(const way_constraints_of_vehicle_t& value) { way_constraints = value; }
