@@ -144,39 +144,27 @@ void weight_summary_t::add_weight(sint32 kgs, sint32 sin_alpha)
 
 sint32 convoy_t::calc_max_speed(const weight_summary_t &weight) 
 { 
-	
-	const fraction_t nine_point_eight_one(981, 10);
-
-	const fraction_t Frs = nine_point_eight_one * (adverse.fr * weight.weight_cos + weight.weight_sin);
+	const fraction_t Frs = fraction_t(981, 10) * (adverse.fr * weight.weight_cos + weight.weight_sin);
 	if (Frs > get_starting_force()) 
 	{
 		// this convoy is too heavy to start.
 		return 0;
 	}
 	
-	const fraction_t one = 1;
-	const fraction_t two = 2;
-	const fraction_t three = 3;
-	const fraction_t three_point_six(36, 10);
-	
-	const fraction_t p3 =  Frs / (three * adverse.cf);
-	const fraction_t q2 = fraction_t(get_continuous_power()) / (two * adverse.cf);
-	const fraction_t sd = pow(q2 * q2 + p3 * p3 * p3, one/two);
-	const fraction_t vmax = (pow(q2 + sd, one/three) + pow(q2 - sd, one/three)); 
-	const fraction_t comparator = vmax * three_point_six + one; // 1.0 to compensate inaccuracy of calculation and make sure this is at least what calc_move() evaluates.
+	const fraction_t p3 =  Frs / (fraction_t(3) * adverse.cf);
+	const fraction_t q2 = fraction_t(get_continuous_power()) / (fraction_t(2) * adverse.cf);
+	const fraction_t sd = pow(q2 * q2 + p3 * p3 * p3, fraction_t(1,2));
+	const fraction_t vmax = (pow(q2 + sd, fraction_t(1, 3)) + pow(q2 - sd,fraction_t(1, 3))); 
+	const fraction_t comparator = vmax * fraction_t(18, 5) + 1; // 1.0 to compensate inaccuracy of calculation and make sure this is at least what calc_move() evaluates.
 	const fraction_t return_value = min(vehicle.max_speed, comparator.integer());  // This is the same clipping as simply casting a double to an int.
 	return return_value.integer(); // This is the same clipping as simply casting a double to an int.
-
 }
 
 sint32 convoy_t::calc_max_weight(sint32 sin_alpha)
 {
-	const fraction_t one = 1;
-	const fraction_t three_point_six(36, 10);
-	
 	if (vehicle.max_speed == 0)
 		return 0;
-	const fraction_t v = (fraction_t(vehicle.max_speed)) * (one/three_point_six); // from km/h to m/s
+	const fraction_t v = (fraction_t(vehicle.max_speed)) * (fraction_t(1) / fraction_t(18, 5)); // from km/h to m/s
 	const fraction_t f = fraction_t(get_continuous_power()) / v - adverse.cf * v * v;
 	if (f <= 0)
 	{

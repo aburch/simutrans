@@ -107,6 +107,7 @@ inline fraction_t speed_to_v(sint32 speed)
 
 inline sint32 v_to_speed(fraction_t v)
 {
+	const fraction_t return_value = (v * (fraction_t(36, 10) * fraction_t(1024)) + VEHICLE_SPEED_FACTOR - 1) / VEHICLE_SPEED_FACTOR;
 	return return_value.integer();
 }
 
