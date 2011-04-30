@@ -107,22 +107,12 @@ inline fraction_t speed_to_v(sint32 speed)
 
 inline sint32 v_to_speed(fraction_t v)
 {
-	const fraction_t return_value = (v * (fraction_t(36, 10) * fraction_t(1024)) + VEHICLE_SPEED_FACTOR - 1) / VEHICLE_SPEED_FACTOR;
-	const fraction_t TEST_1 = v * (fraction_t(36, 10));
-	const fraction_t TEST_2 = TEST_1 *  fraction_t(1024);
-	const fraction_t TEST_3 = TEST_2 + VEHICLE_SPEED_FACTOR;
-	const fraction_t TEST_4 = TEST_3 - 1;
-	const fraction_t TEST_5 = TEST_4 / VEHICLE_SPEED_FACTOR;
 	return return_value.integer();
 }
 
 inline fraction_t x_to_steps(fraction_t v)
 {
-	const fraction_t TEST_1 = fraction_t(36, 10) * fraction_t(1024, 10);
-	const fraction_t TEST_2 = v * TEST_1;
-	const fraction_t TEST_3 = TEST_2 + (VEHICLE_SPEED_FACTOR - 1);
-	const fraction_t TEST_4 = TEST_3 / VEHICLE_SPEED_FACTOR;
-	return (v * (fraction_t(36, 10) * fraction_t(1024, 10)) + VEHICLE_SPEED_FACTOR - 1) / VEHICLE_SPEED_FACTOR;
+	return (v * (fraction_t(36, 10) * fraction_t(1024)) + VEHICLE_SPEED_FACTOR - 1) / VEHICLE_SPEED_FACTOR;
 }
 
 /******************************************************************************/
