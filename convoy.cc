@@ -334,7 +334,7 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 
 			// accelerate: calculate new speed according to acceleration within the passed second(s).
 			long dt;
-			fraction_t df = (simtime_factor * (f - fraction_t(sgn(v.n), v.d)) * adverse.cf * v * v) / fraction_t(100);
+			fraction_t df = (simtime_factor * (f - fraction_t(sgn(v.n), v.d)) * adverse.cf * v * v);
 			/*const sint32 new_v_100 = new_v_10000 / 100;*/
 			//sint32 new_df_100 = (simtime_factor * (new_f_100 - sgn<sint32>(new_v_10000) * adverse.cf * new_v_100 * new_v_100)) / 1000000; /* Will need to be / 100000000 when cf is *100*/
 			if (delta_t >= DT_SLICE && (sint32)abs(df.integer()) > weight.weight / (10 * DT_SLICE_SECONDS))
@@ -529,7 +529,10 @@ sint32 existing_convoy_t::get_force_summary(sint32 speed /* in m/s */)
 	{
 		force += convoy.get_vehikel(i)->get_besch()->get_effective_force_index(speed);
 	}
-	return (force * convoy.get_welt()->get_einstellungen()->get_global_power_factor_percent() * (100 / GEAR_FACTOR) + 50) / 10000;
+	const sint32 TEST_1 = force;
+	const sint32 TEST_2 = force * convoy.get_welt()->get_einstellungen()->get_global_power_factor_percent();
+	const sint32 TEST_3 = 100 / GEAR_FACTOR;
+	return (((force * convoy.get_welt()->get_einstellungen()->get_global_power_factor_percent()) * (10000 / GEAR_FACTOR)) + 50) / 1000000;
 }
 
 
@@ -540,6 +543,6 @@ sint32 existing_convoy_t::get_power_summary(sint32 speed /* in m/s */)
 	{
 		power += convoy.get_vehikel(i)->get_besch()->get_effective_power_index(speed);
 	}
-	return (power * convoy.get_welt()->get_einstellungen()->get_global_power_factor_percent() * (100 / GEAR_FACTOR) + 50) / 10000;
+	return (power * convoy.get_welt()->get_einstellungen()->get_global_power_factor_percent() * (10000 / GEAR_FACTOR) + 50) / 1000000;
 }
 
