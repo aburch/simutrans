@@ -23,9 +23,10 @@
 
 #include "tpl/slist_tpl.h"
 #include "tpl/vector_tpl.h"
+#include "tpl/binary_heap_tpl.h"
 
 
-#define RESCHEDULING (1)
+#define RECONNECTING (1)
 #define REROUTING (2)
 
 #define MAX_HALT_COST   7 // Total number of cost items
@@ -68,8 +69,6 @@ class haltestelle_t
 public:
 	enum station_flags { NOT_ENABLED=0, PAX=1, POST=2, WARE=4, CROWDED=8 };
 
-	enum routine_result_flags { NO_ROUTE=0, ROUTE_OK=1, ROUTE_OVERCROWDED=8 };
-
 	//13-Jan-02     Markus Weber    Added
 	enum stationtyp {invalid=0, loadingbay=1, railstation = 2, dock = 4, busstop = 8, airstop = 16, monorailstop = 32, tramstop = 64, maglevstop=128, narrowgaugestop=256 }; //could be combined with or!
 
@@ -104,15 +103,6 @@ private:
 	uint8 overcrowded[8];	// bit set, when overcrowded
 
 	static uint8 status_step;	// NONE or SCHEDULING or REROUTING
-
-	/**
-	 * Markers used in suche_route() to avoid processing the same halt more than once
-	 * Originally they are instance variables of haltestelle_t
-	 * Now consolidated into a static array to speed up suche_route()
-	 * @author Knightly
-	 */
-	static uint8 markers[65536];
-	static uint8 current_mark;
 
 	slist_tpl<convoihandle_t> loading_here;
 	long last_loading_step;
@@ -211,25 +201,39 @@ public:
 
 	const slist_tpl<tile_t> &get_tiles() const { return tiles; };
 
+	/**
+	 * directly reachable halt with its connection weight
+	 * @author Knightly
+	 */
+	struct connection_t
+	{
+		halthandle_t halt;
+		uint16 weight;
+
+		connection_t() : weight(0) { }
+		connection_t(halthandle_t _halt, uint16 _weight=0) : halt(_halt), weight(_weight) { }
+
+		bool operator == (const connection_t &other) const { return halt == other.halt; }
+		bool operator != (const connection_t &other) const { return halt != other.halt; }
+		static bool compare(const connection_t &a, const connection_t &b) { return a.halt.get_id() < b.halt.get_id(); }
+	};
+
 private:
 	slist_tpl<tile_t> tiles;
 
 	koord init_pos;	// for halt without grounds, created during game initialisation
 
-	// List with all reachable destinations
-	vector_tpl<halthandle_t>* warenziele;
+	// List of all directly reachable halts with their respective connection weights
+	vector_tpl<connection_t>* connections;
 
 	/**
-	 * For each schedule/line, that adds halts to a warenziel array,
-	 * this counter is incremented. Each ware category needs a separate
-	 * counter. If this counter is more than 1, this halt is a transfer
-	 * halt, i.e. contains non_identical_schedules with overlapping
-	 * destinations.
-	 * Non-transfer stops do not need to be searched for connections
-	 * => large speedup possible.
+	 * A transfer/interchange is a halt whereby ware can change line or lineless convoy.
+	 * Thus, if a halt is served by 2 or more schedules (of lines or lineless convoys)
+	 * for a particular ware type, it is a transfer/interchange for that ware type.
+	 * Route searching is accelerated by differentiating transfer and non-transfer halts.
 	 * @author Knightly
 	 */
-	uint8 *non_identical_schedules;
+	uint8 *serving_schedules;
 
 	// Array with different categries that contains all waiting goods at this stop
 	vector_tpl<ware_t> **waren;
@@ -249,8 +253,8 @@ private:
 	 */
 	stationtyp station_type;
 
-	uint8 rebuilt_destination_counter;	// new schedule, first rebuilt destinations asynchroniously
-	uint8 reroute_counter;						// the reroute goods
+	uint8 reconnect_counter;	// first, reconnect to directly reachable halts asynchroniously
+	uint8 reroute_counter;		// then, reroute goods
 	// since we do partial routing, we remeber the last offset
 	uint8 last_catg_index;
 	uint32 last_ware_index;
@@ -356,13 +360,13 @@ public:
 	void remove_fabriken(fabrik_t *fab);
 
 	/**
-	 * Rebuilds the list of reachable destinations
+	 * Rebuilds the list of connections to reachable halts
 	 * returns the search number of connections
 	 * @author Hj. Malthaner
 	 */
-	sint32 rebuild_destinations();
+	sint32 rebuild_connections();
 
-	uint8 get_rebuild_destination_counter() const  { return rebuilt_destination_counter; }
+	uint8 get_reconnect_counter() const  { return reconnect_counter; }
 
 	void rotate90( const sint16 y_size );
 
@@ -373,11 +377,11 @@ public:
 
 	void make_public_and_join( spieler_t *sp );
 
-	const vector_tpl<halthandle_t> *get_warenziele_passenger() const {return warenziele;}
-	const vector_tpl<halthandle_t> *get_warenziele_mail() const {return warenziele+1;}
+	const vector_tpl<connection_t> *get_pax_connections() const { return connections; }
+	const vector_tpl<connection_t> *get_mail_connections() const { return connections+1; }
 
 	// returns the matchin warenziele
-	const vector_tpl<halthandle_t> *get_warenziele(uint8 catg_index) const {return warenziele+catg_index;}
+	const vector_tpl<connection_t> *get_connections(uint8 catg_index) const { return connections+catg_index; }
 
 	const slist_tpl<fabrik_t*>& get_fab_list() const { return fab_list; }
 
@@ -395,6 +399,48 @@ public:
 
 	static karte_t* get_welt() { return welt; }
 
+private:
+	/* Node used during route search */
+	struct route_node_t
+	{
+		halthandle_t halt;
+		uint16 depth;
+		uint16 aggregate_weight;
+		union
+		{
+			uint16 prev_node_idx;			// used in static function search_route()
+			uint16 next_transfer_id;		// used in member function search_routes()
+		};
+
+		bool operator <= (const route_node_t &other) const { return aggregate_weight <= other.aggregate_weight; }
+	};
+
+	/* Extra data for route search */
+	struct halt_data_t
+	{
+		uint16 best_weight;
+		uint16 destination;
+	};
+
+	// nodes used in route searching
+	static route_node_t route_nodes[65536];
+
+	// store the best weight so far for a halt, and indicate whether it is a destination
+	static halt_data_t halt_data[65536];
+
+	// for efficient retrieval of the node with the smallest weight
+	static binary_heap_tpl<route_node_t *> open_list;
+
+	/**
+	 * Markers used in route searching to avoid processing the same halt more than once
+	 * @author Knightly
+	 */
+	static uint8 markers[65536];
+	static uint8 current_marker;
+
+public:
+	enum routing_result_flags { NO_ROUTE=0, ROUTE_OK=1, ROUTE_WALK=2, ROUTE_OVERCROWDED=8 };
+
 	/**
 	 * Kann die Ware nicht zum Ziel geroutet werden (keine Route), dann werden
 	 * Ziel und Zwischenziel auf koord::invalid gesetzt.
@@ -408,7 +454,15 @@ public:
 	 *
 	 * @author prissi
 	 */
-	int suche_route( ware_t &ware, koord *next_to_ziel, const bool no_routing_over_overcrowding );
+	static int search_route( const halthandle_t *const start_halts, const uint16 start_halt_count, const bool no_routing_over_overcrowding, ware_t &ware, ware_t *const return_ware=NULL );
+
+	/**
+	 * A separate version of route searching code for re-calculating routes for multiple packets concurrently in one single search
+	 * It is faster than calling the above version on each packet, and is used for re-routing packets from the same halt
+	 * Can search routes for a maximum of 16 destinations concurrently
+	 */
+	#define MAX_SEARCH_DESTINATIONS (16)
+	void search_routes( ware_t *const wares, const uint16 ware_count );
 
 	int get_pax_enabled()  const { return enables & PAX;  }
 	int get_post_enabled() const { return enables & POST; }

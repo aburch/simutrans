@@ -108,12 +108,12 @@ template<class T> class vector_tpl
 			return true;
 		}
 
-		/** insets data at a certain pos */
+		/** insert data at a certain pos */
 		void insert_at(const uint32 pos, const T& elem)
 		{
 			if (pos < count) {
 				if (count == size) {
-					resize(size + 1);
+					resize(size == 0 ? 1 : size * 2);
 				}
 				for (uint i = count; i > pos; i--) {
 					data[i] = data[i - 1];
@@ -132,36 +132,70 @@ template<class T> class vector_tpl
 		template<class StrictWeakOrdering>
 		void insert_ordered(const T& elem, StrictWeakOrdering comp)
 		{
-			uint32 i = 0;
-			for(  ; i < count; ++i  ) {
-				/* We are past `elem'.  Insert here. */
-				if(  comp(elem, (*this)[i])  )
-					break;
+			sint32 low = -1, high = count;
+			while(  high - low>1  ) {
+				const sint32 mid = ((uint32) (low + high)) >> 1;
+				T &mid_elem = data[mid];
+				if(  comp(elem, mid_elem)  ) {
+					high = mid;
+				}
+				else {
+					low = mid;
+				}
 			}
-
-			insert_at(i, elem);
+			insert_at(high, elem);
 		}
 
 		/**
 		 * Only insert `elem' if not already contained in this vector.
 		 * Respects the ordering and assumes the vector is ordered.
+		 * Returns NULL if insertion is successful;
+		 * otherwise return the address of the element in conflict
 		 */
 		template<class StrictWeakOrdering>
-		void insert_unique_ordered(const T& elem, StrictWeakOrdering comp)
+		T* insert_unique_ordered(const T& elem, StrictWeakOrdering comp)
 		{
-			uint32 i = 0;
-			for(  ; i < count; ++i  ) {
-				const T& here = (*this)[i];
-
-				/* We are past `elem'.  Insert here. */
-				if(  comp(elem, here)  )
-					break;
-				if(  here == elem  )
-					return;
+			sint32 low = -1, high = count;
+			while(  high - low>1  ) {
+				const sint32 mid = ((uint32) (low + high)) >> 1;
+				T &mid_elem = data[mid];
+				if(  elem==mid_elem  ) {
+					return &mid_elem;
+				}
+				else if(  comp(elem, mid_elem)  ) {
+					high = mid;
+				}
+				else {
+					low = mid;
+				}
 			}
-
-			insert_at(i, elem);
+			insert_at(high, elem);
+			return NULL;
 		}
+
+		/**
+		 * Search for an element, assuming that the vector is sorted.
+		 * If the element is found, return its address; otherwise, return NULL
+		 */
+		template<class StrictWeakOrdering>
+		T* search_ordered(const T& elem, StrictWeakOrdering comp)
+		{
+			sint32 low = -1, high = count;
+			while(  high - low>1  ) {
+				const sint32 mid = ((uint32) (low + high)) >> 1;
+				T &mid_elem = data[mid];
+				if(  elem==mid_elem  ) {
+					return &mid_elem;
+				}
+				else if(  comp(elem, mid_elem)  ) {
+					high = mid;
+				}
+				else {
+					low = mid;
+				}
+ 			}
+			return NULL;
+ 		}
 
 		/**
 		 * put the data at a certain position

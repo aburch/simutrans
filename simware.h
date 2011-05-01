@@ -54,6 +54,7 @@ public:
 	void set_ziel(const halthandle_t &ziel) { this->ziel = ziel; }
 
 	const halthandle_t &get_zwischenziel() const { return zwischenziel; }
+	halthandle_t &access_zwischenziel() { return zwischenziel; }
 	void set_zwischenziel(const halthandle_t &zwischenziel) { this->zwischenziel = zwischenziel; }
 
 	koord get_zielpos() const { return zielpos; }

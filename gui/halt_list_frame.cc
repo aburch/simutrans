@@ -140,7 +140,7 @@ bool halt_list_frame_t::passes_filter(halthandle_t halt)
 		if(!ok && get_filter(ohneverb_filter)) {
 			ok = true;
 			for (uint8 i = 0; i<warenbauer_t::get_max_catg_index(); i++){
-				ok &= halt->get_warenziele(i)->empty(); //only display stations with NO connection
+				ok &= halt->get_connections(i)->empty(); //only display stations with NO connection
 			}
 		}
 		if(!ok) {

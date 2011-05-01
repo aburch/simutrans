@@ -1538,7 +1538,7 @@ void win_display_flush(double konto)
 	}
 #ifdef DEBUG
 	if(  umgebung_t::verbose_debug>3  ) {
-		if(  haltestelle_t::get_rerouting_status()==RESCHEDULING  ) {
+		if(  haltestelle_t::get_rerouting_status()==RECONNECTING  ) {
 			info.append( " +" );
 		}
 		else if(  haltestelle_t::get_rerouting_status()==REROUTING  ) {

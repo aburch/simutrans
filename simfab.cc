@@ -1570,7 +1570,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 				const sint32 halt_left = (sint32)halt->get_capacity(2) - (sint32)halt->get_ware_summe(ware.get_besch());
 
 				// ok, still enough space
-				if(  halt->suche_route( ware, NULL, welt->get_einstellungen()->is_no_routing_over_overcrowding() )==haltestelle_t::ROUTE_OK  ) {
+				if(  haltestelle_t::search_route( &halt, 1u, welt->get_einstellungen()->is_no_routing_over_overcrowding(), ware )==haltestelle_t::ROUTE_OK  ) {
 
 					// if only overflown factories found => deliver to first
 					// else deliver to non-overflown factory
