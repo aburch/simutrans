@@ -485,6 +485,8 @@
     <ClCompile Include="gui\loadsave_frame.cc" />
     <ClCompile Include="utils\checksum.cc" />
     <ClCompile Include="utils\dbg_weightmap.cc" />
+    <ClCompile Include="utils\fraction32_t.cc" />
+    <ClCompile Include="utils\fraction64_t.cc" />
     <ClCompile Include="utils\log.cc" />
     <ClCompile Include="boden\wege\maglev.cc" />
     <ClCompile Include="gui\map_frame.cc" />
@@ -808,6 +810,9 @@
     <ClInclude Include="gui\load_relief_frame.h" />
     <ClInclude Include="dataobj\loadsave.h" />
     <ClInclude Include="gui\loadsave_frame.h" />
+    <ClInclude Include="utils\fraction32_t.h" />
+    <ClInclude Include="utils\fraction64_t.h" />
+    <ClInclude Include="utils\fraction_t.h" />
     <ClInclude Include="utils\log.h" />
     <ClInclude Include="macros.h" />
     <ClInclude Include="boden\wege\maglev.h" />

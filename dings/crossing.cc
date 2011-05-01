@@ -50,11 +50,6 @@ crossing_t::crossing_t(karte_t* const welt, spieler_t* const sp, koord3d const p
 
 crossing_t::~crossing_t()
 {
-	grund_t *gr = welt->lookup( get_pos() );
-	if(gr) {
-		gr->obj_remove(this);
-		set_pos(koord3d::invalid);
-	}
 	if(logic) {
 		logic->remove(this);
 	}

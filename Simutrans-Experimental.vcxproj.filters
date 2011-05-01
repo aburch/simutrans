@@ -750,6 +750,12 @@
     <ClCompile Include="dataobj\network_file_transfer.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="utils\fraction32_t.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\fraction64_t.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gui\components\action_listener.h">
@@ -1740,6 +1746,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="dataobj\network_file_transfer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\fraction_t.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\fraction32_t.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\fraction64_t.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

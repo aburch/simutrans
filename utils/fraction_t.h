@@ -8,6 +8,8 @@
 #ifndef FRACTION_T_H_
 #define FRACTION_T_H_
 
+#define USE_FRACTION64_T
+
 #ifdef USE_FRACTION64_T
 	#include "fraction64_t.h"
 	typedef fraction64_t fraction_t;
