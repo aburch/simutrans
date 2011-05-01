@@ -124,8 +124,6 @@ ding_t::~ding_t()
 }
 
 
-
-
 /**
  * setzt den Besitzer des dings
  * (public wegen Rathausumbau - V.Meyer)
@@ -139,7 +137,6 @@ void ding_t::set_besitzer(spieler_t *sp)
 }
 
 
-
 /**
  * Ein Objekt kann einen Besitzer haben.
  * @return Einen Zeiger auf den Besitzer des Objekts oder NULL,
@@ -150,7 +147,6 @@ spieler_t *ding_t::get_besitzer() const
 {
 	return welt->get_spieler(besitzer_n);
 }
-
 
 
 /* the only general info we can give is the name
@@ -183,7 +179,6 @@ void ding_t::zeige_info()
 }
 
 
-
 // returns NULL, if removal is allowed
 const char *ding_t::ist_entfernbar(const spieler_t *sp)
 {
@@ -196,9 +191,7 @@ const char *ding_t::ist_entfernbar(const spieler_t *sp)
 }
 
 
-
-void
-ding_t::rdwr(loadsave_t *file)
+void ding_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t d( file, "ding_t" );
 	if(  file->get_version()<101000) {
@@ -223,8 +216,7 @@ ding_t::rdwr(loadsave_t *file)
  * (reset dirty will be done from dingliste! It is true only for drawing the main window.)
  * @author Hj. Malthaner
  */
-void
-ding_t::display(int xpos, int ypos, bool /*reset_dirty*/) const
+void ding_t::display(int xpos, int ypos, bool /*reset_dirty*/) const
 {
 	const int raster_width = get_current_tile_raster_width();
 
@@ -278,8 +270,7 @@ void ding_t::rotate90()
 
 
 
-void
-ding_t::display_after(int xpos, int ypos, bool /*is_global*/ ) const
+void ding_t::display_after(int xpos, int ypos, bool /*is_global*/ ) const
 {
 	image_id bild = get_after_bild();
 	if(bild != IMG_LEER) {
@@ -305,12 +296,12 @@ ding_t::display_after(int xpos, int ypos, bool /*is_global*/ ) const
  * sometimes they have an extra offset, this is the yoff parameter
 * @author prissi
  */
-void
-ding_t::mark_image_dirty(image_id bild,sint16 yoff) const
+void ding_t::mark_image_dirty(image_id bild,sint16 yoff) const
 {
 	if(bild!=IMG_LEER) {
 		int xpos=0, ypos=0;
-		if (vehikel_basis_t const* const v = ding_cast<vehikel_basis_t>(this)) {
+		if(  is_moving()  ) {
+			vehikel_basis_t const* const v = ding_cast<vehikel_basis_t>(this);
 			// vehicles need finer steps to appear smoother
 			v->get_screen_offset( xpos, ypos, get_tile_raster_width() );
 		}

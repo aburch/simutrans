@@ -47,14 +47,20 @@ crossing_t::crossing_t(karte_t* const welt, spieler_t* const sp, koord3d const p
 }
 
 
-
 crossing_t::~crossing_t()
 {
-	if(logic) {
-		logic->remove(this);
-	}
+	assert(logic==NULL);
 }
 
+
+void crossing_t::entferne(spieler_t *)
+{
+	if(logic) {
+		crossing_logic_t *old_logic = logic;
+		logic = NULL;
+		old_logic->remove(this);
+	}
+}
 
 
 void crossing_t::rotate90()
@@ -71,7 +77,6 @@ void crossing_t::state_changed()
 	mark_image_dirty( bild, 0 );
 	mark_image_dirty( after_bild, 0 );
 	calc_bild();
-	set_flag(ding_t::dirty);
 }
 
 

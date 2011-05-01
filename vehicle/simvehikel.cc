@@ -2750,7 +2750,7 @@ bool waggon_t::block_reserver(const route_t *route, uint16 start_index, uint16 &
 				count --;
 				next_signal_index = i;
 			}
-			if(  !sch1->reserve( cnv->self, ribi_typ( route->position_bei(max(1,i)-1), route->position_bei(min(route->get_count()-1,i+1)) ) )  ) {
+			if(  !sch1->reserve( cnv->self, ribi_typ( route->position_bei(max(1u,i)-1u), route->position_bei(min(route->get_count()-1u,i+1u)) ) )  ) {
 				success = false;
 			}
 			if(next_crossing_index==INVALID_INDEX  &&  sch1->is_crossing()) {

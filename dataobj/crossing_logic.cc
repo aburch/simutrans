@@ -299,7 +299,7 @@ void crossing_logic_t::add( karte_t *w, crossing_t *start_cr, crossing_state_t z
 	minivec_tpl<crossing_logic_t *>crossings_logics;
 	welt = w;
 
-	crossings.append( start_cr );
+	crossings.append_unique( start_cr );
 	// go nord/west
 	while(1) {
 		pos += zv;

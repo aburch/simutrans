@@ -155,7 +155,26 @@ public:
 	{
 		if (tail == 0) {
 			insert(data);
-		} else {
+		}
+		else {
+			node_t* tmp = new node_t(data, 0);
+			tail->next = tmp;
+			tail = tmp;
+			node_count++;
+		}
+	}
+
+	/**
+	 * Appends an element to the end of the list.
+	 *
+	 * @author Hj. Malthaner
+	 */
+	void append_unique(const T& data)
+	{
+		if (tail == 0) {
+			insert(data);
+		}
+		else if(  !is_contained(data)  ) {
 			node_t* tmp = new node_t(data, 0);
 			tail->next = tmp;
 			tail = tmp;
