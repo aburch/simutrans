@@ -158,11 +158,9 @@ const char *loadsave_frame_t::get_info(const char *fname)
 		// file not found?
 		return date;
 	}
-	long& file_size = sb.st_size;
-	time_t& mod_time = sb.st_mtime;
 	// check hash table
 	sve_info_t *svei = cached_info.get(fname);
-	if (svei   &&  svei->file_size == file_size  &&  svei->mod_time==mod_time) {
+	if (svei   &&  svei->file_size == sb.st_size  &&  svei->mod_time == sb.st_mtime) {
 		// compare size and mtime
 		// if both are equal then most likely the files are the same
 		// no need to read the file for pak_extension
@@ -177,7 +175,7 @@ const char *loadsave_frame_t::get_info(const char *fname)
 		pak_extension = test.get_pak_extension();
 
 		// now insert in hash_table
-		sve_info_t *svei_new = new sve_info_t(pak_extension, mod_time, file_size);
+		sve_info_t *svei_new = new sve_info_t(pak_extension, sb.st_mtime, sb.st_size );
 		// copy filename
 		char *key = strdup(fname);
 		sve_info_t *svei_old = cached_info.set(key, svei_new);
