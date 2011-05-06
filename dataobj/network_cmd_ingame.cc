@@ -1,3 +1,10 @@
+// for chdir
+#ifdef _WIN32
+#include <direct.h>
+#else
+#include <unistd.h>
+#endif
+
 #include "network_cmd_ingame.h"
 #include "network.h"
 #include "network_file_transfer.h"
