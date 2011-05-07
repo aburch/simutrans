@@ -164,7 +164,7 @@ sint32 convoy_t::calc_max_weight(sint32 sin_alpha)
 {
 	if (vehicle.max_speed == 0)
 		return 0;
-	const fraction_t v = (fraction_t(vehicle.max_speed)) * (fraction_t(1) / fraction_t(18, 5)); // from km/h to m/s
+	const fraction_t v = (fraction_t(vehicle.max_speed)) * fraction_t(5, 18); // from km/h to m/s
 	const fraction_t f = fraction_t(get_continuous_power()) / v - adverse.cf * v * v;
 	if (f <= 0)
 	{
@@ -222,7 +222,7 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 	}
 	else
 	{
-		const fraction_t Frs = fraction_t(981, 100) * (adverse.fr * weight.weight_cos + weight.weight_sin); // msin, mcos are calculated per vehicle due to vehicle specific slope angle.
+		const fraction_t Frs = fraction_t(981, 10) * (adverse.fr * weight.weight_cos + weight.weight_sin); // msin, mcos are calculated per vehicle due to vehicle specific slope angle.
 		/*const sint32 new_frs_100 = 981 * (adverse.fr * weight.weight_cos + weight.weight_sin);*/
 		const fraction_t vmax = speed_to_v(akt_speed_soll);
 		/*const uint32 new_vmax_100 = speed_to_v(akt_speed_soll)  * 100;*/
