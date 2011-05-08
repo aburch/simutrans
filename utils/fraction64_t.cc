@@ -153,30 +153,33 @@ const fraction64_t exp(const fraction64_t &x)
 	return r;
 }
 
-//fraction64_t::fraction64_t(double value)
-//{
-//	double a = fabs(value);
-//	if (a > maxlonglong)
-//	{
-//		n = 1;
-//		d = 0;
-//	}
-//	else if (a < 1/maxlonglong)
-//	{
-//		n = 0;
-//		d = 1;
-//	}
-//	else
-//	{
-//		int m = (int)(log(maxlonglong) / log(10));
-//		int x = (int)(log(a) / log(10));
-//		d = (sint64) exp(min(m - x, 12) * log(10));
-//		n = (sint64) (value * d);
-//	}
-//}
+#ifdef USE_DOUBLE
+fraction64_t::fraction64_t(double value)
+{
+	double a = fabs(value);
+	if (a > maxlonglong)
+	{
+		n = 1;
+		d = 0;
+	}
+	else if (a < 1/maxlonglong)
+	{
+		n = 0;
+		d = 1;
+	}
+	else
+	{
+		int m = (int)(log(maxlonglong) / log(10));
+		int x = (int)(log(a) / log(10));
+		d = (sint64) exp(min_64(m - x, 12) * log(10));
+		n = (sint64) (value * d);
+	}
+}
+#endif
 
 const fraction64_t & fraction64_t::operator += (const fraction64_t &f)
 {
+	normalize();
 	if (d == f.d)
 	{
 		int iun = ild(n), ivn = ild(f.n);
@@ -217,14 +220,9 @@ const fraction64_t & fraction64_t::operator += (const fraction64_t &f)
 		if (ivd >= BITS/2)
 			v.shrink();
 	}
-	const bool negative = v.d < 0;
 	n = n * v.d + d * v.n;
 	d = d * v.d;
-	if(negative)
-	{
-		n = -n;
-		d = -d;
-	}
+	normalize();
 	return *this;
 }
 
@@ -249,6 +247,7 @@ const fraction64_t & fraction64_t::operator *= (const fraction64_t &f)
 	}
 	n *= v.n;
 	d *= v.d;
+	normalize();
 	return *this;
 }
 
@@ -268,7 +267,7 @@ const fraction64_t fraction64_t::shrink() const
 			if (sd == 0 && ad & mask)
 				sd = s;
 		}
-		s = (max(sn, sd) - 7) * 4;
+		s = (max_64(sn, sd) - 7) * 4;
 		r.n = n / (1LL << s);
 		r.d = d / (1LL << s);
 	}
@@ -290,7 +289,7 @@ const fraction64_t & fraction64_t::shrink()
 			if (sd == 0 && ad & mask)
 				sd = s;
 		}
-		s = (max(sn, sd) - 7) * 4;
+		s = (max_64(sn, sd) - 7) * 4;
 		n = n / (1LL << s);
 		d = d / (1LL << s);
 	}

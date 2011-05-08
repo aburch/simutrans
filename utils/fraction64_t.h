@@ -9,23 +9,25 @@
 #define FRACTION64_T_H_
 
 #include <math.h>
-#include "../simtypes.h"
+
+#ifndef NO_SIMUTRANS
+	#include "../simtypes.h"
+#else
+	typedef long long sint64;
+	typedef long sint32;
+#endif
 
 const sint64 common_factor(sint64 a, sint64 b);
 const int ild(sint64 x);
 
 inline sint64 min_64(sint64 a, sint64 b)
 {
-	if (a <= b)
-		return a;
-	return b;
+	return a <= b ? a : b;
 }
 
 inline sint64 max_64(sint64 a, sint64 b)
 {
-	if (a >= b)
-		return a;
-	return b;
+	return a >= b ? a : b;
 }
 
 class fraction64_t {
@@ -39,8 +41,16 @@ public:
 
 	inline fraction64_t(sint64 nominator, sint64 denominator)
 	{
-		n = nominator;
-		d = denominator;
+		if (denominator >= 0)
+		{
+			n = nominator;
+			d = denominator;
+		}
+		else
+		{
+			n = -nominator;
+			d = -denominator;
+		}
 	}
 
 	inline fraction64_t(int value)
@@ -61,9 +71,22 @@ public:
 		d = 1;
 	}
 
-	/*fraction64_t(double value);*/
+#ifdef USE_DOUBLE
+	fraction64_t(double value);
+#endif
 
-	inline sint32 integer() const { return n / (d == 0 ? 1 : d); }
+	inline void normalize()
+	{
+		if (d < 0)
+		{
+			n = -n;
+			d = -d;
+		}
+	}
+
+	inline sint32 integer() const {
+		return n / (d == 0 ? 1 : d);
+	}
 
 	// operators: additon and subtraction
 
@@ -93,7 +116,7 @@ public:
 
 	inline const fraction64_t & operator -= (sint64 value)
 	{
-		return *this += fraction64_t(value, -1);
+		return *this += fraction64_t(-value, 1);
 	}
 
 	inline const fraction64_t operator + (sint64 value) const
@@ -105,7 +128,7 @@ public:
 	inline const fraction64_t operator - (sint64 value) const
 	{
 		fraction64_t r(n, d);
-		return r += fraction64_t(value, -1);
+		return r += fraction64_t(-value, 1);
 	}
 
 	// operators: multiplication and division
@@ -155,60 +178,44 @@ public:
 
 	inline bool operator < (const fraction64_t &f) const
 	{
-		if (n < f.n && d >= f.d)
-			return true;
-		if (n == f.n && d > f.d)
-			return true;
-		fraction64_t r = *this / f;
+		fraction64_t r = *this - f;
 		r.shrink();
-		return r.n < r.d;
+		return r.n < 0;
 	}
 
 	inline bool operator <= (const fraction64_t &f) const
 	{
-		if (n <= f.n && d >= f.d)
-			return true;
-		fraction64_t r = *this / f;
+		fraction64_t r = *this - f;
 		r.shrink();
-		return r.n <= r.d;
+		return r.n <= 0;
 	}
 
 	inline bool operator == (const fraction64_t &f) const
 	{
-		if (n == f.n && d == f.d)
-			return true;
-		fraction64_t r = *this / f;
+		fraction64_t r = *this - f;
 		r.shrink();
-		return r.n == r.d;
+		return r.n == 0;
 	}
 
 	inline bool operator != (const fraction64_t &f) const
 	{
-		if (n == f.n && d == f.d)
-			return false;
-		fraction64_t r = *this / f;
+		fraction64_t r = *this - f;
 		r.shrink();
-		return r.n != r.d;
+		return r.n != 0;
 	}
 
 	inline bool operator >= (const fraction64_t &f) const
 	{
-		if (n >= f.n && d <= f.d)
-			return true;
-		fraction64_t r = *this / f;
+		fraction64_t r = *this - f;
 		r.shrink();
-		return r.n >= r.d;
+		return r.n >= 0;
 	}
 
 	inline bool operator > (const fraction64_t &f) const
 	{
-		if (n > f.n && d <= f.d)
-			return true;
-		if (n == f.n && d < f.d)
-			return true;
-		fraction64_t r = *this / f;
+		fraction64_t r = *this - f;
 		r.shrink();
-		return r.n > r.d;
+		return r.n > 0;
 	}
 
 	// shorten and shrink
