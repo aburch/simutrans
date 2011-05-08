@@ -144,7 +144,7 @@ void weight_summary_t::add_weight(sint32 kgs, sint32 sin_alpha)
 
 sint32 convoy_t::calc_max_speed(const weight_summary_t &weight) 
 { 
-	const fraction_t Frs = fraction_t(981, 10) * (adverse.fr * weight.weight_cos + weight.weight_sin);
+	const fraction_t Frs = fraction_t(981, 100) * (adverse.fr * weight.weight_cos + weight.weight_sin);
 	if (Frs > get_starting_force()) 
 	{
 		// this convoy is too heavy to start.
@@ -170,7 +170,7 @@ sint32 convoy_t::calc_max_weight(sint32 sin_alpha)
 	{
 		return 0;
 	}
-	const fraction_t comparator = fraction_t(981, 10) * (adverse.fr + fraction_t(1, 1000) * sin_alpha);
+	const fraction_t comparator = fraction_t(981, 100) * (adverse.fr + fraction_t(1, 1000) * sin_alpha);
 	const sint32 comp_int = comparator.integer();
 	return abs(min(get_starting_force(), f.integer()) / (comp_int == 0 ? 1 : comp_int));
 }
@@ -222,7 +222,7 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 	}
 	else
 	{
-		const fraction_t Frs = fraction_t(981, 10) * (adverse.fr * weight.weight_cos + weight.weight_sin); // msin, mcos are calculated per vehicle due to vehicle specific slope angle.
+		const fraction_t Frs = fraction_t(981, 100) * (adverse.fr * weight.weight_cos + weight.weight_sin); // msin, mcos are calculated per vehicle due to vehicle specific slope angle.
 		/*const sint32 new_frs_100 = 981 * (adverse.fr * weight.weight_cos + weight.weight_sin);*/
 		const fraction_t vmax = speed_to_v(akt_speed_soll);
 		/*const uint32 new_vmax_100 = speed_to_v(akt_speed_soll)  * 100;*/
