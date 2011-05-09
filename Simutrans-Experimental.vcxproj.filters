@@ -750,9 +750,6 @@
     <ClCompile Include="dataobj\network_file_transfer.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="utils\fraction32_t.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="utils\fraction64_t.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1749,9 +1746,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="utils\fraction_t.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\fraction32_t.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="utils\fraction64_t.h">
