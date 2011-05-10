@@ -640,13 +640,11 @@ uint16 vehikel_t::unload_freight(halthandle_t halt)
 	assert(halt.is_bound());
 	uint16 sum_menge = 0;
 
-	slist_tpl<ware_t> kill_queue;
 	if(halt->is_enabled( get_fracht_typ() )) {
 		if (!fracht.empty()) {
 
-			slist_iterator_tpl<ware_t> iter (fracht);
-			while(iter.next()) {
-				const ware_t& tmp = iter.get_current();
+			for(  slist_tpl<ware_t>::iterator i = fracht.begin(), end = fracht.end();  i != end;  ) {
+				const ware_t& tmp = *i;
 
 				halthandle_t end_halt = tmp.get_ziel();
 				halthandle_t via_halt = tmp.get_zwischenziel();
@@ -655,9 +653,11 @@ uint16 vehikel_t::unload_freight(halthandle_t halt)
 				// vielleicht wurde zwischendurch die
 				// Zielhaltestelle entfernt ?
 				if(!end_halt.is_bound() || !via_halt.is_bound()) {
-					DBG_MESSAGE("vehikel_t::entladen()", "destination of %d %s is no longer reachable",tmp.menge,translator::translate(tmp.get_name()));
-					kill_queue.insert(tmp);
-				} else if(end_halt==halt || via_halt==halt) {
+					DBG_MESSAGE("vehikel_t::unload_freight()", "destination of %d %s is no longer reachable",tmp.menge,translator::translate(tmp.get_name()));
+					total_freight -= tmp.menge;
+					i = fracht.erase( i );
+				}
+				else if(end_halt==halt || via_halt==halt) {
 
 					//		    printf("Liefere %d %s nach %s via %s an %s\n",
 					//                           tmp->menge,
@@ -669,6 +669,7 @@ uint16 vehikel_t::unload_freight(halthandle_t halt)
 					// hier sollte nur ordentliche ware verabeitet werden
 					int menge = halt->liefere_an(tmp);
 					sum_menge += menge;
+					total_freight -= menge;
 
 					// book delivered goods to destination
 					if(end_halt==halt) {
@@ -677,19 +678,14 @@ uint16 vehikel_t::unload_freight(halthandle_t halt)
 						get_besitzer()->buche( menge, (player_cost)(COST_TRANSPORTED_PAS+categorie) );
 					}
 
-					kill_queue.insert(tmp);
-
-					INT_CHECK("simvehikel 937");
+					i = fracht.erase( i );
+				}
+				else {
+					++i;
 				}
 			}
 		}
-	}
-
-	slist_iterator_tpl<ware_t> iter (kill_queue);
-	while( iter.next() ) {
-		total_freight -= iter.get_current().menge;
-		bool ok = fracht.remove(iter.get_current());
-		assert(ok);
+		INT_CHECK("vehikel_t::unload_freight");
 	}
 
 	return sum_menge;
