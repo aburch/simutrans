@@ -1149,8 +1149,8 @@
 <cconfiguration id="cdt.managedbuild.config.gnu.mingw.exe.release.522900867">
 <storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.mingw.exe.release.522900867" moduleId="org.eclipse.cdt.core.settings" name="Release">
 <macros>
-<stringMacro name="BACKEND" type="VALUE_TEXT" value="gdi"/>
 <stringMacro name="_WIN32" type="VALUE_TEXT" value=""/>
+<stringMacro name="BACKEND" type="VALUE_TEXT" value="gdi"/>
 <stringMacro name="OSTYPE" type="VALUE_TEXT" value="mingw"/>
 <stringMacro name="COLOUR_DEPTH" type="VALUE_TEXT" value="16"/>
 </macros>

@@ -264,5 +264,53 @@ inline const fraction64_t pow(const fraction64_t &base, const fraction64_t &expo
 	return exp(expo * log(base));
 }
 
+//inline const fraction64_t operator + (const sint32 value, fraction64_t f)
+//{
+//	fraction64_t r(value, 1);
+//	return r += f;
+//}
+//
+//inline const fraction64_t operator - (const sint32 value, fraction64_t f)
+//{
+//	fraction64_t r(value, 1);
+//	return r -= f;
+//}
+//
+//inline const fraction64_t operator * (const sint32 value, fraction64_t f)
+//{
+//	fraction64_t r(value, 1);
+//	return r *= f;
+//}
+//
+//inline const fraction64_t operator / (const sint32 value, fraction64_t f)
+//{
+//	fraction64_t r(value, 1);
+//	return r /= f;
+//}
 
-#endif /* FRACTION_T_H_ */
+inline const fraction64_t operator + (const sint64 value, fraction64_t f)
+{
+	fraction64_t r(value, 1);
+	return r += f;
+}
+
+inline const fraction64_t operator - (const sint64 value, fraction64_t f)
+{
+	fraction64_t r(value, 1);
+	return r -= f;
+}
+
+inline const fraction64_t operator * (const sint64 value, fraction64_t f)
+{
+	fraction64_t r(value, 1);
+	return r *= f;
+}
+
+inline const fraction64_t operator / (const sint64 value, fraction64_t f)
+{
+	fraction64_t r(value, 1);
+	return r /= f;
+}
+
+
+#endif /* FRACTION64_T_H_ */

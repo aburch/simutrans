@@ -97,23 +97,33 @@ a = (F - cf * v^2 - Frs) / m
 
 // anything greater then 2097151 will give us overflow in kmh_to_speed. 
 #define KMH_SPEED_UNLIMITED  (300000)
+
+// converting v to simutrans speed and vice versa:
+// m/s to km/h: 3.6
+// km/h to simutrans speed: 1024 / VEHICLE_SPEED_FACTOR
+
 /**
  * Convert simutrans speed to m/s
  */
-inline fraction_t speed_to_v(sint32 speed)
+inline sint32 speed_to_v(sint32 speed)
 {
-	return (fraction_t(speed) * (fraction_t(VEHICLE_SPEED_FACTOR))) * (fraction_t(1) / (fraction_t(36, 10) * (fraction_t(1024))));
+	return (speed * VEHICLE_SPEED_FACTOR * 10) / (36 * 1024);
 }
 
-inline sint32 v_to_speed(fraction_t v)
+/**
+ * Convert m/s to simutrans speed
+ */
+inline sint32 v_to_speed(sint32 v)
 {
-	const fraction_t return_value = (v * (fraction_t(36, 10) * fraction_t(1024)) + VEHICLE_SPEED_FACTOR - 1) / VEHICLE_SPEED_FACTOR;
-	return return_value.integer();
+	return (v * 36 * 1024 + VEHICLE_SPEED_FACTOR - 1) / (VEHICLE_SPEED_FACTOR * 10);
 }
 
-inline fraction_t x_to_steps(fraction_t v)
+/**
+ * Convert m/s to simutrans steps
+ */
+inline sint64 x_to_steps(sint64 v)
 {
-	return (v * (fraction_t(36, 10) * fraction_t(1024)) + VEHICLE_SPEED_FACTOR - 1) / VEHICLE_SPEED_FACTOR;
+	return (v * 36 * 1024 + VEHICLE_SPEED_FACTOR - 1) / (VEHICLE_SPEED_FACTOR * 10);
 }
 
 /******************************************************************************/
@@ -266,16 +276,15 @@ private:
 	/**
 	 * Get force in N according to current speed in m/s
 	 */
-	inline sint32 get_force(fraction_t speed) 
+	inline sint32 get_force(sint32 speed)
 	{
-		sint32 v = abs(speed.integer());
+		sint32 v = abs(speed);
 		return (v == 0) ? get_starting_force() : get_force_summary(v) * 1000;
 	}
 	/*
 	 * Get force in N that holds the given speed v or maximum available force, what ever is lesser.
 	 */
-	fraction_t calc_speed_holding_force(fraction_t speed /* in m/s */, fraction_t Frs /* in N */); /* in N */
-	sint32 new_calc_speed_holding_force_100(sint32 speed /* in m/s */, sint32 Frs /* in N */); /* in N */
+	sint32 calc_speed_holding_force(sint32 speed /* in m/s */, sint32 Frs /* in N */); /* in N */
 
 protected:
 	vehicle_summary_t vehicle;
