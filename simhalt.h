@@ -404,15 +404,13 @@ private:
 	struct route_node_t
 	{
 		halthandle_t halt;
-		uint16 depth;
-		uint16 aggregate_weight;
-		union
-		{
-			uint16 prev_node_idx;			// used in static function search_route()
-			uint16 next_transfer_id;		// used in member function search_routes()
-		};
+		uint16       aggregate_weight;
 
-		bool operator <= (const route_node_t &other) const { return aggregate_weight <= other.aggregate_weight; }
+		route_node_t() : aggregate_weight(0) {}
+		route_node_t(halthandle_t h, uint16 w) : halt(h), aggregate_weight(w) {}
+
+		// dereferencing to be used in binary_heap_tpl
+		inline uint16 operator * () const { return aggregate_weight; }
 	};
 
 	/* Extra data for route search */
@@ -420,16 +418,18 @@ private:
 	{
 		uint16 best_weight;
 		uint16 destination;
+		uint16 depth;
+		// transfer halt:
+		// in static function search_route():  previous transfer halt (to track back route)
+		// in member function search_routes(): first transfer halt to get there
+		halthandle_t transfer;
 	};
-
-	// nodes used in route searching
-	static route_node_t route_nodes[65536];
 
 	// store the best weight so far for a halt, and indicate whether it is a destination
 	static halt_data_t halt_data[65536];
 
 	// for efficient retrieval of the node with the smallest weight
-	static binary_heap_tpl<route_node_t *> open_list;
+	static binary_heap_tpl<route_node_t> open_list;
 
 	/**
 	 * Markers used in route searching to avoid processing the same halt more than once
@@ -438,6 +438,12 @@ private:
 	static uint8 markers[65536];
 	static uint8 current_marker;
 
+	/**
+	 * Remember last route search start and catg to resume search
+	 * @author dwachs
+	 */
+	static halthandle_t last_search_origin;
+	static uint8        last_search_ware_catg_idx;
 public:
 	enum routing_result_flags { NO_ROUTE=0, ROUTE_OK=1, ROUTE_WALK=2, ROUTE_OVERCROWDED=8 };
 
