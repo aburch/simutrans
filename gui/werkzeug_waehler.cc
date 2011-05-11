@@ -32,7 +32,7 @@ werkzeug_waehler_t::werkzeug_waehler_t(karte_t* welt, const char* titel, const c
 	this->tool_icon_disp_end = 0;
 	has_prev_next= false;
 	set_fenstergroesse( koord(max(icon.x,MIN_WIDTH), TITLEBAR_HEIGHT) );
-    dirty = true;
+	dirty = true;
 }
 
 
@@ -69,7 +69,7 @@ DBG_DEBUG4("werkzeug_waehler_t::add_tool()","ww=%i, rows=%i",ww,rows);
 		tool_icon_height = min(tool_icon_height, umgebung_t::toolbar_max_height);
 	}
 	dirty = true;
-	gui_frame_t::set_fenstergroesse( koord( tool_icon_width*icon.x, min(tool_icon_height, ((tools.get_count()-1)/tool_icon_width)+1)*icon.y+TITLEBAR_HEIGHT ) );
+	set_fenstergroesse( koord( tool_icon_width*icon.x, min(tool_icon_height, ((tools.get_count()-1)/tool_icon_width)+1)*icon.y+TITLEBAR_HEIGHT ) );
 	tool_icon_disp_start = 0;
 	tool_icon_disp_end = min( tool_icon_disp_start+tool_icon_width*tool_icon_height, tools.get_count() );
 	has_prev_next = ((uint32)tool_icon_width*tool_icon_height < tools.get_count());
@@ -96,9 +96,9 @@ void werkzeug_waehler_t::reset_tools()
 bool werkzeug_waehler_t::getroffen(int x, int y)
 {
 	int dx = x/icon.x;
-	int	dy = (y-16)/icon.y;
+	int dy = (y-16)/icon.y;
 	// either click in titlebar or on an icon
-	if(  x>=0   &&  y>=0  &&  (y<TITLEBAR_HEIGHT  ||  (dx<tool_icon_width  &&  dy<tool_icon_height) )  ) {
+	if(  x>=0   &&  y>=0  &&  ( (y<TITLEBAR_HEIGHT  &&  x<get_fenstergroesse().x)  ||  (dx<tool_icon_width  &&  dy<tool_icon_height) )  ) {
 		return y < TITLEBAR_HEIGHT || dx + tool_icon_width * dy + tool_icon_disp_start < (int)tools.get_count();
 	}
 	return false;
