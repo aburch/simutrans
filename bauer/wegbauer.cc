@@ -101,6 +101,10 @@ bool wegbauer_t::alle_wege_geladen()
 		monorail_t::default_monorail = wegbauer_t::weg_search(monorail_wt,1,0,weg_t::type_elevated);
 	}
 	maglev_t::default_maglev = wegbauer_t::weg_search(maglev_wt,1,0,weg_t::type_flat);
+	if(monorail_t::default_monorail==NULL) {
+		// only elevated???
+		maglev_t::default_maglev = wegbauer_t::weg_search(maglev_wt,1,0,weg_t::type_elevated);
+	}
 	narrowgauge_t::default_narrowgauge = wegbauer_t::weg_search(narrowgauge_wt,1,0,weg_t::type_flat);
 	kanal_t::default_kanal = wegbauer_t::weg_search(water_wt,1,0,weg_t::type_flat);
 	if(  kanal_t::default_kanal==0  ) {
