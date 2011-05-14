@@ -94,18 +94,24 @@ ifdef DEBUG
     CFLAGS += -g -DDEBUG
   endif
   ifeq ($(shell expr $(DEBUG) \>= 2), 1)
-#    CFLAGS += -fno-inline
+    ifneq ($(PROFILE), 2)
+      CFLAGS += -fno-inline
+    endif
   endif
   ifeq ($(shell expr $(DEBUG) \>= 3), 1)
-#    CFLAGS += -O0
+    ifneq ($(PROFILE), 2)
+      CFLAGS += -O0
+    endif
   endif
 else
   CFLAGS += -DNDEBUG
 endif
 
 ifneq ($(PROFILE),)
-#  CFLAGS  += -pg -DPROFILE -fno-inline -fno-schedule-insns
   CFLAGS  += -pg -DPROFILE
+  ifneq ($(PROFILE), 2)
+    CFLAGS  += -fno-inline -fno-schedule-insns
+  endif
   LDFLAGS += -pg
 endif
 
