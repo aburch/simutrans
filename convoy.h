@@ -105,9 +105,9 @@ a = (F - cf * v^2 - Frs) / m
 /**
  * Convert simutrans speed to m/s
  */
-inline sint32 speed_to_v(sint32 speed)
+inline fraction_t speed_to_v(sint32 speed)
 {
-	return (speed * VEHICLE_SPEED_FACTOR * 10) / (36 * 1024);
+	return fraction_t((speed * VEHICLE_SPEED_FACTOR * 10), (36 * 1024));
 }
 
 /**
@@ -121,9 +121,10 @@ inline sint32 v_to_speed(sint32 v)
 /**
  * Convert m/s to simutrans steps
  */
-inline sint64 x_to_steps(sint64 v)
+inline fraction_t x_to_steps(fraction_t v)
 {
-	return (v * 36 * 1024 + VEHICLE_SPEED_FACTOR - 1) / (VEHICLE_SPEED_FACTOR * 10);
+	const fraction_t first = v * 36 * 1024 + VEHICLE_SPEED_FACTOR - 1;
+	return first / (VEHICLE_SPEED_FACTOR * 10);
 }
 
 /******************************************************************************/
