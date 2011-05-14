@@ -131,21 +131,22 @@ void fussgaenger_t::erzeuge_fussgaenger_an(karte_t *welt, const koord3d k, int &
 
 		// we do not start on crossings (not overrunning pedestrians please
 		if (weg && ribi_t::is_twoway(weg->get_ribi_unmasked())) {
+			// we create maximal 4 pedestrians here for performance reasons
 			for (int i = 0; i < 4 && anzahl > 0; i++) {
 				fussgaenger_t* fg = new fussgaenger_t(welt, k);
 				bool ok = welt->lookup(k)->obj_add(fg) != 0;	// 256 limit reached
 				if (ok) {
-					for (int j = 0; j < (i & 3); i++) {
-						fg->sync_step(64 * 24);
+					if (i > 0) {
+						// walk a little
+						fg->sync_step( (i & 3) * 64 * 24);
 					}
-					// fg->sync_step( (i+1) * 64 * 24);
 					welt->sync_add(fg);
 					anzahl--;
 				} else {
-					// delete it, if we could not put them on the map
+					// delete it, if we could not put it on the map
 					fg->set_flag(ding_t::not_on_map);
 					delete fg;
-					// return; // it is pointless to try again
+					return; // it is pointless to try again
 				}
 			}
 		}
