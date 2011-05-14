@@ -119,7 +119,7 @@
 
 
 static bool is_dragging = false;
-static int last_clients = -1;
+static uint32 last_clients = -1;
 static uint8 last_active_player_nr = 0;
 static std::string last_network_game;
 
@@ -1713,7 +1713,7 @@ static int raise_frame_counter = 0;
  */
 bool karte_t::can_raise_to(sint16 x, sint16 y, bool keep_water, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, uint8 ctest) const
 {
-	bool ok;
+	bool ok = false;
 	if(ist_in_kartengrenzen(x,y)) {
 		grund_t *gr = lookup_kartenboden(koord(x,y));
 		const sint8 h0 = gr->get_hoehe();
@@ -1946,7 +1946,7 @@ int karte_t::raise(koord pos)
 // only test corners in ctest to avoid infinite loops
 bool karte_t::can_lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, uint8 ctest) const
 {
-	bool ok;
+	bool ok = false;
 	if(ist_in_kartengrenzen(x,y)) {
 		grund_t *gr = lookup_kartenboden(koord(x,y));
 		const sint8 h0 = gr->get_hoehe();
