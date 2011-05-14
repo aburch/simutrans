@@ -11,8 +11,8 @@
 #define SAVEGAME_PREFIX  "Simutrans "
 #define XML_SAVEGAME_PREFIX  "<?xml version=\"1.0\"?>"
 
-#define SAVEGAME_VER_NR  "0.110.5"
-#define SERVER_SAVEGAME_VER_NR  "0.110.5"
+#define SAVEGAME_VER_NR  "0.110.6"
+#define SERVER_SAVEGAME_VER_NR  "0.110.6"
 
 #define RES_VERSION_NUMBER  0, 110, 0, 1
 

@@ -138,18 +138,19 @@ void fussgaenger_t::erzeuge_fussgaenger_an(karte_t *welt, const koord3d k, int &
 					for (int j = 0; j < (i & 3); i++) {
 						fg->sync_step(64 * 24);
 					}
+					// fg->sync_step( (i+1) * 64 * 24);
 					welt->sync_add(fg);
 					anzahl--;
 				} else {
 					// delete it, if we could not put them on the map
 					fg->set_flag(ding_t::not_on_map);
 					delete fg;
+					// return; // it is pointless to try again
 				}
 			}
 		}
 	}
 }
-
 
 
 bool fussgaenger_t::sync_step(long delta_t)
