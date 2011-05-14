@@ -200,7 +200,7 @@ sint32 convoy_t::calc_speed_holding_force(sint32 speed /* in m/s */, sint32 Frs 
 void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll)
 {
 	const fraction_t simtime_factor(simtime_factor_integer, 100);
-	sint64 dx = 0;
+	fraction_t dx = 0;
 	if (adverse.max_speed < KMH_SPEED_UNLIMITED)
 	{
 		const sint32 speed_limit = kmh_to_speed(adverse.max_speed);
@@ -219,8 +219,8 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 	else
 	{
 		const sint32 Frs = (fraction_t(981, 100) * (adverse.fr * weight.weight_cos + weight.weight_sin)).integer(); // msin, mcos are calculated per vehicle due to vehicle specific slope angle.
-		const sint32 vmax = speed_to_v(akt_speed_soll);
-		sint32 v = speed_to_v(akt_speed); // v in m/s, akt_speed in simutrans vehicle speed;
+		const fraction_t vmax = speed_to_v(akt_speed_soll);
+		fraction_t v = speed_to_v(akt_speed); // v in m/s, akt_speed in simutrans vehicle speed;
 		sint32 fvmax = 0; // force needed to hold vmax. will be calculated as needed
 		sint32 speed_ratio = 0;
 		//static uint32 count1 = 0;
@@ -240,18 +240,18 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 				// Below set speed: full acceleration
 				// If set speed is far below the convoy max speed as e.g. aircrafts on ground reduce force.
 				// If set speed is at most a 10th of convoy's maximum, we reduce force to its 10th.
-				f = get_force(v) - Frs;
+				f = get_force(v.integer()) - Frs;
 				if (f > 1000000) // reducing force does not apply to 'weak' convoy's, thus we can save a lot of time skipping this code.
 				{
 					if (speed_ratio == 0) // speed_ratio is a constant within this function. So calculate it once only.
 					{
 						// vehicle.max_speed is in km/h, vmax in m/s
-						speed_ratio = vmax != 0 ? 10 * vehicle.max_speed / 36 * vmax : 1000000 /* any value > 10 */;
+						speed_ratio = vmax.integer() != 0 ? 10 * vehicle.max_speed / 36 * vmax.integer() : 1000000 /* any value > 10 */;
 					}
 					if (speed_ratio > 10)
 					{
 						// set speed is less than a 10th of the vehicles maximum speed.
-						fvmax = calc_speed_holding_force(vmax, Frs);
+						fvmax = calc_speed_holding_force(vmax.integer(), Frs);
 						if (f > fvmax)
 						{
 							f = (f - fvmax) / 10 + fvmax;
@@ -264,7 +264,7 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 				// at or slightly above set speed: hold this speed
 				if (fvmax == 0) // fvmax is a constant within this function. So calculate it once only.
 				{
-					fvmax = calc_speed_holding_force(vmax, Frs);
+					fvmax = calc_speed_holding_force(vmax.integer(), Frs);
 				}
 				f = fvmax;
 			}
@@ -291,7 +291,7 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 
 			// accelerate: calculate new speed according to acceleration within the passed second(s).
 			long dt;
-			fraction_t df = simtime_factor * (f - adverse.cf * (v * v * sgn<sint32>(v)));
+			fraction_t df = simtime_factor * (f - adverse.cf * (v * v * sgn<sint32>(v.integer())));
 			if (delta_t >= DT_SLICE && (sint32)abs(df.integer()) > weight.weight / (10 * DT_SLICE_SECONDS))
 			{
 				// This part is important for acceleration/deceleration phases only.
@@ -303,7 +303,7 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 			else
 			{
 				//count3++;
-				v += (df * fraction_t(delta_t, DT_TIME_FACTOR * weight.weight)).integer();
+				v += (df * fraction_t(delta_t, DT_TIME_FACTOR * weight.weight));
 				dt = delta_t;
 			}
 			if (is_breaking)
@@ -320,12 +320,13 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 			dx += dt * v;
 			delta_t -= dt; // another DT_SLICE_SECONDS passed
 		}
-		akt_speed = v_to_speed(v); // akt_speed in simutrans vehicle speed, v in m/s
+		const fraction_t akt_speed_fraction = v_to_speed(v.integer()); // akt_speed in simutrans vehicle speed, v in m/s
+		akt_speed = akt_speed_fraction.integer();
 		dx = x_to_steps(dx);
 	}
 	if (dx < KMH_SPEED_UNLIMITED - sp_soll)
 	{
-		sp_soll += (sint32) dx;
+		sp_soll += dx.integer();
 	}	
 	else
 	{
