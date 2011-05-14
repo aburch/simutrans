@@ -97,19 +97,39 @@ void ware_t::rdwr(karte_t *welt,loadsave_t *file)
 		}
 	}
 	// convert coordinate to halt indices
-	if(file->is_saving()) {
-		koord ziel_koord = ziel.is_bound() ? ziel->get_basis_pos() : koord::invalid;
-		ziel_koord.rdwr(file);
-		koord zwischenziel_koord = zwischenziel.is_bound() ? zwischenziel->get_basis_pos() : koord::invalid;
-		zwischenziel_koord.rdwr(file);
+	if(file->get_version() > 110005) {
+		// save halt id directly
+		if(file->is_saving()) {
+			uint16 halt_id = ziel.is_bound() ? ziel.get_id() : 0;
+			file->rdwr_short(halt_id);
+			halt_id = zwischenziel.is_bound() ? zwischenziel.get_id() : 0;
+			file->rdwr_short(halt_id);
+		}
+		else {
+			uint16 halt_id;
+			file->rdwr_short(halt_id);
+			ziel.set_id(halt_id);
+			file->rdwr_short(halt_id);
+			zwischenziel.set_id(halt_id);
+		}
+
 	}
 	else {
-		koord ziel_koord;
-		ziel_koord.rdwr(file);
-		ziel = welt->get_halt_koord_index(ziel_koord);
-		koord zwischen_ziel_koord;
-		zwischen_ziel_koord.rdwr(file);
-		zwischenziel = welt->get_halt_koord_index(zwischen_ziel_koord);
+		// save halthandles via coordinates
+		if(file->is_saving()) {
+			koord ziel_koord = ziel.is_bound() ? ziel->get_basis_pos() : koord::invalid;
+			ziel_koord.rdwr(file);
+			koord zwischenziel_koord = zwischenziel.is_bound() ? zwischenziel->get_basis_pos() : koord::invalid;
+			zwischenziel_koord.rdwr(file);
+		}
+		else {
+			koord ziel_koord;
+			ziel_koord.rdwr(file);
+			ziel = welt->get_halt_koord_index(ziel_koord);
+			koord zwischen_ziel_koord;
+			zwischen_ziel_koord.rdwr(file);
+			zwischenziel = welt->get_halt_koord_index(zwischen_ziel_koord);
+		}
 	}
 	zielpos.rdwr(file);
 }

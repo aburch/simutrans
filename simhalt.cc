@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansj�rg Malthaner
+ * Copyright (c) 1997 - 2001 Hansj. Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -295,8 +295,6 @@ void haltestelle_t::destroy_all(karte_t *welt)
 
 haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 {
-	self = halthandle_t(this);
-	markers[ self.get_id() ] = current_marker;
 	last_loading_step = wl->get_steps();
 
 	welt = wl;
@@ -325,6 +323,8 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 	resort_freight_info = true;
 
 	rdwr(file);
+
+	markers[ self.get_id() ] = current_marker;
 
 	alle_haltestellen.append(self);
 }
@@ -1495,12 +1495,12 @@ void haltestelle_t::search_routes( ware_t *const wares, const uint16 ware_count 
 		// check if the current halt is already in closed list
 		if(  current_halt_data.best_weight < current_weight  ) {
 			// shortest path to the current halt has already been found earlier
-			assert(markers[ current_halt_id ]==current_marker);
+			// assert(markers[ current_halt_id ]==current_marker);
 			continue;
 		}
 		else {
 			// no need to update weight, as it is already the right one
-			assert(current_halt_data.best_weight == current_weight);
+			// assert(current_halt_data.best_weight == current_weight);
 		}
 
 		if(  current_halt_data.destination  ) {
@@ -1799,8 +1799,7 @@ bool haltestelle_t::vereinige_waren(const ware_t &ware)
 		for(unsigned i=0;  i<warray->get_count();  i++ ) {
 			ware_t &tmp = (*warray)[i];
 
-			// es wird auf basis von Haltestellen vereinigt
-			// prissi: das ist aber ein Fehler f�r alle anderen G�ter, daher Zielkoordinaten f�r alles, was kein passagier ist ...
+			// join packets with same destination
 			if(ware.same_destination(tmp)) {
 				if(  ware.get_zwischenziel().is_bound()  &&  ware.get_zwischenziel()!=self  ) {
 					// update route if there is newer route
@@ -2330,6 +2329,25 @@ void haltestelle_t::rdwr(loadsave_t *file)
 	sint32 spieler_n;
 	koord3d k;
 
+	// will restore halthandle_t after loading
+	if(file->get_version() > 110005) {
+		if(file->is_saving()) {
+			uint16 halt_id = self.is_bound() ? self.get_id() : 0;
+			file->rdwr_short(halt_id);
+		}
+		else {
+			uint16 halt_id;
+			file->rdwr_short(halt_id);
+			self.set_id(halt_id);
+			self = halthandle_t(this, halt_id);
+		}
+	}
+	else {
+		if (file->is_loading()) {
+			self = halthandle_t(this);
+		}
+	}
+
 	if(file->is_saving()) {
 		spieler_n = welt->sp2num( besitzer_p );
 	}
@@ -2349,7 +2367,6 @@ void haltestelle_t::rdwr(loadsave_t *file)
 	if(file->is_loading()) {
 		besitzer_p = welt->get_spieler(spieler_n);
 		k.rdwr( file );
-		slist_tpl <grund_t *>grund_list;
 		while(k!=koord3d::invalid) {
 			grund_t *gr = welt->lookup(k);
 			if(!gr) {
