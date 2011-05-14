@@ -270,6 +270,9 @@ const fraction64_t fraction64_t::shrink() const
 		s = (max_64(sn, sd) - 7) * 4;
 		r.n = n / (1LL << s);
 		r.d = d / (1LL << s);
+		if (r.d == 0)
+			r.d++;
+
 	}
 	return r;
 }
@@ -292,6 +295,8 @@ const fraction64_t & fraction64_t::shrink()
 		s = (max_64(sn, sd) - 7) * 4;
 		n = n / (1LL << s);
 		d = d / (1LL << s);
+		if (d == 0)
+			d++;
 	}
 	return *this;
 }
