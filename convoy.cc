@@ -21,12 +21,12 @@
 //}
 
 // helps to calculate roots. pow fails to calculate roots of negative bases.
-//inline double signed_power(double base, double expo)
-//{
-//	if (base >= 0)
-//		return pow(base, expo);
-//	return -pow(-base, expo);
-//}
+inline double signed_power(double base, double expo)
+{
+	if (base >= 0)
+		return pow(base, expo);
+	return -pow(-base, expo);
+}
 
 static void get_possible_freight_weight(uint8 catg_index, sint32 &min_weight, sint32 &max_weight)
 {
@@ -144,19 +144,32 @@ void weight_summary_t::add_weight(sint32 kgs, sint32 sin_alpha)
 
 sint32 convoy_t::calc_max_speed(const weight_summary_t &weight) 
 { 
-	const fraction_t Frs = fraction_t(981, 100) * (adverse.fr * weight.weight_cos + weight.weight_sin);
+	// BG, 14.05.2011: back to 'double' calculation, as log() for large fractions 
+	// does not work sufficient and this code is not network relevant. It is only used in dialogs. 
+	const double Frs = 9.81 * (adverse.fr * weight.weight_cos + weight.weight_sin).to_double();
 	if (Frs > get_starting_force()) 
 	{
 		// this convoy is too heavy to start.
 		return 0;
 	}
-	
-	const fraction_t p3 =  Frs / (fraction_t(3) * adverse.cf);
-	const fraction_t q2 = fraction_t(get_continuous_power()) / (fraction_t(2) * adverse.cf);
-	const fraction_t sd = pow(q2 * q2 + p3 * p3 * p3, fraction_t(1,2));
-	const fraction_t vmax = (pow(q2 + sd, fraction_t(1, 3)) + pow(q2 - sd,fraction_t(1, 3))); 
-	const fraction_t comparator = vmax * fraction_t(18, 5) + 1; // 1.0 to compensate inaccuracy of calculation and make sure this is at least what calc_move() evaluates.
-	return min(vehicle.max_speed, comparator.integer()); // This is the same clipping as simply casting a double to an int.
+	const double p3 =  Frs / (3.0 * adverse.cf.to_double());
+	const double q2 = get_continuous_power() / (2.0 * adverse.cf.to_double());
+	const double sd = signed_power(q2 * q2 + p3 * p3 * p3, 1.0/2.0);
+	const double vmax = signed_power(q2 + sd, 1.0/3.0) + signed_power(q2 - sd, 1.0/3.0);
+	return min(vehicle.max_speed, (sint32)(vmax * 3.6 + 1.0)); // 1.0 to compensate inaccuracy of calculation and make sure this is at least what calc_move() evaluates.
+
+	//const fraction_t Frs = fraction_t(981, 100) * (adverse.fr * weight.weight_cos + weight.weight_sin);
+	//if (Frs > get_starting_force()) 
+	//{
+	//	// this convoy is too heavy to start.
+	//	return 0;
+	//}
+	//const fraction_t p3 =  Frs / (fraction_t(3) * adverse.cf);
+	//const fraction_t q2 = fraction_t(get_continuous_power()) / (fraction_t(2) * adverse.cf);
+	//const fraction_t sd = pow(q2 * q2 + p3 * p3 * p3, fraction_t(1,2));
+	//const fraction_t vmax = (pow(q2 + sd, fraction_t(1, 3)) + pow(q2 - sd,fraction_t(1, 3))); 
+	//const fraction_t comparator = vmax * fraction_t(18, 5) + 1; // 1.0 to compensate inaccuracy of calculation and make sure this is at least what calc_move() evaluates.
+	//return min(vehicle.max_speed, comparator.integer()); // This is the same clipping as simply casting a double to an int.
 }
 
 sint32 convoy_t::calc_max_weight(sint32 sin_alpha)
