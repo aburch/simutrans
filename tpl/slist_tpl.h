@@ -78,6 +78,7 @@ public:
 
 			bool operator ==(const iterator& o) { return ptr == o.ptr; }
 			bool operator !=(const iterator& o) { return ptr != o.ptr; }
+			bool end() const { return ptr==NULL; };
 
 		private:
 			iterator(node_t* ptr_, node_t* pred_) : ptr(ptr_), pred(pred_) {}
@@ -107,6 +108,7 @@ public:
 
 			bool operator ==(const const_iterator& o) { return ptr == o.ptr; }
 			bool operator !=(const const_iterator& o) { return ptr != o.ptr; }
+			bool end() const { return ptr==NULL; };
 
 		private:
 			explicit const_iterator(node_t* ptr_) : ptr(ptr_) {}
@@ -180,6 +182,30 @@ public:
 			tail = tmp;
 			node_count++;
 		}
+	}
+
+	/**
+	 * Appends the nodes of another list
+	 * empties other list
+	 * -> no memory allocation involved
+	 *
+	 * @author dwachs
+	 */
+	void append_list(slist_tpl<T>& other)
+	{
+		if (tail) {
+			tail->next = other.head;
+		}
+		else {
+			head = other.head;
+		}
+		tail = other.tail;
+		node_count += other.node_count;
+
+		// empty other list
+		other.tail = NULL;
+		other.head = NULL;
+		other.node_count = 0;
 	}
 
 	/**

@@ -2612,7 +2612,6 @@ bool karte_t::sync_remove(sync_steppable *obj)	// entfernt alle dinge == obj aus
  */
 void karte_t::sync_step(long delta_t, bool sync, bool display )
 {
-	DBG_DEBUG4("karte_t::sync_step", "start sync_step");
 	set_random_mode( SYNC_STEP_RANDOM );
 	if(sync) {
 		// only omitted, when called to display a new frame during fast forward
@@ -2621,11 +2620,9 @@ void karte_t::sync_step(long delta_t, bool sync, bool display )
 		// just for progress
 		ticks += delta_t;
 
-		DBG_DEBUG4("karte_t::sync_step", "add to sync list");
-		// ingore calls by interrupt during fast forward ...
+		// insert new objects created during last sync_step (eg vehicle smoke)
 		while(!sync_add_list.empty()) {
-			sync_steppable *ss = sync_add_list.remove_first();
-			sync_list.insert( ss );
+			sync_list.append_list(sync_add_list);
 		}
 
 		// now remove everything from last time
@@ -2634,8 +2631,7 @@ void karte_t::sync_step(long delta_t, bool sync, bool display )
 			sync_list.remove( ss );
 		}
 
-		DBG_DEBUG4("karte_t::sync_step", "syncstep all objects");
-		for(  slist_tpl<sync_steppable*>::iterator i=sync_list.begin();  i!=sync_list.end();  ) {
+		for(  slist_tpl<sync_steppable*>::iterator i=sync_list.begin();  !i.end();  ) {
 			// if false, then remove
 			sync_steppable *ss = *i;
 			if(!ss->sync_step(delta_t)) {
@@ -2647,7 +2643,6 @@ void karte_t::sync_step(long delta_t, bool sync, bool display )
 			}
 		}
 
-		DBG_DEBUG4("karte_t::sync_step", "remove from sync list");
 		// now remove everything from this time
 		while(!sync_remove_list.empty()) {
 			sync_steppable *ss = sync_remove_list.remove_first();
@@ -2681,12 +2676,10 @@ void karte_t::sync_step(long delta_t, bool sync, bool display )
 			}
 		}
 
-		DBG_DEBUG4("karte_t::sync_step", "display stuff");
 		// display new frame with water animation
 		intr_refresh_display( false );
 		update_frame_sleep_time(delta_t);
 	}
-	DBG_DEBUG4("karte_t::sync_step", "end");
 	clear_random_mode( SYNC_STEP_RANDOM );
 }
 
