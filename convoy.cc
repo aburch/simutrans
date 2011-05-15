@@ -216,15 +216,15 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 			akt_speed_soll = speed_limit;
 		}
 	}
-	if (delta_t > 1800 * DT_TIME_FACTOR)
-	{
-		// After 30 minutes any vehicle has reached its akt_speed_soll. 
-		// Shorten the process. 
-		akt_speed = min(akt_speed_soll, kmh_to_speed(calc_max_speed(weight)));
-		dx = delta_t * akt_speed;
-		//d_dx = delta_t * akt_speed;
-	}
-	else
+
+	//if (delta_t > 1800 * DT_TIME_FACTOR)
+	//{
+	//	// After 30 minutes any vehicle has reached its akt_speed_soll. 
+	//	// Shorten the process. 
+	//	akt_speed = min(akt_speed_soll, kmh_to_speed(calc_max_speed(weight)));
+	//	dx = delta_t * akt_speed;
+	//}
+	//else
 	{
 		//const double d_Frs = 9.81 * (adverse.fr.to_double() * weight.weight_cos.to_double() + weight.weight_sin.to_double()); // msin, mcos are calculated per vehicle due to vehicle specific slope angle.
 		//const double d_vmax = d_speed_to_v(akt_speed_soll);
