@@ -72,7 +72,7 @@ message_t::~message_t()
 
 void message_t::clear()
 {
-	while(  list.get_count()>0  ) {
+	while (!list.empty()) {
 		delete list.remove_first();
 	}
 	ticker::clear_ticker();

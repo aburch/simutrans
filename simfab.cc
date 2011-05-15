@@ -396,7 +396,7 @@ void fabrik_t::recalc_demands_at_target_cities()
 		}
 		return;
 	}
-	if(  target_cities.get_count()==0  ) {
+	if (target_cities.empty()) {
 		// nothing to do
 		return;
 	}
@@ -665,7 +665,7 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 	}
 
 	recalc_storage_capacities();
-	if(  eingang.get_count()==0  ) {
+	if (eingang.empty()) {
 		for(  uint32 g=0;  g<ausgang.get_count();  ++g  ) {
 			if(  ausgang[g].max>0  ) {
 				// if source then start with full storage, so that AI will build line(s) immediately
@@ -785,12 +785,12 @@ bool fabrik_t::add_random_field(uint16 probability)
 				}
 			}
 		}
-		if(build_locations.get_count() == 0) {
+		if (build_locations.empty()) {
 			radius++;
 		}
-	} while (radius < 10 && build_locations.get_count() == 0);
+	} while (radius < 10 && build_locations.empty());
 	// built on one of the positions
-	if(build_locations.get_count() > 0) {
+	if (!build_locations.empty()) {
 		grund_t *gr = build_locations.at(simrand(build_locations.get_count()));
 		leitung_t* lt = gr->find<leitung_t>();
 		if(lt) {
@@ -1280,7 +1280,7 @@ void fabrik_t::step(long delta_t)
 	}
 
 	// produce nothing/consumes nothing ...
-	if(  eingang.get_count()==0  &&  ausgang.get_count()==0  ) {
+	if (eingang.empty() && ausgang.empty()) {
 		// power station? => produce power
 		if(  besch->is_electricity_producer()  ) {
 			currently_producing = true;
@@ -1304,7 +1304,7 @@ void fabrik_t::step(long delta_t)
 		currently_producing = false;	// needed for electricity
 		power_demand = 0;
 
-		if(  ausgang.get_count()==0  ) {
+		if (ausgang.empty()) {
 			// consumer only ...
 			uint32 menge = produktion(produkt, delta_t);
 
@@ -1443,7 +1443,7 @@ void fabrik_t::step(long delta_t)
 
 		// rescale delta_menge here: all products should be produced at least once
 		// (if consumer only: all supplements should be consumed once)
-		const uint32 min_change = ausgang.get_count()==0 ? eingang.get_count() : ausgang.get_count();
+		const uint32 min_change = ausgang.empty() ? eingang.get_count() : ausgang.get_count();
 
 		if((delta_menge>>fabrik_t::precision_bits) > min_change) {
 
@@ -1772,7 +1772,7 @@ void fabrik_t::recalc_factory_status()
 	total_input = warenlager;
 
 	// one ware missing, but producing
-	if(status_ein&FL_WARE_FEHLT_WAS  &&  ausgang.get_count()>0  &&  haltcount>0) {
+	if (status_ein & FL_WARE_FEHLT_WAS && !ausgang.empty() && haltcount > 0) {
 		status = bad;
 		return;
 	}
@@ -1802,10 +1802,10 @@ void fabrik_t::recalc_factory_status()
 	total_output = warenlager;
 
 	// now calculate status bar
-	if(eingang.get_count()==0) {
+	if (eingang.empty()) {
 		// does not consume anything, should just produce
 
-		if(ausgang.get_count()==0) {
+		if (ausgang.empty()) {
 			// does also not produce anything
 			status = nothing;
 		}
@@ -1823,8 +1823,7 @@ void fabrik_t::recalc_factory_status()
 		else {
 			status = good;
 		}
-	}
-	else if(ausgang.get_count()==0) {
+	} else if (ausgang.empty()) {
 		// nothing to produce
 
 		if(status_ein&FL_WARE_ALLELIMIT) {
@@ -1926,9 +1925,9 @@ void fabrik_t::info(cbuffer_t& buf) const
 		}
 	}
 
-	if (  target_cities.get_count()>0  ) {
+	if (!target_cities.empty()) {
 		buf.append("\n");
-		buf.append(ausgang.get_count()==0 && !besch->is_electricity_producer() ? translator::translate("Customers live in:") : translator::translate("Arbeiter aus:"));
+		buf.append(ausgang.empty() && !besch->is_electricity_producer() ? translator::translate("Customers live in:") : translator::translate("Arbeiter aus:"));
 		buf.append("\n");
 
 		for(  uint32 c=0;  c<target_cities.get_count();  ++c  ) {
@@ -1943,8 +1942,7 @@ void fabrik_t::info(cbuffer_t& buf) const
 		}
 	}
 
-	if (ausgang.get_count()>0) {
-
+	if (!ausgang.empty()) {
 		buf.append("\n");
 		buf.append(translator::translate("Produktion"));
 		buf.append(":\n");
@@ -1971,8 +1969,7 @@ void fabrik_t::info(cbuffer_t& buf) const
 		}
 	}
 
-	if (eingang.get_count()>0) {
-
+	if (!eingang.empty()) {
 		buf.append("\n");
 		buf.append(translator::translate("Verbrauch"));
 		buf.append(":\n");

@@ -592,7 +592,7 @@ void spieler_t::ai_bankrupt()
 	headquarter_pos = koord::invalid;
 
 	// remove all stops
-	while(halt_list.get_count()>0) {
+	while (!halt_list.empty()) {
 		halthandle_t h = halt_list.remove_first();
 		haltestelle_t::destroy( h );
 	}

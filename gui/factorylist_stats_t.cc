@@ -110,7 +110,7 @@ void factorylist_stats_t::zeichnen(koord offset)
 			buf.append(fab_list[i]->get_name());
 			buf.append(" (");
 
-			if (fab->get_eingang().get_count()>0) {
+			if (!fab->get_eingang().empty()) {
 				buf.append(fab->get_total_in(),0);
 			}
 			else {
@@ -118,7 +118,7 @@ void factorylist_stats_t::zeichnen(koord offset)
 			}
 			buf.append(", ");
 
-			if (fab->get_ausgang().get_count()>0) {
+			if (!fab->get_ausgang().empty()) {
 				buf.append(fab->get_total_out(),0);
 			}
 			else {
@@ -174,16 +174,16 @@ class compare_factories
 
 				case factorylist::by_input:
 				{
-					int a_in = (a->get_eingang().get_count()==0 ? -1 : (int)a->get_total_in());
-					int b_in = (b->get_eingang().get_count()==0 ? -1 : (int)b->get_total_in());
+					int a_in = a->get_eingang().empty() ? -1 : (int)a->get_total_in();
+					int b_in = b->get_eingang().empty() ? -1 : (int)b->get_total_in();
 					cmp = a_in - b_in;
 					break;
 				}
 
 				case factorylist::by_output:
 				{
-					int a_out = (a->get_ausgang().get_count()==0 ? -1 : (int)a->get_total_out());
-					int b_out = (b->get_ausgang().get_count()==0 ? -1 : (int)b->get_total_out());
+					int a_out = a->get_ausgang().empty() ? -1 : (int)a->get_total_out();
+					int b_out = b->get_ausgang().empty() ? -1 : (int)b->get_total_out();
 					cmp = a_out - b_out;
 					break;
 				}

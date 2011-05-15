@@ -74,8 +74,7 @@ uint8 haltestelle_t::status_step = 0;
 
 void haltestelle_t::step_all()
 {
-	if(  alle_haltestellen.get_count()>0  ) {
-
+	if (!alle_haltestellen.empty()) {
 		uint32 it = halt_iterator_start;
 		slist_iterator_tpl <halthandle_t> iter( alle_haltestellen );
 		while(  it>0  &&  iter.next()  ) {
@@ -920,7 +919,7 @@ bool haltestelle_t::reroute_goods(sint16 &units_remaining)
 			// if something left
 			// re-route goods to adapt to changes in world layout,
 			// remove all goods which destination was removed from the map
-			if(waren[last_catg_index]  &&  waren[last_catg_index]->get_count()>0) {
+			if (waren[last_catg_index] && !waren[last_catg_index]->empty()) {
 
 				vector_tpl<ware_t> &warray = *waren[last_catg_index];
 				while(  last_ware_index<warray.get_count()  ) {
@@ -1080,7 +1079,7 @@ sint32 haltestelle_t::rebuild_connections()
 			}
 		}
 
-		if (  supported_catg_index.get_count()==0  ) {
+		if (supported_catg_index.empty()) {
 			// this halt does not support the goods categories handled by the line/lineless convoy
 			continue;
 		}
@@ -1675,8 +1674,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 	const uint8 count = fpl->get_count();
 	vector_tpl<ware_t> *warray = waren[wtyp->get_catg_index()];
 
-	if(warray!=NULL  &&  warray->get_count()>0) {
-
+	if (warray && !warray->empty()) {
 		// da wir schon an der aktuellem haltestelle halten
 		// startet die schleife ab 1, d.h. dem naechsten halt
 		for(  uint8 i=1; i<count; i++  ) {

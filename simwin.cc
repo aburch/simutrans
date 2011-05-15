@@ -504,7 +504,7 @@ int create_win(int x, int y, gui_frame_t* const gui, wintype const wt, long cons
 
 	if(  wins.get_count() < MAX_WIN  ) {
 
-		if(  wins.get_count()>0  ) {
+		if (!wins.empty()) {
 			// mark old title dirty
 			mark_rect_dirty_wc( wins.back().pos.x, wins.back().pos.y, wins.back().pos.x+wins.back().gui->get_fenstergroesse().x, wins.back().pos.y+16 );
 		}
@@ -1107,7 +1107,10 @@ bool check_pos_win(event_t *ev)
 	}
 
 	// click in main menu?
-	if(  werkzeug_t::toolbar_tool.get_count()>0  &&  werkzeug_t::toolbar_tool[0]->get_werkzeug_waehler()  &&  y<werkzeug_t::toolbar_tool[0]->iconsize.y  &&  ev->ev_class!=EVENT_KEYBOARD  ) {
+	if (!werkzeug_t::toolbar_tool.empty()                   &&
+			werkzeug_t::toolbar_tool[0]->get_werkzeug_waehler() &&
+			werkzeug_t::toolbar_tool[0]->iconsize.y > y         &&
+			ev->ev_class != EVENT_KEYBOARD) {
 		event_t wev = *ev;
 		inside_event_handling = werkzeug_t::toolbar_tool[0];
 		werkzeug_t::toolbar_tool[0]->get_werkzeug_waehler()->infowin_event( &wev );

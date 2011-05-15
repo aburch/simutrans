@@ -1102,7 +1102,7 @@ void depot_frame_t::zeichnen(koord pos, koord groesse)
 
 	convoihandle_t cnv = depot->get_convoi(icnv);
 	// check for data inconsistencies (can happen with withdraw-all and vehicle in depot)
-	if(!cnv.is_bound() && convoi_pics.get_count()>0){
+	if (!cnv.is_bound() && !convoi_pics.empty()) {
 		icnv=0;
 		update_data();
 		cnv = depot->get_convoi(icnv);

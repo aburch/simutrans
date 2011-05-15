@@ -134,7 +134,7 @@ void message_stats_t::zeichnen(koord offset)
 				}
 			}
 			// insert new messages to old messages
-			while(  temp_list.get_count()>0  ) {
+			while (!temp_list.empty()) {
 				filtered_messages.insert( temp_list.remove_first() );
 			}
 			last_count = new_count;

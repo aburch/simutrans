@@ -30,6 +30,8 @@ template<class T> class array_tpl
 
 		index get_count() const { return size; }
 
+		bool empty() const { return size == 0; }
+
 		void clear()
 		{
 			delete [] data;

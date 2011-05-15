@@ -796,14 +796,14 @@ void karte_t::create_rivers( sint16 number )
 			}
 		}
 	}
-	if(  water_tiles.get_count() == 0  ) {
+	if (water_tiles.empty()) {
 		dbg->message("karte_t::create_rivers()","There aren't any water tiles!\n");
 		return;
 	}
 
 	// now make rivers
 	uint8 retrys = 0;
-	while(  number>0  &&  mountain_tiles.get_count()>0  &&  retrys++<100  ) {
+	while (number > 0 && !mountain_tiles.empty() && retrys++ < 100) {
 		koord start = mountain_tiles.at_weight( simrand(mountain_tiles.get_sum_weight()) );
 		koord end = water_tiles[ simrand(water_tiles.get_count()) ];
 		sint16 dist = koord_distance(start,end);
@@ -5411,7 +5411,7 @@ void karte_t::command_queue_append(network_world_command_t* nwc) const
 
 void karte_t::clear_command_queue() const
 {
-	while(  command_queue.get_count()>0  ) {
+	while (!command_queue.empty()) {
 		delete command_queue.remove_first();
 	}
 }

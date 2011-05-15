@@ -1258,7 +1258,7 @@ void stadt_t::laden_abschliessen()
 	}
 
 	// new city => need to grow
-	if(buildings.get_count()==0) {
+	if (buildings.empty()) {
 		step_bau();
 	}
 
@@ -1561,7 +1561,7 @@ void stadt_t::calc_growth()
 	// we use the incoming storage as a measure und we will only look for end consumers (power stations, markets)
 	for(  vector_tpl<factory_entry_t>::const_iterator iter = target_factories_pax.get_entries().begin(), end = target_factories_pax.get_entries().end();  iter!=end;  ++iter  ) {
 		fabrik_t *const fab = iter->factory;
-		if(fab->get_lieferziele().get_count()==0  &&  fab->get_suppliers().get_count()!=0) {
+		if (fab->get_lieferziele().empty() && !fab->get_suppliers().empty()) {
 			// consumer => check for it storage
 			const fabrik_besch_t *const besch = fab->get_besch();
 			for(  int i=0;  i<besch->get_lieferanten();  i++  ) {
@@ -1642,7 +1642,7 @@ void stadt_t::step_passagiere()
 	if (step_count >= buildings.get_count()) {
 		step_count = 0;
 	}
-	if(buildings.get_count()==0) {
+	if (buildings.empty()) {
 		return;
 	}
 	const gebaeude_t* gb = buildings[step_count];
@@ -1678,7 +1678,7 @@ void stadt_t::step_passagiere()
 	city_history_month[0][history_type+1] += num_pax;
 
 	// only continue, if this is a good start halt
-	if(  start_halts.get_count()>0  ) {
+	if (!start_halts.empty()) {
 		// Find passenger destination
 		for(  int pax_routed=0, pax_left_to_do=0;  pax_routed<num_pax;  pax_routed+=pax_left_to_do  ) {
 			// number of passengers that want to travel

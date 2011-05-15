@@ -814,7 +814,7 @@ bool stadtauto_t::hop_check()
 			}
 		}
 #ifdef DESTINATION_CITYCARS
-		if(posliste.get_count()>0) {
+		if (!posliste.empty()) {
 			pos_next_next = posliste.at_weight(simrand(posliste.get_sum_weight()));
 		}
 		else {

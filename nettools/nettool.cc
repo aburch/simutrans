@@ -173,7 +173,7 @@ int main(int argc, char* argv[])
 			}
 			// now get list from packet
 			address_list_t &list = *(nws->address_list);
-			if (list.get_count() == 0) {
+			if (list.empty()) {
 				printf("Blacklist empty\n");
 			}
 			else {

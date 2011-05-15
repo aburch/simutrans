@@ -1120,7 +1120,7 @@ void vehikel_t::rauche()
 sint64 vehikel_t::calc_gewinn(koord start, koord end) const
 {
 	// may happen when waiting in station
-	if(start==end  ||  fracht.get_count()==0) {
+	if (start == end || fracht.empty()) {
 		return 0;
 	}
 

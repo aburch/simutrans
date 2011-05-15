@@ -758,7 +758,7 @@ void ai_goods_t::step()
 						}
 					}
 				}
-				if(start_fabs.get_count()>0) {
+				if (!start_fabs.empty()) {
 					root = start_fabs.at_weight( simrand( start_fabs.get_sum_weight() ) );
 				}
 			}

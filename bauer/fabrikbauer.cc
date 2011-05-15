@@ -340,7 +340,7 @@ koord3d fabrikbauer_t::finde_zufallsbauplatz(karte_t *welt, const koord3d pos, c
 	}
 finish:
 	// printf("Zufallsbauplatzindex %d\n", index);
-	if(list.get_count()==0) {
+	if (list.empty()) {
 		return koord3d(-1, -1, -1);
 	}
 	else {
@@ -978,7 +978,7 @@ next_ware_check:
 			const fabrik_besch_t *fab=get_random_consumer( no_electric==0, ALL_CLIMATES, welt->get_timeline_year_month() );
 			if(fab) {
 				const bool in_city = fab->get_platzierung() == fabrik_besch_t::Stadt;
-				if(in_city  &&  welt->get_staedte().get_count()==0) {
+				if (in_city && welt->get_staedte().empty()) {
 					// we cannot built this factory here
 					continue;
 				}
