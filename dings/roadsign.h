@@ -143,7 +143,7 @@ public:
 	 */
 	static void fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 sound_ok, const karte_t *welt);
 
-	static const roadsign_besch_t *roadsign_search(uint8 flag,const waytype_t wt,const uint16 time);
+	static const roadsign_besch_t *roadsign_search(roadsign_besch_t::types flag, const waytype_t wt, const uint16 time);
 
 	static const roadsign_besch_t *find_besch(const char *name) { return table.get(name); }
 };

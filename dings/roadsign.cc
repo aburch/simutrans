@@ -572,7 +572,7 @@ void roadsign_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 /*sou
  * Finds a matching roadsing
  * @author prissi
  */
-const roadsign_besch_t *roadsign_t::roadsign_search(uint8 flag,const waytype_t wt,const uint16 time)
+const roadsign_besch_t *roadsign_t::roadsign_search(roadsign_besch_t::types const flag, waytype_t const wt, uint16 const time)
 {
 	stringhashtable_iterator_tpl<const roadsign_besch_t *>iter(table);
 	while(  iter.next()  ) {
