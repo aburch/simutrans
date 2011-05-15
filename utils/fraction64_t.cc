@@ -105,53 +105,53 @@ const int ild(sint64 x)
 	return r;
 }
 
-const fraction64_t log(const fraction64_t &x)
-{
-	// requires x > 0
-	fraction64_t t1 = fraction64_t(x.n - x.d, x.n + x.d);
-	t1.shorten();
-	fraction64_t t2 = t1 * t1;
-	fraction64_t r = t1;
-	fraction64_t l = r;
-	sint64 n = 1;
-	while ((n += 2) < 50)
-	{
-		t1 *= t2;
-		r += t1 / n;
-		r.shorten();
-#ifdef DEBUG_COUT
-		cout << n << ": log(" << x.n << " / " << x.d << ") = " << 2 * r.n << " / " << r.d << " = " << (double) 2 * r.n / r.d << "\n";
-		cout.flush();
-#endif
-		if (r == l)
-			break;
-		l = r;
-	}
-	return r * 2;
-}
-
-const fraction64_t exp(const fraction64_t &x)
-{
-	fraction64_t t = x.shorten();
-	fraction64_t t1 = t;
-	fraction64_t r = (x + 1).shorten();
-	fraction64_t l = r;
-	sint64 n = 1;
-	while (++n < 30)
-	{
-		t1 *= t / n;
-		r += t1;
-		r.shorten();
-#ifdef DEBUG_COUT
-		cout << n << ": exp(" << x.n << " / " << x.d << ") = " << r.n << " / " << r.d << " = " << (double) r.n / r.d << "\n";
-		cout.flush();
-#endif
-		if (r == l)
-			break;
-		l = r;
-	}
-	return r;
-}
+//const fraction64_t log(const fraction64_t &x)
+//{
+//	// requires x > 0
+//	fraction64_t t1 = fraction64_t(x.n - x.d, x.n + x.d);
+//	t1.shorten();
+//	fraction64_t t2 = t1 * t1;
+//	fraction64_t r = t1;
+//	fraction64_t l = r;
+//	sint64 n = 1;
+//	while ((n += 2) < 50)
+//	{
+//		t1 *= t2;
+//		r += t1 / n;
+//		r.shorten();
+//#ifdef DEBUG_COUT
+//		cout << n << ": log(" << x.n << " / " << x.d << ") = " << 2 * r.n << " / " << r.d << " = " << (double) 2 * r.n / r.d << "\n";
+//		cout.flush();
+//#endif
+//		if (r == l)
+//			break;
+//		l = r;
+//	}
+//	return r * 2;
+//}
+//
+//const fraction64_t exp(const fraction64_t &x)
+//{
+//	fraction64_t t = x.shorten();
+//	fraction64_t t1 = t;
+//	fraction64_t r = (x + 1).shorten();
+//	fraction64_t l = r;
+//	sint64 n = 1;
+//	while (++n < 30)
+//	{
+//		t1 *= t / n;
+//		r += t1;
+//		r.shorten();
+//#ifdef DEBUG_COUT
+//		cout << n << ": exp(" << x.n << " / " << x.d << ") = " << r.n << " / " << r.d << " = " << (double) r.n / r.d << "\n";
+//		cout.flush();
+//#endif
+//		if (r == l)
+//			break;
+//		l = r;
+//	}
+//	return r;
+//}
 
 #ifdef USE_DOUBLE
 fraction64_t::fraction64_t(double value)
@@ -270,6 +270,9 @@ const fraction64_t fraction64_t::shrink() const
 		s = (max_64(sn, sd) - 7) * 4;
 		r.n = n / (1LL << s);
 		r.d = d / (1LL << s);
+		if (r.d == 0)
+			r.d++;
+
 	}
 	return r;
 }
@@ -292,6 +295,8 @@ const fraction64_t & fraction64_t::shrink()
 		s = (max_64(sn, sd) - 7) * 4;
 		n = n / (1LL << s);
 		d = d / (1LL << s);
+		if (d == 0)
+			d++;
 	}
 	return *this;
 }

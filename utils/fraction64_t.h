@@ -88,7 +88,16 @@ public:
 		return n / (d == 0 ? 1 : d);
 	}
 
+	inline double to_double() const {
+		return (double) n / (double) d;
+	}
+
 	// operators: additon and subtraction
+
+	inline const fraction64_t operator - () const
+	{
+		return fraction64_t(-n, d);
+	}
 
 	const fraction64_t & operator += (const fraction64_t &f);
 
@@ -256,13 +265,13 @@ public:
 	const fraction64_t & shrink();
 };
 
-const fraction64_t log(const fraction64_t &x);
-const fraction64_t exp(const fraction64_t &x);
-
-inline const fraction64_t pow(const fraction64_t &base, const fraction64_t &expo)
-{
-	return exp(expo * log(base));
-}
+//const fraction64_t log(const fraction64_t &x);
+//const fraction64_t exp(const fraction64_t &x);
+//
+//inline const fraction64_t pow(const fraction64_t &base, const fraction64_t &expo)
+//{
+//	return exp(expo * log(base));
+//}
 
 //inline const fraction64_t operator + (const sint32 value, fraction64_t f)
 //{
@@ -311,6 +320,5 @@ inline const fraction64_t operator / (const sint64 value, fraction64_t f)
 	fraction64_t r(value, 1);
 	return r /= f;
 }
-
 
 #endif /* FRACTION64_T_H_ */
