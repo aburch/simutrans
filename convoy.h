@@ -110,20 +110,29 @@ inline fraction_t speed_to_v(sint32 speed)
 	return fraction_t((speed * VEHICLE_SPEED_FACTOR * 10), (36 * 1024));
 }
 
+///**
+// * Convert simutrans speed to m/s
+// */
+//inline double d_speed_to_v(double speed)
+//{
+//	return (speed * VEHICLE_SPEED_FACTOR * 10) / (36 * 1024);
+//}
+
 /**
- * Convert m/s to simutrans speed
+ * Convert a speed from m/s to simutrans speed
  */
-inline sint32 v_to_speed(sint32 v)
+inline fraction_t v_to_speed(fraction_t v)
 {
-	return (v * 36 * 1024 + VEHICLE_SPEED_FACTOR - 1) / (VEHICLE_SPEED_FACTOR * 10);
+	const fraction_t first = v * 36 * 1024 + VEHICLE_SPEED_FACTOR - 1;
+	return first / (VEHICLE_SPEED_FACTOR * 10);
 }
 
 /**
- * Convert m/s to simutrans steps
+ * Convert a distance from m (meter) to simutrans steps (same conversion as v_to_speed())
  */
-inline fraction_t x_to_steps(fraction_t v)
+inline fraction_t x_to_steps(fraction_t x)
 {
-	const fraction_t first = v * 36 * 1024 + VEHICLE_SPEED_FACTOR - 1;
+	const fraction_t first = x * 36 * 1024 + VEHICLE_SPEED_FACTOR - 1;
 	return first / (VEHICLE_SPEED_FACTOR * 10);
 }
 
@@ -285,7 +294,7 @@ private:
 	/*
 	 * Get force in N that holds the given speed v or maximum available force, what ever is lesser.
 	 */
-	sint32 calc_speed_holding_force(sint32 speed /* in m/s */, sint32 Frs /* in N */); /* in N */
+	sint32 calc_speed_holding_force(const fraction_t &speed /* in m/s */, sint32 Frs /* in N */); /* in N */
 
 protected:
 	vehicle_summary_t vehicle;
