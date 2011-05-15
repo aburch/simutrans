@@ -2519,7 +2519,7 @@ bool waggon_t::is_weg_frei_pre_signal( signal_t *sig, uint16 next_block, int &re
 	// parse to next signal; if needed recurse, since we allow cascading
 	uint16 next_signal, next_crossing;
 	if(  block_reserver( cnv->get_route(), next_block+1, next_signal, next_crossing, 0, true, false )  ) {
-		if(  next_signal == INVALID_INDEX  ||  is_weg_frei_signal( next_signal, restart_speed )  ) {
+		if(  next_signal == INVALID_INDEX  ||  cnv->get_route()->position_bei(next_signal) == cnv->get_route()->back()  ||  is_weg_frei_signal( next_signal, restart_speed )  ) {
 			// ok, end of route => we can go
 			sig->set_zustand( roadsign_t::gruen );
 			cnv->set_next_stop_index( min( next_signal, next_crossing ) );
