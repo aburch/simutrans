@@ -2670,7 +2670,12 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 				}
 				else if(  !sch1->has_signal()  ) {
 					// can reserve: find next place to do something and drive on
-					if(  !block_reserver( cnv->get_route(), cnv->get_next_stop_index(), next_signal, next_crossing, 0, true, false )  ) {
+					if(  block_pos == cnv->get_route()->back()  ) {
+						// is also last tile => go on ...
+						cnv->set_next_stop_index( INVALID_INDEX );
+						return true;
+					}
+					else if(  !block_reserver( cnv->get_route(), cnv->get_next_stop_index(), next_signal, next_crossing, 0, true, false )  ) {
 						dbg->error( "waggon_t::ist_weg_frei()", "block not free but was reserved!" );
 						return false;
 					}
