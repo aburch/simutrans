@@ -195,7 +195,12 @@ sint32 convoy_t::calc_max_starting_weight(sint32 sin_alpha)
 
 sint32 convoy_t::calc_speed_holding_force(const fraction_t &speed /* in m/s */, sint32 Frs /* in N */)
 {
-	return min((adverse.cf * speed * speed).integer(), get_force(speed.integer()) - Frs); /* in N */
+	return min((adverse.cf * speed * speed).integer(), get_force(speed.n / speed.d) - Frs); /* in N */
+}
+
+sint32 convoy_t::d_calc_speed_holding_force(double speed /* in m/s */, double Frs /* in N */)
+{
+	return min(adverse.cf.to_double() * speed * speed, d_get_force(speed) - Frs); /* in N */
 }
 
 // The timeslice to calculate acceleration, speed and covered distance in reasonable small chuncks. 
@@ -206,6 +211,7 @@ sint32 convoy_t::calc_speed_holding_force(const fraction_t &speed /* in m/s */, 
 void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll)
 {
 	const fraction_t simtime_factor(simtime_factor_integer, 100);
+	simtime_factor.shorten();
 	fraction_t dx = 0;
 	//double d_dx = 0.0;
 	if (adverse.max_speed < KMH_SPEED_UNLIMITED)
@@ -233,8 +239,8 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 		//double d_speed_ratio = 0; 
 
 		const sint32 Frs = (fraction_t(981, 100) * (adverse.fr * weight.weight_cos + weight.weight_sin)).integer(); // msin, mcos are calculated per vehicle due to vehicle specific slope angle.
-		const fraction_t vmax = speed_to_v(akt_speed_soll);
-		fraction_t v = speed_to_v(akt_speed); // v in m/s, akt_speed in simutrans vehicle speed;
+		const fraction_t vmax = speed_to_v(akt_speed_soll).shorten();
+		fraction_t v = speed_to_v(akt_speed).shorten(); // v in m/s, akt_speed in simutrans vehicle speed;
 		sint32 fvmax = 0; // force needed to hold vmax. will be calculated as needed
 		sint32 speed_ratio = 0;
 
@@ -255,8 +261,8 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 				// Below set speed: full acceleration
 				// If set speed is far below the convoy max speed as e.g. aircrafts on ground reduce force.
 				// If set speed is at most a 10th of convoy's maximum, we reduce force to its 10th.
-				//d_f = get_force((sint32)(d_v + 0.5)) - d_Frs;
-				f = get_force(v.integer()) - Frs;
+				//d_f = d_get_force(d_v) - d_Frs;
+				f = get_force(v.n / v.d) - Frs;
 				if (f > 1000000) // reducing force does not apply to 'weak' convoy's, thus we can save a lot of time skipping this code.
 				{
 					//if (d_speed_ratio == 0) // speed_ratio is a constant within this function. So calculate it once only.
@@ -268,7 +274,8 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 					if (speed_ratio == 0) // speed_ratio is a constant within this function. So calculate it once only.
 					{
 						// vehicle.max_speed is in km/h, vmax in m/s
-						speed_ratio = vmax.integer() != 0 ? 10 * vehicle.max_speed / 36 * vmax.integer() : 1000000 /* any value > 10 */;
+						sint32 vmi = vmax.integer();
+						speed_ratio = vmi != 0 ? 10 * vehicle.max_speed / 36 * vmi : 1000000 /* any value > 10 */;
 					}
 					if (speed_ratio > 10)
 					{
@@ -359,6 +366,7 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 
 			long dt;
 			fraction_t df = simtime_factor * (f - adverse.cf * (v * v * sgn<sint32>(v.integer())));
+			df.shorten();
 			if (delta_t >= DT_SLICE && (sint32)abs(df.integer()) > weight.weight / (10 * DT_SLICE_SECONDS))
 			{
 				// This part is important for acceleration/deceleration phases only.

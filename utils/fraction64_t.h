@@ -39,6 +39,12 @@ public:
 
 	inline fraction64_t() {}
 
+	inline fraction64_t(const fraction64_t & x)
+	{
+		n = x.n;
+		d = x.d;
+	}
+
 	inline fraction64_t(sint64 nominator, sint64 denominator)
 	{
 		if (denominator >= 0)
@@ -234,28 +240,20 @@ public:
 
 	inline const fraction64_t shorten() const
 	{
-		fraction64_t r;
-		sint64 factor = common_factor(n, d);
-		if (factor > 1)
-		{
-			r.n = n / factor;
-			r.d = d / factor;
-		}
-		else
-		{
-			r.n = n;
-			r.d = d;
-		}
-		return r;
+		fraction64_t r(*this);
+		return r.shorten();
 	}
 
 	inline const fraction64_t & shorten()
 	{
-		sint64 factor = common_factor(n, d);
-		if (factor > 1)
+		if (n != 0)
 		{
-			n /= factor;
-			d /= factor;
+			sint64 factor = common_factor(n, d);
+			if (factor > 1)
+			{
+				n /= factor;
+				d /= factor;
+			}
 		}
 		return *this;
 	}
@@ -265,36 +263,19 @@ public:
 	const fraction64_t & shrink();
 };
 
+const fraction64_t ld(const fraction64_t &x);
+const fraction64_t pow2(const fraction64_t &x);
+
+inline const fraction64_t pow(const fraction64_t &base, const fraction64_t &expo)
+{
+	return pow2(expo * ld(base));
+}
 //const fraction64_t log(const fraction64_t &x);
 //const fraction64_t exp(const fraction64_t &x);
 //
 //inline const fraction64_t pow(const fraction64_t &base, const fraction64_t &expo)
 //{
 //	return exp(expo * log(base));
-//}
-
-//inline const fraction64_t operator + (const sint32 value, fraction64_t f)
-//{
-//	fraction64_t r(value, 1);
-//	return r += f;
-//}
-//
-//inline const fraction64_t operator - (const sint32 value, fraction64_t f)
-//{
-//	fraction64_t r(value, 1);
-//	return r -= f;
-//}
-//
-//inline const fraction64_t operator * (const sint32 value, fraction64_t f)
-//{
-//	fraction64_t r(value, 1);
-//	return r *= f;
-//}
-//
-//inline const fraction64_t operator / (const sint32 value, fraction64_t f)
-//{
-//	fraction64_t r(value, 1);
-//	return r /= f;
 //}
 
 inline const fraction64_t operator + (const sint64 value, fraction64_t f)

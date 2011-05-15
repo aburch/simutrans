@@ -87,8 +87,7 @@ fraction_t vehikel_besch_t::get_power_force_ratio() const
 				* We assume, that the given power is meant for the half of the engines allowed maximum speed and get the constant force:
 				*/
 				// Steamers are constant force machines unless about half of maximum speed, when steam runs short.
-				const fraction_t denominator(36, 5);
-				return fraction_t(geschw) / denominator;
+				return fraction_t(geschw * 5, 36); // return geschw / (3.6f * 2.0f);
 			}
 			/* else fall through */
 
@@ -101,8 +100,7 @@ fraction_t vehikel_besch_t::get_power_force_ratio() const
 			// We recommend for simutrans experimental to set the tractive effort manually. The existing aircraft power values are very roughly estimated.
 			if (geschw)
 			{
-				const fraction_t denominator(36, 5);
-				return fraction_t(geschw) / denominator;
+				return fraction_t(geschw * 5, 36); // return geschw / (3.6f * 2.0f);
 			}
 			/* else fall through */
 
@@ -118,7 +116,7 @@ fraction_t vehikel_besch_t::get_power_force_ratio() const
 			*
 			* In simutrans these engines can be simulated by setting the power to 2200, max speed to 140 resp. 100 and the gear to 1.136 resp. 1.545.
 			*/
-			return fraction_t(1);
+			return fraction_t(10);
 	}
 }
 
