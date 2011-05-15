@@ -15,6 +15,27 @@
 
 using std::string;
 
+static void make_list(tabfileobj_t const& obj, slist_tpl<string>& list, char const* const key)
+{
+	for (int i = 0;; ++i) {
+		char buf[40];
+		sprintf(buf, "%s[%i]", key, i);
+		string str(obj.get(buf));
+		if (str.empty()) break;
+		// We have this direction
+		list.append(str);
+	}
+}
+
+static void write_list(FILE* const fp, obj_node_t& node, slist_tpl<string> const& list)
+{
+	if (list.empty()) {
+		xref_writer_t::instance()->write_obj(fp, node, obj_imagelist, "", false);
+	} else {
+		imagelist_writer_t::instance()->write_obj(fp, node, list);
+	}
+}
+
 void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
 	int total_len = 21;
@@ -109,153 +130,35 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	slist_tpl<string> front_closekeys_ns;
 	slist_tpl<string> front_closekeys_ew;
 
-	string str;
-
 	// open crossings ...
-	for(int i=0;  1;  i++  ) {
-		char buf[40];
-
-		sprintf(buf, "openimage[ns][%i]", i);
-		str = obj.get(buf);
-		if (str.size() <= 0) {
-			break;
-		}
-		// ok, we have this direction
-		openkeys_ns.append(str);
-	}
-	for(int i=0;  1;  i++  ) {
-		char buf[40];
-
-		sprintf(buf, "openimage[ew][%i]", i);
-		str = obj.get(buf);
-		if (str.size() <= 0) {
-			break;
-		}
-		// ok, we have this direction
-		openkeys_ew.append(str);
-	}
+	make_list(obj, openkeys_ns, "openimage[ns]");
+	make_list(obj, openkeys_ew, "openimage[ew]");
+	// these must exists!
 	if (openkeys_ns.empty() || openkeys_ew.empty()) {
 		printf("*** FATAL ***:\nMissing images (at least one openimage! (but %i and %i found)!)\n", openkeys_ns.get_count(), openkeys_ew.get_count());
 		exit(0);
 	}
-	// these must exists!
-	imagelist_writer_t::instance()->write_obj(fp, node, openkeys_ns);
-	imagelist_writer_t::instance()->write_obj(fp, node, openkeys_ew);
+	write_list(fp, node, openkeys_ns);
+	write_list(fp, node, openkeys_ew);
 
 	// foreground
-	for(int i=0;  1;  i++  ) {
-		char buf[40];
-
-		sprintf(buf, "front_openimage[ns][%i]", i);
-		str = obj.get(buf);
-		if (str.size() <= 0) {
-			break;
-		}
-		// ok, we have this direction
-		front_openkeys_ns.append(str);
-	}
-	for(int i=0;  1;  i++  ) {
-		char buf[40];
-
-		sprintf(buf, "front_openimage[ew][%i]", i);
-		str = obj.get(buf);
-		if (str.size() <= 0) {
-			break;
-		}
-		// ok, we have this direction
-		front_openkeys_ew.append(str);
-	}
+	make_list(obj, front_openkeys_ns, "front_openimage[ns]");
+	make_list(obj, front_openkeys_ew, "front_openimage[ew]");
 	// the following lists are optional
-	if (!front_openkeys_ns.empty()) {
-		imagelist_writer_t::instance()->write_obj(fp, node, front_openkeys_ns);
-	}
-	else {
-		// really empty list ...
-		xref_writer_t::instance()->write_obj(fp, node, obj_imagelist, "", false);
-	}
-	if (!front_openkeys_ew.empty()) {
-		imagelist_writer_t::instance()->write_obj(fp, node, front_openkeys_ew);
-	}
-	else {
-		// really empty list ...
-		xref_writer_t::instance()->write_obj(fp, node, obj_imagelist, "", false);
-	}
+	write_list(fp, node, front_openkeys_ns);
+	write_list(fp, node, front_openkeys_ew);
 
 	// closed crossings ...
-	for(int i=0;  1;  i++  ) {
-		char buf[40];
-
-		sprintf(buf, "closedimage[ns][%i]", i);
-		str = obj.get(buf);
-		if (str.size() <= 0) {
-			break;
-		}
-		// ok, we have this direction
-		closekeys_ns.append(str);
-	}
-	for(int i=0;  1;  i++  ) {
-		char buf[40];
-
-		sprintf(buf, "closedimage[ew][%i]", i);
-		str = obj.get(buf);
-		if (str.size() <= 0) {
-			break;
-		}
-		// ok, we have this direction
-		closekeys_ew.append(str);
-	}
-	if (!closekeys_ns.empty()) {
-		imagelist_writer_t::instance()->write_obj(fp, node, closekeys_ns);
-	}
-	else {
-		// really empty list ...
-		xref_writer_t::instance()->write_obj(fp, node, obj_imagelist, "", false);
-	}
-	if (!closekeys_ew.empty()) {
-		imagelist_writer_t::instance()->write_obj(fp, node, closekeys_ew);
-	}
-	else {
-		// really empty list ...
-		xref_writer_t::instance()->write_obj(fp, node, obj_imagelist, "", false);
-	}
+	make_list(obj, closekeys_ns, "closedimage[ns]");
+	make_list(obj, closekeys_ew, "closedimage[ew]");
+	write_list(fp, node, closekeys_ns);
+	write_list(fp, node, closekeys_ew);
 
 	// foreground
-	for(int i=0;  1;  i++  ) {
-		char buf[40];
-
-		sprintf(buf, "front_closedimage[ns][%i]", i);
-		str = obj.get(buf);
-		if (str.size() <= 0) {
-			break;
-		}
-		// ok, we have this direction
-		front_closekeys_ns.append(str);
-	}
-	for(int i=0;  1;  i++  ) {
-		char buf[40];
-
-		sprintf(buf, "front_closedimage[ew][%i]", i);
-		str = obj.get(buf);
-		if (str.size() <= 0) {
-			break;
-		}
-		// ok, we have this direction
-		front_closekeys_ew.append(str);
-	}
-	if (!front_closekeys_ns.empty()) {
-		imagelist_writer_t::instance()->write_obj(fp, node, front_closekeys_ns);
-	}
-	else {
-		// really empty list ...
-		xref_writer_t::instance()->write_obj(fp, node, obj_imagelist, "", false);
-	}
-	if (!front_closekeys_ew.empty()) {
-		imagelist_writer_t::instance()->write_obj(fp, node, front_closekeys_ew);
-	}
-	else {
-		// really empty list ...
-		xref_writer_t::instance()->write_obj(fp, node, obj_imagelist, "", false);
-	}
+	make_list(obj, front_closekeys_ns, "front_closedimage[ns]");
+	make_list(obj, front_closekeys_ew, "front_closedimage[ew]");
+	write_list(fp, node, front_closekeys_ns);
+	write_list(fp, node, front_closekeys_ew);
 
 	node.write(fp);
 }
