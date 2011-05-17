@@ -555,13 +555,19 @@ public:
 	*/
 	weg_t *get_weg(waytype_t typ) const {
 		if (weg_t* const w = get_weg_nr(0)) {
-			if(w->get_waytype()==typ) {
+			const waytype_t wt = w->get_waytype();
+			if(wt == typ) {
 				return w;
 			}
-		}
-		if (weg_t* const w = get_weg_nr(1)) {
-			if(w->get_waytype()==typ) {
-				return w;
+			else if (wt > typ) {
+				// ways are ordered wrt to waytype
+				return NULL;
+			}
+			// try second way (if exists)
+			if (weg_t* const w = get_weg_nr(1)) {
+				if(w->get_waytype()==typ) {
+					return w;
+				}
 			}
 		}
 		return NULL;
