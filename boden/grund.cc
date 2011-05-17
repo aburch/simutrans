@@ -984,7 +984,7 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 		}
 	}
 	else if (ist_wasser()) {
-		ribi = get_weg_ribi(water_wt);
+		ribi = (static_cast<const wasser_t*>(this))->get_weg_ribi(water_wt);
 	}
 
 	// now ways? - no clipping needed, avoid all the ribi-checks
