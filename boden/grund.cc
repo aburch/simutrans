@@ -1437,81 +1437,54 @@ bool grund_t::get_neighbour(grund_t *&to, waytype_t type, koord dir) const
 {
 	// must be a single direction
 	if(  (abs(dir.x)^abs(dir.y))!=1  ) {
-		// shorter for:
-		// if(dir != koord::nord  &&  dir != koord::sued  &&  dir != koord::ost  &&  dir != koord::west) {
 		return false;
 	}
+	const ribi_t::ribi ribi = (ribi_t::ribi)( dir.x ? (dir.x>0 ? ribi_t::ost : ribi_t::west) : (dir.y>0 ? ribi_t::sued : ribi_t::nord) );
 
 	const planquadrat_t * plan = welt->lookup(pos.get_2d() + dir);
 	if(!plan) {
 		return false;
 	}
 
-	// find ground in the same height: This work always!
-	const sint16 this_height = get_vmove(dir);
+	if (type != invalid_wt   &&   (get_weg_ribi_unmasked(type) & ribi) == 0) {
+		// no way on this tile in the given direction
+		return false;
+	}
+
+	const ribi_t::ribi back = ribi_t::rueckwaerts(ribi);
+
+	// find ground in the right height
+	const sint16 this_height = get_vmove(ribi);
 	for( unsigned i=0;  i<plan->get_boden_count();  i++  ) {
 		grund_t* gr = plan->get_boden_bei(i);
-		if(gr->get_vmove(-dir)==this_height) {
+		if(gr->get_vmove(back)==this_height) {
 			// test, if connected
-			if(!is_connected(gr, type, dir)) {
-				continue;
+			if(type == invalid_wt  ||  (gr->get_weg_ribi_unmasked(type) & back) ) {
+				to = gr;
+				return true;
 			}
-			to = gr;
-			return true;
 		}
 	}
 	return false;
 }
 
 
-
-bool grund_t::is_connected(const grund_t *gr, waytype_t wegtyp, koord dv) const
-{
-	if(!gr) {
-		return false;
-	}
-	if(wegtyp==invalid_wt) {
-		return true;
-	}
-
-	const int ribi1 = get_weg_ribi_unmasked(wegtyp);
-	const int ribi2 = gr->get_weg_ribi_unmasked(wegtyp);
-	if(dv == koord::nord) {
-		return (ribi1 & ribi_t::nord) && (ribi2 & ribi_t::sued);
-	} else if(dv == koord::sued) {
-		return (ribi1 & ribi_t::sued) && (ribi2 & ribi_t::nord);
-	} else if(dv == koord::west) {
-		return (ribi1 & ribi_t::west) && (ribi2 & ribi_t::ost );
-	} else if(dv == koord::ost) {
-		return (ribi1 & ribi_t::ost ) && (ribi2 & ribi_t::west);
-	}
-	return false;
-}
-
-
-
 // now we need a more sophisticated calculations ...
-sint8 grund_t::get_vmove(koord dir) const
+sint8 grund_t::get_vmove(ribi_t::ribi ribi) const
 {
 	const sint8 slope=get_weg_hang();
 	sint8 h=get_hoehe();
-	if(ist_bruecke()  &&  get_grund_hang()!=0  &&  welt->lookup(pos)==this) {
+	if(ist_bruecke()  &&  get_grund_hang()!=0) {
 		h += Z_TILE_STEP;	// end or start of a bridge
 	}
 
-	if(dir == koord::ost) {
-		h += corner3(slope)*Z_TILE_STEP;
-	} else if(dir == koord::west) {
-		h += corner1(slope)*Z_TILE_STEP;
-	} else if(dir == koord::sued) {
-		h += corner1(slope)*Z_TILE_STEP;
-	} else if(dir == koord::nord) {
+	if(ribi & ribi_t::nordost) {
 		h += corner3(slope)*Z_TILE_STEP;
 	}
 	else {
-		// commented out: allow diagonal directions now (assume flat for these)
-		//dbg->fatal("grund_t::get_vmove()","no valid direction given (%x)",ribi_typ(dir));	// error: not a direction ...
+		h += corner1(slope)*Z_TILE_STEP;
 	}
+
 	return h;
 }
 

@@ -1308,7 +1308,7 @@ void wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d z
 				bd_von_new = true;
 			}
 			// take care of slopes
-			pos.z = bd_von->get_vmove(diff);
+			pos.z = bd_von->get_vmove(ribi_typ(diff));
 
 			// check next tile
 			grund_t *bd_nach = welt->lookup(pos + diff);
@@ -1325,7 +1325,7 @@ void wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d z
 				bd_nach_new = true;
 			}
 			// check for tunnel and right slope
-			ok = ok && bd_nach->ist_tunnel() && bd_nach->get_vmove(-diff)==pos.z;
+			ok = ok && bd_nach->ist_tunnel() && bd_nach->get_vmove(ribi_typ(-diff))==pos.z;
 			// all other checks are done here (crossings, stations etc)
 			ok = ok && is_allowed_step(bd_von, bd_nach, &dummy_cost);
 
