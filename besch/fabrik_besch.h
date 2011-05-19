@@ -140,7 +140,6 @@ public:
  */
 class fabrik_lieferant_besch_t : public obj_besch_t {
 	friend class factory_supplier_reader_t;
-	friend class factory_supplier_writer_t;
 
 private:
 	uint16  kapazitaet;

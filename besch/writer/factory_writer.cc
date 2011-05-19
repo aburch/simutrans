@@ -123,20 +123,14 @@ void factory_product_writer_t::write_obj(FILE* outfp, obj_node_t& parent, int ca
 
 void factory_supplier_writer_t::write_obj(FILE* outfp, obj_node_t& parent, int capacity, int count, int verbrauch, const char* warename)
 {
-	fabrik_lieferant_besch_t besch;
-
 	obj_node_t node(this, 8, &parent);
-
-	besch.anzahl = count;
-	besch.kapazitaet = capacity;
-	besch.verbrauch = verbrauch;
 
 	xref_writer_t::instance()->write_obj(outfp, node, obj_good, warename, true);
 
-	node.write_uint16(outfp, besch.kapazitaet, 0);
-	node.write_uint16(outfp, besch.anzahl,     2);
-	node.write_uint16(outfp, besch.verbrauch,  4);
-	node.write_uint16(outfp, 0,                6); //dummy, unused (and uninitialized in past versions)
+	node.write_uint16(outfp, capacity,  0);
+	node.write_uint16(outfp, count,     2);
+	node.write_uint16(outfp, verbrauch, 4);
+	node.write_uint16(outfp, 0,         6); //dummy, unused (and uninitialized in past versions)
 
 	node.write(outfp);
 }
