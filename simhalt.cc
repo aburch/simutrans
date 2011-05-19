@@ -1315,20 +1315,26 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 				// indicate that this halt has been processed
 				markers[ reachable_halt_id ] = current_marker;
 
-				if(  current_conn.halt.is_bound()  &&  current_conn.halt->serving_schedules[ware_catg_idx]>1u  &&  allocation_pointer<max_hops  ) {
-					// Case : transfer halt
-					const uint16 total_weight = current_halt_data.best_weight + current_conn.weight;
+				if(  current_conn.halt.is_bound()  ) {
+					if(  current_conn.halt->serving_schedules[ware_catg_idx]>1u  &&  allocation_pointer<max_hops  ) {
+						// Case : transfer halt
+						const uint16 total_weight = current_halt_data.best_weight + current_conn.weight;
 
-					if(  total_weight < best_destination_weight  ) {
+						if(  total_weight < best_destination_weight  ) {
 
-						halt_data[ reachable_halt_id ].best_weight = total_weight;
-						halt_data[ reachable_halt_id ].destination = 0;
-						halt_data[ reachable_halt_id ].depth       = current_halt_data.depth + 1u;
-						halt_data[ reachable_halt_id ].transfer    = current_node.halt;
+							halt_data[ reachable_halt_id ].best_weight = total_weight;
+							halt_data[ reachable_halt_id ].destination = 0;
+							halt_data[ reachable_halt_id ].depth       = current_halt_data.depth + 1u;
+							halt_data[ reachable_halt_id ].transfer    = current_node.halt;
 
-						allocation_pointer++;
-						open_list.insert( route_node_t(current_conn.halt, total_weight) );
+							allocation_pointer++;
+							open_list.insert( route_node_t(current_conn.halt, total_weight) );
+						}
 					}
+				}
+				else {
+					// Case: halt is removed -> put in closed list
+					halt_data[ reachable_halt_id ].best_weight = 0;
 				}
 
 			}	// if not processed before
@@ -1491,8 +1497,11 @@ void haltestelle_t::search_routes( ware_t *const wares, const uint16 ware_count 
 		const uint16 current_weight = current_node.aggregate_weight;
 		halt_data_t & current_halt_data = halt_data[ current_halt_id ];
 
-		// check if the current halt is already in closed list
-		if(  current_halt_data.best_weight < current_weight  ) {
+		// check if the current halt is already in closed list (or removed)
+		if(  !current_node.halt.is_bound()  ) {
+			continue;
+		}
+		else if(  current_halt_data.best_weight < current_weight) {
 			// shortest path to the current halt has already been found earlier
 			// assert(markers[ current_halt_id ]==current_marker);
 			continue;
@@ -1531,7 +1540,12 @@ void haltestelle_t::search_routes( ware_t *const wares, const uint16 ware_count 
 
 			const uint16 total_weight = current_node.aggregate_weight + current_conn.weight;
 
-			if(  markers[ reachable_halt_id ]!=current_marker  ) {
+			if(  !current_conn.halt.is_bound()  ) {
+				// Case: halt removed -> make sure we never visit it again
+				markers[ reachable_halt_id ] = current_marker;
+				halt_data[ reachable_halt_id ].best_weight = 0;
+			}
+			else if(  markers[ reachable_halt_id ]!=current_marker  ) {
 				// Case : not processed before and not destination
 
 				// indicate that this halt has been processed
@@ -1543,7 +1557,7 @@ void haltestelle_t::search_routes( ware_t *const wares, const uint16 ware_count 
 				halt_data[ reachable_halt_id ].depth       = current_halt_data.depth + 1u;
 				halt_data[ reachable_halt_id ].transfer    = current_halt_data.transfer.get_id() ? current_halt_data.transfer : current_conn.halt;
 
-				if(  current_conn.halt.is_bound()  &&  current_conn.halt->serving_schedules[ware_catg_idx]>1u  &&  allocation_pointer<max_hops  ) {
+				if(  current_conn.halt->serving_schedules[ware_catg_idx]>1u  &&  allocation_pointer<max_hops  ) {
 					// Case : transfer halt
 					allocation_pointer++;
 					open_list.insert( route_node_t(current_conn.halt, total_weight) );
@@ -1559,7 +1573,7 @@ void haltestelle_t::search_routes( ware_t *const wares, const uint16 ware_count 
 					halt_data[ reachable_halt_id ].transfer    = current_halt_data.transfer.get_id() ? current_halt_data.transfer : current_conn.halt;
 
 					// for transfer/destination nodes create new node
-					if ( (halt_data[ reachable_halt_id ].destination  ||  (current_conn.halt.is_bound()  &&  current_conn.halt->serving_schedules[ware_catg_idx] > 1u) )  &&  allocation_pointer<max_hops ) {
+					if ( (halt_data[ reachable_halt_id ].destination  ||  current_conn.halt->serving_schedules[ware_catg_idx] > 1u)  &&  allocation_pointer<max_hops ) {
 						halt_data[ reachable_halt_id ].depth = current_halt_data.depth + 1u;
 						allocation_pointer++;
 						open_list.insert( route_node_t(current_conn.halt, total_weight) );
