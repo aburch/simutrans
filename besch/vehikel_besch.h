@@ -42,7 +42,6 @@ class checksum_t;
  * @author Volker Meyer, Hj. Malthaner, kierongreen
  */
 class vehikel_besch_t : public obj_besch_std_name_t {
-    friend class vehicle_writer_t;
     friend class vehicle_reader_t;
     friend class vehikelbauer_t;
 
