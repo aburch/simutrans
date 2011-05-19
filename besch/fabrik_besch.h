@@ -166,7 +166,6 @@ public:
  *	0   Ware
  */
 class fabrik_produkt_besch_t : public obj_besch_t {
-	friend class factory_product_writer_t;
 	friend class factory_product_reader_t;
 
 private:
