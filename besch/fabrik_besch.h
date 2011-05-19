@@ -206,7 +206,6 @@ public:
  */
 class fabrik_besch_t : public obj_besch_t {
 	friend class factory_reader_t;
-	friend class factory_writer_t;
 
 public:
 	enum platzierung {Land, Wasser, Stadt};
