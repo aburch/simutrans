@@ -40,7 +40,6 @@
 
 
 class sound_besch_t : public obj_besch_std_name_t {
-    friend class sound_writer_t;
     friend class sound_reader_t;
 
 private:
