@@ -45,7 +45,6 @@ public:
 
 // Knightly : this besch now only contains common, shared data regarding fields
 class field_group_besch_t : public obj_besch_t {
-	friend class factory_field_group_writer_t;
 	friend class factory_field_group_reader_t;
 
 private:

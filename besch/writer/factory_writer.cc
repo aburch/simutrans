@@ -30,12 +30,12 @@ void factory_field_class_writer_t::write_obj(FILE* outfp, obj_node_t& parent, co
 
 void factory_field_group_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	field_group_besch_t besch;
 	obj_node_t node(this, 10, &parent);
 
+	uint16 field_classes;
 	if(  *obj.get("fields")  ) {
 		// old format with no square-bracketed subscripts
-		besch.field_classes = 1;
+		field_classes = 1;
 		const char *field_name = obj.get("fields");
 		int snow_image = obj.get_int("has_snow", 1);
 		int production = obj.get_int("production_per_field", 16);
@@ -46,22 +46,22 @@ void factory_field_group_writer_t::write_obj(FILE* outfp, obj_node_t& parent, ta
 	}
 	else {
 		// Knightly : for each field class, retrieve its data and write a field class node
-		for(  besch.field_classes=0  ;  ;  besch.field_classes++  ) {
+		for (field_classes = 0;; ++field_classes) {
 			char buf[64];
 
-			sprintf(buf, "fields[%d]", besch.field_classes);
+			sprintf(buf, "fields[%d]", field_classes);
 			const char *field_name = obj.get(buf);
 			if(  !field_name  ||  !*field_name  ) {
 				break;
 			}
 
-			sprintf(buf, "has_snow[%d]", besch.field_classes);
+			sprintf(buf, "has_snow[%d]", field_classes);
 			int snow_image = obj.get_int(buf, 1);
-			sprintf(buf, "production_per_field[%d]", besch.field_classes);
+			sprintf(buf, "production_per_field[%d]", field_classes);
 			int production = obj.get_int(buf, 16);
-			sprintf(buf, "storage_capacity[%d]", besch.field_classes);
+			sprintf(buf, "storage_capacity[%d]", field_classes);
 			int capacity = obj.get_int(buf, 0);		// default is 0 to avoid breaking the balance of existing pakset objects
-			sprintf(buf, "spawn_weight[%d]", besch.field_classes);
+			sprintf(buf, "spawn_weight[%d]", field_classes);
 			int weight = obj.get_int(buf, 1000);
 
 			factory_field_class_writer_t::instance()->write_obj(outfp, node, field_name, snow_image, production, capacity, weight);
@@ -69,15 +69,15 @@ void factory_field_group_writer_t::write_obj(FILE* outfp, obj_node_t& parent, ta
 	}
 
 	// common, shared field data
-	besch.probability = obj.get_int("probability_to_spawn", 10); // 0,1 %
-	besch.max_fields = obj.get_int("max_fields", 25);
-	besch.min_fields = obj.get_int("min_fields", 5);
+	uint16 const probability = obj.get_int("probability_to_spawn", 10); // 0,1 %
+	uint16 const max_fields  = obj.get_int("max_fields",           25);
+	uint16 const min_fields  = obj.get_int("min_fields",            5);
 
-	node.write_uint16(outfp, 0x8002,                     0); // version
-	node.write_uint16(outfp, besch.probability,          2);
-	node.write_uint16(outfp, besch.max_fields,           4);
-	node.write_uint16(outfp, besch.min_fields,           6);
-	node.write_uint16(outfp, besch.field_classes,        8);
+	node.write_uint16(outfp, 0x8002,        0); // version
+	node.write_uint16(outfp, probability,   2);
+	node.write_uint16(outfp, max_fields,    4);
+	node.write_uint16(outfp, min_fields,    6);
+	node.write_uint16(outfp, field_classes, 8);
 
 	node.write(outfp);
 }
