@@ -97,6 +97,8 @@ static bild_besch_t* create_textured_tile(const bild_besch_t* bild_lightmap, con
 		} while(  (*dest++)!=0 );
 	}
 	assert(dest - bild_dest->get_daten() == (ptrdiff_t)bild_dest->get_pic()->len);
+
+	bild_dest->register_image();
 	return bild_dest;
 }
 
@@ -249,6 +251,7 @@ static bild_besch_t* create_textured_tile_mix(const bild_besch_t* bild_lightmap,
 		} while(  *dest++!=0 );
 	}
 
+	bild_dest->register_image();
 	return bild_dest;
 }
 
@@ -512,7 +515,6 @@ DBG_MESSAGE("grund_besch_t::calc_water_level()","height %i: list %i vs. %i", h, 
 	// coastal slopes: water tile
 	// first water only
 	final_tile = create_textured_tile( light_map->get_bild_ptr(0), boden_texture->get_bild_ptr(water_climate) );
-	final_tile->register_image();
 	image_offset = final_tile->get_nummer();
 	ground_bild_list.append( final_tile );
 
@@ -525,13 +527,11 @@ DBG_MESSAGE("grund_besch_t::calc_water_level()","height %i: list %i vs. %i", h, 
 			boden_texture->get_bild_ptr(water_climate),
 			boden_texture->get_bild_ptr(desert_climate),
 			boden_texture->get_bild_ptr(climate_list[0]) );
-		final_tile->register_image();
 		ground_bild_list.append( final_tile );
 	}
 	// coastal snow: winter water so far identical ...
 	for( int slope=1; slope<15;  slope++ ) {
 		final_tile = create_textured_tile_mix( light_map->get_bild_ptr(slope), slope, all_rotations_beach[slope], boden_texture->get_bild_ptr(water_climate), boden_texture->get_bild_ptr(desert_climate), boden_texture->get_bild_ptr(arctic_climate) );
-		final_tile->register_image();
 		ground_bild_list.append( final_tile );
 	}
 
@@ -539,33 +539,27 @@ DBG_MESSAGE("grund_besch_t::calc_water_level()","height %i: list %i vs. %i", h, 
 	for(  int i=0;  i<number_of_climates;  i++ ) {
 		// normal tile (no transition, not snow
 		final_tile = create_textured_tile( light_map->get_bild_ptr(0), boden_texture->get_bild_ptr(climate_list[i]) );
-		final_tile->register_image();
 		ground_bild_list.append( final_tile );
 		for( int slope=1; slope<15;  slope++ ) {
 			bild_besch_t *final_tile = create_textured_tile( light_map->get_bild_ptr(slope), boden_texture->get_bild_ptr(climate_list[i]) );
-			final_tile->register_image();
 			ground_bild_list.append( final_tile );
 		}
 		// without snow, transition
 		for( int slope=1; slope<15;  slope++ ) {
 			bild_besch_t *final_tile = create_textured_tile_mix( light_map->get_bild_ptr(slope), slope, all_rotations_slope[slope], boden_texture->get_bild_ptr(climate_list[i]), boden_texture->get_bild_ptr(climate_list[i]), boden_texture->get_bild_ptr(climate_list[i+1]) );
-			final_tile->register_image();
 			ground_bild_list.append( final_tile );
 		}
 		// and with snow
 		for( int slope=1; slope<15;  slope++ ) {
 			bild_besch_t *final_tile = create_textured_tile_mix( light_map->get_bild_ptr(slope), slope, all_rotations_slope[slope], boden_texture->get_bild_ptr(climate_list[i]), boden_texture->get_bild_ptr(climate_list[i]), boden_texture->get_bild_ptr(arctic_climate) );
-			final_tile->register_image();
 			ground_bild_list.append( final_tile );
 		}
 	}
 	// finally full snow
 	final_tile = create_textured_tile( light_map->get_bild_ptr(0), boden_texture->get_bild_ptr(arctic_climate) );
-	final_tile->register_image();
 	ground_bild_list.append( final_tile );
 	for( int slope=1; slope<15;  slope++ ) {
 		final_tile = create_textured_tile( light_map->get_bild_ptr(slope), boden_texture->get_bild_ptr(arctic_climate) );
-		final_tile->register_image();
 		ground_bild_list.append( final_tile );
 	}
 	// free the helper bitmap
