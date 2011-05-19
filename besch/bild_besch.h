@@ -69,7 +69,6 @@ private:
 	bild_t pic;
 
 	friend class image_reader_t;
-	friend class image_writer_t;
 };
 
 #endif
