@@ -7,6 +7,7 @@
 #ifndef __BILD_BESCH_H
 #define __BILD_BESCH_H
 
+#include "../simgraph.h"
 #include "../simimg.h"
 #include "obj_besch.h"
 
@@ -57,6 +58,8 @@ public:
 	 */
 	bild_besch_t* copy_rotate(const sint16 angle) const;
 
+	void register_image() { ::register_image(&pic); }
+
 	using obj_besch_t::operator new;
 
 	// decodes this image into a 32 bit bitmap with width target_width
@@ -67,7 +70,6 @@ private:
 
 	friend class image_reader_t;
 	friend class image_writer_t;
-	friend class grund_besch_t; // XXX ugly
 };
 
 #endif
