@@ -34,7 +34,6 @@ class checksum_t;
  *	2   Image list (Bildliste)
  */
 class roadsign_besch_t : public obj_besch_std_name_t {
-	friend class roadsign_writer_t;
 	friend class roadsign_reader_t;
 
 private:
