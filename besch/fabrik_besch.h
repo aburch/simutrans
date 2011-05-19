@@ -92,7 +92,6 @@ public:
  *	0   SKin
  */
 class rauch_besch_t : public obj_besch_t {
-	friend class factory_smoke_writer_t;
 	friend class factory_smoke_reader_t;
 
 private:
