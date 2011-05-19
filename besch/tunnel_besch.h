@@ -28,7 +28,6 @@
 class checksum_t;
 
 class tunnel_besch_t : public obj_besch_std_name_t {
-	friend class tunnel_writer_t;
 	friend class tunnel_reader_t;
 	friend class tunnelbauer_t;	// to convert the old tunnels to new ones
 
