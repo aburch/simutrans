@@ -28,7 +28,6 @@ class checksum_t;
 
 
 class bruecke_besch_t : public obj_besch_std_name_t {
-    friend class bridge_writer_t;
     friend class bridge_reader_t;
 
 private:
