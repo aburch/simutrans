@@ -18,27 +18,23 @@ void tile_writer_t::write_obj(FILE* fp, obj_node_t& parent, int index, int seaso
 	slist_tpl<slist_tpl<slist_tpl<string> > >& frontkeys
 )
 {
-	haus_tile_besch_t besch;
-
 	obj_node_t node(this, 7, &parent);
 
-	besch.phasen = 0;
+	uint8 phasen = 0;
 	for (int i = 0; i < seasons; i++) {
 		slist_iterator_tpl<slist_tpl<string> > iter(backkeys.at(i));
 		while (iter.next()) {
-			if (iter.get_current().get_count() > besch.phasen) {
-				besch.phasen = iter.get_current().get_count();
+			if (iter.get_current().get_count() > phasen) {
+				phasen = iter.get_current().get_count();
 			}
 		}
 		iter = slist_iterator_tpl<slist_tpl<string> >(frontkeys.at(i));
 		while (iter.next()) {
-			if (iter.get_current().get_count() > besch.phasen) {
-				besch.phasen = iter.get_current().get_count();
+			if (iter.get_current().get_count() > phasen) {
+				phasen = iter.get_current().get_count();
 			}
 		}
 	}
-	besch.index = index;
-	besch.seasons = seasons;
 
 	for (int i = 0; i < seasons; i++) {
 		imagelist2d_writer_t::instance()->write_obj(fp, node, backkeys.at(i));
@@ -52,13 +48,13 @@ void tile_writer_t::write_obj(FILE* fp, obj_node_t& parent, int index, int seaso
 	v16 = 0x8002;
 	node.write_uint16(fp, v16, 0);
 
-	v16 = besch.phasen;
+	v16 = phasen;
 	node.write_uint16(fp, v16, 2);
 
-	v16 = besch.index;
+	v16 = index;
 	node.write_uint16(fp, v16, 4);
 
-	uint8 uv8 = besch.seasons;
+	uint8 uv8 = seasons;
 	node.write_uint8(fp, uv8, 6);
 
 	node.write(fp);

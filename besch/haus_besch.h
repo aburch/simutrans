@@ -36,7 +36,6 @@ class checksum_t;
  *	... ...
  */
 class haus_tile_besch_t : public obj_besch_t {
-	friend class tile_writer_t;
 	friend class tile_reader_t;
 
 	const haus_besch_t	*haus;
