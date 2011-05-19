@@ -31,7 +31,6 @@ class werkzeug_t;
  * @author  Volker Meyer, Hj. Malthaner
  */
 class weg_besch_t : public obj_besch_std_name_t {
-	friend class way_writer_t;
 	friend class way_reader_t;
 
 public:
