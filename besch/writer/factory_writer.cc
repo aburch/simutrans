@@ -12,22 +12,16 @@
 
 void factory_field_class_writer_t::write_obj(FILE* outfp, obj_node_t& parent, const char* field_name, int snow_image, int production, int capacity, int weight)
 {
-	field_class_besch_t besch;
 	obj_node_t node(this, 9, &parent);
 
 	xref_writer_t::instance()->write_obj(outfp, node, obj_field, field_name, true);
 
 	// Knightly : data specific to each field class
-	besch.snow_image = snow_image;
-	besch.production_per_field = production;
-	besch.storage_capacity = capacity;
-	besch.spawn_weight = weight;
-
-	node.write_uint16(outfp, 0x8001,                        0); // version
-	node.write_uint8 (outfp, besch.snow_image,              2);
-	node.write_uint16(outfp, besch.production_per_field,    3);
-	node.write_uint16(outfp, besch.storage_capacity,        5);
-	node.write_uint16(outfp, besch.spawn_weight,            7);
+	node.write_uint16(outfp, 0x8001,     0); // version
+	node.write_uint8 (outfp, snow_image, 2);
+	node.write_uint16(outfp, production, 3);
+	node.write_uint16(outfp, capacity,   5);
+	node.write_uint16(outfp, weight,     7);
 
 	node.write(outfp);
 }

@@ -20,7 +20,6 @@ class checksum_t;
  * Fields are xref'ed from skin_besch_t
  */
 class field_class_besch_t : public obj_besch_t {
-	friend class factory_field_class_writer_t;
 	friend class factory_field_class_reader_t;
 	friend class factory_field_group_reader_t;		// Knightly : this is a special case due to besch restructuring
 
