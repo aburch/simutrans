@@ -122,8 +122,6 @@ public:
  *	... ...
  */
 class haus_besch_t : public obj_besch_std_name_t { // Daten für ein ganzes Gebäude
-
-	friend class building_writer_t;
 	friend class building_reader_t;
 
 	public:
