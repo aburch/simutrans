@@ -1315,25 +1315,27 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 				// indicate that this halt has been processed
 				markers[ reachable_halt_id ] = current_marker;
 
-				if(  current_conn.halt.is_bound()  ) {
-					if(  current_conn.halt->serving_schedules[ware_catg_idx]>1u  &&  allocation_pointer<max_hops  ) {
-						// Case : transfer halt
-						const uint16 total_weight = current_halt_data.best_weight + current_conn.weight;
+				if(  current_conn.halt.is_bound()  &&  current_conn.halt->serving_schedules[ware_catg_idx]>1u  &&  allocation_pointer<max_hops  ) {
+					// Case : transfer halt
+					const uint16 total_weight = current_halt_data.best_weight + current_conn.weight;
 
-						if(  total_weight < best_destination_weight  ) {
+					if(  total_weight < best_destination_weight  ) {
 
-							halt_data[ reachable_halt_id ].best_weight = total_weight;
-							halt_data[ reachable_halt_id ].destination = 0;
-							halt_data[ reachable_halt_id ].depth       = current_halt_data.depth + 1u;
-							halt_data[ reachable_halt_id ].transfer    = current_node.halt;
+						halt_data[ reachable_halt_id ].best_weight = total_weight;
+						halt_data[ reachable_halt_id ].destination = 0;
+						halt_data[ reachable_halt_id ].depth       = current_halt_data.depth + 1u;
+						halt_data[ reachable_halt_id ].transfer    = current_node.halt;
 
-							allocation_pointer++;
-							open_list.insert( route_node_t(current_conn.halt, total_weight) );
-						}
+						allocation_pointer++;
+						open_list.insert( route_node_t(current_conn.halt, total_weight) );
+					}
+					else {
+						// Case: non-optimal transfer halt -> put in closed list
+						halt_data[ reachable_halt_id ].best_weight = 0;
 					}
 				}
 				else {
-					// Case: halt is removed -> put in closed list
+					// Case: halt is removed / no transfer halt -> put in closed list
 					halt_data[ reachable_halt_id ].best_weight = 0;
 				}
 
