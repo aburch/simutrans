@@ -25,8 +25,6 @@
  *	2   Bildliste
  */
 class skin_besch_t : public obj_besch_std_name_t {
-	friend class skin_writer_t;
-
 public:
 	bild_besch_t const* get_bild(int i) const { return get_child<bildliste_besch_t>(2)->get_bild(i); }
 
