@@ -71,7 +71,6 @@ stringhashtable_tpl<halthandle_t> haltestelle_t::all_names;
 static uint32 halt_iterator_start = 0;
 uint8 haltestelle_t::status_step = 0;
 
-
 void haltestelle_t::step_all()
 {
 	if (!alle_haltestellen.empty()) {
@@ -1290,10 +1289,6 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 			// shortest path to the current halt has already been found earlier
 			continue;
 		}
-		else {
-			// indicate that the current halt is in closed list
-			current_halt_data.best_weight = 0;
-		}
 
 		if(  current_halt_data.depth > max_transfers  ) {
 			// maximum transfer limit is reached -> do not add reachable halts to open list
@@ -1363,6 +1358,10 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 				}
 			}	// else if not in closed list
 		}	// for each connection entry
+
+		// indicate that the current halt is in closed list
+		current_halt_data.best_weight = 0;
+
 	} while(  !open_list.empty()  );
 
 	// if the loop ends, nothing was found
