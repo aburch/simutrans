@@ -208,10 +208,10 @@ class fabrik_besch_t : public obj_besch_t {
 	friend class factory_reader_t;
 
 public:
-	enum platzierung {Land, Wasser, Stadt};
+	enum site_t { Land, Wasser, Stadt };
 
 private:
-	enum platzierung platzierung;
+	site_t platzierung;
 	uint16 produktivitaet;
 	uint16 bereich;
 	uint16 gewichtung;	// Wie wahrscheinlich soll der Bau sein?
@@ -261,7 +261,7 @@ public:
 	uint get_produkte() const { return produkte; }
 
 	/* where to built */
-	enum platzierung get_platzierung() const { return platzierung; }
+	site_t get_platzierung() const { return platzierung; }
 	int get_gewichtung() const { return gewichtung;     }
 
 	uint8 get_kennfarbe() const { return kennfarbe; }

@@ -228,9 +228,10 @@ obj_besch_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	const uint16 v = decode_uint16(p);
 	const int version = v & 0x8000 ? v & 0x7FFF : 0;
 
+	typedef fabrik_besch_t::site_t site_t;
 	if(version == 3) {
 		// Versioned node, version 3
-		besch->platzierung = (enum fabrik_besch_t::platzierung)decode_uint16(p);
+		besch->platzierung = (site_t)decode_uint16(p);
 		besch->produktivitaet = decode_uint16(p);
 		besch->bereich = decode_uint16(p);
 		besch->gewichtung = decode_uint16(p);
@@ -252,7 +253,7 @@ obj_besch_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		DBG_DEBUG("factory_reader_t::read_node()","version=3, platz=%i, lieferanten=%i, pax=%i", besch->platzierung, besch->lieferanten, besch->pax_level );
 	} else if(version == 2) {
 		// Versioned node, version 2
-		besch->platzierung = (enum fabrik_besch_t::platzierung)decode_uint16(p);
+		besch->platzierung = (site_t)decode_uint16(p);
 		besch->produktivitaet = decode_uint16(p);
 		besch->bereich = decode_uint16(p);
 		besch->gewichtung = decode_uint16(p);
@@ -274,7 +275,7 @@ obj_besch_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		DBG_DEBUG("factory_reader_t::read_node()","version=2, platz=%i, lieferanten=%i, pax=%i", besch->platzierung, besch->lieferanten, besch->pax_level );
 	} else if(version == 1) {
 		// Versioned node, version 1
-		besch->platzierung = (enum fabrik_besch_t::platzierung)decode_uint16(p);
+		besch->platzierung = (site_t)decode_uint16(p);
 		besch->produktivitaet = decode_uint16(p);
 		besch->bereich = decode_uint16(p);
 		besch->gewichtung = decode_uint16(p);
@@ -298,7 +299,7 @@ obj_besch_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	else {
 		// old node, version 0, without pax_level
 		DBG_DEBUG("factory_reader_t::read_node()","version=0");
-		besch->platzierung = (enum fabrik_besch_t::platzierung)v;
+		besch->platzierung = (site_t)v;
 		decode_uint16(p);	// alsways zero
 		besch->produktivitaet = decode_uint16(p)|0x8000;
 		besch->bereich = decode_uint16(p);
