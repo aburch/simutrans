@@ -193,9 +193,11 @@ sint32 convoy_t::calc_max_starting_weight(sint32 sin_alpha)
 	return abs(get_starting_force() / (d_int == 0 ? 1 : d_int)); // 1.01 to compensate inaccuracy of calculation 
 }
 
-sint32 convoy_t::calc_speed_holding_force(const fraction_t &speed /* in m/s */, sint32 Frs /* in N */)
+fraction_t convoy_t::calc_speed_holding_force(const fraction_t &speed /* in m/s */, const fraction_t &Frs /* in N */)
 {
-	return min((adverse.cf * speed * speed).integer(), get_force(speed.n / speed.d) - Frs); /* in N */
+	fraction_t f1 = adverse.cf * speed * speed;
+	fraction_t f2 = get_force(speed.n / speed.d) - Frs;
+	return f1 < f2 ? f1 : f2; /* in N */
 }
 
 sint32 convoy_t::d_calc_speed_holding_force(double speed /* in m/s */, double Frs /* in N */)
@@ -239,11 +241,10 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 		double d_fvmax = 0; // force needed to hold vmax. will be calculated as needed
 		double d_speed_ratio = 0; 
 
-		const fraction_t f_Frs = (fraction_t(981, 100) * (adverse.fr * weight.weight_cos + weight.weight_sin)); // msin, mcos are calculated per vehicle due to vehicle specific slope angle.
-		const sint32 Frs = f_Frs.n / f_Frs.d; // msin, mcos are calculated per vehicle due to vehicle specific slope angle.
+		const fraction_t Frs = (fraction_t(981, 100) * (adverse.fr * weight.weight_cos + weight.weight_sin)); // msin, mcos are calculated per vehicle due to vehicle specific slope angle.
 		const fraction_t vmax = speed_to_v(akt_speed_soll).shorten();
 		fraction_t v = speed_to_v(akt_speed).shorten(); // v in m/s, akt_speed in simutrans vehicle speed;
-		sint32 fvmax = 0; // force needed to hold vmax. will be calculated as needed
+		fraction_t fvmax = 0; // force needed to hold vmax. will be calculated as needed
 		sint32 speed_ratio = 0;
 
 		//static uint32 count1 = 0;
@@ -255,7 +256,7 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 		{
 			// the driver's part: select accelerating force:
 			double d_f;
-			sint32 f;
+			fraction_t f;
 			bool is_breaking = false; // don't roll backwards, due to breaking
 
 			if (1000 * v < vmax * 999) // same as: v < 0.999 * vmax
