@@ -239,7 +239,8 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 		double d_fvmax = 0; // force needed to hold vmax. will be calculated as needed
 		double d_speed_ratio = 0; 
 
-		const sint32 Frs = (fraction_t(981, 100) * (adverse.fr * weight.weight_cos + weight.weight_sin)).integer(); // msin, mcos are calculated per vehicle due to vehicle specific slope angle.
+		const fraction_t f_Frs = (fraction_t(981, 100) * (adverse.fr * weight.weight_cos + weight.weight_sin)).integer(); // msin, mcos are calculated per vehicle due to vehicle specific slope angle.
+		const sint32 Frs = f_Frs.n / f_Frs.d; // msin, mcos are calculated per vehicle due to vehicle specific slope angle.
 		const fraction_t vmax = speed_to_v(akt_speed_soll).shorten();
 		fraction_t v = speed_to_v(akt_speed).shorten(); // v in m/s, akt_speed in simutrans vehicle speed;
 		sint32 fvmax = 0; // force needed to hold vmax. will be calculated as needed
