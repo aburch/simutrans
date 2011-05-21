@@ -2346,6 +2346,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 				{
 					// If the average speed is not initialised, take a guess to prevent perverse outcomes and possible deadlocks.
 					average_speed = speed_to_kmh(cnv->get_min_top_speed()) >> 1  * 100;
+					average_speed = average_speed == 0 ? 1 : average_speed;
 				}
 						
 				accumulated_journey_time += ((accurate_distance(plan_halt->get_basis_pos(), previous_halt->get_basis_pos()) 
