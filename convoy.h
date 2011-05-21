@@ -313,7 +313,7 @@ private:
 	/*
 	 * Get force in N that holds the given speed v or maximum available force, what ever is lesser.
 	 */
-	sint32 calc_speed_holding_force(const fraction_t &speed /* in m/s */, sint32 Frs /* in N */); /* in N */
+	fraction_t calc_speed_holding_force(const fraction_t &speed /* in m/s */, const fraction_t &Frs /* in N */); /* in N */
 	sint32 d_calc_speed_holding_force(double speed /* in m/s */, double Frs /* in N */);
 
 protected:
