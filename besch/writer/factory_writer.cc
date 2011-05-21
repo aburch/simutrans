@@ -138,8 +138,8 @@ void factory_supplier_writer_t::write_obj(FILE* outfp, obj_node_t& parent, int c
 
 void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	char const*                      const placing     = obj.get("location");
-	enum fabrik_besch_t::platzierung const platzierung =
+	char const*            const placing     = obj.get("location");
+	fabrik_besch_t::site_t const platzierung =
 		!STRICMP(placing, "land")  ? fabrik_besch_t::Land   :
 		!STRICMP(placing, "water") ? fabrik_besch_t::Wasser :
 		!STRICMP(placing, "city")  ? fabrik_besch_t::Stadt  :
