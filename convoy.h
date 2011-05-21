@@ -128,12 +128,25 @@ inline fraction_t v_to_speed(fraction_t v)
 }
 
 /**
+ * Convert a speed from m/s to simutrans speed
+ */
+inline double d_v_to_speed(double v)
+{
+	return (v * 36.0 * 1024.0 + (double)VEHICLE_SPEED_FACTOR - 1.0) / ((double)VEHICLE_SPEED_FACTOR * 10.0);
+}
+
+/**
  * Convert a distance from m (meter) to simutrans steps (same conversion as v_to_speed())
  */
 inline fraction_t x_to_steps(fraction_t x)
 {
 	const fraction_t first = x * 36 * 1024 + VEHICLE_SPEED_FACTOR - 1;
 	return first / (VEHICLE_SPEED_FACTOR * 10);
+}
+
+inline double d_x_to_steps(double x)
+{
+	return (x * 36.0 * 1024.0 + (double)VEHICLE_SPEED_FACTOR - 1.0) / ((double)VEHICLE_SPEED_FACTOR * 10.0);
 }
 
 /******************************************************************************/
