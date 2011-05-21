@@ -189,7 +189,7 @@ protected:
 	virtual void calc_bild_internal() = 0;
 
 public:
-	enum typ {grund, boden, wasser, fundament, tunnelboden, brueckenboden, monorailboden };
+	enum typ { boden = 1, wasser, fundament, tunnelboden, brueckenboden, monorailboden };
 
 	grund_t(karte_t *welt, loadsave_t *file);
 	grund_t(karte_t *welt, koord3d pos);
@@ -261,7 +261,7 @@ public:
 	* @return Der Typ des Untergrundes.
 	* @author Hj. Malthaner
 	*/
-	virtual typ get_typ() const { return grund; }
+	virtual typ get_typ() const = 0;
 
 	/**
 	* Gibt eine Beschreibung des Untergrundes (informell) zurueck.
