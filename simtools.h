@@ -1,6 +1,7 @@
 #ifndef SIMTOOLS_H
 #define SIMTOOLS_H
 
+#include <stddef.h>
 #include "simtypes.h"
 
 
