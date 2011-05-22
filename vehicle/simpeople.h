@@ -17,8 +17,6 @@ private:
 	static stringhashtable_tpl<const fussgaenger_besch_t *> table;
 
 private:
-	static uint32 strecke[8];
-
 	const fussgaenger_besch_t *besch;
 
 protected:

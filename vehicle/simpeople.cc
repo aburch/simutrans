@@ -19,7 +19,7 @@
 #include "simpeople.h"
 #include "../besch/fussgaenger_besch.h"
 
-uint32 fussgaenger_t::strecke[] = {6000, 11000, 15000, 20000, 25000, 30000, 35000, 40000};
+static uint32 const strecke[] = { 6000, 11000, 15000, 20000, 25000, 30000, 35000, 40000 };
 
 static weighted_vector_tpl<const fussgaenger_besch_t*> liste;
 stringhashtable_tpl<const fussgaenger_besch_t *> fussgaenger_t::table;
