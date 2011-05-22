@@ -1257,7 +1257,17 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 			assert(current_halt_data.transfer.get_id() != 0);
 			if(  return_ware  ) {
 				// next transfer for the reverse route
-				return_ware->set_zwischenziel( current_halt_data.transfer );
+				// if the end halt and its connections contain more than one transfer halt then
+				// the transfer halt may not be the last transfer of the forward route
+				// (the rerouting will happen in haltestelle_t::hole_ab)
+				return_ware->set_zwischenziel(current_halt_data.transfer);
+				const vector_tpl<connection_t> &conns = current_node.halt->connections[ware_catg_idx];
+				// count the connected transfer halts (including end halt)
+				uint8 t = current_node.halt->serving_schedules[ware_catg_idx] > 1;
+				for(  uint32 i=0; t<=1  &&  i<conns.get_count();  ++i  ) {
+					t += conns[i].halt->serving_schedules[ware_catg_idx] > 1;
+				}
+				return_ware->set_zwischenziel(  t<=1  ?  current_halt_data.transfer  : halthandle_t());
 			}
 			// find the next transfer
 			bool via_overcrowded_transfer = false;
@@ -1715,6 +1725,16 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 					// skip empty entries
 					if(tmp.menge==0) {
 						continue;
+					}
+
+					// goods without route -> returning passengers/mail
+					if(  !tmp.get_zwischenziel().is_bound()  ) {
+						search_routes(&tmp, 1);
+						if (!tmp.get_ziel().is_bound()) {
+							// no route anymore
+							tmp.menge = 0;
+							continue;
+						}
 					}
 
 					// compatible car and right target stop?

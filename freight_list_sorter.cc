@@ -218,7 +218,7 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 			}
 
 			// for debugging
-			const char *via_name = "Error in Routing";
+			const char *via_name = halt.is_bound() ? "Undecided" : "Error in Routing";
 			if(via_halt.is_bound()) {
 				via_name = via_halt->get_name();
 			}
