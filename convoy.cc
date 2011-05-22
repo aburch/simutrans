@@ -342,7 +342,7 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 
 			long d_dt;
 			double d_df = simtime_factor.to_double() * (d_f - sgn(d_v) * adverse.cf.to_double() * d_v * d_v);
-			if (delta_t >= DT_SLICE && (uint32)abs(d_df) > weight.weight / (10 * DT_SLICE_SECONDS))
+			if (delta_t >= DT_SLICE && (sint32)abs(d_df) > weight.weight / (10 * DT_SLICE_SECONDS))
 			{
 				// This part is important for acceleration/deceleration phases only.
 				// When a small force produces small speed change, we can add it at once in the 'else' section.
@@ -372,7 +372,8 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 			long dt;
 			fraction_t df = simtime_factor * (f - adverse.cf * (v * v * sgn<sint32>(v.integer())));
 			df.shorten();
-			if (delta_t >= DT_SLICE && (sint32)abs(df.integer()) > weight.weight / (10 * DT_SLICE_SECONDS))
+			const double TEST_df_double_equivalent = df.to_double();
+			if (delta_t >= DT_SLICE && abs(df.integer()) > weight.weight / (10 * DT_SLICE_SECONDS))
 			{
 				// This part is important for acceleration/deceleration phases only.
 				// When a small force produces a small speed change, we can add it at once in the 'else' section.
