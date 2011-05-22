@@ -78,7 +78,7 @@ fussgaenger_t::fussgaenger_t(karte_t *welt, koord3d pos)
  : verkehrsteilnehmer_t(welt, pos)
 {
 	besch = liste.at_weight(simrand(liste.get_sum_weight()));
-	time_to_life = strecke[simrand(7)];
+	time_to_life = pick_any(strecke);
 	calc_bild();
 }
 
@@ -112,7 +112,7 @@ void fussgaenger_t::rdwr(loadsave_t *file)
 	}
 
 	if(file->get_version()<89004) {
-		time_to_life = strecke[simrand(7)];
+		time_to_life = pick_any(strecke);
 	}
 }
 
