@@ -39,8 +39,11 @@ uint32 vehikel_besch_t::calc_running_cost(const karte_t *welt, uint32 base_cost)
 	}
 
 	// Current month is within the months_of_increasing_costs --> proportionally increased obsolescence cost.
-	const uint32 percentage = ((months_of_obsolescence * 100) / months_of_increasing_costs) + (base_cost * 100);
-	return (max_cost - base_cost) * (percentage / 100);
+	return ((max_cost - base_cost) * months_of_obsolescence) / months_of_increasing_costs + base_cost;
+
+	// BG, 22.05.2011: improper de-floating of:	return (uint32)((max_cost - base_cost) * (float)months_of_obsolescence / (float)months_of_increasing_costs) + base_cost;
+	//const uint32 percentage = ((months_of_obsolescence * 100) / months_of_increasing_costs) + (base_cost * 100);
+	//return (max_cost - base_cost) * (percentage / 100);
 }
 
 // Get running costs. Running costs increased if the vehicle is obsolete.
@@ -145,26 +148,22 @@ void vehikel_besch_t::loaded()
 
 	const fraction_t pfr = get_power_force_ratio();
 	const fraction_t power_force_ratio = pfr > 0 ? pfr : 1;
-	const fraction_t fts =  power_force_ratio + fraction_t(1,2);
-	force_threshold_speed = (uint16)fts.integer();
+	//BG, 22.05.2011: not needed, as integer() is doing the rounding: const fraction_t fts =  power_force_ratio + fraction_t(1,2);
+	force_threshold_speed = (uint16)power_force_ratio.integer();
 	geared_power = leistung * gear;
 	geared_force = (uint32)tractive_effort * gear;
 	if (geared_power != 0)
 	{
 		if (geared_force == 0)
 		{
-			const fraction_t pfr_2 = power_force_ratio + fraction_t(1,2);
-			const fraction_t mx = fraction_t((sint32)geared_power) / power_force_ratio + pfr_2;
-			geared_force = max(GEAR_FACTOR, mx.integer());
+			geared_force = max(GEAR_FACTOR, (geared_power / power_force_ratio).integer());
 		}
 	}
 	else
 	{
 		if (geared_force != 0)
 		{
-			const fraction_t pfr_2 = power_force_ratio + fraction_t(1,2);
-			const fraction_t mx = fraction_t((sint32)geared_force) / power_force_ratio + pfr_2;
-			geared_power = max(GEAR_FACTOR, mx.integer());
+			geared_power = max(GEAR_FACTOR, (geared_force * power_force_ratio).integer());
 		}
 	}
 }

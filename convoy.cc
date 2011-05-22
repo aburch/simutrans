@@ -398,6 +398,7 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 				v = 1;
 			}
 			dx += dt * v;
+
 			delta_t -= dt; // another DT_SLICE_SECONDS passed
 		}
 		d_akt_speed = d_v_to_speed(d_v);
@@ -475,7 +476,8 @@ sint32 potential_convoy_t::get_force_summary(sint32 speed /* in m/s */)
 	{
 		force += vehicles[i]->get_effective_force_index(speed);
 	}
-	return ((force * world.get_einstellungen()->get_global_power_factor_percent()) / GEAR_FACTOR + 50) / 100;
+	//return ((force * world.get_einstellungen()->get_global_power_factor_percent()) / GEAR_FACTOR + 50) / 100;
+	return (force * world.get_einstellungen()->get_global_power_factor_percent() + GEAR_FACTOR * 50) / (GEAR_FACTOR * 100);
 }
 
 
@@ -486,7 +488,8 @@ sint32 potential_convoy_t::get_power_summary(sint32 speed /* in m/s */)
 	{
 		power += vehicles[i]->get_effective_power_index(speed);
 	}
-	return ((power * world.get_einstellungen()->get_global_power_factor_percent()) / GEAR_FACTOR + 50) / 100;
+	//return ((power * world.get_einstellungen()->get_global_power_factor_percent()) / GEAR_FACTOR + 50) / 100;
+	return (power * world.get_einstellungen()->get_global_power_factor_percent() + GEAR_FACTOR * 50) / (GEAR_FACTOR * 100);
 }
 
 // Bernd Gabriel, Dec, 25 2009

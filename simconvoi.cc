@@ -1741,7 +1741,7 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_
 		//	power_from_steam += info->get_leistung();
 		//	power_from_steam_with_gear += info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
 		//}
-		sum_gear_und_leistung += (info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor_percent()) / 100;
+		sum_gear_und_leistung += (info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor_percent() + 50) / 100;
 		sum_gewicht += info->get_gewicht();
 		min_top_speed = min( min_top_speed, kmh_to_speed( v->get_besch()->get_geschw() ) );
 		sum_gesamtgewicht = sum_gewicht;
@@ -1833,7 +1833,7 @@ DBG_MESSAGE("convoi_t::upgrade_vehicle()","at pos %i of %i totals.",i,max_vehicl
 	//	power_from_steam += info->get_leistung();
 	//	power_from_steam_with_gear += info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
 	//}
-	sum_gear_und_leistung += (info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor_percent()) / 100;
+	sum_gear_und_leistung += (info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor_percent() + 50) / 100;
 	sum_gewicht += info->get_gewicht();
 	sum_gesamtgewicht = sum_gewicht;
 
@@ -1845,7 +1845,7 @@ DBG_MESSAGE("convoi_t::upgrade_vehicle()","at pos %i of %i totals.",i,max_vehicl
 	//	power_from_steam -= info->get_leistung();
 	//	power_from_steam_with_gear -= info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
 	//}
-	sum_gear_und_leistung -= (info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor_percent()) / 100;
+	sum_gear_und_leistung -= (info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor_percent() + 50) / 100;
 	sum_gewicht -= info->get_gewicht();
 
 	calc_loading();
@@ -1895,7 +1895,7 @@ vehikel_t *convoi_t::remove_vehikel_bei(uint16 i)
 			//	power_from_steam -= info->get_leistung();
 			//	power_from_steam_with_gear -= info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
 			//}
-			sum_gear_und_leistung -= (info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor_percent()) / 100;
+			sum_gear_und_leistung -= (info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor_percent() + 50) / 100;
 			sum_gewicht -= info->get_gewicht();
 		}
 		sum_gesamtgewicht = sum_gewicht;
@@ -2711,7 +2711,7 @@ void convoi_t::rdwr(loadsave_t *file)
 				//	power_from_steam += info->get_leistung();
 				//	power_from_steam_with_gear += info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
 				//}
-				sum_gear_und_leistung += (info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor_percent()) / 100;
+				sum_gear_und_leistung += (info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor_percent() + 50) / 100;
 				sum_gewicht += info->get_gewicht();
 				is_electric |= info->get_engine_type()==vehikel_besch_t::electric;
 			}
