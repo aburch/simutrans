@@ -1165,9 +1165,6 @@ uint8 haltestelle_t::last_search_ware_catg_idx = 255;
  */
 int haltestelle_t::search_route( const halthandle_t *const start_halts, const uint16 start_halt_count, const bool no_routing_over_overcrowding, ware_t &ware, ware_t *const return_ware )
 {
-	// invalidate search history
-	last_search_origin = halthandle_t();
-
 	const uint8 ware_catg_idx = ware.get_besch()->get_catg_index();
 
 	// since also the factory halt list is added to the ground, we can use just this ...
@@ -1206,6 +1203,8 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 		}
 		return NO_ROUTE;
 	}
+	// invalidate search history
+	last_search_origin = halthandle_t();
 
 	// set current marker
 	++current_marker;
