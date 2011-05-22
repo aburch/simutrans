@@ -5417,6 +5417,20 @@ void karte_t::clear_command_queue() const
 }
 
 
+static void encode_URI(cbuffer_t& buf, char const* const text)
+{
+	// replace all spaces by %20
+	for (char const* i = text; *i != '\0'; ++i) {
+		if (*i != ' ') {
+			char const two[] = { *i, '\0' };
+			buf.append(two);
+		} else {
+			buf.append("%20");
+		}
+	}
+}
+
+
 bool karte_t::interactive(uint32 quit_month)
 {
 	event_t ev;
@@ -5462,19 +5476,7 @@ bool karte_t::interactive(uint32 quit_month)
 			char const* const copyright = grund_besch_t::ausserhalb->get_copyright();
 			if (copyright && STRICMP("none", copyright) != 0) {
 				// construct from outside object copyright string
-				// replace all spaces by %20
-				char two[2] = { 0, 0 };
-				char const* c = copyright;
-				while(  *c  ) {
-					if(  *c!=' '  ) {
-						two[0] = *c;
-						buf.append( two );
-					}
-					else {
-						buf.append( "%20" );
-					}
-					c++;
-				}
+				encode_URI(buf, copyright);
 			}
 			else {
 				// construct from pak name
@@ -5483,19 +5485,8 @@ bool karte_t::interactive(uint32 quit_month)
 				buf.append( pak_name.c_str() );
 			}
 			buf.append( "&name=" );
-			// add comment and replace all spaces by %20
-			char two[2] = { 0, 0 };
-			const char *c = umgebung_t::server_comment.c_str();
-			while(  *c  ) {
-				if(  *c!=' '  ) {
-					two[0] = *c;
-					buf.append( two );
-				}
-				else {
-					buf.append( "%20" );
-				}
-				c++;
-			}
+			// add comment
+			encode_URI(buf, umgebung_t::server_comment.c_str());
 			network_download_http( ANNOUNCE_SERVER, buf, NULL );
 			// and now the details (resetting month for automatic messages)
 			server_next_announce_month = 0;
