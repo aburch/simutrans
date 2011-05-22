@@ -2620,7 +2620,7 @@ void karte_t::sync_step(long delta_t, bool sync, bool display )
 		ticks += delta_t;
 
 		// insert new objects created during last sync_step (eg vehicle smoke)
-		while(!sync_add_list.empty()) {
+		if(!sync_add_list.empty()) {
 			sync_list.append_list(sync_add_list);
 		}
 
