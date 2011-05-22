@@ -84,35 +84,31 @@ const weg_besch_t *wegbauer_t::leitung_besch = NULL;
 static stringhashtable_tpl <const weg_besch_t *> alle_wegtypen;
 
 
+static void set_default(weg_besch_t const*& def, waytype_t const wtyp, sint32 const speed_limit = 1)
+{
+	def = wegbauer_t::weg_search(wtyp, speed_limit, 0, weg_t::type_flat);
+}
+
+
+static void set_default(weg_besch_t const*& def, waytype_t const wtyp, weg_t::system_type const system_type, sint32 const speed_limit = 1)
+{
+	set_default(def, wtyp, speed_limit);
+	if (def) return;
+	def = wegbauer_t::weg_search(wtyp, 1, 0, system_type);
+}
+
+
 bool wegbauer_t::alle_wege_geladen()
 {
 	// some defaults to avoid hardcoded values
-	strasse_t::default_strasse = wegbauer_t::weg_search(road_wt,50,0,weg_t::type_flat);
-	if(strasse_t::default_strasse==NULL) {
-		strasse_t::default_strasse = wegbauer_t::weg_search(road_wt,1,0,weg_t::type_flat);
-	}
-	schiene_t::default_schiene = wegbauer_t::weg_search(track_wt,80,0,weg_t::type_flat);
-	if(schiene_t::default_schiene==NULL) {
-		schiene_t::default_schiene = wegbauer_t::weg_search(track_wt,1,0,weg_t::type_flat);
-	}
-	monorail_t::default_monorail = wegbauer_t::weg_search(monorail_wt,1,0,weg_t::type_flat);
-	if(monorail_t::default_monorail==NULL) {
-		// only elevated???
-		monorail_t::default_monorail = wegbauer_t::weg_search(monorail_wt,1,0,weg_t::type_elevated);
-	}
-	maglev_t::default_maglev = wegbauer_t::weg_search(maglev_wt,1,0,weg_t::type_flat);
-	if(monorail_t::default_monorail==NULL) {
-		// only elevated???
-		maglev_t::default_maglev = wegbauer_t::weg_search(maglev_wt,1,0,weg_t::type_elevated);
-	}
-	narrowgauge_t::default_narrowgauge = wegbauer_t::weg_search(narrowgauge_wt,1,0,weg_t::type_flat);
-	kanal_t::default_kanal = wegbauer_t::weg_search(water_wt,1,0,weg_t::type_flat);
-	if(  kanal_t::default_kanal==0  ) {
-		// find also hidden rivers ...
-		kanal_t::default_kanal = wegbauer_t::weg_search(water_wt,0,0,weg_t::type_all);
-	}
-	runway_t::default_runway = wegbauer_t::weg_search(air_wt,1,0,weg_t::type_flat);
-	wegbauer_t::leitung_besch = wegbauer_t::weg_search(powerline_wt,1,0,weg_t::type_flat);
+	set_default(strasse_t::default_strasse,         road_wt,        weg_t::type_flat, 50);
+	set_default(schiene_t::default_schiene,         track_wt,       weg_t::type_flat, 80);
+	set_default(monorail_t::default_monorail,       monorail_wt,    weg_t::type_elevated); // Only elevated?
+	set_default(maglev_t::default_maglev,           maglev_wt,      weg_t::type_elevated); // Only elevated?
+	set_default(narrowgauge_t::default_narrowgauge, narrowgauge_wt);
+	set_default(kanal_t::default_kanal,             water_wt,       weg_t::type_all); // Also find hidden rivers.
+	set_default(runway_t::default_runway,           air_wt);
+	set_default(wegbauer_t::leitung_besch,          powerline_wt);
 	return true;
 }
 
