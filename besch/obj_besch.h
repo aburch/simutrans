@@ -10,7 +10,6 @@
 #include <cstddef>
 #include "../simtypes.h"
 
-class checksum_t;
 /*
  *  Autor:
  *      Volker Meyer
@@ -40,16 +39,6 @@ public:
 	void* operator new(size_t size, unsigned extra)
 	{
 		return ::operator new(size + extra);
-	}
-
-	/**
-	 * calculate checksum of the besch
-	 * called in register_obj
-	 * ATTENTION: xref's are NOT resolved yet
-	 * @author Dwachs
-	 */
-	void calc_checksum(checksum_t *) const
-	{
 	}
 
 	friend class obj_reader_t;
