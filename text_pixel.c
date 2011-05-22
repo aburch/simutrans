@@ -2,8 +2,8 @@
 // helper for display_text_len_clip
 asm volatile (
 	"jmp *JumpDC(,%2,4)\n\t"
-	".p2align 2\n\t"
-	".align 4\n"
+	"ud2\n\t"
+	".p2align 4\n"
 "JumpDC:\n\t"
 	".long .DCende\n\t"
 	".long L9901\n\t"

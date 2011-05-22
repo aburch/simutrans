@@ -2103,7 +2103,8 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 					"negl %2\n\t"
 					"addl $1f, %2\n\t"
 					"jmp * %2\n\t"
-					".p2align 2\n\t"
+					"ud2\n\t"
+					".p2align 4\n\t"
 #define MOVSD1   "movsd\n\t"
 #define MOVSD2   MOVSD1   MOVSD1
 #define MOVSD4   MOVSD2   MOVSD2
