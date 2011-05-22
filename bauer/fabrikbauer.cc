@@ -344,11 +344,12 @@ finish:
 		return koord3d(-1, -1, -1);
 	}
 	else {
+		koord3d k = pick_any(list);
 		if(wasser) {
 			// take care of offset
-			return list[simrand(list.get_count())] + koord3d(3, 3, 0);
+			k += koord3d(3, 3, 0);
 		}
-		return list[simrand(list.get_count())];
+		return k;
 	}
 }
 

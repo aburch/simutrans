@@ -805,7 +805,7 @@ void karte_t::create_rivers( sint16 number )
 	uint8 retrys = 0;
 	while (number > 0 && !mountain_tiles.empty() && retrys++ < 100) {
 		koord start = mountain_tiles.at_weight( simrand(mountain_tiles.get_sum_weight()) );
-		koord end = water_tiles[ simrand(water_tiles.get_count()) ];
+		koord const end   = pick_any(water_tiles);
 		sint16 dist = koord_distance(start,end);
 		if(  dist > einstellungen->get_min_river_length()  &&  dist < einstellungen->get_max_river_length()  ) {
 			// should be at least of decent length

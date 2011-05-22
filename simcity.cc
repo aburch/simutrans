@@ -2821,10 +2821,9 @@ void stadt_t::baue()
 
 	// renovation (only done when nothing matches a certain location
 	if (!buildings.empty()  &&  simrand(100) <= renovation_percentage) {
-		gebaeude_t* gb;
 		// try to find a public owned building
 		for(uint8 i=0; i<4; i++) {
-			gb = buildings[simrand(buildings.get_count())];
+			gebaeude_t* const gb = pick_any(buildings);
 			if(  spieler_t::check_owner(gb->get_besitzer(),NULL)  ) {
 				renoviere_gebaeude(gb);
 				break;

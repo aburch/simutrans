@@ -97,7 +97,7 @@ verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt, koord3d pos) :
 			liste[count++] = ribi_t::nsow[r];
 		}
 	}
-	fahrtrichtung = count ? liste[simrand(count)] : ribi_t::nsow[simrand(4)];
+	fahrtrichtung = count ? liste[simrand(count)] : pick_any(ribi_t::nsow);
 
 	switch(fahrtrichtung) {
 		case ribi_t::nord:
