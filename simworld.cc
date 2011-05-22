@@ -5419,13 +5419,16 @@ void karte_t::clear_command_queue() const
 
 static void encode_URI(cbuffer_t& buf, char const* const text)
 {
-	// replace all spaces by %20
 	for (char const* i = text; *i != '\0'; ++i) {
-		if (*i != ' ') {
-			char const two[] = { *i, '\0' };
+		char const c = *i;
+		if (('A' <= c && c <= 'Z') ||
+				('a' <= c && c <= 'z') ||
+				('0' <= c && c <= '9') ||
+				c == '-' || c == '.' || c == '_' || c == '~') {
+			char const two[] = { c, '\0' };
 			buf.append(two);
 		} else {
-			buf.append("%20");
+			buf.printf("%02X", (unsigned char)c);
 		}
 	}
 }
