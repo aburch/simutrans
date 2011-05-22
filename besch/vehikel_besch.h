@@ -492,7 +492,7 @@ public:
 	 * Effective force in kN: force_index * welt->get_einstellungen()->get_global_power_factor() / GEAR_FACTOR
 	 * @author Bernd Gabriel
 	 */
-	uint32 get_effective_force_index(sint32 speed /* in m/s */ ) const;
+	fraction_t get_effective_force_index(const fraction_t &speed /* in m/s */ ) const;
 
 	/**
 	 * Get effective power index. 
@@ -500,7 +500,7 @@ public:
 	 * Effective power in kW: power_index * welt->get_einstellungen()->get_global_power_factor() / GEAR_FACTOR
 	 * @author Bernd Gabriel
 	 */
-	uint32 get_effective_power_index(sint32 speed /* in m/s */ ) const;
+	fraction_t get_effective_power_index(const fraction_t &speed /* in m/s */ ) const;
 
 	void calc_checksum(checksum_t *chk) const;
 };

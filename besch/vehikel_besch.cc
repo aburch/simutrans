@@ -172,28 +172,28 @@ void vehikel_besch_t::loaded()
  * Get effective force in kN at given speed in m/s: effective_force_index * welt->get_einstellungen()->get_global_power_factor() / GEAR_FACTOR
  * @author Bernd Gabriel, Dec 14, 2009
  */
-uint32 vehikel_besch_t::get_effective_force_index(sint32 speed /* in m/s */ ) const
+fraction_t vehikel_besch_t::get_effective_force_index(const fraction_t &speed /* in m/s */ ) const
 {
 	if (geared_force == 0) 
 	{
 		// no force at all
 		return 0;
 	}
-	return speed <= force_threshold_speed ? geared_force : geared_power / speed;
+	return speed <= force_threshold_speed ? fraction_t((sint32)geared_force) : (geared_power / speed);
 }
 
 /**
  * Get effective power in kW at given speed in m/s: effective_power_index * welt->get_einstellungen()->get_global_power_factor() / GEAR_FACTOR
  * @author Bernd Gabriel, Dec 14, 2009
  */
-uint32 vehikel_besch_t::get_effective_power_index(sint32 speed /* in m/s */ ) const
+fraction_t vehikel_besch_t::get_effective_power_index(const fraction_t &speed /* in m/s */ ) const
 {
 	if (geared_power == 0) 
 	{
 		// no power at all
 		return 0;
 	}
-	return speed <= force_threshold_speed ? geared_force * speed : geared_power;
+	return speed <= force_threshold_speed ? (geared_force * speed) : fraction_t((sint32)geared_power);
 }
 
 uint16 vehikel_besch_t::get_obsolete_year_month(const karte_t *welt) const

@@ -299,15 +299,14 @@ private:
 	/**
 	 * Get force in N according to current speed in m/s
 	 */
-	inline sint32 get_force(sint32 speed)
+	inline fraction_t get_force(const fraction_t &speed)
 	{
-		sint32 v = abs(speed);
-		return (v == 0) ? get_starting_force() : get_force_summary(v) * 1000;
+		return (speed == 0) ? get_starting_force() : get_force_summary(speed < 0 ? -speed : speed) * 1000;
 	}
 	inline uint32 d_get_force(double speed) 
 	{
 		sint32 v = (sint32)abs(speed);
-		return (v == 0) ? get_starting_force() : get_force_summary(v) * 1000;
+		return ((v == 0) ? get_starting_force() : get_force_summary(fraction_t((speed < 0 ? -speed : speed) * 1000, 1000)) * 1000).to_double();
 	}
 
 	/*
@@ -323,8 +322,8 @@ protected:
 	/**
 	 * get force in kN according to current speed m/s in
 	 */
-	virtual sint32 get_force_summary(sint32 speed) = 0;
-	virtual sint32 get_power_summary(sint32 speed) = 0;
+	virtual fraction_t get_force_summary(const fraction_t & speed) = 0;
+	virtual fraction_t get_power_summary(const fraction_t & speed) = 0;
 
 	virtual const vehicle_summary_t &get_vehicle_summary() {
 		return vehicle;
@@ -334,11 +333,11 @@ protected:
 		return adverse;
 	}
 
-	virtual sint32 get_starting_force() { 
+	virtual fraction_t get_starting_force() { 
 		return get_force_summary(0) * 1000; 
 	}
 
-	virtual sint32 get_continuous_power() { 
+	virtual fraction_t get_continuous_power() { 
 		return get_power_summary(get_vehicle_summary().max_speed) * 1000; 
 	}
 public:
@@ -389,8 +388,8 @@ class lazy_convoy_t /*abstract*/ : public convoy_t
 {
 private:
 	freight_summary_t freight;
-	sint32 starting_force;   // in N, calculated in get_starting_force()
-	sint32 continuous_power; // in W, calculated in get_continuous_power()
+	fraction_t starting_force;   // in N, calculated in get_starting_force()
+	fraction_t continuous_power; // in W, calculated in get_continuous_power()
 protected:
 	int is_valid;
 	// decendents implement the update methods. 
@@ -479,7 +478,7 @@ public:
 		is_valid &= ~(cd_starting_force);
 	}
 
-	virtual sint32 get_starting_force() 
+	virtual fraction_t get_starting_force() 
 	{
 		if (!(is_valid & cd_starting_force)) 
 		{
@@ -498,7 +497,7 @@ public:
 		is_valid &= ~(cd_continuous_power);
 	}
 
-	virtual sint32 get_continuous_power()
+	virtual fraction_t get_continuous_power()
 	{
 		if (!(is_valid & cd_continuous_power)) 
 		{
@@ -556,8 +555,8 @@ protected:
 	virtual void update_vehicle_summary(vehicle_summary_t &vehicle);
 	virtual void update_adverse_summary(adverse_summary_t &adverse);
 	virtual void update_freight_summary(freight_summary_t &freight);
-	virtual sint32 get_force_summary(sint32 speed /* in m/s */);
-	virtual sint32 get_power_summary(sint32 speed /* in m/s */);
+	virtual fraction_t get_force_summary(const fraction_t & speed /* in m/s */);
+	virtual fraction_t get_power_summary(const fraction_t & speed /* in m/s */);
 public:
 	potential_convoy_t(karte_t &world, vector_tpl<const vehikel_besch_t *> &besch) : lazy_convoy_t(), vehicles(besch), world(world)
 	{
@@ -591,8 +590,8 @@ protected:
 	virtual void update_adverse_summary(adverse_summary_t &adverse);
 	virtual void update_freight_summary(freight_summary_t &freight);
 	virtual void update_weight_summary(weight_summary_t &weight);
-	virtual sint32 get_force_summary(sint32 speed /* in m/s */);
-	virtual sint32 get_power_summary(sint32 speed /* in m/s */);
+	virtual fraction_t get_force_summary(const fraction_t & speed /* in m/s */);
+	virtual fraction_t get_power_summary(const fraction_t & speed /* in m/s */);
 public:
 	existing_convoy_t(convoi_t &vehicles) : lazy_convoy_t(), convoy(vehicles)
 	{
