@@ -80,7 +80,6 @@ private:
 
 public:
 	static void register_besch(kreuzung_besch_t *besch);
-	static bool alles_geladen() {return true; }
 
 	/**
 	 * returns descriptor for crossing wrt timeline

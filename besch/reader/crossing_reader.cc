@@ -25,13 +25,6 @@ void crossing_reader_t::register_obj(obj_besch_t *&data)
 }
 
 
-
-bool crossing_reader_t::successfully_loaded() const
-{
-	return crossing_logic_t::alles_geladen();
-}
-
-
 obj_besch_t * crossing_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	ALLOCA(char, besch_buf, node.size);
