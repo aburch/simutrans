@@ -986,7 +986,7 @@ void ai_passenger_t::step()
 			// if no previous town => find one
 			if(start_stadt==NULL) {
 				// larger start town preferred
-				start_stadt = staedte.at_weight( simrand(staedte.get_sum_weight()) );
+				start_stadt = pick_any_weighted(staedte);
 				offset = staedte.index_of(start_stadt);
 			}
 DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using city %s for start",start_stadt->get_name());

@@ -759,7 +759,7 @@ void ai_goods_t::step()
 					}
 				}
 				if (!start_fabs.empty()) {
-					root = start_fabs.at_weight( simrand( start_fabs.get_sum_weight() ) );
+					root = pick_any_weighted(start_fabs);
 				}
 			}
 			// still nothing => we have to check convois ...

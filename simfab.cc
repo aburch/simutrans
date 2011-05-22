@@ -803,7 +803,7 @@ bool fabrik_t::add_random_field(uint16 probability)
 		assert(!fields.is_contained(new_field));
 		// Knightly : fetch a random field class besch based on spawn weights
 		const weighted_vector_tpl<uint16> &field_class_indices = fb->get_field_class_indices();
-		new_field.field_class_index = field_class_indices.at_weight( simrand( field_class_indices.get_sum_weight() ) );
+		new_field.field_class_index = pick_any_weighted(field_class_indices);
 		const field_class_besch_t *const field_class = fb->get_field_class( new_field.field_class_index );
 		fields.append(new_field);
 		grund_t *gr2 = new fundament_t(welt, gr->get_pos(), gr->get_grund_hang());

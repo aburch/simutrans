@@ -639,7 +639,7 @@ void karte_t::rem_convoi(convoihandle_t& cnv)
  */
 const stadt_t *karte_t::get_random_stadt() const
 {
-	return stadt.at_weight(simrand(stadt.get_sum_weight()));
+	return pick_any_weighted(stadt);
 }
 
 void karte_t::add_stadt(stadt_t *s)
@@ -804,7 +804,7 @@ void karte_t::create_rivers( sint16 number )
 	// now make rivers
 	uint8 retrys = 0;
 	while (number > 0 && !mountain_tiles.empty() && retrys++ < 100) {
-		koord start = mountain_tiles.at_weight( simrand(mountain_tiles.get_sum_weight()) );
+		koord const start = pick_any_weighted(mountain_tiles);
 		koord const end   = pick_any(water_tiles);
 		sint16 dist = koord_distance(start,end);
 		if(  dist > einstellungen->get_min_river_length()  &&  dist < einstellungen->get_max_river_length()  ) {
@@ -2533,9 +2533,8 @@ void karte_t::remove_ausflugsziel(gebaeude_t *gb)
 const gebaeude_t *
 karte_t::get_random_ausflugsziel() const
 {
-	const unsigned long sum_pax=ausflugsziele.get_sum_weight();
-	if (!ausflugsziele.empty() && sum_pax > 0) {
-		return ausflugsziele.at_weight( simrand(sum_pax) );
+	if (!ausflugsziele.empty()) {
+		return pick_any_weighted(ausflugsziele);
 	}
 	// so there are no destinations ... should never occur ...
 	dbg->fatal("karte_t::get_random_ausflugsziel()","nothing found.");

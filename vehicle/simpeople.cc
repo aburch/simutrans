@@ -74,10 +74,10 @@ fussgaenger_t::fussgaenger_t(karte_t *welt, loadsave_t *file)
 }
 
 
-fussgaenger_t::fussgaenger_t(karte_t *welt, koord3d pos)
- : verkehrsteilnehmer_t(welt, pos)
+fussgaenger_t::fussgaenger_t(karte_t* const welt, koord3d const pos) :
+	verkehrsteilnehmer_t(welt, pos),
+	besch(pick_any_weighted(liste))
 {
-	besch = liste.at_weight(simrand(liste.get_sum_weight()));
 	time_to_life = pick_any(strecke);
 	calc_bild();
 }
@@ -107,7 +107,7 @@ void fussgaenger_t::rdwr(loadsave_t *file)
 		besch = table.get(s);
 		// unknow pedestrian => create random new one
 		if(besch == NULL  &&  !liste.empty()  ) {
-			besch = liste.at_weight(simrand(liste.get_sum_weight()));
+			besch = pick_any_weighted(liste);
 		}
 	}
 

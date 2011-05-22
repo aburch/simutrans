@@ -1832,7 +1832,7 @@ void stadt_t::step_passagiere()
 koord stadt_t::get_zufallspunkt() const
 {
 	if(!buildings.empty()) {
-		gebaeude_t* gb = buildings.at_weight(simrand(buildings.get_sum_weight()));
+		gebaeude_t* const gb = pick_any_weighted(buildings);
 		koord k = gb->get_pos().get_2d();
 		if(!welt->ist_in_kartengrenzen(k)) {
 			// this building should not be in this list, since it has been already deleted!
@@ -2879,8 +2879,7 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl,
 		// check distances of all cities to their respective neightbours
 		while (!index_to_places.empty()) {
 			// find a random cell
-			const uint32 weight = simrand(index_to_places.get_sum_weight());
-			const koord ip = index_to_places.at_weight(weight);
+			koord const ip = pick_any_weighted(index_to_places);
 			// remove this cell from index list
 			index_to_places.remove(ip);
 			// get random place in the cell

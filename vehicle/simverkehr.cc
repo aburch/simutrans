@@ -404,9 +404,9 @@ stadtauto_t::stadtauto_t(karte_t *welt, loadsave_t *file) :
 
 
 stadtauto_t::stadtauto_t(karte_t* const welt, koord3d const pos, koord const target) :
-	verkehrsteilnehmer_t(welt, pos)
+	verkehrsteilnehmer_t(welt, pos),
+	besch(liste_timeline.empty() ? 0 : pick_any_weighted(liste_timeline))
 {
-	besch = liste_timeline.empty() ? NULL : liste_timeline.at_weight(simrand(liste_timeline.get_sum_weight()));
 	pos_next_next = koord3d::invalid;
 	time_to_life = welt->get_einstellungen()->get_stadtauto_duration() << welt->ticks_per_world_month_shift;
 	current_speed = 48;
@@ -483,7 +483,7 @@ void stadtauto_t::rdwr(loadsave_t *file)
 
 		if(  besch == 0  &&  !liste_timeline.empty()  ) {
 			dbg->warning("stadtauto_t::rdwr()", "Object '%s' not found in table, trying random stadtauto object type",s);
-			besch = liste_timeline.at_weight(simrand(liste_timeline.get_sum_weight()));
+			besch = pick_any_weighted(liste_timeline);
 		}
 
 		if(besch == 0) {
@@ -813,7 +813,7 @@ bool stadtauto_t::hop_check()
 		}
 #ifdef DESTINATION_CITYCARS
 		if (!posliste.empty()) {
-			pos_next_next = posliste.at_weight(simrand(posliste.get_sum_weight()));
+			pos_next_next = pick_any_weighted(posliste);
 		}
 		else {
 			pos_next_next = get_pos();

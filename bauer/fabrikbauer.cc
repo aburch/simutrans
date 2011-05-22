@@ -187,8 +187,7 @@ DBG_MESSAGE("fabrikbauer_t::get_random_consumer()","No suitable consumer found")
 		return NULL;
 	}
 	// now find a random one
-	uint32 next=simrand(consumer.get_sum_weight());
-	const fabrik_besch_t* fb = consumer.at_weight(next);
+	fabrik_besch_t const* const fb = pick_any_weighted(consumer);
 	DBG_MESSAGE("fabrikbauer_t::get_random_consumer()", "consumer %s found.", fb->get_name());
 	return fb;
 }
@@ -285,8 +284,7 @@ const fabrik_besch_t *fabrikbauer_t::finde_hersteller(const ware_besch_t *ware, 
 	}
 	// now find a random one
 	// now find a random one
-	uint32 next=simrand(producer.get_sum_weight());
-	const fabrik_besch_t* besch = producer.at_weight(next);
+	fabrik_besch_t const* const besch = pick_any_weighted(producer);
 	DBG_MESSAGE("fabrikbauer_t::finde_hersteller()","producer for good '%s' was found %s", translator::translate(ware->get_name()),besch->get_name());
 	return besch;
 }
@@ -983,7 +981,7 @@ next_ware_check:
 					// we cannot built this factory here
 					continue;
 				}
-				koord   testpos = in_city ? welt->get_staedte().at_weight( simrand( welt->get_staedte().get_sum_weight() ) )->get_pos() : koord::koord_random(welt->get_groesse_x(),welt->get_groesse_y());
+				koord   testpos = in_city ? pick_any_weighted(welt->get_staedte())->get_pos() : koord::koord_random(welt->get_groesse_x(), welt->get_groesse_y());
 				koord3d pos =  welt->lookup_kartenboden( testpos )->get_pos();
 				int     rotation=simrand(fab->get_haus()->get_all_layouts()-1);
 				if(!in_city) {

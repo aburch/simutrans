@@ -405,16 +405,9 @@ sint32 baum_t::get_age() const
  */
 uint16 baum_t::random_tree_for_climate_intern(climate cl)
 {
-	uint32 weight = baum_typen_per_climate[cl].get_sum_weight();
-
 	// now weight their distribution
-	if (weight > 0) {
-		return baum_typen_per_climate[cl].at_weight( simrand(weight) );
-
-	}
-	else {
-		return 0xFFFF;
-	}
+	weighted_vector_tpl<uint32> const& t = baum_typen_per_climate[cl];
+	return t.empty() ? 0xFFFF : pick_any_weighted(t);
 }
 
 
