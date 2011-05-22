@@ -1381,8 +1381,7 @@ void stadt_t::verbinde_fabriken()
 	while (fab_iter.next()) {
 		fabrik_t* fab = fab_iter.get_current();
 		const uint32 count = fab->get_target_cities().get_count();
-		if (count < welt->get_einstellungen()->get_factory_worker_minimum_towns()
-			||  (count < welt->get_einstellungen()->get_factory_worker_maximum_towns()  &&  koord_distance(fab->get_pos(), pos) < welt->get_einstellungen()->get_factory_worker_radius())) {
+		if(  count < welt->get_einstellungen()->get_factory_worker_maximum_towns()  &&  koord_distance(fab->get_pos(), pos) < welt->get_einstellungen()->get_factory_worker_radius()  ) {
 			fab->add_target_city(this);
 		}
 	}
