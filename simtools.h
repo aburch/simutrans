@@ -32,4 +32,16 @@ uint16 get_random_mode();
 void init_perlin_map( sint32 w, sint32 h );
 void exit_perlin_map();
 
+/* Randomly select an entry from the given array. */
+template<typename T, size_t N> T const& pick_any(T const (&array)[N])
+{
+	return array[simrand(N)];
+}
+
+/* Randomly select an entry from the given container. */
+template<typename T, template<typename> class U> T const& pick_any(U<T> const& container)
+{
+	return container[simrand(container.get_count())];
+}
+
 #endif
