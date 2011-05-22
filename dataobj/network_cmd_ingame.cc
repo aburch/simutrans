@@ -1,10 +1,3 @@
-// for chdir
-#ifdef _WIN32
-#include <direct.h>
-#else
-#include <unistd.h>
-#endif
-
 #include "network_cmd_ingame.h"
 #include "network.h"
 #include "network_file_transfer.h"
@@ -747,6 +740,7 @@ bool nwc_service_t::execute(karte_t *welt)
 		case SRVC_ANNOUNCE_SERVER:
 			welt->announce_server();
 			break;
+
 		case SRVC_GET_CLIENT_LIST: {
 			nwc_service_t nws;
 			nws.flag = SRVC_GET_CLIENT_LIST;
@@ -754,6 +748,7 @@ bool nwc_service_t::execute(karte_t *welt)
 			nws.send(packet->get_sender());
 			break;
 		}
+
 		case SRVC_KICK_CLIENT:
 		case SRVC_BAN_CLIENT: {
 			bool ban = flag == SRVC_BAN_CLIENT;
@@ -781,6 +776,7 @@ bool nwc_service_t::execute(karte_t *welt)
 				}
 				blacklist.append(address);
 			}
+			break;
 		}
 		case SRVC_GET_BLACK_LIST: {
 			nwc_service_t nws;
@@ -801,7 +797,7 @@ bool nwc_service_t::execute(karte_t *welt)
 					blacklist.remove(address);
 				}
 			}
-
+			break;
 		}
 
 		case SRVC_ADMIN_MSG:
@@ -815,6 +811,7 @@ bool nwc_service_t::execute(karte_t *welt)
 				// since init always returns false, it is save to delete immediately
 				delete w;
 			}
+			break;
 
 		case SRVC_SHUTDOWN: {
 			welt->beenden( true );
