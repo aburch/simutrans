@@ -91,9 +91,10 @@ gameinfo_t::gameinfo_t(karte_t *welt) :
 	file_name = welt->get_einstellungen()->get_filename();
 
 	// comment currently not used
-	if(  grund_besch_t::ausserhalb->get_copyright()  &&  STRICMP("none",grund_besch_t::ausserhalb->get_copyright())!=0  ) {
+	char const* const copyright = grund_besch_t::ausserhalb->get_copyright();
+	if (copyright && STRICMP("none", copyright) != 0) {
 		// construct from outside object copyright string
-		pak_name = grund_besch_t::ausserhalb->get_copyright();
+		pak_name = copyright;
 	}
 	else {
 		// construct from pak name

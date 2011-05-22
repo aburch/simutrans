@@ -696,8 +696,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 			buf.append("$\n");
 		}
 
-		const char *maker=tile->get_besch()->get_copyright();
-		if(maker!=NULL  && maker[0]!=0) {
+		if (char const* const maker = tile->get_besch()->get_copyright()) {
 			buf.append("\n");
 			buf.printf(translator::translate("Constructed by %s"), maker);
 		}

@@ -5459,11 +5459,12 @@ bool karte_t::interactive(uint32 quit_month)
 #endif
 			buf.append( "&pak=" );
 			// announce ak set
-			if(  grund_besch_t::ausserhalb->get_copyright()  &&  STRICMP("none",grund_besch_t::ausserhalb->get_copyright())!=0  ) {
+			char const* const copyright = grund_besch_t::ausserhalb->get_copyright();
+			if (copyright && STRICMP("none", copyright) != 0) {
 				// construct from outside object copyright string
 				// replace all spaces by %20
 				char two[2] = { 0, 0 };
-				const char *c = grund_besch_t::ausserhalb->get_copyright();
+				char const* c = copyright;
 				while(  *c  ) {
 					if(  *c!=' '  ) {
 						two[0] = *c;

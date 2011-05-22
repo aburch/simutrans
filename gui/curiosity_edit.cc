@@ -249,8 +249,7 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 			}
 			buf.append("\n");
 
-			const char *maker=besch->get_copyright();
-			if(maker!=NULL  && maker[0]!=0) {
+			if (char const* const maker = besch->get_copyright()) {
 				buf.append("\n");
 				buf.printf(translator::translate("Constructed by %s"), maker);
 				buf.append("\n");

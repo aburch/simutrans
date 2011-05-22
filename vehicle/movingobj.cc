@@ -266,8 +266,7 @@ void movingobj_t::info(cbuffer_t & buf) const
 	ding_t::info(buf);
 
 	buf.append(translator::translate(get_besch()->get_name()));
-	const char *maker=get_besch()->get_copyright();
-	if(maker!=NULL  && maker[0]!=0) {
+	if (char const* const maker = get_besch()->get_copyright()) {
 		buf.append("\n");
 		buf.printf(translator::translate("Constructed by %s"), maker);
 	}
