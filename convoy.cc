@@ -145,14 +145,14 @@ sint32 convoy_t::calc_max_speed(const weight_summary_t &weight)
 { 
 	// BG, 14.05.2011: back to 'double' calculation, as log() for large fractions 
 	// does not work sufficient and this code is not network relevant. It is only used in dialogs. 
-	const double Frs = 9.81 * (adverse.fr * weight.weight_cos + weight.weight_sin).to_double();
+	const fraction_t Frs = fraction_t(981, 100) * (adverse.fr * weight.weight_cos + weight.weight_sin);
 	if (Frs > get_starting_force()) 
 	{
 		// this convoy is too heavy to start.
 		return 0;
 	}
-	const double p3 =  Frs / (3.0 * adverse.cf.to_double());
-	const double q2 = get_continuous_power() / (2.0 * adverse.cf.to_double());
+	const double p3 = (Frs / (3.0 * adverse.cf)).to_double();
+	const double q2 = get_continuous_power().to_double() / (2.0 * adverse.cf.to_double());
 	const double sd = signed_power(q2 * q2 + p3 * p3 * p3, 1.0/2.0);
 	const double vmax = signed_power(q2 + sd, 1.0/3.0) + signed_power(q2 - sd, 1.0/3.0);
 	return min(vehicle.max_speed, (sint32)(vmax * 3.6 + 1.0)); // 1.0 to compensate inaccuracy of calculation and make sure this is at least what calc_move() evaluates.
@@ -181,16 +181,16 @@ sint32 convoy_t::calc_max_weight(sint32 sin_alpha)
 	{
 		return 0;
 	}
-	const fraction_t comparator = fraction_t(981, 100) * (adverse.fr + fraction_t(1, 1000) * sin_alpha);
-	const sint32 comp_int = comparator.integer();
-	return abs(min(get_starting_force(), f.integer()) / (comp_int == 0 ? 1 : comp_int));
+	const fraction_t stf = get_starting_force();
+	return ((stf < f ? stf : f) / (fraction_t(981, 100) * (adverse.fr + fraction_t(1, 1000) * sin_alpha))).integer();
 }
 
 sint32 convoy_t::calc_max_starting_weight(sint32 sin_alpha)
 {
 	const fraction_t denominator = (fraction_t(101, 100) * fraction_t(981, 100) * (adverse.fr + fraction_t(1, 1000) * sin_alpha));
-	const sint32 d_int = denominator.integer();
-	return abs(get_starting_force() / (d_int == 0 ? 1 : d_int)); // 1.01 to compensate inaccuracy of calculation 
+	//const sint32 d_int = denominator.integer();
+	const fraction_t stf = get_starting_force();
+	return stf <= 0 ? 0 : (stf / denominator).integer(); // 1.01 to compensate inaccuracy of calculation 
 }
 
 fraction_t convoy_t::calc_speed_holding_force(const fraction_t &speed /* in m/s */, const fraction_t &Frs /* in N */)
@@ -208,7 +208,8 @@ sint32 convoy_t::d_calc_speed_holding_force(double speed /* in m/s */, double Fr
 // The timeslice to calculate acceleration, speed and covered distance in reasonable small chuncks. 
 #define DT_TIME_FACTOR 64
 #define DT_SLICE_SECONDS 2
-#define DT_SLICE (DT_TIME_FACTOR * DT_SLICE_SECONDS)
+//#define DT_SLICE (DT_TIME_FACTOR * DT_SLICE_SECONDS)
+#define DT_SLICE dt_slice
 
 void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll)
 {
@@ -241,7 +242,7 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 		double d_fvmax = 0; // force needed to hold vmax. will be calculated as needed
 		double d_speed_ratio = 0; 
 
-		const fraction_t Frs = (fraction_t(981, 100) * (adverse.fr * weight.weight_cos + weight.weight_sin)).integer(); // msin, mcos are calculated per vehicle due to vehicle specific slope angle.
+		const fraction_t Frs = (fraction_t(981, 100) * (adverse.fr * weight.weight_cos + weight.weight_sin)).shorten(); // msin, mcos are calculated per vehicle due to vehicle specific slope angle.
 		const fraction_t vmax = speed_to_v(akt_speed_soll).shorten();
 		fraction_t v = speed_to_v(akt_speed).shorten(); // v in m/s, akt_speed in simutrans vehicle speed;
 		fraction_t fvmax = 0; // force needed to hold vmax. will be calculated as needed
@@ -252,6 +253,8 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 		//static sint32 count3 = 0;
 		//count1++;
 		// iterate the passed time.
+
+		const long dt_slice = (DT_TIME_FACTOR * DT_SLICE_SECONDS * simtime_factor).integer();
 		while (delta_t > 0)
 		{
 			// the driver's part: select accelerating force:
@@ -264,8 +267,8 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 				// Below set speed: full acceleration
 				// If set speed is far below the convoy max speed as e.g. aircrafts on ground reduce force.
 				// If set speed is at most a 10th of convoy's maximum, we reduce force to its 10th.
-				d_f = d_get_force(d_v) - d_Frs;
-				f = get_force(v.n / v.d) - Frs;
+				d_f = d_get_force(d_v * 0.9) - d_Frs;
+				f = (get_force(v * fraction_t(9, 10)) - Frs).shorten();
 				if (f > 1000000) // reducing force does not apply to 'weak' convoy's, thus we can save a lot of time skipping this code.
 				{
 					if (d_speed_ratio == 0) // speed_ratio is a constant within this function. So calculate it once only.
@@ -323,7 +326,7 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 				// running too fast, apply the breaks!
 				is_breaking = true;
 				// hill-down Frs might become negative and works against the brake.
-				d_f = -(get_starting_force() + d_Frs);
+				d_f = -(get_starting_force().to_double() + d_Frs);
 				f = -(get_starting_force() + Frs);
 			}
 			else
@@ -332,7 +335,7 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 				is_breaking = true;
 				// assuming the brakes are up to 5 times stronger than the start-up force.
 				// hill-down Frs might become negative and works against the brake.
-				d_f = -(5 * get_starting_force() + d_Frs);
+				d_f = -(5 * get_starting_force().to_double() + d_Frs);
 				f = -(5 * get_starting_force() + Frs);
 			}
 
@@ -467,27 +470,27 @@ void potential_convoy_t::update_freight_summary(freight_summary_t &freight)
 }
 
 
-sint32 potential_convoy_t::get_force_summary(sint32 speed /* in m/s */)
+fraction_t potential_convoy_t::get_force_summary(const fraction_t &speed /* in m/s */)
 {
-	sint32 force = 0;
+	fraction_t force = 0;
 	for (uint32 i = vehicles.get_count(); i-- > 0; )
 	{
 		force += vehicles[i]->get_effective_force_index(speed);
 	}
 	//return ((force * world.get_einstellungen()->get_global_power_factor_percent()) / GEAR_FACTOR + 50) / 100;
-	return (force * world.get_einstellungen()->get_global_power_factor_percent() + GEAR_FACTOR * 50) / (GEAR_FACTOR * 100);
+	return (force * world.get_einstellungen()->get_global_power_factor_percent()) / (GEAR_FACTOR * 100);
 }
 
 
-sint32 potential_convoy_t::get_power_summary(sint32 speed /* in m/s */)
+fraction_t potential_convoy_t::get_power_summary(const fraction_t &speed /* in m/s */)
 {
-	sint32 power = 0;
+	fraction_t power = 0;
 	for (uint32 i = vehicles.get_count(); i-- > 0; )
 	{
 		power += vehicles[i]->get_effective_power_index(speed);
 	}
 	//return ((power * world.get_einstellungen()->get_global_power_factor_percent()) / GEAR_FACTOR + 50) / 100;
-	return (power * world.get_einstellungen()->get_global_power_factor_percent() + GEAR_FACTOR * 50) / (GEAR_FACTOR * 100);
+	return (power * world.get_einstellungen()->get_global_power_factor_percent()) / (GEAR_FACTOR * 100);
 }
 
 // Bernd Gabriel, Dec, 25 2009
@@ -557,24 +560,24 @@ void existing_convoy_t::update_weight_summary(weight_summary_t &weight)
 }
 
 
-sint32 existing_convoy_t::get_force_summary(sint32 speed /* in m/s */)
+fraction_t existing_convoy_t::get_force_summary(const fraction_t &speed /* in m/s */)
 {
-	sint32 force = 0;
+	fraction_t force = 0;
 	for (uint16 i = convoy.get_vehikel_anzahl(); i-- > 0; )
 	{
 		force += convoy.get_vehikel(i)->get_besch()->get_effective_force_index(speed);
 	}
-	return ((force * convoy.get_welt()->get_einstellungen()->get_global_power_factor_percent()) / GEAR_FACTOR + 50) / 100;
+	return (force * convoy.get_welt()->get_einstellungen()->get_global_power_factor_percent()) / (GEAR_FACTOR * 100);
 }
 
 
-sint32 existing_convoy_t::get_power_summary(sint32 speed /* in m/s */)
+fraction_t existing_convoy_t::get_power_summary(const fraction_t &speed /* in m/s */)
 {
-	sint32 power = 0;
+	fraction_t power = 0;
 	for (uint16 i = convoy.get_vehikel_anzahl(); i-- > 0; )
 	{
 		power += convoy.get_vehikel(i)->get_besch()->get_effective_power_index(speed);
 	}
-	return ((power * convoy.get_welt()->get_einstellungen()->get_global_power_factor_percent()) / GEAR_FACTOR + 50) / 100;
+	return (power * convoy.get_welt()->get_einstellungen()->get_global_power_factor_percent()) / (GEAR_FACTOR * 100);
 }
 
