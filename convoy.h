@@ -305,7 +305,7 @@ private:
 	}
 	inline uint32 d_get_force(double speed) 
 	{
-		sint32 v = abs((sint32)abs(speed));
+		sint32 v = (sint32)abs(speed);
 		return ((v == 0) ? get_starting_force() : get_force_summary(fraction_t((speed < 0 ? -speed : speed) * 1000, 1000)) * 1000).to_double();
 	}
 

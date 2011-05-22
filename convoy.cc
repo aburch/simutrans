@@ -269,6 +269,8 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 				// If set speed is at most a 10th of convoy's maximum, we reduce force to its 10th.
 				d_f = d_get_force(d_v * 0.9) - d_Frs;
 				f = (get_force(v * fraction_t(9, 10)) - Frs).shorten();
+//				d_f = d_get_force(d_v) - d_Frs;
+//				f = get_force(v.n / v.d) - Frs;
 				if (f > 1000000) // reducing force does not apply to 'weak' convoy's, thus we can save a lot of time skipping this code.
 				{
 					if (d_speed_ratio == 0) // speed_ratio is a constant within this function. So calculate it once only.
