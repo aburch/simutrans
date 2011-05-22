@@ -403,12 +403,8 @@ stadtauto_t::stadtauto_t(karte_t *welt, loadsave_t *file) :
 }
 
 
-#ifdef DESTINATION_CITYCARS
-stadtauto_t::stadtauto_t(karte_t *welt, koord3d pos, koord target)
-#else
-stadtauto_t::stadtauto_t(karte_t *welt, koord3d pos, koord )
-#endif
-	: verkehrsteilnehmer_t(welt, pos)
+stadtauto_t::stadtauto_t(karte_t* const welt, koord3d const pos, koord const target) :
+	verkehrsteilnehmer_t(welt, pos)
 {
 	besch = liste_timeline.empty() ? NULL : liste_timeline.at_weight(simrand(liste_timeline.get_sum_weight()));
 	pos_next_next = koord3d::invalid;
@@ -417,6 +413,8 @@ stadtauto_t::stadtauto_t(karte_t *welt, koord3d pos, koord )
 	ms_traffic_jam = 0;
 #ifdef DESTINATION_CITYCARS
 	this->target = target;
+#else
+	(void)target;
 #endif
 	calc_bild();
 	welt->buche( +1, karte_t::WORLD_CITYCARS );
