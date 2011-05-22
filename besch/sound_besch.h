@@ -58,8 +58,6 @@ public:
 
 	static bool register_besch(sound_besch_t *besch);
 
-	static bool alles_geladen();
-
 	static void init();
 
 	/* return old sound id from index */

@@ -48,9 +48,3 @@ obj_besch_t * sound_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	return besch;
 }
-
-
-bool sound_reader_t::successfully_loaded() const
-{
-    return sound_besch_t::alles_geladen();
-}
