@@ -243,7 +243,7 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 		double d_speed_ratio = 0; 
 
 		const fraction_t Frs = (fraction_t(981, 100) * (adverse.fr * weight.weight_cos + weight.weight_sin)).shorten(); // msin, mcos are calculated per vehicle due to vehicle specific slope angle.
-		const double TEST_d_Frs_fraction_equivalent = (double)Frs.n / (double)Frs.d;
+		//const double TEST_d_Frs_fraction_equivalent = (double)Frs.n / (double)Frs.d;
 		const fraction_t vmax = speed_to_v(akt_speed_soll).shorten();
 		fraction_t v = speed_to_v(akt_speed).shorten(); // v in m/s, akt_speed in simutrans vehicle speed;
 		fraction_t fvmax = 0; // force needed to hold vmax. will be calculated as needed
@@ -270,7 +270,9 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 				// If set speed is at most a 10th of convoy's maximum, we reduce force to its 10th.
 				d_f = d_get_force(d_v * 0.9) - d_Frs;
 				f = (get_force(v * fraction_t(9, 10)) - Frs).shorten();
-				const double TEST_f_double_equivalent = (double)f.n / (double)f.d;
+				//const double TEST_f_double_equivalent = (double)f.n / (double)f.d;
+//				d_f = d_get_force(d_v) - d_Frs;
+//				f = get_force(v.n / v.d) - Frs;
 				if (f > 1000000) // reducing force does not apply to 'weak' convoy's, thus we can save a lot of time skipping this code.
 				{
 					if (d_speed_ratio == 0) // speed_ratio is a constant within this function. So calculate it once only.
@@ -373,7 +375,8 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 			d_dx += d_dt * d_v;
 
 			long dt;
-			fraction_t df = simtime_factor * (f - adverse.cf * (v * v * sgn<sint32>(v.integer())));
+			//fraction_t df = simtime_factor * (f - adverse.cf * (v * v * sgn<fraction_t>(v)));
+			fraction_t df = simtime_factor * (f - adverse.cf *  (v * v * sgn<sint32>(v.integer())));
 			df.shorten();
 			const double TEST_df_double_equivalent = df.to_double();
 			if (delta_t >= DT_SLICE && abs(df.integer()) > weight.weight / (10 * DT_SLICE_SECONDS))
@@ -422,7 +425,7 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 		d_sp_soll = KMH_SPEED_UNLIMITED;
 	}
 
-	sint32 ds = dx.integer();
+	const sint32 ds = dx.integer();
 	if (ds < KMH_SPEED_UNLIMITED - sp_soll)
 	{
 		sp_soll += ds;
@@ -431,6 +434,8 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 	{
 		sp_soll = KMH_SPEED_UNLIMITED;
 	}
+
+	akt_speed = min(akt_speed, kmh_to_speed(adverse.max_speed));
 }
 
 /******************************************************************************/
