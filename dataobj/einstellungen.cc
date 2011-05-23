@@ -800,7 +800,6 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	if (num_city_roads == 0) {
 		// take fallback value: "city_road"
 		tstrncpy(city_roads[0].name, "city_road", lengthof(city_roads[0].name) );
-		rtrim( city_roads[0].name );
 		// default her: always available
 		city_roads[0].intro = 1;
 		city_roads[0].retire = NEVER;
@@ -854,7 +853,6 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	if (num_intercity_roads == 0) {
 		// take fallback value: "asphalt_road"
 		tstrncpy(intercity_roads[0].name, "asphalt_road", lengthof(intercity_roads[0].name) );
-		rtrim( intercity_roads[0].name );
 		// default her: always available
 		intercity_roads[0].intro = 1;
 		intercity_roads[0].retire = NEVER;
