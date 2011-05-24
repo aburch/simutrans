@@ -53,7 +53,6 @@ int dr_load_sample(const char *filename)
 	// load filename into the array of such things, in case we need it
 	NSString *myFile = [[NSString alloc] initWithUTF8String:realFile];
 
-	// preload the file into memory
 	// need to validate file is present
 	// it appears the filename supplied will be 'mangled', in effect '~' + absolute path, hence the path
 	// is malformed with a '//' in the middle, the last character of which is the start of the correct absolute
@@ -65,7 +64,8 @@ int dr_load_sample(const char *filename)
 		return -1;
 	}
 
-	[m setVolume: 1];
+	// Preload the file into memory.
+	[m setVolume: 0];
 	[m play];
 
 	[movies_WAV addObject: m];
