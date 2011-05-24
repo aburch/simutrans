@@ -18,15 +18,12 @@
 
 #import <string.h>
 
-NSMutableArray *files_WAV;
 NSMutableArray *movies_WAV;
 
 bool dr_init_sound(void)
 {
 
 	printf("\nSound system Initialise");
-	printf("\nFilename Database");
-	files_WAV = [[NSMutableArray alloc] initWithCapacity: 128];
 	printf("\nWave File database\n");
 	movies_WAV = [[NSMutableArray alloc] initWithCapacity: 128];
 	printf("\nSound system Initalisation complete\n");
@@ -56,9 +53,6 @@ int dr_load_sample(const char *filename)
 	// load filename into the array of such things, in case we need it
 	NSString *myFile = [[NSString alloc] initWithUTF8String:realFile];
 
-	//[files_WAV addObject: [[NSString alloc] initWithUTF8String:filename]];
-	[files_WAV addObject: myFile];
-
 	// preload the file into memory
 	// need to validate file is present
 	// it appears the filename supplied will be 'mangled', in effect '~' + absolute path, hence the path
@@ -87,12 +81,6 @@ int dr_load_sample(const char *filename)
 void dr_play_sample(int key, int volume)
 {
 	// play the file referenced by the supplied key
-
-
-	// show some basic info
-	printf("\nPlay WAV: %d (%s) \nVolume: %d", key, [[files_WAV objectAtIndex:key] cString], volume);
-
-	printf("\n Array holds: %d", [movies_WAV count]);
 
 	// set the volume to whatever the current default is
 	[[movies_WAV objectAtIndex:key] setVolume:((float)volume / 255)];
