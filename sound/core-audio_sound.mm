@@ -22,10 +22,10 @@ NSMutableArray *movies_WAV;
 bool dr_init_sound(void)
 {
 
-	printf("\nSound system Initialise");
-	printf("\nWave File database\n");
+	printf("Sound system Initialise\n");
+	printf("Wave File database\n");
 	movies_WAV = [[NSMutableArray alloc] initWithCapacity: 128];
-	printf("\nSound system Initalisation complete\n");
+	printf("Sound system Initalisation complete\n");
 	return true;
 }
 
