@@ -114,7 +114,7 @@ public:
 		return pos_off;
 	}
 
-	// offset in pixel (remember intern size TILE_STEPS==16)
+	// offset in pixel (depends on OBJECT_OFFSET_STEPS==16)
 	koord get_xy_off(uint8 rotation) const {
 		switch( rotation%4 ) {
 			case 1: return koord( 0, xy_off.y+xy_off.x/2 );

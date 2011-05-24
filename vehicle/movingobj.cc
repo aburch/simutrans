@@ -14,6 +14,7 @@
 #include "../player/simplay.h"
 #include "../simtools.h"
 #include "../simtypes.h"
+#include "../simunits.h"
 
 #include "../boden/grund.h"
 

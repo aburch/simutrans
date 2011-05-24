@@ -6,10 +6,7 @@
  */
 
 /*
- * Fahrzeuge in der Welt von Sim
- *
- * 01.11.99  getrennt von simdings.h
- * Hj. Malthaner
+ * Vehicle base type.
  */
 
 #ifndef _simvehikel_h
@@ -46,8 +43,10 @@ protected:
 	static sint8 dxdy[16];
 
 	// to make the length on diagonals configurable
-	static uint8 old_diagonal_length;
-	static uint8 diagonal_length;
+	// Number of vehicle steps along a diagonal...
+	// remember to subtract one when stepping down to 0
+	static uint8 diagonal_vehicle_steps_per_tile;
+	static uint8 old_diagonal_vehicle_steps_per_tile;
 	static uint16 diagonal_multiplier;
 
 	// [0]=xoff [1]=yoff

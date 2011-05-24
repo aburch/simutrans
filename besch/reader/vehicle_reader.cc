@@ -222,11 +222,11 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	// before the length was always 1/8 (=half a tile)
 	if(version<7) {
-		besch->len = 8;
+		besch->len = CARUNITS_PER_TILE/2;
 	}
 
-	// adjust lenght for different step sizes (which may arise in future)
-	besch->len *= TILE_STEPS/16;
+	// adjust length for different offset step sizes (which may arise in future)
+	besch->len *= OBJECT_OFFSET_STEPS/CARUNITS_PER_TILE;
 
 	// before version 8 vehicles could only have one freight image in each direction
 	if(version<8) {

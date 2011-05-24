@@ -16,7 +16,7 @@
 #include "../simtools.h"
 #include "../simmem.h"
 #include "../simimg.h"
-#include "../simconst.h"
+#include "../simunits.h"
 #include "../simtypes.h"
 
 #include "simverkehr.h"
@@ -249,9 +249,9 @@ void verkehrsteilnehmer_t::rdwr(loadsave_t *file)
 		dx = dxdy[ ribi_t::get_dir(fahrtrichtung)*2];
 		dy = dxdy[ ribi_t::get_dir(fahrtrichtung)*2+1];
 		if(file->get_version()<99005  ||  file->get_version()>99016) {
-			sint16 dummy16 = ((16*(sint16)hoff)/TILE_STEPS);
+			sint16 dummy16 = ((16*(sint16)hoff)/OBJECT_OFFSET_STEPS);
 			file->rdwr_short(dummy16);
-			hoff = (sint8)((TILE_STEPS*(sint16)dummy16)/16);
+			hoff = (sint8)((OBJECT_OFFSET_STEPS*(sint16)dummy16)/16);
 		}
 		else {
 			file->rdwr_byte(hoff);
@@ -271,12 +271,12 @@ void verkehrsteilnehmer_t::rdwr(loadsave_t *file)
 		set_yoff( ddy-(16-i)*dy );
 		if(file->is_loading()) {
 			if(dx*dy) {
-				steps = min( 255, 255-(i*16) );
-				steps_next = 255;
+				steps = min( VEHICLE_STEPS_PER_TILE - 1, VEHICLE_STEPS_PER_TILE - 1 - (i*16) );
+				steps_next = VEHICLE_STEPS_PER_TILE - 1;
 			}
 			else {
-				steps = min( 127, 128-(i*16) );
-				steps_next = 127;
+				steps = min( VEHICLE_STEPS_PER_TILE/2 - 1, VEHICLE_STEPS_PER_TILE / 2 -(i*16) );
+				steps_next = VEHICLE_STEPS_PER_TILE/2 ;
 			}
 		}
 	}
@@ -604,11 +604,11 @@ bool stadtauto_t::ist_weg_frei(grund_t *gr)
 								// otherwise the overtaken car would stop for us ...
 								if (automobil_t const* const car = ding_cast<automobil_t>(dt)) {
 									convoi_t* const cnv = car->get_convoi();
-									if(  cnv==NULL  ||  !can_overtake( cnv, cnv->get_min_top_speed(), cnv->get_length()*16, diagonal_length)  ) {
+									if(  cnv==NULL  ||  !can_overtake( cnv, cnv->get_min_top_speed(), cnv->get_length_in_steps(), diagonal_vehicle_steps_per_tile)  ) {
 										frei = false;
 									}
 								} else if (stadtauto_t* const caut = ding_cast<stadtauto_t>(dt)) {
-									if ( !can_overtake(caut, caut->get_besch()->get_geschw(), 256, diagonal_length) ) {
+									if ( !can_overtake(caut, caut->get_besch()->get_geschw(), VEHICLE_STEPS_PER_TILE, diagonal_vehicle_steps_per_tile) ) {
 										frei = false;
 									}
 								}
@@ -937,7 +937,7 @@ void stadtauto_t::get_screen_offset( int &xoff, int &yoff, const sint16 raster_w
  * The city car is not overtaking/being overtaken.
  * @author isidoro
  */
-bool stadtauto_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int steps_other, int diagonal_length)
+bool stadtauto_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int steps_other, int diagonal_vehicle_steps_per_tile)
 {
 	if(!other_overtaker->can_be_overtaken()) {
 		return false;
@@ -951,7 +951,7 @@ bool stadtauto_t::can_overtake(overtaker_t *other_overtaker, int other_speed, in
 	// Number of tiles overtaking will take
 	int n_tiles = 0;
 
-	/* Distance it takes overtaking (unit:256*tile) = my_speed * time_overtaking
+	/* Distance it takes overtaking (unit: vehicle steps) = my_speed * time_overtaking
 	 * time_overtaking = tiles_to_overtake/diff_speed
 	 * tiles_to_overtake = convoi_length + pos_other_convoi
 	 * convoi_length for city cars? ==> a bit over half a tile (10)
@@ -1010,7 +1010,7 @@ bool stadtauto_t::can_overtake(overtaker_t *other_overtaker, int other_speed, in
 			return false;
 		}
 
-		int d = ribi_t::ist_gerade(str->get_ribi()) ? 256 : diagonal_length;
+		int d = ribi_t::ist_gerade(str->get_ribi()) ? VEHICLE_STEPS_PER_TILE : diagonal_vehicle_steps_per_tile;
 		distance -= d;
 		time_overtaking += d;
 
@@ -1076,8 +1076,11 @@ bool stadtauto_t::can_overtake(overtaker_t *other_overtaker, int other_speed, in
 	time_overtaking = (time_overtaking << 16)/(sint32)current_speed;
 	do {
 		// we can allow crossings or traffic lights here, since they will stop also oncoming traffic
-
-		time_overtaking -= (ribi_t::ist_gerade(str->get_ribi()) ? 256<<16 : diagonal_length<<16)/kmh_to_speed(str->get_max_speed());
+		if (ribi_t::ist_gerade(str->get_ribi())) {
+			time_overtaking -= VEHICLE_STEPS_PER_TILE<<16 / kmh_to_speed(str->get_max_speed());
+		} else {
+			time_overtaking -= diagonal_vehicle_steps_per_tile<<16 / kmh_to_speed(str->get_max_speed());
+		}
 
 		// start of bridge is one level deeper
 		if(gr->get_weg_yoff()>0)  {

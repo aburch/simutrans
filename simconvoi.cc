@@ -7,6 +7,7 @@
 #include <stdlib.h>
 
 #include "simdebug.h"
+#include "simunits.h"
 #include "simworld.h"
 #include "simware.h"
 #include "player/simplay.h"
@@ -327,7 +328,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", sta
 			// test also for realignment
 			sint16 step_pos;
 			koord3d drive_pos;
-			const uint8 diagonal_length = (uint8)(130560u/welt->get_einstellungen()->get_pak_diagonal_multiplier());
+			const uint8 diagonal_vehicle_steps_per_tile = (uint8)(130560u/welt->get_einstellungen()->get_pak_diagonal_multiplier());
 			for( uint8 i=0;  i<anz_vehikel;  i++ ) {
 				vehikel_t* v = fahr[i];
 				v->set_erstes( i==0 );
@@ -351,9 +352,9 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", sta
 							// do some guessing here
 							uint32 dist = koord_distance(drive_pos, v->get_pos());
 							if (dist>1) {
-								step_pos += (dist-1) * diagonal_length;
+								step_pos += (dist-1) * diagonal_vehicle_steps_per_tile;
 							}
-							step_pos += ribi_t::ist_kurve(v->get_fahrtrichtung()) ? diagonal_length : 256;
+							step_pos += ribi_t::ist_kurve(v->get_fahrtrichtung()) ? diagonal_vehicle_steps_per_tile : VEHICLE_STEPS_PER_TILE;
 						}
 						dbg->message("convoi_t::laden_abschliessen()", "v: pos(%s) steps(%d) len=%d ribi=%d prev (%s) step(%d)", v->get_pos().get_str(), v->get_steps(), v->get_besch()->get_length()*16, v->get_fahrtrichtung(),  drive_pos.get_2d().get_str(), step_pos);
 						if(  abs( v->get_steps() - step_pos )>15  ) {
@@ -362,7 +363,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", sta
 							dbg->warning( "convoi_t::laden_abschliessen()", "convoi (%s) is broken => realign", get_name() );
 						}
 					}
-					step_pos -= v->get_besch()->get_length()*16;
+					step_pos -= v->get_besch()->get_length_in_steps();
 					drive_pos = v->get_pos();
 				}
 			}
@@ -431,7 +432,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 				vehikel_t* v = fahr[i];
 
 				v->darf_rauchen(false);
-				fahr[i]->fahre_basis( ((TILE_STEPS)*train_length)<<12 );
+				fahr[i]->fahre_basis( (VEHICLE_STEPS_PER_CARUNIT*train_length)<<YARDS_PER_VEHICLE_STEP_SHIFT );
 				train_length -= v->get_besch()->get_length();
 				v->darf_rauchen(true);
 
@@ -753,7 +754,8 @@ bool convoi_t::sync_step(long delta_t)
 
 				// now actually move the units
 				while(sp_soll>>12) {
-					uint32 sp_hat = fahr[0]->fahre_basis(1<<12);
+					// Attempt to move one step.
+					uint32 sp_hat = fahr[0]->fahre_basis(1<<YARDS_PER_VEHICLE_STEP_SHIFT);
 					int v_nr = get_vehicle_at_length((++steps_driven)>>4);
 					// stop when depot reached
 					if(state==INITIAL) {
@@ -1775,7 +1777,7 @@ void convoi_t::vorfahren()
 		steps_driven = 0;
 		// drive half a tile:
 		for(int i=0; i<anz_vehikel; i++) {
-			fahr[i]->fahre_basis( 128<<12 );
+			fahr[i]->fahre_basis( (VEHICLE_STEPS_PER_TILE/2)<<YARDS_PER_VEHICLE_STEP_SHIFT );
 		}
 		v0->darf_rauchen(true);
 		v0->set_erstes(true); // switches on signal checks to reserve the next route
@@ -1803,7 +1805,7 @@ void convoi_t::vorfahren()
 				}
 				else {
 					// limit train to front of tile
-					train_length += min( (train_length%16)-1, fahr[anz_vehikel-1]->get_besch()->get_length() );
+					train_length += min( (train_length%CARUNITS_PER_TILE)-1, fahr[anz_vehikel-1]->get_besch()->get_length() );
 				}
 			}
 			else {
@@ -1817,8 +1819,9 @@ void convoi_t::vorfahren()
 				vehikel_t* v = fahr[i];
 
 				v->darf_rauchen(false);
-				fahr[i]->fahre_basis( ((TILE_STEPS)*train_length)<<12 );
-				train_length -= v->get_besch()->get_length();	// this give the length in 1/TILE_STEPS of a full tile => all cars closely coupled!
+				fahr[i]->fahre_basis( (VEHICLE_STEPS_PER_CARUNIT*train_length)<<YARDS_PER_VEHICLE_STEP_SHIFT );
+				train_length -= v->get_besch()->get_length();
+				// this gives the length in carunits, 1/CARUNITS_PER_TILE of a full tile => all cars closely coupled!
 				v->darf_rauchen(true);
 			}
 			fahr[0]->set_erstes(true);
@@ -3002,18 +3005,19 @@ uint8 convoi_t::get_status_color() const
 // returns tiles needed for this convoi
 uint16 convoi_t::get_tile_length() const
 {
-	uint16 tiles=0;
+	uint16 carunits=0;
 	for(sint8 i=0;  i<anz_vehikel-1;  i++) {
-		tiles += fahr[i]->get_besch()->get_length();
+		carunits += fahr[i]->get_besch()->get_length();
 	}
 	// the last vehicle counts differently in stations and for reserving track
 	// (1) add 8 = 127/256 tile to account for the driving in stations in north/west direction
 	//     see at the end of vehikel_t::hop()
 	// (2) for length of convoi for loading in stations the length of the last vehicle matters
 	//     see convoi_t::hat_gehalten
-	tiles += max(8, fahr[anz_vehikel-1]->get_besch()->get_length());
+	carunits += max(CARUNITS_PER_TILE/2, fahr[anz_vehikel-1]->get_besch()->get_length());
 
-	return (tiles + 15) / 16;
+	uint16 tiles = (carunits + CARUNITS_PER_TILE - 1) / CARUNITS_PER_TILE;
+	return tiles;
 }
 
 
@@ -3041,7 +3045,7 @@ void convoi_t::set_withdraw(bool new_withdraw)
  * The city car is not overtaking/being overtaken.
  * @author isidoro
  */
-bool convoi_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int steps_other, int diagonal_length)
+bool convoi_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int steps_other, int diagonal_vehicle_steps_per_tile)
 {
 	if(fahr[0]->get_waytype()!=road_wt) {
 		return false;
@@ -3061,10 +3065,10 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int s
 	// Number of tiles overtaking will take
 	int n_tiles = 0;
 
-	// Distance it takes overtaking (unit:256*tile) = my_speed * time_overtaking
+	// Distance it takes overtaking (unit: vehicle_steps) = my_speed * time_overtaking
 	// time_overtaking = tiles_to_overtake/diff_speed
 	// tiles_to_overtake = convoi_length + current pos within tile + (pos_other_convoi wihtin tile + length of other convoi) - one tile
-	int distance = akt_speed*(fahr[0]->get_steps()+(get_length()*16)+steps_other-256)/diff_speed;
+	int distance = akt_speed*(fahr[0]->get_steps()+get_length_in_steps()+steps_other-VEHICLE_STEPS_PER_TILE)/diff_speed;
 	int time_overtaking = 0;
 
 	// Conditions for overtaking:
@@ -3112,7 +3116,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int s
 			return false;
 		}
 
-		int d = ribi_t::ist_gerade(str->get_ribi()) ? 256 : diagonal_length;
+		int d = ribi_t::ist_gerade(str->get_ribi()) ? VEHICLE_STEPS_PER_TILE : diagonal_vehicle_steps_per_tile;
 		distance -= d;
 		time_overtaking += d;
 
@@ -3166,8 +3170,11 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int s
 		if(  ribi_t::is_threeway(str->get_ribi()) ) {
 			return false;
 		}
-
-		time_overtaking -= (ribi_t::ist_gerade(str->get_ribi()) ? 256<<16 : diagonal_length<<16)/kmh_to_speed(str->get_max_speed());
+		if (ribi_t::ist_gerade(str->get_ribi())) {
+			time_overtaking -= VEHICLE_STEPS_PER_TILE<<16 / kmh_to_speed(str->get_max_speed());
+		} else {
+			time_overtaking -= diagonal_vehicle_steps_per_tile<<16 / kmh_to_speed(str->get_max_speed());
+		}
 
 		// Check for other vehicles in facing direction
 		ribi_t::ribi their_direction = ribi_t::rueckwaerts( fahr[0]->calc_richtung(pos_prev, pos_next.get_2d()) );

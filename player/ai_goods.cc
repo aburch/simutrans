@@ -5,6 +5,7 @@
 #include "../simmenu.h"
 #include "../simtypes.h"
 #include "../simwerkz.h"
+#include "../simunits.h"
 
 #include "simplay.h"
 
@@ -557,7 +558,7 @@ void ai_goods_t::create_rail_transport_vehikel(const koord platz1, const koord p
  */
 int ai_goods_t::baue_bahnhof(const koord* p, int anz_vehikel)
 {
-	int laenge = max(((rail_vehicle->get_length()*anz_vehikel)+rail_engine->get_length()+TILE_STEPS-1)/TILE_STEPS,1);
+	int laenge = max(((rail_vehicle->get_length()*anz_vehikel)+rail_engine->get_length()+CARUNITS_PER_TILE-1)/CARUNITS_PER_TILE,1);
 
 	int baulaenge = 0;
 	ribi_t::ribi ribi = welt->lookup_kartenboden(*p)->get_weg_ribi(track_wt);
@@ -610,7 +611,7 @@ int ai_goods_t::baue_bahnhof(const koord* p, int anz_vehikel)
 		}
 	}
 
-	laenge = min( anz_vehikel, (baulaenge*TILE_STEPS - rail_engine->get_length())/rail_vehicle->get_length() );
+	laenge = min( anz_vehikel, (baulaenge*CARUNITS_PER_TILE - rail_engine->get_length())/rail_vehicle->get_length() );
 //DBG_MESSAGE("ai_goods_t::baue_bahnhof","Final station at (%i,%i) with %i tiles for %i cars",p->x,p->y,baulaenge,laenge);
 	return laenge;
 }
@@ -946,7 +947,7 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 				// road or rail?
 				int length = 1;
 				if(  cost_rail<cost_road  ) {
-					length = (rail_engine->get_length() + count_rail*rail_vehicle->get_length()+TILE_STEPS-1)/TILE_STEPS;
+					length = (rail_engine->get_length() + count_rail*rail_vehicle->get_length()+CARUNITS_PER_TILE-1)/CARUNITS_PER_TILE;
 					if(suche_platz1_platz2(start, ziel, length)) {
 						state = ship_vehicle ? NR_BAUE_WATER_ROUTE : NR_BAUE_SIMPLE_SCHIENEN_ROUTE;
 						next_contruction_steps += 80;

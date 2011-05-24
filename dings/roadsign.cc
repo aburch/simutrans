@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 
+#include "../simunits.h"
 #include "../simdebug.h"
 #include "../simdings.h"
 #include "../simimg.h"

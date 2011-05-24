@@ -6,7 +6,7 @@
  */
 
 /*
- * Basisklasse aller Dinge
+ * Basic class of all visible things
  *
  * Hj. Maltahner
  */
@@ -198,12 +198,12 @@ void ding_t::rdwr(loadsave_t *file)
 		pos.rdwr( file );
 	}
 
-	sint8 byte = (sint8)(((sint16)16*(sint16)xoff)/TILE_STEPS);
+	sint8 byte = (sint8)(((sint16)16*(sint16)xoff)/OBJECT_OFFSET_STEPS);
 	file->rdwr_byte(byte);
-	xoff = (sint8)(((sint16)byte*TILE_STEPS)/16);
-	byte = (sint8)(((sint16)16*(sint16)yoff)/TILE_STEPS);
+	xoff = (sint8)(((sint16)byte*OBJECT_OFFSET_STEPS)/16);
+	byte = (sint8)(((sint16)16*(sint16)yoff)/OBJECT_OFFSET_STEPS);
 	file->rdwr_byte(byte);
-	yoff = (sint8)(((sint16)byte*TILE_STEPS)/16);
+	yoff = (sint8)(((sint16)byte*OBJECT_OFFSET_STEPS)/16);
 	byte = besitzer_n;
 	file->rdwr_byte(byte);
 	besitzer_n = byte;

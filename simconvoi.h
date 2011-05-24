@@ -7,6 +7,7 @@
 #define simconvoi_h
 
 #include "simtypes.h"
+#include "simunits.h"
 #include "linehandle_t.h"
 
 #include "ifc/sync_steppable.h"
@@ -541,6 +542,12 @@ public:
 	uint32 get_length() const;
 
 	/**
+	 * @return length of convoi in the correct units for movement
+	 * @author neroden
+	 */
+	uint32 get_length_in_steps() const { return get_length() * VEHICLE_STEPS_PER_CARUNIT; }
+
+	/**
 	 * Add the costs for traveling one tile
 	 * @author Hj. Malthaner
 	 */
@@ -812,7 +819,7 @@ public:
 	void must_recalc_brake_soll() { recalc_brake_soll = true; }
 
 	// Overtaking for convois
-	virtual bool can_overtake(overtaker_t *other_overtaker, int other_speed, int steps_other, int diagonal_length);
+	virtual bool can_overtake(overtaker_t *other_overtaker, int other_speed, int steps_other, int diagonal_vehicle_steps_per_tile);
 };
 
 #endif

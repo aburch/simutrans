@@ -328,10 +328,10 @@ void baum_t::calc_off( uint8 slope )
 		case 11:
 		case 14:
 		case 15:
-			liob = LOWRAND(random,TILE_STEPS-1);
-			reob = HIGHRAND(random,TILE_STEPS-1);
+			liob = LOWRAND(random,OBJECT_OFFSET_STEPS-1);
+			reob = HIGHRAND(random,OBJECT_OFFSET_STEPS-1);
 			set_xoff( reob + liob  );
-			set_yoff( -(10*TILE_STEPS/16)-(reob - liob)/2 );
+			set_yoff( -(10*OBJECT_OFFSET_STEPS/16)-(reob - liob)/2 );
 			break;
 	}
 }

@@ -43,6 +43,7 @@
 #include "simsys.h"
 #include "simticker.h"
 #include "simtools.h"
+#include "simunits.h"
 #include "simversion.h"
 #include "simview.h"
 #include "simwerkz.h"

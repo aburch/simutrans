@@ -84,47 +84,25 @@
 // 8 px per height
 #define Z_TILE_STEP (1)
 #define TILE_HEIGHT_STEP (8)
-#define TILE_STEPS (16)
 #define SPEED_STEP_WIDTH (1l<<16)
-#define tile_raster_scale_x(v, rw)   (((v)*(rw)) >> 6)
-#define tile_raster_scale_y(v, rh)   (((v)*(rh)) >> 6)
 #define height_scaling(i) ((i)>>1)
 #define height_unscaling(i) ((i)<<1)
 #else
-// 16 internal pixels per tile, koord3d.z granularity is 1,
+// 16 internal pixels per tile, for purposes of object offsets.
+// koord3d.z granularity is 1,
 #define Z_TILE_STEP (1)
 #define TILE_HEIGHT_STEP (16)
-#define TILE_STEPS (16)
-#define tile_raster_scale_x(v, rw)   (((v)*(rw)) >> 6)	// these must be changed for according to TILE_STEPS!
-#define tile_raster_scale_y(v, rh)   (((v)*(rh)) >> 6)
 #define height_scaling(i) (i)
 #define height_unscaling(i) (i)
 #endif
 
+// 16 internal pixels per tile, for purposes of object visual offsets.
+#define OBJECT_OFFSET_STEPS (16)
+// These must be changed (along with lots of other code) if OBJECT_OFFSET_STEPS is changed.
+#define tile_raster_scale_x(v, rw)   (((v)*(rw)) >> 6)
+#define tile_raster_scale_y(v, rh)   (((v)*(rh)) >> 6)
 
 #define INVALID_INDEX (65530u)
-
-#define SPEED_UNLIMITED (2147483647)	// == SINT32_MAX
-
-/*
- * Global vehicle speed conversion factor between Simutrans speed
- * and km/h
- * @author Hj. Malthaner
- */
-#define VEHICLE_SPEED_FACTOR  (80)
-
-/**
- * Converts speed value to km/h
- * @author Hj. Matthaner
- */
-#define speed_to_kmh(speed) (((speed)*VEHICLE_SPEED_FACTOR+511) >> 10)
-
-/**
- * Converts km/h value to speed
- * @author Hj. Matthaner
- */
-#define kmh_to_speed(speed) (((speed) << 10) / VEHICLE_SPEED_FACTOR)
-
 
 // offsets for mouse pointer
 #define Z_PLAN (4)
