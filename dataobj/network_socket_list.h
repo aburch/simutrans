@@ -60,7 +60,7 @@ public:
 };
 
 /**
- * static class that administrates the list of client / server sockets
+ * static class that administers the list of client / server sockets
  */
 class socket_list_t {
 private:

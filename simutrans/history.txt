@@ -3,7 +3,7 @@
 	ADD: factory-going passengers/mail are handled separately
 	ADD: new boost mechanism at factories for passenger, mail and electricity
 	ADD: new factory expansion settings for factories without fields
-	ADD: command-line tool NETTOOL to administrate server
+	ADD: command-line tool NETTOOL to administer server
 	ADD: start as many trains as you like in a depot without waiting
 	CHG: when building artificial slopes on water, create underwater hill first
 	ADD: cache information about savegames in save/_cached.xml to speed up savegame dialog
