@@ -16,11 +16,11 @@ Release of 110.0.1 (r4359 on 12-Mar-2011):
 	ADD: try to build crossing that match maxspeed of the ways to be crossed
 	ADD: sheep will not walk in cities anymore
 	CHANGE: much smaller savegames in online mode with trees
-	FIX: broken townhalls when the land was flattend before
+	FIX: broken townhalls when the land was flattened before
 	FIX: AI better cleans up when building of shipping lines fails
 	FIX: line IDs are now tied to line handles => no double line ID any more
 	FIX: crashes with window resizing under SDL
-	FIX: convois stuck after modifying schedule of line
+	FIX: convoys stuck after modifying schedule of line
 	ADD: pak set specific pre-defined player colors and random player colors
 	FIX: world enlargement
 	FIX: loading lines with ID zero again
@@ -29,7 +29,7 @@ Release of 110.0.1 (r4359 on 12-Mar-2011):
 Release of 110.0 (r4303 on 14-Feb-2011):
 
 	CHANGE: default savegame now bzip2 (games 33% smaller)
-	ADD: Odometer and distance per month available for convois/lines
+	ADD: Odometer and distance per month available for convoys/lines
 	ADD: (gerw) built tunnel without ways
 	FIX: no longer possible for negative prices (cheat bus)
 	ADD: (Dwachs) starting money per year
@@ -47,7 +47,7 @@ Release of 110.0 (r4303 on 14-Feb-2011):
 	ADD: tools should work on all clients regardless of underground mode
 	ADD: tools work now correct with ctrl keys in networkmode
 	FIX: a double block (presignal) robbed the following signal of its (pres/longblock/choosing) function
-	CHANGE: no rezooming in viewport
+	CHANGE: no re-zooming in viewport
 	FIX: text overflow in message boxes
 	FIX: window resizing is triggered even if initial click is not in dragger area
 	FIX: square button's clickable area not set according to accompanying text
@@ -58,19 +58,19 @@ Release of 110.0 (r4303 on 14-Feb-2011):
 	FIX: tooltip box hovering above viewport
 	ADD: (mostly Dwachs) nicer crossing infos
 	ADD: bridges/tunnel show their names in info window
-	ADD: (inspired by gerw) choose singals will not choose if on the route is another choose signal or and end_of_choose
+	ADD: (inspired by gerw) choose signals will not choose if on the route is another choose signal or and end_of_choose
 	FIX: text overflow in ground info
 	CHANGE: ground info and thing info title bar color will change according to ownership
 	ADD: allow_buying_obsolete_vehicles in simuconf.tab can disallow buying obsolete vehicles for better balancing
 	FIX: forest density/size nor again reasonable dependent on map size
-	ADD: factory stops can now get different names from building stops (%s factory %s %s must be new tranlated)
+	ADD: factory stops can now get different names from building stops (%s factory %s %s must be new translated)
 	FIX: build foundations only directly under elevated monorail depots
-	FIX: ist_natur() return als false on halt tiles (like harbour)
+	FIX: ist_natur() return also false on halt tiles (like harbor)
 	ADD: (gerw) broad tunnel patch (see pak64 sources: adding images [Nl] [Nm] [Nr] and so on)
 	FIX: no longer no trees after 150 years
 	ADD: no decimal point for very large amounts
-	CHANGE: better displaying algorithm, should give much less clipping errors/graphics glitches with lang vehicles/bridges/stations etc.
-	ADD: configurable thousand exponent (like 10^4 for japanese) by SEP_THOUSAND_EXPONENT
+	CHANGE: better displaying algorithm, should give much less clipping errors/graphics glitches with long vehicles/bridges/stations etc.
+	ADD: configurable thousand exponent (like 10^4 for Japanese) by SEP_THOUSAND_EXPONENT
 	FIX: Makeobj could not extract bridges (and possibly even more objects) under XP
 	ADD: zooming in also for pak192
 	ADD: preparation for images larger than 64k resp 255*255
@@ -87,12 +87,12 @@ Release of 110.0 (r4303 on 14-Feb-2011):
 	ADD: simuconf.tab: add default values for cityroad ("city_road") and intercity road ("asphalt_road")
 	CHANGE: TAB goes to next/Shift+TAB to previous edit box, moving and resizing now even when other windows open
 	ADD: skinnable scrollbars
-	ADD: setting dialoge tool (handle with care, should not be visible by defualt for pak sets!)
+	ADD: setting dialoge tool (handle with care, should not be visible by default for pak sets!)
 	ADD: resizer also part of skin
 	CHANGE: also starts without any skin
 	FIX: no signals to be built on switches, since they will not display correctly
 	FIX: waiting time cycles also on left button
-	ADD: (z9999+) limit size of toolsbars in simuconf.tab
+	ADD: (z9999+) limit size of toolbars in simuconf.tab
 	FIX: (z9999+) loading old games before 88.00
 	CHANGE: forest settings moved to simuconf.tab
 	ADD: delay and duration of tooltip configurable in simuconf.tab
@@ -109,19 +109,19 @@ Release of 110.0 (r4303 on 14-Feb-2011):
 	FIX: traffic light setting also network safe
 	ADD: if present show copyright line from ground.outside.pak (which should contain pak set and revision)
 	ADD: new general_tool[36] to build cityroad according to timeline
-	FIX: (z9999) building a harbour must check also for existing stops above/below
+	FIX: (z9999) building a Barbour must check also for existing stops above/below
 	FIX: (z9999) trains were braking on field too late after changing of route count
-	FIX: (z9999) stopping before occipied crossings with a signal and many other signal fixes
+	FIX: (z9999) stopping before occupied crossings with a signal and many other signal fixes
 	ADD: for text input, double-click to select a word and triple-click to select the whole text
 	ADD: register lineless convoys at the halts and list them with links in the halt details dialog
 	FIX: do not crash with prodbase 0 and ensure some basic production
-	FIX: convois did not properly looked up next signal for signals on closed crossings
+	FIX: convoys did not properly looked up next signal for signals on closed crossings
 	ADD: right-click on icon of selected toolbar closes the toolbar
 	ADD: server uses a different savegame revision => testing already possible now
 	ADD: savegame version can be set in settings
 	ADD: simple chat system added (send message option in message window)
 	ADD: semiautomatical announce of servers possible
-	CHANGE: chat option now part of message centre
+	CHANGE: chat option now part of message center
 	ADD: messages on joining and leaving
 	CHANGE: renaming of stuff now in network games
 	ADD: clients and server compare paksets before joining
@@ -133,8 +133,8 @@ Release of 110.0 (r4303 on 14-Feb-2011):
 	ADD: dialogue can be changed (currently only minimap)
 	ADD: possibility to compare pakset of client and server
 	CHANGE: one year after bankrupt, clear slot for new player
-	CHANGE: first load convoi waiting the longest time at a stop
-	FIX: after bankruptsy, ways on public stops will remain unowned, so new people can connect to them
+	CHANGE: first load convoy waiting the longest time at a stop
+	FIX: after bankruptcy, ways on public stops will remain unowned, so new people can connect to them
 	FIX: transfer statistics too, when joining stops
 	CHANGE: In order to lock a game the public player must be password protected. Unlocking the public player allows player change again.
 	CHANGE: (Knightly) message system has now tabs for faster overview of categories
@@ -143,12 +143,12 @@ Release of 110.0 (r4303 on 14-Feb-2011):
 	CHANGE: passwords are only checked/changed if <enter> is pressed in the password input box
 	ADD: more messages for headquarters and making stops public
 	CHANGE: application folder for simutrans now under /Library/Simutrans (default MAC standard)
-	ADD: (TurfIt) rightclick closes all toolbars, all dialogues and deselects all tools
+	ADD: (TurfIt) right-click closes all toolbars, all dialogues and deselects all tools
 	ADD: (TurfIt/Dwachs) Windows snap onto each other when they are close (controlled by window_snap_distance)
 	ADD: server can do monthly announcements
 	ADD: announcements can be configured on command line
 	ADD: also schedules and line windows are kept during joining
-	ADD: vehicles can immeadtily loose part of their value when starting running (used_vehicle_reduction) to make expensive vehicle unattractive when starting a game
+	ADD: vehicles can immediately lose part of their value when starting running (used_vehicle_reduction) to make expensive vehicle unattractive when starting a game
 
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):
@@ -1276,7 +1276,7 @@ Release of 88.10.2
 	CHANGE: hour glass during saving
 	ADD: display of powerlines/depots in the map window
 	FIX: delete road under the powerline of a different player
-	CHANGE: after deleting everything from a tile one looses the ownership on this tile again
+	CHANGE: after deleting everything from a tile one loses the ownership on this tile again
 	FIX: when the number of vehicles changed during reopening of a depot dialog (either year or electrification) the game crashed
 	ADD: you can create a roadsign which prevent citycars from entering. Use "is_private=1" in the roadsign definition (will be not part of the 64 set though!)
 	ADD: draw way as a normal object by "draw_as_ding=1" in the definition of a way
