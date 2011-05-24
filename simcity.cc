@@ -175,6 +175,7 @@ bool stadt_t::bewerte_loc(const koord pos, rule_t &regel, int rotation)
 		rule_entry_t &r = regel.rule[i];
 		uint8 x,y;
 		switch (rotation) {
+			default:
 			case   0: x=r.x; y=r.y; break;
 			case  90: x=r.y; y=6-r.x; break;
 			case 180: x=6-r.x; y=6-r.y; break;

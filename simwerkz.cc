@@ -3299,7 +3299,7 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 		return "Das Feld gehoert\neinem anderen Spieler\n";
 	}
 
-	sint8 rotation;
+	sint8 rotation = 0;
 	const haus_besch_t *besch=get_besch(rotation);
 	const char *msg = NULL;
 	switch (besch->get_utyp()) {

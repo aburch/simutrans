@@ -137,7 +137,7 @@ SOCKET network_open_address( const char *cp, long timeout_ms, const char * &err)
 		server_name.sin_addr = *(struct in_addr *)theHost->h_addr_list[0];
 	}
 	else {// Bad address
-#endif
+#endif // _WIN32
 		sprintf( err_str, "Bad address %s", cp );
 		RET_ERR_STR;
 	}
@@ -168,7 +168,7 @@ SOCKET network_open_address( const char *cp, long timeout_ms, const char * &err)
 			err = "fcntl error";
 			return INVALID_SOCKET;
 		}
-#endif
+#endif // _WIN32
 		if(  !connect(my_client_socket, (struct sockaddr*) &server_name, sizeof(server_name))   ) {
 #ifdef  _WIN32
 			// WSAEWOULDBLOCK indicate, that it may still succeed
@@ -178,7 +178,7 @@ SOCKET network_open_address( const char *cp, long timeout_ms, const char * &err)
 			// EINPROGRESS indicate, that it may still succeed
 			if(  errno != EINPROGRESS  ) {
 				sprintf( err_str, "Could not connect to %s", cp );
-#endif
+#endif // _WIN32
 				err = err_str;
 				return INVALID_SOCKET;
 			}
@@ -213,9 +213,9 @@ SOCKET network_open_address( const char *cp, long timeout_ms, const char * &err)
 #else
 		opt &= (~O_NONBLOCK);
 		fcntl(my_client_socket, F_SETFL, opt);
-#endif
+#endif // _WIN32
 	} else
-#endif
+#endif //  !defined(__BEOS__)  &&  !defined(__HAIKU__)
 	{
 		if(connect(my_client_socket,(struct sockaddr *)&server_name,sizeof(server_name))==-1) {
 			sprintf( err_str, "Could not connect to %s", cp );
@@ -290,7 +290,8 @@ SOCKET network_open_address( const char *cp, long timeout_ms, const char * &err)
 		sprintf( err_str, "Could not connect to %s", cp );
 		RET_ERR_STR;
 	}
-#endif
+	(void) timeout_ms;
+#endif // USE_IP4_ONLY
 	return my_client_socket;
 }
 
