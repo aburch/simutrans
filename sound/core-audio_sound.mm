@@ -59,14 +59,16 @@ int dr_load_sample(const char *filename)
 	// is malformed with a '//' in the middle, the last character of which is the start of the correct absolute
 	// file path.
 
-	if(  [[NSFileManager defaultManager] fileExistsAtPath:myFile]  ) {
-		[movies_WAV addObject: [[QTMovie alloc] initWithFile: myFile error:nil] ];
-		[[movies_WAV objectAtIndex:cntr] setVolume:1];
-		[[movies_WAV objectAtIndex:cntr] play];
-	}
-	else {
+	QTMovie* const m = [QTMovie movieWithFile: myFile error: nil];
+	if (!m) {
 		printf("** Warning, unable to open wav file %s\n", filename);
+		return -1;
 	}
+
+	[m setVolume: 1];
+	[m play];
+
+	[movies_WAV addObject: m];
 	cntr++;
 
 	return (cntr-1);	// allow for zero based array
