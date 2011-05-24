@@ -37,10 +37,6 @@ bool dr_init_sound(void)
  */
 int dr_load_sample(const char *filename)
 {
-	static int cntr = 0;
-
-	printf("\nLoad WAV (%d): %s", cntr, filename);
-
 	NSString* const s = [NSString stringWithUTF8String: filename];
 	QTMovie*  const m = [QTMovie movieWithFile: s error: nil];
 	if (!m) {
@@ -53,9 +49,10 @@ int dr_load_sample(const char *filename)
 	[m play];
 
 	[movies_WAV addObject: m];
-	cntr++;
 
-	return (cntr-1);	// allow for zero based array
+	int const i = [movies_WAV count] - 1;
+	printf("Load WAV (%d): %s\n", i, filename);
+	return i;
 }
 
 
