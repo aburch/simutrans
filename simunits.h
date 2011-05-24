@@ -81,6 +81,12 @@
  * vehikel_t.
  */
 #define VEHICLE_STEPS_PER_TILE (256)
+#define VEHICLE_STEPS_PER_TILE_SHIFT 8
+
+/*
+ * Shift from yards to tiles, derived quantity
+ */
+#define YARDS_PER_TILE_SHIFT (VEHICLE_STEPS_PER_TILE_SHIFT + YARDS_PER_VEHICLE_STEP_SHIFT)
 
 /*
  * Distance units: "carunits" per tile
@@ -119,5 +125,10 @@
  * this is speed * 2^10 /  VEHICLE_SPEED_FACTOR
  */
 #define kmh_to_speed(speed) (((speed) << 10) / VEHICLE_SPEED_FACTOR)
+
+/*
+ * Converts speed (yards per tick) into tiles per month
+ */
+// Done in simworld.h: speed_to_tiles_per_month
 
 #endif /* simunits.h */

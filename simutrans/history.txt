@@ -7,7 +7,8 @@
 	ADD: start as many trains as you like in a depot without waiting
 	CHG: when building artificial slopes on water, create underwater hill first
 	ADD: cache information about savegames in save/_cached.xml to speed up savegame dialog
-	FIX: presingal on last rout index and crossing on last route index could stuck trains
+	FIX: presignal on last rout index and crossing on last route index could stuck trains
+	ADD: (neroden) display tiles/month equivalent for km/h in goods-list window
 
 
 Release of 110.0.1 (r4359 on 12-Mar-2011):

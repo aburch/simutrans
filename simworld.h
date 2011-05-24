@@ -15,6 +15,7 @@
 
 #include "simconst.h"
 #include "simtypes.h"
+#include "simunits.h"
 
 #include "convoihandle_t.h"
 #include "halthandle_t.h"
@@ -570,6 +571,29 @@ public:
 	uint32 ticks_per_world_month;
 
 	void set_ticks_per_world_month_shift(uint32 bits) {ticks_per_world_month_shift = bits; ticks_per_world_month = (1 << ticks_per_world_month_shift); }
+
+	/**
+	 * Converts speed (yards per tick) into tiles per month
+	 *       * A derived quantity:
+	 * speed * ticks_per_world_month / yards_per_tile
+	 * == speed << ticks_per_world_month_shift  (pak-set dependent, 18 in old games)
+	 *          >> yards_per_tile_shift (which is 12 + 8 = 20, see above)
+	 * This is hard to do with full generality, because shift operators
+	 * take positive numbers!
+	 *
+	 * @author neroden
+	 */
+	uint32 speed_to_tiles_per_month(uint32 speed) const
+	{
+		const int left_shift = ticks_per_world_month_shift - YARDS_PER_TILE_SHIFT;
+		if (left_shift >= 0) {
+			return speed << left_shift;
+		} else {
+			const int right_shift = -left_shift;
+			// round to nearest
+			return (speed + (1<<(right_shift -1)) ) >> right_shift;
+		}
+	}
 
 	sint32 get_time_multiplier() const { return time_multiplier; }
 	void change_time_multiplier( sint32 delta );
