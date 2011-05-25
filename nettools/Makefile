@@ -11,6 +11,10 @@ endif
 CFLAGS += -DNETTOOL
 CXXFLAGS += -DNETTOOL
 
+# Curses needed for password non-echo
+CFLAGS += -lcurses
+CXXFLAGS += -lcurses
+
 ifeq ($(OSTYPE),cygwin)
   OS_INC   ?= -I/usr/include/mingw
   OS_OPT   ?= -mwin32
@@ -81,6 +85,7 @@ SHARED_SOURCES += ../simdebug.cc
 SHARED_SOURCES += ../simmem.cc
 SHARED_SOURCES += ../utils/memory_rw.cc
 SHARED_SOURCES += ../utils/simstring.cc
+SHARED_SOURCES += ../utils/fetchopt.cc
 VARIANT_SOURCES += ../utils/log.cc
 VARIANT_SOURCES += ../dataobj/network.cc
 VARIANT_SOURCES += ../dataobj/network_file_transfer.cc
