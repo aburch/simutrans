@@ -54,8 +54,6 @@ bool halt_list_stats_t::infowin_event(const event_t *ev)
  */
 void halt_list_stats_t::zeichnen(koord offset)
 {
-	int halttype;       // 01-June-02    Markus Weber    Added
-
 	clip_dimension clip = display_get_clip_wh();
 
 	if(  !( (pos.y+offset.y)>clip.yy  ||  (pos.y+offset.y)<clip.y-32 )  &&  halt.is_bound()) {
@@ -69,7 +67,7 @@ void halt_list_stats_t::zeichnen(koord offset)
 		int left = pos.x + offset.x + 32 + display_proportional_clip(pos.x + offset.x + 32, pos.y + offset.y + 2, translator::translate(halt->get_name()), ALIGN_LEFT, COL_BLACK, true);
 
 		// what kind of stop
-		halttype = halt->get_station_type();
+		haltestelle_t::stationtyp const halttype = halt->get_station_type();
 		int pos_y = pos.y+offset.y-41;
 		if (halttype & haltestelle_t::railstation) {
 			display_color_img(skinverwaltung_t::zughaltsymbol->get_bild_nr(0), left, pos_y, 0, false, true);

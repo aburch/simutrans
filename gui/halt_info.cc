@@ -214,7 +214,7 @@ void halt_info_t::zeichnen(koord pos, koord gr)
 		// what kind of station?
 		left -= 20;
 		top -= 44;
-		int halttype = halt->get_station_type();
+		haltestelle_t::stationtyp const halttype = halt->get_station_type();
 		if (halttype & haltestelle_t::railstation) {
 			display_color_img(skinverwaltung_t::zughaltsymbol->get_bild_nr(0), pos.x+left, top, 0, false, false);
 			left += 23;

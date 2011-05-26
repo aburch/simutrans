@@ -115,7 +115,7 @@ bool halt_list_frame_t::passes_filter(halthandle_t halt)
 		return false;
 	}
 	if(get_filter(typ_filter)) {
-		int t = halt->get_station_type() ;
+		haltestelle_t::stationtyp const t = halt->get_station_type();
 
 		if(!(get_filter(frachthof_filter) && (t & haltestelle_t::loadingbay)) &&
 		   !(get_filter(bahnhof_filter) && (t & haltestelle_t::railstation)) &&
