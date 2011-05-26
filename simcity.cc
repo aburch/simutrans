@@ -158,7 +158,7 @@ static vector_tpl<rule_t *> road_rules;
  */
 
 // here '.' is ignored, since it will not be tested anyway
-const char* allowed_chars_in_rule = "SsnHhTtUu";
+static char const* const allowed_chars_in_rule = "SsnHhTtUu";
 
 /*
  * @param pos position to check
