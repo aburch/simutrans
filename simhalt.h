@@ -733,4 +733,7 @@ public:
 	static void init_markers();
 
 };
+
+ENUM_BITSET(haltestelle_t::stationtyp)
+
 #endif

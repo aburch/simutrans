@@ -2226,7 +2226,7 @@ void haltestelle_t::transfer_goods(halthandle_t halt)
  */
 void haltestelle_t::recalc_station_type()
 {
-	int new_station_type = 0;
+	stationtyp new_station_type = invalid;
 	capacity[0] = 0;
 	capacity[1] = 0;
 	capacity[2] = 0;
@@ -2335,7 +2335,7 @@ void haltestelle_t::recalc_station_type()
 			capacity[2] = capacity[1] = capacity[0];
 		}
 	}
-	station_type = (haltestelle_t::stationtyp)new_station_type;
+	station_type = new_station_type;
 	recalc_status();
 
 //DBG_DEBUG("haltestelle_t::recalc_station_type()","result=%x, capacity[0]=%i, capacity[1], capacity[2]",new_station_type,capacity[0],capacity[1],capacity[2]);
