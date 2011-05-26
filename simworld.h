@@ -112,8 +112,7 @@ public:
 	enum { NORMAL=0, PAUSE_FLAG = 0x01, FAST_FORWARD=0x02, FIX_RATIO=0x04 };
 
 private:
-	// the settings
-	settings_t* einstellungen;
+	settings_t settings;
 
 	// aus performancegruenden werden einige Einstellungen local gecached
 	sint16 cached_groesse_gitter_x;
@@ -496,8 +495,8 @@ public:
 	void set_follow_convoi(convoihandle_t cnv) { follow_convoi = cnv; }
 	convoihandle_t get_follow_convoi() const { return follow_convoi; }
 
-	settings_t const* get_einstellungen() const { return einstellungen; }
-	settings_t* access_einstellungen() const { return einstellungen; }
+	settings_t const* get_einstellungen() const { return &settings; }
+	settings_t* access_einstellungen() { return &settings; }
 
 	// returns current speed bonus
 	sint32 get_average_speed(waytype_t typ) const { return average_speed[ (typ==16 ? 3 : (int)(typ-1)&7 ) ]; }
@@ -544,7 +543,7 @@ public:
 	void set_schedule_counter();
 
 	// often used, therefore found here
-	bool use_timeline() const { return einstellungen->get_use_timeline(); }
+	bool use_timeline() const { return settings.get_use_timeline(); }
 
 	void reset_timer();
 	void reset_interaction();
@@ -555,7 +554,7 @@ public:
 	void step_month( sint16 months=1 );
 
 	// returns either 0 or the current year*16 + month
-	uint16 get_timeline_year_month() const { return einstellungen->get_use_timeline() ? current_month : 0; }
+	uint16 get_timeline_year_month() const { return settings.get_use_timeline() ? current_month : 0; }
 
 	/**
 	* anzahl ticks pro tag in bits
