@@ -2960,7 +2960,7 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.
 	}
 
 	if(neu) {
-		char* const name = halt->create_name(pos, "Dock", welt->get_settings().get_name_language_id());
+		char* const name = halt->create_name(pos, "Dock");
 		halt->set_name( name );
 		free(name);
 	}
@@ -3142,7 +3142,7 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 	halt->recalc_station_type();
 
 	if(neu) {
-		char* const name = halt->create_name(pos, type_name, welt->get_settings().get_name_language_id());
+		char* const name = halt->create_name(pos, type_name);
 		halt->set_name(name);
 		free(name);
 	}

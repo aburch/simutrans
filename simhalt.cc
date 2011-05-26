@@ -535,10 +535,10 @@ void haltestelle_t::set_name(const char *new_name)
 }
 
 
-
 // creates stops with unique! names
-char *haltestelle_t::create_name(const koord k, const char *typ, const int lang)
+char* haltestelle_t::create_name(koord const k, char const* const typ)
 {
+	int const lang = welt->get_settings().get_name_language_id();
 	stadt_t *stadt = welt->suche_naechste_stadt(k);
 	const char *stop = translator::translate(typ,lang);
 	char buf[1024];
