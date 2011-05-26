@@ -268,8 +268,8 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 				// Below set speed: full acceleration
 				// If set speed is far below the convoy max speed as e.g. aircrafts on ground reduce force.
 				// If set speed is at most a 10th of convoy's maximum, we reduce force to its 10th.
-				d_f = d_get_force(d_v * 0.9) - d_Frs;
-				f = (get_force(v * fraction_t(9, 10)) - Frs).shorten();
+				d_f = d_get_force(d_v * 0.85) - d_Frs;
+				f = (get_force(v * fraction_t(85, 100)) - Frs).shorten();
 				//const double TEST_f_double_equivalent = (double)f.n / (double)f.d;
 //				d_f = d_get_force(d_v) - d_Frs;
 //				f = get_force(v.n / v.d) - Frs;
@@ -404,7 +404,10 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 			{
 				v = 1;
 			}
-			dx += dt * v;
+			dx.shrink();
+			fraction_t precalc = dt * v;
+			precalc.shrink();
+			dx += precalc;
 
 			delta_t -= dt; // another DT_SLICE_SECONDS passed
 		}
