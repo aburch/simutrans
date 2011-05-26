@@ -171,6 +171,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\utils\fetchopt.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\utils\log.cc"
 				>
 			</File>
@@ -226,6 +230,10 @@
 			>
 			<File
 				RelativePath=".\dataobj\freelist.h"
+				>
+			</File>
+			<File
+				RelativePath=".\utils\fetchopt.h"
 				>
 			</File>
 			<File
