@@ -40,7 +40,7 @@
  * @author prissi
  */
 
-climate_gui_t::climate_gui_t(einstellungen_t* sets) :
+climate_gui_t::climate_gui_t(settings_t* const sets) :
 	gui_frame_t("Climate Control")
 {
 DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struct tm) );

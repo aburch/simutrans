@@ -404,7 +404,7 @@ bool karte_t::get_height_data_from_file( const char *filename, sint8 grundwasser
  * @param amplitude in 0..160.0 top height of mountains, may not exceed 160.0!!!
  * @author Hj. Malthaner
  */
-sint32 karte_t::perlin_hoehe( einstellungen_t *sets, koord k, koord size )
+sint32 karte_t::perlin_hoehe(settings_t const* const sets, koord k, koord const size)
 {
 	// Hajo: to Markus: replace the fixed values with your
 	// settings. Amplitude is the top highness of the
@@ -1182,8 +1182,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing movingobjs");
 }
 
 
-
-void karte_t::init(einstellungen_t* sets, sint8 *h_field)
+void karte_t::init(settings_t* const sets, sint8 const* const h_field)
 {
 	clear_random_mode( 7 );
 	mute_sound(true);
@@ -1332,7 +1331,7 @@ DBG_DEBUG("karte_t::init()","built timeline");
 
 
 
-void karte_t::enlarge_map(einstellungen_t* sets, sint8 *h_field)
+void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 {
 	sint16 new_groesse_x = sets->get_groesse_x();
 	sint16 new_groesse_y = sets->get_groesse_y();
@@ -1580,7 +1579,7 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 	set_dirty();
 	set_scroll_lock(false);
 
-	einstellungen_t *sets = new einstellungen_t(umgebung_t::default_einstellungen);
+	settings_t* const sets = new settings_t(umgebung_t::default_einstellungen);
 
 	// standard prices
 	warenbauer_t::set_multiplier( 1000 );
@@ -4756,7 +4755,7 @@ uint8 karte_t::sp2num(spieler_t *sp)
  * @param sets game settings
  * @author Hj. Malthaner
  */
-void karte_t::load_heightfield(einstellungen_t *sets)
+void karte_t::load_heightfield(settings_t* const sets)
 {
 	sint16 w, h;
 	sint8 *h_field;

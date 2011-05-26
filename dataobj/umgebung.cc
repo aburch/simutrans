@@ -47,7 +47,7 @@ sint16 umgebung_t::window_snap_distance = 8;
 bool umgebung_t::quit_simutrans = false;
 
 // default settings for new games
-einstellungen_t umgebung_t::default_einstellungen;
+settings_t umgebung_t::default_einstellungen;
 
 
 // the following initialisation is not important; set values in init()!

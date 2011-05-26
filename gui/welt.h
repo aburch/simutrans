@@ -16,7 +16,7 @@
 #include "components/gui_textinput.h"
 #include "components/gui_numberinput.h"
 
-class einstellungen_t;
+class settings_t;
 class karte_t;
 
 /**
@@ -27,7 +27,7 @@ class karte_t;
 class welt_gui_t  : public gui_frame_t, private action_listener_t
 {
 private:
-	einstellungen_t *sets;
+	settings_t* sets;
 
 	enum { preview_size = 64 };
 
@@ -78,7 +78,7 @@ private:
 
 
 public:
-	welt_gui_t(karte_t *welt, einstellungen_t *sets);
+	welt_gui_t(karte_t*, settings_t*);
 
 	/**
 	* Berechnet Preview-Karte neu. Inititialisiert RNG neu!
@@ -96,7 +96,7 @@ public:
 	 */
 	const char * get_hilfe_datei() const {return "new_world.txt";}
 
-	einstellungen_t* get_sets() const { return sets; }
+	settings_t* get_sets() const { return sets; }
 
 	// does not work during new world dialoge
 	virtual bool has_sticky() const { return false; }

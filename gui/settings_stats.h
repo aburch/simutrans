@@ -22,7 +22,7 @@
 #include "components/action_listener.h"
 #include "components/gui_combobox.h"
 
-class einstellungen_t;
+class settings_t;
 
 /* With the following macros, elements could be added to the property lists.
  * ATTENTION: In the init and read preocedures, the order of the item MUST be identical!
@@ -141,8 +141,8 @@ public:
 	settings_stats_t() { width = 16; }
 	~settings_stats_t() { free_all(); }
 
-	void init( einstellungen_t *sets );
-	void read( einstellungen_t *sets );
+	void init(settings_t const*);
+	void read(settings_t const*);
 
 	koord get_groesse() const {
 		return koord(width,(button.get_count()+label.get_count())*BUTTON_HEIGHT+seperator*7+6);
@@ -158,40 +158,40 @@ class settings_general_stats_t : protected settings_stats_t, public gui_containe
 public:
 	// needed for savegame combobox
 	bool action_triggered(gui_action_creator_t *komp, value_t extra);
-	void init( einstellungen_t *sets );
-	void read( einstellungen_t *sets );
+	void init(settings_t const*);
+	void read(settings_t*);
 };
 
 class settings_routing_stats_t : protected settings_stats_t, public gui_container_t
 {
 public:
-	void init( einstellungen_t *sets );
-	void read( einstellungen_t *sets );
+	void init(settings_t const*);
+	void read(settings_t*);
 };
 
 class settings_economy_stats_t : protected settings_stats_t, public gui_container_t
 {
 public:
-	void init( einstellungen_t *sets );
-	void read( einstellungen_t *sets );
+	void init(settings_t const*);
+	void read(settings_t*);
 };
 
 class settings_costs_stats_t : protected settings_stats_t, public gui_container_t
 {
 public:
-	void init( einstellungen_t *sets );
-	void read( einstellungen_t *sets );
+	void init(settings_t const*);
+	void read(settings_t*);
 };
 
 class settings_climates_stats_t : protected settings_stats_t, public gui_container_t, public action_listener_t
 {
 private:
 	cbuffer_t buf;
-	einstellungen_t *local_sets;
+	settings_t* local_sets;
 public:
 	settings_climates_stats_t() : buf( 128 ) {}
-	void init( einstellungen_t *sets );
-	void read( einstellungen_t *sets );
+	void init(settings_t*);
+	void read(settings_t*);
 	bool action_triggered(gui_action_creator_t *komp, value_t extra);
 };
 

@@ -16,7 +16,7 @@
 #include "components/action_listener.h"
 #include "components/gui_textinput.h"
 
-class einstellungen_t;
+class settings_t;
 
 
 /**
@@ -26,7 +26,7 @@ class einstellungen_t;
 class climate_gui_t  : public gui_frame_t, private action_listener_t
 {
 private:
-	einstellungen_t * sets;
+	settings_t* sets;
 
 	// since decrease/increase buttons always pair these ...
 	gui_numberinput_t water_level, mountain_height, mountain_roughness;
@@ -40,7 +40,7 @@ private:
 	gui_numberinput_t river_n, river_min, river_max;
 
 public:
-	climate_gui_t(einstellungen_t* sets);
+	climate_gui_t(settings_t*);
 
 	/**
 	 * Manche Fenster haben einen Hilfetext assoziiert.

@@ -27,7 +27,7 @@
 
 using std::string;
 
-settings_frame_t::settings_frame_t(einstellungen_t *s) : gui_frame_t("Setting"),
+settings_frame_t::settings_frame_t(settings_t* const s) : gui_frame_t("Setting"),
 	sets(s),
 	scrolly_general(&general),
 	scrolly_economy(&economy),
@@ -91,7 +91,7 @@ bool settings_frame_t::action_triggered( gui_action_creator_t *komp, value_t )
 		// reread from simucon.tab(s) the settings and apply them
 		tabfile_t simuconf;
 		umgebung_t::init();
-		*sets = einstellungen_t();
+		*sets = settings_t();
 		chdir( umgebung_t::program_dir );
 		if(simuconf.open("config/simuconf.tab")) {
 			sint16 dummy16;

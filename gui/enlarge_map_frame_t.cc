@@ -45,7 +45,7 @@
 #define RIGHT_COLUMN_WIDTH (60)
 
 
-koord enlarge_map_frame_t::koord_from_rotation( einstellungen_t *sets, sint16 x, sint16 y, sint16 w, sint16 h )
+koord enlarge_map_frame_t::koord_from_rotation(settings_t const* const sets, sint16 const x, sint16 const y, sint16 const w, sint16 const h)
 {
 	koord offset( sets->get_origin_x(), sets->get_origin_y() );
 	switch( sets->get_rotation() ) {
@@ -64,7 +64,7 @@ enlarge_map_frame_t::enlarge_map_frame_t(spieler_t *, karte_t *w) :
 	memory(memory_str),
 	welt(w)
 {
-	sets = new einstellungen_t(*(welt->get_einstellungen())); // Make a copy.
+	sets = new settings_t(*welt->get_einstellungen()); // Make a copy.
 	sets->set_groesse_x(welt->get_groesse_x());
 	sets->set_groesse_y(welt->get_groesse_y());
 

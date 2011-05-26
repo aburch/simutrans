@@ -19,7 +19,7 @@ class loadsave_t;
 class tabfile_t;
 class weg_besch_t;
 
-// these are the only classes, that are allowed to modfy elements from einstellungen_t
+// these are the only classes, that are allowed to modfy elements from settings_t
 // for all remaing special cases there are the set_...() routines
 class settings_general_stats_t;
 class settings_routing_stats_t;
@@ -38,7 +38,7 @@ struct road_timeline_t
 };
 
 
-class einstellungen_t
+class settings_t
 {
 friend class settings_general_stats_t;
 friend class settings_routing_stats_t;
@@ -295,11 +295,11 @@ public:
 	 */
 	std::string heightfield;
 
-	einstellungen_t();
+	settings_t();
 
 	void rdwr(loadsave_t *file);
 
-	void copy_city_road( einstellungen_t &other );
+	void copy_city_road(settings_t const& other);
 
 	// init form this file ...
 	void parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, sint16 &disp_height, sint16 &fullscreen, std::string &objfilename );

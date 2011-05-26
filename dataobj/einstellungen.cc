@@ -29,7 +29,7 @@
 #define NEVER 0xFFFFU
 
 
-einstellungen_t::einstellungen_t() :
+settings_t::settings_t() :
 	filename(""),
 	heightfield("")
 {
@@ -251,7 +251,7 @@ einstellungen_t::einstellungen_t() :
 
 
 
-void einstellungen_t::set_default_climates()
+void settings_t::set_default_climates()
 {
 	static sint16 borders[MAX_CLIMATES] = { 0, 0, 0, 3, 6, 8, 10, 10 };
 	memcpy( climate_borders, borders, sizeof(sint16)*MAX_CLIMATES );
@@ -259,7 +259,7 @@ void einstellungen_t::set_default_climates()
 
 
 
-void einstellungen_t::rdwr(loadsave_t *file)
+void settings_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t e( file, "einstellungen_t" );
 
@@ -283,7 +283,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 		file->rdwr_long(dummy );
 		dummy &= 127;
 		if(dummy>63) {
-			dbg->warning("einstellungen_t::rdwr()","This game was saved with too many cities! (%i of maximum 63). Simutrans may crash!",dummy );
+			dbg->warning("settings_t::rdwr()", "This game was saved with too many cities! (%i of maximum 63). Simutrans may crash!", dummy);
 		}
 		anzahl_staedte = dummy;
 
@@ -458,7 +458,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 				// several roads ...
 				file->rdwr_short(num_city_roads );
 				if(  num_city_roads>=10  ) {
-					dbg->fatal( "einstellungen_t::rdwr()", "Too many (%i) city roads!", num_city_roads );
+					dbg->fatal("settings_t::rdwr()", "Too many (%i) city roads!", num_city_roads);
 				}
 				for(  int i=0;  i<num_city_roads;  i++  ) {
 					file->rdwr_str(city_roads[i].name, lengthof(city_roads[i].name) );
@@ -468,7 +468,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 				// several intercity roads ...
 				file->rdwr_short(num_intercity_roads );
 				if(  num_intercity_roads>=10  ) {
-					dbg->fatal( "einstellungen_t::rdwr()", "Too many (%i) intercity roads!", num_intercity_roads );
+					dbg->fatal("settings_t::rdwr()", "Too many (%i) intercity roads!", num_intercity_roads);
 				}
 				for(  int i=0;  i<num_intercity_roads;  i++  ) {
 					file->rdwr_str(intercity_roads[i].name, lengthof(intercity_roads[i].name) );
@@ -678,7 +678,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 
 
 // read the settings from this file
-void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, sint16 &disp_height, sint16 &fullscreen, std::string &objfilename )
+void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16& disp_height, sint16 &fullscreen, std::string& objfilename)
 {
 	tabfileobj_t contents;
 
@@ -1073,7 +1073,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 }
 
 
-int einstellungen_t::get_name_language_id() const
+int settings_t::get_name_language_id() const
 {
 	int lang = -1;
 	if(  umgebung_t::networkmode  ) {
@@ -1086,7 +1086,7 @@ int einstellungen_t::get_name_language_id() const
 }
 
 
-sint64 einstellungen_t::get_starting_money(sint16 year) const
+sint64 settings_t::get_starting_money(sint16 const year) const
 {
 	if(  starting_money>0  ) {
 		return starting_money;
@@ -1166,19 +1166,19 @@ static const weg_besch_t *get_timeline_road_type( uint16 year, uint16 num_roads,
 }
 
 
-const weg_besch_t *einstellungen_t::get_city_road_type( uint16 year )
+weg_besch_t const* settings_t::get_city_road_type(uint16 const year)
 {
 	return get_timeline_road_type(year, num_city_roads, city_roads );
 }
 
 
-const weg_besch_t *einstellungen_t::get_intercity_road_type( uint16 year )
+weg_besch_t const* settings_t::get_intercity_road_type(uint16 const year)
 {
 	return get_timeline_road_type(year, num_intercity_roads, intercity_roads );
 }
 
 
-void einstellungen_t::copy_city_road( einstellungen_t &other )
+void settings_t::copy_city_road(settings_t const& other)
 {
 	num_city_roads = other.num_city_roads;
 	for(  int i=0;  i<10;  i++  ) {
@@ -1188,7 +1188,7 @@ void einstellungen_t::copy_city_road( einstellungen_t &other )
 
 
 // returns default player colors for new players
-void einstellungen_t::set_default_player_color( spieler_t *sp ) const
+void settings_t::set_default_player_color(spieler_t* const sp) const
 {
 	COLOR_VAL color1 = default_player_color[sp->get_player_nr()][0];
 	if(  color1 == 255  ) {

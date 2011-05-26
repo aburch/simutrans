@@ -260,7 +260,7 @@ public:
 	static uint8 bottom_window_bar_color;
 	static uint8 bottom_window_text_color;
 
-	static einstellungen_t default_einstellungen;
+	static settings_t default_einstellungen;
 
 	// init with default values
 	static void init();

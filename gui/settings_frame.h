@@ -17,7 +17,7 @@
 #include "settings_stats.h"
 #include "components/action_listener.h"
 
-class einstellungen_t;
+class settings_t;
 
 
 /**
@@ -27,7 +27,7 @@ class einstellungen_t;
 class settings_frame_t : public gui_frame_t, action_listener_t
 {
 private:
-	einstellungen_t	*sets;
+	settings_t* sets;
 	gui_tab_panel_t	tabs;
 
 	settings_general_stats_t	general;
@@ -44,7 +44,7 @@ private:
 	button_t revert_to_default, revert_to_last_save;
 
 public:
-	settings_frame_t(einstellungen_t *sets);
+	settings_frame_t(settings_t*);
 
 	/**
 	 * Manche Fenster haben einen Hilfetext assoziiert.

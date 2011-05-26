@@ -1144,7 +1144,7 @@ sint64 vehikel_t::calc_gewinn(koord start, koord end) const
 	sint64 value = 0;
 	slist_iterator_tpl <ware_t> iter (fracht);
 
-	if(  welt->get_einstellungen()->get_pay_for_total_distance_mode()==einstellungen_t::TO_DESTINATION  ) {
+	if (welt->get_einstellungen()->get_pay_for_total_distance_mode() == settings_t::TO_DESTINATION) {
 		// pay only the distance, we get closer to our destination
 		while( iter.next() ) {
 
@@ -1166,8 +1166,7 @@ sint64 vehikel_t::calc_gewinn(koord start, koord end) const
 			// sum up new price
 			value += price;
 		}
-	}
-	else if(  welt->get_einstellungen()->get_pay_for_total_distance_mode()==einstellungen_t::TO_TRANSFER  ) {
+	} else if (welt->get_einstellungen()->get_pay_for_total_distance_mode() == settings_t::TO_TRANSFER) {
 		// pay distance traveled to next trasnfer stop
 		while( iter.next() ) {
 

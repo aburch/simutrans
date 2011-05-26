@@ -3234,12 +3234,12 @@ image_id wkz_station_t::get_icon( spieler_t * ) const
 
 char const* wkz_station_t::get_tooltip(spieler_t* const sp)
 {
-	sint8                  dummy;
-	karte_t&               welt     = *sp->get_welt();
-	einstellungen_t const& settings = *welt.get_einstellungen();
-	haus_besch_t    const& besch    = *get_besch(dummy);
-	uint32                 level    = besch.get_level();
-	sint64                 price;
+	sint8               dummy;
+	karte_t&            welt     = *sp->get_welt();
+	settings_t   const& settings = *welt.get_einstellungen();
+	haus_besch_t const& besch    = *get_besch(dummy);
+	uint32              level    = besch.get_level();
+	sint64              price;
 	switch (besch.get_utyp()) {
 		case haus_besch_t::generic_stop:
 			switch (besch.get_extra()) {
@@ -3849,10 +3849,10 @@ bool wkz_depot_t::init( karte_t *welt, spieler_t *sp )
 
 char const* wkz_depot_t::get_tooltip(spieler_t* const sp)
 {
-	karte_t&               welt     = *sp->get_welt();
-	einstellungen_t const& settings = *welt.get_einstellungen();
-	haus_besch_t    const& besch    = *hausbauer_t::find_tile(default_param, 0)->get_besch();
-	char            const* tip;
+	karte_t&            welt     = *sp->get_welt();
+	settings_t   const& settings = *welt.get_einstellungen();
+	haus_besch_t const& besch    = *hausbauer_t::find_tile(default_param, 0)->get_besch();
+	char         const* tip;
 	sint64                 price;
 	switch (besch.get_extra()) {
 		case road_wt:        tip = "Build road depot";        price = settings.cst_depot_road; break;

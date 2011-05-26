@@ -83,7 +83,7 @@ public:
 	static bool cityrules_init(const std::string &objpathname);
 	/**
 	 * Reads/writes city configuration data from/to a savegame
-	 * called from einstellungen_t::rdwr
+	 * called from settings_t::rdwr
 	 * only written for networkgames
 	 * @author Dwachs
 	 */

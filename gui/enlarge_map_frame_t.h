@@ -10,14 +10,14 @@
 #include "components/action_listener.h"
 #include "components/gui_numberinput.h"
 
-class einstellungen_t;
+class settings_t;
 class karte_t;
 
 class enlarge_map_frame_t  : public gui_frame_t, private action_listener_t
 {
 private:
 	// local settings of the new world ...
-	einstellungen_t * sets;
+	settings_t* sets;
 
 	enum { preview_size = 64 };
 
@@ -40,7 +40,7 @@ private:
 	karte_t *welt;
 
 public:
-	static inline koord koord_from_rotation( einstellungen_t *, sint16 y, sint16 x, sint16 w, sint16 h );
+	static inline koord koord_from_rotation(settings_t const*, sint16 y, sint16 x, sint16 w, sint16 h);
 
 	enlarge_map_frame_t(spieler_t *spieler,karte_t *welt);
 

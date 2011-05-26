@@ -88,7 +88,7 @@ public:
 	* @param amplitude in 0..160.0 top height of mountains, may not exceed 160.0!!!
 	* @author Hj. Malthaner
 	*/
-	static sint32 perlin_hoehe( einstellungen_t *, koord pos, koord size );
+	static sint32 perlin_hoehe(settings_t const*, koord pos, koord size);
 
 	enum player_cost {
 		WORLD_CITICENS=0,// total people
@@ -113,7 +113,7 @@ public:
 
 private:
 	// the settings
-	einstellungen_t *einstellungen;
+	settings_t* einstellungen;
 
 	// aus performancegruenden werden einige Einstellungen local gecached
 	sint16 cached_groesse_gitter_x;
@@ -496,8 +496,8 @@ public:
 	void set_follow_convoi(convoihandle_t cnv) { follow_convoi = cnv; }
 	convoihandle_t get_follow_convoi() const { return follow_convoi; }
 
-	const einstellungen_t * get_einstellungen() const { return einstellungen; }
-	einstellungen_t *access_einstellungen() const { return einstellungen; }
+	settings_t const* get_einstellungen() const { return einstellungen; }
+	settings_t* access_einstellungen() const { return einstellungen; }
 
 	// returns current speed bonus
 	sint32 get_average_speed(waytype_t typ) const { return average_speed[ (typ==16 ? 3 : (int)(typ-1)&7 ) ]; }
@@ -792,11 +792,11 @@ public:
 	 * @param preselected_players defines which players the user has selected before he started the game
 	 * @author Hj. Malthaner
 	 */
-	void init(einstellungen_t *sets,sint8 *heights);
+	void init(settings_t*, sint8 const* heights);
 
 	void init_felder();
 
-	void enlarge_map(einstellungen_t *sets, sint8 *h_field);
+	void enlarge_map(settings_t const*, sint8 const* h_field);
 
 	karte_t();
 
@@ -1011,7 +1011,7 @@ public:
 	 * @param sets game settings
 	 * @author Hj. Malthaner
 	 */
-	void load_heightfield(einstellungen_t *sets);
+	void load_heightfield(settings_t*);
 
 	void beenden(bool b);
 
