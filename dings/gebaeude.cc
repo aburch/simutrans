@@ -91,7 +91,7 @@ gebaeude_t::gebaeude_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_til
 	init();
 	if(t) {
 		set_tile(t);	// this will set init time etc.
-		spieler_t::add_maintenance(get_besitzer(), welt->get_einstellungen()->maint_building*tile->get_besch()->get_level() );
+		spieler_t::add_maintenance(get_besitzer(), welt->get_settings().maint_building * tile->get_besch()->get_level());
 	}
 
 	grund_t *gr=welt->lookup(pos);
@@ -126,7 +126,7 @@ gebaeude_t::~gebaeude_t()
 	count = 0;
 	anim_time = 0;
 	if(tile) {
-		spieler_t::add_maintenance(get_besitzer(), -welt->get_einstellungen()->maint_building*tile->get_besch()->get_level() );
+		spieler_t::add_maintenance(get_besitzer(), -welt->get_settings().maint_building*tile->get_besch()->get_level());
 	}
 }
 
@@ -151,7 +151,7 @@ void gebaeude_t::rotate90()
 		}
 		// have to rotate the tiles :(
 		if(  !haus_besch->can_rotate()  &&  haus_besch->get_all_layouts() == 1  ) {
-			if(  (welt->get_einstellungen()->get_rotation() & 1) == 0  ) {
+			if ((welt->get_settings().get_rotation() & 1) == 0) {
 				// rotate 180 degree
 				new_offset = koord(haus_besch->get_b() - 1 - new_offset.x, haus_besch->get_h() - 1 - new_offset.y);
 			}
@@ -462,7 +462,7 @@ int gebaeude_t::get_passagier_level() const
 	long pax = tile->get_besch()->get_level();
 	if (!is_factory && ptr.stadt != NULL) {
 		// belongs to a city ...
-		return (((pax+6)>>2)*welt->get_einstellungen()->get_passenger_factor())/16;
+		return ((pax + 6) >> 2) * welt->get_settings().get_passenger_factor() / 16;
 	}
 	return pax*dim.x*dim.y;
 }
@@ -472,7 +472,7 @@ int gebaeude_t::get_post_level() const
 	koord dim = tile->get_besch()->get_groesse();
 	long post = tile->get_besch()->get_post_level();
 	if (!is_factory && ptr.stadt != NULL) {
-		return (((post+5)>>2)*welt->get_einstellungen()->get_passenger_factor())/16;
+		return ((post + 5) >> 2) * welt->get_settings().get_passenger_factor() / 16;
 	}
 	return post*dim.x*dim.y;
 }
@@ -692,7 +692,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 			buf.append("\n");
 			buf.append(translator::translate("Wert"));
 			buf.append(": ");
-			buf.append(-welt->get_einstellungen()->cst_multiply_remove_haus*(tile->get_besch()->get_level()+1)/100);
+			buf.append(-welt->get_settings().cst_multiply_remove_haus * (tile->get_besch()->get_level() + 1) / 100);
 			buf.append("$\n");
 		}
 
@@ -884,7 +884,7 @@ void gebaeude_t::laden_abschliessen()
 {
 	calc_bild();
 
-	spieler_t::add_maintenance(get_besitzer(), welt->get_einstellungen()->maint_building*tile->get_besch()->get_level() );
+	spieler_t::add_maintenance(get_besitzer(), welt->get_settings().maint_building * tile->get_besch()->get_level());
 
 	// citybuilding, but no town?
 	if(  tile->get_offset()==koord(0,0)  ) {
@@ -906,13 +906,11 @@ void gebaeude_t::entferne(spieler_t *sp)
 {
 //	DBG_MESSAGE("gebaeude_t::entferne()","gb %i");
 	// remove costs
-	if(tile->get_besch()->get_utyp()<haus_besch_t::bahnhof) {
-		spieler_t::accounting(sp, welt->get_einstellungen()->cst_multiply_remove_haus*(tile->get_besch()->get_level()+1), get_pos().get_2d(), COST_CONSTRUCTION);
-	}
-	else {
-		// tearing down halts is always single costs only
-		spieler_t::accounting(sp, welt->get_einstellungen()->cst_multiply_remove_haus, get_pos().get_2d(), COST_CONSTRUCTION);
-	}
+	sint64 cost = welt->get_settings().cst_multiply_remove_haus;
+	// tearing down halts is always single costs only
+	if (tile->get_besch()->get_utyp() < haus_besch_t::bahnhof)
+		cost *= tile->get_besch()->get_level() + 1;
+	spieler_t::accounting(sp, cost, get_pos().get_2d(), COST_CONSTRUCTION);
 
 	// may need to update next buildings, in the case of start, middle, end buildings
 	if(tile->get_besch()->get_all_layouts()>1  &&  get_haustyp()==unbekannt) {

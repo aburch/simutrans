@@ -61,10 +61,10 @@ koord enlarge_map_frame_t::koord_from_rotation(settings_t const* const sets, sin
 
 enlarge_map_frame_t::enlarge_map_frame_t(spieler_t *, karte_t *w) :
 	gui_frame_t("enlarge map"),
+	sets(new settings_t(welt->get_settings())), // Make a copy.
 	memory(memory_str),
 	welt(w)
 {
-	sets = new settings_t(*welt->get_einstellungen()); // Make a copy.
 	sets->set_groesse_x(welt->get_groesse_x());
 	sets->set_groesse_y(welt->get_groesse_y());
 
@@ -169,7 +169,7 @@ bool enlarge_map_frame_t::action_triggered( gui_action_creator_t *komp,value_t v
 
 void enlarge_map_frame_t::zeichnen(koord pos, koord gr)
 {
-	while(  welt->get_einstellungen()->get_rotation() != sets->get_rotation()  ) {
+	while (welt->get_settings().get_rotation() != sets->get_rotation()) {
 		// map was rotated while we are active ... => rotate too!
 		sets->rotate90();
 		sets->set_groesse( sets->get_groesse_y(), sets->get_groesse_x() );
@@ -202,7 +202,7 @@ void enlarge_map_frame_t::zeichnen(koord pos, koord gr)
 void enlarge_map_frame_t::update_preview()
 {
 	// reset noise seed
-	setsimrand( 0xFFFFFFFF, welt->get_einstellungen()->get_karte_nummer() );
+	setsimrand(0xFFFFFFFF, welt->get_settings().get_karte_nummer());
 
 	// "welt" still knows the old size. The new size is saved in "sets".
 	sint16 old_x = welt->get_groesse_x();
@@ -247,7 +247,7 @@ void enlarge_map_frame_t::update_preview()
 	if(!changed_number_of_towns){// Interpolate number of towns.
 		sint32 new_area = sets->get_groesse_x() * sets->get_groesse_y();
 		sint32 old_area = old_x * old_y;
-		sint32 towns = welt->get_einstellungen()->get_anzahl_staedte();
+		sint32 const towns = welt->get_settings().get_anzahl_staedte();
 		sets->set_anzahl_staedte( towns * new_area / old_area - towns );
 		inp_number_of_towns.set_value(abs(sets->get_anzahl_staedte()) );
 	}

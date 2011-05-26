@@ -70,7 +70,7 @@ private:
 	sint16 drag_height;
 public:
 	wkz_raise_t() : werkzeug_t() { offset = Z_GRID; id = WKZ_RAISE_LAND | GENERAL_TOOL; }
-	const char *get_tooltip(spieler_t *sp) { return tooltip_with_price("Anheben", sp->get_welt()->get_einstellungen()->cst_alter_land); }
+	char const* get_tooltip(spieler_t* const sp) { return tooltip_with_price("Anheben", sp->get_welt()->get_settings().cst_alter_land); }
 	virtual image_id get_icon(spieler_t *) const { return grund_t::underground_mode==grund_t::ugm_all ? IMG_LEER : icon; }
 	bool init( karte_t *, spieler_t * ) { is_dragging = false; return true; }
 	bool exit( karte_t *, spieler_t * ) { is_dragging = false; return true; }
@@ -86,7 +86,7 @@ private:
 	sint16 drag_height;
 public:
 	wkz_lower_t() : werkzeug_t() { offset = Z_GRID; id = WKZ_LOWER_LAND | GENERAL_TOOL;  }
-	const char *get_tooltip(spieler_t *sp) { return tooltip_with_price("Absenken", sp->get_welt()->get_einstellungen()->cst_alter_land); }
+	char const* get_tooltip(spieler_t* const sp) { return tooltip_with_price("Absenken", sp->get_welt()->get_settings().cst_alter_land); }
 	virtual image_id get_icon(spieler_t *) const { return grund_t::underground_mode==grund_t::ugm_all ? IMG_LEER : icon; }
 	bool init( karte_t *, spieler_t * ) { is_dragging = false; return true; }
 	bool exit( karte_t *, spieler_t * ) { is_dragging = false; return true; }
@@ -101,7 +101,7 @@ class wkz_setslope_t : public werkzeug_t {
 public:
 	wkz_setslope_t() : werkzeug_t() { id = WKZ_SETSLOPE | GENERAL_TOOL; }
 	static const char *wkz_set_slope_work( karte_t *welt, spieler_t *sp, koord3d pos, int slope );
-	const char *get_tooltip(spieler_t *sp) { return tooltip_with_price("Built artifical slopes", sp->get_welt()->get_einstellungen()->cst_set_slope); }
+	char const* get_tooltip(spieler_t* const sp) { return tooltip_with_price("Built artifical slopes", sp->get_welt()->get_settings().cst_set_slope); }
 	virtual bool is_init_network_save() const { return true; }
 	const char *check( karte_t *, spieler_t *, koord3d );
 	virtual const char *work( karte_t *welt, spieler_t *sp, koord3d k ) { return wkz_set_slope_work( welt, sp, k, atoi(default_param) ); }
@@ -110,7 +110,7 @@ public:
 class wkz_restoreslope_t : public werkzeug_t {
 public:
 	wkz_restoreslope_t() : werkzeug_t() { id = WKZ_RESTORESLOPE | GENERAL_TOOL; }
-	const char *get_tooltip(spieler_t *sp) { return tooltip_with_price("Restore natural slope", sp->get_welt()->get_einstellungen()->cst_set_slope); }
+	char const* get_tooltip(spieler_t* const sp) { return tooltip_with_price("Restore natural slope", sp->get_welt()->get_settings().cst_set_slope); }
 	virtual bool is_init_network_save() const { return true; }
 	const char *check( karte_t *, spieler_t *, koord3d );
 	virtual const char *work( karte_t *welt, spieler_t *sp, koord3d k ) { return wkz_setslope_t::wkz_set_slope_work( welt, sp, k, RESTORE_SLOPE ); }
@@ -119,7 +119,7 @@ public:
 class wkz_marker_t : public kartenboden_werkzeug_t {
 public:
 	wkz_marker_t() : kartenboden_werkzeug_t() { id = WKZ_MARKER | GENERAL_TOOL; }
-	const char *get_tooltip(spieler_t *sp) { return tooltip_with_price("Marker", sp->get_welt()->get_einstellungen()->cst_buy_land); }
+	char const* get_tooltip(spieler_t* const sp) { return tooltip_with_price("Marker", sp->get_welt()->get_settings().cst_buy_land); }
 	virtual const char *work( karte_t *welt, spieler_t *sp, koord3d k );
 	virtual bool is_init_network_save() const { return true; }
 };
@@ -145,7 +145,7 @@ public:
 class wkz_add_city_t : public kartenboden_werkzeug_t {
 public:
 	wkz_add_city_t() : kartenboden_werkzeug_t() { id = WKZ_ADD_CITY | GENERAL_TOOL; }
-	const char *get_tooltip(spieler_t *sp) { return tooltip_with_price( "Found new city", sp->get_welt()->get_einstellungen()->cst_found_city ); }
+	char const* get_tooltip(spieler_t* const sp) { return tooltip_with_price("Found new city", sp->get_welt()->get_settings().cst_found_city); }
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
 	virtual bool is_init_network_save() const { return true; }
 };
@@ -831,9 +831,10 @@ class wkz_toggle_pax_station_t : public werkzeug_t {
 public:
 	wkz_toggle_pax_station_t() : werkzeug_t() { id = WKZ_TOOGLE_PAX | SIMPLE_TOOL; }
 	const char *get_tooltip(spieler_t *) { return translator::translate("5LIGHT_CHOOSE"); }
-	bool is_selected(karte_t *welt) const { return welt->get_einstellungen()->get_show_pax(); }
+	bool is_selected(karte_t* const welt) const { return welt->get_settings().get_show_pax(); }
 	bool init( karte_t *welt, spieler_t * ) {
-		welt->access_einstellungen()->set_show_pax( !welt->get_einstellungen()->get_show_pax() );
+		settings_t& s = welt->get_settings();
+		s.set_show_pax(!s.get_show_pax());
 		return false;
 	}
 	bool exit( karte_t *w, spieler_t *s ) { return init(w,s); }
@@ -844,9 +845,10 @@ class wkz_toggle_pedestrians_t : public werkzeug_t {
 public:
 	wkz_toggle_pedestrians_t() : werkzeug_t() { id = WKZ_TOOGLE_PEDESTRIANS | SIMPLE_TOOL; }
 	const char *get_tooltip(spieler_t *) { return translator::translate("6LIGHT_CHOOSE"); }
-	bool is_selected(karte_t *welt) const { return welt->get_einstellungen()->get_random_pedestrians(); }
+	bool is_selected(karte_t* const welt) const { return welt->get_settings().get_random_pedestrians(); }
 	bool init( karte_t *welt, spieler_t * ) {
-		welt->access_einstellungen()->set_random_pedestrians( !welt->get_einstellungen()->get_random_pedestrians() );
+		settings_t& s = welt->get_settings();
+		s.set_random_pedestrians(!s.get_random_pedestrians());
 		return false;
 	}
 	bool exit( karte_t *w, spieler_t *s ) { return init(w,s); }
@@ -861,7 +863,7 @@ public:
 	bool is_selected(karte_t *) const { return false; }
 	bool init( karte_t *welt, spieler_t * ) {
 		assert(  default_param  );
-		welt->access_einstellungen()->set_verkehr_level( atoi(default_param) );
+		welt->get_settings().set_verkehr_level(atoi(default_param));
 		return false;
 	}
 	virtual bool is_init_network_save() const { return false; }

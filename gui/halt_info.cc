@@ -260,7 +260,7 @@ void halt_info_t::zeichnen(koord pos, koord gr)
 		// passagiere
 		info_buf.append(halt->get_capacity(0));
 		left += display_proportional(left, top, info_buf, ALIGN_LEFT, COL_BLACK, true);
-		if(  welt->get_einstellungen()->is_seperate_halt_capacities()  ) {
+		if (welt->get_settings().is_seperate_halt_capacities()) {
 			// here only for seperate capacities
 			display_color_img(skinverwaltung_t::passagiere->get_bild_nr(0), left, top, 0, false, false);
 			left += 10;

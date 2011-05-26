@@ -495,8 +495,8 @@ public:
 	void set_follow_convoi(convoihandle_t cnv) { follow_convoi = cnv; }
 	convoihandle_t get_follow_convoi() const { return follow_convoi; }
 
-	settings_t const* get_einstellungen() const { return &settings; }
-	settings_t* access_einstellungen() { return &settings; }
+	settings_t const& get_settings() const { return settings; }
+	settings_t&       get_settings()       { return settings; }
 
 	// returns current speed bonus
 	sint32 get_average_speed(waytype_t typ) const { return average_speed[ (typ==16 ? 3 : (int)(typ-1)&7 ) ]; }

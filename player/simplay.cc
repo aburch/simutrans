@@ -100,7 +100,7 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 	welt = wl;
 	player_nr = nr;
 
-	konto = welt->get_einstellungen()->get_starting_money(welt->get_last_year());
+	konto = welt->get_settings().get_starting_money(welt->get_last_year());
 	starting_money = konto;
 
 	konto_ueberzogen = 0;
@@ -137,7 +137,7 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 
 	maintenance = 0;
 
-	welt->get_einstellungen()->set_default_player_color( this );
+	welt->get_settings().set_default_player_color(this);
 
 	// we have different AI, try to find out our type:
 	sprintf(spieler_name_buf,"player %i",player_nr-1);
@@ -184,7 +184,7 @@ bool spieler_t::set_unlock( const uint8 *hash )
 	if(  !locked  &&  player_nr==1  ) {
 		// public player unlocked:
 		// allow to change active player
-		welt->access_einstellungen()->set_allow_player_change(true);
+		welt->get_settings().set_allow_player_change(true);
 	}
 	return locked;
 }
@@ -336,7 +336,7 @@ void spieler_t::neuer_monat()
 	// enough money and scenario finished?
 	if(konto > 0  &&  welt->get_scenario()->active()  &&  finance_history_year[0][COST_SCENARIO_COMPLETED]>=100) {
 		destroy_all_win(true);
-		sint32 time = welt->get_current_month()-(welt->get_einstellungen()->get_starting_year()*12);
+		sint32 const time = welt->get_current_month() - welt->get_settings().get_starting_year() * 12;
 		sprintf( buf, translator::translate("Congratulation\nScenario was complete in\n%i months %i years."), time%12, time/12 );
 		create_win(280, 40, new news_img(buf), w_info, magic_none);
 		// disable further messages
@@ -347,7 +347,7 @@ void spieler_t::neuer_monat()
 	// Bankrott ?
 	if(konto < 0) {
 		konto_ueberzogen++;
-		if(!welt->get_einstellungen()->is_freeplay()  &&  player_nr!=1  ) {
+		if (!welt->get_settings().is_freeplay() && player_nr != 1) {
 			if(  welt->get_active_player_nr()==player_nr  &&  !umgebung_t::networkmode  ) {
 				if(finance_history_year[0][COST_NETWEALTH]<0) {
 					destroy_all_win(true);

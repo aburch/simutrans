@@ -393,7 +393,7 @@ void grund_besch_t::calc_water_level(karte_t *w, uint8 *height_to_climate)
 
 	// create height table
 	sint16 climate_border[MAX_CLIMATES];
-	memcpy( climate_border, welt->get_einstellungen()->get_climate_borders(), sizeof(climate_border) );
+	memcpy(climate_border, welt->get_settings().get_climate_borders(), sizeof(climate_border));
 	for( int cl=0;  cl<MAX_CLIMATES-1;  cl++ ) {
 		if(climate_border[cl]>climate_border[arctic_climate]) {
 			// unused climate

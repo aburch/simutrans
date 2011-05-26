@@ -23,7 +23,7 @@ simline_t::simline_t(karte_t* welt, spieler_t* sp, linetype type)
 {
 	self = linehandle_t(this);
 	char printname[128];
-	sprintf( printname, "(%i) %s", self.get_id(), translator::translate("Line",welt->get_einstellungen()->get_name_language_id()) );
+	sprintf(printname, "(%i) %s", self.get_id(), translator::translate("Line", welt->get_settings().get_name_language_id()));
 	name = printname;
 
 	init_financial_history();

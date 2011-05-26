@@ -572,7 +572,7 @@ void planquadrat_t::remove_from_haltlist(karte_t *welt, halthandle_t halt)
 	// quick and dirty way to our 2d koodinates ...
 	const koord pos = get_kartenboden()->get_pos().get_2d();
 
-	int cov = welt->get_einstellungen()->get_station_coverage();
+	int const cov = welt->get_settings().get_station_coverage();
 	for (int y = -cov; y <= cov; y++) {
 		for (int x = -cov; x <= cov; x++) {
 			koord test_pos = pos+koord(x,y);

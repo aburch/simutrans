@@ -854,8 +854,7 @@ void stadt_t::factory_set_t::recalc_generation_ratio(const sint32 default_percen
 	if(  total_demand==0  ) {
 		// no demand -> zero ratio
 		generation_ratio = 0;
-	}
-	else if(  !welt->get_einstellungen()->get_factory_enforce_demand()  ||  average_generated==0  ) {
+	} else if (!welt->get_settings().get_factory_enforce_demand() || average_generated == 0) {
 		// demand not enforced or no pax generation data from previous month(s) -> simply use default ratio
 		generation_ratio = (uint32)default_percent << RATIO_BITS;
 	}
@@ -867,7 +866,7 @@ void stadt_t::factory_set_t::recalc_generation_ratio(const sint32 default_percen
 	}
 
 	// adjust supply and remaining figures
-	if(  welt->get_einstellungen()->get_factory_enforce_demand()  &&  (generation_ratio>>RATIO_BITS)==(uint32)default_percent  &&  average_generated>0  &&  total_demand>0  ) {
+	if (welt->get_settings().get_factory_enforce_demand() && (generation_ratio >> RATIO_BITS) == (uint32)default_percent && average_generated > 0 && total_demand > 0) {
 		const sint64 supply_promille = ( ( (average_generated << 10) * (sint64)default_percent ) / 100 ) / (sint64)target_supply;
 		if(  supply_promille<1024  ) {
 			// expected supply is really smaller than target supply
@@ -1382,7 +1381,8 @@ void stadt_t::verbinde_fabriken()
 	while (fab_iter.next()) {
 		fabrik_t* fab = fab_iter.get_current();
 		const uint32 count = fab->get_target_cities().get_count();
-		if(  count < welt->get_einstellungen()->get_factory_worker_maximum_towns()  &&  koord_distance(fab->get_pos(), pos) < welt->get_einstellungen()->get_factory_worker_radius()  ) {
+		settings_t const& s = welt->get_settings();
+		if (count < s.get_factory_worker_maximum_towns() && koord_distance(fab->get_pos(), pos) < s.get_factory_worker_radius()) {
 			fab->add_target_city(this);
 		}
 	}
@@ -1424,19 +1424,20 @@ void stadt_t::step(long delta_t)
 		delta_t = 1;
 	}
 
+	settings_t const& s = welt->get_settings();
 	// recalculate factory going ratios where necessary
 	if(  target_factories_pax.ratio_stale  ) {
-		target_factories_pax.recalc_generation_ratio(welt->get_einstellungen()->get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_PAS_GENERATED);
+		target_factories_pax.recalc_generation_ratio(s.get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_PAS_GENERATED);
 	}
 	if(  target_factories_mail.ratio_stale  ) {
-		target_factories_mail.recalc_generation_ratio(welt->get_einstellungen()->get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_MAIL_GENERATED);
+		target_factories_mail.recalc_generation_ratio(s.get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_MAIL_GENERATED);
 	}
 
 	// is it time for the next step?
 	next_step += delta_t;
 	next_bau_step += delta_t;
 
-	step_interval = (1 << 21u) / (buildings.get_count() * welt->get_einstellungen()->get_passenger_factor() + 1);
+	step_interval = (1 << 21U) / (buildings.get_count() * s.get_passenger_factor() + 1);
 	if (step_interval < 1) {
 		step_interval = 1;
 	}
@@ -1514,8 +1515,9 @@ void stadt_t::neuer_monat()
 	roll_history();
 	target_factories_pax.new_month();
 	target_factories_mail.new_month();
-	target_factories_pax.recalc_generation_ratio(welt->get_einstellungen()->get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_PAS_GENERATED);
-	target_factories_mail.recalc_generation_ratio(welt->get_einstellungen()->get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_MAIL_GENERATED);
+	settings_t const& s = welt->get_settings();
+	target_factories_pax.recalc_generation_ratio( s.get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_PAS_GENERATED);
+	target_factories_mail.recalc_generation_ratio(s.get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_MAIL_GENERATED);
 
 	if (!stadtauto_t::list_empty()) {
 		// spawn eventuall citycars
@@ -1529,7 +1531,7 @@ void stadt_t::neuer_monat()
 		double factor = pfactor > mfactor ? (gfactor > pfactor ? gfactor : pfactor ) : mfactor;
 		factor = (1.0-factor)*city_history_month[1][HIST_CITICENS];
 		factor = log10( factor );
-		uint16 number_of_cars = simrand( (uint16)(factor * (double)welt->get_einstellungen()->get_verkehr_level()) ) / 16;
+		uint16 number_of_cars = simrand((uint16)(factor * s.get_verkehr_level())) / 16;
 
 		city_history_month[0][HIST_CITYCARS] = number_of_cars;
 		city_history_year[0][HIST_CITYCARS] += number_of_cars;
@@ -1584,19 +1586,18 @@ void stadt_t::calc_growth()
 	/* four parts contribute to town growth:
 	 * passenger transport 40%, mail 20%, goods (30%), and electricity (10%)
 	 */
-	sint32 pas = (city_history_month[0][HIST_PAS_TRANSPORTED] * (welt->get_einstellungen()->get_passenger_multiplier()<<6)) / (city_history_month[0][HIST_PAS_GENERATED] + 1);
-	sint32 mail = (city_history_month[0][HIST_MAIL_TRANSPORTED] * (welt->get_einstellungen()->get_mail_multiplier()<<6)) / (city_history_month[0][HIST_MAIL_GENERATED] + 1);
-	sint32 electricity = 0;
-	sint32 goods = city_history_month[0][HIST_GOODS_NEEDED]==0 ? 0 : (city_history_month[0][HIST_GOODS_RECIEVED] * (welt->get_einstellungen()->get_goods_multiplier()<<6)) / (city_history_month[0][HIST_GOODS_NEEDED]);
+	sint64     const(& h)[MAX_CITY_HISTORY] = city_history_month[0];
+	settings_t const&  s           = welt->get_settings();
+	sint32     const   pas         = (h[HIST_PAS_TRANSPORTED]  * (s.get_passenger_multiplier() << 6)) / (h[HIST_PAS_GENERATED]  + 1);
+	sint32     const   mail        = (h[HIST_MAIL_TRANSPORTED] * (s.get_mail_multiplier()      << 6)) / (h[HIST_MAIL_GENERATED] + 1);
+	sint32     const   electricity = 0;
+	sint32     const   goods       = h[HIST_GOODS_NEEDED] == 0 ? 0 : (h[HIST_GOODS_RECIEVED] * (s.get_goods_multiplier() << 6)) / (h[HIST_GOODS_NEEDED]);
 
 	// smaller towns should growth slower to have villages for a longer time
-	sint32 weight_factor = welt->get_einstellungen()->get_growthfactor_large();
-	if(bev<1000) {
-		weight_factor = welt->get_einstellungen()->get_growthfactor_small();
-	}
-	else if(bev<10000) {
-		weight_factor = welt->get_einstellungen()->get_growthfactor_medium();
-	}
+	sint32 const weight_factor =
+		bev <  1000 ? s.get_growthfactor_small()  :
+		bev < 10000 ? s.get_growthfactor_medium() :
+		s.get_growthfactor_large();
 
 	// now give the growth for this step
 	wachstum += (pas+mail+electricity+goods) / weight_factor;
@@ -1654,7 +1655,7 @@ void stadt_t::step_passagiere()
 			(gb->get_tile()->get_besch()->get_post_level() + 8) >> 3 ;
 
 	// create pedestrians in the near area?
-	if (welt->get_einstellungen()->get_random_pedestrians() && wtyp == warenbauer_t::passagiere) {
+	if (welt->get_settings().get_random_pedestrians() && wtyp == warenbauer_t::passagiere) {
 		haltestelle_t::erzeuge_fussgaenger(welt, gb->get_pos(), num_pax);
 	}
 
@@ -1692,7 +1693,7 @@ void stadt_t::step_passagiere()
 			factory_entry_t *factory_entry = NULL;
 			const koord dest_pos = find_destination(target_factories, city_history_month[0][history_type+1], &will_return, factory_entry);
 			if(  factory_entry  ) {
-				if(  welt->get_einstellungen()->get_factory_enforce_demand()  ) {
+				if (welt->get_settings().get_factory_enforce_demand()) {
 					// ensure no more than remaining amount
 					pax_left_to_do = min( pax_left_to_do, factory_entry->remaining );
 					factory_entry->remaining -= pax_left_to_do;
@@ -1717,7 +1718,7 @@ void stadt_t::step_passagiere()
 			ware_t return_pax(wtyp);
 
 			// now, finally search a route; this consumes most of the time
-			const int route_result = haltestelle_t::search_route( &start_halts[0], start_halts.get_count(), welt->get_einstellungen()->is_no_routing_over_overcrowding(), pax, &return_pax );
+			int const route_result = haltestelle_t::search_route( &start_halts[0], start_halts.get_count(), welt->get_settings().is_no_routing_over_overcrowding(), pax, &return_pax);
 			halthandle_t start_halt = return_pax.get_ziel();
 			if(  route_result==haltestelle_t::ROUTE_OK  ) {
 				// register departed pax/mail at factory
@@ -1807,7 +1808,7 @@ void stadt_t::step_passagiere()
 		if(  factory_entry  ) {
 			// consider at most 1 packet's amount as factory-going
 			sint32 amount = min(PACKET_SIZE, num_pax);
-			if(  welt->get_einstellungen()->get_factory_enforce_demand()  ) {
+			if (welt->get_settings().get_factory_enforce_demand()) {
 				// ensure no more than remaining amount
 				amount = min( amount, factory_entry->remaining );
 				factory_entry->remaining -= amount;
@@ -1864,7 +1865,7 @@ koord stadt_t::find_destination(factory_set_t &target_factories, const sint64 ge
 
 	const sint16 rand = simrand(100 - (target_factories.generation_ratio >> RATIO_BITS));
 
-	if(  rand<welt->get_einstellungen()->get_tourist_percentage()  &&  welt->get_ausflugsziele().get_sum_weight()>0  ) {
+	if (rand < welt->get_settings().get_tourist_percentage() && welt->get_ausflugsziele().get_sum_weight() > 0) {
 		*will_return = tourist_return;	// tourists will return
 		const gebaeude_t* gb = welt->get_random_ausflugsziel();
 		return gb->get_pos().get_2d();
@@ -2259,8 +2260,9 @@ void stadt_t::check_bau_rathaus(bool new_town)
  */
 void stadt_t::check_bau_factory(bool new_town)
 {
-	if (!new_town  &&  welt->get_einstellungen()->get_industry_increase_every() > 0  &&  (bev % welt->get_einstellungen()->get_industry_increase_every())== 0) {
-		uint32 div = bev / welt->get_einstellungen()->get_industry_increase_every();
+	uint32 const inc = welt->get_settings().get_industry_increase_every();
+	if (!new_town && inc > 0 && bev % inc == 0) {
+		uint32 const div = bev / inc;
 		for (uint8 i = 0; i < 8; i++) {
 			if (div==(1u<<i)) {
 				DBG_MESSAGE("stadt_t::check_bau_factory", "adding new industry at %i inhabitants.", get_einwohner());
@@ -2442,7 +2444,7 @@ void stadt_t::baue_gebaeude(const koord k)
 
 void stadt_t::erzeuge_verkehrsteilnehmer(koord pos, sint32 level, koord target)
 {
-	const int verkehr_level = welt->get_einstellungen()->get_verkehr_level();
+	int const verkehr_level = welt->get_settings().get_verkehr_level();
 	if (verkehr_level > 0 && level % (17 - verkehr_level) == 0) {
 		koord k;
 		for (k.y = pos.y - 1; k.y <= pos.y + 1; k.y++) {
@@ -2852,7 +2854,7 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl,
 
 	// pre processed array: max 1 city from each square can be built
 	// each entry represents a cell of minimum_city_distance/2 length and width
-	const uint32 minimum_city_distance = wl->get_einstellungen()->get_minimum_city_distance();
+	const uint32 minimum_city_distance = wl->get_settings().get_minimum_city_distance();
 	const uint32 xmax = (2*wl->get_groesse_x())/minimum_city_distance+1;
 	const uint32 ymax = (2*wl->get_groesse_y())/minimum_city_distance+1;
 	array2d_tpl< vector_tpl<koord> > places(xmax, ymax);

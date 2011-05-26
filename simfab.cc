@@ -337,7 +337,7 @@ void fabrik_t::update_scaled_mail_demand()
 void fabrik_t::update_prodfactor_pax()
 {
 	// calculate pax boost based on arrival data and demand of the fixed-length period
-	const uint32 periods = welt->get_einstellungen()->get_factory_arrival_periods();
+	const uint32 periods = welt->get_settings().get_factory_arrival_periods();
 	const uint32 slots = arrival_stats_pax.get_active_slots();
 	const uint32 pax_demand = ( periods==1 || slots*periods<=(uint32)SLOT_COUNT ?
 									arrival_stats_pax.get_scaled_demand() :
@@ -363,7 +363,7 @@ void fabrik_t::update_prodfactor_pax()
 void fabrik_t::update_prodfactor_mail()
 {
 	// calculate mail boost based on arrival data and demand of the fixed-length period
-	const uint32 periods = welt->get_einstellungen()->get_factory_arrival_periods();
+	const uint32 periods = welt->get_settings().get_factory_arrival_periods();
 	const uint32 slots = arrival_stats_mail.get_active_slots();
 	const uint32 mail_demand = ( periods==1 || slots*periods<=(uint32)SLOT_COUNT ?
 									arrival_stats_mail.get_scaled_demand() :
@@ -388,7 +388,7 @@ void fabrik_t::update_prodfactor_mail()
 
 void fabrik_t::recalc_demands_at_target_cities()
 {
-	if(  !welt->get_einstellungen()->get_factory_enforce_demand()  ) {
+	if (!welt->get_settings().get_factory_enforce_demand()) {
 		// demand not enforced -> no splitting of demands
 		for(  uint32 c=0;  c<target_cities.get_count();  ++c  ) {
 			target_cities[c]->access_target_factories_for_pax().update_factory(this, (scaled_pax_demand << DEMAND_BITS));
@@ -1473,7 +1473,7 @@ void fabrik_t::step(long delta_t)
 
 	// Knightly : advance arrival slot at calculated interval and recalculate boost where necessary
 	delta_slot += delta_t;
-	const sint32 periods = welt->get_einstellungen()->get_factory_arrival_periods();
+	const sint32 periods = welt->get_settings().get_factory_arrival_periods();
 	const sint32 slot_interval = (1 << (PERIOD_BITS - SLOT_BITS)) * periods;
 	while(  delta_slot>slot_interval  ) {
 		delta_slot -= slot_interval;
@@ -1590,7 +1590,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 				// else deliver to non-overflown factory
 				const bool overflown = (ziel_fab->get_eingang()[w].menge >= ziel_fab->get_eingang()[w].max);
 
-				if(!welt->get_einstellungen()->get_just_in_time()) {
+				if (!welt->get_settings().get_just_in_time()) {
 
 					// distribution also to overflowing factories
 					if(still_overflow  &&  !overflown) {
@@ -1600,7 +1600,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 					}
 				}
 
-				if (!overflown  ||  (!welt->get_einstellungen()->get_just_in_time()  &&  still_overflow)) {
+				if (!overflown || (!welt->get_settings().get_just_in_time() && still_overflow)) {
 					// Station can only store up to a maximum amount of goods per square
 					const sint32 halt_left = (sint32)halt->get_capacity(2) - (sint32)halt->get_ware_summe(ware.get_besch());
 
@@ -1617,7 +1617,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 		for(uint32 i=0; i<dist_list.get_count(); i++) {
 			ware_t& ware = dist_list[i].ware;
 			// now search route
-			if(  haltestelle_t::search_route( &dist_list[i].halt, 1u, welt->get_einstellungen()->is_no_routing_over_overcrowding(), ware )==haltestelle_t::ROUTE_OK  ) {
+			if (haltestelle_t::search_route(&dist_list[i].halt, 1U, welt->get_settings().is_no_routing_over_overcrowding(), ware) == haltestelle_t::ROUTE_OK) {
 				best = &dist_list[i];
 				break;
 			}
@@ -2005,7 +2005,7 @@ void fabrik_t::info(cbuffer_t& buf) const
 
 void fabrik_t::laden_abschliessen()
 {
-	if(welt->get_einstellungen()->is_crossconnect_factories()) {
+	if (welt->get_settings().is_crossconnect_factories()) {
 		add_all_suppliers();
 	}
 	else {

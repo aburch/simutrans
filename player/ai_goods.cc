@@ -249,7 +249,7 @@ bool ai_goods_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length 
 	if(qfab->get_besch()->get_platzierung()!=fabrik_besch_t::Wasser) {
 		if( length == 0 ) {
 			vector_tpl<koord3d> tile_list[2];
-			const uint16 cov = welt->get_einstellungen()->get_station_coverage();
+			uint16 const cov = welt->get_settings().get_station_coverage();
 			koord test;
 			for( uint8 i = 0; i < 2; i++ ) {
 				fabrik_t *fab =  i==0 ? qfab : zfab;
@@ -385,8 +385,9 @@ bool ai_goods_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 	halthandle_t halt = haltestelle_t::get_halt(welt,platz1,this);
 	koord pos1 = platz1 - koord(gr->get_grund_hang())*h->get_groesse().y;
 	koord best_pos = pos1;
-	for(  int y = pos1.y-welt->get_einstellungen()->get_station_coverage();  y<=pos1.y+welt->get_einstellungen()->get_station_coverage();  y++  ) {
-		for(  int x = pos1.x-welt->get_einstellungen()->get_station_coverage();  x<=pos1.x+welt->get_einstellungen()->get_station_coverage();  x++  ) {
+	uint16 const cov = welt->get_settings().get_station_coverage();
+	for (int y = pos1.y - cov; y <= pos1.y + cov; ++y) {
+		for (int x = pos1.x - cov; x <= pos1.x + cov; ++x) {
 			koord p(x,y);
 			// in water, the water tiles have no halt flag!
 			if(welt->ist_in_kartengrenzen(p)  &&  !welt->lookup(p)->get_halt().is_bound()  &&  halt == haltestelle_t::get_halt(welt,p,this)  &&  koord_distance(best_pos,platz2)<koord_distance(p,platz2)  ) {

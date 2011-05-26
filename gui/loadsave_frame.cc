@@ -93,7 +93,7 @@ loadsave_frame_t::loadsave_frame_t(karte_t *welt, bool do_load) : savegame_frame
 		set_name("Laden");
 	}
 	else {
-		set_filename(welt->get_einstellungen()->get_filename());
+		set_filename(welt->get_settings().get_filename());
 		set_name("Speichern");
 	}
 

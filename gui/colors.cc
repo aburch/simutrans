@@ -96,7 +96,7 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	// traffic density
 	traffic_density.set_pos( koord(RIGHT_WIDTH-10-45,DENS_TRAFFIC) );
 	traffic_density.set_groesse( koord( 45, BUTTON_HEIGHT-1 ) );
-	traffic_density.set_value( welt->get_einstellungen()->get_verkehr_level() );
+	traffic_density.set_value(welt->get_settings().get_verkehr_level());
 	traffic_density.set_limits( 0, 16 );
 	traffic_density.add_listener(this);
 
@@ -109,12 +109,12 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	buttons[7].set_pos( koord(10,STOP_WALKER) );
 	buttons[7].set_typ(button_t::square_state);
 	buttons[7].set_text("5LIGHT_CHOOSE");
-	buttons[7].pressed = welt->get_einstellungen()->get_show_pax();
+	buttons[7].pressed = welt->get_settings().get_show_pax();
 
 	buttons[8].set_pos( koord(10,CITY_WALKER) );
 	buttons[8].set_typ(button_t::square_state);
 	buttons[8].set_text("6LIGHT_CHOOSE");
-	buttons[8].pressed = welt->get_einstellungen()->get_random_pedestrians();
+	buttons[8].pressed = welt->get_settings().get_random_pedestrians();
 
 	buttons[9].set_pos( koord(10,DAY_NIGHT) );
 	buttons[9].set_typ(button_t::square_state);
@@ -241,7 +241,7 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 			welt->set_werkzeug( werkzeug_t::simple_tool[WKZ_TRAFFIC_LEVEL&0xFFF], welt->get_active_player() );
 		}
 		else {
-			traffic_density.set_value( welt->get_einstellungen()->get_verkehr_level() );
+			traffic_density.set_value(welt->get_settings().get_verkehr_level());
 		}
 	} else if(&scrollspeed==komp) {
 		umgebung_t::scroll_multi = buttons[6].pressed ? -v.i : v.i;
@@ -331,8 +331,8 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 	char buf[128];
 
 	// can be changed also with keys ...
-	buttons[7].pressed = welt->get_einstellungen()->get_show_pax();
-	buttons[8].pressed = welt->get_einstellungen()->get_random_pedestrians();
+	buttons[ 7].pressed = welt->get_settings().get_show_pax();
+	buttons[ 8].pressed = welt->get_settings().get_random_pedestrians();
 	buttons[11].pressed = umgebung_t::hide_trees;
 	buttons[15].pressed = umgebung_t::station_coverage_show;
 	buttons[16].pressed = grund_t::underground_mode == grund_t::ugm_all;

@@ -193,7 +193,7 @@ bool ai_t::suche_platz(koord &start, koord &size, koord target, koord off)
 	// distance of last found point
 	int dist=0x7FFFFFFF;
 	koord	platz;
-	int cov = welt->get_einstellungen()->get_station_coverage();
+	int const cov = welt->get_settings().get_station_coverage();
 	int xpos = start.x;
 	int ypos = start.y;
 
@@ -333,7 +333,7 @@ bool ai_t::built_update_headquarter()
 	// is the a suitable one?
 	if(besch!=NULL) {
 		// cost is negative!
-		sint64 cost = welt->get_einstellungen()->cst_multiply_headquarter*besch->get_level()*besch->get_b()*besch->get_h();
+		sint64 const cost = welt->get_settings().cst_multiply_headquarter * besch->get_level() * besch->get_b() * besch->get_h();
 		if(  konto+cost > starting_money ) {
 			// and enough money left ...
 			koord place = get_headquarter_pos();

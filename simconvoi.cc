@@ -328,7 +328,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", sta
 			// test also for realignment
 			sint16 step_pos;
 			koord3d drive_pos;
-			const uint8 diagonal_vehicle_steps_per_tile = (uint8)(130560u/welt->get_einstellungen()->get_pak_diagonal_multiplier());
+			uint8 const diagonal_vehicle_steps_per_tile = (uint8)(130560U / welt->get_settings().get_pak_diagonal_multiplier());
 			for( uint8 i=0;  i<anz_vehikel;  i++ ) {
 				vehikel_t* v = fahr[i];
 				v->set_erstes( i==0 );
@@ -529,7 +529,7 @@ void convoi_t::set_name(const char *name, bool with_new_id)
 	if(  with_new_id  ) {
 		char buf[128];
 		name_offset = sprintf(buf,"(%i) ",self.get_id() );
-		tstrncpy(buf + name_offset, translator::translate(name, welt->get_einstellungen()->get_name_language_id()), lengthof(buf) - name_offset);
+		tstrncpy(buf + name_offset, translator::translate(name, welt->get_settings().get_name_language_id()), lengthof(buf) - name_offset);
 		tstrncpy(name_and_id, buf, lengthof(name_and_id));
 	}
 	else {

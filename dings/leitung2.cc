@@ -435,7 +435,7 @@ pumpe_t::pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , p
 {
 	fab = NULL;
 	supply = 0;
-	sp->buche( welt->get_einstellungen()->cst_transformer, get_pos().get_2d(), COST_CONSTRUCTION);
+	sp->buche(welt->get_settings().cst_transformer, get_pos().get_2d(), COST_CONSTRUCTION);
 }
 
 
@@ -446,7 +446,7 @@ pumpe_t::~pumpe_t()
 		pumpe_list.remove( this );
 		fab = NULL;
 	}
-	spieler_t::add_maintenance(get_besitzer(), welt->get_einstellungen()->cst_maintain_transformer);
+	spieler_t::add_maintenance(get_besitzer(), welt->get_settings().cst_maintain_transformer);
 }
 
 
@@ -484,7 +484,7 @@ void pumpe_t::step(long delta_t)
 void pumpe_t::laden_abschliessen()
 {
 	leitung_t::laden_abschliessen();
-	spieler_t::add_maintenance(get_besitzer(), -welt->get_einstellungen()->cst_maintain_transformer);
+	spieler_t::add_maintenance(get_besitzer(), -welt->get_settings().cst_maintain_transformer);
 
 	if(fab==NULL  &&  get_net()) {
 		fab = leitung_t::suche_fab_4(get_pos().get_2d());
@@ -549,7 +549,7 @@ senke_t::senke_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , p
 	delta_sum = 0;
 	last_power_demand = 0;
 	power_load = 0;
-	sp->buche( welt->get_einstellungen()->cst_transformer, get_pos().get_2d(), COST_CONSTRUCTION);
+	sp->buche(welt->get_settings().cst_transformer, get_pos().get_2d(), COST_CONSTRUCTION);
 }
 
 
@@ -561,7 +561,7 @@ senke_t::~senke_t()
 		welt->sync_remove( this );
 		fab = NULL;
 	}
-	spieler_t::add_maintenance(get_besitzer(), welt->get_einstellungen()->cst_maintain_transformer);
+	spieler_t::add_maintenance(get_besitzer(), welt->get_settings().cst_maintain_transformer);
 }
 
 
@@ -674,7 +674,7 @@ bool senke_t::sync_step(long delta_t)
 void senke_t::laden_abschliessen()
 {
 	leitung_t::laden_abschliessen();
-	spieler_t::add_maintenance(get_besitzer(), -welt->get_einstellungen()->cst_maintain_transformer);
+	spieler_t::add_maintenance(get_besitzer(), -welt->get_settings().cst_maintain_transformer);
 
 	if(fab==NULL  &&  get_net()) {
 		fab = leitung_t::suche_fab_4(get_pos().get_2d());

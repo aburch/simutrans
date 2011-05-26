@@ -461,7 +461,7 @@ public:
 	bool is_selected(karte_t *) const { return win_get_magic(magic_climate); }
 	bool init( karte_t *welt, spieler_t * ) {
 		if(  !umgebung_t::networkmode  ||  umgebung_t::server  ) {
-			create_win( new climate_gui_t(welt->access_einstellungen()), w_info, magic_climate );
+			create_win(new climate_gui_t(&welt->get_settings()), w_info, magic_climate);
 		}
 		return false;
 	}
@@ -477,7 +477,7 @@ public:
 	bool is_selected(karte_t *) const { return win_get_magic(magic_settings_frame_t); }
 	bool init( karte_t *welt, spieler_t * ) {
 		if(  !umgebung_t::networkmode  ||  umgebung_t::server  ) {
-			create_win( new settings_frame_t(welt->access_einstellungen()), w_info, magic_settings_frame_t );
+			create_win(new settings_frame_t(&welt->get_settings()), w_info, magic_settings_frame_t);
 		}
 		return false;
 	}

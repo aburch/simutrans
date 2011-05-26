@@ -77,18 +77,19 @@ gameinfo_t::gameinfo_t(karte_t *welt) :
 
 	halt_count = haltestelle_t::get_alle_haltestellen().get_count();
 
-	freeplay = welt->get_einstellungen()->is_freeplay();
+	settings_t const& s = welt->get_settings();
+	freeplay = s.is_freeplay();
 	use_timeline = welt->get_timeline_year_month()!=0;
-	current_starting_money = welt->get_einstellungen()->get_starting_money(welt->get_last_year());
+	current_starting_money = s.get_starting_money(welt->get_last_year());
 
 	current_year_month = welt->get_current_month();
-	bits_per_month = welt->get_einstellungen()->get_bits_per_month();
+	bits_per_month = s.get_bits_per_month();
 
 	// names of the stations ...
-	memcpy( language_code_names, translator::get_langs()[welt->get_einstellungen()->get_name_language_id()].iso, lengthof(language_code_names) );
+	memcpy(language_code_names, translator::get_langs()[s.get_name_language_id()].iso, lengthof(language_code_names));
 
 	// will contain server-IP/name for network games
-	file_name = welt->get_einstellungen()->get_filename();
+	file_name = s.get_filename();
 
 	// comment currently not used
 	char const* const copyright = grund_besch_t::ausserhalb->get_copyright();

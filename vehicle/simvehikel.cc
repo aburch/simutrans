@@ -1144,7 +1144,7 @@ sint64 vehikel_t::calc_gewinn(koord start, koord end) const
 	sint64 value = 0;
 	slist_iterator_tpl <ware_t> iter (fracht);
 
-	if (welt->get_einstellungen()->get_pay_for_total_distance_mode() == settings_t::TO_DESTINATION) {
+	if (welt->get_settings().get_pay_for_total_distance_mode() == settings_t::TO_DESTINATION) {
 		// pay only the distance, we get closer to our destination
 		while( iter.next() ) {
 
@@ -1166,7 +1166,7 @@ sint64 vehikel_t::calc_gewinn(koord start, koord end) const
 			// sum up new price
 			value += price;
 		}
-	} else if (welt->get_einstellungen()->get_pay_for_total_distance_mode() == settings_t::TO_TRANSFER) {
+	} else if (welt->get_settings().get_pay_for_total_distance_mode() == settings_t::TO_TRANSFER) {
 		// pay distance traveled to next trasnfer stop
 		while( iter.next() ) {
 
@@ -1389,7 +1389,7 @@ void vehikel_t::rdwr_from_convoi(loadsave_t *file)
 		file->rdwr_long(fracht_count);
 		file->rdwr_long(l);
 		route_index = (uint16)l;
-		insta_zeit = (insta_zeit >> welt->ticks_per_world_month_shift) + welt->get_einstellungen()->get_starting_year();
+		insta_zeit = (insta_zeit >> welt->ticks_per_world_month_shift) + welt->get_settings().get_starting_year();
 DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1,insta_zeit/12);
 	}
 	else {
@@ -1557,7 +1557,7 @@ uint32 vehikel_t::calc_restwert() const
 	// if already used, there is a general price reduction
 	double value = (double)besch->get_preis();
 	if(  has_driven  ) {
-		value *= (double)(1000-welt->get_einstellungen()->get_used_vehicle_reduction())/1000.0;
+		value *= (1000 - welt->get_settings().get_used_vehicle_reduction()) / 1000.0;
 	}
 	// after 20 year, it has only half value
 	return (uint32)( value * pow(0.997, (int)(welt->get_current_month() - get_insta_zeit())));

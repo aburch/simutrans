@@ -418,10 +418,11 @@ haltestelle_t::~haltestelle_t()
 	}
 
 	// remove from all haltlists
-	ul.x = max( 0, ul.x-welt->get_einstellungen()->get_station_coverage() );
-	ul.y = max( 0, ul.y-welt->get_einstellungen()->get_station_coverage() );
-	lr.x = min( welt->get_groesse_x(), lr.x+1+welt->get_einstellungen()->get_station_coverage() );
-	lr.y = min( welt->get_groesse_y(), lr.y+1+welt->get_einstellungen()->get_station_coverage() );
+	uint16 const cov = welt->get_settings().get_station_coverage();
+	ul.x = max(0, ul.x - cov);
+	ul.y = max(0, ul.y - cov);
+	lr.x = min(welt->get_groesse_x(), lr.x + 1 + cov);
+	lr.y = min(welt->get_groesse_y(), lr.y + 1 + cov);
 	for(  int y=ul.y;  y<lr.y;  y++  ) {
 		for(  int x=ul.x;  x<lr.x;  x++  ) {
 			planquadrat_t *plan = welt->access(x,y);
@@ -559,8 +560,7 @@ char *haltestelle_t::create_name(const koord k, const char *typ, const int lang)
 	// strings for intown / outside of town
 	const bool inside = (li_gr < k.x  &&  re_gr > k.x  &&  ob_gr < k.y  &&  un_gr > k.y);
 
-	if(!welt->get_einstellungen()->get_numbered_stations()) {
-
+	if (!welt->get_settings().get_numbered_stations()) {
 		static const koord next_building[24] = {
 			koord( 0, -1), // nord
 			koord( 1,  0), // ost
@@ -679,32 +679,33 @@ char *haltestelle_t::create_name(const koord k, const char *typ, const int lang)
 		static const char *diagonal_name[4] = { "nordwest", "nordost", "suedost", "suedwest" };
 		static const char *direction_name[4] = { "nord", "ost", "sued", "west" };
 
+		uint8 const rot = welt->get_settings().get_rotation();
 		if (k.y < ob_gr  ||  (inside  &&  k.y*3 < (un_gr+ob_gr+ob_gr))  ) {
 			if (k.x < li_gr) {
-				dirname = diagonal_name[(4-welt->get_einstellungen()->get_rotation())%4];
+				dirname = diagonal_name[(4 - rot) % 4];
 			}
 			else if (k.x > re_gr) {
-				dirname = diagonal_name[(5-welt->get_einstellungen()->get_rotation())%4];
+				dirname = diagonal_name[(5 - rot) % 4];
 			}
 			else {
-				dirname = direction_name[(4-welt->get_einstellungen()->get_rotation())%4];
+				dirname = direction_name[(4 - rot) % 4];
 			}
 		} else if (k.y > un_gr  ||  (inside  &&  k.y*3 > (un_gr+un_gr+ob_gr))  ) {
 			if (k.x < li_gr) {
-				dirname = diagonal_name[(3-welt->get_einstellungen()->get_rotation())%4];
+				dirname = diagonal_name[(3 - rot) % 4];
 			}
 			else if (k.x > re_gr) {
-				dirname = diagonal_name[(6-welt->get_einstellungen()->get_rotation())%4];
+				dirname = diagonal_name[(6 - rot) % 4];
 			}
 			else {
-				dirname = direction_name[(6-welt->get_einstellungen()->get_rotation())%4];
+				dirname = direction_name[(6 - rot) % 4];
 			}
 		} else {
 			if (k.x <= stadt->get_pos().x) {
-				dirname = direction_name[(3-welt->get_einstellungen()->get_rotation())%4];
+				dirname = direction_name[(3 - rot) % 4];
 			}
 			else {
-				dirname = direction_name[(5-welt->get_einstellungen()->get_rotation())%4];
+				dirname = direction_name[(5 - rot) % 4];
 			}
 		}
 		dirname = translator::translate(dirname,lang);
@@ -972,7 +973,7 @@ void haltestelle_t::verbinde_fabriken()
 		grund_t* gb = i->grund;
 		koord p = gb->get_pos().get_2d();
 
-		int cov = welt->get_einstellungen()->get_station_coverage();
+		int const cov = welt->get_settings().get_station_coverage();
 		vector_tpl<fabrik_t*>& fablist = fabrik_t::sind_da_welche(welt, p - koord(cov, cov), p + koord(cov, cov));
 		for(unsigned i=0; i<fablist.get_count(); i++) {
 			fabrik_t* fab = fablist[i];
@@ -1221,8 +1222,8 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 		markers[ halt_id ] = current_marker;
 	}
 
-	const uint16 max_transfers = welt->get_einstellungen()->get_max_transfers();
-	const uint16 max_hops = welt->get_einstellungen()->get_max_hops();
+	uint16 const max_transfers = welt->get_settings().get_max_transfers();
+	uint16 const max_hops      = welt->get_settings().get_max_hops();
 	uint16 allocation_pointer = 0;
 	uint16 best_destination_weight = 65535u;		// best weight among all destinations
 
@@ -1479,9 +1480,8 @@ void haltestelle_t::search_routes( ware_t *const wares, const uint16 ware_count 
 		return;
 	}
 
-	const uint16 max_transfers = welt->get_einstellungen()->get_max_transfers();
-	const uint16 max_hops = welt->get_einstellungen()->get_max_hops();
-
+	uint16 const max_transfers = welt->get_settings().get_max_transfers();
+	uint16 const max_hops      = welt->get_settings().get_max_hops();
 
 	static uint16 allocation_pointer;
 	if (!resume_search) {
@@ -1740,7 +1740,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 					if(  tmp.get_zwischenziel()==plan_halt  ) {
 
 						if(  plan_halt->is_overcrowded(wtyp->get_catg_index())  ) {
-							if(  welt->get_einstellungen()->is_avoid_overcrowding()  &&  !(tmp.get_ziel()==plan_halt)  ) {
+							if (welt->get_settings().is_avoid_overcrowding() && tmp.get_ziel() != plan_halt) {
 								// do not go for transfer to overcrowded transfer stop
 								continue;
 							}
@@ -1934,7 +1934,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 		}
 		else if(ware.get_besch()==warenbauer_t::passagiere) {
 			// arriving passenger may create pedestrians
-			if(welt->get_einstellungen()->get_show_pax()) {
+			if (welt->get_settings().get_show_pax()) {
 				int menge = ware.menge;
 				for (slist_tpl<tile_t>::const_iterator i = tiles.begin(), end = tiles.end(); menge > 0 && i != end; ++i) {
 					grund_t* gr = i->grund;
@@ -2091,7 +2091,7 @@ sint64 haltestelle_t::calc_maintenance()
 		grund_t* gr = i->grund;
 		gebaeude_t* gb = gr->find<gebaeude_t>();
 		if(gb) {
-			maintenance += welt->get_einstellungen()->maint_building*gb->get_tile()->get_besch()->get_level();
+			maintenance += welt->get_settings().maint_building * gb->get_tile()->get_besch()->get_level();
 		}
 	}
 	return maintenance;
@@ -2114,7 +2114,7 @@ void haltestelle_t::make_public_and_join( spieler_t *sp )
 			gebaeude_t* gb = gr->find<gebaeude_t>();
 			if(gb) {
 				spieler_t *gb_sp=gb->get_besitzer();
-				sint64 costs = welt->get_einstellungen()->maint_building*gb->get_tile()->get_besch()->get_level();
+				sint64 const costs = welt->get_settings().maint_building * gb->get_tile()->get_besch()->get_level();
 				total_costs += costs;
 				spieler_t::add_maintenance( gb_sp, -costs );
 				gb->set_besitzer(public_owner);
@@ -2167,7 +2167,7 @@ void haltestelle_t::make_public_and_join( spieler_t *sp )
 				spieler_t *gb_sp=gb->get_besitzer();
 				if(public_owner!=gb_sp) {
 					spieler_t *gb_sp=gb->get_besitzer();
-					sint64 costs = welt->get_einstellungen()->maint_building*gb->get_tile()->get_besch()->get_level();
+					sint64 const costs = welt->get_settings().maint_building * gb->get_tile()->get_besch()->get_level();
 					spieler_t::add_maintenance( gb_sp, -costs );
 					spieler_t::accounting(gb_sp, -((costs*60)<<(welt->ticks_per_world_month_shift-18)), gr->get_pos().get_2d(), COST_CONSTRUCTION);
 					gb->set_besitzer(public_owner);
@@ -2245,7 +2245,7 @@ void haltestelle_t::recalc_station_type()
 			if(besch) {
 				// enabled the matching types
 				enables |= besch->get_enabled();
-				if(  welt->get_einstellungen()->is_seperate_halt_capacities()  ) {
+				if (welt->get_settings().is_seperate_halt_capacities()) {
 					if(besch->get_enabled()&1) {
 						capacity[0] += besch->get_level()*32;
 					}
@@ -2318,7 +2318,7 @@ void haltestelle_t::recalc_station_type()
 
 		// enabled the matching types
 		enables |= besch->get_enabled();
-		if(  welt->get_einstellungen()->is_seperate_halt_capacities()  ) {
+		if (welt->get_settings().is_seperate_halt_capacities()) {
 			if(besch->get_enabled()&1) {
 				capacity[0] += besch->get_level()*32;
 			}
@@ -2714,7 +2714,7 @@ bool haltestelle_t::add_grund(grund_t *gr)
 
 	// appends this to the ground
 	// after that, the surrounding ground will know of this station
-	int cov = welt->get_einstellungen()->get_station_coverage();
+	int const cov = welt->get_settings().get_station_coverage();
 	for (int y = -cov; y <= cov; y++) {
 		for (int x = -cov; x <= cov; x++) {
 			koord p=pos+koord(x,y);
@@ -2872,7 +2872,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 		pl->get_kartenboden()->set_flag(grund_t::dirty);
 	}
 
-	int cov = welt->get_einstellungen()->get_station_coverage();
+	int const cov = welt->get_settings().get_station_coverage();
 	for (int y = -cov; y <= cov; y++) {
 		for (int x = -cov; x <= cov; x++) {
 			planquadrat_t *pl = welt->access( gr->get_pos().get_2d()+koord(x,y) );
@@ -2960,8 +2960,9 @@ koord haltestelle_t::get_next_pos( koord start ) const
 void haltestelle_t::mark_unmark_coverage(const bool mark) const
 {
 	// iterate over all tiles
+	uint16 const cov = welt->get_settings().get_station_coverage();
+	koord  const size(cov * 2 + 1, cov * 2 + 1);
 	for (slist_tpl<tile_t>::const_iterator i = tiles.begin(), end = tiles.end(); i != end; ++i) {
-		koord size( welt->get_einstellungen()->get_station_coverage()*2+1, welt->get_einstellungen()->get_station_coverage()*2+1);
 		welt->mark_area( i->grund->get_pos()-size/2, size, mark );
 	}
 }

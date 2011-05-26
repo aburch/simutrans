@@ -295,7 +295,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 			{
 				halthandle_t halt = gr->get_halt();
 				if (halt.is_bound()    &&  halt->get_pax_enabled()) {
-					set_relief_farbe_area(k, (welt->get_einstellungen()->get_station_coverage()*2)+1, halt->get_besitzer()->get_player_color1()+3 );
+					set_relief_farbe_area(k, welt->get_settings().get_station_coverage() * 2 + 1, halt->get_besitzer()->get_player_color1() + 3);
 				}
 			}
 			break;
@@ -306,7 +306,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 			{
 				halthandle_t halt = gr->get_halt();
 				if (halt.is_bound()  &&  halt->get_post_enabled()) {
-					set_relief_farbe_area(k, (welt->get_einstellungen()->get_station_coverage()*2)+1,halt->get_besitzer()->get_player_color1()+3 );
+					set_relief_farbe_area(k, welt->get_settings().get_station_coverage() * 2 + 1, halt->get_besitzer()->get_player_color1() + 3);
 				}
 			}
 			break;
@@ -466,7 +466,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 					const spieler_t* owner = halt->get_besitzer();
 					if (owner == welt->get_active_player() || owner == welt->get_spieler(1)) {
 						// we need to sum up only for seperate capacities
-						sint32 total_capacity = welt->get_einstellungen()->is_seperate_halt_capacities() ? halt->get_capacity(0)+halt->get_capacity(1)+halt->get_capacity(2) : halt->get_capacity(0);
+						sint32 const total_capacity = welt->get_settings().is_seperate_halt_capacities() ? halt->get_capacity(0) + halt->get_capacity(1) + halt->get_capacity(2) : halt->get_capacity(0);
 						const uint8 color = calc_severity_color(halt->get_finance_history(0, HALT_WAITING), total_capacity );
 						set_relief_farbe_area(k, 3, color );
 					}
