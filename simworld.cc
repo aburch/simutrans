@@ -559,7 +559,7 @@ DBG_MESSAGE("karte_t::destroy()", "stops destroyed");
 	while (!stadt.empty()) {
 		rem_stadt(stadt.front());
 	}
-	access_einstellungen()->set_anzahl_staedte(no_of_cities);
+	settings.set_anzahl_staedte(no_of_cities);
 DBG_MESSAGE("karte_t::destroy()", "towns destroyed");
 
 	while(!sync_list.empty()) {
@@ -645,7 +645,7 @@ const stadt_t *karte_t::get_random_stadt() const
 
 void karte_t::add_stadt(stadt_t *s)
 {
-	access_einstellungen()->set_anzahl_staedte(settings.get_anzahl_staedte() + 1);
+	settings.set_anzahl_staedte(settings.get_anzahl_staedte() + 1);
 	stadt.append(s, s->get_einwohner(), 64);
 }
 
@@ -666,7 +666,7 @@ bool karte_t::rem_stadt(stadt_t *s)
 	}
 	stadt.remove(s);
 	DBG_DEBUG4("karte_t::rem_stadt()", "reduce city to %i", settings.get_anzahl_staedte() - 1);
-	access_einstellungen()->set_anzahl_staedte(settings.get_anzahl_staedte() - 1);
+	settings.set_anzahl_staedte(settings.get_anzahl_staedte() - 1);
 
 	// remove all links from factories
 	DBG_DEBUG4("karte_t::rem_stadt()", "fab_list %i", fab_list.get_count() );
@@ -847,7 +847,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 		new_anzahl_staedte = pos->get_count();
 
 		// prissi if we could not generate enough positions ...
-		access_einstellungen()->set_anzahl_staedte( old_anzahl_staedte + new_anzahl_staedte );	// new number of towns (if we did not found enough positions) ...
+		settings.set_anzahl_staedte(old_anzahl_staedte + new_anzahl_staedte); // new number of towns (if we did not find enough positions)
 		int old_progress = 16;
 		int const max_display_progress = 16 + 2 * settings.get_anzahl_staedte() + 2 * new_anzahl_staedte + (old_x == 0 ? settings.get_land_industry_chains() : 0);
 
@@ -1129,7 +1129,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","took %lu ms for all towns",
 		if(pos) {
 			delete pos;
 		}
-		access_einstellungen()->set_anzahl_staedte( stadt.get_count() );	// new number of towns (if we did not found enough positions) ...
+		settings.set_anzahl_staedte(stadt.get_count()); // new number of towns (if we did not find enough positions)
 	}
 
 DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing groundobjs");
@@ -1210,8 +1210,8 @@ void karte_t::init(settings_t* const sets, sint8 const* const h_field)
 
 	settings = *sets;
 	// names during creation time
-	access_einstellungen()->set_name_language_iso( umgebung_t::language_iso );
-	access_einstellungen()->set_use_timeline(settings.get_use_timeline() & 1);
+	settings.set_name_language_iso(umgebung_t::language_iso);
+	settings.set_use_timeline(settings.get_use_timeline() & 1);
 
 	x_off = y_off = 0;
 
@@ -1235,7 +1235,7 @@ void karte_t::init(settings_t* const sets, sint8 const* const h_field)
 	snowline = sets->get_winter_snowline()*Z_TILE_STEP + grundwasser;
 
 	if(sets->get_beginner_mode()) {
-		warenbauer_t::set_multiplier( get_einstellungen()->get_beginner_price_factor() );
+		warenbauer_t::set_multiplier(settings.get_beginner_price_factor());
 		sets->set_just_in_time( 0 );
 	}
 	else {
@@ -1287,7 +1287,7 @@ DBG_DEBUG("karte_t::init()","built timeline");
 		int const progress_count = 16 + settings.get_anzahl_staedte() * 4 + i;
 		display_progress(progress_count, max_display_progress );
 	}
-	access_einstellungen()->set_land_industry_chains(chains);
+	settings.set_land_industry_chains(chains);
 	finance_history_year[0][WORLD_FACTORIES] = finance_history_month[0][WORLD_FACTORIES] = fab_list.get_count();
 
 	// tourist attractions
@@ -1342,8 +1342,8 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	sint16 old_x = cached_groesse_gitter_x;
 	sint16 old_y = cached_groesse_gitter_y;
 
-	access_einstellungen()->set_groesse_x(new_groesse_x);
-	access_einstellungen()->set_groesse_y(new_groesse_y);
+	settings.set_groesse_x(new_groesse_x);
+	settings.set_groesse_y(new_groesse_y);
 	cached_groesse_gitter_x = new_groesse_x;
 	cached_groesse_gitter_y = new_groesse_y;
 	cached_groesse_max = max(cached_groesse_gitter_x,cached_groesse_gitter_y);
@@ -1401,7 +1401,7 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 
 	if (old_x == 0 && settings.heightfield.size() > 0) {
 		// init from file
-		const int display_total = 16 + get_einstellungen()->get_anzahl_staedte()*4 + get_einstellungen()->get_land_industry_chains();
+		int const display_total = 16 + settings.get_anzahl_staedte()*4 + settings.get_land_industry_chains();
 
 		for(int y=0; y<cached_groesse_gitter_y; y++) {
 			for(int x=0; x<cached_groesse_gitter_x; x++) {
@@ -1486,14 +1486,14 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	// eventuall update origin
 	switch (settings.get_rotation()) {
 		case 1:
-			access_einstellungen()->set_origin_y(settings.get_origin_y()-new_groesse_y + old_y);
+			settings.set_origin_y(settings.get_origin_y() - new_groesse_y + old_y);
 			break;
 		case 2:
-			access_einstellungen()->set_origin_x(settings.get_origin_x()-new_groesse_x + old_x);
-			access_einstellungen()->set_origin_y(settings.get_origin_y()-new_groesse_y + old_y);
+			settings.set_origin_x(settings.get_origin_x() - new_groesse_x + old_x);
+			settings.set_origin_y(settings.get_origin_y() - new_groesse_y + old_y);
 			break;
 		case 3:
-			access_einstellungen()->set_origin_x(settings.get_origin_x()-new_groesse_y + old_y);
+			settings.set_origin_x(settings.get_origin_x() - new_groesse_y + old_y);
 			break;
 	}
 
@@ -1508,7 +1508,7 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 
 	// Refresh the haltlist for the affected tiles / stations.
 	// It is enough to check the tile just at the border ...
-	const uint16 cov = get_einstellungen()->get_station_coverage();
+	uint16 const cov = settings.get_station_coverage();
 	if(  old_y < new_groesse_y  ) {
 		for(  sint16 x=0;  x<old_x;  x++  ) {
 			for(  sint16 y=old_y-cov;  y<old_y;  y++  ) {
@@ -2200,7 +2200,7 @@ bool karte_t::ebne_planquadrat(spieler_t *sp, koord pos, sint8 hgt, bool keep_wa
 	// was changed => pay for it
 	if(n>0) {
 		n = (n+3) >> 2;
-		spieler_t::accounting(sp, n*get_einstellungen()->cst_alter_land, pos, COST_CONSTRUCTION );
+		spieler_t::accounting(sp, n * settings.cst_alter_land, pos, COST_CONSTRUCTION);
 	}
 	return ok;
 }
@@ -2833,7 +2833,7 @@ void karte_t::neuer_monat()
 	INT_CHECK("simworld 1282");
 
 //	DBG_MESSAGE("karte_t::neuer_monat()","players");
-	if(  letzter_monat == 0  &&  !get_einstellungen()->is_freeplay()  ) {
+	if (letzter_monat == 0 && !settings.is_freeplay()) {
 		// remove all player (but first and second) who went bankrupt during last year
 		for(int i=2; i<MAX_PLAYER_COUNT-1; i++) {
 			if(  spieler[i] != NULL  &&
@@ -3002,8 +3002,7 @@ void karte_t::recalc_average_speed()
 		}
 
 		// city road check
-		const weg_besch_t* city_road_test = access_einstellungen()->get_city_road_type(get_timeline_year_month());
-		if(city_road_test) {
+		if (weg_besch_t const* city_road_test = settings.get_city_road_type(get_timeline_year_month())) {
 			city_road = city_road_test;
 		}
 		else {
@@ -3014,7 +3013,7 @@ void karte_t::recalc_average_speed()
 	}
 	else {
 		// defaults
-		city_road = access_einstellungen()->get_city_road_type(0);
+		city_road = settings.get_city_road_type(0);
 		if(city_road==NULL) {
 			city_road = wegbauer_t::weg_search(road_wt,50,0,weg_t::type_flat);
 		}
@@ -3839,7 +3838,7 @@ DBG_MESSAGE("karte_t::speichern()", "saving game to '%s'", filename);
 			if(!silent) {
 				create_win( new news_img("Spielstand wurde\ngespeichert!\n"), w_time_delete, magic_none);
 				// update the filename, if no autosave
-				access_einstellungen()->set_filename(filename);
+				settings.set_filename(filename);
 			}
 		}
 		reset_interaction();
@@ -3897,12 +3896,12 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
 		old_sp[i] = settings.get_player_type(i);
 		if(  spieler[i]==NULL  ) {
-			access_einstellungen()->set_player_type( i, spieler_t::EMPTY);
+			settings.set_player_type(i, spieler_t::EMPTY);
 		}
 	}
 	settings.rdwr(file);
 	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
-		access_einstellungen()->set_player_type( i, old_sp[i] );
+		settings.set_player_type(i, old_sp[i]);
 	}
 
 	file->rdwr_long(ticks);
@@ -4173,7 +4172,7 @@ DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 		set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], get_active_player() );
 	}
 #endif
-	access_einstellungen()->set_filename(filename);
+	settings.set_filename(filename);
 	display_show_load_pointer(false);
 	return ok;
 }
@@ -4220,12 +4219,12 @@ void karte_t::laden(loadsave_t *file)
 	if(  !umgebung_t::networkmode  ||  (umgebung_t::server  &&  socket_list_t::get_playing_clients()==0)  ) {
 		if (settings.get_allow_player_change() && umgebung_t::default_einstellungen.get_use_timeline() < 2) {
 			// not locked => eventually switch off timeline settings, if explicitly stated
-			access_einstellungen()->set_use_timeline( umgebung_t::default_einstellungen.get_use_timeline() );
+			settings.set_use_timeline(umgebung_t::default_einstellungen.get_use_timeline());
 			DBG_DEBUG("karte_t::laden", "timeline: reset to %i", umgebung_t::default_einstellungen.get_use_timeline() );
 		}
 	}
 	if (settings.get_beginner_mode()) {
-		warenbauer_t::set_multiplier( get_einstellungen()->get_beginner_price_factor() );
+		warenbauer_t::set_multiplier(settings.get_beginner_price_factor());
 	}
 	else {
 		warenbauer_t::set_multiplier( 1000 );
@@ -4564,16 +4563,16 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 
 	// old versions did not save factory connections
 	if(file->get_version()<99014) {
-		sint32 temp_min = get_einstellungen()->get_factory_worker_minimum_towns();
-		sint32 temp_max = get_einstellungen()->get_factory_worker_maximum_towns();
+		sint32 const temp_min = settings.get_factory_worker_minimum_towns();
+		sint32 const temp_max = settings.get_factory_worker_maximum_towns();
 		// this needs to avoid the first city to be connected to all town
-		access_einstellungen()->set_factory_worker_minimum_towns(0);
-		access_einstellungen()->set_factory_worker_maximum_towns(stadt.get_count()+1);
+		settings.set_factory_worker_minimum_towns(0);
+		settings.set_factory_worker_maximum_towns(stadt.get_count() + 1);
 		for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
 			(*i)->verbinde_fabriken();
 		}
-		access_einstellungen()->set_factory_worker_minimum_towns(temp_min);
-		access_einstellungen()->set_factory_worker_maximum_towns(temp_max);
+		settings.set_factory_worker_minimum_towns(temp_min);
+		settings.set_factory_worker_maximum_towns(temp_max);
 	}
 
 	// resolve dummy stops into real stops first ...
@@ -5132,7 +5131,7 @@ const char *karte_t::new_spieler(uint8 new_player, uint8 type)
 		case spieler_t::AI_PASSENGER: spieler[new_player] = new ai_passenger_t(this,new_player); break;
 		default: return "Unknow AI type!";
 	}
-	access_einstellungen()->set_player_type( new_player, type );
+	settings.set_player_type(new_player, type);
 	return NULL;
 }
 
