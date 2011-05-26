@@ -93,7 +93,7 @@ void echo(bool on) {
 
 
 // Simple commands specify only a command ID to perform an action on the server
-int simple_command(SOCKET socket, uint32 command_id, int argc, char **argv) {
+int simple_command(SOCKET socket, uint32 command_id, int, char **) {
 	nwc_service_t nwcs;
 	nwcs.flag = command_id;
 	if (!nwcs.send(socket)) {
@@ -103,7 +103,7 @@ int simple_command(SOCKET socket, uint32 command_id, int argc, char **argv) {
 	return 0;
 }
 
-int get_client_list(SOCKET socket, uint32 command_id, int argc, char **argv) {
+int get_client_list(SOCKET socket, uint32 command_id, int, char **) {
 	nwc_service_t nwcs;
 	nwcs.flag = command_id;
 	if (!nwcs.send(socket)) {
@@ -138,7 +138,7 @@ int get_client_list(SOCKET socket, uint32 command_id, int argc, char **argv) {
 	return 0;
 }
 
-int kick_client(SOCKET socket, uint32 command_id, int argc, char **argv) {
+int kick_client(SOCKET socket, uint32 command_id, int, char **argv) {
 	int client_nr = 0;
 	client_nr = atoi(argv[0]);
 	if (client_nr<=0) {
@@ -154,7 +154,7 @@ int kick_client(SOCKET socket, uint32 command_id, int argc, char **argv) {
 	return 0;
 }
 
-int ban_client(SOCKET socket, uint32 command_id, int argc, char **argv) {
+int ban_client(SOCKET socket, uint32 command_id, int, char **argv) {
 	int client_nr = 0;
 	client_nr = atoi(argv[0]);
 	if (client_nr<=0) {
@@ -170,7 +170,7 @@ int ban_client(SOCKET socket, uint32 command_id, int argc, char **argv) {
 	return 0;
 }
 
-int get_blacklist(SOCKET socket, uint32 command_id, int argc, char **argv) {
+int get_blacklist(SOCKET socket, uint32 command_id, int, char **) {
 	nwc_service_t nwcs;
 	nwcs.flag = command_id;
 	if (!nwcs.send(socket)) {
@@ -216,7 +216,7 @@ int get_blacklist(SOCKET socket, uint32 command_id, int argc, char **argv) {
 	return 0;
 }
 
-int ban_ip(SOCKET socket, uint32 command_id, int argc, char **argv) {
+int ban_ip(SOCKET socket, uint32 command_id, int, char **argv) {
 	net_address_t address(argv[0]);
 	if (address.ip) {
 		nwc_service_t nwcs;
@@ -230,7 +230,7 @@ int ban_ip(SOCKET socket, uint32 command_id, int argc, char **argv) {
 	return 0;
 }
 
-int unban_ip(SOCKET socket, uint32 command_id, int argc, char **argv) {
+int unban_ip(SOCKET socket, uint32 command_id, int, char **argv) {
 	net_address_t address(argv[0]);
 	if (address.ip) {
 		nwc_service_t nwcs;
@@ -323,6 +323,22 @@ void usage()
 	exit(3);
 }
 
+
+// For each command, set:
+// name       - char* - name of command as specified on command line
+// needs_auth - bool  - specifies whether authentication is required for command
+// command_id - int   - nwc_service_t command ID for the command in question
+// arguments  - int   - does this command require arguments, and if so how many?
+// function   - function* - function pointer to function to evaluate for this command
+struct command_t {
+	const char *name;
+	bool needs_auth;
+	uint32 command_id;
+	int numargs;
+	int (*func)(SOCKET, uint32, int, char**);
+};
+
+
 int main(int argc, char* argv[]) {
 	init_logging("stderr", true, true, NULL);
 
@@ -387,19 +403,6 @@ int main(int argc, char* argv[]) {
 		usage();
 	}
 
-	// For each command, set:
-	// name       - char* - name of command as specified on command line
-	// needs_auth - bool  - specifies whether authentication is required for command
-	// command_id - int   - nwc_service_t command ID for the command in question
-	// arguments  - int   - does this command require arguments, and if so how many?
-	// function   - function* - function pointer to function to evaluate for this command
-	struct command_t {
-		const char *name;
-		bool needs_auth;
-		uint32 command_id;
-		int numargs;
-		int (*func)(SOCKET, uint32, int, char**);
-	};
 
 	command_t commands[] = {
 		{"announce",    false, nwc_service_t::SRVC_ANNOUNCE_SERVER, 0, &simple_command},
