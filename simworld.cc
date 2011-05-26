@@ -1383,8 +1383,6 @@ void karte_t::enlarge_map(einstellungen_t* sets, sint8 *h_field)
 				new_grid_hgts[nnr] = grid_hgts[nr];
 			}
 		}
-		delete [] plan;
-		delete [] grid_hgts;
 
 		display_set_progress_text(translator::translate("enlarge map"));
 		max_display_progress = 16 + sets->get_anzahl_staedte()*2 + stadt.get_count()*4;
@@ -1393,7 +1391,9 @@ void karte_t::enlarge_map(einstellungen_t* sets, sint8 *h_field)
 		max_display_progress = 16 + sets->get_anzahl_staedte()*4 + einstellungen->get_land_industry_chains();
 	}
 
+	delete [] plan;
 	plan = new_plan;
+	delete [] grid_hgts;
 	grid_hgts = new_grid_hgts;
 
 	display_progress(0,max_display_progress);
