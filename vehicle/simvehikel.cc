@@ -1484,12 +1484,12 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 					
 			case 135 :
 
-				corner_speed_limit = min((base_limit * (limit_adjustment_percentage / 3) / 100), kmh_to_speed(40));
+				corner_speed_limit = min((base_limit * (limit_adjustment_percentage / 3) / 100), kmh_to_speed(30));
 				break;
 
 			case 180 :
 
-				corner_speed_limit = min((base_limit * (limit_adjustment_percentage / 4) / 100), kmh_to_speed(30));
+				corner_speed_limit = min((base_limit * (limit_adjustment_percentage / 4) / 100), kmh_to_speed(15));
 				break;
 				
 			default :
