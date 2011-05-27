@@ -123,16 +123,16 @@ inline double d_speed_to_v(double speed)
  */
 inline fraction_t v_to_speed(fraction_t v)
 {
-	const fraction_t first = v * 36 * 1024 + VEHICLE_SPEED_FACTOR - 1;
-	return first / (VEHICLE_SPEED_FACTOR * 10);
+	const fraction_t tmp = v * (fraction_t(36, 10) * 1024);
+	return (tmp + VEHICLE_SPEED_FACTOR - 1) / VEHICLE_SPEED_FACTOR;
 }
 
 /**
  * Convert a speed from m/s to simutrans speed
  */
-inline double d_v_to_speed(double v)
+inline sint32 d_v_to_speed(double v)
 {
-	return (v * 36.0 * 1024.0 + (double)VEHICLE_SPEED_FACTOR - 1.0) / ((double)VEHICLE_SPEED_FACTOR * 10.0);
+	return (sint32)(v * (3.6 * 1024.0) + VEHICLE_SPEED_FACTOR - 1) / VEHICLE_SPEED_FACTOR;
 }
 
 /**

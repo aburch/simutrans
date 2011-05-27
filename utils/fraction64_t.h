@@ -90,8 +90,14 @@ public:
 		}
 	}
 
-	inline sint32 integer() const {
+	/*inline sint32 integer() const {
 		return (n + d/2) / (d == 0 ? 1 : d);
+	}*/
+	
+	// This version matches the behaviour of implicit casts by rounding down.
+	inline sint32 integer() const
+	{
+		return n / d;
 	}
 
 	inline double to_double() const {
