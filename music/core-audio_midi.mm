@@ -12,7 +12,6 @@
 #import "music.h"
 
 
-#import <stdio.h>
 #import <QTKit/QTMovie.h>
 #import <QTKit/QTKit.h>
 #import <Cocoa/Cocoa.h>
@@ -55,8 +54,6 @@ int dr_load_midi(const char * filename)
 		[movies addObject:movie];
 
 		cntr++;
-
-		printf("Load MIDI (%d): %s", cntr-1, filename);
 	}
 	return (cntr-1);	// allow for zero based array
 }
