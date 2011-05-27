@@ -1265,7 +1265,7 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 				// count the connected transfer halts (including end halt)
 				uint8 t = current_node.halt->serving_schedules[ware_catg_idx] > 1;
 				for(  uint32 i=0; t<=1  &&  i<conns.get_count();  ++i  ) {
-					t += conns[i].halt->serving_schedules[ware_catg_idx] > 1;
+					t += conns[i].halt.is_bound() && conns[i].halt->serving_schedules[ware_catg_idx] > 1;
 				}
 				return_ware->set_zwischenziel(  t<=1  ?  current_halt_data.transfer  : halthandle_t());
 			}
