@@ -208,8 +208,8 @@ sint32 convoy_t::d_calc_speed_holding_force(double speed /* in m/s */, double Fr
 // The timeslice to calculate acceleration, speed and covered distance in reasonable small chuncks. 
 #define DT_TIME_FACTOR 64
 #define DT_SLICE_SECONDS 2
-//#define DT_SLICE (DT_TIME_FACTOR * DT_SLICE_SECONDS)
-#define DT_SLICE dt_slice
+#define DT_SLICE (DT_TIME_FACTOR * DT_SLICE_SECONDS)
+//#define DT_SLICE dt_slice
 
 void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll)
 {
@@ -255,7 +255,7 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 		//count1++;
 		// iterate the passed time.
 
-		const long dt_slice = (DT_TIME_FACTOR * DT_SLICE_SECONDS * simtime_factor).integer();
+		//const long dt_slice = (DT_TIME_FACTOR * DT_SLICE_SECONDS * simtime_factor).integer();
 		while (delta_t > 0)
 		{
 			// the driver's part: select accelerating force:
