@@ -27,28 +27,29 @@ const char* dr_get_midi_title(int index);
 
 
 /**
- * MIDI playing routines
+ * Loads a MIDI file
  * @author Owen Rudge
  */
 int dr_load_midi(const char* filename);
 
 
 /**
- * MIDI playing routines
+ * Plays a MIDI file
  * @author Owen Rudge
  */
 void dr_play_midi(int key);
 
 
 /**
- * MIDI playing routines
+ * Stops playing MIDI file
  * @author Owen Rudge
  */
 void dr_stop_midi(void);
 
 
 /**
- * MIDI playing routines
+ * Returns the midi_pos variable
+ * @return -1 if current track has finished, 0 otherwise.
  * @author Owen Rudge
  */
 long dr_midi_pos(void);

@@ -1,122 +1,76 @@
 /*
-   Apple OSX Core Audio MIDI routine added by Leopard
-   Modified from no_midi.cc
-	 Written as objective-c
-   Date: 2008-07-27
+ * Apple OSX Core Audio MIDI routine added by Leopard
  *
  * This file is part of the Simutrans project under the artistic licence.
  *
  */
 
-
 #import "music.h"
 
-
+#import <Foundation/NSArray.h>
+#import <Foundation/NSString.h>
 #import <QTKit/QTMovie.h>
-#import <QTKit/QTKit.h>
-#import <Cocoa/Cocoa.h>
 
 
-float defaultVolume = 0.5;	// a nice default volume
-int nowPlaying = -1;				// the number of the track currently being played
+static float defaultVolume = 0.5; // a nice default volume
+static int   nowPlaying    = -1;  // the number of the track currently being played
 
-NSMutableArray *movies;
+static NSMutableArray* movies;
 
-/**
- * sets midi playback volume
- * @author Hj. Malthaner
- */
-void dr_set_midi_volume(int vol)
+
+void dr_set_midi_volume(int const vol)
 {
-	// we are given an integer from 0 - 255, we need a float between 0 and 1
-	defaultVolume =((float)vol / 255);
-	if(  nowPlaying != -1  ) {
-		[[movies objectAtIndex:nowPlaying] setVolume:defaultVolume];
+	// We are given an integer from 0 - 255, we need a float between 0 and 1.
+	defaultVolume = vol / 255.f;
+	if (nowPlaying != -1) {
+		[[movies objectAtIndex: nowPlaying] setVolume: defaultVolume];
 	}
 }
 
 
-/**
- * Loads a MIDI file
- * @author Hj. Malthaner
- */
-int dr_load_midi(const char * filename)
+int dr_load_midi(char const* const filename)
 {
-	// return a reference number, which will be used to 'call' this file for later playback
-	// we store the filename and preload the file into memory ready to play
-
-	NSString* const name  = [[NSString alloc] initWithUTF8String:filename];
-	QTMovie*  const movie = [[QTMovie alloc] initWithFile:name error:nil];
-	if (movie) {
-		// preload the file into memory
-		[movies addObject:movie];
+	NSString* const s = [NSString stringWithUTF8String: filename];
+	QTMovie*  const m = [QTMovie movieWithFile: s error: nil];
+	if (m) {
+		[movies addObject: m];
 	}
 	return [movies count] - 1;
 }
 
 
-/**
- * Plays a MIDI file
- * @author Hj. Malthaner
- */
-void dr_play_midi(int key)
+void dr_play_midi(int const key)
 {
-	// play the file referenced by the supplied key
-
-	// set the volume to whatever the current default is
-	[[movies objectAtIndex:key] setVolume:defaultVolume];
-
-	// start the playback
-	[[movies objectAtIndex:key] play];
+	// Play the file referenced by the supplied key.
+	QTMovie* const m = [movies objectAtIndex: key];
+	[m setVolume:defaultVolume];
+	[m play];
 	nowPlaying = key;
 }
 
 
-/**
- * Stops playing MIDI file
- * @author Hj. Malthaner
- */
-void dr_stop_midi(void)
+void dr_stop_midi()
 {
-	// stop whatever is playing
-	// we assume the 'Now_playing' key holds the most recently started track
-	[[movies objectAtIndex:nowPlaying] stop];
+	// We assume the 'nowPlaying' key holds the most recently started track.
+	QTMovie* const m = [movies objectAtIndex: nowPlaying];
+	[m stop];
 }
 
 
-/**
- * Returns the midi_pos variable
- * @return -1 if current track has finished, 0 otherwise.
- */
-long dr_midi_pos(void)
+long dr_midi_pos()
 {
-	float rate;
-
-	rate =  [[movies objectAtIndex:nowPlaying] rate];
-
-	return rate>0 ? 0 : -1;
+	float const rate = [[movies objectAtIndex: nowPlaying] rate];
+	return rate > 0 ? 0 : -1;
 }
 
 
-/**
- * Midi shutdown/cleanup
- * @author Hj. Malthaner
- */
-void dr_destroy_midi(void)
+void dr_destroy_midi()
 {
-	// closedown midi routines
 }
 
 
-/**
- * MIDI initialisation routines
- * @author Owen Rudge
- */
-bool dr_init_midi(void)
+bool dr_init_midi()
 {
-	// startup midi routines
-
-	// configure arrays
-	movies = [[NSMutableArray alloc] initWithCapacity: MAX_MIDI];
+	movies = [NSMutableArray arrayWithCapacity: MAX_MIDI];
 	return true;
 }
