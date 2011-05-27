@@ -21,7 +21,6 @@
 float defaultVolume = 0.5;	// a nice default volume
 int nowPlaying = -1;				// the number of the track currently being played
 
-NSMutableArray *files;
 NSMutableArray *movies;
 
 /**
@@ -52,9 +51,6 @@ int dr_load_midi(const char * filename)
 	NSString* const name  = [[NSString alloc] initWithUTF8String:filename];
 	QTMovie*  const movie = [[QTMovie alloc] initWithFile:name error:nil];
 	if (movie) {
-		// load filename into the array of such things, in case we need it
-		[files addObject:name];
-
 		// preload the file into memory
 		[movies addObject:movie];
 
@@ -73,10 +69,6 @@ int dr_load_midi(const char * filename)
 void dr_play_midi(int key)
 {
 	// play the file referenced by the supplied key
-
-	// the following would show some basic info
-	//printf("\nPlay Midi: %d (%s) \nVolume: %f", key, [[files objectAtIndex:key] cString], defaultVolume);
-	//printf("\n Array holds: %d", [movies count]);
 
 	// set the volume to whatever the current default is
 	[[movies objectAtIndex:key] setVolume:defaultVolume];
@@ -132,7 +124,6 @@ bool dr_init_midi(void)
 	// startup midi routines
 
 	// configure arrays
-	files = [[NSMutableArray alloc] initWithCapacity: MAX_MIDI];
 	movies = [[NSMutableArray alloc] initWithCapacity: MAX_MIDI];
 	return true;
 }
