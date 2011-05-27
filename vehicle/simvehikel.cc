@@ -1366,6 +1366,8 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 		}
 	}
 
+	waytype = cnv->get_schedule()->get_waytype();
+
 	// Cornering settings. Vehicles must slow to take corners.
 	const uint32 max_corner_limit = welt->get_einstellungen()->get_max_corner_limit(waytype);
 	const uint32 min_corner_limit = welt->get_einstellungen()->get_min_corner_limit(waytype);
@@ -1406,7 +1408,7 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 			uint32 tmp1 = base_limit - min_corner_limit;
 			uint32 tmp2 = max_corner_limit - min_corner_limit;
 			const uint32 percentage = (tmp1 * 100) / tmp2;
-			limit_adjustment_percentage = (((max_corner_adjustment_factor - min_corner_adjustment_factor) * percentage) + min_corner_adjustment_factor) / 100;
+			limit_adjustment_percentage = (((min_corner_adjustment_factor - max_corner_adjustment_factor) * percentage) / 100) + max_corner_adjustment_factor;
 			direction_steps = (sint16)(((max_direction_steps - min_direction_steps) * percentage) / 100) + min_direction_steps; 
 		}
 		
@@ -1433,13 +1435,49 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 			direction_difference = compare_directions(get_direction_degrees(ribi_t::get_dir(current_direction)), get_direction_degrees(ribi_t::get_dir(old_direction)));
 		}
 
-		//Smoothing code: slightly smoothed corners benefit.		
-		sint32 max_speed_90 = kmh_to_speed(55);
-		if(direction_difference > compare_directions(direction, get_direction_degrees(ribi_t::get_dir(old_direction)) && limit_adjustment_percentage < 80))
+		// Maximum speeds for sharper corners no matter what the base limit of the way.	
+		sint32 max_speed_135;
+		sint32 max_speed_180;
+
+		switch(waytype)
 		{
-			limit_adjustment_percentage += 15;
+			case track_wt:
+			case narrowgauge_wt:
+			case monorail_wt:
+			case maglev_wt:
+				max_speed_135 = kmh_to_speed(30);
+				max_speed_180 = kmh_to_speed(5);
+				break;
+				
+			case tram_wt:
+				max_speed_135 = kmh_to_speed(35);
+				max_speed_180 = kmh_to_speed(25);
+				break;
+
+			case road_wt:
+				max_speed_135 = kmh_to_speed(40);
+				max_speed_180 = kmh_to_speed(30);
+				break;
+				
+			default:
+				base_limit;
+		}
+
+		sint32 max_speed_90 = kmh_to_speed(55);
+
+		//Smoothing code: slightly smoothed corners benefit.	
+		if(direction_difference < compare_directions(direction, get_direction_degrees(ribi_t::get_dir(old_direction))))
+		{
 			max_speed_90 = kmh_to_speed(75);
-			if(limit_adjustment_percentage >= 100)
+			max_speed_135 = kmh_to_speed(40);
+			max_speed_180 = kmh_to_speed(30);
+
+			if(limit_adjustment_percentage < 80)
+			{
+				limit_adjustment_percentage += 15;
+			}
+			
+			if(limit_adjustment_percentage > 97)
 			{
 				//But there is a limit to the benefit of smoothness.
 				limit_adjustment_percentage = 97;
@@ -1483,13 +1521,14 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 				break;
 					
 			case 135 :
-
-				corner_speed_limit = min((base_limit * (limit_adjustment_percentage / 3) / 100), kmh_to_speed(30));
+				
+				corner_speed_limit = min((base_limit * (limit_adjustment_percentage / 3) / 100), max_speed_135);
 				break;
 
 			case 180 :
+			case 270 :
 
-				corner_speed_limit = min((base_limit * (limit_adjustment_percentage / 4) / 100), kmh_to_speed(15));
+				corner_speed_limit = min((base_limit * (limit_adjustment_percentage / 4) / 100), max_speed_180);
 				break;
 				
 			default :
