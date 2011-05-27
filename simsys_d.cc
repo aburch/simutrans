@@ -10,7 +10,6 @@
 #include <stdio.h>
 
 #include <sys/types.h>
-#include <sys/stat.h>
 
 #include <math.h>
 
@@ -295,55 +294,6 @@ int dr_os_close(void)
 	allegro_exit();
 	return TRUE;
 }
-
-
-// query home directory
-char *dr_query_homedir(void)
-{
-	static char buffer[1024];
-	char b2[1060];
-#ifdef _WIN32
-	DWORD len=960;
-	HKEY hHomeDir;
-	if(RegOpenKeyExA(HKEY_CURRENT_USER,"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders", 0, KEY_READ,	&hHomeDir)==ERROR_SUCCESS) {
-		RegQueryValueExA(hHomeDir,"Personal",NULL,NULL,(BYTE *)buffer,&len);
-		strcat(buffer,"\\Simutrans");
-		CreateDirectoryA( buffer, NULL );
-		strcat(buffer, "\\");
-
-		// create other subdirectories
-		sprintf(b2, "%ssave", buffer );
-		CreateDirectoryA( b2, NULL );
-		sprintf(b2, "%sscreenshot", buffer );
-		CreateDirectoryA( b2, NULL );
-		sprintf(b2, "%smaps", buffer );
-		CreateDirectoryA( b2, NULL );
-
-		return buffer;
-	}
-	return NULL;
-#else
-#ifndef __APPLE__
-	sprintf( buffer, "%s/simutrans", getenv("HOME") );
-#else
-	sprintf( buffer, "%s/Library/Simutrans", getenv("HOME") );
-#endif
-	int err = mkdir( buffer, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH );
-	if(err  &&  err!=EEXIST) {
-		// could not create directory
-		// we assume success anyway
-	}
-	strcat( buffer, "/" );
-	sprintf( b2, "%smaps", buffer );
-	mkdir( b2, 0700 );
-	sprintf( b2, "%sscreenshot", buffer );
-	mkdir( b2, 0700 );
-	sprintf( b2, "%ssave", buffer );
-	mkdir( b2, 0700 );
-	return buffer;
-#endif
-}
-
 
 
 /*

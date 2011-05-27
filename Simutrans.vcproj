@@ -950,6 +950,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\simsys.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\simsys_w16.cc"
 				>
 			</File>

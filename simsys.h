@@ -69,7 +69,7 @@ int dr_os_open(int w, int h, int bpp, int fullscreen);
 int dr_os_close(void);
 
 /* query home directory */
-char *dr_query_homedir(void);
+char const* dr_query_homedir();
 
 unsigned short* dr_textur_init(void);
 

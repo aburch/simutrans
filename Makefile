@@ -336,6 +336,7 @@ SOURCES += simmesg.cc
 SOURCES += simplan.cc
 SOURCES += simskin.cc
 SOURCES += simsound.cc
+SOURCES += simsys.cc
 SOURCES += simticker.cc
 SOURCES += simtools.cc
 SOURCES += simview.cc
