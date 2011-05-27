@@ -45,17 +45,13 @@ int dr_load_midi(const char * filename)
 	// return a reference number, which will be used to 'call' this file for later playback
 	// we store the filename and preload the file into memory ready to play
 
-	static int cntr = 0;
-
 	NSString* const name  = [[NSString alloc] initWithUTF8String:filename];
 	QTMovie*  const movie = [[QTMovie alloc] initWithFile:name error:nil];
 	if (movie) {
 		// preload the file into memory
 		[movies addObject:movie];
-
-		cntr++;
 	}
-	return (cntr-1);	// allow for zero based array
+	return [movies count] - 1;
 }
 
 
