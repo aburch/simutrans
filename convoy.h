@@ -86,7 +86,7 @@ a = (F - cf * v^2 - Frs) / m
 //#define FR_TRACK 0.0015
 #define FR_MAGLEV fraction_t(15, 10000)
 #define FR_TRACK fraction_t(51, 10000)
-#define FR_ROAD  fraction_t(15, 10000)
+#define FR_ROAD  fraction_t(15, 1000)
 #define FR_WATER fraction_t(1, 1000)
 #define FR_AIR fraction_t(1, 1000)
 
@@ -306,7 +306,8 @@ private:
 	inline uint32 d_get_force(double speed) 
 	{
 		sint32 v = (sint32)abs(speed);
-		return ((v == 0) ? get_starting_force() : get_force_summary(fraction_t((speed < 0 ? -speed : speed) * 1000, 1000)) * 1000).to_double();
+		return (v == 0) ? get_starting_force().integer() : get_force_summary(v).integer() * 1000;
+		//return ((v == 0) ? get_starting_force() : get_force_summary(fraction_t((speed < 0 ? -speed : speed) * 1000, 1000)) * 1000).to_double();
 	}
 
 	/*
