@@ -3147,7 +3147,7 @@ void karte_t::neuer_monat()
 	// to replace ones that have closed.
 	// @author: jamespetts
 
-	if(industry_density_proportion == 0)
+	if(industry_density_proportion == 0 && finance_history_month[0][WORLD_CITICENS] > 0)
 	{
 		// Set the industry density proportion for the first time when the number of citizens is populated.
 		industry_density_proportion = actual_industry_density / finance_history_month[0][WORLD_CITICENS];
