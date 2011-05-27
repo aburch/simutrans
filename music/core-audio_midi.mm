@@ -124,16 +124,6 @@ void dr_destroy_midi(void)
 
 
 /**
- * Sets midi pos
- * @author Hj. Malthaner
- */
-void set_midi_pos(int pos)
-{
-	// presumably set the position within the current midi routine?
-	// the sdl_midi.cc file has a placeholder routine here only.
-}
-
-/**
  * MIDI initialisation routines
  * @author Owen Rudge
  */

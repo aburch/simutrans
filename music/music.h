@@ -60,6 +60,4 @@ long dr_midi_pos(void);
  */
 void dr_destroy_midi(void);
 
-void set_midi_pos(int);
-
 #endif

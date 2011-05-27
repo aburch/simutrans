@@ -106,9 +106,3 @@ void dr_destroy_midi(void)
 	}
 	midi_number = -1;
 }
-
-
-void set_midi_pos(int pos)
-{
-	midi_pos = pos;
-}
