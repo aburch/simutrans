@@ -86,7 +86,7 @@ a = (F - cf * v^2 - Frs) / m
 //#define FR_TRACK 0.0015
 #define FR_MAGLEV fraction_t(15, 10000)
 #define FR_TRACK fraction_t(51, 10000)
-#define FR_ROAD  fraction_t(15, 1000)
+#define FR_ROAD fraction_t(15, 1000)
 #define FR_WATER fraction_t(1, 1000)
 #define FR_AIR fraction_t(1, 1000)
 
