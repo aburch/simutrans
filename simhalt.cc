@@ -1435,7 +1435,7 @@ void haltestelle_t::search_routes( ware_t *const wares, const uint16 ware_count 
 			uint16 best = explored_weight;
 			for(  h=0;  h<plan->get_haltlist_count();  ++h  ) {
 				halthandle_t halt = halt_list[h];
-				if (halt.is_bound()  &&  markers[ halt.get_id() ]==current_marker  &&  halt_data[ halt.get_id() ].best_weight < best) {
+				if (markers[ halt.get_id() ]==current_marker  &&  halt_data[ halt.get_id() ].best_weight < best  &&  halt.is_bound()) {
 					// we explored best route to this destination in last run
 					// (any other not yet explored connection will have larger weight)
 					best = halt_data[ halt.get_id() ].best_weight;
