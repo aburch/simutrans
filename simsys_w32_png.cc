@@ -1,6 +1,8 @@
 #include "simmem.h"
 #include "simsys_w32_png.h"
 
+#include <stdio.h>
+
 #ifndef _WIN32
 #error "Only Windows has GDI+!"
 #endif
@@ -178,11 +180,9 @@ int dr_screenshot_png(const char *filename,  int w, int h, int maxwidth, unsigne
 	if(myImage!=NULL  &&  GetEncoderClsid(L"image/png", &encoderClsid)!=-1) {
 		EncoderParameters ep;
 		char cfilename[1024];
+		sprintf(cfilename, "%.*s.png", (int)(strlen(filename) - 4), filename);
+
 		WCHAR wfilename[1024];
-
-		strcpy( cfilename, filename );
-		strcpy( cfilename+strlen(cfilename)-3, "png" );
-
 		MultiByteToWideChar( CP_ACP, MB_PRECOMPOSED, cfilename, -1, wfilename, 1024 );
 		ep.Count = 0;
 
