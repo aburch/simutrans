@@ -1,3 +1,4 @@
+#include "macros.h"
 #include "simmem.h"
 #include "simsys_w32_png.h"
 
@@ -183,7 +184,7 @@ int dr_screenshot_png(const char *filename,  int w, int h, int maxwidth, unsigne
 		sprintf(cfilename, "%.*s.png", (int)(strlen(filename) - 4), filename);
 
 		WCHAR wfilename[1024];
-		MultiByteToWideChar( CP_ACP, MB_PRECOMPOSED, cfilename, -1, wfilename, 1024 );
+		MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, cfilename, -1, wfilename, lengthof(wfilename));
 		ep.Count = 0;
 
 		if (GdipSaveImageToFile(myImage, wfilename, &encoderClsid, &ep) == 0) {
