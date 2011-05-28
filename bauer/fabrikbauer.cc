@@ -1009,7 +1009,7 @@ next_ware_check:
 				if(do_not_add_beyond_target_density && !fab->is_electricity_producer())
 				{
 					//Make sure that industries are not added beyond target density.
-					if((1 / fab->get_gewichtung() * 100) > (welt->get_target_industry_density() - welt->get_actual_industry_density()))
+					if(100 / fab->get_gewichtung() > (welt->get_target_industry_density() - welt->get_actual_industry_density()))
 					{
 						continue;
 					}

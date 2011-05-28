@@ -359,7 +359,7 @@ fabrik_t::~fabrik_t()
 		city->remove_city_factory(this);
 	}
 
-	welt->decrease_actual_industry_density(1 / get_besch()->get_gewichtung() * 100);
+	welt->decrease_actual_industry_density(100 / get_besch()->get_gewichtung());
 
 	//Disconnect this factory from all chains.
 	//@author: jamespetts
@@ -839,7 +839,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 	}
 	
 	// Necessary to ensure that the industry density is correct after re-loading a game.
-	welt->increase_actual_industry_density(1 / besch->get_gewichtung() * 100);
+	welt->increase_actual_industry_density(100 / besch->get_gewichtung());
 }
 
 
@@ -1428,7 +1428,7 @@ void fabrik_t::neuer_monat()
 				// This factory has some upgrades: consider upgrading.
 				minivec_tpl<const fabrik_besch_t*> upgrade_list(upgrades_count);
 				const uint32 max_density = (welt->get_target_industry_density() * 150) / 100;
-				const uint32 adjusted_density = welt->get_actual_industry_density() - ((1 / besch->get_gewichtung()) * 100);
+				const uint32 adjusted_density = welt->get_actual_industry_density() - (100 / besch->get_gewichtung());
 				for(uint16 i = 0; i < upgrades_count; i ++)
 				{
 					// Check whether any upgrades are suitable.
@@ -1449,7 +1449,7 @@ void fabrik_t::neuer_monat()
 						fab->get_produkte() ==  besch->get_produkte() &&
 						fab->get_haus()->get_intro_year_month() <= welt->get_timeline_year_month() &&
 						fab->get_haus()->get_retire_year_month() >= welt->get_timeline_year_month() &&
-						adjusted_density < (max_density + ((1 / fab->get_gewichtung()) * 100)))
+						adjusted_density < (max_density + (100 / fab->get_gewichtung())))
 					{
 						upgrade_list.append_unique(fab);
 					}
@@ -1461,7 +1461,7 @@ void fabrik_t::neuer_monat()
 					uint32 total_density = 0;
 					ITERATE(upgrade_list, j)
 					{
-						total_density += (1 / upgrade_list[j]->get_gewichtung()) * 100;
+						total_density += (100 / upgrade_list[j]->get_gewichtung());
 					}
 					const uint32 average_density = total_density / list_count;
 					const uint32 probability = 1 / ((100 - ((adjusted_density + average_density) / max_density)) * upgrade_list.get_count()) / 100;

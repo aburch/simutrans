@@ -1436,7 +1436,7 @@ DBG_DEBUG("karte_t::init()","built timeline");
 			// Power stations are excluded from the target weight:
 			// a different system is used for them.
 			weight = factory_type->get_gewichtung();
-			actual_industry_density += (1 / weight) * 100;
+			actual_industry_density += (100 / weight);
 		}
 	}
 	// The population is not counted at this point, so cannot set this here.
@@ -5281,7 +5281,7 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 				// Power stations are excluded from the target weight:
 				// a different system is used for them.
 				weight = factory_type->get_gewichtung();
-				actual_industry_density += (1 / weight) * 100;
+				actual_industry_density += (100 / weight);
 			}
 		}
 		industry_density_proportion = actual_industry_density / finance_history_month[0][WORLD_CITICENS];
