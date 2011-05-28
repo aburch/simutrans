@@ -577,11 +577,9 @@ sint16 display_get_height(void)
 }
 
 
-sint16 display_set_height(KOORD_VAL h)
+void display_set_height(KOORD_VAL const h)
 {
-	sint16 old = disp_height;
 	disp_height = h;
-	return old;
 }
 
 

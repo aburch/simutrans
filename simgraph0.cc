@@ -89,9 +89,8 @@ sint16 display_get_height(void)
 	return 0;
 }
 
-sint16 display_set_height(KOORD_VAL)
+void display_set_height(KOORD_VAL)
 {
-	return 0;
 }
 
 void display_set_actual_width(KOORD_VAL)
