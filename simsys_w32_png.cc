@@ -51,21 +51,19 @@ struct GdiplusStartupInput
 };
 
 // and the functions from the library
-int (WINAPI *GdiplusStartup)(ULONG_PTR* token, GdiplusStartupInput* size, void*);
-int (WINAPI *GdiplusShutdown)(ULONG_PTR token);
-int (WINAPI *GdipGetImageEncodersSize)(UINT *numEncoders, UINT *size);
-int (WINAPI *GdipGetImageEncoders)(UINT numEncoders, UINT size, ImageCodecInfo *encoders);
-int (WINAPI *GdipCreateBitmapFromScan0)(INT width, INT height, INT stride, INT PixelFormat, BYTE* scan0, ULONG** bitmap);
-int (WINAPI *GdipDeleteCachedBitmap)(ULONG *image);
-int (WINAPI *GdipSaveImageToFile)(ULONG *image, const WCHAR* filename, const CLSID* clsidEncoder, const EncoderParameters* encoderParams);
-
-
+static int (WINAPI* GdiplusStartup)(ULONG_PTR* token, GdiplusStartupInput* size, void*);
+static int (WINAPI* GdiplusShutdown)(ULONG_PTR token);
+static int (WINAPI* GdipGetImageEncodersSize)(UINT* numEncoders, UINT* size);
+static int (WINAPI* GdipGetImageEncoders)(UINT numEncoders, UINT size, ImageCodecInfo* encoders);
+static int (WINAPI* GdipCreateBitmapFromScan0)(INT width, INT height, INT stride, INT PixelFormat, BYTE* scan0, ULONG** bitmap);
+static int (WINAPI* GdipDeleteCachedBitmap)(ULONG* image);
+static int (WINAPI* GdipSaveImageToFile)(ULONG* image, WCHAR const* filename, CLSID const* clsidEncoder, EncoderParameters const* encoderParams);
 
 
 // Die GetEncoderClsid() Funktion wurde einfach aus der MSDN/PSDK Doku kopiert.
 // Zu finden mit dem Suchstring "Retrieving the Class Identifier for an Encoder"
 // Sucht zu z.B. 'image/jpeg' den passenden Encoder und liefert dessen CLSID...
-int GetEncoderClsid(const wchar_t *format, CLSID *pClsid)
+static int GetEncoderClsid(wchar_t const* const format, CLSID* const pClsid)
 {
 	UINT  num = 0;          // number of image encoders
 	UINT  size = 0;         // size of the image encoder array in bytes
