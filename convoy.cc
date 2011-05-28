@@ -144,7 +144,7 @@ void weight_summary_t::add_weight(sint32 kgs, sint32 sin_alpha)
 sint32 convoy_t::calc_max_speed(const weight_summary_t &weight) 
 { 
 	// BG, 14.05.2011: back to 'double' calculation, as log() for large fractions 
-	// does not work sufficient and this code is not network relevant. It is only used in dialogs. 
+	// does not work sufficiently and this code is not network relevant. It is only used in dialogues. 
 	const fraction_t Frs = fraction_t(981, 100) * (adverse.fr * weight.weight_cos + weight.weight_sin);
 	if (Frs > get_starting_force()) 
 	{
@@ -200,10 +200,10 @@ fraction_t convoy_t::calc_speed_holding_force(const fraction_t &speed /* in m/s 
 	return f1 < f2 ? f1 : f2; /* in N */
 }
 
-sint32 convoy_t::d_calc_speed_holding_force(double speed /* in m/s */, double Frs /* in N */)
-{
-	return min(adverse.cf.to_double() * speed * speed, d_get_force(speed) - Frs); /* in N */
-}
+//sint32 convoy_t::d_calc_speed_holding_force(double speed /* in m/s */, double Frs /* in N */)
+//{
+//	return min(adverse.cf.to_double() * speed * speed, d_get_force(speed) - Frs); /* in N */
+//}
 
 // The timeslice to calculate acceleration, speed and covered distance in reasonable small chuncks. 
 #define DT_TIME_FACTOR 64
@@ -213,11 +213,13 @@ sint32 convoy_t::d_calc_speed_holding_force(double speed /* in m/s */, double Fr
 
 void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll)
 {
-	sint32 d_akt_speed;
 	const fraction_t simtime_factor(simtime_factor_integer, 100);
 	simtime_factor.shorten();
 	fraction_t dx = 0;
-	double d_dx = 0.0;
+	
+	/*sint32 d_akt_speed;
+	double d_dx = 0.0;*/
+
 	if (adverse.max_speed < KMH_SPEED_UNLIMITED)
 	{
 		const sint32 speed_limit = kmh_to_speed(adverse.max_speed);
@@ -236,11 +238,11 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 	//}
 	//else
 	{
-		const double d_Frs = 9.81 * (adverse.fr.to_double() * weight.weight_cos.to_double() + weight.weight_sin.to_double()); // msin, mcos are calculated per vehicle due to vehicle specific slope angle.
-		const double d_vmax = d_speed_to_v(akt_speed_soll);
-		double d_v = d_speed_to_v(akt_speed); // v in m/s, akt_speed in simutrans vehicle speed;
-		double d_fvmax = 0; // force needed to hold vmax. will be calculated as needed
-		double d_speed_ratio = 0; 
+		//const double d_Frs = 9.81 * (adverse.fr.to_double() * weight.weight_cos.to_double() + weight.weight_sin.to_double()); // msin, mcos are calculated per vehicle due to vehicle specific slope angle.
+		//const double d_vmax = d_speed_to_v(akt_speed_soll);
+		//double d_v = d_speed_to_v(akt_speed); // v in m/s, akt_speed in simutrans vehicle speed;
+		//double d_fvmax = 0; // force needed to hold vmax. will be calculated as needed
+		//double d_speed_ratio = 0; 
 
 		const fraction_t Frs = (fraction_t(981, 100) * (adverse.fr * weight.weight_cos + weight.weight_sin)).shorten(); // msin, mcos are calculated per vehicle due to vehicle specific slope angle.
 		//const double TEST_d_Frs_fraction_equivalent = (double)Frs.n / (double)Frs.d;
@@ -271,16 +273,16 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 				//d_f = d_get_force(d_v * 0.9) - d_Frs;
 				//f = (get_force(v * fraction_t(90, 100)) - Frs).shorten();
 				//const double TEST_f_double_equivalent = (double)f.n / (double)f.d;
-				d_f = d_get_force(d_v) - d_Frs;
+				/*d_f = d_get_force(d_v) - d_Frs;*/
 				f = get_force(v.n / v.d) - Frs;
 				if (f > 1000000) // reducing force does not apply to 'weak' convoy's, thus we can save a lot of time skipping this code.
 				{
-					if (d_speed_ratio == 0) // speed_ratio is a constant within this function. So calculate it once only.
-					{
-						// vehicle.max_speed is in km/h, vmax in m/s
-						d_speed_ratio = (sint32)d_vmax != 0 ? 3.6 * d_vmax / vehicle.max_speed : 0.01 /* any value < 0.1 */;
-						d_speed_ratio = 1.0 / d_speed_ratio;
-					}
+					//if (d_speed_ratio == 0) // speed_ratio is a constant within this function. So calculate it once only.
+					//{
+					//	// vehicle.max_speed is in km/h, vmax in m/s
+					//	d_speed_ratio = (sint32)d_vmax != 0 ? 3.6 * d_vmax / vehicle.max_speed : 0.01 /* any value < 0.1 */;
+					//	d_speed_ratio = 1.0 / d_speed_ratio;
+					//}
 					if (speed_ratio == 0) // speed_ratio is a constant within this function. So calculate it once only.
 					{
 						// vehicle.max_speed is in km/h, vmax in m/s
@@ -290,11 +292,11 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 					if (speed_ratio > 10)
 					{
 						// set speed is less than a 10th of the vehicles maximum speed.
-						d_fvmax = d_calc_speed_holding_force(d_vmax, d_Frs);
+						/*d_fvmax = d_calc_speed_holding_force(d_vmax, d_Frs);
 						if (d_f > d_fvmax)
 						{
 							d_f = (d_f - d_fvmax) * 0.1 + d_fvmax;
-						}
+						}*/
 
 						fvmax = calc_speed_holding_force(vmax, Frs);
 						if (f > fvmax)
@@ -307,11 +309,11 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 			else if (1000 * v < 1001 * vmax) // same as v < 1.001 * vmax
 			{
 				// at or slightly above set speed: hold this speed
-				if (d_fvmax == 0) // fvmax is a constant within this function. So calculate it once only.
-				{
-					d_fvmax = d_calc_speed_holding_force(d_vmax, d_Frs);
-				}
-				d_f = d_fvmax;
+				//if (d_fvmax == 0) // fvmax is a constant within this function. So calculate it once only.
+				//{
+				//	d_fvmax = d_calc_speed_holding_force(d_vmax, d_Frs);
+				//}
+				//d_f = d_fvmax;
 
 				if (fvmax == 0) // fvmax is a constant within this function. So calculate it once only.
 				{
@@ -322,7 +324,7 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 			else if (10 * v < 11 * vmax)
 			{
 				// slightly above set speed: coasting 'til back to set speed.
-				d_f = -d_Frs;
+				/*d_f = -d_Frs;*/
 				f = -Frs;
 			}
 			else if (10 * v < 15 * vmax)
@@ -330,7 +332,7 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 				// running too fast, apply the breaks!
 				is_breaking = true;
 				// hill-down Frs might become negative and works against the brake.
-				d_f = -(get_starting_force().to_double() + d_Frs);
+				/*d_f = -(get_starting_force().to_double() + d_Frs);*/
 				f = -(get_starting_force() + Frs);
 			}
 			else
@@ -339,40 +341,40 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 				is_breaking = true;
 				// assuming the brakes are up to 5 times stronger than the start-up force.
 				// hill-down Frs might become negative and works against the brake.
-				d_f = -(5 * get_starting_force().to_double() + d_Frs);
+				/*d_f = -(5 * get_starting_force().to_double() + d_Frs);*/
 				f = -(5 * get_starting_force() + Frs);
 			}
 
 			// accelerate: calculate new speed according to acceleration within the passed second(s).
 
-			long d_dt;
-			double d_df = simtime_factor.to_double() * (d_f - sgn(d_v) * adverse.cf.to_double() * d_v * d_v);
-			if (delta_t >= DT_SLICE && (sint32)abs(d_df) > weight.weight / (10 * DT_SLICE_SECONDS))
-			{
-				// This part is important for acceleration/deceleration phases only.
-				// When a small force produces small speed change, we can add it at once in the 'else' section.
-				//count2++;
-				d_v += (DT_SLICE_SECONDS * d_df) / weight.weight; 
-				d_dt = DT_SLICE;
-			}
-			else
-			{
-				//count3++;
-				d_v += (delta_t * d_df) / (DT_TIME_FACTOR * weight.weight); 
-				d_dt = delta_t;
-			}
-			if (is_breaking)
-			{
-				if (d_v < d_vmax)
-				{
-					d_v = d_vmax;
-				}
-			}
-			else if (/* is_breaking */ d_f < 0 && d_v < 1)
-			{
-				d_v = 1;
-			}
-			d_dx += d_dt * d_v;
+			//long d_dt;
+			//double d_df = simtime_factor.to_double() * (d_f - sgn(d_v) * adverse.cf.to_double() * d_v * d_v);
+			//if (delta_t >= DT_SLICE && (sint32)abs(d_df) > weight.weight / (10 * DT_SLICE_SECONDS))
+			//{
+			//	// This part is important for acceleration/deceleration phases only.
+			//	// When a small force produces small speed change, we can add it at once in the 'else' section.
+			//	//count2++;
+			//	d_v += (DT_SLICE_SECONDS * d_df) / weight.weight; 
+			//	d_dt = DT_SLICE;
+			//}
+			//else
+			//{
+			//	//count3++;
+			//	d_v += (delta_t * d_df) / (DT_TIME_FACTOR * weight.weight); 
+			//	d_dt = delta_t;
+			//}
+			//if (is_breaking)
+			//{
+			//	if (d_v < d_vmax)
+			//	{
+			//		d_v = d_vmax;
+			//	}
+			//}
+			//else if (/* is_breaking */ d_f < 0 && d_v < 1)
+			//{
+			//	d_v = 1;
+			//}
+			//d_dx += d_dt * d_v;
 
 			long dt;
 			//fraction_t df = simtime_factor * (f - adverse.cf * (v * v * sgn<fraction_t>(v)));
@@ -411,13 +413,13 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 
 			delta_t -= dt; // another DT_SLICE_SECONDS passed
 		}
-		d_akt_speed = d_v_to_speed(d_v);
+		/*d_akt_speed = d_v_to_speed(d_v);*/
 		akt_speed = v_to_speed(v).integer(); // akt_speed in simutrans vehicle speed, v in m/s
-		d_dx = d_x_to_steps(d_dx);
+		/*d_dx = d_x_to_steps(d_dx);*/
 		dx = x_to_steps(dx); // dx in simutrans vehicle speed, v in m/s
 	}
 	
-	sint32 d_sp_soll = sp_soll;
+	/*sint32 d_sp_soll = sp_soll;
 
 	if (d_dx < KMH_SPEED_UNLIMITED - d_sp_soll)
 	{
@@ -426,7 +428,7 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 	else
 	{
 		d_sp_soll = KMH_SPEED_UNLIMITED;
-	}
+	}*/
 
 	const sint32 ds = dx.integer();
 	if (ds < KMH_SPEED_UNLIMITED - sp_soll)

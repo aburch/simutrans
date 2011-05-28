@@ -606,8 +606,7 @@ vehikel_basis_t *vehikel_basis_t::no_cars_blocking( const grund_t *gr, const con
 }
 
 
-sint16
-vehikel_t::compare_directions(sint16 first_direction, sint16 second_direction)
+sint16 vehikel_t::compare_directions(sint16 first_direction, sint16 second_direction)
 {
 	//Returns difference between two directions in degrees
 	sint16 difference = 0;
@@ -636,8 +635,7 @@ vehikel_t::compare_directions(sint16 first_direction, sint16 second_direction)
 	return difference;
 }
 
-void
-vehikel_t::rotate90()
+void vehikel_t::rotate90()
 {
 	vehikel_basis_t::rotate90();
 	alte_fahrtrichtung = ribi_t::rotate90( alte_fahrtrichtung );
@@ -1348,7 +1346,7 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 	sint32 overweight_speed_limit = base_limit;
 	sint32 corner_speed_limit = base_limit;
 	sint32 new_limit = base_limit;
-	uint32 heaviest_vehicle = cnv->get_heaviest_vehicle();
+	const uint32 heaviest_vehicle = cnv->get_heaviest_vehicle();
 
 	//Reduce speed for overweight vehicles
 
@@ -1377,11 +1375,11 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 	const uint8 max_direction_steps = welt->get_einstellungen()->get_max_direction_steps(waytype);
 	
 #ifndef debug_corners	
-	if(is_corner)
+	if(is_corner && max_direction_steps > 0)
 	{
 #endif
  		sint16 direction_difference = 0;
-		sint16 direction = get_direction_degrees(ribi_t::get_dir(current_direction));
+		const sint16 direction = get_direction_degrees(ribi_t::get_dir(current_direction));
 		const uint16 modified_route_index = min(route_index - 1, cnv->get_route()->get_count() - 1);
 		const koord3d *previous_tile = &cnv->get_route()->position_bei(modified_route_index);
 		ribi_t::ribi old_direction = current_direction;
@@ -1412,32 +1410,74 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 			direction_steps = (sint16)(((max_direction_steps - min_direction_steps) * percentage) / 100) + min_direction_steps; 
 		}
 		
+		if(direction_steps == 0)
+		{
+			// If we are not counting corners, do not attempt to calculate their speed limit.
+			return overweight_speed_limit;
+		}
+
 		uint16 tmp;
 
 		int counter = 0;
+		int steps_to_90 = 0;
+		int steps_to_135 = 0;
+		int steps_to_180 = 0;
+		int smoothing_percentage = 0;
 		for(int i = pre_corner_direction.get_count() - 1; i >= 0 && counter <= direction_steps; i --)
-
 		{
 			counter ++;
 			tmp = vehikel_t::compare_directions(direction, pre_corner_direction.get_element(i));
 			if(tmp > direction_difference)
 			{
 				direction_difference = tmp;
+				switch(direction_difference)
+				{
+					case 90:
+						steps_to_90 = counter;
+						if(counter > 2)
+						{
+							smoothing_percentage = 100;
+						}
+						break;
+					case 135:
+						steps_to_135 = counter;
+						if(counter > 3)
+						{
+							smoothing_percentage = 100;
+						}
+						break;
+					case 180:
+						steps_to_180 = counter;
+						if(counter > 4)
+						{
+							smoothing_percentage = 100;
+						}
+						break;
+					default:
+						break;
+				}
+
 			}
 		}
 
 #ifdef debug_corners
 		current_corner = direction_difference;
 #endif
+		const sint16 old_direction_degrees = get_direction_degrees(ribi_t::get_dir(old_direction));
 		if(direction_difference == 0 && current_direction != old_direction)
 		{
 			//Fallback code in case the checking the histories did not work properly (for example, if the histories were cleared recently) 
-			direction_difference = compare_directions(get_direction_degrees(ribi_t::get_dir(current_direction)), get_direction_degrees(ribi_t::get_dir(old_direction)));
+			direction_difference = compare_directions(direction, old_direction_degrees);
 		}
 
 		// Maximum speeds for sharper corners no matter what the base limit of the way.	
 		sint32 max_speed_135;
 		sint32 max_speed_180;
+		sint32 max_speed_90;
+		
+		sint32 limit_adjustment_percentage_90 = limit_adjustment_percentage / 2;
+		sint32 limit_adjustment_percentage_135 = limit_adjustment_percentage / 3;
+		sint32 limit_adjustment_percentage_180 = limit_adjustment_percentage / 4;
 
 		switch(waytype)
 		{
@@ -1445,97 +1485,92 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 			case narrowgauge_wt:
 			case monorail_wt:
 			case maglev_wt:
-				max_speed_135 = kmh_to_speed(30);
-				max_speed_180 = kmh_to_speed(5);
+				max_speed_90 = kmh_to_speed(30);
+				max_speed_135 = kmh_to_speed(20);
+				max_speed_180 = kmh_to_speed(4);
 				break;
 				
 			case tram_wt:
+				max_speed_90 = kmh_to_speed(42);
 				max_speed_135 = kmh_to_speed(35);
-				max_speed_180 = kmh_to_speed(25);
+				max_speed_180 = kmh_to_speed(20);
 				break;
 
 			case road_wt:
+				max_speed_90 = kmh_to_speed(45);
 				max_speed_135 = kmh_to_speed(40);
-				max_speed_180 = kmh_to_speed(30);
+				max_speed_180 = kmh_to_speed(35);
 				break;
 				
 			default:
 				base_limit;
 		}
 
-		sint32 max_speed_90 = kmh_to_speed(55);
-
-		//Smoothing code: slightly smoothed corners benefit.	
-		if(direction_difference < compare_directions(direction, get_direction_degrees(ribi_t::get_dir(old_direction))))
+		//Smoothing code: smoothed corners benefit.	
+		if(smoothing_percentage > 0)
 		{
-			max_speed_90 = kmh_to_speed(75);
-			max_speed_135 = kmh_to_speed(40);
-			max_speed_180 = kmh_to_speed(30);
-
-			if(limit_adjustment_percentage < 80)
+			smoothing_percentage = (steps_to_90 * 100) / (direction_steps + 1);
+			max_speed_90 += (base_limit - max_speed_90) * smoothing_percentage / 100;
+			limit_adjustment_percentage_90 += (limit_adjustment_percentage - limit_adjustment_percentage_90) * smoothing_percentage / 100;
+			if(direction_difference > 90)
 			{
-				limit_adjustment_percentage += 15;
-			}
-			
-			if(limit_adjustment_percentage > 97)
-			{
-				//But there is a limit to the benefit of smoothness.
-				limit_adjustment_percentage = 97;
+				const int smoothing_percentage_135 = (steps_to_135 * 100) / (direction_steps + 1);
+				max_speed_135 += (base_limit - max_speed_135) * smoothing_percentage_135 / 100;
+				limit_adjustment_percentage_135 += (limit_adjustment_percentage - limit_adjustment_percentage_135) * smoothing_percentage / 100;
+				smoothing_percentage = min(smoothing_percentage, smoothing_percentage_135);
+				if(direction_difference >= 180)
+				{
+					const int smoothing_percentage_180 = (steps_to_180 * 100) / (direction_steps + 1);
+					max_speed_180 += (base_limit - max_speed_180) * smoothing_percentage_180 / 100;
+					limit_adjustment_percentage_180 += (limit_adjustment_percentage - limit_adjustment_percentage_180) * smoothing_percentage / 100;
+					smoothing_percentage = min(smoothing_percentage, smoothing_percentage_180);
+				}
 			}
 		}
 
-		//Tilting only makes a difference on faster track and on smoothed corners.
-		if(is_tilting && base_limit > kmh_to_speed(120) && compare_directions(direction, get_direction_degrees(ribi_t::get_dir(old_direction)) <= 45))
+		// Find the maximum constraint on the corner
+		sint32 hard_limit;
+		switch(direction_difference)
+		{
+		case 0:
+		case 45:
+		default:
+			hard_limit = base_limit;
+			break; 
+		case 90:
+			limit_adjustment_percentage = limit_adjustment_percentage_90;
+			hard_limit = max_speed_90;
+			break;
+		case 135:
+			limit_adjustment_percentage = max(limit_adjustment_percentage_90, limit_adjustment_percentage_135);
+			hard_limit = min(max_speed_90, max_speed_135);
+			break;
+		case 180:
+		case 270:
+			const sint32 tmp_percentage = max(limit_adjustment_percentage_90, limit_adjustment_percentage_135);
+			limit_adjustment_percentage = max(tmp_percentage, limit_adjustment_percentage_180);
+			const sint32 tmp_hard = min(max_speed_90, max_speed_135);
+			hard_limit = min(tmp_hard, max_speed_180);
+		}
+
+		// Adjust for tilting.
+		// Tilting only makes a difference on faster track and on well smoothed corners.
+		if(is_tilting && base_limit > kmh_to_speed(120) && (smoothing_percentage > 50 || direction_difference <= 45))
 		{	
 			// Tilting trains can take corners faster
 			limit_adjustment_percentage += 30;
 			if(limit_adjustment_percentage > 100)
 			{
-				//But cannot go faster on a corner than on the straight!
+				// But cannot go faster on a corner than on the straight!
 				limit_adjustment_percentage = 100;
 			}
+
+			hard_limit = (hard_limit * 130) / 100;
 		}
+		
+		// Now apply the adjusted corner limit
+		corner_speed_limit = min((base_limit * limit_adjustment_percentage) / 100, hard_limit);
 
-		switch(direction_difference)
-		{
-			case 0 :
-				
-				//If we are here, there *must* be a curve, since we have already checked that.
-				//If this is 0, this is an error, and we will assume a 45 degree bend.
-#ifndef debug_corners
-				corner_speed_limit = (base_limit * limit_adjustment_percentage) / 100; 
-#else
-				corner_speed_limit = base_limit;
-#endif
-				break;
-
-			case 45 :
-				
-				corner_speed_limit = (base_limit * limit_adjustment_percentage) / 100;
-				break;
-
-			case 90 :
-				// Sharp corners have a hard limit for speed irrespective of the base
-				// speed limit of the underlying way.
-				corner_speed_limit = min((base_limit * (limit_adjustment_percentage / 2) / 100), max_speed_90);
-				break;
-					
-			case 135 :
-				
-				corner_speed_limit = min((base_limit * (limit_adjustment_percentage / 3) / 100), max_speed_135);
-				break;
-
-			case 180 :
-			case 270 :
-
-				corner_speed_limit = min((base_limit * (limit_adjustment_percentage / 4) / 100), max_speed_180);
-				break;
-				
-			default :
-				//treat as 45 degree bend if something has gone wrong in the calculations.
-				//There *must* be a curve here, as the original bool flag was triggered.
-				corner_speed_limit = (uint32)((base_limit * limit_adjustment_percentage) / 100);
-		}
 #ifndef debug_corners
 	}
 #endif
