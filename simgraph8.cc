@@ -384,7 +384,6 @@ static const uint8 night_lights[LIGHT_COUNT*3] = {
 
 
 // offsets of first and second comany color
-#define MAX_PLAYER_COUNT 16
 static uint8 player_offsets[MAX_PLAYER_COUNT][2];
 
 // the palette for the display ...
@@ -1359,6 +1358,7 @@ void display_scroll_band(const KOORD_VAL start_y, const KOORD_VAL x_offset, cons
 		"rep\n\t"
 		"movsl\n\t"
 		: "+D" (dst), "+S" (src), "+c" (amount)
+		:
 		: "memory"
 	);
 #endif
