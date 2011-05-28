@@ -954,11 +954,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\simsys_w16.cc"
+				RelativePath=".\simsys_w.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\simsys_w32_png.c"
+				RelativePath=".\simsys_w32_png.cc"
 				>
 			</File>
 			<File

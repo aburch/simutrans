@@ -1,3 +1,4 @@
+#include "simmem.h"
 #include "simsys_w32_png.h"
 
 #ifndef _WIN32
@@ -146,7 +147,7 @@ int dr_screenshot_png(const char *filename,  int w, int h, int maxwidth, unsigne
 	}
 	if(  myImage==NULL  &&  bitdepth>8  ) {
 		/* we may have XP or newer => have to convert them to 32 first to save them ... Grrrr */
-		BYTE *newdata = malloc( w*h*4 );
+		BYTE* const newdata = MALLOCN(BYTE, w * h * 4);
 		BYTE *dest = newdata;
 		unsigned short *src = data;
 		int ww = maxwidth;
@@ -172,7 +173,7 @@ int dr_screenshot_png(const char *filename,  int w, int h, int maxwidth, unsigne
 	if(myImage!=NULL  &&  GetEncoderClsid(L"image/png", &encoderClsid)!=-1) {
 		EncoderParameters ep;
 		char cfilename[1024];
-		unsigned short wfilename[1024];
+		WCHAR wfilename[1024];
 
 		strcpy( cfilename, filename );
 		strcpy( cfilename+strlen(cfilename)-3, "png" );

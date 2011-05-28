@@ -7,6 +7,8 @@
 #ifndef SIMMEM_H
 #define SIMMEM_H
 
+#include <stddef.h>
+
 #ifdef _MSC_VER
 #	include <malloc.h>
 #	define guarded_free free
