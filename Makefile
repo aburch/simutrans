@@ -1,5 +1,5 @@
-CONFIG ?= config.default
--include $(CONFIG)
+CFG ?= default
+-include config.$(CFG)
 
 
 BACKENDS      = allegro gdi sdl mixer_sdl x11 posix
