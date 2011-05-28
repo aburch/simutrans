@@ -670,7 +670,7 @@ bool dr_fatal_notify(const char* msg, int choices)
 
 
 #ifdef _WIN32
-BOOL APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR lpCmdLine, int /*nShowCmd*/)
+int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR const lpCmdLine, int)
 #else
 int main(int argc, char **argv)
 #endif

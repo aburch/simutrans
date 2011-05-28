@@ -753,7 +753,7 @@ bool dr_fatal_notify(const char* msg, int choices)
 }
 
 
-BOOL APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
+int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR const lpCmdLine, int)
 {
 	WNDCLASSW wc;
 	char pathname[1024];
