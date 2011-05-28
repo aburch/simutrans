@@ -1690,17 +1690,17 @@ bool haltestelle_t::recall_ware( ware_t& w, uint32 menge )
 
 
 // will load something compatible with wtyp into the car which schedule is fpl
-ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const schedule_t *fpl, const spieler_t *sp )
+void haltestelle_t::hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp, uint32 maxi, const schedule_t *fpl, const spieler_t *sp )
 {
 	// prissi: first iterate over the next stop, then over the ware
 	// might be a little slower, but ensures that passengers to nearest stop are served first
 	// this allows for separate high speed and normal service
-	const uint8 count = fpl->get_count();
 	vector_tpl<ware_t> *warray = waren[wtyp->get_catg_index()];
 
 	if (warray && !warray->empty()) {
 		// da wir schon an der aktuellem haltestelle halten
 		// startet die schleife ab 1, d.h. dem naechsten halt
+		const uint8 count = fpl->get_count();
 		for(  uint8 i=1; i<count; i++  ) {
 			const uint8 wrap_i = (i + fpl->get_aktuell()) % count;
 
@@ -1752,14 +1752,21 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 							// not all can be loaded
 							neu.menge = maxi;
 							tmp.menge -= maxi;
+							maxi = 0;
 						}
 						else {
 							// leave an empty entry => joining will more often work
 							tmp.menge = 0;
+							maxi -= tmp.menge;
 						}
+						fracht.insert(neu);
+
 						book(neu.menge, HALT_DEPARTED);
 						resort_freight_info = true;
-						return neu;
+
+						if (maxi==0) {
+							return;
+						}
 					}
 				}
 
@@ -1767,9 +1774,6 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 			}
 		}
 	}
-
-	// empty quantity of required type -> no effect
-	return ware_t (wtyp);
 }
 
 

@@ -710,19 +710,23 @@ bool vehikel_t::load_freight(halthandle_t halt)
 {
 	const bool ok = halt->gibt_ab(besch->get_ware());
 	schedule_t *fpl = cnv->get_schedule();
-	if( ok ) {
+	if( ok   &&  total_freight < besch->get_zuladung()) {
+		const uint16 hinein = besch->get_zuladung() - total_freight;
 
-		while(total_freight < besch->get_zuladung()) {
-			const uint16 hinein = besch->get_zuladung() - total_freight;
+		slist_tpl<ware_t> zuladung;
+		halt->hole_ab(zuladung, besch->get_ware(), hinein, fpl, cnv->get_besitzer() );
 
-			ware_t ware = halt->hole_ab(besch->get_ware(), hinein, fpl, cnv->get_besitzer() );
-			if(ware.menge==0) {
-				// now empty, but usually, we can get it here ...
-				return ok;
-			}
+		if(zuladung.empty()) {
+			// now empty, but usually, we can get it here ...
+			return ok;
+		}
+
+		for(slist_tpl<ware_t>::iterator iter_z=zuladung.begin(); !iter_z.end(); ) {
+			ware_t &ware = *iter_z;
+
+			total_freight += ware.menge;
 
 			slist_iterator_tpl<ware_t> iter (fracht);
-
 			// could this be joined with existing freight?
 			while(iter.next()) {
 				ware_t &tmp = iter.access_current();
@@ -731,20 +735,26 @@ bool vehikel_t::load_freight(halthandle_t halt)
 				// for all others we *must* use target coordinates
 				if(ware.same_destination(tmp)) {
 					tmp.menge += ware.menge;
-					total_freight += ware.menge;
 					ware.menge = 0;
 					break;
 				}
 			}
 
-			// if != 0 we could not joi it to existing => load it
+			// if != 0 we could not join it to existing => load it
 			if(ware.menge != 0) {
-				fracht.insert(ware);
-				total_freight += ware.menge;
+				++iter_z;
+				// we add list directly
 			}
-
-			INT_CHECK("simvehikel 876");
+			else {
+				iter_z = zuladung.erase(iter_z);
+			}
 		}
+
+		if(!zuladung.empty()) {
+			fracht.append_list(zuladung);
+		}
+
+		INT_CHECK("simvehikel 876");
 	}
 	return ok;
 }

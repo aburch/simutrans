@@ -571,11 +571,11 @@ public:
 	bool recall_ware( ware_t& w, uint32 menge );
 
 	/**
-	 * holt ware ab
-	 * @return abgeholte menge
-	 * @author Hj. Malthaner
+	 * fetches goods from this halt
+	 * @param fracht goods will be put into this list, vehicle has to load it
+	 * @author Hj. Malthaner, dwachs
 	 */
-	ware_t hole_ab( const ware_besch_t *warentyp, uint32 menge, const schedule_t *fpl, const spieler_t *sp );
+	void hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *warentyp, uint32 menge, const schedule_t *fpl, const spieler_t *sp );
 
 	/* liefert ware an. Falls die Ware zu wartender Ware dazugenommen
 	 * werden kann, kann ware_t gelöscht werden! D.h. man darf ware nach
