@@ -255,8 +255,7 @@ int dr_query_screen_height()
 }
 
 
-
-int dr_os_open(int w, int h, int bpp, int fullscreen)
+int dr_os_open(int const w, int const h, int const fullscreen)
 {
 	width = w;
 	height = h;
@@ -264,7 +263,7 @@ int dr_os_open(int w, int h, int bpp, int fullscreen)
 
 	install_keyboard();
 
-	set_color_depth(bpp);
+	set_color_depth(COLOUR_DEPTH);
 	if (set_gfx_mode(fullscreen? GFX_AUTODETECT : GFX_AUTODETECT_WINDOWED, w, h, 0, 0) != 0) {
 		fprintf(stderr, "Error: %s\n", allegro_error);
 		return FALSE;
@@ -317,7 +316,7 @@ unsigned short* dr_textur_init(void)
 extern void display_set_actual_width(KOORD_VAL w);
 
 // resizes screen (Not allowed)
-int dr_textur_resize(unsigned short** textur, int w, int h, int bpp)
+int dr_textur_resize(unsigned short**, int, int)
 {
 	display_set_actual_width( width );
 	return width;

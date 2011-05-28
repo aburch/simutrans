@@ -2589,7 +2589,7 @@ int simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 	// make sure it something of 16 (also better for caching ... )
 	width = (width + 15) & 0x7FF0;
 
-	if (dr_os_open(width, height, 8, full_screen)) {
+	if (dr_os_open(width, height, full_screen)) {
 		disp_width = width;
 		disp_height = height;
 
@@ -2695,7 +2695,7 @@ void simgraph_resize(KOORD_VAL w, KOORD_VAL h)
 		guarded_free(tile_dirty);
 		guarded_free(tile_dirty_old);
 
-		dr_textur_resize((unsigned short**)&textur, disp_width, disp_height, 8);
+		dr_textur_resize((unsigned short**)&textur, disp_width, disp_height);
 
 		tiles_per_line     = (disp_width  + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;
 		tile_lines         = (disp_height + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;

@@ -43,7 +43,7 @@ void interrupt_force();
 void interrupt_check();
 void interrupt_check(const char* caller_info);
 
-#if defined NO_GRAPHIC && defined PROFILE
+#if COLOUR_DEPTH == 0 && defined PROFILE
 	// 0 bit graphic + profiling: no interrupt_check.
 	#define INT_CHECK(info);
 #else

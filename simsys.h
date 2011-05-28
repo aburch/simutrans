@@ -65,7 +65,7 @@ int dr_os_init(const int* parameter);
 int dr_query_screen_width();
 int dr_query_screen_height();
 
-int dr_os_open(int w, int h, int bpp, int fullscreen);
+int dr_os_open(int w, int h, int fullscreen);
 int dr_os_close(void);
 
 /* query home directory */
@@ -77,7 +77,7 @@ unsigned short* dr_textur_init(void);
 void dr_textur(int xp, int yp, int w, int h);
 
 /* returns the actual width (might be larger than requested! */
-int dr_textur_resize(unsigned short** textur,int w, int h, int bpp);
+int dr_textur_resize(unsigned short** textur, int w, int h);
 
 // needed for screen update
 void dr_prepare_flush();	// waits, if previous update not yet finished

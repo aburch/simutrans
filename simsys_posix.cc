@@ -63,7 +63,7 @@ int dr_query_screen_height()
 }
 
 // open the window
-int dr_os_open(int, int, int, int)
+int dr_os_open(int, int, int)
 {
 	return TRUE;
 }
@@ -75,7 +75,7 @@ int dr_os_close(void)
 }
 
 // reiszes screen
-int dr_textur_resize(unsigned short** textur, int, int, int)
+int dr_textur_resize(unsigned short** const textur, int, int)
 {
 	*textur = NULL;
 	return 1;

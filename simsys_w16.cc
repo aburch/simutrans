@@ -124,7 +124,7 @@ int dr_query_screen_height()
 
 
 // open the window
-int dr_os_open(int w, int h, int bpp, int fullscreen)
+int dr_os_open(int const w, int const h, int fullscreen)
 {
 	MaxSize.right = (w+15)&0x7FF0;
 	MaxSize.bottom = h+1;
@@ -220,7 +220,7 @@ int dr_os_close(void)
 
 
 // reiszes screen
-int dr_textur_resize(unsigned short **textur, int w, int h, int bpp)
+int dr_textur_resize(unsigned short** const textur, int w, int const h)
 {
 	WAIT_FOR_SCREEN();
 

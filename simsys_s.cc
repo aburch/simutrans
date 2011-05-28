@@ -189,7 +189,7 @@ extern void display_set_actual_width(KOORD_VAL w);
 
 
 // open the window
-int dr_os_open(int w, int h, int bpp, int fullscreen)
+int dr_os_open(int w, int const h, int const fullscreen)
 {
 	Uint32 flags = sync_blit ? 0 : SDL_ASYNCBLIT;
 
@@ -214,7 +214,7 @@ int dr_os_open(int w, int h, int bpp, int fullscreen)
 #endif
 
 	// open the window now
-	screen = SDL_SetVideoMode(w, h, bpp, flags);
+	screen = SDL_SetVideoMode(w, h, COLOUR_DEPTH, flags);
 	if (screen == NULL) {
 		fprintf(stderr, "Couldn't open the window: %s\n", SDL_GetError());
 		return 0;
@@ -250,7 +250,7 @@ int dr_os_close(void)
 
 
 // resizes screen
-int dr_textur_resize(unsigned short** textur, int w, int h, int bpp)
+int dr_textur_resize(unsigned short** const textur, int w, int const h)
 {
 #ifdef USE_HW
 	SDL_UnlockSurface(screen);
@@ -271,7 +271,7 @@ int dr_textur_resize(unsigned short** textur, int w, int h, int bpp)
 		width = w;
 		height = h;
 
-		screen = SDL_SetVideoMode(w, h, bpp, flags);
+		screen = SDL_SetVideoMode(w, h, COLOUR_DEPTH, flags);
 		printf("textur_resize()::screen=%p\n", screen);
 		if (screen) {
 			DBG_MESSAGE("dr_textur_resize(SDL)", "SDL realized screen size width=%d, height=%d (requested w=%d, h=%d)", screen->w, screen->h, w, h);

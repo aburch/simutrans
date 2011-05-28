@@ -3734,7 +3734,7 @@ int simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 	disp_height = height;
 
 	// get real width from os-dependent routines
-	disp_width = dr_os_open(width, height, 16, full_screen);
+	disp_width = dr_os_open(width, height, full_screen);
 	if(  disp_width>0  ) {
 
 
@@ -3851,7 +3851,7 @@ void simgraph_resize(KOORD_VAL w, KOORD_VAL h)
 	}
 	// only resize, if internal values are different
 	if (disp_width != w || disp_height != h) {
-		KOORD_VAL new_width = dr_textur_resize(&textur, w, h, 16);
+		KOORD_VAL new_width = dr_textur_resize(&textur, w, h);
 		if(  new_width!=disp_width  ||  disp_height != h) {
 
 			disp_width = new_width;
