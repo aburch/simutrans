@@ -379,7 +379,7 @@ endif
 
 
 ifeq ($(BACKEND),gdi)
-  SOURCES += simsys_w$(COLOUR_DEPTH).cc
+  SOURCES += simsys_w.cc
   SOURCES += music/w32_midi.cc
   SOURCES += sound/win32_sound.cc
 endif
