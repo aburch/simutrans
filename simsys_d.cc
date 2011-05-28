@@ -22,6 +22,7 @@
 #include "simsys.h"
 #include "simevent.h"
 #include "simgraph.h"
+#include "simsys_w32_png.h"
 
 #ifdef _WIN32
 #define BITMAP winBITMAP
@@ -370,12 +371,6 @@ void dr_flush(void)
 {
 	display_flush_buffer();
 }
-
-
-#ifdef WIN32
-// try saving png using gdiplus.dll
-extern "C" int dr_screenshot_png(const char *filename,  int w, int h, int maxwidth, unsigned short *data, int bitdepth );
-#endif
 
 /**
  * Some wrappers can save screenshots.

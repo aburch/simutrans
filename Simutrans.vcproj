@@ -2088,6 +2088,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\simsys_w32_png.h"
+				>
+			</File>
+			<File
 				RelativePath=".\simticker.h"
 				>
 			</File>

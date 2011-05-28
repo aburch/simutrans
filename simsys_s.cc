@@ -40,6 +40,7 @@
 
 #include "macros.h"
 #include "simmain.h"
+#include "simsys_w32_png.h"
 #include "simversion.h"
 #include "simsys.h"
 #include "simevent.h"
@@ -375,11 +376,6 @@ void set_pointer(int loading)
 	SDL_SetCursor(loading ? hourglass : arrow);
 }
 
-
-
-
-// try saving png using gdiplus.dll
-extern "C" int dr_screenshot_png(const char *filename,  int w, int h, int max_width, unsigned short *data, int bitdepth );
 
 /**
  * Some wrappers can save screenshots.
