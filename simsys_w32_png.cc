@@ -103,6 +103,11 @@ int GetEncoderClsid(const wchar_t *format, CLSID *pClsid)
 }
 
 
+template<typename T> static void GetProcAddress(T& dst, HMODULE const module, char const* const procname)
+{
+	dst = reinterpret_cast<T>(GetProcAddress(module, procname));
+}
+
 
 /* this works only, if gdiplus.dll is there.
  * It should be there on
@@ -124,13 +129,13 @@ int dr_screenshot_png(const char *filename,  int w, int h, int maxwidth, unsigne
 	}
 
 	// retrieve names ...
-	GdiplusStartup = (int (WINAPI *)(ULONG_PTR *,struct GdiplusStartupInput *,void *)) GetProcAddress( hGDIplus, "GdiplusStartup" );
-	GdiplusShutdown = (int (WINAPI *)(ULONG_PTR)) GetProcAddress( hGDIplus, "GdiplusShutdown" );
-	GdipGetImageEncodersSize = (int (WINAPI *)(UINT *,UINT *)) GetProcAddress( hGDIplus, "GdipGetImageEncodersSize" );
-	GdipGetImageEncoders = (int (WINAPI *)(UINT,UINT,ImageCodecInfo *)) GetProcAddress( hGDIplus, "GdipGetImageEncoders" );
-	GdipCreateBitmapFromScan0 = (int (WINAPI *)(INT,INT,INT,INT,BYTE *,ULONG **)) GetProcAddress( hGDIplus, "GdipCreateBitmapFromScan0" );
-	GdipDeleteCachedBitmap = (int (WINAPI *)(ULONG *)) GetProcAddress( hGDIplus, "GdipDeleteCachedBitmap" );
-	GdipSaveImageToFile = (int (WINAPI *)(ULONG *,const WCHAR *,const CLSID *,const EncoderParameters *)) GetProcAddress( hGDIplus, "GdipSaveImageToFile" );
+	GetProcAddress(GdiplusStartup,            hGDIplus, "GdiplusStartup");
+	GetProcAddress(GdiplusShutdown,           hGDIplus, "GdiplusShutdown");
+	GetProcAddress(GdipGetImageEncodersSize,  hGDIplus, "GdipGetImageEncodersSize");
+	GetProcAddress(GdipGetImageEncoders,      hGDIplus, "GdipGetImageEncoders");
+	GetProcAddress(GdipCreateBitmapFromScan0, hGDIplus, "GdipCreateBitmapFromScan0");
+	GetProcAddress(GdipDeleteCachedBitmap,    hGDIplus, "GdipDeleteCachedBitmap");
+	GetProcAddress(GdipSaveImageToFile,       hGDIplus, "GdipSaveImageToFile");
 
 	/* Win2k can do without init, WinXP not ... */
 	gdiplusStartupInput.GdiplusVersion = 1;
