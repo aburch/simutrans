@@ -14,6 +14,7 @@
 #endif
 
 #include <stdio.h>
+#include <stdlib.h>
 
 // windows Bibliotheken DirectDraw 5.x
 #define UNICODE 1
@@ -753,12 +754,9 @@ bool dr_fatal_notify(const char* msg, int choices)
 }
 
 
-int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR const lpCmdLine, int)
+int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR, int)
 {
 	WNDCLASSW wc;
-	char pathname[1024];
-	char *argv[32], *p;
-	int argc;
 
 	wc.lpszClassName = L"Simu";
 	wc.style = CS_HREDRAW | CS_VREDRAW;
@@ -773,16 +771,11 @@ int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR const lpCmdLine
 
 	RegisterClass(&wc);
 
-	// prepare commandline
-	argc = 0;
-	GetModuleFileNameA( hInstance, pathname, 1024 );
-	argv[argc++] = pathname;
-	p = strtok(lpCmdLine, " ");
-	while (p != NULL) {
-		argv[argc++] = p;
-		p = strtok(NULL, " ");
-	}
-	argv[argc] = NULL;
+	int    const argc = __argc;
+	char** const argv = __argv;
+	char         pathname[1024];
+	GetModuleFileNameA(hInstance, pathname, lengthof(pathname));
+	argv[0] = pathname;
 
 	GetWindowRect(GetDesktopWindow(), &MaxSize);
 

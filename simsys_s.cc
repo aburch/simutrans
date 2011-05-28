@@ -670,26 +670,17 @@ bool dr_fatal_notify(const char* msg, int choices)
 
 
 #ifdef _WIN32
-int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR const lpCmdLine, int)
+int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR, int)
 #else
 int main(int argc, char **argv)
 #endif
 {
 #ifdef _WIN32
-	char *argv[32], *p;
-	int argc;
-	char pathname[PATH_MAX];
-
-	// prepare commandline
-	argc = 0;
-	GetModuleFileNameA( hInstance, pathname, 1024 );
-	argv[argc++] = pathname;
-	p = strtok(lpCmdLine, " ");
-	while (p != NULL) {
-		argv[argc++] = p;
-		p = strtok(NULL, " ");
-	}
-	argv[argc] = NULL;
+	int    const argc = __argc;
+	char** const argv = __argv;
+	char         pathname[1024];
+	GetModuleFileNameA(hInstance, pathname, lengthof(pathname));
+	argv[0] = pathname;
 #elif !defined __BEOS__
 #  if defined(__GLIBC__)  &&  !defined(__AMIGA__)
 	/* glibc has a non-standard extension */
