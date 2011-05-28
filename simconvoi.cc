@@ -2421,12 +2421,10 @@ void convoi_t::laden()
 	halthandle_t halt = haltestelle_t::get_halt(welt, fpl->get_current_eintrag().pos,besitzer_p);
 	// eigene haltestelle ?
 	if (halt.is_bound()) {
-		const koord k = fpl->get_current_eintrag().pos.get_2d();
 		const spieler_t* owner = halt->get_besitzer();
 		if(  owner == get_besitzer()  ||  owner == welt->get_spieler(1)  ) {
 			// loading/unloading ...
 			halt->request_loading( self );
-//			hat_gehalten(k, halt);
 		}
 		else {
 			halt = halthandle_t();

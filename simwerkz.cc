@@ -587,7 +587,6 @@ DBG_MESSAGE("wkz_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x, 
 		}
 		DBG_MESSAGE("wkz_remover()",  "removing building" );
 		const haus_tile_besch_t *tile  = gb->get_tile();
-		koord size = tile->get_besch()->get_groesse( tile->get_layout() );
 
 		// get startpos
 		koord k=tile->get_offset();
@@ -2571,7 +2570,6 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 	// but we try to extend stations of Player new_owner that may be the public player
 	spieler_t *new_owner = extend_public_halt ? welt->get_spieler(1) : sp;
 
-	koord size = besch->get_groesse();
 	koord offsets;
 	halthandle_t halt;
 	const char *msg = "Tile not empty.";
@@ -4141,8 +4139,6 @@ const char *wkz_build_industries_city_t::work( karte_t *welt, spieler_t *sp, koo
 	if(fab==NULL) {
 		return "";
 	}
-	int rotation = (default_param  &&  default_param[1]!='#') ? (default_param[1]-'0') % fab->get_haus()->get_all_layouts() : simrand(fab->get_haus()->get_all_layouts()-1);
-	koord size = fab->get_haus()->get_groesse(rotation);
 
 // process ignore climates switch (not possible for chains!)
 //	climate_bits cl = (default_param  &&  default_param[0]=='1') ? ALL_CLIMATES : fab->get_haus()->get_allowed_climate_bits();

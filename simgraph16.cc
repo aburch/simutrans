@@ -3231,8 +3231,7 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
 	const uint8 *p;
 	KOORD_VAL yy = y + fnt->height;
 	KOORD_VAL x0;	// store the inital x (for dirty marking)
-	KOORD_VAL y0, y_offset, char_height;	// real y for display with clipping
-	bool v_clip;
+	KOORD_VAL y_offset, char_height;	// real y for display with clipping
 	unsigned char mask1, mask2;	// for horizontal clipping
 	const PIXVAL color = specialcolormap_all_day[color_index & 0xFF];
 #ifndef USE_C
@@ -3278,19 +3277,14 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
 
 	// x0 contains the startin x
 	x0 = x;
-	y0 = y;
 	y_offset = 0;
 	char_height = fnt->height;
-	v_clip = false;
 	// calculate vertical y clipping parameters
 	if (y < cT) {
-		y0 = cT;
 		y_offset = cT - y;
-		v_clip = TRUE;
 	}
 	if (yy > cB) {
 		char_height -= yy - cB;
-		v_clip = TRUE;
 	}
 
 	// big loop, char by char

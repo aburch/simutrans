@@ -456,7 +456,6 @@ halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int r
 		return halthandle_t();
 	}
 	// ok, not prematurely doomed
-	bool needs_hub=false;
 	// can we built airports at all?
 	const weg_besch_t *taxi_besch = wegbauer_t::weg_search( air_wt, 25, welt->get_timeline_year_month(), weg_t::type_flat );
 	const weg_besch_t *runway_besch = wegbauer_t::weg_search( air_wt, 250, welt->get_timeline_year_month(), weg_t::type_elevated );
@@ -465,32 +464,15 @@ halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int r
 	}
 	// first, check if at least one tile is within city limits
 	const koord lo = city->get_linksoben();
-	const koord ru = city->get_rechtsunten();
 	koord size(3-1,3-1);
 	// make sure pos is within city limits!
 	if(pos.x<lo.x) {
-		if(pos.x+size.x<lo.x) {
-			// not within limits!
-			needs_hub = true;
-		}
 		pos.x += size.x;
 		size.x = -size.x;
 	}
 	if(pos.y<lo.y) {
-		if(pos.y+size.y<lo.y) {
-			// not within limits!
-			needs_hub = true;
-		}
 		pos.y += size.y;
 		size.y = -size.y;
-	}
-	if(pos.x>ru.x) {
-		// not within limits!
-		needs_hub = true;
-	}
-	if(pos.y>ru.y) {
-		// not within limits!
-		needs_hub = true;
 	}
 	// find coord to connect in the town
 	halthandle_t hub = get_our_hub( city );

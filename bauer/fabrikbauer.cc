@@ -673,7 +673,6 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 	// Hajo: search if there already is one or two (crossconnect everything if possible)
 	const slist_tpl<fabrik_t *> & list = welt->get_fab_list();
 	slist_iterator_tpl <fabrik_t *> iter (list);
-	bool found = false;
 
 	while( iter.next() &&
 			// try to find matching factories for this consumption
@@ -711,7 +710,6 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 						}
 						// here is actually capacity left (or sometimes just connect anyway)!
 						if (production_left > 0 || simrand(100) < (uint32)welt->get_settings().get_crossconnect_factor()) {
-							found = true;
 							if(production_left>0) {
 								verbrauch -= production_left;
 								fab->add_lieferziel(our_fab->get_pos().get_2d());
@@ -744,14 +742,6 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 	}
 
 	INT_CHECK( "fabrikbauer 670" );
-
-	if(lcount!=0) {
-		/* if a certain number of producer is requested,
-		 * we will built at least some new factories
-		 * crossconnected ones only count half for this
-		 */
-		found = lfound/2;
-	}
 
 	/* try to add all types of factories until demand is satisfied
 	 * or give up after 50 tries

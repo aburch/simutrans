@@ -1094,11 +1094,9 @@ sint64 settings_t::get_starting_money(sint16 const year) const
 
 	// search entry with startingmoneyperyear[i].year > year
 	int i;
-	bool found = false;
 	for(  i=0;  i<10;  i++  ) {
 		if(startingmoneyperyear[i].year!=0) {
 			if (startingmoneyperyear[i].year>year) {
-				found = true;
 				break;
 			}
 		}
