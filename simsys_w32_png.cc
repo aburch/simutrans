@@ -14,7 +14,7 @@
 #include <windows.h>
 
 // structures, since we use the C-interface
-typedef struct
+struct ImageCodecInfo
 {
 	CLSID Clsid;
 	GUID  FormatID;
@@ -29,7 +29,7 @@ typedef struct
 	DWORD SigSize;
 	const BYTE* SigPattern;
 	const BYTE* SigMask;
-} ImageCodecInfo;
+};
 
 #define    PixelFormatIndexed      0x00010000 // Indexes into a palette
 #define    PixelFormatGDI          0x00020000 // Is a GDI-supported format
@@ -51,7 +51,7 @@ struct GdiplusStartupInput
 };
 
 // and the functions from the library
-int (WINAPI *GdiplusStartup)(ULONG_PTR *token, struct GdiplusStartupInput *size, void *);
+int (WINAPI *GdiplusStartup)(ULONG_PTR* token, GdiplusStartupInput* size, void*);
 int (WINAPI *GdiplusShutdown)(ULONG_PTR token);
 int (WINAPI *GdipGetImageEncodersSize)(UINT *numEncoders, UINT *size);
 int (WINAPI *GdipGetImageEncoders)(UINT numEncoders, UINT size, ImageCodecInfo *encoders);
@@ -111,7 +111,7 @@ int dr_screenshot_png(const char *filename,  int w, int h, int maxwidth, unsigne
 	CLSID encoderClsid;
 	int ok=FALSE;
 	ULONG *myImage = NULL;
-	struct GdiplusStartupInput gdiplusStartupInput;
+	GdiplusStartupInput gdiplusStartupInput;
 	ULONG_PTR gdiplusToken;
 
 	HMODULE hGDIplus = LoadLibraryA( "gdiplus.dll" );
