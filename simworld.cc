@@ -3156,7 +3156,7 @@ void karte_t::neuer_monat()
 	if(actual_industry_density < target_industry_density)
 	{
 		// Only add one per month, and randomise.
-		const uint32 percentage = ((target_industry_density - actual_industry_density) / target_industry_density) * 100;
+		const uint32 percentage = ((target_industry_density - actual_industry_density) * 100) / target_industry_density;
 		const uint8 chance = simrand(10000, "void karte_t::neuer_monat()");
 		if(chance < percentage)
 		{
