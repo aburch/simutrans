@@ -1,10 +1,9 @@
-*.d
 *.ncb
-*.o
 *.suo
 *.vcproj.*
 /Debug
 /Release
+/build
 /config.*
 /makeobj/makeobj
 /makeobj/makeobj.exe

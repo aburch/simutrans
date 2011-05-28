@@ -459,8 +459,8 @@ endif
 CCFLAGS  += $(CFLAGS)
 CXXFLAGS += $(CFLAGS)
 
-PROG ?= sim
-
+BUILDDIR ?= build/$(CFG)
+PROG     ?= sim
 
 include common.mk
 
