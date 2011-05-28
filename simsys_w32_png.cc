@@ -38,19 +38,7 @@ typedef struct
 #define    PixelFormat16bppRGB565     (6 | (16 << 8) | PixelFormatGDI)
 #define    PixelFormat24bppRGB        (8 | (24 << 8) | PixelFormatGDI)
 
-typedef struct
-{
-    GUID    Guid;               // GUID of the parameter
-    ULONG   NumberOfValues;     // Number of the parameter values
-    ULONG   Type;               // Value type, like ValueTypeLONG  etc.
-    VOID*   Value;              // A pointer to the parameter values
-} EncoderParameter;
-
-typedef struct
-{
-    UINT Count;                      // Number of parameters in this structure
-    EncoderParameter Parameter[1];   // Parameter values
-} EncoderParameters;
+struct EncoderParameters;
 
 struct GdiplusStartupInput
 {
@@ -179,15 +167,13 @@ int dr_screenshot_png(const char *filename,  int w, int h, int maxwidth, unsigne
 	// Genausogut kann man auch image/png benutzen um png's zu speichern ;D
 	// ...oder image/gif um gif's zu speichern, ...
 	if(myImage!=NULL  &&  GetEncoderClsid(L"image/png", &encoderClsid)!=-1) {
-		EncoderParameters ep;
 		char cfilename[1024];
 		sprintf(cfilename, "%.*s.png", (int)(strlen(filename) - 4), filename);
 
 		WCHAR wfilename[1024];
 		MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, cfilename, -1, wfilename, lengthof(wfilename));
-		ep.Count = 0;
 
-		if (GdipSaveImageToFile(myImage, wfilename, &encoderClsid, &ep) == 0) {
+		if (GdipSaveImageToFile(myImage, wfilename, &encoderClsid, 0) == 0) {
 			ok = TRUE;
 		}
 		else {
