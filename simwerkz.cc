@@ -2122,8 +2122,9 @@ void wkz_tunnelbau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &s
 	}
 }
 
+
 /* removes a way like a driving car ... */
-const char* wkz_wayremover_t::get_tooltip(const spieler_t *sp) const
+char const* wkz_wayremover_t::get_tooltip(spieler_t const*) const
 {
 	switch(atoi(default_param)) {
 		case road_wt: return translator::translate("remove roads");
@@ -3359,7 +3360,8 @@ wkz_roadsign_t::wkz_roadsign_t() : two_click_werkzeug_t()
 	besch = NULL;
 }
 
-const char* wkz_roadsign_t::get_tooltip(const spieler_t *sp) const
+
+char const* wkz_roadsign_t::get_tooltip(spieler_t const*) const
 {
 	const roadsign_besch_t * besch = roadsign_t::find_besch(default_param);
 	if(besch) {
@@ -4696,8 +4698,7 @@ const char *wkz_stop_moving_t::do_work( karte_t *welt, spieler_t *sp, const koor
 }
 
 
-
-const char* wkz_daynight_level_t::get_tooltip(const spieler_t *sp) const
+char const* wkz_daynight_level_t::get_tooltip(spieler_t const*) const
 {
 	if(default_param  &&  strlen(default_param)>0) {
 		if(default_param[0]=='+'  ||  default_param[0]=='-') {
@@ -4923,7 +4924,8 @@ const char *wkz_show_underground_t::work( karte_t *welt, spieler_t *sp, koord3d 
 	return NULL;
 }
 
-const char* wkz_show_underground_t::get_tooltip(const spieler_t *sp) const
+
+char const* wkz_show_underground_t::get_tooltip(spieler_t const*) const
 {
 	// no default-param == U for backward compatibility
 	if(  default_param == NULL  ) {
