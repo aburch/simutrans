@@ -3697,12 +3697,20 @@ stadt_t::destination stadt_t::find_destination(factory_set_t &target_factories, 
 	if(rand < welt->get_einstellungen()->get_factory_worker_percentage()  &&  target_factories.total_remaining>0  &&  (sint64)target_factories.generation_ratio>((sint64)(target_factories.total_generated*100)<<RATIO_BITS)/(generated+1)  )
 	{
 		factory_entry_t* entry = target_factories.get_random_entry();
+		while(entry->factory == NULL)
+		{
+			entry = target_factories.get_random_entry();
+		} 
 		*will_return = factory_return;	// worker will return
 		current_destination.type = FACTORY_PAX;
 		uint8 counter = 0;
 		while(counter ++ < 32 && (accurate_distance(origin, entry->factory->get_pos().get_2d()) > max_distance || accurate_distance(origin, entry->factory->get_pos().get_2d()) < min_distance))
 		{
-			 entry = target_factories.get_random_entry();
+			entry = target_factories.get_random_entry();
+			while(entry->factory == NULL)
+			{
+				entry = target_factories.get_random_entry();
+			} 
 		}
 		current_destination.location = entry->factory->get_pos().get_2d();
 		current_destination.object.industry = entry->factory;
@@ -3710,11 +3718,11 @@ stadt_t::destination stadt_t::find_destination(factory_set_t &target_factories, 
 		return current_destination;
 	} 
 	
-	else if(  rand < welt->get_einstellungen()->get_tourist_percentage() + welt->get_einstellungen()->get_factory_worker_percentage()  &&  welt->get_ausflugsziele().get_sum_weight() > 0  ) 
+	else if(rand < welt->get_einstellungen()->get_tourist_percentage() + welt->get_einstellungen()->get_factory_worker_percentage()) 
 	{ 		
 		*will_return = tourist_return;	// tourists will return
 		const gebaeude_t* gb = welt->get_random_ausflugsziel();
-		current_destination.type = TOURIST_PAX ;
+		current_destination.type = TOURIST_PAX;
 		uint8 counter = 0;
 		while(counter ++ < 32 && (accurate_distance(origin, gb->get_pos().get_2d()) > max_distance || accurate_distance(origin, gb->get_pos().get_2d()) < min_distance))
 		{
