@@ -21,16 +21,12 @@
 #define NOMINMAX 1
 #include <windows.h>
 #else
+#	include <limits.h>
 #ifndef  __HAIKU__
 #include <sys/errno.h>
 #else
 #include <posix/errno.h>
 #endif
-#endif
-
-
-#ifndef PATH_MAX
-#define PATH_MAX (1024)
 #endif
 
 #undef min

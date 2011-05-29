@@ -9,7 +9,7 @@
 #include <windows.h>
 #	define PATH_MAX 1024
 #else
-#include <sys/param.h>
+#	include <limits.h>
 #endif
 
 

@@ -13,10 +13,6 @@
 
 #include <math.h>
 
-#ifndef PATH_MAX
-#define PATH_MAX (1024)
-#endif
-
 #include "macros.h"
 #include "simmain.h"
 #include "simsys.h"
@@ -32,6 +28,8 @@
 #include <windows.h>
 #undef BITMAP
 #undef WinMain
+#else
+#	include <limits.h>
 #endif
 
 #include <allegro.h>
