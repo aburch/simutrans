@@ -1755,9 +1755,9 @@ void haltestelle_t::hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp
 							maxi = 0;
 						}
 						else {
+							maxi -= tmp.menge;
 							// leave an empty entry => joining will more often work
 							tmp.menge = 0;
-							maxi -= tmp.menge;
 						}
 						fracht.insert(neu);
 
