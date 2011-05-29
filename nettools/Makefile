@@ -1,5 +1,5 @@
-CONFIG ?= ../config.default
--include $(CONFIG)
+CFG ?= default
+-include ../config.$(CFG)
 
 OSTYPES       = beos cygwin freebsd haiku linux mingw mac
 
@@ -92,6 +92,8 @@ VARIANT_SOURCES += ../dataobj/network_file_transfer.cc
 
 SOURCES ?= $(SOLO_SOURCES) $(SHARED_SOURCES) $(VARIANT_SOURCES)
 
+BUILDDIR ?= ../build/$(CFG)
+TOOL ?= nettool
 PROG ?= nettool
 
 include uncommon.mk

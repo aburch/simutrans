@@ -1,9 +1,14 @@
-DEPS    = $(filter %.d, $(SOURCES:%.cc=%-nettool.d) $(SOURCES:%.c=%-nettool.d) $(SOURCES:%.m=%-nettool.d) $(SOURCES:%.mm=%-nettool.d))
-OBJECTS = $(filter %.o, $(SOURCES:%.cc=%-nettool.o) $(SOURCES:%.c=%-nettool.o) $(SOURCES:%.m=%-nettool.o) $(SOURCES:%.mm=%-nettool.o) $(SOURCES:%.rc=%-nettool.o))
+# Source files located in ../
+OBJS := $(patsubst %, $(BUILDDIR)/%-$(TOOL).o, $(basename $(patsubst ../%, %,$(filter ../%,$(SOURCES)))))
+# Source files located in current directory
+OBJS += $(patsubst %, $(BUILDDIR)/$(TOOL)/%-$(TOOL).o, $(basename $(filter-out ../%,$(SOURCES))))
+DEPS := $(patsubst %.o, %.d, $(OBJS))
+DIRS := $(sort $(dir $(OBJS)))
 
-.PHONY: clean depend
+# Make build directories
+DUMMY := $(shell mkdir -p $(DIRS))
 
-.SUFFIXES: .rc
+.PHONY: clean
 
 ifeq ($(VERBOSE),)
   Q = @
@@ -11,60 +16,36 @@ else
   Q =
 endif
 
-all: $(PROG)
+all: $(BUILDDIR)/$(TOOL)/$(PROG)
 
-$(PROG): $(OBJECTS)
+$(BUILDDIR)/$(TOOL)/$(PROG): $(OBJS)
 	@echo "===> LD  $@"
-	$(Q)$(CXX) $(OBJECTS) $(LDFLAGS) $(STD_LIBS) $(LIBS) -o $@
+	$(Q)$(CXX) $(OBJS) $(LDFLAGS) $(STD_LIBS) $(LIBS) -o $@
 
 clean:
 	@echo "===> Cleaning up"
-	$(Q)rm -f $(PROG) $(OBJECTS) $(DEPS)
+	$(Q)rm -fr $(BUILDDIR)
 
-ifndef NO_DEPS
-depend: $(DEPS)
-
-ifeq ($(findstring $(MAKECMDGOALS), clean depend),)
 -include $(DEPS)
-endif
-endif
 
 # Silence stale header dependency errors
 %.h:
 	@true
 
-%-nettool.d: %.mm
-	@echo "===> DEP OSX $<"
-	$(Q)$(CXX) $(OBJCFLAGS) -MT `echo $< | sed 's/\.m/\-nettool.o/'` -MM $< | sed 's#^$(@F:%.d=%.o):#$@ $(@:%.d=%.o):#' > $@
-
-%-nettool.d: %.m
-	@echo "===> DEP OSX $<"
-	$(Q)$(CXX) $(OBJCFLAGS) -MT `echo $< | sed 's/\.mm/\-nettool.o/'` -MM $< | sed 's#^$(@F:%.d=%.o):#$@ $(@:%.d=%.o):#' > $@
-
-%-nettool.d: %.c
-	@echo "===> DEP $<"
-	$(Q)$(CC) $(CFLAGS) -MT `echo $< | sed 's/\.c/\-nettool.o/'` -MM $< | sed 's#^$(@F:%.d=%.o):#$@ $(@:%.d=%.o):#' > $@
-
-%-nettool.d: %.cc
-	@echo "===> DEP $<"
-	$(Q)$(CXX) $(CXXFLAGS) -MT `echo $< | sed 's/\.cc/\-nettool.o/'` -MM $< | sed 's#^$(@F:%.d=%.o):#$@ $(@:%.d=%.o):#' > $@
-
-%-nettool.o: %.mm
-	@echo "===> Obj-c OSX $<"
-	$(Q)$(CXX) $(CXXFLAGS) $(OBJCFLAGS)  -o $@ -c $<
-
-%-nettool.o: %.m
-	@echo "===> Obj-c OSX $<"
-	$(Q)$(CXX) $(CXXFLAGS) $(OBJCFLAGS)  -o $@ -c $<
-
-%-nettool.o: %.c
+# Source files located in ../
+$(BUILDDIR)/%-$(TOOL).o: ../%.c
 	@echo "===> CC  $<"
-	$(Q)$(CC) $(CFLAGS) -o $@ -c $<
+	$(Q)$(CC) $(CCFLAGS) -c -MMD -o $@ $<
 
-%-nettool.o: %.cc
+$(BUILDDIR)/%-$(TOOL).o: ../%.cc
 	@echo "===> CXX $<"
-	$(Q)$(CXX) $(CXXFLAGS) -o $@ -c $<
+	$(Q)$(CXX) $(CXXFLAGS) -c -MMD -o $@ $<
 
-%-nettool.o: %.rc
-	@echo "===> RES $<"
-	$(Q)$(WINDRES) -O COFF $< $@
+# Source files located in current directory
+$(BUILDDIR)/$(TOOL)/%-$(TOOL).o: %.c
+	@echo "===> CC  $<"
+	$(Q)$(CC) $(CCFLAGS) -c -MMD -o $@ $<
+
+$(BUILDDIR)/$(TOOL)/%-$(TOOL).o: %.cc
+	@echo "===> CXX $<"
+	$(Q)$(CXX) $(CXXFLAGS) -c -MMD -o $@ $<
