@@ -1292,7 +1292,7 @@ const char *wkz_clear_reservation_t::work( karte_t *welt, spieler_t *, koord3d k
 
 
 // transformer for electricity supply
-const char *wkz_transformer_t::get_tooltip( spieler_t *sp )
+const char* wkz_transformer_t::get_tooltip(const spieler_t *sp) const
 {
 	settings_t const& s = sp->get_welt()->get_settings();
 	sprintf(toolstr, "%s, %ld$ (%ld$)", translator::translate("Build drain"), (long)(s.cst_transformer / -100), (long)(s.cst_maintain_transformer << (sp->get_welt()->ticks_per_world_month_shift - 18)) / -100);
@@ -1568,7 +1568,7 @@ image_id wkz_wegebau_t::get_icon(spieler_t *) const
 	return (grund_t::underground_mode==grund_t::ugm_all && !is_tram ) ? IMG_LEER : icon;
 }
 
-const char *wkz_wegebau_t::get_tooltip(spieler_t *sp)
+const char* wkz_wegebau_t::get_tooltip(const spieler_t *sp) const
 {
 	const weg_besch_t *besch = get_besch(sp->get_welt()->get_timeline_year_month(),false);
 	tooltip_with_price_maintenance( sp->get_welt(), besch->get_name(), -besch->get_preis(), besch->get_wartung() );
@@ -1602,7 +1602,7 @@ const char* wkz_wegebau_t::get_default_param(spieler_t *sp) const
 	}
 }
 
-bool wkz_wegebau_t::is_selected( karte_t *welt ) const
+bool wkz_wegebau_t::is_selected( const karte_t *welt ) const
 {
 	if (welt->get_werkzeug(welt->get_active_player_nr())->get_id()!=id) {
 		return false;
@@ -1775,7 +1775,7 @@ const char *wkz_build_cityroad::do_work( karte_t *welt, spieler_t *sp, const koo
 }
 
 /* bridge construction */
-const char *wkz_brueckenbau_t::get_tooltip(spieler_t *sp)
+const char* wkz_brueckenbau_t::get_tooltip(const spieler_t *sp) const
 {
 	const bruecke_besch_t * besch = brueckenbauer_t::get_besch(default_param);
 	tooltip_with_price_maintenance( sp->get_welt(), besch->get_name(), -besch->get_preis(), besch->get_wartung() );
@@ -1977,7 +1977,7 @@ uint8 wkz_brueckenbau_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord
 
 
 /* more difficult, since this builds also underground ways */
-const char *wkz_tunnelbau_t::get_tooltip(spieler_t *sp)
+const char* wkz_tunnelbau_t::get_tooltip(const spieler_t *sp) const
 {
 	const tunnel_besch_t * besch = tunnelbauer_t::get_besch(default_param);
 	tooltip_with_price_maintenance( sp->get_welt(), besch->get_name(), -besch->get_preis(), besch->get_wartung() );
@@ -2123,7 +2123,7 @@ void wkz_tunnelbau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &s
 }
 
 /* removes a way like a driving car ... */
-const char *wkz_wayremover_t::get_tooltip(spieler_t *)
+const char* wkz_wayremover_t::get_tooltip(const spieler_t *sp) const
 {
 	switch(atoi(default_param)) {
 		case road_wt: return translator::translate("remove roads");
@@ -2364,7 +2364,7 @@ const char *wkz_wayremover_t::do_work( karte_t *welt, spieler_t *sp, const koord
 /* add catenary during construction */
 const way_obj_besch_t *wkz_wayobj_t::default_electric = NULL;
 
-const char *wkz_wayobj_t::get_tooltip(spieler_t *sp)
+const char* wkz_wayobj_t::get_tooltip(const spieler_t *sp) const
 {
 	if(  build  ) {
 		const way_obj_besch_t *besch = get_besch(sp->get_welt());
@@ -2380,7 +2380,7 @@ const char *wkz_wayobj_t::get_tooltip(spieler_t *sp)
 		return NULL;
 	}
 	else {
-		wt = (waytype_t)atoi( default_param );
+		waytype_t wt = (waytype_t)atoi( default_param );
 		sprintf( toolstr, translator::translate("Remove wayobj %s"), translator::translate(weg_t::waytype_to_string(wt)) );
 		return toolstr;
 	}
@@ -2398,7 +2398,7 @@ const way_obj_besch_t *wkz_wayobj_t::get_besch( const karte_t* welt ) const
 	return besch;
 }
 
-bool wkz_wayobj_t::is_selected( karte_t *welt ) const
+bool wkz_wayobj_t::is_selected( const karte_t *welt ) const
 {
 	const wkz_wayobj_t *selected = dynamic_cast<const wkz_wayobj_t *>(welt->get_werkzeug(welt->get_active_player_nr()));
 	return (selected  &&  selected->build==build  &&  selected->get_besch(welt) == get_besch(welt));
@@ -3235,7 +3235,7 @@ image_id wkz_station_t::get_icon( spieler_t * ) const
 
 
 
-char const* wkz_station_t::get_tooltip(spieler_t* const sp)
+const char* wkz_station_t::get_tooltip(const spieler_t *sp) const
 {
 	sint8               dummy;
 	karte_t&            welt     = *sp->get_welt();
@@ -3359,7 +3359,7 @@ wkz_roadsign_t::wkz_roadsign_t() : two_click_werkzeug_t()
 	besch = NULL;
 }
 
-const char *wkz_roadsign_t::get_tooltip(spieler_t *)
+const char* wkz_roadsign_t::get_tooltip(const spieler_t *sp) const
 {
 	const roadsign_besch_t * besch = roadsign_t::find_besch(default_param);
 	if(besch) {
@@ -3852,7 +3852,7 @@ bool wkz_depot_t::init( karte_t *welt, spieler_t *sp )
 }
 
 
-char const* wkz_depot_t::get_tooltip(spieler_t* const sp)
+const char* wkz_depot_t::get_tooltip(const spieler_t *sp) const
 {
 	karte_t&            welt     = *sp->get_welt();
 	settings_t   const& settings = welt.get_settings();
@@ -4304,12 +4304,12 @@ const char *wkz_link_factory_t::do_work( karte_t *welt, spieler_t *, const koord
 /* builds company headquarter
  * @author prissi
  */
-const haus_besch_t *wkz_headquarter_t::next_level( spieler_t *sp )
+const haus_besch_t *wkz_headquarter_t::next_level( const spieler_t *sp ) const
 {
 	return hausbauer_t::get_headquarter(sp->get_headquarter_level(), sp->get_welt()->get_timeline_year_month());
 }
 
-const char *wkz_headquarter_t::get_tooltip( spieler_t *sp )
+const char* wkz_headquarter_t::get_tooltip(const spieler_t *sp) const
 {
 	if (haus_besch_t const* const besch = next_level(sp)) {
 		settings_t  const& s      = sp->get_welt()->get_settings();
@@ -4697,7 +4697,8 @@ const char *wkz_stop_moving_t::do_work( karte_t *welt, spieler_t *sp, const koor
 
 
 
-const char *wkz_daynight_level_t::get_tooltip(spieler_t *) {
+const char* wkz_daynight_level_t::get_tooltip(const spieler_t *sp) const
+{
 	if(default_param  &&  strlen(default_param)>0) {
 		if(default_param[0]=='+'  ||  default_param[0]=='-') {
 			sprintf(toolstr, "%s %s",
@@ -4746,7 +4747,8 @@ bool wkz_make_stop_public_t::init( karte_t *, spieler_t * )
 	return true;
 }
 
-const char *wkz_make_stop_public_t::get_tooltip(spieler_t *sp) {
+const char* wkz_make_stop_public_t::get_tooltip(const spieler_t *sp) const
+{
 	sint32 const cost = ((sp->get_welt()->get_settings().maint_building * 60) << (sp->get_welt()->ticks_per_world_month_shift - 18)) / 100;
 	sprintf(toolstr, translator::translate("make stop public (or join with public stop next) costs %i per tile and level"), cost);
 	return toolstr;
@@ -4921,11 +4923,11 @@ const char *wkz_show_underground_t::work( karte_t *welt, spieler_t *sp, koord3d 
 	return NULL;
 }
 
-const char *wkz_show_underground_t::get_tooltip(spieler_t *)
+const char* wkz_show_underground_t::get_tooltip(const spieler_t *sp) const
 {
-	// default default-param = U for backward compatibility
+	// no default-param == U for backward compatibility
 	if(  default_param == NULL  ) {
-		default_param = strdup("U");
+		return translator::translate("underground mode");
 	}
 	// now check the default parameter
 	switch(default_param[0]) {
@@ -4948,7 +4950,7 @@ const char *wkz_show_underground_t::get_tooltip(spieler_t *)
 	}
 }
 
-bool wkz_show_underground_t::is_selected(karte_t *) const
+bool wkz_show_underground_t::is_selected(const karte_t *) const
 {
 	// default default-param = U for backward compatibility
 	if(  default_param == NULL  ) {
