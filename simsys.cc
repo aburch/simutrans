@@ -7,7 +7,7 @@
 #ifdef _WIN32
 #	define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#	define PATH_MAX 1024
+#	define PATH_MAX MAX_PATH
 #else
 #	include <limits.h>
 #endif
