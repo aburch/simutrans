@@ -32,6 +32,7 @@ ware_t::ware_t() : ziel(), zwischenziel(), zielpos(-1, -1)
 	index = 0;
 	accumulated_distance = 0;
 	arrival_time = 0;
+	to_factory = 0;
 }
 
 
@@ -42,6 +43,7 @@ ware_t::ware_t(const ware_besch_t *wtyp) : ziel(), zwischenziel(), zielpos(-1, -
 	index = wtyp->get_index();
 	accumulated_distance = 0;
 	arrival_time = 0;
+	to_factory = 0;
 }
 
 // Constructor for new revenue system: packet of cargo keeps track of its origin.
@@ -77,6 +79,15 @@ void ware_t::rdwr(karte_t *welt,loadsave_t *file)
 	if(file->get_version()<99008) {
 		sint32 max;
 		file->rdwr_long(max);
+	}
+
+	if(  file->get_version()>=110005  ) {
+		uint8 factory_going = to_factory;
+		file->rdwr_byte(factory_going);
+		to_factory = factory_going;
+	}
+	else if(  file->is_loading()  ) {
+		to_factory = 0;
 	}
 
 	uint8 catg=0;

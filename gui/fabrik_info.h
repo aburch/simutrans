@@ -29,6 +29,8 @@ class fabrik_info_t : public ding_infowin_t, public action_listener_t
  private:
 	const fabrik_t* fab;
 
+	button_t chart_button;
+
 	button_t *lieferbuttons;
 	button_t *supplierbuttons;
 	button_t *stadtbuttons;

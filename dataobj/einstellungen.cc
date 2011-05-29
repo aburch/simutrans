@@ -116,7 +116,9 @@ einstellungen_t::einstellungen_t() :
 	// not more than four towns should supply to a factory
 	factory_worker_maximum_towns = 4;
 
+	factory_arrival_periods = 4;
 
+	factory_enforce_demand = true;
 
 #ifdef OTTD_LIKE
 	/* prissi: crossconnect all factories (like OTTD and similar games) */
@@ -1159,6 +1161,11 @@ void einstellungen_t::rdwr(loadsave_t *file)
 				default_player_color[i][1] = 255;
 			}
 		}
+
+		if(  file->get_version()>=110005  ) {
+			file->rdwr_short(factory_arrival_periods);
+			file->rdwr_bool(factory_enforce_demand);
+		}
 	}
 }
 
@@ -1356,6 +1363,8 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	factory_worker_radius = contents.get_int("factory_worker_radius", factory_worker_radius );
 	factory_worker_minimum_towns = contents.get_int("factory_worker_minimum_towns", factory_worker_minimum_towns );
 	factory_worker_maximum_towns = contents.get_int("factory_worker_maximum_towns", factory_worker_maximum_towns );
+	factory_arrival_periods = clamp( contents.get_int("factory_arrival_periods", factory_arrival_periods), 1, 16 );
+	factory_enforce_demand = contents.get_int("factory_enforce_demand", factory_enforce_demand) != 0;
 	tourist_percentage = contents.get_int("tourist_percentage", tourist_percentage );
 	seperate_halt_capacities = contents.get_int("seperate_halt_capacities", seperate_halt_capacities ) != 0;
 	avoid_overcrowding = contents.get_int("avoid_overcrowding", avoid_overcrowding )!=0;

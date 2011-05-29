@@ -483,7 +483,6 @@ pumpe_t::pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , p
 pumpe_t::~pumpe_t()
 {
 	if(fab) {
-		fab->set_prodfaktor( max(16,fab->get_prodfaktor()/2) );
 		fab->set_transformer_connected( NULL );
 		pumpe_list.remove( this );
 		fab = NULL;
@@ -608,7 +607,6 @@ senke_t::~senke_t()
 		welt->sync_remove( this );
 		if(fab)
 		{
-			fab->set_prodfaktor( 16 );
 			fab->set_transformer_connected( NULL );
 		}
 		if(city)
@@ -738,7 +736,8 @@ void senke_t::step(long delta_t)
 	/* Now actually feed the power through to the factories and city
 	 * Note that a substation cannot supply both a city and factory at once.
 	 */
-	if (fab != NULL && fab->get_city() == NULL) {
+	if (fab != NULL && fab->get_city() == NULL)
+	{
 		// the connected fab gets priority access to the power supply if there's a shortage
 		// This should use 'min', but the current version of that in simtypes.h 
 		// would cast to signed int (12.05.10)  FIXME.
@@ -784,8 +783,22 @@ void senke_t::step(long delta_t)
 		city->add_power_demand((municipal_power_demand>>POWER_TO_MW) * (load_proportion * load_proportion) / 10000);
 	}
 	// Income
-	max_einkommen += last_power_demand * delta_t / PRODUCTION_DELTA_T;
-	einkommen += (((power_load  * delta_t / PRODUCTION_DELTA_T) * load_proportion) / 100);
+	if(!fab || fab->get_besch()->get_electric_amount() == 65535)
+	{
+		// City, or factory demand not specified in pak: use old fixed demands
+		max_einkommen += last_power_demand * delta_t / PRODUCTION_DELTA_T;
+		einkommen += power_load  * delta_t / PRODUCTION_DELTA_T;
+	}
+	else if(welt->ticks_per_world_month_shift >= 18)
+	{
+		max_einkommen += (last_power_demand * delta_t / PRODUCTION_DELTA_T) >> (welt->ticks_per_world_month_shift-18);
+		einkommen += (power_load  * delta_t / PRODUCTION_DELTA_T) >> (welt->ticks_per_world_month_shift-18);
+	}
+	else 
+	{
+		max_einkommen += (last_power_demand * delta_t / PRODUCTION_DELTA_T) << (18-welt->ticks_per_world_month_shift);
+		einkommen += (power_load  * delta_t / PRODUCTION_DELTA_T) << (18-welt->ticks_per_world_month_shift);
+	}
 
 	// Income rollover
 	if(max_einkommen>(2000<<11)) {

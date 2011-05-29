@@ -356,6 +356,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gui\factory_chart.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\gui\factory_edit.cc"
 				>
 			</File>
@@ -1353,6 +1357,10 @@
 			</File>
 			<File
 				RelativePath=".\bauer\fabrikbauer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\gui\factory_chart.h"
 				>
 			</File>
 			<File

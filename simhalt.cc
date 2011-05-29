@@ -1284,7 +1284,7 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 			if(welt->lookup(ware.get_zielpos())->is_connected(self)) 
 			{
 				// we are already there!
-				if(ware.is_freight()) 
+				if(  ware.to_factory  )
 				{
 					liefere_an_fabrik(ware);
 				}
@@ -2249,22 +2249,9 @@ void haltestelle_t::add_pax_no_route(int n)
 
 void haltestelle_t::liefere_an_fabrik(const ware_t& ware) //"deliver to the factory" (Google)
 {
-	slist_iterator_tpl<fabrik_t *> fab_iter(fab_list);
-
-	while(fab_iter.next()) {
-		fabrik_t * fab = fab_iter.get_current();
-
-		const vector_tpl<ware_production_t>& eingang = fab->get_eingang(); // eingang = "input" (Google)
-		if(eingang.get_size() == 0)
-		{
-			continue;
-		}
-		for (uint32 i = 0; i < eingang.get_count(); i++) {
-			if (eingang[i].get_typ() == ware.get_besch() && ware.get_zielpos() == fab->get_pos().get_2d()) {
-				fab->liefere_an(ware.get_besch(), ware.menge);
-				return;
-			}
-		}
+	fabrik_t *const factory = fabrik_t::get_fab( welt, ware.get_zielpos() );
+	if(  factory  ) {
+		factory->liefere_an(ware.get_besch(), ware.menge);
 	}
 }
 
@@ -2734,7 +2721,7 @@ void haltestelle_t::add_ware_to_halt(ware_t ware, bool from_saved)
 uint32 haltestelle_t::starte_mit_route(ware_t ware)
 {
 	if(ware.get_ziel()==self) {
-		if(ware.is_freight()) {
+		if(  ware.to_factory  ) {
 			// muss an fabrik geliefert werden
 			liefere_an_fabrik(ware);
 		}
@@ -2782,10 +2769,10 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 		return ware.menge;
 	}
 
-	// did we arrived?
+	// have we arrived?
 	if(welt->lookup(ware.get_zielpos())->is_connected(self)) 
 	{
-		if(ware.is_freight()) 
+		if(ware.to_factory) 
 		{
 			// muss an fabrik geliefert werden
 			liefere_an_fabrik(ware);
@@ -2899,7 +2886,7 @@ void haltestelle_t::get_freight_info(cbuffer_t & buf)
 		for(unsigned i=0; i<warenbauer_t::get_max_catg_index(); i++) {
 			const vector_tpl<ware_t> * warray = waren[i];
 			if(warray) {
-				freight_list_sorter_t::sort_freight(warray, buf, (freight_list_sorter_t::sort_mode_t)sortierung, NULL, "waiting");
+				freight_list_sorter_t::sort_freight(warray, buf, (freight_list_sorter_t::sort_mode_t)sortierung, NULL, "waiting", welt);
 			}
 		}
 	}

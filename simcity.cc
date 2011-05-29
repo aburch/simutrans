@@ -64,7 +64,6 @@
 
 #include "tpl/minivec_tpl.h"
 
-
 karte_t* stadt_t::welt = NULL; // one is enough ...
 
 // Private car ownership information.
@@ -1247,6 +1246,222 @@ void stadt_t::init_pax_destinations()
 }
 
 
+void stadt_t::factory_entry_t::rdwr(loadsave_t *file)
+{
+	if(  file->get_version()>=110005  ) {
+		koord factory_pos;
+		if(  file->is_saving()  ) {
+			factory_pos = factory->get_pos().get_2d();
+		}
+		factory_pos.rdwr( file );
+		if(  file->is_loading()  ) {
+			// position will be resolved back into fabrik_t* later
+			factory_pos_x = factory_pos.x;
+			factory_pos_y = factory_pos.y;
+		}
+		file->rdwr_long( demand );
+		file->rdwr_long( supply );
+		file->rdwr_long( remaining );
+	}
+}
+
+
+void stadt_t::factory_entry_t::resolve_factory()
+{
+	factory = fabrik_t::get_fab( welt, koord(factory_pos_x, factory_pos_y) );
+	//assert( factory );
+}
+
+
+const stadt_t::factory_entry_t* stadt_t::factory_set_t::get_entry(const fabrik_t *const factory) const
+{
+	for(  uint32 e=0;  e<entries.get_count();  ++e  ) {
+		if(  entries[e].factory==factory  ) {
+			return &entries[e];
+		}
+	}
+	return NULL;	// not found
+}
+
+
+stadt_t::factory_entry_t* stadt_t::factory_set_t::get_random_entry()
+{
+	if(  total_remaining>0  ) {
+		sint32 weight = simrand(total_remaining, "stadt_t::factory_set_t::get_random_entry()");
+		for(  uint32 e=0;  e<entries.get_count();  ++e  ) {
+			factory_entry_t &entry = entries[e];
+			if(  entry.remaining>0  ) {
+				if(  weight<entry.remaining  ) {
+					return &entry;
+				}
+				weight -= entry.remaining;
+			}
+		}
+	}
+	return NULL;
+}
+
+
+void stadt_t::factory_set_t::update_factory(fabrik_t *const factory, const sint32 demand)
+{
+	if(  entries.is_contained( factory_entry_t(factory) )  ) {
+		// existing target factory
+		factory_entry_t &entry = entries[ entries.index_of( factory_entry_t(factory) ) ];
+		total_demand += demand - entry.demand;
+		entry.demand = demand;
+		// entry.supply, entry.remaining and total_remaining will be adjusted in recalc_generation_ratio()
+	}
+	else {
+		// new target factory
+		entries.append( factory_entry_t(factory, demand) );
+		total_demand += demand;
+	}
+	ratio_stale = true;		// always trigger recalculation of ratio
+}
+
+
+void stadt_t::factory_set_t::remove_factory(fabrik_t *const factory)
+{
+	if(  entries.is_contained( factory_entry_t(factory) )  ) {
+		factory_entry_t &entry = entries[ entries.index_of( factory_entry_t(factory) ) ];
+		total_demand -= entry.demand;
+		total_remaining -= entry.remaining;
+		entries.remove( entry );
+		ratio_stale = true;
+	}
+}
+
+
+#define SUPPLY_BITS   (3)
+#define SUPPLY_FACTOR (9)	// out of 2^SUPPLY_BITS
+void stadt_t::factory_set_t::recalc_generation_ratio(const sint32 default_percent, const sint64 *city_stats, const int stats_count, const int stat_type)
+{
+	ratio_stale = false;		// reset flag
+
+	// calculate an average of at most 3 previous months' pax/mail generation amounts
+	uint32 months = 0;
+	sint64 average_generated = 0;
+	sint64 month_generated;
+	while(  months<3  &&  (month_generated=city_stats[(months+1)*stats_count+stat_type])>0  ) {
+		average_generated += month_generated;
+		++months;
+	}
+	if(  months>1  ) {
+		average_generated /= months;
+	}
+
+	/* ratio formula -> ((supply * 100) / total) shifted by RATIO_BITS */
+	// we supply 1/8 more than demand
+	const sint32 target_supply = (total_demand * SUPPLY_FACTOR + ((1<<(DEMAND_BITS+SUPPLY_BITS))-1)) >> (DEMAND_BITS+SUPPLY_BITS);
+	if(  total_demand==0  ) {
+		// no demand -> zero ratio
+		generation_ratio = 0;
+	}
+	else if(  !welt->get_einstellungen()->get_factory_enforce_demand()  ||  average_generated==0  ) {
+		// demand not enforced or no pax generation data from previous month(s) -> simply use default ratio
+		generation_ratio = (uint32)default_percent << RATIO_BITS;
+	}
+	else {
+		// ratio of target supply (plus allowances for rounding up) to previous months' average generated pax (less 6.25% or 1/16 allowance for fluctuation), capped by default ratio
+		const sint64 default_ratio = (sint64)default_percent << RATIO_BITS;
+		const sint64 supply_ratio = ((sint64)((target_supply+(sint32)entries.get_count())*100)<<RATIO_BITS) / (average_generated-(average_generated>>4)+1);
+		generation_ratio = (uint32)( default_ratio<supply_ratio ? default_ratio : supply_ratio );
+	}
+
+	// adjust supply and remaining figures
+	if(  welt->get_einstellungen()->get_factory_enforce_demand()  &&  (generation_ratio>>RATIO_BITS)==default_percent  &&  average_generated>0  &&  total_demand>0  ) {
+		const sint64 supply_promille = ( ( (average_generated << 10) * (sint64)default_percent ) / 100 ) / (sint64)target_supply;
+		if(  supply_promille<1024  ) {
+			// expected supply is really smaller than target supply
+			for(  uint32 e=0;  e<entries.get_count();  ++e  ) {
+				factory_entry_t &entry = entries[e];
+				const sint32 new_supply = (sint32)( ( (sint64)entry.demand * SUPPLY_FACTOR * supply_promille + ((1<<(DEMAND_BITS+SUPPLY_BITS+10))-1) ) >> (DEMAND_BITS+SUPPLY_BITS+10) );
+				const sint32 delta_supply = new_supply - entry.supply;
+				if(  delta_supply==0  ) {
+					continue;
+				}
+				else if(  delta_supply>0  ||  (entry.remaining+delta_supply)>=0  ) {
+					// adjust remaining figures by the change in supply
+					total_remaining += delta_supply;
+					entry.remaining += delta_supply;
+				}
+				else {
+					// avoid deducting more than allowed
+					total_remaining -= entry.remaining;
+					entry.remaining = 0;
+				}
+				entry.supply = new_supply;
+			}
+			return;
+		}
+	}
+	// expected supply is unknown or sufficient to meet target supply
+	for(  uint32 e=0;  e<entries.get_count();  ++e  ) {
+		factory_entry_t &entry = entries[e];
+		const sint32 new_supply = ( entry.demand * SUPPLY_FACTOR + ((1<<(DEMAND_BITS+SUPPLY_BITS))-1) ) >> (DEMAND_BITS+SUPPLY_BITS);
+		const sint32 delta_supply = new_supply - entry.supply;
+		if(  delta_supply==0  ) {
+			continue;
+		}
+		else if(  delta_supply>0  ||  (entry.remaining+delta_supply)>=0  ) {
+			// adjust remaining figures by the change in supply
+			total_remaining += delta_supply;
+			entry.remaining += delta_supply;
+		}
+		else {
+			// avoid deducting more than allowed
+			total_remaining -= entry.remaining;
+			entry.remaining = 0;
+		}
+		entry.supply = new_supply;
+	}
+}
+
+
+void stadt_t::factory_set_t::new_month()
+{
+	for(  uint32 e=0;  e<entries.get_count();  ++e  ) {
+		entries[e].new_month();
+	}
+	total_remaining = 0;
+	total_generated = 0;
+	ratio_stale = true;
+}
+
+
+void stadt_t::factory_set_t::rdwr(loadsave_t *file)
+{
+	if(  file->get_version()>=110005  ) {
+		uint32 entry_count = entries.get_count();
+		file->rdwr_long(entry_count);
+		if(  file->is_loading()  ) {
+			entries.resize( entry_count );
+			factory_entry_t entry;
+			for(  uint32 e=0;  e<entry_count;  ++e  ) {
+				entry.rdwr( file );
+				total_demand += entry.demand;
+				total_remaining += entry.remaining;
+				entries.append( entry );
+			}
+		}
+		else {
+			for(  uint32 e=0;  e<entry_count;  ++e  ) {
+				entries[e].rdwr( file );
+			}
+		}
+		file->rdwr_long( total_generated );
+	}
+}
+
+
+void stadt_t::factory_set_t::resolve_factories()
+{
+	for(  uint32 e=0;  e<entries.get_count();  ++e  ) {
+		entries[e].resolve_factory();
+	}
+}
+
+
 stadt_t::~stadt_t()
 {
 	// close info win
@@ -1322,8 +1537,7 @@ stadt_t::~stadt_t()
 stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 	buildings(16),
 	pax_destinations_old(koord(PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE)),
-	pax_destinations_new(koord(PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE)),
-	arbeiterziele(4)
+	pax_destinations_new(koord(PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE))
 {
 	welt = sp->get_welt();
 	assert(welt->ist_in_kartengrenzen(pos));
@@ -1678,6 +1892,10 @@ void stadt_t::rdwr(loadsave_t* file)
 		townhall_road = koord::invalid;
 	}
 
+	// data related to target factories
+	target_factories_pax.rdwr( file );
+	target_factories_mail.rdwr( file );
+
 	if(file->get_experimental_version() >=9 && file->get_version() >= 110000)
 	{
 		file->rdwr_bool(check_road_connexions);
@@ -1847,6 +2065,10 @@ void stadt_t::laden_abschliessen()
 
 	next_step = 0;
 	next_bau_step = 0;
+
+	// resolve target factories
+	target_factories_pax.resolve_factories();
+	target_factories_mail.resolve_factories();
 }
 
 
@@ -2000,35 +2222,29 @@ void stadt_t::zeige_info(void)
 }
 
 
-/* add workers to factory list */
-void stadt_t::add_factory_arbeiterziel(fabrik_t* fab)
-{
-	fab->add_arbeiterziel(this);
-	arbeiterziele.append_unique(fab, fab->get_besch()->get_pax_level(), 4);
-}
-
-
 /* calculates the factories which belongs to certain cities */
 void stadt_t::verbinde_fabriken()
 {
 	DBG_MESSAGE("stadt_t::verbinde_fabriken()", "search factories near %s (center at %i,%i)", get_name(), pos.x, pos.y);
+	assert( target_factories_pax.get_entries().empty() );
+	assert( target_factories_mail.get_entries().empty() );
 
-	arbeiterziele.clear();
 	ITERATE(welt->get_fab_list(), i)
 	{
 		fabrik_t* fab = welt->get_fab_list()[i];
-		const uint32 count = fab->get_arbeiterziele().get_count();
+		const uint32 count = fab->get_target_cities().get_count();
 		if (count < welt->get_einstellungen()->get_factory_worker_minimum_towns()
 			||  (count < welt->get_einstellungen()->get_factory_worker_maximum_towns()  &&  accurate_distance(fab->get_pos().get_2d(), pos) < welt->get_einstellungen()->get_factory_worker_radius())) 
 		{
-			add_factory_arbeiterziel(fab);
-			if(fab->get_arbeiterziele().get_count() >= welt->get_einstellungen()->get_factory_worker_maximum_towns())
+			fab->add_target_city(this);
+			if(fab->get_target_cities().get_count() >= welt->get_einstellungen()->get_factory_worker_maximum_towns())
 			{
 				break;
 			}
 		}
 	}
-	DBG_MESSAGE("stadt_t::verbinde_fabriken()", "is connected with %i factories (sum_weight=%i).", arbeiterziele.get_count(), arbeiterziele.get_sum_weight());
+	DBG_MESSAGE("stadt_t::verbinde_fabriken()", "is connected with %i/%i factories (total demand=%i/%i) for pax/mail.",
+		target_factories_pax.get_entries().get_count(), target_factories_mail.get_entries().get_count(), target_factories_pax.total_demand, target_factories_mail.total_demand);
 }
 
 
@@ -2068,6 +2284,14 @@ void stadt_t::step(long delta_t)
 {
 	if(delta_t>20000) {
 		delta_t = 1;
+	}
+
+	// recalculate factory going ratios where necessary
+	if(  target_factories_pax.ratio_stale  ) {
+		target_factories_pax.recalc_generation_ratio(welt->get_einstellungen()->get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_PAS_GENERATED);
+	}
+	if(  target_factories_mail.ratio_stale  ) {
+		target_factories_mail.recalc_generation_ratio(welt->get_einstellungen()->get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_MAIL_GENERATED);
 	}
 
 	// is it time for the next step?
@@ -2167,6 +2391,10 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 	calc_internal_passengers();
 
 	roll_history();
+	target_factories_pax.new_month();
+	target_factories_mail.new_month();
+	target_factories_pax.recalc_generation_ratio(welt->get_einstellungen()->get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_PAS_GENERATED);
+	target_factories_mail.recalc_generation_ratio(welt->get_einstellungen()->get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_MAIL_GENERATED);
 
 	// Calculate the level of congestion.
 	// Used in determining growth and passenger preferences.
@@ -2348,13 +2576,13 @@ void stadt_t::calc_growth()
 {
 	// now iterate over all factories to get the ratio of producing version nonproducing factories
 	// we use the incoming storage as a measure und we will only look for end consumers (power stations, markets)
-	for (weighted_vector_tpl<fabrik_t*>::const_iterator iter = arbeiterziele.begin(), end = arbeiterziele.end(); iter != end; ++iter) 
+	for(  vector_tpl<factory_entry_t>::const_iterator iter = target_factories_pax.get_entries().begin(), end = target_factories_pax.get_entries().end();  iter!=end;  ++iter  )
 	{
-		fabrik_t *fab = *iter;
-		if(fab->get_lieferziele().get_count()==0  &&  fab->get_suppliers().get_count()!=0) 
+		fabrik_t *const fab = iter->factory;
+		if(fab && fab->get_lieferziele().get_count()==0  &&  fab->get_suppliers().get_count()!=0) 
 		{
 			// consumer => check for it storage
-			const fabrik_besch_t *besch = fab->get_besch();
+			const fabrik_besch_t *const besch = fab->get_besch();
 			for(  int i=0;  i<besch->get_lieferanten();  i++  ) 
 			{
 				city_history_month[0][HIST_GOODS_NEEDED] ++;
@@ -2734,16 +2962,9 @@ void stadt_t::step_passagiere()
 
 	// post oder pax erzeugen ?
 	// "post or generate pax"
-	const ware_besch_t* wtyp;
-	if (simrand(400, "void stadt_t::step_passagiere() (mail or passengers?)") < 300) 
-	{
-		wtyp = warenbauer_t::passagiere;
-	}
-	else 
-	{
-		wtyp = warenbauer_t::post;
-	}
+	const ware_besch_t *const wtyp = (simrand(400, "void stadt_t::step_passagiere() (mail or passengers?"))<300 ? warenbauer_t::passagiere : warenbauer_t::post;
 	const int history_type = (wtyp == warenbauer_t::passagiere) ? HIST_PAS_TRANSPORTED : HIST_MAIL_TRANSPORTED;
+	factory_set_t &target_factories = (  wtyp==warenbauer_t::passagiere ? target_factories_pax : target_factories_mail );
 
 	// restart at first buiulding?
 	if (step_count >= buildings.get_count()) 
@@ -2760,7 +2981,7 @@ void stadt_t::step_passagiere()
 	const int num_pax =
 		(wtyp == warenbauer_t::passagiere) ?
 			(gb->get_tile()->get_besch()->get_level()      + 6) >> 2 :
-			max(1,(gb->get_tile()->get_besch()->get_post_level() + 5) >> 4);
+			(gb->get_tile()->get_besch()->get_post_level() + 8) >> 3 ;
 
 	
 	// Hajo: track number of generated passengers.
@@ -2816,7 +3037,7 @@ void stadt_t::step_passagiere()
 		const uint8 max_destinations = (welt->get_einstellungen()->get_max_alternative_destinations() < 16 ? welt->get_einstellungen()->get_max_alternative_destinations() : 15) + 1;
 
 		// Find passenger destination
-		for (int pax_routed = 0; pax_routed < num_pax; pax_routed += passenger_packet_size) 
+		for(  int pax_routed=0, pax_left_to_do=0;  pax_routed<num_pax;  pax_routed+=pax_left_to_do  ) 
 		{
 			
 			/* number of passengers that want to travel
@@ -2826,7 +3047,7 @@ void stadt_t::step_passagiere()
 			* Number now not fixed at 7, but set in simuconf.tab (@author: jamespetts)
 			*/
 
-			int pax_left_to_do = min(passenger_packet_size, num_pax - pax_routed);
+			pax_left_to_do = min(passenger_packet_size, num_pax - pax_routed);
 
 			// search target for the passenger
 			pax_zieltyp will_return;
@@ -2859,27 +3080,27 @@ void stadt_t::step_passagiere()
 					if(passenger_routing_choice <= adjusted_passenger_routing_local_chance)
 					{
 						// Will always be a destination in the current town.
-						destinations[destinations_assigned] = finde_passagier_ziel(&will_return, 0, local_passengers_max_distance, k);	
+						destinations[destinations_assigned] = find_destination(target_factories, city_history_month[0][history_type+1], &will_return, destinations[destinations_assigned].factory_entry, 0, local_passengers_max_distance, k);	
 					}
 					else
 					{
-						destinations[destinations_assigned] = finde_passagier_ziel(&will_return, local_passengers_min_distance, local_passengers_max_distance, k);
+						destinations[destinations_assigned] = find_destination(target_factories, city_history_month[0][history_type+1], &will_return, destinations[destinations_assigned].factory_entry, local_passengers_min_distance, local_passengers_max_distance, k);
 					}
 				}
 				else if(range == midrange)
 				{
 					//Medium
-					destinations[destinations_assigned] = finde_passagier_ziel(&will_return, midrange_passengers_min_distance, midrange_passengers_max_distance, k);
+					destinations[destinations_assigned] = find_destination(target_factories, city_history_month[0][history_type+1], &will_return, destinations[destinations_assigned].factory_entry, midrange_passengers_min_distance, midrange_passengers_max_distance, k);
 				}
 				else
 				//else if(range == longdistance)
 				{
 					//Long distance
-					destinations[destinations_assigned] = finde_passagier_ziel(&will_return, longdistance_passengers_min_distance, longdistance_passengers_max_distance, k);  //"Ziel" = "target" (Google)
+					destinations[destinations_assigned] = find_destination(target_factories, city_history_month[0][history_type+1], &will_return, destinations[destinations_assigned].factory_entry, longdistance_passengers_min_distance, longdistance_passengers_max_distance, k); 
 				}
 			}
 			
-			INT_CHECK( "simcity 2371" );
+			INT_CHECK( "simcity 3118" );
 
 			uint8 current_destination = 0;
 
@@ -2935,6 +3156,13 @@ void stadt_t::step_passagiere()
 
 				if (route_good == can_walk) 
 				{
+					if(destinations[current_destination].factory_entry)
+					{
+						register_factory_passenger_generation(&pax_left_to_do, wtyp, target_factories, destinations[current_destination].factory_entry);
+						// workers who walk to the factory or customers who walk to the consumer store
+						destinations[current_destination].factory_entry->factory->book_stat( pax_left_to_do, ( wtyp==warenbauer_t::passagiere ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED ) );
+						destinations[current_destination].factory_entry->factory->liefere_an(wtyp, pax_left_to_do);
+					}
 					break;
 				}
 
@@ -2942,7 +3170,8 @@ void stadt_t::step_passagiere()
 				// Check whether public transport can be used.
 				ware_t pax(wtyp); //Journey start information needs to be added later.
 				pax.set_zielpos(destinations[current_destination].location);
-				pax.menge = (wtyp == warenbauer_t::passagiere ? pax_left_to_do : 1 );
+				pax.menge = pax_left_to_do;
+				pax.to_factory = ( destinations[current_destination].factory_entry ? 1 : 0 );
 				//"Menge" = volume (Google)
 
 				// now, finally search a route; this consumes most of the time
@@ -3127,6 +3356,11 @@ void stadt_t::step_passagiere()
 				else if(route_good == good)
 				{
 					// Passengers can and will use public transport.
+					if(destinations[current_destination].factory_entry)
+					{
+						register_factory_passenger_generation(&pax_left_to_do, wtyp, target_factories, destinations[current_destination].factory_entry);
+						destinations[current_destination].factory_entry->factory->book_stat( pax.menge, ( wtyp==warenbauer_t::passagiere ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED ) );
+					}
 					pax.arrival_time = welt->get_zeit_ms();
 					pax.set_origin(start_halt);
 					start_halt->starte_mit_route(pax);
@@ -3136,6 +3370,11 @@ void stadt_t::step_passagiere()
 				else if(route_good == private_car_only)
 				{
 					// Passengers have either chosen to use their car or have no other choice.
+					if(destinations[current_destination].factory_entry)
+					{
+						register_factory_passenger_generation(&pax_left_to_do, wtyp, target_factories, destinations[current_destination].factory_entry);
+						destinations[current_destination].factory_entry->factory->book_stat( pax.menge, ( wtyp==warenbauer_t::passagiere ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED ) );
+					}
 					stadt_t* const destination_town = destinations[current_destination].type == 1 ? destinations[current_destination].object.town : NULL;
 					set_private_car_trip(num_pax, destination_town);
 					merke_passagier_ziel(destinations[current_destination].location, COL_TURQUOISE);
@@ -3256,30 +3495,37 @@ void stadt_t::step_passagiere()
 				current_destination ++;
 			} // While loop (route_good)
 
-			if((route_good != good && route_good != private_car_only) && start_halts.get_count() > 0)
+			if(route_good != good && route_good != private_car_only)
 			{
-				// Passengers/mail cannot reach their destination at all, either by public transport or private car,
-				// *but* there are some stops in their locality. Record their inability to get where they are going
-				// at those local stops accordingly. 
-				halthandle_t start_halt = start_halts[best_bad_start_halt]; //If there is no route, it does not matter where passengers express their unhappiness.
-				if(!has_private_car || car_minutes > tolerance)
+				if(destinations[0].factory_entry)
 				{
-					// If the passengers are able to use a private car, then they should not record as "no route"						
-					if(too_slow_already_set)
+					register_factory_passenger_generation(&pax_left_to_do, wtyp, target_factories, destinations[0].factory_entry);
+				}
+				if(start_halts.get_count() > 0)
+				{
+					// Passengers/mail cannot reach their destination at all, either by public transport or private car,
+					// *but* there are some stops in their locality. Record their inability to get where they are going
+					// at those local stops accordingly. 
+					halthandle_t start_halt = start_halts[best_bad_start_halt]; //If there is no route, it does not matter where passengers express their unhappiness.
+					if(!has_private_car || car_minutes > tolerance)
 					{
-						if(start_halt.is_bound())
+						// If the passengers are able to use a private car, then they should not record as "no route"						
+						if(too_slow_already_set)
 						{
-							start_halt->add_pax_too_slow(pax_left_to_do);
+							if(start_halt.is_bound())
+							{
+								start_halt->add_pax_too_slow(pax_left_to_do);
+							}
+							merke_passagier_ziel(best_bad_destination, COL_LIGHT_PURPLE);
 						}
-						merke_passagier_ziel(best_bad_destination, COL_LIGHT_PURPLE);
-					}
-					else
-					{
-						if(start_halt.is_bound())
+						else
 						{
-							start_halt->add_pax_no_route(pax_left_to_do);
+							if(start_halt.is_bound())
+							{
+								start_halt->add_pax_no_route(pax_left_to_do);
+							}
+							merke_passagier_ziel(destinations[0].location, COL_DARK_ORANGE);
 						}
-						merke_passagier_ziel(destinations[0].location, COL_DARK_ORANGE);
 					}
 				}
 			}
@@ -3300,7 +3546,13 @@ void stadt_t::step_passagiere()
 		// fake one ride to get a proper display of destinations (although there may be more) ...
 		pax_zieltyp will_return;
 		//const koord ziel = finde_passagier_ziel(&will_return);
-		destination destination_now = finde_passagier_ziel(&will_return);
+		destination destination_now;
+		destination_now = find_destination(target_factories, city_history_month[0][history_type+1], &will_return, destination_now.factory_entry);
+		sint32 amount = min(passenger_packet_size, num_pax);
+		if(destination_now.factory_entry)
+		{
+			register_factory_passenger_generation(&amount, wtyp, target_factories, destination_now.factory_entry);
+		}
 
 		// First, check whether the passengers can *walk*. Just because
 		// they do not have a start halt does not mean that they cannot
@@ -3310,6 +3562,9 @@ void stadt_t::step_passagiere()
 		{
 			// Passengers will walk to their destination if it is within the specified range.
 			// (Default: 1.5km)
+			// workers who walk to the factory or customers who walk to the consumer store
+			destination_now.factory_entry->factory->book_stat( amount, ( wtyp==warenbauer_t::passagiere ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED ) );
+			destination_now.factory_entry->factory->liefere_an(wtyp, amount);
 			merke_passagier_ziel(destination_now.location, COL_DARK_YELLOW);
 			city_history_year[0][history_type] += num_pax;
 			city_history_month[0][history_type] += num_pax;
@@ -3347,6 +3602,18 @@ void stadt_t::step_passagiere()
 	//	DBG_MESSAGE("stadt_t::step_passagiere()", "Zeit für Passagierstep: %ld ms\n", (long)(t1 - t0));
 }
 
+void stadt_t::register_factory_passenger_generation(int* pax_left_to_do, const ware_besch_t *const wtyp, factory_set_t &target_factories, factory_entry_t* &factory_entry)
+{
+	if(  welt->get_einstellungen()->get_factory_enforce_demand()  ) 
+	{
+		// ensure no more than remaining amount
+		*pax_left_to_do = min(*pax_left_to_do, factory_entry->remaining);
+		factory_entry->remaining -= *pax_left_to_do;
+		target_factories.total_remaining -= *pax_left_to_do;
+	}
+	target_factories.total_generated += *pax_left_to_do;
+	factory_entry->factory->book_stat( *pax_left_to_do, ( wtyp==warenbauer_t::passagiere ? FAB_PAX_GENERATED : FAB_MAIL_GENERATED ) );
+}
 
 void stadt_t::set_private_car_trip(int passengers, stadt_t* destination_town)
 {
@@ -3411,10 +3678,9 @@ koord stadt_t::get_zufallspunkt(uint32 min_distance, uint32 max_distance, koord 
 /* this function generates a random target for passenger/mail
  * changing this strongly affects selection of targets and thus game strategy
  */
-
-stadt_t::destination stadt_t::finde_passagier_ziel(pax_zieltyp* will_return, uint32 min_distance, uint32 max_distance, koord origin)
+stadt_t::destination stadt_t::find_destination(factory_set_t &target_factories, const sint64 generated, pax_zieltyp* will_return, factory_entry_t* &factory_entry, uint32 min_distance, uint32 max_distance, koord origin)
 {
-	const int rand = simrand(100, "stadt_t::destination stadt_t::finde_passagier_ziel (init)");
+	const int rand = simrand(100, "stadt_t::destination stadt_t::find_destination (init)");
 	destination current_destination;
 	current_destination.object.town = NULL;
 	current_destination.type = 1;
@@ -3423,19 +3689,21 @@ stadt_t::destination stadt_t::finde_passagier_ziel(pax_zieltyp* will_return, uin
 		origin = this->get_pos();
 	}
 
-	// about 1/3 are workers
-	if(rand < welt->get_einstellungen()->get_factory_worker_percentage()  &&  arbeiterziele.get_sum_weight() > 0 )
+	// Note: unlike in Standard, this must remain random in Experimental, as passengers will only travel to industries within range, and will have multiple
+	// destinations to which they will travel if they cannot get to the factories.
+	if(rand < welt->get_einstellungen()->get_factory_worker_percentage()  &&  target_factories.total_remaining>0  &&  (sint64)target_factories.generation_ratio>((sint64)(target_factories.total_generated*100)<<RATIO_BITS)/(generated+1)  )
 	{
-		const fabrik_t* fab = arbeiterziele.at_weight(simrand(arbeiterziele.get_sum_weight(), "stadt_t::destination stadt_t::finde_passagier_ziel (factory 1)"));
-		*will_return = factoy_return;	// worker will return
+		factory_entry_t* entry = target_factories.get_random_entry();
+		*will_return = factory_return;	// worker will return
 		current_destination.type = FACTORY_PAX;
 		uint8 counter = 0;
-		while(counter ++ < 32 && (accurate_distance(origin, fab->get_pos().get_2d()) > max_distance || accurate_distance(origin, fab->get_pos().get_2d()) < min_distance))
+		while(counter ++ < 32 && (accurate_distance(origin, entry->factory->get_pos().get_2d()) > max_distance || accurate_distance(origin, entry->factory->get_pos().get_2d()) < min_distance))
 		{
-			fab = arbeiterziele.at_weight(simrand(arbeiterziele.get_sum_weight(), "stadt_t::destination stadt_t::finde_passagier_ziel (factory 2)"));
+			 entry = target_factories.get_random_entry();
 		}
-		current_destination.location = fab->get_pos().get_2d();
-		current_destination.object.industry = fab;
+		current_destination.location = entry->factory->get_pos().get_2d();
+		current_destination.object.industry = entry->factory;
+		current_destination.factory_entry = entry;
 		return current_destination;
 	} 
 	

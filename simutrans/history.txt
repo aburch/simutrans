@@ -1,3 +1,10 @@
+	ADD: factory charts
+	ADD: storage capacities scale with base production for factories which do not support fields
+	ADD: factory-going passengers/mail are handled separately
+	ADD: new boost mechanism at factories for passenger, mail and electricity
+	ADD: new factory expansion settings for factories without fields
+
+
 Release of 110.0.1 (r4359 on 12-Mar-2011):
 
 	ADD: try to build crossing that match maxspeed of the ways to be crossed

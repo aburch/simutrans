@@ -117,7 +117,7 @@ void scenario_t::get_factory_producing( fabrik_t *fab, int &producing, int &exis
 	int own_producing=0, own_existing=0;
 
 	// now check for all input
-	for(  uint ware_nr=0;  ware_nr<fab->get_eingang().get_count();  ware_nr++  ) {
+	for(  uint ware_nr=0;  ware_nr<fab->get_eingang().get_size();  ware_nr++  ) {
 		if(fab->get_eingang()[ware_nr].menge > 512) {
 			producing ++;
 			own_producing ++;
@@ -126,9 +126,9 @@ void scenario_t::get_factory_producing( fabrik_t *fab, int &producing, int &exis
 		own_existing ++;
 	}
 
-	if(fab->get_eingang().get_count()>0) {
+	if(fab->get_eingang().get_size()>0) {
 		// now check for all output (of not source ... )
-		for(  uint ware_nr=0;  ware_nr<fab->get_ausgang().get_count();  ware_nr++  ) {
+		for(  uint ware_nr=0;  ware_nr<fab->get_ausgang().get_size();  ware_nr++  ) {
 			if(fab->get_ausgang()[ware_nr].menge > 512) {
 				producing ++;
 				own_producing ++;

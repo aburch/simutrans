@@ -185,7 +185,19 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	}
 	besch.pax_level      = obj.get_int("pax_level", 12);
 
-	obj_node_t node(this, 21, &parent);
+	besch.expand_probability	= obj.get_int("expand_probability", 0);
+	besch.expand_minimum		= obj.get_int("expand_minimum", 0);
+	besch.expand_range			= obj.get_int("expand_range", 0);
+	besch.expand_times			= obj.get_int("expand_times", 0);
+
+	besch.electric_boost        = (obj.get_int("electricity_boost", 1000) * 256 + 500) / 1000;
+	besch.pax_boost				= (obj.get_int("passenger_boost", 0) * 256 + 500) / 1000;
+	besch.mail_boost			= (obj.get_int("mail_boost", 0) * 256 + 500) / 1000;
+	besch.electric_amount       = obj.get_int("electricity_amount", 65535);
+	besch.pax_demand			= obj.get_int("passenger_demand", 65535);
+	besch.mail_demand			= obj.get_int("mail_demand", 65535);
+
+	obj_node_t node(this, 41, &parent);
 
 	obj.put("type", "fac");
 
@@ -257,8 +269,8 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		}
 	} while (str.size() > 0);
 
-	// new version with pax_level
-	uint16 version = 0x8002;
+	// new version with factory boost, etc.
+	uint16 version = 0x8003;
 
 	// This is the overlay flag for Simutrans-Experimental
 	// This sets the *second* highest bit to 1. 
@@ -272,7 +284,6 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	version += 0x200;
 	
 	node.write_uint16(fp, version,                     0); // version
-
 	node.write_uint16(fp, (uint16) besch.platzierung,  2);
 	node.write_uint16(fp, besch.produktivitaet,        4);
 	node.write_uint16(fp, besch.bereich,               6);
@@ -284,6 +295,16 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	node.write_uint16(fp, besch.pax_level,            16);
 	node.write_uint16(fp, electricity_percent,		  18);
 	node.write_sint8 (fp, upgrades,					  20);
+	node.write_uint16(fp, besch.expand_probability,   21);
+	node.write_uint16(fp, besch.expand_minimum,       23);
+	node.write_uint16(fp, besch.expand_range,         25);
+	node.write_uint16(fp, besch.expand_times,         27);
+	node.write_uint16(fp, besch.electric_boost,       29);
+	node.write_uint16(fp, besch.pax_boost,            31);
+	node.write_uint16(fp, besch.mail_boost,           33);
+	node.write_uint16(fp, besch.electric_amount,      35);
+	node.write_uint16(fp, besch.pax_demand,           37);
+	node.write_uint16(fp, besch.mail_demand,          39);
 
 	node.write(fp);
 }

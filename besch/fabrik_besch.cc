@@ -53,6 +53,16 @@ void fabrik_besch_t::calc_checksum(checksum_t *chk) const
 	chk->input(fields);
 	chk->input(pax_level);
 	chk->input(electricity_producer);
+	chk->input(expand_probability);
+	chk->input(expand_minimum);
+	chk->input(expand_range);
+	chk->input(expand_times);
+	chk->input(electric_boost);
+	chk->input(pax_boost);
+	chk->input(mail_boost);
+	chk->input(electric_amount);
+	chk->input(pax_demand);
+	chk->input(mail_demand);
 
 	for (uint8 i=0; i<lieferanten; i++) {
 		const fabrik_lieferant_besch_t *supp = get_lieferant(i);
