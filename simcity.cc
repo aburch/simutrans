@@ -3563,8 +3563,11 @@ void stadt_t::step_passagiere()
 			// Passengers will walk to their destination if it is within the specified range.
 			// (Default: 1.5km)
 			// workers who walk to the factory or customers who walk to the consumer store
-			destination_now.factory_entry->factory->book_stat( amount, ( wtyp==warenbauer_t::passagiere ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED ) );
-			destination_now.factory_entry->factory->liefere_an(wtyp, amount);
+			if(destination_now.factory_entry)
+			{
+				destination_now.factory_entry->factory->book_stat( amount, ( wtyp==warenbauer_t::passagiere ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED ) );
+				destination_now.factory_entry->factory->liefere_an(wtyp, amount);
+			}
 			merke_passagier_ziel(destination_now.location, COL_DARK_YELLOW);
 			city_history_year[0][history_type] += num_pax;
 			city_history_month[0][history_type] += num_pax;
