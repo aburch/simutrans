@@ -313,8 +313,8 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 		}
 		else
 		{
-			const double proportion = (double)(this_city_population - smallest_city_population) / (double)(biggest_city_population - smallest_city_population);
-			production = (double)besch->get_bereich() * proportion;
+			const int percentage = (this_city_population - smallest_city_population) * 100 / (biggest_city_population - smallest_city_population);
+			production = (besch->get_bereich() * percentage) / 100;
 		}
 		prodbase = besch->get_produktivitaet() + production;
 	}
@@ -1005,6 +1005,10 @@ void fabrik_t::step(long delta_t)
 			// finally consume stock
 			for(  index = 0;  index < ecount;  index++  ) {
 
+				if(!besch->get_lieferant(index))
+				{
+					continue;
+				}
 				const uint32 vb = besch->get_lieferant(index)->get_verbrauch();
 				const uint32 v = max(1,(menge*vb) >> 8);
 
@@ -1034,6 +1038,10 @@ void fabrik_t::step(long delta_t)
 			uint32 consumed_menge = 0;
 			for(index = 0; index < ecount; index ++) {
 				// verbrauch fuer eine Einheit des Produktes (in 1/256)
+				if(! besch->get_lieferant(index))
+				{
+					continue;
+				}
 				const uint32 vb = besch->get_lieferant(index)->get_verbrauch();
 				const uint32 n = eingang[index].menge * 256 / vb;
 
@@ -1081,6 +1089,10 @@ void fabrik_t::step(long delta_t)
 			// and finally consume stock
 			for(index = 0; index<ecount; index ++) {
 
+				if(! besch->get_lieferant(index))
+				{
+					continue;
+				}
 				const uint32 vb = besch->get_lieferant(index)->get_verbrauch();
 				const uint32 v = (consumed_menge*vb) >> 8;
 
