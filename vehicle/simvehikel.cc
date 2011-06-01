@@ -2187,52 +2187,23 @@ void waggon_t::set_convoi(convoi_t *c)
 			}
 			else {
 				assert(c!=NULL);
-				// eventually reserve new route
-				if(  c->get_state()==convoi_t::DRIVING  ||  c->get_state()==convoi_t::LEAVING_DEPOT  ) {
-					route_t const& r = *c->get_route();
-					if (route_index >= r.get_count()) {
-						c->suche_neue_route();
-						dbg->warning("waggon_t::set_convoi()", "convoi %i had a too high route index! (%i of max %i)", c->self.get_id(), route_index, r.get_count() - 1);
-					}
-					else {
-						long num_index = cnv==(convoi_t *)1 ? 1001 : 0; 	// only during loadtype: cnv==1 indicates, that the convoi did reserve a stop
-						// rereserve next block, if needed
-						cnv = c;
-						uint16 next_signal, next_crossing;
-						if(  block_reserver(&r, route_index, next_signal, next_crossing, num_index, true, false)  ) {
-							c->set_next_stop_index( next_signal>next_crossing ? next_crossing : next_signal );
-						}
-						else {
-							c->warten_bis_weg_frei(-1);
-						}
-					}
+				// eventually search new route
+				route_t const& r = *c->get_route();
+				if(  (r.get_count()<=route_index  ||  r.empty()  ||  get_pos()==r.back())  &&  c->get_state()!=convoi_t::INITIAL  &&  c->get_state()!=convoi_t::LOADING  &&  c->get_state()!=convoi_t::SELF_DESTRUCT  ) {
+					c->suche_neue_route();
+					dbg->warning("waggon_t::set_convoi()", "convoi %i had a too high route index! (%i of max %i)", c->self.get_id(), route_index, r.get_count() - 1);
 				}
-				if(c->get_state()>=convoi_t::WAITING_FOR_CLEARANCE) {
-//	DBG_MESSAGE("waggon_t::set_convoi()","new route %p, route_index %i",c->get_route(),route_index);
-					// find about next signal after loading
-					uint16 next_signal_index=INVALID_INDEX;
-					const route_t *route=c->get_route();
-
-					if (route->empty() || get_pos() == route->back()) {
-						// we are there, were we should go? Usually this is an error during autosave
-						c->suche_neue_route();
+				// need to reserve new route?
+				if(  c->get_state()!=convoi_t::SELF_DESTRUCT  &&  (c->get_state()==convoi_t::DRIVING  ||  c->get_state()>=convoi_t::LEAVING_DEPOT)  ) {
+					long num_index = cnv==(convoi_t *)1 ? 1001 : 0; 	// only during loadtype: cnv==1 indicates, that the convoi did reserve a stop
+					uint16 next_signal, next_crossing;
+					cnv = c;
+					if(  block_reserver(&r, max(route_index,1)-1, next_signal, next_crossing, num_index, true, false)  ) {
+						c->set_next_stop_index( next_signal>next_crossing ? next_crossing : next_signal );
 					}
 					else {
-						for(  uint16 i=max(route_index,1)-1;  i<route->get_count();  i++) {
-							schiene_t * sch = (schiene_t *) welt->lookup(route->position_bei(i))->get_weg(get_waytype());
-							if(sch==NULL) {
-								break;
-							}
-							if(sch->has_signal()) {
-								next_signal_index = i;
-								break;
-							}
-							if(sch->is_crossing()) {
-								next_signal_index = i;
-								break;
-							}
-						}
-						c->set_next_stop_index( next_signal_index );
+						c->set_next_stop_index( max(route_index,1)-1 );
+						c->warten_bis_weg_frei(-1);
 					}
 				}
 			}

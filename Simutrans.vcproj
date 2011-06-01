@@ -125,7 +125,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="&quot;G:\Projects\SDL-1.2.10\include&quot;;&quot;G:\Program Files\PlatformSDK\Include&quot;;G:\Projects\zlib\include"
-				PreprocessorDefinitions="ZLIB_WINAPI;LITTLE_ENDIAN;NDEBUG;REVISION=&quot;4353&quot;COLOUR_DEPTH=16"
+				PreprocessorDefinitions="ZLIB_WINAPI;LITTLE_ENDIAN;NDEBUG;REVISION=&quot;4353&quot;;COLOUR_DEPTH=16"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
