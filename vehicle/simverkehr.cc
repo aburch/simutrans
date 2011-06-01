@@ -639,7 +639,8 @@ bool stadtauto_t::ist_weg_frei(grund_t *gr)
 			// ok, now check for free exit
 			koord dir = pos_next.get_2d()-get_pos().get_2d();
 			koord3d checkpos = pos_next+dir;
-			while(1) {
+			uint8 number_reversed = 0;
+			while(  number_reversed<2  ) {
 				const grund_t *test = welt->lookup(checkpos);
 				if(!test) {
 					// should not reach here ! (z9999)
@@ -659,11 +660,12 @@ bool stadtauto_t::ist_weg_frei(grund_t *gr)
 				}
 				else {
 					// seems to be a deadend.
-					if((test->get_weg_ribi(road_wt)&next_fahrtrichtung) ==0) {
+					if(  (test->get_weg_ribi(road_wt)&next_fahrtrichtung) == 0  ) {
 						// will be going back
 						pos_next_next=get_pos();
 						// check also opposite direction are free
 						dir = -dir;
+						number_reversed ++;
 					}
 				}
 				checkpos += dir;
