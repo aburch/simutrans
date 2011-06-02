@@ -2194,6 +2194,7 @@ void waggon_t::set_convoi(convoi_t *c)
 					dbg->warning("waggon_t::set_convoi()", "convoi %i had a too high route index! (%i of max %i)", c->self.get_id(), route_index, r.get_count() - 1);
 				}
 				// need to reserve new route?
+				c->set_next_stop_index( max(route_index,1)-1 );
 				if(  c->get_state()!=convoi_t::SELF_DESTRUCT  &&  (c->get_state()==convoi_t::DRIVING  ||  c->get_state()>=convoi_t::LEAVING_DEPOT)  ) {
 					long num_index = cnv==(convoi_t *)1 ? 1001 : 0; 	// only during loadtype: cnv==1 indicates, that the convoi did reserve a stop
 					uint16 next_signal, next_crossing;
@@ -2203,7 +2204,6 @@ void waggon_t::set_convoi(convoi_t *c)
 					}
 					else {
 						c->set_next_stop_index( max(route_index,1)-1 );
-						c->warten_bis_weg_frei(-1);
 					}
 				}
 			}
