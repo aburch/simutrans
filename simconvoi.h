@@ -360,6 +360,10 @@ private:
 	*/
 	void unset_line();
 
+	// matches two halts; if the pos is not identical, maybe the halt still is
+	bool matches_halt( const koord3d pos1, const koord3d pos2 );
+
+	// updates a line schedule and tries to find the best next station to go
 	void check_pending_updates();
 
 	/**

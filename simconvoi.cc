@@ -2792,7 +2792,15 @@ DBG_DEBUG("convoi_t::unset_line()", "removing old destinations from line=%d, fpl
 }
 
 
+// matches two halts; if the pos is not identical, maybe the halt still is
+bool convoi_t::matches_halt( const koord3d pos1, const koord3d pos2 )
+{
+	halthandle_t halt1 = haltestelle_t::get_halt( welt, pos1, besitzer_p );
+	return pos1==pos2  ||  (halt1.is_bound()  &&  halt1==haltestelle_t::get_halt( welt, pos2, besitzer_p ));
+}
 
+
+// updates a line schedule and tries to find the best next station to go
 void convoi_t::check_pending_updates()
 {
 	if(  line_update_pending.is_bound()  ) {
@@ -2813,8 +2821,9 @@ void convoi_t::check_pending_updates()
 		else {
 			// something to check for ...
 			current = fpl->get_current_eintrag().pos;
+			halthandle_t current_halt = haltestelle_t::get_halt( welt, current, besitzer_p );
 
-			if(aktuell<new_fpl->get_count()  &&  current==new_fpl->eintrag[aktuell].pos  ) {
+			if(  aktuell<new_fpl->get_count() &&  current==new_fpl->eintrag[aktuell].pos  ) {
 				// next pos is the same => keep the convoi state
 				is_same = true;
 			}
@@ -2832,6 +2841,8 @@ void convoi_t::check_pending_updates()
 				/* there could be only one entry that matches best:
 				 * we try first same sequence as in old schedule;
 				 * if not found, we try for same nextnext station
+				 * (To detect also places, where only the platform
+				 *  changed, we also compare the halthandle)
 				 */
 				const koord3d next = fpl->eintrag[(aktuell+1)%fpl->get_count()].pos;
 				const koord3d nextnext = fpl->eintrag[(aktuell+2)%fpl->get_count()].pos;
@@ -2841,22 +2852,22 @@ void convoi_t::check_pending_updates()
 
 				for(  uint8 i=0;  i<new_count;  i++  ) {
 					int quality =
-						(new_fpl->eintrag[i].pos==current)*3 +
-						(new_fpl->eintrag[(i+1)%new_count].pos==next)*4 +
-						(new_fpl->eintrag[(i+2)%new_count].pos==nextnext)*2 +
-						(new_fpl->eintrag[(i+3)%new_count].pos==nextnextnext);
+						matches_halt(current,new_fpl->eintrag[i].pos)*3 +
+						matches_halt(next,new_fpl->eintrag[(i+1)%new_count].pos)*4 +
+						matches_halt(nextnext,new_fpl->eintrag[(i+2)%new_count].pos)*2 +
+						matches_halt(nextnextnext,new_fpl->eintrag[(i+3)%new_count].pos);
 					if(  quality>how_good_matching  ) {
 						// better match than previous: but depending of distance, the next number will be different
-						if(new_fpl->eintrag[i].pos==current) {
+						if(  matches_halt(current,new_fpl->eintrag[i].pos)  ) {
 							aktuell = i;
 						}
-						else if(new_fpl->eintrag[(i+1)%new_count].pos==next) {
+						else if(  matches_halt(next,new_fpl->eintrag[(i+1)%new_count].pos)  ) {
 							aktuell = i+1;
 						}
-						else if(new_fpl->eintrag[(i+2)%new_count].pos==nextnext) {
+						else if(  matches_halt(nextnext,new_fpl->eintrag[(i+2)%new_count].pos)  ) {
 							aktuell = i+2;
 						}
-						else if(new_fpl->eintrag[(i+3)%new_count].pos==nextnextnext) {
+						else if(  matches_halt(nextnextnext,new_fpl->eintrag[(i+3)%new_count].pos)  ) {
 							aktuell = i+3;
 						}
 						aktuell %= new_count;
@@ -2869,7 +2880,7 @@ void convoi_t::check_pending_updates()
 					aktuell = new_fpl->get_aktuell();
 				}
 				// if we go to same, then we do not need route recalculation ...
-				is_same = new_fpl->eintrag[aktuell].pos==current;
+				is_same = matches_halt(current,new_fpl->eintrag[aktuell].pos);
 			}
 		}
 
