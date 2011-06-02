@@ -42,7 +42,6 @@
 #define SIM_SYSTEM_QUIT             1
 #define SIM_SYSTEM_RESIZE             2
 #define SIM_SYSTEM_UPDATE           3
-#define SIM_F1                      256
 
 /* Globale Variablen zur Messagebearbeitung */
 
