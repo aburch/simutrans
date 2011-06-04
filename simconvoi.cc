@@ -458,7 +458,10 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 		wait_lock = 30000; // 60s to drive on, if the client in question had left
 		fpl->eingabe_abschliessen();
 	}
-
+	// some convois had wrong old direction in them
+	if(  state<DRIVING  ||  state==LOADING  ) {
+		alte_richtung = fahr[0]->get_fahrtrichtung();
+	}
 	// Knightly : if lineless convoy -> register itself with stops
 	if(  !line.is_bound()  ) {
 		register_stops();

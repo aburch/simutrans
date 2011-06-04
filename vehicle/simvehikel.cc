@@ -2190,20 +2190,18 @@ void waggon_t::set_convoi(convoi_t *c)
 				// eventually search new route
 				route_t const& r = *c->get_route();
 				if(  (r.get_count()<=route_index  ||  r.empty()  ||  get_pos()==r.back())  &&  c->get_state()!=convoi_t::INITIAL  &&  c->get_state()!=convoi_t::LOADING  &&  c->get_state()!=convoi_t::SELF_DESTRUCT  ) {
-					c->suche_neue_route();
+					check_for_finish = true;
 					dbg->warning("waggon_t::set_convoi()", "convoi %i had a too high route index! (%i of max %i)", c->self.get_id(), route_index, r.get_count() - 1);
 				}
-				// need to reserve new route?
+				// set default next stop indext
 				c->set_next_stop_index( max(route_index,1)-1 );
+				// need to reserve new route?
 				if(  c->get_state()!=convoi_t::SELF_DESTRUCT  &&  (c->get_state()==convoi_t::DRIVING  ||  c->get_state()>=convoi_t::LEAVING_DEPOT)  ) {
 					long num_index = cnv==(convoi_t *)1 ? 1001 : 0; 	// only during loadtype: cnv==1 indicates, that the convoi did reserve a stop
 					uint16 next_signal, next_crossing;
 					cnv = c;
 					if(  block_reserver(&r, max(route_index,1)-1, next_signal, next_crossing, num_index, true, false)  ) {
 						c->set_next_stop_index( next_signal>next_crossing ? next_crossing : next_signal );
-					}
-					else {
-						c->set_next_stop_index( max(route_index,1)-1 );
 					}
 				}
 			}
