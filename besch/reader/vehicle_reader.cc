@@ -227,7 +227,8 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 				if(experimental_version >=4)
 				{
-					besch->air_resistance = decode_uint16(p);
+					uint16 air_resistance_hundreds = decode_uint16(p);
+					besch->air_resistance = float32e8_t((uint32) air_resistance_hundreds, (uint32)100);
 					besch->can_be_at_rear = (bool)decode_uint8(p);
 					besch->increase_maintenance_after_years = decode_uint16(p);
 					besch->increase_maintenance_by_percent = decode_uint16(p);
@@ -257,7 +258,7 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 						case air_wt:
 							air_default = 100; //1 when read
 					};
-					besch->air_resistance = air_default;
+					besch->air_resistance = float32e8_t((uint32) air_default, (uint32)100);
 					besch->can_be_at_rear = true;
 					besch->increase_maintenance_after_years = 0;
 					besch->increase_maintenance_by_percent = 0;
@@ -391,7 +392,7 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			case air_wt:
 				air_default = 100; //1 when read
 		};
-		besch->air_resistance = air_default;
+		besch->air_resistance = float32e8_t((uint32) air_default, (uint32)100);
 		besch->upgrades = 0;
 		besch->upgrade_price = besch->preis;
 		besch->available_only_as_upgrade = false;

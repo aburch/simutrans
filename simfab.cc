@@ -1493,6 +1493,10 @@ void fabrik_t::step(long delta_t)
 			// finally consume stock
 			for(  index = 0;  index < ecount;  index++  ) {
 
+				if(!besch->get_lieferant(index))
+				{
+					continue;
+				}
 				const uint32 vb = besch->get_lieferant(index)->get_verbrauch();
 				const uint32 v = max(1,(menge*vb) >> 8);
 
@@ -1524,6 +1528,10 @@ void fabrik_t::step(long delta_t)
 			uint32 consumed_menge = 0;
 			for(index = 0; index < ecount; index ++) {
 				// verbrauch fuer eine Einheit des Produktes (in 1/256)
+				if(! besch->get_lieferant(index))
+				{
+					continue;
+				}
 				const uint32 vb = besch->get_lieferant(index)->get_verbrauch();
 				const uint32 n = eingang[index].menge * 256 / vb;
 
@@ -1573,6 +1581,10 @@ void fabrik_t::step(long delta_t)
 			// and finally consume stock
 			for(index = 0; index<ecount; index ++) {
 
+				if(! besch->get_lieferant(index))
+				{
+					continue;
+				}
 				const uint32 vb = besch->get_lieferant(index)->get_verbrauch();
 				const uint32 v = (consumed_menge*vb) >> 8;
 

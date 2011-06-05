@@ -486,7 +486,7 @@
     <ClCompile Include="gui\loadsave_frame.cc" />
     <ClCompile Include="utils\checksum.cc" />
     <ClCompile Include="utils\dbg_weightmap.cc" />
-    <ClCompile Include="utils\fraction64_t.cc" />
+    <ClCompile Include="utils\float32e8_t.cc" />
     <ClCompile Include="utils\log.cc" />
     <ClCompile Include="boden\wege\maglev.cc" />
     <ClCompile Include="gui\map_frame.cc" />
@@ -810,8 +810,7 @@
     <ClInclude Include="gui\load_relief_frame.h" />
     <ClInclude Include="dataobj\loadsave.h" />
     <ClInclude Include="gui\loadsave_frame.h" />
-    <ClInclude Include="utils\fraction64_t.h" />
-    <ClInclude Include="utils\fraction_t.h" />
+    <ClInclude Include="utils\float32e8_t.h" />
     <ClInclude Include="utils\log.h" />
     <ClInclude Include="macros.h" />
     <ClInclude Include="boden\wege\maglev.h" />
@@ -999,6 +998,7 @@
     <None Include="Makefile" />
     <None Include="..\simutrans-experimental-binaries\config\privatecar.tab" />
     <None Include="..\simutrans-experimental-binaries\config\simuconf.tab" />
+    <None Include="makeobj\Makefile" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="simres.rc" />

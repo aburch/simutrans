@@ -769,6 +769,11 @@ vehikel_t::unload_freight(halthandle_t halt)
 							// Refund is approximation: twice distance at standard rate with no adjustments.
 							const sint64 refund_amount = tmp.menge * tmp.get_besch()->get_preis() * distance * 2;
 							current_revenue -= refund_amount;
+							cnv->book(refund_amount, CONVOI_REFUNDS);
+							if(cnv->get_line().is_bound())
+							{
+								cnv->get_line()->book(refund_amount, LINE_REFUNDS);
+							}
 						}
 
 						// Add passengers to unhappy passengers.
@@ -1318,8 +1323,7 @@ void vehikel_t::hop()
  * taking into account the curve and weight limit.
  * @author: jamespetts
  */
-sint32
-vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi current_direction, bool is_corner)
+sint32 vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi current_direction, bool is_corner)
 {
 	grund_t *g;
 	g = welt->lookup(*position);
@@ -1352,12 +1356,12 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 
 	if(heaviest_vehicle > weight_limit && welt->get_einstellungen()->get_enforce_weight_limits() == 1)
 	{
-		if(heaviest_vehicle / weight_limit <= 1.1)
+		if((heaviest_vehicle * 100) / weight_limit <= 110)
 		{
 			//Overweight by up to 10% - reduce speed limit to a third.
 			overweight_speed_limit = base_limit / 3;
 		}
-		else if(heaviest_vehicle / weight_limit > 1.1)
+		else if((heaviest_vehicle * 100) / weight_limit > 110)
 		{
 			//Overweight by more than 10% - reduce speed limit by a factor of 10.
 			overweight_speed_limit = base_limit / 10;
@@ -3445,13 +3449,11 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 	// Braking rate assumed at 63, as only rail vehicles use the block reserver.
 	// TODO: Set this from .dat files (or even physics computations)
 	const sint32 braking_rate = 63;
-
-	const uint16 distance_per_tile = welt->get_einstellungen()->get_distance_per_tile();
-
+	const sint32 meters_per_tile = welt->get_einstellungen()->get_meters_per_tile();
 	const sint32 speed = speed_to_kmh(cnv->get_akt_speed());
 
-	const sint32 km_check = speed * 100 / braking_rate;
-	uint16 tiles_check_for_signal = km_check / distance_per_tile;
+	//const sint32 km_check = speed / braking_rate;
+	uint16 tiles_check_for_signal = (1000 * speed) / (braking_rate * meters_per_tile);
 	
 	if(next_block <= route_index + tiles_check_for_signal) 
 	{ 

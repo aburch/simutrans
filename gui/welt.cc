@@ -639,7 +639,8 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 			sizeof(void*) * 4
 		) * sx * sy
 	) / (1024 * 1024);
-	const float tile_km = (float) sets->get_distance_per_tile() / 100.0F;
+
+	const float tile_km = sets->get_meters_per_tile() / 1000.0;
 	
 	sprintf(buf, "%s (%ld MByte, %.2f km/%s):", translator::translate("Size"), memory, tile_km, translator::translate("tile"));
 	display_proportional_clip(x, y, buf, ALIGN_LEFT, COL_BLACK, true);

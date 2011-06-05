@@ -168,7 +168,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 
 	jahresgewinn = 0;
 	total_distance_traveled = 0;
-	tile_hundredths_since_last_odometer_increment = 0;
+	steps_since_last_odometer_increment = 0;
 
 	alte_richtung = ribi_t::keine;
 	next_wolke = 0;
@@ -643,20 +643,20 @@ void convoi_t::add_running_cost(sint64 cost)
 
 void convoi_t::increment_odometer()
 {
-	uint32 tile_hundredths = 1;
+	uint32 steps = 255;
 	if(fahr[0]->get_steps() != 255)
 	{
 		// Diagonal
-		tile_hundredths = fahr[0]->get_diagonal_length() * 100 / 255;
+		steps = fahr[0]->get_diagonal_length();
 	}
-	tile_hundredths_since_last_odometer_increment += tile_hundredths;
-	const uint16 distance_per_tile = welt->get_einstellungen()->get_distance_per_tile();
-	const sint64 km = (tile_hundredths_since_last_odometer_increment * distance_per_tile) / 10000;
-	if(km >= 1)
+	steps_since_last_odometer_increment += steps;
+	const sint32 meters_per_tile = welt->get_einstellungen()->get_meters_per_tile();
+	const sint64 km = (meters_per_tile * steps_since_last_odometer_increment) / 255000 /* steps per tile * 1000m */;
+	if(km > 0)
 	{
 		book( km, CONVOI_DISTANCE );
 		total_distance_traveled += km;
-		tile_hundredths_since_last_odometer_increment -= km * 10000 / distance_per_tile;
+		steps_since_last_odometer_increment -= (km * 255000) / meters_per_tile;
 		for(uint8 i= 0; i < anz_vehikel; i++)
 		{
 			add_running_cost(-fahr[i]->get_besch()->get_betriebskosten(welt));
@@ -686,8 +686,9 @@ void convoi_t::calc_acceleration(long delta_t)
 			// brake at the end of stations/in front of signals and crossings
 			//const uint32 tiles_left = get_next_stop_index() - get_route()->index_of(get_pos());
 			const uint32 tiles_left = 1 + get_next_stop_index() - front()->get_route_index();
+			const uint32 meters_left = tiles_left * welt->get_einstellungen()->get_meters_per_tile();
+
 			waytype_t waytype = front()->get_waytype();
-			const uint16 distance_per_tile = welt->get_einstellungen()->get_distance_per_tile();
 			uint16 braking_rate;  // km/h decay per km. TODO: Consider having this set in .dat files. Look for all instances of "braking_rate".
 			switch(waytype)
 			{
@@ -707,7 +708,6 @@ void convoi_t::calc_acceleration(long delta_t)
 				break;
 			}
 
-			const uint32 meters_left = tiles_left * distance_per_tile * 10;
 			brake_speed_soll = kmh_to_speed((sint32)(braking_rate * meters_left) / 1000);
 			brake_speed_soll = max(brake_speed_soll, kmh_to_speed(16));
 
@@ -717,7 +717,7 @@ void convoi_t::calc_acceleration(long delta_t)
 	// existing_convoy_t is designed to become a part of convoi_t. 
 	// There it will help to minimize updating convoy summary data.
 	existing_convoy_t convoy(*this);
-	convoy.calc_move(delta_t, get_welt()->get_einstellungen()->get_distance_per_tile(), min( min_top_speed, brake_speed_soll ), akt_speed, sp_soll);
+	convoy.calc_move(delta_t, float32e8_t(get_welt()->get_einstellungen()->get_meters_per_tile(), 1000), min( min_top_speed, brake_speed_soll ), akt_speed, sp_soll);
 }
 
 
@@ -2902,11 +2902,11 @@ void convoi_t::rdwr(loadsave_t *file)
 					if(file->is_loading())
 					{
 						file->rdwr_longlong(distance);
-						financial_history[k][j] = (distance * welt->get_einstellungen()->get_distance_per_tile()) / 100;
+						financial_history[k][j] = (distance * welt->get_einstellungen()->get_meters_per_tile()) / 1000;
 					}
 					else
 					{
-						distance = (financial_history[k][j] * 100) / welt->get_einstellungen()->get_distance_per_tile();
+						distance = (financial_history[k][j] * 1000) / welt->get_einstellungen()->get_meters_per_tile();
 						file->rdwr_longlong(distance);
 					}
 					continue;
@@ -2926,11 +2926,11 @@ void convoi_t::rdwr(loadsave_t *file)
 			{
 				sint64 tile_distance;
 				file->rdwr_longlong(tile_distance);
-				total_distance_traveled = (tile_distance * welt->get_einstellungen()->get_distance_per_tile()) / 100;
+				total_distance_traveled = (tile_distance * welt->get_einstellungen()->get_meters_per_tile()) / 1000;
 			}
 			else
 			{
-				sint64 km_distance = (total_distance_traveled * 100) / welt->get_einstellungen()->get_distance_per_tile();
+				sint64 km_distance = (total_distance_traveled * 1000) / welt->get_einstellungen()->get_meters_per_tile();
 				file->rdwr_longlong(km_distance);
 			}
 		}
@@ -2945,19 +2945,19 @@ void convoi_t::rdwr(loadsave_t *file)
 	{
 		if(file->get_experimental_version() <= 8)
 		{
-			uint8 old_tiles = (uint8)tile_hundredths_since_last_odometer_increment / 100;
+			uint8 old_tiles = (uint8)steps_since_last_odometer_increment / 255;
 			file->rdwr_byte(old_tiles);
-			tile_hundredths_since_last_odometer_increment = old_tiles * 100;
+			steps_since_last_odometer_increment = old_tiles * 255;
 		}
 		else if (file->get_experimental_version() > 8 && file->get_experimental_version() < 10)
 		{
-			double tiles_since_last_odometer_increment = tile_hundredths_since_last_odometer_increment / 100.0;
+			double tiles_since_last_odometer_increment = steps_since_last_odometer_increment / 255.0;
 			file->rdwr_double(tiles_since_last_odometer_increment);
-			tile_hundredths_since_last_odometer_increment = tiles_since_last_odometer_increment * 100.0;
+			steps_since_last_odometer_increment = (sint64)(tiles_since_last_odometer_increment * 255.0);
 		}
 		else if(file->get_experimental_version() >= 10)
 		{
-			file->rdwr_longlong(tile_hundredths_since_last_odometer_increment);
+			file->rdwr_longlong(steps_since_last_odometer_increment);
 		}
 	}
 
@@ -3534,7 +3534,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	{
 		average_speed = 1;
 	}
-	uint16 journey_minutes = ((distance / average_speed) * welt->get_einstellungen()->get_distance_per_tile() * 6) / 10;
+	uint16 journey_minutes = (distance * welt->get_einstellungen()->get_meters_per_tile() * 6) / average_speed;
 
 	const ware_besch_t* goods = ware.get_besch();
 	const uint16 price = goods->get_preis();
@@ -3609,7 +3609,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 			// Apply luxury bonus
 			const uint8 max_differential = welt->get_einstellungen()->get_max_luxury_bonus_differential();
 			const uint8 differential = comfort - tolerable_comfort;
-			const uint32 multiplier = (welt->get_einstellungen()->get_max_luxury_bonus() * comfort_modifier) / 100;
+			const uint32 multiplier = (welt->get_einstellungen()->get_max_luxury_bonus_percent() * comfort_modifier) / 10000;
 			if(differential >= max_differential)
 			{
 				final_revenue += (sint64)(revenue * multiplier);
@@ -3625,7 +3625,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 			// Apply discomfort penalty
 			const uint8 max_differential = welt->get_einstellungen()->get_max_discomfort_penalty_differential();
 			const uint8 differential = tolerable_comfort - comfort;
-			uint32 multiplier = welt->get_einstellungen()->get_max_discomfort_penalty() * comfort_modifier;
+			uint32 multiplier = (welt->get_einstellungen()->get_max_discomfort_penalty_percent() * comfort_modifier) / 100;
 			multiplier = multiplier < 95 ? multiplier : 95;
 			if(differential >= max_differential)
 			{
@@ -3759,8 +3759,8 @@ uint8 convoi_t::calc_tolerable_comfort(uint16 journey_minutes, karte_t* w)
 	}
 	if(journey_minutes < comfort_median_short_minutes)
 	{
-		const float proportion = (float)(journey_minutes - comfort_short_minutes) / (float)(comfort_median_short_minutes - comfort_short_minutes);
-		return (proportion * (comfort_median_short - comfort_short)) + comfort_short;
+		const uint32 percentage = ((journey_minutes - comfort_short_minutes) * 100) / (comfort_median_short_minutes - comfort_short_minutes);
+		return ((percentage * (comfort_median_short - comfort_short)) / 100) + comfort_short;
 	}
 
 	const uint16 comfort_median_median_minutes = w->get_einstellungen()->get_tolerable_comfort_median_median_minutes();
@@ -3771,8 +3771,8 @@ uint8 convoi_t::calc_tolerable_comfort(uint16 journey_minutes, karte_t* w)
 	}
 	if(journey_minutes < comfort_median_median_minutes)
 	{
-		const float proportion = (float)(journey_minutes - comfort_median_short_minutes) / (float)(comfort_median_median_minutes - comfort_median_short_minutes);
-		return (proportion * (comfort_median_median - comfort_median_short)) + comfort_median_short;
+		const uint32 percentage = ((journey_minutes - comfort_median_short_minutes) * 100) / (comfort_median_median_minutes - comfort_median_short_minutes);
+		return ((percentage * (comfort_median_median - comfort_median_short)) / 100) + comfort_median_short;
 	}
 
 	const uint16 comfort_median_long_minutes = w->get_einstellungen()->get_tolerable_comfort_median_long_minutes();
@@ -3783,8 +3783,8 @@ uint8 convoi_t::calc_tolerable_comfort(uint16 journey_minutes, karte_t* w)
 	}
 	if(journey_minutes < comfort_median_long_minutes)
 	{
-		const float proportion = (float)(journey_minutes - comfort_median_median_minutes) / (float)(comfort_median_long_minutes - comfort_median_median_minutes);
-		return (proportion * (comfort_median_long - comfort_median_median)) + comfort_median_median;
+		const uint32 percentage = ((journey_minutes - comfort_median_median_minutes) * 100) / (comfort_median_long_minutes - comfort_median_median_minutes);
+		return ((percentage * (comfort_median_long - comfort_median_median)) / 100) + comfort_median_median;
 	}
 	
 	const uint16 comfort_long_minutes = w->get_einstellungen()->get_tolerable_comfort_long_minutes();
@@ -3794,8 +3794,8 @@ uint8 convoi_t::calc_tolerable_comfort(uint16 journey_minutes, karte_t* w)
 		return comfort_long;
 	}
 
-	const float proportion = (float)(journey_minutes - comfort_median_long_minutes) / (float)(comfort_long_minutes - comfort_median_long_minutes);
-	return (proportion * (comfort_long - comfort_median_long)) + comfort_median_long;
+	const uint32 percentage = ((journey_minutes - comfort_median_long_minutes) * 100) / (comfort_long_minutes - comfort_median_long_minutes);
+	return ((percentage * (comfort_long - comfort_median_long)) / 100) + comfort_median_long;
 }
 
 uint16 convoi_t::calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance, karte_t* w)
@@ -3806,13 +3806,13 @@ uint16 convoi_t::calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance, k
 		return 0;
 	}
 
-	const uint16 global_multiplier = welt->get_einstellungen()->get_speed_bonus_multiplier();
+	const uint16 global_multiplier = welt->get_einstellungen()->get_speed_bonus_multiplier_percent();
 	const uint16 max_distance = w != NULL ? w->get_einstellungen()->get_max_bonus_min_distance() : 16;
-	const uint16 multiplier = w != NULL ? w->get_einstellungen()->get_max_bonus_multiplier_percent() : 3000;
+	const uint16 multiplier = w != NULL ? w->get_einstellungen()->get_max_bonus_multiplier_percent() : 30;
 	
 	if(distance >= max_distance)
 	{
-		return (base_bonus * multiplier * global_multiplier) / 10000;
+		return base_bonus * multiplier * global_multiplier / 10000;
 	}
 
 	const uint16 median_distance = w != NULL ? w->get_einstellungen()->get_median_bonus_distance() : 128;

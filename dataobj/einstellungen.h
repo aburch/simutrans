@@ -245,7 +245,7 @@ public:
 	uint16 max_bonus_min_distance;
 	uint16 median_bonus_distance;
 	uint16 max_bonus_multiplier_percent;
-	uint16 distance_per_tile;
+	uint16 meters_per_tile;
 	uint8 tolerable_comfort_short;
 	uint8 tolerable_comfort_median_short;
 	uint8 tolerable_comfort_median_median;
@@ -331,7 +331,7 @@ public:
 	// Adjustment of the speed bonus for use with
 	// speedbonus.tab files from Simutrans-Standard
 	// @author: jamespetts
-	uint16 speed_bonus_multiplier;
+	uint16 speed_bonus_multiplier_percent;
 	
 private:
 
@@ -576,8 +576,9 @@ public:
 	uint16 get_max_bonus_multiplier_percent() const { return max_bonus_multiplier_percent; }
 	void   set_max_bonus_multiplier_percent(uint16 value) { max_bonus_multiplier_percent = value; }
 
-	uint16  get_distance_per_tile() const { return distance_per_tile; }
-	void   set_distance_per_tile(uint16 value) { distance_per_tile = value; }
+	uint16 get_meters_per_tile() const { return meters_per_tile; }
+	void   set_meters_per_tile(uint16 value) { meters_per_tile = value; }
+//	void   set_distance_per_tile_percent(uint16 value) { meters_per_tile = value * 10; }
 
 	uint8  get_tolerable_comfort_short() const { return tolerable_comfort_short; }
 	void   set_tolerable_comfort_short(uint8 value) { tolerable_comfort_short = value; }
@@ -604,13 +605,11 @@ public:
 	uint16 get_tolerable_comfort_long_minutes() const { return tolerable_comfort_long_minutes; }
 	void   set_tolerable_comfort_long_minutes(uint16 value) { tolerable_comfort_long_minutes = value; }
 
-	float  get_max_luxury_bonus() const { return (float)max_luxury_bonus_percent * 0.01F; }
 	uint16 get_max_luxury_bonus_percent() const { return max_luxury_bonus_percent; }
 	void   set_max_luxury_bonus_percent(uint16 value) { max_luxury_bonus_percent = value; }
 	uint8  get_max_luxury_bonus_differential() const { return max_luxury_bonus_differential; }
 	void   set_max_luxury_bonus_differential(uint8 value) { max_luxury_bonus_differential = value; }
 
-	float  get_max_discomfort_penalty() const { return (float) max_discomfort_penalty_percent * 0.01F; }
 	uint16 get_max_discomfort_penalty_percent() const { return max_discomfort_penalty_percent; }
 	void   set_max_discomfort_penalty_percent(uint16 value) { max_discomfort_penalty_percent = value; }
 	uint8  get_max_discomfort_penalty_differential() const { return max_discomfort_penalty_differential; }
@@ -700,7 +699,8 @@ public:
 
 	uint8 get_enforce_weight_limits() const { return enforce_weight_limits; }
 
-	uint16 get_speed_bonus_multiplier() const { return speed_bonus_multiplier; }
+	uint16 get_speed_bonus_multiplier_percent() const { return speed_bonus_multiplier_percent; }
+
 	// allowed modes are 0,1,2
 	enum { TO_PREVIOUS=0, TO_TRANSFER, TO_DESTINATION };
 

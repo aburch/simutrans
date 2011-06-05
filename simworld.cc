@@ -1770,7 +1770,7 @@ karte_t::~karte_t()
 
 void karte_t::set_scale()
 {
-	const uint16 scale_factor = get_einstellungen()->get_distance_per_tile();
+	const uint16 scale_factor = get_einstellungen()->get_meters_per_tile();
 	
 	// Vehicles
 	for(int i = road_wt; i <= air_wt; i++) 
@@ -3343,11 +3343,11 @@ void karte_t::recalc_average_speed()
 	// retire/allocate vehicles
 	stadtauto_t::built_timeline_liste(this);
 
+	const uint32 speed_bonus_percent = get_einstellungen()->get_speed_bonus_multiplier_percent();
 	for(int i=road_wt; i<=narrowgauge_wt; i++) {
 		const int typ = i==4 ? 3 : (i-1)&7;
-		const uint16 speed_bonus_multiplier = get_einstellungen()->get_speed_bonus_multiplier();
 		const uint32 base_speed_bonus = vehikelbauer_t::get_speedbonus( this->get_timeline_year_month(), i==4 ? air_wt : (waytype_t)i );
-		average_speed[typ] = (base_speed_bonus * speed_bonus_multiplier) / 100;
+		average_speed[typ] = (base_speed_bonus * speed_bonus_percent) / 100;
 	}
 
 	//	DBG_MESSAGE("karte_t::recalc_average_speed()","");
@@ -4738,7 +4738,7 @@ void karte_t::laden(loadsave_t *file)
 	pumpe_t::neue_karte();
 	senke_t::neue_karte();
 
-	const uint16 old_scale_factor = get_einstellungen()->get_distance_per_tile();
+	const uint16 old_scale_factor = get_einstellungen()->get_meters_per_tile();
 
 	// jetzt geht das laden los
 	dbg->warning("karte_t::laden", "Fileversion: %d, %p", file->get_version(), einstellungen);
@@ -4765,7 +4765,7 @@ void karte_t::laden(loadsave_t *file)
 		warenbauer_t::set_multiplier( 1000 );
 	}
 
-	if(old_scale_factor != get_einstellungen()->get_distance_per_tile())
+	if(old_scale_factor != get_einstellungen()->get_meters_per_tile())
 	{
 		set_scale();
 	}
@@ -6584,17 +6584,24 @@ void karte_t::calc_generic_road_speed_intercity()
 
 sint32 karte_t::calc_generic_road_speed(const weg_besch_t* besch)
 {
-	if(besch || city_road)
+	sint32 speed_average = citycar_speed_average;
+	if(besch)
 	{
-		const sint32 road_speed_limit = besch ? besch->get_topspeed() : city_road->get_topspeed();
-		const sint32 speed_average = min(road_speed_limit * 10, citycar_speed_average * 10) / 15;
-		const uint16 journey_time_per_tile = (einstellungen->get_distance_per_tile() * 6) / speed_average; // *Tenths* of minutes: hence *6, not *0.6
-		return journey_time_per_tile;
+		const sint32 road_speed_limit = besch->get_topspeed();
+		if (speed_average > road_speed_limit)
+		{
+			speed_average = road_speed_limit;
+		}
 	}
-	else
+	else if(city_road)
 	{
-		return (einstellungen->get_distance_per_tile() * 6) / ((citycar_speed_average * 10 ) / 15); 
+		const sint32 road_speed_limit = city_road->get_topspeed();
+		if (speed_average > road_speed_limit)
+		{
+			speed_average = road_speed_limit;
+		}
 	}
+	return ((6 * 15) * einstellungen->get_meters_per_tile()) / speed_average;
 }
 
 void karte_t::calc_max_road_check_depth()
@@ -6616,15 +6623,16 @@ void karte_t::calc_max_road_check_depth()
 				max_road_speed = iter.get_current_value()->get_topspeed();
 			}
 		}
+		if(max_road_speed == 0)
+		{
+			max_road_speed = citycar_speed_average;
+		}
 	}
 	else
 	{
 		max_road_speed = citycar_speed_average;
 	}
-	if(max_road_speed == 0)
-	{
-		max_road_speed = citycar_speed_average;
-	}
 
-	max_road_check_depth = (((uint32)einstellungen->get_max_longdistance_tolerance() * 10 / einstellungen->get_distance_per_tile()) / 6) * min(citycar_speed_average, max_road_speed);
+	// unit of max_road_check_depth: (min/10 * 100) / (m/tile * 6) * km/h  --> tile * 1000 / 36
+	max_road_check_depth = ((uint32)einstellungen->get_max_longdistance_tolerance() * 100) / (einstellungen->get_meters_per_tile() * 6) * min(citycar_speed_average, max_road_speed);
 }
