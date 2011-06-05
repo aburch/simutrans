@@ -373,9 +373,7 @@ void spieler_t::neuer_monat()
 		{
 			uint16 interest_rate = ((welt->get_einstellungen()->get_interest_rate_percent() * 100) / 1200); 
 			sint32 monthly_interest = (interest_rate * konto) / 100;
-			konto += monthly_interest;
-			finance_history_month[0][COST_INTEREST] += monthly_interest;
-			finance_history_year[0][COST_INTEREST] += monthly_interest;
+			buche(monthly_interest, COST_INTEREST);
 		}
 
 		// Adjust credit limit
@@ -386,11 +384,11 @@ void spieler_t::neuer_monat()
 			base_credit_limit = adjusted_credit_limit > 0 ? adjusted_credit_limit : 0;
 		}
 
-		if(!welt->get_einstellungen()->is_freeplay()  &&  player_nr!=1 ) 
+		if(!welt->get_einstellungen()->is_freeplay() && player_nr != 1 /* public player*/) 
 		{
-			if( welt->get_active_player_nr()==player_nr  &&  !umgebung_t::networkmode )
+			if( welt->get_active_player_nr() == player_nr)
 			{
-				if(finance_history_year[0][COST_NETWEALTH] < 0 && welt->get_einstellungen()->bankruptsy_allowed()) 
+				if(finance_history_year[0][COST_NETWEALTH] < 0 && welt->get_einstellungen()->bankruptsy_allowed()  && !umgebung_t::networkmode ) 
 				{
 					destroy_all_win(true);
 					create_win( display_get_width()/2-128, 40, new news_img("Bankrott:\n\nDu bist bankrott.\n"), w_info, magic_none);
@@ -429,17 +427,11 @@ void spieler_t::neuer_monat()
 			// no assets => nothing to go bankrupt about again
 			else if(  maintenance!=0  ||  finance_history_year[0][COST_ALL_CONVOIS]!=0  ) 
 			{
-
 				// for AI, we only declare bankrupt, if total assest are below zero
 				// Also, AI players play by the same rules as human players: will only go bankrupt if humans can.
 				if(finance_history_year[0][COST_NETWEALTH]<0 && welt->get_einstellungen()->bankruptsy_allowed()) 
 				{
 					ai_bankrupt();
-				}
-				// tell the current player
-				if(  welt->get_active_player_nr()==player_nr  ) {
-					sprintf(buf, translator::translate("On loan since %i month(s)"), konto_ueberzogen );
-					welt->get_message()->add_message(buf,koord::invalid,message_t::problems,player_nr,IMG_LEER);
 				}
 			}
 		}
@@ -616,7 +608,8 @@ void spieler_t::buche(sint64 const betrag, player_cost const type)
 	finance_history_year[0][type] += betrag;
 	finance_history_month[0][type] += betrag;
 
-	if(type < COST_ASSETS) {
+	if(type < COST_ASSETS || type == COST_INTEREST)
+	{
 		konto += betrag;
 
 		// fill year history
