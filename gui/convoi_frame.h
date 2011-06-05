@@ -47,6 +47,7 @@ private:
 	* @author Hj. Malthaner
 	*/
 	vector_tpl<convoihandle_t> convois;
+	uint32 last_world_convois;
 
 	// since the scrollpane can be larger than 32767, we use explicitly a scroll bar
 	scrollbar_t vscroll;
