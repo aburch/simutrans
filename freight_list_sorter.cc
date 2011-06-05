@@ -224,7 +224,16 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 			}
 
 			if(  via_halt!=halt  ||  is_factory_going  ) {
-				buf.printf(translator::translate("via %s\n"), via_name);
+				if (via_halt.is_bound()) {
+					buf.printf(translator::translate("via %s\n"), via_name);
+				}
+				else {
+					if (sortby==by_via_sum) {
+						// do not show undecided transfer halts
+						buf.append(name);
+					}
+					buf.append("\n");
+				}
 			}
 			else {
 				buf.append("\n");
