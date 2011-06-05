@@ -342,9 +342,6 @@ void spieler_t::neuer_monat()
 
 	simlinemgmt.new_month();
 
-	const sint64 TEST_1 = get_maintenance(MAINT_INFRASTRUCTURE);
-	const sint64 TEST_2 = welt->calc_adjusted_monthly_figure(TEST_1);
-	
 	// subtract maintenance
 	buche( -welt->calc_adjusted_monthly_figure(get_maintenance(MAINT_INFRASTRUCTURE)), COST_MAINTENANCE);
 

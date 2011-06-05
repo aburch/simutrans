@@ -261,7 +261,7 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 		while (delta_t > 0)
 		{
 			// the driver's part: select accelerating force:
-			double d_f;
+			//double d_f;
 			fraction_t f;
 			bool is_breaking = false; // don't roll backwards, due to breaking
 
@@ -380,19 +380,29 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 			//fraction_t df = simtime_factor * (f - adverse.cf * (v * v * sgn<fraction_t>(v)));
 			fraction_t df = simtime_factor * (f - adverse.cf *  (v * v * sgn<sint32>(v.integer())));
 			df.shorten();
-			const double TEST_df_double_equivalent = df.to_double();
+			//const double TEST_df_double_equivalent = df.to_double();
 			if (delta_t >= DT_SLICE && abs(df.integer()) > weight.weight / (10 * DT_SLICE_SECONDS))
 			{
 				// This part is important for acceleration/deceleration phases only.
 				// When a small force produces a small speed change, we can add it at once in the 'else' section.
 				//count2++;
-				v += df * fraction_t(DT_SLICE_SECONDS, weight.weight);
+				//v.shrink();
+				fraction_t seconds_weight(DT_SLICE_SECONDS, weight.weight);
+				seconds_weight.shrink();
+				fraction_t precalc = df * seconds_weight;
+				precalc.shrink();
+				v += precalc;
 				dt = DT_SLICE;
 			}
 			else
 			{
 				//count3++;
-				v += df * fraction_t(delta_t, DT_TIME_FACTOR * weight.weight);
+				//v.shrink();
+				fraction_t delta_weight(delta_t, DT_TIME_FACTOR * weight.weight);
+				delta_weight.shrink();
+				fraction_t precalc = df * delta_weight;
+				precalc.shrink();
+				v += precalc;
 				dt = delta_t;
 			}
 			if (is_breaking)
@@ -407,6 +417,7 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor_integer, const weig
 				v = 1;
 			}
 			dx.shrink();
+			
 			fraction_t precalc = dt * v;
 			precalc.shrink();
 			dx += precalc;
