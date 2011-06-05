@@ -3759,8 +3759,8 @@ uint8 convoi_t::calc_tolerable_comfort(uint16 journey_minutes, karte_t* w)
 	}
 	if(journey_minutes < comfort_median_short_minutes)
 	{
-		const float proportion = (float)(journey_minutes - comfort_short_minutes) / (float)(comfort_median_short_minutes - comfort_short_minutes);
-		return (proportion * (comfort_median_short - comfort_short)) + comfort_short;
+		const uint32 percentage = ((journey_minutes - comfort_short_minutes) * 100) / (comfort_median_short_minutes - comfort_short_minutes);
+		return ((percentage * (comfort_median_short - comfort_short)) / 100) + comfort_short;
 	}
 
 	const uint16 comfort_median_median_minutes = w->get_einstellungen()->get_tolerable_comfort_median_median_minutes();
@@ -3771,8 +3771,8 @@ uint8 convoi_t::calc_tolerable_comfort(uint16 journey_minutes, karte_t* w)
 	}
 	if(journey_minutes < comfort_median_median_minutes)
 	{
-		const float proportion = (float)(journey_minutes - comfort_median_short_minutes) / (float)(comfort_median_median_minutes - comfort_median_short_minutes);
-		return (proportion * (comfort_median_median - comfort_median_short)) + comfort_median_short;
+		const uint32 percentage = ((journey_minutes - comfort_median_short_minutes) * 100) / (comfort_median_median_minutes - comfort_median_short_minutes);
+		return ((percentage * (comfort_median_median - comfort_median_short)) / 100) + comfort_median_short;
 	}
 
 	const uint16 comfort_median_long_minutes = w->get_einstellungen()->get_tolerable_comfort_median_long_minutes();
@@ -3783,8 +3783,8 @@ uint8 convoi_t::calc_tolerable_comfort(uint16 journey_minutes, karte_t* w)
 	}
 	if(journey_minutes < comfort_median_long_minutes)
 	{
-		const float proportion = (float)(journey_minutes - comfort_median_median_minutes) / (float)(comfort_median_long_minutes - comfort_median_median_minutes);
-		return (proportion * (comfort_median_long - comfort_median_median)) + comfort_median_median;
+		const uint32 percentage = ((journey_minutes - comfort_median_median_minutes) * 100) / (comfort_median_long_minutes - comfort_median_median_minutes);
+		return ((percentage * (comfort_median_long - comfort_median_median)) / 100) + comfort_median_median;
 	}
 	
 	const uint16 comfort_long_minutes = w->get_einstellungen()->get_tolerable_comfort_long_minutes();
@@ -3794,8 +3794,8 @@ uint8 convoi_t::calc_tolerable_comfort(uint16 journey_minutes, karte_t* w)
 		return comfort_long;
 	}
 
-	const float proportion = (float)(journey_minutes - comfort_median_long_minutes) / (float)(comfort_long_minutes - comfort_median_long_minutes);
-	return (proportion * (comfort_long - comfort_median_long)) + comfort_median_long;
+	const uint32 percentage = ((journey_minutes - comfort_median_long_minutes) * 100) / (comfort_long_minutes - comfort_median_long_minutes);
+	return ((percentage * (comfort_long - comfort_median_long)) / 100) + comfort_median_long;
 }
 
 uint16 convoi_t::calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance, karte_t* w)
