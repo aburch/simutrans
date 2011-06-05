@@ -1318,8 +1318,7 @@ void vehikel_t::hop()
  * taking into account the curve and weight limit.
  * @author: jamespetts
  */
-sint32
-vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi current_direction, bool is_corner)
+sint32 vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi current_direction, bool is_corner)
 {
 	grund_t *g;
 	g = welt->lookup(*position);
@@ -1352,12 +1351,12 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 
 	if(heaviest_vehicle > weight_limit && welt->get_einstellungen()->get_enforce_weight_limits() == 1)
 	{
-		if(heaviest_vehicle / weight_limit <= 1.1)
+		if((heaviest_vehicle * 100) / weight_limit <= 110)
 		{
 			//Overweight by up to 10% - reduce speed limit to a third.
 			overweight_speed_limit = base_limit / 3;
 		}
-		else if(heaviest_vehicle / weight_limit > 1.1)
+		else if((heaviest_vehicle * 100) / weight_limit > 110)
 		{
 			//Overweight by more than 10% - reduce speed limit by a factor of 10.
 			overweight_speed_limit = base_limit / 10;

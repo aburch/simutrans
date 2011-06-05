@@ -324,6 +324,7 @@ void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const 
 	{
 		sp_soll = KMH_SPEED_UNLIMITED;
 	}
+	akt_speed = min(akt_speed, kmh_to_speed(adverse.max_speed));
 }
 
 /******************************************************************************/
