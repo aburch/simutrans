@@ -717,31 +717,31 @@
     <ClCompile Include="clipboard_w32.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="utils\float32e8_t.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\server_frame.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dataobj\network_cmp_pakset.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dataobj\network_file_transfer.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dataobj\network_socket_list.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="dataobj\pakset_info.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="utils\checksum.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="dataobj\gameinfo.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gui\server_frame.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="gui\line_item.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="utils\fraction64_t.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="dataobj\network_socket_list.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="dataobj\network_file_transfer.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="dataobj\network_cmp_pakset.cc">
+    <ClCompile Include="dataobj\gameinfo.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="besch\fabrik_besch.cc">
@@ -1742,10 +1742,7 @@
     <ClInclude Include="dings\zeiger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="utils\fraction_t.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\fraction64_t.h">
+    <ClInclude Include="utils\float32e8_t.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

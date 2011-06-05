@@ -750,7 +750,7 @@
     <ClCompile Include="dataobj\network_file_transfer.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="utils\fraction64_t.cc">
+    <ClCompile Include="utils\float32e8_t.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1745,10 +1745,7 @@
     <ClInclude Include="dataobj\network_file_transfer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="utils\fraction_t.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\fraction64_t.h">
+    <ClInclude Include="utils\float32e8_t.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1801,6 +1798,7 @@
     <None Include="..\simutrans-experimental-binaries\config\simuconf.tab">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="makeobj\Makefile" />
     <None Include="base_texts_experimental_forgotten_items_1.dat">
       <Filter>Resource Files</Filter>
     </None>

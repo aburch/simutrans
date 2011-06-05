@@ -320,7 +320,7 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 					buf.append(a_halt->get_name());
 					
 					const uint32 tiles_to_halt = accurate_distance(halt->get_next_pos(a_halt->get_basis_pos()), a_halt->get_next_pos(halt->get_basis_pos()));
-					const double km_per_tile = halt->get_welt()->get_einstellungen()->get_distance_per_tile() / 100.0;
+					const double km_per_tile = halt->get_welt()->get_einstellungen()->get_meters_per_tile() / 1000.0;
 					const double km_to_halt = (double)tiles_to_halt * km_per_tile;
 
 					buf.append(" (");

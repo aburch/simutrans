@@ -2666,9 +2666,9 @@ uint16 stadt_t::check_road_connexion(koord3d dest)
 		speed_sum += min(top_speed, vehicle_speed_average);
 		count += road->is_diagonal() ? 7 : 10; //Use precalculated numbers to avoid division here.
 	}
-	const sint32 speed_average = ((speed_sum * 100) / count) / 13;
-	const uint32 journey_distance_km = (private_car_route->get_count() * welt->get_einstellungen()->get_distance_per_tile());
-	const uint16 journey_time = (6 * journey_distance_km) / speed_average; // *Tenths* of minutes: hence *6 not *0.6 (note: the line above does not divide by 100 as it otherwise would).
+	const sint32 speed_average = (speed_sum * 100) / (count * 13); // was (float)(speed_sum / ((float)count / 10.0F))  / 1.3F;
+	const uint32 journey_distance_m = private_car_route->get_count() * welt->get_einstellungen()->get_meters_per_tile();
+	const uint16 journey_time = (6 * journey_distance_m) / (10 * speed_average); // *Tenths* of minutes: hence *0.6, not *0.06.
 	const uint16 straight_line_distance_tiles = accurate_distance(origin.get_2d(), dest.get_2d());
 	return journey_time / (straight_line_distance_tiles == 0 ? 1 : straight_line_distance_tiles);
 }

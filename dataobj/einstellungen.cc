@@ -17,6 +17,7 @@
 #include "../bauer/wegbauer.h"
 #include "../besch/weg_besch.h"
 #include "../utils/simstring.h"
+#include "../utils/float32e8_t.h"
 #include "../vehicle/simvehikel.h"
 #include "../player/simplay.h"
 #include "loadsave.h"
@@ -296,7 +297,7 @@ einstellungen_t::einstellungen_t() :
 	max_bonus_min_distance = 256;
 	median_bonus_distance = 0;
 	max_bonus_multiplier_percent = 300;
-	distance_per_tile = 25;
+	meters_per_tile = 250;
 	tolerable_comfort_short = 15;
 	tolerable_comfort_median_short = 60;
 	tolerable_comfort_median_median = 100;
@@ -378,7 +379,7 @@ einstellungen_t::einstellungen_t() :
 	// @author: jamespetts
 	enforce_weight_limits = 1;
 
-	speed_bonus_multiplier = 100;
+	speed_bonus_multiplier_percent = 100;
 
 	allow_buying_obsolete_vehicles = true;
 
@@ -869,22 +870,22 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			{
 				file->rdwr_short(median_bonus_distance);
 				file->rdwr_short(max_bonus_multiplier_percent);
-				file->rdwr_short(distance_per_tile);
+				uint16 distance_per_tile_integer = meters_per_tile / 10;
+				file->rdwr_short(distance_per_tile_integer);
 				if(file->get_experimental_version() < 5 && file->get_experimental_version() >= 1)
 				{
 					// In earlier versions, the default was set to a higher level. This
 					// is a problem when the new journey time tolerance features is used.
 					if(file->is_loading())
 					{
-						distance_per_tile *= 100;
-						distance_per_tile /= 80;
+						distance_per_tile_integer = (distance_per_tile_integer * 8) / 10;
 					}
 					else
 					{
-						distance_per_tile *= 125;
-						distance_per_tile /= 100;
+						distance_per_tile_integer = (distance_per_tile_integer * 10) / 8;
 					}
 				}		
+				meters_per_tile = distance_per_tile_integer * 10;
 				
 				file->rdwr_byte(tolerable_comfort_short);
 				file->rdwr_byte(tolerable_comfort_median_short);
@@ -919,25 +920,18 @@ void einstellungen_t::rdwr(loadsave_t *file)
 
 			if(file->get_experimental_version() < 6)
 			{
-				min_bonus_max_distance = ((uint32)min_bonus_max_distance * 100) / distance_per_tile;
-				max_bonus_min_distance = ((uint32)max_bonus_min_distance * 100) / distance_per_tile;
+				float32e8_t km_per_tile(meters_per_tile, 1000);
+				min_bonus_max_distance /= km_per_tile;
+				max_bonus_min_distance /= km_per_tile;
 				// Scale the costs to match the scale factor.
-				cst_multiply_dock *= 100;
-				cst_multiply_dock /= distance_per_tile;
-				cst_multiply_station *= 100;
-				cst_multiply_station /= distance_per_tile;
-				cst_multiply_roadstop *= 100;
-				cst_multiply_roadstop /= distance_per_tile;
-				cst_multiply_airterminal *= 100;
-				cst_multiply_airterminal /=	distance_per_tile;
-				cst_multiply_post *= 100;
-				cst_multiply_post /= distance_per_tile;
-				maint_building *= 100;
-				maint_building /= distance_per_tile;
-				cst_buy_land *= 100;
-				maint_building /= distance_per_tile;
-				cst_remove_tree *= 100;
-				cst_remove_tree /= distance_per_tile;
+				cst_multiply_dock *= km_per_tile;
+				cst_multiply_station *= km_per_tile;
+				cst_multiply_roadstop *= km_per_tile;
+				cst_multiply_airterminal *= km_per_tile;
+				cst_multiply_post *= km_per_tile;
+				maint_building *= km_per_tile;
+				cst_buy_land *= km_per_tile;
+				cst_remove_tree *= km_per_tile;
 			}
 
 			file->rdwr_short(obsolete_running_cost_increase_percent);
@@ -1094,7 +1088,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 				file->rdwr_short(dummy);
 			}
 			file->rdwr_byte(enforce_weight_limits);
-			file->rdwr_short(speed_bonus_multiplier);
+			file->rdwr_short(speed_bonus_multiplier_percent);
 		}
 		else
 		{
@@ -1174,7 +1168,9 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 
 	// This needs to be first as other settings are based on this.
 	// @author: jamespetts
-	distance_per_tile = contents.get_int("distance_per_tile", distance_per_tile);
+	uint16 distance_per_tile_integer = meters_per_tile / 10;
+	meters_per_tile = contents.get_int("distance_per_tile", distance_per_tile_integer) * 10;
+	float32e8_t distance_per_tile(meters_per_tile, 1000);
 
 	umgebung_t::water_animation = contents.get_int("water_animation_ms", umgebung_t::water_animation);
 	umgebung_t::ground_object_probability = contents.get_int("random_grounds_probability", umgebung_t::ground_object_probability);
@@ -1659,7 +1655,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	// @author: jamespetts
 	enforce_weight_limits = contents.get_int("enforce_weight_limits", enforce_weight_limits);
 
-	speed_bonus_multiplier = contents.get_int("speed_bonus_multiplier_percent", speed_bonus_multiplier);
+	speed_bonus_multiplier_percent = contents.get_int("speed_bonus_multiplier_percent", speed_bonus_multiplier_percent);
 
 	bool path_searching_approach = contents.get_int("path_searching_approach", default_path_option == 2);
 	default_path_option = path_searching_approach ? 2 : 1;
@@ -1679,8 +1675,8 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	const uint16 max_longdistance_tolerance_minutes = contents.get_int("max_longdistance_tolerance", (max_longdistance_tolerance / 10));
 	max_longdistance_tolerance = max_longdistance_tolerance_minutes * 10;
 
-	const uint16 max_walking_distance_km = contents.get_int("max_walking_distance_km_tenth", ((max_walking_distance * distance_per_tile) / 10));
-	max_walking_distance = (max_walking_distance_km * 10) / distance_per_tile;
+	const uint16 max_walking_distance_m = contents.get_int("max_walking_distance_km_tenth", (max_walking_distance * meters_per_tile) / 100) * 100;
+	max_walking_distance = (uint32)max_walking_distance_m / distance_per_tile;
 
 	quick_city_growth = (bool)(contents.get_int("quick_city_growth", quick_city_growth));
 

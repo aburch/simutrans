@@ -239,7 +239,7 @@ public:
 	uint16 max_bonus_min_distance;
 	uint16 median_bonus_distance;
 	uint16 max_bonus_multiplier_percent;
-	uint16 distance_per_tile;
+	uint16 meters_per_tile;
 	uint8 tolerable_comfort_short;
 	uint8 tolerable_comfort_median_short;
 	uint8 tolerable_comfort_median_median;
@@ -325,7 +325,7 @@ public:
 	// Adjustment of the speed bonus for use with
 	// speedbonus.tab files from Simutrans-Standard
 	// @author: jamespetts
-	uint16 speed_bonus_multiplier;
+	uint16 speed_bonus_multiplier_percent;
 	
 private:
 
@@ -570,8 +570,9 @@ public:
 	uint16 get_max_bonus_multiplier_percent() const { return max_bonus_multiplier_percent; }
 	void   set_max_bonus_multiplier_percent(uint16 value) { max_bonus_multiplier_percent = value; }
 
-	uint16  get_distance_per_tile() const { return distance_per_tile; }
-	void   set_distance_per_tile(uint16 value) { distance_per_tile = value; }
+	uint16 get_meters_per_tile() const { return meters_per_tile; }
+	void   set_meters_per_tile(uint16 value) { meters_per_tile = value; }
+//	void   set_distance_per_tile_percent(uint16 value) { meters_per_tile = value * 10; }
 
 	uint8  get_tolerable_comfort_short() const { return tolerable_comfort_short; }
 	void   set_tolerable_comfort_short(uint8 value) { tolerable_comfort_short = value; }
@@ -694,7 +695,8 @@ public:
 
 	uint8 get_enforce_weight_limits() const { return enforce_weight_limits; }
 
-	uint16 get_speed_bonus_multiplier() const { return speed_bonus_multiplier; }
+	uint16 get_speed_bonus_multiplier_percent() const { return speed_bonus_multiplier_percent; }
+
 	// allowed modes are 0,1,2
 	enum { TO_PREVIOUS=0, TO_TRANSFER, TO_DESTINATION };
 

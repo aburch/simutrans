@@ -67,11 +67,11 @@ uint32 vehikel_besch_t::get_adjusted_monthly_fixed_maintenance(karte_t *welt) co
  * Get the ratio of power to force from either given power and force or according to given waytype.
  * Will never return 0, promised.
  */
-fraction_t vehikel_besch_t::get_power_force_ratio() const
+float32e8_t vehikel_besch_t::get_power_force_ratio() const
 {
 	if (leistung != 0 && tractive_effort != 0)
 	{
-		return fraction_t(leistung, tractive_effort);
+		return float32e8_t(leistung, (uint32) tractive_effort);
 	}
 
 	switch (get_waytype())
@@ -90,20 +90,20 @@ fraction_t vehikel_besch_t::get_power_force_ratio() const
 				* We assume, that the given power is meant for the half of the engines allowed maximum speed and get the constant force:
 				*/
 				// Steamers are constant force machines unless about half of maximum speed, when steam runs short.
-				return fraction_t(geschw * 5, 36); // return geschw / (3.6f * 2.0f);
+				return float32e8_t(geschw * 10, 36 * 2);
 			}
 			/* else fall through */
 
 		//case water_wt:
 			// Ships are constant force machines at all speeds, but the pak sets are balanced for constant power. 
-			//(return geschw * 1000) / 360;
+			//return float32e8_t(geschw * 10, 36);
 
 		case air_wt: 
 			// Aircraft are constant force machines at all speeds, but the pak sets are balanced for constant power. 
 			// We recommend for simutrans experimental to set the tractive effort manually. The existing aircraft power values are very roughly estimated.
 			if (geschw)
 			{
-				return fraction_t(geschw * 5, 36); // return geschw / (3.6f * 2.0f);
+				return float32e8_t(geschw * 10, 36 * 2);
 			}
 			/* else fall through */
 
@@ -119,7 +119,7 @@ fraction_t vehikel_besch_t::get_power_force_ratio() const
 			*
 			* In simutrans these engines can be simulated by setting the power to 2200, max speed to 140 resp. 100 and the gear to 1.136 resp. 1.545.
 			*/
-			return fraction_t(10);
+			return float32e8_t(10);
 	}
 }
 
@@ -146,24 +146,22 @@ void vehikel_besch_t::loaded()
 	* Above this threshold the engine works as constant power engine.
 	*/
 
-	const fraction_t pfr = get_power_force_ratio();
-	const fraction_t power_force_ratio = pfr > 0 ? pfr : 1;
-	//BG, 22.05.2011: not needed, as integer() is doing the rounding: const fraction_t fts =  power_force_ratio + fraction_t(1,2);
-	force_threshold_speed = (uint16)power_force_ratio.integer();
+	float32e8_t power_force_ratio = get_power_force_ratio();
+	force_threshold_speed = (uint16)(power_force_ratio + float32e8_t::half);
 	geared_power = leistung * gear;
 	geared_force = (uint32)tractive_effort * gear;
 	if (geared_power != 0)
 	{
 		if (geared_force == 0)
 		{
-			geared_force = max(GEAR_FACTOR, (geared_power / power_force_ratio).integer());
+			geared_force = max(GEAR_FACTOR, (uint32)(geared_power / power_force_ratio + float32e8_t::half));
 		}
 	}
 	else
 	{
 		if (geared_force != 0)
 		{
-			geared_power = max(GEAR_FACTOR, (geared_force * power_force_ratio).integer());
+			geared_power = max(GEAR_FACTOR, (uint32)(geared_force * power_force_ratio + float32e8_t::half));
 		}
 	}
 }
@@ -172,28 +170,28 @@ void vehikel_besch_t::loaded()
  * Get effective force in kN at given speed in m/s: effective_force_index * welt->get_einstellungen()->get_global_power_factor() / GEAR_FACTOR
  * @author Bernd Gabriel, Dec 14, 2009
  */
-fraction_t vehikel_besch_t::get_effective_force_index(const fraction_t &speed /* in m/s */ ) const
+uint32 vehikel_besch_t::get_effective_force_index(sint32 speed /* in m/s */ ) const
 {
 	if (geared_force == 0) 
 	{
 		// no force at all
 		return 0;
 	}
-	return speed <= force_threshold_speed ? fraction_t((sint32)geared_force) : (geared_power / speed);
+	return speed <= force_threshold_speed ? geared_force : geared_power / speed;
 }
 
 /**
  * Get effective power in kW at given speed in m/s: effective_power_index * welt->get_einstellungen()->get_global_power_factor() / GEAR_FACTOR
  * @author Bernd Gabriel, Dec 14, 2009
  */
-fraction_t vehikel_besch_t::get_effective_power_index(const fraction_t &speed /* in m/s */ ) const
+uint32 vehikel_besch_t::get_effective_power_index(sint32 speed /* in m/s */ ) const
 {
 	if (geared_power == 0) 
 	{
 		// no power at all
 		return 0;
 	}
-	return speed <= force_threshold_speed ? (geared_force * speed) : fraction_t((sint32)geared_power);
+	return speed <= force_threshold_speed ? geared_force * speed : geared_power;
 }
 
 uint16 vehikel_besch_t::get_obsolete_year_month(const karte_t *welt) const
@@ -247,6 +245,6 @@ void vehikel_besch_t::calc_checksum(checksum_t *chk) const
 	chk->input(comfort);
 	chk->input(loading_time);
 	chk->input(tractive_effort);
-	const uint16 ar = air_resistance * 100;
+	const uint16 ar = air_resistance * float32e8_t((uint32)100);
 	chk->input(ar);
 }

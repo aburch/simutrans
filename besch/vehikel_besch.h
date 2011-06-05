@@ -17,7 +17,7 @@
 #include "../dataobj/way_constraints.h"
 #include "../simworld.h"
 #include "../simtypes.h"
-#include "../utils/fraction_t.h"
+#include "../utils/float32e8_t.h"
 
 
 // GEAR_FACTOR: a gear of 1.0 is stored as 64
@@ -144,7 +144,7 @@ private:
 	
 	uint16 tractive_effort; // tractive effort / force in kN
 
-	uint16 air_resistance; // The "cf" value in physics calculations.
+	float32e8_t air_resistance; // The "cf" value in physics calculations.
 
 	// these values are not stored and therefore calculated in loaded():
 	uint32 geared_power; // @author: Bernd Gabriel, Nov  4, 2009: == leistung * gear in kW
@@ -374,25 +374,12 @@ public:
 	// BG, 15.06.2009: the formula for obsolescence formerly implemented twice in get_betriebskosten() and get_fixed_maintenance()
 	uint32 calc_running_cost(const karte_t *welt, uint32 base_cost) const;	
 
-	fraction_t get_power_force_ratio() const;
-	uint32 calc_max_force(const uint32 power) const 
-	{ 
-		if(!power)
-		{
-			return 0;
-		}
-		const fraction_t return_value = fraction_t((sint32)power) / get_power_force_ratio() + fraction_t(1,2);
-		return return_value.integer();
+	float32e8_t get_power_force_ratio() const;
+	uint32 calc_max_force(const uint32 power) const { 
+		return power ? (uint32)(power / get_power_force_ratio() + float32e8_t::half) : 0; 
 	}
-
-	uint32 calc_max_power(const uint32 force) const 
-	{ 
-		if(!force)
-		{
-			return 0;
-		}
-		const fraction_t return_value = fraction_t((sint32)force) * get_power_force_ratio() + fraction_t(1,2);
-		return return_value.integer();
+	uint32 calc_max_power(const uint32 force) const { 
+		return force ? (uint32)(force * get_power_force_ratio()) : 0; 
 	}
 	uint32 get_leistung() const { 
 		return leistung ? leistung : calc_max_power(tractive_effort); 
@@ -468,8 +455,7 @@ public:
 
 	bool get_can_be_at_rear() const { return can_be_at_rear; }
 
-	uint16 get_air_resistance() const { return air_resistance; }
-	/*double get_air_resistance() const { return (double)air_resistance / 100.0; }*/
+	float32e8_t get_air_resistance() const { return air_resistance; }
 	
 	const way_constraints_of_vehicle_t& get_way_constraints() const { return way_constraints; }
 	void set_way_constraints(const way_constraints_of_vehicle_t& value) { way_constraints = value; }
@@ -492,7 +478,7 @@ public:
 	 * Effective force in kN: force_index * welt->get_einstellungen()->get_global_power_factor() / GEAR_FACTOR
 	 * @author Bernd Gabriel
 	 */
-	fraction_t get_effective_force_index(const fraction_t &speed /* in m/s */ ) const;
+	uint32 get_effective_force_index(sint32 speed /* in m/s */ ) const;
 
 	/**
 	 * Get effective power index. 
@@ -500,7 +486,7 @@ public:
 	 * Effective power in kW: power_index * welt->get_einstellungen()->get_global_power_factor() / GEAR_FACTOR
 	 * @author Bernd Gabriel
 	 */
-	fraction_t get_effective_power_index(const fraction_t &speed /* in m/s */ ) const;
+	uint32 get_effective_power_index(sint32 speed /* in m/s */ ) const;
 
 	void calc_checksum(checksum_t *chk) const;
 };
