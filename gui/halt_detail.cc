@@ -56,8 +56,9 @@ halt_detail_t::halt_detail_t(halthandle_t halt_) :
 	// add scrollbar
 	scrolly.set_pos(koord(1, 1));
 	scrolly.set_groesse(get_fenstergroesse() + koord(-1, -17));
-
+	scrolly.set_show_scroll_x(true);
 	add_komponente(&scrolly);
+
 	cached_active_player=NULL;
 }
 

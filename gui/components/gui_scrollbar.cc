@@ -23,7 +23,8 @@ scrollbar_t::scrollbar_t(enum type type) :
 	knob_offset(0),
 	knob_size(10),
 	knob_area(20),
-	knob_scroll_amount(11) // equals one line
+	knob_scroll_amount(LINESPACE), // equals one line
+	knob_scroll_discrete(true)
 {
 	// init size of scroll bars (might be changed in between due to loading of new paks ...
 	if(  button_t::scrollbar_slider_center != IMG_LEER  ) {
@@ -101,13 +102,14 @@ void scrollbar_t::reposition_buttons()
 	else {
 		arrowsize = button_t::arrow_right_normal!=IMG_LEER ? koord( skinverwaltung_t::window_skin->get_bild(10)->get_pic()->w+1, skinverwaltung_t::window_skin->get_bild(10)->get_pic()->h) : koord(0,0);
 	}
-	sint32 area = (type == vertical ? groesse.y-2*arrowsize.y : groesse.x-2*arrowsize.x); // area will be actual area knob can move in
+	const sint32 area = (type == vertical ? groesse.y-2*arrowsize.y : groesse.x-2*arrowsize.x); // area will be actual area knob can move in
 
 	// check if scrollbar is too low
-	if (knob_size + knob_offset > knob_area) {
-		knob_offset = knob_area - knob_size;
-		if (knob_offset < 0) {
-			knob_offset = 0;
+	if(  knob_size+knob_offset>knob_area+(knob_scroll_discrete?(knob_scroll_amount-1):0)  ) {
+		knob_offset = max(0,(knob_area-knob_size));
+
+		if(  knob_scroll_discrete  ) {
+			knob_offset -= knob_offset%knob_scroll_amount;
 		}
 		call_listeners((long)knob_offset);
 	}
@@ -117,8 +119,15 @@ void scrollbar_t::reposition_buttons()
 		ratio = (float)area / (float)knob_size;
 	}
 
-	sint32 offset = (sint32)( (float)knob_offset * ratio +.5 );
-	sint32 size   = (sint32)( (float)knob_size   * ratio +.5 );
+	sint32 offset;
+	if(  knob_size+knob_offset>knob_area  ) {
+		offset = max(0,((sint32)( (float)(knob_area-knob_size)*ratio+.5)));
+	}
+	else {
+		offset = (sint32)( (float)knob_offset*ratio+.5);
+	}
+
+	sint32 size = (sint32)( (float)knob_size*ratio+.5);
 
 	if(type == vertical) {
 		button_def[0].set_pos( koord( (BAR_SIZE-arrowsize.x)/2, 0) );
@@ -149,14 +158,15 @@ void scrollbar_t::reposition_buttons()
 // signals slider drag. If slider hits end, returned amount is smaller.
 sint32 scrollbar_t::slider_drag(sint32 amount)
 {
-	sint32 area = (type == vertical ? groesse.y : groesse.x)-24; // area will be actual area knob can move in
+	const sint32 area = (type == vertical ? groesse.y : groesse.x)-24; // area will be actual area knob can move in
 
-	float ratio = (float)area / (float)knob_area;
+	const float ratio = (float)area / (float)knob_area;
 	amount = (int)( (float)amount / ratio );
 	int proposed_offset = knob_offset + amount;
 
 	// 0< possible if content is smaller than window
-	const int maximum = max(0,knob_area - knob_size);
+	const sint32 maximum = max(0,((knob_area-knob_size)+(knob_scroll_discrete?(knob_scroll_amount-1):0)));
+
 	if (proposed_offset<0) {
 		proposed_offset = 0;
 	}
@@ -167,6 +177,7 @@ sint32 scrollbar_t::slider_drag(sint32 amount)
 	if (proposed_offset != knob_offset) {
 		sint32 o;
 		knob_offset = proposed_offset;
+
 		call_listeners((long)knob_offset);
 		o = real_knob_position();
 		reposition_buttons();
@@ -180,8 +191,8 @@ sint32 scrollbar_t::slider_drag(sint32 amount)
 // either arrow buttons is just pressed (or long enough for a repeat event)
 void scrollbar_t::button_press(sint32 number)
 {
-	// the offset can range from 0 to maximum
-	sint32 maximum = max(0,knob_area - knob_size);
+	// 0< possible if content is smaller than window
+	const sint32 maximum = max(0,((knob_area-knob_size)+(knob_scroll_discrete?(knob_scroll_amount-1):0)));
 
 	if (number == 0) {
 		knob_offset -= knob_scroll_amount;
@@ -195,6 +206,11 @@ void scrollbar_t::button_press(sint32 number)
 			knob_offset = maximum;
 		}
 	}
+
+	if(  knob_scroll_discrete  ) {
+		knob_offset -= knob_offset % knob_scroll_amount;
+	}
+
 	call_listeners((long)knob_offset);
 	reposition_buttons();
 }
@@ -203,11 +219,8 @@ void scrollbar_t::button_press(sint32 number)
 
 void scrollbar_t::space_press(sint32 updown) // 0: scroll up/left, 1: scroll down/right
 {
-	sint32 maximum = knob_area - knob_size;
-	if (maximum<0) {
-		// possible if content is smaller than window
-		maximum = 0;
-	}
+	// 0< possible if content is smaller than window
+	const sint32 maximum = max(0,((knob_area-knob_size)+(knob_scroll_discrete?(knob_scroll_amount-1):0)));
 
 	if (updown == 0) {
 		knob_offset -= knob_size;
@@ -215,14 +228,18 @@ void scrollbar_t::space_press(sint32 updown) // 0: scroll up/left, 1: scroll dow
 			knob_offset = 0;
 		}
 	}
-	else { // number == 1
+	else { // updown == 1
 		knob_offset += knob_size;
 		if (knob_offset>maximum) {
 			knob_offset = maximum;
 		}
 	}
-	value_t p; p.i=knob_offset;
-	call_listeners(p);
+
+	if(  knob_scroll_discrete  ) {
+		knob_offset -= knob_offset % knob_scroll_amount;
+	}
+
+	call_listeners((long)knob_offset);
 	reposition_buttons();
 }
 
@@ -243,7 +260,7 @@ bool scrollbar_t::infowin_event(const event_t *ev)
 	else if (IS_WHEELDOWN(ev) && (type == vertical)) {
 		button_press(1);
 	}
-	else if (IS_LEFTCLICK(ev)) {
+	else if (IS_LEFTCLICK(ev)  ||  IS_LEFTREPEAT(ev)) {
 		for (i=0;i<3;i++) {
 			if (button_def[i].getroffen(x, y)) {
 				button_def[i].pressed = true;
@@ -272,14 +289,6 @@ bool scrollbar_t::infowin_event(const event_t *ev)
 				}
 			}
 		}
-
-	} else if (IS_LEFTREPEAT(ev)) {
-		if (button_def[0].getroffen(x, y)) {
-			button_press(0);
-		}
-		if (button_def[1].getroffen(x, y)) {
-			button_press(1);
-		}
 	} else if (IS_LEFTDRAG(ev)) {
 		if (button_def[2].getroffen(x,y)) {
 			sint32 delta;
@@ -307,6 +316,10 @@ bool scrollbar_t::infowin_event(const event_t *ev)
 			if (button_def[i].getroffen(x, y)) {
 				button_def[i].pressed = false;
 			}
+		}
+
+		if(  knob_scroll_discrete  ) {
+			knob_offset -= knob_offset % knob_scroll_amount;
 		}
 	}
 	return false;

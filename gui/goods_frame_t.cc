@@ -89,8 +89,8 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	y += BUTTON_HEIGHT+2;
 
 	scrolly.set_pos(koord(1, y));
-	scrolly.set_show_scroll_x(false);
 	scrolly.set_groesse(koord(TOTAL_WIDTH-16, 191+16+16-y));
+	scrolly.set_scroll_amount_y(LINESPACE+1);
 	add_komponente(&scrolly);
 
 	int h = (warenbauer_t::get_waren_anzahl()+3)*LINESPACE+y;

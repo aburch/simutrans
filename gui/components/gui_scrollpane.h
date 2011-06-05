@@ -59,6 +59,12 @@ public:
 	int get_scroll_x() const;
 	int get_scroll_y() const;
 
+	void set_scroll_amount_x(const sint32 sa) { scroll_x.set_scroll_amount(sa); }
+	void set_scroll_amount_y(const sint32 sa) { scroll_y.set_scroll_amount(sa); }
+
+	void set_scroll_discrete_x(const bool sd) { scroll_x.set_scroll_discrete(sd); }
+	void set_scroll_discrete_y(const bool sd) { scroll_y.set_scroll_discrete(sd); }
+
 	/**
 	 * Events werden hiermit an die GUI-Komponenten
 	 * gemeldet

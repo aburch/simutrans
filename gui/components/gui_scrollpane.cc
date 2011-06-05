@@ -23,7 +23,8 @@ gui_scrollpane_t::gui_scrollpane_t(gui_komponente_t *komp) :
 {
 	this->komp = komp;
 
-	b_show_scroll_x = true;
+	b_show_scroll_x = false;
+	set_scroll_discrete_x(false);
 	b_show_scroll_y = true;
 	b_has_size_corner = true;
 

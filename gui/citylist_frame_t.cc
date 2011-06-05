@@ -155,8 +155,8 @@ citylist_frame_t::citylist_frame_t(karte_t * welt) :
 		add_komponente(filterButtons + cost);
 	}
 
-	scrolly.set_show_scroll_x(false);
 	scrolly.set_pos(koord(1,42));
+	scrolly.set_scroll_amount_y(LINESPACE+1);
 	add_komponente(&scrolly);
 
 	set_fenstergroesse(koord(TOTAL_WIDTH, TOTAL_HEIGHT));

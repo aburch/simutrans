@@ -152,6 +152,8 @@ map_frame_t::map_frame_t(karte_t *welt) :
 
 	// init the rest
 	// size will be set during resize ...
+	scrolly.set_show_scroll_x(true);
+	scrolly.set_scroll_discrete_y(false);
 	add_komponente(&scrolly);
 
 	// and now the buttons

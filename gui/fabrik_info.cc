@@ -62,7 +62,7 @@ fabrik_info_t::fabrik_info_t(const fabrik_t* fab_, const gebaeude_t* gb) :
 	set_fenstergroesse(koord(width, min(height+10, 408)));
 	cont.set_groesse(koord(width, height-10));
 
-	scrolly.set_show_scroll_x(false);
+	scrolly.set_scroll_discrete_y(false);
 	scrolly.set_size_corner(false);
 	scrolly.set_groesse(get_fenstergroesse()-koord(1,16));
 	add_komponente(&scrolly);

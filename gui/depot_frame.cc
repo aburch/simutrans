@@ -453,6 +453,9 @@ void depot_frame_t::layout(koord *gr)
 	pas.set_pos(koord(1,1));
 	cont_pas.set_groesse(pas.get_groesse());
 	scrolly_pas.set_groesse(scrolly_pas.get_groesse());
+	scrolly_pas.set_scroll_amount_y(grid.y);
+	scrolly_pas.set_scroll_discrete_y(false);
+	scrolly_pas.set_size_corner(false);
 
 	electrics.set_grid(grid);
 	electrics.set_placement(placement);
@@ -461,6 +464,9 @@ void depot_frame_t::layout(koord *gr)
 	electrics.set_pos(koord(1,1));
 	cont_electrics.set_groesse(electrics.get_groesse());
 	scrolly_electrics.set_groesse(scrolly_electrics.get_groesse());
+	scrolly_electrics.set_scroll_amount_y(grid.y);
+	scrolly_electrics.set_scroll_discrete_y(false);
+	scrolly_electrics.set_size_corner(false);
 
 	loks.set_grid(grid);
 	loks.set_placement(placement);
@@ -470,6 +476,9 @@ void depot_frame_t::layout(koord *gr)
 	cont_loks.set_pos(koord(0,0));
 	cont_loks.set_groesse(loks.get_groesse());
 	scrolly_loks.set_groesse(scrolly_loks.get_groesse());
+	scrolly_loks.set_scroll_amount_y(grid.y);
+	scrolly_loks.set_scroll_discrete_y(false);
+	scrolly_loks.set_size_corner(false);
 
 	waggons.set_grid(grid);
 	waggons.set_placement(placement);
@@ -478,6 +487,9 @@ void depot_frame_t::layout(koord *gr)
 	waggons.set_pos(koord(1,1));
 	cont_waggons.set_groesse(waggons.get_groesse());
 	scrolly_waggons.set_groesse(scrolly_waggons.get_groesse());
+	scrolly_waggons.set_scroll_amount_y(grid.y);
+	scrolly_waggons.set_scroll_discrete_y(false);
+	scrolly_waggons.set_size_corner(false);
 
 	div_tabbottom.set_pos(koord(0,PANEL_VSTART+PANEL_HEIGHT));
 	div_tabbottom.set_groesse(koord(TOTAL_WIDTH,0));
@@ -1384,8 +1396,6 @@ void depot_frame_t::update_tabs()
 	bool one = false;
 
 	cont_pas.add_komponente(&pas);
-	scrolly_pas.set_show_scroll_x(false);
-	scrolly_pas.set_size_corner(false);
 	// add only if there are any
 	if(!pas_vec.empty()) {
 		tabs.add_tab(&scrolly_pas, translator::translate( depot->get_passenger_name() ) );
@@ -1393,8 +1403,6 @@ void depot_frame_t::update_tabs()
 	}
 
 	cont_electrics.add_komponente(&electrics);
-	scrolly_electrics.set_show_scroll_x(false);
-	scrolly_electrics.set_size_corner(false);
 	// add only if there are any trolleybuses
 	if(!electrics_vec.empty()) {
 		tabs.add_tab(&scrolly_electrics, translator::translate( depot->get_electrics_name() ) );
@@ -1402,8 +1410,6 @@ void depot_frame_t::update_tabs()
 	}
 
 	cont_loks.add_komponente(&loks);
-	scrolly_loks.set_show_scroll_x(false);
-	scrolly_loks.set_size_corner(false);
 	// add, if waggons are there ...
 	if (!loks_vec.empty() || !waggons_vec.empty()) {
 		tabs.add_tab(&scrolly_loks, translator::translate( depot->get_zieher_name() ) );
@@ -1411,8 +1417,6 @@ void depot_frame_t::update_tabs()
 	}
 
 	cont_waggons.add_komponente(&waggons);
-	scrolly_waggons.set_show_scroll_x(false);
-	scrolly_waggons.set_size_corner(false);
 	// only add, if there are waggons
 	if (!waggons_vec.empty()) {
 		tabs.add_tab(&scrolly_waggons, translator::translate( depot->get_haenger_name() ) );

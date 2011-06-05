@@ -60,7 +60,8 @@ labellist_frame_t::labellist_frame_t(karte_t * welt) :
 	set_fenstergroesse(koord(TOTAL_WIDTH, 240));
 
 	scrolly.set_pos(koord(1,14+BUTTON_HEIGHT+2));
-	scrolly.set_show_scroll_x(false);
+	scrolly.set_show_scroll_x(true);
+	scrolly.set_scroll_amount_y(LINESPACE+1);
 	add_komponente(&scrolly);
 
 	display_list();

@@ -273,7 +273,8 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 
 	ypos += BUTTON_HEIGHT;
 	scrolly.set_pos( koord( 0, ypos ) );
-	// scrolly.set_show_scroll_x(false);
+	scrolly.set_show_scroll_x(true);
+	scrolly.set_scroll_amount_y(LINESPACE+1);
 	add_komponente(&scrolly);
 
 	mode = adding;

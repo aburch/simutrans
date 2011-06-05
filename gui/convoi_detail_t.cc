@@ -63,6 +63,7 @@ convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
 	withdraw_button.add_listener(this);
 
 	scrolly.set_pos(koord(0, 64));
+	scrolly.set_show_scroll_x(true);
 	add_komponente(&scrolly);
 
 	set_fenstergroesse(koord(TOTAL_WIDTH, 278));

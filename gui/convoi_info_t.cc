@@ -175,6 +175,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	add_komponente(&details_button);
 
 	scrolly.set_pos(koord(0, offset_below_viewport+46));
+	scrolly.set_show_scroll_x(true);
 	add_komponente(&scrolly);
 
 	filled_bar.add_color_value(&cnv->get_loading_limit(), COL_YELLOW);

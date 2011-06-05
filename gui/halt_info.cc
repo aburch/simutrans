@@ -142,6 +142,7 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt) :
 	button.set_typ(button_t::roundbox);
 
 	scrolly.set_pos(koord(0, offset_below_viewport+BUTTON_HEIGHT+4));
+	scrolly.set_show_scroll_x(true);
 
 	add_komponente(&button);
 

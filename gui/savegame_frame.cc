@@ -65,7 +65,7 @@ savegame_frame_t::savegame_frame_t(const char *suffix, const char *path, bool on
 
 	// needs to be scrollable
 	scrolly.set_pos( koord(0,30) );
-	scrolly.set_show_scroll_x(false);
+	scrolly.set_scroll_amount_y(LINESPACE+3);
 	scrolly.set_size_corner(false);
 	scrolly.set_groesse( koord(DIALOG_WIDTH-12,30) );
 

@@ -56,7 +56,7 @@ factorylist_frame_t::factorylist_frame_t(karte_t * welt) :
 	sorteddir.set_text(get_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
 
 	scrolly.set_pos(koord(1, 14+BUTTON_HEIGHT+2));
-	scrolly.set_show_scroll_x(false);
+	scrolly.set_scroll_amount_y(LINESPACE+1);
 	add_komponente(&scrolly);
 
 	set_fenstergroesse(koord(TOTAL_WIDTH, 240));

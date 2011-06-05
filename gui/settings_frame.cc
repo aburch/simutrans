@@ -48,6 +48,12 @@ settings_frame_t::settings_frame_t(settings_t* const s) : gui_frame_t("Setting")
 	costs.init( sets );
 	climates.init( sets );
 
+	scrolly_general.set_scroll_amount_y(BUTTON_HEIGHT/2);
+	scrolly_economy.set_scroll_amount_y(BUTTON_HEIGHT/2);
+	scrolly_routing.set_scroll_amount_y(BUTTON_HEIGHT/2);
+	scrolly_costs.set_scroll_amount_y(BUTTON_HEIGHT/2);
+	scrolly_climates.set_scroll_amount_y(BUTTON_HEIGHT/2);
+
 	// tab panel
 	tabs.set_pos(koord(0,BUTTON_HEIGHT));
 	tabs.set_groesse(koord(320, 240)-koord(11,5));

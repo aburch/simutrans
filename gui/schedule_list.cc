@@ -204,12 +204,16 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t *sp_) :
 
 	// convoi list?
 	scrolly.set_pos(koord(LINE_NAME_COLUMN_WIDTH-11, 14 + SCL_HEIGHT+14+4+2*LINESPACE+2));
+	scrolly.set_show_scroll_x(true);
+	scrolly.set_scroll_amount_y(40);
 	scrolly.set_visible(false);
 	add_komponente(&scrolly);
 
 	// halt list?
 	cont_haltestellen.set_groesse(koord(500, 28));
 	scrolly_haltestellen.set_pos(koord(0, 7 + SCL_HEIGHT+2*BUTTON_HEIGHT+2));
+	scrolly_haltestellen.set_show_scroll_x(true);
+	scrolly_haltestellen.set_scroll_amount_y(28);
 	scrolly_haltestellen.set_visible(false);
 	add_komponente(&scrolly_haltestellen);
 

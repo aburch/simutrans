@@ -34,6 +34,8 @@ private:
 	 * number of pixels to scroll with arrow button press. default: 11 pixels
 	 */
 	sint32 knob_scroll_amount;
+	bool knob_scroll_discrete;  // if true, knob_offset forced to be integer multiples of knob_scroll_amount
+
 	button_t button_def[4];
 
 	void reposition_buttons();
@@ -63,7 +65,8 @@ public:
 	 */
 	void set_groesse(koord groesse);
 
-	void set_scroll_amount(sint32 sa) { knob_scroll_amount = sa; }
+	void set_scroll_amount(const sint32 sa) { knob_scroll_amount = sa; }
+	void set_scroll_discrete(const bool sd) { knob_scroll_discrete = sd; }
 
 	/**
 	 * size is visible size, area is total size in pixels of _parent_.
