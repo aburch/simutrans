@@ -3609,7 +3609,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 			// Apply luxury bonus
 			const uint8 max_differential = welt->get_einstellungen()->get_max_luxury_bonus_differential();
 			const uint8 differential = comfort - tolerable_comfort;
-			const uint32 multiplier = (welt->get_einstellungen()->get_max_luxury_bonus() * comfort_modifier) / 100;
+			const uint32 multiplier = (welt->get_einstellungen()->get_max_luxury_bonus_percent() * comfort_modifier) / 10000;
 			if(differential >= max_differential)
 			{
 				final_revenue += (sint64)(revenue * multiplier);
@@ -3625,7 +3625,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 			// Apply discomfort penalty
 			const uint8 max_differential = welt->get_einstellungen()->get_max_discomfort_penalty_differential();
 			const uint8 differential = tolerable_comfort - comfort;
-			uint32 multiplier = welt->get_einstellungen()->get_max_discomfort_penalty() * comfort_modifier;
+			uint32 multiplier = (welt->get_einstellungen()->get_max_discomfort_penalty_percent() * comfort_modifier) / 100;
 			multiplier = multiplier < 95 ? multiplier : 95;
 			if(differential >= max_differential)
 			{

@@ -84,15 +84,15 @@ void goods_stats_t::zeichnen(koord offset)
 				// Apply luxury bonus
 				const uint8 max_differential = welt->get_einstellungen()->get_max_luxury_bonus_differential();
 				const uint8 differential = comfort - tolerable_comfort;
-				const float multiplier = welt->get_einstellungen()->get_max_luxury_bonus() * comfort_modifier;
+				const uint32 multiplier_percent = welt->get_einstellungen()->get_max_luxury_bonus_percent() * comfort_modifier;
 				if(differential >= max_differential)
 				{
-					price += (revenue * multiplier);
+					price += ((revenue * multiplier_percent) / 100);
 				}
 				else
 				{
-					const float proportion = (float)differential / (float)max_differential;
-					price += revenue * (multiplier * proportion);
+					const uint32 percentage = differential * 100/ max_differential;
+					price += revenue * ((multiplier_percent * percentage) / 10000);
 				}
 			}
 			else if(comfort < tolerable_comfort)
@@ -100,16 +100,16 @@ void goods_stats_t::zeichnen(koord offset)
 				// Apply discomfort penalty
 				const uint8 max_differential = welt->get_einstellungen()->get_max_discomfort_penalty_differential();
 				const uint8 differential = tolerable_comfort - comfort;
-				float multiplier = welt->get_einstellungen()->get_max_discomfort_penalty() * comfort_modifier;
-				multiplier = multiplier < 0.95F ? multiplier : 0.95F;
+				uint32 multiplier_percent = welt->get_einstellungen()->get_max_discomfort_penalty_percent() * comfort_modifier;
+				multiplier_percent = multiplier_percent < 95 ? multiplier_percent : 95;
 				if(differential >= max_differential)
 				{
-					price -= (revenue * multiplier);
+					price -= ((revenue * multiplier_percent) / 100);
 				}
 				else
 				{
-					const float proportion = (float)differential / (float)max_differential;
-					price -= revenue * (multiplier * proportion);
+					const uint32 percentage = (differential * 100) / max_differential;
+					price -= revenue * ((multiplier_percent * percentage) / 10000);
 				}
 			}	
 			// Do nothing if comfort == tolerable_comfort			

@@ -599,13 +599,11 @@ public:
 	uint16 get_tolerable_comfort_long_minutes() const { return tolerable_comfort_long_minutes; }
 	void   set_tolerable_comfort_long_minutes(uint16 value) { tolerable_comfort_long_minutes = value; }
 
-	float  get_max_luxury_bonus() const { return (float)max_luxury_bonus_percent * 0.01F; }
 	uint16 get_max_luxury_bonus_percent() const { return max_luxury_bonus_percent; }
 	void   set_max_luxury_bonus_percent(uint16 value) { max_luxury_bonus_percent = value; }
 	uint8  get_max_luxury_bonus_differential() const { return max_luxury_bonus_differential; }
 	void   set_max_luxury_bonus_differential(uint8 value) { max_luxury_bonus_differential = value; }
 
-	float  get_max_discomfort_penalty() const { return (float) max_discomfort_penalty_percent * 0.01F; }
 	uint16 get_max_discomfort_penalty_percent() const { return max_discomfort_penalty_percent; }
 	void   set_max_discomfort_penalty_percent(uint16 value) { max_discomfort_penalty_percent = value; }
 	uint8  get_max_discomfort_penalty_differential() const { return max_discomfort_penalty_differential; }
