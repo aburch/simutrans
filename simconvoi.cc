@@ -1512,24 +1512,7 @@ bool convoi_t::set_schedule(schedule_t * f)
 	state = INITIAL;	// because during a sync-step we might be called twice ...
 
 	DBG_DEBUG("convoi_t::set_schedule()", "new=%p, old=%p", f, fpl);
-
-	if(  f==NULL  ) {
-		if(  line.is_bound()  ) {
-			unset_line();
-		}
-		else {
-			// Knightly : if schedule is going to be deleted -> make sure to unregister stops for lineless convoys
-			if(  state==INITIAL  ) {
-				unregister_stops();
-			}
-		}
-		if(  state==INITIAL  ) {
-			delete fpl;
-			fpl = NULL;
-			return true;
-		}
-		return false;
-	}
+	assert(f != NULL);
 
 	// happens to be identical?
 	if(fpl!=f) {
