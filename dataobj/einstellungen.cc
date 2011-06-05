@@ -17,6 +17,7 @@
 #include "../bauer/wegbauer.h"
 #include "../besch/weg_besch.h"
 #include "../utils/simstring.h"
+#include "../utils/float32e8_t.h"
 #include "../vehicle/simvehikel.h"
 #include "../player/simplay.h"
 #include "loadsave.h"
@@ -244,48 +245,48 @@ einstellungen_t::einstellungen_t() :
 	// @author: jamespetts
 	max_corner_limit[waytype_t(road_wt)] = 200;
 	min_corner_limit[waytype_t(road_wt)] = 30;
-	max_corner_adjustment_factor[waytype_t(road_wt)] = 0.75F;
-	min_corner_adjustment_factor[waytype_t(road_wt)] = 0.97F;
+	max_corner_adjustment_factor[waytype_t(road_wt)] = 75;
+	min_corner_adjustment_factor[waytype_t(road_wt)] = 97;
 	min_direction_steps[waytype_t(road_wt)] = 3;
 	max_direction_steps[waytype_t(road_wt)] = 6;
 	curve_friction_factor[waytype_t(road_wt)] = 0;
 
 	max_corner_limit[waytype_t(track_wt)] = 425;
 	min_corner_limit[waytype_t(track_wt)] = 45;
-	max_corner_adjustment_factor[waytype_t(track_wt)] = 0.5F;
-	min_corner_adjustment_factor[waytype_t(track_wt)] = 0.85F;
+	max_corner_adjustment_factor[waytype_t(track_wt)] = 50;
+	min_corner_adjustment_factor[waytype_t(track_wt)] = 95;
 	min_direction_steps[waytype_t(track_wt)] = 4;
 	max_direction_steps[waytype_t(track_wt)] = 14;
 	curve_friction_factor[waytype_t(track_wt)] = 0;
 
 	max_corner_limit[waytype_t(tram_wt)] = 250;
 	min_corner_limit[waytype_t(tram_wt)] = 30;
-	max_corner_adjustment_factor[waytype_t(tram_wt)] = 0.6F;
-	min_corner_adjustment_factor[waytype_t(tram_wt)] = 0.9F;	
+	max_corner_adjustment_factor[waytype_t(tram_wt)] = 60;
+	min_corner_adjustment_factor[waytype_t(tram_wt)] = 90;	
 	min_direction_steps[waytype_t(tram_wt)] = 3;
 	max_direction_steps[waytype_t(tram_wt)] = 10;
 	curve_friction_factor[waytype_t(tram_wt)] = 0;
 
 	max_corner_limit[waytype_t(monorail_wt)] = 425;
 	min_corner_limit[waytype_t(monorail_wt)] = 75;
-	max_corner_adjustment_factor[waytype_t(monorail_wt)] = 0.5F;
-	min_corner_adjustment_factor[waytype_t(monorail_wt)] = 0.85F;	
+	max_corner_adjustment_factor[waytype_t(monorail_wt)] = 50;
+	min_corner_adjustment_factor[waytype_t(monorail_wt)] = 85;	
 	min_direction_steps[waytype_t(monorail_wt)] = 5;
 	max_direction_steps[waytype_t(monorail_wt)] = 16;
 	curve_friction_factor[waytype_t(monorail_wt)] =0;
 
 	max_corner_limit[waytype_t(maglev_wt)] = 500;
 	min_corner_limit[waytype_t(maglev_wt)] = 50;
-	max_corner_adjustment_factor[waytype_t(maglev_wt)] = 0.4F;
-	min_corner_adjustment_factor[waytype_t(maglev_wt)] = 0.8F;
+	max_corner_adjustment_factor[waytype_t(maglev_wt)] = 40;
+	min_corner_adjustment_factor[waytype_t(maglev_wt)] = 80;
 	min_direction_steps[waytype_t(maglev_wt)] = 4;
 	max_direction_steps[waytype_t(maglev_wt)] = 16;
 	curve_friction_factor[waytype_t(maglev_wt)] = 0;
 
 	max_corner_limit[waytype_t(narrowgauge_wt)] = 250;
 	min_corner_limit[waytype_t(narrowgauge_wt)] = 30;
-	max_corner_adjustment_factor[waytype_t(narrowgauge_wt)] = 0.67F;
-	min_corner_adjustment_factor[waytype_t(narrowgauge_wt)] = 0.92F;
+	max_corner_adjustment_factor[waytype_t(narrowgauge_wt)] = 67;
+	min_corner_adjustment_factor[waytype_t(narrowgauge_wt)] = 92;
 	min_direction_steps[waytype_t(narrowgauge_wt)] = 3;
 	max_direction_steps[waytype_t(narrowgauge_wt)] = 8;
 	curve_friction_factor[waytype_t(narrowgauge_wt)] = 0;
@@ -296,7 +297,7 @@ einstellungen_t::einstellungen_t() :
 	max_bonus_min_distance = 256;
 	median_bonus_distance = 0;
 	max_bonus_multiplier_percent = 300;
-	distance_per_tile = 0.25F;
+	meters_per_tile = 250;
 	tolerable_comfort_short = 15;
 	tolerable_comfort_median_short = 60;
 	tolerable_comfort_median_median = 100;
@@ -370,7 +371,7 @@ einstellungen_t::einstellungen_t() :
 
 	// Global power factor
 	// @author: jamespetts
-	global_power_factor = 1.0F;
+	global_power_factor_percent = 100;
 
 	avoid_overcrowding = false;
 
@@ -378,7 +379,7 @@ einstellungen_t::einstellungen_t() :
 	// @author: jamespetts
 	enforce_weight_limits = 1;
 
-	speed_bonus_multiplier = 1.0F;
+	speed_bonus_multiplier_percent = 100;
 
 	allow_buying_obsolete_vehicles = true;
 
@@ -872,7 +873,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			{
 				file->rdwr_short(median_bonus_distance);
 				file->rdwr_short(max_bonus_multiplier_percent);
-				uint16 distance_per_tile_integer = distance_per_tile * 100.0F;
+				uint16 distance_per_tile_integer = meters_per_tile / 10;
 				file->rdwr_short(distance_per_tile_integer);
 				if(file->get_experimental_version() < 5 && file->get_experimental_version() >= 1)
 				{
@@ -880,14 +881,14 @@ void einstellungen_t::rdwr(loadsave_t *file)
 					// is a problem when the new journey time tolerance features is used.
 					if(file->is_loading())
 					{
-						distance_per_tile_integer *= 0.8F;
+						distance_per_tile_integer = (distance_per_tile_integer * 8) / 10;
 					}
 					else
 					{
-						distance_per_tile_integer /= 0.8F;
+						distance_per_tile_integer = (distance_per_tile_integer * 10) / 8;
 					}
 				}		
-				distance_per_tile = distance_per_tile_integer / 100.0F;
+				meters_per_tile = distance_per_tile_integer * 10;
 				
 				file->rdwr_byte(tolerable_comfort_short);
 				file->rdwr_byte(tolerable_comfort_median_short);
@@ -922,17 +923,18 @@ void einstellungen_t::rdwr(loadsave_t *file)
 
 			if(file->get_experimental_version() < 6)
 			{
-				min_bonus_max_distance /= distance_per_tile;
-				max_bonus_min_distance /= distance_per_tile;
+				float32e8_t km_per_tile(meters_per_tile, 1000);
+				min_bonus_max_distance /= km_per_tile;
+				max_bonus_min_distance /= km_per_tile;
 				// Scale the costs to match the scale factor.
-				cst_multiply_dock *= distance_per_tile;
-				cst_multiply_station *= distance_per_tile;
-				cst_multiply_roadstop *= distance_per_tile;
-				cst_multiply_airterminal *= distance_per_tile;
-				cst_multiply_post *= distance_per_tile;
-				maint_building *= distance_per_tile;
-				cst_buy_land *= distance_per_tile;
-				cst_remove_tree *= distance_per_tile;
+				cst_multiply_dock *= km_per_tile;
+				cst_multiply_station *= km_per_tile;
+				cst_multiply_roadstop *= km_per_tile;
+				cst_multiply_airterminal *= km_per_tile;
+				cst_multiply_post *= km_per_tile;
+				maint_building *= km_per_tile;
+				cst_buy_land *= km_per_tile;
+				cst_remove_tree *= km_per_tile;
 			}
 
 			file->rdwr_short(obsolete_running_cost_increase_percent);
@@ -1077,9 +1079,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 
 		if(file->get_experimental_version() >= 2)
 		{
-			uint16 global_power_factor_percent = global_power_factor * 100;
 			file->rdwr_short(global_power_factor_percent);
-			global_power_factor = (float)global_power_factor_percent / 100;
 			if(file->get_experimental_version() <= 7)
 			{
 				uint16 old_passenger_max_wait;
@@ -1103,9 +1103,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 				file->rdwr_short(dummy);
 			}
 			file->rdwr_byte(enforce_weight_limits);
-			uint16 speed_bonus_multiplier_percent = speed_bonus_multiplier * 100;
 			file->rdwr_short(speed_bonus_multiplier_percent);
-			speed_bonus_multiplier = (float)speed_bonus_multiplier_percent / 100.0F;
 		}
 		else
 		{
@@ -1185,8 +1183,9 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 
 	// This needs to be first as other settings are based on this.
 	// @author: jamespetts
-	uint16 distance_per_tile_integer = distance_per_tile * 100;
-	distance_per_tile = contents.get_int("distance_per_tile", distance_per_tile_integer) / 100.0F;
+	uint16 distance_per_tile_integer = meters_per_tile / 10;
+	meters_per_tile = contents.get_int("distance_per_tile", distance_per_tile_integer) * 10;
+	float32e8_t distance_per_tile(meters_per_tile, 1000);
 
 	umgebung_t::water_animation = contents.get_int("water_animation_ms", umgebung_t::water_animation);
 	umgebung_t::ground_object_probability = contents.get_int("random_grounds_probability", umgebung_t::ground_object_probability);
@@ -1599,63 +1598,50 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	congestion_density_factor = contents.get_int("congestion_density_factor", congestion_density_factor);
 
 	// Cornering settings
-	int factor_tmp;
 	max_corner_limit[waytype_t(road_wt)] = contents.get_int("max_corner_limit_road", max_corner_limit[waytype_t(road_wt)]);
 	min_corner_limit[waytype_t(road_wt)] = contents.get_int("min_corner_limit_road", min_corner_limit[waytype_t(road_wt)]);
-	factor_tmp = contents.get_int("max_corner_adjustment_factor_road", max_corner_adjustment_factor[waytype_t(road_wt)] * 100);
-	max_corner_adjustment_factor[waytype_t(road_wt)] = (float)factor_tmp / 100.0F;
-	factor_tmp = contents.get_int("min_corner_adjustment_factor_road", min_corner_adjustment_factor[waytype_t(road_wt)] * 100);
-	min_corner_adjustment_factor[waytype_t(road_wt)] = (float)factor_tmp / 100.0F;
+	max_corner_adjustment_factor[waytype_t(road_wt)] = contents.get_int("max_corner_adjustment_factor_road", max_corner_adjustment_factor[waytype_t(road_wt)]);
+	min_corner_adjustment_factor[waytype_t(road_wt)] = contents.get_int("min_corner_adjustment_factor_road", min_corner_adjustment_factor[waytype_t(road_wt)]);
 	min_direction_steps[waytype_t(road_wt)] = contents.get_int("min_direction_steps_road", min_direction_steps[waytype_t(road_wt)]);
 	max_direction_steps[waytype_t(road_wt)] = contents.get_int("max_direction_steps_road", max_direction_steps[waytype_t(road_wt)]);
 	curve_friction_factor[waytype_t(road_wt)] = contents.get_int("curve_friction_factor_road", curve_friction_factor[waytype_t(road_wt)]);
 
 	max_corner_limit[waytype_t(track_wt)] = contents.get_int("max_corner_limit_track", max_corner_limit[waytype_t(track_wt)]);
 	min_corner_limit[waytype_t(track_wt)] = contents.get_int("min_corner_limit_track", min_corner_limit[waytype_t(track_wt)]);
-	factor_tmp = contents.get_int("max_corner_adjustment_factor_track", max_corner_adjustment_factor[waytype_t(track_wt)] * 100);
-	max_corner_adjustment_factor[waytype_t(track_wt)] = (float)factor_tmp / 100.0F;
-	factor_tmp = contents.get_int("min_corner_adjustment_factor_track", min_corner_adjustment_factor[waytype_t(track_wt)] * 100);
-	min_corner_adjustment_factor[waytype_t(track_wt)] = (float)factor_tmp / 100.0F;
+	max_corner_adjustment_factor[waytype_t(track_wt)] = contents.get_int("max_corner_adjustment_factor_track", max_corner_adjustment_factor[waytype_t(track_wt)]);
+	min_corner_adjustment_factor[waytype_t(track_wt)] = contents.get_int("min_corner_adjustment_factor_track", min_corner_adjustment_factor[waytype_t(track_wt)]);
 	min_direction_steps[waytype_t(track_wt)] = contents.get_int("min_direction_steps_track", min_direction_steps[waytype_t(track_wt)]);
 	max_direction_steps[waytype_t(track_wt)] = contents.get_int("max_direction_steps_track", max_direction_steps[waytype_t(track_wt)]);
 	curve_friction_factor[waytype_t(track_wt)] = contents.get_int("curve_friction_factor_track", curve_friction_factor[waytype_t(track_wt)]);
 
 	max_corner_limit[waytype_t(tram_wt)] = contents.get_int("max_corner_limit_tram", max_corner_limit[waytype_t(tram_wt)]);
 	min_corner_limit[waytype_t(tram_wt)] = contents.get_int("min_corner_limit_tram", min_corner_limit[waytype_t(tram_wt)]);
-	factor_tmp = contents.get_int("max_corner_adjustment_factor_tram", max_corner_adjustment_factor[waytype_t(tram_wt)] * 100);
-	max_corner_adjustment_factor[waytype_t(tram_wt)] = (float)factor_tmp / 100.0F;
-	factor_tmp = contents.get_int("min_corner_adjustment_factor_tram", min_corner_adjustment_factor[waytype_t(tram_wt)] * 100);
-	min_corner_adjustment_factor[waytype_t(tram_wt)] = (float)factor_tmp / 100.0F;	
+	max_corner_adjustment_factor[waytype_t(tram_wt)] = contents.get_int("max_corner_adjustment_factor_tram", max_corner_adjustment_factor[waytype_t(tram_wt)]);
+	min_corner_adjustment_factor[waytype_t(tram_wt)] = contents.get_int("min_corner_adjustment_factor_tram", min_corner_adjustment_factor[waytype_t(tram_wt)]);
 	min_direction_steps[waytype_t(tram_wt)] = contents.get_int("min_direction_steps_tram", min_direction_steps[waytype_t(tram_wt)]);
 	max_direction_steps[waytype_t(tram_wt)] = contents.get_int("max_direction_steps_tram", max_direction_steps[waytype_t(tram_wt)]);
 	curve_friction_factor[waytype_t(tram_wt)] = contents.get_int("curve_friction_factor_tram", curve_friction_factor[waytype_t(tram_wt)]);
 
 	max_corner_limit[waytype_t(monorail_wt)] = contents.get_int("max_corner_limit_monorail", max_corner_limit[waytype_t(monorail_wt)]);
 	min_corner_limit[waytype_t(monorail_wt)] = contents.get_int("min_corner_limit_monorail", min_corner_limit[waytype_t(monorail_wt)]);
-	factor_tmp = contents.get_int("max_corner_adjustment_factor_monorail", max_corner_adjustment_factor[waytype_t(monorail_wt)] * 100);
-	max_corner_adjustment_factor[waytype_t(monorail_wt)] = (float)factor_tmp / 100.0F;	
-	factor_tmp = contents.get_int("min_corner_adjustment_factor_monorail", min_corner_adjustment_factor[waytype_t(monorail_wt)] * 100);
-	min_corner_adjustment_factor[waytype_t(monorail_wt)] = (float)factor_tmp / 100.0F;	
+	max_corner_adjustment_factor[waytype_t(monorail_wt)] = contents.get_int("max_corner_adjustment_factor_monorail", max_corner_adjustment_factor[waytype_t(monorail_wt)]);
+	min_corner_adjustment_factor[waytype_t(monorail_wt)] = contents.get_int("min_corner_adjustment_factor_monorail", min_corner_adjustment_factor[waytype_t(monorail_wt)]);
 	min_direction_steps[waytype_t(monorail_wt)] = contents.get_int("min_direction_steps_monorail", min_direction_steps[waytype_t(monorail_wt)]);
 	max_direction_steps[waytype_t(monorail_wt)] = contents.get_int("max_direction_steps_monorail", max_direction_steps[waytype_t(monorail_wt)]);
 	curve_friction_factor[waytype_t(monorail_wt)] = contents.get_int("curve_friction_factor_monorail", curve_friction_factor[waytype_t(monorail_wt)]);
 
 	max_corner_limit[waytype_t(maglev_wt)] = contents.get_int("max_corner_limit_maglev", max_corner_limit[waytype_t(maglev_wt)]);
 	min_corner_limit[waytype_t(maglev_wt)] = contents.get_int("min_corner_limit_maglev", min_corner_limit[waytype_t(maglev_wt)]);
-	factor_tmp = contents.get_int("max_corner_adjustment_factor_maglev", max_corner_adjustment_factor[waytype_t(maglev_wt)] * 100);
-	max_corner_adjustment_factor[waytype_t(maglev_wt)] = (float)factor_tmp / 100.0F;	
-	factor_tmp = contents.get_int("min_corner_adjustment_factor_maglev", min_corner_adjustment_factor[waytype_t(maglev_wt)]  * 100);
-	min_corner_adjustment_factor[waytype_t(maglev_wt)] = (float)factor_tmp / 100.0F;
+	max_corner_adjustment_factor[waytype_t(maglev_wt)] = contents.get_int("max_corner_adjustment_factor_maglev", max_corner_adjustment_factor[waytype_t(maglev_wt)]);
+	min_corner_adjustment_factor[waytype_t(maglev_wt)] = contents.get_int("min_corner_adjustment_factor_maglev", min_corner_adjustment_factor[waytype_t(maglev_wt)]);
 	min_direction_steps[waytype_t(maglev_wt)] = contents.get_int("min_direction_steps_maglev", min_direction_steps[waytype_t(maglev_wt)] );
 	max_direction_steps[waytype_t(maglev_wt)] = contents.get_int("max_direction_steps_maglev", max_direction_steps[waytype_t(maglev_wt)]);
 	curve_friction_factor[waytype_t(maglev_wt)] = contents.get_int("curve_friction_factor_maglev", curve_friction_factor[waytype_t(maglev_wt)]);
 
 	max_corner_limit[waytype_t(narrowgauge_wt)] = contents.get_int("max_corner_limit_narrowgauge", max_corner_limit[waytype_t(narrowgauge_wt)]);
 	min_corner_limit[waytype_t(narrowgauge_wt)] = contents.get_int("min_corner_limit_narrowgauge", min_corner_limit[waytype_t(narrowgauge_wt)]);
-	factor_tmp =  contents.get_int("max_corner_adjustment_factor_narrowgauge", max_corner_adjustment_factor[waytype_t(narrowgauge_wt)] * 100);
-	max_corner_adjustment_factor[waytype_t(narrowgauge_wt)] = (float)factor_tmp / 100.0F;
-	factor_tmp = contents.get_int("min_corner_adjustment_factor_narrowgauge", min_corner_adjustment_factor[waytype_t(narrowgauge_wt)] * 100);
-	min_corner_adjustment_factor[waytype_t(narrowgauge_wt)] = (float)factor_tmp / 100.0F;
+	max_corner_adjustment_factor[waytype_t(narrowgauge_wt)]  =  contents.get_int("max_corner_adjustment_factor_narrowgauge", max_corner_adjustment_factor[waytype_t(narrowgauge_wt)]);
+	min_corner_adjustment_factor[waytype_t(narrowgauge_wt)] = contents.get_int("min_corner_adjustment_factor_narrowgauge", min_corner_adjustment_factor[waytype_t(narrowgauge_wt)]);
 	min_direction_steps[waytype_t(narrowgauge_wt)] = contents.get_int("min_direction_steps_narrowgauge", min_direction_steps[waytype_t(narrowgauge_wt)]);
 	max_direction_steps[waytype_t(narrowgauge_wt)] = contents.get_int("max_direction_steps_narrowgauge", max_direction_steps[waytype_t(narrowgauge_wt)]);
 	curve_friction_factor[waytype_t(narrowgauge_wt)] = contents.get_int("curve_friction_factor_narrowgauge", curve_friction_factor[waytype_t(narrowgauge_wt)]);
@@ -1677,17 +1663,13 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 
 	// Global power factor
 	// @author: jamespetts
-	uint16 global_power_factor_percent = 100;
 	global_power_factor_percent = contents.get_int("global_power_factor_percent", global_power_factor_percent);
-	global_power_factor = (float)global_power_factor_percent / 100;
 
 	// How and whether weight limits are enforced.
 	// @author: jamespetts
 	enforce_weight_limits = contents.get_int("enforce_weight_limits", enforce_weight_limits);
 
-	uint16 speed_bonus_multiplier_percent = 100;
 	speed_bonus_multiplier_percent = contents.get_int("speed_bonus_multiplier_percent", speed_bonus_multiplier_percent);
-	speed_bonus_multiplier = (float)speed_bonus_multiplier_percent / 100.0F;
 
 	bool path_searching_approach = contents.get_int("path_searching_approach", default_path_option == 2);
 	default_path_option = path_searching_approach ? 2 : 1;
@@ -1714,8 +1696,8 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	const uint16 max_longdistance_tolerance_minutes = contents.get_int("max_longdistance_tolerance", (max_longdistance_tolerance / 10));
 	max_longdistance_tolerance = max_longdistance_tolerance_minutes * 10;
 
-	const float max_walking_distance_km = (contents.get_int("max_walking_distance_km_tenth", (max_walking_distance * (distance_per_tile * 10))) / 10.0);
-	max_walking_distance = max_walking_distance_km / distance_per_tile;
+	const uint16 max_walking_distance_m = contents.get_int("max_walking_distance_km_tenth", (max_walking_distance * meters_per_tile) / 100) * 100;
+	max_walking_distance = (uint32)max_walking_distance_m / distance_per_tile;
 
 	quick_city_growth = (bool)(contents.get_int("quick_city_growth", quick_city_growth));
 

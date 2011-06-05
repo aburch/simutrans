@@ -624,16 +624,16 @@ void path_explorer_t::compartment_t::step()
 #endif
 
 			const ware_besch_t *const ware_type = warenbauer_t::get_info_catg_index(catg);
-			const float journey_time_adjustment = world->get_einstellungen()->get_distance_per_tile() * 600;
+			const uint32 journey_time_adjustment = (world->get_einstellungen()->get_meters_per_tile() * 6) / 10;
 
 			linkage_t current_linkage;
 			schedule_t *current_schedule;
 			spieler_t *current_owner;
-			sint32 current_average_speed;
+			uint32 current_average_speed;
 
 			uint8 entry_count;
 			halthandle_t current_halt;
-			float journey_time_factor;
+			uint32 journey_time_factor;
 
 			minivec_tpl<halthandle_t> halt_list(64);
 			minivec_tpl<uint16> journey_time_list(64);
@@ -733,7 +733,7 @@ void path_explorer_t::compartment_t::step()
 
 				// precalculate journey times between consecutive halts
 				entry_count = halt_list.get_count();
-				journey_time_factor = journey_time_adjustment / (float)current_average_speed;
+				journey_time_factor = journey_time_adjustment / current_average_speed;
 				journey_time_list.clear();
 				journey_time_list.append(0);	// reserve the first entry for the last journey time from last halt to first halt
 
@@ -743,8 +743,7 @@ void path_explorer_t::compartment_t::step()
 					// journey time from halt 0 to halt 1 is stored in journey_time_list[1]
 					journey_time_list.append
 					(
-						(uint16)( (float)accurate_distance( halt_list[i]->get_basis_pos(), 
-															halt_list[(i+1)%entry_count]->get_basis_pos() ) * journey_time_factor ),
+						(uint16)((accurate_distance( halt_list[i]->get_basis_pos(),	halt_list[(i+1)%entry_count]->get_basis_pos() ) * journey_time_factor) / 1000),
 						64 
 					);
 					

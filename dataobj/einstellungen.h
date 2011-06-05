@@ -217,8 +217,8 @@ public:
 	
 	uint32 max_corner_limit[10];
 	uint32 min_corner_limit[10];
-	float max_corner_adjustment_factor[10];
-	float min_corner_adjustment_factor[10];
+	uint16 max_corner_adjustment_factor[10];
+	uint16 min_corner_adjustment_factor[10];
 	uint8 min_direction_steps[10];
 	uint8 max_direction_steps[10];
 	uint8 curve_friction_factor[10];
@@ -239,7 +239,7 @@ public:
 	uint16 max_bonus_min_distance;
 	uint16 median_bonus_distance;
 	uint16 max_bonus_multiplier_percent;
-	float distance_per_tile;
+	uint16 meters_per_tile;
 	uint8 tolerable_comfort_short;
 	uint8 tolerable_comfort_median_short;
 	uint8 tolerable_comfort_median_median;
@@ -316,7 +316,7 @@ public:
 	uint16 turntable_reverse_time;
 
 	//@author: jamespetts
-	float global_power_factor; 
+	uint16 global_power_factor_percent; 
 	
 	// Whether and how weight limits are enforced
 	// @author: jamespetts
@@ -325,7 +325,7 @@ public:
 	// Adjustment of the speed bonus for use with
 	// speedbonus.tab files from Simutrans-Standard
 	// @author: jamespetts
-	float speed_bonus_multiplier;
+	uint16 speed_bonus_multiplier_percent;
 	
 private:
 
@@ -574,13 +574,12 @@ public:
 	uint16 get_max_bonus_min_distance() const { return max_bonus_min_distance; }
 	void   set_max_bonus_min_distance(uint16 value) { max_bonus_min_distance = value; }
 
-	float  get_max_bonus_multiplier() const { return (float)max_bonus_multiplier_percent * 0.01F; }
-	uint16 get_max_bonus_multiplier_percent() { return max_bonus_multiplier_percent; }
+	uint16 get_max_bonus_multiplier_percent() const { return max_bonus_multiplier_percent; }
 	void   set_max_bonus_multiplier_percent(uint16 value) { max_bonus_multiplier_percent = value; }
 
-	float  get_distance_per_tile() const { return distance_per_tile; }
-	uint16 get_distance_per_tile_percent() const { return (uint16)(distance_per_tile * 100); }
-	void   set_distance_per_tile_percent(uint16 value) { distance_per_tile = value / 100.0f; }
+	uint16 get_meters_per_tile() const { return meters_per_tile; }
+	void   set_meters_per_tile(uint16 value) { meters_per_tile = value; }
+//	void   set_distance_per_tile_percent(uint16 value) { meters_per_tile = value * 10; }
 
 	uint8  get_tolerable_comfort_short() const { return tolerable_comfort_short; }
 	void   set_tolerable_comfort_short(uint8 value) { tolerable_comfort_short = value; }
@@ -683,8 +682,8 @@ public:
 
 	sint32 get_max_corner_limit(waytype_t waytype) const { return kmh_to_speed(max_corner_limit[waytype]); }
 	sint32 get_min_corner_limit (waytype_t waytype) const { return kmh_to_speed(min_corner_limit[waytype]); }
-	float get_max_corner_adjustment_factor (waytype_t waytype) const { return max_corner_adjustment_factor[waytype]; }
-	float get_min_corner_adjustment_factor (waytype_t waytype) const {  return  min_corner_adjustment_factor[waytype]; }
+	uint16 get_max_corner_adjustment_factor (waytype_t waytype) const { return max_corner_adjustment_factor[waytype]; }
+	uint16 get_min_corner_adjustment_factor (waytype_t waytype) const {  return  min_corner_adjustment_factor[waytype]; }
 	uint8 get_min_direction_steps (waytype_t waytype) const { return min_direction_steps[waytype]; }
 	uint8 get_max_direction_steps (waytype_t waytype) const { return max_direction_steps[waytype]; }
 	uint8 get_curve_friction_factor (waytype_t waytype) const { return curve_friction_factor[waytype]; }
@@ -699,11 +698,11 @@ public:
 	uint16 get_hauled_reverse_time() const { return hauled_reverse_time; }
 	uint16 get_turntable_reverse_time() const { return turntable_reverse_time; }
 
-	float get_global_power_factor() const { return global_power_factor; }
+	uint16 get_global_power_factor_percent() const { return global_power_factor_percent; }
 
 	uint8 get_enforce_weight_limits() const { return enforce_weight_limits; }
 
-	float get_speed_bonus_multiplier() const { return speed_bonus_multiplier; }
+	uint16 get_speed_bonus_multiplier_percent() const { return speed_bonus_multiplier_percent; }
 	// allowed modes are 0,1,2
 	enum { TO_PREVIOUS=0, TO_TRANSFER, TO_DESTINATION };
 

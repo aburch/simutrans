@@ -168,7 +168,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 
 	jahresgewinn = 0;
 	total_distance_traveled = 0;
-	tiles_since_last_odometer_increment = 0.0;
+	steps_since_last_odometer_increment = 0;
 
 	alte_richtung = ribi_t::keine;
 	next_wolke = 0;
@@ -643,20 +643,20 @@ void convoi_t::add_running_cost(sint64 cost)
 
 void convoi_t::increment_odometer()
 {
-	double tiles = 1.0;
+	uint32 steps = 255;
 	if(fahr[0]->get_steps() != 255)
 	{
 		// Diagonal
-		tiles = (double)fahr[0]->get_diagonal_length() / 255.0;
+		steps = fahr[0]->get_diagonal_length();
 	}
-	tiles_since_last_odometer_increment += tiles;
-	const float distance_per_tile = welt->get_einstellungen()->get_distance_per_tile();
-	const sint64 km = tiles_since_last_odometer_increment * (double)distance_per_tile;
-	if(km >= 1)
+	steps_since_last_odometer_increment += steps;
+	const sint32 meters_per_tile = welt->get_einstellungen()->get_meters_per_tile();
+	const sint64 km = (meters_per_tile * steps_since_last_odometer_increment) / 255000 /* steps per tile * 1000m */;
+	if(km > 0)
 	{
 		book( km, CONVOI_DISTANCE );
 		total_distance_traveled += km;
-		tiles_since_last_odometer_increment -= (double)km / (double)distance_per_tile;
+		steps_since_last_odometer_increment -= (km * 255000) / meters_per_tile;
 		for(uint8 i= 0; i < anz_vehikel; i++)
 		{
 			add_running_cost(-fahr[i]->get_besch()->get_betriebskosten(welt));
@@ -684,30 +684,32 @@ void convoi_t::calc_acceleration(long delta_t)
 	if(  recalc_brake_soll  ) 
 	{
 			// brake at the end of stations/in front of signals and crossings
+			//const uint32 tiles_left = get_next_stop_index() - get_route()->index_of(get_pos());
 			const uint32 tiles_left = 1 + get_next_stop_index() - front()->get_route_index();
+			const uint32 meters_left = tiles_left * welt->get_einstellungen()->get_meters_per_tile();
+
 			waytype_t waytype = front()->get_waytype();
-			const float distance_per_tile = welt->get_einstellungen()->get_distance_per_tile();
-			double braking_rate;  // km/h decay per kilometre. TODO: Consider having this set in .dat files. Look for all instances of "braking_rate".
+			uint16 braking_rate;  // km/h decay per km. TODO: Consider having this set in .dat files. Look for all instances of "braking_rate".
 			switch(waytype)
 			{
 			case track_wt:
 			case narrowgauge_wt:
 			case monorail_wt:
 			case maglev_wt:
-				braking_rate = 62.5;
+				braking_rate = 63;
 				break;
 
 			case tram_wt:
-				braking_rate = 85.0;
+				braking_rate = 85;
 				break;
 
 			default:
-				braking_rate = 100.0;
+				braking_rate = 100;
 				break;
 			}
 
-			const double km_left = (double)(tiles_left + 1) * (double)distance_per_tile;
-			brake_speed_soll = kmh_to_speed((sint32)(braking_rate * km_left));
+			brake_speed_soll = kmh_to_speed((sint32)(braking_rate * meters_left) / 1000);
+			brake_speed_soll = max(brake_speed_soll, kmh_to_speed(16));
 
 			recalc_brake_soll = false;
  		}
@@ -715,7 +717,7 @@ void convoi_t::calc_acceleration(long delta_t)
 	// existing_convoy_t is designed to become a part of convoi_t. 
 	// There it will help to minimize updating convoy summary data.
 	existing_convoy_t convoy(*this);
-	convoy.calc_move(delta_t, get_welt()->get_einstellungen()->get_distance_per_tile(), min( min_top_speed, brake_speed_soll ), akt_speed, sp_soll);
+	convoy.calc_move(delta_t, float32e8_t(get_welt()->get_einstellungen()->get_meters_per_tile(), 1000), min( min_top_speed, brake_speed_soll ), akt_speed, sp_soll);
 }
 
 
@@ -1736,7 +1738,7 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_
 		//	power_from_steam += info->get_leistung();
 		//	power_from_steam_with_gear += info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
 		//}
-		sum_gear_und_leistung += info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
+		sum_gear_und_leistung += (info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor_percent() + 50) / 100;
 		sum_gewicht += info->get_gewicht();
 		min_top_speed = min( min_top_speed, kmh_to_speed( v->get_besch()->get_geschw() ) );
 		sum_gesamtgewicht = sum_gewicht;
@@ -1828,7 +1830,7 @@ DBG_MESSAGE("convoi_t::upgrade_vehicle()","at pos %i of %i totals.",i,max_vehicl
 	//	power_from_steam += info->get_leistung();
 	//	power_from_steam_with_gear += info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
 	//}
-	sum_gear_und_leistung += info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
+	sum_gear_und_leistung += (info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor_percent() + 50) / 100;
 	sum_gewicht += info->get_gewicht();
 	sum_gesamtgewicht = sum_gewicht;
 
@@ -1840,7 +1842,7 @@ DBG_MESSAGE("convoi_t::upgrade_vehicle()","at pos %i of %i totals.",i,max_vehicl
 	//	power_from_steam -= info->get_leistung();
 	//	power_from_steam_with_gear -= info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
 	//}
-	sum_gear_und_leistung -= info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
+	sum_gear_und_leistung -= (info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor_percent() + 50) / 100;
 	sum_gewicht -= info->get_gewicht();
 
 	calc_loading();
@@ -1890,7 +1892,7 @@ vehikel_t *convoi_t::remove_vehikel_bei(uint16 i)
 			//	power_from_steam -= info->get_leistung();
 			//	power_from_steam_with_gear -= info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
 			//}
-			sum_gear_und_leistung -= info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
+			sum_gear_und_leistung -= (info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor_percent() + 50) / 100;
 			sum_gewicht -= info->get_gewicht();
 		}
 		sum_gesamtgewicht = sum_gewicht;
@@ -2343,7 +2345,7 @@ void convoi_t::vorfahren()
 								&& fahr[anz_vehikel-2]->get_besch()->get_ware()->get_catg_index() > 1)
 							{
 								// Goods train with brake van - longer reverse time.
-								reverse_delay = welt->get_einstellungen()->get_hauled_reverse_time() * 1.4F;
+								reverse_delay = (welt->get_einstellungen()->get_hauled_reverse_time() * 14) / 10;
 							}
 							else
 							{
@@ -2706,7 +2708,7 @@ void convoi_t::rdwr(loadsave_t *file)
 				//	power_from_steam += info->get_leistung();
 				//	power_from_steam_with_gear += info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
 				//}
-				sum_gear_und_leistung += info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
+				sum_gear_und_leistung += (info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor_percent() + 50) / 100;
 				sum_gewicht += info->get_gewicht();
 				is_electric |= info->get_engine_type()==vehikel_besch_t::electric;
 			}
@@ -2897,11 +2899,11 @@ void convoi_t::rdwr(loadsave_t *file)
 					if(file->is_loading())
 					{
 						file->rdwr_longlong(distance);
-						financial_history[k][j] = (double)distance * welt->get_einstellungen()->get_distance_per_tile();
+						financial_history[k][j] = (distance * welt->get_einstellungen()->get_meters_per_tile()) / 1000;
 					}
 					else
 					{
-						distance = financial_history[k][j] / welt->get_einstellungen()->get_distance_per_tile();
+						distance = (financial_history[k][j] * 1000) / welt->get_einstellungen()->get_meters_per_tile();
 						file->rdwr_longlong(distance);
 					}
 					continue;
@@ -2921,11 +2923,11 @@ void convoi_t::rdwr(loadsave_t *file)
 			{
 				sint64 tile_distance;
 				file->rdwr_longlong(tile_distance);
-				total_distance_traveled = (double)tile_distance * welt->get_einstellungen()->get_distance_per_tile();
+				total_distance_traveled = (tile_distance * welt->get_einstellungen()->get_meters_per_tile()) / 1000;
 			}
 			else
 			{
-				sint64 km_distance = (double)total_distance_traveled / welt->get_einstellungen()->get_distance_per_tile();
+				sint64 km_distance = (total_distance_traveled * 1000) / welt->get_einstellungen()->get_meters_per_tile();
 				file->rdwr_longlong(km_distance);
 			}
 		}
@@ -2940,13 +2942,19 @@ void convoi_t::rdwr(loadsave_t *file)
 	{
 		if(file->get_experimental_version() <= 8)
 		{
-			uint8 old_tiles = (uint8)tiles_since_last_odometer_increment;
+			uint8 old_tiles = (uint8)steps_since_last_odometer_increment / 255;
 			file->rdwr_byte(old_tiles);
-			tiles_since_last_odometer_increment = (float)old_tiles;
+			steps_since_last_odometer_increment = old_tiles * 255;
 		}
-		else
+		else if (file->get_experimental_version() > 8 && file->get_experimental_version() < 10)
 		{
+			double tiles_since_last_odometer_increment = steps_since_last_odometer_increment / 255.0;
 			file->rdwr_double(tiles_since_last_odometer_increment);
+			steps_since_last_odometer_increment = (sint64)(tiles_since_last_odometer_increment * 255.0);
+		}
+		else if(file->get_experimental_version() >= 10)
+		{
+			file->rdwr_longlong(steps_since_last_odometer_increment);
 		}
 	}
 
@@ -3471,7 +3479,7 @@ void convoi_t::laden() //"load" (Babelfish)
 
 sint64 convoi_t::calc_revenue(ware_t& ware)
 {
-	float average_speed;
+	sint64 average_speed;
 	
 	if(!line.is_bound())
 	{
@@ -3510,7 +3518,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	ware.reset_accumulated_distance();
 
 	//Multiply by a factor (default: 0.3) to ensure that it fits the scale properly. Journey times can easily appear too long.
-	uint16 journey_minutes = (((float)distance / average_speed) * welt->get_einstellungen()->get_distance_per_tile() * 60.0F);
+	uint16 journey_minutes = (distance * welt->get_einstellungen()->get_meters_per_tile() * 6) / average_speed;
 
 	const ware_besch_t* goods = ware.get_besch();
 	const uint16 price = goods->get_preis();
@@ -3526,7 +3534,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	if(speed_bonus_rating > 0 && happy_ratio > 0)
 	{
 		// Reduce revenue if the origin stop is crowded, if speed is important for the cargo.
-		sint64 tmp = ((float)speed_bonus_rating / 100.0F) * revenue;
+		sint64 tmp = (speed_bonus_rating * revenue) / 100;
 		tmp *= (happy_ratio * 2);
 		final_revenue -= tmp;
 	}
@@ -3783,7 +3791,7 @@ uint16 convoi_t::calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance, k
 	}
 
 	const uint16 max_distance = w != NULL ? w->get_einstellungen()->get_max_bonus_min_distance() : 16;
-	const float multiplier = w != NULL ? w->get_einstellungen()->get_max_bonus_multiplier() : 30;
+	const float multiplier = w != NULL ? w->get_einstellungen()->get_max_bonus_multiplier_percent() : 30;
 	
 	if(distance >= max_distance)
 	{

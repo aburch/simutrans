@@ -750,6 +750,9 @@
     <ClCompile Include="dataobj\network_file_transfer.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="utils\float32e8_t.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gui\components\action_listener.h">
@@ -1740,6 +1743,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="dataobj\network_file_transfer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\float32e8_t.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

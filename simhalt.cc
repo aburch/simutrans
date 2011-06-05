@@ -1472,7 +1472,7 @@ void haltestelle_t::add_connexion(const uint8 category, const convoihandle_t cnv
 			// Modified by : Knightly
 			// journey_distance += accurate_distance(current_halt->get_basis_pos(), previous_halt->get_basis_pos());
 			accumulated_journey_time += (((float)accurate_distance(current_halt->get_basis_pos(), previous_halt->get_basis_pos()) 
-										/ (float)average_speed) * welt->get_einstellungen()->get_distance_per_tile() * 600.0F);
+										/ (float)average_speed) * welt->get_einstellungen()->get_meters_per_tile() * 60.0F);
 			previous_halt = current_halt;
 			
 			// Journey time in *tenths* of minutes.
@@ -2343,7 +2343,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 				// Calculate the journey time for *this* convoy from here (if not already calculated)
 				
 				accumulated_journey_time += (((float)accurate_distance(plan_halt->get_basis_pos(), previous_halt->get_basis_pos()) 
-												/ (float)average_speed) * welt->get_einstellungen()->get_distance_per_tile() * 600.0F);
+												/ (float)average_speed) * welt->get_einstellungen()->get_meters_per_tile() * 60.0F);
 				//previous_halt = plan_halt;		
 								
 				// The random offset will ensure that all goods have an equal chance to be loaded.
@@ -2548,7 +2548,7 @@ inline uint16 haltestelle_t::get_waiting_minutes(uint32 waiting_ticks) const
 	// Note: waiting times now in *tenths* of minutes (hence difference in arithmetic)
 	//uint16 test_minutes_1 = ((float)1 / (1 / (waiting_ticks / 4096.0) * 20) * welt->get_einstellungen()->get_distance_per_tile() * 600.0F);
 	//uint16 test_minutes_2 = (2 * welt->get_einstellungen()->get_distance_per_tile() * waiting_ticks) / 409.6;
-	return (2 * welt->get_einstellungen()->get_distance_per_tile() * waiting_ticks) / 409.6F;
+	return (welt->get_einstellungen()->get_meters_per_tile() * waiting_ticks) / (409600L/2);
 	//const uint32 value = (2 * welt->get_einstellungen()->get_distance_per_tile() * waiting_ticks) / 409.6F;
 	//return value <= 65535 ? value : 65535;
 

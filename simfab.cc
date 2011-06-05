@@ -359,7 +359,7 @@ fabrik_t::~fabrik_t()
 		city->remove_city_factory(this);
 	}
 
-	welt->decrease_actual_industry_density(1.0 / (double)get_besch()->get_gewichtung());
+	welt->decrease_actual_industry_density(100 / get_besch()->get_gewichtung());
 
 	//Disconnect this factory from all chains.
 	//@author: jamespetts

@@ -60,6 +60,7 @@ a = (F - cf * v^2 - Frs) / m
 
 #include <limits>
 #include <math.h>
+#include "utils/float32e8_t.h"
 #include "tpl/vector_tpl.h"
 #include "besch/vehikel_besch.h"
 //#include "simconst.h"
@@ -74,22 +75,22 @@ a = (F - cf * v^2 - Frs) / m
 
 //#define CF_TRACK 0.7 / 2 * 10 * 1.2
 //#define CF_TRACK 4.2
-#define CF_TRACK 13
-#define CF_MAGLEV 10
+#define CF_TRACK float32e8_t((uint32) 13)
+#define CF_MAGLEV float32e8_t((uint32) 10)
 //#define CF_ROAD 0.7 / 2 * 6 * 1.2
-#define CF_ROAD 2.52
-#define CF_WATER 25
-#define CF_AIR 1
+#define CF_ROAD float32e8_t((uint32) 252, (uint32) 100)
+#define CF_WATER float32e8_t((uint32) 25)
+#define CF_AIR float32e8_t((uint32)1)
 
 // FR_*: constants related to roll resistance
 
 //should be 0.0015, but for game balance it is higher 
 //#define FR_TRACK 0.0015
-#define FR_MAGLEV 0.0015
-#define FR_TRACK 0.0051
-#define FR_ROAD  0.015
-#define FR_WATER 0.001
-#define FR_AIR 0.001
+#define FR_MAGLEV float32e8_t((uint32) 15, (uint32) 10000)
+#define FR_TRACK float32e8_t((uint32) 51, (uint32) 10000)
+#define FR_ROAD  float32e8_t((uint32) 15, (uint32) 1000)
+#define FR_WATER float32e8_t((uint32) 1, (uint32) 1000)
+#define FR_AIR float32e8_t((uint32) 1, (uint32) 1000)
 
 // GEAR_FACTOR: a gear of 1.0 is stored as 64
 #define GEAR_FACTOR 64
@@ -98,23 +99,30 @@ a = (F - cf * v^2 - Frs) / m
 
 // anything greater then 2097151 will give us overflow in kmh_to_speed. 
 #define KMH_SPEED_UNLIMITED  (300000)
+
+
 /**
  * Convert simutrans speed to m/s
  */
-inline double speed_to_v(sint32 speed)
+
+// scale to convert m/s to simutrans speed
+const float32e8_t simspeed2ms((uint32) 10, (uint32) 36 * 1024);
+const float32e8_t ms2simspeed((uint32) 36 * 1024, (uint32) 10);
+
+inline float32e8_t speed_to_v(const sint32 speed)
 {
-	return (speed * VEHICLE_SPEED_FACTOR) * (1.0 / (3.6 * 1024.0));
+	return simspeed2ms * (speed * VEHICLE_SPEED_FACTOR);
 }
 
-inline sint32 v_to_speed(double v)
+inline sint32 v_to_speed(const float32e8_t &v)
 {
-	return (sint32)(v * (3.6 * 1024.0) + VEHICLE_SPEED_FACTOR - 1) / VEHICLE_SPEED_FACTOR;
+	return ((sint32)(ms2simspeed * v) + VEHICLE_SPEED_FACTOR - 1) / VEHICLE_SPEED_FACTOR;
 }
 
-inline double x_to_steps(double v)
-{
-	return (v * (3.6 * 1024.0) + VEHICLE_SPEED_FACTOR - 1) / VEHICLE_SPEED_FACTOR;
-}
+//inline float32e8_t x_to_steps(const float32e8_t &x)
+//{
+//	return (ms2simspeed * x + float32e8_t(VEHICLE_SPEED_FACTOR - 1)) / float32e8_t(VEHICLE_SPEED_FACTOR);
+//}
 
 /******************************************************************************/
 
@@ -155,8 +163,8 @@ struct vehicle_summary_t
 // but "environ" is the name of a defined macro. 
 struct adverse_summary_t
 {
-	double cf;	// air resistance constant: cf = cw/2 * A * rho. Depends on rho, which depends on altitude.
-	double fr;	// roll resistance: depends on way
+	float32e8_t cf;	// air resistance constant: cf = cw/2 * A * rho. Depends on rho, which depends on altitude.
+	float32e8_t fr;	// roll resistance: depends on way
 	sint32 max_speed;
 
 	inline void clear()
@@ -224,8 +232,8 @@ struct freight_summary_t
 struct weight_summary_t
 {
 	sint32 weight;			// vehicle and freight weight in kg. depends on vehicle (weight) and freight (weight)
-	double weight_cos;		// vehicle and freight weight in kg multiplied by cos(alpha). depends on adverse (way/inclination), vehicle and freight
-	double weight_sin;		// vehicle and freight weight in kg multiplied by sin(alpha). depends on adverse (way/inclination), vehicle and freight
+	float32e8_t weight_cos;		// vehicle and freight weight in kg multiplied by cos(alpha). depends on adverse (way/inclination), vehicle and freight
+	float32e8_t weight_sin;		// vehicle and freight weight in kg multiplied by sin(alpha). depends on adverse (way/inclination), vehicle and freight
 
 	weight_summary_t()
 	{
@@ -239,7 +247,7 @@ struct weight_summary_t
 
 	inline void clear()
 	{
-		weight_cos = weight_sin = 0.0;
+		weight_cos = weight_sin = (uint32) 0;
 		weight = 0;
 	}
 
@@ -266,16 +274,15 @@ private:
 	/**
 	 * Get force in N according to current speed in m/s
 	 */
-	inline sint32 get_force(double speed) 
+	inline sint32 get_force(float32e8_t speed) 
 	{
-		//uint16 v = abs((uint16)abs(speed));
 		sint32 v = (sint32)abs(speed);
 		return (v == 0) ? get_starting_force() : get_force_summary(v) * 1000;
 	}
 	/*
 	 * Get force in N that holds the given speed v or maximum available force, what ever is lesser.
 	 */
-	double calc_speed_holding_force(double speed /* in m/s */, double Frs /* in N */); /* in N */
+	float32e8_t calc_speed_holding_force(float32e8_t speed /* in m/s */, float32e8_t Frs /* in N */); /* in N */
 protected:
 	vehicle_summary_t vehicle;
 	adverse_summary_t adverse;
@@ -329,7 +336,7 @@ public:
 	 * @param akt_speed is the current speed and returns the new speed after delta_t has gone in simutrans speed.
 	 * @param sp_soll is the number of simutrans steps still to go and returns the new number of steps to go.
 	 */
-	void calc_move(long delta_t, float simtime_factor, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll);
+	void calc_move(long delta_t, const float32e8_t &simtime_factor, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll);
 	virtual ~convoy_t(){}
 };
 
@@ -496,7 +503,7 @@ public:
 		return convoy_t::calc_max_starting_weight(sin_alpha);
 	}
 
-	void calc_move(long delta_t, float simtime_factor, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll)
+	void calc_move(long delta_t, const float32e8_t &simtime_factor, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll)
 	{
 		validate_vehicle_summary();
 		validate_adverse_summary();
@@ -587,7 +594,7 @@ public:
 		return weight;
 	}
 
-	inline void calc_move(long delta_t, float simtime_factor, sint32 akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll)
+	inline void calc_move(long delta_t, const float32e8_t &simtime_factor, sint32 akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll)
 	{
 		validate_weight_summary();
 		convoy_t::calc_move(delta_t, simtime_factor, weight, akt_speed_soll, akt_speed, sp_soll);

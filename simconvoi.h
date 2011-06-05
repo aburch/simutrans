@@ -308,7 +308,7 @@ private:
 	// the odometer was last incremented.
 	// Used for converting tiles to km.
 	// @author: jamespetts
-	double tiles_since_last_odometer_increment;
+	sint64 steps_since_last_odometer_increment;
 
 	/**
 	* Set, when there was a income calculation (avoids some cheats)
@@ -628,7 +628,7 @@ public:
 	 *         actual currently set speed.
 	 * @author Hj. Malthaner
 	 */
-	inline const sint32& get_akt_speed() const { return akt_speed; }
+	inline const sint32 get_akt_speed() const { return akt_speed; }
 
 	/**
 	 * @return total power of this convoi
