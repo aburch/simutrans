@@ -190,7 +190,7 @@ public:
 	const double to_double() const;
 public:
 	const sint32 to_sint32() const;
-	const string to_string() const;
+	//const string to_string() const;
 
 	inline operator sint32 () const { return to_sint32(); }
 };
