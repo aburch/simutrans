@@ -162,7 +162,6 @@ const float32e8_t float32e8_t::exp2() const
 	sint16 e1 = e < 0 ? -e : e;
 	if (e1 > EXPONENT_BITS)
 	{
-		char val_str[200];
 		dbg->fatal(" float32e8_t::exp2()", "Illegal argument of exp2(%.9G): must be between about %d and %d.", to_double(), MIN_EXPONENT, MAX_EXPONENT);
 	}
 	uint32 m1 = m >> (32 - e1);
@@ -471,7 +470,7 @@ const float32e8_t float32e8_t::operator * (const float32e8_t & x) const
 	}
 	if (r.e > MAX_EXPONENT)
 	{
-		dbg->fatal("float32e8_t::operator * (const float32e8_t & x) const", "Overflow in: %.9G * %.9G", this->to_double(), x.to_double())
+		dbg->fatal("float32e8_t::operator * (const float32e8_t & x) const", "Overflow in: %.9G * %.9G", this->to_double(), x.to_double());
 	}
 	r.ms = ms ^ x.ms;
 	return r;
