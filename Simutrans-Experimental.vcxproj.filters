@@ -750,7 +750,7 @@
     <ClCompile Include="dataobj\network_file_transfer.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="utils\float32e8_t.cpp">
+    <ClCompile Include="utils\float32e8_t.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

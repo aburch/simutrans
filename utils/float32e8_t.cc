@@ -1,5 +1,5 @@
 /*
- * float32e8_t.cpp
+ * float32e8_t.cc
  *
  *  Created on: 22.05.2011
  *      Author: Bernd
