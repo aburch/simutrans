@@ -769,6 +769,11 @@ vehikel_t::unload_freight(halthandle_t halt)
 							// Refund is approximation: twice distance at standard rate with no adjustments.
 							const sint64 refund_amount = tmp.menge * tmp.get_besch()->get_preis() * distance * 2;
 							current_revenue -= refund_amount;
+							cnv->book(refund_amount, CONVOI_REFUNDS);
+							if(cnv->get_line().is_bound())
+							{
+								cnv->get_line()->book(refund_amount, LINE_REFUNDS);
+							}
 						}
 
 						// Add passengers to unhappy passengers.
