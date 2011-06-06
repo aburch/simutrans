@@ -744,7 +744,7 @@ void path_explorer_t::compartment_t::step()
 					// journey time from halt 0 to halt 1 is stored in journey_time_list[1]
 					journey_time_list.append
 					(
-						(uint16)((accurate_distance( halt_list[i]->get_basis_pos(),	halt_list[(i+1)%entry_count]->get_basis_pos() ) * journey_time_factor) / 1000),
+						(uint16)(accurate_distance( halt_list[i]->get_basis_pos(),	halt_list[(i+1)%entry_count]->get_basis_pos() ) * journey_time_factor),
 						64 
 					);
 					
