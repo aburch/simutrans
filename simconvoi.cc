@@ -3534,7 +3534,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	{
 		average_speed = 1;
 	}
-	uint16 journey_minutes = (distance * welt->get_einstellungen()->get_meters_per_tile() * 6) / average_speed;
+	const uint16 journey_minutes = (((distance * 100) / average_speed) *  welt->get_einstellungen()->get_meters_per_tile()) / 1667;
 
 	const ware_besch_t* goods = ware.get_besch();
 	const uint16 price = goods->get_preis();
@@ -3617,7 +3617,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 			else
 			{
 				const uint32 proportion = (differential * 100) / max_differential;
-				final_revenue += revenue * (sint64)(multiplier * proportion) / 100;
+				final_revenue += (revenue * (sint64)(multiplier * proportion)) / 100;
 			}
 		}
 		else if(comfort < tolerable_comfort)
@@ -3625,7 +3625,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 			// Apply discomfort penalty
 			const uint8 max_differential = welt->get_einstellungen()->get_max_discomfort_penalty_differential();
 			const uint8 differential = tolerable_comfort - comfort;
-			uint32 multiplier = (welt->get_einstellungen()->get_max_discomfort_penalty_percent() * comfort_modifier) / 100;
+			uint32 multiplier = (welt->get_einstellungen()->get_max_discomfort_penalty_percent() * comfort_modifier) / 10000;
 			multiplier = multiplier < 95 ? multiplier : 95;
 			if(differential >= max_differential)
 			{
@@ -3634,7 +3634,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 			else
 			{
 				const uint32 proportion = (differential * 100) / max_differential;
-				final_revenue -= revenue * (sint64)(multiplier * proportion) / 100;
+				final_revenue -= (revenue * (sint64)(multiplier * proportion)) / 100;
 			}
 		}
 		

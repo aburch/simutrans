@@ -58,7 +58,7 @@ const int cost_type_color[MAX_LINE_COST] =
 {
 	COL_FREE_CAPACITY, COL_TRANSPORTED, COL_AVERAGE_SPEED, COL_COMFORT, COL_REVENUE, COL_OPERATION, COL_PROFIT, COL_VEHICLE_ASSETS, COL_DISTANCE, COL_LIGHT_RED
 };
-
+ 
 static uint8 tabs_to_lineindex[8];
 static uint8 max_idx=0;
 
