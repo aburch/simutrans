@@ -206,24 +206,24 @@ const float32e8_t float32e8_t::half((uint32)1ul, (uint32)2ul);
 const float32e8_t float32e8_t::one((uint32)1ul);
 
 #ifdef USE_DOUBLE
-void float32e8_t::set_value(const double value)
-{
-	ms = value < 0;
-	double v = ms ? -value : value;
-	e = (sint16)ceil(::log2(v));
-	if (e < MIN_EXPONENT)
-	{
-		set_zero();
-		return;
-	}
-	if (e > MAX_EXPONENT)
-	{
-		char val_str[200];
-		dbg->fatal("float32e8_t::set_value(const double value)", "Overflow in converting %G to float32e8_t: exponent %d > %d", value, e, MIN_EXPONENT);
-	}
-	v = v * pow(2, (32 - e)) + 0.5;
-	m = (uint32) v;
-}
+//void float32e8_t::set_value(const double value)
+//{
+//	ms = value < 0;
+//	double v = ms ? -value : value;
+//	e = (sint16)ceil(::log2(v));
+//	if (e < MIN_EXPONENT)
+//	{
+//		set_zero();
+//		return;
+//	}
+//	if (e > MAX_EXPONENT)
+//	{
+//		char val_str[200];
+//		dbg->fatal("float32e8_t::set_value(const double value)", "Overflow in converting %G to float32e8_t: exponent %d > %d", value, e, MIN_EXPONENT);
+//	}
+//	v = v * pow(2, (32 - e)) + 0.5;
+//	m = (uint32) v;
+//}
 #endif
 
 void float32e8_t::set_value(const sint32 value)

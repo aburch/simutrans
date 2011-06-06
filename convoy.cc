@@ -165,7 +165,7 @@ sint32 convoy_t::calc_max_speed(const weight_summary_t &weight)
 	}
 	const float32e8_t p3 =  Frs / (float32e8_t((uint32) 3) * adverse.cf);
 	const float32e8_t q2 = get_continuous_power() / (float32e8_t((uint32) 2) * adverse.cf);
-	const float32e8_t sd = signed_power(q2 * q2 + p3 * p3 * p3, half);
+	const float32e8_t sd = signed_power(q2 * q2 + p3 * p3 * p3, half);;
 	const float32e8_t vmax = signed_power(q2 + sd, third) + signed_power(q2 - sd, third); 
 	return min(vehicle.max_speed, (sint32)(vmax * ms2kmh + float32e8_t::one)); // 1.0 to compensate inaccuracy of calculation and make sure this is at least what calc_move() evaluates.
 }
