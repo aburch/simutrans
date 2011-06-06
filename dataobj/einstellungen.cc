@@ -1676,7 +1676,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	max_longdistance_tolerance = max_longdistance_tolerance_minutes * 10;
 
 	const uint16 max_walking_distance_m = contents.get_int("max_walking_distance_km_tenth", (max_walking_distance * meters_per_tile) / 100) * 100;
-	max_walking_distance = (uint32)max_walking_distance_m / distance_per_tile;
+	max_walking_distance = ((uint32)max_walking_distance_m * distance_per_tile) / 100;
 
 	quick_city_growth = (bool)(contents.get_int("quick_city_growth", quick_city_growth));
 
