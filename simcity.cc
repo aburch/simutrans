@@ -2310,12 +2310,6 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 			car->kill();
 			number_of_cars++;
 		}
-		//while(!current_cars.empty() && (sint32)current_cars.get_count() > number_of_cars)
-		//{
-		//	//Make sure that there are not too many cars on the roads. 
-		//	stadtauto_t* car = current_cars.remove_first();
-		//	car->kill();
-		//}
 
 		koord k;
 		koord pos = get_zufallspunkt();
