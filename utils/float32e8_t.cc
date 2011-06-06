@@ -164,7 +164,7 @@ const float32e8_t float32e8_t::exp2() const
 	{
 		dbg->error(" float32e8_t::exp2()", "Illegal argument of exp2(%.9G): must be between about %d and %d.", to_double(), MIN_EXPONENT, MAX_EXPONENT);
 	}
-	uint32 m1 = m >> (32 - e1);
+	uint32 m1 = e1 > 0 ? m >> (32 - e1) : 0;
 	float32e8_t v(0x80000000L, (sint16)m1 + 1, false);
 
 	uint32 m2 = m << e1;
@@ -343,6 +343,11 @@ const float32e8_t float32e8_t::operator + (const float32e8_t & x) const
 		r.m = op1 - op2;
 		if (!(r.m & 0x80000000))
 		{
+			if (!r.m)
+			{
+				r.set_zero();
+				return r;
+			}
 			uint8 ld = 32 - ild(r.m);
 			r.e -= ld;
 			r.m <<= ld;
@@ -418,6 +423,11 @@ const float32e8_t float32e8_t::operator - (const float32e8_t & x) const
 		r.m = op1 - op2;
 		if (!(r.m & 0x80000000))
 		{
+			if (!r.m)
+			{
+				r.set_zero();
+				return r;
+			}
 			uint8 ld = 32 - ild(r.m);
 			r.e -= ld;
 			r.m <<= ld;
