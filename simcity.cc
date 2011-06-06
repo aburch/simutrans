@@ -2310,7 +2310,6 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 			car->kill();
 			number_of_cars++;
 		}
-
 		koord k;
 		koord pos = get_zufallspunkt();
 		int retry_count = 5;
@@ -4120,7 +4119,7 @@ void stadt_t::erzeuge_verkehrsteilnehmer(koord pos, sint32 /*level*/, koord targ
 {
 	const int verkehr_level = welt->get_einstellungen()->get_verkehr_level();
 	//if (verkehr_level > 0 && level % (17 - verkehr_level) == 0) {
-	if(current_cars.get_count() < number_of_cars)
+	if((sint32)current_cars.get_count() < number_of_cars)
 	{
 		koord k;
 		for (k.y = pos.y - 1; k.y <= pos.y + 1; k.y++) {
