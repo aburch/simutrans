@@ -2220,12 +2220,11 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 		// everywhere will become completely clogged with traffic. Linear rather than logorithmic scaling so
 		// that the player can have a better idea visually of the amount of traffic.
 
-#ifdef DESTINATION_CITYCARS 
-		// Subtract incoming trips and cars already generated to prevent double counting.
-		const sint32 factor = city_history_month[1][HIST_CITYCARS] - incoming_private_cars - (sint32)current_cars.get_count();
-		
+		sint32 old_number_of_cars = number_of_cars;
+
+#ifdef DESTINATION_CITYCARS 	
 		//Manual assignment of traffic level modifiers, since I could not find a suitable mathematical formula.
-		uint32 traffic_level;
+		sint32 traffic_level;
 		switch(welt->get_einstellungen()->get_verkehr_level())
 		{
 		case 0:
@@ -2297,38 +2296,48 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 			traffic_level = 1000;
 		};
 		
-		number_of_cars = (factor * traffic_level) / 1000;
+		// Subtract incoming trips and cars already generated to prevent double counting.
+		number_of_cars = ((city_history_month[1][HIST_CITYCARS] * traffic_level) / 1000) - (sint32)incoming_private_cars - (sint32)current_cars.get_count();
 		incoming_private_cars = 0;
 #else
 		uint16 number_of_cars = ((city_history_month[1][HIST_CITYCARS] * welt->get_einstellungen()->get_verkehr_level()) / 16) / 64;
 #endif
 
-		while(!current_cars.empty() && (sint32)current_cars.get_count() > number_of_cars)
+		while(!current_cars.empty() && number_of_cars < 0)
 		{
 			//Make sure that there are not too many cars on the roads. 
 			stadtauto_t* car = current_cars.remove_first();
 			car->kill();
+			number_of_cars++;
 		}
-
 		koord k;
 		koord pos = get_zufallspunkt();
-		for (k.y = pos.y - 3; k.y < pos.y + 3; k.y++) {
-			for (k.x = pos.x - 3; k.x < pos.x + 3; k.x++) {
-				if(number_of_cars==0) {
-					return;
-				}
-
-				grund_t* gr = welt->lookup_kartenboden(k);
-				if (gr != NULL && gr->get_weg(road_wt) && ribi_t::is_twoway(gr->get_weg_ribi_unmasked(road_wt)) && gr->find<stadtauto_t>() == NULL)
+		int retry_count = 5;
+		while(old_number_of_cars > 0 && retry_count > 0)
+		{
+			for (k.y = pos.y - 3; k.y < pos.y + 3; k.y++) 
+			{
+				for (k.x = pos.x - 3; k.x < pos.x + 3; k.x++)
 				{
-					slist_tpl<stadtauto_t*> *car_list = &current_cars;
-					stadtauto_t* vt = new stadtauto_t(welt, gr->get_pos(), koord::invalid, car_list);
-					gr->obj_add(vt);
-					welt->sync_add(vt);
-					current_cars.append(vt);
-					number_of_cars--;
+					if(number_of_cars == 0)
+					{
+						return;
+					}
+
+					grund_t* gr = welt->lookup_kartenboden(k);
+					if (gr != NULL && gr->get_weg(road_wt) && ribi_t::is_twoway(gr->get_weg_ribi_unmasked(road_wt)) && gr->find<stadtauto_t>() == NULL)
+					{
+						slist_tpl<stadtauto_t*> *car_list = &current_cars;
+						stadtauto_t* vt = new stadtauto_t(welt, gr->get_pos(), koord::invalid, car_list);
+						gr->obj_add(vt);
+						welt->sync_add(vt);
+						current_cars.append(vt);
+						number_of_cars--;
+						old_number_of_cars--;
+					}
 				}
 			}
+			retry_count --;
 		}
 	}
 }
@@ -4110,7 +4119,7 @@ void stadt_t::erzeuge_verkehrsteilnehmer(koord pos, sint32 /*level*/, koord targ
 {
 	const int verkehr_level = welt->get_einstellungen()->get_verkehr_level();
 	//if (verkehr_level > 0 && level % (17 - verkehr_level) == 0) {
-	if(current_cars.get_count() < number_of_cars)
+	if((sint32)current_cars.get_count() < number_of_cars)
 	{
 		koord k;
 		for (k.y = pos.y - 1; k.y <= pos.y + 1; k.y++) {
