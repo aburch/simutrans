@@ -366,13 +366,13 @@ void spieler_t::neuer_monat()
 		// Record of the number of months for which a player has been overdrawn.
 		konto_ueberzogen++;
 		
-		// Add interest
+		// Add debit interest
 
 		// Monthly rate
 		if(welt->get_einstellungen()->get_interest_rate_percent() > 0)
 		{
-			uint16 interest_rate = ((welt->get_einstellungen()->get_interest_rate_percent() * 100) / 1200); 
-			sint32 monthly_interest = (interest_rate * konto) / 100;
+			const sint16 interest_rate = ((welt->get_einstellungen()->get_interest_rate_percent() * 1000) / 1200); 
+			const sint32 monthly_interest = (interest_rate * konto) / 1000;
 			buche(monthly_interest, COST_INTEREST);
 		}
 
@@ -439,6 +439,17 @@ void spieler_t::neuer_monat()
 	}
 	else 
 	{
+		// Add credit interest (jamespetts, June 2011)
+
+		// Monthly rate
+		if(welt->get_einstellungen()->get_interest_rate_percent() > 0)
+		{
+			// Credit interest rate is 1/2 debit interest rate, so /2400 and not /1200.
+			const sint16 interest_rate = ((welt->get_einstellungen()->get_interest_rate_percent() * 1000) / 2400); 
+			const sint32 monthly_interest = (interest_rate * konto) / 1000;
+			buche(monthly_interest, COST_INTEREST);
+		}
+		
 		konto_ueberzogen = 0;
 		if(base_credit_limit < get_base_credit_limit())
 		{
@@ -508,8 +519,9 @@ void spieler_t::calc_finance_history()
 	sint64 profit, mprofit;
 	profit = mprofit = 0;
 	for (int i=0; i<MAX_PLAYER_COST; i++) {
-		// all costs < COST_ASSETS influence profit, so we must sum them up
-		if(i<COST_ASSETS) {
+		// all costs < COST_ASSETS (and also COST_INTEREST) influence profit, so we must sum them up
+		if(i < COST_ASSETS || i == COST_INTEREST) 
+		{
 			profit += finance_history_year[0][i];
 			mprofit += finance_history_month[0][i];
 		}
@@ -1153,13 +1165,13 @@ void spieler_t::rdwr(loadsave_t *file)
 			// only revnue minus running costs
 			finance_history_year[year][COST_OPERATING_PROFIT] = finance_history_year[year][COST_INCOME]+finance_history_year[year][COST_VEHICLE_RUN]+finance_history_year[year][COST_MAINTENANCE];
 			// including also investements into vehicles/infrastructure
-			finance_history_year[year][COST_PROFIT] = finance_history_year[year][COST_INCOME]+finance_history_year[year][COST_VEHICLE_RUN]+finance_history_year[year][COST_MAINTENANCE]+finance_history_year[year][COST_CONSTRUCTION]+finance_history_year[year][COST_NEW_VEHICLE];
+			finance_history_year[year][COST_PROFIT] = finance_history_year[year][COST_INCOME]+finance_history_year[year][COST_VEHICLE_RUN]+finance_history_year[year][COST_MAINTENANCE]+finance_history_year[year][COST_CONSTRUCTION]+finance_history_year[year][COST_NEW_VEHICLE]+finance_history_month[year][COST_INTEREST];
 			finance_history_year[year][COST_MARGIN] = calc_margin(finance_history_year[year][COST_OPERATING_PROFIT], finance_history_year[year][COST_INCOME]);
 		}
 		for(  int month=0;  month<MAX_PLAYER_HISTORY_MONTHS;  month++  ) {
 			finance_history_month[month][COST_NETWEALTH] = finance_history_month[month][COST_CASH]+finance_history_month[month][COST_ASSETS];
 			finance_history_month[month][COST_OPERATING_PROFIT] = finance_history_month[month][COST_INCOME]+finance_history_month[month][COST_VEHICLE_RUN]+finance_history_month[month][COST_MAINTENANCE];
-			finance_history_month[month][COST_PROFIT] = finance_history_month[month][COST_INCOME]+finance_history_month[month][COST_VEHICLE_RUN]+finance_history_month[month][COST_MAINTENANCE]+finance_history_month[month][COST_CONSTRUCTION]+finance_history_month[month][COST_NEW_VEHICLE];
+			finance_history_month[month][COST_PROFIT] = finance_history_month[month][COST_INCOME]+finance_history_month[month][COST_VEHICLE_RUN]+finance_history_month[month][COST_MAINTENANCE]+finance_history_month[month][COST_CONSTRUCTION]+finance_history_month[month][COST_NEW_VEHICLE]+finance_history_month[month][COST_INTEREST];
 			finance_history_month[month][COST_MARGIN] = calc_margin(finance_history_month[month][COST_OPERATING_PROFIT], finance_history_month[month][COST_INCOME]);
 		}
 
