@@ -53,22 +53,19 @@ public:
 
 
 	/**
-	 * Appends text. If buffer is full, exceeding text will not
-	 * be appended.
+	 * Appends text. Buffer will be extended if it does not have enough capacity.
 	 * @author Hj. Malthaner
 	 */
 	void append(const char * text);
 
 	/**
-	 * Appends a number. If buffer is full, exceeding digits will not
-	 * be appended.
+	 * Appends a number. Buffer will be extended if it does not have enough capacity.
 	 * @author Hj. Malthaner
 	 */
 	void append(long n);
 
 	/**
-	 * Appends a number. If buffer is full, exceeding digits will not
-	 * be appended.
+	 * Appends a number. Buffer will be extended if it does not have enough capacity.
 	 * @author Hj. Malthaner
 	 */
 	void append(double n, int precision);
