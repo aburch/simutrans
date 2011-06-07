@@ -1617,7 +1617,8 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 		for(uint32 i=0; i<dist_list.get_count(); i++) {
 			ware_t& ware = dist_list[i].ware;
 			// now search route
-			if (haltestelle_t::search_route(&dist_list[i].halt, 1U, welt->get_settings().is_no_routing_over_overcrowding(), ware) == haltestelle_t::ROUTE_OK) {
+			const int result = haltestelle_t::search_route(&dist_list[i].halt, 1U, welt->get_settings().is_no_routing_over_overcrowding(), ware);
+			if (result == haltestelle_t::ROUTE_OK  ||  result == haltestelle_t::ROUTE_WALK) {
 				best = &dist_list[i];
 				break;
 			}
