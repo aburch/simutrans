@@ -2455,22 +2455,27 @@ void display_ddd_proportional_clip(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL wid
  * @author Volker Meyer
  * @date  15.06.2003
  */
-void display_multiline_text(KOORD_VAL x, KOORD_VAL y, const char *buf, PLAYER_COLOR_VAL color)
+int display_multiline_text(KOORD_VAL x, KOORD_VAL y, const char *buf, PLAYER_COLOR_VAL color)
 {
+	int max_px_len = 0;
 	if (buf != NULL && *buf != '\0') {
 		const char *next;
 
 		do {
 			next = strchr(buf, '\n');
-			display_text_proportional_len_clip(
+			const int px_len = display_text_proportional_len_clip(
 				x, y, buf,
 				ALIGN_LEFT | DT_DIRTY | DT_CLIP, color,
 				next != NULL ? next - buf : -1
 			);
+			if(  px_len>max_px_len  ) {
+				max_px_len = px_len;
+			}
 			buf = next + 1;
 			y += LINESPACE;
 		} while (next != NULL);
 	}
+	return max_px_len;
 }
 
 

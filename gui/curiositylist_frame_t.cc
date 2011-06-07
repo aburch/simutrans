@@ -112,4 +112,5 @@ void curiositylist_frame_t::display_list(void)
 	sortedby.set_text(sort_text[get_sortierung()]);
 	sorteddir.set_text(get_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
 	stats.get_unique_attractions(sortby,sortreverse);
+	stats.recalc_size();
 }

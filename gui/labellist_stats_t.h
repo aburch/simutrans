@@ -29,6 +29,10 @@ private:
 	vector_tpl<koord> labels;
 	uint32 line_selected;
 
+	uint32 last_world_labels;
+	labellist::sort_mode_t sortby;
+	bool sortreverse, filter;
+
 public:
 	labellist_stats_t(karte_t* welt, labellist::sort_mode_t sortby, bool sortreverse, bool filter);
 
@@ -40,6 +44,11 @@ public:
 	* @author Hj. Malthaner
 	*/
 	bool infowin_event(const event_t *);
+
+	/**
+	* Recalc the current size required to display everything, and set komponente groesse
+	*/
+	void recalc_size();
 
 	/**
 	* Zeichnet die Komponente

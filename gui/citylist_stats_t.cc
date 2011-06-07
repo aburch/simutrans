@@ -29,10 +29,10 @@ char citylist_stats_t::total_bev_string[128];
 citylist_stats_t::citylist_stats_t(karte_t* w, citylist::sort_mode_t sortby, bool sortreverse) :
 	welt(w)
 {
-	set_groesse(koord(210, welt->get_staedte().get_count() * (LINESPACE + 1) - 10));
 	total_bev_translation = translator::translate("Total inhabitants:");
 	sort(sortby, sortreverse);
-	line_select = 0xFFFFFFFFu;
+	recalc_size();
+	line_selected = 0xFFFFFFFFu;
 }
 
 
@@ -71,6 +71,7 @@ void citylist_stats_t::sort(citylist::sort_mode_t sb, bool sr)
 
 	city_list.clear();
 	city_list.resize(cities.get_count());
+
 	for (weighted_vector_tpl<stadt_t*>::const_iterator i = cities.begin(), end = cities.end(); i != end; ++i) {
 		city_list.insert_ordered(*i,compare_cities(sortby, sortreverse));
 	}
@@ -81,14 +82,14 @@ bool citylist_stats_t::infowin_event(const event_t * ev)
 {
 	const uint line = ev->cy / (LINESPACE + 1);
 
-	line_select = 0xFFFFFFFFu;
+	line_selected = 0xFFFFFFFFu;
 	if (line >= city_list.get_count()) {
 		return false;
 	}
 
 	stadt_t* stadt = city_list[line];
 	if(  ev->button_state>0  &&  ev->cx>0  &&  ev->cx<15  ) {
-		line_select = line;
+		line_selected = line;
 	}
 
 	if (IS_LEFTRELEASE(ev) && ev->cy>0) {
@@ -107,6 +108,13 @@ bool citylist_stats_t::infowin_event(const event_t * ev)
 }
 
 
+void citylist_stats_t::recalc_size()
+{
+	// show_scroll_x==false ->> groesse.x not important ->> no need to calc text pixel length
+	set_groesse(koord(210, welt->get_staedte().get_count() * (LINESPACE + 1) - 10));
+}
+
+
 void citylist_stats_t::zeichnen(koord offset)
 {
 	cbuffer_t buf(256);
@@ -117,6 +125,7 @@ void citylist_stats_t::zeichnen(koord offset)
 	if(  welt->get_staedte().get_count()!=city_list.get_count()  ) {
 		// some deleted/ added => resort
 		sort( sortby, sortreverse );
+		recalc_size();
 	}
 
 	for (uint32 i = 0; i < city_list.get_count(); i++) {
@@ -133,7 +142,7 @@ void citylist_stats_t::zeichnen(koord offset)
 		display_proportional_clip(offset.x + 4 + 10, offset.y + i * (LINESPACE + 1), buf, ALIGN_LEFT, COL_BLACK, true);
 
 		// goto button
-		display_color_img( i!=line_select ? button_t::arrow_right_normal : button_t::arrow_right_pushed,
+		display_color_img( i!=line_selected ? button_t::arrow_right_normal : button_t::arrow_right_pushed,
 			offset.x + 2, offset.y + i * (LINESPACE + 1), 0, false, true);
 
 		total_bev    += bev;

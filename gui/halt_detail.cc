@@ -41,7 +41,6 @@ halt_detail_t::halt_detail_t(halthandle_t halt_) :
 
 	// fill buffer with halt detail
 	halt_detail_info(cb_info_buffer);
-	txt_info.set_text(cb_info_buffer);
 	txt_info.set_pos(koord(10,10));
 
 	// calc window size
@@ -393,7 +392,6 @@ void halt_detail_t::zeichnen(koord pos, koord gr)
 				||  halt->registered_lines.get_count()!=cached_line_count  ||  halt->registered_convoys.get_count()!=cached_convoy_count  ) {
 			// fill buffer with halt detail
 			halt_detail_info(cb_info_buffer);
-			txt_info.set_text(cb_info_buffer);
 			cached_active_player=halt->get_welt()->get_active_player();
 		}
 	}

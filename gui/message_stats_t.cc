@@ -45,7 +45,7 @@ bool message_stats_t::filter_messages(const sint32 msg_type)
 		if(  msg_type==-1  ) {
 			// case : no message filtering
 			message_list = &(msg->get_list());
-			set_groesse( koord(600, min(2000, last_count) * BUTTON_HEIGHT + 1) );
+			recalc_size();
 		}
 		else {
 			// case : filter messages belonging to the specified type
@@ -56,7 +56,7 @@ bool message_stats_t::filter_messages(const sint32 msg_type)
 					filtered_messages.append( *iter );
 				}
 			}
-			set_groesse( koord(600, min(2000, filtered_messages.get_count()) * BUTTON_HEIGHT + 1) );
+			recalc_size();
 		}
 		return true;
 	}
@@ -109,6 +109,33 @@ bool message_stats_t::infowin_event(const event_t * ev)
 }
 
 
+void message_stats_t::recalc_size()
+{
+	sint16 x_size = 0;
+	sint16 y_size = 0;
+
+	// loop copied from ::zeichnen(), trimmed to minimum for x_size calculation
+
+	for(  slist_tpl<message_t::node *>::const_iterator iter=message_list->begin(), end=message_list->end();  iter!=end;  ++iter, y_size+=BUTTON_HEIGHT  ) {
+		const message_t::node &n = *(*iter);
+		char buf[256];
+		for(  int j=0;  j<256;  ++j  ) {
+			buf[j] = (n.msg[j]=='\n')?' ':n.msg[j];
+			if(  buf[j]==0  ) {
+				break;
+			}
+		}
+
+		const int px_len = proportional_string_width(buf);
+		if(  px_len>x_size  ) {
+			x_size = px_len;
+		}
+	}
+
+	set_groesse(koord(x_size+10+4,y_size));
+}
+
+
 /**
  * Now draw the list
  * @author prissi
@@ -121,7 +148,7 @@ void message_stats_t::zeichnen(koord offset)
 		if(  message_type==-1  ) {
 			// no message filtering -> only update last count and component size
 			last_count = new_count;
-			set_groesse( koord(600, min(2000, last_count) * BUTTON_HEIGHT + 1) );
+			recalc_size();
 		}
 		else {
 			// incrementally add new entries to filtered message list before recalculating component size, and update last count
@@ -138,13 +165,14 @@ void message_stats_t::zeichnen(koord offset)
 				filtered_messages.insert( temp_list.remove_first() );
 			}
 			last_count = new_count;
-			set_groesse( koord(600, min(2000, filtered_messages.get_count()) * BUTTON_HEIGHT + 1) );
+			recalc_size();
 		}
 	}
 
 	struct clip_dimension cd = display_get_clip_wh();
 	sint16 y = offset.y+1;
 
+	// changes to loop affecting x_size must be copied to ::recalc_size()
 	for(  slist_tpl<message_t::node *>::const_iterator iter=message_list->begin(), end=message_list->end();  iter!=end;  ++iter, y+=BUTTON_HEIGHT  ) {
 
 		if(  y<cd.y  ) {

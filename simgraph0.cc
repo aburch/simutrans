@@ -275,8 +275,9 @@ void display_ddd_proportional_clip(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, P
 {
 }
 
-void display_multiline_text(KOORD_VAL, KOORD_VAL, const char *, PLAYER_COLOR_VAL)
+int display_multiline_text(KOORD_VAL, KOORD_VAL, const char *, PLAYER_COLOR_VAL)
 {
+	return 0;
 }
 
 void display_flush_buffer(void)

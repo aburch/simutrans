@@ -199,18 +199,16 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t *sp_) :
 	filled_bar.set_visible(false);
 	add_komponente(&filled_bar);
 
-	// vonvois?
-	cont.set_groesse(koord(LINE_NAME_COLUMN_WIDTH, 40));
-
-	// convoi list?
+	// convoi list
+	cont.set_groesse(koord(200, 40));
 	scrolly.set_pos(koord(LINE_NAME_COLUMN_WIDTH-11, 14 + SCL_HEIGHT+14+4+2*LINESPACE+2));
 	scrolly.set_show_scroll_x(true);
 	scrolly.set_scroll_amount_y(40);
 	scrolly.set_visible(false);
 	add_komponente(&scrolly);
 
-	// halt list?
-	cont_haltestellen.set_groesse(koord(500, 28));
+	// halt list
+	cont_haltestellen.set_groesse(koord(LINE_NAME_COLUMN_WIDTH, 28));
 	scrolly_haltestellen.set_pos(koord(0, 7 + SCL_HEIGHT+2*BUTTON_HEIGHT+2));
 	scrolly_haltestellen.set_show_scroll_x(true);
 	scrolly_haltestellen.set_scroll_amount_y(28);
@@ -224,12 +222,7 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t *sp_) :
 	bt_new_line.set_text("New Line");
 	add_komponente(&bt_new_line);
 	bt_new_line.add_listener(this);
-	if (tabs.get_active_tab_index()>0) {
-		bt_new_line.enable();
-	}
-	else {
-		bt_new_line.disable();
-	}
+	bt_new_line.disable();
 
 	bt_change_line.set_pos(koord(11+BUTTON_WIDTH, 7 + SCL_HEIGHT));
 	bt_change_line.set_groesse(koord(BUTTON_WIDTH,BUTTON_HEIGHT));
@@ -575,7 +568,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		icnv = new_line->count_convoys();
 		// display convoys of line
 		cont.remove_all();
-		int ypos = 5;
+		int ypos = 0;
 		for(i = 0;  i<icnv;  i++  ) {
 			gui_convoiinfo_t* const cinfo = new gui_convoiinfo_t(new_line->get_convoy(i), i + 1);
 			cinfo->set_pos(koord(0, ypos));
@@ -599,7 +592,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 
 		// fill haltestellen container with info of line's haltestellen
 		cont_haltestellen.remove_all();
-		ypos = 5;
+		ypos = 0;
 //		slist_tpl<koord3d> tmp; // stores koords of stops that are allready displayed
 		for(i=0; i<new_line->get_schedule()->get_count(); i++) {
 			const koord3d fahrplan_koord = new_line->get_schedule()->eintrag[i].pos;

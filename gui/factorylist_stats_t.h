@@ -29,15 +29,17 @@ namespace factorylist {
 class factorylist_stats_t : public gui_komponente_t
 {
 private:
-	factorylist::sort_mode_t sortby;
-	bool sortreverse;
-
 	karte_t *welt;
 	vector_tpl<fabrik_t*> fab_list;
 	uint32 line_selected;
 
+	factorylist::sort_mode_t sortby;
+	bool sortreverse;
+
 public:
 	factorylist_stats_t(karte_t* welt, factorylist::sort_mode_t sortby, bool sortreverse);
+
+	void sort(factorylist::sort_mode_t sortby, bool sortreverse);
 
 	/**
 	* Events werden hiermit an die GUI-Komponenten
@@ -46,7 +48,10 @@ public:
 	*/
 	bool infowin_event(const event_t *);
 
-	void sort(factorylist::sort_mode_t sortby, bool sortreverse);
+	/**
+	* Recalc the current size required to display everything, and set komponente groesse
+	*/
+	void recalc_size();
 
 	/**
 	* Zeichnet die Komponente

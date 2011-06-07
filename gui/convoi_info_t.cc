@@ -268,8 +268,12 @@ enable_home:
 		follow_button.pressed = (cnv->get_welt()->get_follow_convoi()==cnv);
 
 		// buffer update now only when needed by convoi itself => dedicated buffer for this
+		const int old_len=freight_info.len();
 		cnv->get_freight_info(freight_info);
-		text.set_text(freight_info);
+		if(  old_len!=freight_info.len()  ) {
+			text.set_text(freight_info);
+			text.recalc_size();
+		}
 
 		route_bar.set_base(cnv->get_route()->get_count()-1);
 		cnv_route_index = cnv->front()->get_route_index() - 1;

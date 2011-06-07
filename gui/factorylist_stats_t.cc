@@ -22,136 +22,12 @@
 #include "../utils/cbuffer_t.h"
 
 
-factorylist_stats_t::factorylist_stats_t(karte_t* w, factorylist::sort_mode_t sortby, bool sortreverse)
+factorylist_stats_t::factorylist_stats_t(karte_t* w, factorylist::sort_mode_t sortby, bool sortreverse) :
+	welt(w)
 {
-	welt = w;
 	sort(sortby,sortreverse);
+	recalc_size();
 	line_selected = 0xFFFFFFFFu;
-}
-
-
-
-/**
- * Events werden hiermit an die GUI-Komponenten
- * gemeldet
- * @author Hj. Malthaner
- */
-bool factorylist_stats_t::infowin_event(const event_t * ev)
-{
-	const unsigned int line = (ev->cy) / (LINESPACE+1);
-	line_selected = 0xFFFFFFFFu;
-	if (line >= fab_list.get_count()) {
-		return false;
-	}
-
-	fabrik_t* fab = fab_list[line];
-	if (!fab) {
-		return false;
-	}
-
-	// deperess goto button
-	if(  ev->button_state>0  &&  ev->cx>0  &&  ev->cx<15  ) {
-		line_selected = line;
-	}
-
-	if (IS_LEFTRELEASE(ev)) {
-		if(ev->cx>0  &&  ev->cx<15) {
-			const koord3d pos = fab->get_pos();
-			welt->change_world_position(pos);
-		}
-		else {
-			fab->zeige_info();
-		}
-	}
-	else if (IS_RIGHTRELEASE(ev)) {
-		const koord3d pos = fab->get_pos();
-		welt->change_world_position(pos);
-	}
-	return false;
-} // end of function factorylist_stats_t::infowin_event(const event_t * ev)
-
-
-
-/**
- * Zeichnet die Komponente
- * @author Hj. Malthaner
- */
-void factorylist_stats_t::zeichnen(koord offset)
-{
-	const struct clip_dimension cd = display_get_clip_wh();
-	const int start = cd.y-LINESPACE-1;
-	const int end = cd.yy+LINESPACE+1;
-
-	static cbuffer_t buf(256);
-	int xoff = offset.x+16;
-	int yoff = offset.y;
-
-	if(  fab_list.get_count()!=welt->get_fab_list().get_count()  ) {
-		// some deleted/ added => resort
-		sort( sortby, sortreverse );
-	}
-
-	for (uint32 i=0; i<fab_list.get_count()  &&  yoff<end; i++) {
-
-		// skip invisible lines
-		if(yoff<start) {
-			yoff += LINESPACE+1;
-			continue;
-		}
-
-		const fabrik_t* fab = fab_list[i];
-		if(fab) {
-			//DBG_DEBUG("factorylist_stats_t()","zeichnen() factory %i",i);
-			unsigned indikatorfarbe = fabrik_t::status_to_color[fab->get_status()];
-
-			buf.clear();
-			//		buf.append(i+1);
-			//		buf.append(".) ");
-			buf.append(fab_list[i]->get_name());
-			buf.append(" (");
-
-			if (!fab->get_eingang().empty()) {
-				buf.append(fab->get_total_in(),0);
-			}
-			else {
-				buf.append("-");
-			}
-			buf.append(", ");
-
-			if (!fab->get_ausgang().empty()) {
-				buf.append(fab->get_total_out(),0);
-			}
-			else {
-				buf.append("-");
-			}
-			buf.append(", ");
-
-			buf.append(fab->get_current_production(),0);
-			buf.append(") ");
-
-
-			//display_ddd_box_clip(xoff+7, yoff+2, 8, 8, MN_GREY0, MN_GREY4);
-			display_fillbox_wh_clip(xoff+2, yoff+2, INDICATOR_WIDTH, INDICATOR_HEIGHT, indikatorfarbe, true);
-
-			if(  fab->get_prodfactor_electric()>0  ) {
-				display_color_img(skinverwaltung_t::electricity->get_bild_nr(0), xoff+4+INDICATOR_WIDTH, yoff, 0, false, true);
-			}
-			if(  fab->get_prodfactor_pax()>0  ) {
-				display_color_img(skinverwaltung_t::passagiere->get_bild_nr(0), xoff+4+8+INDICATOR_WIDTH, yoff, 0, false, true);
-			}
-			if(  fab->get_prodfactor_mail()>0  ) {
-				display_color_img(skinverwaltung_t::post->get_bild_nr(0), xoff+4+18+INDICATOR_WIDTH, yoff, 0, false, true);
-			}
-
-			// show text
-			display_proportional_clip(xoff+INDICATOR_WIDTH+6+28,yoff,buf,ALIGN_LEFT,COL_BLACK,true);
-
-			// goto button
-			display_color_img( i!=line_selected ? button_t::arrow_right_normal : button_t::arrow_right_pushed, xoff-14, yoff, 0, false, true);
-
-		}
-		yoff += LINESPACE+1;
-	}
 }
 
 
@@ -217,8 +93,139 @@ void factorylist_stats_t::sort(factorylist::sort_mode_t sb, bool sr)
 
 	fab_list.clear();
 	fab_list.resize(welt->get_fab_list().get_count());
+
 	for (slist_iterator_tpl<fabrik_t*> i(welt->get_fab_list()); i.next();) {
 		fab_list.insert_ordered( i.get_current(), compare_factories(sortby, sortreverse) );
 	}
+}
+
+
+/**
+ * Events werden hiermit an die GUI-Komponenten
+ * gemeldet
+ * @author Hj. Malthaner
+ */
+bool factorylist_stats_t::infowin_event(const event_t * ev)
+{
+	const unsigned int line = (ev->cy) / (LINESPACE+1);
+	line_selected = 0xFFFFFFFFu;
+	if (line >= fab_list.get_count()) {
+		return false;
+	}
+
+	fabrik_t* fab = fab_list[line];
+	if (!fab) {
+		return false;
+	}
+
+	// deperess goto button
+	if(  ev->button_state>0  &&  ev->cx>0  &&  ev->cx<15  ) {
+		line_selected = line;
+	}
+
+	if (IS_LEFTRELEASE(ev)) {
+		if(ev->cx>0  &&  ev->cx<15) {
+			const koord3d pos = fab->get_pos();
+			welt->change_world_position(pos);
+		}
+		else {
+			fab->zeige_info();
+		}
+	}
+	else if (IS_RIGHTRELEASE(ev)) {
+		const koord3d pos = fab->get_pos();
+		welt->change_world_position(pos);
+	}
+	return false;
+} // end of function factorylist_stats_t::infowin_event(const event_t * ev)
+
+
+void factorylist_stats_t::recalc_size()
+{
+	// show_scroll_x==false ->> groesse.x not important ->> no need to calc text pixel length
 	set_groesse(koord(210, welt->get_fab_list().get_count()*(LINESPACE+1)-10));
+}
+
+
+/**
+ * Zeichnet die Komponente
+ * @author Hj. Malthaner
+ */
+void factorylist_stats_t::zeichnen(koord offset)
+{
+	const struct clip_dimension cd = display_get_clip_wh();
+	const int start = cd.y-LINESPACE-1;
+	const int end = cd.yy+LINESPACE+1;
+
+	static cbuffer_t buf(256);
+	int xoff = offset.x+16;
+	int yoff = offset.y;
+
+	if(  fab_list.get_count()!=welt->get_fab_list().get_count()  ) {
+		// some deleted/ added => resort
+		sort( sortby, sortreverse );
+		recalc_size();
+	}
+
+	for (uint32 i=0; i<fab_list.get_count()  &&  yoff<end; i++) {
+
+		// skip invisible lines
+		if(yoff<start) {
+			yoff += LINESPACE+1;
+			continue;
+		}
+
+		const fabrik_t* fab = fab_list[i];
+		if(fab) {
+			//DBG_DEBUG("factorylist_stats_t()","zeichnen() factory %i",i);
+			unsigned indikatorfarbe = fabrik_t::status_to_color[fab->get_status()];
+
+			buf.clear();
+			//		buf.append(i+1);
+			//		buf.append(".) ");
+			buf.append(fab_list[i]->get_name());
+			buf.append(" (");
+
+			if (!fab->get_eingang().empty()) {
+				buf.append(fab->get_total_in(),0);
+			}
+			else {
+				buf.append("-");
+			}
+			buf.append(", ");
+
+			if (!fab->get_ausgang().empty()) {
+				buf.append(fab->get_total_out(),0);
+			}
+			else {
+				buf.append("-");
+			}
+			buf.append(", ");
+
+			buf.append(fab->get_current_production(),0);
+			buf.append(") ");
+
+
+			//display_ddd_box_clip(xoff+7, yoff+2, 8, 8, MN_GREY0, MN_GREY4);
+			display_fillbox_wh_clip(xoff+2, yoff+2, INDICATOR_WIDTH, INDICATOR_HEIGHT, indikatorfarbe, true);
+
+			if(  fab->get_prodfactor_electric()>0  ) {
+				display_color_img(skinverwaltung_t::electricity->get_bild_nr(0), xoff+4+INDICATOR_WIDTH, yoff, 0, false, true);
+			}
+			if(  fab->get_prodfactor_pax()>0  ) {
+				display_color_img(skinverwaltung_t::passagiere->get_bild_nr(0), xoff+4+8+INDICATOR_WIDTH, yoff, 0, false, true);
+			}
+			if(  fab->get_prodfactor_mail()>0  ) {
+				display_color_img(skinverwaltung_t::post->get_bild_nr(0), xoff+4+18+INDICATOR_WIDTH, yoff, 0, false, true);
+			}
+
+			// show text
+			display_proportional_clip(xoff+INDICATOR_WIDTH+6+28,yoff,buf,ALIGN_LEFT,COL_BLACK,true);
+
+			// goto button
+			display_color_img( i!=line_selected ? button_t::arrow_right_normal : button_t::arrow_right_pushed, xoff-14, yoff, 0, false, true);
+
+		}
+		yoff += LINESPACE+1;
+	}
 }

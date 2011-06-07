@@ -87,7 +87,7 @@ station_building_select_t::station_building_select_t(karte_t *welt, const haus_b
 	// text
 	sprintf(buf, "X=%i,Y=%i", besch->get_b(0), besch->get_h(0) );
 	txt.set_text(buf);
-	txt.set_pos( koord(10,0) );
+	txt.set_pos( koord(10,-1) );
 	add_komponente( &txt );
 
 	// button

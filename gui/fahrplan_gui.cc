@@ -121,7 +121,7 @@ cbuffer_t fahrplan_gui_stats_t::buf(320);
 void fahrplan_gui_stats_t::zeichnen(koord offset)
 {
 	if(fpl) {
-		sint16 width = 16;
+		sint16 width = get_groesse().x-16;
 
 		for (int i = 0; i < fpl->get_count(); i++) {
 
@@ -137,7 +137,7 @@ void fahrplan_gui_stats_t::zeichnen(koord offset)
 			display_color_img( i!=fpl->get_aktuell() ? button_t::arrow_right_normal : button_t::arrow_right_pushed,
 				offset.x + 2, offset.y + i * (LINESPACE + 1), 0, false, true);
 		}
-		set_groesse( koord(width+11, fpl->get_count() * (LINESPACE + 1) ) );
+		set_groesse( koord(width+16, fpl->get_count() * (LINESPACE + 1) ) );
 	}
 }
 

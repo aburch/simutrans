@@ -92,7 +92,7 @@ sprachengui_t::sprachengui_t() :
 	flags(skinverwaltung_t::flaggensymbol?skinverwaltung_t::flaggensymbol->get_bild_nr(0):IMG_LEER),
 	buttons(translator::get_language_count())
 {
-	text_label.set_pos( koord(10,0) );
+	text_label.set_pos( koord(10,-1) );
 	add_komponente( &text_label );
 
 	flags.set_pos( koord(220-60,-2) );

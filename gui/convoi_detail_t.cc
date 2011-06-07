@@ -91,7 +91,6 @@ void convoi_detail_t::zeichnen(koord pos, koord gr)
 		withdraw_button.pressed = cnv->get_withdraw();
 
 		// all gui stuff set => display it
-		veh_info.set_groesse(koord(1,1));
 		gui_frame_t::zeichnen(pos, gr);
 		int offset_y = pos.y+14+16;
 
@@ -237,7 +236,10 @@ gui_vehicleinfo_t::gui_vehicleinfo_t(convoihandle_t cnv)
  */
 void gui_vehicleinfo_t::zeichnen(koord offset)
 {
-	int total_height=5;
+	// keep previous maximum width
+	int x_size = get_groesse().x-51-pos.x;
+
+	int total_height = LINESPACE;
 	if(cnv.is_bound()) {
 		char buf[256], tmp[256];
 
@@ -255,7 +257,7 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 			KOORD_VAL x, y, w, h;
 			const image_id bild=v->get_basis_bild();
 			display_get_base_image_offset(bild, &x, &y, &w, &h );
-			display_base_img(bild,11-x+pos.x+offset.x,pos.y+offset.y+total_height-y,cnv->get_besitzer()->get_player_nr(),false,true);
+			display_base_img(bild,11-x+pos.x+offset.x,pos.y+offset.y+total_height-y-LINESPACE+2,cnv->get_besitzer()->get_player_nr(),false,true);
 			w = max(40,w+4)+11;
 
 			// now add the other info
@@ -310,7 +312,11 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 				freight_info.append("\n");
 				v->get_fracht_info(freight_info);
 				// show it
-				display_multiline_text( pos.x+offset.x+w, pos.y+offset.y+total_height+extra_y, freight_info, COL_BLACK );
+				const int px_len = display_multiline_text( pos.x+offset.x+w, pos.y+offset.y+total_height+extra_y, freight_info, COL_BLACK );
+				if(px_len+w>x_size) {
+					x_size = px_len+w;
+				}
+
 				// count returns
 				const char *p=freight_info;
 				for(int i=0; i<freight_info.len(); i++ ) {
@@ -321,12 +327,14 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 				extra_y += returns*LINESPACE;
 			}
 			//skip at least five lines
-			total_height += max(extra_y,4*LINESPACE)+5;
+			total_height += max(extra_y+LINESPACE,5*LINESPACE);
 		}
 	}
 
-	// the size will change as soon something is loaded ...
-	set_groesse( get_groesse()+koord(0,total_height) );
+	koord gr(max(x_size+pos.x,get_groesse().x),total_height);
+	if(  gr!=get_groesse()  ) {
+		set_groesse(gr);
+	}
 }
 
 
