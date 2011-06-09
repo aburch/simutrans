@@ -254,10 +254,10 @@ bool scrollbar_t::infowin_event(const event_t *ev)
 
 	// 2003-11-04 hsiegeln added wheelsupport
 	// prissi: repaired it, was never doing something ...
-	if (IS_WHEELUP(ev) && (type == vertical)) {
+	if (IS_WHEELUP(ev) && (type == vertical) != IS_SHIFT_PRESSED(ev)) {
 		button_press(0);
 	}
-	else if (IS_WHEELDOWN(ev) && (type == vertical)) {
+	else if (IS_WHEELDOWN(ev) && (type == vertical) != IS_SHIFT_PRESSED(ev)) {
 		button_press(1);
 	}
 	else if (IS_LEFTCLICK(ev)  ||  IS_LEFTREPEAT(ev)) {
