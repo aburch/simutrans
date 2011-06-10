@@ -2419,16 +2419,15 @@ void stadt_t::baue_gebaeude(const koord k)
 							// update directions (SENW)
 							streetdir += (1 << i);
 						}
-						weg->set_gehweg(true);
 						// if not current city road standard, then replace it
 						if (weg->get_besch() != welt->get_city_road()) {
 							spieler_t *sp = weg->get_besitzer();
-							if (sp == NULL  ||  (!gr->get_depot()  &&  !gr->is_halt()) ) {
-								if(sp) {
-									spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung());
-								}
+							if (sp == NULL  ||  !gr->get_depot()) {
+								spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung());
+
 								weg->set_besitzer(NULL); // make public
 								weg->set_besch(welt->get_city_road());
+								weg->set_gehweg(true);
 							}
 						}
 						gr->calc_bild();
@@ -2568,19 +2567,18 @@ void stadt_t::renoviere_gebaeude(gebaeude_t* gb)
 			if (gr != NULL && gr->get_weg_hang() == gr->get_grund_hang()) {
 				if (weg_t* const weg = gr->get_weg(road_wt)) {
 					if (i < 4) {
-							// update directions (SENW)
-							streetdir += (1 << i);
+						// update directions (SENW)
+						streetdir += (1 << i);
 					}
-					weg->set_gehweg(true);
 					// if not current city road standard, then replace it
 					if (weg->get_besch() != welt->get_city_road()) {
 						spieler_t *sp = weg->get_besitzer();
-						if (sp == NULL  ||  (!gr->get_depot()  &&  !gr->is_halt()) ) {
-							if(sp) {
-								spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung());
-							}
+						if (sp == NULL  ||  !gr->get_depot()) {
+							spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung());
+
 							weg->set_besitzer(NULL); // make public
 							weg->set_besch(welt->get_city_road());
+							weg->set_gehweg(true);
 						}
 					}
 					gr->calc_bild();
