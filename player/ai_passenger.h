@@ -100,6 +100,8 @@ public:
 
 	virtual void rdwr(loadsave_t *file);
 
+	virtual void laden_abschliessen();
+
 	bool set_active( bool b );
 
 	void step();

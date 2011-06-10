@@ -1445,3 +1445,14 @@ void ai_passenger_t::bescheid_vehikel_problem(convoihandle_t cnv,const koord3d z
 	}
 	spieler_t::bescheid_vehikel_problem( cnv, ziel );
 }
+
+
+void ai_passenger_t::laden_abschliessen()
+{
+	road_vehicle = vehikelbauer_t::vehikel_search( road_wt, welt->get_timeline_year_month(), 50, 80, warenbauer_t::passagiere, false, false );
+	if (road_vehicle == NULL) {
+		// reset state
+		end_stadt = NULL;
+		state = CHECK_CONVOI;
+	}
+}
