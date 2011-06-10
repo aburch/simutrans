@@ -164,6 +164,9 @@ void settings_experimental_general_stats_t::init( einstellungen_t *sets )
 	INIT_NUM( "capital_threshold_size", sets->get_capital_threshold_size(), 10000, 1000000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_BOOL( "quick_city_growth", sets->get_quick_city_growth());
 	INIT_BOOL( "assume_everywhere_connected_by_road", sets->get_assume_everywhere_connected_by_road());
+	INIT_NUM( "spacing_shift_mode", sets->get_spacing_shift_mode(), 0, 2 , gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "spacing_shift_divisor", sets->get_spacing_shift_divisor(), 1, 32767 , gui_numberinput_t::AUTOLINEAR, false );
+
 	SEPERATOR;
 	{
 		gui_component_table_t &tbl = new_table(koord(0, ypos), 2, 9);
@@ -218,6 +221,8 @@ void settings_experimental_general_stats_t::read(einstellungen_t *sets)
 	READ_NUM( sets->set_capital_threshold_size );
 	READ_BOOL( sets->set_quick_city_growth );
 	READ_BOOL( sets->set_assume_everywhere_connected_by_road );
+	READ_NUM( sets->set_spacing_shift_mode );
+	READ_NUM( sets->set_spacing_shift_divisor);
 
 	uint16 default_increase_maintenance_after_years_other;
 	READ_NUM_VALUE( default_increase_maintenance_after_years_other );

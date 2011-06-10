@@ -164,4 +164,5 @@ void win_set_tooltip(int xpos, int ypos, const char *text, const void *const own
  */
 void win_set_static_tooltip(const char *text);
 
+void win_sprintf_ticks(char *p, size_t size, uint32 ticks);
 #endif

@@ -24,7 +24,7 @@ public:
 	};
 
 protected:
-	schedule_t() : abgeschlossen(false), bidirectional(false), mirrored(false), aktuell(0), spacing(0) {}
+	schedule_t() : abgeschlossen(false), bidirectional(false), mirrored(false), same_spacing_shift(true), aktuell(0), spacing(0) {}
 
 public:
 	minivec_tpl<struct linieneintrag_t> eintrag;
@@ -119,12 +119,12 @@ public:
 	 * fügt eine koordinate an stelle aktuell in den Fahrplan ein
 	 * alle folgenden Koordinaten verschieben sich dadurch
 	 */
-	bool insert(const grund_t* gr, uint8 ladegrad = 0, uint8 waiting_time_shift = 0);
+	bool insert(const grund_t* gr, uint8 ladegrad = 0, uint8 waiting_time_shift = 0, sint16 spacing_shift = 0);
 
 	/**
 	 * hängt eine koordinate an den fahrplan an
 	 */
-	bool append(const grund_t* gr, uint8 ladegrad = 0, uint8 waiting_time_shift = 0);
+	bool append(const grund_t* gr, uint8 ladegrad = 0, uint8 waiting_time_shift = 0, sint16 spacing_shift = 0);
 
 	// cleanup a schedule, removes double entries
 	void cleanup();
@@ -154,8 +154,10 @@ public:
 
 	inline bool is_bidirectional() const { return bidirectional; }
 	inline bool is_mirrored() const { return mirrored; }
+	inline bool is_same_spacing_shift() const { return same_spacing_shift; }
 	void set_bidirectional(bool bidirec = true ) { bidirectional = bidirec; }
 	void set_mirrored(bool mir = true ) { mirrored = mir; }
+	void set_same_spacing_shift(bool s = true) { same_spacing_shift = s; }
 
 	virtual schedule_t* copy() = 0;//{ return new schedule_t(this); }
 
@@ -172,6 +174,7 @@ private:
 	bool abgeschlossen;
 	bool bidirectional;
 	bool mirrored;
+	bool same_spacing_shift;
 	uint8 aktuell;
 	sint16 spacing;
 

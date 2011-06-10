@@ -3448,7 +3448,8 @@ void convoi_t::laden() //"load" (Babelfish)
 		sint64 go_on_ticks_spacing = WAIT_INFINITE;
 		if (line.is_bound() && fpl->get_spacing() && line->count_convoys()) {
 			uint32 spacing = welt->ticks_per_world_month/fpl->get_spacing();
-			sint64 wait_from_ticks = (welt->get_zeit_ms()/spacing) * spacing; // remember, it is integer division
+			uint32 spacing_shift = fpl->get_current_eintrag().spacing_shift * welt->ticks_per_world_month/welt->get_einstellungen()->get_spacing_shift_divisor();
+			sint64 wait_from_ticks = (welt->get_zeit_ms()/spacing) * spacing + spacing_shift; // remember, it is integer division
 			int queue_pos = halt.is_bound()?halt->get_queue_pos(self):1;
 			go_on_ticks_spacing = wait_from_ticks + spacing * queue_pos;
 		}
@@ -4938,10 +4939,7 @@ void convoi_t::snprintf_remained_loading_time(char *p, size_t size) const
 	else
 	{
 		uint32 ticks_left = (int)(go_on_ticks - welt->get_zeit_ms());
-		unsigned int hours = (ticks_left * 24) >> welt->ticks_per_world_month_shift;
-		unsigned int minutes = ((ticks_left * 24 * 60) >> welt->ticks_per_world_month_shift)%60;
-		snprintf(p, size, "%u:%02u", hours, minutes);
-		//sprintf(p, "%u:%02u", hours, minutes);
+		win_sprintf_ticks(p, size, ticks_left);
 	}
 }
 

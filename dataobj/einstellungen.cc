@@ -433,6 +433,9 @@ einstellungen_t::einstellungen_t() :
 		}
 	}
 	server_frames_ahead = 4;
+
+	spacing_shift_mode = SPACING_SHIFT_PER_STOP;
+	spacing_shift_divisor = 24*60;
 }
 
 
@@ -1153,6 +1156,11 @@ void einstellungen_t::rdwr(loadsave_t *file)
 				default_player_color[i][1] = 255;
 			}
 		}
+
+		if (file->get_experimental_version() >= 10) {
+			file->rdwr_byte(spacing_shift_mode);
+			file->rdwr_short(spacing_shift_divisor);
+		}
 	}
 }
 
@@ -1718,6 +1726,9 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 
 	city_threshold_size  = contents.get_int("city_threshold_size", city_threshold_size);
 	capital_threshold_size  = contents.get_int("capital_threshold_size", capital_threshold_size);
+	spacing_shift_mode = contents.get_int("spacing_shift_mode", spacing_shift_mode);
+	spacing_shift_divisor = contents.get_int("spacing_shift_divisor", spacing_shift_divisor);
+
 
 	/*
 	 * Selection of savegame format through inifile

@@ -23,6 +23,7 @@
 
 #include "../boden/grund.h"
 
+#include "../dataobj/umgebung.h"
 #include "../dataobj/fahrplan.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
@@ -164,8 +165,11 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	lb_line("Serves Line:"),
 	lb_wait("month wait time"),
 	lb_waitlevel(NULL, COL_WHITE, gui_label_t::right),
+	lb_waitlevel_as_clock(NULL, COL_BLACK, gui_label_t::centered),
 	lb_load("Full load"),
-	lb_spacing("Spacing cnv/month"),
+	lb_spacing("Spacing cnv/month, shift"),
+	lb_spacing_as_clock(NULL, COL_BLACK, gui_label_t::centered),
+	lb_spacing_shift_as_clock(NULL, COL_BLACK, gui_label_t::centered),
 	stats(sp_->get_welt(),sp_),
 	scrolly(&stats),
 	old_fpl(fpl_),
@@ -244,10 +248,15 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 
 	if(  fpl->get_current_eintrag().waiting_time_shift==0  ) {
 		strcpy( str_parts_month, translator::translate("off") );
+		strcpy( str_parts_month_as_clock, translator::translate("off") );
+
 	}
 	else {
 		sprintf( str_parts_month, "1/%d",  1<<(16-fpl->get_current_eintrag().waiting_time_shift) );
+		sint32 ticks_waiting = welt->ticks_per_world_month >> (16-fpl->get_current_eintrag().waiting_time_shift);
+		win_sprintf_ticks(str_parts_month_as_clock, sizeof(str_parts_month_as_clock), ticks_waiting + 1);
 	}
+
 	lb_waitlevel.set_text_pointer( str_parts_month );
 	lb_waitlevel.set_pos( koord( BUTTON_WIDTH*2-20, ypos+3 ) );
 	add_komponente(&lb_waitlevel);
@@ -265,6 +274,12 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 
 	ypos += BUTTON_HEIGHT;
 
+	lb_waitlevel_as_clock.set_text_pointer (str_parts_month_as_clock);
+	lb_waitlevel_as_clock.set_pos( koord( BUTTON_WIDTH*2-35, ypos+2 ) );
+	add_komponente(&lb_waitlevel_as_clock);
+
+	ypos += BUTTON_HEIGHT;
+
 	// Spacing
 	if ( !cnv.is_bound() ) {
 		lb_spacing.set_pos( koord( 10, ypos+2 ) );
@@ -277,9 +292,42 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 		numimp_spacing.set_increment_mode( 1 );
 		numimp_spacing.add_listener(this);
 		add_komponente(&numimp_spacing);
-	}
 
-	ypos += BUTTON_HEIGHT;
+		// Spacing shift
+		int spacing_shift_mode = welt->get_einstellungen()->get_spacing_shift_mode();
+		if ( spacing_shift_mode > einstellungen_t::SPACING_SHIFT_DISABLED) {
+			numimp_spacing_shift.set_pos( koord( BUTTON_WIDTH*2 + 65, ypos+2 ) );
+			numimp_spacing_shift.set_groesse( koord( 60, BUTTON_HEIGHT ) );
+			numimp_spacing_shift.set_value( fpl->get_current_eintrag().spacing_shift  );
+			numimp_spacing_shift.set_limits( 0, welt->get_einstellungen()->get_spacing_shift_divisor() );
+			numimp_spacing_shift.set_increment_mode( 1 );
+			numimp_spacing_shift.add_listener(this);
+			add_komponente(&numimp_spacing_shift);
+		}
+
+		ypos += BUTTON_HEIGHT;
+
+		if (spacing_shift_mode > einstellungen_t::SPACING_SHIFT_PER_LINE) {
+			//Same spacing button
+			bt_same_spacing_shift.init(button_t::square_automatic, "Use same shift for all stops.", koord( 10 , ypos+2 ), koord(BUTTON_WIDTH,BUTTON_HEIGHT) );
+			bt_same_spacing_shift.set_tooltip("Use one spacing shift value for all stops in schedule.");
+			bt_same_spacing_shift.pressed = fpl->is_same_spacing_shift();
+			bt_same_spacing_shift.add_listener(this);
+			add_komponente(&bt_same_spacing_shift);
+		}
+
+		lb_spacing_as_clock.set_pos(koord( BUTTON_WIDTH*2 + 30 , ypos+2 ) );
+		lb_spacing_as_clock.set_text_pointer(str_spacing_as_clock);
+		add_komponente(&lb_spacing_as_clock);
+
+		if (spacing_shift_mode > einstellungen_t::SPACING_SHIFT_PER_LINE) {
+			lb_spacing_shift_as_clock.set_pos(koord( BUTTON_WIDTH*2 + 95, ypos+2 ) );
+			lb_spacing_shift_as_clock.set_text_pointer(str_spacing_shift_as_clock);
+			add_komponente(&lb_spacing_shift_as_clock);
+		}
+
+		ypos += BUTTON_HEIGHT;
+	}
 
 	bt_add.init(button_t::roundbox_state, "Add Stop", koord( 0, ypos ), koord(BUTTON_WIDTH,BUTTON_HEIGHT) );
 	bt_add.set_tooltip("Appends stops at the end of the schedule");
@@ -351,21 +399,41 @@ void fahrplan_gui_t::update_selection()
 	lb_load.set_color( COL_GREY3 );
 	lb_wait.set_color( COL_GREY3 );
 	lb_spacing.set_color( COL_GREY3 );
+	lb_spacing_as_clock.set_color( COL_GREY3 );
+	snprintf(str_spacing_as_clock, sizeof(str_spacing_as_clock), "%s", translator::translate("off") );
+	lb_spacing_shift.set_color( COL_GREY3 );
+	lb_spacing_shift_as_clock.set_color( COL_GREY3 );
+	snprintf(str_spacing_shift_as_clock, sizeof(str_spacing_shift_as_clock), "%s", translator::translate("off") );
+
 	if (!fpl->empty()) {
 		fpl->set_aktuell( min(fpl->get_count()-1,fpl->get_aktuell()) );
 		const uint8 aktuell = fpl->get_aktuell();
 		if(  haltestelle_t::get_halt(sp->get_welt(), fpl->eintrag[aktuell].pos, sp).is_bound()  ) {
 			lb_load.set_color( COL_BLACK );
 			numimp_load.set_value( fpl->eintrag[aktuell].ladegrad );
+			numimp_spacing_shift.set_value(fpl->eintrag[aktuell].spacing_shift);
 			if(  fpl->eintrag[aktuell].ladegrad>0  ) {
 				lb_wait.set_color( COL_BLACK );
 				lb_spacing.set_color( COL_BLACK );
+				if (fpl->get_spacing() ) {
+					lb_spacing_shift.set_color( COL_BLACK );
+					lb_spacing_as_clock.set_color( COL_BLACK );
+					lb_spacing_shift_as_clock.set_color( COL_BLACK );
+
+					win_sprintf_ticks(str_spacing_as_clock, sizeof(str_spacing_as_clock), welt->ticks_per_world_month/fpl->get_spacing());
+					win_sprintf_ticks(str_spacing_shift_as_clock, sizeof(str_spacing_as_clock),
+							fpl->eintrag[aktuell].spacing_shift * welt->ticks_per_world_month/welt->get_einstellungen()->get_spacing_shift_divisor()+1
+							);
+				}
 			}
 			if(  fpl->eintrag[aktuell].ladegrad>0  &&  fpl->eintrag[aktuell].waiting_time_shift>0  ) {
 				sprintf( str_parts_month, "1/%d",  1<<(16-fpl->eintrag[aktuell].waiting_time_shift) );
+				sint32 ticks_waiting = welt->ticks_per_world_month >> (16-fpl->get_current_eintrag().waiting_time_shift);
+				win_sprintf_ticks(str_parts_month_as_clock, sizeof(str_parts_month_as_clock), ticks_waiting + 1);
 			}
 			else {
 				strcpy( str_parts_month, translator::translate("off") );
+				strcpy( str_parts_month_as_clock, translator::translate("off") );
 			}
 		}
 		else {
@@ -374,7 +442,6 @@ void fahrplan_gui_t::update_selection()
 		}
 	}
 }
-
 
 /**
  * Mausklicks werden hiermit an die GUI-Komponenten
@@ -509,10 +576,29 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 		fpl->add_return_way();*/
 	} else if (komp == &numimp_spacing) {
 		fpl->set_spacing(p.i);
+		update_selection();
+	} else if(komp == &numimp_spacing_shift) {
+		if (!fpl->empty()) {
+			if ( fpl->is_same_spacing_shift() ) {
+			    for(  uint8 i=0;  i<fpl->eintrag.get_count();  i++  ) {
+					fpl->eintrag[i].spacing_shift = p.i;
+				}
+			} else {
+				fpl->eintrag[fpl->get_aktuell()].spacing_shift = p.i;
+			}
+			update_selection();
+		}
 	} else if (komp == &bt_mirror) {
 		fpl->set_mirrored(bt_mirror.pressed);
 	} else if (komp == &bt_bidirectional) {
 		fpl->set_bidirectional(bt_bidirectional.pressed);
+	} else if (komp == &bt_same_spacing_shift) {
+		fpl->set_same_spacing_shift(bt_same_spacing_shift.pressed);
+		if ( fpl->is_same_spacing_shift() ) {
+		    for(  uint8 i=0;  i<fpl->eintrag.get_count();  i++  ) {
+				fpl->eintrag[i].spacing_shift = fpl->eintrag[fpl->get_aktuell()].spacing_shift;
+			}
+		}
 	} else if (komp == &line_selector) {
 		int selection = p.i;
 //DBG_MESSAGE("fahrplan_gui_t::action_triggered()","line selection=%i",selection);

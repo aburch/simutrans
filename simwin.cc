@@ -1646,3 +1646,11 @@ void win_set_static_tooltip(const char *text)
 {
 	static_tooltip_text = text;
 }
+
+/* copied from date formatting code, umgebung_t::show_month <= umgebung_t::DATE_FMT_MONTH
+*/
+void win_sprintf_ticks(char *p, size_t size, uint32 ticks) {
+	unsigned int hours = (ticks * 24) >> wl->ticks_per_world_month_shift;
+	unsigned int minutes = ((ticks * 24 * 60) >> wl->ticks_per_world_month_shift)%60;
+	snprintf(p, size, "%u:%02u", hours, minutes);
+}
