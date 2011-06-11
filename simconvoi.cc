@@ -4640,7 +4640,7 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 		{
 			depot_pos = route.position_bei(route.get_count()-1);
 		}		
-		fpl->insert(welt->lookup(depot_pos));
+		fpl->insert(welt->lookup(depot_pos), 0, 0, besitzer_p == welt->get_active_player());
 		fpl->set_aktuell( (fpl->get_aktuell()+fpl->get_count()-1)%fpl->get_count() );
 		b_depot_found = set_schedule(fpl);
 	}
