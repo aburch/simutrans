@@ -216,6 +216,9 @@ private:
 	sint32 delta_sum;
 	uint32 delta_menge;
 
+	// Knightly : number of rounds where there is active production or consumption
+	uint8 activity_count;
+
 	// true if the factory has a transformer adjacent
 	bool transformer_connected;
 

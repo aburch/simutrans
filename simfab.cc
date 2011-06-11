@@ -636,6 +636,7 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 
 	delta_sum = 0;
 	delta_menge = 0;
+	activity_count = 0;
 	currently_producing = false;
 	transformer_connected = false;
 	power = 0;
@@ -735,7 +736,7 @@ void fabrik_t::baue(sint32 rotate, bool build_fields)
 		else {
 			if (build_fields) {
 				// we will start with a certain minimum number
-				while(fields.get_count()<besch->get_field_group()->get_min_fields()  &&  add_random_field(0))
+				while(fields.get_count()<besch->get_field_group()->get_min_fields()  &&  add_random_field(10000u))
 					;
 			}
 		}
@@ -744,7 +745,6 @@ void fabrik_t::baue(sint32 rotate, bool build_fields)
 
 
 /* field generation code
- * spawns a field for sure if probability==0 and zero for 1024
  * @author Kieron Green
  */
 bool fabrik_t::add_random_field(uint16 probability)
@@ -755,7 +755,7 @@ bool fabrik_t::add_random_field(uint16 probability)
 		return false;
 	}
 	// we are lucky and are allowed to generate a field
-	if(simrand(10000)<probability) {
+	if(  simrand(10000)>=probability  ) {
 		return false;
 	}
 
@@ -1135,6 +1135,13 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 	}
 	arrival_stats_pax.rdwr( file );
 	arrival_stats_mail.rdwr( file );
+
+	if(  file->get_version()>=110007  ) {
+		file->rdwr_byte(activity_count);
+	}
+	else if(  file->is_loading()  ) {
+		activity_count = 0;
+	}
 }
 
 
@@ -1445,22 +1452,25 @@ void fabrik_t::step(long delta_t)
 		// (if consumer only: all supplements should be consumed once)
 		const uint32 min_change = ausgang.empty() ? eingang.get_count() : ausgang.get_count();
 
-		if((delta_menge>>fabrik_t::precision_bits) > min_change) {
+		if(  (delta_menge>>fabrik_t::precision_bits)>min_change  ) {
 
 			// we produced some real quantity => smoke
 			smoke();
 
-			if(  besch->get_field_group()  ) {
-				if(  fields.get_count()<besch->get_field_group()->get_max_fields()  ) {
-					// spawn new field with given probability
-					add_random_field(besch->get_field_group()->get_probability());
+			// Knightly : chance to expand every 256 rounds of activities, after which activity count will return to 0 (overflow behaviour)
+			if(  ++activity_count==0  ) {
+				if(  besch->get_field_group()  ) {
+					if(  fields.get_count()<besch->get_field_group()->get_max_fields()  ) {
+						// spawn new field with given probability
+						add_random_field(besch->get_field_group()->get_probability());
+					}
 				}
-			}
-			else {
-				if(  times_expanded<besch->get_expand_times()  ) {
-					if(  simrand(10000)<besch->get_expand_probability()  ) {
-						set_base_production( prodbase + besch->get_expand_minumum() + simrand( besch->get_expand_range() ) );
-						++times_expanded;
+				else {
+					if(  times_expanded<besch->get_expand_times()  ) {
+						if(  simrand(10000)<besch->get_expand_probability()  ) {
+							set_base_production( prodbase + besch->get_expand_minumum() + simrand( besch->get_expand_range() ) );
+							++times_expanded;
+						}
 					}
 				}
 			}
@@ -1469,6 +1479,7 @@ void fabrik_t::step(long delta_t)
 			// reset for next cycle
 			delta_menge = 0;
 		}
+
 	}
 
 	// Knightly : advance arrival slot at calculated interval and recalculate boost where necessary

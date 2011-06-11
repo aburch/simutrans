@@ -11,6 +11,23 @@
 #include "factory_reader.h"
 
 
+// Knightly : determine the combined probability of 256 rounds of chances
+uint16 rescale_probability(const uint16 p)
+{
+	if(  p  ) {
+		sint64 pp = ( (sint64)p << 30 ) / 10000LL;
+		sint64 qq = ( 1LL << 30 ) - pp;
+		uint16 ss = 256u;
+		while(  (ss >>= 1)  ) {
+			pp += (pp * qq) >> 30;
+			qq = (qq * qq) >> 30;
+		}
+		return (uint16)(((pp * 10000LL) + (1LL << 29)) >> 30);
+	}
+	return p;
+}
+
+
 obj_besch_t *factory_field_class_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	ALLOCA(char, besch_buf, node.size);
@@ -54,7 +71,7 @@ obj_besch_t *factory_field_group_reader_t::read_node(FILE *fp, obj_node_info_t &
 	uint16 v = decode_uint16(p);
 	if(  v==0x8002  ) {
 		// Knightly : this version only store shared, common data
-		besch->probability = decode_uint16(p);
+		besch->probability = rescale_probability( decode_uint16(p) );
 		besch->max_fields = decode_uint16(p);
 		besch->min_fields = decode_uint16(p);
 		besch->field_classes = decode_uint16(p);
@@ -69,7 +86,7 @@ obj_besch_t *factory_field_group_reader_t::read_node(FILE *fp, obj_node_info_t &
 		field_class_besch_t *const field_class_besch = new field_class_besch_t();
 
 		field_class_besch->snow_image = decode_uint8(p);
-		besch->probability = decode_uint16(p);
+		besch->probability = rescale_probability( decode_uint16(p) );
 		field_class_besch->production_per_field = decode_uint16(p);
 		besch->max_fields = decode_uint16(p);
 		besch->min_fields = decode_uint16(p);
@@ -88,8 +105,6 @@ obj_besch_t *factory_field_group_reader_t::read_node(FILE *fp, obj_node_info_t &
 	else {
 		dbg->fatal("factory_field_group_reader_t::read_node()","unknown version %i", v&0x00ff );
 	}
-
-	besch->probability = 10000 - min(10000, besch->probability);
 
 	return besch;
 }
@@ -240,7 +255,7 @@ obj_besch_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->lieferanten = decode_uint16(p);
 		besch->produkte = decode_uint16(p);
 		besch->pax_level = decode_uint16(p);
-		besch->expand_probability = decode_uint16(p);
+		besch->expand_probability = rescale_probability( decode_uint16(p) );
 		besch->expand_minimum = decode_uint16(p);
 		besch->expand_range = decode_uint16(p);
 		besch->expand_times = decode_uint16(p);
@@ -320,6 +335,7 @@ obj_besch_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->pax_demand = 65535;
 		besch->mail_demand = 65535;
 	}
+
 	return besch;
 }
 
