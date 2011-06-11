@@ -1584,6 +1584,9 @@ sint16 haltestelle_t::create_reachable_halt_list(const schedule_t *const sched, 
 		for (uint8 i = 0; i < 3*entry_count; i++)
 		{
 			tmp_halt = haltestelle_t::get_halt(welt, sched->eintrag[index].pos, sched_owner);
+
+			const char* TEST_NAME_THIS = this->get_name();
+			const char* TEST_NAME_OTHER = tmp_halt->get_name();
 			
 			if ( tmp_halt == self && self_halt_idx == -1 )
 			{
