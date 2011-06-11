@@ -147,7 +147,7 @@ static inline int max(const int a, const int b)
 }
 
 // @author: jamespetts, April 2011
-template<class T> static T set_scale_generic(T value, uint16 scale_factor) { return (value * (T)scale_factor) / 100; }
+template<class T> static T set_scale_generic(T value, uint16 scale_factor) { return (value * (T)scale_factor) / 1000; }
 
 // endian coversion routines
 
