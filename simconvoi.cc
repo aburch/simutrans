@@ -4573,6 +4573,17 @@ public:
 	};
 };
 
+void convoi_t::set_depot_when_empty(bool new_dwe) 
+{ 
+	if(loading_level > 0)
+	{
+		depot_when_empty = new_dwe;
+	}
+	else
+	{
+		go_to_depot(get_besitzer() == welt->get_active_player());
+	}
+}
 
 /**
  * Convoy is sent to depot.  Return value, success or not.

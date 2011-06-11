@@ -970,7 +970,7 @@ public:
 
 	bool get_depot_when_empty() const { return depot_when_empty; }
 
-	void set_depot_when_empty(bool new_dwe) 
+	void set_depot_when_empty(bool new_dwe, bool show_success = true) 
 	{ 
 		if(loading_level > 0)
 		{
@@ -978,7 +978,7 @@ public:
 		}
 		else
 		{
-			go_to_depot(true);
+			go_to_depot(show_success);
 		}
 	}
 
