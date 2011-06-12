@@ -85,10 +85,6 @@ bool freight_list_sorter_t::compare_ware(ware_t const& w1, ware_t const& w2)
 void
 freight_list_sorter_t::add_ware_heading( cbuffer_t &buf, uint32 sum, uint32 max, const ware_t *ware, const char *what_doing )
 {
-	// buffer full, no need to proceed
-	if (buf.is_full()) {
-		return;
-	}
 	// not the first line?
 	if(buf.len()>0) {
 		buf.append("\n");
@@ -239,11 +235,6 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 				buf.append("\n");
 			}
 			// debug ende
-
-			// buffer full, no need to proceed
-			if (buf.is_full()) {
-				break;
-			}
 		}
 	}
 

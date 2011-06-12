@@ -32,11 +32,6 @@ public:
 	int len() const { return size; }
 
 	/**
-	 * if (is_full) then the buffer has to be extended to be able to receive more chars
-	 */
-	bool is_full() const { return size >= (capacity-1); }
-
-	/**
 	 * Creates a new cbuffer with capacity cap
 	 * @param cap the capacity
 	 * @author Hj. Malthaner
