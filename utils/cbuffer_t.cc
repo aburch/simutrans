@@ -77,19 +77,20 @@ void cbuffer_t::printf(const char* fmt, ...)
 			size += count;
 			break;
 		} else {
-			// Make room for the string, but at least double the size of the buffer.
-			inc = (size_t)count + 1 /* for NUL */ - n;
-			if (inc < capacity)
-				inc = capacity;
+			// Make room for the string.
+			inc = (size_t)count - n;
 		}
 		extend(inc);
 	}
 }
 
 
-void cbuffer_t::extend(const unsigned int by_amount)
+void cbuffer_t::extend(unsigned int by_amount)
 {
-	if(  size+by_amount>=capacity  ) {
+	if (by_amount >= capacity - size) {
+		by_amount = by_amount + 1 - (capacity - size);
+		if (by_amount < capacity) // At least double the size of the buffer.
+			by_amount = capacity;
 		unsigned int new_capacity = capacity + by_amount;
 		char *new_buf = new char [new_capacity];
 		memcpy( new_buf, buf, capacity );

@@ -63,7 +63,7 @@ public:
 	void printf(const char* fmt, ...);
 
 	/* enlarge the buffer if needed (i.e. size+by_amount larger than capacity) */
-	void extend( const unsigned int by_amount );
+	void extend(unsigned int by_amount);
 
 	/**
 	 * Automagic conversion to a const char* for backwards compatibility
