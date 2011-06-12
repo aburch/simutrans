@@ -566,7 +566,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 			sys_event.type = SIM_MOUSE_BUTTONS;
 			sys_event.code = GET_WHEEL_DELTA_WPARAM(wParam) > 0 ? SIM_MOUSE_WHEELUP : SIM_MOUSE_WHEELDOWN;
 			sys_event.key_mod = ModifierKeys();
-			/* the returned coordinate in LPARAM are absolute coordinates, which will deeply confuse símutrans
+			/* the returned coordinate in LPARAM are absolute coordinates, which will deeply confuse simutrans
 			 * we just reuse the coordinates we used the last time but not chaning mx/my ...
 			 */
 			return 0;
