@@ -1539,16 +1539,16 @@ public:
 void fabrik_t::verteile_waren(const uint32 produkt)
 {
 	// wohin liefern ?
-	if (lieferziele.empty()) {
+	if(  lieferziele.empty()  ) {
 		return;
 	}
 
 	// not connected?
 	const planquadrat_t *plan = welt->lookup(pos.get_2d());
-	if(plan==NULL) {
+	if(  plan == NULL  ) {
 		dbg->fatal("fabrik_t::verteile_waren", "%s has not distibution target", get_name() );
 	}
-	if(plan->get_haltlist_count()==0) {
+	if(  plan->get_haltlist_count() == 0  ) {
 		return;
 	}
 
@@ -1572,12 +1572,12 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 	for(  unsigned i=0;  i<plan->get_haltlist_count();  i++  ) {
 		halthandle_t halt = haltlist[(i + index_offset) % plan->get_haltlist_count()];
 
-		if (!halt->get_ware_enabled()) {
+		if(  !halt->get_ware_enabled()  ) {
 			continue;
 		}
 
 		// Über alle Ziele iterieren
-		for(uint32 n=0; n<lieferziele.get_count(); n++) {
+		for(  uint32 n=0;  n<lieferziele.get_count();  n++  ) {
 
 			// prissi: this way, the halt, that is tried first, will change. As a result, if all destinations are empty, it will be spread evenly
 			const koord lieferziel = lieferziele[(n + index_offset) % lieferziele.get_count()];
@@ -1585,7 +1585,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 			fabrik_t * ziel_fab = get_fab(welt, lieferziel);
 			int vorrat;
 
-			if (ziel_fab && (vorrat = ziel_fab->verbraucht(ausgang[produkt].get_typ())) >= 0) {
+			if(  ziel_fab  &&  (vorrat = ziel_fab->verbraucht(ausgang[produkt].get_typ())) >= 0  ) {
 				ware_t ware(ausgang[produkt].get_typ());
 				ware.menge = menge;
 				ware.to_factory = 1;
@@ -1593,7 +1593,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 
 				unsigned w;
 				// find the index in the target factory
-				for (w = 0; w < ziel_fab->get_eingang().get_count() && ziel_fab->get_eingang()[w].get_typ() != ware.get_besch(); w++) {
+				for(  w = 0;  w < ziel_fab->get_eingang().get_count()  &&  ziel_fab->get_eingang()[w].get_typ() != ware.get_besch();  w++  ) {
 					// empty
 				}
 
@@ -1601,17 +1601,17 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 				// else deliver to non-overflown factory
 				const bool overflown = (ziel_fab->get_eingang()[w].menge >= ziel_fab->get_eingang()[w].max);
 
-				if (!welt->get_settings().get_just_in_time()) {
+				if(  !welt->get_settings().get_just_in_time()  ) {
 
 					// distribution also to overflowing factories
-					if(still_overflow  &&  !overflown) {
+					if(  still_overflow  &&  !overflown  ) {
 						// not overflowing factory found
 						still_overflow = false;
 						dist_list.clear();
 					}
 				}
 
-				if (!overflown || (!welt->get_settings().get_just_in_time() && still_overflow)) {
+				if(  !overflown  ||  (!welt->get_settings().get_just_in_time()  &&  still_overflow)  ) {
 					// Station can only store up to a maximum amount of goods per square
 					const sint32 halt_left = (sint32)halt->get_capacity(2) - (sint32)halt->get_ware_summe(ware.get_besch());
 
@@ -1622,20 +1622,21 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 	}
 
 	// Auswertung der Ergebnisse
-	if (!dist_list.empty()) {
+	if(  !dist_list.empty()  ) {
 
 		distribute_ware_t *best = NULL;
-		for(uint32 i=0; i<dist_list.get_count(); i++) {
+		for(  uint32 i=0;  i<dist_list.get_count();  i++  ) {
 			ware_t& ware = dist_list[i].ware;
 			// now search route
 			const int result = haltestelle_t::search_route(&dist_list[i].halt, 1U, welt->get_settings().is_no_routing_over_overcrowding(), ware);
-			if (result == haltestelle_t::ROUTE_OK  ||  result == haltestelle_t::ROUTE_WALK) {
+			if(  result == haltestelle_t::ROUTE_OK  ||  result == haltestelle_t::ROUTE_WALK  ) {
+				// we can deliver to this destination
 				best = &dist_list[i];
 				break;
 			}
 		}
 
-		if (best == NULL) {
+		if(  best == NULL  ) {
 			return; // no route for any destination
 		}
 
@@ -1646,20 +1647,20 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 
 		menge = min( menge, 9 + best->space_left );
 		// ensure amount is not negative ...
-		if(menge<0) {
+		if(  menge<0  ) {
 			menge = 0;
 		}
 		// since it is assigned here to an unsigned variable!
 		best_ware.menge = menge;
 
-		if(best->space_left<0) {
+		if(  best->space_left<0  ) {
 
 			// find, what is most waiting here from us
 			ware_t most_waiting(ausgang[produkt].get_typ());
 			most_waiting.menge = 0;
-			for(uint32 n=0; n<lieferziele.get_count(); n++) {
+			for(  uint32 n=0;  n<lieferziele.get_count();  n++  ) {
 				const uint32 amount = (sint32)best_halt->get_ware_fuer_zielpos( ausgang[produkt].get_typ(), lieferziele[n] );
-				if(amount > most_waiting.menge) {
+				if(  amount > most_waiting.menge  ) {
 					most_waiting.set_zielpos( lieferziele[n] );
 					most_waiting.menge = amount;
 				}
@@ -1667,9 +1668,9 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 
 
 			//  we will reroute some goods
-			if(best->amount_waiting==0  &&  most_waiting.menge>0) {
+			if(  best->amount_waiting==0  &&  most_waiting.menge>0  ) {
 				// remove something from the most waiting goods
-				if(best_halt->recall_ware( most_waiting, min(most_waiting.menge/2, 1 - best->space_left) ) ) {
+				if(  best_halt->recall_ware( most_waiting, min(most_waiting.menge/2, 1 - best->space_left) )  ) {
 					best_ware.menge += most_waiting.menge;
 				}
 				else {

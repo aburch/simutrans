@@ -541,12 +541,12 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 	int const lang = welt->get_settings().get_name_language_id();
 	stadt_t *stadt = welt->suche_naechste_stadt(k);
 	const char *stop = translator::translate(typ,lang);
-	char buf[1024];
+	cbuffer_t buf(1024);
 
 	// this fails only, if there are no towns at all!
 	if(stadt==NULL) {
 		// get a default name
-		sprintf( buf, translator::translate("land stop %i %s",lang), get_besitzer()->get_haltcount(), stop );
+		buf.printf( translator::translate("land stop %i %s",lang), get_besitzer()->get_haltcount(), stop );
 		return strdup(buf);
 	}
 
@@ -622,7 +622,7 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 		slist_iterator_tpl<fabrik_t*> fab_iter(fabs);
 		while (fab_iter.next()) {
 			// with factories
-			sprintf(buf, fab_base, city_name, translator::translate(fab_iter.get_current()->get_besch()->get_name(),lang), stop );
+			buf.printf( fab_base, city_name, translator::translate(fab_iter.get_current()->get_besch()->get_name(),lang), stop );
 			if(  !all_names.get(buf).is_bound()  ) {
 				return strdup(buf);
 			}
@@ -657,7 +657,7 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 				continue;
 			}
 			// now we have a name: try it
-			sprintf(buf, translator::translate("%s building %s %s",lang), city_name, building_name, stop );
+			buf.printf( translator::translate("%s building %s %s",lang), city_name, building_name, stop );
 			if(  !all_names.get(buf).is_bound()  ) {
 				return strdup(buf);
 			}
@@ -730,11 +730,11 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 				}
 				if(count_s==3) {
 					// ok, try this name, if free ...
-					sprintf(buf, base_name, city_name, dirname, stop );
+					buf.printf( base_name, city_name, dirname, stop );
 				}
 				else {
 					// ok, try this name, if free ...
-					sprintf(buf, base_name, city_name, stop );
+					buf.printf( base_name, city_name, stop );
 				}
 				if(  !all_names.get(buf).is_bound()  ) {
 					return strdup(buf);
@@ -766,7 +766,7 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 
 	// finally: is there a stop with this name already?
 	for(  uint32 i=1;  i<65536;  i++  ) {
-		sprintf(buf, base_name, city_name, i, stop );
+		buf.printf( base_name, city_name, i, stop );
 		if(  !all_names.get(buf).is_bound()  ) {
 			return strdup(buf);
 		}

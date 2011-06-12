@@ -31,6 +31,8 @@
 #include "../tpl/array_tpl.h"
 #include "../sucher/bauplatz_sucher.h"
 
+#include "../utils/cbuffer_t.h"
+
 #include "../gui/karte.h"	// to update map after construction of new industry
 
 // radius for checking places for construction
@@ -929,8 +931,8 @@ next_ware_check:
 			if(tell_me) {
 				stadt_t *s = welt->suche_naechste_stadt( last_built_consumer->get_pos().get_2d() );
 				const char *stadt_name = s ? s->get_name() : "simcity";
-				char buf[256];
-				sprintf(buf, translator::translate("Factory chain extended\nfor %s near\n%s built with\n%i factories."), translator::translate(last_built_consumer->get_name()), stadt_name, nr );
+				cbuffer_t buf(256);
+				buf.printf( translator::translate("Factory chain extended\nfor %s near\n%s built with\n%i factories."), translator::translate(last_built_consumer->get_name()), stadt_name, nr );
 				welt->get_message()->add_message(buf, last_built_consumer->get_pos().get_2d(), message_t::industry, CITY_KI, last_built_consumer->get_besch()->get_haus()->get_tile(0)->get_hintergrund(0, 0, 0));
 			}
 			reliefkarte_t::get_karte()->calc_map();
@@ -992,8 +994,8 @@ next_ware_check:
 						if(tell_me) {
 							stadt_t *s = welt->suche_naechste_stadt( pos.get_2d() );
 							const char *stadt_name = s ? s->get_name() : "simcity";
-							char buf[256];
-							sprintf(buf, translator::translate("New factory chain\nfor %s near\n%s built with\n%i factories."), translator::translate(our_fab->get_name()), stadt_name, nr );
+							cbuffer_t buf(256);
+							buf.printf( translator::translate("New factory chain\nfor %s near\n%s built with\n%i factories."), translator::translate(our_fab->get_name()), stadt_name, nr );
 							welt->get_message()->add_message(buf, pos.get_2d(), message_t::industry, CITY_KI, our_fab->get_besch()->get_haus()->get_tile(0)->get_hintergrund(0, 0, 0));
 						}
 						return nr;

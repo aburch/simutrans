@@ -225,22 +225,18 @@ void wegbauer_t::neuer_monat(karte_t *welt)
 		stringhashtable_iterator_tpl<const weg_besch_t *> iter(alle_wegtypen);
 		while(iter.next()) {
 			const weg_besch_t * besch = iter.get_current_value();
-			char	buf[256];
+			cbuffer_t buf(256);
 
 			const uint16 intro_month = besch->get_intro_year_month();
 			if(intro_month == current_month) {
-				sprintf(buf,
-					translator::translate("way %s now available:\n"),
-					translator::translate(besch->get_name()));
-					welt->get_message()->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,besch->get_bild_nr(5,0));
+				buf.printf( translator::translate("way %s now available:\n"), translator::translate(besch->get_name()) );
+				welt->get_message()->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,besch->get_bild_nr(5,0));
 			}
 
 			const uint16 retire_month = besch->get_retire_year_month();
 			if(retire_month == current_month) {
-				sprintf(buf,
-					translator::translate("way %s cannot longer used:\n"),
-					translator::translate(besch->get_name()));
-					welt->get_message()->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,besch->get_bild_nr(5,0));
+				buf.printf( translator::translate("way %s cannot longer used:\n"), translator::translate(besch->get_name()) );
+				welt->get_message()->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,besch->get_bild_nr(5,0));
 			}
 		}
 

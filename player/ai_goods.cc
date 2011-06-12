@@ -27,6 +27,7 @@
 #include "../dings/wayobj.h"
 
 #include "../utils/simstring.h"
+#include "../utils/cbuffer_t.h"
 
 #include "../vehicle/simvehikel.h"
 
@@ -1127,10 +1128,10 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 		case NR_RAIL_SUCCESS:
 		{
 			// tell the player
-			char buf[256];
+			cbuffer_t buf(256);
 			const koord3d& spos = start->get_pos();
 			const koord3d& zpos = ziel->get_pos();
-			sprintf(buf, translator::translate("%s\nopened a new railway\nbetween %s\nat (%i,%i) and\n%s at (%i,%i)."), get_name(), translator::translate(start->get_name()), spos.x, spos.y, translator::translate(ziel->get_name()), zpos.x, zpos.y);
+			buf.printf( translator::translate("%s\nopened a new railway\nbetween %s\nat (%i,%i) and\n%s at (%i,%i)."), get_name(), translator::translate(start->get_name()), spos.x, spos.y, translator::translate(ziel->get_name()), zpos.x, zpos.y);
 			welt->get_message()->add_message(buf, spos.get_2d(), message_t::ai, PLAYER_FLAG|player_nr, rail_engine->get_basis_bild());
 
 			harbour = koord::invalid;
@@ -1142,10 +1143,10 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 		case NR_ROAD_SUCCESS:
 		{
 			// tell the player
-			char buf[256];
+			cbuffer_t buf(256);
 			const koord3d& spos = start->get_pos();
 			const koord3d& zpos = ziel->get_pos();
-			sprintf(buf, translator::translate("%s\nnow operates\n%i trucks between\n%s at (%i,%i)\nand %s at (%i,%i)."), get_name(), count_road, translator::translate(start->get_name()), spos.x, spos.y, translator::translate(ziel->get_name()), zpos.x, zpos.y);
+			buf.printf( translator::translate("%s\nnow operates\n%i trucks between\n%s at (%i,%i)\nand %s at (%i,%i)."), get_name(), count_road, translator::translate(start->get_name()), spos.x, spos.y, translator::translate(ziel->get_name()), zpos.x, zpos.y);
 			welt->get_message()->add_message(buf, spos.get_2d(), message_t::ai, PLAYER_FLAG|player_nr, road_vehicle->get_basis_bild());
 
 			harbour = koord::invalid;

@@ -14,6 +14,7 @@
 #include "components/gui_label.h"
 #include "components/action_listener.h"
 #include "goods_stats_t.h"
+#include "../utils/cbuffer_t.h"
 
 class karte_t;
 
@@ -34,7 +35,7 @@ private:
 
 	karte_t * welt;
 	char	speed_bonus[6];
-	char	speed_message[256];
+	cbuffer_t	speed_message;
 	uint16 good_list[256];
 
 	gui_label_t sort_label;
