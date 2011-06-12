@@ -39,13 +39,6 @@ public:
 	station_building_select_t(karte_t *welt, const haus_besch_t *besch);
 
 	/**
-	* Manche Fenster haben einen Hilfetext assoziiert.
-	* @return den Dateinamen für die Hilfe, oder NULL
-	* @author Hj. Malthaner
-	*/
-//	const char * get_hilfe_datei() const { return ".txt"; }
-
-	/**
 	 * This method is called if an action is triggered
 	 * @author Hj. Malthaner
 	 *
