@@ -1442,7 +1442,8 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	}
 
 	maint_building = contents.get_int("maintenance_building", maint_building);
-	maint_building *= distance_per_tile;
+	const sint32 inverse_distance_per_tile = 1 / distance_per_tile;
+	maint_building /= inverse_distance_per_tile;
 
 	numbered_stations = contents.get_int("numbered_stations", numbered_stations );
 	station_coverage_size = contents.get_int("station_coverage", station_coverage_size );
