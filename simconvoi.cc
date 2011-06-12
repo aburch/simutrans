@@ -3538,7 +3538,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 
 	const ware_besch_t* goods = ware.get_besch();
 	const uint16 price = goods->get_preis();
-	const sint32 min_price = (sint32)price << 7;
+	const uint32 min_price = price / 10;
 	const uint16 speed_bonus_rating = calc_adjusted_speed_bonus(goods->get_speed_bonus(), distance);
 	const sint32 ref_speed = welt->get_average_speed( fahr[0]->get_besch()->get_waytype() );
 	const sint32 speed_base = (sint32)(100 * average_speed) / ref_speed - 100;
