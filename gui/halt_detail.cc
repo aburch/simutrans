@@ -157,13 +157,7 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 			posbuttons.append( pb );
 			cont.add_komponente( pb );
 
-			buf.append("   ");
-			buf.append(translator::translate(fab->get_name()));
-			buf.append(" (");
-			buf.append(pos.x);
-			buf.append(", ");
-			buf.append(pos.y);
-			buf.append(")\n");
+			buf.printf("   %s (%d, %d)\n", translator::translate(fab->get_name()), pos.x, pos.y);
 			offset_y += LINESPACE;
 
 			const array_tpl<ware_production_t>& eingang = fab->get_eingang();
@@ -309,11 +303,7 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 
 					has_stops = true;
 
-					buf.append("   ");
-					buf.append(conn.halt->get_name());
-					buf.append(" <");
-					buf.append(conn.weight);
-					buf.append(">");
+					buf.printf("   %s <%u>", conn.halt->get_name(), conn.weight);
 
 					// target button ...
 					button_t *pb = new button_t();
@@ -331,9 +321,7 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 	}
 
 	if (!has_stops) {
-		buf.append(" ");
-		buf.append(translator::translate("keine"));
-		buf.append("\n");
+		buf.printf(" %s\n", translator::translate("keine"));
 	}
 	buf.append("\n\n");
 

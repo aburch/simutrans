@@ -2057,10 +2057,7 @@ void haltestelle_t::get_short_freight_info(cbuffer_t & buf)
 					buf.append(", ");
 				}
 
-				buf.append(summe);
-				buf.append(translator::translate(wtyp->get_mass()));
-				buf.append(" ");
-				buf.append(translator::translate(wtyp->get_name()));
+				buf.printf("%d%s %s", summe, translator::translate(wtyp->get_mass()), translator::translate(wtyp->get_name()));
 
 				got_one = true;
 			}

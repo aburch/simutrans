@@ -47,30 +47,6 @@ void cbuffer_t::append(const char * text)
 }
 
 
-void cbuffer_t::append(long n)
-{
-	char tmp[32];
-	char * p = tmp+31;
-	bool neg = false;
-	*p = '\0';
-
-	if(n < 0) {
-		neg = true;
-		n = -n;
-	}
-
-	do {
-		*--p  = '0' + (n % 10);
-	} while((n/=10) > 0);
-
-	if(neg) {
-		*--p = '-';
-	}
-
-	append(p);
-}
-
-
 void cbuffer_t::append(double n,int decimals)
 {
 	char tmp[32];

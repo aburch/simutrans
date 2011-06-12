@@ -935,7 +935,7 @@ void depot_frame_t::image_from_convoi_list(uint nr)
 		}
 
 		cbuffer_t start(16);
-		start.append( start_nr );
+		start.printf("%u", start_nr);
 
 		depot->call_depot_tool( 'r', cnv, start );
 	}

@@ -241,11 +241,9 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 				buf.printf("%s: %i\n",translator::translate("Postrate"),besch->get_post_level());
 			}
 
-			buf.append(translator::translate("\nBauzeit von"));
-			buf.append(besch->get_intro_year_month()/12);
+			buf.printf("%s%u", translator::translate("\nBauzeit von"), besch->get_intro_year_month() / 12);
 			if(besch->get_retire_year_month()!=DEFAULT_RETIRE_DATE*12) {
-				buf.append(translator::translate("\nBauzeit bis"));
-				buf.append(besch->get_retire_year_month()/12);
+				buf.printf("%s%u", translator::translate("\nBauzeit bis"), besch->get_retire_year_month() / 12);
 			}
 			buf.append("\n");
 

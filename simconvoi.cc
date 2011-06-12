@@ -474,13 +474,10 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 void convoi_t::call_convoi_tool( const char function, const char *extra ) const
 {
 	werkzeug_t *w = create_tool( WKZ_CONVOI_TOOL | SIMPLE_TOOL );
-	char cmd[3] = { function, ',', 0 };
 	cbuffer_t param(8192);
-	param.append( cmd );
-	param.append( self.get_id() );
+	param.printf("%c,%u", function, self.get_id());
 	if(  extra  &&  *extra  ) {
-		param.append( "," );
-		param.append( extra );
+		param.printf(",%s", extra);
 	}
 	w->set_default_param(param);
 	welt->set_werkzeug( w, get_besitzer() );

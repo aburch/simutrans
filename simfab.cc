@@ -1905,13 +1905,7 @@ void fabrik_t::info(cbuffer_t& buf) const
 
 			fabrik_t *fab = get_fab( welt, lieferziel );
 			if(fab) {
-				buf.append("   ");
-				buf.append(translator::translate(fab->get_name()));
-				buf.append(" (");
-				buf.append(lieferziel.x);
-				buf.append(", ");
-				buf.append(lieferziel.y);
-				buf.append(")\n");
+				buf.printf("   %s (%d, %d)\n", translator::translate(fab->get_name()), lieferziel.x, lieferziel.y);
 			}
 		}
 	}
@@ -1926,13 +1920,7 @@ void fabrik_t::info(cbuffer_t& buf) const
 
 			fabrik_t *fab = get_fab( welt, supplier );
 			if(fab) {
-				buf.append("   ");
-				buf.append(translator::translate(fab->get_name()));
-				buf.append(" (");
-				buf.append(supplier.x);
-				buf.append(", ");
-				buf.append(supplier.y);
-				buf.append(")\n");
+				buf.printf("   %s (%d, %d)\n", translator::translate(fab->get_name()), supplier.x, supplier.y);
 			}
 		}
 	}

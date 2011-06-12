@@ -255,11 +255,9 @@ void halt_info_t::zeichnen(koord pos, koord gr)
 
 		top = pos.y+50;
 		info_buf.clear();
-		info_buf.append(translator::translate("Storage capacity"));
-		info_buf.append(": ");
+		info_buf.printf("%s: %u", translator::translate("Storage capacity"), halt->get_capacity(0));
 		left = pos.x+10;
 		// passagiere
-		info_buf.append(halt->get_capacity(0));
 		left += display_proportional(left, top, info_buf, ALIGN_LEFT, COL_BLACK, true);
 		if (welt->get_settings().is_seperate_halt_capacities()) {
 			// here only for seperate capacities
@@ -267,15 +265,13 @@ void halt_info_t::zeichnen(koord pos, koord gr)
 			left += 10;
 			// post
 			info_buf.clear();
-			info_buf.append(",  ");
-			info_buf.append(halt->get_capacity(1));
+			info_buf.printf(",  %u", halt->get_capacity(1));
 			left += display_proportional(left, top, info_buf, ALIGN_LEFT, COL_BLACK, true);
 			display_color_img(skinverwaltung_t::post->get_bild_nr(0), left, top, 0, false, false);
 			left += 10;
 			// goods
 			info_buf.clear();
-			info_buf.append(",  ");
-			info_buf.append(halt->get_capacity(2));
+			info_buf.printf(",  %u", halt->get_capacity(2));
 			left += display_proportional(left, top, info_buf, ALIGN_LEFT, COL_BLACK, true);
 			display_color_img(skinverwaltung_t::waren->get_bild_nr(0), left, top, 0, false, false);
 			left = 53+LINESPACE;

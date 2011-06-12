@@ -291,21 +291,13 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 			}
 			buf.append("\n");
 
-			buf.append(translator::translate("Passenger Demand"));
-			buf.append(": ");
-			buf.append( fablist[entry]->get_pax_demand()==65535 ? fablist[entry]->get_pax_level() : fablist[entry]->get_pax_demand() );
-			buf.append("\n");
+			fabrik_besch_t const& f = *fablist[entry];
+			buf.printf("%s: %d\n", translator::translate("Passenger Demand"), f.get_pax_demand()  != 65535 ? f.get_pax_demand()  : f.get_pax_level());
+			buf.printf("%s: %d\n", translator::translate("Mail Demand"),      f.get_mail_demand() != 65535 ? f.get_mail_demand() : f.get_pax_level() >> 2);
 
-			buf.append(translator::translate("Mail Demand"));
-			buf.append(": ");
-			buf.append( fablist[entry]->get_mail_demand()==65535 ? (fablist[entry]->get_pax_level() >> 2) : fablist[entry]->get_mail_demand() );
-			buf.append("\n");
-
-			buf.append(translator::translate("\nBauzeit von"));
-			buf.append(besch->get_intro_year_month()/12);
+			buf.printf("%s%u", translator::translate("\nBauzeit von"), besch->get_intro_year_month() / 12);
 			if(besch->get_retire_year_month()!=DEFAULT_RETIRE_DATE*12) {
-				buf.append(translator::translate("\nBauzeit bis"));
-				buf.append(besch->get_retire_year_month()/12);
+				buf.printf("%s%u", translator::translate("\nBauzeit bis"), besch->get_retire_year_month() / 12);
 			}
 
 			if (char const* const maker = besch->get_copyright()) {

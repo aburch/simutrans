@@ -142,12 +142,9 @@ void roadsign_t::info(cbuffer_t & buf) const
 		buf.append(translator::translate("\nsingle way"));
 	}
 	if(besch->get_min_speed()!=0) {
-		buf.append(translator::translate("\nminimum speed:"));
-		buf.append(speed_to_kmh(besch->get_min_speed()));
+		buf.printf("%s%d", translator::translate("\nminimum speed:"), speed_to_kmh(besch->get_min_speed()));
 	}
-	buf.append(translator::translate("\ndirection:"));
-	buf.append(dir);
-	buf.append("\n");
+	buf.printf("%s%u\n", translator::translate("\ndirection:"), dir);
 	if(  automatic  ) {
 		buf.append(translator::translate("\nSet phases:"));
 		buf.append("\n");

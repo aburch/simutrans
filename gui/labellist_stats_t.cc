@@ -169,11 +169,7 @@ void labellist_stats_t::recalc_size()
 		// the other infos
 		const label_t* label = welt->lookup_kartenboden(pos)->find<label_t>();
 		//PLAYER_COLOR_VAL col = COL_WHITE;
-		buf.append(" (");
-		buf.append(pos.x);
-		buf.append(",");
-		buf.append(pos.y);
-		buf.append(") ");
+		buf.printf(" (%d,%d)", pos.x, pos.y);
 
 		if(  label  ) {
 			//col = (PLAYER_FLAG|label->get_besitzer()->get_player_color1());
@@ -236,11 +232,7 @@ void labellist_stats_t::zeichnen(koord offset)
 		// the other infos
 		const label_t* label = welt->lookup_kartenboden(pos)->find<label_t>();
 		PLAYER_COLOR_VAL col = COL_WHITE;
-		buf.append(" (");
-		buf.append(pos.x);
-		buf.append(",");
-		buf.append(pos.y);
-		buf.append(") ");
+		buf.printf(" (%d,%d)", pos.x, pos.y);
 
 		if(label) {
 			col = (PLAYER_FLAG|label->get_besitzer()->get_player_color1());

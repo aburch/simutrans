@@ -5457,17 +5457,10 @@ bool karte_t::interactive(uint32 quit_month)
 		// announce me on server
 		if(  umgebung_t::announce_server  ) {
 			cbuffer_t buf(2048);
-			buf.printf( "/serverlist/slist.php?ID=%u&st=on", umgebung_t::announce_server );
-			buf.append( "&ip=" );
-			buf.append( umgebung_t::server_name.c_str() );
-			buf.append( "&port=" );
-			buf.append( umgebung_t::server );
-#ifdef REVISION
-			buf.append( "&rev=" QUOTEME(REVISION) );
-#else
-			buf.append( "&rev=0" );
+#ifndef REVISION
+#	define REVISION 0
 #endif
-			buf.append( "&pak=" );
+			buf.printf("/serverlist/slist.php?ID=%u&st=on&ip=%s&port=%u&rev=" QUOTEME(REVISION) "&pak=", umgebung_t::announce_server, umgebung_t::server_name.c_str(), umgebung_t::server);
 			// announce ak set
 			char const* const copyright = grund_besch_t::ausserhalb->get_copyright();
 			if (copyright && STRICMP("none", copyright) != 0) {

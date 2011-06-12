@@ -232,10 +232,7 @@ void curiositylist_stats_t::zeichnen(koord offset)
 		}
 		short_name[i] = 0;
 		// now we have a short name ...
-		buf.append(short_name);
-		buf.append(" (");
-		buf.append(geb->get_passagier_level());
-		buf.append(") ");
+		buf.printf("%s (%d)", short_name, geb->get_passagier_level());
 
 		display_proportional_clip(xoff+INDICATOR_WIDTH+10+9,yoff,buf,ALIGN_LEFT,COL_BLACK,true);
 

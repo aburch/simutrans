@@ -1275,14 +1275,7 @@ void vehikel_t::get_fracht_info(cbuffer_t & buf)
 				name = halt->get_name();
 			}
 
-			buf.append("   ");
-			buf.append(ware.menge);
-			buf.append(translator::translate(ware.get_mass()));
-			buf.append(" ");
-			buf.append(translator::translate(ware.get_name()));
-			buf.append(" > ");
-			buf.append(name);
-			buf.append("\n");
+			buf.printf("   %u%s %s > %s\n", ware.menge, translator::translate(ware.get_mass()), translator::translate(ware.get_name()), name);
 		}
 	}
 }

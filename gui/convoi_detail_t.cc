@@ -303,13 +303,9 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 				display_proportional_clip( pos.x+w+offset.x+len, pos.y+offset.y+total_height+extra_y, tmp, ALIGN_LEFT, price>0?MONEY_PLUS:MONEY_MINUS, true );
 				extra_y += LINESPACE;
 
-				freight_info.append(v->get_fracht_menge());
-				freight_info.append("/");
-				freight_info.append(v->get_fracht_max());
-				freight_info.append(translator::translate(v->get_fracht_mass()));
-				freight_info.append(" ");
-				freight_info.append(v->get_fracht_typ()->get_catg() == 0 ? translator::translate(v->get_fracht_typ()->get_name()) : translator::translate(v->get_fracht_typ()->get_catg_name()));
-				freight_info.append("\n");
+				ware_besch_t const& g    = *v->get_fracht_typ();
+				char const*  const  name = translator::translate(g.get_catg() == 0 ? g.get_name() : g.get_catg_name());
+				freight_info.printf("%u/%u%s %s\n", v->get_fracht_menge(), v->get_fracht_max(), translator::translate(v->get_fracht_mass()), name);
 				v->get_fracht_info(freight_info);
 				// show it
 				const int px_len = display_multiline_text( pos.x+offset.x+w, pos.y+offset.y+total_height+extra_y, freight_info, COL_BLACK );

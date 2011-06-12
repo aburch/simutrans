@@ -339,10 +339,7 @@ void schedule_t::add_return_way()
 
 void schedule_t::sprintf_schedule( cbuffer_t &buf ) const
 {
-	buf.append( aktuell );
-	buf.append( "|" );
-	buf.append( (int)get_type() );
-	buf.append( "|" );
+	buf.printf("%u|%d|", aktuell, (int)get_type());
 	for(  uint8 i = 0;  i<eintrag.get_count();  i++  ) {
 		buf.printf( "%s,%i,%i|", eintrag[i].pos.get_str(), (int)eintrag[i].ladegrad, (int)eintrag[i].waiting_time_shift );
 	}

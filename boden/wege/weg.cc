@@ -227,17 +227,9 @@ void weg_t::info(cbuffer_t & buf) const
 {
 	ding_t::info(buf);
 
-	buf.append(translator::translate("Max. speed:"));
-	buf.append(" ");
-	buf.append(max_speed);
-	buf.append(translator::translate("km/h\n"));
-
-	buf.append(translator::translate("\nRibi (unmasked)"));
-	buf.append(get_ribi_unmasked());
-
-	buf.append(translator::translate("\nRibi (masked)"));
-	buf.append(get_ribi());
-	buf.append("\n");
+	buf.printf("%s %u%s", translator::translate("Max. speed:"), max_speed, translator::translate("km/h\n"));
+	buf.printf("%s%u",    translator::translate("\nRibi (unmasked)"), get_ribi_unmasked());
+	buf.printf("%s%u\n",  translator::translate("\nRibi (masked)"),   get_ribi());
 
 	if(has_sign()) {
 		buf.append(translator::translate("\nwith sign/signal\n"));
@@ -257,8 +249,7 @@ void weg_t::info(cbuffer_t & buf) const
 	buf.append("\n");
 	for (int type=0; type<MAX_WAY_STATISTICS; type++) {
 		for (int month=0; month<MAX_WAY_STAT_MONTHS; month++) {
-			buf.append(statistics[month][type]);
-			buf.append(" ");
+			buf.printf("%d ", statistics[month][type]);
 		}
 	buf.append("\n");
 	}
