@@ -21,9 +21,6 @@ cbuffer_t::cbuffer_t(unsigned int cap)
 cbuffer_t::~cbuffer_t()
 {
   delete [] buf;
-  buf = 0;
-  capacity = 0;
-  size = 0;
 }
 
 
