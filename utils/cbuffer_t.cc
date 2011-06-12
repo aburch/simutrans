@@ -36,14 +36,10 @@ void cbuffer_t::clear()
 
 void cbuffer_t::append(const char * text)
 {
-	while(  *text  ) {
-		if(  size>=capacity-1  ) {
-			// Knightly : double the capacity if full
-			extend(capacity);
-		}
-		buf[size++] = *text++;
-	}
-	buf[size] = 0;
+	size_t const n = strlen(text);
+	extend(n);
+	memcpy(buf + size, text, n + 1);
+	size += n;
 }
 
 
