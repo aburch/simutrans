@@ -104,7 +104,8 @@ bool replace_data_t::sscanf_replace(const char *ptr)
 {
 	const char *p = ptr;
 	// Firstly, get the general settings.
-	autostart = atoi(p++);
+	const char as = *p++;
+	autostart = atoi(&as);
 	const char rid = *p++;
 	retain_in_depot = atoi(&rid);
 	const char uhd = *p++;
