@@ -49,50 +49,54 @@ void goods_stats_t::zeichnen(koord offset)
 		// Modified by jamespetts 18 Apr. 2009
 
 		const uint16 base_price = wtyp->get_preis();
-		const sint32 min_price = base_price << 7;
+		const sint32 min_price = base_price / 10;
 		const uint16 speed_bonus_rating = convoi_t::calc_adjusted_speed_bonus(wtyp->get_speed_bonus(), distance, welt);
-		const sint32 base_bonus = base_price * (1000l + (bonus - 100l) * speed_bonus_rating);
+		const sint32 base_bonus = base_price * (1000 + (bonus - 100) * speed_bonus_rating);
 		const sint32 revenue = (min_price > base_bonus ? min_price : base_bonus) * distance;
 		sint32 price = revenue;
 
-		const uint16 journey_minutes = ((float)distance / (((float)welt->get_average_speed(way_type) * bonus) / 100)) * welt->get_einstellungen()->get_meters_per_tile() * 6;
+		//const uint16 journey_minutes = ((float)distance / (((float)welt->get_average_speed(way_type) * bonus) / 100)) * welt->get_einstellungen()->get_meters_per_tile() * 6;
+		const uint16 journey_minutes = (((distance * 100) / welt->get_average_speed(way_type)) *  welt->get_einstellungen()->get_meters_per_tile()) / 1667;
 
 		if(wtyp->get_catg_index() < 1)
 		{
 			//Passengers care about their comfort
 			const uint8 tolerable_comfort = convoi_t::calc_tolerable_comfort(journey_minutes, welt);
 
-			float comfort_modifier;
+			// Comfort matters more the longer the journey.
+			// @author: jamespetts, March 2010
+			uint32 comfort_modifier;
 			if(journey_minutes <= welt->get_einstellungen()->get_tolerable_comfort_short_minutes())
 			{
-				comfort_modifier = 0.2F;
+				comfort_modifier = 20;
 			}
 			else if(journey_minutes >= welt->get_einstellungen()->get_tolerable_comfort_median_long_minutes())
 			{
-				comfort_modifier = 1.0F;
+				comfort_modifier = 100;
 			}
 			else
 			{
 				const uint8 differential = journey_minutes - welt->get_einstellungen()->get_tolerable_comfort_short_minutes();
 				const uint8 max_differential = welt->get_einstellungen()->get_tolerable_comfort_median_long_minutes() - welt->get_einstellungen()->get_tolerable_comfort_short_minutes();
-				const float proportion = (float)differential / (float)max_differential;
-				comfort_modifier = (0.8F * proportion) + 0.2F;
+				const uint32 proportion = differential * 100 / max_differential;
+				comfort_modifier = (80 * proportion / 100) + 20;
 			}
+
 
 			if(comfort > tolerable_comfort)
 			{
 				// Apply luxury bonus
 				const uint8 max_differential = welt->get_einstellungen()->get_max_luxury_bonus_differential();
 				const uint8 differential = comfort - tolerable_comfort;
-				const uint32 multiplier_percent = welt->get_einstellungen()->get_max_luxury_bonus_percent() * comfort_modifier;
+				const uint32 multiplier = (welt->get_einstellungen()->get_max_luxury_bonus_percent() * comfort_modifier) / 10000;
 				if(differential >= max_differential)
 				{
-					price += ((revenue * multiplier_percent) / 100);
+					price += (sint64)(revenue * multiplier);
 				}
 				else
 				{
-					const uint32 percentage = differential * 100/ max_differential;
-					price += revenue * ((multiplier_percent * percentage) / 10000);
+					const uint32 proportion = (differential * 100) / max_differential;
+					price += (revenue * (sint64)(multiplier * proportion)) / 100;
 				}
 			}
 			else if(comfort < tolerable_comfort)
@@ -100,18 +104,19 @@ void goods_stats_t::zeichnen(koord offset)
 				// Apply discomfort penalty
 				const uint8 max_differential = welt->get_einstellungen()->get_max_discomfort_penalty_differential();
 				const uint8 differential = tolerable_comfort - comfort;
-				uint32 multiplier_percent = welt->get_einstellungen()->get_max_discomfort_penalty_percent() * comfort_modifier;
-				multiplier_percent = multiplier_percent < 95 ? multiplier_percent : 95;
+				uint32 multiplier = (welt->get_einstellungen()->get_max_discomfort_penalty_percent() * comfort_modifier) / 10000;
+				multiplier = multiplier < 95 ? multiplier : 95;
 				if(differential >= max_differential)
 				{
-					price -= ((revenue * multiplier_percent) / 100);
+					price -= (sint64)(revenue * multiplier) / 100;
 				}
 				else
 				{
-					const uint32 percentage = (differential * 100) / max_differential;
-					price -= revenue * ((multiplier_percent * percentage) / 10000);
+					const uint32 proportion = (differential * 100) / max_differential;
+					price -= (revenue * (sint64)(multiplier * proportion)) / 100;
 				}
-			}	
+			}
+		
 			// Do nothing if comfort == tolerable_comfort			
 		}
 	
