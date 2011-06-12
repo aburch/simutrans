@@ -76,12 +76,12 @@ help_frame_t::help_frame_t() :
 }
 
 
-help_frame_t::help_frame_t(const std::string &filename) :
+help_frame_t::help_frame_t(char const* const filename) :
 	gui_frame_t("Help"),
 	scrolly(&flow)
 {
 	// the key help texts are built automagically
-	if(filename=="keys.txt") {
+	if (strcmp(filename, "keys.txt") == 0) {
 		cbuffer_t buf(16000);
 		buf.append( translator::translate( "<title>Keyboard Help</title>\n<h1><strong>Keyboard Help</strong></h1><p>\n" ) );
 		spieler_t *sp = spieler_t::get_welt()->get_active_player();
