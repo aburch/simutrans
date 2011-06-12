@@ -81,32 +81,32 @@ void cbuffer_t::append(double n,int decimals)
 
 void cbuffer_t::printf(const char* fmt, ...)
 {
-	va_list ap;
-	va_start(ap, fmt);
-	int count = vsnprintf( buf+size, capacity-size, fmt, ap);
-	va_end(ap);
-	// buffer too small?
-	// we do not increase it beyond 1MB, as this is usually only needed when %s of a random memory location
-#ifdef _MSC_VER
-	while(count == -1  &&  errno == ERANGE  &&  capacity < 1048576) {
-#else
-	while(0 <= count  &&  capacity-size <= (uint)count  &&  capacity < 1048576) {
-#endif
-		// enlarge buffer
-		extend( capacity);
-		// and try again
+	for (;;) {
+		va_list ap;
 		va_start(ap, fmt);
-		count = vsnprintf( buf+size, capacity-size, fmt, ap);
+		size_t const n     = capacity - size;
+		int    const count = vsnprintf(buf + size, n, fmt, ap);
 		va_end(ap);
-		// .. until everything fit into buffer
-	}
-	// error
-	if(count<0) {
-		// truncate
-		buf[capacity-1] = 0;
-	}
-	else {
-		size += count;
+
+		size_t inc;
+		if (count < 0) {
+#ifdef _WIN32
+			inc = capacity;
+#else
+			// error
+			buf[size] = '\0';
+			break;
+#endif
+		} else if ((size_t)count < n) {
+			size += count;
+			break;
+		} else {
+			// Make room for the string, but at least double the size of the buffer.
+			inc = (size_t)count + 1 /* for NUL */ - n;
+			if (inc < capacity)
+				inc = capacity;
+		}
+		extend(inc);
 	}
 }
 
