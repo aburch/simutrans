@@ -35,6 +35,7 @@ template<class T> class array_tpl
 		void clear()
 		{
 			delete [] data;
+			data = 0;
 			size = 0;
 		}
 
