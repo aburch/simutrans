@@ -8,11 +8,6 @@
 #include "../simtypes.h"
 
 
-/**
- * Creates a new cbuffer with capacity cap
- * @param cap the capacity
- * @author Hj. Malthaner
- */
 cbuffer_t::cbuffer_t(unsigned int cap)
 {
 	capacity = (cap == 0 ? 1 : cap);
@@ -32,10 +27,6 @@ cbuffer_t::~cbuffer_t()
 }
 
 
-/**
- * Clears the buffer
- * @author Hj. Malthaner
- */
 void cbuffer_t::clear()
 {
   buf[0] = '\0';
@@ -43,10 +34,6 @@ void cbuffer_t::clear()
 }
 
 
-/**
- * Appends text. Buffer will be extended if it does not have enough capacity.
- * @author Hj. Malthaner
- */
 void cbuffer_t::append(const char * text)
 {
 	while(  *text  ) {
@@ -60,10 +47,6 @@ void cbuffer_t::append(const char * text)
 }
 
 
-/**
- * Appends a number. Buffer will be extended if it does not have enough capacity.
- * @author Hj. Malthaner
- */
 void cbuffer_t::append(long n)
 {
 	char tmp[32];
@@ -88,10 +71,6 @@ void cbuffer_t::append(long n)
 }
 
 
-/**
- * Appends a number. Buffer will be extended if it does not have enough capacity.
- * @author Hj. Malthaner
- */
 void cbuffer_t::append(double n,int decimals)
 {
 	char tmp[32];
