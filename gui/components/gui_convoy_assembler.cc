@@ -594,6 +594,12 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 	else {
 		// list only matching ones
 
+		if(depot_frame && umgebung_t::networkmode)
+		{
+		  depot_frame->get_icnv() < 0 ? clear_convoy() : set_vehicles(depot_frame->get_convoy());
+		  depot_frame->update_data();
+		}
+
 		slist_iterator_tpl<vehikel_besch_t*> vehinfo(vehikelbauer_t::get_info(way_type));
 		while (vehinfo.next()) {
 			const vehikel_besch_t* info = vehinfo.get_current();
@@ -719,6 +725,12 @@ DBG_DEBUG("gui_convoy_assembler_t::build_vehicle_lists()","finally %i passenger 
 // add a single vehicle (helper function)
 void gui_convoy_assembler_t::add_to_vehicle_list(const vehikel_besch_t *info)
 {
+	// Prevent multiple instances of the same vehicle
+	if(vehicle_map.is_contained(info))
+	{
+		return;
+	}
+	
 	// prissi: ist a non-electric track?
 	// Hajo: check for timeline
 	// prissi: and retirement date
