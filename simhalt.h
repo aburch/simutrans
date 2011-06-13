@@ -546,12 +546,6 @@ public:
 	 */
 	uint32 get_ware_fuer_zielpos(const ware_besch_t *warentyp, const koord zielpos) const;
 
-	/**
-	 * gibt Gesamtmenge derw are vom typ typ fuer zwischenziel zurück
-	 * @author prissi
-	 */
-	uint32 get_ware_fuer_zwischenziel(const ware_besch_t *warentyp, const halthandle_t zwischenziel) const;
-
 	// true, if we accept/deliver this kind of good
 	bool gibt_ab(const ware_besch_t *warentyp) const { return waren[warentyp->get_catg_index()] != NULL; }
 

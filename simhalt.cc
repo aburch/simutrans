@@ -1813,24 +1813,6 @@ uint32 haltestelle_t::get_ware_fuer_zielpos(const ware_besch_t *wtyp, const koor
 }
 
 
-
-uint32 haltestelle_t::get_ware_fuer_zwischenziel(const ware_besch_t *wtyp, const halthandle_t zwischenziel) const
-{
-	uint32 sum = 0;
-	const vector_tpl<ware_t> * warray = waren[wtyp->get_catg_index()];
-	if(warray!=NULL) {
-		for(unsigned i=0;  i<warray->get_count();  i++ ) {
-			const ware_t &ware = (*warray)[i];
-			if(wtyp->get_index()==ware.get_index()  &&  ware.get_zwischenziel()==zwischenziel) {
-				sum += ware.menge;
-			}
-		}
-	}
-	return sum;
-}
-
-
-
 bool haltestelle_t::vereinige_waren(const ware_t &ware)
 {
 	// pruefen ob die ware mit bereits wartender ware vereinigt werden kann
