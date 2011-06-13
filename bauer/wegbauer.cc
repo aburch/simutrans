@@ -1839,12 +1839,12 @@ sint64 wegbauer_t::calc_costs()
 		// change slope of from
 		if (from_slope != from->get_grund_hang()) {
 			if (last_terraformed != i) {
-				costs += welt->get_settings().cst_set_slope;
+				costs -= welt->get_settings().cst_set_slope;
 			}
 		}
 		// change slope of to
 		if (to_slope != to->get_grund_hang()) {
-			costs += welt->get_settings().cst_set_slope;
+			costs -= welt->get_settings().cst_set_slope;
 			last_terraformed = i+1; // do not pay twice for terraforming one tile
 		}
 	}
