@@ -262,10 +262,6 @@ private:
 	/* station flags (most what enabled) */
 	uint8 enables;
 
-	void set_pax_enabled(bool yesno)  { yesno ? enables |= PAX  : enables &= ~PAX;  }
-	void set_post_enabled(bool yesno) { yesno ? enables |= POST : enables &= ~POST; }
-	void set_ware_enabled(bool yesno) { yesno ? enables |= WARE : enables &= ~WARE; }
-
 	/**
 	 * Found route and station uncrowded
 	 * @author Hj. Malthaner
