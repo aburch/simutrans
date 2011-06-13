@@ -482,20 +482,27 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		return false;
 	}
 
+	bool to_flat = false; // to tile will be flattened
 	if(from==to) {
 		if((bautyp&tunnel_flag)  &&  !hang_t::ist_wegbar(from->get_weg_hang())) {
-//			DBG_MESSAGE("wrong slopes at","%i,%i ribi1=%d",from_pos.x,from_pos.y,ribi_typ(from->get_weg_hang()));
 			return false;
 		}
 	}
 	else {
-		if(from->get_weg_hang()  &&  ribi_t::doppelt(ribi_typ(from->get_weg_hang()))!=ribi_t::doppelt(ribi_typ(zv))) {
-//			DBG_MESSAGE("wrong slopes between","%i,%i and %i,%i, ribi1=%d, ribi2=%d",from_pos.x,from_pos.y,to_pos.x,to_pos.y,ribi_typ(from->get_weg_hang()),ribi_typ(zv));
-			return false;
-		}
-		if(to->get_weg_hang()  &&  ribi_t::doppelt(ribi_typ(to->get_weg_hang()))!=ribi_t::doppelt(ribi_typ(zv))) {
-//			DBG_MESSAGE("wrong slopes between","%i,%i and %i,%i, ribi1=%d, ribi2=%d",from_pos.x,from_pos.y,to_pos.x,to_pos.y,ribi_typ(to->get_weg_hang()),ribi_typ(zv));
-			return false;
+		// check slopes
+		bool ok_slope = from->get_weg_hang() == hang_t::flach  ||  ribi_t::doppelt(ribi_typ(from->get_weg_hang()))==ribi_t::doppelt(ribi_typ(zv));
+		ok_slope &= to->get_weg_hang() == hang_t::flach  ||  ribi_t::doppelt(ribi_typ(to->get_weg_hang()))==ribi_t::doppelt(ribi_typ(zv));
+
+		// try terraforming
+		if (!ok_slope) {
+			uint8 dummy,to_slope;
+			if (  (bautyp & terraform_flag) != 0  &&  from->ist_natur()  &&  to->ist_natur()  &&  check_terraforming(from,to,&dummy,&to_slope) ) {
+				to_flat = to_slope == hang_t::flach;
+			}
+			else {
+				// slopes not ok and no terraforming possible
+				return false;
+			}
 		}
 	}
 
@@ -601,7 +608,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 
 	bool fundament = to->get_typ()==grund_t::fundament;
 
-	// no check way specific stuff
+	// now check way specific stuff
 	settings_t const& s = welt->get_settings();
 	switch(bautyp&bautyp_mask) {
 
@@ -623,7 +630,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 			if((str==NULL  &&  to->hat_wege())  ||  (str  &&  to->has_two_ways())) {
 				*costs += 4;	// avoid crossings
 			}
-			if(to->get_weg_hang()!=0) {
+			if(to->get_weg_hang()!=0  &&  !to_flat) {
 				*costs += s.way_count_slope;
 			}
 		}
@@ -653,7 +660,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 			if((sch  &&  to->has_two_ways())  ||  (sch==NULL  &&  to->hat_wege())) {
 				*costs += 4;	// avoid crossings
 			}
-			if(to->get_weg_hang()!=0) {
+			if(to->get_weg_hang()!=0  &&  !to_flat) {
 				*costs += s.way_count_slope;
 			}
 		}
@@ -684,7 +691,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 				if(to->hat_weg(road_wt)) {
 					*costs += s.way_count_straight;
 				}
-				if(to->get_weg_hang()!=0) {
+				if(to->get_weg_hang()!=0  &&  !to_flat) {
 					*costs += s.way_count_slope;
 				}
 			}
@@ -732,7 +739,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 			// calculate costs
 			if(ok) {
 				*costs = to->ist_wasser() || to->hat_weg(water_wt) ? s.way_count_straight : s.way_count_leaving_road; // prefer water very much
-				if(to->get_weg_hang()!=0) {
+				if(to->get_weg_hang()!=0  &&  !to_flat) {
 					*costs += s.way_count_slope * 2;
 				}
 			}
@@ -752,7 +759,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 				if(ok) {
 					// prefer existing rivers:
 					*costs = to->hat_weg(water_wt) ? 10 : 10+simrand(s.way_count_90_curve);
-					if(to->get_weg_hang()!=0) {
+					if(to->get_weg_hang()!=0  &&  !to_flat) {
 						*costs += s.way_count_slope * 10;
 					}
 				}
@@ -768,6 +775,145 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 	return ok;
 }
 
+
+bool wegbauer_t::check_terraforming( const grund_t *from, const grund_t *to, uint8* new_from_slope, uint8* new_to_slope)
+{
+	// only for normal green tiles
+	const hang_t::typ from_slope = from->get_weg_hang();
+	const hang_t::typ to_slope = to->get_weg_hang();
+	const sint8 from_hgt = from->get_hoehe();
+	const sint8 to_hgt = to->get_hoehe();
+	// we may change slope of a tile if it is sloped already
+	if ((from_slope == hang_t::flach  ||  from->get_hoehe() == welt->get_grundwasser())
+		&&  (to_slope == hang_t::flach  ||  to->get_hoehe() == welt->get_grundwasser())) {
+		return false;
+	}
+	else if (abs(from_hgt-to_hgt) <= 1) {
+		// monorail above / tunnel below
+		if (welt->lookup(from->get_pos() - koord3d(0,0,1))!=NULL  ||  welt->lookup(from->get_pos() + koord3d(0,0,1))!=NULL
+			||  welt->lookup(to->get_pos() - koord3d(0,0,1))!=NULL  ||  welt->lookup(to->get_pos() + koord3d(0,0,1))!=NULL) {
+				return false;
+		}
+		// can safely change slope of at least one of the tiles
+		if (new_from_slope == NULL) {
+			return true;
+		}
+		// now calculate new slopes
+		assert(new_from_slope);
+		assert(new_to_slope);
+		// slope of from before terraforming the route
+		const hang_t::typ old_from_slope = (hang_t::typ)*new_from_slope;
+		const ribi_t::ribi dir = ribi_typ(from->get_pos(), to->get_pos());
+		// change these corner on from, and the opposite on to
+		const hang_t::typ from_mask = hang_typ((to->get_pos()-from->get_pos()).get_2d());
+		const hang_t::typ to_mask = hang_t::gegenueber(from_mask);
+
+		// have to change to's slope
+		if (to_hgt == from_hgt-1) {
+			// raise edge
+			*new_to_slope = to_slope | to_mask;
+			*new_from_slope = from_slope & to_mask;
+		}
+		else if (to_hgt == from_hgt) {
+			if ( (from_slope & to_mask)  &&  (to_slope & from_mask) ){
+				// raise edge
+				*new_to_slope = to_slope | to_mask;
+				*new_from_slope = from_slope | from_mask;
+			}
+			else {
+				// lower edge
+				*new_to_slope = to_slope & from_mask;
+				*new_from_slope = from_slope & to_mask;
+			}
+		}
+		else if (to_hgt == from_hgt+1) {
+			// raise edge
+			*new_to_slope = to_slope & from_mask;
+			*new_from_slope = from_slope | from_mask;
+		}
+		if (!hang_t::ist_wegbar(*new_from_slope)) {
+			if (*new_from_slope & from_mask) {
+				*new_from_slope = hang_t::erhoben;
+			}
+			else {
+				*new_from_slope = hang_t::flach;
+			}
+		}
+		if (!hang_t::ist_wegbar(*new_to_slope)) {
+			if (*new_to_slope & to_mask) {
+				*new_to_slope = hang_t::erhoben;
+			}
+			else {
+				*new_to_slope = hang_t::flach;
+			}
+		}
+		return true;
+	}
+	return false;
+}
+
+void wegbauer_t::do_terraforming()
+{
+	uint32 last_terraformed = terraform_index.get_count();
+
+	for(uint32 k=0; k<terraform_index.get_count(); k++) {
+		// index in route
+		uint32 i = terraform_index[k];
+
+		grund_t *from = welt->lookup(route[i]);
+		uint8 from_slope = from->get_grund_hang();
+
+		grund_t *to = welt->lookup(route[i+1]);
+		uint8 to_slope = to->get_grund_hang();
+		// calculate new slopes
+		check_terraforming(from, to, &from_slope, &to_slope);
+		bool changed = false;
+		// change slope of from
+		if (from_slope != from->get_grund_hang()) {
+			if (from_slope != hang_t::erhoben) {
+				from->set_grund_hang(from_slope);
+			}
+			else {
+				from->set_hoehe( from->get_hoehe() + 1);
+				from->set_grund_hang(hang_t::flach);
+				route[i].z = from->get_hoehe();
+			}
+			changed = true;
+			if (last_terraformed != i) {
+				// charge player
+				spieler_t::accounting(sp, welt->get_settings().cst_set_slope, from->get_pos().get_2d(), COST_CONSTRUCTION);
+			}
+		}
+		// change slope of to
+		if (to_slope != to->get_grund_hang()) {
+			if (to_slope != hang_t::erhoben) {
+				to->set_grund_hang(to_slope);
+			}
+			else {
+				to->set_hoehe( to->get_hoehe() + 1);
+				to->set_grund_hang(hang_t::flach);
+				route[i+1].z = to->get_hoehe();
+			}
+			changed = true;
+			// charge player
+			spieler_t::accounting(sp, welt->get_settings().cst_set_slope, to->get_pos().get_2d(), COST_CONSTRUCTION);
+			last_terraformed = i+1; // do not pay twice for terraforming one tile
+		}
+		// recalc slope image of neighbors
+		if (changed) {
+			for(uint8 j=0; j<2; j++) {
+				for(uint8 x=0; x<2; x++) {
+					for(uint8 y=0; y<2; y++) {
+						grund_t *gr = welt->lookup_kartenboden(route[i+j].get_2d()+koord(x,y));
+						if (gr) {
+							gr->calc_bild();
+						}
+					}
+				}
+			}
+		}
+	}
+}
 
 void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* from, const vector_tpl<koord3d> &ziel)
 {
@@ -975,6 +1121,7 @@ long wegbauer_t::intern_calc_route(const vector_tpl<koord3d> &start, const vecto
 {
 	// we clear it here probably twice: does not hurt ...
 	route.clear();
+	terraform_index.clear();
 
 	// check for existing koordinates
 	bool has_target_ground = false;
@@ -1104,8 +1251,27 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->get_pos().x,gr->get_pos().y,g
 				continue;
 			}
 
-			if(!gr->get_neighbour(to,invalid_wt,koord(r))) {
-				continue;
+			bool do_terraform = false;
+			const koord zv(r);
+			if(!gr->get_neighbour(to,invalid_wt,zv)  ||  !check_slope(gr, to)) {
+				// slopes do not match
+				// terraforming enabled?
+				if (bautyp==river  ||  (bautyp & terraform_flag) == 0) {
+					continue;
+				}
+				// check terraforming (but not in curves)
+				if (gr->get_grund_hang()==0  ||  (tmp->parent!=NULL  &&  tmp->parent->parent!=NULL  &&  r==straight_dir)) {
+					to = welt->lookup_kartenboden(gr->get_pos().get_2d() + zv);
+					if (to==NULL  ||  (check_slope(gr, to)  &&  gr->get_vmove(r)!=to->get_vmove(ribi_t::rueckwaerts(r)))) {
+						continue;
+					}
+					else {
+						do_terraform = true;
+					}
+				}
+				else {
+					continue;
+				}
 			}
 
 			// something valid?
@@ -1118,7 +1284,7 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->get_pos().x,gr->get_pos().y,g
 
 			if(is_ok) {
 				// now add it to the array ...
-				next_gr.append(next_gr_t(to, new_cost));
+				next_gr.append(next_gr_t(to, new_cost, do_terraform ? build_straight | terraform : 0));
 			}
 			else if(tmp->parent!=NULL  &&  r==straight_dir) {
 				// try to build a bridge or tunnel here, since we cannot go here ...
@@ -1175,6 +1341,10 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->get_pos().x,gr->get_pos().y,g
 				new_g += s.way_count_double_curve;
 			}
 
+			if(new_dist == 0  &&  (next_gr[r].flag & terraform)) {
+				// no terraforming near target
+				continue;
+			}
 			if(new_dist<min_dist) {
 				min_dist = new_dist;
 			}
@@ -1234,6 +1404,9 @@ DBG_DEBUG("wegbauer_t::intern_calc_route()","steps=%i  (max %i) in route, open %
 		// reached => construct route
 		while(tmp != NULL) {
 			route.append(tmp->gr->get_pos());
+			if (tmp->count & terraform) {
+				terraform_index.append(route.get_count()-1);
+			}
 //DBG_DEBUG("add","%i,%i",tmp->pos.x,tmp->pos.y);
 			tmp = tmp->parent;
 		}
@@ -1275,9 +1448,12 @@ void wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d z
 
 	route.clear();
 	route.append(start);
+	terraform_index.clear();
+	bool check_terraform = start.x==ziel.x  ||  start.y==ziel.y;
 
 	while(pos.get_2d()!=ziel.get_2d()  &&  ok) {
 
+		bool do_terraform = false;
 		// shortest way
 		koord diff;
 		if(abs(pos.x-ziel.x)>=abs(pos.y-ziel.y)) {
@@ -1349,17 +1525,38 @@ void wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d z
 			else
 			{
 				grund_t *bd_nach = NULL;
-				ok = ok  &&  bd_von->get_neighbour(bd_nach, invalid_wt, diff);
-
+				if (!bd_von->get_neighbour(bd_nach, invalid_wt, diff) ||  !check_slope(bd_von, bd_nach)) {
+					// slopes do not match
+					// terraforming enabled?
+					if (bautyp==river  ||  (bautyp & terraform_flag) == 0) {
+						continue;
+					}
+					// check terraforming (but not in curves)
+					ok = false;
+					if (check_terraform) {
+						bd_nach = welt->lookup_kartenboden(bd_von->get_pos().get_2d() + diff);
+						if (bd_nach==NULL  ||  (check_slope(bd_von, bd_nach)  &&  bd_von->get_vmove(ribi_typ(diff))!=bd_nach->get_vmove(ribi_typ(-diff)))) {
+							ok = false;
+						}
+						else {
+							do_terraform = true;
+							ok = true;
+						}
+					}
+				}
 				// allowed ground?
 				ok = ok  &&  bd_nach  &&  is_allowed_step(bd_von,bd_nach,&dummy_cost);
 				if (ok) {
 					pos = bd_nach->get_pos();
 				}
 			}
+			check_terraform = pos.x==ziel.x  ||  pos.y==ziel.y;
 		}
 
 		route.append(pos);
+		if (do_terraform) {
+			terraform_index.append(route.get_count()-2);
+		}
 DBG_MESSAGE("wegbauer_t::calc_straight_route()","step %i,%i = %i",diff.x,diff.y,ok);
 	}
 	ok = ok && ( target_3d ? pos==ziel : pos.get_2d()==ziel.get_2d() );
@@ -1370,6 +1567,7 @@ DBG_MESSAGE("wegbauer_t::intern_calc_straight_route()","found straight route max
 	}
 	else {
 		route.clear();
+		terraform_index.clear();
 	}
 }
 
@@ -1424,6 +1622,7 @@ bool wegbauer_t::intern_calc_route_runways(koord3d start3d, const koord3d ziel3d
 	}
 	// now we can build here
 	route.clear();
+	terraform_index.clear();
 	route.resize(dist + 2);
 	for(  int i=0;  i<=dist;  i++  ) {
 		route.append(welt->lookup_kartenboden(start + zv * i)->get_pos());
@@ -1500,13 +1699,16 @@ long ms=dr_time();
 
 #ifdef REVERSE_CALC_ROUTE_TOO
 		vector_tpl<koord3d> route2(0);
+		vector_tpl<uint32> terraform_index2(0);
 		swap(route, route2);
+		swap(terraform_index, terraform_index2);
 		long cost = intern_calc_route(ziel, start);
 		INT_CHECK("wegbauer 1165");
 
 		// the cheaper will survive ...
 		if(  cost2 < cost  ||  cost < 0  ) {
 			swap(route, route2);
+			swap(terraform_index, terraform_index2);
 		}
 #endif
 	}
@@ -1618,6 +1820,33 @@ sint64 wegbauer_t::calc_costs()
 	else {
 		single_cost = besch->get_preis();
 		new_speedlimit = besch->get_topspeed();
+	}
+
+	// calculate costs for terraforming
+	uint32 last_terraformed = terraform_index.get_count();
+
+	for(uint32 k=0; k<terraform_index.get_count(); k++) {
+		// index in route
+		uint32 i = terraform_index[k];
+
+		grund_t *from = welt->lookup(route[i]);
+		uint8 from_slope = from->get_grund_hang();
+
+		grund_t *to = welt->lookup(route[i+1]);
+		uint8 to_slope = to->get_grund_hang();
+		// calculate new slopes
+		check_terraforming(from, to, &from_slope, &to_slope);
+		// change slope of from
+		if (from_slope != from->get_grund_hang()) {
+			if (last_terraformed != i) {
+				costs += welt->get_settings().cst_set_slope;
+			}
+		}
+		// change slope of to
+		if (to_slope != to->get_grund_hang()) {
+			costs += welt->get_settings().cst_set_slope;
+			last_terraformed = i+1; // do not pay twice for terraforming one tile
+		}
 	}
 
 	for(uint32 i=0; i<get_count(); i++) {
@@ -2135,6 +2364,10 @@ DBG_MESSAGE("wegbauer_t::baue()","called, but no valid route.");
 long ms=dr_time();
 #endif
 
+	if ( (bautyp&terraform_flag)!=0  &&  (bautyp&(tunnel_flag|elevated_flag))==0  &&  bautyp!=river) {
+		// do the terraforming
+		do_terraforming();
+	}
 	// first add all new underground tiles ... (and finished if sucessful)
 	if(bautyp&tunnel_flag) {
 		baue_tunnelboden();

@@ -2237,7 +2237,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 		if (umziehen  &&  alte_str != koord::invalid) {
 			// Strasse vom ehemaligen Rathaus zum neuen verlegen.
 			wegbauer_t bauer(welt, NULL);
-			bauer.route_fuer(wegbauer_t::strasse, welt->get_city_road());
+			bauer.route_fuer(wegbauer_t::strasse | wegbauer_t::terraform_flag, welt->get_city_road());
 			bauer.calc_route(welt->lookup_kartenboden(alte_str)->get_pos(), welt->lookup_kartenboden(townhall_road)->get_pos());
 			bauer.baue();
 		} else if (neugruendung) {
