@@ -839,7 +839,7 @@ void ai_passenger_t::walk_city( linehandle_t &line, grund_t *&start, const int l
 						if(pl  &&  pl->get_haltlist_count()>0) {
 							const halthandle_t *hl=pl->get_haltlist();
 							for( uint8 own=0;  own<pl->get_haltlist_count();  own++  ) {
-								if(  hl[own]->is_enabled(warenbauer_t::passagiere)  ) {
+								if(  hl[own]->is_enabled(warenbauer_t::INDEX_PAS)  ) {
 									// our stop => nothing to do
 #if AUTOJOIN_PUBLIC
 									// we leave also public stops alone

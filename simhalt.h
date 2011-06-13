@@ -466,29 +466,23 @@ public:
 	#define MAX_SEARCH_DESTINATIONS (16)
 	void search_routes( ware_t *const wares, const uint16 ware_count );
 
-	int get_pax_enabled()  const { return enables & PAX;  }
-	int get_post_enabled() const { return enables & POST; }
-	int get_ware_enabled() const { return enables & WARE; }
+	bool get_pax_enabled()  const { return enables & PAX;  }
+	bool get_post_enabled() const { return enables & POST; }
+	bool get_ware_enabled() const { return enables & WARE; }
 
 	// check, if we accepts this good
 	// often called, thus inline ...
-	int is_enabled( const ware_besch_t *wtyp ) {
-		if(wtyp==warenbauer_t::passagiere) {
-			return enables&PAX;
-		}
-		else if(wtyp==warenbauer_t::post) {
-			return enables&POST;
-		}
-		return enables&WARE;
+	bool is_enabled( const ware_besch_t *wtyp ) {
+		return is_enabled(wtyp->get_catg_index());
 	}
 
 	// a separate version for checking with goods category index
-	int is_enabled( const uint8 ctg )
+	bool is_enabled( const uint8 catg_index )
 	{
-		if (ctg==0) {
+		if (catg_index == warenbauer_t::INDEX_PAS) {
 			return enables&PAX;
 		}
-		else if(ctg==1) {
+		else if(catg_index == warenbauer_t::INDEX_MAIL) {
 			return enables&POST;
 		}
 		return enables&WARE;
