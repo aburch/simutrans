@@ -496,16 +496,37 @@ DBG_MESSAGE("ai_passenger_t::create_simple_road_transport()","Already connection
 	bauigel.set_keep_city_roads(true);
 	bauigel.set_maximum(10000);
 
-	INT_CHECK("simplay 846");
-
+	INT_CHECK("ai 499");
 	bauigel.calc_route(welt->lookup_kartenboden(platz1)->get_pos(),welt->lookup_kartenboden(platz2)->get_pos());
-	if(bauigel.get_count() > 2) {
-DBG_MESSAGE("ai_t::create_simple_road_transport()","building simple road from %d,%d to %d,%d",platz1.x, platz1.y, platz2.x, platz2.y);
+	INT_CHECK("ai 501");
+
+	// now try route with terraforming
+	wegbauer_t baumaulwurf(welt, this);
+	baumaulwurf.route_fuer( wegbauer_t::strasse|wegbauer_t::terraform_flag, road_weg, tunnelbauer_t::find_tunnel(road_wt,road_weg->get_topspeed(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(road_wt,road_weg->get_topspeed(),welt->get_timeline_year_month()) );
+	baumaulwurf.set_keep_existing_faster_ways(true);
+	baumaulwurf.set_keep_city_roads(true);
+	baumaulwurf.set_maximum(10000);
+	baumaulwurf.calc_route(welt->lookup_kartenboden(platz1)->get_pos(),welt->lookup_kartenboden(platz2)->get_pos());
+
+	// build with terraforming if shorter and enough money is available
+	bool with_tf = (baumaulwurf.get_count() > 2)  &&  (10*baumaulwurf.get_count() < 9*bauigel.get_count()  ||  bauigel.get_count() <= 2);
+	if (with_tf) {
+		with_tf &= baumaulwurf.calc_costs() < konto;
+	}
+
+	// now build with or without terraforming
+	if (with_tf) {
+		DBG_MESSAGE("ai_t::create_simple_road_transport()","building not so simple road from %d,%d to %d,%d",platz1.x, platz1.y, platz2.x, platz2.y);
+		baumaulwurf.baue();
+		return true;
+	}
+	else if(bauigel.get_count() > 2) {
+		DBG_MESSAGE("ai_t::create_simple_road_transport()","building simple road from %d,%d to %d,%d",platz1.x, platz1.y, platz2.x, platz2.y);
 		bauigel.baue();
 		return true;
 	}
 	// beware: The stop position might have changes!
-DBG_MESSAGE("ai_t::create_simple_road_transport()","building simple road from %d,%d to %d,%d failed",platz1.x, platz1.y, platz2.x, platz2.y);
+	DBG_MESSAGE("ai_t::create_simple_road_transport()","building simple road from %d,%d to %d,%d failed",platz1.x, platz1.y, platz2.x, platz2.y);
 	return false;
 }
 

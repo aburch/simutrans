@@ -11,6 +11,7 @@
 	ADD: (neroden) display tiles/month equivalent for km/h in goods-list window
 	ADD: way builder can use basic terraforming
 	CHG: gui does not lose focus when new messages appear
+	ADD: AI players use way builder with terraforming
 
 
 Release of 110.0.1 (r4359 on 12-Mar-2011):

@@ -671,12 +671,32 @@ bool ai_goods_t::create_simple_rail_transport()
 	bauigel.calc_route( starttiles, endtiles );
 	INT_CHECK("ai_goods 672");
 
-	if(bauigel.get_count() > 4) {
-DBG_MESSAGE("ai_goods_t::create_simple_rail_transport()","building simple track from %d,%d to %d,%d",platz1.x, platz1.y, platz2.x, platz2.y);
+	// now try route with terraforming
+	wegbauer_t baumaulwurf(welt, this);
+	baumaulwurf.route_fuer( wegbauer_t::schiene|wegbauer_t::bot_flag|wegbauer_t::terraform_flag, rail_weg, tunnelbauer_t::find_tunnel(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()) );
+	baumaulwurf.set_keep_existing_ways(false);
+	baumaulwurf.calc_route( starttiles, endtiles );
+
+	// build with terraforming if shorter and enough money is available
+	bool with_tf = (baumaulwurf.get_count() > 4)  &&  (10*baumaulwurf.get_count() < 9*bauigel.get_count()  ||  bauigel.get_count() <= 4);
+	if (with_tf) {
+		with_tf &= baumaulwurf.calc_costs() < konto;
+	}
+
+	// now build with or without terraforming
+	if (with_tf) {
+		baumaulwurf.baue();
+	}
+	else if (bauigel.get_count() > 4) {
 		bauigel.baue();
+	}
+
+	// connect track to station
+	if(with_tf  ||  bauigel.get_count() > 4) {
+DBG_MESSAGE("ai_goods_t::create_simple_rail_transport()","building simple track from %d,%d to %d,%d",platz1.x, platz1.y, platz2.x, platz2.y);
 		// connect to track
 
-		koord3d_vector_t const& r     = bauigel.get_route();
+		koord3d_vector_t const& r     = with_tf ? baumaulwurf.get_route() : bauigel.get_route();
 		koord3d                 tile1 = r.front();
 		koord3d                 tile2 = r.back();
 		if (!starttiles.is_contained(tile1)) sim::swap(tile1, tile2);
