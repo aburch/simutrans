@@ -2001,9 +2001,9 @@ const char *wkz_tunnelbau_t::check( karte_t *welt, spieler_t *sp, koord3d pos)
 void wkz_tunnelbau_t::calc_route( wegbauer_t &bauigel, const koord3d &start, const koord3d &end, karte_t *welt )
 {
 	const tunnel_besch_t *besch = tunnelbauer_t::get_besch(default_param);
-	int bt = besch->get_waytype()|wegbauer_t::tunnel_flag;
+	wegbauer_t::bautyp_t bt = (wegbauer_t::bautyp_t)(besch->get_waytype());
 	const weg_besch_t *wb = wegbauer_t::weg_search( besch->get_waytype(), besch->get_topspeed(), welt->get_timeline_year_month(), weg_t::type_flat );
-	bauigel.route_fuer((wegbauer_t::bautyp_t)bt, wb, besch);
+	bauigel.route_fuer(bt | wegbauer_t::tunnel_flag, wb, besch);
 	bauigel.set_keep_existing_faster_ways( !is_ctrl_pressed() );
 	// wegbauer tries to find route to 3d coordinate if no ground at end exists or is not kartenboden
 	bauigel.calc_straight_route(start,end);

@@ -630,10 +630,9 @@ bool ai_goods_t::create_simple_rail_transport()
 	clean_marker(platz2,size2);
 
 	wegbauer_t bauigel(welt, this);
-	bauigel.route_fuer( (wegbauer_t::bautyp_t)(wegbauer_t::schiene|wegbauer_t::bot_flag), rail_weg, tunnelbauer_t::find_tunnel(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()) );
+	bauigel.route_fuer( wegbauer_t::schiene|wegbauer_t::bot_flag, rail_weg, tunnelbauer_t::find_tunnel(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()) );
 	bauigel.set_keep_existing_ways(false);
 
-	bool ok=true;
 	// first: make plain stations tiles as intended
 	sint8 z1 = max( welt->get_grundwasser()+Z_TILE_STEP, welt->lookup_kartenboden(platz1)->get_hoehe() );
 	koord k = platz1;
@@ -651,7 +650,7 @@ bool ai_goods_t::create_simple_rail_transport()
 	k = platz2;
 	perpend = koord( sgn(size2.y), sgn(size2.x) );
 	koord diff2( sgn(size2.x), sgn(size2.y) );
-	while(k!=size2+platz2  &&  ok) {
+	while(k!=size2+platz2) {
 		if(!welt->ebne_planquadrat(this,k,z2)) {
 			return false;
 		}
@@ -665,16 +664,14 @@ bool ai_goods_t::create_simple_rail_transport()
 
 	vector_tpl<koord3d> starttiles, endtiles;
 	// now calc the route
-	if(ok) {
-		starttiles.append(welt->lookup_kartenboden(platz1 + size1)->get_pos());
-		starttiles.append(welt->lookup_kartenboden(platz1 - diff1)->get_pos());
-		endtiles.append(welt->lookup_kartenboden(platz2 + size2)->get_pos());
-		endtiles.append(welt->lookup_kartenboden(platz2 - diff2)->get_pos());
-		bauigel.calc_route( starttiles, endtiles );
-		INT_CHECK("simplay 2478");
-	}
+	starttiles.append(welt->lookup_kartenboden(platz1 + size1)->get_pos());
+	starttiles.append(welt->lookup_kartenboden(platz1 - diff1)->get_pos());
+	endtiles.append(welt->lookup_kartenboden(platz2 + size2)->get_pos());
+	endtiles.append(welt->lookup_kartenboden(platz2 - diff2)->get_pos());
+	bauigel.calc_route( starttiles, endtiles );
+	INT_CHECK("ai_goods 672");
 
-	if(ok  &&  bauigel.get_count() > 4) {
+	if(bauigel.get_count() > 4) {
 DBG_MESSAGE("ai_goods_t::create_simple_rail_transport()","building simple track from %d,%d to %d,%d",platz1.x, platz1.y, platz2.x, platz2.y);
 		bauigel.baue();
 		// connect to track
