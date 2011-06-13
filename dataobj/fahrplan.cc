@@ -92,7 +92,7 @@ bool schedule_t::ist_halt_erlaubt(const grund_t *gr) const
 
 
 
-bool schedule_t::insert(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_shift, sint16 spacing_shift )
+bool schedule_t::insert(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_shift, sint16 spacing_shift, bool show_failure )
 {
 #ifndef _MSC_VER
 	struct linieneintrag_t stop = { gr->get_pos(), ladegrad, waiting_time_shift, spacing_shift };
@@ -105,8 +105,12 @@ bool schedule_t::insert(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_sh
 
 #endif
 	// stored in minivec, so wie have to avoid adding too many
-	if(  eintrag.get_count()>=254  ) {
-		create_win( new news_img("Maximum 254 stops\nin a schedule!\n"), w_time_delete, magic_none);
+	if(  eintrag.get_count()>=254  ) 
+	{
+		if(show_failure)
+		{
+			create_win( new news_img("Maximum 254 stops\nin a schedule!\n"), w_time_delete, magic_none);
+		}
 		return false;
 	}
 
@@ -117,7 +121,10 @@ bool schedule_t::insert(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_sh
 	}
 	else {
 		// too many stops or wrong kind of stop
-		create_win( new news_img(fehlermeldung()), w_time_delete, magic_none);
+		if(show_failure)
+		{
+			create_win( new news_img(fehlermeldung()), w_time_delete, magic_none);
+		}
 		return false;
 	}
 }

@@ -3539,7 +3539,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 
 	const ware_besch_t* goods = ware.get_besch();
 	const uint16 price = goods->get_preis();
-	const sint32 min_price = (sint32)price << 7;
+	const uint32 min_price = price / 10;
 	const uint16 speed_bonus_rating = calc_adjusted_speed_bonus(goods->get_speed_bonus(), distance);
 	const sint32 ref_speed = welt->get_average_speed( fahr[0]->get_besch()->get_waytype() );
 	const sint32 speed_base = (sint32)(100 * average_speed) / ref_speed - 100;
@@ -3760,8 +3760,8 @@ uint8 convoi_t::calc_tolerable_comfort(uint16 journey_minutes, karte_t* w)
 	}
 	if(journey_minutes < comfort_median_short_minutes)
 	{
-		const uint32 percentage = ((journey_minutes - comfort_short_minutes) * 100) / (comfort_median_short_minutes - comfort_short_minutes);
-		return ((percentage * (comfort_median_short - comfort_short)) / 100) + comfort_short;
+		const uint32 percentage = ((journey_minutes - comfort_short_minutes) * 1000) / (comfort_median_short_minutes - comfort_short_minutes);
+		return ((percentage * (comfort_median_short - comfort_short)) / 1000) + comfort_short;
 	}
 
 	const uint16 comfort_median_median_minutes = w->get_einstellungen()->get_tolerable_comfort_median_median_minutes();
@@ -3772,8 +3772,8 @@ uint8 convoi_t::calc_tolerable_comfort(uint16 journey_minutes, karte_t* w)
 	}
 	if(journey_minutes < comfort_median_median_minutes)
 	{
-		const uint32 percentage = ((journey_minutes - comfort_median_short_minutes) * 100) / (comfort_median_median_minutes - comfort_median_short_minutes);
-		return ((percentage * (comfort_median_median - comfort_median_short)) / 100) + comfort_median_short;
+		const uint32 percentage = ((journey_minutes - comfort_median_short_minutes) * 1000) / (comfort_median_median_minutes - comfort_median_short_minutes);
+		return ((percentage * (comfort_median_median - comfort_median_short)) / 1000) + comfort_median_short;
 	}
 
 	const uint16 comfort_median_long_minutes = w->get_einstellungen()->get_tolerable_comfort_median_long_minutes();
@@ -3784,8 +3784,8 @@ uint8 convoi_t::calc_tolerable_comfort(uint16 journey_minutes, karte_t* w)
 	}
 	if(journey_minutes < comfort_median_long_minutes)
 	{
-		const uint32 percentage = ((journey_minutes - comfort_median_median_minutes) * 100) / (comfort_median_long_minutes - comfort_median_median_minutes);
-		return ((percentage * (comfort_median_long - comfort_median_median)) / 100) + comfort_median_median;
+		const uint32 percentage = ((journey_minutes - comfort_median_median_minutes) * 1000) / (comfort_median_long_minutes - comfort_median_median_minutes);
+		return ((percentage * (comfort_median_long - comfort_median_median)) / 1000) + comfort_median_median;
 	}
 	
 	const uint16 comfort_long_minutes = w->get_einstellungen()->get_tolerable_comfort_long_minutes();
@@ -3795,8 +3795,8 @@ uint8 convoi_t::calc_tolerable_comfort(uint16 journey_minutes, karte_t* w)
 		return comfort_long;
 	}
 
-	const uint32 percentage = ((journey_minutes - comfort_median_long_minutes) * 100) / (comfort_long_minutes - comfort_median_long_minutes);
-	return ((percentage * (comfort_long - comfort_median_long)) / 100) + comfort_median_long;
+	const uint32 percentage = ((journey_minutes - comfort_median_long_minutes) * 1000) / (comfort_long_minutes - comfort_median_long_minutes);
+	return ((percentage * (comfort_long - comfort_median_long)) / 1000) + comfort_median_long;
 }
 
 uint16 convoi_t::calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance, karte_t* w)
@@ -4354,7 +4354,7 @@ void convoi_t::check_pending_updates()
 
 		if(is_depot) {
 			// next was depot. restore it
-			fpl->insert(welt->lookup(depot));
+			fpl->insert(welt->lookup(depot), 0, 0, besitzer_p == welt->get_active_player());
 			fpl->set_aktuell( (fpl->get_aktuell()+fpl->get_count()-1)%fpl->get_count() );
 		}
 
@@ -4574,6 +4574,17 @@ public:
 	};
 };
 
+void convoi_t::set_depot_when_empty(bool new_dwe) 
+{ 
+	if(loading_level > 0)
+	{
+		depot_when_empty = new_dwe;
+	}
+	else
+	{
+		go_to_depot(get_besitzer() == welt->get_active_player());
+	}
+}
 
 /**
  * Convoy is sent to depot.  Return value, success or not.
@@ -4641,7 +4652,7 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 		{
 			depot_pos = route.position_bei(route.get_count()-1);
 		}		
-		fpl->insert(welt->lookup(depot_pos));
+		fpl->insert(welt->lookup(depot_pos), 0, 0, besitzer_p == welt->get_active_player());
 		fpl->set_aktuell( (fpl->get_aktuell()+fpl->get_count()-1)%fpl->get_count() );
 		b_depot_found = set_schedule(fpl);
 	}
@@ -4682,7 +4693,7 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 		{
 			koord3d depot_pos = route->position_bei(route->get_count()-1);
 			schedule_t *fpl = get_schedule();
-			fpl->insert(get_welt()->lookup(home));
+			fpl->insert(get_welt()->lookup(home), 0, 0, besitzer_p == welt->get_active_player());
 			fpl->set_aktuell( (fpl->get_aktuell()+fpl->get_count()-1)%fpl->get_count() );
 			b_depot_found = set_schedule(fpl);
 		}

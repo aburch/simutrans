@@ -79,7 +79,8 @@ public:
 
 	void set_scale(uint16 scale_factor) 
 	{ 
-		scaled_value = (value * scale_factor) / 100; 
+		scaled_value = (value * scale_factor) / 1000;
+		//set_scale_generic<uint16>(value, scale_factor);
 	}
 
 	/**
