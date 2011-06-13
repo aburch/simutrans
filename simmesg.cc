@@ -164,6 +164,9 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 	if(  (color & PLAYER_FLAG) != 0  &&  welt->get_active_player_nr() != (color&(~PLAYER_FLAG))  ) {
 		return;
 	}
+	// check if some window has focus
+	gui_frame_t *old_top = win_get_top();
+	gui_komponente_t *focus = win_get_focus();
 
 	// should we open an autoclose windows?
 	if(  art & auto_win_flags  ) {
@@ -185,6 +188,11 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 			news = new news_loc(welt, p, pos, colorval);
 		}
 		create_win(-1, -1, news, w_info, magic_none);
+	}
+
+	// restore focus
+	if (old_top  &&  focus) {
+		top_win(old_top);
 	}
 }
 
