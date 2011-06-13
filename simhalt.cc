@@ -626,6 +626,7 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 			if(  !all_names.get(buf).is_bound()  ) {
 				return strdup(buf);
 			}
+			buf.clear();
 		}
 
 		// no fabs or all names used up already
@@ -661,6 +662,7 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 			if(  !all_names.get(buf).is_bound()  ) {
 				return strdup(buf);
 			}
+			buf.clear();
 		}
 
 		// still all names taken => then try the normal naming scheme ...
@@ -739,6 +741,7 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 				if(  !all_names.get(buf).is_bound()  ) {
 					return strdup(buf);
 				}
+				buf.clear();
 			}
 			// here we did not find a suitable name ...
 			// ok, no suitable city names, try the suburb ones ...
@@ -770,6 +773,7 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 		if(  !all_names.get(buf).is_bound()  ) {
 			return strdup(buf);
 		}
+		buf.clear();
 	}
 
 	// emergency measure: But before we should run out of handles anyway ...
