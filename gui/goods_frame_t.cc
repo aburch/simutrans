@@ -227,7 +227,7 @@ void goods_frame_t::zeichnen(koord pos, koord gr)
 	sprintf(speed_bonus,"%i",relative_speed_change-100);
 
 	speed_message.clear();
-	speed_message.printf( translator::translate("Speedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h."),
+	speed_message.printf(translator::translate("Speedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h."),
 		(welt->get_average_speed(road_wt)*relative_speed_change)/100,
 		(welt->get_average_speed(track_wt)*relative_speed_change)/100,
 		(welt->get_average_speed(water_wt)*relative_speed_change)/100,
@@ -236,7 +236,7 @@ void goods_frame_t::zeichnen(koord pos, koord gr)
 	display_multiline_text(pos.x+11, pos.y+BUTTON_HEIGHT+4, speed_message, COL_WHITE);
 
 	speed_message.clear();
-	speed_message.printf(speed_message,translator::translate("tram %i km/h, monorail %i km/h\nmaglev %i km/h, narrowgauge %i km/h."),
+	speed_message.printf(translator::translate("tram %i km/h, monorail %i km/h\nmaglev %i km/h, narrowgauge %i km/h."),
 		(welt->get_average_speed(tram_wt)*relative_speed_change)/100,
 		(welt->get_average_speed(monorail_wt)*relative_speed_change)/100,
 		(welt->get_average_speed(maglev_wt)*relative_speed_change)/100,
@@ -245,8 +245,8 @@ void goods_frame_t::zeichnen(koord pos, koord gr)
 	display_multiline_text(pos.x+11, pos.y+BUTTON_HEIGHT+4+3*LINESPACE, speed_message, COL_WHITE);
 
 	speed_message.clear();
-	speed_message.printf(speed_message,translator::translate("100 km/h = %i tiles/month"),
-		(welt->speed_to_tiles_per_month(kmh_to_speed(100)))
+	speed_message.printf(translator::translate("100 km/h = %i tiles/month"),
+		welt->speed_to_tiles_per_month(kmh_to_speed(100))
 	);
 	display_multiline_text(pos.x+11, pos.y+BUTTON_HEIGHT+4+5*LINESPACE, speed_message, COL_WHITE);
 }
