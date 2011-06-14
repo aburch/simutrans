@@ -83,8 +83,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 			 " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
 			 " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"),
 	view(cnv->front(), koord(max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width() * 7) / 8))),
-	sort_label(translator::translate("loaded passenger/freight")),
-	freight_info(8192)
+	sort_label(translator::translate("loaded passenger/freight"))
 {
 	this->cnv = cnv;
 	welt = cnv->get_welt();
@@ -285,7 +284,7 @@ enable_home:
 
 		// convoi information
 		char tmp[256];
-		static cbuffer_t info_buf(256);
+		static cbuffer_t info_buf;
 
 		// use median speed to avoid flickering
 		mean_convoi_speed += speed_to_kmh(cnv->get_akt_speed()*4);
@@ -451,7 +450,7 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot chang
 				schedule_t *fpl = cnv->get_schedule()->copy();
 				fpl->insert(cnv->get_welt()->lookup(home));
 				fpl->set_aktuell( (fpl->get_aktuell()+fpl->get_count()-1)%fpl->get_count() );
-				cbuffer_t buf(5500);
+				cbuffer_t buf;
 				fpl->sprintf_schedule( buf );
 				cnv->call_convoi_tool( 'g', buf );
 				txt = "Convoi has been sent\nto the nearest depot\nof appropriate type.\n";
@@ -507,7 +506,7 @@ void convoi_info_t::rename_cnv()
 		// otherwise some unintended undo if renaming would occur
 		if(  t  &&  t[0]  &&  strcmp(t, cnv->get_name())  &&  strcmp(old_cnv_name, cnv->get_name())==0) {
 			// text changed => call tool
-			cbuffer_t buf(300);
+			cbuffer_t buf;
 			buf.printf( "c%u,%s", cnv.get_id(), t );
 			werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
 			w->set_default_param( buf );
@@ -558,8 +557,7 @@ convoi_info_t::convoi_info_t(karte_t *welt)
 	scrolly(&text),
 	text(""),
 	view( welt, koord(64,64)),
-	sort_label(translator::translate("loaded passenger/freight")),
-	freight_info(0)
+	sort_label(translator::translate("loaded passenger/freight"))
 {
 	this->welt = welt;
 }

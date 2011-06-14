@@ -803,7 +803,7 @@ bool nwc_service_t::execute(karte_t *welt)
 		case SRVC_ADMIN_MSG:
 			if (text) {
 				// add message via tool
-				cbuffer_t buf(256);
+				cbuffer_t buf;
 				buf.printf(translator::translate("[Admin] %s", welt->get_settings().get_name_language_id()), text);
 				werkzeug_t *w = create_tool( WKZ_ADD_MESSAGE_TOOL | SIMPLE_TOOL );
 				w->set_default_param( buf );

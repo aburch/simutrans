@@ -1168,7 +1168,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 					create_bus_transport_vehikel(platz1,1,list,2,end_stadt==NULL);
 					state = NR_SUCCESS;
 					// tell the player
-					cbuffer_t buf(1024);
+					cbuffer_t buf;
 					if(end_ausflugsziel!=NULL) {
 						platz1 = end_ausflugsziel->get_pos().get_2d();
 						buf.printf(translator::translate("%s now\noffers bus services\nbetween %s\nand attraction\n%s\nat (%i,%i).\n"), get_name(), start_stadt->get_name(), make_single_line_string(translator::translate(end_ausflugsziel->get_tile()->get_besch()->get_name()),2), platz1.x, platz1.y );
@@ -1203,7 +1203,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 					// start again with same town
 					end_stadt = start_stadt;
 				}
-				cbuffer_t buf(1024);
+				cbuffer_t buf;
 				buf.printf( translator::translate("Ferry service by\n%s\nnow between\n%s \nand %s.\n"), get_name(), start_stadt->get_name(), end_stadt->get_name() );
 				welt->get_message()->add_message(buf, end_stadt->get_pos(), message_t::ai, PLAYER_FLAG | player_nr, road_vehicle->get_basis_bild());
 				state = NR_SUCCESS;
@@ -1228,7 +1228,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 				// add two intown routes
 				cover_city_with_bus_route( get_our_hub(start_stadt)->get_basis_pos(), 6);
 				cover_city_with_bus_route( get_our_hub(end_stadt)->get_basis_pos(), 6);
-				cbuffer_t buf(1024);
+				cbuffer_t buf;
 				buf.printf( translator::translate("Airline service by\n%s\nnow between\n%s \nand %s.\n"), get_name(), start_stadt->get_name(), end_stadt->get_name() );
 				welt->get_message()->add_message(buf, end_stadt->get_pos(), message_t::ai, PLAYER_FLAG | player_nr, road_vehicle->get_basis_bild());
 				state = NR_SUCCESS;

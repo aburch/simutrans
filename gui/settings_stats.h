@@ -189,7 +189,6 @@ private:
 	cbuffer_t buf;
 	settings_t* local_sets;
 public:
-	settings_climates_stats_t() : buf( 128 ) {}
 	void init(settings_t*);
 	void read(settings_t*);
 	bool action_triggered(gui_action_creator_t *komp, value_t extra);

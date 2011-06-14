@@ -116,7 +116,7 @@ void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t &buf, karte_t *welt, const 
 
 
 karte_t *fahrplan_gui_stats_t::welt = NULL;
-cbuffer_t fahrplan_gui_stats_t::buf(320);
+cbuffer_t fahrplan_gui_stats_t::buf;
 
 void fahrplan_gui_stats_t::zeichnen(koord offset)
 {
@@ -396,13 +396,13 @@ bool fahrplan_gui_t::infowin_event(const event_t *ev)
 						cnv->call_convoi_tool( 'l', id );
 					}
 					else {
-						cbuffer_t buf(5500);
+						cbuffer_t buf;
 						fpl->sprintf_schedule( buf );
 						cnv->call_convoi_tool( 'g', buf );
 					}
 				}
 				else {
-					cbuffer_t buf(5500);
+					cbuffer_t buf;
 					fpl->sprintf_schedule( buf );
 					cnv->call_convoi_tool( 'g', buf );
 				}
@@ -494,7 +494,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 	} else if (komp == &bt_promote_to_line) {
 		// update line schedule via tool!
 		werkzeug_t *w = create_tool( WKZ_LINE_TOOL | SIMPLE_TOOL );
-		cbuffer_t buf(5500);
+		cbuffer_t buf;
 		buf.printf( "c,0,%i,%ld,", (int)fpl->get_type(), (long)old_fpl );
 		fpl->sprintf_schedule( buf );
 		w->set_default_param(buf);

@@ -783,7 +783,7 @@ void reliefkarte_t::draw_schedule(const koord pos) const
 		//check, if mouse is near coordinate
 		if(koord_distance(last_world_pos,fpl->eintrag[i].pos.get_2d())<=2) {
 			// draw stop name with an index
-			cbuffer_t buf(256);
+			cbuffer_t buf;
 			buf.clear();
 			buf.printf( translator::translate("(%i)-"), i+1 );
 			fahrplan_gui_t::gimme_short_stop_name(buf, welt, welt->get_spieler(fpl_player_nr), fpl, i, 240);

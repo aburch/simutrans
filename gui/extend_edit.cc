@@ -33,7 +33,6 @@
 extend_edit_gui_t::extend_edit_gui_t(const char *name, spieler_t* sp_, karte_t* welt) :
 	gui_frame_t(name, sp_),
 	sp(sp_),
-	buf(2048),
 	info_text(buf, COLUMN_WIDTH),
 	scrolly(&cont),
 	scl(gui_scrolled_list_t::select)

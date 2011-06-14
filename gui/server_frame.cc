@@ -29,11 +29,7 @@
 server_frame_t::server_frame_t(karte_t* w) :
 	gui_frame_t("Game info"),
 	welt(w),
-	gi(welt),
-	buf(1024),
-	time(32),
-	revision_buf(64),
-	pakset_checksum_buf(80)
+	gi(welt)
 {
 	update_info();
 

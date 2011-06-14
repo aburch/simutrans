@@ -22,7 +22,7 @@
 #include "../utils/simstring.h"
 
 
-cbuffer_t fabrik_info_t::info_buf(8192);
+cbuffer_t fabrik_info_t::info_buf;
 
 fabrik_info_t::fabrik_info_t(const fabrik_t* fab_, const gebaeude_t* gb) :
 	ding_infowin_t(gb),

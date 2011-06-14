@@ -57,9 +57,6 @@ void halt_list_stats_t::zeichnen(koord offset)
 	clip_dimension clip = display_get_clip_wh();
 
 	if(  !( (pos.y+offset.y)>clip.yy  ||  (pos.y+offset.y)<clip.y-32 )  &&  halt.is_bound()) {
-
-		static cbuffer_t buf(8192);  // Hajo: changed from 128 to 8192 because get_short_freight_info requires that a large buffer
-
 		// status now in front
 		display_fillbox_wh_clip(pos.x+offset.x+2, pos.y+offset.y+6, 26, INDICATOR_HEIGHT, halt->get_status_farbe(), true);
 
@@ -122,6 +119,7 @@ void halt_list_stats_t::zeichnen(koord offset)
 			left += 10;
 		}
 
+		static cbuffer_t buf;
 		buf.clear();
 		halt->get_short_freight_info(buf);
 		display_proportional_clip(pos.x+offset.x+32, pos_y, buf, ALIGN_LEFT, COL_BLACK, true);

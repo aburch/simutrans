@@ -4391,7 +4391,7 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 			sp->add_headquarter( besch->get_extra()+1, hq->get_pos().get_2d()-hq->get_tile()->get_offset() );
 			sp->buche( cost, pos.get_2d(), COST_CONSTRUCTION);
 			// tell the world of it ...
-			cbuffer_t buf(256);
+			cbuffer_t buf;
 			buf.printf( translator::translate("%s s\nheadquarter now\nat (%i,%i)."), sp->get_name(), pos.x, pos.y );
 			welt->get_message()->add_message( buf, pos.get_2d(), message_t::ai, PLAYER_FLAG|sp->get_player_nr(), hq->get_tile()->get_hintergrund(0,0,0) );
 			// reset to query tool, since costly relocations should be avoided
@@ -5726,7 +5726,7 @@ bool wkz_add_message_t::init( karte_t *welt, spieler_t *sp )
 	if(  *default_param  ) {
 		if(  sp  ) {
 			if(  umgebung_t::add_player_name_to_message  ) {
-				cbuffer_t buffer(1024);
+				cbuffer_t buffer;
 				buffer.printf("[%s]\n%s", sp->get_name(), default_param);
 				welt->get_message()->add_message( buffer, koord::invalid, message_t::chat, PLAYER_FLAG|sp->get_player_nr(), IMG_LEER );
 			}

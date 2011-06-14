@@ -316,7 +316,7 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t 
 		assert(  tabs.get_active_tab_index() > 0  &&  tabs.get_active_tab_index()<max_idx  );
 		// update line schedule via tool!
 		werkzeug_t *w = create_tool( WKZ_LINE_TOOL | SIMPLE_TOOL );
-		cbuffer_t buf(128);
+		cbuffer_t buf;
 		int type = tabs_to_lineindex[tabs.get_active_tab_index()];
 		buf.printf( "c,0,%i,0,0|%i|", type, type );
 		w->set_default_param(buf);
@@ -327,7 +327,7 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t 
 	else if (komp == &bt_delete_line) {
 		if (line.is_bound()) {
 			werkzeug_t *w = create_tool( WKZ_LINE_TOOL | SIMPLE_TOOL );
-			cbuffer_t buf(128);
+			cbuffer_t buf;
 			buf.printf( "d,%i", line.get_id() );
 			w->set_default_param(buf);
 			sp->get_welt()->set_werkzeug( w, sp );
@@ -339,7 +339,7 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t 
 		bt_withdraw_line.pressed ^= 1;
 		if (line.is_bound()) {
 			werkzeug_t *w = create_tool( WKZ_LINE_TOOL | SIMPLE_TOOL );
-			cbuffer_t buf(128);
+			cbuffer_t buf;
 			buf.printf( "w,%i,%i", line.get_id(), bt_withdraw_line.pressed );
 			w->set_default_param(buf);
 			sp->get_welt()->set_werkzeug( w, sp );
@@ -411,7 +411,7 @@ void schedule_list_gui_t::rename_line()
 		// otherwise some unintended undo if renaming would occur
 		if(  t  &&  t[0]  &&  strcmp(t, line->get_name())  &&  strcmp(old_line_name, line->get_name())==0) {
 			// text changed => call tool
-			cbuffer_t buf(300);
+			cbuffer_t buf;
 			buf.printf( "l%u,%s", line.get_id(), t );
 			werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
 			w->set_default_param( buf );

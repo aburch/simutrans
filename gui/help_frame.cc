@@ -82,7 +82,7 @@ help_frame_t::help_frame_t(char const* const filename) :
 {
 	// the key help texts are built automagically
 	if (strcmp(filename, "keys.txt") == 0) {
-		cbuffer_t buf(16000);
+		cbuffer_t buf;
 		buf.append( translator::translate( "<title>Keyboard Help</title>\n<h1><strong>Keyboard Help</strong></h1><p>\n" ) );
 		spieler_t *sp = spieler_t::get_welt()->get_active_player();
 		const char *trad_str = translator::translate( "<em>%s</em> - %s<br>\n" );

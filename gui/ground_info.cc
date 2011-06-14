@@ -12,7 +12,7 @@
 #include "ground_info.h"
 
 
-cbuffer_t grund_info_t::gr_info(1024);
+cbuffer_t grund_info_t::gr_info;
 
 
 grund_info_t::grund_info_t(const grund_t* gr_) :

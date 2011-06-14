@@ -159,7 +159,7 @@ void labellist_stats_t::recalc_size()
 
 	// loop copied from ::zeichnen(), trimmed to minimum for x_size calculation
 
-	static cbuffer_t buf(128);
+	static cbuffer_t buf;
 
 	for(  uint32 i=0;  i<labels.get_count();   i++) {
 		const koord pos = labels[i];
@@ -209,7 +209,7 @@ void labellist_stats_t::zeichnen(koord offset)
 	const int start = cd.y-LINESPACE+1;
 	const int end = cd.yy;
 
-	static cbuffer_t buf(128);
+	static cbuffer_t buf;
 	int yoff = offset.y;
 
 

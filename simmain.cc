@@ -815,7 +815,7 @@ int simu_main(int argc, char** argv)
 	std::string loadgame;
 
 	if (gimme_arg(argc, argv, "-load", 0) != NULL) {
-		cbuffer_t buf(1024);
+		cbuffer_t buf;
 		chdir( umgebung_t::user_dir );
 		/**
 		 * Added automatic adding of extension

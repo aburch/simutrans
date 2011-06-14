@@ -875,7 +875,7 @@ void depot_frame_t::rename_convoy(convoihandle_t cnv)
 		// otherwise some unintended undo if renaming would occur
 		if(  t  &&  t[0]  &&  strcmp(t, cnv->get_name())  &&  strcmp(txt_old_cnv_name, cnv->get_name())==0  ) {
 			// text changed => call tool
-			cbuffer_t buf(300);
+			cbuffer_t buf;
 			buf.printf( "c%u,%s", cnv.get_id(), t );
 			werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
 			w->set_default_param( buf );
@@ -934,7 +934,7 @@ void depot_frame_t::image_from_convoi_list(uint nr)
 			}
 		}
 
-		cbuffer_t start(16);
+		cbuffer_t start;
 		start.printf("%u", start_nr);
 
 		depot->call_depot_tool( 'r', cnv, start );

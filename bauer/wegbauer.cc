@@ -225,7 +225,7 @@ void wegbauer_t::neuer_monat(karte_t *welt)
 		stringhashtable_iterator_tpl<const weg_besch_t *> iter(alle_wegtypen);
 		while(iter.next()) {
 			const weg_besch_t * besch = iter.get_current_value();
-			cbuffer_t buf(256);
+			cbuffer_t buf;
 
 			const uint16 intro_month = besch->get_intro_year_month();
 			if(intro_month == current_month) {

@@ -36,7 +36,7 @@ public:
 	 * @param cap the capacity
 	 * @author Hj. Malthaner
 	 */
-	cbuffer_t(unsigned int size);
+	cbuffer_t();
 	~cbuffer_t();
 
 

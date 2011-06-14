@@ -148,7 +148,7 @@ void curiositylist_stats_t::zeichnen(koord offset)
 	const int start = cd.y-LINESPACE+1;
 	const int end = cd.yy;
 
-	static cbuffer_t buf(256);
+	static cbuffer_t buf;
 	int yoff = offset.y;
 
 	if(  last_world_curiosities != welt->get_ausflugsziele().get_count()  ) {

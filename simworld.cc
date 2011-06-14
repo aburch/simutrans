@@ -3273,7 +3273,7 @@ void karte_t::step()
 			announce_server();
 		}
 		// add message via tool
-		cbuffer_t buf(256);
+		cbuffer_t buf;
 		buf.printf(translator::translate("Now %u clients connected.", settings.get_name_language_id()), last_clients);
 		werkzeug_t *w = create_tool( WKZ_ADD_MESSAGE_TOOL | SIMPLE_TOOL );
 		w->set_default_param( buf );
@@ -4052,7 +4052,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved messages");
 // just the preliminaries, opens the file, checks the versions ...
 bool karte_t::laden(const char *filename)
 {
-	cbuffer_t name(1024);
+	cbuffer_t name;
 	bool ok = false;
 	bool restore_player_nr = false;
 	mute_sound(true);
@@ -5456,7 +5456,7 @@ bool karte_t::interactive(uint32 quit_month)
 		reset_timer();
 		// announce me on server
 		if(  umgebung_t::announce_server  ) {
-			cbuffer_t buf(2048);
+			cbuffer_t buf;
 #ifndef REVISION
 #	define REVISION 0
 #endif
@@ -5807,7 +5807,7 @@ bool karte_t::interactive(uint32 quit_month)
 	}
 
 	if(  umgebung_t::server  &&  umgebung_t::announce_server  ) {
-		cbuffer_t buf(2048);
+		cbuffer_t buf;
 		buf.printf( "/serverlist/slist.php?ID=%u&st=off", umgebung_t::announce_server );
 		network_download_http( ANNOUNCE_SERVER, buf, NULL );
 	}
@@ -5826,7 +5826,7 @@ void karte_t::announce_server()
 	// gd=time3.1923:size256x256:Player2:locked2:Clients1:Towns15:citicens3245:Factories33:Convoys56:Stops17
 	if(  umgebung_t::announce_server  ) {
 		// now send the status
-		cbuffer_t buf(2048);
+		cbuffer_t buf;
 		buf.printf( "/serverlist/map.php?ID=%u", umgebung_t::announce_server );
 		buf.printf( "&gd=time%u.%u:size%ux%u:", (get_current_month()%12)+1, get_current_month()/12, get_groesse_x(), get_groesse_y() );
 		uint8 player=0, locked = 0;

@@ -1008,7 +1008,7 @@ void spieler_t::bescheid_vehikel_problem(convoihandle_t cnv,const koord3d ziel)
 		case convoi_t::NO_ROUTE:
 DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s can't find a route to (%i,%i)!", cnv->get_name(),ziel.x,ziel.y);
 			{
-				cbuffer_t buf(256);
+				cbuffer_t buf;
 				buf.printf( translator::translate("Vehicle %s can't find a route!"), cnv->get_name());
 				welt->get_message()->add_message( (const char *)buf, cnv->get_pos().get_2d(), message_t::problems, PLAYER_FLAG | player_nr, cnv->front()->get_basis_bild());
 			}
@@ -1019,7 +1019,7 @@ DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s can't find a route
 		case convoi_t::CAN_START_TWO_MONTHS:
 DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s stucked!", cnv->get_name(),ziel.x,ziel.y);
 			{
-				cbuffer_t buf(256);
+				cbuffer_t buf;
 				buf.printf( translator::translate("Vehicle %s is stucked!"), cnv->get_name());
 				welt->get_message()->add_message( (const char *)buf, cnv->get_pos().get_2d(), message_t::warnings, PLAYER_FLAG | player_nr, cnv->front()->get_basis_bild());
 			}

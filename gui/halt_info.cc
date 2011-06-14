@@ -78,9 +78,7 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt) :
 			" \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
 		),
 		sort_label(translator::translate("Hier warten/lagern:")),
-		view(welt, halt->get_basis_pos3d(), koord( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width()*7)/8) )),
-		freight_info(4096),
-		info_buf(256)
+		view(welt, halt->get_basis_pos3d(), koord(max(64, get_base_tile_raster_width()), max(56, get_base_tile_raster_width() * 7 / 8)))
 {
 	this->halt = halt;
 	this->welt = welt;
@@ -162,7 +160,7 @@ halt_info_t::~halt_info_t()
 {
 	if(  halt.is_bound()  &&  strcmp(halt->get_name(),edit_name)  &&  edit_name[0]  ) {
 		// text changed => call tool
-		cbuffer_t buf(300);
+		cbuffer_t buf;
 		buf.printf( "h%u,%s", halt.get_id(), edit_name );
 		werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
 		w->set_default_param( buf );
@@ -320,7 +318,7 @@ bool halt_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 	else if(  comp == &input  ) {
 		if(  strcmp(halt->get_name(),edit_name)  ) {
 			// text changed => call tool
-			cbuffer_t buf(300);
+			cbuffer_t buf;
 			buf.printf( "h%u,%s", halt.get_id(), edit_name );
 			werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
 			w->set_default_param( buf );
@@ -379,9 +377,7 @@ halt_info_t::halt_info_t(karte_t *welt):
 	scrolly(&text),
 	text(""),
 	sort_label(NULL),
-	view(welt, koord3d::invalid, koord(64,64) ),
-	freight_info(0),
-	info_buf(0)
+	view(welt, koord3d::invalid, koord(64, 64))
 {
 	// just a dummy
 	this->welt = welt;

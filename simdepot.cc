@@ -122,7 +122,7 @@ void depot_t::call_depot_tool( char tool, convoihandle_t cnv, const char *extra)
 {
 	// call depot tool
 	werkzeug_t *w = create_tool( WKZ_DEPOT_TOOL | SIMPLE_TOOL );
-	cbuffer_t buf(512);
+	cbuffer_t buf;
 	buf.printf( "%c,%s,%hu", tool, get_pos().get_str(), cnv.get_id() );
 	if(  extra  ) {
 		buf.append( "," );

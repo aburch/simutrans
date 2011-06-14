@@ -8,12 +8,11 @@
 #include "../simtypes.h"
 
 
-cbuffer_t::cbuffer_t(unsigned int cap)
+cbuffer_t::cbuffer_t() :
+	capacity(256),
+	size(0),
+	buf(new char[capacity])
 {
-	capacity = (cap == 0 ? 1 : cap);
-	size = 0;
-
-	buf = new char[capacity];
 	buf[0] = '\0';
 }
 

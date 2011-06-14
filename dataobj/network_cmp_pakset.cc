@@ -284,7 +284,7 @@ void network_compare_pakset_with_server(const char* cp, std::string &msg)
 		if (wrong_paks>MAX_WRONG_PAKS) {
 			msg.append("<br>\n");
 			msg.append("<br>\n");
-			cbuffer_t buf(1024);
+			cbuffer_t buf;
 			buf.printf(translator::translate("Only first %d differing paks reported. There are probably more."), wrong_paks);
 			msg.append((const char*)buf);
 			msg.append("<br>\n");

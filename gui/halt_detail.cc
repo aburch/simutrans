@@ -34,8 +34,7 @@ halt_detail_t::halt_detail_t(halthandle_t halt_) :
 		" \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
 		" \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
 		" \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
-		" \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"),
-	cb_info_buffer(8192)
+		" \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n")
 {
 	cont.add_komponente(&txt_info);
 
@@ -390,8 +389,7 @@ void halt_detail_t::zeichnen(koord pos, koord gr)
 halt_detail_t::halt_detail_t(karte_t *):
 	gui_frame_t("", NULL),
 	scrolly(&cont),
-	txt_info(""),
-	cb_info_buffer(0)
+	txt_info("")
 {
 	// just a dummy
 }

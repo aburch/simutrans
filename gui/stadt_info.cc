@@ -128,7 +128,7 @@ void stadt_info_t::rename_city()
 		// otherwise some unintended undo if renaming would occur
 		if(  t  &&  t[0]  &&  strcmp(t, stadt->get_name())  &&  strcmp(old_name, stadt->get_name())==0) {
 			// text changed => call tool
-			cbuffer_t buf(300);
+			cbuffer_t buf;
 			buf.printf( "t%u,%s", stadt->get_welt()->get_staedte().index_of(stadt), name );
 			werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
 			w->set_default_param( buf );
@@ -189,7 +189,7 @@ void stadt_info_t::zeichnen(koord pos, koord gr)
 
 	gui_frame_t::zeichnen(pos, gr);
 
-	static cbuffer_t buf(1024);
+	static cbuffer_t buf;
 	buf.clear();
 
 	buf.append( translator::translate("City size") );

@@ -17,8 +17,7 @@
 #include "thing_info.h"
 
 
-cbuffer_t ding_infowin_t::buf (8192);
-
+cbuffer_t ding_infowin_t::buf;
 
 
 ding_infowin_t::ding_infowin_t(const ding_t* ding) :

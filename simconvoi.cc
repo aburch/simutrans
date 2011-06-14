@@ -474,7 +474,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 void convoi_t::call_convoi_tool( const char function, const char *extra ) const
 {
 	werkzeug_t *w = create_tool( WKZ_CONVOI_TOOL | SIMPLE_TOOL );
-	cbuffer_t param(8192);
+	cbuffer_t param;
 	param.printf("%c,%u", function, self.get_id());
 	if(  extra  &&  *extra  ) {
 		param.printf(",%s", extra);
@@ -1290,7 +1290,7 @@ void convoi_t::ziel_erreicht()
 
 	if(dp) {
 		// ok, we are entering a depot
-		cbuffer_t buf(256);
+		cbuffer_t buf;
 
 		// we still book the money for the trip; however, the freight will be lost
 		calc_gewinn();

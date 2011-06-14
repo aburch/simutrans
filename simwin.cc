@@ -1516,7 +1516,7 @@ void win_display_flush(double konto)
 	}
 
 
-	static cbuffer_t info(256);
+	static cbuffer_t info;
 	info.clear();
 	if(  pos!=koord3d::invalid  ) {
 		info.printf( "(%s)", pos.get_str() );
