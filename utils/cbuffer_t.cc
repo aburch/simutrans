@@ -58,7 +58,8 @@ static int my_vsnprintf(char *buf, size_t n, const char* fmt, va_list ap )
 #if defined _MSC_FULL_VER && _MSC_FULL_VER >= 140050727 && !defined __WXWINCE__
 	// this MSC function can handle positional parameters since 2008
 	return _vsnprintf_p(buf, n, fmt, ap);
-#elif !defined(HAVE_UNIX98_PRINTF)
+#else
+#if !defined(HAVE_UNIX98_PRINTF)
 	// this function cannot handle positional parameters
 	if(  const char *c=strstr( fmt, "%1$" )  ) {
 		// but they are requested here ...
@@ -133,6 +134,7 @@ static int my_vsnprintf(char *buf, size_t n, const char* fmt, va_list ap )
 #endif
 	// normal posix system can handle positional parameters
 	return vsnprintf(buf, n, fmt, ap);
+#endif
 }
 
 
