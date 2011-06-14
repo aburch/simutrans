@@ -801,9 +801,6 @@ bool wegbauer_t::check_terraforming( const grund_t *from, const grund_t *to, uin
 		// now calculate new slopes
 		assert(new_from_slope);
 		assert(new_to_slope);
-		// slope of from before terraforming the route
-		const hang_t::typ old_from_slope = (hang_t::typ)*new_from_slope;
-		const ribi_t::ribi dir = ribi_typ(from->get_pos(), to->get_pos());
 		// change these corner on from, and the opposite on to
 		const hang_t::typ from_mask = hang_typ((to->get_pos()-from->get_pos()).get_2d());
 		const hang_t::typ to_mask = hang_t::gegenueber(from_mask);
