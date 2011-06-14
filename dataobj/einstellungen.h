@@ -80,6 +80,7 @@ private:
 	// percentage of routing
 	sint16 factory_worker_percentage;
 	sint16 tourist_percentage;
+	sint16 city_local_percentage;	// out of %town; %town = (100% - %factory - %attraction)
 	sint16 factory_worker_radius;
 	sint32 factory_worker_minimum_towns;
 	sint32 factory_worker_maximum_towns;
@@ -452,6 +453,7 @@ public:
 	// percentage of passengers wanting different sorts of trips
 	sint16 get_factory_worker_percentage() const { return factory_worker_percentage; }
 	sint16 get_tourist_percentage() const { return tourist_percentage; }
+	sint16 get_city_local_percentage() const { return city_local_percentage; }
 
 	// radius from factories to get workers from towns (usually set to 77 but 1/8 of map size may be meaningful too)
 	uint16 get_factory_worker_radius() const { return factory_worker_radius; }

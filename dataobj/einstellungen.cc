@@ -108,6 +108,8 @@ settings_t::settings_t() :
 
 	factory_worker_percentage = 33;
 	tourist_percentage = 16;
+	city_local_percentage = 25;
+
 	factory_worker_radius = 77;
 	// try to have at least a single town connected to a factory
 	factory_worker_minimum_towns = 1;
@@ -671,6 +673,10 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_short(factory_arrival_periods);
 			file->rdwr_bool(factory_enforce_demand);
 		}
+
+		if(  file->get_version()>=110007  ) {
+			file->rdwr_short(city_local_percentage);
+		}
 	}
 }
 
@@ -877,6 +883,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	factory_arrival_periods = clamp( contents.get_int("factory_arrival_periods", factory_arrival_periods), 1, 16 );
 	factory_enforce_demand = contents.get_int("factory_enforce_demand", factory_enforce_demand) != 0;
 	tourist_percentage = contents.get_int("tourist_percentage", tourist_percentage );
+	city_local_percentage = contents.get_int("city_local_percentage", city_local_percentage);
 	seperate_halt_capacities = contents.get_int("seperate_halt_capacities", seperate_halt_capacities ) != 0;
 	pay_for_total_distance = contents.get_int("pay_for_total_distance", pay_for_total_distance );
 	avoid_overcrowding = contents.get_int("avoid_overcrowding", avoid_overcrowding )!=0;

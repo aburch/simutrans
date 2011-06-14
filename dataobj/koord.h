@@ -78,6 +78,25 @@ static inline uint32 koord_distance(const koord &a, const koord &b)
 	return abs(a.x - b.x) + abs(a.y - b.y);
 }
 
+// Knightly : shortest distance in cardinal (N, E, S, W) and ordinal (NE, SE, SW, NW) directions
+static inline uint32 shortest_distance(const koord &a, const koord &b)
+{
+	const uint32 x_offset = abs(a.x - b.x);
+	const uint32 y_offset = abs(a.y - b.y);
+	// square root of 2 is estimated by 181/128; 64 is for rounding
+	if(  x_offset>=y_offset  ) {
+		return (x_offset - y_offset) + ( ((y_offset * 181u) + 64u) >> 7 );
+	}
+	else {
+		return (y_offset - x_offset) + ( ((x_offset * 181u) + 64u) >> 7 );
+	}
+}
+
+// Knightly : multiply the value by the distance weight
+static inline uint32 weight_by_distance(const uint32 value, const uint32 distance)
+{
+	return (uint32)( ((sint64)value << 10) / (sint64)(distance < 4u ? 4u : distance) );
+}
 
 static inline koord operator * (const koord &k, const sint16 m)
 {

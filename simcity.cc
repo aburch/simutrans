@@ -1518,6 +1518,7 @@ void stadt_t::neuer_monat()
 	settings_t const& s = welt->get_settings();
 	target_factories_pax.recalc_generation_ratio( s.get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_PAS_GENERATED);
 	target_factories_mail.recalc_generation_ratio(s.get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_MAIL_GENERATED);
+	recalc_target_cities();
 
 	if (!stadtauto_t::list_empty()) {
 		// spawn eventuall citycars
@@ -1849,6 +1850,51 @@ koord stadt_t::get_zufallspunkt() const
 }
 
 
+void stadt_t::add_target_city(stadt_t *const city)
+{
+	assert( city != NULL );
+	if(  city==this  ) {
+		return;
+	}
+	target_cities.append(
+		city,
+		weight_by_distance( city->get_einwohner(), shortest_distance( this->get_pos(), city->get_pos() ) ),
+		64u
+	);
+}
+
+
+void stadt_t::recalc_target_cities()
+{
+	target_cities.clear();
+	const weighted_vector_tpl<stadt_t *> &cities = welt->get_staedte();
+	for(  uint32 c=0;  c<cities.get_count();  ++c  ) {
+		add_target_city( cities[c] );
+	}
+}
+
+
+void stadt_t::add_target_attraction(gebaeude_t *const attraction)
+{
+	assert( attraction != NULL );
+	target_attractions.append(
+		attraction,
+		weight_by_distance( attraction->get_passagier_level() << 4, shortest_distance( this->get_pos(), attraction->get_pos().get_2d() ) ),
+		64u
+	);
+}
+
+
+void stadt_t::recalc_target_attractions()
+{
+	target_attractions.clear();
+	const weighted_vector_tpl<gebaeude_t *> &attractions = welt->get_ausflugsziele();
+	for(  uint32 a=0;  a<attractions.get_count();  ++a  ) {
+		add_target_attraction( attractions[a] );
+	}
+}
+
+
 /* this function generates a random target for passenger/mail
  * changing this strongly affects selection of targets and thus game strategy
  */
@@ -1865,24 +1911,22 @@ koord stadt_t::find_destination(factory_set_t &target_factories, const sint64 ge
 
 	const sint16 rand = simrand(100 - (target_factories.generation_ratio >> RATIO_BITS));
 
-	if (rand < welt->get_settings().get_tourist_percentage() && welt->get_ausflugsziele().get_sum_weight() > 0) {
+	if(  rand<welt->get_settings().get_tourist_percentage()  &&  target_attractions.get_sum_weight()>0  ) {
 		*will_return = tourist_return;	// tourists will return
-		const gebaeude_t* gb = welt->get_random_ausflugsziel();
-		return gb->get_pos().get_2d();
+		return pick_any_weighted(target_attractions)->get_pos().get_2d();
 	}
 	else {
-		// if we reach here, at least a single town existes ...
-		const stadt_t* zielstadt = welt->get_random_stadt();
-
-		// we like nearer towns more
-		if(  koord_distance( zielstadt->pos, pos ) > 120  ) {
-			// retry once ...
-			zielstadt = welt->get_random_stadt();
+		// town destination
+		if(  target_cities.get_sum_weight()==0  ||  simrand(100)<welt->get_settings().get_city_local_percentage()  ) {
+			// intra-city destination inside the same town
+			*will_return = no_return;
+			return get_zufallspunkt();
 		}
-
-		// long distance traveller? => then we return
-		*will_return = (this != zielstadt) ? town_return : no_return;
-		return zielstadt->get_zufallspunkt();
+		else {
+			// destination from other towns
+			*will_return = town_return;
+			return pick_any_weighted(target_cities)->get_zufallspunkt();
+		}
 	}
 }
 

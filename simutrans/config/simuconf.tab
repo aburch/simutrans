@@ -115,9 +115,11 @@ growthfactor_capitals = 100
 passenger_factor=16
 
 # amount of passengers that travel from/to factories or attractions
-# the ramining percentage goes to other cities
+# out of the remaining percentage, a certain amount goes to local destinations
+# inside the same city, whereas the rest goes to other cities
 factory_worker_percentage = 33
 tourist_percentage = 16
+city_local_percentage = 25
 
 # A factory will be added as worker's destination to a town, if it has either
 # is within factory_worker_radius

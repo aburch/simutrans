@@ -645,6 +645,13 @@ const stadt_t *karte_t::get_random_stadt() const
 
 void karte_t::add_stadt(stadt_t *s)
 {
+	// Knightly : add links between this city and other cities as well as attractions
+	for(  uint32 c=0;  c<stadt.get_count();  ++c  ) {
+		stadt[c]->add_target_city(s);
+	}
+	s->recalc_target_cities();
+	s->recalc_target_attractions();
+
 	settings.set_anzahl_staedte(settings.get_anzahl_staedte() + 1);
 	stadt.append(s, s->get_einwohner(), 64);
 }
@@ -667,6 +674,11 @@ bool karte_t::rem_stadt(stadt_t *s)
 	stadt.remove(s);
 	DBG_DEBUG4("karte_t::rem_stadt()", "reduce city to %i", settings.get_anzahl_staedte() - 1);
 	settings.set_anzahl_staedte(settings.get_anzahl_staedte() - 1);
+
+	// Knightly : remove links between this city and other cities
+	for(  uint32 c=0;  c<stadt.get_count();  ++c  ) {
+		stadt[c]->remove_target_city(s);
+	}
 
 	// remove all links from factories
 	DBG_DEBUG4("karte_t::rem_stadt()", "fab_list %i", fab_list.get_count() );
@@ -847,9 +859,9 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 		new_anzahl_staedte = pos->get_count();
 
 		// prissi if we could not generate enough positions ...
-		settings.set_anzahl_staedte(old_anzahl_staedte + new_anzahl_staedte); // new number of towns (if we did not find enough positions)
+		settings.set_anzahl_staedte(old_anzahl_staedte);
 		int old_progress = 16;
-		int const max_display_progress = 16 + 2 * settings.get_anzahl_staedte() + 2 * new_anzahl_staedte + (old_x == 0 ? settings.get_land_industry_chains() : 0);
+		int const max_display_progress = 16 + 2 * (old_anzahl_staedte + new_anzahl_staedte) + 2 * new_anzahl_staedte + (old_x == 0 ? settings.get_land_industry_chains() : 0);
 
 		// Ansicht auf erste Stadt zentrieren
 		if (old_x+old_y == 0)
@@ -865,7 +877,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 			int current_citicens = (2500l * new_mittlere_einwohnerzahl) /(simrand(20000)+100);
 			stadt_t* s = new stadt_t(spieler[1], (*pos)[i], current_citicens);
 DBG_DEBUG("karte_t::distribute_groundobjs_cities()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_city_history_month())[HIST_CITICENS] );
-			stadt.append(s, s->get_einwohner(), 64);
+			add_stadt(s);
 			if(is_display_init()) {
 				old_progress ++;
 				display_progress(old_progress, max_display_progress);
@@ -2513,7 +2525,11 @@ void karte_t::add_ausflugsziel(gebaeude_t *gb)
 {
 	assert(gb != NULL);
 	ausflugsziele.append( gb, gb->get_tile()->get_besch()->get_level(), 16 );
-//DBG_MESSAGE("karte_t::add_ausflugsziel()","appended ausflugsziel at %i",ausflugsziele.get_count() );
+
+	// Knightly : add links between this attraction and all cities
+	for(  uint32 c=0;  c<stadt.get_count();  ++c  ) {
+		stadt[c]->add_target_attraction(gb);
+	}
 }
 
 
@@ -2521,6 +2537,11 @@ void karte_t::remove_ausflugsziel(gebaeude_t *gb)
 {
 	assert(gb != NULL);
 	ausflugsziele.remove( gb );
+
+	// Knightly : remove links between this attraction and all cities
+	for(  uint32 c=0;  c<stadt.get_count();  ++c  ) {
+		stadt[c]->remove_target_attraction(gb);
+	}
 }
 
 
@@ -4546,6 +4567,7 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 	weighted_vector_tpl<stadt_t*> new_weighted_stadt(stadt.get_count() + 1);
 	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
 		stadt_t* s = *i;
+		s->recalc_target_cities();
 		s->laden_abschliessen();
 		new_weighted_stadt.append(s, s->get_einwohner(), 64);
 		INT_CHECK("simworld 1278");

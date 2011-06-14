@@ -407,31 +407,19 @@ void fabrik_t::recalc_demands_at_target_cities()
 	}
 	else {
 		// more than 1 target cities -> need to apportion pax/mail demand among the cities
-		static vector_tpl<sint64> weights(8);
-		static vector_tpl<uint32> distances(8);
+		static vector_tpl<uint32> weights(8);
 		weights.clear();
-		distances.clear();
-		sint64 sum_of_weights = 0;
-		uint32 longest_distance = 0;
-		// first, calculate the distances from the target cities and find the longest distance
+		uint32 sum_of_weights = 0;
+		// first, calculate the weights
 		for(  uint32 c=0;  c<target_cities.get_count();  ++c  ) {
-			distances.append( koord_distance( get_pos(), target_cities[c]->get_pos() ) );
-			if(  longest_distance<distances[c]  ) {
-				longest_distance = distances[c];
-			}
-		}
-		// adjustment for reducing the multiplier (longest_city_distance / city_distance) when distance is too small relative to the longest distance
-		const uint32 adjustment = (longest_distance >> 3);
-		// then, calculate the weights; formula : city_population * (longest_city_distance / city_distance)
-		for(  uint32 c=0;  c<target_cities.get_count();  ++c  ) {
-			weights.append( ( (sint64)(target_cities[c]->get_einwohner()) * (sint64)(longest_distance + adjustment) ) / (sint64)(distances[c] + adjustment) );
+			weights.append( weight_by_distance( target_cities[c]->get_einwohner(), shortest_distance( get_pos().get_2d(), target_cities[c]->get_pos() ) ) );
 			sum_of_weights += weights[c];
 		}
 		// finally, apportion the pax/mail demand; formula : demand * (city_weight / aggregate_city_weight); (sum_of_weights >> 1) is for rounding
 		for(  uint32 c=0;  c<target_cities.get_count();  ++c  ) {
-			const uint32 pax_amount = (uint32)(( (sint64)(scaled_pax_demand << DEMAND_BITS) * weights[c] + (sum_of_weights >> 1) ) / sum_of_weights);
+			const uint32 pax_amount = (uint32)(( (sint64)(scaled_pax_demand << DEMAND_BITS) * (sint64)weights[c] + (sint64)(sum_of_weights >> 1) ) / (sint64)sum_of_weights);
 			target_cities[c]->access_target_factories_for_pax().update_factory(this, pax_amount);
-			const uint32 mail_amount = (uint32)(( (sint64)(scaled_mail_demand << DEMAND_BITS) * weights[c] + (sum_of_weights >> 1) ) / sum_of_weights);
+			const uint32 mail_amount = (uint32)(( (sint64)(scaled_mail_demand << DEMAND_BITS) * (sint64)weights[c] + (sint64)(sum_of_weights >> 1) ) / (sint64)sum_of_weights);
 			target_cities[c]->access_target_factories_for_mail().update_factory(this, mail_amount);
 		}
 	}

@@ -250,6 +250,7 @@ void settings_economy_stats_t::init(settings_t const* const sets)
 	INIT_BOOL( "factory_enforce_demand", sets->get_factory_enforce_demand() );
 	INIT_NUM( "factory_worker_percentage", sets->get_factory_worker_percentage(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "tourist_percentage", sets->get_tourist_percentage(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "city_local_percentage", sets->get_city_local_percentage(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR
 	INIT_NUM( "passenger_multiplier", sets->get_passenger_multiplier(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "mail_multiplier", sets->get_mail_multiplier(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
@@ -299,6 +300,7 @@ void settings_economy_stats_t::read(settings_t* const sets)
 	READ_BOOL_VALUE( sets->factory_enforce_demand );
 	READ_NUM_VALUE( sets->factory_worker_percentage );
 	READ_NUM_VALUE( sets->tourist_percentage );
+	READ_NUM_VALUE( sets->city_local_percentage );
 	READ_NUM_VALUE( sets->passenger_multiplier );
 	READ_NUM_VALUE( sets->mail_multiplier );
 	READ_NUM_VALUE( sets->goods_multiplier );

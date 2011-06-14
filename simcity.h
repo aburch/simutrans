@@ -483,6 +483,37 @@ public:
 
 	void neuer_monat();
 
+private:
+	/**
+	 * List of target cities weighted by both city size and distance
+	 * @author Knightly
+	 */
+	weighted_vector_tpl<stadt_t *> target_cities;
+
+	/**
+	 * List of target attractions weighted by both passenger level and distance
+	 * @author Knightly
+	 */
+	weighted_vector_tpl<gebaeude_t *> target_attractions;
+
+public:
+
+	/**
+	 * Functions for manipulating the list of target cities
+	 * @author Knightly
+	 */
+	void add_target_city(stadt_t *const city);
+	void remove_target_city(stadt_t *const city) { target_cities.remove(city); }
+	void recalc_target_cities();
+
+	/**
+	 * Functions for manipulating the list of target attractions
+	 * @author Knightly
+	 */
+	void add_target_attraction(gebaeude_t *const attraction);
+	void remove_target_attraction(gebaeude_t *const attraction) { target_attractions.remove(attraction); }
+	void recalc_target_attractions();
+
 	/**
 	 * such ein (zufälliges) ziel für einen Passagier
 	 * @author Hj. Malthaner
