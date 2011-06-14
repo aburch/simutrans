@@ -1061,7 +1061,7 @@ void wegbauer_t::route_fuer(bautyp_t wt, const weg_besch_t *b, const tunnel_besc
 		dbg->fatal("wegbauer_t::route_fuer()","needs a tunnel description for an underground route!");
 	}
 	if((wt&bautyp_mask)==luft) {
-		wt = (bautyp_t)(wt&(bautyp_mask|bot_flag));
+		wt &= bautyp_mask | bot_flag;
 	}
 	if(sp==NULL) {
 		bruecke_besch = NULL;

@@ -1673,7 +1673,7 @@ void wkz_wegebau_t::calc_route( wegbauer_t &bauigel, const koord3d &start, const
 	}
 	// elevated track?
 	if(besch->get_styp()==1  &&  besch->get_wtyp()!=air_wt) {
-		bautyp = (wegbauer_t::bautyp_t)((int)bautyp|(int)wegbauer_t::elevated_flag);
+		bautyp |= wegbauer_t::elevated_flag;
 	}
 
 	bauigel.route_fuer(bautyp, besch);
