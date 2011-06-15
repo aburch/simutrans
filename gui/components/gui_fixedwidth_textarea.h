@@ -11,6 +11,8 @@
 #include "gui_komponente.h"
 #include "../../simgraph.h"
 
+class cbuffer_t;
+
 /**
  * Knightly :
  *	A fixed-width, automatically line-wrapping text-area,
@@ -22,7 +24,7 @@ class gui_fixedwidth_textarea_t : public gui_komponente_t
 {
 private:
 	// Pointer to the text to be displayed. The text is *not* copied.
-	const char *text;
+	cbuffer_t* buf;
 
 	// reserved area in the upper right corner
 	koord reserved_area;
@@ -32,13 +34,12 @@ private:
 	void calc_display_text(const koord offset, const bool draw);
 
 public:
-	gui_fixedwidth_textarea_t(const char *const text, const sint16 width, const koord reserved_area = koord(0,0));
+	gui_fixedwidth_textarea_t(cbuffer_t* buf, const sint16 width, const koord reserved_area = koord(0,0));
 
 	void recalc_size();
 
 	// after using any of these setter functions, remember to call recalc_size() to recalculate textarea height
 	void set_width(const sint16 width);
-	void set_text(const char *const text);
 	void set_reserved_area(const koord area);
 
 	// it will deliberately ignore the y-component (height) of groesse

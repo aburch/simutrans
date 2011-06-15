@@ -33,7 +33,7 @@ wkz_station_t station_building_select_t::wkz=wkz_station_t();
 
 station_building_select_t::station_building_select_t(karte_t *welt, const haus_besch_t *besch) :
 	gui_frame_t("Choose direction"),
-	txt("")
+	txt()
 {
 	this->welt = welt;
 	this->besch = besch;
@@ -86,8 +86,8 @@ station_building_select_t::station_building_select_t(karte_t *welt, const haus_b
 
 	// text
 	sprintf(buf, "X=%i,Y=%i", besch->get_b(0), besch->get_h(0) );
-	txt.set_text(buf);
-	txt.set_pos( koord(10,-1) );
+	txt.set_text_pointer(buf);
+	txt.set_pos( koord(10, 0) );
 	add_komponente( &txt );
 
 	// button

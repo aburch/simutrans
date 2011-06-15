@@ -30,16 +30,12 @@ halt_detail_t::halt_detail_t(halthandle_t halt_) :
 	gui_frame_t(halt_->get_name(), halt_->get_besitzer()),
 	halt(halt_),
 	scrolly(&cont),
-	txt_info(" \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
-		" \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
-		" \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
-		" \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
-		" \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n")
+	txt_info(&buf)
 {
 	cont.add_komponente(&txt_info);
 
 	// fill buffer with halt detail
-	halt_detail_info(cb_info_buffer);
+	halt_detail_info();
 	txt_info.set_pos(koord(10,10));
 
 	// calc window size
@@ -96,7 +92,7 @@ halt_detail_t::~halt_detail_t()
 
 
 
-void halt_detail_t::halt_detail_info(cbuffer_t & buf)
+void halt_detail_t::halt_detail_info()
 {
 	if (!halt.is_bound()) {
 		return;
@@ -324,7 +320,6 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 	}
 	buf.append("\n\n");
 
-	txt_info.set_text(buf);
 	txt_info.recalc_size();
 	cont.set_groesse( txt_info.get_groesse() );
 
@@ -378,7 +373,7 @@ void halt_detail_t::zeichnen(koord pos, koord gr)
 		if(  halt->get_reconnect_counter()!=destination_counter  ||  cached_active_player!=halt->get_welt()->get_active_player()
 				||  halt->registered_lines.get_count()!=cached_line_count  ||  halt->registered_convoys.get_count()!=cached_convoy_count  ) {
 			// fill buffer with halt detail
-			halt_detail_info(cb_info_buffer);
+			halt_detail_info();
 			cached_active_player=halt->get_welt()->get_active_player();
 		}
 	}
@@ -389,7 +384,7 @@ void halt_detail_t::zeichnen(koord pos, koord gr)
 halt_detail_t::halt_detail_t(karte_t *):
 	gui_frame_t("", NULL),
 	scrolly(&cont),
-	txt_info("")
+	txt_info(&buf)
 {
 	// just a dummy
 }

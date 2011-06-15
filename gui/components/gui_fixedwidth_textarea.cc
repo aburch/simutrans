@@ -9,12 +9,13 @@
 
 #include "gui_fixedwidth_textarea.h"
 #include "../../dataobj/translator.h"
+#include "../../utils/cbuffer_t.h"
 
 
 
-gui_fixedwidth_textarea_t::gui_fixedwidth_textarea_t(const char *const text_, const sint16 width, const koord reserved_area_)
+gui_fixedwidth_textarea_t::gui_fixedwidth_textarea_t(cbuffer_t* buf_, const sint16 width, const koord reserved_area_)
 {
-	set_text(text_);
+	buf = buf_;
 	set_width(width);
 	set_reserved_area(reserved_area_);
 }
@@ -33,18 +34,6 @@ void gui_fixedwidth_textarea_t::set_width(const sint16 width)
 	if(  width>0  ) {
 		// height is simply reset to 0 as it requires recalculation anyway
 		gui_komponente_t::set_groesse( koord(width, 0) );
-	}
-}
-
-
-
-void gui_fixedwidth_textarea_t::set_text(const char *const text_)
-{
-	if(  text_  ) {
-		text = text_;
-	}
-	else {
-		text = "";
 	}
 }
 
@@ -76,6 +65,7 @@ void gui_fixedwidth_textarea_t::calc_display_text(const koord offset, const bool
 	const bool unicode = translator::get_lang()->utf_encoded;
 	KOORD_VAL x=0, word_x=0, y = 0;
 
+	const char* text(*buf);
 	const utf8 *p = (const utf8 *)text;
 	const utf8 *line_start = p;
 	const utf8 *word_start = p;

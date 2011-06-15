@@ -73,10 +73,7 @@ const int cost_type_color[MAX_HALT_COST] =
 halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt) :
 		gui_frame_t(halt->get_name(), halt->get_besitzer()),
 		scrolly(&text),
-		text("                                                                                     "
-			" \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
-			" \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
-		),
+		text(&freight_info),
 		sort_label(translator::translate("Hier warten/lagern:")),
 		view(welt, halt->get_basis_pos3d(), koord(max(64, get_base_tile_raster_width()), max(56, get_base_tile_raster_width() * 7 / 8)))
 {
@@ -185,7 +182,6 @@ void halt_info_t::zeichnen(koord pos, koord gr)
 		int old_len=freight_info.len();
 		halt->get_freight_info(freight_info);
 		if(old_len!=freight_info.len()) {
-			text.set_text(freight_info);
 			text.recalc_size();
 		}
 
@@ -375,7 +371,7 @@ void halt_info_t::map_rotate90( sint16 new_ysize )
 halt_info_t::halt_info_t(karte_t *welt):
 	gui_frame_t("", NULL),
 	scrolly(&text),
-	text(""),
+	text(&freight_info),
 	sort_label(NULL),
 	view(welt, koord3d::invalid, koord(64, 64))
 {
@@ -428,7 +424,6 @@ void halt_info_t::rdwr(loadsave_t *file)
 			w->show_hide_statistics( true );
 		}
 		halt->get_freight_info(w->freight_info);
-		w->text.set_text(w->freight_info);
 		w->text.recalc_size();
 		w->scrolly.set_scroll_position( xoff, yoff );
 		// we must invalidate halthandle

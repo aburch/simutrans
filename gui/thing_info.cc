@@ -17,13 +17,11 @@
 #include "thing_info.h"
 
 
-cbuffer_t ding_infowin_t::buf;
-
 
 ding_infowin_t::ding_infowin_t(const ding_t* ding) :
 	gui_frame_t("", ding->get_besitzer()),
 	view(ding, koord( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width()*7)/8) )),
-	textarea(buf, 170 + view.get_groesse().x, view.get_groesse() + koord(10, 10))
+	textarea(&buf, 170 + view.get_groesse().x, view.get_groesse() + koord(10, 10))
 {
 	buf.clear();
 	info(buf);
@@ -58,6 +56,7 @@ void ding_infowin_t::zeichnen(koord pos, koord gr)
 
 	buf.clear();
 	info(buf);
+	textarea.recalc_size();
 
 	gui_frame_t::zeichnen( pos, gr );
 

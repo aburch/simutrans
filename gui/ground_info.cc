@@ -19,7 +19,7 @@ grund_info_t::grund_info_t(const grund_t* gr_) :
 	gui_frame_t(gr_->get_name(), NULL),
 	gr(gr_),
 	view(gr_->get_welt(), gr_->get_pos(), koord( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width()*7)/8) )),
-	textarea(gr_info, 170 + view.get_groesse().x, view.get_groesse() + koord(10, 10))
+	textarea(&gr_info, 170 + view.get_groesse().x, view.get_groesse() + koord(10, 10))
 {
 	const ding_t *const d = gr->obj_bei(0);
 	if (  d!=NULL  ) {
@@ -60,6 +60,7 @@ void grund_info_t::zeichnen(koord pos, koord groesse)
 
 	gr_info.clear();
 	gr->info(gr_info);
+	textarea.recalc_size();
 
 	gui_frame_t::zeichnen(pos, groesse);
 

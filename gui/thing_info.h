@@ -26,7 +26,7 @@ class ding_infowin_t : public gui_frame_t
 protected:
 	ding_view_t view;
 
-	static cbuffer_t buf;
+	cbuffer_t buf;
 
 	gui_fixedwidth_textarea_t textarea;
 

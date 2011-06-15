@@ -37,11 +37,11 @@ private:
 	uint32 cached_line_count;
 	uint32 cached_convoy_count;
 
+	cbuffer_t buf;
+
 	gui_container_t cont;
 	gui_scrollpane_t scrolly;
 	gui_textarea_t txt_info;
-
-	cbuffer_t cb_info_buffer;
 
 	slist_tpl<button_t *>posbuttons;
 	slist_tpl<gui_label_t *>linelabels;
@@ -55,7 +55,7 @@ public:
 
 	~halt_detail_t();
 
-	void halt_detail_info(cbuffer_t & buf);
+	void halt_detail_info();
 
 	/**
 	 * Manche Fenster haben einen Hilfetext assoziiert.

@@ -14,7 +14,7 @@
 #include "gui_frame.h"
 #include "components/gui_button.h"
 #include "components/gui_image.h"
-#include "components/gui_textarea.h"
+#include "components/gui_label.h"
 #include "components/gui_textinput.h"
 
 
@@ -29,7 +29,7 @@ class station_building_select_t : public gui_frame_t, action_listener_t
 
 	char buf[64];
 	button_t actionbutton[4];
-	gui_textarea_t txt;
+	gui_label_t txt;
 	gui_image_t img[16];
 
 	static char default_str[260];

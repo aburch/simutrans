@@ -38,6 +38,12 @@ public:
 private:
 	static karte_t *welt;
 
+	/**
+	* Buffer for freight info text string.
+	* @author Hj. Malthaner
+	*/
+	cbuffer_t freight_info;
+
 	gui_scrollpane_t scrolly;
 	gui_textarea_t text;
 	ding_view_t view;
@@ -66,12 +72,6 @@ private:
 
 	// current pointer to route ...
 	sint32 cnv_route_index;
-
-	/**
-	* Buffer for freight info text string.
-	* @author Hj. Malthaner
-	*/
-	cbuffer_t freight_info;
 
 	char cnv_name[256],old_cnv_name[256];
 

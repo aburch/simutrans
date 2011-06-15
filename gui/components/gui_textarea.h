@@ -10,6 +10,7 @@
 
 #include "gui_komponente.h"
 
+class cbuffer_t;
 
 /**
  * Eine textanzeigekomponente
@@ -23,15 +24,13 @@ private:
 	* The text to display. May be multi-lined.
 	* @autor Hj. Malthaner
 	*/
-	const char *text;
+	cbuffer_t* buf;
 
 	// we cache the number of lines, to dynamically recalculate the size, if needed
 	uint16	lines;
 
 public:
-	gui_textarea_t(const char *text);
-
-	void set_text(const char *text);
+	gui_textarea_t(cbuffer_t* buf_);
 
 	/**
 	 * recalc the current size, needed for speculative size calculations

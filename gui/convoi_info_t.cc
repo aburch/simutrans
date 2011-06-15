@@ -77,11 +77,7 @@ const char *convoi_info_t::sort_text[SORT_MODES] = {
 convoi_info_t::convoi_info_t(convoihandle_t cnv)
 :	gui_frame_t(cnv->get_name(), cnv->get_besitzer()),
 	scrolly(&text),
-	text(" \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
-			 " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
-			 " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
-			 " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
-			 " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"),
+	text(&freight_info),
 	view(cnv->front(), koord(max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width() * 7) / 8))),
 	sort_label(translator::translate("loaded passenger/freight"))
 {
@@ -270,7 +266,6 @@ enable_home:
 		const int old_len=freight_info.len();
 		cnv->get_freight_info(freight_info);
 		if(  old_len!=freight_info.len()  ) {
-			text.set_text(freight_info);
 			text.recalc_size();
 		}
 
@@ -555,7 +550,7 @@ void convoi_info_t::set_fenstergroesse(koord groesse)
 convoi_info_t::convoi_info_t(karte_t *welt)
 :	gui_frame_t("", NULL),
 	scrolly(&text),
-	text(""),
+	text(&freight_info),
 	view( welt, koord(64,64)),
 	sort_label(translator::translate("loaded passenger/freight"))
 {
@@ -639,7 +634,6 @@ void convoi_info_t::rdwr(loadsave_t *file)
 			w->show_hide_statistics( true );
 		}
 		cnv->get_freight_info(w->freight_info);
-		w->text.set_text(w->freight_info);
 		w->text.recalc_size();
 		w->scrolly.set_scroll_position( xoff, yoff );
 		// we must invalidate halthandle

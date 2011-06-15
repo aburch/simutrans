@@ -34,6 +34,14 @@ class halt_info_t : public gui_frame_t, private action_listener_t
 {
 private:
 	static karte_t *welt;
+
+	/**
+	* Buffer for freight info text string.
+	* @author Hj. Malthaner
+	*/
+	cbuffer_t freight_info;
+	cbuffer_t info_buf;
+
 	gui_scrollpane_t scrolly;
 	gui_textarea_t text;
 	gui_textinput_t input;
@@ -47,13 +55,6 @@ private:
 
 	halthandle_t halt;
 	char edit_name[256];
-
-	/**
-	* Buffer for freight info text string.
-	* @author Hj. Malthaner
-	*/
-	cbuffer_t freight_info;
-	cbuffer_t info_buf;
 
 	void show_hide_statistics( bool show );
 

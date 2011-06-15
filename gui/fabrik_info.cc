@@ -22,13 +22,11 @@
 #include "../utils/simstring.h"
 
 
-cbuffer_t fabrik_info_t::info_buf;
-
 fabrik_info_t::fabrik_info_t(const fabrik_t* fab_, const gebaeude_t* gb) :
 	ding_infowin_t(gb),
 	fab(fab_),
 	scrolly(&cont),
-	txt("\n")
+	txt(&info_buf)
 {
 	about = lieferbuttons = supplierbuttons = stadtbuttons = NULL;
 
@@ -50,12 +48,12 @@ fabrik_info_t::fabrik_info_t(const fabrik_t* fab_, const gebaeude_t* gb) :
 		add_komponente(about);
 	}
 
-	// fill position buttons etc
-	update_info();
-
 	// calculate height
 	info_buf.clear();
 	fab->info(info_buf);
+
+	// fill position buttons etc
+	update_info();
 
 	// check, if something changed ...
 	const sint16 height = max(count_char(info_buf, '\n')*LINESPACE+36, view.get_groesse().y+8+14+36 );
@@ -163,7 +161,6 @@ void fabrik_info_t::update_info()
 
 	// needs to update all text
 	txt.set_pos(koord(16,4));
-	txt.set_text(info_buf);
 	cont.add_komponente(&txt);
 
 	const vector_tpl <koord> & lieferziele =  fab->get_lieferziele();

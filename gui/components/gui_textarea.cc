@@ -11,24 +11,12 @@
 #include "../../simgraph.h"
 #include "../../simdebug.h"
 #include "../../simcolor.h"
+#include "../../utils/cbuffer_t.h"
 
-gui_textarea_t::gui_textarea_t(const char *text)
+gui_textarea_t::gui_textarea_t(cbuffer_t* buf_)
 {
-	set_text(text);
+	buf = buf_;
 	recalc_size();
-}
-
-
-
-void
-gui_textarea_t::set_text(const char *text)
-{
-	if(text) {
-		this->text = text;
-	}
-	else {
-		this->text = "";
-	}
 }
 
 
@@ -37,6 +25,7 @@ gui_textarea_t::set_text(const char *text)
 // usually not needed to be called explicitely
 void gui_textarea_t::recalc_size()
 {
+	const char *text(*buf);
 	// we cannot use: display_multiline_text(pos.x+offset.x, pos.y+offset.y+10, text, COL_BLACK);
 	// since we also want to dynamically change the size of the component
 	int new_lines=0;
@@ -68,6 +57,7 @@ DBG_MESSAGE("gui_textarea_t::recalc_size()","reset size to %i,%i",x_size+10,new_
  */
 void gui_textarea_t::zeichnen(koord offset)
 {
+	const char *text(*buf);
 	// we cannot use: display_multiline_text(pos.x+offset.x, pos.y+offset.y+10, text, COL_BLACK);
 	// since we also want to dynamically change the size of the component
 	int new_lines=0;

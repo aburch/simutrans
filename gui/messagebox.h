@@ -8,6 +8,7 @@
 #include "../simskin.h"
 #include "../besch/skin_besch.h"
 #include "../simcolor.h"
+#include "../utils/cbuffer_t.h"
 
 /**
  * Eine Klasse für Nachrichtenfenster.
@@ -25,6 +26,7 @@ protected:
 	void extend_window_with_component(gui_komponente_t *const component, const koord size, const koord offset = koord(0,0));
 
 private:
+	cbuffer_t buf;
 	gui_fixedwidth_textarea_t textarea;
 	PLAYER_COLOR_VAL color;
 };
