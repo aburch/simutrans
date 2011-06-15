@@ -49,9 +49,13 @@ void cbuffer_t::append(double n,int decimals)
 
 /* this is a vsnprintf which can always process positional parameters
  * like "%2$i: %1$s"
- * WARNING: posix specification as wel as this function always assumes that
+ * WARNING: posix specification as well as this function always assumes that
  * ALL parameter are either positional or not!!!
- * ATTENTETION: no support for positional precision (which are not used in simutrans anyway!
+ *
+ * When numbered argument specifications are used, specifying the Nth argument requires that all the
+ * leading arguments, from the first to the (N-1)th, are specified in the format string.
+ *
+ * ATTENTION: no support for positional precision (which are not used in simutrans anyway!
  */
 static int my_vsnprintf(char *buf, size_t n, const char* fmt, va_list ap )
 {
@@ -63,7 +67,7 @@ static int my_vsnprintf(char *buf, size_t n, const char* fmt, va_list ap )
 	// this function cannot handle positional parameters
 	if(  const char *c=strstr( fmt, "%1$" )  ) {
 		// but they are requested here ...
-		// ous rounte can only handle max. 9 parametres, whichout positions an no holes!
+		// our routine can only handle max. 9 parameters
 		char pos[6];
 		static char format_string[256];
 		char *cfmt = format_string;
@@ -94,15 +98,14 @@ static int my_vsnprintf(char *buf, size_t n, const char* fmt, va_list ap )
 		}
 		// check the length
 		result += strlen(fmt);
-		if(   result > n  ) {
+		if(   (size_t)result > n  ) {
 			// increase the size please ...
 			return result;
 		}
 		// we have enough size: copy everything together
-		const char *start_buf = buf;
 		*buf = 0;
 		char *cbuf = buf;
-		cfmt = (char *)fmt;
+		cfmt = const_cast<char *>(fmt); // cast is save, as the string is not modified
 		while(  *cfmt!=0  ) {
 			while(  *cfmt!='%'  &&  *cfmt>0  ) {
 				*cbuf++ = *cfmt++;
@@ -168,12 +171,14 @@ void cbuffer_t::printf(const char* fmt, ...)
 }
 
 
-void cbuffer_t::extend(unsigned int by_amount)
+void cbuffer_t::extend(unsigned int min_free_space)
 {
-	if (by_amount >= capacity - size) {
-		by_amount = by_amount + 1 - (capacity - size);
-		if (by_amount < capacity) // At least double the size of the buffer.
+	if (min_free_space >= capacity - size) {
+		unsigned int by_amount = min_free_space + 1 - (capacity - size);
+		if (by_amount < capacity) {
+			// At least double the size of the buffer.
 			by_amount = capacity;
+		}
 		unsigned int new_capacity = capacity + by_amount;
 		char *new_buf = new char [new_capacity];
 		memcpy( new_buf, buf, capacity );
