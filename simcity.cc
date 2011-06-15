@@ -2288,10 +2288,24 @@ void stadt_t::check_bau_rathaus(bool new_town)
 			lo = best_pos+offset - koord(2, 2);
 			ur = best_pos+offset + koord(besch->get_b(layout), besch->get_h(layout)) + koord(2, 2);
 		}
-		// update position (where the name is)
-		welt->lookup_kartenboden(pos)->set_text( NULL );
-		pos = best_pos+offset;
-		welt->lookup_kartenboden(pos)->set_text( name );
+		const koord new_pos = best_pos + offset;
+		if(  pos!=new_pos  ) {
+			// update position (where the name is)
+			welt->lookup_kartenboden(pos)->set_text( NULL );
+			pos = new_pos;
+			welt->lookup_kartenboden(pos)->set_text( name );
+			// Knightly : update the links between this city and other cities as well as attractions
+			const weighted_vector_tpl<stadt_t *> &cities = welt->get_staedte();
+			if(  cities.is_contained(this)  ) {
+				// update only if this city has already been added to the world
+				for(  uint32 c=0;  c<cities.get_count();  ++c  ) {
+					cities[c]->remove_target_city(this);
+					cities[c]->add_target_city(this);
+				}
+				recalc_target_cities();
+				recalc_target_attractions();
+			}
+		}
 	}
 }
 

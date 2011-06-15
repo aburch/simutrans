@@ -1444,6 +1444,12 @@ const char *wkz_change_city_size_t::work( karte_t *welt, spieler_t *, koord3d po
 	stadt_t *city = welt->suche_naechste_stadt(pos.get_2d());
 	if(city!=NULL) {
 		city->change_size( atoi(default_param) );
+		// Knightly : update the links from other cities to this city
+		const weighted_vector_tpl<stadt_t *> &cities = welt->get_staedte();
+		for(  uint32 c=0;  c<cities.get_count();  ++c  ) {
+			cities[c]->remove_target_city(city);
+			cities[c]->add_target_city(city);
+		}
 		return NULL;
 	}
 	return "";

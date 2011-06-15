@@ -503,7 +503,7 @@ public:
 	 * @author Knightly
 	 */
 	void add_target_city(stadt_t *const city);
-	void remove_target_city(stadt_t *const city) { target_cities.remove(city); }
+	void remove_target_city(stadt_t *const city) { if( city!=this ) target_cities.remove(city); }
 	void recalc_target_cities();
 
 	/**
