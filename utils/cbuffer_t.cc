@@ -161,7 +161,7 @@ void cbuffer_t::printf(const char* fmt, ...)
 			break;
 		} else {
 			// Make room for the string.
-			inc = (size_t)count - n;
+			inc = (size_t)count;
 		}
 		extend(inc);
 	}
