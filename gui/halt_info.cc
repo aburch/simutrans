@@ -87,22 +87,21 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt) :
 	input.set_pos(koord(10,4));
 	tstrncpy(edit_name, halt->get_name(), lengthof(edit_name));
 	input.set_text(edit_name, lengthof(edit_name));
-	add_komponente(&input);
 	input.add_listener(this);
+	add_komponente(&input);
 
 	add_komponente(&view);
 
 	// chart
-	chart.set_pos(koord(66,view.get_groesse().y+24));
-	chart.set_groesse(koord(BUTTON4_X+BUTTON_WIDTH-70, 100));
+	chart.set_pos(koord(66,offset_below_viewport+2));
+	chart.set_groesse(koord(total_width-66-10, 100));
 	chart.set_dimension(12, 10000);
 	chart.set_visible(false);
 	chart.set_background(MN_GREY1);
-
 	for (int cost = 0; cost<MAX_HALT_COST; cost++) {
 		chart.add_curve(cost_type_color[cost], halt->get_finance_history(), MAX_HALT_COST, index_of_haltinfo[cost], MAX_MONTHS, 0, false, true, 0);
 		filterButtons[cost].init(button_t::box_state, cost_type[cost],
-			koord(BUTTON1_X+(BUTTON_WIDTH+BUTTON_SPACER)*(cost%4), view.get_groesse().y+142+(BUTTON_HEIGHT+2)*(cost/4) ),
+			koord(BUTTON1_X+(BUTTON_WIDTH+BUTTON_SPACER)*(cost%4), view.get_groesse().y+141+(BUTTON_HEIGHT+2)*(cost/4) ),
 			koord(BUTTON_WIDTH, BUTTON_HEIGHT));
 		filterButtons[cost].add_listener(this);
 		filterButtons[cost].background = cost_type_color[cost];
@@ -114,42 +113,32 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt) :
 
 	add_komponente(&sort_label);
 
+	const sint16 yoff = offset_below_viewport+BUTTON_HEIGHT+1-BUTTON_HEIGHT-2;
+
 	// hsiegeln: added sort_button
-	sort_button.set_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
-	sort_button.set_pos(koord(BUTTON1_X, offset_below_viewport));
-	sort_button.set_text(sort_text[umgebung_t::default_sortmode]);
-	sort_button.set_typ(button_t::roundbox);
+	sort_button.init(button_t::roundbox, sort_text[umgebung_t::default_sortmode],koord(BUTTON1_X, yoff), koord(BUTTON_WIDTH, BUTTON_HEIGHT));
 	sort_button.set_tooltip("Sort waiting list by");
+	sort_button.add_listener(this);
 	add_komponente(&sort_button);
 
-	toggler.set_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
-	toggler.set_pos(koord(BUTTON3_X, offset_below_viewport));
-	toggler.set_text("Chart");
-	toggler.set_typ(button_t::roundbox_state);
+	toggler.init(button_t::roundbox_state, "Chart", koord(BUTTON3_X, yoff), koord(BUTTON_WIDTH, BUTTON_HEIGHT));
 	toggler.set_tooltip("Show/hide statistics");
 	toggler.add_listener(this);
-	toggler.pressed = false;
 	add_komponente(&toggler);
 
-	button.set_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
-	button.set_pos(koord(BUTTON4_X, offset_below_viewport));
-	button.set_text("Details");
-	button.set_typ(button_t::roundbox);
-
-	scrolly.set_pos(koord(0, offset_below_viewport+BUTTON_HEIGHT+4));
-	scrolly.set_show_scroll_x(true);
-
+	button.init(button_t::roundbox, "Details", koord(BUTTON4_X, yoff), koord(BUTTON_WIDTH, BUTTON_HEIGHT));
+	button.add_listener(this);
 	add_komponente(&button);
 
-	set_fenstergroesse(koord(total_width, view.get_groesse().y+208));
-	set_min_windowsize(koord(total_width, view.get_groesse().y+138));
+	scrolly.set_pos(koord(0, offset_below_viewport+BUTTON_HEIGHT+3));
+	scrolly.set_show_scroll_x(true);
+	add_komponente(&scrolly);
+
+	set_fenstergroesse(koord(total_width, view.get_groesse().y+208+scrollbar_t::BAR_SIZE));
+	set_min_windowsize(koord(total_width, view.get_groesse().y+131+scrollbar_t::BAR_SIZE));
+
 	set_resizemode(diagonal_resize);     // 31-May-02	markus weber	added
 	resize(koord(0,0));
-
-	button.add_listener(this);
-	sort_button.add_listener(this);
-
-	add_komponente(&scrolly);
 }
 
 
@@ -284,7 +273,7 @@ void halt_info_t::zeichnen(koord pos, koord gr)
 void halt_info_t::show_hide_statistics( bool show )
 {
 	toggler.pressed = show;
-	const koord offset = show ? koord(0, 170) : koord(0, -170);
+	const koord offset = show ? koord(0, 165) : koord(0, -165);
 	set_min_windowsize(get_min_windowsize() + offset);
 	scrolly.set_pos(scrolly.get_pos() + offset);
 	chart.set_visible(show);
@@ -350,14 +339,17 @@ void halt_info_t::set_fenstergroesse(koord groesse)
 {
 	gui_frame_t::set_fenstergroesse(groesse);
 
-	const sint16 yoff = scrolly.get_pos().y-BUTTON_HEIGHT-2;
 	input.set_groesse(koord(get_fenstergroesse().x-20, 13));
+
+	view.set_pos(koord(get_fenstergroesse().x - view.get_groesse().x - 10 , 21));
+
+	scrolly.set_groesse(get_client_windowsize()-scrolly.get_pos());
+
+	const sint16 yoff = scrolly.get_pos().y-BUTTON_HEIGHT-3;
+	sort_button.set_pos(koord(BUTTON1_X,yoff));
 	toggler.set_pos(koord(BUTTON3_X,yoff));
 	button.set_pos(koord(BUTTON4_X,yoff));
-	sort_button.set_pos(koord(BUTTON1_X,yoff));
-	sort_label.set_pos(koord(BUTTON1_X,yoff-LINESPACE));
-	view.set_pos(koord(get_fenstergroesse().x - view.get_groesse().x - 10 , 21));
-	scrolly.set_groesse(get_client_windowsize()-scrolly.get_pos());
+	sort_label.set_pos(koord(2,yoff-LINESPACE-1));
 }
 
 

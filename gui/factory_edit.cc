@@ -34,15 +34,13 @@
 #include "factory_edit.h"
 
 
-#define LINE_NAME_COLUMN_WIDTH (int)((BUTTON_WIDTH*2.25)+11)
-#define SCL_HEIGHT (170)
-#define N_BUTTON_WIDTH  (int)(BUTTON_WIDTH*1.5)
-
-
+// new tool definition
 wkz_build_industries_land_t factory_edit_frame_t::land_chain_tool = wkz_build_industries_land_t();
 wkz_build_industries_city_t factory_edit_frame_t::city_chain_tool = wkz_build_industries_city_t();
 wkz_build_factory_t factory_edit_frame_t::fab_tool = wkz_build_factory_t();
 char factory_edit_frame_t::param_str[256];
+
+
 
 static bool compare_fabrik_besch(const fabrik_besch_t* a, const fabrik_besch_t* b)
 {

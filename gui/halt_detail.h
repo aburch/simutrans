@@ -64,6 +64,9 @@ public:
 	 */
 	const char * get_hilfe_datei() const { return "station_details.txt"; }
 
+    // Set window size and adjust component sizes and/or positions accordingly
+    virtual void set_fenstergroesse(koord groesse);
+
 	// callback for posbuttons
 	bool action_triggered( gui_action_creator_t *komp, value_t extra);
 

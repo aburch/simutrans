@@ -35,10 +35,10 @@ settings_frame_t::settings_frame_t(settings_t* const s) : gui_frame_t("Setting")
 	scrolly_costs(&costs),
 	scrolly_climates(&climates)
 {
-	revert_to_default.init( button_t::roundbox, "Simuconf.tab", koord( 0, 0), koord( BUTTON_WIDTH, BUTTON_HEIGHT ) );
+	revert_to_default.init( button_t::roundbox, "Simuconf.tab", koord( BUTTON1_X, 0), koord( BUTTON_WIDTH, BUTTON_HEIGHT ) );
 	revert_to_default.add_listener( this );
 	add_komponente( &revert_to_default );
-	revert_to_last_save.init( button_t::roundbox, "Default.sve", koord( BUTTON_WIDTH, 0), koord( BUTTON_WIDTH, BUTTON_HEIGHT ) );
+	revert_to_last_save.init( button_t::roundbox, "Default.sve", koord( BUTTON2_X, 0), koord( BUTTON_WIDTH, BUTTON_HEIGHT ) );
 	revert_to_last_save.add_listener( this );
 	add_komponente( &revert_to_last_save );
 
@@ -54,9 +54,7 @@ settings_frame_t::settings_frame_t(settings_t* const s) : gui_frame_t("Setting")
 	scrolly_costs.set_scroll_amount_y(BUTTON_HEIGHT/2);
 	scrolly_climates.set_scroll_amount_y(BUTTON_HEIGHT/2);
 
-	// tab panel
 	tabs.set_pos(koord(0,BUTTON_HEIGHT));
-	tabs.set_groesse(koord(320, 240)-koord(11,5));
 	tabs.add_tab(&scrolly_general, translator::translate("General"));
 	tabs.add_tab(&scrolly_economy, translator::translate("Economy"));
 	tabs.add_tab(&scrolly_routing, translator::translate("Routing"));
@@ -64,10 +62,8 @@ settings_frame_t::settings_frame_t(settings_t* const s) : gui_frame_t("Setting")
 	tabs.add_tab(&scrolly_climates, translator::translate("Climate Control"));
 	add_komponente(&tabs);
 
-
-	set_fenstergroesse(koord(320, 240));
-	// a min-size for the window
-	set_min_windowsize(koord(320, 80));
+	set_fenstergroesse(koord(TOTAL_WIDTH, TITLEBAR_HEIGHT+BUTTON_HEIGHT+gui_tab_panel_t::HEADER_VSIZE+18*(BUTTON_HEIGHT/2)+2+1));
+	set_min_windowsize(koord(BUTTON3_X, TITLEBAR_HEIGHT+BUTTON_HEIGHT+gui_tab_panel_t::HEADER_VSIZE+6*(BUTTON_HEIGHT/2)+2+1));
 
 	set_resizemode(diagonal_resize);
 	resize(koord(0,0));
@@ -83,10 +79,9 @@ settings_frame_t::settings_frame_t(settings_t* const s) : gui_frame_t("Setting")
 void settings_frame_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta);
-	koord groesse = get_fenstergroesse()-koord(0,16+BUTTON_HEIGHT);
+	koord groesse = get_fenstergroesse()-koord(0,TITLEBAR_HEIGHT+BUTTON_HEIGHT);
 	tabs.set_groesse(groesse);
 }
-
 
 
 

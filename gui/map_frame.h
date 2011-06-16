@@ -64,9 +64,6 @@ private:
 
 	gui_scrollpane_t scrolly;
 
-	// position of the buttons
-	int row, col;
-
 	// buttons
 	static const char map_type[MAX_BUTTON_TYPE][64];
 	static const uint8 map_type_color[MAX_BUTTON_TYPE];
@@ -83,6 +80,10 @@ private:
 	button_t b_show_legend;
 	button_t b_show_scale;
 	button_t b_show_directory;
+
+	void show_hide_legend(const bool show);
+	void show_hide_scale(const bool show);
+	void show_hide_directory(const bool show);
 
 public:
 

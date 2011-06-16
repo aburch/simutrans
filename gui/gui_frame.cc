@@ -27,6 +27,7 @@ gui_frame_t::gui_frame_t(char const* const name, spieler_t const* const sp)
 {
 	this->name = name;
 	groesse = koord(200, 100);
+	min_windowsize = koord(0,0);
 	owner = sp;
 	container.set_pos(koord(0,TITLEBAR_HEIGHT));
 	set_resizemode(no_resize); //25-may-02	markus weber	added

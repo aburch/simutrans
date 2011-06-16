@@ -58,10 +58,10 @@ void halt_list_stats_t::zeichnen(koord offset)
 
 	if(  !( (pos.y+offset.y)>clip.yy  ||  (pos.y+offset.y)<clip.y-32 )  &&  halt.is_bound()) {
 		// status now in front
-		display_fillbox_wh_clip(pos.x+offset.x+2, pos.y+offset.y+6, 26, INDICATOR_HEIGHT, halt->get_status_farbe(), true);
+		display_fillbox_wh_clip(pos.x+offset.x+4, pos.y+offset.y+6, 26, INDICATOR_HEIGHT, halt->get_status_farbe(), true);
 
 		// name
-		int left = pos.x + offset.x + 32 + display_proportional_clip(pos.x + offset.x + 32, pos.y + offset.y + 2, translator::translate(halt->get_name()), ALIGN_LEFT, COL_BLACK, true);
+		int left = pos.x + offset.x + 32+2 + display_proportional_clip(pos.x + offset.x + 32+2, pos.y + offset.y + 2, translator::translate(halt->get_name()), ALIGN_LEFT, COL_BLACK, true);
 
 		// what kind of stop
 		haltestelle_t::stationtyp const halttype = halt->get_station_type();
@@ -105,7 +105,7 @@ void halt_list_stats_t::zeichnen(koord offset)
 
 		// now what do we accept here?
 		pos_y = pos.y+offset.y+14;
-		left = pos.x+offset.x;
+		left = pos.x+offset.x+2;
 		if (halt->get_pax_enabled()) {
 			display_color_img(skinverwaltung_t::passagiere->get_bild_nr(0), left, pos_y, 0, false, true);
 			left += 10;
@@ -122,6 +122,6 @@ void halt_list_stats_t::zeichnen(koord offset)
 		static cbuffer_t buf;
 		buf.clear();
 		halt->get_short_freight_info(buf);
-		display_proportional_clip(pos.x+offset.x+32, pos_y, buf, ALIGN_LEFT, COL_BLACK, true);
+		display_proportional_clip(pos.x+offset.x+32+2, pos_y, buf, ALIGN_LEFT, COL_BLACK, true);
 	}
 }

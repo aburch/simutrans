@@ -97,10 +97,6 @@ loadsave_frame_t::loadsave_frame_t(karte_t *welt, bool do_load) : savegame_frame
 		set_name("Speichern");
 	}
 
-	set_min_windowsize(get_fenstergroesse());
-	set_resizemode(diagonal_resize);
-	set_fenstergroesse(koord(360+36, get_fenstergroesse().y));
-
 	// load cached entries
 	if (cached_info.empty()) {
 		loadsave_t file;

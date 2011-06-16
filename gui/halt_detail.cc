@@ -25,6 +25,8 @@
 
 #include "halt_detail.h"
 
+#include "components/list_button.h"
+
 
 halt_detail_t::halt_detail_t(halthandle_t halt_) :
 	gui_frame_t(halt_->get_name(), halt_->get_besitzer()),
@@ -36,22 +38,17 @@ halt_detail_t::halt_detail_t(halthandle_t halt_) :
 
 	// fill buffer with halt detail
 	halt_detail_info();
-	txt_info.set_pos(koord(10,10));
+	txt_info.set_pos(koord(10,0));
 
-	// calc window size
-	const koord size = txt_info.get_groesse();
-	if (size.y < 400) {
-		set_fenstergroesse(koord(300, size.y + 32));
-	}
-	else {
-		set_fenstergroesse(koord(300, 400));
-	}
-
-	// add scrollbar
-	scrolly.set_pos(koord(1, 1));
-	scrolly.set_groesse(get_fenstergroesse() + koord(-1, -17));
+	scrolly.set_pos(koord(0, 6));
 	scrolly.set_show_scroll_x(true);
 	add_komponente(&scrolly);
+
+	set_fenstergroesse(koord(TOTAL_WIDTH, TITLEBAR_HEIGHT+4+22*(LINESPACE)+scrollbar_t::BAR_SIZE+2));
+	set_min_windowsize(koord(TOTAL_WIDTH, TITLEBAR_HEIGHT+4+3*(LINESPACE)+scrollbar_t::BAR_SIZE+2));
+
+	set_resizemode(diagonal_resize);
+	resize(koord(0,0));
 
 	cached_active_player=NULL;
 }
@@ -131,7 +128,7 @@ void halt_detail_t::halt_detail_info()
 	const slist_tpl<fabrik_t *> & fab_list = halt->get_fab_list();
 	slist_tpl<const ware_besch_t *> nimmt_an;
 
-	sint16 offset_y = 22;
+	sint16 offset_y = LINESPACE;
 	buf.append(translator::translate("Fabrikanschluss"));
 	buf.append("\n");
 	offset_y += LINESPACE;
@@ -318,7 +315,6 @@ void halt_detail_t::halt_detail_info()
 	if (!has_stops) {
 		buf.printf(" %s\n", translator::translate("keine"));
 	}
-	buf.append("\n\n");
 
 	txt_info.recalc_size();
 	cont.set_groesse( txt_info.get_groesse() );
@@ -381,6 +377,15 @@ void halt_detail_t::zeichnen(koord pos, koord gr)
 }
 
 
+
+void halt_detail_t::set_fenstergroesse(koord groesse)
+{
+	gui_frame_t::set_fenstergroesse(groesse);
+	scrolly.set_groesse(get_client_windowsize()-scrolly.get_pos());
+}
+
+
+
 halt_detail_t::halt_detail_t(karte_t *):
 	gui_frame_t("", NULL),
 	scrolly(&cont),
@@ -388,6 +393,7 @@ halt_detail_t::halt_detail_t(karte_t *):
 {
 	// just a dummy
 }
+
 
 
 void halt_detail_t::rdwr(loadsave_t *file)

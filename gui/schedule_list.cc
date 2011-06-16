@@ -74,7 +74,7 @@ enum sort_modes_t { SORT_BY_NAME=0, SORT_BY_ID, SORT_BY_PROFIT, SORT_BY_TRANSPOR
 static uint8 current_sort_mode = 0;
 
 #define LINE_NAME_COLUMN_WIDTH ((BUTTON_WIDTH*3)+11+11)
-#define SCL_HEIGHT (170)
+#define SCL_HEIGHT (15*LINESPACE-1)
 
 
 static bool compare_lines(line_scrollitem_t* a, line_scrollitem_t* b)
@@ -216,39 +216,27 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t *sp_) :
 	add_komponente(&scrolly_haltestellen);
 
 	// normal buttons edit new remove
-	bt_new_line.set_pos(koord(11, 7 + SCL_HEIGHT));
-	bt_new_line.set_groesse(koord(BUTTON_WIDTH,BUTTON_HEIGHT));
-	bt_new_line.set_typ(button_t::roundbox);
-	bt_new_line.set_text("New Line");
-	add_komponente(&bt_new_line);
+	bt_new_line.init(button_t::roundbox, "New Line", koord(11, 7 + SCL_HEIGHT), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
 	bt_new_line.add_listener(this);
 	bt_new_line.disable();
+	add_komponente(&bt_new_line);
 
-	bt_change_line.set_pos(koord(11+BUTTON_WIDTH, 7 + SCL_HEIGHT));
-	bt_change_line.set_groesse(koord(BUTTON_WIDTH,BUTTON_HEIGHT));
-	bt_change_line.set_typ(button_t::roundbox);
-	bt_change_line.set_text("Update Line");
+	bt_change_line.init(button_t::roundbox, "Update Line", koord(11+BUTTON_WIDTH, 7 + SCL_HEIGHT), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
 	bt_change_line.set_tooltip("Modify the selected line");
-	add_komponente(&bt_change_line);
 	bt_change_line.add_listener(this);
 	bt_change_line.disable();
+	add_komponente(&bt_change_line);
 
-	bt_delete_line.set_pos(koord(11+2*BUTTON_WIDTH, 7 + SCL_HEIGHT));
-	bt_delete_line.set_groesse(koord(BUTTON_WIDTH,BUTTON_HEIGHT));
-	bt_delete_line.set_typ(button_t::roundbox);
-	bt_delete_line.set_text("Delete Line");
-	add_komponente(&bt_delete_line);
+	bt_delete_line.init(button_t::roundbox, "Delete Line", koord(11+2*BUTTON_WIDTH, 7 + SCL_HEIGHT), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
 	bt_delete_line.add_listener(this);
 	bt_delete_line.disable();
+	add_komponente(&bt_delete_line);
 
-	bt_withdraw_line.set_pos(koord(11+0*BUTTON_WIDTH, 7 + SCL_HEIGHT+BUTTON_HEIGHT));
-	bt_withdraw_line.set_groesse(koord(BUTTON_WIDTH,BUTTON_HEIGHT));
-	bt_withdraw_line.set_typ(button_t::roundbox_state);
-	bt_withdraw_line.set_text("Withdraw All");
+	bt_withdraw_line.init(button_t::roundbox_state, "Withdraw All", koord(11+0*BUTTON_WIDTH, 7 + SCL_HEIGHT+BUTTON_HEIGHT), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
 	bt_withdraw_line.set_tooltip("Convoi is sold when all wagons are empty.");
-	add_komponente(&bt_withdraw_line);
 	bt_withdraw_line.add_listener(this);
 	bt_withdraw_line.disable();
+	add_komponente(&bt_withdraw_line);
 
 	//CHART
 	chart.set_dimension(12, 1000);

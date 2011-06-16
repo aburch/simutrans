@@ -32,11 +32,6 @@
 #include "baum_edit.h"
 
 
-#define LINE_NAME_COLUMN_WIDTH (int)((BUTTON_WIDTH*2.25)+11)
-#define SCL_HEIGHT (170)
-#define N_BUTTON_WIDTH  (int)(BUTTON_WIDTH*1.5)
-
-
 // new tool definition
 wkz_plant_tree_t baum_edit_frame_t::baum_tool;
 char baum_edit_frame_t::param_str[256];

@@ -53,6 +53,9 @@ message_frame_t::message_frame_t(karte_t *welt) : gui_frame_t("Mailbox"),
 {
 	this->welt = welt;
 
+	scrolly.set_show_scroll_x(true);
+	scrolly.set_scroll_amount_y(LINESPACE+1);
+
 	// Knightly : add tabs for classifying messages
 	tabs.set_pos( koord(0, BUTTON_HEIGHT) );
 	tabs.add_tab( &scrolly, translator::translate("All") );
@@ -69,18 +72,14 @@ message_frame_t::message_frame_t(karte_t *welt) : gui_frame_t("Mailbox"),
 	ibuf[0] = 0;
 	input.set_text(ibuf, lengthof(ibuf) );
 	input.add_listener(this);
-	input.set_pos(koord(BUTTON1_X+BUTTON_WIDTH,0));
+	input.set_pos(koord(BUTTON2_X,0));
 	if(  umgebung_t::networkmode  ) {
 		add_komponente(&input);
 		set_focus( &input );
 	}
 
-	scrolly.set_show_scroll_x(true);
-	scrolly.set_scroll_amount_y(LINESPACE+3);
-
-	set_fenstergroesse(koord(320, 240));
-	// a min-size for the window
-	set_min_windowsize(koord(320, 80));
+	set_fenstergroesse(koord(TOTAL_WIDTH, TITLEBAR_HEIGHT+BUTTON_HEIGHT+gui_tab_panel_t::HEADER_VSIZE+2+16*(LINESPACE+1)+scrollbar_t::BAR_SIZE));
+	set_min_windowsize(koord(BUTTON3_X, TITLEBAR_HEIGHT+BUTTON_HEIGHT+gui_tab_panel_t::HEADER_VSIZE+2+3*(LINESPACE+1)+scrollbar_t::BAR_SIZE));
 
 	set_resizemode(diagonal_resize);
 	resize(koord(0,0));
@@ -96,9 +95,10 @@ message_frame_t::message_frame_t(karte_t *welt) : gui_frame_t("Mailbox"),
 void message_frame_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta);
-	koord groesse = get_fenstergroesse()-koord(0,16+BUTTON_HEIGHT);
-	input.set_groesse(koord(groesse.x-10-BUTTON1_X-BUTTON_WIDTH, BUTTON_HEIGHT));
+	koord groesse = get_fenstergroesse()-koord(0,TITLEBAR_HEIGHT+BUTTON_HEIGHT);
+	input.set_groesse(koord(groesse.x-scrollbar_t::BAR_SIZE-BUTTON2_X, BUTTON_HEIGHT));
 	tabs.set_groesse(groesse);
+	scrolly.set_groesse(groesse-koord(0,BUTTON_HEIGHT+4+1));
 }
 
 

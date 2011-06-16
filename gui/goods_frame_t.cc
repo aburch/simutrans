@@ -41,11 +41,11 @@ goods_frame_t::sort_mode_t goods_frame_t::sortby = unsortiert;
 bool goods_frame_t::sortreverse = false;
 
 const char *goods_frame_t::sort_text[SORT_MODES] = {
-    "gl_btn_unsort",
-    "gl_btn_sort_name",
-    "gl_btn_sort_revenue",
-    "gl_btn_sort_bonus",
-    "gl_btn_sort_catg"
+	"gl_btn_unsort",
+	"gl_btn_sort_name",
+	"gl_btn_sort_revenue",
+	"gl_btn_sort_bonus",
+	"gl_btn_sort_catg"
 };
 
 
@@ -57,7 +57,7 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	scrolly(&goods_stats)
 {
 	this->welt = wl;
-	int y=BUTTON_HEIGHT+4-16;
+	int y=BUTTON_HEIGHT+4-TITLEBAR_HEIGHT;
 
 	speed_bonus[0] = 0;
 	change_speed_label.set_pos(koord(BUTTON4_X+5, y));
@@ -71,12 +71,12 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	speed_up.add_listener(this);
 	add_komponente(&speed_up);
 
-	y=4+6*LINESPACE+4;
+	y=BUTTON_HEIGHT+4+5*LINESPACE;
 
 	sort_label.set_pos(koord(BUTTON1_X, y));
 	add_komponente(&sort_label);
 
-	y += LINESPACE;
+	y += LINESPACE+1;
 
 	sortedby.init(button_t::roundbox, "", koord(BUTTON1_X, y), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
 	sortedby.add_listener(this);
@@ -89,20 +89,19 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	y += BUTTON_HEIGHT+2;
 
 	scrolly.set_pos(koord(1, y));
-	scrolly.set_groesse(koord(TOTAL_WIDTH-16, 191+16+16-y));
 	scrolly.set_scroll_amount_y(LINESPACE+1);
 	add_komponente(&scrolly);
 
-	int h = (warenbauer_t::get_waren_anzahl()+3)*LINESPACE+y;
-	if(h>450) {
-		h = y+11*LINESPACE+3;
-	}
-	set_fenstergroesse(koord(TOTAL_WIDTH, h));
-	set_min_windowsize(koord(TOTAL_WIDTH,y+6*LINESPACE+2));
-	set_resizemode(vertical_resize);
-
 	sort_list();
 
+	int h = (warenbauer_t::get_waren_anzahl()+1)*(LINESPACE+1)+y;
+	if(h>450) {
+		h = y+27*(LINESPACE+1)+TITLEBAR_HEIGHT+1;
+	}
+	set_fenstergroesse(koord(TOTAL_WIDTH, h));
+	set_min_windowsize(koord(TOTAL_WIDTH,3*(LINESPACE+1)+TITLEBAR_HEIGHT+y+1));
+
+	set_resizemode(vertical_resize);
 	resize (koord(0,0));
 }
 
@@ -169,6 +168,8 @@ void goods_frame_t::sort_list()
 	goods_stats.update_goodslist( good_list, relative_speed_change );
 }
 
+
+
 /**
  * resize window in response to a resize event
  * @author Hj. Malthaner
@@ -177,10 +178,9 @@ void goods_frame_t::sort_list()
 void goods_frame_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta);
-	koord groesse = get_fenstergroesse()-koord(0,4+7*LINESPACE+4+BUTTON_HEIGHT+3+16);
+	koord groesse = get_fenstergroesse()-koord(0,BUTTON_HEIGHT+4+5*LINESPACE+LINESPACE+1+BUTTON_HEIGHT+2+TITLEBAR_HEIGHT+1);
 	scrolly.set_groesse(groesse);
 }
-
 
 
 

@@ -53,14 +53,16 @@ private:
 	void sort_list();
 
 public:
-  goods_frame_t(karte_t *wl);
+	goods_frame_t(karte_t *wl);
 
-  /**
-   * resize window in response to a resize event
-   * @author Hj. Malthaner
-   * @date   16-Oct-2003
-   */
-  void resize(const koord delta);
+	/**
+	* resize window in response to a resize event
+	* @author Hj. Malthaner
+	* @date   16-Oct-2003
+	*/
+	void resize(const koord delta);
+
+	bool has_min_sizer() const {return true;}
 
     /**
      * Manche Fenster haben einen Hilfetext assoziiert.

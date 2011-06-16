@@ -44,10 +44,10 @@ char convoi_frame_t::name_filter_value[64] = "";
 slist_tpl<const ware_besch_t *> convoi_frame_t::waren_filter;
 
 const char *convoi_frame_t::sort_text[SORT_MODES] = {
-    "cl_btn_sort_name",
-    "cl_btn_sort_income",
-    "cl_btn_sort_type",
-    "cl_btn_sort_id"
+	"cl_btn_sort_name",
+	"cl_btn_sort_income",
+	"cl_btn_sort_type",
+	"cl_btn_sort_id"
 };
 
 
@@ -207,7 +207,7 @@ convoi_frame_t::convoi_frame_t(spieler_t* sp) :
 {
 	filter_frame = NULL;
 
-	sort_label.set_pos(koord(BUTTON1_X, 4));
+	sort_label.set_pos(koord(BUTTON1_X, 2));
 	add_komponente(&sort_label);
 	sortedby.init(button_t::roundbox, "", koord(BUTTON1_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
 	sortedby.add_listener(this);
@@ -217,7 +217,7 @@ convoi_frame_t::convoi_frame_t(spieler_t* sp) :
 	sorteddir.add_listener(this);
 	add_komponente(&sorteddir);
 
-	filter_label.set_pos(koord(BUTTON3_X, 4));
+	filter_label.set_pos(koord(BUTTON3_X, 2));
 	add_komponente(&filter_label);
 
 	filter_on.init(button_t::roundbox, get_filter(any_filter) ? "cl_btn_filter_enable" : "cl_btn_filter_disable", koord(BUTTON3_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
@@ -228,10 +228,10 @@ convoi_frame_t::convoi_frame_t(spieler_t* sp) :
 	filter_details.add_listener(this);
 	add_komponente(&filter_details);
 
-	set_fenstergroesse(koord(BUTTON4_X+BUTTON_WIDTH+2, 191+16+16));
-	set_min_windowsize(koord(BUTTON4_X+BUTTON_WIDTH+2, 191+16+16));
-
 	sort_list();
+
+	set_fenstergroesse(koord(TOTAL_WIDTH, TITLEBAR_HEIGHT+5*(40)+31+1));
+	set_min_windowsize(koord(TOTAL_WIDTH, TITLEBAR_HEIGHT+2*(40)+31+1));
 
 	set_resizemode(diagonal_resize);
 	resize(koord(0,0));
@@ -318,8 +318,8 @@ void convoi_frame_t::resize(const koord size_change)                          //
 	}
 	else {
 		add_komponente(&vscroll);
-		vscroll.set_pos(koord(groesse.x-11, 47-16));
-		vscroll.set_groesse(groesse-koord(0,11));
+		vscroll.set_pos(koord(groesse.x-scrollbar_t::BAR_SIZE, 47-16-1));
+		vscroll.set_groesse(groesse-koord(scrollbar_t::BAR_SIZE,scrollbar_t::BAR_SIZE));
 		vscroll.set_scroll_amount( 1 );
 	}
 }
@@ -332,7 +332,7 @@ void convoi_frame_t::zeichnen(koord pos, koord gr)
 
 	gui_frame_t::zeichnen(pos, gr);
 
-	PUSH_CLIP(pos.x, pos.y+47, gr.x-11, gr.y-48 );
+	PUSH_CLIP(pos.x, pos.y+47, gr.x-scrollbar_t::BAR_SIZE, gr.y-48 );
 
 	uint32 start = vscroll.get_knob_offset();
 	sint16 yoffset = 47;

@@ -52,7 +52,7 @@ extend_edit_gui_t::extend_edit_gui_t(const char *name, spieler_t* sp_, karte_t* 
 	scl.add_listener(this);
 
 	// tab panel
-	tabs.set_pos(koord(MARGIN, MARGIN));
+	tabs.set_pos(koord(11,5));
 	tabs.set_groesse(koord(tab_panel_width, SCL_HEIGHT));
 	tabs.add_tab(&scl, translator::translate("Translation"));//land
 	tabs.add_tab(&scl, translator::translate("Object"));//city
@@ -89,7 +89,7 @@ extend_edit_gui_t::extend_edit_gui_t(const char *name, spieler_t* sp_, karte_t* 
 	}
 
 	// resize button
-	set_min_windowsize(koord(tab_panel_width+COLUMN_WIDTH+3*MARGIN, 16+SCL_HEIGHT+(get_base_tile_raster_width()*3)/2+5*MARGIN));
+	set_min_windowsize(koord(tab_panel_width+COLUMN_WIDTH+3*MARGIN, TITLEBAR_HEIGHT+SCL_HEIGHT+(get_base_tile_raster_width()*3)/2+5*MARGIN));
 	set_resizemode(diagonal_resize);
 	resize(koord(0,0));
 }

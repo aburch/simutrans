@@ -128,7 +128,7 @@ void fahrplan_gui_stats_t::zeichnen(koord offset)
 			buf.clear();
 			buf.printf( "%i) ", i+1 );
 			fahrplan_gui_t::gimme_stop_name( buf, welt, sp, fpl->eintrag[i] );
-			sint16 w = display_proportional_clip(offset.x + 4 + 10, offset.y + i * (LINESPACE + 1) + 2, buf, ALIGN_LEFT, COL_BLACK, true);
+			sint16 w = display_proportional_clip(offset.x + 4 + 10, offset.y + i * (LINESPACE + 1), buf, ALIGN_LEFT, COL_BLACK, true);
 			if(  w>width  ) {
 				width = w;
 			}
@@ -188,7 +188,7 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 		lb_line.set_pos(koord(10, ypos+2));
 		add_komponente(&lb_line);
 
-		bt_promote_to_line.init(button_t::roundbox, "promote to line", koord( BUTTON_WIDTH*2, ypos ), koord(BUTTON_WIDTH,BUTTON_HEIGHT) );
+		bt_promote_to_line.init(button_t::roundbox, "promote to line", koord( BUTTON3_X, ypos ), koord(BUTTON_WIDTH,BUTTON_HEIGHT) );
 		bt_promote_to_line.set_tooltip("Create a new line based on this schedule");
 		bt_promote_to_line.add_listener(this);
 		add_komponente(&bt_promote_to_line);
@@ -196,8 +196,8 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 		ypos += BUTTON_HEIGHT+1;
 
 		line_selector.set_pos(koord(2, ypos));
-		line_selector.set_groesse(koord(BUTTON_WIDTH*3, BUTTON_HEIGHT));
-		line_selector.set_max_size(koord(BUTTON_WIDTH*3, 13*LINESPACE+2+16));
+		line_selector.set_groesse(koord(BUTTON4_X-2, BUTTON_HEIGHT));
+		line_selector.set_max_size(koord(BUTTON4_X-2, 13*LINESPACE+TITLEBAR_HEIGHT-1));
 		line_selector.set_highlight_color(sp->get_player_color1() + 1);
 		line_selector.clear_elements();
 
@@ -206,7 +206,7 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 		line_selector.add_listener(this);
 		add_komponente(&line_selector);
 
-		ypos += BUTTON_HEIGHT+4;
+		ypos += BUTTON_HEIGHT+3;
 	}
 
 	// loading level and return tickets
@@ -220,13 +220,14 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	numimp_load.set_increment_mode( gui_numberinput_t::PROGRESS );
 	numimp_load.add_listener(this);
 	add_komponente(&numimp_load);
+
 	ypos += BUTTON_HEIGHT;
 
 	// waiting in parts per month
 	lb_wait.set_pos( koord( 10, ypos+2 ) );
 	add_komponente(&lb_wait);
 
-	bt_wait_prev.set_pos( koord( BUTTON_WIDTH*2-65, ypos+3 ) );
+	bt_wait_prev.set_pos( koord( BUTTON_WIDTH*2-65, ypos+2 ) );
 	bt_wait_prev.set_typ(button_t::arrowleft);
 	bt_wait_prev.add_listener(this);
 	add_komponente(&bt_wait_prev);
@@ -238,7 +239,7 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 		sprintf( str_parts_month, "1/%d",  1<<(16-fpl->get_current_eintrag().waiting_time_shift) );
 	}
 	lb_waitlevel.set_text_pointer( str_parts_month );
-	lb_waitlevel.set_pos( koord( BUTTON_WIDTH*2-20, ypos+3 ) );
+	lb_waitlevel.set_pos( koord( BUTTON_WIDTH*2-20, ypos+2 ) );
 	add_komponente(&lb_waitlevel);
 
 	bt_wait_next.set_pos( koord( BUTTON_WIDTH*2-15, ypos+2 ) );
@@ -246,46 +247,49 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	bt_wait_next.add_listener(this);
 	add_komponente(&bt_wait_next);
 
-	bt_return.init(button_t::roundbox, "return ticket", koord( BUTTON_WIDTH*2, ypos ), koord(BUTTON_WIDTH,BUTTON_HEIGHT) );
+	bt_return.init(button_t::roundbox, "return ticket", koord(BUTTON3_X, ypos ), koord(BUTTON_WIDTH,BUTTON_HEIGHT) );
 	bt_return.set_tooltip("Add stops for backward travel");
 	bt_return.add_listener(this);
 	add_komponente(&bt_return);
 
 	ypos += BUTTON_HEIGHT;
 
-	bt_add.init(button_t::roundbox_state, "Add Stop", koord( 0, ypos ), koord(BUTTON_WIDTH,BUTTON_HEIGHT) );
+	bt_add.init(button_t::roundbox_state, "Add Stop", koord(BUTTON1_X, ypos ), koord(BUTTON_WIDTH,BUTTON_HEIGHT) );
 	bt_add.set_tooltip("Appends stops at the end of the schedule");
 	bt_add.add_listener(this);
 	bt_add.pressed = true;
 	add_komponente(&bt_add);
 
-	bt_insert.init(button_t::roundbox_state, "Ins Stop", koord( BUTTON_WIDTH, ypos ), koord(BUTTON_WIDTH,BUTTON_HEIGHT) );
+	bt_insert.init(button_t::roundbox_state, "Ins Stop", koord(BUTTON2_X, ypos ), koord(BUTTON_WIDTH,BUTTON_HEIGHT) );
 	bt_insert.set_tooltip("Insert stop before the current stop");
 	bt_insert.add_listener(this);
 	bt_insert.pressed = false;
 	add_komponente(&bt_insert);
 
-	bt_remove.init(button_t::roundbox_state, "Del Stop", koord( BUTTON_WIDTH*2, ypos ), koord(BUTTON_WIDTH,BUTTON_HEIGHT) );
+	bt_remove.init(button_t::roundbox_state, "Del Stop", koord(BUTTON3_X, ypos ), koord(BUTTON_WIDTH,BUTTON_HEIGHT) );
 	bt_remove.set_tooltip("Delete the current stop");
 	bt_remove.add_listener(this);
 	bt_remove.pressed = false;
 	add_komponente(&bt_remove);
 
-	ypos += BUTTON_HEIGHT;
+	ypos += BUTTON_HEIGHT+2;
+
 	scrolly.set_pos( koord( 0, ypos ) );
 	scrolly.set_show_scroll_x(true);
 	scrolly.set_scroll_amount_y(LINESPACE+1);
 	add_komponente(&scrolly);
 
 	mode = adding;
-	set_min_windowsize( koord(BUTTON_WIDTH*3+16, ypos+BUTTON_HEIGHT+3*(LINESPACE + 1)+16) );
+	update_selection();
+
+	set_fenstergroesse( koord(BUTTON4_X, ypos+BUTTON_HEIGHT+min(15,fpl->get_count())*(LINESPACE + 1)+TITLEBAR_HEIGHT) );
+	set_min_windowsize( koord(BUTTON4_X, ypos+BUTTON_HEIGHT+3*(LINESPACE + 1)+TITLEBAR_HEIGHT) );
+
+	set_resizemode(diagonal_resize);
 	resize( koord(0,0) );
-	resize( koord(0,(LINESPACE + 1)*min(15,fpl->get_count())) );
 
 	// set this schedule as current to show on minimap if possible
 	reliefkarte_t::get_karte()->set_current_fpl(fpl, sp->get_player_nr()); // (*fpl,player_nr)
-	set_resizemode(diagonal_resize);
-	update_selection();
 }
 
 
@@ -502,7 +506,6 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 		// since init always returns false, it is save to delete immediately
 		delete w;
 	}
-	scrolly.set_groesse( scrolly.get_groesse() );
 	// recheck lines
 	if (cnv.is_bound()) {
 		// unequal to line => remove from line ...
@@ -587,10 +590,10 @@ void fahrplan_gui_t::set_fenstergroesse(koord groesse)
 {
 	gui_frame_t::set_fenstergroesse(groesse);
 
-	groesse = get_fenstergroesse();		// may subject to min window size limitation
-	scrolly.set_groesse( koord(groesse.x, groesse.y-scrolly.get_pos().y-16) );
+	groesse = get_fenstergroesse()-koord(0,16+1);
+	scrolly.set_groesse(groesse-koord(0,scrolly.get_pos().y));
 
-	line_selector.set_max_size(koord(BUTTON_WIDTH*3, groesse.y-line_selector.get_pos().y -2*16));
+	line_selector.set_max_size(koord(BUTTON4_X-2, groesse.y-line_selector.get_pos().y -16-1));
 }
 
 
