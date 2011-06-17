@@ -1740,11 +1740,7 @@ void stadt_t::step_passagiere()
 					factory_entry->factory->book_stat( pax_left_to_do, ( wtyp==warenbauer_t::passagiere ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED ) );
 					factory_entry->factory->liefere_an(wtyp, pax_left_to_do);
 				}
-				// so we have happy passengers
-				start_halt->add_pax_happy(pax_left_to_do);
-				merke_passagier_ziel(dest_pos, COL_YELLOW);
-				city_history_year[0][history_type] += pax_left_to_do;
-				city_history_month[0][history_type] += pax_left_to_do;
+				// people who walk or mail delivered by hand do not count as transported or happy
 			}
 			else if(  route_result==haltestelle_t::ROUTE_OVERCROWDED  ) {
 				merke_passagier_ziel(dest_pos, COL_ORANGE );
@@ -1946,8 +1942,8 @@ koord stadt_t::find_destination(factory_set_t &target_factories, const sint64 ge
 		else {
 			// long-range distance
 			lower_bound.distance = welt->get_settings().get_city_medium_range_radius() + 1u;
-			const weighted_vector_tpl<uint32>::subset distance_set = distances.get_subset( welt->get_settings().get_city_medium_range_radius(), distances.get_count() );
-			upper_bound.distance = distance_set.is_empty() ? lower_bound.distance : pick_any_weighted_subset<uint32>( distance_set );
+			const weighted_vector_tpl<uint32>::subset distance_subset = distances.get_subset( welt->get_settings().get_city_medium_range_radius(), distances.get_count() );
+			upper_bound.distance = distance_subset.is_empty() ? lower_bound.distance : pick_any_weighted_subset<uint32>( distance_subset );
 		}
 		// generate the set of cities within the distance range
 		weighted_vector_tpl<target_city_t>::subset city_subset = target_cities.get_subset_ordered(
