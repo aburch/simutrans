@@ -196,7 +196,7 @@ void savegame_frame_t::fill_list()
 	}
 	// since width was maybe increased, we only set the heigth.
 	button_frame.set_groesse( koord( get_fenstergroesse().x-1, y ) );
-	set_fenstergroesse(koord(get_fenstergroesse().x, TITLEBAR_HEIGHT+20+y+30+1));
+	set_fenstergroesse(koord(get_fenstergroesse().x, TITLEBAR_HEIGHT+12+y+30+1));
 }
 
 
@@ -377,9 +377,9 @@ bool savegame_frame_t::action_triggered( gui_action_creator_t *komp, value_t /* 
  */
 void savegame_frame_t::set_fenstergroesse(koord groesse)
 {
-	if(groesse.y>display_get_height()-64) {
+	if(groesse.y>display_get_height()-70) {
 		// too large ...
-		groesse.y = display_get_height()-64;
+		groesse.y = ((display_get_height()-TITLEBAR_HEIGHT-12-30-1)/BUTTON_HEIGHT)*BUTTON_HEIGHT+TITLEBAR_HEIGHT+12+30+1-70;
 		// position adjustment will be done automatically ... nice!
 	}
 	gui_frame_t::set_fenstergroesse(groesse);
@@ -403,7 +403,7 @@ void savegame_frame_t::set_fenstergroesse(koord groesse)
 	}
 
 	button_frame.set_groesse(koord(groesse.x,y));
-	scrolly.set_groesse(koord(groesse.x,groesse.y-30-12-16-1));
+	scrolly.set_groesse(koord(groesse.x,groesse.y-TITLEBAR_HEIGHT-12-30-1));
 
 	divider1.set_pos(koord(4,groesse.y-36));
 	divider1.set_groesse(koord(groesse.x-8-1,0));

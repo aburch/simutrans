@@ -44,6 +44,8 @@ public:
 	// since we only want to see the frames ...
 	void zeichnen(koord pos, koord gr);
 
+	void set_fenstergroesse(koord groesse);
+
 	/**
 	 * This method is called if an action is triggered
 	 * @author Hj. Malthaner
