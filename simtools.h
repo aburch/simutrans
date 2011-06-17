@@ -51,4 +51,10 @@ template<typename T, template<typename> class U> T const& pick_any_weighted(U<T>
 	return container.at_weight(simrand(container.get_sum_weight()));
 }
 
+/* Randomly select an entry from the given subset of a weighted container. */
+template<typename T, typename U> T const& pick_any_weighted_subset(U const& container)
+{
+	return container.at_weight(simrand(container.get_sum_weight()));
+}
+
 #endif

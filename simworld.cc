@@ -645,15 +645,15 @@ const stadt_t *karte_t::get_random_stadt() const
 
 void karte_t::add_stadt(stadt_t *s)
 {
+	settings.set_anzahl_staedte(settings.get_anzahl_staedte() + 1);
+	stadt.append(s, s->get_einwohner(), 64);
+
 	// Knightly : add links between this city and other cities as well as attractions
 	for(  uint32 c=0;  c<stadt.get_count();  ++c  ) {
 		stadt[c]->add_target_city(s);
 	}
 	s->recalc_target_cities();
 	s->recalc_target_attractions();
-
-	settings.set_anzahl_staedte(settings.get_anzahl_staedte() + 1);
-	stadt.append(s, s->get_einwohner(), 64);
 }
 
 /**
@@ -1361,6 +1361,9 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	cached_groesse_max = max(cached_groesse_gitter_x,cached_groesse_gitter_y);
 	cached_groesse_karte_x = cached_groesse_gitter_x-1;
 	cached_groesse_karte_y = cached_groesse_gitter_y-1;
+
+	// Knightly : initialise the weighted list of distances
+	stadt_t::init_distances( shortest_distance( koord(1, 1), koord( get_groesse_x(), get_groesse_y() ) ) );
 
 	intr_disable();
 
@@ -4269,6 +4272,9 @@ DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
 	cached_groesse_karte_x = cached_groesse_gitter_x-1;
 	cached_groesse_karte_y = cached_groesse_gitter_y-1;
 	x_off = y_off = 0;
+
+	// Knightly : initialise the weighted list of distances
+	stadt_t::init_distances( shortest_distance( koord(1, 1), koord( get_groesse_x(), get_groesse_y() ) ) );
 
 	// Reliefkarte an neue welt anpassen
 	reliefkarte_t::get_karte()->set_welt(this);

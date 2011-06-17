@@ -108,7 +108,11 @@ settings_t::settings_t() :
 
 	factory_worker_percentage = 33;
 	tourist_percentage = 16;
-	city_local_percentage = 25;
+	city_short_range_percentage = 60;
+	city_medium_range_percentage = 30;
+
+	city_short_range_radius = 50u;
+	city_medium_range_radius = 100u;
 
 	factory_worker_radius = 77;
 	// try to have at least a single town connected to a factory
@@ -675,7 +679,10 @@ void settings_t::rdwr(loadsave_t *file)
 		}
 
 		if(  file->get_version()>=110007  ) {
-			file->rdwr_short(city_local_percentage);
+			file->rdwr_short(city_short_range_percentage);
+			file->rdwr_short(city_medium_range_percentage);
+			file->rdwr_long(city_short_range_radius);
+			file->rdwr_long(city_medium_range_radius);
 		}
 	}
 }
@@ -883,7 +890,10 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	factory_arrival_periods = clamp( contents.get_int("factory_arrival_periods", factory_arrival_periods), 1, 16 );
 	factory_enforce_demand = contents.get_int("factory_enforce_demand", factory_enforce_demand) != 0;
 	tourist_percentage = contents.get_int("tourist_percentage", tourist_percentage );
-	city_local_percentage = contents.get_int("city_local_percentage", city_local_percentage);
+	city_short_range_percentage = contents.get_int("city_short_range_percentage", city_short_range_percentage);
+	city_medium_range_percentage = contents.get_int("city_medium_range_percentage", city_medium_range_percentage);
+	city_short_range_radius = contents.get_int("city_short_range_radius", city_short_range_radius);
+	city_medium_range_radius = contents.get_int("city_medium_range_radius", city_medium_range_radius);
 	seperate_halt_capacities = contents.get_int("seperate_halt_capacities", seperate_halt_capacities ) != 0;
 	pay_for_total_distance = contents.get_int("pay_for_total_distance", pay_for_total_distance );
 	avoid_overcrowding = contents.get_int("avoid_overcrowding", avoid_overcrowding )!=0;

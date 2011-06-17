@@ -264,7 +264,7 @@ private:
 	 */
 	void step_bau();
 
-	enum pax_zieltyp { no_return, factory_return, tourist_return, town_return };
+	enum pax_return_type { no_return, factory_return, tourist_return, city_return };
 
 	/**
 	 * verteilt die Passagiere auf die Haltestellen
@@ -485,10 +485,34 @@ public:
 
 private:
 	/**
+	 * A weighted list of distances
+	 * @author Knightly
+	 */
+	static weighted_vector_tpl<uint32> distances;
+
+	/**
+	 * Record of a target city
+	 * @author Knightly
+	 */
+	struct target_city_t
+	{
+		stadt_t *city;
+		uint32 distance;
+
+		target_city_t() : city(NULL), distance(0) { }
+		target_city_t(stadt_t *const _city, const uint32 _distance) : city(_city), distance(_distance) { }
+
+		bool operator == (const target_city_t &other) const { return city == other.city; }
+
+		static bool less_than_or_equal(const target_city_t &a, const target_city_t &b) { return a.distance <= b.distance; }
+		static bool less_than(const target_city_t &a, const target_city_t &b) { return a.distance < b.distance; }
+	};
+
+	/**
 	 * List of target cities weighted by both city size and distance
 	 * @author Knightly
 	 */
-	weighted_vector_tpl<stadt_t *> target_cities;
+	weighted_vector_tpl<target_city_t> target_cities;
 
 	/**
 	 * List of target attractions weighted by both passenger level and distance
@@ -499,11 +523,17 @@ private:
 public:
 
 	/**
+	 * Initialise the weighted list of distances
+	 * @author Knightly
+	 */
+	static void init_distances(const uint32 max_distance);
+
+	/**
 	 * Functions for manipulating the list of target cities
 	 * @author Knightly
 	 */
 	void add_target_city(stadt_t *const city);
-	void remove_target_city(stadt_t *const city) { if( city!=this ) target_cities.remove(city); }
+	void remove_target_city(stadt_t *const city) { target_cities.remove( target_city_t(city, 0) ); }
 	void recalc_target_cities();
 
 	/**
@@ -518,7 +548,7 @@ public:
 	 * such ein (zufälliges) ziel für einen Passagier
 	 * @author Hj. Malthaner
 	 */
-	koord find_destination(factory_set_t &target_factories, const sint64 generated, pax_zieltyp *will_return, factory_entry_t* &factory_entry);
+	koord find_destination(factory_set_t &target_factories, const sint64 generated, pax_return_type* will_return, factory_entry_t* &factory_entry);
 
 	/**
 	 * Gibt die Gruendungsposition der Stadt zurueck.

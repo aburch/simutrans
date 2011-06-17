@@ -12,6 +12,8 @@
 	ADD: way builder can use basic terraforming
 	CHG: gui does not lose focus when new messages appear
 	ADD: AI players use way builder with terraforming
+	CHG: passengers and mail now prefer nearer attractions and cities as destinations
+	ADD: customisable distance ranges and the associated percentages for city trips
 
 
 Release of 110.0.1 (r4359 on 12-Mar-2011):

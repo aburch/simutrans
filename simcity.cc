@@ -1690,7 +1690,7 @@ void stadt_t::step_passagiere()
 			pax_left_to_do = min(PACKET_SIZE, num_pax - pax_routed);
 
 			// search target for the passenger
-			pax_zieltyp will_return;
+			pax_return_type will_return;
 			factory_entry_t *factory_entry = NULL;
 			const koord dest_pos = find_destination(target_factories, city_history_month[0][history_type+1], &will_return, factory_entry);
 			if(  factory_entry  ) {
@@ -1770,7 +1770,7 @@ void stadt_t::step_passagiere()
 				halthandle_t return_halt = pax.get_ziel();
 				if(  !return_halt->is_overcrowded( wtyp->get_catg_index() )  ) {
 					// prissi: not overcrowded and can receive => add them
-					if(  will_return!=town_return  &&  wtyp==warenbauer_t::post  ) {
+					if(  will_return!=city_return  &&  wtyp==warenbauer_t::post  ) {
 						// attractions/factory generate more mail than they receive
 						return_pax.menge = pax_left_to_do*3;
 					}
@@ -1803,7 +1803,7 @@ void stadt_t::step_passagiere()
 
 		// all passengers without suitable start:
 		// fake one ride to get a proper display of destinations (although there may be more) ...
-		pax_zieltyp will_return;
+		pax_return_type will_return;
 		factory_entry_t *factory_entry = NULL;
 		const koord ziel = find_destination(target_factories, city_history_month[0][history_type+1], &will_return, factory_entry);
 		if(  factory_entry  ) {
@@ -1853,12 +1853,10 @@ koord stadt_t::get_zufallspunkt() const
 void stadt_t::add_target_city(stadt_t *const city)
 {
 	assert( city != NULL );
-	if(  city==this  ) {
-		return;
-	}
-	target_cities.append(
-		city,
-		weight_by_distance( city->get_einwohner(), shortest_distance( this->get_pos(), city->get_pos() ) ),
+	target_cities.insert_ordered(
+		target_city_t( city, shortest_distance( this->get_pos(), city->get_pos() ) ),
+		city->get_einwohner(),
+		target_city_t::less_than,
 		64u
 	);
 }
@@ -1895,10 +1893,24 @@ void stadt_t::recalc_target_attractions()
 }
 
 
+weighted_vector_tpl<uint32> stadt_t::distances;
+
+
+void stadt_t::init_distances(const uint32 max_distance)
+{
+	if(  distances.get_count()<max_distance  ) {
+		distances.resize(max_distance);
+		for(  uint32 d=distances.get_count()+1u;  d<=max_distance;  ++d  ) {
+			distances.append(d, (1u << 20) / d);
+		}
+	}
+}
+
+
 /* this function generates a random target for passenger/mail
  * changing this strongly affects selection of targets and thus game strategy
  */
-koord stadt_t::find_destination(factory_set_t &target_factories, const sint64 generated, pax_zieltyp* will_return, factory_entry_t* &factory_entry)
+koord stadt_t::find_destination(factory_set_t &target_factories, const sint64 generated, pax_return_type* will_return, factory_entry_t* &factory_entry)
 {
 	// Knightly : first, check to see if the pax/mail is factory-going
 	if(  target_factories.total_remaining>0  &&  (sint64)target_factories.generation_ratio>((sint64)(target_factories.total_generated*100)<<RATIO_BITS)/(generated+1)  ) {
@@ -1916,17 +1928,45 @@ koord stadt_t::find_destination(factory_set_t &target_factories, const sint64 ge
 		return pick_any_weighted(target_attractions)->get_pos().get_2d();
 	}
 	else {
-		// town destination
-		if(  target_cities.get_sum_weight()==0  ||  simrand(100)<welt->get_settings().get_city_local_percentage()  ) {
-			// intra-city destination inside the same town
-			*will_return = no_return;
-			return get_zufallspunkt();
+		// Knightly : find city destination based on distance range
+		const sint16 city_rand = simrand(100);
+		// first, determine the range of distance for the travel
+		target_city_t lower_bound;
+		target_city_t upper_bound;
+		if(  city_rand<welt->get_settings().get_city_short_range_percentage()  ) {
+			// short-range distance
+			lower_bound.distance = 0;
+			upper_bound.distance = welt->get_settings().get_city_short_range_radius();
+		}
+		else if(  city_rand<welt->get_settings().get_city_short_range_percentage()+welt->get_settings().get_city_medium_range_percentage()  ) {
+			// medium-range distance
+			lower_bound.distance = welt->get_settings().get_city_short_range_radius() + 1u;
+			upper_bound.distance = welt->get_settings().get_city_medium_range_radius();
 		}
 		else {
-			// destination from other towns
-			*will_return = town_return;
-			return pick_any_weighted(target_cities)->get_zufallspunkt();
+			// long-range distance
+			lower_bound.distance = welt->get_settings().get_city_medium_range_radius() + 1u;
+			const weighted_vector_tpl<uint32>::subset distance_set = distances.get_subset( welt->get_settings().get_city_medium_range_radius(), distances.get_count() );
+			upper_bound.distance = distance_set.is_empty() ? lower_bound.distance : pick_any_weighted_subset<uint32>( distance_set );
 		}
+		// generate the set of cities within the distance range
+		weighted_vector_tpl<target_city_t>::subset city_subset = target_cities.get_subset_ordered(
+			lower_bound, upper_bound, target_city_t::less_than_or_equal, target_city_t::less_than
+		);
+		// if the set is empty -> fall back to the short range, which always has at least 1 city -- namely this city
+		if(  city_subset.is_empty()  ) {
+			lower_bound.distance = 0;
+			upper_bound.distance = welt->get_settings().get_city_short_range_radius();
+			city_subset = target_cities.get_subset_ordered(
+				lower_bound, upper_bound, target_city_t::less_than_or_equal, target_city_t::less_than
+			);
+		}
+		// finally, choose a city from the set, based on the population size
+		const stadt_t *const selected_city = pick_any_weighted_subset<target_city_t>( city_subset ).city;
+		// no return trip if the destination is inside the same city
+		*will_return = selected_city == this ? no_return : city_return;
+		// find a random spot inside the selected city
+		return selected_city->get_zufallspunkt();
 	}
 }
 

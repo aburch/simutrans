@@ -182,7 +182,7 @@ template<class T> class weighted_vector_tpl
 		}
 
 		/** inserts data at a certain pos */
-		bool insert_at(uint32 pos, T elem, unsigned long weight)
+		bool insert_at(uint32 pos, T elem, unsigned long weight, uint32 extend = 1u)
 		{
 #ifdef IGNORE_ZERO_WEIGHT
 			if (weight == 0) {
@@ -191,7 +191,9 @@ template<class T> class weighted_vector_tpl
 			}
 #endif
 			if (pos < count) {
-				if (count == size) resize(size + 1);
+				if(  count==size  ) {
+					resize(size + extend);
+				}
 				for (uint32 i = count; i > pos; i--) {
 					nodes[i].data   = nodes[i - 1].data;
 					nodes[i].weight = nodes[i - 1].weight + weight;
@@ -210,37 +212,176 @@ template<class T> class weighted_vector_tpl
 		 * Insert `elem' with respect to ordering.
 		 */
 		template<class StrictWeakOrdering>
-		void insert_ordered(const T& elem, unsigned long weight, StrictWeakOrdering comp)
+		void insert_ordered(const T& elem, unsigned long weight, StrictWeakOrdering comp, uint32 extend = 1u)
 		{
-			uint32 i = 0;
-			for(  ; i < count; ++i  ) {
-				/* We are past `elem'.  Insert here. */
-				if(  comp(elem, (*this)[i])  )
-					break;
+			if(  count==size  ) {
+				resize(size + extend);
 			}
-
-			insert_at(i, elem, weight);
+			sint32 high = count, low = -1;
+			while(  high-low>1  ) {
+				const sint32 mid = ((uint32)(high + low)) >> 1;
+				if(  comp(elem, nodes[mid].data)  ) {
+					high = mid;
+				}
+				else {
+					low = mid;
+				}
+			}
+			insert_at(high, elem, weight);
 		}
 
 		/**
 		 * Only insert `elem' if not already contained in this vector.
 		 * Respects the ordering and assumes the vector is ordered.
+		 * Returns NULL if insertion is successful;
+		 * Otherwise return the address of the element in conflict.
 		 */
 		template<class StrictWeakOrdering>
-		void insert_unique_ordered(const T& elem, unsigned long weight, StrictWeakOrdering comp)
+		T* insert_unique_ordered(const T& elem, unsigned long weight, StrictWeakOrdering comp, uint32 extend = 1u)
 		{
-			uint32 i = 0;
-			for(  ; i < count; ++i  ) {
-				const T& here = (*this)[i];
+			if(  count==size  ) {
+				resize(size + extend);
+			}
+			sint32 high = count, low = -1;
+			while(  high-low>1  ) {
+				const sint32 mid = ((uint32)(high + low)) >> 1;
+				T &mid_elem = nodes[mid].data;
+				if(  elem==mid_elem  ) {
+					return &mid_elem;
+				}
+				else if(  comp(elem, mid_elem)  ) {
+					high = mid;
+				}
+				else {
+					low = mid;
+				}
+			}
+			insert_at(high, elem, weight);
+			return NULL;
+		}
 
-				/* We are past `elem'.  Insert here. */
-				if(  comp(elem, here)  )
-					break;
-				if(  here == elem  )
-					return;
+		/**
+		 * Search for an element, assuming that the vector is sorted.
+		 * If the element is found, return its address; otherwise, return NULL.
+		 */
+		template<class StrictWeakOrdering>
+		T* search_ordered(const T& elem, StrictWeakOrdering comp)
+		{
+			sint32 high = count, low = -1;
+			while(  high-low>1  ) {
+				const sint32 mid = ((uint32)(high + low)) >> 1;
+				T &mid_elem = nodes[mid].data;
+				if(  elem==mid_elem  ) {
+					return &mid_elem;
+				}
+				else if(  comp(elem, mid_elem)  ) {
+					high = mid;
+				}
+				else {
+					low = mid;
+				}
+			}
+			return NULL;
+		}
+
+		/**
+		 * A class for representing a subset of a weighted vector's elements
+		 * @author Knightly
+		 */
+		class subset
+		{
+		private:
+
+			const weighted_vector_tpl<T> *weighted_vector;
+			uint32 lower_index;	// inclusive in the range of elements
+			uint32 upper_index;	// exclusive in the range of elements
+
+			subset(const weighted_vector_tpl<T> *const vector, const uint32 lower_idx, const uint32 upper_idx)
+				: weighted_vector(vector), lower_index(lower_idx), upper_index(upper_idx)
+			{
+				// invalid boundaries or zero sum of weight -> reduce to empty subset
+				if(  upper_index>weighted_vector->get_count()  ||  lower_index>=upper_index  ||  get_sum_weight()==0  ) {
+					lower_index = upper_index = 0;
+				}
 			}
 
-			insert_at(i, elem, weight);
+		public:
+
+			bool is_empty() const { return lower_index == upper_index; }
+
+			uint32 get_count() const { return upper_index - lower_index; }
+
+			unsigned long weight_at(const uint32 index) const
+			{
+				if(  index>=get_count()  ) {
+					dbg->fatal("weighted_vector_tpl<T>::subset::weight_at()", "index out of bounds: %u not in 0..%u range", index, get_count() - 1);
+				}
+				return weighted_vector->weight_at(lower_index + index);
+			}
+
+			unsigned long get_sum_weight() const
+			{
+				return weighted_vector->weight_at(upper_index) - weighted_vector->weight_at(lower_index);
+			}
+
+			T& at_weight(const unsigned long target_weight) const
+			{
+				const uint32 adjusted_weight = weighted_vector->weight_at(lower_index) + target_weight;
+				if(  adjusted_weight>=weighted_vector->weight_at(upper_index)  ) {
+					dbg->fatal("weighted_vector_tpl<T>::subset::at_weight()", "weight out of bounds: %u not in 0..%u range", target_weight, weighted_vector->weight_at(upper_index) - weighted_vector->weight_at(lower_index) - 1);
+				}
+				return weighted_vector->at_weight(adjusted_weight);
+			}
+
+			const T& operator [] (const uint32 index) const
+			{
+				if(  index>=get_count()  ) {
+					dbg->fatal("weighted_vector_tpl<T>::subset::operator[]", "index out of bounds: %u not in 0..%u range", index, get_count() - 1);
+				}
+				return (*weighted_vector)[lower_index + index];
+			}
+
+			friend class weighted_vector_tpl;
+		};
+
+		/**
+		 * Search for the closest index, assuming that the vector is sorted.
+		 */
+		template<class StrictWeakOrdering>
+		uint32 search_index_ordered(const T& elem, StrictWeakOrdering comp) const
+		{
+			sint32 high = count, low = -1;
+			while(  high-low>1  ) {
+				const sint32 mid = ((uint32)(high + low)) >> 1;
+				if(  comp(elem, nodes[mid].data)  ) {
+					high = mid;
+				}
+				else {
+					low = mid;
+				}
+			}
+			return high;
+		}
+
+		/**
+		 * Return a subset of the vector's elements in the specified range.
+		 * The vector is assumed to be sorted. Both lower and upper bounds are inclusive.
+		 * @author Knightly
+		 */
+		template<class OrderEqual, class OrderNotEqual>
+		subset get_subset_ordered(const T& lower_bound, const T& upper_bound, OrderEqual order_equal, OrderNotEqual order_not_equal) const
+		{
+			return subset( this, search_index_ordered(lower_bound, order_equal), search_index_ordered(upper_bound, order_not_equal) );
+		}
+
+		/**
+		 * Return a subset of the vector's elements in the specified range of indices.
+		 * The lower index is inclusive, but the upper index is exclusive, from the range.
+		 * @author Knightly
+		 */
+		subset get_subset(const uint32 lower_index, const uint32 upper_index) const
+		{
+			return subset( this, lower_index, upper_index );
 		}
 
 		/** removes element, if contained */
@@ -315,7 +456,7 @@ template<class T> class weighted_vector_tpl
 
 			// now search
 			while (counter-- > 0) {
-				diff = (diff + 1) / 2;
+				diff = (diff + 1) >> 1;
 				if (pos < count && weight_at(pos) <= target_weight) {
 					if (weight_at(pos + 1) > target_weight) break;
 					pos += diff;
