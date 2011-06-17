@@ -2399,6 +2399,8 @@ INT_CHECK("simbau 1072");
 		case river:
 			baue_fluss();
 			break;
+		default:
+			break;
 	}
 
 	INT_CHECK("simbau 1087");

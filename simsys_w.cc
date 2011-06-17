@@ -107,7 +107,7 @@ HANDLE	hFlushThread=0;
  * Schnittstelle untergebracht
  * -> init,open,close
  */
-int dr_os_init(const int* parameter)
+int dr_os_init(const int* /*parameter*/)
 {
 	// prepare for next event
 	sys_event.type = SIM_NOEVENT;
