@@ -19,7 +19,7 @@
 #include "simpeople.h"
 #include "../besch/fussgaenger_besch.h"
 
-uint32 fussgaenger_t::strecke[] = {6000, 11000, 15000, 20000, 25000, 30000, 35000, 40000};
+static uint32 const strecke[] = { 6000, 11000, 15000, 20000, 25000, 30000, 35000, 40000 };
 
 static weighted_vector_tpl<const fussgaenger_besch_t*> liste;
 stringhashtable_tpl<const fussgaenger_besch_t *> fussgaenger_t::table;
@@ -74,11 +74,11 @@ fussgaenger_t::fussgaenger_t(karte_t *welt, loadsave_t *file)
 }
 
 
-fussgaenger_t::fussgaenger_t(karte_t *welt, koord3d pos)
- : verkehrsteilnehmer_t(welt, pos)
+fussgaenger_t::fussgaenger_t(karte_t* const welt, koord3d const pos) :
+	verkehrsteilnehmer_t(welt, pos),
+	besch(pick_any_weighted(liste))
 {
-	besch = liste.at_weight(simrand(liste.get_sum_weight(), "fussgaenger_t::fussgaenger_t"));
-	time_to_life = strecke[simrand(7, "fussgaenger_t::fussgaenger_t")];
+	time_to_life = pick_any(strecke);
 	calc_bild();
 }
 
@@ -107,12 +107,12 @@ void fussgaenger_t::rdwr(loadsave_t *file)
 		besch = table.get(s);
 		// unknow pedestrian => create random new one
 		if(besch == NULL  &&  !liste.empty()  ) {
-			besch = liste.at_weight(simrand(liste.get_sum_weight(), "void fussgaenger_t::rdwr"));
+			besch = pick_any_weighted(liste);
 		}
 	}
 
 	if(file->get_version()<89004) {
-		time_to_life = strecke[simrand(7, "void fussgaenger_t::rdwr")];
+		time_to_life = pick_any(strecke);
 	}
 }
 
@@ -131,25 +131,27 @@ void fussgaenger_t::erzeuge_fussgaenger_an(karte_t *welt, const koord3d k, int &
 
 		// we do not start on crossings (not overrunning pedestrians please
 		if (weg && ribi_t::is_twoway(weg->get_ribi_unmasked())) {
+			// we create maximal 4 pedestrians here for performance reasons
 			for (int i = 0; i < 4 && anzahl > 0; i++) {
 				fussgaenger_t* fg = new fussgaenger_t(welt, k);
 				bool ok = welt->lookup(k)->obj_add(fg) != 0;	// 256 limit reached
 				if (ok) {
-					for (int j = 0; j < (i & 3); i++) {
-						fg->sync_step(64 * 24);
+					if (i > 0) {
+						// walk a little
+						fg->sync_step( (i & 3) * 64 * 24);
 					}
 					welt->sync_add(fg);
 					anzahl--;
 				} else {
-					// delete it, if we could not put them on the map
+					// delete it, if we could not put it on the map
 					fg->set_flag(ding_t::not_on_map);
 					delete fg;
+					return; // it is pointless to try again
 				}
 			}
 		}
 	}
 }
-
 
 
 bool fussgaenger_t::sync_step(long delta_t)

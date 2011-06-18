@@ -18,7 +18,7 @@
 #include "../simworld.h"
 #include "../simtypes.h"
 #include "../utils/float32e8_t.h"
-
+#include "../simunits.h"
 
 // GEAR_FACTOR: a gear of 1.0 is stored as 64
 #define GEAR_FACTOR 64
@@ -49,7 +49,6 @@ class checksum_t;
  * @author Volker Meyer, Hj. Malthaner, kierongreen
  */
 class vehikel_besch_t : public obj_besch_std_name_t {
-    friend class vehicle_writer_t;
     friend class vehicle_reader_t;
     friend class vehikelbauer_t;
 
@@ -448,6 +447,8 @@ public:
 	* @author prissi
 	*/
 	uint8 get_length() const { return len; }
+
+	uint32 get_length_in_steps() const { return get_length() * VEHICLE_STEPS_PER_CARUNIT; }
 	
 	/*Whether this is a tilting train (and can take coerners faster
 	*@author: jamespetts*/
@@ -475,7 +476,7 @@ public:
 	/**
 	 * Get effective force index. 
 	 * Steam engine's force depend on its speed.
-	 * Effective force in kN: force_index * welt->get_einstellungen()->get_global_power_factor() / GEAR_FACTOR
+	 * Effective force in kN: force_index *welt->get_settings().get_global_power_factor() / GEAR_FACTOR
 	 * @author Bernd Gabriel
 	 */
 	uint32 get_effective_force_index(sint32 speed /* in m/s */ ) const;
@@ -483,7 +484,7 @@ public:
 	/**
 	 * Get effective power index. 
 	 * Steam engine's power depend on its speed.
-	 * Effective power in kW: power_index * welt->get_einstellungen()->get_global_power_factor() / GEAR_FACTOR
+	 * Effective power in kW: power_index *welt->get_settings().get_global_power_factor() / GEAR_FACTOR
 	 * @author Bernd Gabriel
 	 */
 	uint32 get_effective_power_index(sint32 speed /* in m/s */ ) const;

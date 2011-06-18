@@ -89,7 +89,6 @@ void interrupt_check()
 void interrupt_check(const char* caller_info)
 {
 	DBG_DEBUG4("interrupt_check", "called from (%s)", caller_info);
-	static const char * last_caller = "program start";
 	if(enabled) {
 		const long now = dr_time();
 		if((now-last_time)*FRAME_TIME_MULTI < frame_time) {
@@ -103,7 +102,6 @@ void interrupt_check(const char* caller_info)
 			enabled = true;
 		}
 	}
-	last_caller = caller_info;
 }
 
 

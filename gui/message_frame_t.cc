@@ -75,6 +75,9 @@ message_frame_t::message_frame_t(karte_t *welt) : gui_frame_t("Mailbox"),
 		set_focus( &input );
 	}
 
+	scrolly.set_show_scroll_x(true);
+	scrolly.set_scroll_amount_y(LINESPACE+3);
+
 	set_fenstergroesse(koord(320, 240));
 	// a min-size for the window
 	set_min_windowsize(koord(320, 80));

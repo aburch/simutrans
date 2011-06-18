@@ -1,5 +1,6 @@
 #include "network_socket_list.h"
 #include "network_cmd.h"
+#include "network_cmd_ingame.h"
 #include "network_packet.h"
 #include "umgebung.h"
 
@@ -84,6 +85,10 @@ void socket_info_t::send_queue_append(packet_t *p)
 	}
 }
 
+void socket_info_t::rdwr(packet_t *p)
+{
+	address.rdwr(p);
+}
 
 /**
  * list: contains _all_ sockets
@@ -155,9 +160,9 @@ void socket_list_t::reset_clients()
 }
 
 
-void socket_list_t::add_client( SOCKET sock )
+void socket_list_t::add_client( SOCKET sock, uint32 ip )
 {
-	dbg->message("socket_list_t::add_client", "add client socket[%d]", sock);
+	dbg->message("socket_list_t::add_client", "add client socket[%d] at address %xd", sock, ip);
 	uint32 i = list.get_count();
 	// check whether socket already added
 	for(  uint32 j=server_sockets;  j<list.get_count();  j++  ) {
@@ -172,6 +177,7 @@ void socket_list_t::add_client( SOCKET sock )
 		list.append( socket_info_t() );
 	}
 	list[i].socket = sock;
+	list[i].address = net_address_t(ip, 0);
 	change_state( i, socket_info_t::connected );
 
 	network_set_socket_nodelay( sock );
@@ -308,4 +314,21 @@ bool socket_list_t::client_socket_iterator_t::next()
 {
 	current = socket_list_t::fd_isset(fds, false, &index);
 	return current != INVALID_SOCKET;
+}
+
+
+void socket_list_t::rdwr(packet_t *p, vector_tpl<socket_info_t> *list)
+{
+	assert(p->is_saving()  ||  list!=&socket_list_t::list);
+	uint32 count = list->get_count();
+	p->rdwr_long(count);
+	for(uint32 i=0; i<count; i++) {
+		if (p->is_loading()) {
+			list->append(socket_info_t());
+		}
+		p->rdwr_byte((*list)[i].state);
+		if ( (*list)[i].state==socket_info_t::playing) {
+			(*list)[i].rdwr(p);
+		}
+	}
 }

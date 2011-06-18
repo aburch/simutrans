@@ -56,7 +56,7 @@ factorylist_frame_t::factorylist_frame_t(karte_t * welt) :
 	sorteddir.set_text(get_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
 
 	scrolly.set_pos(koord(1, 14+BUTTON_HEIGHT+2));
-	scrolly.set_show_scroll_x(false);
+	scrolly.set_scroll_amount_y(LINESPACE+1);
 	add_komponente(&scrolly);
 
 	set_fenstergroesse(koord(TOTAL_WIDTH, 240));
@@ -79,11 +79,13 @@ bool factorylist_frame_t::action_triggered( gui_action_creator_t *komp,value_t /
 		set_sortierung((factorylist::sort_mode_t)((get_sortierung() + 1) % factorylist::SORT_MODES));
 		sortedby.set_text(sort_text[get_sortierung()]);
 		stats.sort(get_sortierung(),get_reverse());
+		stats.recalc_size();
 	}
 	else if(komp == &sorteddir) {
 		set_reverse(!get_reverse());
 		sorteddir.set_text(get_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
 		stats.sort(get_sortierung(),get_reverse());
+		stats.recalc_size();
 	}
 	return true;
 }

@@ -8,8 +8,9 @@
 #include "../simdebug.h"
 
 #include "powernet.h"
+#include "../tpl/ptrhashtable_tpl.h"
 
-ptrhashtable_tpl<powernet_t *, powernet_t *> powernet_t::loading_table;
+static ptrhashtable_tpl<powernet_t *, powernet_t *> loading_table;
 slist_tpl<powernet_t *> powernet_t::powernet_list;
 
 

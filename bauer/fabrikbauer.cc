@@ -47,7 +47,7 @@ static sint32 fab_map_w=0;
 static void add_factory_to_fab_map(karte_t const* const welt, fabrik_t const* const fab)
 {
 	koord3d      const& pos     = fab->get_pos();
-	sint16       const  spacing = welt->get_einstellungen()->get_factory_spacing();
+	sint16       const  spacing = welt->get_settings().get_factory_spacing();
 	haus_besch_t const& hbesch  = *fab->get_besch()->get_haus();
 	sint16       const  rotate  = fab->get_rotate();
 	sint16       const  start_y = max(0, pos.y - spacing);
@@ -189,8 +189,7 @@ DBG_MESSAGE("fabrikbauer_t::get_random_consumer()","No suitable consumer found")
 		return NULL;
 	}
 	// now find a random one
-	uint32 next=simrand(consumer.get_sum_weight(), "const fabrik_besch_t *fabrikbauer_t::get_random_consumer");
-	const fabrik_besch_t* fb = consumer.at_weight(next);
+	fabrik_besch_t const* const fb = pick_any_weighted(consumer);
 	DBG_MESSAGE("fabrikbauer_t::get_random_consumer()", "consumer %s found.", fb->get_name());
 	return fb;
 }
@@ -286,9 +285,7 @@ const fabrik_besch_t *fabrikbauer_t::finde_hersteller(const ware_besch_t *ware, 
 		return NULL;
 	}
 	// now find a random one
-	// now find a random one
-	uint32 next=simrand(producer.get_sum_weight(), "const fabrik_besch_t *fabrikbauer_t::finde_hersteller");
-	const fabrik_besch_t* besch = producer.at_weight(next);
+	fabrik_besch_t const* const besch = pick_any_weighted(producer);
 	DBG_MESSAGE("fabrikbauer_t::finde_hersteller()","producer for good '%s' was found %s", translator::translate(ware->get_name()),besch->get_name());
 	return besch;
 }
@@ -342,15 +339,16 @@ koord3d fabrikbauer_t::finde_zufallsbauplatz(karte_t *welt, const koord3d pos, c
 	}
 finish:
 	// printf("Zufallsbauplatzindex %d\n", index);
-	if(list.get_count()==0) {
+	if (list.empty()) {
 		return koord3d(-1, -1, -1);
 	}
 	else {
+		koord3d k = pick_any(list);
 		if(wasser) {
 			// take care of offset
-			return list[simrand(list.get_count(), "koord3d fabrikbauer_t::finde_zufallsbauplatz")] + koord3d(3, 3, 0);
+			k += koord3d(3, 3, 0);
 		}
-		return list[simrand(list.get_count(), "koord3d fabrikbauer_t::finde_zufallsbauplatz")];
+		return k;
 	}
 }
 
@@ -486,8 +484,9 @@ fabrik_t* fabrikbauer_t::baue_fabrik(karte_t* welt, koord3d* parent, const fabri
 		for(  weighted_vector_tpl<stadt_t*>::const_iterator iter = staedte.begin(), end = staedte.end();  iter != end;  ++iter  ) {
 			distance_stadt.insert_ordered( *iter, RelativeDistanceOrdering(fab->get_pos().get_2d()) );
 		}
-		for(  uint32 i = 0;  i<distance_stadt.get_count()  &&  fab->get_target_cities().get_count() < welt->get_einstellungen()->get_factory_worker_maximum_towns();  i++   ) {
-			if(  fab->get_target_cities().get_count() < welt->get_einstellungen()->get_factory_worker_minimum_towns()  ||  koord_distance( fab->get_pos(), distance_stadt[i]->get_pos() ) < welt->get_einstellungen()->get_factory_worker_radius()  ) {
+		settings_t const& s = welt->get_settings();
+		for (uint32 i = 0; i < distance_stadt.get_count() && fab->get_target_cities().get_count() < s.get_factory_worker_maximum_towns(); ++i) {
+			if (fab->get_target_cities().get_count() < s.get_factory_worker_minimum_towns() || koord_distance(fab->get_pos(), distance_stadt[i]->get_pos()) < s.get_factory_worker_radius()) {
 				fab->add_target_city(distance_stadt[i]);
 			}
 		}
@@ -554,7 +553,7 @@ int fabrikbauer_t::baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, 
 
 	// rotate until we can save it, if one of the factory is non-rotateable ...
 	if(welt->cannot_save()  &&  parent==NULL  &&  !can_factory_tree_rotate(info)  ) {
-		org_rotation = welt->get_einstellungen()->get_rotation();
+		org_rotation = welt->get_settings().get_rotation();
 		for(  int i=0;  i<3  &&  welt->cannot_save();  i++  ) {
 			pos->rotate90( welt->get_groesse_y()-info->get_haus()->get_h(rotate) );
 			welt->rotate90();
@@ -634,7 +633,7 @@ int fabrikbauer_t::baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, 
 
 		// must rotate back?
 		if(org_rotation>=0) {
-			for(  int i=0;  i<4  &&  welt->get_einstellungen()->get_rotation()!=org_rotation;  i++  ) {
+			for (int i = 0; i < 4 && welt->get_settings().get_rotation() != org_rotation; ++i) {
 				pos->rotate90( welt->get_groesse_y()-1 );
 				welt->rotate90();
 			}
@@ -677,8 +676,8 @@ int fabrikbauer_t::baue_link_hierarchie(const fabrik_t* our_fab, const fabrik_be
 DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i of %s)",info->get_lieferanten(),lcount,verbrauch,ware->get_name());
 
 	// Hajo: search if there already is one or two (crossconnect everything if possible)
+
 	const vector_tpl<fabrik_t *> & list = welt->get_fab_list();
-	bool found = false;
 
 	for(sint16 i = list.get_count() - 1; (i >= 0) && ( (lcount==0  &&  verbrauch>0) || (lcount>=lfound+1) ); i --)
 	{
@@ -716,8 +715,8 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 							}
 						}
 						// here is actually capacity left (or sometimes just connect anyway)!
-						if(production_left>0  ||  simrand(100, "fabrikbauer_t::baue_hierarchie")<(uint32)welt->get_einstellungen()->get_crossconnect_factor()) {
-							found = true;
+						if (production_left > 0 ||simrand(100, "fabrikbauer_t::baue_hierarchie") < (uint32)welt->get_settings().get_crossconnect_factor()) {
+
 							if(production_left>0) {
 								verbrauch -= production_left;
 								fab->add_lieferziel(our_fab->get_pos().get_2d());
@@ -750,14 +749,6 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 	}
 
 	INT_CHECK( "fabrikbauer 670" );
-
-	if(lcount!=0) {
-		/* if a certain number of producer is requested,
-		 * we will built at least some new factories
-		 * crossconnected ones only count half for this
-		 */
-		found = lfound/2;
-	}
 
 	/* try to add all types of factories until demand is satisfied
 	 * or give up after 50 tries
@@ -926,7 +917,7 @@ next_ware_check:
 		// rotate until we can save it, if one of the factory is non-rotateable ...
 		if(welt->cannot_save()  &&  !can_factory_tree_rotate(last_built_consumer->get_besch()) ) 
 		{
-			org_rotation = welt->get_einstellungen()->get_rotation();
+			org_rotation = welt->get_settings().get_rotation();
 			for(  int i=0;  i<3  &&  welt->cannot_save();  i++  ) 
 			{
 				welt->rotate90();
@@ -942,10 +933,8 @@ next_ware_check:
 		} while(  last_built_consumer_ware < last_built_consumer->get_besch()->get_lieferanten()  &&  last_built_consumer->get_suppliers().get_count()==last_suppliers  );
 
 		// must rotate back?
-		if(org_rotation>=0)
-		{
-			for(  int i=0;  i<4  &&  welt->get_einstellungen()->get_rotation()!=org_rotation;  i++  ) 
-			{
+		if(org_rotation>=0) {
+			for (int i = 0; i < 4 && welt->get_settings().get_rotation() != org_rotation; ++i) {
 				welt->rotate90();
 			}
 			welt->update_map();
@@ -998,7 +987,7 @@ next_ware_check:
 
 	// now decide producer of electricity or normal ...
 	const sint64 promille = ((sint64)electric_productivity*4000l)/total_electric_demand;
-	int no_electric = promille > (sint64)welt->get_einstellungen()->get_electric_promille();
+	int no_electric = promille > (sint64)welt->get_settings().get_electric_promille();
 	DBG_MESSAGE( "fabrikbauer_t::increase_industry_density()", "production of electricity/total electrical demand is %i/%i (%i o/oo)", electric_productivity, total_electric_demand, promille );
 
 	bool not_yet_too_desperate_to_ignore_climates = false;
@@ -1015,11 +1004,11 @@ next_ware_check:
 					}
 				}
 				const bool in_city = fab->get_platzierung() == fabrik_besch_t::Stadt;
-				if(in_city  &&  welt->get_staedte().get_count()==0) {
+				if (in_city && welt->get_staedte().empty()) {
 					// we cannot built this factory here
 					continue;
 				}
-				koord  testpos = in_city ? welt->get_staedte().at_weight( simrand( welt->get_staedte().get_sum_weight(), "fabrikbauer_t::increase_industry_density()" ) )->get_pos() : koord::koord_random(welt->get_groesse_x(),welt->get_groesse_y());
+				koord   testpos = in_city ? pick_any_weighted(welt->get_staedte())->get_pos() : koord::koord_random(welt->get_groesse_x(), welt->get_groesse_y());
 				koord3d pos = welt->lookup_kartenboden( testpos )->get_pos();
 				int rotation = simrand(fab->get_haus()->get_all_layouts()-1, "fabrikbauer_t::increase_industry_density()");
 				if(!in_city) {

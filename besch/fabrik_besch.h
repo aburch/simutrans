@@ -20,7 +20,6 @@ class checksum_t;
  * Fields are xref'ed from skin_besch_t
  */
 class field_class_besch_t : public obj_besch_t {
-	friend class factory_field_class_writer_t;
 	friend class factory_field_class_reader_t;
 	friend class factory_field_group_reader_t;		// Knightly : this is a special case due to besch restructuring
 
@@ -46,7 +45,6 @@ public:
 
 // Knightly : this besch now only contains common, shared data regarding fields
 class field_group_besch_t : public obj_besch_t {
-	friend class factory_field_group_writer_t;
 	friend class factory_field_group_reader_t;
 
 private:
@@ -94,7 +92,6 @@ public:
  *	0   SKin
  */
 class rauch_besch_t : public obj_besch_t {
-	friend class factory_smoke_writer_t;
 	friend class factory_smoke_reader_t;
 
 private:
@@ -117,7 +114,7 @@ public:
 		return pos_off;
 	}
 
-	// offset in pixel (remember intern size TILE_STEPS==16)
+	// offset in pixel (depends on OBJECT_OFFSET_STEPS==16)
 	koord get_xy_off(uint8 rotation) const {
 		switch( rotation%4 ) {
 			case 1: return koord( 0, xy_off.y+xy_off.x/2 );
@@ -143,7 +140,6 @@ public:
  */
 class fabrik_lieferant_besch_t : public obj_besch_t {
 	friend class factory_supplier_reader_t;
-	friend class factory_supplier_writer_t;
 
 private:
 	uint16  kapazitaet;
@@ -170,7 +166,6 @@ public:
  *	0   Ware
  */
 class fabrik_produkt_besch_t : public obj_besch_t {
-	friend class factory_product_writer_t;
 	friend class factory_product_reader_t;
 
 private:
@@ -211,13 +206,12 @@ public:
  */
 class fabrik_besch_t : public obj_besch_t {
 	friend class factory_reader_t;
-	friend class factory_writer_t;
 
 public:
-	enum platzierung {Land, Wasser, Stadt};
+	enum site_t { Land, Wasser, Stadt };
 
 private:
-	enum platzierung platzierung; //"placement" (Babelfish)
+	site_t platzierung; //"placement" (Babelfish)
 	uint16 produktivitaet; //"productivity" (Babelfish)
 	uint16 bereich; //"range" (Babelfish)
 	uint16 gewichtung;	// Wie wahrscheinlich soll der Bau sein? ("How likely will the building be?" (Google)). 
@@ -270,7 +264,7 @@ public:
 	uint get_produkte() const { return produkte; } // "Products" (Google)
 
 	/* where to built */
-	enum platzierung get_platzierung() const { return platzierung; }
+	site_t get_platzierung() const { return platzierung; }
 	int get_gewichtung() const { return gewichtung;     }
 
 	uint8 get_kennfarbe() const { return kennfarbe; } //"identification colour code" (Babelfish)

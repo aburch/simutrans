@@ -25,6 +25,7 @@
 
 #include "tpl/slist_tpl.h"
 #include "tpl/vector_tpl.h"
+#include "tpl/binary_heap_tpl.h"
 
 #include "tpl/quickstone_hashtable_tpl.h"
 #include "tpl/koordhashtable_tpl.h"
@@ -44,8 +45,9 @@
 #define HALT_CONVOIS_ARRIVED        6 // number of convois arrived this month
 #define HALT_TOO_SLOW		        7 // The number of passengers whose estimated journey time exceeds their tolerance.
 
-#define RESCHEDULING (1)
+#define RECONNECTING (1)
 #define REROUTING (2)
+#define RESCHEDULING (3)
 
 
 class cbuffer_t;
@@ -285,6 +287,23 @@ public:
 
 	const slist_tpl<tile_t> &get_tiles() const { return tiles; };
 
+	/**
+	 * directly reachable halt with its connection weight
+	 * @author Knightly
+	 */
+	struct connection_t
+	{
+		halthandle_t halt;
+		uint16 weight;
+
+		connection_t() : weight(0) { }
+		connection_t(halthandle_t _halt, uint16 _weight=0) : halt(_halt), weight(_weight) { }
+
+		bool operator == (const connection_t &other) const { return halt == other.halt; }
+		bool operator != (const connection_t &other) const { return halt != other.halt; }
+		static bool compare(const connection_t &a, const connection_t &b) { return a.halt.get_id() < b.halt.get_id(); }
+	};
+
 private:
 	slist_tpl<tile_t> tiles;
 
@@ -327,6 +346,7 @@ private:
 	 * For each line/lineless convoy which serves the current halt, this
 	 * counter is incremented. Each ware category needs a separate counter.
 	 * If this counter is more than 1, this halt is a transfer halt.
+
 	 * @author Knightly
 	 */
 	uint8 *non_identical_schedules;
@@ -350,8 +370,8 @@ private:
 	stationtyp station_type;
 
 	uint8 rebuilt_destination_counter;	// new schedule, first rebuilt destinations asynchroniously
+	uint8 reroute_counter;						// then, reroute goods
 
-	uint8 reroute_counter;						// the reroute goods
 	// since we do partial routing, we remeber the last offset
 	uint8 last_catg_index;
 	uint32 last_ware_index;
@@ -703,14 +723,10 @@ public:
 	bool recall_ware( ware_t& w, uint32 menge );
 
 	/**
-	 * holt ware ab
-	 * fetches ware from (Google)
-	 *
-	 * @return abgeholte menge
-	 * @return collected volume (Google)
-	 * @author Hj. Malthaner
+	 * fetches goods from this halt
+	 * @param fracht goods will be put into this list, vehicle has to load it
+	 * @author Hj. Malthaner, dwachs
 	 */
-
 	ware_t hole_ab( const ware_besch_t *warentyp, uint32 menge, const schedule_t *fpl, const spieler_t *sp, convoi_t* cnv, bool overcrowd);
 
 	/* liefert ware an. Falls die Ware zu wartender Ware dazugenommen
@@ -797,7 +813,7 @@ public:
 	void set_name(const char *name);
 
 	// create an unique name: better to be called with valid handle, althoug it will work without
-	char *create_name(const koord k, const char *typ, const int lang);
+	char* create_name(koord k, char const* typ);
 
 	void rdwr(loadsave_t *file);
 
@@ -974,4 +990,7 @@ public:
 	 */
 	int get_queue_pos(convoihandle_t cnv) const;
 };
+
+ENUM_BITSET(haltestelle_t::stationtyp)
+
 #endif

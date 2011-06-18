@@ -118,6 +118,8 @@ convoi_filter_frame_t::convoi_filter_frame_t(spieler_t *sp, convoi_frame_t *main
 	add_komponente(&ware_invers);
 
 	ware_scrolly.set_pos(koord(125, 33));
+	ware_scrolly.set_scroll_amount_y(16);
+	ware_scrolly.set_size_corner(false);
 	add_komponente(&ware_scrolly);
 
 	for(i=n=0; i<warenbauer_t::get_waren_anzahl(); i++) {
@@ -141,7 +143,7 @@ convoi_filter_frame_t::convoi_filter_frame_t(spieler_t *sp, convoi_frame_t *main
 		}
 	}
 	ware_cont.set_groesse(koord(100, 17*n + 4));
-	ware_scrolly.set_groesse(koord(125, 269));
+	ware_scrolly.set_groesse(koord(125, 16*16));
 
 	set_fenstergroesse(koord(255, 345));
 }

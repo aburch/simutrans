@@ -227,6 +227,9 @@ private:
 	sint32 delta_sum;
 	uint32 delta_menge;
 
+	// Knightly : number of rounds where there is active production or consumption
+	uint8 activity_count;
+
 	// true if the factory has a transformer adjacent
 	leitung_t* transformer_connected;
 
@@ -514,7 +517,7 @@ public:
 	 *
 	 * @author Hj. Malthaner, V. Meyer
 	 */
-	void baue(sint32 rotate);
+	void baue(sint32 rotate, bool build_fields = true);
 
 	sint16 get_rotate() const { return rotate; }
 

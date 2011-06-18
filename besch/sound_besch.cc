@@ -142,10 +142,3 @@ DBG_MESSAGE("sound_besch_t::get_sound_id()","successfully registered sound %s in
 	delete besch;
 	return false;
 }
-
-
-bool sound_besch_t::alles_geladen()
-{
-	DBG_MESSAGE("sound_besch_t::alles_geladen()","sounds");
-	return true;	// no mandatory objects here
-}

@@ -19,7 +19,7 @@ simline_t::simline_t(karte_t* welt, spieler_t* sp, linetype type)
 {
 	self = linehandle_t(this);
 	char printname[128];
-	sprintf( printname, "(%i) %s", self.get_id(), translator::translate("Line",welt->get_einstellungen()->get_name_language_id()) );
+	sprintf(printname, "(%i) %s", self.get_id(), translator::translate("Line", welt->get_settings().get_name_language_id()));
 	name = printname;
 
 	init_financial_history();
@@ -155,7 +155,7 @@ void simline_t::add_convoy(convoihandle_t cnv, bool from_loading)
 	if(  update_schedules  ) {
 
 		// Added by : Knightly
-		haltestelle_t::refresh_routing(fpl, goods_catg_index, sp, welt->get_einstellungen()->get_default_path_option());
+		haltestelle_t::refresh_routing(fpl, goods_catg_index, sp,welt->get_settings().get_default_path_option());
 	}
 
 	// if the schedule is flagged as bidirectional, set the initial convoy direction
@@ -317,7 +317,7 @@ void simline_t::laden_abschliessen()
 		assert( self.get_rep() == this );
 		DBG_MESSAGE("simline_t::laden_abschliessen", "assigned id=%d to line %s", self.get_id(), get_name());
 	}
-	if(  line_managed_convoys.get_count()>0  ) {
+	if (!line_managed_convoys.empty()) {
 		register_stops(fpl);
 	}
 	recalc_status();
@@ -370,12 +370,12 @@ void simline_t::unregister_stops(schedule_t * fpl)
 
 void simline_t::renew_stops()
 {
-	if(  line_managed_convoys.get_count()>0  ) 
+	if (!line_managed_convoys.empty()) 
 	{
 		register_stops( fpl );
 	
 		// Added by Knightly
-		haltestelle_t::refresh_routing(fpl, goods_catg_index, sp, welt->get_einstellungen()->get_default_path_option());
+		haltestelle_t::refresh_routing(fpl, goods_catg_index, sp,welt->get_settings().get_default_path_option());
 		
 		DBG_DEBUG("simline_t::renew_stops()", "Line id=%d, name='%s'", self.get_id(), name.c_str());
 	}
@@ -488,7 +488,7 @@ void simline_t::recalc_catg_index()
 		old_goods_catg_index.append( goods_catg_index[i] );
 	}
 	goods_catg_index.clear();
-	withdraw = line_managed_convoys.get_count()>0;
+	withdraw = !line_managed_convoys.empty();
 	// then recreate current
 	for(unsigned i=0;  i<line_managed_convoys.get_count();  i++ ) {
 		// what goods can this line transport?
@@ -527,14 +527,14 @@ void simline_t::recalc_catg_index()
 	}
 
 	// refresh only those categories which are either removed or added to the category list
-	haltestelle_t::refresh_routing(fpl, differences, sp, welt->get_einstellungen()->get_default_path_option());
+	haltestelle_t::refresh_routing(fpl, differences, sp,welt->get_settings().get_default_path_option());
 }
 
 
 
 void simline_t::set_withdraw( bool yes_no )
 {
-	withdraw = yes_no  &&  (line_managed_convoys.get_count()>0);
+	withdraw = yes_no && !line_managed_convoys.empty();
 	// convois in depots will be immeadiately destroyed, thus we go backwards
 	for( sint32 i=line_managed_convoys.get_count()-1;  i>=0;  i--  ) {
 		line_managed_convoys[i]->set_no_load(yes_no);	// must be first, since set withdraw might destroy convoi if in depot!

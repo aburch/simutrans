@@ -28,8 +28,6 @@
 class karte_t;
 
 class grund_besch_t : public obj_besch_std_name_t {
-	friend class ground_writer_t;
-
 private:
 	static karte_t *welt;
 

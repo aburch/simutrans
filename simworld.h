@@ -15,6 +15,7 @@
 
 #include "simconst.h"
 #include "simtypes.h"
+#include "simunits.h"
 
 #include "convoihandle_t.h"
 #include "halthandle_t.h"
@@ -96,7 +97,8 @@ public:
 	* @param amplitude in 0..160.0 top height of mountains, may not exceed 160.0!!!
 	* @author Hj. Malthaner
 	*/
-	static sint32 perlin_hoehe( einstellungen_t *, koord pos, koord size, const sint32 map_size );
+
+	static sint32 perlin_hoehe(settings_t const*, koord pos, koord const size, const sint32 map_size);
 
 	enum player_cost {
 		WORLD_CITICENS=0,// total people
@@ -130,8 +132,7 @@ public:
 
 
 private:
-	// the settings
-	einstellungen_t *einstellungen;
+	settings_t settings;
 
 	// aus performancegruenden werden einige Einstellungen local gecached
 	sint16 cached_groesse_gitter_x;
@@ -424,7 +425,7 @@ private:
 	 * It's now an extra function so we don't need the code twice.
 	 * @auther Gerd Wachsmuth
 	 */
-	void distribute_groundobjs_cities(const einstellungen_t *set, sint16 old_x, sint16 old_y);
+	void distribute_groundobjs_cities(const settings_t const *set, sint16 old_x, sint16 old_y);
 
 	// Used for detecting whether paths/connexions are stale.
 	// @author: jamespetts
@@ -452,6 +453,7 @@ private:
 	// when this month is reached, server will do next announcement
 	uint32 server_next_announce_month;
 
+public:
 	// announce server and current state to listserver
 	// will be done in step when client number changed
 	void announce_server();
@@ -463,7 +465,6 @@ private:
 	// @author: jamespetts, February 2011
 	uint8 next_private_car_update_month;
 
-public:
 	/* reads height data from 8 or 25 bit bmp or ppm files
 	 * @return either pointer to heightfield (use delete [] for it) or NULL
 	 */
@@ -556,8 +557,8 @@ public:
 	void set_follow_convoi(convoihandle_t cnv) { follow_convoi = cnv; }
 	convoihandle_t get_follow_convoi() const { return follow_convoi; }
 
-	const einstellungen_t * get_einstellungen() const { return einstellungen; }
-	einstellungen_t *access_einstellungen() const { return einstellungen; }
+	settings_t const& get_settings() const { return settings; }
+	settings_t&       get_settings()       { return settings; }
 
 	// returns current speed bonus
 	sint32 get_average_speed(waytype_t typ) const { return average_speed[ (typ==16 ? 3 : (int)(typ-1)&7 ) ]; }
@@ -604,7 +605,7 @@ public:
 	void set_schedule_counter();
 
 	// often used, therefore found here
-	bool use_timeline() const { return einstellungen->get_use_timeline(); }
+	bool use_timeline() const { return settings.get_use_timeline(); }
 
 	void reset_timer();
 	void reset_interaction();
@@ -615,7 +616,7 @@ public:
 	void step_month( sint16 months=1 );
 
 	// returns either 0 or the current year*16 + month
-	uint16 get_timeline_year_month() const { return einstellungen->get_use_timeline() ? current_month : 0; }
+	uint16 get_timeline_year_month() const { return settings.get_use_timeline() ? current_month : 0; }
 
 	/**
 	* anzahl ticks pro tag in bits
@@ -638,6 +639,29 @@ public:
 	sint64 ticks_per_world_month;
 
 	void set_ticks_per_world_month_shift(sint64 bits) {ticks_per_world_month_shift = bits; ticks_per_world_month = (1LL << ticks_per_world_month_shift); }
+
+	/**
+	 * Converts speed (yards per tick) into tiles per month
+	 *       * A derived quantity:
+	 * speed * ticks_per_world_month / yards_per_tile
+	 * == speed << ticks_per_world_month_shift  (pak-set dependent, 18 in old games)
+	 *          >> yards_per_tile_shift (which is 12 + 8 = 20, see above)
+	 * This is hard to do with full generality, because shift operators
+	 * take positive numbers!
+	 *
+	 * @author neroden
+	 */
+	uint32 speed_to_tiles_per_month(uint32 speed) const
+	{
+		const int left_shift = ticks_per_world_month_shift - YARDS_PER_TILE_SHIFT;
+		if (left_shift >= 0) {
+			return speed << left_shift;
+		} else {
+			const int right_shift = -left_shift;
+			// round to nearest
+			return (speed + (1<<(right_shift -1)) ) >> right_shift;
+		}
+	}
 
 	sint32 get_time_multiplier() const { return time_multiplier; }
 	void change_time_multiplier( sint32 delta );
@@ -939,11 +963,11 @@ public:
 	 * @param preselected_players defines which players the user has selected before he started the game
 	 * @author Hj. Malthaner
 	 */
-	void init(einstellungen_t *sets,sint8 *heights);
+	void init(settings_t*, sint8 const* heights);
 
 	void init_felder();
 
-	void enlarge_map(einstellungen_t *sets, sint8 *h_field);
+	void enlarge_map(settings_t const*, sint8 const* h_field);
 
 	karte_t();
 
@@ -1014,8 +1038,8 @@ public:
 	int lower(koord pos);
 
 	// mostly used by AI: Ask to flatten a tile
-	bool can_ebne_planquadrat(koord pos, sint8 hgt, bool keep_water=false) const;
-	bool ebne_planquadrat(spieler_t *sp, koord pos, sint8 hgt);
+	bool can_ebne_planquadrat(koord pos, sint8 hgt, bool keep_water=false, bool make_underwater_hill=false) const;
+	bool ebne_planquadrat(spieler_t *sp, koord pos, sint8 hgt, bool keep_water=false, bool make_underwater_hill=false);
 
 	// the convois are also handled each step => thus we keep track of them too
 	void add_convoi(convoihandle_t &cnv);
@@ -1051,6 +1075,7 @@ public:
 
 	int get_fab_index(fabrik_t* fab)  const { return fab_list.index_of(fab); }
 	const vector_tpl<fabrik_t*>& get_fab_list() const { return fab_list; }
+	vector_tpl<fabrik_t*>& access_fab_list() { return fab_list; }
 
 	/* sucht zufaellig eine Fabrik aus der Fabrikliste
 	 * @author Hj. Malthaner
@@ -1166,7 +1191,7 @@ public:
 	 * @param sets game settings
 	 * @author Hj. Malthaner
 	 */
-	void load_heightfield(einstellungen_t *sets);
+	void load_heightfield(settings_t*);
 
 	void beenden(bool b);
 

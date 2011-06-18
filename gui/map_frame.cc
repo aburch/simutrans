@@ -160,6 +160,8 @@ map_frame_t::map_frame_t(karte_t *welt) :
 
 	// init the rest
 	// size will be set during resize ...
+	scrolly.set_show_scroll_x(true);
+	scrolly.set_scroll_discrete_y(false);
 	add_komponente(&scrolly);
 
 	// and now the buttons
@@ -565,15 +567,15 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 		display_proportional(bar_pos.x + 26, bar_pos.y, translator::translate("min"), ALIGN_RIGHT, COL_BLACK, false);
 		display_proportional(bar_pos.x + size.x - 26, bar_pos.y, translator::translate("max"), ALIGN_LEFT, COL_BLACK, false);
 		char scale_text[64] = "NULL";
-		if(welt->get_einstellungen()->get_meters_per_tile() % 1000 == 0)
+		if(welt->get_settings().get_meters_per_tile() % 1000 == 0)
 		{
 			// Can use integer
-			sprintf(scale_text, "%i %s %s", (uint16)(1 / welt->get_einstellungen()->get_meters_per_tile() / 1000), translator::translate("tiles"), translator::translate("per 1 km"));
+			sprintf(scale_text, "%i %s %s", (uint16)(1 /welt->get_settings().get_meters_per_tile() / 1000), translator::translate("tiles"), translator::translate("per 1 km"));
 		}
 		else
 		{
 			// Otherwise, must use float	
-			sprintf(scale_text, "%f %s %s", (1 / welt->get_einstellungen()->get_meters_per_tile() / 1000.0), translator::translate("tiles"), translator::translate("per 1 km"));
+			sprintf(scale_text, "%f %s %s", (1 /welt->get_settings().get_meters_per_tile() / 1000.0), translator::translate("tiles"), translator::translate("per 1 km"));
 		}
 		display_proportional(bar_pos.x + 4, bar_pos.y + 16, scale_text, ALIGN_LEFT, COL_BLACK, false);
 		offset_y += LINESPACE+24;

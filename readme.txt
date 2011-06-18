@@ -19,21 +19,34 @@ http://www.talula.demon.co.uk/allegro/
 or
 http://alleg.sourceforge.net/index.de.html
 
-To make life easier, you can follow the instructions to compile OpenTTD.
-A system set up for OpenTTD will also compile simutrans without problems.
+To make life easier, you can follow the instructions to compile OpenTTD:
+http://wiki.openttd.org/Category:Compiling_OpenTTD
+A system set up for OpenTTD will also compile simutrans (execpt for
+bzlib2, see below sections).
 
 If you are on a MS Windows machine, download either MS VC Express or
 MingW. The latter is easier to use as part of the DEV-C++ IDE, which
 makes the installation of additional libraries like libz and libsdl and so
 on very easy. However, to compile the command line is easier.
 
-For all other systems, it is recommended you get the latest GCC and
-matching zlib, libbzip2, and libpng and a game library. For lunix system
-you may have to use tools like apt-get or yast.
+For all other systems, it is recommended you get latest GCC 3.46 or higher
+and matching zlib, libbzip2, and libpng and a game library. For linux
+systems you may have to use tools like apt-get or yast2.
+
+A subversion will be also a good idea. You can find some of them on:
+http://subversion.tigris.org/
+or you some other client.
 
 Check out the latest source from the SVN or check out a certain revision.
 I recommend always to use the latest source, since it does not make any
 sense to work with buggy code.
+
+The address is:
+svn://tron.homeunix.org/simutrans
+username is "anon"!
+
+A commandline would look like this:
+svn checkout svn://tron.homeunix.org/simutrans --username=anon
 
 
 IMPORTANT:
@@ -72,17 +85,25 @@ pain to use with the text interface.
 The following instructions are for MS Visual C Express:
 -------------------------------------------------------
 
-For MS VC Express you have to hunt the matching zlib. Any version
-which is compatible with VC will do. Take a look at the instructions for
-compiling OpenTTD, which contains a libpng and a libz suited for
-simutrans too:
-http://wiki.openttd.org/index.php/MicrosoftVisualCExpress
+Download Visual Express C++ (tested for 2008)
+http://www.microsoft.com/express/Downloads/
 
-The bzip2 source tarball comes with an archive where you can easily
-built your own libbz2.lib file.
+In the OpenTTD wiki you will also find some useful instruction on
+setting up MSVC:
+http://wiki.openttd.org/Microsoft_Visual_C%2B%2B_2008_Express_Editions
+
+You will need some libraries like zlib etc. Any version which is
+compatible with VC will do. Take a look at the instructions for
+compiling OpenTTD, which contains a libpng and a zlib suited for
+simutrans too:
+http://binaries.openttd.org/extra/openttd-useful/
+
+The bzip2 source tarball comes with an archive where you can easily built
+your own libbz2.lib file. Or use the one posted in the forum:
+http://forum.simutrans.com/index.php?topic=652.msg37080#msg37080
 
 For debugging, you have to set the correct working directory, i.e. the
 directory where the pak/ folders are located and use the -use_workdir
 command line option.
 
-Berlin, Nov 2009
+Berlin, Mai 2011

@@ -719,7 +719,7 @@ void werkzeug_t::draw_after( karte_t *welt, koord pos ) const
 	}
 }
 
-bool werkzeug_t::is_selected(karte_t *welt) const
+bool werkzeug_t::is_selected(const karte_t *welt) const
 {
 	return welt->get_werkzeug(welt->get_active_player_nr())==this;
 }
@@ -760,7 +760,7 @@ image_id toolbar_t::get_icon(spieler_t *sp) const
 
 
 // simply true, if visible
-bool toolbar_t::is_selected(karte_t *) const
+bool toolbar_t::is_selected(const karte_t *) const
 {
 	return win_get_magic(magic_toolbar + toolbar_tool.index_of(const_cast<toolbar_t*>(this)));
 }

@@ -7,7 +7,7 @@
 #define simconvoi_h
 
 #include "simtypes.h"
-#include "simconst.h"
+#include "simunits.h"
 #include "linehandle_t.h"
 
 #include "ifc/sync_steppable.h"
@@ -324,8 +324,9 @@ private:
 	// needed for speed control/calculation
 	sint32 brake_speed_soll;    // brake target speed
 	sint32 akt_speed;	        // current speed
-	sint32 sp_soll;           // steps to go
-	sint32 previous_delta_v;  // Stores the previous delta_v value; otherwise these digits are lost during calculation and vehicle do not accelrate
+	sint32 akt_speed_soll;		// Target speed
+	sint32 sp_soll;				// steps to go
+	sint32 previous_delta_v;	// Stores the previous delta_v value; otherwise these digits are lost during calculation and vehicle do not accelrate
 
 	uint32 next_wolke;	// time to next smoke
 
@@ -444,6 +445,9 @@ private:
 	 */
 	bool calc_obsolescence(uint16 timeline_year_month);
 
+	// matches two halts; if the pos is not identical, maybe the halt still is
+	bool matches_halt( const koord3d pos1, const koord3d pos2 );
+
 	/**
 	 * Register the convoy with the stops in the schedule
 	 * @author Knightly
@@ -466,6 +470,10 @@ private:
 	void advance_schedule();
 
 public:
+	
+// updates a line schedule and tries to find the best next station to go
+	void check_pending_updates();	
+
 	/**
 	* Convoi haelt an Haltestelle und setzt quote fuer Fracht
 	* @author Hj. Malthaner
@@ -517,7 +525,7 @@ public:
 	* true if in waiting state (maybe also due to starting)
 	* @author hsiegeln
 	*/
-	inline bool is_waiting() { return (state>=WAITING_FOR_CLEARANCE  &&  state<=CAN_START_ONE_MONTH)  ||  state==WAITING_FOR_CLEARANCE_TWO_MONTHS  ||  state==CAN_START_TWO_MONTHS;}
+	bool is_waiting() { return (state>=WAITING_FOR_CLEARANCE  &&  state<=CAN_START_TWO_MONTHS)  &&  state!=SELF_DESTRUCT; }
 
 	/**
 	* reset state to no error message
@@ -649,6 +657,12 @@ public:
 	uint32 get_length() const;
 
 	/**
+	 * @return length of convoi in the correct units for movement
+	 * @author neroden
+	 */
+	uint32 get_length_in_steps() const { return get_length() * VEHICLE_STEPS_PER_CARUNIT; }
+
+	/**
 	 * Add the costs for traveling one tile
 	 * @author Hj. Malthaner
 	 */
@@ -767,8 +781,6 @@ public:
 	* @see simwin
 	*/
 	void zeige_info();
-
-	void check_pending_updates();
 
 	/**
 	* Get whether the convoi is traversing its schedule in reverse.
@@ -986,7 +998,7 @@ public:
 	void must_recalc_brake_soll() { recalc_brake_soll = true; }
 
 	// Overtaking for convois
-	virtual bool can_overtake(overtaker_t *other_overtaker, int other_speed, int steps_other, int diagonal_length);
+	virtual bool can_overtake(overtaker_t *other_overtaker, int other_speed, int steps_other, int diagonal_vehicle_steps_per_tile);
 
 	//Returns the maximum catering level of the category type given in the convoy.
 	//@author: jamespetts

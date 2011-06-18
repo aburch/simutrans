@@ -40,8 +40,8 @@ wolke_t::wolke_t(karte_t *welt, koord3d pos, sint8 x_off, sint8 y_off, const ski
 	ding_no_info_t(welt, pos)
 {
 	cloud_nr = all_clouds.index_of(besch);
-	base_y_off = clamp( (((sint16)y_off-8)*TILE_STEPS)/16, -128, 127 );
-	set_xoff( (x_off*TILE_STEPS)/16 );
+	base_y_off = clamp( (((sint16)y_off-8)*OBJECT_OFFSET_STEPS)/16, -128, 127 );
+	set_xoff( (x_off*OBJECT_OFFSET_STEPS)/16 );
 	set_yoff( base_y_off );
 	insta_zeit = 0;
 	divisor = 2500/besch->get_bild_anzahl();
@@ -96,7 +96,7 @@ bool wolke_t::sync_step(long delta_t)
 		return false;
 	}
 	// move cloud up
-	sint8 ymove = ((insta_zeit*TILE_STEPS) >> 12);
+	sint8 ymove = ((insta_zeit*OBJECT_OFFSET_STEPS) >> 12);
 	if(  base_y_off-ymove!=get_yoff()  ) {
 		// move/change cloud ... (happens much more often than image change => image change will be always done when drawing)
 		if(!get_flag(ding_t::dirty)) {
@@ -127,7 +127,7 @@ void wolke_t::rotate90()
 {
 	set_yoff( 0 );
 	ding_t::rotate90();
-	set_yoff( ((insta_zeit*TILE_STEPS) >> 12) + base_y_off );
+	set_yoff( ((insta_zeit*OBJECT_OFFSET_STEPS) >> 12) + base_y_off );
 }
 
 /***************************** just for compatibility, the old raucher and smoke clouds *********************************/

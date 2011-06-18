@@ -185,8 +185,8 @@ DBG_MESSAGE("obj_reader_t::load()", "reading from '%s'", name.c_str());
 			if ((n & teilung) == 0 && drawing) {
 				display_progress(n, max);
 				// name of the pak
-				if(  grund_besch_t::ausserhalb->get_copyright()[0]  ) {
-					display_proportional( display_get_width()/2, display_get_height()/2-8-LINESPACE-4, grund_besch_t::ausserhalb->get_copyright(), ALIGN_MIDDLE, COL_WHITE, true );
+				if (char const* const copyright = grund_besch_t::ausserhalb->get_copyright()) {
+					display_proportional(display_get_width() / 2, display_get_height() / 2 - 8 - LINESPACE - 4, copyright, ALIGN_MIDDLE, COL_WHITE, true);
 				}
 			}
 		}

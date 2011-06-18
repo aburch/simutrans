@@ -9,7 +9,6 @@
 #define powernet_t_h
 
 #include "../simtypes.h"
-#include "../tpl/ptrhashtable_tpl.h"
 #include "../tpl/slist_tpl.h"
 
 
@@ -37,7 +36,6 @@ public:
 	static void step_all(long delta_t);
 
 private:
-	static ptrhashtable_tpl<powernet_t *, powernet_t *> loading_table;
 	static slist_tpl<powernet_t *> powernet_list;
 
 	uint32 max_capacity;

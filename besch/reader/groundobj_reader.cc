@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "../../simconst.h"
+#include "../../simunits.h"
 #include "../../simdings.h"
 #include "../../simdebug.h"
 #include "../../dings/groundobj.h"

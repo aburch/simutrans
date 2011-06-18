@@ -578,11 +578,9 @@ sint16 display_get_height(void)
 }
 
 
-sint16 display_set_height(KOORD_VAL h)
+void display_set_height(KOORD_VAL const h)
 {
-	sint16 old = disp_height;
 	disp_height = h;
-	return old;
 }
 
 
@@ -2104,282 +2102,28 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 					"negl %2\n\t"
 					"addl $1f, %2\n\t"
 					"jmp * %2\n\t"
-					".p2align 2\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-
-
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n\t"
-					"movsd\n"
-
+					"ud2\n\t"
+					".p2align 4\n\t"
+#define MOVSD1   "movsd\n\t"
+#define MOVSD2   MOVSD1   MOVSD1
+#define MOVSD4   MOVSD2   MOVSD2
+#define MOVSD8   MOVSD4   MOVSD4
+#define MOVSD16  MOVSD8   MOVSD8
+#define MOVSD32  MOVSD16  MOVSD16
+#define MOVSD64  MOVSD32  MOVSD32
+#define MOVSD128 MOVSD64  MOVSD64
+#define MOVSD256 MOVSD128 MOVSD128
+					MOVSD256
+#undef MOVSD256
+#undef MOVSD128
+#undef MOVSD64
+#undef MOVSD32
+#undef MOVSD16
+#undef MOVSD8
+#undef MOVSD4
+#undef MOVSD2
+#undef MOVSD1
 					"1:\n\t"
-
 					: "+D" (p), "+S" (sp), "+r" (runlen)
 					:
 					: "cc", "memory"
@@ -3488,8 +3232,7 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
 	const uint8 *p;
 	KOORD_VAL yy = y + fnt->height;
 	KOORD_VAL x0;	// store the inital x (for dirty marking)
-	KOORD_VAL y0, y_offset, char_height;	// real y for display with clipping
-	bool v_clip;
+	KOORD_VAL y_offset, char_height;	// real y for display with clipping
 	unsigned char mask1, mask2;	// for horizontal clipping
 	const PIXVAL color = specialcolormap_all_day[color_index & 0xFF];
 #ifndef USE_C
@@ -3535,19 +3278,14 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
 
 	// x0 contains the startin x
 	x0 = x;
-	y0 = y;
 	y_offset = 0;
 	char_height = fnt->height;
-	v_clip = false;
 	// calculate vertical y clipping parameters
 	if (y < cT) {
-		y0 = cT;
 		y_offset = cT - y;
-		v_clip = TRUE;
 	}
 	if (yy > cB) {
 		char_height -= yy - cB;
-		v_clip = TRUE;
 	}
 
 	// big loop, char by char
@@ -3750,22 +3488,27 @@ void display_ddd_proportional_clip(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL wid
  * @author Volker Meyer
  * @date  15.06.2003
  */
-void display_multiline_text(KOORD_VAL x, KOORD_VAL y, const char *buf, PLAYER_COLOR_VAL color)
+int display_multiline_text(KOORD_VAL x, KOORD_VAL y, const char *buf, PLAYER_COLOR_VAL color)
 {
+	int max_px_len = 0;
 	if (buf != NULL && *buf != '\0') {
 		const char *next;
 
 		do {
 			next = strchr(buf, '\n');
-			display_text_proportional_len_clip(
+			const int px_len = display_text_proportional_len_clip(
 				x, y, buf,
 				ALIGN_LEFT | DT_DIRTY | DT_CLIP, color,
 				next != NULL ? (int)(size_t)(next - buf) : -1
 			);
+			if(  px_len>max_px_len  ) {
+				max_px_len = px_len;
+			}
 			buf = next + 1;
 			y += LINESPACE;
 		} while (next != NULL);
 	}
+	return max_px_len;
 }
 
 
@@ -3991,7 +3734,7 @@ int simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 	disp_height = height;
 
 	// get real width from os-dependent routines
-	disp_width = dr_os_open(width, height, 16, full_screen);
+	disp_width = dr_os_open(width, height, full_screen);
 	if(  disp_width>0  ) {
 
 
@@ -4108,7 +3851,7 @@ void simgraph_resize(KOORD_VAL w, KOORD_VAL h)
 	}
 	// only resize, if internal values are different
 	if (disp_width != w || disp_height != h) {
-		KOORD_VAL new_width = dr_textur_resize(&textur, w, h, 16);
+		KOORD_VAL new_width = dr_textur_resize(&textur, w, h);
 		if(  new_width!=disp_width  ||  disp_height != h) {
 
 			disp_width = new_width;

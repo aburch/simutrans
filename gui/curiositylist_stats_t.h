@@ -47,6 +47,11 @@ public:
 	bool infowin_event(const event_t *);
 
 	/**
+	* Recalc the current size required to display everything, and set komponente groesse
+	*/
+	void recalc_size();
+
+	/**
 	* Zeichnet die Komponente
 	* @author Hj. Malthaner
 	*/

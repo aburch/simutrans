@@ -114,48 +114,85 @@ void ware_t::rdwr(karte_t *welt,loadsave_t *file)
 		}
 	}
 	// convert coordinate to halt indices
-	if(file->is_saving()) 
+	if(file->get_version() > 110005) 
 	{
-		koord ziel_koord = ziel.is_bound() ? ziel->get_basis_pos() : koord::invalid;
-		ziel_koord.rdwr(file);
-		koord zwischenziel_koord = zwischenziel.is_bound() ? zwischenziel->get_basis_pos() : koord::invalid;
-		zwischenziel_koord.rdwr(file);
-		if(file->get_experimental_version() >= 1)
+		// save halt id directly
+		if(file->is_saving()) 
 		{
-			koord origin_koord = origin.is_bound() ? origin->get_basis_pos() : koord::invalid;	
-			origin_koord.rdwr(file);
+			uint16 halt_id = ziel.is_bound() ? ziel.get_id() : 0;
+			file->rdwr_short(halt_id);
+			halt_id = zwischenziel.is_bound() ? zwischenziel.get_id() : 0;
+			file->rdwr_short(halt_id);
+			if(file->get_experimental_version() >= 1)
+			{
+				halt_id = origin.is_bound() ? origin.get_id() : 0;	
+				file->rdwr_short(halt_id);
+			}	
+		}
+
+		else
+		{
+			uint16 halt_id;
+			file->rdwr_short(halt_id);
+			ziel.set_id(halt_id);
+			file->rdwr_short(halt_id);
+			zwischenziel.set_id(halt_id);
+			if(file->get_experimental_version() >= 1)
+			{
+				file->rdwr_short(halt_id);			
+				origin.set_id(halt_id);
+			}
+			else
+			{
+				origin = zwischenziel;
+			}
 		}
 	}
 	else 
 	{
-		koord ziel_koord;
-		ziel_koord.rdwr(file);
-		ziel = welt->get_halt_koord_index(ziel_koord);
-		koord zwischen_ziel_koord;
-		zwischen_ziel_koord.rdwr(file);
-		zwischenziel = welt->get_halt_koord_index(zwischen_ziel_koord);
-		
-		if(file->get_experimental_version() >= 1)
+		if(file->is_saving()) 
 		{
-			koord origin_koord;	
-
-			origin_koord.rdwr(file);
-			if(file->get_experimental_version() == 1)
-			{				
-				// Simutrans-Experimental save version 1 had extra parameters
-				// such as "previous transfer" intended for use in the new revenue
-				// system. In the end, the system was designed differently, and
-				// these values are not present in versions 2 and above.
-				koord dummy;
-				dummy.rdwr(file);
+			koord ziel_koord = ziel.is_bound() ? ziel->get_basis_pos() : koord::invalid;
+			ziel_koord.rdwr(file);
+			koord zwischenziel_koord = zwischenziel.is_bound() ? zwischenziel->get_basis_pos() : koord::invalid;
+			zwischenziel_koord.rdwr(file);
+			if(file->get_experimental_version() >= 1)
+			{
+				koord origin_koord = origin.is_bound() ? origin->get_basis_pos() : koord::invalid;	
+				origin_koord.rdwr(file);
 			}
-			
-			origin = welt->get_halt_koord_index(origin_koord);
-			
 		}
-		else
+		else 
 		{
-			origin = zwischenziel;
+			koord ziel_koord;
+			ziel_koord.rdwr(file);
+			ziel = welt->get_halt_koord_index(ziel_koord);
+			koord zwischen_ziel_koord;
+			zwischen_ziel_koord.rdwr(file);
+			zwischenziel = welt->get_halt_koord_index(zwischen_ziel_koord);
+		
+			if(file->get_experimental_version() >= 1)
+			{
+				koord origin_koord;	
+
+				origin_koord.rdwr(file);
+				if(file->get_experimental_version() == 1)
+				{				
+					// Simutrans-Experimental save version 1 had extra parameters
+					// such as "previous transfer" intended for use in the new revenue
+					// system. In the end, the system was designed differently, and
+					// these values are not present in versions 2 and above.
+					koord dummy;
+					dummy.rdwr(file);
+				}
+			
+				origin = welt->get_halt_koord_index(origin_koord);
+			
+			}
+			else
+			{
+				origin = zwischenziel;
+			}
 		}
 	}
 	zielpos.rdwr(file);

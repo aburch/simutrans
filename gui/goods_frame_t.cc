@@ -72,7 +72,7 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	speed_bonus[0] = 0;
 	distance_txt[0] = 0;
 	comfort_txt[0] = 0;
-	tile_distance = (1000 * distance) / goods_frame_t::welt->get_einstellungen()->get_meters_per_tile();
+	tile_distance = (1000 * distance) / goods_frame_t::welt->get_settings().get_meters_per_tile();
 	change_speed_label.set_pos(koord(BUTTON4_X+5, y + 24));
 	add_komponente(&change_speed_label);
 
@@ -120,7 +120,7 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	way_type.set_max_size(koord(96, LINESPACE*2+2+16));
 	way_type.set_highlight_color(1);
 	
-	y=4+5*LINESPACE+6 + 25;	
+	y=4+6*LINESPACE+6 + 25;	
 
 	sort_label.set_pos(koord(BUTTON1_X, y));
 	add_komponente(&sort_label);
@@ -145,7 +145,7 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	int h =(warenbauer_t::get_waren_anzahl()+3) * LINESPACE + y;
 	if(h > 450) 
 	{
-		h = y + 10 * LINESPACE + 2;
+		h = y + 11 * LINESPACE + 2;
 	}
 	set_fenstergroesse(koord(TOTAL_WIDTH, h));
 	set_min_windowsize(koord(TOTAL_WIDTH, y + 6 * LINESPACE + 2));
@@ -294,7 +294,8 @@ void goods_frame_t::sort_list()
 void goods_frame_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta);
-	koord groesse = get_fenstergroesse()-koord(0,4+6*LINESPACE+4+BUTTON_HEIGHT+2+16+25);
+
+	koord groesse = get_fenstergroesse()-koord(0,4+7*LINESPACE+4+BUTTON_HEIGHT+3+16+25);
 	scrolly.set_groesse(groesse);
 }
 
@@ -332,14 +333,14 @@ bool goods_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 		if(distance > 1) 
 		{
 			distance --;
-			tile_distance = (1000 * distance) / goods_frame_t::welt->get_einstellungen()->get_meters_per_tile();
+			tile_distance = (1000 * distance) / goods_frame_t::welt->get_settings().get_meters_per_tile();
 			sort_list();
 		}
 	}
 	else if(komp == &distance_up) 
 	{
 		distance ++;
-		tile_distance = (1000 * distance) / goods_frame_t::welt->get_einstellungen()->get_meters_per_tile();
+		tile_distance = (1000 * distance) / goods_frame_t::welt->get_settings().get_meters_per_tile();
 		sort_list();
 	}
 	else if(komp == &comfort_down) 
@@ -427,6 +428,11 @@ void goods_frame_t::zeichnen(koord pos, koord gr)
 		(goods_frame_t::welt->get_average_speed(maglev_wt)*relative_speed_change)/100,
 		(goods_frame_t::welt->get_average_speed(narrowgauge_wt)*relative_speed_change)/100
 	);
-	display_multiline_text(pos.x+11, pos.y+BUTTON_HEIGHT+4+57, speed_message, COL_WHITE);
 
+	display_multiline_text(pos.x+11, pos.y+BUTTON_HEIGHT+4+3*LINESPACE, speed_message, COL_WHITE);
+
+	sprintf(speed_message,translator::translate("100 km/h = %i tiles/month"),
+		(welt->speed_to_tiles_per_month(kmh_to_speed(100)))
+	);
+	display_multiline_text(pos.x+11, pos.y+BUTTON_HEIGHT+4+5*LINESPACE, speed_message, COL_WHITE);
 }

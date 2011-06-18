@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 
+#include "../simunits.h"
 #include "../simdebug.h"
 #include "../simdings.h"
 #include "../simimg.h"
@@ -322,7 +323,7 @@ bool roadsign_t::sync_step(long /*delta_t*/)
 	// change every ~32s
 	uint32 ticks = (welt->get_zeit_ms()>>10) % (ticks_ns+ticks_ow);
 
-	uint8 new_zustand = (ticks>=ticks_ns) ^ (welt->get_einstellungen()->get_rotation()&1);
+	uint8 new_zustand = (ticks >= ticks_ns) ^ (welt->get_settings().get_rotation() & 1);
 	if(zustand!=new_zustand) {
 		zustand = new_zustand;
 		dir = (new_zustand==0) ? ribi_t::nordsued : ribi_t::ostwest;
@@ -574,7 +575,7 @@ void roadsign_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 /*sou
  * Finds a matching roadsing
  * @author prissi
  */
-const roadsign_besch_t *roadsign_t::roadsign_search(uint8 flag,const waytype_t wt,const uint16 time)
+const roadsign_besch_t *roadsign_t::roadsign_search(roadsign_besch_t::types const flag, waytype_t const wt, uint16 const time)
 {
 	stringhashtable_iterator_tpl<const roadsign_besch_t *>iter(table);
 	while(  iter.next()  ) {

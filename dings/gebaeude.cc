@@ -89,18 +89,19 @@ gebaeude_t::gebaeude_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_til
 	set_besitzer( sp );
 
 	init();
-	if(t) {
+	if(t) 
+	{
 		set_tile(t);	// this will set init time etc.
-			sint64 maint;
-	if(tile->get_besch()->get_base_station_maintenance() == 2147483647)
-	{
-		maint = welt->get_einstellungen()->maint_building*tile->get_besch()->get_level();
-	}
-	else
-	{
-		maint = tile->get_besch()->get_station_maintenance();
-	}
-	spieler_t::add_maintenance(get_besitzer(), maint);
+		sint64 maint;
+		if(tile->get_besch()->get_base_station_maintenance() == 2147483647)
+		{
+			maint = welt->get_settings().maint_building*tile->get_besch()->get_level();
+		}
+		else
+		{
+			maint = tile->get_besch()->get_station_maintenance();
+		}
+		spieler_t::add_maintenance(get_besitzer(), maint);
 	}
 
 	grund_t *gr=welt->lookup(pos);
@@ -142,7 +143,7 @@ gebaeude_t::~gebaeude_t()
 		sint64 maint;
 		if(tile->get_besch()->get_base_station_maintenance() == 2147483647)
 		{
-			maint = welt->get_einstellungen()->maint_building*tile->get_besch()->get_level();
+			maint = welt->get_settings().maint_building*tile->get_besch()->get_level();
 		}
 		else
 		{
@@ -181,7 +182,7 @@ void gebaeude_t::rotate90()
 		}
 		// have to rotate the tiles :(
 		if(  !haus_besch->can_rotate()  &&  haus_besch->get_all_layouts() == 1  ) {
-			if(  (welt->get_einstellungen()->get_rotation() & 1) == 0  ) {
+			if ((welt->get_settings().get_rotation() & 1) == 0) {
 				// rotate 180 degree
 				new_offset = koord(haus_besch->get_b() - 1 - new_offset.x, haus_besch->get_h() - 1 - new_offset.y);
 			}
@@ -492,7 +493,7 @@ int gebaeude_t::get_passagier_level() const
 	long pax = tile->get_besch()->get_level();
 	if (!is_factory && ptr.stadt != NULL) {
 		// belongs to a city ...
-		return (((pax+6)>>2)*welt->get_einstellungen()->get_passenger_factor())/16;
+		return ((pax + 6) >> 2) * welt->get_settings().get_passenger_factor() / 16;
 	}
 	return pax*dim.x*dim.y;
 }
@@ -502,7 +503,7 @@ int gebaeude_t::get_post_level() const
 	koord dim = tile->get_besch()->get_groesse();
 	long post = tile->get_besch()->get_post_level();
 	if (!is_factory && ptr.stadt != NULL) {
-		return (((post+5)>>2)*welt->get_einstellungen()->get_passenger_factor())/16;
+		return ((post + 5) >> 2) * welt->get_settings().get_passenger_factor() / 16;
 	}
 	return post*dim.x*dim.y;
 }
@@ -722,12 +723,11 @@ void gebaeude_t::info(cbuffer_t & buf) const
 			buf.append("\n");
 			buf.append(translator::translate("Wert"));
 			buf.append(": ");
-			buf.append(-(welt->get_einstellungen()->cst_buy_land*(tile->get_besch()->get_level()+1)/100) * 5);
+			buf.append(-(welt->get_settings().cst_buy_land*(tile->get_besch()->get_level()+1)/100) * 5);
 			buf.append("$\n");
 		}
 
-		const char *maker=tile->get_besch()->get_copyright();
-		if(maker!=NULL  && maker[0]!=0) {
+		if (char const* const maker = tile->get_besch()->get_copyright()) {
 			buf.append("\n");
 			buf.printf(translator::translate("Constructed by %s"), maker);
 		}
@@ -926,11 +926,10 @@ void gebaeude_t::rdwr(loadsave_t *file)
 void gebaeude_t::laden_abschliessen()
 {
 	calc_bild();
-
 	sint64 maint = tile->get_besch()->get_station_maintenance();
 	if(maint == 2147483647) 
 	{
-		maint = welt->get_einstellungen()->maint_building*tile->get_besch()->get_level();
+		maint = welt->get_settings().maint_building*tile->get_besch()->get_level();
 	}
 	spieler_t::add_maintenance(get_besitzer(), maint);
 
@@ -960,8 +959,8 @@ void gebaeude_t::entferne(spieler_t *sp)
 
 	if(besch->get_utyp()<haus_besch_t::bahnhof) 
 	{
-		const sint64 bulldoze_cost = welt->get_einstellungen()->cst_multiply_remove_haus * (besch->get_level()+1);
-		const sint64 purchase_cost = welt->get_einstellungen()->cst_buy_land * besch->get_level() * 5;
+		const sint64 bulldoze_cost =welt->get_settings().cst_multiply_remove_haus * (besch->get_level()+1);
+		const sint64 purchase_cost =welt->get_settings().cst_buy_land * besch->get_level() * 5;
 		cost = sp != get_besitzer() ? bulldoze_cost + purchase_cost : bulldoze_cost;
 		spieler_t::accounting(sp, cost, get_pos().get_2d(), COST_CONSTRUCTION);
 	}
@@ -973,7 +972,7 @@ void gebaeude_t::entferne(spieler_t *sp)
 		if(besch->get_base_station_price() == 2147483647)
 		{
 			// TODO: find a way of checking what *kind* of stop that this is. This assumes railway.
-			cost = welt->get_einstellungen()->cst_multiply_station * besch->get_level();
+			cost = welt->get_settings().cst_multiply_station * besch->get_level();
 		}
 		// Should be cheaper to bulldoze than build. 
 		spieler_t::accounting(sp, -(cost / 1.5F), get_pos().get_2d(), COST_CONSTRUCTION);

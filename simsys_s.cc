@@ -22,7 +22,7 @@
 #define NOMINMAX 1
 #include <windows.h>
 #else
-#include <sys/stat.h>
+#	include "limits.h"
 #ifndef __HAIKU__
 #include <sys/errno.h>
 #else
@@ -37,15 +37,12 @@
 #include <stdlib.h>
 #include <math.h>
 
-#ifndef PATH_MAX
-#define PATH_MAX (1024)
-#endif
-
 #undef min
 #undef max
 
 #include "macros.h"
 #include "simmain.h"
+#include "simsys_w32_png.h"
 #include "simversion.h"
 #include "simsys.h"
 #include "simevent.h"
@@ -197,7 +194,7 @@ extern void display_set_actual_width(KOORD_VAL w);
 
 
 // open the window
-int dr_os_open(int w, int h, int bpp, int fullscreen)
+int dr_os_open(int w, int const h, int const fullscreen)
 {
 	Uint32 flags = sync_blit ? 0 : SDL_ASYNCBLIT;
 
@@ -222,7 +219,7 @@ int dr_os_open(int w, int h, int bpp, int fullscreen)
 #endif
 
 	// open the window now
-	screen = SDL_SetVideoMode(w, h, bpp, flags);
+	screen = SDL_SetVideoMode(w, h, COLOUR_DEPTH, flags);
 	if (screen == NULL) {
 		fprintf(stderr, "Couldn't open the window: %s\n", SDL_GetError());
 		return 0;
@@ -259,7 +256,7 @@ int dr_os_close(void)
 
 
 // resizes screen
-int dr_textur_resize(unsigned short** textur, int w, int h, int bpp)
+int dr_textur_resize(unsigned short** const textur, int w, int const h)
 {
 #ifdef USE_HW
 	SDL_UnlockSurface(screen);
@@ -280,7 +277,7 @@ int dr_textur_resize(unsigned short** textur, int w, int h, int bpp)
 		width = w;
 		height = h;
 
-		screen = SDL_SetVideoMode(w, h, bpp, flags);
+		screen = SDL_SetVideoMode(w, h, COLOUR_DEPTH, flags);
 		printf("textur_resize()::screen=%p\n", screen);
 		if (screen) {
 			DBG_MESSAGE("dr_textur_resize(SDL)", "SDL realized screen size width=%d, height=%d (requested w=%d, h=%d)", screen->w, screen->h, w, h);
@@ -295,56 +292,6 @@ int dr_textur_resize(unsigned short** textur, int w, int h, int bpp)
 	*textur = (unsigned short*)screen->pixels;
 	return w;
 }
-
-
-
-// query home directory
-char *dr_query_homedir(void)
-{
-	static char buffer[PATH_MAX];
-	char b2[PATH_MAX];
-#ifdef _WIN32
-	DWORD len=PATH_MAX-24;
-	HKEY hHomeDir;
-	if(RegOpenKeyExA(HKEY_CURRENT_USER,"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders", 0, KEY_READ, &hHomeDir)==ERROR_SUCCESS) {
-		RegQueryValueExA(hHomeDir,"Personal",NULL,NULL,(BYTE *)buffer,&len);
-		strcat(buffer,"\\Simutrans");
-		CreateDirectoryA( buffer, NULL );
-		strcat(buffer, "\\");
-
-		// create other subdirectories
-		sprintf(b2, "%ssave", buffer );
-		CreateDirectoryA( b2, NULL );
-		sprintf(b2, "%sscreenshot", buffer );
-		CreateDirectoryA( b2, NULL );
-		sprintf(b2, "%smaps", buffer );
-		CreateDirectoryA( b2, NULL );
-
-		return buffer;
-	}
-	return NULL;
-#else
-#ifndef __APPLE__
-	sprintf( buffer, "%s/simutrans", getenv("HOME") );
-#else
-	sprintf( buffer, "%s/Library/Simutrans", getenv("HOME") );
-#endif
-	int err = mkdir( buffer, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH );
-	if(err  &&  err!=EEXIST) {
-		// could not create directory
-		// we assume success anyway
-	}
-	strcat( buffer, "/" );
-	sprintf( b2, "%smaps", buffer );
-	mkdir( b2, 0700 );
-	sprintf( b2, "%sscreenshot", buffer );
-	mkdir( b2, 0700 );
-	sprintf( b2, "%ssave", buffer );
-	mkdir( b2, 0700 );
-	return buffer;
-#endif
-}
-
 
 
 unsigned short *dr_textur_init()
@@ -434,11 +381,6 @@ void set_pointer(int loading)
 	SDL_SetCursor(loading ? hourglass : arrow);
 }
 
-
-
-
-// try saving png using gdiplus.dll
-extern "C" int dr_screenshot_png(const char *filename,  int w, int h, int max_width, unsigned short *data, int bitdepth );
 
 /**
  * Some wrappers can save screenshots.
@@ -729,26 +671,17 @@ bool dr_fatal_notify(const char* msg, int choices)
 
 
 #ifdef _WIN32
-BOOL APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR lpCmdLine, int /*nShowCmd*/)
+int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR, int)
 #else
 int main(int argc, char **argv)
 #endif
 {
 #ifdef _WIN32
-	char *argv[32], *p;
-	int argc;
-	char pathname[PATH_MAX];
-
-	// prepare commandline
-	argc = 0;
-	GetModuleFileNameA( hInstance, pathname, 1024 );
-	argv[argc++] = pathname;
-	p = strtok(lpCmdLine, " ");
-	while (p != NULL) {
-		argv[argc++] = p;
-		p = strtok(NULL, " ");
-	}
-	argv[argc] = NULL;
+	int    const argc = __argc;
+	char** const argv = __argv;
+	char         pathname[1024];
+	GetModuleFileNameA(hInstance, pathname, lengthof(pathname));
+	argv[0] = pathname;
 #elif !defined __BEOS__
 #  if defined(__GLIBC__)  &&  !defined(__AMIGA__)
 	/* glibc has a non-standard extension */

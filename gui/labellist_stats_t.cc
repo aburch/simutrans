@@ -28,11 +28,10 @@
 
 
 labellist_stats_t::labellist_stats_t(karte_t* w, labellist::sort_mode_t sortby, bool sortreverse, bool filter) :
-    labels(10)
+	welt(w)
 {
-	welt = w;
 	get_unique_labels(sortby,sortreverse,filter);
-	set_groesse(koord(210, labels.get_count()*(LINESPACE+1)-10));
+	recalc_size();
 	line_selected = 0xFFFFFFFFu;
 }
 
@@ -85,18 +84,22 @@ class compare_labels
 
 	private:
 		labellist::sort_mode_t sortby;
-		bool reverse;
-		bool filter;
+		bool reverse, filter;
 		karte_t * welt;
 };
 
 
-void labellist_stats_t::get_unique_labels(labellist::sort_mode_t sortby, bool sortreverse, bool filter)
+void labellist_stats_t::get_unique_labels(labellist::sort_mode_t sb, bool sr, bool fi)
 {
-	labels.clear();
+	sortby = sb;
+	sortreverse = sr;
+	filter = fi;
 
-	slist_iterator_tpl <koord> iter (welt->get_label_list());
-	while(iter.next()) {
+	labels.clear();
+	last_world_labels = welt->get_label_list().get_count();
+	labels.resize(last_world_labels);
+
+	for (slist_iterator_tpl<koord> iter(welt->get_label_list()); iter.next();) {
 		koord pos = iter.get_current();
 		label_t* label = welt->lookup_kartenboden(pos)->find<label_t>();
 		const char* name = welt->lookup_kartenboden(pos)->get_text();
@@ -149,12 +152,63 @@ bool labellist_stats_t::infowin_event(const event_t * ev)
 } // end of function labellist_stats_t::infowin_event(const event_t * ev)
 
 
+void labellist_stats_t::recalc_size()
+{
+	sint16 x_size = 0;
+	sint16 y_size = 0;
+
+	// loop copied from ::zeichnen(), trimmed to minimum for x_size calculation
+
+	static cbuffer_t buf(128);
+
+	for(  uint32 i=0;  i<labels.get_count();   i++) {
+		const koord pos = labels[i];
+
+		buf.clear();
+
+		// the other infos
+		const label_t* label = welt->lookup_kartenboden(pos)->find<label_t>();
+		//PLAYER_COLOR_VAL col = COL_WHITE;
+		buf.append(" (");
+		buf.append(pos.x);
+		buf.append(",");
+		buf.append(pos.y);
+		buf.append(") ");
+
+		if(  label  ) {
+			//col = (PLAYER_FLAG|label->get_besitzer()->get_player_color1());
+			grund_t *gr = welt->lookup(label->get_pos());
+			if(  gr  &&  gr->get_text()  ) {
+				buf.append(gr->get_text());
+			}
+		}
+		const int px_len = proportional_string_width(buf);
+		if(  px_len>x_size  ) {
+			x_size = px_len;
+		}
+
+		y_size +=LINESPACE+1;
+	}
+
+	set_groesse(koord(x_size+10+4,y_size));
+}
+
+
 /**
  * Zeichnet die Komponente
  * @author Hj. Malthaner
  */
 void labellist_stats_t::zeichnen(koord offset)
 {
+	if(  last_world_labels!=welt->get_label_list().get_count()  ) {
+		// some deleted/ added => resort
+		get_unique_labels(sortby,sortreverse,filter);
+		recalc_size();
+	}
+
+	// keep previous maximum width
+	int x_size = get_groesse().x-10-4;
+
 	const struct clip_dimension cd = display_get_clip_wh();
 	const int start = cd.y-LINESPACE+1;
 	const int end = cd.yy;
@@ -162,6 +216,8 @@ void labellist_stats_t::zeichnen(koord offset)
 	static cbuffer_t buf(128);
 	int yoff = offset.y;
 
+
+	// changes to loop affecting x_size must be copied to ::recalc_size()
 	for (uint32 i=0; i<labels.get_count()  &&  yoff<end; i++) {
 		const koord pos = labels[i];
 
@@ -193,8 +249,16 @@ void labellist_stats_t::zeichnen(koord offset)
 				buf.append(gr->get_text());
 			}
 		}
-		display_proportional_clip(offset.x+10+4,yoff,buf,ALIGN_LEFT,col,true);
+		const int px_len = display_proportional_clip(offset.x+10+4,yoff,buf,ALIGN_LEFT,col,true);
+		if(  px_len>x_size  ) {
+			x_size = px_len;
+		}
 
 		yoff +=LINESPACE+1;
+	}
+
+	const koord gr(max(x_size+10+4,get_groesse().x),labels.get_count()*(LINESPACE+1));
+	if(  gr!=get_groesse()  ) {
+		set_groesse(gr);
 	}
 }

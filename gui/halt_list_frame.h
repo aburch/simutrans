@@ -54,6 +54,8 @@ private:
     static const char *sort_text[SORT_MODES];
 
 	vector_tpl<halt_list_stats_t> stops;
+	uint32 last_world_stops;
+	int num_filtered_stops;
 
 	/*
      * All gui elements of this dialog:

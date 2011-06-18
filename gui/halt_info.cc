@@ -161,6 +161,7 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt) :
 	button.set_typ(button_t::roundbox);
 
 	scrolly.set_pos(koord(0, offset_below_viewport+BUTTON_HEIGHT+4));
+	scrolly.set_show_scroll_x(true);
 
 	add_komponente(&button);
 
@@ -233,7 +234,7 @@ void halt_info_t::zeichnen(koord pos, koord gr)
 		// what kind of station?
 		left -= 20;
 		top -= 44;
-		int halttype = halt->get_station_type();
+		haltestelle_t::stationtyp const halttype = halt->get_station_type();
 		if (halttype & haltestelle_t::railstation) {
 			display_color_img(skinverwaltung_t::zughaltsymbol->get_bild_nr(0), pos.x+left, top, 0, false, false);
 			left += 23;
@@ -279,7 +280,7 @@ void halt_info_t::zeichnen(koord pos, koord gr)
 		// passagiere
 		info_buf.append(halt->get_capacity(0));
 		left += display_proportional(left, top, info_buf, ALIGN_LEFT, COL_BLACK, true);
-		if(  welt->get_einstellungen()->is_seperate_halt_capacities()  ) {
+		if (welt->get_settings().is_seperate_halt_capacities()) {
 			// here only for seperate capacities
 			display_color_img(skinverwaltung_t::passagiere->get_bild_nr(0), left, top, 0, false, false);
 			left += 10;

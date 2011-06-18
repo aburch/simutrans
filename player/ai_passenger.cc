@@ -341,7 +341,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 		}
 		// and change name to dock ...
 		halthandle_t halt = welt->lookup(bushalt)->get_halt();
-		char *name = halt->create_name(bushalt, "Dock", welt->get_einstellungen()->get_name_language_id() );
+		char* const name = halt->create_name(bushalt, "Dock");
 		halt->set_name( name );
 		free(name);
 		// finally built the dock
@@ -370,7 +370,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 		}
 		// and change name to dock ...
 		halthandle_t halt = welt->lookup(bushalt)->get_halt();
-		char *name = halt->create_name(bushalt, "Dock", welt->get_einstellungen()->get_name_language_id() );
+		char* const name = halt->create_name(bushalt, "Dock");
 		halt->set_name( name );
 		free(name);
 		// finally built the dock
@@ -388,11 +388,12 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 		}
 	}
 
+	uint16 const cov = welt->get_settings().get_station_coverage();
 	// now we have harbour => find start position for ships
 	koord pos1 = start_harbour-start_dx;
 	koord start_pos = pos1;
-	for(  int y = pos1.y-welt->get_einstellungen()->get_station_coverage();  y<=pos1.y+welt->get_einstellungen()->get_station_coverage();  y++  ) {
-		for(  int x = pos1.x-welt->get_einstellungen()->get_station_coverage();  x<=pos1.x+welt->get_einstellungen()->get_station_coverage();  x++  ) {
+	for (int y = pos1.y - cov; y <= pos1.y + cov; ++y) {
+		for (int x = pos1.x - cov; x <= pos1.x + cov; ++x) {
 			koord p(x,y);
 			const planquadrat_t *plan = welt->lookup(p);
 			if(plan) {
@@ -408,8 +409,8 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 	// now we have harbour => find start position for ships
 	pos1 = end_harbour-end_dx;
 	koord end_pos = pos1;
-	for(  int y = pos1.y-welt->get_einstellungen()->get_station_coverage();  y<=pos1.y+welt->get_einstellungen()->get_station_coverage();  y++  ) {
-		for(  int x = pos1.x-welt->get_einstellungen()->get_station_coverage();  x<=pos1.x+welt->get_einstellungen()->get_station_coverage();  x++  ) {
+	for (int y = pos1.y - cov; y <= pos1.y + cov; ++y) {
+		for (int x = pos1.x - cov; x <= pos1.x + cov; ++x) {
 			koord p(x,y);
 			const planquadrat_t *plan = welt->lookup(p);
 			if(plan) {
@@ -465,7 +466,6 @@ halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int r
 		return halthandle_t();
 	}
 	// ok, not prematurely doomed
-	bool needs_hub=false;
 	// can we built airports at all?
 	const weg_besch_t *taxi_besch = wegbauer_t::weg_search( air_wt, 25, welt->get_timeline_year_month(), weg_t::type_flat );
 	const weg_besch_t *runway_besch = wegbauer_t::weg_search( air_wt, 250, welt->get_timeline_year_month(), weg_t::type_elevated );
@@ -474,32 +474,15 @@ halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int r
 	}
 	// first, check if at least one tile is within city limits
 	const koord lo = city->get_linksoben();
-	const koord ru = city->get_rechtsunten();
 	koord size(3-1,3-1);
 	// make sure pos is within city limits!
 	if(pos.x<lo.x) {
-		if(pos.x+size.x<lo.x) {
-			// not within limits!
-			needs_hub = true;
-		}
 		pos.x += size.x;
 		size.x = -size.x;
 	}
 	if(pos.y<lo.y) {
-		if(pos.y+size.y<lo.y) {
-			// not within limits!
-			needs_hub = true;
-		}
 		pos.y += size.y;
 		size.y = -size.y;
-	}
-	if(pos.x>ru.x) {
-		// not within limits!
-		needs_hub = true;
-	}
-	if(pos.y>ru.y) {
-		// not within limits!
-		needs_hub = true;
 	}
 	// find coord to connect in the town
 	halthandle_t hub = get_our_hub( city );
@@ -578,7 +561,7 @@ halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int r
 	}
 	// and change name to airport ...
 	halthandle_t halt = welt->lookup(bushalt)->get_halt();
-	char *name = halt->create_name( bushalt, "Airport", welt->get_einstellungen()->get_name_language_id() );
+	char* const name = halt->create_name(bushalt, "Airport");
 	halt->set_name( name );
 	free(name);
 	// built also runway now ...
@@ -868,8 +851,9 @@ void ai_passenger_t::walk_city( linehandle_t &line, grund_t *&start, const int l
 				// find out how many tiles we have covered already
 				int covered_tiles=0;
 				int house_tiles=0;
-				for(  sint16 y=to->get_pos().y-welt->get_einstellungen()->get_station_coverage();  y<=to->get_pos().y+welt->get_einstellungen()->get_station_coverage()+1;  y++  ) {
-					for(  sint16 x=to->get_pos().x-welt->get_einstellungen()->get_station_coverage();  x<=to->get_pos().x+welt->get_einstellungen()->get_station_coverage()+1;  x++  ) {
+				uint16 const cov = welt->get_settings().get_station_coverage();
+				for (sint16 y = to->get_pos().y - cov; y <= to->get_pos().y + cov + 1; ++y) {
+					for (sint16 x = to->get_pos().x - cov; x <= to->get_pos().x + cov + 1; ++x) {
 						const planquadrat_t *pl = welt->lookup(koord(x,y));
 						// check, if we have a passenger stop already here
 						if(pl  &&  pl->get_haltlist_count()>0) {
@@ -897,7 +881,7 @@ void ai_passenger_t::walk_city( linehandle_t &line, grund_t *&start, const int l
 				}
 				// now decide, if we build here
 				// just using the ration of covered tiles versus house tiles
-				const int max_tiles = (welt->get_einstellungen()->get_station_coverage()*2+1);
+				int const max_tiles = cov * 2 + 1;
 				if(  covered_tiles<(max_tiles*max_tiles)/3  &&  house_tiles>=3  ) {
 					// ok, lets do it
 					const haus_besch_t* bs = hausbauer_t::get_random_station(haus_besch_t::generic_stop, road_wt, welt->get_timeline_year_month(), haltestelle_t::PAX);
@@ -1006,7 +990,7 @@ void ai_passenger_t::step()
 			// if no previous town => find one
 			if(start_stadt==NULL) {
 				// larger start town preferred
-				start_stadt = staedte.at_weight( simrand(staedte.get_sum_weight(), "ai_passenger_t::step()") );
+				start_stadt = pick_any_weighted(staedte);
 				offset = staedte.index_of(start_stadt);
 			}
 DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using city %s for start",start_stadt->get_name());
@@ -1058,7 +1042,8 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","searching attraction");
 						// this is either a town already served (so we do not create a new hub)
 						// or a lonely point somewhere
 						// in any case we do not want to serve this location already
-						const koord cov = koord(welt->get_einstellungen()->get_station_coverage(),welt->get_einstellungen()->get_station_coverage());
+						uint16 const c   = welt->get_settings().get_station_coverage();
+						koord  const cov = koord(c, c);
 						koord test_platz=find_area_for_hub(pos-cov,pos+size+cov,pos);
 						if(  !haltestelle_t::get_halt(welt,test_platz,this).is_bound()  ) {
 							// not served
@@ -1479,4 +1464,15 @@ void ai_passenger_t::bescheid_vehikel_problem(convoihandle_t cnv,const koord3d z
 			return;
 	}
 	spieler_t::bescheid_vehikel_problem( cnv, ziel );
+}
+
+
+void ai_passenger_t::laden_abschliessen()
+{
+	road_vehicle = vehikelbauer_t::vehikel_search( road_wt, welt->get_timeline_year_month(), 50, 80, warenbauer_t::passagiere, false, false );
+	if (road_vehicle == NULL) {
+		// reset state
+		end_stadt = NULL;
+		state = CHECK_CONVOI;
+	}
 }

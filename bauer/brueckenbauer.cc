@@ -310,7 +310,7 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const 
 		}
 	} while(  !gr1  &&  // no bridge is crossing
 		(!gr2 || (gr2->get_grund_hang()==hang_t::flach  &&  gr2->get_weg_hang()==hang_t::flach)  ||  gr2->get_hoehe()<pos.z )  &&  // ground stays below bridge
-		(!ai_bridge  ||  length <= welt->get_einstellungen()->way_max_bridge_len)  // not too long in case of AI
+		(!ai_bridge || length <= welt->get_settings().way_max_bridge_len) // not too long in case of AI
 		);
 
 	error_msg = "A bridge must start on a way!";
@@ -503,11 +503,9 @@ void brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, ko
 	}
 
 	// must determine end tile: on a slope => likely need auffahrt
-	bool need_auffahrt = pos.z == welt->lookup(end)->get_vmove(-zv);
-	if(need_auffahrt) { //"Need ramp" (Google)
-		grund_t *gr = welt->lookup(end);
-		weg_t *w = gr->get_weg( (waytype_t)weg_besch->get_wtyp());
-		if(w) {
+	bool need_auffahrt = pos.z == welt->lookup(end)->get_vmove(ribi_typ(-zv));
+	if(need_auffahrt) {  //"Need ramp" (Google)
+		if (weg_t const* const w = welt->lookup(end)->get_weg(weg_besch->get_wtyp())) {
 			need_auffahrt &= w->get_besch()->get_styp()!=weg_besch_t::elevated;
 		}
 	}

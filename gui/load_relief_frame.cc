@@ -34,7 +34,7 @@ bool load_relief_frame_t::del_action(const char *filename)
 }
 
 
-load_relief_frame_t::load_relief_frame_t(einstellungen_t* sets) : savegame_frame_t("*.*","maps/")
+load_relief_frame_t::load_relief_frame_t(settings_t* const sets) : savegame_frame_t("*.*","maps/")
 {
 	set_name("Laden");
 	this->sets = sets;

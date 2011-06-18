@@ -106,10 +106,7 @@ void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t &buf, karte_t *welt, const 
 	}
 	// finally append
 	if(strlen(p)>(unsigned)max_chars) {
-		ALLOCA(char, tmp, max_chars + 1);
-		strncpy( tmp, p, max_chars-3 );
-		strcpy( tmp+max_chars-3, "..." );
-		buf.append(tmp);
+		buf.printf("%.*s...", max_chars - 3, p);
 	}
 	else {
 		buf.append(p);
@@ -124,7 +121,7 @@ cbuffer_t fahrplan_gui_stats_t::buf(320);
 void fahrplan_gui_stats_t::zeichnen(koord offset)
 {
 	if(fpl) {
-		sint16 width = 16;
+		sint16 width = get_groesse().x-16;
 
 		for (int i = 0; i < fpl->get_count(); i++) {
 
@@ -140,7 +137,7 @@ void fahrplan_gui_stats_t::zeichnen(koord offset)
 			display_color_img( i!=fpl->get_aktuell() ? button_t::arrow_right_normal : button_t::arrow_right_pushed,
 				offset.x + 2, offset.y + i * (LINESPACE + 1), 0, false, true);
 		}
-		set_groesse( koord(width+11, fpl->get_count() * (LINESPACE + 1) ) );
+		set_groesse( koord(width+16, fpl->get_count() * (LINESPACE + 1) ) );
 	}
 }
 
@@ -301,7 +298,8 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 
 	ypos += BUTTON_HEIGHT;
 	scrolly.set_pos( koord( 0, ypos ) );
-	// scrolly.set_show_scroll_x(false);
+	scrolly.set_show_scroll_x(true);
+	scrolly.set_scroll_amount_y(LINESPACE+1);
 	add_komponente(&scrolly);
 
 	mode = adding;

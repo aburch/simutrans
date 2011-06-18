@@ -1,5 +1,5 @@
-CONFIG ?= config.default
--include $(CONFIG)
+CFG ?= default
+-include config.$(CFG)
 
 
 BACKENDS      = allegro gdi sdl mixer_sdl x11 posix
@@ -95,17 +95,24 @@ ifdef DEBUG
     CFLAGS += -g -DDEBUG
   endif
   ifeq ($(shell expr $(DEBUG) \>= 2), 1)
-    CFLAGS += -fno-inline
+    ifneq ($(PROFILE), 2)
+      CFLAGS += -fno-inline
+    endif
   endif
   ifeq ($(shell expr $(DEBUG) \>= 3), 1)
-    CFLAGS += -O0
+    ifneq ($(PROFILE), 2)
+      CFLAGS += -O0
+    endif
   endif
 else
   CFLAGS += -DNDEBUG
 endif
 
 ifneq ($(PROFILE),)
-  CFLAGS  += -pg -DPROFILE -fno-inline -fno-schedule-insns
+  CFLAGS  += -pg -DPROFILE
+  ifneq ($(PROFILE), 2)
+    CFLAGS  += -fno-inline -fno-schedule-insns
+  endif
   LDFLAGS += -pg
 endif
 
@@ -187,7 +194,9 @@ SOURCES += dataobj/koord3d.cc
 SOURCES += dataobj/loadsave.cc
 SOURCES += dataobj/marker.cc
 SOURCES += dataobj/network.cc
+SOURCES += dataobj/network_address.cc
 SOURCES += dataobj/network_cmd.cc
+SOURCES += dataobj/network_cmd_ingame.cc
 SOURCES += dataobj/network_cmp_pakset.cc
 SOURCES += dataobj/network_file_transfer.cc
 SOURCES += dataobj/network_packet.cc
@@ -335,6 +344,7 @@ SOURCES += simmesg.cc
 SOURCES += simplan.cc
 SOURCES += simskin.cc
 SOURCES += simsound.cc
+SOURCES += simsys.cc
 SOURCES += simticker.cc
 SOURCES += simtools.cc
 SOURCES += simview.cc
@@ -383,7 +393,7 @@ endif
 
 
 ifeq ($(BACKEND),gdi)
-  SOURCES += simsys_w$(COLOUR_DEPTH).cc
+  SOURCES += simsys_w.cc
   SOURCES += music/w32_midi.cc
   SOURCES += sound/win32_sound.cc
 endif
@@ -453,9 +463,7 @@ ifeq ($(BACKEND),posix)
   SOURCES += sound/no_sound.cc
 endif
 
-ifeq ($(COLOUR_DEPTH),0)
-  CFLAGS += -DNO_GRAPHIC
-endif
+CFLAGS += -DCOLOUR_DEPTH=$(COLOUR_DEPTH)
 
 ifneq ($(findstring $(OSTYPE), cygwin mingw),)
   SOURCES += simres.rc
@@ -467,8 +475,8 @@ CCFLAGS += -DUSE_INDEPENDENT_PATH_POOL -DDEBUG_SIMRAND_CALLS
 CCFLAGS  += $(CFLAGS)
 CXXFLAGS += $(CFLAGS)
 
+BUILDDIR ?= build/$(CFG)
 PROG ?= simutrans-experimental	
-
 
 include common.mk
 

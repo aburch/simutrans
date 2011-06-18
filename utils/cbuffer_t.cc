@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <errno.h>
 #include <string.h>
 #include "cbuffer_t.h"
 #include "simstring.h"
@@ -43,8 +44,7 @@ void cbuffer_t::clear()
 
 
 /**
- * Appends text. If buffer is full, exceeding text will not
- * be appended.
+ * Appends text. Buffer will be extended if it does not have enough capacity.
  * @author Hj. Malthaner
  */
 void cbuffer_t::append(const char * text)
@@ -61,8 +61,7 @@ void cbuffer_t::append(const char * text)
 
 
 /**
- * Appends a number. If buffer is full, exceeding digits will not
- * be appended.
+ * Appends a number. Buffer will be extended if it does not have enough capacity.
  * @author Hj. Malthaner
  */
 void cbuffer_t::append(long n)
@@ -90,8 +89,7 @@ void cbuffer_t::append(long n)
 
 
 /**
- * Appends a number. If buffer is full, exceeding digits will not
- * be appended.
+ * Appends a number. Buffer will be extended if it does not have enough capacity.
  * @author Hj. Malthaner
  */
 void cbuffer_t::append(double n,int decimals)
@@ -110,7 +108,11 @@ void cbuffer_t::printf(const char* fmt, ...)
 	va_end(ap);
 	// buffer too small?
 	// we do not increase it beyond 1MB, as this is usually only needed when %s of a random memory location
+#ifdef _MSC_VER
+	while(count == -1  &&  errno == ERANGE  &&  capacity < 1048576) {
+#else
 	while(0 <= count  &&  capacity-size <= (uint)count  &&  capacity < 1048576) {
+#endif
 		// enlarge buffer
 		extend( capacity);
 		// and try again

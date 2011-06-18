@@ -248,15 +248,6 @@ bool dr_init_midi(void)
 }
 
 
-
-// CURRENTLY UNSUPPORTED
-void set_midi_pos(int /*pos*/)
-{
-//   midi_pos = pos;
-}
-
-
-
 #ifdef MIXER_VOLUME
 // Sets the MIDI volume - internal routine
 void __win32_set_midi_volume(int type, int left, int right)

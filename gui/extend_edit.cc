@@ -65,7 +65,7 @@ extend_edit_gui_t::extend_edit_gui_t(const char *name, spieler_t* sp_, karte_t* 
 	add_komponente(&bt_climates);
 
 	bt_timeline.init( button_t::square_state, "Use timeline start year", koord(tab_panel_width+2*MARGIN, BUTTON_HEIGHT+MARGIN) );
-	bt_timeline.pressed = welt->get_einstellungen()->get_use_timeline();
+	bt_timeline.pressed = welt->get_settings().get_use_timeline();
 	bt_timeline.add_listener(this);
 	add_komponente(&bt_timeline);
 

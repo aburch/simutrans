@@ -16,6 +16,9 @@
 
 #ifdef MAKEOBJ
 #define debuglevel (3)
+#else
+#ifdef NETTOOL
+#define debuglevel (0)
 
 #else
 #define debuglevel (umgebung_t::verbose_debug)
@@ -26,6 +29,7 @@
 #include "../simwin.h"
 
 #include "../dataobj/umgebung.h"
+#endif
 #endif
 
 /**
@@ -201,7 +205,7 @@ void log_t::fatal(const char *who, const char *format, ...)
 
 	va_end(argptr);
 
-#ifdef MAKEOBJ
+#if defined MAKEOBJ  ||  defined NETTOOL
 	// no display available
 	puts( buffer );
 #else

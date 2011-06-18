@@ -1,11 +1,6 @@
 #include "../simdebug.h"
 
 #include "../dings/bruecke.h"
-#include "../simimg.h"
-#include "../simworld.h"
-#include "../simwin.h"
-#include "../simhalt.h"
-
 #include "../bauer/brueckenbauer.h"
 
 #include "../besch/grund_besch.h"
@@ -14,7 +9,6 @@
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
 
-#include "../gui/ground_info.h"
 #include "../utils/cbuffer_t.h"
 
 #include "brueckenboden.h"

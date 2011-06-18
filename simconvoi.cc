@@ -7,6 +7,7 @@
 #include <stdlib.h>
 
 #include "simdebug.h"
+#include "simunits.h"
 #include "simworld.h"
 #include "simware.h"
 #include "player/simplay.h"
@@ -110,7 +111,7 @@ static const char * state_names[convoi_t::MAX_STATES] =
  */
 static int calc_min_top_speed(const array_tpl<vehikel_t*>& fahr, uint8 anz_vehikel)
 {
-	int min_top_speed = 9999999;
+	int min_top_speed = SPEED_UNLIMITED;
 	for(uint8 i=0; i<anz_vehikel; i++) {
 		min_top_speed = min(min_top_speed, kmh_to_speed( fahr[i]->get_besch()->get_geschw() ) );
 	}
@@ -156,6 +157,10 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	besitzer_p = sp;
 
 	reset();
+	is_electric = false;
+	sum_gesamtgewicht = sum_gewicht = sum_gear_und_leistung = sum_leistung = 0;
+	previous_delta_v = 0;
+	min_top_speed = SPEED_UNLIMITED;
 
 	fpl = NULL;
 	replace = NULL;
@@ -183,6 +188,12 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	loading_level = 0;
 	loading_limit = 0;
 	free_seats = 0;
+
+	max_record_speed = 0;
+	brake_speed_soll = SPEED_UNLIMITED;
+	akt_speed_soll = 0;            // Sollgeschwindigkeit
+	akt_speed = 0;                 // momentane Geschwindigkeit
+	sp_soll = 0;
 
 	next_stop_index = 65535;
 
@@ -263,7 +274,7 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 			// New method - recalculate as necessary
 			
 			// Added by : Knightly
-			haltestelle_t::refresh_routing(fpl, goods_catg_index, besitzer_p, welt->get_einstellungen()->get_default_path_option());
+			haltestelle_t::refresh_routing(fpl, goods_catg_index, besitzer_p,welt->get_settings().get_default_path_option());
 		}
 		delete fpl;
 	}
@@ -371,47 +382,60 @@ void convoi_t::laden_abschliessen()
 	}
 
 	bool realing_position = false;
-	if(anz_vehikel>0) {
+	if(  anz_vehikel>0  ) {
 DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", state_names[state] );
-		sint16 step_pos;
-		koord3d drive_pos;
-		const uint8 diagonal_length = (uint8)(130560u/welt->get_einstellungen()->get_pak_diagonal_multiplier());
-		for( uint8 i=0;  i<anz_vehikel;  i++ ) {
-			vehikel_t* v = fahr[i];
-			v->set_erstes( i==0 );
-			v->set_letztes( i+1==anz_vehikel );
-			// this sets the convoi and will renew the block reservation, if needed!
-			v->set_convoi(this);
-
-			// wrong alingmant here => must relocate
-			if(v->need_realignment()) {
-				// diagonal => convoi must restart
-				realing_position |= ribi_t::ist_kurve(v->get_fahrtrichtung())  &&  (state==DRIVING  ||  is_waiting());
+		// only realign convois not leaving depot to avoid jumps through signals
+		if(  steps_driven!=-1  ) {
+			for( uint8 i=0;  i<anz_vehikel;  i++ ) {
+				vehikel_t* v = fahr[i];
+				v->set_erstes( i==0 );
+				v->set_letztes( i+1==anz_vehikel );
+				// this sets the convoi and will renew the block reservation, if needed!
+				v->set_convoi(this);
 			}
-			// if version is 99.17 or lower, some convois are broken, i.e. had too large gaps between vehicles
-			if(  !realing_position  &&  state!=INITIAL  &&  state!=LEAVING_DEPOT  ) {
-				if(  i==0  ) {
-					step_pos = v->get_steps();
+		}
+		else {
+			// test also for realignment
+			sint16 step_pos;
+			koord3d drive_pos;
+			uint8 const diagonal_vehicle_steps_per_tile = (uint8)(130560U / welt->get_settings().get_pak_diagonal_multiplier());
+			for( uint8 i=0;  i<anz_vehikel;  i++ ) {
+				vehikel_t* v = fahr[i];
+				v->set_erstes( i==0 );
+				v->set_letztes( i+1==anz_vehikel );
+				// this sets the convoi and will renew the block reservation, if needed!
+				v->set_convoi(this);
+
+				// wrong alignment here => must relocate
+				if(v->need_realignment()) {
+					// diagonal => convoi must restart
+					realing_position |= ribi_t::ist_kurve(v->get_fahrtrichtung())  &&  (state==DRIVING  ||  is_waiting());
 				}
-				else {
-					if(  drive_pos!=v->get_pos()  ) {
-						// with long vehicles on diagonals, vehicles need not to be on consecutive tiles
-						// do some guessing here
-						uint32 dist = koord_distance(drive_pos, v->get_pos());
-						if (dist>1) {
-							step_pos += (dist-1) * diagonal_length;
+				// if version is 99.17 or lower, some convois are broken, i.e. had too large gaps between vehicles
+				if(  !realing_position  &&  state!=INITIAL  &&  state!=LEAVING_DEPOT  ) {
+					if(  i==0  ) {
+						step_pos = v->get_steps();
+					}
+					else {
+						if(  drive_pos!=v->get_pos()  ) {
+							// with long vehicles on diagonals, vehicles need not to be on consecutive tiles
+							// do some guessing here
+							uint32 dist = koord_distance(drive_pos, v->get_pos());
+							if (dist>1) {
+								step_pos += (dist-1) * diagonal_vehicle_steps_per_tile;
+							}
+							step_pos += ribi_t::ist_kurve(v->get_fahrtrichtung()) ? diagonal_vehicle_steps_per_tile : VEHICLE_STEPS_PER_TILE;
 						}
-						step_pos += ribi_t::ist_kurve(v->get_fahrtrichtung()) ? diagonal_length : 256;
+						dbg->message("convoi_t::laden_abschliessen()", "v: pos(%s) steps(%d) len=%d ribi=%d prev (%s) step(%d)", v->get_pos().get_str(), v->get_steps(), v->get_besch()->get_length()*16, v->get_fahrtrichtung(),  drive_pos.get_2d().get_str(), step_pos);
+						if(  abs( v->get_steps() - step_pos )>15  ) {
+							// not where it should be => realing
+							realing_position = true;
+							dbg->warning( "convoi_t::laden_abschliessen()", "convoi (%s) is broken => realign", get_name() );
+						}
 					}
-					dbg->message("convoi_t::laden_abschliessen()", "v: pos(%s) steps(%d) len=%d ribi=%d prev (%s) step(%d)", v->get_pos().get_str(), v->get_steps(), v->get_besch()->get_length()*16, v->get_fahrtrichtung(),  drive_pos.get_2d().get_str(), step_pos);
-					if(  abs( v->get_steps() - step_pos )>15  ) {
-						// not where it should be => realing
-						realing_position = true;
-						dbg->warning( "convoi_t::laden_abschliessen()", "convoi (%s) is broken => realign", get_name() );
-					}
+					step_pos -= v->get_besch()->get_length_in_steps();
+					drive_pos = v->get_pos();
 				}
-				step_pos -= v->get_besch()->get_length()*16;
-				drive_pos = v->get_pos();
 			}
 		}
 DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_index );
@@ -478,10 +502,10 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 			for(unsigned i=0; i<anz_vehikel; i++) {
 				vehikel_t* v = fahr[i];
 
-			v->darf_rauchen(false); //"Allowed to smoke" (Google)
-			fahr[i]->fahre_basis( ((TILE_STEPS)*train_length)<<12 );
-			train_length -= v->get_besch()->get_length();
-			v->darf_rauchen(true);
+				v->darf_rauchen(false); //"Allowed to smoke" (Google)
+				fahr[i]->fahre_basis( (VEHICLE_STEPS_PER_CARUNIT*train_length)<<YARDS_PER_VEHICLE_STEP_SHIFT );
+				train_length -= v->get_besch()->get_length();
+				v->darf_rauchen(true);
 
 				// eventually reserve this again
 				grund_t *gr=welt->lookup(v->get_pos());
@@ -504,7 +528,10 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 		wait_lock = 30000; // 60s to drive on, if the client in question had left
 		fpl->eingabe_abschliessen();
 	}
-
+	// some convois had wrong old direction in them
+	if(  state<DRIVING  ||  state==LOADING  ) {
+		alte_richtung = fahr[0]->get_fahrtrichtung();
+	}
 	// Knightly : if lineless convoy -> register itself with stops
 	if(  !line.is_bound()  ) {
 		register_stops();
@@ -576,7 +603,7 @@ void convoi_t::set_name(const char *name, bool with_new_id)
 	if(  with_new_id  ) {
 		char buf[128];
 		name_offset = sprintf(buf,"(%i) ",self.get_id() );
-		tstrncpy(buf + name_offset, translator::translate(name, welt->get_einstellungen()->get_name_language_id()), lengthof(buf) - name_offset);
+		tstrncpy(buf + name_offset, translator::translate(name, welt->get_settings().get_name_language_id()), lengthof(buf) - name_offset);
 		tstrncpy(name_and_id, buf, lengthof(name_and_id));
 	}
 	else {
@@ -647,10 +674,10 @@ void convoi_t::increment_odometer()
 	if(fahr[0]->get_steps() != 255)
 	{
 		// Diagonal
-		steps = fahr[0]->get_diagonal_length();
+		steps = vehikel_t::get_diagonal_vehicle_steps_per_tile();
 	}
 	steps_since_last_odometer_increment += steps;
-	const sint32 meters_per_tile = welt->get_einstellungen()->get_meters_per_tile();
+	const sint32 meters_per_tile =welt->get_settings().get_meters_per_tile();
 	const sint64 km = (meters_per_tile * steps_since_last_odometer_increment) / 255000 /* steps per tile * 1000m */;
 	if(km > 0)
 	{
@@ -686,7 +713,7 @@ void convoi_t::calc_acceleration(long delta_t)
 			// brake at the end of stations/in front of signals and crossings
 			//const uint32 tiles_left = get_next_stop_index() - get_route()->index_of(get_pos());
 			const uint32 tiles_left = 1 + get_next_stop_index() - front()->get_route_index();
-			const uint32 meters_left = tiles_left * welt->get_einstellungen()->get_meters_per_tile();
+			const uint32 meters_left = tiles_left *welt->get_settings().get_meters_per_tile();
 
 			waytype_t waytype = front()->get_waytype();
 			uint16 braking_rate;  // km/h decay per km. TODO: Consider having this set in .dat files. Look for all instances of "braking_rate".
@@ -717,7 +744,7 @@ void convoi_t::calc_acceleration(long delta_t)
 	// existing_convoy_t is designed to become a part of convoi_t. 
 	// There it will help to minimize updating convoy summary data.
 	existing_convoy_t convoy(*this);
-	convoy.calc_move(delta_t, float32e8_t(get_welt()->get_einstellungen()->get_meters_per_tile(), 1000), min( min_top_speed, brake_speed_soll ), akt_speed, sp_soll);
+	convoy.calc_move(delta_t, float32e8_t(get_welt()->get_settings().get_meters_per_tile(), 1000), min( min_top_speed, brake_speed_soll ), akt_speed, sp_soll);
 }
 
 
@@ -785,7 +812,8 @@ bool convoi_t::sync_step(long delta_t)
 
 				// now actually move the units
 				while(sp_soll>>12) {
-					uint32 sp_hat = fahr[0]->fahre_basis(1<<12);
+					// Attempt to move one step.
+					uint32 sp_hat = fahr[0]->fahre_basis(1<<YARDS_PER_VEHICLE_STEP_SHIFT);
 					int v_nr = get_vehicle_at_length((++steps_driven)>>4);
 					// stop when depot reached
 					if(state==INITIAL) {
@@ -947,15 +975,14 @@ void convoi_t::suche_neue_route()
  */
 void convoi_t::step()
 {
+	if(wait_lock!=0) {
+		return;
+	}
 
 	// moved check to here, as this will apply the same update
 	// logic/constraints convois have for manual schedule manipulation
 	if (line_update_pending.is_bound()) {
 		check_pending_updates();
-	}
-
-	if(wait_lock!=0) {
-		return;
 	}
 
 	bool autostart = false;
@@ -1125,7 +1152,7 @@ end_loop:
 						else
 						{
 							// refresh only those categories which are either removed or added to the category list
-							haltestelle_t::refresh_routing(fpl, differences, besitzer_p, welt->get_einstellungen()->get_default_path_option());
+							haltestelle_t::refresh_routing(fpl, differences, besitzer_p,welt->get_settings().get_default_path_option());
 						}
 					}
 
@@ -1183,7 +1210,7 @@ end_loop:
 						// position in depot: waiting
 						grund_t *gr = welt->lookup(fpl->get_current_eintrag().pos);
 						if(  gr  &&  gr->get_depot()  ) {
-							state = INITIAL;
+							betrete_depot( gr->get_depot() );
 						}
 						else {
 							state = ROUTING_1;
@@ -1245,6 +1272,14 @@ end_loop:
 					state = (steps_driven>=0) ? LEAVING_DEPOT : DRIVING;
 					if(haltestelle_t::get_halt(welt,v->get_pos(),besitzer_p).is_bound()) {
 						v->play_sound();
+					}
+				}
+				else if(  steps_driven==0  ) {
+					// on rail depot tile, do not reserve this
+					if(  grund_t *gr = welt->lookup(fahr[0]->get_pos())  ) {
+						if (schiene_t* const sch0 = ding_cast<schiene_t>(gr->get_weg(fahr[0]->get_waytype()))) {
+							sch0->unreserve(fahr[0]);
+						}
 					}
 				}
 				if(restart_speed>=0) {
@@ -1607,7 +1642,7 @@ void convoi_t::start()
 			// New method - recalculate as necessary
 			
 			// Added by : Knightly
-			haltestelle_t::refresh_routing(fpl, goods_catg_index, besitzer_p, welt->get_einstellungen()->get_default_path_option());
+			haltestelle_t::refresh_routing(fpl, goods_catg_index, besitzer_p,welt->get_settings().get_default_path_option());
 		}
 		wait_lock = 0;
 
@@ -1707,7 +1742,7 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_
 		fahr.resize(max_rail_vehicle);
 	}
 	// now append
-	if (anz_vehikel < fahr.get_size()) {
+	if (anz_vehikel < fahr.get_count()) {
 		v->set_convoi(this);
 
 		if(infront) {
@@ -1739,9 +1774,9 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_
 		//if(info->get_engine_type() == vehikel_besch_t::steam)
 		//{
 		//	power_from_steam += info->get_leistung();
-		//	power_from_steam_with_gear += info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
+		//	power_from_steam_with_gear += info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor();
 		//}
-		sum_gear_und_leistung += (info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor_percent() + 50) / 100;
+		sum_gear_und_leistung += (info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor_percent() + 50) / 100;
 		sum_gewicht += info->get_gewicht();
 		min_top_speed = min( min_top_speed, kmh_to_speed( v->get_besch()->get_geschw() ) );
 		sum_gesamtgewicht = sum_gewicht;
@@ -1831,9 +1866,9 @@ DBG_MESSAGE("convoi_t::upgrade_vehicle()","at pos %i of %i totals.",i,max_vehicl
 	//if(info->get_engine_type() == vehikel_besch_t::steam)
 	//{
 	//	power_from_steam += info->get_leistung();
-	//	power_from_steam_with_gear += info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
+	//	power_from_steam_with_gear += info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor();
 	//}
-	sum_gear_und_leistung += (info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor_percent() + 50) / 100;
+	sum_gear_und_leistung += (info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor_percent() + 50) / 100;
 	sum_gewicht += info->get_gewicht();
 	sum_gesamtgewicht = sum_gewicht;
 
@@ -1843,9 +1878,9 @@ DBG_MESSAGE("convoi_t::upgrade_vehicle()","at pos %i of %i totals.",i,max_vehicl
 	//if(info->get_engine_type() == vehikel_besch_t::steam)
 	//{
 	//	power_from_steam -= info->get_leistung();
-	//	power_from_steam_with_gear -= info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
+	//	power_from_steam_with_gear -= info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor();
 	//}
-	sum_gear_und_leistung -= (info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor_percent() + 50) / 100;
+	sum_gear_und_leistung -= (info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor_percent() + 50) / 100;
 	sum_gewicht -= info->get_gewicht();
 
 	calc_loading();
@@ -1893,9 +1928,9 @@ vehikel_t *convoi_t::remove_vehikel_bei(uint16 i)
 			//if(info->get_engine_type() == vehikel_besch_t::steam)
 			//{
 			//	power_from_steam -= info->get_leistung();
-			//	power_from_steam_with_gear -= info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
+			//	power_from_steam_with_gear -= info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor();
 			//}
-			sum_gear_und_leistung -= (info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor_percent() + 50) / 100;
+			sum_gear_und_leistung -= (info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor_percent() + 50) / 100;
 			sum_gewicht -= info->get_gewicht();
 		}
 		sum_gesamtgewicht = sum_gewicht;
@@ -1959,23 +1994,6 @@ void convoi_t::recalc_catg_index()
 	/* since during composition of convois all kinds of composition could happen,
 	 * we do not enforce schedule recalculation here; it will be done anyway all times when leaving the INTI state ...
 	 */
-#if 0
-	// if different => schedule need recalculation
-	if(  goods_catg_index.get_count()!=old_goods_catg_index.get_count()  ) {
-		// surely changed
-		welt->set_schedule_counter();
-	}
-	else {
-		// maybe changed => must test all entries
-		for(  uint i=0;  i<goods_catg_index.get_count();  i++  ) {
-			if(  !old_goods_catg_index.is_contained(goods_catg_index[i])  ) {
-				// different => recalc
-				welt->set_schedule_counter();
-				break;
-			}
-		}
-	}
-#endif
 }
 
 
@@ -2009,24 +2027,7 @@ bool convoi_t::set_schedule(schedule_t * f)
 	state = INITIAL;	// because during a sync-step we might be called twice ...
 
 	DBG_DEBUG("convoi_t::set_schedule()", "new=%p, old=%p", f, fpl);
-
-	if(  f==NULL  ) {
-		if(  line.is_bound()  ) {
-			unset_line();
-		}
-		else {
-			// Knightly : if schedule is going to be deleted -> make sure to unregister stops for lineless convoys
-			if(  state==INITIAL  ) {
-				unregister_stops();
-			}
-		}
-		if(  state==INITIAL  ) {
-			delete fpl;
-			fpl = NULL;
-			return true;
-		}
-		return false;
-	}
+	assert(f != NULL);
 
 	if(!line.is_bound() && old_state != INITIAL)
 	{
@@ -2038,7 +2039,7 @@ bool convoi_t::set_schedule(schedule_t * f)
 			if ( !old_fpl->matches(welt, fpl) )
 			{
 				haltestelle_t::refresh_routing(old_fpl, goods_catg_index, besitzer_p, 0);
-				haltestelle_t::refresh_routing(fpl, goods_catg_index, besitzer_p, welt->get_einstellungen()->get_default_path_option());
+				haltestelle_t::refresh_routing(fpl, goods_catg_index, besitzer_p,welt->get_settings().get_default_path_option());
 			}
 		}
 		else
@@ -2047,7 +2048,7 @@ bool convoi_t::set_schedule(schedule_t * f)
 			{
 				haltestelle_t::refresh_routing(fpl, goods_catg_index, besitzer_p, 0);
 			}
-			haltestelle_t::refresh_routing(f, goods_catg_index, besitzer_p, welt->get_einstellungen()->get_default_path_option());
+			haltestelle_t::refresh_routing(f, goods_catg_index, besitzer_p,welt->get_settings().get_default_path_option());
 		}
 	}
 	
@@ -2301,7 +2302,7 @@ void convoi_t::vorfahren()
 		steps_driven = 0;
 		// drive half a tile:
 		for(int i=0; i<anz_vehikel; i++) {
-			fahr[i]->fahre_basis( 128<<12 );
+			fahr[i]->fahre_basis( (VEHICLE_STEPS_PER_TILE/2)<<YARDS_PER_VEHICLE_STEP_SHIFT );
 		}
 		v0->darf_rauchen(true);
 		v0->set_erstes(true); // switches on signal checks to reserve the next route
@@ -2339,7 +2340,7 @@ void convoi_t::vorfahren()
 						if(reversable)
 						{
 							//Multiple unit or similar: quick reverse
-							reverse_delay = welt->get_einstellungen()->get_unit_reverse_time();
+							reverse_delay =welt->get_settings().get_unit_reverse_time();
 						}
 						else if(fahr[0]->get_besch()->is_bidirectional())
 						{
@@ -2348,17 +2349,17 @@ void convoi_t::vorfahren()
 								&& fahr[anz_vehikel-2]->get_besch()->get_ware()->get_catg_index() > 1)
 							{
 								// Goods train with brake van - longer reverse time.
-								reverse_delay = (welt->get_einstellungen()->get_hauled_reverse_time() * 14) / 10;
+								reverse_delay = (welt->get_settings().get_hauled_reverse_time() * 14) / 10;
 							}
 							else
 							{
-								reverse_delay = welt->get_einstellungen()->get_hauled_reverse_time();
+								reverse_delay =welt->get_settings().get_hauled_reverse_time();
 							}
 						}
 						else
 						{
 							//Locomotive needs turntable: slow reverse
-							reverse_delay = welt->get_einstellungen()->get_turntable_reverse_time();
+							reverse_delay =welt->get_settings().get_turntable_reverse_time();
 						}
 
 						reverse_order(reversable);
@@ -2383,7 +2384,7 @@ void convoi_t::vorfahren()
 				}
 				else {
 					// limit train to front of tile
-					train_length += min( (train_length%16)-1, fahr[anz_vehikel-1]->get_besch()->get_length() );
+					train_length += min( (train_length%CARUNITS_PER_TILE)-1, fahr[anz_vehikel-1]->get_besch()->get_length() );
 				}
 			}
 			else
@@ -2402,8 +2403,8 @@ void convoi_t::vorfahren()
 				{
 					vehikel_t* v = fahr[i];
 					v->darf_rauchen(false);
-					fahr[i]->fahre_basis( ((TILE_STEPS)*train_length)<<12 ); //"fahre" = "go" (Google)
-					train_length += (v->get_besch()->get_length());	// this give the length in 1/TILE_STEPS of a full tile => all cars closely coupled!
+					fahr[i]->fahre_basis( ((OBJECT_OFFSET_STEPS)*train_length)<<12 ); //"fahre" = "go" (Google)
+					train_length += (v->get_besch()->get_length());	// this give the length in 1/OBJECT_OFFSET_STEPS of a full tile => all cars closely coupled!
 					v->darf_rauchen(true);
 				}
 				train_length -= fahr[anz_vehikel - 1]->get_besch()->get_length();
@@ -2422,8 +2423,9 @@ void convoi_t::vorfahren()
 				{
 					vehikel_t* v = fahr[i];
 					v->darf_rauchen(false);
-					fahr[i]->fahre_basis( ((TILE_STEPS)*train_length)<<12 ); //"fahre" = "go" (Google)
-					train_length -= (v->get_besch()->get_length());	// this give the length in 1/TILE_STEPS of a full tile => all cars closely coupled!
+					fahr[i]->fahre_basis( (VEHICLE_STEPS_PER_CARUNIT*train_length)<<YARDS_PER_VEHICLE_STEP_SHIFT );
+					train_length -= v->get_besch()->get_length();
+					// this gives the length in carunits, 1/CARUNITS_PER_TILE of a full tile => all cars closely coupled!
 					v->darf_rauchen(true);
 				}
 					
@@ -2709,9 +2711,9 @@ void convoi_t::rdwr(loadsave_t *file)
 				//if(info->get_engine_type() == vehikel_besch_t::steam)
 				//{
 				//	power_from_steam += info->get_leistung();
-				//	power_from_steam_with_gear += info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
+				//	power_from_steam_with_gear += info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor();
 				//}
-				sum_gear_und_leistung += (info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor_percent() + 50) / 100;
+				sum_gear_und_leistung += (info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor_percent() + 50) / 100;
 				sum_gewicht += info->get_gewicht();
 				is_electric |= info->get_engine_type()==vehikel_besch_t::electric;
 			}
@@ -2902,11 +2904,11 @@ void convoi_t::rdwr(loadsave_t *file)
 					if(file->is_loading())
 					{
 						file->rdwr_longlong(distance);
-						financial_history[k][j] = (distance * welt->get_einstellungen()->get_meters_per_tile()) / 1000;
+						financial_history[k][j] = (distance *welt->get_settings().get_meters_per_tile()) / 1000;
 					}
 					else
 					{
-						distance = (financial_history[k][j] * 1000) / welt->get_einstellungen()->get_meters_per_tile();
+						distance = (financial_history[k][j] * 1000) /welt->get_settings().get_meters_per_tile();
 						file->rdwr_longlong(distance);
 					}
 					continue;
@@ -2926,11 +2928,11 @@ void convoi_t::rdwr(loadsave_t *file)
 			{
 				sint64 tile_distance;
 				file->rdwr_longlong(tile_distance);
-				total_distance_traveled = (tile_distance * welt->get_einstellungen()->get_meters_per_tile()) / 1000;
+				total_distance_traveled = (tile_distance *welt->get_settings().get_meters_per_tile()) / 1000;
 			}
 			else
 			{
-				sint64 km_distance = (total_distance_traveled * 1000) / welt->get_einstellungen()->get_meters_per_tile();
+				sint64 km_distance = (total_distance_traveled * 1000) /welt->get_settings().get_meters_per_tile();
 				file->rdwr_longlong(km_distance);
 			}
 		}
@@ -3534,7 +3536,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	{
 		average_speed = 1;
 	}
-	const uint16 journey_minutes = (((distance * 100) / average_speed) *  welt->get_einstellungen()->get_meters_per_tile()) / 1667;
+	const uint16 journey_minutes = (((distance * 100) / average_speed) * welt->get_settings().get_meters_per_tile()) / 1667;
 
 	const ware_besch_t* goods = ware.get_besch();
 	const uint16 price = goods->get_preis();
@@ -3563,18 +3565,18 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 		// Comfort matters more the longer the journey.
 		// @author: jamespetts, March 2010
 		uint32 comfort_modifier;
-		if(journey_minutes <= welt->get_einstellungen()->get_tolerable_comfort_short_minutes())
+		if(journey_minutes <=welt->get_settings().get_tolerable_comfort_short_minutes())
 		{
 			comfort_modifier = 20;
 		}
-		else if(journey_minutes >= welt->get_einstellungen()->get_tolerable_comfort_median_long_minutes())
+		else if(journey_minutes >=welt->get_settings().get_tolerable_comfort_median_long_minutes())
 		{
 			comfort_modifier = 100;
 		}
 		else
 		{
-			const uint8 differential = journey_minutes - welt->get_einstellungen()->get_tolerable_comfort_short_minutes();
-			const uint8 max_differential = welt->get_einstellungen()->get_tolerable_comfort_median_long_minutes() - welt->get_einstellungen()->get_tolerable_comfort_short_minutes();
+			const uint8 differential = journey_minutes -welt->get_settings().get_tolerable_comfort_short_minutes();
+			const uint8 max_differential =welt->get_settings().get_tolerable_comfort_median_long_minutes() -welt->get_settings().get_tolerable_comfort_short_minutes();
 			const uint32 proportion = differential * 100 / max_differential;
 			comfort_modifier = (80 * proportion / 100) + 20;
 		}
@@ -3607,9 +3609,9 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 		if(comfort > tolerable_comfort)
 		{
 			// Apply luxury bonus
-			const uint8 max_differential = welt->get_einstellungen()->get_max_luxury_bonus_differential();
+			const uint8 max_differential =welt->get_settings().get_max_luxury_bonus_differential();
 			const uint8 differential = comfort - tolerable_comfort;
-			const uint32 multiplier = (welt->get_einstellungen()->get_max_luxury_bonus_percent() * comfort_modifier) / 10000;
+			const uint32 multiplier = (welt->get_settings().get_max_luxury_bonus_percent() * comfort_modifier) / 10000;
 			if(differential >= max_differential)
 			{
 				final_revenue += (sint64)(revenue * multiplier);
@@ -3623,9 +3625,9 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 		else if(comfort < tolerable_comfort)
 		{
 			// Apply discomfort penalty
-			const uint8 max_differential = welt->get_einstellungen()->get_max_discomfort_penalty_differential();
+			const uint8 max_differential =welt->get_settings().get_max_discomfort_penalty_differential();
 			const uint8 differential = tolerable_comfort - comfort;
-			uint32 multiplier = (welt->get_einstellungen()->get_max_discomfort_penalty_percent() * comfort_modifier) / 10000;
+			uint32 multiplier = (welt->get_settings().get_max_discomfort_penalty_percent() * comfort_modifier) / 10000;
 			multiplier = multiplier < 95 ? multiplier : 95;
 			if(differential >= max_differential)
 			{
@@ -3648,9 +3650,9 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 		if(ware.is_mail())
 		{
 			// Mail
-			if(journey_minutes >= welt->get_einstellungen()->get_tpo_min_minutes())
+			if(journey_minutes >=welt->get_settings().get_tpo_min_minutes())
 			{
-				final_revenue += (sint64)(welt->get_einstellungen()->get_tpo_revenue() * ware.menge);
+				final_revenue += (sint64)(welt->get_settings().get_tpo_revenue() * ware.menge);
 			}
 		}
 		else if(ware.is_passenger())
@@ -3663,74 +3665,74 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 
 			case 5:
 			default:
-				if(journey_minutes >= welt->get_einstellungen()->get_catering_level4_minutes())
+				if(journey_minutes >=welt->get_settings().get_catering_level4_minutes())
 				{
-					if(journey_minutes > welt->get_einstellungen()->get_catering_level5_minutes())
+					if(journey_minutes >welt->get_settings().get_catering_level5_minutes())
 					{
-						final_revenue += (welt->get_einstellungen()->get_catering_level5_max_revenue() * ware.menge);
+						final_revenue += (welt->get_settings().get_catering_level5_max_revenue() * ware.menge);
 						break;
 					}
 					
-					proportion = ((journey_minutes - welt->get_einstellungen()->get_catering_level4_max_revenue()) * 100) / (welt->get_einstellungen()->get_catering_level5_minutes() - welt->get_einstellungen()->get_catering_level4_minutes());
-					final_revenue += (sint64)((proportion * (welt->get_einstellungen()->get_catering_level5_max_revenue() * ware.menge)) / 100);
+					proportion = ((journey_minutes -welt->get_settings().get_catering_level4_max_revenue()) * 100) / (welt->get_settings().get_catering_level5_minutes() -welt->get_settings().get_catering_level4_minutes());
+					final_revenue += (sint64)((proportion * (welt->get_settings().get_catering_level5_max_revenue() * ware.menge)) / 100);
 					break;
 				}
 
 			case 4:
-				if(journey_minutes >= welt->get_einstellungen()->get_catering_level3_minutes())
+				if(journey_minutes >=welt->get_settings().get_catering_level3_minutes())
 				{
-					if(journey_minutes > welt->get_einstellungen()->get_catering_level4_minutes())
+					if(journey_minutes >welt->get_settings().get_catering_level4_minutes())
 					{
-						final_revenue += (sint64)(welt->get_einstellungen()->get_catering_level4_max_revenue() * ware.menge);
+						final_revenue += (sint64)(welt->get_settings().get_catering_level4_max_revenue() * ware.menge);
 						break;
 					}
 					
-					proportion = ((journey_minutes - welt->get_einstellungen()->get_catering_level3_max_revenue()) * 100) / (welt->get_einstellungen()->get_catering_level4_minutes() - welt->get_einstellungen()->get_catering_level3_minutes());
-					final_revenue += (sint64)((proportion * (welt->get_einstellungen()->get_catering_level4_max_revenue() * ware.menge)) / 100);
+					proportion = ((journey_minutes -welt->get_settings().get_catering_level3_max_revenue()) * 100) / (welt->get_settings().get_catering_level4_minutes() -welt->get_settings().get_catering_level3_minutes());
+					final_revenue += (sint64)((proportion * (welt->get_settings().get_catering_level4_max_revenue() * ware.menge)) / 100);
 					break;
 				}
 
 			case 3:
-				if(journey_minutes >= welt->get_einstellungen()->get_catering_level2_minutes())
+				if(journey_minutes >=welt->get_settings().get_catering_level2_minutes())
 				{
-					if(journey_minutes > welt->get_einstellungen()->get_catering_level3_minutes())
+					if(journey_minutes >welt->get_settings().get_catering_level3_minutes())
 					{
-						final_revenue += (sint64)(welt->get_einstellungen()->get_catering_level3_max_revenue() * ware.menge);
+						final_revenue += (sint64)(welt->get_settings().get_catering_level3_max_revenue() * ware.menge);
 						break;
 					}
 					
-					proportion = ((journey_minutes - welt->get_einstellungen()->get_catering_level2_max_revenue()) * 100) / (welt->get_einstellungen()->get_catering_level3_minutes() - welt->get_einstellungen()->get_catering_level2_minutes());
-					final_revenue += (sint64)((proportion * (welt->get_einstellungen()->get_catering_level3_max_revenue() * ware.menge)) / 100);
+					proportion = ((journey_minutes -welt->get_settings().get_catering_level2_max_revenue()) * 100) / (welt->get_settings().get_catering_level3_minutes() -welt->get_settings().get_catering_level2_minutes());
+					final_revenue += (sint64)((proportion * (welt->get_settings().get_catering_level3_max_revenue() * ware.menge)) / 100);
 					break;
 				}
 
 			case 2:
-				if(journey_minutes >= welt->get_einstellungen()->get_catering_level1_minutes())
+				if(journey_minutes >=welt->get_settings().get_catering_level1_minutes())
 				{
-					if(journey_minutes > welt->get_einstellungen()->get_catering_level2_minutes())
+					if(journey_minutes >welt->get_settings().get_catering_level2_minutes())
 					{
-						final_revenue += (sint64)(welt->get_einstellungen()->get_catering_level2_max_revenue() * ware.menge);
+						final_revenue += (sint64)(welt->get_settings().get_catering_level2_max_revenue() * ware.menge);
 						break;
 					}
 					
-					proportion = ((journey_minutes - welt->get_einstellungen()->get_catering_level1_max_revenue()) * 100) / (welt->get_einstellungen()->get_catering_level2_minutes() - welt->get_einstellungen()->get_catering_level1_minutes());
-					final_revenue += (sint64)((proportion * (welt->get_einstellungen()->get_catering_level2_max_revenue() * ware.menge)) / 100);
+					proportion = ((journey_minutes -welt->get_settings().get_catering_level1_max_revenue()) * 100) / (welt->get_settings().get_catering_level2_minutes() -welt->get_settings().get_catering_level1_minutes());
+					final_revenue += (sint64)((proportion * (welt->get_settings().get_catering_level2_max_revenue() * ware.menge)) / 100);
 					break;
 				}
 
 			case 1:
-				if(journey_minutes < welt->get_einstellungen()->get_catering_min_minutes())
+				if(journey_minutes <welt->get_settings().get_catering_min_minutes())
 				{
 					break;
 				}
-				if(journey_minutes > welt->get_einstellungen()->get_catering_level1_minutes())
+				if(journey_minutes >welt->get_settings().get_catering_level1_minutes())
 				{
-					final_revenue += (sint64)(welt->get_einstellungen()->get_catering_level1_max_revenue() * ware.menge);
+					final_revenue += (sint64)(welt->get_settings().get_catering_level1_max_revenue() * ware.menge);
 					break;
 				}
 
-				proportion = ((journey_minutes - welt->get_einstellungen()->get_catering_min_minutes()) * 100) / (welt->get_einstellungen()->get_catering_level1_minutes() - welt->get_einstellungen()->get_catering_min_minutes());
-				final_revenue += (sint64)((proportion * (welt->get_einstellungen()->get_catering_level1_max_revenue() * ware.menge)) / 100);
+				proportion = ((journey_minutes -welt->get_settings().get_catering_min_minutes()) * 100) / (welt->get_settings().get_catering_level1_minutes() -welt->get_settings().get_catering_min_minutes());
+				final_revenue += (sint64)((proportion * (welt->get_settings().get_catering_level1_max_revenue() * ware.menge)) / 100);
 				break;
 
 			};
@@ -3744,15 +3746,15 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 
 uint8 convoi_t::calc_tolerable_comfort(uint16 journey_minutes, karte_t* w) 
 {
-	const uint16 comfort_short_minutes = w->get_einstellungen()->get_tolerable_comfort_short_minutes();
-	const uint8 comfort_short = w->get_einstellungen()->get_tolerable_comfort_short();
+	const uint16 comfort_short_minutes = w->get_settings().get_tolerable_comfort_short_minutes();
+	const uint8 comfort_short = w->get_settings().get_tolerable_comfort_short();
 	if(journey_minutes <= comfort_short_minutes)
 	{
 		return comfort_short;
 	}
 
-	const uint16 comfort_median_short_minutes = w->get_einstellungen()->get_tolerable_comfort_median_short_minutes();
-	const uint8 comfort_median_short = w->get_einstellungen()->get_tolerable_comfort_median_short();
+	const uint16 comfort_median_short_minutes = w->get_settings().get_tolerable_comfort_median_short_minutes();
+	const uint8 comfort_median_short = w->get_settings().get_tolerable_comfort_median_short();
 	if(journey_minutes == comfort_median_short_minutes)
 	{
 		return comfort_median_short;
@@ -3763,8 +3765,8 @@ uint8 convoi_t::calc_tolerable_comfort(uint16 journey_minutes, karte_t* w)
 		return ((percentage * (comfort_median_short - comfort_short)) / 1000) + comfort_short;
 	}
 
-	const uint16 comfort_median_median_minutes = w->get_einstellungen()->get_tolerable_comfort_median_median_minutes();
-	const uint8 comfort_median_median = w->get_einstellungen()->get_tolerable_comfort_median_median();
+	const uint16 comfort_median_median_minutes = w->get_settings().get_tolerable_comfort_median_median_minutes();
+	const uint8 comfort_median_median = w->get_settings().get_tolerable_comfort_median_median();
 	if(journey_minutes == comfort_median_median_minutes)
 	{
 		return comfort_median_median;
@@ -3775,8 +3777,8 @@ uint8 convoi_t::calc_tolerable_comfort(uint16 journey_minutes, karte_t* w)
 		return ((percentage * (comfort_median_median - comfort_median_short)) / 1000) + comfort_median_short;
 	}
 
-	const uint16 comfort_median_long_minutes = w->get_einstellungen()->get_tolerable_comfort_median_long_minutes();
-	const uint8 comfort_median_long = w->get_einstellungen()->get_tolerable_comfort_median_long();
+	const uint16 comfort_median_long_minutes = w->get_settings().get_tolerable_comfort_median_long_minutes();
+	const uint8 comfort_median_long = w->get_settings().get_tolerable_comfort_median_long();
 	if(journey_minutes == comfort_median_long_minutes)
 	{
 		return comfort_median_long;
@@ -3787,8 +3789,8 @@ uint8 convoi_t::calc_tolerable_comfort(uint16 journey_minutes, karte_t* w)
 		return ((percentage * (comfort_median_long - comfort_median_median)) / 1000) + comfort_median_median;
 	}
 	
-	const uint16 comfort_long_minutes = w->get_einstellungen()->get_tolerable_comfort_long_minutes();
-	const uint8 comfort_long = w->get_einstellungen()->get_tolerable_comfort_long();
+	const uint16 comfort_long_minutes = w->get_settings().get_tolerable_comfort_long_minutes();
+	const uint8 comfort_long = w->get_settings().get_tolerable_comfort_long();
 	if(journey_minutes >= comfort_long_minutes)
 	{
 		return comfort_long;
@@ -3800,22 +3802,22 @@ uint8 convoi_t::calc_tolerable_comfort(uint16 journey_minutes, karte_t* w)
 
 uint16 convoi_t::calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance, karte_t* w)
 {
-	const uint32 min_distance = w != NULL ? w->get_einstellungen()->get_min_bonus_max_distance() : 10;
+	const uint32 min_distance = w != NULL ? w->get_settings().get_min_bonus_max_distance() : 10;
 	if(distance <= min_distance)
 	{
 		return 0;
 	}
 
-	const uint16 global_multiplier = welt->get_einstellungen()->get_speed_bonus_multiplier_percent();
-	const uint16 max_distance = w != NULL ? w->get_einstellungen()->get_max_bonus_min_distance() : 16;
-	const uint16 multiplier = w != NULL ? w->get_einstellungen()->get_max_bonus_multiplier_percent() : 30;
+	const uint16 global_multiplier =welt->get_settings().get_speed_bonus_multiplier_percent();
+	const uint16 max_distance = w != NULL ? w->get_settings().get_max_bonus_min_distance() : 16;
+	const uint16 multiplier = w != NULL ? w->get_settings().get_max_bonus_multiplier_percent() : 30;
 	
 	if(distance >= max_distance)
 	{
 		return base_bonus * multiplier * global_multiplier / 10000;
 	}
 
-	const uint16 median_distance = w != NULL ? w->get_einstellungen()->get_median_bonus_distance() : 128;
+	const uint16 median_distance = w != NULL ? w->get_settings().get_median_bonus_distance() : 128;
 	if(median_distance == 0)
 	{
 		// There is no median, so scale evenly.
@@ -3877,7 +3879,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 			pos.z += Z_TILE_STEP;
 		}
 		while(  grund  &&  grund->get_halt() == halt  ) {
-			station_length += TILE_STEPS;
+			station_length += OBJECT_OFFSET_STEPS;
 			pos += zv;
 			grund = welt->lookup(pos);
 			if(  grund==NULL  ) 
@@ -4223,7 +4225,10 @@ void convoi_t::set_line(linehandle_t org_line)
 	else {
 		// Knightly : originally a lineless convoy -> unregister itself from stops as it now belongs to a line
 		unregister_stops();
-		welt->set_schedule_counter();	// must trigger refresh
+		// must trigger refresh if old schedule was not empty
+		if (fpl  &&  !fpl->empty()) {
+			welt->set_schedule_counter();
+		}
 	}
 	line_update_pending = org_line;
 	check_pending_updates();
@@ -4246,6 +4251,15 @@ DBG_DEBUG("convoi_t::unset_line()", "removing old destinations from line=%d, fpl
 	}
 }
 
+// matches two halts; if the pos is not identical, maybe the halt still is
+bool convoi_t::matches_halt( const koord3d pos1, const koord3d pos2 )
+{
+	halthandle_t halt1 = haltestelle_t::get_halt( welt, pos1, besitzer_p );
+	return pos1==pos2  ||  (halt1.is_bound()  &&  halt1==haltestelle_t::get_halt( welt, pos2, besitzer_p ));
+}
+
+
+// updates a line schedule and tries to find the best next station to go
 void convoi_t::check_pending_updates()
 {
 	if(  line_update_pending.is_bound()  ) {
@@ -4266,8 +4280,9 @@ void convoi_t::check_pending_updates()
 		else {
 			// something to check for ...
 			current = fpl->get_current_eintrag().pos;
+			halthandle_t current_halt = haltestelle_t::get_halt( welt, current, besitzer_p );
 
-			if(aktuell<new_fpl->get_count()  &&  current==new_fpl->eintrag[aktuell].pos  ) {
+			if(  aktuell<new_fpl->get_count() &&  current==new_fpl->eintrag[aktuell].pos  ) {
 				// next pos is the same => keep the convoi state
 				is_same = true;
 			}
@@ -4285,6 +4300,8 @@ void convoi_t::check_pending_updates()
 				/* there could be only one entry that matches best:
 				 * we try first same sequence as in old schedule;
 				 * if not found, we try for same nextnext station
+				 * (To detect also places, where only the platform
+				 *  changed, we also compare the halthandle)
 				 */
 				if(aktuell > fpl->eintrag.get_count() - 1)
 				{
@@ -4301,20 +4318,26 @@ void convoi_t::check_pending_updates()
 				int how_good_matching = 0;
 				const uint8 new_count = new_fpl->get_count();
 
-				for(  uint8 i=0;  i<new_count;  i++  ) {
+				for(  uint8 i=0;  i<new_count;  i++  ) 
+				{
 					index = i;
 					reverse = reverse_schedule;
 					int quality = 0;
-					for( uint8 j=0; j<4; j++ ) {
-						quality += (new_fpl->eintrag[index].pos==next[j])*weights[j];
+					for( uint8 j=0; j<4; j++ ) 
+					{
+						quality += matches_halt(next[j],new_fpl->eintrag[index].pos) * weights[j];
 						new_fpl->increment_index(&index, &reverse);
 					}
-					if(  quality>how_good_matching  ) {
+					if(  quality>how_good_matching  ) 
+					{
 						// better match than previous: but depending of distance, the next number will be different
 						index = i;
 						reverse = reverse_schedule;
-						for( uint8 j=0; j<4; j++ ) {
-							if( new_fpl->eintrag[index].pos==next[j] ) {
+						for( uint8 j=0; j<4; j++ ) 
+						{
+							if( matches_halt(next[j], new_fpl->eintrag[index].pos) )
+							if( new_fpl->eintrag[index].pos==next[j] ) 
+							{
 								aktuell = index;
 								break;
 							}
@@ -4329,7 +4352,7 @@ void convoi_t::check_pending_updates()
 					aktuell = new_fpl->get_aktuell();
 				}
 				// if we go to same, then we do not need route recalculation ...
-				is_same = new_fpl->eintrag[aktuell].pos==current;
+				is_same = matches_halt(current,new_fpl->eintrag[aktuell].pos);
 			}
 		}
 
@@ -4748,18 +4771,19 @@ bool convoi_t::has_no_cargo() const
 // returns tiles needed for this convoi
 uint16 convoi_t::get_tile_length() const
 {
-	uint16 tiles=0;
+	uint16 carunits=0;
 	for(sint8 i=0;  i<anz_vehikel-1;  i++) {
-		tiles += fahr[i]->get_besch()->get_length();
+		carunits += fahr[i]->get_besch()->get_length();
 	}
 	// the last vehicle counts differently in stations and for reserving track
 	// (1) add 8 = 127/256 tile to account for the driving in stations in north/west direction
 	//     see at the end of vehikel_t::hop()
 	// (2) for length of convoi for loading in stations the length of the last vehicle matters
 	//     see convoi_t::hat_gehalten
-	tiles += max(8, fahr[anz_vehikel-1]->get_besch()->get_length());
+	carunits += max(CARUNITS_PER_TILE/2, fahr[anz_vehikel-1]->get_besch()->get_length());
 
-	return (tiles + 15) / 16;
+	uint16 tiles = (carunits + CARUNITS_PER_TILE - 1) / CARUNITS_PER_TILE;
+	return tiles;
 }
 
 
@@ -4787,7 +4811,7 @@ void convoi_t::set_withdraw(bool new_withdraw)
  * The city car is not overtaking/being overtaken.
  * @author isidoro
  */
-bool convoi_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int steps_other, int diagonal_length)
+bool convoi_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int steps_other, int diagonal_vehicle_steps_per_tile)
 {
 	if(fahr[0]->get_waytype()!=road_wt) {
 		return false;
@@ -4807,10 +4831,10 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int s
 	// Number of tiles overtaking will take
 	int n_tiles = 0;
 
-	// Distance it takes overtaking (unit:256*tile) = my_speed * time_overtaking
+	// Distance it takes overtaking (unit: vehicle_steps) = my_speed * time_overtaking
 	// time_overtaking = tiles_to_overtake/diff_speed
 	// tiles_to_overtake = convoi_length + current pos within tile + (pos_other_convoi wihtin tile + length of other convoi) - one tile
-	int distance = akt_speed*(fahr[0]->get_steps()+(get_length()*16)+steps_other-256)/diff_speed;
+	int distance = akt_speed*(fahr[0]->get_steps()+get_length_in_steps()+steps_other-VEHICLE_STEPS_PER_TILE)/diff_speed;
 	int time_overtaking = 0;
 
 	// Conditions for overtaking:
@@ -4858,7 +4882,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int s
 			return false;
 		}
 
-		int d = ribi_t::ist_gerade(str->get_ribi()) ? 256 : diagonal_length;
+		int d = ribi_t::ist_gerade(str->get_ribi()) ? VEHICLE_STEPS_PER_TILE : diagonal_vehicle_steps_per_tile;
 		distance -= d;
 		time_overtaking += d;
 
@@ -4916,8 +4940,11 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int s
 		if(  ribi_t::is_threeway(str->get_ribi()) ) {
 			return false;
 		}
-
-		time_overtaking -= (ribi_t::ist_gerade(str->get_ribi()) ? 256<<16 : diagonal_length<<16)/kmh_to_speed(str->get_max_speed());
+		if (ribi_t::ist_gerade(str->get_ribi())) {
+			time_overtaking -= VEHICLE_STEPS_PER_TILE<<16 / kmh_to_speed(str->get_max_speed());
+		} else {
+			time_overtaking -= diagonal_vehicle_steps_per_tile<<16 / kmh_to_speed(str->get_max_speed());
+		}
 
 		// Check for other vehicles in facing direction
 		ribi_t::ribi their_direction = ribi_t::rueckwaerts( fahr[0]->calc_richtung(pos_prev, pos_next.get_2d()) );

@@ -7,20 +7,11 @@
 
 #include <stdio.h>
 
-#include "../../simdebug.h"
-#include "../../simworld.h"
 #include "../../simconvoi.h"
 #include "../../vehicle/simvehikel.h"
-#include "../../player/simplay.h"
-#include "../../simcolor.h"
-#include "../../simgraph.h"
-
-#include "../grund.h"
 
 #include "../../dataobj/loadsave.h"
 #include "../../dataobj/translator.h"
-
-#include "../../dings/signal.h"
 
 #include "../../utils/cbuffer_t.h"
 

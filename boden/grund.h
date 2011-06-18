@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansj÷rg Malthaner
+ * Copyright (c) 1997 - 2001 Hj Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -162,27 +162,6 @@ protected:
 	// slope (now saved locally), because different grounds need differen slopes
 	uint8 slope;
 
-	/**
-	 * Description;
-	 *      Checks whether there is a way connection from this to gr in dv
-	 *      direction of the given waytype.
-	 *
-	 * Return:
-	 *      false, if ground is NULL (this case is explitly allowed).
-	 *      true, if waytype_t is invalid_wt (this case is explitly allowed)
-	 *      Check result otherwise
-	 *
-	 * Notice:
-	 *      helper function for "get_neighbour"
-	 *      Currently private, but it may be possible to make it public, if
-	 *      neeeded.
-	 *      Was previously a part of the simposition module.
-	 *
-	 * @author: Volker Meyer
-	 * @date: 21.05.2003
-	 */
-	bool is_connected(const grund_t *gr, waytype_t wegtyp, koord dv) const;
-
 public:
 	/**
 	 * setzt die Bildnr. des anzuzeigenden Bodens
@@ -210,7 +189,7 @@ protected:
 	virtual void calc_bild_internal() = 0;
 
 public:
-	enum typ {grund, boden, wasser, fundament, tunnelboden, brueckenboden, monorailboden };
+	enum typ { boden = 1, wasser, fundament, tunnelboden, brueckenboden, monorailboden };
 
 	grund_t(karte_t *welt, loadsave_t *file);
 	grund_t(karte_t *welt, koord3d pos);
@@ -282,7 +261,7 @@ public:
 	* @return Der Typ des Untergrundes.
 	* @author Hj. Malthaner
 	*/
-	virtual typ get_typ() const { return grund; }
+	virtual typ get_typ() const = 0;
 
 	/**
 	* Gibt eine Beschreibung des Untergrundes (informell) zurueck.
@@ -555,13 +534,19 @@ public:
 	*/
 	weg_t *get_weg(waytype_t typ) const {
 		if (weg_t* const w = get_weg_nr(0)) {
-			if(w->get_waytype()==typ) {
+			const waytype_t wt = w->get_waytype();
+			if(wt == typ) {
 				return w;
 			}
-		}
-		if (weg_t* const w = get_weg_nr(1)) {
-			if(w->get_waytype()==typ) {
-				return w;
+			else if (wt > typ) {
+				// ways are ordered wrt to waytype
+				return NULL;
+			}
+			// try second way (if exists)
+			if (weg_t* const w = get_weg_nr(1)) {
+				if(w->get_waytype()==typ) {
+					return w;
+				}
 			}
 		}
 		return NULL;
@@ -698,8 +683,7 @@ public:
 	 *      (tunnel entries, bridge ramps and horizontal bridge start).
 	 *
 	 * Notice:
-	 *      Uses two helper functions "is_connected()" and "get_vmove()"
-	 *      Was previously a part of the simposition module.
+	 *      Uses helper function "get_vmove()"
 	 *
 	 * Parameters:
 	 *      If dir is not (-1,0), (1,0), (0,-1) or (0, 1), the function fails
@@ -719,22 +703,19 @@ public:
 
 	/**
 	 * Description;
-	 *      Check, whether it is possible that a way goes up or down in dv
+	 *      Check, whether it is possible that a way goes up or down in ribi
 	 *      direction. The result depends of the ground type (i.e tunnel entries)
 	 *      and the "hang_typ" of the ground.
 	 *
-	 *      Returns 1, if it is possible to go up
-	 *      Returns -1, if it is possible to go down
-	 *      Returns 0 otherwise.
+	 *      Returns the height if one moves in direction given by ribi
 	 *
+	 *      ribi must be a single direction!
 	 * Notice:
 	 *      helper function for "get_neighbour"
-	 *      Was previously a part of the simposition module.
 	 *
-	 * @author: Volker Meyer
-	 * @date: 21.05.2003
+	 * @author: Volker Meyer, dwachs
 	 */
-	sint8 get_vmove(koord dir) const;
+	sint8 get_vmove(ribi_t::ribi ribi) const;
 
 	/* removes everything from a tile, including a halt but i.e. leave a
 	 * powerline ond other stuff

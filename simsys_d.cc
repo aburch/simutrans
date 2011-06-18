@@ -10,19 +10,15 @@
 #include <stdio.h>
 
 #include <sys/types.h>
-#include <sys/stat.h>
 
 #include <math.h>
-
-#ifndef PATH_MAX
-#define PATH_MAX (1024)
-#endif
 
 #include "macros.h"
 #include "simmain.h"
 #include "simsys.h"
 #include "simevent.h"
 #include "simgraph.h"
+#include "simsys_w32_png.h"
 
 #ifdef _WIN32
 #define BITMAP winBITMAP
@@ -32,6 +28,8 @@
 #include <windows.h>
 #undef BITMAP
 #undef WinMain
+#else
+#	include <limits.h>
 #endif
 
 #include <allegro.h>
@@ -256,8 +254,7 @@ int dr_query_screen_height()
 }
 
 
-
-int dr_os_open(int w, int h, int bpp, int fullscreen)
+int dr_os_open(int const w, int const h, int const fullscreen)
 {
 	width = w;
 	height = h;
@@ -265,7 +262,7 @@ int dr_os_open(int w, int h, int bpp, int fullscreen)
 
 	install_keyboard();
 
-	set_color_depth(bpp);
+	set_color_depth(COLOUR_DEPTH);
 	if (set_gfx_mode(fullscreen? GFX_AUTODETECT : GFX_AUTODETECT_WINDOWED, w, h, 0, 0) != 0) {
 		fprintf(stderr, "Error: %s\n", allegro_error);
 		return FALSE;
@@ -297,55 +294,6 @@ int dr_os_close(void)
 }
 
 
-// query home directory
-char *dr_query_homedir(void)
-{
-	static char buffer[1024];
-	char b2[1060];
-#ifdef _WIN32
-	DWORD len=960;
-	HKEY hHomeDir;
-	if(RegOpenKeyExA(HKEY_CURRENT_USER,"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders", 0, KEY_READ,	&hHomeDir)==ERROR_SUCCESS) {
-		RegQueryValueExA(hHomeDir,"Personal",NULL,NULL,(BYTE *)buffer,&len);
-		strcat(buffer,"\\Simutrans");
-		CreateDirectoryA( buffer, NULL );
-		strcat(buffer, "\\");
-
-		// create other subdirectories
-		sprintf(b2, "%ssave", buffer );
-		CreateDirectoryA( b2, NULL );
-		sprintf(b2, "%sscreenshot", buffer );
-		CreateDirectoryA( b2, NULL );
-		sprintf(b2, "%smaps", buffer );
-		CreateDirectoryA( b2, NULL );
-
-		return buffer;
-	}
-	return NULL;
-#else
-#ifndef __APPLE__
-	sprintf( buffer, "%s/simutrans", getenv("HOME") );
-#else
-	sprintf( buffer, "%s/Library/Simutrans", getenv("HOME") );
-#endif
-	int err = mkdir( buffer, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH );
-	if(err  &&  err!=EEXIST) {
-		// could not create directory
-		// we assume success anyway
-	}
-	strcat( buffer, "/" );
-	sprintf( b2, "%smaps", buffer );
-	mkdir( b2, 0700 );
-	sprintf( b2, "%sscreenshot", buffer );
-	mkdir( b2, 0700 );
-	sprintf( b2, "%ssave", buffer );
-	mkdir( b2, 0700 );
-	return buffer;
-#endif
-}
-
-
-
 /*
  * Hier beginnen die eigentlichen graphischen Funktionen
  */
@@ -367,7 +315,7 @@ unsigned short* dr_textur_init(void)
 extern void display_set_actual_width(KOORD_VAL w);
 
 // resizes screen (Not allowed)
-int dr_textur_resize(unsigned short** textur, int w, int h, int bpp)
+int dr_textur_resize(unsigned short**, int, int)
 {
 	display_set_actual_width( width );
 	return width;
@@ -421,12 +369,6 @@ void dr_flush(void)
 {
 	display_flush_buffer();
 }
-
-
-#ifdef WIN32
-// try saving png using gdiplus.dll
-extern "C" int dr_screenshot_png(const char *filename,  int w, int h, int maxwidth, unsigned short *data, int bitdepth );
-#endif
 
 /**
  * Some wrappers can save screenshots.

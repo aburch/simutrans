@@ -70,6 +70,7 @@ help_frame_t::help_frame_t() :
 	set_text("<title>Unnamed</title><p>No text set</p>");
 	flow.add_listener(this);
 	set_resizemode(diagonal_resize);
+	scrolly.set_show_scroll_x(true);
 	add_komponente(&scrolly);
 	set_min_windowsize(koord(16*4, 16));
 }
@@ -154,6 +155,7 @@ help_frame_t::help_frame_t(const std::string &filename) :
 	}
 
 	set_resizemode(diagonal_resize);
+	scrolly.set_show_scroll_x(true);
 	add_komponente(&scrolly);
 	flow.add_listener(this);
 	set_min_windowsize(koord(16*4, 16));

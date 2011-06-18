@@ -55,8 +55,8 @@ void goods_stats_t::zeichnen(koord offset)
 		const sint32 revenue = (min_price > base_bonus ? min_price : base_bonus) * distance;
 		sint32 price = revenue;
 
-		//const uint16 journey_minutes = ((float)distance / (((float)welt->get_average_speed(way_type) * bonus) / 100)) * welt->get_einstellungen()->get_meters_per_tile() * 6;
-		const uint16 journey_minutes = (((distance * 100) / welt->get_average_speed(way_type)) *  welt->get_einstellungen()->get_meters_per_tile()) / 1667;
+		//const uint16 journey_minutes = ((float)distance / (((float)welt->get_average_speed(way_type) * bonus) / 100)) *welt->get_settings().get_meters_per_tile() * 6;
+		const uint16 journey_minutes = (((distance * 100) / welt->get_average_speed(way_type)) * welt->get_settings().get_meters_per_tile()) / 1667;
 
 		if(wtyp->get_catg_index() < 1)
 		{
@@ -66,18 +66,18 @@ void goods_stats_t::zeichnen(koord offset)
 			// Comfort matters more the longer the journey.
 			// @author: jamespetts, March 2010
 			uint32 comfort_modifier;
-			if(journey_minutes <= welt->get_einstellungen()->get_tolerable_comfort_short_minutes())
+			if(journey_minutes <=welt->get_settings().get_tolerable_comfort_short_minutes())
 			{
 				comfort_modifier = 20;
 			}
-			else if(journey_minutes >= welt->get_einstellungen()->get_tolerable_comfort_median_long_minutes())
+			else if(journey_minutes >=welt->get_settings().get_tolerable_comfort_median_long_minutes())
 			{
 				comfort_modifier = 100;
 			}
 			else
 			{
-				const uint8 differential = journey_minutes - welt->get_einstellungen()->get_tolerable_comfort_short_minutes();
-				const uint8 max_differential = welt->get_einstellungen()->get_tolerable_comfort_median_long_minutes() - welt->get_einstellungen()->get_tolerable_comfort_short_minutes();
+				const uint8 differential = journey_minutes -welt->get_settings().get_tolerable_comfort_short_minutes();
+				const uint8 max_differential =welt->get_settings().get_tolerable_comfort_median_long_minutes() -welt->get_settings().get_tolerable_comfort_short_minutes();
 				const uint32 proportion = differential * 100 / max_differential;
 				comfort_modifier = (80 * proportion / 100) + 20;
 			}
@@ -86,9 +86,9 @@ void goods_stats_t::zeichnen(koord offset)
 			if(comfort > tolerable_comfort)
 			{
 				// Apply luxury bonus
-				const uint8 max_differential = welt->get_einstellungen()->get_max_luxury_bonus_differential();
+				const uint8 max_differential =welt->get_settings().get_max_luxury_bonus_differential();
 				const uint8 differential = comfort - tolerable_comfort;
-				const uint32 multiplier = (welt->get_einstellungen()->get_max_luxury_bonus_percent() * comfort_modifier) / 10000;
+				const uint32 multiplier = (welt->get_settings().get_max_luxury_bonus_percent() * comfort_modifier) / 10000;
 				if(differential >= max_differential)
 				{
 					price += (sint64)(revenue * multiplier);
@@ -102,9 +102,9 @@ void goods_stats_t::zeichnen(koord offset)
 			else if(comfort < tolerable_comfort)
 			{
 				// Apply discomfort penalty
-				const uint8 max_differential = welt->get_einstellungen()->get_max_discomfort_penalty_differential();
+				const uint8 max_differential =welt->get_settings().get_max_discomfort_penalty_differential();
 				const uint8 differential = tolerable_comfort - comfort;
-				uint32 multiplier = (welt->get_einstellungen()->get_max_discomfort_penalty_percent() * comfort_modifier) / 10000;
+				uint32 multiplier = (welt->get_settings().get_max_discomfort_penalty_percent() * comfort_modifier) / 10000;
 				multiplier = multiplier < 95 ? multiplier : 95;
 				if(differential >= max_differential)
 				{

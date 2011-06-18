@@ -67,14 +67,6 @@ void dr_destroy_midi(void)
 
 
 /**
- * Sets midi pos
- * @author Hj. Malthaner
- */
-void set_midi_pos(int)
-{
-}
-
-/**
  * MIDI initialisation routines
  * @author Owen Rudge
  */

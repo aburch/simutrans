@@ -43,7 +43,6 @@ halt_detail_t::halt_detail_t(halthandle_t halt_) :
 
 	// fill buffer with halt detail
 	halt_detail_info(cb_info_buffer);
-	txt_info.set_text(cb_info_buffer);
 	txt_info.set_pos(koord(10,10));
 
 	// calc window size
@@ -58,8 +57,9 @@ halt_detail_t::halt_detail_t(halthandle_t halt_) :
 	// add scrollbar
 	scrolly.set_pos(koord(1, 1));
 	scrolly.set_groesse(get_fenstergroesse() + koord(-1, -17));
-
+	scrolly.set_show_scroll_x(true);
 	add_komponente(&scrolly);
+
 	cached_active_player=NULL;
 }
 
@@ -169,7 +169,7 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 			offset_y += LINESPACE;
 
 			const array_tpl<ware_production_t>& eingang = fab->get_eingang();
-			for (uint32 i = 0; i < eingang.get_size(); i++) {
+			for (uint32 i = 0; i < eingang.get_count(); i++) {
 				const ware_besch_t* ware = eingang[i].get_typ();
 
 				if(!nimmt_an.is_contained(ware)) {
@@ -320,9 +320,10 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 					buf.append(a_halt->get_name());
 					
 					const uint32 tiles_to_halt = accurate_distance(halt->get_next_pos(a_halt->get_basis_pos()), a_halt->get_next_pos(halt->get_basis_pos()));
-					const double km_per_tile = halt->get_welt()->get_einstellungen()->get_meters_per_tile() / 1000.0;
+					const double km_per_tile = halt->get_welt()->get_settings().get_meters_per_tile() / 1000.0;
 					const double km_to_halt = (double)tiles_to_halt * km_per_tile;
 
+					// Distance indication
 					buf.append(" (");
 					char number[10];
 					number_to_string(number, km_to_halt, 2);
@@ -352,7 +353,7 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 						// Test for the default waiting value
 						buf.append(translator::translate("waiting time unknown)"));
 					}
-					buf.append("\n");
+					buf.append("\n\n");
 
 					offset_y += 2 * LINESPACE;
 				}
@@ -421,7 +422,6 @@ void halt_detail_t::zeichnen(koord pos, koord gr)
 				||  halt->registered_lines.get_count()!=cached_line_count  ||  halt->registered_convoys.get_count()!=cached_convoy_count  ) {
 			// fill buffer with halt detail
 			halt_detail_info(cb_info_buffer);
-			txt_info.set_text(cb_info_buffer);
 			cached_active_player=halt->get_welt()->get_active_player();
 		}
 	}

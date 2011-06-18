@@ -90,9 +90,8 @@ sint16 display_get_height(void)
 	return 0;
 }
 
-sint16 display_set_height(KOORD_VAL)
+void display_set_height(KOORD_VAL)
 {
-	return 0;
 }
 
 void display_set_actual_width(KOORD_VAL)
@@ -277,8 +276,9 @@ void display_ddd_proportional_clip(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, P
 {
 }
 
-void display_multiline_text(KOORD_VAL, KOORD_VAL, const char *, PLAYER_COLOR_VAL)
+int display_multiline_text(KOORD_VAL, KOORD_VAL, const char *, PLAYER_COLOR_VAL)
 {
+	return 0;
 }
 
 void display_flush_buffer(void)

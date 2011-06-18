@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <math.h>
 
+#include "../simunits.h"
 #include "../simconvoi.h"
 #include "../simdepot.h"
 
@@ -625,8 +626,7 @@ bool depot_frame_t::infowin_event(const event_t *ev)
 
 
 
-void
-depot_frame_t::zeichnen(koord pos, koord groesse)
+void depot_frame_t::zeichnen(koord pos, koord groesse)
 {
 	if (get_welt()->get_active_player() != depot->get_besitzer()) {
 		destroy_win(this);
@@ -722,7 +722,6 @@ void depot_frame_t::fahrplaneingabe()
 		create_win( new news_img("Please choose vehicles first\n"), w_time_delete, magic_none);
 	}
 }
-
 
 bool depot_frame_t::check_way_electrified(bool init)
 {

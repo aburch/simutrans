@@ -25,12 +25,12 @@ namespace citylist {
 class citylist_stats_t : public gui_komponente_t
 {
 private:
-	uint32 line_select;
-	citylist::sort_mode_t sortby;
-	bool sortreverse;
-
 	karte_t *welt;
 	vector_tpl<stadt_t*> city_list;
+	uint32 line_selected;
+
+	citylist::sort_mode_t sortby;
+	bool sortreverse;
 
 public:
 	static char total_bev_string[128];
@@ -41,6 +41,9 @@ public:
 
 	/** Events werden hiermit an die GUI-Komponenten gemeldet */
 	bool infowin_event(const event_t*);
+
+	/** Recalc the current size required to display everything, and set komponente groesse */
+	void recalc_size();
 
 	/** Zeichnet die Komponente */
 	void zeichnen(koord offset);

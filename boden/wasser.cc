@@ -6,12 +6,7 @@
 
 #include "wasser.h"
 
-#include "../simdebug.h"
-
-#include "../simimg.h"
 #include "../simworld.h"
-#include "../simtools.h"
-#include "../simhalt.h"
 
 #include "../besch/grund_besch.h"
 
@@ -38,20 +33,7 @@ void wasser_t::prepare_for_refresh()
 }
 
 
-
-bool wasser_t::zeige_info()
-{
-	if(get_halt().is_bound()) {
-		get_halt()->zeige_info();
-		return true;
-	}
-	return false;
-}
-
-
-
-void
-wasser_t::calc_bild_internal()
+void wasser_t::calc_bild_internal()
 {
 	set_hoehe( welt->get_grundwasser() );
 	slope = hang_t::flach;
@@ -86,6 +68,7 @@ wasser_t::calc_bild_internal()
 	// artifical walls from here on ...
 	grund_t::calc_back_bild(welt->get_grundwasser()/Z_TILE_STEP,0);
 }
+
 
 void wasser_t::rotate90()
 {

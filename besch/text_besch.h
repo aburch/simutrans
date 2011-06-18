@@ -15,8 +15,6 @@
  *      Volker Meyer
  */
 class text_besch_t : public obj_besch_t {
-    friend class text_writer_t;
-
 public:
 		const char* get_text() const { return text; }
 

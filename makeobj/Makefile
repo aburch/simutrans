@@ -1,5 +1,5 @@
-CONFIG ?= ../config.default
--include $(CONFIG)
+CFG ?= default
+-include ../config.$(CFG)
 
 OSTYPES       = beos cygwin freebsd haiku linux mingw mac
 
@@ -126,6 +126,8 @@ VARIANT_SOURCES += ../utils/log.cc
 
 SOURCES ?= $(SOLO_SOURCES) $(SHARED_SOURCES) $(VARIANT_SOURCES)
 
+BUILDDIR ?= ../build/$(CFG)
+TOOL ?= makeobj
 PROG ?= makeobj
 
 include uncommon.mk
