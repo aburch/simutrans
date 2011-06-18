@@ -1526,7 +1526,7 @@ void wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d z
 					// slopes do not match
 					// terraforming enabled?
 					if (bautyp==river  ||  (bautyp & terraform_flag) == 0) {
-						continue;
+						break;
 					}
 					// check terraforming (but not in curves)
 					ok = false;
