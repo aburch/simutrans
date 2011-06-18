@@ -48,14 +48,10 @@ int dr_os_init(const int*)
 	return TRUE;
 }
 
-int dr_query_screen_width()
+resolution dr_query_screen_resolution()
 {
-	return 0;
-}
-
-int dr_query_screen_height()
-{
-	return 0;
+	resolution const res = { 0, 0 };
+	return res;
 }
 
 // open the window

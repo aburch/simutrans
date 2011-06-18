@@ -117,20 +117,13 @@ int dr_os_init(const int* /*parameter*/)
 }
 
 
-/* maximum size possible (if there) */
-int dr_query_screen_width()
+resolution dr_query_screen_resolution()
 {
-	return GetSystemMetrics( SM_CXSCREEN );
+	resolution res;
+	res.w = GetSystemMetrics(SM_CXSCREEN);
+	res.h = GetSystemMetrics(SM_CYSCREEN);
+	return res;
 }
-
-
-
-int dr_query_screen_height()
-{
-	return GetSystemMetrics( SM_CYSCREEN );
-}
-
-
 
 
 // open the window

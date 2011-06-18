@@ -135,51 +135,28 @@ int dr_os_init(const int* parameter)
 }
 
 
-/* maximum size possible (if there) */
-int dr_query_screen_width()
+resolution dr_query_screen_resolution()
 {
-#if SDL_VERSIONNUM(SDL_MAJOR_VERSION,SDL_MINOR_VERSION,SDL_PATCHLEVEL)>=1210
-	const SDL_VideoInfo *vi=SDL_GetVideoInfo();
-	return vi->current_w;
+	resolution res;
+#if SDL_VERSION_ATLEAST(1, 2, 10)
+	SDL_VideoInfo const& vi = *SDL_GetVideoInfo();
+	res.w = vi.current_w;
+	res.h = vi.current_h;
+#elif defined _WIN32
+	res.w = GetSystemMetrics(SM_CXSCREEN);
+	res.h = GetSystemMetrics(SM_CYSCREEN);
 #else
-#ifdef _WIN32
-	return GetSystemMetrics( SM_CXSCREEN );
-#else
-	SDL_Rect **modi;
-	modi = SDL_ListModes (NULL, SDL_FULLSCREEN );
-	if (modi == NULL  ||  modi == (SDL_Rect**)-1  ) {
-		return 704;
-	}
-	else {
+	SDL_Rect** const modi = SDL_ListModes(0, SDL_FULLSCREEN);
+	if (modi && modi != (SDL_Rect**)-1) {
 		// return first
-		return modi[0]->w;
+		res.w = modi[0]->w;
+		res.h = modi[0]->h;
+	} else {
+		res.w = 704;
+		res.h = 560;
 	}
 #endif
-#endif
-}
-
-
-
-int dr_query_screen_height()
-{
-#if SDL_VERSIONNUM(SDL_MAJOR_VERSION,SDL_MINOR_VERSION,SDL_PATCHLEVEL)>=1210
-	const SDL_VideoInfo *vi=SDL_GetVideoInfo();
-	return vi->current_h;
-#else
-#ifdef _WIN32
-	return GetSystemMetrics( SM_CYSCREEN );
-#else
-	SDL_Rect **modi;
-	modi = SDL_ListModes (NULL, SDL_FULLSCREEN );
-	if (modi == NULL  ||  modi == (SDL_Rect**)-1  ) {
-		return 704;
-	}
-	else {
-		// return first
-		return modi[0]->h;
-	}
-#endif
-#endif
+	return res;
 }
 
 
