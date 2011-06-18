@@ -2807,7 +2807,6 @@ void convoi_t::check_pending_updates()
 		else {
 			// something to check for ...
 			current = fpl->get_current_eintrag().pos;
-			halthandle_t current_halt = haltestelle_t::get_halt( welt, current, besitzer_p );
 
 			if(  aktuell<new_fpl->get_count() &&  current==new_fpl->eintrag[aktuell].pos  ) {
 				// next pos is the same => keep the convoi state
