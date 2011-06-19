@@ -436,6 +436,9 @@ settings_t::settings_t() :
 		}
 	}
 	server_frames_ahead = 4;
+
+	spacing_shift_mode = SPACING_SHIFT_PER_STOP;
+	spacing_shift_divisor = 24*60;
 }
 
 
@@ -1156,6 +1159,7 @@ void settings_t::rdwr(loadsave_t *file)
 			}
 		}
 
+
 		if(  file->get_version()>=110005  ) {
 			file->rdwr_short(factory_arrival_periods);
 			file->rdwr_bool(factory_enforce_demand);
@@ -1180,6 +1184,12 @@ void settings_t::rdwr(loadsave_t *file)
 				local_passengers_max_distance = city_short_range_radius;
 				midrange_passengers_max_distance = city_medium_range_radius;
 			}
+		}
+
+		if (file->get_experimental_version() >= 9 && file->get_version() >= 110006) 
+		{
+			file->rdwr_byte(spacing_shift_mode);
+			file->rdwr_short(spacing_shift_divisor);
 		}
 	}
 }
@@ -1770,6 +1780,9 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	city_threshold_size  = contents.get_int("city_threshold_size", city_threshold_size);
 	capital_threshold_size  = contents.get_int("capital_threshold_size", capital_threshold_size);
+	spacing_shift_mode = contents.get_int("spacing_shift_mode", spacing_shift_mode);
+	spacing_shift_divisor = contents.get_int("spacing_shift_divisor", spacing_shift_divisor);
+
 
 	/*
 	 * Selection of savegame format through inifile

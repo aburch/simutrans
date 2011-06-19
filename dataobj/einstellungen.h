@@ -437,6 +437,10 @@ public:
 	bool default_player_color_random;
 	uint8 default_player_color[MAX_PLAYER_COUNT][2];
 
+	enum spacing_shift_mode_t { SPACING_SHIFT_DISABLED = 0, SPACING_SHIFT_PER_LINE, SPACING_SHIFT_PER_STOP};
+	uint8 spacing_shift_mode;
+	sint16 spacing_shift_divisor;
+
 public:
 	/**
 	 * If map is read from a heightfield, this is the name of the heightfield.
@@ -813,6 +817,13 @@ public:
 	uint16 get_default_increase_maintenance_after_years(waytype_t wtype) const { return default_increase_maintenance_after_years[wtype]; }
 	void set_default_increase_maintenance_after_years(waytype_t wtype, uint16 value) { default_increase_maintenance_after_years[wtype] = value; }
 	uint32 get_server_frames_ahead() const { return server_frames_ahead; }
+
+	uint8 get_spacing_shift_mode() const { return spacing_shift_mode; }
+	void set_spacing_shift_mode(uint8 s) { spacing_shift_mode = s; }
+
+	sint16 get_spacing_shift_divisor() const { return spacing_shift_divisor; }
+	void set_spacing_shift_divisor(sint16 s) { spacing_shift_divisor = s; }
+
 };
 
 #endif
