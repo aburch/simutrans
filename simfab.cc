@@ -264,7 +264,7 @@ void fabrik_t::book_weighted_sums(sint64 delta_time)
 
 void fabrik_t::update_scaled_electric_amount()
 {
-	if(  besch->get_electric_amount()==65535  ) 
+	if(besch->get_electric_amount() == 65535) 
 	{
 		// demand not specified in pak, use old fixed demands and the Experimental electricity proportion
 		const uint16 electricity_proportion = get_besch()->is_electricity_producer() ? 400 : get_besch()->get_electricity_proportion();
@@ -725,9 +725,6 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 
 	delta_slot = 0;
 	times_expanded = 0;
-	update_scaled_electric_amount();
-	update_scaled_pax_demand();
-	update_scaled_mail_demand();
 
 	// Check to see whether this is within city limits, and add it to the city if it is.
 	city = welt->get_city(pos.get_2d());
@@ -786,6 +783,10 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 	}
 	
 	prodbase = prodbase > 0 ? prodbase : 1;
+
+	update_scaled_electric_amount();
+	update_scaled_pax_demand();
+	update_scaled_mail_demand();
 }
 
 void fabrik_t::delete_all_fields()

@@ -3143,11 +3143,11 @@ void karte_t::neuer_monat()
 			// Check to see whether the factory has closed down - if so, the pointer will be dud.
 			if(fab->get_besch()->is_electricity_producer()) 
 			{
-				electric_productivity += fab->get_base_production() * PRODUCTION_DELTA_T * 4;
+				electric_productivity += fab->get_scaled_electric_amount();
 			}
 			else 
 			{
-				total_electric_demand += (fab->get_base_production() * fab->get_besch()->get_electricity_proportion()) / 100;
+				total_electric_demand += fab->get_scaled_electric_amount();
 			}
 			number_of_factories = fab_list.get_count();
 		}

@@ -972,11 +972,11 @@ next_ware_check:
 		fabrik_t * fab = welt->get_fab_list()[x];
 		if(fab->get_besch()->is_electricity_producer()) 
 		{
-			electric_productivity += fab->get_base_production() * PRODUCTION_DELTA_T * 4;
+			electric_productivity += fab->get_scaled_electric_amount();
 		}
 		else 
 		{
-			total_electric_demand += (fab->get_base_production() * fab->get_besch()->get_electricity_proportion()) / 100;
+			total_electric_demand += fab->get_scaled_electric_amount();
 		}
 	}
 
