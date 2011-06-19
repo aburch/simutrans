@@ -20,7 +20,7 @@ all: $(BUILDDIR)/$(TOOL)/$(PROG)
 
 $(BUILDDIR)/$(TOOL)/$(PROG): $(OBJS)
 	@echo "===> LD  $@"
-	$(Q)$(CXX) $(OBJS) $(LDFLAGS) $(STD_LIBS) $(LIBS) -o $@
+	$(Q)$(CXX) $(OBJS) $(LDFLAGS) $(STD_LIBS) $(LIBS) -o $(PROG)
 
 clean:
 	@echo "===> Cleaning up"
