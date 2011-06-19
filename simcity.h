@@ -727,7 +727,6 @@ public:
 	destination find_destination(factory_set_t &target_factories, 
 		const sint64 generated, 
 		pax_return_type* will_return, 
-		factory_entry_t* &factory_entry, 
 		uint32 min_distance = 0, 
 		uint32 max_distance = 16384,
 		koord origin = koord::invalid);

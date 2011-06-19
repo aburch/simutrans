@@ -3095,23 +3095,23 @@ void stadt_t::step_passagiere()
 					if(passenger_routing_choice <= adjusted_passenger_routing_local_chance)
 					{
 						// Will always be a destination in the current town.
-						destinations[destinations_assigned] = find_destination(target_factories, city_history_month[0][history_type+1], &will_return, destinations[destinations_assigned].factory_entry, 0, local_passengers_max_distance, origin_pos);	
+						destinations[destinations_assigned] = find_destination(target_factories, city_history_month[0][history_type+1], &will_return, 0, local_passengers_max_distance, origin_pos);	
 					}
 					else
 					{
-						destinations[destinations_assigned] = find_destination(target_factories, city_history_month[0][history_type+1], &will_return, destinations[destinations_assigned].factory_entry, local_passengers_min_distance, local_passengers_max_distance, origin_pos);
+						destinations[destinations_assigned] = find_destination(target_factories, city_history_month[0][history_type+1], &will_return, local_passengers_min_distance, local_passengers_max_distance, origin_pos);
 					}
 				}
 				else if(range == midrange)
 				{
 					//Medium
-					destinations[destinations_assigned] = find_destination(target_factories, city_history_month[0][history_type+1], &will_return, destinations[destinations_assigned].factory_entry, midrange_passengers_min_distance, midrange_passengers_max_distance, origin_pos);
+					destinations[destinations_assigned] = find_destination(target_factories, city_history_month[0][history_type+1], &will_return, midrange_passengers_min_distance, midrange_passengers_max_distance, origin_pos);
 				}
 				else
 				//else if(range == longdistance)
 				{
 					//Long distance
-					destinations[destinations_assigned] = find_destination(target_factories, city_history_month[0][history_type+1], &will_return, destinations[destinations_assigned].factory_entry, longdistance_passengers_min_distance, longdistance_passengers_max_distance, origin_pos); 
+					destinations[destinations_assigned] = find_destination(target_factories, city_history_month[0][history_type+1], &will_return, longdistance_passengers_min_distance, longdistance_passengers_max_distance, origin_pos); 
 				}
 			}
 			
@@ -3430,6 +3430,7 @@ void stadt_t::step_passagiere()
 							if(found) 
 							{
 								ware_t return_pax(wtyp, ret_halt);
+								return_pax.to_factory = ( destinations[current_destination].factory_entry ? 1 : 0 );
 								if(  will_return != city_return  &&  wtyp==warenbauer_t::post  ) 
 								{
 								// attractions/factory generate more mail than they recieve
@@ -3565,7 +3566,7 @@ void stadt_t::step_passagiere()
 
 		//const koord ziel = finde_passagier_ziel(&will_return);
 		destination destination_now;
-		destination_now = find_destination(target_factories, city_history_month[0][history_type+1], &will_return, destination_now.factory_entry);
+		destination_now = find_destination(target_factories, city_history_month[0][history_type+1], &will_return);
 		sint32 amount = min(passenger_packet_size, num_pax);
 		if(destination_now.factory_entry)
 		{
@@ -3763,7 +3764,7 @@ void stadt_t::init_distances(const uint32 max_distance)
 /* this function generates a random target for passenger/mail
  * changing this strongly affects selection of targets and thus game strategy
  */
-stadt_t::destination stadt_t::find_destination(factory_set_t &target_factories, const sint64 generated, pax_return_type* will_return, factory_entry_t* &factory_entry, uint32 min_distance, uint32 max_distance, koord origin)
+stadt_t::destination stadt_t::find_destination(factory_set_t &target_factories, const sint64 generated, pax_return_type* will_return, uint32 min_distance, uint32 max_distance, koord origin)
 {
 	const int rand = simrand(100, "stadt_t::destination stadt_t::find_destination (init)");
 	destination current_destination;
@@ -3776,7 +3777,7 @@ stadt_t::destination stadt_t::find_destination(factory_set_t &target_factories, 
 
 	// Note: unlike in Standard, this must remain random in Experimental, as passengers will only travel to industries within range, and will have multiple
 	// destinations to which they will travel if they cannot get to the factories.
-	if(rand <welt->get_settings().get_factory_worker_percentage()  &&  target_factories.total_remaining>0  &&  (sint64)target_factories.generation_ratio>((sint64)(target_factories.total_generated*100)<<RATIO_BITS)/(generated+1)  )
+	if(rand < welt->get_settings().get_factory_worker_percentage() && target_factories.total_remaining > 0 && (sint64)target_factories.generation_ratio > ((sint64)(target_factories.total_generated*100) << RATIO_BITS) / (generated + 1))
 	{
 		factory_entry_t* entry = target_factories.get_random_entry();
 		while(entry->factory == NULL)

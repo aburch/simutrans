@@ -888,11 +888,9 @@ bool vehikel_t::load_freight(halthandle_t halt, bool overcrowd)
 				// now empty, but usually, we can get it here ...
 				return ok;
 			}
+			slist_iterator_tpl<ware_t> iter (fracht);
 			uint16 count = 0;
 
-			total_freight += ware.menge;
-
-			slist_iterator_tpl<ware_t> iter (fracht);
 			// could this be joined with existing freight?
 			while(iter.next() && count <= fracht.get_count()) 
 			{
@@ -908,6 +906,7 @@ bool vehikel_t::load_freight(halthandle_t halt, bool overcrowd)
 				if(ware.can_merge_with(tmp))
 				{
 					tmp.menge += ware.menge;
+					total_freight += ware.menge;
 					ware.menge = 0;
 					break;
 				}
@@ -919,9 +918,9 @@ bool vehikel_t::load_freight(halthandle_t halt, bool overcrowd)
 				fracht.insert(ware);
 				total_freight += ware.menge;
 			}
-		}
 
-		INT_CHECK("simvehikel 876");
+			INT_CHECK("simvehikel 876");
+		}
 	}
 	return ok;
 }
