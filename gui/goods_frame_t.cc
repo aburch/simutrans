@@ -45,15 +45,13 @@ uint16 goods_frame_t::distance = 1;
 uint16 goods_frame_t::tile_distance = 0;
 uint8 goods_frame_t::comfort = 50;
 
-const char *goods_frame_t::sort_text[SORT_MODES] = 
-{
-    "gl_btn_unsort",
-    "gl_btn_sort_name",
-    "gl_btn_sort_revenue",
-    "gl_btn_sort_bonus",
-    "gl_btn_sort_catg"
+const char *goods_frame_t::sort_text[SORT_MODES] = {
+	"gl_btn_unsort",
+	"gl_btn_sort_name",
+	"gl_btn_sort_revenue",
+	"gl_btn_sort_bonus",
+	"gl_btn_sort_catg"
 };
-
 
 
 goods_frame_t::goods_frame_t(karte_t *wl) :
@@ -67,12 +65,12 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	wtype = road_wt;
 	
 	this->goods_frame_t::welt = wl;
-	int y = BUTTON_HEIGHT+4-16;
+	int y=BUTTON_HEIGHT+4-TITLEBAR_HEIGHT;
 	
 	speed_bonus[0] = 0;
 	distance_txt[0] = 0;
 	comfort_txt[0] = 0;
-	tile_distance = (1000 * distance) / goods_frame_t::welt->get_einstellungen()->get_meters_per_tile();
+	tile_distance = (1000 * distance) / goods_frame_t::welt->get_settings().get_meters_per_tile();
 	change_speed_label.set_pos(koord(BUTTON4_X+5, y + 24));
 	add_komponente(&change_speed_label);
 
@@ -120,12 +118,12 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	way_type.set_max_size(koord(96, LINESPACE*2+2+16));
 	way_type.set_highlight_color(1);
 	
-	y=4+5*LINESPACE+6 + 25;	
+	y=BUTTON_HEIGHT+6+5*LINESPACE + 25;
 
 	sort_label.set_pos(koord(BUTTON1_X, y));
 	add_komponente(&sort_label);
 
-	y += LINESPACE;
+	y += LINESPACE+1;
 
 	sortedby.init(button_t::roundbox, "", koord(BUTTON1_X, y), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
 	sortedby.add_listener(this);
@@ -138,21 +136,35 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	y += BUTTON_HEIGHT+2;
 
 	scrolly.set_pos(koord(1, y));
-	scrolly.set_show_scroll_x(false);
+
+	/*scrolly.set_show_scroll_x(false);
 	scrolly.set_groesse(koord(TOTAL_WIDTH + 10, 191 + 16 + 16 - y));
 	add_komponente(&scrolly);
 
 	int h =(warenbauer_t::get_waren_anzahl()+3) * LINESPACE + y;
 	if(h > 450) 
 	{
-		h = y + 10 * LINESPACE + 2;
+		h = y + 11 * LINESPACE + 2;
 	}
 	set_fenstergroesse(koord(TOTAL_WIDTH, h));
 	set_min_windowsize(koord(TOTAL_WIDTH, y + 6 * LINESPACE + 2));
 	set_resizemode(vertical_resize);
 
+	sort_list();*/
+
+	scrolly.set_scroll_amount_y(LINESPACE+1);
+	add_komponente(&scrolly);
+
 	sort_list();
 
+	int h = (warenbauer_t::get_waren_anzahl()+1)*(LINESPACE+1)+y;
+	if(h>450) {
+		h = y+27*(LINESPACE+1)+TITLEBAR_HEIGHT+1;
+	}
+	set_fenstergroesse(koord(TOTAL_WIDTH, h));
+	set_min_windowsize(koord(TOTAL_WIDTH,3*(LINESPACE+1)+TITLEBAR_HEIGHT+y+1));
+
+	set_resizemode(vertical_resize);
 	resize (koord(0,0));
 }
 
@@ -286,6 +298,8 @@ void goods_frame_t::sort_list()
 	goods_stats.update_goodslist(good_list, relative_speed_change, goods_frame_t::tile_distance, goods_frame_t::comfort, goods_frame_t::welt, wtype);
 }
 
+
+
 /**
  * resize window in response to a resize event
  * @author Hj. Malthaner
@@ -294,10 +308,9 @@ void goods_frame_t::sort_list()
 void goods_frame_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta);
-	koord groesse = get_fenstergroesse()-koord(0,4+6*LINESPACE+4+BUTTON_HEIGHT+2+16+25);
+	koord groesse = get_fenstergroesse()-koord(0,BUTTON_HEIGHT+4+5*LINESPACE+LINESPACE+1+BUTTON_HEIGHT+2+TITLEBAR_HEIGHT+1+25);
 	scrolly.set_groesse(groesse);
 }
-
 
 
 
@@ -332,14 +345,14 @@ bool goods_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 		if(distance > 1) 
 		{
 			distance --;
-			tile_distance = (1000 * distance) / goods_frame_t::welt->get_einstellungen()->get_meters_per_tile();
+			tile_distance = (1000 * distance) / goods_frame_t::welt->get_settings().get_meters_per_tile();
 			sort_list();
 		}
 	}
 	else if(komp == &distance_up) 
 	{
 		distance ++;
-		tile_distance = (1000 * distance) / goods_frame_t::welt->get_einstellungen()->get_meters_per_tile();
+		tile_distance = (1000 * distance) / goods_frame_t::welt->get_settings().get_meters_per_tile();
 		sort_list();
 	}
 	else if(komp == &comfort_down) 
@@ -412,21 +425,29 @@ void goods_frame_t::zeichnen(koord pos, koord gr)
 	sprintf(speed_bonus,"%i",relative_speed_change-100);
 	sprintf(distance_txt,"%i",distance);
 	sprintf(comfort_txt,"%i",comfort);
-	
-	sprintf(speed_message,translator::translate("Distance\nComfort\nSpeedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h."),
-		(goods_frame_t::welt->get_average_speed(road_wt)*relative_speed_change)/100,
-		(goods_frame_t::welt->get_average_speed(track_wt)*relative_speed_change)/100,
-		(goods_frame_t::welt->get_average_speed(water_wt)*relative_speed_change)/100,
-		(goods_frame_t::welt->get_average_speed(air_wt)*relative_speed_change)/100
+
+	speed_message.clear();
+	speed_message.printf(translator::translate("Distance\nComfort\nSpeedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h."),
+		(welt->get_average_speed(road_wt)*relative_speed_change)/100,
+		(welt->get_average_speed(track_wt)*relative_speed_change)/100,
+		(welt->get_average_speed(water_wt)*relative_speed_change)/100,
+		(welt->get_average_speed(air_wt)*relative_speed_change)/100
 	);
 	display_multiline_text(pos.x+11, pos.y+BUTTON_HEIGHT+4, speed_message, COL_WHITE);
 
-	sprintf(speed_message,translator::translate("tram %i km/h, monorail %i km/h\nmaglev %i km/h, narrowgauge %i km/h."),
-		(goods_frame_t::welt->get_average_speed(tram_wt)*relative_speed_change)/100,
-		(goods_frame_t::welt->get_average_speed(monorail_wt)*relative_speed_change)/100,
-		(goods_frame_t::welt->get_average_speed(maglev_wt)*relative_speed_change)/100,
-		(goods_frame_t::welt->get_average_speed(narrowgauge_wt)*relative_speed_change)/100
+	speed_message.clear();
+	speed_message.printf(translator::translate("tram %i km/h, monorail %i km/h\nmaglev %i km/h, narrowgauge %i km/h."),
+		(welt->get_average_speed(tram_wt)*relative_speed_change)/100,
+		(welt->get_average_speed(monorail_wt)*relative_speed_change)/100,
+		(welt->get_average_speed(maglev_wt)*relative_speed_change)/100,
+		(welt->get_average_speed(narrowgauge_wt)*relative_speed_change)/100
 	);
-	display_multiline_text(pos.x+11, pos.y+BUTTON_HEIGHT+4+57, speed_message, COL_WHITE);
 
+	display_multiline_text(pos.x+11, pos.y+BUTTON_HEIGHT+4+5*LINESPACE, speed_message, COL_WHITE);
+
+	speed_message.clear();
+	speed_message.printf(translator::translate("\n100 km/h = %i tiles/month"),
+		welt->speed_to_tiles_per_month(kmh_to_speed(100))
+	);
+	display_multiline_text(pos.x+11, pos.y+BUTTON_HEIGHT+4+6*LINESPACE, speed_message, COL_WHITE);
 }

@@ -624,7 +624,7 @@ void path_explorer_t::compartment_t::step()
 #endif
 
 			const ware_besch_t *const ware_type = warenbauer_t::get_info_catg_index(catg);
-			const uint32 journey_time_adjustment = (world->get_einstellungen()->get_meters_per_tile() * 6) / 10;
+			const uint32 journey_time_adjustment = (world->get_settings().get_meters_per_tile() * 6) / 10;
 
 			linkage_t current_linkage;
 			schedule_t *current_schedule;

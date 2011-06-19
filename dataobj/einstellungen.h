@@ -4,7 +4,7 @@
 #include <string>
 #include "../simtypes.h"
 #include "../simconst.h"
-
+#include "../simunits.h"
 
 /**
  * Spieleinstellungen
@@ -20,7 +20,7 @@ class loadsave_t;
 class tabfile_t;
 class weg_besch_t;
 
-// these are the only classes, that are allowed to modfy elements from einstellungen_t
+// these are the only classes, that are allowed to modfy elements from settings_t
 // for all remaing special cases there are the set_...() routines
 class settings_general_stats_t;
 class settings_routing_stats_t;
@@ -39,7 +39,7 @@ struct road_timeline_t
 };
 
 
-class einstellungen_t
+class settings_t
 {
 friend class settings_general_stats_t;
 friend class settings_routing_stats_t;
@@ -81,9 +81,17 @@ private:
 	// percentage of routing
 	sint16 factory_worker_percentage;
 	sint16 tourist_percentage;
+
+	// radius for city trips of different distance ranges
 	sint16 factory_worker_radius;
 	sint32 factory_worker_minimum_towns;
 	sint32 factory_worker_maximum_towns;
+
+	// Knightly : number of periods for averaging the amount of arrived pax/mail at factories
+	uint16 factory_arrival_periods;
+
+	// Knightly : whether factory pax/mail demands are enforced
+	bool factory_enforce_demand;
 
 	uint16 station_coverage_size;
 
@@ -437,11 +445,11 @@ public:
 	 */
 	std::string heightfield;
 
-	einstellungen_t();
+	settings_t();
 
 	void rdwr(loadsave_t *file);
 
-	void copy_city_road( einstellungen_t &other );
+	void copy_city_road(settings_t const& other);
 
 	// init form this file ...
 	void parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, sint16 &disp_height, sint16 &fullscreen, std::string &objfilename );
@@ -744,7 +752,7 @@ public:
 	sint32 get_growthfactor_medium() const { return growthfactor_medium; }
 	sint32 get_growthfactor_large() const { return growthfactor_large; }
 
-	// percentage of passengers wanting different sorts of trips
+	// percentage of passengers for different kinds of trips
 	sint16 get_factory_worker_percentage() const { return factory_worker_percentage; }
 	sint16 get_tourist_percentage() const { return tourist_percentage; }
 
@@ -758,6 +766,12 @@ public:
 	// any factory will be connected to not more than this number of next cities
 	uint32 get_factory_worker_maximum_towns() const { return factory_worker_maximum_towns; }
 	void set_factory_worker_maximum_towns(uint32 n) { factory_worker_maximum_towns = n; }
+
+	// Knightly : number of periods for averaging the amount of arrived pax/mail at factories
+	uint16 get_factory_arrival_periods() const { return factory_arrival_periods; }
+
+	// Knightly : whether factory pax/mail demands are enforced
+	bool get_factory_enforce_demand() const { return factory_enforce_demand; }
 
 	// disallow using obsolete vehicles in depot
 	bool get_allow_buying_obsolete_vehicles() const { return allow_buying_obsolete_vehicles; }

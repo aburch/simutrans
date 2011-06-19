@@ -23,7 +23,6 @@
  */
 class bildliste_besch_t : public obj_besch_t {
     friend class imagelist_reader_t;
-    friend class imagelist_writer_t;
 
     uint16  anzahl;
 

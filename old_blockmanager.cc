@@ -174,9 +174,9 @@ old_blockmanager_t::laden_abschliessen(karte_t *welt)
 		}
 
 		// now we should have a pair of signals ... or something was very wrong
-		grund_t *new_signal_gr=NULL;
-		uint8 type = roadsign_besch_t::SIGN_SIGNAL;
-		ribi_t::ribi dir=0;
+		grund_t*                new_signal_gr = 0;
+		roadsign_besch_t::types type          = roadsign_besch_t::SIGN_SIGNAL;
+		ribi_t::ribi dir                      = 0;
 
 		// now find out about type and direction
 		if(os2  &&  !os2->ist_blockiert()) {

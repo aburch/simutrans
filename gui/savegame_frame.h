@@ -141,9 +141,6 @@ private:
 	 */
 	const char *suffix;
 
-	// path, to be put in front
-	const char *fullpath;
-
 	// search for directories (pak_selector gui)
 	bool only_directories;
 
@@ -159,6 +156,10 @@ private:
 	void press_file_table_button(coordinates_t &cell);
 	void release_file_table_button();	
 protected:
+	// path, to be put in front
+	const char *fullpath;
+
+
 	gui_textinput_t input;
 	gui_divider_t divider1;                               // 30-Oct-2001  Markus Weber    Added
 	button_t savebutton;                                  // 29-Oct-2001  Markus Weber    Added

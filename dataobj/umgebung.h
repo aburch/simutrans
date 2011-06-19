@@ -51,12 +51,13 @@ public:
 	static bool restore_UI;	// when true, restore the windows from a savegame
 
 	// if we are the server, we are at this port ...
-	static uint16 server;
+	static const uint16 &server;
 
 	static uint32 announce_server;
 	static sint32 announce_server_intervall;
 	static std::string server_name;
 	static std::string server_comment;
+	static std::string server_admin_pw;
 
 	// scrollrichtung
 	static sint16 scroll_multi;
@@ -272,7 +273,7 @@ public:
 	static uint8 bottom_window_bar_color;
 	static uint8 bottom_window_text_color;
 
-	static einstellungen_t default_einstellungen;
+	static settings_t default_einstellungen;
 
 	// init with default values
 	static void init();

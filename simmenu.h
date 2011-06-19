@@ -213,7 +213,7 @@ public:
 	virtual void rdwr_custom_data(uint8 /* player_nr */, memory_rw_t*) { }
 
 	// this will draw the tool with some indication, if active
-	virtual bool is_selected(karte_t *welt) const;
+	virtual bool is_selected(const karte_t *welt) const;
 
 	// when true, local execution would do no harm
 	virtual bool is_init_network_save() const { return false; }
@@ -227,7 +227,7 @@ public:
 	// will draw a dark frame, if selected
 	virtual void draw_after( karte_t *w, koord pos ) const;
 
-	virtual const char *get_tooltip(spieler_t *) { return NULL; }
+	virtual const char *get_tooltip(const spieler_t *) const { return NULL; }
 
 	// returning false on init will automatically invoke previous tool
 	virtual bool init( karte_t *, spieler_t * ) { return true; }
@@ -332,10 +332,10 @@ public:
 		wzw = NULL;
 		iconsize = size;
 	}
-	const char *get_tooltip(spieler_t *) { return translator::translate(default_param); }
+	const char *get_tooltip(const spieler_t *) const { return translator::translate(default_param); }
 	werkzeug_waehler_t *get_werkzeug_waehler() const { return wzw; }
 	virtual image_id get_icon(spieler_t *) const;
-	bool is_selected(karte_t *welt) const;
+	bool is_selected(const karte_t *welt) const;
 	virtual bool is_init_network_save() const { return true; }
 	virtual bool is_work_network_save() const { return true; }
 	virtual bool is_move_network_save(spieler_t *) const { return true; }

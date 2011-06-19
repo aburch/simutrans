@@ -679,7 +679,7 @@ const haus_besch_t* hausbauer_t::get_random_station(const haus_besch_t::utyp uty
 			}
 		}
 	}
-	return stops.empty() ? NULL : stops.at_weight(simrand(stops.get_sum_weight(), "const haus_besch_t* hausbauer_t::get_random_station"));
+	return stops.empty() ? 0 : pick_any_weighted(stops);
 }
 
 
@@ -708,7 +708,7 @@ const haus_besch_t* hausbauer_t::get_special(int bev, haus_besch_t::utyp utype, 
 		return auswahl.front();
 	}
 	// now there is something to choose
-	return auswahl.at_weight( simrand(auswahl.get_sum_weight(), "const haus_besch_t* hausbauer_t::get_special") );
+	return pick_any_weighted(auswahl);
 }
 
 
@@ -763,7 +763,7 @@ static const haus_besch_t* get_aus_liste(const vector_tpl<const haus_besch_t*>& 
 		return auswahl.front();
 	}
 	// now there is something to choose
-	return auswahl.at_weight( simrand(auswahl.get_sum_weight(), "static const haus_besch_t* get_aus_liste") );
+	return pick_any_weighted(auswahl);
 }
 
 
@@ -818,7 +818,7 @@ const haus_besch_t *hausbauer_t::waehle_aus_liste(vector_tpl<const haus_besch_t 
 			return auswahl.front();
 		}
 		// now there is something to choose
-		return auswahl.at_weight( simrand(auswahl.get_sum_weight(), "const haus_besch_t *hausbauer_t::waehle_aus_liste") );
+		return pick_any_weighted(auswahl);
 	}
 	return NULL;
 }

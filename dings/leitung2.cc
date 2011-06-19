@@ -476,19 +476,18 @@ pumpe_t::pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , p
 {
 	fab = NULL;
 	supply = 0;
-	sp->buche( welt->get_einstellungen()->cst_transformer, get_pos().get_2d(), COST_CONSTRUCTION);
+	sp->buche(welt->get_settings().cst_transformer, get_pos().get_2d(), COST_CONSTRUCTION);
 }
 
 
 pumpe_t::~pumpe_t()
 {
 	if(fab) {
-		fab->set_prodfaktor( max(16,fab->get_prodfaktor()/2) );
 		fab->set_transformer_connected( NULL );
 		pumpe_list.remove( this );
 		fab = NULL;
 	}
-	spieler_t::add_maintenance(get_besitzer(), welt->get_einstellungen()->cst_maintain_transformer);
+	spieler_t::add_maintenance(get_besitzer(), welt->get_settings().cst_maintain_transformer);
 }
 
 
@@ -526,7 +525,7 @@ void pumpe_t::step(long delta_t)
 void pumpe_t::laden_abschliessen()
 {
 	leitung_t::laden_abschliessen();
-	spieler_t::add_maintenance(get_besitzer(), -welt->get_einstellungen()->cst_maintain_transformer);
+	spieler_t::add_maintenance(get_besitzer(), -welt->get_settings().cst_maintain_transformer);
 
 	if(fab==NULL  &&  get_net()) {
 		fab = leitung_t::suche_fab_4(get_pos().get_2d());
@@ -596,7 +595,7 @@ senke_t::senke_t(karte_t *welt, koord3d pos, spieler_t *sp, stadt_t* c) : leitun
 	delta_sum = 0;
 	last_power_demand = 0;
 	power_load = 0;
-	sp->buche( welt->get_einstellungen()->cst_transformer, get_pos().get_2d(), COST_CONSTRUCTION);
+	sp->buche(welt->get_settings().cst_transformer, get_pos().get_2d(), COST_CONSTRUCTION);
 }
 
 
@@ -608,7 +607,6 @@ senke_t::~senke_t()
 		welt->sync_remove( this );
 		if(fab)
 		{
-			fab->set_prodfaktor( 16 );
 			fab->set_transformer_connected( NULL );
 		}
 		if(city)
@@ -616,7 +614,7 @@ senke_t::~senke_t()
 			city->remove_substation(this);
 		}
 	}
-	spieler_t::add_maintenance(get_besitzer(), welt->get_einstellungen()->cst_maintain_transformer);
+	spieler_t::add_maintenance(get_besitzer(), welt->get_settings().cst_maintain_transformer);
 }
 
 
@@ -738,7 +736,8 @@ void senke_t::step(long delta_t)
 	/* Now actually feed the power through to the factories and city
 	 * Note that a substation cannot supply both a city and factory at once.
 	 */
-	if (fab != NULL && fab->get_city() == NULL) {
+	if (fab != NULL && fab->get_city() == NULL)
+	{
 		// the connected fab gets priority access to the power supply if there's a shortage
 		// This should use 'min', but the current version of that in simtypes.h 
 		// would cast to signed int (12.05.10)  FIXME.
@@ -784,8 +783,22 @@ void senke_t::step(long delta_t)
 		city->add_power_demand((municipal_power_demand>>POWER_TO_MW) * (load_proportion * load_proportion) / 10000);
 	}
 	// Income
-	max_einkommen += last_power_demand * delta_t / PRODUCTION_DELTA_T;
-	einkommen += (((power_load  * delta_t / PRODUCTION_DELTA_T) * load_proportion) / 100);
+	if(!fab || fab->get_besch()->get_electric_amount() == 65535)
+	{
+		// City, or factory demand not specified in pak: use old fixed demands
+		max_einkommen += last_power_demand * delta_t / PRODUCTION_DELTA_T;
+		einkommen += power_load  * delta_t / PRODUCTION_DELTA_T;
+	}
+	else if(welt->ticks_per_world_month_shift >= 18)
+	{
+		max_einkommen += (last_power_demand * delta_t / PRODUCTION_DELTA_T) >> (welt->ticks_per_world_month_shift-18);
+		einkommen += (power_load  * delta_t / PRODUCTION_DELTA_T) >> (welt->ticks_per_world_month_shift-18);
+	}
+	else 
+	{
+		max_einkommen += (last_power_demand * delta_t / PRODUCTION_DELTA_T) << (18-welt->ticks_per_world_month_shift);
+		einkommen += (power_load  * delta_t / PRODUCTION_DELTA_T) << (18-welt->ticks_per_world_month_shift);
+	}
 
 	// Income rollover
 	if(max_einkommen>(2000<<11)) {
@@ -875,7 +888,7 @@ bool senke_t::sync_step(long delta_t)
 void senke_t::laden_abschliessen()
 {
 	leitung_t::laden_abschliessen();
-	spieler_t::add_maintenance(get_besitzer(), -welt->get_einstellungen()->cst_maintain_transformer);
+	spieler_t::add_maintenance(get_besitzer(), -welt->get_settings().cst_maintain_transformer);
 
 	check_industry_connexion();
 

@@ -28,11 +28,10 @@
 
 
 curiositylist_stats_t::curiositylist_stats_t(karte_t* w, curiositylist::sort_mode_t sortby, bool sortreverse) :
-    attractions(10)
+	welt(w)
 {
-	welt = w;
 	get_unique_attractions(sortby,sortreverse);
-	set_groesse(koord(210, attractions.get_count()*(LINESPACE+1)-10));
+	recalc_size();
 	line_selected = 0xFFFFFFFFu;
 }
 
@@ -74,12 +73,14 @@ class compare_curiosities
 void curiositylist_stats_t::get_unique_attractions(curiositylist::sort_mode_t sb, bool sr)
 {
 	const weighted_vector_tpl<gebaeude_t*>& ausflugsziele = welt->get_ausflugsziele();
-	last_world_curiosities = welt->get_ausflugsziele().get_count();
+
 	sortby = sb;
 	sortreverse = sr;
 
 	attractions.clear();
-	attractions.resize(welt->get_ausflugsziele().get_count());
+	last_world_curiosities = ausflugsziele.get_count();
+	attractions.resize(last_world_curiosities);
+
 	for (weighted_vector_tpl<gebaeude_t*>::const_iterator i = ausflugsziele.begin(), end = ausflugsziele.end(); i != end; ++i) {
 		gebaeude_t* geb = *i;
 		if (geb != NULL &&
@@ -130,6 +131,12 @@ bool curiositylist_stats_t::infowin_event(const event_t * ev)
 } // end of function curiositylist_stats_t::infowin_event(const event_t * ev)
 
 
+void curiositylist_stats_t::recalc_size()
+{
+	// show_scroll_x==false ->> groesse.x not important ->> no need to calc text pixel length
+	set_groesse(koord(210, attractions.get_count()*(LINESPACE+1)-10));
+}
+
 
 /**
  * Zeichnet die Komponente
@@ -141,12 +148,13 @@ void curiositylist_stats_t::zeichnen(koord offset)
 	const int start = cd.y-LINESPACE+1;
 	const int end = cd.yy;
 
-	static cbuffer_t buf(256);
+	static cbuffer_t buf;
 	int yoff = offset.y;
 
 	if(  last_world_curiosities != welt->get_ausflugsziele().get_count()  ) {
 		// some deleted/ added => resort
 		get_unique_attractions( sortby, sortreverse );
+		recalc_size();
 	}
 
 	for (uint32 i=0; i<attractions.get_count()  &&  yoff<end; i++) {
@@ -224,10 +232,7 @@ void curiositylist_stats_t::zeichnen(koord offset)
 		}
 		short_name[i] = 0;
 		// now we have a short name ...
-		buf.append(short_name);
-		buf.append(" (");
-		buf.append(geb->get_passagier_level());
-		buf.append(") ");
+		buf.printf("%s (%d)", short_name, geb->get_passagier_level());
 
 		display_proportional_clip(xoff+INDICATOR_WIDTH+10+9,yoff,buf,ALIGN_LEFT,COL_BLACK,true);
 

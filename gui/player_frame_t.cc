@@ -51,7 +51,7 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 			}
 		}
 
-		if(  sp  &&  (welt->get_einstellungen()->get_allow_player_change()  ||  !welt->get_spieler(1)->is_locked())  ) {
+		if (sp && (welt->get_settings().get_allow_player_change() || !welt->get_spieler(1)->is_locked())) {
 			// allow change to human and public
 			add_komponente(player_change_to+i);
 		}
@@ -72,7 +72,7 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 		assert(  spieler_t::MAX_AI==4  );
 
 		// when adding new players, add a name here ...
-		player_select[i].set_selection(welt->get_einstellungen()->get_player_type(i) );
+		player_select[i].set_selection(welt->get_settings().get_player_type(i));
 		player_select[i].add_listener(this);
 		if(  sp!=NULL  ) {
 			player_get_finances[i].set_text( sp->get_name() );
@@ -100,10 +100,10 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 	// freeplay mode
 	freeplay.init( button_t::square_state, "freeplay mode", koord(4,2+(MAX_PLAYER_COUNT-1)*LINESPACE*2) );
 	freeplay.add_listener(this);
-	if(  welt->get_spieler(1)->is_locked()  ||  !welt->get_einstellungen()->get_allow_player_change()  ) {
+	if (welt->get_spieler(1)->is_locked() || !welt->get_settings().get_allow_player_change()) {
 		freeplay.disable();
 	}
-	freeplay.pressed = welt->get_einstellungen()->is_freeplay();
+	freeplay.pressed = welt->get_settings().is_freeplay();
 	add_komponente( &freeplay );
 
 	set_fenstergroesse(koord(295, (MAX_PLAYER_COUNT-1)*LINESPACE*2+16+14+4));
@@ -130,7 +130,7 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t p )
 	static char param[16];
 
 	if(  komp==&freeplay  ) {
-		sprintf( param, "f,0,%i", !welt->get_einstellungen()->is_freeplay() );
+		sprintf(param, "f,0,%i", !welt->get_settings().is_freeplay());
 		werkzeug_t::simple_tool[WKZ_SET_PLAYER_TOOL]->set_default_param( param );
 		welt->set_werkzeug( werkzeug_t::simple_tool[WKZ_SET_PLAYER_TOOL], welt->get_active_player() );
 		return true;
@@ -178,11 +178,11 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t p )
 			remove_komponente( player_active+i-2 );
 			if(  p.i<spieler_t::MAX_AI  &&  p.i>0  ) {
 				add_komponente( player_active+i-2 );
-				welt->access_einstellungen()->set_player_type( i, (uint8)p.i );
+				welt->get_settings().set_player_type(i, (uint8)p.i);
 			}
 			else {
 				player_select[i].set_selection(0);
-				welt->access_einstellungen()->set_player_type( i, 0 );
+				welt->get_settings().set_player_type(i, 0);
 			}
 			break;
 		}
@@ -200,7 +200,7 @@ void ki_kontroll_t::update_data()
 				player_select[i].set_visible(false);
 				player_get_finances[i].set_visible(true);
 				add_komponente(player_get_finances+i);
-				if(welt->get_einstellungen()->get_allow_player_change()  ||  !welt->get_spieler(1)->is_locked()) {
+				if (welt->get_settings().get_allow_player_change() || !welt->get_spieler(1)->is_locked()) {
 					add_komponente(player_change_to+i);
 				}
 				player_get_finances[i].set_text(sp->get_name());
@@ -257,8 +257,8 @@ void ki_kontroll_t::update_data()
  */
 void ki_kontroll_t::zeichnen(koord pos, koord gr)
 {
-	freeplay.pressed = welt->get_einstellungen()->is_freeplay();
-	if(  welt->get_spieler(1)->is_locked()  ||  !welt->get_einstellungen()->get_allow_player_change()  ) {
+	freeplay.pressed = welt->get_settings().is_freeplay();
+	if (welt->get_spieler(1)->is_locked() || !welt->get_settings().get_allow_player_change()) {
 		freeplay.disable();
 	}
 	else {
@@ -277,7 +277,7 @@ void ki_kontroll_t::zeichnen(koord pos, koord gr)
 
 		spieler_t *sp = welt->get_spieler(i);
 		if(  sp!=NULL  ) {
-			if(i!=1  &&  !welt->get_einstellungen()->is_freeplay()  &&  sp->get_finance_history_year(0, COST_NETWEALTH)<0) {
+			if (i != 1 && !welt->get_settings().is_freeplay() && sp->get_finance_history_year(0, COST_NETWEALTH) < 0) {
 				ai_income[i]->set_color( MONEY_MINUS );
 				ai_income[i]->set_pos( koord( gr.x-4, 8+i*2*LINESPACE ) );
 				tstrncpy(account_str[i], translator::translate("Company bankrupt"), lengthof(account_str[i]));

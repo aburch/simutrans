@@ -259,7 +259,7 @@ void button_t::draw_scrollbar(sint16 x, sint16 y, sint16 w, sint16 h, bool horiz
 			// first the center (may need extra clipping)
 			if(h-lh-rh<64) {
 				struct clip_dimension cl=display_get_clip_wh();
-				display_set_clip_wh(cl.x, cl.y, cl.xx, max(0,min(y+h-rh,cl.yy)-cl.y) );
+				display_set_clip_wh(cl.x, cl.y, cl.w, max(0,min(y+h-rh,cl.yy)-cl.y) );
 				display_color_img(skinverwaltung_t::window_skin->get_bild_nr(image_offset+2), x, y+lh, 0, false, true);
 				display_set_clip_wh(cl.x, cl.y, cl.w, cl.h );
 			}

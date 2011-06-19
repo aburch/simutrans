@@ -56,7 +56,7 @@ public:
 	}
 
 	// since citycars and convois can react quite different
-	virtual bool can_overtake(overtaker_t *other_overtaker, int other_speed, int steps_other, int diagonal_length) = 0;
+	virtual bool can_overtake(overtaker_t *other_overtaker, int other_speed, int steps_other, int diagonal_vehicle_steps_per_tile) = 0;
 };
 
 #endif

@@ -34,7 +34,6 @@ class checksum_t;
  * @author  Volker Meyer, Hj. Malthaner
  */
 class way_obj_besch_t : public obj_besch_std_name_t {
-    friend class way_obj_writer_t;
     friend class way_obj_reader_t;
 
 private:

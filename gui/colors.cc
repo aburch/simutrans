@@ -109,7 +109,7 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	// traffic density
 	traffic_density.set_pos( koord(RIGHT_WIDTH-10-45,DENS_TRAFFIC) );
 	traffic_density.set_groesse( koord( 45, BUTTON_HEIGHT-1 ) );
-	traffic_density.set_value( welt->get_einstellungen()->get_verkehr_level() );
+	traffic_density.set_value(welt->get_settings().get_verkehr_level());
 	traffic_density.set_limits( 0, 16 );
 	traffic_density.add_listener(this);
 
@@ -127,14 +127,14 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	buttons[++b].set_pos( koord(10,STOP_WALKER) );
 	buttons[b].set_typ(button_t::square_state);
 	buttons[b].set_text("5LIGHT_CHOOSE");
-	buttons[b].pressed = welt->get_einstellungen()->get_show_pax();
+	buttons[b].pressed =welt->get_settings().get_show_pax();
 	buttons[b].set_tooltip("Pedestrians will appear near stops whenver a passenger vehicle unloads there.");
 
 	//8
 	buttons[++b].set_pos( koord(10,CITY_WALKER) );
 	buttons[b].set_typ(button_t::square_state);
 	buttons[b].set_text("6LIGHT_CHOOSE");
-	buttons[b].pressed = welt->get_einstellungen()->get_random_pedestrians();
+	buttons[b].pressed =welt->get_settings().get_random_pedestrians();
 	buttons[b].set_tooltip("Pedestrians will appear randomly in towns.");
 
 	//9
@@ -210,7 +210,7 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	buttons[++b].set_pos( koord(10,CENTRALISED_SEARCH) );
 	buttons[b].set_typ(button_t::square_state);
 	buttons[b].set_text("Centralised path searching");
-	buttons[b].pressed = welt->get_einstellungen()->get_default_path_option() == 2;
+	buttons[b].pressed =welt->get_settings().get_default_path_option() == 2;
 	buttons[b].set_tooltip("Use centralised instead of distributed path searching system.");
 	if(  umgebung_t::networkmode  ) {
 		buttons[b].disable();
@@ -308,7 +308,7 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 			welt->set_werkzeug( werkzeug_t::simple_tool[WKZ_TRAFFIC_LEVEL&0xFFF], welt->get_active_player() );
 		}
 		else {
-			traffic_density.set_value( welt->get_einstellungen()->get_verkehr_level() );
+			traffic_density.set_value(welt->get_settings().get_verkehr_level());
 		}
 	} else if(&scrollspeed==komp) {
 		umgebung_t::scroll_multi = buttons[6].pressed ? -v.i : v.i;
@@ -394,16 +394,16 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	else if((buttons+20)==komp)
 	{
 		// TEMPORARY: Disable this because the distributed path search causes crashes. Re-enable when fixed.
-		const uint8 current_option = welt->get_einstellungen()->get_default_path_option();
+		const uint8 current_option =welt->get_settings().get_default_path_option();
 		if(current_option == 1)
 		{
-			welt->access_einstellungen()->set_default_path_option(2);
+			welt->get_settings().set_default_path_option(2);
 			buttons[20].pressed = true;
 			path_explorer_t::full_instant_refresh();
 		}
 		else
 		{
-			welt->access_einstellungen()->set_default_path_option(1);
+			welt->get_settings().set_default_path_option(1);
 			buttons[20].pressed = false;
 			haltestelle_t::prepare_pathing_data_structures();
 		}
@@ -421,8 +421,8 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 	char buf[128];
 
 	// can be changed also with keys ...
-	buttons[7].pressed = welt->get_einstellungen()->get_show_pax();
-	buttons[8].pressed = welt->get_einstellungen()->get_random_pedestrians();
+	buttons[ 7].pressed = welt->get_settings().get_show_pax();
+	buttons[ 8].pressed = welt->get_settings().get_random_pedestrians();
 	buttons[11].pressed = umgebung_t::hide_trees;
 	buttons[15].pressed = umgebung_t::station_coverage_show;
 	buttons[16].pressed = grund_t::underground_mode == grund_t::ugm_all;
@@ -501,7 +501,7 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 
 	// Added by : Knightly
 	PLAYER_COLOR_VAL text_colour, figure_colour;
-	if ( welt->get_einstellungen()->get_default_path_option() == 2 )
+	if (welt->get_settings().get_default_path_option() == 2 )
 	{
 		text_colour = COL_BLACK;
 		figure_colour = COL_BLUE;

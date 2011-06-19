@@ -30,7 +30,7 @@
 #define NEVER 0xFFFFU
 
 
-einstellungen_t::einstellungen_t() :
+settings_t::settings_t() :
 	filename(""),
 	heightfield("")
 {
@@ -111,13 +111,16 @@ einstellungen_t::einstellungen_t() :
 
 	factory_worker_percentage = 33;
 	tourist_percentage = 16;
+
 	factory_worker_radius = 77;
 	// try to have at least a single town connected to a factory
 	factory_worker_minimum_towns = 1;
 	// not more than four towns should supply to a factory
 	factory_worker_maximum_towns = 4;
 
+	factory_arrival_periods = 4;
 
+	factory_enforce_demand = true;
 
 #ifdef OTTD_LIKE
 	/* prissi: crossconnect all factories (like OTTD and similar games) */
@@ -437,7 +440,7 @@ einstellungen_t::einstellungen_t() :
 
 
 
-void einstellungen_t::set_default_climates()
+void settings_t::set_default_climates()
 {
 	static sint16 borders[MAX_CLIMATES] = { 0, 0, 0, 3, 6, 8, 10, 10 };
 	memcpy( climate_borders, borders, sizeof(sint16)*MAX_CLIMATES );
@@ -445,7 +448,7 @@ void einstellungen_t::set_default_climates()
 
 
 
-void einstellungen_t::rdwr(loadsave_t *file)
+void settings_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t e( file, "einstellungen_t" );
 
@@ -469,7 +472,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 		file->rdwr_long(dummy );
 		dummy &= 127;
 		if(dummy>63) {
-			dbg->warning("einstellungen_t::rdwr()","This game was saved with too many cities! (%i of maximum 63). Simutrans may crash!",dummy );
+			dbg->warning("settings_t::rdwr()", "This game was saved with too many cities! (%i of maximum 63). Simutrans may crash!", dummy);
 		}
 		anzahl_staedte = dummy;
 
@@ -645,10 +648,9 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			else 
 			{
 				// several roads ...
-				file->rdwr_short( num_city_roads);
-				if(  num_city_roads>=10  ) 
-				{
-					dbg->fatal( "einstellungen_t::rdwr()", "Too many (%i) city roads!", num_city_roads );
+				file->rdwr_short(num_city_roads );
+				if(  num_city_roads>=10  ) {
+					dbg->fatal("settings_t::rdwr()", "Too many (%i) city roads!", num_city_roads);
 				}
 				for(  int i=0;  i<num_city_roads;  i++  ) {
 					file->rdwr_str(city_roads[i].name, lengthof(city_roads[i].name) );
@@ -658,7 +660,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 				// several intercity roads ...
 				file->rdwr_short(num_intercity_roads );
 				if(  num_intercity_roads>=10  ) {
-					dbg->fatal( "einstellungen_t::rdwr()", "Too many (%i) intercity roads!", num_intercity_roads );
+					dbg->fatal("settings_t::rdwr()", "Too many (%i) intercity roads!", num_intercity_roads);
 				}
 				for(  int i=0;  i<num_intercity_roads;  i++  ) {
 					file->rdwr_str(intercity_roads[i].name, lengthof(intercity_roads[i].name) );
@@ -1153,6 +1155,32 @@ void einstellungen_t::rdwr(loadsave_t *file)
 				default_player_color[i][1] = 255;
 			}
 		}
+
+		if(  file->get_version()>=110005  ) {
+			file->rdwr_short(factory_arrival_periods);
+			file->rdwr_bool(factory_enforce_demand);
+		}
+
+		if(  file->get_version()>=110007  ) 
+		{
+			if(file->get_experimental_version() == 0 )
+			{
+				uint16 city_short_range_percentage = passenger_routing_local_chance;
+				uint16 city_medium_range_percentage = passenger_routing_midrange_chance;
+				uint32 city_short_range_radius = local_passengers_max_distance;
+				uint32 city_medium_range_radius = midrange_passengers_max_distance;
+
+				file->rdwr_short(city_short_range_percentage);
+				file->rdwr_short(city_medium_range_percentage);
+				file->rdwr_long(city_short_range_radius);
+				file->rdwr_long(city_medium_range_radius);
+
+				passenger_routing_local_chance = city_short_range_percentage;
+				passenger_routing_midrange_chance = city_medium_range_percentage;
+				local_passengers_max_distance = city_short_range_radius;
+				midrange_passengers_max_distance = city_medium_range_radius;
+			}
+		}
 	}
 }
 
@@ -1160,7 +1188,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 
 
 // read the settings from this file
-void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, sint16 &disp_height, sint16 &fullscreen, std::string &objfilename )
+void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16& disp_height, sint16 &fullscreen, std::string& objfilename)
 {
 	tabfileobj_t contents;
 
@@ -1221,6 +1249,9 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	}
 	if(  *contents.get("server_comment")  ) {
 		umgebung_t::server_comment = ltrim(contents.get("server_comment"));
+	}
+	if(  *contents.get("server_admin_pw")  ) {
+		umgebung_t::server_admin_pw = ltrim(contents.get("server_admin_pw"));
 	}
 
 	// up to ten rivers are possible
@@ -1285,25 +1316,23 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	if (num_city_roads == 0) {
 		// take fallback value: "city_road"
 		tstrncpy(city_roads[0].name, "city_road", lengthof(city_roads[0].name) );
-		rtrim( city_roads[0].name );
 		// default her: always available
 		city_roads[0].intro = 1;
 		city_roads[0].retire = NEVER;
 		num_city_roads = 1;
 	}
 
-	// intercity road
+	// intercity roads
 	// old syntax for single intercity road
 	str = ltrim(contents.get("intercity_road_type") );
-	if(str[0]==0) {
-		str = "asphalt_road";
+	if(  str[0]  ) {
+		num_intercity_roads = 1;
+		tstrncpy(intercity_roads[0].name, str, lengthof(intercity_roads[0].name) );
+		rtrim( intercity_roads[0].name );
+		// default her: always available
+		intercity_roads[0].intro = 1;
+		intercity_roads[0].retire = NEVER;
 	}
-	num_intercity_roads = 1;
-	tstrncpy(intercity_roads[0].name, str, lengthof(intercity_roads[0].name) );
-	rtrim( intercity_roads[0].name );
-	// default her: always available
-	intercity_roads[0].intro = 0;
-	intercity_roads[0].retire = NEVER;
 
 	// new: up to ten intercity_roads are possible
 	if(  *contents.get("intercity_road[0]")  ) {
@@ -1337,11 +1366,25 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 			}
 		}
 	}
+	if (num_intercity_roads == 0) {
+		// take fallback value: "asphalt_road"
+		tstrncpy(intercity_roads[0].name, "asphalt_road", lengthof(intercity_roads[0].name) );
+		// default her: always available
+		intercity_roads[0].intro = 1;
+		intercity_roads[0].retire = NEVER;
+		num_intercity_roads = 1;
+	}
+
 
 	umgebung_t::autosave = (contents.get_int("autosave", umgebung_t::autosave) );
 	umgebung_t::fps = contents.get_int("frames_per_second",umgebung_t::fps );
 
 	// routing stuff
+	uint16 city_short_range_percentage = passenger_routing_local_chance;
+	uint16 city_medium_range_percentage = passenger_routing_midrange_chance;
+	uint32 city_short_range_radius = local_passengers_max_distance;
+	uint32 city_medium_range_radius = midrange_passengers_max_distance;
+
 	max_route_steps = contents.get_int("max_route_steps", max_route_steps );
 	max_hops = contents.get_int("max_hops", max_hops );
 	max_transfers = contents.get_int("max_transfers", max_transfers );
@@ -1352,7 +1395,13 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	factory_worker_radius = contents.get_int("factory_worker_radius", factory_worker_radius );
 	factory_worker_minimum_towns = contents.get_int("factory_worker_minimum_towns", factory_worker_minimum_towns );
 	factory_worker_maximum_towns = contents.get_int("factory_worker_maximum_towns", factory_worker_maximum_towns );
+	factory_arrival_periods = clamp( contents.get_int("factory_arrival_periods", factory_arrival_periods), 1, 16 );
+	factory_enforce_demand = contents.get_int("factory_enforce_demand", factory_enforce_demand) != 0;
 	tourist_percentage = contents.get_int("tourist_percentage", tourist_percentage );
+	city_short_range_percentage = contents.get_int("city_short_range_percentage", city_short_range_percentage);
+	city_medium_range_percentage = contents.get_int("city_medium_range_percentage", city_medium_range_percentage);
+	city_short_range_radius = contents.get_int("city_short_range_radius", city_short_range_radius);
+	city_medium_range_radius = contents.get_int("city_medium_range_radius", city_medium_range_radius);
 	seperate_halt_capacities = contents.get_int("seperate_halt_capacities", seperate_halt_capacities ) != 0;
 	avoid_overcrowding = contents.get_int("avoid_overcrowding", avoid_overcrowding )!=0;
 	passenger_max_wait = contents.get_int("passenger_max_wait", passenger_max_wait); 
@@ -1555,10 +1604,12 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	obsolete_running_cost_increase_phase_years = contents.get_int("obsolete_running_cost_increase_phase_years", obsolete_running_cost_increase_phase_years);
 
 	// Passenger destination ranges
+	uint32 city_short_range_radius_km = city_short_range_radius * distance_per_tile;
+	uint32 city_medium_range_radius_km = city_medium_range_radius * distance_per_tile;
 	local_passengers_min_distance = contents.get_int("local_passengers_min_distance", local_passengers_min_distance) / distance_per_tile;
-	local_passengers_max_distance = contents.get_int("local_passengers_max_distance", local_passengers_max_distance) / distance_per_tile;
+	local_passengers_max_distance = contents.get_int("local_passengers_max_distance", city_short_range_radius_km) / distance_per_tile;
 	midrange_passengers_min_distance = contents.get_int("midrange_passengers_min_distance", midrange_passengers_min_distance) / distance_per_tile;
-	midrange_passengers_max_distance = contents.get_int("midrange_passengers_max_distance", midrange_passengers_max_distance) / distance_per_tile;
+	midrange_passengers_max_distance = contents.get_int("midrange_passengers_max_distance", city_medium_range_radius_km) / distance_per_tile;
 	longdistance_passengers_min_distance = contents.get_int("longdistance_passengers_min_distance", longdistance_passengers_min_distance) / distance_per_tile;
 	longdistance_passengers_max_distance = contents.get_int("longdistance_passengers_max_distance", longdistance_passengers_max_distance) / distance_per_tile;
 	
@@ -1569,12 +1620,12 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 		passenger_routing_packet_size = 7;
 	}
 	max_alternative_destinations = contents.get_int("max_alternative_destinations", max_alternative_destinations);
-	passenger_routing_local_chance  = contents.get_int("passenger_routing_local_chance", passenger_routing_local_chance);
+	passenger_routing_local_chance  = contents.get_int("passenger_routing_local_chance", city_short_range_percentage);
 	if(passenger_routing_local_chance < 1 || passenger_routing_local_chance > 99)
 	{
 		passenger_routing_local_chance = 33;
 	}
-	passenger_routing_midrange_chance = contents.get_int("passenger_routing_midrange_chance", passenger_routing_midrange_chance);
+	passenger_routing_midrange_chance = contents.get_int("passenger_routing_midrange_chance", city_medium_range_percentage);
 	if(passenger_routing_midrange_chance < 1 || passenger_routing_midrange_chance > 99)
 	{
 		passenger_routing_midrange_chance = 33;
@@ -1757,7 +1808,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 }
 
 
-int einstellungen_t::get_name_language_id() const
+int settings_t::get_name_language_id() const
 {
 	int lang = -1;
 	if(  umgebung_t::networkmode  ) {
@@ -1770,7 +1821,7 @@ int einstellungen_t::get_name_language_id() const
 }
 
 
-sint64 einstellungen_t::get_starting_money(sint16 year) const
+sint64 settings_t::get_starting_money(sint16 const year) const
 {
 	if(  starting_money>0  ) {
 		return starting_money;
@@ -1778,11 +1829,9 @@ sint64 einstellungen_t::get_starting_money(sint16 year) const
 
 	// search entry with startingmoneyperyear[i].year > year
 	int i;
-	bool found = false;
 	for(  i=0;  i<10;  i++  ) {
 		if(startingmoneyperyear[i].year!=0) {
 			if (startingmoneyperyear[i].year>year) {
-				found = true;
 				break;
 			}
 		}
@@ -1850,19 +1899,19 @@ static const weg_besch_t *get_timeline_road_type( uint16 year, uint16 num_roads,
 }
 
 
-const weg_besch_t *einstellungen_t::get_city_road_type( uint16 year )
+weg_besch_t const* settings_t::get_city_road_type(uint16 const year)
 {
 	return get_timeline_road_type(year, num_city_roads, city_roads );
 }
 
 
-const weg_besch_t *einstellungen_t::get_intercity_road_type( uint16 year )
+weg_besch_t const* settings_t::get_intercity_road_type(uint16 const year)
 {
 	return get_timeline_road_type(year, num_intercity_roads, intercity_roads );
 }
 
 
-void einstellungen_t::copy_city_road( einstellungen_t &other )
+void settings_t::copy_city_road(settings_t const& other)
 {
 	num_city_roads = other.num_city_roads;
 	for(  int i=0;  i<10;  i++  ) {
@@ -1872,7 +1921,7 @@ void einstellungen_t::copy_city_road( einstellungen_t &other )
 
 
 // returns default player colors for new players
-void einstellungen_t::set_default_player_color( spieler_t *sp ) const
+void settings_t::set_default_player_color(spieler_t* const sp) const
 {
 	COLOR_VAL color1 = default_player_color[sp->get_player_nr()][0];
 	if(  color1 == 255  ) {
@@ -1899,7 +1948,7 @@ void einstellungen_t::set_default_player_color( spieler_t *sp ) const
 				}
 			}
 			// now choose a random empty color
-			color1 = all_colors1[simrand(all_colors1.get_count(), "einstellungen_t::set_default_player_color()")];
+			color1 = pick_any(all_colors1);
 		}
 		else {
 			color1 = sp->get_player_nr();
@@ -1933,7 +1982,7 @@ void einstellungen_t::set_default_player_color( spieler_t *sp ) const
 				}
 			}
 			// now choose a random empty color
-			color2 = all_colors2[simrand(all_colors2.get_count(), "einstellungen_t::set_default_player_color()")];
+			color2 = pick_any(all_colors2);
 		}
 		else {
 			color2 = sp->get_player_nr() + 3;

@@ -45,7 +45,7 @@ bool message_stats_t::filter_messages(const sint32 msg_type)
 		if(  msg_type==-1  ) {
 			// case : no message filtering
 			message_list = &(msg->get_list());
-			set_groesse( koord(600, min(2000, last_count) * BUTTON_HEIGHT + 1) );
+			recalc_size();
 		}
 		else {
 			// case : filter messages belonging to the specified type
@@ -56,7 +56,7 @@ bool message_stats_t::filter_messages(const sint32 msg_type)
 					filtered_messages.append( *iter );
 				}
 			}
-			set_groesse( koord(600, min(2000, filtered_messages.get_count()) * BUTTON_HEIGHT + 1) );
+			recalc_size();
 		}
 		return true;
 	}
@@ -72,11 +72,11 @@ bool message_stats_t::infowin_event(const event_t * ev)
 {
 	message_selected = -1;
 	if(  ev->button_state>0  &&  ev->cx>=2  &&  ev->cx<=12  ) {
-		message_selected = ev->cy/BUTTON_HEIGHT;
+		message_selected = ev->cy/(LINESPACE+1);
 	}
 
 	if(  IS_LEFTRELEASE(ev)  ) {
-		sint32 line = ev->cy/BUTTON_HEIGHT;
+		sint32 line = ev->cy/(LINESPACE+1);
 		if(  (uint32)line<message_list->get_count()  ) {
 			message_t::node &n = *(message_list->at(line));
 			if(  ev->cx>=2  &&  ev->cx<=12  &&  welt->ist_in_kartengrenzen(n.pos)  ) {
@@ -97,7 +97,7 @@ bool message_stats_t::infowin_event(const event_t * ev)
 	}
 	else if(  IS_RIGHTRELEASE(ev)  ) {
 		// just reposition
-		sint32 line = ev->cy/BUTTON_HEIGHT;
+		sint32 line = ev->cy/(LINESPACE+1);
 		if(  (uint32)line<message_list->get_count()  ) {
 			message_t::node &n = *(message_list->at(line));
 			if(  welt->ist_in_kartengrenzen(n.pos)  ) {
@@ -106,6 +106,61 @@ bool message_stats_t::infowin_event(const event_t * ev)
 		}
 	}
 	return false;
+}
+
+
+void message_stats_t::recalc_size()
+{
+	sint16 x_size = 0;
+	sint16 y_size = 0;
+
+	// loop copied from ::zeichnen(), trimmed to minimum for x_size calculation
+
+	for(  slist_tpl<message_t::node *>::const_iterator iter=message_list->begin(), end=message_list->end();  iter!=end;  ++iter, y_size+=(LINESPACE+1)  ) {
+		const message_t::node &n = *(*iter);
+
+		// add time
+		char time[64];
+		switch (umgebung_t::show_month) {
+			case umgebung_t::DATE_FMT_GERMAN:
+			case umgebung_t::DATE_FMT_GERMAN_NO_SEASON:
+				sprintf(time, "(%d.%d)", (n.time%12)+1, n.time/12 );
+				break;
+
+			case umgebung_t::DATE_FMT_MONTH:
+			case umgebung_t::DATE_FMT_US:
+			case umgebung_t::DATE_FMT_US_NO_SEASON:
+				sprintf(time, "(%d/%d)", (n.time%12)+1, n.time/12 );
+				break;
+
+			case umgebung_t::DATE_FMT_JAPANESE:
+			case umgebung_t::DATE_FMT_JAPANESE_NO_SEASON:
+				sprintf(time, "(%d/%d)", n.time/12, (n.time%12)+1 );
+				break;
+
+			default:
+				time[0] = 0;
+		}
+		KOORD_VAL left = 14;
+		if(  time[0]  ) {
+			left += proportional_string_width(time)+8;
+		}
+
+		char buf[256];
+		for(  int j=0;  j<256;  ++j  ) {
+			buf[j] = (n.msg[j]=='\n')?' ':n.msg[j];
+			if(  buf[j]==0  ) {
+				break;
+			}
+		}
+
+		left += proportional_string_width(buf);
+		if(  left>x_size  ) {
+			x_size = left;
+		}
+	}
+
+	set_groesse(koord(x_size+4,y_size));
 }
 
 
@@ -121,7 +176,7 @@ void message_stats_t::zeichnen(koord offset)
 		if(  message_type==-1  ) {
 			// no message filtering -> only update last count and component size
 			last_count = new_count;
-			set_groesse( koord(600, min(2000, last_count) * BUTTON_HEIGHT + 1) );
+			recalc_size();
 		}
 		else {
 			// incrementally add new entries to filtered message list before recalculating component size, and update last count
@@ -134,18 +189,19 @@ void message_stats_t::zeichnen(koord offset)
 				}
 			}
 			// insert new messages to old messages
-			while(  temp_list.get_count()>0  ) {
+			while (!temp_list.empty()) {
 				filtered_messages.insert( temp_list.remove_first() );
 			}
 			last_count = new_count;
-			set_groesse( koord(600, min(2000, filtered_messages.get_count()) * BUTTON_HEIGHT + 1) );
+			recalc_size();
 		}
 	}
 
 	struct clip_dimension cd = display_get_clip_wh();
-	sint16 y = offset.y+1;
+	sint16 y = offset.y+2;
 
-	for(  slist_tpl<message_t::node *>::const_iterator iter=message_list->begin(), end=message_list->end();  iter!=end;  ++iter, y+=BUTTON_HEIGHT  ) {
+	// changes to loop affecting x_size must be copied to ::recalc_size()
+	for(  slist_tpl<message_t::node *>::const_iterator iter=message_list->begin(), end=message_list->end();  iter!=end;  ++iter, y+=(LINESPACE+1)  ) {
 
 		if(  y<cd.y  ) {
 			// below the top
@@ -159,7 +215,7 @@ void message_stats_t::zeichnen(koord offset)
 		// goto information
 		if(  n.pos!=koord::invalid  ) {
 			// goto button
-			display_color_img( message_selected!=((y-offset.y)/BUTTON_HEIGHT) ? button_t::arrow_right_normal : button_t::arrow_right_pushed, offset.x + 4, y, 0, false, true);
+			display_color_img( message_selected!=((y-offset.y)/(LINESPACE+1)) ? button_t::arrow_right_normal : button_t::arrow_right_pushed, offset.x + 2, y, 0, false, true);
 		}
 
 		// correct for player color

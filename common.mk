@@ -1,5 +1,9 @@
-DEPS    = $(filter %.d, $(SOURCES:%.cc=%.d) $(SOURCES:%.c=%.d) $(SOURCES:%.m=%.d) $(SOURCES:%.mm=%.d))
-OBJECTS = $(filter %.o, $(SOURCES:%.cc=%.o) $(SOURCES:%.c=%.o) $(SOURCES:%.m=%.o) $(SOURCES:%.mm=%.o) $(SOURCES:%.rc=%.o))
+DEPS := $(patsubst %, $(BUILDDIR)/%.d, $(basename $(filter-out %.rc, $(SOURCES))))
+OBJS := $(patsubst %, $(BUILDDIR)/%.o, $(basename $(SOURCES)))
+DIRS := $(sort $(dir $(OBJS)))
+
+# Make build directories
+DUMMY := $(shell mkdir -p $(DIRS))
 
 .PHONY: clean depend
 
@@ -11,15 +15,15 @@ else
   Q =
 endif
 
-all: $(PROG)
+all: $(BUILDDIR)/$(PROG)
 
-$(PROG): $(OBJECTS)
+$(BUILDDIR)/$(PROG): $(OBJS)
 	@echo "===> LD  $@"
-	$(Q)$(CXX) $(OBJECTS) $(LDFLAGS) $(LIBS) -o $@
+	$(Q)$(CXX) $(OBJS) $(LDFLAGS) $(LIBS) -o $@
 
 clean:
 	@echo "===> Cleaning up"
-	$(Q)rm -f $(PROG) $(OBJECTS) $(DEPS)
+	$(Q)rm -fr $(BUILDDIR)
 
 -include $(DEPS)
 
@@ -27,22 +31,22 @@ clean:
 %.h:
 	@true
 
-%.o: %.mm
+$(BUILDDIR)/%.o: %.mm
 	@echo "===> Obj-c OSX $<"
 	$(Q)$(CXX) $(CXXFLAGS) $(OBJCFLAGS) -c -MMD -o $@ $<
 
-%.o: %.m
+$(BUILDDIR)/%.o: %.m
 	@echo "===> Obj-c OSX $<"
 	$(Q)$(CXX) $(CXXFLAGS) $(OBJCFLAGS) -c -MMD -o $@ $<
 
-%.o: %.c
+$(BUILDDIR)/%.o: %.c
 	@echo "===> CC  $<"
 	$(Q)$(CC) $(CCFLAGS) -c -MMD -o $@ $<
 
-%.o: %.cc
+$(BUILDDIR)/%.o: %.cc
 	@echo "===> CXX $<"
 	$(Q)$(CXX) $(CXXFLAGS) -c -MMD -o $@ $<
 
-%.o: %.rc
+$(BUILDDIR)/%.o: %.rc
 	@echo "===> RES $<"
 	$(Q)$(WINDRES) -O COFF $< $@

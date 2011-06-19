@@ -27,7 +27,6 @@
  *	2   Bildliste
  */
 class stadtauto_besch_t : public obj_besch_std_name_t {
-	friend class citycar_writer_t;
 	friend class citycar_reader_t;
 
 	uint16 gewichtung;

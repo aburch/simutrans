@@ -15,9 +15,11 @@
 
 news_window::news_window(const char* t, PLAYER_COLOR_VAL title_color) :
 	gui_frame_t("Meldung"),
-	textarea(translator::translate(t), 160),
+	textarea(&buf, 160),
 	color(title_color)
 {
+	buf.clear();
+	buf.append(translator::translate(t));
 	textarea.set_pos( koord(10, 10) );
 	add_komponente( &textarea );
 }

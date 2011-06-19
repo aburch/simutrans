@@ -128,7 +128,7 @@ inline sint32 v_to_speed(const float32e8_t &v)
 
 struct vehicle_summary_t
 {
-	uint32 length;			// sum of vehicles' length in 1/TILE_STEPSth of a tile
+	uint32 length;			// sum of vehicles' length in 1/OBJECT_OFFSET_STEPSth of a tile
 	uint32 tiles;           // length of convoy in tiles.
 	sint32 weight;			// sum of vehicles' own weight without load in kg
 	sint32 max_speed;		// minimum of all vehicles' maximum speed in km/h
@@ -152,7 +152,7 @@ struct vehicle_summary_t
 	inline void update_summary(uint8 length_of_last_vehicle)
 	{
 		// this correction corresponds to the correction in convoi_t::get_tile_length()
-		tiles = (length + (max(8, length_of_last_vehicle) - length_of_last_vehicle) + TILE_STEPS - 1) / TILE_STEPS;
+		tiles = (length + (max(8, length_of_last_vehicle) - length_of_last_vehicle) + OBJECT_OFFSET_STEPS - 1) / OBJECT_OFFSET_STEPS;
 		weight *= 1000;
 	}
 };

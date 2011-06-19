@@ -21,17 +21,12 @@
 #define NOMINMAX 1
 #include <windows.h>
 #else
+#	include <limits.h>
 #ifndef  __HAIKU__
 #include <sys/errno.h>
 #else
 #include <posix/errno.h>
 #endif
-#include <sys/stat.h>
-#endif
-
-
-#ifndef PATH_MAX
-#define PATH_MAX (1024)
 #endif
 
 #undef min
@@ -53,18 +48,14 @@ int dr_os_init(const int*)
 	return TRUE;
 }
 
-int dr_query_screen_width()
+resolution dr_query_screen_resolution()
 {
-	return 0;
-}
-
-int dr_query_screen_height()
-{
-	return 0;
+	resolution const res = { 0, 0 };
+	return res;
 }
 
 // open the window
-int dr_os_open(int, int, int, int)
+int dr_os_open(int, int, int)
 {
 	return TRUE;
 }
@@ -76,58 +67,12 @@ int dr_os_close(void)
 }
 
 // reiszes screen
-int dr_textur_resize(unsigned short** textur, int, int, int)
+int dr_textur_resize(unsigned short** const textur, int, int)
 {
 	*textur = NULL;
 	return 1;
 }
 
-// query home directory
-char *dr_query_homedir(void)
-{
-	static char buffer[PATH_MAX];
-	char b2[PATH_MAX];
-#ifdef _WIN32
-	DWORD len=PATH_MAX-24;
-	HKEY hHomeDir;
-	if(RegOpenKeyExA(HKEY_CURRENT_USER,"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders", 0, KEY_READ, &hHomeDir)==ERROR_SUCCESS) {
-		RegQueryValueExA(hHomeDir,"Personal",NULL,NULL,(BYTE *)buffer,&len);
-		strcat(buffer,"\\Simutrans");
-		CreateDirectoryA( buffer, NULL);
-		strcat(buffer, "\\");
-
-		// create other subdirectories
-		sprintf(b2, "%ssave", buffer );
-		CreateDirectoryA( b2, NULL );
-		sprintf(b2, "%sscreenshot", buffer );
-		CreateDirectoryA( b2, NULL );
-		sprintf(b2, "%smaps", buffer );
-		CreateDirectoryA( b2, NULL );
-
-		return buffer;
-	}
-	return NULL;
-#else
-#ifndef __MACOS__
-	sprintf( buffer, "%s/simutrans", getenv("HOME") );
-#else
-	sprintf( buffer, "%s/Documents/simutrans", getenv("HOME") );
-#endif
-	int err = mkdir( buffer, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH );
-	if(err  &&  err!=EEXIST) {
-		// could not create directory
-		// we assume success anyway
-	}
-	strcat( buffer, "/" );
-	sprintf( b2, "%smaps", buffer );
-	mkdir( b2, 0700 );
-	sprintf( b2, "%sscreenshot", buffer );
-	mkdir( b2, 0700 );
-	sprintf( b2, "%ssave", buffer );
-	mkdir( b2, 0700 );
-	return buffer;
-#endif
-}
 
 unsigned short *dr_textur_init()
 {

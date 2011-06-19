@@ -44,10 +44,10 @@ char convoi_frame_t::name_filter_value[64] = "";
 slist_tpl<const ware_besch_t *> convoi_frame_t::waren_filter;
 
 const char *convoi_frame_t::sort_text[SORT_MODES] = {
-    "cl_btn_sort_name",
-    "cl_btn_sort_income",
-    "cl_btn_sort_type",
-    "cl_btn_sort_id",
+	"cl_btn_sort_name",
+	"cl_btn_sort_income",
+	"cl_btn_sort_type",
+	"cl_btn_sort_id"
 };
 
 
@@ -177,6 +177,7 @@ bool convoi_frame_t::compare_convois(convoihandle_t const cnv1, convoihandle_t c
 void convoi_frame_t::sort_list()
 {
 	const karte_t* welt = owner->get_welt();
+	last_world_convois = welt->get_convoi_count();
 
 	convois.clear();
 	convois.resize( welt->get_convoi_count() );
@@ -207,7 +208,7 @@ convoi_frame_t::convoi_frame_t(spieler_t* sp) :
 {
 	filter_frame = NULL;
 
-	sort_label.set_pos(koord(BUTTON1_X, 4));
+	sort_label.set_pos(koord(BUTTON1_X, 2));
 	add_komponente(&sort_label);
 	sortedby.init(button_t::roundbox, "", koord(BUTTON1_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
 	sortedby.add_listener(this);
@@ -217,7 +218,7 @@ convoi_frame_t::convoi_frame_t(spieler_t* sp) :
 	sorteddir.add_listener(this);
 	add_komponente(&sorteddir);
 
-	filter_label.set_pos(koord(BUTTON3_X, 4));
+	filter_label.set_pos(koord(BUTTON3_X, 2));
 	add_komponente(&filter_label);
 
 	filter_on.init(button_t::roundbox, get_filter(any_filter) ? "cl_btn_filter_enable" : "cl_btn_filter_disable", koord(BUTTON3_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
@@ -228,10 +229,10 @@ convoi_frame_t::convoi_frame_t(spieler_t* sp) :
 	filter_details.add_listener(this);
 	add_komponente(&filter_details);
 
-	set_fenstergroesse(koord(BUTTON4_X+BUTTON_WIDTH+2, 191+16+16));
-	set_min_windowsize(koord(BUTTON4_X+BUTTON_WIDTH+2, 191+16+16));
-
 	sort_list();
+
+	set_fenstergroesse(koord(TOTAL_WIDTH, TITLEBAR_HEIGHT+5*(40)+31+1));
+	set_min_windowsize(koord(TOTAL_WIDTH, TITLEBAR_HEIGHT+2*(40)+31+1));
 
 	set_resizemode(diagonal_resize);
 	resize(koord(0,0));
@@ -258,16 +259,14 @@ bool convoi_frame_t::infowin_event(const event_t *ev)
 	else if(IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev)) {
 		// otherwise these events are only registered where directly over the scroll region
 		// (and sometime even not then ... )
-		vscroll.infowin_event(ev);
-		return true;
+		return vscroll.infowin_event(ev);
 	}
 	else if((IS_LEFTRELEASE(ev)  ||  IS_RIGHTRELEASE(ev))  &&  ev->my>47  &&  ev->mx+11<get_fenstergroesse().x) {
 		int y = (ev->my-47)/40 + vscroll.get_knob_offset();
 		if(y<(sint32)convois.get_count()) {
 			// let gui_convoiinfo_t() handle this, since then it will be automatically consistent
 			gui_convoiinfo_t ci(convois[y], 0);
-			ci.infowin_event( ev );
-			return true;
+			return ci.infowin_event( ev );
 		}
 	}
 	return gui_frame_t::infowin_event(ev);
@@ -314,14 +313,14 @@ void convoi_frame_t::resize(const koord size_change)                          //
 	gui_frame_t::resize(size_change);
 	koord groesse = get_fenstergroesse()-koord(0,47);
 	remove_komponente(&vscroll);
-	if((sint32)convois.get_count()<=groesse.y/40) {
+	vscroll.set_knob( groesse.y/40, convois.get_count() );
+	if(  (sint32)convois.get_count()<=groesse.y/40  ) {
 		vscroll.set_knob_offset(0);
 	}
 	else {
 		add_komponente(&vscroll);
-		vscroll.set_pos(koord(groesse.x-11, 47-16));
-		vscroll.set_groesse(groesse-koord(0,11));
-		vscroll.set_knob( groesse.y/40, convois.get_count() );
+		vscroll.set_pos(koord(groesse.x-scrollbar_t::BAR_SIZE, 47-16-1));
+		vscroll.set_groesse(groesse-koord(scrollbar_t::BAR_SIZE,scrollbar_t::BAR_SIZE));
 		vscroll.set_scroll_amount( 1 );
 	}
 }
@@ -334,10 +333,16 @@ void convoi_frame_t::zeichnen(koord pos, koord gr)
 
 	gui_frame_t::zeichnen(pos, gr);
 
-	PUSH_CLIP(pos.x, pos.y+47, gr.x-11, gr.y-48 );
+	PUSH_CLIP(pos.x, pos.y+47, gr.x-scrollbar_t::BAR_SIZE, gr.y-48 );
 
 	uint32 start = vscroll.get_knob_offset();
 	sint16 yoffset = 47;
+
+	if(  last_world_convois != owner->get_welt()->get_convoi_count()  ) {
+		// some deleted/ added => resort
+		sort_list();
+	}
+
 	for(  unsigned i=start;  i<convois.get_count()  &&  yoffset<gr.y+47;  i++  ) {
 		convoihandle_t cnv = convois[i];
 

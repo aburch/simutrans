@@ -110,6 +110,8 @@ halt_list_filter_frame_t::halt_list_filter_frame_t(spieler_t *sp, halt_list_fram
 	add_komponente(&ware_invers_an);
 
 	ware_scrolly_an.set_pos(koord(125, 33));
+	ware_scrolly_an.set_scroll_amount_y(16);
+	ware_scrolly_an.set_size_corner(false);
 	add_komponente(&ware_scrolly_an);
 
 	for(i=n=0; i<warenbauer_t::get_waren_anzahl(); i++) {
@@ -121,7 +123,7 @@ halt_list_filter_frame_t::halt_list_filter_frame_t(spieler_t *sp, halt_list_fram
 		}
 	}
 	ware_cont_an.set_groesse(koord(100, 16*n + 4));
-	ware_scrolly_an.set_groesse(koord(125, 221));
+	ware_scrolly_an.set_groesse(koord(125, 13*16));
 
 	ware_alle_ab.init(button_t::roundbox, "hlf_btn_alle", koord(265, 17), koord(41, 14));
 	ware_alle_ab.add_listener(this);
@@ -134,6 +136,8 @@ halt_list_filter_frame_t::halt_list_filter_frame_t(spieler_t *sp, halt_list_fram
 	add_komponente(&ware_invers_ab);
 
 	ware_scrolly_ab.set_pos(koord(265, 33));
+	ware_scrolly_ab.set_scroll_amount_y(16);
+	ware_scrolly_ab.set_size_corner(false);
 	add_komponente(&ware_scrolly_ab);
 
 	for(i=n=0; i<warenbauer_t::get_waren_anzahl(); i++) {
@@ -145,7 +149,7 @@ halt_list_filter_frame_t::halt_list_filter_frame_t(spieler_t *sp, halt_list_fram
 		}
 	}
 	ware_cont_ab.set_groesse(koord(100, 16*n + 4));
-	ware_scrolly_ab.set_groesse(koord(125, 221));
+	ware_scrolly_ab.set_groesse(koord(125, 13*16));
 
 	set_fenstergroesse(koord(395, 275));
 }

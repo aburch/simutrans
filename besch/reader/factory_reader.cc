@@ -11,6 +11,23 @@
 #include "factory_reader.h"
 
 
+// Knightly : determine the combined probability of 256 rounds of chances
+uint16 rescale_probability(const uint16 p)
+{
+	if(  p  ) {
+		sint64 pp = ( (sint64)p << 30 ) / 10000LL;
+		sint64 qq = ( 1LL << 30 ) - pp;
+		uint16 ss = 256u;
+		while(  (ss >>= 1)  ) {
+			pp += (pp * qq) >> 30;
+			qq = (qq * qq) >> 30;
+		}
+		return (uint16)(((pp * 10000LL) + (1LL << 29)) >> 30);
+	}
+	return p;
+}
+
+
 obj_besch_t *factory_field_class_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	ALLOCA(char, besch_buf, node.size);
@@ -54,7 +71,7 @@ obj_besch_t *factory_field_group_reader_t::read_node(FILE *fp, obj_node_info_t &
 	uint16 v = decode_uint16(p);
 	if(  v==0x8002  ) {
 		// Knightly : this version only store shared, common data
-		besch->probability = decode_uint16(p);
+		besch->probability = rescale_probability( decode_uint16(p) );
 		besch->max_fields = decode_uint16(p);
 		besch->min_fields = decode_uint16(p);
 		besch->field_classes = decode_uint16(p);
@@ -69,7 +86,7 @@ obj_besch_t *factory_field_group_reader_t::read_node(FILE *fp, obj_node_info_t &
 		field_class_besch_t *const field_class_besch = new field_class_besch_t();
 
 		field_class_besch->snow_image = decode_uint8(p);
-		besch->probability = decode_uint16(p);
+		besch->probability = rescale_probability( decode_uint16(p) );
 		field_class_besch->production_per_field = decode_uint16(p);
 		besch->max_fields = decode_uint16(p);
 		besch->min_fields = decode_uint16(p);
@@ -88,8 +105,6 @@ obj_besch_t *factory_field_group_reader_t::read_node(FILE *fp, obj_node_info_t &
 	else {
 		dbg->fatal("factory_field_group_reader_t::read_node()","unknown version %i", v&0x00ff );
 	}
-
-	besch->probability = 10000 - min(10000, besch->probability);
 
 	return besch;
 }
@@ -245,10 +260,51 @@ obj_besch_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		experimental_version -=1;
 	}
 
-	if(version == 2) 
-	{
+	typedef fabrik_besch_t::site_t site_t;
+	if(version == 3) {
+		// Versioned node, version 3
+		besch->platzierung = (site_t)decode_uint16(p);
+		besch->produktivitaet = decode_uint16(p);
+		besch->bereich = decode_uint16(p);
+		besch->gewichtung = decode_uint16(p);
+		besch->kennfarbe = decode_uint8(p);
+		besch->fields = decode_uint8(p);
+		besch->lieferanten = decode_uint16(p);
+		besch->produkte = decode_uint16(p);
+		besch->pax_level = decode_uint16(p);
+		if(experimental)
+		{
+			besch->electricity_proportion = decode_uint16(p); 
+			besch->inverse_electricity_proportion = 100 / besch->electricity_proportion;
+
+			if(experimental_version >= 1)
+			{
+				besch->upgrades = decode_uint8(p);
+			}
+			else
+			{
+				besch->upgrades = 0;
+			}
+			if(experimental_version > 1)
+			{
+				// Check for incompatible future versions
+				dbg->fatal( "factory_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version );
+			}
+		}
+		besch->expand_probability = rescale_probability( decode_uint16(p) );
+		besch->expand_minimum = decode_uint16(p);
+		besch->expand_range = decode_uint16(p);
+		besch->expand_times = decode_uint16(p);
+		besch->electric_boost = decode_uint16(p);
+		besch->pax_boost = decode_uint16(p);
+		besch->mail_boost = decode_uint16(p);
+		besch->electric_amount = decode_uint16(p);
+		besch->pax_demand = decode_uint16(p);
+		besch->mail_demand = decode_uint16(p);
+		DBG_DEBUG("factory_reader_t::read_node()","version=3, platz=%i, lieferanten=%i, pax=%i", besch->platzierung, besch->lieferanten, besch->pax_level );
+	} else if(version == 2) {
 		// Versioned node, version 2
-		besch->platzierung = (enum fabrik_besch_t::platzierung)decode_uint16(p); //"placement" (Babelfish)
+		besch->platzierung = (site_t)decode_uint16(p); //"placement" (Babelfish)
 		besch->produktivitaet = decode_uint16(p); //"productivity" (Babelfish)
 		besch->bereich = decode_uint16(p); //"range" (Babelfish)
 		besch->gewichtung = decode_uint16(p); //"weighting" (Babelfish)
@@ -282,11 +338,21 @@ obj_besch_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				dbg->fatal( "factory_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version );
 			}
 		}
+		besch->expand_probability = 0;
+		besch->expand_minimum = 0;
+		besch->expand_range = 0;
+		besch->expand_times = 0;
+		besch->electric_boost = 256;
+		besch->pax_boost = 0;
+		besch->mail_boost = 0;
+		besch->electric_amount = 65535;
+		besch->pax_demand = 65535;
+		besch->mail_demand = 65535;
 		DBG_DEBUG("factory_reader_t::read_node()","version=2, platz=%i, lieferanten=%i, pax=%i", besch->platzierung, besch->lieferanten, besch->pax_level );
 	} else if(version == 1) 
 	{
 		// Versioned node, version 1
-		besch->platzierung = (enum fabrik_besch_t::platzierung)decode_uint16(p);
+		besch->platzierung = (site_t)decode_uint16(p);
 		besch->produktivitaet = decode_uint16(p);
 		besch->bereich = decode_uint16(p);
 		besch->gewichtung = decode_uint16(p);
@@ -301,6 +367,16 @@ obj_besch_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->produkte = decode_uint16(p);
 		besch->pax_level = decode_uint16(p);
 		besch->fields = 0;
+		besch->expand_probability = 0;
+		besch->expand_minimum = 0;
+		besch->expand_range = 0;
+		besch->expand_times = 0;
+		besch->electric_boost = 256;
+		besch->pax_boost = 0;
+		besch->mail_boost = 0;
+		besch->electric_amount = 65535;
+		besch->pax_demand = 65535;
+		besch->mail_demand = 65535;
 		DBG_DEBUG("factory_reader_t::read_node()","version=1, platz=%i, lieferanten=%i, pax=%i", besch->platzierung, besch->lieferanten, besch->pax_level);
 	} 
 
@@ -308,7 +384,7 @@ obj_besch_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	{
 		// old node, version 0, without pax_level
 		DBG_DEBUG("factory_reader_t::read_node()","version=0");
-		besch->platzierung = (enum fabrik_besch_t::platzierung)v;
+		besch->platzierung = (site_t)v;
 		decode_uint16(p);	// alsways zero
 		besch->produktivitaet = decode_uint16(p)|0x8000;
 		besch->bereich = decode_uint16(p);
@@ -324,6 +400,16 @@ obj_besch_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->produkte = decode_uint16(p);
 		besch->pax_level = 12;
 		besch->fields = 0;
+		besch->expand_probability = 0;
+		besch->expand_minimum = 0;
+		besch->expand_range = 0;
+		besch->expand_times = 0;
+		besch->electric_boost = 256;
+		besch->pax_boost = 0;
+		besch->mail_boost = 0;
+		besch->electric_amount = 65535;
+		besch->pax_demand = 65535;
+		besch->mail_demand = 65535;
 	}
 
 	if(!experimental)

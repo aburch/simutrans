@@ -40,7 +40,6 @@
 
 
 class sound_besch_t : public obj_besch_std_name_t {
-    friend class sound_writer_t;
     friend class sound_reader_t;
 
 private:
@@ -58,8 +57,6 @@ public:
 	static sint16 get_sound_id(const char *name);
 
 	static bool register_besch(sound_besch_t *besch);
-
-	static bool alles_geladen();
 
 	static void init();
 

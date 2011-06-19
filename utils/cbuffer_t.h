@@ -32,16 +32,11 @@ public:
 	int len() const { return size; }
 
 	/**
-	 * if (is_full) then the buffer has to be extended to be able to receive more chars
-	 */
-	bool is_full() const { return size >= (capacity-1); }
-
-	/**
 	 * Creates a new cbuffer with capacity cap
 	 * @param cap the capacity
 	 * @author Hj. Malthaner
 	 */
-	cbuffer_t(unsigned int size);
+	cbuffer_t();
 	~cbuffer_t();
 
 
@@ -53,22 +48,19 @@ public:
 
 
 	/**
-	 * Appends text. If buffer is full, exceeding text will not
-	 * be appended.
+	 * Appends text. Buffer will be extended if it does not have enough capacity.
 	 * @author Hj. Malthaner
 	 */
 	void append(const char * text);
 
 	/**
-	 * Appends a number. If buffer is full, exceeding digits will not
-	 * be appended.
+	 * Appends a number. Buffer will be extended if it does not have enough capacity.
 	 * @author Hj. Malthaner
 	 */
 	void append(long n);
-
+	
 	/**
-	 * Appends a number. If buffer is full, exceeding digits will not
-	 * be appended.
+	 * Appends a number. Buffer will be extended if it does not have enough capacity.
 	 * @author Hj. Malthaner
 	 */
 	void append(double n, int precision);
@@ -77,7 +69,7 @@ public:
 	void printf(const char* fmt, ...);
 
 	/* enlarge the buffer if needed (i.e. size+by_amount larger than capacity) */
-	void extend( const unsigned int by_amount );
+	void extend(unsigned int by_amount);
 
 	/**
 	 * Automagic conversion to a const char* for backwards compatibility

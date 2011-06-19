@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hansj. Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -63,7 +63,6 @@
 
 #include "vehicle/simpeople.h"
 
-
 karte_t *haltestelle_t::welt = NULL;
 
 slist_tpl<halthandle_t> haltestelle_t::alle_haltestellen;
@@ -84,11 +83,9 @@ haltestelle_t::connexion* haltestelle_t::head_connexion = NULL;
 static uint32 halt_iterator_start = 0;
 uint8 haltestelle_t::status_step = 0;
 
-
 void haltestelle_t::step_all()
 {
-	if(  alle_haltestellen.get_count()>0  ) {
-
+	if (!alle_haltestellen.empty()) {
 		uint32 it = halt_iterator_start;
 		slist_iterator_tpl <halthandle_t> iter( alle_haltestellen );
 		while(  it>0  &&  iter.next()  ) {
@@ -313,7 +310,7 @@ void haltestelle_t::destroy_all(karte_t *welt)
 haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 {
 	self = halthandle_t(this);
-	//markers[ self.get_id() ] = current_mark;
+
 	last_loading_step = wl->get_steps();
 
 	welt = wl;
@@ -343,7 +340,7 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 
 	// Modified by : Knightly
 	// Purpose	   : To withhold creation of pathing data structures if they are not needed
-	if (welt->get_einstellungen()->get_default_path_option() == 2)
+	if (welt->get_settings().get_default_path_option() == 2)
 	{
 		paths = NULL;
 		open_list = NULL;
@@ -409,8 +406,6 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 	assert( !alle_haltestellen.is_contained(self) );
 	alle_haltestellen.append(self);
 
-	//markers[ self.get_id() ] = current_mark;
-
 	last_loading_step = wl->get_steps();
 	welt = wl;
 
@@ -456,7 +451,7 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 
 	// Modified by : Knightly
 	// Purpose	   : To withhold creation of pathing data structures if they are not needed
-	if (welt->get_einstellungen()->get_default_path_option() == 2)
+	if (welt->get_settings().get_default_path_option() == 2)
 	{
 		paths = NULL;
 		open_list = NULL;
@@ -560,10 +555,11 @@ haltestelle_t::~haltestelle_t()
 	}
 
 	// remove from all haltlists
-	ul.x = max( 0, ul.x-welt->get_einstellungen()->get_station_coverage() );
-	ul.y = max( 0, ul.y-welt->get_einstellungen()->get_station_coverage() );
-	lr.x = min( welt->get_groesse_x(), lr.x+1+welt->get_einstellungen()->get_station_coverage() );
-	lr.y = min( welt->get_groesse_y(), lr.y+1+welt->get_einstellungen()->get_station_coverage() );
+	uint16 const cov = welt->get_settings().get_station_coverage();
+	ul.x = max(0, ul.x - cov);
+	ul.y = max(0, ul.y - cov);
+	lr.x = min(welt->get_groesse_x(), lr.x + 1 + cov);
+	lr.y = min(welt->get_groesse_y(), lr.y + 1 + cov);
 	for(  int y=ul.y;  y<lr.y;  y++  ) {
 		for(  int x=ul.x;  x<lr.x;  x++  ) {
 			planquadrat_t *plan = welt->access(x,y);
@@ -745,18 +741,18 @@ void haltestelle_t::set_name(const char *new_name)
 }
 
 
-
 // creates stops with unique! names
-char *haltestelle_t::create_name(const koord k, const char *typ, const int lang)
+char* haltestelle_t::create_name(koord const k, char const* const typ)
 {
+	int const lang = welt->get_settings().get_name_language_id();
 	stadt_t *stadt = welt->suche_naechste_stadt(k);
 	const char *stop = translator::translate(typ,lang);
-	char buf[1024];
+	cbuffer_t buf;
 
 	// this fails only, if there are no towns at all!
 	if(stadt==NULL) {
 		// get a default name
-		sprintf( buf, translator::translate("land stop %i %s",lang), get_besitzer()->get_haltcount(), stop );
+		buf.printf( translator::translate("land stop %i %s",lang), get_besitzer()->get_haltcount(), stop );
 		return strdup(buf);
 	}
 
@@ -770,8 +766,7 @@ char *haltestelle_t::create_name(const koord k, const char *typ, const int lang)
 	// strings for intown / outside of town
 	const bool inside = (li_gr < k.x  &&  re_gr > k.x  &&  ob_gr < k.y  &&  un_gr > k.y);
 
-	if(!welt->get_einstellungen()->get_numbered_stations()) {
-
+	if (!welt->get_settings().get_numbered_stations()) {
 		static const koord next_building[24] = {
 			koord( 0, -1), // nord
 			koord( 1,  0), // ost
@@ -833,10 +828,11 @@ char *haltestelle_t::create_name(const koord k, const char *typ, const int lang)
 		slist_iterator_tpl<fabrik_t*> fab_iter(fabs);
 		while (fab_iter.next()) {
 			// with factories
-			sprintf(buf, fab_base, city_name, translator::translate(fab_iter.get_current()->get_besch()->get_name(),lang), stop );
+			buf.printf( fab_base, city_name, translator::translate(fab_iter.get_current()->get_besch()->get_name(),lang), stop );
 			if(  !all_names.get(buf).is_bound()  ) {
 				return strdup(buf);
 			}
+			buf.clear();
 		}
 
 		// no fabs or all names used up already
@@ -868,10 +864,11 @@ char *haltestelle_t::create_name(const koord k, const char *typ, const int lang)
 				continue;
 			}
 			// now we have a name: try it
-			sprintf(buf, translator::translate("%s building %s %s",lang), city_name, building_name, stop );
+			buf.printf( translator::translate("%s building %s %s",lang), city_name, building_name, stop );
 			if(  !all_names.get(buf).is_bound()  ) {
 				return strdup(buf);
 			}
+			buf.clear();
 		}
 
 		// still all names taken => then try the normal naming scheme ...
@@ -890,32 +887,33 @@ char *haltestelle_t::create_name(const koord k, const char *typ, const int lang)
 		static const char *diagonal_name[4] = { "nordwest", "nordost", "suedost", "suedwest" };
 		static const char *direction_name[4] = { "nord", "ost", "sued", "west" };
 
+		uint8 const rot = welt->get_settings().get_rotation();
 		if (k.y < ob_gr  ||  (inside  &&  k.y*3 < (un_gr+ob_gr+ob_gr))  ) {
 			if (k.x < li_gr) {
-				dirname = diagonal_name[(4-welt->get_einstellungen()->get_rotation())%4];
+				dirname = diagonal_name[(4 - rot) % 4];
 			}
 			else if (k.x > re_gr) {
-				dirname = diagonal_name[(5-welt->get_einstellungen()->get_rotation())%4];
+				dirname = diagonal_name[(5 - rot) % 4];
 			}
 			else {
-				dirname = direction_name[(4-welt->get_einstellungen()->get_rotation())%4];
+				dirname = direction_name[(4 - rot) % 4];
 			}
 		} else if (k.y > un_gr  ||  (inside  &&  k.y*3 > (un_gr+un_gr+ob_gr))  ) {
 			if (k.x < li_gr) {
-				dirname = diagonal_name[(3-welt->get_einstellungen()->get_rotation())%4];
+				dirname = diagonal_name[(3 - rot) % 4];
 			}
 			else if (k.x > re_gr) {
-				dirname = diagonal_name[(6-welt->get_einstellungen()->get_rotation())%4];
+				dirname = diagonal_name[(6 - rot) % 4];
 			}
 			else {
-				dirname = direction_name[(6-welt->get_einstellungen()->get_rotation())%4];
+				dirname = direction_name[(6 - rot) % 4];
 			}
 		} else {
 			if (k.x <= stadt->get_pos().x) {
-				dirname = direction_name[(3-welt->get_einstellungen()->get_rotation())%4];
+				dirname = direction_name[(3 - rot) % 4];
 			}
 			else {
-				dirname = direction_name[(5-welt->get_einstellungen()->get_rotation())%4];
+				dirname = direction_name[(5 - rot) % 4];
 			}
 		}
 		dirname = translator::translate(dirname,lang);
@@ -940,15 +938,16 @@ char *haltestelle_t::create_name(const koord k, const char *typ, const int lang)
 				}
 				if(count_s==3) {
 					// ok, try this name, if free ...
-					sprintf(buf, base_name, city_name, dirname, stop );
+					buf.printf( base_name, city_name, dirname, stop );
 				}
 				else {
 					// ok, try this name, if free ...
-					sprintf(buf, base_name, city_name, stop );
+					buf.printf( base_name, city_name, stop );
 				}
 				if(  !all_names.get(buf).is_bound()  ) {
 					return strdup(buf);
 				}
+				buf.clear();
 			}
 			// here we did not find a suitable name ...
 			// ok, no suitable city names, try the suburb ones ...
@@ -976,10 +975,11 @@ char *haltestelle_t::create_name(const koord k, const char *typ, const int lang)
 
 	// finally: is there a stop with this name already?
 	for(  uint32 i=1;  i<65536;  i++  ) {
-		sprintf(buf, base_name, city_name, i, stop );
+		buf.printf( base_name, city_name, i, stop );
 		if(  !all_names.get(buf).is_bound()  ) {
 			return strdup(buf);
 		}
+		buf.clear();
 	}
 
 	// emergency measure: But before we should run out of handles anyway ...
@@ -1015,7 +1015,7 @@ void haltestelle_t::request_loading( convoihandle_t cnv )
 
 void haltestelle_t::step(sint16 &units_remaining)
 {
-	if (welt->get_einstellungen()->get_default_path_option() != 2)
+	if (welt->get_settings().get_default_path_option() != 2)
 	{
 		if(rebuilt_destination_counter != welt->get_schedule_counter()) 
 		{		
@@ -1103,7 +1103,7 @@ void haltestelle_t::step(sint16 &units_remaining)
 				{
 					// Only consider for discarding if the goods care about their timings.
 					// Goods/passengers' maximum waiting times are proportionate to the length of the journey.
-					const uint16 base_max_minutes = (welt->get_einstellungen()->get_passenger_max_wait() / tmp.get_besch()->get_speed_bonus()) * 10;  // Minutes are recorded in tenths
+					const uint16 base_max_minutes = (welt->get_settings().get_passenger_max_wait() / tmp.get_besch()->get_speed_bonus()) * 10;  // Minutes are recorded in tenths
 					const uint16 thrice_journey = connexions[tmp.get_besch()->get_catg_index()]->get(tmp.get_zwischenziel()) != NULL ? connexions[tmp.get_besch()->get_catg_index()]->get(tmp.get_zwischenziel())->journey_time * 3 : base_max_minutes;
 					const uint16 max_minutes = base_max_minutes < thrice_journey ? base_max_minutes : thrice_journey;
 
@@ -1285,7 +1285,7 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 			if(welt->lookup(ware.get_zielpos())->is_connected(self)) 
 			{
 				// we are already there!
-				if(ware.is_freight()) 
+				if(  ware.to_factory  )
 				{
 					liefere_an_fabrik(ware);
 				}
@@ -1351,7 +1351,7 @@ void haltestelle_t::verbinde_fabriken()
 		grund_t* gb = i->grund;
 		koord p = gb->get_pos().get_2d();
 
-		int cov = welt->get_einstellungen()->get_station_coverage();
+		int const cov = welt->get_settings().get_station_coverage();
 		vector_tpl<fabrik_t*>& fablist = fabrik_t::sind_da_welche(welt, p - koord(cov, cov), p + koord(cov, cov));
 		for(unsigned i=0; i<fablist.get_count(); i++) {
 			fabrik_t* fab = fablist[i];
@@ -1473,7 +1473,7 @@ void haltestelle_t::add_connexion(const uint8 category, const convoihandle_t cnv
 			// Modified by : Knightly
 			// journey_distance += accurate_distance(current_halt->get_basis_pos(), previous_halt->get_basis_pos());
 			accumulated_journey_time += ((accurate_distance(current_halt->get_basis_pos(), previous_halt->get_basis_pos()) 
-										/ average_speed) * welt->get_einstellungen()->get_meters_per_tile() * 60);
+										/ average_speed) *welt->get_settings().get_meters_per_tile() * 60);
 			previous_halt = current_halt;
 			
 			// Journey time in *tenths* of minutes.
@@ -1563,7 +1563,6 @@ sint16 haltestelle_t::create_reachable_halt_list(const schedule_t *const sched, 
 	halt_list.clear();
 	sint16 self_halt_idx = -1;
 
-
 	if (sched && sched_owner)
 	{
 		const uint8 entry_count = sched->get_count();
@@ -1638,7 +1637,7 @@ void haltestelle_t::rebuild_connexions(const uint8 category)
 	if(connexions_timestamp[category] == 0 || reschedule[category])
 	{
 		// Spread the load of rebuilding this with pathing - advance by half the interval.
-		connexions_timestamp[category] += (welt->get_einstellungen()->get_max_rerouting_interval_months() >> 1);
+		connexions_timestamp[category] += (welt->get_settings().get_max_rerouting_interval_months() >> 1);
 	}
 
 	reschedule[category] = false;
@@ -1753,7 +1752,7 @@ void haltestelle_t::calculate_paths(const halthandle_t goal, const uint8 categor
 		return;
 	}
 	
-	if(reschedule[category] || connexions_timestamp[category] <= welt->get_base_pathing_counter() - welt->get_einstellungen()->get_max_rerouting_interval_months())
+	if(reschedule[category] || connexions_timestamp[category] <= welt->get_base_pathing_counter() -welt->get_settings().get_max_rerouting_interval_months())
 	{
 		// Connexions are stale. Recalculate.
 		rebuild_connexions(category);
@@ -1765,7 +1764,7 @@ void haltestelle_t::calculate_paths(const halthandle_t goal, const uint8 categor
 			open_list[category].delete_all_node_objects();
 		}
 	}
-	if(paths_timestamp[category] <= welt->get_base_pathing_counter() - welt->get_einstellungen()->get_max_rerouting_interval_months())
+	if(paths_timestamp[category] <= welt->get_base_pathing_counter() -welt->get_settings().get_max_rerouting_interval_months())
 	{
 		// List is stale. Recalculate.
 		// If this is false, then this is only being called to finish 
@@ -1785,7 +1784,7 @@ void haltestelle_t::calculate_paths(const halthandle_t goal, const uint8 categor
 		// Only reset the list if it is empty, so as to allow for re-using the open
 		// list on subsequent occasions of finding a path. 
 		const uint32 total_halts = alle_haltestellen.get_count();
-		const sint32 max_transfers = welt->get_einstellungen()->get_max_transfers();
+		const sint32 max_transfers =welt->get_settings().get_max_transfers();
 		max_iterations = total_halts * max_transfers;
 		
 		iterations[category] = 0;
@@ -1824,7 +1823,6 @@ void haltestelle_t::calculate_paths(const halthandle_t goal, const uint8 categor
 		{
 			// Set journey time
 			current_path->journey_time = current_node->journey_time;
-
 
 			// Determine immediate transfer halt
 			if (current_node->link == NULL)
@@ -1934,7 +1932,7 @@ haltestelle_t::path* haltestelle_t::get_path_to(halthandle_t goal, uint8 categor
 	assert(goal.is_bound());
 	path* destination_path;
 	
-	if(reschedule[category] || paths_timestamp[category] <= welt->get_base_pathing_counter() - welt->get_einstellungen()->get_max_rerouting_interval_months())
+	if(reschedule[category] || paths_timestamp[category] <= welt->get_base_pathing_counter() -welt->get_settings().get_max_rerouting_interval_months())
 	{
 		// If the paths hashtable is stale, clear it.
 		// This will mean that all the paths will need to be recalculated.
@@ -1962,7 +1960,7 @@ haltestelle_t::path* haltestelle_t::get_path_to(halthandle_t goal, uint8 categor
 quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>* haltestelle_t::get_connexions(uint8 c)
 { 
 
-	if( welt->get_einstellungen()->get_default_path_option() != 2 && ( reschedule[c] || connexions_timestamp[c] <= welt->get_base_pathing_counter() - welt->get_einstellungen()->get_max_rerouting_interval_months() ) )
+	if(welt->get_settings().get_default_path_option() != 2 && ( reschedule[c] || connexions_timestamp[c] <= welt->get_base_pathing_counter() -welt->get_settings().get_max_rerouting_interval_months() ) )
 	{
 		// Rebuild the connexions if they are stale.
 		rebuild_connexions(c);
@@ -2090,8 +2088,8 @@ minivec_tpl<halthandle_t>* haltestelle_t::build_destination_list(ware_t &ware)
 	const koord ziel = ware.get_zielpos();
 
 	// since also the factory halt list is added to the ground, we can use just this ...
-	const planquadrat_t *plan = welt->lookup(ziel);
-	const halthandle_t *halt_list = plan->get_haltlist();
+	const planquadrat_t *const plan = welt->lookup( ware.get_zielpos() );
+	const halthandle_t *const halt_list = plan->get_haltlist();
 	// but we can only use a subset of these
 	minivec_tpl<halthandle_t> *ziel_list = new minivec_tpl<halthandle_t>(plan->get_haltlist_count());
 
@@ -2128,7 +2126,7 @@ uint16 haltestelle_t::find_route(minivec_tpl<halthandle_t> *ziel_list, ware_t &w
 
 
 	// Now, find the best route from here.
-	if ( welt->get_einstellungen()->get_default_path_option() == 2)
+	if (welt->get_settings().get_default_path_option() == 2)
 	{
 		// Added by		: Knightly
 		// Adapted from : James' code
@@ -2250,22 +2248,9 @@ void haltestelle_t::add_pax_no_route(int n)
 
 void haltestelle_t::liefere_an_fabrik(const ware_t& ware) //"deliver to the factory" (Google)
 {
-	slist_iterator_tpl<fabrik_t *> fab_iter(fab_list);
-
-	while(fab_iter.next()) {
-		fabrik_t * fab = fab_iter.get_current();
-
-		const vector_tpl<ware_production_t>& eingang = fab->get_eingang(); // eingang = "input" (Google)
-		if(eingang.get_size() == 0)
-		{
-			continue;
-		}
-		for (uint32 i = 0; i < eingang.get_count(); i++) {
-			if (eingang[i].get_typ() == ware.get_besch() && ware.get_zielpos() == fab->get_pos().get_2d()) {
-				fab->liefere_an(ware.get_besch(), ware.menge);
-				return;
-			}
-		}
+	fabrik_t *const factory = fabrik_t::get_fab( welt, ware.get_zielpos() );
+	if(  factory  ) {
+		factory->liefere_an(ware.get_besch(), ware.menge);
 	}
 }
 
@@ -2320,7 +2305,6 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 
 	if(warray != NULL) 
 	{
-
 		uint32 accumulated_journey_time = 0;
 		halthandle_t previous_halt = self;
 		sint32 average_speed = cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) > 0 ? cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) * 100 : cnv->get_finance_history(0, CONVOI_AVERAGE_SPEED) * 100;
@@ -2350,7 +2334,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 				}
 						
 				accumulated_journey_time += ((accurate_distance(plan_halt->get_basis_pos(), previous_halt->get_basis_pos()) 
-												/ average_speed) * welt->get_einstellungen()->get_meters_per_tile() * 60);
+												/ average_speed) *welt->get_settings().get_meters_per_tile() * 60);
 				
 				//previous_halt = plan_halt;		
 								
@@ -2412,7 +2396,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 							{
 								const connexion* next_connexion = connexions[catg_index]->get(next_transfer);
 								const uint16 average_waiting_minutes = next_connexion != NULL ? next_connexion->waiting_time : 15;
-								const uint16 base_max_minutes = ((welt->get_einstellungen()->get_passenger_max_wait() / speed_bonus) * 10) >> 1;  
+								const uint16 base_max_minutes = ((welt->get_settings().get_passenger_max_wait() / speed_bonus) * 10) >> 1;  
 								const uint16 preferred_travelling_minutes = next_connexion != NULL ? next_connexion->journey_time : 15;
 								// Minutes are recorded in tenths. One third max for this purpose.
 								const uint16 max_minutes = base_max_minutes > preferred_travelling_minutes ? preferred_travelling_minutes : base_max_minutes;
@@ -2461,6 +2445,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 							add_waiting_time(waiting_minutes, neu.get_zwischenziel(), neu.get_besch()->get_catg_index());
 						}
 						resort_freight_info = true;
+
 						return neu;
 					}
 				}			
@@ -2476,7 +2461,6 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 			fpl->increment_index(&index, &reverse);
 		}
 	}
-
 	// empty quantity of required type -> no effect
 	return ware_t (wtyp);
 }
@@ -2554,19 +2538,19 @@ inline uint16 haltestelle_t::get_waiting_minutes(uint32 waiting_ticks) const
 	// can organise their journies according to timetables, so waiting is more efficient.
 
 	// NOTE: distance_per_tile is now a percentage figure rather than a floating point - divide by an extra factor of 100.
-	//return (2 * welt->get_einstellungen()->get_distance_per_tile() * waiting_ticks) / 40960;
+	//return (2 *welt->get_settings().get_distance_per_tile() * waiting_ticks) / 40960;
 	
 	// Note: waiting times now in *tenths* of minutes (hence difference in arithmetic)
-	//uint16 test_minutes_1 = ((float)1 / (1 / (waiting_ticks / 4096.0) * 20) * welt->get_einstellungen()->get_distance_per_tile() * 600.0F);
-	//uint16 test_minutes_2 = (2 * welt->get_einstellungen()->get_distance_per_tile() * waiting_ticks) / 409.6;
+	//uint16 test_minutes_1 = ((float)1 / (1 / (waiting_ticks / 4096.0) * 20) *welt->get_settings().get_distance_per_tile() * 600.0F);
+	//uint16 test_minutes_2 = (2 *welt->get_settings().get_distance_per_tile() * waiting_ticks) / 409.6;
 
-	return (welt->get_einstellungen()->get_meters_per_tile() * waiting_ticks) / (409600L/2);
+	return (welt->get_settings().get_meters_per_tile() * waiting_ticks) / (409600L/2);
 
-	//const uint32 value = (2 * welt->get_einstellungen()->get_distance_per_tile() * waiting_ticks) / 409.6F;
+	//const uint32 value = (2 *welt->get_settings().get_distance_per_tile() * waiting_ticks) / 409.6F;
 	//return value <= 65535 ? value : 65535;
 
 	//Old method (both are functionally equivalent, except for reduction in time. Would be fully equivalent if above was 3 * ...):
-	//return ((float)1 / (1 / (waiting_ticks / 4096.0) * 20) * welt->get_einstellungen()->get_distance_per_tile() * 60.0F);
+	//return ((float)1 / (1 / (waiting_ticks / 4096.0) * 20) *welt->get_settings().get_distance_per_tile() * 60.0F);
 }
 
 uint32 haltestelle_t::get_ware_summe(const ware_besch_t *wtyp) const
@@ -2598,46 +2582,6 @@ uint32 haltestelle_t::get_ware_fuer_zielpos(const ware_besch_t *wtyp, const koor
 	}
 	return 0;
 }
-
-
-
-uint32 haltestelle_t::get_ware_fuer_zwischenziel(const ware_besch_t *wtyp, const halthandle_t zwischenziel) const
-{
-	uint32 sum = 0;
-	const vector_tpl<ware_t> * warray = waren[wtyp->get_catg_index()];
-	if(warray!=NULL) {
-		for(unsigned i=0;  i<warray->get_count();  i++ ) {
-			const ware_t &ware = (*warray)[i];
-			if(wtyp->get_index()==ware.get_index()  &&  ware.get_zwischenziel()==zwischenziel) {
-				sum += ware.menge;
-			}
-		}
-	}
-	return sum;
-}
-
-
-
-
-/**
- * @returns the sum of all waiting goods (100t coal + 10
- * passengers + 2000 liter oil = 2110)
- * @author Markus Weber
- */
-//uint32 haltestelle_t::sum_all_waiting_goods() const      //15-Feb-2002    Markus Weber    Added
-//{
-//	uint32 sum = 0;
-//
-//	for(unsigned i=0; i<warenbauer_t::get_max_catg_index(); i++) {
-//		if(waren[i]) {
-//			for( unsigned j=0;  j<waren[i]->get_count();  j++  ) {
-//				sum += (*(waren[i]))[j].menge;
-//			}
-//		}
-//	}
-//	return sum;
-//}
-
 
 
 bool haltestelle_t::vereinige_waren(const ware_t &ware) //"unite were" (Google)
@@ -2736,7 +2680,7 @@ void haltestelle_t::add_ware_to_halt(ware_t ware, bool from_saved)
 uint32 haltestelle_t::starte_mit_route(ware_t ware)
 {
 	if(ware.get_ziel()==self) {
-		if(ware.is_freight()) {
+		if(  ware.to_factory  ) {
 			// muss an fabrik geliefert werden
 			liefere_an_fabrik(ware);
 		}
@@ -2784,10 +2728,10 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 		return ware.menge;
 	}
 
-	// did we arrived?
+	// have we arrived?
 	if(welt->lookup(ware.get_zielpos())->is_connected(self)) 
 	{
-		if(ware.is_freight()) 
+		if(ware.to_factory) 
 		{
 			// muss an fabrik geliefert werden
 			liefere_an_fabrik(ware);
@@ -2795,7 +2739,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 		else if(ware.get_besch()==warenbauer_t::passagiere) 
 		{
 			// arriving passenger may create pedestrians
-			if(welt->get_einstellungen()->get_show_pax())
+			if(welt->get_settings().get_show_pax())
 			{
 				int menge = ware.menge;
 				for (slist_tpl<tile_t>::const_iterator i = tiles.begin(), end = tiles.end(); menge > 0 && i != end; ++i)
@@ -2901,7 +2845,7 @@ void haltestelle_t::get_freight_info(cbuffer_t & buf)
 		for(unsigned i=0; i<warenbauer_t::get_max_catg_index(); i++) {
 			const vector_tpl<ware_t> * warray = waren[i];
 			if(warray) {
-				freight_list_sorter_t::sort_freight(warray, buf, (freight_list_sorter_t::sort_mode_t)sortierung, NULL, "waiting");
+				freight_list_sorter_t::sort_freight(warray, buf, (freight_list_sorter_t::sort_mode_t)sortierung, NULL, "waiting", welt);
 			}
 		}
 	}
@@ -2925,10 +2869,7 @@ void haltestelle_t::get_short_freight_info(cbuffer_t & buf)
 					buf.append(", ");
 				}
 
-				buf.append(summe);
-				buf.append(translator::translate(wtyp->get_mass()));
-				buf.append(" ");
-				buf.append(translator::translate(wtyp->get_name()));
+				buf.printf("%d%s %s", summe, translator::translate(wtyp->get_mass()), translator::translate(wtyp->get_name()));
 
 				got_one = true;
 			}
@@ -2968,13 +2909,14 @@ sint64 haltestelle_t::calc_maintenance()
 			if(besch->get_base_station_maintenance() == 2147483647)
 			{
 				// Default value - no specific maintenance set. Use the old method
-				maintenance += welt->get_einstellungen()->maint_building * besch->get_level();
+				maintenance += welt->get_settings().maint_building * besch->get_level();
 			}
 			else
 			{
 				// New method - get the specified factor.
 				maintenance += besch->get_station_maintenance();
 			}
+
 		}
 	}
 	return maintenance;
@@ -3002,7 +2944,7 @@ bool haltestelle_t::make_public_and_join( spieler_t *sp )
 				if(besch->get_base_station_maintenance() == 2147483647)
 				{
 					// Default value - no specific maintenance set. Use the old method
-					costs = welt->get_einstellungen()->maint_building * besch->get_level();
+					costs =welt->get_settings().maint_building * besch->get_level();
 				}
 				else
 				{
@@ -3071,7 +3013,7 @@ bool haltestelle_t::make_public_and_join( spieler_t *sp )
 					if(gb->get_tile()->get_besch()->get_base_station_maintenance() == 2147483647)
 					{
 						// Default value - no specific maintenance set. Use the old method
-						costs = welt->get_einstellungen()->maint_building * gb->get_tile()->get_besch()->get_level();
+						costs = welt->get_settings().maint_building * gb->get_tile()->get_besch()->get_level();
 					}
 					else
 					{
@@ -3101,7 +3043,7 @@ bool haltestelle_t::make_public_and_join( spieler_t *sp )
 
 	// tell the world of it ...
 	if(  sp->get_player_nr()!=1  &&  umgebung_t::networkmode  ) {
-		cbuffer_t buf(256);
+		cbuffer_t buf;
 		buf.printf( translator::translate("%s at (%i,%i) now public stop."), get_name(), get_basis_pos().x, get_basis_pos().y );
 		welt->get_message()->add_message( buf, get_basis_pos(), message_t::ai, PLAYER_FLAG|sp->get_player_nr(), IMG_LEER );
 	}
@@ -3138,7 +3080,7 @@ void haltestelle_t::transfer_goods(halthandle_t halt)
  */
 void haltestelle_t::recalc_station_type()
 {
-	int new_station_type = 0;
+	stationtyp new_station_type = invalid;
 	capacity[0] = 0;
 	capacity[1] = 0;
 	capacity[2] = 0;
@@ -3157,7 +3099,7 @@ void haltestelle_t::recalc_station_type()
 			if(besch) {
 				// enabled the matching types
 				enables |= besch->get_enabled();
-				if(  welt->get_einstellungen()->is_seperate_halt_capacities()  ) 
+				if( welt->get_settings().is_seperate_halt_capacities()  ) 
 				{
 					if(besch->get_enabled()&1) 
 					{
@@ -3235,7 +3177,7 @@ void haltestelle_t::recalc_station_type()
 
 		// enabled the matching types
 		enables |= besch->get_enabled();
-		if(  welt->get_einstellungen()->is_seperate_halt_capacities()  ) {
+		if( welt->get_settings().is_seperate_halt_capacities()  ) {
 			if(besch->get_enabled()&1) 
 			{
 				capacity[0] +=  besch->get_station_capacity();
@@ -3255,7 +3197,7 @@ void haltestelle_t::recalc_station_type()
 			capacity[2] = capacity[1] = capacity[0];
 		}
 	}
-	station_type = (haltestelle_t::stationtyp)new_station_type;
+	station_type = new_station_type;
 	recalc_status();
 
 //DBG_DEBUG("haltestelle_t::recalc_station_type()","result=%x, capacity[0]=%i, capacity[1], capacity[2]",new_station_type,capacity[0],capacity[1],capacity[2]);
@@ -3281,6 +3223,25 @@ void haltestelle_t::rdwr(loadsave_t *file)
 	sint32 spieler_n;
 	koord3d k;
 
+	// will restore halthandle_t after loading
+	if(file->get_version() > 110005) {
+		if(file->is_saving()) {
+			uint16 halt_id = self.is_bound() ? self.get_id() : 0;
+			file->rdwr_short(halt_id);
+		}
+		else {
+			uint16 halt_id;
+			file->rdwr_short(halt_id);
+			self.set_id(halt_id);
+			self = halthandle_t(this, halt_id);
+		}
+	}
+	else {
+		if (file->is_loading()) {
+			self = halthandle_t(this);
+		}
+	}
+
 	if(file->is_saving()) {
 		spieler_n = welt->sp2num( besitzer_p );
 	}
@@ -3300,7 +3261,6 @@ void haltestelle_t::rdwr(loadsave_t *file)
 	if(file->is_loading()) {
 		besitzer_p = welt->get_spieler(spieler_n);
 		k.rdwr( file );
-		slist_tpl <grund_t *>grund_list;
 		while(k!=koord3d::invalid) {
 			grund_t *gr = welt->lookup(k);
 			if(!gr) {
@@ -3793,7 +3753,7 @@ bool haltestelle_t::add_grund(grund_t *gr)
 
 	// appends this to the ground
 	// after that, the surrounding ground will know of this station
-	int cov = welt->get_einstellungen()->get_station_coverage();
+	int const cov = welt->get_settings().get_station_coverage();
 	for (int y = -cov; y <= cov; y++) {
 		for (int x = -cov; x <= cov; x++) {
 			koord p=pos+koord(x,y);
@@ -3889,7 +3849,7 @@ bool haltestelle_t::add_grund(grund_t *gr)
 
 	assert(welt->lookup(pos)->get_halt() == self  &&  gr->is_halt());
 	init_pos = tiles.front().grund->get_pos().get_2d();
-	if (welt->get_einstellungen()->get_default_path_option() == 2)
+	if (welt->get_settings().get_default_path_option() == 2)
 	{
 		path_explorer_t::refresh_all_categories(false);
 	}
@@ -3928,7 +3888,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 
 	// now remove tile from list
 	tiles.erase(i);
-	if (welt->get_einstellungen()->get_default_path_option() == 2)
+	if (welt->get_settings().get_default_path_option() == 2)
 	{
 		path_explorer_t::refresh_all_categories(false);
 	}
@@ -3965,7 +3925,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 		pl->get_kartenboden()->set_flag(grund_t::dirty);
 	}
 
-	int cov = welt->get_einstellungen()->get_station_coverage();
+	int const cov = welt->get_settings().get_station_coverage();
 	for (int y = -cov; y <= cov; y++) {
 		for (int x = -cov; x <= cov; x++) {
 			planquadrat_t *pl = welt->access( gr->get_pos().get_2d()+koord(x,y) );
@@ -4053,8 +4013,9 @@ koord haltestelle_t::get_next_pos( koord start ) const
 void haltestelle_t::mark_unmark_coverage(const bool mark) const
 {
 	// iterate over all tiles
+	uint16 const cov = welt->get_settings().get_station_coverage();
+	koord  const size(cov * 2 + 1, cov * 2 + 1);
 	for (slist_tpl<tile_t>::const_iterator i = tiles.begin(), end = tiles.end(); i != end; ++i) {
-		koord size( welt->get_einstellungen()->get_station_coverage()*2+1, welt->get_einstellungen()->get_station_coverage()*2+1);
 		welt->mark_area( i->grund->get_pos()-size/2, size, mark );
 	}
 }
@@ -4185,7 +4146,7 @@ void* haltestelle_t::path::operator new(size_t size)
 	if(head_path == NULL)
 	{
 		uint32 this_chunk;
-		const sint32 max_transfers = welt->get_einstellungen()->get_max_transfers();
+		const sint32 max_transfers =welt->get_settings().get_max_transfers();
 		if(first_run_path)
 		{
 			const uint32 total_halts = alle_haltestellen.get_count();
@@ -4247,7 +4208,7 @@ void* haltestelle_t::path_node::operator new(size_t size)
 	if(head_path_node == NULL)
 	{
 		uint32 this_chunk;
-		const sint32 max_transfers = welt->get_einstellungen()->get_max_transfers();
+		const sint32 max_transfers =welt->get_settings().get_max_transfers();
 		if(first_run_path_node)
 		{
 			const uint32 total_halts = alle_haltestellen.get_count();

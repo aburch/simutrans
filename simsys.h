@@ -42,7 +42,6 @@
 #define SIM_SYSTEM_QUIT             1
 #define SIM_SYSTEM_RESIZE             2
 #define SIM_SYSTEM_UPDATE           3
-#define SIM_F1                      256
 
 /* Globale Variablen zur Messagebearbeitung */
 
@@ -62,14 +61,18 @@ extern struct sys_event sys_event;
 int dr_os_init(const int* parameter);
 
 /* maximum size possible (if there) */
-int dr_query_screen_width();
-int dr_query_screen_height();
+struct resolution
+{
+	int w;
+	int h;
+};
+resolution dr_query_screen_resolution();
 
-int dr_os_open(int w, int h, int bpp, int fullscreen);
+int dr_os_open(int w, int h, int fullscreen);
 int dr_os_close(void);
 
 /* query home directory */
-char *dr_query_homedir(void);
+char const* dr_query_homedir();
 
 unsigned short* dr_textur_init(void);
 
@@ -77,7 +80,7 @@ unsigned short* dr_textur_init(void);
 void dr_textur(int xp, int yp, int w, int h);
 
 /* returns the actual width (might be larger than requested! */
-int dr_textur_resize(unsigned short** textur,int w, int h, int bpp);
+int dr_textur_resize(unsigned short** textur, int w, int h);
 
 // needed for screen update
 void dr_prepare_flush();	// waits, if previous update not yet finished

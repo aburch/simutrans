@@ -1,6 +1,4 @@
-*.d
 *.ncb
-*.o
 *.suo
 *.old
 *.user
@@ -9,6 +7,7 @@
 ipch
 /Debug
 /Release
+/build
 /config.*
 /makeobj/makeobj
 /makeobj/makeobj.exe

@@ -10,7 +10,7 @@ class sound_reader_t : public obj_reader_t {
 	sound_reader_t() { register_reader(); }
 protected:
     virtual void register_obj(obj_besch_t *&data);
-    virtual bool successfully_loaded() const;
+
 public:
     static sound_reader_t*instance() { return &the_instance; }
 

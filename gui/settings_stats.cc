@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2003 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2003 Hj. Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -94,9 +94,11 @@ gui_label_t& settings_stats_t::new_label(koord pos, const char *text)
 }
 
 
-gui_textarea_t& settings_stats_t::new_textarea(koord pos, const char *text)
+gui_textarea_t& settings_stats_t::new_textarea(koord pos, const char* text)
 {
-	gui_textarea_t& ta = * new gui_textarea_t(text);
+	cbuffer_t buf;
+	buf.append(text);
+	gui_textarea_t& ta = * new gui_textarea_t(&buf);
 	ta.set_pos(pos);
 	others.append(&ta);
 	return ta;
@@ -138,7 +140,7 @@ void settings_stats_t::set_cell_component(gui_component_table_t &tbl, gui_kompon
 	tbl.set_groesse(tbl.get_table_size());
 
 
-void settings_experimental_general_stats_t::init( einstellungen_t *sets )
+void settings_experimental_general_stats_t::init( settings_t *sets )
 {
 	INIT_INIT;
 	INIT_NUM( "meters_per_tile", sets->get_meters_per_tile(), 10, 10000, gui_numberinput_t::AUTOLINEAR, false );
@@ -150,7 +152,7 @@ void settings_experimental_general_stats_t::init( einstellungen_t *sets )
 	{
 		gui_component_table_t &tbl = new_table(koord(0, ypos), 3, 2);
 		int row = 0;
-		set_cell_component(tbl, new_textarea(koord(2, 0), translator::translate("revenue of")), 0, 0);
+		set_cell_component(tbl, new_textarea(koord(2, 0),translator::translate("revenue of")), 0, 0);
 		set_cell_component(tbl, new_textarea(koord(2, 0), translator::translate("above\nminutes")), 1, 0);
 		set_cell_component(tbl, new_textarea(koord(2, 0), translator::translate("get\nrevenue $")), 2, 0);
 		row++;
@@ -201,7 +203,7 @@ void settings_experimental_general_stats_t::init( einstellungen_t *sets )
 }
 
 
-void settings_experimental_general_stats_t::read(einstellungen_t *sets)
+void settings_experimental_general_stats_t::read(settings_t *sets)
 {
 	READ_INIT;
 	READ_NUM( sets->set_meters_per_tile );
@@ -243,7 +245,7 @@ void settings_experimental_general_stats_t::read(einstellungen_t *sets)
 }
 
 
-void settings_experimental_revenue_stats_t::init( einstellungen_t *sets )
+void settings_experimental_revenue_stats_t::init( settings_t *sets )
 {
 	INIT_INIT;
 	INIT_NUM( "passenger_routing_packet_size", sets->get_passenger_routing_packet_size(), 1, 64, gui_numberinput_t::AUTOLINEAR, false );
@@ -357,7 +359,7 @@ void settings_experimental_revenue_stats_t::init( einstellungen_t *sets )
 }
 
 
-void settings_experimental_revenue_stats_t::read(einstellungen_t *sets)
+void settings_experimental_revenue_stats_t::read(settings_t *sets)
 {
 	READ_INIT
 	READ_NUM_VALUE( sets->passenger_routing_packet_size );
@@ -426,7 +428,7 @@ bool settings_general_stats_t::action_triggered(gui_action_creator_t *komp, valu
 /* Nearly automatic lists with controls:
  * BEWARE: The init exit pair MUST match in the same order or else!!!
  */
-void settings_general_stats_t::init(einstellungen_t *sets)
+void settings_general_stats_t::init(settings_t const* const sets)
 {
 	INIT_INIT
 //	INIT_BOOL( "drive_left", umgebung_t::drive_on_left );	//cannot be switched after loading paks
@@ -474,7 +476,7 @@ void settings_general_stats_t::init(einstellungen_t *sets)
 	// combobox for savegame version
 	savegame.set_pos( koord(2,ypos-2) );
 	savegame.set_groesse( koord(70,BUTTON_HEIGHT) );
-	for(  int i=0;  i<lengthof(version);  i++  ) {
+	for(  uint32 i=0;  i<lengthof(version);  i++  ) {
 		savegame.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( version[i]+2, COL_BLACK ) );
 		if(  strcmp(version[i],umgebung_t::savegame_version_str)==0  ) {
 			savegame.set_selection( i );
@@ -518,7 +520,7 @@ void settings_general_stats_t::init(einstellungen_t *sets)
 	set_groesse( koord(width, ypos) );
 }
 
-void settings_general_stats_t::read(einstellungen_t *sets)
+void settings_general_stats_t::read(settings_t* const sets)
 {
 	READ_INIT
 //	READ_BOOL_VALUE( umgebung_t::drive_on_left );	//cannot be switched after loading paks
@@ -563,7 +565,7 @@ void settings_general_stats_t::read(einstellungen_t *sets)
 	READ_BOOL_VALUE( umgebung_t::left_to_right_graphs );
 
 	int selected = savegame.get_selection();
-	if(  0 <= selected  &&  selected < lengthof(version)  ) {
+	if(  0 <= selected  &&  (uint32)selected < lengthof(version)  ) {
 		umgebung_t::savegame_version_str = version[ selected ];
 	}
 
@@ -574,7 +576,7 @@ void settings_general_stats_t::read(einstellungen_t *sets)
 }
 
 
-void settings_routing_stats_t::init(einstellungen_t *sets)
+void settings_routing_stats_t::init(settings_t const* const sets)
 {
 	INIT_INIT
 	INIT_BOOL( "seperate_halt_capacities", sets->is_seperate_halt_capacities() );
@@ -598,7 +600,7 @@ void settings_routing_stats_t::init(einstellungen_t *sets)
 	set_groesse( koord(width, ypos) );
 }
 
-void settings_routing_stats_t::read(einstellungen_t *sets)
+void settings_routing_stats_t::read(settings_t* const sets)
 {
 	READ_INIT
 	// routing of goods
@@ -621,7 +623,7 @@ void settings_routing_stats_t::read(einstellungen_t *sets)
 }
 
 
-void settings_economy_stats_t::init(einstellungen_t *sets)
+void settings_economy_stats_t::init(settings_t const* const sets)
 {
 	INIT_INIT
 	INIT_COST( "starting_money", sets->get_starting_money(sets->get_starting_year()), 1, 0x7FFFFFFFul, 10000, false );
@@ -642,6 +644,8 @@ void settings_economy_stats_t::init(einstellungen_t *sets)
 	INIT_NUM( "factory_worker_radius", sets->get_factory_worker_radius(), 0, 32767, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "factory_worker_minimum_towns", sets->get_factory_worker_minimum_towns(), 0, 32767, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "factory_worker_maximum_towns", sets->get_factory_worker_maximum_towns(), 0, 32767, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "factory_arrival_periods", sets->get_factory_arrival_periods(), 1, 16, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_BOOL( "factory_enforce_demand", sets->get_factory_enforce_demand() );
 	INIT_NUM( "factory_worker_percentage", sets->get_factory_worker_percentage(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "tourist_percentage", sets->get_tourist_percentage(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR
@@ -663,7 +667,7 @@ void settings_economy_stats_t::init(einstellungen_t *sets)
 	set_groesse( koord(width, ypos) );
 }
 
-void settings_economy_stats_t::read( einstellungen_t *sets )
+void settings_economy_stats_t::read(settings_t* const sets)
 {
 	READ_INIT
 	sint64 start_money_temp;
@@ -689,6 +693,8 @@ void settings_economy_stats_t::read( einstellungen_t *sets )
 	READ_NUM_VALUE( sets->factory_worker_radius );
 	READ_NUM_VALUE( sets->factory_worker_minimum_towns );
 	READ_NUM_VALUE( sets->factory_worker_maximum_towns );
+	READ_NUM_VALUE( sets->factory_arrival_periods );
+	READ_BOOL_VALUE( sets->factory_enforce_demand );
 	READ_NUM_VALUE( sets->factory_worker_percentage );
 	READ_NUM_VALUE( sets->tourist_percentage );
 	READ_NUM_VALUE( sets->passenger_multiplier );
@@ -705,8 +711,7 @@ void settings_economy_stats_t::read( einstellungen_t *sets )
 }
 
 
-
-void settings_costs_stats_t::init(einstellungen_t *sets)
+void settings_costs_stats_t::init(settings_t const* const sets)
 {
 	INIT_INIT
 	INIT_NUM( "maintenance_building", sets->maint_building, 1, 100000000, 100, false );
@@ -734,7 +739,8 @@ void settings_costs_stats_t::init(einstellungen_t *sets)
 	set_groesse( koord(width, ypos) );
 }
 
-void settings_costs_stats_t::read(einstellungen_t *sets)
+
+void settings_costs_stats_t::read(settings_t* const sets)
 {
 	READ_INIT
 	READ_NUM_VALUE( sets->maint_building );
@@ -767,7 +773,7 @@ void settings_costs_stats_t::read(einstellungen_t *sets)
 #include "../besch/grund_besch.h"
 
 
-void settings_climates_stats_t::init(einstellungen_t *sets)
+void settings_climates_stats_t::init(settings_t* const sets)
 {
 	local_sets = sets;
 	INIT_INIT
@@ -815,7 +821,7 @@ void settings_climates_stats_t::init(einstellungen_t *sets)
 }
 
 
-void settings_climates_stats_t::read(einstellungen_t *sets)
+void settings_climates_stats_t::read(settings_t* const sets)
 {
 	READ_INIT
 	READ_NUM_VALUE( sets->grundwasser );

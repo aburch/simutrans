@@ -25,12 +25,6 @@ public:
 	ribi_t::ribi get_weg_ribi(waytype_t typ) const { return (typ==water_wt) ? ribi : (ribi_t::ribi)ribi_t::keine; }
 	ribi_t::ribi get_weg_ribi_unmasked(waytype_t typ) const  { return (typ==water_wt) ? ribi : (ribi_t::ribi)ribi_t::keine; }
 
-	/**
-	 * Öffnet ein Info-Fenster für diesen Boden
-	 * @author Hj. Malthaner
-	 */
-	virtual bool zeige_info();
-
 	const char *get_name() const {return "Wasser";}
 	grund_t::typ get_typ() const {return wasser;}
 

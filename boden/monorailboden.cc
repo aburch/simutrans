@@ -1,14 +1,8 @@
-#include "../simdebug.h"
+#include "monorailboden.h"
 
-#include "../gui/ground_info.h"
-
-#include "../simimg.h"
 #include "../simworld.h"
-#include "../simhalt.h"
-#include "../besch/grund_besch.h"
 
 #include "../dataobj/loadsave.h"
-#include "monorailboden.h"
 #include "wege/weg.h"
 
 
@@ -18,8 +12,7 @@ monorailboden_t::monorailboden_t(karte_t *welt, koord3d pos,hang_t::typ slope) :
 }
 
 
-void
-monorailboden_t::rdwr(loadsave_t *file)
+void monorailboden_t::rdwr(loadsave_t *file)
 {
 	grund_t::rdwr(file);
 

@@ -17,14 +17,17 @@
 #include "../player/simplay.h"
 
 
+
 farbengui_t::farbengui_t(spieler_t *sp) :
 	gui_frame_t("Meldung",sp),
-	txt(translator::translate("COLOR_CHOOSE\n")),
+	txt(&buf),
 	bild(skinverwaltung_t::color_options->get_bild_nr(0),PLAYER_FLAG|sp->get_player_nr())
 {
 	this->sp = sp;
+	buf.clear();
+	buf.append(translator::translate("COLOR_CHOOSE\n"));
 	set_fenstergroesse( koord(180, 17+6*28) );
-	txt.set_pos( koord(10,10) );
+	txt.set_pos( koord(10,9) );
 	add_komponente( &txt );
 	bild.set_pos( koord(25, 70) );
 	add_komponente( &bild );

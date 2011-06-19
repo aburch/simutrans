@@ -28,10 +28,8 @@ void xref_reader_t::register_obj(obj_besch_t *&data)
 {
 	xref_besch_t* besch = static_cast<xref_besch_t*>(data);
 
-	if (besch->name[0] != '\0') {
+	if (besch->name[0] != '\0' || besch->fatal) {
 		xref_to_resolve(besch->type, besch->name, &data, besch->fatal);
-	} else if (besch->fatal) {
-		xref_to_resolve(besch->type, "", &data, besch->fatal);
 	} else {
 		delete_node(data);
 		data = NULL;

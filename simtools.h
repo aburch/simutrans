@@ -1,6 +1,7 @@
 #ifndef SIMTOOLS_H
 #define SIMTOOLS_H
 
+#include <stddef.h>
 #include "simtypes.h"
 #ifdef DEBUG_SIMRAND_CALLS
 #include "tpl/fixed_list_tpl.h"
@@ -39,5 +40,29 @@ uint16 get_random_mode();
 // just more speed with those (generate a precalculated map, which needs only smoothing)
 void init_perlin_map( sint32 w, sint32 h );
 void exit_perlin_map();
+
+/* Randomly select an entry from the given array. */
+template<typename T, size_t N> T const& pick_any(T const (&array)[N])
+{
+	return array[simrand(N, "template<typename T, size_t N> T const& pick_any(T const (&array)[N])")];
+}
+
+/* Randomly select an entry from the given container. */
+template<typename T, template<typename> class U> T const& pick_any(U<T> const& container)
+{
+	return container[simrand(container.get_count(), "template<typename T, template<typename> class U> T const& pick_any(U<T> const& container)")];
+}
+
+/* Randomly select an entry from the given weighted container. */
+template<typename T, template<typename> class U> T const& pick_any_weighted(U<T> const& container)
+{
+	return container.at_weight(simrand(container.get_sum_weight(), "template<typename T, template<typename> class U> T const& pick_any_weighted(U<T> const& container)"));
+}
+
+/* Randomly select an entry from the given subset of a weighted container. */
+template<typename T, typename U> T const& pick_any_weighted_subset(U const& container)
+{
+	return container.at_weight(simrand(container.get_sum_weight()));
+}
 
 #endif

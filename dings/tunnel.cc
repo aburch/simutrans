@@ -118,7 +118,7 @@ void tunnel_t::laden_abschliessen()
 
 	if(besch==NULL) {
 		// find a matching besch
-		besch = tunnelbauer_t::find_tunnel( (waytype_t)gr->get_weg_nr(0)->get_besch()->get_wtyp(), 450, 0);
+		besch = tunnelbauer_t::find_tunnel(gr->get_weg_nr(0)->get_besch()->get_wtyp(), 450, 0);
 	}
 
 	if(sp) {

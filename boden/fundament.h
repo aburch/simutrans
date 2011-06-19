@@ -31,12 +31,6 @@ public:
 
 	typ get_typ() const { return fundament; }
 
-	/**
-	* Auffforderung, ein Infofenster zu öffnen.
-	* @author Hj. Malthaner
-	*/
-	virtual bool zeige_info();
-
 	bool set_slope(hang_t::typ) { slope = 0; return false; }
 };
 

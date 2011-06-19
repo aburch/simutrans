@@ -130,13 +130,13 @@ void gui_scrolled_list_t::set_groesse(koord groesse) {
 /* resizes scrollbar */
 void gui_scrolled_list_t::adjust_scrollbar()
 {
-	sb.set_pos(koord(groesse.x-12,0));
+	sb.set_pos(koord(groesse.x-scrollbar_t::BAR_SIZE,0));
 
 	int vz = total_vertical_size();
 	// need scrollbar?
 	if ( groesse.y-border < vz) {
 		sb.set_visible(true);
-		sb.set_groesse(koord(10, (int)groesse.y+border));
+		sb.set_groesse(koord(scrollbar_t::BAR_SIZE, (int)groesse.y+border-1));
 		sb.set_knob(groesse.y-border, vz);
 	}
 	else {
@@ -151,7 +151,7 @@ bool gui_scrolled_list_t::infowin_event(const event_t *ev)
 	const int y = ev->cy;
 
 	// size without scrollbar
-	const int w = groesse.x - 13;
+	const int w = groesse.x - scrollbar_t::BAR_SIZE+2;
 	const int h = groesse.y;
 	if(x <= w) { // inside list
 		switch(type) {
@@ -202,7 +202,7 @@ void gui_scrolled_list_t::zeichnen(koord pos)
 
 	const int x = pos.x;
 	const int y = pos.y;
-	const int w = gr.x-13;
+	const int w = gr.x-scrollbar_t::BAR_SIZE;
 	const int h = gr.y;
 
 	switch(type) {
@@ -221,7 +221,7 @@ void gui_scrolled_list_t::zeichnen(koord pos)
 	display_ddd_box(x,y-1,w,h+2, COL_BLACK, COL_WHITE);
 
 	PUSH_CLIP(x+1,y+1,w-2,h-2);
-	int ycum = y+4-offset; // y cumulative
+	int ycum = y+2-offset; // y cumulative
 	int i=0;
 	slist_iterator_tpl<gui_scrolled_list_t::scrollitem_t *>iter( item_list );
 	bool ok = iter.next();
@@ -245,14 +245,14 @@ void gui_scrolled_list_t::zeichnen(koord pos)
 		else {
 			if(i == selection) {
 				// the selection is grey on color
-				display_fillbox_wh_clip(x+3, ycum-1, w-5, 11, highlight_color, true);
+				display_fillbox_wh_clip(x+3, ycum-1, w-5, LINESPACE, highlight_color, true);
 				display_proportional_clip(x+7, ycum, item->get_text(), ALIGN_LEFT, (win_get_focus()==this ? COL_WHITE : MN_GREY3), true);
 			}
 			else {
 				// normal text
 				display_proportional_clip(x+7, ycum, item->get_text(), ALIGN_LEFT, item->get_color(), true);
 			}
-			ycum += 11;
+			ycum += LINESPACE;
 			i++;
 		}
 	}

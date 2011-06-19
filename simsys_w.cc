@@ -4,7 +4,8 @@
  * This file is part of the Simutrans project under the artistic licence.
  */
 
-#ifndef WIN32
+#ifndef SDL
+#ifndef _WIN32
 #error "Only Windows has GDI!"
 #endif
 
@@ -14,8 +15,10 @@
 #endif
 
 #include <stdio.h>
+#include <stdlib.h>
 
 // windows Bibliotheken DirectDraw 5.x
+// "Windows DirectDraw 5.x Libraries" (Babelfish)
 #define UNICODE 1
 // windows.h defines min and max macros which we don't want
 #define NOMINMAX 1
@@ -25,9 +28,6 @@
 #include <mmsystem.h>
 
 #include "simgraph.h"
-
-#undef max
-#undef min
 
 
 // needed for wheel
@@ -46,10 +46,21 @@
 
 #include "simmain.h"
 #include "simmem.h"
+#include "simsys_w32_png.h"
 #include "simversion.h"
 #include "simsys.h"
 #include "simevent.h"
 #include "simdebug.h"
+#include "./dataobj/umgebung.h"
+#include "macros.h"
+
+#if COLOUR_DEPTH == 8
+typedef unsigned char PIXVAL;
+#elif COLOUR_DEPTH == 16
+typedef unsigned short PIXVAL;
+#else
+#	error unknown COLOUR_DEPTH
+#endif
 
 static HWND hwnd;
 static bool is_fullscreen = false;
@@ -59,17 +70,26 @@ static RECT WindowSize = { 0, 0, 0, 0 };
 static RECT MaxSize;
 static HINSTANCE hInstance;
 
-static BITMAPINFOHEADER *AllDib = NULL;
-static unsigned char *AllDibData = NULL;
+static BITMAPINFO* AllDib;
+static PIXVAL*     AllDibData;
 
 volatile HDC hdc = NULL;
 
 const wchar_t* const title =
 #ifdef _MSC_VER
-			L"Simutrans " WIDE_VERSION_NUMBER;
-#else
-			L"" SAVEGAME_PREFIX " " VERSION_NUMBER " - " VERSION_DATE;
+#define TOW_(x) L#x
+#define TOW(x) TOW_(x)
+			L"Simutrans " WIDE_VERSION_NUMBER EXPERIMENTAL_VERSION
+#ifdef REVISION
+			L" - r" TOW(REVISION)
 #endif
+#else
+			L"" SAVEGAME_PREFIX " " VERSION_NUMBER NARROW_EXPERIMENTAL_VERSION " - " VERSION_DATE
+#ifdef REVISION
+			" - r" QUOTEME(REVISION)
+#endif	
+#endif
+;
 
 #ifdef MULTI_THREAD
 
@@ -90,66 +110,32 @@ HANDLE	hFlushThread=0;
  * Schnittstelle untergebracht
  * -> init,open,close
  */
-int dr_os_init(const int* parameter)
+int dr_os_init(const int* /*parameter*/)
 {
 	// prepare for next event
 	sys_event.type = SIM_NOEVENT;
 	sys_event.code = 0;
 
+	timeBeginPeriod(1);
+
 	return TRUE;
 }
 
 
-
-// query home directory
-char *dr_query_homedir()
+resolution dr_query_screen_resolution()
 {
-	static char buffer[1024];
-	char b2[1060];
-	DWORD len=960;
-	HKEY hHomeDir;
-	if(RegOpenKeyExA(HKEY_CURRENT_USER,"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders", 0, KEY_READ,	&hHomeDir)==ERROR_SUCCESS) {
-		RegQueryValueExA(hHomeDir, "Personal", NULL, NULL, (BYTE*)buffer, &len);
-		strcat(buffer,"\\Simutrans");
-		CreateDirectoryA( buffer, NULL );
-		strcat(buffer, "\\");
-
-		// create other subdirectories
-		sprintf(b2, "%ssave", buffer );
-		CreateDirectoryA( b2, NULL );
-		sprintf(b2, "%sscreenshot", buffer );
-		CreateDirectoryA( b2, NULL );
-		sprintf(b2, "%smaps", buffer );
-		CreateDirectoryA( b2, NULL );
-
-		return buffer;
-	}
-	return NULL;
+	resolution res;
+	res.w = GetSystemMetrics(SM_CXSCREEN);
+	res.h = GetSystemMetrics(SM_CYSCREEN);
+	return res;
 }
-
-
-
-/* maximum size possible (if there) */
-int dr_query_screen_width()
-{
-	return GetSystemMetrics( SM_CXSCREEN );
-}
-
-
-
-int dr_query_screen_height()
-{
-	return GetSystemMetrics( SM_CYSCREEN );
-}
-
-
 
 
 // open the window
-int dr_os_open(int w, int h, int bpp, int fullscreen)
+int dr_os_open(int const w, int const h, int fullscreen)
 {
-	MaxSize.right = (w+16)&x7FF0;
-	MaxSize.bottom = h;
+	MaxSize.right = (w+15)&0x7FF0;
+	MaxSize.bottom = h+1;
 
 	// fake fullscreen
 	if (fullscreen) {
@@ -159,7 +145,11 @@ int dr_os_open(int w, int h, int bpp, int fullscreen)
 		MEMZERO(settings);
 		settings.dmSize = sizeof(settings);
 		settings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
-		settings.dmBitsPerPel = 8;
+#if COLOUR_DEPTH != 16 || defined USE_16BIT_DIB
+		settings.dmBitsPerPel = COLOUR_DEPTH;
+#else
+		settings.dmBitsPerPel = 16;
+#endif
 		settings.dmPelsWidth  = w;
 		settings.dmPelsHeight = h;
 		settings.dmDisplayFrequency = 0;
@@ -198,18 +188,40 @@ int dr_os_open(int w, int h, int bpp, int fullscreen)
 	WindowSize.right  = w;
 	WindowSize.bottom = h;
 
-	AllDib = MALLOCE( BITMAPINFOHEADER, RGBQUAD, 256 );
-	AllDib->biSize = sizeof(BITMAPINFOHEADER);
-	AllDib->biPlanes = 1;
-	AllDib->biBitCount = 8;
-	AllDib->biCompression = BI_RGB;
-	AllDib->biXPelsPerMeter = 0;
-	AllDib->biYPelsPerMeter = 0;
-	AllDib->biSizeImage = 0;
-	AllDib->biClrUsed =
-	AllDib->biClrImportant = 224+15;
+#if COLOUR_DEPTH == 8
+	DWORD const clr = 224 + 15;
+	AllDib = MALLOCF(BITMAPINFO, bmiColors, 256);
+#else
+	DWORD const clr = 0;
+	AllDib = MALLOCF(BITMAPINFO, bmiColors, 3);
+#endif
+	BITMAPINFOHEADER& header = AllDib->bmiHeader;
+	header.biSize          = sizeof(BITMAPINFOHEADER);
+	header.biWidth         = w;
+	header.biHeight        = h;
+	header.biPlanes        = 1;
+	header.biBitCount      = COLOUR_DEPTH;
+	header.biCompression   = BI_RGB;
+	header.biSizeImage     = 0;
+	header.biXPelsPerMeter = 0;
+	header.biYPelsPerMeter = 0;
+	header.biClrUsed       = clr;
+	header.biClrImportant  = clr;
+#if COLOUR_DEPTH == 16
+	DWORD* const masks = (DWORD*)AllDib->bmiColors;
+#	ifdef USE_16BIT_DIB
+	header.biCompression   = BI_BITFIELDS;
+	masks[0]               = 0x0000F800;
+	masks[1]               = 0x000007E0;
+	masks[2]               = 0x0000001F;
+#	else
+	masks[0]               = 0x01;
+	masks[1]               = 0x02;
+	masks[2]               = 0x03;
+#	endif
+#endif
 
-	return TRUE;
+	return MaxSize.right;
 }
 
 
@@ -223,37 +235,49 @@ int dr_os_close(void)
 	free(AllDib);
 	AllDib = NULL;
 	ChangeDisplaySettings(NULL, 0);
+
+	timeEndPeriod(1);
+
 	return TRUE;
 }
 
 
 // reiszes screen
-int dr_textur_resize(unsigned short **textur, int w, int h, int bpp)
+int dr_textur_resize(unsigned short** const textur, int w, int const h)
 {
 	WAIT_FOR_SCREEN();
-	if(w>MaxSize.right  ||  h>MaxSize.bottom) {
+
+	// some cards need those alignments
+	w = (w + 15) & 0x7FF0;
+	if(  w<=0  ) {
+		w = 16;
+	}
+
+	if(w>MaxSize.right  ||  h>=MaxSize.bottom) {
 		// since the query routines that return the desktop data do not take into account a change of resolution
 		free(AllDibData);
 		AllDibData = NULL;
-		MaxSize.right = (w+7) & 0xFFF0;
-		MaxSize.bottom = h;
-		AllDibData = MALLOCN(unsigned char, MaxSize.right * MaxSize.bottom );
-		*textur = (unsigned short *)AllDibData;
+		MaxSize.right = w;
+		MaxSize.bottom = h+1;
+		AllDibData = MALLOCN(PIXVAL, MaxSize.right * MaxSize.bottom);
+		*textur = (unsigned short*)AllDibData;
 	}
-	AllDib->biWidth   = w;
-	WindowSize.right  = w;
-	WindowSize.bottom = h;
-	return TRUE;
+
+	AllDib->bmiHeader.biWidth  = w;
+	AllDib->bmiHeader.biHeight = h;
+	WindowSize.right           = w;
+	WindowSize.bottom          = h;
+	return w;
 }
 
 
 unsigned short *dr_textur_init()
 {
 	size_t const n = MaxSize.right * MaxSize.bottom;
-	AllDibData = MALLOCN(unsigned char, n);
+	AllDibData = MALLOCN(PIXVAL, n);
 	// start with black
 	MEMZERON(AllDibData, n);
-	return (unsigned short *)AllDibData;
+	return (unsigned short*)AllDibData;
 }
 
 
@@ -270,7 +294,6 @@ unsigned int get_system_color(unsigned int r, unsigned int g, unsigned int b)
 	return ((r & 0x00F8) << 7) | ((g & 0x00F8) << 2) | (b >> 3); // 15 Bit
 #endif
 }
-
 
 
 void dr_setRGB8multi(int first, int count, unsigned char* data)
@@ -332,14 +355,16 @@ void dr_flush()
 
 void dr_textur(int xp, int yp, int w, int h)
 {
-	AllDib->biHeight = h+1;
-	StretchDIBits(
-		hdc,
-		xp, yp, w, h,
-		xp, h + 1, w, -h,
-		(LPSTR)(AllDibData + yp * WindowSize.right), (LPBITMAPINFO)AllDib,
-		DIB_RGB_COLORS, SRCCOPY
-	);
+	// make really sure we are not beyond screen coordinates
+	h = min( yp+h, WindowSize.bottom ) - yp;
+#ifdef DEBUG
+	w = min( xp+w, WindowSize.right ) - xp;
+	if(  h>1  &&  w>0  )
+#endif
+	{
+		AllDib->bmiHeader.biHeight = h + 1;
+		StretchDIBits(hdc, xp, yp, w, h, xp, h + 1, w, -h, AllDibData + yp * WindowSize.right, AllDib, DIB_RGB_COLORS, SRCCOPY);
+	}
 }
 
 
@@ -360,9 +385,6 @@ void set_pointer(int loading)
 }
 
 
-// try using GDIplus to save an screenshot
-extern "C" bool dr_screenshot_png(char const* filename, int w, int h, unsigned short* data, int bpp);
-
 /**
  * Some wrappers can save screenshots.
  * @return 1 on success, 0 if not implemented for a particular wrapper and -1
@@ -371,8 +393,43 @@ extern "C" bool dr_screenshot_png(char const* filename, int w, int h, unsigned s
  */
 int dr_screenshot(const char *filename)
 {
-	if(!dr_screenshot_png(filename,AllDib->biWidth,WindowSize.bottom + 1,(unsigned short *)AllDibData,8)) {
+#if COLOUR_DEPTH != 16 || defined USE_16BIT_DIB
+	int const bpp = COLOUR_DEPTH;
+#else
+	int const bpp = 15;
+#endif
+	if (!dr_screenshot_png(filename, display_get_width() - 1, WindowSize.bottom + 1, AllDib->bmiHeader.biWidth, (unsigned short*)AllDibData, bpp)) {
+#if COLOUR_DEPTH != 8
 		// not successful => save as BMP
+		FILE *fBmp = fopen(filename, "wb");
+		if (fBmp) {
+			BITMAPFILEHEADER bf;
+
+			// since the number of drawn pixel can be smaller than the actual width => only use the drawn pixel for bitmap
+			LONG const old_width = AllDib->bmiHeader.biWidth;
+			AllDib->bmiHeader.biWidth  = display_get_width() - 1;
+			AllDib->bmiHeader.biHeight = WindowSize.bottom   + 1;
+
+			bf.bfType = 0x4d42; //"BM"
+			bf.bfReserved1 = 0;
+			bf.bfReserved2 = 0;
+			bf.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + sizeof(DWORD)*3;
+			bf.bfSize      = (bf.bfOffBits + AllDib->bmiHeader.biHeight * AllDib->bmiHeader.biWidth * 2L + 3L) / 4L;
+			fwrite(&bf, sizeof(BITMAPFILEHEADER), 1, fBmp);
+			fwrite(AllDib, sizeof(AllDib->bmiHeader) + sizeof(*AllDib->bmiColors) * 3, 1, fBmp);
+
+			for (LONG i = 0; i < AllDib->bmiHeader.biHeight; ++i) {
+				// row must be alsway even number of pixel
+				fwrite(AllDibData + (AllDib->bmiHeader.biHeight - 1 - i) * old_width, (AllDib->bmiHeader.biWidth + 1) & 0xFFFE, 2, fBmp);
+			}
+			AllDib->bmiHeader.biWidth = old_width;
+
+			fclose(fBmp);
+		}
+		else {
+			return -1;
+		}
+#endif
 	}
 	return 0;
 }
@@ -381,6 +438,13 @@ int dr_screenshot(const char *filename)
 /*
  * Hier sind die Funktionen zur Messageverarbeitung
  */
+
+static inline unsigned int ModifierKeys()
+{
+	return
+		(GetKeyState(VK_SHIFT)   < 0  ? 1 : 0) |
+		(GetKeyState(VK_CONTROL) < 0  ? 2 : 0); // highest bit set or return value<0 -> key is pressed
+}
 
 struct sys_event sys_event;
 
@@ -406,7 +470,11 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 					MEMZERO(settings);
 					settings.dmSize = sizeof(settings);
 					settings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
-					settings.dmBitsPerPel = 8;
+#if COLOUR_DEPTH != 16 || defined USE_16BIT_DIB
+					settings.dmBitsPerPel = COLOUR_DEPTH;
+#else
+					settings.dmBitsPerPel = 15;
+#endif
 					settings.dmPelsWidth  = MaxSize.right;
 					settings.dmPelsHeight = MaxSize.bottom;
 					settings.dmDisplayFrequency = 0;
@@ -453,7 +521,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 		case WM_LBUTTONDOWN: /* originally ButtonPress */
 			sys_event.type    = SIM_MOUSE_BUTTONS;
 			sys_event.code    = SIM_MOUSE_LEFTBUTTON;
-			sys_event.key_mod = wParam>>2;
+			sys_event.key_mod = ModifierKeys();
 			sys_event.mb = last_mb = (wParam&3);
 			sys_event.mx      = LOWORD(lParam);
 			sys_event.my      = HIWORD(lParam);
@@ -462,7 +530,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 		case WM_LBUTTONUP: /* originally ButtonRelease */
 			sys_event.type    = SIM_MOUSE_BUTTONS;
 			sys_event.code    = SIM_MOUSE_LEFTUP;
-			sys_event.key_mod = wParam>>2;
+			sys_event.key_mod = ModifierKeys();
 			sys_event.mb = last_mb = (wParam&3);
 			sys_event.mx      = LOWORD(lParam);
 			sys_event.my      = HIWORD(lParam);
@@ -471,7 +539,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 		case WM_RBUTTONDOWN: /* originally ButtonPress */
 			sys_event.type    = SIM_MOUSE_BUTTONS;
 			sys_event.code    = SIM_MOUSE_RIGHTBUTTON;
-			sys_event.key_mod = wParam>>2;
+			sys_event.key_mod = ModifierKeys();
 			sys_event.mb = last_mb = (wParam&3);
 			sys_event.mx      = LOWORD(lParam);
 			sys_event.my      = HIWORD(lParam);
@@ -480,7 +548,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 		case WM_RBUTTONUP: /* originally ButtonRelease */
 			sys_event.type    = SIM_MOUSE_BUTTONS;
 			sys_event.code    = SIM_MOUSE_RIGHTUP;
-			sys_event.key_mod = wParam>>2;
+			sys_event.key_mod = ModifierKeys();
 			sys_event.mb = last_mb = (wParam&3);
 			sys_event.mx      = LOWORD(lParam);
 			sys_event.my      = HIWORD(lParam);
@@ -489,7 +557,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 		case WM_MOUSEMOVE:
 			sys_event.type    = SIM_MOUSE_MOVE;
 			sys_event.code    = SIM_MOUSE_MOVED;
-			sys_event.key_mod = wParam>>2;
+			sys_event.key_mod = ModifierKeys();
 			sys_event.mb = last_mb = (wParam&3);
 			sys_event.mx      = LOWORD(lParam);
 			sys_event.my      = HIWORD(lParam);
@@ -498,6 +566,10 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 		case WM_MOUSEWHEEL:
 			sys_event.type = SIM_MOUSE_BUTTONS;
 			sys_event.code = GET_WHEEL_DELTA_WPARAM(wParam) > 0 ? SIM_MOUSE_WHEELUP : SIM_MOUSE_WHEELDOWN;
+			sys_event.key_mod = ModifierKeys();
+			/* the returned coordinate in LPARAM are absolute coordinates, which will deeply confuse simutrans
+			 * we just reuse the coordinates we used the last time but not chaning mx/my ...
+			 */
 			return 0;
 
 		case WM_SIZE: // resize client area
@@ -524,14 +596,8 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 			WAIT_FOR_SCREEN();
 
 			hdcp = BeginPaint(hwnd, &ps);
-			AllDib->biHeight = WindowSize.bottom;
-			StretchDIBits(
-				hdcp,
-				0, 0, WindowSize.right, WindowSize.bottom,
-				0, WindowSize.bottom + 1, WindowSize.right, -WindowSize.bottom,
-				(LPSTR)AllDibData, (LPBITMAPINFO)AllDib,
-				DIB_RGB_COLORS, SRCCOPY
-			);
+			AllDib->bmiHeader.biHeight = WindowSize.bottom;
+			StretchDIBits(hdcp, 0, 0, WindowSize.right, WindowSize.bottom, 0, WindowSize.bottom + 1, WindowSize.right, -WindowSize.bottom, AllDibData, AllDib, DIB_RGB_COLORS, SRCCOPY);
 			EndPaint(this_hwnd, &ps);
 			break;
 		}
@@ -542,6 +608,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 
 			sys_event.type = SIM_KEYBOARD;
 			sys_event.code = 0;
+			sys_event.key_mod = ModifierKeys();
 
 			if (numlock) {
 				// do low level special stuff here
@@ -577,7 +644,6 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 			// check for F-Keys!
 			if (sys_event.code == 0 && wParam >= VK_F1 && wParam <= VK_F15) {
 				sys_event.code = wParam - VK_F1 + SIM_KEY_F1;
-				sys_event.key_mod = (GetKeyState(VK_CONTROL) != 0) * 2; // control state
 				//printf("WindowsEvent: Key %i, (state %i)\n", sys_event.code, sys_event.key_mod);
 			}
 			// some result?
@@ -590,6 +656,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 		case WM_CHAR: /* originally KeyPress */
 			sys_event.type = SIM_KEYBOARD;
 			sys_event.code = wParam;
+			sys_event.key_mod = ModifierKeys();
 			break;
 
 		case WM_CLOSE:
@@ -653,7 +720,7 @@ void show_pointer(int yesno)
 		state = yesno;
 	}
 }
-
+ 
 
 
 void ex_ord_update_mx_my()
@@ -690,12 +757,9 @@ bool dr_fatal_notify(const char* msg, int choices)
 }
 
 
-BOOL APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
+int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR, int)
 {
 	WNDCLASSW wc;
-	char pathname[1024];
-	char *argv[32], *p;
-	int argc;
 
 	wc.lpszClassName = L"Simu";
 	wc.style = CS_HREDRAW | CS_VREDRAW;
@@ -710,20 +774,25 @@ BOOL APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 
 	RegisterClass(&wc);
 
-	// prepare commandline
-	argc = 0;
-	GetModuleFileNameA( hInstance, pathname, 1024 );
-	argv[argc++] = pathname;
-	p = strtok(lpCmdLine, " ");
-	while (p != NULL) {
-		argv[argc++] = p;
-		p = strtok(NULL, " ");
-	}
-	argv[argc] = NULL;
+	int    const argc = __argc;
+	char** const argv = __argv;
+	char         pathname[1024];
+	GetModuleFileNameA(hInstance, pathname, lengthof(pathname));
+	argv[0] = pathname;
 
 	GetWindowRect(GetDesktopWindow(), &MaxSize);
 
+	// maybe set timer to 1ms intervall on Win2k upwards ...
+	{
+		OSVERSIONINFO osinfo;
+		osinfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+		if (GetVersionEx(&osinfo)  &&  osinfo.dwPlatformId==VER_PLATFORM_WIN32_NT) {
+			timeBeginPeriod(1);
+		}
+	}
+
 	simu_main(argc, argv);
+	timeEndPeriod(1);
 
 #ifdef MULTI_THREAD
 	if(	hFlushThread ) {
@@ -732,3 +801,4 @@ BOOL APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 #endif
 	return 0;
 }
+#endif

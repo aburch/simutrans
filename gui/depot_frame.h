@@ -102,7 +102,7 @@ private:
 	char txt_cnv_name[118];
 	char txt_old_cnv_name[118];
 
-	char txt_convoi_value[40];
+	char txt_convoi_value[80];
 	char txt_convoi_line[128];
 
 	char txt_traction_types[256];

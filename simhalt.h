@@ -25,6 +25,7 @@
 
 #include "tpl/slist_tpl.h"
 #include "tpl/vector_tpl.h"
+#include "tpl/binary_heap_tpl.h"
 
 #include "tpl/quickstone_hashtable_tpl.h"
 #include "tpl/koordhashtable_tpl.h"
@@ -44,8 +45,9 @@
 #define HALT_CONVOIS_ARRIVED        6 // number of convois arrived this month
 #define HALT_TOO_SLOW		        7 // The number of passengers whose estimated journey time exceeds their tolerance.
 
-#define RESCHEDULING (1)
+#define RECONNECTING (1)
 #define REROUTING (2)
+#define RESCHEDULING (3)
 
 
 class cbuffer_t;
@@ -285,6 +287,23 @@ public:
 
 	const slist_tpl<tile_t> &get_tiles() const { return tiles; };
 
+	/**
+	 * directly reachable halt with its connection weight
+	 * @author Knightly
+	 */
+	struct connection_t
+	{
+		halthandle_t halt;
+		uint16 weight;
+
+		connection_t() : weight(0) { }
+		connection_t(halthandle_t _halt, uint16 _weight=0) : halt(_halt), weight(_weight) { }
+
+		bool operator == (const connection_t &other) const { return halt == other.halt; }
+		bool operator != (const connection_t &other) const { return halt != other.halt; }
+		static bool compare(const connection_t &a, const connection_t &b) { return a.halt.get_id() < b.halt.get_id(); }
+	};
+
 private:
 	slist_tpl<tile_t> tiles;
 
@@ -327,6 +346,7 @@ private:
 	 * For each line/lineless convoy which serves the current halt, this
 	 * counter is incremented. Each ware category needs a separate counter.
 	 * If this counter is more than 1, this halt is a transfer halt.
+
 	 * @author Knightly
 	 */
 	uint8 *non_identical_schedules;
@@ -350,18 +370,14 @@ private:
 	stationtyp station_type;
 
 	uint8 rebuilt_destination_counter;	// new schedule, first rebuilt destinations asynchroniously
+	uint8 reroute_counter;						// then, reroute goods
 
-	uint8 reroute_counter;						// the reroute goods
 	// since we do partial routing, we remeber the last offset
 	uint8 last_catg_index;
 	uint32 last_ware_index;
 
 	/* station flags (most what enabled) */
 	uint8 enables;
-
-	void set_pax_enabled(bool yesno)  { yesno ? enables |= PAX  : enables &= ~PAX;  }
-	void set_post_enabled(bool yesno) { yesno ? enables |= POST : enables &= ~POST; }
-	void set_ware_enabled(bool yesno) { yesno ? enables |= WARE : enables &= ~WARE; }
 
 	/**
 	 * Found route and station uncrowded
@@ -596,29 +612,23 @@ public:
 	minivec_tpl<halthandle_t>* build_destination_list(ware_t &ware);
 	uint16 find_route(minivec_tpl<halthandle_t> *ziel_list, ware_t & ware, const uint16 journey_time = 65535);
 
-	int get_pax_enabled()  const { return enables & PAX;  }
-	int get_post_enabled() const { return enables & POST; }
-	int get_ware_enabled() const { return enables & WARE; }
+	bool get_pax_enabled()  const { return enables & PAX;  }
+	bool get_post_enabled() const { return enables & POST; }
+	bool get_ware_enabled() const { return enables & WARE; }
 
 	// check, if we accepts this good
 	// often called, thus inline ...
-	int is_enabled( const ware_besch_t *wtyp ) {
-		if(wtyp==warenbauer_t::passagiere) {
-			return enables&PAX;
-		}
-		else if(wtyp==warenbauer_t::post) {
-			return enables&POST;
-		}
-		return enables&WARE;
+	bool is_enabled( const ware_besch_t *wtyp ) {
+		return is_enabled(wtyp->get_catg_index());
 	}
 
 	// a separate version for checking with goods category index
-	int is_enabled( const uint8 ctg )
+	bool is_enabled( const uint8 catg_index )
 	{
-		if (ctg==0) {
+		if (catg_index == warenbauer_t::INDEX_PAS) {
 			return enables&PAX;
 		}
-		else if(ctg==1) {
+		else if(catg_index == warenbauer_t::INDEX_MAIL) {
 			return enables&POST;
 		}
 		return enables&WARE;
@@ -688,12 +698,6 @@ public:
 	 */
 	uint32 get_ware_fuer_zielpos(const ware_besch_t *warentyp, const koord zielpos) const;
 
-	/**
-	 * gibt Gesamtmenge derw are vom typ typ fuer zwischenziel zurück
-	 * @author prissi
-	 */
-	uint32 get_ware_fuer_zwischenziel(const ware_besch_t *warentyp, const halthandle_t zwischenziel) const;
-
 	// true, if we accept/deliver this kind of good
 	bool gibt_ab(const ware_besch_t *warentyp) const { return waren[warentyp->get_catg_index()] != NULL; }
 
@@ -703,14 +707,10 @@ public:
 	bool recall_ware( ware_t& w, uint32 menge );
 
 	/**
-	 * holt ware ab
-	 * fetches ware from (Google)
-	 *
-	 * @return abgeholte menge
-	 * @return collected volume (Google)
-	 * @author Hj. Malthaner
+	 * fetches goods from this halt
+	 * @param fracht goods will be put into this list, vehicle has to load it
+	 * @author Hj. Malthaner, dwachs
 	 */
-
 	ware_t hole_ab( const ware_besch_t *warentyp, uint32 menge, const schedule_t *fpl, const spieler_t *sp, convoi_t* cnv, bool overcrowd);
 
 	/* liefert ware an. Falls die Ware zu wartender Ware dazugenommen
@@ -797,7 +797,7 @@ public:
 	void set_name(const char *name);
 
 	// create an unique name: better to be called with valid handle, althoug it will work without
-	char *create_name(const koord k, const char *typ, const int lang);
+	char* create_name(koord k, char const* typ);
 
 	void rdwr(loadsave_t *file);
 
@@ -974,4 +974,7 @@ public:
 	 */
 	int get_queue_pos(convoihandle_t cnv) const;
 };
+
+ENUM_BITSET(haltestelle_t::stationtyp)
+
 #endif

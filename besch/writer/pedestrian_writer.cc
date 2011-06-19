@@ -1,6 +1,5 @@
 #include <string>
 #include "../../dataobj/tabfile.h"
-#include "../fussgaenger_besch.h"
 #include "obj_node.h"
 #include "text_writer.h"
 #include "imagelist_writer.h"
@@ -9,14 +8,13 @@
 
 void pedestrian_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	fussgaenger_besch_t besch;
 	int i;
 
 	obj_node_t node(this, 4, &parent);
 
 	write_head(fp, node, obj);
 
-	besch.gewichtung = obj.get_int("distributionweight", 1);
+	uint16 const gewichtung = obj.get_int("distributionweight", 1);
 
 	static const char* const dir_codes[] = {
 		"s", "w", "sw", "se", "n", "e", "ne", "nw"
@@ -33,8 +31,8 @@ void pedestrian_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& 
 	}
 	imagelist_writer_t::instance()->write_obj(fp, node, keys);
 
-	node.write_uint16(fp, besch.gewichtung, 0);
-	node.write_uint16(fp, 0,                2); //dummy, unused (and uninitialized in past versions)
+	node.write_uint16(fp, gewichtung, 0);
+	node.write_uint16(fp, 0,          2); //dummy, unused (and uninitialized in past versions)
 
 	node.write(fp);
 }

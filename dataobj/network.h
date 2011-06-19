@@ -6,6 +6,8 @@
 #ifdef _WIN32
 // must be include before all simutrans stuff!
 
+#define NOMINMAX 1
+
 // first: we must find out version number
 #ifndef WINVER
 #	define _WINSOCKAPI_
@@ -23,11 +25,12 @@
 #	include <WinSock2.h>
 #	include <ws2tcpip.h>
 #endif
-#	undef min
-#	undef max
 #	ifndef IPV6_V6ONLY
 #		define IPV6_V6ONLY (27)
 #	endif
+
+#	undef min
+#	undef max
 
 #	define GET_LAST_ERROR() WSAGetLastError()
 #	include <errno.h>
@@ -91,9 +94,6 @@ class gameinfo_t;
 class karte_t;
 
 bool network_initialize();
-
-// connect to address with patch name receive to localname, close
-const char *network_download_http( const char *address, const char *name, const char *localname );
 
 void network_close_socket( SOCKET sock );
 

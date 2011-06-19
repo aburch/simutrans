@@ -115,9 +115,21 @@ growthfactor_capitals = 100
 passenger_factor=16
 
 # amount of passengers that travel from/to factories or attractions
-# the ramining percentage goes to other cities
+# the remaining percentage is divided among short-range,
+# medium-range and long-range cities trips
 factory_worker_percentage = 33
 tourist_percentage = 16
+city_short_range_percentage = 60
+city_medium_range_percentage = 30
+# long-range percentage need not be explicitly specified;
+# it equals (100% - city_short_range_percentage - city_medium_range_percentage)
+
+# the distance ranges for city trips
+# the ranges are the number of tiles from the origin city
+city_short_range_radius = 50
+city_medium_range_radius = 100
+# long-range radius need not be explicitly specified;
+# it equals the longest distance possible on the map
 
 # A factory will be added as worker's destination to a town, if it has either
 # is within factory_worker_radius
@@ -170,6 +182,14 @@ just_in_time = 1
 
 # use beginner mode for new maps (can be switched anyway on the new map dialog)
 first_beginner = 0
+
+# number of periods for averaging the amount of arrived pax/mail at factories for boost calculation
+# one period represents a fixed interval of 2^18 ms in-game time
+# value can range from 1 to 16, inclusive; 1 means no averaging; default is 4
+factory_arrival_periods = 4
+
+# whether factory's pax/mail demands are enforced or not; default is on
+factory_enforce_demand = 1
 
 ##################################display stuff#################################
 
@@ -551,3 +571,6 @@ fast_forward = 50
 
 # Additionally comment on your server; will be shown on game-info
 #server_comment = Testserver
+
+# Admin password for server; if not set, command-line tool nettool not usable
+#server_admin_pw = abc

@@ -75,7 +75,8 @@
 #include <sys/stat.h>
 #include <time.h>
 
-welt_gui_t::welt_gui_t(karte_t *welt, einstellungen_t *sets) : gui_frame_t("Neue Welt")
+
+welt_gui_t::welt_gui_t(karte_t* const welt, settings_t* const sets) : gui_frame_t("Neue Welt")
 {
 DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struct tm) );
 	this->welt = welt;

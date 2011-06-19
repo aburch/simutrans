@@ -60,6 +60,12 @@ public:
 	 */
 	virtual const char *ist_entfernbar(const spieler_t *sp);
 
+	/**
+	 * crossing logic is removed here
+	 * @author prissi
+	 */
+	virtual void entferne(spieler_t *);
+
 	// returns true, if the crossing can be passed by this vehicle
 	bool request_crossing( const vehikel_basis_t *v ) { return logic->request_crossing( v ); }
 

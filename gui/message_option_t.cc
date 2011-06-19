@@ -26,11 +26,13 @@ karte_t *message_option_t::welt = NULL;
 
 message_option_t::message_option_t(karte_t *welt) :
 	gui_frame_t("Mailbox Options"),
-	text_label(translator::translate("MessageOptionsText")),
+	text_label(&buf),
 	legend( skinverwaltung_t::message_options->get_bild_nr(0) )
 {
 	this->welt = welt;
-	text_label.set_pos( koord(10+20,-2) );
+	buf.clear();
+	buf.append(translator::translate("MessageOptionsText"));
+	text_label.set_pos( koord(10+20,-3) );
 	add_komponente( &text_label );
 
 	legend.set_pos( koord(BUTTON_ROW,0) );

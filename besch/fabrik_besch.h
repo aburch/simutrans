@@ -20,7 +20,6 @@ class checksum_t;
  * Fields are xref'ed from skin_besch_t
  */
 class field_class_besch_t : public obj_besch_t {
-	friend class factory_field_class_writer_t;
 	friend class factory_field_class_reader_t;
 	friend class factory_field_group_reader_t;		// Knightly : this is a special case due to besch restructuring
 
@@ -46,7 +45,6 @@ public:
 
 // Knightly : this besch now only contains common, shared data regarding fields
 class field_group_besch_t : public obj_besch_t {
-	friend class factory_field_group_writer_t;
 	friend class factory_field_group_reader_t;
 
 private:
@@ -94,7 +92,6 @@ public:
  *	0   SKin
  */
 class rauch_besch_t : public obj_besch_t {
-	friend class factory_smoke_writer_t;
 	friend class factory_smoke_reader_t;
 
 private:
@@ -117,7 +114,7 @@ public:
 		return pos_off;
 	}
 
-	// offset in pixel (remember intern size TILE_STEPS==16)
+	// offset in pixel (depends on OBJECT_OFFSET_STEPS==16)
 	koord get_xy_off(uint8 rotation) const {
 		switch( rotation%4 ) {
 			case 1: return koord( 0, xy_off.y+xy_off.x/2 );
@@ -143,7 +140,6 @@ public:
  */
 class fabrik_lieferant_besch_t : public obj_besch_t {
 	friend class factory_supplier_reader_t;
-	friend class factory_supplier_writer_t;
 
 private:
 	uint16  kapazitaet;
@@ -170,7 +166,6 @@ public:
  *	0   Ware
  */
 class fabrik_produkt_besch_t : public obj_besch_t {
-	friend class factory_product_writer_t;
 	friend class factory_product_reader_t;
 
 private:
@@ -211,13 +206,12 @@ public:
  */
 class fabrik_besch_t : public obj_besch_t {
 	friend class factory_reader_t;
-	friend class factory_writer_t;
 
 public:
-	enum platzierung {Land, Wasser, Stadt};
+	enum site_t { Land, Wasser, Stadt };
 
 private:
-	enum platzierung platzierung; //"placement" (Babelfish)
+	site_t platzierung; //"placement" (Babelfish)
 	uint16 produktivitaet; //"productivity" (Babelfish)
 	uint16 bereich; //"range" (Babelfish)
 	uint16 gewichtung;	// Wie wahrscheinlich soll der Bau sein? ("How likely will the building be?" (Google)). 
@@ -230,6 +224,16 @@ private:
 	uint16 inverse_electricity_proportion;
 	bool electricity_producer;
 	uint8 upgrades; // The industry types to which this industry can be upgraded.
+	uint16 expand_probability;
+	uint16 expand_minimum;
+	uint16 expand_range;
+	uint16 expand_times;
+	uint16 electric_boost;
+	uint16 pax_boost;
+	uint16 mail_boost;
+	uint16 electric_amount;
+	uint16 pax_demand;
+	uint16 mail_demand;
 
 public:
 	/*
@@ -260,7 +264,7 @@ public:
 	uint get_produkte() const { return produkte; } // "Products" (Google)
 
 	/* where to built */
-	enum platzierung get_platzierung() const { return platzierung; }
+	site_t get_platzierung() const { return platzierung; }
 	int get_gewichtung() const { return gewichtung;     }
 
 	uint8 get_kennfarbe() const { return kennfarbe; } //"identification colour code" (Babelfish)
@@ -280,6 +284,19 @@ public:
 	const fabrik_besch_t *get_upgrades(int i) const { return (i >= 0 && i < upgrades) ? get_child<fabrik_besch_t>(2 + lieferanten + produkte + fields + i) : NULL; }
 
 	int get_upgrades_count() const { return upgrades; }
+
+	uint16 get_expand_probability() const { return expand_probability; }
+	uint16 get_expand_minumum() const { return expand_minimum; }
+	uint16 get_expand_range() const { return expand_range; }
+	uint16 get_expand_times() const { return expand_times; }
+
+	uint16 get_electric_boost() const { return electric_boost; }
+	uint16 get_pax_boost() const { return pax_boost; }
+	uint16 get_mail_boost() const { return mail_boost; }
+	uint16 get_electric_amount() const { return electric_amount; }
+	uint16 get_pax_demand() const { return pax_demand; }
+	uint16 get_mail_demand() const { return mail_demand; }
+
 	void calc_checksum(checksum_t *chk) const;
 };
 

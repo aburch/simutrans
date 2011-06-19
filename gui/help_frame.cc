@@ -70,18 +70,19 @@ help_frame_t::help_frame_t() :
 	set_text("<title>Unnamed</title><p>No text set</p>");
 	flow.add_listener(this);
 	set_resizemode(diagonal_resize);
+	scrolly.set_show_scroll_x(true);
 	add_komponente(&scrolly);
 	set_min_windowsize(koord(16*4, 16));
 }
 
 
-help_frame_t::help_frame_t(const std::string &filename) :
+help_frame_t::help_frame_t(char const* const filename) :
 	gui_frame_t("Help"),
 	scrolly(&flow)
 {
 	// the key help texts are built automagically
-	if(filename=="keys.txt") {
-		cbuffer_t buf(16000);
+	if (strcmp(filename, "keys.txt") == 0) {
+		cbuffer_t buf;
 		buf.append( translator::translate( "<title>Keyboard Help</title>\n<h1><strong>Keyboard Help</strong></h1><p>\n" ) );
 		spieler_t *sp = spieler_t::get_welt()->get_active_player();
 		const char *trad_str = translator::translate( "<em>%s</em> - %s<br>\n" );
@@ -154,6 +155,7 @@ help_frame_t::help_frame_t(const std::string &filename) :
 	}
 
 	set_resizemode(diagonal_resize);
+	scrolly.set_show_scroll_x(true);
 	add_komponente(&scrolly);
 	flow.add_listener(this);
 	set_min_windowsize(koord(16*4, 16));

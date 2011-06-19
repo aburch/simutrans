@@ -11,32 +11,29 @@
 #include "../../simgraph.h"
 #include "../../simdebug.h"
 #include "../../simcolor.h"
+#include "../../utils/cbuffer_t.h"
 
-gui_textarea_t::gui_textarea_t(const char *text)
+gui_textarea_t::gui_textarea_t(cbuffer_t* buf_)
 {
-	set_text(text);
+	buf = buf_;
 	recalc_size();
 }
 
-
-
-void
-gui_textarea_t::set_text(const char *text)
+void gui_textarea_t::set_text(const char *const text)
 {
-	if(text) {
-		this->text = text;
-	}
-	else {
-		this->text = "";
+	buf->clear();
+	if(text) 
+	{
+		buf->append(text);
 	}
 }
-
 
 
 // recalcs the current size;
 // usually not needed to be called explicitely
 void gui_textarea_t::recalc_size()
 {
+	const char *text(*buf);
 	// we cannot use: display_multiline_text(pos.x+offset.x, pos.y+offset.y+10, text, COL_BLACK);
 	// since we also want to dynamically change the size of the component
 	int new_lines=0;
@@ -68,6 +65,7 @@ DBG_MESSAGE("gui_textarea_t::recalc_size()","reset size to %i,%i",x_size+10,new_
  */
 void gui_textarea_t::zeichnen(koord offset)
 {
+	const char *text(*buf);
 	// we cannot use: display_multiline_text(pos.x+offset.x, pos.y+offset.y+10, text, COL_BLACK);
 	// since we also want to dynamically change the size of the component
 	int new_lines=0;
@@ -77,7 +75,7 @@ void gui_textarea_t::zeichnen(koord offset)
 		const char *buf=text;
 		const char *next;
 		const sint16 x = pos.x+offset.x;
-		sint16 y = pos.y+offset.y+10;
+		sint16 y = pos.y+offset.y+LINESPACE;
 
 		do {
 			next = strchr(buf, '\n');

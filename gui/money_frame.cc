@@ -283,7 +283,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	add_komponente(&lylabel);
 	add_komponente(&tylabel);
 
-	/*if(!sp->get_welt()->get_einstellungen()->insolvent_purchases_allowed() || sp->get_welt()->get_einstellungen()->is_freeplay())
+	/*if(!sp->get_welt()->get_settings().insolvent_purchases_allowed() || sp->get_welt()->get_settings().is_freeplay())
 	{
 		add_komponente(&credit_limit);
 		add_komponente(&clamount);
@@ -461,7 +461,7 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	}
 	else if(sp->get_konto_ueberzogen()) {
 		warn.set_color( COL_RED );
-		if(sp->get_finance_history_year(0, COST_NETWEALTH) < 0 && sp->get_welt()->get_einstellungen()->bankruptsy_allowed()) 
+		if(sp->get_finance_history_year(0, COST_NETWEALTH) < 0 && sp->get_welt()->get_settings().bankruptsy_allowed()) 
 		{
 			tstrncpy(str_buf[15], translator::translate("Company bankrupt"), lengthof(str_buf[15]) );
 		}

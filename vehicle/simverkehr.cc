@@ -21,7 +21,7 @@
 #include "../simtools.h"
 #include "../simmem.h"
 #include "../simimg.h"
-#include "../simconst.h"
+#include "../simunits.h"
 #include "../simtypes.h"
 #include "../simcity.h"
 
@@ -96,7 +96,7 @@ verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt, koord3d pos) :
 	ribi_t::ribi liste[4];
 	int count = 0;
 
-	weg_next = simrand(65535, "verkehrsteilnehmer_t::verkehrsteilnehmer_t (weg_next)");
+	weg_next = simrand(65535, "verkehrsteilnehmer_t::verkehrsteilnehmer_t (weg_next) 1");
 	hoff = 0;
 
 	// verfügbare ribis in liste eintragen
@@ -105,7 +105,9 @@ verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt, koord3d pos) :
 			liste[count++] = ribi_t::nsow[r];
 		}
 	}
-	fahrtrichtung = count ? liste[simrand(count, "verkehrsteilnehmer_t::verkehrsteilnehmer_t (fahrtrichtung 1)")] : ribi_t::nsow[simrand(4, "verkehrsteilnehmer_t::verkehrsteilnehmer_t (fahrtrichtung 2)")];
+
+	fahrtrichtung = count ? liste[simrand(count, "verkehrsteilnehmer_t::verkehrsteilnehmer_t (weg_next) 2")] : pick_any(ribi_t::nsow);
+
 
 	switch(fahrtrichtung) {
 		case ribi_t::nord:
@@ -257,9 +259,9 @@ void verkehrsteilnehmer_t::rdwr(loadsave_t *file)
 		dx = dxdy[ ribi_t::get_dir(fahrtrichtung)*2];
 		dy = dxdy[ ribi_t::get_dir(fahrtrichtung)*2+1];
 		if(file->get_version()<99005  ||  file->get_version()>99016) {
-			sint16 dummy16 = ((16*(sint16)hoff)/TILE_STEPS);
+			sint16 dummy16 = ((16*(sint16)hoff)/OBJECT_OFFSET_STEPS);
 			file->rdwr_short(dummy16);
-			hoff = (sint8)((TILE_STEPS*(sint16)dummy16)/16);
+			hoff = (sint8)((OBJECT_OFFSET_STEPS*(sint16)dummy16)/16);
 		}
 		else {
 			file->rdwr_byte(hoff);
@@ -279,12 +281,12 @@ void verkehrsteilnehmer_t::rdwr(loadsave_t *file)
 		set_yoff( ddy-(16-i)*dy );
 		if(file->is_loading()) {
 			if(dx*dy) {
-				steps = min( 255, 255-(i*16) );
-				steps_next = 255;
+				steps = min( VEHICLE_STEPS_PER_TILE - 1, VEHICLE_STEPS_PER_TILE - 1 - (i*16) );
+				steps_next = VEHICLE_STEPS_PER_TILE - 1;
 			}
 			else {
-				steps = min( 127, 128-(i*16) );
-				steps_next = 127;
+				steps = min( VEHICLE_STEPS_PER_TILE/2 - 1, VEHICLE_STEPS_PER_TILE / 2 -(i*16) );
+				steps_next = VEHICLE_STEPS_PER_TILE/2 ;
 			}
 		}
 	}
@@ -436,20 +438,18 @@ stadtauto_t::stadtauto_t(karte_t *welt, loadsave_t *file) :
 }
 
 
-#ifdef DESTINATION_CITYCARS
-stadtauto_t::stadtauto_t(karte_t *welt, koord3d pos, koord target, slist_tpl<stadtauto_t*>* car_list)
-#else
-stadtauto_t::stadtauto_t(karte_t *welt, koord3d pos, koord, slist_tpl<stadtauto_t*>* car_list )
-#endif
-	: verkehrsteilnehmer_t(welt, pos)
+stadtauto_t::stadtauto_t(karte_t* const welt, koord3d const pos, koord const target, slist_tpl<stadtauto_t*>* car_list) :
+	verkehrsteilnehmer_t(welt, pos),
+	besch(liste_timeline.empty() ? 0 : pick_any_weighted(liste_timeline))
 {
-	besch = liste_timeline.empty() ? NULL : liste_timeline.at_weight(simrand(liste_timeline.get_sum_weight(), "stadtauto_t::stadtauto_t("));
 	pos_next_next = koord3d::invalid;
-	time_to_life = welt->get_einstellungen()->get_stadtauto_duration() << welt->ticks_per_world_month_shift;
+	time_to_life = welt->get_settings().get_stadtauto_duration() << welt->ticks_per_world_month_shift;
 	current_speed = 48;
 	ms_traffic_jam = 0;
 #ifdef DESTINATION_CITYCARS
 	this->target = target;
+#else
+	(void)target;
 #endif
 	calc_bild();
 	welt->buche( +1, karte_t::WORLD_CITYCARS );
@@ -521,7 +521,7 @@ void stadtauto_t::rdwr(loadsave_t *file)
 
 		if(  besch == 0  &&  !liste_timeline.empty()  ) {
 			dbg->warning("stadtauto_t::rdwr()", "Object '%s' not found in table, trying random stadtauto object type",s);
-			besch = liste_timeline.at_weight(simrand(liste_timeline.get_sum_weight(), "stadtauto_t::rdwr()"));
+			besch = pick_any_weighted(liste_timeline);
 		}
 
 		if(besch == 0) {
@@ -677,11 +677,11 @@ bool stadtauto_t::ist_weg_frei(const grund_t *gr) //Frie = "freely" (Babelfish)
 								// otherwise the overtaken car would stop for us ...
 								if (automobil_t const* const car = ding_cast<automobil_t>(dt)) {
 									convoi_t* const cnv = car->get_convoi();
-									if(  cnv==NULL  ||  !can_overtake( cnv, cnv->get_akt_speed(), cnv->get_length()*16, diagonal_length)  ) {
+									if(  cnv==NULL  ||  !can_overtake( cnv, cnv->get_min_top_speed(), cnv->get_length_in_steps(), diagonal_vehicle_steps_per_tile)  ) {
 										frei = false;
 									}
 								} else if (stadtauto_t* const caut = ding_cast<stadtauto_t>(dt)) {
-									if ( !can_overtake(caut, caut->get_current_speed(), 256, diagonal_length) ) {
+									if ( !can_overtake(caut, min(caut->get_current_speed() + kmh_to_speed(10), caut->get_besch()->get_geschw()), VEHICLE_STEPS_PER_TILE, diagonal_vehicle_steps_per_tile) ) {
 										frei = false;
 									}
 								}
@@ -712,7 +712,8 @@ bool stadtauto_t::ist_weg_frei(const grund_t *gr) //Frie = "freely" (Babelfish)
 			// ok, now check for free exit
 			koord dir = pos_next.get_2d()-get_pos().get_2d();
 			koord3d checkpos = pos_next+dir;
-			while(1) {
+			uint8 number_reversed = 0;
+			while(  number_reversed<2  ) {
 				const grund_t *test = welt->lookup(checkpos);
 				if(!test) {
 					// should not reach here ! (z9999)
@@ -732,11 +733,12 @@ bool stadtauto_t::ist_weg_frei(const grund_t *gr) //Frie = "freely" (Babelfish)
 				}
 				else {
 					// seems to be a deadend.
-					if((test->get_weg_ribi(road_wt)&next_fahrtrichtung) ==0) {
+					if(  (test->get_weg_ribi(road_wt)&next_fahrtrichtung) == 0  ) {
 						// will be going back
 						pos_next_next=get_pos();
 						// check also opposite direction are free
 						dir = -dir;
+						number_reversed ++;
 					}
 				}
 				checkpos += dir;
@@ -897,8 +899,8 @@ bool stadtauto_t::hop_check()
 			}
 		}
 #ifdef DESTINATION_CITYCARS
-		if(posliste.get_count()>0) {
-			pos_next_next = posliste.at_weight(simrand(posliste.get_sum_weight(), "bool stadtauto_t::hop_check"));
+		if (!posliste.empty()) {
+			pos_next_next = pick_any_weighted(posliste);
 		}
 		else {
 			pos_next_next = get_pos();
@@ -1039,7 +1041,7 @@ void stadtauto_t::get_screen_offset( int &xoff, int &yoff, const sint16 raster_w
  * The city car is not overtaking/being overtaken.
  * @author isidoro
  */
-bool stadtauto_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int steps_other, int diagonal_length)
+bool stadtauto_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int steps_other, int diagonal_vehicle_steps_per_tile)
 {
 	if(!other_overtaker->can_be_overtaken()) {
 		return false;
@@ -1053,7 +1055,7 @@ bool stadtauto_t::can_overtake(overtaker_t *other_overtaker, int other_speed, in
 	// Number of tiles overtaking will take
 	int n_tiles = 0;
 
-	/* Distance it takes overtaking (unit:256*tile) = my_speed * time_overtaking
+	/* Distance it takes overtaking (unit: vehicle steps) = my_speed * time_overtaking
 	 * time_overtaking = tiles_to_overtake/diff_speed
 	 * tiles_to_overtake = convoi_length + pos_other_convoi
 	 * convoi_length for city cars? ==> a bit over half a tile (10)
@@ -1113,7 +1115,7 @@ bool stadtauto_t::can_overtake(overtaker_t *other_overtaker, int other_speed, in
 			return false;
 		}
 
-		int d = ribi_t::ist_gerade(str->get_ribi()) ? 256 : diagonal_length;
+		int d = ribi_t::ist_gerade(str->get_ribi()) ? VEHICLE_STEPS_PER_TILE : diagonal_vehicle_steps_per_tile;
 		distance -= d;
 		time_overtaking += d;
 
@@ -1183,8 +1185,11 @@ bool stadtauto_t::can_overtake(overtaker_t *other_overtaker, int other_speed, in
 	time_overtaking = (time_overtaking << 16)/(sint32)current_speed;
 	do {
 		// we can allow crossings or traffic lights here, since they will stop also oncoming traffic
-
-		time_overtaking -= (ribi_t::ist_gerade(str->get_ribi()) ? 256<<16 : diagonal_length<<16)/kmh_to_speed(str->get_max_speed());
+		if (ribi_t::ist_gerade(str->get_ribi())) {
+			time_overtaking -= VEHICLE_STEPS_PER_TILE<<16 / kmh_to_speed(str->get_max_speed());
+		} else {
+			time_overtaking -= diagonal_vehicle_steps_per_tile<<16 / kmh_to_speed(str->get_max_speed());
+		}
 
 		// start of bridge is one level deeper
 		if(gr->get_weg_yoff()>0)  {

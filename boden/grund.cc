@@ -803,12 +803,9 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 	this->back_bild_nr = (is_building!=0)? -back_bild_nr : back_bild_nr;
 	// needs a fence?
 	if(back_bild_nr==0) {
-		back_bild_nr = 121;
-		if(fence_west) {
-			back_bild_nr += 1;
-		}
-		if(fence_north) {
-			back_bild_nr += 2;
+		sint8 fence_offset = fence_west + 2 * fence_north;
+		if(fence_offset) {
+			back_bild_nr = 121 + fence_offset;
 		}
 		this->back_bild_nr = (get_typ()==grund_t::fundament)? -back_bild_nr : back_bild_nr;
 	}
@@ -990,7 +987,7 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 		}
 	}
 	else if (ist_wasser()) {
-		ribi = get_weg_ribi(water_wt);
+		ribi = (static_cast<const wasser_t*>(this))->get_weg_ribi(water_wt);
 	}
 
 	// now ways? - no clipping needed, avoid all the ribi-checks
@@ -1007,8 +1004,11 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 		return;
 	}
 
+	// ships might be larg and could be clipped by vertical walls on our tile
+	const bool ontile_se = back_bild_nr  &&  ist_wasser();
+
 #ifdef DOUBLE_GROUNDS
-#error "Clipping routines not suitable for double hieghts!"
+#error "Clipping routines not suitable for double heights!"
 #endif
 
 	// get slope of way as displayed
@@ -1087,7 +1087,7 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 	if (ribi & ribi_t::ost) {
 		grund_t *gr;
 		if (get_neighbour(gr, invalid_wt, koord(1,0))) {
-			gr->display_dinge_vh(xpos+raster_tile_width/2, ypos+raster_tile_width/4-tile_raster_scale_y( (gr->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), is_global, 0, ribi_t::ost, false);
+			gr->display_dinge_vh(xpos+raster_tile_width/2, ypos+raster_tile_width/4-tile_raster_scale_y( (gr->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), is_global, 0, ribi_t::ost, ontile_se);
 			if ((ribi & ribi_t::sued) && (gr_ne==NULL)) gr->get_neighbour(gr_ne, invalid_wt, koord(0,-1));
 			if ((ribi & ribi_t::nord) && (gr_se==NULL)) gr->get_neighbour(gr_se, invalid_wt, koord(0,1));
 		}
@@ -1095,19 +1095,19 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 	if (ribi & ribi_t::sued) {
 		grund_t *gr;
 		if (get_neighbour(gr, invalid_wt, koord(0,1))) {
-			gr->display_dinge_vh(xpos-raster_tile_width/2, ypos+raster_tile_width/4-tile_raster_scale_y( (gr->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), is_global, 0, ribi_t::sued, false);
+			gr->display_dinge_vh(xpos-raster_tile_width/2, ypos+raster_tile_width/4-tile_raster_scale_y( (gr->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), is_global, 0, ribi_t::sued, ontile_se);
 			if ((ribi & ribi_t::ost)  && (gr_sw==NULL)) gr->get_neighbour(gr_sw, invalid_wt, koord(-1,0));
 			if ((ribi & ribi_t::west) && (gr_se==NULL)) gr->get_neighbour(gr_se, invalid_wt, koord(1,0));
 		}
 	}
 	if ((ribi & ribi_t::nordost)  &&  gr_ne) {
-		gr_ne->display_dinge_vh(xpos+raster_tile_width, ypos-tile_raster_scale_y( (gr_ne->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), is_global, 0, ribi_t::nordost, false);
+		gr_ne->display_dinge_vh(xpos+raster_tile_width, ypos-tile_raster_scale_y( (gr_ne->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), is_global, 0, ribi_t::nordost, ontile_se);
 	}
 	if ((ribi & ribi_t::suedwest)  &&  gr_sw) {
-		gr_sw->display_dinge_vh(xpos-raster_tile_width, ypos-tile_raster_scale_y( (gr_sw->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), is_global, 0, ribi_t::suedwest, false);
+		gr_sw->display_dinge_vh(xpos-raster_tile_width, ypos-tile_raster_scale_y( (gr_sw->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), is_global, 0, ribi_t::suedwest, ontile_se);
 	}
 	if ((ribi & ribi_t::suedost)  &&  gr_se) {
-		gr_se->display_dinge_vh(xpos, ypos+raster_tile_width/2-tile_raster_scale_y( (gr_se->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), is_global, 0, ribi_t::suedost, false);
+		gr_se->display_dinge_vh(xpos, ypos+raster_tile_width/2-tile_raster_scale_y( (gr_se->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), is_global, 0, ribi_t::suedost, ontile_se);
 	}
 	// end of clipping
 	clear_all_poly_clip();
@@ -1312,7 +1312,7 @@ sint64 grund_t::remove_trees()
 		// we must mark it by hand, sinc ewe want to join costs
 		d->mark_image_dirty( get_bild(), 0 );
 		delete d;
-		cost -= welt->get_einstellungen()->cst_remove_tree;
+		cost -= welt->get_settings().cst_remove_tree;
 	}
 	// remove all groundobjs ...
 	while (groundobj_t* const d = find<groundobj_t>(0)) {
@@ -1418,6 +1418,7 @@ DBG_MESSAGE("grund_t::weg_entfernen()","weg %p",weg);
 			// Not all ways (i.e. with styp==7) will imply crossins, so wie hav to check
 			crossing_t* cr = find<crossing_t>(1);
 			if(cr) {
+				dinge.remove(cr);
 				cr->entferne(0);
 				delete cr;
 				// restore speed limit
@@ -1443,81 +1444,54 @@ bool grund_t::get_neighbour(grund_t *&to, waytype_t type, koord dir) const
 {
 	// must be a single direction
 	if(  (abs(dir.x)^abs(dir.y))!=1  ) {
-		// shorter for:
-		// if(dir != koord::nord  &&  dir != koord::sued  &&  dir != koord::ost  &&  dir != koord::west) {
 		return false;
 	}
+	const ribi_t::ribi ribi = (ribi_t::ribi)( dir.x ? (dir.x>0 ? ribi_t::ost : ribi_t::west) : (dir.y>0 ? ribi_t::sued : ribi_t::nord) );
 
 	const planquadrat_t * plan = welt->lookup(pos.get_2d() + dir);
 	if(!plan) {
 		return false;
 	}
 
-	// find ground in the same height: This work always!
-	const sint16 this_height = get_vmove(dir);
+	if (type != invalid_wt   &&   (get_weg_ribi_unmasked(type) & ribi) == 0) {
+		// no way on this tile in the given direction
+		return false;
+	}
+
+	const ribi_t::ribi back = ribi_t::rueckwaerts(ribi);
+
+	// find ground in the right height
+	const sint16 this_height = get_vmove(ribi);
 	for( unsigned i=0;  i<plan->get_boden_count();  i++  ) {
 		grund_t* gr = plan->get_boden_bei(i);
-		if(gr->get_vmove(-dir)==this_height) {
+		if(gr->get_vmove(back)==this_height) {
 			// test, if connected
-			if(!is_connected(gr, type, dir)) {
-				continue;
+			if(type == invalid_wt  ||  (gr->get_weg_ribi_unmasked(type) & back) ) {
+				to = gr;
+				return true;
 			}
-			to = gr;
-			return true;
 		}
 	}
 	return false;
 }
 
 
-
-bool grund_t::is_connected(const grund_t *gr, waytype_t wegtyp, koord dv) const
-{
-	if(!gr) {
-		return false;
-	}
-	if(wegtyp==invalid_wt) {
-		return true;
-	}
-
-	const int ribi1 = get_weg_ribi_unmasked(wegtyp);
-	const int ribi2 = gr->get_weg_ribi_unmasked(wegtyp);
-	if(dv == koord::nord) {
-		return (ribi1 & ribi_t::nord) && (ribi2 & ribi_t::sued);
-	} else if(dv == koord::sued) {
-		return (ribi1 & ribi_t::sued) && (ribi2 & ribi_t::nord);
-	} else if(dv == koord::west) {
-		return (ribi1 & ribi_t::west) && (ribi2 & ribi_t::ost );
-	} else if(dv == koord::ost) {
-		return (ribi1 & ribi_t::ost ) && (ribi2 & ribi_t::west);
-	}
-	return false;
-}
-
-
-
 // now we need a more sophisticated calculations ...
-sint8 grund_t::get_vmove(koord dir) const
+sint8 grund_t::get_vmove(ribi_t::ribi ribi) const
 {
 	const sint8 slope=get_weg_hang();
 	sint8 h=get_hoehe();
-	if(ist_bruecke()  &&  get_grund_hang()!=0  &&  welt->lookup(pos)==this) {
+	if(ist_bruecke()  &&  get_grund_hang()!=0) {
 		h += Z_TILE_STEP;	// end or start of a bridge
 	}
 
-	if(dir == koord::ost) {
-		h += corner3(slope)*Z_TILE_STEP;
-	} else if(dir == koord::west) {
-		h += corner1(slope)*Z_TILE_STEP;
-	} else if(dir == koord::sued) {
-		h += corner1(slope)*Z_TILE_STEP;
-	} else if(dir == koord::nord) {
+	if(ribi & ribi_t::nordost) {
 		h += corner3(slope)*Z_TILE_STEP;
 	}
 	else {
-		// commented out: allow diagonal directions now (assume flat for these)
-		//dbg->fatal("grund_t::get_vmove()","no valid direction given (%x)",ribi_typ(dir));	// error: not a direction ...
+		h += corner1(slope)*Z_TILE_STEP;
 	}
+
 	return h;
 }
 

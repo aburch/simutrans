@@ -264,7 +264,7 @@ void schedule_t::rdwr(loadsave_t *file)
 		abgeschlossen = true;
 	}
 	if(aktuell>=eintrag.get_count()  ) {
-		if(  eintrag.get_count()>0  ) {
+		if (!eintrag.empty()) {
 			dbg->error("fahrplan_t::rdwr()","aktuell %i >count %i => aktuell = 0", aktuell, eintrag.get_count() );
 		}
 		aktuell = 0;
@@ -409,7 +409,7 @@ bool schedule_t::sscanf_schedule( const char *ptr )
 {
 	const char *p = ptr;
 	// first: clear current schedule
-	while(  eintrag.get_count()>0  ) {
+	while (!eintrag.empty()) {
 		remove();
 	}
 	//  first get aktuell pointer

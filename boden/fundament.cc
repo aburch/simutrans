@@ -4,13 +4,9 @@
  * von Hj. Malthaner
  */
 
-#include "../simhalt.h"
-#include "../simworld.h"
-#include "../simskin.h"
-#include "../simimg.h"
+#include "../simconst.h"
 
 #include "../besch/grund_besch.h"
-#include "../besch/skin_besch.h"
 #include "../dataobj/loadsave.h"
 
 #include "grund.h"
@@ -22,6 +18,7 @@ fundament_t::fundament_t(karte_t *welt, loadsave_t *file, koord pos ) : grund_t(
 	rdwr(file);
 	slope = (uint8)hang_t::flach;
 }
+
 
 fundament_t::fundament_t(karte_t *welt, koord3d pos, hang_t::typ hang ) : grund_t(welt, pos)
 {
@@ -35,23 +32,7 @@ fundament_t::fundament_t(karte_t *welt, koord3d pos, hang_t::typ hang ) : grund_
 }
 
 
-/**
- * Auffforderung, ein Infofenster zu öffnen.
- * @author Hj. Malthaner
- */
-bool fundament_t::zeige_info()
-{
-	if(get_halt().is_bound()) {
-		get_halt()->zeige_info();
-		return true;
-	}
-	return false;
-}
-
-
-
-void
-fundament_t::calc_bild_internal()
+void fundament_t::calc_bild_internal()
 {
 	slope = 0;
 	if (is_visible()) {

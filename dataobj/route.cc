@@ -65,7 +65,7 @@ void route_t::append(const route_t *r)
 	const uint32 hops = r->get_count()-1;
 	route.resize(hops+1+route.get_count());
 
-	while (get_count() != 0 && back() == r->front()) {
+	while (!route.empty() && back() == r->front()) {
 		// skip identical end tiles
 		route.remove_at(get_count()-1);
 	}
@@ -152,14 +152,14 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 		return false;
 	}
 
-	const uint8 enforce_weight_limits = welt->get_einstellungen()->get_enforce_weight_limits();
+	const uint8 enforce_weight_limits =welt->get_settings().get_enforce_weight_limits();
 
 	// some thing for the search
 	const waytype_t wegtyp = fahr->get_waytype();
 
 	// memory in static list ...
 	if(nodes==NULL) {
-		MAX_STEP = welt->get_einstellungen()->get_max_route_steps();
+		MAX_STEP = welt->get_settings().get_max_route_steps();
 		nodes = new ANode[MAX_STEP];
 	}
 
@@ -353,7 +353,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 
 	// memory in static list ...
 	if(nodes==NULL) {
-		MAX_STEP = welt->get_einstellungen()->get_max_route_steps();	// may need very much memory => configurable
+		MAX_STEP = welt->get_settings().get_max_route_steps(); // may need very much memory => configurable
 		nodes = new ANode[MAX_STEP + 4 + 2];
 	}
 
@@ -392,7 +392,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 	queue.insert(tmp);
 
 //DBG_MESSAGE("route_t::itern_calc_route()","calc route from %d,%d,%d to %d,%d,%d",ziel.x, ziel.y, ziel.z, start.x, start.y, start.z);
-	const uint8 enforce_weight_limits = welt->get_einstellungen()->get_enforce_weight_limits();
+	const uint8 enforce_weight_limits =welt->get_settings().get_enforce_weight_limits();
 	uint32 beat=1;
 	do {
 		// Hajo: this is too expensive to be called each step

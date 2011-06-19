@@ -105,11 +105,11 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(karte_t *w, waytype_t wt, signed 
 	bool old_show_all=show_all;
 	show_retired_vehicles = true;
 	show_all = true;
-	einstellungen_t* e = get_welt()->access_einstellungen();
-	char timeline = e->get_use_timeline();
-	e->set_use_timeline(0);
+	settings_t s = welt->get_settings();
+	char timeline = s.get_use_timeline();
+	s.set_use_timeline(0);
 	build_vehicle_lists();
-	e->set_use_timeline(timeline);
+	s.set_use_timeline(timeline);
 	show_retired_vehicles = old_retired;
 	show_all = old_show_all;
 
@@ -198,7 +198,7 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(karte_t *w, waytype_t wt, signed 
 
 	bt_obsolete.set_typ(button_t::square);
 	bt_obsolete.set_text("Show obsolete");
-	if(  get_welt()->get_einstellungen()->get_allow_buying_obsolete_vehicles()  ) {
+	if(  welt->get_settings().get_allow_buying_obsolete_vehicles()  ) {
 		bt_obsolete.add_listener(this);
 		bt_obsolete.set_tooltip("Show also vehicles no longer in production.");
 		add_komponente(&bt_obsolete);
@@ -793,7 +793,7 @@ void gui_convoy_assembler_t::image_from_convoi_list(uint nr)
 				}
 			}
 
-			cbuffer_t start(16);
+			cbuffer_t start;
 			start.append( start_nr );
 
 			depot->call_depot_tool( 'r', cnv, start );
@@ -1508,6 +1508,9 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 				k += sprintf(buf + k, translator::translate("Catering level: %i"), veh_type->get_catering_level());
 			}
 		}
+		else {
+			k += sprintf(buf+k, "\n");
+		}
 		
 		const way_constraints_t &way_constraints = veh_type->get_way_constraints();
 
@@ -1536,11 +1539,17 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 			//Loading time is only relevant if there is something to load.
 			j +=  sprintf(buf, "%s %i \n", translator::translate("Loading time:"), veh_type->get_loading_time());
 		}
+		else {
+			j += sprintf(buf+j, "\n");
+		}
 
 		if(veh_type->get_ware()->get_catg_index() == 0)
 		{
 			//Comfort only applies to passengers.
 			j += sprintf(buf + j, "%s %i \n", translator::translate("Comfort:"), veh_type->get_comfort());
+		}
+		else {
+			j += sprintf(buf+j, "\n");
 		}
 
 		j += sprintf(buf + j, "%s %s %04d\n",
@@ -1554,19 +1563,31 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 				translator::get_month_name(veh_type->get_retire_year_month()%12),
 				veh_type->get_retire_year_month()/12 );
 		}
+		else {
+			j += sprintf(buf+j, "\n");
+		}
 
 		if(veh_type->get_leistung() > 0  &&  veh_type->get_gear()!=64) {
 			j+= sprintf(buf + j, "%s %0.2f : 1\n", translator::translate("Gear: "), 	veh_type->get_gear()/64.0);
+		}
+		else {
+			j += sprintf(buf+j, "\n");
 		}
 
 		if(veh_type->get_tilting())
 		{
 			j += sprintf(buf + j, "%s", translator::translate("This is a tilting vehicle\n"));
 		}
+		else {
+			j += sprintf(buf+j, "\n");
+		}
 
 		if(veh_type->get_copyright()!=NULL  &&  veh_type->get_copyright()[0]!=0) 
 		{
 			j += sprintf(buf + j, translator::translate("Constructed by %s\n"), veh_type->get_copyright());
+		}
+		else {
+			j += sprintf(buf+j, "\n");
 		}
 		
 		if(value != -1) 
@@ -1576,6 +1597,9 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 				j += sprintf(buf + j, "\n");
 			}
 			sprintf(buf + strlen(buf), "%s %lld Cr", translator::translate("Restwert: "), 	value); //"Restwert" = residual (Google)
+		}
+		else {
+			j += sprintf(buf+j, "\n");
 		}
 		
 		// Prohibitibve way constraints

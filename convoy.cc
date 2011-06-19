@@ -165,7 +165,7 @@ sint32 convoy_t::calc_max_speed(const weight_summary_t &weight)
 	}
 	const float32e8_t p3 =  Frs / (float32e8_t((uint32) 3) * adverse.cf);
 	const float32e8_t q2 = get_continuous_power() / (float32e8_t((uint32) 2) * adverse.cf);
-	const float32e8_t sd = signed_power(q2 * q2 + p3 * p3 * p3, half);
+	const float32e8_t sd = signed_power(q2 * q2 + p3 * p3 * p3, half);;
 	const float32e8_t vmax = signed_power(q2 + sd, third) + signed_power(q2 - sd, third); 
 	return min(vehicle.max_speed, (sint32)(vmax * ms2kmh + float32e8_t::one)); // 1.0 to compensate inaccuracy of calculation and make sure this is at least what calc_move() evaluates.
 }
@@ -374,7 +374,7 @@ sint32 potential_convoy_t::get_force_summary(sint32 speed /* in m/s */)
 	{
 		force += vehicles[i]->get_effective_force_index(speed);
 	}
-	return (force * world.get_einstellungen()->get_global_power_factor_percent() + 50 * GEAR_FACTOR) / (100 * GEAR_FACTOR);
+	return (force * world.get_settings().get_global_power_factor_percent() + 50 * GEAR_FACTOR) / (100 * GEAR_FACTOR);
 }
 
 
@@ -385,7 +385,7 @@ sint32 potential_convoy_t::get_power_summary(sint32 speed /* in m/s */)
 	{
 		power += vehicles[i]->get_effective_power_index(speed);
 	}
-	return (power * world.get_einstellungen()->get_global_power_factor_percent() + 50 * GEAR_FACTOR) / (100 * GEAR_FACTOR);
+	return (power * world.get_settings().get_global_power_factor_percent() + 50 * GEAR_FACTOR) / (100 * GEAR_FACTOR);
 }
 
 // Bernd Gabriel, Dec, 25 2009
@@ -462,7 +462,7 @@ sint32 existing_convoy_t::get_force_summary(sint32 speed /* in m/s */)
 	{
 		force += convoy.get_vehikel(i)->get_besch()->get_effective_force_index(speed);
 	}
-	return (force * convoy.get_welt()->get_einstellungen()->get_global_power_factor_percent() + 50 * GEAR_FACTOR) / (100 * GEAR_FACTOR);
+	return (force * convoy.get_welt()->get_settings().get_global_power_factor_percent() + 50 * GEAR_FACTOR) / (100 * GEAR_FACTOR);
 }
 
 
@@ -473,6 +473,6 @@ sint32 existing_convoy_t::get_power_summary(sint32 speed /* in m/s */)
 	{
 		power += convoy.get_vehikel(i)->get_besch()->get_effective_power_index(speed);
 	}
-	return (power * convoy.get_welt()->get_einstellungen()->get_global_power_factor_percent() + 50 * GEAR_FACTOR) / (100 * GEAR_FACTOR);
+	return (power * convoy.get_welt()->get_settings().get_global_power_factor_percent() + 50 * GEAR_FACTOR) / (100 * GEAR_FACTOR);
 }
 

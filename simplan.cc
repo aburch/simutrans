@@ -529,7 +529,7 @@ void planquadrat_t::add_to_haltlist(halthandle_t halt)
 		// quick and dirty way to our 2d koodinates ...
 		const koord pos = get_kartenboden()->get_pos().get_2d();
 
-		// exact position does matter only for passenger/mail transport
+		// exact position does matter only for passenger/mail transport 
 		if(sp != NULL && !(halt->get_connexions(0)->empty() && halt->get_connexions(1)->empty()) && halt_list_count > 0)
 		{
 			halt_list_remove(halt);
@@ -573,7 +573,7 @@ void planquadrat_t::remove_from_haltlist(karte_t *welt, halthandle_t halt)
 	// quick and dirty way to our 2d koodinates ...
 	const koord pos = get_kartenboden()->get_pos().get_2d();
 
-	int cov = welt->get_einstellungen()->get_station_coverage();
+	int const cov = welt->get_settings().get_station_coverage();
 	for (int y = -cov; y <= cov; y++) {
 		for (int x = -cov; x <= cov; x++) {
 			koord test_pos = pos+koord(x,y);

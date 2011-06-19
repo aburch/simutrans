@@ -14,7 +14,7 @@ uint32 vehikel_besch_t::calc_running_cost(const karte_t *welt, uint32 base_cost)
 	uint16 months_after_retire = increase_maintenance_after_years * 12;
 	if(months_after_retire == 0)
 	{
-		months_after_retire = welt->get_einstellungen()->get_obsolete_running_cost_increase_phase_years() * 12;
+		months_after_retire = welt->get_settings().get_obsolete_running_cost_increase_phase_years() * 12;
 	}
 	sint32 months_of_obsolescence = welt->get_current_month() - (get_retire_year_month() + months_after_retire);
 	if (months_of_obsolescence <= 0)	
@@ -23,7 +23,7 @@ uint32 vehikel_besch_t::calc_running_cost(const karte_t *welt, uint32 base_cost)
 	}
 
 	// I am obsolete --> obsolescence cost increase.
-	uint16 running_cost_increase_percent = increase_maintenance_by_percent ? increase_maintenance_by_percent : welt->get_einstellungen()->get_obsolete_running_cost_increase_percent();
+	uint16 running_cost_increase_percent = increase_maintenance_by_percent ? increase_maintenance_by_percent :welt->get_settings().get_obsolete_running_cost_increase_percent();
 	uint32 max_cost = base_cost * (running_cost_increase_percent / 100);
 	if (max_cost == base_cost)
 	{
@@ -31,7 +31,7 @@ uint32 vehikel_besch_t::calc_running_cost(const karte_t *welt, uint32 base_cost)
 	}
 
 	// Current month is beyond the months_of_increasing_costs --> maximum increased obsolescence cost.
-	uint16 phase_years = years_before_maintenance_max_reached ? years_before_maintenance_max_reached : welt->get_einstellungen()->get_obsolete_running_cost_increase_phase_years();
+	uint16 phase_years = years_before_maintenance_max_reached ? years_before_maintenance_max_reached :welt->get_settings().get_obsolete_running_cost_increase_phase_years();
 	sint32 months_of_increasing_costs = phase_years * 12;
 	if (months_of_obsolescence >= months_of_increasing_costs)
 	{
@@ -167,7 +167,7 @@ void vehikel_besch_t::loaded()
 }
 
 /**
- * Get effective force in kN at given speed in m/s: effective_force_index * welt->get_einstellungen()->get_global_power_factor() / GEAR_FACTOR
+ * Get effective force in kN at given speed in m/s: effective_force_index *welt->get_settings().get_global_power_factor() / GEAR_FACTOR
  * @author Bernd Gabriel, Dec 14, 2009
  */
 uint32 vehikel_besch_t::get_effective_force_index(sint32 speed /* in m/s */ ) const
@@ -181,7 +181,7 @@ uint32 vehikel_besch_t::get_effective_force_index(sint32 speed /* in m/s */ ) co
 }
 
 /**
- * Get effective power in kW at given speed in m/s: effective_power_index * welt->get_einstellungen()->get_global_power_factor() / GEAR_FACTOR
+ * Get effective power in kW at given speed in m/s: effective_power_index *welt->get_settings().get_global_power_factor() / GEAR_FACTOR
  * @author Bernd Gabriel, Dec 14, 2009
  */
 uint32 vehikel_besch_t::get_effective_power_index(sint32 speed /* in m/s */ ) const
@@ -202,7 +202,7 @@ uint16 vehikel_besch_t::get_obsolete_year_month(const karte_t *welt) const
 	}
 	else
 	{
-		return obsolete_date + (welt->get_einstellungen()->get_default_increase_maintenance_after_years((waytype_t)typ) * 12);
+		return obsolete_date + (welt->get_settings().get_default_increase_maintenance_after_years((waytype_t)typ) * 12);
 	}
 }
 

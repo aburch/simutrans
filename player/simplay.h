@@ -122,9 +122,10 @@ protected:
 	class income_message_t {
 	public:
 		char str[33];
-		sint8 alter;
 		koord pos;
-		income_message_t() { str[0]=0; alter=127; pos==koord::invalid; }
+		sint32 amount;
+		sint8 alter;
+		income_message_t() { str[0]=0; alter=127; pos==koord::invalid; amount=0; }
 		income_message_t( sint32 betrag, koord pos );
 		void * operator new(size_t s);
 		void operator delete(void *p);
@@ -420,7 +421,7 @@ public:
 	// Check is disapplied to the public service player.
 	inline bool can_afford(sint64 price) const
 	{
-		return player_nr == 1 || (price < (konto + finance_history_month[0][COST_CREDIT_LIMIT]) || welt->get_einstellungen()->insolvent_purchases_allowed() || welt->get_einstellungen()->is_freeplay());
+		return player_nr == 1 || (price < (konto + finance_history_month[0][COST_CREDIT_LIMIT]) ||welt->get_settings().insolvent_purchases_allowed() ||welt->get_settings().is_freeplay());
 	}
 
 	sint64 get_credit_limit() const { return finance_history_month[0][COST_CREDIT_LIMIT]; }

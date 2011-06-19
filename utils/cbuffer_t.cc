@@ -1,23 +1,18 @@
 #include <assert.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <errno.h>
 #include <string.h>
 #include "cbuffer_t.h"
 #include "simstring.h"
 #include "../simtypes.h"
 
 
-/**
- * Creates a new cbuffer with capacity cap
- * @param cap the capacity
- * @author Hj. Malthaner
- */
-cbuffer_t::cbuffer_t(unsigned int cap)
+cbuffer_t::cbuffer_t() :
+	capacity(256),
+	size(0),
+	buf(new char[capacity])
 {
-	capacity = (cap == 0 ? 1 : cap);
-	size = 0;
-
-	buf = new char[capacity];
 	buf[0] = '\0';
 }
 
@@ -25,16 +20,9 @@ cbuffer_t::cbuffer_t(unsigned int cap)
 cbuffer_t::~cbuffer_t()
 {
   delete [] buf;
-  buf = 0;
-  capacity = 0;
-  size = 0;
 }
 
 
-/**
- * Clears the buffer
- * @author Hj. Malthaner
- */
 void cbuffer_t::clear()
 {
   buf[0] = '\0';
@@ -42,29 +30,14 @@ void cbuffer_t::clear()
 }
 
 
-/**
- * Appends text. If buffer is full, exceeding text will not
- * be appended.
- * @author Hj. Malthaner
- */
 void cbuffer_t::append(const char * text)
 {
-	while(  *text  ) {
-		if(  size>=capacity-1  ) {
-			// Knightly : double the capacity if full
-			extend(capacity);
-		}
-		buf[size++] = *text++;
-	}
-	buf[size] = 0;
+	size_t const n = strlen(text);
+	extend(n);
+	memcpy(buf + size, text, n + 1);
+	size += n;
 }
 
-
-/**
- * Appends a number. If buffer is full, exceeding digits will not
- * be appended.
- * @author Hj. Malthaner
- */
 void cbuffer_t::append(long n)
 {
 	char tmp[32];
@@ -89,11 +62,6 @@ void cbuffer_t::append(long n)
 }
 
 
-/**
- * Appends a number. If buffer is full, exceeding digits will not
- * be appended.
- * @author Hj. Malthaner
- */
 void cbuffer_t::append(double n,int decimals)
 {
 	char tmp[32];
@@ -102,37 +70,138 @@ void cbuffer_t::append(double n,int decimals)
 }
 
 
+/* this is a vsnprintf which can always process positional parameters
+ * like "%2$i: %1$s"
+ * WARNING: posix specification as well as this function always assumes that
+ * ALL parameter are either positional or not!!!
+ *
+ * When numbered argument specifications are used, specifying the Nth argument requires that all the
+ * leading arguments, from the first to the (N-1)th, are specified in the format string.
+ *
+ * ATTENTION: no support for positional precision (which are not used in simutrans anyway!
+ */
+static int my_vsnprintf(char *buf, size_t n, const char* fmt, va_list ap )
+{
+#if defined _MSC_FULL_VER && _MSC_FULL_VER >= 140050727 && !defined __WXWINCE__
+	// this MSC function can handle positional parameters since 2008
+	return _vsprintf_p(buf, n, fmt, ap);
+#else
+#if !defined(HAVE_UNIX98_PRINTF)
+	// this function cannot handle positional parameters
+	if(  const char *c=strstr( fmt, "%1$" )  ) {
+		// but they are requested here ...
+		// our routine can only handle max. 9 parameters
+		char pos[6];
+		static char format_string[256];
+		char *cfmt = format_string;
+		static char buffer[16000];	// the longest possible buffer ...
+		int count = 0;
+		for(  ;  c  &&  count<9;  count++  ) {
+			sprintf( pos, "%%%i$", count+1 );
+			if(  (c=strstr( fmt, pos ))!=NULL  ) {
+				// extend format string, using 1 as marke between strings
+				if(  count  ) {
+					*cfmt++ = '\01';
+				}
+				*cfmt++ = '%';
+				// now find the end
+				c += 3;
+				int len = strspn( c, "+-0123456789 #.hlI" )+1;
+				while(  len-->0  ) {
+					*cfmt++ = *c++;
+				}
+			}
+		}
+		*cfmt = 0;
+		// now printf into buffer
+		int result = vsnprintf( buffer, 16000, format_string, ap );
+		if(  result<0  ||  result>=16000  ) {
+			*buf = 0;
+			return 0;
+		}
+		// check the length
+		result += strlen(fmt);
+		if(   (size_t)result > n  ) {
+			// increase the size please ...
+			return result;
+		}
+		// we have enough size: copy everything together
+		*buf = 0;
+		char *cbuf = buf;
+		cfmt = const_cast<char *>(fmt); // cast is save, as the string is not modified
+		while(  *cfmt!=0  ) {
+			while(  *cfmt!='%'  &&  *cfmt>0  ) {
+				*cbuf++ = *cfmt++;
+			}
+			if(  *cfmt==0  ) {
+				*cbuf = 0;
+				break;
+			}
+			// get the nth argument
+			char *carg = buffer;
+			int current = cfmt[1]-'1';
+			for(  int j=0;  j<current;  j++  ) {
+				while(  *carg  &&  *carg!='\01'  ) {
+					carg ++;
+				}
+				assert( *carg );
+				carg ++;
+			}
+			while(  *carg  &&  *carg!='\01'  ) {
+				*cbuf++ = *carg++;
+			}
+			// jump rest
+			cfmt += 3;
+			cfmt += strspn( cfmt, "+-0123456789 #.hlI" )+1;
+		}
+		return cbuf-buf;
+	}
+	// no positional parameters: use standard vsnprintf
+#endif
+	// normal posix system can handle positional parameters
+	return vsnprintf(buf, n, fmt, ap);
+#endif
+}
+
+
 void cbuffer_t::printf(const char* fmt, ...)
 {
-	va_list ap;
-	va_start(ap, fmt);
-	int count = vsnprintf( buf+size, capacity-size, fmt, ap);
-	va_end(ap);
-	// buffer too small?
-	// we do not increase it beyond 1MB, as this is usually only needed when %s of a random memory location
-	while(0 <= count  &&  capacity-size <= (uint)count  &&  capacity < 1048576) {
-		// enlarge buffer
-		extend( capacity);
-		// and try again
+	for (;;) {
+		size_t const n     = capacity - size;
+		size_t inc;
+
+		va_list ap;
 		va_start(ap, fmt);
-		count = vsnprintf( buf+size, capacity-size, fmt, ap);
+		int    const count = my_vsnprintf(buf + size, n, fmt, ap );
 		va_end(ap);
-		// .. until everything fit into buffer
-	}
-	// error
-	if(count<0) {
-		// truncate
-		buf[capacity-1] = 0;
-	}
-	else {
-		size += count;
+		if (count < 0) {
+#ifdef _WIN32
+			inc = capacity;
+#else
+			// error
+			buf[size] = '\0';
+			break;
+#endif
+		} else if ((size_t)count < n) {
+			size += count;
+			break;
+		} else {
+			// Make room for the string.
+			inc = (size_t)count;
+		}
+		extend(inc);
 	}
 }
 
 
-void cbuffer_t::extend(const unsigned int by_amount)
+void cbuffer_t::extend(unsigned int min_free_space)
 {
-	if(  size+by_amount>=capacity  ) {
+	if (min_free_space >= capacity - size) {
+		unsigned int by_amount = min_free_space + 1 - (capacity - size);
+		if (by_amount < capacity) {
+			// At least double the size of the buffer.
+			by_amount = capacity;
+		}
 		unsigned int new_capacity = capacity + by_amount;
 		char *new_buf = new char [new_capacity];
 		memcpy( new_buf, buf, capacity );

@@ -384,7 +384,6 @@ static const uint8 night_lights[LIGHT_COUNT*3] = {
 
 
 // offsets of first and second comany color
-#define MAX_PLAYER_COUNT 16
 static uint8 player_offsets[MAX_PLAYER_COUNT][2];
 
 // the palette for the display ...
@@ -1003,12 +1002,9 @@ KOORD_VAL display_get_height(void)
 }
 
 
-sint16 display_set_height(KOORD_VAL h)
+void display_set_height(KOORD_VAL const h)
 {
-	sint16 old = disp_height;
-
 	disp_height = h;
-	return old;
 }
 
 
@@ -1362,6 +1358,7 @@ void display_scroll_band(const KOORD_VAL start_y, const KOORD_VAL x_offset, cons
 		"rep\n\t"
 		"movsl\n\t"
 		: "+D" (dst), "+S" (src), "+c" (amount)
+		:
 		: "memory"
 	);
 #endif
@@ -2458,22 +2455,27 @@ void display_ddd_proportional_clip(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL wid
  * @author Volker Meyer
  * @date  15.06.2003
  */
-void display_multiline_text(KOORD_VAL x, KOORD_VAL y, const char *buf, PLAYER_COLOR_VAL color)
+int display_multiline_text(KOORD_VAL x, KOORD_VAL y, const char *buf, PLAYER_COLOR_VAL color)
 {
+	int max_px_len = 0;
 	if (buf != NULL && *buf != '\0') {
 		const char *next;
 
 		do {
 			next = strchr(buf, '\n');
-			display_text_proportional_len_clip(
+			const int px_len = display_text_proportional_len_clip(
 				x, y, buf,
 				ALIGN_LEFT | DT_DIRTY | DT_CLIP, color,
 				next != NULL ? next - buf : -1
 			);
+			if(  px_len>max_px_len  ) {
+				max_px_len = px_len;
+			}
 			buf = next + 1;
 			y += LINESPACE;
 		} while (next != NULL);
 	}
+	return max_px_len;
 }
 
 
@@ -2592,7 +2594,7 @@ int simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 	// make sure it something of 16 (also better for caching ... )
 	width = (width + 15) & 0x7FF0;
 
-	if (dr_os_open(width, height, 8, full_screen)) {
+	if (dr_os_open(width, height, full_screen)) {
 		disp_width = width;
 		disp_height = height;
 
@@ -2698,7 +2700,7 @@ void simgraph_resize(KOORD_VAL w, KOORD_VAL h)
 		guarded_free(tile_dirty);
 		guarded_free(tile_dirty_old);
 
-		dr_textur_resize((unsigned short**)&textur, disp_width, disp_height, 8);
+		dr_textur_resize((unsigned short**)&textur, disp_width, disp_height);
 
 		tiles_per_line     = (disp_width  + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;
 		tile_lines         = (disp_height + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;

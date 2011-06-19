@@ -34,14 +34,10 @@
 #include "citybuilding_edit.h"
 
 
-#define LINE_NAME_COLUMN_WIDTH (int)((BUTTON_WIDTH*2.25)+11)
-#define SCL_HEIGHT (170)
-#define N_BUTTON_WIDTH  (int)(BUTTON_WIDTH*1.5)
-
-
 // new tool definition
 wkz_build_haus_t citybuilding_edit_frame_t::haus_tool=wkz_build_haus_t();
 char citybuilding_edit_frame_t::param_str[256];
+
 
 
 static bool compare_haus_besch(const haus_besch_t* a, const haus_besch_t* b)
@@ -240,16 +236,13 @@ void citybuilding_edit_frame_t::change_item_info(sint32 entry)
 			buf.printf("\n\n%s: %i\n",translator::translate("Passagierrate"),besch->get_level());
 			buf.printf("%s: %i\n",translator::translate("Postrate"),besch->get_post_level());
 
-			buf.append(translator::translate("\nBauzeit von"));
-			buf.append(besch->get_intro_year_month()/12);
+			buf.printf("%s%u", translator::translate("\nBauzeit von"), besch->get_intro_year_month() / 12);
 			if(besch->get_retire_year_month()!=DEFAULT_RETIRE_DATE*12) {
-				buf.append(translator::translate("\nBauzeit bis"));
-				buf.append(besch->get_retire_year_month()/12);
+				buf.printf("%s%u", translator::translate("\nBauzeit bis"), besch->get_retire_year_month() / 12);
 			}
 			buf.append("\n");
 
-			const char *maker=besch->get_copyright();
-			if(maker!=NULL  && maker[0]!=0) {
+			if (char const* const maker = besch->get_copyright()) {
 				buf.append("\n");
 				buf.printf(translator::translate("Constructed by %s"), maker);
 				buf.append("\n");

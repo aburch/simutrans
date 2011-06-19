@@ -100,7 +100,7 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 	welt = wl;
 	player_nr = nr;
 
-	konto = welt->get_einstellungen()->get_starting_money(welt->get_last_year());
+	konto = welt->get_settings().get_starting_money(welt->get_last_year());
 	starting_money = konto;
 
 	konto_ueberzogen = 0;
@@ -138,7 +138,7 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 	for (int maint=0; maint < MAINT_COUNT; maint++) 
 		maintenance[maint] = 0;
 
-	welt->get_einstellungen()->set_default_player_color( this );
+	welt->get_settings().set_default_player_color(this);
 
 	// we have different AI, try to find out our type:
 	sprintf(spieler_name_buf,"player %i",player_nr-1);
@@ -188,7 +188,7 @@ bool spieler_t::set_unlock( const uint8 *hash )
 	if(  !locked  &&  player_nr==1  ) {
 		// public player unlocked:
 		// allow to change active player
-		welt->access_einstellungen()->set_allow_player_change(true);
+		welt->get_settings().set_allow_player_change(true);
 	}
 	return locked;
 }
@@ -203,6 +203,7 @@ spieler_t::income_message_t::income_message_t( sint32 betrag, koord p )
 	money_to_string(str, betrag/100.0);
 	alter = 127;
 	pos = p;
+	amount = betrag;
 }
 
 void *spieler_t::income_message_t::operator new(size_t /*s*/)
@@ -264,8 +265,8 @@ void spieler_t::add_message(koord k, sint32 betrag)
 {
 	if(  !messages.empty()  &&  messages.back()->pos==k  &&  messages.back()->alter==127  ) {
 		// last message exactly at same place, not aged
-		betrag += (sint32)(100.0*atof(messages.back()->str));
-		money_to_string(messages.back()->str, betrag/100.0);
+		messages.back()->amount += betrag;
+		money_to_string(messages.back()->str, messages.back()->amount/100.0);
 	}
 	else {
 		// otherwise new message
@@ -351,7 +352,7 @@ void spieler_t::neuer_monat()
 	// enough money and scenario finished?
 	if(konto > 0  &&  welt->get_scenario()->active()  &&  finance_history_year[0][COST_SCENARIO_COMPLETED]>=100) {
 		destroy_all_win(true);
-		sint32 time = welt->get_current_month()-(welt->get_einstellungen()->get_starting_year()*12);
+		sint32 const time = welt->get_current_month() - welt->get_settings().get_starting_year() * 12;
 		sprintf( buf, translator::translate("Congratulation\nScenario was complete in\n%i months %i years."), time%12, time/12 );
 		create_win(280, 40, new news_img(buf), w_info, magic_none);
 		// disable further messages
@@ -365,13 +366,13 @@ void spieler_t::neuer_monat()
 	{	
 		// Record of the number of months for which a player has been overdrawn.
 		konto_ueberzogen++;
-		
+
 		// Add debit interest
 
 		// Monthly rate
-		if(welt->get_einstellungen()->get_interest_rate_percent() > 0)
+		if(welt->get_settings().get_interest_rate_percent() > 0)
 		{
-			const sint16 interest_rate = ((welt->get_einstellungen()->get_interest_rate_percent() * 1000) / 1200); 
+			const sint16 interest_rate = ((welt->get_settings().get_interest_rate_percent() * 1000) / 1200); 
 			const sint32 monthly_interest = (interest_rate * konto) / 1000;
 			buche(monthly_interest, COST_INTEREST);
 		}
@@ -384,11 +385,11 @@ void spieler_t::neuer_monat()
 			base_credit_limit = adjusted_credit_limit > 0 ? adjusted_credit_limit : 0;
 		}
 
-		if(!welt->get_einstellungen()->is_freeplay() && player_nr != 1 /* public player*/) 
+		if(!welt->get_settings().is_freeplay() && player_nr != 1 /* public player*/) 
 		{
 			if( welt->get_active_player_nr() == player_nr)
 			{
-				if(finance_history_year[0][COST_NETWEALTH] < 0 && welt->get_einstellungen()->bankruptsy_allowed()  && !umgebung_t::networkmode ) 
+				if(finance_history_year[0][COST_NETWEALTH] < 0 &&welt->get_settings().bankruptsy_allowed()  && !umgebung_t::networkmode ) 
 				{
 					destroy_all_win(true);
 					create_win( display_get_width()/2-128, 40, new news_img("Bankrott:\n\nDu bist bankrott.\n"), w_info, magic_none);
@@ -415,9 +416,9 @@ void spieler_t::neuer_monat()
 					{
 						n += sprintf(buf, "%s", translator::translate("You have been overdrawn\nfor one month"));
 					}
-					if(welt->get_einstellungen()->get_interest_rate_percent() > 0)
+					if(welt->get_settings().get_interest_rate_percent() > 0)
 					{
-						n += sprintf(buf + n, translator::translate("\n\nInterest on your debt is\naccumulating at %i %%"), welt->get_einstellungen()->get_interest_rate_percent() );
+						n += sprintf(buf + n, translator::translate("\n\nInterest on your debt is\naccumulating at %i %%"),welt->get_settings().get_interest_rate_percent() );
 					}
 //					sprintf(buf,translator::translate("Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n"), MAX_KONTO_VERZUG-konto_ueberzogen+1 );
 					welt->get_message()->add_message( buf, koord::invalid, message_t::problems, player_nr, IMG_LEER );
@@ -429,7 +430,7 @@ void spieler_t::neuer_monat()
 			{
 				// for AI, we only declare bankrupt, if total assest are below zero
 				// Also, AI players play by the same rules as human players: will only go bankrupt if humans can.
-				if(finance_history_year[0][COST_NETWEALTH]<0 && welt->get_einstellungen()->bankruptsy_allowed()) 
+				if(finance_history_year[0][COST_NETWEALTH]<0 &&welt->get_settings().bankruptsy_allowed()) 
 				{
 					ai_bankrupt();
 				}
@@ -442,10 +443,10 @@ void spieler_t::neuer_monat()
 		// Add credit interest (jamespetts, June 2011)
 
 		// Monthly rate
-		if(welt->get_einstellungen()->get_interest_rate_percent() > 0)
+		if(welt->get_settings().get_interest_rate_percent() > 0)
 		{
 			// Credit interest rate is 1/2 debit interest rate, so /2400 and not /1200.
-			const sint16 interest_rate = ((welt->get_einstellungen()->get_interest_rate_percent() * 1000) / 2400); 
+			const sint16 interest_rate = ((welt->get_settings().get_interest_rate_percent() * 1000) / 2400); 
 			const sint32 monthly_interest = (interest_rate * konto) / 1000;
 			buche(monthly_interest, COST_INTEREST);
 		}
@@ -583,7 +584,7 @@ sint64 spieler_t::calc_credit_limit()
 
 sint64 spieler_t::get_base_credit_limit()
 {
-	return welt->get_einstellungen()->get_starting_money(welt->get_current_month() / 12) / 10;
+	return welt->get_settings().get_starting_money(welt->get_current_month() / 12) / 10;
 }
 
 // add and amount, including the display of the message and some other things ...
@@ -1290,7 +1291,7 @@ void spieler_t::bescheid_vehikel_problem(convoihandle_t cnv,const koord3d ziel)
 		case convoi_t::NO_ROUTE:
 DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s can't find a route to (%i,%i)!", cnv->get_name(),ziel.x,ziel.y);
 			if(this==welt->get_active_player()) {
-				cbuffer_t buf(320);
+				cbuffer_t buf;
 				buf.printf( translator::translate("Vehicle %s can't find a route!"), cnv->get_name());
 				const uint32 max_weight = cnv->get_route()->get_max_weight();
 				const uint32 cnv_weight = cnv->get_heaviest_vehicle();
@@ -1307,7 +1308,7 @@ DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s can't find a route
 		case convoi_t::CAN_START_TWO_MONTHS:
 DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s stucked!", cnv->get_name(),ziel.x,ziel.y);
 			{
-				cbuffer_t buf(256);
+				cbuffer_t buf;
 				buf.printf( translator::translate("Vehicle %s is stucked!"), cnv->get_name());
 				welt->get_message()->add_message( (const char *)buf, cnv->get_pos().get_2d(), message_t::warnings, PLAYER_FLAG | player_nr, cnv->front()->get_basis_bild());
 			}

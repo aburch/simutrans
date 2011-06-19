@@ -58,9 +58,9 @@ slist_tpl<const ware_besch_t *> halt_list_frame_t::waren_filter_ab;
 slist_tpl<const ware_besch_t *> halt_list_frame_t::waren_filter_an;
 
 const char *halt_list_frame_t::sort_text[SORT_MODES] = {
-    "hl_btn_sort_name",
-    "hl_btn_sort_waiting",
-    "hl_btn_sort_type"
+	"hl_btn_sort_name",
+	"hl_btn_sort_waiting",
+	"hl_btn_sort_type"
 };
 
 
@@ -71,11 +71,11 @@ const char *halt_list_frame_t::sort_text[SORT_MODES] = {
 */
 bool halt_list_frame_t::compare_halts(halthandle_t const halt1, halthandle_t const halt2)
 {
-    int order;
+	int order;
 
-    /***********************************
-    * Compare station 1 and station 2
-    ***********************************/
+	/***********************************
+	* Compare station 1 and station 2
+	***********************************/
 	switch (sortby) {
 		default:
 		case nach_name: // sort by station name
@@ -115,7 +115,7 @@ bool halt_list_frame_t::passes_filter(halthandle_t halt)
 		return false;
 	}
 	if(get_filter(typ_filter)) {
-		int t = halt->get_station_type() ;
+		haltestelle_t::stationtyp const t = halt->get_station_type();
 
 		if(!(get_filter(frachthof_filter) && (t & haltestelle_t::loadingbay)) &&
 		   !(get_filter(bahnhof_filter) && (t & haltestelle_t::railstation)) &&
@@ -176,7 +176,7 @@ bool halt_list_frame_t::passes_filter(halthandle_t halt)
 				  // begrenzt (Normal 1-2 Fabriken mit je 0-1 Ausgang) -  V. Meyer
 					slist_iterator_tpl<fabrik_t *> fab_iter(halt->get_fab_list());
 					while(!ok && fab_iter.next()) {
-						const vector_tpl<ware_production_t>& ausgang = fab_iter.get_current()->get_ausgang();
+						const array_tpl<ware_production_t>& ausgang = fab_iter.get_current()->get_ausgang();
 						for (j = 0; !ok && j < ausgang.get_count(); j++) {
 							ok = (ausgang[j].get_typ() == ware);
 						}
@@ -188,7 +188,7 @@ bool halt_list_frame_t::passes_filter(halthandle_t halt)
 		if(!ok) {
 			return false;
 		}
-    }
+	}
 
 	if(get_filter(ware_an_filter)) {
 		/*
@@ -219,7 +219,7 @@ bool halt_list_frame_t::passes_filter(halthandle_t halt)
 
 					slist_iterator_tpl<fabrik_t *> fab_iter(halt->get_fab_list());
 					while(!ok && fab_iter.next()) {
-						const vector_tpl<ware_production_t>& eingang = fab_iter.get_current()->get_eingang();
+						const array_tpl<ware_production_t>& eingang = fab_iter.get_current()->get_eingang();
 						for (j = 0; !ok && j < eingang.get_count(); j++) {
 							ok = (eingang[j].get_typ() == ware);
 						}
@@ -231,50 +231,48 @@ bool halt_list_frame_t::passes_filter(halthandle_t halt)
 		if(!ok) {
 			return false;
 		}
-    }
-    return true;
+	}
+	return true;
 }
 
 
 halt_list_frame_t::halt_list_frame_t(spieler_t *sp) :
-    gui_frame_t("hl_title", sp),
+	gui_frame_t("hl_title", sp),
 	vscroll( scrollbar_t::vertical ),
-    sort_label(translator::translate("hl_txt_sort")),
-    filter_label(translator::translate("hl_txt_filter"))
+	sort_label(translator::translate("hl_txt_sort")),
+	filter_label(translator::translate("hl_txt_filter"))
 {
-    m_sp = sp;
-    filter_frame = NULL;
+	m_sp = sp;
+	filter_frame = NULL;
 
-    sort_label.set_pos(koord(BUTTON1_X, 4));
-    add_komponente(&sort_label);
-    sortedby.init(button_t::roundbox, "", koord(BUTTON1_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
-    sortedby.add_listener(this);
-    add_komponente(&sortedby);
+	sort_label.set_pos(koord(BUTTON1_X, 2));
+	add_komponente(&sort_label);
+	sortedby.init(button_t::roundbox, "", koord(BUTTON1_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	sortedby.add_listener(this);
+	add_komponente(&sortedby);
 
-    sorteddir.init(button_t::roundbox, "", koord(BUTTON2_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
-    sorteddir.add_listener(this);
-    add_komponente(&sorteddir);
+	sorteddir.init(button_t::roundbox, "", koord(BUTTON2_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	sorteddir.add_listener(this);
+	add_komponente(&sorteddir);
 
-    filter_label.set_pos(koord(BUTTON3_X, 4));
-    add_komponente(&filter_label);
+	filter_label.set_pos(koord(BUTTON3_X, 2));
+	add_komponente(&filter_label);
 
-    filter_on.init(button_t::roundbox, translator::translate(get_filter(any_filter) ? "hl_btn_filter_enable" : "hl_btn_filter_disable"), koord(BUTTON3_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
-    filter_on.add_listener(this);
-    add_komponente(&filter_on);
+	filter_on.init(button_t::roundbox, translator::translate(get_filter(any_filter) ? "hl_btn_filter_enable" : "hl_btn_filter_disable"), koord(BUTTON3_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	filter_on.add_listener(this);
+	add_komponente(&filter_on);
 
-    filter_details.init(button_t::roundbox, translator::translate("hl_btn_filter_settings"), koord(BUTTON4_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
-    filter_details.add_listener(this);
-    add_komponente(&filter_details);
+	filter_details.init(button_t::roundbox, translator::translate("hl_btn_filter_settings"), koord(BUTTON4_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	filter_details.add_listener(this);
+	add_komponente(&filter_details);
 
-    set_fenstergroesse(koord(BUTTON4_X+BUTTON_WIDTH+2, 191+16+16));
+	display_list();
 
-	// use gui-resize
-	set_min_windowsize(koord(BUTTON4_X+BUTTON_WIDTH+2,191+16+16));
+	set_fenstergroesse(koord(TOTAL_WIDTH, TITLEBAR_HEIGHT+7*(28)+31+1));
+	set_min_windowsize(koord(TOTAL_WIDTH, TITLEBAR_HEIGHT+3*(28)+31+1));
+
 	set_resizemode(diagonal_resize);
-
-    display_list();
-
-    resize (koord(0,0));
+	resize (koord(0,0));
 }
 
 
@@ -295,9 +293,9 @@ halt_list_frame_t::~halt_list_frame_t()
 void halt_list_frame_t::display_list(void)
 {
 	slist_iterator_tpl<halthandle_t > halt_iter (haltestelle_t::get_alle_haltestellen());	// iteration with haltestellen (stations)
-	const int count = haltestelle_t::get_alle_haltestellen().get_count();				// count of stations
+	last_world_stops = haltestelle_t::get_alle_haltestellen().get_count();				// count of stations
 
-	ALLOCA(halthandle_t, a, count);
+	ALLOCA(halthandle_t, a, last_world_stops);
 	int n = 0; // temporary variable
 	int i;
 
@@ -306,11 +304,14 @@ void halt_list_frame_t::display_list(void)
 	 *************************/
 
 	// create a unsorted station list
+	num_filtered_stops = 0;
 	while(halt_iter.next()) {
 		halthandle_t halt = halt_iter.get_current();
-		if(halt->get_besitzer() == m_sp && passes_filter(halt)) {
-				a[n++] = halt;
-
+		if(  halt->get_besitzer() == m_sp  ) {
+			a[n++] = halt;
+			if(  passes_filter(halt)  ) {
+				num_filtered_stops++;
+			}
 		}
 	}
 	std::sort(a, a + n, compare_halts);
@@ -349,10 +350,18 @@ bool halt_list_frame_t::infowin_event(const event_t *ev)
 		return vscroll.infowin_event(ev);
 	}
 	else if((IS_LEFTRELEASE(ev)  ||  IS_RIGHTRELEASE(ev))  &&  ev->my>47  &&  ev->mx+11<get_fenstergroesse().x) {
-		int y = (ev->my-47)/28 + vscroll.get_knob_offset();
-		if(y<(sint32)stops.get_count()) {
+		const int y = (ev->my-47)/28 + vscroll.get_knob_offset();
+
+		if(  y<num_filtered_stops  ) {
+			// find the 'y'th filtered stop in the unfiltered stops list
+			uint32 i=0;
+			for(  int j=0;  i<stops.get_count()  &&  j<=y;  i++  ){
+				if(  passes_filter(stops[i].get_halt())  ) {
+					j++;
+				}
+			}
 			// let gui_convoiinfo_t() handle this, since then it will be automatically consistent
-			return stops[y].infowin_event( ev );
+			return stops[i-1].infowin_event( ev );
 		}
 	}
 	return gui_frame_t::infowin_event(ev);
@@ -401,14 +410,14 @@ void halt_list_frame_t::resize(const koord size_change)
 	gui_frame_t::resize(size_change);
 	koord groesse = get_fenstergroesse()-koord(0,47);
 	remove_komponente(&vscroll);
-	if((sint32)stops.get_count()<=groesse.y/28) {
+	vscroll.set_knob( groesse.y/28, num_filtered_stops );
+	if(  num_filtered_stops<=groesse.y/28  ) {
 		vscroll.set_knob_offset(0);
 	}
 	else {
 		add_komponente(&vscroll);
-		vscroll.set_pos(koord(groesse.x-11, 47-16));
-		vscroll.set_groesse(groesse-koord(0,11));
-		vscroll.set_knob( groesse.y/28, stops.get_count() );
+		vscroll.set_pos(koord(groesse.x-scrollbar_t::BAR_SIZE, 47-TITLEBAR_HEIGHT-1));
+		vscroll.set_groesse(groesse-koord(scrollbar_t::BAR_SIZE,scrollbar_t::BAR_SIZE));
 		vscroll.set_scroll_amount( 1 );
 	}
 }
@@ -417,17 +426,34 @@ void halt_list_frame_t::resize(const koord size_change)
 
 void halt_list_frame_t::zeichnen(koord pos, koord gr)
 {
-    filter_details.pressed = filter_frame != NULL;
+	filter_details.pressed = filter_frame != NULL;
 
 	gui_frame_t::zeichnen(pos, gr);
 
-	PUSH_CLIP(pos.x, pos.y+47, gr.x-11, gr.y-48 );
+	PUSH_CLIP(pos.x, pos.y+47, gr.x-scrollbar_t::BAR_SIZE, gr.y-48 );
 
-	uint32 start = vscroll.get_knob_offset();
+	const sint32 start = vscroll.get_knob_offset();
 	sint16 yoffset = 47;
-	for(  unsigned i=start;  i<stops.get_count()  &&  yoffset<gr.y+47;  i++  ) {
-		stops[i].zeichnen( pos+koord(0,yoffset) );
-		yoffset += 28;
+	const int last_num_filtered_stops = num_filtered_stops;
+	num_filtered_stops = 0;
+
+	if(  last_world_stops != haltestelle_t::get_alle_haltestellen().get_count()  ) {
+		// some deleted/ added => resort
+		display_list();
+	}
+
+	for(  unsigned i=0;  i<stops.get_count();  i++  ) {
+		const halthandle_t halt = stops[i].get_halt();
+		if(  halt.is_bound()  &&  passes_filter(halt)  ) {
+			num_filtered_stops++;
+			if(  num_filtered_stops>start  &&  yoffset<gr.y+47  ) {
+				stops[i].zeichnen( pos+koord(0,yoffset) );
+				yoffset += 28;
+			}
+		}
+	}
+	if(  num_filtered_stops!=last_num_filtered_stops  ) {
+		resize (koord(0,0));
 	}
 
 	POP_CLIP();

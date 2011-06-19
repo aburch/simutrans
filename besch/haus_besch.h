@@ -36,7 +36,6 @@ class checksum_t;
  *	... ...
  */
 class haus_tile_besch_t : public obj_besch_t {
-	friend class tile_writer_t;
 	friend class tile_reader_t;
 
 	const haus_besch_t	*haus;
@@ -126,8 +125,6 @@ public:
  *	... ...
  */
 class haus_besch_t : public obj_besch_std_name_t { // Daten für ein ganzes Gebäude
-
-	friend class building_writer_t;
 	friend class building_reader_t;
 
 	public:
@@ -167,15 +164,15 @@ class haus_besch_t : public obj_besch_std_name_t { // Daten für ein ganzes Gebäu
 			unbekannt_flag    = 128,
 		};
 
-	private:
-	enum flag_t {
-		FLAG_NULL = 0,
-		FLAG_KEINE_INFO = 1,    // was flag FLAG_ZEIGE_INFO
-		FLAG_KEINE_GRUBE = 2,   // Baugrube oder nicht?
-		FLAG_NEED_GROUND = 4,   // draw ground below
-		FLAG_HAS_CURSOR = 8     // there is cursor/icon for this
-	};
+		enum flag_t {
+			FLAG_NULL        = 0,
+			FLAG_KEINE_INFO  = 1, // was flag FLAG_ZEIGE_INFO
+			FLAG_KEINE_GRUBE = 2, // Baugrube oder nicht?
+			FLAG_NEED_GROUND = 4, // draw ground below
+			FLAG_HAS_CURSOR  = 8  // there is cursor/icon for this
+		};
 
+	private:
 	gebaeude_t::typ     gtyp;      // Hajo: this is the type of the building
 	utyp            utype; // Hajo: if gtyp == gebaeude_t::unbekannt, then this is the real type
 
@@ -373,5 +370,7 @@ public:
 	void calc_checksum(checksum_t *chk) const;
 };
 	
+
+ENUM_BITSET(haus_besch_t::flag_t)
 
 #endif

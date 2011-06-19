@@ -23,7 +23,6 @@ class checksum_t;
  *	2   Text Maﬂeinheit
  */
 class ware_besch_t : public obj_besch_std_name_t {
-	friend class good_writer_t;
 	friend class good_reader_t;
 	friend class warenbauer_t;
 

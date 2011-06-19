@@ -12,12 +12,12 @@
 #include "savegame_frame.h"
 
 
-class einstellungen_t;
+class settings_t;
 
 class load_relief_frame_t : public savegame_frame_t
 {
 private:
-	einstellungen_t * sets;
+	settings_t* sets;
 
 protected:
 	/**
@@ -46,7 +46,7 @@ public:
 	 */
 	const char *get_hilfe_datei() const { return "load_relief.txt"; }
 
-	load_relief_frame_t(einstellungen_t* sets);
+	load_relief_frame_t(settings_t*);
 };
 
 #endif

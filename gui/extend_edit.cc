@@ -33,8 +33,7 @@
 extend_edit_gui_t::extend_edit_gui_t(const char *name, spieler_t* sp_, karte_t* welt) :
 	gui_frame_t(name, sp_),
 	sp(sp_),
-	buf(2048),
-	info_text(buf, COLUMN_WIDTH),
+	info_text(&buf, COLUMN_WIDTH),
 	scrolly(&cont),
 	scl(gui_scrolled_list_t::select)
 {
@@ -53,7 +52,7 @@ extend_edit_gui_t::extend_edit_gui_t(const char *name, spieler_t* sp_, karte_t* 
 	scl.add_listener(this);
 
 	// tab panel
-	tabs.set_pos(koord(MARGIN, MARGIN));
+	tabs.set_pos(koord(11,5));
 	tabs.set_groesse(koord(tab_panel_width, SCL_HEIGHT));
 	tabs.add_tab(&scl, translator::translate("Translation"));//land
 	tabs.add_tab(&scl, translator::translate("Object"));//city
@@ -65,7 +64,7 @@ extend_edit_gui_t::extend_edit_gui_t(const char *name, spieler_t* sp_, karte_t* 
 	add_komponente(&bt_climates);
 
 	bt_timeline.init( button_t::square_state, "Use timeline start year", koord(tab_panel_width+2*MARGIN, BUTTON_HEIGHT+MARGIN) );
-	bt_timeline.pressed = welt->get_einstellungen()->get_use_timeline();
+	bt_timeline.pressed = welt->get_settings().get_use_timeline();
 	bt_timeline.add_listener(this);
 	add_komponente(&bt_timeline);
 
@@ -90,7 +89,7 @@ extend_edit_gui_t::extend_edit_gui_t(const char *name, spieler_t* sp_, karte_t* 
 	}
 
 	// resize button
-	set_min_windowsize(koord(tab_panel_width+COLUMN_WIDTH+3*MARGIN, 16+SCL_HEIGHT+(get_base_tile_raster_width()*3)/2+5*MARGIN));
+	set_min_windowsize(koord(tab_panel_width+COLUMN_WIDTH+3*MARGIN, TITLEBAR_HEIGHT+SCL_HEIGHT+(get_base_tile_raster_width()*3)/2+5*MARGIN));
 	set_resizemode(diagonal_resize);
 	resize(koord(0,0));
 }

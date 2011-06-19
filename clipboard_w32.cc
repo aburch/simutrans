@@ -9,6 +9,7 @@
 
 #define NOMINMAX 1
 #include <windows.h>
+
 #include <string.h>
 
 #include "simsys.h"
