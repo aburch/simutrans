@@ -3558,25 +3558,6 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	{
 		//Passengers care about their comfort
 		const uint8 tolerable_comfort = calc_tolerable_comfort(journey_minutes);
-		
-		// Comfort matters more the longer the journey.
-		// @author: jamespetts, March 2010
-		uint32 comfort_modifier;
-		if(journey_minutes <=welt->get_settings().get_tolerable_comfort_short_minutes())
-		{
-			comfort_modifier = 20;
-		}
-		else if(journey_minutes >=welt->get_settings().get_tolerable_comfort_median_long_minutes())
-		{
-			comfort_modifier = 100;
-		}
-		else
-		{
-			const uint8 differential = journey_minutes -welt->get_settings().get_tolerable_comfort_short_minutes();
-			const uint8 max_differential =welt->get_settings().get_tolerable_comfort_median_long_minutes() -welt->get_settings().get_tolerable_comfort_short_minutes();
-			const uint32 proportion = differential * 100 / max_differential;
-			comfort_modifier = (80 * proportion / 100) + 20;
-		}
 
 		uint8 comfort = 100;
 		if(line.is_bound())
@@ -3602,13 +3583,32 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 				comfort = financial_history[1][CONVOI_COMFORT];
 			}
 		}
+		
+		// Comfort matters more the longer the journey.
+		// @author: jamespetts, March 2010
+		uint32 comfort_modifier;
+		if(journey_minutes <=welt->get_settings().get_tolerable_comfort_short_minutes())
+		{
+			comfort_modifier = 20;
+		}
+		else if(journey_minutes >=welt->get_settings().get_tolerable_comfort_median_long_minutes())
+		{
+			comfort_modifier = 100;
+		}
+		else
+		{
+			const uint8 differential = journey_minutes -welt->get_settings().get_tolerable_comfort_short_minutes();
+			const uint8 max_differential =welt->get_settings().get_tolerable_comfort_median_long_minutes() -welt->get_settings().get_tolerable_comfort_short_minutes();
+			const uint32 proportion = differential * 100 / max_differential;
+			comfort_modifier = (80 * proportion / 100) + 20;
+		}
 
 		if(comfort > tolerable_comfort)
 		{
 			// Apply luxury bonus
-			const uint8 max_differential =welt->get_settings().get_max_luxury_bonus_differential();
+			const uint8 max_differential = welt->get_settings().get_max_luxury_bonus_differential();
 			const uint8 differential = comfort - tolerable_comfort;
-			const uint32 multiplier = (welt->get_settings().get_max_luxury_bonus_percent() * comfort_modifier) / 10000;
+			const uint32 multiplier = (welt->get_settings().get_max_luxury_bonus_percent() * comfort_modifier) / 100;
 			if(differential >= max_differential)
 			{
 				final_revenue += (sint64)(revenue * multiplier);
@@ -3616,19 +3616,19 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 			else
 			{
 				const uint32 proportion = (differential * 100) / max_differential;
-				final_revenue += (revenue * (sint64)(multiplier * proportion)) / 100;
+				final_revenue += (revenue * (sint64)(multiplier * proportion)) / 10000;
 			}
 		}
 		else if(comfort < tolerable_comfort)
 		{
 			// Apply discomfort penalty
-			const uint8 max_differential =welt->get_settings().get_max_discomfort_penalty_differential();
+			const uint8 max_differential = welt->get_settings().get_max_discomfort_penalty_differential();
 			const uint8 differential = tolerable_comfort - comfort;
-			uint32 multiplier = (welt->get_settings().get_max_discomfort_penalty_percent() * comfort_modifier) / 10000;
+			uint32 multiplier = (welt->get_settings().get_max_discomfort_penalty_percent() * comfort_modifier) / 100;
 			multiplier = multiplier < 95 ? multiplier : 95;
 			if(differential >= max_differential)
 			{
-				final_revenue -= (sint64)(revenue * multiplier) / 100;
+				final_revenue -= (sint64)(revenue * multiplier) / 10000;
 			}
 			else
 			{

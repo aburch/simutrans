@@ -77,18 +77,17 @@ void goods_stats_t::zeichnen(koord offset)
 			else
 			{
 				const uint8 differential = journey_minutes -welt->get_settings().get_tolerable_comfort_short_minutes();
-				const uint8 max_differential =welt->get_settings().get_tolerable_comfort_median_long_minutes() -welt->get_settings().get_tolerable_comfort_short_minutes();
+				const uint8 max_differential = welt->get_settings().get_tolerable_comfort_median_long_minutes() -welt->get_settings().get_tolerable_comfort_short_minutes();
 				const uint32 proportion = differential * 100 / max_differential;
 				comfort_modifier = (80 * proportion / 100) + 20;
 			}
 
-
 			if(comfort > tolerable_comfort)
 			{
 				// Apply luxury bonus
-				const uint8 max_differential =welt->get_settings().get_max_luxury_bonus_differential();
+				const uint8 max_differential = welt->get_settings().get_max_luxury_bonus_differential();
 				const uint8 differential = comfort - tolerable_comfort;
-				const uint32 multiplier = (welt->get_settings().get_max_luxury_bonus_percent() * comfort_modifier) / 10000;
+				const uint32 multiplier = (welt->get_settings().get_max_luxury_bonus_percent() * comfort_modifier) / 100;
 				if(differential >= max_differential)
 				{
 					price += (sint64)(revenue * multiplier);
@@ -96,13 +95,13 @@ void goods_stats_t::zeichnen(koord offset)
 				else
 				{
 					const uint32 proportion = (differential * 100) / max_differential;
-					price += (revenue * (sint64)(multiplier * proportion)) / 100;
+					price += (revenue * (sint64)(multiplier * proportion)) / 10000;
 				}
 			}
 			else if(comfort < tolerable_comfort)
 			{
 				// Apply discomfort penalty
-				const uint8 max_differential =welt->get_settings().get_max_discomfort_penalty_differential();
+				const uint8 max_differential = welt->get_settings().get_max_discomfort_penalty_differential();
 				const uint8 differential = tolerable_comfort - comfort;
 				uint32 multiplier = (welt->get_settings().get_max_discomfort_penalty_percent() * comfort_modifier) / 10000;
 				multiplier = multiplier < 95 ? multiplier : 95;
