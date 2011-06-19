@@ -401,10 +401,10 @@ void fahrplan_gui_t::update_selection()
 	lb_wait.set_color( COL_GREY3 );
 	lb_spacing.set_color( COL_GREY3 );
 	lb_spacing_as_clock.set_color( COL_GREY3 );
-	printf(str_spacing_as_clock, sizeof(str_spacing_as_clock), "%s", translator::translate("off") );
+	sprintf(str_spacing_as_clock, "%s", translator::translate("off") );
 	lb_spacing_shift.set_color( COL_GREY3 );
 	lb_spacing_shift_as_clock.set_color( COL_GREY3 );
-	printf(str_spacing_shift_as_clock, sizeof(str_spacing_shift_as_clock), "%s", translator::translate("off") );
+	sprintf(str_spacing_shift_as_clock, "%s", translator::translate("off") );
 
 	if (!fpl->empty()) {
 		fpl->set_aktuell( min(fpl->get_count()-1,fpl->get_aktuell()) );

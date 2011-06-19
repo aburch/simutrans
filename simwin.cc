@@ -1655,5 +1655,5 @@ void win_set_static_tooltip(const char *text)
 void win_sprintf_ticks(char *p, size_t size, uint32 ticks) {
 	unsigned int hours = (ticks * 24) >> wl->ticks_per_world_month_shift;
 	unsigned int minutes = ((ticks * 24 * 60) >> wl->ticks_per_world_month_shift)%60;
-	printf(p, size, "%u:%02u", hours, minutes);
+	sprintf(p, "%u:%02u", hours, minutes);
 }
