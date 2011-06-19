@@ -441,6 +441,14 @@ settings_t::settings_t() :
 	spacing_shift_divisor = 24*60;
 }
 
+settings_t::~settings_t()
+{
+	/*ITERATE(livery_schemes, i)
+	{
+		delete livery_schemes[i];
+	}*/
+	//livery_schemes = NULL;
+}
 
 
 void settings_t::set_default_climates()
@@ -1206,17 +1214,20 @@ void settings_t::rdwr(loadsave_t *file)
 			
 			file->rdwr_short(livery_schemes_count);
 
-			for(int i = 0; i < livery_schemes_count; i ++)
+			if(strcmp(file->get_pak_extension(), "settings only"))
 			{
-				if(file->is_saving())
+				for(int i = 0; i < livery_schemes_count; i ++)
 				{
-					livery_schemes[i]->rdwr(file);
-				}
-				else
-				{
-					livery_scheme_t* scheme = new livery_scheme_t("default", DEFAULT_RETIRE_DATE);
-					scheme->rdwr(file);
-					livery_schemes.append(scheme);
+					if(file->is_saving())
+					{
+						livery_schemes[i]->rdwr(file);
+					}
+					else
+					{
+						livery_scheme_t* scheme = new livery_scheme_t("default", DEFAULT_RETIRE_DATE);
+						scheme->rdwr(file);
+						livery_schemes.append(scheme);
+					}
 				}
 			}
 		}

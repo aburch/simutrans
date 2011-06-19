@@ -220,6 +220,8 @@ private:
 
 public:
 
+	~settings_t();
+
 	//Cornering settings
 	//@author: jamespetts
 	
