@@ -2042,6 +2042,14 @@ void fabrik_t::neuer_monat()
 						}
 						// Re-set the expansion counter: an upgraded factory may expand further.
 						times_expanded = 0;
+						// Re-calculate electricity conspumption, mail and passenger demand, etc.
+						recalc_storage_capacities();
+						update_scaled_electric_amount();
+						update_scaled_pax_demand();
+						update_scaled_mail_demand();
+						update_prodfactor_pax();
+						update_prodfactor_mail();
+						recalc_demands_at_target_cities();
 						sprintf(buf, translator::translate("Industry:\n%s\nhas been upgraded\nto industry:\n%s."), translator::translate(old_name), translator::translate(new_name));
 						welt->get_message()->add_message(buf, pos.get_2d(), message_t::industry, CITY_KI, skinverwaltung_t::neujahrsymbol->get_bild_nr(0));
 						return;
