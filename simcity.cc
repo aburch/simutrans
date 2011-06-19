@@ -1707,8 +1707,6 @@ stadt_t::stadt_t(karte_t* wl, loadsave_t* file) :
 
 	rdwr(file);
 
-	verbinde_fabriken();
-
 	calc_internal_passengers();
 
 	finder = new road_destination_finder_t(welt, new automobil_t(welt));

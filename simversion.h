@@ -3,8 +3,8 @@
 
 #define MAKEOBJ_VERSION "52"
 
-#define VERSION_NUMBER "110.0.1 Experimental "
-#define WIDE_VERSION_NUMBER L"110.0.1 Experimental "
+#define VERSION_NUMBER "110.0.6 Experimental "
+#define WIDE_VERSION_NUMBER L"110.0.6 Experimental "
 
 #define VERSION_DATE __DATE__
 
@@ -19,7 +19,7 @@
 #define EXPERIMENTAL_VER_NR ".9"
 #define EXPERIMENTAL_SAVEGAME_VERSION (SAVEGAME_PREFIX SAVEGAME_VER_NR EXPERIMENTAL_VER_NR)
 
-#define RES_VERSION_NUMBER  110, 1, 9, 9
+#define RES_VERSION_NUMBER  110, 6, 9, 9
 
 #define ANNOUNCE_SERVER "simutrans-germany.com:80"
 

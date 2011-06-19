@@ -20,7 +20,7 @@ INIT_NUM( "intercity_road_length", umgebung_t::intercity_road_length);
 INIT_NUM( "diagonal_multiplier", pak_diagonal_multiplier);
 */
 
-static const char *version[9]=
+static const char *version[11]=
 {
 	"0.99.17",
 	"0.100.0",
@@ -30,7 +30,9 @@ static const char *version[9]=
 	"0.102.3",
 	"0.102.5",
 	"0.110.0",
-	"0.110.1"
+	"0.110.1",
+	"0.110.5",
+	"0.110.6"
 };
 
 static const char *version_ex[10]=
