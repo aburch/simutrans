@@ -126,7 +126,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	no_load_button.add_listener(this);
 	add_komponente(&no_load_button);
 
-	replace_button.init(button_t::roundbox, "Replace", koord(BUTTON3_X,offset_below_viewport-(BUTTON_HEIGHT + 5)));
+	replace_button.init(button_t::roundbox, "Replace", koord(BUTTON3_X,offset_below_viewport-(BUTTON_HEIGHT + 5)), koord(BUTTON_WIDTH, BUTTON_HEIGHT));
 	replace_button.set_tooltip("Automatically replace this convoy.");
 	add_komponente(&replace_button);
 	replace_button.add_listener(this);
@@ -200,9 +200,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	details_button.add_listener(this);
 	add_komponente(&details_button);
 
-	reverse_button.set_groesse(koord(BUTTON_WIDTH*2, BUTTON_HEIGHT));
-	reverse_button.set_text("reverse route");
-	reverse_button.set_typ(button_t::square_state);
+	reverse_button.init(button_t::square_state, "reverse route", koord(BUTTON3_X,yoff-BUTTON_HEIGHT), (koord(BUTTON_WIDTH*2, BUTTON_HEIGHT)));
 	reverse_button.add_listener(this);
 	reverse_button.set_tooltip("When this is set, the vehicle will visit stops in reverse order.");
 	reverse_button.pressed = cnv->get_reverse_schedule();
@@ -650,13 +648,12 @@ void convoi_info_t::set_fenstergroesse(koord groesse)
 	follow_button.set_pos(koord(view.get_pos().x, view.get_groesse().y + 21));
 
 	scrolly.set_groesse(get_client_windowsize()-scrolly.get_pos());
-
 	const sint16 yoff = scrolly.get_pos().y-BUTTON_HEIGHT-3;
-	sort_button.set_pos(koord(BUTTON1_X,yoff));
-	toggler.set_pos(koord(BUTTON3_X,yoff));
-	details_button.set_pos(koord(BUTTON4_X,yoff));
-	sort_label.set_pos(koord(2,yoff-LINESPACE-1));
-	reverse_button.set_pos(koord(BUTTON3_X,yoff-BUTTON_HEIGHT));
+	sort_button.set_pos(koord(BUTTON1_X,yoff+LINESPACE));
+	toggler.set_pos(koord(BUTTON3_X,yoff+LINESPACE));
+	details_button.set_pos(koord(BUTTON4_X,yoff+LINESPACE));
+	sort_label.set_pos(koord(2,yoff-1));
+	reverse_button.set_pos(koord(BUTTON3_X,yoff-BUTTON_HEIGHT+LINESPACE));
 
 	// convoi speed indicator
 	speed_bar.set_pos(koord(BUTTON3_X,22+0*LINESPACE));
