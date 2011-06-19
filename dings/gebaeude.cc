@@ -700,22 +700,14 @@ void gebaeude_t::info(cbuffer_t & buf) const
 		}*/
 
 		if( get_tile()->get_besch()->get_utyp() < haus_besch_t::bahnhof ) {
-			buf.append(translator::translate("Passagierrate"));
-			buf.append(": ");
-			buf.append(get_passagier_level());
-			buf.append("\n");
-
-			buf.append(translator::translate("Postrate"));
-			buf.append(": ");
-			buf.append(get_post_level());
-			buf.append("\n");
+			buf.printf("%s: %d\n", translator::translate("Passagierrate"), get_passagier_level());
+			buf.printf("%s: %d\n", translator::translate("Postrate"),      get_post_level());
 		}
 
-		buf.append(translator::translate("\nBauzeit von"));
-		buf.append(tile->get_besch()->get_intro_year_month()/12);
-		if(tile->get_besch()->get_retire_year_month()!=DEFAULT_RETIRE_DATE*12) {
-			buf.append(translator::translate("\nBauzeit bis"));
-			buf.append(tile->get_besch()->get_retire_year_month()/12);
+		haus_besch_t const& h = *tile->get_besch();
+		buf.printf("%s%u", translator::translate("\nBauzeit von"), h.get_intro_year_month() / 12);
+		if (h.get_retire_year_month() != DEFAULT_RETIRE_DATE * 12) {
+			buf.printf("%s%u", translator::translate("\nBauzeit bis"), h.get_retire_year_month() / 12);
 		}
 
 		buf.append("\n");

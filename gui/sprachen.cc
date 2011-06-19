@@ -31,6 +31,7 @@
 #include "../utils/simstring.h"
 
 
+
 int sprachengui_t::cmp_language_button(sprachengui_t::language_button_t a, sprachengui_t::language_button_t b)
 {
 	return strcmp( a.button->get_text(), b.button->get_text() )<0;
@@ -88,10 +89,12 @@ void sprachengui_t::init_font_from_lang()
 
 sprachengui_t::sprachengui_t() :
 	gui_frame_t("Sprachen"),
-	text_label(translator::translate("LANG_CHOOSE\n")),
+	text_label(&buf),
 	flags(skinverwaltung_t::flaggensymbol?skinverwaltung_t::flaggensymbol->get_bild_nr(0):IMG_LEER),
 	buttons(translator::get_language_count())
 {
+	buf.clear();
+	buf.append(translator::translate("LANG_CHOOSE\n"));
 	text_label.set_pos( koord(10,-1) );
 	add_komponente( &text_label );
 

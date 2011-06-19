@@ -117,7 +117,7 @@ void citylist_stats_t::recalc_size()
 
 void citylist_stats_t::zeichnen(koord offset)
 {
-	cbuffer_t buf(256);
+	cbuffer_t buf;
 
 	sint32 total_bev = 0;
 	sint32 total_growth = 0;

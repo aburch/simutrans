@@ -1785,14 +1785,7 @@ void vehikel_t::get_fracht_info(cbuffer_t & buf)
 				name = halt->get_name();
 			}
 
-			buf.append("   ");
-			buf.append(ware.menge);
-			buf.append(translator::translate(ware.get_mass()));
-			buf.append(" ");
-			buf.append(translator::translate(ware.get_name()));
-			buf.append(" > ");
-			buf.append(name);
-			buf.append("\n");
+			buf.printf("   %u%s %s > %s\n", ware.menge, translator::translate(ware.get_mass()), translator::translate(ware.get_name()), name);
 		}
 	}
 }
@@ -2183,6 +2176,11 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 		bool hd = has_driven;
 		file->rdwr_bool( hd );
 		has_driven = hd;
+	}
+	else {
+		if (file->is_loading()) {
+			has_driven = false;
+		}
 	}
 
 	if(file->get_experimental_version() >=9 && file->get_version() >= 110000)

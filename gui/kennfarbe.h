@@ -13,6 +13,7 @@
 #include "components/gui_button.h"
 #include "components/gui_image.h"
 #include "components/gui_textarea.h"
+#include "../utils/cbuffer_t.h"
 
 /**
  * Hierueber kann der Spieler seine Kennfarbe einstellen
@@ -23,6 +24,7 @@ class farbengui_t : public gui_frame_t, action_listener_t
 {
 private:
 	spieler_t *sp;
+	cbuffer_t buf;
 	gui_textarea_t txt;
 	gui_image_t bild;
 

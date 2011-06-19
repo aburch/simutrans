@@ -110,7 +110,7 @@ HANDLE	hFlushThread=0;
  * Schnittstelle untergebracht
  * -> init,open,close
  */
-int dr_os_init(const int* parameter)
+int dr_os_init(const int* /*parameter*/)
 {
 	// prepare for next event
 	sys_event.type = SIM_NOEVENT;
@@ -122,20 +122,13 @@ int dr_os_init(const int* parameter)
 }
 
 
-/* maximum size possible (if there) */
-int dr_query_screen_width()
+resolution dr_query_screen_resolution()
 {
-	return GetSystemMetrics( SM_CXSCREEN );
+	resolution res;
+	res.w = GetSystemMetrics(SM_CXSCREEN);
+	res.h = GetSystemMetrics(SM_CYSCREEN);
+	return res;
 }
-
-
-
-int dr_query_screen_height()
-{
-	return GetSystemMetrics( SM_CYSCREEN );
-}
-
-
 
 
 // open the window
@@ -574,8 +567,9 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 			sys_event.type = SIM_MOUSE_BUTTONS;
 			sys_event.code = GET_WHEEL_DELTA_WPARAM(wParam) > 0 ? SIM_MOUSE_WHEELUP : SIM_MOUSE_WHEELDOWN;
 			sys_event.key_mod = ModifierKeys();
-			sys_event.mx      = LOWORD(lParam);
-			sys_event.my      = HIWORD(lParam);
+			/* the returned coordinate in LPARAM are absolute coordinates, which will deeply confuse simutrans
+			 * we just reuse the coordinates we used the last time but not chaning mx/my ...
+			 */
 			return 0;
 
 		case WM_SIZE: // resize client area

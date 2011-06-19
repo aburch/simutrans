@@ -126,17 +126,17 @@ bool warenbauer_t::register_besch(ware_besch_t *besch)
 	besch_names.put(besch->get_name(), besch);
 
 	if(besch==passagiere) {
-		besch->ware_index = 0;
+		besch->ware_index = INDEX_PAS;
 		load_passagiere = besch;
 	} else if(besch==post) {
-		besch->ware_index = 1;
+		besch->ware_index = INDEX_MAIL;
 		load_post = besch;
 	} else if(besch != nichts) {
 		waren.append(besch);
 	}
 	else {
 		load_nichts = besch;
-		besch->ware_index = 2;
+		besch->ware_index = INDEX_NONE;
 	}
 	return true;
 }

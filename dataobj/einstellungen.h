@@ -81,6 +81,8 @@ private:
 	// percentage of routing
 	sint16 factory_worker_percentage;
 	sint16 tourist_percentage;
+
+	// radius for city trips of different distance ranges
 	sint16 factory_worker_radius;
 	sint32 factory_worker_minimum_towns;
 	sint32 factory_worker_maximum_towns;
@@ -750,7 +752,7 @@ public:
 	sint32 get_growthfactor_medium() const { return growthfactor_medium; }
 	sint32 get_growthfactor_large() const { return growthfactor_large; }
 
-	// percentage of passengers wanting different sorts of trips
+	// percentage of passengers for different kinds of trips
 	sint16 get_factory_worker_percentage() const { return factory_worker_percentage; }
 	sint16 get_tourist_percentage() const { return tourist_percentage; }
 

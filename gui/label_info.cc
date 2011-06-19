@@ -75,7 +75,7 @@ bool label_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 		grund_t *gd = welt->lookup(label->get_pos());
 		if(  strcmp(gd->get_text(),edit_name)  ) {
 			// text changed => call tool
-			cbuffer_t buf(300);
+			cbuffer_t buf;
 			buf.printf( "m%s,%s", label->get_pos().get_str(), edit_name );
 			werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
 			w->set_default_param( buf );

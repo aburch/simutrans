@@ -674,6 +674,13 @@ void karte_t::add_stadt(stadt_t *s)
 {
 	settings.set_anzahl_staedte(settings.get_anzahl_staedte() + 1);
 	stadt.append(s, s->get_einwohner(), 64);
+
+	// Knightly : add links between this city and other cities as well as attractions
+	for(  uint32 c=0;  c<stadt.get_count();  ++c  ) {
+		stadt[c]->add_target_city(s);
+	}
+	s->recalc_target_cities();
+	s->recalc_target_attractions();
 }
 
 /**
@@ -694,6 +701,11 @@ bool karte_t::rem_stadt(stadt_t *s)
 	stadt.remove(s);
 	DBG_DEBUG4("karte_t::rem_stadt()", "reduce city to %i", settings.get_anzahl_staedte() - 1);
 	settings.set_anzahl_staedte(settings.get_anzahl_staedte() - 1);
+
+	// Knightly : remove links between this city and other cities
+	for(  uint32 c=0;  c<stadt.get_count();  ++c  ) {
+		stadt[c]->remove_target_city(s);
+	}
 
 	// remove all links from factories
 	DBG_DEBUG4("karte_t::rem_stadt()", "fab_list %i", fab_list.get_count() );
@@ -928,9 +940,9 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 		new_anzahl_staedte = pos->get_count();
 
 		// prissi if we could not generate enough positions ...
-		settings.set_anzahl_staedte(old_anzahl_staedte + new_anzahl_staedte); // new number of towns (if we did not find enough positions)
+		settings.set_anzahl_staedte(old_anzahl_staedte);
 		int old_progress = 16;
-		int const max_display_progress = 16 + 2 * settings.get_anzahl_staedte() + 2 * new_anzahl_staedte + (old_x == 0 ? settings.get_land_industry_chains() : 0);
+		int const max_display_progress = 16 + 2 * (old_anzahl_staedte + new_anzahl_staedte) + 2 * new_anzahl_staedte + (old_x == 0 ? settings.get_land_industry_chains() : 0);
 
 		// Ansicht auf erste Stadt zentrieren
 		if (old_x+old_y == 0)
@@ -943,7 +955,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 		for(  unsigned i=0;  i<new_anzahl_staedte;  i++  ) {
 			stadt_t* s = new stadt_t(spieler[1], (*pos)[i], (*city_population)[i]);
 			DBG_DEBUG("karte_t::distribute_groundobjs_cities()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_city_history_month())[HIST_CITICENS] );
-			stadt.append(s, s->get_einwohner(), 64);
+			add_stadt(s);
 			if(is_display_init()) {
 				old_progress ++;
 				display_progress(old_progress, max_display_progress);
@@ -982,7 +994,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","took %lu ms for all towns",
 		}
 
 		wegbauer_t bauigel (this, spieler[1] );
-		bauigel.route_fuer(wegbauer_t::strasse, besch, tunnelbauer_t::find_tunnel(road_wt,15,get_timeline_year_month()), brueckenbauer_t::find_bridge(road_wt,15,get_timeline_year_month()) );
+		bauigel.route_fuer(wegbauer_t::strasse | wegbauer_t::terraform_flag, besch, tunnelbauer_t::find_tunnel(road_wt,15,get_timeline_year_month()), brueckenbauer_t::find_bridge(road_wt,15,get_timeline_year_month()) );
 		bauigel.set_keep_existing_ways(true);
 		bauigel.set_maximum(umgebung_t::intercity_road_length);
 
@@ -1466,6 +1478,9 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	cached_groesse_max = max(cached_groesse_gitter_x,cached_groesse_gitter_y);
 	cached_groesse_karte_x = cached_groesse_gitter_x-1;
 	cached_groesse_karte_y = cached_groesse_gitter_y-1;
+
+	// Knightly : initialise the weighted list of distances
+	stadt_t::init_distances( shortest_distance( koord(1, 1), koord( get_groesse_x(), get_groesse_y() ) ) );
 
 	intr_disable();
 
@@ -2758,7 +2773,11 @@ void karte_t::add_ausflugsziel(gebaeude_t *gb)
 {
 	assert(gb != NULL);
 	ausflugsziele.append( gb, gb->get_tile()->get_besch()->get_level(), 16 );
-//DBG_MESSAGE("karte_t::add_ausflugsziel()","appended ausflugsziel at %i",ausflugsziele.get_count() );
+
+	// Knightly : add links between this attraction and all cities
+	for(  uint32 c=0;  c<stadt.get_count();  ++c  ) {
+		stadt[c]->add_target_attraction(gb);
+	}
 }
 
 
@@ -2766,6 +2785,11 @@ void karte_t::remove_ausflugsziel(gebaeude_t *gb)
 {
 	assert(gb != NULL);
 	ausflugsziele.remove( gb );
+
+	// Knightly : remove links between this attraction and all cities
+	for(  uint32 c=0;  c<stadt.get_count();  ++c  ) {
+		stadt[c]->remove_target_attraction(gb);
+	}
 }
 
 
@@ -3709,7 +3733,7 @@ void karte_t::step()
 			announce_server();
 		}
 		// add message via tool
-		cbuffer_t buf(256);
+		cbuffer_t buf;
 		buf.printf(translator::translate("Now %u clients connected.", settings.get_name_language_id()), last_clients);
 		werkzeug_t *w = create_tool( WKZ_ADD_MESSAGE_TOOL | SIMPLE_TOOL );
 		w->set_default_param( buf );
@@ -4559,7 +4583,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved messages");
 // just the preliminaries, opens the file, checks the versions ...
 bool karte_t::laden(const char *filename)
 {
-	cbuffer_t name(1024);
+	cbuffer_t name;
 	bool ok = false;
 	bool restore_player_nr = false;
 	mute_sound(true);
@@ -4776,6 +4800,9 @@ DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
 	cached_groesse_karte_x = cached_groesse_gitter_x-1;
 	cached_groesse_karte_y = cached_groesse_gitter_y-1;
 	x_off = y_off = 0;
+
+	// Knightly : initialise the weighted list of distances
+	stadt_t::init_distances( shortest_distance( koord(1, 1), koord( get_groesse_x(), get_groesse_y() ) ) );
 
 	// Reliefkarte an neue welt anpassen
 	reliefkarte_t::get_karte()->set_welt(this);
@@ -5097,6 +5124,7 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 	weighted_vector_tpl<stadt_t*> new_weighted_stadt(stadt.get_count() + 1);
 	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
 		stadt_t* s = *i;
+		s->recalc_target_cities();
 		s->laden_abschliessen();
 		new_weighted_stadt.append(s, s->get_einwohner(), 64);
 		INT_CHECK("simworld 1278");
@@ -6076,18 +6104,11 @@ bool karte_t::interactive(uint32 quit_month)
 		reset_timer();
 		// announce me on server
 		if(  umgebung_t::announce_server  ) {
-			cbuffer_t buf(2048);
-			buf.printf( "/serverlist_ex/slist.php?ID=%u&st=on", umgebung_t::announce_server );
-			buf.append( "&ip=" );
-			buf.append( umgebung_t::server_name.c_str() );
-			buf.append( "&port=" );
-			buf.append( umgebung_t::server );
-#ifdef REVISION
-			buf.append( "&rev=" QUOTEME(REVISION) );
-#else
-			buf.append( "&rev=0" );
+			cbuffer_t buf;
+#ifndef REVISION
+#	define REVISION 0
 #endif
-			buf.append( "&pak=" );
+			buf.printf("/serverlist_ex/slist.php?ID=%u&st=on&ip=%s&port=%u&rev=" QUOTEME(REVISION) "&pak=", umgebung_t::announce_server, umgebung_t::server_name.c_str(), umgebung_t::server);
 			// announce ak set
 			char const* const copyright = grund_besch_t::ausserhalb->get_copyright();
 			if (copyright && STRICMP("none", copyright) != 0) {
@@ -6456,7 +6477,7 @@ bool karte_t::interactive(uint32 quit_month)
 	}
 
 	if(  umgebung_t::server  &&  umgebung_t::announce_server  ) {
-		cbuffer_t buf(2048);
+		cbuffer_t buf;
 		buf.printf( "/serverlist_ex/slist.php?ID=%u&st=off", umgebung_t::announce_server );
 		network_download_http( ANNOUNCE_SERVER, buf, NULL );
 	}
@@ -6475,7 +6496,7 @@ void karte_t::announce_server()
 	// gd=time3.1923:size256x256:Player2:locked2:Clients1:Towns15:citicens3245:Factories33:Convoys56:Stops17
 	if(  umgebung_t::announce_server  ) {
 		// now send the status
-		cbuffer_t buf(2048);
+		cbuffer_t buf;
 		buf.printf( "/serverlist_ex/map.php?ID=%u", umgebung_t::announce_server );
 		buf.printf( "&gd=time%u.%u:size%ux%u:", (get_current_month()%12)+1, get_current_month()/12, get_groesse_x(), get_groesse_y() );
 		uint8 player=0, locked = 0;

@@ -747,12 +747,12 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 	int const lang = welt->get_settings().get_name_language_id();
 	stadt_t *stadt = welt->suche_naechste_stadt(k);
 	const char *stop = translator::translate(typ,lang);
-	char buf[1024];
+	cbuffer_t buf;
 
 	// this fails only, if there are no towns at all!
 	if(stadt==NULL) {
 		// get a default name
-		sprintf( buf, translator::translate("land stop %i %s",lang), get_besitzer()->get_haltcount(), stop );
+		buf.printf( translator::translate("land stop %i %s",lang), get_besitzer()->get_haltcount(), stop );
 		return strdup(buf);
 	}
 
@@ -828,10 +828,11 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 		slist_iterator_tpl<fabrik_t*> fab_iter(fabs);
 		while (fab_iter.next()) {
 			// with factories
-			sprintf(buf, fab_base, city_name, translator::translate(fab_iter.get_current()->get_besch()->get_name(),lang), stop );
+			buf.printf( fab_base, city_name, translator::translate(fab_iter.get_current()->get_besch()->get_name(),lang), stop );
 			if(  !all_names.get(buf).is_bound()  ) {
 				return strdup(buf);
 			}
+			buf.clear();
 		}
 
 		// no fabs or all names used up already
@@ -863,10 +864,11 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 				continue;
 			}
 			// now we have a name: try it
-			sprintf(buf, translator::translate("%s building %s %s",lang), city_name, building_name, stop );
+			buf.printf( translator::translate("%s building %s %s",lang), city_name, building_name, stop );
 			if(  !all_names.get(buf).is_bound()  ) {
 				return strdup(buf);
 			}
+			buf.clear();
 		}
 
 		// still all names taken => then try the normal naming scheme ...
@@ -936,15 +938,16 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 				}
 				if(count_s==3) {
 					// ok, try this name, if free ...
-					sprintf(buf, base_name, city_name, dirname, stop );
+					buf.printf( base_name, city_name, dirname, stop );
 				}
 				else {
 					// ok, try this name, if free ...
-					sprintf(buf, base_name, city_name, stop );
+					buf.printf( base_name, city_name, stop );
 				}
 				if(  !all_names.get(buf).is_bound()  ) {
 					return strdup(buf);
 				}
+				buf.clear();
 			}
 			// here we did not find a suitable name ...
 			// ok, no suitable city names, try the suburb ones ...
@@ -972,10 +975,11 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 
 	// finally: is there a stop with this name already?
 	for(  uint32 i=1;  i<65536;  i++  ) {
-		sprintf(buf, base_name, city_name, i, stop );
+		buf.printf( base_name, city_name, i, stop );
 		if(  !all_names.get(buf).is_bound()  ) {
 			return strdup(buf);
 		}
+		buf.clear();
 	}
 
 	// emergency measure: But before we should run out of handles anyway ...
@@ -2580,46 +2584,6 @@ uint32 haltestelle_t::get_ware_fuer_zielpos(const ware_besch_t *wtyp, const koor
 }
 
 
-
-uint32 haltestelle_t::get_ware_fuer_zwischenziel(const ware_besch_t *wtyp, const halthandle_t zwischenziel) const
-{
-	uint32 sum = 0;
-	const vector_tpl<ware_t> * warray = waren[wtyp->get_catg_index()];
-	if(warray!=NULL) {
-		for(unsigned i=0;  i<warray->get_count();  i++ ) {
-			const ware_t &ware = (*warray)[i];
-			if(wtyp->get_index()==ware.get_index()  &&  ware.get_zwischenziel()==zwischenziel) {
-				sum += ware.menge;
-			}
-		}
-	}
-	return sum;
-}
-
-
-
-
-/**
- * @returns the sum of all waiting goods (100t coal + 10
- * passengers + 2000 liter oil = 2110)
- * @author Markus Weber
- */
-//uint32 haltestelle_t::sum_all_waiting_goods() const      //15-Feb-2002    Markus Weber    Added
-//{
-//	uint32 sum = 0;
-//
-//	for(unsigned i=0; i<warenbauer_t::get_max_catg_index(); i++) {
-//		if(waren[i]) {
-//			for( unsigned j=0;  j<waren[i]->get_count();  j++  ) {
-//				sum += (*(waren[i]))[j].menge;
-//			}
-//		}
-//	}
-//	return sum;
-//}
-
-
-
 bool haltestelle_t::vereinige_waren(const ware_t &ware) //"unite were" (Google)
 {
 	// pruefen ob die ware mit bereits wartender ware vereinigt werden kann
@@ -2905,10 +2869,7 @@ void haltestelle_t::get_short_freight_info(cbuffer_t & buf)
 					buf.append(", ");
 				}
 
-				buf.append(summe);
-				buf.append(translator::translate(wtyp->get_mass()));
-				buf.append(" ");
-				buf.append(translator::translate(wtyp->get_name()));
+				buf.printf("%d%s %s", summe, translator::translate(wtyp->get_mass()), translator::translate(wtyp->get_name()));
 
 				got_one = true;
 			}
@@ -3082,7 +3043,7 @@ bool haltestelle_t::make_public_and_join( spieler_t *sp )
 
 	// tell the world of it ...
 	if(  sp->get_player_nr()!=1  &&  umgebung_t::networkmode  ) {
-		cbuffer_t buf(256);
+		cbuffer_t buf;
 		buf.printf( translator::translate("%s at (%i,%i) now public stop."), get_name(), get_basis_pos().x, get_basis_pos().y );
 		welt->get_message()->add_message( buf, get_basis_pos(), message_t::ai, PLAYER_FLAG|sp->get_player_nr(), IMG_LEER );
 	}

@@ -21,7 +21,7 @@ void line_scrollitem_t::set_text(char *t)
 {
 	if(  t  &&  t[0]  &&  strcmp(t, line->get_name())) {
 		// text changed => call tool
-		cbuffer_t buf(300);
+		cbuffer_t buf;
 		buf.printf( "l%u,%s", line.get_id(), t );
 		werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
 		w->set_default_param( buf );

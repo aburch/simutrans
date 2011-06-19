@@ -544,13 +544,10 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 void convoi_t::call_convoi_tool( const char function, const char *extra)
 {
 	werkzeug_t *w = create_tool( WKZ_CONVOI_TOOL | SIMPLE_TOOL );
-	char cmd[3] = { function, ',', 0 };
-	cbuffer_t param(8192);
-	param.append( cmd );
-	param.append( self.get_id() );
+	cbuffer_t param;
+	param.printf("%c,%u", function, self.get_id());
 	if(  extra  &&  *extra  ) {
-		param.append( "," );
-		param.append( extra );
+		param.printf(",%s", extra);
 	}
 	w->set_default_param(param);
 	welt->set_werkzeug( w, get_besitzer() );
@@ -1669,7 +1666,7 @@ void convoi_t::ziel_erreicht()
 
 	if(dp) {
 		// ok, we are entering a depot
-		cbuffer_t buf(256);
+		cbuffer_t buf;
 		if(reversed)
 		{
 			//Always enter a depot facing forward
@@ -4280,7 +4277,6 @@ void convoi_t::check_pending_updates()
 		else {
 			// something to check for ...
 			current = fpl->get_current_eintrag().pos;
-			halthandle_t current_halt = haltestelle_t::get_halt( welt, current, besitzer_p );
 
 			if(  aktuell<new_fpl->get_count() &&  current==new_fpl->eintrag[aktuell].pos  ) {
 				// next pos is the same => keep the convoi state

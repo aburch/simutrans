@@ -27,38 +27,30 @@
 
 #include "halt_detail.h"
 
+#include "components/list_button.h"
+
 
 halt_detail_t::halt_detail_t(halthandle_t halt_) :
 	gui_frame_t(halt_->get_name(), halt_->get_besitzer()),
 	halt(halt_),
 	scrolly(&cont),
-	txt_info(" \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
-		" \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
-		" \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
-		" \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
-		" \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"),
-	cb_info_buffer(8192)
+	txt_info(&buf)
 {
 	cont.add_komponente(&txt_info);
 
 	// fill buffer with halt detail
-	halt_detail_info(cb_info_buffer);
-	txt_info.set_pos(koord(10,10));
+	halt_detail_info();
+	txt_info.set_pos(koord(10,0));
 
-	// calc window size
-	const koord size = txt_info.get_groesse();
-	if (size.y < 400) {
-		set_fenstergroesse(koord(300, size.y + 32));
-	}
-	else {
-		set_fenstergroesse(koord(300, 400));
-	}
-
-	// add scrollbar
-	scrolly.set_pos(koord(1, 1));
-	scrolly.set_groesse(get_fenstergroesse() + koord(-1, -17));
+	scrolly.set_pos(koord(0, 6));
 	scrolly.set_show_scroll_x(true);
 	add_komponente(&scrolly);
+
+	set_fenstergroesse(koord(TOTAL_WIDTH, TITLEBAR_HEIGHT+4+22*(LINESPACE)+scrollbar_t::BAR_SIZE+2));
+	set_min_windowsize(koord(TOTAL_WIDTH, TITLEBAR_HEIGHT+4+3*(LINESPACE)+scrollbar_t::BAR_SIZE+2));
+
+	set_resizemode(diagonal_resize);
+	resize(koord(0,0));
 
 	cached_active_player=NULL;
 }
@@ -99,7 +91,7 @@ halt_detail_t::~halt_detail_t()
 
 
 
-void halt_detail_t::halt_detail_info(cbuffer_t & buf)
+void halt_detail_t::halt_detail_info()
 {
 	if (!halt.is_bound()) {
 		return;
@@ -138,7 +130,7 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 	const slist_tpl<fabrik_t *> & fab_list = halt->get_fab_list();
 	slist_tpl<const ware_besch_t *> nimmt_an;
 
-	sint16 offset_y = 22;
+	sint16 offset_y = LINESPACE;
 	buf.append(translator::translate("Fabrikanschluss"));
 	buf.append("\n");
 	offset_y += LINESPACE;
@@ -159,13 +151,7 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 			posbuttons.append( pb );
 			cont.add_komponente( pb );
 
-			buf.append("   ");
-			buf.append(translator::translate(fab->get_name()));
-			buf.append(" (");
-			buf.append(pos.x);
-			buf.append(", ");
-			buf.append(pos.y);
-			buf.append(")\n");
+			buf.printf("   %s (%d, %d)\n", translator::translate(fab->get_name()), pos.x, pos.y);
 			offset_y += LINESPACE;
 
 			const array_tpl<ware_production_t>& eingang = fab->get_eingang();
@@ -315,7 +301,6 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 				{
 
 					has_stops = true;
-
 					buf.append("   ");
 					buf.append(a_halt->get_name());
 					
@@ -362,13 +347,9 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 	}
 
 	if (!has_stops) {
-		buf.append(" ");
-		buf.append(translator::translate("keine"));
-		buf.append("\n");
+		buf.printf(" %s\n", translator::translate("keine"));
 	}
-	buf.append("\n\n");
 
-	txt_info.set_text(buf);
 	txt_info.recalc_size();
 	cont.set_groesse( txt_info.get_groesse() );
 
@@ -421,7 +402,7 @@ void halt_detail_t::zeichnen(koord pos, koord gr)
 		if(  halt->get_rebuild_destination_counter()!=destination_counter  ||  cached_active_player!=halt->get_welt()->get_active_player()
 				||  halt->registered_lines.get_count()!=cached_line_count  ||  halt->registered_convoys.get_count()!=cached_convoy_count  ) {
 			// fill buffer with halt detail
-			halt_detail_info(cb_info_buffer);
+			halt_detail_info();
 			cached_active_player=halt->get_welt()->get_active_player();
 		}
 	}
@@ -429,14 +410,23 @@ void halt_detail_t::zeichnen(koord pos, koord gr)
 }
 
 
+
+void halt_detail_t::set_fenstergroesse(koord groesse)
+{
+	gui_frame_t::set_fenstergroesse(groesse);
+	scrolly.set_groesse(get_client_windowsize()-scrolly.get_pos());
+}
+
+
+
 halt_detail_t::halt_detail_t(karte_t *):
 	gui_frame_t("", NULL),
 	scrolly(&cont),
-	txt_info(""),
-	cb_info_buffer(0)
+	txt_info(&buf)
 {
 	// just a dummy
 }
+
 
 
 void halt_detail_t::rdwr(loadsave_t *file)

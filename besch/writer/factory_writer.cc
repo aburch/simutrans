@@ -240,8 +240,6 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		factory_field_group_writer_t::instance()->write_obj(fp, node, obj);
 	}
 
-	uint16 electricity_percent = obj.get_int("electricity_percent", 17);
-
 	// Upgrades: these are the industry types to which this industry
 	// can be upgraded. 
 	// @author: jamespetts

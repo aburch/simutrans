@@ -421,7 +421,7 @@ void replace_frame_t::replace_convoy(convoihandle_t cnv_rpl, bool mark)
 		{
 			rpl->set_replacing_vehicles(convoy_assembler.get_vehicles());
 
-			cbuffer_t buf(10000);
+			cbuffer_t buf;
 			rpl->sprintf_replace(buf);
 			
 			cnv_rpl->call_convoi_tool('R', buf);
@@ -429,7 +429,7 @@ void replace_frame_t::replace_convoy(convoihandle_t cnv_rpl, bool mark)
 
 		else
 		{
-			cbuffer_t buf(5);
+			cbuffer_t buf;
 			buf.append((long)master_convoy.get_id());
 			cnv_rpl->call_convoi_tool('C', buf);
 		}

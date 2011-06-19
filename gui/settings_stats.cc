@@ -94,9 +94,11 @@ gui_label_t& settings_stats_t::new_label(koord pos, const char *text)
 }
 
 
-gui_textarea_t& settings_stats_t::new_textarea(koord pos, const char *text)
+gui_textarea_t& settings_stats_t::new_textarea(koord pos, const char* text)
 {
-	gui_textarea_t& ta = * new gui_textarea_t(text);
+	cbuffer_t buf;
+	buf.append(text);
+	gui_textarea_t& ta = * new gui_textarea_t(&buf);
 	ta.set_pos(pos);
 	others.append(&ta);
 	return ta;
@@ -150,7 +152,7 @@ void settings_experimental_general_stats_t::init( settings_t *sets )
 	{
 		gui_component_table_t &tbl = new_table(koord(0, ypos), 3, 2);
 		int row = 0;
-		set_cell_component(tbl, new_textarea(koord(2, 0), translator::translate("revenue of")), 0, 0);
+		set_cell_component(tbl, new_textarea(koord(2, 0),translator::translate("revenue of")), 0, 0);
 		set_cell_component(tbl, new_textarea(koord(2, 0), translator::translate("above\nminutes")), 1, 0);
 		set_cell_component(tbl, new_textarea(koord(2, 0), translator::translate("get\nrevenue $")), 2, 0);
 		row++;

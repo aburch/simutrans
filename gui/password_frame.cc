@@ -88,7 +88,7 @@ bool password_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 			sp->get_welt()->set_player_password_hash( sp->get_player_nr(), hash );
 			// and change player password
 			werkzeug_t *w = create_tool( WKZ_PWDHASH_TOOL | SIMPLE_TOOL );
-			cbuffer_t buf(512);
+			cbuffer_t buf;
 			for(  int i=0;  i<20;  i++  ) {
 				buf.printf( "%02X", hash[i] );
 			}
@@ -110,7 +110,7 @@ bool password_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 
 	if(  komp == &player_name  ) {
 		// rename a player
-		cbuffer_t buf(300);
+		cbuffer_t buf;
 		buf.printf( "p%u,%s", sp->get_player_nr(), player_name.get_text() );
 		werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
 		w->set_default_param( buf );

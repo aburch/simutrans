@@ -27,6 +27,7 @@
 #include "../dings/wayobj.h"
 
 #include "../utils/simstring.h"
+#include "../utils/cbuffer_t.h"
 
 #include "../vehicle/simvehikel.h"
 
@@ -629,10 +630,9 @@ bool ai_goods_t::create_simple_rail_transport()
 	clean_marker(platz2,size2);
 
 	wegbauer_t bauigel(welt, this);
-	bauigel.route_fuer( (wegbauer_t::bautyp_t)(wegbauer_t::schiene|wegbauer_t::bot_flag), rail_weg, tunnelbauer_t::find_tunnel(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()) );
+	bauigel.route_fuer( wegbauer_t::schiene|wegbauer_t::bot_flag, rail_weg, tunnelbauer_t::find_tunnel(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()) );
 	bauigel.set_keep_existing_ways(false);
 
-	bool ok=true;
 	// first: make plain stations tiles as intended
 	sint8 z1 = max( welt->get_grundwasser()+Z_TILE_STEP, welt->lookup_kartenboden(platz1)->get_hoehe() );
 	koord k = platz1;
@@ -650,7 +650,7 @@ bool ai_goods_t::create_simple_rail_transport()
 	k = platz2;
 	perpend = koord( sgn(size2.y), sgn(size2.x) );
 	koord diff2( sgn(size2.x), sgn(size2.y) );
-	while(k!=size2+platz2  &&  ok) {
+	while(k!=size2+platz2) {
 		if(!welt->ebne_planquadrat(this,k,z2)) {
 			return false;
 		}
@@ -664,21 +664,39 @@ bool ai_goods_t::create_simple_rail_transport()
 
 	vector_tpl<koord3d> starttiles, endtiles;
 	// now calc the route
-	if(ok) {
-		starttiles.append(welt->lookup_kartenboden(platz1 + size1)->get_pos());
-		starttiles.append(welt->lookup_kartenboden(platz1 - diff1)->get_pos());
-		endtiles.append(welt->lookup_kartenboden(platz2 + size2)->get_pos());
-		endtiles.append(welt->lookup_kartenboden(platz2 - diff2)->get_pos());
-		bauigel.calc_route( starttiles, endtiles );
-		INT_CHECK("simplay 2478");
+	starttiles.append(welt->lookup_kartenboden(platz1 + size1)->get_pos());
+	starttiles.append(welt->lookup_kartenboden(platz1 - diff1)->get_pos());
+	endtiles.append(welt->lookup_kartenboden(platz2 + size2)->get_pos());
+	endtiles.append(welt->lookup_kartenboden(platz2 - diff2)->get_pos());
+	bauigel.calc_route( starttiles, endtiles );
+	INT_CHECK("ai_goods 672");
+
+	// now try route with terraforming
+	wegbauer_t baumaulwurf(welt, this);
+	baumaulwurf.route_fuer( wegbauer_t::schiene|wegbauer_t::bot_flag|wegbauer_t::terraform_flag, rail_weg, tunnelbauer_t::find_tunnel(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()) );
+	baumaulwurf.set_keep_existing_ways(false);
+	baumaulwurf.calc_route( starttiles, endtiles );
+
+	// build with terraforming if shorter and enough money is available
+	bool with_tf = (baumaulwurf.get_count() > 4)  &&  (10*baumaulwurf.get_count() < 9*bauigel.get_count()  ||  bauigel.get_count() <= 4);
+	if (with_tf) {
+		with_tf &= baumaulwurf.calc_costs() < konto;
 	}
 
-	if(ok  &&  bauigel.get_count() > 4) {
-DBG_MESSAGE("ai_goods_t::create_simple_rail_transport()","building simple track from %d,%d to %d,%d",platz1.x, platz1.y, platz2.x, platz2.y);
+	// now build with or without terraforming
+	if (with_tf) {
+		baumaulwurf.baue();
+	}
+	else if (bauigel.get_count() > 4) {
 		bauigel.baue();
+	}
+
+	// connect track to station
+	if(with_tf  ||  bauigel.get_count() > 4) {
+DBG_MESSAGE("ai_goods_t::create_simple_rail_transport()","building simple track from %d,%d to %d,%d",platz1.x, platz1.y, platz2.x, platz2.y);
 		// connect to track
 
-		koord3d_vector_t const& r     = bauigel.get_route();
+		koord3d_vector_t const& r     = with_tf ? baumaulwurf.get_route() : bauigel.get_route();
 		koord3d                 tile1 = r.front();
 		koord3d                 tile2 = r.back();
 		if (!starttiles.is_contained(tile1)) sim::swap(tile1, tile2);
@@ -1167,10 +1185,10 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 		case NR_RAIL_SUCCESS:
 		{
 			// tell the player
-			char buf[256];
+			cbuffer_t buf;
 			const koord3d& spos = start->get_pos();
 			const koord3d& zpos = ziel->get_pos();
-			sprintf(buf, translator::translate("%s\nopened a new railway\nbetween %s\nat (%i,%i) and\n%s at (%i,%i)."), get_name(), translator::translate(start->get_name()), spos.x, spos.y, translator::translate(ziel->get_name()), zpos.x, zpos.y);
+			buf.printf( translator::translate("%s\nopened a new railway\nbetween %s\nat (%i,%i) and\n%s at (%i,%i)."), get_name(), translator::translate(start->get_name()), spos.x, spos.y, translator::translate(ziel->get_name()), zpos.x, zpos.y);
 			welt->get_message()->add_message(buf, spos.get_2d(), message_t::ai, PLAYER_FLAG|player_nr, rail_engine->get_basis_bild());
 
 			harbour = koord::invalid;
@@ -1182,10 +1200,10 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 		case NR_ROAD_SUCCESS:
 		{
 			// tell the player
-			char buf[256];
+			cbuffer_t buf;
 			const koord3d& spos = start->get_pos();
 			const koord3d& zpos = ziel->get_pos();
-			sprintf(buf, translator::translate("%s\nnow operates\n%i trucks between\n%s at (%i,%i)\nand %s at (%i,%i)."), get_name(), count_road, translator::translate(start->get_name()), spos.x, spos.y, translator::translate(ziel->get_name()), zpos.x, zpos.y);
+			buf.printf( translator::translate("%s\nnow operates\n%i trucks between\n%s at (%i,%i)\nand %s at (%i,%i)."), get_name(), count_road, translator::translate(start->get_name()), spos.x, spos.y, translator::translate(ziel->get_name()), zpos.x, zpos.y);
 			welt->get_message()->add_message(buf, spos.get_2d(), message_t::ai, PLAYER_FLAG|player_nr, road_vehicle->get_basis_bild());
 
 			harbour = koord::invalid;

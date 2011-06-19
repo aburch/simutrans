@@ -224,33 +224,19 @@ int dr_os_init(const int* parameter)
 }
 
 
-/* maximum size possible (if there) */
-int dr_query_screen_width()
+resolution dr_query_screen_resolution()
 {
+	resolution res;
 #ifdef _WIN32
-	return GetSystemMetrics( SM_CXSCREEN );
+	res.w = GetSystemMetrics(SM_CXSCREEN);
+	res.h = GetSystemMetrics(SM_CYSCREEN);
 #else
-	int w, h;
-	if(get_desktop_resolution(&w, &h) == 0) {
-		return w;
+	if (get_desktop_resolution(&res.w, &res.h) != 0) {
+		res.w = width;
+		res.h = height;
 	}
-	return width;
 #endif
-}
-
-
-
-int dr_query_screen_height()
-{
-#ifdef _WIN32
-	return GetSystemMetrics( SM_CYSCREEN );
-#else
-	int w, h;
-	if(get_desktop_resolution(&w, &h) == 0) {
-		return h;
-	}
-	return height;
-#endif
+	return res;
 }
 
 

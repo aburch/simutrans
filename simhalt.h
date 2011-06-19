@@ -379,10 +379,6 @@ private:
 	/* station flags (most what enabled) */
 	uint8 enables;
 
-	void set_pax_enabled(bool yesno)  { yesno ? enables |= PAX  : enables &= ~PAX;  }
-	void set_post_enabled(bool yesno) { yesno ? enables |= POST : enables &= ~POST; }
-	void set_ware_enabled(bool yesno) { yesno ? enables |= WARE : enables &= ~WARE; }
-
 	/**
 	 * Found route and station uncrowded
 	 * @author Hj. Malthaner
@@ -616,29 +612,23 @@ public:
 	minivec_tpl<halthandle_t>* build_destination_list(ware_t &ware);
 	uint16 find_route(minivec_tpl<halthandle_t> *ziel_list, ware_t & ware, const uint16 journey_time = 65535);
 
-	int get_pax_enabled()  const { return enables & PAX;  }
-	int get_post_enabled() const { return enables & POST; }
-	int get_ware_enabled() const { return enables & WARE; }
+	bool get_pax_enabled()  const { return enables & PAX;  }
+	bool get_post_enabled() const { return enables & POST; }
+	bool get_ware_enabled() const { return enables & WARE; }
 
 	// check, if we accepts this good
 	// often called, thus inline ...
-	int is_enabled( const ware_besch_t *wtyp ) {
-		if(wtyp==warenbauer_t::passagiere) {
-			return enables&PAX;
-		}
-		else if(wtyp==warenbauer_t::post) {
-			return enables&POST;
-		}
-		return enables&WARE;
+	bool is_enabled( const ware_besch_t *wtyp ) {
+		return is_enabled(wtyp->get_catg_index());
 	}
 
 	// a separate version for checking with goods category index
-	int is_enabled( const uint8 ctg )
+	bool is_enabled( const uint8 catg_index )
 	{
-		if (ctg==0) {
+		if (catg_index == warenbauer_t::INDEX_PAS) {
 			return enables&PAX;
 		}
-		else if(ctg==1) {
+		else if(catg_index == warenbauer_t::INDEX_MAIL) {
 			return enables&POST;
 		}
 		return enables&WARE;
@@ -707,12 +697,6 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	uint32 get_ware_fuer_zielpos(const ware_besch_t *warentyp, const koord zielpos) const;
-
-	/**
-	 * gibt Gesamtmenge derw are vom typ typ fuer zwischenziel zurück
-	 * @author prissi
-	 */
-	uint32 get_ware_fuer_zwischenziel(const ware_besch_t *warentyp, const halthandle_t zwischenziel) const;
 
 	// true, if we accept/deliver this kind of good
 	bool gibt_ab(const ware_besch_t *warentyp) const { return waren[warentyp->get_catg_index()] != NULL; }

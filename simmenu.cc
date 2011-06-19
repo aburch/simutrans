@@ -669,9 +669,8 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 					}
 					char *c = strdup(param_str);
 					const char *title = c;
-					while(*c  &&  *c++!=',') {
-					}
-					c[-1] = 0;
+					c += strcspn(c, ",");
+					if (*c != '\0') *c++ = '\0';
 					toolbar_t *tb = new toolbar_t( title, c, size );
 					if(icon!=IMG_LEER) {
 						tb->icon = icon;

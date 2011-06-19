@@ -14,7 +14,7 @@
 #include "gui_frame.h"
 #include "components/gui_button.h"
 #include "components/gui_image.h"
-#include "components/gui_textarea.h"
+#include "components/gui_label.h"
 #include "components/gui_textinput.h"
 
 
@@ -29,7 +29,7 @@ class station_building_select_t : public gui_frame_t, action_listener_t
 
 	char buf[64];
 	button_t actionbutton[4];
-	gui_textarea_t txt;
+	gui_label_t txt;
 	gui_image_t img[16];
 
 	static char default_str[260];
@@ -37,13 +37,6 @@ class station_building_select_t : public gui_frame_t, action_listener_t
 
 public:
 	station_building_select_t(karte_t *welt, const haus_besch_t *besch);
-
-	/**
-	* Manche Fenster haben einen Hilfetext assoziiert.
-	* @return den Dateinamen für die Hilfe, oder NULL
-	* @author Hj. Malthaner
-	*/
-//	const char * get_hilfe_datei() const { return ".txt"; }
 
 	/**
 	 * This method is called if an action is triggered

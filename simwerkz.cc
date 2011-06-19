@@ -1581,6 +1581,12 @@ const char *wkz_change_city_size_t::work( karte_t *welt, spieler_t * sp, koord3d
 	stadt_t *city = welt->suche_naechste_stadt(pos.get_2d());
 	if(city!=NULL) {
 		city->change_size( atoi(default_param) );
+		// Knightly : update the links from other cities to this city
+		const weighted_vector_tpl<stadt_t *> &cities = welt->get_staedte();
+		for(  uint32 c=0;  c<cities.get_count();  ++c  ) {
+			cities[c]->remove_target_city(city);
+			cities[c]->add_target_city(city);
+		}
 		return NULL;
 	}
 	return "";
@@ -1819,7 +1825,7 @@ void wkz_wegebau_t::calc_route( wegbauer_t &bauigel, const koord3d &start, const
 	}
 	// elevated track?
 	if(besch->get_styp()==1  &&  besch->get_wtyp()!=air_wt) {
-		bautyp = (wegbauer_t::bautyp_t)((int)bautyp|(int)wegbauer_t::elevated_flag);
+		bautyp |= wegbauer_t::elevated_flag;
 	}
 
 	bauigel.route_fuer(bautyp, besch);
@@ -2158,9 +2164,9 @@ const char *wkz_tunnelbau_t::check( karte_t *welt, spieler_t *sp, koord3d pos)
 void wkz_tunnelbau_t::calc_route( wegbauer_t &bauigel, const koord3d &start, const koord3d &end, karte_t *welt )
 {
 	const tunnel_besch_t *besch = tunnelbauer_t::get_besch(default_param);
-	int bt = besch->get_waytype()|wegbauer_t::tunnel_flag;
+	wegbauer_t::bautyp_t bt = (wegbauer_t::bautyp_t)(besch->get_waytype());
 	const weg_besch_t *wb = wegbauer_t::weg_search( besch->get_waytype(), besch->get_topspeed(), besch->get_max_weight(), welt->get_timeline_year_month(), weg_t::type_flat );
-	bauigel.route_fuer((wegbauer_t::bautyp_t)bt, wb, besch);
+	bauigel.route_fuer(bt | wegbauer_t::tunnel_flag, wb, besch);
 	bauigel.set_keep_existing_faster_ways( !is_ctrl_pressed() );
 	// wegbauer tries to find route to 3d coordinate if no ground at end exists or is not kartenboden
 	bauigel.calc_straight_route(start,end);
@@ -4815,7 +4821,7 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 			sp->add_headquarter( besch->get_extra()+1, hq->get_pos().get_2d()-hq->get_tile()->get_offset() );
 			sp->buche( cost, pos.get_2d(), COST_CONSTRUCTION);
 			// tell the world of it ...
-			cbuffer_t buf(256);
+			cbuffer_t buf;
 			buf.printf( translator::translate("%s s\nheadquarter now\nat (%i,%i)."), sp->get_name(), pos.x, pos.y );
 			welt->get_message()->add_message( buf, pos.get_2d(), message_t::ai, PLAYER_FLAG|sp->get_player_nr(), hq->get_tile()->get_hintergrund(0,0,0) );
 			// reset to query tool, since costly relocations should be avoided
@@ -6263,7 +6269,7 @@ bool wkz_add_message_t::init( karte_t *welt, spieler_t *sp )
 	if(  *default_param  ) {
 		if(  sp  ) {
 			if(  umgebung_t::add_player_name_to_message  ) {
-				cbuffer_t buffer(1024);
+				cbuffer_t buffer;
 				buffer.printf("[%s]\n%s", sp->get_name(), default_param);
 				welt->get_message()->add_message( buffer, koord::invalid, message_t::chat, PLAYER_FLAG|sp->get_player_nr(), IMG_LEER );
 			}

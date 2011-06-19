@@ -26,21 +26,21 @@ bool factorylist_frame_t::sortreverse = false;
 factorylist::sort_mode_t factorylist_frame_t::sortby = factorylist::by_name;
 
 const char *factorylist_frame_t::sort_text[factorylist::SORT_MODES] = {
-    "Fabrikname",
-    "Input",
-    "Output",
-    "Produktion",
-    "Rating",
-    "Power"
+	"Fabrikname",
+	"Input",
+	"Output",
+	"Produktion",
+	"Rating",
+	"Power"
 };
 
 factorylist_frame_t::factorylist_frame_t(karte_t * welt) :
-    gui_frame_t("fl_title"),
-    sort_label(translator::translate("hl_txt_sort")),
+	gui_frame_t("fl_title"),
+	sort_label(translator::translate("hl_txt_sort")),
 	stats(welt,sortby,sortreverse),
 	scrolly(&stats)
 {
-	sort_label.set_pos(koord(BUTTON1_X, 4));
+	sort_label.set_pos(koord(BUTTON1_X, 2));
 	add_komponente(&sort_label);
 
 	sortedby.init(button_t::roundbox, "", koord(BUTTON1_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
@@ -55,13 +55,12 @@ factorylist_frame_t::factorylist_frame_t(karte_t * welt) :
 	sortedby.set_text(sort_text[get_sortierung()]);
 	sorteddir.set_text(get_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
 
-	scrolly.set_pos(koord(1, 14+BUTTON_HEIGHT+2));
+	scrolly.set_pos(koord(0, 14+BUTTON_HEIGHT+2));
 	scrolly.set_scroll_amount_y(LINESPACE+1);
 	add_komponente(&scrolly);
 
-	set_fenstergroesse(koord(TOTAL_WIDTH, 240));
-	// a min-size for the window
-	set_min_windowsize(koord(TOTAL_WIDTH, 240));
+	set_fenstergroesse(koord(TOTAL_WIDTH, TITLEBAR_HEIGHT+18*(LINESPACE+1)+14+BUTTON_HEIGHT+2+1));
+	set_min_windowsize(koord(TOTAL_WIDTH, TITLEBAR_HEIGHT+4*(LINESPACE+1)+14+BUTTON_HEIGHT+2+1));
 
 	set_resizemode(diagonal_resize);
 	resize(koord(0,0));
@@ -98,8 +97,8 @@ bool factorylist_frame_t::action_triggered( gui_action_creator_t *komp,value_t /
  */
 void factorylist_frame_t::resize(const koord delta)
 {
-    gui_frame_t::resize(delta);
-    // fensterhoehe - 16(title) -offset (header)
-    koord groesse = get_fenstergroesse()-koord(0,14+BUTTON_HEIGHT+2+16);
-    scrolly.set_groesse(groesse);
+	gui_frame_t::resize(delta);
+	// fensterhoehe - 16(title) -offset (header)
+	koord groesse = get_fenstergroesse()-koord(0,TITLEBAR_HEIGHT+14+BUTTON_HEIGHT+2+1);
+	scrolly.set_groesse(groesse);
 }

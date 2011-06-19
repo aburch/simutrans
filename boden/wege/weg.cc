@@ -315,8 +315,7 @@ void weg_t::info(cbuffer_t & buf) const
 	buf.append("\n");
 	for (int type=0; type<MAX_WAY_STATISTICS; type++) {
 		for (int month=0; month<MAX_WAY_STAT_MONTHS; month++) {
-			buf.append(statistics[month][type]);
-			buf.append(" ");
+			buf.printf("%d ", statistics[month][type]);
 		}
 	buf.append("\n");
 	}

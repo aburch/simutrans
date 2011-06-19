@@ -28,6 +28,7 @@ class fabrik_info_t : public ding_infowin_t, public action_listener_t
 {
  private:
 	const fabrik_t* fab;
+	cbuffer_t info_buf;
 
 	button_t chart_button;
 
@@ -40,7 +41,6 @@ class fabrik_info_t : public ding_infowin_t, public action_listener_t
 	gui_scrollpane_t scrolly;
 	gui_container_t cont;
 	gui_textarea_t txt;
-	static cbuffer_t info_buf;
 
 	// refreshes all text and location pointers
 	void update_info();

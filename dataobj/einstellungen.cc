@@ -111,6 +111,7 @@ settings_t::settings_t() :
 
 	factory_worker_percentage = 33;
 	tourist_percentage = 16;
+
 	factory_worker_radius = 77;
 	// try to have at least a single town connected to a factory
 	factory_worker_minimum_towns = 1;
@@ -1159,6 +1160,27 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_short(factory_arrival_periods);
 			file->rdwr_bool(factory_enforce_demand);
 		}
+
+		if(  file->get_version()>=110007  ) 
+		{
+			if(file->get_experimental_version() == 0 )
+			{
+				uint16 city_short_range_percentage = passenger_routing_local_chance;
+				uint16 city_medium_range_percentage = passenger_routing_midrange_chance;
+				uint32 city_short_range_radius = local_passengers_max_distance;
+				uint32 city_medium_range_radius = midrange_passengers_max_distance;
+
+				file->rdwr_short(city_short_range_percentage);
+				file->rdwr_short(city_medium_range_percentage);
+				file->rdwr_long(city_short_range_radius);
+				file->rdwr_long(city_medium_range_radius);
+
+				passenger_routing_local_chance = city_short_range_percentage;
+				passenger_routing_midrange_chance = city_medium_range_percentage;
+				local_passengers_max_distance = city_short_range_radius;
+				midrange_passengers_max_distance = city_medium_range_radius;
+			}
+		}
 	}
 }
 
@@ -1358,6 +1380,11 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	umgebung_t::fps = contents.get_int("frames_per_second",umgebung_t::fps );
 
 	// routing stuff
+	uint16 city_short_range_percentage = passenger_routing_local_chance;
+	uint16 city_medium_range_percentage = passenger_routing_midrange_chance;
+	uint32 city_short_range_radius = local_passengers_max_distance;
+	uint32 city_medium_range_radius = midrange_passengers_max_distance;
+
 	max_route_steps = contents.get_int("max_route_steps", max_route_steps );
 	max_hops = contents.get_int("max_hops", max_hops );
 	max_transfers = contents.get_int("max_transfers", max_transfers );
@@ -1371,6 +1398,10 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	factory_arrival_periods = clamp( contents.get_int("factory_arrival_periods", factory_arrival_periods), 1, 16 );
 	factory_enforce_demand = contents.get_int("factory_enforce_demand", factory_enforce_demand) != 0;
 	tourist_percentage = contents.get_int("tourist_percentage", tourist_percentage );
+	city_short_range_percentage = contents.get_int("city_short_range_percentage", city_short_range_percentage);
+	city_medium_range_percentage = contents.get_int("city_medium_range_percentage", city_medium_range_percentage);
+	city_short_range_radius = contents.get_int("city_short_range_radius", city_short_range_radius);
+	city_medium_range_radius = contents.get_int("city_medium_range_radius", city_medium_range_radius);
 	seperate_halt_capacities = contents.get_int("seperate_halt_capacities", seperate_halt_capacities ) != 0;
 	avoid_overcrowding = contents.get_int("avoid_overcrowding", avoid_overcrowding )!=0;
 	passenger_max_wait = contents.get_int("passenger_max_wait", passenger_max_wait); 
@@ -1573,10 +1604,12 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	obsolete_running_cost_increase_phase_years = contents.get_int("obsolete_running_cost_increase_phase_years", obsolete_running_cost_increase_phase_years);
 
 	// Passenger destination ranges
+	uint32 city_short_range_radius_km = city_short_range_radius * distance_per_tile;
+	uint32 city_medium_range_radius_km = city_medium_range_radius * distance_per_tile;
 	local_passengers_min_distance = contents.get_int("local_passengers_min_distance", local_passengers_min_distance) / distance_per_tile;
-	local_passengers_max_distance = contents.get_int("local_passengers_max_distance", local_passengers_max_distance) / distance_per_tile;
+	local_passengers_max_distance = contents.get_int("local_passengers_max_distance", city_short_range_radius_km) / distance_per_tile;
 	midrange_passengers_min_distance = contents.get_int("midrange_passengers_min_distance", midrange_passengers_min_distance) / distance_per_tile;
-	midrange_passengers_max_distance = contents.get_int("midrange_passengers_max_distance", midrange_passengers_max_distance) / distance_per_tile;
+	midrange_passengers_max_distance = contents.get_int("midrange_passengers_max_distance", city_medium_range_radius_km) / distance_per_tile;
 	longdistance_passengers_min_distance = contents.get_int("longdistance_passengers_min_distance", longdistance_passengers_min_distance) / distance_per_tile;
 	longdistance_passengers_max_distance = contents.get_int("longdistance_passengers_max_distance", longdistance_passengers_max_distance) / distance_per_tile;
 	
@@ -1587,12 +1620,12 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 		passenger_routing_packet_size = 7;
 	}
 	max_alternative_destinations = contents.get_int("max_alternative_destinations", max_alternative_destinations);
-	passenger_routing_local_chance  = contents.get_int("passenger_routing_local_chance", passenger_routing_local_chance);
+	passenger_routing_local_chance  = contents.get_int("passenger_routing_local_chance", city_short_range_percentage);
 	if(passenger_routing_local_chance < 1 || passenger_routing_local_chance > 99)
 	{
 		passenger_routing_local_chance = 33;
 	}
-	passenger_routing_midrange_chance = contents.get_int("passenger_routing_midrange_chance", passenger_routing_midrange_chance);
+	passenger_routing_midrange_chance = contents.get_int("passenger_routing_midrange_chance", city_medium_range_percentage);
 	if(passenger_routing_midrange_chance < 1 || passenger_routing_midrange_chance > 99)
 	{
 		passenger_routing_midrange_chance = 33;

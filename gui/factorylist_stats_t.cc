@@ -143,7 +143,7 @@ void factorylist_stats_t::zeichnen(koord offset)
 	const int start = cd.y-LINESPACE-1;
 	const int end = cd.yy+LINESPACE+1;
 
-	static cbuffer_t buf(256);
+	static cbuffer_t buf;
 	int xoff = offset.x+16;
 	int yoff = offset.y;
 

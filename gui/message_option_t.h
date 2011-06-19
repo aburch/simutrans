@@ -8,12 +8,14 @@
 #include "components/gui_button.h"
 #include "components/gui_textarea.h"
 #include "components/gui_image.h"
+#include "../utils/cbuffer_t.h"
 
 class karte_t;
 
 class message_option_t : public gui_frame_t, private action_listener_t
 {
 private:
+	cbuffer_t buf;
 	gui_textarea_t text_label;
 	button_t buttons[4*message_t::MAX_MESSAGE_TYPE];
 	gui_image_t legend;

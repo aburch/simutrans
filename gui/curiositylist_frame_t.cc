@@ -30,18 +30,18 @@ bool curiositylist_frame_t::sortreverse = false;
 curiositylist::sort_mode_t curiositylist_frame_t::sortby = curiositylist::by_name;
 
 const char *curiositylist_frame_t::sort_text[curiositylist::SORT_MODES] = {
-    "hl_btn_sort_name",
-    "Passagierrate"/*,
+	"hl_btn_sort_name",
+	"Passagierrate"/*,
 		     "Postrate"*/
 };
 
 curiositylist_frame_t::curiositylist_frame_t(karte_t * welt) :
-    gui_frame_t("curlist_title"),
-    sort_label(translator::translate("hl_txt_sort")),
+	gui_frame_t("curlist_title"),
+	sort_label(translator::translate("hl_txt_sort")),
 	stats(welt,sortby,sortreverse),
 	scrolly(&stats)
 {
-	sort_label.set_pos(koord(BUTTON1_X, 4));
+	sort_label.set_pos(koord(BUTTON1_X, 2));
 	add_komponente(&sort_label);
 
 	sortedby.init(button_t::roundbox, "", koord(BUTTON1_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
@@ -52,16 +52,14 @@ curiositylist_frame_t::curiositylist_frame_t(karte_t * welt) :
 	sorteddir.add_listener(this);
 	add_komponente(&sorteddir);
 
-	set_fenstergroesse(koord(TOTAL_WIDTH, 240));
-
-	scrolly.set_pos(koord(1,14+BUTTON_HEIGHT+2));
+	scrolly.set_pos(koord(0,14+BUTTON_HEIGHT+2));
 	scrolly.set_scroll_amount_y(LINESPACE+1);
 	add_komponente(&scrolly);
 
 	display_list();
 
-	// a min-size for the window
-	set_min_windowsize(koord(TOTAL_WIDTH, 240));
+	set_fenstergroesse(koord(TOTAL_WIDTH, TITLEBAR_HEIGHT+18*(LINESPACE+1)+14+BUTTON_HEIGHT+2+1));
+	set_min_windowsize(koord(TOTAL_WIDTH, TITLEBAR_HEIGHT+4*(LINESPACE+1)+14+BUTTON_HEIGHT+2+1));
 
 	set_resizemode(diagonal_resize);
 	resize(koord(0,0));
@@ -97,7 +95,7 @@ void curiositylist_frame_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta);
 	// fensterhoehe - 16(title) -offset (header)
-	koord groesse = get_fenstergroesse()-koord(0,14+BUTTON_HEIGHT+2+16);
+	koord groesse = get_fenstergroesse()-koord(0,TITLEBAR_HEIGHT+14+BUTTON_HEIGHT+2+1);
 	scrolly.set_groesse(groesse);
 }
 

@@ -47,33 +47,28 @@ convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
 	this->cnv = cnv;
 	welt = cnv->get_welt();
 
-	sale_button.init(button_t::roundbox, "verkaufen", koord(BUTTON4_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
-	sale_button.add_listener(this);
+	sale_button.init(button_t::roundbox, "verkaufen", koord(BUTTON4_X, 0), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
 	sale_button.set_tooltip("Remove vehicle from map. Use with care!");
+	sale_button.add_listener(this);
 	add_komponente(&sale_button);
 
-	withdraw_button.set_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
-	withdraw_button.set_pos(koord(BUTTON3_X,14));
-	withdraw_button.set_text("withdraw");
-	withdraw_button.set_typ(button_t::roundbox);
+	withdraw_button.init(button_t::roundbox, "withdraw", koord(BUTTON3_X, 0), koord(BUTTON_WIDTH, BUTTON_HEIGHT));
 	withdraw_button.set_tooltip("Convoi is sold when all wagons are empty.");
-	add_komponente(&withdraw_button);
 	withdraw_button.add_listener(this);
-	retire_button.set_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
-	retire_button.set_pos(koord(BUTTON3_X,16+BUTTON_HEIGHT));
-	retire_button.set_text("Retire");
-	retire_button.set_typ(button_t::roundbox);
+	add_komponente(&withdraw_button);
+
+	retire_button.init(button_t::roundbox, "Retire", koord(BUTTON3_X, 16), koord(BUTTON_WIDTH, BUTTON_HEIGHT));
 	retire_button.set_tooltip("Convoi is sent to depot when all wagons are empty.");
 	add_komponente(&retire_button);
 	retire_button.add_listener(this);
 
-	scrolly.set_pos(koord(0, 64));
+	scrolly.set_pos(koord(0, 50));
 	scrolly.set_show_scroll_x(true);
 	add_komponente(&scrolly);
 
-	set_fenstergroesse(koord(TOTAL_WIDTH, 278));
+	set_fenstergroesse(koord(TOTAL_WIDTH, TITLEBAR_HEIGHT+50+17*(LINESPACE+1)+scrollbar_t::BAR_SIZE-6));
+	set_min_windowsize(koord(TOTAL_WIDTH, TITLEBAR_HEIGHT+50+3*(LINESPACE+1)+scrollbar_t::BAR_SIZE-3));
 
-	set_min_windowsize(koord(TOTAL_WIDTH, 194));
 	set_resizemode(diagonal_resize);
 	resize(koord(0,0));
 }
@@ -100,7 +95,7 @@ void convoi_detail_t::zeichnen(koord pos, koord gr)
 
 		// all gui stuff set => display it
 		gui_frame_t::zeichnen(pos, gr);
-		int offset_y = pos.y+14+16;
+		int offset_y = pos.y+2+16;
 
 		// current value
 		char tmp[512];
@@ -323,7 +318,7 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 		sint32 const ref_speed = cnv->get_welt()->get_average_speed(cnv->front()->get_waytype());
 		const sint32 speed_base = (100*speed_to_kmh(cnv->get_min_top_speed()))/ref_speed-100;
 
-		static cbuffer_t freight_info(1024);
+		static cbuffer_t freight_info;
 		for(unsigned veh=0;  veh<cnv->get_vehikel_anzahl(); veh++ ) {
 			vehikel_t *v=cnv->get_vehikel(veh);
 			int returns = 0;
@@ -436,13 +431,9 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 				display_proportional_clip( pos.x+w+offset.x+len, pos.y+offset.y+total_height+extra_y, tmp, ALIGN_LEFT, price>0?MONEY_PLUS:MONEY_MINUS, true );
 				extra_y += LINESPACE;
 
-				freight_info.append(v->get_fracht_menge());
-				freight_info.append("/");
-				freight_info.append(v->get_fracht_max());
-				freight_info.append(translator::translate(v->get_fracht_mass()));
-				freight_info.append(" ");
-				freight_info.append(v->get_fracht_typ()->get_catg() == 0 ? translator::translate(v->get_fracht_typ()->get_name()) : translator::translate(v->get_fracht_typ()->get_catg_name()));
-				freight_info.append("\n");
+				ware_besch_t const& g    = *v->get_fracht_typ();
+				char const*  const  name = translator::translate(g.get_catg() == 0 ? g.get_name() : g.get_catg_name());
+				freight_info.printf("%u/%u%s %s\n", v->get_fracht_menge(), v->get_fracht_max(), translator::translate(v->get_fracht_mass()), name);
 				v->get_fracht_info(freight_info);
 				// show it
 				const int px_len = display_multiline_text( pos.x+offset.x+w, pos.y+offset.y+total_height+extra_y, freight_info, COL_BLACK );

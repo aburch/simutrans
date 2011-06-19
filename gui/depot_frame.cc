@@ -236,7 +236,7 @@ void depot_frame_t::layout(koord *gr)
 	*/
 	int ABUTTON_WIDTH = 128;
 	int ABUTTON_HEIGHT = 14;
-	int ACTIONS_WIDTH = 4 * ABUTTON_WIDTH;
+	int ACTIONS_WIDTH = 2+4*(ABUTTON_WIDTH+2);
 	int ACTIONS_HEIGHT = ABUTTON_HEIGHT + ABUTTON_HEIGHT; // @author hsiegeln: added "+ ABUTTON_HEIGHT"
 	convoy_assembler.set_convoy_tabs_skip(ACTIONS_HEIGHT);
 
@@ -286,20 +286,20 @@ void depot_frame_t::layout(koord *gr)
 	 */
 	lb_convois.set_pos(koord(4, SELECT_VSTART - 10));
 
-	bt_prev.set_pos(koord(5, SELECT_VSTART + 2));
+	bt_prev.set_pos(koord(3, SELECT_VSTART + 2));
 
-	inp_name.set_pos(koord(5+12, SELECT_VSTART));
-	inp_name.set_groesse(koord(TOTAL_WIDTH - 26-8, 14));
+	inp_name.set_pos(koord(3+12, SELECT_VSTART));
+	inp_name.set_groesse(koord(TOTAL_WIDTH - 26-3, 14));
 
-	bt_next.set_pos(koord(TOTAL_WIDTH - 15, SELECT_VSTART + 2));
+	bt_next.set_pos(koord(TOTAL_WIDTH - 12, SELECT_VSTART + 2));
 
 	/*
 	 * [SELECT ROUTE]:
 	 * @author hsiegeln
 	 */
-	line_selector.set_pos(koord(5, SELECT_VSTART + 14));
-	line_selector.set_groesse(koord(TOTAL_WIDTH - 8, 14));
-	line_selector.set_max_size(koord(TOTAL_WIDTH - 8, LINESPACE*13+2+16));
+	line_selector.set_pos(koord(3, SELECT_VSTART + 14));
+	line_selector.set_groesse(koord(TOTAL_WIDTH - 3, 14));
+	line_selector.set_max_size(koord(TOTAL_WIDTH - 3, LINESPACE*13+2+16));
 	line_selector.set_highlight_color(1);
 
 	/*
@@ -317,40 +317,40 @@ void depot_frame_t::layout(koord *gr)
 	/*
 	 * [ACTIONS]
 	 */
-	bt_start.set_pos(koord(0, ACTIONS_VSTART));
-	bt_start.set_groesse(koord(TOTAL_WIDTH/4, ABUTTON_HEIGHT));
+	bt_start.set_pos(koord(2, ACTIONS_VSTART));
+	bt_start.set_groesse(koord(TOTAL_WIDTH/4-2, ABUTTON_HEIGHT));
 	bt_start.set_text("Start");
 
-	bt_schedule.set_pos(koord(TOTAL_WIDTH/4, ACTIONS_VSTART));
-	bt_schedule.set_groesse(koord(TOTAL_WIDTH*2/4-TOTAL_WIDTH/4, ABUTTON_HEIGHT));
+	bt_schedule.set_pos(koord(TOTAL_WIDTH/4+2, ACTIONS_VSTART));
+	bt_schedule.set_groesse(koord(TOTAL_WIDTH*2/4-TOTAL_WIDTH/4-3, ABUTTON_HEIGHT));
 	bt_schedule.set_text("Fahrplan");
 
-	bt_destroy.set_pos(koord(TOTAL_WIDTH*2/4, ACTIONS_VSTART));
-	bt_destroy.set_groesse(koord(TOTAL_WIDTH*3/4-TOTAL_WIDTH*2/4, ABUTTON_HEIGHT));
+	bt_destroy.set_pos(koord(TOTAL_WIDTH*2/4+1, ACTIONS_VSTART));
+	bt_destroy.set_groesse(koord(TOTAL_WIDTH*3/4-TOTAL_WIDTH*2/4-2, ABUTTON_HEIGHT));
 	bt_destroy.set_text("Aufloesen");
 
-	bt_sell.set_pos(koord(TOTAL_WIDTH*3/4, ACTIONS_VSTART));
-	bt_sell.set_groesse(koord(TOTAL_WIDTH-TOTAL_WIDTH*3/4, ABUTTON_HEIGHT));
+	bt_sell.set_pos(koord(TOTAL_WIDTH*3/4+1, ACTIONS_VSTART));
+	bt_sell.set_groesse(koord(TOTAL_WIDTH-TOTAL_WIDTH*3/4-3, ABUTTON_HEIGHT));
 	bt_sell.set_text("Verkauf");
 
 	/*
 	 * ACTIONS for new route management buttons
 	 * @author hsiegeln
 	 */
-	bt_new_line.set_pos(koord(0, ACTIONS_VSTART+ABUTTON_HEIGHT));
-	bt_new_line.set_groesse(koord(TOTAL_WIDTH/4, ABUTTON_HEIGHT));
+	bt_new_line.set_pos(koord(2, ACTIONS_VSTART+ABUTTON_HEIGHT));
+	bt_new_line.set_groesse(koord(TOTAL_WIDTH/4-2, ABUTTON_HEIGHT));
 	bt_new_line.set_text("New Line");
 
-	bt_apply_line.set_pos(koord(TOTAL_WIDTH/4, ACTIONS_VSTART+ABUTTON_HEIGHT));
-	bt_apply_line.set_groesse(koord(TOTAL_WIDTH*2/4-TOTAL_WIDTH/4, ABUTTON_HEIGHT));
+	bt_apply_line.set_pos(koord(TOTAL_WIDTH/4+2, ACTIONS_VSTART+ABUTTON_HEIGHT));
+	bt_apply_line.set_groesse(koord(TOTAL_WIDTH*2/4-3-TOTAL_WIDTH/4, ABUTTON_HEIGHT));
 	bt_apply_line.set_text("Apply Line");
 
-	bt_change_line.set_pos(koord(TOTAL_WIDTH*2/4, ACTIONS_VSTART+ABUTTON_HEIGHT));
-	bt_change_line.set_groesse(koord(TOTAL_WIDTH*3/4-TOTAL_WIDTH*2/4, ABUTTON_HEIGHT));
+	bt_change_line.set_pos(koord(TOTAL_WIDTH*2/4+1, ACTIONS_VSTART+ABUTTON_HEIGHT));
+	bt_change_line.set_groesse(koord(TOTAL_WIDTH*3/4-2-TOTAL_WIDTH*2/4, ABUTTON_HEIGHT));
 	bt_change_line.set_text("Update Line");
 
-	bt_copy_convoi.set_pos(koord(TOTAL_WIDTH*3/4, ACTIONS_VSTART+ABUTTON_HEIGHT));
-	bt_copy_convoi.set_groesse(koord(TOTAL_WIDTH-TOTAL_WIDTH*3/4, ABUTTON_HEIGHT));
+	bt_copy_convoi.set_pos(koord(TOTAL_WIDTH*3/4+1, ACTIONS_VSTART+ABUTTON_HEIGHT));
+	bt_copy_convoi.set_groesse(koord(TOTAL_WIDTH-TOTAL_WIDTH*3/4-3, ABUTTON_HEIGHT));
 	bt_copy_convoi.set_text("Copy Convoi");
 
 	const uint8 margin = 4;
@@ -465,7 +465,7 @@ void depot_frame_t::rename_convoy(convoihandle_t cnv)
 		// otherwise some unintended undo if renaming would occur
 		if(  t  &&  t[0]  &&  strcmp(t, cnv->get_name())  &&  strcmp(txt_old_cnv_name, cnv->get_name())==0  ) {
 			// text changed => call tool
-			cbuffer_t buf(300);
+			cbuffer_t buf;
 			buf.printf( "c%u,%s", cnv.get_id(), t );
 			werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
 			w->set_default_param( buf );
@@ -477,8 +477,6 @@ void depot_frame_t::rename_convoy(convoihandle_t cnv)
 		}
 	}
 }
-
-
 
 bool depot_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 {
@@ -731,7 +729,6 @@ bool depot_frame_t::check_way_electrified(bool init)
 	if(!init)
 	{
 		convoy_assembler.set_electrified( way_electrified );
-
 	}
 	if( way_electrified ) 
 	{

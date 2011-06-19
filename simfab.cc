@@ -407,31 +407,19 @@ void fabrik_t::recalc_demands_at_target_cities()
 	}
 	else {
 		// more than 1 target cities -> need to apportion pax/mail demand among the cities
-		static vector_tpl<sint64> weights(8);
-		static vector_tpl<uint32> distances(8);
+		static vector_tpl<uint32> weights(8);
 		weights.clear();
-		distances.clear();
-		sint64 sum_of_weights = 0;
-		uint32 longest_distance = 0;
-		// first, calculate the distances from the target cities and find the longest distance
+		uint32 sum_of_weights = 0;
+		// first, calculate the weights
 		for(  uint32 c=0;  c<target_cities.get_count();  ++c  ) {
-			distances.append( koord_distance( get_pos(), target_cities[c]->get_pos() ) );
-			if(  longest_distance<distances[c]  ) {
-				longest_distance = distances[c];
-			}
-		}
-		// adjustment for reducing the multiplier (longest_city_distance / city_distance) when distance is too small relative to the longest distance
-		const uint32 adjustment = (longest_distance >> 3);
-		// then, calculate the weights; formula : city_population * (longest_city_distance / city_distance)
-		for(  uint32 c=0;  c<target_cities.get_count();  ++c  ) {
-			weights.append( ( (sint64)(target_cities[c]->get_einwohner()) * (sint64)(longest_distance + adjustment) ) / (sint64)(distances[c] + adjustment) );
+			weights.append( weight_by_distance( target_cities[c]->get_einwohner(), shortest_distance( get_pos().get_2d(), target_cities[c]->get_pos() ) ) );
 			sum_of_weights += weights[c];
 		}
 		// finally, apportion the pax/mail demand; formula : demand * (city_weight / aggregate_city_weight); (sum_of_weights >> 1) is for rounding
 		for(  uint32 c=0;  c<target_cities.get_count();  ++c  ) {
-			const uint32 pax_amount = (uint32)(( (sint64)(scaled_pax_demand << DEMAND_BITS) * weights[c] + (sum_of_weights >> 1) ) / sum_of_weights);
+			const uint32 pax_amount = (uint32)(( (sint64)(scaled_pax_demand << DEMAND_BITS) * (sint64)weights[c] + (sint64)(sum_of_weights >> 1) ) / (sint64)sum_of_weights);
 			target_cities[c]->access_target_factories_for_pax().update_factory(this, pax_amount);
-			const uint32 mail_amount = (uint32)(( (sint64)(scaled_mail_demand << DEMAND_BITS) * weights[c] + (sum_of_weights >> 1) ) / sum_of_weights);
+			const uint32 mail_amount = (uint32)(( (sint64)(scaled_mail_demand << DEMAND_BITS) * (sint64)weights[c] + (sint64)(sum_of_weights >> 1) ) / (sint64)sum_of_weights);
 			target_cities[c]->access_target_factories_for_mail().update_factory(this, mail_amount);
 		}
 	}
@@ -1732,19 +1720,16 @@ public:
 void fabrik_t::verteile_waren(const uint32 produkt)
 {	
 	// wohin liefern ?
-	if (lieferziele.empty()) 
-	{
+	if(  lieferziele.empty()  ) {
 		return;
 	}
 
 	// not connected?
 	const planquadrat_t *plan = welt->lookup(pos.get_2d());
-	if(plan==NULL) 
-	{
+	if(  plan == NULL  ) {
 		dbg->fatal("fabrik_t::verteile_waren", "%s has not distibution target", get_name() );
 	}
-	if(plan->get_haltlist_count()==0) 
-	{
+	if(  plan->get_haltlist_count() == 0  ) {
 		return;
 	}
 
@@ -1769,7 +1754,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 	for(  unsigned i=0;  i<plan->get_haltlist_count();  i++  ) {
 		halthandle_t halt = haltlist[(i + index_offset) % plan->get_haltlist_count()];
 
-		if (!halt->get_ware_enabled()) {
+		if(  !halt->get_ware_enabled()  ) {
 			continue;
 		}
 
@@ -1795,8 +1780,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 
 				unsigned w;
 				// find the index in the target factory
-
-				for (w = 0; w < ziel_fab->get_eingang().get_count() && ziel_fab->get_eingang()[w].get_typ() != ware.get_besch(); w++) {
+				for(  w = 0;  w < ziel_fab->get_eingang().get_count()  &&  ziel_fab->get_eingang()[w].get_typ() != ware.get_besch();  w++  ) {
 					// empty
 				}
 
@@ -1806,20 +1790,17 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 
 				// ok, still enough space
 
-				//const uint16 current_journey_time = halt->find_route(ware);
-				//if(current_journey_time < 65535)
-
-				if (!welt->get_settings().get_just_in_time()) {
+				if(  !welt->get_settings().get_just_in_time()  ) {
 
 					// distribution also to overflowing factories
-					if(still_overflow  &&  !overflown) {
+					if(  still_overflow  &&  !overflown  ) {
 						// not overflowing factory found
 						still_overflow = false;
 						dist_list.clear();
 					}
 				}
 
-				if (!overflown || (!welt->get_settings().get_just_in_time() && still_overflow)) {
+				if(  !overflown  ||  (!welt->get_settings().get_just_in_time()  &&  still_overflow)  ) {
 					// Station can only store up to a maximum amount of goods per square
 					const sint32 halt_left = (sint32)halt->get_capacity(2) - (sint32)halt->get_ware_summe(ware.get_besch());
 
@@ -1831,14 +1812,13 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 
 	// Auswertung der Ergebnisse
 	// "Evaluation of the results" (Babelfish)
-	if (!dist_list.empty()) {
+	if(  !dist_list.empty()  ) {
 
 		distribute_ware_t *best = NULL;
-		for(uint32 i=0; i<dist_list.get_count(); i++) {
+		for(  uint32 i=0;  i<dist_list.get_count();  i++  ) {
 			ware_t& ware = dist_list[i].ware;
 			// now search route
 			const uint16 current_journey_time = dist_list[i].halt->find_route(ware);
-			//const int result = haltestelle_t::search_route(&dist_list[i].halt, 1U, ware);
 			if (current_journey_time < 65535) 
 			{
 				best = &dist_list[i];
@@ -1846,7 +1826,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 			}
 		}
 
-		if (best == NULL) {
+		if(  best == NULL  ) {
 			return; // no route for any destination
 		}
 
@@ -1857,22 +1837,20 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 
 		menge = min( menge, 9 + best->space_left );
 		// ensure amount is not negative ...
-		if(menge<0) {
+		if(  menge<0  ) {
 			menge = 0;
 		}
 		// since it is assigned here to an unsigned variable!
 		best_ware.menge = menge;
 
-		if(best->space_left<0) {
+		if(  best->space_left<0  ) {
 
 			// find, what is most waiting here from us
 			ware_t most_waiting(ausgang[produkt].get_typ());
 			most_waiting.menge = 0;
-			for(uint32 n=0; n<lieferziele.get_count(); n++) 
-			{
+			for(  uint32 n=0;  n<lieferziele.get_count();  n++  ) {
 				const uint32 amount = (sint32)best_halt->get_ware_fuer_zielpos( ausgang[produkt].get_typ(), lieferziele[n] );
-				if(amount > most_waiting.menge) 
-				{
+				if(  amount > most_waiting.menge  ) {
 					most_waiting.set_zielpos( lieferziele[n] );
 					most_waiting.menge = amount;
 					most_waiting.arrival_time = welt->get_zeit_ms();
@@ -1881,9 +1859,9 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 
 
 			//  we will reroute some goods
-			if(best->amount_waiting==0  &&  most_waiting.menge>0) {
+			if(  best->amount_waiting==0  &&  most_waiting.menge>0  ) {
 				// remove something from the most waiting goods
-				if(best_halt->recall_ware( most_waiting, min(most_waiting.menge/2, 1 - best->space_left) ) ) {
+				if(  best_halt->recall_ware( most_waiting, min(most_waiting.menge/2, 1 - best->space_left) )  ) {
 					best_ware.menge += most_waiting.menge;
 				}
 				else {
@@ -2261,13 +2239,7 @@ void fabrik_t::info(cbuffer_t& buf) const
 
 			fabrik_t *fab = get_fab( welt, lieferziel );
 			if(fab) {
-				buf.append("   ");
-				buf.append(translator::translate(fab->get_name()));
-				buf.append(" (");
-				buf.append(lieferziel.x);
-				buf.append(", ");
-				buf.append(lieferziel.y);
-				buf.append(")\n");
+				buf.printf("   %s (%d, %d)\n", translator::translate(fab->get_name()), lieferziel.x, lieferziel.y);
 			}
 		}
 	}
@@ -2282,13 +2254,7 @@ void fabrik_t::info(cbuffer_t& buf) const
 
 			fabrik_t *fab = get_fab( welt, supplier );
 			if(fab) {
-				buf.append("   ");
-				buf.append(translator::translate(fab->get_name()));
-				buf.append(" (");
-				buf.append(supplier.x);
-				buf.append(", ");
-				buf.append(supplier.y);
-				buf.append(")\n");
+				buf.printf("   %s (%d, %d)\n", translator::translate(fab->get_name()), supplier.x, supplier.y);
 			}
 		}
 	}
