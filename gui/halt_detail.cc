@@ -286,7 +286,7 @@ void halt_detail_t::halt_detail_info()
 		{
 			buf.append("\n");
 			offset_y += LINESPACE;
-			buf.append(" ·");
+			buf.append(" · ");
 			const ware_besch_t* info = warenbauer_t::get_info_catg_index(i);
 			// If it is a special freight, we display the name of the good, otherwise the name of the category.
 			buf.append(translator::translate(info->get_catg()==0?info->get_name():info->get_catg_name()));
@@ -340,7 +340,7 @@ void halt_detail_t::halt_detail_info()
 					}
 					buf.append("\n\n");
 
-					offset_y += 2 * LINESPACE;
+					offset_y += 3 * LINESPACE;
 				}
 			}
 		}
