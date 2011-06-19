@@ -5665,26 +5665,27 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
  * [function],[line_id],addition stuff
  * following simple command exists:
  * 'g' : apply new schedule to line [schedule follows]
+ * 'V' : Apply a new livery scheme to the line [livery scheme index follows]
  */
 bool wkz_change_line_t::init( karte_t *, spieler_t *sp )
 {
+	char tool = 0;
 	uint16 line_id = 0;
-
+	uint16 livery_scheme_index = 0;
+	
 	// skip the rest of the command
 	const char *p = default_param;
 	while(  *p  &&  *p<=' '  ) {
 		p++;
 	}
 
-	char tool=*p++;
-	while(  *p  &&  *p++!=','  ) {
-	}
-	if(  *p==0  ) {
-		dbg->error( "wkz_change_line_t::init()", "too short command \"%s\"", default_param );
-	}
+	sscanf( p, "%c,%hi,&hi", &tool, &line_id, &livery_scheme_index );
 
-	line_id = atoi(p);
-	while(  *p  &&  *p++!=','  ) {
+	// skip to the commands ...
+	for(  int z = 3;  *p  &&  z>0;  p++  ) {
+		if(  *p==','  ) {
+			z--;
+		}
 	}
 
 	linehandle_t line;
@@ -5756,6 +5757,15 @@ bool wkz_change_line_t::init( karte_t *, spieler_t *sp )
 				}
 			}
 			break;
+
+		case 'V': // Change livery
+			{
+				if(line.is_bound())
+				{
+					line->set_livery_scheme_index(livery_scheme_index);
+					line->propogate_livery_scheme();
+				}
+			}
 	}
 	return false;
 }
@@ -5781,17 +5791,18 @@ bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 	koord3d pos = koord3d::invalid;
 	sint16	z;
 	uint16 convoi_id;
+	uint16 livery_scheme_index;
 
 	// skip the rest of the command
 	const char *p = default_param;
 	while(  *p  &&  *p<=' '  ) {
 		p++;
 	}
-	sscanf( p, "%c,%hi,%hi,%hi,%hi", &tool, &pos.x, &pos.y, &z, &convoi_id );
+	sscanf( p, "%c,%hi,%hi,%hi,%hi,%hi", &tool, &pos.x, &pos.y, &z, &convoi_id, &livery_scheme_index );
 	pos.z = (sint8)z;
 
 	// skip to the commands ...
-	z = 5;
+	z = 6;
 	while(  *p  &&  z>0  ) {
 		if(  *p==','  ) {
 			z--;
@@ -5948,7 +5959,7 @@ bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 									// If upgrading, we assume that we want to upgrade
 									// rather than use vehicles already in the depot.
 
-									veh = depot->buy_vehicle(vb);
+									veh = depot->buy_vehicle(vb, livery_scheme_index);
 								}
 
 								if(tool == 'u')

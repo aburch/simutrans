@@ -768,6 +768,12 @@
     <ClCompile Include="utils\fetchopt.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="dataobj\livery_scheme.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="besch\reader\imagelist3d_reader.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gui\components\action_listener.h">
@@ -1770,6 +1776,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="simunits.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\livery_scheme.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\reader\imagelist3d_reader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1103,6 +1103,7 @@ vehikel_t::vehikel_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp) :
 	diagonal_costs = 0;
     hill_up = 0;
     hill_down = 0;
+	current_livery = "default";
 }
 
 sint64 vehikel_t::sound_ticks = 0;
@@ -1139,6 +1140,7 @@ vehikel_t::vehikel_t(karte_t *welt) :
 	diagonal_costs = 0;
     hill_up = 0;
     hill_down = 0;
+	current_livery = "default";
 }
 
 
@@ -1849,11 +1851,11 @@ vehikel_t::calc_bild() //"Bild" = "picture" (Google)
 	image_id old_bild=get_bild();
 	if (fracht.empty()) 
 	{
-		set_bild(besch->get_bild_nr(ribi_t::get_dir(get_direction_of_travel()),NULL)); 
+		set_bild(besch->get_bild_nr(ribi_t::get_dir(get_direction_of_travel()), NULL, current_livery.c_str())); 
 	}
 	else 
 	{
-		set_bild(besch->get_bild_nr(ribi_t::get_dir(get_direction_of_travel()), fracht.front().get_besch()));
+		set_bild(besch->get_bild_nr(ribi_t::get_dir(get_direction_of_travel()), fracht.front().get_besch(), current_livery.c_str()));
 	}
 	if(old_bild!=get_bild()) {
 		set_flag(ding_t::dirty);
@@ -2211,6 +2213,17 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 				pre_corner_direction.add_to_tail(dir);
 			}
 		}
+	}
+
+	if(file->get_experimental_version() >= 10)
+	{
+		const char* name = current_livery.c_str();
+		file->rdwr_str(name);
+		current_livery = name;
+	}
+	else if(file->is_loading())
+	{
+		current_livery = "default";
 	}
 }
 

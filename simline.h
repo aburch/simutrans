@@ -99,6 +99,8 @@ private:
 	 */
 	bool start_reversed;
 
+	uint16 livery_scheme_index;
+
 public:
 	simline_t(karte_t* welt, spieler_t *sp, linetype type);
 	simline_t(karte_t* welt, spieler_t *sp, linetype type, loadsave_t *file);
@@ -223,6 +225,10 @@ public:
 	spieler_t *get_besitzer() const {return sp;}
 
 	void recalc_status();
+
+	void set_livery_scheme_index (uint16 index) { livery_scheme_index = index; }
+	uint16 get_livery_scheme_index() const { return livery_scheme_index; }
+	void propogate_livery_scheme();
 
 };
 

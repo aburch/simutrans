@@ -25,6 +25,7 @@
 #include "../../dataobj/replace_data.h"
 #include "../../dataobj/translator.h"
 #include "../../dataobj/umgebung.h"
+#include "../../dataobj/livery_scheme.h"
 #include "../../utils/simstring.h"
 #include "../../vehicle/simvehikel.h"
 #include "../../besch/haus_besch.h"
@@ -56,6 +57,7 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(karte_t *w, waytype_t wt, signed 
 	lb_convoi_count(NULL, COL_BLACK, gui_label_t::left),
 	lb_convoi_speed(NULL, COL_BLACK, gui_label_t::left),
 	lb_veh_action("Fahrzeuge:", COL_BLACK, gui_label_t::left),
+	lb_livery_selector("Livery scheme:", COL_BLACK, gui_label_t::left),
 	convoi_pics(depot_t::get_max_convoy_length(wt)),
 	convoi(&convoi_pics),
 	pas(&pas_vec),
@@ -175,6 +177,7 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(karte_t *w, waytype_t wt, signed 
 	add_komponente(&tabs);
 	add_komponente(&div_tabbottom);
 	add_komponente(&lb_veh_action);
+	add_komponente(&lb_livery_selector);
 	//add_komponente(&lb_upgrade);
 
 	veh_action = va_append;
@@ -209,6 +212,21 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(karte_t *w, waytype_t wt, signed 
 	bt_show_all.add_listener(this);
 	bt_show_all.set_tooltip("Show also vehicles that do not match for current action.");
 	add_komponente(&bt_show_all);
+
+	livery_selector.add_listener(this);
+	add_komponente(&livery_selector);
+	livery_selector.clear_elements();
+	vector_tpl<livery_scheme_t*>* schemes = welt->get_settings().get_livery_schemes();
+	livery_scheme_indices.clear();
+	ITERATE_PTR(schemes, i)
+	{
+		livery_scheme_t* scheme = schemes->get_element(i);
+		if(scheme->is_available(welt->get_timeline_year_month()))
+		{
+			livery_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(scheme->get_name()), COL_BLACK));
+			livery_scheme_indices.append(i);
+		}
+	}
 
 	lb_convoi_count.set_text_pointer(txt_convoi_count);
 	lb_convoi_speed.set_text_pointer(txt_convoi_speed);
@@ -295,6 +313,8 @@ const char * gui_convoy_assembler_t::get_haenger_name(waytype_t wt)
 bool  gui_convoy_assembler_t::show_retired_vehicles = false;
 
 bool  gui_convoy_assembler_t::show_all = false;
+
+uint16 gui_convoy_assembler_t::livery_scheme_index = 0;
 
 
 void gui_convoy_assembler_t::layout()
@@ -396,10 +416,29 @@ void gui_convoy_assembler_t::layout()
 
 	bt_obsolete.set_pos(koord(groesse.x-(ABUTTON_WIDTH*5)/2, PANEL_VSTART + get_panel_height() + 16));
 	bt_obsolete.pressed = show_retired_vehicles;
-	/*if(replace_frame)
+	
+	lb_livery_selector.set_pos(koord(2, PANEL_VSTART + get_panel_height() + 4));
+
+	livery_selector.set_pos(koord(groesse.x / 4, PANEL_VSTART + get_panel_height() + 2));
+	livery_selector.set_groesse(koord((groesse.x / 5), ABUTTON_HEIGHT));
+	livery_selector.set_max_size(koord(ABUTTON_WIDTH - 8, LINESPACE*3+2+16));
+	livery_selector.set_highlight_color(1);
+
+	if(welt->get_settings().get_livery_scheme(livery_scheme_index)->is_available((welt->get_timeline_year_month())))
 	{
-		replace_frame->layout(NULL);
-	}*/
+		livery_selector.set_selection(livery_scheme_indices.index_of(livery_scheme_index));
+	}
+	else
+	{
+		vector_tpl<livery_scheme_t*>* schemes = welt->get_settings().get_livery_schemes();
+		ITERATE_PTR(schemes, n)
+		{
+			if(schemes->get_element(n)->is_available(welt->get_timeline_year_month()))
+			{
+				livery_selector.set_selection(livery_scheme_indices.index_of(n));
+			}
+		}
+	}
 }
 
 
@@ -437,6 +476,13 @@ bool gui_convoy_assembler_t::action_triggered( gui_action_creator_t *komp,value_
 				build_vehicle_lists();
 				update_data();
 			}
+		} else if(komp == &livery_selector) {
+			sint32 livery_selection = p.i;
+			if(livery_selection < 0) {
+				livery_selector.set_selection(0);
+				livery_selection = 0;
+			}
+			livery_scheme_index = livery_scheme_indices[livery_selection];
 		} else if(komp == &upgrade_selector) {
 			sint32 upgrade_selection = p.i;
 			if ( upgrade_selection < 0 ) {
@@ -736,7 +782,25 @@ void gui_convoy_assembler_t::add_to_vehicle_list(const vehikel_besch_t *info)
 	// prissi: and retirement date
 	gui_image_list_t::image_data_t img_data;
 
-	img_data.image = info->get_basis_bild();
+	
+	const livery_scheme_t* const scheme = welt->get_settings().get_livery_scheme(livery_scheme_index);
+	uint16 date = welt->get_timeline_year_month();
+	if(scheme)
+	{
+		const char* livery = scheme->get_latest_available_livery(date, info);
+		if(livery)
+		{
+			img_data.image = info->get_basis_bild(livery);
+		}
+		else
+		{
+			img_data.image = info->get_basis_bild();
+		}
+	}
+	else
+	{
+		img_data.image = info->get_basis_bild();
+	}
 	img_data.count = 0;
 	img_data.lcolor = img_data.rcolor = EMPTY_IMAGE_BAR;
 	img_data.text = info->get_name();
@@ -796,7 +860,7 @@ void gui_convoy_assembler_t::image_from_convoi_list(uint nr)
 			cbuffer_t start;
 			start.append( start_nr );
 
-			depot->call_depot_tool( 'r', cnv, start );
+			depot->call_depot_tool( 'r', cnv, start, livery_scheme_index );
 		}
 	}
 	else
@@ -830,15 +894,15 @@ void gui_convoy_assembler_t::image_from_storage_list(gui_image_list_t::image_dat
 
 			if(veh_action == va_sell)
 			{
-				depot->call_depot_tool( 's', convoihandle_t(), bild_data->text );
+				depot->call_depot_tool( 's', convoihandle_t(), bild_data->text, livery_scheme_index );
 			}
 			else if(upgrade != u_upgrade)
 			{
-				depot->call_depot_tool( veh_action == va_insert ? 'i' : 'a', cnv, bild_data->text );
+				depot->call_depot_tool( veh_action == va_insert ? 'i' : 'a', cnv, bild_data->text, livery_scheme_index );
 			}
 			else
 			{
-				depot->call_depot_tool( 'u', cnv, bild_data->text );
+				depot->call_depot_tool( 'u', cnv, bild_data->text, livery_scheme_index );
 			}
 		}	
 	}
@@ -909,7 +973,24 @@ void gui_convoy_assembler_t::update_data()
 			}
 
 			gui_image_list_t::image_data_t img_data;
-			img_data.image = vehicles[i]->get_basis_bild();
+			const livery_scheme_t* const scheme = welt->get_settings().get_livery_scheme(livery_scheme_index);
+			uint16 date = welt->get_timeline_year_month();
+			if(scheme)
+			{
+				const char* livery = scheme->get_latest_available_livery(date, vehicles[i]);
+				if(livery)
+				{
+					img_data.image = vehicles[i]->get_basis_bild(livery);
+				}
+				else
+				{
+					img_data.image = vehicles[i]->get_basis_bild();
+				}
+			}
+			else
+			{
+				img_data.image = vehicles[i]->get_basis_bild();
+			}
 			img_data.count = 0;
 			img_data.lcolor = img_data.rcolor= EMPTY_IMAGE_BAR;
 			img_data.text = vehicles[i]->get_name();

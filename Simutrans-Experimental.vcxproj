@@ -364,8 +364,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="besch\fabrik_besch.cc" />
+    <ClCompile Include="besch\reader\imagelist3d_reader.cc" />
     <ClCompile Include="clipboard_w32.cc" />
     <ClCompile Include="dataobj\gameinfo.cc" />
+    <ClCompile Include="dataobj\livery_scheme.cc" />
     <ClCompile Include="dataobj\network_address.cc" />
     <ClCompile Include="dataobj\network_cmd_ingame.cc" />
     <ClCompile Include="dataobj\network_cmp_pakset.cc" />
@@ -631,7 +633,9 @@
     <ClCompile Include="dings\zeiger.cc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="besch\reader\imagelist3d_reader.h" />
     <ClInclude Include="dataobj\gameinfo.h" />
+    <ClInclude Include="dataobj\livery_scheme.h" />
     <ClInclude Include="dataobj\network_address.h" />
     <ClInclude Include="dataobj\network_cmd.h" />
     <ClInclude Include="dataobj\network_cmd_ingame.h" />

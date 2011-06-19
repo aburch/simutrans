@@ -5,6 +5,7 @@
 #include "../simtypes.h"
 #include "../simconst.h"
 #include "../simunits.h"
+#include "livery_scheme.h"
 
 /**
  * Spieleinstellungen
@@ -214,6 +215,8 @@ private:
 
 	// true, if the different caacities (passengers/mail/freight) are counted seperately
 	bool seperate_halt_capacities;
+
+	vector_tpl<livery_scheme_t*> livery_schemes;
 
 public:
 
@@ -824,6 +827,8 @@ public:
 	sint16 get_spacing_shift_divisor() const { return spacing_shift_divisor; }
 	void set_spacing_shift_divisor(sint16 s) { spacing_shift_divisor = s; }
 
+	livery_scheme_t* get_livery_scheme(uint16 index) { return !livery_schemes.empty() ? livery_schemes.get_element(index) : NULL; } 
+	vector_tpl<livery_scheme_t*>* get_livery_schemes() { return &livery_schemes; }
 };
 
 #endif

@@ -13,6 +13,7 @@
 #define _simvehikel_h
 
 #include <limits>
+#include <string>
 #include "../simtypes.h"
 #include "../simworld.h"
 #include "../simconvoi.h"
@@ -87,6 +88,10 @@ protected:
 
 	// cached image
 	image_id bild;
+
+	// The current livery of this vehicle.
+	// @author: jamespetts, April 2011
+	std::string current_livery;
 
 	sint8 calc_height();		// Offset Bergauf/Bergab
 
@@ -327,7 +332,7 @@ public:
 	* gibt das Basisbild zurueck
 	* @author Hj. Malthaner
 	*/
-	int get_basis_bild() const { return besch->get_basis_bild(); }
+	int get_basis_bild() const { return besch->get_basis_bild(current_livery.c_str()); }
 
 	/**
 	* @return vehicle description object
@@ -546,6 +551,9 @@ public:
 	// BG, 06.06.2009: update player's fixed maintenance
 	void laden_abschliessen();
 	void before_delete();
+
+	void set_current_livery(const char* liv) { current_livery = liv; }
+	const char* get_current_livery() const { return current_livery.c_str(); }
 };
 
 

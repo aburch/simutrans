@@ -12,6 +12,7 @@
 #include "xref_writer.h"
 #include "imagelist_writer.h"
 #include "imagelist2d_writer.h"
+#include "imagelist3d_writer.h"
 #include "get_waytype.h"
 #include "vehicle_writer.h"
 
@@ -78,7 +79,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	int i;
 	uint8  uv8;
 
-	int total_len = 62;
+	int total_len = 63;
 
 	// prissi: must be done here, since it may affect the len of the header!
 	string sound_str = ltrim( obj.get("sound") );
@@ -116,7 +117,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// Finally, this is the experimental version number. This is *added*
 	// to the standard version number, to be subtracted again when read.
 	// Start at 0x100 and increment in hundreds (hex).
-	version += 0x500;
+	version += 0x600;
 
 	node.write_uint16(fp, version, 0);
 
@@ -196,83 +197,273 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		"s", "w", "sw", "se", "n", "e", "ne", "nw"
 	};
 	slist_tpl<string> emptykeys;
-	slist_tpl<slist_tpl<string> > freightkeys;
+	slist_tpl<slist_tpl<string>> freightkeys;
 	slist_tpl<string> freightkeys_old;
+	slist_tpl<slist_tpl<string>> liverykeys_empty;
+	slist_tpl<slist_tpl<string>> liverykeys_freight_old;
+	slist_tpl<slist_tpl<slist_tpl<string>>> liverykeys_freight;
 	string str;
 
 	int  freight_max  = 0;
+	int	 livery_max	  = 0;
 	bool has_8_images = false;
 
-	// first: find out how many freight?
-	for (i = 0; i < 127; i++) {
+	// first: find out how many freight and liveries
+	for (i = 0; i < 127; i++)
+	{
+		// Freight with multiple types without liveries
 		char buf[40];
 		sprintf(buf, "freightimage[%d][%s]", i, dir_codes[0]);
+		printf("Reading freightimage[%d][%s]\n", i, dir_codes[0]);
 		str = obj.get(buf);
-		if (str.size() == 0) {
-			freight_max = i;
+		if (str.size() == 0)
+		{
+			freight_max += i;
+			break;
+		}
+	}
+	
+	for (i = 0; i < 127; i++)
+	{
+		// Freight with multiple types and liveries
+		for (int j = 0; j < 127; j++)
+		{
+			char buf[40];
+			sprintf(buf, "freightimage[%d][%s][%d]", i, dir_codes[0], j);
+			printf("Reading freightimage[%d][%s][%d]\n", i, dir_codes[0], j);
+			str = obj.get(buf);
+			if (str.size() == 0)
+			{
+				freight_max += i;
+				livery_max += j;
+				goto end;
+			}
+		}
+	}
+	
+end:
+
+	for (i = 0; i < 127; i++)
+	{
+		// Liveries without fright / empty images
+		char buf[40];
+		sprintf(buf, "emptyimage[%s][%d]", dir_codes[0], i);
+		printf("Reading emptyimage[%s][%d]\n", dir_codes[0], i);
+		str = obj.get(buf);
+		if (str.size() == 0)
+		{
+			livery_max += i;
+			break;
+		}
+	}
+
+	for (i = 0; i < 127; i++)
+	{
+		// Freight with a single type and liveries
+		char buf[40];
+		sprintf(buf, "freightimage[%s][%d]", dir_codes[0], i);
+		printf("Reading freightimage[%s][%d]\n", dir_codes[0], i);
+		str = obj.get(buf);
+		if (str.size() == 0)
+		{
+			livery_max += i;
+			break;
+		}
+	}
+
+	// Freight with a single type and single liveries
+	uint8 basic_freight_images = 0;
+	for (i = 0; i < 127; i++)
+	{
+		// Freight with a single type and liveries
+		char buf[40];
+		sprintf(buf, "freightimage[%s]", dir_codes[0]);
+		printf("Reading freightimage[%s]\n", dir_codes[0]);
+		str = obj.get(buf);
+		if (str.size() == 0)
+		{
+			basic_freight_images = i;
 			break;
 		}
 	}
 
 	// now load the images strings
-	for (i = 0; i < 8; i++) {
+	for (i = 0; i < 8; i++) 
+	{
 		char buf[40];
 
 		// Hajodoc: Empty vehicle image for direction, direction in "s", "w", "sw", "se", asymmetric vehicles need also "n", "e", "ne", "nw"
-		sprintf(buf, "emptyimage[%s]", dir_codes[i]);
-		str = obj.get(buf);
-		if (str.size() > 0) {
-			emptykeys.append(str);
-			if (i >= 4) {
-				has_8_images = true;
+		if (livery_max == 0) 
+		{
+			// Empty images without multiple liveries
+			sprintf(buf, "emptyimage[%s]", dir_codes[i]);
+			str = obj.get(buf);
+			if (str.size() > 0) 
+			{
+				emptykeys.append(str);
+				if (i >= 4) 
+				{
+					has_8_images = true;
+				}
+			} 
+			else 
+			{
+				// stop when empty string is found
+				break;
 			}
-		} else {
-			// stop when empty string is found
-			break;
+		}
+		else
+		{
+			// Empty images with multiple liveries
+			liverykeys_empty.append(slist_tpl<string>());
+			for(int livery = 0; livery < livery_max; livery++)
+			{
+				sprintf(buf, "emptyimage[%s][%d]", dir_codes[i], livery);
+				str = obj.get(buf);
+				if (str.size() == 0) 
+				{
+					printf("*** FATAL ***:\nMissing emptyimage[%s][%d]!\n", dir_codes[i], livery);
+					fflush(NULL);
+					exit(0);
+				}
+				printf("Appending emptyimage[%s][%d]\n", dir_codes[i], livery);
+				liverykeys_empty.at(i).append(str);
+			}
 		}
 
-		if (freight_max == 0) {
+		if (freight_max == 0 && livery_max == 0) 
+		{
 			// a single freight image
 			// old style definition - just [direction]
 			sprintf(buf, "freightimage[%s]", dir_codes[i]);
 			str = obj.get(buf);
-			if (str.size() > 0) {
+			if (str.size() > 0) 
+			{
+				printf("Appending freightimage[%s]\n", dir_codes[i]);
 				freightkeys_old.append(str);
 			}
-		} else {
+		} 
+		else if (freight_max > 0 && livery_max == 0)
+		{
 			freightkeys.append(slist_tpl<string>());
-			for(int freight = 0; freight < freight_max; freight++) {
+			for(int freight = 0; freight < freight_max; freight++)
+			{
 				sprintf(buf, "freightimage[%d][%s]", freight, dir_codes[i]);
 				str = obj.get(buf);
-				if (str.size() == 0) {
+				if (str.size() == 0) 
+				{
 					printf("*** FATAL ***:\nMissing freightimage[%d][%s]!\n", freight, dir_codes[i]);
 					fflush(NULL);
 					exit(0);
 				}
+				printf("Appending freightimage[%d][%s]\n", freight, dir_codes[i]);
 				freightkeys.at(i).append(str);
 			}
+		}
+		else if(freight_max == 0 && livery_max > 0)
+		{
+			// a single freight image
+			// old style definition - just [direction]
+			// With liveries
+			liverykeys_freight_old.append(slist_tpl<string>());
+			for(int livery = 0; livery < livery_max; livery++)
+			{
+				sprintf(buf, "freightimage[%s][%d]", dir_codes[i], livery);
+				str = obj.get(buf);
+				if (str.size() == 0) 
+				{
+					break;
+				}
+				printf("Appending freightimage[%s][%d]", dir_codes[i], livery);
+				liverykeys_freight_old.at(i).append(str);
+			}
+		}
+		else if (freight_max > 0 && livery_max > 0)
+		{
+			// Liveries *and* freight
+			liverykeys_freight.append(slist_tpl<slist_tpl<string>>());
+			for(int livery = 0; livery < livery_max; livery++)
+			{
+				for(int freight = 0; freight < freight_max; freight++)
+				{
+					sprintf(buf, "freightimage[%d][%s][%d]", freight, dir_codes[i], livery);
+					str = obj.get(buf);
+					if (str.size() == 0) 
+					{
+						printf("*** FATAL ***:\nMissing freightimage[%d][%s][%d]!\n", freight, dir_codes[i], livery);
+						fflush(NULL);
+						exit(0);
+					}
+					liverykeys_freight.at(i).at(livery).append(str);
+					printf("Appending freightimage[%d][%s][%d]", freight, dir_codes[i], livery);
+				}
+			}
+		}
+		else
+		{
+			// This should never be reached.
+			printf("*** FATAL ***: Error in code");
+			exit(0);
 		}
 	}
 
 	// prissi: added more error checks
-	if (has_8_images && emptykeys.get_count() < 8) {
-		printf("*** FATAL ***:\nMissing images (must be either 4 or 8 directions (but %i found)!)\n", emptykeys.get_count());
+	if (has_8_images && emptykeys.get_count() < 8 && liverykeys_empty.get_count() < 8) 
+	{
+		printf("*** FATAL ***:\nMissing images (must be either 4 or 8 directions (but %i found)!)\n", emptykeys.get_count() + liverykeys_empty.get_count());
 		exit(0);
 	}
-	if (!freightkeys_old.empty() && emptykeys.get_count() != freightkeys_old.get_count()) {
+
+	if (!(freightkeys_old.empty() || liverykeys_freight_old.empty()) && (emptykeys.get_count() != freightkeys_old.get_count() || liverykeys_empty.get_count() != liverykeys_freight_old.get_count()))
+	{
 		printf("*** FATAL ***:\nMissing freigthimages (must be either 4 or 8 directions (but %i found)!)\n", freightkeys_old.get_count());
 		exit(0);
 	}
 
-	imagelist_writer_t::instance()->write_obj(fp, node, emptykeys);
-	if (freight_max > 0) {
+	if(livery_max == 0)
+	{
+		// Empty images, no multiple liveries
+		imagelist_writer_t::instance()->write_obj(fp, node, emptykeys);
+		printf("Writing %d single livery empty images\n", emptykeys.get_count());
+	}
+	else
+	{
+		// Empty images, multiple liveries
+		imagelist2d_writer_t::instance()->write_obj(fp, node, liverykeys_empty);
+		printf("Writing %d multiple livery empty images\n", liverykeys_empty.get_count() *  liverykeys_empty.front().get_count());
+	}
+	
+	if (freight_max > 0 && livery_max == 0) 
+	{
+		// Multiple freight images, no multiple liveries
 		imagelist2d_writer_t::instance()->write_obj(fp, node, freightkeys);
-	} else {
-		if (freightkeys_old.get_count() == emptykeys.get_count()) {
+		printf("Writing %d single livery multiple type freight images\n", (freightkeys.get_count() * freightkeys.front().get_count()));
+	} 
+	else if(freight_max > 0 && livery_max > 0)
+	{
+		// Multiple frieght images, multiple liveries
+		imagelist3d_writer_t::instance()->write_obj(fp, node, liverykeys_freight);
+		printf("Writing %d multiple livery multiple type freight images\n", (liverykeys_freight.get_count() * liverykeys_freight.front().get_count() * liverykeys_freight.front().front().get_count()));
+	}
+	else if(freight_max == 0 && livery_max > 0 && basic_freight_images > 0)
+	{
+		// Single freight images, multiple liveries
+		imagelist2d_writer_t::instance()->write_obj(fp, node, liverykeys_freight_old);
+		printf("Writing %d single type multiple livery freight images\n", liverykeys_freight_old.get_count() * liverykeys_freight_old.front().get_count());
+	}
+	else if(freight_max == 0 && livery_max == 0)
+	{
+		// Single freight images, no multiple liveries
+		if (freightkeys_old.get_count() == emptykeys.get_count()) 
+		{
 			imagelist_writer_t::instance()->write_obj(fp, node, freightkeys_old);
-		} else {
+			printf("Writing %d single type single livery freight images\n", freightkeys_old.get_count());
+		} 
+		else 
+		{
 			// really empty list ...
 			xref_writer_t::instance()->write_obj(fp, node, obj_imagelist, "", false);
+			printf("Writing %d non-images\n", freightkeys_old.get_count());
 		}
 	}
 
@@ -358,29 +549,65 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 
 	// multiple freight image types - define what good uses each index
 	// good without index will be an error
-	for (i = 0; i <= freight_max; i++) {
+	for (i = 0; i <= freight_max; i++)
+	{
 		char buf[40];
 		sprintf(buf, "freightimagetype[%d]", i);
 		str = obj.get(buf);
-		if (i == freight_max) {
-			// check for supoerflous definitions
-			if (str.size() > 0) {
+		if (i == freight_max) 
+		{
+			// check for superflous definitions
+			if (str.size() > 0) 
+			{
 				printf("WARNING: More freightimagetype (%i) than freight_images (%i)!\n", i, freight_max);
 				fflush(NULL);
 			}
 			break;
 		}
-		if (str.size() == 0) {
+		if (str.size() == 0) 
+		{
 			printf("*** FATAL ***:\nMissing freightimagetype[%i] for %i freight_images!\n", i, freight_max + 1);
 			exit(0);
 		}
 		xref_writer_t::instance()->write_obj(fp, node, obj_good, str.c_str(), false);
 	}
 
+	// multiple liveries - define what liveries use each index
+	// liveries without an index will be an error
+	for (i = 0; i <= livery_max; i++)
+	{
+		char buf[128];
+		sprintf(buf, "liverytype[%d]", i);
+		str = obj.get(buf);
+		if (i == livery_max) 
+		{
+			// check for superflous definitions
+			if (str.size() > 0) 
+			{
+				printf("WARNING: More livery types (%i) than liveries (%i)!\n", i, livery_max);
+				fflush(NULL);
+			}
+			break;
+		}
+		if (str.size() == 0) 
+		{
+			printf("*** FATAL ***:\nMissing liverytype[%i] for %i liveries!\n", i, livery_max + 1);
+			exit(0);
+		}
+		printf("Writing liverytype[%d] (%s)\n", i, str);
+		text_writer_t::instance()->write_obj(fp, node, str.c_str());
+	}
+
 	// if no index defined then add default as vehicle good
 	// if not using freight images then store zero string
-	if (freight_max > 0) {
+	if (freight_max > 0) 
+	{
 		xref_writer_t::instance()->write_obj(fp, node, obj_good, freight, false);
+	}
+
+	if (livery_max > 0) 
+	{
+		text_writer_t::instance()->write_obj(fp, node, "default");
 	}
 
 	node.write_sint8(fp, sound_id, 25);
@@ -572,10 +799,12 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	uint8 years_before_maintenance_max_reached = obj.get_int("years_before_maintenance_max_reached", 0);
 	node.write_uint8(fp, years_before_maintenance_max_reached, 61);
 
+	node.write_uint8(fp, (uint8) livery_max, 62);
+
 	sint8 sound_str_len = sound_str.size();
 	if (sound_str_len > 0) {
-		node.write_sint8  (fp, sound_str_len, 62);
-		node.write_data_at(fp, sound_str.c_str(),     63, sound_str_len);
+		node.write_sint8  (fp, sound_str_len, 63);
+		node.write_data_at(fp, sound_str.c_str(),     64, sound_str_len);
 	}
 
 	node.write(fp);

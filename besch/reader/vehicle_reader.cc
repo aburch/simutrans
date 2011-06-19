@@ -190,7 +190,7 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->freight_image_type = decode_uint8(p);
 		if(experimental)
 		{
-			if(experimental_version <= 4)
+			if(experimental_version <= 5)
 			{
 				besch->is_tilting = decode_uint8(p);
 				way_constraints.set_permissive(decode_uint8(p));
@@ -263,6 +263,14 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 					besch->increase_maintenance_after_years = 0;
 					besch->increase_maintenance_by_percent = 0;
 					besch->years_before_maintenance_max_reached = 0;
+				}
+				if(experimental_version >= 5)
+				{
+					besch->livery_image_type = decode_uint8(p);
+				}
+				else
+				{
+					besch->livery_image_type = 0;
 				}
 			}
 			else
@@ -401,6 +409,7 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->increase_maintenance_after_years = 0;
 		besch->increase_maintenance_by_percent = 0;
 		besch->years_before_maintenance_max_reached = 0;
+		besch->livery_image_type = 0;
 	}
 	besch->set_way_constraints(way_constraints);
 

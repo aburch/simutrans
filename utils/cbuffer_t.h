@@ -19,12 +19,12 @@ private:
 	unsigned int size;
 
 	char * buf;
-
+	
 	cbuffer_t(const cbuffer_t &);
 	cbuffer_t & operator=(const cbuffer_t &);
 
 public:
-
+	
 	/**
 	 * Number of characters without(!) trailing '\0'
 	 * @author Hj. Malthaner
