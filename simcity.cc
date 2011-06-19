@@ -3430,7 +3430,7 @@ void stadt_t::step_passagiere()
 							if(found) 
 							{
 								ware_t return_pax(wtyp, ret_halt);
-								return_pax.to_factory = ( destinations[current_destination].factory_entry ? 1 : 0 );
+								return_pax.to_factory = 0;
 								if(  will_return != city_return  &&  wtyp==warenbauer_t::post  ) 
 								{
 								// attractions/factory generate more mail than they recieve
