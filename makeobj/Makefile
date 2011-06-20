@@ -96,6 +96,7 @@ SOLO_SOURCES += ../besch/writer/groundobj_writer.cc
 SOLO_SOURCES += ../besch/writer/ground_writer.cc
 SOLO_SOURCES += ../besch/writer/image_writer.cc
 SOLO_SOURCES += ../besch/writer/imagelist2d_writer.cc
+SOLO_SOURCES += ../besch/writer/imagelist3d_writer.cc
 SOLO_SOURCES += ../besch/writer/imagelist_writer.cc
 SOLO_SOURCES += ../besch/writer/obj_node.cc
 SOLO_SOURCES += ../besch/writer/obj_writer.cc

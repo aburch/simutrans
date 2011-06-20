@@ -265,7 +265,8 @@ void schedule_t::rdwr(loadsave_t *file)
 			if(file->get_version()>=99018) {
 				file->rdwr_byte(eintrag[i].waiting_time_shift);
 
-				if (file->get_experimental_version() >= 10) {
+				if (file->get_experimental_version() >= 9 && file->get_version() >= 110006) 
+				{
 					file->rdwr_short(eintrag[i].spacing_shift);
 				}
 			}
@@ -286,7 +287,7 @@ void schedule_t::rdwr(loadsave_t *file)
 		file->rdwr_short(spacing);
 	}
 
-	if(file->get_experimental_version() >= 10)
+	if(file->get_experimental_version() >= 9 && file->get_version() >= 110006)
 	{
 		file->rdwr_bool(same_spacing_shift);
 	}

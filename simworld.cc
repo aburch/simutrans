@@ -4540,7 +4540,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved messages");
 		file->rdwr_double(old_proportion);
 		industry_density_proportion = old_proportion * 100.0;
 	}
-	else if(file->get_experimental_version() >= 10)
+	else if(file->get_experimental_version() >= 9 && file->get_version() >= 110006)
 	{
 		file->rdwr_long(industry_density_proportion);
 	}
@@ -5274,7 +5274,7 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 		file->rdwr_double(old_proportion);
 		industry_density_proportion = old_proportion * 100.0;
 	}
-	else if(file->get_experimental_version() >= 10)
+	else if(file->get_experimental_version() >= 9 && file->get_version() >= 110006)
 	{
 		file->rdwr_long(industry_density_proportion);
 	}

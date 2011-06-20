@@ -307,7 +307,7 @@ void simline_t::rdwr(loadsave_t *file)
 		}	
 	}
 
-	if(file->get_experimental_version() >= 10)
+	if(file->get_experimental_version() >= 9 && file->get_version() >= 110006)
 	{
 		file->rdwr_short(livery_scheme_index);
 	}

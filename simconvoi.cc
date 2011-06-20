@@ -2959,7 +2959,7 @@ void convoi_t::rdwr(loadsave_t *file)
 			file->rdwr_double(tiles_since_last_odometer_increment);
 			steps_since_last_odometer_increment = (sint64)(tiles_since_last_odometer_increment * 255.0);
 		}
-		else if(file->get_experimental_version() >= 10)
+		else if(file->get_experimental_version() >= 9 && file->get_version() >= 110006)
 		{
 			file->rdwr_longlong(steps_since_last_odometer_increment);
 		}
@@ -3186,7 +3186,7 @@ void convoi_t::rdwr(loadsave_t *file)
 		last_departure_time = welt->get_zeit_ms() - 20000;
 	}
 
-	if(file->get_experimental_version() >= 10)
+	if(file->get_experimental_version() >= 9 && file->get_version() >= 110006)
 	{
 		file->rdwr_short(livery_scheme_index);
 	}
