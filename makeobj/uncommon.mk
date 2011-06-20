@@ -16,15 +16,17 @@ else
   Q =
 endif
 
-all: $(BUILDDIR)/$(TOOL)/$(PROG)
+all: $(PROGDIR)/$(PROG)
 
-$(BUILDDIR)/$(TOOL)/$(PROG): $(OBJS)
+$(PROGDIR)/$(PROG): $(OBJS)
 	@echo "===> LD  $@"
-	$(Q)$(CXX) $(OBJS) $(LDFLAGS) $(STD_LIBS) $(LIBS) -o $(PROG)
+	$(Q)$(CXX) $(OBJS) $(LDFLAGS) $(STD_LIBS) $(LIBS) -o $(PROGDIR)/$(PROG)
 
 clean:
 	@echo "===> Cleaning up"
-	$(Q)rm -fr $(BUILDDIR)
+	$(Q)rm -f $(OBJS)
+	$(Q)rm -f $(DEPS)
+	$(Q)rm -f $(PROGDIR)/$(PROG)
 
 -include $(DEPS)
 
