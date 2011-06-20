@@ -4750,7 +4750,7 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 	{
 		txt = "Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.";
 	}
-	if (!b_depot_found || show_success) 
+	if ((!b_depot_found || show_success) && get_besitzer() == welt->get_active_player())
 	{
 		create_win( new news_img(txt), w_time_delete, magic_none);
 	}
