@@ -367,7 +367,7 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t 
 				livery_selector.set_selection(0);
 				livery_selection = 0;
 			}
-			livery_scheme_index = livery_scheme_indices[livery_selection];
+			livery_scheme_index = livery_scheme_indices.empty()? 0 : livery_scheme_indices[livery_selection];
 			if (line.is_bound()) 
 			{
 				werkzeug_t *w = create_tool( WKZ_LINE_TOOL | SIMPLE_TOOL );
@@ -627,7 +627,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		{
 			livery_selector.set_focusable(true);
 		}
-		if(new_line.is_bound())
+		if(new_line.is_bound() && !livery_scheme_indices.empty())
 		{
 			uint16 idx = new_line->get_livery_scheme_index();
 			livery_selector.set_selection(livery_scheme_indices.index_of(idx));
