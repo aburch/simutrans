@@ -64,3 +64,15 @@
 #
 # In order to use the flags, add a line like this: (-Dxxx)
 # FLAGS = -DUSE_C
+
+# Output directories:
+#
+# .. for object files
+# BUILDDIR = .build/default  # default setting
+# .. for the executable
+# PROGDIR  = .build/default  # default setting
+#
+# use this to build into same directory, where the sources are:
+#
+# BUILDDIR = $(shell pwd)
+# PROGDIR  = $(shell pwd)

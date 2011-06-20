@@ -129,5 +129,6 @@ SOURCES ?= $(SOLO_SOURCES) $(SHARED_SOURCES) $(VARIANT_SOURCES)
 BUILDDIR ?= ../build/$(CFG)
 TOOL ?= makeobj
 PROG ?= makeobj
+PROGDIR ?= $(BUILDDIR)/$(TOOL)
 
 include uncommon.mk
