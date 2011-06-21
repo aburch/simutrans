@@ -424,7 +424,8 @@ void gui_convoy_assembler_t::layout()
 	livery_selector.set_max_size(koord(ABUTTON_WIDTH - 8, LINESPACE*3+2+16));
 	livery_selector.set_highlight_color(1);
 
-	if(welt->get_settings().get_livery_scheme(livery_scheme_index)->is_available((welt->get_timeline_year_month())))
+	const livery_scheme_t* const liv = welt->get_settings().get_livery_scheme(livery_scheme_index);
+	if(liv && liv->is_available((welt->get_timeline_year_month())))
 	{
 		livery_selector.set_selection(livery_scheme_indices.index_of(livery_scheme_index));
 	}
@@ -482,7 +483,7 @@ bool gui_convoy_assembler_t::action_triggered( gui_action_creator_t *komp,value_
 				livery_selector.set_selection(0);
 				livery_selection = 0;
 			}
-			livery_scheme_index = livery_scheme_indices[livery_selection];
+			livery_scheme_index = livery_scheme_indices.empty() ? 0 : livery_scheme_indices[livery_selection];
 		} else if(komp == &upgrade_selector) {
 			sint32 upgrade_selection = p.i;
 			if ( upgrade_selection < 0 ) {

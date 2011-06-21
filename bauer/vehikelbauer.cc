@@ -190,7 +190,8 @@ vehikel_t* vehikelbauer_t::baue(koord3d k, spieler_t* sp, convoi_t* cnv, const v
 		livery_scheme_index = cnv->get_livery_scheme_index();
 	}
 
-	const char* livery = sp->get_welt()->get_settings().get_livery_scheme(livery_scheme_index)->get_latest_available_livery(sp->get_welt()->get_timeline_year_month(), vb);
+	const livery_scheme_t* const liv = sp->get_welt()->get_settings().get_livery_scheme(livery_scheme_index);
+	const char* livery = liv ? liv->get_latest_available_livery(sp->get_welt()->get_timeline_year_month(), vb) : "default";
 	if(livery)
 	{
 		v->set_current_livery(livery);

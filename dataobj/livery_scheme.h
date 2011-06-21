@@ -40,7 +40,7 @@ public:
 		liveries->append(liv);
 	}
 
-	bool is_available(uint16 date)
+	bool is_available(uint16 date) const
 	{
 		if(date == 0)
 		{
