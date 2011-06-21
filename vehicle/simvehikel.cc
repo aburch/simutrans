@@ -1515,14 +1515,12 @@ sint32 vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::rib
 				max_speed_180 = kmh_to_speed(20);
 				break;
 
+			default:
 			case road_wt:
 				max_speed_90 = kmh_to_speed(45);
 				max_speed_135 = kmh_to_speed(40);
 				max_speed_180 = kmh_to_speed(35);
 				break;
-				
-			default:
-				base_limit;
 		}
 
 		//Smoothing code: smoothed corners benefit.	
