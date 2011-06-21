@@ -6,6 +6,7 @@
 
 #ifndef __VEHIKEL_BESCH_H
 #define __VEHIKEL_BESCH_H
+#include <cstring>
 
 #include "obj_besch_std_name.h"
 #include "ware_besch.h"
@@ -368,7 +369,7 @@ public:
 		return bild->get_nummer();
 	}
 
-	const bool check_livery(const char* name) const
+	bool check_livery(const char* name) const
 	{
 		// Note: this only checks empty images. The assumption is
 		// that a livery defined for empty images will also be 
@@ -376,7 +377,6 @@ public:
 		// the default livery will be used for freight images.
 		if(livery_image_type > 0)
 		{
-			sint8 livery_index = 0;
 			for(sint8 i = 0; i < livery_image_type; i++) 
 			{
 				if(!strcmp(name, get_child<text_besch_t>(5 + nachfolger + vorgaenger + upgrades + i)->get_text()))
