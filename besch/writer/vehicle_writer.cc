@@ -197,11 +197,11 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		"s", "w", "sw", "se", "n", "e", "ne", "nw"
 	};
 	slist_tpl<string> emptykeys;
-	slist_tpl<slist_tpl<string>> freightkeys;
+	slist_tpl<slist_tpl<string> > freightkeys;
 	slist_tpl<string> freightkeys_old;
-	slist_tpl<slist_tpl<string>> liverykeys_empty;
-	slist_tpl<slist_tpl<string>> liverykeys_freight_old;
-	slist_tpl<slist_tpl<slist_tpl<string>>> liverykeys_freight;
+	slist_tpl<slist_tpl<string> > liverykeys_empty;
+	slist_tpl<slist_tpl<string> > liverykeys_freight_old;
+	slist_tpl<slist_tpl<slist_tpl<string> > > liverykeys_freight;
 	string str;
 
 	int  freight_max  = 0;
@@ -381,7 +381,7 @@ end:
 		else if (freight_max > 0 && livery_max > 0)
 		{
 			// Liveries *and* freight
-			liverykeys_freight.append(slist_tpl<slist_tpl<string>>());
+			liverykeys_freight.append(slist_tpl<slist_tpl<string> >());
 			for(int livery = 0; livery < livery_max; livery++)
 			{
 				for(int freight = 0; freight < freight_max; freight++)
@@ -594,7 +594,7 @@ end:
 			printf("*** FATAL ***:\nMissing liverytype[%i] for %i liveries!\n", i, livery_max + 1);
 			exit(0);
 		}
-		printf("Writing liverytype[%d] (%s)\n", i, str);
+		printf("Writing liverytype[%d] (%s)\n", i, str.c_str());
 		text_writer_t::instance()->write_obj(fp, node, str.c_str());
 	}
 

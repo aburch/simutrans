@@ -7,13 +7,13 @@
 #include "imagelist2d_writer.h"
 
 
-void imagelist3d_writer_t::write_obj(FILE* fp, obj_node_t& parent, const slist_tpl<slist_tpl<slist_tpl<std::string>>>& keys)
+void imagelist3d_writer_t::write_obj(FILE* fp, obj_node_t& parent, const slist_tpl<slist_tpl<slist_tpl<std::string> > >& keys)
 {
 	bildliste3d_besch_t besch;
 
 	obj_node_t node(this, 4, &parent);
 
-	slist_iterator_tpl<slist_tpl<slist_tpl<std::string>>> iter(keys);
+	slist_iterator_tpl<slist_tpl<slist_tpl<std::string> > > iter(keys);
 
 	besch.anzahl = keys.get_count();
 
