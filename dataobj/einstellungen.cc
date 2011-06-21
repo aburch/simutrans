@@ -1829,7 +1829,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 		char name[128] ;
 		sprintf( name, "livery_scheme[%i]", i );
 		const char* scheme_name = ltrim(contents.get(name));
-		if(scheme_name[0] == NULL)
+		if(scheme_name[0] == '\0')
 		{
 			break;
 		}
@@ -1848,7 +1848,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 			char livery[128];
 			sprintf(livery, "livery[%i][%i]", i, j);
 			const char* liv_name = ltrim(contents.get(livery));
-			if(liv_name[0] == NULL)
+			if(liv_name[0] == '\0')
 			{
 				break;
 			}
