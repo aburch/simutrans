@@ -1422,10 +1422,10 @@ sint32 vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::rib
 		else
 		{
 			//Smooth the difference
-			uint32 tmp1 = base_limit - min_corner_limit;
-			uint32 tmp2 = max_corner_limit - min_corner_limit;
+			const uint32 tmp1 = base_limit - min_corner_limit;
+			const uint32 tmp2 = max_corner_limit - min_corner_limit;
 			const uint32 percentage = (tmp1 * 100) / tmp2;
-			limit_adjustment_percentage = (((min_corner_adjustment_factor - max_corner_adjustment_factor) * percentage) / 100) + max_corner_adjustment_factor;
+			limit_adjustment_percentage = min_corner_adjustment_factor - (((min_corner_adjustment_factor - max_corner_adjustment_factor) * percentage) / 100);
 			direction_steps = (sint16)(((max_direction_steps - min_direction_steps) * percentage) / 100) + min_direction_steps; 
 		}
 		
