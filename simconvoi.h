@@ -643,7 +643,7 @@ public:
 	 *         actual currently set speed.
 	 * @author Hj. Malthaner
 	 */
-	inline const sint32 get_akt_speed() const { return akt_speed; }
+	inline sint32 get_akt_speed() const { return akt_speed; }
 
 	/**
 	 * @return total power of this convoi

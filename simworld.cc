@@ -865,7 +865,7 @@ void karte_t::create_rivers( sint16 number )
 
 
 
-void karte_t::distribute_groundobjs_cities( const settings_t const *sets, sint16 old_x, sint16 old_y)
+void karte_t::distribute_groundobjs_cities( settings_t const * const sets, sint16 old_x, sint16 old_y)
 {
 	DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing groundobjs");
 

@@ -76,7 +76,7 @@ public:
 	inline const float32e8_t & operator = (const sint64 value)	{ set_value(value);	return *this; }
 	inline const float32e8_t & operator = (const uint64 value)	{ set_value(value);	return *this; }
 
-	inline const bool operator < (const float32e8_t &value) const
+	inline bool operator < (const float32e8_t &value) const
 	{
 		if (ms)
 			return !value.ms ||	  e > value.e || (e == value.e && m > value.m);
@@ -84,7 +84,7 @@ public:
 			return 	!value.ms && (e < value.e || (e == value.e && m < value.m));
 	}
 
-	inline const bool operator <= (const float32e8_t &value) const
+	inline bool operator <= (const float32e8_t &value) const
 	{
 		if (ms)
 			return !value.ms ||	  e > value.e || (e == value.e && m >= value.m);
@@ -92,7 +92,7 @@ public:
 			return !value.ms && (e < value.e || (e == value.e && m <= value.m));
 	}
 
-	inline const bool operator > (const float32e8_t &value) const
+	inline bool operator > (const float32e8_t &value) const
 	{
 		if (ms)
 			return  value.ms &&	 (e < value.e || (e == value.e && m < value.m));
@@ -100,7 +100,7 @@ public:
 			return  value.ms ||  e > value.e || (e == value.e && m > value.m);
 	}
 
-	inline const bool operator >= (const float32e8_t &value) const
+	inline bool operator >= (const float32e8_t &value) const
 	{
 		if (ms)
 			return  value.ms && (e < value.e || (e == value.e && m <= value.m));
@@ -108,22 +108,22 @@ public:
 			return  value.ms ||  e > value.e || (e == value.e && m >= value.m);
 	}
 
-	inline const bool operator == (const float32e8_t &value) const { return m == value.m && e == value.e && ms == value.ms; }
-	inline const bool operator != (const float32e8_t &value) const { return m != value.m || e != value.e || ms != value.ms; }
+	inline bool operator == (const float32e8_t &value) const { return m == value.m && e == value.e && ms == value.ms; }
+	inline bool operator != (const float32e8_t &value) const { return m != value.m || e != value.e || ms != value.ms; }
 
-	inline const bool operator <  (const sint32 value) const { return *this <  float32e8_t((sint32) value); }
-	inline const bool operator <= (const sint32 value) const { return *this <= float32e8_t((sint32) value); }
-	inline const bool operator == (const sint32 value) const { return *this == float32e8_t((sint32) value); }
-	inline const bool operator != (const sint32 value) const { return *this != float32e8_t((sint32) value); }
-	inline const bool operator >= (const sint32 value) const { return *this >= float32e8_t((sint32) value); }
-	inline const bool operator >  (const sint32 value) const { return *this >  float32e8_t((sint32) value); }
+	inline bool operator <  (const sint32 value) const { return *this <  float32e8_t((sint32) value); }
+	inline bool operator <= (const sint32 value) const { return *this <= float32e8_t((sint32) value); }
+	inline bool operator == (const sint32 value) const { return *this == float32e8_t((sint32) value); }
+	inline bool operator != (const sint32 value) const { return *this != float32e8_t((sint32) value); }
+	inline bool operator >= (const sint32 value) const { return *this >= float32e8_t((sint32) value); }
+	inline bool operator >  (const sint32 value) const { return *this >  float32e8_t((sint32) value); }
 
-	inline const bool operator <  (const sint64 value) const { return *this <  float32e8_t((sint64) value); }
-	inline const bool operator <= (const sint64 value) const { return *this <= float32e8_t((sint64) value); }
-	inline const bool operator == (const sint64 value) const { return *this == float32e8_t((sint64) value); }
-	inline const bool operator != (const sint64 value) const { return *this != float32e8_t((sint64) value); }
-	inline const bool operator >= (const sint64 value) const { return *this >= float32e8_t((sint64) value); }
-	inline const bool operator >  (const sint64 value) const { return *this >  float32e8_t((sint64) value); }
+	inline bool operator <  (const sint64 value) const { return *this <  float32e8_t((sint64) value); }
+	inline bool operator <= (const sint64 value) const { return *this <= float32e8_t((sint64) value); }
+	inline bool operator == (const sint64 value) const { return *this == float32e8_t((sint64) value); }
+	inline bool operator != (const sint64 value) const { return *this != float32e8_t((sint64) value); }
+	inline bool operator >= (const sint64 value) const { return *this >= float32e8_t((sint64) value); }
+	inline bool operator >  (const sint64 value) const { return *this >  float32e8_t((sint64) value); }
 
 	inline const float32e8_t operator - () const { return float32e8_t(m, e, !ms); }
 
@@ -187,9 +187,9 @@ public:
 #else
 	friend ostream & operator << (ostream &out, const float32e8_t &x);
 #endif
-	const double to_double() const;
+	double to_double() const;
 public:
-	const sint32 to_sint32() const;
+	sint32 to_sint32() const;
 	//const string to_string() const;
 
 	inline operator sint32 () const { return to_sint32(); }
