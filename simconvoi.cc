@@ -1856,6 +1856,14 @@ void convoi_t::rdwr(loadsave_t *file)
 		}
 	}
 
+	// do the update, otherwise we might lose the line after save & reload
+	if(file->is_saving()  &&  line_update_pending.is_bound()) {
+		check_pending_updates();
+		if (fpl->ist_abgeschlossen()  &&  state == FAHRPLANEINGABE) {
+			state = ROUTING_1;
+		}
+	}
+
 	simline_t::rdwr_linehandle_t(file, line);
 
 	dummy = anz_vehikel;
