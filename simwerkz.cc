@@ -5679,7 +5679,7 @@ bool wkz_change_line_t::init( karte_t *, spieler_t *sp )
 		p++;
 	}
 
-	sscanf( p, "%c,%hi,&hi", &tool, &line_id, &livery_scheme_index );
+	sscanf( p, "%c,%hi,%hi", &tool, &line_id, &livery_scheme_index );
 
 	// skip to the commands ...
 	for(  int z = 3;  *p  &&  z>0;  p++  ) {
