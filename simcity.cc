@@ -1851,7 +1851,7 @@ void stadt_t::add_target_city(stadt_t *const city)
 	assert( city != NULL );
 	target_cities.insert_ordered(
 		target_city_t( city, shortest_distance( this->get_pos(), city->get_pos() ) ),
-		city->get_einwohner(),
+		max( city->get_einwohner(), 1),
 		target_city_t::less_than,
 		64u
 	);
