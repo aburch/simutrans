@@ -4573,8 +4573,8 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 	weighted_vector_tpl<stadt_t*> new_weighted_stadt(stadt.get_count() + 1);
 	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
 		stadt_t* s = *i;
-		s->recalc_target_cities();
 		s->laden_abschliessen();
+		s->recalc_target_cities();
 		new_weighted_stadt.append(s, s->get_einwohner(), 64);
 		INT_CHECK("simworld 1278");
 	}
