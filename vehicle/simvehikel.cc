@@ -2215,9 +2215,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 
 	if(file->get_experimental_version() >= 9 && file->get_version() >= 110006)
 	{
-		const char* name = current_livery.c_str();
-		file->rdwr_str(name);
-		current_livery = name;
+		file->rdwr_string(current_livery);
 	}
 	else if(file->is_loading())
 	{

@@ -50,20 +50,45 @@ const char* livery_scheme_t::get_latest_available_livery(uint16 date, const vehi
 
 void livery_scheme_t::rdwr(loadsave_t *file)
 {
+	file->rdwr_string(scheme_name);
 	file->rdwr_short(retire_date);
 	uint16 count = 0;
 	if(file->is_saving())
 	{
 		count = liveries->get_count();
 	}
+	else
+	{
+		liveries->clear();
+	}
 
 	file->rdwr_short(count);
 
+	std::string n; 
+	uint16 date;
+
 	for(int i = 0; i < count; i ++)
 	{
-		const char* n = liveries->get_element(i).name.c_str();
-		file->rdwr_str(n);
-		liveries->get_element(i).name = n;
-		file->rdwr_short(liveries->get_element(i).intro_date);
+		if(file->is_saving())
+		{
+			n = liveries->get_element(i).name;
+			date = liveries->get_element(i).intro_date;
+		}
+		else
+		{
+			n = '\0';
+			date = 0;
+		}
+		
+		file->rdwr_string(n);
+		file->rdwr_short(date);
+
+		if(file->is_loading())
+		{
+			livery_t liv;
+			liv.name = n;
+			liv.intro_date = date;
+			liveries->append(liv);
+		}	
 	}
 }
