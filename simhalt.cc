@@ -871,6 +871,10 @@ bool haltestelle_t::reroute_goods(sint16 &units_remaining)
 
 	for(  ; last_catg_index<warenbauer_t::get_max_catg_index(); last_catg_index++) {
 
+		if(  units_remaining<=0  ) {
+			return false;
+		}
+
 		if(waren[last_catg_index]) {
 
 			// first: clean out the array
@@ -929,9 +933,6 @@ bool haltestelle_t::reroute_goods(sint16 &units_remaining)
 					}
 				}
 			}
-		}
-		if(  units_remaining<=0  ) {
-			return false;
 		}
 	}
 	// likely the display must be updated after this
