@@ -257,7 +257,6 @@ private:
 	uint8 reroute_counter;		// then, reroute goods
 	// since we do partial routing, we remeber the last offset
 	uint8 last_catg_index;
-	uint32 last_ware_index;
 
 	/* station flags (most what enabled) */
 	uint8 enables;
@@ -412,13 +411,13 @@ private:
 	/* Extra data for route search */
 	struct halt_data_t
 	{
-		uint16 best_weight;
-		uint16 destination;
-		uint16 depth;
 		// transfer halt:
 		// in static function search_route():  previous transfer halt (to track back route)
-		// in member function search_routes(): first transfer halt to get there
+		// in member function search_route_resumable(): first transfer halt to get there
 		halthandle_t transfer;
+		uint16 best_weight;
+		uint16 depth:15;
+		bool destination:1;
 	};
 
 	// store the best weight so far for a halt, and indicate whether it is a destination
@@ -459,12 +458,12 @@ public:
 	static int search_route( const halthandle_t *const start_halts, const uint16 start_halt_count, const bool no_routing_over_overcrowding, ware_t &ware, ware_t *const return_ware=NULL );
 
 	/**
-	 * A separate version of route searching code for re-calculating routes for multiple packets concurrently in one single search
-	 * It is faster than calling the above version on each packet, and is used for re-routing packets from the same halt
-	 * Can search routes for a maximum of 16 destinations concurrently
+	 * A separate version of route searching code for re-calculating routes
+	 * Search is resumable, that is if called for the same halt and same goods category
+	 * it reuses search history from last search
+	 * It is faster than calling the above version on each packet, and is used for re-routing packets from the same halt.
 	 */
-	#define MAX_SEARCH_DESTINATIONS (16)
-	void search_routes( ware_t *const wares, const uint16 ware_count );
+	void search_route_resumable( ware_t &ware );
 
 	bool get_pax_enabled()  const { return enables & PAX;  }
 	bool get_post_enabled() const { return enables & POST; }

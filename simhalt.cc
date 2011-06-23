@@ -874,7 +874,6 @@ bool haltestelle_t::reroute_goods(sint16 &units_remaining)
 {
 	if(  last_catg_index==255  ) {
 		last_catg_index = 0;
-		last_ware_index = 0;
 	}
 
 	for(  ; last_catg_index<warenbauer_t::get_max_catg_index(); last_catg_index++) {
@@ -882,74 +881,65 @@ bool haltestelle_t::reroute_goods(sint16 &units_remaining)
 		if(waren[last_catg_index]) {
 
 			// first: clean out the array
-			if(  last_ware_index==0  ) {
-				vector_tpl<ware_t> * warray = waren[last_catg_index];
-				vector_tpl<ware_t> * new_warray = new vector_tpl<ware_t>(warray->get_count());
+			vector_tpl<ware_t> * warray = waren[last_catg_index];
+			vector_tpl<ware_t> * new_warray = new vector_tpl<ware_t>(warray->get_count());
 
-				for(  int j=warray->get_count()-1;  j>=0;  j--  ) {
-					ware_t & ware = (*warray)[j];
+			for(  int j=warray->get_count()-1;  j>=0;  j--  ) {
+				ware_t & ware = (*warray)[j];
 
-					if(ware.menge==0) {
-						continue;
-					}
-
-					// since also the factory halt list is added to the ground, we can use just this ...
-					if(  welt->lookup(ware.get_zielpos())->is_connected(self)  ) {
-						// we are already there!
-						if(  ware.to_factory  ) {
-							liefere_an_fabrik(ware);
-						}
-						continue;
-					}
-
-					// add to new array
-					new_warray->append( ware );
+				if(ware.menge==0) {
+					continue;
 				}
 
-				// delete, if nothing connects here
-				if(  new_warray->empty()  ) {
-					if(  connections[last_catg_index].empty()  ) {
-						// no connections from here => delete
-						delete new_warray;
-						new_warray = NULL;
+				// since also the factory halt list is added to the ground, we can use just this ...
+				if(  welt->lookup(ware.get_zielpos())->is_connected(self)  ) {
+					// we are already there!
+					if(  ware.to_factory  ) {
+						liefere_an_fabrik(ware);
 					}
+					continue;
 				}
 
-				// replace the array
-				delete waren[last_catg_index];
-				waren[last_catg_index] = new_warray;
+				// add to new array
+				new_warray->append( ware );
 			}
+
+			// delete, if nothing connects here
+			if(  new_warray->empty()  ) {
+				if(  connections[last_catg_index].empty()  ) {
+					// no connections from here => delete
+					delete new_warray;
+					new_warray = NULL;
+				}
+			}
+
+			// replace the array
+			delete waren[last_catg_index];
+			waren[last_catg_index] = new_warray;
 
 			// if something left
 			// re-route goods to adapt to changes in world layout,
-			// remove all goods which destination was removed from the map
+			// remove all goods whose destination was removed from the map
 			if (waren[last_catg_index] && !waren[last_catg_index]->empty()) {
 
 				vector_tpl<ware_t> &warray = *waren[last_catg_index];
+				uint32 last_ware_index = 0;
+				units_remaining -= warray.get_count();
 				while(  last_ware_index<warray.get_count()  ) {
-					uint16 ware_count = min(MAX_SEARCH_DESTINATIONS, warray.get_count() - last_ware_index);
-					units_remaining -= ware_count;
-					search_routes(&warray[last_ware_index], ware_count);
-					while(  ware_count--  ) {
-						if(  warray[last_ware_index].get_ziel()==halthandle_t()  ) {
-							// remove invalid destinations
-							warray.remove_at(last_ware_index);
-						}
-						else {
-							++last_ware_index;
-						}
+					search_route_resumable(warray[last_ware_index]);
+					if(  warray[last_ware_index].get_ziel()==halthandle_t()  ) {
+						// remove invalid destinations
+						warray.remove_at(last_ware_index);
 					}
-					// break after a certain number of reroute actions
-					if(  units_remaining<=0  ) {
-						return false;
+					else {
+						++last_ware_index;
 					}
 				}
-				// now we are finisched with this array
-				// => reset last_ware_index for the next categorie
 			}
 		}
-
-		last_ware_index = 0;
+		if(  units_remaining<=0  ) {
+			return false;
+		}
 	}
 	// likely the display must be updated after this
 	resort_freight_info = true;
@@ -1389,12 +1379,9 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 }
 
 
-void haltestelle_t::search_routes( ware_t *const wares, const uint16 ware_count )
+void haltestelle_t::search_route_resumable(  ware_t &ware   )
 {
-	assert( ware_count<=MAX_SEARCH_DESTINATIONS );
-
-	const uint8 ware_catg_idx = wares[0].get_besch()->get_catg_index();		// assume all packets belong to the same ware category
-	uint16 wares_completed = 0;
+	const uint8 ware_catg_idx = ware.get_besch()->get_catg_index();
 
 	// continue search if start halt and good category did not change
 	const bool resume_search = last_search_origin == self  &&  ware_catg_idx == last_search_ware_catg_idx;
@@ -1414,72 +1401,64 @@ void haltestelle_t::search_routes( ware_t *const wares, const uint16 ware_count 
 	static vector_tpl<uint16> dest_indices(16);
 	dest_indices.clear();
 
-	// for all halts with halt_data.weight < explored_weight one of the best routes is found
-	const uint16 explored_weight = open_list.empty()  ||  open_list.front().aggregate_weight >= 65534u ? 65535u : open_list.front().aggregate_weight+1;
+	uint16 best_destination_weight = 65535u;
 
-	for(  uint16 w=0;  w<ware_count;  ++w  ) {
-		ware_t &ware = wares[w];
-		// reset next transfer and destination halt to null -> if they remain null after search, no route can be found
-		ware.set_ziel( halthandle_t() );
-		ware.set_zwischenziel( halthandle_t() );
-		// find suitable destination halts for the ware packet's target position
-		const planquadrat_t *const plan = welt->lookup( ware.get_zielpos() );
-		const halthandle_t *const halt_list = plan->get_haltlist();
-		// check halt list for presence of current halt
-		uint8 h = 0;
-		for(  ;  h<plan->get_haltlist_count()  &&  halt_list[h]!=self;  ++h  ) ;
-		if(  h<plan->get_haltlist_count()  ) {
+	// reset next transfer and destination halt to null -> if they remain null after search, no route can be found
+	ware.set_ziel( halthandle_t() );
+	ware.set_zwischenziel( halthandle_t() );
+	// find suitable destination halts for the ware packet's target position
+	const planquadrat_t *const plan = welt->lookup( ware.get_zielpos() );
+	const halthandle_t *const halt_list = plan->get_haltlist();
+
+	// check halt list for presence of current halt
+	for( uint8 h = 0;  h<plan->get_haltlist_count(); ++h  ) {
+		if (halt_list[h] == self) {
 			// a destination halt is the same as the current halt -> no route searching is necessary
 			ware.set_ziel( self );
-			++wares_completed;
-			continue;
-		}
-		// check explored connection
-		if (resume_search) {
-			uint16 best = explored_weight;
-			for(  h=0;  h<plan->get_haltlist_count();  ++h  ) {
-				halthandle_t halt = halt_list[h];
-				if (markers[ halt.get_id() ]==current_marker  &&  halt_data[ halt.get_id() ].best_weight < best  &&  halt.is_bound()) {
-					// we explored best route to this destination in last run
-					// (any other not yet explored connection will have larger weight)
-					best = halt_data[ halt.get_id() ].best_weight;
-					ware.set_ziel( halt );
-					ware.set_zwischenziel( halt_data[ halt.get_id() ].transfer );
-				}
-			}
-			if (best < explored_weight) {
-				// no need to search route for this ware
-				++wares_completed;
-				continue;
-			}
-		}
-		// find suitable destination halt(s), if any
-		for(  h=0;  h<plan->get_haltlist_count();  ++h  ) {
-			halthandle_t halt = halt_list[h];
-			if(  halt.is_bound()  &&  halt->is_enabled(ware_catg_idx)  ) {
-				// initialisations for destination halts => save some checking inside search loop
-				if(  markers[ halt.get_id() ]!=current_marker  ) {
-					// first time -> initialise marker and all halt data
-					markers[ halt.get_id() ] = current_marker;
-					halt_data[ halt.get_id() ].best_weight = 65535u;
-					halt_data[ halt.get_id() ].destination = (1u << w);
-				}
-				else {
-					// initialised before -> only update destination bit set
-					halt_data[ halt.get_id() ].destination |= (1u << w);
-					// if already processed and not transfer halt insert in open list
-					// to ensure that this halt is processed at least once
-					if (resume_search  &&  halt_data[ halt.get_id() ].best_weight < 65535u  &&  halt->serving_schedules[ware_catg_idx] <= 1u) {
-						open_list.insert( route_node_t(halt, halt_data[ halt.get_id() ].best_weight) );
-					}
-
-				}
-				dest_indices.append(halt.get_id());
-			}
+			return;
 		}
 	}
 
-	if(  dest_indices.empty()  ||  wares_completed==ware_count  ) {
+	// check explored connection
+	if (resume_search) {
+		for( uint8 h=0;  h<plan->get_haltlist_count();  ++h  ) {
+			const halthandle_t halt = halt_list[h];
+			if (markers[ halt.get_id() ]==current_marker  &&  halt_data[ halt.get_id() ].best_weight < best_destination_weight  &&  halt.is_bound()) {
+				best_destination_weight = halt_data[ halt.get_id() ].best_weight;
+				ware.set_ziel( halt );
+				ware.set_zwischenziel( halt_data[ halt.get_id() ].transfer );
+			}
+		}
+		// for all halts with halt_data.weight < explored_weight one of the best routes is found
+		const uint16 explored_weight = open_list.empty()  ? 65535u : open_list.front().aggregate_weight;
+
+		if (best_destination_weight <= explored_weight) {
+			// we explored best route to this destination in last run
+			// (any other not yet explored connection will have larger weight)
+			// no need to search route for this ware
+			return;
+		}
+	}
+	// find suitable destination halt(s), if any
+	for( uint8 h=0;  h<plan->get_haltlist_count();  ++h  ) {
+		const halthandle_t halt = halt_list[h];
+		if(  halt.is_bound()  &&  halt->is_enabled(ware_catg_idx)  ) {
+			// initialisations for destination halts => save some checking inside search loop
+			if(  markers[ halt.get_id() ]!=current_marker  ) {
+				// first time -> initialise marker and all halt data
+				markers[ halt.get_id() ] = current_marker;
+				halt_data[ halt.get_id() ].best_weight = 65535u;
+				halt_data[ halt.get_id() ].destination = true;
+			}
+			else {
+				// initialised before -> only update destination bit set
+				halt_data[ halt.get_id() ].destination = true;
+			}
+			dest_indices.append(halt.get_id());
+		}
+	}
+
+	if(  dest_indices.empty()  ) {
 		// no destination halt found or current halt is the same as (all) the destination halt(s)
 		return;
 	}
@@ -1504,7 +1483,13 @@ void haltestelle_t::search_routes( ware_t *const wares, const uint16 ware_count 
 		markers[ self.get_id() ] = current_marker;
 	}
 
-	while(  !open_list.empty()  &&  wares_completed < ware_count  ) {
+	while(  !open_list.empty()  ) {
+
+		if (best_destination_weight <= open_list.front().aggregate_weight) {
+			// best route to destination found already
+			break;
+		}
+
 		route_node_t current_node = open_list.pop();
 
 		const uint16 current_halt_id = current_node.halt.get_id();
@@ -1527,13 +1512,10 @@ void haltestelle_t::search_routes( ware_t *const wares, const uint16 ware_count 
 
 		if(  current_halt_data.destination  ) {
 			// destination found
-			for(  uint16 w=0;  w<ware_count;  ++w  ) {
-				if(  (current_halt_data.destination & (1u << w))  &&  wares[w].get_ziel().get_id()==0  ) {
-					wares[w].set_ziel( current_node.halt );
-					wares[w].set_zwischenziel( current_halt_data.transfer );
-					++wares_completed;
-				}
-			}
+			ware.set_ziel( current_node.halt );
+			ware.set_zwischenziel( current_halt_data.transfer );
+			// update best_destination_weight to leave loop due to first check above
+			best_destination_weight = current_weight;
 			// if this destination halt is not a transfer halt -> do not proceed to process its reachable halt(s)
 			if(  current_node.halt->serving_schedules[ware_catg_idx]<=1u  ) {
 				continue;
@@ -1552,7 +1534,7 @@ void haltestelle_t::search_routes( ware_t *const wares, const uint16 ware_count 
 
 			const uint16 reachable_halt_id = current_conn.halt.get_id();
 
-			const uint16 total_weight = current_node.aggregate_weight + current_conn.weight;
+			const uint16 total_weight = current_weight + current_conn.weight;
 
 			if(  !current_conn.halt.is_bound()  ) {
 				// Case: halt removed -> make sure we never visit it again
@@ -1567,7 +1549,7 @@ void haltestelle_t::search_routes( ware_t *const wares, const uint16 ware_count 
 
 				// update data
 				halt_data[ reachable_halt_id ].best_weight = total_weight;
-				halt_data[ reachable_halt_id ].destination = 0; // reset necessary if this was set by search_route
+				halt_data[ reachable_halt_id ].destination = false; // reset necessary if this was set by search_route
 				halt_data[ reachable_halt_id ].depth       = current_halt_data.depth + 1u;
 				halt_data[ reachable_halt_id ].transfer    = current_halt_data.transfer.get_id() ? current_halt_data.transfer : current_conn.halt;
 
@@ -1599,7 +1581,7 @@ void haltestelle_t::search_routes( ware_t *const wares, const uint16 ware_count 
 
 	// clear destinations since we may want to do another search with the same current_marker
 	for(uint32 i=0; i<dest_indices.get_count(); i++) {
-		halt_data[ dest_indices[i] ].destination = 0;
+		halt_data[ dest_indices[i] ].destination = false;
 		if( halt_data[ dest_indices[i] ].best_weight == 65535u) {
 			// not processed -> reset marker
 			markers[ dest_indices[i] ] --;
@@ -1732,7 +1714,7 @@ void haltestelle_t::hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp
 
 					// goods without route -> returning passengers/mail
 					if(  !tmp.get_zwischenziel().is_bound()  ) {
-						search_routes(&tmp, 1);
+						search_route_resumable(tmp);
 						if (!tmp.get_ziel().is_bound()) {
 							// no route anymore
 							tmp.menge = 0;
@@ -1942,7 +1924,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 	}
 
 	// not near enough => we need to do a rerouting
-	search_routes(&ware, 1);
+	search_route_resumable(ware);
 	if (!ware.get_ziel().is_bound()) {
 		// target no longer there => delete
 
