@@ -1428,7 +1428,7 @@ void haltestelle_t::add_connexion(const uint8 category, const convoihandle_t cnv
 			if(average_speed == 0)
 			{
 				// If the average speed is not initialised, take a guess to prevent perverse outcomes and possible deadlocks.
-				average_speed = speed_to_kmh(cnv->get_min_top_speed()) >> 1  * 100;
+				average_speed = speed_to_kmh((cnv->get_min_top_speed()) >> 1)  * 100;
 			}
 		}
 
