@@ -68,39 +68,41 @@ slist_tpl<halthandle_t> haltestelle_t::alle_haltestellen;
 
 stringhashtable_tpl<halthandle_t> haltestelle_t::all_names;
 
-static uint32 halt_iterator_start = 0;
 uint8 haltestelle_t::status_step = 0;
+uint8 haltestelle_t::reconnect_counter = 0;
 
 void haltestelle_t::step_all()
 {
-	if (!alle_haltestellen.empty()) {
-		uint32 it = halt_iterator_start;
-		slist_iterator_tpl <halthandle_t> iter( alle_haltestellen );
-		while(  it>0  &&  iter.next()  ) {
-			it--;
-		}
-		if(  it>0  ) {
-			halt_iterator_start = 0;
-		}
-		else {
-			sint16 units_remaining = 128;
-			while(  units_remaining>0  ) {
-				if(  !iter.next()  ) {
-					halt_iterator_start = 0;
-					break;
-				}
-				// iterate until the specified number of units were handled
-				if(  !iter.get_current()->step(units_remaining)  ) {
-					// too much rerouted => needs continue at next round!
-					break;
-				}
-				halt_iterator_start ++;
-			}
+	static slist_tpl<halthandle_t>::iterator iter( alle_haltestellen.begin() );
+	if (alle_haltestellen.empty()) {
+		return;
+	}
+	const uint8 schedule_counter = welt->get_schedule_counter();
+	if (reconnect_counter != schedule_counter) {
+		// always start with reconnection, rerouting will happen after complete reconnection
+		status_step = RECONNECTING;
+		reconnect_counter = schedule_counter;
+		iter = alle_haltestellen.begin();
+	}
+
+	sint16 units_remaining = 128;
+	for(; !iter.end()  &&   units_remaining>0; ++iter) {
+		// iterate until the specified number of units were handled
+		if(  !(*iter)->step(status_step, units_remaining)  ) {
+			// too much rerouted => needs to continue at next round!
+			break;
 		}
 	}
-	else {
-		// save reinit
-		halt_iterator_start = 0;
+	// ready?
+	if (iter.end()) {
+		if (status_step == RECONNECTING) {
+			// reroute in next call
+			status_step = REROUTING;
+		}
+		else if (status_step == REROUTING) {
+			status_step = 0;
+		}
+		iter = alle_haltestellen.begin();
 	}
 }
 
@@ -269,8 +271,6 @@ halthandle_t haltestelle_t::create(karte_t *welt, loadsave_t *file)
  */
 void haltestelle_t::destroy(halthandle_t &halt)
 {
-	// jsut play save: restart iterator at zero ...
-	halt_iterator_start = 0;
 	delete halt.get_rep();
 }
 
@@ -288,6 +288,7 @@ void haltestelle_t::destroy_all(karte_t *welt)
 		halthandle_t halt = alle_haltestellen.front();
 		destroy(halt);
 	}
+	status_step = 0;
 }
 
 
@@ -311,8 +312,7 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 
 	status_color = COL_YELLOW;
 
-	reroute_counter = welt->get_schedule_counter()-1;
-	reconnect_counter = reroute_counter;
+	reconnect_counter = welt->get_schedule_counter()-1;
 
 	enables = NOT_ENABLED;
 
@@ -343,10 +343,9 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 	besitzer_p = sp;
 
 	enables = NOT_ENABLED;
-
-	reroute_counter = welt->get_schedule_counter()-1;
-	reconnect_counter = reroute_counter;
-	last_catg_index = 255;	// force total reouting
+	// force total reouting
+	reconnect_counter = welt->get_schedule_counter()-1;
+	last_catg_index = 255;
 
 	waren = (vector_tpl<ware_t> **)calloc( warenbauer_t::get_max_catg_index(), sizeof(vector_tpl<ware_t> *) );
 	connections = new vector_tpl<connection_t>[ warenbauer_t::get_max_catg_index() ];
@@ -809,26 +808,20 @@ void haltestelle_t::request_loading( convoihandle_t cnv )
 
 
 
-bool haltestelle_t::step(sint16 &units_remaining)
+bool haltestelle_t::step(uint8 what, sint16 &units_remaining)
 {
-//	DBG_MESSAGE("haltestelle_t::step()","%s (cnt %i)",get_name(),reroute_counter);
-	if(  reconnect_counter!=welt->get_schedule_counter()  ) {
-		// schedule has changed ...
-		status_step = RECONNECTING;
-		units_remaining -= (rebuild_connections()/256)+2;
-	}
-	else if(  reroute_counter!=welt->get_schedule_counter()  ) {
-		// all new connection updated => recalc routes
-		status_step = REROUTING;
-		if(  !reroute_goods(units_remaining)  ) {
-			return false;
-		}
-		recalc_status();
-	}
-	else {
-		// nothing needs to be done
-		status_step = 0;
-		units_remaining = 0;
+	switch(what) {
+		case RECONNECTING:
+			units_remaining -= (rebuild_connections()/256)+2;
+			break;
+		case REROUTING:
+			if(  !reroute_goods(units_remaining)  ) {
+				return false;
+			}
+			recalc_status();
+			break;
+		default:
+			break;
 	}
 	return true;
 }
@@ -944,7 +937,6 @@ bool haltestelle_t::reroute_goods(sint16 &units_remaining)
 	// likely the display must be updated after this
 	resort_freight_info = true;
 	last_catg_index = 255;	// all categories are rerouted
-	reroute_counter = welt->get_schedule_counter();	// no need to reroute further
 	return true;	// all updated ...
 }
 
@@ -1006,8 +998,6 @@ sint32 haltestelle_t::rebuild_connections()
 		connections[i].clear();
 		serving_schedules[i] = 0;
 	}
-	reconnect_counter = welt->get_schedule_counter();
-	reroute_counter = reconnect_counter - 1;
 	resort_freight_info = true;	// might result in error in routing
 
 	last_catg_index = 255;	// must reroute everything

@@ -253,9 +253,11 @@ private:
 	 */
 	stationtyp station_type;
 
-	uint8 reconnect_counter;	// first, reconnect to directly reachable halts asynchroniously
-	uint8 reroute_counter;		// then, reroute goods
-	// since we do partial routing, we remeber the last offset
+	/**
+	 * Reconnect and reroute if counter different from welt->get_schedule_counter()
+	 */
+	static uint8 reconnect_counter;
+	// since we do partial routing, we remember the last offset
 	uint8 last_catg_index;
 
 	/* station flags (most what enabled) */
@@ -384,7 +386,7 @@ public:
 	 * called regularily to update status and reroute stuff
 	 * @author Hj. Malthaner
 	 */
-	bool step(sint16 &units_remaining);
+	bool step(uint8 what, sint16 &units_remaining);
 
 	/**
 	 * Called every month/every 24 game hours
