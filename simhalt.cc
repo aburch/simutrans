@@ -997,6 +997,8 @@ void haltestelle_t::remove_fabriken(fabrik_t *fab)
  */
 #define WEIGHT_WAIT (8)
 #define WEIGHT_HALT (1)
+// the minimum weight of a connection from a transfer halt
+#define WEIGHT_MIN (WEIGHT_WAIT+WEIGHT_HALT)
 sint32 haltestelle_t::rebuild_connections()
 {
 	// Hajo: first, remove all old entries
@@ -1241,6 +1243,8 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 	// here the normal routing with overcrowded stops is done
 	do {
 		route_node_t current_node = open_list.pop();
+		// do not use aggregate_weight as it is _not_ the weight of the current_node
+		// there might be a heuristic weight added
 
 		const uint16 current_halt_id = current_node.halt.get_id();
 		halt_data_t & current_halt_data = halt_data[ current_halt_id ];
@@ -1326,7 +1330,8 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 						halt_data[ reachable_halt_id ].transfer    = current_node.halt;
 
 						allocation_pointer++;
-						open_list.insert( route_node_t(current_conn.halt, total_weight) );
+						// as the next halt is not a destination add WEIGHT_MIN
+						open_list.insert( route_node_t(current_conn.halt, total_weight + WEIGHT_MIN) );
 					}
 					else {
 						// Case: non-optimal transfer halt -> put in closed list
@@ -1343,7 +1348,7 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 				// Case : processed before but not in closed list : that is, in open list
 				//			--> can only be destination halt or transfer halt
 
-				const uint16 total_weight = current_halt_data.best_weight + current_conn.weight;
+				uint16 total_weight = current_halt_data.best_weight + current_conn.weight;
 
 				if(  total_weight<halt_data[ reachable_halt_id ].best_weight  &&  total_weight<best_destination_weight  &&  allocation_pointer<max_hops  ) {
 					// new weight is lower than lowest weight --> create new node and update halt data
@@ -1355,6 +1360,10 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 
 					if (halt_data[ reachable_halt_id ].destination) {
 						best_destination_weight = total_weight;
+					}
+					else {
+						// as the next halt is not a destination add WEIGHT_MIN
+						total_weight += WEIGHT_MIN;
 					}
 
 					allocation_pointer++;
