@@ -16,6 +16,7 @@
 gui_textarea_t::gui_textarea_t(const char* text)
 {
 	buf = new cbuffer_t();
+	my_own_buf = true;
 	buf->append(text);
 	recalc_size();
 }
@@ -23,12 +24,15 @@ gui_textarea_t::gui_textarea_t(const char* text)
 gui_textarea_t::gui_textarea_t(cbuffer_t* buf_)
 {
 	buf = buf_;
+	my_own_buf = false;
 	recalc_size();
 }
 
 gui_textarea_t::~gui_textarea_t()
 {
-	delete buf;
+	if (my_own_buf) {
+		delete buf;
+	}
 }
 
 void gui_textarea_t::set_text(const char *const text)
