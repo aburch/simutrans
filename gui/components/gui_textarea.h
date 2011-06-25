@@ -31,6 +31,8 @@ private:
 
 public:
 	gui_textarea_t(cbuffer_t* buf_);
+	gui_textarea_t(const char* text);
+	~gui_textarea_t();
 
 	void set_text(const char *text);
 

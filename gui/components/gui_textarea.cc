@@ -13,10 +13,22 @@
 #include "../../simcolor.h"
 #include "../../utils/cbuffer_t.h"
 
+gui_textarea_t::gui_textarea_t(const char* text)
+{
+	buf = new cbuffer_t();
+	buf->append(text);
+	recalc_size();
+}
+
 gui_textarea_t::gui_textarea_t(cbuffer_t* buf_)
 {
 	buf = buf_;
 	recalc_size();
+}
+
+gui_textarea_t::~gui_textarea_t()
+{
+	delete buf;
 }
 
 void gui_textarea_t::set_text(const char *const text)

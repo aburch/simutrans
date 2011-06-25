@@ -98,9 +98,7 @@ gui_label_t& settings_stats_t::new_label(koord pos, const char *text)
 
 gui_textarea_t& settings_stats_t::new_textarea(koord pos, const char* text)
 {
-	cbuffer_t buf;
-	buf.append(text);
-	gui_textarea_t& ta = * new gui_textarea_t(&buf);
+	gui_textarea_t& ta = * new gui_textarea_t(text);
 	ta.set_pos(pos);
 	others.append(&ta);
 	return ta;
