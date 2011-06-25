@@ -5682,7 +5682,8 @@ bool wkz_change_line_t::init( karte_t *, spieler_t *sp )
 	sscanf( p, "%c,%hi,%hi", &tool, &line_id, &livery_scheme_index );
 
 	// skip to the commands ...
-	for(  int z = 3;  *p  &&  z>0;  p++  ) {
+	const uint8 zz = tool == 'V' ? 3 : 2;
+	for(  int z = zz;  *p  &&  z>0;  p++  ) {
 		if(  *p==','  ) {
 			z--;
 		}
