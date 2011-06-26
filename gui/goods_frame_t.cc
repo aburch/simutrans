@@ -189,7 +189,7 @@ bool goods_frame_t::compare_goods(uint16 const a, uint16 const b)
 				for(uint8 i = 0; i < 2; i ++)
 				{
 					const uint16 base_price = w[i]->get_preis();
-					const sint32 min_price = base_price << 7;
+					const sint32 min_price = base_price / 10;
 					const uint16 speed_bonus_rating = convoi_t::calc_adjusted_speed_bonus(w[i]->get_speed_bonus(), tile_distance, NULL);
 					const sint32 base_bonus = base_price * (1000l + (relative_speed_change - 100l) * speed_bonus_rating);
 					const sint32 revenue = (min_price > base_bonus ? min_price : base_bonus) * tile_distance;
