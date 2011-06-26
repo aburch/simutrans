@@ -600,7 +600,7 @@ bool
 fabrik_t::disconnect_supplier(koord pos) //Returns true if must be destroyed.
 {
 	rem_supplier(pos);
-	if(suppliers.get_count() < 1)
+	if(suppliers.empty())
 	{
 		// If there are no suppliers left, industry is orphaned.
 		// Reconnect or close.
