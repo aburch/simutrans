@@ -3868,12 +3868,12 @@ stadt_t::destination stadt_t::find_destination(factory_set_t &target_factories, 
 				{
 					// Necessary to modulate the destinations to avoid repeatedly hitting the same towns.
 					town_step -= 128;
-				}
+				}*/
 
-				if(i == 8 || i == 24 || i == 48)
+				/*if(i == 8 || i == 24 || i == 48)
 				{
 					town_step += 64;
-				}
+				}*/
 
 				// This is almost never hit, even on very big maps. It is therefore an unnecessary check.
 				/*if(i == max_count && distance > max_distance && min_distance < max_internal_distance)
