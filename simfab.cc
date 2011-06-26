@@ -1988,11 +1988,14 @@ void fabrik_t::neuer_monat()
 				for(uint16 i = 0; i < upgrades_count; i ++)
 				{
 					// Check whether any upgrades are suitable.
-					// Currently, they must be of identical size and have
-					// identical outputs and inputs, as the upgrade mechanism
-					// is very simple. In future, it might be possible to write
-					// more sophisticated upgrading code to enable industries
-					// that are not identical in such a way to be upgraded.
+					// Currently, they must be of identical size, as the 
+					// upgrade mechanism is quite simple. In future, it might
+					// be possible to write more sophisticated upgrading code
+					// to enable industries that are not identical in such a
+					// way to be upgraded. (Previously, the industry also
+					// had to have the same number of suppliers and consumers,
+					// but this is no longer necessary given the industry re-linker).
+
 					// Thus, non-suitable upgrades are allowed to be specified
 					// in the .dat files for future compatibility.
 
@@ -2001,8 +2004,6 @@ void fabrik_t::neuer_monat()
 						fab->get_haus()->get_b() == besch->get_haus()->get_b() &&
 						fab->get_haus()->get_h() == besch->get_haus()->get_h() &&
 						fab->get_haus()->get_groesse() == besch->get_haus()->get_groesse() &&
-						fab->get_lieferanten() == besch->get_lieferanten() &&
-						fab->get_produkte() ==  besch->get_produkte() &&
 						fab->get_haus()->get_intro_year_month() <= welt->get_timeline_year_month() &&
 						fab->get_haus()->get_retire_year_month() >= welt->get_timeline_year_month() &&
 						adjusted_density < (max_density + (100 / fab->get_gewichtung())))
