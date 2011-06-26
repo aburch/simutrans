@@ -434,6 +434,10 @@ private:
 	// @author: jamespetts
 	sint64 last_departure_time;
 
+	// When we arrived at current stop
+	// @author Inkelyad
+	sint64 arrival_time;
+
 	// @author: jamespetts
 	uint32 rolling_average[MAX_CONVOI_COST];
 	uint16 rolling_average_count[MAX_CONVOI_COST];

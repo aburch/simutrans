@@ -1262,6 +1262,8 @@ public:
 		}
 		return tmp;
 	}
+	void sprintf_ticks(char *p, size_t size, uint32 ticks);
+
 
 #ifdef DEBUG_SIMRAND_CALLS
 	static fixed_list_tpl<const char*, 256> random_callers;
