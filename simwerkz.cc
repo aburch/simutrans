@@ -5669,24 +5669,23 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
  */
 bool wkz_change_line_t::init( karte_t *, spieler_t *sp )
 {
-	char tool = 0;
 	uint16 line_id = 0;
-	uint16 livery_scheme_index = 0;
-	
+
 	// skip the rest of the command
 	const char *p = default_param;
 	while(  *p  &&  *p<=' '  ) {
 		p++;
 	}
 
-	sscanf( p, "%c,%hi,%hi", &tool, &line_id, &livery_scheme_index );
+	char tool=*p++;
+	while(  *p  &&  *p++!=','  ) {
+	}
+	if(  *p==0  ) {
+		dbg->error( "wkz_change_line_t::init()", "too short command \"%s\"", default_param );
+	}
 
-	// skip to the commands ...
-	const uint8 zz = tool == 'V' ? 3 : 2;
-	for(  int z = zz;  *p  &&  z>0;  p++  ) {
-		if(  *p==','  ) {
-			z--;
-		}
+	line_id = atoi(p);
+	while(  *p  &&  *p++!=','  ) {
 	}
 
 	linehandle_t line;
@@ -5761,6 +5760,7 @@ bool wkz_change_line_t::init( karte_t *, spieler_t *sp )
 
 		case 'V': // Change livery
 			{
+				uint16 livery_scheme_index = atoi(p);
 				if(line.is_bound())
 				{
 					line->set_livery_scheme_index(livery_scheme_index);
