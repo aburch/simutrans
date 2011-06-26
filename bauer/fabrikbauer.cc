@@ -1089,10 +1089,6 @@ next_ware_check:
 					nr += baue_hierarchie(NULL, fab, rotation, &pos, welt->get_spieler(1), 1 );
 					if(nr>0) {
 						fabrik_t *our_fab = fabrik_t::get_fab( welt, pos.get_2d() );
-						if(in_city) {
-							last_built_consumer = our_fab;
-							last_built_consumer_ware = 1;
-						}
 						reliefkarte_t::get_karte()->calc_map_groesse();
 						// tell the player
 						if(tell_me) {
