@@ -10,6 +10,7 @@
 
 #include "simtypes.h"
 #include "simconst.h"
+#include <stddef.h>
 
 class karte_t;
 class loadsave_t;

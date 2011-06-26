@@ -98,9 +98,7 @@ gui_label_t& settings_stats_t::new_label(koord pos, const char *text)
 
 gui_textarea_t& settings_stats_t::new_textarea(koord pos, const char* text)
 {
-	cbuffer_t buf;
-	buf.append(text);
-	gui_textarea_t& ta = * new gui_textarea_t(&buf);
+	gui_textarea_t& ta = * new gui_textarea_t(text);
 	ta.set_pos(pos);
 	others.append(&ta);
 	return ta;
@@ -145,8 +143,6 @@ void settings_stats_t::set_cell_component(gui_component_table_t &tbl, gui_kompon
 void settings_experimental_general_stats_t::init( settings_t *sets )
 {
 	INIT_INIT;
-	INIT_NUM( "meters_per_tile", sets->get_meters_per_tile(), 10, 10000, gui_numberinput_t::AUTOLINEAR, false );
-	SEPERATOR;
 	INIT_NUM( "min_bonus_max_distance", sets->get_min_bonus_max_distance(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "median_bonus_distance", sets->get_median_bonus_distance(), 10, 1000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "max_bonus_min_distance", sets->get_max_bonus_min_distance(), 100, 10000, gui_numberinput_t::AUTOLINEAR, false );
@@ -211,7 +207,6 @@ void settings_experimental_general_stats_t::init( settings_t *sets )
 void settings_experimental_general_stats_t::read(settings_t *sets)
 {
 	READ_INIT;
-	READ_NUM( sets->set_meters_per_tile );
 
 	READ_NUM( sets->set_min_bonus_max_distance );
 	READ_NUM( sets->set_median_bonus_distance );
