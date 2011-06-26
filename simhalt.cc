@@ -2446,8 +2446,9 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		// however, we have to rebuilt them anyway for the new format
 		if(file->get_version()<99013) {
 			file->rdwr_short(count);
+			warenziel_t dummy;
 			for(int i=0; i<count; i++) {
-				warenziel_t wz (file);
+				dummy.rdwr(file);
 			}
 		}
 
