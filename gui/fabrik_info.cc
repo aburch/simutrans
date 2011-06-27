@@ -211,6 +211,10 @@ void fabrik_info_t::update_info()
 #else
 	stadtbuttons = new button_t [target_cities.get_count()];
 #endif
+	if(fab->get_city())
+	{
+		y_off -= LINESPACE * 2;
+	}
 	for(  uint32 c=0;  c<target_cities.get_count();  ++c  ) {
 		stadtbuttons[c].set_pos(koord(16, 112+y_off+(c+x)*LINESPACE*2));
 		stadtbuttons[c].set_typ(button_t::posbutton);

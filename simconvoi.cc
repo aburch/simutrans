@@ -3543,7 +3543,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	// the straight line distance, which makes the game difficult and unrealistic. 
 	// If the origin has been deleted since the packet departed, then the best that we can do is guess by
 	// trebling the distance to the last stop.
-	const uint32 max_distance = ware.get_origin().is_bound() ? accurate_distance(ware.get_origin()->get_basis_pos(), fahr[0]->get_pos().get_2d()) * 2.2 : 3 * accurate_distance(last_stop_pos.get_2d(), fahr[0]->get_pos().get_2d());
+	const uint32 max_distance = ware.get_origin().is_bound() ? accurate_distance(ware.get_origin()->get_basis_pos(), fahr[0]->get_pos().get_2d()) * 2 : 3 * accurate_distance(last_stop_pos.get_2d(), fahr[0]->get_pos().get_2d());
 	const uint32 distance = ware.get_accumulated_distance();
 	const uint32 revenue_distance = distance < max_distance ? distance : max_distance;
 
@@ -3557,21 +3557,23 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	const uint16 journey_minutes = (((distance * 100) / average_speed) * welt->get_settings().get_meters_per_tile()) / 1667;
 
 	const ware_besch_t* goods = ware.get_besch();
-	const uint16 price = goods->get_preis();
-	const uint32 min_price = price / 10;
+	const sint64 price = (sint64)goods->get_preis();
+	const sint64 min_price = price / 10ll;
 	const uint16 speed_bonus_rating = calc_adjusted_speed_bonus(goods->get_speed_bonus(), distance);
-	const sint32 ref_speed = welt->get_average_speed( fahr[0]->get_besch()->get_waytype() );
-	const sint32 speed_base = (sint32)(100 * average_speed) / ref_speed - 100;
-	const sint32 base_bonus = ((sint32)price * (1000 + speed_base * (sint32)speed_bonus_rating));
-	const sint64 revenue = (sint64)(min_price > base_bonus ? min_price : base_bonus) * (sint64)revenue_distance * (sint64)ware.menge;
+	const sint64 ref_speed = welt->get_average_speed( fahr[0]->get_besch()->get_waytype() );
+	const sint64 speed_base = (100ll * average_speed) / ref_speed - 100ll;
+	const sint64 base_bonus = (price * (1000ll + speed_base * speed_bonus_rating));
+	const sint64 min_revenue = min_price > base_bonus ? min_price : base_bonus;
+	const sint64 revenue = min_revenue * (sint64)revenue_distance * (sint64)ware.menge;
+	const bool TEST_1 = ware.is_mail();
 	sint64 final_revenue = revenue;
 
 	const uint16 happy_percentage = ware.get_origin().is_bound() ? ware.get_origin()->get_unhappy_percentage(1) : 100;
 	if(speed_bonus_rating > 0 && happy_percentage > 0)
 	{
 		// Reduce revenue if the origin stop is crowded, if speed is important for the cargo.
-		sint64 tmp = (speed_bonus_rating * revenue) / 100;
-		tmp *= (happy_percentage * 2) / 100;
+		sint64 tmp = ((sint64)speed_bonus_rating * revenue) / 100ll;
+		tmp *= ((sint64)happy_percentage * 2) / 100ll;
 		final_revenue -= tmp;
 	}
 	
@@ -3580,7 +3582,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 		//Passengers care about their comfort
 		const uint8 tolerable_comfort = calc_tolerable_comfort(journey_minutes);
 
-		uint8 comfort = 100;
+		uint8 comfort = 100ll;
 		if(line.is_bound())
 		{
 			if(line->get_finance_history(1, LINE_COMFORT) < 1)
@@ -3607,21 +3609,21 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 		
 		// Comfort matters more the longer the journey.
 		// @author: jamespetts, March 2010
-		uint32 comfort_modifier;
+		sint64 comfort_modifier;
 		if(journey_minutes <=welt->get_settings().get_tolerable_comfort_short_minutes())
 		{
-			comfort_modifier = 20;
+			comfort_modifier = 20ll;
 		}
 		else if(journey_minutes >=welt->get_settings().get_tolerable_comfort_median_long_minutes())
 		{
-			comfort_modifier = 100;
+			comfort_modifier = 100ll;
 		}
 		else
 		{
 			const uint8 differential = journey_minutes -welt->get_settings().get_tolerable_comfort_short_minutes();
 			const uint8 max_differential =welt->get_settings().get_tolerable_comfort_median_long_minutes() -welt->get_settings().get_tolerable_comfort_short_minutes();
-			const uint32 proportion = differential * 100 / max_differential;
-			comfort_modifier = (80 * proportion / 100) + 20;
+			const sint64 proportion = differential * 100 / max_differential;
+			comfort_modifier = (80ll * proportion / 100ll) + 20ll;
 		}
 
 		if(comfort > tolerable_comfort)
@@ -3629,15 +3631,15 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 			// Apply luxury bonus
 			const uint8 max_differential = welt->get_settings().get_max_luxury_bonus_differential();
 			const uint8 differential = comfort - tolerable_comfort;
-			const uint32 multiplier = (welt->get_settings().get_max_luxury_bonus_percent() * comfort_modifier) / 100;
+			const sint64 multiplier = (welt->get_settings().get_max_luxury_bonus_percent() * comfort_modifier) / 100ll;
 			if(differential >= max_differential)
 			{
-				final_revenue += (sint64)(revenue * multiplier);
+				final_revenue += (revenue * multiplier) / 10000ll;
 			}
 			else
 			{
-				const uint32 proportion = (differential * 100) / max_differential;
-				final_revenue += (revenue * (sint64)(multiplier * proportion)) / 10000;
+				const sint64 proportion = (differential * 100ll) / max_differential;
+				final_revenue += (revenue * (sint64)(multiplier * proportion)) / 10000ll;
 			}
 		}
 		else if(comfort < tolerable_comfort)
@@ -3645,16 +3647,16 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 			// Apply discomfort penalty
 			const uint8 max_differential = welt->get_settings().get_max_discomfort_penalty_differential();
 			const uint8 differential = tolerable_comfort - comfort;
-			uint32 multiplier = (welt->get_settings().get_max_discomfort_penalty_percent() * comfort_modifier) / 100;
-			multiplier = multiplier < 95 ? multiplier : 95;
+			sint64 multiplier = (welt->get_settings().get_max_discomfort_penalty_percent() * comfort_modifier) / 100ll;
+			multiplier = multiplier < 95ll ? multiplier : 95ll;
 			if(differential >= max_differential)
 			{
-				final_revenue -= (sint64)(revenue * multiplier) / 10000;
+				final_revenue -= (revenue * multiplier) / 10000ll;
 			}
 			else
 			{
-				const uint32 proportion = (differential * 100) / max_differential;
-				final_revenue -= (revenue * (sint64)(multiplier * proportion)) / 100;
+				const sint64 proportion = (differential * 100ll) / max_differential;
+				final_revenue -= (revenue * (multiplier * proportion)) / 10000ll;
 			}
 		}
 		
@@ -3676,13 +3678,13 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 		else if(ware.is_passenger())
 		{
 			// Passengers
-			uint32 proportion = 0;
+			sint64 proportion = 0;
 			// Knightly : Reorganised the switch cases to get rid of goto statements
 			switch(catering_level)
 			{
 
-			case 5:
 			default:
+			case 5:
 				if(journey_minutes >=welt->get_settings().get_catering_level4_minutes())
 				{
 					if(journey_minutes >welt->get_settings().get_catering_level5_minutes())
@@ -3691,8 +3693,8 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 						break;
 					}
 					
-					proportion = ((journey_minutes -welt->get_settings().get_catering_level4_max_revenue()) * 100) / (welt->get_settings().get_catering_level5_minutes() -welt->get_settings().get_catering_level4_minutes());
-					final_revenue += (sint64)((proportion * (welt->get_settings().get_catering_level5_max_revenue() * ware.menge)) / 100);
+					proportion = (sint64)((journey_minutes - welt->get_settings().get_catering_level4_max_revenue()) * 100) / (welt->get_settings().get_catering_level5_minutes() -welt->get_settings().get_catering_level4_minutes());
+					final_revenue += ((proportion * (sint64)(welt->get_settings().get_catering_level5_max_revenue() * ware.menge)) / 100);
 					break;
 				}
 
