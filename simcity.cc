@@ -1518,7 +1518,7 @@ void stadt_t::neuer_monat()
 	settings_t const& s = welt->get_settings();
 	target_factories_pax.recalc_generation_ratio( s.get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_PAS_GENERATED);
 	target_factories_mail.recalc_generation_ratio(s.get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_MAIL_GENERATED);
-	recalc_target_cities();
+	update_target_cities();
 
 	if (!stadtauto_t::list_empty()) {
 		// spawn eventuall citycars
@@ -1851,10 +1851,25 @@ void stadt_t::add_target_city(stadt_t *const city)
 	assert( city != NULL );
 	target_cities.insert_ordered(
 		target_city_t( city, shortest_distance( this->get_pos(), city->get_pos() ) ),
-		max( city->get_einwohner(), 1),
+		max( city->get_einwohner(), 1 ),
 		target_city_t::less_than,
 		64u
 	);
+}
+
+
+void stadt_t::update_target_city(stadt_t *const city)
+{
+	assert( city != NULL );
+	target_cities.update( target_city_t( city, 0 ), max( city->get_einwohner(), 1 ) );
+}
+
+
+void stadt_t::update_target_cities()
+{
+	for(  uint32 c=0;  c<target_cities.get_count();  ++c  ) {
+		target_cities.update_at( c, max( target_cities[c].city->get_einwohner(), 1 ) );
+	}
 }
 
 
