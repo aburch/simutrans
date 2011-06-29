@@ -1973,7 +1973,6 @@ uint8 wkz_brueckenbau_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord
 		const char *error = NULL;
 		koord3d end = brueckenbauer_t::finde_ende(welt, start, koord(test), besch, error, false, koord_distance(start, pos));
 		if (end!=pos) {
-			koord3d end = brueckenbauer_t::finde_ende(welt, start, koord(test), besch, error, false, koord_distance(start, pos));
 			return 0;
 		}
 		return 2;
