@@ -270,9 +270,17 @@ const char *tunnelbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, const 
 		}
 	}
 
-	// pruefe ob Tunnel auf strasse/schiene endet
 	if(!welt->ist_in_kartengrenzen(end.get_2d())) {
 		return "Tunnel must start on single way!";
+	}
+
+	// check ownership
+	if (const grund_t *gr_end = welt->lookup(end)) {
+		if (weg_t *weg_end = gr_end->get_weg(wegtyp)) {
+			if (weg_end->ist_entfernbar(sp)!=NULL) {
+				return "Das Feld gehoert\neinem anderen Spieler\n";
+			}
+		}
 	}
 
 	// Anfang und ende sind geprueft, wir konnen endlich bauen
