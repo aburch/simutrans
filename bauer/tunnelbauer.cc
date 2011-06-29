@@ -424,7 +424,9 @@ const weg_besch_t *tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, ko
 		if( way_outside ) {
 			// use the check_owner routine of wegbauer_t (not spieler_t!), needs an instance
 			wegbauer_t bauigel(welt, sp);
-			if(bauigel.check_owner( way_outside->get_besitzer(), sp )) {
+			bauigel.route_fuer( (wegbauer_t::bautyp_t)besch->get_waytype(), way_outside->get_besch());
+			long dummy;
+			if(bauigel.is_allowed_step(tunnel, ground_outside, &dummy)) {
 				tunnel->weg_erweitern(besch->get_waytype(), ribi_typ(-zv));
 				ground_outside->weg_erweitern(besch->get_waytype(), ribi_typ(zv));
 			}
