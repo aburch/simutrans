@@ -1132,6 +1132,15 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 				// not empty ...
 				return "Tile not empty.";
 			}
+			// check way ownership
+			if(gr1->hat_wege()) {
+				if(gr1->get_weg_nr(0)->ist_entfernbar(sp)!=NULL) {
+					return "Tile not empty.";
+				}
+				if(gr1->has_two_ways()  &&  gr1->get_weg_nr(1)->ist_entfernbar(sp)!=NULL) {
+					return "Tile not empty.";
+				}
+			}
 
 			// ok, was sucess
 			if(!gr1->ist_wasser()  &&  new_slope==0  &&  new_pos.z==welt->get_grundwasser()  &&  gr1->get_typ()!=grund_t::tunnelboden  ) {
