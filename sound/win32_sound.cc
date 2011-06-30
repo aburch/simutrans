@@ -12,7 +12,6 @@
 #include <windows.h>
 #include <mmsystem.h>
 
-#include "../tpl/debug_helper.h"
 #include "sound.h"
 
 

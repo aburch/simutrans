@@ -8,7 +8,6 @@
 #ifndef tpl_prioqueue_tpl_h
 #define tpl_prioqueue_tpl_h
 
-#include "debug_helper.h"
 #include "../dataobj/freelist.h"
 
 
@@ -198,8 +197,7 @@ class prioqueue_tpl
 
 				return tmp;
 			} else {
-				ERROR("prioqueue_tpl<T>::pop()","called on empty queue!");
-				abort();
+				dbg->fatal("prioqueue_tpl<T>::pop()","called on empty queue!");
 			}
 		}
 

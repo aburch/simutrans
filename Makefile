@@ -345,7 +345,6 @@ SOURCES += simwerkz.cc
 SOURCES += simwin.cc
 SOURCES += simworld.cc
 SOURCES += sucher/platzsucher.cc
-SOURCES += tpl/debug_helper.cc
 SOURCES += unicode.cc
 SOURCES += utils/cbuffer_t.cc
 SOURCES += utils/checksum.cc

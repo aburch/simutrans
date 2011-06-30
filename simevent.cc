@@ -3,8 +3,6 @@
  * Hj. Malthaner, Jan. 2001
  */
 
-#include "tpl/debug_helper.h"
-
 #include "simevent.h"
 #include "simsys.h"
 
@@ -17,9 +15,6 @@ static event_t meta_event(EVENT_NONE);	// Knightly : for storing meta-events lik
 
 int event_get_last_control_shift(void)
 {
-#if 0
-	MESSAGE("event_get_last_control_shift()", "state %i", control_shift_state);
-#endif
 	// shift = 1
 	// ctrl  = 2
 	return control_shift_state & 0x03;
