@@ -182,10 +182,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\tpl\debug_helper.cc"
-				>
-			</File>
-			<File
 				RelativePath=".\utils\dr_rdpng.c"
 				>
 			</File>
@@ -361,10 +357,6 @@
 			</File>
 			<File
 				RelativePath=".\besch\writer\crossing_writer.h"
-				>
-			</File>
-			<File
-				RelativePath=".\tpl\debug_helper.h"
 				>
 			</File>
 			<File

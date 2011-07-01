@@ -413,7 +413,6 @@
     <ClCompile Include="gui\curiosity_edit.cc" />
     <ClCompile Include="gui\curiositylist_frame_t.cc" />
     <ClCompile Include="gui\curiositylist_stats_t.cc" />
-    <ClCompile Include="tpl\debug_helper.cc" />
     <ClCompile Include="gui\depot_frame.cc" />
     <ClCompile Include="dataobj\dingliste.cc" />
     <ClCompile Include="dataobj\einstellungen.cc" />
@@ -693,7 +692,6 @@
     <ClInclude Include="gui\curiosity_edit.h" />
     <ClInclude Include="gui\curiositylist_frame_t.h" />
     <ClInclude Include="gui\curiositylist_stats_t.h" />
-    <ClInclude Include="tpl\debug_helper.h" />
     <ClInclude Include="gui\depot_frame.h" />
     <ClInclude Include="dataobj\dingliste.h" />
     <ClInclude Include="utils\dbg_weightmap.h" />

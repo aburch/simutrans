@@ -214,7 +214,7 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const 
 				if(  gr1->has_two_ways()  ) {
 					// crossing => then we must be sure we have our way in our direction
 					const weg_t* weg = gr1->get_weg(wegtyp);
-					if(  ribi_t::ist_gerade(ribi_typ(zv)|weg->get_ribi_unmasked())  ) {
+					if(  weg  &&  ribi_t::ist_gerade(ribi_typ(zv)|weg->get_ribi_unmasked())  ) {
 						// way goes in our direction already
 						return gr1->get_pos();
 					}
@@ -426,6 +426,7 @@ DBG_MESSAGE("brueckenbauer_t::baue()", "end not ok");
 		return msg;
 	}
 
+	// check ownership
 	grund_t * gr_end = welt->lookup(end);
 	if(gr_end->kann_alle_obj_entfernen(sp)) {
 		return "Tile not empty.";
@@ -434,6 +435,16 @@ DBG_MESSAGE("brueckenbauer_t::baue()", "end not ok");
 	if(sp && !sp->can_afford(besch->get_preis()))
 	{
 		return "That would exceed\nyour credit limit.";
+	}
+
+	// check way ownership
+	if(gr_end->hat_wege()) {
+		if(gr_end->get_weg_nr(0)->ist_entfernbar(sp)!=NULL) {
+			return "Tile not empty.";
+		}
+		if(gr_end->has_two_ways()  &&  gr_end->get_weg_nr(1)->ist_entfernbar(sp)!=NULL) {
+			return "Tile not empty.";
+		}
 	}
 
 	// Anfang und ende sind geprueft, wir konnen endlich bauen

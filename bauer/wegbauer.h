@@ -140,6 +140,7 @@ private:
 	// index in route with terraformed tiles
 	vector_tpl<uint32> terraform_index;
 
+public:
 	/* This is the core routine for the way search
 	* it will check
 	* A) allowed step
@@ -147,6 +148,7 @@ private:
 	* @author prissi
 	*/
 	bool is_allowed_step( const grund_t *from, const grund_t *to, long *costs );
+private:
 
 	// checks, if we can built a bridge here ...
 	// may modify next_gr array!

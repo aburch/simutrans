@@ -220,7 +220,7 @@ private:
 	uint16 produkte; //"products" (Babelfish)
 	uint8 fields;	// only if there are any ...
 	uint16 pax_level;
-	uint16 electricity_proportion; // Modifier of electricity consumption.
+	uint16 electricity_proportion; // Modifier of electricity consumption (a legacy setting for Experimental only)
 	uint16 inverse_electricity_proportion;
 	bool electricity_producer;
 	uint8 upgrades; // The industry types to which this industry can be upgraded.
