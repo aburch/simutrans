@@ -200,10 +200,10 @@ void gui_tab_panel_t::zeichnen(koord parent_pos)
 	display_fillbox_wh_clip(text_x-4, ypos+HEADER_VSIZE-1, xpos+groesse.x-(text_x-4), 1, MN_GREY4, true);
 
 	// now for tooltips ...
-	int my = get_maus_y()-parent_pos.y-6;
+	int my = get_maus_y()-parent_pos.y-pos.y-6;
 	if(my>=0  &&  my < HEADER_VSIZE-1) {
 		// Reiter getroffen?
-		int mx = get_maus_x()-parent_pos.x-11;
+		int mx = get_maus_x()-parent_pos.x-pos.x-11;
 		int text_x = 4;
 		int i=0;
 		for (slist_tpl<tab>::const_iterator iter = tabs.begin(), end = tabs.end(); iter != end; ++iter, ++i) {
