@@ -467,6 +467,7 @@ void fabrik_t::recalc_storage_capacities()
 				const fabrik_lieferant_besch_t *const input = besch->get_lieferant(b);
 				if(  eingang[g].get_typ()==input->get_ware()  ) {
 					eingang[g].max = (sint32)( ((sint64)(input->get_kapazitaet() << precision_bits) * (sint64)prodbase) / (sint64)besch->get_produktivitaet() );
+					
 				}
 			}
 		}
@@ -689,43 +690,6 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 	total_input = total_output = 0;
 	status = nothing;
 
-	// create input information
-	eingang.resize( fabesch->get_lieferanten() );
-	for(  int g=0;  g<fabesch->get_lieferanten();  ++g  ) {
-		const fabrik_lieferant_besch_t *const input = fabesch->get_lieferant(g);
-		ware_production_t &ware = eingang[g];
-		ware.set_typ( input->get_ware() );
-		ware.menge = 0;
-		ware.init_stats();
-	}
-
-	// create output information
-	ausgang.resize( fabesch->get_produkte() );
-	for(  uint g=0;  g<fabesch->get_produkte();  ++g  ) {
-		const fabrik_produkt_besch_t *const product = fabesch->get_produkt(g);
-		ware_production_t &ware = ausgang[g];
-		ware.set_typ( product->get_ware() );
-		ware.menge = 0;
-		ware.init_stats();
-	}
-
-	recalc_storage_capacities();
-	if (eingang.empty()) {
-		for(  uint32 g=0;  g<ausgang.get_count();  ++g  ) {
-			if(  ausgang[g].max>0  ) {
-				// if source then start with full storage, so that AI will build line(s) immediately
-				ausgang[g].menge = ausgang[g].max - 1;
-			}
-		}
-	}
-	
-	init_stats();
-	arrival_stats_pax.init();
-	arrival_stats_mail.init();
-
-	delta_slot = 0;
-	times_expanded = 0;
-
 	// Check to see whether this is within city limits, and add it to the city if it is.
 	city = welt->get_city(pos.get_2d());
 	if(city != NULL)
@@ -783,6 +747,43 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 	}
 	
 	prodbase = prodbase > 0 ? prodbase : 1;
+
+	// create input information
+	eingang.resize( fabesch->get_lieferanten() );
+	for(  int g=0;  g<fabesch->get_lieferanten();  ++g  ) {
+		const fabrik_lieferant_besch_t *const input = fabesch->get_lieferant(g);
+		ware_production_t &ware = eingang[g];
+		ware.set_typ( input->get_ware() );
+		ware.menge = 0;
+		ware.init_stats();
+	}
+
+	// create output information
+	ausgang.resize( fabesch->get_produkte() );
+	for(  uint g=0;  g<fabesch->get_produkte();  ++g  ) {
+		const fabrik_produkt_besch_t *const product = fabesch->get_produkt(g);
+		ware_production_t &ware = ausgang[g];
+		ware.set_typ( product->get_ware() );
+		ware.menge = 0;
+		ware.init_stats();
+	}
+
+	recalc_storage_capacities();
+	if (eingang.empty()) {
+		for(  uint32 g=0;  g<ausgang.get_count();  ++g  ) {
+			if(  ausgang[g].max>0  ) {
+				// if source then start with full storage, so that AI will build line(s) immediately
+				ausgang[g].menge = ausgang[g].max - 1;
+			}
+		}
+	}
+	
+	init_stats();
+	arrival_stats_pax.init();
+	arrival_stats_mail.init();
+
+	delta_slot = 0;
+	times_expanded = 0;
 
 	update_scaled_electric_amount();
 	update_scaled_pax_demand();
