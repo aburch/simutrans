@@ -565,7 +565,7 @@ public:
 	wkz_increase_industry_t() : werkzeug_t() { id = WKZ_INCREASE_INDUSTRY | SIMPLE_TOOL; }
 	const char *get_tooltip(const spieler_t *) const { return translator::translate("Increase Industry density"); }
 	bool init( karte_t *welt, spieler_t * ) {
-		fabrikbauer_t::increase_industry_density( welt, false );
+		fabrikbauer_t::increase_industry_density( welt, true, false );
 		return false;
 	}
 };
