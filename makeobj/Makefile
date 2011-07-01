@@ -119,7 +119,6 @@ SHARED_SOURCES += ../dataobj/freelist.cc
 SHARED_SOURCES += ../dataobj/tabfile.cc
 SHARED_SOURCES += ../simdebug.cc
 SHARED_SOURCES += ../simmem.cc
-SHARED_SOURCES += ../tpl/debug_helper.cc
 SHARED_SOURCES += ../utils/simstring.cc
 SHARED_SOURCES += ../utils/searchfolder.cc
 VARIANT_SOURCES += ../simtools.cc

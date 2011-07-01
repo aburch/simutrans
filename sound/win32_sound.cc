@@ -13,7 +13,6 @@
 /*#include <dsound.h>
 #include <Amaudio.h>*/
 
-#include "../tpl/debug_helper.h"
 #include "sound.h"
 
 

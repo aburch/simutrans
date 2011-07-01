@@ -9,7 +9,6 @@
 #include <string.h>
 #include <typeinfo>
 #include "../simdebug.h"
-#include "../tpl/debug_helper.h"
 
 
 /*
@@ -62,7 +61,7 @@ template<class besch_t> void warne_ungeladene(spezial_obj_tpl<besch_t>* so, int 
 {
 	for (; count-- && so->name; ++so) {
 		if (!*so->besch) {
-			MESSAGE("warne_ungeladene", "Object %s not found, feature disabled", so->name);
+			dbg->message("warne_ungeladene", "Object %s not found, feature disabled", so->name);
 		}
 	}
 }

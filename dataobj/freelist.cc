@@ -3,7 +3,6 @@
 #include <assert.h>
 
 #include "../simtypes.h"
-#include "../tpl/debug_helper.h"
 #include "../simmem.h"
 #include "freelist.h"
 

@@ -278,10 +278,17 @@ const char *tunnelbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, const 
 		return "That would exceed\nyour credit limit.";
 	}
 
-	// pruefe ob Tunnel auf strasse/schiene endet
-	// "examine whether the tunnel on road / rail ends" (Google)
 	if(!welt->ist_in_kartengrenzen(end.get_2d())) {
 		return "Tunnel must start on single way!";
+	}
+
+	// check ownership
+	if (const grund_t *gr_end = welt->lookup(end)) {
+		if (weg_t *weg_end = gr_end->get_weg(wegtyp)) {
+			if (weg_end->ist_entfernbar(sp)!=NULL) {
+				return "Das Feld gehoert\neinem anderen Spieler\n";
+			}
+		}
 	}
 
 	// Anfang und ende sind geprueft, wir konnen endlich bauen
@@ -443,7 +450,9 @@ const weg_besch_t *tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, ko
 		if( way_outside ) {
 			// use the check_owner routine of wegbauer_t (not spieler_t!), needs an instance
 			wegbauer_t bauigel(welt, sp);
-			if(bauigel.check_owner( way_outside->get_besitzer(), sp )) {
+			bauigel.route_fuer( (wegbauer_t::bautyp_t)besch->get_waytype(), way_outside->get_besch());
+			long dummy;
+			if(bauigel.is_allowed_step(tunnel, ground_outside, &dummy)) {
 				tunnel->weg_erweitern(besch->get_waytype(), ribi_typ(-zv));
 				ground_outside->weg_erweitern(besch->get_waytype(), ribi_typ(zv));
 			}

@@ -709,6 +709,8 @@ public:
 	 */
 	void add_target_city(stadt_t *const city);
 	void remove_target_city(stadt_t *const city) { target_cities.remove( target_city_t(city, 0) ); }
+	void update_target_city(stadt_t *const city);
+	void update_target_cities();
 	void recalc_target_cities();
 
 	/**
