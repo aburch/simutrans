@@ -1,5 +1,4 @@
 #include "simstring.h"
-#include "../tpl/debug_helper.h"
 
 #include <assert.h>
 #include <string.h>
