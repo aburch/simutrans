@@ -284,6 +284,9 @@ public:
 	inline bool is_diagonal() const {return flags&IS_DIAGONAL; }
 	inline bool is_snow() const {return flags&IS_SNOW; }
 
+	// this is needed during a change from crossing to tram track
+	void clear_crossing() { flags &= ~HAS_CROSSING; }
+
 	inline void set_bild( image_id b ) { bild = b; }
 	image_id get_bild() const {return bild;}
 
