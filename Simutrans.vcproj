@@ -320,10 +320,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\tpl\debug_helper.cc"
-				>
-			</File>
-			<File
 				RelativePath=".\gui\depot_frame.cc"
 				>
 			</File>
@@ -1313,10 +1309,6 @@
 			</File>
 			<File
 				RelativePath=".\gui\curiositylist_stats_t.h"
-				>
-			</File>
-			<File
-				RelativePath=".\tpl\debug_helper.h"
 				>
 			</File>
 			<File

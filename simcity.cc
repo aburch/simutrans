@@ -2395,7 +2395,7 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 	settings_t const& s = welt->get_settings();
 	target_factories_pax.recalc_generation_ratio( s.get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_PAS_GENERATED);
 	target_factories_mail.recalc_generation_ratio(s.get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_MAIL_GENERATED);
-	recalc_target_cities();
+	update_target_cities();
 
 	// Calculate the level of congestion.
 	// Used in determining growth and passenger preferences.
@@ -3704,10 +3704,25 @@ void stadt_t::add_target_city(stadt_t *const city)
 	assert( city != NULL );
 	target_cities.insert_ordered(
 		target_city_t( city, shortest_distance( this->get_pos(), city->get_pos() ) ),
-		max( city->get_einwohner(), 1),
+		max( city->get_einwohner(), 1 ),
 		target_city_t::less_than,
 		64u
 	);
+}
+
+
+void stadt_t::update_target_city(stadt_t *const city)
+{
+	assert( city != NULL );
+	target_cities.update( target_city_t( city, 0 ), max( city->get_einwohner(), 1 ) );
+}
+
+
+void stadt_t::update_target_cities()
+{
+	for(  uint32 c=0;  c<target_cities.get_count();  ++c  ) {
+		target_cities.update_at( c, max( target_cities[c].city->get_einwohner(), 1 ) );
+	}
 }
 
 
@@ -4239,6 +4254,9 @@ void stadt_t::check_bau_rathaus(bool new_town)
 			cbuffer_t buf;
 			buf.printf( translator::translate("%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants."), name, get_einwohner() );
 			welt->get_message()->add_message(buf, best_pos, message_t::city, CITY_KI, besch->get_tile(layout, 0, 0)->get_hintergrund(0, 0, 0));
+		}
+		else {
+			welt->lookup_kartenboden(best_pos)->set_text( name );
 		}
 
 		if (neugruendung || umziehen) {

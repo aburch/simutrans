@@ -324,7 +324,7 @@ template<class T> class weighted_vector_tpl
 				if(  index>=get_count()  ) {
 					dbg->fatal("weighted_vector_tpl<T>::subset::weight_at()", "index out of bounds: %u not in 0..%u range", index, get_count() - 1);
 				}
-				return weighted_vector->weight_at(lower_index + index);
+				return weighted_vector->weight_at(lower_index + index) - weighted_vector->weight_at(lower_index);
 			}
 
 			unsigned long get_sum_weight() const
@@ -392,6 +392,47 @@ template<class T> class weighted_vector_tpl
 			return subset( this, lower_index, upper_index );
 		}
 
+		/**
+		 * Update the weight of the element, if contained
+		 * @author Knightly
+		 */
+		bool update(T elem, unsigned long weight)
+		{
+			for(  uint32 i=0;  i<count;  ++i  ) {
+				if(  nodes[i].data==elem  ) {
+					return update_at(i, weight);
+				}
+			}
+			return false;
+		}
+
+		/**
+		 * Update the weight of the element at the specified position
+		 * @author Knightly
+		 */
+		bool update_at(uint32 pos, unsigned long weight)
+		{
+			if(  pos>=count  ) {
+				return false;
+			}
+			const unsigned long elem_weight = ( pos + 1 < count ? nodes[pos + 1].weight : total_weight ) - nodes[pos].weight;
+			if(  weight>elem_weight  ) {
+				const unsigned long delta_weight = weight - elem_weight;
+				while(  ++pos<count  ) {
+					nodes[pos].weight += delta_weight;
+				}
+				total_weight += delta_weight;
+			}
+			else if(  weight<elem_weight  ) {
+				const unsigned long delta_weight = elem_weight - weight;
+				while(  ++pos<count  ) {
+					nodes[pos].weight -= delta_weight;
+				}
+				total_weight -= delta_weight;
+			}
+			return true;
+		}
+
 		/** removes element, if contained */
 		bool remove(T elem)
 		{
@@ -407,7 +448,7 @@ template<class T> class weighted_vector_tpl
 		{
 			if (pos >= count) return false;
 			// get the change in the weight; must check, if it isn't the last element
-			const unsigned long diff_weight = (pos + 1 < count ? nodes[pos + 1].weight - nodes[pos].weight : total_weight - nodes[pos].weight);
+			const unsigned long diff_weight = ( pos + 1 < count ? nodes[pos + 1].weight : total_weight ) - nodes[pos].weight;
 			for (uint32 i = pos; i < count - 1; i++) {
 				nodes[i].data   = nodes[i + 1].data;
 				nodes[i].weight = nodes[i + 1].weight - diff_weight;

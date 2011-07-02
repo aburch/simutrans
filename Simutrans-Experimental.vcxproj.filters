@@ -111,9 +111,6 @@
     <ClCompile Include="gui\curiositylist_stats_t.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tpl\debug_helper.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="gui\depot_frame.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -912,9 +909,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gui\curiositylist_stats_t.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tpl\debug_helper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gui\depot_frame.h">
