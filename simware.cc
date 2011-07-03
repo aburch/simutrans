@@ -10,6 +10,7 @@
 
 #include "simmem.h"
 #include "simdebug.h"
+#include "simfab.h"
 #include "simhalt.h"
 #include "simtypes.h"
 #include "simworld.h"
@@ -132,6 +133,12 @@ void ware_t::rdwr(karte_t *welt,loadsave_t *file)
 		}
 	}
 	zielpos.rdwr(file);
+	// restore factory-flag
+	if(  file->get_version()<110005  &&  file->is_loading()  ) {
+		if (fabrik_t::get_fab(welt, zielpos)) {
+			to_factory = 1;
+		}
+	}
 }
 
 
