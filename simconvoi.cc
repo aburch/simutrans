@@ -1373,6 +1373,10 @@ end_loop:
 }
 
 void convoi_t::advance_schedule() {
+	if(fpl->get_aktuell() == 0) {
+		arrival_to_first_stop.add_to_tail(welt->get_zeit_ms());
+	}
+
 	// check if the convoi should switch direction
 	if(  fpl->is_mirrored() && fpl->get_aktuell()==fpl->get_count()-1  ) {
 		reverse_schedule = true;
@@ -3194,17 +3198,35 @@ void convoi_t::rdwr(loadsave_t *file)
 	if(file->get_experimental_version() >= 9 && file->get_version() >= 110006)
 	{
 		file->rdwr_short(livery_scheme_index);
-		file->rdwr_longlong(arrival_time);
 	}
 	else
 	{
 		livery_scheme_index = 0;
-		arrival_time = welt->get_zeit_ms();
 	}
 
 	if(file->get_experimental_version() >= 10 && file->get_version() >= 110006)
 	{
 		file->rdwr_longlong(arrival_time);
+
+		//arrival_to_first_stop table
+		//
+		uint8 items_count = arrival_to_first_stop.get_count();
+		file->rdwr_byte(items_count);
+		if (file->is_loading() ) {
+			for (uint8 i = 0; i < items_count; ++i )
+			{
+				sint64 item_value;
+				file->rdwr_longlong( item_value );
+				arrival_to_first_stop.add_to_tail(item_value);
+			}
+		} else {
+			for (uint8 i = 0; i < items_count; ++i )
+			{
+				sint64 item_value = arrival_to_first_stop[i];
+				file->rdwr_longlong( item_value );
+			}
+		}
+
 	}
 	else
 	{
