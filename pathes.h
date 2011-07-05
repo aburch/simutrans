@@ -26,9 +26,6 @@
 #define FONT_PATH	    "font"
 #define FONT_PATH_X	    FONT_PATH "/"
 
-#define PALETTE_PATH	    "palette"
-#define PALETTE_PATH_X	    PALETTE_PATH "/"
-
 #define SAVE_PATH	    "save"
 #define SAVE_PATH_X	    SAVE_PATH "/"
 #define SAVE_PATH_X_LEN (sizeof(SAVE_PATH_X) - 1)

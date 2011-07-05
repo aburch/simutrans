@@ -2119,7 +2119,6 @@ void wegbauer_t::baue_schiene()
 			if(extend) {
 				weg_t* const weg = gr->get_weg(besch->get_wtyp());
 				bool change_besch = true;
-				bool reset_crossing = false;
 
 				// do not touch fences, tram way etc. if there is already same way with different type
 				// keep faster ways or if it is the same way ... (@author prissi)
