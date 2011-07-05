@@ -804,7 +804,6 @@ void display_all_win()
 	}
 
 	// then display windows
-	tooltip_text = NULL;
 	for(  uint i=0;  i<wins.get_count();  i++  ) {
 		void *old_gui = inside_event_handling;
 		inside_event_handling = wins[i].gui;
@@ -1321,10 +1320,16 @@ void win_display_flush(double konto)
 	const sint16 disp_height = display_get_height();
 	const sint16 menu_height = werkzeug_t::toolbar_tool[0]->iconsize.y;
 
+	// display main menu
 	werkzeug_waehler_t *main_menu = werkzeug_t::toolbar_tool[0]->get_werkzeug_waehler();
 	display_set_clip_wh( 0, 0, disp_width, menu_height+1 );
 	display_fillbox_wh(0, 0, disp_width, menu_height, MN_GREY2, false);
+	// .. extra logic to enable tooltips
+	tooltip_element = menu_height > get_maus_y() ? main_menu : NULL;
+	inside_event_handling = main_menu;
 	main_menu->zeichnen(koord(0,-16), koord(disp_width,menu_height) );
+	inside_event_handling = NULL;
+
 	// redraw all?
 	if(windows_dirty) {
 		mark_rect_dirty_wc( 0, 0, disp_width, disp_height );
