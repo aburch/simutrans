@@ -6638,3 +6638,11 @@ void karte_t::calc_max_road_check_depth()
 	// unit of max_road_check_depth: (min/10 * 100) / (m/tile * 6) * km/h  --> tile * 1000 / 36
 	max_road_check_depth = ((uint32)settings.get_max_longdistance_tolerance() * 100) / (settings.get_meters_per_tile() * 6) * min(citycar_speed_average, max_road_speed);
 }
+
+/* copied from date formatting code, umgebung_t::show_month <= umgebung_t::DATE_FMT_MONTH
+*/
+void karte_t::sprintf_ticks(char *p, size_t size, uint32 ticks) {
+	unsigned int hours = (ticks * 24) >> ticks_per_world_month_shift;
+	unsigned int minutes = ((ticks * 24 * 60) >> ticks_per_world_month_shift)%60;
+	snprintf(p, size, "%u:%02u", hours, minutes);
+}
