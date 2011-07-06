@@ -3551,11 +3551,12 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 
 	ware.reset_accumulated_distance();
 
-	//Multiply by a factor (default: 0.3) to ensure that it fits the scale properly. Journey times can easily appear too long.
 	if(average_speed == 0)
 	{
 		average_speed = 1;
 	}
+	
+	// 100/1667 = 60min/hr / 1000 m/km
 	const uint16 journey_minutes = (((distance * 100) / average_speed) * welt->get_settings().get_meters_per_tile()) / 1667;
 
 	const ware_besch_t* goods = ware.get_besch();
@@ -3567,7 +3568,6 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	const sint64 base_bonus = (price * (1000ll + speed_base * speed_bonus_rating));
 	const sint64 min_revenue = min_price > base_bonus ? min_price : base_bonus;
 	const sint64 revenue = min_revenue * (sint64)revenue_distance * (sint64)ware.menge;
-	const bool TEST_1 = ware.is_mail();
 	sint64 final_revenue = revenue;
 
 	const uint16 happy_percentage = ware.get_origin().is_bound() ? ware.get_origin()->get_unhappy_percentage(1) : 100;
