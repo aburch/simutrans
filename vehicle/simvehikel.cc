@@ -2313,11 +2313,15 @@ void vehikel_t::display_after(int xpos, int ypos, bool is_gobal) const
 				if(  state>=1  ) {
 					char waiting_time[64];
 					cnv->snprintf_remained_loading_time(waiting_time, sizeof(waiting_time));
-					if (cnv->get_loading_limit() && *waiting_time) {
-						sprintf( tooltip_text, translator::translate("Loading (%i->%i%%), %s left!"), cnv->get_loading_level(), cnv->get_loading_limit(), waiting_time);
-					}
-					else {
-						sprintf( tooltip_text, translator::translate("Loading (%i->%i%%)!"), cnv->get_loading_level(), cnv->get_loading_limit());
+					if (cnv->get_loading_limit() ) {
+						if( *waiting_time) {
+							sprintf( tooltip_text, translator::translate("Loading (%i->%i%%), %s left!"), cnv->get_loading_level(), cnv->get_loading_limit(), waiting_time);
+						}
+						else {
+							sprintf( tooltip_text, translator::translate("Loading (%i->%i%%)!"), cnv->get_loading_level(), cnv->get_loading_limit());
+						}
+					} else {
+						tstrncpy( tooltip_text, waiting_time, lengthof(tooltip_text) );
 					}
 					color = COL_YELLOW;
 				}

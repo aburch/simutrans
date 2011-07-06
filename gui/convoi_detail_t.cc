@@ -408,7 +408,9 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 
 			if(v->get_besch()->get_zuladung() > 0)
 			{
-				sprintf( buf, "%s %i", translator::translate("Loading time:"), v->get_besch()->get_loading_time() );
+				char loading_time_as_clock[32];
+				v->get_welt()->sprintf_ticks(loading_time_as_clock, sizeof(loading_time_as_clock), v->get_besch()->get_loading_time());
+				sprintf( buf, "%s %i (%s)", translator::translate("Loading time:"), v->get_besch()->get_loading_time(), loading_time_as_clock );
 				display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, COL_BLACK, true );
 				extra_y += LINESPACE;
 			}

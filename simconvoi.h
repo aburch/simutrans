@@ -434,6 +434,13 @@ private:
 	// @author: jamespetts
 	sint64 last_departure_time;
 
+	// When we arrived at current stop
+	// @author Inkelyad
+	sint64 arrival_time;
+
+	//When convoy was at first stop.
+	//Used in average round trip time calculations.
+	fixed_list_tpl<sint64, MAX_CONVOI_COST> arrival_to_first_stop;
 	// @author: jamespetts
 	uint32 rolling_average[MAX_CONVOI_COST];
 	uint16 rolling_average_count[MAX_CONVOI_COST];
@@ -1052,7 +1059,15 @@ public:
 	uint16 get_livery_scheme_index() const;
 	void set_livery_scheme_index(uint16 value) { livery_scheme_index = value; }
 
-	void apply_livery_scheme(); 
+	void apply_livery_scheme();
+	sint64 get_average_round_trip_time() {
+		int items = arrival_to_first_stop.get_count();
+		if (items>1) {
+			return (arrival_to_first_stop[items-1] - arrival_to_first_stop[0])/(items-1);
+		} else {
+			return 0;
+		}
+	}
 };
 
 #endif

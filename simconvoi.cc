@@ -66,7 +66,7 @@
  * Waiting time for loading (ms)
  * @author Hj- Malthaner
  */
-//#define WTT_LOADING 2000
+#define WTT_LOADING 500
 
 /*
  * Waiting time for infinite loading (ms)
@@ -524,9 +524,6 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 				state = WAITING_FOR_CLEARANCE;
 			}
 		}
-	}
-	if(  state==LOADING  ) {
-		wait_lock = longest_loading_time;
 	}
 	// when saving with open window, this can happen
 	if(  state==FAHRPLANEINGABE  ) {
@@ -1376,6 +1373,10 @@ end_loop:
 }
 
 void convoi_t::advance_schedule() {
+	if(fpl->get_aktuell() == 0) {
+		arrival_to_first_stop.add_to_tail(welt->get_zeit_ms());
+	}
+
 	// check if the convoi should switch direction
 	if(  fpl->is_mirrored() && fpl->get_aktuell()==fpl->get_count()-1  ) {
 		reverse_schedule = true;
@@ -3203,6 +3204,35 @@ void convoi_t::rdwr(loadsave_t *file)
 		livery_scheme_index = 0;
 	}
 
+	if(file->get_experimental_version() >= 10 && file->get_version() >= 110006)
+	{
+		file->rdwr_longlong(arrival_time);
+
+		//arrival_to_first_stop table
+		//
+		uint8 items_count = arrival_to_first_stop.get_count();
+		file->rdwr_byte(items_count);
+		if (file->is_loading() ) {
+			for (uint8 i = 0; i < items_count; ++i )
+			{
+				sint64 item_value;
+				file->rdwr_longlong( item_value );
+				arrival_to_first_stop.add_to_tail(item_value);
+			}
+		} else {
+			for (uint8 i = 0; i < items_count; ++i )
+			{
+				sint64 item_value = arrival_to_first_stop[i];
+				file->rdwr_longlong( item_value );
+			}
+		}
+
+	}
+	else
+	{
+		arrival_time = welt->get_zeit_ms();
+	}
+
 	// This must come *after* all the loading/saving.
 	if( file->is_loading() ) {
 		recalc_catg_index();
@@ -3429,6 +3459,8 @@ void convoi_t::laden() //"load" (Babelfish)
 	//@author: jamespetts
 	const uint32 journey_distance = accurate_distance(fahr[0]->get_pos().get_2d(), fahr[0]->last_stop_pos);
 
+	//last_stop_pos will be set to get_pos().get_2d() in hat_gehalten (called from inside halt->request_loading later
+	//so code inside if will be executed once. At arrival time.
 	if(journey_distance > 0)
 	{
 		const sint64 journey_time = ((welt->get_zeit_ms() - last_departure_time) * 100) / 4096;
@@ -3439,6 +3471,7 @@ void convoi_t::laden() //"load" (Babelfish)
 		{
 			book(average_speed, CONVOI_AVERAGE_SPEED);
 		}
+		arrival_time = welt->get_zeit_ms();
 	}
 	last_departure_time = welt->get_zeit_ms();
 		
@@ -3465,21 +3498,6 @@ void convoi_t::laden() //"load" (Babelfish)
 	}
 
 	halthandle_t halt = haltestelle_t::get_halt(welt, fpl->get_current_eintrag().pos,besitzer_p);
-	if(go_on_ticks==WAIT_INFINITE) {
-		sint64 go_on_ticks_spacing = WAIT_INFINITE;
-		if (line.is_bound() && fpl->get_spacing() && line->count_convoys()) {
-			uint32 spacing = welt->ticks_per_world_month/fpl->get_spacing();
-			uint32 spacing_shift = fpl->get_current_eintrag().spacing_shift * welt->ticks_per_world_month/welt->get_settings().get_spacing_shift_divisor();
-			sint64 wait_from_ticks = ((welt->get_zeit_ms()- spacing_shift)/spacing) * spacing + spacing_shift; // remember, it is integer division
-			int queue_pos = halt.is_bound()?halt->get_queue_pos(self):1;
-			go_on_ticks_spacing = wait_from_ticks + spacing * queue_pos;
-		}
-		sint64 go_on_ticks_waiting = WAIT_INFINITE;
-		if ( fpl->get_current_eintrag().waiting_time_shift>0) {
-			go_on_ticks_waiting = welt->get_zeit_ms() + (welt->ticks_per_world_month >> (16-fpl->get_current_eintrag().waiting_time_shift));
-		}
-		go_on_ticks = (std::min)(go_on_ticks_spacing, go_on_ticks_waiting);
-	}
 	// eigene haltestelle ?
 	// "own stop?" (Babelfish)
 	if (halt.is_bound()) 
@@ -3508,7 +3526,9 @@ void convoi_t::laden() //"load" (Babelfish)
 		}
 	}
 
-	wait_lock = longest_loading_time;
+	if (wait_lock == 0 ) {
+		wait_lock = WTT_LOADING;
+	}
 }
 
 sint64 convoi_t::calc_revenue(ware_t& ware)
@@ -3984,8 +4004,33 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 		book(gewinn, CONVOI_REVENUE);
 	}
 
-	// Nun wurde ein/ausgeladen werden
-	if(loading_level>=loading_limit  ||  no_load  ||  welt->get_zeit_ms()>go_on_ticks)  {
+	if(go_on_ticks==WAIT_INFINITE) {
+		if (!loading_limit) {
+			go_on_ticks = arrival_time + longest_loading_time;
+		} else {
+			sint64 go_on_ticks_spacing = WAIT_INFINITE;
+			if (line.is_bound() && fpl->get_spacing() && line->count_convoys()) {
+				uint32 spacing = welt->ticks_per_world_month/fpl->get_spacing();
+				uint32 spacing_shift = fpl->get_current_eintrag().spacing_shift * welt->ticks_per_world_month/welt->get_settings().get_spacing_shift_divisor();
+					sint64 wait_from_ticks = ((welt->get_zeit_ms()- spacing_shift)/spacing) * spacing + spacing_shift; // remember, it is integer division
+				int queue_pos = halt.is_bound()?halt->get_queue_pos(self):1;
+				go_on_ticks_spacing = wait_from_ticks + spacing * queue_pos;
+			}
+			sint64 go_on_ticks_waiting = WAIT_INFINITE;
+			if ( fpl->get_current_eintrag().waiting_time_shift>0) {
+				go_on_ticks_waiting = welt->get_zeit_ms() + (welt->ticks_per_world_month >> (16-fpl->get_current_eintrag().waiting_time_shift));
+			}
+			go_on_ticks = (std::min)(go_on_ticks_spacing, go_on_ticks_waiting);
+			go_on_ticks = (std::max)(arrival_time + longest_loading_time, go_on_ticks);
+		}
+	}
+
+	bool can_go = false;
+	can_go = loading_level>=loading_limit;
+	can_go = can_go || welt->get_zeit_ms()>go_on_ticks;
+	can_go = can_go && welt->get_zeit_ms() > arrival_time + longest_loading_time;
+	can_go = can_go || no_load;
+	if(can_go) {
 
 		if(withdraw  &&  (loading_level==0  ||  goods_catg_index.empty())) {
 			// destroy when empty
@@ -4004,7 +4049,16 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	}
 
 	// at least wait the minimum time for loading
-	wait_lock = longest_loading_time;
+	if ( state == ROUTING_1 ) {
+		wait_lock = WTT_LOADING;
+	} else {
+		wait_lock = WTT_LOADING + (go_on_ticks - welt->get_zeit_ms())/2 + (self.get_id())%1024;
+		if ( wait_lock > WTT_LOADING * 4 ) {
+			wait_lock = WTT_LOADING * 4;
+		} else if (wait_lock < 0 ) {
+				wait_lock = WTT_LOADING;
+		}
+	}
 }
 
 
@@ -4990,14 +5044,14 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int s
  */
 void convoi_t::snprintf_remained_loading_time(char *p, size_t size) const
 {
-	if (go_on_ticks == WAIT_INFINITE || go_on_ticks < welt->get_zeit_ms())
-	{
-		*p = '\0';
-	}
-	else
-	{
+	if ( go_on_ticks != WAIT_INFINITE && go_on_ticks >= welt->get_zeit_ms()) {
 		uint32 ticks_left = (int)(go_on_ticks - welt->get_zeit_ms());
-		win_sprintf_ticks(p, size, ticks_left);
+		welt->sprintf_ticks(p, size, ticks_left);
+	} else if ( arrival_time + longest_loading_time >= welt->get_zeit_ms()) {
+		uint32 ticks_left = (int)(arrival_time + longest_loading_time - welt->get_zeit_ms());
+		welt->sprintf_ticks(p, size, ticks_left);
+	} else {
+		*p = '\0';
 	}
 }
 
