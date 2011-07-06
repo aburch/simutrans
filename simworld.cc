@@ -6644,5 +6644,5 @@ void karte_t::calc_max_road_check_depth()
 void karte_t::sprintf_ticks(char *p, size_t size, uint32 ticks) {
 	unsigned int hours = (ticks * 24) >> ticks_per_world_month_shift;
 	unsigned int minutes = ((ticks * 24 * 60) >> ticks_per_world_month_shift)%60;
-	snprintf(p, size, "%u:%02u", hours, minutes);
+	sprintf(p, "%u:%02u", hours, minutes);
 }
