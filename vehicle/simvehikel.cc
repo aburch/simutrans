@@ -1325,7 +1325,7 @@ void vehikel_t::hop()
 	
 	if(gr != NULL)
 	{
-		calc_akt_speed(gr);
+		calc_drag_coefficient(gr);
 	}
 
 	sint8 trim_size = pre_corner_direction.get_count() - direction_steps;
@@ -1613,7 +1613,7 @@ sint32 vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::rib
 }
 
 /** gets the waytype specific friction on straight flat way.
- * extracted from vehikel_t::calc_akt_speed()
+ * extracted from vehikel_t::calc_drag_coefficient()
  * @author Bernd Gabriel, Nov, 05 2009
  */
 sint16 get_friction_of_waytype(waytype_t waytype)
@@ -1632,7 +1632,7 @@ sint16 get_friction_of_waytype(waytype_t waytype)
  * flat, slope, (curve)...
  * @author prissi, HJ, Dwachs
  */
-void vehikel_t::calc_akt_speed(const grund_t *gr) //,const int h_alt, const int h_neu)
+void vehikel_t::calc_drag_coefficient(const grund_t *gr) //,const int h_alt, const int h_neu)
 {
 	if(gr == NULL)
 	{
@@ -3789,7 +3789,7 @@ bool schiff_t::ist_befahrbar(const grund_t *bd) const
  * @author prissi
  */
 void
-schiff_t::calc_akt_speed(const grund_t *gr)
+schiff_t::calc_drag_coefficient(const grund_t *gr)
 {
 	// flat water
 	current_friction = get_friction_of_waytype(water_wt);
