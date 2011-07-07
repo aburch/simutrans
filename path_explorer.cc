@@ -745,14 +745,14 @@ void path_explorer_t::compartment_t::step()
 					
 					if(current_linkage.line.is_bound() && current_linkage.line->get_schedule() && current_linkage.line->count_convoys() && current_linkage.line->average_speeds->is_contained(pair))
 					{
-						uint32 point_to_point_average_speed = current_linkage.line->average_speeds->get(pair).get_average();
-						journey_time_factor = (journey_time_adjustment * 100) / point_to_point_average_speed;
+						const uint32 point_to_point_average_speed = current_linkage.line->average_speeds->get(pair).get_average();
+						journey_time_factor = (journey_time_adjustment * 100) / (point_to_point_average_speed == 0 ? current_average_speed : point_to_point_average_speed);
 						current_linkage.line->average_speeds->access(pair)->reset();
 					}
 					else if(current_linkage.convoy.is_bound() && current_linkage.convoy->get_schedule() && current_linkage.convoy->average_speeds->is_contained(pair))
 					{
-						uint32 point_to_point_average_speed = current_linkage.convoy->average_speeds->get(pair).get_average();
-						journey_time_factor = (journey_time_adjustment * 100) / point_to_point_average_speed;
+						const uint32 point_to_point_average_speed = current_linkage.convoy->average_speeds->get(pair).get_average();
+						journey_time_factor = (journey_time_adjustment * 100) / (point_to_point_average_speed == 0 ? current_average_speed : point_to_point_average_speed);
 						current_linkage.convoy->average_speeds->access(pair)->reset();
 					}
 
