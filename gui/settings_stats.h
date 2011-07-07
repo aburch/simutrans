@@ -35,6 +35,8 @@ class settings_t;
 	remove_all();\
 	free_all();\
 	seperator = 0;\
+	new_world = (win_get_magic( magic_welt_gui_t )!=NULL);\
+
 
 #define INIT_NUM(t,a,b,c,d,e) \
 {\
@@ -53,6 +55,8 @@ class settings_t;
 	ypos += BUTTON_HEIGHT;\
 }\
 
+#define INIT_NUM_NEW(t,a,b,c,d,e) if(  new_world  ) INIT_NUM( (t), (a), (b), (c), (d) , (e) )
+
 #define INIT_COST(t,a,b,c,d,e) \
 {\
 	width = max(width, proportional_string_width(t)+66);\
@@ -70,6 +74,8 @@ class settings_t;
 	ypos += BUTTON_HEIGHT;\
 }\
 
+#define INIT_COST_NEW(t,a,b,c,d,e) if(  new_world  ) INIT_COST( (t), (a), (b), (c), (d) , (e) )
+
 #define INIT_LB(t) \
 {\
 	width = max(width, proportional_string_width(t)+4);\
@@ -80,6 +86,8 @@ class settings_t;
 	add_komponente( lb );\
 	ypos += BUTTON_HEIGHT;\
 }\
+
+#define INIT_LB_NEW(t) if(  new_world  ) INIT_LB( (t) )
 
 #define INIT_BOOL(t,a) \
 {\
@@ -92,6 +100,8 @@ class settings_t;
 	ypos += BUTTON_HEIGHT;\
 }\
 
+#define INIT_BOOL_NEW(t,a) if(  new_world  ) INIT_BOOL( (t), (a) )
+
 #define SEPERATOR \
 	ypos += 7;\
 	seperator += 1;\
@@ -103,11 +113,16 @@ class settings_t;
 	slist_iterator_tpl<button_t *>booliter(button);
 
 #define READ_NUM(t) numiter.next(); (t)( numiter.get_current()->get_value() )
+#define READ_NUM_NEW(t) if(new_world) { READ_NUM(t); }
 #define READ_COST(t) numiter.next(); (t)( (sint64)(numiter.get_current()->get_value())*100 )
 #define READ_NUM_VALUE(t) numiter.next(); (t) = numiter.get_current()->get_value()
+#define READ_NUM_VALUE_NEW(t) if(new_world) { READ_NUM_VALUE(t); }
 #define READ_COST_VALUE(t) numiter.next(); (t) = (sint64)(numiter.get_current()->get_value())*100
+#define READ_COST_VALUE_NEW(t) if(new_world) { READ_COST_VALUE(t); }
 #define READ_BOOL(t) booliter.next(); (t)( booliter.get_current()->pressed )
+#define READ_BOOL_NEW(t) if(new_world) { READ_BOOL(t); }
 #define READ_BOOL_VALUE(t) booliter.next(); (t) = booliter.get_current()->pressed
+#define READ_BOOL_VALUE_NEW(t) if(new_world) { READ_BOOL_VALUE(t); }
 
 /*
 	uint32 read_numinp = 0;\
@@ -130,6 +145,7 @@ class settings_stats_t
 {
 protected:
 	sint16 width, seperator;
+	bool new_world;
 	// since the copy constructor will no copy the right action listener => pointer
 	slist_tpl<gui_label_t *> label;
 	slist_tpl<gui_numberinput_t *> numinp;

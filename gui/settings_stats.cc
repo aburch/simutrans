@@ -77,8 +77,8 @@ void settings_general_stats_t::init(settings_t const* const sets)
 	SEPERATOR
 	INIT_NUM( "bits_per_month", sets->get_bits_per_month(), 16, 24, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "use_timeline", sets->get_use_timeline(), 0, 3, gui_numberinput_t::AUTOLINEAR, false );
-	INIT_NUM( "starting_year", sets->get_starting_year(), 0, 2999, gui_numberinput_t::AUTOLINEAR, false );
-	INIT_NUM( "starting_month", sets->get_starting_month(), 0, 11, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM_NEW( "starting_year", sets->get_starting_year(), 0, 2999, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM_NEW( "starting_month", sets->get_starting_month(), 0, 11, gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR
 	INIT_NUM( "water_animation_ms", umgebung_t::water_animation, 0, 1000, 25, false );
 	INIT_NUM( "random_grounds_probability", umgebung_t::ground_object_probability, 0, 0x7FFFFFFFul, gui_numberinput_t::POWER2, false );
@@ -140,8 +140,8 @@ void settings_general_stats_t::read(settings_t* const sets)
 
 	READ_NUM_VALUE( sets->bits_per_month );
 	READ_NUM_VALUE( sets->use_timeline );
-	READ_NUM_VALUE( sets->starting_year );
-	READ_NUM_VALUE( sets->starting_month );
+	READ_NUM_VALUE_NEW( sets->starting_year );
+	READ_NUM_VALUE_NEW( sets->starting_month );
 
 	READ_NUM_VALUE( umgebung_t::water_animation );
 	READ_NUM_VALUE( umgebung_t::ground_object_probability );
@@ -229,7 +229,7 @@ void settings_economy_stats_t::init(settings_t const* const sets)
 	INIT_INIT
 	INIT_COST( "starting_money", sets->get_starting_money(sets->get_starting_year()), 1, 0x7FFFFFFFul, 10000, false );
 	INIT_NUM( "pay_for_total_distance", sets->get_pay_for_total_distance_mode(), 0, 2, gui_numberinput_t::AUTOLINEAR, true );
-	INIT_BOOL( "first_beginner", sets->get_beginner_mode() );
+	INIT_BOOL_NEW( "first_beginner", sets->get_beginner_mode() );
 	INIT_NUM( "beginner_price_factor", sets->get_beginner_price_factor(), 1, 25000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_BOOL( "allow_buying_obsolete_vehicles", sets->get_allow_buying_obsolete_vehicles() );
 	INIT_NUM( "used_vehicle_reduction", sets->get_used_vehicle_reduction(), 0, 1000, gui_numberinput_t::AUTOLINEAR, false );
@@ -283,7 +283,7 @@ void settings_economy_stats_t::read(settings_t* const sets)
 		sets->starting_money = start_money_temp;
 	}
 	READ_NUM_VALUE( sets->pay_for_total_distance );
-	READ_BOOL_VALUE( sets->beginner_mode );
+	READ_BOOL_VALUE_NEW( sets->beginner_mode );
 	READ_NUM_VALUE( sets->beginner_price_factor );
 	READ_BOOL_VALUE( sets->allow_buying_obsolete_vehicles );
 	READ_NUM_VALUE( sets->used_vehicle_reduction );
@@ -386,9 +386,9 @@ void settings_climates_stats_t::init(settings_t* const sets)
 {
 	local_sets = sets;
 	INIT_INIT
-	INIT_NUM( "Water level", sets->get_grundwasser(), -10, 0, gui_numberinput_t::AUTOLINEAR, false );
-	INIT_NUM( "Mountain height", sets->get_max_mountain_height(), 0, 320, 10, false );
-	INIT_NUM( "Map roughness", (sets->get_map_roughness()*20.0 + 0.5)-8, 0, 7, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM_NEW( "Water level", sets->get_grundwasser(), -10, 0, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM_NEW( "Mountain height", sets->get_max_mountain_height(), 0, 320, 10, false );
+	INIT_NUM_NEW( "Map roughness", (sets->get_map_roughness()*20.0 + 0.5)-8, 0, 7, gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR
 	INIT_LB( "Summer snowline" );
 	INIT_NUM( "Winter snowline", sets->get_winter_snowline(), sets->get_grundwasser(), 24, gui_numberinput_t::AUTOLINEAR, false );
@@ -406,9 +406,9 @@ void settings_climates_stats_t::init(settings_t* const sets)
 	buf.printf( "%s %i", translator::translate( "Summer snowline" ), arctic );
 	label.at(3)->set_text( buf );
 	SEPERATOR
-	INIT_NUM( "Number of rivers", sets->get_river_number(), 0, 1024, gui_numberinput_t::AUTOLINEAR, false );
-	INIT_NUM( "minimum length of rivers", sets->get_min_river_length(), 0, max(16,sets->get_max_river_length())-16, gui_numberinput_t::AUTOLINEAR, false );
-	INIT_NUM( "maximum length of rivers", sets->get_max_river_length(), sets->get_min_river_length()+16, 8196, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM_NEW( "Number of rivers", sets->get_river_number(), 0, 1024, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM_NEW( "minimum length of rivers", sets->get_min_river_length(), 0, max(16,sets->get_max_river_length())-16, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM_NEW( "maximum length of rivers", sets->get_max_river_length(), sets->get_min_river_length()+16, 8196, gui_numberinput_t::AUTOLINEAR, false );
 	// add listener to all of them
 	slist_iterator_tpl<gui_numberinput_t *>iter(numinp);
 	while(  iter.next()  ) {
@@ -417,13 +417,13 @@ void settings_climates_stats_t::init(settings_t* const sets)
 	// the following are independent and thus need no listener
 	SEPERATOR
 	INIT_BOOL( "no tree", sets->get_no_trees() );
-	INIT_NUM( "forest_base_size", sets->get_forest_base_size(), 10, 255, 1, false );
-	INIT_NUM( "forest_map_size_divisor", sets->get_forest_map_size_divisor(), 2, 255, 1, false );
-	INIT_NUM( "forest_count_divisor", sets->get_forest_count_divisor(), 2, 255, 1, false );
-	INIT_NUM( "forest_inverse_spare_tree_density", sets->get_forest_inverse_spare_tree_density(), 0, 100, 1, false );
-	INIT_NUM( "max_no_of_trees_on_square", sets->get_max_no_of_trees_on_square(), 1, 6, 1, true );
-	INIT_NUM( "tree_climates", sets->get_tree_climates(), 0, 255, 1, false );
-	INIT_NUM( "no_tree_climates", sets->get_no_tree_climates(), 0, 255, 1, false );
+	INIT_NUM_NEW( "forest_base_size", sets->get_forest_base_size(), 10, 255, 1, false );
+	INIT_NUM_NEW( "forest_map_size_divisor", sets->get_forest_map_size_divisor(), 2, 255, 1, false );
+	INIT_NUM_NEW( "forest_count_divisor", sets->get_forest_count_divisor(), 2, 255, 1, false );
+	INIT_NUM_NEW( "forest_inverse_spare_tree_density", sets->get_forest_inverse_spare_tree_density(), 0, 100, 1, false );
+	INIT_NUM_NEW( "max_no_of_trees_on_square", sets->get_max_no_of_trees_on_square(), 1, 6, 1, true );
+	INIT_NUM_NEW( "tree_climates", sets->get_tree_climates(), 0, 255, 1, false );
+	INIT_NUM_NEW( "no_tree_climates", sets->get_no_tree_climates(), 0, 255, 1, false );
 
 	clear_dirty();
 	set_groesse( settings_stats_t::get_groesse() );
@@ -433,11 +433,13 @@ void settings_climates_stats_t::init(settings_t* const sets)
 void settings_climates_stats_t::read(settings_t* const sets)
 {
 	READ_INIT
-	READ_NUM_VALUE( sets->grundwasser );
-	READ_NUM_VALUE( sets->max_mountain_height );
+	READ_NUM_VALUE_NEW( sets->grundwasser );
+	READ_NUM_VALUE_NEW( sets->max_mountain_height );
 	double n;
-	READ_NUM_VALUE( n );
-	sets->map_roughness = (n+8.0)/20.0;
+	READ_NUM_VALUE_NEW( n );
+	if(  new_world  ) {
+		sets->map_roughness = (n+8.0)/20.0;
+	}
 	READ_NUM_VALUE( sets->winter_snowline );
 	// other climate borders ...
 	sint16 arctic = 0;
@@ -453,17 +455,17 @@ void settings_climates_stats_t::read(settings_t* const sets)
 	buf.clear();
 	buf.printf( "%s %i", translator::translate( "Summer snowline" ), arctic );
 	label.at(3)->set_text( buf );
-	READ_NUM_VALUE( sets->river_number );
-	READ_NUM_VALUE( sets->min_river_length );
-	READ_NUM_VALUE( sets->max_river_length );
+	READ_NUM_VALUE_NEW( sets->river_number );
+	READ_NUM_VALUE_NEW( sets->min_river_length );
+	READ_NUM_VALUE_NEW( sets->max_river_length );
 	READ_BOOL_VALUE( sets->no_trees );
-	READ_NUM_VALUE( sets->forest_base_size );
-	READ_NUM_VALUE( sets->forest_map_size_divisor );
-	READ_NUM_VALUE( sets->forest_count_divisor );
-	READ_NUM_VALUE( sets->forest_inverse_spare_tree_density );
-	READ_NUM_VALUE( sets->max_no_of_trees_on_square );
-	READ_NUM_VALUE( sets->tree_climates );
-	READ_NUM_VALUE( sets->no_tree_climates );
+	READ_NUM_VALUE_NEW( sets->forest_base_size );
+	READ_NUM_VALUE_NEW( sets->forest_map_size_divisor );
+	READ_NUM_VALUE_NEW( sets->forest_count_divisor );
+	READ_NUM_VALUE_NEW( sets->forest_inverse_spare_tree_density );
+	READ_NUM_VALUE_NEW( sets->max_no_of_trees_on_square );
+	READ_NUM_VALUE_NEW( sets->tree_climates );
+	READ_NUM_VALUE_NEW( sets->no_tree_climates );
 }
 
 
