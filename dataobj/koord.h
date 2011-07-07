@@ -77,6 +77,25 @@ private:
 	static const koord from_hang[16];
 };
 
+struct koord_pair
+{
+	koord first;
+	koord second;
+
+	koord_pair(koord a, koord b)
+	{
+		first = a;
+		second = b;
+	}
+
+	koord_pair()
+	{
+		first = koord::invalid;
+		second = koord::invalid;
+	}
+
+};
+
 static inline uint32 int_sqrt(const uint32 num) 
 {
     if (0 == num) 
@@ -181,6 +200,23 @@ static inline bool operator == (const koord& a, int b)
 	// For hashtable use.
 	return b == 0 && a == koord::invalid;
 }
+
+static inline bool operator == (const koord_pair &a, const koord_pair &b)
+{
+	return (a.first == b.first && a.second == b.second) || (a.first == b.second && b.first == a.second);
+}
+
+static inline bool operator == (const koord_pair &a, int b)
+{
+	// For hashtable use.
+	return b == 0 && a.first == koord::invalid && a.second == koord::invalid;
+}
+
+static inline bool operator != (const koord_pair &a, const koord_pair &b)
+{
+	return (a.first != b.first || a.second != b.second) && (a.first != b.second || a.second != b.first);
+}
+
 
 ///**
 // * Ordering based on relative distance to a fixed point `origin'.

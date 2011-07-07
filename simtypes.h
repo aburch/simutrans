@@ -151,11 +151,10 @@ template<class T> static T set_scale_generic(T value, uint16 scale_factor) { ret
 
 template<class T> class average_tpl
 {
-private:
+public:
 	T total;
 	T count;
 
-public:
 	average_tpl()
 	{
 		reset();
@@ -167,8 +166,12 @@ public:
 		count ++;
 	}
 
-	inline T get_average()
+	inline T get_average() const
 	{
+		if(count == 0)
+		{
+			return 0;
+		}
 		return total / count;
 	}
 
