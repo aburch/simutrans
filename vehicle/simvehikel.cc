@@ -2321,7 +2321,7 @@ void vehikel_t::display_after(int xpos, int ypos, bool is_gobal) const
 							sprintf( tooltip_text, translator::translate("Loading (%i->%i%%)!"), cnv->get_loading_level(), cnv->get_loading_limit());
 						}
 					} else {
-						tstrncpy( tooltip_text, waiting_time, lengthof(tooltip_text) );
+						sprintf( tooltip_text, translator::translate("Loading. %s left!"), waiting_time);
 					}
 					color = COL_YELLOW;
 				}
