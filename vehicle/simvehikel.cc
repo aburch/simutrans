@@ -1661,7 +1661,7 @@ void vehikel_t::calc_drag_coefficient(const grund_t *gr) //,const int h_alt, con
 		{
 			//Uphill
 			//current_friction += 45;
-			current_friction = min(base_friction + 120, current_friction + 60);
+			current_friction = min(base_friction + 80, current_friction + 45);
 		}
 		else
 		{
@@ -1672,7 +1672,7 @@ void vehikel_t::calc_drag_coefficient(const grund_t *gr) //,const int h_alt, con
 	}
 	else
 	{
-		current_friction = max(base_friction, current_friction - 10);
+		current_friction = max(base_friction, current_friction - 12);
 	}
 }
 
