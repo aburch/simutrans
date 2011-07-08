@@ -190,7 +190,7 @@ private:
 	 * @param h_alt alte Hoehe
 	 * @param h_neu neue Hoehe
 	 */
-	virtual void calc_akt_speed(const grund_t *gr);
+	virtual void calc_drag_coefficient(const grund_t *gr);
 
 	sint32 calc_modified_speed_limit(const koord3d *position, ribi_t::ribi current_direction, bool is_corner);
 
@@ -744,7 +744,7 @@ protected:
 	// how expensive to go here (for way search)
 	virtual int get_kosten(const grund_t *, const sint32, koord) const { return 1; }
 
-	void calc_akt_speed(const grund_t *gr);
+	void calc_drag_coefficient(const grund_t *gr);
 
 	//uint32 calc_modified_speed_limit(const weg_t *w, uint8 s, ribi_t::ribi current_direction) { return base_limit; }  //Ships do not modify speed limits.
 
@@ -856,8 +856,8 @@ public:
 	// this draws the "real" aircrafts (when flying)
 	virtual void display_after(int xpos, int ypos, bool dirty) const;
 
-	// the speed calculation happens it calc_height
-	void calc_akt_speed(const grund_t*) {}
+	// the drag calculation happens it calc_height
+	void calc_drag_coefficient(const grund_t*) {}
 
 	//uint32 calc_modified_speed_limit(const weg_t *w, uint32 base_limit, uint8 s, ribi_t::ribi current_direction) { return base_limit; } 
 
