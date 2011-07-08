@@ -389,9 +389,6 @@ settings_t::settings_t() :
 	// default: load also private extensions of the pak file
 	with_private_paks = true;
 
-	// The default is a selective refresh.
-	default_path_option = 2;
-
 	// The defaults for journey time tolerance.
 	// Applies to passengers only.
 	// NOTE: The *maximum* numbers need to be 
@@ -1112,9 +1109,10 @@ void settings_t::rdwr(loadsave_t *file)
 			enforce_weight_limits = enforce_weight_limits == 0 ? 0 : 1;
 		}
 		
-		if(file->get_experimental_version() >= 4)
+		if(file->get_experimental_version() >= 4 && file->get_experimental_version() < 10)
 		{
-			file->rdwr_byte(default_path_option);
+			uint8 dummy;
+			file->rdwr_byte(dummy);
 		}
 
 		if(file->get_experimental_version() >= 5)
@@ -1757,9 +1755,6 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	enforce_weight_limits = contents.get_int("enforce_weight_limits", enforce_weight_limits);
 
 	speed_bonus_multiplier_percent = contents.get_int("speed_bonus_multiplier_percent", speed_bonus_multiplier_percent);
-
-	bool path_searching_approach = contents.get_int("path_searching_approach", default_path_option == 2);
-	default_path_option = path_searching_approach ? 2 : 1;
 
 	// Multiply by 10 because journey times are measured in tenths of minutes.
 	//@author: jamespetts

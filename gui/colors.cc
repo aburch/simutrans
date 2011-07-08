@@ -64,9 +64,8 @@
 #define LOOP_DATA						(FRAME_DATA+13)
 
 #define SEPERATE5						(LOOP_DATA+13)
-
-#define CENTRALISED_SEARCH				(SEPERATE5+7)
-#define PHASE_REBUILD_CONNEXIONS		(CENTRALISED_SEARCH+13)
+		
+#define PHASE_REBUILD_CONNEXIONS		(SEPERATE5+7)
 #define PHASE_FILTER_ELIGIBLE			(PHASE_REBUILD_CONNEXIONS+13)
 #define PHASE_FILL_MATRIX				(PHASE_FILTER_ELIGIBLE+13)
 #define PHASE_EXPLORE_PATHS				(PHASE_FILL_MATRIX+13)
@@ -207,34 +206,17 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	buttons[b].set_tooltip("Shows a bar graph representing the number of passengers/mail/goods waiting at stops.");
 
 	//20
-	buttons[++b].set_pos( koord(10,CENTRALISED_SEARCH) );
-	buttons[b].set_typ(button_t::square_state);
-	buttons[b].set_text("Centralised path searching");
-	buttons[b].pressed =welt->get_settings().get_default_path_option() == 2;
-	buttons[b].set_tooltip("Use centralised instead of distributed path searching system.");
-	if(  umgebung_t::networkmode  ) {
-		buttons[b].disable();
-	}
-
-	//21
 	buttons[++b].set_pos( koord(10,SLICE) );
 	buttons[b].set_typ(button_t::square_state);
 	buttons[b].set_text("sliced underground mode");
 	buttons[b].set_tooltip("See under the ground, one layer at a time. Toggle with CTRL + U. Move up/down in layers with HOME and END.");
 
-	//22
+	//21
 	buttons[++b].set_pos( koord(10, LEFT_TO_RIGHT_GRAPHS) );
 	buttons[b].set_typ(button_t::square_state);
 	buttons[b].set_text("Inverse graphs");
 	buttons[b].pressed = !umgebung_t::left_to_right_graphs;
 	buttons[b].set_tooltip("Graphs right to left instead of left to right");
-	
-	//24
-	//buttons[++b].set_pos( koord(10, LEFT_TO_RIGHT_GRAPHS) );
-	//buttons[b].set_typ(button_t::square_state);
-	//buttons[b].set_text("Inverse graphs (other)");
-	//buttons[b].pressed = !umgebung_t::left_to_right_graphs;
-	//buttons[b].set_tooltip("Graphs showing non-financial information will appear from right to left instead of left to right")
 
 	// left/right for convoi tooltips
 	buttons[0].set_pos( koord(10,CONVOI_TOOLTIPS) );
@@ -369,10 +351,10 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		}
 	} else if((buttons+19)==komp) {
 		umgebung_t::show_names ^= 2;
-	} else if((buttons+21)==komp) {
+	} else if((buttons+20)==komp) {
 		// see simwerkz.cc::wkz_show_underground_t::init
-		grund_t::set_underground_mode(buttons[21].pressed ? grund_t::ugm_none : grund_t::ugm_level, inp_underground_level.get_value());
-		buttons[21].pressed = grund_t::underground_mode == grund_t::ugm_level;
+		grund_t::set_underground_mode(buttons[20].pressed ? grund_t::ugm_none : grund_t::ugm_level, inp_underground_level.get_value());
+		buttons[20].pressed = grund_t::underground_mode == grund_t::ugm_level;
 		// calc new images
 		welt->update_map();
 		// renew toolbar
@@ -383,30 +365,9 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 			// calc new images
 			welt->update_map();
 		}
-	} else if ((buttons+23)==komp) {
+	} else if ((buttons+21)==komp) {
 		umgebung_t::left_to_right_graphs ^= 1;
-		buttons[23].pressed = !umgebung_t::left_to_right_graphs;
-	} else if ((buttons+24)==komp) {
-		umgebung_t::left_to_right_graphs ^= 1;
-		buttons[24].pressed = !umgebung_t::left_to_right_graphs;
-	}
-
-	else if((buttons+20)==komp)
-	{
-		// TEMPORARY: Disable this because the distributed path search causes crashes. Re-enable when fixed.
-		const uint8 current_option =welt->get_settings().get_default_path_option();
-		if(current_option == 1)
-		{
-			welt->get_settings().set_default_path_option(2);
-			buttons[20].pressed = true;
-			path_explorer_t::full_instant_refresh();
-		}
-		else
-		{
-			welt->get_settings().set_default_path_option(1);
-			buttons[20].pressed = false;
-			haltestelle_t::prepare_pathing_data_structures();
-		}
+		buttons[21].pressed = !umgebung_t::left_to_right_graphs;
 	}
 
 	welt->set_dirty();
@@ -501,16 +462,9 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 
 	// Added by : Knightly
 	PLAYER_COLOR_VAL text_colour, figure_colour;
-	if (welt->get_settings().get_default_path_option() == 2 )
-	{
-		text_colour = COL_BLACK;
-		figure_colour = COL_BLUE;
-	}
-	else
-	{
-		text_colour = MN_GREY0;
-		figure_colour = COL_LIGHT_BLUE;
-	}
+
+	text_colour = COL_BLACK;
+	figure_colour = COL_BLUE;
 
 	char status_string[32];
 	if ( path_explorer_t::is_processing() )

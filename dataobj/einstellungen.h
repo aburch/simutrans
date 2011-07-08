@@ -344,11 +344,6 @@ private:
 
 	// true, if this pak should be used with extensions (default)
 	bool with_private_paks;
-
-	// Determine which path searching approach is used
-	// 1 = distributed approach
-	// 2 = centralised approach
-	uint8 default_path_option;
 	
 public:
 
@@ -729,10 +724,6 @@ public:
 	// true, if this pak should be used with extensions (default)
 	void set_with_private_paks(bool b ) {with_private_paks = b;}
 	bool get_with_private_paks() const { return with_private_paks; }
-
-
-	inline uint8 get_default_path_option() const { return default_path_option; }
-	inline void set_default_path_option(const uint8 value) { default_path_option = value; }
 
 	// @author: jamespetts
 	uint16 get_min_local_tolerance() const { return min_local_tolerance; }
