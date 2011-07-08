@@ -1434,10 +1434,7 @@ DBG_DEBUG("karte_t::init()","built timeline");
 	mute_sound(false);
 
 	// Added by : Knightly
-	if (settings.get_default_path_option() == 2)
-	{
-		path_explorer_t::full_instant_refresh();
-	}
+	path_explorer_t::full_instant_refresh();
 
 	// Set the actual industry density and industry density proportion
 	actual_industry_density = 0;
@@ -1638,14 +1635,7 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	fabrikbauer_t::neue_karte( this );
 
 	// Modified by : Knightly
-	if ( settings.get_default_path_option() == 2 )
-	{
-		path_explorer_t::refresh_all_categories(true);
-	}
-	else
-	{
-		set_schedule_counter();
-	}
+	path_explorer_t::refresh_all_categories(true);
 
 	// Refresh the haltlist for the affected tiles / stations.
 	// It is enough to check the tile just at the border ...
@@ -2684,14 +2674,7 @@ void karte_t::rotate90()
 
 	// finally recalculate schedules for goods in transit ...
 	// Modified by : Knightly
-	if ( settings.get_default_path_option() == 2 )
-	{
-		path_explorer_t::refresh_all_categories(true);
-	}
-	else
-	{
-		set_schedule_counter();
-	}
+	path_explorer_t::refresh_all_categories(true);
 
 	set_dirty();
 }
@@ -3305,10 +3288,7 @@ void karte_t::neuer_monat()
 
 	// Added by : Knightly
 	// Note		: This should be done after all lines and convoys have rolled their statistics
-	if ( settings.get_default_path_option() == 2 )
-	{
-		path_explorer_t::refresh_all_categories(true);
-	}
+	path_explorer_t::refresh_all_categories(true);
 
 	set_citycar_speed_average();
 	calc_generic_road_speed_city();
@@ -3659,12 +3639,8 @@ void karte_t::step()
 
 
 	// Knightly : calling global path explorer
-	if ( settings.get_default_path_option() == 2 )
-	{
-		path_explorer_t::step();
-		INT_CHECK("karte_t::step");
-	}
-	
+	path_explorer_t::step();
+	INT_CHECK("karte_t::step");
 	
 	DBG_DEBUG4("karte_t::step", "step convois");
 	// since convois will be deleted during stepping, we need to step backwards
@@ -5334,10 +5310,7 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 	}
 
 	// Added by : Knightly
-	if ( settings.get_default_path_option() == 2 )
-	{
-		path_explorer_t::full_instant_refresh();
-	}
+	path_explorer_t::full_instant_refresh();
 
 	clear_random_mode(LOAD_RANDOM);
 	
@@ -6235,7 +6208,7 @@ bool karte_t::interactive(uint32 quit_month)
 			}
 
 			// Knightly : send changed limits to server where necessary
-			if(  settings.get_default_path_option()==2  &&  path_explorer_t::are_local_limits_changed()  ) {
+			if(path_explorer_t::are_local_limits_changed()  ) {
 				path_explorer_t::limit_set_t local_limits = path_explorer_t::get_local_limits();
 				network_send_server( new nwc_routesearch_t(sync_steps, map_counter, local_limits, false) );
 				path_explorer_t::reset_local_limits_state();
@@ -6304,7 +6277,8 @@ bool karte_t::interactive(uint32 quit_month)
 			}
 
 			// Knightly : check if changed limits, if any, have to be transmitted to all clients
-			if(  settings.get_default_path_option()==2  &&  umgebung_t::server  ) {
+			if(umgebung_t::server) 
+			{
 				nwc_routesearch_t::check_for_transmission( this );
 			}
 

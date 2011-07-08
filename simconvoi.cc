@@ -284,7 +284,7 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 			// New method - recalculate as necessary
 			
 			// Added by : Knightly
-			haltestelle_t::refresh_routing(fpl, goods_catg_index, besitzer_p,welt->get_settings().get_default_path_option());
+			haltestelle_t::refresh_routing(fpl, goods_catg_index, besitzer_p);
 		}
 		delete fpl;
 	}
@@ -1161,7 +1161,7 @@ end_loop:
 						else
 						{
 							// refresh only those categories which are either removed or added to the category list
-							haltestelle_t::refresh_routing(fpl, differences, besitzer_p,welt->get_settings().get_default_path_option());
+							haltestelle_t::refresh_routing(fpl, differences, besitzer_p);
 						}
 					}
 
@@ -1651,7 +1651,7 @@ void convoi_t::start()
 			// New method - recalculate as necessary
 			
 			// Added by : Knightly
-			haltestelle_t::refresh_routing(fpl, goods_catg_index, besitzer_p,welt->get_settings().get_default_path_option());
+			haltestelle_t::refresh_routing(fpl, goods_catg_index, besitzer_p);
 		}
 		wait_lock = 0;
 
@@ -2047,17 +2047,17 @@ bool convoi_t::set_schedule(schedule_t * f)
 		{
 			if ( !old_fpl->matches(welt, fpl) )
 			{
-				haltestelle_t::refresh_routing(old_fpl, goods_catg_index, besitzer_p, 0);
-				haltestelle_t::refresh_routing(fpl, goods_catg_index, besitzer_p,welt->get_settings().get_default_path_option());
+				haltestelle_t::refresh_routing(old_fpl, goods_catg_index, besitzer_p);
+				haltestelle_t::refresh_routing(fpl, goods_catg_index, besitzer_p);
 			}
 		}
 		else
 		{
 			if (fpl != f)
 			{
-				haltestelle_t::refresh_routing(fpl, goods_catg_index, besitzer_p, 0);
+				haltestelle_t::refresh_routing(fpl, goods_catg_index, besitzer_p);
 			}
-			haltestelle_t::refresh_routing(f, goods_catg_index, besitzer_p,welt->get_settings().get_default_path_option());
+			haltestelle_t::refresh_routing(f, goods_catg_index, besitzer_p);
 		}
 	}
 	
@@ -2092,7 +2092,6 @@ bool convoi_t::set_schedule(schedule_t * f)
 			// Knightly : if line is unset or schedule is changed
 			//				-> register stops from new schedule
 			register_stops();
-			welt->set_schedule_counter();	// must trigger refresh
 		}
 	}
 

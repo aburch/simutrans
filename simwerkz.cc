@@ -5132,14 +5132,8 @@ const char *wkz_stop_moving_t::do_work( karte_t *welt, spieler_t *sp, const koor
 		// since factory connections may have changed
 
 		// Modified by : Knightly
-		if (welt->get_settings().get_default_path_option() == 2)
-		{
-			path_explorer_t::refresh_all_categories(true);
-		}
-		else
-		{
-			welt->set_schedule_counter();
-		}
+
+		path_explorer_t::refresh_all_categories(true);
 	}
 	return NULL;
 }

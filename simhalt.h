@@ -333,12 +333,6 @@ private:
 	// Knightly : Change into an array of pointers to connexion hash tables
 	quickstone_hashtable_tpl<haltestelle_t, connexion*> **connexions;
 
-	quickstone_hashtable_tpl<haltestelle_t, path*> *paths;
-
-	// The number of iterations of paths currently traversed. Used for
-	// detecting when max_transfers has been reached.
-	uint32 *iterations;
-
 	// loest warte_menge ab
 	// "solves wait mixes off" (Babelfish); "solves warte volume from" (Google)
 
@@ -463,17 +457,8 @@ private:
 	// @author: jamespetts
 	koordhashtable_tpl<koord, waiting_time_set >* waiting_times;
 
-	// Used for pathfinding. The list is stored on the heap so that it can be re-used
-	// if searching is aborted part-way through.
-	// @author: jamespetts
-	binary_heap_tpl<path_node*> *open_list;
-
 	// void flush_open_list(uint8 category);
 	void flush_paths(uint8 category);
-
-	// Whether the search for the destination has completed: if so, the search will not
-	// re-run unless the results are stale.
-	bool *search_complete;
 
 	// When the connexions were last recalculated. Needed for checking whether they need to
 	// be recalculated again. 
@@ -498,10 +483,6 @@ private:
 	// Added by : Knightly
 	// Purpose	: To keep track of any need for re-routing existing goods packets in the halt
 	bool *reroute;
-
-	// Added by : Knightly
-	// Purpose	: To keep track if pathing data structures are present or not
-	bool has_pathing_data_structures;
 
 	// Added by : Knightly
 	// Purpose	: To store the time at which this halt is created
@@ -907,12 +888,6 @@ public:
 
 	quickstone_hashtable_tpl<haltestelle_t, connexion*>* get_connexions(uint8 c); 
 
-	// Finds the best path from here to the goal halt.
-	// Looks up the paths in the hashtable - if the table
-	// is not stale, and the path is in it, use that, or else
-	// search for a new path.
-	path* get_path_to(halthandle_t goal, uint8 category);
-
 	linehandle_t get_preferred_line(halthandle_t transfer, uint8 category) const;
 	convoihandle_t get_preferred_convoy(halthandle_t transfer, uint8 category) const;
 
@@ -927,7 +902,7 @@ public:
 	// Purpose		: To notify relevant halts to rebuild connexions and to notify all halts to recalculate paths
 	// @jamespetts: modified the code to combine with previous method and provide options about partially delayed refreshes for performance.
 
-	static void refresh_routing(const schedule_t *const sched, const minivec_tpl<uint8> &categories, const spieler_t *const player, const uint8 path_option);
+	static void refresh_routing(const schedule_t *const sched, const minivec_tpl<uint8> &categories, const spieler_t *const player);
 
 	// Added by		: Knightly
 	// Adpated from : rebuild_connexions()
@@ -935,10 +910,6 @@ public:
 	// Return		: -1 if self halt is not found; or position of self halt in halt list if found
 	// Caution		: halt_list will be overwritten
 	sint16 create_reachable_halt_list(const schedule_t *const sched, const spieler_t *const sched_owner, minivec_tpl<halthandle_t> &halt_list);
-
-	// Added by : Knightly
-	// Purpose	: For all halts, check if pathing data structures are present; if not, create and initialize them
-	static void prepare_pathing_data_structures();
 
 
 	// Added by		: Knightly

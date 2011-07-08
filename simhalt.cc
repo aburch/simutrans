@@ -338,34 +338,6 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 	}
 	do_alternative_seats_calculation = true;
 
-	// Modified by : Knightly
-	// Purpose	   : To withhold creation of pathing data structures if they are not needed
-	if (welt->get_settings().get_default_path_option() == 2)
-	{
-		paths = NULL;
-		open_list = NULL;
-
-		search_complete = NULL;
-		iterations = NULL;
-
-		has_pathing_data_structures = false;
-	}
-	else
-	{
-		paths = new quickstone_hashtable_tpl<haltestelle_t, path* >[max_categories];
-		open_list = new binary_heap_tpl<path_node*>[max_categories];
-
-		search_complete = new bool[max_categories];
-		iterations = new uint32[max_categories];
-		for(uint8 i = 0; i < max_categories; i ++)
-		{
-			search_complete[i] = false;
-			iterations[i] = 0;
-		}
-
-		has_pathing_data_structures = true;
-	}
-
 	paths_timestamp = new uint16[max_categories];
 	connexions_timestamp = new uint16[max_categories];
 	reschedule = new bool[max_categories];
@@ -379,9 +351,6 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 	}
 
 	status_color = COL_YELLOW;
-
-	// reroute_counter = welt->get_schedule_counter()-1;
-	rebuilt_destination_counter = welt->get_schedule_counter()-1;
 
 	enables = NOT_ENABLED;
 
@@ -414,7 +383,6 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 
 	enables = NOT_ENABLED;
 
-	reroute_counter = welt->get_schedule_counter()-1;
 	rebuilt_destination_counter = reroute_counter;
 	last_catg_index = 255;	// force total reouting
 
@@ -447,34 +415,6 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 
 	if(welt->ist_in_kartengrenzen(k)) {
 		welt->access(k)->set_halt(self);
-	}
-
-	// Modified by : Knightly
-	// Purpose	   : To withhold creation of pathing data structures if they are not needed
-	if (welt->get_settings().get_default_path_option() == 2)
-	{
-		paths = NULL;
-		open_list = NULL;
-
-		search_complete = NULL;
-		iterations = NULL;
-
-		has_pathing_data_structures = false;
-	}
-	else
-	{
-		paths = new quickstone_hashtable_tpl<haltestelle_t, path* >[max_categories];
-		open_list = new binary_heap_tpl<path_node*>[max_categories];
-
-		search_complete = new bool[max_categories];
-		iterations = new uint32[max_categories];
-		for(uint8 i = 0; i < max_categories; i ++)
-		{
-			search_complete[i] = false;
-			iterations[i] = 0;
-		}
-
-		has_pathing_data_structures = true;
 	}
 
 	paths_timestamp = new uint16[max_categories];
@@ -596,23 +536,6 @@ haltestelle_t::~haltestelle_t()
 
 	delete[] connexions;
 	delete[] waiting_times;
-
-	// Modified by : Knightly
-	// Purpose	   : Check if pathing data structures are present first before doing the relevant clean-up
-	if (has_pathing_data_structures)
-	{
-		for(uint8 i = 0; i < max_categories; i++)
-		{
-			flush_paths(i);
-			open_list[i].delete_all_node_objects();
-		}
-
-		delete[] paths;
-		delete[] open_list;
-
-		delete[] search_complete;
-		delete[] iterations;
-	}
 
 	delete[] paths_timestamp;
 	delete[] connexions_timestamp;
@@ -1015,62 +938,34 @@ void haltestelle_t::request_loading( convoihandle_t cnv )
 
 void haltestelle_t::step(sint16 &units_remaining)
 {
-	if (welt->get_settings().get_default_path_option() != 2)
+	
+	// Knightly : 
+	//   Except rescheduling above, reroute_goods() needs to be invoked
+	//   Only goods categories scheduled for re-routing will actually be re-routed
+	const uint32 packets_rerouted = reroute_goods();
+
+	if ( packets_rerouted > 0 )
 	{
-		if(rebuilt_destination_counter != welt->get_schedule_counter()) 
-		{		
-			// Must recalculate all here, since this is non-specific.
-			for(uint8 i = 0; i < warenbauer_t::get_max_catg_index(); i ++)
-			{
-				reschedule[i] = true;
-				reroute[i] = true;		// Added by : Knightly
-			}
-
-			// update status
-			status_step = RESCHEDULING;
-			// Knightly : 
-			//   Since this phase doesn't do any actual work, 
-			//   units_remaining do not need to be decremented.
-			//   This will cause all halts to set reschedule
-			//   and reroute flags to true in at most 2 steps.
-
-			// Relocated from rebuild_connexions() by Knightly
-			// Reason : Now rebuild_connexions() is performed only on demand, 
-			//			so it's necessary to reset counter here right away
-			rebuilt_destination_counter = welt->get_schedule_counter();
+		if ( packets_rerouted >= units_remaining )
+		{
+			units_remaining = 0;
 		}
 		else
 		{
-			// Knightly : 
-			//   Except rescheduling above, reroute_goods() needs to be invoked
-			//   Only goods categories scheduled for re-routing will actually be re-routed
-			const uint32 packets_rerouted = reroute_goods();
-
-			if ( packets_rerouted > 0 )
-			{
-				if ( packets_rerouted >= units_remaining )
-				{
-					units_remaining = 0;
-				}
-				else
-				{
-					units_remaining -= packets_rerouted;
-				}
-			}
-			else
-			{
-				--units_remaining;
-			}
-
-			// Knightly : update status
-			//   There is no idle state in Experimental
-			//   as rerouting request may be sent via
-			//   refresh_routing() instead of
-			//   karte_t::set_schedule_counter()
-			status_step = REROUTING;
+			units_remaining -= packets_rerouted;
 		}
-		recalc_status();
 	}
+	else
+	{
+		--units_remaining;
+	}
+
+	// Knightly : update status
+	//   There is no idle state in Experimental
+	//   as rerouting request may be sent via
+	//   refresh_routing() instead of
+	//   karte_t::set_schedule_counter()
+	status_step = REROUTING;
 
 	recalc_status();
 	
@@ -1733,239 +1628,9 @@ void haltestelle_t::rebuild_connexions(const uint8 category)
 	}
 }
 
-//@author: jamespetts
-// Modified by : Knightly
-void haltestelle_t::calculate_paths(const halthandle_t goal, const uint8 category)
-{
-	// Use Dijkstra's Algorithm to find all the best routes from here at once
-	// http://en.wikipedia.org/wiki/Dijkstra%27s_algorithm
-
-	// Only recalculate when necessary (i.e., on schedule change, or
-	// after a certain period of time has elapsed), and in any event
-	// not until a destination from this halt is requested, to prevent
-	// the game pausing and becoming unresponsive whilst everything is
-	// re-calculated all at the same time.
-
-	if((category == 0 && !get_pax_enabled()) || (category == 1 && !get_post_enabled()) || (category > 1 && !get_ware_enabled()))
-	{
-		// Cannot route from this station: do not try.
-		return;
-	}
-	
-	if(reschedule[category] || connexions_timestamp[category] <= welt->get_base_pathing_counter() -welt->get_settings().get_max_rerouting_interval_months())
-	{
-		// Connexions are stale. Recalculate.
-		rebuild_connexions(category);
-		// Not clearing the open list would be faster, but could give anomalous results.
-		// Thus, if connexions are stale, all new paths will be recalculated from scratch.
-		if(!open_list[category].empty())
-		{
-			// flush_open_list(category);
-			open_list[category].delete_all_node_objects();
-		}
-	}
-	if(paths_timestamp[category] <= welt->get_base_pathing_counter() -welt->get_settings().get_max_rerouting_interval_months())
-	{
-		// List is stale. Recalculate.
-		// If this is false, then this is only being called to finish 
-		// calculating paths that have not yet been calculated.
-		if(!open_list[category].empty())
-		{
-			// flush_open_list(category);
-			open_list[category].delete_all_node_objects();
-		}
-
-		// Reset the timestamp.
-		paths_timestamp[category] = welt->get_base_pathing_counter();
-	}
-
-	if(open_list[category].empty())
-	{
-		// Only reset the list if it is empty, so as to allow for re-using the open
-		// list on subsequent occasions of finding a path. 
-		const uint32 total_halts = alle_haltestellen.get_count();
-		const sint32 max_transfers =welt->get_settings().get_max_transfers();
-		max_iterations = total_halts * max_transfers;
-		
-		iterations[category] = 0;
-		path_node* starting_node = new path_node();
-		starting_node->halt = self;
-		starting_node->journey_time = 0;
-		open_list[category].insert(starting_node);
-	}
-
-	path_node* current_node = NULL;
-	quickstone_hashtable_tpl<haltestelle_t, connexion*> *current_connexions = NULL;
-	connexion* current_connexion = NULL;
-	path_node* new_node = NULL;
-	halthandle_t next_halt;
-	path* current_path= NULL;
-	uint8 interrupt_counter = 0;
-
-	while(open_list[category].get_count() > 0)
-	{	
-		current_node = open_list[category].pop();
-
-		if(!current_node->halt.is_bound() || paths[category].get(current_node->halt) != NULL)
-		{
-			// Only insert into the open list if the 
-			// item is not already on the closed list,
-			// and the halt has not been deleted since 
-			// being added to the open list.
-			delete current_node;
-			continue;
-		}
-
-		current_path = new path();
-		
-		// Add only if not already contained
-		if(paths[category].put(current_node->halt, current_path))
-		{
-			// Set journey time
-			current_path->journey_time = current_node->journey_time;
-
-			// Determine immediate transfer halt
-			if (current_node->link == NULL)
-			{
-				// case : origin path node
-				current_path->halt = halthandle_t();
-			}
-			else if (!current_node->link->halt.is_bound())
-			{
-				// case : current halt is the immediate transfer
-				current_path->halt = current_node->halt;
-			}
-			else
-			{
-				// case : path nodes after immediate transfer
-				current_path->halt = current_node->link->halt;
-			}
-
-			// Knightly : always fetch the connexion hashtable 
-			//   This will force rebuilding of connexions and 
-			//   recalculation of non-identical schedules where necessary
-			current_connexions = current_node->halt->get_connexions(category);
-
-			// Add reachable halts to open list only if current halt is a transfer halt
-			if ( current_node->halt->non_identical_schedules[category] > 1 || current_node->link == NULL )
-			{
-				quickstone_hashtable_iterator_tpl<haltestelle_t, connexion*> iter(*current_connexions);
-
-				while(iter.next() && iterations[category] < max_iterations && max_iterations != 0)
-				{
-					next_halt = iter.get_current_key();
-					if(paths[category].get(next_halt) != NULL)
-					{
-						// Only insert into the open list if the 
-						// item is not already on the closed list.
-						continue;
-					}
-
-					current_connexion = iter.get_current_value();
-
-					if(current_node->previous_best_line == current_connexion->best_line 
-						&& current_node->previous_best_convoy == current_connexion->best_convoy)
-					{
-						continue;
-					}
-					iterations[category]++;
-					new_node = new path_node;
-					new_node->halt = next_halt;
-					new_node->journey_time = current_node->journey_time + current_connexion->journey_time + current_connexion->waiting_time;
-					new_node->link = current_path;
-					new_node->previous_best_line = current_connexion->best_line;
-					new_node->previous_best_convoy = current_connexion->best_convoy;
-
-					open_list[category].insert(new_node);
-				}
-			}
-		}
-		else
-		{
-			delete current_path;
-			current_path = NULL;
-		}
-
-		// call INT_CHECK() only every 256 iterations
-		if ( ++interrupt_counter == 0 )
-		{
-			INT_CHECK( "simhalt 1892" );
-		}
-
-		if(current_node->halt == goal)
-		{
-			// Abort the search early if the goal stop is found.
-			// Because the open list is stored on the heap, the search
-			// can be resumed where it left off if another goal, as yet
-			// not found, is searched for, unless the index is stale.
-
-			if(open_list[category].empty())
-			{
-				search_complete[category] = true;
-			}
-
-			delete current_node;
-			return;
-		}	
-		
-		delete current_node;
-	}
-	
-	// If the code has reached here without returning, the search is complete.
-	search_complete[category] = true;
-}
-
-void haltestelle_t::flush_paths(uint8 category)
-{
-	quickstone_hashtable_iterator_tpl<haltestelle_t, path* > iter(paths[category]);
-	vector_tpl<halthandle_t> delete_list;
-	while(iter.next())
-	{
-		delete iter.get_current_value();
-	}
-	paths[category].clear();
-}
-
-
-haltestelle_t::path* haltestelle_t::get_path_to(halthandle_t goal, uint8 category) 
-{
-	assert(goal.is_bound());
-	path* destination_path;
-	
-	if(reschedule[category] || paths_timestamp[category] <= welt->get_base_pathing_counter() -welt->get_settings().get_max_rerouting_interval_months())
-	{
-		// If the paths hashtable is stale, clear it.
-		// This will mean that all the paths will need to be recalculated.
-		// Must always recalculate if the schedules change.
-
-		flush_paths(category);
-		//paths[category].clear();
-		search_complete[category] = false;
-	}
-
-	destination_path = paths[category].get(goal);
-
-	if((destination_path == NULL || !destination_path->halt.is_bound()) && !search_complete[category])
-	{
-		// The pathfinding is incomplete or stale - recalculate
-		// If the next transfer is not bound even though the search
-		// is complete, then there is no admissible path to the goal.
-		calculate_paths(goal, category);
-		destination_path = paths[category].get(goal);
-	}
-
-	return destination_path;
-}
 
 quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>* haltestelle_t::get_connexions(uint8 c)
-{ 
-
-	if(welt->get_settings().get_default_path_option() != 2 && ( reschedule[c] || connexions_timestamp[c] <= welt->get_base_pathing_counter() -welt->get_settings().get_max_rerouting_interval_months() ) )
-	{
-		// Rebuild the connexions if they are stale.
-		rebuild_connexions(c);
-	}
-	
+{ 	
 	return connexions[c]; 
 }
 
@@ -1980,7 +1645,7 @@ void haltestelle_t::force_paths_stale(const uint8 category)
 // Adapted from : Jamespetts' code
 // Purpose		: To notify relevant halts to rebuild connexions
 // @jamespetts: modified the code to combine with previous method and provide options about partially delayed refreshes for performance.
-void haltestelle_t::refresh_routing(const schedule_t *const sched, const minivec_tpl<uint8> &categories, const spieler_t *const player, const uint8 path_option)
+void haltestelle_t::refresh_routing(const schedule_t *const sched, const minivec_tpl<uint8> &categories, const spieler_t *const player)
 {
 	// Path options: 
 	// 0 = skip		: no paths will be forced stale
@@ -1993,86 +1658,14 @@ void haltestelle_t::refresh_routing(const schedule_t *const sched, const minivec
 	{
 		const uint8 catg_count = categories.get_count();
 
-		if (path_option == 2)
+		for (uint8 i = 0; i < catg_count; i++)
 		{
-			for (uint8 i = 0; i < catg_count; i++)
-			{
-				path_explorer_t::refresh_category(categories[i]);
-			}
-		}
-		else
-		{
-			// Iterate over each line item in the schedule for connexions reconstruction
-			const uint8 entry_count = sched->get_count();
-
-			if(welt == NULL)
-			{
-				welt = player->get_welt();
-			}
-
-			for (uint8 i = 0; i < entry_count; i++)
-			{
-				tmp_halt = get_halt(welt, sched->eintrag[i].pos, player);
-				
-				if(tmp_halt.is_bound())
-				{
-					for (uint8 j = 0; j < catg_count; j++)
-					{
-						tmp_halt->reschedule[categories[j]] = true;
-						if (path_option == 1)
-						{
-							tmp_halt->paths_timestamp[categories[j]] = 0;
-							tmp_halt->reroute[categories[j]] = true;
-						}
-					}
-				}
-				else
-				{
-					dbg->error("convoi_t::refresh_routing()", "Halt in schedule does not exist");
-				}
-			}
+			path_explorer_t::refresh_category(categories[i]);
 		}
 	}
 	else
 	{
 		dbg->error("convoi_t::refresh_routing()", "Schedule or player is NULL");
-	}
-}
-
-// Added by : Knightly
-// Purpose	: For all halts, check if pathing data structures are present; if not, create and initialize them 
-void haltestelle_t::prepare_pathing_data_structures()
-{
-	slist_iterator_tpl<halthandle_t> iter(alle_haltestellen);
-	const uint8 max_categories = warenbauer_t::get_max_catg_index();
-	halthandle_t current_halt;
-
-	while (iter.next())
-	{
-		current_halt = iter.get_current();
-
-		if (!current_halt->has_pathing_data_structures)
-		{
-			// create data structures
-			current_halt->paths = new quickstone_hashtable_tpl<haltestelle_t, path* >[max_categories];
-			current_halt->open_list = new binary_heap_tpl<path_node*>[max_categories];
-
-			current_halt->search_complete = new bool[max_categories];
-			current_halt->iterations = new uint32[max_categories];
-
-			current_halt->has_pathing_data_structures = true;
-		}
-
-		for (uint8 i = 0; i < max_categories; i++)
-		{
-			// reset all flags to trigger recalculations
-			current_halt->search_complete[i] = false;
-			current_halt->iterations[i] = 0;
-			current_halt->paths_timestamp[i] = 0;
-			current_halt->connexions_timestamp[i] = 0;
-			current_halt->reschedule[i] = true;
-			current_halt->reroute[i] = true;
-		}
 	}
 }
 
@@ -2126,66 +1719,34 @@ uint16 haltestelle_t::find_route(minivec_tpl<halthandle_t> *ziel_list, ware_t &w
 
 
 	// Now, find the best route from here.
-	if (welt->get_settings().get_default_path_option() == 2)
+	// Added by		: Knightly
+	// Adapted from : James' code
+
+	uint16 test_time;
+	halthandle_t test_transfer;
+
+	halthandle_t best_destination;
+	halthandle_t best_transfer;
+
+	const uint8 ware_catg = ware.get_besch()->get_catg_index();
+
+	for (uint8 i = 0; i < ziel_list->get_count(); i++)
 	{
-		// Added by		: Knightly
-		// Adapted from : James' code
+		path_explorer_t::get_catg_path_between(ware_catg, self, (*ziel_list)[i], test_time, test_transfer);
 
-		uint16 test_time;
-		halthandle_t test_transfer;
-
-		halthandle_t best_destination;
-		halthandle_t best_transfer;
-
-		const uint8 ware_catg = ware.get_besch()->get_catg_index();
-
-		for (uint8 i = 0; i < ziel_list->get_count(); i++)
+		if( test_time < journey_time )
 		{
-			path_explorer_t::get_catg_path_between(ware_catg, self, (*ziel_list)[i], test_time, test_transfer);
-
-			if( test_time < journey_time )
-			{
-				best_destination = (*ziel_list)[i];
-				journey_time = test_time;
-				best_transfer = test_transfer;
-			}
-		}
-		
-		if( journey_time < previous_journey_time )
-		{
-			ware.set_ziel(best_destination);
-			ware.set_zwischenziel(best_transfer);
-			return journey_time;
+			best_destination = (*ziel_list)[i];
+			journey_time = test_time;
+			best_transfer = test_transfer;
 		}
 	}
-	else
-	{
-		sint16 best_destination = -1;
-
-		ITERATE_PTR(ziel_list,i)
-		{
-			path* test_path = get_path_to(ziel_list->get_element(i), ware.get_besch()->get_catg_index());
-			if(test_path != NULL && test_path->journey_time < journey_time && test_path->halt.is_bound())
-			{
-				journey_time = test_path->journey_time;
-				best_destination = i;
-			}
-		}
 		
-		if(journey_time < previous_journey_time && best_destination >= 0)
-		{
-			// If we are comparing this with other routes from different start halts,
-			// only set the details if it is the best route so far.
-			ware.set_ziel(ziel_list->get_element(best_destination));
-			path* final_path = get_path_to(ziel_list->get_element(best_destination), ware.get_besch()->get_catg_index());
-			if(final_path != NULL && final_path->halt.is_bound())
-			{
-				ware.set_zwischenziel(final_path->halt);
-				return final_path->journey_time;
-			}
-			dbg->error("haltestelle_t::find_route", "Path from %s to %s not found: next transfer missing", this->get_name(), ziel_list->get_element(best_destination).is_bound() ?  ziel_list->get_element(best_destination)->get_name() : "Unknown destination");
-			return 65535;
-		}
+	if( journey_time < previous_journey_time )
+	{
+		ware.set_ziel(best_destination);
+		ware.set_zwischenziel(best_transfer);
+		return journey_time;
 	}
 	
 	return journey_time;
@@ -3849,14 +3410,7 @@ bool haltestelle_t::add_grund(grund_t *gr)
 
 	assert(welt->lookup(pos)->get_halt() == self  &&  gr->is_halt());
 	init_pos = tiles.front().grund->get_pos().get_2d();
-	if (welt->get_settings().get_default_path_option() == 2)
-	{
-		path_explorer_t::refresh_all_categories(false);
-	}
-	else
-	{
-		welt->set_schedule_counter();
-	}
+	path_explorer_t::refresh_all_categories(false);
 
 	return true;
 }
@@ -3888,14 +3442,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 
 	// now remove tile from list
 	tiles.erase(i);
-	if (welt->get_settings().get_default_path_option() == 2)
-	{
-		path_explorer_t::refresh_all_categories(false);
-	}
-	else
-	{
-		welt->set_schedule_counter();
-	}
+	path_explorer_t::refresh_all_categories(false);
 	init_pos = tiles.empty() ? koord::invalid : tiles.front().grund->get_pos().get_2d();
 
 	// re-add name
