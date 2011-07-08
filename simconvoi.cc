@@ -3486,7 +3486,12 @@ void convoi_t::laden() //"load" (Babelfish)
 
 	if(journey_distance > 0)
 	{
-		const sint64 journey_time = ((welt->get_zeit_ms() - last_departure_time) * 100) / 53248;
+		sint64 journey_time = ((welt->get_zeit_ms() - last_departure_time) * 100) / 53248;
+		if(journey_time == 0)
+		{
+			// Necessary to prevent divisions by zero.
+			journey_time = 1;
+		}
 		const sint32 average_speed = (((journey_distance * 10000) / (journey_time * 13)) * 20) / 100;
 		// For some odd reason, in some cases, laden() is called when the journey time is
 		// excessively low, resulting in perverse average speeds. 
