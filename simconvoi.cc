@@ -210,7 +210,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 
 	livery_scheme_index = 0;
 
-	average_journey_times = new koord_pair_hashtable_tpl<koord_pair, average_tpl<uint16> >;
+	average_journey_times = new koordhashtable_tpl<koord, average_tpl<uint16> >;
 }
 
 
@@ -219,7 +219,7 @@ convoi_t::convoi_t(karte_t* wl, loadsave_t* file) : fahr(max_vehicle, NULL)
 	self = convoihandle_t(this);
 	init(wl, 0);
 	replace = NULL;
-	average_journey_times = new koord_pair_hashtable_tpl<koord_pair, average_tpl<uint16> >;
+	average_journey_times = new koordhashtable_tpl<koord, average_tpl<uint16> >;
 	rdwr(file);
 	current_stop = fpl == NULL ? 255 : fpl->get_aktuell() - 1;
 
@@ -246,7 +246,7 @@ convoi_t::convoi_t(spieler_t* sp) : fahr(max_vehicle, NULL)
 
 	livery_scheme_index = 0;
 
-	average_journey_times = new koord_pair_hashtable_tpl<koord_pair, average_tpl<uint16> >;
+	average_journey_times = new koordhashtable_tpl<koord, average_tpl<uint16> >;
 }
 
 
@@ -3438,7 +3438,7 @@ void convoi_t::laden() //"load" (Babelfish)
 	// This is necessary in order always to return the same pairs of co-ordinates for comparison.
 	const halthandle_t this_halt = welt->get_halt_koord_index(fahr[0]->get_pos().get_2d());
 	const halthandle_t last_halt = welt->get_halt_koord_index(fahr[0]->last_stop_pos);
-	const koord_pair pair(this_halt->get_basis_pos(), last_halt->get_basis_pos());
+	const koord pair(this_halt.get_id(), last_halt.get_id());
 	
 	// The calculation of the journey distance does not need to use normalised halt locations for comparison, so
 	// a more accurate distance can be used. Query whether the formula from halt_detail.cc should be used here instead
@@ -3447,8 +3447,8 @@ void convoi_t::laden() //"load" (Babelfish)
 
 	if(journey_distance > 0)
 	{
-		const sint64 journey_time = ((welt->get_zeit_ms() - last_departure_time) * 100) / 4096;
-		const sint32 average_speed = (((journey_distance * 10000) / journey_time) * 20) / 100;
+		const sint64 journey_time = ((welt->get_zeit_ms() - last_departure_time) * 100) / 53248;
+		const sint32 average_speed = (((journey_distance * 10000) / (journey_time * 13)) * 20) / 100;
 		// For some odd reason, in some cases, laden() is called when the journey time is
 		// excessively low, resulting in perverse average speeds. 
 		if(average_speed <= speed_to_kmh(get_min_top_speed()))
@@ -3459,7 +3459,7 @@ void convoi_t::laden() //"load" (Babelfish)
 		if(!average_journey_times->is_contained(pair))
 		{
 			average_tpl<uint16> average;
-			average.add(journey_time / 13);
+			average.add(journey_time);
 			average_journey_times->put(pair, average);
 		}
 		else
@@ -3471,7 +3471,7 @@ void convoi_t::laden() //"load" (Babelfish)
 			if(!line->average_journey_times->is_contained(pair))
 			{
 				average_tpl<uint16> average;
-				average.add(journey_time / 13);
+				average.add(journey_time);
 				line->average_journey_times->put(pair, average);
 			}
 			else
@@ -3603,11 +3603,11 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	{
 		if(line.is_bound())
 		{
-			journey_minutes = line->average_journey_times->get(koord_pair(ware.get_origin()->get_basis_pos(), welt->get_halt_koord_index(fahr[0]->get_pos().get_2d())->get_basis_pos())).get_average();
+			journey_minutes = line->average_journey_times->get(koord(ware.get_origin().get_id(), welt->get_halt_koord_index(fahr[0]->get_pos().get_2d()).get_id())).get_average();
 		}
 		else
 		{
-			journey_minutes = average_journey_times->get(koord_pair(ware.get_origin()->get_basis_pos(), welt->get_halt_koord_index(fahr[0]->get_pos().get_2d())->get_basis_pos())).get_average();
+			journey_minutes = average_journey_times->get(koord(ware.get_origin().get_id(), welt->get_halt_koord_index(fahr[0]->get_pos().get_2d()).get_id())).get_average();
 		}
 	}
 

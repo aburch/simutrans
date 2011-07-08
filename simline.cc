@@ -40,7 +40,7 @@ simline_t::simline_t(karte_t* welt, spieler_t* sp, linetype type)
 
 	create_schedule();
 
-	average_journey_times = new koord_pair_hashtable_tpl<koord_pair, average_tpl<uint16> >;
+	average_journey_times = new koordhashtable_tpl<koord, average_tpl<uint16> >;
 }
 
 
@@ -53,7 +53,7 @@ simline_t::simline_t(karte_t* welt, spieler_t* sp, linetype type, loadsave_t *fi
 	this->fpl = NULL;
 	this->sp = sp;
 	create_schedule();
-	average_journey_times = new koord_pair_hashtable_tpl<koord_pair, average_tpl<uint16> >;
+	average_journey_times = new koordhashtable_tpl<koord, average_tpl<uint16> >;
 	rdwr(file);
 	// now self has the right id but the this-pointer is not assigned to the quickstone handle yet
 	// do this explicitly

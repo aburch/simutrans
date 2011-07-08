@@ -287,23 +287,6 @@ public:
 
 	const slist_tpl<tile_t> &get_tiles() const { return tiles; };
 
-	/**
-	 * directly reachable halt with its connection weight
-	 * @author Knightly
-	 */
-	//struct connection_t
-	//{
-	//	halthandle_t halt;
-	//	uint16 weight;
-
-	//	connection_t() : weight(0) { }
-	//	connection_t(halthandle_t _halt, uint16 _weight=0) : halt(_halt), weight(_weight) { }
-
-	//	bool operator == (const connection_t &other) const { return halt == other.halt; }
-	//	bool operator != (const connection_t &other) const { return halt != other.halt; }
-	//	static bool compare(const connection_t &a, const connection_t &b) { return a.halt.get_id() < b.halt.get_id(); }
-	//};
-
 private:
 	slist_tpl<tile_t> tiles;
 
