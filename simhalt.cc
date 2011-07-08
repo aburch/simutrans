@@ -69,18 +69,46 @@ slist_tpl<halthandle_t> haltestelle_t::alle_haltestellen;
 
 stringhashtable_tpl<halthandle_t> haltestelle_t::all_names;
 
+static uint32 halt_iterator_start = 0;
 uint8 haltestelle_t::status_step = 0;
 
 void haltestelle_t::step_all()
 {
 	if (!alle_haltestellen.empty())
 	{
+		uint32 it = halt_iterator_start;
 		slist_iterator_tpl <halthandle_t> iter( alle_haltestellen );
-		while(iter.next())
+		while(it > 0 && iter.next()) 
 		{
-			// iterate until the specified number of units were handled
-			iter.get_current()->step();
+			it--;
 		}
+
+		if(it > 0)
+		{
+			halt_iterator_start = 0;
+		}
+		else
+		{
+			sint16 count = 256;
+			while(count > 0) 
+			{
+				if(!iter.next())
+				{
+					halt_iterator_start = 0;
+					break;
+				}
+				// iterate until the specified number of units were handled
+				iter.get_current()->step();
+
+				halt_iterator_start ++;
+			}
+		}
+	}
+
+	else
+	{
+		// save reinit
+		halt_iterator_start = 0;
 	}
 }
 
