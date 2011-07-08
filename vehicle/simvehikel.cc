@@ -3251,6 +3251,7 @@ bool waggon_t::is_weg_frei_choose_signal( signal_t *sig, const uint16 start_bloc
 	}
 
 	if(  !choose_ok  ) {
+		assert(  !target_halt.is_bound()  );
 		// just act as normal signal
 		if(  block_reserver( cnv->get_route(), start_block+1, next_signal, next_crossing, 0, true, false )  ) {
 			sig->set_zustand(  roadsign_t::gruen );
@@ -3271,6 +3272,7 @@ bool waggon_t::is_weg_frei_choose_signal( signal_t *sig, const uint16 start_bloc
 
 		if(!cnv->is_waiting()) {
 			restart_speed = -1;
+			target_halt = halthandle_t();
 			return false;
 		}
 		// now we are in a step and can use the route search array
@@ -4749,8 +4751,12 @@ void aircraft_t::display_after(int xpos_org, int ypos_org, bool is_global) const
 		int xpos = xpos_org, ypos = ypos_org;
 
 		const int raster_width = get_current_tile_raster_width();
+		const sint16 z = get_pos().z;
+		if (z + flughoehe/TILE_HEIGHT_STEP - 1 > grund_t::underground_level) {
+			return;
+		}
+		const sint16 target = target_height - ((sint16)z*TILE_HEIGHT_STEP)/Z_TILE_STEP;
 		sint16 current_flughohe = flughoehe;
-		const sint16 target = target_height - ((sint16)get_pos().z*TILE_HEIGHT_STEP)/Z_TILE_STEP;
 		if(  current_flughohe < target  ) {
 			current_flughohe += (steps*TILE_HEIGHT_STEP) >> 8;
 		}
