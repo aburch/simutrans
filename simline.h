@@ -17,7 +17,6 @@
 
 #include "tpl/minivec_tpl.h"
 #include "tpl/vector_tpl.h"
-#include "tpl/koord_pair_hashtable_tpl.h"
 
 #define MAX_LINE_COST			10 // Total number of cost items
 #define MAX_MONTHS				12 // Max history
@@ -235,7 +234,7 @@ public:
 	* The table of point-to-point average speeds.
 	* @author jamespetts
 	*/
-	koord_pair_hashtable_tpl<koord_pair, average_tpl<uint16> > * average_journey_times;
+	koordhashtable_tpl<koord, average_tpl<uint16> > * average_journey_times;
 
 };
 

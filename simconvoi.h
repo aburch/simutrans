@@ -16,7 +16,7 @@
 #include "vehicle/overtaker.h"
 #include "tpl/array_tpl.h"
 #include "tpl/fixed_list_tpl.h"
-#include "tpl/koord_pair_hashtable_tpl.h"
+#include "tpl/koordhashtable_tpl.h"
 #include "tpl/minivec_tpl.h"
 
 #include "convoihandle_t.h"
@@ -813,7 +813,7 @@ public:
 	* The table of point-to-point average speeds.
 	* @author jamespetts
 	*/
-	koord_pair_hashtable_tpl<koord_pair, average_tpl<uint16> > * average_journey_times;
+	koordhashtable_tpl<koord, average_tpl<uint16> > * average_journey_times;
 
 #if 0
 private:
