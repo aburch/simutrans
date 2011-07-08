@@ -471,8 +471,6 @@ ifneq ($(findstring $(OSTYPE), cygwin mingw),)
   WINDRES ?= windres
 endif
 
-CCFLAGS += -DUSE_INDEPENDENT_PATH_POOL -DDEBUG_SIMRAND_CALLS
-
 CCFLAGS  += $(CFLAGS)
 CXXFLAGS += $(CFLAGS)
 
