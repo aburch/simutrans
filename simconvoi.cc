@@ -3554,18 +3554,18 @@ void convoi_t::laden() //"load" (Babelfish)
 
 sint64 convoi_t::calc_revenue(ware_t& ware)
 {
-	sint64 average_speed;
+	sint64 overall_average_speed;
 	
 	if(!line.is_bound())
 	{
 		// No line - must use convoy
 		if(financial_history[1][CONVOI_AVERAGE_SPEED] == 0)
 		{
-			average_speed = financial_history[0][CONVOI_AVERAGE_SPEED];
+			overall_average_speed = financial_history[0][CONVOI_AVERAGE_SPEED];
 		}
 		else
 		{	
-			average_speed = financial_history[1][CONVOI_AVERAGE_SPEED];
+			overall_average_speed = financial_history[1][CONVOI_AVERAGE_SPEED];
 		}
 	}
 
@@ -3573,11 +3573,11 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	{
 		if(line->get_finance_history(1, LINE_AVERAGE_SPEED) == 0)
 		{
-			average_speed = line->get_finance_history(0, LINE_AVERAGE_SPEED);
+			overall_average_speed = line->get_finance_history(0, LINE_AVERAGE_SPEED);
 		}
 		else
 		{	
-			average_speed = line->get_finance_history(1, LINE_AVERAGE_SPEED);
+			overall_average_speed = line->get_finance_history(1, LINE_AVERAGE_SPEED);
 		}
 	}
 
@@ -3592,14 +3592,41 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 
 	ware.reset_accumulated_distance();
 
-	if(average_speed == 0)
+	if(overall_average_speed == 0)
 	{
-		average_speed = 1;
+		overall_average_speed = 1;
 	}
 	
 	// 100/1667 = 60min/hr / 1000 m/km
-	const uint16 journey_minutes = (((distance * 100) / average_speed) * welt->get_settings().get_meters_per_tile()) / 1667;
+	uint16 journey_minutes = 0;
+	if(ware.get_origin().is_bound())
+	{
+		if(line.is_bound())
+		{
+			journey_minutes = line->average_journey_times->get(koord_pair(ware.get_origin()->get_basis_pos(), welt->get_halt_koord_index(fahr[0]->get_pos().get_2d())->get_basis_pos())).get_average();
+		}
+		else
+		{
+			journey_minutes = average_journey_times->get(koord_pair(ware.get_origin()->get_basis_pos(), welt->get_halt_koord_index(fahr[0]->get_pos().get_2d())->get_basis_pos())).get_average();
+		}
+	}
 
+	sint64 average_speed;
+	if(journey_minutes == 0)
+	{
+		// Fallback to the overall average speed if there are no data for point-to-point timings.
+		journey_minutes = (((distance * 100) / overall_average_speed) * welt->get_settings().get_meters_per_tile()) / 1667;
+		average_speed = overall_average_speed;
+	}
+	else
+	{
+		average_speed = (sint64)(((distance * 10000) / (journey_minutes * 13)) * 20) / 100;
+		if(average_speed == 0)
+		{
+			average_speed = 1;
+		}
+	}
+	
 	const ware_besch_t* goods = ware.get_besch();
 	const sint64 price = (sint64)goods->get_preis();
 	const sint64 min_price = price / 10ll;
