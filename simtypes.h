@@ -149,6 +149,39 @@ static inline int max(const int a, const int b)
 // @author: jamespetts, April 2011
 template<class T> static T set_scale_generic(T value, uint16 scale_factor) { return (value * (T)scale_factor) / 1000; }
 
+template<class T> class average_tpl
+{
+public:
+	T total;
+	T count;
+
+	average_tpl()
+	{
+		reset();
+	}
+
+	inline void add(T value)
+	{
+		total += value;
+		count ++;
+	}
+
+	inline T get_average() const
+	{
+		if(count == 0)
+		{
+			return 0;
+		}
+		return total / count;
+	}
+
+	inline void reset()
+	{
+		total = 0;
+		count = 0;
+	}		
+};
+
 // endian coversion routines
 
 static inline uint16 endian(uint16 v)

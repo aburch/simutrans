@@ -209,6 +209,8 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	recalc_data = true;
 
 	livery_scheme_index = 0;
+
+	average_journey_times = new koord_pair_hashtable_tpl<koord_pair, average_tpl<uint16> >;
 }
 
 
@@ -217,6 +219,7 @@ convoi_t::convoi_t(karte_t* wl, loadsave_t* file) : fahr(max_vehicle, NULL)
 	self = convoihandle_t(this);
 	init(wl, 0);
 	replace = NULL;
+	average_journey_times = new koord_pair_hashtable_tpl<koord_pair, average_tpl<uint16> >;
 	rdwr(file);
 	current_stop = fpl == NULL ? 255 : fpl->get_aktuell() - 1;
 
@@ -242,6 +245,8 @@ convoi_t::convoi_t(spieler_t* sp) : fahr(max_vehicle, NULL)
 	free_seats = 0;
 
 	livery_scheme_index = 0;
+
+	average_journey_times = new koord_pair_hashtable_tpl<koord_pair, average_tpl<uint16> >;
 }
 
 
@@ -285,6 +290,8 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 	}
 
 	clear_replace();
+
+	delete average_journey_times;
 
 	// @author hsiegeln - deregister from line (again) ...
 	unset_line();
@@ -3457,13 +3464,23 @@ void convoi_t::laden() //"load" (Babelfish)
 {
 	//Calculate average speed
 	//@author: jamespetts
+	
+	// This is necessary in order always to return the same pairs of co-ordinates for comparison.
+	const halthandle_t this_halt = welt->get_halt_koord_index(fahr[0]->get_pos().get_2d());
+	const halthandle_t last_halt = welt->get_halt_koord_index(fahr[0]->last_stop_pos);
+	const koord_pair pair(this_halt->get_basis_pos(), last_halt->get_basis_pos());
+	
+	// The calculation of the journey distance does not need to use normalised halt locations for comparison, so
+	// a more accurate distance can be used. Query whether the formula from halt_detail.cc should be used here instead
+	// (That formula has the effect of finding the distance between the nearest points of two halts).
 	const uint32 journey_distance = accurate_distance(fahr[0]->get_pos().get_2d(), fahr[0]->last_stop_pos);
 
 	//last_stop_pos will be set to get_pos().get_2d() in hat_gehalten (called from inside halt->request_loading later
 	//so code inside if will be executed once. At arrival time.
 	if(journey_distance > 0)
 	{
-		const sint64 journey_time = ((welt->get_zeit_ms() - last_departure_time) * 100) / 4096;
+		arrival_time = welt->get_zeit_ms();
+		const sint64 journey_time = ((arrival_time - last_departure_time) * 100) / 4096;
 		const sint32 average_speed = (((journey_distance * 10000) / journey_time) * 20) / 100;
 		// For some odd reason, in some cases, laden() is called when the journey time is
 		// excessively low, resulting in perverse average speeds. 
@@ -3471,9 +3488,33 @@ void convoi_t::laden() //"load" (Babelfish)
 		{
 			book(average_speed, CONVOI_AVERAGE_SPEED);
 		}
-		arrival_time = welt->get_zeit_ms();
+
+		if(!average_journey_times->is_contained(pair))
+		{
+			average_tpl<uint16> average;
+			average.add(journey_time / 13);
+			average_journey_times->put(pair, average);
+		}
+		else
+		{
+			average_journey_times->access(pair)->add(average_speed);
+		}
+		if(line.is_bound())
+		{
+			if(!line->average_journey_times->is_contained(pair))
+			{
+				average_tpl<uint16> average;
+				average.add(journey_time / 13);
+				line->average_journey_times->put(pair, average);
+			}
+			else
+			{
+				line->average_journey_times->access(pair)->add(journey_time);
+			}
+		}
 	}
-	last_departure_time = welt->get_zeit_ms();
+
+	last_departure_time = arrival_time;
 		
 	// Recalculate comfort
 	const uint8 comfort = get_comfort();
@@ -4232,7 +4273,7 @@ void convoi_t::book(sint64 amount, int cost_type)
 		// Average types
 		rolling_average[cost_type] += amount;
 		rolling_average_count[cost_type] ++;
-		sint32 tmp = rolling_average[cost_type] / rolling_average_count[cost_type];
+		const sint32 tmp = rolling_average[cost_type] / rolling_average_count[cost_type];
 		financial_history[0][cost_type] = tmp;
 	}
 	if (line.is_bound()) 

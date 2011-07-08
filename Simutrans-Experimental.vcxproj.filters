@@ -1778,6 +1778,9 @@
     <ClInclude Include="besch\reader\imagelist3d_reader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="tpl\koord_pair_hashtable_tpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="base_texts_experimental.dat">
