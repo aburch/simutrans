@@ -2307,7 +2307,6 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 	{
 		uint32 accumulated_journey_time = 0;
 		halthandle_t previous_halt = self;
-		sint32 average_speed = cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) > 0 ? cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) * 100 : cnv->get_finance_history(0, CONVOI_AVERAGE_SPEED) * 100;
 
 		// uses fpl->increment_index to iterate over stops
 		uint8 index = fpl->get_aktuell();
@@ -2326,15 +2325,23 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 			else if(plan_halt.is_bound() && warray->get_count() > 0) 
 			{
 				// Calculate the journey time for *this* convoy from here (if not already calculated)
-				if(average_speed == 0)
+				uint16 journey_time = 0;
+
+				journey_time = cnv->average_journey_times->get(koord_pair(plan_halt->get_basis_pos(), previous_halt->get_basis_pos())).get_average();
+
+				if(journey_time == 0)
 				{
-					// If the average speed is not initialised, take a guess to prevent perverse outcomes and possible deadlocks.
-					average_speed = speed_to_kmh(cnv->get_min_top_speed()) * 50;
-					average_speed = average_speed == 0 ? 1 : average_speed;
-				}
+					sint32 average_speed = cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) > 0 ? cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) * 100 : cnv->get_finance_history(0, CONVOI_AVERAGE_SPEED) * 100;
+					if(average_speed == 0)
+					{
+						// If the average speed is not initialised, take a guess to prevent perverse outcomes and possible deadlocks.
+						average_speed = speed_to_kmh(cnv->get_min_top_speed()) * 50;
+						average_speed = average_speed == 0 ? 1 : average_speed;
+					}
 						
-				accumulated_journey_time += ((accurate_distance(plan_halt->get_basis_pos(), previous_halt->get_basis_pos()) 
-												/ average_speed) *welt->get_settings().get_meters_per_tile() * 60);
+					accumulated_journey_time += ((accurate_distance(plan_halt->get_basis_pos(), previous_halt->get_basis_pos()) 
+													/ average_speed) *welt->get_settings().get_meters_per_tile() * 60);
+				}
 				
 				//previous_halt = plan_halt;		
 								
