@@ -4314,10 +4314,6 @@ void convoi_t::set_line(linehandle_t org_line)
 	else {
 		// Knightly : originally a lineless convoy -> unregister itself from stops as it now belongs to a line
 		unregister_stops();
-		// must trigger refresh if old schedule was not empty
-		if (fpl  &&  !fpl->empty()) {
-			welt->set_schedule_counter();
-		}
 	}
 	line_update_pending = org_line;
 	check_pending_updates();

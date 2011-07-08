@@ -363,9 +363,6 @@ private:
 	 */
 	stationtyp station_type;
 
-	uint8 rebuilt_destination_counter;	// new schedule, first rebuilt destinations asynchroniously
-	uint8 reroute_counter;						// then, reroute goods
-
 	// since we do partial routing, we remeber the last offset
 	uint8 last_catg_index;
 	uint32 last_ware_index;
@@ -515,7 +512,7 @@ public:
 	* will distribute the goods to changed routes (if there are any)
 	* @author Hj. Malthaner
 	*/
-	uint32 reroute_goods();
+	//uint32 reroute_goods();
 
 	// Added by : Knightly
 	// Purpose	: Re-routing goods of a single ware category
@@ -549,8 +546,6 @@ public:
 	void verbinde_fabriken();
 	void remove_fabriken(fabrik_t *fab);
 
-	uint8 get_rebuild_destination_counter() const  { return rebuilt_destination_counter; }
-
 	// New routing method: finds shortest route in *time*, not necessarily distance
 	// @ author: jamespetts
 
@@ -577,7 +572,7 @@ public:
 	 * @author Hj. Malthaner
 	 */
 
-	void step(sint16 &units_remaining);
+	void step();
 
 	/**
 	 * Called every month/every 24 game hours

@@ -1314,7 +1314,6 @@ void karte_t::init(settings_t* const sets, sint8 const* const h_field)
 
 	ticks = 0;
 	last_step_ticks = ticks;
-	schedule_counter = 0;
 	// ticks = 0x7FFFF800;  // Testing the 31->32 bit step
 
 	letzter_monat = 0;
@@ -1724,7 +1723,6 @@ karte_t::karte_t() :
 	x_off = 0;
 	y_off = 0;
 	grid_hgts = 0;
-	schedule_counter = 0;
 	nosave_warning = nosave = false;
 	recheck_road_connexions = true;
 	actual_industry_density = industry_density_proportion = 0;
@@ -3525,16 +3523,6 @@ void karte_t::notify_record( convoihandle_t cnv, sint32 max_speed, koord pos )
 	}
 }
 
-
-void karte_t::set_schedule_counter()
-{
-	// do not call this from gui when playing in network mode!
-	assert( (get_random_mode() & INTERACTIVE_RANDOM) == 0  );
-
-	schedule_counter++;
-}
-
-
 void karte_t::step()
 {
 	DBG_DEBUG4("karte_t::step", "start step");
@@ -5176,7 +5164,6 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 	long dt = dr_time();
 #endif
 	// recalculate halt connections
-	set_schedule_counter();
 	int hnr=0, hmax=haltestelle_t::get_alle_haltestellen().get_count();
 	for(  slist_tpl<halthandle_t>::const_iterator i=haltestelle_t::get_alle_haltestellen().begin(); i!=haltestelle_t::get_alle_haltestellen().end();  ++i  ) {
 		if((hnr++%64)==0) {

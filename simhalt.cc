@@ -80,37 +80,18 @@ haltestelle_t::path_node* haltestelle_t::head_path_node = NULL;
 haltestelle_t::connexion* haltestelle_t::head_connexion = NULL;
 #endif
 
-static uint32 halt_iterator_start = 0;
 uint8 haltestelle_t::status_step = 0;
 
 void haltestelle_t::step_all()
 {
-	if (!alle_haltestellen.empty()) {
-		uint32 it = halt_iterator_start;
+	if (!alle_haltestellen.empty())
+	{
 		slist_iterator_tpl <halthandle_t> iter( alle_haltestellen );
-		while(  it>0  &&  iter.next()  ) {
-			it--;
+		while(iter.next())
+		{
+			// iterate until the specified number of units were handled
+			iter.get_current()->step();
 		}
-		if(  it>0  ) {
-			halt_iterator_start = 0;
-		}
-		else {
-			sint16 units_remaining = 256;
-			while(  units_remaining>0  ) {
-				if(  !iter.next()  ) {
-					halt_iterator_start = 0;
-					break;
-				}
-				// iterate until the specified number of units were handled
-				iter.get_current()->step(units_remaining);
-
-				halt_iterator_start ++;
-			}
-		}
-	}
-	else {
-		// save reinit
-		halt_iterator_start = 0;
 	}
 }
 
@@ -287,7 +268,6 @@ halthandle_t haltestelle_t::create(karte_t *welt, loadsave_t *file)
 void haltestelle_t::destroy(halthandle_t &halt)
 {
 	// jsut play save: restart iterator at zero ...
-	halt_iterator_start = 0;
 	delete halt.get_rep();
 }
 
@@ -383,7 +363,6 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 
 	enables = NOT_ENABLED;
 
-	rebuilt_destination_counter = reroute_counter;
 	last_catg_index = 255;	// force total reouting
 
 	const uint8 max_categories = warenbauer_t::get_max_catg_index();
@@ -936,30 +915,8 @@ void haltestelle_t::request_loading( convoihandle_t cnv )
 
 
 
-void haltestelle_t::step(sint16 &units_remaining)
+void haltestelle_t::step()
 {
-	
-	// Knightly : 
-	//   Except rescheduling above, reroute_goods() needs to be invoked
-	//   Only goods categories scheduled for re-routing will actually be re-routed
-	const uint32 packets_rerouted = reroute_goods();
-
-	if ( packets_rerouted > 0 )
-	{
-		if ( packets_rerouted >= units_remaining )
-		{
-			units_remaining = 0;
-		}
-		else
-		{
-			units_remaining -= packets_rerouted;
-		}
-	}
-	else
-	{
-		--units_remaining;
-	}
-
 	// Knightly : update status
 	//   There is no idle state in Experimental
 	//   as rerouting request may be sent via
@@ -1120,36 +1077,6 @@ void haltestelle_t::neuer_monat()
 	}
 }
 
-
-
-/**
- * Called every 255 steps
- * will distribute the goods to changed routes (if there are any)
- * @author Hj. Malthaner
- */
-// Modified by : Knightly
-uint32 haltestelle_t::reroute_goods()
-{
-	uint32 packets_rerouted = 0;
-	
-	for(uint8 i = 0; i < warenbauer_t::get_max_catg_index(); i++) 
-	{
-		if ( reroute[i] )
-		{
-			// Reset reroute[c] flag immediately
-			reroute[i] = false;
-			const uint32 packet_count = reroute_goods(i);
-			if ( packet_count > 0 )
-			{
-				// call this only if some ware packets are really re-reouted
-				INT_CHECK( "simhalt.cc 489" );
-				packets_rerouted += packet_count;
-			}
-		}
-	}
-
-	return packets_rerouted;
-}
 
 // Added by		: Knightly
 // Adapted from : reroute_goods()
