@@ -40,7 +40,7 @@ simline_t::simline_t(karte_t* welt, spieler_t* sp, linetype type)
 
 	create_schedule();
 
-	average_speeds = new koord_pair_hashtable_tpl<koord_pair, average_tpl<uint32> >;
+	average_journey_times = new koord_pair_hashtable_tpl<koord_pair, average_tpl<uint16> >;
 }
 
 
@@ -53,7 +53,7 @@ simline_t::simline_t(karte_t* welt, spieler_t* sp, linetype type, loadsave_t *fi
 	this->fpl = NULL;
 	this->sp = sp;
 	create_schedule();
-	average_speeds = new koord_pair_hashtable_tpl<koord_pair, average_tpl<uint32> >;
+	average_journey_times = new koord_pair_hashtable_tpl<koord_pair, average_tpl<uint16> >;
 	rdwr(file);
 	// now self has the right id but the this-pointer is not assigned to the quickstone handle yet
 	// do this explicitly
@@ -75,7 +75,7 @@ simline_t::~simline_t()
 	self.detach();
 	DBG_MESSAGE("simline_t::~simline_t()", "line %d (%p) destroyed", self.get_id(), this);
 
-	delete average_speeds;
+	delete average_journey_times;
 }
 
 

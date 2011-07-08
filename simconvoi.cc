@@ -210,7 +210,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 
 	livery_scheme_index = 0;
 
-	average_speeds = new koord_pair_hashtable_tpl<koord_pair, average_tpl<uint32> >;
+	average_journey_times = new koord_pair_hashtable_tpl<koord_pair, average_tpl<uint16> >;
 }
 
 
@@ -219,7 +219,7 @@ convoi_t::convoi_t(karte_t* wl, loadsave_t* file) : fahr(max_vehicle, NULL)
 	self = convoihandle_t(this);
 	init(wl, 0);
 	replace = NULL;
-	average_speeds = new koord_pair_hashtable_tpl<koord_pair, average_tpl<uint32> >;
+	average_journey_times = new koord_pair_hashtable_tpl<koord_pair, average_tpl<uint16> >;
 	rdwr(file);
 	current_stop = fpl == NULL ? 255 : fpl->get_aktuell() - 1;
 
@@ -246,7 +246,7 @@ convoi_t::convoi_t(spieler_t* sp) : fahr(max_vehicle, NULL)
 
 	livery_scheme_index = 0;
 
-	average_speeds = new koord_pair_hashtable_tpl<koord_pair, average_tpl<uint32> >;
+	average_journey_times = new koord_pair_hashtable_tpl<koord_pair, average_tpl<uint16> >;
 }
 
 
@@ -291,7 +291,7 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 
 	clear_replace();
 
-	delete average_speeds;
+	delete average_journey_times;
 
 	// @author hsiegeln - deregister from line (again) ...
 	unset_line();
@@ -3455,27 +3455,28 @@ void convoi_t::laden() //"load" (Babelfish)
 		{
 			book(average_speed, CONVOI_AVERAGE_SPEED);
 		}
-		if(!average_speeds->is_contained(pair))
+
+		if(!average_journey_times->is_contained(pair))
 		{
-			average_tpl<uint32> average;
-			average.add(average_speed);
-			average_speeds->put(pair, average);
+			average_tpl<uint16> average;
+			average.add(journey_time / 13);
+			average_journey_times->put(pair, average);
 		}
 		else
 		{
-			average_speeds->access(pair)->add(average_speed);
+			average_journey_times->access(pair)->add(average_speed);
 		}
 		if(line.is_bound())
 		{
-			if(!line->average_speeds->is_contained(pair))
+			if(!line->average_journey_times->is_contained(pair))
 			{
-				average_tpl<uint32> average;
-				average.add(average_speed);
-				line->average_speeds->put(pair, average);
+				average_tpl<uint16> average;
+				average.add(journey_time / 13);
+				line->average_journey_times->put(pair, average);
 			}
 			else
 			{
-				line->average_speeds->access(pair)->add(average_speed);
+				line->average_journey_times->access(pair)->add(journey_time);
 			}
 		}
 	}

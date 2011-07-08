@@ -806,7 +806,7 @@ public:
 	* The table of point-to-point average speeds.
 	* @author jamespetts
 	*/
-	koord_pair_hashtable_tpl<koord_pair, average_tpl<uint32> > * average_speeds;
+	koord_pair_hashtable_tpl<koord_pair, average_tpl<uint16> > * average_journey_times;
 
 #if 0
 private:

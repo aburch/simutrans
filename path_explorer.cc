@@ -734,7 +734,7 @@ void path_explorer_t::compartment_t::step()
 
 				// precalculate journey times between consecutive halts
 				entry_count = halt_list.get_count();	
-				uint32 fallback_journey_time_factor = (journey_time_adjustment * 100) / current_average_speed;
+				uint16 journey_time = 0;
 				journey_time_list.clear();
 				journey_time_list.append(0);	// reserve the first entry for the last journey time from last halt to first halt
 
@@ -743,26 +743,27 @@ void path_explorer_t::compartment_t::step()
 				{
 					const koord_pair pair(halt_list[i]->get_basis_pos(), halt_list[(i+1)%entry_count]->get_basis_pos());
 					
-					if(current_linkage.line.is_bound() && current_linkage.line->get_schedule() && current_linkage.line->count_convoys() && current_linkage.line->average_speeds->is_contained(pair))
+					if(current_linkage.line.is_bound() && current_linkage.line->get_schedule() && current_linkage.line->count_convoys() && current_linkage.line->average_journey_times->is_contained(pair))
 					{
-						const uint32 point_to_point_average_speed = current_linkage.line->average_speeds->get(pair).get_average();
-						journey_time_factor = (journey_time_adjustment * 100) / (point_to_point_average_speed == 0 ? current_average_speed : point_to_point_average_speed);
-						current_linkage.line->average_speeds->access(pair)->reset();
+						journey_time = current_linkage.line->average_journey_times->get(pair).get_average();
+						current_linkage.line->average_journey_times->access(pair)->reset();
 					}
-					else if(current_linkage.convoy.is_bound() && current_linkage.convoy->get_schedule() && current_linkage.convoy->average_speeds->is_contained(pair))
+					else if(current_linkage.convoy.is_bound() && current_linkage.convoy->get_schedule() && current_linkage.convoy->average_journey_times->is_contained(pair))
 					{
-						const uint32 point_to_point_average_speed = current_linkage.convoy->average_speeds->get(pair).get_average();
-						journey_time_factor = (journey_time_adjustment * 100) / (point_to_point_average_speed == 0 ? current_average_speed : point_to_point_average_speed);
-						current_linkage.convoy->average_speeds->access(pair)->reset();
+						journey_time = current_linkage.convoy->average_journey_times->get(pair).get_average();
+						current_linkage.convoy->average_journey_times->access(pair)->reset();
 					}
 
-					else
+					if(journey_time == 0)
 					{
-						journey_time_factor = fallback_journey_time_factor;
+						// Zero here means that there are no journey time data even if the hashtable entry exists.
+						// Fallback to convoy's general average speed if a point-to-point average is not available.
+						const uint32 journey_time_factor = (journey_time_adjustment * 100) / current_average_speed;
+						journey_time = ((uint16)((accurate_distance(halt_list[i]->get_basis_pos(), halt_list[(i+1)%entry_count]->get_basis_pos()) * journey_time_factor) / 100), 64);
 					}
 
 					// journey time from halt 0 to halt 1 is stored in journey_time_list[1]
-					journey_time_list.append((uint16)((accurate_distance(pair.first, pair.second) * journey_time_factor) / 100), 64);
+					journey_time_list.append(journey_time, 64);
 					
 				}
 				
