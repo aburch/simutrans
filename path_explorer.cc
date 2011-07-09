@@ -634,8 +634,6 @@ void path_explorer_t::compartment_t::step()
 			uint8 entry_count;
 			halthandle_t current_halt;
 
-			uint32 journey_time_factor;
-
 			minivec_tpl<halthandle_t> halt_list(64);
 			minivec_tpl<uint16> journey_time_list(64);
 			minivec_tpl<bool> recurrence_list(64);		// an array indicating whether certain halts have been processed already

@@ -4452,11 +4452,21 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved tiles");
 	}
 DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved fabs");
 
+	/*slist_iterator_tpl<halthandle_t> iter (haltestelle_t::get_alle_haltestellen());
+	while(iter.next())
+	{
+		if(!iter.get_current().is_bound())
+		{
+			haltestelle_t::get_alle_haltestellen().remove(iter.access_current());
+		}
+	}*/
 	sint32 haltcount=haltestelle_t::get_alle_haltestellen().get_count();
 	file->rdwr_long(haltcount);
-	slist_iterator_tpl<halthandle_t> iter (haltestelle_t::get_alle_haltestellen());
-	while(iter.next()) {
-		iter.get_current()->rdwr( file );
+	
+	slist_iterator_tpl<halthandle_t> iter_2 (haltestelle_t::get_alle_haltestellen());	
+	while(iter_2.next()) 
+	{
+		iter_2.get_current()->rdwr( file );
 	}
 DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved stops");
 
