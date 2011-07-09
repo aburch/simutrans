@@ -745,13 +745,29 @@ void path_explorer_t::compartment_t::step()
 					
 					if(current_linkage.line.is_bound() && current_linkage.line->get_schedule() && current_linkage.line->count_convoys() && current_linkage.line->average_journey_times->is_contained(pair))
 					{
-						journey_time = current_linkage.line->average_journey_times->get(pair).get_average();
-						current_linkage.line->average_journey_times->access(pair)->reset();
+						if(!halt_list[i].is_bound() || ! halt_list[(i+1)%entry_count].is_bound())
+						{
+							current_linkage.line->average_journey_times->remove(pair);
+							continue;
+						}
+						else
+						{
+							journey_time = current_linkage.line->average_journey_times->get(pair).get_average();
+							current_linkage.line->average_journey_times->access(pair)->reset();
+						}
 					}
 					else if(current_linkage.convoy.is_bound() && current_linkage.convoy->get_schedule() && current_linkage.convoy->average_journey_times->is_contained(pair))
 					{
-						journey_time = current_linkage.convoy->average_journey_times->get(pair).get_average();
-						current_linkage.convoy->average_journey_times->access(pair)->reset();
+						if(!halt_list[i].is_bound() || ! halt_list[(i+1)%entry_count].is_bound())
+						{
+							current_linkage.convoy->average_journey_times->remove(pair);
+							continue;
+						}
+						else
+						{
+							journey_time = current_linkage.convoy->average_journey_times->get(pair).get_average();
+							current_linkage.convoy->average_journey_times->access(pair)->reset();
+						}
 					}
 
 					if(journey_time == 0)
