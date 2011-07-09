@@ -70,7 +70,6 @@ slist_tpl<halthandle_t> haltestelle_t::alle_haltestellen;
 stringhashtable_tpl<halthandle_t> haltestelle_t::all_names;
 
 static uint32 halt_iterator_start = 0;
-uint8 haltestelle_t::status_step = 0;
 
 void haltestelle_t::step_all()
 {
@@ -284,7 +283,9 @@ halthandle_t haltestelle_t::create(karte_t *welt, loadsave_t *file)
  */
 void haltestelle_t::destroy(halthandle_t &halt)
 {
-	// jsut play save: restart iterator at zero ...
+	// just play safe: restart iterator at zero ...
+	halt_iterator_start = 0;
+
 	delete halt.get_rep();
 }
 
@@ -334,18 +335,6 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 		connexions[i] = new quickstone_hashtable_tpl<haltestelle_t, connexion*>();
 	}
 	do_alternative_seats_calculation = true;
-
-	paths_timestamp = new uint16[max_categories];
-	connexions_timestamp = new uint16[max_categories];
-	reschedule = new bool[max_categories];
-	reroute = new bool[max_categories];
-	for(uint8 i = 0; i < max_categories; i ++)
-	{
-		paths_timestamp[i] = 0;
-		connexions_timestamp[i] = 0;
-		reschedule[i] = false;
-		reroute[i] = false;
-	}
 
 	status_color = COL_YELLOW;
 
@@ -411,18 +400,6 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 
 	if(welt->ist_in_kartengrenzen(k)) {
 		welt->access(k)->set_halt(self);
-	}
-
-	paths_timestamp = new uint16[max_categories];
-	connexions_timestamp = new uint16[max_categories];
-	reschedule = new bool[max_categories];
-	reroute = new bool[max_categories];	
-	for(uint8 i = 0; i < max_categories; i ++)
-	{
-		paths_timestamp[i] = 0;
-		connexions_timestamp[i] = 0;
-		reschedule[i] = false;
-		reroute[i] = false;
 	}
 
 	check_waiting = 0;
@@ -532,11 +509,6 @@ haltestelle_t::~haltestelle_t()
 
 	delete[] connexions;
 	delete[] waiting_times;
-
-	delete[] paths_timestamp;
-	delete[] connexions_timestamp;
-	delete[] reschedule;
-	delete[] reroute;
 
 	delete[] non_identical_schedules;
 
@@ -910,7 +882,6 @@ void haltestelle_t::step()
 	//   as rerouting request may be sent via
 	//   refresh_routing() instead of
 	//   karte_t::set_schedule_counter()
-	status_step = REROUTING;
 
 	recalc_status();
 	
@@ -1205,122 +1176,6 @@ uint16 haltestelle_t::get_average_waiting_time(halthandle_t halt, uint8 category
 		return 39;
 	}
 	return 39;
-}
-
-// Modified by : Knightly
-void haltestelle_t::add_connexion(const uint8 category, const convoihandle_t cnv, const linehandle_t line, 
-								  const minivec_tpl<halthandle_t> &halt_list, const uint8 self_halt_idx)
-{
-	const ware_besch_t *const ware_type = warenbauer_t::get_info_catg_index(category);
-
-	if(ware_type != warenbauer_t::nichts) 
-	{
-		const uint8 entry_count = halt_list.get_count();
-
-		//const bool i_am_public = besitzer_p == welt->get_spieler(1); // unused
-
-		// Check the average speed.
-		sint32 average_speed = 0;
-		if(line.is_bound())
-		{
-			average_speed = line->get_finance_history(1, LINE_AVERAGE_SPEED) > 0 ? line->get_finance_history(1, LINE_AVERAGE_SPEED) * 100 : line->get_finance_history(0, LINE_AVERAGE_SPEED) * 100;
-
-			if(average_speed == 0)
-			{
-				// If the average speed is not initialised, take a guess to prevent perverse outcomes and possible deadlocks.
-				average_speed = speed_to_kmh(line->get_convoy(0)->get_min_top_speed()) * 50;
-			}
-		}
-		else if(cnv.is_bound())
-		{
-			average_speed = cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) > 0 ? cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) : cnv->get_finance_history(0, CONVOI_AVERAGE_SPEED);
-			
-			if(average_speed == 0)
-			{
-				// If the average speed is not initialised, take a guess to prevent perverse outcomes and possible deadlocks.
-				average_speed = speed_to_kmh(cnv->get_min_top_speed()) * 50;
-			}
-		}
-
-		halthandle_t current_halt;
-		halthandle_t previous_halt = halt_list[self_halt_idx];
-		// Modified by	: Knightly
-		// Purpose		: Calculating accumulated journey time instead of accumulated journey distance
-		//				  This is to ensure that, if A, B & C are on the same line, time[A,B] + time[B,C] == time[A,C]
-		//				  Previously, it is possible that time[A,B] + time[B,C] < time[A,C] due to truncation of decimal places
-		//				  This helps to avoid inappropriate transfers
-		uint16 accumulated_journey_time = 0;
-		
-		// Start with the next halt from self halt, and iterate for (entry_count - 1) times, skipping the last self halt
-		for (uint8 i = 1,				current_halt_idx = (self_halt_idx + 1) % entry_count ; 
-			 i < entry_count; 
-			 i++,						current_halt_idx = (current_halt_idx + 1) % entry_count)
-		{
-			current_halt = halt_list[current_halt_idx];
-
-			// Case : Waypoint or Halt which is not enabled for that ware category
-			if ( !current_halt.is_bound() || !current_halt->is_enabled(ware_type) )
-			{
-				continue;
-			}
-
-			// Case : Self Halt
-			if (current_halt == self)
-			{
-				// reset journey distance
-				accumulated_journey_time = 0;
-				previous_halt = current_halt;
-				continue;
-			}
-
-			// Case : Suitable Halt
-			
-			// Check the journey times to the connexion
-			connexion* new_connexion = new connexion;
-			new_connexion->waiting_time = get_average_waiting_time(current_halt, category);
-			
-			// Calculate accumulated journey time
-			// Modified by : Knightly
-			// journey_distance += accurate_distance(current_halt->get_basis_pos(), previous_halt->get_basis_pos());
-			accumulated_journey_time += ((accurate_distance(current_halt->get_basis_pos(), previous_halt->get_basis_pos()) 
-										/ average_speed) *welt->get_settings().get_meters_per_tile() * 60);
-			previous_halt = current_halt;
-			
-			// Journey time in *tenths* of minutes.
-			// Modified by : Knightly
-			new_connexion->journey_time = accumulated_journey_time;
-			new_connexion->best_convoy = cnv;
-			new_connexion->best_line = line;
-			new_connexion->alternative_seats = 0;
-
-			// Check whether this is the best connexion so far, and, if so, add it.
-			if(!connexions[category]->put(current_halt, new_connexion))
-			{
-				// The key exists in the hashtable already - check whether this entry is better.
-				connexion* existing_connexion = connexions[category]->get(current_halt);
-				if(existing_connexion->journey_time > new_connexion->journey_time)
-				{
-					// The new connexion is better - replace it.
-					new_connexion->alternative_seats = existing_connexion->alternative_seats;
-					delete existing_connexion;
-					connexions[category]->set(current_halt, new_connexion);
-				}
-				else
-				{
-					delete new_connexion;
-				}
-				//TODO: Consider whether to add code for comfort here, too.
-			}
-			else
-			{
-				if(  waren[category] == NULL  ) 
-				{
-					// indicates that this can route those goods
-					waren[category] = new vector_tpl<ware_t>(0);
-				}
-			}
-		}
-	}
 }
 
 linehandle_t haltestelle_t::get_preferred_line(halthandle_t transfer, uint8 category) const
@@ -2796,7 +2651,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			}
 		}
 
-		if(file->get_experimental_version() < 3)
+		if(file->get_experimental_version() > 0 && file->get_experimental_version() < 3)
 		{
 			uint16 old_paths_timestamp = 0;
 			uint16 old_connexions_timestamp = 0;
@@ -2804,20 +2659,16 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			file->rdwr_short(old_paths_timestamp);
 			file->rdwr_short(old_connexions_timestamp);
 			file->rdwr_bool(old_reschedule);
-			for(short i = 0; i < max_catg_count_file; i ++)
-			{
-				paths_timestamp[i] = old_paths_timestamp;
-				connexions_timestamp[i] = old_connexions_timestamp;
-				reschedule[i] = old_reschedule;
-			}
 		}
-		else
+		else if(file->get_experimental_version() > 0 && file->get_experimental_version() < 10)
 		{
 			for(short i = 0; i < max_catg_count_file; i ++)
 			{
-				file->rdwr_short(paths_timestamp[i]);
-				file->rdwr_short(connexions_timestamp[i]);
-				file->rdwr_bool(reschedule[i]);
+				sint16 dummy;
+				bool dummy_2;
+				file->rdwr_short(dummy);
+				file->rdwr_short(dummy);
+				file->rdwr_bool(dummy_2);
 			}
 		}
 	}

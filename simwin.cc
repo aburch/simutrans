@@ -1552,16 +1552,6 @@ void win_display_flush(double konto)
 			info.printf( " %s", translator::translate("GAME PAUSED") );
 		}
 	}
-#ifdef DEBUG
-	if(  umgebung_t::verbose_debug>3  ) {
-		if(  haltestelle_t::get_rerouting_status()==RECONNECTING  ) {
-			info.append( " +" );
-		}
-		else if(  haltestelle_t::get_rerouting_status()==REROUTING  ) {
-			info.append( " *" );
-		}
-	}
-#endif
 
 	KOORD_VAL w_left = 20+display_proportional(20, disp_height-12, time, ALIGN_LEFT, COL_BLACK, true);
 	KOORD_VAL w_right  = display_proportional(right_border-4, disp_height-12, info, ALIGN_RIGHT, COL_BLACK, true);
