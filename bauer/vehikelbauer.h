@@ -46,7 +46,7 @@ public:
 		return baue(k, sp, cnv, vb, false);
 	}
 
-	static vehikel_t* baue(koord3d k, spieler_t* sp, convoi_t* cnv, const vehikel_besch_t* vb, bool upgrade );
+	static vehikel_t* baue(koord3d k, spieler_t* sp, convoi_t* cnv, const vehikel_besch_t* vb, bool upgrade, uint16 livery_scheme_index = 0 );
 
 	static const vehikel_besch_t * get_info(const char *name);
 	static slist_tpl<vehikel_besch_t*>* get_info(waytype_t typ);

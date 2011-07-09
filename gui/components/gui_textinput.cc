@@ -323,6 +323,10 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 	else if(  IS_LEFTDBLCLK(ev)  ) {
 		// Knightly : select a word as delimited by spaces
 		// for tail cursor pos -> skip over all contiguous non-space characters to the left
+		if(!text)
+		{
+			return false;
+		}
 		const char* tmp_text = text + tail_cursor_pos;
 		uint8 byte_length;
 		uint8 pixel_width;

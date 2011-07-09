@@ -36,6 +36,7 @@ simline_t::simline_t(karte_t* welt, spieler_t* sp, linetype type)
 		rolling_average_count[i] = 0;
 	}
 	start_reversed = false;
+	livery_scheme_index = 0;
 
 	create_schedule();
 }
@@ -305,6 +306,15 @@ void simline_t::rdwr(loadsave_t *file)
 			file->rdwr_short(rolling_average_count[i]);
 		}	
 	}
+
+	if(file->get_experimental_version() >= 9 && file->get_version() >= 110006)
+	{
+		file->rdwr_short(livery_scheme_index);
+	}
+	else
+	{
+		livery_scheme_index = 0;
+	}
 }
 
 
@@ -542,3 +552,11 @@ void simline_t::set_withdraw( bool yes_no )
 	}
 }
 
+void simline_t::propogate_livery_scheme()
+{
+	ITERATE(line_managed_convoys, i)
+	{
+		line_managed_convoys[i]->set_livery_scheme_index(livery_scheme_index);
+		line_managed_convoys[i]->apply_livery_scheme();
+	}
+}

@@ -149,6 +149,7 @@ SOURCES += besch/reader/ground_reader.cc
 SOURCES += besch/reader/groundobj_reader.cc
 SOURCES += besch/reader/image_reader.cc
 SOURCES += besch/reader/imagelist2d_reader.cc
+SOURCES += besch/reader/imagelist3d_reader.cc
 SOURCES += besch/reader/imagelist_reader.cc
 SOURCES += besch/reader/obj_reader.cc
 SOURCES += besch/reader/pedestrian_reader.cc
@@ -191,6 +192,7 @@ SOURCES += dataobj/freelist.cc
 SOURCES += dataobj/gameinfo.cc
 SOURCES += dataobj/koord.cc
 SOURCES += dataobj/koord3d.cc
+SOURCES += dataobj/livery_scheme.cc
 SOURCES += dataobj/loadsave.cc
 SOURCES += dataobj/marker.cc
 SOURCES += dataobj/network.cc
@@ -354,7 +356,6 @@ SOURCES += simwin.cc
 SOURCES += simworld.cc
 SOURCES += path_explorer.cc
 SOURCES += sucher/platzsucher.cc
-SOURCES += tpl/debug_helper.cc
 SOURCES += unicode.cc
 SOURCES += utils/cbuffer_t.cc
 SOURCES += utils/checksum.cc
@@ -476,7 +477,9 @@ CCFLAGS  += $(CFLAGS)
 CXXFLAGS += $(CFLAGS)
 
 BUILDDIR ?= build/$(CFG)
-PROG ?= simutrans-experimental	
+
+PROGDIR  ?= $(BUILDDIR)
+PROG     ?= simutrans-experimental
 
 include common.mk
 

@@ -35,6 +35,7 @@
 #include "../dataobj/fahrplan.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/umgebung.h"
+#include "../dataobj/livery_scheme.h"
 
 #include "../boden/wege/kanal.h"
 #include "../boden/wege/maglev.h"
@@ -48,6 +49,7 @@
 #include "halt_list_stats.h"
 #include "karte.h"
 
+uint16 schedule_list_gui_t::livery_scheme_index = 0;
 
 static const char *cost_type[MAX_LINE_COST] =
 {
@@ -239,6 +241,26 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t *sp_) :
 	bt_withdraw_line.disable();
 	add_komponente(&bt_withdraw_line);
 
+	livery_selector.set_pos(koord(11+0*BUTTON_WIDTH*2 + 92,  7 + SCL_HEIGHT+BUTTON_HEIGHT));
+	livery_selector.set_groesse(koord(185, BUTTON_HEIGHT));
+	livery_selector.set_max_size(koord(BUTTON_WIDTH - 8, LINESPACE*3+2+16));
+	livery_selector.set_highlight_color(1);
+	livery_selector.clear_elements();
+	vector_tpl<livery_scheme_t*>* schemes = sp->get_welt()->get_settings().get_livery_schemes();
+	livery_scheme_indices.clear();
+	ITERATE_PTR(schemes, i)
+	{
+		livery_scheme_t* scheme = schemes->get_element(i);
+		if(scheme->is_available(sp->get_welt()->get_timeline_year_month()))
+		{
+			livery_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(scheme->get_name()), COL_BLACK));
+			livery_scheme_indices.append(i);
+		}
+	}
+	livery_selector.add_listener(this);
+	add_komponente(&livery_selector);
+	livery_selector.set_focusable(false);
+
 	//CHART
 	chart.set_dimension(12, 1000);
 	chart.set_pos( koord(LINE_NAME_COLUMN_WIDTH+50,11) );
@@ -336,6 +358,26 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t 
 			// since init always returns false, it is save to delete immediately
 			delete w;
 		}
+	}
+	else if(komp == &livery_selector) 
+	{
+			int livery_selection = livery_selector.get_selection();
+			if(livery_selection < 0) 
+			{
+				livery_selector.set_selection(0);
+				livery_selection = 0;
+			}
+			livery_scheme_index = livery_scheme_indices.empty()? 0 : livery_scheme_indices[livery_selection];
+			if (line.is_bound()) 
+			{
+				werkzeug_t *w = create_tool( WKZ_LINE_TOOL | SIMPLE_TOOL );
+				cbuffer_t buf;
+				buf.printf( "V,%i,%i", line.get_id(), livery_scheme_index );
+				w->set_default_param(buf);
+				sp->get_welt()->set_werkzeug( w, sp );
+				// since init always returns false, it is save to delete immediately
+				delete w;
+			}
 	}
 	else if (komp == &tabs) {
 		update_lineinfo( linehandle_t() );
@@ -579,6 +621,18 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		bt_change_line.enable();
 
 		bt_withdraw_line.pressed = new_line->get_withdraw();
+
+		livery_selector.set_focusable(false);
+		if(icnv > 0)
+		{
+			livery_selector.set_focusable(true);
+		}
+		if(new_line.is_bound() && !livery_scheme_indices.empty())
+		{
+			uint16 idx = new_line->get_livery_scheme_index();
+			livery_selector.set_selection(livery_scheme_indices.index_of(idx));
+		}
+
 
 		// fill haltestellen container with info of line's haltestellen
 		cont_haltestellen.remove_all();

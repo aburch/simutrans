@@ -9,9 +9,6 @@
 #define tpl_sorted_heap_tpl_h
 
 
-#include "debug_helper.h"
-
-
 /**
  * my try on a sorted heap template
  * the insert point is by binary search and then the array is just shifted with memmove

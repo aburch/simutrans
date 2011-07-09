@@ -53,7 +53,7 @@ replace_data_t::replace_data_t(loadsave_t *file)
 }
 
 
-void replace_data_t::sprintf_replace( cbuffer_t &buf) const
+void replace_data_t::sprintf_replace(cbuffer_t &buf) const
 {
 	// First of all, general information
 	buf.append(autostart ? "1" : "0");

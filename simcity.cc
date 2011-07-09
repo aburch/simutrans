@@ -1707,8 +1707,6 @@ stadt_t::stadt_t(karte_t* wl, loadsave_t* file) :
 
 	rdwr(file);
 
-	verbinde_fabriken();
-
 	calc_internal_passengers();
 
 	finder = new road_destination_finder_t(welt, new automobil_t(welt));
@@ -2397,7 +2395,7 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 	settings_t const& s = welt->get_settings();
 	target_factories_pax.recalc_generation_ratio( s.get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_PAS_GENERATED);
 	target_factories_mail.recalc_generation_ratio(s.get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_MAIL_GENERATED);
-	recalc_target_cities();
+	update_target_cities();
 
 	// Calculate the level of congestion.
 	// Used in determining growth and passenger preferences.
@@ -3178,6 +3176,33 @@ void stadt_t::step_passagiere()
 						destinations[current_destination].factory_entry->factory->book_stat( pax_left_to_do, ( wtyp==warenbauer_t::passagiere ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED ) );
 						destinations[current_destination].factory_entry->factory->liefere_an(wtyp, pax_left_to_do);
 					}
+
+					// so we have happy passengers
+	
+					// Passengers who can walk to their destination may be happy about it,
+					// but they are not happy *because* the player has made them happy. 
+					// Therefore, they should not show on the station's happy graph.
+					// @author: jamespetts, December 2009
+					
+					//start_halt->add_pax_happy(pax_left_to_do);
+
+					merke_passagier_ziel(destinations[0].location, COL_DARK_YELLOW);
+					if (s.get_random_pedestrians() && wtyp == warenbauer_t::passagiere) 
+					{
+						if(!start_halts.empty() && !start_halt.is_bound())
+						{
+							start_halt = start_halts[0];
+						}
+						if(start_halt.is_bound())
+						{
+							haltestelle_t::erzeuge_fussgaenger(welt, start_halt->get_basis_pos3d(), pax_left_to_do);
+						}
+					}
+					
+					// They should show that they have been transported, however, since
+					// these figures are used for city growth calculations.
+					city_history_year[0][history_type] += pax_left_to_do;
+					city_history_month[0][history_type] += pax_left_to_do;
 					break;
 				}
 
@@ -3345,30 +3370,7 @@ void stadt_t::step_passagiere()
 					}
 				}
 					
-				if(route_good == can_walk)
-				{
-					// so we have happy passengers
-	
-					// Passengers who can walk to their destination may be happy about it,
-					// but they are not happy *because* the player has made them happy. 
-					// Therefore, they should not show on the station's happy graph.
-					// @author: jamespetts, December 2009
-					
-					//start_halt->add_pax_happy(pax_left_to_do);
-
-					merke_passagier_ziel(destinations[0].location, COL_DARK_YELLOW);
-					if (s.get_random_pedestrians() && wtyp == warenbauer_t::passagiere) 
-					{
-						haltestelle_t::erzeuge_fussgaenger(welt, start_halt->get_basis_pos3d(), pax_left_to_do);
-					}
-					
-					// They should show that they have been transported, however, since
-					// these figures are used for city growth calculations.
-					city_history_year[0][history_type] += pax_left_to_do;
-					city_history_month[0][history_type] += pax_left_to_do;
-				}
-
-				else if(route_good == good)
+				if(route_good == good)
 				{
 					// Passengers can and will use public transport.
 					if(destinations[current_destination].factory_entry)
@@ -3513,7 +3515,7 @@ void stadt_t::step_passagiere()
 				current_destination ++;
 			} // While loop (route_good)
 
-			if(route_good != good && route_good != private_car_only)
+			if(route_good != good && route_good != private_car_only && route_good != can_walk)
 			{
 				if(destinations[0].factory_entry)
 				{
@@ -3702,10 +3704,25 @@ void stadt_t::add_target_city(stadt_t *const city)
 	assert( city != NULL );
 	target_cities.insert_ordered(
 		target_city_t( city, shortest_distance( this->get_pos(), city->get_pos() ) ),
-		city->get_einwohner(),
+		max( city->get_einwohner(), 1 ),
 		target_city_t::less_than,
 		64u
 	);
+}
+
+
+void stadt_t::update_target_city(stadt_t *const city)
+{
+	assert( city != NULL );
+	target_cities.update( target_city_t( city, 0 ), max( city->get_einwohner(), 1 ) );
+}
+
+
+void stadt_t::update_target_cities()
+{
+	for(  uint32 c=0;  c<target_cities.get_count();  ++c  ) {
+		target_cities.update_at( c, max( target_cities[c].city->get_einwohner(), 1 ) );
+	}
 }
 
 
@@ -3866,12 +3883,12 @@ stadt_t::destination stadt_t::find_destination(factory_set_t &target_factories, 
 				{
 					// Necessary to modulate the destinations to avoid repeatedly hitting the same towns.
 					town_step -= 128;
-				}
+				}*/
 
-				if(i == 8 || i == 24 || i == 48)
+				/*if(i == 8 || i == 24 || i == 48)
 				{
 					town_step += 64;
-				}
+				}*/
 
 				// This is almost never hit, even on very big maps. It is therefore an unnecessary check.
 				/*if(i == max_count && distance > max_distance && min_distance < max_internal_distance)
@@ -4237,6 +4254,9 @@ void stadt_t::check_bau_rathaus(bool new_town)
 			cbuffer_t buf;
 			buf.printf( translator::translate("%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants."), name, get_einwohner() );
 			welt->get_message()->add_message(buf, best_pos, message_t::city, CITY_KI, besch->get_tile(layout, 0, 0)->get_hintergrund(0, 0, 0));
+		}
+		else {
+			welt->lookup_kartenboden(best_pos)->set_text( name );
 		}
 
 		if (neugruendung || umziehen) {

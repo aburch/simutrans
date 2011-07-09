@@ -12,6 +12,7 @@
 #include "image_writer.h"
 #include "imagelist_writer.h"
 #include "imagelist2d_writer.h"
+#include "imagelist3d_writer.h"
 #include "bridge_writer.h"
 #include "tunnel_writer.h"
 #include "building_writer.h"
@@ -47,6 +48,7 @@ text_writer_t text_writer_t::the_instance;
 image_writer_t image_writer_t::the_instance;
 imagelist_writer_t imagelist_writer_t::the_instance;
 imagelist2d_writer_t imagelist2d_writer_t::the_instance;
+imagelist3d_writer_t imagelist3d_writer_t::the_instance;
 root_writer_t root_writer_t::the_instance;
 xref_writer_t xref_writer_t::the_instance;
 

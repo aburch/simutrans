@@ -95,5 +95,6 @@ SOURCES ?= $(SOLO_SOURCES) $(SHARED_SOURCES) $(VARIANT_SOURCES)
 BUILDDIR ?= ../build/$(CFG)
 TOOL ?= nettool
 PROG ?= nettool
+PROGDIR ?= $(BUILDDIR)/$(TOOL)
 
 include uncommon.mk

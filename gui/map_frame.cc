@@ -89,15 +89,15 @@ map_frame_t::map_frame_t(karte_t *welt) :
 	zoom_label("map zoom")
 {
 	// show the various objects
-	b_show_legend.init(button_t::roundbox_state, "Show legend", koord(BUTTON1_X,0), koord(BUTTON_WIDTH-1,BUTTON_HEIGHT));
+	b_show_legend.init(button_t::roundbox_state, "Show legend", koord(BUTTON1_X,0), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
 	b_show_legend.add_listener(this);
 	add_komponente(&b_show_legend);
 
-	b_show_scale.init(button_t::roundbox_state, "Show map scale", koord(BUTTON2_X-1,0), koord(BUTTON_WIDTH+2,BUTTON_HEIGHT));
+	b_show_scale.init(button_t::roundbox_state, "Show map scale", koord(BUTTON2_X-1,0), koord(BUTTON_WIDTH+6,BUTTON_HEIGHT));
 	b_show_scale.add_listener(this);
 	add_komponente(&b_show_scale);
 
-	b_show_directory.init(button_t::roundbox_state, "Show industry", koord(BUTTON3_X+1,0), koord(BUTTON_WIDTH-1,BUTTON_HEIGHT));
+	b_show_directory.init(button_t::roundbox_state, "Show industry", koord(BUTTON3_X+1,0), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
 	b_show_directory.add_listener(this);
 	add_komponente(&b_show_directory);
 
@@ -551,15 +551,15 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 		display_proportional(bar_pos.x + 26, bar_pos.y, translator::translate("min"), ALIGN_RIGHT, COL_BLACK, false);
 		display_proportional(bar_pos.x + size.x - 26, bar_pos.y, translator::translate("max"), ALIGN_LEFT, COL_BLACK, false);
 		char scale_text[64] = "NULL";
-		if(welt->get_settings().get_meters_per_tile() % 1000 == 0)
+		if(1000 % welt->get_settings().get_meters_per_tile() == 0)
 		{
 			// Can use integer
-			sprintf(scale_text, "%i %s %s", (uint16)(1 /welt->get_settings().get_meters_per_tile() / 1000), translator::translate("tiles"), translator::translate("per 1 km"));
+			sprintf(scale_text, "%i %s %s", (uint16)(1000 / welt->get_settings().get_meters_per_tile()), translator::translate("tiles"), translator::translate("per 1 km"));
 		}
 		else
 		{
 			// Otherwise, must use float	
-			sprintf(scale_text, "%f %s %s", (1 /welt->get_settings().get_meters_per_tile() / 1000.0), translator::translate("tiles"), translator::translate("per 1 km"));
+			sprintf(scale_text, "%f %s %s", (1000.0 / welt->get_settings().get_meters_per_tile()), translator::translate("tiles"), translator::translate("per 1 km"));
 		}
 		display_proportional(bar_pos.x + 4, bar_pos.y + 16, scale_text, ALIGN_LEFT, COL_BLACK, false);
 		offset_y += LINESPACE+24;

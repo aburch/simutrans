@@ -96,6 +96,7 @@ SOLO_SOURCES += ../besch/writer/groundobj_writer.cc
 SOLO_SOURCES += ../besch/writer/ground_writer.cc
 SOLO_SOURCES += ../besch/writer/image_writer.cc
 SOLO_SOURCES += ../besch/writer/imagelist2d_writer.cc
+SOLO_SOURCES += ../besch/writer/imagelist3d_writer.cc
 SOLO_SOURCES += ../besch/writer/imagelist_writer.cc
 SOLO_SOURCES += ../besch/writer/obj_node.cc
 SOLO_SOURCES += ../besch/writer/obj_writer.cc
@@ -118,7 +119,6 @@ SHARED_SOURCES += ../dataobj/freelist.cc
 SHARED_SOURCES += ../dataobj/tabfile.cc
 SHARED_SOURCES += ../simdebug.cc
 SHARED_SOURCES += ../simmem.cc
-SHARED_SOURCES += ../tpl/debug_helper.cc
 SHARED_SOURCES += ../utils/simstring.cc
 SHARED_SOURCES += ../utils/searchfolder.cc
 VARIANT_SOURCES += ../simtools.cc
@@ -129,5 +129,6 @@ SOURCES ?= $(SOLO_SOURCES) $(SHARED_SOURCES) $(VARIANT_SOURCES)
 BUILDDIR ?= ../build/$(CFG)
 TOOL ?= makeobj
 PROG ?= makeobj
+PROGDIR ?= $(BUILDDIR)/$(TOOL)
 
 include uncommon.mk

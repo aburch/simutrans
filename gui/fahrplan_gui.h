@@ -93,19 +93,28 @@ private:
 
 	// always needed
 	button_t bt_add, bt_insert, bt_remove; // stop management
-	button_t bt_bidirectional, bt_mirror;
+	button_t bt_bidirectional, bt_mirror, bt_same_spacing_shift;
 
 	button_t bt_wait_prev, bt_wait_next;	// waiting in parts of month
-	gui_label_t lb_wait, lb_waitlevel;
+	gui_label_t lb_wait, lb_waitlevel, lb_waitlevel_as_clock;
 
 	gui_label_t lb_load;
 	gui_numberinput_t numimp_load;
 
 	gui_label_t lb_spacing;
 	gui_numberinput_t numimp_spacing;
+	gui_label_t lb_spacing_as_clock;
+
+	gui_label_t lb_spacing_shift;
+	gui_numberinput_t numimp_spacing_shift;
+	gui_label_t lb_spacing_shift_as_clock;
 
 	char str_ladegrad[16];
 	char str_parts_month[32];
+	char str_parts_month_as_clock[32];
+
+	char str_spacing_as_clock[32];
+	char str_spacing_shift_as_clock[32];
 
 	fahrplan_gui_stats_t stats;
 	gui_scrollpane_t scrolly;
@@ -119,7 +128,6 @@ private:
 
 	// changes the waiting/loading levels if allowed
 	void update_selection();
-
 protected:
 	static karte_t *welt;
 	schedule_t *fpl;

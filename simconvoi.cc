@@ -45,6 +45,7 @@
 #include "dataobj/replace_data.h"
 #include "dataobj/translator.h"
 #include "dataobj/umgebung.h"
+#include "dataobj/livery_scheme.h"
 
 #include "dings/crossing.h"
 #include "dings/roadsign.h"
@@ -206,6 +207,8 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	reversed = false;
 	recalc_brake_soll = true;
 	recalc_data = true;
+
+	livery_scheme_index = 0;
 }
 
 
@@ -237,6 +240,8 @@ convoi_t::convoi_t(spieler_t* sp) : fahr(max_vehicle, NULL)
 	// Added by : Knightly
 	old_fpl = NULL;
 	free_seats = 0;
+
+	livery_scheme_index = 0;
 }
 
 
@@ -1054,7 +1059,7 @@ end_loop:
 						if(veh == NULL)
 						{
 							// Fourth - if all else fails, buy from new (expensive).
-							veh = dep->buy_vehicle(replace->get_replacing_vehicle(i));
+							veh = dep->buy_vehicle(replace->get_replacing_vehicle(i), livery_scheme_index);
 						}
 						
 						// This new method is needed to enable this method to iterate over
@@ -2581,6 +2586,14 @@ void convoi_t::rdwr(loadsave_t *file)
 		}
 	}
 
+	// do the update, otherwise we might lose the line after save & reload
+	if(file->is_saving()  &&  line_update_pending.is_bound()) {
+		check_pending_updates();
+		if (fpl->ist_abgeschlossen()  &&  state == FAHRPLANEINGABE) {
+			state = ROUTING_1;
+		}
+	}
+
 	simline_t::rdwr_linehandle_t(file, line);
 
 	dummy = anz_vehikel;
@@ -2954,7 +2967,7 @@ void convoi_t::rdwr(loadsave_t *file)
 			file->rdwr_double(tiles_since_last_odometer_increment);
 			steps_since_last_odometer_increment = (sint64)(tiles_since_last_odometer_increment * 255.0);
 		}
-		else if(file->get_experimental_version() >= 10)
+		else if(file->get_experimental_version() >= 9 && file->get_version() >= 110006)
 		{
 			file->rdwr_longlong(steps_since_last_odometer_increment);
 		}
@@ -3179,6 +3192,15 @@ void convoi_t::rdwr(loadsave_t *file)
 		// left twenty seconds ago, to avoid anomalies when
 		// measuring average speed. 
 		last_departure_time = welt->get_zeit_ms() - 20000;
+	}
+
+	if(file->get_experimental_version() >= 9 && file->get_version() >= 110006)
+	{
+		file->rdwr_short(livery_scheme_index);
+	}
+	else
+	{
+		livery_scheme_index = 0;
 	}
 
 	// This must come *after* all the loading/saving.
@@ -3447,7 +3469,8 @@ void convoi_t::laden() //"load" (Babelfish)
 		sint64 go_on_ticks_spacing = WAIT_INFINITE;
 		if (line.is_bound() && fpl->get_spacing() && line->count_convoys()) {
 			uint32 spacing = welt->ticks_per_world_month/fpl->get_spacing();
-			sint64 wait_from_ticks = (welt->get_zeit_ms()/spacing) * spacing; // remember, it is integer division
+			uint32 spacing_shift = fpl->get_current_eintrag().spacing_shift * welt->ticks_per_world_month/welt->get_settings().get_spacing_shift_divisor();
+			sint64 wait_from_ticks = ((welt->get_zeit_ms()- spacing_shift)/spacing) * spacing + spacing_shift; // remember, it is integer division
 			int queue_pos = halt.is_bound()?halt->get_queue_pos(self):1;
 			go_on_ticks_spacing = wait_from_ticks + spacing * queue_pos;
 		}
@@ -3522,35 +3545,37 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	// the straight line distance, which makes the game difficult and unrealistic. 
 	// If the origin has been deleted since the packet departed, then the best that we can do is guess by
 	// trebling the distance to the last stop.
-	const uint32 max_distance = ware.get_origin().is_bound() ? accurate_distance(ware.get_origin()->get_basis_pos(), fahr[0]->get_pos().get_2d()) * 2.2 : 3 * accurate_distance(last_stop_pos.get_2d(), fahr[0]->get_pos().get_2d());
+	const uint32 max_distance = ware.get_origin().is_bound() ? accurate_distance(ware.get_origin()->get_basis_pos(), fahr[0]->get_pos().get_2d()) * 2 : 3 * accurate_distance(last_stop_pos.get_2d(), fahr[0]->get_pos().get_2d());
 	const uint32 distance = ware.get_accumulated_distance();
 	const uint32 revenue_distance = distance < max_distance ? distance : max_distance;
 
 	ware.reset_accumulated_distance();
 
-	//Multiply by a factor (default: 0.3) to ensure that it fits the scale properly. Journey times can easily appear too long.
 	if(average_speed == 0)
 	{
 		average_speed = 1;
 	}
+	
+	// 100/1667 = 60min/hr / 1000 m/km
 	const uint16 journey_minutes = (((distance * 100) / average_speed) * welt->get_settings().get_meters_per_tile()) / 1667;
 
 	const ware_besch_t* goods = ware.get_besch();
-	const uint16 price = goods->get_preis();
-	const uint32 min_price = price / 10;
+	const sint64 price = (sint64)goods->get_preis();
+	const sint64 min_price = price / 10ll;
 	const uint16 speed_bonus_rating = calc_adjusted_speed_bonus(goods->get_speed_bonus(), distance);
-	const sint32 ref_speed = welt->get_average_speed( fahr[0]->get_besch()->get_waytype() );
-	const sint32 speed_base = (sint32)(100 * average_speed) / ref_speed - 100;
-	const sint32 base_bonus = ((sint32)price * (1000 + speed_base * (sint32)speed_bonus_rating));
-	const sint64 revenue = (sint64)(min_price > base_bonus ? min_price : base_bonus) * (sint64)revenue_distance * (sint64)ware.menge;
+	const sint64 ref_speed = welt->get_average_speed( fahr[0]->get_besch()->get_waytype() );
+	const sint64 speed_base = (100ll * average_speed) / ref_speed - 100ll;
+	const sint64 base_bonus = (price * (1000ll + speed_base * speed_bonus_rating));
+	const sint64 min_revenue = min_price > base_bonus ? min_price : base_bonus;
+	const sint64 revenue = min_revenue * (sint64)revenue_distance * (sint64)ware.menge;
 	sint64 final_revenue = revenue;
 
 	const uint16 happy_percentage = ware.get_origin().is_bound() ? ware.get_origin()->get_unhappy_percentage(1) : 100;
 	if(speed_bonus_rating > 0 && happy_percentage > 0)
 	{
 		// Reduce revenue if the origin stop is crowded, if speed is important for the cargo.
-		sint64 tmp = (speed_bonus_rating * revenue) / 100;
-		tmp *= (happy_percentage * 2) / 100;
+		sint64 tmp = ((sint64)speed_bonus_rating * revenue) / 100ll;
+		tmp *= ((sint64)happy_percentage * 2) / 100ll;
 		final_revenue -= tmp;
 	}
 	
@@ -3559,7 +3584,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 		//Passengers care about their comfort
 		const uint8 tolerable_comfort = calc_tolerable_comfort(journey_minutes);
 
-		uint8 comfort = 100;
+		uint8 comfort = 100ll;
 		if(line.is_bound())
 		{
 			if(line->get_finance_history(1, LINE_COMFORT) < 1)
@@ -3586,21 +3611,21 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 		
 		// Comfort matters more the longer the journey.
 		// @author: jamespetts, March 2010
-		uint32 comfort_modifier;
+		sint64 comfort_modifier;
 		if(journey_minutes <=welt->get_settings().get_tolerable_comfort_short_minutes())
 		{
-			comfort_modifier = 20;
+			comfort_modifier = 20ll;
 		}
 		else if(journey_minutes >=welt->get_settings().get_tolerable_comfort_median_long_minutes())
 		{
-			comfort_modifier = 100;
+			comfort_modifier = 100ll;
 		}
 		else
 		{
 			const uint8 differential = journey_minutes -welt->get_settings().get_tolerable_comfort_short_minutes();
 			const uint8 max_differential =welt->get_settings().get_tolerable_comfort_median_long_minutes() -welt->get_settings().get_tolerable_comfort_short_minutes();
-			const uint32 proportion = differential * 100 / max_differential;
-			comfort_modifier = (80 * proportion / 100) + 20;
+			const sint64 proportion = differential * 100 / max_differential;
+			comfort_modifier = (80ll * proportion / 100ll) + 20ll;
 		}
 
 		if(comfort > tolerable_comfort)
@@ -3608,15 +3633,15 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 			// Apply luxury bonus
 			const uint8 max_differential = welt->get_settings().get_max_luxury_bonus_differential();
 			const uint8 differential = comfort - tolerable_comfort;
-			const uint32 multiplier = (welt->get_settings().get_max_luxury_bonus_percent() * comfort_modifier) / 100;
+			const sint64 multiplier = (welt->get_settings().get_max_luxury_bonus_percent() * comfort_modifier) / 100ll;
 			if(differential >= max_differential)
 			{
-				final_revenue += (sint64)(revenue * multiplier);
+				final_revenue += (revenue * multiplier) / 10000ll;
 			}
 			else
 			{
-				const uint32 proportion = (differential * 100) / max_differential;
-				final_revenue += (revenue * (sint64)(multiplier * proportion)) / 10000;
+				const sint64 proportion = (differential * 100ll) / max_differential;
+				final_revenue += (revenue * (sint64)(multiplier * proportion)) / 10000ll;
 			}
 		}
 		else if(comfort < tolerable_comfort)
@@ -3624,16 +3649,16 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 			// Apply discomfort penalty
 			const uint8 max_differential = welt->get_settings().get_max_discomfort_penalty_differential();
 			const uint8 differential = tolerable_comfort - comfort;
-			uint32 multiplier = (welt->get_settings().get_max_discomfort_penalty_percent() * comfort_modifier) / 100;
-			multiplier = multiplier < 95 ? multiplier : 95;
+			sint64 multiplier = (welt->get_settings().get_max_discomfort_penalty_percent() * comfort_modifier) / 100ll;
+			multiplier = multiplier < 95ll ? multiplier : 95ll;
 			if(differential >= max_differential)
 			{
-				final_revenue -= (sint64)(revenue * multiplier) / 10000;
+				final_revenue -= (revenue * multiplier) / 10000ll;
 			}
 			else
 			{
-				const uint32 proportion = (differential * 100) / max_differential;
-				final_revenue -= (revenue * (sint64)(multiplier * proportion)) / 100;
+				const sint64 proportion = (differential * 100ll) / max_differential;
+				final_revenue -= (revenue * (multiplier * proportion)) / 10000ll;
 			}
 		}
 		
@@ -3655,13 +3680,13 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 		else if(ware.is_passenger())
 		{
 			// Passengers
-			uint32 proportion = 0;
+			sint64 proportion = 0;
 			// Knightly : Reorganised the switch cases to get rid of goto statements
 			switch(catering_level)
 			{
 
-			case 5:
 			default:
+			case 5:
 				if(journey_minutes >=welt->get_settings().get_catering_level4_minutes())
 				{
 					if(journey_minutes >welt->get_settings().get_catering_level5_minutes())
@@ -3670,8 +3695,8 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 						break;
 					}
 					
-					proportion = ((journey_minutes -welt->get_settings().get_catering_level4_max_revenue()) * 100) / (welt->get_settings().get_catering_level5_minutes() -welt->get_settings().get_catering_level4_minutes());
-					final_revenue += (sint64)((proportion * (welt->get_settings().get_catering_level5_max_revenue() * ware.menge)) / 100);
+					proportion = (sint64)((journey_minutes - welt->get_settings().get_catering_level4_max_revenue()) * 100) / (welt->get_settings().get_catering_level5_minutes() -welt->get_settings().get_catering_level4_minutes());
+					final_revenue += ((proportion * (sint64)(welt->get_settings().get_catering_level5_max_revenue() * ware.menge)) / 100);
 					break;
 				}
 
@@ -4735,7 +4760,7 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 	{
 		txt = "Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.";
 	}
-	if (!b_depot_found || show_success) 
+	if ((!b_depot_found || show_success) && get_besitzer() == welt->get_active_player())
 	{
 		create_win( new news_img(txt), w_time_delete, magic_none);
 	}
@@ -4972,10 +4997,7 @@ void convoi_t::snprintf_remained_loading_time(char *p, size_t size) const
 	else
 	{
 		uint32 ticks_left = (int)(go_on_ticks - welt->get_zeit_ms());
-		unsigned int hours = (ticks_left * 24) >> welt->ticks_per_world_month_shift;
-		unsigned int minutes = ((ticks_left * 24 * 60) >> welt->ticks_per_world_month_shift)%60;
-		snprintf(p, size, "%u:%02u", hours, minutes);
-		//sprintf(p, "%u:%02u", hours, minutes);
+		win_sprintf_ticks(p, size, ticks_left);
 	}
 }
 
@@ -5041,4 +5063,36 @@ void convoi_t::clear_replace()
 		 replace->decrement_convoys(self);
 	 }
 	 replace = new_replace;
+ }
+
+ void convoi_t::apply_livery_scheme()
+ {
+	 const livery_scheme_t* const scheme = welt->get_settings().get_livery_scheme(livery_scheme_index);
+	 if(!scheme)
+	 {
+		 return;
+	 }
+	 const uint16 date = welt->get_timeline_year_month();
+	 for (int i = 0; i < anz_vehikel; i++) 
+	 {
+		vehikel_t& v = *fahr[i];
+		const char* liv = scheme->get_latest_available_livery(date, v.get_besch());
+		if(liv)
+		{
+			// Only change the livery if there is an available scheme livery.
+			v.set_current_livery(liv);
+		}
+	 }
+ }
+
+ uint16 convoi_t::get_livery_scheme_index() const
+ {
+	 if(line.is_bound())
+	 {
+		 return line->get_livery_scheme_index();
+	 }
+	 else
+	 {
+		 return livery_scheme_index;
+	 }
  }

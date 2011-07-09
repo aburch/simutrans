@@ -1218,6 +1218,15 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 				// not empty ...
 				return "Tile not empty.";
 			}
+			// check way ownership
+			if(gr1->hat_wege()) {
+				if(gr1->get_weg_nr(0)->ist_entfernbar(sp)!=NULL) {
+					return "Tile not empty.";
+				}
+				if(gr1->has_two_ways()  &&  gr1->get_weg_nr(1)->ist_entfernbar(sp)!=NULL) {
+					return "Tile not empty.";
+				}
+			}
 
 			// ok, was sucess
 			if(!gr1->ist_wasser()  &&  new_slope==0  &&  new_pos.z==welt->get_grundwasser()  &&  gr1->get_typ()!=grund_t::tunnelboden  ) {
@@ -1584,8 +1593,7 @@ const char *wkz_change_city_size_t::work( karte_t *welt, spieler_t * sp, koord3d
 		// Knightly : update the links from other cities to this city
 		const weighted_vector_tpl<stadt_t *> &cities = welt->get_staedte();
 		for(  uint32 c=0;  c<cities.get_count();  ++c  ) {
-			cities[c]->remove_target_city(city);
-			cities[c]->add_target_city(city);
+			cities[c]->update_target_city(city);
 		}
 		return NULL;
 	}
@@ -2127,7 +2135,6 @@ uint8 wkz_brueckenbau_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord
 		const char *error = NULL;
 		koord3d end = brueckenbauer_t::finde_ende(welt, start, koord(test), besch, error, false, koord_distance(start, pos));
 		if (end!=pos) {
-			koord3d end = brueckenbauer_t::finde_ende(welt, start, koord(test), besch, error, false, koord_distance(start, pos));
 			return 0;
 		}
 		return 2;
@@ -5665,6 +5672,7 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
  * [function],[line_id],addition stuff
  * following simple command exists:
  * 'g' : apply new schedule to line [schedule follows]
+ * 'V' : Apply a new livery scheme to the line [livery scheme index follows]
  */
 bool wkz_change_line_t::init( karte_t *, spieler_t *sp )
 {
@@ -5756,6 +5764,16 @@ bool wkz_change_line_t::init( karte_t *, spieler_t *sp )
 				}
 			}
 			break;
+
+		case 'V': // Change livery
+			{
+				uint16 livery_scheme_index = atoi(p);
+				if(line.is_bound())
+				{
+					line->set_livery_scheme_index(livery_scheme_index);
+					line->propogate_livery_scheme();
+				}
+			}
 	}
 	return false;
 }
@@ -5781,17 +5799,18 @@ bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 	koord3d pos = koord3d::invalid;
 	sint16	z;
 	uint16 convoi_id;
+	uint16 livery_scheme_index;
 
 	// skip the rest of the command
 	const char *p = default_param;
 	while(  *p  &&  *p<=' '  ) {
 		p++;
 	}
-	sscanf( p, "%c,%hi,%hi,%hi,%hi", &tool, &pos.x, &pos.y, &z, &convoi_id );
+	sscanf( p, "%c,%hi,%hi,%hi,%hi,%hi", &tool, &pos.x, &pos.y, &z, &convoi_id, &livery_scheme_index );
 	pos.z = (sint8)z;
 
 	// skip to the commands ...
-	z = 5;
+	z = 6;
 	while(  *p  &&  z>0  ) {
 		if(  *p==','  ) {
 			z--;
@@ -5948,7 +5967,7 @@ bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 									// If upgrading, we assume that we want to upgrade
 									// rather than use vehicles already in the depot.
 
-									veh = depot->buy_vehicle(vb);
+									veh = depot->buy_vehicle(vb, livery_scheme_index);
 								}
 
 								if(tool == 'u')

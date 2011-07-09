@@ -766,7 +766,7 @@ vehikel_t::unload_freight(halthandle_t halt)
 					// hier sollte nur ordentliche ware verabeitet werden
 					// "here only tidy commodity should be processed" (Babelfish) 
 					
-					if(halt != end_halt && halt->is_overcrowded(tmp.get_besch()->get_catg_index()) &&welt->get_settings().is_avoid_overcrowding())
+					if(halt != end_halt && halt->is_overcrowded(tmp.get_besch()->get_catg_index()) && welt->get_settings().is_avoid_overcrowding())
 					{
 						// Halt overcrowded - discard goods/passengers, and collect no revenue.
 						// Experimetal 7.2 - also calculate a refund.
@@ -837,7 +837,6 @@ vehikel_t::unload_freight(halthandle_t halt)
 									}
 								}
 							}
-
 						}
 					}				
 					kill_queue.append(tmp);
@@ -1103,6 +1102,7 @@ vehikel_t::vehikel_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp) :
 	diagonal_costs = 0;
     hill_up = 0;
     hill_down = 0;
+	current_livery = "default";
 }
 
 sint64 vehikel_t::sound_ticks = 0;
@@ -1139,6 +1139,7 @@ vehikel_t::vehikel_t(karte_t *welt) :
 	diagonal_costs = 0;
     hill_up = 0;
     hill_down = 0;
+	current_livery = "default";
 }
 
 
@@ -1324,7 +1325,7 @@ void vehikel_t::hop()
 	
 	if(gr != NULL)
 	{
-		calc_akt_speed(gr);
+		calc_drag_coefficient(gr);
 	}
 
 	sint8 trim_size = pre_corner_direction.get_count() - direction_steps;
@@ -1420,10 +1421,10 @@ sint32 vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::rib
 		else
 		{
 			//Smooth the difference
-			uint32 tmp1 = base_limit - min_corner_limit;
-			uint32 tmp2 = max_corner_limit - min_corner_limit;
+			const uint32 tmp1 = base_limit - min_corner_limit;
+			const uint32 tmp2 = max_corner_limit - min_corner_limit;
 			const uint32 percentage = (tmp1 * 100) / tmp2;
-			limit_adjustment_percentage = (((min_corner_adjustment_factor - max_corner_adjustment_factor) * percentage) / 100) + max_corner_adjustment_factor;
+			limit_adjustment_percentage = min_corner_adjustment_factor - (((min_corner_adjustment_factor - max_corner_adjustment_factor) * percentage) / 100);
 			direction_steps = (sint16)(((max_direction_steps - min_direction_steps) * percentage) / 100) + min_direction_steps; 
 		}
 		
@@ -1513,14 +1514,12 @@ sint32 vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::rib
 				max_speed_180 = kmh_to_speed(20);
 				break;
 
+			default:
 			case road_wt:
 				max_speed_90 = kmh_to_speed(45);
 				max_speed_135 = kmh_to_speed(40);
 				max_speed_180 = kmh_to_speed(35);
 				break;
-				
-			default:
-				base_limit;
 		}
 
 		//Smoothing code: smoothed corners benefit.	
@@ -1614,7 +1613,7 @@ sint32 vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::rib
 }
 
 /** gets the waytype specific friction on straight flat way.
- * extracted from vehikel_t::calc_akt_speed()
+ * extracted from vehikel_t::calc_drag_coefficient()
  * @author Bernd Gabriel, Nov, 05 2009
  */
 sint16 get_friction_of_waytype(waytype_t waytype)
@@ -1633,7 +1632,7 @@ sint16 get_friction_of_waytype(waytype_t waytype)
  * flat, slope, (curve)...
  * @author prissi, HJ, Dwachs
  */
-void vehikel_t::calc_akt_speed(const grund_t *gr) //,const int h_alt, const int h_neu)
+void vehikel_t::calc_drag_coefficient(const grund_t *gr) //,const int h_alt, const int h_neu)
 {
 	if(gr == NULL)
 	{
@@ -1849,11 +1848,11 @@ vehikel_t::calc_bild() //"Bild" = "picture" (Google)
 	image_id old_bild=get_bild();
 	if (fracht.empty()) 
 	{
-		set_bild(besch->get_bild_nr(ribi_t::get_dir(get_direction_of_travel()),NULL)); 
+		set_bild(besch->get_bild_nr(ribi_t::get_dir(get_direction_of_travel()), NULL, current_livery.c_str())); 
 	}
 	else 
 	{
-		set_bild(besch->get_bild_nr(ribi_t::get_dir(get_direction_of_travel()), fracht.front().get_besch()));
+		set_bild(besch->get_bild_nr(ribi_t::get_dir(get_direction_of_travel()), fracht.front().get_besch(), current_livery.c_str()));
 	}
 	if(old_bild!=get_bild()) {
 		set_flag(ding_t::dirty);
@@ -2211,6 +2210,15 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 				pre_corner_direction.add_to_tail(dir);
 			}
 		}
+	}
+
+	if(file->get_experimental_version() >= 9 && file->get_version() >= 110006)
+	{
+		file->rdwr_string(current_livery);
+	}
+	else if(file->is_loading())
+	{
+		current_livery = "default";
 	}
 }
 
@@ -3240,6 +3248,7 @@ bool waggon_t::is_weg_frei_choose_signal( signal_t *sig, const uint16 start_bloc
 	}
 
 	if(  !choose_ok  ) {
+		assert(  !target_halt.is_bound()  );
 		// just act as normal signal
 		if(  block_reserver( cnv->get_route(), start_block+1, next_signal, next_crossing, 0, true, false )  ) {
 			sig->set_zustand(  roadsign_t::gruen );
@@ -3260,6 +3269,7 @@ bool waggon_t::is_weg_frei_choose_signal( signal_t *sig, const uint16 start_bloc
 
 		if(!cnv->is_waiting()) {
 			restart_speed = -1;
+			target_halt = halthandle_t();
 			return false;
 		}
 		// now we are in a step and can use the route search array
@@ -3781,7 +3791,7 @@ bool schiff_t::ist_befahrbar(const grund_t *bd) const
  * @author prissi
  */
 void
-schiff_t::calc_akt_speed(const grund_t *gr)
+schiff_t::calc_drag_coefficient(const grund_t *gr)
 {
 	// flat water
 	current_friction = get_friction_of_waytype(water_wt);
@@ -4733,8 +4743,12 @@ void aircraft_t::display_after(int xpos_org, int ypos_org, bool is_global) const
 		int xpos = xpos_org, ypos = ypos_org;
 
 		const int raster_width = get_current_tile_raster_width();
+		const sint16 z = get_pos().z;
+		if (z + flughoehe/TILE_HEIGHT_STEP - 1 > grund_t::underground_level) {
+			return;
+		}
+		const sint16 target = target_height - ((sint16)z*TILE_HEIGHT_STEP)/Z_TILE_STEP;
 		sint16 current_flughohe = flughoehe;
-		const sint16 target = target_height - ((sint16)get_pos().z*TILE_HEIGHT_STEP)/Z_TILE_STEP;
 		if(  current_flughohe < target  ) {
 			current_flughohe += (steps*TILE_HEIGHT_STEP) >> 8;
 		}

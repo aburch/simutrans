@@ -29,6 +29,12 @@ public:
 	 * @author prissi
 	 */
 	sint8 waiting_time_shift;
+
+	/**
+	 * spacing shift
+	 * @author Inkelyad
+	 */
+	sint16 spacing_shift;
 };
 
 #endif

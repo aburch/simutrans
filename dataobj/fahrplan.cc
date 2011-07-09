@@ -25,7 +25,7 @@
 #include "../tpl/slist_tpl.h"
 
 
-struct linieneintrag_t schedule_t::dummy_eintrag = { koord3d::invalid, 0, 0 };
+struct linieneintrag_t schedule_t::dummy_eintrag = { koord3d::invalid, 0, 0, 0 };
 
 
 schedule_t::schedule_t(loadsave_t* const file)
@@ -56,6 +56,8 @@ void schedule_t::copy_from(const schedule_t *src)
 	spacing = src->get_spacing();
 	bidirectional = src->is_bidirectional();
 	mirrored = src->is_mirrored();
+	same_spacing_shift = src->is_same_spacing_shift();
+
 }
 
 
@@ -90,15 +92,17 @@ bool schedule_t::ist_halt_erlaubt(const grund_t *gr) const
 
 
 
-bool schedule_t::insert(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_shift, bool show_failure )
+bool schedule_t::insert(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_shift, sint16 spacing_shift, bool show_failure )
 {
 #ifndef _MSC_VER
-	struct linieneintrag_t stop = { gr->get_pos(), ladegrad, waiting_time_shift };
+	struct linieneintrag_t stop = { gr->get_pos(), ladegrad, waiting_time_shift, spacing_shift };
 #else
 	struct linieneintrag_t stop;
 	stop.pos = gr->get_pos();
 	stop.ladegrad = ladegrad;
 	stop.waiting_time_shift = waiting_time_shift;
+	stop.spacing_shift = spacing_shift;
+
 #endif
 	// stored in minivec, so wie have to avoid adding too many
 	if(  eintrag.get_count()>=254  ) 
@@ -127,15 +131,16 @@ bool schedule_t::insert(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_sh
 
 
 
-bool schedule_t::append(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_shift)
+bool schedule_t::append(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_shift, sint16 spacing_shift)
 {
 #ifndef _MSC_VER
-	struct linieneintrag_t stop = { gr->get_pos(), ladegrad, waiting_time_shift };
+	struct linieneintrag_t stop = { gr->get_pos(), ladegrad, waiting_time_shift, spacing_shift };
 #else
 	struct linieneintrag_t stop;
 	stop.pos = gr->get_pos();
 	stop.ladegrad = ladegrad;
 	stop.waiting_time_shift = waiting_time_shift;
+	stop.spacing_shift = spacing_shift;
 #endif
 
 	// stored in minivec, so wie have to avoid adding too many
@@ -243,6 +248,7 @@ void schedule_t::rdwr(loadsave_t *file)
 			stop.pos = pos;
 			stop.ladegrad = (sint8)dummy;
 			stop.waiting_time_shift = 0;
+			stop.spacing_shift = 0;
 			eintrag.append(stop);
 		}
 	}
@@ -252,11 +258,17 @@ void schedule_t::rdwr(loadsave_t *file)
 			if(eintrag.get_count()<=i) {
 				eintrag.append( linieneintrag_t() );
 				eintrag[i] .waiting_time_shift = 0;
+				eintrag[i].spacing_shift = 0;
 			}
 			eintrag[i].pos.rdwr(file);
 			file->rdwr_byte(eintrag[i].ladegrad);
 			if(file->get_version()>=99018) {
 				file->rdwr_byte(eintrag[i].waiting_time_shift);
+
+				if (file->get_experimental_version() >= 9 && file->get_version() >= 110006) 
+				{
+					file->rdwr_short(eintrag[i].spacing_shift);
+				}
 			}
 		}
 	}
@@ -273,6 +285,11 @@ void schedule_t::rdwr(loadsave_t *file)
 	if(file->get_experimental_version() >= 9)
 	{
 		file->rdwr_short(spacing);
+	}
+
+	if(file->get_experimental_version() >= 9 && file->get_version() >= 110006)
+	{
+		file->rdwr_bool(same_spacing_shift);
 	}
 }
 
@@ -313,11 +330,19 @@ bool schedule_t::matches(karte_t *welt, const schedule_t *fpl)
 	if ( this->spacing != fpl->spacing ) {
 		return false;
 	}
+	if (this->same_spacing_shift != fpl->same_spacing_shift) {
+		return false;
+	}
 	// now we have to check all entries ...
 	// we need to do this that complicated, because the last stop may make the difference
 	uint16 f1=0, f2=0;
 	while(  f1+f2<eintrag.get_count()+fpl->eintrag.get_count()  ) {
-		if(f1<eintrag.get_count()  &&  f2<fpl->eintrag.get_count()  &&  fpl->eintrag[f2].pos == eintrag[f1].pos && fpl->eintrag[f2].ladegrad == eintrag[f1].ladegrad && fpl->eintrag[f2].waiting_time_shift == eintrag[f1].waiting_time_shift) {
+		if(		f1<eintrag.get_count()  &&  f2<fpl->eintrag.get_count()
+			&& fpl->eintrag[f2].pos == eintrag[f1].pos 
+			&& fpl->eintrag[f2].ladegrad == eintrag[f1].ladegrad 
+			&& fpl->eintrag[f2].waiting_time_shift == eintrag[f1].waiting_time_shift 
+			&& fpl->eintrag[f2].spacing_shift == eintrag[f1].spacing_shift
+		  ) {
 			// ladegrad/waiting ignored: identical
 			f1++;
 			f2++;
@@ -395,12 +420,12 @@ void schedule_t::increment_index(uint8 *index, bool *reversed) const {
 void schedule_t::sprintf_schedule( cbuffer_t &buf ) const
 {
 	buf.append( aktuell );
-	buf.printf( ",%i,%i,%i", bidirectional, mirrored, spacing );
+	buf.printf( ",%i,%i,%i,%i", bidirectional, mirrored, spacing, same_spacing_shift) ;
 	buf.append( "|" );
 	buf.append( (int)get_type() );
 	buf.append( "|" );
 	for(  uint8 i = 0;  i<eintrag.get_count();  i++  ) {
-		buf.printf( "%s,%i,%i|", eintrag[i].pos.get_str(), (int)eintrag[i].ladegrad, (int)eintrag[i].waiting_time_shift );
+		buf.printf( "%s,%i,%i,%i|", eintrag[i].pos.get_str(), (int)eintrag[i].ladegrad, (int)eintrag[i].waiting_time_shift, (int)eintrag[i].spacing_shift );
 	}
 }
 
@@ -428,6 +453,10 @@ bool schedule_t::sscanf_schedule( const char *ptr )
 	if( *p && (*p!=','  &&  *p!='|') ) { spacing = atoi(p); }
 	while ( *p && isdigit(*p) ) { p++; }
 	if ( *p && *p == ',' ) { p++; }
+	// same_spacing_shift flag
+	if( *p && (*p!=','  &&  *p!='|') ) { same_spacing_shift = bool(atoi(p)); }
+	while ( *p && isdigit(*p) ) { p++; }
+	if ( *p && *p == ',' ) { p++; }
 
 	if(  *p!='|'  ) {
 		dbg->error( "schedule_t::sscanf_schedule()","incomplete entry termination!" );
@@ -451,17 +480,17 @@ bool schedule_t::sscanf_schedule( const char *ptr )
 	p++;
 	// now scan the entries
 	while(  *p>0  ) {
-		sint16 values[5];
-		for(  sint8 i=0;  i<5;  i++  ) {
+		sint16 values[6];
+		for(  sint8 i=0;  i<6;  i++  ) {
 			values[i] = atoi( p );
 			while(  *p  &&  (*p!=','  &&  *p!='|')  ) {
 				p++;
 			}
-			if(  i<4  &&  *p!=','  ) {
+			if(  i<5  &&  *p!=','  ) {
 				dbg->error( "schedule_t::sscanf_schedule()","incomplete string!" );
 				return false;
 			}
-			if(  i==4  &&  *p!='|'  ) {
+			if(  i==5  &&  *p!='|'  ) {
 				dbg->error( "schedule_t::sscanf_schedule()","incomplete entry termination!" );
 				return false;
 			}
@@ -469,12 +498,13 @@ bool schedule_t::sscanf_schedule( const char *ptr )
 		}
 		// ok, now we have a complete entry
 #ifndef _MSC_VER
-		struct linieneintrag_t stop = { koord3d(values[0],values[1],values[2]), values[3], values[4] };
+		struct linieneintrag_t stop = { koord3d(values[0],values[1],values[2]), values[3], values[4], values[5] };
 #else
 		struct linieneintrag_t stop;
 		stop.pos = koord3d(values[0],values[1],values[2]);
 		stop.ladegrad = values[3];
 		stop.waiting_time_shift = values[4];
+		stop.spacing_shift = values[5];
 #endif
 		eintrag.append( stop );
 	}

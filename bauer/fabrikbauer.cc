@@ -871,97 +871,165 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","failed to built lieferant %s aroun
 int fabrikbauer_t::increase_industry_density( karte_t *welt, bool tell_me, bool do_not_add_beyond_target_density )
 {
 	int nr = 0;
-	fabrik_t *last_built_consumer = NULL;
-	int last_built_consumer_ware = 0;
 
-	// find last consumer
+	// Build a list of all industries with incomplete supply chains.
 	if(!welt->get_fab_list().empty()) 
 	{
+		// A collection of all consumer industries that are not fully linked to suppliers.
+		vector_tpl<fabrik_t*> unlinked_consumers;
+		vector_tpl<const ware_besch_t*> missing_goods;
+
 		ITERATE(welt->get_fab_list(), i)
 		{
 			fabrik_t *fab = welt->get_fab_list()[i];
-			if(fab->get_besch()->get_produkte()==0) 
+			for(int l = 0; l < fab->get_besch()->get_lieferanten(); l ++)
 			{
-				last_built_consumer = fab;
-				break;
-			}
-		}
-		// ok, found consumer
-		if(  last_built_consumer  ) 
-		{
-			for(  int i=0;  i < last_built_consumer->get_besch()->get_lieferanten();  i++  ) 
-			{
-				ware_besch_t const* const w = last_built_consumer->get_besch()->get_lieferant(i)->get_ware();
-				for(  uint32 j=0;  j<last_built_consumer->get_suppliers().get_count();  j++  ) 
+				// Check the list of possible suppliers for this factory type.
+				const fabrik_lieferant_besch_t* supplier_type = fab->get_besch()->get_lieferant(l);
+				const ware_besch_t* w = supplier_type->get_ware();
+				missing_goods.append_unique(w);
+				const vector_tpl<koord> suppliers = fab->get_suppliers();
+				
+				// Check how much of this product that the current factory needs
+				const sint32 consumption_level = fab->get_base_production() * supplier_type->get_verbrauch();
+				
+				ITERATE(suppliers, s)
 				{
-					fabrik_t *sup = fabrik_t::get_fab( welt, last_built_consumer->get_suppliers()[j] );
-					const fabrik_besch_t* const fb = sup->get_besch();
-					for (uint32 k = 0; k < fb->get_produkte(); k++) 
+					// Check whether the factory's actual suppliers supply any of this product.
+					const fabrik_t* supplier = fabrik_t::get_fab(welt, suppliers[s]);
+					sint32 available_for_consumption = 0;
+					for(int p = 0; p < supplier->get_besch()->get_produkte(); p ++)
 					{
-						if (fb->get_produkt(k)->get_ware() == w) 
+						const fabrik_produkt_besch_t* consumer_type = supplier->get_besch()->get_produkt(p);
+						const ware_besch_t* wp = consumer_type->get_ware();
+						
+						if(wp == w)
 						{
-							last_built_consumer_ware = i+1;
-							goto next_ware_check;
+							// Check to see whether this supplier is able to supply *enough* of this product
+							const sint32 total_output = supplier->get_base_production() * consumer_type->get_faktor();
+							sint32 used_output = 0;
+							vector_tpl<koord> competing_consumers = supplier->get_lieferziele();
+							for(int n = 0; n < competing_consumers.get_count(); n ++)
+							{
+								const fabrik_t* competing_consumer = fabrik_t::get_fab(welt, competing_consumers.get_element(n));
+								for(int x = 0; x < competing_consumer->get_besch()->get_lieferanten(); x ++)
+								{
+									const ware_besch_t* wcc = consumer_type->get_ware();
+									if(wcc == wp)
+									{
+										used_output += competing_consumer->get_base_production() * competing_consumer->get_besch()->get_lieferant(x)->get_verbrauch();
+									}
+								}
+								const sint32 remaining_output = total_output - used_output;
+								if(remaining_output > 0)
+								{
+									available_for_consumption += remaining_output;
+								}
+							}
+
+							if(available_for_consumption >= consumption_level)
+							{
+								// If the supplier does supply enough of the product, do not list it as missing.
+								missing_goods.remove(w);
+							}
 						}
 					}
 				}
-next_ware_check:
-				// ok, found something, text next
-				;
 			}
-		}
-	}
 
-	// first: do we have to continue unfinished business?
-	if(last_built_consumer  &&  last_built_consumer_ware < last_built_consumer->get_besch()->get_lieferanten()) 
-	{
-		int org_rotation = -1;
-		// rotate until we can save it, if one of the factory is non-rotateable ...
-		if(welt->cannot_save()  &&  !can_factory_tree_rotate(last_built_consumer->get_besch()) ) 
-		{
-			org_rotation = welt->get_settings().get_rotation();
-			for(  int i=0;  i<3  &&  welt->cannot_save();  i++  ) 
+			if(!missing_goods.empty())
 			{
-				welt->rotate90();
+				unlinked_consumers.append_unique(fab);
 			}
-			assert( !welt->cannot_save() );
+			missing_goods.clear();
 		}
 
-		uint32 last_suppliers = last_built_consumer->get_suppliers().get_count();
-		do 
-		{
-			nr += baue_link_hierarchie( last_built_consumer, last_built_consumer->get_besch(), last_built_consumer_ware, welt->get_spieler(1) );
-			last_built_consumer_ware ++;
-		} while(  last_built_consumer_ware < last_built_consumer->get_besch()->get_lieferanten()  &&  last_built_consumer->get_suppliers().get_count()==last_suppliers  );
+		int missing_goods_index = 0;
 
-		// must rotate back?
-		if(org_rotation>=0) {
-			for (int i = 0; i < 4 && welt->get_settings().get_rotation() != org_rotation; ++i) {
-				welt->rotate90();
-			}
-			welt->update_map();
-		}
-
-		// only return, if successful
-		if(  last_built_consumer->get_suppliers().get_count() > last_suppliers  ) 
+		// ok, found consumer
+		if(!unlinked_consumers.empty()) 
 		{
-			DBG_MESSAGE( "fabrikbauer_t::increase_industry_density()", "added ware %i to factory %s", last_built_consumer_ware, last_built_consumer->get_name() );
-			// tell the player
-			if(tell_me) {
-				stadt_t *s = welt->suche_naechste_stadt( last_built_consumer->get_pos().get_2d() );
-				const char *stadt_name = s ? s->get_name() : "simcity";
-				cbuffer_t buf;
-				buf.printf( translator::translate("Factory chain extended\nfor %s near\n%s built with\n%i factories."), translator::translate(last_built_consumer->get_name()), stadt_name, nr );
-				welt->get_message()->add_message(buf, last_built_consumer->get_pos().get_2d(), message_t::industry, CITY_KI, last_built_consumer->get_besch()->get_haus()->get_tile(0)->get_hintergrund(0, 0, 0));
+			ITERATE(unlinked_consumers, u)
+			{
+				// For each iteration, check, if necessary, whether the target density is exceeded.
+				if(do_not_add_beyond_target_density && welt->get_actual_industry_density() >= welt->get_target_industry_density())
+				{
+					// Do not "return" here, as power stations may yet be necessary.
+					break;
+				}
+
+				for(int i=0;  i < unlinked_consumers[u]->get_besch()->get_lieferanten();  i++) 
+				{
+					ware_besch_t const* const w = unlinked_consumers[u]->get_besch()->get_lieferant(i)->get_ware();
+					for(uint32 j = 0; j < unlinked_consumers[u]->get_suppliers().get_count();  j++) 
+					{
+						fabrik_t *sup = fabrik_t::get_fab( welt, unlinked_consumers[u]->get_suppliers()[j] );
+						const fabrik_besch_t* const fb = sup->get_besch();
+						for (uint32 k = 0; k < fb->get_produkte(); k++) 
+						{
+							if (fb->get_produkt(k)->get_ware() == w) 
+							{
+								missing_goods_index = i + 1;
+								goto next_ware_check;
+							}
+						}
+					}
+next_ware_check:
+					// ok, found something, text next
+					;
+				}
+
+				// first: do we have to continue unfinished business?
+				if(missing_goods_index < unlinked_consumers[u]->get_besch()->get_lieferanten()) 
+				{
+					int org_rotation = -1;
+					// rotate until we can save it, if one of the factory is non-rotateable ...
+					if(welt->cannot_save()  &&  !can_factory_tree_rotate(unlinked_consumers[u]->get_besch()) ) 
+					{
+						org_rotation = welt->get_settings().get_rotation();
+						for(  int i=0;  i<3  &&  welt->cannot_save();  i++  ) 
+						{
+							welt->rotate90();
+						}
+						assert( !welt->cannot_save() );
+					}
+
+					uint32 last_suppliers = unlinked_consumers[u]->get_suppliers().get_count();
+					do 
+					{
+						nr += baue_link_hierarchie( unlinked_consumers[u], unlinked_consumers[u]->get_besch(), missing_goods_index, welt->get_spieler(1) );
+						missing_goods_index ++;
+					} while(  missing_goods_index < unlinked_consumers[u]->get_besch()->get_lieferanten()  &&  unlinked_consumers[u]->get_suppliers().get_count()==last_suppliers  );
+
+					// must rotate back?
+					if(org_rotation>=0) {
+						for (int i = 0; i < 4 && welt->get_settings().get_rotation() != org_rotation; ++i) {
+							welt->rotate90();
+						}
+						welt->update_map();
+					}
+
+					// only return, if successful
+					if(unlinked_consumers[u]->get_suppliers().get_count() > last_suppliers) 
+					{
+						DBG_MESSAGE( "fabrikbauer_t::increase_industry_density()", "added ware %i to factory %s", missing_goods_index, unlinked_consumers[u]->get_name() );
+						// tell the player
+						if(tell_me) {
+							stadt_t *s = welt->suche_naechste_stadt( unlinked_consumers[u]->get_pos().get_2d() );
+							const char *stadt_name = s ? s->get_name() : "simcity";
+							cbuffer_t buf;
+							buf.printf( translator::translate("Factory chain extended\nfor %s near\n%s built with\n%i factories."), translator::translate(unlinked_consumers[u]->get_name()), stadt_name, nr );
+							welt->get_message()->add_message(buf, unlinked_consumers[u]->get_pos().get_2d(), message_t::industry, CITY_KI, unlinked_consumers[u]->get_besch()->get_haus()->get_tile(0)->get_hintergrund(0, 0, 0));
+						}
+						reliefkarte_t::get_karte()->calc_map();
+						return nr;
+					}
+				}
 			}
-			reliefkarte_t::get_karte()->calc_map();
-			return nr;
 		}
 	}
 
 	// ok, nothing to built, thus we must start new
-	last_built_consumer = NULL;
-	last_built_consumer_ware = 0;
 
 	// first decide, whether a new powerplant is needed or not
 	uint32 total_electric_demand = 1;
@@ -972,11 +1040,11 @@ next_ware_check:
 		fabrik_t * fab = welt->get_fab_list()[x];
 		if(fab->get_besch()->is_electricity_producer()) 
 		{
-			electric_productivity += fab->get_base_production() * PRODUCTION_DELTA_T * 4;
+			electric_productivity += fab->get_scaled_electric_amount();
 		}
 		else 
 		{
-			total_electric_demand += (fab->get_base_production() * fab->get_besch()->get_electricity_proportion()) / 100;
+			total_electric_demand += fab->get_scaled_electric_amount();
 		}
 	}
 
@@ -1021,10 +1089,6 @@ next_ware_check:
 					nr += baue_hierarchie(NULL, fab, rotation, &pos, welt->get_spieler(1), 1 );
 					if(nr>0) {
 						fabrik_t *our_fab = fabrik_t::get_fab( welt, pos.get_2d() );
-						if(in_city) {
-							last_built_consumer = our_fab;
-							last_built_consumer_ware = 1;
-						}
 						reliefkarte_t::get_karte()->calc_map_groesse();
 						// tell the player
 						if(tell_me) {

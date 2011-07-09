@@ -38,7 +38,7 @@ public:
 
 	void recalc_size();
 
-	void gui_fixedwidth_textarea_t::set_text(const char *const text);
+	void set_text(const char *const text);
 
 	// after using any of these setter functions, remember to call recalc_size() to recalculate textarea height
 	void set_width(const sint16 width);

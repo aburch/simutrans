@@ -335,6 +335,13 @@ private:
 	ribi_t::ribi alte_richtung; //"Old direction" (Google)
 
 	/**
+	* The index number of the livery scheme of the current convoy
+	* in the livery schemes vector in einstellungen_t.
+	* @author: jamespetts, April 2011
+	*/
+	uint16 livery_scheme_index;
+
+	/**
 	* Initialize all variables with default values.
 	* Each constructor must call this method first!
 	* @author Hj. Malthaner
@@ -636,7 +643,7 @@ public:
 	 *         actual currently set speed.
 	 * @author Hj. Malthaner
 	 */
-	inline const sint32 get_akt_speed() const { return akt_speed; }
+	inline sint32 get_akt_speed() const { return akt_speed; }
 
 	/**
 	 * @return total power of this convoi
@@ -1041,6 +1048,11 @@ public:
 	// @author: jamespetts
 	static uint8 calc_tolerable_comfort(uint16 journey_minutes, karte_t* w);
 	inline uint8 calc_tolerable_comfort(uint16 journey_minutes) { return calc_tolerable_comfort(journey_minutes, welt); }
+
+	uint16 get_livery_scheme_index() const;
+	void set_livery_scheme_index(uint16 value) { livery_scheme_index = value; }
+
+	void apply_livery_scheme(); 
 };
 
 #endif

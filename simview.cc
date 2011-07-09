@@ -44,6 +44,7 @@ static const sint8 hours2night[] =
 
 void karte_ansicht_t::display(bool force_dirty)
 {
+#if COLOUR_DEPTH > 0
 	DBG_DEBUG4("karte_ansicht_t::display", "starting ...");
 	display_set_image_proc(true);
 
@@ -280,4 +281,7 @@ void karte_ansicht_t::display(bool force_dirty)
 		mark_rect_dirty_wc( 0, 0, display_get_width(), display_get_height() );
 	}
 	DBG_DEBUG4("karte_ansicht_t::display", "... ready");
+#else
+	(void)force_dirty;
+#endif // COLOUR_DEPTH > 0
 }

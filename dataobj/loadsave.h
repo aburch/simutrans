@@ -111,6 +111,8 @@ public:
 	// s is a buf of size given
 	void rdwr_str(char* s, size_t size);
 
+	void rdwr_string(std::string &s);
+
 	// only meaningful for XML
 	void start_tag( const char *tag );
 	void end_tag( const char *tag );

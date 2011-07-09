@@ -6,11 +6,13 @@
 
 #ifndef __VEHIKEL_BESCH_H
 #define __VEHIKEL_BESCH_H
+#include <cstring>
 
 #include "obj_besch_std_name.h"
 #include "ware_besch.h"
 #include "bildliste_besch.h"
 #include "bildliste2d_besch.h"
+#include "bildliste3d_besch.h"
 #include "skin_besch.h"
 #include "sound_besch.h"
 #include "../dataobj/ribi.h"
@@ -34,8 +36,8 @@ class checksum_t;
  *	1   Copyright
  *	2   freight
  *	3   smoke
- *	4   empty 1d image list
- *	5   either 1d (freight_image_type==0) or 2d image list
+ *	4   empty 1d image list (or 2d list if there are multiple liveries)
+ *	5   either 1d (freight_image_type==0), 2d image list or 3d image list (if multiple liveries)
  *	6   required leading vehicle 1
  *	7   required leading vehicle 2
  *	... ...
@@ -123,6 +125,8 @@ private:
 
 	sint8 freight_image_type;	// number of freight images (displayed for different goods)
 
+	sint8 livery_image_type;	// Number of different liveries (@author: jamespetts, April 2011)
+
 	bool is_tilting; //Whether it is a tilting train (can take corners at higher speeds). 0 for no, 1 for yes. Anything other than 1 is assumed to be no.
 	
 	//uint8 way_constraints_permissive; //Way constraints. Actually, 8 boolean values. Bitwise operations necessary
@@ -171,7 +175,7 @@ public:
 	// default vehicle (used for way seach and similar tasks)
 	// since it has no images and not even a name knot any calls to this will case a crash
 	vehikel_besch_t(uint8 wtyp, uint16 speed, engine_t engine) {
-		freight_image_type = preis = upgrade_price = zuladung = overcrowded_capacity = betriebskosten = intro_date = vorgaenger = nachfolger = catering_level = upgrades = 0;
+		freight_image_type = livery_image_type = preis = upgrade_price = zuladung = overcrowded_capacity = betriebskosten = intro_date = vorgaenger = nachfolger = catering_level = upgrades = 0;
 		fixed_maintenance = DEFAULT_FIXED_VEHICLE_MAINTENANCE;
 		leistung = gewicht = comfort = 1;
 		gear = GEAR_FACTOR;
@@ -195,26 +199,89 @@ public:
 	skin_besch_t const* get_rauch() const { return get_child<skin_besch_t>(3); }
 
 	image_id get_basis_bild() const { return get_bild_nr(ribi_t::dir_sued, get_ware() ); }
+	image_id get_basis_bild(const char* livery) const { return get_bild_nr(ribi_t::dir_sued, get_ware(), livery ); }
 
 	// returns the number of different directions
 	uint8 get_dirs() const { return get_child<bildliste_besch_t>(4)->get_bild(4) ? 8 : 4; }
 
 	// return a matching image
-	// beware, there are three class of vehicles
-	// vehicles with and without freight images, and vehicles with different freight images
+	// Vehicles can have single liveries, multiple liveries, 
+	// single frieght images, multiple frieght images or no freight images.
 	// they can have 4 or 8 directions ...
-	image_id get_bild_nr(ribi_t::dir dir, const ware_besch_t *ware) const
+	image_id get_bild_nr(ribi_t::dir dir, const ware_besch_t *ware, const char* livery_type = "default") const
 	{
 		const bild_besch_t *bild=0;
 		const bildliste_besch_t *liste=0;
 
-		if(freight_image_type>0  &&  ware!=NULL) {
+		if(zuladung == 0 && ware)
+		{
+			ware = NULL;
+		}
+
+		if(livery_image_type > 0 && ware == NULL)
+		{
+			// Multiple liveries, empty images
+			sint8 livery_index = 0;
+			for(sint8 i = 0; i < livery_image_type; i++) 
+			{
+				if(!strcmp(livery_type, get_child<text_besch_t>(5 + nachfolger + vorgaenger + upgrades + i)->get_text()))
+				{
+					livery_index = i;
+					break;
+				}
+			}
+			// vehicle has multiple liveries - get the appropriate one (if no list then fallback to livery zero)
+			bildliste2d_besch_t const* const liste2d = get_child<bildliste2d_besch_t>(4);
+			bild=liste2d->get_bild(dir, livery_index);
+			
+			if(!bild) 
+			{
+				if(dir>3)
+				{
+					bild = liste2d->get_bild(dir - 4, livery_index);
+				}
+			}
+			if (bild != NULL) return bild->get_nummer();
+		}
+
+		if(livery_image_type > 0 && freight_image_type == 0 && ware != NULL)
+		{
+			// Multiple liveries, single freight image
+			sint8 livery_index = 0;
+			for(sint8 i = 0; i < livery_image_type; i++) 
+			{
+				if(!strcmp(livery_type, get_child<text_besch_t>(6 + nachfolger + vorgaenger + upgrades + i)->get_text()))
+				{
+					livery_index = i;
+					break;
+				}
+			}
+			// vehicle has multiple liveries - get the appropriate one (if no list then fallback to livery zero)
+			bildliste2d_besch_t const* const liste2d = get_child<bildliste2d_besch_t>(5);
+			bild = liste2d->get_bild(dir, livery_index);
+			
+			if(!bild) 
+			{
+				if(dir>3)
+				{
+					bild = liste2d->get_bild(dir - 4, livery_index);
+				}
+			}
+			if (bild != NULL) return bild->get_nummer();
+		}
+
+		if(freight_image_type > 0 && ware!=NULL && livery_image_type == 0)
+		{
+			// Multiple freight images, single livery
 			// more freight images and a freight: find the right one
 
-			sint8 ware_index=0; // freight images: if not found use first freight
-
-			for( sint8 i=0;  i<freight_image_type;  i++  ) {
-				if (ware == get_child<ware_besch_t>(6 + nachfolger + vorgaenger + i)) {
+			sint8 ware_index = 0; // freight images: if not found use first freight
+			
+			for( sint8 i=0;  i<freight_image_type;  i++  ) 
+			{
+				
+				if (ware == get_child<ware_besch_t>(6 + nachfolger + vorgaenger + upgrades + i)) 
+				{
 					ware_index = i;
 					break;
 				}
@@ -223,36 +290,106 @@ public:
 			// vehicle has freight images and we want to use - get appropriate one (if no list then fallback to empty image)
 			bildliste2d_besch_t const* const liste2d = get_child<bildliste2d_besch_t>(5);
 			bild=liste2d->get_bild(dir, ware_index);
-			if(!bild) {
-				if(dir>3) {
+			if(!bild) 
+			{
+				if(dir>3)
+				{
 					bild = liste2d->get_bild(dir - 4, ware_index);
 				}
 			}
 			if (bild != NULL) return bild->get_nummer();
 		}
 
+		if(freight_image_type > 0 && ware!=NULL && livery_image_type > 0)
+		{
+			// Multiple freight images, multiple liveries
+
+			sint8 ware_index = 0; // freight images: if not found use first freight
+			sint8 livery_index = 0;
+
+			for( sint8 i=0;  i<freight_image_type;  i++  ) 
+			{
+				if (ware == get_child<ware_besch_t>(6 + nachfolger + vorgaenger + upgrades + i)) 
+				{
+					ware_index = i;
+					break;
+				}
+			}
+
+			for(sint8 j = 0; j < livery_image_type; j++) 
+			{
+				if(!strcmp(livery_type, get_child<text_besch_t>(6 + nachfolger + vorgaenger + upgrades + j)->get_text()))
+				{
+					livery_index = j;
+					break;
+				}
+			}
+
+			// vehicle has freight images and we want to use - get appropriate one (if no list then fallback to empty image)
+			bildliste3d_besch_t const* const liste3d = get_child<bildliste3d_besch_t>(5);
+			bild = liste3d->get_bild(dir, livery_index, ware_index);
+			if(!bild) 
+			{
+				if(dir>3)
+				{
+					bild = liste3d->get_bild(dir - 4, livery_index, ware_index);
+				}
+			}
+			if (bild != NULL) return bild->get_nummer();
+		}
+
 		// only try 1d freight image list for old style vehicles
-		if(freight_image_type==0  &&  ware!=NULL) {
+		if(freight_image_type == 0 && ware != NULL && livery_image_type == 0) 
+		{
+			// Single freight image, single livery
 			liste = get_child<bildliste_besch_t>(5);
 		}
 
-		if(!liste) {
+		if(!liste) 
+		{
 			liste = get_child<bildliste_besch_t>(4);
-			if(!liste) {
+			if(!liste)
+			{
 				return IMG_LEER;
 			}
 		}
 
 		bild = liste->get_bild(dir);
-		if(!bild) {
-			if(dir>3) {
+		if(!bild) 
+		{
+			if(dir>3)
+			{
 				bild = liste->get_bild(dir - 4);
 			}
-			if(!bild) {
+			if(!bild) 
+			{
 				return IMG_LEER;
 			}
 		}
 		return bild->get_nummer();
+	}
+
+	bool check_livery(const char* name) const
+	{
+		// Note: this only checks empty images. The assumption is
+		// that a livery defined for empty images will also be 
+		// defined for freight images. If that assumption is false,
+		// the default livery will be used for freight images.
+		if(livery_image_type > 0)
+		{
+			for(sint8 i = 0; i < livery_image_type; i++) 
+			{
+				if(!strcmp(name, get_child<text_besch_t>(5 + nachfolger + vorgaenger + upgrades + i)->get_text()))
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+		else
+		{
+			return false;
+		}
 	}
 
 	// Liefert die erlaubten Vorgaenger.

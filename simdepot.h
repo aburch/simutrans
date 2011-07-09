@@ -59,7 +59,7 @@ public:
 	depot_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_tile_besch_t *t);
 	virtual ~depot_t();
 
-	void call_depot_tool( char tool, convoihandle_t cnv, const char *extra );
+	void call_depot_tool( char tool, convoihandle_t cnv, const char *extra, uint16 livery_scheme_index = 0 );
 
 	virtual simline_t::linetype get_line_type() const = 0;
 
@@ -136,7 +136,7 @@ public:
 	 * @author Volker Meyer
 	 * @date  09.06.2003
 	 */
-	vehikel_t* buy_vehicle(const vehikel_besch_t* info);
+	vehikel_t* buy_vehicle(const vehikel_besch_t* info, uint16 livery_scheme_index);
 
 	// This upgrades a vehicle in the convoy to the type specified.
 	// @author: jamespetts, February 2010

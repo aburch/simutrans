@@ -151,6 +151,17 @@ bool loadsave_t::rd_open(const char *filename)
 	return true;
 }
 
+void loadsave_t::rdwr_string(std::string &s) {
+        if (saving) {
+                const char* name = s.c_str();
+                rdwr_str(name);
+        } else {
+                const char *name = NULL;
+                rdwr_str(name);
+                s = name;
+                free(const_cast<char *>(name));
+        } 
+}
 
 
 bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extension, const char *savegame_version, const char *savegame_version_ex)

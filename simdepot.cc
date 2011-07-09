@@ -128,12 +128,12 @@ unsigned depot_t::get_max_convoy_length(waytype_t wt)
 
 
 // again needed for server
-void depot_t::call_depot_tool( char tool, convoihandle_t cnv, const char *extra)
+void depot_t::call_depot_tool( char tool, convoihandle_t cnv, const char *extra, uint16 livery_scheme_index)
 {
 	// call depot tool
 	werkzeug_t *w = create_tool( WKZ_DEPOT_TOOL | SIMPLE_TOOL );
 	cbuffer_t buf;
-	buf.printf( "%c,%s,%hu", tool, get_pos().get_str(), cnv.get_id() );
+	buf.printf( "%c,%s,%hu,%hu", tool, get_pos().get_str(), cnv.get_id(), livery_scheme_index );
 	if(  extra  ) {
 		buf.append( "," );
 		buf.append( extra );
@@ -192,10 +192,10 @@ void depot_t::zeige_info()
 }
 
 
-vehikel_t* depot_t::buy_vehicle(const vehikel_besch_t* info)
+vehikel_t* depot_t::buy_vehicle(const vehikel_besch_t* info, uint16 livery_scheme_index)
 {
 	DBG_DEBUG("depot_t::buy_vehicle()", info->get_name());
-	vehikel_t* veh = vehikelbauer_t::baue(get_pos(), get_besitzer(), NULL, info, false); //"besitzer" = "owner" (Google)
+	vehikel_t* veh = vehikelbauer_t::baue(get_pos(), get_besitzer(), NULL, info, false, livery_scheme_index); //"besitzer" = "owner" (Google)
 	DBG_DEBUG("depot_t::buy_vehicle()", "vehiclebauer %p", veh);
 	vehicles.append(veh);
 	DBG_DEBUG("depot_t::buy_vehicle()", "appended %i vehicle", vehicles.get_count());
@@ -215,7 +215,7 @@ void depot_t::upgrade_vehicle(convoihandle_t cnv, const vehikel_besch_t* vb)
 		{
 			if(cnv->get_vehikel(i)->get_besch()->get_upgrades(c) == vb)
 			{
-				vehikel_t* new_veh = vehikelbauer_t::baue(get_pos(), get_besitzer(), NULL, vb, true); 
+				vehikel_t* new_veh = vehikelbauer_t::baue(get_pos(), get_besitzer(), NULL, vb, true, cnv->get_livery_scheme_index()); 
 				cnv->upgrade_vehicle(i, new_veh);
 				if(cnv->get_vehikel(i)->get_besch()->get_nachfolger_count() == 1 && cnv->get_vehikel(i)->get_besch()->get_leistung() != 0)
 				{

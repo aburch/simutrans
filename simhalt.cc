@@ -1418,7 +1418,7 @@ void haltestelle_t::add_connexion(const uint8 category, const convoihandle_t cnv
 			if(average_speed == 0)
 			{
 				// If the average speed is not initialised, take a guess to prevent perverse outcomes and possible deadlocks.
-				average_speed = speed_to_kmh(line->get_convoy(0)->get_min_top_speed()) >> 1 * 100;
+				average_speed = speed_to_kmh(line->get_convoy(0)->get_min_top_speed()) * 50;
 			}
 		}
 		else if(cnv.is_bound())
@@ -1428,7 +1428,7 @@ void haltestelle_t::add_connexion(const uint8 category, const convoihandle_t cnv
 			if(average_speed == 0)
 			{
 				// If the average speed is not initialised, take a guess to prevent perverse outcomes and possible deadlocks.
-				average_speed = speed_to_kmh(cnv->get_min_top_speed()) >> 1  * 100;
+				average_speed = speed_to_kmh(cnv->get_min_top_speed()) * 50;
 			}
 		}
 
@@ -2329,7 +2329,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 				if(average_speed == 0)
 				{
 					// If the average speed is not initialised, take a guess to prevent perverse outcomes and possible deadlocks.
-					average_speed = speed_to_kmh(cnv->get_min_top_speed()) >> 1  * 100;
+					average_speed = speed_to_kmh(cnv->get_min_top_speed()) * 50;
 					average_speed = average_speed == 0 ? 1 : average_speed;
 				}
 						
@@ -2396,7 +2396,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 							{
 								const connexion* next_connexion = connexions[catg_index]->get(next_transfer);
 								const uint16 average_waiting_minutes = next_connexion != NULL ? next_connexion->waiting_time : 15;
-								const uint16 base_max_minutes = ((welt->get_settings().get_passenger_max_wait() / speed_bonus) * 10) >> 1;  
+								const uint16 base_max_minutes = (welt->get_settings().get_passenger_max_wait() / speed_bonus) * 5;  
 								const uint16 preferred_travelling_minutes = next_connexion != NULL ? next_connexion->journey_time : 15;
 								// Minutes are recorded in tenths. One third max for this purpose.
 								const uint16 max_minutes = base_max_minutes > preferred_travelling_minutes ? preferred_travelling_minutes : base_max_minutes;

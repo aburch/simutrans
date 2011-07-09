@@ -33,7 +33,7 @@ static const double log_of_2 = log(2.0);
 #define MAX_EXPONENT 1023
 #define MAX_MANTISSA 0xffffffff
 
-const uint8 ild(const uint32 x)
+uint8 ild(const uint32 x)
 // "integer logarithmus digitalis"
 // Returns the number of the highest used bit of abs(x):
 // 0: no bits in use x == 0
@@ -519,14 +519,14 @@ const float32e8_t float32e8_t::operator / (const float32e8_t & x) const
 	return r;
 }
 
-const double float32e8_t::to_double() const
+double float32e8_t::to_double() const
 {
 	double rm = ms ? -(double)m : m;
 	double re = exp((e - 32) * log_of_2);
 	return rm * re;
 }
 
-const sint32 float32e8_t::to_sint32() const
+sint32 float32e8_t::to_sint32() const
 {
 	// return trunc(*this):
 	if (e <= 0)

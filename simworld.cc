@@ -865,7 +865,7 @@ void karte_t::create_rivers( sint16 number )
 
 
 
-void karte_t::distribute_groundobjs_cities( const settings_t const *sets, sint16 old_x, sint16 old_y)
+void karte_t::distribute_groundobjs_cities( settings_t const * const sets, sint16 old_x, sint16 old_y)
 {
 	DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing groundobjs");
 
@@ -3143,11 +3143,11 @@ void karte_t::neuer_monat()
 			// Check to see whether the factory has closed down - if so, the pointer will be dud.
 			if(fab->get_besch()->is_electricity_producer()) 
 			{
-				electric_productivity += fab->get_base_production() * PRODUCTION_DELTA_T * 4;
+				electric_productivity += fab->get_scaled_electric_amount();
 			}
 			else 
 			{
-				total_electric_demand += (fab->get_base_production() * fab->get_besch()->get_electricity_proportion()) / 100;
+				total_electric_demand += fab->get_scaled_electric_amount();
 			}
 			number_of_factories = fab_list.get_count();
 		}
@@ -4540,7 +4540,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved messages");
 		file->rdwr_double(old_proportion);
 		industry_density_proportion = old_proportion * 100.0;
 	}
-	else if(file->get_experimental_version() >= 10)
+	else if(file->get_experimental_version() >= 9 && file->get_version() >= 110006)
 	{
 		file->rdwr_long(industry_density_proportion);
 	}
@@ -5124,8 +5124,8 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 	weighted_vector_tpl<stadt_t*> new_weighted_stadt(stadt.get_count() + 1);
 	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
 		stadt_t* s = *i;
-		s->recalc_target_cities();
 		s->laden_abschliessen();
+		s->recalc_target_cities();
 		new_weighted_stadt.append(s, s->get_einwohner(), 64);
 		INT_CHECK("simworld 1278");
 	}
@@ -5274,7 +5274,7 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 		file->rdwr_double(old_proportion);
 		industry_density_proportion = old_proportion * 100.0;
 	}
-	else if(file->get_experimental_version() >= 10)
+	else if(file->get_experimental_version() >= 9 && file->get_version() >= 110006)
 	{
 		file->rdwr_long(industry_density_proportion);
 	}

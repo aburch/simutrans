@@ -13,6 +13,7 @@
 #define _simvehikel_h
 
 #include <limits>
+#include <string>
 #include "../simtypes.h"
 #include "../simworld.h"
 #include "../simconvoi.h"
@@ -87,6 +88,10 @@ protected:
 
 	// cached image
 	image_id bild;
+
+	// The current livery of this vehicle.
+	// @author: jamespetts, April 2011
+	std::string current_livery;
 
 	sint8 calc_height();		// Offset Bergauf/Bergab
 
@@ -185,7 +190,7 @@ private:
 	 * @param h_alt alte Hoehe
 	 * @param h_neu neue Hoehe
 	 */
-	virtual void calc_akt_speed(const grund_t *gr);
+	virtual void calc_drag_coefficient(const grund_t *gr);
 
 	sint32 calc_modified_speed_limit(const koord3d *position, ribi_t::ribi current_direction, bool is_corner);
 
@@ -327,7 +332,7 @@ public:
 	* gibt das Basisbild zurueck
 	* @author Hj. Malthaner
 	*/
-	int get_basis_bild() const { return besch->get_basis_bild(); }
+	int get_basis_bild() const { return besch->get_basis_bild(current_livery.c_str()); }
 
 	/**
 	* @return vehicle description object
@@ -546,6 +551,9 @@ public:
 	// BG, 06.06.2009: update player's fixed maintenance
 	void laden_abschliessen();
 	void before_delete();
+
+	void set_current_livery(const char* liv) { current_livery = liv; }
+	const char* get_current_livery() const { return current_livery.c_str(); }
 };
 
 
@@ -736,7 +744,7 @@ protected:
 	// how expensive to go here (for way search)
 	virtual int get_kosten(const grund_t *, const sint32, koord) const { return 1; }
 
-	void calc_akt_speed(const grund_t *gr);
+	void calc_drag_coefficient(const grund_t *gr);
 
 	//uint32 calc_modified_speed_limit(const weg_t *w, uint8 s, ribi_t::ribi current_direction) { return base_limit; }  //Ships do not modify speed limits.
 
@@ -848,8 +856,8 @@ public:
 	// this draws the "real" aircrafts (when flying)
 	virtual void display_after(int xpos, int ypos, bool dirty) const;
 
-	// the speed calculation happens it calc_height
-	void calc_akt_speed(const grund_t*) {}
+	// the drag calculation happens it calc_height
+	void calc_drag_coefficient(const grund_t*) {}
 
 	//uint32 calc_modified_speed_limit(const weg_t *w, uint32 base_limit, uint8 s, ribi_t::ribi current_direction) { return base_limit; } 
 

@@ -728,6 +728,10 @@ void senke_t::step(long delta_t)
 	
 	if(city && city->get_substations()->get_count() > 1)
 	{
+		if(power_demand == 0)
+		{
+			power_demand = 1;
+		}
 		load_proportion = (shared_power_demand * 100) / power_demand;
 	}
 
