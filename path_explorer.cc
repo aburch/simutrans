@@ -741,7 +741,7 @@ void path_explorer_t::compartment_t::step()
 
 				for (uint8 i = 0; i < entry_count; ++i)
 				{
-					const koord pair(halt_list[i].get_id(), halt_list[(i+1)%entry_count].get_id());
+					const id_pair pair(halt_list[i].get_id(), halt_list[(i+1)%entry_count].get_id());
 					
 					if(current_linkage.line.is_bound() && current_linkage.line->get_schedule() && current_linkage.line->count_convoys() && current_linkage.line->average_journey_times->is_contained(pair))
 					{
