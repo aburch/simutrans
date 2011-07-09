@@ -473,7 +473,7 @@ void map_frame_t::resize(const koord delta)
 		while(iter.next())
 		{
 			// Do not show multiple factories with the same colour.
-			// @author: jamespetts, July 2009
+			// @author: jamespetts, July 2009 (re-instated and updated: July 2011)
 			if(iter.get_current_value()->get_gewichtung() > 0 && colours.append_unique(iter.get_current_value()->get_kennfarbe())) 
 			{
 				size_t i;
