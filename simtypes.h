@@ -182,6 +182,42 @@ public:
 	}		
 };
 
+struct id_pair
+{
+	uint16 x;
+	uint16 y;
+
+	id_pair(uint16 a, uint16 b)
+	{
+		x = a;
+		y = b;
+	}
+
+	id_pair()
+	{
+		x = 0;
+		y = 0;
+	}
+};
+
+static inline bool operator == (const id_pair &a, const id_pair &b)
+{
+	// only this works with O3 optimisation!
+	return ((a.x-b.x)|(a.y-b.y))==0;
+}
+
+static inline bool operator != (const id_pair &a, const id_pair &b)
+{
+	// only this works with O3 optimisation!
+	return ((a.x-b.x)|(a.y-b.y))!=0;
+}
+
+static inline bool operator == (const id_pair& a, int b)
+{
+	// For hashtable use.
+	return b == 0 && a == id_pair(0, 0);
+}
+
 // endian coversion routines
 
 static inline uint16 endian(uint16 v)

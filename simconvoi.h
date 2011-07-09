@@ -813,7 +813,7 @@ public:
 	* The table of point-to-point average speeds.
 	* @author jamespetts
 	*/
-	koordhashtable_tpl<koord, average_tpl<uint16> > * average_journey_times;
+	koordhashtable_tpl<id_pair, average_tpl<uint16> > * average_journey_times;
 
 #if 0
 private:

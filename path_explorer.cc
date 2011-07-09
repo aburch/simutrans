@@ -634,8 +634,6 @@ void path_explorer_t::compartment_t::step()
 			uint8 entry_count;
 			halthandle_t current_halt;
 
-			uint32 journey_time_factor;
-
 			minivec_tpl<halthandle_t> halt_list(64);
 			minivec_tpl<uint16> journey_time_list(64);
 			minivec_tpl<bool> recurrence_list(64);		// an array indicating whether certain halts have been processed already
@@ -741,17 +739,33 @@ void path_explorer_t::compartment_t::step()
 
 				for (uint8 i = 0; i < entry_count; ++i)
 				{
-					const koord pair(halt_list[i].get_id(), halt_list[(i+1)%entry_count].get_id());
+					const id_pair pair(halt_list[i].get_id(), halt_list[(i+1)%entry_count].get_id());
 					
 					if(current_linkage.line.is_bound() && current_linkage.line->get_schedule() && current_linkage.line->count_convoys() && current_linkage.line->average_journey_times->is_contained(pair))
 					{
-						journey_time = current_linkage.line->average_journey_times->get(pair).get_average();
-						current_linkage.line->average_journey_times->access(pair)->reset();
+						if(!halt_list[i].is_bound() || ! halt_list[(i+1)%entry_count].is_bound())
+						{
+							current_linkage.line->average_journey_times->remove(pair);
+							continue;
+						}
+						else
+						{
+							journey_time = current_linkage.line->average_journey_times->get(pair).get_average();
+							current_linkage.line->average_journey_times->access(pair)->reset();
+						}
 					}
 					else if(current_linkage.convoy.is_bound() && current_linkage.convoy->get_schedule() && current_linkage.convoy->average_journey_times->is_contained(pair))
 					{
-						journey_time = current_linkage.convoy->average_journey_times->get(pair).get_average();
-						current_linkage.convoy->average_journey_times->access(pair)->reset();
+						if(!halt_list[i].is_bound() || ! halt_list[(i+1)%entry_count].is_bound())
+						{
+							current_linkage.convoy->average_journey_times->remove(pair);
+							continue;
+						}
+						else
+						{
+							journey_time = current_linkage.convoy->average_journey_times->get(pair).get_average();
+							current_linkage.convoy->average_journey_times->access(pair)->reset();
+						}
 					}
 
 					if(journey_time == 0)

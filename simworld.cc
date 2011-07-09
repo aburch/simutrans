@@ -3143,7 +3143,7 @@ void karte_t::neuer_monat()
 	if(industry_density_proportion == 0 && finance_history_month[0][WORLD_CITICENS] > 0)
 	{
 		// Set the industry density proportion for the first time when the number of citizens is populated.
-		industry_density_proportion = actual_industry_density / finance_history_month[0][WORLD_CITICENS];
+		industry_density_proportion = ((sint64)actual_industry_density * 10000ll) / finance_history_month[0][WORLD_CITICENS];
 	}
 	const uint32 target_industry_density = get_target_industry_density();
 	if(actual_industry_density < target_industry_density)
@@ -4416,11 +4416,21 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved tiles");
 	}
 DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved fabs");
 
+	/*slist_iterator_tpl<halthandle_t> iter (haltestelle_t::get_alle_haltestellen());
+	while(iter.next())
+	{
+		if(!iter.get_current().is_bound())
+		{
+			haltestelle_t::get_alle_haltestellen().remove(iter.access_current());
+		}
+	}*/
 	sint32 haltcount=haltestelle_t::get_alle_haltestellen().get_count();
 	file->rdwr_long(haltcount);
-	slist_iterator_tpl<halthandle_t> iter (haltestelle_t::get_alle_haltestellen());
-	while(iter.next()) {
-		iter.get_current()->rdwr( file );
+	
+	slist_iterator_tpl<halthandle_t> iter_2 (haltestelle_t::get_alle_haltestellen());	
+	while(iter_2.next()) 
+	{
+		iter_2.get_current()->rdwr( file );
 	}
 DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved stops");
 
@@ -4498,11 +4508,11 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved messages");
 	{
 		file->rdwr_short(base_pathing_counter);
 	}
-	if(file->get_experimental_version() >= 7 && file->get_experimental_version() < 10)
+	if(file->get_experimental_version() >= 7 && file->get_experimental_version() < 9 && file->get_version() < 110006)
 	{
-		double old_proportion = (double)industry_density_proportion / 100.0;
+		double old_proportion = (double)industry_density_proportion / 10000.0;
 		file->rdwr_double(old_proportion);
-		industry_density_proportion = old_proportion * 100.0;
+		industry_density_proportion = old_proportion * 10000.0;
 	}
 	else if(file->get_experimental_version() >= 9 && file->get_version() >= 110006)
 	{
@@ -5222,17 +5232,17 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 		file->rdwr_short(base_pathing_counter);
 	}
 	
-	if(file->get_experimental_version() >= 7 && file->get_experimental_version() < 10)
+	if((file->get_experimental_version() >= 7 && file->get_experimental_version() < 9 && file->get_version() < 110006))
 	{
-		double old_proportion = industry_density_proportion / 100.0;
+		double old_proportion = industry_density_proportion / 10000.0;
 		file->rdwr_double(old_proportion);
-		industry_density_proportion = old_proportion * 100.0;
+		industry_density_proportion = old_proportion * 10000.0;
 	}
 	else if(file->get_experimental_version() >= 9 && file->get_version() >= 110006)
 	{
 		file->rdwr_long(industry_density_proportion);
 	}
-	else
+	else if(file->is_loading())
 	{
 		// Reconstruct the actual industry density.
 		// @author: jamespetts			
@@ -5250,7 +5260,7 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 				actual_industry_density += (100 / weight);
 			}
 		}
-		industry_density_proportion = actual_industry_density / finance_history_month[0][WORLD_CITICENS];
+		industry_density_proportion = ((sint64)actual_industry_density * 10000ll) / finance_history_month[0][WORLD_CITICENS];
 	}
 
 	if(file->get_experimental_version() >=9 && file->get_version() >= 110000)
