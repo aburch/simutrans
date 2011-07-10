@@ -4623,7 +4623,7 @@ void convoi_t::set_depot_when_empty(bool new_dwe)
 	{
 		depot_when_empty = new_dwe;
 	}
-	else
+	else if(new_dwe)
 	{
 		go_to_depot(get_besitzer() == welt->get_active_player());
 	}

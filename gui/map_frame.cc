@@ -468,8 +468,14 @@ void map_frame_t::resize(const koord delta)
 		const stringhashtable_tpl<const fabrik_besch_t *> & fabesch = fabrikbauer_t::get_fabesch();
 		stringhashtable_iterator_tpl<const fabrik_besch_t *> iter (fabesch);
 
-		while(iter.next()) {
-			if(iter.get_current_value()->get_gewichtung()>0) {
+		minivec_tpl<uint8> colours;
+
+		while(iter.next())
+		{
+			// Do not show multiple factories with the same colour.
+			// @author: jamespetts, July 2009 (re-instated and updated: July 2011)
+			if(iter.get_current_value()->get_gewichtung() > 0 && colours.append_unique(iter.get_current_value()->get_kennfarbe())) 
+			{
 				size_t i;
 				const int dot_len = proportional_string_width("..");
 
