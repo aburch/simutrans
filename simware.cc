@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 1997 - 2001 Hj. Malthaner
- *
+ *<<<
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
  */
@@ -10,6 +10,7 @@
 
 #include "simmem.h"
 #include "simdebug.h"
+#include "simfab.h"
 #include "simhalt.h"
 #include "simtypes.h"
 #include "simworld.h"
@@ -219,6 +220,13 @@ void ware_t::rdwr(karte_t *welt,loadsave_t *file)
 	{
 		accumulated_distance = 0;
 		arrival_time = 0;
+	}
+	
+	// restore factory-flag
+	if(  file->get_version()<110005  &&  file->is_loading()  ) {
+		if (fabrik_t::get_fab(welt, zielpos)) {
+			to_factory = 1;
+		}
 	}
 }
 

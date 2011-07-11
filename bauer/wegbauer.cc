@@ -2190,7 +2190,7 @@ void wegbauer_t::baue_schiene()
 
 				// do not touch fences, tram way etc. if there is already same way with different type
 				// keep faster ways or if it is the same way ... (@author prissi)
-				if(weg->get_besch()==besch  ||  (besch->get_styp()==0 && weg->get_besch()->get_styp()==7 && gr->has_two_ways())  ||  keep_existing_ways  ||  (keep_existing_faster_ways  &&  weg->get_besch()->get_topspeed()>besch->get_topspeed()) || (gr->get_typ()==grund_t::monorailboden  &&  (bautyp&elevated_flag)==0) ) {
+				if(  weg->get_besch()==besch  ||  (besch->get_styp()==0 && weg->get_besch()->get_styp()==7 && gr->has_two_ways())  ||  keep_existing_ways  ||  (keep_existing_faster_ways  &&  weg->get_besch()->get_topspeed()>besch->get_topspeed()) || (gr->get_typ()==grund_t::monorailboden  &&  (bautyp&elevated_flag)==0)  ) {
 					//nothing to be done
 					change_besch = false;
 				}
@@ -2203,6 +2203,9 @@ void wegbauer_t::baue_schiene()
 						cr->entferne(sp);
 						delete cr;
 						change_besch = true;
+						// tell way we have no crossing any more
+						gr->get_weg_nr(0)->clear_crossing();
+						gr->get_weg_nr(1)->clear_crossing();
 					}
 				}
 
