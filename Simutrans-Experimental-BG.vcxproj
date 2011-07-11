@@ -285,6 +285,7 @@
     <ClCompile Include="besch\fabrik_besch.cc" />
     <ClCompile Include="clipboard_w32.cc" />
     <ClCompile Include="dataobj\gameinfo.cc" />
+    <ClCompile Include="dataobj\livery_scheme.cc" />
     <ClCompile Include="dataobj\network_address.cc" />
     <ClCompile Include="dataobj\network_cmd_ingame.cc" />
     <ClCompile Include="dataobj\network_cmp_pakset.cc" />
@@ -329,7 +330,6 @@
     <ClCompile Include="gui\curiosity_edit.cc" />
     <ClCompile Include="gui\curiositylist_frame_t.cc" />
     <ClCompile Include="gui\curiositylist_stats_t.cc" />
-    <ClCompile Include="tpl\debug_helper.cc" />
     <ClCompile Include="gui\depot_frame.cc" />
     <ClCompile Include="dataobj\dingliste.cc" />
     <ClCompile Include="dataobj\einstellungen.cc" />
@@ -544,11 +544,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dataobj\gameinfo.h" />
+    <ClInclude Include="dataobj\livery_scheme.h" />
     <ClInclude Include="dataobj\network_address.h" />
     <ClInclude Include="dataobj\network_cmd_ingame.h" />
     <ClInclude Include="dataobj\network_cmp_pakset.h" />
     <ClInclude Include="dataobj\network_file_transfer.h" />
     <ClInclude Include="dataobj\network_socket_list.h" />
+    <ClInclude Include="dataobj\pakset_info.h" />
     <ClInclude Include="dataobj\pwd_hash.h" />
     <ClInclude Include="gui\components\action_listener.h" />
     <ClInclude Include="gui\factory_chart.h" />

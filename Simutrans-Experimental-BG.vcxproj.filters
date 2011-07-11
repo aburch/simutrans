@@ -111,9 +111,6 @@
     <ClCompile Include="gui\curiositylist_stats_t.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tpl\debug_helper.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="gui\depot_frame.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -757,6 +754,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="simsys.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dataobj\livery_scheme.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1779,6 +1779,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gui\factory_chart.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\livery_scheme.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\pakset_info.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
