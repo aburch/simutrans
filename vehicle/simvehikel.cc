@@ -1323,10 +1323,7 @@ void vehikel_t::hop()
 		cnv->must_recalc_brake_soll();
 	}
 	
-	if(gr != NULL)
-	{
-		calc_drag_coefficient(gr);
-	}
+	calc_drag_coefficient(gr);
 
 	sint8 trim_size = pre_corner_direction.get_count() - direction_steps;
 	pre_corner_direction.trim_from_head((trim_size >= 0) ? trim_size : 0);
@@ -1641,12 +1638,13 @@ void vehikel_t::calc_drag_coefficient(const grund_t *gr) //,const int h_alt, con
 
 	const waytype_t waytype = get_waytype();
 
-	current_friction = get_friction_of_waytype(waytype);
+	const sint16 base_friction = get_friction_of_waytype(waytype);
 
 	
 	// Old method - not realistic. Now uses modified speed limit. Preserved optionally.
 	// curve: higher friction
-	if(alte_fahrtrichtung != fahrtrichtung) { //"Old direction != direction"	
+	if(alte_fahrtrichtung != fahrtrichtung) //"Old direction != direction"	
+	{
 		//The level (if any) of additional friction to apply around corners.
 		const uint8 curve_friction_factor =welt->get_settings().get_curve_friction_factor(waytype);
 		current_friction += curve_friction_factor;
@@ -1663,13 +1661,18 @@ void vehikel_t::calc_drag_coefficient(const grund_t *gr) //,const int h_alt, con
 		{
 			//Uphill
 			//current_friction += 45;
-			current_friction += 60;
+			current_friction = min(base_friction + 75, current_friction + 42);
 		}
 		else
 		{
 			//Downhill
-			current_friction -= 45;
+			//current_friction -= 45;
+			current_friction = max(base_friction - 40, current_friction - 22);
 		}
+	}
+	else
+	{
+		current_friction = max(base_friction, current_friction - 13);
 	}
 }
 
@@ -3791,6 +3794,11 @@ bool schiff_t::ist_befahrbar(const grund_t *bd) const
 void
 schiff_t::calc_drag_coefficient(const grund_t *gr)
 {
+	if(gr == NULL)
+	{
+		return;
+	}
+	
 	// flat water
 	current_friction = get_friction_of_waytype(water_wt);
 	if(gr->get_weg_hang()) {
