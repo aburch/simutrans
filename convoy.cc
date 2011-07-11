@@ -19,6 +19,8 @@ static const float32e8_t  half((uint32) 1, (uint32)  2);
 static const float32e8_t third((uint32) 1, (uint32)  3);
 static const float32e8_t tenth((uint32) 1, (uint32) 10);
 
+static const float32e8_t _101_percent((uint32) 101, (uint32) 100);
+
 static const float32e8_t milli((uint32) 1, (uint32) 1000);
 static const float32e8_t kilo((uint32) 1000, (uint32) 1);
 
@@ -180,12 +182,12 @@ sint32 convoy_t::calc_max_weight(sint32 sin_alpha)
 	{
 		return 0;
 	}
-	return abs(double_min(get_starting_force(), f) / (g_accel * (adverse.fr + milli * sin_alpha)));
+	return abs(double_min(get_starting_force(), f) / (_101_percent * g_accel * (adverse.fr + milli * sin_alpha)));
 }
 
 sint32 convoy_t::calc_max_starting_weight(sint32 sin_alpha)
 {
-	return abs(get_starting_force() / (/*1.01* */ g_accel * (adverse.fr + milli * sin_alpha))); // 1.01 to compensate inaccuracy of calculation 
+	return abs(get_starting_force() / (_101_percent * g_accel * (adverse.fr + milli * sin_alpha))); // 1.01 to compensate inaccuracy of calculation 
 }
 
 float32e8_t convoy_t::calc_speed_holding_force(float32e8_t speed /* in m/s */, float32e8_t Frs /* in N */)
