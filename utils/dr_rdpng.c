@@ -145,19 +145,21 @@ int load_block(unsigned char** block, unsigned* width, unsigned* height, const c
 // output either a 32 or 16 or 15 bitmap
 int write_png( const char *file_name, unsigned char *data, int width, int height, int bit_depth )
 {
+	png_structp png_ptr = NULL;
+	png_infop info_ptr = NULL;
 	FILE *fp = fopen(file_name, "wb");
 	if (!fp) {
 		return 0;
 	}
 
 	// init structures
-	png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+	png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 	if (!png_ptr) {
 		fclose( fp );
 		return 0;
 	}
 
-	png_infop info_ptr = png_create_info_struct(png_ptr);
+	info_ptr = png_create_info_struct(png_ptr);
 	if (!info_ptr) {
 		png_destroy_write_struct( &png_ptr, (png_infopp)NULL );
 		fclose( fp );
