@@ -49,6 +49,11 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	ribi_t::ribi get_dir() const 	{ return dir; }
+
+	/*
+	* sets ribi mask of the sign
+	* Caution: it will modify way ribis directly!
+	*/
 	void set_dir(ribi_t::ribi dir);
 
 	void set_zustand(signalzustand z) {zustand = z; calc_bild();}

@@ -3602,7 +3602,8 @@ void wkz_roadsign_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &st
 				dummy_rs->set_dir(ribi); // calls calc_bild()
 				zeiger->set_after_bild(dummy_rs->get_after_bild());
 				zeiger->set_bild(dummy_rs->get_bild());
-				dummy_rs->set_dir(ribi_t::keine);
+				// as set_dir also modifies the ribi-mask of the way we have to reset it here...
+				dummy_rs->set_dir(rs ? rs->get_dir() : (ribi_t::ribi)ribi_t::keine);
 				cost += rs ? (rs->get_besch()==besch ? 0  : besch->get_preis()+rs->get_besch()->get_preis()) : besch->get_preis();
 			}
 		}
