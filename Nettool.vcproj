@@ -39,7 +39,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;"
+				AdditionalIncludeDirectories=""
 				PreprocessorDefinitions="LITTLE_ENDIAN;DEBUG=3;NETTOOL"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -60,7 +60,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winmm.lib Ws2_32.lib advapi32.lib wsock32.lib $(NOINHERIT)"
-				AdditionalLibraryDirectories="&quot;"
+				AdditionalLibraryDirectories=""
 				GenerateDebugInformation="true"
 				TargetMachine="1"
 			/>
@@ -112,7 +112,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="&quot;"
-				PreprocessorDefinitions="ZLIB_WINAPI;LITTLE_ENDIAN;NDEBUG"
+				PreprocessorDefinitions="LITTLE_ENDIAN;DEBUG=3;NETTOOL"
 				RuntimeLibrary="2"
 				WarningLevel="3"
 				DebugInformationFormat="3"

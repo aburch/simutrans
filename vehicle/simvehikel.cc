@@ -2968,7 +2968,7 @@ void waggon_t::set_convoi(convoi_t *c)
 					long num_index = cnv==(convoi_t *)1 ? 1001 : 0; 	// only during loadtype: cnv==1 indicates, that the convoi did reserve a stop
 					uint16 next_signal, next_crossing;
 					cnv = c;
-					if(  block_reserver(&r, max(route_index,1)-1, next_signal, next_crossing, num_index, true, false)  ) {
+					if(  block_reserver(&r, cnv->back()->get_route_index(), next_signal, next_crossing, num_index, true, false)  ) {
 						c->set_next_stop_index( next_signal>next_crossing ? next_crossing : next_signal );
 					}
 				}
@@ -3039,8 +3039,13 @@ bool waggon_t::ist_befahrbar(const grund_t *bd) const
 int waggon_t::get_kosten(const grund_t *gr, const sint32 max_speed, koord from_pos) const
 {
 	// first favor faster ways
-	const weg_t *w=gr->get_weg(get_waytype());
-	sint32 max_tile_speed = w ? w->get_max_speed() : 999;
+	const weg_t *w = gr->get_weg(get_waytype());
+	if(  w==NULL  ) {
+		// only occurs when deletion during waysearch
+		return 999;
+	}
+
+	sint32 max_tile_speed = w->get_max_speed();
 	// add cost for going (with maximum speed, cost is 1)
 	int costs = (max_speed <= max_tile_speed) ? 1 : (max_speed*4)/(max_tile_speed*4);
 
@@ -3215,6 +3220,7 @@ bool waggon_t::is_weg_frei_choose_signal( signal_t *sig, const uint16 start_bloc
 
 	// first check, if we are not heading to a waypoint
 	bool choose_ok = target->get_halt().is_bound();
+	target_halt = halthandle_t();
 
 	// check, if there is another choose signal or end_of_choose on the route
 	for(  uint32 idx=start_block+1;  choose_ok  &&  idx<cnv->get_route()->get_count();  idx++  ) {
@@ -3251,7 +3257,6 @@ bool waggon_t::is_weg_frei_choose_signal( signal_t *sig, const uint16 start_bloc
 	}
 
 	if(  !choose_ok  ) {
-		assert(  !target_halt.is_bound()  );
 		// just act as normal signal
 		if(  block_reserver( cnv->get_route(), start_block+1, next_signal, next_crossing, 0, true, false )  ) {
 			sig->set_zustand(  roadsign_t::gruen );
