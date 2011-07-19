@@ -724,12 +724,12 @@ public:
 	// -- initialize the clipping
 	//    has to be called before image will be drawn
 	//    return interval for x coordinate
-	inline void get_x_range(KOORD_VAL y, xrange &r) const {
+	inline void get_x_range(KOORD_VAL y, xrange &r, bool use_non_convex) const {
 		// do everything for the previous row
 		y--;
 		r.y = y;
 		r.non_convex_active = false;
-		if (non_convex  &&  y<y0  &&  y<(y0+dy)) {
+		if (non_convex  &&  use_non_convex  &&  y<y0  &&  y<(y0+dy)) {
 			r.non_convex_active = true;
 		}
 		else if (dy != 0) {
@@ -854,7 +854,7 @@ static inline void init_ranges(int y)
 {
 	for (uint8 i=0; i<number_of_clips; i++) {
 		if (clip_ribi[i] & active_ribi) {
-			poly_clips[i].get_x_range(y,xranges[i]);
+			poly_clips[i].get_x_range(y,xranges[i], active_ribi & 16);
 		}
 	}
 }

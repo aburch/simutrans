@@ -1012,8 +1012,9 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 	const uint8 slope = get_disp_way_slope();
 	// clip
 	const int hgt_step = tile_raster_scale_y( TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width);
-	// .. nonconvex n/w if not both n/w are active
-	const uint8 non_convex = (ribi & ribi_t::nordwest) == ribi_t::nordwest ? 0 : 16;
+	// .. nonconvex n/w if not both n/w are active and if we have back image
+	//              otherwise our backwall clips into the part of our back image that is drawn by n/w neighbor
+	const uint8 non_convex = ((ribi & ribi_t::nordwest) == ribi_t::nordwest)  &&  back_bild_nr ? 0 : 16;
 	if (ribi & ribi_t::west) {
 		const int dh = corner4(slope) * hgt_step;
 		add_poly_clip(xpos+raster_tile_width/2-1, ypos+raster_tile_width/2-dh, xpos-1, ypos+3*raster_tile_width/4-dh, ribi_t::west | non_convex);
@@ -1032,7 +1033,7 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 	}
 	// display background
 	// get offset of first vehicle
-	activate_ribi_clip(ribi_t::nordwest & ribi);
+	activate_ribi_clip( (ribi_t::nordwest & ribi) | 16);
 	const uint8 offset_vh = display_dinge_bg(xpos, ypos, is_global, false, visible);
 	if (!visible) {
 		// end of clipping
