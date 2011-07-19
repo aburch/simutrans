@@ -218,16 +218,19 @@ public:
 			ware = NULL;
 		}
 
-		if(livery_image_type > 0 && ware == NULL)
+		if(livery_image_type > 0 && (ware == NULL || freight_image_type == 0))
 		{
 			// Multiple liveries, empty images
 			sint8 livery_index = 0;
-			for(sint8 i = 0; i < livery_image_type; i++) 
+			if(strcmp(livery_type, "default"))
 			{
-				if(!strcmp(livery_type, get_child<text_besch_t>(5 + nachfolger + vorgaenger + upgrades + i)->get_text()))
+				for(sint8 i = 0; i < livery_image_type; i++) 
 				{
-					livery_index = i;
-					break;
+					if(!strcmp(livery_type, get_child<text_besch_t>(5 + nachfolger + vorgaenger + upgrades + i)->get_text()))
+					{
+						livery_index = i;
+						break;
+					}
 				}
 			}
 			// vehicle has multiple liveries - get the appropriate one (if no list then fallback to livery zero)
@@ -244,16 +247,20 @@ public:
 			if (bild != NULL) return bild->get_nummer();
 		}
 
-		if(livery_image_type > 0 && freight_image_type == 0 && ware != NULL)
+		if(livery_image_type > 0 && freight_image_type == 1 && ware != NULL)
 		{
 			// Multiple liveries, single freight image
 			sint8 livery_index = 0;
-			for(sint8 i = 0; i < livery_image_type; i++) 
+			if(strcmp(livery_type, "default"))
 			{
-				if(!strcmp(livery_type, get_child<text_besch_t>(6 + nachfolger + vorgaenger + upgrades + i)->get_text()))
+				// With the "default" livery, always select livery index 0
+				for(sint8 i = 0; i < livery_image_type; i++) 
 				{
-					livery_index = i;
-					break;
+					if(!strcmp(livery_type, get_child<text_besch_t>(6 + nachfolger + vorgaenger + upgrades + i)->get_text()))
+					{
+						livery_index = i;
+						break;
+					}
 				}
 			}
 			// vehicle has multiple liveries - get the appropriate one (if no list then fallback to livery zero)
@@ -270,7 +277,7 @@ public:
 			if (bild != NULL) return bild->get_nummer();
 		}
 
-		if(freight_image_type > 0 && ware!=NULL && livery_image_type == 0)
+		if(freight_image_type > 1 && ware!=NULL && livery_image_type == 0)
 		{
 			// Multiple freight images, single livery
 			// more freight images and a freight: find the right one
@@ -300,7 +307,7 @@ public:
 			if (bild != NULL) return bild->get_nummer();
 		}
 
-		if(freight_image_type > 0 && ware!=NULL && livery_image_type > 0)
+		if(freight_image_type > 1 && ware!=NULL && livery_image_type > 0)
 		{
 			// Multiple freight images, multiple liveries
 
@@ -316,12 +323,15 @@ public:
 				}
 			}
 
-			for(sint8 j = 0; j < livery_image_type; j++) 
+			if(strcmp(livery_type, "default"))
 			{
-				if(!strcmp(livery_type, get_child<text_besch_t>(6 + nachfolger + vorgaenger + upgrades + j)->get_text()))
+				for(sint8 j = 0; j < livery_image_type; j++) 
 				{
-					livery_index = j;
-					break;
+					if(!strcmp(livery_type, get_child<text_besch_t>(6 + nachfolger + vorgaenger + upgrades + j)->get_text()))
+					{
+						livery_index = j;
+						break;
+					}
 				}
 			}
 

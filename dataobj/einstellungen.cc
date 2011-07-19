@@ -447,7 +447,6 @@ settings_t::~settings_t()
 	{
 		delete livery_schemes[i];
 	}*/
-	//livery_schemes = NULL;
 }
 
 
