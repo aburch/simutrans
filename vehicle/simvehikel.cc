@@ -2198,7 +2198,7 @@ void waggon_t::set_convoi(convoi_t *c)
 					long num_index = cnv==(convoi_t *)1 ? 1001 : 0; 	// only during loadtype: cnv==1 indicates, that the convoi did reserve a stop
 					uint16 next_signal, next_crossing;
 					cnv = c;
-					if(  block_reserver(&r, max(route_index,1)-1, next_signal, next_crossing, num_index, true, false)  ) {
+					if(  block_reserver(&r, cnv->back()->get_route_index(), next_signal, next_crossing, num_index, true, false)  ) {
 						c->set_next_stop_index( next_signal>next_crossing ? next_crossing : next_signal );
 					}
 				}
