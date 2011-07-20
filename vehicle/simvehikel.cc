@@ -3301,7 +3301,7 @@ bool aircraft_t::ist_weg_frei(int & restart_speed)
 
 	// check for another circle ...
 	if(route_index==(touchdown-3)) {
-		if(state!=flying2  &&  !block_reserver( touchdown-1, suchen, true )) {
+		if(state!=flying2  &&  !block_reserver( touchdown, suchen+1, true )) {
 			// circle slowly next round
 			cnv->must_recalc_data();
 			if(  ist_erstes  ) {
@@ -3316,7 +3316,7 @@ bool aircraft_t::ist_weg_frei(int & restart_speed)
 
 	if(route_index==touchdown-16-3  &&  state!=flying2) {
 		// just check, if the end of runway ist free; we will wait there
-		if(block_reserver( touchdown-1, suchen, true )) {
+		if(block_reserver( touchdown, suchen+1, true )) {
 			route_index += 16;
 			state = flying2;
 		}
@@ -3335,7 +3335,7 @@ bool aircraft_t::ist_weg_frei(int & restart_speed)
 		if(find_route_to_stop_position()) {
 			// stop reservation successful
 			pos_next==cnv->get_route()->position_bei(route_index);
-			block_reserver( touchdown-1, suchen+1, false );
+			block_reserver( touchdown, suchen+1, false );
 			state = taxiing;
 			return true;
 		}
@@ -3445,7 +3445,7 @@ void aircraft_t::set_convoi(convoi_t *c)
 				block_reserver( takeoff, takeoff+100, false );
 			}
 			else if(route_index>=touchdown-1  &&  state!=taxiing) {
-				block_reserver( touchdown-1, suchen, false );
+				block_reserver( touchdown, suchen+1, false );
 			}
 		}
 	}
@@ -3467,7 +3467,7 @@ void aircraft_t::set_convoi(convoi_t *c)
 				block_reserver( takeoff, takeoff+100, true );
 			}
 			else if(route_index>=touchdown-1  &&  state!=taxiing) {
-				block_reserver( touchdown-1, suchen, true );
+				block_reserver( touchdown, suchen+1, true );
 			}
 		}
 	}
@@ -3534,7 +3534,7 @@ bool aircraft_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route
 			block_reserver( takeoff, takeoff+100, false );
 		}
 		else if(route_index>=touchdown-1  &&  state!=taxiing) {
-			block_reserver( touchdown-1, suchen, false );
+			block_reserver( touchdown, suchen+1, false );
 		}
 	}
 	target_halt = halthandle_t();	// no block reserved
