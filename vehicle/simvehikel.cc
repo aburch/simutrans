@@ -3879,3 +3879,13 @@ void aircraft_t::display_after(int xpos_org, int ypos_org, bool is_global) const
 		vehikel_t::display_after( xpos_org, ypos_org, is_global );
 	}
 }
+
+
+const char * aircraft_t::ist_entfernbar(const spieler_t *sp)
+{
+	if (is_on_ground()) {
+		return vehikel_t::ist_entfernbar(sp);
+	}
+	return NULL;
+}
+

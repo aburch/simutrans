@@ -739,6 +739,8 @@ public:
 	void calc_akt_speed(const grund_t*) {}
 
 	bool is_on_ground() const { return flughoehe==0  &&  state!=flying; }
+
+	const char * ist_entfernbar(const spieler_t *sp);
 };
 
 #endif
