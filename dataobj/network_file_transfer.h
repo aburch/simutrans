@@ -6,7 +6,6 @@
  * .. and to connect to a running simutrans server
  */
 
-#include "../simtypes.h"
 #include "network.h"
 
 class karte_t;

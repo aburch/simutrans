@@ -863,6 +863,7 @@ public:
 
 	bool is_on_ground() const { return flughoehe==0  &&  state!=flying; }
 
+	const char * ist_entfernbar(const spieler_t *sp);
 };
 
 sint16 get_friction_of_waytype(waytype_t waytype);
