@@ -159,6 +159,11 @@ void simline_t::rdwr_linehandle_t(loadsave_t *file, linehandle_t &line)
 	if (file->is_saving()) {
 		id = line.is_bound() ? line.get_id(): (file->get_version() < 110000  ? INVALID_LINE_ID_OLD : INVALID_LINE_ID);
 	}
+	else {
+		// to avoid undefined errors during loading
+		id = 0;
+	}
+
 	if(file->get_version()<88003) {
 		sint32 dummy=id;
 		file->rdwr_long(dummy);
