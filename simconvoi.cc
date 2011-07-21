@@ -657,18 +657,20 @@ void convoi_t::calc_acceleration(long delta_t)
 		/* but for integer, we have to use the order below and calculate actually 64*deccel, like the sum_gear_und_leistung
 		 * since akt_speed=10/128 km/h and we want 64*200kW=(100km/h)^2*100t, we must multiply by (128*2)/100
 		 * But since the acceleration was too fast, we just deccelerate 4x more => >>6 instead >>8 */
-		sint32 deccel = ( ( (akt_speed*sum_friction_weight)>>6 )*(akt_speed>>2) ) / 25 + (sum_gesamtgewicht*64);	// this order is needed to prevent overflows!
+		//sint32 deccel = ( ( (akt_speed*sum_friction_weight)>>6 )*(akt_speed>>2) ) / 25 + (sum_gesamtgewicht*64);	// this order is needed to prevent overflows!
+		sint32 deccel = (sint32)(( (sint64)akt_speed * (sint64)sum_friction_weight * (sint64)akt_speed ) / (25ll*256ll)) + sum_gesamtgewicht * 64l; // intermediate still overflows so sint64
 
-		// prissi:
-		// integer sucks with planes => using floats ...
-		sint32 delta_v =  (sint32)( ( (double)( (akt_speed>akt_speed_soll?0l:sum_gear_und_leistung) - deccel)*(double)delta_t)/(double)sum_gesamtgewicht);
+		// prissi: integer sucks with planes => using floats ...
+		// turfit: result can overflow sint32 and double so onto sint64. planes ok.
+		//sint32 delta_v =  (sint32)( ( (double)( (akt_speed>akt_speed_soll?0l:sum_gear_und_leistung) - deccel)*(double)delta_t)/(double)sum_gesamtgewicht);
 
 		// we normalize delta_t to 1/64th and check for speed limit */
-//		sint32 delta_v = ( ( (akt_speed>akt_speed_soll?0l:sum_gear_und_leistung) - deccel) * delta_t)/sum_gesamtgewicht;
+		//sint32 delta_v = ( ( (akt_speed>akt_speed_soll?0l:sum_gear_und_leistung) - deccel) * delta_t)/sum_gesamtgewicht;
+		sint64 delta_v = ( (sint64)((akt_speed>akt_speed_soll?0l:sum_gear_und_leistung) - deccel) * (sint64)delta_t ) / (sint64)sum_gesamtgewicht;
 
 		// we need more accurate arithmetic, so we store the previous value
 		delta_v += previous_delta_v;
-		previous_delta_v = delta_v & 0x0FFF;
+		previous_delta_v = (sint32)(delta_v & 0x00000FFFll);
 		// and finally calculate new speed
 		akt_speed = max(akt_speed_soll>>4, akt_speed+(sint32)(delta_v>>12l) );
 	}
