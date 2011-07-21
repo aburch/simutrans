@@ -6603,7 +6603,8 @@ sint32 karte_t::calc_generic_road_speed(const weg_besch_t* besch)
 			speed_average = road_speed_limit;
 		}
 	}
-	return ((6 * 15) * settings.get_meters_per_tile()) / speed_average;
+	
+	return ((6 * 15) * settings.get_meters_per_tile()) /  (speed_average * 100);
 }
 
 void karte_t::calc_max_road_check_depth()

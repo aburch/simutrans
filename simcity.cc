@@ -2710,10 +2710,20 @@ uint16 stadt_t::check_road_connexion_to(stadt_t* city)
 
 	if(connected_cities.is_contained(city->get_pos()))
 	{
-		return connected_cities.get(city->get_pos());
+		const uint16 journey_time_per_tile = connected_cities.get(city->get_pos());
+		if(journey_time_per_tile < 65535 || city != this)
+		{
+			// It should always be possible to travel in the current city.
+			return journey_time_per_tile;
+		}
+		else
+		{
+			goto recalc;
+		}
 	}
 	else if(city == this)
 	{
+recalc:
 		const koord3d pos3d(townhall_road, welt->lookup_hgt(townhall_road));
 		const weg_t* road = welt->lookup(pos3d)->get_weg(road_wt);
 		const uint16 journey_time_per_tile = road ? road->get_besch() == welt->get_city_road() ? welt->get_generic_road_speed_city() : welt->calc_generic_road_speed(road->get_besch()) : welt->get_generic_road_speed_city();
