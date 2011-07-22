@@ -727,7 +727,6 @@ void convoi_t::calc_acceleration(long delta_t)
 			case maglev_wt:
 				braking_rate = 63;
 				break;
-
 			case tram_wt:
 				braking_rate = 85;
 				break;
