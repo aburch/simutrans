@@ -3363,7 +3363,7 @@ void aircraft_t::betrete_feld()
 	vehikel_t::betrete_feld();
 
 	if((state==flying2  ||  state==flying)  &&  route_index+6u>=touchdown) {
-		const sint16 landehoehe = height_scaling(cnv->get_route()->position_bei(touchdown).z)+(touchdown-route_index);
+		const sint16 landehoehe = height_scaling(cnv->get_route()->position_bei(touchdown).z)+(touchdown-route_index+1);
 		const sint16 current_height = height_scaling(get_pos().z) + (flughoehe*Z_TILE_STEP)/TILE_HEIGHT_STEP;
 		if(landehoehe<=current_height) {
 			state = landing;
@@ -3716,7 +3716,6 @@ bool aircraft_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route
 		static const koord circle_koord[16]={ koord(0,1), koord(0,1), koord(1,0), koord(0,1), koord(1,0), koord(1,0), koord(0,-1), koord(1,0), koord(0,-1), koord(0,-1), koord(-1,0), koord(0,-1), koord(-1,0), koord(-1,0), koord(0,1), koord(-1,0) };
 
 		// circle to the left
-		route->append( welt->lookup_kartenboden(circlepos)->get_pos() );
 		for(  int  i=0;  i<16;  i++  ) {
 			circlepos += circle_koord[(offset+i+16)%16];
 			if(welt->ist_in_kartengrenzen(circlepos)) {
