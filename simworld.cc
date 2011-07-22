@@ -3194,12 +3194,12 @@ void karte_t::neuer_monat()
 	recheck_road_connexions = false;
 	swap(stadt, new_weighted_stadt);
 
-	if(fabrikbauer_t::power_stations_available(this) && ((electric_productivity*4000l)/total_electric_demand) < get_settings().get_electric_promille())
+	if(fabrikbauer_t::power_stations_available(this) && (((sint64)electric_productivity * 4000l) / total_electric_demand) < (sint64)get_settings().get_electric_promille())
 	{
 		// Add industries if there is a shortage of electricity - power stations will be built.
 		// Also (8.1 and onwards) - check whether power stations are available, or else large quantities of other industries will
 		// be built instead every month.
-		fabrikbauer_t::increase_industry_density(this, true, true);
+		fabrikbauer_t::increase_industry_density(this, true, true, true);
 	}
 
 	INT_CHECK("simworld 3130");
