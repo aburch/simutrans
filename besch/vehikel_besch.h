@@ -168,6 +168,9 @@ private:
 
 	// @author: Bernd Gabriel, Dec 12, 2009: called as last action in read_node()
 	void loaded();
+
+	int get_add_to_node() const { return livery_image_type > 0 ? 5 : 6; }
+
 public:
 	// since we have a second constructor
 	vehikel_besch_t() { }
@@ -416,7 +419,7 @@ public:
 		if(i < 0 || i >= vorgaenger) {
 			return NULL;
 		}
-		return get_child<vehikel_besch_t>(6 + i);
+		return get_child<vehikel_besch_t>(get_add_to_node() + i);
 	}
 
 	// Liefert die erlaubten Nachfolger.
@@ -426,9 +429,9 @@ public:
 	const vehikel_besch_t *get_nachfolger(int i) const
 	{
 		if(i < 0 || i >= nachfolger) {
-			return 0;
+			return NULL;
 		}
-		return get_child<vehikel_besch_t>(6 + vorgaenger + i);
+		return get_child<vehikel_besch_t>(get_add_to_node() + vorgaenger + i);
 	}
 
 	int get_nachfolger_count() const { return nachfolger; }
@@ -454,7 +457,7 @@ public:
 		}
 
 		for( int i=0;  i<nachfolger;  i++  ) {
-			vehikel_besch_t const* const veh = get_child<vehikel_besch_t>(6 + vorgaenger + i);
+			vehikel_besch_t const* const veh = get_child<vehikel_besch_t>(get_add_to_node() + vorgaenger + i);
 			if(veh==next_veh) {
 				return true;
 			}
@@ -472,7 +475,7 @@ public:
 			return true;
 		}
 		for( int i=0;  i<vorgaenger;  i++  ) {
-			vehikel_besch_t const* const veh = get_child<vehikel_besch_t>(6 + i);
+			vehikel_besch_t const* const veh = get_child<vehikel_besch_t>(get_add_to_node() + i);
 			if(veh==prev_veh) {
 				return true;
 			}
@@ -491,7 +494,7 @@ public:
 		{
 			return NULL;
 		}
-		return get_child<vehikel_besch_t>(6 + nachfolger + i);
+		return get_child<vehikel_besch_t>(get_add_to_node() + nachfolger + i);
 	}
 
 	int get_upgrades_count() const { return upgrades; }
