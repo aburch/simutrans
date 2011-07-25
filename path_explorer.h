@@ -71,14 +71,14 @@ public:
 			uint32 explore_paths_remainder;
 			if( buffer->is_saving() )
 			{
-				explore_paths_quotient = (uint32)(explore_paths / (uint64)UINT32_MAX_VALUE);
-				explore_paths_remainder = (uint32)(explore_paths % (uint64)UINT32_MAX_VALUE);
+				explore_paths_quotient = (uint32)(explore_paths >> 32);
+				explore_paths_remainder = (uint32)(explore_paths & 0xFFFFFFFFull);
 			}
 			buffer->rdwr_long( explore_paths_quotient );
 			buffer->rdwr_long( explore_paths_remainder );
 			if( buffer->is_loading() )
 			{
-				explore_paths = (uint64)explore_paths_quotient * (uint64)UINT32_MAX_VALUE + (uint64)explore_paths_remainder;
+				explore_paths = ((uint64)explore_paths_quotient << 32) | (uint64)explore_paths_remainder;
 			}
 			buffer->rdwr_long( reroute_goods );
 		}
@@ -104,32 +104,15 @@ private:
 			uint16 aggregate_time;
 			halthandle_t next_transfer;
 
-			path_element_t() : aggregate_time(65535) { }
+			path_element_t() : aggregate_time(65535u) { }
 		};
 
 		// element used during path search only for storing best lines/convoys
 		struct transport_element_t
 		{
-			union
-			{
-				struct
-				{
-					uint16 first_line;
-					uint16 first_convoy;
-				};
-				uint32 first_transport;
-			};
-
-			union
-			{
-				struct
-				{
-					uint16 last_line;
-					uint16 last_convoy;
-				};
-				uint32 last_transport;
-			};
-
+			uint16 first_transport;
+			uint16 last_transport;
+			
 			transport_element_t() : first_transport(0), last_transport(0) { }
 		};
 
@@ -142,37 +125,15 @@ private:
 			// element used for storing indices of halts connected to a transfer, together with their common transport
 			struct connection_cluster_t
 			{
-				uint32 transport;
+				uint16 transport;
 				vector_tpl<uint16> connected_halts;
 
 				connection_cluster_t(const uint32 halt_vector_size) : connected_halts(halt_vector_size) { }
 
-				connection_cluster_t(const uint32 halt_vector_size, const uint32 transport_id, const uint16 halt_id) 
+				connection_cluster_t(const uint32 halt_vector_size, const uint16 transport_id, const uint16 halt_id) 
 					: transport(transport_id), connected_halts(halt_vector_size)
 				{
 					connected_halts.append(halt_id);
-				}
-
-				connection_cluster_t& operator= (const connection_cluster_t &source)
-				{
-					// self-assignment --> do nothing and return
-					if ( this == &source )
-					{
-						return *this;
-					}
-
-					// reset transport ID
-					transport = source.transport;
-					
-					// clear connected halt list and copy over from source one by one
-					connected_halts.clear();
-					connected_halts.resize( source.connected_halts.get_size() );
-					for ( uint32 i = 0; i < source.connected_halts.get_count(); ++i )
-					{
-						connected_halts.append( source.connected_halts[i] );
-					}
-					
-					return *this;
 				}
 			};
 
@@ -181,6 +142,7 @@ private:
 			vector_tpl<connection_cluster_t*> connection_clusters;
 			uint32 usage_level;			// number of connection clusters used
 			uint32 halt_vector_size;	// size of connected halt vector in connection cluster object
+			inthashtable_tpl<uint16, connection_cluster_t*> cluster_map;
 
 		public:
 
@@ -212,18 +174,17 @@ private:
 					connection_clusters[i]->connected_halts.clear();
 				}
 				usage_level = 0;
+				cluster_map.clear();
 			}
 
-			void register_connection(const uint32 transport_id, const uint16 halt_id)
+			void register_connection(const uint16 transport_id, const uint16 halt_id)
 			{
 				// check against each existing cluster
-				for ( uint32 i = 0; i < usage_level; ++i )
+				connection_cluster_t *const existing_cluster = cluster_map.get(transport_id);
+				if ( existing_cluster )
 				{
-					if ( connection_clusters[i]->transport == transport_id )
-					{
-						connection_clusters[i]->connected_halts.append(halt_id);
-						return;
-					}
+					existing_cluster->connected_halts.append(halt_id);
+					return;
 				}
 
 				// reaching here means no match is found --> re-use or create a new connection cluster 
@@ -232,11 +193,14 @@ private:
 					// case : free connection clusters available for use
 					connection_clusters[usage_level]->transport = transport_id;
 					connection_clusters[usage_level]->connected_halts.append(halt_id);
+					cluster_map.put(transport_id, connection_clusters[usage_level]);
 				}
 				else
 				{
 					// case : no more available connection cluster for use --> requires allocation
-					connection_clusters.append( new connection_cluster_t( halt_vector_size, transport_id, halt_id ) );
+					connection_cluster_t *const new_cluster = new connection_cluster_t( halt_vector_size, transport_id, halt_id );
+					connection_clusters.append( new_cluster );
+					cluster_map.put(transport_id, new_cluster);
 				}
 				++usage_level;
 			};
@@ -261,7 +225,7 @@ private:
 				}
 				else
 				{
-					dbg->fatal("connection_t::operator[]()", "Index out of bounds: %i not in 0..%d", element_id, usage_level - 1);
+					dbg->fatal("connection_t::operator[]()", "Index out of bounds: %i not in 0..%i", element_id, (sint32)usage_level - 1);
 				}
 			}
 		};
@@ -283,6 +247,7 @@ private:
 
 		// set of variables for working path data
 		path_element_t **working_matrix;
+		uint16 *transport_index_map;
 		transport_element_t **transport_matrix;
 		uint16 *working_halt_index_map;
 		halthandle_t *working_halt_list;
@@ -294,7 +259,6 @@ private:
 
 		// a vector for storing lines and lineless convoys
 		vector_tpl<linkage_t> *linkages;
-		uint32 linkages_count;
 
 		// set of variables for transfer list
 		uint16 *transfer_list;

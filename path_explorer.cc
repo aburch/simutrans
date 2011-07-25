@@ -232,6 +232,7 @@ path_explorer_t::compartment_t::compartment_t()
 	finished_halt_count = 0;
 
 	working_matrix = NULL;
+	transport_index_map = NULL;
 	transport_matrix = NULL;
 	working_halt_index_map = NULL;
 	working_halt_list = NULL;
@@ -241,7 +242,6 @@ path_explorer_t::compartment_t::compartment_t()
 	all_halts_count = 0;
 
 	linkages = NULL;
-	linkages_count = 0;
 
 	transfer_list = NULL;
 	transfer_count = 0;;
@@ -296,6 +296,10 @@ path_explorer_t::compartment_t::~compartment_t()
 			delete[] working_matrix[i];
 		}
 		delete[] working_matrix;
+	}
+	if (transport_index_map)
+	{
+		delete[] transport_index_map;
 	}
 	if (transport_matrix)
 	{
@@ -374,7 +378,12 @@ void path_explorer_t::compartment_t::reset(const bool reset_finished_set)
 		}
 		delete[] working_matrix;
 		working_matrix = NULL;
-	}	
+	}
+	if (transport_index_map)
+	{
+		delete[] transport_index_map;
+		transport_index_map = NULL;
+	}
 	if (transport_matrix)
 	{
 		for (uint16 i = 0; i < working_halt_count; ++i)
@@ -410,7 +419,6 @@ void path_explorer_t::compartment_t::reset(const bool reset_finished_set)
 		delete linkages;
 		linkages = NULL;
 	}
-	linkages_count = 0;
 
 
 	if (transfer_list)
@@ -550,6 +558,8 @@ void path_explorer_t::compartment_t::step()
 				working_halt_index_map[i] = 65535;
 			}
 
+			transport_index_map = new uint16[131072]();		// initialise all elements to zero
+
 			// create a list of schedules of lines and lineless convoys
 			linkages = new vector_tpl<linkage_t>(1024);
 			convoihandle_t current_convoy;
@@ -566,6 +576,7 @@ void path_explorer_t::compartment_t::step()
 				{
 					temp_linkage.convoy = current_convoy;
 					linkages->append(temp_linkage);
+					transport_index_map[ 65536u + current_convoy.get_id() ] = linkages->get_count();
 				}
 			}
 
@@ -590,18 +601,19 @@ void path_explorer_t::compartment_t::step()
 					{
 						temp_linkage.line = current_line;
 						linkages->append(temp_linkage);
+						transport_index_map[ current_line.get_id() ] = linkages->get_count();
 					}
 				}
 			}
 
-			linkages_count = linkages->get_count();
-
+			// can have at most 65535 different lines and lineless convoys; passing this limit should be extremely unlikely
+			assert( linkages->get_count() <= 65535u );
 
 #ifdef DEBUG_COMPARTMENT_STEP
 			diff = dr_time() - start;	// stop timing
 
 			printf("\tTotal Halt Count :  %lu \n", all_halts_count);
-			printf("\tTotal Lines/Lineless Convoys Count :  %ul \n", linkages_count);
+			printf("\tTotal Lines/Lineless Convoys Count :  %ul \n", linkages->get_count());
 			printf("\t\t\tInitial prepration takes :  %lu ms \n", diff);
 #endif
 
@@ -647,7 +659,7 @@ void path_explorer_t::compartment_t::step()
 			start = dr_time();	// start timing
 
 			// for each schedule of line / lineless convoy
-			while (phase_counter < linkages_count)
+			while (phase_counter < linkages->get_count())
 			{
 				current_linkage = (*linkages)[phase_counter];
 
@@ -847,7 +859,7 @@ void path_explorer_t::compartment_t::step()
 #endif
 
 			// check if this phase is finished
-			if (phase_counter == linkages_count)
+			if (phase_counter == linkages->get_count())
 			{
 				// iteration limit adjustment
 				if ( catg == representative_category )
@@ -885,7 +897,6 @@ void path_explorer_t::compartment_t::step()
 					delete linkages;
 					linkages = NULL;
 				}
-				linkages_count = 0;
 
 				current_phase = phase_filter_eligible;	// proceed to the next phase
 				phase_counter = 0;	// reset counter
@@ -1105,18 +1116,11 @@ void path_explorer_t::compartment_t::step()
 					// update corresponding matrix element
 					working_matrix[phase_counter][reachable_halt_index].next_transfer = reachable_halt;
 					working_matrix[phase_counter][reachable_halt_index].aggregate_time = current_connexion->waiting_time + current_connexion->journey_time;
-					if ( current_connexion->best_line.is_bound() )
-					{
-						transport_matrix[phase_counter][reachable_halt_index].first_line 
-							= transport_matrix[phase_counter][reachable_halt_index].last_line 
-							= current_connexion->best_line.get_id();
-					}
-					else
-					{
-						transport_matrix[phase_counter][reachable_halt_index].first_convoy 
-							= transport_matrix[phase_counter][reachable_halt_index].last_convoy 
-							= current_connexion->best_convoy.get_id();
-					}
+					transport_matrix[phase_counter][reachable_halt_index].first_transport 
+						= transport_matrix[phase_counter][reachable_halt_index].last_transport 
+						= transport_index_map[ current_connexion->best_line.is_bound() ?
+													current_connexion->best_line.get_id() :
+													65536u + current_connexion->best_convoy.get_id() ];
 
 					// Debug journey times
 					// printf("\n%s -> %s : %lu \n",current_halt->get_name(), reachable_halt->get_name(), working_matrix[phase_counter][reachable_halt_index].journey_time);
@@ -1186,6 +1190,11 @@ void path_explorer_t::compartment_t::step()
 					delete[] working_halt_list;
 					working_halt_list = NULL;
 				}
+				if (transport_index_map)
+				{
+					delete[] transport_index_map;
+					transport_index_map = NULL;
+				}
 
 				current_phase = phase_explore_paths;	// proceed to the next phase
 				phase_counter = 0;	// reset counter
@@ -1222,8 +1231,8 @@ void path_explorer_t::compartment_t::step()
 			if ( via_index == 0 && origin_cluster_index == 0 && target_cluster_index == 0 && origin_member_index == 0 )
 			{
 				// build data structures for inbound/outbound connections to/from transfer halts
-				inbound_connections = new connection_t(16, working_halt_count);
-				outbound_connections = new connection_t(16, working_halt_count);
+				inbound_connections = new connection_t(16u, working_halt_count);
+				outbound_connections = new connection_t(16u, working_halt_count);
 			}
 
 			start = dr_time();	// start timing
@@ -1249,21 +1258,21 @@ void path_explorer_t::compartment_t::step()
 					}
 
 					// should take into account the iterations above
-					iterations += working_halt_count + ( inbound_connections->get_total_member_count() * inbound_connections->get_cluster_count() );
+					iterations += (uint32)working_halt_count + ( inbound_connections->get_total_member_count() << 1 );
 				}
 
 				// for each origin cluster
 				while ( origin_cluster_index < inbound_connections->get_cluster_count() )
 				{
 					const connection_t::connection_cluster_t &origin_cluster = (*inbound_connections)[origin_cluster_index];
-					const uint32 inbound_transport = origin_cluster.transport;
+					const uint16 inbound_transport = origin_cluster.transport;
 					const vector_tpl<uint16> &origin_halt_list = origin_cluster.connected_halts;
 
 					// for each target cluster
 					while ( target_cluster_index < outbound_connections->get_cluster_count() )
 					{
 						const connection_t::connection_cluster_t &target_cluster = (*outbound_connections)[target_cluster_index];
-						const uint32 outbound_transport = target_cluster.transport;
+						const uint16 outbound_transport = target_cluster.transport;
 						if ( inbound_transport == outbound_transport )
 						{
 							++target_cluster_index;
