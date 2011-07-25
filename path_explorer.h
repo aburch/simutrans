@@ -152,28 +152,6 @@ private:
 				{
 					connected_halts.append(halt_id);
 				}
-
-				connection_cluster_t& operator= (const connection_cluster_t &source)
-				{
-					// self-assignment --> do nothing and return
-					if ( this == &source )
-					{
-						return *this;
-					}
-
-					// reset transport ID
-					transport = source.transport;
-					
-					// clear connected halt list and copy over from source one by one
-					connected_halts.clear();
-					connected_halts.resize( source.connected_halts.get_size() );
-					for ( uint32 i = 0; i < source.connected_halts.get_count(); ++i )
-					{
-						connected_halts.append( source.connected_halts[i] );
-					}
-					
-					return *this;
-				}
 			};
 
 		private:
@@ -297,7 +275,6 @@ private:
 
 		// a vector for storing lines and lineless convoys
 		vector_tpl<linkage_t> *linkages;
-		uint32 linkages_count;
 
 		// set of variables for transfer list
 		uint16 *transfer_list;

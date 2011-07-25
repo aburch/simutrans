@@ -241,7 +241,6 @@ path_explorer_t::compartment_t::compartment_t()
 	all_halts_count = 0;
 
 	linkages = NULL;
-	linkages_count = 0;
 
 	transfer_list = NULL;
 	transfer_count = 0;;
@@ -410,7 +409,6 @@ void path_explorer_t::compartment_t::reset(const bool reset_finished_set)
 		delete linkages;
 		linkages = NULL;
 	}
-	linkages_count = 0;
 
 
 	if (transfer_list)
@@ -594,14 +592,12 @@ void path_explorer_t::compartment_t::step()
 				}
 			}
 
-			linkages_count = linkages->get_count();
-
 
 #ifdef DEBUG_COMPARTMENT_STEP
 			diff = dr_time() - start;	// stop timing
 
 			printf("\tTotal Halt Count :  %lu \n", all_halts_count);
-			printf("\tTotal Lines/Lineless Convoys Count :  %ul \n", linkages_count);
+			printf("\tTotal Lines/Lineless Convoys Count :  %ul \n", linkages->get_count());
 			printf("\t\t\tInitial prepration takes :  %lu ms \n", diff);
 #endif
 
@@ -647,7 +643,7 @@ void path_explorer_t::compartment_t::step()
 			start = dr_time();	// start timing
 
 			// for each schedule of line / lineless convoy
-			while (phase_counter < linkages_count)
+			while (phase_counter < linkages->get_count())
 			{
 				current_linkage = (*linkages)[phase_counter];
 
@@ -847,7 +843,7 @@ void path_explorer_t::compartment_t::step()
 #endif
 
 			// check if this phase is finished
-			if (phase_counter == linkages_count)
+			if (phase_counter == linkages->get_count())
 			{
 				// iteration limit adjustment
 				if ( catg == representative_category )
@@ -885,7 +881,6 @@ void path_explorer_t::compartment_t::step()
 					delete linkages;
 					linkages = NULL;
 				}
-				linkages_count = 0;
 
 				current_phase = phase_filter_eligible;	// proceed to the next phase
 				phase_counter = 0;	// reset counter
