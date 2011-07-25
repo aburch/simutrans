@@ -71,14 +71,14 @@ public:
 			uint32 explore_paths_remainder;
 			if( buffer->is_saving() )
 			{
-				explore_paths_quotient = (uint32)(explore_paths / (uint64)UINT32_MAX_VALUE);
-				explore_paths_remainder = (uint32)(explore_paths % (uint64)UINT32_MAX_VALUE);
+				explore_paths_quotient = (uint32)(explore_paths >> 32);
+				explore_paths_remainder = (uint32)(explore_paths & 0xFFFFFFFFull);
 			}
 			buffer->rdwr_long( explore_paths_quotient );
 			buffer->rdwr_long( explore_paths_remainder );
 			if( buffer->is_loading() )
 			{
-				explore_paths = (uint64)explore_paths_quotient * (uint64)UINT32_MAX_VALUE + (uint64)explore_paths_remainder;
+				explore_paths = ((uint64)explore_paths_quotient << 32) | (uint64)explore_paths_remainder;
 			}
 			buffer->rdwr_long( reroute_goods );
 		}
