@@ -594,7 +594,6 @@ end:
 			printf("*** FATAL ***:\nMissing liverytype[%i] for %i liveries!\n", i, livery_max + 1);
 			exit(0);
 		}
-		printf("Writing liverytype[%d] (%s)\n", i, str.c_str());
 		text_writer_t::instance()->write_obj(fp, node, str.c_str());
 	}
 
