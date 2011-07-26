@@ -1231,8 +1231,8 @@ void path_explorer_t::compartment_t::step()
 			if ( via_index == 0 && origin_cluster_index == 0 && target_cluster_index == 0 && origin_member_index == 0 )
 			{
 				// build data structures for inbound/outbound connections to/from transfer halts
-				inbound_connections = new connection_t(16u, working_halt_count);
-				outbound_connections = new connection_t(16u, working_halt_count);
+				inbound_connections = new connection_t(64u, working_halt_count);
+				outbound_connections = new connection_t(64u, working_halt_count);
 			}
 
 			start = dr_time();	// start timing

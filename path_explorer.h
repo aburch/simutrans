@@ -128,8 +128,6 @@ private:
 				uint16 transport;
 				vector_tpl<uint16> connected_halts;
 
-				connection_cluster_t(const uint32 halt_vector_size) : connected_halts(halt_vector_size) { }
-
 				connection_cluster_t(const uint32 halt_vector_size, const uint16 transport_id, const uint16 halt_id) 
 					: transport(transport_id), connected_halts(halt_vector_size)
 				{
@@ -147,14 +145,7 @@ private:
 		public:
 
 			connection_t(const uint32 cluster_count, const uint32 working_halt_count) 
-				: connection_clusters(cluster_count), usage_level(0), halt_vector_size(working_halt_count)
-			{
-				// create connection clusters in advance
-				for ( uint32 i = 0; i < cluster_count; ++i )
-				{
-					connection_clusters.append ( new connection_cluster_t(halt_vector_size) );
-				}
-			}
+				: connection_clusters(cluster_count), usage_level(0), halt_vector_size(working_halt_count) { }
 
 			~connection_t()
 			{
