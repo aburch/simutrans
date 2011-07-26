@@ -690,59 +690,28 @@ void path_explorer_t::compartment_t::step()
 				}
 
 				// create a list of reachable halts
-				entry_count = current_schedule->get_count();
+				bool reverse = false;
+				entry_count = current_schedule->is_mirrored() ? (current_schedule->get_count() * 2) - 2 : current_schedule->get_count();
 				halt_list.clear();
 				recurrence_list.clear();
 
 				uint8 index = 0;
-				bool reverse = false;
-				bool first_run = true;
 
-				for (uint8 i = 0; i < entry_count * 3; ++i)
+				while (entry_count--)
 				{
-					current_halt = haltestelle_t::get_halt(world, current_schedule->eintrag[index].pos, current_owner);
-					
-					// Make sure that the halt found was built before refresh started and that it supports current goods category
-					if ( current_halt.is_bound() && current_halt->get_inauguration_time() < refresh_start_time && current_halt->is_enabled(ware_type) )
-					{
-						// Assign to halt list only if current halt supports this compartment's goods category
-						halt_list.append(current_halt, 64);
-						// Initialise the corresponding recurrence list entry to false
-						recurrence_list.append(false, 64);
-					}
-					
-					current_schedule->increment_index(&index, &reverse);
-
-					// check if we have traversed the whole schedule, both ways if appropriate
-					if (index == 0)
-					{
-						if(!current_schedule->is_mirrored())
-						{
-							break;
-						}
-						else
-						{
-							// This will give just under 3*sched->get_count() entries in a worst-case scenario
-							// (i.e. if this halt is the last stop in the scedule).
-							// This is necessary to represent both directions using a single halt_list.
-							if ( first_run == true )
-							{
-								// first run -> continue on
-								first_run = false;
-							}
-							else if ( reverse == false )
-							{
-								// second run -> also visit all stops in reverse direction
-								reverse = true;
-							}
-							else
-							{
-								// visited everywhere both forwards and backwards.
-								break;
-							}
-						}
-					}
-				}
+				   current_halt = haltestelle_t::get_halt(world, current_schedule->eintrag[index].pos, current_owner);
+               
+				   // Make sure that the halt found was built before refresh started and that it supports current goods category
+				   if ( current_halt.is_bound() && current_halt->get_inauguration_time() < refresh_start_time && current_halt->is_enabled(ware_type) )
+				   {
+					  // Assign to halt list only if current halt supports this compartment's goods category
+					  halt_list.append(current_halt, 64);
+					  // Initialise the corresponding recurrence list entry to false
+					  recurrence_list.append(false, 64);
+				   }
+               
+				   current_schedule->increment_index(&index, &reverse);
+               }
 
 				// precalculate journey times between consecutive halts
 				entry_count = halt_list.get_count();
