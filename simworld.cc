@@ -1257,11 +1257,11 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing movingobjs");
 		for(k.y=1; k.y<get_groesse_y()-1; k.y++) {
 			for(k.x=(k.y<old_y)?old_x:1; k.x<get_groesse_x()-1; k.x++) {
 				grund_t *gr = lookup_kartenboden(k);
-				if(gr->get_top()==0  &&  gr->get_typ()==grund_t::boden  &&  gr->get_grund_hang()==hang_t::flach) {
+				if(gr->get_top()==0  &&  (gr->get_typ()==grund_t::boden  ||  gr->ist_wasser()) &&  gr->get_grund_hang()==hang_t::flach) {
 					queried --;
 					if(  queried<0  ) {
 						const groundobj_besch_t *besch = movingobj_t::random_movingobj_for_climate( get_climate(gr->get_hoehe()) );
-						if(besch  &&  (besch->get_speed()==0  ||  (besch->get_waytype()!=water_wt  ||  gr->hat_weg(water_wt)  ||  gr->get_hoehe()<=get_grundwasser()) ) ) {
+						if(besch  &&  (besch->get_waytype()!=water_wt  ||  gr->hat_weg(water_wt)  ||  gr->get_hoehe()<=get_grundwasser() ) ) {
 							if(besch->get_speed()!=0) {
 								queried = simrand(umgebung_t::moving_object_probability*2, "karte_t::distribute_groundobjs_cities()");
 								gr->obj_add( new movingobj_t( this, gr->get_pos(), besch ) );
