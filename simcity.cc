@@ -3828,7 +3828,7 @@ stadt_t::destination stadt_t::find_destination(factory_set_t &target_factories, 
 		return current_destination;
 	} 
 	
-	else if(rand <welt->get_settings().get_tourist_percentage() +welt->get_settings().get_factory_worker_percentage()) 
+	else if(rand <welt->get_settings().get_tourist_percentage() +welt->get_settings().get_factory_worker_percentage() && welt->get_ausflugsziele().get_sum_weight() > 0 ) 
 	{ 		
 		*will_return = tourist_return;	// tourists will return
 		const gebaeude_t* gb = welt->get_random_ausflugsziel();
