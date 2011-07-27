@@ -703,7 +703,6 @@ void path_explorer_t::compartment_t::step()
                
 					// Make sure that the halt found was built before refresh started and that it supports current goods category
 					if ( current_halt.is_bound() && current_halt->get_inauguration_time() < refresh_start_time && current_halt->is_enabled(ware_type) )
-
 					{
 						// Assign to halt list only if current halt supports this compartment's goods category
 						halt_list.append(current_halt, 64);
