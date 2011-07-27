@@ -661,7 +661,7 @@ public:
 private:
 	/**
 	 * A weighted list of distances
-	 * @author Knightly
+	 * @author Knightly 
 	 */
 	static weighted_vector_tpl<uint32> distances;
 
@@ -696,12 +696,6 @@ private:
 	weighted_vector_tpl<gebaeude_t *> target_attractions;
 
 public:
-
-	/**
-	 * Initialise the weighted list of distances
-	 * @author Knightly
-	 */
-	static void init_distances(const uint32 max_distance);
 
 	/**
 	 * Functions for manipulating the list of target cities

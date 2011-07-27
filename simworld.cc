@@ -1252,16 +1252,19 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing movingobjs");
 	if(  umgebung_t::moving_object_probability > 0  ) {
 		// add animals and so on (must be done after growing and all other objects, that could change ground coordinates)
 		koord k;
+
+		bool has_water = movingobj_t::random_movingobj_for_climate( water_climate )!=NULL;	
 		sint32 queried = simrand(umgebung_t::moving_object_probability*2, "karte_t::distribute_groundobjs_cities()");
 		// no need to test the borders, since they are mostly slopes anyway
 		for(k.y=1; k.y<get_groesse_y()-1; k.y++) {
 			for(k.x=(k.y<old_y)?old_x:1; k.x<get_groesse_x()-1; k.x++) {
 				grund_t *gr = lookup_kartenboden(k);
-				if(gr->get_top()==0  &&  (gr->get_typ()==grund_t::boden  ||  gr->ist_wasser()) &&  gr->get_grund_hang()==hang_t::flach) {
+				// flat ground or open water
+				if(  gr->get_top()==0  &&  (  (gr->get_typ()==grund_t::boden  &&  gr->get_grund_hang()==hang_t::flach)  ||  (has_water  &&  gr->ist_wasser())  )  ) {
 					queried --;
 					if(  queried<0  ) {
 						const groundobj_besch_t *besch = movingobj_t::random_movingobj_for_climate( get_climate(gr->get_hoehe()) );
-						if(besch  &&  (besch->get_waytype()!=water_wt  ||  gr->hat_weg(water_wt)  ||  gr->get_hoehe()<=get_grundwasser() ) ) {
+						if(  besch  &&  ( besch->get_waytype()!=water_wt  ||  gr->get_hoehe()<=get_grundwasser() )  ) {
 							if(besch->get_speed()!=0) {
 								queried = simrand(umgebung_t::moving_object_probability*2, "karte_t::distribute_groundobjs_cities()");
 								gr->obj_add( new movingobj_t( this, gr->get_pos(), besch ) );
@@ -1478,9 +1481,6 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	cached_groesse_max = max(cached_groesse_gitter_x,cached_groesse_gitter_y);
 	cached_groesse_karte_x = cached_groesse_gitter_x-1;
 	cached_groesse_karte_y = cached_groesse_gitter_y-1;
-
-	// Knightly : initialise the weighted list of distances
-	stadt_t::init_distances( shortest_distance( koord(1, 1), koord( get_groesse_x(), get_groesse_y() ) ) );
 
 	intr_disable();
 
@@ -3078,6 +3078,7 @@ void karte_t::buche(sint64 const betrag, player_cost const type)
 void karte_t::neuer_monat()
 {
 	update_history();
+
 	// advance history ...
 	last_month_bev = finance_history_month[0][WORLD_CITICENS];
 	for(  int hist=0;  hist<karte_t::MAX_WORLD_COST;  hist++  ) {
@@ -3346,6 +3347,7 @@ DBG_MESSAGE("karte_t::neues_jahr()","speedbonus for %d %i, %i, %i, %i, %i, %i, %
 			spieler[i]->neues_jahr();
 		}
 	}
+
 }
 
 
@@ -4800,9 +4802,6 @@ DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
 	cached_groesse_karte_x = cached_groesse_gitter_x-1;
 	cached_groesse_karte_y = cached_groesse_gitter_y-1;
 	x_off = y_off = 0;
-
-	// Knightly : initialise the weighted list of distances
-	stadt_t::init_distances( shortest_distance( koord(1, 1), koord( get_groesse_x(), get_groesse_y() ) ) );
 
 	// Reliefkarte an neue welt anpassen
 	reliefkarte_t::get_karte()->set_welt(this);

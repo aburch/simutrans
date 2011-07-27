@@ -3766,28 +3766,6 @@ void stadt_t::recalc_target_attractions()
 	}
 }
 
-
-weighted_vector_tpl<uint32> stadt_t::distances;
-
-
-void stadt_t::init_distances(const uint32 max_distance)
-{
-	if(  distances.get_count()<max_distance  ) {
-		// expand the list
-		distances.resize(max_distance);
-		for(  uint32 d=distances.get_count()+1u;  d<=max_distance;  ++d  ) {
-			distances.append(d, (1u << 20) / d);
-		}
-	}
-	else if(  distances.get_count()>max_distance  ) {
-		// shorten the list
-		for(  uint32 d=distances.get_count()-1u;  d>=max_distance;  --d  ) {
-			distances.remove_at(d);
-		}
-	}
-}
-
-
 /* this function generates a random target for passenger/mail
  * changing this strongly affects selection of targets and thus game strategy
  */

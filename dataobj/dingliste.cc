@@ -476,11 +476,8 @@ bool dingliste_t::add(ding_t* ding)
 					break;
 				}
 			}
-			intern_insert_at(ding, i);
 		}
-		else {
-			intern_insert_at(ding, i);
-		}
+		intern_insert_at(ding, i);
 	}
 	// then correct the upper border
 	return true;

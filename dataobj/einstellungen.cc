@@ -1175,20 +1175,16 @@ void settings_t::rdwr(loadsave_t *file)
 		{
 			if(file->get_experimental_version() == 0 )
 			{
-				uint16 city_short_range_percentage = passenger_routing_local_chance;
-				uint16 city_medium_range_percentage = passenger_routing_midrange_chance;
-				uint32 city_short_range_radius = local_passengers_max_distance;
-				uint32 city_medium_range_radius = midrange_passengers_max_distance;
-
-				file->rdwr_short(city_short_range_percentage);
-				file->rdwr_short(city_medium_range_percentage);
-				file->rdwr_long(city_short_range_radius);
-				file->rdwr_long(city_medium_range_radius);
-
-				passenger_routing_local_chance = city_short_range_percentage;
-				passenger_routing_midrange_chance = city_medium_range_percentage;
-				local_passengers_max_distance = city_short_range_radius;
-				midrange_passengers_max_distance = city_medium_range_radius;
+				// Unfortunately, with this new system from Standard, it is no longer possible
+				// to parse these values in a way that makes sense to Experimental. This must
+				// be maintained to retain saved game compatibility only.
+				uint32 dummy_32 = 0;
+				uint16 dummy_16 = 0;
+				for(  int i=0;  i<10;  i++  ) 
+				{
+					file->rdwr_short(dummy_16);
+					file->rdwr_long(dummy_32);
+				}
 			}
 		}
 
