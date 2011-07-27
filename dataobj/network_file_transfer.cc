@@ -45,7 +45,7 @@ char const* network_receive_file(SOCKET const s, char const* const save_as, long
 			}
 			else {
 				if (i < 0) {
-					dbg->error("loadsave_t::rd_open()", "recv failed with %i", i);
+					dbg->error("network_receive_file", "recv failed with %i", i);
 				}
 				break;
 			}
@@ -213,22 +213,23 @@ end:
 const char *network_send_file( uint32 client_id, const char *filename )
 {
 	FILE *fp = fopen(filename,"rb");
+	if (fp == NULL) {
+		dbg->error("network_send_file", "could not open file %s", filename);
+		return "Could not open file";
+	}
 	char buffer[1024];
 
 	// find out length
 	fseek(fp, 0, SEEK_END);
 	long length = (long)ftell(fp);
 	rewind(fp);
+	long bytes_sent = 0;
 
-	// socket
-	SOCKET s = socket_list_t::get_socket(client_id);
-	if (s==INVALID_SOCKET) {
-		return "Client closed connection during transfer";
-	}
 	// send size of file
 	nwc_game_t nwc(length);
-	if (!nwc.send(s)) {
-		return "Client closed connection during transfer";
+	SOCKET s = socket_list_t::get_socket(client_id);
+	if (s==INVALID_SOCKET  ||  !nwc.send(s)) {
+		goto error;
 	}
 
 	// good place to show a progress bar
@@ -236,20 +237,25 @@ const char *network_send_file( uint32 client_id, const char *filename )
 		display_set_progress_text(translator::translate("Transferring game ..."));
 		display_progress(0, length);
 	}
-	long bytes_sent = 0;
+
 	while(  !feof(fp)  ) {
 		int bytes_read = (int)fread( buffer, 1, sizeof(buffer), fp );
 		uint16 dummy;
 		if( !network_send_data(s, buffer, bytes_read, dummy, 250) ) {
 			socket_list_t::remove_client(s);
-			return "Client closed connection during transfer";
+			goto error;
 		}
 		bytes_sent += bytes_read;
 		display_progress(bytes_sent, length);
 	}
 
 	// ok, new client has savegame
+	fclose(fp);
 	return NULL;
+error:
+	// an error occured: close file
+	fclose(fp);
+	return "Client closed connection during transfer";
 }
 
 

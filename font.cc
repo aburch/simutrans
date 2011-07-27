@@ -241,6 +241,7 @@ bool load_font(font_type* fnt, const char* fname)
 
 	if(c<0) {
 		fprintf(stderr, "Error: Cannot parse font '%s'\n", fname);
+		fclose(f);
 		return false;
 	}
 

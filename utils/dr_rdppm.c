@@ -56,10 +56,11 @@ load_block(unsigned char *block, char *filename)
 
 
 	read_ppm_body_plain(block, file, breite, hoehe);
-
+	fclose(file);
 	return 1;
     } else {
 	puts("Keine PPM (P6) Datei !");
+	fclose(file);
 
 	return 0;
     }
