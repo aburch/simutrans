@@ -365,7 +365,7 @@ bool load_font(font_type* fnt, const char* fname)
 			fnt->char_data[i * CHARACTER_LEN + CHARACTER_LEN-2] = 0;
 			fnt->char_data[i * CHARACTER_LEN + CHARACTER_LEN-1] = 3;
 		}
-		fprintf(stderr, "%s sucessful loaded as old format hex font!\n", fname);
+		fprintf(stderr, "%s successfully loaded as old format hex font!\n", fname);
 		return true;
 	}
 
