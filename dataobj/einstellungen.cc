@@ -108,11 +108,11 @@ settings_t::settings_t() :
 
 	factory_worker_percentage = 33;
 	tourist_percentage = 16;
-	city_short_range_percentage = 60;
-	city_medium_range_percentage = 30;
-
-	city_short_range_radius = 50u;
-	city_medium_range_radius = 100u;
+	for(  int i=0; i<10; i++  ) {
+		localityfactorperyear[i].year = 0;
+		localityfactorperyear[i].factor = 0;
+	}
+	localityfactorperyear[0].factor = 100;
 
 	factory_worker_radius = 77;
 	// try to have at least a single town connected to a factory
@@ -679,15 +679,14 @@ void settings_t::rdwr(loadsave_t *file)
 		}
 
 		if(  file->get_version()>=110007  ) {
-			file->rdwr_short(city_short_range_percentage);
-			file->rdwr_short(city_medium_range_percentage);
-			file->rdwr_long(city_short_range_radius);
-			file->rdwr_long(city_medium_range_radius);
+			for(  int i=0;  i<10;  i++  ) {
+				file->rdwr_short(localityfactorperyear[i].year );
+				file->rdwr_long(localityfactorperyear[i].factor );
+			}
 		}
+		// otherwise the default values of the last one will be used
 	}
 }
-
-
 
 
 // read the settings from this file
@@ -890,10 +889,6 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	factory_arrival_periods = clamp( contents.get_int("factory_arrival_periods", factory_arrival_periods), 1, 16 );
 	factory_enforce_demand = contents.get_int("factory_enforce_demand", factory_enforce_demand) != 0;
 	tourist_percentage = contents.get_int("tourist_percentage", tourist_percentage );
-	city_short_range_percentage = contents.get_int("city_short_range_percentage", city_short_range_percentage);
-	city_medium_range_percentage = contents.get_int("city_medium_range_percentage", city_medium_range_percentage);
-	city_short_range_radius = contents.get_int("city_short_range_radius", city_short_range_radius);
-	city_medium_range_radius = contents.get_int("city_medium_range_radius", city_medium_range_radius);
 	seperate_halt_capacities = contents.get_int("seperate_halt_capacities", seperate_halt_capacities ) != 0;
 	pay_for_total_distance = contents.get_int("pay_for_total_distance", pay_for_total_distance );
 	avoid_overcrowding = contents.get_int("avoid_overcrowding", avoid_overcrowding )!=0;
@@ -931,8 +926,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	for(  int i = 0;  i<10;  i++  ) {
 		char name[32];
 		sprintf( name, "starting_money[%i]", i );
-		sint64 *test = contents.get_sint64s(name );
-		if ((test[0]>1) && (test[0]<=3)) {
+		sint64 *test = contents.get_sint64s( name );
+		if(  (test[0]>1) && (test[0]<=3)  ) {
 			// insert sorted by years
 			int k=0;
 			for (k=0; k<i; k++) {
@@ -967,6 +962,47 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 			startingmoneyperyear[i].money = 0;
 			startingmoneyperyear[i].interpol = 0;
 		}
+	}
+
+	/* up to ten blocks year, locality_factor={0...2000000000}
+	 * locality_factor[i]=y,l
+	 * y .. year
+	 * l .. factor, the larger the more widespread
+	 */
+	j = 0;
+	for(  int i = 0;  i<10;  i++  ) {
+		char name[32];
+		sprintf( name, "locality_factor[%i]", i );
+		sint64 *test = contents.get_sint64s( name );
+		if(  (test[0]>1) && (test[0]<=3)  ) {
+			// insert sorted by years
+			int k=0;
+			for(  k=0; k<i; k++  ) {
+				if(  localityfactorperyear[k].year > test[1]  ) {
+					for (int l=j; l>=k; l--)
+						memcpy( &localityfactorperyear[l+1], &localityfactorperyear[l], sizeof(yearlocaltyfactor) );
+					break;
+				}
+			}
+			localityfactorperyear[k].year = (sint16)test[1];
+			localityfactorperyear[k].factor = test[2];
+			j++;
+		}
+		else {
+			// invalid entry
+		}
+		delete [] test;
+	}
+	// add default, if nothing found
+	if(  j==0  ) {
+		localityfactorperyear[0].year = 0;
+		localityfactorperyear[0].factor = 100;
+		j++;
+	}
+	// fill remaining entries
+	while(  j<10  ) {
+		localityfactorperyear[j].year = 0;
+		localityfactorperyear[j++].factor = 0;
 	}
 
 	// player colors
@@ -1139,6 +1175,33 @@ sint64 settings_t::get_starting_money(sint16 const year) const
 			return startingmoneyperyear[i-1].money;
 		}
 
+	}
+}
+
+
+uint32 settings_t::get_locality_factor(sint16 const year) const
+{
+	int i;
+	for(  i=0;  i<10;  i++  ) {
+		if(  localityfactorperyear[i].year!=0  ) {
+			if(  localityfactorperyear[i].year > year  ) {
+				break;
+			}
+		}
+		else {
+			// year is behind the latest given date
+			return localityfactorperyear[max(i-1,0)].factor;
+		}
+	}
+	if(  i==0  ) {
+		// too early: use first entry
+		return localityfactorperyear[0].factor;
+	}
+	else {
+		// linear interpolation
+		return localityfactorperyear[i-1].factor +
+			(localityfactorperyear[i].factor-localityfactorperyear[i-1].factor)
+			* (year-localityfactorperyear[i-1].year) /(localityfactorperyear[i].year-localityfactorperyear[i-1].year );
 	}
 }
 

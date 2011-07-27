@@ -3,6 +3,10 @@
 #include "../simtools.h"
 
 
+// default: close and far away does not matter
+uint32 koord::locality_factor = 10000;
+
+
 const koord koord::invalid(-1, -1);
 const koord koord::nord(    0, -1);
 const koord koord::ost(     1,  0);

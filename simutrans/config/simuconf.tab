@@ -115,21 +115,15 @@ growthfactor_capitals = 100
 passenger_factor=16
 
 # amount of passengers that travel from/to factories or attractions
-# the remaining percentage is divided among short-range,
-# medium-range and long-range cities trips
+# the remaining percentage is intercity and intracity travel
 factory_worker_percentage = 33
 tourist_percentage = 16
-city_short_range_percentage = 60
-city_medium_range_percentage = 30
-# long-range percentage need not be explicitly specified;
-# it equals (100% - city_short_range_percentage - city_medium_range_percentage)
 
-# the distance ranges for city trips
-# the ranges are the number of tiles from the origin city
-city_short_range_radius = 50
-city_medium_range_radius = 100
-# long-range radius need not be explicitly specified;
-# it equals the longest distance possible on the map
+# how much local destinations are prefrerred over time
+# 0 means almost local passengers/mail only, 10000 spreads them over the map
+# You can have up to ten entries, first is the year, next is the factor.
+locality_factor[0]=1850,0
+locality_factor[1]=2000,10000
 
 # A factory will be added as worker's destination to a town, if it has either
 # is within factory_worker_radius

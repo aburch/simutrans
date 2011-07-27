@@ -412,7 +412,7 @@ void fabrik_t::recalc_demands_at_target_cities()
 		uint32 sum_of_weights = 0;
 		// first, calculate the weights
 		for(  uint32 c=0;  c<target_cities.get_count();  ++c  ) {
-			weights.append( weight_by_distance( target_cities[c]->get_einwohner(), shortest_distance( get_pos().get_2d(), target_cities[c]->get_pos() ) ) );
+			weights.append( weight_by_distance( target_cities[c]->get_einwohner(), shortest_distance( get_pos().get_2d(), target_cities[c]->get_center() ) ) );
 			sum_of_weights += weights[c];
 		}
 		// finally, apportion the pax/mail demand; formula : demand * (city_weight / aggregate_city_weight); (sum_of_weights >> 1) is for rounding

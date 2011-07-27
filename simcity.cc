@@ -1016,6 +1016,7 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 	besitzer_p = sp;
 
 	this->pos = pos;
+	last_center = koord::invalid;
 
 	bev = 0;
 	arb = 0;
@@ -1506,7 +1507,7 @@ void stadt_t::roll_history()
 }
 
 
-void stadt_t::neuer_monat()
+void stadt_t::neuer_monat( bool recalc_destinations )
 {
 	swap<uint8>( pax_destinations_old, pax_destinations_new );
 	pax_destinations_new.clear();
@@ -1518,7 +1519,13 @@ void stadt_t::neuer_monat()
 	settings_t const& s = welt->get_settings();
 	target_factories_pax.recalc_generation_ratio( s.get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_PAS_GENERATED);
 	target_factories_mail.recalc_generation_ratio(s.get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_MAIL_GENERATED);
-	update_target_cities();
+	recalc_target_cities();
+
+	// center has moved => change attraction weights
+	if(  recalc_destinations  ||  last_center != get_center()  ) {
+		last_center = get_center();
+		recalc_target_attractions();
+	}
 
 	if (!stadtauto_t::list_empty()) {
 		// spawn eventuall citycars
@@ -1848,28 +1855,11 @@ koord stadt_t::get_zufallspunkt() const
 
 void stadt_t::add_target_city(stadt_t *const city)
 {
-	assert( city != NULL );
-	target_cities.insert_ordered(
-		target_city_t( city, shortest_distance( this->get_pos(), city->get_pos() ) ),
-		max( city->get_einwohner(), 1 ),
-		target_city_t::less_than,
+	target_cities.append(
+		city,
+		weight_by_distance( city->get_einwohner()+1, shortest_distance( get_center(), city->get_center() ) ),
 		64u
 	);
-}
-
-
-void stadt_t::update_target_city(stadt_t *const city)
-{
-	assert( city != NULL );
-	target_cities.update( target_city_t( city, 0 ), max( city->get_einwohner(), 1 ) );
-}
-
-
-void stadt_t::update_target_cities()
-{
-	for(  uint32 c=0;  c<target_cities.get_count();  ++c  ) {
-		target_cities.update_at( c, max( target_cities[c].city->get_einwohner(), 1 ) );
-	}
 }
 
 
@@ -1888,7 +1878,7 @@ void stadt_t::add_target_attraction(gebaeude_t *const attraction)
 	assert( attraction != NULL );
 	target_attractions.append(
 		attraction,
-		weight_by_distance( attraction->get_passagier_level() << 4, shortest_distance( this->get_pos(), attraction->get_pos().get_2d() ) ),
+		weight_by_distance( attraction->get_passagier_level() << 4, shortest_distance( get_center(), attraction->get_pos().get_2d() ) ),
 		64u
 	);
 }
@@ -1900,27 +1890,6 @@ void stadt_t::recalc_target_attractions()
 	const weighted_vector_tpl<gebaeude_t *> &attractions = welt->get_ausflugsziele();
 	for(  uint32 a=0;  a<attractions.get_count();  ++a  ) {
 		add_target_attraction( attractions[a] );
-	}
-}
-
-
-weighted_vector_tpl<uint32> stadt_t::distances;
-
-
-void stadt_t::init_distances(const uint32 max_distance)
-{
-	if(  distances.get_count()<max_distance  ) {
-		// expand the list
-		distances.resize(max_distance);
-		for(  uint32 d=distances.get_count()+1u;  d<=max_distance;  ++d  ) {
-			distances.append(d, (1u << 20) / d);
-		}
-	}
-	else if(  distances.get_count()>max_distance  ) {
-		// shorten the list
-		for(  uint32 d=distances.get_count()-1u;  d>=max_distance;  --d  ) {
-			distances.remove_at(d);
-		}
 	}
 }
 
@@ -1943,44 +1912,11 @@ koord stadt_t::find_destination(factory_set_t &target_factories, const sint64 ge
 
 	if(  rand<welt->get_settings().get_tourist_percentage()  &&  target_attractions.get_sum_weight()>0  ) {
 		*will_return = tourist_return;	// tourists will return
-		return pick_any_weighted(target_attractions)->get_pos().get_2d();
+		return pick_any_weighted( target_attractions )->get_pos().get_2d();
 	}
 	else {
-		// Knightly : find city destination based on distance range
-		const sint16 city_rand = simrand(100);
-		// first, determine the range of distance for the travel
-		target_city_t lower_bound;
-		target_city_t upper_bound;
-		if(  city_rand<welt->get_settings().get_city_short_range_percentage()  ) {
-			// short-range distance
-			lower_bound.distance = 0;
-			upper_bound.distance = welt->get_settings().get_city_short_range_radius();
-		}
-		else if(  city_rand<welt->get_settings().get_city_short_range_percentage()+welt->get_settings().get_city_medium_range_percentage()  ) {
-			// medium-range distance
-			lower_bound.distance = welt->get_settings().get_city_short_range_radius() + 1u;
-			upper_bound.distance = welt->get_settings().get_city_medium_range_radius();
-		}
-		else {
-			// long-range distance
-			lower_bound.distance = welt->get_settings().get_city_medium_range_radius() + 1u;
-			const weighted_vector_tpl<uint32>::subset distance_subset = distances.get_subset( welt->get_settings().get_city_medium_range_radius(), distances.get_count() );
-			upper_bound.distance = distance_subset.is_empty() ? lower_bound.distance : pick_any_weighted_subset<uint32>( distance_subset );
-		}
-		// generate the set of cities within the distance range
-		weighted_vector_tpl<target_city_t>::subset city_subset = target_cities.get_subset_ordered(
-			lower_bound, upper_bound, target_city_t::less_than_or_equal, target_city_t::less_than
-		);
-		// if the set is empty -> fall back to the short range, which always has at least 1 city -- namely this city
-		if(  city_subset.is_empty()  ) {
-			lower_bound.distance = 0;
-			upper_bound.distance = welt->get_settings().get_city_short_range_radius();
-			city_subset = target_cities.get_subset_ordered(
-				lower_bound, upper_bound, target_city_t::less_than_or_equal, target_city_t::less_than
-			);
-		}
-		// finally, choose a city from the set, based on the population size
-		const stadt_t *const selected_city = pick_any_weighted_subset<target_city_t>( city_subset ).city;
+		// since the locality is already taken into accout for us, we just use the random weight
+		const stadt_t *const selected_city = pick_any_weighted( target_cities );
 		// no return trip if the destination is inside the same city
 		*will_return = selected_city == this ? no_return : city_return;
 		// find a random spot inside the selected city

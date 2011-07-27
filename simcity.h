@@ -110,6 +110,7 @@ private:
 	koord pos;			// Gruendungsplanquadrat der Stadt
 	koord townhall_road; // road in front of townhall
 	koord lo, ur;		// max size of housing area
+	koord last_center;
 	bool  has_low_density;	// in this case extend borders by two
 
 	bool allow_citygrowth;	// town can be static and will grow (true by default)
@@ -481,38 +482,14 @@ public:
 
 	void step(long delta_t);
 
-	void neuer_monat();
+	void neuer_monat( bool recalc_destinations );
 
 private:
-	/**
-	 * A weighted list of distances
-	 * @author Knightly
-	 */
-	static weighted_vector_tpl<uint32> distances;
-
-	/**
-	 * Record of a target city
-	 * @author Knightly
-	 */
-	struct target_city_t
-	{
-		stadt_t *city;
-		uint32 distance;
-
-		target_city_t() : city(NULL), distance(0) { }
-		target_city_t(stadt_t *const _city, const uint32 _distance) : city(_city), distance(_distance) { }
-
-		bool operator == (const target_city_t &other) const { return city == other.city; }
-
-		static bool less_than_or_equal(const target_city_t &a, const target_city_t &b) { return a.distance <= b.distance; }
-		static bool less_than(const target_city_t &a, const target_city_t &b) { return a.distance < b.distance; }
-	};
-
 	/**
 	 * List of target cities weighted by both city size and distance
 	 * @author Knightly
 	 */
-	weighted_vector_tpl<target_city_t> target_cities;
+	weighted_vector_tpl<stadt_t *> target_cities;
 
 	/**
 	 * List of target attractions weighted by both passenger level and distance
@@ -521,21 +498,12 @@ private:
 	weighted_vector_tpl<gebaeude_t *> target_attractions;
 
 public:
-
-	/**
-	 * Initialise the weighted list of distances
-	 * @author Knightly
-	 */
-	static void init_distances(const uint32 max_distance);
-
 	/**
 	 * Functions for manipulating the list of target cities
 	 * @author Knightly
 	 */
 	void add_target_city(stadt_t *const city);
-	void remove_target_city(stadt_t *const city) { target_cities.remove( target_city_t(city, 0) ); }
-	void update_target_city(stadt_t *const city);
-	void update_target_cities();
+	void remove_target_city(stadt_t *const city) { target_cities.remove( city ); }
 	void recalc_target_cities();
 
 	/**
@@ -543,7 +511,7 @@ public:
 	 * @author Knightly
 	 */
 	void add_target_attraction(gebaeude_t *const attraction);
-	void remove_target_attraction(gebaeude_t *const attraction) { target_attractions.remove(attraction); }
+	void remove_target_attraction(gebaeude_t *const attraction) { target_attractions.remove( attraction ); }
 	void recalc_target_attractions();
 
 	/**
@@ -562,6 +530,8 @@ public:
 
 	inline koord get_linksoben() const { return lo;}
 	inline koord get_rechtsunten() const { return ur;}
+
+	koord get_center() const { return (lo+ur)/2; }
 
 	/**
 	 * Erzeugt ein Array zufaelliger Startkoordinaten,

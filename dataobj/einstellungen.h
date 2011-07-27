@@ -80,11 +80,16 @@ private:
 	// percentage of routing
 	sint16 factory_worker_percentage;
 	sint16 tourist_percentage;
-	sint16 city_short_range_percentage;		// out of %city; %city = (100% - %factory - %attraction)
-	sint16 city_medium_range_percentage;	// out of %city; %city = (100% - %factory - %attraction)
-	// radius for city trips of different distance ranges
-	uint32 city_short_range_radius;
-	uint32 city_medium_range_radius;
+
+	// higher number: passengers are more evenly distributed around the map
+	struct yearlocaltyfactor
+	{
+		sint16	year;
+		uint32	factor;
+	};
+	yearlocaltyfactor localityfactorperyear[10];
+
+	// radius for factories
 	sint16 factory_worker_radius;
 	sint32 factory_worker_minimum_towns;
 	sint32 factory_worker_maximum_towns;
@@ -181,7 +186,6 @@ private:
 		sint64 money;
 		bool interpol;
 	};
-
 	yearmoney startingmoneyperyear[10];
 
 	uint16 num_city_roads;
@@ -457,11 +461,6 @@ public:
 	// percentage of passengers for different kinds of trips
 	sint16 get_factory_worker_percentage() const { return factory_worker_percentage; }
 	sint16 get_tourist_percentage() const { return tourist_percentage; }
-	sint16 get_city_short_range_percentage() const { return city_short_range_percentage; }
-	sint16 get_city_medium_range_percentage() const { return city_medium_range_percentage; }
-	// radius for city trips of different distance ranges
-	uint32 get_city_short_range_radius() const { return city_short_range_radius; }
-	uint32 get_city_medium_range_radius() const { return city_medium_range_radius; }
 
 	// radius from factories to get workers from towns (usually set to 77 but 1/8 of map size may be meaningful too)
 	uint16 get_factory_worker_radius() const { return factory_worker_radius; }
@@ -479,6 +478,8 @@ public:
 
 	// Knightly : whether factory pax/mail demands are enforced
 	bool get_factory_enforce_demand() const { return factory_enforce_demand; }
+
+	uint32 get_locality_factor(sint16 year) const;
 
 	// disallow using obsolete vehicles in depot
 	bool get_allow_buying_obsolete_vehicles() const { return allow_buying_obsolete_vehicles; }

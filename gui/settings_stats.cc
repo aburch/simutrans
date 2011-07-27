@@ -250,10 +250,27 @@ void settings_economy_stats_t::init(settings_t const* const sets)
 	INIT_BOOL( "factory_enforce_demand", sets->get_factory_enforce_demand() );
 	INIT_NUM( "factory_worker_percentage", sets->get_factory_worker_percentage(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "tourist_percentage", sets->get_tourist_percentage(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
-	INIT_NUM( "city_short_range_percentage", sets->get_city_short_range_percentage(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
-	INIT_NUM( "city_medium_range_percentage", sets->get_city_medium_range_percentage(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
-	INIT_NUM( "city_short_range_radius", sets->get_city_short_range_radius(), 0, 100000, gui_numberinput_t::AUTOLINEAR, false );
-	INIT_NUM( "city_medium_range_radius", sets->get_city_medium_range_radius(), 0, 100000, gui_numberinput_t::AUTOLINEAR, false );
+	SEPERATOR
+	INIT_NUM( "locality_factor[0].year", sets->localityfactorperyear[0].year, 0, 2999, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "locality_factor[0].factor", sets->localityfactorperyear[0].factor, 0, 0x7FFFFFFFu, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "locality_factor[1].year", sets->localityfactorperyear[1].year, 0, 2999, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "locality_factor[1].factor", sets->localityfactorperyear[1].factor, 0, 0x7FFFFFFFu, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "locality_factor[2].year", sets->localityfactorperyear[2].year, 0, 2999, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "locality_factor[2].factor", sets->localityfactorperyear[2].factor, 0, 0x7FFFFFFFu, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "locality_factor[3].year", sets->localityfactorperyear[3].year, 0, 2999, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "locality_factor[3].factor", sets->localityfactorperyear[3].factor, 0, 0x7FFFFFFFu, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "locality_factor[4].year", sets->localityfactorperyear[4].year, 0, 2999, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "locality_factor[4].factor", sets->localityfactorperyear[4].factor, 0, 0x7FFFFFFFu, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "locality_factor[5].year", sets->localityfactorperyear[5].year, 0, 2999, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "locality_factor[5].factor", sets->localityfactorperyear[5].factor, 0, 0x7FFFFFFFu, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "locality_factor[6].year", sets->localityfactorperyear[6].year, 0, 2999, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "locality_factor[6].factor", sets->localityfactorperyear[6].factor, 0, 0x7FFFFFFFu, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "locality_factor[7].year", sets->localityfactorperyear[7].year, 0, 2999, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "locality_factor[7].factor", sets->localityfactorperyear[7].factor, 0, 0x7FFFFFFFu, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "locality_factor[8].year", sets->localityfactorperyear[8].year, 0, 2999, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "locality_factor[8].factor", sets->localityfactorperyear[8].factor, 0, 0x7FFFFFFFu, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "locality_factor[9].year", sets->localityfactorperyear[9].year, 0, 2999, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "locality_factor[9].factor", sets->localityfactorperyear[9].factor, 0, 0x7FFFFFFFu, gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR
 	INIT_NUM( "passenger_multiplier", sets->get_passenger_multiplier(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "mail_multiplier", sets->get_mail_multiplier(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
@@ -303,10 +320,10 @@ void settings_economy_stats_t::read(settings_t* const sets)
 	READ_BOOL_VALUE( sets->factory_enforce_demand );
 	READ_NUM_VALUE( sets->factory_worker_percentage );
 	READ_NUM_VALUE( sets->tourist_percentage );
-	READ_NUM_VALUE( sets->city_short_range_percentage );
-	READ_NUM_VALUE( sets->city_medium_range_percentage );
-	READ_NUM_VALUE( sets->city_short_range_radius );
-	READ_NUM_VALUE( sets->city_medium_range_radius );
+	for(  int i=0;  i<10;  i++  ) {
+		READ_NUM_VALUE( sets->localityfactorperyear[i].year );
+		READ_NUM_VALUE( sets->localityfactorperyear[i].factor );
+	}
 	READ_NUM_VALUE( sets->passenger_multiplier );
 	READ_NUM_VALUE( sets->mail_multiplier );
 	READ_NUM_VALUE( sets->goods_multiplier );
