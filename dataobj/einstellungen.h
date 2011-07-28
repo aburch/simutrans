@@ -82,12 +82,12 @@ private:
 	sint16 tourist_percentage;
 
 	// higher number: passengers are more evenly distributed around the map
-	struct yearlocaltyfactor
+	struct yearly_locality_factor_t
 	{
 		sint16	year;
 		uint32	factor;
 	};
-	yearlocaltyfactor localityfactorperyear[10];
+	yearly_locality_factor_t locality_factor_per_year[10];
 
 	// radius for factories
 	sint16 factory_worker_radius;

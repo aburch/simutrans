@@ -2292,17 +2292,6 @@ void stadt_t::check_bau_rathaus(bool new_town)
 			welt->lookup_kartenboden(pos)->set_text( NULL );
 			pos = new_pos;
 			welt->lookup_kartenboden(pos)->set_text( name );
-			// Knightly : update the links between this city and other cities as well as attractions
-			const weighted_vector_tpl<stadt_t *> &cities = welt->get_staedte();
-			if(  cities.is_contained(this)  ) {
-				// update only if this city has already been added to the world
-				for(  uint32 c=0;  c<cities.get_count();  ++c  ) {
-					cities[c]->remove_target_city(this);
-					cities[c]->add_target_city(this);
-				}
-				recalc_target_cities();
-				recalc_target_attractions();
-			}
 		}
 	}
 }

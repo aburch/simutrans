@@ -7,6 +7,8 @@
  */
 
 #include <string>
+#include <math.h>
+
 #include "einstellungen.h"
 #include "umgebung.h"
 #include "../simconst.h"
@@ -109,10 +111,10 @@ settings_t::settings_t() :
 	factory_worker_percentage = 33;
 	tourist_percentage = 16;
 	for(  int i=0; i<10; i++  ) {
-		localityfactorperyear[i].year = 0;
-		localityfactorperyear[i].factor = 0;
+		locality_factor_per_year[i].year = 0;
+		locality_factor_per_year[i].factor = 0;
 	}
-	localityfactorperyear[0].factor = 100;
+	locality_factor_per_year[0].factor = 100;
 
 	factory_worker_radius = 77;
 	// try to have at least a single town connected to a factory
@@ -680,8 +682,8 @@ void settings_t::rdwr(loadsave_t *file)
 
 		if(  file->get_version()>=110007  ) {
 			for(  int i=0;  i<10;  i++  ) {
-				file->rdwr_short(localityfactorperyear[i].year );
-				file->rdwr_long(localityfactorperyear[i].factor );
+				file->rdwr_short(locality_factor_per_year[i].year );
+				file->rdwr_long(locality_factor_per_year[i].factor );
 			}
 		}
 		// otherwise the default values of the last one will be used
@@ -971,22 +973,28 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	 */
 	j = 0;
 	for(  int i = 0;  i<10;  i++  ) {
-		char name[32];
+		char name[256];
 		sprintf( name, "locality_factor[%i]", i );
 		sint64 *test = contents.get_sint64s( name );
-		if(  (test[0]>1) && (test[0]<=3)  ) {
-			// insert sorted by years
-			int k=0;
-			for(  k=0; k<i; k++  ) {
-				if(  localityfactorperyear[k].year > test[1]  ) {
-					for (int l=j; l>=k; l--)
-						memcpy( &localityfactorperyear[l+1], &localityfactorperyear[l], sizeof(yearlocaltyfactor) );
-					break;
-				}
+		// two arguments, and then factor natural number
+		if(  test[0]==2  ) {
+			if(  test[2]<=0  ) {
+				dbg->error("Parmeter in simuconf.tab wrong!","locality_factor second value must be larger than zero!" );
 			}
-			localityfactorperyear[k].year = (sint16)test[1];
-			localityfactorperyear[k].factor = test[2];
-			j++;
+			else {
+				// insert sorted by years
+				int k=0;
+				for(  k=0; k<i; k++  ) {
+					if(  locality_factor_per_year[k].year > test[1]  ) {
+						for (int l=j; l>=k; l--)
+							memcpy( &locality_factor_per_year[l+1], &locality_factor_per_year[l], sizeof(yearly_locality_factor_t) );
+						break;
+					}
+				}
+				locality_factor_per_year[k].year = (sint16)test[1];
+				locality_factor_per_year[k].factor = test[2];
+				j++;
+			}
 		}
 		else {
 			// invalid entry
@@ -994,15 +1002,16 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 		delete [] test;
 	}
 	// add default, if nothing found
-	if(  j==0  ) {
-		localityfactorperyear[0].year = 0;
-		localityfactorperyear[0].factor = 100;
+	if(  j==0  &&  locality_factor_per_year[0].factor==0  ) {
+		locality_factor_per_year[0].year = 0;
+		locality_factor_per_year[0].factor = 100;
 		j++;
 	}
 	// fill remaining entries
-	while(  j<10  ) {
-		localityfactorperyear[j].year = 0;
-		localityfactorperyear[j++].factor = 0;
+	while(  j>0  &&  j<9  ) {
+		j++;
+		locality_factor_per_year[j].year = 0;
+		locality_factor_per_year[j].factor = 0;
 	}
 
 	// player colors
@@ -1183,25 +1192,33 @@ uint32 settings_t::get_locality_factor(sint16 const year) const
 {
 	int i;
 	for(  i=0;  i<10;  i++  ) {
-		if(  localityfactorperyear[i].year!=0  ) {
-			if(  localityfactorperyear[i].year > year  ) {
+		if(  locality_factor_per_year[i].year!=0  ) {
+			if(  locality_factor_per_year[i].year > year  ) {
 				break;
 			}
 		}
 		else {
 			// year is behind the latest given date
-			return localityfactorperyear[max(i-1,0)].factor;
+			return locality_factor_per_year[max(i-1,0)].factor;
 		}
 	}
 	if(  i==0  ) {
 		// too early: use first entry
-		return localityfactorperyear[0].factor;
+		return locality_factor_per_year[0].factor;
 	}
 	else {
+#if 0
 		// linear interpolation
-		return localityfactorperyear[i-1].factor +
-			(localityfactorperyear[i].factor-localityfactorperyear[i-1].factor)
-			* (year-localityfactorperyear[i-1].year) /(localityfactorperyear[i].year-localityfactorperyear[i-1].year );
+		return locality_factor_per_year[i-1].factor +
+			(locality_factor_per_year[i].factor-locality_factor_per_year[i-1].factor)
+			* (year-locality_factor_per_year[i-1].year) /(locality_factor_per_year[i].year-locality_factor_per_year[i-1].year );
+#else
+		// exponential evaluation
+		sint32 diff = (locality_factor_per_year[i].year-locality_factor_per_year[i-1].year);
+		double a = (double)diff*(exp((double)(year-locality_factor_per_year[i-1].year)/20.0)-1.0);
+		double b = (exp((double)(locality_factor_per_year[i].year-locality_factor_per_year[i-1].year)/20.0)-1.0);
+		return locality_factor_per_year[i-1].factor + (sint32)((diff*a)/b + 0.5);
+#endif
 	}
 }
 

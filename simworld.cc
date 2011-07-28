@@ -4915,12 +4915,15 @@ uint32 karte_t::generate_new_map_counter() const
 void karte_t::step_year()
 {
 	DBG_MESSAGE("karte_t::step_year()","called");
-//	ticks += 12*karte_t::ticks_per_world_month;
-//	next_month_ticks += 12*karte_t::ticks_per_world_month;
 	current_month += 12;
 	letztes_jahr ++;
 	reset_timer();
 	recalc_average_speed();
+	koord::locality_factor = settings.get_locality_factor( letztes_jahr );
+	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
+		(*i)->recalc_target_cities();
+		(*i)->recalc_target_attractions();
+	}
 }
 
 

@@ -122,7 +122,7 @@ tourist_percentage = 16
 # how much local destinations are prefrerred over time
 # 0 means almost local passengers/mail only, 10000 spreads them over the map
 # You can have up to ten entries, first is the year, next is the factor.
-locality_factor[0]=1850,0
+locality_factor[0]=1850,1
 locality_factor[1]=2000,10000
 
 # A factory will be added as worker's destination to a town, if it has either
