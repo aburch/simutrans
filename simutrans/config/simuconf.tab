@@ -120,8 +120,10 @@ factory_worker_percentage = 33
 tourist_percentage = 16
 
 # how much local destinations are prefrerred over time
-# 0 means almost local passengers/mail only, 10000 spreads them over the map
+# 1 means almost local passengers/mail only, 10000 spreads them over the map
 # You can have up to ten entries, first is the year, next is the factor.
+# The increase between the year will increase first slow then fast towards
+# the final years
 locality_factor[0]=1850,1
 locality_factor[1]=2000,10000
 
