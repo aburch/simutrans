@@ -4252,6 +4252,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 			if (road0!=road1) {
 				wegbauer_t bauigel(welt, NULL);
 				bauigel.route_fuer(wegbauer_t::strasse, welt->get_city_road(), NULL, NULL);
+				bauigel.set_build_sidewalk(true);
 				bauigel.calc_straight_route(welt->lookup_kartenboden(best_pos + road0)->get_pos(), welt->lookup_kartenboden(best_pos + road1)->get_pos());
 				bauigel.baue();
 			}
@@ -4465,6 +4466,7 @@ void stadt_t::baue_gebaeude(const koord k, bool new_town)
 							// update directions (SENW)
 							streetdir += (1 << i);
 						}
+						weg->set_gehweg(true);
 						// if not current city road standard, then replace it
 						if (weg->get_besch() != welt->get_city_road()) {
 							spieler_t *sp = weg->get_besitzer();
@@ -4472,7 +4474,6 @@ void stadt_t::baue_gebaeude(const koord k, bool new_town)
 								spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung());
 
 								weg->set_besitzer(NULL); // make public
-								weg->set_besch(welt->get_city_road());
 								weg->set_gehweg(true);
 							}
 						}
@@ -4620,6 +4621,7 @@ bool stadt_t::renoviere_gebaeude(gebaeude_t* gb)
 						// update directions (SENW)
 						streetdir += (1 << i);
 					}
+					weg->set_gehweg(true);
 					// if not current city road standard, then replace it
 					if (weg->get_besch() != welt->get_city_road()) {
 						spieler_t *sp = weg->get_besitzer();
@@ -4628,7 +4630,6 @@ bool stadt_t::renoviere_gebaeude(gebaeude_t* gb)
 
 							weg->set_besitzer(NULL); // make public
 							weg->set_besch(welt->get_city_road());
-							weg->set_gehweg(true);
 						}
 					}
 					gr->calc_bild();

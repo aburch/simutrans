@@ -429,7 +429,7 @@ bool settings_general_stats_t::action_triggered(gui_action_creator_t *komp, valu
 
 /* Nearly automatic lists with controls:
  * BEWARE: The init exit pair MUST match in the same order or else!!!
- */
+ */ 
 void settings_general_stats_t::init(settings_t const* const sets)
 {
 	INIT_INIT

@@ -3123,8 +3123,8 @@ void karte_t::neuer_monat()
 
 	base_pathing_counter ++;
 
-	INT_CHECK("simworld 3053");
-
+	INT_CHECK("simworld 3053"); 
+	 
 
 //	DBG_MESSAGE("karte_t::neuer_monat()","factories");
 	sint16 number_of_factories = fab_list.get_count();
@@ -3142,10 +3142,10 @@ void karte_t::neuer_monat()
 		if(difference == 0)
 		{
 			// Check to see whether the factory has closed down - if so, the pointer will be dud.
-			if(fab->get_besch()->is_electricity_producer()) 
+			if(fab->get_besch()->is_electricity_producer())
 			{
 				electric_productivity += fab->get_scaled_electric_amount();
-			}
+			} 
 			else 
 			{
 				total_electric_demand += fab->get_scaled_electric_amount();

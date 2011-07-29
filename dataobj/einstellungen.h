@@ -833,4 +833,4 @@ public:
 	vector_tpl<livery_scheme_t*>* get_livery_schemes() { return &livery_schemes; }
 };
 
-#endif
+#endif 

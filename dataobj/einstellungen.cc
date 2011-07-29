@@ -1170,7 +1170,7 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_short(factory_arrival_periods);
 			file->rdwr_bool(factory_enforce_demand);
 		}
-
+		 
 		if(  file->get_version()>=110007  ) 
 		{
 			if(file->get_experimental_version() == 0 )
