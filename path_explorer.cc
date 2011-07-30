@@ -534,6 +534,8 @@ void path_explorer_t::compartment_t::step()
 				all_halts_list = new halthandle_t[all_halts_count];
 			}
 
+			const uint32 journey_time_adjustment = (world->get_settings().get_meters_per_tile() * 6) / 10;
+
 			// Save the halt list in an array first to prevent the list from being modified across steps, causing bugs
 			for (uint16 i = 0; i < all_halts_count; ++i)
 			{
@@ -544,6 +546,45 @@ void path_explorer_t::compartment_t::step()
 				if ( connexion_list[ all_halts_list[i].get_id() ].connexion_table == NULL )
 				{
 					connexion_list[ all_halts_list[i].get_id() ].connexion_table = new quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>();
+				}
+
+				// @author: jamespetts, July 2011
+
+				if(!all_halts_list[i]->is_enabled(warenbauer_t::passagiere))
+				{
+					continue;
+				}
+
+				const uint32 halts_within_walking_distance = all_halts_list[i]->get_number_of_halts_within_walking_distance();
+
+				halthandle_t walking_distance_halt;
+				haltestelle_t::connexion *new_connexion;
+				
+				for(int x = 0; x < halts_within_walking_distance; x ++)
+				{
+					walking_distance_halt.set_id(all_halts_list[i]->get_halt_within_walking_distance(x));
+
+					if(catg != 0 || !walking_distance_halt->is_enabled(warenbauer_t::passagiere))
+					{ 
+						continue;
+					}
+
+					// Walking speed is taken to be 4km/h
+					const uint32 journey_time_factor = (journey_time_adjustment * 100) / 4;
+					const uint16 journey_time = ((uint16)((accurate_distance(all_halts_list[i]->get_basis_pos(), walking_distance_halt->get_basis_pos()) * journey_time_factor) / 100), 64);
+					
+					// Check the journey times to the connexion
+					new_connexion = new haltestelle_t::connexion;
+					new_connexion->waiting_time = 0; // People do not need to wait to walk.
+					new_connexion->best_convoy = convoihandle_t();
+					new_connexion->best_line = linehandle_t();
+					new_connexion->journey_time = journey_time;
+					new_connexion->alternative_seats = 0;
+
+					// These are walking connexions only. There will not be multiple possible connexions, so no need
+					// to check for existing connexions here.
+					connexion_list[all_halts_list[i].get_id()].connexion_table->put(walking_distance_halt, new_connexion);
+					all_halts_list[i]->prepare_goods_list(catg);
 				}
 			}
 
@@ -778,7 +819,7 @@ void path_explorer_t::compartment_t::step()
 
 					accumulated_journey_time = 0;
 
-					// use hash tables in connexion list, but not the hash tables stored in the halt
+					// use hash tables in connexion list, but not hash tables stored in the halt
 					catg_connexions = connexion_list[ halt_list[h].get_id() ].connexion_table;
 					// any serving line/lineless convoy increments serving transport count
 					++connexion_list[ halt_list[h].get_id() ].serving_transport;

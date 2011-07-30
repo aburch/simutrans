@@ -404,8 +404,6 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 
 	check_waiting = 0;
 
-	check_nearby_halts();
-
 	// Added by : Knightly
 	inauguration_time = dr_time();
 }
@@ -428,6 +426,15 @@ haltestelle_t::~haltestelle_t()
 	// do not forget the players list ...
 	if(besitzer_p!=NULL) {
 		besitzer_p->halt_remove(self);
+	}
+
+	halthandle_t walking_distance_halt;
+	const uint16 self_id = self.get_id();
+
+	ITERATE(halts_within_walking_distance, n)
+	{
+		walking_distance_halt.set_id(halts_within_walking_distance[n]);
+		walking_distance_halt->remove_halt_within_walking_distance(self_id);
 	}
 
 	// clean waiting_times for each stop 
@@ -938,9 +945,8 @@ void haltestelle_t::step()
 							const uint16 distance = accurate_distance(get_basis_pos(), tmp.get_origin()->get_basis_pos());
 							if(distance > 0) // No point in calculating refund if passengers/goods are discarded from their origin stop.
 							{
-								// Refund is approximation: 1.5x distance at standard rate with no adjustments. 
-								// (Previous versions had 2x, but this was probably too harsh). 
-								sint64 refund_amount = tmp.menge * tmp.get_besch()->get_preis() * distance * 1.5;
+								// Refund is approximation: 2x distance at standard rate with no adjustments. 
+								sint64 refund_amount = tmp.menge * tmp.get_besch()->get_preis() * distance * 2;
 								refund_amount = (refund_amount + 1500ll) / 3000ll;
 								
 								besitzer_p->buche(-refund_amount, get_basis_pos(), COST_INCOME);
@@ -972,7 +978,8 @@ void haltestelle_t::step()
 						{						
 							waiting_minutes = 4;
 						}
-						waiting_minutes *= 1.5;
+						waiting_minutes *= 3;
+						waiting_minutes /= 2;
 						if(waiting_minutes > 0)
 						{
 							add_waiting_time(waiting_minutes, tmp.get_zwischenziel(), tmp.get_besch()->get_catg_index());
@@ -1917,8 +1924,18 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 		return ware.menge;
 	}
 #endif
-	// add to internal storage
-	add_ware_to_halt(ware);
+	
+	if(ware.is_passenger() && is_within_walking_distance_of(ware.get_zwischenziel().get_id()) && !connexions[0]->get(ware.get_zwischenziel())->best_convoy.is_bound() && !connexions[0]->get(ware.get_zwischenziel())->best_line.is_bound())
+	{
+		// If this is within walking distance of the next transfer, and there is not a faster way there, walk there.
+		// Note: it is unlikely that a 'bus (etc.) will be faster than walking for anything within walking distance, as there is a minimum 4 minute wait.
+		return ware.get_zwischenziel()->liefere_an(ware);
+	}
+	else
+	{
+		// add to internal storage
+		add_ware_to_halt(ware);
+	}
 
 	return ware.menge;
 }
@@ -2587,11 +2604,11 @@ void haltestelle_t::rdwr(loadsave_t *file)
 						uint16 current_time = iter.access_current_value().times.get_element(i);
 						file->rdwr_short(current_time);
 					}
-				}
-					
-				if(file->get_experimental_version() >= 9)
-				{
-					file->rdwr_byte(iter.access_current_value().month);
+					if(file->get_experimental_version() >= 9)
+					{
+						waiting_time_set wt = iter.get_current_value();
+						file->rdwr_byte(wt.month);
+					}
 				}
 			}
 			else
@@ -2786,6 +2803,8 @@ void haltestelle_t::laden_abschliessen()
 		}
 	}
 	recalc_status();
+
+	check_nearby_halts();
 }
 
 
@@ -3372,12 +3391,19 @@ int haltestelle_t::get_queue_pos(convoihandle_t cnv) const
 
 void haltestelle_t::add_halt_within_walking_distance(uint16 id)
 {
-	halts_within_walking_distance.append_unique(id);
+	if(self.get_id() != id)
+	{
+		// Halt should not be listed as connected to itself.
+		halts_within_walking_distance.append_unique(id);
+	}
 }
 
 void haltestelle_t::remove_halt_within_walking_distance(uint16 id)
 {
-	halts_within_walking_distance.remove(id);
+	if(this)
+	{
+		halts_within_walking_distance.remove(id);
+	}
 }
 
 void haltestelle_t::check_nearby_halts()
@@ -3394,14 +3420,4 @@ void haltestelle_t::check_nearby_halts()
 			halt->add_halt_within_walking_distance(self.get_id());
 		}
 	}
-}
-
-uint32 haltestelle_t::get_number_of_halts_within_walking_distance() const
-{
-	return halts_within_walking_distance.get_count();
-}
-
-uint16 haltestelle_t::get_halt_within_walking_distance(uint32 index) const
-{
-	return halts_within_walking_distance[index];
 }

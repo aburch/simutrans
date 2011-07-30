@@ -188,9 +188,9 @@ public:
 	 */
 	static void destroy_all(karte_t *);
 
-	inline uint32 get_number_of_halts_within_walking_distance() const;
+	inline uint32 get_number_of_halts_within_walking_distance() const { return halts_within_walking_distance.get_count(); } 
 
-	inline uint16 get_halt_within_walking_distance(uint32 index) const;
+	inline uint16 get_halt_within_walking_distance(uint32 index) const { return halts_within_walking_distance[index]; }
 
 private:
 	/**
@@ -227,9 +227,6 @@ public:
 		// (i.e., if the best route involves using a convoy without a line)
 		linehandle_t best_line;
 		convoihandle_t best_convoy;
-		// TODO: Think about whether to have an array of best lines/convoys
-		// Note: this is difficult because of the way in which the best line/
-		// convoy is selected.
 
 		// TODO: Consider whether to add comfort
 
@@ -242,6 +239,8 @@ public:
 	bool do_alternative_seats_calculation; //for optimisations purpose 
 
 	const slist_tpl<tile_t> &get_tiles() const { return tiles; };
+
+	bool is_within_walking_distance_of(uint16 index) const { return halts_within_walking_distance.is_contained(index); }
 
 private:
 	slist_tpl<tile_t> tiles;
