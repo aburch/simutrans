@@ -548,6 +548,7 @@ void path_explorer_t::compartment_t::step()
 					connexion_list[ all_halts_list[i].get_id() ].connexion_table = new quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>();
 				}
 
+				// Connect halts within walking distance of each other (for passengers only)
 				// @author: jamespetts, July 2011
 
 				if(!all_halts_list[i]->is_enabled(warenbauer_t::passagiere))
@@ -1130,7 +1131,7 @@ void path_explorer_t::compartment_t::step()
 				}
 
 				// determine if this halt is a transfer halt
-				if ( current_halt->get_schedule_count(catg) > 1 )
+				if ( current_halt->get_schedule_count(catg) > 1 || (catg == 0 && current_halt->get_number_of_halts_within_walking_distance() > 0))
 				{
 					transfer_list[transfer_count] = phase_counter;
 					++transfer_count;
