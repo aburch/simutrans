@@ -168,6 +168,9 @@ private:
 
 	// @author: Bernd Gabriel, Dec 12, 2009: called as last action in read_node()
 	void loaded();
+
+	int get_add_to_node() const { return livery_image_type > 0 ? 5 : 6; }
+
 public:
 	// since we have a second constructor
 	vehikel_besch_t() { }
@@ -218,16 +221,19 @@ public:
 			ware = NULL;
 		}
 
-		if(livery_image_type > 0 && ware == NULL)
+		if(livery_image_type > 0 && (ware == NULL || freight_image_type == 0))
 		{
 			// Multiple liveries, empty images
 			sint8 livery_index = 0;
-			for(sint8 i = 0; i < livery_image_type; i++) 
+			if(strcmp(livery_type, "default"))
 			{
-				if(!strcmp(livery_type, get_child<text_besch_t>(5 + nachfolger + vorgaenger + upgrades + i)->get_text()))
+				for(sint8 i = 0; i < livery_image_type; i++) 
 				{
-					livery_index = i;
-					break;
+					if(!strcmp(livery_type, get_child<text_besch_t>(5 + nachfolger + vorgaenger + upgrades + i)->get_text()))
+					{
+						livery_index = i;
+						break;
+					}
 				}
 			}
 			// vehicle has multiple liveries - get the appropriate one (if no list then fallback to livery zero)
@@ -244,16 +250,20 @@ public:
 			if (bild != NULL) return bild->get_nummer();
 		}
 
-		if(livery_image_type > 0 && freight_image_type == 0 && ware != NULL)
+		if(livery_image_type > 0 && freight_image_type == 1 && ware != NULL)
 		{
 			// Multiple liveries, single freight image
 			sint8 livery_index = 0;
-			for(sint8 i = 0; i < livery_image_type; i++) 
+			if(strcmp(livery_type, "default"))
 			{
-				if(!strcmp(livery_type, get_child<text_besch_t>(6 + nachfolger + vorgaenger + upgrades + i)->get_text()))
+				// With the "default" livery, always select livery index 0
+				for(sint8 i = 0; i < livery_image_type; i++) 
 				{
-					livery_index = i;
-					break;
+					if(!strcmp(livery_type, get_child<text_besch_t>(6 + nachfolger + vorgaenger + upgrades + i)->get_text()))
+					{
+						livery_index = i;
+						break;
+					}
 				}
 			}
 			// vehicle has multiple liveries - get the appropriate one (if no list then fallback to livery zero)
@@ -270,7 +280,7 @@ public:
 			if (bild != NULL) return bild->get_nummer();
 		}
 
-		if(freight_image_type > 0 && ware!=NULL && livery_image_type == 0)
+		if(freight_image_type > 1 && ware!=NULL && livery_image_type == 0)
 		{
 			// Multiple freight images, single livery
 			// more freight images and a freight: find the right one
@@ -300,7 +310,7 @@ public:
 			if (bild != NULL) return bild->get_nummer();
 		}
 
-		if(freight_image_type > 0 && ware!=NULL && livery_image_type > 0)
+		if(freight_image_type > 1 && ware!=NULL && livery_image_type > 0)
 		{
 			// Multiple freight images, multiple liveries
 
@@ -316,12 +326,15 @@ public:
 				}
 			}
 
-			for(sint8 j = 0; j < livery_image_type; j++) 
+			if(strcmp(livery_type, "default"))
 			{
-				if(!strcmp(livery_type, get_child<text_besch_t>(6 + nachfolger + vorgaenger + upgrades + j)->get_text()))
+				for(sint8 j = 0; j < livery_image_type; j++) 
 				{
-					livery_index = j;
-					break;
+					if(!strcmp(livery_type, get_child<text_besch_t>(6 + nachfolger + vorgaenger + upgrades + j)->get_text()))
+					{
+						livery_index = j;
+						break;
+					}
 				}
 			}
 
@@ -406,7 +419,7 @@ public:
 		if(i < 0 || i >= vorgaenger) {
 			return NULL;
 		}
-		return get_child<vehikel_besch_t>(6 + i);
+		return get_child<vehikel_besch_t>(get_add_to_node() + i);
 	}
 
 	// Liefert die erlaubten Nachfolger.
@@ -416,9 +429,9 @@ public:
 	const vehikel_besch_t *get_nachfolger(int i) const
 	{
 		if(i < 0 || i >= nachfolger) {
-			return 0;
+			return NULL;
 		}
-		return get_child<vehikel_besch_t>(6 + vorgaenger + i);
+		return get_child<vehikel_besch_t>(get_add_to_node() + vorgaenger + i);
 	}
 
 	int get_nachfolger_count() const { return nachfolger; }
@@ -444,7 +457,7 @@ public:
 		}
 
 		for( int i=0;  i<nachfolger;  i++  ) {
-			vehikel_besch_t const* const veh = get_child<vehikel_besch_t>(6 + vorgaenger + i);
+			vehikel_besch_t const* const veh = get_child<vehikel_besch_t>(get_add_to_node() + vorgaenger + i);
 			if(veh==next_veh) {
 				return true;
 			}
@@ -462,7 +475,7 @@ public:
 			return true;
 		}
 		for( int i=0;  i<vorgaenger;  i++  ) {
-			vehikel_besch_t const* const veh = get_child<vehikel_besch_t>(6 + i);
+			vehikel_besch_t const* const veh = get_child<vehikel_besch_t>(get_add_to_node() + i);
 			if(veh==prev_veh) {
 				return true;
 			}
@@ -481,7 +494,7 @@ public:
 		{
 			return NULL;
 		}
-		return get_child<vehikel_besch_t>(6 + nachfolger + i);
+		return get_child<vehikel_besch_t>(get_add_to_node() + nachfolger + i);
 	}
 
 	int get_upgrades_count() const { return upgrades; }

@@ -2,7 +2,6 @@
 #include "loadsave.h"
 #include "../simtools.h"
 
-
 const koord koord::invalid(-1, -1);
 const koord koord::nord(    0, -1);
 const koord koord::ost(     1,  0);

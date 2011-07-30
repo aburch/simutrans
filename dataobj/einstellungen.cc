@@ -444,7 +444,6 @@ settings_t::~settings_t()
 	{
 		delete livery_schemes[i];
 	}*/
-	//livery_schemes = NULL;
 }
 
 
@@ -1169,25 +1168,21 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_short(factory_arrival_periods);
 			file->rdwr_bool(factory_enforce_demand);
 		}
-
+		 
 		if(  file->get_version()>=110007  ) 
 		{
 			if(file->get_experimental_version() == 0 )
 			{
-				uint16 city_short_range_percentage = passenger_routing_local_chance;
-				uint16 city_medium_range_percentage = passenger_routing_midrange_chance;
-				uint32 city_short_range_radius = local_passengers_max_distance;
-				uint32 city_medium_range_radius = midrange_passengers_max_distance;
-
-				file->rdwr_short(city_short_range_percentage);
-				file->rdwr_short(city_medium_range_percentage);
-				file->rdwr_long(city_short_range_radius);
-				file->rdwr_long(city_medium_range_radius);
-
-				passenger_routing_local_chance = city_short_range_percentage;
-				passenger_routing_midrange_chance = city_medium_range_percentage;
-				local_passengers_max_distance = city_short_range_radius;
-				midrange_passengers_max_distance = city_medium_range_radius;
+				// Unfortunately, with this new system from Standard, it is no longer possible
+				// to parse these values in a way that makes sense to Experimental. This must
+				// be maintained to retain saved game compatibility only.
+				uint32 dummy_32 = 0;
+				uint16 dummy_16 = 0;
+				for(  int i=0;  i<10;  i++  ) 
+				{
+					file->rdwr_short(dummy_16);
+					file->rdwr_long(dummy_32);
+				}
 			}
 		}
 
@@ -1199,10 +1194,10 @@ void settings_t::rdwr(loadsave_t *file)
 			uint16 livery_schemes_count = 0;
 			if(file->is_loading())
 			{
-				ITERATE(livery_schemes, i)
+				/*ITERATE(livery_schemes, i)
 				{
 					delete livery_schemes[i];
-				}
+				}*/
 				livery_schemes.clear();
 			}
 			if(file->is_saving())

@@ -75,19 +75,19 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\simutrans-experimental-9.5-BG-binaries\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\simutrans-experimental-BG-binaries\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)$(ProjectName)\$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\simutrans-experimental-9.5-BG-binaries\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\simutrans-experimental-BG-binaries\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)$(ProjectName)\$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">..\simutrans-experimental-9.5-BG-binaries\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">..\simutrans-experimental-BG-binaries\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">$(OutDir)$(ProjectName)\$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">false</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">..\simutrans-experimental-9.5-BG-binaries\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">..\simutrans-experimental-BG-binaries\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">$(OutDir)$(ProjectName)\$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">true</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug Optimized|Win32'">..\simutrans-experimental-9.5-BG-binaries\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug Optimized|Win32'">..\simutrans-experimental-BG-binaries\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug Optimized|Win32'">$(OutDir)$(ProjectName)\$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug Optimized|Win32'">true</LinkIncremental>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">..\OpenTTD essentials\win32\include;..\bzip2-1.0.5;$(IncludePath)</IncludePath>
@@ -114,7 +114,7 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>false</OmitFramePointers>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>ZLIB_WINAPI;LITTLE_ENDIAN;STEPS16;USE_C;WIN32;DEBUG=3;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ZLIB_WINAPI;LITTLE_ENDIAN;STEPS16;USE_C;WIN32;COLOUR_DEPTH=16;DEBUG=3;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -149,7 +149,7 @@
       <OmitFramePointers>true</OmitFramePointers>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>ZLIB_WINAPI;LITTLE_ENDIAN;STEPS16;USE_C;WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ZLIB_WINAPI;LITTLE_ENDIAN;STEPS16;USE_C;WIN32;COLOUR_DEPTH=16;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>false</StringPooling>
       <MinimalRebuild>true</MinimalRebuild>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -191,7 +191,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <OmitFramePointers>true</OmitFramePointers>
       <AdditionalIncludeDirectories>F:\My Documents\Development\Simutrans\SDL-1.2.13\include;F:\My Documents\Development\Zlib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>ZLIB_WINAPI;LITTLE_ENDIAN;STEPS16;USE_C;WIN32;NDEBUG;SDL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ZLIB_WINAPI;LITTLE_ENDIAN;STEPS16;USE_C;WIN32;COLOUR_DEPTH=16;NDEBUG;SDL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FloatingPointModel>Fast</FloatingPointModel>
       <PrecompiledHeader>
@@ -220,7 +220,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>F:\My Documents\Development\Simutrans\SDL-1.2.13\include;F:\My Documents\Development\Zlib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>ZLIB_WINAPI;LITTLE_ENDIAN;STEPS16;USE_C;WIN32;DEBUG=3;SDL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ZLIB_WINAPI;LITTLE_ENDIAN;STEPS16;USE_C;WIN32;COLOUR_DEPTH=16;DEBUG=3;SDL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -255,7 +255,7 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
       <AdditionalIncludeDirectories>F:\My Documents\Development\Zlib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>ZLIB_WINAPI;LITTLE_ENDIAN;STEPS16;USE_C;WIN32;DEBUG=3;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ZLIB_WINAPI;LITTLE_ENDIAN;STEPS16;USE_C;WIN32;COLOUR_DEPTH=16;DEBUG=3;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -285,10 +285,14 @@
     <ClCompile Include="besch\fabrik_besch.cc" />
     <ClCompile Include="clipboard_w32.cc" />
     <ClCompile Include="dataobj\gameinfo.cc" />
+    <ClCompile Include="dataobj\livery_scheme.cc" />
+    <ClCompile Include="dataobj\network_address.cc" />
+    <ClCompile Include="dataobj\network_cmd_ingame.cc" />
     <ClCompile Include="dataobj\network_cmp_pakset.cc" />
     <ClCompile Include="dataobj\network_file_transfer.cc" />
     <ClCompile Include="dataobj\network_socket_list.cc" />
     <ClCompile Include="dataobj\pakset_info.cc" />
+    <ClCompile Include="gui\factory_chart.cc" />
     <ClCompile Include="gui\line_item.cc" />
     <ClCompile Include="gui\server_frame.cc" />
     <ClCompile Include="player\ai.cc" />
@@ -305,6 +309,9 @@
     <ClCompile Include="bauer\brueckenbauer.cc" />
     <ClCompile Include="boden\brueckenboden.cc" />
     <ClCompile Include="besch\reader\building_reader.cc" />
+    <ClCompile Include="simsys.cc" />
+    <ClCompile Include="simsys_w.cc" />
+    <ClCompile Include="simsys_w32_png.cc" />
     <ClCompile Include="utils\cbuffer_t.cc" />
     <ClCompile Include="gui\citybuilding_edit.cc" />
     <ClCompile Include="besch\reader\citycar_reader.cc" />
@@ -323,7 +330,6 @@
     <ClCompile Include="gui\curiosity_edit.cc" />
     <ClCompile Include="gui\curiositylist_frame_t.cc" />
     <ClCompile Include="gui\curiositylist_stats_t.cc" />
-    <ClCompile Include="tpl\debug_helper.cc" />
     <ClCompile Include="gui\depot_frame.cc" />
     <ClCompile Include="dataobj\dingliste.cc" />
     <ClCompile Include="dataobj\einstellungen.cc" />
@@ -486,19 +492,6 @@
     <ClCompile Include="simsound.cc" />
     <ClCompile Include="utils\simstring.cc" />
     <ClCompile Include="simsys_s.cc" />
-    <ClCompile Include="simsys_w16.cc">
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
-      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug Optimized|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
-      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug Optimized|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
-      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
-      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
-      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
-    </ClCompile>
-    <ClCompile Include="simsys_w32_png.c" />
     <ClCompile Include="simticker.cc" />
     <ClCompile Include="simtools.cc" />
     <ClCompile Include="vehicle\simvehikel.cc" />
@@ -550,7 +543,17 @@
     <ClCompile Include="dings\zeiger.cc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="dataobj\gameinfo.h" />
+    <ClInclude Include="dataobj\livery_scheme.h" />
+    <ClInclude Include="dataobj\network_address.h" />
+    <ClInclude Include="dataobj\network_cmd_ingame.h" />
+    <ClInclude Include="dataobj\network_cmp_pakset.h" />
+    <ClInclude Include="dataobj\network_file_transfer.h" />
+    <ClInclude Include="dataobj\network_socket_list.h" />
+    <ClInclude Include="dataobj\pakset_info.h" />
+    <ClInclude Include="dataobj\pwd_hash.h" />
     <ClInclude Include="gui\components\action_listener.h" />
+    <ClInclude Include="gui\factory_chart.h" />
     <ClInclude Include="player\ai.h" />
     <ClInclude Include="player\ai_goods.h" />
     <ClInclude Include="player\ai_passenger.h" />

@@ -197,7 +197,7 @@ sint32 gui_numberinput_t::get_prev_value()
 			}
 			return min_value;
 		}
-		// pregressive (used for loading bars
+		// progressive (used for loading bars)
 		case PROGRESS:
 		{
 			sint64 diff = (sint64)max_value-(sint64)min_value;

@@ -731,7 +731,6 @@ void convoi_t::calc_acceleration(long delta_t)
 			case maglev_wt:
 				braking_rate = 63;
 				break;
-
 			case tram_wt:
 				braking_rate = 85;
 				break;
@@ -4537,7 +4536,7 @@ void convoi_t::check_pending_updates()
 					aktuell = new_fpl->get_aktuell();
 				}
 				// if we go to same, then we do not need route recalculation ...
-				is_same = matches_halt(current,new_fpl->eintrag[aktuell].pos);
+				is_same = aktuell < new_fpl->get_count() && matches_halt(current,new_fpl->eintrag[aktuell].pos);
 			}
 		}
 
@@ -4787,7 +4786,7 @@ void convoi_t::set_depot_when_empty(bool new_dwe)
 	{
 		depot_when_empty = new_dwe;
 	}
-	else
+	else if(new_dwe)
 	{
 		go_to_depot(get_besitzer() == welt->get_active_player());
 	}

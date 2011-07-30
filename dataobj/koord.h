@@ -170,7 +170,7 @@ static inline koord operator - (const koord &a, const koord &b)
 	return koord(a.x - b.x, a.y - b.y);
 }
 
-
+ 
 static inline koord operator - (const koord &a)
 {
 	return koord(-a.x, -a.y);

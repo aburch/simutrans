@@ -485,7 +485,6 @@ bool replace_frame_t::action_triggered( gui_action_creator_t *komp,value_t /*p*/
 		else if(komp == &bt_clear) 
 		{
 			cnv->call_convoi_tool('X', NULL);
-			rpl->clear_all();
 			rpl = new replace_data_t();
 			convoy_assembler.clear_convoy();
 		}

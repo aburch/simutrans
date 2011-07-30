@@ -2710,12 +2710,22 @@ uint16 stadt_t::check_road_connexion_to(stadt_t* city)
 
 	if(connected_cities.is_contained(city->get_pos()))
 	{
-		return connected_cities.get(city->get_pos());
+		const uint16 journey_time_per_tile = connected_cities.get(city->get_pos());
+		if(journey_time_per_tile < 65535 || city != this)
+		{
+			// It should always be possible to travel in the current city.
+			return journey_time_per_tile;
+		}
+		else
+		{
+			goto recalc;
+		}
 	}
 	else if(city == this)
 	{
+recalc:
 		const koord3d pos3d(townhall_road, welt->lookup_hgt(townhall_road));
-		const weg_t* road = welt->lookup(pos3d)->get_weg(road_wt);
+		const weg_t* road = welt->lookup(pos3d) ? welt->lookup(pos3d)->get_weg(road_wt) : NULL;
 		const uint16 journey_time_per_tile = road ? road->get_besch() == welt->get_city_road() ? welt->get_generic_road_speed_city() : welt->calc_generic_road_speed(road->get_besch()) : welt->get_generic_road_speed_city();
 		connected_cities.put(pos, journey_time_per_tile);
 		return journey_time_per_tile;
@@ -3756,28 +3766,6 @@ void stadt_t::recalc_target_attractions()
 	}
 }
 
-
-weighted_vector_tpl<uint32> stadt_t::distances;
-
-
-void stadt_t::init_distances(const uint32 max_distance)
-{
-	if(  distances.get_count()<max_distance  ) {
-		// expand the list
-		distances.resize(max_distance);
-		for(  uint32 d=distances.get_count()+1u;  d<=max_distance;  ++d  ) {
-			distances.append(d, (1u << 20) / d);
-		}
-	}
-	else if(  distances.get_count()>max_distance  ) {
-		// shorten the list
-		for(  uint32 d=distances.get_count()-1u;  d>=max_distance;  --d  ) {
-			distances.remove_at(d);
-		}
-	}
-}
-
-
 /* this function generates a random target for passenger/mail
  * changing this strongly affects selection of targets and thus game strategy
  */
@@ -3818,7 +3806,7 @@ stadt_t::destination stadt_t::find_destination(factory_set_t &target_factories, 
 		return current_destination;
 	} 
 	
-	else if(rand <welt->get_settings().get_tourist_percentage() +welt->get_settings().get_factory_worker_percentage()) 
+	else if(rand <welt->get_settings().get_tourist_percentage() +welt->get_settings().get_factory_worker_percentage() && welt->get_ausflugsziele().get_sum_weight() > 0 ) 
 	{ 		
 		*will_return = tourist_return;	// tourists will return
 		const gebaeude_t* gb = welt->get_random_ausflugsziel();
@@ -4264,6 +4252,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 			if (road0!=road1) {
 				wegbauer_t bauigel(welt, NULL);
 				bauigel.route_fuer(wegbauer_t::strasse, welt->get_city_road(), NULL, NULL);
+				bauigel.set_build_sidewalk(true);
 				bauigel.calc_straight_route(welt->lookup_kartenboden(best_pos + road0)->get_pos(), welt->lookup_kartenboden(best_pos + road1)->get_pos());
 				bauigel.baue();
 			}
@@ -4477,6 +4466,7 @@ void stadt_t::baue_gebaeude(const koord k, bool new_town)
 							// update directions (SENW)
 							streetdir += (1 << i);
 						}
+						weg->set_gehweg(true);
 						// if not current city road standard, then replace it
 						if (weg->get_besch() != welt->get_city_road()) {
 							spieler_t *sp = weg->get_besitzer();
@@ -4484,7 +4474,6 @@ void stadt_t::baue_gebaeude(const koord k, bool new_town)
 								spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung());
 
 								weg->set_besitzer(NULL); // make public
-								weg->set_besch(welt->get_city_road());
 								weg->set_gehweg(true);
 							}
 						}
@@ -4632,6 +4621,7 @@ bool stadt_t::renoviere_gebaeude(gebaeude_t* gb)
 						// update directions (SENW)
 						streetdir += (1 << i);
 					}
+					weg->set_gehweg(true);
 					// if not current city road standard, then replace it
 					if (weg->get_besch() != welt->get_city_road()) {
 						spieler_t *sp = weg->get_besitzer();
@@ -4640,7 +4630,6 @@ bool stadt_t::renoviere_gebaeude(gebaeude_t* gb)
 
 							weg->set_besitzer(NULL); // make public
 							weg->set_besch(welt->get_city_road());
-							weg->set_gehweg(true);
 						}
 					}
 					gr->calc_bild();

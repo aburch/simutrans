@@ -1593,7 +1593,7 @@ const char *wkz_change_city_size_t::work( karte_t *welt, spieler_t * sp, koord3d
 		// Knightly : update the links from other cities to this city
 		const weighted_vector_tpl<stadt_t *> &cities = welt->get_staedte();
 		for(  uint32 c=0;  c<cities.get_count();  ++c  ) {
-			cities[c]->update_target_city(city);
+			cities[c]->update_target_city(city); 
 		}
 		return NULL;
 	}
@@ -3963,7 +3963,8 @@ void wkz_roadsign_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &st
 				dummy_rs->set_dir(ribi); // calls calc_bild()
 				zeiger->set_after_bild(dummy_rs->get_after_bild());
 				zeiger->set_bild(dummy_rs->get_bild());
-				dummy_rs->set_dir(ribi_t::keine);
+				// as set_dir also modifies the ribi-mask of the way we have to reset it here...
+				dummy_rs->set_dir(rs ? rs->get_dir() : (ribi_t::ribi)ribi_t::keine);
 				cost += rs ? (rs->get_besch()==besch ? 0  : besch->get_preis()+rs->get_besch()->get_preis()) : besch->get_preis();
 			}
 		}
@@ -5632,6 +5633,14 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 			if(cnv->get_replace())
 			{
 				cnv->get_replace()->clear_all();
+				// This convoy might already have been sent to a depot. This will need to be undone.
+				schedule_t* sch = cnv->get_schedule();
+				const linieneintrag_t le = sch->get_current_eintrag();
+				if(welt->lookup(le.pos)->get_depot())
+				{
+					sch->remove();
+					cnv->set_state(2);
+				}
 			}
 			break;
 

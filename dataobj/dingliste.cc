@@ -476,11 +476,8 @@ bool dingliste_t::add(ding_t* ding)
 					break;
 				}
 			}
-			intern_insert_at(ding, i);
 		}
-		else {
-			intern_insert_at(ding, i);
-		}
+		intern_insert_at(ding, i);
 	}
 	// then correct the upper border
 	return true;
@@ -1142,7 +1139,9 @@ inline bool local_display_dinge_vh(const ding_t *ding, const sint16 xpos, const 
 	if (v && (ontile || !(a = ding_cast<aircraft_t>(v)) || a->is_on_ground())) {
 		const ribi_t::ribi veh_ribi = v->get_fahrtrichtung();
 		if (ontile || (veh_ribi & ribi)==ribi  ||  (ribi_t::rueckwaerts(veh_ribi) & ribi)==ribi  ||  ding->get_typ()==ding_t::aircraft) {
-			activate_ribi_clip((veh_ribi|ribi_t::rueckwaerts(veh_ribi))&ribi);
+			// activate clipping only for our direction masked by the ribi argument
+			// use non-convex clipping (16) only if we are on the currently drawn tile or its n/w neighbours
+			activate_ribi_clip( ((veh_ribi|ribi_t::rueckwaerts(veh_ribi))&ribi)  |  (ontile  ||  ribi==ribi_t::nord || ribi==ribi_t::west ? 16 : 0));
 			ding->display(xpos, ypos, reset_dirty );
 		}
 		return true;
