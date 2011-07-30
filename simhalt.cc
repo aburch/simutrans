@@ -2372,7 +2372,14 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			uint16 halt_id;
 			file->rdwr_short(halt_id);
 			self.set_id(halt_id);
-			self = halthandle_t(this, halt_id);
+			if(file->get_experimental_version() >= 10 || file->get_experimental_version() == 0)
+			{
+				self = halthandle_t(this, halt_id);
+			}
+			else
+			{
+				self = halthandle_t(this);
+			}
 		}
 	}
 	else {
