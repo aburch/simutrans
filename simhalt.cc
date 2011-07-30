@@ -2592,7 +2592,11 @@ void haltestelle_t::rdwr(loadsave_t *file)
 					{
 						halthandle_t halt;
 						halt.set_id(id);
-						koord save_koord = halt->get_basis_pos();
+						koord save_koord = koord::invalid;
+						if(halt.is_bound())
+						{
+							save_koord = halt->get_basis_pos();
+						}
 						save_koord.rdwr(file);
 					}
 					
@@ -2604,6 +2608,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 						uint16 current_time = iter.access_current_value().times.get_element(i);
 						file->rdwr_short(current_time);
 					}
+
 					if(file->get_experimental_version() >= 9)
 					{
 						waiting_time_set wt = iter.get_current_value();
@@ -2611,6 +2616,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 					}
 				}
 			}
+
 			else
 			{
 				uint16 halts_count;
