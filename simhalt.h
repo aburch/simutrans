@@ -110,6 +110,17 @@ private:
 	slist_tpl<convoihandle_t> loading_here;
 	long last_loading_step;
 
+	// A list of halts within walking distance, indexed by ID.
+	// @author: jamespetts, July 2011
+	vector_tpl<uint16> halts_within_walking_distance;
+
+	void check_nearby_halts();
+
+protected:
+
+	void add_halt_within_walking_distance(uint16 id);
+	void remove_halt_within_walking_distance(uint16 id);
+
 public:
 	// add convoi to loading queue
 	void request_loading( convoihandle_t cnv );
@@ -176,6 +187,10 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	static void destroy_all(karte_t *);
+
+	inline uint32 get_number_of_halts_within_walking_distance() const;
+
+	inline uint16 get_halt_within_walking_distance(uint32 index) const;
 
 private:
 	/**

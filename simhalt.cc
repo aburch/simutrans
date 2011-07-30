@@ -404,6 +404,8 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 
 	check_waiting = 0;
 
+	check_nearby_halts();
+
 	// Added by : Knightly
 	inauguration_time = dr_time();
 }
@@ -2684,6 +2686,39 @@ void haltestelle_t::rdwr(loadsave_t *file)
 	{
 		file->rdwr_bool(do_alternative_seats_calculation);
 	}
+
+	if(file->get_experimental_version() >= 10)
+	{
+		if(file->is_saving())
+		{
+			uint32 count = halts_within_walking_distance.get_count();
+			file->rdwr_long(count);
+			ITERATE(halts_within_walking_distance, n)
+			{
+				file->rdwr_short(halts_within_walking_distance[n]);
+			}
+		}
+		else
+		{
+			// Loading
+			uint32 count = 0;
+			file->rdwr_long(count);
+			uint16 id = 0;
+			for(int n = 0; n < count; n ++)
+			{
+				file->rdwr_short(id);
+				add_halt_within_walking_distance(id);
+			}
+		}
+		
+	}
+	else
+	{
+		if(file->is_loading())
+		{
+			check_nearby_halts();
+		}
+	}
 	
 	pax_happy    = financial_history[0][HALT_HAPPY];
 	pax_unhappy  = financial_history[0][HALT_UNHAPPY];
@@ -3335,3 +3370,38 @@ int haltestelle_t::get_queue_pos(convoihandle_t cnv) const
 	return count + 1;
 }
 
+void haltestelle_t::add_halt_within_walking_distance(uint16 id)
+{
+	halts_within_walking_distance.append_unique(id);
+}
+
+void haltestelle_t::remove_halt_within_walking_distance(uint16 id)
+{
+	halts_within_walking_distance.remove(id);
+}
+
+void haltestelle_t::check_nearby_halts()
+{
+	const planquadrat_t *const plan = welt->lookup(get_basis_pos());
+	const halthandle_t *const halt_list = plan->get_haltlist();
+
+	for (int h = plan->get_haltlist_count() - 1; h >= 0; h--) 
+	{
+		halthandle_t halt = halt_list[h];
+		if (halt->is_enabled(warenbauer_t::passagiere)) 
+		{
+			add_halt_within_walking_distance(halt.get_id());
+			halt->add_halt_within_walking_distance(self.get_id());
+		}
+	}
+}
+
+uint32 haltestelle_t::get_number_of_halts_within_walking_distance() const
+{
+	return halts_within_walking_distance.get_count();
+}
+
+uint16 haltestelle_t::get_halt_within_walking_distance(uint32 index) const
+{
+	return halts_within_walking_distance[index];
+}
