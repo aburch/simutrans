@@ -655,7 +655,7 @@ public:
 
 	void rdwr(loadsave_t *file);
 
-	void laden_abschliessen();
+	void laden_abschliessen(bool need_recheck_for_walking_distance);
 
 	/*
 	 * called, if a line serves this stop

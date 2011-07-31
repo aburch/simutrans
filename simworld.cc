@@ -5134,7 +5134,7 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 	// resolve dummy stops into real stops first ...
 	for(  slist_tpl<halthandle_t>::const_iterator i=haltestelle_t::get_alle_haltestellen().begin(); i!=haltestelle_t::get_alle_haltestellen().end();  ++i  ) {
 		if(  (*i)->get_besitzer()  &&  (*i)->existiert_in_welt()  ) {
-			(*i)->laden_abschliessen();
+			(*i)->laden_abschliessen(file->get_experimental_version() < 10);
 		}
 	}
 

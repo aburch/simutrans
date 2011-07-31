@@ -2754,7 +2754,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 
 
 //"Load lock" (Google)
-void haltestelle_t::laden_abschliessen()
+void haltestelle_t::laden_abschliessen(bool need_recheck_for_walking_distance)
 {
 	// fix good destination coordinates
 	for(unsigned i=0; i<warenbauer_t::get_max_catg_index(); i++) 
@@ -2810,9 +2810,13 @@ void haltestelle_t::laden_abschliessen()
 			DBG_MESSAGE("haltestelle_t::set_name()","name %s already used!",bd->get_text());
 		}
 	}
-	recalc_status();
-
-	check_nearby_halts();
+	
+	if(need_recheck_for_walking_distance)
+	{
+		check_nearby_halts();
+	}
+	
+	recalc_status();	
 }
 
 
