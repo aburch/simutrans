@@ -534,7 +534,7 @@ void path_explorer_t::compartment_t::step()
 				all_halts_list = new halthandle_t[all_halts_count];
 			}
 
-			const uint32 journey_time_adjustment = (world->get_settings().get_meters_per_tile() * 6) / 10;
+			const uint32 journey_time_adjustment = (world->get_settings().get_meters_per_tile() * 6u) / 10u;
 
 			// Save the halt list in an array first to prevent the list from being modified across steps, causing bugs
 			for (uint16 i = 0; i < all_halts_count; ++i)
@@ -551,7 +551,7 @@ void path_explorer_t::compartment_t::step()
 				// Connect halts within walking distance of each other (for passengers only)
 				// @author: jamespetts, July 2011
 
-				if(catg!=warenbauer_t::passagiere->get_catg_index() || !all_halts_list[i]->is_enabled(warenbauer_t::passagiere))
+				if ( catg!=warenbauer_t::passagiere->get_catg_index() || !all_halts_list[i]->is_enabled(warenbauer_t::passagiere) )
 				{
 					continue;
 				}
@@ -561,18 +561,18 @@ void path_explorer_t::compartment_t::step()
 				halthandle_t walking_distance_halt;
 				haltestelle_t::connexion *new_connexion;
 				
-				for(uint32 x = 0; x < halts_within_walking_distance; ++x)
+				for ( uint32 x = 0; x < halts_within_walking_distance; ++x )
 				{
 					walking_distance_halt = all_halts_list[i]->get_halt_within_walking_distance(x);
 
 					if(!walking_distance_halt->is_enabled(warenbauer_t::passagiere))
-					{ 
+					{
 						continue;
 					}
 
 					// Walking speed is taken to be 4km/h
-					const uint32 journey_time_factor = (journey_time_adjustment * 100) / 4;
-					const uint16 journey_time = ((uint16)((accurate_distance(all_halts_list[i]->get_basis_pos(), walking_distance_halt->get_basis_pos()) * journey_time_factor) / 100), 64);
+					const uint32 journey_time_factor = (journey_time_adjustment * 100u) / 4u;
+					const uint16 journey_time = (uint16)((accurate_distance(all_halts_list[i]->get_basis_pos(), walking_distance_halt->get_basis_pos()) * journey_time_factor) / 100u);
 					
 					// Check the journey times to the connexion
 					new_connexion = new haltestelle_t::connexion;
