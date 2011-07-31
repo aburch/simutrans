@@ -3424,25 +3424,22 @@ void haltestelle_t::remove_halt_within_walking_distance(halthandle_t halt)
 
 void haltestelle_t::check_nearby_halts()
 {
-	int const cov = welt->get_settings().get_station_coverage();
-	for (int y = -cov; y <= cov; y++) 
-	{
-		for (int x = -cov; x <= cov; x++) 
-		{
-			koord p = get_basis_pos() + koord(x,y);
-			planquadrat_t *plan = welt->access(p);
-			if(plan) 
-			{
-				const halthandle_t *const halt_list = plan->get_haltlist();
+	slist_iterator_tpl<tile_t> iter(tiles);
 
-				for (int h = plan->get_haltlist_count() - 1; h >= 0; h--) 
+	while(iter.next())
+	{
+		planquadrat_t *plan = welt->access(iter.get_current().grund->get_pos().get_2d());
+		if(plan) 
+		{
+			const halthandle_t *const halt_list = plan->get_haltlist();
+
+			for (int h = plan->get_haltlist_count() - 1; h >= 0; h--) 
+			{
+				halthandle_t halt = halt_list[h];
+				if (halt->is_enabled(warenbauer_t::passagiere)) 
 				{
-					halthandle_t halt = halt_list[h];
-					if (halt->is_enabled(warenbauer_t::passagiere)) 
-					{
-						add_halt_within_walking_distance(halt);
-						halt->add_halt_within_walking_distance(self);
-					}
+					add_halt_within_walking_distance(halt);
+					halt->add_halt_within_walking_distance(self);
 				}
 			}
 		}

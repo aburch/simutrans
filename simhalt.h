@@ -204,6 +204,7 @@ public:
 	 */
 	struct tile_t
 	{
+		tile_t() {}
 		tile_t(grund_t* grund_) : grund(grund_) {}
 
 		bool operator ==(const tile_t& o) { return grund == o.grund; }
