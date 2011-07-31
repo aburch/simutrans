@@ -186,6 +186,11 @@ public:
 		return data[entry] != 0;
 	}
 
+	inline bool is_null() const
+	{
+		return entry == 0;
+	}
+
 	/**
 	 * Removes the object from the tombstone table - this affects all
 	 * handles to the object!
@@ -214,6 +219,13 @@ public:
 	 * an ID for the referenced object.
 	 */
 	uint16 get_id() const { return entry; }
+
+	/**
+	 * For read/write from/to any storage (file or memory) with the appropriate interface
+	 * @author Knightly
+	 */
+	template <class STORAGE>
+	void rdwr(STORAGE *store) { store->rdwr_short(entry); }
 
 	/**
 	 * Sets the current id: Needed to recreate stuff via network.

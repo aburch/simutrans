@@ -110,16 +110,14 @@ private:
 	slist_tpl<convoihandle_t> loading_here;
 	long last_loading_step;
 
-	// A list of halts within walking distance, indexed by ID.
+	// A list of halts within walking distance
 	// @author: jamespetts, July 2011
-	vector_tpl<uint16> halts_within_walking_distance;
+	vector_tpl<halthandle_t> halts_within_walking_distance;
 
 	void check_nearby_halts();
 
-protected:
-
-	void add_halt_within_walking_distance(uint16 id);
-	void remove_halt_within_walking_distance(uint16 id);
+	void add_halt_within_walking_distance(halthandle_t halt);
+	void remove_halt_within_walking_distance(halthandle_t halt);
 
 public:
 	// add convoi to loading queue
@@ -188,9 +186,9 @@ public:
 	 */
 	static void destroy_all(karte_t *);
 
-	inline uint32 get_number_of_halts_within_walking_distance() const { return halts_within_walking_distance.get_count(); } 
+	uint32 get_number_of_halts_within_walking_distance() const { return halts_within_walking_distance.get_count(); } 
 
-	inline uint16 get_halt_within_walking_distance(uint32 index) const { return halts_within_walking_distance[index]; }
+	halthandle_t get_halt_within_walking_distance(uint32 index) const { return halts_within_walking_distance[index]; }
 
 private:
 	/**
@@ -240,7 +238,7 @@ public:
 
 	const slist_tpl<tile_t> &get_tiles() const { return tiles; };
 
-	bool is_within_walking_distance_of(uint16 index) const { return halts_within_walking_distance.is_contained(index); }
+	bool is_within_walking_distance_of(halthandle_t halt) const { return halts_within_walking_distance.is_contained(halt); }
 
 private:
 	slist_tpl<tile_t> tiles;

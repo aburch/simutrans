@@ -534,7 +534,7 @@ void path_explorer_t::compartment_t::step()
 				all_halts_list = new halthandle_t[all_halts_count];
 			}
 
-			const uint32 journey_time_adjustment = (world->get_settings().get_meters_per_tile() * 6) / 10;
+			const uint32 journey_time_adjustment = (world->get_settings().get_meters_per_tile() * 6u) / 10u;
 
 			// Save the halt list in an array first to prevent the list from being modified across steps, causing bugs
 			for (uint16 i = 0; i < all_halts_count; ++i)
@@ -551,7 +551,7 @@ void path_explorer_t::compartment_t::step()
 				// Connect halts within walking distance of each other (for passengers only)
 				// @author: jamespetts, July 2011
 
-				if(!all_halts_list[i]->is_enabled(warenbauer_t::passagiere))
+				if ( catg!=warenbauer_t::passagiere->get_catg_index() || !all_halts_list[i]->is_enabled(warenbauer_t::passagiere) )
 				{
 					continue;
 				}
@@ -561,18 +561,18 @@ void path_explorer_t::compartment_t::step()
 				halthandle_t walking_distance_halt;
 				haltestelle_t::connexion *new_connexion;
 				
-				for(int x = 0; x < halts_within_walking_distance; x ++)
+				for ( uint32 x = 0; x < halts_within_walking_distance; ++x )
 				{
-					walking_distance_halt.set_id(all_halts_list[i]->get_halt_within_walking_distance(x));
+					walking_distance_halt = all_halts_list[i]->get_halt_within_walking_distance(x);
 
-					if(catg != 0 || !walking_distance_halt->is_enabled(warenbauer_t::passagiere))
-					{ 
+					if(!walking_distance_halt->is_enabled(warenbauer_t::passagiere))
+					{
 						continue;
 					}
 
 					// Walking speed is taken to be 4km/h
-					const uint32 journey_time_factor = (journey_time_adjustment * 100) / 4;
-					const uint16 journey_time = ((uint16)((accurate_distance(all_halts_list[i]->get_basis_pos(), walking_distance_halt->get_basis_pos()) * journey_time_factor) / 100), 64);
+					const uint32 journey_time_factor = (journey_time_adjustment * 100u) / 4u;
+					const uint16 journey_time = (uint16)((accurate_distance(all_halts_list[i]->get_basis_pos(), walking_distance_halt->get_basis_pos()) * journey_time_factor) / 100u);
 					
 					// Check the journey times to the connexion
 					new_connexion = new haltestelle_t::connexion;
@@ -584,7 +584,8 @@ void path_explorer_t::compartment_t::step()
 
 					// These are walking connexions only. There will not be multiple possible connexions, so no need
 					// to check for existing connexions here.
-					connexion_list[all_halts_list[i].get_id()].connexion_table->put(walking_distance_halt, new_connexion);
+					connexion_list[ all_halts_list[i].get_id() ].connexion_table->put(walking_distance_halt, new_connexion);
+					connexion_list[ all_halts_list[i].get_id() ].serving_transport = 1u;	// will become an interchange if served by additional transport(s)
 					all_halts_list[i]->prepare_goods_list(catg);
 				}
 			}
@@ -1152,6 +1153,29 @@ void path_explorer_t::compartment_t::step()
 
 					current_connexion = connexions_iter.get_current_value();
 
+					// validate transport and determine transport index
+					uint16 transport_idx;
+					if ( current_connexion->best_line.is_null() && current_connexion->best_convoy.is_null() )
+					{
+						// passengers walking between 2 halts
+						transport_idx = 0;
+					}
+					else if ( current_connexion->best_line.is_bound() )
+					{
+						// valid line
+						transport_idx = transport_index_map[ current_connexion->best_line.get_id() ];
+					}
+					else if ( current_connexion->best_convoy.is_bound() )
+					{
+						// valid lineless convoy
+						transport_idx = transport_index_map[ 65536u + current_connexion->best_convoy.get_id() ];
+					}
+					else
+					{
+						// neither walking nor having valid transport -> skip this connection
+						continue;
+					}
+
 					// determine the matrix index of reachable halt in working halt index map
 					reachable_halt_index = working_halt_index_map[reachable_halt.get_id()];
 
@@ -1160,9 +1184,7 @@ void path_explorer_t::compartment_t::step()
 					working_matrix[phase_counter][reachable_halt_index].aggregate_time = current_connexion->waiting_time + current_connexion->journey_time;
 					transport_matrix[phase_counter][reachable_halt_index].first_transport 
 						= transport_matrix[phase_counter][reachable_halt_index].last_transport 
-						= transport_index_map[ current_connexion->best_line.is_bound() ?
-													current_connexion->best_line.get_id() :
-													65536u + current_connexion->best_convoy.get_id() ];
+						= transport_idx;
 
 					// Debug journey times
 					// printf("\n%s -> %s : %lu \n",current_halt->get_name(), reachable_halt->get_name(), working_matrix[phase_counter][reachable_halt_index].journey_time);

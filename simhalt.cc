@@ -428,13 +428,13 @@ haltestelle_t::~haltestelle_t()
 		besitzer_p->halt_remove(self);
 	}
 
-	halthandle_t walking_distance_halt;
-	const uint16 self_id = self.get_id();
-
 	ITERATE(halts_within_walking_distance, n)
 	{
-		walking_distance_halt.set_id(halts_within_walking_distance[n]);
-		walking_distance_halt->remove_halt_within_walking_distance(self_id);
+		halthandle_t walking_distance_halt = get_halt_within_walking_distance(n);
+		if ( walking_distance_halt.is_bound() )
+		{
+			walking_distance_halt->remove_halt_within_walking_distance(self);
+		}
 	}
 
 	// clean waiting_times for each stop 
@@ -1925,7 +1925,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 	}
 #endif
 	
-	if(ware.is_passenger() && is_within_walking_distance_of(ware.get_zwischenziel().get_id()) && !connexions[0]->get(ware.get_zwischenziel())->best_convoy.is_bound() && !connexions[0]->get(ware.get_zwischenziel())->best_line.is_bound())
+	if(ware.is_passenger() && is_within_walking_distance_of(ware.get_zwischenziel()) && !connexions[0]->get(ware.get_zwischenziel())->best_convoy.is_bound() && !connexions[0]->get(ware.get_zwischenziel())->best_line.is_bound())
 	{
 		// If this is within walking distance of the next transfer, and there is not a faster way there, walk there.
 		// Note: it is unlikely that a 'bus (etc.) will be faster than walking for anything within walking distance, as there is a minimum 4 minute wait.
@@ -2718,7 +2718,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			file->rdwr_long(count);
 			ITERATE(halts_within_walking_distance, n)
 			{
-				file->rdwr_short(halts_within_walking_distance[n]);
+				halts_within_walking_distance[n].rdwr(file);
 			}
 		}
 		else
@@ -2726,11 +2726,11 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			// Loading
 			uint32 count = 0;
 			file->rdwr_long(count);
-			uint16 id = 0;
+			halthandle_t halt;
 			for(int n = 0; n < count; n ++)
 			{
-				file->rdwr_short(id);
-				add_halt_within_walking_distance(id);
+				halt.rdwr(file);
+				add_halt_within_walking_distance(halt);
 			}
 		}
 		
@@ -3395,20 +3395,20 @@ int haltestelle_t::get_queue_pos(convoihandle_t cnv) const
 	return count + 1;
 }
 
-void haltestelle_t::add_halt_within_walking_distance(uint16 id)
+void haltestelle_t::add_halt_within_walking_distance(halthandle_t halt)
 {
-	if(self.get_id() != id)
+	if(halt != self)
 	{
 		// Halt should not be listed as connected to itself.
-		halts_within_walking_distance.append_unique(id);
+		halts_within_walking_distance.append_unique(halt);
 	}
 }
 
-void haltestelle_t::remove_halt_within_walking_distance(uint16 id)
+void haltestelle_t::remove_halt_within_walking_distance(halthandle_t halt)
 {
-	if(this)
+	if(halt != self)
 	{
-		halts_within_walking_distance.remove(id);
+		halts_within_walking_distance.remove(halt);
 	}
 }
 
@@ -3422,8 +3422,8 @@ void haltestelle_t::check_nearby_halts()
 		halthandle_t halt = halt_list[h];
 		if (halt->is_enabled(warenbauer_t::passagiere)) 
 		{
-			add_halt_within_walking_distance(halt.get_id());
-			halt->add_halt_within_walking_distance(self.get_id());
+			add_halt_within_walking_distance(halt);
+			halt->add_halt_within_walking_distance(self);
 		}
 	}
 }
