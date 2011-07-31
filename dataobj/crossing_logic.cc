@@ -16,7 +16,6 @@
 
 #include "../besch/kreuzung_besch.h"
 
-#include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
 
 #include "../tpl/slist_tpl.h"

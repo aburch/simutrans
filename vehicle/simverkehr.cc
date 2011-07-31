@@ -14,7 +14,6 @@
 #include "../simmesg.h"
 #include "../simworld.h"
 #include "../simtools.h"
-#include "../simmem.h"
 #include "../simimg.h"
 #include "../simunits.h"
 #include "../simtypes.h"

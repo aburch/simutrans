@@ -9,11 +9,9 @@
 #include "gui_scrollbar.h"
 #include "gui_scrolled_list.h"
 
-#include "../../simworld.h"
 #include "../../simgraph.h"
 #include "../../simcolor.h"
 #include "../../simwin.h"
-#include "../../utils/simstring.h"
 
 
 
