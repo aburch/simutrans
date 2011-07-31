@@ -3589,7 +3589,7 @@ void stadt_t::step_passagiere()
 		// they do not have a start halt does not mean that they cannot
 		// walk to their destination!
 		const uint32 tile_distance = accurate_distance(origin_pos, destination_now.location);
-		if(tile_distance < s.get_max_walking_distance())
+		if(tile_distance <= s.get_max_walking_distance())
 		{
 			// Passengers will walk to their destination if it is within the specified range.
 			// (Default: 1.5km)
