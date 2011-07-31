@@ -3080,6 +3080,8 @@ bool haltestelle_t::add_grund(grund_t *gr)
 	init_pos = tiles.front().grund->get_pos().get_2d();
 	path_explorer_t::refresh_all_categories(false);
 
+	check_nearby_halts();
+
 	return true;
 }
 
@@ -3185,6 +3187,8 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 			registered_convoys.remove_at(j);
 		}
 	}
+
+	check_nearby_halts();
 
 	return true;
 }
@@ -3416,16 +3420,27 @@ void haltestelle_t::remove_halt_within_walking_distance(halthandle_t halt)
 
 void haltestelle_t::check_nearby_halts()
 {
-	const planquadrat_t *const plan = welt->lookup(get_basis_pos());
-	const halthandle_t *const halt_list = plan->get_haltlist();
-
-	for (int h = plan->get_haltlist_count() - 1; h >= 0; h--) 
+	int const cov = welt->get_settings().get_station_coverage();
+	for (int y = -cov; y <= cov; y++) 
 	{
-		halthandle_t halt = halt_list[h];
-		if (halt->is_enabled(warenbauer_t::passagiere)) 
+		for (int x = -cov; x <= cov; x++) 
 		{
-			add_halt_within_walking_distance(halt);
-			halt->add_halt_within_walking_distance(self);
+			koord p = get_basis_pos() + koord(x,y);
+			planquadrat_t *plan = welt->access(p);
+			if(plan) 
+			{
+				const halthandle_t *const halt_list = plan->get_haltlist();
+
+				for (int h = plan->get_haltlist_count() - 1; h >= 0; h--) 
+				{
+					halthandle_t halt = halt_list[h];
+					if (halt->is_enabled(warenbauer_t::passagiere)) 
+					{
+						add_halt_within_walking_distance(halt);
+						halt->add_halt_within_walking_distance(self);
+					}
+				}
+			}
 		}
 	}
 }
