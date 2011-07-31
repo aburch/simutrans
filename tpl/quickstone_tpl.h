@@ -216,6 +216,13 @@ public:
 	uint16 get_id() const { return entry; }
 
 	/**
+	 * For read/write from/to any storage (file or memory) with the appropriate interface
+	 * @author Knightly
+	 */
+	template <class STORAGE>
+	void rdwr(STORAGE *store) { store->rdwr_short(entry); }
+
+	/**
 	 * Sets the current id: Needed to recreate stuff via network.
 	 * ATTENTION: This may be harmful. DO not use unless really really needed!
 	 */

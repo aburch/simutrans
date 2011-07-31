@@ -551,7 +551,7 @@ void path_explorer_t::compartment_t::step()
 				// Connect halts within walking distance of each other (for passengers only)
 				// @author: jamespetts, July 2011
 
-				if(!all_halts_list[i]->is_enabled(warenbauer_t::passagiere))
+				if(catg!=warenbauer_t::passagiere->get_catg_index() || !all_halts_list[i]->is_enabled(warenbauer_t::passagiere))
 				{
 					continue;
 				}
@@ -561,11 +561,11 @@ void path_explorer_t::compartment_t::step()
 				halthandle_t walking_distance_halt;
 				haltestelle_t::connexion *new_connexion;
 				
-				for(int x = 0; x < halts_within_walking_distance; x ++)
+				for(uint32 x = 0; x < halts_within_walking_distance; ++x)
 				{
-					walking_distance_halt.set_id(all_halts_list[i]->get_halt_within_walking_distance(x));
+					walking_distance_halt = all_halts_list[i]->get_halt_within_walking_distance(x);
 
-					if(catg != 0 || !walking_distance_halt->is_enabled(warenbauer_t::passagiere))
+					if(!walking_distance_halt->is_enabled(warenbauer_t::passagiere))
 					{ 
 						continue;
 					}
