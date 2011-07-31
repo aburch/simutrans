@@ -186,6 +186,11 @@ public:
 		return data[entry] != 0;
 	}
 
+	inline bool is_null() const
+	{
+		return entry == 0;
+	}
+
 	/**
 	 * Removes the object from the tombstone table - this affects all
 	 * handles to the object!
