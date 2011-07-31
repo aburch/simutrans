@@ -404,6 +404,8 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 
 	check_waiting = 0;
 
+	check_nearby_halts();
+
 	// Added by : Knightly
 	inauguration_time = dr_time();
 }
