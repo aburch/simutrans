@@ -105,7 +105,7 @@ public:
 	static void set_overtaking_offsets( bool driving_on_the_left );
 
 	// if true, this convoi needs to restart for correct alignment
-	bool need_realignment();
+	bool need_realignment() const;
 
 	uint32 fahre_basis(uint32 dist);	// basis movement code
 
@@ -307,13 +307,7 @@ public:
 
 	~vehikel_t();
 
-	void rauche();
-
-	/**
-	* Öffnet ein neues Beobachtungsfenster für das Objekt.
-	* @author Hj. Malthaner
-	*/
-	void zeige_info();
+	void rauche() const;
 
 	/**
 	* der normale Infotext
@@ -325,7 +319,7 @@ public:
 	* Ermittelt fahrtrichtung
 	* @author Hj. Malthaner
 	*/
-	ribi_t::ribi richtung();
+	ribi_t::ribi richtung() const;
 
 	/* return friction constant: changes in hill and curves; may even negative downhill *
 	* @author prissi
@@ -373,7 +367,7 @@ public:
 	* Info-Fenster
 	* @author Hj. Malthaner
 	*/
-	void get_fracht_info(cbuffer_t & buf);
+	void get_fracht_info(cbuffer_t & buf) const;
 
 	/**
 	* loescht alle fracht aus dem Fahrzeug
@@ -499,9 +493,6 @@ public:
  */
 class waggon_t : public vehikel_t
 {
-private:
-	signal_t *ist_blockwechsel(koord3d k2) const;
-
 protected:
 	bool ist_befahrbar(const grund_t *bd) const;
 
@@ -686,7 +677,7 @@ protected:
 
 	void betrete_feld();
 
-	bool block_reserver( uint32 start, uint32 end, bool reserve );
+	bool block_reserver( uint32 start, uint32 end, bool reserve ) const;
 
 	// find a route and reserve the stop position
 	bool find_route_to_stop_position();

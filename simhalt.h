@@ -137,12 +137,12 @@ public:
 	 * @return halthandle_t(), if nothing found
 	 * @author prissi
 	 */
-	static halthandle_t get_halt(karte_t *welt, const koord pos, const spieler_t *sp );
+	static halthandle_t get_halt(const karte_t *welt, const koord pos, const spieler_t *sp );
 
 	/* since we allow only for a single stop per planquadrat
 	 * this will always return something even if there is not stop some of the ground level
 	 */
-	static halthandle_t get_halt( karte_t *welt, const koord3d pos, const spieler_t *sp );
+	static halthandle_t get_halt(const karte_t *welt, const koord3d pos, const spieler_t *sp );
 
 	static const slist_tpl<halthandle_t>& get_alle_haltestellen() { return alle_haltestellen; }
 
@@ -299,7 +299,7 @@ private:
 	 * liefert wartende ware an eine Fabrik
 	 * @author Hj. Malthaner
 	 */
-	void liefere_an_fabrik(const ware_t& ware);
+	void liefere_an_fabrik(const ware_t& ware) const;
 
 	/*
 	 * transfers all goods to given station
@@ -370,7 +370,7 @@ public:
 	spieler_t *get_besitzer() const {return besitzer_p;}
 
 	// just for info so far
-	sint64 calc_maintenance();
+	sint64 calc_maintenance() const;
 
 	void make_public_and_join( spieler_t *sp );
 
@@ -521,7 +521,7 @@ public:
 
 	uint32 get_capacity(uint8 typ) const { return capacity[typ]; }
 
-	bool existiert_in_welt();
+	bool existiert_in_welt() const;
 
 	koord get_init_pos() const { return init_pos; }
 	koord get_basis_pos() const;
@@ -611,7 +611,7 @@ public:
 	 * @return short list of the waiting goods (i.e. 110 Wood, 15 Coal)
 	 * @author Hj. Malthaner
 	 */
-	void get_short_freight_info(cbuffer_t & buf);
+	void get_short_freight_info(cbuffer_t & buf) const;
 
 	/**
 	 * Opens an information window for this station.

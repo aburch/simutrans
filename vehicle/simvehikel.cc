@@ -38,7 +38,6 @@
 #include "../simimg.h"
 #include "../simcolor.h"
 #include "../simgraph.h"
-#include "../simio.h"
 #include "../simmem.h"
 
 #include "../simline.h"
@@ -105,7 +104,7 @@ void vehikel_basis_t::set_diagonal_multiplier( uint32 multiplier, uint32 old_dia
 
 
 // if true, convoi, must restart!
-bool vehikel_basis_t::need_realignment()
+bool vehikel_basis_t::need_realignment() const
 {
 	return old_diagonal_vehicle_steps_per_tile!=diagonal_vehicle_steps_per_tile  &&  ribi_t::ist_kurve(fahrtrichtung);
 }
@@ -1069,13 +1068,13 @@ void vehikel_t::hop()
 
 
 /* calculates the current friction coefficient based on the curent track
- * falt, slope, curve ...
+ * flat, slope, curve ...
  * @author prissi, HJ, Dwachs
  */
-void vehikel_t::calc_akt_speed(const grund_t *gr) //,const int h_alt, const int h_neu)
+void vehikel_t::calc_akt_speed(const grund_t *gr)
 {
 
-	// assume straigth flat track
+	// assume straight flat track
 	current_friction = 1;
 
 	// curve: higher friction
@@ -1091,14 +1090,14 @@ void vehikel_t::calc_akt_speed(const grund_t *gr) //,const int h_alt, const int 
 			current_friction += 23;
 		}
 		else {
-			// hill down: accelrate
+			// hill down: accelerate
 			current_friction += -13;
 		}
 	}
 }
 
 
-void vehikel_t::rauche()
+void vehikel_t::rauche() const
 {
 	// raucht ueberhaupt ?
 	if(rauchen  &&  besch->get_rauch()) {
@@ -1256,7 +1255,7 @@ const char *vehikel_t::get_fracht_name() const
 }
 
 
-void vehikel_t::get_fracht_info(cbuffer_t & buf)
+void vehikel_t::get_fracht_info(cbuffer_t & buf) const
 {
 	if (fracht.empty()) {
 		buf.append("  ");
@@ -1305,7 +1304,6 @@ bool vehikel_t::beladen(halthandle_t halt)
  */
 bool vehikel_t::entladen(halthandle_t halt)
 {
-	// printf("Vehikel %p entladen\n", this);
 	uint16 menge = unload_freight(halt);
 	if(menge>0) {
 		// add delivered goods to statistics
@@ -1322,7 +1320,7 @@ bool vehikel_t::entladen(halthandle_t halt)
  * Ermittelt fahrtrichtung
  * @author Hj. Malthaner
  */
-ribi_t::ribi vehikel_t::richtung()
+ribi_t::ribi vehikel_t::richtung() const
 {
 	ribi_t::ribi neu = calc_richtung(pos_prev.get_2d(), pos_next.get_2d());
 	// nothing => use old direct further on
@@ -1569,16 +1567,6 @@ uint32 vehikel_t::calc_restwert() const
 	}
 	// after 20 year, it has only half value
 	return (uint32)( value * pow(0.997, (int)(welt->get_current_month() - get_insta_zeit())));
-}
-
-
-void vehikel_t::zeige_info()
-{
-	if(cnv != NULL) {
-		cnv->zeige_info();
-	} else {
-		dbg->warning("vehikel_t::zeige_info()","cnv is null, can't open convoi window!");
-	}
 }
 
 
@@ -2279,17 +2267,6 @@ int waggon_t::get_kosten(const grund_t *gr, const sint32 max_speed, koord from_p
 	}
 
 	return costs;
-}
-
-
-signal_t *waggon_t::ist_blockwechsel(koord3d k2) const
-{
-	const schiene_t * sch1 = (const schiene_t *) welt->lookup( k2 )->get_weg(get_waytype());
-	if(sch1  &&  sch1->has_signal()) {
-		// a signal for us
-		return welt->lookup(k2)->find<signal_t>();
-	}
-	return NULL;
 }
 
 
@@ -3122,7 +3099,7 @@ bool aircraft_t::find_route_to_stop_position()
 	grund_t const* const target = welt->lookup(rt->position_bei(suchen));
 	if(target==NULL  ||  !target->hat_weg(air_wt)) {
 		target_halt = halthandle_t();
-		DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","no runway found at %i,%i,%i",rt->position_bei(suchen).x,rt->position_bei(suchen).y,rt->position_bei(suchen).z);
+		DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","no runway found at (%s)",rt->position_bei(suchen).get_str());
 		return true;	// no runway any more ...
 	}
 
@@ -3171,7 +3148,7 @@ DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","found no route to free 
  * finishes when reaching end tile or leaving the ground (end of runway)
  * @return true if the reservation is successfull
  */
-bool aircraft_t::block_reserver( uint32 start, uint32 end, bool reserve )
+bool aircraft_t::block_reserver( uint32 start, uint32 end, bool reserve ) const
 {
 	bool start_now = false;
 	bool success = true;
@@ -3571,7 +3548,7 @@ bool aircraft_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route
 //DBG_MESSAGE("aircraft_t::calc_route()","search runway start near %i,%i,%i with corner in %x",start.x,start.y,start.z, approach_dir);
 #else
 		approach_dir = ribi_t::nordost;	// reverse
-		DBG_MESSAGE("aircraft_t::calc_route()","search runway start near %i,%i,%i",start.x,start.y,start.z);
+		DBG_MESSAGE("aircraft_t::calc_route()","search runway start near (%s)",start.get_str());
 #endif
 		if(!route->find_route( welt, start, this, max_speed, ribi_t::alle, 100 )) {
 			DBG_MESSAGE("aircraft_t::calc_route()","failed");
@@ -3887,4 +3864,3 @@ const char * aircraft_t::ist_entfernbar(const spieler_t *sp)
 	}
 	return NULL;
 }
-

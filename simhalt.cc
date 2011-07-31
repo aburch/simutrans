@@ -108,7 +108,7 @@ void haltestelle_t::step_all()
 
 
 
-halthandle_t haltestelle_t::get_halt( karte_t *welt, const koord pos, const spieler_t *sp )
+halthandle_t haltestelle_t::get_halt(const karte_t *welt, const koord pos, const spieler_t *sp )
 {
 	const planquadrat_t *plan = welt->lookup(pos);
 	if(plan) {
@@ -138,7 +138,7 @@ halthandle_t haltestelle_t::get_halt( karte_t *welt, const koord pos, const spie
 }
 
 
-halthandle_t haltestelle_t::get_halt( karte_t *welt, const koord3d pos, const spieler_t *sp )
+halthandle_t haltestelle_t::get_halt(const karte_t *welt, const koord3d pos, const spieler_t *sp )
 {
 	const grund_t *gr = welt->lookup(pos);
 	if(gr) {
@@ -1626,7 +1626,7 @@ void haltestelle_t::add_pax_no_route(int n)
 
 
 
-void haltestelle_t::liefere_an_fabrik(const ware_t& ware)
+void haltestelle_t::liefere_an_fabrik(const ware_t& ware) const
 {
 	fabrik_t *const factory = fabrik_t::get_fab( welt, ware.get_zielpos() );
 	if(  factory  ) {
@@ -2009,7 +2009,7 @@ void haltestelle_t::get_freight_info(cbuffer_t & buf)
 
 
 
-void haltestelle_t::get_short_freight_info(cbuffer_t & buf)
+void haltestelle_t::get_short_freight_info(cbuffer_t & buf) const
 {
 	bool got_one = false;
 
@@ -2051,9 +2051,7 @@ void haltestelle_t::zeige_info()
 }
 
 
-
-// changes this to a publix transfer exchange stop
-sint64 haltestelle_t::calc_maintenance()
+sint64 haltestelle_t::calc_maintenance() const
 {
 	sint64 maintenance = 0;
 	for(slist_tpl<tile_t>::const_iterator i = tiles.begin(), end = tiles.end(); i != end; ++i) {
@@ -2893,7 +2891,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 
 
 
-bool haltestelle_t::existiert_in_welt()
+bool haltestelle_t::existiert_in_welt() const
 {
 	return !tiles.empty();
 }
