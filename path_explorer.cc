@@ -572,7 +572,7 @@ void path_explorer_t::compartment_t::step()
 
 					// Walking speed is taken to be 5km/h: http://en.wikipedia.org/wiki/Walking
 					const uint32 journey_time_factor = (journey_time_adjustment * 100u) / 5u;
-					const uint16 journey_time = (uint16)((accurate_distance(all_halts_list[i]->get_basis_pos(), walking_distance_halt->get_basis_pos()) * journey_time_factor) / 100u);
+					const uint16 journey_time = (uint16)((accurate_distance(all_halts_list[i]->get_next_pos(walking_distance_halt->get_basis_pos()), walking_distance_halt->get_next_pos(all_halts_list[i]->get_basis_pos())) * journey_time_factor) / 100u);
 					
 					// Check the journey times to the connexion
 					new_connexion = new haltestelle_t::connexion;
