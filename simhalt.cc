@@ -1933,10 +1933,10 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 		// Note: it is unlikely that a 'bus (etc.) will be faster than walking for anything within walking distance, as there is a minimum 4 minute wait.
 		return ware.get_zwischenziel()->liefere_an(ware);
 	}
-	else if(ware.is_passenger() && is_within_walking_distance_of(ware.get_zeil()) && !connexions[0]->get(ware.get_zeil())->best_convoy.is_bound() && !connexions[0]->get(ware.get_zeil())->best_line.is_bound())
+	else if(ware.is_passenger() && is_within_walking_distance_of(ware.get_ziel()) && !connexions[0]->get(ware.get_ziel())->best_convoy.is_bound() && !connexions[0]->get(ware.get_ziel())->best_line.is_bound())
 	{
 		// Since we cannot avoid routes that end with a walk, we must allow passengers to do what the pathfinding system tells them that they may do.
-		return ware.get_zeil->liefere_an(ware);
+		return ware.get_ziel()->liefere_an(ware);
 	}
 	else
 	{
