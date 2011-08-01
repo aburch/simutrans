@@ -1570,6 +1570,16 @@ uint32 vehikel_t::calc_restwert() const
 }
 
 
+void vehikel_t::zeige_info()
+{
+	if(  cnv != NULL  ) {
+		cnv->zeige_info();
+	} else {
+		dbg->warning("vehikel_t::zeige_info()","cnv is null, can't open convoi window!");
+	}
+}
+
+
 void vehikel_t::info(cbuffer_t & buf) const
 {
 	if(cnv) {
