@@ -48,7 +48,6 @@
 #include "dataobj/umgebung.h"
 
 #include "sucher/bauplatz_sucher.h"
-#include "bauer/warenbauer.h"
 #include "bauer/wegbauer.h"
 #include "bauer/hausbauer.h"
 #include "bauer/fabrikbauer.h"

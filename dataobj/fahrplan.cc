@@ -11,11 +11,9 @@
 
 #include "../utils/cbuffer_t.h"
 #include "../gui/messagebox.h"
-#include "../bauer/hausbauer.h"
 #include "../besch/haus_besch.h"
 #include "../boden/grund.h"
 #include "../dings/gebaeude.h"
-#include "../dings/zeiger.h"
 #include "../simdepot.h"
 #include "loadsave.h"
 

@@ -5008,6 +5008,12 @@ void wkz_show_underground_t::draw_after( karte_t *welt, koord pos ) const
 }
 
 
+bool wkz_increase_industry_t::init( karte_t *welt, spieler_t * )
+{
+	fabrikbauer_t::increase_industry_density( welt, false );
+	return false;
+}
+
 
 /************************* internal tools, only need for networking ***************/
 

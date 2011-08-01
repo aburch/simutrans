@@ -34,7 +34,6 @@
 
 #include "../dings/tunnel.h"
 #include "../dings/signal.h"
-#include "../dings/zeiger.h"
 
 #include "../gui/messagebox.h"
 #include "../gui/werkzeug_waehler.h"

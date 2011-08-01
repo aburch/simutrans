@@ -103,11 +103,11 @@ public:
 	*/
 	virtual void set_fenstergroesse(koord groesse);
 
-   /**
-   * Mausklicks werden hiermit an die GUI-Komponenten
-   * gemeldet
-   */
-   bool infowin_event(const event_t *ev);
+	/**
+	* Mausklicks werden hiermit an die GUI-Komponenten
+	* gemeldet
+	*/
+	bool infowin_event(const event_t *ev);
 
 	/**
 	* This method is called if an action is triggered

@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include "../../simdebug.h"
-#include "../../simware.h"
 #include "../../bauer/warenbauer.h"
 
 #include "good_reader.h"
