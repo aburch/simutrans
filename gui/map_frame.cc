@@ -28,6 +28,8 @@
 #include "../dataobj/loadsave.h"
 #include "../besch/fabrik_besch.h"
 
+#include "../tpl/minivec_tpl.h"
+
 
 static koord old_ij=koord::invalid;
 

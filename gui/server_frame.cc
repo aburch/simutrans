@@ -9,7 +9,6 @@
 #include "../simcolor.h"
 #include "../simgraph.h"
 #include "../simwin.h"
-#include "../simmesg.h"
 #include "../utils/simstring.h"
 
 #include "components/list_button.h"

@@ -1,4 +1,5 @@
 #include "utils/simstring.h"
+#include "dataobj/fahrplan.h"
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
 #include "simtypes.h"
@@ -77,7 +78,6 @@ simline_t::~simline_t()
 
 	delete average_journey_times;
 }
-
 
 void simline_t::create_schedule()
 {

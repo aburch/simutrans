@@ -13,8 +13,6 @@
 #include "simconvoi.h"
 #include "simtypes.h"
 
-#include "dataobj/fahrplan.h"
-
 #include "tpl/minivec_tpl.h"
 #include "tpl/vector_tpl.h"
 
@@ -36,6 +34,7 @@
 class karte_t;
 class loadsave_t;
 class spieler_t;
+class schedule_t;
 
 class simline_t {
 
@@ -143,7 +142,7 @@ public:
 	 * return fahrplan of line
 	 * @author hsiegeln
 	 */
-	schedule_t * get_schedule() { return fpl; }
+	schedule_t * get_schedule() const { return fpl; }
 
 	void set_schedule(schedule_t* fpl);
 

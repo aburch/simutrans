@@ -22,6 +22,7 @@
 #include "../bauer/vehikelbauer.h"
 #include "../bauer/wegbauer.h"
 
+#include "../dataobj/fahrplan.h"
 #include "../dataobj/loadsave.h"
 
 #include "../utils/cbuffer_t.h"

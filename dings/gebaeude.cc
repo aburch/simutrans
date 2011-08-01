@@ -27,7 +27,6 @@
 
 #include "../besch/haus_besch.h"
 #include "../besch/intro_dates.h"
-#include "../bauer/warenbauer.h"
 
 #include "../besch/grund_besch.h"
 

@@ -12,7 +12,6 @@
 #include "../simimg.h"
 
 #include "../simtools.h"
-#include "../simmem.h"
 #include "../boden/grund.h"
 #include "../dataobj/loadsave.h"
 

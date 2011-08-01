@@ -458,7 +458,7 @@ private:
 	 * @author Hj. Malthaner
 	 */
 
-	bool bewerte_loc(koord pos, rule_t &regel, int rotation);
+	bool bewerte_loc(koord pos, const rule_t &regel, int rotation);
 
 
 	/*
@@ -471,10 +471,10 @@ private:
 	 * @author Hj. Malthaner
 	 */
 
-	sint32 bewerte_pos(koord pos, rule_t &regel);
+	sint32 bewerte_pos(koord pos, const rule_t &regel);
 
-	void bewerte_strasse(koord pos, sint32 rd, rule_t &regel);
-	void bewerte_haus(koord pos, sint32 rd, rule_t &regel);
+	void bewerte_strasse(koord pos, sint32 rd, const rule_t &regel);
+	void bewerte_haus(koord pos, sint32 rd, const rule_t &regel);
 
 	void pruefe_grenzen(koord pos);
 

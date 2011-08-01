@@ -15,6 +15,7 @@
 #include "simgraph.h"
 #include "player/simplay.h"
 #include "dataobj/umgebung.h"
+#include "dataobj/fahrplan.h"
 
 
 // #define DEBUG_EXPLORER_SPEED

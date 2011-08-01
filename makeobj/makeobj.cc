@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../dataobj/tabfile.h"
+#include "../simdebug.h"
 #include "../simtypes.h"
 #include "../simversion.h"
 #include "../utils/simstring.h"

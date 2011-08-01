@@ -13,7 +13,6 @@
 #include "simfab.h"
 #include "simhalt.h"
 #include "simtypes.h"
-#include "simworld.h"
 #include "simware.h"
 #include "dataobj/loadsave.h"
 #include "dataobj/koord.h"

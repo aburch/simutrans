@@ -30,7 +30,6 @@
 #include "../simworld.h"
 #include "../tpl/stringhashtable_tpl.h"
 #include "../tpl/weighted_vector_tpl.h"
-#include "../utils/simstring.h"
 #include "hausbauer.h"
 
 /*

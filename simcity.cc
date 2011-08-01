@@ -52,7 +52,6 @@
 #include "dings/leitung2.h"
 
 #include "sucher/bauplatz_sucher.h"
-#include "bauer/warenbauer.h"
 #include "bauer/wegbauer.h"
 #include "bauer/hausbauer.h"
 #include "bauer/fabrikbauer.h"
@@ -565,7 +564,8 @@ static char const* const allowed_chars_in_rule = "SsnHhTtUu";
  * @return true on match, false otherwise
  * @author Hj. Malthaner
  */
-//bool stadt_t::bewerte_loc(const koord pos, rule_t &regel, uint16 rotation)
+
+//bool stadt_t::bewerte_loc(const koord pos, const rule_t &regel, uint16 rotation)
 //{
 //	//printf("Test for (%s) in rotation %d\n", pos.get_str(), rotation);
 //	koord k;
@@ -641,13 +641,13 @@ static char const* const allowed_chars_in_rule = "SsnHhTtUu";
 //						break;
 //				}
 //			}
-bool stadt_t::bewerte_loc(const koord pos, rule_t &regel, int rotation)
+bool stadt_t::bewerte_loc(const koord pos, const rule_t &regel, int rotation)
 {
 	//printf("Test for (%s) in rotation %d\n", pos.get_str(), rotation);
 	koord k;
 
 	for(uint32 i=0; i<regel.rule.get_count(); i++){
-		rule_entry_t &r = regel.rule[i];
+		const rule_entry_t &r = regel.rule[i];
 		uint8 x,y;
 		switch (rotation) {
 			default:
@@ -714,8 +714,7 @@ bool stadt_t::bewerte_loc(const koord pos, rule_t &regel, int rotation)
  * prissi: but the rules should explicitly forbid building then?!?
  * @author Hj. Malthaner
  */
-
-sint32 stadt_t::bewerte_pos(const koord pos, rule_t &regel)
+sint32 stadt_t::bewerte_pos(const koord pos, const rule_t &regel)
 
 {
 	// will be called only a single time, so we can stop after a single match
@@ -729,7 +728,7 @@ sint32 stadt_t::bewerte_pos(const koord pos, rule_t &regel)
 }
 
 
-void stadt_t::bewerte_strasse(koord k, sint32 rd, rule_t &regel)
+void stadt_t::bewerte_strasse(koord k, sint32 rd, const rule_t &regel)
 {
 	if (simrand(rd, "void stadt_t::bewerte_strasse") == 0) {
 		best_strasse.check(k, bewerte_pos(k, regel));
@@ -737,7 +736,7 @@ void stadt_t::bewerte_strasse(koord k, sint32 rd, rule_t &regel)
 }
 
 
-void stadt_t::bewerte_haus(koord k, sint32 rd, rule_t &regel)
+void stadt_t::bewerte_haus(koord k, sint32 rd, const rule_t &regel)
 {
 	if (simrand(rd, "stadt_t::bewerte_haus") == 0) {
 		best_haus.check(k, bewerte_pos(k, regel));

@@ -22,12 +22,9 @@
 #include "bauer/fabrikbauer.h"
 #include "bauer/vehikelbauer.h"
 
-#include "boden/boden.h"
 #include "boden/grund.h"
 #include "boden/wasser.h"
-#include "boden/wege/strasse.h"
 #include "boden/wege/schiene.h"
-#include "boden/wege/kanal.h"
 #include "boden/tunnelboden.h"
 #include "boden/monorailboden.h"
 
@@ -39,11 +36,8 @@
 
 #include "besch/grund_besch.h"
 #include "besch/haus_besch.h"
-#include "besch/skin_besch.h"
 #include "besch/roadsign_besch.h"
 #include "besch/tunnel_besch.h"
-#include "besch/groundobj_besch.h"
-#include "besch/roadsign_besch.h"
 
 #include "vehicle/simvehikel.h"
 #include "vehicle/simverkehr.h"
@@ -74,7 +68,6 @@
 #include "dings/field.h"
 #include "dings/label.h"
 
-#include "dataobj/tabfile.h"
 #include "dataobj/einstellungen.h"
 #include "dataobj/umgebung.h"
 #include "dataobj/fahrplan.h"
@@ -5441,6 +5434,13 @@ void wkz_show_underground_t::draw_after( karte_t *welt, koord pos ) const
 			display_proportional( pos.x+4, pos.y+4, level_str, ALIGN_LEFT, COL_YELLOW, true );
 		}
 	}
+}
+
+
+bool wkz_increase_industry_t::init( karte_t *welt, spieler_t * )
+{
+	fabrikbauer_t::increase_industry_density( welt, true, false );
+	return false;
 }
 
 

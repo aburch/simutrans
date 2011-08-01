@@ -7,7 +7,6 @@
 #include <algorithm>
 #include "simlinemgmt.h"
 #include "simline.h"
-#include "simhalt.h"
 #include "simwin.h"
 #include "simworld.h"
 #include "simtypes.h"
