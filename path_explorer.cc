@@ -765,7 +765,7 @@ void path_explorer_t::compartment_t::step()
 				{
 					const id_pair pair(halt_list[i].get_id(), halt_list[(i+1)%entry_count].get_id());
 					
-					if(current_linkage.line.is_bound() && current_linkage.line->get_schedule() && current_linkage.line->count_convoys() && current_linkage.line->average_journey_times->is_contained(pair))
+					if ( current_linkage.line.is_bound() && current_linkage.line->average_journey_times->is_contained(pair) )
 					{
 						if(!halt_list[i].is_bound() || ! halt_list[(i+1)%entry_count].is_bound())
 						{
@@ -778,7 +778,7 @@ void path_explorer_t::compartment_t::step()
 							current_linkage.line->average_journey_times->access(pair)->reset();
 						}
 					}
-					else if(current_linkage.convoy.is_bound() && current_linkage.convoy->get_schedule() && current_linkage.convoy->average_journey_times->is_contained(pair))
+					else if ( current_linkage.convoy.is_bound() && current_linkage.convoy->average_journey_times->is_contained(pair) )
 					{
 						if(!halt_list[i].is_bound() || ! halt_list[(i+1)%entry_count].is_bound())
 						{
