@@ -797,7 +797,7 @@ void path_explorer_t::compartment_t::step()
 						// Zero here means that there are no journey time data even if the hashtable entry exists.
 						// Fallback to convoy's general average speed if a point-to-point average is not available.
 						const uint32 journey_time_factor = (journey_time_adjustment * 100) / current_average_speed;
-						journey_time = ((uint16)((accurate_distance(halt_list[i]->get_basis_pos(), halt_list[(i+1)%entry_count]->get_basis_pos()) * journey_time_factor) / 100), 64);
+						journey_time = (uint16)((accurate_distance(halt_list[i]->get_basis_pos(), halt_list[(i+1)%entry_count]->get_basis_pos()) * journey_time_factor) / 100);
 					}
 
 					// journey time from halt 0 to halt 1 is stored in journey_time_list[1]
