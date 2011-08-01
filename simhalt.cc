@@ -3446,3 +3446,15 @@ bool haltestelle_t::is_within_walking_distance_of(halthandle_t halt) const
 { 
 	return welt->get_settings().get_allow_routing_on_foot() && halts_within_walking_distance.is_contained(halt); 
 }
+
+uint32 haltestelle_t::get_number_of_halts_within_walking_distance() const
+{
+	if(welt->get_settings().get_allow_routing_on_foot())
+	{
+		return halts_within_walking_distance.get_count(); 
+	}
+	else
+	{
+		return 0;
+	}
+} 

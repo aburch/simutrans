@@ -2097,5 +2097,5 @@ void settings_t::set_default_player_color(spieler_t* const sp) const
 void settings_t::set_allow_routing_on_foot(bool value)
 { 
 	allow_routing_on_foot = value; 
-	path_explorer_t::full_instant_refresh();
+	path_explorer_t::refresh_category(0);
 }

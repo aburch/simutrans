@@ -186,7 +186,7 @@ public:
 	 */
 	static void destroy_all(karte_t *);
 
-	uint32 get_number_of_halts_within_walking_distance() const { return halts_within_walking_distance.get_count(); } 
+	uint32 get_number_of_halts_within_walking_distance() const;
 
 	halthandle_t get_halt_within_walking_distance(uint32 index) const { return halts_within_walking_distance[index]; }
 
