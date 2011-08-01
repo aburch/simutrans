@@ -165,6 +165,7 @@ void settings_experimental_general_stats_t::init( settings_t *sets )
 	INIT_BOOL( "assume_everywhere_connected_by_road", sets->get_assume_everywhere_connected_by_road());
 	INIT_NUM( "spacing_shift_mode", sets->get_spacing_shift_mode(), 0, 2 , gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "spacing_shift_divisor", sets->get_spacing_shift_divisor(), 1, 32767 , gui_numberinput_t::AUTOLINEAR, false );
+	INIT_BOOL( "allow_routing_on_foot", sets->get_allow_routing_on_foot());
 
 	SEPERATOR;
 	{
@@ -221,6 +222,7 @@ void settings_experimental_general_stats_t::read(settings_t *sets)
 	READ_BOOL( sets->set_assume_everywhere_connected_by_road );
 	READ_NUM( sets->set_spacing_shift_mode );
 	READ_NUM( sets->set_spacing_shift_divisor);
+	READ_BOOL( sets->set_allow_routing_on_foot);
 
 	uint16 default_increase_maintenance_after_years_other;
 	READ_NUM_VALUE( default_increase_maintenance_after_years_other );

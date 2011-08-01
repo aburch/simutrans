@@ -13,6 +13,7 @@
 #include "../simtypes.h"
 #include "../simdebug.h"
 #include "../simworld.h"
+#include "../path_explorer.h"
 #include "../bauer/wegbauer.h"
 #include "../besch/weg_besch.h"
 #include "../utils/simstring.h"
@@ -417,6 +418,8 @@ settings_t::settings_t() :
 
 	quick_city_growth = false;
 	assume_everywhere_connected_by_road=false;
+
+	allow_routing_on_foot = true;
 
 	city_threshold_size = 1000;
 	capital_threshold_size = 10000;
@@ -1224,6 +1227,11 @@ void settings_t::rdwr(loadsave_t *file)
 				}
 			}
 		}
+
+		if(file->get_experimental_version() >= 10)
+		{
+			file->rdwr_bool(allow_routing_on_foot);
+		}
 	}
 }
 
@@ -1771,6 +1779,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	quick_city_growth = (bool)(contents.get_int("quick_city_growth", quick_city_growth));
 
+	allow_routing_on_foot = (bool)(contents.get_int("allow_routing_on_foot", allow_routing_on_foot));
+
 	assume_everywhere_connected_by_road = (bool)(contents.get_int("assume_everywhere_connected_by_road", assume_everywhere_connected_by_road));
 
 	for(uint8 i = road_wt; i <= air_wt; i ++)
@@ -2084,3 +2094,8 @@ void settings_t::set_default_player_color(spieler_t* const sp) const
 	sp->set_player_color( color1*8, color2*8 );
 }
  
+void settings_t::set_allow_routing_on_foot(bool value)
+{ 
+	allow_routing_on_foot = value; 
+	path_explorer_t::full_instant_refresh();
+}

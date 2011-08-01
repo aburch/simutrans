@@ -239,7 +239,7 @@ public:
 
 	const slist_tpl<tile_t> &get_tiles() const { return tiles; };
 
-	bool is_within_walking_distance_of(halthandle_t halt) const { return halts_within_walking_distance.is_contained(halt); }
+	bool is_within_walking_distance_of(halthandle_t halt) const;
 
 private:
 	slist_tpl<tile_t> tiles;

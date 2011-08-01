@@ -218,6 +218,10 @@ private:
 
 	vector_tpl<livery_scheme_t*> livery_schemes;
 
+	// Whether passengers might walk between stops en route.
+	// @author: jamespetts, August 2011
+	bool allow_routing_on_foot;
+
 public:
 
 	~settings_t();
@@ -822,6 +826,9 @@ public:
 
 	livery_scheme_t* get_livery_scheme(uint16 index) { return !livery_schemes.empty() ? livery_schemes.get_element(index) : NULL; } 
 	vector_tpl<livery_scheme_t*>* get_livery_schemes() { return &livery_schemes; }
+
+	bool get_allow_routing_on_foot() const { return allow_routing_on_foot; }
+	void set_allow_routing_on_foot(bool value); 
 };
 
 #endif 

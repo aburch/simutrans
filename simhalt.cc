@@ -3441,3 +3441,8 @@ void haltestelle_t::check_nearby_halts()
 		}
 	}
 }
+
+bool haltestelle_t::is_within_walking_distance_of(halthandle_t halt) const
+{ 
+	return welt->get_settings().get_allow_routing_on_foot() && halts_within_walking_distance.is_contained(halt); 
+}
