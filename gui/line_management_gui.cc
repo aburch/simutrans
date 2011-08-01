@@ -5,6 +5,7 @@
  */
 
 #include "line_management_gui.h"
+#include "../dataobj/fahrplan.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/loadsave.h"
 #include "../simline.h"

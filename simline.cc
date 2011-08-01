@@ -1,4 +1,5 @@
 #include "utils/simstring.h"
+#include "dataobj/fahrplan.h"
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
 #include "simtypes.h"
@@ -66,6 +67,16 @@ simline_t::~simline_t()
 	delete fpl;
 	self.detach();
 	DBG_MESSAGE("simline_t::~simline_t()", "line %d (%p) destroyed", self.get_id(), this);
+}
+
+
+void simline_t::set_schedule(schedule_t* fpl)
+{
+	if (this->fpl) {
+		unregister_stops();
+		delete this->fpl;
+	}
+	this->fpl = fpl;
 }
 
 

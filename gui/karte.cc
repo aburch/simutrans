@@ -11,6 +11,7 @@
 
 #include "../dataobj/translator.h"
 #include "../dataobj/einstellungen.h"
+#include "../dataobj/fahrplan.h"
 
 #include "../boden/wege/schiene.h"
 #include "../dings/leitung2.h"
