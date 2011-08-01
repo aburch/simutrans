@@ -3320,7 +3320,6 @@ bool aircraft_t::ist_weg_frei(int & restart_speed)
 		// nothing free here?
 		if(find_route_to_stop_position()) {
 			// stop reservation successful
-			pos_next==cnv->get_route()->position_bei(route_index);
 			block_reserver( touchdown, suchen+1, false );
 			state = taxiing;
 			return true;
