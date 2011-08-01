@@ -9,12 +9,9 @@
 #include "../simconst.h"
 #include "../simdebug.h"
 #include "../simdepot.h"
-#include "../simfab.h"
-#include "../simgraph.h"
 #include "../simgraph.h"
 #include "../simhalt.h"
 #include "../simimg.h"
-#include "../simmem.h"
 #include "../player/simplay.h"
 #include "../simwin.h"
 #include "../simworld.h"
@@ -29,6 +26,7 @@
 
 #include "../dataobj/freelist.h"
 #include "../dataobj/loadsave.h"
+#include "../dataobj/translator.h"
 #include "../dataobj/umgebung.h"
 
 #include "../dings/baum.h"

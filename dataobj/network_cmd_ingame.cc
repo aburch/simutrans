@@ -9,7 +9,6 @@
 #include "gameinfo.h"
 #include "../simtools.h"
 #include "../simmenu.h"
-#include "../simmesg.h"
 #include "../simsys.h"
 #include "../simversion.h"
 #include "../dataobj/umgebung.h"

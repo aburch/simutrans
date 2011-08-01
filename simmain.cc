@@ -31,15 +31,12 @@
 #include "boden/boden.h"
 #include "boden/wasser.h"
 #include "simcity.h"
-#include "simfab.h"
 #include "player/simplay.h"
 #include "simsound.h"
 #include "simintr.h"
 #include "simticker.h"
 #include "simmesg.h"
 #include "simwerkz.h"
-
-#include "linehandle_t.h"
 
 #include "simsys.h"
 #include "simgraph.h"

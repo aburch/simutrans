@@ -13,7 +13,6 @@
 #include "../simhalt.h"
 #include "../simintr.h"
 #include "../simmenu.h"
-#include "../simmesg.h"
 #include "../simskin.h"
 #include "../simware.h"
 

@@ -2,7 +2,6 @@
 #include "../../simdebug.h"
 #include "../../simconst.h"
 #include "../../bauer/vehikelbauer.h"
-#include "../../boden/wege/weg.h"
 #include "../sound_besch.h"
 #include "../vehikel_besch.h"
 #include "../intro_dates.h"

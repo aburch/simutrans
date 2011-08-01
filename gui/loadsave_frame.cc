@@ -20,7 +20,6 @@
 #include "loadsave_frame.h"
 
 #include "../simworld.h"
-#include "../simmesg.h"
 #include "../simversion.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/umgebung.h"

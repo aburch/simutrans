@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include "../../simfab.h"
 #include "../../bauer/fabrikbauer.h"
-#include "../../dings/wolke.h"
 #include "../../simdebug.h"
 #include "../obj_node_info.h"
 #include "../fabrik_besch.h"
