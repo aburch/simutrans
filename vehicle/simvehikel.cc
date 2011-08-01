@@ -38,7 +38,6 @@
 #include "../simimg.h"
 #include "../simcolor.h"
 #include "../simgraph.h"
-#include "../simmem.h"
 
 #include "../simline.h"
 

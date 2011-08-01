@@ -7,7 +7,6 @@
 
 #include "welt.h"
 #include "../simwin.h"
-#include "../simcity.h"
 #include "../simversion.h"
 #include "../dataobj/einstellungen.h"
 #include "../dataobj/umgebung.h"
