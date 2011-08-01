@@ -8,12 +8,10 @@
 #include "../simdebug.h"
 #include "../simevent.h"
 #include "../simimg.h"
-#include "../simworld.h"
 #include "../besch/skin_besch.h"
 #include "../simskin.h"
 #include "../dataobj/translator.h"
 #include "kennfarbe.h"
-#include "../simgraph.h"
 #include "../player/simplay.h"
 
 

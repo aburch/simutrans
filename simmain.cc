@@ -25,7 +25,6 @@
 #include "simhalt.h"
 #include "simimg.h"
 #include "simcolor.h"
-#include "simdepot.h"
 #include "simskin.h"
 #include "simconst.h"
 #include "boden/boden.h"
