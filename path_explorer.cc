@@ -535,6 +535,7 @@ void path_explorer_t::compartment_t::step()
 				all_halts_list = new halthandle_t[all_halts_count];
 			}
 
+			const bool no_walking_connexions = !world->get_settings().get_allow_routing_on_foot() || catg!=warenbauer_t::passagiere->get_catg_index();
 			const uint32 journey_time_adjustment = (world->get_settings().get_meters_per_tile() * 6u) / 10u;
 
 			// Save the halt list in an array first to prevent the list from being modified across steps, causing bugs
@@ -552,7 +553,7 @@ void path_explorer_t::compartment_t::step()
 				// Connect halts within walking distance of each other (for passengers only)
 				// @author: jamespetts, July 2011
 
-				if ( catg!=warenbauer_t::passagiere->get_catg_index() || !all_halts_list[i]->is_enabled(warenbauer_t::passagiere) )
+				if ( no_walking_connexions || !all_halts_list[i]->is_enabled(warenbauer_t::passagiere) )
 				{
 					continue;
 				}
