@@ -419,7 +419,7 @@ settings_t::settings_t() :
 	quick_city_growth = false;
 	assume_everywhere_connected_by_road=false;
 
-	allow_routing_on_foot = true;
+	allow_routing_on_foot = false;
 
 	city_threshold_size = 1000;
 	capital_threshold_size = 10000;
