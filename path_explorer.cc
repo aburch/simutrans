@@ -1134,7 +1134,7 @@ void path_explorer_t::compartment_t::step()
 				}
 
 				// determine if this halt is a transfer halt
-				if ( current_halt->get_schedule_count(catg) > 1 || (catg == 0 && current_halt->get_number_of_halts_within_walking_distance() > 0))
+				if ( current_halt->get_schedule_count(catg) > 1 )
 				{
 					transfer_list[transfer_count] = phase_counter;
 					++transfer_count;
