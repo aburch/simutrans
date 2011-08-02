@@ -10,7 +10,6 @@
 
 #include "convoihandle_t.h"
 #include "linehandle_t.h"
-#include "simconvoi.h"
 #include "simtypes.h"
 
 #include "tpl/minivec_tpl.h"
@@ -37,7 +36,6 @@ class simline_t {
 
 public:
 	enum linetype { line = 0, truckline = 1, trainline = 2, shipline = 3, airline = 4, monorailline=5, tramline=6, maglevline=7, narrowgaugeline=8};
-	static uint8 convoi_to_line_catgory[MAX_CONVOI_COST];
 
 protected:
 	schedule_t * fpl;
@@ -175,6 +173,8 @@ public:
 	sint64 get_finance_history(int month, int cost_type) { return financial_history[month][cost_type]; }
 
 	void book(sint64 amount, int cost_type) { financial_history[0][cost_type] += amount; }
+
+	static uint8 convoi_to_line_catgory(uint8 convoi_cost_type);
 
 	void new_month();
 

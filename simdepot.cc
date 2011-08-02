@@ -582,3 +582,8 @@ void depot_t::update_all_win()
 		iter.access_current()->update_win();
 	}
 }
+
+unsigned bahndepot_t::get_max_convoi_length() const
+{
+	return convoi_t::max_rail_vehicle;
+}

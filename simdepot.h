@@ -246,7 +246,7 @@ public:
 	int get_y_placement() const {return -28; }
 	int get_x_grid() const { return 24; }
 	int get_y_grid() const { return 24; }
-	unsigned get_max_convoi_length() const { return convoi_t::max_rail_vehicle; }
+	unsigned get_max_convoi_length() const;
 
 	virtual waytype_t get_wegtyp() const {return track_wt;}
 	virtual ding_t::typ get_typ() const { return bahndepot; }
