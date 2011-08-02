@@ -100,7 +100,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	this->mean_convoi_speed = speed_to_kmh(cnv->get_akt_speed()*4);
 	this->max_convoi_speed = speed_to_kmh(cnv->get_min_top_speed()*4);
 
-	const sint16 offset_below_viewport = 21 + view.get_groesse().y;
+	const sint16 offset_below_viewport = std::max( LINESPACE * 8 + LINESPACE / 4  ,  21 + view.get_groesse().y);
 	const sint16 total_width = 3*(BUTTON_WIDTH + BUTTON_SPACER) + max(BUTTON_WIDTH + 2*BUTTON_SPACER, view.get_groesse().x + 32);
 
 	input.set_pos(koord(10,4));
