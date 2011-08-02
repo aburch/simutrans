@@ -1854,9 +1854,6 @@ uint32 haltestelle_t::starte_mit_route(ware_t ware)
 		return ware.menge;
 	}
 
-	// add to internal storage
-	add_ware_to_halt(ware);
-
 	if(ware.is_passenger() && is_within_walking_distance_of(ware.get_zwischenziel()) && !connexions[0]->get(ware.get_zwischenziel())->best_convoy.is_bound() && !connexions[0]->get(ware.get_zwischenziel())->best_line.is_bound())
 	{
 		// If this is within walking distance of the next transfer, and there is not a faster way there, walk there.
