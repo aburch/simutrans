@@ -154,7 +154,7 @@ halthandle_t haltestelle_t::get_halt(const karte_t *welt, const koord3d pos, con
 			w = gr->get_weg_nr(1);
 		}
 
-		if(gr->get_halt().is_bound() && (spieler_t::check_owner(sp, gr->get_halt()->get_besitzer()) || (spieler_t::check_owner(w->get_besitzer(), sp))))
+		if(gr->get_halt().is_bound() && (spieler_t::check_owner(sp, gr->get_halt()->get_besitzer()) || (w && spieler_t::check_owner(w->get_besitzer(), sp))))
 		{
 			return gr->get_halt();
 		}
