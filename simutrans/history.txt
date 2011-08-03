@@ -14,6 +14,7 @@
 	ADD: AI players use way builder with terraforming
 	CHG: passengers and mail now prefer nearer attractions and cities as destinations, with attarction changing over the years
 	CHG: enable building under flying aircrafts
+	CHG: renovated factory dialog to include statistics and other indicators; preparation for factory renaming
 
 
 Release of 110.0.1 (r4359 on 12-Mar-2011):
