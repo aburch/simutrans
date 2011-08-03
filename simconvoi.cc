@@ -3542,7 +3542,7 @@ void convoi_t::laden() //"load" (Babelfish)
 		}
 		else
 		{
-			average_journey_times->access(pair)->add(average_speed);
+			average_journey_times->access(pair)->add(journey_time);
 		}
 		if(line.is_bound())
 		{
