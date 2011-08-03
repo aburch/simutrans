@@ -422,7 +422,7 @@ void spieler_t::neuer_monat()
 		// Monthly rate
 		if(welt->get_settings().get_interest_rate_percent() > 0)
 		{
-			// Credit interest rate is 1/2 debit interest rate, so /2400 and not /1200.
+			// Credit interest rate is 1/4 debit interest rate, so /4800 and not /1200.
 			const sint16 interest_rate = ((welt->get_settings().get_interest_rate_percent() * 1000) / 4800); 
 			const sint32 monthly_interest = (interest_rate * konto) / 1000;
 			buche(monthly_interest, COST_INTEREST);
