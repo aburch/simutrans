@@ -247,6 +247,8 @@ convoi_t::convoi_t(spieler_t* sp) : fahr(max_vehicle, NULL)
 	livery_scheme_index = 0;
 
 	average_journey_times = new koordhashtable_tpl<id_pair, average_tpl<uint16> >;
+
+	last_departure_time = welt->get_zeit_ms();
 }
 
 
@@ -2361,13 +2363,13 @@ void convoi_t::vorfahren()
 							}
 							else
 							{
-								reverse_delay =welt->get_settings().get_hauled_reverse_time();
+								reverse_delay = welt->get_settings().get_hauled_reverse_time();
 							}
 						}
 						else
 						{
 							//Locomotive needs turntable: slow reverse
-							reverse_delay =welt->get_settings().get_turntable_reverse_time();
+							reverse_delay = welt->get_settings().get_turntable_reverse_time();
 						}
 
 						reverse_order(reversable);
@@ -3508,7 +3510,7 @@ void convoi_t::laden() //"load" (Babelfish)
 	// This is necessary in order always to return the same pairs of co-ordinates for comparison.
 	const halthandle_t this_halt = welt->get_halt_koord_index(fahr[0]->get_pos().get_2d());
 	const halthandle_t last_halt = welt->get_halt_koord_index(fahr[0]->last_stop_pos);
-	const id_pair pair(this_halt.get_id(), last_halt.get_id());
+	const id_pair pair(last_halt.get_id(), this_halt.get_id());
 	
 	// The calculation of the journey distance does not need to use normalised halt locations for comparison, so
 	// a more accurate distance can be used. Query whether the formula from halt_detail.cc should be used here instead
@@ -3521,7 +3523,7 @@ void convoi_t::laden() //"load" (Babelfish)
 	{
 		arrival_time = welt->get_zeit_ms();
 		sint64 journey_time = ((arrival_time - last_departure_time) * 100) / 53248;
-		if(journey_time == 0)
+		if(journey_time <= 0)
 		{
 			// Necessary to prevent divisions by zero.
 			journey_time = 1;
