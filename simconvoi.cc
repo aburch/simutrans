@@ -3513,7 +3513,7 @@ void convoi_t::laden() //"load" (Babelfish)
 	// The calculation of the journey distance does not need to use normalised halt locations for comparison, so
 	// a more accurate distance can be used. Query whether the formula from halt_detail.cc should be used here instead
 	// (That formula has the effect of finding the distance between the nearest points of two halts).
-	const uint32 journey_distance = accurate_distance(fahr[0]->get_pos().get_2d(), fahr[0]->last_stop_pos);
+	const uint32 journey_distance = shortest_distance(fahr[0]->get_pos().get_2d(), fahr[0]->last_stop_pos);
 
 	//last_stop_pos will be set to get_pos().get_2d() in hat_gehalten (called from inside halt->request_loading later
 	//so code inside if will be executed once. At arrival time.
@@ -3651,7 +3651,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	// the straight line distance, which makes the game difficult and unrealistic. 
 	// If the origin has been deleted since the packet departed, then the best that we can do is guess by
 	// trebling the distance to the last stop.
-	const uint32 max_distance = ware.get_origin().is_bound() ? accurate_distance(ware.get_origin()->get_basis_pos(), fahr[0]->get_pos().get_2d()) * 2 : 3 * accurate_distance(last_stop_pos.get_2d(), fahr[0]->get_pos().get_2d());
+	const uint32 max_distance = ware.get_origin().is_bound() ? shortest_distance(ware.get_origin()->get_basis_pos(), fahr[0]->get_pos().get_2d()) * 2 : 3 * shortest_distance(last_stop_pos.get_2d(), fahr[0]->get_pos().get_2d());
 	const uint32 distance = ware.get_accumulated_distance();
 	const uint32 revenue_distance = distance < max_distance ? distance : max_distance;
 

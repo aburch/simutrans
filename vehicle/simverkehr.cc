@@ -766,7 +766,7 @@ stadtauto_t::betrete_feld()
 #ifdef DESTINATION_CITYCARS
 	// Destination city car code revived from an older version of Simutrans.
 	// (Thanks to Prissi for finding this older code).
-	if(target!=koord::invalid  &&  koord_distance(pos_next.get_2d(),target)<10) {
+	if(target!=koord::invalid  &&  shortest_distance(pos_next.get_2d(),target)<10) {
 		// delete it ...
 		time_to_life = 0;
 
@@ -873,7 +873,7 @@ bool stadtauto_t::hop_check()
 						}
 					}
 #ifdef DESTINATION_CITYCARS
-					unsigned long dist=koord_distance( to->get_pos().get_2d(), target );
+					unsigned long dist=shortest_distance( to->get_pos().get_2d(), target );
 					posliste.append( to->get_pos(), dist*dist );
 #else
 					// ok, now check if we are allowed to go here (i.e. no cars blocking)

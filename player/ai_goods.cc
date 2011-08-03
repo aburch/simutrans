@@ -392,7 +392,7 @@ bool ai_goods_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 		for (int x = pos1.x - cov; x <= pos1.x + cov; ++x) {
 			koord p(x,y);
 			// in water, the water tiles have no halt flag!
-			if(welt->ist_in_kartengrenzen(p)  &&  !welt->lookup(p)->get_halt().is_bound()  &&  halt == haltestelle_t::get_halt(welt,p,this)  &&  koord_distance(best_pos,platz2)<koord_distance(p,platz2)  ) {
+			if(welt->ist_in_kartengrenzen(p)  &&  !welt->lookup(p)->get_halt().is_bound()  &&  halt == haltestelle_t::get_halt(welt,p,this)  &&  shortest_distance(best_pos,platz2)<shortest_distance(p,platz2)  ) {
 				best_pos = p;
 			}
 		}
@@ -1037,7 +1037,7 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 				}
 				// just remember the position, where the harbour will be built
 				harbour=platz1;
-				int ships_needed = 1 + (prod*koord_distance(harbour,start->get_pos().get_2d())) / (ship_vehicle->get_zuladung()*max(20,ship_vehicle->get_geschw()));
+				int ships_needed = 1 + (prod*shortest_distance(harbour,start->get_pos().get_2d())) / (ship_vehicle->get_zuladung()*max(20,ship_vehicle->get_geschw()));
 				if(create_ship_transport_vehikel(start,ships_needed)) {
 					if(welt->lookup(harbour)->get_halt()->get_fab_list().is_contained(ziel)) {
 						// so close, so we are already connected

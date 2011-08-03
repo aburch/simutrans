@@ -219,11 +219,11 @@ bool ai_t::suche_platz(koord &start, koord &size, koord target, koord off)
 				continue;
 			}
 			// thus now check them
-			int current_dist = koord_distance(platz,target);
+			int current_dist = shortest_distance(platz,target);
 			if(  current_dist<dist  &&  suche_platz(platz,size,dir)  ){
 				// we will take the shortest route found
 				start = platz;
-				dist = koord_distance(platz,target);
+				dist = shortest_distance(platz,target);
 			}
 			else {
 				koord test(x,y);
@@ -233,7 +233,7 @@ DBG_MESSAGE("ai_t::suche_platz()","Search around stop at (%i,%i)",x,y);
 					// we are on a station that belongs to us
 					int xneu=x-1, yneu=y-1;
 					platz = koord(xneu,y);
-					current_dist = koord_distance(platz,target);
+					current_dist = shortest_distance(platz,target);
 					if(  current_dist<dist  &&  suche_platz(platz,size,dir)  ){
 						// we will take the shortest route found
 						start = platz;
@@ -241,7 +241,7 @@ DBG_MESSAGE("ai_t::suche_platz()","Search around stop at (%i,%i)",x,y);
 					}
 
 					platz = koord(x,yneu);
-					current_dist = koord_distance(platz,target);
+					current_dist = shortest_distance(platz,target);
 					if(  current_dist<dist  &&  suche_platz(platz,size,dir)  ){
 						// we will take the shortest route found
 						start = platz;
@@ -252,7 +252,7 @@ DBG_MESSAGE("ai_t::suche_platz()","Search around stop at (%i,%i)",x,y);
 					xneu = x+1;
 					yneu = y+1;
 					platz = koord(xneu,y);
-					current_dist = koord_distance(platz,target);
+					current_dist = shortest_distance(platz,target);
 					if(  current_dist<dist  &&  suche_platz(platz,size,dir)  ){
 						// we will take the shortest route found
 						start = platz;
@@ -260,7 +260,7 @@ DBG_MESSAGE("ai_t::suche_platz()","Search around stop at (%i,%i)",x,y);
 					}
 
 					platz = koord(x,yneu);
-					current_dist = koord_distance(platz,target);
+					current_dist = shortest_distance(platz,target);
 					if(  current_dist<dist  &&  suche_platz(platz,size,dir)  ){
 						// we will take the shortest route found
 						start = platz;
@@ -442,7 +442,7 @@ bool ai_t::find_harbour(koord &start, koord &size, koord target)
 					// next place is also water
 					koord dir[2] = { zv, koord(zv.y,zv.x) };
 					koord platz = k+zv;
-					int current_dist = koord_distance(k,target);
+					int current_dist = shortest_distance(k,target);
 					if(  current_dist<dist  &&  suche_platz(platz,size,dir)  ){
 						// we will take the shortest route found
 						start = k;
@@ -481,7 +481,7 @@ bool ai_t::create_simple_road_transport(koord platz1, koord size1, koord platz2,
 	test_driver->set_flag( ding_t::not_on_map );
 	route_t verbindung;
 	if (verbindung.calc_route(welt, welt->lookup_kartenboden(platz1)->get_pos(), welt->lookup_kartenboden(platz2)->get_pos(), test_driver, 0, 0)  &&
-		verbindung.get_count()<2u*koord_distance(platz1,platz2))  {
+		verbindung.get_count()<2u*shortest_distance(platz1,platz2))  {
 DBG_MESSAGE("ai_passenger_t::create_simple_road_transport()","Already connection between %d,%d to %d,%d is only %i",platz1.x, platz1.y, platz2.x, platz2.y, verbindung.get_count() );
 		// found something with the nearly same length
 		delete test_driver;

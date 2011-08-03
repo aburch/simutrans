@@ -786,7 +786,7 @@ void reliefkarte_t::draw_schedule(const koord pos) const
 			first_koord = new_koord;
 		}
 		//check, if mouse is near coordinate
-		if(koord_distance(last_world_pos,fpl->eintrag[i].pos.get_2d())<=2) {
+		if(shortest_distance(last_world_pos,fpl->eintrag[i].pos.get_2d())<=2) {
 			// draw stop name with an index
 			cbuffer_t buf;
 			buf.clear();

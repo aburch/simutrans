@@ -81,7 +81,7 @@ public:
 	 */
 	bool operator()(const koord& a, const koord& b) const
 	{
-		return koord_distance(m_origin, a) < koord_distance(m_origin, b);
+		return shortest_distance(m_origin, a) < shortest_distance(m_origin, b);
 	}
 };
 

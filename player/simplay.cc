@@ -570,7 +570,7 @@ void spieler_t::buche(sint64 const betrag, koord const pos, player_cost const ty
 	buche(betrag, type); //"Buche" = "books"; "betrag" = "amount" (Babelfish).
 
 	if(betrag != 0) {
-		if(  koord_distance(welt->get_world_position(),pos)<2*(uint32)(display_get_width()/get_tile_raster_width())+3  ) {
+		if(  shortest_distance(welt->get_world_position(),pos)<2*(uint32)(display_get_width()/get_tile_raster_width())+3  ) {
 			// only display, if near the screen ...
 			add_message(pos, betrag);
 

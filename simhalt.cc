@@ -676,7 +676,7 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 			int this_distance = 999;
 			slist_iterator_tpl<fabrik_t*> fab_iter(get_fab_list());
 			while (fab_iter.next()) {
-				int distance = koord_distance(fab_iter.get_current()->get_pos().get_2d(), k);
+				int distance = shortest_distance(fab_iter.get_current()->get_pos().get_2d(), k);
 				if (distance < this_distance) {
 					fabs.insert(fab_iter.get_current());
 					distance = this_distance;
@@ -944,7 +944,7 @@ void haltestelle_t::step()
 						if(tmp.get_origin().is_bound())
 						{
 							// Cannot refund unless we know the origin.
-							const uint16 distance = accurate_distance(get_basis_pos(), tmp.get_origin()->get_basis_pos());
+							const uint16 distance = shortest_distance(get_basis_pos(), tmp.get_origin()->get_basis_pos());
 							if(distance > 0) // No point in calculating refund if passengers/goods are discarded from their origin stop.
 							{
 								// Refund is approximation: 2x distance at standard rate with no adjustments. 
@@ -1480,7 +1480,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 						average_speed = average_speed == 0 ? 1 : average_speed;
 					}
 						
-					accumulated_journey_time += ((accurate_distance(plan_halt->get_basis_pos(), previous_halt->get_basis_pos()) 
+					accumulated_journey_time += ((shortest_distance(plan_halt->get_basis_pos(), previous_halt->get_basis_pos()) 
 													/ average_speed) *welt->get_settings().get_meters_per_tile() * 60);
 				}
 				
@@ -3218,7 +3218,7 @@ koord haltestelle_t::get_next_pos( koord start ) const
 		int	dist = 0x7FFF;
 		for (slist_tpl<tile_t>::const_iterator i = tiles.begin(), end = tiles.end(); i != end; ++i) {
 			koord p = i->grund->get_pos().get_2d();
-			int d = koord_distance(start, p );
+			int d = shortest_distance(start, p );
 			if(d<dist) {
 				// ok, this one is closer
 				dist = d;

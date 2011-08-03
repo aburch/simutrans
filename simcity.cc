@@ -2231,7 +2231,7 @@ void stadt_t::verbinde_fabriken()
 		fabrik_t* fab = welt->get_fab_list()[i];
 		const uint32 count = fab->get_target_cities().get_count();
 		settings_t const& s = welt->get_settings();
-		if (count < s.get_factory_worker_maximum_towns() && accurate_distance(fab->get_pos().get_2d(), pos) < s.get_factory_worker_radius()) 
+		if (count < s.get_factory_worker_maximum_towns() && shortest_distance(fab->get_pos().get_2d(), pos) < s.get_factory_worker_radius()) 
 		{
 			fab->add_target_city(this);
 			if(fab->get_target_cities().get_count() >=welt->get_settings().get_factory_worker_maximum_towns())
@@ -2919,7 +2919,7 @@ uint16 stadt_t::check_road_connexion(koord3d dest)
 	const sint32 speed_average = (speed_sum * 100) / (count * 13); // was (float)(speed_sum / ((float)count / 10.0F))  / 1.3F;
 	const uint32 journey_distance_m = private_car_route->get_count() *welt->get_settings().get_meters_per_tile();
 	const uint16 journey_time = (6 * journey_distance_m) / (10 * speed_average); // *Tenths* of minutes: hence *0.6, not *0.06.
-	const uint16 straight_line_distance_tiles = accurate_distance(origin.get_2d(), dest.get_2d());
+	const uint16 straight_line_distance_tiles = shortest_distance(origin.get_2d(), dest.get_2d());
 	return journey_time / (straight_line_distance_tiles == 0 ? 1 : straight_line_distance_tiles);
 }
 
@@ -3148,7 +3148,7 @@ void stadt_t::step_passagiere()
 				
 				// Check whether the destination is within walking distance first.
 				// @author: jamespetts, December 2009
-				if(accurate_distance(destinations[current_destination].location, origin_pos) <= max_walking_distance)
+				if(shortest_distance(destinations[current_destination].location, origin_pos) <= max_walking_distance)
 				{
 					// Passengers will always walk if they are close enough.
 					route_good = can_walk;
@@ -3271,7 +3271,7 @@ void stadt_t::step_passagiere()
 
 				if(has_private_car) 
 				{
-					const uint32 straight_line_distance = accurate_distance(origin_pos, destinations[current_destination].location);
+					const uint32 straight_line_distance = shortest_distance(origin_pos, destinations[current_destination].location);
 					uint16 time_per_tile = 65535;
 					switch(destinations[current_destination].type)
 					{
@@ -3317,7 +3317,7 @@ void stadt_t::step_passagiere()
 
 						// Now, decide whether passengers would prefer to use their private cars,
 						// even though they can travel by public transport.
-						const uint32 distance = accurate_distance(destinations[current_destination].location, origin_pos);			
+						const uint32 distance = shortest_distance(destinations[current_destination].location, origin_pos);			
 						
 						//Weighted random.
 						const uint16 private_car_chance = (uint16)simrand(100, "void stadt_t::step_passagiere() (private car chance?)");
@@ -3587,7 +3587,7 @@ void stadt_t::step_passagiere()
 		// First, check whether the passengers can *walk*. Just because
 		// they do not have a start halt does not mean that they cannot
 		// walk to their destination!
-		const uint32 tile_distance = accurate_distance(origin_pos, destination_now.location);
+		const uint32 tile_distance = shortest_distance(origin_pos, destination_now.location);
 		if(tile_distance <= s.get_max_walking_distance())
 		{
 			// Passengers will walk to their destination if it is within the specified range.
@@ -3699,7 +3699,7 @@ koord stadt_t::get_zufallspunkt(uint32 min_distance, uint32 max_distance, koord 
 				const_cast<stadt_t*>(this)->buildings.remove(gb);
 				k = koord(0, 0);
 			}
-			distance = accurate_distance(k, origin);
+			distance = shortest_distance(k, origin);
 		}
 		return k;
 	}
@@ -3791,7 +3791,7 @@ stadt_t::destination stadt_t::find_destination(factory_set_t &target_factories, 
 		*will_return = factory_return;	// worker will return
 		current_destination.type = FACTORY_PAX;
 		uint8 counter = 0;
-		while(counter ++ < 32 && (accurate_distance(origin, entry->factory->get_pos().get_2d()) > max_distance || accurate_distance(origin, entry->factory->get_pos().get_2d()) < min_distance))
+		while(counter ++ < 32 && (shortest_distance(origin, entry->factory->get_pos().get_2d()) > max_distance || shortest_distance(origin, entry->factory->get_pos().get_2d()) < min_distance))
 		{
 			entry = target_factories.get_random_entry();
 			while(entry->factory == NULL)
@@ -3811,7 +3811,7 @@ stadt_t::destination stadt_t::find_destination(factory_set_t &target_factories, 
 		const gebaeude_t* gb = welt->get_random_ausflugsziel();
 		current_destination.type = TOURIST_PAX;
 		uint8 counter = 0;
-		while(counter ++ < 32 && (accurate_distance(origin, gb->get_pos().get_2d()) > max_distance || accurate_distance(origin, gb->get_pos().get_2d()) < min_distance))
+		while(counter ++ < 32 && (shortest_distance(origin, gb->get_pos().get_2d()) > max_distance || shortest_distance(origin, gb->get_pos().get_2d()) < min_distance))
 		{
 			gb =  welt->get_random_ausflugsziel();
 		}
@@ -3849,11 +3849,11 @@ stadt_t::destination stadt_t::find_destination(factory_set_t &target_factories, 
 				
 				if(zielstadt == this)
 				{
-					distance = accurate_distance(origin, zielstadt->get_pos()) + max_internal_distance; 
+					distance = shortest_distance(origin, zielstadt->get_pos()) + max_internal_distance; 
 				}
 				else
 				{
-					distance = accurate_distance(origin, zielstadt->get_pos()) + max(max_internal_distance, zielstadt->get_max_dimension());
+					distance = shortest_distance(origin, zielstadt->get_pos()) + max(max_internal_distance, zielstadt->get_max_dimension());
 				}
 				
 				if(distance <= max_distance && distance >= min_distance)
@@ -5206,7 +5206,7 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sin
 				}
 				else 
 				{
-					const double distance = accurate_distance(k, central_pos) * distance_scale;
+					const double distance = shortest_distance(k, central_pos) * distance_scale;
 					isolation_field.at(x,y) += population_charge/(distance*distance);
 					if (city_nr < number_of_clusters && distance < clustering*population_charge) {
 						cluster_field.at(x,y) = true;
