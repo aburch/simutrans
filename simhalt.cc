@@ -1857,6 +1857,7 @@ uint32 haltestelle_t::starte_mit_route(ware_t ware)
 	if(ware.is_passenger() && is_within_walking_distance_of(ware.get_zwischenziel()) && !connexions[0]->get(ware.get_zwischenziel())->best_convoy.is_bound() && !connexions[0]->get(ware.get_zwischenziel())->best_line.is_bound())
 	{
 		// If this is within walking distance of the next transfer, and there is not a faster way there, walk there.
+		erzeuge_fussgaenger(welt, get_basis_pos3d(), ware.menge);
 		return ware.get_zwischenziel()->liefere_an(ware);
 	}
 	else
@@ -1934,6 +1935,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 	if(ware.is_passenger() && is_within_walking_distance_of(ware.get_zwischenziel()) && !connexions[0]->get(ware.get_zwischenziel())->best_convoy.is_bound() && !connexions[0]->get(ware.get_zwischenziel())->best_line.is_bound())
 	{
 		// If this is within walking distance of the next transfer, and there is not a faster way there, walk there.
+		erzeuge_fussgaenger(welt, get_basis_pos3d(), ware.menge);
 		return ware.get_zwischenziel()->liefere_an(ware);
 	}
 	else
