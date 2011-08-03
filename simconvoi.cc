@@ -677,13 +677,13 @@ void convoi_t::add_running_cost(sint64 cost)
 void convoi_t::increment_odometer()
 {
 	uint32 steps = 255;
-	if(fahr[0]->get_steps() != 255)
+	if(fahr[0]->get_steps() < 200)
 	{
 		// Diagonal
 		steps = vehikel_t::get_diagonal_vehicle_steps_per_tile();
 	}
 	steps_since_last_odometer_increment += steps;
-	const sint32 meters_per_tile =welt->get_settings().get_meters_per_tile();
+	const sint32 meters_per_tile = welt->get_settings().get_meters_per_tile();
 	const sint64 km = (meters_per_tile * steps_since_last_odometer_increment) / 255000 /* steps per tile * 1000m */;
 	if(km > 0)
 	{
