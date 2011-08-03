@@ -8,10 +8,12 @@
 #ifndef fabrikinfo_t_h
 #define fabrikinfo_t_h
 
-#include "thing_info.h"
+#include "factory_chart.h"
 #include "components/action_listener.h"
 #include "components/gui_scrollpane.h"
 #include "components/gui_textarea.h"
+#include "components/gui_textinput.h"
+#include "components/ding_view_t.h"
 #include "gui_container.h"
 #include "../utils/cbuffer_t.h"
 #include "../simfab.h"
@@ -24,23 +26,30 @@ class button_t;
  * Info window for factories
  * @author Hj. Malthaner
  */
-class fabrik_info_t : public ding_infowin_t, public action_listener_t
+class fabrik_info_t : public gui_frame_t, public action_listener_t
 {
  private:
 	const fabrik_t* fab;
-	cbuffer_t info_buf;
 
+	cbuffer_t info_buf, prod_buf;
+
+	factory_chart_t chart;
 	button_t chart_button;
+
+	button_t details_button;
+
+	ding_view_t view;
+
+	char fabname[256];
+	gui_textinput_t input;
 
 	button_t *lieferbuttons;
 	button_t *supplierbuttons;
 	button_t *stadtbuttons;
 
-	button_t *about;
-
 	gui_scrollpane_t scrolly;
 	gui_container_t cont;
-	gui_textarea_t txt;
+	gui_textarea_t prod, txt;
 
 	// refreshes all text and location pointers
 	void update_info();
@@ -54,15 +63,11 @@ class fabrik_info_t : public ding_infowin_t, public action_listener_t
 	 * @return den Dateinamen für die Hilfe, oder NULL
 	 * @author Hj. Malthaner
 	 */
-	const char * get_hilfe_datei() const {return "industry_info.txt";}
+	const char *get_hilfe_datei() const {return "industry_info.txt";}
 
-	/**
-	 * @return the text to display in the info window
-	 *
-	 * @author Hj. Malthaner
-	 * @see simwin
-	 */
-	void info(cbuffer_t & buf) const { fab->info(buf); }
+	virtual bool has_min_sizer() const {return true;}
+
+	virtual void set_fenstergroesse(koord groesse);
 
 	/**
 	* komponente neu zeichnen. Die übergebenen Werte beziehen sich auf

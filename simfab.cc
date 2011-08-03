@@ -1876,76 +1876,26 @@ void fabrik_t::zeige_info() const
 }
 
 
-void fabrik_t::info(cbuffer_t& buf) const
+void fabrik_t::info_prod(cbuffer_t& buf) const
 {
 	buf.clear();
 	buf.append( translator::translate("Durchsatz") );
 	buf.append( get_current_production(), 0 );
 	buf.append( translator::translate("units/day") );
-	buf.append( "\n" );
-
-	if (!lieferziele.empty()) {
-		buf.append("\n");
-		buf.append(translator::translate("Abnehmer"));
-		buf.append(":\n");
-
-		for(uint32 i=0; i<lieferziele.get_count(); i++) {
-			const koord lieferziel = lieferziele[i];
-
-			fabrik_t *fab = get_fab( welt, lieferziel );
-			if(fab) {
-				buf.printf("   %s (%d, %d)\n", translator::translate(fab->get_name()), lieferziel.x, lieferziel.y);
-			}
-		}
-	}
-
-	if (!suppliers.empty()) {
-		buf.append("\n");
-		buf.append(translator::translate("Suppliers"));
-		buf.append(":\n");
-
-		for(uint32 i=0; i<suppliers.get_count(); i++) {
-			const koord supplier = suppliers[i];
-
-			fabrik_t *fab = get_fab( welt, supplier );
-			if(fab) {
-				buf.printf("   %s (%d, %d)\n", translator::translate(fab->get_name()), supplier.x, supplier.y);
-			}
-		}
-	}
-
-	if (!target_cities.empty()) {
-		buf.append("\n");
-		buf.append(ausgang.empty() && !besch->is_electricity_producer() ? translator::translate("Customers live in:") : translator::translate("Arbeiter aus:"));
-		buf.append("\n");
-
-		for(  uint32 c=0;  c<target_cities.get_count();  ++c  ) {
-			buf.append("   ");
-			buf.append(target_cities[c]->get_name());
-			const stadt_t::factory_entry_t *const pax_entry = target_cities[c]->get_target_factories_for_pax().get_entry(this);
-			const stadt_t::factory_entry_t *const mail_entry = target_cities[c]->get_target_factories_for_mail().get_entry(this);
-			assert( pax_entry && mail_entry );
-			buf.append("\n     ");
-			buf.printf( translator::translate("Pax <%i>  Mail <%i>"), pax_entry->supply, mail_entry->supply );
-			buf.append("\n");
-		}
-	}
 
 	if (!ausgang.empty()) {
-		buf.append("\n");
+		buf.append("\n\n");
 		buf.append(translator::translate("Produktion"));
-		buf.append(":\n");
 
 		for (uint32 index = 0; index < ausgang.get_count(); index++) {
 			const ware_besch_t * type = ausgang[index].get_typ();
 
-			buf.append(" - ");
-			buf.append(translator::translate(type->get_name()));
-			buf.append(" ");
-			buf.append(ausgang[index].menge / (double)(1<<precision_bits), 0 );
-			buf.append("/");
-			buf.append(ausgang[index].max >> fabrik_t::precision_bits,0);
-			buf.append(translator::translate(type->get_mass()));
+			buf.printf( "\n - %s %u/%u%s",
+				translator::translate(type->get_name()),
+				(sint32)(0.5+ausgang[index].menge / (double)(1<<precision_bits)),
+				(sint32)(ausgang[index].max >> fabrik_t::precision_bits),
+				translator::translate(type->get_mass())
+			);
 
 			if(type->get_catg() != 0) {
 				buf.append(", ");
@@ -1954,39 +1904,89 @@ void fabrik_t::info(cbuffer_t& buf) const
 
 			buf.append(", ");
 			buf.append((besch->get_produkt(index)->get_faktor()*100l)/256.0,0);
-			buf.append("%\n");
+			buf.append("%");
 		}
 	}
 
 	if (!eingang.empty()) {
-		buf.append("\n");
+		buf.append("\n\n");
 		buf.append(translator::translate("Verbrauch"));
-		buf.append(":\n");
 
 		for (uint32 index = 0; index < eingang.get_count(); index++) {
 
-			buf.append(" - ");
-			buf.append(translator::translate(eingang[index].get_typ()->get_name()));
-			buf.append(" ");
-			buf.append(eingang[index].menge / (double)(1<<precision_bits), 0 );
-			buf.append("/");
-			buf.append(eingang[index].max >> precision_bits,0);
-			buf.append(translator::translate(eingang[index].get_typ()->get_mass()));
-			buf.append(", ");
-			buf.append((besch->get_lieferant(index)->get_verbrauch()*100l)/256.0,0);
-			buf.append("%\n");
+			buf.printf("\n - %s %u/%u%s, %u%%",
+				translator::translate(eingang[index].get_typ()->get_name()),
+				(sint32)(0.5+eingang[index].menge / (double)(1<<precision_bits)),
+				(eingang[index].max >> precision_bits),
+				translator::translate(eingang[index].get_typ()->get_mass()),
+				(sint32)(0.5+(besch->get_lieferant(index)->get_verbrauch()*100l)/256.0)
+			);
+		}
+	}
+}
+
+
+void fabrik_t::info_conn(cbuffer_t& buf) const
+{
+	buf.clear();
+	bool has_previous = false;
+	if (!lieferziele.empty()) {
+		has_previous = true;
+		buf.append(translator::translate("Abnehmer"));
+
+		for(uint32 i=0; i<lieferziele.get_count(); i++) {
+			const koord lieferziel = lieferziele[i];
+
+			fabrik_t *fab = get_fab( welt, lieferziel );
+			if(fab) {
+				buf.printf("\n   %s (%d,%d)", translator::translate(fab->get_name()), lieferziel.x, lieferziel.y);
+			}
+		}
+	}
+
+	if (!suppliers.empty()) {
+		if(  has_previous  ) {
+			buf.append("\n\n");
+		}
+		has_previous = true;
+		buf.append(translator::translate("Suppliers"));
+
+		for(uint32 i=0; i<suppliers.get_count(); i++) {
+			const koord supplier = suppliers[i];
+
+			fabrik_t *fab = get_fab( welt, supplier );
+			if(fab) {
+				buf.printf("\n   %s (%d,%d)", translator::translate(fab->get_name()), supplier.x, supplier.y);
+			}
+		}
+	}
+
+	if (!target_cities.empty()) {
+		if(  has_previous  ) {
+			buf.append("\n\n");
+		}
+		has_previous = true;
+		buf.append(ausgang.empty() && !besch->is_electricity_producer() ? translator::translate("Customers live in:") : translator::translate("Arbeiter aus:"));
+
+		for(  uint32 c=0;  c<target_cities.get_count();  ++c  ) {
+			const stadt_t::factory_entry_t *const pax_entry = target_cities[c]->get_target_factories_for_pax().get_entry(this);
+			const stadt_t::factory_entry_t *const mail_entry = target_cities[c]->get_target_factories_for_mail().get_entry(this);
+			assert( pax_entry && mail_entry );
+
+			buf.printf("\n   %s     ", target_cities[c]->get_name() );
+			buf.printf( translator::translate("Pax <%i>  Mail <%i>"), pax_entry->supply, mail_entry->supply );
 		}
 	}
 
 	const planquadrat_t *plan = welt->lookup(get_pos().get_2d());
 	if(plan  &&  plan->get_haltlist_count()>0) {
-		buf.append("\n");
+		if(  has_previous  ) {
+			buf.append("\n\n");
+		}
+		has_previous = true;
 		buf.append(translator::translate("Connected stops"));
-		buf.append("\n");
 		for(  uint i=0;  i<plan->get_haltlist_count();  i++  ) {
-			buf.append(" - ");
-			buf.append(plan->get_haltlist()[i]->get_name());
-			buf.append("\n");
+			buf.printf("\n - %s", plan->get_haltlist()[i]->get_name() );
 		}
 	}
 }

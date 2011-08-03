@@ -602,7 +602,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 	ding_t::info(buf);
 
 	if(is_factory  &&  ptr.fab != NULL) {
-		ptr.fab->info(buf);
+		buf.append((char *)0);
 	}
 	else if(zeige_baugrube) {
 		buf.append(translator::translate("Baustelle"));
