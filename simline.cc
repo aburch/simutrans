@@ -12,7 +12,17 @@
 #include "simworld.h"
 #include "simlinemgmt.h"
 
-uint8 simline_t::convoi_to_line_catgory[MAX_CONVOI_COST]={LINE_CAPACITY, LINE_TRANSPORTED_GOODS, LINE_AVERAGE_SPEED, LINE_COMFORT, LINE_REVENUE, LINE_OPERATIONS, LINE_PROFIT, LINE_DISTANCE, LINE_REFUNDS };
+uint8 convoi_to_line_catgory_[MAX_CONVOI_COST]=
+{
+	LINE_CAPACITY, LINE_TRANSPORTED_GOODS, LINE_AVERAGE_SPEED, LINE_COMFORT, LINE_REVENUE, LINE_OPERATIONS, LINE_PROFIT, LINE_DISTANCE, LINE_REFUNDS 
+};
+
+uint8 simline_t::convoi_to_line_catgory(uint8 cnv_cost)
+{
+	assert(cnv_cost < MAX_CONVOI_COST);
+	return convoi_to_line_catgory_[cnv_cost];
+}
+
 
 karte_t *simline_t::welt=NULL;
 

@@ -16,6 +16,7 @@
 #include "player/simplay.h"
 #include "dataobj/umgebung.h"
 #include "dataobj/fahrplan.h"
+#include "simconvoi.h"
 
 
 // #define DEBUG_EXPLORER_SPEED

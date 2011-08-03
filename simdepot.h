@@ -211,9 +211,6 @@ public:
 	// true if already stored here
 	bool is_contained(const vehikel_besch_t *info);
 
-	// Helper function
-	inline unsigned get_max_convoi_length() const {return get_max_convoy_length(get_wegtyp());}
-
 	/**
 	* new month
 	* @author Bernd Gabriel
@@ -230,6 +227,9 @@ public:
 	 * Update the depot_frame_t.
 	 */
 	void update_win();
+
+	// Helper function
+	inline unsigned get_max_convoi_length() const { return get_max_convoy_length(get_wegtyp()); }
 
 private:
 	linehandle_t selected_line;
@@ -256,6 +256,7 @@ public:
 	virtual waytype_t get_wegtyp() const {return track_wt;}
 	virtual ding_t::typ get_typ() const {return bahndepot;}
 	//virtual const char *get_name() const {return "Bahndepot"; }
+	inline unsigned get_max_convoi_length() const;
 };
 
 

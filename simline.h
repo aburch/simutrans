@@ -10,11 +10,11 @@
 
 #include "convoihandle_t.h"
 #include "linehandle_t.h"
-#include "simconvoi.h"
 #include "simtypes.h"
 
 #include "tpl/minivec_tpl.h"
 #include "tpl/vector_tpl.h"
+#include "tpl/koordhashtable_tpl.h"
 
 #define MAX_LINE_COST			10 // Total number of cost items
 #define MAX_MONTHS				12 // Max history
@@ -40,7 +40,6 @@ class simline_t {
 
 public:
 	enum linetype { line = 0, truckline = 1, trainline = 2, shipline = 3, airline = 4, monorailline=5, tramline=6, maglevline=7, narrowgaugeline=8};
-	static uint8 convoi_to_line_catgory[MAX_CONVOI_COST];
 
 protected:
 	schedule_t * fpl;
@@ -198,6 +197,8 @@ public:
 			financial_history[0][cost_type] = rolling_average[cost_type] / rolling_average_count[cost_type];
 		}
 	}
+
+	static uint8 convoi_to_line_catgory(uint8 convoi_cost_type);
 
 	void new_month();
 

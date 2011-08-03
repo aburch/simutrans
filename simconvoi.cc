@@ -4350,7 +4350,7 @@ void convoi_t::book(sint64 amount, int cost_type)
 	}
 	if (line.is_bound()) 
 	{
-		line->book(amount, simline_t::convoi_to_line_catgory[cost_type] );
+		line->book(amount, simline_t::convoi_to_line_catgory(cost_type) );
 	}
 
 	if(cost_type == CONVOI_TRANSPORTED_GOODS) 

@@ -11,7 +11,6 @@
 
 #include "../simunits.h"
 #include "../simconvoi.h"
-#include "../simdepot.h"
 #include "../vehicle/simvehikel.h"
 #include "../simcolor.h"
 #include "../simgraph.h"
@@ -21,9 +20,7 @@
 #include "../dataobj/fahrplan.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/loadsave.h"
-#include "fahrplan_gui.h"
 // @author hsiegeln
-#include "../simlinemgmt.h"
 #include "../simline.h"
 #include "../boden/grund.h"
 #include "messagebox.h"
