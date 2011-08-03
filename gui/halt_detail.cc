@@ -333,7 +333,7 @@ void halt_detail_t::halt_detail_info()
 					{
 						buf.append(translator::translate("on foot)"));
 					}
-					else if(cnx->waiting_time > 39)
+					else if(cnx->waiting_time > 19)
 					{
 						buf.append(cnx->waiting_time / 10); // Convert from tenths
 						buf.append(translator::translate(" mins. waiting)"));

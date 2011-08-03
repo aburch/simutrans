@@ -1030,7 +1030,7 @@ void haltestelle_t::neuer_monat()
 			{
 				for(int i = 0; i < 4; i ++)
 				{
-					iter.access_current_value().times.add_to_tail(39);
+					iter.access_current_value().times.add_to_tail(19);
 				}
 			}
 			// Update the waiting time timing records.
@@ -1179,14 +1179,14 @@ uint16 haltestelle_t::get_average_waiting_time(halthandle_t halt, uint8 category
 				total_times += times.get_element(i);
 			}
 			total_times /= count;
-			// Minimum waiting time of 4 minutes (i.e., 40 tenths of a minute)
+			// Minimum waiting time of 2 minutes (i.e., 20 tenths of a minute)
 			// This simulates the overhead time needed to arrive at a stop, and 
-			// board, etc. It should help to prevent perverse vias on a single route.
-			return total_times >= 40 ? (uint16)total_times : 40;
+			// board, etc. 
+			return total_times >= 20 ? (uint16)total_times : 20;
 		}
-		return 39;
+		return 19;
 	}
-	return 39;
+	return 19;
 }
 
 linehandle_t haltestelle_t::get_preferred_line(halthandle_t transfer, uint8 category) const
