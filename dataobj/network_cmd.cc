@@ -9,6 +9,7 @@
 #include <unistd.h>
 #endif
 
+#include <stdlib.h>
 
 
 // needed by world to kick clients if needed
