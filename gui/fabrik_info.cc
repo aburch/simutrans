@@ -189,8 +189,8 @@ bool fabrik_info_t::action_triggered( gui_action_creator_t *komp, value_t v)
 			add_komponente( &chart );
 			offset_below_viewport += chart.get_groesse().y;
 		}
-		chart_button.set_pos( koord(BUTTON4_X,offset_below_viewport) );
-		details_button.set_pos( koord(BUTTON3_X,offset_below_viewport) );
+		chart_button.set_pos( koord(BUTTON3_X,offset_below_viewport) );
+		details_button.set_pos( koord(BUTTON4_X,offset_below_viewport) );
 		scrolly.set_pos( koord(0,offset_below_viewport+BUTTON_HEIGHT) );
 		set_min_windowsize(koord(TOTAL_WIDTH, 16+offset_below_viewport+BUTTON_HEIGHT+LINESPACE*3));
 		resize( koord(0,(chart_button.pressed ? chart.get_groesse().y : -chart.get_groesse().y) ) );

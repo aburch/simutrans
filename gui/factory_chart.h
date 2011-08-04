@@ -9,7 +9,8 @@
 #ifndef factory_chart_h
 #define factory_chart_h
 
-#define MAX_PROD_LABEL      (7)
+#define MAX_PROD_LABEL      (7-1)
+#define ALIGN_RIGHT_PRD_LABEL	(1-1)
 
 #include "../simfab.h"
 #include "gui_frame.h"
