@@ -27,9 +27,9 @@
 fabrik_info_t::fabrik_info_t(const fabrik_t* fab_, const gebaeude_t* gb) :
 	gui_frame_t(fab_->get_name(), fab_->get_besitzer()),
 	fab(fab_),
+	chart(fab_),
 	view(gb, koord( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width() * 7) / 8))),
 	scrolly(&cont),
-	chart(fab_),
 	prod(&prod_buf),
 	txt(&info_buf)
 {
@@ -109,7 +109,6 @@ void fabrik_info_t::set_fenstergroesse(koord groesse)
 //	view.set_pos(koord(get_fenstergroesse().x - view.get_groesse().x - 10 , 21));
 
 	scrolly.set_groesse(get_client_windowsize()-scrolly.get_pos());
-	const sint16 yoff = scrolly.get_pos().y-BUTTON_HEIGHT-3;
 }
 
 
@@ -154,8 +153,8 @@ void fabrik_info_t::zeichnen(koord pos, koord gr)
 			display_color_img(skinverwaltung_t::passagiere->get_bild_nr(0), pos.x + view.get_pos().x + 4 + 8, pos.y + view.get_pos().y + 20, 0, false, false);
 		}
 		if(  fab->get_besch()->get_pax_boost()  ) {
-			display_color_img( skinverwaltung_t::electricity->get_bild_nr(0), pos.x + prod.get_groesse().x + x_prod_pos, pos.y + view.get_pos().y + 20, 0, false, false);
-			x_prod_pos += skinverwaltung_t::electricity->get_bild(0)->get_pic()->w+4;
+			display_color_img( skinverwaltung_t::passagiere->get_bild_nr(0), pos.x + prod.get_groesse().x + x_prod_pos, pos.y + view.get_pos().y + 20, 0, false, false);
+			x_prod_pos += skinverwaltung_t::passagiere->get_bild(0)->get_pic()->w+4;
 		}
 	}
 	if(  skinverwaltung_t::post->get_bild_nr(0)!=IMG_LEER  ) {

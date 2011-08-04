@@ -139,7 +139,7 @@ factory_chart_t::factory_chart_t(const fabrik_t *_factory) :
 	}
 	if(  input_count>0  ) {
 		goods_labels[goods_label_count].set_text( "<Input>" );
-		goods_labels[goods_label_count].set_pos( koord( 2, offset_below_chart+3+(BUTTON_SPACER+BUTTON_HEIGHT)*goods_label_count ) );
+		goods_labels[goods_label_count].set_pos( koord( 10, offset_below_chart+3+(BUTTON_SPACER+BUTTON_HEIGHT)*goods_label_count ) );
 		goods_cont.add_komponente( goods_labels + goods_label_count );
 		++goods_label_count;
 		const array_tpl<ware_production_t> &input = factory->get_eingang();
