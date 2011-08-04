@@ -1214,10 +1214,10 @@ uint32 settings_t::get_locality_factor(sint16 const year) const
 			* (year-locality_factor_per_year[i-1].year) /(locality_factor_per_year[i].year-locality_factor_per_year[i-1].year );
 #else
 		// exponential evaluation
-		sint32 diff = (locality_factor_per_year[i].year-locality_factor_per_year[i-1].year);
-		double a = (double)diff*(exp((double)(year-locality_factor_per_year[i-1].year)/20.0)-1.0);
-		double b = (exp((double)(locality_factor_per_year[i].year-locality_factor_per_year[i-1].year)/20.0)-1.0);
-		return locality_factor_per_year[i-1].factor + (sint32)((diff*a)/b + 0.5);
+		sint32 diff = (locality_factor_per_year[i].factor-locality_factor_per_year[i-1].factor);
+		double a = exp((year-locality_factor_per_year[i-1].year)/20.0);
+		double b = exp((locality_factor_per_year[i].year-locality_factor_per_year[i-1].year)/20.0);
+		return locality_factor_per_year[i-1].factor + (sint32)((diff*(a-1.0))/(b-1.0) + 0.5);
 #endif
 	}
 }
