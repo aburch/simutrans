@@ -7,6 +7,7 @@
 
 #include "factorylist_frame_t.h"
 #include "components/list_button.h"
+#include "../dataobj/translator.h"
 
 /**
  * This variable defines the sort order (ascending or descending)

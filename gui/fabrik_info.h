@@ -16,7 +16,6 @@
 #include "components/ding_view_t.h"
 #include "gui_container.h"
 #include "../utils/cbuffer_t.h"
-#include "../simfab.h"
 
 class fabrik_t;
 class gebaeude_t;
