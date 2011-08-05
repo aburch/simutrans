@@ -2975,7 +2975,6 @@ bool haltestelle_t::find_free_position(const waytype_t w,convoihandle_t cnv,cons
 }
 
 
-
 /* reserves a position (caution: railblocks work differently!
  * @author prissi
  */
@@ -3007,7 +3006,6 @@ bool haltestelle_t::reserve_position(grund_t *gr,convoihandle_t cnv)
 }
 
 
-
 /* frees a reserved  position (caution: railblocks work differently!
  * @author prissi
  */
@@ -3023,7 +3021,6 @@ bool haltestelle_t::unreserve_position(grund_t *gr, convoihandle_t cnv)
 DBG_MESSAGE("haltestelle_t::unreserve_position()","failed for gr=%p",gr);
 	return false;
 }
-
 
 
 /* can a convoi reserve this position?
@@ -3052,6 +3049,7 @@ DBG_MESSAGE("haltestelle_t::is_reservable()","gr=%d,%d already reserved by cnv=%
 DBG_MESSAGE("haltestelle_t::reserve_position()","failed for gr=%i,%i, cnv=%d",gr->get_pos().x,gr->get_pos().y,cnv.get_id());
 	return false;
 }
+
 
 /* deletes factory references so map rotation won't segfault
 */

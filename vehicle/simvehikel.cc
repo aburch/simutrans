@@ -1829,7 +1829,7 @@ bool automobil_t::ist_ziel(const grund_t *gr, const grund_t *prev_gr) const
 				// end of stop: Is it long enough?
 				uint16 tiles = cnv->get_tile_length();
 				while(  tiles>1  ) {
-					if(  !gr->get_neighbour(to,get_waytype(),-dir)  ||  !(to->get_halt()==target_halt)  ) {
+					if(  !gr->get_neighbour(to,get_waytype(),-dir)  ||  !(to->get_halt()==target_halt)  ||  !target_halt->is_reservable(to,cnv->self)  ) {
 						return false;
 					}
 					gr = to;
@@ -1899,12 +1899,12 @@ bool automobil_t::ist_weg_frei(int &restart_speed)
 					return false;
 				}
 				// check, if we reached a choose point
-				else if(rs->is_free_route(richtung)) {
+				else if(  rs->is_free_route(richtung)  ) {
 					route_t *rt=cnv->access_route();
 					// is our target occupied?
-					if (grund_t* const target = welt->lookup(rt->back())) {
+					if(  grund_t* const target = welt->lookup(rt->back())  ) {
 						target_halt = target->get_halt();
-						if (target_halt.is_bound() && !target_halt->reserve_position(target, cnv->self)) {
+						if(  target_halt.is_bound()  &&  !target_halt->reserve_position(target, cnv->self)  ) {
 
 							// if we fail, we will wait in a step, much more simulation friendly
 							if(!cnv->is_waiting()) {
@@ -1924,16 +1924,17 @@ bool automobil_t::ist_weg_frei(int &restart_speed)
 
 							// now it make sense to search a route
 							route_t target_rt;
-							if(!target_rt.find_route( welt, pos_next, this, 50, richtung, 33 )) {
+							if(  !target_rt.find_route( welt, pos_next, this, speed_to_kmh(cnv->get_min_top_speed()), richtung, 33 )  ) {
 								// nothing empty or not route with less than 33 tiles
 								target_halt = halthandle_t();
 								restart_speed = 0;
 								return false;
 							}
-							// now reserve our choice ...
-							target_halt->reserve_position(welt->lookup(target_rt.back()), cnv->self);
-							//DBG_MESSAGE("automobil_t::ist_weg_frei()", "found free stop near %i,%i,%i", target_rt.back().x, target_rt.back().y, target_rt.back().z);
-							rt->remove_koord_from(route_index);
+							// now reserve our choice (beware: might be longer than one tile!)
+							for(  uint32 length=0;  length*16<=cnv->get_length();  length++  ) {
+								target_halt->reserve_position( welt->lookup(target_rt.position_bei(target_rt.get_count()-length-1)), cnv->self );
+							}
+							rt->remove_koord_from( route_index );
 							rt->append( &target_rt );
 						}
 					}
