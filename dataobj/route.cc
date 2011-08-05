@@ -500,7 +500,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
  * corrected 12/2005 for station search
  * @author Hansjörg Malthaner, prissi
  */
-bool route_t::calc_route(karte_t *welt, const koord3d ziel, const koord3d start, fahrer_t *fahr, const sint32 max_khm, const uint32 max_cost)
+bool route_t::calc_route(karte_t *welt, const koord3d ziel, const koord3d start, fahrer_t *fahr, const sint32 max_khm, sint32 max_len )
 {
 	route.clear();
 
@@ -510,7 +510,7 @@ bool route_t::calc_route(karte_t *welt, const koord3d ziel, const koord3d start,
 	// profiling for routes ...
 	long ms=dr_time();
 #endif
-	bool ok = intern_calc_route(welt, start, ziel, fahr, max_khm,max_cost);
+	bool ok = intern_calc_route(welt, start, ziel, fahr, max_khm, 0xFFFFFFFFul );
 #ifdef DEBUG_ROUTES
 	if(fahr->get_waytype()==water_wt) {DBG_DEBUG("route_t::calc_route()","route from %d,%d to %d,%d with %i steps in %u ms found.",start.x, start.y, ziel.x, ziel.y, route.get_count()-1, dr_time()-ms );}
 #endif
@@ -524,36 +524,41 @@ DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x
 		route.append(start); // just to be safe
 		return false;
 	}
-	else {
-		// drive to the end in a station
+	// advance so all convoi fits into a halt (only set for trains and cars)
+	else if(  max_len>1  ) {
+
+		// we need a halt of course ...
 		halthandle_t halt = welt->lookup(start)->get_halt();
+		if(  halt.is_bound()  ) {
 
-		// only needed for stations: go to the very end
-		if(halt.is_bound()) {
-
-			// does only make sence for trains
+			// for trains advance to the very end (remove this to only drive the length needed)
 			if(fahr->get_waytype()==track_wt  ||  fahr->get_waytype()==monorail_wt  ||  fahr->get_waytype()==tram_wt  ||  fahr->get_waytype()==maglev_wt  ||  fahr->get_waytype()==narrowgauge_wt) {
+				max_len = 24;
+			}
 
-				int max_n = route.get_count()-1;
+			// first: find out how many tiles I am already in the station
+			max_len--;
+			for(  sint32 i=route.get_count()-1;  i>=0  &&  max_len>0  &&  halt == haltestelle_t::get_halt( welt, route[i], NULL );  i--, max_len--  ) {}
 
+			// and now go forward, if possible
+			if(  max_len>0  ) {
+
+				const uint32 max_n = route.get_count()-1;
 				const koord zv = route[max_n].get_2d() - route[max_n - 1].get_2d();
-//DBG_DEBUG("route_t::calc_route()","zv=%i,%i",zv.x,zv.y);
-
 				const int ribi = ribi_typ(zv);//fahr->get_ribi(welt->lookup(start));
-				grund_t *gr=welt->lookup(start);
+
+				grund_t *gr = welt->lookup(start);
 				const waytype_t wegtyp=fahr->get_waytype();
 
-				while(gr->get_neighbour(gr,wegtyp,zv)  &&  gr->get_halt() == halt  &&   fahr->ist_befahrbar(gr)   &&  (fahr->get_ribi(gr)&&ribi)!=0) {
-					// stop at end of track! (prissi)
-
+				while(  max_len>0  &&  gr->get_neighbour(gr,wegtyp,zv)  &&  gr->get_halt()==halt  &&   fahr->ist_befahrbar(gr)   &&  (fahr->get_ribi(gr)&&ribi)!=0  ) {
 					// Do not go on a tile, where a oneway sign forbids going.
 					// This saves time and fixed the bug, that a oneway sign on the finaly tile was ignored.
 					ribi_t::ribi go_dir=gr->get_weg(wegtyp)->get_ribi_maske();
-					if((ribi&go_dir)!=0) {
+					if(  (ribi&go_dir)!=0  ) {
 						break;
 					}
-//DBG_DEBUG("route_t::calc_route()","add station at %i,%i",gr->get_pos().x,gr->get_pos().y);
 					route.append(gr->get_pos());
+					max_len--;
 				}
 			}
 		}
