@@ -9,7 +9,8 @@
 #ifndef factory_chart_h
 #define factory_chart_h
 
-#define MAX_PROD_LABEL      (7)
+#define MAX_PROD_LABEL      (7-1)
+#define ALIGN_RIGHT_PRD_LABEL	(1-1)
 
 #include "../simfab.h"
 #include "gui_frame.h"
@@ -21,7 +22,7 @@
 #include "gui_container.h"
 
 
-class factory_chart_t : public gui_frame_t, private action_listener_t
+class factory_chart_t : public gui_container_t, private action_listener_t
 {
 private:
 	const fabrik_t *factory;
@@ -49,11 +50,11 @@ private:
 
 public:
 	factory_chart_t(const fabrik_t *_factory);
-	~factory_chart_t();
+	virtual ~factory_chart_t();
 
 	virtual bool action_triggered(gui_action_creator_t *komp, value_t extra);
 
-	virtual void zeichnen(koord pos, koord gr);
+	virtual void zeichnen(koord pos);
 };
 
 #endif

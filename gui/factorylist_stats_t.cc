@@ -15,6 +15,7 @@
 #include "../simworld.h"
 #include "../simskin.h"
 
+#include "components/gui_button.h"
 #include "components/list_button.h"
 
 #include "../bauer/warenbauer.h"
