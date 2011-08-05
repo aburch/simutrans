@@ -1744,9 +1744,10 @@ bool automobil_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, rout
 {
 	assert(cnv);
 	// free target reservation
-	if(ist_erstes  &&  alte_fahrtrichtung!=ribi_t::keine  &&  cnv  &&  target_halt.is_bound() ) {
-		if (grund_t* const target = welt->lookup(cnv->get_route()->back())) {
-			target_halt->unreserve_position(target,cnv->self);
+	if(ist_erstes   &&  alte_fahrtrichtung!=ribi_t::keine  &&  cnv  &&  target_halt.is_bound() ) {
+		// now reserve our choice (beware: might be longer than one tile!)
+		for(  uint32 length=0;  length<cnv->get_tile_length()  &&  length+1<cnv->get_route()->get_count();  length++  ) {
+			target_halt->unreserve_position( welt->lookup( cnv->get_route()->position_bei( cnv->get_route()->get_count()-length-1) ), cnv->self );
 		}
 	}
 	target_halt = halthandle_t();	// no block reserved
@@ -1899,7 +1900,7 @@ bool automobil_t::ist_weg_frei(int &restart_speed)
 					return false;
 				}
 				// check, if we reached a choose point
-				else if(  rs->is_free_route(richtung)  ) {
+				else if(  rs->is_free_route(richtung)  &&  !target_halt.is_bound()  ) {
 					route_t *rt = cnv->access_route();
 					// is our target occupied?
 					target_halt = haltestelle_t::get_halt( welt, rt->back(), get_besitzer() );
@@ -2100,8 +2101,11 @@ void automobil_t::set_convoi(convoi_t *c)
 		}
 	}
 	else {
-		if(cnv  &&  ist_erstes  &&  target_halt.is_bound()) {
-			target_halt->unreserve_position(welt->lookup(cnv->get_route()->back()), cnv->self);
+		if(  cnv  &&  ist_erstes  &&  target_halt.is_bound()  ) {
+			// now reserve our choice (beware: might be longer than one tile!)
+			for(  uint32 length=0;  length<cnv->get_tile_length()  &&  length+1<cnv->get_route()->get_count();  length++  ) {
+				target_halt->unreserve_position( welt->lookup( cnv->get_route()->position_bei( cnv->get_route()->get_count()-length-1) ), cnv->self );
+			}
 			target_halt = halthandle_t();
 		}
 		cnv = NULL;
