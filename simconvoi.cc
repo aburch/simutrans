@@ -4080,7 +4080,9 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 		}
 
 		changed_loading_level |= v->entladen(halt);
-		if(!no_load) {
+
+		if(!no_load) 
+		{
 			// load
 			changed_loading_level |= v->beladen(halt, second_run);
 		}
