@@ -3174,10 +3174,12 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int s
 		if(  ribi_t::is_threeway(str->get_ribi()) ) {
 			return false;
 		}
-		if (ribi_t::ist_gerade(str->get_ribi())) {
-			time_overtaking -= VEHICLE_STEPS_PER_TILE<<16 / kmh_to_speed(str->get_max_speed());
-		} else {
-			time_overtaking -= diagonal_vehicle_steps_per_tile<<16 / kmh_to_speed(str->get_max_speed());
+
+		if(  ribi_t::ist_gerade(str->get_ribi())  ) {
+			time_overtaking -= (VEHICLE_STEPS_PER_TILE<<16) / kmh_to_speed(str->get_max_speed());
+		}
+		else {
+			time_overtaking -= (diagonal_vehicle_steps_per_tile<<16) / kmh_to_speed(str->get_max_speed());
 		}
 
 		// Check for other vehicles in facing direction
