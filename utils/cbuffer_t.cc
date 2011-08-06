@@ -59,7 +59,7 @@ void cbuffer_t::append(double n,int decimals)
  */
 static int my_vsnprintf(char *buf, size_t n, const char* fmt, va_list ap )
 {
-#if defined _MSC_FULL_VER && _MSC_FULL_VER >= 140050727 && !defined __WXWINCE__
+#if defined _MSC_FULL_VER  &&  _MSC_FULL_VER >= 140050727  &&  !defined __WXWINCE__
 	// this MSC function can handle positional parameters since 2008
 	return _vsprintf_p(buf, n, fmt, ap);
 #else
@@ -107,7 +107,7 @@ static int my_vsnprintf(char *buf, size_t n, const char* fmt, va_list ap )
 		char *cbuf = buf;
 		cfmt = const_cast<char *>(fmt); // cast is save, as the string is not modified
 		while(  *cfmt!=0  ) {
-			while(  *cfmt!='%'  &&  *cfmt>0  ) {
+			while(  *cfmt!='%'  &&  *cfmt  ) {
 				*cbuf++ = *cfmt++;
 			}
 			if(  *cfmt==0  ) {
