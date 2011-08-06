@@ -545,7 +545,7 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 
 	gui_frame_t::zeichnen(pos, gr);
 
-	char buf[256];
+	cbuffer_t buf;
 	const int x = pos.x+10;
 	int y = pos.y+16+START_HEIGHT;
 
@@ -574,7 +574,7 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 			sizeof(void*) * 4
 		) * sx * sy
 	) / (1024 * 1024);
-	sprintf(buf, translator::translate("3WORLD_CHOOSE"), memory);
+	buf.printf( translator::translate("3WORLD_CHOOSE"), memory );
 	display_proportional_clip(x, y, buf, ALIGN_LEFT, COL_BLACK, true);
 	y += 12;	// x size
 	y += 12+5;	// y size

@@ -367,8 +367,9 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 		else if(  !cnv->front()->calc_route(this->get_pos(), cur_pos, cnv->get_min_top_speed(), cnv->access_route())  ) {
 			// no route to go ...
 			if(local_execution) {
-				static char buf[256];
-				sprintf(buf,translator::translate("Vehicle %s can't find a route!"), cnv->get_name());
+				static cbuffer_t buf;
+				buf.clear();
+				buf.printf( translator::translate("Vehicle %s can't find a route!"), cnv->get_name() );
 				create_win( new news_img(buf), w_time_delete, magic_none);
 			}
 		}

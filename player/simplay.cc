@@ -276,7 +276,7 @@ void spieler_t::step()
 void spieler_t::neuer_monat()
 {
 	// since the messages must remain on the screen longer ...
-	static char buf[256];
+	static cbuffer_t buf;
 
 
 	// Wartungskosten abziehen
@@ -314,7 +314,8 @@ void spieler_t::neuer_monat()
 	if(konto > 0  &&  welt->get_scenario()->active()  &&  finance_history_year[0][COST_SCENARIO_COMPLETED]>=100) {
 		destroy_all_win(true);
 		sint32 const time = welt->get_current_month() - welt->get_settings().get_starting_year() * 12;
-		sprintf( buf, translator::translate("Congratulation\nScenario was complete in\n%i months %i years."), time%12, time/12 );
+		buf.clear();
+		buf.printf( translator::translate("Congratulation\nScenario was complete in\n%i months %i years."), time%12, time/12 );
 		create_win(280, 40, new news_img(buf), w_info, magic_none);
 		// disable further messages
 		welt->get_scenario()->init("",welt);
@@ -334,7 +335,8 @@ void spieler_t::neuer_monat()
 				}
 				else {
 					// tell the player
-					sprintf(buf, translator::translate("On loan since %i month(s)"), konto_ueberzogen );
+					buf.clear();
+					buf.printf( translator::translate("On loan since %i month(s)"), konto_ueberzogen );
 					welt->get_message()->add_message( buf, koord::invalid, message_t::problems, player_nr, IMG_LEER );
 				}
 			}
@@ -347,7 +349,8 @@ void spieler_t::neuer_monat()
 				}
 				// tell the current player
 				if(  welt->get_active_player_nr()==player_nr  ) {
-					sprintf(buf, translator::translate("On loan since %i month(s)"), konto_ueberzogen );
+					buf.clear();
+					buf.printf( translator::translate("On loan since %i month(s)"), konto_ueberzogen );
 					welt->get_message()->add_message(buf,koord::invalid,message_t::problems,player_nr,IMG_LEER);
 				}
 			}
@@ -701,8 +704,8 @@ void spieler_t::ai_bankrupt()
 	}
 
 	automat = false;
-	char buf[256];
-	sprintf(buf, translator::translate("%s\nwas liquidated."), get_name() );
+	cbuffer_t buf;
+	buf.printf( translator::translate("%s\nwas liquidated."), get_name() );
 	welt->get_message()->add_message( buf, koord::invalid, message_t::ai, PLAYER_FLAG|player_nr );
 }
 

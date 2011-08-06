@@ -15,6 +15,7 @@
 #include "../besch/ware_besch.h"
 
 #include "../dataobj/translator.h"
+#include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"
 #include "components/list_button.h"
 
@@ -32,7 +33,8 @@ goods_stats_t::goods_stats_t()
 void goods_stats_t::zeichnen(koord offset)
 {
 	int yoff = offset.y;
-	char buf[256];
+	char money_buf[256];
+	cbuffer_t buf;
 
 	for(  uint16 i=0;  i<warenbauer_t::get_waren_anzahl()-1u;  i++  ) {
 		const ware_besch_t * wtyp = warenbauer_t::get_info(goodslist[i]);
@@ -40,23 +42,27 @@ void goods_stats_t::zeichnen(koord offset)
 		display_ddd_box_clip(offset.x + 2, yoff, 8, 8, MN_GREY0, MN_GREY4);
 		display_fillbox_wh_clip(offset.x + 3, yoff+1, 6, 6, wtyp->get_color(), true);
 
-		sprintf(buf, "%s", translator::translate(wtyp->get_name()));
+		buf.clear();
+		buf.printf("%s", translator::translate(wtyp->get_name()));
 		display_proportional_clip(offset.x + 14, yoff,	buf, ALIGN_LEFT, COL_BLACK, true);
 
 		// prissi
 		const sint32 grundwert128 = wtyp->get_preis()<<7;
 		const sint32 grundwert_bonus = wtyp->get_preis()*(1000l+(bonus-100l)*wtyp->get_speed_bonus());
 		const sint32 price = (grundwert128>grundwert_bonus ? grundwert128 : grundwert_bonus);
-		money_to_string( buf, price/300000.0 );
-		display_proportional_clip(offset.x + 130, yoff, buf, 	ALIGN_RIGHT, 	COL_BLACK, true);
+		money_to_string( money_buf, price/300000.0 );
+		display_proportional_clip(offset.x + 130, yoff, money_buf, 	ALIGN_RIGHT, 	COL_BLACK, true);
 
-		sprintf(buf, "%d%%", wtyp->get_speed_bonus());
+		buf.clear();
+		buf.printf("%d%%", wtyp->get_speed_bonus());
 		display_proportional_clip(offset.x + 155, yoff, buf, ALIGN_RIGHT, COL_BLACK, true);
 
-		sprintf(buf, "%s",	translator::translate(wtyp->get_catg_name()));
+		buf.clear();
+		buf.printf("%s", translator::translate(wtyp->get_catg_name()));
 		display_proportional_clip(offset.x + 165, yoff, buf, 	ALIGN_LEFT, COL_BLACK, 	true);
 
-		sprintf(buf, "%dKg", wtyp->get_weight_per_unit());
+		buf.clear();
+		buf.printf("%dKg", wtyp->get_weight_per_unit());
 		display_proportional_clip(offset.x + 310, yoff, buf, ALIGN_RIGHT, COL_BLACK, true);
 
 		yoff += LINESPACE+1;
