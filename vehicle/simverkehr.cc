@@ -1077,10 +1077,11 @@ bool stadtauto_t::can_overtake(overtaker_t *other_overtaker, int other_speed, in
 	time_overtaking = (time_overtaking << 16)/(sint32)current_speed;
 	do {
 		// we can allow crossings or traffic lights here, since they will stop also oncoming traffic
-		if (ribi_t::ist_gerade(str->get_ribi())) {
-			time_overtaking -= VEHICLE_STEPS_PER_TILE<<16 / kmh_to_speed(str->get_max_speed());
-		} else {
-			time_overtaking -= diagonal_vehicle_steps_per_tile<<16 / kmh_to_speed(str->get_max_speed());
+		if(  ribi_t::ist_gerade(str->get_ribi())  ) {
+			time_overtaking -= (VEHICLE_STEPS_PER_TILE<<16) / kmh_to_speed(str->get_max_speed());
+		}
+		else {
+			time_overtaking -= (diagonal_vehicle_steps_per_tile<<16) / kmh_to_speed(str->get_max_speed());
 		}
 
 		// start of bridge is one level deeper
