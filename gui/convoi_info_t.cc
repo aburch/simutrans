@@ -264,13 +264,14 @@ enable_home:
 
 		// convoi information
 		char tmp[256];
+		cbuffer_t buf;
 		static cbuffer_t info_buf;
 
 		// use median speed to avoid flickering
 		mean_convoi_speed += speed_to_kmh(cnv->get_akt_speed()*4);
 		mean_convoi_speed /= 2;
-		sprintf(tmp,translator::translate("%i km/h (max. %ikm/h)"), (mean_convoi_speed+3)/4, speed_to_kmh(cnv->get_min_top_speed()) );
-		display_proportional( pos.x+10, pos.y+16+20, tmp, ALIGN_LEFT, COL_BLACK, true );
+		buf.printf( translator::translate("%i km/h (max. %ikm/h)"), (mean_convoi_speed+3)/4, speed_to_kmh(cnv->get_min_top_speed()) );
+		display_proportional( pos.x+10, pos.y+16+20, buf, ALIGN_LEFT, COL_BLACK, true );
 
 		// next important: income stuff
 		int len = display_proportional(pos.x + 10, pos.y + 16 + 20 + 1 * LINESPACE, translator::translate("Gewinn"), ALIGN_LEFT, COL_BLACK, true ) + 5;

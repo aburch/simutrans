@@ -3112,9 +3112,9 @@ void karte_t::notify_record( convoihandle_t cnv, sint32 max_speed, koord pos )
 				case water_wt:    msg = "New world record for ship: %.1f km/h by %s.";      break;
 				case air_wt:      msg = "New world record for planes: %.1f km/h by %s.";    break;
 			}
-			char text[1024];
-			sprintf( text, translator::translate(msg), (float)speed_to_kmh(10*sr->speed)/10.0, sr->cnv->get_name() );
-			get_message()->add_message(text, sr->pos, message_t::new_vehicle, PLAYER_FLAG|sr->besitzer->get_player_nr() );
+			cbuffer_t buf;
+			buf.printf( translator::translate(msg), (float)speed_to_kmh(10*sr->speed)/10.0, sr->cnv->get_name() );
+			get_message()->add_message( buf, sr->pos, message_t::new_vehicle, PLAYER_FLAG|sr->besitzer->get_player_nr() );
 		}
 	}
 }
