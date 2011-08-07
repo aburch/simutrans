@@ -760,6 +760,8 @@ void karte_t::init_felder()
 
 	halthandle_t::init( 1024 );
 
+	vehikel_basis_t::set_overtaking_offsets( get_settings().is_drive_left() );
+
 	scenario = new scenario_t(this);
 
 	nosave_warning = nosave = false;

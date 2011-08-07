@@ -305,20 +305,6 @@ bool stadtauto_t::register_besch(const stadtauto_besch_t *besch)
 		dbg->warning( "stadtauto_besch_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
 	}
 	table.put(besch->get_name(), besch);
-	// correct for driving on left side
-	if(umgebung_t::drive_on_left) {
-		const int XOFF=(12*get_tile_raster_width())/64;
-		const int YOFF=(6*get_tile_raster_width())/64;
-
-		display_set_base_image_offset( besch->get_bild_nr(0), +XOFF, +YOFF );
-		display_set_base_image_offset( besch->get_bild_nr(1), -XOFF, +YOFF );
-		display_set_base_image_offset( besch->get_bild_nr(2), 0, +YOFF );
-		display_set_base_image_offset( besch->get_bild_nr(3), +XOFF, 0 );
-		display_set_base_image_offset( besch->get_bild_nr(4), -XOFF, -YOFF );
-		display_set_base_image_offset( besch->get_bild_nr(5), +XOFF, -YOFF );
-		display_set_base_image_offset( besch->get_bild_nr(6), 0, -YOFF );
-		display_set_base_image_offset( besch->get_bild_nr(7), -XOFF-YOFF, 0 );
-	}
 	return true;
 }
 
@@ -889,6 +875,7 @@ void stadtauto_t::hop()
 void stadtauto_t::calc_bild()
 {
 	set_bild(besch->get_bild_nr(ribi_t::get_dir(get_fahrtrichtung())));
+	drives_on_left = welt->get_settings().is_drive_left();	// reset driving settings
 }
 
 

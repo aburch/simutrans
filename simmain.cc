@@ -795,9 +795,6 @@ int simu_main(int argc, char** argv)
 	pakset_info_t::calculate_checksum();
 	pakset_info_t::debug();
 
-	// set overtaking offsets
-	vehikel_basis_t::set_overtaking_offsets( umgebung_t::drive_on_left );
-
 	printf("Reading menu configuration ...\n");
 	werkzeug_t::read_menu(umgebung_t::objfilename);
 

@@ -61,8 +61,8 @@ protected:
 	// true on slope (make calc_height much faster)
 	uint8 use_calc_height:1;
 
-	// true, if hop_check failed
-	uint8 hop_check_failed:1;
+	// if true, use offests to emulate driving on other side
+	uint8 drives_on_left:1;
 
 	sint8 dx, dy;
 

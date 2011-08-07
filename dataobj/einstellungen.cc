@@ -67,6 +67,10 @@ settings_t::settings_t() :
 	min_river_length = 16;
 	max_river_length = 256;
 
+	// since the turning rules are different, driving must now be saved here
+	drive_on_left = false;
+	signals_on_left = false;
+
 	// forest setting ...
 	forest_base_size = 36; 	// Base forest size - minimal size of forest - map independent
 	forest_map_size_divisor = 38;	// Map size divisor - smaller it is the larger are individual forests
@@ -685,6 +689,8 @@ void settings_t::rdwr(loadsave_t *file)
 				file->rdwr_short(locality_factor_per_year[i].year );
 				file->rdwr_long(locality_factor_per_year[i].factor );
 			}
+			file->rdwr_bool( drive_on_left );
+			file->rdwr_bool( signals_on_left );
 		}
 		// otherwise the default values of the last one will be used
 	}
@@ -701,7 +707,6 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	umgebung_t::water_animation = contents.get_int("water_animation_ms", umgebung_t::water_animation );
 	umgebung_t::ground_object_probability = contents.get_int("random_grounds_probability", umgebung_t::ground_object_probability );
 	umgebung_t::moving_object_probability = contents.get_int("random_wildlife_probability", umgebung_t::moving_object_probability );
-	umgebung_t::drive_on_left = contents.get_int("drive_left", umgebung_t::drive_on_left );
 
 	umgebung_t::verkehrsteilnehmer_info = contents.get_int("pedes_and_car_info", umgebung_t::verkehrsteilnehmer_info) != 0;
 	umgebung_t::tree_info = contents.get_int("tree_info", umgebung_t::tree_info) != 0;
@@ -751,6 +756,9 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	if(  *contents.get("server_admin_pw")  ) {
 		umgebung_t::server_admin_pw = ltrim(contents.get("server_admin_pw"));
 	}
+
+	drive_on_left = contents.get_int("drive_left", drive_on_left );
+	signals_on_left = contents.get_int("signals_on_left", signals_on_left );
 
 	// up to ten rivers are possible
 	for(  int i = 0;  i<10;  i++  ) {

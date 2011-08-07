@@ -108,6 +108,20 @@ bool vehikel_basis_t::need_realignment() const
 	return old_diagonal_vehicle_steps_per_tile!=diagonal_vehicle_steps_per_tile  &&  ribi_t::ist_kurve(fahrtrichtung);
 }
 
+// [0]=xoff [1]=yoff
+static sint8 driveleft_base_offsets[8][2] =
+{
+	{ 12, 6 },
+	{ -12, 6 },
+	{ 0, 6 },
+	{ 12, 0 },
+	{ -12, -6 },
+	{ 12, -6 },
+	{ 0, -6 },
+	{ 12, 0 }
+//	{ 12, -12, 0, 12, -12, 12, 0 -12 },
+//	{ 6, 6, 6, 0, -6, -6, -6, 0 }
+};
 
 // [0]=xoff [1]=yoff
 sint8 vehikel_basis_t::overtaking_base_offsets[8][2];
@@ -142,6 +156,7 @@ void vehikel_basis_t::set_overtaking_offsets( bool driving_on_the_left )
 
 /**
  * Checks if this vehicle must change the square upon next move
+ * THIS IS ONLY THERE FOR LOADING OLD SAVES!
  * @author Hj. Malthaner
  */
 bool vehikel_basis_t::is_about_to_hop( const sint8 neu_xoff, const sint8 neu_yoff ) const
@@ -162,6 +177,7 @@ vehikel_basis_t::vehikel_basis_t(karte_t *welt):
 	steps = 0;
 	steps_next = VEHICLE_STEPS_PER_TILE - 1;
 	use_calc_height = true;
+	drives_on_left = false;
 	dx = 0;
 	dy = 0;
 }
@@ -371,6 +387,12 @@ void vehikel_basis_t::get_screen_offset( int &xoff, int &yoff, const sint16 rast
 	}
 	xoff += (display_steps*dx) >> 10;
 	yoff += ((display_steps*dy) >> 10) + (hoff*raster_width)/(4*16);
+
+	if(  drives_on_left  ) {
+		const int drive_left_dir = ribi_t::get_dir(get_fahrtrichtung());
+		xoff += tile_raster_scale_x( driveleft_base_offsets[drive_left_dir][0], raster_width );
+		yoff += tile_raster_scale_y( driveleft_base_offsets[drive_left_dir][1], raster_width );
+	}
 }
 
 
@@ -1871,6 +1893,8 @@ bool automobil_t::ist_weg_frei(int &restart_speed)
 {
 	// check for traffic lights (only relevant for the first car in a convoi)
 	if(ist_erstes) {
+		drives_on_left = welt->get_settings().is_drive_left();	// reset driving settings
+
 		const grund_t *gr = welt->lookup(pos_next);
 		if (gr==NULL)  {
 			// weg not existent (likely destroyed)

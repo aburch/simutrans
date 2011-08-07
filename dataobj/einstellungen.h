@@ -250,6 +250,9 @@ private:
 	uint32 frames_per_step;
 	uint32 server_frames_ahead;
 
+	bool drive_on_left;
+	bool signals_on_left;
+
 public:
 	/* the big cost section */
 	sint32 maint_building;	// normal building
@@ -507,6 +510,9 @@ public:
 	uint32 get_frames_per_second() const { return frames_per_second; }
 	uint32 get_frames_per_step() const { return frames_per_step; }
 	uint32 get_server_frames_ahead() const { return server_frames_ahead; }
+
+	bool is_drive_left() const { return drive_on_left; }
+	bool is_signals_left() const { return signals_on_left; }
 };
 
 #endif

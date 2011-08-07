@@ -11,6 +11,7 @@
 #include "../dataobj/einstellungen.h"
 #include "../dataobj/umgebung.h"
 #include "../dataobj/translator.h"
+#include "../vehicle/simvehikel.h"
 #include "settings_stats.h"
 
 
@@ -64,7 +65,7 @@ bool settings_general_stats_t::action_triggered(gui_action_creator_t *komp, valu
 void settings_general_stats_t::init(settings_t const* const sets)
 {
 	INIT_INIT
-//	INIT_BOOL( "drive_left", umgebung_t::drive_on_left );	//cannot be switched after loading paks
+	INIT_BOOL( "drive_left", sets->is_drive_left() );
 	INIT_NUM( "autosave", umgebung_t::autosave, 0, 12, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "frames_per_second",umgebung_t::fps, 10, 25, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "fast_forward", umgebung_t::max_acceleration, 1, 1000, gui_numberinput_t::AUTOLINEAR, false );
@@ -127,7 +128,8 @@ void settings_general_stats_t::init(settings_t const* const sets)
 void settings_general_stats_t::read(settings_t* const sets)
 {
 	READ_INIT
-//	READ_BOOL_VALUE( umgebung_t::drive_on_left );	//cannot be switched after loading paks
+	READ_BOOL_VALUE( sets->drive_on_left );
+	vehikel_basis_t::set_overtaking_offsets( sets->drive_on_left );
 	READ_NUM_VALUE( umgebung_t::autosave );
 	READ_NUM_VALUE( umgebung_t::fps );
 	READ_NUM_VALUE( umgebung_t::max_acceleration );
