@@ -118,7 +118,7 @@ static sint8 driveleft_base_offsets[8][2] =
 	{ -12, -6 },
 	{ 12, -6 },
 	{ 0, -6 },
-	{ 12, 0 }
+	{ -12, 0 }
 //	{ 12, -12, 0, 12, -12, 12, 0 -12 },
 //	{ 6, 6, 6, 0, -6, -6, -6, 0 }
 };
@@ -1893,8 +1893,6 @@ bool automobil_t::ist_weg_frei(int &restart_speed)
 {
 	// check for traffic lights (only relevant for the first car in a convoi)
 	if(ist_erstes) {
-		drives_on_left = welt->get_settings().is_drive_left();	// reset driving settings
-
 		const grund_t *gr = welt->lookup(pos_next);
 		if (gr==NULL)  {
 			// weg not existent (likely destroyed)
@@ -2098,6 +2096,7 @@ void automobil_t::betrete_feld()
 		str->book(1, WAY_STAT_CONVOIS);
 		cnv->update_tiles_overtaking();
 	}
+	drives_on_left = welt->get_settings().is_drive_left();	// reset driving settings
 }
 
 
