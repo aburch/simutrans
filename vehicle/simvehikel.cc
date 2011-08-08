@@ -192,6 +192,7 @@ vehikel_basis_t::vehikel_basis_t(karte_t *welt, koord3d pos):
 	steps = 0;
 	steps_next = VEHICLE_STEPS_PER_TILE - 1;
 	use_calc_height = true;
+	drives_on_left = false;
 	dx = 0;
 	dy = 0;
 }
