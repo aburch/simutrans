@@ -520,11 +520,22 @@ void karte_t::destroy()
 	is_sound = false; // karte_t::play_sound_area_clipped needs valid zeiger
 DBG_MESSAGE("karte_t::destroy()", "destroying world");
 
+	uint32 max_display_progress = 1+stadt.get_count()*10 + haltestelle_t::get_alle_haltestellen().get_count() + convoi_array.get_count() + (cached_groesse_karte_x*cached_groesse_karte_y) ;
+	uint32 old_progress = 0;
+
+	display_set_progress_text(translator::translate("Destroying map ..."));
+	display_progress(old_progress, max_display_progress);
+
 	// rotate the map until it can be saved
-	nosave_warning = nosave = false;
-	for( int i=0;  i<4  &&  nosave;  i++  ) {
-DBG_MESSAGE("karte_t::destroy()", "rotating");
-		rotate90();
+	nosave_warning = false;
+	if(  nosave  ) {
+		max_display_progress += 256;
+		for( int i=0;  i<4  &&  nosave;  i++  ) {
+	DBG_MESSAGE("karte_t::destroy()", "rotating");
+			rotate90();
+		}
+		old_progress += 256;
+		display_progress(old_progress, max_display_progress);
 	}
 	if(nosave) {
 		dbg->fatal( "karte_t::destroy()","Map cannot be cleanly destroyed in any rotation!" );
@@ -539,36 +550,52 @@ DBG_MESSAGE("karte_t::destroy()", "label clear");
 		zeiger = NULL;
 	}
 
+	old_progress += 256;
+	display_progress(old_progress, max_display_progress);
+
 	// alle convois aufraeumen
 	while (!convoi_array.empty()) {
 		convoihandle_t cnv = convoi_array.back();
 		cnv->destroy();
+		old_progress ++;
+		if(  old_progress&0x00FF == 0  ) {
+			display_progress(old_progress, max_display_progress);
+		}
 	}
 	convoi_array.clear();
 DBG_MESSAGE("karte_t::destroy()", "convois destroyed");
 
 	// alle haltestellen aufraeumen
+	old_progress += haltestelle_t::get_alle_haltestellen().get_count();
 	haltestelle_t::destroy_all(this);
 DBG_MESSAGE("karte_t::destroy()", "stops destroyed");
+	display_progress(old_progress, max_display_progress);
 
 	// delete towns first (will also delete all their houses)
 	// for the next game we need to remember the desired number ...
 	sint32 const no_of_cities = settings.get_anzahl_staedte();
-	while (!stadt.empty()) {
+	for(  uint32 i=0;  !stadt.empty();  i++  ) {
 		rem_stadt(stadt.front());
+		old_progress += 10;
+		if(  i&0x00F == 0  ) {
+			display_progress( old_progress, max_display_progress );
+		}
 	}
 	settings.set_anzahl_staedte(no_of_cities);
 DBG_MESSAGE("karte_t::destroy()", "towns destroyed");
 
+	display_progress( old_progress, max_display_progress );
+	old_progress += cached_groesse_karte_x*cached_groesse_karte_y/2;
 	while(!sync_list.empty()) {
 		sync_steppable *ss = sync_list.remove_first();
 		delete ss;
 	}
 	// entfernt alle synchronen objekte aus der liste
 	sync_list.clear();
+	display_progress( old_progress, max_display_progress );
 DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
 
-// dinge aufraeumen
+	// dinge aufraeumen
 	cached_groesse_gitter_x = cached_groesse_gitter_y = 1;
 	cached_groesse_karte_x = cached_groesse_karte_y = 0;
 	if(plan) {
@@ -576,6 +603,7 @@ DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
 		plan = NULL;
 	}
 	DBG_MESSAGE("karte_t::destroy()", "planquadrat destroyed");
+	display_progress( max_display_progress, max_display_progress );
 
 	// gitter aufraeumen
 	if(grid_hgts) {
@@ -4212,13 +4240,14 @@ void karte_t::laden(loadsave_t *file)
 	}
 	destroy_all_win(true);
 
+	destroy();
+
 	display_set_progress_text(translator::translate("Loading map ..."));
 	display_progress(0, 100);	// does not matter, since fixed width
 
 	clear_random_mode(~LOAD_RANDOM);
 	set_random_mode(LOAD_RANDOM);
 
-	destroy();
 	tile_counter = 0;
 	simloops = 60;
 
