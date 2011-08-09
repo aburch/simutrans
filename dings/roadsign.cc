@@ -178,6 +178,7 @@ void roadsign_t::calc_bild()
 	hang_t::typ hang = gr->get_weg_hang();
 	if(  hang==hang_t::flach  ) {
 		yoff = -gr->get_weg_yoff();
+		after_yoffset = yoff;
 	}
 	else {
 		// since the places were switched
@@ -188,7 +189,7 @@ void roadsign_t::calc_bild()
 		}
 		if(hang==hang_t::ost ||  hang==hang_t::nord) {
 			yoff += -TILE_HEIGHT_STEP;
-			after_yoffset = +TILE_HEIGHT_STEP;
+			after_yoffset = 0;
 		}
 		else {
 			after_yoffset = -TILE_HEIGHT_STEP;
