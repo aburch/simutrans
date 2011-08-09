@@ -52,6 +52,7 @@ void signal_t::calc_bild()
 
 	after_xoffset = 0;
 	after_yoffset = 0;
+	const bool left_swap = welt->get_settings().is_signals_left();
 	grund_t *gr = welt->lookup(get_pos());
 	if(gr) {
 		set_flag(ding_t::dirty);
@@ -68,16 +69,21 @@ void signal_t::calc_bild()
 			hang_t::typ hang = gr->get_weg_hang();
 			if(hang==hang_t::flach) {
 				set_yoff( -gr->get_weg_yoff() );
-				after_yoffset = 0;
+				after_yoffset = -gr->get_weg_yoff();
 			}
 			else {
+				if(  left_swap  ) {
+					if (hang==hang_t::nord || hang==hang_t::sued) {
+						hang = ribi_t::rueckwaerts(hang);
+					}
+				}
 				if(hang==hang_t::west ||  hang==hang_t::sued) {
 					set_yoff( 0 );
 					after_yoffset = -TILE_HEIGHT_STEP;
 				}
 				else {
 					set_yoff( -TILE_HEIGHT_STEP );
-					after_yoffset = +TILE_HEIGHT_STEP;
+					after_yoffset = 0;
 				}
 			}
 
