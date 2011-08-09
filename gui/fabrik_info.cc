@@ -121,7 +121,6 @@ void fabrik_info_t::set_fenstergroesse(koord groesse)
  */
 void fabrik_info_t::zeichnen(koord pos, koord gr)
 {
-	cbuffer_t buf;	// clear the buffer of the base class
 	fab->info_prod( prod_buf );
 	fab->info_conn( info_buf );
 	txt.recalc_size();
@@ -131,11 +130,16 @@ void fabrik_info_t::zeichnen(koord pos, koord gr)
 
 	gui_frame_t::zeichnen(pos,gr);
 
+	prod_buf.clear();
+	prod_buf.append( translator::translate("Durchsatz") );
+	prod_buf.append( fab->get_current_production(), 0 );
+	prod_buf.append( translator::translate("units/day") );
+
 	unsigned indikatorfarbe = fabrik_t::status_to_color[fab->get_status()];
 	display_ddd_box_clip(pos.x + view.get_pos().x, pos.y + view.get_pos().y + view.get_groesse().y + 16, view.get_groesse().x, 8, MN_GREY0, MN_GREY4);
 	display_fillbox_wh_clip(pos.x + view.get_pos().x + 1, pos.y + view.get_pos().y + view.get_groesse().y + 17, view.get_groesse().x - 2, 6, indikatorfarbe, true);
 	KOORD_VAL x_view_pos = 4;
-	KOORD_VAL x_prod_pos = 4;
+	KOORD_VAL x_prod_pos = 4+proportional_string_width(prod_buf)+10;
 	if(  skinverwaltung_t::electricity->get_bild_nr(0)!=IMG_LEER  ) {
 		// indicator for recieving
 		if(  fab->get_prodfactor_electric()>0  ) {
@@ -144,7 +148,7 @@ void fabrik_info_t::zeichnen(koord pos, koord gr)
 		}
 		// indicator for enabled
 		if(  fab->get_besch()->get_electric_boost()  ) {
-			display_color_img( skinverwaltung_t::electricity->get_bild_nr(0), pos.x + prod.get_groesse().x + x_prod_pos, pos.y + view.get_pos().y + 20, 0, false, false);
+			display_color_img( skinverwaltung_t::electricity->get_bild_nr(0), pos.x + x_prod_pos, pos.y + view.get_pos().y + 20, 0, false, false);
 			x_prod_pos += skinverwaltung_t::electricity->get_bild(0)->get_pic()->w+4;
 		}
 	}
@@ -153,7 +157,7 @@ void fabrik_info_t::zeichnen(koord pos, koord gr)
 			display_color_img(skinverwaltung_t::passagiere->get_bild_nr(0), pos.x + view.get_pos().x + 4 + 8, pos.y + view.get_pos().y + 20, 0, false, false);
 		}
 		if(  fab->get_besch()->get_pax_boost()  ) {
-			display_color_img( skinverwaltung_t::passagiere->get_bild_nr(0), pos.x + prod.get_groesse().x + x_prod_pos, pos.y + view.get_pos().y + 20, 0, false, false);
+			display_color_img( skinverwaltung_t::passagiere->get_bild_nr(0), pos.x + x_prod_pos, pos.y + view.get_pos().y + 20, 0, false, false);
 			x_prod_pos += skinverwaltung_t::passagiere->get_bild(0)->get_pic()->w+4;
 		}
 	}
@@ -162,7 +166,7 @@ void fabrik_info_t::zeichnen(koord pos, koord gr)
 			display_color_img(skinverwaltung_t::post->get_bild_nr(0), pos.x + view.get_pos().x + 4 + 18, pos.y + view.get_pos().y + 20, 0, false, false);
 		}
 		if(  fab->get_besch()->get_mail_boost()  ) {
-			display_color_img( skinverwaltung_t::post->get_bild_nr(0), pos.x + prod.get_groesse().x + x_prod_pos, pos.y + view.get_pos().y + 20, 0, false, false);
+			display_color_img( skinverwaltung_t::post->get_bild_nr(0), pos.x + x_prod_pos, pos.y + view.get_pos().y + 20, 0, false, false);
 		}
 	}
 }

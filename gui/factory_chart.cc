@@ -243,9 +243,9 @@ factory_chart_t::factory_chart_t(const fabrik_t *_factory) :
 
 	add_komponente( &tab_panel );
 	const int max_rows = max( goods_label_count, button_pos[MAX_FAB_STAT-1].y+1 );
-	const koord size( 20+80+CHART_WIDTH, gui_tab_panel_t::HEADER_VSIZE+CHART_HEIGHT+20+max_rows*BUTTON_HEIGHT+(max_rows-1)*BUTTON_SPACER );
+	const koord size( 20+80+CHART_WIDTH, gui_tab_panel_t::HEADER_VSIZE+CHART_HEIGHT+20+max_rows*BUTTON_HEIGHT+(max_rows-1)*BUTTON_SPACER+16 );
 	tab_panel.set_groesse( size );
-	set_groesse( size + koord(0, 16) );
+	set_groesse( size );
 
 	// initialize reference lines' data (these do not change over time)
 	prod_ref_line_data[FAB_REF_MAX_BOOST_ELECTRIC] = factory->get_besch()->get_electric_boost();
