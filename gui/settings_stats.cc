@@ -66,6 +66,7 @@ void settings_general_stats_t::init(settings_t const* const sets)
 {
 	INIT_INIT
 	INIT_BOOL( "drive_left", sets->is_drive_left() );
+	INIT_BOOL( "signals_on_left", sets->is_signals_left() );
 	INIT_NUM( "autosave", umgebung_t::autosave, 0, 12, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "frames_per_second",umgebung_t::fps, 10, 25, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "fast_forward", umgebung_t::max_acceleration, 1, 1000, gui_numberinput_t::AUTOLINEAR, false );
@@ -130,6 +131,8 @@ void settings_general_stats_t::read(settings_t* const sets)
 	READ_INIT
 	READ_BOOL_VALUE( sets->drive_on_left );
 	vehikel_basis_t::set_overtaking_offsets( sets->drive_on_left );
+	READ_BOOL_VALUE( sets->signals_on_left );
+
 	READ_NUM_VALUE( umgebung_t::autosave );
 	READ_NUM_VALUE( umgebung_t::fps );
 	READ_NUM_VALUE( umgebung_t::max_acceleration );
