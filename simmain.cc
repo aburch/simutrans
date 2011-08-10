@@ -1210,6 +1210,8 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		file.close();
 	}
 
+	werkzeug_t::exit_menu();
+
 	welt->destroy();	// some compiler aparently do not like accessing welt during destroy
 	delete welt;
 	welt = NULL;

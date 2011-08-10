@@ -298,6 +298,9 @@ void crossing_logic_t::add( karte_t *w, crossing_t *start_cr, crossing_state_t z
 	welt = w;
 
 	crossings.append_unique( start_cr );
+	if (crossing_logic_t *start_logic = start_cr->get_logic() ) {
+		crossings_logics.append(start_logic);
+	}
 	// go nord/west
 	while(1) {
 		pos += zv;
@@ -346,7 +349,6 @@ void crossing_logic_t::add( karte_t *w, crossing_t *start_cr, crossing_state_t z
 	if(  found_logic == NULL ) {
 		found_logic = new crossing_logic_t( start_cr->get_besch() );
 	}
-	crossings.append(start_cr);
 
 	// set new crossing logic to all
 	slist_iterator_tpl<crossing_t *> iter(crossings);

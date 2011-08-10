@@ -284,4 +284,18 @@ template<class T> void swap(vector_tpl<T>& a, vector_tpl<T>& b)
 	sim::swap(a.count, b.count);
 }
 
+/**
+ * Clears vectors of the type vector_tpl<someclass*>
+ * Deletes all objects pointed to by pointers in the vector
+ */
+template<class T> void clear_ptr_vector(vector_tpl<T*>& v)
+{
+	for(uint32 i=0; i<v.get_count(); i++) {
+		delete v[i];
+	}
+	v.clear();
+}
+
+
+
 #endif

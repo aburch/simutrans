@@ -194,7 +194,7 @@ static char szenario_path[256];
 /* Liste aller Städtenamen
  * @author Hj. Malthaner
  */
-static vector_tpl<const char*> namen_liste;
+static vector_tpl<char*> namen_liste;
 
 
 
@@ -225,7 +225,7 @@ void translator::init_city_names(int lang)
 	FILE* file;
 
 	// alle namen aufräumen
-	namen_liste.clear();
+	clear_ptr_vector( namen_liste );
 
 	// Hajo: init city names. There are two options:
 	//

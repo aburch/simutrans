@@ -331,7 +331,7 @@ bool stadt_t::cityrules_init(const std::string &objfilename)
 	}
 	DBG_MESSAGE("stadt_t::init()", "Read %d road building rules", num_road_rules);
 
-	house_rules.clear();
+	clear_ptr_vector( house_rules );
 	for (uint32 i = 0; i < num_house_rules; i++) {
 		house_rules.append(new rule_t());
 		sprintf(buf, "house_%d.chance", i + 1);
@@ -375,7 +375,7 @@ bool stadt_t::cityrules_init(const std::string &objfilename)
 		}
 	}
 
-	road_rules.clear();
+	clear_ptr_vector( road_rules );
 	for (uint32 i = 0; i < num_road_rules; i++) {
 		road_rules.append(new rule_t());
 		sprintf(buf, "road_%d.chance", i + 1);
@@ -449,7 +449,7 @@ void stadt_t::cityrules_rdwr(loadsave_t *file)
 
 	// house rules
 	if (file->is_loading()) {
-		house_rules.clear();
+		clear_ptr_vector( house_rules );
 	}
 	uint32 count = house_rules.get_count();
 	file->rdwr_long(count);
@@ -461,7 +461,7 @@ void stadt_t::cityrules_rdwr(loadsave_t *file)
 	}
 	// road rules
 	if (file->is_loading()) {
-		road_rules.clear();
+		clear_ptr_vector( road_rules );
 	}
 	count = road_rules.get_count();
 	file->rdwr_long(count);

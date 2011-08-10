@@ -154,7 +154,6 @@ void crossing_t::rdwr(loadsave_t *file)
 		if(besch==NULL) {
 			dbg->fatal("crossing_t::rdwr()","requested for waytypes %i and %i but nothing defined!", w1, w2 );
 		}
-		crossing_logic_t::add( welt, this, static_cast<crossing_logic_t::crossing_state_t>(zustand) );
 	}
 }
 
