@@ -294,7 +294,7 @@ void spieler_t::step()
 void spieler_t::neuer_monat()
 {
 	// since the messages must remain on the screen longer ...
-	static char buf[256];
+	static cbuffer_t buf;
 
 	// Wartungskosten abziehen
 	// "Deduct maintenance costs" (Google)
@@ -330,7 +330,8 @@ void spieler_t::neuer_monat()
 	if(konto > 0  &&  welt->get_scenario()->active()  &&  finance_history_year[0][COST_SCENARIO_COMPLETED]>=100) {
 		destroy_all_win(true);
 		sint32 const time = welt->get_current_month() - welt->get_settings().get_starting_year() * 12;
-		sprintf( buf, translator::translate("Congratulation\nScenario was complete in\n%i months %i years."), time%12, time/12 );
+		buf.clear();
+		buf.printf( translator::translate("Congratulation\nScenario was complete in\n%i months %i years."), time%12, time/12 );
 		create_win(280, 40, new news_img(buf), w_info, magic_none);
 		// disable further messages
 		welt->get_scenario()->init("",welt);
@@ -383,21 +384,21 @@ void spieler_t::neuer_monat()
 						// Plural detection for the months. 
 						// Different languages pluralise in different ways, so whole string must
 						// be re-translated.
-						n += sprintf(buf, translator::translate("You have been overdrawn\nfor %i months"), konto_ueberzogen );
+						buf.clear();
+						buf.printf(translator::translate("You have been overdrawn\nfor %i months"), konto_ueberzogen );
 						if(konto_ueberzogen > 3)
 						{
-							n += sprintf(buf + n, "%s", translator::translate("\n\nYour credit rating is being affected."));
+							buf.printf("%s", translator::translate("\n\nYour credit rating is being affected."));
 						}
 					}
 					else
 					{
-						n += sprintf(buf, "%s", translator::translate("You have been overdrawn\nfor one month"));
+						buf.printf("%s", translator::translate("You have been overdrawn\nfor one month"));
 					}
 					if(welt->get_settings().get_interest_rate_percent() > 0)
 					{
-						n += sprintf(buf + n, translator::translate("\n\nInterest on your debt is\naccumulating at %i %%"),welt->get_settings().get_interest_rate_percent() );
+						buf.printf(translator::translate("\n\nInterest on your debt is\naccumulating at %i %%"),welt->get_settings().get_interest_rate_percent() );
 					}
-//					sprintf(buf,translator::translate("Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n"), MAX_KONTO_VERZUG-konto_ueberzogen+1 );
 					welt->get_message()->add_message( buf, koord::invalid, message_t::problems, player_nr, IMG_LEER );
 				}
 			}
@@ -848,8 +849,8 @@ void spieler_t::ai_bankrupt()
 	}
 
 	automat = false;
-	char buf[256];
-	sprintf(buf, translator::translate("%s\nwas liquidated."), get_name() );
+	cbuffer_t buf;
+	buf.printf( translator::translate("%s\nwas liquidated."), get_name() );
 	welt->get_message()->add_message( buf, koord::invalid, message_t::ai, PLAYER_FLAG|player_nr );
 }
 

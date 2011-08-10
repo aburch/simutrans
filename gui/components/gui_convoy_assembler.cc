@@ -79,7 +79,7 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(karte_t *w, waytype_t wt, signed 
 	placement.y=placement.y* get_base_tile_raster_width() / 64 + 2;
 	grid.x=grid.x* get_base_tile_raster_width() / 64 + 4;
 	grid.y=grid.y* get_base_tile_raster_width() / 64 + 6;
-	if(wt==road_wt  &&  umgebung_t::drive_on_left) {
+	if(wt==road_wt  &&  welt->get_settings().is_drive_left()) {
 		// correct for dive on left
 		placement.x -= (12*get_base_tile_raster_width())/64;
 		placement.y -= (6*get_base_tile_raster_width())/64;

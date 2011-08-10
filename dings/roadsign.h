@@ -29,15 +29,14 @@ protected:
 
 	enum { SHOW_FONT=1, SHOW_BACK=2, SWITCH_AUTOMATIC=16 };
 
-	uint8 zustand:3;	// counter for steps ...
+	uint8 zustand:2;	// counter for steps ...
 	uint8 dir:4;
 
 	uint8 automatic:1;
 	uint8 ticks_ns;
 	uint8 ticks_ow;
 
-
-	sint8 after_offset;
+	sint8 after_yoffset, after_xoffset;
 
 	const roadsign_besch_t *besch;
 

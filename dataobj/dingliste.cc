@@ -308,7 +308,7 @@ bool dingliste_t::intern_add_moving(ding_t* ding)
 
 		// this is very complicated:
 		// we may have many objects in two lanes (actually five with tram and pedestrians)
-		if(umgebung_t::drive_on_left) {
+		if(ding->get_welt()->get_settings().is_drive_left()) {
 
 			// driving on left side
 			if(fahrtrichtung<4) {	// nord, nordwest

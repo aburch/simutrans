@@ -50,6 +50,8 @@ void signal_t::calc_bild()
 	after_bild = IMG_LEER;
 	image_id bild = IMG_LEER;
 
+	after_xoffset = 0;
+	after_yoffset = 0;
 	grund_t *gr = welt->lookup(get_pos());
 	if(gr) {
 		set_flag(ding_t::dirty);
@@ -66,16 +68,16 @@ void signal_t::calc_bild()
 			hang_t::typ hang = gr->get_weg_hang();
 			if(hang==hang_t::flach) {
 				set_yoff( -gr->get_weg_yoff() );
-				after_offset = 0;
+				after_yoffset = 0;
 			}
 			else {
 				if(hang==hang_t::west ||  hang==hang_t::sued) {
 					set_yoff( 0 );
-					after_offset = -TILE_HEIGHT_STEP;
+					after_yoffset = -TILE_HEIGHT_STEP;
 				}
 				else {
 					set_yoff( -TILE_HEIGHT_STEP );
-					after_offset = +TILE_HEIGHT_STEP;
+					after_yoffset = +TILE_HEIGHT_STEP;
 				}
 			}
 

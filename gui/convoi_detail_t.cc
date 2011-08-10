@@ -95,27 +95,30 @@ void convoi_detail_t::zeichnen(koord pos, koord gr)
 		int offset_y = pos.y+2+16;
 
 		// current value
-		char tmp[512];
+		char number[64];
+		cbuffer_t buf;
 
 		// current power
-		sprintf( tmp, translator::translate("Leistung: %d kW"), cnv->get_sum_leistung() );
-		display_proportional_clip( pos.x+10, offset_y, tmp, ALIGN_LEFT, MONEY_PLUS, true );
+		buf.printf( translator::translate("Leistung: %d kW"), cnv->get_sum_leistung() );
+		display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, MONEY_PLUS, true );
 		offset_y += LINESPACE;
 
-		char number[64];
-		number_to_string( number, (cnv->get_total_distance_traveled()), 0 );
-		sprintf( tmp, translator::translate("Odometer: %s km"), number );
-		display_proportional_clip( pos.x+10, offset_y, tmp, ALIGN_LEFT, MONEY_PLUS, true );
+		number_to_string( number, cnv->get_total_distance_traveled(), 0 );
+		buf.clear();
+		buf.printf( translator::translate("Odometer: %s km"), number );
+		display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, MONEY_PLUS, true );
 		offset_y += LINESPACE;
 
-		sprintf( tmp, "%s %i", translator::translate("Station tiles:"), cnv->get_tile_length() );
-		display_proportional_clip( pos.x+10, offset_y, tmp, ALIGN_LEFT, MONEY_PLUS, true );
+		buf.clear();
+		buf.printf("%s %i", translator::translate("Station tiles:"), cnv->get_tile_length() );
+		display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, MONEY_PLUS, true );
 		offset_y += LINESPACE;
 
 		// current resale value
-		money_to_string( tmp+sprintf( tmp, "%s ", translator::translate("Restwert:") ), cnv->calc_restwert()/100.0 );
-
-		display_proportional_clip( pos.x+10, offset_y, tmp, ALIGN_LEFT, MONEY_PLUS, true );
+		money_to_string( number, cnv->calc_restwert()/100.0 );
+		buf.clear();
+		buf.printf("%s %s", translator::translate("Restwert:"), number );
+		display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, MONEY_PLUS, true );
 		offset_y += LINESPACE;
 		
 		// Bernd Gabriel, 16.06.2009: current average obsolescence increase percentage
@@ -157,24 +160,30 @@ void convoi_detail_t::zeichnen(koord pos, koord gr)
 				mon_nominal += besch->get_fixed_maintenance();
 				mon_actual  += besch->get_fixed_maintenance(welt);
 			}
+			buf.clear();
 			if (run_nominal) run_percent = ((run_actual - run_nominal) * 100) / run_nominal;
 			if (mon_nominal) mon_percent = ((mon_actual - mon_nominal) * 100) / mon_nominal;
-			int len = 0;
 			if (run_percent)
 			{
 				if (mon_percent)
-					len = sprintf(tmp, "%s: %d%%/km %d%%/mon", translator::translate("Obsolescence increase"), run_percent, mon_percent);
+				{
+					buf.printf("%s: %d%%/km %d%%/mon", translator::translate("Obsolescence increase"), run_percent, mon_percent);
+				}
 				else
-					len = sprintf(tmp, "%s: %d%%/km", translator::translate("Obsolescence increase"), run_percent);
+				{
+					buf.printf("%s: %d%%/km", translator::translate("Obsolescence increase"), run_percent);
+				}
 			}
 			else
 			{
 				if (mon_percent)
-					len = sprintf(tmp, "%s: %d%%/mon", translator::translate("Obsolescence increase"), mon_percent);
+				{
+					buf.printf("%s: %d%%/mon", translator::translate("Obsolescence increase"), mon_percent);
+				}
 			}
-			if (len)
+			if (buf.len() > 0)
 			{
-				display_proportional_clip( pos.x+10, offset_y, tmp, ALIGN_LEFT, COL_DARK_BLUE, true );
+				display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, COL_DARK_BLUE, true );
 				offset_y += LINESPACE;
 			}
 
@@ -309,7 +318,8 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 
 	int total_height = LINESPACE;
 	if(cnv.is_bound()) {
-		char buf[256], tmp[256];
+		char number[64];
+		cbuffer_t buf;
 
 		// for bonus stuff
 		sint32 const ref_speed = cnv->get_welt()->get_average_speed(cnv->front()->get_waytype());
@@ -337,51 +347,49 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 
 			// age
 			sint32 month = v->get_insta_zeit();
-			sprintf( buf, "%s %s %i", translator::translate("Manufactured:"), translator::get_month_name(month%12), month/12  );
+			buf.clear();
+			buf.printf( "%s %s %i", translator::translate("Manufactured:"), translator::get_month_name(month%12), month/12 );
 			display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, COL_BLACK, true );
-			extra_y += LINESPACE;
-
-			// value
-			sint32 current = v->calc_restwert();
-			money_to_string( tmp, current/100.0 );
-			sprintf( buf, "%s %s", translator::translate("Restwert:"), tmp );
-			display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, MONEY_PLUS, true );
 			extra_y += LINESPACE;
 			
 			// Bernd Gabriel, 16.06.2009: current average obsolescence increase percentage
 			uint32 percentage = v->get_besch()->calc_running_cost(v->get_welt(), 100) - 100;
 			if (percentage > 0)
 			{
-				sprintf( buf, "%s: %d%%", translator::translate("Obsolescence increase"), percentage);
+				buf.clear();
+				buf.printf("%s: %d%%", translator::translate("Obsolescence increase"), percentage);
 				display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, COL_DARK_BLUE, true );
 				extra_y += LINESPACE;
 			}
 
 			// power
 			if(v->get_besch()->get_leistung()>0) {
-				sprintf( buf, "%s %i kW, %s %.2f", translator::translate("Power:"), v->get_besch()->get_leistung(), translator::translate("Gear:"), v->get_besch()->get_gear()/64.0 );
+				buf.clear();
+				buf.printf( "%s %i kW, %s %.2f", translator::translate("Power:"), v->get_besch()->get_leistung(), translator::translate("Gear:"), v->get_besch()->get_gear()/64.0 );
 				display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, MONEY_PLUS, true );
 				extra_y += LINESPACE;
 			}
 
 			// weight
-			sprintf( buf, "%s %dt", translator::translate("Weight:"), v->get_sum_weight());
+			buf.clear();
+			buf.printf( "%s %dt", translator::translate("Weight:"), v->get_sum_weight());
 			display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, MONEY_PLUS, true );
 			extra_y += LINESPACE;
 
 			//Catering
 			if(v->get_besch()->get_catering_level() > 0)
 			{
+				buf.clear();
 				if(v->get_besch()->get_ware()->get_catg_index() == 1)
 				{
 					//Catering vehicles that carry mail are treated as TPOs.
-					sprintf(buf , "%s", translator::translate("This is a travelling post office\n"));
+					buf.printf( "%s", translator::translate("This is a travelling post office\n"));
 					display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, COL_BLACK, true );
 					extra_y += LINESPACE;
 				}
 				else
 				{
-					sprintf(buf, translator::translate("Catering level: %i\n"), v->get_besch()->get_catering_level());
+					buf.printf(translator::translate("Catering level: %i\n"), v->get_besch()->get_catering_level());
 					display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, COL_BLACK, true );
 					extra_y += LINESPACE;
 				}
@@ -390,7 +398,8 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 			//Tilting
 			if(v->get_besch()->get_tilting())
 			{
-				sprintf(buf, "%s", translator::translate("This is a tilting vehicle\n"));
+				buf.clear();
+				buf.printf("%s", translator::translate("This is a tilting vehicle\n"));
 				display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, COL_BLACK, true );
 				extra_y += LINESPACE;
 			}
@@ -398,7 +407,8 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 			// friction
 			if (v->get_frictionfactor() != 1)
 			{
-				sprintf( buf, "%s %i", translator::translate("Friction:"), v->get_frictionfactor() );
+				buf.clear();
+				buf.printf("%s %i", translator::translate("Friction:"), v->get_frictionfactor() );
 				display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, MONEY_PLUS, true );
 				extra_y += LINESPACE;
 			}
@@ -407,14 +417,16 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 			{
 				char loading_time_as_clock[32];
 				v->get_welt()->sprintf_ticks(loading_time_as_clock, sizeof(loading_time_as_clock), v->get_besch()->get_loading_time());
-				sprintf( buf, "%s %i (%s)", translator::translate("Loading time:"), v->get_besch()->get_loading_time(), loading_time_as_clock );
+				buf.clear();
+				buf.printf("%s %i (%s)", translator::translate("Loading time:"), v->get_besch()->get_loading_time(), loading_time_as_clock );
 				display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, COL_BLACK, true );
 				extra_y += LINESPACE;
 			}
 			
 			if(v->get_fracht_typ()->get_catg_index() == 0)
 			{
-				sprintf( buf, "%s %i", translator::translate("Comfort:"), v->get_comfort() );
+				buf.clear();
+				buf.printf("%s %i", translator::translate("Comfort:"), v->get_comfort() );
 				display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, COL_BLACK, true );
 				extra_y += LINESPACE;
 			}
@@ -426,8 +438,8 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 				const sint32 grundwert128 = v->get_fracht_typ()->get_preis()<<7;
 				const sint32 grundwert_bonus = v->get_fracht_typ()->get_preis()*(1000l+speed_base*v->get_fracht_typ()->get_speed_bonus());
 				const sint32 price = (v->get_fracht_max()*(grundwert128>grundwert_bonus ? grundwert128 : grundwert_bonus))/30 - v->get_betriebskosten(cnv->get_welt());
-				money_to_string( tmp, price/100.0 );
-				display_proportional_clip( pos.x+w+offset.x+len, pos.y+offset.y+total_height+extra_y, tmp, ALIGN_LEFT, price>0?MONEY_PLUS:MONEY_MINUS, true );
+				money_to_string( number, price/100.0 );
+				display_proportional_clip( pos.x+w+offset.x+len, pos.y+offset.y+total_height+extra_y, number, ALIGN_LEFT, price>0?MONEY_PLUS:MONEY_MINUS, true );
 				extra_y += LINESPACE;
 
 				ware_besch_t const& g    = *v->get_fracht_typ();
@@ -460,11 +472,12 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 				//if(v->get_besch()->permissive_way_constraint_set(i))
 				if(way_constraints.get_permissive(i))
 				{
+					buf.clear();
 					char tmpbuf1[13];
 					sprintf(tmpbuf1, "\nMUST USE: ");
 					char tmpbuf[14];
 					sprintf(tmpbuf, "Permissive %i", i);
-					sprintf(buf, "%s %s", translator::translate(tmpbuf1), translator::translate(tmpbuf));
+					buf.printf("%s %s", translator::translate(tmpbuf1), translator::translate(tmpbuf));
 					display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, COL_BLACK, true );
 					extra_y += LINESPACE;
 				}
@@ -478,11 +491,12 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 			{
 				if(way_constraints.get_prohibitive(i))
 				{
+					buf.clear();
 					char tmpbuf1[13];
 					sprintf(tmpbuf1, "\nMAY USE: ");
 					char tmpbuf[14];
 					sprintf(tmpbuf, "Prohibitive %i", i);
-					sprintf(buf, "%s %s", translator::translate(tmpbuf1), translator::translate(tmpbuf));
+					buf.printf("%s %s", translator::translate(tmpbuf1), translator::translate(tmpbuf));
 					display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, COL_BLACK, true );
 					extra_y += LINESPACE;
 				}

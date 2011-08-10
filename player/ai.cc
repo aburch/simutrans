@@ -480,7 +480,7 @@ bool ai_t::create_simple_road_transport(koord platz1, koord size1, koord platz2,
 	vehikel_t* test_driver = vehikelbauer_t::baue(welt->lookup_kartenboden(platz1)->get_pos(), this, NULL, &test_besch);
 	test_driver->set_flag( ding_t::not_on_map );
 	route_t verbindung;
-	if (verbindung.calc_route(welt, welt->lookup_kartenboden(platz1)->get_pos(), welt->lookup_kartenboden(platz2)->get_pos(), test_driver, 0, 0)  &&
+	if (verbindung.calc_route(welt, welt->lookup_kartenboden(platz1)->get_pos(), welt->lookup_kartenboden(platz2)->get_pos(), test_driver, 0, 0, 0)  &&
 		verbindung.get_count()<2u*shortest_distance(platz1,platz2))  {
 DBG_MESSAGE("ai_passenger_t::create_simple_road_transport()","Already connection between %d,%d to %d,%d is only %i",platz1.x, platz1.y, platz2.x, platz2.y, verbindung.get_count() );
 		// found something with the nearly same length

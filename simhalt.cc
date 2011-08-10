@@ -1007,8 +1007,8 @@ void haltestelle_t::step()
 void haltestelle_t::neuer_monat()
 {
 	if(  welt->get_active_player()==besitzer_p  &&  status_color==COL_RED  ) {
-		char buf[256];
-		sprintf(buf, translator::translate("!0_STATION_CROWDED"), get_name());
+		cbuffer_t buf;
+		buf.printf( translator::translate("!0_STATION_CROWDED"), get_name() );
 		welt->get_message()->add_message(buf, get_basis_pos(),message_t::full, PLAYER_FLAG|besitzer_p->get_player_nr(), IMG_LEER );
 		enables &= (PAX|POST|WARE);
 	}
@@ -3283,7 +3283,6 @@ bool haltestelle_t::find_free_position(const waytype_t w,convoihandle_t cnv,cons
 }
 
 
-
 /* reserves a position (caution: railblocks work differently!
  * @author prissi
  */
@@ -3315,7 +3314,6 @@ bool haltestelle_t::reserve_position(grund_t *gr,convoihandle_t cnv)
 }
 
 
-
 /* frees a reserved  position (caution: railblocks work differently!
  * @author prissi
  */
@@ -3331,7 +3329,6 @@ bool haltestelle_t::unreserve_position(grund_t *gr, convoihandle_t cnv)
 DBG_MESSAGE("haltestelle_t::unreserve_position()","failed for gr=%p",gr);
 	return false;
 }
-
 
 
 /* can a convoi reserve this position?

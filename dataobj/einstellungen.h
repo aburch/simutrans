@@ -378,6 +378,9 @@ private:
 	uint32 frames_per_step;
 	uint32 server_frames_ahead;
 
+	bool drive_on_left;
+	bool signals_on_left;
+
 public:
 	/* the big cost section */
 	sint32 maint_building;	// normal building
@@ -818,6 +821,7 @@ public:
 	void set_default_increase_maintenance_after_years(waytype_t wtype, uint16 value) { default_increase_maintenance_after_years[wtype] = value; }
 	uint32 get_server_frames_ahead() const { return server_frames_ahead; }
 
+
 	uint8 get_spacing_shift_mode() const { return spacing_shift_mode; }
 	void set_spacing_shift_mode(uint8 s) { spacing_shift_mode = s; }
 
@@ -829,6 +833,9 @@ public:
 
 	bool get_allow_routing_on_foot() const { return allow_routing_on_foot; }
 	void set_allow_routing_on_foot(bool value); 
+
+	bool is_drive_left() const { return drive_on_left; }
+	bool is_signals_left() const { return signals_on_left; }
 };
 
 #endif 

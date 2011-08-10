@@ -792,6 +792,8 @@ void karte_t::init_felder()
 
 	halthandle_t::init( 1024 );
 
+	vehikel_basis_t::set_overtaking_offsets( get_settings().is_drive_left() );
+
 	scenario = new scenario_t(this);
 
 	nosave_warning = nosave = false;
@@ -1152,7 +1154,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","took %lu ms for all towns",
 				// valid connection?
 				if(  conn.x >= 0  ) {
 					// is there a connection already
-					const bool connected = phase==1 && verbindung.calc_route(this,k[conn.x],k[conn.y],  test_driver, 0, 0);
+					const bool connected = (  phase==1  &&  verbindung.calc_route( this, k[conn.x], k[conn.y], test_driver, 0, 0, 0 )  );
 					// build this connestion?
 					bool build = false;
 					// set appropriate max length for way builder
@@ -3310,8 +3312,8 @@ void karte_t::neues_jahr()
 DBG_MESSAGE("karte_t::neues_jahr()","speedbonus for %d %i, %i, %i, %i, %i, %i, %i, %i", letztes_jahr,
 			average_speed[0], average_speed[1], average_speed[2], average_speed[3], average_speed[4], average_speed[5], average_speed[6], average_speed[7] );
 
-	char buf[256];
-	sprintf(buf,translator::translate("Year %i has started."),letztes_jahr);
+	cbuffer_t buf;
+	buf.printf( translator::translate("Year %i has started."), letztes_jahr );
 	msg->add_message(buf,koord::invalid,message_t::general,COL_BLACK,skinverwaltung_t::neujahrsymbol->get_bild_nr(0));
 
 	for(unsigned i=0;  i<convoi_array.get_count();  i++ ) {
@@ -3345,8 +3347,6 @@ void karte_t::recalc_average_speed()
 
 	//	DBG_MESSAGE("karte_t::recalc_average_speed()","");
 	if(use_timeline()) {
-
-		char	buf[256];
 		for(int i=road_wt; i<=air_wt; i++) {
 			slist_tpl<vehikel_besch_t*>* cl = vehikelbauer_t::get_info((waytype_t)i);
 			if(cl) {
@@ -3387,40 +3387,32 @@ void karte_t::recalc_average_speed()
 					{
 						if(info->is_available_only_as_upgrade())
 						{
-							sprintf(buf,
-								translator::translate("Upgrade to %s now available:\n%s\n"),
-								vehicle_type,
-								translator::translate(info->get_name()));
-								msg->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,info->get_basis_bild());
+							cbuffer_t buf;
+							buf.printf(translator::translate("Upgrade to %s now available:\n%s\n"), vehicle_type, translator::translate(info->get_name()));
+							msg->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,info->get_basis_bild());
 						}
 						else
 						{
-							sprintf(buf,
-								translator::translate("New %s now available:\n%s\n"),
-								vehicle_type,
-								translator::translate(info->get_name()));
-								msg->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,info->get_basis_bild());
+							cbuffer_t buf;
+							buf.printf( translator::translate("New %s now available:\n%s\n"), vehicle_type, translator::translate(info->get_name()) );
+							msg->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,info->get_basis_bild());
 						}
 					}
 
 					const uint16 retire_month = info->get_retire_year_month();
 					if(retire_month == current_month) 
 					{
-						sprintf(buf,
-							translator::translate("Production of %s has been stopped:\n%s\n"),
-							vehicle_type,
-							translator::translate(info->get_name()));
+						cbuffer_t buf;
+						buf.printf( translator::translate("Production of %s has been stopped:\n%s\n"), vehicle_type, translator::translate(info->get_name()) );
 						msg->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,info->get_basis_bild());
 					}
 
 					const uint16 obsolete_month = info->get_obsolete_year_month(this);
 					if(obsolete_month == current_month) 
 					{
-						sprintf(buf,
-							translator::translate("The following %s has become obsolete:\n%s\n"),
-							vehicle_type,
-							translator::translate(info->get_name()));
-							msg->add_message(buf,koord::invalid,message_t::new_vehicle,COL_DARK_BLUE,info->get_basis_bild());
+						cbuffer_t buf;
+						buf.printf(translator::translate("The following %s has become obsolete:\n%s\n"), vehicle_type, translator::translate(info->get_name()));
+						msg->add_message(buf,koord::invalid,message_t::new_vehicle,COL_DARK_BLUE,info->get_basis_bild());
 					}
 				}
 			}
@@ -3517,9 +3509,9 @@ void karte_t::notify_record( convoihandle_t cnv, sint32 max_speed, koord pos )
 				case water_wt:    msg = "New world record for ship: %.1f km/h by %s.";      break;
 				case air_wt:      msg = "New world record for planes: %.1f km/h by %s.";    break;
 			}
-			char text[1024];
-			sprintf( text, translator::translate(msg), (float)speed_to_kmh(10*sr->speed)/10.0F, sr->cnv->get_name() );
-			get_message()->add_message(text, sr->pos, message_t::new_vehicle, PLAYER_FLAG|sr->besitzer->get_player_nr() );
+			cbuffer_t buf;
+			buf.printf( translator::translate(msg), (float)speed_to_kmh(10*sr->speed)/10.0F, sr->cnv->get_name() );
+			get_message()->add_message( buf, sr->pos, message_t::new_vehicle, PLAYER_FLAG|sr->besitzer->get_player_nr() );
 		}
 	}
 }
@@ -5777,8 +5769,8 @@ void karte_t::switch_active_player(uint8 new_player, bool silent)
 		active_player = spieler[new_player];
 		if(  !silent  ) {
 			// tell the player
-			char buf[512];
-			sprintf(buf, translator::translate("Now active as %s.\n"), get_active_player()->get_name() );
+			cbuffer_t buf;
+			buf.printf( translator::translate("Now active as %s.\n"), get_active_player()->get_name() );
 			msg->add_message(buf, koord::invalid, message_t::ai | message_t::local_flag, PLAYER_FLAG|get_active_player()->get_player_nr(), IMG_LEER);
 		}
 		zeiger->set_area( koord(1,1), false );
