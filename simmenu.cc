@@ -277,6 +277,13 @@ void werkzeug_t::init_menu()
 	}
 }
 
+void werkzeug_t::exit_menu()
+{
+	clear_ptr_vector( general_tool );
+	clear_ptr_vector( simple_tool );
+	clear_ptr_vector( dialog_tool );
+}
+
 
 // for sorting: compare tool key
 static bool compare_werkzeug(werkzeug_t const* const a, werkzeug_t const* const b)

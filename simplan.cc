@@ -47,7 +47,7 @@ planquadrat_t::~planquadrat_t()
 		}
 		delete [] data.some;
 	}
-	if(halt_list_count) {
+	if(halt_list) {
 		delete [] halt_list;
 	}
 	halt_list_count = 0;

@@ -2500,6 +2500,7 @@ bool automobil_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, rout
 {
 	assert(cnv);
 	// free target reservation
+	drives_on_left = welt->get_settings().is_drive_left();	// reset driving settings
 	if(ist_erstes   &&  alte_fahrtrichtung!=ribi_t::keine  &&  cnv  &&  target_halt.is_bound() ) {
 		// now reserve our choice (beware: might be longer than one tile!)
 		for(  uint32 length=0;  length<cnv->get_tile_length()  &&  length+1<cnv->get_route()->get_count();  length++  ) {
@@ -2654,6 +2655,7 @@ bool automobil_t::ist_weg_frei(int &restart_speed)
 {
 	// check for traffic lights (only relevant for the first car in a convoi)
 	if(ist_erstes) {
+
 		const grund_t *gr = welt->lookup(pos_next);
 		if (gr==NULL)  {
 			// weg not existent (likely destroyed)
@@ -3007,7 +3009,7 @@ void waggon_t::set_convoi(convoi_t *c)
 				// set default next stop indext
 				c->set_next_stop_index( max(route_index,1)-1 );
 				// need to reserve new route?
-				if(  c->get_state()!=convoi_t::SELF_DESTRUCT  &&  (c->get_state()==convoi_t::DRIVING  ||  c->get_state()>=convoi_t::LEAVING_DEPOT)  ) {
+				if(  !check_for_finish  &&  c->get_state()!=convoi_t::SELF_DESTRUCT  &&  (c->get_state()==convoi_t::DRIVING  ||  c->get_state()>=convoi_t::LEAVING_DEPOT)  ) {
 					long num_index = cnv==(convoi_t *)1 ? 1001 : 0; 	// only during loadtype: cnv==1 indicates, that the convoi did reserve a stop
 					uint16 next_signal, next_crossing;
 					cnv = c;
@@ -4425,6 +4427,9 @@ void aircraft_t::rdwr_from_convoi(loadsave_t *file)
 {
 	xml_tag_t t( file, "aircraft_t" );
 
+	// initialize as vehikel_t::rdwr_from_convoi calls get_bild()
+	state = taxiing;
+	flughoehe = 0;
 	vehikel_t::rdwr_from_convoi(file);
 
 	file->rdwr_enum(state);

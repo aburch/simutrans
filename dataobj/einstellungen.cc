@@ -1192,6 +1192,12 @@ void settings_t::rdwr(loadsave_t *file)
 				}
 			}
 		}
+		
+		if(file->get_experimental_version() >= 10 || (file->get_experimental_version() == 0 && file->get_version() >= 10007))
+		{
+			file->rdwr_bool( drive_on_left );
+			file->rdwr_bool( signals_on_left );
+		}
 
 		if (file->get_experimental_version() >= 9 && file->get_version() >= 110006) 
 		{
@@ -1230,8 +1236,6 @@ void settings_t::rdwr(loadsave_t *file)
 					}
 				}
 			}
-			file->rdwr_bool( drive_on_left );
-			file->rdwr_bool( signals_on_left );
 		}
 
 		if(file->get_experimental_version() >= 10)

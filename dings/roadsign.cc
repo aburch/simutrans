@@ -182,19 +182,19 @@ void roadsign_t::calc_bild()
 	hang_t::typ hang = gr->get_weg_hang();
 	if(  hang==hang_t::flach  ) {
 		yoff = -gr->get_weg_yoff();
+		after_yoffset = yoff;
 	}
 	else {
 		// since the places were switched
-		if(left_offsets) {
-			if (hang==hang_t::nord || hang==hang_t::sued) {
-				hang = ribi_t::rueckwaerts(hang);
-			}
+		if(  left_offsets  ) {
+			hang = ribi_t::rueckwaerts(hang);
 		}
 		if(hang==hang_t::ost ||  hang==hang_t::nord) {
-			yoff += -TILE_HEIGHT_STEP;
-			after_yoffset = +TILE_HEIGHT_STEP;
+			yoff = -TILE_HEIGHT_STEP;
+			after_yoffset = 0;
 		}
 		else {
+			yoff = 0;
 			after_yoffset = -TILE_HEIGHT_STEP;
 		}
 	}

@@ -21,7 +21,7 @@ tunnelboden_t::tunnelboden_t(karte_t *welt, loadsave_t *file, koord pos ) : bode
 {
 	xml_tag_t t( file, "tunnelboden_t" );
 
-	grund_t::rdwr(file);	// since it has no trees, we do not need to invoke boden_t
+	rdwr(file);
 
 	// some versions had tunnel without tunnel objects
 	if (!find<tunnel_t>()) {
