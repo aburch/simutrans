@@ -558,7 +558,7 @@ DBG_MESSAGE("karte_t::destroy()", "label clear");
 		convoihandle_t cnv = convoi_array.back();
 		cnv->destroy();
 		old_progress ++;
-		if(  old_progress&0x00FF == 0  ) {
+		if(  (old_progress&0x00FF) == 0  ) {
 			display_progress(old_progress, max_display_progress);
 		}
 	}
@@ -577,7 +577,7 @@ DBG_MESSAGE("karte_t::destroy()", "stops destroyed");
 	for(  uint32 i=0;  !stadt.empty();  i++  ) {
 		rem_stadt(stadt.front());
 		old_progress += 10;
-		if(  i&0x00F == 0  ) {
+		if(  (i&0x00F) == 0  ) {
 			display_progress( old_progress, max_display_progress );
 		}
 	}
@@ -1647,6 +1647,8 @@ karte_t::karte_t() :
 	scenario = NULL;
 
 	msg = new message_t(this);
+	cached_groesse_karte_x = 0;
+	cached_groesse_karte_y = 0;
 }
 
 
