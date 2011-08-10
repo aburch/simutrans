@@ -1454,13 +1454,12 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 		bool reverse = cnv->get_reverse_schedule();
 		fpl->increment_index(&index, &reverse);
 
-		while (index != fpl->get_aktuell()) {
-
+		while (index != fpl->get_aktuell()) 
+		{
 			const halthandle_t plan_halt = haltestelle_t::get_halt(welt, fpl->eintrag[index].pos, sp);
 			if(plan_halt == self) 
 			{
 				// we will come later here again ...
-				//accumulated_journey_time = 0;
 				break;
 			}
 			else if(plan_halt.is_bound() && warray->get_count() > 0) 
@@ -1482,9 +1481,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 						
 					accumulated_journey_time += ((shortest_distance(plan_halt->get_basis_pos(), previous_halt->get_basis_pos()) 
 													/ average_speed) *welt->get_settings().get_meters_per_tile() * 60);
-				}
-				
-				//previous_halt = plan_halt;		
+				}		
 								
 				// The random offset will ensure that all goods have an equal chance to be loaded.
 				sint32 offset = simrand(warray->get_count(), "ware_t haltestelle_t::hole_ab");
@@ -1563,7 +1560,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 							}	
 						}
 	
-						//refuse to be overcrowded if alternative exist
+						// Refuse to be overcrowded if alternative exist
 						connexion * const next_connexion = connexions[catg_index]->get(next_transfer);
 						if (next_connexion &&  overcrowded && next_connexion->alternative_seats )
 						{
