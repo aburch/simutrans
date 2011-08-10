@@ -3517,6 +3517,9 @@ void aircraft_t::rdwr_from_convoi(loadsave_t *file)
 {
 	xml_tag_t t( file, "aircraft_t" );
 
+	// initialize as vehikel_t::rdwr_from_convoi calls get_bild()
+	state = taxiing;
+	flughoehe = 0;
 	vehikel_t::rdwr_from_convoi(file);
 
 	file->rdwr_enum(state);
