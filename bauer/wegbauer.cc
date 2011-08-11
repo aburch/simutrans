@@ -2132,11 +2132,13 @@ void wegbauer_t::baue_schiene()
 					if(  crossing_t *cr = gr->find<crossing_t>(2)  ) {
 						// change to tram track
 						cr->mark_image_dirty( cr->get_bild(), 0);
+						gr->obj_remove(cr);
 						cr->entferne(sp);
 						delete cr;
 						change_besch = true;
-						// tell way we have no crossing any more
+						// tell way we have no crossing any more, restore speed limit
 						gr->get_weg_nr(0)->clear_crossing();
+						gr->get_weg_nr(0)->set_besch( gr->get_weg_nr(0)->get_besch() );
 						gr->get_weg_nr(1)->clear_crossing();
 					}
 				}
