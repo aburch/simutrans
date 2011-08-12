@@ -536,7 +536,7 @@ DBG_MESSAGE("karte_t::destroy()", "destroying world");
 
 	is_shutting_down = true;
 
-	uint32 max_display_progress = 1+stadt.get_count()*10 + haltestelle_t::get_alle_haltestellen().get_count() + convoi_array.get_count() + (cached_groesse_karte_x*cached_groesse_karte_y) ;
+	uint32 max_display_progress = 256+stadt.get_count()*10 + haltestelle_t::get_alle_haltestellen().get_count() + convoi_array.get_count() + (cached_groesse_karte_x*cached_groesse_karte_y)*2;
 	uint32 old_progress = 0;
 
 	display_set_progress_text(translator::translate("Destroying map ..."));
@@ -602,7 +602,7 @@ DBG_MESSAGE("karte_t::destroy()", "stops destroyed");
 DBG_MESSAGE("karte_t::destroy()", "towns destroyed");
 
 	display_progress( old_progress, max_display_progress );
-	old_progress += cached_groesse_karte_x*cached_groesse_karte_y/2;
+	old_progress += cached_groesse_karte_x*cached_groesse_karte_y;
 	while(!sync_list.empty()) {
 		sync_steppable *ss = sync_list.remove_first();
 		delete ss;
@@ -1764,6 +1764,8 @@ karte_t::karte_t() :
 	// no distance to show at first ...
 	show_distance = koord3d::invalid;
 	scenario = NULL;
+
+	map_counter = 0;
 
 	msg = new message_t(this);
 	cached_groesse_karte_x = 0;
