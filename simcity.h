@@ -302,12 +302,6 @@ public:
 
 	void add_power_demand(uint32 p) { city_history_month[0][HIST_POWER_NEEDED] += p; city_history_year[0][HIST_POWER_NEEDED] += p; }
 
-	//@ 9th of February 2011. 
-	/*
-	 * Used for recording congestion in cases where there is a traffic jam specifically noted.
-	 */
-	void add_congestion(uint32 c) { city_history_month[0][HIST_CONGESTION] += c; city_history_year[0][HIST_CONGESTION] += c; }
-
 	/* end of history related thingies */
 private:
 	sint32 best_haus_wert;

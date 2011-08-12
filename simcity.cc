@@ -2386,7 +2386,7 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 	{
 		bev ++;
 	}
-	calc_internal_passengers();
+	calc_internal_passengers(); 
 
 	roll_history();
 	target_factories_pax.new_month();
@@ -3208,10 +3208,11 @@ void stadt_t::step_passagiere()
 						}
 					}
 					
-					// They should show that they have been transported, however, since
-					// these figures are used for city growth calculations.
-					city_history_year[0][history_type] += pax_left_to_do;
-					city_history_month[0][history_type] += pax_left_to_do;
+					// Passengers who walk to their destinations should not count as "passengers"
+					// at all, especially since the percentage of passengers transported is used
+					// in growth calculations.
+					city_history_year[0][history_type+1] -= pax_left_to_do;
+					city_history_month[0][history_type+1] -= pax_left_to_do;
 					break;
 				}
 
@@ -3599,8 +3600,11 @@ void stadt_t::step_passagiere()
 				destination_now.factory_entry->factory->liefere_an(wtyp, amount);
 			}
 			merke_passagier_ziel(destination_now.location, COL_DARK_YELLOW);
-			city_history_year[0][history_type] += num_pax;
-			city_history_month[0][history_type] += num_pax;
+			// Passengers who walk to their destinations should not count as "passengers"
+			// at all, especially since the percentage of passengers transported is used
+			// in growth calculations.
+			city_history_year[0][history_type+1] -= num_pax;
+			city_history_month[0][history_type+1] -= num_pax;
 		}
 		else
 		{
