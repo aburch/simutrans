@@ -554,6 +554,7 @@ bool roadsign_t::register_besch(roadsign_besch_t *besch)
 	if(old_besch) {
 		dbg->warning( "roadsign_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
 		table.remove(besch->get_name());
+		werkzeug_t::general_tool.remove( old_besch->get_builder() );
 		delete old_besch->get_builder();
 		delete old_besch;
 	}

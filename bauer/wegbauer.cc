@@ -120,6 +120,7 @@ bool wegbauer_t::register_besch(weg_besch_t *besch)
 	if(  old_besch  ) {
 		alle_wegtypen.remove(besch->get_name());
 		dbg->warning( "wegbauer_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
+		werkzeug_t::general_tool.remove( old_besch->get_builder() );
 		delete old_besch->get_builder();
 		delete old_besch;
 	}
