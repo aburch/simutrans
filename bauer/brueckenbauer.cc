@@ -54,9 +54,13 @@ static stringhashtable_tpl<const bruecke_besch_t *> bruecken_by_name;
  */
 void brueckenbauer_t::register_besch(bruecke_besch_t *besch)
 {
-	// avoid duplicates with same name
-	if(  bruecken_by_name.remove(besch->get_name())  ) {
+	// avoid duplicates with same name	// avoid duplicates with same name
+	if( const bruecke_besch_t *old_besch = bruecken_by_name.get(besch->get_name()) ) {
 		dbg->warning( "brueckenbauer_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
+		bruecken_by_name.remove(besch->get_name());
+		werkzeug_t::general_tool.remove( old_besch->get_builder() );
+		delete old_besch->get_builder();
+		delete old_besch;
 	}
 
 	// add the tool

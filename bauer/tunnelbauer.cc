@@ -49,8 +49,12 @@ static stringhashtable_tpl<tunnel_besch_t *> tunnel_by_name;
 void tunnelbauer_t::register_besch(tunnel_besch_t *besch)
 {
 	// avoid duplicates with same name
-	if(  tunnel_by_name.remove(besch->get_name())  ) {
+	if( const tunnel_besch_t *old_besch = tunnel_by_name.get(besch->get_name()) ) {
 		dbg->warning( "tunnelbauer_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
+		tunnel_by_name.remove(besch->get_name());
+		werkzeug_t::general_tool.remove( old_besch->get_builder() );
+		delete old_besch->get_builder();
+		delete old_besch;
 	}
 	// add the tool
 	wkz_tunnelbau_t *wkz = new wkz_tunnelbau_t();
