@@ -274,6 +274,10 @@ void schedule_t::rdwr(loadsave_t *file)
 				{
 					file->rdwr_bool(eintrag[i].reverse);
 				}
+				else
+				{
+					eintrag[i].reverse = false;
+				}
 			}
 		}
 	}
