@@ -1075,6 +1075,8 @@ public:
 			return 0;
 		}
 	}
+
+	uint16 calc_reverse_delay() const;
 };
 
 #endif

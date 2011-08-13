@@ -1588,7 +1588,20 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 
 						// Loading times for convoys should be part of the waiting time
 						// not the travelling time.
-						waiting_minutes += get_waiting_minutes(cnv->get_longest_loading_time());
+						uint16 loading_time = cnv->get_longest_loading_time();
+						waiting_minutes += get_waiting_minutes(loading_time);
+						if(cnv->get_schedule()->get_current_eintrag().reverse)
+						{
+							// This convoy has to reverse here, so add this to the waiting time, too.
+							uint16 reverse_delay = cnv->calc_reverse_delay();
+							if(loading_time < reverse_delay)
+							{
+								reverse_delay -= loading_time;
+								// Reduce this value to take account of the fact that people will arrive
+								// at the station *after* the convoy has started to reverse.
+								waiting_minutes += (get_waiting_minutes(reverse_delay) * 3) / 2;
+							}
+						}
 
 						if(waiting_minutes > 0)
 						{

@@ -2340,6 +2340,7 @@ void convoi_t::vorfahren()
 						break;
 
 					default:
+						
 						if(reversed)
 						{
 							reversable = fahr[0]->get_besch()->get_can_lead_from_rear() || (anz_vehikel == 1 && fahr[0]->get_besch()->is_bidirectional());
@@ -2348,31 +2349,8 @@ void convoi_t::vorfahren()
 						{
 							reversable = fahr[anz_vehikel - 1]->get_besch()->get_can_lead_from_rear() || (anz_vehikel == 1 && fahr[0]->get_besch()->is_bidirectional());
 						}
-
-						if(reversable)
-						{
-							// Multiple unit or similar: quick reverse
-							reverse_delay = welt->get_settings().get_unit_reverse_time();
-						}
-						else if(fahr[0]->get_besch()->is_bidirectional())
-						{
-							// Loco hauled, no turntable.
-							if(fahr[anz_vehikel-2]->get_besch()->get_can_be_at_rear() == false
-								&& fahr[anz_vehikel-2]->get_besch()->get_ware()->get_catg_index() > 1)
-							{
-								// Goods train with brake van - longer reverse time.
-								reverse_delay = (welt->get_settings().get_hauled_reverse_time() * 14) / 10;
-							}
-							else
-							{
-								reverse_delay = welt->get_settings().get_hauled_reverse_time();
-							}
-						}
-						else
-						{
-							// Locomotive needs turntable: slow reverse
-							reverse_delay = welt->get_settings().get_turntable_reverse_time();
-						}
+						
+						reverse_delay = calc_reverse_delay();
 
 						const uint16 loading_time = get_longest_loading_time();
 
@@ -2392,6 +2370,8 @@ void convoi_t::vorfahren()
 
 						reverse_order(reversable);
 						state = REVERSING;
+						// The convoy does not depart until it has reversed.
+						last_departure_time += reverse_delay;
 				}
 			}
 
@@ -5321,4 +5301,36 @@ void convoi_t::clear_replace()
 	 {
 		 return livery_scheme_index;
 	 }
+ }
+
+ uint16 convoi_t::calc_reverse_delay() const
+ {
+	uint16 reverse_delay;
+
+	if(reversable)
+	{
+		// Multiple unit or similar: quick reverse
+		reverse_delay = welt->get_settings().get_unit_reverse_time();
+	}
+	else if(fahr[0]->get_besch()->is_bidirectional())
+	{
+		// Loco hauled, no turntable.
+		if(fahr[anz_vehikel-2]->get_besch()->get_can_be_at_rear() == false
+			&& fahr[anz_vehikel-2]->get_besch()->get_ware()->get_catg_index() > 1)
+		{
+			// Goods train with brake van - longer reverse time.
+			reverse_delay = (welt->get_settings().get_hauled_reverse_time() * 14) / 10;
+		}
+		else
+		{
+			reverse_delay = welt->get_settings().get_hauled_reverse_time();
+		}
+	}
+	else
+	{
+		// Locomotive needs turntable: slow reverse
+		reverse_delay = welt->get_settings().get_turntable_reverse_time();
+	}
+
+	return reverse_delay;
  }
