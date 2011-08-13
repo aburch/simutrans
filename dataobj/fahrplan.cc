@@ -269,6 +269,11 @@ void schedule_t::rdwr(loadsave_t *file)
 				{
 					file->rdwr_short(eintrag[i].spacing_shift);
 				}
+
+				if(file->get_experimental_version() >= 10)
+				{
+					file->rdwr_bool(eintrag[i].reverse);
+				}
 			}
 		}
 	}
