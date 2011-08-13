@@ -2333,8 +2333,8 @@ void convoi_t::vorfahren()
 				{
 					case road_wt:
 					case air_wt:
-						//Road vehicles and aircraft do not need to change direction
-						//Canal barges *may* change direction, so water is omitted.
+						// Road vehicles and aircraft do not need to change direction
+						// Canal barges *may* change direction, so water is omitted.
 						break;
 
 					default:
@@ -2370,6 +2370,22 @@ void convoi_t::vorfahren()
 						{
 							//Locomotive needs turntable: slow reverse
 							reverse_delay = welt->get_settings().get_turntable_reverse_time();
+						}
+
+						const uint16 loading_time = get_longest_loading_time();
+
+						if(welt->get_zeit_ms() - arrival_time > loading_time)
+						{
+							// The reversing time must not be cumulative with the loading time, as 
+							// passengers can board trains etc. while they are changing direction.
+							if(reverse_delay >= loading_time)
+							{
+								reverse_delay -= loading_time;
+							}
+							else
+							{
+								reverse_delay = 0;
+							}
 						}
 
 						reverse_order(reversable);
