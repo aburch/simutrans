@@ -1585,6 +1585,11 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 						{ 
 							waiting_minutes = 1;
 						}
+
+						// Loading times for convoys should be part of the waiting time
+						// not the travelling time.
+						waiting_minutes += get_waiting_minutes(cnv->get_longest_loading_time());
+
 						if(waiting_minutes > 0)
 						{
 							add_waiting_time(waiting_minutes, neu.get_zwischenziel(), neu.get_besch()->get_catg_index());

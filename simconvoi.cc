@@ -3577,7 +3577,9 @@ void convoi_t::laden() //"load" (Babelfish)
 		}
 	}
 
-	last_departure_time = arrival_time;
+	// The departure time is not the same as the arrival time, as
+	// the convoy must load.
+	last_departure_time = arrival_time + get_longest_loading_time();
 		
 	// Recalculate comfort
 	const uint8 comfort = get_comfort();
