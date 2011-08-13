@@ -1012,7 +1012,7 @@ void convoi_t::step()
 				vehikel_t* v = fahr[0];
 
 				int restart_speed=-1;
-				if (v->ist_weg_frei(restart_speed)) {
+				if (v->ist_weg_frei(restart_speed,false)) {
 					// can reserve new block => drive on
 					state = (steps_driven>=0) ? LEAVING_DEPOT : DRIVING;
 					if(haltestelle_t::get_halt(welt,v->get_pos(),besitzer_p).is_bound()) {
@@ -1041,7 +1041,7 @@ void convoi_t::step()
 		case WAITING_FOR_CLEARANCE:
 			{
 				int restart_speed=-1;
-				if (fahr[0]->ist_weg_frei(restart_speed)) {
+				if (fahr[0]->ist_weg_frei(restart_speed,false)) {
 					state = (steps_driven>=0) ? LEAVING_DEPOT : DRIVING;
 				}
 				if(restart_speed>=0) {
@@ -1138,7 +1138,7 @@ void convoi_t::new_month()
 		// check, if now free ...
 		// migh also reset the state!
 		int restart_speed=-1;
-		if (fahr[0]->ist_weg_frei(restart_speed)) {
+		if (fahr[0]->ist_weg_frei(restart_speed,false)) {
 			state = DRIVING;
 		}
 		if(restart_speed>=0) {
@@ -1815,7 +1815,7 @@ void convoi_t::vorfahren()
 
 		// to advance more smoothly
 		int restart_speed=-1;
-		if(fahr[0]->ist_weg_frei(restart_speed)) {
+		if(fahr[0]->ist_weg_frei(restart_speed,false)) {
 			// can reserve new block => drive on
 			if(haltestelle_t::get_halt(welt,k0,besitzer_p).is_bound()) {
 				fahr[0]->play_sound();

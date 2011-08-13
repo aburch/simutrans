@@ -169,11 +169,6 @@ public:
 	// Alle Abfragen über statische Tabellen wg. Performance
 	// Ranges werden nicht geprüft!
 	//
-	static ribi doppelt(ribi x) { return doppelr[x]; }
-	static ribi rueckwaerts(ribi x) { return rwr[x]; }
-	static ribi get_forward(ribi x) { return fwrd[x]; }	// all ribis, that are in front of this thing
-	static ribi rotate90(ribi x) { return ((x&8) ? 1|((x<<1)&0x0E) : x<<1); }
-
 	static bool is_twoway(ribi x) { return (flags[x]&twoway)!=0; }
 	static bool is_threeway(ribi x) { return (flags[x]&threeway)!=0; }
 
@@ -185,6 +180,14 @@ public:
 	static bool ist_gerade_ns(ribi x) { return (flags[x] & gerade_ns) != 0; }
 	static bool ist_gerade_ow(ribi x) { return (flags[x] & gerade_ow) != 0; }
 	static bool ist_kreuzung(ribi x) { return x > 0 && flags[x] == 0; }
+
+	static ribi doppelt(ribi x) { return doppelr[x]; }
+	static ribi rueckwaerts(ribi x) { return rwr[x]; }
+	static ribi get_forward(ribi x) { return fwrd[x]; }	// all ribis, that are in front of this thing
+	static ribi rotate90(ribi x) { return ((x&8) ? 1|((x<<1)&0x0E) : x<<1); } // 90 to the right
+	static ribi rotate90l(ribi x) { return ((x&1) ? 8|(x>>1) : x>>1); } // 90 to the left
+	static ribi rotate45(ribi x) { return (ist_einfach(x) ? x|rotate90(x) : x&rotate90(x)); } // 45 to the right
+	static ribi rotate45l(ribi x) { return (ist_einfach(x) ? x|rotate90l(x) : x&rotate90l(x)); } // 45 to the left
 
 	static dir get_dir(ribi x) { return dirs[x]; }
 };

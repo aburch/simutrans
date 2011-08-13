@@ -91,7 +91,6 @@ private:
 	uint32 ms_traffic_jam;
 
 	bool hop_check();
-	bool ist_weg_frei(grund_t *gr);
 
 protected:
 	void rdwr(loadsave_t *file);
@@ -109,10 +108,12 @@ public:
 	bool sync_step(long delta_t);
 
 	void hop();
+	bool ist_weg_frei(grund_t *gr);
 
 	void betrete_feld();
 
 	void calc_current_speed();
+	uint16 get_current_speed() const {return current_speed;}
 
 	const char *get_name() const {return "Verkehrsteilnehmer";}
 	typ get_typ() const { return verkehr; }

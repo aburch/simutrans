@@ -125,6 +125,8 @@ public:
 
 	ribi_t::ribi get_fahrtrichtung() const {return fahrtrichtung;}
 
+	koord3d get_pos_next() const {return pos_next;}
+
 	virtual waytype_t get_waytype() const = 0;
 
 	// true, if this vehicle did not moved for some time
@@ -247,7 +249,7 @@ public:
 
 	virtual void rotate90();
 
-	virtual bool ist_weg_frei(int &/*restart_speed*/) {return true;}
+	virtual bool ist_weg_frei( int &/*restart_speed*/, bool /*second_check*/ ) { return true; }
 
 	virtual void betrete_feld();
 
@@ -474,7 +476,7 @@ public:
 
 	virtual bool calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route);
 
-	virtual bool ist_weg_frei(int &restart_speed);
+	virtual bool ist_weg_frei(int &restart_speed, bool second_check );
 
 	// returns true for the way search to an unknown target.
 	virtual bool ist_ziel(const grund_t *,const grund_t *) const;
@@ -526,7 +528,7 @@ public:
 	virtual bool ist_ziel(const grund_t *,const grund_t *) const;
 
 	// handles all block stuff and route choosing ...
-	virtual bool ist_weg_frei(int &restart_speed);
+	virtual bool ist_weg_frei(int &restart_speed, bool );
 
 	// reserves or unreserves all blocks and returns the handle to the next block (if there)
 	// returns true on successful reservation
@@ -630,7 +632,7 @@ protected:
 public:
 	waytype_t get_waytype() const { return water_wt; }
 
-	virtual bool ist_weg_frei(int &restart_speed);
+	virtual bool ist_weg_frei(int &restart_speed, bool);
 
 	// returns true for the way search to an unknown target.
 	virtual bool ist_ziel(const grund_t *,const grund_t *) const {return 0;}
@@ -706,7 +708,7 @@ public:
 	// how expensive to go here (for way search)
 	virtual int get_kosten(const grund_t *, const sint32, koord) const;
 
-	virtual bool ist_weg_frei(int &restart_speed);
+	virtual bool ist_weg_frei(int &restart_speed, bool);
 
 	virtual void set_convoi(convoi_t *c);
 
