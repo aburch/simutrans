@@ -23,8 +23,7 @@
 #include "../tpl/slist_tpl.h"
 
 
-struct linieneintrag_t schedule_t::dummy_eintrag = { koord3d::invalid, 0, 0, 0 };
-
+struct linieneintrag_t schedule_t::dummy_eintrag = { koord3d::invalid, 0, 0, 0, false };
 
 schedule_t::schedule_t(loadsave_t* const file)
 {
@@ -100,6 +99,7 @@ bool schedule_t::insert(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_sh
 	stop.ladegrad = ladegrad;
 	stop.waiting_time_shift = waiting_time_shift;
 	stop.spacing_shift = spacing_shift;
+	stop.reverse = false;
 
 #endif
 	// stored in minivec, so wie have to avoid adding too many
@@ -139,6 +139,7 @@ bool schedule_t::append(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_sh
 	stop.ladegrad = ladegrad;
 	stop.waiting_time_shift = waiting_time_shift;
 	stop.spacing_shift = spacing_shift;
+	stop.reverse = false;
 #endif
 
 	// stored in minivec, so wie have to avoid adding too many
@@ -247,6 +248,7 @@ void schedule_t::rdwr(loadsave_t *file)
 			stop.ladegrad = (sint8)dummy;
 			stop.waiting_time_shift = 0;
 			stop.spacing_shift = 0;
+			stop.reverse = false;
 			eintrag.append(stop);
 		}
 	}
@@ -503,6 +505,7 @@ bool schedule_t::sscanf_schedule( const char *ptr )
 		stop.ladegrad = values[3];
 		stop.waiting_time_shift = values[4];
 		stop.spacing_shift = values[5];
+		stop.reverse = false;
 #endif
 		eintrag.append( stop );
 	}

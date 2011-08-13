@@ -2320,14 +2320,16 @@ void convoi_t::vorfahren()
 		// until all other are on the track
 		state = CAN_START;
 	}
-	else {
+	else 
+	{
+		const bool must_change_direction = !can_go_alte_richtung();
 		// still leaving depot (steps_driven!=0) or going in other direction or misalignment?
-		if(  steps_driven>0  ||  !can_go_alte_richtung()  ) 
+		if(steps_driven > 0 || must_change_direction) 
 		{
 
 			//Convoy needs to reverse
 			//@author: jamespetts
-			if(!can_go_alte_richtung())
+			if(must_change_direction)
 			{
 				switch(fahr[0]->get_waytype())
 				{
@@ -2349,12 +2351,12 @@ void convoi_t::vorfahren()
 
 						if(reversable)
 						{
-							//Multiple unit or similar: quick reverse
-							reverse_delay =welt->get_settings().get_unit_reverse_time();
+							// Multiple unit or similar: quick reverse
+							reverse_delay = welt->get_settings().get_unit_reverse_time();
 						}
 						else if(fahr[0]->get_besch()->is_bidirectional())
 						{
-							//Loco hauled, no turntable.
+							// Loco hauled, no turntable.
 							if(fahr[anz_vehikel-2]->get_besch()->get_can_be_at_rear() == false
 								&& fahr[anz_vehikel-2]->get_besch()->get_ware()->get_catg_index() > 1)
 							{
@@ -2368,7 +2370,7 @@ void convoi_t::vorfahren()
 						}
 						else
 						{
-							//Locomotive needs turntable: slow reverse
+							// Locomotive needs turntable: slow reverse
 							reverse_delay = welt->get_settings().get_turntable_reverse_time();
 						}
 
@@ -2459,6 +2461,25 @@ void convoi_t::vorfahren()
 			fahr[0]->set_erstes(true);
 		}
 
+		int counter = 1;
+		schedule_t* schedule = fpl;
+		if(line.is_bound())
+		{
+			 counter = 2;
+		}
+		while(counter > 0)
+		{
+			uint8 stop = fpl->get_aktuell();
+			bool rev = !fpl->is_mirrored();
+			schedule->increment_index(&stop, &rev);
+			schedule->eintrag[stop].reverse = (state == REVERSING);
+			counter --;
+			if(counter > 0)
+			{
+				schedule = line->get_schedule();
+			}
+		}
+
 		if(state != REVERSING)
 		{
 			state = CAN_START;
@@ -2484,8 +2505,12 @@ void convoi_t::vorfahren()
 		for(unsigned i=0; i<anz_vehikel; i++) {
 			// eventually reserve this
 			vehikel_t const& v = *fahr[i];
-			if (schiene_t* const sch0 = ding_cast<schiene_t>(welt->lookup(v.get_pos())->get_weg(v.get_waytype()))) {
-				sch0->reserve(self,ribi_t::keine);
+			const grund_t* gr = welt->lookup(v.get_pos());
+			if(gr)
+			{
+				if (schiene_t* const sch0 = ding_cast<schiene_t>(welt->lookup(v.get_pos())->get_weg(v.get_waytype()))) {
+					sch0->reserve(self,ribi_t::keine);
+				}
 			}
 			else {
 				break;
@@ -4647,13 +4672,27 @@ void convoi_t::unregister_stops()
 void convoi_t::set_next_stop_index(uint16 n)
 {
 	// stop at station or signals, not at waypoints
-   if(  n==INVALID_INDEX  ) {
-   // find out if stop or waypoint, waypoint: do not brake at waypoints
-   grund_t const* const gr = welt->lookup(route.back());
-   if(  gr  &&  gr->is_halt()  ) {
-     n = route.get_count()-1;
-    }
-  }
+   if(  n==INVALID_INDEX  ) 
+   {
+	   // find out if stop or waypoint, waypoint: do not brake at waypoints
+	   const koord3d route_end = route.back();
+	   grund_t const* const gr = welt->lookup(route_end);
+	   const int count = fpl->get_count();
+	   bool reverse_waypoint = false;
+	   for(int i = 0; i < count; i ++)
+	   {
+		   const koord3d pos = fpl->eintrag[i].pos;
+		   if(pos == route.back())
+		   {
+				reverse_waypoint = fpl->eintrag[i].reverse;
+				break;
+		   }
+	   }
+	   if(  gr  &&  (gr->is_halt() || reverse_waypoint)  ) 
+	   {
+		   n = route.get_count()-1;
+	   }
+   }
 	next_stop_index = n+1;
 }
 

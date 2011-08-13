@@ -73,6 +73,12 @@ void fahrplan_gui_t::gimme_stop_name(cbuffer_t & buf, karte_t *welt, const spiel
 			buf.printf("%s (%s)", translator::translate("Wegpunkt"), entry.pos.get_str() );
 		}
 	}
+
+	if(entry.reverse)
+	{
+		buf.append(" ");
+		buf.append(translator::translate("[R]"));
+	}
 }
 
 
@@ -88,7 +94,7 @@ void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t &buf, karte_t *welt, const 
 		return;
 	}
 	const linieneintrag_t& entry = fpl->eintrag[i];
-	const char *p;
+	const char* p;
 	halthandle_t halt = haltestelle_t::get_halt(welt, entry.pos, sp);
 	if(halt.is_bound()) {
 		p = halt->get_name();
@@ -105,12 +111,21 @@ void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t &buf, karte_t *welt, const 
 			p = translator::translate("Wegpunkt");
 		}
 	}
+
 	// finally append
-	if(strlen(p)>(unsigned)max_chars) {
+	if(strlen(p)>(unsigned)max_chars)
+	{
 		buf.printf("%.*s...", max_chars - 3, p);
 	}
-	else {
+	else 
+	{
 		buf.append(p);
+	}
+
+	if(entry.reverse)
+	{
+		buf.append(" ");
+		buf.append(translator::translate("[R]"));
 	}
 }
 

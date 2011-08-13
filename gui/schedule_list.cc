@@ -637,7 +637,10 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		if(new_line.is_bound() && !livery_scheme_indices.empty())
 		{
 			uint16 idx = new_line->get_livery_scheme_index();
-			livery_selector.set_selection(livery_scheme_indices.index_of(idx));
+			if(!livery_scheme_indices.empty())
+			{
+				livery_selector.set_selection(livery_scheme_indices.index_of(idx));
+			}
 		}
 
 
