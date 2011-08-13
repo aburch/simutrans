@@ -16,6 +16,7 @@
 	CHG: enable building under flying aircrafts
 	CHG: renovated factory dialog to include statistics and other indicators; preparation for factory renaming
 	FIX: convoi reservation for street convois longer than one tile is now fixed
+	CHG: road vehicles less likely to block intersections or drive through each other when turning
 
 
 Release of 110.0.1 (r4359 on 12-Mar-2011):

@@ -100,7 +100,6 @@ private:
 	uint32 ms_traffic_jam;
 
 	bool hop_check();
-	bool ist_weg_frei(const grund_t *gr);
 	//bool calc_route(const koord3d ziel, const koord3d start);
 
 protected:
@@ -121,6 +120,7 @@ public:
 	bool sync_step(long delta_t);
 
 	void hop();
+	bool ist_weg_frei(grund_t *gr);
 
 	//Gets rid of the car by setting its life to 0.
 	void kill(); 
@@ -128,6 +128,7 @@ public:
 	void betrete_feld();
 
 	void calc_current_speed();
+	uint16 get_current_speed() const {return current_speed;}
 
 	const char *get_name() const {return "Verkehrsteilnehmer";}
 	typ get_typ() const { return verkehr; }
@@ -164,8 +165,6 @@ public:
 	// Sets the list in which the vehicle is referenced, so that
 	// it can be removed from the list when it is deleted. 
 	void set_list(slist_tpl<stadtauto_t*> *this_list) { current_list = this_list; }
-
-	uint16 get_current_speed() const { return current_speed; }
 };
 
 #endif
