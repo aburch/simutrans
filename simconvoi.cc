@@ -2354,10 +2354,11 @@ void convoi_t::vorfahren()
 
 						const uint16 loading_time = get_longest_loading_time();
 
-						if(welt->get_zeit_ms() - arrival_time > loading_time)
+						if(welt->get_zeit_ms() - arrival_time > loading_time && welt->lookup(this->get_pos())->is_halt())
 						{
 							// The reversing time must not be cumulative with the loading time, as 
 							// passengers can board trains etc. while they are changing direction.
+							// Only do this where the reversing point is a stop, not a waypoint.
 							if(reverse_delay >= loading_time)
 							{
 								reverse_delay -= loading_time;
