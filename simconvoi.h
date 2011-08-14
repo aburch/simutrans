@@ -893,9 +893,14 @@ public:
 	inline const sint32 &get_loading_limit() const { return loading_limit; }
 
 	/**
-	 * Format remained loading time from go_on_ticks
+	 * Format remaining loading time from go_on_ticks
 	 */
-	void snprintf_remained_loading_time(char *p, size_t size) const;
+	void snprintf_remaining_loading_time(char *p, size_t size) const;
+
+	/**
+	 * Format remaining reversing time from go_on_ticks
+	 */
+	void snprintf_remaining_reversing_time(char *p, size_t size) const;
 
 	/**
 	 * How many free seats for passengers in convoy? Used in overcrowded loading

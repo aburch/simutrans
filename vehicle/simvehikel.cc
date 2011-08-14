@@ -2366,7 +2366,7 @@ void vehikel_t::display_after(int xpos, int ypos, bool is_gobal) const
 			case convoi_t::LOADING:
 				if(  state>=1  ) {
 					char waiting_time[64];
-					cnv->snprintf_remained_loading_time(waiting_time, sizeof(waiting_time));
+					cnv->snprintf_remaining_loading_time(waiting_time, sizeof(waiting_time));
 					if (cnv->get_loading_limit() ) {
 						if( *waiting_time) {
 							sprintf( tooltip_text, translator::translate("Loading (%i->%i%%), %s left!"), cnv->get_loading_level(), cnv->get_loading_limit(), waiting_time);
@@ -2413,7 +2413,9 @@ void vehikel_t::display_after(int xpos, int ypos, bool is_gobal) const
 				case convoi_t::REVERSING:
 				if(  state>=2  ) 
 				{
-					tstrncpy( tooltip_text, translator::translate("Reversing"), lengthof(tooltip_text) );
+					char reversing_time[64];
+					cnv->snprintf_remaining_reversing_time(reversing_time, sizeof(reversing_time));
+					sprintf( tooltip_text, translator::translate("Reversing. %s left"), reversing_time);
 					color = COL_YELLOW;
 				}
 				break;
@@ -2432,7 +2434,7 @@ void vehikel_t::display_after(int xpos, int ypos, bool is_gobal) const
 		if(is_overweight)
 		{
 			sprintf(tooltip_text, translator::translate("Too heavy"), cnv->get_name());
-			color = COL_YELLOW;
+			color = COL_ORANGE;
 		}
 #ifdef debug_corners
 			sprintf(tooltip_text, translator::translate("CORNER: %i"), current_corner);

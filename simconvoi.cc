@@ -5193,17 +5193,64 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int s
 }
 
 /**
- * Format remained loading time from go_on_ticks
+ * Format remaining loading time from go_on_ticks
  */
-void convoi_t::snprintf_remained_loading_time(char *p, size_t size) const
+void convoi_t::snprintf_remaining_loading_time(char *p, size_t size) const
 {
-	if ( go_on_ticks != WAIT_INFINITE && go_on_ticks >= welt->get_zeit_ms()) {
+	if ( go_on_ticks != WAIT_INFINITE && go_on_ticks >= welt->get_zeit_ms())
+	{
 		uint32 ticks_left = (int)(go_on_ticks - welt->get_zeit_ms());
 		welt->sprintf_ticks(p, size, ticks_left);
-	} else if ( arrival_time + longest_loading_time >= welt->get_zeit_ms()) {
+	} 
+	
+	else if ( arrival_time + longest_loading_time >= welt->get_zeit_ms()) 
+	{
 		uint32 ticks_left = (int)(arrival_time + longest_loading_time - welt->get_zeit_ms());
 		welt->sprintf_ticks(p, size, ticks_left);
-	} else {
+	} 
+
+	else 
+	{
+		*p = '\0';
+	}
+}
+
+/**
+ * Format remaining loading time from go_on_ticks
+ */
+void convoi_t::snprintf_remaining_reversing_time(char *p, size_t size) const
+{
+	uint16 reversing_time = calc_reverse_delay();
+
+	if(welt->get_zeit_ms() - arrival_time > longest_loading_time && welt->lookup(this->get_pos())->is_halt())
+	{
+		// The reversing time must not be cumulative with the loading time, as 
+		// passengers can board trains etc. while they are changing direction.
+		// Only do this where the reversing point is a stop, not a waypoint.
+		if(reversing_time >= longest_loading_time)
+		{
+			reversing_time -= longest_loading_time;
+		}
+		else
+		{
+			reversing_time = 0;
+		}
+	}
+
+	if ( go_on_ticks != WAIT_INFINITE && go_on_ticks >= welt->get_zeit_ms()) 
+	{
+		uint32 ticks_left = (int)(go_on_ticks - welt->get_zeit_ms());
+		welt->sprintf_ticks(p, size, ticks_left);
+	} 
+	
+	else if ( arrival_time + reversing_time >= welt->get_zeit_ms())
+	{
+		uint32 ticks_left = (int)(arrival_time + reversing_time - welt->get_zeit_ms());
+		welt->sprintf_ticks(p, size, ticks_left);
+	} 
+	
+	else 
+	{
 		*p = '\0';
 	}
 }
