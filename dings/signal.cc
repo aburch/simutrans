@@ -103,8 +103,8 @@ void signal_t::calc_bild()
 
 			// signs for left side need other offsets and other front/back order
 			if(  left_swap  ) {
-				const sint16 XOFF = (24*get_tile_raster_width())/64;
-				const sint16 YOFF = (16*get_tile_raster_width())/64;
+				const sint16 XOFF = 24;
+				const sint16 YOFF = 16;
 
 				if(temp_dir&ribi_t::ost) {
 					bild = besch->get_bild_nr(3+zustand*4+offset);
