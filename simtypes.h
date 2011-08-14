@@ -9,6 +9,7 @@
 #define SIMTYPES_H
 
 #include <climits>
+#include <stdlib.h>
 
 #if defined _MSC_VER
 #	if _MSC_VER <= 1200
@@ -24,7 +25,6 @@
 #endif
 
 #if defined DEBUG
-#	include <stdlib.h>
 #	define NOT_REACHED abort();
 #else
 #	define NOT_REACHED
