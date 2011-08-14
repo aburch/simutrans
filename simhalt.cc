@@ -863,21 +863,25 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 // add convoi to loading
 void haltestelle_t::request_loading( convoihandle_t cnv )
 {
-	if(  !loading_here.is_contained(cnv)  ) {
-		loading_here.append (cnv );
+	if(  !loading_here.is_contained(cnv)  ) 
+	{
+		loading_here.append (cnv);
 	}
-	if(  last_loading_step != welt->get_steps()  ) {
+	if(  last_loading_step != welt->get_steps()  ) 
+	{
 		last_loading_step = welt->get_steps();
+
 		// now iterate over all convois
-		for(  slist_tpl<convoihandle_t>::iterator i = loading_here.begin(), end = loading_here.end();  i != end;  ) {
-			if(  (*i).is_bound()  &&  (*i)->get_state()==convoi_t::LOADING  ) {
+		for(  slist_tpl<convoihandle_t>::iterator i = loading_here.begin(), end = loading_here.end();  i != end;  ) 
+		{
+			if(  (*i).is_bound()  &&  ((*i)->get_state()==convoi_t::LOADING || (*i)->get_state()==convoi_t::REVERSING) ) 
+			{
 				// now we load into convoi
 				(*i)->hat_gehalten( self );
-			}
-			if(  (*i).is_bound()  &&  (*i)->get_state()==convoi_t::LOADING  ) {
 				++i;
 			}
-			else {
+			else 
+			{
 				i = loading_here.erase( i );
 			}
 		}
@@ -1599,7 +1603,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 								reverse_delay -= loading_time;
 								// Reduce this value to take account of the fact that people will arrive
 								// at the station *after* the convoy has started to reverse.
-								waiting_minutes += (get_waiting_minutes(reverse_delay) * 3) / 2;
+								waiting_minutes += get_waiting_minutes(reverse_delay);
 							}
 						}
 
