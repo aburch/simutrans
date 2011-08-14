@@ -49,6 +49,10 @@ roadsign_t::roadsign_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
 		// if more than one state, we will switch direction and phase for traffic lights
 		automatic = (besch->get_bild_anzahl()>4  &&  besch->get_wtyp()==road_wt);
 	}
+	// some sve had rather strange entries in zustand
+	if(  !automatic  ||  besch==NULL  ) {
+		zustand = 0;
+	}
 }
 
 
