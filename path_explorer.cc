@@ -1340,7 +1340,7 @@ void path_explorer_t::compartment_t::step()
 					{
 						const connection_t::connection_cluster_t &target_cluster = (*outbound_connections)[target_cluster_index];
 						const uint16 outbound_transport = target_cluster.transport;
-						if ( inbound_transport == outbound_transport )
+						if ( inbound_transport == outbound_transport && inbound_transport != 0u )
 						{
 							++target_cluster_index;
 							continue;
