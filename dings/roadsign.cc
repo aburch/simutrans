@@ -49,6 +49,10 @@ roadsign_t::roadsign_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
 		// if more than one state, we will switch direction and phase for traffic lights
 		automatic = (besch->get_bild_anzahl()>4  &&  besch->get_wtyp()==road_wt);
 	}
+	// some sve had rather strange entries in zustand
+	if(  !automatic  ||  besch==NULL  ) {
+		zustand = 0;
+	}
 }
 
 
@@ -220,8 +224,8 @@ void roadsign_t::calc_bild()
 
 		// signs for left side need other offsets and other front/back order
 		if(  left_offsets  ) {
-			const sint16 XOFF = (24*get_tile_raster_width())/64;
-			const sint16 YOFF = (16*get_tile_raster_width())/64;
+			const sint16 XOFF = 24;
+			const sint16 YOFF = 16;
 
 			if(temp_dir&ribi_t::ost) {
 				tmp_bild = besch->get_bild_nr(3);
@@ -307,8 +311,8 @@ void roadsign_t::calc_bild()
 
 			// other front/back images for left side ...
 			if(  left_offsets  ) {
-				const int XOFF=(30*get_tile_raster_width())/64;
-				const int YOFF=(14*get_tile_raster_width())/64;
+				const int XOFF=30;
+				const int YOFF=14;
 
 				if(weg_dir&ribi_t::nord) {
 					if(weg_dir&ribi_t::ost) {

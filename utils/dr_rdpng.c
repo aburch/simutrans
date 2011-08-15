@@ -1,4 +1,8 @@
+
 //#include <png.h>
+
+#include <setjmp.h>
+
 #include <stdlib.h>
 #include "dr_rdpng.h"
 #include "openttd/png.h"
@@ -15,6 +19,8 @@ static void read_png(unsigned char** block, unsigned* width, unsigned* height, F
 	unsigned row, x, y;
 	int rowbytes;
 	unsigned char* dst;
+	png_uint_32 png32_dummy;
+	int dummy, color_type;
 
 	//png_uint_32 is 64 bit on some architectures!
 	png_uint_32 widthpu32,heightpu32;
@@ -33,7 +39,8 @@ static void read_png(unsigned char** block, unsigned* width, unsigned* height, F
 		exit(1);
 	}
 
-	if (setjmp(png_ptr->jmpbuf)) {
+#ifdef PNG_SETJMP_SUPPORTED
+	if(  setjmp(png_jmpbuf(png_ptr)  )) {
 		printf("read_png: fatal error.\n");
 		png_destroy_read_struct(&png_ptr, &info_ptr, (png_info**)0);
 		/* free pointers before returning, if necessary */
@@ -41,10 +48,10 @@ static void read_png(unsigned char** block, unsigned* width, unsigned* height, F
 		free(info_ptr);
 		exit(1);
 	}
+#endif
 
 	/* Set up the input control if you are using standard C streams */
 	png_init_io(png_ptr, file);
-
 
 	/* The call to png_read_info() gives us all of the information from the
 	 * PNG file before the first IDAT (image data chunk).  REQUIRED
@@ -80,7 +87,9 @@ static void read_png(unsigned char** block, unsigned* width, unsigned* height, F
 	/* Don't output alpha channel */
 	png_set_strip_alpha(png_ptr);
 
-	if ((info_ptr->color_type & PNG_COLOR_MASK_ALPHA) == PNG_COLOR_MASK_ALPHA) {
+	png_get_IHDR( png_ptr, info_ptr, &png32_dummy, &png32_dummy, &dummy, &color_type, &dummy, &dummy, &dummy );
+	if(  (color_type & PNG_COLOR_MASK_ALPHA) == PNG_COLOR_MASK_ALPHA  ) {
+	//if(  (info_ptr->color_type & PNG_COLOR_MASK_ALPHA) == PNG_COLOR_MASK_ALPHA  ) {
 		printf("WARNING: ignoring alpha channel\n");
 		// author note: It might be that this won't catch files with format
 		// palette + transparency, which is a really rare but possible combination.
@@ -168,7 +177,8 @@ int write_png( const char *file_name, unsigned char *data, int width, int height
 		return 0;
 	}
 
-	if (setjmp(png_ptr->jmpbuf)) {
+#ifdef PNG_SETJMP_SUPPORTED
+	if(  setjmp( png_jmpbuf(png_ptr) )  ) {
 		printf("read_png: fatal error.\n");
 		png_destroy_read_struct(&png_ptr, &info_ptr, (png_info**)0);
 		/* free pointers before returning, if necessary */
@@ -176,12 +186,15 @@ int write_png( const char *file_name, unsigned char *data, int width, int height
 		free(info_ptr);
 		exit(1);
 	}
+#endif
 
 	// assign file
 	png_init_io(png_ptr, fp);
 
+#if PNG_LIBPNG_VER_MAJOR<=1  &&  PNG_LIBPNG_VER_MINOR<5
 	/* set the zlib compression level */
 	png_set_compression_level( png_ptr, Z_BEST_COMPRESSION );
+#endif
 
 	// output header
 	png_set_IHDR( png_ptr, info_ptr, width, height, 8, PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE, PNG_INTERLACE_NONE, PNG_FILTER_TYPE_DEFAULT );
