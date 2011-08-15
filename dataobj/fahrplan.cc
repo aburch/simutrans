@@ -259,6 +259,7 @@ void schedule_t::rdwr(loadsave_t *file)
 				eintrag.append( linieneintrag_t() );
 				eintrag[i] .waiting_time_shift = 0;
 				eintrag[i].spacing_shift = 0;
+				eintrag[i].reverse = false;
 			}
 			eintrag[i].pos.rdwr(file);
 			file->rdwr_byte(eintrag[i].ladegrad);
@@ -351,6 +352,7 @@ bool schedule_t::matches(karte_t *welt, const schedule_t *fpl)
 			&& fpl->eintrag[f2].ladegrad == eintrag[f1].ladegrad 
 			&& fpl->eintrag[f2].waiting_time_shift == eintrag[f1].waiting_time_shift 
 			&& fpl->eintrag[f2].spacing_shift == eintrag[f1].spacing_shift
+			&& fpl->eintrag[f2].reverse == eintrag[f1].reverse
 		  ) {
 			// ladegrad/waiting ignored: identical
 			f1++;
@@ -434,7 +436,7 @@ void schedule_t::sprintf_schedule( cbuffer_t &buf ) const
 	buf.append( (int)get_type() );
 	buf.append( "|" );
 	for(  uint8 i = 0;  i<eintrag.get_count();  i++  ) {
-		buf.printf( "%s,%i,%i,%i|", eintrag[i].pos.get_str(), (int)eintrag[i].ladegrad, (int)eintrag[i].waiting_time_shift, (int)eintrag[i].spacing_shift );
+		buf.printf( "%s,%i,%i,%i,%i|", eintrag[i].pos.get_str(), (int)eintrag[i].ladegrad, (int)eintrag[i].waiting_time_shift, (int)eintrag[i].spacing_shift, (int)eintrag[i].reverse );
 	}
 }
 
@@ -489,17 +491,17 @@ bool schedule_t::sscanf_schedule( const char *ptr )
 	p++;
 	// now scan the entries
 	while(  *p>0  ) {
-		sint16 values[6];
-		for(  sint8 i=0;  i<6;  i++  ) {
+		sint16 values[7];
+		for(  sint8 i=0;  i<7;  i++  ) {
 			values[i] = atoi( p );
 			while(  *p  &&  (*p!=','  &&  *p!='|')  ) {
 				p++;
 			}
-			if(  i<5  &&  *p!=','  ) {
+			if(  i<6  &&  *p!=','  ) {
 				dbg->error( "schedule_t::sscanf_schedule()","incomplete string!" );
 				return false;
 			}
-			if(  i==5  &&  *p!='|'  ) {
+			if(  i==6  &&  *p!='|'  ) {
 				dbg->error( "schedule_t::sscanf_schedule()","incomplete entry termination!" );
 				return false;
 			}
@@ -507,14 +509,14 @@ bool schedule_t::sscanf_schedule( const char *ptr )
 		}
 		// ok, now we have a complete entry
 #ifndef _MSC_VER
-		struct linieneintrag_t stop = { koord3d(values[0],values[1],values[2]), values[3], values[4], values[5] };
+		struct linieneintrag_t stop = { koord3d(values[0],values[1],values[2]), values[3], values[4], values[5], values[6] };
 #else
 		struct linieneintrag_t stop;
 		stop.pos = koord3d(values[0],values[1],values[2]);
 		stop.ladegrad = values[3];
 		stop.waiting_time_shift = values[4];
 		stop.spacing_shift = values[5];
-		stop.reverse = false;
+		stop.reverse = values[6];
 #endif
 		eintrag.append( stop );
 	}
