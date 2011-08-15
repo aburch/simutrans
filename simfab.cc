@@ -1521,7 +1521,7 @@ public:
 
 
 /**
- * Die erzeugten waren auf die Haltestellen verteilen
+ * distribute stuff to all best destination
  * @author Hj. Malthaner
  */
 void fabrik_t::verteile_waren(const uint32 produkt)
@@ -1542,8 +1542,6 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 
 	static vector_tpl<distribute_ware_t> dist_list(16);
 	dist_list.clear();
-
-	bool still_overflow = true;
 
 	// to distribute to all target equally, we use this counter, for the source hald, and target factory, to try first
 	index_offset++;
@@ -1590,19 +1588,12 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 				const bool overflown = (ziel_fab->get_eingang()[w].menge >= ziel_fab->get_eingang()[w].max);
 
 				if(  !welt->get_settings().get_just_in_time()  ) {
-
-					// distribution also to overflowing factories
-					if(  still_overflow  &&  !overflown  ) {
-						// not overflowing factory found
-						still_overflow = false;
-						dist_list.clear();
-					}
+					// without production stop when target overflowing, distribute to least overflow target
+					dist_list.insert_ordered( distribute_ware_t( halt, ziel_fab->get_eingang()[w].menge + 2000*overflown, ziel_fab->get_eingang()[w].max, (sint32)halt->get_ware_fuer_zielpos(ausgang[produkt].get_typ(),ware.get_zielpos()), ware ), distribute_ware_t::compare );
 				}
-
-				if(  !overflown  ||  (!welt->get_settings().get_just_in_time()  &&  still_overflow)  ) {
+				else if(  !overflown  ) {
 					// Station can only store up to a maximum amount of goods per square
 					const sint32 halt_left = (sint32)halt->get_capacity(2) - (sint32)halt->get_ware_summe(ware.get_besch());
-
 					dist_list.insert_ordered( distribute_ware_t( halt, halt_left, halt->get_capacity(2), (sint32)halt->get_ware_fuer_zielpos(ausgang[produkt].get_typ(),ware.get_zielpos()), ware ), distribute_ware_t::compare );
 				}
 			}
@@ -1641,7 +1632,8 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 		// since it is assigned here to an unsigned variable!
 		best_ware.menge = menge;
 
-		if(  best->space_left<0  ) {
+		const sint32 space_left = welt->get_settings().get_just_in_time() ? best->space_left : (sint32)best_halt->get_capacity(2) - (sint32)best_halt->get_ware_summe(best_ware.get_besch());
+		if(  space_left<0  ) {
 
 			// find, what is most waiting here from us
 			ware_t most_waiting(ausgang[produkt].get_typ());
