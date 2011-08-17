@@ -4145,6 +4145,11 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 		book(gewinn, CONVOI_REVENUE);
 	}
 
+	if(state == REVERSING)
+	{
+		return;
+	}
+
 	if(go_on_ticks==WAIT_INFINITE) {
 		if (!loading_limit) {
 			go_on_ticks = arrival_time + longest_loading_time;
