@@ -2352,20 +2352,20 @@ void convoi_t::vorfahren()
 						
 						reverse_delay = calc_reverse_delay();
 
-						const uint16 loading_time = get_longest_loading_time();
+						uint16 loading_time = get_longest_loading_time();
 
-						if(welt->get_zeit_ms() - arrival_time > loading_time && welt->lookup(this->get_pos())->is_halt())
+						if(welt->get_zeit_ms() - arrival_time > reverse_delay && welt->lookup(this->get_pos())->is_halt())
 						{
 							// The reversing time must not be cumulative with the loading time, as 
 							// passengers can board trains etc. while they are changing direction.
 							// Only do this where the reversing point is a stop, not a waypoint.
-							if(reverse_delay >= loading_time)
+							if(reverse_delay <= loading_time)
 							{
-								reverse_delay -= loading_time;
+								loading_time -= reverse_delay;
 							}
 							else
 							{
-								reverse_delay = 0;
+								loading_time = 0;
 							}
 						}
 
@@ -5202,22 +5202,46 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int s
  */
 void convoi_t::snprintf_remaining_loading_time(char *p, size_t size) const
 {
+	const uint16 reverse_delay = calc_reverse_delay();
+	uint16 loading_time = longest_loading_time;
+	if(welt->get_zeit_ms() - arrival_time > reverse_delay && welt->lookup(this->get_pos())->is_halt())
+	{
+		// The reversing time must not be cumulative with the loading time, as 
+		// passengers can board trains etc. while they are changing direction.
+		// Only do this where the reversing point is a stop, not a waypoint.
+		if(reverse_delay <= loading_time)
+		{
+			loading_time -= reverse_delay;
+		}
+		else
+		{
+			loading_time = 0;
+		}
+	}
+	
+	sint32 remaining_ticks;
+
 	if ( go_on_ticks != WAIT_INFINITE && go_on_ticks >= welt->get_zeit_ms())
 	{
-		uint32 ticks_left = (int)(go_on_ticks - welt->get_zeit_ms());
-		welt->sprintf_ticks(p, size, ticks_left);
+		remaining_ticks = (int)(go_on_ticks - welt->get_zeit_ms());
 	} 
 	
 	else if ( arrival_time + longest_loading_time >= welt->get_zeit_ms()) 
 	{
-		uint32 ticks_left = (int)(arrival_time + longest_loading_time - welt->get_zeit_ms());
-		welt->sprintf_ticks(p, size, ticks_left);
+		remaining_ticks = (int)(arrival_time + longest_loading_time - welt->get_zeit_ms());
 	} 
-
-	else 
+	else
 	{
-		*p = '\0';
+		remaining_ticks = 0;
 	}
+
+	uint32 ticks_left = 0;
+
+	if(remaining_ticks >= 0)
+	{
+		ticks_left = remaining_ticks;
+	}
+	welt->sprintf_ticks(p, size, ticks_left);
 }
 
 /**
@@ -5225,43 +5249,18 @@ void convoi_t::snprintf_remaining_loading_time(char *p, size_t size) const
  */
 void convoi_t::snprintf_remaining_reversing_time(char *p, size_t size) const
 {
-	uint16 reversing_time = calc_reverse_delay();
+	const uint16 reversing_time = calc_reverse_delay();
 
-	if(welt->get_zeit_ms() - arrival_time > longest_loading_time && welt->lookup(this->get_pos())->is_halt())
+	const sint32 remaining_ticks = (int)(arrival_time + longest_loading_time + reversing_time - welt->get_zeit_ms());
+	uint32 ticks_left = 0;
+	if(remaining_ticks >= 0)
 	{
-		// The reversing time must not be cumulative with the loading time, as 
-		// passengers can board trains etc. while they are changing direction.
-		// Only do this where the reversing point is a stop, not a waypoint.
-		if(reversing_time >= longest_loading_time)
-		{
-			reversing_time -= longest_loading_time;
-		}
-		else
-		{
-			reversing_time = 0;
-		}
+		ticks_left = remaining_ticks;
 	}
-
-	if ( go_on_ticks != WAIT_INFINITE && go_on_ticks >= welt->get_zeit_ms()) 
-	{
-		uint32 ticks_left = (int)(go_on_ticks - welt->get_zeit_ms());
-		welt->sprintf_ticks(p, size, ticks_left);
-	} 
-	
-	else if ( arrival_time + reversing_time >= welt->get_zeit_ms())
-	{
-		uint32 ticks_left = (int)(arrival_time + reversing_time - welt->get_zeit_ms());
-		welt->sprintf_ticks(p, size, ticks_left);
-	} 
-	
-	else 
-	{
-		*p = '\0';
-	}
+	welt->sprintf_ticks(p, size, ticks_left);
 }
 
-uint32 
-convoi_t::calc_heaviest_vehicle()
+uint32 convoi_t::calc_heaviest_vehicle()
 {
 	uint32 heaviest = 0;
 	for(uint8 i = 0; i < anz_vehikel; i ++)
