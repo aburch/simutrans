@@ -1060,7 +1060,10 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	no_tree_climates = contents.get_int("no_tree_climates", no_tree_climates );
 	no_trees	= contents.get_int("no_trees", no_trees );
 
+	// those two are pak specific; but while the diagonal length affect traveling time (in is game critical) ...
 	pak_diagonal_multiplier = contents.get_int("diagonal_multiplier", pak_diagonal_multiplier );
+	// the height in z-direction will only cause pixel errors but not a different behaviour
+	umgebung_t::pak_tile_height_step = contents.get_int("tile_height", umgebung_t::pak_tile_height_step );
 
 	factory_spacing = contents.get_int("factory_spacing", factory_spacing );
 	crossconnect_factories = contents.get_int("crossconnect_factories", crossconnect_factories ) != 0;

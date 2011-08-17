@@ -91,7 +91,7 @@
 // 16 internal pixels per tile, for purposes of object offsets.
 // koord3d.z granularity is 1,
 #define Z_TILE_STEP (1)
-#define TILE_HEIGHT_STEP (16)
+//#define TILE_HEIGHT_STEP (16)
 #define height_scaling(i) (i)
 #define height_unscaling(i) (i)
 #endif

@@ -14,6 +14,8 @@
 #include "../simcolor.h"
 #include "einstellungen.h"
 
+#define TILE_HEIGHT_STEP (umgebung_t::pak_tile_height_step)
+
 
 /**
  * Diese Klasse bildet eine Abstraktion der Kommandozeilenparameter.
@@ -259,6 +261,9 @@ public:
 	static uint8 front_window_text_color;
 	static uint8 bottom_window_bar_color;
 	static uint8 bottom_window_text_color;
+
+	// how many internal pixel per hieght step (default 16)
+	static sint8 pak_tile_height_step;
 
 	static settings_t default_einstellungen;
 

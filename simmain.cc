@@ -455,6 +455,7 @@ int simu_main(int argc, char** argv)
 
 	// only the pak specifiy conf should overide this!
 	uint16 pak_diagonal_multiplier = umgebung_t::default_einstellungen.get_pak_diagonal_multiplier();
+	sint8 pak_tile_height = TILE_HEIGHT_STEP;
 
 	// parsing config/simuconf.tab
 	printf("Reading low level config data ...\n");
@@ -701,6 +702,7 @@ int simu_main(int argc, char** argv)
 		printf("parse_simuconf() at %s: ", obj_conf.c_str());
 		umgebung_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 		pak_diagonal_multiplier = umgebung_t::default_einstellungen.get_pak_diagonal_multiplier();
+		pak_tile_height = TILE_HEIGHT_STEP;
 		simuconf.close();
 	}
 	// and parse again parse the user settings
@@ -729,6 +731,7 @@ int simu_main(int argc, char** argv)
 	// now (re)set the correct length from the pak
 	umgebung_t::default_einstellungen.set_pak_diagonal_multiplier( pak_diagonal_multiplier );
 	vehikel_basis_t::set_diagonal_multiplier( pak_diagonal_multiplier, pak_diagonal_multiplier );
+	TILE_HEIGHT_STEP = pak_tile_height;
 
 	convoihandle_t::init( 1024 );
 	linehandle_t::init( 1024 );
