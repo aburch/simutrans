@@ -54,7 +54,7 @@ void crossing_logic_t::info(cbuffer_t & buf) const
 
 
 
-// after merging two crossings ...
+// after merging or splitting two crossings ...
 void crossing_logic_t::recalc_state()
 {
 	if(  !crossings.empty()  ) {
@@ -357,10 +357,8 @@ void crossing_logic_t::add( karte_t *w, crossing_t *start_cr, crossing_state_t z
 		cr->set_logic( found_logic );
 		found_logic->append_crossing( cr );
 	}
+	found_logic->set_state( zustand );
 	found_logic->recalc_state();
-	if(  zustand!=CROSSING_INVALID  ) {
-		found_logic->set_state( zustand );
-	}
 }
 
 
@@ -373,11 +371,42 @@ void crossing_logic_t::remove( crossing_t *cr )
 		delete this;
 	}
 	else {
-		// because we do not know, which tile is going where
-		zustand = CROSSING_INVALID;
-		for(  uint i=0;  i<crossings.get_count();  i++  ) {
-			add( welt, crossings[i], CROSSING_INVALID );
+		// check for a crossing to the east/south
+		koord3d pos = cr->get_pos();
+		const koord zv = cr->get_dir() ? koord::west : koord::nord;
+		const grund_t *gr = welt->lookup( pos-zv );
+		if(  gr  ) {
+			crossing_t *found_cr = gr->find<crossing_t>();
+			if(  found_cr  &&  have_crossings_same_wt(found_cr->get_besch(),cr->get_besch())  ) {
+				// crossing to the east/south so split logic from any found to the north/west
+				crossing_logic_t *split_logic = NULL;
+				while(1) {
+					pos += zv;
+					gr = welt->lookup( pos );
+					if(  gr == NULL  ) {
+						break;
+					}
+					found_cr = gr->find<crossing_t>();
+					if(  found_cr == NULL  ||  !have_crossings_same_wt(found_cr->get_besch(),cr->get_besch())  ) {
+						break;
+					}
+					assert(this==found_cr->get_logic());
+
+					if(  !split_logic  ) {
+						split_logic = new crossing_logic_t( cr->get_besch() );
+					}
+					crossings.remove( found_cr );
+					found_cr->set_logic( split_logic );
+					split_logic->append_crossing( found_cr );
+				}
+
+				if(  split_logic  ) {
+					split_logic->set_state( CROSSING_INVALID );
+					split_logic->recalc_state();
+				}
+			}
 		}
+		set_state( CROSSING_INVALID );
 		recalc_state();
 	}
 }
