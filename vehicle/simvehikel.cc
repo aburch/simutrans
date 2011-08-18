@@ -2137,7 +2137,7 @@ bool automobil_t::ist_weg_frei(int &restart_speed, bool second_check)
 
 									// now it make sense to search a route
 									route_t target_rt;
-									koord3d next3d = r.position_bei(test_index + (test_index + 1u < r.get_count()?1u:0u));
+									koord3d next3d = r.position_bei(test_index);
 									if(  !target_rt.find_route( welt, next3d, this, speed_to_kmh(cnv->get_min_top_speed()), curr_90fahrtrichtung, 33 )  ) {
 										// nothing empty or not route with less than 33 tiles
 										target_halt = halthandle_t();
