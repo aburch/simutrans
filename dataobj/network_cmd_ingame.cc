@@ -135,7 +135,7 @@ bool nwc_join_t::execute(karte_t *welt)
 		nwj.client_id = socket_list_t::get_client_id(packet->get_sender());
 		// no other joining process active?
 		nwj.answer = socket_list_t::get_client(nwj.client_id).is_active()  &&  pending_join_client == INVALID_SOCKET ? 1 : 0;
-		DBG_MESSAGE( "nwc_join_t::execute", "client_id=%i active=%i pending_join_client=%i %active=%d", socket_list_t::get_client_id(packet->get_sender()), socket_list_t::get_client(nwj.client_id).is_active(), pending_join_client, nwj.answer );
+		DBG_MESSAGE( "nwc_join_t::execute", "client_id=%i active=%i pending_join_client=%i active=%d", socket_list_t::get_client_id(packet->get_sender()), socket_list_t::get_client(nwj.client_id).is_active(), pending_join_client, nwj.answer );
 		nwj.rdwr();
 		if(  nwj.send( packet->get_sender() )  ) {
 			if(  nwj.answer==1  ) {
@@ -150,6 +150,10 @@ bool nwc_join_t::execute(karte_t *welt)
 					network_send_all(nws, false);
 					pending_join_client = packet->get_sender();
 					DBG_MESSAGE( "nwc_join_t::execute", "pending_join_client now %i", pending_join_client);
+					// unpause world
+					if (welt->is_paused()) {
+						welt->set_pause(false);
+					}
 				}
 				else {
 					dbg->warning("nwc_join_t::execute", "send of NWC_SYNC to the joining client failed");

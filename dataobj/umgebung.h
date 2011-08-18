@@ -58,6 +58,9 @@ public:
 	static std::string server_comment;
 	static std::string server_admin_pw;
 
+	// pause server if no client connected
+	static bool pause_server_no_clients;
+
 	// scrollrichtung
 	static sint16 scroll_multi;
 

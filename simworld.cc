@@ -5836,6 +5836,11 @@ bool karte_t::interactive(uint32 quit_month)
 						dbg->message("karte_t::interactive", "time=%lu sync=%d  rand=%d", dr_time(), sync_steps, LRAND(sync_steps));
 					}
 #endif
+
+					// no clients -> pause game
+					if (  umgebung_t::networkmode  &&  umgebung_t::pause_server_no_clients  &&  socket_list_t::get_playing_clients() == 0  &&  !nwc_join_t::is_pending()  ) {
+						set_pause(true);
+					}
 				}
 				else {
 					INT_CHECK( "karte_t::interactive()" );

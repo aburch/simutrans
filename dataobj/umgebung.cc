@@ -31,6 +31,7 @@ long umgebung_t::server_frames_ahead = 4;
 long umgebung_t::additional_client_frames_behind = 0;
 long umgebung_t::network_frames_per_step = 4;
 uint32 umgebung_t::server_sync_steps_between_checks = 256;
+bool umgebung_t::pause_server_no_clients = false;
 
 // this is explicitely and interactively set by user => we do not touch it in init
 const char *umgebung_t::language_iso = "en";
