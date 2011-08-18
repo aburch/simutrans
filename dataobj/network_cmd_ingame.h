@@ -51,6 +51,8 @@ public:
 	 * this clients is in the process of joining
 	 */
 	static SOCKET pending_join_client;
+
+	static bool is_pending() { return pending_join_client != INVALID_SOCKET; }
 };
 
 /**

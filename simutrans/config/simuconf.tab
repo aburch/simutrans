@@ -574,3 +574,7 @@ fast_forward = 50
 
 # Admin password for server; if not set, command-line tool nettool not usable
 #server_admin_pw = abc
+
+# Pause server if no clients are connected
+#pause_server_no_clients = 1
+
