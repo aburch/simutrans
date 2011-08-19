@@ -5575,11 +5575,14 @@ bool wkz_change_traffic_light_t::init( karte_t *welt, spieler_t *sp )
 	if(  grund_t *gr = welt->lookup(pos)  ) {
 		if( roadsign_t *rs = gr->find<roadsign_t>()  ) {
 			if(  rs->get_besch()->is_traffic_light()  &&  spieler_t::check_owner(rs->get_besitzer(),sp)  ) {
-				if(  ns  ) {
+				if(  ns == 1  ) {
 					rs->set_ticks_ns( ticks );
 				}
-				else {
+				else if(  ns == 0  ) {
 					rs->set_ticks_ow( ticks );
+				}
+				else if(  ns == 2  ) {
+					rs->set_ticks_offset( ticks );
 				}
 				// update the window
 				trafficlight_info_t* trafficlight_win = (trafficlight_info_t*)win_get_magic((long)rs);

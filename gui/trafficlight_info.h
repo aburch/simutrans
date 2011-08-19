@@ -23,7 +23,7 @@ class trafficlight_info_t : public ding_infowin_t, public action_listener_t
 {
  private:
 	roadsign_t* ampel;
-	gui_numberinput_t ns, ow;
+	gui_numberinput_t ns, ow, offset;
 
  public:
 	trafficlight_info_t(roadsign_t* s);

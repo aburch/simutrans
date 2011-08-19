@@ -64,6 +64,7 @@ roadsign_t::roadsign_t(karte_t *welt, spieler_t *sp, koord3d pos, ribi_t::ribi d
 	bild = after_bild = IMG_LEER;
 	zustand = 0;
 	ticks_ns = ticks_ow = 16;
+	ticks_offset = 0;
 	set_besitzer( sp );
 	// if more than one state, we will switch direction and phase for traffic lights
 	automatic = (besch->get_bild_anzahl()>4  &&  besch->get_wtyp()==road_wt);
@@ -389,7 +390,7 @@ void roadsign_t::calc_bild()
 bool roadsign_t::sync_step(long /*delta_t*/)
 {
 	// change every ~32s
-	uint32 ticks = (welt->get_zeit_ms()>>10) % (ticks_ns+ticks_ow);
+	uint32 ticks = ((welt->get_zeit_ms()>>10)+ticks_offset) % (ticks_ns+ticks_ow);
 
 	uint8 new_zustand = (ticks >= ticks_ns) ^ (welt->get_settings().get_rotation() & 1);
 	if(zustand!=new_zustand) {
@@ -451,6 +452,15 @@ void roadsign_t::rdwr(loadsave_t *file)
 		file->rdwr_byte(ticks_ns);
 		file->rdwr_byte(ticks_ow);
 	}
+	if(  file->get_version()>=110007  ) {
+		file->rdwr_byte(ticks_offset);
+	}
+	else {
+		if(  file->is_loading()  ) {
+			ticks_offset = 0;
+		}
+	}
+
 	dummy = zustand;
 	file->rdwr_byte(dummy);
 	zustand = dummy;
