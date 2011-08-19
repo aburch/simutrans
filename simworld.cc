@@ -6641,9 +6641,6 @@ void karte_t::sprintf_ticks(char *p, size_t size, uint32 ticks)
 	unsigned int tenths_of_minutes = (unsigned int)ticks_to_tenths_of_minutes(ticks);
 	unsigned int minutes = tenths_of_minutes / 10;
 	unsigned int seconds = (tenths_of_minutes * 6) % 60;
-
-	/*unsigned int hours = (ticks_to_tenths_of_minutes(ticks * 24)) / 100;
-	unsigned int minutes = (ticks_to_tenths_of_minutes(ticks * 24 * 60) / 100) % 60;*/
 	sprintf(p, "%u:%02u", minutes, seconds);
 }
 
