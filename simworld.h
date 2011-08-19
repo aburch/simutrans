@@ -734,6 +734,8 @@ public:
 		}
 	}
 
+	sint64 ticks_to_tenths_of_minutes(sint64 ticks) const;
+
 	/**
 	 * 0=winter, 1=spring, 2=summer, 3=autumn
 	 * @author prissi

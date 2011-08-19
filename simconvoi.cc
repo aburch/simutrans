@@ -3544,7 +3544,7 @@ void convoi_t::laden() //"load" (Babelfish)
 	if(journey_distance > 0)
 	{
 		arrival_time = welt->get_zeit_ms();
-		sint64 journey_time = ((arrival_time - last_departure_time) * 100) / 53248;
+		sint64 journey_time = welt->ticks_to_tenths_of_minutes(arrival_time - last_departure_time);
 		if(journey_time <= 0)
 		{
 			// Necessary to prevent divisions by zero.
