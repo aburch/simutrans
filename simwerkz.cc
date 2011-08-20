@@ -3720,7 +3720,7 @@ wkz_roadsign_t::wkz_roadsign_t() : two_click_werkzeug_t()
 {
 	id = WKZ_ROADSIGN | GENERAL_TOOL;
 	for (uint8 i=0; i<MAX_PLAYER_COUNT; i++) {
-		signal_spacing[i] = 2;
+		signal_spacing[i] = 16;
 		remove_intermediate_signals[i] = true;
 		replace_other_signals[i] = true;
 	}
