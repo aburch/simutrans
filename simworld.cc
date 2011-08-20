@@ -6638,13 +6638,18 @@ void karte_t::calc_max_road_check_depth()
 
 void karte_t::sprintf_ticks(char *p, size_t size, uint32 ticks) 
 {
-	unsigned int tenths_of_minutes = (unsigned int)ticks_to_tenths_of_minutes(ticks);
-	unsigned int minutes = tenths_of_minutes / 10;
-	unsigned int seconds = (tenths_of_minutes * 6) % 60;
+	unsigned int seconds = (unsigned int)ticks_to_seconds(ticks);
+	unsigned int minutes = seconds / 60;
+	seconds %= 60;
 	sprintf(p, "%u:%02u", minutes, seconds);
 }
 
 sint64 karte_t::ticks_to_tenths_of_minutes(sint64 ticks) const
 {
 	return get_settings().get_meters_per_tile() * ticks / 136533L;
+}
+
+sint64 karte_t::ticks_to_seconds(sint64 ticks) const
+{
+	return get_settings().get_meters_per_tile() * ticks / 22756L;
 }

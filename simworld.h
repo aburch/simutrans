@@ -734,7 +734,17 @@ public:
 		}
 	}
 
+	/**
+	 * Standard timing conversion
+	 * @author: jamespetts
+	 */
 	sint64 ticks_to_tenths_of_minutes(sint64 ticks) const;
+
+	/**
+	 * Finer timing conversion for UI only
+	 * @author: jamespetts
+	 */
+	sint64 ticks_to_seconds(sint64 ticks) const;
 
 	/**
 	 * 0=winter, 1=spring, 2=summer, 3=autumn
