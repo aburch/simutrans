@@ -46,7 +46,7 @@ protected:
 
 	virtual bool hop_check() {return true;}
 	virtual void hop();
-
+	virtual void update_bookkeeping(uint32) {};
 	verkehrsteilnehmer_t(karte_t *welt);
 	verkehrsteilnehmer_t(karte_t *welt, koord3d pos);
 

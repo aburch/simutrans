@@ -66,6 +66,8 @@ public:
 	virtual bool ist_weg_frei() { return 1; }
 	virtual bool hop_check();
 	virtual void hop();
+	virtual void update_bookkeeping(uint32) {};
+
 	virtual waytype_t get_waytype() const { return get_besch()->get_waytype(); }
 
 	const char *get_name() const {return "Movingobj";}

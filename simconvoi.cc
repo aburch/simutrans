@@ -676,26 +676,19 @@ void convoi_t::add_running_cost(sint64 cost)
 	book( cost, CONVOI_PROFIT );
 }
 
-void convoi_t::increment_odometer()
+void convoi_t::increment_odometer(uint32 steps)
 {
-	uint32 steps = 255;
-	if(fahr[0]->get_steps() < 200)
-	{
-		// Diagonal
-		steps = vehikel_t::get_diagonal_vehicle_steps_per_tile();
-	}
 	steps_since_last_odometer_increment += steps;
-	const sint32 meters_per_tile = welt->get_settings().get_meters_per_tile();
-	const sint64 km = (meters_per_tile * steps_since_last_odometer_increment) / 255000 /* steps per tile * 1000m */;
-	if(km > 0)
+	if ( steps_since_last_odometer_increment < welt->get_settings().get_steps_per_km())
 	{
-		book( km, CONVOI_DISTANCE );
-		total_distance_traveled += km;
-		steps_since_last_odometer_increment -= (km * 255000) / meters_per_tile;
-		for(uint8 i= 0; i < anz_vehikel; i++)
-		{
-			add_running_cost(-fahr[i]->get_besch()->get_betriebskosten(welt));
-		}
+		return;
+	}
+	const sint64 km = steps_since_last_odometer_increment / welt->get_settings().get_steps_per_km();
+	book( km, CONVOI_DISTANCE );
+	total_distance_traveled += km;
+	steps_since_last_odometer_increment -= km * steps_since_last_odometer_increment;
+	for(uint8 i= 0; i < anz_vehikel; i++) {
+		add_running_cost(-fahr[i]->get_besch()->get_betriebskosten(welt));
 	}
 }
 
@@ -2987,15 +2980,15 @@ void convoi_t::rdwr(loadsave_t *file)
 	{
 		if(file->get_experimental_version() <= 8)
 		{
-			uint8 old_tiles = (uint8)steps_since_last_odometer_increment / 255;
+			uint8 old_tiles = uint8(steps_since_last_odometer_increment / VEHICLE_STEPS_PER_TILE);
 			file->rdwr_byte(old_tiles);
-			steps_since_last_odometer_increment = old_tiles * 255;
+			steps_since_last_odometer_increment = old_tiles * VEHICLE_STEPS_PER_TILE;
 		}
 		else if (file->get_experimental_version() > 8 && file->get_experimental_version() < 10)
 		{
-			double tiles_since_last_odometer_increment = steps_since_last_odometer_increment / 255.0;
+			double tiles_since_last_odometer_increment = double(steps_since_last_odometer_increment) / VEHICLE_STEPS_PER_TILE;
 			file->rdwr_double(tiles_since_last_odometer_increment);
-			steps_since_last_odometer_increment = (sint64)(tiles_since_last_odometer_increment * 255.0);
+			steps_since_last_odometer_increment = sint64(tiles_since_last_odometer_increment * VEHICLE_STEPS_PER_TILE );
 		}
 		else if(file->get_experimental_version() >= 9 && file->get_version() >= 110006)
 		{

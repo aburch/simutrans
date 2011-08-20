@@ -257,6 +257,9 @@ public:
 	uint16 median_bonus_distance;
 	uint16 max_bonus_multiplier_percent;
 	uint16 meters_per_tile;
+	// We need it often(every vehikel_basis_t::fahre_basis call), so we cache it.
+	uint32 steps_per_km;
+
 	uint8 tolerable_comfort_short;
 	uint8 tolerable_comfort_median_short;
 	uint8 tolerable_comfort_median_median;
@@ -590,7 +593,8 @@ public:
 	void   set_max_bonus_multiplier_percent(uint16 value) { max_bonus_multiplier_percent = value; }
 
 	uint16 get_meters_per_tile() const { return meters_per_tile; }
-	void   set_meters_per_tile(uint16 value) { meters_per_tile = value; }
+	void   set_meters_per_tile(uint16 value) { meters_per_tile = value; steps_per_km = (1000 * VEHICLE_STEPS_PER_TILE) / meters_per_tile; }
+	uint32 get_steps_per_km() const { return steps_per_km; }
 //	void   set_distance_per_tile_percent(uint16 value) { meters_per_tile = value * 10; }
 
 	uint8  get_tolerable_comfort_short() const { return tolerable_comfort_short; }
