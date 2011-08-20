@@ -1171,6 +1171,10 @@ end_loop:
 			if(wait_lock == 0)
 			{
 				state = CAN_START;
+				if(fahr[0]->last_stop_pos == fahr[0]->get_pos().get_2d())
+				{
+					book_waiting_times();
+				}
 			}
 			
 			break;
@@ -1359,7 +1363,7 @@ end_loop:
 		case WAITING_FOR_CLEARANCE:
 			//wait_lock = 500;
 			// Bernd Gabriel: simutrans experimental may have presets the wait_lock before. Don't overwrite it here, if it ought to wait longer.
-			wait_lock = max(wait_lock, 500);
+			wait_lock = max(wait_lock, 250);
 			break;
 
 		// waiting for free way, not too heavy, not to slow
@@ -2319,7 +2323,6 @@ void convoi_t::vorfahren()
 		// still leaving depot (steps_driven!=0) or going in other direction or misalignment?
 		if(steps_driven > 0 || must_change_direction) 
 		{
-
 			//Convoy needs to reverse
 			//@author: jamespetts
 			if(must_change_direction)
@@ -2330,6 +2333,8 @@ void convoi_t::vorfahren()
 					case air_wt:
 						// Road vehicles and aircraft do not need to change direction
 						// Canal barges *may* change direction, so water is omitted.
+						last_departure_time = welt->get_zeit_ms();
+						book_waiting_times();
 						break;
 
 					default:
@@ -2362,10 +2367,13 @@ void convoi_t::vorfahren()
 							}
 						}
 
-						reverse_order(reversable);
 						state = REVERSING;
-						// The convoy does not depart until it has reversed.
-						last_departure_time += reverse_delay;
+						if(fahr[0]->last_stop_pos == fahr[0]->get_pos().get_2d())
+						{
+							// The convoy does not depart until it has reversed.
+							last_departure_time = welt->get_zeit_ms() + reverse_delay;
+						}
+						reverse_order(reversable);
 				}
 			}
 
@@ -2433,6 +2441,12 @@ void convoi_t::vorfahren()
 					
 			}
 			fahr[0]->set_erstes(true);
+		}
+
+		else
+		{
+			last_departure_time = welt->get_zeit_ms();
+			book_waiting_times();
 		}
 
 		int counter = 1;
@@ -3576,10 +3590,6 @@ void convoi_t::laden() //"load" (Babelfish)
 			}
 		}
 	}
-
-	// The departure time is not the same as the arrival time, as
-	// the convoy must load.
-	last_departure_time = arrival_time + get_longest_loading_time();
 		
 	// Recalculate comfort
 	const uint8 comfort = get_comfort();
@@ -4144,31 +4154,39 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 		return;
 	}
 
-	if(go_on_ticks==WAIT_INFINITE) {
-		if (!loading_limit) {
-			go_on_ticks = arrival_time + longest_loading_time;
-		} else {
+	const uint16 reversing_time = fpl->get_current_eintrag().reverse ? calc_reverse_delay() : 0;
+	if(go_on_ticks==WAIT_INFINITE) 
+	{
+		const sint64 departure_time = (arrival_time + longest_loading_time) - reversing_time;
+		if (!loading_limit) 
+		{
+			go_on_ticks = max(departure_time, arrival_time);
+		} 
+		else 
+		{
 			sint64 go_on_ticks_spacing = WAIT_INFINITE;
-			if (line.is_bound() && fpl->get_spacing() && line->count_convoys()) {
+			if (line.is_bound() && fpl->get_spacing() && line->count_convoys()) 
+			{
 				uint32 spacing = welt->ticks_per_world_month/fpl->get_spacing();
 				uint32 spacing_shift = fpl->get_current_eintrag().spacing_shift * welt->ticks_per_world_month/welt->get_settings().get_spacing_shift_divisor();
 					sint64 wait_from_ticks = ((welt->get_zeit_ms()- spacing_shift)/spacing) * spacing + spacing_shift; // remember, it is integer division
 				int queue_pos = halt.is_bound()?halt->get_queue_pos(self):1;
-				go_on_ticks_spacing = wait_from_ticks + spacing * queue_pos;
+				go_on_ticks_spacing = (wait_from_ticks + spacing * queue_pos) - reversing_time;
 			}
 			sint64 go_on_ticks_waiting = WAIT_INFINITE;
-			if ( fpl->get_current_eintrag().waiting_time_shift>0) {
+			if (fpl->get_current_eintrag().waiting_time_shift > 0)
+			{
 				go_on_ticks_waiting = welt->get_zeit_ms() + (welt->ticks_per_world_month >> (16-fpl->get_current_eintrag().waiting_time_shift));
 			}
 			go_on_ticks = (std::min)(go_on_ticks_spacing, go_on_ticks_waiting);
-			go_on_ticks = (std::max)(arrival_time + longest_loading_time, go_on_ticks);
+			go_on_ticks = (std::max)(departure_time, go_on_ticks);
 		}
 	}
 
 	bool can_go = false;
 	can_go = loading_level>=loading_limit;
 	can_go = can_go || welt->get_zeit_ms()>go_on_ticks;
-	can_go = can_go && welt->get_zeit_ms() > arrival_time + longest_loading_time;
+	can_go = can_go && welt->get_zeit_ms() > arrival_time + (longest_loading_time - reversing_time);
 	can_go = can_go || no_load;
 	if(can_go) {
 
@@ -5215,14 +5233,14 @@ void convoi_t::snprintf_remaining_loading_time(char *p, size_t size) const
 	
 	sint32 remaining_ticks;
 
-	if ( go_on_ticks != WAIT_INFINITE && go_on_ticks >= welt->get_zeit_ms())
+	if (go_on_ticks != WAIT_INFINITE && go_on_ticks >= welt->get_zeit_ms())
 	{
 		remaining_ticks = (int)(go_on_ticks - welt->get_zeit_ms());
 	} 
 	
-	else if ( arrival_time + longest_loading_time >= welt->get_zeit_ms()) 
+	else if (((arrival_time + longest_loading_time) - reverse_delay) >= welt->get_zeit_ms()) 
 	{
-		remaining_ticks = (int)(arrival_time + longest_loading_time - welt->get_zeit_ms());
+		remaining_ticks = (int)(((arrival_time + longest_loading_time) - reverse_delay) - welt->get_zeit_ms());
 	} 
 	else
 	{
@@ -5243,9 +5261,7 @@ void convoi_t::snprintf_remaining_loading_time(char *p, size_t size) const
  */
 void convoi_t::snprintf_remaining_reversing_time(char *p, size_t size) const
 {
-	const uint16 reversing_time = calc_reverse_delay();
-
-	const sint32 remaining_ticks = (int)(arrival_time + longest_loading_time + reversing_time - welt->get_zeit_ms());
+	const sint32 remaining_ticks = (int)(last_departure_time - welt->get_zeit_ms());
 	uint32 ticks_left = 0;
 	if(remaining_ticks >= 0)
 	{
@@ -5379,4 +5395,27 @@ void convoi_t::clear_replace()
 	}
 
 	return reverse_delay;
+ }
+
+ void convoi_t::book_waiting_times()
+ {
+	 halthandle_t halt = welt->lookup(fahr[0]->last_stop_pos)->get_halt();
+	 if(!halt.is_bound())
+	 {
+		 return;
+	 }
+	 const sint64 current_time = welt->get_zeit_ms();
+	 uint16 waiting_minutes;
+	 for(uint8 i = 0; i < anz_vehikel; i++) 
+	 {
+		slist_iterator_tpl<ware_t> iter(fahr[i]->get_fracht());
+		while(iter.next())
+		{
+			if(iter.get_current().get_origin().get_id() == halt.get_id())
+			{
+				waiting_minutes = halt->get_waiting_minutes(current_time - iter.get_current().arrival_time);
+				halt->add_waiting_time(waiting_minutes, iter.get_current().get_ziel(), iter.get_current().get_catg());
+			}
+		}
+	}	
  }

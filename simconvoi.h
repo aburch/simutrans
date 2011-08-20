@@ -1082,6 +1082,8 @@ public:
 	}
 
 	uint16 calc_reverse_delay() const;
+
+	void book_waiting_times();
 };
 
 #endif

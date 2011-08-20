@@ -1585,6 +1585,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 						}
 				
 						book(neu.menge, HALT_DEPARTED);
+						/*
 						if(waiting_minutes == 0 && welt->get_zeit_ms() != neu.arrival_time)
 						{ 
 							waiting_minutes = 1;
@@ -1612,6 +1613,8 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 						{
 							add_waiting_time(waiting_minutes, neu.get_zwischenziel(), neu.get_besch()->get_catg_index());
 						}
+						*/
+
 						resort_freight_info = true;
 
 						return neu;
