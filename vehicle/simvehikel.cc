@@ -383,6 +383,7 @@ uint32 vehikel_basis_t::fahre_basis(uint32 distance)
 	}
 	// remaining steps
 	set_flag(ding_t::dirty);
+	update_bookkeeping(distance_travelled  >> YARDS_PER_VEHICLE_STEP_SHIFT );
 	return distance_travelled;
 }
 
@@ -1282,15 +1283,6 @@ void vehikel_t::betrete_feld()
 
 void vehikel_t::hop()
 {	
-	if(ist_erstes)
-	{
-		// Only the first vehicle in a convoy does this,
-		// or else there is double counting.
-		// NOTE: As of 9.0, increment_odometer() also adds running costs for *all* vehicles in the convoy.
-
-		cnv->increment_odometer();
-	}
-
 	verlasse_feld(); //"Verlasse" = "leave" (Babelfish)
 
 	pos_prev = get_pos();

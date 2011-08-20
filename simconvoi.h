@@ -305,7 +305,7 @@ private:
 	// (In *km*).
 	sint64 total_distance_traveled;
 
-	// The number of tiles travelled since
+	// The number of steps travelled since
 	// the odometer was last incremented.
 	// Used for converting tiles to km.
 	// @author: jamespetts
@@ -685,7 +685,7 @@ public:
 
 	// Increment the odometer,
 	// adjusting for the distance scale.
-	void increment_odometer();
+	void increment_odometer(uint32 steps);
 
 	/**
 	 * moving the veicles of a convoi and acceleration/deacceleration
