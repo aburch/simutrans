@@ -6640,8 +6640,17 @@ void karte_t::sprintf_ticks(char *p, size_t size, uint32 ticks)
 {
 	unsigned int seconds = (unsigned int)ticks_to_seconds(ticks);
 	unsigned int minutes = seconds / 60;
+	unsigned int hours = minutes / 60;
 	seconds %= 60;
-	sprintf(p, "%u:%02u", minutes, seconds);
+	if(hours)
+	{
+		minutes %= 60;
+		sprintf(p, "%u:%u:%02u", hours, minutes, seconds);
+	}
+	else
+	{
+		sprintf(p, "%u:%02u", minutes, seconds);
+	}
 }
 
 sint64 karte_t::ticks_to_tenths_of_minutes(sint64 ticks) const
