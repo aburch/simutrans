@@ -1585,35 +1585,6 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 						}
 				
 						book(neu.menge, HALT_DEPARTED);
-						/*
-						if(waiting_minutes == 0 && welt->get_zeit_ms() != neu.arrival_time)
-						{ 
-							waiting_minutes = 1;
-						}
-
-						// Loading times for convoys should be part of the waiting time
-						// not the travelling time.
-						uint16 loading_time = cnv->get_longest_loading_time();
-						waiting_minutes += get_waiting_minutes(loading_time);
-						if(cnv->get_schedule()->get_current_eintrag().reverse && cnv->get_state() == convoi_t::LOADING)
-						{
-							// This convoy has to reverse here, so add this to the waiting time, too (if it is not already
-							// reversing when passengers/goods are boarding).
-							uint16 reverse_delay = cnv->calc_reverse_delay();
-							if(loading_time < reverse_delay)
-							{
-								reverse_delay -= loading_time;
-								// Reduce this value to take account of the fact that people will arrive
-								// at the station *after* the convoy has started to reverse.
-								waiting_minutes += get_waiting_minutes(reverse_delay);
-							}
-						}
-
-						if(waiting_minutes > 0)
-						{
-							add_waiting_time(waiting_minutes, neu.get_zwischenziel(), neu.get_besch()->get_catg_index());
-						}
-						*/
 
 						resort_freight_info = true;
 
