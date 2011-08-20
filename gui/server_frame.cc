@@ -186,6 +186,7 @@ void server_frame_t::update_info()
 		case umgebung_t::DATE_FMT_JAPANESE:
 		case umgebung_t::DATE_FMT_JAPANESE_NO_SEASON:
 		case umgebung_t::DATE_FMT_US_NO_SEASON:
+		case umgebung_t::DATE_FMT_INTERNAL_MINUTE:
 			time.printf( "%i/%s", gi.get_current_year(), month );
 			break;
 	}

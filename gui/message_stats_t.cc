@@ -135,6 +135,7 @@ void message_stats_t::recalc_size()
 
 			case umgebung_t::DATE_FMT_JAPANESE:
 			case umgebung_t::DATE_FMT_JAPANESE_NO_SEASON:
+			case umgebung_t::DATE_FMT_INTERNAL_MINUTE:
 				sprintf(time, "(%d/%d)", n.time/12, (n.time%12)+1 );
 				break;
 
@@ -237,6 +238,7 @@ void message_stats_t::zeichnen(koord offset)
 
 			case umgebung_t::DATE_FMT_JAPANESE:
 			case umgebung_t::DATE_FMT_JAPANESE_NO_SEASON:
+			case umgebung_t::DATE_FMT_INTERNAL_MINUTE:
 				sprintf(time, "(%d/%d)", n.time/12, (n.time%12)+1 );
 				break;
 
