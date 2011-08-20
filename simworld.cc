@@ -6655,10 +6655,12 @@ void karte_t::sprintf_ticks(char *p, size_t size, uint32 ticks)
 
 sint64 karte_t::ticks_to_tenths_of_minutes(sint64 ticks) const
 {
-	return get_settings().get_meters_per_tile() * ticks / 136533L;
+	// return get_settings().get_meters_per_tile() * ticks / 136533L;
+	return get_settings().get_meters_per_tile() * ticks * 30L / (4096L * 1000L);
 }
 
 sint64 karte_t::ticks_to_seconds(sint64 ticks) const
 {
-	return get_settings().get_meters_per_tile() * ticks / 22756L;
+	// return get_settings().get_meters_per_tile() * ticks / 22756L;
+	return get_settings().get_meters_per_tile() * ticks * 30L * 6L / (4096L * 1000L);
 }
