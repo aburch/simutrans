@@ -5284,8 +5284,7 @@ uint32 convoi_t::calc_heaviest_vehicle()
 	return heaviest;
 }
 
-uint16
-convoi_t::calc_longest_loading_time()
+uint16 convoi_t::calc_longest_loading_time()
 {
 	uint16 longest = 0;
 	for(uint8 i = 0; i < anz_vehikel; i ++)
@@ -5413,9 +5412,30 @@ void convoi_t::clear_replace()
 		{
 			if(iter.get_current().get_origin().get_id() == halt.get_id())
 			{
-				waiting_minutes = halt->get_waiting_minutes(current_time - iter.get_current().arrival_time);
-				halt->add_waiting_time(waiting_minutes, iter.get_current().get_ziel(), iter.get_current().get_catg());
+				waiting_minutes = get_waiting_minutes(current_time - iter.get_current().arrival_time);
+				halt->add_waiting_time(waiting_minutes, iter.get_current().get_zwischenziel(), iter.get_current().get_besch()->get_catg_index());
 			}
 		}
 	}	
  }
+
+ inline uint16 convoi_t::get_waiting_minutes(uint32 waiting_ticks) const
+ {
+	// Waiting time is reduced (2* ...) instead of (3 * ...) because, in real life, people
+	// can organise their journies according to timetables, so waiting is more efficient.
+	 
+	 // NOTE: distance_per_tile is now a percentage figure rather than a floating point - divide by an extra factor of 100.
+	//return (2 *welt->get_settings().get_distance_per_tile() * waiting_ticks) / 40960;
+	
+	// Note: waiting times now in *tenths* of minutes (hence difference in arithmetic)
+	//uint16 test_minutes_1 = ((float)1 / (1 / (waiting_ticks / 4096.0) * 20) *welt->get_settings().get_distance_per_tile() * 600.0F);
+	//uint16 test_minutes_2 = (2 *welt->get_settings().get_distance_per_tile() * waiting_ticks) / 409.6;
+
+	return (welt->get_settings().get_meters_per_tile() * waiting_ticks) / (409600L/2);
+
+	//const uint32 value = (2 *welt->get_settings().get_distance_per_tile() * waiting_ticks) / 409.6F;
+	//return value <= 65535 ? value : 65535;
+
+	//Old method (both are functionally equivalent, except for reduction in time. Would be fully equivalent if above was 3 * ...):
+	//return ((float)1 / (1 / (waiting_ticks / 4096.0) * 20) *welt->get_settings().get_distance_per_tile() * 60.0F);
+}
