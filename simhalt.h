@@ -755,8 +755,6 @@ public:
 	
 	}
 
-	inline uint16 get_waiting_minutes(uint32 waiting_ticks) const;
-
 	quickstone_hashtable_tpl<haltestelle_t, connexion*>* get_connexions(uint8 c) { return connexions[c]; }
 
 	linehandle_t get_preferred_line(halthandle_t transfer, uint8 category) const;

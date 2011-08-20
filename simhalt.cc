@@ -933,7 +933,7 @@ void haltestelle_t::step()
 					const uint16 thrice_journey = connexions[tmp.get_besch()->get_catg_index()]->get(tmp.get_zwischenziel()) != NULL ? connexions[tmp.get_besch()->get_catg_index()]->get(tmp.get_zwischenziel())->journey_time * 3 : base_max_minutes;
 					const uint16 max_minutes = base_max_minutes < thrice_journey ? base_max_minutes : thrice_journey;
 
-					const uint16 waiting_minutes = get_waiting_minutes(welt->get_zeit_ms() - tmp.arrival_time);
+					const uint16 waiting_minutes = convoi_t::get_waiting_minutes(welt->get_zeit_ms() - tmp.arrival_time);
 					if(waiting_minutes > max_minutes)
 					{
 						// Waiting too long: discard
@@ -979,7 +979,7 @@ void haltestelle_t::step()
 						// before they have got transport, the waiting time registered must be increased
 						// by 1.5x to reflect an estimate of how long that they would likely have had to
 						// have waited to get transport.
-						uint16 waiting_minutes = get_waiting_minutes(welt->get_zeit_ms() - tmp.arrival_time);
+						uint16 waiting_minutes = convoi_t::get_waiting_minutes(welt->get_zeit_ms() - tmp.arrival_time);
 						if(waiting_minutes == 0 && welt->get_zeit_ms() != tmp.arrival_time)
 						{						
 							waiting_minutes = 4;
@@ -1515,7 +1515,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 					if(next_transfer == plan_halt) 
 					{
 						const uint16 speed_bonus = tmp.get_besch()->get_speed_bonus();
-						uint16 waiting_minutes = get_waiting_minutes(welt->get_zeit_ms() - tmp.arrival_time);
+						uint16 waiting_minutes = convoi_t::get_waiting_minutes(welt->get_zeit_ms() - tmp.arrival_time);
 						// For goods that care about their speed, optimise loading for maximum speed of the journey.
 						if(speed_bonus > 0)
 						{												
@@ -1701,27 +1701,6 @@ void haltestelle_t::update_alternative_seats(convoihandle_t cnv)
 			fpl->increment_index(&index, &reverse);
 		}
 	}
-}
-
-inline uint16 haltestelle_t::get_waiting_minutes(uint32 waiting_ticks) const
-{
-	// Waiting time is reduced (2* ...) instead of (3 * ...) because, in real life, people
-	// can organise their journies according to timetables, so waiting is more efficient.
-
-	// NOTE: distance_per_tile is now a percentage figure rather than a floating point - divide by an extra factor of 100.
-	//return (2 *welt->get_settings().get_distance_per_tile() * waiting_ticks) / 40960;
-	
-	// Note: waiting times now in *tenths* of minutes (hence difference in arithmetic)
-	//uint16 test_minutes_1 = ((float)1 / (1 / (waiting_ticks / 4096.0) * 20) *welt->get_settings().get_distance_per_tile() * 600.0F);
-	//uint16 test_minutes_2 = (2 *welt->get_settings().get_distance_per_tile() * waiting_ticks) / 409.6;
-
-	return (welt->get_settings().get_meters_per_tile() * waiting_ticks) / (409600L/2);
-
-	//const uint32 value = (2 *welt->get_settings().get_distance_per_tile() * waiting_ticks) / 409.6F;
-	//return value <= 65535 ? value : 65535;
-
-	//Old method (both are functionally equivalent, except for reduction in time. Would be fully equivalent if above was 3 * ...):
-	//return ((float)1 / (1 / (waiting_ticks / 4096.0) * 20) *welt->get_settings().get_distance_per_tile() * 60.0F);
 }
 
 uint32 haltestelle_t::get_ware_summe(const ware_besch_t *wtyp) const

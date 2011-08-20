@@ -1085,7 +1085,7 @@ public:
 
 	void book_waiting_times();
 
-	inline uint16 get_waiting_minutes(uint32 waiting_ticks) const;
+	static uint16 get_waiting_minutes(uint32 waiting_ticks);
 };
 
 #endif

@@ -5419,7 +5419,7 @@ void convoi_t::clear_replace()
 	}	
  }
 
- inline uint16 convoi_t::get_waiting_minutes(uint32 waiting_ticks) const
+ uint16 convoi_t::get_waiting_minutes(uint32 waiting_ticks)
  {
 	// Waiting time is reduced (2* ...) instead of (3 * ...) because, in real life, people
 	// can organise their journies according to timetables, so waiting is more efficient.
