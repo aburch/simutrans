@@ -306,6 +306,7 @@ settings_t::settings_t() :
 	median_bonus_distance = 0;
 	max_bonus_multiplier_percent = 300;
 	meters_per_tile = 250;
+	steps_per_km = (1000 * VEHICLE_STEPS_PER_TILE) / meters_per_tile;
 	tolerable_comfort_short = 15;
 	tolerable_comfort_median_short = 60;
 	tolerable_comfort_median_median = 100;
@@ -901,7 +902,7 @@ void settings_t::rdwr(loadsave_t *file)
 						distance_per_tile_integer = (distance_per_tile_integer * 10) / 8;
 					}
 				}		
-				meters_per_tile = distance_per_tile_integer * 10;
+				set_meters_per_tile(distance_per_tile_integer * 10);
 				
 				file->rdwr_byte(tolerable_comfort_short);
 				file->rdwr_byte(tolerable_comfort_median_short);
@@ -1259,6 +1260,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	// @author: jamespetts
 	uint16 distance_per_tile_integer = meters_per_tile / 10;
 	meters_per_tile = contents.get_int("distance_per_tile", distance_per_tile_integer) * 10;
+	steps_per_km = (1000 * VEHICLE_STEPS_PER_TILE) / meters_per_tile;
 	float32e8_t distance_per_tile(meters_per_tile, 1000);
 
 	umgebung_t::water_animation = contents.get_int("water_animation_ms", umgebung_t::water_animation);

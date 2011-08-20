@@ -97,6 +97,7 @@ protected:
 
 	virtual bool hop_check() = 0;
 	virtual void hop() = 0;
+	virtual void update_bookkeeping(uint32 steps) = 0;
 
 	virtual void calc_bild() = 0;
 
@@ -247,6 +248,13 @@ private:
 
 protected:
 	virtual void hop();
+	virtual void update_bookkeeping(uint32 steps) {
+	   // Only the first vehicle in a convoy does this,
+	   // or else there is double counting.
+	   // NOTE: As of 9.0, increment_odometer() also adds running costs for *all* vehicles in the convoy.
+		if (ist_erstes) cnv->increment_odometer(steps);
+	}
+
 
 	// current limit (due to track etc.)
 	sint32 speed_limit;
