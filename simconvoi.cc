@@ -2443,7 +2443,7 @@ void convoi_t::vorfahren()
 			fahr[0]->set_erstes(true);
 		}
 
-		else
+		else if(fahr[0]->last_stop_pos == fahr[0]->get_pos().get_2d())
 		{
 			last_departure_time = welt->get_zeit_ms();
 			book_waiting_times();
