@@ -1621,7 +1621,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 			char loading_time_as_clock[32];
 			//Loading time is only relevant if there is something to load.
 			welt->sprintf_ticks(loading_time_as_clock, sizeof(loading_time_as_clock), veh_type->get_loading_time());
-			j +=  sprintf(buf, "%s %i (%s) \n", translator::translate("Loading time:"), veh_type->get_loading_time(), loading_time_as_clock);
+			j +=  sprintf(buf, "%s %s \n", translator::translate("Loading time:"), loading_time_as_clock);
 		}
 		else {
 			j += sprintf(buf+j, "\n");
