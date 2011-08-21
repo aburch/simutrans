@@ -6645,7 +6645,7 @@ void karte_t::sprintf_ticks(char *p, size_t size, uint32 ticks)
 	if(hours)
 	{
 		minutes %= 60;
-		sprintf(p, "%u:%u:%02u", hours, minutes, seconds);
+		sprintf(p, "%u:%02u:%02u", hours, minutes, seconds);
 	}
 	else
 	{

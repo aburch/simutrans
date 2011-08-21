@@ -44,6 +44,7 @@
  * 4 -- years -- derived from months
  * 5 -- hours & minutes -- NOT derived from months, implied by vehicle speed 
  *      -- (express for journey, waiting, reversing, loading and spacing times in Experimental)
+ *      -- 100 km/h = (100 << 10) / 80 "yards"/tick = 1280 "yards"/tick. (see macro kmh_to_speed below)
  *      -- Assuming 1000 meters per tile, 1h = 104857600/1280 = 81920 ticks; 
  *      -- 3min = 81920/20 = 4096 ticks
  *      -- 30 * ( tenth of minute ) = 4096 ticks
