@@ -730,6 +730,11 @@ end:
 			break;
 	}
 	uint16 loading_time = (obj.get_int("loading_time", default_loading_time));
+	uint16 loading_time_seconds = (obj.get_int("loading_time_seconds", 0));
+	if(loading_time_seconds > 0)
+	{
+		loading_time = loading_time_seconds * 93.02325;
+	}
 	node.write_uint16(fp, loading_time, 40);
 
 	// Upgrading settings
