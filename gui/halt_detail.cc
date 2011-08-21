@@ -326,7 +326,9 @@ void halt_detail_t::halt_detail_info()
 
 					buf.append("\n");
 					buf.append("(");
-					buf.append(cnx->journey_time / 10); // Convert from tenths
+					char travelling_time_as_clock[32];
+					halt->get_welt()->sprintf_time(travelling_time_as_clock, sizeof(travelling_time_as_clock), (cnx->journey_time * 6));
+					buf.append(travelling_time_as_clock);
 					buf.append(translator::translate(" mins. travelling"));
 					buf.append(", ");
 					if(halt->is_within_walking_distance_of(a_halt) && !cnx->best_convoy.is_bound() && !cnx->best_line.is_bound())
@@ -335,7 +337,9 @@ void halt_detail_t::halt_detail_info()
 					}
 					else if(cnx->waiting_time > 19)
 					{
-						buf.append(cnx->waiting_time / 10); // Convert from tenths
+						char waiting_time_as_clock[32];
+						halt->get_welt()->sprintf_time(waiting_time_as_clock, sizeof(waiting_time_as_clock), (cnx->waiting_time * 6));
+						buf.append(waiting_time_as_clock);
 						buf.append(translator::translate(" mins. waiting)"));
 					}
 					else

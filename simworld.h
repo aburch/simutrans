@@ -1274,7 +1274,9 @@ public:
 		}
 		return tmp;
 	}
-	void sprintf_ticks(char *p, size_t size, uint32 ticks);
+	
+	void sprintf_ticks(char *p, size_t size, uint32 ticks) const;
+	void sprintf_time(char *p, size_t size, uint32 seconds) const;
 
 
 #ifdef DEBUG_SIMRAND_CALLS
