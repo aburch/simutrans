@@ -722,7 +722,6 @@ void convoi_t::calc_acceleration(long delta_t)
 
 		else
 		{
-			
 			const uint32 tiles_left = 1 + get_next_stop_index() - front()->get_route_index();
 			const uint32 meters_left = tiles_left * welt->get_settings().get_meters_per_tile();
 
@@ -3692,7 +3691,9 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	// the straight line distance, which makes the game difficult and unrealistic. 
 	// If the origin has been deleted since the packet departed, then the best that we can do is guess by
 	// trebling the distance to the last stop.
-	const uint32 max_distance = ware.get_origin().is_bound() ? shortest_distance(ware.get_origin()->get_basis_pos(), fahr[0]->get_pos().get_2d()) * 2 : 3 * shortest_distance(last_stop_pos.get_2d(), fahr[0]->get_pos().get_2d());
+	const uint32 max_distance = ware.get_origin().is_bound() ? 
+		shortest_distance(ware.get_origin()->get_basis_pos(), fahr[0]->get_pos().get_2d()) * 2 :
+		3 * shortest_distance(last_stop_pos.get_2d(), fahr[0]->get_pos().get_2d());
 	const uint32 distance = ware.get_accumulated_distance();
 	const uint32 revenue_distance = distance < max_distance ? distance : max_distance;
 
@@ -3726,7 +3727,8 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	}
 	else
 	{
-		average_speed = (sint64)(((distance * 10000) / (journey_minutes * 13)) * 20) / 100;
+		const sint32 journey_distance_meters = distance * welt->get_settings().get_meters_per_tile();
+		average_speed = (journey_distance_meters * 3) / (journey_minutes * 5);
 		if(average_speed == 0)
 		{
 			average_speed = 1;
