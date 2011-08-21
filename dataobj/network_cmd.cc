@@ -2,6 +2,7 @@
 #include "network.h"
 #include "network_packet.h"
 #include "network_socket_list.h"
+#include "../path_explorer.h"
 
 #ifdef _MSC_VER
 #include <direct.h>

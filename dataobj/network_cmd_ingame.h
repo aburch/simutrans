@@ -5,6 +5,7 @@
 #include "../simworld.h"
 #include "../tpl/slist_tpl.h"
 #include "koord3d.h"
+#include "../path_explorer.h"
 
 class memory_rw_t;
 class packet_t;
