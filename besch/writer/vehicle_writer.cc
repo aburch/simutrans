@@ -140,7 +140,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	node.write_uint16(fp, top_speed, 8);
 
 
-	// Hajodoc: Total weight of this vehicle in tons
+	// Hajodoc: Total weight of this vehicle in tonnes
 	// Hajoval: int
 	uint16 weight = obj.get_int("weight", 0);
 	node.write_uint16(fp, weight, 10);
