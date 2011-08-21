@@ -711,10 +711,20 @@ void convoi_t::calc_acceleration(long delta_t)
 	
 	if(  recalc_brake_soll  ) 
 	{
-			// brake at the end of stations/in front of signals and crossings
-			//const uint32 tiles_left = get_next_stop_index() - get_route()->index_of(get_pos());
+		// brake at the end of stations/in front of signals and crossings
+		//const uint32 tiles_left = get_next_stop_index() - get_route()->index_of(get_pos());
+
+		if(get_next_stop_index() >= INVALID_INDEX)
+		{
+			// The next stop is a non-reversing waypoint.
+			brake_speed_soll = SPEED_UNLIMITED;
+		}
+
+		else
+		{
+			
 			const uint32 tiles_left = 1 + get_next_stop_index() - front()->get_route_index();
-			const uint32 meters_left = tiles_left *welt->get_settings().get_meters_per_tile();
+			const uint32 meters_left = tiles_left * welt->get_settings().get_meters_per_tile();
 
 			waytype_t waytype = front()->get_waytype();
 			uint16 braking_rate;  // km/h decay per km. TODO: Consider having this set in .dat files. Look for all instances of "braking_rate".
@@ -737,9 +747,10 @@ void convoi_t::calc_acceleration(long delta_t)
 
 			brake_speed_soll = kmh_to_speed((sint32)(braking_rate * meters_left) / 1000);
 			brake_speed_soll = max(brake_speed_soll, kmh_to_speed(16));
+		}
 
-			recalc_brake_soll = false;
- 		}
+		recalc_brake_soll = false;
+ 	}
 	
 	// existing_convoy_t is designed to become a part of convoi_t. 
 	// There it will help to minimize updating convoy summary data.
