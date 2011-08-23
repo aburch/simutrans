@@ -4180,6 +4180,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 			sint64 go_on_ticks_spacing = WAIT_INFINITE;
 			if (line.is_bound() && fpl->get_spacing() && line->count_convoys()) 
 			{
+				// Spacing cnv/month
 				uint32 spacing = welt->ticks_per_world_month/fpl->get_spacing();
 				uint32 spacing_shift = fpl->get_current_eintrag().spacing_shift * welt->ticks_per_world_month/welt->get_settings().get_spacing_shift_divisor();
 					sint64 wait_from_ticks = ((welt->get_zeit_ms()- spacing_shift)/spacing) * spacing + spacing_shift; // remember, it is integer division
@@ -4189,7 +4190,8 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 			sint64 go_on_ticks_waiting = WAIT_INFINITE;
 			if (fpl->get_current_eintrag().waiting_time_shift > 0)
 			{
-				go_on_ticks_waiting = welt->get_zeit_ms() + (welt->ticks_per_world_month >> (16-fpl->get_current_eintrag().waiting_time_shift));
+				// Max. wait for load
+				go_on_ticks_waiting = welt->get_zeit_ms() + (welt->ticks_per_world_month >> (16-fpl->get_current_eintrag().waiting_time_shift)) - reversing_time;
 			}
 			go_on_ticks = (std::min)(go_on_ticks_spacing, go_on_ticks_waiting);
 			go_on_ticks = (std::max)(departure_time, go_on_ticks);
