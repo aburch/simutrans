@@ -4183,8 +4183,8 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 				// Spacing cnv/month
 				uint32 spacing = welt->ticks_per_world_month/fpl->get_spacing();
 				uint32 spacing_shift = fpl->get_current_eintrag().spacing_shift * welt->ticks_per_world_month/welt->get_settings().get_spacing_shift_divisor();
-					sint64 wait_from_ticks = ((welt->get_zeit_ms()- spacing_shift)/spacing) * spacing + spacing_shift; // remember, it is integer division
-				int queue_pos = halt.is_bound()?halt->get_queue_pos(self):1;
+				sint64 wait_from_ticks = ((welt->get_zeit_ms()- spacing_shift)/spacing) * spacing + spacing_shift; // remember, it is integer division
+				int queue_pos = halt.is_bound() ? halt->get_queue_pos(self) : 1;
 				go_on_ticks_spacing = (wait_from_ticks + spacing * queue_pos) - reversing_time;
 			}
 			sint64 go_on_ticks_waiting = WAIT_INFINITE;
