@@ -68,14 +68,6 @@
  */
 #define WTT_LOADING 500
 
-/*
- * Waiting time for infinite loading (ms)
- * @author Hj- Malthaner
- */
-#define WAIT_INFINITE 0xFFFFFFFFu
-
-
-
 karte_t *convoi_t::welt = NULL;
 
 
@@ -4182,8 +4174,8 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 			{
 				// Spacing cnv/month
 				uint32 spacing = welt->ticks_per_world_month/fpl->get_spacing();
-				uint32 spacing_shift = fpl->get_current_eintrag().spacing_shift * welt->ticks_per_world_month/welt->get_settings().get_spacing_shift_divisor();
-				sint64 wait_from_ticks = ((welt->get_zeit_ms()- spacing_shift)/spacing) * spacing + spacing_shift; // remember, it is integer division
+				uint32 spacing_shift = fpl->get_current_eintrag().spacing_shift * welt->ticks_per_world_month / welt->get_settings().get_spacing_shift_divisor();
+				sint64 wait_from_ticks = ((welt->get_zeit_ms() - spacing_shift) / spacing) * spacing + spacing_shift; // remember, it is integer division
 				int queue_pos = halt.is_bound() ? halt->get_queue_pos(self) : 1;
 				go_on_ticks_spacing = (wait_from_ticks + spacing * queue_pos) - reversing_time;
 			}
@@ -4191,7 +4183,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 			if (fpl->get_current_eintrag().waiting_time_shift > 0)
 			{
 				// Max. wait for load
-				go_on_ticks_waiting = welt->get_zeit_ms() + (welt->ticks_per_world_month >> (16-fpl->get_current_eintrag().waiting_time_shift)) - reversing_time;
+				go_on_ticks_waiting = welt->get_zeit_ms() + (welt->ticks_per_world_month >> (16 - fpl->get_current_eintrag().waiting_time_shift)) - reversing_time;
 			}
 			go_on_ticks = (std::min)(go_on_ticks_spacing, go_on_ticks_waiting);
 			go_on_ticks = (std::max)(departure_time, go_on_ticks);
@@ -5231,6 +5223,7 @@ void convoi_t::snprintf_remaining_loading_time(char *p, size_t size) const
 {
 	const uint16 reverse_delay = calc_reverse_delay();
 	uint16 loading_time = longest_loading_time;
+	const sint64 current_ticks = welt->get_zeit_ms();
 	if(welt->get_zeit_ms() - arrival_time > reverse_delay && welt->lookup(this->get_pos())->is_halt())
 	{
 		// The reversing time must not be cumulative with the loading time, as 
@@ -5248,14 +5241,14 @@ void convoi_t::snprintf_remaining_loading_time(char *p, size_t size) const
 	
 	sint32 remaining_ticks;
 
-	if (go_on_ticks != WAIT_INFINITE && go_on_ticks >= welt->get_zeit_ms())
+	if (go_on_ticks != WAIT_INFINITE && go_on_ticks >= current_ticks)
 	{
-		remaining_ticks = (int)(go_on_ticks - welt->get_zeit_ms());
+		remaining_ticks = (int)(go_on_ticks - current_ticks);
 	} 
 	
-	else if (((arrival_time + longest_loading_time) - reverse_delay) >= welt->get_zeit_ms()) 
+	else if (((arrival_time + longest_loading_time) - reverse_delay) >= current_ticks) 
 	{
-		remaining_ticks = (int)(((arrival_time + longest_loading_time) - reverse_delay) - welt->get_zeit_ms());
+		remaining_ticks = (int)(((arrival_time + longest_loading_time) - reverse_delay) -current_ticks);
 	} 
 	else
 	{
@@ -5391,7 +5384,7 @@ void convoi_t::clear_replace()
 	else if(fahr[0]->get_besch()->is_bidirectional())
 	{
 		// Loco hauled, no turntable.
-		if(fahr[anz_vehikel-2]->get_besch()->get_can_be_at_rear() == false
+		if(anz_vehikel > 1 && fahr[anz_vehikel-2]->get_besch()->get_can_be_at_rear() == false
 			&& fahr[anz_vehikel-2]->get_besch()->get_ware()->get_catg_index() > 1)
 		{
 			// Goods train with brake van - longer reverse time.

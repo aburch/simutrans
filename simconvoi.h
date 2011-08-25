@@ -35,6 +35,12 @@
 #define CONVOI_DISTANCE				7 // total distance traveld this month
 #define CONVOI_REFUNDS				8 // The refunds passengers waiting for this convoy (only when not attached to a line) have received.
 
+/*
+ * Waiting time for infinite loading (ms)
+ * @author Hj- Malthaner
+ */
+#define WAIT_INFINITE 0xFFFFFFFFu
+
 class depot_t;
 class karte_t;
 class spieler_t;
@@ -1086,6 +1092,8 @@ public:
 	void book_waiting_times();
 
 	static uint16 get_waiting_minutes(uint32 waiting_ticks);
+	
+	bool is_wait_infinite() const { return go_on_ticks == WAIT_INFINITE; }
 };
 
 #endif
