@@ -123,6 +123,8 @@ void goods_stats_t::zeichnen(koord offset)
 		}
 	
 		money_to_string( money_buf, price/300000.0 );
+		buf.clear();
+		buf.printf(money_buf);
 		display_proportional_clip(offset.x + 170, yoff, buf, 	ALIGN_RIGHT, 	COL_BLACK, true);
 
 		buf.clear();

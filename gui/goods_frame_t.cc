@@ -276,7 +276,7 @@ bool goods_frame_t::compare_goods(uint16 const a, uint16 const b)
 }
 
 
-// creates the list and pass it to the child finction good_stats, which does the display stuff ...
+// creates the list and pass it to the child finction good_stats, which does the display stuff...
 void goods_frame_t::sort_list()
 {
 	sortedby.set_text(sort_text[sortby]);
