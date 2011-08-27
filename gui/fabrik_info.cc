@@ -25,7 +25,7 @@
 
 
 fabrik_info_t::fabrik_info_t(const fabrik_t* fab_, const gebaeude_t* gb) :
-	gui_frame_t(fab_->get_name(), fab_->get_besitzer()),
+	gui_frame_t(fabkoordname, fab_->get_besitzer()),
 	fab(fab_),
 	chart(fab_),
 	view(gb, koord( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width() * 7) / 8))),
@@ -36,6 +36,8 @@ fabrik_info_t::fabrik_info_t(const fabrik_t* fab_, const gebaeude_t* gb) :
 	lieferbuttons = supplierbuttons = stadtbuttons = NULL;
 
 	tstrncpy( fabname, fab->get_name(), lengthof(fabname) );
+	sprintf( fabkoordname, "%s (%s)", fabname, fab->get_pos().get_2d().get_str() );
+
 	input.set_pos(koord(10,4));
 	input.set_groesse( koord(TOTAL_WIDTH-20, 13));
 	input.set_text( fabname, lengthof(fabname) );

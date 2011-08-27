@@ -5,6 +5,7 @@
 #include "../simtypes.h"
 #include "../simdebug.h"
 
+#include <typeinfo.h>
 
 template<class T> class vector_tpl;
 template<class T> inline void swap(vector_tpl<T>& a, vector_tpl<T>& b);
@@ -236,7 +237,7 @@ template<class T> class vector_tpl
 		T& operator [](uint i)
 		{
 			if (i >= count) {
-				dbg->fatal("vector_tpl<T>::[]", "index out of bounds: %i not in 0..%d", i, count - 1);
+				dbg->fatal("vector_tpl<T>::[]", "%s: index out of bounds: %i not in 0..%d", typeid(T).name(), i, count - 1);
 			}
 			return data[i];
 		}
@@ -244,7 +245,7 @@ template<class T> class vector_tpl
 		const T& operator [](uint i) const
 		{
 			if (i >= count) {
-				dbg->fatal("vector_tpl<T>::[]", "index out of bounds: %i not in 0..%d", i, count - 1);
+				dbg->fatal("vector_tpl<T>::[]", "%s: index out of bounds: %i not in 0..%d", typeid(T).name(), i, count - 1);
 			}
 			return data[i];
 		}
