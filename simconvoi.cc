@@ -3833,7 +3833,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 		// Do nothing if comfort == tolerable_comfort			
 	}
 
-	//Add catering or TPO revenue
+	// Add catering or TPO revenue
 	const uint8 catering_level = get_catering_level(ware.get_besch()->get_catg_index());
 	if(catering_level > 0)
 	{
@@ -3842,89 +3842,87 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 			// Mail
 			if(journey_minutes >=welt->get_settings().get_tpo_min_minutes())
 			{
-				final_revenue += (sint64)(welt->get_settings().get_tpo_revenue() * ware.menge);
+				final_revenue += (sint64)(welt->get_settings().get_tpo_revenue() * 1000 * ware.menge);
 			}
 		}
 		else if(ware.is_passenger())
-		{
+		{				
 			// Passengers
 			sint64 proportion = 0;
 			// Knightly : Reorganised the switch cases to get rid of goto statements
 			switch(catering_level)
 			{
-
 			default:
 			case 5:
-				if(journey_minutes >=welt->get_settings().get_catering_level4_minutes())
+				if(journey_minutes >= welt->get_settings().get_catering_level4_minutes())
 				{
-					if(journey_minutes >welt->get_settings().get_catering_level5_minutes())
+					if(journey_minutes > welt->get_settings().get_catering_level5_minutes())
 					{
-						final_revenue += (welt->get_settings().get_catering_level5_max_revenue() * ware.menge);
+						final_revenue += (welt->get_settings().get_catering_level5_max_revenue() * 1000 * ware.menge);
 						break;
 					}
 					
-					proportion = (sint64)((journey_minutes - welt->get_settings().get_catering_level4_max_revenue()) * 100) / (welt->get_settings().get_catering_level5_minutes() -welt->get_settings().get_catering_level4_minutes());
-					final_revenue += ((proportion * (sint64)(welt->get_settings().get_catering_level5_max_revenue() * ware.menge)) / 100);
+					proportion = (sint64)((journey_minutes - welt->get_settings().get_catering_level4_minutes()) * 1000) / (welt->get_settings().get_catering_level5_minutes() -welt->get_settings().get_catering_level4_minutes());
+					final_revenue += (proportion * (sint64)(welt->get_settings().get_catering_level5_max_revenue()) * ware.menge);
 					break;
 				}
 
 			case 4:
-				if(journey_minutes >=welt->get_settings().get_catering_level3_minutes())
+				if(journey_minutes >= welt->get_settings().get_catering_level3_minutes())
 				{
-					if(journey_minutes >welt->get_settings().get_catering_level4_minutes())
+					if(journey_minutes > welt->get_settings().get_catering_level4_minutes())
 					{
-						final_revenue += (sint64)(welt->get_settings().get_catering_level4_max_revenue() * ware.menge);
+						final_revenue += (sint64)(welt->get_settings().get_catering_level4_max_revenue() * 1000 * ware.menge);
 						break;
 					}
 					
-					proportion = ((journey_minutes -welt->get_settings().get_catering_level3_max_revenue()) * 100) / (welt->get_settings().get_catering_level4_minutes() -welt->get_settings().get_catering_level3_minutes());
-					final_revenue += (sint64)((proportion * (welt->get_settings().get_catering_level4_max_revenue() * ware.menge)) / 100);
+					proportion = ((journey_minutes -welt->get_settings().get_catering_level3_minutes()) * 1000) / (welt->get_settings().get_catering_level4_minutes() - welt->get_settings().get_catering_level3_minutes());
+					final_revenue += (sint64)(proportion * (welt->get_settings().get_catering_level4_max_revenue()) * ware.menge);
 					break;
 				}
 
 			case 3:
-				if(journey_minutes >=welt->get_settings().get_catering_level2_minutes())
+				if(journey_minutes >= welt->get_settings().get_catering_level2_minutes())
 				{
-					if(journey_minutes >welt->get_settings().get_catering_level3_minutes())
+					if(journey_minutes > welt->get_settings().get_catering_level3_minutes())
 					{
-						final_revenue += (sint64)(welt->get_settings().get_catering_level3_max_revenue() * ware.menge);
+						final_revenue += (sint64)(welt->get_settings().get_catering_level3_max_revenue() * 1000 * ware.menge);
 						break;
 					}
 					
-					proportion = ((journey_minutes -welt->get_settings().get_catering_level2_max_revenue()) * 100) / (welt->get_settings().get_catering_level3_minutes() -welt->get_settings().get_catering_level2_minutes());
-					final_revenue += (sint64)((proportion * (welt->get_settings().get_catering_level3_max_revenue() * ware.menge)) / 100);
+					proportion = ((journey_minutes - welt->get_settings().get_catering_level2_minutes()) * 1000) / (welt->get_settings().get_catering_level3_minutes() - welt->get_settings().get_catering_level2_minutes());
+					final_revenue += (sint64)((proportion * welt->get_settings().get_catering_level3_max_revenue()) * ware.menge);
 					break;
 				}
 
 			case 2:
-				if(journey_minutes >=welt->get_settings().get_catering_level1_minutes())
+				if(journey_minutes >= welt->get_settings().get_catering_level1_minutes())
 				{
-					if(journey_minutes >welt->get_settings().get_catering_level2_minutes())
+					if(journey_minutes > welt->get_settings().get_catering_level2_minutes())
 					{
-						final_revenue += (sint64)(welt->get_settings().get_catering_level2_max_revenue() * ware.menge);
+						final_revenue += (sint64)(welt->get_settings().get_catering_level2_max_revenue() * 1000 * ware.menge);
 						break;
 					}
 					
-					proportion = ((journey_minutes -welt->get_settings().get_catering_level1_max_revenue()) * 100) / (welt->get_settings().get_catering_level2_minutes() -welt->get_settings().get_catering_level1_minutes());
-					final_revenue += (sint64)((proportion * (welt->get_settings().get_catering_level2_max_revenue() * ware.menge)) / 100);
+					proportion = ((journey_minutes - welt->get_settings().get_catering_level1_minutes()) * 1000) / (welt->get_settings().get_catering_level2_minutes() - welt->get_settings().get_catering_level1_minutes());
+					final_revenue += (sint64)(proportion * (welt->get_settings().get_catering_level2_max_revenue()) * ware.menge);
 					break;
 				}
 
 			case 1:
-				if(journey_minutes <welt->get_settings().get_catering_min_minutes())
+				if(journey_minutes < welt->get_settings().get_catering_min_minutes())
 				{
 					break;
 				}
-				if(journey_minutes >welt->get_settings().get_catering_level1_minutes())
+				if(journey_minutes > welt->get_settings().get_catering_level1_minutes())
 				{
-					final_revenue += (sint64)(welt->get_settings().get_catering_level1_max_revenue() * ware.menge);
+					final_revenue += (sint64)(welt->get_settings().get_catering_level1_max_revenue() * 1000 * ware.menge);
 					break;
 				}
 
-				proportion = ((journey_minutes -welt->get_settings().get_catering_min_minutes()) * 100) / (welt->get_settings().get_catering_level1_minutes() -welt->get_settings().get_catering_min_minutes());
-				final_revenue += (sint64)((proportion * (welt->get_settings().get_catering_level1_max_revenue() * ware.menge)) / 100);
+				proportion = ((journey_minutes - welt->get_settings().get_catering_min_minutes()) * 1000) / (welt->get_settings().get_catering_level1_minutes() - welt->get_settings().get_catering_min_minutes());
+				final_revenue += (sint64)(proportion * (welt->get_settings().get_catering_level1_max_revenue()) * ware.menge);
 				break;
-
 			};
 		}
 	}

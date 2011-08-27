@@ -44,6 +44,7 @@ bool goods_frame_t::sortreverse = false;
 uint16 goods_frame_t::distance = 1;
 uint16 goods_frame_t::tile_distance = 0;
 uint8 goods_frame_t::comfort = 50;
+uint8 goods_frame_t::catering_level = 0;
 
 const char *goods_frame_t::sort_text[SORT_MODES] = {
 	"gl_btn_unsort",
@@ -60,6 +61,7 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	change_speed_label(speed_bonus,COL_WHITE,gui_label_t::right),
 	change_distance_label(distance_txt,COL_WHITE,gui_label_t::right),
 	change_comfort_label(comfort_txt,COL_WHITE,gui_label_t::right),
+	change_catering_label(catering_txt,COL_WHITE,gui_label_t::right),
 	scrolly(&goods_stats)
 {
 	wtype = road_wt;
@@ -70,8 +72,9 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	speed_bonus[0] = 0;
 	distance_txt[0] = 0;
 	comfort_txt[0] = 0;
+	catering_txt[0] = 0;
 	tile_distance = (1000 * distance) / goods_frame_t::welt->get_settings().get_meters_per_tile();
-	change_speed_label.set_pos(koord(BUTTON4_X+5, y + 24));
+	change_speed_label.set_pos(koord(BUTTON4_X+5, y + 36));
 	add_komponente(&change_speed_label);
 
 	change_distance_label.set_pos(koord(BUTTON4_X+5, y));
@@ -80,11 +83,14 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	change_comfort_label.set_pos(koord(BUTTON4_X+5, y + 12));
 	add_komponente(&change_comfort_label);
 
-	speed_down.init(button_t::repeatarrowleft, "", koord(BUTTON4_X-22, y + 24), koord(10,BUTTON_HEIGHT));
+	change_catering_label.set_pos(koord(BUTTON4_X+5, y + 24));
+	add_komponente(&change_catering_label);
+
+	speed_down.init(button_t::repeatarrowleft, "", koord(BUTTON4_X-22, y + 36), koord(10,BUTTON_HEIGHT));
 	speed_down.add_listener(this);
 	add_komponente(&speed_down);
 
-	speed_up.init(button_t::repeatarrowright, "", koord(BUTTON4_X+8, y + 24), koord(10,BUTTON_HEIGHT));
+	speed_up.init(button_t::repeatarrowright, "", koord(BUTTON4_X+8, y + 36), koord(10,BUTTON_HEIGHT));
 	speed_up.add_listener(this);
 	add_komponente(&speed_up);
 
@@ -104,6 +110,14 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	comfort_up.add_listener(this);
 	add_komponente(&comfort_up);
 
+	catering_down.init(button_t::repeatarrowleft, "", koord(BUTTON4_X-22, y + 24), koord(10,BUTTON_HEIGHT));
+	catering_down.add_listener(this);
+	add_komponente(&catering_down);
+
+	catering_up.init(button_t::repeatarrowright, "", koord(BUTTON4_X+8, y + 24), koord(10,BUTTON_HEIGHT));
+	catering_up.add_listener(this);
+	add_komponente(&catering_up);
+
 	way_type.add_listener(this);
 	add_komponente(&way_type);
 	way_type.clear_elements();
@@ -113,7 +127,7 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 		way_type.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(txt_wtype[i]), COL_WHITE ) );
 	}
 	way_type.set_selection(0);
-	way_type.set_pos(koord(BUTTON4_X-22, y + 36));
+	way_type.set_pos(koord(BUTTON4_X-22, y + 48));
 	way_type.set_groesse(koord(110, 24));
 	way_type.set_max_size(koord(96, LINESPACE*2+2+16));
 	way_type.set_highlight_color(1);
@@ -295,7 +309,7 @@ void goods_frame_t::sort_list()
 
 	std::sort(good_list, good_list + n, compare_goods);
 
-	goods_stats.update_goodslist(good_list, relative_speed_change, goods_frame_t::tile_distance, goods_frame_t::comfort, goods_frame_t::welt, wtype);
+	goods_stats.update_goodslist(good_list, relative_speed_change, goods_frame_t::tile_distance, goods_frame_t::comfort, goods_frame_t::catering_level, goods_frame_t::welt, wtype);
 }
 
 
@@ -371,6 +385,22 @@ bool goods_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 			sort_list();
 		}
 	}
+	else if(komp == &catering_down) 
+	{
+		if(catering_level > 0) 
+		{
+			catering_level --;
+			sort_list();
+		}
+	}
+	else if(komp == &catering_up) 
+	{
+		if(catering_level < 5) 
+		{
+			catering_level ++;
+			sort_list();
+		}
+	}
 	else if (komp == &way_type)
 	{
 		switch(way_type.get_selection())
@@ -425,9 +455,10 @@ void goods_frame_t::zeichnen(koord pos, koord gr)
 	sprintf(speed_bonus,"%i",relative_speed_change-100);
 	sprintf(distance_txt,"%i",distance);
 	sprintf(comfort_txt,"%i",comfort);
+	sprintf(catering_txt,"%i",catering_level);
 
 	speed_message.clear();
-	speed_message.printf(translator::translate("Distance\nComfort\nSpeedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h."),
+	speed_message.printf(translator::translate("Distance\nComfort\nCatering level\nSpeedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h."),
 		(welt->get_average_speed(road_wt)*relative_speed_change)/100,
 		(welt->get_average_speed(track_wt)*relative_speed_change)/100,
 		(welt->get_average_speed(water_wt)*relative_speed_change)/100,
@@ -443,11 +474,11 @@ void goods_frame_t::zeichnen(koord pos, koord gr)
 		(welt->get_average_speed(narrowgauge_wt)*relative_speed_change)/100
 	);
 
-	display_multiline_text(pos.x+11, pos.y+BUTTON_HEIGHT+4+5*LINESPACE, speed_message, COL_WHITE);
+	display_multiline_text(pos.x+11, pos.y+BUTTON_HEIGHT+4+12+5*LINESPACE, speed_message, COL_WHITE);
 
 	speed_message.clear();
 	speed_message.printf(translator::translate("\n100 km/h = %i tiles/month"),
 		welt->speed_to_tiles_per_month(kmh_to_speed(100))
 	);
-	display_multiline_text(pos.x+11, pos.y+BUTTON_HEIGHT+4+6*LINESPACE, speed_message, COL_WHITE);
+	display_multiline_text(pos.x+11, pos.y+BUTTON_HEIGHT+4+12+6*LINESPACE, speed_message, COL_WHITE);
 }
