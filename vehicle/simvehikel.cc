@@ -2362,7 +2362,7 @@ void vehikel_t::display_after(int xpos, int ypos, bool is_gobal) const
 					cnv->snprintf_remaining_loading_time(waiting_time, sizeof(waiting_time));
 					if (cnv->get_loading_limit()) 
 					{
-						if(cnv->is_wait_infinite() && strcmp(waiting_time, "0:00")) 
+						if(!cnv->is_wait_infinite() && strcmp(waiting_time, "0:00")) 
 						{
 							sprintf( tooltip_text, translator::translate("Loading (%i->%i%%), %s left!"), cnv->get_loading_level(), cnv->get_loading_limit(), waiting_time);
 						}
