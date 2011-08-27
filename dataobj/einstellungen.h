@@ -724,7 +724,7 @@ public:
 
 	bool is_avoid_overcrowding() const { return avoid_overcrowding; }
 
-	uint16 get_passenger_max_wait() const { return passenger_max_wait; }
+	uint32 get_passenger_max_wait() const { return passenger_max_wait; }
 
 	uint8 get_max_rerouting_interval_months() const { return max_rerouting_interval_months; }
 

@@ -254,6 +254,7 @@ void settings_experimental_revenue_stats_t::init( settings_t *sets )
 	INIT_INIT;
 	INIT_NUM( "passenger_routing_packet_size", sets->get_passenger_routing_packet_size(), 1, 64, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "max_alternative_destinations", sets->get_max_alternative_destinations(), 0, 15, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM("passenger_max_wait", sets->get_passenger_max_wait(), 0, 311040, gui_numberinput_t::AUTOLINEAR, false );
 	{
 		gui_component_table_t &tbl = new_table(koord(0, ypos), 6, 4);
 		int row = 0;
@@ -368,6 +369,7 @@ void settings_experimental_revenue_stats_t::read(settings_t *sets)
 	READ_INIT
 	READ_NUM_VALUE( sets->passenger_routing_packet_size );
 	READ_NUM_VALUE( sets->max_alternative_destinations );
+	READ_NUM_VALUE( sets->passenger_max_wait );
 
 	READ_NUM_VALUE( sets->local_passengers_max_distance );
 	READ_NUM_VALUE( sets->passenger_routing_local_chance );
