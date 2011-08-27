@@ -27,6 +27,7 @@ protected:
 	ding_view_t view;
 
 	cbuffer_t buf;
+	cbuffer_t title;
 
 	gui_fixedwidth_textarea_t textarea;
 

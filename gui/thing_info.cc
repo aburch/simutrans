@@ -52,7 +52,11 @@ void ding_infowin_t::zeichnen(koord pos, koord gr)
 	if (ding_t const* const ding = get_ding()) {
 		set_owner( ding->get_besitzer() );
 	}
-	gui_frame_t::set_name( get_name() );
+	if(  gui_frame_t::get_name()[0]==0  ) {
+		title.clear();
+		title.printf( "%s (%s)", get_name(), get_ding()->get_pos().get_2d().get_str() );
+		gui_frame_t::set_name( title );
+	}
 
 	buf.clear();
 	info(buf);
