@@ -130,13 +130,6 @@ private:
 
 	linehandle_t selected_line;
 
-	/**
-	 * Data fields for use with gui elements.
-	 * @author Volker Meyer
-	 * @date  09.06.2003
-	 */
-	char txt_title[60];
-
 	char txt_convois[40];
 
 	char txt_cnv_name[118];
@@ -262,6 +255,8 @@ public:
 	 * @author Volker Meyer
 	 */
 	bool has_next() const {return true;}
+
+	virtual koord3d get_weltpos();
 
 	/**
 	 * Open dialog for schedule entry.

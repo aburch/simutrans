@@ -67,6 +67,8 @@ class fabrik_info_t : public gui_frame_t, public action_listener_t
 
 	virtual bool has_min_sizer() const {return true;}
 
+	virtual koord3d get_weltpos() { return fab->get_pos(); }
+
 	virtual void set_fenstergroesse(koord groesse);
 
 	/**

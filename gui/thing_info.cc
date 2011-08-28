@@ -13,6 +13,7 @@
 #include "../simcolor.h"
 #include "../simgraph.h"
 #include "../simworld.h"
+#include "../dataobj/translator.h"
 #include "../utils/simstring.h"
 #include "thing_info.h"
 
@@ -52,11 +53,7 @@ void ding_infowin_t::zeichnen(koord pos, koord gr)
 	if (ding_t const* const ding = get_ding()) {
 		set_owner( ding->get_besitzer() );
 	}
-	if(  gui_frame_t::get_name()[0]==0  ) {
-		title.clear();
-		title.printf( "%s (%s)", get_name(), get_ding()->get_pos().get_2d().get_str() );
-		gui_frame_t::set_name( title );
-	}
+	gui_frame_t::set_name( translator::translate( get_ding()->get_name() ) );
 
 	buf.clear();
 	info(buf);

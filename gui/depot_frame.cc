@@ -69,7 +69,7 @@ bool  depot_frame_t::show_all = true;
 
 
 depot_frame_t::depot_frame_t(depot_t* depot) :
-	gui_frame_t(txt_title, depot->get_besitzer()),
+	gui_frame_t( translator::translate(depot->get_name()), depot->get_besitzer()),
 	depot(depot),
 	icnv(depot->convoi_count()-1),
 	lb_convois(NULL, COL_BLACK, gui_label_t::left),
@@ -92,8 +92,6 @@ depot_frame_t::depot_frame_t(depot_t* depot) :
 DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->get_max_convoi_length());
 	selected_line = depot->get_selected_line();
 	strcpy(no_line_text, translator::translate("<no line>"));
-
-	sprintf(txt_title, "(%d,%d) %s", depot->get_pos().x, depot->get_pos().y, translator::translate(depot->get_name()));
 
 	/*
 	* [SELECT]:
@@ -240,6 +238,13 @@ depot_frame_t::~depot_frame_t()
 {
 	// change convoy name if necessary
 	rename_convoy( depot->get_convoi(icnv) );
+}
+
+
+// returns position of depot on the map
+koord3d depot_frame_t::get_weltpos()
+{
+	return depot->get_pos();
 }
 
 

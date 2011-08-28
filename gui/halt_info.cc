@@ -157,6 +157,12 @@ halt_info_t::~halt_info_t()
 }
 
 
+koord3d halt_info_t::get_weltpos()
+{
+	return halt->get_basis_pos3d();
+}
+
+
 /**
  * Komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
  * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters

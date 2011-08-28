@@ -8,6 +8,7 @@
 #include "../simcolor.h"
 #include "../simgraph.h"
 #include "../simworld.h"
+#include "../dataobj/translator.h"
 #include "../utils/simstring.h"
 #include "ground_info.h"
 
@@ -16,7 +17,7 @@ cbuffer_t grund_info_t::gr_info;
 
 
 grund_info_t::grund_info_t(const grund_t* gr_) :
-	gui_frame_t(gr_->get_name(), NULL),
+gui_frame_t( "", NULL),
 	gr(gr_),
 	view(gr_->get_welt(), gr_->get_pos(), koord( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width()*7)/8) )),
 	textarea(&gr_info, 170 + view.get_groesse().x, view.get_groesse() + koord(10, 10))
@@ -56,7 +57,7 @@ void grund_info_t::zeichnen(koord pos, koord groesse)
 	if (  d!=NULL  ) {
 		set_owner( d->get_besitzer() );
 	}
-	gui_frame_t::set_name( gr->get_name() );
+	gui_frame_t::set_name( translator::translate(gr->get_name()) );
 
 	gr_info.clear();
 	gr->info(gr_info);
@@ -71,6 +72,11 @@ void grund_info_t::zeichnen(koord pos, koord groesse)
 	}
 }
 
+
+koord3d grund_info_t::get_weltpos()
+{
+	return gr->get_pos();
+}
 
 
 void grund_info_t::map_rotate90( sint16 new_ysize )

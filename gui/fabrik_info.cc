@@ -36,6 +36,7 @@ fabrik_info_t::fabrik_info_t(const fabrik_t* fab_, const gebaeude_t* gb) :
 	lieferbuttons = supplierbuttons = stadtbuttons = NULL;
 
 	tstrncpy( fabname, fab->get_name(), lengthof(fabname) );
+	gui_frame_t::set_name( fabname );
 
 	input.set_pos(koord(10,4));
 	input.set_groesse( koord(TOTAL_WIDTH-20, 13));
@@ -128,9 +129,6 @@ void fabrik_info_t::zeichnen(koord pos, koord gr)
 	if(  cont.get_groesse().y!=txt.get_groesse().y-3  ) {
 		update_info();
 	}
-	sprintf( fabkoordname, "%s (%s)", fabname, fab->get_pos().get_2d().get_str() );
-	gui_frame_t::set_name( fabkoordname );
-
 	gui_frame_t::zeichnen(pos,gr);
 
 	prod_buf.clear();

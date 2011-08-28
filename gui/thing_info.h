@@ -33,16 +33,11 @@ protected:
 
 public:
 	ding_infowin_t(const ding_t* ding);
+	virtual ~ding_infowin_t() {}
 
 	ding_t const* get_ding() const { return view.get_ding(); }
 
-	/**
-	 * @return window title
-	 *
-	 * @author Hj. Malthaner
-	 * @see simwin
-	 */
-	virtual char const* get_name() const { return get_ding()->get_name(); }
+	virtual koord3d get_weltpos() { return get_ding()->get_pos(); }
 
 	/**
 	 * @return the text to display in the info window

@@ -93,6 +93,17 @@ const char *koord::get_str() const
 	return pos_str;
 }
 
+
+const char *koord::get_fullstr() const
+{
+	static char pos_str[32];
+	if(x==-1  &&  y==-1) {
+		return "koord invalid";
+	}
+	sprintf( pos_str, "(%i,%i)", x, y );
+	return pos_str;
+}
+
 // obey order of simrand among different compilers
 koord koord::koord_random( uint16 xrange, uint16 yrange )
 {

@@ -69,6 +69,13 @@ news_loc::news_loc(karte_t* welt, const char* text, koord k, PLAYER_COLOR_VAL co
 }
 
 
+// returns position of depot on the map
+koord3d news_loc::get_weltpos()
+{
+	return view.get_location();
+}
+
+
 void news_loc::map_rotate90( sint16 new_ysize )
 {
 	view.map_rotate90(new_ysize);

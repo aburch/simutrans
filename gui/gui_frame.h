@@ -16,6 +16,7 @@
 #include "../simgraph.h"
 #include "gui_container.h"
 #include "../simcolor.h"
+#include "../dataobj/koord3d.h"
 
 // height of titlebar
 #define TITLEBAR_HEIGHT (16)
@@ -188,6 +189,9 @@ public:
 
 	// if false, title and all gadgets will be not drawn
 	virtual bool has_title() const { return true; }
+
+	// position of a connected thing on the map
+	virtual koord3d get_weltpos() { return koord3d::invalid; }
 
 	/**
 	 * Set resize mode

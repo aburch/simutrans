@@ -72,7 +72,7 @@
 class simwin_gadget_flags_t
 {
 public:
-	simwin_gadget_flags_t( void ) : title(true), close( false ), help( false ), prev( false ), size( false ), next( false ), sticky( false ) { }
+	simwin_gadget_flags_t( void ) : title(true), close( false ), help( false ), prev( false ), size( false ), next( false ), sticky( false ), gotopos( false ) { }
 
 	bool title:1;
 	bool close:1;
@@ -81,6 +81,7 @@ public:
 	bool size:1;
 	bool next:1;
 	bool sticky:1;
+	bool gotopos:1;
 };
 
 class simwin_t
@@ -145,7 +146,7 @@ static void destroy_framed_win(simwin_t *win);
 
 #define REVERSE_GADGETS (!umgebung_t::window_buttons_right)
 // (Mathew Hounsell) A "Gadget Box" is a windows control button.
-enum simwin_gadget_et { GADGET_CLOSE, GADGET_HELP, GADGET_SIZE, GADGET_PREV, GADGET_NEXT, GADGET_STICKY=21, GADGET_STICKY_PUSHED, COUNT_GADGET=255 };
+enum simwin_gadget_et { GADGET_CLOSE, GADGET_HELP, GADGET_SIZE, GADGET_PREV, GADGET_NEXT, GADGET_GOTOPOS=37, GADGET_STICKY=21, GADGET_STICKY_PUSHED, COUNT_GADGET=255 };
 
 
 /**
@@ -165,16 +166,30 @@ static int display_gadget_box(simwin_gadget_et const  code,
 		display_fillbox_wh_clip(x+1, y+1, 14, 14, color+1, false);
 	}
 
+	image_id img = IMG_LEER;
 	if(  skinverwaltung_t::window_skin  ) {
 		// "x", "?", "=", "«", "»"
-		const int img = skinverwaltung_t::window_skin->get_bild_nr(code+1);
-
-		// to prevent day and nightchange
+		img = skinverwaltung_t::window_skin->get_bild_nr(code+1);
+	}
+	if(  img != IMG_LEER  ) {
 		display_color_img(img, x, y, 0, false, false);
 	}
 	else {
-		static const char *gadget_text[6]={ "X", "?", "=", "<", ">", "S" };
-		display_proportional( x+4, y+4, code<lengthof(gadget_text) ? gadget_text[code] :  "#", ALIGN_LEFT, COL_BLACK, false );
+		const char *gadget_text = "#";
+		static const char *gadget_texts[5]={ "X", "?", "=", "<", ">" };
+		if(  code <= GADGET_NEXT  ) {
+			gadget_text = gadget_texts[code];
+		}
+		else if(  code == GADGET_GOTOPOS  ) {
+			gadget_text	= "*";
+		}
+		else if(  code == GADGET_STICKY  ) {
+			gadget_text	= "s";
+		}
+		else if(  code == GADGET_STICKY_PUSHED  ) {
+			gadget_text	= "S";
+		}
+		display_proportional( x+4, y+4, gadget_text, ALIGN_LEFT, COL_BLACK, false );
 	}
 
 	// Hajo: return width of gadget
@@ -213,6 +228,10 @@ static int display_gadget_boxes(
 	}
 	if(  flags->next  ) {
 	    display_gadget_box( GADGET_NEXT, x + w*width, y, color, false );
+	    width++;
+	}
+	if(  flags->gotopos  ) {
+	    display_gadget_box( GADGET_GOTOPOS, x + w*width, y, color, false );
 	    width++;
 	}
 	if(  flags->sticky  ) {
@@ -269,6 +288,12 @@ static simwin_gadget_et decode_gadget_boxes(
 		}
 		offset += w;
 	}
+	if( flags->gotopos ) {
+		if( offset >= 0  &&  offset<16  ) {
+			return GADGET_GOTOPOS;
+		}
+		offset += w;
+	}
 	if( flags->sticky ) {
 		if( offset >= 0  &&  offset<16  ) {
 			return GADGET_STICKY;
@@ -284,9 +309,10 @@ static void win_draw_window_title(const koord pos, const koord gr,
 		const PLAYER_COLOR_VAL titel_farbe,
 		const char * const text,
 		const PLAYER_COLOR_VAL text_farbe,
+		const koord3d welt_pos,
 		const bool closing,
 		const bool sticky,
-		const simwin_gadget_flags_t * const flags )
+		simwin_gadget_flags_t &flags )
 {
 	PUSH_CLIP(pos.x, pos.y, gr.x, gr.y);
 	display_fillbox_wh_clip(pos.x, pos.y, gr.x, 1, titel_farbe+1, false);
@@ -295,8 +321,12 @@ static void win_draw_window_title(const koord pos, const koord gr,
 	display_vline_wh_clip(pos.x+gr.x-1, pos.y,   15, COL_BLACK, false);
 
 	// Draw the gadgets and then move left and draw text.
-	int width = display_gadget_boxes( flags, pos.x+(REVERSE_GADGETS?0:gr.x-20), pos.y, titel_farbe, closing, sticky );
-	display_proportional_clip( pos.x + (REVERSE_GADGETS?width+4:4), pos.y+(16-large_font_height)/2, text, ALIGN_LEFT, text_farbe, false );
+	flags.gotopos = (welt_pos != koord3d::invalid);
+	int width = display_gadget_boxes( &flags, pos.x+(REVERSE_GADGETS?0:gr.x-20), pos.y, titel_farbe, closing, sticky );
+	int titlewidth = display_proportional_clip( pos.x + (REVERSE_GADGETS?width+4:4), pos.y+(16-large_font_height)/2, text, ALIGN_LEFT, text_farbe, false );
+	if(  flags.gotopos  ) {
+		display_proportional_clip( pos.x + (REVERSE_GADGETS?width+4:4)+titlewidth+8, pos.y+(16-large_font_height)/2, welt_pos.get_2d().get_fullstr(), ALIGN_LEFT, text_farbe, false );
+	}
 	POP_CLIP();
 }
 
@@ -757,11 +787,12 @@ void display_win(int win)
 		win_draw_window_title(wins[win].pos,
 				gr,
 				title_color,
-				translator::translate(komp->get_name()),
+				komp->get_name(),
 				text_color,
+				komp->get_weltpos(),
 				wins[win].closing,
 				wins[win].sticky,
-				( & wins[win].flags ) );
+				wins[win].flags );
 	}
 	// mark top window, if requested
 	if(umgebung_t::window_frame_active  &&  (unsigned)win==wins.get_count()-1) {
@@ -1227,6 +1258,12 @@ bool check_pos_win(event_t *ev)
 							ev->ev_class = WINDOW_CHOOSE_NEXT;
 							ev->ev_code = NEXT_WINDOW;  // forward
 							wins[i].gui->infowin_event( ev );
+						}
+						break;
+					case GADGET_GOTOPOS:
+						if (IS_LEFTCLICK(ev)) {
+							// change position on map
+							spieler_t::get_welt()->change_world_position( wins[i].gui->get_weltpos() );
 						}
 						break;
 					case GADGET_STICKY:

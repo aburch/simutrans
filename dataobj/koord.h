@@ -34,6 +34,7 @@ public:
 	void rdwr(loadsave_t *file);
 
 	const char *get_str() const;
+	const char *get_fullstr() const;	// including brackets
 
 	const koord& operator += (const koord & k)
 	{

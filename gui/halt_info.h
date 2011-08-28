@@ -84,6 +84,8 @@ public:
 	 */
 	virtual void set_fenstergroesse(koord groesse);
 
+	virtual koord3d get_weltpos();
+
 	/**
 	 * This method is called if an action is triggered
 	 * @author Hj. Malthaner

@@ -43,7 +43,7 @@ const int hist_type_color[MAX_CITY_HISTORY] =
 
 
 stadt_info_t::stadt_info_t(stadt_t* stadt_) :
-	gui_frame_t("Stadtinformation"),
+	gui_frame_t( name, NULL ),
 	stadt(stadt_)
 {
 	reset_city_name();
@@ -116,6 +116,13 @@ stadt_info_t::~stadt_info_t()
 	// send rename command if necessary
 	rename_city();
 }
+
+// returns position of depot on the map
+koord3d stadt_info_t::get_weltpos()
+{
+	return koord3d( stadt->get_pos(), 0 );
+}
+
 
 /**
  * send rename command if necessary
