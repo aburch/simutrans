@@ -887,22 +887,32 @@ void settings_t::rdwr(loadsave_t *file)
 			{
 				file->rdwr_short(median_bonus_distance);
 				file->rdwr_short(max_bonus_multiplier_percent);
-				uint16 distance_per_tile_integer = meters_per_tile / 10;
-				file->rdwr_short(distance_per_tile_integer);
-				if(file->get_experimental_version() < 5 && file->get_experimental_version() >= 1)
+				if(file->get_experimental_version() <= 9)
 				{
-					// In earlier versions, the default was set to a higher level. This
-					// is a problem when the new journey time tolerance features is used.
-					if(file->is_loading())
+					uint16 distance_per_tile_integer = meters_per_tile / 10;
+					file->rdwr_short(distance_per_tile_integer);
+					if(file->get_experimental_version() < 5 && file->get_experimental_version() >= 1)
 					{
-						distance_per_tile_integer = (distance_per_tile_integer * 8) / 10;
-					}
-					else
-					{
-						distance_per_tile_integer = (distance_per_tile_integer * 10) / 8;
-					}
-				}		
-				set_meters_per_tile(distance_per_tile_integer * 10);
+						// In earlier versions, the default was set to a higher level. This
+						// is a problem when the new journey time tolerance features is used.
+						if(file->is_loading())
+						{
+							distance_per_tile_integer = (distance_per_tile_integer * 8) / 10;
+						}
+						else
+						{
+							distance_per_tile_integer = (distance_per_tile_integer * 10) / 8;
+						}
+					}		
+					set_meters_per_tile(distance_per_tile_integer * 10);
+				}
+				else
+				{
+					// Version 10.0 and above - meters per tile stored precisely
+					uint16 mpt = meters_per_tile;
+					file->rdwr_short(mpt);
+					set_meters_per_tile(mpt);
+				}
 				
 				file->rdwr_byte(tolerable_comfort_short);
 				file->rdwr_byte(tolerable_comfort_median_short);
@@ -1260,6 +1270,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	// @author: jamespetts
 	uint16 distance_per_tile_integer = meters_per_tile / 10;
 	meters_per_tile = contents.get_int("distance_per_tile", distance_per_tile_integer) * 10;
+	meters_per_tile = contents.get_int("meters_per_tile", meters_per_tile);
 	steps_per_km = (1000 * VEHICLE_STEPS_PER_TILE) / meters_per_tile;
 	float32e8_t distance_per_tile(meters_per_tile, 1000);
 
