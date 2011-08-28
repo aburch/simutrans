@@ -17,6 +17,7 @@
 #include "tpl/array_tpl.h"
 #include "tpl/fixed_list_tpl.h"
 #include "tpl/koordhashtable_tpl.h"
+#include "tpl/inthashtable_tpl.h"
 #include "tpl/minivec_tpl.h"
 
 #include "convoihandle_t.h"
@@ -436,10 +437,13 @@ private:
 	uint32 heaviest_vehicle;
 	uint16 longest_loading_time;
 
-	// Time in ticks since it departed from the previous stop.
-	// Used for measuring average speed.
-	// @author: jamespetts
-	sint64 last_departure_time;
+	/**
+	 * Time in ticks since this convoy last departed from
+	 * any given stop, indexed here by its handle ID.
+	 * @author: jamespetts, August 2011. Replaces the original
+	 * "last_departure_time" member.
+	 */
+	inthashtable_tpl<uint16, sint64> *departure_times;
 
 	// When we arrived at current stop
 	// @author Inkelyad
@@ -489,6 +493,23 @@ private:
 	* @author yobbobandana
 	*/
 	void advance_schedule();
+
+	/**
+	 * Measure and record the times that
+	 * goods of all types have been waiting
+	 * before boarding this convoy
+	 * @author: jamespetts
+	 */
+	void book_waiting_times();
+
+	/**
+	 * Measure and record the departure
+	 * time of this convoy from the current
+	 * stop (if the convoy is currently at
+	 * a stop)
+	 * @author: jamespetts
+	 */
+	void book_departure_time(sint64 time);
 
 public:
 	
@@ -1088,8 +1109,6 @@ public:
 	}
 
 	uint16 calc_reverse_delay() const;
-
-	void book_waiting_times();
 
 	static uint16 get_waiting_minutes(uint32 waiting_ticks);
 	
