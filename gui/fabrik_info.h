@@ -40,6 +40,7 @@ class fabrik_info_t : public gui_frame_t, public action_listener_t
 	ding_view_t view;
 
 	char fabname[256];
+	char fabkoordname[300];
 	gui_textinput_t input;
 
 	button_t *lieferbuttons;
