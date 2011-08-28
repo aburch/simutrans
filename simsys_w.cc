@@ -614,8 +614,8 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 					case VK_NUMPAD4:   sys_event.code = SIM_KEY_LEFT;  break;
 					case VK_NUMPAD6:   sys_event.code = SIM_KEY_RIGHT; break;
 					case VK_NUMPAD8:   sys_event.code = SIM_KEY_UP;    break;
-					case VK_SEPARATOR: sys_event.code = 127; //delete
-					break;
+					case VK_PAUSE:     sys_event.code = 16;            break;	// Pause -> ^P
+					case VK_SEPARATOR: sys_event.code = 127;           break;	// delete
 				}
 				// check for numlock!
 				if (sys_event.code != 0) break;

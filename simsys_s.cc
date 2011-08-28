@@ -511,6 +511,7 @@ static void internal_GetEvents(int wait)
 				case SDLK_PAGEUP:   code = '>';                           break;
 				case SDLK_RIGHT:    code = SIM_KEY_RIGHT;                 break;
 				case SDLK_UP:       code = SIM_KEY_UP;                    break;
+				case SDLK_PAUSE:    code = 16;                            break;
 
 				default:
 					if (event.key.keysym.unicode != 0) {
