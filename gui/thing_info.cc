@@ -15,6 +15,7 @@
 #include "../simworld.h"
 #include "../utils/simstring.h"
 #include "thing_info.h"
+#include "../dataobj/translator.h"
 
 
 
@@ -54,7 +55,7 @@ void ding_infowin_t::zeichnen(koord pos, koord gr)
 	}
 	if(  gui_frame_t::get_name()[0]==0  ) {
 		title.clear();
-		title.printf( "%s (%s)", get_name(), get_ding()->get_pos().get_2d().get_str() );
+		title.printf( "%s (%s)", translator::translate(get_name()), get_ding()->get_pos().get_2d().get_str() );
 		gui_frame_t::set_name( title );
 	}
 
