@@ -3608,8 +3608,8 @@ void convoi_t::laden() //"load" (Babelfish)
 			inthashtable_iterator_tpl<uint16, sint64> iter(departure_times);
 			while(iter.next())
 			{
-				// Book the journey times from all origins served by this convoy
-				// and for which data are available to this destination.
+				// Book the journey times from all origins served by this convoy,
+				// and for which data are available, to this destination.
 				pair.x = iter.get_current_key();
 				journey_time = welt->ticks_to_tenths_of_minutes(arrival_time - departure_times->get(pair.x));
 				if(!average_journey_times->is_contained(pair))
@@ -5341,7 +5341,9 @@ uint16 convoi_t::calc_longest_loading_time()
 	uint16 longest = 0;
 	for(uint8 i = 0; i < anz_vehikel; i ++)
 	{
-		uint16 tmp = fahr[i]->get_besch()->get_loading_time();
+		// TODO: CAlculate this intelligently based on the load level
+		// and the minimum and maximum values
+		uint16 tmp = fahr[i]->get_besch()->get_min_loading_time();
 		if(tmp > longest)
 		{
 			longest = tmp;

@@ -79,7 +79,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	int i;
 	uint8  uv8;
 
-	int total_len = 63;
+	int total_len = 67;
 
 	// prissi: must be done here, since it may affect the len of the header!
 	string sound_str = ltrim( obj.get("sound") );
@@ -117,7 +117,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// Finally, this is the experimental version number. This is *added*
 	// to the standard version number, to be subtracted again when read.
 	// Start at 0x100 and increment in hundreds (hex).
-	version += 0x600;
+	version += 0x700;
 
 	node.write_uint16(fp, version, 0);
 
@@ -729,12 +729,16 @@ end:
 			default_loading_time = 30000;
 			break;
 	}
+	/** 
+	 * This is the old system for storing
+	 * journey times. It is retained only
+	 * for backwards compatibility. Journey
+	 * times are now (10.0 and higher)
+	 * stored as seconds, and converted to
+	 * ticks when set_scale() is called.
+	 * @author: jamespetts
+	 */
 	uint16 loading_time = (obj.get_int("loading_time", default_loading_time));
-	uint16 loading_time_seconds = (obj.get_int("loading_time_seconds", 0));
-	if(loading_time_seconds > 0)
-	{
-		loading_time = loading_time_seconds * 93.02325;
-	}
 	node.write_uint16(fp, loading_time, 40);
 
 	// Upgrading settings
@@ -805,10 +809,28 @@ end:
 
 	node.write_uint8(fp, (uint8) livery_max, 62);
 
+	/**
+	 * The loading times (minimum and maximum) of this
+	 * vehicle in seconds. These are converted to ticks
+	 * after being read in simworld.cc's set_scale()
+	 * method. Using these values is preferable to using
+	 * the old "loading_time", which sets the ticks
+	 * directly and therefore bypasses the scale. A value
+	 * of 65535, the default, indicates that this value
+	 * has not been set manually, and reverts to the
+	 * default loading_time. This retains backwards
+	 * compatibility with previous versions of paksets. 
+	 * @author: jamespetts, August 2011
+	 */
+	uint16 min_loading_time = obj.get_int("min_loading_time", 65535);
+	node.write_uint16(fp, min_loading_time, 63);
+	uint16 max_loading_time = obj.get_int("max_loading_time", 65535);
+	node.write_uint16(fp, max_loading_time, 65);
+
 	sint8 sound_str_len = sound_str.size();
 	if (sound_str_len > 0) {
-		node.write_sint8  (fp, sound_str_len, 63);
-		node.write_data_at(fp, sound_str.c_str(),     64, sound_str_len);
+		node.write_sint8  (fp, sound_str_len, 67);
+		node.write_data_at(fp, sound_str.c_str(),     68, sound_str_len);
 	}
 
 	node.write(fp);

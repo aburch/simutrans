@@ -415,10 +415,12 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 
 			if(v->get_besch()->get_zuladung() > 0)
 			{
-				char loading_time_as_clock[32];
-				v->get_welt()->sprintf_ticks(loading_time_as_clock, sizeof(loading_time_as_clock), v->get_besch()->get_loading_time());
+				char min_loading_time_as_clock[32];
+				char max_loading_time_as_clock[32];
+				v->get_welt()->sprintf_ticks(min_loading_time_as_clock, sizeof(min_loading_time_as_clock), v->get_besch()->get_min_loading_time());
+				v->get_welt()->sprintf_ticks(max_loading_time_as_clock, sizeof(max_loading_time_as_clock), v->get_besch()->get_max_loading_time());
 				buf.clear();
-				buf.printf("%s %i (%s)", translator::translate("Loading time:"), v->get_besch()->get_loading_time(), loading_time_as_clock );
+				buf.printf("%s %s - %s", translator::translate("Loading time:"), min_loading_time_as_clock, max_loading_time_as_clock );
 				display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, COL_BLACK, true );
 				extra_y += LINESPACE;
 			}

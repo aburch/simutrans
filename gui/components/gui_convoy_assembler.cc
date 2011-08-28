@@ -1618,10 +1618,12 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 
 		if(veh_type->get_zuladung() > 0)
 		{
-			char loading_time_as_clock[32];
+			char min_loading_time_as_clock[32];
+			char max_loading_time_as_clock[32];
 			//Loading time is only relevant if there is something to load.
-			welt->sprintf_ticks(loading_time_as_clock, sizeof(loading_time_as_clock), veh_type->get_loading_time());
-			j +=  sprintf(buf, "%s %s \n", translator::translate("Loading time:"), loading_time_as_clock);
+			welt->sprintf_ticks(min_loading_time_as_clock, sizeof(min_loading_time_as_clock), veh_type->get_min_loading_time());
+			welt->sprintf_ticks(min_loading_time_as_clock, sizeof(max_loading_time_as_clock), veh_type->get_max_loading_time());
+			j += sprintf(buf, "%s %s - %s \n", translator::translate("Loading time:"), min_loading_time_as_clock, max_loading_time_as_clock);
 		}
 		else {
 			j += sprintf(buf+j, "\n");

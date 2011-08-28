@@ -141,9 +141,31 @@ private:
 
 	uint8 comfort; // How comfortable that a vehicle is for passengers.
 
-	uint16 loading_time; //Time in MS (at speed 1.0) to load/unload.
+	/** The time that the vehicle takes to load
+	  * in ticks. Min: if no passengers/goods
+	  * board/alight; Max: if all passengers/goods
+	   * board/alight at once. Scaled linear
+	  * beween the two. Was just "loading_time"
+	  * before 10.0. 
+	  * @author: jamespetts
+	  */
+	uint16 max_loading_time;
+	uint16 min_loading_time; 
 
-	bool available_only_as_upgrade; //If yes, can not be bought as new: only upgraded.
+	/**
+	 * The raw values in seconds are
+	 * read from the .pak files in 
+	 * vehicle_reader.cc, but the
+	 * scale is not available there, 
+	 * so they are stored here for
+	 * use in the set_scale() method
+	 * in simworld.cc
+	 * @author: jamespetts
+	 */
+	uint16 max_loading_time_seconds;
+	uint16 min_loading_time_seconds;
+
+	bool available_only_as_upgrade; // If true, can not be bought as new: only upgraded.
 	
 	uint16 tractive_effort; // tractive effort / force in kN
 
@@ -193,7 +215,7 @@ public:
 		// do not get stuck with constraints. 
 		way_constraints.set_permissive(0);
 		way_constraints.set_prohibitive(255);
-		loading_time = 2000;
+		min_loading_time = max_loading_time = seconds_to_ticks(30, 250); 
 		tractive_effort = 0;
 	}
 
@@ -516,7 +538,8 @@ public:
 	bool get_can_lead_from_rear() const { return can_lead_from_rear; }
 	uint8 get_comfort() const { return comfort; }
 	uint16 get_overcrowded_capacity() const { return overcrowded_capacity; }
-	uint16 get_loading_time() const { return zuladung > 0 ? loading_time : 0; }
+	uint16 get_min_loading_time() const { return zuladung > 0 ? min_loading_time : 0; }
+	uint16 get_max_loading_time() const { return zuladung > 0 ? max_loading_time : 0; }
 	uint32 get_upgrade_price() const { return upgrade_price; }
 	bool is_available_only_as_upgrade() const { return available_only_as_upgrade; }
 
@@ -621,6 +644,14 @@ public:
 		const uint32 scaled_maintenance = set_scale_generic<uint32>(fixed_maintenance, scale_factor);
 		preis = (preis == 0 ? 0 : (scaled_price >= 1 ? scaled_price : 1));
 		fixed_maintenance = (uint32)(fixed_maintenance == 0 ? 0 :(scaled_maintenance >= 1 ? scaled_maintenance : 1));
+		if(max_loading_time_seconds != 65535)
+		{
+			max_loading_time = seconds_to_ticks(max_loading_time_seconds, scale_factor);
+		}
+		if(min_loading_time_seconds != 65535)
+		{
+			min_loading_time = seconds_to_ticks(min_loading_time_seconds, scale_factor);
+		}
 	}
 
 	/**
@@ -640,6 +671,11 @@ public:
 	uint32 get_effective_power_index(sint32 speed /* in m/s */ ) const;
 
 	void calc_checksum(checksum_t *chk) const;
+
+	sint64 seconds_to_ticks(uint32 seconds, uint16 meters_per_tile) const
+	{
+		return (seconds / (uint32)meters_per_tile) * 22756L;
+	}
 };
 
 #endif
