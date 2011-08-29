@@ -204,7 +204,8 @@ private:
 	/* prissi: maximum number of steps for breath search */
 	sint32 max_transfers;
 
-	/* multiplier for steps on diagonal:
+	/**
+	 * multiplier for steps on diagonal:
 	 * 1024: TT-like, faktor 2, vehicle will be too long and too fast
 	 * 724: correct one, faktor sqrt(2)
 	 */
@@ -221,6 +222,17 @@ private:
 	// Whether passengers might walk between stops en route.
 	// @author: jamespetts, August 2011
 	bool allow_routing_on_foot;
+
+	/**
+	 * The shortest time that passengers/goods can
+	 * wait at an airport before boarding an aircraft.
+	 * Waiting times are higher at airports because of
+	 * the need to check-in, undergo security checks,
+	 * etc.
+	 * @author: jamespetts, August 2011
+	 */
+	uint16 min_wait_airport;
+
 
 public:
 
@@ -840,6 +852,9 @@ public:
 
 	bool is_drive_left() const { return drive_on_left; }
 	bool is_signals_left() const { return signals_on_left; }
+
+	uint16 get_min_wait_airport() const { return min_wait_airport; }
+	void set_min_wait_airport(uint16 value) { min_wait_airport = value; }
 };
 
 #endif 

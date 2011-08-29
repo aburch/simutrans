@@ -5486,6 +5486,7 @@ void convoi_t::clear_replace()
 	 }
 	 const sint64 current_time = welt->get_zeit_ms();
 	 uint16 waiting_minutes;
+	 const uint16 airport_wait = fahr[0]->get_typ() == ding_t::aircraft ? welt->get_settings().get_min_wait_airport() : 0;
 	 for(uint8 i = 0; i < anz_vehikel; i++) 
 	 {
 		slist_iterator_tpl<ware_t> iter(fahr[i]->get_fracht());
@@ -5493,7 +5494,7 @@ void convoi_t::clear_replace()
 		{
 			if(iter.get_current().get_origin().get_id() == halt.get_id())
 			{
-				waiting_minutes = get_waiting_minutes(current_time - iter.get_current().arrival_time);
+				waiting_minutes = max(get_waiting_minutes(current_time - iter.get_current().arrival_time), airport_wait);
 				halt->add_waiting_time(waiting_minutes, iter.get_current().get_zwischenziel(), iter.get_current().get_besch()->get_catg_index());
 			}
 		}

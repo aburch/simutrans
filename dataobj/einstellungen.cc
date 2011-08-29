@@ -426,6 +426,8 @@ settings_t::settings_t() :
 
 	allow_routing_on_foot = false;
 
+	min_wait_airport = 0;
+
 	city_threshold_size = 1000;
 	capital_threshold_size = 10000;
 	
@@ -1252,6 +1254,7 @@ void settings_t::rdwr(loadsave_t *file)
 		if(file->get_experimental_version() >= 10)
 		{
 			file->rdwr_bool(allow_routing_on_foot);
+			file->rdwr_short(min_wait_airport);
 		}
 	}
 }
@@ -1809,6 +1812,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	quick_city_growth = (bool)(contents.get_int("quick_city_growth", quick_city_growth));
 
 	allow_routing_on_foot = (bool)(contents.get_int("allow_routing_on_foot", allow_routing_on_foot));
+
+	min_wait_airport = contents.get_int("min_wait_airport", min_wait_airport) * 10; // Stored as 10ths of minutes
 
 	assume_everywhere_connected_by_road = (bool)(contents.get_int("assume_everywhere_connected_by_road", assume_everywhere_connected_by_road));
 
