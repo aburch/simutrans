@@ -13,6 +13,7 @@
 #include "../simskin.h"
 #include "../besch/skin_besch.h"
 #include "../dataobj/umgebung.h"
+#include "../dataobj/translator.h"
 #include "../dings/label.h"
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
@@ -24,7 +25,7 @@ karte_t *label_info_t::welt = NULL;
 
 
 label_info_t::label_info_t(karte_t *welt, label_t* l) :
-	gui_frame_t("Marker", l->get_besitzer()),
+	gui_frame_t( translator::translate("Marker"), l->get_besitzer()),
 	player_name(""),
 	view(welt, l->get_pos(), koord( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width()*7)/8) ))
 {

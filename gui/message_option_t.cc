@@ -25,7 +25,7 @@ karte_t *message_option_t::welt = NULL;
 
 
 message_option_t::message_option_t(karte_t *welt) :
-	gui_frame_t("Mailbox Options"),
+	gui_frame_t( translator::translate("Mailbox Options") ),
 	text_label(&buf),
 	legend( skinverwaltung_t::message_options->get_bild_nr(0) )
 {

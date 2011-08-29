@@ -84,7 +84,7 @@ const uint8 map_frame_t::map_type_color[MAX_BUTTON_TYPE] =
 
 
 map_frame_t::map_frame_t(karte_t *welt) :
-	gui_frame_t("Reliefkarte"),
+	gui_frame_t( translator::translate("Reliefkarte") ),
 	scrolly(reliefkarte_t::get_karte()),
 	zoom_label("map zoom")
 {

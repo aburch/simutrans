@@ -60,7 +60,7 @@ koord enlarge_map_frame_t::koord_from_rotation(settings_t const* const sets, sin
 
 
 enlarge_map_frame_t::enlarge_map_frame_t(spieler_t *, karte_t *w) :
-	gui_frame_t("enlarge map"),
+	gui_frame_t( translator::translate("enlarge map") ),
 	sets(new settings_t(w->get_settings())), // Make a copy.
 	memory(memory_str),
 	welt(w)

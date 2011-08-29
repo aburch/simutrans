@@ -32,7 +32,7 @@ wkz_station_t station_building_select_t::wkz=wkz_station_t();
 
 
 station_building_select_t::station_building_select_t(karte_t *welt, const haus_besch_t *besch) :
-	gui_frame_t("Choose direction"),
+	gui_frame_t( translator::translate("Choose direction") ),
 	txt()
 {
 	this->welt = welt;

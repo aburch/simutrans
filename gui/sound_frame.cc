@@ -10,6 +10,7 @@
 #include "sound_frame.h"
 #include "../simsound.h"
 #include "../simintr.h"
+#include "../dataobj/translator.h"
 
 
 
@@ -28,7 +29,7 @@ const char *sound_frame_t::make_song_name()
 
 
 sound_frame_t::sound_frame_t()
-  : gui_frame_t("Sound settings"),
+  : gui_frame_t( translator::translate("Sound settings") ),
     digi(scrollbar_t::horizontal),
     midi(scrollbar_t::horizontal),
     dlabel("Sound volume:"),

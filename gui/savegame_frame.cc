@@ -26,6 +26,7 @@
 #include "../simintr.h"
 
 #include "../dataobj/umgebung.h"
+#include "../dataobj/translator.h"
 #include "../utils/simstring.h"
 
 #include "components/list_button.h"
@@ -39,7 +40,7 @@
 // in derived classes (since the object in question is not full initialized yet)
 // this functions returns true for files to be added.
 savegame_frame_t::savegame_frame_t(const char *suffix, const char *path, bool only_directories ) :
-	gui_frame_t("Load/Save"),
+gui_frame_t( translator::translate("Load/Save") ),
 	input(),
 	fnlabel("Filename"),
 	scrolly(&button_frame)
