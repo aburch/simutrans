@@ -700,6 +700,8 @@ void path_explorer_t::compartment_t::step()
 			quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> *catg_connexions;
 			haltestelle_t::connexion *new_connexion;
 
+			minivec_tpl<average_tpl<uint16> * > averages_to_reset;
+
 			start = dr_time();	// start timing
 
 			// for each schedule of line / lineless convoy
@@ -858,8 +860,8 @@ void path_explorer_t::compartment_t::step()
 							if(ave && ave->count > 0)
 							{
 								new_connexion->journey_time = ave->get_average();
-								// Reset the data once it has been read once.
-								current_linkage.line->average_journey_times->access(id_pair(halt_list[h].get_id(), halt_list[t].get_id()))->reset();
+								// Reset the data once they have been read once.
+								averages_to_reset.append(ave);
 							}
 							else
 							{
@@ -873,8 +875,8 @@ void path_explorer_t::compartment_t::step()
 							if(ave && ave->count > 0)
 							{
 								new_connexion->journey_time = ave->get_average();
-								// Reset the data once it has been read once.
-								current_linkage.convoy->average_journey_times->access(id_pair(halt_list[h].get_id(), halt_list[t].get_id()))->reset();
+								// Reset the data once they have been read once.
+								averages_to_reset.append(ave);
 							}
 							else
 							{
@@ -980,6 +982,11 @@ void path_explorer_t::compartment_t::step()
 			}
 
 			iterations = 0;	// reset iteration counter
+
+			ITERATE(averages_to_reset, n)
+			{
+				averages_to_reset.get_element(n)->reset();
+			}
 
 #ifndef DEBUG_EXPLORER_SPEED
 			return;
