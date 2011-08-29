@@ -767,6 +767,7 @@ void path_explorer_t::compartment_t::step()
 
 				for (uint8 i = 0; i < entry_count; ++i)
 				{
+					journey_time = 0;
 					const id_pair pair(halt_list[i].get_id(), halt_list[(i+1)%entry_count].get_id());
 					
 					if ( current_linkage.line.is_bound() && current_linkage.line->average_journey_times->is_contained(pair) )
@@ -799,7 +800,8 @@ void path_explorer_t::compartment_t::step()
 						// Zero here means that there are no journey time data even if the hashtable entry exists.
 						// Fallback to convoy's general average speed if a point-to-point average is not available.
 						const uint32 journey_time_factor = (journey_time_adjustment * 100) / current_average_speed;
-						journey_time = (uint16)((shortest_distance(halt_list[i]->get_basis_pos(), halt_list[(i+1)%entry_count]->get_basis_pos()) * journey_time_factor) / 100);
+						const uint32 distance = shortest_distance(halt_list[i]->get_basis_pos(), halt_list[(i+1)%entry_count]->get_basis_pos());
+						journey_time = (uint16)((distance * journey_time_factor) / 100);
 					}
 
 					// journey time from halt 0 to halt 1 is stored in journey_time_list[1]
