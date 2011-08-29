@@ -923,7 +923,6 @@ bool vehikel_t::load_freight(halthandle_t halt, bool overcrowd)
 	schedule_t *fpl = cnv->get_schedule();
 	if( ok ) 
 	{
-
 		while(total_freight < besch->get_zuladung() + (overcrowd ? besch->get_overcrowded_capacity() : 0)) //"Payload" (Google)
 		{
 			// Modified to allow overcrowding.
@@ -1842,16 +1841,24 @@ void vehikel_t::loesche_fracht()
 }
 
 
-bool vehikel_t::beladen(halthandle_t halt, bool overcrowd)
+uint16 vehikel_t::beladen(halthandle_t halt, bool overcrowd)
 {
 	bool ok = true;
+	uint16 load_charge = total_freight;
 	if(halt.is_bound()) 
 	{
 		ok = load_freight(halt, overcrowd);
 	}
 	sum_weight = (get_fracht_gewicht()+499)/1000 + besch->get_gewicht();
 	calc_bild();
-	return ok;
+	if(ok)
+	{
+		return total_freight - load_charge;
+	}
+	else
+	{
+		return 0;
+	}
 }
 
 
@@ -1860,7 +1867,7 @@ bool vehikel_t::beladen(halthandle_t halt, bool overcrowd)
  * "Vehicle to stop discharged" (translated by Google)
  * @author Hj. Malthaner
  */
-bool vehikel_t::entladen(halthandle_t halt)
+uint16 vehikel_t::entladen(halthandle_t halt)
 {
 	uint16 menge = unload_freight(halt);
 	if(menge > 0) 
@@ -1869,9 +1876,8 @@ bool vehikel_t::entladen(halthandle_t halt)
 		cnv->book(menge, CONVOI_TRANSPORTED_GOODS);
 		// add delivered goods to halt's statistics
 		halt->book(menge, HALT_ARRIVED);
-		return true;
 	}
-	return false;
+	return menge;
 }
 
 

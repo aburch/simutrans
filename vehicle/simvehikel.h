@@ -494,14 +494,14 @@ public:
 	* fahrzeug an haltestelle entladen
 	* @author Hj. Malthaner
 	*/
-	bool entladen(halthandle_t halt);
+	uint16 entladen(halthandle_t halt);
 
 	/**
 	* fahrzeug an haltestelle beladen
 	*/
-	bool beladen(halthandle_t halt) { return beladen(halt, false); }
+	uint16 beladen(halthandle_t halt) { return beladen(halt, false); }
 
-	bool beladen(halthandle_t halt, bool overcrowd);
+	uint16 beladen(halthandle_t halt, bool overcrowd);
 
 	// sets or querey begin and end of convois
 	void set_erstes(bool janein) {ist_erstes = janein;} //janein = "yesno" (Google)

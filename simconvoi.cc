@@ -135,7 +135,9 @@ void convoi_t::reset()
 	brake_speed_soll = 2147483647; // ==SPEED_UNLIMITED
 
 	heaviest_vehicle = 0;
-	longest_loading_time = 0;
+	longest_min_loading_time = 0;
+	longest_max_loading_time = 0;
+	current_loading_time = 0;
 	departure_times->clear();
 	for(uint8 i = 0; i < MAX_CONVOI_COST; i ++)
 	{	
@@ -1816,7 +1818,8 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_
 	set_erstes_letztes();
 
 	heaviest_vehicle = calc_heaviest_vehicle();
-	longest_loading_time = calc_longest_loading_time();
+	longest_min_loading_time = calc_longest_min_loading_time();
+	longest_max_loading_time = calc_longest_max_loading_time();
 
 DBG_MESSAGE("convoi_t::add_vehikel()","now %i of %i total vehikels.",anz_vehikel,max_vehicle);
 	return true;
@@ -1911,7 +1914,8 @@ DBG_MESSAGE("convoi_t::upgrade_vehicle()","at pos %i of %i totals.",i,max_vehicl
 	set_erstes_letztes();
 
 	heaviest_vehicle = calc_heaviest_vehicle();
-	longest_loading_time = calc_longest_loading_time();
+	longest_min_loading_time = calc_longest_min_loading_time();
+	longest_max_loading_time = calc_longest_max_loading_time();
 	
 	delete old_vehicle;
 
@@ -1978,7 +1982,8 @@ vehikel_t *convoi_t::remove_vehikel_bei(uint16 i)
 	}
 
 	heaviest_vehicle = calc_heaviest_vehicle();
-	longest_loading_time = calc_longest_loading_time();
+	longest_min_loading_time = calc_longest_min_loading_time();
+	longest_max_loading_time = calc_longest_max_loading_time();
 
 	return v;
 }
@@ -2355,8 +2360,8 @@ void convoi_t::vorfahren()
 						}
 						
 						reverse_delay = calc_reverse_delay();
-
-						uint16 loading_time = get_longest_loading_time();
+						
+						uint16 loading_time = current_loading_time;
 
 						if(welt->get_zeit_ms() - arrival_time > reverse_delay && welt->lookup(this->get_pos())->is_halt())
 						{
@@ -3142,7 +3147,8 @@ void convoi_t::rdwr(loadsave_t *file)
 	if(file->is_loading())
 	{
 		heaviest_vehicle = calc_heaviest_vehicle();
-		longest_loading_time = calc_longest_loading_time();
+		longest_min_loading_time = calc_longest_min_loading_time();
+		longest_max_loading_time = calc_longest_max_loading_time();
 	}
 
 	if(file->get_experimental_version() >= 1)
@@ -3351,6 +3357,7 @@ void convoi_t::rdwr(loadsave_t *file)
 			}
 		}
 
+		file->rdwr_short(current_loading_time);
 	}
 	
 	else
@@ -4161,7 +4168,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	//int convoy_length = 0;
 	bool second_run = anz_vehikel <= 1;
 	uint8 convoy_length = 0;
-	bool changed_loading_level = false;
+	uint16 changed_loading_level = 0;
 	for(sint8 i=0; i < anz_vehikel ; i++) 
 	{
 		vehikel_t* v = fahr[i];
@@ -4183,12 +4190,12 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 			gewinn += v->current_revenue;
 		}
 
-		changed_loading_level |= v->entladen(halt);
+		changed_loading_level += v->entladen(halt);
 
 		if(!no_load) 
 		{
 			// load
-			changed_loading_level |= v->beladen(halt, second_run);
+			changed_loading_level += v->beladen(halt, second_run);
 		}
 		else 
 		{
@@ -4216,6 +4223,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	calc_loading();
 	loading_limit = fpl->get_current_eintrag().ladegrad; //"charge degree" (??) (Babelfish)
 	heaviest_vehicle = calc_heaviest_vehicle(); // Bernd Gabriel, Mar 10, 2010: was missing.
+	calc_current_loading_time(changed_loading_level);
 
 	if(gewinn) 
 	{
@@ -4233,7 +4241,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	const uint16 reversing_time = fpl->get_current_eintrag().reverse ? calc_reverse_delay() : 0;
 	if(go_on_ticks==WAIT_INFINITE) 
 	{
-		const sint64 departure_time = (arrival_time + longest_loading_time) - reversing_time;
+		const sint64 departure_time = (arrival_time + current_loading_time) - reversing_time;
 		if (!loading_limit) 
 		{
 			go_on_ticks = max(departure_time, arrival_time);
@@ -4264,7 +4272,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	bool can_go = false;
 	can_go = loading_level>=loading_limit;
 	can_go = can_go || welt->get_zeit_ms()>go_on_ticks;
-	can_go = can_go && welt->get_zeit_ms() > arrival_time + (longest_loading_time - reversing_time);
+	can_go = can_go && welt->get_zeit_ms() > arrival_time + (current_loading_time - reversing_time);
 	can_go = can_go || no_load;
 	if(can_go) {
 
@@ -5293,7 +5301,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int s
 void convoi_t::snprintf_remaining_loading_time(char *p, size_t size) const
 {
 	const uint16 reverse_delay = calc_reverse_delay();
-	uint16 loading_time = longest_loading_time;
+	uint16 loading_time = current_loading_time;
 	const sint64 current_ticks = welt->get_zeit_ms();
 	if(welt->get_zeit_ms() - arrival_time > reverse_delay && welt->lookup(this->get_pos())->is_halt())
 	{
@@ -5317,9 +5325,9 @@ void convoi_t::snprintf_remaining_loading_time(char *p, size_t size) const
 		remaining_ticks = (int)(go_on_ticks - current_ticks);
 	} 
 	
-	else if (((arrival_time + longest_loading_time) - reverse_delay) >= current_ticks) 
+	else if (((arrival_time + current_loading_time) - reverse_delay) >= current_ticks) 
 	{
-		remaining_ticks = (int)(((arrival_time + longest_loading_time) - reverse_delay) -current_ticks);
+		remaining_ticks = (int)(((arrival_time + current_loading_time) - reverse_delay) - current_ticks);
 	} 
 	else
 	{
@@ -5363,14 +5371,26 @@ uint32 convoi_t::calc_heaviest_vehicle()
 	return heaviest;
 }
 
-uint16 convoi_t::calc_longest_loading_time()
+uint16 convoi_t::calc_longest_min_loading_time()
 {
 	uint16 longest = 0;
 	for(uint8 i = 0; i < anz_vehikel; i ++)
 	{
-		// TODO: CAlculate this intelligently based on the load level
-		// and the minimum and maximum values
 		uint16 tmp = fahr[i]->get_besch()->get_min_loading_time();
+		if(tmp > longest)
+		{
+			longest = tmp;
+		}
+	}
+	return longest;
+}
+
+uint16 convoi_t::calc_longest_max_loading_time()
+{
+	uint16 longest = 0;
+	for(uint8 i = 0; i < anz_vehikel; i ++)
+	{
+		uint16 tmp = fahr[i]->get_besch()->get_max_loading_time();
 		if(tmp > longest)
 		{
 			longest = tmp;
@@ -5531,3 +5551,26 @@ void convoi_t::clear_replace()
 	//Old method (both are functionally equivalent, except for reduction in time. Would be fully equivalent if above was 3 * ...):
 	//return ((float)1 / (1 / (waiting_ticks / 4096.0) * 20) *welt->get_settings().get_distance_per_tile() * 60.0F);
 }
+
+ void convoi_t::calc_current_loading_time(uint16 load_charge)
+ {
+	 if(longest_max_loading_time == longest_min_loading_time || load_charge == 0)
+	 {
+		 current_loading_time = longest_min_loading_time;
+		 return;
+	 }
+
+	 uint16 total_capacity = 0;
+	 for(uint8 i = 0; i < anz_vehikel; i ++)
+	 {
+		total_capacity += fahr[i]->get_besch()->get_zuladung();
+		total_capacity += fahr[i]->get_besch()->get_overcrowded_capacity();
+	 }
+	 // Multiply this by 2, as goods/passengers can both board and alight, so
+	 // the maximum load charge is twice the capacity: all alighting, then all
+	 // boarding.
+	 load_charge *= 2;
+	 const uint16 percentage = (total_capacity * 100) / load_charge;
+	 const uint16 difference = ((longest_max_loading_time - longest_min_loading_time) * percentage) / 100;
+	 current_loading_time = difference + longest_min_loading_time;
+ }

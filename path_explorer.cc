@@ -888,7 +888,6 @@ void path_explorer_t::compartment_t::step()
 						new_connexion->best_line = current_linkage.line;
 						new_connexion->alternative_seats = 0;
 
-						// Adapted from haltestelle_t::add_connexion()
 						// Check whether this is the best connexion so far, and, if so, add it.
 						if( !catg_connexions->put(halt_list[t], new_connexion) )
 						{

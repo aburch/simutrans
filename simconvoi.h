@@ -435,7 +435,9 @@ private:
 	bool reversed;
 
 	uint32 heaviest_vehicle;
-	uint16 longest_loading_time;
+	uint16 longest_min_loading_time;
+	uint16 longest_max_loading_time;
+	uint16 current_loading_time;
 
 	/**
 	 * Time in ticks since this convoy last departed from
@@ -1066,8 +1068,13 @@ public:
 	inline uint32 get_heaviest_vehicle() const { return heaviest_vehicle; }
 	
 	//@author: jamespetts
-	uint16 calc_longest_loading_time();
-	inline uint16 get_longest_loading_time() const { return longest_loading_time; }
+	uint16 calc_longest_min_loading_time();
+	uint16 calc_longest_max_loading_time();
+	inline uint16 get_longest_min_loading_time() const { return longest_min_loading_time; }
+	inline uint16 get_longest_max_loading_time() const { return longest_max_loading_time; }
+
+	void calc_current_loading_time(uint16 load_charge);
+	inline uint16 get_current_loading_time() const { return current_loading_time; }
 
 	// @author: jamespetts
 	// Returns the number of standing passengers (etc.) in this convoy.
