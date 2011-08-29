@@ -2464,9 +2464,12 @@ void convoi_t::vorfahren()
 		while(counter > 0)
 		{
 			uint8 stop = fpl->get_aktuell();
-			bool rev = !fpl->is_mirrored();
+			bool rev = !reverse_schedule;
 			schedule->increment_index(&stop, &rev);
+			const uint8 last_stop = stop;
 			schedule->eintrag[stop].reverse = (state == REVERSING);
+			const bool check_rev = rev;
+			schedule->increment_index(&stop, &rev);
 			counter --;
 			if(counter > 0)
 			{
@@ -3572,8 +3575,8 @@ bool convoi_t::pruefe_alle() //"examine all" (Babelfish)
  */
 void convoi_t::laden() //"load" (Babelfish)
 {
-	//Calculate average speed
-	//@author: jamespetts
+	// Calculate average speed and journey time
+	// @author: jamespetts
 	
 	// This is necessary in order always to return the same pairs of co-ordinates for comparison.
 	const halthandle_t this_halt = welt->get_halt_koord_index(fahr[0]->get_pos().get_2d());
@@ -3611,6 +3614,15 @@ void convoi_t::laden() //"load" (Babelfish)
 				// Book the journey times from all origins served by this convoy,
 				// and for which data are available, to this destination.
 				pair.x = iter.get_current_key();
+
+				halthandle_t TEST_previous_halt;
+				TEST_previous_halt.set_id(pair.x);
+				const char* TEST_previous_halt_name = TEST_previous_halt.is_bound() ? TEST_previous_halt->get_name() : "?";
+
+				halthandle_t TEST_current_halt;
+				TEST_current_halt.set_id(pair.y);
+				const char* TEST_current_halt_name = TEST_current_halt.is_bound() ? TEST_current_halt->get_name() : "?";
+
 				journey_time = welt->ticks_to_tenths_of_minutes(arrival_time - departure_times->get(pair.x));
 				if(!average_journey_times->is_contained(pair))
 				{
@@ -3637,6 +3649,21 @@ void convoi_t::laden() //"load" (Babelfish)
 				}
 			}
 		}
+	}
+
+	uint8 stop = fpl->get_aktuell();
+	bool rev = reverse_schedule;
+	schedule_t* schedule = fpl;
+	schedule->increment_index(&stop, &rev);
+	if(reverse_schedule != rev || fpl->get_aktuell() == 0)
+	{
+		// If this is the end of the schedule, the departure times need to be reset
+		// so as to avoid over-writing good journey time data with data comprising 
+		// the time between the last departure on the previous run to the current
+		// stop, which will give excessively long times.
+			
+		// Must first save and then re-add the last stop.
+		departure_times->clear();
 	}
 		
 	// Recalculate comfort
