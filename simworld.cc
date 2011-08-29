@@ -586,10 +586,14 @@ DBG_MESSAGE("karte_t::destroy()", "towns destroyed");
 
 	display_progress( old_progress, max_display_progress );
 	old_progress += cached_groesse_karte_x*cached_groesse_karte_y;
+#ifndef SYNC_VECTOR
 	while(!sync_list.empty()) {
 		sync_steppable *ss = sync_list.remove_first();
 		delete ss;
 	}
+#else
+	clear_ptr_vector( sync_list );
+#endif
 	// entfernt alle synchronen objekte aus der liste
 	sync_list.clear();
 	display_progress( old_progress, max_display_progress );
@@ -2625,7 +2629,7 @@ bool karte_t::sync_add(sync_steppable *obj)
 		sync_add_list.insert( obj );
 	}
 	else {
-		sync_list.insert( obj );
+		sync_list.append( obj );
 	}
 	return true;
 }
@@ -2670,17 +2674,23 @@ void karte_t::sync_step(long delta_t, bool sync, bool display )
 		// just for progress
 		ticks += delta_t;
 
+#ifndef SYNC_VECTOR
 		// insert new objects created during last sync_step (eg vehicle smoke)
 		if(!sync_add_list.empty()) {
 			sync_list.append_list(sync_add_list);
 		}
+#else
+		while(  !sync_add_list.empty()  ) {
+			sync_list.append( sync_add_list.remove_first() );
+		}
+#endif
 
 		// now remove everything from last time
 		while(!sync_remove_list.empty()) {
-			sync_steppable *ss = sync_remove_list.remove_first();
-			sync_list.remove( ss );
+			sync_list.remove( sync_remove_list.remove_first() );
 		}
 
+#ifndef SYNC_VECTOR
 		for(  slist_tpl<sync_steppable*>::iterator i=sync_list.begin();  !i.end();  ) {
 			// if false, then remove
 			sync_steppable *ss = *i;
@@ -2692,11 +2702,26 @@ void karte_t::sync_step(long delta_t, bool sync, bool display )
 				++i;
 			}
 		}
+#else
+		static vector_tpl<sync_steppable *> sync_list_copy;
+		sync_list_copy.resize( sync_list.get_count() );
+		for(  vector_tpl<sync_steppable*>::const_iterator i=sync_list.begin(), ende=sync_list.end();  i!=ende;  ++i  ) {
+			// if false, then remove
+			sync_steppable *ss = *i;
+			if(!ss->sync_step(delta_t)) {
+				delete ss;
+			}
+			else {
+				sync_list_copy.append( ss );
+			}
+		}
+		swap( sync_list_copy, sync_list );
+		sync_list_copy.clear();
+#endif
 
 		// now remove everything from this time
 		while(!sync_remove_list.empty()) {
-			sync_steppable *ss = sync_remove_list.remove_first();
-			sync_list.remove( ss );
+			sync_list.remove( sync_remove_list.remove_first() );
 		}
 
 		sync_step_running = false;

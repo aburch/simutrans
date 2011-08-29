@@ -203,7 +203,11 @@ private:
 	zeiger_t *zeiger;
 
 	slist_tpl<sync_steppable *> sync_add_list;	// these objects are move to the sync_list (but before next sync step, so they do not interfere!)
+#ifndef SYNC_VECTOR
 	slist_tpl<sync_steppable *> sync_list;
+#else
+	vector_tpl<sync_steppable *> sync_list;
+#endif
 	slist_tpl<sync_steppable *> sync_remove_list;
 
 	vector_tpl<convoihandle_t> convoi_array;
