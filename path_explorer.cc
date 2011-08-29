@@ -758,6 +758,7 @@ void path_explorer_t::compartment_t::step()
 				}
 
 				// precalculate journey times between consecutive halts
+				// This is now only a fallback in case the point to point journey time data are not available.
 				entry_count = halt_list.get_count();	
 				uint16 journey_time = 0;
 				journey_time_list.clear();
@@ -778,7 +779,6 @@ void path_explorer_t::compartment_t::step()
 						else
 						{
 							journey_time = current_linkage.line->average_journey_times->get(pair).get_average();
-							current_linkage.line->average_journey_times->access(pair)->reset();
 						}
 					}
 					else if ( current_linkage.convoy.is_bound() && current_linkage.convoy->average_journey_times->is_contained(pair) )
@@ -791,7 +791,6 @@ void path_explorer_t::compartment_t::step()
 						else
 						{
 							journey_time = current_linkage.convoy->average_journey_times->get(pair).get_average();
-							current_linkage.convoy->average_journey_times->access(pair)->reset();
 						}
 					}
 
@@ -808,9 +807,9 @@ void path_explorer_t::compartment_t::step()
 					
 				}
 				
-
 				journey_time_list[0] = journey_time_list[entry_count];	// copy the last entry to the first entry
 				journey_time_list.remove_at(entry_count);	// remove the last entry
+				
 
 				// rebuild connexions for all halts in halt list
 				// for each origin halt
@@ -851,7 +850,36 @@ void path_explorer_t::compartment_t::step()
 						// Check the journey times to the connexion
 						new_connexion = new haltestelle_t::connexion;
 						new_connexion->waiting_time = halt_list[h]->get_average_waiting_time(halt_list[t], catg);
-						new_connexion->journey_time = accumulated_journey_time;
+						if(current_linkage.line.is_bound())
+						{
+							average_tpl<uint16>* ave = current_linkage.line->average_journey_times->access(id_pair(halt_list[h].get_id(), halt_list[t].get_id()));
+							if(ave && ave->count > 0)
+							{
+								new_connexion->journey_time = ave->get_average();
+								// Reset the data once it has been read once.
+								current_linkage.line->average_journey_times->access(id_pair(halt_list[h].get_id(), halt_list[t].get_id()))->reset();
+							}
+							else
+							{
+								// Fallback - use the old method. This will be an estimate, and a somewhat generous one at that.
+								new_connexion->journey_time = accumulated_journey_time;
+							}
+						}
+						else if(current_linkage.convoy.is_bound())
+						{
+							average_tpl<uint16>* ave = current_linkage.convoy->average_journey_times->access(id_pair(halt_list[h].get_id(), halt_list[t].get_id()));
+							if(ave && ave->count > 0)
+							{
+								new_connexion->journey_time = ave->get_average();
+								// Reset the data once it has been read once.
+								current_linkage.convoy->average_journey_times->access(id_pair(halt_list[h].get_id(), halt_list[t].get_id()))->reset();
+							}
+							else
+							{
+								// Fallback - use the old method. This will be an estimate, and a somewhat generous one at that.
+								new_connexion->journey_time = accumulated_journey_time;
+							}
+						}
 						new_connexion->best_convoy = current_linkage.convoy;
 						new_connexion->best_line = current_linkage.line;
 						new_connexion->alternative_seats = 0;
