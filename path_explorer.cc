@@ -700,7 +700,7 @@ void path_explorer_t::compartment_t::step()
 			quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> *catg_connexions;
 			haltestelle_t::connexion *new_connexion;
 
-			minivec_tpl<average_tpl<uint16> * > averages_to_reset;
+			vector_tpl<average_tpl<uint16> * > averages_to_reset;
 
 			start = dr_time();	// start timing
 
