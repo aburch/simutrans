@@ -27,7 +27,8 @@
 
 using std::string;
 
-settings_frame_t::settings_frame_t(settings_t* const s) : gui_frame_t( translator::translate("Setting") ),
+settings_frame_t::settings_frame_t(settings_t* const s) :
+	gui_frame_t( translator::translate("Setting") ),
 	sets(s),
 	scrolly_general(&general),
 	scrolly_economy(&economy),

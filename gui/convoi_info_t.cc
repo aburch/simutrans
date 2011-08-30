@@ -75,7 +75,7 @@ const char *convoi_info_t::sort_text[SORT_MODES] = {
 
 
 convoi_info_t::convoi_info_t(convoihandle_t cnv)
-:	gui_frame_t(cnv->get_name(), cnv->get_besitzer()),
+:	gui_frame_t( cnv->get_name(), cnv->get_besitzer() ),
 	scrolly(&text),
 	text(&freight_info),
 	view(cnv->front(), koord(max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width() * 7) / 8))),

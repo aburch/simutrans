@@ -236,7 +236,7 @@ bool halt_list_frame_t::passes_filter(halthandle_t halt)
 
 
 halt_list_frame_t::halt_list_frame_t(spieler_t *sp) :
-	gui_frame_t("hl_title", sp),
+	gui_frame_t( translator::translate("hl_title"), sp),
 	vscroll( scrollbar_t::vertical ),
 	sort_label(translator::translate("hl_txt_sort")),
 	filter_label(translator::translate("hl_txt_filter"))

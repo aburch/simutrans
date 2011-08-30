@@ -20,14 +20,11 @@
 #include "../simwin.h"
 #include "../simworld.h"
 #include "../simdepot.h"
-
 #include "../besch/ware_besch.h"
 #include "../bauer/warenbauer.h"
-
+#include "../dataobj/translator.h"
 #include "../player/simplay.h"
-
 #include "../utils/simstring.h"
-
 #include "../vehicle/simvehikel.h"
 
  /**
@@ -199,7 +196,7 @@ void convoi_frame_t::sort_list()
 
 
 convoi_frame_t::convoi_frame_t(spieler_t* sp) :
-	gui_frame_t("cl_title", sp),
+	gui_frame_t( translator::translate("cl_title"), sp),
 	owner(sp),
 	vscroll( scrollbar_t::vertical ),
 	sort_label("cl_txt_sort"),

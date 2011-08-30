@@ -68,7 +68,7 @@
 
 
 color_gui_t::color_gui_t(karte_t *welt) :
-	gui_frame_t("Helligk. u. Farben")
+gui_frame_t( translator::translate("Helligk. u. Farben") )
 {
 	this->welt = welt;
 

@@ -76,7 +76,8 @@
 #include <time.h>
 
 
-welt_gui_t::welt_gui_t(karte_t* const welt, settings_t* const sets) : gui_frame_t("Neue Welt")
+welt_gui_t::welt_gui_t(karte_t* const welt, settings_t* const sets) :
+	gui_frame_t( translator::translate("Neue Welt" ) )
 {
 DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struct tm) );
 	this->welt = welt;
@@ -520,6 +521,7 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 
 	if(old_lang!=translator::get_language()) {
 		// update button texts!
+		set_name( translator::translate( "Neue Welt" ) );
 		random_map.set_text("Random map");
 		random_map.set_tooltip("chooses a random map");
 		load_map.set_text("Lade Relief");

@@ -77,7 +77,7 @@ help_frame_t::help_frame_t() :
 
 
 help_frame_t::help_frame_t(char const* const filename) :
-	gui_frame_t("Help"),
+	gui_frame_t( translator::translate("Help") ),
 	scrolly(&flow)
 {
 	// the key help texts are built automagically

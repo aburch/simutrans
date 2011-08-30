@@ -39,7 +39,7 @@ karte_t *convoi_detail_t::welt = NULL;
 
 
 convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
-: gui_frame_t(cnv->get_name(), cnv->get_besitzer()),
+: gui_frame_t( cnv->get_name(), cnv->get_besitzer() ),
   scrolly(&veh_info),
   veh_info(cnv)
 {
