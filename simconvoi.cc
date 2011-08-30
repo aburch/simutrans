@@ -3615,12 +3615,23 @@ void convoi_t::laden() //"load" (Babelfish)
 		{
 			book(average_speed, CONVOI_AVERAGE_SPEED);
 
-			inthashtable_iterator_tpl<uint16, sint64> iter(departure_times);
-			while(iter.next())
+			bool reverse = !reverse_schedule;
+			uint8 current_stop = fpl->get_aktuell();
+
+			fpl->increment_index(&current_stop, &reverse);
+			pair.x = welt->lookup(fpl->eintrag[current_stop].pos)->get_halt().get_id();
+
+			while(pair.x != pair.y)
 			{
 				// Book the journey times from all origins served by this convoy,
 				// and for which data are available, to this destination.
-				pair.x = iter.get_current_key();
+
+				if(!departure_times->is_contained(pair.x))
+				{
+					fpl->increment_index(&current_stop, &reverse);
+					pair.x = welt->lookup(fpl->eintrag[current_stop].pos)->get_halt().get_id();
+					continue;
+				}
 
 				journey_time = welt->ticks_to_tenths_of_minutes(arrival_time - departure_times->get(pair.x));
 				if(!average_journey_times->is_contained(pair))
@@ -3646,14 +3657,16 @@ void convoi_t::laden() //"load" (Babelfish)
 						line->average_journey_times->access(pair)->add(journey_time);
 					}
 				}
+
+				fpl->increment_index(&current_stop, &reverse);
+				pair.x = welt->lookup(fpl->eintrag[current_stop].pos)->get_halt().get_id();
 			}
 		}
 	}
 
 	uint8 stop = fpl->get_aktuell();
 	bool rev = reverse_schedule;
-	schedule_t* schedule = fpl;
-	schedule->increment_index(&stop, &rev);
+	fpl->increment_index(&stop, &rev);
 	if(reverse_schedule != rev || fpl->get_aktuell() == 0)
 	{
 		// If this is the end of the schedule, the departure times need to be reset
