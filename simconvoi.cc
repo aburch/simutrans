@@ -3622,14 +3622,6 @@ void convoi_t::laden() //"load" (Babelfish)
 				// and for which data are available, to this destination.
 				pair.x = iter.get_current_key();
 
-				halthandle_t TEST_previous_halt;
-				TEST_previous_halt.set_id(pair.x);
-				const char* TEST_previous_halt_name = TEST_previous_halt.is_bound() ? TEST_previous_halt->get_name() : "?";
-
-				halthandle_t TEST_current_halt;
-				TEST_current_halt.set_id(pair.y);
-				const char* TEST_current_halt_name = TEST_current_halt.is_bound() ? TEST_current_halt->get_name() : "?";
-
 				journey_time = welt->ticks_to_tenths_of_minutes(arrival_time - departure_times->get(pair.x));
 				if(!average_journey_times->is_contained(pair))
 				{
