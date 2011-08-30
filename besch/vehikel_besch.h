@@ -674,7 +674,7 @@ public:
 
 	sint64 seconds_to_ticks(uint32 seconds, uint16 meters_per_tile) const
 	{
-		return (seconds / (uint32)meters_per_tile) * 22756L;
+		return ((sint64)seconds * 22764L) / (sint64)(meters_per_tile);
 	}
 };
 

@@ -420,7 +420,8 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->increase_maintenance_by_percent = 0;
 		besch->years_before_maintenance_max_reached = 0;
 		besch->livery_image_type = 0;
-		besch->min_loading_time_seconds = besch->max_loading_time_seconds = 65535;
+		besch->min_loading_time_seconds = 20;
+		besch->max_loading_time_seconds = 60;
 	}
 	besch->set_way_constraints(way_constraints);
 
