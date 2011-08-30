@@ -3621,7 +3621,9 @@ void convoi_t::laden() //"load" (Babelfish)
 			fpl->increment_index(&current_stop, &reverse);
 			pair.x = welt->lookup(fpl->eintrag[current_stop].pos)->get_halt().get_id();
 
-			while(pair.x != pair.y)
+			const uint8 starting_stop = current_stop;
+
+			do
 			{
 				// Book the journey times from all origins served by this convoy,
 				// and for which data are available, to this destination.
@@ -3661,6 +3663,7 @@ void convoi_t::laden() //"load" (Babelfish)
 				fpl->increment_index(&current_stop, &reverse);
 				pair.x = welt->lookup(fpl->eintrag[current_stop].pos)->get_halt().get_id();
 			}
+			while(starting_stop != current_stop && pair.x != pair.y);
 		}
 	}
 
