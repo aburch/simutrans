@@ -701,6 +701,7 @@ void path_explorer_t::compartment_t::step()
 			haltestelle_t::connexion *new_connexion;
 
 			vector_tpl<average_tpl<uint16> * > averages_to_reset;
+			average_tpl<uint16>* ave;
 
 			start = dr_time();	// start timing
 
@@ -856,7 +857,7 @@ void path_explorer_t::compartment_t::step()
 						new_connexion->waiting_time = halt_list[h]->get_average_waiting_time(halt_list[t], catg);
 						if(current_linkage.line.is_bound())
 						{
-							average_tpl<uint16>* ave = current_linkage.line->average_journey_times->access(id_pair(halt_list[h].get_id(), halt_list[t].get_id()));
+							ave = current_linkage.line->average_journey_times->access(id_pair(halt_list[h].get_id(), halt_list[t].get_id()));
 							if(ave && ave->count > 0)
 							{
 								new_connexion->journey_time = ave->get_average();
