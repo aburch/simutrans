@@ -17,7 +17,7 @@ bool signal_spacing_frame_t::remove = true;
 bool signal_spacing_frame_t::replace = true;
 
 signal_spacing_frame_t::signal_spacing_frame_t(spieler_t *sp_, wkz_roadsign_t* tool_) :
-	gui_frame_t("set signal spacing"),
+	gui_frame_t( translator::translate("set signal spacing") ),
 	signal_label("signal spacing")
 {
 	sp = sp_;

@@ -64,7 +64,7 @@ void help_frame_t::set_text(const char * buf)
 
 
 help_frame_t::help_frame_t() :
-	gui_frame_t("Help"),
+	gui_frame_t( translator::translate("Help") ),
 	scrolly(&flow)
 {
 	set_text("<title>Unnamed</title><p>No text set</p>");

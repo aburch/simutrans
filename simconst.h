@@ -51,6 +51,9 @@
 // define this for automaticcally joining stations next to a public stop with it
 //#define AUTOJOIN_PUBLIC
 
+// vector_tpl can be faster for sync_lists
+#define SYNC_VECTOR
+
 /*********************** Useful things for debugging ... ********************/
 
 /* will highlite marked areas and convoi will leave traces */

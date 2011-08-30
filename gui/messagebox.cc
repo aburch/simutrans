@@ -14,7 +14,7 @@
 
 
 news_window::news_window(const char* t, PLAYER_COLOR_VAL title_color) :
-	gui_frame_t("Meldung"),
+	gui_frame_t( translator::translate("Meldung" ) ),
 	textarea(&buf, 160),
 	color(title_color)
 {
@@ -66,6 +66,13 @@ news_loc::news_loc(karte_t* welt, const char* text, koord k, PLAYER_COLOR_VAL co
 	view(welt, welt->lookup_kartenboden(k)->get_pos(), koord( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width()*7)/8) ))
 {
 	extend_window_with_component(&view, view.get_groesse());
+}
+
+
+// returns position of depot on the map
+koord3d news_loc::get_weltpos()
+{
+	return view.get_location();
 }
 
 

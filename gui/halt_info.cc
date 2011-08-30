@@ -88,7 +88,7 @@ const int cost_type_color[MAX_HALT_COST] =
 };
 
 halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt) :
-		gui_frame_t(halt->get_name(), halt->get_besitzer()),
+		gui_frame_t( halt->get_name(), halt->get_besitzer() ),
 		scrolly(&text),
 		text(&freight_info),
 		sort_label(translator::translate("Hier warten/lagern:")),
@@ -175,6 +175,12 @@ halt_info_t::~halt_info_t()
 		// since init always returns false, it is save to delete immediately
 		delete w;
 	}
+}
+
+
+koord3d halt_info_t::get_weltpos()
+{
+	return halt->get_basis_pos3d();
 }
 
 

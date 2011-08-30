@@ -33,7 +33,7 @@ karte_t *ki_kontroll_t::welt = NULL;
 
 
 ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
-	gui_frame_t("Spielerliste")
+	gui_frame_t( translator::translate("Spielerliste") )
 {
 	this->welt = wl;
 

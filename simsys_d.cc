@@ -164,6 +164,7 @@ static int my_keyboard_callback(int this_key, int* scancode)
 
 		case KEY_ENTER_PAD: this_key =  13; break;
 		case KEY_DEL:       this_key = 127; break;
+		case KEY_PAUSE:     this_key =  16; break;
 
 		case KEY_LSHIFT:
 		case KEY_RSHIFT:

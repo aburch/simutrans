@@ -16,7 +16,6 @@ class location_view_t : public world_view_t
 
 		void zeichnen(koord offset) { internal_draw(offset, 0); }
 
-	protected:
 		koord3d get_location() { return location; }
 
 	private:

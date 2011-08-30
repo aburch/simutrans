@@ -56,7 +56,7 @@ const char *goods_frame_t::sort_text[SORT_MODES] = {
 
 
 goods_frame_t::goods_frame_t(karte_t *wl) :
-	gui_frame_t("gl_title"),
+	gui_frame_t( translator::translate("gl_title") ),
 	sort_label(translator::translate("hl_txt_sort")),
 	change_speed_label(speed_bonus,COL_WHITE,gui_label_t::right),
 	change_distance_label(distance_txt,COL_WHITE,gui_label_t::right),

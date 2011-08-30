@@ -16,6 +16,8 @@
 #include "../simgraph.h"
 #include "gui_container.h"
 #include "../simcolor.h"
+#include "../dataobj/koord3d.h"
+#include "../dataobj/translator.h"
 
 // height of titlebar
 #define TITLEBAR_HEIGHT (16)
@@ -107,7 +109,7 @@ public:
 	 * setzt den Namen (Fenstertitel)
 	 * @author Hj. Malthaner
 	 */
-	void set_name(const char *name) { this->name=name; }
+	void set_name(const char *name);
 
 	/* this returns an unique id, if the dialoge can be saved
 	 * if this is defined, you better define a matching constructor with karte_t * and loadsave_t *
@@ -188,6 +190,9 @@ public:
 
 	// if false, title and all gadgets will be not drawn
 	virtual bool has_title() const { return true; }
+
+	// position of a connected thing on the map
+	virtual koord3d get_weltpos() { return koord3d::invalid; }
 
 	/**
 	 * Set resize mode

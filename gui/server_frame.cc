@@ -26,7 +26,7 @@
 
 
 server_frame_t::server_frame_t(karte_t* w) :
-	gui_frame_t("Game info"),
+	gui_frame_t( translator::translate("Game info") ),
 	welt(w),
 	gi(welt)
 {

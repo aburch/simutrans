@@ -60,7 +60,7 @@ private:
 public:
 	stadt_info_t(stadt_t *stadt);
 
-	~stadt_info_t();
+	virtual ~stadt_info_t();
 
 	/**
 	 * Manche Fenster haben einen Hilfetext assoziiert.
@@ -68,6 +68,8 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	const char *get_hilfe_datei() const {return "citywindow.txt";}
+
+	virtual koord3d get_weltpos();
 
 	/**
 	* komponente neu zeichnen. Die übergebenen Werte beziehen sich auf

@@ -37,6 +37,8 @@ protected:
 public:
 	grund_info_t(const grund_t* gr);
 
+	virtual koord3d get_weltpos();
+
 	void zeichnen(koord pos, koord gr);
 
 	virtual void map_rotate90( sint16 );

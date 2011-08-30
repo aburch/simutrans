@@ -11,6 +11,8 @@
 #include "../simwin.h"
 #include "../simworld.h"
 
+#include "../dataobj/translator.h"
+
 #include "../utils/cbuffer_t.h"
 #include "../utils/sha1.h"
 #include "../utils/simstring.h"
@@ -23,7 +25,7 @@
 
 
 password_frame_t::password_frame_t( spieler_t *sp ) :
-	gui_frame_t("Enter Password",sp)
+	gui_frame_t( translator::translate("Enter Password"), sp )
 {
 	this->sp = sp;
 
