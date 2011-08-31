@@ -5579,7 +5579,7 @@ void convoi_t::clear_replace()
 	 // the maximum load charge is twice the capacity: all alighting, then all
 	 // boarding.
 	 load_charge *= 2;
-	 const uint16 percentage = (total_capacity * 100) / load_charge;
+	 const uint16 percentage = (load_charge * 100) / total_capacity;
 	 const uint16 difference = ((longest_max_loading_time - longest_min_loading_time) * percentage) / 100;
 	 current_loading_time = difference + longest_min_loading_time;
  }
