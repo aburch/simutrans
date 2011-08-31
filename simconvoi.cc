@@ -2289,6 +2289,7 @@ void convoi_t::vorfahren()
 	uint16 reverse_delay = 0;
 
 	recalc_data = true;
+	recalc_brake_soll = true;
 
 	koord3d k0 = route.front();
 	grund_t *gr = welt->lookup(k0);
