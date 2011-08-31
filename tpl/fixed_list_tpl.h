@@ -16,11 +16,11 @@
 #define TPL_FIXED_LIST_H
 
 #ifndef ITERATE
-#define ITERATE(collection,enumerator) for(uint16 enumerator = 0; enumerator < (collection).get_count(); enumerator++)
+#define ITERATE(collection,enumerator) for(int enumerator = 0; enumerator < (collection).get_count(); enumerator++)
 #endif
 
 #ifndef ITERATE_PTR
-#define ITERATE_PTR(collection,enumerator) for(uint16 enumerator = 0; enumerator < (collection)->get_count(); enumerator++)
+#define ITERATE_PTR(collection,enumerator) for(int enumerator = 0; enumerator < (collection)->get_count(); enumerator++)
 #endif 
 
 #include <typeinfo>
