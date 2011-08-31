@@ -700,8 +700,8 @@ void path_explorer_t::compartment_t::step()
 			quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> *catg_connexions;
 			haltestelle_t::connexion *new_connexion;
 
-			vector_tpl<average_tpl<uint16> * > averages_to_reset;
-			average_tpl<uint16>* ave;
+			vector_tpl<convoihandle_t> convoys_to_reset;
+			vector_tpl<linehandle_t> lines_to_reset;
 
 			start = dr_time();	// start timing
 
@@ -857,12 +857,13 @@ void path_explorer_t::compartment_t::step()
 						new_connexion->waiting_time = halt_list[h]->get_average_waiting_time(halt_list[t], catg);
 						if(current_linkage.line.is_bound())
 						{
-							ave = current_linkage.line->average_journey_times->access(id_pair(halt_list[h].get_id(), halt_list[t].get_id()));
+							average_tpl<uint16>* ave = current_linkage.line->average_journey_times->access(id_pair(halt_list[h].get_id(), halt_list[t].get_id()));
 							if(ave && ave->count > 0)
 							{
 								new_connexion->journey_time = ave->get_average();
 								// Reset the data once they have been read once.
-								averages_to_reset.append(ave);
+								lines_to_reset.append(new_connexion->best_line);
+								convoys_to_reset.append(new_connexion->best_convoy);
 							}
 							else
 							{
@@ -877,7 +878,7 @@ void path_explorer_t::compartment_t::step()
 							{
 								new_connexion->journey_time = ave->get_average();
 								// Reset the data once they have been read once.
-								averages_to_reset.append(ave);
+								convoys_to_reset.append(new_connexion->best_convoy);
 							}
 							else
 							{
@@ -983,10 +984,24 @@ void path_explorer_t::compartment_t::step()
 
 			iterations = 0;	// reset iteration counter
 
-			ITERATE(averages_to_reset, n)
+			ITERATE(lines_to_reset, n)
 			{
-				averages_to_reset.get_element(n)->reset();
+				if(lines_to_reset[n].is_bound())
+				{
+					lines_to_reset[n]->average_journey_times->clear();
+				}
 			}
+
+			lines_to_reset.clear();
+
+			ITERATE(convoys_to_reset, m)
+			{
+				if(convoys_to_reset[m].is_bound())
+				{
+					convoys_to_reset[m]->average_journey_times->clear();
+				}
+			}
+			convoys_to_reset.clear();
 
 #ifndef DEBUG_EXPLORER_SPEED
 			return;
