@@ -35,10 +35,6 @@
 #define DIALOG_WIDTH (360)
 
 
-// we need this trick, with the function pointer.
-// Since during initialisations virtual functions do not work yet
-// in derived classes (since the object in question is not full initialized yet)
-// this functions returns true for files to be added.
 savegame_frame_t::savegame_frame_t(const char *suffix, const char *path, bool only_directories ) :
 gui_frame_t( translator::translate("Load/Save") ),
 	input(),
@@ -48,7 +44,6 @@ gui_frame_t( translator::translate("Load/Save") ),
 	this->suffix = suffix;
 	this->fullpath = path;
 	this->only_directories = only_directories;
-	use_pak_extension = suffix==NULL  ||  strcmp( suffix, ".sve" )==0;
 	in_action = false;
 
 	// both NULL is not acceptable
@@ -303,14 +298,20 @@ bool savegame_frame_t::action_triggered( gui_action_creator_t *komp, value_t /* 
 	if(komp == &input || komp == &savebutton) {
 		// Save/Load Button or Enter-Key pressed
 		//---------------------------------------
-
 		if (strstr(ibuf,"net:")==ibuf) {
 			tstrncpy(buf,ibuf,lengthof(buf));
 		}
 		else {
-			tstrncpy(buf, SAVE_PATH_X, lengthof(buf));
+			if(fullpath) {
+				tstrncpy(buf, fullpath, lengthof(buf));
+			}
+			else {
+				buf[0] = 0;
+			}
 			strcat(buf, ibuf);
-			strcat(buf, suffix);
+			if (suffix) {
+				strcat(buf, suffix);
+			}
 		}
 		set_focus( NULL );
 		action(buf);
@@ -335,7 +336,7 @@ bool savegame_frame_t::action_triggered( gui_action_creator_t *komp, value_t /* 
 					tstrncpy(buf, fullpath, lengthof(buf));
 				}
 				strcat(buf, i->button->get_text());
-				if(fullpath) {
+				if(suffix) {
 					strcat(buf, suffix);
 				}
 

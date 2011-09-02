@@ -23,7 +23,7 @@ void scenario_frame_t::action(const char *filename)
 {
 	scenario_t scn(welt);
 	char path[1024], path2[1024];
-	sprintf( path, "%s%sscenario/%s.tab", umgebung_t::program_dir, umgebung_t::objfilename.c_str(), filename );
+	sprintf( path, "%s%sscenario/%s", umgebung_t::program_dir, umgebung_t::objfilename.c_str(), filename );
 	scn.init( path, welt );
 	sprintf( path2, "%s%sscenario/%s", umgebung_t::program_dir, umgebung_t::objfilename.c_str(), scn.get_filename() );
 	welt->laden( path2 );

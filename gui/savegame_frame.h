@@ -34,9 +34,6 @@ private:
 	// search for directories (pak_selector gui)
 	bool only_directories;
 
-	// true, if there is additional information, i.e. loading a game
-	bool use_pak_extension;
-
 	// to avoid double mouse action
 	bool in_action;
 
