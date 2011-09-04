@@ -57,4 +57,8 @@ template<typename T, typename U> T const& pick_any_weighted_subset(U const& cont
 	return container.at_weight(simrand(container.get_sum_weight()));
 }
 
+
+// compute integer log10
+uint32 log10(uint32 v);
+
 #endif

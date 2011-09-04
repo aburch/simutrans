@@ -1526,11 +1526,12 @@ void stadt_t::neuer_monat( bool recalc_destinations )
 		recalc_target_attractions();
 	}
 
-	if (!stadtauto_t::list_empty()) {
+	if (!stadtauto_t::list_empty()  &&  s.get_verkehr_level()>0) {
 		// spawn eventuall citycars
 		// the more transported, the less are spawned
 		// the larger the city, the more spawned ...
 
+		/* original implementation that is replaced by integer-only version below
 		double pfactor = (double)(city_history_month[1][HIST_PAS_TRANSPORTED]) / (double)(city_history_month[1][HIST_PAS_GENERATED]+1);
 		double mfactor = (double)(city_history_month[1][HIST_MAIL_TRANSPORTED]) / (double)(city_history_month[1][HIST_MAIL_GENERATED]+1);
 		double gfactor = (double)(city_history_month[1][HIST_GOODS_RECIEVED]) / (double)(city_history_month[1][HIST_GOODS_NEEDED]+1);
@@ -1538,7 +1539,24 @@ void stadt_t::neuer_monat( bool recalc_destinations )
 		double factor = pfactor > mfactor ? (gfactor > pfactor ? gfactor : pfactor ) : mfactor;
 		factor = (1.0-factor)*city_history_month[1][HIST_CITICENS];
 		factor = log10( factor );
-		uint16 number_of_cars = simrand((uint16)(factor * s.get_verkehr_level())) / 16;
+		*/
+
+		// placeholder for fractions
+#		define decl_stat(name, i0, i1) sint64 name##_stat[2]; name##_stat[0] = city_history_month[1][i0];  name##_stat[1] = city_history_month[1][i1]+1;
+		// defines and initializes local sint64[2] arrays
+		decl_stat(pax, HIST_PAS_TRANSPORTED, HIST_PAS_GENERATED);
+		decl_stat(mail, HIST_MAIL_TRANSPORTED, HIST_MAIL_GENERATED);
+		decl_stat(good, HIST_GOODS_RECIEVED, HIST_GOODS_NEEDED);
+
+		// true if s1[0] / s1[1] > s2[0] / s2[1]
+#		define comp_stats(s1,s2) ( s1[0]*s2[1] > s2[0]*s1[1] )
+		// computes (1.0 - s[0]/s[1]) * city_history_month[1][HIST_CITICENS]
+#		define comp_factor(s) (city_history_month[1][HIST_CITICENS] *( s[1]-s[0] )) / s[1]
+
+		uint32 factor = comp_stats(pax_stat, mail_stat) ? (comp_stats(good_stat, pax_stat) ? comp_factor(good_stat) : comp_factor(pax_stat)) : comp_factor(mail_stat);
+		factor = log10(factor);
+
+		uint16 number_of_cars = simrand( factor * s.get_verkehr_level() ) / 16;
 
 		city_history_month[0][HIST_CITYCARS] = number_of_cars;
 		city_history_year[0][HIST_CITYCARS] += number_of_cars;
