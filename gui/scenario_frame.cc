@@ -13,6 +13,7 @@
 
 #include "../dataobj/umgebung.h"
 #include "../dataobj/scenario.h"
+#include "../dataobj/translator.h"
 
 
 /**
@@ -37,7 +38,7 @@ void scenario_frame_t::action(const char *filename)
 scenario_frame_t::scenario_frame_t(karte_t *welt) : savegame_frame_t(".tab","./")
 {
 	this->welt = welt;
-	set_name("Load scenario");
+	set_name(translator::translate("Load scenario"));
 	set_focus(NULL);
 }
 
