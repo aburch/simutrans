@@ -3059,7 +3059,65 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int s
 		return false;
 	}
 
-	assert( anz_vehikel>0 );
+	if(  other_speed == 0  ) {
+		/* overtaking a loading convoi
+		 * => we can do a lazy check, since halts are always straight
+		 */
+		grund_t *gr = welt->lookup(get_pos());
+		if(  gr==NULL  ) {
+			// should never happen, since there is a vehcile in front of us ...
+			return false;
+		}
+		weg_t *str = gr->get_weg(road_wt);
+		if(  str==0  ) {
+			// also this is not possible, since a car loads in front of is!?!
+			return false;
+		}
+
+		uint16 idx = fahr[0]->get_route_index();
+		const sint32 tiles = (steps_other-1)/(CARUNITS_PER_TILE*VEHICLE_STEPS_PER_CARUNIT) + get_tile_length() + 1;
+		if(  idx+tiles >= route.get_count()  ) {
+			// needs more space than there
+			return false;
+		}
+
+		for(  sint32 i=0;  i<tiles;  i++  ) {
+			grund_t *gr = welt->lookup( route.position_bei( idx+i ) );
+			if(  gr==NULL  ) {
+				return false;
+			}
+			weg_t *str = gr->get_weg(road_wt);
+			if(  str==0  ) {
+				return false;
+			}
+			// not overtaking on railroad crossings or normal crossings ...
+			if(  str->is_crossing() ) {
+				return false;
+			}
+			if(  ribi_t::is_threeway(str->get_ribi())  ) {
+				return false;
+			}
+			// Check for other vehicles on the next tile
+			const uint8 top = gr->get_top();
+			for(  uint8 j=1;  j<top;  j++  ) {
+				if(  vehikel_basis_t* const v = ding_cast<vehikel_basis_t>(gr->obj_bei(j))  ) {
+					// check for other traffic on the road
+					const overtaker_t *ov = v->get_overtaker();
+					if(ov) {
+						if(this!=ov  &&  other_overtaker!=ov) {
+							return false;
+						}
+					}
+					else if(  v->get_waytype()==road_wt  &&  v->get_typ()!=ding_t::fussgaenger  ) {
+						return false;
+					}
+				}
+			}
+		}
+		convoi_t *ocnv = dynamic_cast<convoi_t *>(other_overtaker);
+		set_tiles_overtaking( 2 + ocnv->get_length()/CARUNITS_PER_TILE + get_length()/CARUNITS_PER_TILE );
+		return true;
+	}
 
 	int diff_speed = akt_speed - other_speed;
 	if(  diff_speed < kmh_to_speed(5)  ) {

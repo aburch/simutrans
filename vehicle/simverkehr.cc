@@ -979,12 +979,12 @@ bool stadtauto_t::can_overtake( overtaker_t *other_overtaker, int other_speed, i
 			}
 			check_pos += koord(direction);
 		}
-		set_tiles_overtaking( 2+(steps_other-1)/(CARUNITS_PER_TILE*VEHICLE_STEPS_PER_CARUNIT) );
+		set_tiles_overtaking( 3+(steps_other-1)/(CARUNITS_PER_TILE*VEHICLE_STEPS_PER_CARUNIT) );
 		return true;
 	}
 
 	sint32 diff_speed = (sint32)current_speed - other_speed;
-	if(  other_speed == 0  &&  diff_speed < kmh_to_speed(5)  ) {
+	if(  diff_speed < kmh_to_speed(5)  ) {
 		// not fast enough to overtake
 		return false;
 	}
