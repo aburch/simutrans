@@ -20,6 +20,7 @@
 	ADD: traffic light phasing adjustment
 	ADD: break (pause) button now internally handled as ASCII 16 (^P)
 	ADD: koordinate display and goto button for almost any non-moving thing on the map
+	ADD: loading convois will be overtaken
 
 
 Release of 110.0.1 (r4359 on 12-Mar-2011):
