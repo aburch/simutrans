@@ -419,14 +419,14 @@ bool stadtauto_t::sync_step(long delta_t)
 		// stuck in traffic jam
 		uint32 old_ms_traffic_jam = ms_traffic_jam;
 		ms_traffic_jam += delta_t;
-		if((ms_traffic_jam>>7)!=(old_ms_traffic_jam>>7)) {
+		if(  (ms_traffic_jam>>7) != (old_ms_traffic_jam>>7  )) {
 			pos_next_next = koord3d::invalid;
-			if(hop_check()) {
+			if(  hop_check(  )) {
 				ms_traffic_jam = 0;
 				current_speed = 48;
 			}
 			else {
-				if(ms_traffic_jam>welt->ticks_per_world_month  &&  old_ms_traffic_jam<=welt->ticks_per_world_month) {
+				if(  ms_traffic_jam > welt->ticks_per_world_month  &&  old_ms_traffic_jam<=welt->ticks_per_world_month  ) {
 					// message after two month, reset waiting timer
 					welt->get_message()->add_message( translator::translate("To heavy traffic\nresults in traffic jam.\n"), get_pos().get_2d(), message_t::traffic_jams, COL_ORANGE );
 				}
@@ -520,7 +520,6 @@ void stadtauto_t::rdwr(loadsave_t *file)
 }
 
 
-
 bool stadtauto_t::ist_weg_frei(grund_t *gr)
 {
 	if(gr->get_top()>200) {
@@ -587,13 +586,13 @@ bool stadtauto_t::ist_weg_frei(grund_t *gr)
 						if(over) {
 							if(!over->is_overtaking()) {
 								// otherwise the overtaken car would stop for us ...
-								if (automobil_t const* const car = ding_cast<automobil_t>(dt)) {
+								if(  automobil_t const* const car = ding_cast<automobil_t>(dt)  ) {
 									convoi_t* const cnv = car->get_convoi();
-									if(  cnv==NULL  ||  !can_overtake( cnv, cnv->get_min_top_speed(), cnv->get_length_in_steps(), diagonal_vehicle_steps_per_tile)  ) {
+									if(  cnv==NULL  ||  !can_overtake( cnv, (cnv->get_state()==convoi_t::LOADING ? 0 : cnv->get_min_top_speed()), cnv->get_length_in_steps(), diagonal_vehicle_steps_per_tile)  ) {
 										frei = false;
 									}
-								} else if (stadtauto_t* const caut = ding_cast<stadtauto_t>(dt)) {
-									if ( !can_overtake(caut, caut->get_besch()->get_geschw(), VEHICLE_STEPS_PER_TILE, diagonal_vehicle_steps_per_tile) ) {
+								} else if(  stadtauto_t* const caut = ding_cast<stadtauto_t>(dt)  ) {
+									if(  !can_overtake(caut, caut->get_besch()->get_geschw(), VEHICLE_STEPS_PER_TILE, diagonal_vehicle_steps_per_tile)  ) {
 										frei = false;
 									}
 								}
@@ -672,9 +671,7 @@ bool stadtauto_t::ist_weg_frei(grund_t *gr)
 }
 
 
-
-void
-stadtauto_t::betrete_feld()
+void stadtauto_t::betrete_feld()
 {
 #ifdef DESTINATION_CITYCARS
 	if(target!=koord::invalid  &&  koord_distance(pos_next.get_2d(),target)<10) {
@@ -925,14 +922,70 @@ void stadtauto_t::get_screen_offset( int &xoff, int &yoff, const sint16 raster_w
  * The city car is not overtaking/being overtaken.
  * @author isidoro
  */
-bool stadtauto_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int steps_other, int diagonal_vehicle_steps_per_tile)
+bool stadtauto_t::can_overtake( overtaker_t *other_overtaker, int other_speed, int steps_other, int diagonal_vehicle_steps_per_tile)
 {
-	if(!other_overtaker->can_be_overtaken()) {
+	if(  !other_overtaker->can_be_overtaken()  ) {
 		return false;
 	}
 
+	if(  other_speed == 0  ) {
+		/* overtaking a loading convoi
+		 * => we can do a lazy check, since halts are always straight
+		 */
+		grund_t *gr = welt->lookup(get_pos());
+		if(  gr==NULL  ) {
+			// should never happen, since there is a vehcile in front of us ...
+			return false;
+		}
+		weg_t *str = gr->get_weg(road_wt);
+		if(  str==0  ) {
+			// also this is not possible, since a car loads in front of is!?!
+			return false;
+		}
+
+		const ribi_t::ribi direction = get_fahrtrichtung() & str->get_ribi();
+		koord3d check_pos = get_pos()+koord((ribi_t::ribi)(str->get_ribi()&direction));
+		for(  int tiles=1+(steps_other-1)/(CARUNITS_PER_TILE*VEHICLE_STEPS_PER_CARUNIT);  tiles>=0;  tiles--  ) {
+			grund_t *gr = welt->lookup(check_pos);
+			if(  gr==NULL  ) {
+				return false;
+			}
+			weg_t *str = gr->get_weg(road_wt);
+			if(  str==0  ) {
+				return false;
+			}
+			// not overtaking on railroad crossings ...
+			if(  str->is_crossing() ) {
+				return false;
+			}
+			if(  ribi_t::is_threeway(str->get_ribi())  ) {
+				return false;
+			}
+			// Check for other vehicles on the next tile
+			const uint8 top = gr->get_top();
+			for(  uint8 j=1;  j<top;  j++  ) {
+				if(  vehikel_basis_t* const v = ding_cast<vehikel_basis_t>(gr->obj_bei(j))  ) {
+					// check for other traffic on the road
+					const overtaker_t *ov = v->get_overtaker();
+					if(ov) {
+						if(this!=ov  &&  other_overtaker!=ov) {
+							return false;
+						}
+					}
+					else if(  v->get_waytype()==road_wt  &&  v->get_typ()!=ding_t::fussgaenger  ) {
+						return false;
+					}
+				}
+			}
+			check_pos += koord(direction);
+		}
+		set_tiles_overtaking( 2+(steps_other-1)/(CARUNITS_PER_TILE*VEHICLE_STEPS_PER_CARUNIT) );
+		return true;
+	}
+
 	sint32 diff_speed = (sint32)current_speed - other_speed;
-	if(  diff_speed < kmh_to_speed(5)  ) {
+	if(  other_speed == 0  &&  diff_speed < kmh_to_speed(5)  ) {
+		// not fast enough to overtake
 		return false;
 	}
 
@@ -944,8 +997,8 @@ bool stadtauto_t::can_overtake(overtaker_t *other_overtaker, int other_speed, in
 	 * tiles_to_overtake = convoi_length + pos_other_convoi
 	 * convoi_length for city cars? ==> a bit over half a tile (10)
 	 */
-	sint32 distance = current_speed*((10<<4)+steps_other)/max(besch->get_geschw()-other_speed,diff_speed);
 	sint32 time_overtaking = 0;
+	sint32 distance = current_speed*((10<<4)+steps_other)/max(besch->get_geschw()-other_speed,diff_speed);
 
 	// Conditions for overtaking:
 	// Flat tiles, with no stops, no crossings, no signs, no change of road speed limit
@@ -1035,8 +1088,8 @@ bool stadtauto_t::can_overtake(overtaker_t *other_overtaker, int other_speed, in
 
 		// Check for other vehicles on the next tile
 		const uint8 top = gr->get_top();
-		for(  uint8 j=1;  j<top;  j++ ) {
-			if (vehikel_basis_t* const v = ding_cast<vehikel_basis_t>(gr->obj_bei(j))) {
+		for(  uint8 j=1;  j<top;  j++  ) {
+			if(  vehikel_basis_t* const v = ding_cast<vehikel_basis_t>(gr->obj_bei(j))  ) {
 				// check for other traffic on the road
 				const overtaker_t *ov = v->get_overtaker();
 				if(ov) {
@@ -1108,7 +1161,7 @@ bool stadtauto_t::can_overtake(overtaker_t *other_overtaker, int other_speed, in
 		const uint8 top = gr->get_top();
 		for(  uint8 j=1;  j<top;  j++ ) {
 			vehikel_basis_t* const v = ding_cast<vehikel_basis_t>(gr->obj_bei(j));
-			if (v && v->get_fahrtrichtung() == their_direction) {
+			if(  v  &&  v->get_fahrtrichtung() == their_direction  ) {
 				// check for car
 				if(v->get_overtaker()) {
 					return false;

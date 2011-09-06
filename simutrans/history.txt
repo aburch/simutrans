@@ -192,6 +192,7 @@ Release of 102.2.2 (r3131 on 8-Mar-2010):
 
 Release of 102.2.1 (r2928)
 
+9-12-2009
 	FIX: minimap was not updated when a bridge was deleted
 	FIX: AI could not built any lines
 	FIX: grid slopes were not (re)set correctly

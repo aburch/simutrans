@@ -1549,7 +1549,7 @@ karte_t *wkz_wegebau_t::welt = NULL;	// for default city road
 const weg_besch_t *wkz_wegebau_t::get_besch( uint16 timeline_year_month, bool remember ) const
 {
 	const weg_besch_t *besch = default_param ? wegbauer_t::get_besch(default_param,0) :NULL;
-	if(besch==NULL) {
+	if(besch==NULL  &&  default_param  ) {
 		waytype_t wt = (waytype_t)atoi(default_param);
 		besch = defaults[wt&63];
 		if(besch==NULL) {
