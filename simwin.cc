@@ -146,7 +146,7 @@ static void destroy_framed_win(simwin_t *win);
 
 #define REVERSE_GADGETS (!umgebung_t::window_buttons_right)
 // (Mathew Hounsell) A "Gadget Box" is a windows control button.
-enum simwin_gadget_et { GADGET_CLOSE, GADGET_HELP, GADGET_SIZE, GADGET_PREV, GADGET_NEXT, GADGET_GOTOPOS=37, GADGET_STICKY=21, GADGET_STICKY_PUSHED, COUNT_GADGET=255 };
+enum simwin_gadget_et { GADGET_CLOSE, GADGET_HELP, GADGET_SIZE, GADGET_PREV, GADGET_NEXT, GADGET_GOTOPOS=36, GADGET_STICKY=21, GADGET_STICKY_PUSHED, COUNT_GADGET=255 };
 
 
 /**
