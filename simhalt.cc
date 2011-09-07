@@ -534,6 +534,23 @@ void haltestelle_t::set_name(const char *new_name)
 }
 
 
+// returns the number of % in a printf string ....
+static int count_printf_param( const char *str )
+{
+	int count = 0;
+	while( *str!=0  ) {
+		if(  *str=='%'  ) {
+			str++;
+			if(  *str!='%'  ) {
+				count++;
+			}
+		}
+		str ++;
+	}
+	return count;
+}
+
+
 // creates stops with unique! names
 char* haltestelle_t::create_name(koord const k, char const* const typ)
 {
@@ -558,6 +575,7 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 
 	// strings for intown / outside of town
 	const bool inside = (li_gr < k.x  &&  re_gr > k.x  &&  ob_gr < k.y  &&  un_gr > k.y);
+	const bool suburb = !inside  &&  (li_gr - 6 < k.x  &&  re_gr + 6 > k.x  &&  ob_gr - 6 < k.y  &&  un_gr + 6 > k.y);
 
 	if (!welt->get_settings().get_numbered_stations()) {
 		static const koord next_building[24] = {
@@ -664,11 +682,35 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 			buf.clear();
 		}
 
+		// if there are street names, use them
+		if(  inside  ||  suburb  ) {
+			buf.clear();
+			vector_tpl<char *> street_names( translator::get_street_name_list() );
+			while(  !street_names.empty()  ) {
+				const uint32 idx = simrand(street_names.get_count());
+				const int strs = count_printf_param( street_names[idx] );
+
+				buf.clear();
+				if(  strs<=1  ) {
+					buf.printf( street_names[idx], stop );
+				}
+				else {
+					buf.printf( street_names[idx], city_name, stop );
+				}
+				if(  !all_names.get(buf).is_bound()  ) {
+					return strdup(buf);
+				}
+				// esle: remove this entry ...
+				street_names.remove_at(idx);
+			}
+			buf.clear();
+		}
+
 		// still all names taken => then try the normal naming scheme ...
 		char numbername[10];
 		if(inside) {
 			strcpy( numbername, "0center" );
-		} else if (li_gr - 6 < k.x  &&  re_gr + 6 > k.x  &&  ob_gr - 6 < k.y  &&  un_gr + 6 > k.y) {
+		} else if(suburb) {
 			// close to the city we use a different scheme, with suburbs
 			strcpy( numbername, "0suburb" );
 		}
@@ -722,13 +764,7 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 					continue;
 				}
 				// allow for names without direction
-				uint8 count_s = 0;
-				for(  uint i=0;  base_name[i]!=0;  i++  ) {
-					if(  base_name[i]=='%'  &&  base_name[i+1]=='s'  ) {
-						i++;
-						count_s++;
-					}
-				}
+				uint8 count_s = count_printf_param( base_name );
 				if(count_s==3) {
 					// ok, try this name, if free ...
 					buf.printf( base_name, city_name, dirname, stop );

@@ -191,72 +191,42 @@ static char* recode(const char* src, bool translate_from_utf, bool translate_to_
 /* needed for loading city names */
 static char szenario_path[256];
 
-/* Liste aller Städtenamen
- * @author Hj. Malthaner
- */
-static vector_tpl<char*> namen_liste;
+// List of custom city and streetnames
+vector_tpl<char*> translator::city_name_list;
+vector_tpl<char*> translator::street_name_list;
 
 
-
-int translator::get_count_city_name(void)
-{
-	return namen_liste.get_count();
-}
-
-
-
-const char* translator::get_city_name(uint nr)
-{
-	// fallback for empty list (should never happen)
-	if (namen_liste.empty()) {
-		return "Simcity";
-	}
-	return namen_liste[nr % namen_liste.get_count()];
-}
-
-
-
-/* the city list is now reloaded after the language is changed
- * new cities will get their appropriate names
- * @author hajo, prissi
- */
-void translator::init_city_names(int lang)
+// fills a list from a file with the given prfix followed by a language code
+void translator::load_custom_list( int lang, vector_tpl<char*> &name_list, const char *fileprefix )
 {
 	FILE* file;
 
 	// alle namen aufräumen
-	clear_ptr_vector( namen_liste );
-
-	// Hajo: init city names. There are two options:
-	//
-	// 1.) read list from file
-	// 2.) create random names
-
-	// try to read list
+	clear_ptr_vector( name_list );
 
 	// @author prissi: first try in scenario
 	// not found => try user location
 	string local_file_name(umgebung_t::user_dir);
-	local_file_name = local_file_name + "citylist_" + langs[lang].iso_base + ".txt";
+	local_file_name = local_file_name + fileprefix + langs[lang].iso_base + ".txt";
 	file = fopen(local_file_name.c_str(), "rb");
-	DBG_DEBUG("translator::init_city_names()", "try to read city name list '%s'", local_file_name.c_str());
+	DBG_DEBUG("translator::load_custom_list()", "try to read name list '%s'", local_file_name.c_str());
 	if (file==NULL) {
 		string local_file_name(umgebung_t::program_dir);
-		local_file_name = local_file_name + szenario_path + "text/citylist_" + langs[lang].iso_base + ".txt";
-		DBG_DEBUG("translator::init_city_names()", "try to read city name list '%s'", local_file_name.c_str());
+		local_file_name = local_file_name + szenario_path + "text/" + fileprefix + langs[lang].iso_base + ".txt";
+		DBG_DEBUG("translator::load_custom_list()", "try to city name list '%s'", local_file_name.c_str());
 		file = fopen(local_file_name.c_str(), "rb");
-		DBG_DEBUG("translator::init_city_names()", "try to read city name list '%s'", local_file_name.c_str());
+		DBG_DEBUG("translator::load_custom_list()", "try to city name list '%s'", local_file_name.c_str());
 	}
 	// not found => try old location
 	if (file==NULL) {
 		string local_file_name(umgebung_t::program_dir);
-		local_file_name = local_file_name + "text/citylist_" + langs[lang].iso_base + ".txt";
-		DBG_DEBUG("translator::init_city_names()", "try to read city name list '%s'", local_file_name.c_str());
+		local_file_name = local_file_name + "text/" + fileprefix + langs[lang].iso_base + ".txt";
+		DBG_DEBUG("translator::load_custom_list()", "try to city name list '%s'", local_file_name.c_str());
 		file = fopen(local_file_name.c_str(), "rb");
-		DBG_DEBUG("translator::init_city_names()", "try to read city name list '%s'", local_file_name.c_str());
+		DBG_DEBUG("translator::load_custom_list()", "try to city name list '%s'", local_file_name.c_str());
 	}
 	fflush(NULL);
-	DBG_DEBUG("translator::init_city_names()","file %p",file);
+	DBG_DEBUG("translator::load_custom_list()","file %p",file);
 
 	if (file != NULL) {
 		// ok, could open file
@@ -267,14 +237,31 @@ void translator::init_city_names(int lang)
 				rtrim(buf);
 				char *c = recode(buf, file_is_utf, langs[lang].utf_encoded);
 				if(  *c!=0  &&  *c!='#'  ) {
-					namen_liste.append(c);
+					name_list.append(c);
 				}
 			}
 		}
 		fclose(file);
 	}
+}
 
-	if (namen_liste.empty()) {
+
+/* the city list is now reloaded after the language is changed
+ * new cities will get their appropriate names
+ * @author hajo, prissi
+ */
+void translator::init_custom_names(int lang)
+{
+	// Hajo: init names. There are two options:
+	//
+	// 1.) read list from file
+	// 2.) create random names (only for cities)
+
+	// try to read list
+	load_custom_list( lang, city_name_list, "citylist_" );
+	load_custom_list( lang, street_name_list, "streetlist_" );
+
+	if (city_name_list.empty()) {
 		DBG_MESSAGE("translator::init_city_names", "reading failed, creating random names.");
 		// Hajo: try to read list failed, create random names
 		for(  uint i = 0;  i < 36;  i++  ) {
@@ -298,7 +285,7 @@ void translator::init_city_names(int lang)
 				const size_t l2 = strlen(s2);
 				char* const c = MALLOCN(char, l1 + l2 + 1);
 				sprintf(c, "%s%s", s1, s2);
-				namen_liste.append(c);
+				city_name_list.append(c);
 			}
 		}
 	}
@@ -517,7 +504,7 @@ void translator::set_language(int lang)
 		umgebung_t::language_iso = langs[lang].iso;
 		umgebung_t::default_einstellungen.set_name_language_iso( langs[lang].iso );
 		display_set_unicode(langs[lang].utf_encoded);
-		init_city_names(lang);
+		init_custom_names(lang);
 		DBG_MESSAGE("translator::set_language()", "%s, unicode %d", langs[lang].name, langs[lang].utf_encoded);
 	}
 	else {

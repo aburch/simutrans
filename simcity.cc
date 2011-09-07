@@ -1024,34 +1024,30 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 	lo = ur = pos;
 
 	DBG_MESSAGE("stadt_t::stadt_t()", "Welt %p", welt);
-	fflush(NULL);
+
 	/* get a unique cityname */
 	/* 9.1.2005, prissi */
 	const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
-	const int name_list_count = translator::get_count_city_name();
+	vector_tpl<char *> city_names( translator::get_city_name_list() );
 
-	fflush(NULL);
-	// start at random position
-	int start_cont = simrand(name_list_count);
-
-	// get a unique name
-	const char* list_name;
-	list_name = translator::get_city_name(start_cont);
-	for (int i = 0; i < name_list_count; i++) {
-		// get a name
-		list_name = translator::get_city_name(start_cont + i);
-		// check if still unused
-		for (weighted_vector_tpl<stadt_t*>::const_iterator j = staedte.begin(), end = staedte.end(); j != end; ++j) {
-			// noch keine stadt mit diesem namen?
-			if (strcmp(list_name, (*j)->get_name()) == 0) goto next_name;
+	name = NULL;
+	while(  !city_names.empty()  &&  name==NULL  ) {
+		uint32 idx = simrand(city_names.get_count());
+		for (weighted_vector_tpl<stadt_t*>::const_iterator i = staedte.begin(), end = staedte.end(); i != end; ++i) {
+			if(  strcmp( (*i)->get_name(), city_names[idx] )==0  ) {
+				city_names.remove_at( idx );
+				idx = city_names.get_count();
+				break;
+			}
 		}
-		DBG_MESSAGE("stadt_t::stadt_t()", "'%s' is unique", list_name);
-		break;
-next_name:;
+		if(  idx < city_names.get_count()  ) {
+			name = strdup( city_names[idx] );
+		}
 	}
-	name = strdup(list_name);
-
-	DBG_MESSAGE("stadt_t::stadt_t()", "founding new city named '%s'", list_name);
+	if(  name==NULL  ) {
+		name = strdup( "simcity" );
+	}
+	DBG_MESSAGE("stadt_t::stadt_t()", "founding new city named '%s'", name);
 
 	// 1. Rathaus bei 0 Leuten bauen
 	check_bau_rathaus(true);

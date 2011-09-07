@@ -4293,7 +4293,7 @@ void karte_t::laden(loadsave_t *file)
 	if(  umgebung_t::networkmode  ) {
 		// to have games synchronized, transfer random counter too
 		setsimrand(settings.get_random_counter(), 0xFFFFFFFFu );
-		translator::init_city_names(settings.get_name_language_id());
+		translator::init_custom_names(settings.get_name_language_id());
 	}
 
 	if(  !umgebung_t::networkmode  ||  (umgebung_t::server  &&  socket_list_t::get_playing_clients()==0)  ) {
