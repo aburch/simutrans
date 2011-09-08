@@ -2172,7 +2172,7 @@ bool automobil_t::ist_weg_frei(int &restart_speed, bool second_check)
 				if(  automobil_t const* const car = ding_cast<automobil_t>(dt)  ) {
 					const convoi_t* const ocnv = car->get_convoi();
 					int dummy;
-					if(  ocnv->front()->ist_weg_frei(dummy, true)  &&  ocnv->front()->get_route_index() != ocnv->get_route()->get_count()  ) {
+					if(  ocnv->front()->get_route_index() < ocnv->get_route()->get_count()  &&  ocnv->front()->ist_weg_frei(dummy, true)  ) {
 						return true;
 					}
 				}
