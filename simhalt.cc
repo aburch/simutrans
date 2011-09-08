@@ -688,15 +688,9 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 			vector_tpl<char *> street_names( translator::get_street_name_list() );
 			while(  !street_names.empty()  ) {
 				const uint32 idx = simrand(street_names.get_count());
-				const int strs = count_printf_param( street_names[idx] );
 
 				buf.clear();
-				if(  strs<=1  ) {
-					buf.printf( street_names[idx], stop );
-				}
-				else {
-					buf.printf( street_names[idx], city_name, stop );
-				}
+				buf.printf( street_names[idx], city_name, stop );
 				if(  !all_names.get(buf).is_bound()  ) {
 					return strdup(buf);
 				}
