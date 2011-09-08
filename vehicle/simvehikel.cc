@@ -2176,12 +2176,6 @@ bool automobil_t::ist_weg_frei(int &restart_speed, bool second_check)
 						return true;
 					}
 				}
-				else if(  stadtauto_t *const caut = ding_cast<stadtauto_t>(dt)  ) {
-					grund_t *const caut_gr = welt->lookup(dt->get_pos_next());
-					if(  caut_gr  &&  caut->ist_weg_frei(caut_gr)  ) {
-						return true;
-					}
-				}
 			}
 		}
 
