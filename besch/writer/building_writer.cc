@@ -178,8 +178,8 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		enables |= 4;
 	}
 
-	// some station thing ...
-	if (enables) {
+	if(  utyp==haus_besch_t::generic_extension  ||  utype==haus_besch_t::generic_stop  ||  utyp==haus_besch_t::hafen  ) {
+		// since elevel was reduced by one beforehand ...
 		++level;
 	}
 
