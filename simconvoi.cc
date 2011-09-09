@@ -3587,8 +3587,8 @@ void convoi_t::laden() //"load" (Babelfish)
 	// @author: jamespetts
 	
 	// This is necessary in order always to return the same pairs of co-ordinates for comparison.
-	const halthandle_t this_halt = welt->get_halt_koord_index(fahr[0]->get_pos().get_2d());
 	const halthandle_t last_halt = welt->get_halt_koord_index(fahr[0]->last_stop_pos);
+	const halthandle_t this_halt = welt->get_halt_koord_index(fahr[0]->get_pos().get_2d());
 	id_pair pair(last_halt.get_id(), this_halt.get_id());
 	
 	// The calculation of the journey distance does not need to use normalised halt locations for comparison, so
@@ -3625,7 +3625,7 @@ void convoi_t::laden() //"load" (Babelfish)
 			const uint8 starting_stop = current_stop;
 
 			do
-			{
+			{			
 				// Book the journey times from all origins served by this convoy,
 				// and for which data are available, to this destination.
 
@@ -3667,6 +3667,30 @@ void convoi_t::laden() //"load" (Babelfish)
 			while(starting_stop != current_stop && pair.x != pair.y);
 		}
 	}
+
+	// TESTING CODE ONLY
+
+	koordhashtable_iterator_tpl<id_pair, average_tpl<uint16 > > iter(average_journey_times);
+	int counter = 0;
+	while(iter.next())
+	{
+		id_pair TEST_k = iter.get_current_key();
+		char cuddly_cat[4];
+		if(TEST_k.x == 0)
+		{
+			sprintf(cuddly_cat, "%u", counter);
+			dbg->fatal(cuddly_cat, "??");
+		}
+		if(TEST_k.y == 0)
+		{
+			sprintf(cuddly_cat, "%u", counter);
+			dbg->fatal(cuddly_cat, "THIS IS BAD.");
+		}
+		counter++;
+	}
+
+	// END TESTING CODE
+
 
 	uint8 stop = fpl->get_aktuell();
 	bool rev = reverse_schedule;
