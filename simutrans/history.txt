@@ -20,6 +20,8 @@
 	ADD: traffic light phasing adjustment
 	ADD: break (pause) button now internally handled as ASCII 16 (^P)
 	ADD: koordinate display and goto button for almost any non-moving thing on the map
+	ADD: loading convois will be overtaken
+	ADD: new file steetlist_xx.txt will be used for stop names for cities. With one parameter the halt type will be used, with two the city name and the halt type
 
 
 Release of 110.0.1 (r4359 on 12-Mar-2011):
@@ -192,6 +194,7 @@ Release of 102.2.2 (r3131 on 8-Mar-2010):
 
 Release of 102.2.1 (r2928)
 
+9-12-2009
 	FIX: minimap was not updated when a bridge was deleted
 	FIX: AI could not built any lines
 	FIX: grid slopes were not (re)set correctly

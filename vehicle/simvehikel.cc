@@ -2937,13 +2937,7 @@ bool automobil_t::ist_weg_frei(int &restart_speed, bool second_check)
 				if(  automobil_t const* const car = ding_cast<automobil_t>(dt)  ) {
 					convoi_t* const ocnv = car->get_convoi();
 					int dummy;
-					if(  ocnv->front()->ist_weg_frei(dummy, true)  &&  ocnv->front()->get_route_index() != ocnv->get_route()->get_count()  ) {
-						return true;
-					}
-				}
-				else if(  stadtauto_t *const caut = ding_cast<stadtauto_t>(dt)  ) {
-					grund_t *const caut_gr = welt->lookup(dt->get_pos_next());
-					if(  caut_gr  &&  caut->ist_weg_frei(caut_gr)  ) {
+					if(  ocnv->front()->get_route_index() < ocnv->get_route()->get_count()  &&  ocnv->front()->ist_weg_frei(dummy, true)  ) {
 						return true;
 					}
 				}
@@ -2970,7 +2964,7 @@ bool automobil_t::ist_weg_frei(int &restart_speed, bool second_check)
 						// not overtaking/being overtake: we need to make a more thourough test!
 						if(  automobil_t const* const car = ding_cast<automobil_t>(dt)  ) {
 							convoi_t* const ocnv = car->get_convoi();
-							if(  cnv->can_overtake( ocnv, ocnv->get_akt_speed(), ocnv->get_length_in_steps()+ocnv->get_vehikel(0)->get_steps(), diagonal_vehicle_steps_per_tile)  ) {
+							if(  cnv->can_overtake( ocnv, (ocnv->get_state()==convoi_t::LOADING ? 0 :  ocnv->get_akt_speed()), ocnv->get_length_in_steps()+ocnv->get_vehikel(0)->get_steps(), diagonal_vehicle_steps_per_tile)  ) {
 								return true;
 							}
 						} else if (stadtauto_t* const caut = ding_cast<stadtauto_t>(dt)) {
@@ -4572,8 +4566,10 @@ void aircraft_t::rdwr_from_convoi(loadsave_t *file)
 	xml_tag_t t( file, "aircraft_t" );
 
 	// initialize as vehikel_t::rdwr_from_convoi calls get_bild()
-	state = taxiing;
-	flughoehe = 0;
+	if (file->is_loading()) {
+		state = taxiing;
+		flughoehe = 0;
+	}
 	vehikel_t::rdwr_from_convoi(file);
 
 	file->rdwr_enum(state);

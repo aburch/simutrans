@@ -25,7 +25,7 @@
 
 gui_frame_t::gui_frame_t(char const* const name, spieler_t const* const sp)
 {
-	this->name = translator::translate(name);
+	this->name = name;
 	groesse = koord(200, 100);
 	min_windowsize = koord(0,0);
 	owner = sp;

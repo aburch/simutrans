@@ -10,6 +10,7 @@
 
 #include "../simworld.h"
 #include "load_relief_frame.h"
+#include "../dataobj/translator.h"
 #include "../dataobj/einstellungen.h"
 
 
@@ -32,9 +33,9 @@ bool load_relief_frame_t::del_action(const char *filename)
 }
 
 
-load_relief_frame_t::load_relief_frame_t(settings_t* const sets) : savegame_frame_t("*.*","maps/")
+load_relief_frame_t::load_relief_frame_t(settings_t* const sets) : savegame_frame_t(NULL, "maps/")
 {
-	set_name("Laden");
+	set_name( translator::translate("Laden") );
 	this->sets = sets;
 	sets->heightfield = "";
 }

@@ -47,7 +47,8 @@ static const char *tab_strings[]=
 
 
 
-message_frame_t::message_frame_t(karte_t *welt) : gui_frame_t( translator::translate("Mailbox") ),
+message_frame_t::message_frame_t(karte_t *welt) :
+	gui_frame_t( translator::translate("Mailbox") ),
 	stats(welt),
 	scrolly(&stats)
 {

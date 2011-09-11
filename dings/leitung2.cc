@@ -134,15 +134,7 @@ leitung_t::~leitung_t()
 		}
 
 		if(neighbours==0) {
-			// delete in last or crossing
-//			if(welt->rem_powernet( net)) {
-				// but there is still something wrong with the logic here ...
-				// so we only delete, if still present in the world
-				delete net;
-//			}
-//			else {
-//				dbg->warning("~leitung()","net %p already deleted at (%i,%i)!",net,gr->get_pos().x,gr->get_pos().y);
-//			}
+			delete net;
 		}
 		spieler_t::add_maintenance(get_besitzer(), -besch->get_wartung());
 	}

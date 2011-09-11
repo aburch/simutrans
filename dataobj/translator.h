@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <string>
 #include "../tpl/stringhashtable_tpl.h"
+#include "../tpl/vector_tpl.h"
 
 
 /**
@@ -23,92 +24,98 @@
  */
 class translator
 {
-	private:
-		//cannot be instantiated outside translator
-		translator() { current_lang = -1; }
+private:
+	//cannot be instantiated outside translator
+	translator() { current_lang = -1; }
 
-		int current_lang;
-		int lang_count;
+	int current_lang;
+	int lang_count;
 
-		/* The single instance that this class will use to gain access to
-		 * the member variables such as language names
-		 */
-		static translator single_instance;
+	/* The single instance that this class will use to gain access to
+	 * the member variables such as language names
+	 */
+	static translator single_instance;
 
-		/* Methods related to loading a language file into memory */
-		static void load_language_file(FILE* file);
-		static void load_language_iso(const std::string &iso);
+	/* Methods related to loading a language file into memory */
+	static void load_language_file(FILE* file);
+	static void load_language_iso(const std::string &iso);
 
-	public:
-		struct lang_info {
-			const char* translate(const char* text) const;
+	static vector_tpl<char*> city_name_list;
+	static vector_tpl<char*> street_name_list;
 
-			stringhashtable_tpl<const char*> texts;
-			const char* name;
-			const char* iso;
-			const char* iso_base;
-			bool utf_encoded;
-		};
+	static void load_custom_list( int lang, vector_tpl<char*> &name_list, const char *fileprefix );
 
-		static void init_city_names(int lang);
-		static const char* get_city_name(uint nr); ///< return a random city name
-		static int get_count_city_name(void);
+public:
+	struct lang_info {
+		const char* translate(const char* text) const;
 
-		/**
-		 * Loads up all files of language type from the 'language' directory.
-		 * This method must be called for languages to be loaded up, undefined
-		 * behaviour may follow if calls to translate message or similar are
-		 * called before load has been called
-		 */
-		static bool load(const std::string &scenario_path);
+		stringhashtable_tpl<const char*> texts;
+		const char* name;
+		const char* iso;
+		const char* iso_base;
+		bool utf_encoded;
+	};
 
-		/**
-		 * Get/Set the currently selected language, based on the
-		 * index number
-		 */
-		static int get_language() {
-			return single_instance.current_lang;
-		}
+	static void init_custom_names(int lang);
 
-		// returns the id for this language or -1 if not there
-		static int get_language(const char* iso);
+	static const vector_tpl<char*> &get_city_name_list() { return city_name_list; }
+	static const vector_tpl<char*> &get_street_name_list() { return street_name_list; }
 
-		/** Get information about the currently selected language */
-		static const lang_info* get_lang();
+	/**
+	 * Loads up all files of language type from the 'language' directory.
+	 * This method must be called for languages to be loaded up, undefined
+	 * behaviour may follow if calls to translate message or similar are
+	 * called before load has been called
+	 */
+	static bool load(const std::string &scenario_path);
 
-		static const lang_info* get_langs();
+	/**
+	 * Get/Set the currently selected language, based on the
+	 * index number
+	 */
+	static int get_language() {
+		return single_instance.current_lang;
+	}
 
-		/**
-		 * First checks to see whether the language is in bounds, will
-		 * then change what language is being used, otherwise prints
-		 * an error message, leaving the language as it is
-		 */
-		static void set_language(int lang);
-		static void set_language(const char* iso);
+	// returns the id for this language or -1 if not there
+	static int get_language(const char* iso);
 
-		/**
-		 * Returns the number of loaded languages.
-		 */
-		static int get_language_count() { return single_instance.lang_count; }
+	/** Get information about the currently selected language */
+	static const lang_info* get_lang();
 
-		/**
-		 * Translates a given string(key) to its locale
-		 * specific counterpart, using the current language
-		 * table.
-		 * the second variant just uses the language with the index
-		 * @return translated string, (null) if string is null,
-		 * or the string if the translation is not found
-		 */
-		static const char *translate(const char* str);
-		static const char *translate(const char* str, int lang);
+	static const lang_info* get_langs();
 
-		/**
-		 * @return replacement info for almost any object within the game
-		 */
-		static const char *compatibility_name(const char* str);
+	/**
+	 * First checks to see whether the language is in bounds, will
+	 * then change what language is being used, otherwise prints
+	 * an error message, leaving the language as it is
+	 */
+	static void set_language(int lang);
+	static void set_language(const char* iso);
 
-		// return the name of the month
-		static const char *get_month_name(uint16 month);
+	/**
+	 * Returns the number of loaded languages.
+	 */
+	static int get_language_count() { return single_instance.lang_count; }
+
+	/**
+	 * Translates a given string(key) to its locale
+	 * specific counterpart, using the current language
+	 * table.
+	 * the second variant just uses the language with the index
+	 * @return translated string, (null) if string is null,
+	 * or the string if the translation is not found
+	 */
+	static const char *translate(const char* str);
+	static const char *translate(const char* str, int lang);
+
+	/**
+	 * @return replacement info for almost any object within the game
+	 */
+	static const char *compatibility_name(const char* str);
+
+	// return the name of the month
+	static const char *get_month_name(uint16 month);
 };
 
 #endif
