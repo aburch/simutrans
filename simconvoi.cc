@@ -3641,7 +3641,11 @@ void convoi_t::laden() //"load" (Babelfish)
 				{
 					average_tpl<uint16> average;
 					average.add(journey_time);
-					average_journey_times->put(pair, average);
+					id_pair idp;
+					idp.y = pair.y;
+					idp.x = pair.x;
+					average_journey_times->put(idp, average);
+					/*average_journey_times->put(pair, average);*/
 				}
 				else
 				{
@@ -3653,7 +3657,11 @@ void convoi_t::laden() //"load" (Babelfish)
 					{
 						average_tpl<uint16> average;
 						average.add(journey_time);
-						line->average_journey_times->put(pair, average);
+						id_pair idp;
+						idp.y = pair.y;
+						idp.x = pair.x;
+						line->average_journey_times->put(idp, average);
+						/*line->average_journey_times->put(pair, average);*/
 					}
 					else
 					{
@@ -3669,7 +3677,7 @@ void convoi_t::laden() //"load" (Babelfish)
 	}
 
 	// TESTING CODE ONLY
-
+	/*
 	koordhashtable_iterator_tpl<id_pair, average_tpl<uint16 > > iter(average_journey_times);
 	int counter = 0;
 	while(iter.next())
@@ -3688,7 +3696,7 @@ void convoi_t::laden() //"load" (Babelfish)
 		}
 		counter++;
 	}
-
+	*/
 	// END TESTING CODE
 
 
