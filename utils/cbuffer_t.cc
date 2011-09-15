@@ -75,7 +75,8 @@ static int my_vsnprintf(char *buf, size_t n, const char* fmt, va_list ap )
 		int count = 0;
 		for(  ;  c  &&  count<9;  count++  ) {
 			sprintf( pos, "%%%i$", count+1 );
-			if(  (c=strstr( fmt, pos ))!=NULL  ) {
+			c = strstr( fmt, pos );
+			if(  c  ) {
 				// extend format string, using 1 as marke between strings
 				if(  count  ) {
 					*cfmt++ = '\01';
@@ -111,7 +112,6 @@ static int my_vsnprintf(char *buf, size_t n, const char* fmt, va_list ap )
 				*cbuf++ = *cfmt++;
 			}
 			if(  *cfmt==0  ) {
-				*cbuf = 0;
 				break;
 			}
 			// get the nth argument
@@ -131,6 +131,7 @@ static int my_vsnprintf(char *buf, size_t n, const char* fmt, va_list ap )
 			cfmt += 3;
 			cfmt += strspn( cfmt, "+-0123456789 #.hlI" )+1;
 		}
+		*cbuf = 0;
 		return cbuf-buf;
 	}
 	// no positional parameters: use standard vsnprintf
