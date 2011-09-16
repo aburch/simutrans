@@ -1577,34 +1577,43 @@ bool wegbauer_t::intern_calc_route_runways(koord3d start3d, const koord3d ziel3d
 	const koord ziel=ziel3d.get_2d();
 	// check for straight line!
 	const ribi_t::ribi ribi = ribi_typ( start, ziel );
-	if(!ribi_t::ist_gerade(ribi)) {
+	if(  !ribi_t::ist_gerade(ribi)  ) {
 		// only straight runways!
 		return false;
 	}
+	const ribi_t::ribi ribi_gerade = ribi_t::doppelt(ribi);
+
 	// not too close to the border?
-	if(	!(welt->ist_in_kartengrenzen(start-koord(5,5))  &&  welt->ist_in_kartengrenzen(start+koord(5,5)))  ||
-		!(welt->ist_in_kartengrenzen(ziel-koord(5,5))  &&  welt->ist_in_kartengrenzen(ziel+koord(5,5)))  ) {
+	if(	 !(welt->ist_in_kartengrenzen(start-koord(5,5))  &&  welt->ist_in_kartengrenzen(start+koord(5,5)))  ||
+		 !(welt->ist_in_kartengrenzen(ziel-koord(5,5))  &&  welt->ist_in_kartengrenzen(ziel+koord(5,5)))  ) {
 		if(sp==welt->get_active_player()) {
 			create_win( new news_img("Zu nah am Kartenrand"), w_time_delete, magic_none);
 			return false;
 		}
 	}
 
-
 	// now try begin and endpoint
 	const koord zv(ribi);
 	// end start
 	const grund_t *gr = welt->lookup_kartenboden(start);
-	const weg_t *weg=gr->get_weg(air_wt);
-	if(weg  &&  (weg->get_besch()->get_styp()==0  ||  ribi_t::ist_kurve(weg->get_ribi()|ribi))) {
-		// cannot connect to taxiway at the start and no curve possible
+	const weg_t *weg = gr->get_weg(air_wt);
+	if(weg  &&  !ribi_t::ist_gerade(weg->get_ribi()|ribi_gerade)  ) {
+		// cannot connect with curve at the end
+		return false;
+	}
+	if(  weg  &&  weg->get_besch()->get_styp()==0  ) {
+		//  could not continue taxiway with runway
 		return false;
 	}
 	// check end
 	gr = welt->lookup_kartenboden(ziel);
-	weg=gr->get_weg(air_wt);
-	if(weg  &&  (weg->get_besch()->get_styp()==1  ||  ribi_t::ist_kurve(weg->get_ribi()|ribi))) {
-		// cannot connect to taxiway at the end and no curve at the end
+	weg = gr->get_weg(air_wt);
+	if(weg  &&  !ribi_t::ist_gerade(weg->get_ribi()|ribi_gerade)  ) {
+		// cannot connect with curve at the end
+		return false;
+	}
+	if(  weg  &&  weg->get_besch()->get_styp()==0  ) {
+		//  could not continue taxiway with runway
 		return false;
 	}
 	// now try a straight line with no crossings and no curves at the end
@@ -1614,6 +1623,11 @@ bool wegbauer_t::intern_calc_route_runways(koord3d start3d, const koord3d ziel3d
 		grund_t *to = welt->lookup_kartenboden(start+zv*i);
 		long dummy;
 		if (!is_allowed_step(from, to, &dummy)) {
+			return false;
+		}
+		weg = to->get_weg(air_wt);
+		if(  weg  &&  weg->get_besch()->get_styp()==1  &&  (ribi_t::is_threeway(weg->get_ribi_unmasked()|ribi_gerade))  &&  (weg->get_ribi_unmasked()|ribi_gerade)!=ribi_t::alle  ) {
+			// only fourway crossings of runways allowed, no threeways => fail
 			return false;
 		}
 		from = to;
@@ -1629,8 +1643,8 @@ bool wegbauer_t::intern_calc_route_runways(koord3d start3d, const koord3d ziel3d
 }
 
 
-/* calc_straight_route (maximum one curve, including diagonals)
- *
+/*
+ * calc_straight_route (maximum one curve, including diagonals)
  */
 void wegbauer_t::calc_straight_route(koord3d start, const koord3d ziel)
 {
