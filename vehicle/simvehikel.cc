@@ -3197,7 +3197,7 @@ ribi_t::ribi aircraft_t::get_ribi(const grund_t *gr) const
 		}
 
 		case flying:
-		case flying2:
+		case circling:
 			return ribi_t::alle;
 	}
 	return ribi_t::keine;
@@ -3251,7 +3251,7 @@ bool aircraft_t::ist_befahrbar(const grund_t *bd) const
 		case landing:
 		case departing:
 		case flying:
-		case flying2:
+		case circling:
 		{
 //DBG_MESSAGE("aircraft_t::ist_befahrbar()","(cnv %i) in idx %i",cnv->self.get_id(),route_index );
 			// prissi: here a height check could avoid too height montains
@@ -3465,27 +3465,30 @@ bool aircraft_t::ist_weg_frei(int & restart_speed,bool)
 //DBG_MESSAGE("aircraft_t::ist_weg_frei()","index %i<>%i",route_index,touchdown);
 
 	// check for another circle ...
-	if(route_index==(touchdown-3)) {
-		if(state!=flying2  &&  !block_reserver( touchdown, suchen+1, true )) {
+	if(  route_index==(touchdown-3)  ) {
+		if(  !block_reserver( touchdown, suchen+1, true )  ) {
+			route_index -= 16;
+			return true;
+		}
+		state = landing;
+		return true;
+	}
+
+	if(  route_index==touchdown-16-3  &&  state!=circling  ) {
+		// just check, if the end of runway ist free; we will wait there
+		if(  block_reserver( touchdown, suchen+1, true )  ) {
+			route_index += 16;
+			// can land => set landing height
+			state = landing;
+		}
+		else {
 			// circle slowly next round
+			state = circling;
 			cnv->must_recalc_data();
 			if(  ist_erstes  ) {
 				cnv->must_recalc_brake_soll();
 			}
-			speed_limit = kmh_to_speed(besch->get_geschw())/2;
-			state = flying;
-			route_index -= 16;
 		}
-		return true;
-	}
-
-	if(route_index==touchdown-16-3  &&  state!=flying2) {
-		// just check, if the end of runway ist free; we will wait there
-		if(block_reserver( touchdown, suchen+1, true )) {
-			route_index += 16;
-			state = flying2;
-		}
-		return true;
 	}
 
 	if(route_index==suchen  &&  state==landing  &&  !target_halt.is_bound()) {
@@ -3526,15 +3529,7 @@ void aircraft_t::betrete_feld()
 {
 	vehikel_t::betrete_feld();
 
-	if((state==flying2  ||  state==flying)  &&  route_index+6u>=touchdown) {
-		const sint16 landehoehe = height_scaling(cnv->get_route()->position_bei(touchdown).z)+(touchdown-route_index+1);
-		const sint16 current_height = height_scaling(get_pos().z) + (flughoehe*Z_TILE_STEP)/TILE_HEIGHT_STEP;
-		if(landehoehe<=current_height) {
-			state = landing;
-			target_height = height_scaling((sint16)cnv->get_route()->position_bei(touchdown).z)*TILE_HEIGHT_STEP/Z_TILE_STEP;
-		}
-	}
-	else {
+	if(  this->is_on_ground()  ) {
 		runway_t *w=(runway_t *)welt->lookup(get_pos())->get_weg(air_wt);
 		if(w) {
 			const int cargo = get_fracht_menge();
@@ -3953,9 +3948,14 @@ void aircraft_t::hop()
 			}
 			break;
 
-		case flying2:
-			new_speed_limit = kmh_to_speed(besch->get_geschw())/2;
-			new_friction = 64;
+		case circling:
+			new_speed_limit = kmh_to_speed(besch->get_geschw())/3;
+			new_friction = 16;
+			// do not change height any more while circling
+			flughoehe += h_cur;
+			flughoehe -= h_next;
+			break;
+
 		case flying:
 			// since we are at a tile border, round up to the nearest value
 			flughoehe += h_cur;
@@ -3978,15 +3978,16 @@ void aircraft_t::hop()
 			break;
 
 		case landing:
+		{
 			flughoehe += h_cur;
+			new_speed_limit = kmh_to_speed(besch->get_geschw())/3;
+			new_friction = 16;
 			if(flughoehe>target_height) {
 				// still decenting
 				flughoehe = (flughoehe-TILE_HEIGHT_STEP) & ~(TILE_HEIGHT_STEP-1);
 				flughoehe -= h_next;
-				new_speed_limit = kmh_to_speed(besch->get_geschw())/2;
-				new_friction = 64;
 			}
-			else {
+			else if(flughoehe==h_cur) {
 				// touchdown!
 				flughoehe = 0;
 				target_height = h_next;
@@ -3994,7 +3995,15 @@ void aircraft_t::hop()
 				new_speed_limit = kmh_to_speed(60);
 				new_friction = 16;
 			}
-			break;
+			else {
+				const sint16 landehoehe = height_scaling(cnv->get_route()->position_bei(touchdown).z)+(touchdown-route_index)*TILE_HEIGHT_STEP;
+				if(landehoehe<=flughoehe) {
+					target_height = height_scaling((sint16)cnv->get_route()->position_bei(touchdown).z)*TILE_HEIGHT_STEP/Z_TILE_STEP;
+				}
+				flughoehe -= h_next;
+			}
+		}
+		break;
 
 		default:
 			new_speed_limit = kmh_to_speed(60);

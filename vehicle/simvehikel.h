@@ -669,7 +669,7 @@ private:
 	koord3d search_start;
 	koord3d search_end;
 
-	enum flight_state { taxiing=0, departing=1, flying=2, landing=3, looking_for_parking=4, flying2=5, taxiing_to_halt=6  };
+	enum flight_state { taxiing=0, departing=1, flying=2, landing=3, looking_for_parking=4, circling=5, taxiing_to_halt=6  };
 
 	flight_state state;	// functions needed for the search without destination from find_route
 
@@ -737,7 +737,7 @@ public:
 	// the speed calculation happens it calc_height
 	void calc_akt_speed(const grund_t*) {}
 
-	bool is_on_ground() const { return flughoehe==0  &&  state!=flying; }
+	bool is_on_ground() const { return flughoehe==0  &&  !(state==circling  ||  state==flying); }
 
 	const char * ist_entfernbar(const spieler_t *sp);
 };
