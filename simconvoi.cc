@@ -4289,7 +4289,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	bool can_go = false;
 	can_go = loading_level>=loading_limit;
 	can_go = can_go || welt->get_zeit_ms()>go_on_ticks;
-	can_go = can_go && welt->get_zeit_ms() > arrival_time + (current_loading_time - reversing_time);
+	can_go = can_go && welt->get_zeit_ms() > arrival_time + ((sint64)current_loading_time - (sint64)reversing_time);
 	can_go = can_go || no_load;
 	if(can_go) {
 
