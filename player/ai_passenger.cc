@@ -22,6 +22,7 @@
 #include "../bauer/vehikelbauer.h"
 #include "../bauer/wegbauer.h"
 
+#include "../dataobj/fahrplan.h"
 #include "../dataobj/loadsave.h"
 
 #include "../utils/cbuffer_t.h"
@@ -109,7 +110,7 @@ koord ai_passenger_t::find_area_for_hub( const koord lo, const koord ru, const k
 				// flat, solid
 				if(  gr->get_typ()==grund_t::boden  &&  gr->get_grund_hang()==hang_t::flach  ) {
 					const ding_t* thing = gr->obj_bei(0);
-					int test_dist = koord_distance( trypos, basis );
+					int test_dist = shortest_distance( trypos, basis );
 					if (!thing || !thing->get_besitzer() || thing->get_besitzer() == sim::up_cast<spieler_t const*>(this)) {
 						if(  gr->is_halt()  &&  check_owner( gr->get_halt()->get_besitzer(), this )  &&  gr->hat_weg(road_wt)  ) {
 							// ok, one halt belongs already to us ... (should not really happen!) but might be a public stop
@@ -159,7 +160,7 @@ koord ai_passenger_t::find_harbour_pos(karte_t* welt, const stadt_t *s )
 	// try to find an airport place as close to the city as possible
 	for(  k.y=max(6,s->get_linksoben().y-10); k.y<=min(welt->get_groesse_y()-3-6,s->get_rechtsunten().y+10); k.y++  ) {
 		for(  k.x=max(6,s->get_linksoben().x-25); k.x<=min(welt->get_groesse_x()-3-6,s->get_rechtsunten().x+10); k.x++  ) {
-			sint32 testdist = koord_distance( k, s->get_pos() );
+			sint32 testdist = shortest_distance( k, s->get_pos() );
 			if(  testdist<bestdist  ) {
 				if(  k.x+2<s->get_linksoben().x  ||  k.y+2<s->get_linksoben().y  ||  k.x>=s->get_rechtsunten().x  ||  k.y>=s->get_rechtsunten().y  ) {
 					// malus for out of town
@@ -284,7 +285,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 		vehikel_t* test_driver = vehikelbauer_t::baue( koord3d(start_harbour-start_dx,welt->get_grundwasser()), this, NULL, &remover_besch );
 		test_driver->set_flag( ding_t::not_on_map );
 		route_t verbindung;
-		bool connected = verbindung.calc_route(welt, koord3d(start_harbour-start_dx,welt->get_grundwasser()), koord3d(end_harbour-end_dx,welt->get_grundwasser()), test_driver, 0, 0);
+		bool connected = verbindung.calc_route(welt, koord3d(start_harbour-start_dx,welt->get_grundwasser()), koord3d(end_harbour-end_dx,welt->get_grundwasser()), test_driver, 0, 0, 0);
 		delete test_driver;
 		if(!connected) {
 			return false;
@@ -399,7 +400,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 			if(plan) {
 				grund_t *gr = plan->get_kartenboden();
 				if(  gr->ist_wasser()  &&  !gr->get_halt().is_bound()  ) {
-					if(plan->get_haltlist_count()>=1  &&  plan->get_haltlist()[0]==start_hub  &&  koord_distance(start_pos,end_harbour)>koord_distance(p,end_harbour)) {
+					if(plan->get_haltlist_count()>=1  &&  plan->get_haltlist()[0]==start_hub  &&  shortest_distance(start_pos,end_harbour)>shortest_distance(p,end_harbour)) {
 						start_pos = p;
 					}
 				}
@@ -416,7 +417,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 			if(plan) {
 				grund_t *gr = plan->get_kartenboden();
 				if(  gr->ist_wasser()  &&  !gr->get_halt().is_bound()  ) {
-					if(plan->get_haltlist_count()>=1  &&  plan->get_haltlist()[0]==end_hub  &&  koord_distance(end_pos,start_harbour)>koord_distance(p,start_harbour)) {
+					if(plan->get_haltlist_count()>=1  &&  plan->get_haltlist()[0]==end_hub  &&  shortest_distance(end_pos,start_harbour)>shortest_distance(p,start_harbour)) {
 						end_pos = p;
 					}
 				}
@@ -572,13 +573,13 @@ halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int r
 	// now the airstops (only on single tiles, this will always work
 	const haus_besch_t* airstop_besch = hausbauer_t::get_random_station(haus_besch_t::generic_stop, air_wt, welt->get_timeline_year_month(), 0 );
 	for(  int i=0;  i<4;  i++  ) {
-		if(  koord_distance(center+koord::nsow[i],bushalt)==1  &&  ribi_t::ist_einfach( welt->lookup_kartenboden(center+koord::nsow[i])->get_weg_ribi_unmasked(air_wt) )  ) {
+		if(  shortest_distance(center+koord::nsow[i],bushalt)==1  &&  ribi_t::ist_einfach( welt->lookup_kartenboden(center+koord::nsow[i])->get_weg_ribi_unmasked(air_wt) )  ) {
 			call_general_tool( WKZ_STATION, center+koord::nsow[i], airstop_besch->get_name() );
 		}
 	}
 	// and now the one far away ...
 	for(  int i=0;  i<4;  i++  ) {
-		if(  koord_distance(center+koord::nsow[i],bushalt)>1  &&  ribi_t::ist_einfach( welt->lookup_kartenboden(center+koord::nsow[i])->get_weg_ribi_unmasked(air_wt) )  ) {
+		if(  shortest_distance(center+koord::nsow[i],bushalt)>1  &&  ribi_t::ist_einfach( welt->lookup_kartenboden(center+koord::nsow[i])->get_weg_ribi_unmasked(air_wt) )  ) {
 			call_general_tool( WKZ_STATION, center+koord::nsow[i], airstop_besch->get_name() );
 		}
 	}
@@ -596,7 +597,7 @@ static koord find_airport_pos(karte_t* welt, const stadt_t *s )
 	// try to find an airport place as close to the city as possible
 	for(  k.y=max(6,s->get_linksoben().y-10); k.y<=min(welt->get_groesse_y()-3-6,s->get_rechtsunten().y+10); k.y++  ) {
 		for(  k.x=max(6,s->get_linksoben().x-25); k.x<=min(welt->get_groesse_x()-3-6,s->get_rechtsunten().x+10); k.x++  ) {
-			sint32 testdist = koord_distance( k, s->get_pos() );
+			sint32 testdist = shortest_distance( k, s->get_pos() );
 			if(  testdist<bestdist  ) {
 				if(  k.x+2<s->get_linksoben().x  ||  k.y+2<s->get_linksoben().y  ||  k.x>=s->get_rechtsunten().x  ||  k.y>=s->get_rechtsunten().y  ) {
 					// malus for out of town
@@ -1047,7 +1048,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","searching attraction");
 						koord test_platz=find_area_for_hub(pos-cov,pos+size+cov,pos);
 						if(  !haltestelle_t::get_halt(welt,test_platz,this).is_bound()  ) {
 							// not served
-							dist = koord_distance(platz1,test_platz);
+							dist = shortest_distance(platz1,test_platz);
 							if(dist+simrand(50, "ai_passenger_t::step()")<last_dist  &&   dist>3) {
 								// but closer than the others
 								if(ausflug) {
@@ -1078,7 +1079,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","searching town");
 					const stadt_t* cur = staedte[nr];
 					if(cur!=last_start_stadt  &&  cur!=start_stadt) {
 						halthandle_t end_halt = get_our_hub(cur);
-						int dist = koord_distance(platz1,cur->get_pos());
+						int dist = shortest_distance(platz1,cur->get_pos());
 						if(  end_halt.is_bound()  &&  is_connected(platz1,end_halt->get_basis_pos(),warenbauer_t::passagiere) ) {
 							// already connected
 							continue;

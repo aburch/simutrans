@@ -10,13 +10,11 @@
 
 #include "convoihandle_t.h"
 #include "linehandle_t.h"
-#include "simconvoi.h"
 #include "simtypes.h"
-
-#include "dataobj/fahrplan.h"
 
 #include "tpl/minivec_tpl.h"
 #include "tpl/vector_tpl.h"
+#include "tpl/koordhashtable_tpl.h"
 
 #define MAX_LINE_COST			10 // Total number of cost items
 #define MAX_MONTHS				12 // Max history
@@ -36,12 +34,12 @@
 class karte_t;
 class loadsave_t;
 class spieler_t;
+class schedule_t;
 
 class simline_t {
 
 public:
 	enum linetype { line = 0, truckline = 1, trainline = 2, shipline = 3, airline = 4, monorailline=5, tramline=6, maglevline=7, narrowgaugeline=8};
-	static uint8 convoi_to_line_catgory[MAX_CONVOI_COST];
 
 protected:
 	schedule_t * fpl;
@@ -143,7 +141,7 @@ public:
 	 * return fahrplan of line
 	 * @author hsiegeln
 	 */
-	schedule_t * get_schedule() { return fpl; }
+	schedule_t * get_schedule() const { return fpl; }
 
 	void set_schedule(schedule_t* fpl);
 
@@ -200,6 +198,8 @@ public:
 		}
 	}
 
+	static uint8 convoi_to_line_catgory(uint8 convoi_cost_type);
+
 	void new_month();
 
 	linetype get_linetype() { return type; }
@@ -229,6 +229,12 @@ public:
 	void set_livery_scheme_index (uint16 index) { livery_scheme_index = index; }
 	uint16 get_livery_scheme_index() const { return livery_scheme_index; }
 	void propogate_livery_scheme();
+
+	/**
+	* The table of point-to-point average speeds.
+	* @author jamespetts
+	*/
+	koordhashtable_tpl<id_pair, average_tpl<uint16> > * average_journey_times;
 
 };
 

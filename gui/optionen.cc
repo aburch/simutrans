@@ -24,9 +24,10 @@
 #include "kennfarbe.h"
 #include "sound_frame.h"
 #include "loadsave_frame.h"
+#include "../dataobj/translator.h"
 
 optionen_gui_t::optionen_gui_t(karte_t *welt) :
-	gui_frame_t("Einstellungen"),
+	gui_frame_t( translator::translate("Einstellungen")),
 	txt("Einstellungen aendern")
 {
 	this->welt = welt;

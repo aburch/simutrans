@@ -36,6 +36,7 @@ private:
 	// Distance in tiles
 	static uint16 tile_distance;
 	static uint8 comfort;
+	static uint8 catering_level;
 	static bool sortreverse;
 	static sort_mode_t sortby;
 	//static waytype_t wtype;
@@ -45,6 +46,7 @@ private:
 	char	speed_bonus[6];
 	char	distance_txt[6];
 	char	comfort_txt[6];
+	char	catering_txt[6];
 	cbuffer_t	speed_message;
 	uint16 good_list[256];
 
@@ -54,12 +56,15 @@ private:
 	gui_label_t		change_speed_label;
 	gui_label_t		change_distance_label;
 	gui_label_t		change_comfort_label;
+	gui_label_t		change_catering_label;
 	button_t		speed_up;
 	button_t		speed_down;
 	button_t		distance_up;
 	button_t		distance_down;
 	button_t		comfort_up;
 	button_t		comfort_down;
+	button_t		catering_up;
+	button_t		catering_down;
 	gui_combobox_t	way_type;
 
 	goods_stats_t goods_stats;

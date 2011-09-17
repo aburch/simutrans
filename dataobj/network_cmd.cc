@@ -2,16 +2,7 @@
 #include "network.h"
 #include "network_packet.h"
 #include "network_socket_list.h"
-
-#include "loadsave.h"
-#include "gameinfo.h"
-#include "../simtools.h"
-#include "../simmenu.h"
-#include "../simmesg.h"
-#include "../simsys.h"
-#include "../simversion.h"
-#include "../dataobj/umgebung.h"
-#include "../player/simplay.h"
+#include "../path_explorer.h"
 
 #ifdef _MSC_VER
 #include <direct.h>
@@ -19,6 +10,7 @@
 #include <unistd.h>
 #endif
 
+#include <stdlib.h>
 
 // needed by world to kick clients if needed
 SOCKET network_command_t::get_sender()

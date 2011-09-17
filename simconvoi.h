@@ -16,6 +16,8 @@
 #include "vehicle/overtaker.h"
 #include "tpl/array_tpl.h"
 #include "tpl/fixed_list_tpl.h"
+#include "tpl/koordhashtable_tpl.h"
+#include "tpl/inthashtable_tpl.h"
 #include "tpl/minivec_tpl.h"
 
 #include "convoihandle_t.h"
@@ -33,6 +35,12 @@
 #define CONVOI_PROFIT				6 // total profit of this convoi
 #define CONVOI_DISTANCE				7 // total distance traveld this month
 #define CONVOI_REFUNDS				8 // The refunds passengers waiting for this convoy (only when not attached to a line) have received.
+
+/*
+ * Waiting time for infinite loading (ms)
+ * @author Hj- Malthaner
+ */
+#define WAIT_INFINITE 0xFFFFFFFFu
 
 class depot_t;
 class karte_t;
@@ -304,7 +312,7 @@ private:
 	// (In *km*).
 	sint64 total_distance_traveled;
 
-	// The number of tiles travelled since
+	// The number of steps travelled since
 	// the odometer was last incremented.
 	// Used for converting tiles to km.
 	// @author: jamespetts
@@ -427,13 +435,25 @@ private:
 	bool reversed;
 
 	uint32 heaviest_vehicle;
-	uint16 longest_loading_time;
+	uint32 longest_min_loading_time;
+	uint32 longest_max_loading_time;
+	uint32 current_loading_time;
 
-	// Time in ticks since it departed from the previous stop.
-	// Used for measuring average speed.
-	// @author: jamespetts
-	sint64 last_departure_time;
+	/**
+	 * Time in ticks since this convoy last departed from
+	 * any given stop, indexed here by its handle ID.
+	 * @author: jamespetts, August 2011. Replaces the original
+	 * "last_departure_time" member.
+	 */
+	inthashtable_tpl<uint16, sint64> *departure_times;
 
+	// When we arrived at current stop
+	// @author Inkelyad
+	sint64 arrival_time;
+
+	//When convoy was at first stop.
+	//Used in average round trip time calculations.
+	fixed_list_tpl<sint64, MAX_CONVOI_COST> arrival_to_first_stop;
 	// @author: jamespetts
 	uint32 rolling_average[MAX_CONVOI_COST];
 	uint16 rolling_average_count[MAX_CONVOI_COST];
@@ -475,6 +495,23 @@ private:
 	* @author yobbobandana
 	*/
 	void advance_schedule();
+
+	/**
+	 * Measure and record the times that
+	 * goods of all types have been waiting
+	 * before boarding this convoy
+	 * @author: jamespetts
+	 */
+	void book_waiting_times();
+
+	/**
+	 * Measure and record the departure
+	 * time of this convoy from the current
+	 * stop (if the convoy is currently at
+	 * a stop)
+	 * @author: jamespetts
+	 */
+	void book_departure_time(sint64 time);
 
 public:
 	
@@ -677,7 +714,7 @@ public:
 
 	// Increment the odometer,
 	// adjusting for the distance scale.
-	void increment_odometer();
+	void increment_odometer(uint32 steps);
 
 	/**
 	 * moving the veicles of a convoi and acceleration/deacceleration
@@ -801,6 +838,12 @@ public:
 	*/
 	void set_reverse_schedule(bool reverse) { reverse_schedule = reverse; }
 
+	/**
+	* The table of point-to-point average speeds.
+	* @author jamespetts
+	*/
+	koordhashtable_tpl<id_pair, average_tpl<uint16> > * average_journey_times;
+
 #if 0
 private:
 	/**
@@ -879,9 +922,14 @@ public:
 	inline const sint32 &get_loading_limit() const { return loading_limit; }
 
 	/**
-	 * Format remained loading time from go_on_ticks
+	 * Format remaining loading time from go_on_ticks
 	 */
-	void snprintf_remained_loading_time(char *p, size_t size) const;
+	void snprintf_remaining_loading_time(char *p, size_t size) const;
+
+	/**
+	 * Format remaining reversing time from go_on_ticks
+	 */
+	void snprintf_remaining_reversing_time(char *p, size_t size) const;
 
 	/**
 	 * How many free seats for passengers in convoy? Used in overcrowded loading
@@ -1020,8 +1068,13 @@ public:
 	inline uint32 get_heaviest_vehicle() const { return heaviest_vehicle; }
 	
 	//@author: jamespetts
-	uint16 calc_longest_loading_time();
-	inline uint16 get_longest_loading_time() const { return longest_loading_time; }
+	uint32 calc_longest_min_loading_time();
+	uint32 calc_longest_max_loading_time();
+	inline uint32 get_longest_min_loading_time() const { return longest_min_loading_time; }
+	inline uint32 get_longest_max_loading_time() const { return longest_max_loading_time; }
+
+	void calc_current_loading_time(uint16 load_charge);
+	inline uint16 get_current_loading_time() const { return current_loading_time; }
 
 	// @author: jamespetts
 	// Returns the number of standing passengers (etc.) in this convoy.
@@ -1052,7 +1105,21 @@ public:
 	uint16 get_livery_scheme_index() const;
 	void set_livery_scheme_index(uint16 value) { livery_scheme_index = value; }
 
-	void apply_livery_scheme(); 
+	void apply_livery_scheme();
+	sint64 get_average_round_trip_time() {
+		int items = arrival_to_first_stop.get_count();
+		if (items>1) {
+			return (arrival_to_first_stop[items-1] - arrival_to_first_stop[0])/(items-1);
+		} else {
+			return 0;
+		}
+	}
+
+	uint16 calc_reverse_delay() const;
+
+	static uint16 get_waiting_minutes(uint32 waiting_ticks);
+	
+	bool is_wait_infinite() const { return go_on_ticks == WAIT_INFINITE; }
 };
 
 #endif

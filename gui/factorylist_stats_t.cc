@@ -15,11 +15,13 @@
 #include "../simworld.h"
 #include "../simskin.h"
 
+#include "components/gui_button.h"
 #include "components/list_button.h"
 
 #include "../bauer/warenbauer.h"
 #include "../besch/skin_besch.h"
 #include "../utils/cbuffer_t.h"
+#include "../utils/simstring.h"
 
 
 factorylist_stats_t::factorylist_stats_t(karte_t* w, factorylist::sort_mode_t sortby, bool sortreverse) :
@@ -76,7 +78,7 @@ class compare_factories
 					cmp = a->get_prodfactor_electric() - b->get_prodfactor_electric();
 					break;
 			}
-			if (cmp == 0) cmp = strcmp(a->get_name(), b->get_name());
+			if (cmp == 0) cmp = STRICMP(a->get_name(), b->get_name());
 			return reverse ? cmp > 0 : cmp < 0;
 		}
 

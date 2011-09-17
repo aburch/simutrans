@@ -7,8 +7,7 @@
 #include "../simcolor.h"
 #include "../simmesg.h"
 
-// since this is used at load time and not to be changed afterwards => extra init!
-bool umgebung_t::drive_on_left = false;
+sint8 umgebung_t::pak_tile_height_step = 16;
 char umgebung_t::program_dir[1024];
 const char *umgebung_t::user_dir = 0;
 const char *umgebung_t::savegame_version_str = SAVEGAME_VER_NR;
@@ -33,6 +32,7 @@ long umgebung_t::server_frames_ahead = 4;
 long umgebung_t::additional_client_frames_behind = 0;
 long umgebung_t::network_frames_per_step = 4;
 uint32 umgebung_t::server_sync_steps_between_checks = 256;
+bool umgebung_t::pause_server_no_clients = false;
 
 // this is explicitely and interactively set by user => we do not touch it in init
 const char *umgebung_t::language_iso = "en";
@@ -224,8 +224,10 @@ void umgebung_t::rdwr(loadsave_t *file)
 	file->rdwr_bool( night_shift );
 	file->rdwr_byte( daynight_level );
 	file->rdwr_long( water_animation );
-	file->rdwr_bool( drive_on_left );
-
+	if(  file->get_version()<110007  ) {
+		bool dummy_b = 0;
+		file->rdwr_bool( dummy_b );
+	}
 	file->rdwr_byte( show_month );
 
 	file->rdwr_bool( use_transparency_station_coverage );

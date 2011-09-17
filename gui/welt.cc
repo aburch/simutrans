@@ -76,7 +76,8 @@
 #include <time.h>
 
 
-welt_gui_t::welt_gui_t(karte_t* const welt, settings_t* const sets) : gui_frame_t("Neue Welt")
+welt_gui_t::welt_gui_t(karte_t* const welt, settings_t* const sets) :
+	gui_frame_t( translator::translate("Neue Welt" ) )
 {
 DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struct tm) );
 	this->welt = welt;
@@ -584,6 +585,7 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 
 	if(old_lang!=translator::get_language()) {
 		// update button texts!
+		set_name( translator::translate( "Neue Welt" ) );
 		random_map.set_text("Random map");
 		random_map.set_tooltip("chooses a random map");
 		load_map.set_text("Lade Relief");
@@ -609,7 +611,7 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 
 	gui_frame_t::zeichnen(pos, gr);
 
-	char buf[256];
+	cbuffer_t buf;
 	const int x = pos.x+10;
 	int y = pos.y+16+START_HEIGHT;
 
@@ -641,9 +643,10 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 		) * sx * sy
 	) / (1024 * 1024);
 
+
 	const float tile_km = sets->get_meters_per_tile() / 1000.0;
 	
-	sprintf(buf, "%s (%ld MByte, %.2f km/%s):", translator::translate("Size"), memory, tile_km, translator::translate("tile"));
+	buf.printf("%s (%ld MByte, %.2f km/%s):", translator::translate("Size"), memory, tile_km, translator::translate("tile"));
 	display_proportional_clip(x, y, buf, ALIGN_LEFT, COL_BLACK, true);
 //	display_proportional_clip(x + LEFT_ARROW - 10, y, translator::translate("Tiles"), ALIGN_LEFT, COL_BLACK, true);
 //	sprintf(buf, "%.2f km/%s", tile_km, translator::translate("tile"));
@@ -651,12 +654,14 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 	y += 12;
 
 	display_proportional_clip(x, y, translator::translate("West To East"), ALIGN_LEFT, COL_BLACK, true);
-	sprintf(buf, "%.2f km", tile_km * inp_x_size.get_value());
+	buf.clear();
+	buf.printf("%.2f km", tile_km * inp_x_size.get_value());
 	display_text_proportional_len_clip(x + RIGHT_COLUMN - 20, y, buf, ALIGN_RIGHT | DT_DIRTY | DT_CLIP, COL_BLACK, -1);
 	y += 12;
 
 	display_proportional_clip(x, y, translator::translate("North To South"), ALIGN_LEFT, COL_BLACK, true);
-	sprintf(buf, "%.2f km", tile_km * inp_y_size.get_value());
+	buf.clear();
+	buf.printf("%.2f km", tile_km * inp_y_size.get_value());
 	display_text_proportional_len_clip(x + RIGHT_COLUMN - 20, y, buf, ALIGN_RIGHT | DT_DIRTY | DT_CLIP, COL_BLACK, -1);
 	y += 12+5;
 

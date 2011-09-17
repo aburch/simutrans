@@ -6,11 +6,10 @@
 #include "gui_action_creator.h"
 #include "gui_komponente.h"
 #include "../../tpl/slist_tpl.h"
-#include "action_listener.h"
 
 
 /**
- * A component for floating text. It does not use any templates on purpose!
+ * A component for floating text.
  * @author Hj. Malthaner
  */
 class gui_flowtext_t :
@@ -62,11 +61,10 @@ private:
 
 	struct node_t
 	{
-		node_t(const std::string &text_, attributes att_) : text(text_), att(att_), next(0) {}
+		node_t(const std::string &text_, attributes att_) : text(text_), att(att_) {}
 
 		std::string text;
 		attributes att;
-		node_t*    next;
 	};
 
 	/**
@@ -75,12 +73,11 @@ private:
 	 */
 	struct hyperlink_t
 	{
-		hyperlink_t(const std::string &param_) : param(param_), next(0) {}
+		hyperlink_t(const std::string &param_) : param(param_) {}
 
 		koord        tl;    // top left display position
 		koord        br;    // bottom right display position
 		std::string  param;
-		hyperlink_t* next;
 	};
 
 	slist_tpl<node_t>      nodes;

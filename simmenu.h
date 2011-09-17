@@ -195,6 +195,7 @@ public:
 	static char toolstr[1088];
 
 	static void init_menu();
+	static void exit_menu();
 
 	static void read_menu(const std::string &objfilename);
 

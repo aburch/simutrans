@@ -112,6 +112,12 @@ bool warenbauer_t::alles_geladen()
 }
 
 
+static bool compare_ware_besch(const ware_besch_t* a, const ware_besch_t* b)
+{
+	int diff = strcmp(a->get_name(), b->get_name());
+	return diff < 0;
+}
+
 bool warenbauer_t::register_besch(ware_besch_t *besch)
 {
 	besch->value = besch->base_value;
@@ -132,7 +138,7 @@ bool warenbauer_t::register_besch(ware_besch_t *besch)
 		besch->ware_index = INDEX_MAIL;
 		load_post = besch;
 	} else if(besch != nichts) {
-		waren.append(besch);
+		waren.insert_ordered(besch,compare_ware_besch);
 	}
 	else {
 		load_nichts = besch;

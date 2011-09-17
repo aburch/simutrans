@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../dataobj/tabfile.h"
+#include "../simdebug.h"
 #include "../simtypes.h"
 #include "../simversion.h"
 #include "../utils/simstring.h"
@@ -27,7 +27,7 @@ int main(int argc, char* argv[])
 {
 	argv++, argc--;
 
-	init_logging( "stderr", true, true, "Makeobj version " MAKEOBJ_VERSION " for simutrans " VERSION_NUMBER " and higher\n" );
+	init_logging( "stderr", true, true, "Makeobj version " MAKEOBJ_VERSION " for simutrans " VERSION_NUMBER NARROW_EXPERIMENTAL_VERSION " and higher\n" );
 
 	if (argc && !STRICMP(argv[0], "quiet")) {
 		argv++, argc--;

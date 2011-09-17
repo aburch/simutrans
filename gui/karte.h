@@ -4,12 +4,11 @@
 #include "components/gui_komponente.h"
 #include "../tpl/array2d_tpl.h"
 
-#include "../dataobj/fahrplan.h"
-
 class karte_t;
 class fabrik_t;
 class grund_t;
 class stadt_t;
+class schedule_t;
 
 
 #define MAX_MAP_TYPE_LAND 14

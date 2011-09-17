@@ -12,8 +12,16 @@
 	ADD: way builder can use basic terraforming
 	CHG: gui does not lose focus when new messages appear
 	ADD: AI players use way builder with terraforming
-	CHG: passengers and mail now prefer nearer attractions and cities as destinations
-	ADD: customisable distance ranges and the associated percentages for city trips
+	CHG: passengers and mail now prefer nearer attractions and cities as destinations, with attarction changing over the years
+	CHG: enable building under flying aircrafts
+	CHG: renovated factory dialog to include statistics and other indicators; preparation for factory renaming
+	FIX: convoi reservation for street convois longer than one tile is now fixed
+	CHG: road vehicles less likely to block intersections or drive through each other when turning
+	ADD: traffic light phasing adjustment
+	ADD: break (pause) button now internally handled as ASCII 16 (^P)
+	ADD: koordinate display and goto button for almost any non-moving thing on the map
+	ADD: loading convois will be overtaken
+	ADD: new file steetlist_xx.txt will be used for stop names for cities. With one parameter the halt type will be used, with two the city name and the halt type
 
 
 Release of 110.0.1 (r4359 on 12-Mar-2011):
@@ -186,6 +194,7 @@ Release of 102.2.2 (r3131 on 8-Mar-2010):
 
 Release of 102.2.1 (r2928)
 
+9-12-2009
 	FIX: minimap was not updated when a bridge was deleted
 	FIX: AI could not built any lines
 	FIX: grid slopes were not (re)set correctly

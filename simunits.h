@@ -34,7 +34,7 @@
         -- 2^12 per vehicle steps, by definition
 		-- 2^16 per vehicle steps in older code
 		-- chosen to maximize precision of certain interfaces
- * 6 -- km -- 1/tile in standard
+ * 6 -- km -- 1/tile in standard; variable in Experimental with the meters_per_tile setting
  *
  * TIME units:
  * 1 -- ticks -- referred to as ms or milliseconds in old code
@@ -42,7 +42,13 @@
  *      -- you may also use karte_t::ticks_per_world_month_shift
  * 3 -- days -- derived from months
  * 4 -- years -- derived from months
- * 5 -- hours & minutes -- NOT derived from months, implied by vehicle speed
+ * 5 -- hours & minutes -- NOT derived from months, implied by vehicle speed 
+ *      -- (express for journey, waiting, reversing, loading and spacing times in Experimental)
+ *      -- 100 km/h = (100 << 10) / 80 "yards"/tick = 1280 "yards"/tick. (see macro kmh_to_speed below)
+ *      -- Assuming 1000 meters per tile, 1h = 104857600/1280 = 81920 ticks; 
+ *      -- 3min = 81920/20 = 4096 ticks
+ *      -- 30 * ( tenth of minute ) = 4096 ticks
+ *      -- tenth of minute = 4096/30 ticks
  * 6 -- actual real-time milliseconds -- only for game speed setting
  *      -- no meaning in-game
  *

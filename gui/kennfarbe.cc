@@ -8,18 +8,16 @@
 #include "../simdebug.h"
 #include "../simevent.h"
 #include "../simimg.h"
-#include "../simworld.h"
 #include "../besch/skin_besch.h"
 #include "../simskin.h"
 #include "../dataobj/translator.h"
 #include "kennfarbe.h"
-#include "../simgraph.h"
 #include "../player/simplay.h"
 
 
 
 farbengui_t::farbengui_t(spieler_t *sp) :
-	gui_frame_t("Meldung",sp),
+	gui_frame_t( translator::translate("Meldung"), sp ),
 	txt(&buf),
 	bild(skinverwaltung_t::color_options->get_bild_nr(0),PLAYER_FLAG|sp->get_player_nr())
 {

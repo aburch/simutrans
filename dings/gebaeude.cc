@@ -27,7 +27,6 @@
 
 #include "../besch/haus_besch.h"
 #include "../besch/intro_dates.h"
-#include "../bauer/warenbauer.h"
 
 #include "../besch/grund_besch.h"
 
@@ -251,7 +250,7 @@ void gebaeude_t::set_fab(fabrik_t *fb)
 void gebaeude_t::set_stadt(stadt_t *s)
 {
 	if(is_factory  &&  ptr.fab!=NULL) {
-		dbg->fatal("gebaeude_t::set_stadt()","building already bound to factory!");
+		dbg->fatal("gebaeude_t::set_stadt()","building at (%s) already bound to factory!", get_pos().get_str() );
 	}
 	// sets the pointer in non-zero
 	is_factory = false;
@@ -532,6 +531,7 @@ const char *gebaeude_t::get_name() const
 				case haus_besch_t::attraction_land:   return "Sehenswuerdigkeit";
 				case haus_besch_t::denkmal:           return "Denkmal";
 				case haus_besch_t::rathaus:           return "Rathaus";
+				case haus_besch_t::depot:			  return tile->get_besch()->get_name();
 				default: break;
 			}
 			break;
@@ -634,7 +634,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 	ding_t::info(buf);
 
 	if(is_factory  &&  ptr.fab != NULL) {
-		ptr.fab->info(buf);
+		buf.append((char *)0);
 	}
 	else if(zeige_baugrube) {
 		buf.append(translator::translate("Baustelle"));

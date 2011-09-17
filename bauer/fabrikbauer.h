@@ -117,7 +117,7 @@ public:
 	 * or built a new consumer near the indicated position
 	 * @return: number of factories built
 	 */
-	static int increase_industry_density( karte_t *welt, bool tell_me, bool do_not_add_beyond_target_density = false );
+	static int increase_industry_density( karte_t *welt, bool tell_me, bool do_not_add_beyond_target_density = false, bool power_station_only = false );
 
 	static bool power_stations_available(karte_t* welt);
 

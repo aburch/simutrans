@@ -2,7 +2,6 @@
 #include "loadsave.h"
 #include "../simtools.h"
 
-
 const koord koord::invalid(-1, -1);
 const koord koord::nord(    0, -1);
 const koord koord::ost(     1,  0);
@@ -106,6 +105,17 @@ const char *koord::get_str() const
 		return "koord invalid";
 	}
 	sprintf( pos_str, "%i,%i", x, y );
+	return pos_str;
+}
+
+
+const char *koord::get_fullstr() const
+{
+	static char pos_str[32];
+	if(x==-1  &&  y==-1) {
+		return "koord invalid";
+	}
+	sprintf( pos_str, "(%i,%i)", x, y );
 	return pos_str;
 }
 

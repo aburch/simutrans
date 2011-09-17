@@ -9,6 +9,7 @@
 #define SIMTYPES_H
 
 #include <climits>
+#include <stdlib.h>
 
 #if defined _MSC_VER
 #	if _MSC_VER <= 1200
@@ -24,7 +25,6 @@
 #endif
 
 #if defined DEBUG
-#	include <stdlib.h>
 #	define NOT_REACHED abort();
 #else
 #	define NOT_REACHED
@@ -147,7 +147,76 @@ static inline int max(const int a, const int b)
 }
 
 // @author: jamespetts, April 2011
-template<class T> static T set_scale_generic(T value, uint16 scale_factor) { return (value * (T)scale_factor) / 1000; }
+template<class T> static T set_scale_generic(T value, uint16 scale_factor) { return (value * (T)scale_factor) / (T)1000; }
+
+template<class T> class average_tpl
+{
+public:
+	T total;
+	T count;
+
+	average_tpl()
+	{
+		reset();
+	}
+
+	inline void add(T value)
+	{
+		total += value;
+		count ++;
+	}
+
+	inline T get_average() const
+	{
+		if(count == 0)
+		{
+			return 0;
+		}
+		return total / count;
+	}
+
+	inline void reset()
+	{
+		total = 0;
+		count = 0;
+	}		
+};
+
+struct id_pair
+{
+	uint16 x;
+	uint16 y;
+
+	id_pair(uint16 a, uint16 b)
+	{
+		x = a;
+		y = b;
+	}
+
+	id_pair()
+	{
+		x = 0;
+		y = 0;
+	}
+};
+
+static inline bool operator == (const id_pair &a, const id_pair &b)
+{
+	// only this works with O3 optimisation!
+	return ((a.x-b.x)|(a.y-b.y))==0;
+}
+
+static inline bool operator != (const id_pair &a, const id_pair &b)
+{
+	// only this works with O3 optimisation!
+	return ((a.x-b.x)|(a.y-b.y))!=0;
+}
+
+static inline bool operator == (const id_pair& a, int b)
+{
+	// For hashtable use.
+	return b == 0 && a == id_pair(0, 0);
+}
 
 // endian coversion routines
 

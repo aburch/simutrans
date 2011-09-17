@@ -18,8 +18,11 @@ slist_tpl<powernet_t *> powernet_t::powernet_list;
 void powernet_t::neue_karte()
 {
 	loading_table.clear();
-	powernet_list.clear();
 
+	while(!powernet_list.empty()) {
+		powernet_t *net = powernet_list.remove_first();
+		delete net;
+	}
 }
 
 

@@ -209,12 +209,12 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	if (obj.get_int("enables_post", 0) > 0) {
 		enables |= 2;
 	}
-	if (utype == haus_besch_t::fabrik || obj.get_int("enables_ware", 0) > 0) {
+	if(  utype == haus_besch_t::fabrik  ||  obj.get_int("enables_ware", 0) > 0  ) {
 		enables |= 4;
 	}
 
-	// some station thing ...
-	if (enables) {
+	if(  utype==haus_besch_t::generic_extension  ||  utype==haus_besch_t::generic_stop  ||  utype==haus_besch_t::hafen  ||  utype==haus_besch_t::depot  ) {
+		// since elevel was reduced by one beforehand ...
 		++level;
 	}
 

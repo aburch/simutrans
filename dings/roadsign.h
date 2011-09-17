@@ -29,15 +29,15 @@ protected:
 
 	enum { SHOW_FONT=1, SHOW_BACK=2, SWITCH_AUTOMATIC=16 };
 
-	uint8 zustand:3;	// counter for steps ...
+	uint8 zustand:2;	// counter for steps ...
 	uint8 dir:4;
 
 	uint8 automatic:1;
 	uint8 ticks_ns;
 	uint8 ticks_ow;
+	uint8 ticks_offset;
 
-
-	sint8 after_offset;
+	sint8 after_yoffset, after_xoffset;
 
 	const roadsign_besch_t *besch;
 
@@ -50,6 +50,11 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	ribi_t::ribi get_dir() const 	{ return dir; }
+
+	/*
+	* sets ribi mask of the sign
+	* Caution: it will modify way ribis directly!
+	*/
 	void set_dir(ribi_t::ribi dir);
 
 	void set_zustand(signalzustand z) {zustand = z; calc_bild();}
@@ -100,6 +105,8 @@ public:
 	void set_ticks_ns(uint8 ns) { ticks_ns = ns; }
 	uint8 get_ticks_ow() const { return ticks_ow; }
 	void set_ticks_ow(uint8 ow) { ticks_ow = ow; }
+	uint8 get_ticks_offset() const { return ticks_offset; }
+	void set_ticks_offset(uint8 offset) { ticks_offset = offset; }
 
 	inline void set_bild( image_id b ) { bild = b; }
 	image_id get_bild() const { return bild; }

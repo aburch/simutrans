@@ -73,6 +73,12 @@ void fahrplan_gui_t::gimme_stop_name(cbuffer_t & buf, karte_t *welt, const spiel
 			buf.printf("%s (%s)", translator::translate("Wegpunkt"), entry.pos.get_str() );
 		}
 	}
+
+	if(entry.reverse)
+	{
+		buf.append(" ");
+		buf.append(translator::translate("[R]"));
+	}
 }
 
 
@@ -88,7 +94,7 @@ void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t &buf, karte_t *welt, const 
 		return;
 	}
 	const linieneintrag_t& entry = fpl->eintrag[i];
-	const char *p;
+	const char* p;
 	halthandle_t halt = haltestelle_t::get_halt(welt, entry.pos, sp);
 	if(halt.is_bound()) {
 		p = halt->get_name();
@@ -105,12 +111,21 @@ void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t &buf, karte_t *welt, const 
 			p = translator::translate("Wegpunkt");
 		}
 	}
+
 	// finally append
-	if(strlen(p)>(unsigned)max_chars) {
+	if(strlen(p)>(unsigned)max_chars)
+	{
 		buf.printf("%.*s...", max_chars - 3, p);
 	}
-	else {
+	else 
+	{
 		buf.append(p);
+	}
+
+	if(entry.reverse)
+	{
+		buf.append(" ");
+		buf.append(translator::translate("[R]"));
 	}
 }
 
@@ -158,7 +173,7 @@ fahrplan_gui_t::~fahrplan_gui_t()
 
 
 fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t cnv_) :
-	gui_frame_t("Fahrplan", sp_),
+	gui_frame_t( translator::translate("Fahrplan"), sp_),
 	lb_line("Serves Line:"),
 	lb_wait("month wait time"),
 	lb_waitlevel(NULL, COL_WHITE, gui_label_t::right),
@@ -251,7 +266,7 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	else {
 		sprintf( str_parts_month, "1/%d",  1<<(16-fpl->get_current_eintrag().waiting_time_shift) );
 		sint32 ticks_waiting = welt->ticks_per_world_month >> (16-fpl->get_current_eintrag().waiting_time_shift);
-		win_sprintf_ticks(str_parts_month_as_clock, sizeof(str_parts_month_as_clock), ticks_waiting + 1);
+		welt->sprintf_ticks(str_parts_month_as_clock, sizeof(str_parts_month_as_clock), ticks_waiting + 1);
 	}
 
 	lb_waitlevel.set_text_pointer( str_parts_month );
@@ -421,8 +436,8 @@ void fahrplan_gui_t::update_selection()
 					lb_spacing_as_clock.set_color( COL_BLACK );
 					lb_spacing_shift_as_clock.set_color( COL_BLACK );
 
-					win_sprintf_ticks(str_spacing_as_clock, sizeof(str_spacing_as_clock), welt->ticks_per_world_month/fpl->get_spacing());
-					win_sprintf_ticks(str_spacing_shift_as_clock, sizeof(str_spacing_as_clock),
+					welt->sprintf_ticks(str_spacing_as_clock, sizeof(str_spacing_as_clock), welt->ticks_per_world_month/fpl->get_spacing());
+					welt->sprintf_ticks(str_spacing_shift_as_clock, sizeof(str_spacing_as_clock),
 							fpl->eintrag[aktuell].spacing_shift * welt->ticks_per_world_month/welt->get_settings().get_spacing_shift_divisor()+1
 							);
 				}
@@ -430,7 +445,7 @@ void fahrplan_gui_t::update_selection()
 			if(  fpl->eintrag[aktuell].ladegrad>0  &&  fpl->eintrag[aktuell].waiting_time_shift>0  ) {
 				sprintf( str_parts_month, "1/%d",  1<<(16-fpl->eintrag[aktuell].waiting_time_shift) );
 				sint32 ticks_waiting = welt->ticks_per_world_month >> (16-fpl->get_current_eintrag().waiting_time_shift);
-				win_sprintf_ticks(str_parts_month_as_clock, sizeof(str_parts_month_as_clock), ticks_waiting + 1);
+				welt->sprintf_ticks(str_parts_month_as_clock, sizeof(str_parts_month_as_clock), ticks_waiting + 1);
 			}
 			else {
 				strcpy( str_parts_month, translator::translate("off") );
@@ -722,7 +737,7 @@ void fahrplan_gui_t::map_rotate90( sint16 y_size)
 
 
 fahrplan_gui_t::fahrplan_gui_t(karte_t *welt):
-	gui_frame_t("Fahrplan", NULL),
+gui_frame_t( translator::translate("Fahrplan"), NULL),
 	lb_line("Serves Line:"),
 	lb_wait("month wait time"),
 	lb_waitlevel(NULL, COL_WHITE, gui_label_t::right),

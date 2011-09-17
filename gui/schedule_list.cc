@@ -129,7 +129,7 @@ static bool compare_lines(line_scrollitem_t* a, line_scrollitem_t* b)
 // Hajo: 17-Jan-04: changed layout to make components fit into
 // a width of 400 pixels -> original size was unuseable in 640x480
 schedule_list_gui_t::schedule_list_gui_t(spieler_t *sp_) :
-	gui_frame_t("Line Management", sp_),
+	gui_frame_t( translator::translate("Line Management"), sp_),
 	sp(sp_),
 	scrolly(&cont),
 	scrolly_haltestellen(&cont_haltestellen),
@@ -478,7 +478,7 @@ void schedule_list_gui_t::display(koord pos)
 {
 	int icnv = line->count_convoys();
 
-	char buffer[8192];
+	cbuffer_t buf;
 	char ctmp[128];
 
 	capacity = load = loadfactor = 0; // total capacity and load of line (=sum of all conv's cap/load)
@@ -504,14 +504,20 @@ void schedule_list_gui_t::display(koord pos)
 	}
 
 	switch(icnv) {
-		case 0: strcpy(buffer, translator::translate("no convois") );
+		case 0: {
+			buf.append( translator::translate("no convois") );
 			break;
-		case 1: strcpy(buffer, translator::translate("1 convoi") );
+		}
+		case 1: {
+			buf.append( translator::translate("1 convoi") );
 			break;
-		default: sprintf(buffer, translator::translate("%d convois"), icnv);
+		}
+		default: {
+			buf.printf( translator::translate("%d convois"), icnv) ;
 			break;
+		}
 	}
-	int len=display_proportional(pos.x+LINE_NAME_COLUMN_WIDTH-5, pos.y+16+14+SCL_HEIGHT+14+4, buffer, ALIGN_LEFT, COL_BLACK, true );
+	int len=display_proportional(pos.x+LINE_NAME_COLUMN_WIDTH-5, pos.y+16+14+SCL_HEIGHT+14+4, buf, ALIGN_LEFT, COL_BLACK, true );
 
 	int len2 = display_proportional(pos.x+LINE_NAME_COLUMN_WIDTH-5, pos.y+16+14+SCL_HEIGHT+14+4+LINESPACE, translator::translate("Gewinn"), ALIGN_LEFT, COL_BLACK, true );
 	money_to_string(ctmp, profit/100.0);
@@ -519,8 +525,9 @@ void schedule_list_gui_t::display(koord pos)
 
 	int rest_width = max( (get_fenstergroesse().x-LINE_NAME_COLUMN_WIDTH)/2, max(len2,len) );
 	number_to_string(ctmp, capacity, 2);
-	sprintf(buffer, translator::translate("Capacity: %s\nLoad: %d (%d%%)"), ctmp, load, loadfactor);
-	display_multiline_text(pos.x + LINE_NAME_COLUMN_WIDTH + rest_width, pos.y+16 + 14 + SCL_HEIGHT + 14 +4 , buffer, COL_BLACK);
+	buf.clear();
+	buf.printf( translator::translate("Capacity: %s\nLoad: %d (%d%%)"), ctmp, load, loadfactor );
+	display_multiline_text(pos.x + LINE_NAME_COLUMN_WIDTH + rest_width, pos.y+16 + 14 + SCL_HEIGHT + 14 +4 , buf, COL_BLACK);
 }
 
 
@@ -630,7 +637,10 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		if(new_line.is_bound() && !livery_scheme_indices.empty())
 		{
 			uint16 idx = new_line->get_livery_scheme_index();
-			livery_selector.set_selection(livery_scheme_indices.index_of(idx));
+			if(!livery_scheme_indices.empty())
+			{
+				livery_selector.set_selection(livery_scheme_indices.index_of(idx));
+			}
 		}
 
 

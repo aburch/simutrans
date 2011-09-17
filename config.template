@@ -77,4 +77,4 @@
 # BUILDDIR = $(shell pwd)
 # PROGDIR  = $(shell pwd)
 
-FLAGS = -DNDEBUG	
+FLAGS = -DNDEBUG -fpermissive

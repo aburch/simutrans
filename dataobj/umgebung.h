@@ -14,6 +14,8 @@
 #include "../simcolor.h"
 #include "einstellungen.h"
 
+#define TILE_HEIGHT_STEP (umgebung_t::pak_tile_height_step)
+
 
 /**
  * Diese Klasse bildet eine Abstraktion der Kommandozeilenparameter.
@@ -58,6 +60,9 @@ public:
 	static std::string server_name;
 	static std::string server_comment;
 	static std::string server_admin_pw;
+
+	// pause server if no client connected
+	static bool pause_server_no_clients;
 
 	// scrollrichtung
 	static sint16 scroll_multi;
@@ -203,7 +208,7 @@ public:
 		DATE_FMT_JAPANESE_NO_SEASON = 5,
 		DATE_FMT_US_NO_SEASON       = 6,
 		DATE_FMT_GERMAN_NO_SEASON   = 7,
-		DATE_FMT_LONG_MONTH         = 8
+		DATE_FMT_INTERNAL_MINUTE = 8
 	};
 
 	/**
@@ -273,6 +278,9 @@ public:
 	static uint8 front_window_text_color;
 	static uint8 bottom_window_bar_color;
 	static uint8 bottom_window_text_color;
+
+	// how many internal pixel per hieght step (default 16)
+	static sint8 pak_tile_height_step;
 
 	static settings_t default_einstellungen;
 

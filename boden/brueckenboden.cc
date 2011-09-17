@@ -7,6 +7,7 @@
 #include "../besch/bruecke_besch.h"
 
 #include "../dataobj/loadsave.h"
+#include "../dataobj/umgebung.h"
 #include "../dataobj/translator.h"
 
 #include "../utils/cbuffer_t.h"

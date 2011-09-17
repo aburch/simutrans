@@ -7,11 +7,11 @@
 
 #include "welt.h"
 #include "../simwin.h"
-#include "../simcity.h"
 #include "../simversion.h"
 #include "../dataobj/einstellungen.h"
 #include "../dataobj/umgebung.h"
 #include "../dataobj/translator.h"
+#include "../vehicle/simvehikel.h"
 #include "settings_stats.h"
 
 
@@ -166,6 +166,7 @@ void settings_experimental_general_stats_t::init( settings_t *sets )
 	INIT_BOOL( "assume_everywhere_connected_by_road", sets->get_assume_everywhere_connected_by_road());
 	INIT_NUM( "spacing_shift_mode", sets->get_spacing_shift_mode(), 0, 2 , gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "spacing_shift_divisor", sets->get_spacing_shift_divisor(), 1, 32767 , gui_numberinput_t::AUTOLINEAR, false );
+	INIT_BOOL( "allow_routing_on_foot", sets->get_allow_routing_on_foot());
 
 	SEPERATOR;
 	{
@@ -222,6 +223,7 @@ void settings_experimental_general_stats_t::read(settings_t *sets)
 	READ_BOOL( sets->set_assume_everywhere_connected_by_road );
 	READ_NUM( sets->set_spacing_shift_mode );
 	READ_NUM( sets->set_spacing_shift_divisor);
+	READ_BOOL( sets->set_allow_routing_on_foot);
 
 	uint16 default_increase_maintenance_after_years_other;
 	READ_NUM_VALUE( default_increase_maintenance_after_years_other );
@@ -252,6 +254,7 @@ void settings_experimental_revenue_stats_t::init( settings_t *sets )
 	INIT_INIT;
 	INIT_NUM( "passenger_routing_packet_size", sets->get_passenger_routing_packet_size(), 1, 64, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "max_alternative_destinations", sets->get_max_alternative_destinations(), 0, 15, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM("passenger_max_wait", sets->get_passenger_max_wait(), 0, 311040, gui_numberinput_t::AUTOLINEAR, false );
 	{
 		gui_component_table_t &tbl = new_table(koord(0, ypos), 6, 4);
 		int row = 0;
@@ -366,6 +369,7 @@ void settings_experimental_revenue_stats_t::read(settings_t *sets)
 	READ_INIT
 	READ_NUM_VALUE( sets->passenger_routing_packet_size );
 	READ_NUM_VALUE( sets->max_alternative_destinations );
+	READ_NUM_VALUE( sets->passenger_max_wait );
 
 	READ_NUM_VALUE( sets->local_passengers_max_distance );
 	READ_NUM_VALUE( sets->passenger_routing_local_chance );
@@ -429,21 +433,22 @@ bool settings_general_stats_t::action_triggered(gui_action_creator_t *komp, valu
 
 /* Nearly automatic lists with controls:
  * BEWARE: The init exit pair MUST match in the same order or else!!!
- */
+ */ 
 void settings_general_stats_t::init(settings_t const* const sets)
 {
 	INIT_INIT
-//	INIT_BOOL( "drive_left", umgebung_t::drive_on_left );	//cannot be switched after loading paks
+	INIT_BOOL( "drive_left", sets->is_drive_left() );
+	INIT_BOOL( "signals_on_left", sets->is_signals_left() );
 	INIT_NUM( "autosave", umgebung_t::autosave, 0, 12, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "frames_per_second",umgebung_t::fps, 10, 30, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "fast_forward", umgebung_t::max_acceleration, 1, 1000, gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR
 	INIT_BOOL( "numbered_stations", sets->get_numbered_stations() );
 	INIT_NUM( "show_names", umgebung_t::show_names, 0, 3, gui_numberinput_t::AUTOLINEAR, true );
-	INIT_NUM( "show_month", umgebung_t::show_month, 0, 7, gui_numberinput_t::AUTOLINEAR, true );
+	INIT_NUM( "show_month", umgebung_t::show_month, 0, 8, gui_numberinput_t::AUTOLINEAR, true );
 	INIT_BOOL( "add_player_name_to_message", umgebung_t::add_player_name_to_message );
 	SEPERATOR
-	INIT_NUM( "bits_per_month", sets->get_bits_per_month(), 16, 24, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "bits_per_month", sets->get_bits_per_month(), 16, 48, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "use_timeline", sets->get_use_timeline(), 0, 3, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM_NEW( "starting_year", sets->get_starting_year(), 0, 2999, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM_NEW( "starting_month", sets->get_starting_month(), 0, 11, gui_numberinput_t::AUTOLINEAR, false );
@@ -525,7 +530,10 @@ void settings_general_stats_t::init(settings_t const* const sets)
 void settings_general_stats_t::read(settings_t* const sets)
 {
 	READ_INIT
-//	READ_BOOL_VALUE( umgebung_t::drive_on_left );	//cannot be switched after loading paks
+	READ_BOOL_VALUE( sets->drive_on_left );
+	vehikel_basis_t::set_overtaking_offsets( sets->drive_on_left );
+	READ_BOOL_VALUE( sets->signals_on_left );
+
 	READ_NUM_VALUE( umgebung_t::autosave );
 	READ_NUM_VALUE( umgebung_t::fps );
 	READ_NUM_VALUE( umgebung_t::max_acceleration );

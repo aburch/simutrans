@@ -1,13 +1,10 @@
 #ifndef KOORD_H
 #define KOORD_H
 
-#include <stdlib.h>
+//#include <stdlib.h>
 
 #include "ribi.h"
 #include "../simtypes.h"
-
-#include <stdlib.h>
-
 
 class loadsave_t;
 
@@ -34,6 +31,7 @@ public:
 	void rdwr(loadsave_t *file);
 
 	const char *get_str() const;
+	const char *get_fullstr() const;	// including brackets
 
 	const koord& operator += (const koord & k)
 	{
@@ -77,22 +75,22 @@ private:
 	static const koord from_hang[16];
 };
 
-static inline uint32 int_sqrt(const uint32 num) 
-{
-    if (0 == num) 
-	{ 
-		// Avoid zero divide
-		return 0; 
-	}  
-    uint32 n = (num / 2) + 1;       // Initial estimate, never low
-    uint32 n1 = (n + (num / n)) / 2;
-    while (n1 < n) 
-	{
-        n = n1;
-        n1 = (n + (num / n)) / 2;
-    }
-    return n;
-}
+//static inline uint32 int_sqrt(const uint32 num) 
+//{
+//    if (0 == num) 
+//	{ 
+//		// Avoid zero divide
+//		return 0; 
+//	}  
+//    uint32 n = (num / 2) + 1;       // Initial estimate, never low
+//    uint32 n1 = (n + (num / n)) / 2;
+//    while (n1 < n) 
+//	{
+//        n = n1;
+//        n1 = (n + (num / n)) / 2;
+//    }
+//    return n;
+//}
 
 static inline uint32 koord_distance(const koord &a, const koord &b)
 {
@@ -100,13 +98,13 @@ static inline uint32 koord_distance(const koord &a, const koord &b)
 	return abs(a.x - b.x) + abs(a.y - b.y);
 }
 
-static inline uint32 accurate_distance(const koord &a, const koord &b)
-{
-	// Euclidian distance
-	const sint32 delta_x = (sint32)a.x - (sint32)b.x;
-	const sint32 delta_y = (sint32)a.y - (sint32)b.y;
-	return int_sqrt( delta_x * delta_x + delta_y * delta_y );
-}
+//static inline uint32 accurate_distance(const koord &a, const koord &b)
+//{
+//	// Euclidian distance
+//	const sint32 delta_x = (sint32)a.x - (sint32)b.x;
+//	const sint32 delta_y = (sint32)a.y - (sint32)b.y;
+//	return int_sqrt( delta_x * delta_x + delta_y * delta_y );
+//}
 
 
 // Knightly : shortest distance in cardinal (N, E, S, W) and ordinal (NE, SE, SW, NW) directions
@@ -170,7 +168,7 @@ static inline koord operator - (const koord &a, const koord &b)
 	return koord(a.x - b.x, a.y - b.y);
 }
 
-
+ 
 static inline koord operator - (const koord &a)
 {
 	return koord(-a.x, -a.y);
@@ -181,6 +179,7 @@ static inline bool operator == (const koord& a, int b)
 	// For hashtable use.
 	return b == 0 && a == koord::invalid;
 }
+
 
 ///**
 // * Ordering based on relative distance to a fixed point `origin'.

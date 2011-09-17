@@ -243,7 +243,8 @@ void vehikel_besch_t::calc_checksum(checksum_t *chk) const
 	chk->input(can_lead_from_rear ? 1 : 0);
 	chk->input(can_be_at_rear ? 1 : 0);
 	chk->input(comfort);
-	chk->input(loading_time);
+	chk->input(max_loading_time);
+	chk->input(min_loading_time);
 	chk->input(tractive_effort);
 	const uint16 ar = air_resistance * float32e8_t((uint32)100);
 	chk->input(ar);

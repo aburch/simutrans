@@ -15,6 +15,8 @@
 #include "simgraph.h"
 #include "player/simplay.h"
 #include "dataobj/umgebung.h"
+#include "dataobj/fahrplan.h"
+#include "simconvoi.h"
 
 
 // #define DEBUG_EXPLORER_SPEED
@@ -232,6 +234,7 @@ path_explorer_t::compartment_t::compartment_t()
 	finished_halt_count = 0;
 
 	working_matrix = NULL;
+	transport_index_map = NULL;
 	transport_matrix = NULL;
 	working_halt_index_map = NULL;
 	working_halt_list = NULL;
@@ -241,7 +244,6 @@ path_explorer_t::compartment_t::compartment_t()
 	all_halts_count = 0;
 
 	linkages = NULL;
-	linkages_count = 0;
 
 	transfer_list = NULL;
 	transfer_count = 0;;
@@ -296,6 +298,10 @@ path_explorer_t::compartment_t::~compartment_t()
 			delete[] working_matrix[i];
 		}
 		delete[] working_matrix;
+	}
+	if (transport_index_map)
+	{
+		delete[] transport_index_map;
 	}
 	if (transport_matrix)
 	{
@@ -374,7 +380,12 @@ void path_explorer_t::compartment_t::reset(const bool reset_finished_set)
 		}
 		delete[] working_matrix;
 		working_matrix = NULL;
-	}	
+	}
+	if (transport_index_map)
+	{
+		delete[] transport_index_map;
+		transport_index_map = NULL;
+	}
 	if (transport_matrix)
 	{
 		for (uint16 i = 0; i < working_halt_count; ++i)
@@ -410,7 +421,6 @@ void path_explorer_t::compartment_t::reset(const bool reset_finished_set)
 		delete linkages;
 		linkages = NULL;
 	}
-	linkages_count = 0;
 
 
 	if (transfer_list)
@@ -526,6 +536,9 @@ void path_explorer_t::compartment_t::step()
 				all_halts_list = new halthandle_t[all_halts_count];
 			}
 
+			const bool no_walking_connexions = !world->get_settings().get_allow_routing_on_foot() || catg!=warenbauer_t::passagiere->get_catg_index();
+			const uint32 journey_time_adjustment = (world->get_settings().get_meters_per_tile() * 6u) / 10u;
+
 			// Save the halt list in an array first to prevent the list from being modified across steps, causing bugs
 			for (uint16 i = 0; i < all_halts_count; ++i)
 			{
@@ -536,6 +549,47 @@ void path_explorer_t::compartment_t::step()
 				if ( connexion_list[ all_halts_list[i].get_id() ].connexion_table == NULL )
 				{
 					connexion_list[ all_halts_list[i].get_id() ].connexion_table = new quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>();
+				}
+
+				// Connect halts within walking distance of each other (for passengers only)
+				// @author: jamespetts, July 2011
+
+				if ( no_walking_connexions || !all_halts_list[i]->is_enabled(warenbauer_t::passagiere) )
+				{
+					continue;
+				}
+
+				const uint32 halts_within_walking_distance = all_halts_list[i]->get_number_of_halts_within_walking_distance();
+
+				halthandle_t walking_distance_halt;
+				haltestelle_t::connexion *new_connexion;
+				
+				for ( uint32 x = 0; x < halts_within_walking_distance; ++x )
+				{
+					walking_distance_halt = all_halts_list[i]->get_halt_within_walking_distance(x);
+
+					if(!walking_distance_halt->is_enabled(warenbauer_t::passagiere))
+					{
+						continue;
+					}
+
+					// Walking speed is taken to be 5km/h: http://en.wikipedia.org/wiki/Walking
+					const uint32 journey_time_factor = (journey_time_adjustment * 100u) / 5u;
+					const uint16 journey_time = (uint16)((shortest_distance(all_halts_list[i]->get_next_pos(walking_distance_halt->get_basis_pos()), walking_distance_halt->get_next_pos(all_halts_list[i]->get_basis_pos())) * journey_time_factor) / 100u);
+					
+					// Check the journey times to the connexion
+					new_connexion = new haltestelle_t::connexion;
+					new_connexion->waiting_time = 0; // People do not need to wait to walk.
+					new_connexion->best_convoy = convoihandle_t();
+					new_connexion->best_line = linehandle_t();
+					new_connexion->journey_time = journey_time;
+					new_connexion->alternative_seats = 0;
+
+					// These are walking connexions only. There will not be multiple possible connexions, so no need
+					// to check for existing connexions here.
+					connexion_list[ all_halts_list[i].get_id() ].connexion_table->put(walking_distance_halt, new_connexion);
+					connexion_list[ all_halts_list[i].get_id() ].serving_transport = 1u;	// will become an interchange if served by additional transport(s)
+					all_halts_list[i]->prepare_goods_list(catg);
 				}
 			}
 
@@ -549,6 +603,8 @@ void path_explorer_t::compartment_t::step()
 				// This is always created regardless
 				working_halt_index_map[i] = 65535;
 			}
+
+			transport_index_map = new uint16[131072]();		// initialise all elements to zero
 
 			// create a list of schedules of lines and lineless convoys
 			linkages = new vector_tpl<linkage_t>(1024);
@@ -566,6 +622,7 @@ void path_explorer_t::compartment_t::step()
 				{
 					temp_linkage.convoy = current_convoy;
 					linkages->append(temp_linkage);
+					transport_index_map[ 65536u + current_convoy.get_id() ] = linkages->get_count();
 				}
 			}
 
@@ -590,18 +647,19 @@ void path_explorer_t::compartment_t::step()
 					{
 						temp_linkage.line = current_line;
 						linkages->append(temp_linkage);
+						transport_index_map[ current_line.get_id() ] = linkages->get_count();
 					}
 				}
 			}
 
-			linkages_count = linkages->get_count();
-
+			// can have at most 65535 different lines and lineless convoys; passing this limit should be extremely unlikely
+			assert( linkages->get_count() <= 65535u );
 
 #ifdef DEBUG_COMPARTMENT_STEP
 			diff = dr_time() - start;	// stop timing
 
 			printf("\tTotal Halt Count :  %lu \n", all_halts_count);
-			printf("\tTotal Lines/Lineless Convoys Count :  %ul \n", linkages_count);
+			printf("\tTotal Lines/Lineless Convoys Count :  %ul \n", linkages->get_count());
 			printf("\t\t\tInitial prepration takes :  %lu ms \n", diff);
 #endif
 
@@ -634,8 +692,6 @@ void path_explorer_t::compartment_t::step()
 			uint8 entry_count;
 			halthandle_t current_halt;
 
-			uint32 journey_time_factor;
-
 			minivec_tpl<halthandle_t> halt_list(64);
 			minivec_tpl<uint16> journey_time_list(64);
 			minivec_tpl<bool> recurrence_list(64);		// an array indicating whether certain halts have been processed already
@@ -644,10 +700,13 @@ void path_explorer_t::compartment_t::step()
 			quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> *catg_connexions;
 			haltestelle_t::connexion *new_connexion;
 
+			vector_tpl<convoihandle_t> convoys_to_reset;
+			vector_tpl<linehandle_t> lines_to_reset;
+
 			start = dr_time();	// start timing
 
 			// for each schedule of line / lineless convoy
-			while (phase_counter < linkages_count)
+			while (phase_counter < linkages->get_count())
 			{
 				current_linkage = (*linkages)[phase_counter];
 
@@ -678,18 +737,17 @@ void path_explorer_t::compartment_t::step()
 				}
 
 				// create a list of reachable halts
-				entry_count = current_schedule->get_count();
+				bool reverse = false;
+				entry_count = current_schedule->is_mirrored() ? (current_schedule->get_count() * 2) - 2 : current_schedule->get_count();
 				halt_list.clear();
 				recurrence_list.clear();
 
 				uint8 index = 0;
-				bool reverse = false;
-				bool first_run = true;
 
-				for (uint8 i = 0; i < entry_count * 3; ++i)
+				while (entry_count--)
 				{
 					current_halt = haltestelle_t::get_halt(world, current_schedule->eintrag[index].pos, current_owner);
-					
+               
 					// Make sure that the halt found was built before refresh started and that it supports current goods category
 					if ( current_halt.is_bound() && current_halt->get_inauguration_time() < refresh_start_time && current_halt->is_enabled(ware_type) )
 					{
@@ -698,61 +756,65 @@ void path_explorer_t::compartment_t::step()
 						// Initialise the corresponding recurrence list entry to false
 						recurrence_list.append(false, 64);
 					}
-					
+               
 					current_schedule->increment_index(&index, &reverse);
-
-					// check if we have traversed the whole schedule, both ways if appropriate
-					if (index == 0)
-					{
-						if(!current_schedule->is_mirrored())
-						{
-							break;
-						}
-						else
-						{
-							// This will give just under 3*sched->get_count() entries in a worst-case scenario
-							// (i.e. if this halt is the last stop in the scedule).
-							// This is necessary to represent both directions using a single halt_list.
-							if ( first_run == true )
-							{
-								// first run -> continue on
-								first_run = false;
-							}
-							else if ( reverse == false )
-							{
-								// second run -> also visit all stops in reverse direction
-								reverse = true;
-							}
-							else
-							{
-								// visited everywhere both forwards and backwards.
-								break;
-							}
-						}
-					}
 				}
 
 				// precalculate journey times between consecutive halts
-				entry_count = halt_list.get_count();
-				journey_time_factor = (journey_time_adjustment * 100) / current_average_speed;
+				// This is now only a fallback in case the point to point journey time data are not available.
+				entry_count = halt_list.get_count();	
+				uint16 journey_time = 0;
 				journey_time_list.clear();
 				journey_time_list.append(0);	// reserve the first entry for the last journey time from last halt to first halt
 
 
 				for (uint8 i = 0; i < entry_count; ++i)
 				{
+					journey_time = 0;
+					const id_pair pair(halt_list[i].get_id(), halt_list[(i+1)%entry_count].get_id());
+					
+					if ( current_linkage.line.is_bound() && current_linkage.line->average_journey_times->is_contained(pair) )
+					{
+						if(!halt_list[i].is_bound() || ! halt_list[(i+1)%entry_count].is_bound())
+						{
+							current_linkage.line->average_journey_times->remove(pair);
+							continue;
+						}
+						else
+						{
+							journey_time = current_linkage.line->average_journey_times->get(pair).get_average();
+						}
+					}
+					else if ( current_linkage.convoy.is_bound() && current_linkage.convoy->average_journey_times->is_contained(pair) )
+					{
+						if(!halt_list[i].is_bound() || ! halt_list[(i+1)%entry_count].is_bound())
+						{
+							current_linkage.convoy->average_journey_times->remove(pair);
+							continue;
+						}
+						else
+						{
+							journey_time = current_linkage.convoy->average_journey_times->get(pair).get_average();
+						}
+					}
+
+					if(journey_time == 0)
+					{
+						// Zero here means that there are no journey time data even if the hashtable entry exists.
+						// Fallback to convoy's general average speed if a point-to-point average is not available.
+						const uint32 journey_time_factor = (journey_time_adjustment * 100) / current_average_speed;
+						const uint32 distance = shortest_distance(halt_list[i]->get_basis_pos(), halt_list[(i+1)%entry_count]->get_basis_pos());
+						journey_time = (uint16)((distance * journey_time_factor) / 100);
+					}
+
 					// journey time from halt 0 to halt 1 is stored in journey_time_list[1]
-					journey_time_list.append
-					(
-						(uint16)((accurate_distance( halt_list[i]->get_basis_pos(),	halt_list[(i+1)%entry_count]->get_basis_pos() ) * journey_time_factor) / 100),
-						64 
-					);
+					journey_time_list.append(journey_time, 64);
 					
 				}
 				
-
 				journey_time_list[0] = journey_time_list[entry_count];	// copy the last entry to the first entry
 				journey_time_list.remove_at(entry_count);	// remove the last entry
+				
 
 				// rebuild connexions for all halts in halt list
 				// for each origin halt
@@ -766,7 +828,7 @@ void path_explorer_t::compartment_t::step()
 
 					accumulated_journey_time = 0;
 
-					// use hash tables in connexion list, but not the hash tables stored in the halt
+					// use hash tables in connexion list, but not hash tables stored in the halt
 					catg_connexions = connexion_list[ halt_list[h].get_id() ].connexion_table;
 					// any serving line/lineless convoy increments serving transport count
 					++connexion_list[ halt_list[h].get_id() ].serving_transport;
@@ -793,12 +855,41 @@ void path_explorer_t::compartment_t::step()
 						// Check the journey times to the connexion
 						new_connexion = new haltestelle_t::connexion;
 						new_connexion->waiting_time = halt_list[h]->get_average_waiting_time(halt_list[t], catg);
-						new_connexion->journey_time = accumulated_journey_time;
+						if(current_linkage.line.is_bound())
+						{
+							average_tpl<uint16>* ave = current_linkage.line->average_journey_times->access(id_pair(halt_list[h].get_id(), halt_list[t].get_id()));
+							if(ave && ave->count > 0)
+							{
+								new_connexion->journey_time = ave->get_average();
+								// Reset the data once they have been read once.
+								lines_to_reset.append(new_connexion->best_line);
+								convoys_to_reset.append(new_connexion->best_convoy);
+							}
+							else
+							{
+								// Fallback - use the old method. This will be an estimate, and a somewhat generous one at that.
+								new_connexion->journey_time = accumulated_journey_time;
+							}
+						}
+						else if(current_linkage.convoy.is_bound())
+						{
+							average_tpl<uint16>* ave = current_linkage.convoy->average_journey_times->access(id_pair(halt_list[h].get_id(), halt_list[t].get_id()));
+							if(ave && ave->count > 0)
+							{
+								new_connexion->journey_time = ave->get_average();
+								// Reset the data once they have been read once.
+								convoys_to_reset.append(new_connexion->best_convoy);
+							}
+							else
+							{
+								// Fallback - use the old method. This will be an estimate, and a somewhat generous one at that.
+								new_connexion->journey_time = accumulated_journey_time;
+							}
+						}
 						new_connexion->best_convoy = current_linkage.convoy;
 						new_connexion->best_line = current_linkage.line;
 						new_connexion->alternative_seats = 0;
 
-						// Adapted from haltestelle_t::add_connexion()
 						// Check whether this is the best connexion so far, and, if so, add it.
 						if( !catg_connexions->put(halt_list[t], new_connexion) )
 						{
@@ -847,7 +938,7 @@ void path_explorer_t::compartment_t::step()
 #endif
 
 			// check if this phase is finished
-			if (phase_counter == linkages_count)
+			if (phase_counter == linkages->get_count())
 			{
 				// iteration limit adjustment
 				if ( catg == representative_category )
@@ -885,7 +976,6 @@ void path_explorer_t::compartment_t::step()
 					delete linkages;
 					linkages = NULL;
 				}
-				linkages_count = 0;
 
 				current_phase = phase_filter_eligible;	// proceed to the next phase
 				phase_counter = 0;	// reset counter
@@ -893,6 +983,25 @@ void path_explorer_t::compartment_t::step()
 			}
 
 			iterations = 0;	// reset iteration counter
+
+			ITERATE(lines_to_reset, n)
+			{
+				if(lines_to_reset[n].is_bound())
+				{
+					lines_to_reset[n]->average_journey_times->clear();
+				}
+			}
+
+			lines_to_reset.clear();
+
+			ITERATE(convoys_to_reset, m)
+			{
+				if(convoys_to_reset[m].is_bound())
+				{
+					convoys_to_reset[m]->average_journey_times->clear();
+				}
+			}
+			convoys_to_reset.clear();
 
 #ifndef DEBUG_EXPLORER_SPEED
 			return;
@@ -1099,24 +1208,38 @@ void path_explorer_t::compartment_t::step()
 
 					current_connexion = connexions_iter.get_current_value();
 
+					// validate transport and determine transport index
+					uint16 transport_idx;
+					if ( current_connexion->best_line.is_null() && current_connexion->best_convoy.is_null() )
+					{
+						// passengers walking between 2 halts
+						transport_idx = 0;
+					}
+					else if ( current_connexion->best_line.is_bound() )
+					{
+						// valid line
+						transport_idx = transport_index_map[ current_connexion->best_line.get_id() ];
+					}
+					else if ( current_connexion->best_convoy.is_bound() )
+					{
+						// valid lineless convoy
+						transport_idx = transport_index_map[ 65536u + current_connexion->best_convoy.get_id() ];
+					}
+					else
+					{
+						// neither walking nor having valid transport -> skip this connection
+						continue;
+					}
+
 					// determine the matrix index of reachable halt in working halt index map
 					reachable_halt_index = working_halt_index_map[reachable_halt.get_id()];
 
 					// update corresponding matrix element
 					working_matrix[phase_counter][reachable_halt_index].next_transfer = reachable_halt;
 					working_matrix[phase_counter][reachable_halt_index].aggregate_time = current_connexion->waiting_time + current_connexion->journey_time;
-					if ( current_connexion->best_line.is_bound() )
-					{
-						transport_matrix[phase_counter][reachable_halt_index].first_line 
-							= transport_matrix[phase_counter][reachable_halt_index].last_line 
-							= current_connexion->best_line.get_id();
-					}
-					else
-					{
-						transport_matrix[phase_counter][reachable_halt_index].first_convoy 
-							= transport_matrix[phase_counter][reachable_halt_index].last_convoy 
-							= current_connexion->best_convoy.get_id();
-					}
+					transport_matrix[phase_counter][reachable_halt_index].first_transport 
+						= transport_matrix[phase_counter][reachable_halt_index].last_transport 
+						= transport_idx;
 
 					// Debug journey times
 					// printf("\n%s -> %s : %lu \n",current_halt->get_name(), reachable_halt->get_name(), working_matrix[phase_counter][reachable_halt_index].journey_time);
@@ -1186,6 +1309,11 @@ void path_explorer_t::compartment_t::step()
 					delete[] working_halt_list;
 					working_halt_list = NULL;
 				}
+				if (transport_index_map)
+				{
+					delete[] transport_index_map;
+					transport_index_map = NULL;
+				}
 
 				current_phase = phase_explore_paths;	// proceed to the next phase
 				phase_counter = 0;	// reset counter
@@ -1222,8 +1350,8 @@ void path_explorer_t::compartment_t::step()
 			if ( via_index == 0 && origin_cluster_index == 0 && target_cluster_index == 0 && origin_member_index == 0 )
 			{
 				// build data structures for inbound/outbound connections to/from transfer halts
-				inbound_connections = new connection_t(16, working_halt_count);
-				outbound_connections = new connection_t(16, working_halt_count);
+				inbound_connections = new connection_t(64u, working_halt_count);
+				outbound_connections = new connection_t(64u, working_halt_count);
 			}
 
 			start = dr_time();	// start timing
@@ -1249,22 +1377,22 @@ void path_explorer_t::compartment_t::step()
 					}
 
 					// should take into account the iterations above
-					iterations += working_halt_count + ( inbound_connections->get_total_member_count() * inbound_connections->get_cluster_count() );
+					iterations += (uint32)working_halt_count + ( inbound_connections->get_total_member_count() << 1 );
 				}
 
 				// for each origin cluster
 				while ( origin_cluster_index < inbound_connections->get_cluster_count() )
 				{
 					const connection_t::connection_cluster_t &origin_cluster = (*inbound_connections)[origin_cluster_index];
-					const uint32 inbound_transport = origin_cluster.transport;
+					const uint16 inbound_transport = origin_cluster.transport;
 					const vector_tpl<uint16> &origin_halt_list = origin_cluster.connected_halts;
 
 					// for each target cluster
 					while ( target_cluster_index < outbound_connections->get_cluster_count() )
 					{
 						const connection_t::connection_cluster_t &target_cluster = (*outbound_connections)[target_cluster_index];
-						const uint32 outbound_transport = target_cluster.transport;
-						if ( inbound_transport == outbound_transport )
+						const uint16 outbound_transport = target_cluster.transport;
+						if ( inbound_transport == outbound_transport && inbound_transport != 0u )
 						{
 							++target_cluster_index;
 							continue;

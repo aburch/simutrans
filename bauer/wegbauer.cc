@@ -125,6 +125,7 @@ bool wegbauer_t::register_besch(weg_besch_t *besch)
 	if(  old_besch  ) {
 		alle_wegtypen.remove(besch->get_name());
 		dbg->warning( "wegbauer_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
+		werkzeug_t::general_tool.remove( old_besch->get_builder() );
 		delete old_besch->get_builder();
 		delete old_besch;
 	}
@@ -334,8 +335,6 @@ void wegbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const 
 }
 
 
-
-
 /* allow for railroad crossing
  * @author prissi
  */
@@ -404,8 +403,7 @@ bool wegbauer_t::check_crossing(const koord zv, const grund_t *bd, waytype_t wty
 /* crossing of powerlines, or no powerline
  * @author prissi
  */
-bool
-wegbauer_t::check_for_leitung(const koord zv, const grund_t *bd) const
+bool wegbauer_t::check_for_leitung(const koord zv, const grund_t *bd) const
 {
 	if(zv==koord(0,0)) {
 		return true;
@@ -428,7 +426,6 @@ wegbauer_t::check_for_leitung(const koord zv, const grund_t *bd) const
 	// ok, there is not high power transmission stuff going on here
 	return true;
 }
-
 
 
 // allowed slope?
@@ -456,14 +453,12 @@ bool wegbauer_t::check_slope( const grund_t *from, const grund_t *to )
 }
 
 
-
 // allowed owner?
 bool wegbauer_t::check_owner( const spieler_t *sp1, const spieler_t *sp2 ) const
 {
 	// unowned, mine or public property or superuser ... ?
 	return sp1==NULL  ||  sp1==sp2  ||  sp1==welt->get_spieler(1)  ||  sp2==welt->get_spieler(1);
 }
-
 
 
 /* do not go through depots, station buildings etc. ...
@@ -507,7 +502,6 @@ bool wegbauer_t::check_building( const grund_t *to, const koord dir ) const
 	}
 	return true;
 }
-
 
 
 /* This is the core routine for the way search
@@ -812,9 +806,16 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 			break;
 
 		case luft: // hsiegeln: runway
-			ok = !to->ist_wasser() && (to->hat_weg(air_wt) || !to->hat_wege())  &&  to->find<leitung_t>()==NULL  &&  !fundament;
-			// calculate costs
-			*costs = s.way_count_straight;
+			{
+				const weg_t *w = to->get_weg(air_wt);
+				if(  w  &&  w->get_besch()->get_styp()==1  &&  ribi_t::ist_einfach(w->get_ribi_unmasked())  ) {
+					// cannot go over the end of a runway with a taxiway
+					return false;
+				}
+				ok = !to->ist_wasser() && (w  ||  !to->hat_wege())  &&  to->find<leitung_t>()==NULL  &&  !fundament;
+				// calculate costs
+				*costs = s.way_count_straight;
+			}
 			break;
 	}
 	return ok;
@@ -1621,34 +1622,43 @@ bool wegbauer_t::intern_calc_route_runways(koord3d start3d, const koord3d ziel3d
 	const koord ziel=ziel3d.get_2d();
 	// check for straight line!
 	const ribi_t::ribi ribi = ribi_typ( start, ziel );
-	if(!ribi_t::ist_gerade(ribi)) {
+	if(  !ribi_t::ist_gerade(ribi)  ) {
 		// only straight runways!
 		return false;
 	}
+	const ribi_t::ribi ribi_gerade = ribi_t::doppelt(ribi);
+
 	// not too close to the border?
-	if(	!(welt->ist_in_kartengrenzen(start-koord(5,5))  &&  welt->ist_in_kartengrenzen(start+koord(5,5)))  ||
-		!(welt->ist_in_kartengrenzen(ziel-koord(5,5))  &&  welt->ist_in_kartengrenzen(ziel+koord(5,5)))  ) {
+	if(	 !(welt->ist_in_kartengrenzen(start-koord(5,5))  &&  welt->ist_in_kartengrenzen(start+koord(5,5)))  ||
+		 !(welt->ist_in_kartengrenzen(ziel-koord(5,5))  &&  welt->ist_in_kartengrenzen(ziel+koord(5,5)))  ) {
 		if(sp==welt->get_active_player()) {
 			create_win( new news_img("Zu nah am Kartenrand"), w_time_delete, magic_none);
 			return false;
 		}
 	}
 
-
 	// now try begin and endpoint
 	const koord zv(ribi);
 	// end start
 	const grund_t *gr = welt->lookup_kartenboden(start);
-	const weg_t *weg=gr->get_weg(air_wt);
-	if(weg  &&  (weg->get_besch()->get_styp()==0  ||  ribi_t::ist_kurve(weg->get_ribi()|ribi))) {
-		// cannot connect to taxiway at the start and no curve possible
+	const weg_t *weg = gr->get_weg(air_wt);
+	if(weg  &&  !ribi_t::ist_gerade(weg->get_ribi()|ribi_gerade)  ) {
+		// cannot connect with curve at the end
+		return false;
+	}
+	if(  weg  &&  weg->get_besch()->get_styp()==0  ) {
+		//  could not continue taxiway with runway
 		return false;
 	}
 	// check end
 	gr = welt->lookup_kartenboden(ziel);
-	weg=gr->get_weg(air_wt);
-	if(weg  &&  (weg->get_besch()->get_styp()==1  ||  ribi_t::ist_kurve(weg->get_ribi()|ribi))) {
-		// cannot connect to taxiway at the end and no curve at the end
+	weg = gr->get_weg(air_wt);
+	if(weg  &&  !ribi_t::ist_gerade(weg->get_ribi()|ribi_gerade)  ) {
+		// cannot connect with curve at the end
+		return false;
+	}
+	if(  weg  &&  weg->get_besch()->get_styp()==0  ) {
+		//  could not continue taxiway with runway
 		return false;
 	}
 	// now try a straight line with no crossings and no curves at the end
@@ -1658,6 +1668,11 @@ bool wegbauer_t::intern_calc_route_runways(koord3d start3d, const koord3d ziel3d
 		grund_t *to = welt->lookup_kartenboden(start+zv*i);
 		long dummy;
 		if (!is_allowed_step(from, to, &dummy)) {
+			return false;
+		}
+		weg = to->get_weg(air_wt);
+		if(  weg  &&  weg->get_besch()->get_styp()==1  &&  (ribi_t::is_threeway(weg->get_ribi_unmasked()|ribi_gerade))  &&  (weg->get_ribi_unmasked()|ribi_gerade)!=ribi_t::alle  ) {
+			// only fourway crossings of runways allowed, no threeways => fail
 			return false;
 		}
 		from = to;
@@ -1673,8 +1688,8 @@ bool wegbauer_t::intern_calc_route_runways(koord3d start3d, const koord3d ziel3d
 }
 
 
-/* calc_straight_route (maximum one curve, including diagonals)
- *
+/*
+ * calc_straight_route (maximum one curve, including diagonals)
  */
 void wegbauer_t::calc_straight_route(koord3d start, const koord3d ziel)
 {
@@ -2200,11 +2215,13 @@ void wegbauer_t::baue_schiene()
 					if(  crossing_t *cr = gr->find<crossing_t>(2)  ) {
 						// change to tram track
 						cr->mark_image_dirty( cr->get_bild(), 0);
+						gr->obj_remove(cr);
 						cr->entferne(sp);
 						delete cr;
 						change_besch = true;
-						// tell way we have no crossing any more
+						// tell way we have no crossing any more, restore speed limit
 						gr->get_weg_nr(0)->clear_crossing();
+						gr->get_weg_nr(0)->set_besch( gr->get_weg_nr(0)->get_besch() );
 						gr->get_weg_nr(1)->clear_crossing();
 					}
 				}

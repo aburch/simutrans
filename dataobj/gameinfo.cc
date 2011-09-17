@@ -22,7 +22,6 @@
 #include "../gui/karte.h"
 #include "../utils/simstring.h"
 #include "loadsave.h"
-#include "tabfile.h"
 #include "pakset_info.h"
 
 

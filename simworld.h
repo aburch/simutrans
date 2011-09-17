@@ -229,7 +229,11 @@ private:
 	zeiger_t *zeiger;
 
 	slist_tpl<sync_steppable *> sync_add_list;	// these objects are move to the sync_list (but before next sync step, so they do not interfere!)
+#ifndef SYNC_VECTOR
 	slist_tpl<sync_steppable *> sync_list;
+#else
+	vector_tpl<sync_steppable *> sync_list;
+#endif
 	slist_tpl<sync_steppable *> sync_remove_list;
 
 	vector_tpl<convoihandle_t> convoi_array;
@@ -733,6 +737,18 @@ public:
 			return (uint32)(nominal_monthly_figure >> (18u - (uint32)ticks_per_world_month_shift)); 
 		}
 	}
+
+	/**
+	 * Standard timing conversion
+	 * @author: jamespetts
+	 */
+	sint64 ticks_to_tenths_of_minutes(sint64 ticks) const;
+
+	/**
+	 * Finer timing conversion for UI only
+	 * @author: jamespetts
+	 */
+	sint64 ticks_to_seconds(sint64 ticks) const;
 
 	/**
 	 * 0=winter, 1=spring, 2=summer, 3=autumn
@@ -1262,6 +1278,10 @@ public:
 		}
 		return tmp;
 	}
+	
+	void sprintf_ticks(char *p, size_t size, uint32 ticks) const;
+	void sprintf_time(char *p, size_t size, uint32 seconds) const;
+
 
 #ifdef DEBUG_SIMRAND_CALLS
 	static fixed_list_tpl<const char*, 256> random_callers;

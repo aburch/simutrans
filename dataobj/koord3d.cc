@@ -71,6 +71,18 @@ const char *koord3d::get_str() const
 }
 
 
+// für debugmeldungen ...
+const char *koord3d::get_fullstr() const
+{
+	static char pos_str[32];
+	if(x==-1  &&  y==-1  &&  z==-1) {
+		return "koord3d invalid";
+	}
+	sprintf( pos_str, "(%i,%i,%i)", x, y, z );
+	return pos_str;
+}
+
+
 ribi_t::ribi koord3d_vector_t::get_ribi( uint32 index ) const
 {
 	ribi_t::ribi ribi = ribi_t::keine;

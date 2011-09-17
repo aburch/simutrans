@@ -79,11 +79,11 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(karte_t *w, waytype_t wt, signed 
 	placement.y=placement.y* get_base_tile_raster_width() / 64 + 2;
 	grid.x=grid.x* get_base_tile_raster_width() / 64 + 4;
 	grid.y=grid.y* get_base_tile_raster_width() / 64 + 6;
-	if(wt==road_wt  &&  umgebung_t::drive_on_left) {
-		// correct for dive on left
-		placement.x -= (12*get_base_tile_raster_width())/64;
-		placement.y -= (6*get_base_tile_raster_width())/64;
-	}
+	//if(wt==road_wt  &&  welt->get_settings().is_drive_left()) {
+	//	// correct for dive on left
+	//	placement.x -= (12*get_base_tile_raster_width())/64;
+	//	placement.y -= (6*get_base_tile_raster_width())/64;
+	//}
 
 	vehicles.clear();
 
@@ -1558,7 +1558,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 				{
 					n = sprintf(buf,
 						/*translator::translate("WAGGON_INFO"),*/
-						translator::translate("%s\nCost:     %d$\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d%s %s\nWeight: %dt\nTop speed: %dkm/h\n"),
+						translator::translate("%s\nCost:     %d$\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d (%d)%s %s\nWeight: %dt\nTop speed: %dkm/h\n"),
 						translator::translate(veh_type->get_name()),
 						veh_type->get_upgrade_price()/100,
 						veh_type->get_betriebskosten()/100.0F,
@@ -1618,8 +1618,12 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 
 		if(veh_type->get_zuladung() > 0)
 		{
+			char min_loading_time_as_clock[32];
+			char max_loading_time_as_clock[32];
 			//Loading time is only relevant if there is something to load.
-			j +=  sprintf(buf, "%s %i \n", translator::translate("Loading time:"), veh_type->get_loading_time());
+			welt->sprintf_ticks(min_loading_time_as_clock, sizeof(min_loading_time_as_clock), veh_type->get_min_loading_time());
+			welt->sprintf_ticks(max_loading_time_as_clock, sizeof(max_loading_time_as_clock), veh_type->get_max_loading_time());
+			j += sprintf(buf, "%s %s - %s \n", translator::translate("Loading time:"), min_loading_time_as_clock, max_loading_time_as_clock);
 		}
 		else {
 			j += sprintf(buf+j, "\n");

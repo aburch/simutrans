@@ -144,13 +144,6 @@ public:
 	 */
 	bool matches(karte_t *welt, const schedule_t *fpl);
 
-	/**
-	 * calculates a return way for this schedule
-	 * will add elements 1 to maxi-1 in reverse order to schedule
-	 * @author hsiegeln
-	 */
-	void add_return_way();
-
 	inline bool is_bidirectional() const { return bidirectional; }
 	inline bool is_mirrored() const { return mirrored; }
 	inline bool is_same_spacing_shift() const { return same_spacing_shift; }

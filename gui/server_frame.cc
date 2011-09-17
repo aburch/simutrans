@@ -9,7 +9,6 @@
 #include "../simcolor.h"
 #include "../simgraph.h"
 #include "../simwin.h"
-#include "../simmesg.h"
 #include "../utils/simstring.h"
 
 #include "components/list_button.h"
@@ -27,7 +26,7 @@
 
 
 server_frame_t::server_frame_t(karte_t* w) :
-	gui_frame_t("Game info"),
+	gui_frame_t( translator::translate("Game info") ),
 	welt(w),
 	gi(welt)
 {
@@ -187,6 +186,7 @@ void server_frame_t::update_info()
 		case umgebung_t::DATE_FMT_JAPANESE:
 		case umgebung_t::DATE_FMT_JAPANESE_NO_SEASON:
 		case umgebung_t::DATE_FMT_US_NO_SEASON:
+		case umgebung_t::DATE_FMT_INTERNAL_MINUTE:
 			time.printf( "%i/%s", gi.get_current_year(), month );
 			break;
 	}

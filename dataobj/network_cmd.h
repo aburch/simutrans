@@ -5,8 +5,8 @@
 #include "../tpl/slist_tpl.h"
 #include "../tpl/vector_tpl.h"
 #include "network.h"
-#include "../path_explorer.h"
 
+class path_explorer_t;
 class address_list_t;
 class karte_t;
 class packet_t;

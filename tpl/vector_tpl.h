@@ -2,17 +2,22 @@
 #define TPL_VECTOR_H
 
 #ifndef ITERATE
-#define ITERATE(collection,enumerator) for(uint16 enumerator = 0; enumerator < (collection).get_count(); enumerator++)
+#define ITERATE(collection,enumerator) for(int enumerator = 0; enumerator < (collection).get_count(); enumerator++)
 #endif
 
 #ifndef ITERATE_PTR
-#define ITERATE_PTR(collection,enumerator) for(uint16 enumerator = 0; enumerator < (collection)->get_count(); enumerator++)
+#define ITERATE_PTR(collection,enumerator) for(int enumerator = 0; enumerator < (collection)->get_count(); enumerator++)
 #endif 
 
 #include "../macros.h"
 #include "../simtypes.h"
 #include "../simdebug.h"
 
+#ifdef _MSC_VER
+#include <typeinfo.h>
+#else
+#include <typeinfo>
+#endif
 
 template<class T> class vector_tpl;
 template<class T> inline void swap(vector_tpl<T>& a, vector_tpl<T>& b);
@@ -256,7 +261,7 @@ template<class T> class vector_tpl
 		T& operator [](uint i)
 		{
 			if (i >= count) {
-				dbg->fatal("vector_tpl<T>::[]", "index out of bounds: %i not in 0..%d", i, count - 1);
+				dbg->fatal("vector_tpl<T>::[]", "%s: index out of bounds: %i not in 0..%d", typeid(T).name(), i, count - 1);
 			}
 			return data[i];
 		}
@@ -264,7 +269,7 @@ template<class T> class vector_tpl
 		const T& operator [](uint i) const
 		{
 			if (i >= count) {
-				dbg->fatal("vector_tpl<T>::[]", "index out of bounds: %i not in 0..%d", i, count - 1);
+				dbg->fatal("vector_tpl<T>::[]", "%s: index out of bounds: %i not in 0..%d", typeid(T).name(), i, count - 1);
 			}
 			return data[i];
 		}
@@ -303,5 +308,19 @@ template<class T> void swap(vector_tpl<T>& a, vector_tpl<T>& b)
 	sim::swap(a.size,  b.size);
 	sim::swap(a.count, b.count);
 }
+
+/**
+ * Clears vectors of the type vector_tpl<someclass*>
+ * Deletes all objects pointed to by pointers in the vector
+ */
+template<class T> void clear_ptr_vector(vector_tpl<T*>& v)
+{
+	for(uint32 i=0; i<v.get_count(); i++) {
+		delete v[i];
+	}
+	v.clear();
+}
+
+
 
 #endif

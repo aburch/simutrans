@@ -302,12 +302,6 @@ public:
 
 	void add_power_demand(uint32 p) { city_history_month[0][HIST_POWER_NEEDED] += p; city_history_year[0][HIST_POWER_NEEDED] += p; }
 
-	//@ 9th of February 2011. 
-	/*
-	 * Used for recording congestion in cases where there is a traffic jam specifically noted.
-	 */
-	void add_congestion(uint32 c) { city_history_month[0][HIST_CONGESTION] += c; city_history_year[0][HIST_CONGESTION] += c; }
-
 	/* end of history related thingies */
 private:
 	sint32 best_haus_wert;
@@ -458,7 +452,7 @@ private:
 	 * @author Hj. Malthaner
 	 */
 
-	bool bewerte_loc(koord pos, rule_t &regel, int rotation);
+	bool bewerte_loc(koord pos, const rule_t &regel, int rotation);
 
 
 	/*
@@ -471,10 +465,10 @@ private:
 	 * @author Hj. Malthaner
 	 */
 
-	sint32 bewerte_pos(koord pos, rule_t &regel);
+	sint32 bewerte_pos(koord pos, const rule_t &regel);
 
-	void bewerte_strasse(koord pos, sint32 rd, rule_t &regel);
-	void bewerte_haus(koord pos, sint32 rd, rule_t &regel);
+	void bewerte_strasse(koord pos, sint32 rd, const rule_t &regel);
+	void bewerte_haus(koord pos, sint32 rd, const rule_t &regel);
 
 	void pruefe_grenzen(koord pos);
 
@@ -661,7 +655,7 @@ public:
 private:
 	/**
 	 * A weighted list of distances
-	 * @author Knightly
+	 * @author Knightly 
 	 */
 	static weighted_vector_tpl<uint32> distances;
 
@@ -696,12 +690,6 @@ private:
 	weighted_vector_tpl<gebaeude_t *> target_attractions;
 
 public:
-
-	/**
-	 * Initialise the weighted list of distances
-	 * @author Knightly
-	 */
-	static void init_distances(const uint32 max_distance);
 
 	/**
 	 * Functions for manipulating the list of target cities

@@ -12,6 +12,7 @@
 #include "../simfab.h"
 #include "../simhalt.h"
 #include "../simline.h"
+#include "../simconvoi.h"
 
 #include "../besch/ware_besch.h"
 #include "../bauer/warenbauer.h"
@@ -304,7 +305,7 @@ void halt_detail_t::halt_detail_info()
 					buf.append("   ");
 					buf.append(a_halt->get_name());
 					
-					const uint32 tiles_to_halt = accurate_distance(halt->get_next_pos(a_halt->get_basis_pos()), a_halt->get_next_pos(halt->get_basis_pos()));
+					const uint32 tiles_to_halt = shortest_distance(halt->get_next_pos(a_halt->get_basis_pos()), a_halt->get_next_pos(halt->get_basis_pos()));
 					const double km_per_tile = halt->get_welt()->get_settings().get_meters_per_tile() / 1000.0;
 					const double km_to_halt = (double)tiles_to_halt * km_per_tile;
 
@@ -325,12 +326,20 @@ void halt_detail_t::halt_detail_info()
 
 					buf.append("\n");
 					buf.append("(");
-					buf.append(cnx->journey_time / 10); // Convert from tenths
+					char travelling_time_as_clock[32];
+					halt->get_welt()->sprintf_time(travelling_time_as_clock, sizeof(travelling_time_as_clock), (cnx->journey_time * 6));
+					buf.append(travelling_time_as_clock);
 					buf.append(translator::translate(" mins. travelling"));
 					buf.append(", ");
-					if(cnx->waiting_time > 39)
+					if(halt->is_within_walking_distance_of(a_halt) && !cnx->best_convoy.is_bound() && !cnx->best_line.is_bound())
 					{
-						buf.append(cnx->waiting_time / 10); // Convert from tenths
+						buf.append(translator::translate("on foot)"));
+					}
+					else if(cnx->waiting_time > 19)
+					{
+						char waiting_time_as_clock[32];
+						halt->get_welt()->sprintf_time(waiting_time_as_clock, sizeof(waiting_time_as_clock), (cnx->waiting_time * 6));
+						buf.append(waiting_time_as_clock);
 						buf.append(translator::translate(" mins. waiting)"));
 					}
 					else
@@ -354,7 +363,6 @@ void halt_detail_t::halt_detail_info()
 	cont.set_groesse( txt_info.get_groesse() );
 
 	// ok, we have now this counter for pending updates
-	destination_counter = halt->get_rebuild_destination_counter();
 	cached_line_count = halt->registered_lines.get_count();
 	cached_convoy_count = halt->registered_convoys.get_count();
 }
@@ -399,8 +407,8 @@ bool halt_detail_t::action_triggered( gui_action_creator_t *, value_t extra)
 void halt_detail_t::zeichnen(koord pos, koord gr)
 {
 	if(halt.is_bound()) {
-		if(  halt->get_rebuild_destination_counter()!=destination_counter  ||  cached_active_player!=halt->get_welt()->get_active_player()
-				||  halt->registered_lines.get_count()!=cached_line_count  ||  halt->registered_convoys.get_count()!=cached_convoy_count  ) {
+		if( cached_active_player!=halt->get_welt()->get_active_player()	||  halt->registered_lines.get_count()!=cached_line_count  || 
+			halt->registered_convoys.get_count()!=cached_convoy_count  ) {
 			// fill buffer with halt detail
 			halt_detail_info();
 			cached_active_player=halt->get_welt()->get_active_player();

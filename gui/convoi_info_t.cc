@@ -89,7 +89,7 @@ const char *convoi_info_t::sort_text[SORT_MODES] =
 
 
 convoi_info_t::convoi_info_t(convoihandle_t cnv)
-:	gui_frame_t(cnv->get_name(), cnv->get_besitzer()),
+:	gui_frame_t( cnv->get_name(), cnv->get_besitzer() ),
 	scrolly(&text),
 	text(&freight_info),
 	view(cnv->front(), koord(max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width() * 7) / 8))),
@@ -100,7 +100,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	this->mean_convoi_speed = speed_to_kmh(cnv->get_akt_speed()*4);
 	this->max_convoi_speed = speed_to_kmh(cnv->get_min_top_speed()*4);
 
-	const sint16 offset_below_viewport = 21 + view.get_groesse().y;
+	const sint16 offset_below_viewport = max( LINESPACE * 8 + LINESPACE / 4  ,  21 + view.get_groesse().y);
 	const sint16 total_width = 3*(BUTTON_WIDTH + BUTTON_SPACER) + max(BUTTON_WIDTH + 2*BUTTON_SPACER, view.get_groesse().x + 32);
 
 	input.set_pos(koord(10,4));
@@ -224,7 +224,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	add_komponente(&route_bar);
 
 	// goto line button
-	line_button.init( button_t::posbutton, NULL, koord(10, 64) );
+	line_button.init( button_t::posbutton, NULL, koord(10, 7* LINESPACE) );
 	line_button.set_targetpos( koord(0,0) );
 	line_button.add_listener( this );
 	line_bound = false;
@@ -427,9 +427,23 @@ enable_home:
 			display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, cnv->has_obsolete_vehicles() ? COL_DARK_BLUE : COL_BLACK, true );
 		}
 
-		// the weight entry
+		//Average round trip time
 		{
 			const int pos_y = pos_y0 + 2 * LINESPACE; // line 3
+			sint64 average_round_trip_time = cnv->get_average_round_trip_time();
+			info_buf.clear();
+			info_buf.printf(caption, translator::translate("Avg trip time"));
+			if (average_round_trip_time) {
+				char as_clock[32];
+				cnv->get_welt()->sprintf_ticks(as_clock, sizeof(as_clock), average_round_trip_time);
+				info_buf.printf(" %s",  as_clock);
+			}
+			display_proportional(pos_x, pos_y, info_buf, ALIGN_LEFT, COL_BLACK, true );
+		}
+
+		// the weight entry
+		{
+			const int pos_y = pos_y0 + 3 * LINESPACE; // line 4
 			char tmp[256];
 			// Bernd Gabriel, 01.07.2009: inconsistent adding of ':'. Sometimes in code, sometimes in translation. Consistently moved to code.
 			sprintf(tmp, caption, translator::translate("Gewicht"));
@@ -443,7 +457,7 @@ enable_home:
 		}
 
 		{
-			const int pos_y = pos_y0 + 3 * LINESPACE; // line 4
+			const int pos_y = pos_y0 + 4 * LINESPACE; // line 5
 			// next stop
 			char tmp[256];
 			// Bernd Gabriel, 01.07.2009: inconsistent adding of ':'. Sometimes in code, sometimes in translation. Consistently moved to code.
@@ -456,7 +470,7 @@ enable_home:
 
 			// convoi load indicator
 			const int bar_x = max(11 + len, BUTTON3_X);
-			route_bar.set_pos(koord(bar_x, 22 + 3 * LINESPACE));
+			route_bar.set_pos(koord(bar_x, 22 + 4 * LINESPACE));
 			route_bar.set_groesse(koord(view.get_pos().x - bar_x - 5, 4));
 		}
 
@@ -465,7 +479,7 @@ enable_home:
 		 * @author hsiegeln
 		 */
 		if(  cnv->get_line().is_bound()  ) {
-			const int pos_y = pos_y0 + 4 * LINESPACE; // line 5
+			const int pos_y = pos_y0 + 5 * LINESPACE; // line 6
 			const int line_x = pos_x + line_bound * 12;
 			char tmp[256];
 			// Bernd Gabriel, 01.07.2009: inconsistent adding of ':'. Sometimes in code, sometimes in translation. Consistently moved to code.
@@ -660,7 +674,7 @@ void convoi_info_t::set_fenstergroesse(koord groesse)
 	speed_bar.set_groesse(koord(view.get_pos().x - BUTTON3_X - 5, 4));
 
 	// convoi load indicator
-	filled_bar.set_pos(koord(BUTTON3_X,22+2*LINESPACE));
+	filled_bar.set_pos(koord(BUTTON3_X,22+3*LINESPACE));
 	filled_bar.set_groesse(koord(view.get_pos().x - BUTTON3_X - 5, 4));
 }
 

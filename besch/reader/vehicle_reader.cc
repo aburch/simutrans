@@ -2,7 +2,6 @@
 #include "../../simdebug.h"
 #include "../../simconst.h"
 #include "../../bauer/vehikelbauer.h"
-#include "../../boden/wege/weg.h"
 #include "../sound_besch.h"
 #include "../vehikel_besch.h"
 #include "../intro_dates.h"
@@ -190,7 +189,7 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->freight_image_type = decode_uint8(p);
 		if(experimental)
 		{
-			if(experimental_version <= 5)
+			if(experimental_version <= 6)
 			{
 				besch->is_tilting = decode_uint8(p);
 				way_constraints.set_permissive(decode_uint8(p));
@@ -200,7 +199,7 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				besch->can_lead_from_rear = decode_uint8(p);
 				besch->comfort = decode_uint8(p);
 				besch->overcrowded_capacity = decode_uint16(p);
-				besch->loading_time = decode_uint16(p);
+				besch->min_loading_time = besch->max_loading_time = decode_uint16(p);
 				besch->upgrades = decode_uint8(p);
 				besch->upgrade_price = decode_uint32(p);
 				besch->available_only_as_upgrade = decode_uint8(p);
@@ -272,6 +271,17 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				{
 					besch->livery_image_type = 0;
 				}
+				if(experimental_version >= 6)
+				{
+					// With minimum and maximum loading times in seconds
+					besch->min_loading_time_seconds = decode_uint16(p);
+					besch->max_loading_time_seconds = decode_uint16(p);
+				}
+				else
+				{
+					besch->min_loading_time_seconds = besch->max_loading_time_seconds = 65535;
+				}
+
 			}
 			else
 			{
@@ -359,22 +369,22 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		default:	
 		case tram_wt:
 		case road_wt:
-			besch->loading_time = 2000;
+			besch->min_loading_time = besch->max_loading_time = 2000;
 			break;
 
 		case monorail_wt:
 		case maglev_wt:
 		case narrowgauge_wt:
 		case track_wt:
-			besch->loading_time = 4000;
+			besch->min_loading_time = besch->max_loading_time = 4000;
 			break;
 
 		case water_wt:
-			besch->loading_time = 20000;
+			besch->min_loading_time = besch->max_loading_time = 20000;
 			break;
 
 		case air_wt:
-			besch->loading_time = 30000;
+			besch->min_loading_time = besch->max_loading_time = 30000;
 			break;
 		}
 		uint16 air_default;
@@ -410,6 +420,8 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->increase_maintenance_by_percent = 0;
 		besch->years_before_maintenance_max_reached = 0;
 		besch->livery_image_type = 0;
+		besch->min_loading_time_seconds = 20;
+		besch->max_loading_time_seconds = 60;
 	}
 	besch->set_way_constraints(way_constraints);
 

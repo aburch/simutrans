@@ -7,7 +7,7 @@
 #include <algorithm>
 #include "simlinemgmt.h"
 #include "simline.h"
-#include "simhalt.h"
+#include "simconvoi.h"
 #include "simwin.h"
 #include "simworld.h"
 #include "simtypes.h"
@@ -77,12 +77,6 @@ void simlinemgmt_t::update_line(linehandle_t line)
 	}
 	// finally de/register all stops
 	line->renew_stops();
-	
-	/*  Refreshing will be scheduled in the above call to renew_stops()
-	if(  count>0  ) {
-		welt->set_schedule_counter();
-	}
-	*/
 }
 
 

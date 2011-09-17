@@ -115,21 +115,17 @@ growthfactor_capitals = 100
 passenger_factor=16
 
 # amount of passengers that travel from/to factories or attractions
-# the remaining percentage is divided among short-range,
-# medium-range and long-range cities trips
+# the remaining percentage is intercity and intracity travel
 factory_worker_percentage = 33
 tourist_percentage = 16
-city_short_range_percentage = 60
-city_medium_range_percentage = 30
-# long-range percentage need not be explicitly specified;
-# it equals (100% - city_short_range_percentage - city_medium_range_percentage)
 
-# the distance ranges for city trips
-# the ranges are the number of tiles from the origin city
-city_short_range_radius = 50
-city_medium_range_radius = 100
-# long-range radius need not be explicitly specified;
-# it equals the longest distance possible on the map
+# how much local destinations are prefrerred over time
+# 1 means almost local passengers/mail only, 10000 spreads them over the map
+# You can have up to ten entries, first is the year, next is the factor.
+# The increase between the year will increase first slow then fast towards
+# the final years
+locality_factor[0]=1835,1
+locality_factor[1]=2050,10000
 
 # A factory will be added as worker's destination to a town, if it has either
 # is within factory_worker_radius
@@ -207,6 +203,10 @@ player_color[1] = 1,4
 # how long is a diagonal (512: faktor 2=1024/512, old way, 724: sqrt(2)=1024/724
 # THIS WILL BE ONLY USED, WHEN THIS FILE IS IN THE pakxyz/config!
 #diagonal_multiplier = 724
+
+# how height is a tile in z-direction (default 16, TTD 8)
+# THIS WILL BE ONLY USED, WHEN THIS FILE IS IN THE pakxyz/config!
+#tile_height = 16
 
 # Do you want to have random pedestrians in town? Look nice but needs some
 # CPU time to process them. (1=on, 0=off)
@@ -574,3 +574,7 @@ fast_forward = 50
 
 # Admin password for server; if not set, command-line tool nettool not usable
 #server_admin_pw = abc
+
+# Pause server if no clients are connected
+#pause_server_no_clients = 1
+

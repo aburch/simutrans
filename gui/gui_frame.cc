@@ -177,3 +177,7 @@ void gui_frame_t::zeichnen(koord pos, koord gr)
 
 	container.zeichnen(pos);
 }
+void  gui_frame_t::set_name(const char *name)
+{
+	this->name = translator::translate(name); 
+}

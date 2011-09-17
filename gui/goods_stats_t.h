@@ -25,6 +25,7 @@ private:
 	uint16 *goodslist;
 	int bonus;
 	uint8 comfort;
+	uint8 catering_level;
 	uint16 distance;
 	karte_t *welt;
 	waytype_t way_type;
@@ -32,7 +33,7 @@ private:
 public:
 	goods_stats_t();
 
-	void update_goodslist(unsigned short *g, int b, uint16 d, uint8 c, karte_t* w, waytype_t wt) {goodslist = g; bonus = b; distance = d; comfort = c; welt = w; way_type = wt;}
+	void update_goodslist(unsigned short *g, int b, uint16 d, uint8 c, uint8 ct, karte_t* w, waytype_t wt) {goodslist = g; bonus = b; distance = d; comfort = c; catering_level = ct; welt = w; way_type = wt;}
 
 	/**
 	* Zeichnet die Komponente

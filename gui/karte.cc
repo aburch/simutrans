@@ -11,6 +11,7 @@
 
 #include "../dataobj/translator.h"
 #include "../dataobj/einstellungen.h"
+#include "../dataobj/fahrplan.h"
 
 #include "../boden/wege/schiene.h"
 #include "../dings/leitung2.h"
@@ -785,7 +786,7 @@ void reliefkarte_t::draw_schedule(const koord pos) const
 			first_koord = new_koord;
 		}
 		//check, if mouse is near coordinate
-		if(koord_distance(last_world_pos,fpl->eintrag[i].pos.get_2d())<=2) {
+		if(shortest_distance(last_world_pos,fpl->eintrag[i].pos.get_2d())<=2) {
 			// draw stop name with an index
 			cbuffer_t buf;
 			buf.clear();
@@ -841,11 +842,9 @@ void reliefkarte_t::zeichnen(koord pos)
 				            (pos.y*welt->get_groesse_y())/PAX_DESTINATIONS_SIZE);
 				max = koord(((pos.x+1)*welt->get_groesse_x())/PAX_DESTINATIONS_SIZE,
 				            ((pos.y+1)*welt->get_groesse_y())/PAX_DESTINATIONS_SIZE);
-				if(  max.x >= cur_off.x  &&  max.y>=cur_off.y  &&  min.x<cur_size.x  &&  min.y<cur_size.y  ) {
-					for( pos.x = min.x;  pos.x < max.x;  pos.x++  ) {
-						for( pos.y = min.y;  pos.y < max.y;  pos.y++  ) {
-							set_relief_farbe(pos, color);
-						}
+				for( pos.x = min.x;  pos.x < max.x;  pos.x++  ) {
+					for( pos.y = min.y;  pos.y < max.y;  pos.y++  ) {
+						set_relief_farbe(pos, color);
 					}
 				}
 			}

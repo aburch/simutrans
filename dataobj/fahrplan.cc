@@ -12,11 +12,9 @@
 
 #include "../utils/cbuffer_t.h"
 #include "../gui/messagebox.h"
-#include "../bauer/hausbauer.h"
 #include "../besch/haus_besch.h"
 #include "../boden/grund.h"
 #include "../dings/gebaeude.h"
-#include "../dings/zeiger.h"
 #include "../simdepot.h"
 #include "loadsave.h"
 
@@ -25,8 +23,7 @@
 #include "../tpl/slist_tpl.h"
 
 
-struct linieneintrag_t schedule_t::dummy_eintrag = { koord3d::invalid, 0, 0, 0 };
-
+struct linieneintrag_t schedule_t::dummy_eintrag = { koord3d::invalid, 0, 0, 0, false };
 
 schedule_t::schedule_t(loadsave_t* const file)
 {
@@ -102,6 +99,7 @@ bool schedule_t::insert(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_sh
 	stop.ladegrad = ladegrad;
 	stop.waiting_time_shift = waiting_time_shift;
 	stop.spacing_shift = spacing_shift;
+	stop.reverse = false;
 
 #endif
 	// stored in minivec, so wie have to avoid adding too many
@@ -141,6 +139,7 @@ bool schedule_t::append(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_sh
 	stop.ladegrad = ladegrad;
 	stop.waiting_time_shift = waiting_time_shift;
 	stop.spacing_shift = spacing_shift;
+	stop.reverse = false;
 #endif
 
 	// stored in minivec, so wie have to avoid adding too many
@@ -249,6 +248,7 @@ void schedule_t::rdwr(loadsave_t *file)
 			stop.ladegrad = (sint8)dummy;
 			stop.waiting_time_shift = 0;
 			stop.spacing_shift = 0;
+			stop.reverse = false;
 			eintrag.append(stop);
 		}
 	}
@@ -259,6 +259,7 @@ void schedule_t::rdwr(loadsave_t *file)
 				eintrag.append( linieneintrag_t() );
 				eintrag[i] .waiting_time_shift = 0;
 				eintrag[i].spacing_shift = 0;
+				eintrag[i].reverse = false;
 			}
 			eintrag[i].pos.rdwr(file);
 			file->rdwr_byte(eintrag[i].ladegrad);
@@ -268,6 +269,15 @@ void schedule_t::rdwr(loadsave_t *file)
 				if (file->get_experimental_version() >= 9 && file->get_version() >= 110006) 
 				{
 					file->rdwr_short(eintrag[i].spacing_shift);
+				}
+
+				if(file->get_experimental_version() >= 10)
+				{
+					file->rdwr_bool(eintrag[i].reverse);
+				}
+				else
+				{
+					eintrag[i].reverse = false;
 				}
 			}
 		}
@@ -342,6 +352,7 @@ bool schedule_t::matches(karte_t *welt, const schedule_t *fpl)
 			&& fpl->eintrag[f2].ladegrad == eintrag[f1].ladegrad 
 			&& fpl->eintrag[f2].waiting_time_shift == eintrag[f1].waiting_time_shift 
 			&& fpl->eintrag[f2].spacing_shift == eintrag[f1].spacing_shift
+			&& fpl->eintrag[f2].reverse == eintrag[f1].reverse
 		  ) {
 			// ladegrad/waiting ignored: identical
 			f1++;
@@ -377,40 +388,45 @@ bool schedule_t::matches(karte_t *welt, const schedule_t *fpl)
 }
 
 
-
-void schedule_t::add_return_way()
-{
-	if(  eintrag.get_count()<127  &&  eintrag.get_count()>1  ) {
-		for(  uint8 maxi=eintrag.get_count()-2;  maxi>0;  maxi--  ) {
-			eintrag.append(eintrag[maxi]);
-		}
-	}
-}
-
-
 /*
  * Increment or decrement the given index according to the given direction.
  * Also switches the direction if necessary.
  * @author yobbobandana
  */
 void schedule_t::increment_index(uint8 *index, bool *reversed) const {
-	if( !get_count() ) { return; }
-	if( *reversed ) {
-		if( *index != 0 ) {
+	if( !get_count() ) 
+	{ 
+		return; 
+	}
+	if( *reversed ) 
+	{
+		if( *index != 0 ) 
+		{
 			*index = *index - 1;
-		} else if( mirrored ) {
+		} 
+		else if( mirrored ) 
+		{
 			*reversed = false;
 			*index = get_count()>1 ? 1 : 0;
-		} else {
+		} 
+		else 
+		{
 			*index = get_count()-1;
 		}
-	} else {
-		if( *index < get_count()-1 ) {
+	} 
+	else 
+	{
+		if( *index < get_count()-1 ) 
+		{
 			*index = *index + 1;
-		} else if( mirrored && get_count()>1 ) {
+		} 
+		else if( mirrored && get_count()>1 ) 
+		{
 			*reversed = true;
 			*index = get_count()-2;
-		} else {
+		} 
+		else
+		{
 			*index = 0;
 		}
 	}
@@ -425,7 +441,7 @@ void schedule_t::sprintf_schedule( cbuffer_t &buf ) const
 	buf.append( (int)get_type() );
 	buf.append( "|" );
 	for(  uint8 i = 0;  i<eintrag.get_count();  i++  ) {
-		buf.printf( "%s,%i,%i,%i|", eintrag[i].pos.get_str(), (int)eintrag[i].ladegrad, (int)eintrag[i].waiting_time_shift, (int)eintrag[i].spacing_shift );
+		buf.printf( "%s,%i,%i,%i,%i|", eintrag[i].pos.get_str(), (int)eintrag[i].ladegrad, (int)eintrag[i].waiting_time_shift, (int)eintrag[i].spacing_shift, (int)eintrag[i].reverse );
 	}
 }
 
@@ -480,17 +496,17 @@ bool schedule_t::sscanf_schedule( const char *ptr )
 	p++;
 	// now scan the entries
 	while(  *p>0  ) {
-		sint16 values[6];
-		for(  sint8 i=0;  i<6;  i++  ) {
+		sint16 values[7];
+		for(  sint8 i=0;  i<7;  i++  ) {
 			values[i] = atoi( p );
 			while(  *p  &&  (*p!=','  &&  *p!='|')  ) {
 				p++;
 			}
-			if(  i<5  &&  *p!=','  ) {
+			if(  i<6  &&  *p!=','  ) {
 				dbg->error( "schedule_t::sscanf_schedule()","incomplete string!" );
 				return false;
 			}
-			if(  i==5  &&  *p!='|'  ) {
+			if(  i==6  &&  *p!='|'  ) {
 				dbg->error( "schedule_t::sscanf_schedule()","incomplete entry termination!" );
 				return false;
 			}
@@ -498,13 +514,14 @@ bool schedule_t::sscanf_schedule( const char *ptr )
 		}
 		// ok, now we have a complete entry
 #ifndef _MSC_VER
-		struct linieneintrag_t stop = { koord3d(values[0],values[1],values[2]), values[3], values[4], values[5] };
+		struct linieneintrag_t stop = { koord3d(values[0],values[1],values[2]), values[3], values[4], values[5], values[6] };
 #else
 		struct linieneintrag_t stop;
 		stop.pos = koord3d(values[0],values[1],values[2]);
 		stop.ladegrad = values[3];
 		stop.waiting_time_shift = values[4];
 		stop.spacing_shift = values[5];
+		stop.reverse = values[6];
 #endif
 		eintrag.append( stop );
 	}

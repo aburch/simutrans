@@ -14,10 +14,11 @@
 #include "jump_frame.h"
 #include "components/gui_button.h"
 #include "components/list_button.h"
+#include "../dataobj/translator.h"
 
 
 jump_frame_t::jump_frame_t(karte_t *welt) :
-	gui_frame_t("Jump to")
+	gui_frame_t( translator::translate("Jump to") )
 {
 	this->welt = welt;
 

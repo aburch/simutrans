@@ -111,9 +111,6 @@
     <ClCompile Include="gui\curiositylist_stats_t.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tpl\debug_helper.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="gui\depot_frame.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -561,12 +558,6 @@
     <ClCompile Include="simsys_s.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="simsys_w16.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="simsys_w32_png.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="simticker.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -745,6 +736,27 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="utils\float32e8_t.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="simsys_w.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="simsys_w32_png.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dataobj\network_address.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dataobj\network_cmd_ingame.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\factory_chart.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="simsys.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dataobj\livery_scheme.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1743,6 +1755,36 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="utils\float32e8_t.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\gameinfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\network_address.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\network_cmd_ingame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\network_cmp_pakset.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\network_file_transfer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\network_socket_list.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\pwd_hash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\factory_chart.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\livery_scheme.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\pakset_info.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

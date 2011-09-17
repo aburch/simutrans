@@ -14,8 +14,6 @@
 #include "simconvoi.h"
 #include "vehicle/simvehikel.h"
 #include "simwin.h"
-#include "simware.h"
-#include "simhalt.h"
 #include "player/simplay.h"
 #include "simworld.h"
 #include "simdepot.h"
@@ -440,8 +438,9 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 		else if(  !cnv->front()->calc_route(this->get_pos(), cur_pos, cnv->get_min_top_speed(), cnv->access_route())  ) {
 			// no route to go ...
 			if(local_execution) {
-				static char buf[256];
-				sprintf(buf,translator::translate("Vehicle %s can't find a route!"), cnv->get_name());
+				static cbuffer_t buf;
+				buf.clear();
+				buf.printf( translator::translate("Vehicle %s can't find a route!"), cnv->get_name() );
 				create_win( new news_img(buf), w_time_delete, magic_none);
 			}
 		}
@@ -726,4 +725,9 @@ void depot_t::update_all_win()
 	while(iter.next()) {
 		iter.access_current()->update_win();
 	}
+}
+
+unsigned bahndepot_t::get_max_convoi_length() const
+{
+	return convoi_t::max_rail_vehicle;
 }

@@ -25,9 +25,9 @@
 #include "loadsave_frame.h"
 
 #include "../simworld.h"
-#include "../simmesg.h"
 #include "../simversion.h"
 #include "../dataobj/loadsave.h"
+#include "../dataobj/translator.h"
 #include "../dataobj/umgebung.h"
 #include "../pathes.h"
 #include "../utils/simstring.h"
@@ -105,11 +105,11 @@ loadsave_frame_t::loadsave_frame_t(karte_t *welt, bool do_load) : savegame_frame
 	this->do_load = do_load;
 	init(".sve", NULL);
 	if(do_load) {
-		set_name("Laden");
+		set_name(translator::translate("Laden"));
 	}
 	else {
 		set_filename(welt->get_settings().get_filename());
-		set_name("Speichern");
+		set_name(translator::translate("Speichern"));
 	}
 
 	// load cached entries

@@ -16,6 +16,7 @@
 #include "../besch/ware_besch.h"
 
 #include "../dataobj/translator.h"
+#include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"
 #include "components/list_button.h"
 
@@ -33,7 +34,8 @@ goods_stats_t::goods_stats_t()
 void goods_stats_t::zeichnen(koord offset)
 {
 	int yoff = offset.y;
-	char buf[256];
+	char money_buf[256];
+	cbuffer_t buf;
 
 	for(  uint16 i=0;  i<warenbauer_t::get_waren_anzahl()-1u;  i++  ) 
 	{
@@ -42,7 +44,8 @@ void goods_stats_t::zeichnen(koord offset)
 		display_ddd_box_clip(offset.x + 2, yoff, 8, 8, MN_GREY0, MN_GREY4);
 		display_fillbox_wh_clip(offset.x + 3, yoff+1, 6, 6, wtyp->get_color(), true);
 
-		sprintf(buf, "%s", translator::translate(wtyp->get_name()));
+		buf.clear();
+		buf.printf("%s", translator::translate(wtyp->get_name()));
 		display_proportional_clip(offset.x + 14, yoff,	buf, ALIGN_LEFT, COL_BLACK, true);
 
 		// prissi
@@ -56,7 +59,7 @@ void goods_stats_t::zeichnen(koord offset)
 		sint64 price = revenue;
 
 		//const uint16 journey_minutes = ((float)distance / (((float)welt->get_average_speed(way_type) * bonus) / 100)) *welt->get_settings().get_meters_per_tile() * 6;
-		const uint16 journey_minutes = (((distance * 100) / welt->get_average_speed(way_type)) * welt->get_settings().get_meters_per_tile()) / 1667;
+		const uint16 journey_minutes = (((distance * 100) / ((welt->get_average_speed(way_type) * bonus) / 100)) * welt->get_settings().get_meters_per_tile()) / 1667;
 
 		if(wtyp->get_catg_index() < 1)
 		{
@@ -66,11 +69,11 @@ void goods_stats_t::zeichnen(koord offset)
 			// Comfort matters more the longer the journey.
 			// @author: jamespetts, March 2010
 			sint64 comfort_modifier;
-			if(journey_minutes <=welt->get_settings().get_tolerable_comfort_short_minutes())
+			if(journey_minutes <= welt->get_settings().get_tolerable_comfort_short_minutes())
 			{
 				comfort_modifier = 20ll;
 			}
-			else if(journey_minutes >=welt->get_settings().get_tolerable_comfort_median_long_minutes())
+			else if(journey_minutes >= welt->get_settings().get_tolerable_comfort_median_long_minutes())
 			{
 				comfort_modifier = 100ll;
 			}
@@ -118,17 +121,117 @@ void goods_stats_t::zeichnen(koord offset)
 		
 			// Do nothing if comfort == tolerable_comfort			
 		}
+
+		// Add catering or TPO revenue
+		if(catering_level > 0)
+		{
+			if(wtyp->get_catg_index() == 1)
+			{
+				// Mail
+				if(journey_minutes >=welt->get_settings().get_tpo_min_minutes())
+				{
+					price += (sint64)(welt->get_settings().get_tpo_revenue() * 1000);
+				}
+			}
+			else if(wtyp->get_catg_index() == 0)
+			{				
+				// Passengers
+				sint64 proportion = 0;
+				// Knightly : Reorganised the switch cases to get rid of goto statements
+				switch(catering_level)
+				{
+
+				default:
+				case 5:
+					if(journey_minutes >= welt->get_settings().get_catering_level4_minutes())
+					{
+						if(journey_minutes > welt->get_settings().get_catering_level5_minutes())
+						{
+							price += (welt->get_settings().get_catering_level5_max_revenue() * 1000);
+							break;
+						}
+					
+						proportion = (sint64)((journey_minutes - welt->get_settings().get_catering_level4_minutes()) * 1000) / (welt->get_settings().get_catering_level5_minutes() -welt->get_settings().get_catering_level4_minutes());
+						price += (proportion * (sint64)(welt->get_settings().get_catering_level5_max_revenue()));
+						break;
+					}
+
+				case 4:
+					if(journey_minutes >= welt->get_settings().get_catering_level3_minutes())
+					{
+						if(journey_minutes > welt->get_settings().get_catering_level4_minutes())
+						{
+							price += (sint64)(welt->get_settings().get_catering_level4_max_revenue() * 1000);
+							break;
+						}
+					
+						proportion = ((journey_minutes -welt->get_settings().get_catering_level3_minutes()) * 1000) / (welt->get_settings().get_catering_level4_minutes() - welt->get_settings().get_catering_level3_minutes());
+						price += (sint64)(proportion * (welt->get_settings().get_catering_level4_max_revenue()));
+						break;
+					}
+
+				case 3:
+					if(journey_minutes >= welt->get_settings().get_catering_level2_minutes())
+					{
+						if(journey_minutes > welt->get_settings().get_catering_level3_minutes())
+						{
+							price += (sint64)(welt->get_settings().get_catering_level3_max_revenue() * 1000);
+							break;
+						}
+					
+						proportion = ((journey_minutes - welt->get_settings().get_catering_level2_minutes()) * 1000) / (welt->get_settings().get_catering_level3_minutes() - welt->get_settings().get_catering_level2_minutes());
+						price += (sint64)((proportion * welt->get_settings().get_catering_level3_max_revenue()));
+						break;
+					}
+
+				case 2:
+					if(journey_minutes >= welt->get_settings().get_catering_level1_minutes())
+					{
+						if(journey_minutes > welt->get_settings().get_catering_level2_minutes())
+						{
+							price += (sint64)(welt->get_settings().get_catering_level2_max_revenue() * 1000);
+							break;
+						}
+					
+						proportion = ((journey_minutes - welt->get_settings().get_catering_level1_minutes()) * 1000) / (welt->get_settings().get_catering_level2_minutes() - welt->get_settings().get_catering_level1_minutes());
+						price += (sint64)(proportion * (welt->get_settings().get_catering_level2_max_revenue()));
+						break;
+					}
+
+				case 1:
+					if(journey_minutes < welt->get_settings().get_catering_min_minutes())
+					{
+						break;
+					}
+					if(journey_minutes > welt->get_settings().get_catering_level1_minutes())
+					{
+						price += (sint64)(welt->get_settings().get_catering_level1_max_revenue() * 1000);
+						break;
+					}
+
+					proportion = ((journey_minutes - welt->get_settings().get_catering_min_minutes()) * 1000) / (welt->get_settings().get_catering_level1_minutes() - welt->get_settings().get_catering_min_minutes());
+					price += (sint64)(proportion * (welt->get_settings().get_catering_level1_max_revenue()));
+					break;
+
+				};
+			}
+		}
 	
-		money_to_string( buf, price/300000.0 );
+		money_to_string( money_buf, price/300000.0 );
+		buf.clear();
+		buf.printf(money_buf);
 		display_proportional_clip(offset.x + 170, yoff, buf, 	ALIGN_RIGHT, 	COL_BLACK, true);
 
-		sprintf(buf, "%d%%", wtyp->get_speed_bonus());
+		buf.clear();
+		buf.printf("%d%%", wtyp->get_speed_bonus());
 		display_proportional_clip(offset.x + 205, yoff, buf, ALIGN_RIGHT, COL_BLACK, true);
 
-		sprintf(buf, "%s",	translator::translate(wtyp->get_catg_name()));
+		buf.clear();
+		buf.printf( "%s",	translator::translate(wtyp->get_catg_name()));
 		display_proportional_clip(offset.x + 220, yoff, buf, 	ALIGN_LEFT, COL_BLACK, 	true);
 
-		sprintf(buf, "%dKg", wtyp->get_weight_per_unit());
+		buf.clear();
+		buf.printf("%dKg", wtyp->get_weight_per_unit());
 		display_proportional_clip(offset.x + 360, yoff, buf, ALIGN_RIGHT, COL_BLACK, true);
 
 		yoff += LINESPACE+1;

@@ -21,7 +21,7 @@
 
 
 werkzeug_waehler_t::werkzeug_waehler_t(karte_t* welt, const char* titel, const char *helpfile, uint32 toolbar_id, koord icon, bool allow_break) :
-	gui_frame_t(titel), tools(0)
+	gui_frame_t( translator::translate(titel) ), tools(0)
 {
 	this->toolbar_id = toolbar_id;
 	this->allow_break = allow_break;
@@ -30,6 +30,7 @@ werkzeug_waehler_t::werkzeug_waehler_t(karte_t* welt, const char* titel, const c
 	this->icon = icon;
 	this->tool_icon_disp_start = 0;
 	this->tool_icon_disp_end = 0;
+	this->titel = titel;
 	has_prev_next= false;
 	set_fenstergroesse( koord(max(icon.x,MIN_WIDTH), TITLEBAR_HEIGHT) );
 	dirty = true;
@@ -143,6 +144,10 @@ bool werkzeug_waehler_t::infowin_event(const event_t *ev)
 				break;
 			}
 		}
+	}
+	// reset title, languange may have changed
+	else if(ev->ev_class==INFOWIN  &&  (ev->ev_code==WIN_TOP  ||  ev->ev_code==WIN_OPEN) ) {
+		set_name( translator::translate(titel) );
 	}
 	if(IS_WINDOW_CHOOSE_NEXT(ev)) {
 		if(ev->ev_code==NEXT_WINDOW) {

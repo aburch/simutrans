@@ -52,7 +52,6 @@
 #include "dings/leitung2.h"
 
 #include "sucher/bauplatz_sucher.h"
-#include "bauer/warenbauer.h"
 #include "bauer/wegbauer.h"
 #include "bauer/hausbauer.h"
 #include "bauer/fabrikbauer.h"
@@ -565,7 +564,8 @@ static char const* const allowed_chars_in_rule = "SsnHhTtUu";
  * @return true on match, false otherwise
  * @author Hj. Malthaner
  */
-//bool stadt_t::bewerte_loc(const koord pos, rule_t &regel, uint16 rotation)
+
+//bool stadt_t::bewerte_loc(const koord pos, const rule_t &regel, uint16 rotation)
 //{
 //	//printf("Test for (%s) in rotation %d\n", pos.get_str(), rotation);
 //	koord k;
@@ -641,13 +641,13 @@ static char const* const allowed_chars_in_rule = "SsnHhTtUu";
 //						break;
 //				}
 //			}
-bool stadt_t::bewerte_loc(const koord pos, rule_t &regel, int rotation)
+bool stadt_t::bewerte_loc(const koord pos, const rule_t &regel, int rotation)
 {
 	//printf("Test for (%s) in rotation %d\n", pos.get_str(), rotation);
 	koord k;
 
 	for(uint32 i=0; i<regel.rule.get_count(); i++){
-		rule_entry_t &r = regel.rule[i];
+		const rule_entry_t &r = regel.rule[i];
 		uint8 x,y;
 		switch (rotation) {
 			default:
@@ -714,8 +714,7 @@ bool stadt_t::bewerte_loc(const koord pos, rule_t &regel, int rotation)
  * prissi: but the rules should explicitly forbid building then?!?
  * @author Hj. Malthaner
  */
-
-sint32 stadt_t::bewerte_pos(const koord pos, rule_t &regel)
+sint32 stadt_t::bewerte_pos(const koord pos, const rule_t &regel)
 
 {
 	// will be called only a single time, so we can stop after a single match
@@ -729,7 +728,7 @@ sint32 stadt_t::bewerte_pos(const koord pos, rule_t &regel)
 }
 
 
-void stadt_t::bewerte_strasse(koord k, sint32 rd, rule_t &regel)
+void stadt_t::bewerte_strasse(koord k, sint32 rd, const rule_t &regel)
 {
 	if (simrand(rd, "void stadt_t::bewerte_strasse") == 0) {
 		best_strasse.check(k, bewerte_pos(k, regel));
@@ -737,7 +736,7 @@ void stadt_t::bewerte_strasse(koord k, sint32 rd, rule_t &regel)
 }
 
 
-void stadt_t::bewerte_haus(koord k, sint32 rd, rule_t &regel)
+void stadt_t::bewerte_haus(koord k, sint32 rd, const rule_t &regel)
 {
 	if (simrand(rd, "stadt_t::bewerte_haus") == 0) {
 		best_haus.check(k, bewerte_pos(k, regel));
@@ -813,7 +812,7 @@ bool stadt_t::cityrules_init(const std::string &objfilename)
 	}
 	DBG_MESSAGE("stadt_t::init()", "Read %u road building rules", num_road_rules);
 
-	house_rules.clear();
+	clear_ptr_vector( house_rules );
 	for (uint32 i = 0; i < num_house_rules; i++) {
 		house_rules.append(new rule_t());
 		sprintf(buf, "house_%u.chance", i + 1);
@@ -862,7 +861,7 @@ bool stadt_t::cityrules_init(const std::string &objfilename)
 			printf("House-Rule %d: Pos (%d,%d) Flag %d\n",i,house_rules[i]->rule[j].x,house_rules[i]->rule[j].y,house_rules[i]->rule[j].flag);
 	}
 
-	road_rules.clear();
+	clear_ptr_vector( road_rules );
 	for (uint32 i = 0; i < num_road_rules; i++) {
 		road_rules.append(new rule_t());
 		sprintf(buf, "road_%d.chance", i + 1);
@@ -944,7 +943,7 @@ void stadt_t::cityrules_rdwr(loadsave_t *file)
 
 	// house rules
 	if (file->is_loading()) {
-		house_rules.clear();
+		clear_ptr_vector( house_rules );
 	}
 	uint32 count = house_rules.get_count();
 	file->rdwr_long(count);
@@ -956,7 +955,7 @@ void stadt_t::cityrules_rdwr(loadsave_t *file)
 	}
 	// road rules
 	if (file->is_loading()) {
-		road_rules.clear();
+		clear_ptr_vector( road_rules );
 	}
 	count = road_rules.get_count();
 	file->rdwr_long(count);
@@ -1569,34 +1568,30 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 	lo = ur = pos;
 
 	DBG_MESSAGE("stadt_t::stadt_t()", "Welt %p", welt);
-	fflush(NULL);
+
 	/* get a unique cityname */
 	/* 9.1.2005, prissi */
 	const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
-	const int name_list_count = translator::get_count_city_name();
+	vector_tpl<char *> city_names( translator::get_city_name_list() );
 
-	fflush(NULL);
-	// start at random position
-	int start_cont = simrand(name_list_count, "stadt_t::stadt_t");
-
-	// get a unique name
-	const char* list_name;
-	list_name = translator::get_city_name(start_cont);
-	for (int i = 0; i < name_list_count; i++) {
-		// get a name
-		list_name = translator::get_city_name(start_cont + i);
-		// check if still unused
-		for (weighted_vector_tpl<stadt_t*>::const_iterator j = staedte.begin(), end = staedte.end(); j != end; ++j) {
-			// noch keine stadt mit diesem namen?
-			if (strcmp(list_name, (*j)->get_name()) == 0) goto next_name;
+	name = NULL;
+	while(  !city_names.empty()  &&  name==NULL  ) {
+		uint32 idx = simrand(city_names.get_count(), "stadt_t::stadt_t");
+		for (weighted_vector_tpl<stadt_t*>::const_iterator i = staedte.begin(), end = staedte.end(); i != end; ++i) {
+			if(  strcmp( (*i)->get_name(), city_names[idx] )==0  ) {
+				city_names.remove_at( idx );
+				idx = city_names.get_count();
+				break;
+			}
 		}
-		DBG_MESSAGE("stadt_t::stadt_t()", "'%s' is unique", list_name);
-		break;
-next_name:;
+		if(  idx < city_names.get_count()  ) {
+			name = strdup( city_names[idx] );
+		}
 	}
-	name = strdup(list_name);
-
-	DBG_MESSAGE("stadt_t::stadt_t()", "founding new city named '%s'", list_name);
+	if(  name==NULL  ) {
+		name = strdup( "simcity" );
+	}
+	DBG_MESSAGE("stadt_t::stadt_t()", "founding new city named '%s'", name);
 
 	// 1. Rathaus bei 0 Leuten bauen
 	check_bau_rathaus(true);
@@ -2232,7 +2227,7 @@ void stadt_t::verbinde_fabriken()
 		fabrik_t* fab = welt->get_fab_list()[i];
 		const uint32 count = fab->get_target_cities().get_count();
 		settings_t const& s = welt->get_settings();
-		if (count < s.get_factory_worker_maximum_towns() && accurate_distance(fab->get_pos().get_2d(), pos) < s.get_factory_worker_radius()) 
+		if (count < s.get_factory_worker_maximum_towns() && shortest_distance(fab->get_pos().get_2d(), pos) < s.get_factory_worker_radius()) 
 		{
 			fab->add_target_city(this);
 			if(fab->get_target_cities().get_count() >=welt->get_settings().get_factory_worker_maximum_towns())
@@ -2387,7 +2382,7 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 	{
 		bev ++;
 	}
-	calc_internal_passengers();
+	calc_internal_passengers(); 
 
 	roll_history();
 	target_factories_pax.new_month();
@@ -2710,12 +2705,22 @@ uint16 stadt_t::check_road_connexion_to(stadt_t* city)
 
 	if(connected_cities.is_contained(city->get_pos()))
 	{
-		return connected_cities.get(city->get_pos());
+		const uint16 journey_time_per_tile = connected_cities.get(city->get_pos());
+		if(journey_time_per_tile < 65535 || city != this)
+		{
+			// It should always be possible to travel in the current city.
+			return journey_time_per_tile;
+		}
+		else
+		{
+			goto recalc;
+		}
 	}
 	else if(city == this)
 	{
+recalc:
 		const koord3d pos3d(townhall_road, welt->lookup_hgt(townhall_road));
-		const weg_t* road = welt->lookup(pos3d)->get_weg(road_wt);
+		const weg_t* road = welt->lookup(pos3d) ? welt->lookup(pos3d)->get_weg(road_wt) : NULL;
 		const uint16 journey_time_per_tile = road ? road->get_besch() == welt->get_city_road() ? welt->get_generic_road_speed_city() : welt->calc_generic_road_speed(road->get_besch()) : welt->get_generic_road_speed_city();
 		connected_cities.put(pos, journey_time_per_tile);
 		return journey_time_per_tile;
@@ -2910,7 +2915,7 @@ uint16 stadt_t::check_road_connexion(koord3d dest)
 	const sint32 speed_average = (speed_sum * 100) / (count * 13); // was (float)(speed_sum / ((float)count / 10.0F))  / 1.3F;
 	const uint32 journey_distance_m = private_car_route->get_count() *welt->get_settings().get_meters_per_tile();
 	const uint16 journey_time = (6 * journey_distance_m) / (10 * speed_average); // *Tenths* of minutes: hence *0.6, not *0.06.
-	const uint16 straight_line_distance_tiles = accurate_distance(origin.get_2d(), dest.get_2d());
+	const uint16 straight_line_distance_tiles = shortest_distance(origin.get_2d(), dest.get_2d());
 	return journey_time / (straight_line_distance_tiles == 0 ? 1 : straight_line_distance_tiles);
 }
 
@@ -3139,7 +3144,7 @@ void stadt_t::step_passagiere()
 				
 				// Check whether the destination is within walking distance first.
 				// @author: jamespetts, December 2009
-				if(accurate_distance(destinations[current_destination].location, origin_pos) <= max_walking_distance)
+				if(shortest_distance(destinations[current_destination].location, origin_pos) <= max_walking_distance)
 				{
 					// Passengers will always walk if they are close enough.
 					route_good = can_walk;
@@ -3199,10 +3204,11 @@ void stadt_t::step_passagiere()
 						}
 					}
 					
-					// They should show that they have been transported, however, since
-					// these figures are used for city growth calculations.
-					city_history_year[0][history_type] += pax_left_to_do;
-					city_history_month[0][history_type] += pax_left_to_do;
+					// Passengers who walk to their destinations should not count as "passengers"
+					// at all, especially since the percentage of passengers transported is used
+					// in growth calculations.
+					city_history_year[0][history_type+1] -= pax_left_to_do;
+					city_history_month[0][history_type+1] -= pax_left_to_do;
 					break;
 				}
 
@@ -3262,7 +3268,7 @@ void stadt_t::step_passagiere()
 
 				if(has_private_car) 
 				{
-					const uint32 straight_line_distance = accurate_distance(origin_pos, destinations[current_destination].location);
+					const uint32 straight_line_distance = shortest_distance(origin_pos, destinations[current_destination].location);
 					uint16 time_per_tile = 65535;
 					switch(destinations[current_destination].type)
 					{
@@ -3308,7 +3314,7 @@ void stadt_t::step_passagiere()
 
 						// Now, decide whether passengers would prefer to use their private cars,
 						// even though they can travel by public transport.
-						const uint32 distance = accurate_distance(destinations[current_destination].location, origin_pos);			
+						const uint32 distance = shortest_distance(destinations[current_destination].location, origin_pos);			
 						
 						//Weighted random.
 						const uint16 private_car_chance = (uint16)simrand(100, "void stadt_t::step_passagiere() (private car chance?)");
@@ -3578,8 +3584,8 @@ void stadt_t::step_passagiere()
 		// First, check whether the passengers can *walk*. Just because
 		// they do not have a start halt does not mean that they cannot
 		// walk to their destination!
-		const uint32 tile_distance = accurate_distance(origin_pos, destination_now.location);
-		if(tile_distance < s.get_max_walking_distance())
+		const uint32 tile_distance = shortest_distance(origin_pos, destination_now.location);
+		if(tile_distance <= s.get_max_walking_distance())
 		{
 			// Passengers will walk to their destination if it is within the specified range.
 			// (Default: 1.5km)
@@ -3590,8 +3596,11 @@ void stadt_t::step_passagiere()
 				destination_now.factory_entry->factory->liefere_an(wtyp, amount);
 			}
 			merke_passagier_ziel(destination_now.location, COL_DARK_YELLOW);
-			city_history_year[0][history_type] += num_pax;
-			city_history_month[0][history_type] += num_pax;
+			// Passengers who walk to their destinations should not count as "passengers"
+			// at all, especially since the percentage of passengers transported is used
+			// in growth calculations.
+			city_history_year[0][history_type+1] -= num_pax;
+			city_history_month[0][history_type+1] -= num_pax;
 		}
 		else
 		{
@@ -3690,7 +3699,7 @@ koord stadt_t::get_zufallspunkt(uint32 min_distance, uint32 max_distance, koord 
 				const_cast<stadt_t*>(this)->buildings.remove(gb);
 				k = koord(0, 0);
 			}
-			distance = accurate_distance(k, origin);
+			distance = shortest_distance(k, origin);
 		}
 		return k;
 	}
@@ -3756,28 +3765,6 @@ void stadt_t::recalc_target_attractions()
 	}
 }
 
-
-weighted_vector_tpl<uint32> stadt_t::distances;
-
-
-void stadt_t::init_distances(const uint32 max_distance)
-{
-	if(  distances.get_count()<max_distance  ) {
-		// expand the list
-		distances.resize(max_distance);
-		for(  uint32 d=distances.get_count()+1u;  d<=max_distance;  ++d  ) {
-			distances.append(d, (1u << 20) / d);
-		}
-	}
-	else if(  distances.get_count()>max_distance  ) {
-		// shorten the list
-		for(  uint32 d=distances.get_count()-1u;  d>=max_distance;  --d  ) {
-			distances.remove_at(d);
-		}
-	}
-}
-
-
 /* this function generates a random target for passenger/mail
  * changing this strongly affects selection of targets and thus game strategy
  */
@@ -3804,7 +3791,7 @@ stadt_t::destination stadt_t::find_destination(factory_set_t &target_factories, 
 		*will_return = factory_return;	// worker will return
 		current_destination.type = FACTORY_PAX;
 		uint8 counter = 0;
-		while(counter ++ < 32 && (accurate_distance(origin, entry->factory->get_pos().get_2d()) > max_distance || accurate_distance(origin, entry->factory->get_pos().get_2d()) < min_distance))
+		while(counter ++ < 32 && (shortest_distance(origin, entry->factory->get_pos().get_2d()) > max_distance || shortest_distance(origin, entry->factory->get_pos().get_2d()) < min_distance))
 		{
 			entry = target_factories.get_random_entry();
 			while(entry->factory == NULL)
@@ -3818,13 +3805,13 @@ stadt_t::destination stadt_t::find_destination(factory_set_t &target_factories, 
 		return current_destination;
 	} 
 	
-	else if(rand <welt->get_settings().get_tourist_percentage() +welt->get_settings().get_factory_worker_percentage()) 
+	else if(rand <welt->get_settings().get_tourist_percentage() +welt->get_settings().get_factory_worker_percentage() && welt->get_ausflugsziele().get_sum_weight() > 0 ) 
 	{ 		
 		*will_return = tourist_return;	// tourists will return
 		const gebaeude_t* gb = welt->get_random_ausflugsziel();
 		current_destination.type = TOURIST_PAX;
 		uint8 counter = 0;
-		while(counter ++ < 32 && (accurate_distance(origin, gb->get_pos().get_2d()) > max_distance || accurate_distance(origin, gb->get_pos().get_2d()) < min_distance))
+		while(counter ++ < 32 && (shortest_distance(origin, gb->get_pos().get_2d()) > max_distance || shortest_distance(origin, gb->get_pos().get_2d()) < min_distance))
 		{
 			gb =  welt->get_random_ausflugsziel();
 		}
@@ -3862,11 +3849,11 @@ stadt_t::destination stadt_t::find_destination(factory_set_t &target_factories, 
 				
 				if(zielstadt == this)
 				{
-					distance = accurate_distance(origin, zielstadt->get_pos()) + max_internal_distance; 
+					distance = shortest_distance(origin, zielstadt->get_pos()) + max_internal_distance; 
 				}
 				else
 				{
-					distance = accurate_distance(origin, zielstadt->get_pos()) + max(max_internal_distance, zielstadt->get_max_dimension());
+					distance = shortest_distance(origin, zielstadt->get_pos()) + max(max_internal_distance, zielstadt->get_max_dimension());
 				}
 				
 				if(distance <= max_distance && distance >= min_distance)
@@ -4264,6 +4251,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 			if (road0!=road1) {
 				wegbauer_t bauigel(welt, NULL);
 				bauigel.route_fuer(wegbauer_t::strasse, welt->get_city_road(), NULL, NULL);
+				bauigel.set_build_sidewalk(true);
 				bauigel.calc_straight_route(welt->lookup_kartenboden(best_pos + road0)->get_pos(), welt->lookup_kartenboden(best_pos + road1)->get_pos());
 				bauigel.baue();
 			}
@@ -4477,6 +4465,7 @@ void stadt_t::baue_gebaeude(const koord k, bool new_town)
 							// update directions (SENW)
 							streetdir += (1 << i);
 						}
+						weg->set_gehweg(true);
 						// if not current city road standard, then replace it
 						if (weg->get_besch() != welt->get_city_road()) {
 							spieler_t *sp = weg->get_besitzer();
@@ -4484,7 +4473,6 @@ void stadt_t::baue_gebaeude(const koord k, bool new_town)
 								spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung());
 
 								weg->set_besitzer(NULL); // make public
-								weg->set_besch(welt->get_city_road());
 								weg->set_gehweg(true);
 							}
 						}
@@ -4632,6 +4620,7 @@ bool stadt_t::renoviere_gebaeude(gebaeude_t* gb)
 						// update directions (SENW)
 						streetdir += (1 << i);
 					}
+					weg->set_gehweg(true);
 					// if not current city road standard, then replace it
 					if (weg->get_besch() != welt->get_city_road()) {
 						spieler_t *sp = weg->get_besitzer();
@@ -4640,7 +4629,6 @@ bool stadt_t::renoviere_gebaeude(gebaeude_t* gb)
 
 							weg->set_besitzer(NULL); // make public
 							weg->set_besch(welt->get_city_road());
-							weg->set_gehweg(true);
 						}
 					}
 					gr->calc_bild();
@@ -5218,7 +5206,7 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sin
 				}
 				else 
 				{
-					const double distance = accurate_distance(k, central_pos) * distance_scale;
+					const double distance = shortest_distance(k, central_pos) * distance_scale;
 					isolation_field.at(x,y) += population_charge/(distance*distance);
 					if (city_nr < number_of_clusters && distance < clustering*population_charge) {
 						cluster_field.at(x,y) = true;

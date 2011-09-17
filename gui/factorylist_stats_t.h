@@ -10,9 +10,6 @@
 
 #include "../tpl/vector_tpl.h"
 #include "components/gui_komponente.h"
-#include "../simcolor.h"
-#include "components/gui_button.h"
-#include "fabrik_info.h"
 
 class karte_t;
 class fabrik_t;

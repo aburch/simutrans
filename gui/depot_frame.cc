@@ -48,7 +48,7 @@ char depot_frame_t::no_line_text[128];	// contains the current translation of "<
 
 
 depot_frame_t::depot_frame_t(depot_t* depot) :
-	gui_frame_t(txt_title, depot->get_besitzer()),
+	gui_frame_t( translator::translate(depot->get_name()), depot->get_besitzer()),
 	depot(depot),
 	icnv(depot->convoi_count()-1),
 	lb_convois(NULL, COL_BLACK, gui_label_t::left),
@@ -60,7 +60,6 @@ depot_frame_t::depot_frame_t(depot_t* depot) :
 DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->get_max_convoi_length());
 	selected_line = depot->get_selected_line();
 	strcpy(no_line_text, translator::translate("<no line>"));
-	sprintf(txt_title, "(%d,%d) %s", depot->get_pos().x, depot->get_pos().y, translator::translate(depot->get_tile()->get_besch()->get_name()));
 
 	/*
 	 * [CONVOY ASSEMBLER]
@@ -201,9 +200,26 @@ depot_frame_t::~depot_frame_t()
 }
 
 
+// returns position of depot on the map
+koord3d depot_frame_t::get_weltpos()
+{
+	return depot->get_pos();
+}
+
+
 void depot_frame_t::layout(koord *gr)
 {
 	koord fgr = (gr!=NULL)? *gr : get_fenstergroesse();
+
+	/*
+	* These parameter are adjusted to resolution.
+	* - Some extra space looks nicer.
+	grid.x = depot->get_x_grid() * get_base_tile_raster_width() / 64 + 4;
+	grid.y = depot->get_y_grid() * get_base_tile_raster_width() / 64 + 6;
+	placement.x = depot->get_x_placement() * get_base_tile_raster_width() / 64 + 2;
+	placement.y = depot->get_y_placement() * get_base_tile_raster_width() / 64 + 2;
+	grid_dx = depot->get_x_grid() * get_base_tile_raster_width() / 64 / 2;
+	placement_dx = depot->get_x_grid() * get_base_tile_raster_width() / 64 / 4;
 
 	/*
 	*	Dialog format:

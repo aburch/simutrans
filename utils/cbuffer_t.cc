@@ -82,7 +82,7 @@ void cbuffer_t::append(double n,int decimals)
  */
 static int my_vsnprintf(char *buf, size_t n, const char* fmt, va_list ap )
 {
-#if defined _MSC_FULL_VER && _MSC_FULL_VER >= 140050727 && !defined __WXWINCE__
+#if defined _MSC_FULL_VER  &&  _MSC_FULL_VER >= 140050727  &&  !defined __WXWINCE__
 	// this MSC function can handle positional parameters since 2008
 	return _vsprintf_p(buf, n, fmt, ap);
 #else
@@ -98,7 +98,8 @@ static int my_vsnprintf(char *buf, size_t n, const char* fmt, va_list ap )
 		int count = 0;
 		for(  ;  c  &&  count<9;  count++  ) {
 			sprintf( pos, "%%%i$", count+1 );
-			if(  (c=strstr( fmt, pos ))!=NULL  ) {
+			c = strstr( fmt, pos );
+			if(  c  ) {
 				// extend format string, using 1 as marke between strings
 				if(  count  ) {
 					*cfmt++ = '\01';
@@ -130,11 +131,10 @@ static int my_vsnprintf(char *buf, size_t n, const char* fmt, va_list ap )
 		char *cbuf = buf;
 		cfmt = const_cast<char *>(fmt); // cast is save, as the string is not modified
 		while(  *cfmt!=0  ) {
-			while(  *cfmt!='%'  &&  *cfmt>0  ) {
+			while(  *cfmt!='%'  &&  *cfmt  ) {
 				*cbuf++ = *cfmt++;
 			}
 			if(  *cfmt==0  ) {
-				*cbuf = 0;
 				break;
 			}
 			// get the nth argument
@@ -154,6 +154,7 @@ static int my_vsnprintf(char *buf, size_t n, const char* fmt, va_list ap )
 			cfmt += 3;
 			cfmt += strspn( cfmt, "+-0123456789 #.hlI" )+1;
 		}
+		*cbuf = 0;
 		return cbuf-buf;
 	}
 	// no positional parameters: use standard vsnprintf

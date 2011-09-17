@@ -1,4 +1,5 @@
 #include "utils/simstring.h"
+#include "dataobj/fahrplan.h"
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
 #include "simtypes.h"
@@ -11,7 +12,17 @@
 #include "simworld.h"
 #include "simlinemgmt.h"
 
-uint8 simline_t::convoi_to_line_catgory[MAX_CONVOI_COST]={LINE_CAPACITY, LINE_TRANSPORTED_GOODS, LINE_AVERAGE_SPEED, LINE_COMFORT, LINE_REVENUE, LINE_OPERATIONS, LINE_PROFIT, LINE_DISTANCE, LINE_REFUNDS };
+uint8 convoi_to_line_catgory_[MAX_CONVOI_COST]=
+{
+	LINE_CAPACITY, LINE_TRANSPORTED_GOODS, LINE_AVERAGE_SPEED, LINE_COMFORT, LINE_REVENUE, LINE_OPERATIONS, LINE_PROFIT, LINE_DISTANCE, LINE_REFUNDS 
+};
+
+uint8 simline_t::convoi_to_line_catgory(uint8 cnv_cost)
+{
+	assert(cnv_cost < MAX_CONVOI_COST);
+	return convoi_to_line_catgory_[cnv_cost];
+}
+
 
 karte_t *simline_t::welt=NULL;
 
@@ -39,6 +50,8 @@ simline_t::simline_t(karte_t* welt, spieler_t* sp, linetype type)
 	livery_scheme_index = 0;
 
 	create_schedule();
+
+	average_journey_times = new koordhashtable_tpl<id_pair, average_tpl<uint16> >;
 }
 
 
@@ -51,6 +64,7 @@ simline_t::simline_t(karte_t* welt, spieler_t* sp, linetype type, loadsave_t *fi
 	this->fpl = NULL;
 	this->sp = sp;
 	create_schedule();
+	average_journey_times = new koordhashtable_tpl<id_pair, average_tpl<uint16> >;
 	rdwr(file);
 	// now self has the right id but the this-pointer is not assigned to the quickstone handle yet
 	// do this explicitly
@@ -71,8 +85,9 @@ simline_t::~simline_t()
 	delete fpl;
 	self.detach();
 	DBG_MESSAGE("simline_t::~simline_t()", "line %d (%p) destroyed", self.get_id(), this);
-}
 
+	delete average_journey_times;
+}
 
 void simline_t::create_schedule()
 {
@@ -156,7 +171,7 @@ void simline_t::add_convoy(convoihandle_t cnv, bool from_loading)
 	if(  update_schedules  ) {
 
 		// Added by : Knightly
-		haltestelle_t::refresh_routing(fpl, goods_catg_index, sp,welt->get_settings().get_default_path_option());
+		haltestelle_t::refresh_routing(fpl, goods_catg_index, sp);
 	}
 
 	// if the schedule is flagged as bidirectional, set the initial convoy direction
@@ -192,6 +207,11 @@ void simline_t::rdwr_linehandle_t(loadsave_t *file, linehandle_t &line)
 	if (file->is_saving()) {
 		id = line.is_bound() ? line.get_id(): (file->get_version() < 110000  ? INVALID_LINE_ID_OLD : INVALID_LINE_ID);
 	}
+	else {
+		// to avoid undefined errors during loading
+		id = 0;
+	}
+
 	if(file->get_version()<88003) {
 		sint32 dummy=id;
 		file->rdwr_long(dummy);
@@ -315,6 +335,47 @@ void simline_t::rdwr(loadsave_t *file)
 	{
 		livery_scheme_index = 0;
 	}
+
+	if(file->get_experimental_version() >= 10)
+	{
+		if(file->is_saving())
+		{
+			uint32 count = average_journey_times->get_count();
+			file->rdwr_long(count);
+
+			koordhashtable_iterator_tpl<id_pair, average_tpl<uint16> > iter(average_journey_times);
+			while(iter.next())
+			{
+				id_pair idp = iter.get_current_key();
+				file->rdwr_short(idp.x);
+				file->rdwr_short(idp.y);
+				file->rdwr_short(iter.access_current_value().count);
+				file->rdwr_short(iter.access_current_value().total);
+			}
+		}
+		else
+		{
+			uint32 count = 0;
+			file->rdwr_long(count);
+			for(uint32 i = 0; i < count; i ++)
+			{
+				id_pair idp;
+				file->rdwr_short(idp.x);
+				file->rdwr_short(idp.y);
+				
+				uint16 count;
+				uint16 total;
+				file->rdwr_short(count);
+				file->rdwr_short(total);
+
+				average_tpl<uint16> average;
+				average.count = count;
+				average.total = total;
+
+				average_journey_times->put(idp, average);
+			}
+		}
+	}
 }
 
 
@@ -385,7 +446,7 @@ void simline_t::renew_stops()
 		register_stops( fpl );
 	
 		// Added by Knightly
-		haltestelle_t::refresh_routing(fpl, goods_catg_index, sp,welt->get_settings().get_default_path_option());
+		haltestelle_t::refresh_routing(fpl, goods_catg_index, sp);
 		
 		DBG_DEBUG("simline_t::renew_stops()", "Line id=%d, name='%s'", self.get_id(), name.c_str());
 	}
@@ -395,7 +456,7 @@ void simline_t::set_schedule(schedule_t* fpl)
 {
 	if (this->fpl) 
 	{
-		haltestelle_t::refresh_routing(fpl, goods_catg_index, sp, 0);
+		haltestelle_t::refresh_routing(fpl, goods_catg_index, sp);
 		unregister_stops();
 		delete this->fpl;
 	}
@@ -537,7 +598,7 @@ void simline_t::recalc_catg_index()
 	}
 
 	// refresh only those categories which are either removed or added to the category list
-	haltestelle_t::refresh_routing(fpl, differences, sp,welt->get_settings().get_default_path_option());
+	haltestelle_t::refresh_routing(fpl, differences, sp);
 }
 
 

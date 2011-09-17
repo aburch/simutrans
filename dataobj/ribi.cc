@@ -355,10 +355,12 @@ const ribi_t::dir ribi_t::dirs[16] = {
 	dir_invalid			// alle
 };
 
+
 ribi_t::ribi ribi_typ(koord from, koord to)
 {
 	return ribi_typ(to - from);
 }
+
 
 ribi_t::ribi ribi_typ(hang_t::typ hang)   // nordhang -> sued, ... !
 {
@@ -387,12 +389,10 @@ ribi_t::ribi ribi_typ(koord dir)
 }
 
 
-
 ribi_t::ribi ribi_typ(koord3d from, koord3d to)
 {
 	return ribi_typ(to-from);
 }
-
 
 
 ribi_t::ribi ribi_typ(koord3d dir)
@@ -415,13 +415,11 @@ ribi_t::ribi ribi_typ(koord3d dir)
 }
 
 
-
 /* check, if two directions are orthogonal
  * works with diagonals too
  * @author prissi
  */
-bool
-ribi_t::ist_exakt_orthogonal(ribi x, ribi y)
+bool ribi_t::ist_exakt_orthogonal(ribi x, ribi y)
 {
 	// for straight, we are finished here
 	if(ist_gerade(x)) {
@@ -434,7 +432,6 @@ ribi_t::ist_exakt_orthogonal(ribi x, ribi y)
 	// ok, then they are not orthogonal
 	return false;
 }
-
 
 
 hang_t::typ hang_typ(koord dir)

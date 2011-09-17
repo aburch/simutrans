@@ -473,12 +473,11 @@ void button_t::zeichnen(koord offset)
 			{
 				if (pressed) {
 					display_ddd_box_clip(bx, by, bw, bh, MN_GREY0, MN_GREY4);
-					display_fillbox_wh_clip(bx+1, by+1, bw-2, bh-2, background, false);
 				}
 				else {
 					display_ddd_box_clip(bx, by, bw, bh, COL_GREY6, COL_GREY3);
-					display_fillbox_wh_clip(bx+1, by+1, bw-2, bh-2, background, false);
 				}
+				display_fillbox_wh_clip(bx+1, by+1, bw-2, bh-2, background, false);
 				int len = proportional_string_width(translated_text);
 				display_proportional_clip(bx+max((bw-len)/2,0),by+(bh-large_font_height)/2, translated_text, ALIGN_LEFT, b_enabled ? foreground : COL_GREY4, true);
 				if(  win_get_focus()==this  ) {

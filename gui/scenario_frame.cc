@@ -13,6 +13,7 @@
 
 #include "../dataobj/umgebung.h"
 #include "../dataobj/scenario.h"
+#include "../dataobj/translator.h"
 
 
 /**
@@ -23,7 +24,7 @@ void scenario_frame_t::action(const char *filename)
 {
 	scenario_t scn(welt);
 	char path[1024], path2[1024];
-	sprintf( path, "%s%sscenario/%s.tab", umgebung_t::program_dir, umgebung_t::objfilename.c_str(), filename );
+	sprintf( path, "%s%sscenario/%s", umgebung_t::program_dir, umgebung_t::objfilename.c_str(), filename );
 	scn.init( path, welt );
 	sprintf( path2, "%s%sscenario/%s", umgebung_t::program_dir, umgebung_t::objfilename.c_str(), scn.get_filename() );
 	welt->laden( path2 );
@@ -37,7 +38,7 @@ void scenario_frame_t::action(const char *filename)
 scenario_frame_t::scenario_frame_t(karte_t *welt) : savegame_frame_t(".tab","./")
 {
 	this->welt = welt;
-	set_name("Load scenario");
+	set_name(translator::translate("Load scenario"));
 	set_focus(NULL);
 }
 

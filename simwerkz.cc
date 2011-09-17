@@ -22,12 +22,9 @@
 #include "bauer/fabrikbauer.h"
 #include "bauer/vehikelbauer.h"
 
-#include "boden/boden.h"
 #include "boden/grund.h"
 #include "boden/wasser.h"
-#include "boden/wege/strasse.h"
 #include "boden/wege/schiene.h"
-#include "boden/wege/kanal.h"
 #include "boden/tunnelboden.h"
 #include "boden/monorailboden.h"
 
@@ -39,11 +36,8 @@
 
 #include "besch/grund_besch.h"
 #include "besch/haus_besch.h"
-#include "besch/skin_besch.h"
 #include "besch/roadsign_besch.h"
 #include "besch/tunnel_besch.h"
-#include "besch/groundobj_besch.h"
-#include "besch/roadsign_besch.h"
 
 #include "vehicle/simvehikel.h"
 #include "vehicle/simverkehr.h"
@@ -74,7 +68,6 @@
 #include "dings/field.h"
 #include "dings/label.h"
 
-#include "dataobj/tabfile.h"
 #include "dataobj/einstellungen.h"
 #include "dataobj/umgebung.h"
 #include "dataobj/fahrplan.h"
@@ -1593,7 +1586,7 @@ const char *wkz_change_city_size_t::work( karte_t *welt, spieler_t * sp, koord3d
 		// Knightly : update the links from other cities to this city
 		const weighted_vector_tpl<stadt_t *> &cities = welt->get_staedte();
 		for(  uint32 c=0;  c<cities.get_count();  ++c  ) {
-			cities[c]->update_target_city(city);
+			cities[c]->update_target_city(city); 
 		}
 		return NULL;
 	}
@@ -1699,7 +1692,7 @@ karte_t *wkz_wegebau_t::welt = NULL;	// for default city road
 const weg_besch_t *wkz_wegebau_t::get_besch( uint16 timeline_year_month, bool remember ) const
 {
 	const weg_besch_t *besch = default_param ? wegbauer_t::get_besch(default_param,0) :NULL;
-	if(besch==NULL) {
+	if(besch==NULL  &&  default_param  ) {
 		waytype_t wt = (waytype_t)atoi(default_param);
 		besch = defaults[wt&63];
 		if(besch==NULL) {
@@ -2381,7 +2374,7 @@ bool wkz_wayremover_t::calc_route( route_t &verbindung, spieler_t *sp, const koo
 		else {
 			test_driver = new electron_t();
 		}
-		verbindung.calc_route(sp->get_welt(), start, end, test_driver, 0, 0);
+		verbindung.calc_route(sp->get_welt(), start, end, test_driver, 0, 0, 0);
 		delete test_driver;
 	}
 	DBG_MESSAGE("wkz_wayremover()","route with %d tile found",verbindung.get_count());
@@ -2613,7 +2606,7 @@ bool wkz_wayobj_t::calc_route( route_t &verbindung, spieler_t *sp, const koord3d
 	test_driver->set_flag( ding_t::not_on_map );
 	bool can_built;
 	if( start != to ) {
-		can_built = verbindung.calc_route(sp->get_welt(), start, to, test_driver, 0, 0);
+		can_built = verbindung.calc_route(sp->get_welt(), start, to, test_driver, 0, 0, 0);
 	}
 	else {
 		verbindung.clear();
@@ -3727,7 +3720,7 @@ wkz_roadsign_t::wkz_roadsign_t() : two_click_werkzeug_t()
 {
 	id = WKZ_ROADSIGN | GENERAL_TOOL;
 	for (uint8 i=0; i<MAX_PLAYER_COUNT; i++) {
-		signal_spacing[i] = 2;
+		signal_spacing[i] = 16;
 		remove_intermediate_signals[i] = true;
 		replace_other_signals[i] = true;
 	}
@@ -3892,7 +3885,7 @@ bool wkz_roadsign_t::calc_route( route_t &verbindung, spieler_t *sp, const koord
 	vehikel_t* test_driver = vehikelbauer_t::baue(start, sp, NULL, &rs_besch);
 	bool can_built;
 	if( start != to ) {
-		can_built = verbindung.calc_route(sp->get_welt(), start, to, test_driver, 0, 0);
+		can_built = verbindung.calc_route(sp->get_welt(), start, to, test_driver, 0, 0, 0);
 		// prevent building of many signals if start and to are adjacent
 		// but the step start->to is now allowed
 		if (can_built  &&  koord_distance(start, to)==1  &&  verbindung.get_count()>2) {
@@ -3963,7 +3956,8 @@ void wkz_roadsign_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &st
 				dummy_rs->set_dir(ribi); // calls calc_bild()
 				zeiger->set_after_bild(dummy_rs->get_after_bild());
 				zeiger->set_bild(dummy_rs->get_bild());
-				dummy_rs->set_dir(ribi_t::keine);
+				// as set_dir also modifies the ribi-mask of the way we have to reset it here...
+				dummy_rs->set_dir(rs ? rs->get_dir() : (ribi_t::ribi)ribi_t::keine);
 				cost += rs ? (rs->get_besch()==besch ? 0  : besch->get_preis()+rs->get_besch()->get_preis()) : besch->get_preis();
 			}
 		}
@@ -5132,14 +5126,8 @@ const char *wkz_stop_moving_t::do_work( karte_t *welt, spieler_t *sp, const koor
 		// since factory connections may have changed
 
 		// Modified by : Knightly
-		if (welt->get_settings().get_default_path_option() == 2)
-		{
-			path_explorer_t::refresh_all_categories(true);
-		}
-		else
-		{
-			welt->set_schedule_counter();
-		}
+
+		path_explorer_t::refresh_all_categories(true);
 	}
 	return NULL;
 }
@@ -5446,6 +5434,13 @@ void wkz_show_underground_t::draw_after( karte_t *welt, koord pos ) const
 			display_proportional( pos.x+4, pos.y+4, level_str, ALIGN_LEFT, COL_YELLOW, true );
 		}
 	}
+}
+
+
+bool wkz_increase_industry_t::init( karte_t *welt, spieler_t * )
+{
+	fabrikbauer_t::increase_industry_density( welt, true, false );
+	return false;
 }
 
 
@@ -6131,11 +6126,14 @@ bool wkz_change_traffic_light_t::init( karte_t *welt, spieler_t *sp )
 	if(  grund_t *gr = welt->lookup(pos)  ) {
 		if( roadsign_t *rs = gr->find<roadsign_t>()  ) {
 			if(  rs->get_besch()->is_traffic_light()  &&  spieler_t::check_owner(rs->get_besitzer(),sp)  ) {
-				if(  ns  ) {
+				if(  ns == 1  ) {
 					rs->set_ticks_ns( ticks );
 				}
-				else {
+				else if(  ns == 0  ) {
 					rs->set_ticks_ow( ticks );
+				}
+				else if(  ns == 2  ) {
+					rs->set_ticks_offset( ticks );
 				}
 				// update the window
 				trafficlight_info_t* trafficlight_win = (trafficlight_info_t*)win_get_magic((long)rs);

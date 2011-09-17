@@ -13,6 +13,7 @@
 #include "../simtypes.h"
 #include "../simdebug.h"
 #include "../simworld.h"
+#include "../path_explorer.h"
 #include "../bauer/wegbauer.h"
 #include "../besch/weg_besch.h"
 #include "../utils/simstring.h"
@@ -65,6 +66,10 @@ settings_t::settings_t() :
 	river_number = 16;
 	min_river_length = 16;
 	max_river_length = 256;
+
+	// since the turning rules are different, driving must now be saved here
+	drive_on_left = false;
+	signals_on_left = false;
 
 	// forest setting ...
 	forest_base_size = 36; 	// Base forest size - minimal size of forest - map independent
@@ -301,6 +306,7 @@ settings_t::settings_t() :
 	median_bonus_distance = 0;
 	max_bonus_multiplier_percent = 300;
 	meters_per_tile = 250;
+	steps_per_km = (1000 * VEHICLE_STEPS_PER_TILE) / meters_per_tile;
 	tolerable_comfort_short = 15;
 	tolerable_comfort_median_short = 60;
 	tolerable_comfort_median_median = 100;
@@ -389,9 +395,6 @@ settings_t::settings_t() :
 	// default: load also private extensions of the pak file
 	with_private_paks = true;
 
-	// The default is a selective refresh.
-	default_path_option = 2;
-
 	// The defaults for journey time tolerance.
 	// Applies to passengers only.
 	// NOTE: The *maximum* numbers need to be 
@@ -421,6 +424,10 @@ settings_t::settings_t() :
 	quick_city_growth = false;
 	assume_everywhere_connected_by_road=false;
 
+	allow_routing_on_foot = false;
+
+	min_wait_airport = 0;
+
 	city_threshold_size = 1000;
 	capital_threshold_size = 10000;
 	
@@ -447,7 +454,6 @@ settings_t::~settings_t()
 	{
 		delete livery_schemes[i];
 	}*/
-	//livery_schemes = NULL;
 }
 
 
@@ -883,22 +889,32 @@ void settings_t::rdwr(loadsave_t *file)
 			{
 				file->rdwr_short(median_bonus_distance);
 				file->rdwr_short(max_bonus_multiplier_percent);
-				uint16 distance_per_tile_integer = meters_per_tile / 10;
-				file->rdwr_short(distance_per_tile_integer);
-				if(file->get_experimental_version() < 5 && file->get_experimental_version() >= 1)
+				if(file->get_experimental_version() <= 9)
 				{
-					// In earlier versions, the default was set to a higher level. This
-					// is a problem when the new journey time tolerance features is used.
-					if(file->is_loading())
+					uint16 distance_per_tile_integer = meters_per_tile / 10;
+					file->rdwr_short(distance_per_tile_integer);
+					if(file->get_experimental_version() < 5 && file->get_experimental_version() >= 1)
 					{
-						distance_per_tile_integer = (distance_per_tile_integer * 8) / 10;
-					}
-					else
-					{
-						distance_per_tile_integer = (distance_per_tile_integer * 10) / 8;
-					}
-				}		
-				meters_per_tile = distance_per_tile_integer * 10;
+						// In earlier versions, the default was set to a higher level. This
+						// is a problem when the new journey time tolerance features is used.
+						if(file->is_loading())
+						{
+							distance_per_tile_integer = (distance_per_tile_integer * 8) / 10;
+						}
+						else
+						{
+							distance_per_tile_integer = (distance_per_tile_integer * 10) / 8;
+						}
+					}		
+					set_meters_per_tile(distance_per_tile_integer * 10);
+				}
+				else
+				{
+					// Version 10.0 and above - meters per tile stored precisely
+					uint16 mpt = meters_per_tile;
+					file->rdwr_short(mpt);
+					set_meters_per_tile(mpt);
+				}
 				
 				file->rdwr_byte(tolerable_comfort_short);
 				file->rdwr_byte(tolerable_comfort_median_short);
@@ -1112,9 +1128,10 @@ void settings_t::rdwr(loadsave_t *file)
 			enforce_weight_limits = enforce_weight_limits == 0 ? 0 : 1;
 		}
 		
-		if(file->get_experimental_version() >= 4)
+		if(file->get_experimental_version() >= 4 && file->get_experimental_version() < 10)
 		{
-			file->rdwr_byte(default_path_option);
+			uint8 dummy;
+			file->rdwr_byte(dummy);
 		}
 
 		if(file->get_experimental_version() >= 5)
@@ -1171,26 +1188,28 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_short(factory_arrival_periods);
 			file->rdwr_bool(factory_enforce_demand);
 		}
-
+		 
 		if(  file->get_version()>=110007  ) 
 		{
 			if(file->get_experimental_version() == 0 )
 			{
-				uint16 city_short_range_percentage = passenger_routing_local_chance;
-				uint16 city_medium_range_percentage = passenger_routing_midrange_chance;
-				uint32 city_short_range_radius = local_passengers_max_distance;
-				uint32 city_medium_range_radius = midrange_passengers_max_distance;
-
-				file->rdwr_short(city_short_range_percentage);
-				file->rdwr_short(city_medium_range_percentage);
-				file->rdwr_long(city_short_range_radius);
-				file->rdwr_long(city_medium_range_radius);
-
-				passenger_routing_local_chance = city_short_range_percentage;
-				passenger_routing_midrange_chance = city_medium_range_percentage;
-				local_passengers_max_distance = city_short_range_radius;
-				midrange_passengers_max_distance = city_medium_range_radius;
+				// Unfortunately, with this new system from Standard, it is no longer possible
+				// to parse these values in a way that makes sense to Experimental. This must
+				// be maintained to retain saved game compatibility only.
+				uint32 dummy_32 = 0;
+				uint16 dummy_16 = 0;
+				for(  int i=0;  i<10;  i++  ) 
+				{
+					file->rdwr_short(dummy_16);
+					file->rdwr_long(dummy_32);
+				}
 			}
+		}
+		
+		if(file->get_experimental_version() >= 10 || (file->get_experimental_version() == 0 && file->get_version() >= 10007))
+		{
+			file->rdwr_bool( drive_on_left );
+			file->rdwr_bool( signals_on_left );
 		}
 
 		if (file->get_experimental_version() >= 9 && file->get_version() >= 110006) 
@@ -1201,10 +1220,10 @@ void settings_t::rdwr(loadsave_t *file)
 			uint16 livery_schemes_count = 0;
 			if(file->is_loading())
 			{
-				ITERATE(livery_schemes, i)
+				/*ITERATE(livery_schemes, i)
 				{
 					delete livery_schemes[i];
-				}
+				}*/
 				livery_schemes.clear();
 			}
 			if(file->is_saving())
@@ -1231,6 +1250,12 @@ void settings_t::rdwr(loadsave_t *file)
 				}
 			}
 		}
+
+		if(file->get_experimental_version() >= 10)
+		{
+			file->rdwr_bool(allow_routing_on_foot);
+			file->rdwr_short(min_wait_airport);
+		}
 	}
 }
 
@@ -1248,12 +1273,13 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	// @author: jamespetts
 	uint16 distance_per_tile_integer = meters_per_tile / 10;
 	meters_per_tile = contents.get_int("distance_per_tile", distance_per_tile_integer) * 10;
+	meters_per_tile = contents.get_int("meters_per_tile", meters_per_tile);
+	steps_per_km = (1000 * VEHICLE_STEPS_PER_TILE) / meters_per_tile;
 	float32e8_t distance_per_tile(meters_per_tile, 1000);
 
 	umgebung_t::water_animation = contents.get_int("water_animation_ms", umgebung_t::water_animation);
 	umgebung_t::ground_object_probability = contents.get_int("random_grounds_probability", umgebung_t::ground_object_probability);
 	umgebung_t::moving_object_probability = contents.get_int("random_wildlife_probability", umgebung_t::moving_object_probability);
-	umgebung_t::drive_on_left = contents.get_int("drive_left", umgebung_t::drive_on_left );
 
 	umgebung_t::verkehrsteilnehmer_info = contents.get_int("pedes_and_car_info", umgebung_t::verkehrsteilnehmer_info) != 0;
 	umgebung_t::tree_info = contents.get_int("tree_info", umgebung_t::tree_info) != 0;
@@ -1290,6 +1316,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	umgebung_t::additional_client_frames_behind = contents.get_int("additional_client_frames_behind", umgebung_t::additional_client_frames_behind);
 	umgebung_t::network_frames_per_step = contents.get_int("server_frames_per_step", umgebung_t::network_frames_per_step );
 	umgebung_t::server_sync_steps_between_checks = contents.get_int("server_frames_between_checks", umgebung_t::server_sync_steps_between_checks );
+	umgebung_t::pause_server_no_clients = contents.get_int("pause_server_no_clients", umgebung_t::pause_server_no_clients );
 
 	umgebung_t::announce_server = contents.get_int("announce_server", umgebung_t::announce_server );
 	umgebung_t::announce_server = contents.get_int("server_announce", umgebung_t::announce_server );
@@ -1303,6 +1330,9 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	if(  *contents.get("server_admin_pw")  ) {
 		umgebung_t::server_admin_pw = ltrim(contents.get("server_admin_pw"));
 	}
+
+	drive_on_left = contents.get_int("drive_left", drive_on_left );
+	signals_on_left = contents.get_int("signals_on_left", signals_on_left );
 
 	// up to ten rivers are possible
 	for(  int i = 0;  i<10;  i++  ) {
@@ -1567,7 +1597,10 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	no_tree_climates = contents.get_int("no_tree_climates", no_tree_climates );
 	no_trees	= contents.get_int("no_trees", no_trees );
 
+	// those two are pak specific; but while the diagonal length affect traveling time (in is game critical) ...
 	pak_diagonal_multiplier = contents.get_int("diagonal_multiplier", pak_diagonal_multiplier );
+	// the height in z-direction will only cause pixel errors but not a different behaviour
+	umgebung_t::pak_tile_height_step = contents.get_int("tile_height", umgebung_t::pak_tile_height_step );
 
 	factory_spacing = contents.get_int("factory_spacing", factory_spacing );
 	crossconnect_factories = contents.get_int("crossconnect_factories", crossconnect_factories ) != 0;
@@ -1758,9 +1791,6 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	speed_bonus_multiplier_percent = contents.get_int("speed_bonus_multiplier_percent", speed_bonus_multiplier_percent);
 
-	bool path_searching_approach = contents.get_int("path_searching_approach", default_path_option == 2);
-	default_path_option = path_searching_approach ? 2 : 1;
-
 	// Multiply by 10 because journey times are measured in tenths of minutes.
 	//@author: jamespetts
 	const uint16 min_local_tolerance_minutes = contents.get_int("min_local_tolerance", (min_local_tolerance / 10));
@@ -1780,6 +1810,10 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	max_walking_distance = ((uint32)max_walking_distance_m * distance_per_tile) / 100;
 
 	quick_city_growth = (bool)(contents.get_int("quick_city_growth", quick_city_growth));
+
+	allow_routing_on_foot = (bool)(contents.get_int("allow_routing_on_foot", allow_routing_on_foot));
+
+	min_wait_airport = contents.get_int("min_wait_airport", min_wait_airport) * 10; // Stored as 10ths of minutes
 
 	assume_everywhere_connected_by_road = (bool)(contents.get_int("assume_everywhere_connected_by_road", assume_everywhere_connected_by_road));
 
@@ -2094,3 +2128,8 @@ void settings_t::set_default_player_color(spieler_t* const sp) const
 	sp->set_player_color( color1*8, color2*8 );
 }
  
+void settings_t::set_allow_routing_on_foot(bool value)
+{ 
+	allow_routing_on_foot = value; 
+	path_explorer_t::refresh_category(0);
+}

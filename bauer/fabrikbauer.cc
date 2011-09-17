@@ -868,12 +868,12 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","failed to built lieferant %s aroun
  * or built a new consumer near the indicated position
  * @return: number of factories built
  */
-int fabrikbauer_t::increase_industry_density( karte_t *welt, bool tell_me, bool do_not_add_beyond_target_density )
+int fabrikbauer_t::increase_industry_density( karte_t *welt, bool tell_me, bool do_not_add_beyond_target_density, bool power_stations_only )
 {
 	int nr = 0;
 
 	// Build a list of all industries with incomplete supply chains.
-	if(!welt->get_fab_list().empty()) 
+	if(!power_stations_only && !welt->get_fab_list().empty()) 
 	{
 		// A collection of all consumer industries that are not fully linked to suppliers.
 		vector_tpl<fabrik_t*> unlinked_consumers;
@@ -1056,8 +1056,9 @@ next_ware_check:
 	}
 
 	// now decide producer of electricity or normal ...
-	const sint64 promille = ((sint64)electric_productivity*4000l)/total_electric_demand;
-	int no_electric = promille > (sint64)welt->get_settings().get_electric_promille();
+	const sint64 promille = ((sint64)electric_productivity * 4000l )/ total_electric_demand;
+	const sint64 target_promille = (sint64)welt->get_settings().get_electric_promille();
+	int no_electric = promille > target_promille;
 	DBG_MESSAGE( "fabrikbauer_t::increase_industry_density()", "production of electricity/total electrical demand is %i/%i (%i o/oo)", electric_productivity, total_electric_demand, promille );
 
 	bool not_yet_too_desperate_to_ignore_climates = false;

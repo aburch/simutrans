@@ -35,6 +35,14 @@ public:
 	 * @author Inkelyad
 	 */
 	sint16 spacing_shift;
+
+	/**
+	 * Whether a convoy
+	 * needs to reverse
+	 * after this entry.
+	 * @author: jamespetts
+	 */
+	bool reverse;
 };
 
 #endif

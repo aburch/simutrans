@@ -204,7 +204,8 @@ private:
 	/* prissi: maximum number of steps for breath search */
 	sint32 max_transfers;
 
-	/* multiplier for steps on diagonal:
+	/**
+	 * multiplier for steps on diagonal:
 	 * 1024: TT-like, faktor 2, vehicle will be too long and too fast
 	 * 724: correct one, faktor sqrt(2)
 	 */
@@ -217,6 +218,21 @@ private:
 	bool seperate_halt_capacities;
 
 	vector_tpl<livery_scheme_t*> livery_schemes;
+
+	// Whether passengers might walk between stops en route.
+	// @author: jamespetts, August 2011
+	bool allow_routing_on_foot;
+
+	/**
+	 * The shortest time that passengers/goods can
+	 * wait at an airport before boarding an aircraft.
+	 * Waiting times are higher at airports because of
+	 * the need to check-in, undergo security checks,
+	 * etc.
+	 * @author: jamespetts, August 2011
+	 */
+	uint16 min_wait_airport;
+
 
 public:
 
@@ -253,6 +269,9 @@ public:
 	uint16 median_bonus_distance;
 	uint16 max_bonus_multiplier_percent;
 	uint16 meters_per_tile;
+	// We need it often(every vehikel_basis_t::fahre_basis call), so we cache it.
+	uint32 steps_per_km;
+
 	uint8 tolerable_comfort_short;
 	uint8 tolerable_comfort_median_short;
 	uint8 tolerable_comfort_median_median;
@@ -344,11 +363,6 @@ private:
 
 	// true, if this pak should be used with extensions (default)
 	bool with_private_paks;
-
-	// Determine which path searching approach is used
-	// 1 = distributed approach
-	// 2 = centralised approach
-	uint8 default_path_option;
 	
 public:
 
@@ -378,6 +392,9 @@ private:
 	uint32 frames_per_second;	// only used in network mode ...
 	uint32 frames_per_step;
 	uint32 server_frames_ahead;
+
+	bool drive_on_left;
+	bool signals_on_left;
 
 public:
 	/* the big cost section */
@@ -588,7 +605,8 @@ public:
 	void   set_max_bonus_multiplier_percent(uint16 value) { max_bonus_multiplier_percent = value; }
 
 	uint16 get_meters_per_tile() const { return meters_per_tile; }
-	void   set_meters_per_tile(uint16 value) { meters_per_tile = value; }
+	void   set_meters_per_tile(uint16 value) { meters_per_tile = value; steps_per_km = (1000 * VEHICLE_STEPS_PER_TILE) / meters_per_tile; }
+	uint32 get_steps_per_km() const { return steps_per_km; }
 //	void   set_distance_per_tile_percent(uint16 value) { meters_per_tile = value * 10; }
 
 	uint8  get_tolerable_comfort_short() const { return tolerable_comfort_short; }
@@ -718,7 +736,7 @@ public:
 
 	bool is_avoid_overcrowding() const { return avoid_overcrowding; }
 
-	uint16 get_passenger_max_wait() const { return passenger_max_wait; }
+	uint32 get_passenger_max_wait() const { return passenger_max_wait; }
 
 	uint8 get_max_rerouting_interval_months() const { return max_rerouting_interval_months; }
 
@@ -729,10 +747,6 @@ public:
 	// true, if this pak should be used with extensions (default)
 	void set_with_private_paks(bool b ) {with_private_paks = b;}
 	bool get_with_private_paks() const { return with_private_paks; }
-
-
-	inline uint8 get_default_path_option() const { return default_path_option; }
-	inline void set_default_path_option(const uint8 value) { default_path_option = value; }
 
 	// @author: jamespetts
 	uint16 get_min_local_tolerance() const { return min_local_tolerance; }
@@ -823,6 +837,7 @@ public:
 	void set_default_increase_maintenance_after_years(waytype_t wtype, uint16 value) { default_increase_maintenance_after_years[wtype] = value; }
 	uint32 get_server_frames_ahead() const { return server_frames_ahead; }
 
+
 	uint8 get_spacing_shift_mode() const { return spacing_shift_mode; }
 	void set_spacing_shift_mode(uint8 s) { spacing_shift_mode = s; }
 
@@ -831,6 +846,15 @@ public:
 
 	livery_scheme_t* get_livery_scheme(uint16 index) { return !livery_schemes.empty() ? livery_schemes.get_element(index) : NULL; } 
 	vector_tpl<livery_scheme_t*>* get_livery_schemes() { return &livery_schemes; }
+
+	bool get_allow_routing_on_foot() const { return allow_routing_on_foot; }
+	void set_allow_routing_on_foot(bool value); 
+
+	bool is_drive_left() const { return drive_on_left; }
+	bool is_signals_left() const { return signals_on_left; }
+
+	uint16 get_min_wait_airport() const { return min_wait_airport; }
+	void set_min_wait_airport(uint16 value) { min_wait_airport = value; }
 };
 
-#endif
+#endif 
