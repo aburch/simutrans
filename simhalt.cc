@@ -608,78 +608,88 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 		// standard names:
 		// order: factory, attraction, direction, normal name
 		// prissi: first we try a factory name
-		slist_tpl<fabrik_t *>fabs;
-		if (self.is_bound()) {
-			// first factories (so with same distance, they have priority)
-			int this_distance = 999;
-			slist_iterator_tpl<fabrik_t*> fab_iter(get_fab_list());
-			while (fab_iter.next()) {
-				int distance = koord_distance(fab_iter.get_current()->get_pos().get_2d(), k);
-				if (distance < this_distance) {
-					fabs.insert(fab_iter.get_current());
-					distance = this_distance;
-				}
-				else {
-					fabs.append(fab_iter.get_current());
-				}
-			}
-		}
-		else {
-			// since the distance are presorted, we can just append for a good choice ...
-			for(  int test=0;  test<24;  test++  ) {
-				fabrik_t *fab = fabrik_t::get_fab(welt,k+next_building[test]);
-				if(fab  &&  fabs.is_contained(fab)) {
-					fabs.append(fab);
-				}
-			}
-		}
 
-		// are there fabs?
-		const char *fab_base = translator::translate("%s factory %s %s",lang);
-		slist_iterator_tpl<fabrik_t*> fab_iter(fabs);
-		while (fab_iter.next()) {
-			// with factories
-			buf.printf( fab_base, city_name, translator::translate(fab_iter.get_current()->get_besch()->get_name(),lang), stop );
-			if(  !all_names.get(buf).is_bound()  ) {
-				return strdup(buf);
+		// is there a translation for factory defined?
+		const char *fab_base_text = "%s factory %s %s";
+		const char *fab_base = translator::translate(fab_base_text,lang);
+		if(  fab_base_text != fab_base  ) {
+			slist_tpl<fabrik_t *>fabs;
+			if (self.is_bound()) {
+				// first factories (so with same distance, they have priority)
+				int this_distance = 999;
+				slist_iterator_tpl<fabrik_t*> fab_iter(get_fab_list());
+				while (fab_iter.next()) {
+					int distance = koord_distance(fab_iter.get_current()->get_pos().get_2d(), k);
+					if (distance < this_distance) {
+						fabs.insert(fab_iter.get_current());
+						distance = this_distance;
+					}
+					else {
+						fabs.append(fab_iter.get_current());
+					}
+				}
 			}
-			buf.clear();
+			else {
+				// since the distance are presorted, we can just append for a good choice ...
+				for(  int test=0;  test<24;  test++  ) {
+					fabrik_t *fab = fabrik_t::get_fab(welt,k+next_building[test]);
+					if(fab  &&  fabs.is_contained(fab)) {
+						fabs.append(fab);
+					}
+				}
+			}
+
+			// are there fabs?
+			slist_iterator_tpl<fabrik_t*> fab_iter(fabs);
+			while (fab_iter.next()) {
+				// with factories
+				buf.printf( fab_base, city_name, translator::translate(fab_iter.get_current()->get_besch()->get_name(),lang), stop );
+				if(  !all_names.get(buf).is_bound()  ) {
+					return strdup(buf);
+				}
+				buf.clear();
+			}
 		}
 
 		// no fabs or all names used up already
-		// check for other special building (townhall, monument, tourst attraction)
-		for (int i=0; i<24; i++) {
-			grund_t *gr = welt->lookup_kartenboden( next_building[i] + k);
-			if(gr==NULL  ||  gr->get_typ()!=grund_t::fundament) {
-				// no building here
-				continue;
+		// is there a translation for buildings defined?
+		const char *building_base_text = "%s building %s %s";
+		const char *building_base = translator::translate(building_base_text,lang);
+		if(  building_base_text != building_base  ) {
+			// check for other special building (townhall, monument, tourst attraction)
+			for (int i=0; i<24; i++) {
+				grund_t *gr = welt->lookup_kartenboden( next_building[i] + k);
+				if(gr==NULL  ||  gr->get_typ()!=grund_t::fundament) {
+					// no building here
+					continue;
+				}
+				// since closes coordinates are tested first, we do not need to not sort this
+				const char *building_name = NULL;
+				const gebaeude_t* gb = gr->find<gebaeude_t>();
+				if(gb==NULL) {
+					// field may have foundations but no building
+					continue;
+				}
+				// now we have a building here
+				if (gb->is_monument()) {
+					building_name = translator::translate(gb->get_name(),lang);
+				}
+				else if (gb->ist_rathaus() ||
+					gb->get_tile()->get_besch()->get_utyp() == haus_besch_t::attraction_land || // land attraction
+					gb->get_tile()->get_besch()->get_utyp() == haus_besch_t::attraction_city) { // town attraction
+					building_name = make_single_line_string(translator::translate(gb->get_tile()->get_besch()->get_name(),lang), 2);
+				}
+				else {
+					// normal town house => not suitable for naming
+					continue;
+				}
+				// now we have a name: try it
+				buf.printf( building_base, city_name, building_name, stop );
+				if(  !all_names.get(buf).is_bound()  ) {
+					return strdup(buf);
+				}
+				buf.clear();
 			}
-			// since closes coordinates are tested first, we do not need to not sort this
-			const char *building_name = NULL;
-			const gebaeude_t* gb = gr->find<gebaeude_t>();
-			if(gb==NULL) {
-				// field may have foundations but no building
-				continue;
-			}
-			// now we have a building here
-			if (gb->is_monument()) {
-				building_name = translator::translate(gb->get_name(),lang);
-			}
-			else if (gb->ist_rathaus() ||
-				gb->get_tile()->get_besch()->get_utyp() == haus_besch_t::attraction_land || // land attraction
-				gb->get_tile()->get_besch()->get_utyp() == haus_besch_t::attraction_city) { // town attraction
-				building_name = make_single_line_string(translator::translate(gb->get_tile()->get_besch()->get_name(),lang), 2);
-			}
-			else {
-				// normal town house => not suitable for naming
-				continue;
-			}
-			// now we have a name: try it
-			buf.printf( translator::translate("%s building %s %s",lang), city_name, building_name, stop );
-			if(  !all_names.get(buf).is_bound()  ) {
-				return strdup(buf);
-			}
-			buf.clear();
 		}
 
 		// if there are street names, use them
