@@ -335,8 +335,6 @@ void wegbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const 
 }
 
 
-
-
 /* allow for railroad crossing
  * @author prissi
  */
@@ -405,8 +403,7 @@ bool wegbauer_t::check_crossing(const koord zv, const grund_t *bd, waytype_t wty
 /* crossing of powerlines, or no powerline
  * @author prissi
  */
-bool
-wegbauer_t::check_for_leitung(const koord zv, const grund_t *bd) const
+bool wegbauer_t::check_for_leitung(const koord zv, const grund_t *bd) const
 {
 	if(zv==koord(0,0)) {
 		return true;
@@ -429,7 +426,6 @@ wegbauer_t::check_for_leitung(const koord zv, const grund_t *bd) const
 	// ok, there is not high power transmission stuff going on here
 	return true;
 }
-
 
 
 // allowed slope?
@@ -457,14 +453,12 @@ bool wegbauer_t::check_slope( const grund_t *from, const grund_t *to )
 }
 
 
-
 // allowed owner?
 bool wegbauer_t::check_owner( const spieler_t *sp1, const spieler_t *sp2 ) const
 {
 	// unowned, mine or public property or superuser ... ?
 	return sp1==NULL  ||  sp1==sp2  ||  sp1==welt->get_spieler(1)  ||  sp2==welt->get_spieler(1);
 }
-
 
 
 /* do not go through depots, station buildings etc. ...
@@ -508,7 +502,6 @@ bool wegbauer_t::check_building( const grund_t *to, const koord dir ) const
 	}
 	return true;
 }
-
 
 
 /* This is the core routine for the way search
@@ -813,9 +806,16 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 			break;
 
 		case luft: // hsiegeln: runway
-			ok = !to->ist_wasser() && (to->hat_weg(air_wt) || !to->hat_wege())  &&  to->find<leitung_t>()==NULL  &&  !fundament;
-			// calculate costs
-			*costs = s.way_count_straight;
+			{
+				const weg_t *w = to->get_weg(air_wt);
+				if(  w  &&  w->get_besch()->get_styp()==1  &&  ribi_t::ist_einfach(w->get_ribi_unmasked())  ) {
+					// cannot go over the end of a runway with a taxiway
+					return false;
+				}
+				ok = !to->ist_wasser() && (w  ||  !to->hat_wege())  &&  to->find<leitung_t>()==NULL  &&  !fundament;
+				// calculate costs
+				*costs = s.way_count_straight;
+			}
 			break;
 	}
 	return ok;
