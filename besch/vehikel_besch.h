@@ -149,8 +149,8 @@ private:
 	  * before 10.0. 
 	  * @author: jamespetts
 	  */
-	uint16 max_loading_time;
-	uint16 min_loading_time; 
+	uint32 max_loading_time;
+	uint32 min_loading_time; 
 
 	/**
 	 * The raw values in seconds are
@@ -538,8 +538,8 @@ public:
 	bool get_can_lead_from_rear() const { return can_lead_from_rear; }
 	uint8 get_comfort() const { return comfort; }
 	uint16 get_overcrowded_capacity() const { return overcrowded_capacity; }
-	uint16 get_min_loading_time() const { return zuladung > 0 ? min_loading_time : 0; }
-	uint16 get_max_loading_time() const { return zuladung > 0 ? max_loading_time : 0; }
+	uint32 get_min_loading_time() const { return zuladung > 0 ? min_loading_time : 0; }
+	uint32 get_max_loading_time() const { return zuladung > 0 ? max_loading_time : 0; }
 	uint32 get_upgrade_price() const { return upgrade_price; }
 	bool is_available_only_as_upgrade() const { return available_only_as_upgrade; }
 

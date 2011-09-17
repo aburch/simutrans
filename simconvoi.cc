@@ -3358,7 +3358,7 @@ void convoi_t::rdwr(loadsave_t *file)
 			}
 		}
 
-		file->rdwr_short(current_loading_time);
+		file->rdwr_long(current_loading_time);
 	}
 	
 	else
@@ -3675,30 +3675,6 @@ void convoi_t::laden() //"load" (Babelfish)
 			while(starting_stop != current_stop && pair.x != pair.y);
 		}
 	}
-
-	// TESTING CODE ONLY
-	/*
-	koordhashtable_iterator_tpl<id_pair, average_tpl<uint16 > > iter(average_journey_times);
-	int counter = 0;
-	while(iter.next())
-	{
-		id_pair TEST_k = iter.get_current_key();
-		char cuddly_cat[4];
-		if(TEST_k.x == 0)
-		{
-			sprintf(cuddly_cat, "%u", counter);
-			dbg->fatal(cuddly_cat, "??");
-		}
-		if(TEST_k.y == 0)
-		{
-			sprintf(cuddly_cat, "%u", counter);
-			dbg->fatal(cuddly_cat, "THIS IS BAD.");
-		}
-		counter++;
-	}
-	*/
-	// END TESTING CODE
-
 
 	uint8 stop = fpl->get_aktuell();
 	bool rev = reverse_schedule;
@@ -5470,7 +5446,7 @@ uint32 convoi_t::calc_heaviest_vehicle()
 	return heaviest;
 }
 
-uint16 convoi_t::calc_longest_min_loading_time()
+uint32 convoi_t::calc_longest_min_loading_time()
 {
 	uint16 longest = 0;
 	for(uint8 i = 0; i < anz_vehikel; i ++)
@@ -5484,7 +5460,7 @@ uint16 convoi_t::calc_longest_min_loading_time()
 	return longest;
 }
 
-uint16 convoi_t::calc_longest_max_loading_time()
+uint32 convoi_t::calc_longest_max_loading_time()
 {
 	uint16 longest = 0;
 	for(uint8 i = 0; i < anz_vehikel; i ++)
@@ -5669,7 +5645,7 @@ void convoi_t::clear_replace()
 	 // the maximum load charge is twice the capacity: all alighting, then all
 	 // boarding.
 	 load_charge *= 2;
-	 const uint16 percentage = (load_charge * 100) / total_capacity;
-	 const uint16 difference = ((longest_max_loading_time - longest_min_loading_time) * percentage) / 100;
+	 const uint32 percentage = (load_charge * 100) / total_capacity;
+	 const uint32 difference = ((longest_max_loading_time - longest_min_loading_time) * percentage) / 100;
 	 current_loading_time = difference + longest_min_loading_time;
  }
