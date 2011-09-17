@@ -136,10 +136,11 @@ class haus_besch_t : public obj_besch_std_name_t { // Daten für ein ganzes Gebäu
 			rathaus           =  5,
 			weitere           =  6,
 			firmensitz        =  7,
+			// from here on only old style flages
 			bahnhof           =  8,
 			bushalt           =  9,
 			ladebucht         = 10,
-			hafen             = 11,
+			hafen             = 11,// this is still current, as it is can be larger than 1x1
 			binnenhafen       = 12,
 			airport           = 13,
 			monorailstop      = 14,
