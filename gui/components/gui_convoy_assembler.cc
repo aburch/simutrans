@@ -1558,7 +1558,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 				{
 					n = sprintf(buf,
 						/*translator::translate("WAGGON_INFO"),*/
-						translator::translate("%s\nCost:     %d$\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d%s %s\nWeight: %dt\nTop speed: %dkm/h\n"),
+						translator::translate("%s\nCost:     %d$\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d (%d)%s %s\nWeight: %dt\nTop speed: %dkm/h\n"),
 						translator::translate(veh_type->get_name()),
 						veh_type->get_upgrade_price()/100,
 						veh_type->get_betriebskosten()/100.0F,
