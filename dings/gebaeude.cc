@@ -531,6 +531,7 @@ const char *gebaeude_t::get_name() const
 				case haus_besch_t::attraction_land:   return "Sehenswuerdigkeit";
 				case haus_besch_t::denkmal:           return "Denkmal";
 				case haus_besch_t::rathaus:           return "Rathaus";
+				case haus_besch_t::depot:			  return tile->get_besch()->get_name();
 				default: break;
 			}
 			break;
