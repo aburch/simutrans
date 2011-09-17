@@ -205,28 +205,34 @@ void translator::load_custom_list( int lang, vector_tpl<char*> &name_list, const
 	clear_ptr_vector( name_list );
 
 	// @author prissi: first try in scenario
+	{
+		string local_file_name(umgebung_t::user_dir);
+		local_file_name = local_file_name + szenario_path + "text/" + fileprefix + langs[lang].iso_base + ".txt";
+		DBG_DEBUG("translator::load_custom_list()", "try to read city name list from '%s'", local_file_name.c_str());
+		file = fopen(local_file_name.c_str(), "rb");
+	}
 	// not found => try user location
-	string local_file_name(umgebung_t::user_dir);
-	local_file_name = local_file_name + fileprefix + langs[lang].iso_base + ".txt";
-	file = fopen(local_file_name.c_str(), "rb");
-	DBG_DEBUG("translator::load_custom_list()", "try to read name list '%s'", local_file_name.c_str());
-	if (file==NULL) {
+	if(  file==NULL  ) {
+		string local_file_name(umgebung_t::user_dir);
+		local_file_name = local_file_name + fileprefix + langs[lang].iso_base + ".txt";
+		file = fopen(local_file_name.c_str(), "rb");
+		DBG_DEBUG("translator::load_custom_list()", "try to read city name list from '%s'", local_file_name.c_str());
+	}
+	// not found => try pak location
+	if(  file==NULL  ) {
 		string local_file_name(umgebung_t::program_dir);
 		local_file_name = local_file_name + szenario_path + "text/" + fileprefix + langs[lang].iso_base + ".txt";
-		DBG_DEBUG("translator::load_custom_list()", "try to city name list '%s'", local_file_name.c_str());
+		DBG_DEBUG("translator::load_custom_list()", "try to read city name list from '%s'", local_file_name.c_str());
 		file = fopen(local_file_name.c_str(), "rb");
-		DBG_DEBUG("translator::load_custom_list()", "try to city name list '%s'", local_file_name.c_str());
 	}
-	// not found => try old location
-	if (file==NULL) {
+	// not found => try global translations
+	if(  file==NULL  ) {
 		string local_file_name(umgebung_t::program_dir);
 		local_file_name = local_file_name + "text/" + fileprefix + langs[lang].iso_base + ".txt";
-		DBG_DEBUG("translator::load_custom_list()", "try to city name list '%s'", local_file_name.c_str());
+		DBG_DEBUG("translator::load_custom_list()", "try to read city name list from '%s'", local_file_name.c_str());
 		file = fopen(local_file_name.c_str(), "rb");
-		DBG_DEBUG("translator::load_custom_list()", "try to city name list '%s'", local_file_name.c_str());
 	}
 	fflush(NULL);
-	DBG_DEBUG("translator::load_custom_list()","file %p",file);
 
 	if (file != NULL) {
 		// ok, could open file
@@ -242,6 +248,10 @@ void translator::load_custom_list( int lang, vector_tpl<char*> &name_list, const
 			}
 		}
 		fclose(file);
+		DBG_DEBUG("translator::load_custom_list()","Loaded list %s_%s.txt.", fileprefix, langs[lang].iso_base );
+	}
+	else {
+		DBG_DEBUG("translator::load_custom_list()","No list %s_%s.txt found, using defaults.", fileprefix, langs[lang].iso_base );
 	}
 }
 
