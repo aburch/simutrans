@@ -20,17 +20,6 @@ gui_fixedwidth_textarea_t::gui_fixedwidth_textarea_t(cbuffer_t* buf_, const sint
 	set_reserved_area(reserved_area_);
 }
 
-void gui_fixedwidth_textarea_t::set_text(const char *const text)
-{
-	buf->clear();
-	if(text) 
-	{
-		buf->append(text);
-	}
-}
-
-
-
 void gui_fixedwidth_textarea_t::recalc_size()
 {
 	calc_display_text(koord::invalid, false);

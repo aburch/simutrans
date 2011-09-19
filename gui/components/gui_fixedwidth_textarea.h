@@ -38,8 +38,6 @@ public:
 
 	void recalc_size();
 
-	void set_text(const char *const text);
-
 	// after using any of these setter functions, remember to call recalc_size() to recalculate textarea height
 	void set_width(const sint16 width);
 	void set_reserved_area(const koord area);

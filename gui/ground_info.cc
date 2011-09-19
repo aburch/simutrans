@@ -30,18 +30,7 @@ gui_frame_t( "", NULL),
 	}
 
 	gr->info(gr_info);
-	if(gr_info.len() < 1)
-	{
-		stadt_t* city = gr->get_welt()->get_city(gr->get_pos().get_2d());
-		if(city)
-		{
-			textarea.set_text(city->get_name());
-		}
-		else
-		{
-			textarea.set_text(translator::translate("Open countryside"));
-		}
-	}
+	
 	textarea.recalc_size();
 
 	sint16 width  = textarea.get_groesse().x + 20;
