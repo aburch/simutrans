@@ -763,7 +763,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		case luft: // hsiegeln: runway
 			{
 				const weg_t *w = to->get_weg(air_wt);
-				if(  w  &&  w->get_besch()->get_styp()==1  &&  ribi_t::ist_einfach(w->get_ribi_unmasked())  ) {
+				if(  w  &&  w->get_besch()->get_styp()!=besch->get_styp()  &&  ribi_t::ist_einfach(w->get_ribi_unmasked())  ) {
 					// cannot go over the end of a runway with a taxiway
 					return false;
 				}
