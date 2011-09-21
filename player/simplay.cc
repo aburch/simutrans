@@ -70,7 +70,6 @@ static sint64 calc_margin(sint64 operating_profit, sint64 proceeds)
 }
 
 
-
 spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 	simlinemgmt(wl)
 {
@@ -121,7 +120,6 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 }
 
 
-
 spieler_t::~spieler_t()
 {
 	while(  !messages.empty()  ) {
@@ -129,7 +127,6 @@ spieler_t::~spieler_t()
 	}
 	destroy_win( (long)this );
 }
-
 
 
 /* returns the name of the player; "player -1" sits in front of the screen
@@ -167,7 +164,6 @@ bool spieler_t::set_unlock( const uint8 *hash )
 }
 
 
-
 /**
  * floating massages for all players here
  */
@@ -179,10 +175,12 @@ spieler_t::income_message_t::income_message_t( sint32 betrag, koord p )
 	amount = betrag;
 }
 
+
 void *spieler_t::income_message_t::operator new(size_t /*s*/)
 {
 	return freelist_t::gimme_node(sizeof(spieler_t::income_message_t));
 }
+
 
 void spieler_t::income_message_t::operator delete(void *p)
 {
@@ -211,7 +209,6 @@ void spieler_t::display_messages()
 }
 
 
-
 /**
  * Age messages (move them upwards), delete too old ones
  * @author prissi
@@ -233,7 +230,6 @@ void spieler_t::age_messages(long /*delta_t*/)
 }
 
 
-
 void spieler_t::add_message(koord k, sint32 betrag)
 {
 	if(  !messages.empty()  &&  messages.back()->pos==k  &&  messages.back()->alter==127  ) {
@@ -249,14 +245,12 @@ void spieler_t::add_message(koord k, sint32 betrag)
 }
 
 
-
 void spieler_t::set_player_color(uint8 col1, uint8 col2)
 {
 	kennfarbe1 = col1;
 	kennfarbe2 = col2;
 	display_set_player_color_scheme( player_nr, col1, col2 );
 }
-
 
 
 /**
@@ -266,7 +260,6 @@ void spieler_t::set_player_color(uint8 col1, uint8 col2)
 void spieler_t::step()
 {
 }
-
 
 
 /**
@@ -362,7 +355,6 @@ void spieler_t::neuer_monat()
 }
 
 
-
 /**
 * we need to roll the finance history every year, so that
 * the most recent year is at position 0, etc
@@ -385,7 +377,6 @@ void spieler_t::roll_finance_history_month()
 }
 
 
-
 void spieler_t::roll_finance_history_year()
 {
 	int i;
@@ -401,7 +392,6 @@ void spieler_t::roll_finance_history_year()
 		}
 	}
 }
-
 
 
 void spieler_t::calc_finance_history()
@@ -436,7 +426,6 @@ void spieler_t::calc_finance_history()
 }
 
 
-
 // add and amount, including the display of the message and some other things ...
 void spieler_t::buche(sint64 const betrag, koord const pos, player_cost const type)
 {
@@ -462,7 +451,6 @@ void spieler_t::buche(sint64 const betrag, koord const pos, player_cost const ty
 }
 
 
-
 // add an amout to a subcategory
 void spieler_t::buche(sint64 const betrag, player_cost const type)
 {
@@ -471,7 +459,7 @@ void spieler_t::buche(sint64 const betrag, player_cost const type)
 	finance_history_year[0][type] += betrag;
 	finance_history_month[0][type] += betrag;
 
-	if(type < COST_ASSETS) {
+	if(  type < COST_ASSETS  ||  type == COST_WAY_TOLLS  ) {
 		konto += betrag;
 
 		// fill year history
@@ -485,7 +473,6 @@ void spieler_t::buche(sint64 const betrag, player_cost const type)
 }
 
 
-
 void spieler_t::accounting(spieler_t* const sp, sint64 const amount, koord const k, player_cost const pc)
 {
 	if(sp!=NULL  &&  sp!=welt->get_spieler(1)) {
@@ -494,13 +481,10 @@ void spieler_t::accounting(spieler_t* const sp, sint64 const amount, koord const
 }
 
 
-
-
 bool spieler_t::check_owner( const spieler_t *owner, const spieler_t *test )
 {
 	return owner == test  ||  owner == NULL  ||  test == welt->get_spieler(1);
 }
-
 
 
 /**
@@ -513,7 +497,6 @@ halthandle_t spieler_t::halt_add(koord pos)
 	halt_add(halt);
 	return halt;
 }
-
 
 
 /**
@@ -529,7 +512,6 @@ void spieler_t::halt_add(halthandle_t halt)
 }
 
 
-
 /**
  * Entfernt eine Haltestelle des Spielers aus der Liste
  * @author Hj. Malthaner
@@ -538,7 +520,6 @@ void spieler_t::halt_remove(halthandle_t halt)
 {
 	halt_list.remove(halt);
 }
-
 
 
 void spieler_t::ai_bankrupt()
@@ -710,7 +691,6 @@ void spieler_t::ai_bankrupt()
 }
 
 
-
 /**
  * Speichert Zustand des Spielers
  * @param file Datei, in die gespeichert wird
@@ -806,18 +786,35 @@ void spieler_t::rdwr(loadsave_t *file)
 	else if(  file->get_version()<=102002  ) {
 		// saved everything
 		for (int year = 0;year<MAX_PLAYER_HISTORY_YEARS;year++) {
-			for (int cost_type = 0; cost_type<MAX_PLAYER_COST; cost_type++) {
+			for (int cost_type = 0; cost_type<18; cost_type++) {
 				file->rdwr_longlong(finance_history_year[year][cost_type]);
 			}
 		}
 		for (int month = 0;month<MAX_PLAYER_HISTORY_MONTHS;month++) {
-			for (int cost_type = 0; cost_type<MAX_PLAYER_COST; cost_type++) {
+			for (int cost_type = 0; cost_type<18; cost_type++) {
 				file->rdwr_longlong(finance_history_month[month][cost_type]);
 			}
 		}
 	}
+	else if(  file->get_version()<=110006  ) {
+		// only save what is needed
+		for(int year = 0;  year<MAX_PLAYER_HISTORY_YEARS;  year++  ) {
+			for(  int cost_type = 0;   cost_type<18;   cost_type++  ) {
+				if(  cost_type<COST_NETWEALTH  ||  cost_type>COST_MARGIN  ) {
+					file->rdwr_longlong(finance_history_year[year][cost_type]);
+				}
+			}
+		}
+		for (int month = 0;month<MAX_PLAYER_HISTORY_MONTHS;month++) {
+			for (int cost_type = 0; cost_type<18; cost_type++) {
+				if(  cost_type<COST_NETWEALTH  ||  cost_type>COST_MARGIN  ) {
+					file->rdwr_longlong(finance_history_month[month][cost_type]);
+				}
+			}
+		}
+	}
 	else {
-		// most recent savegame version: only save what is needed
+		// most recent savegame version: now with toll
 		for(int year = 0;  year<MAX_PLAYER_HISTORY_YEARS;  year++  ) {
 			for(  int cost_type = 0;   cost_type<MAX_PLAYER_COST;   cost_type++  ) {
 				if(  cost_type<COST_NETWEALTH  ||  cost_type>COST_MARGIN  ) {
@@ -946,7 +943,6 @@ DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this 
 }
 
 
-
 /*
  * called after game is fully loaded;
  */
@@ -967,13 +963,11 @@ void spieler_t::laden_abschliessen()
 }
 
 
-
 void spieler_t::rotate90( const sint16 y_size )
 {
 	simlinemgmt.rotate90( y_size );
 	headquarter_pos.rotate90( y_size );
 }
-
 
 
 /**
@@ -1011,7 +1005,6 @@ DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s, state %i!", cnv->
 }
 
 
-
 /* Here functions for UNDO
  * @date 7-Feb-2005
  * @author prissi
@@ -1030,8 +1023,7 @@ DBG_MESSAGE("spieler_t::int_undo()","undo tiles %i",max);
 }
 
 
-void
-spieler_t::add_undo(koord3d k)
+void spieler_t::add_undo(koord3d k)
 {
 	if(last_built.get_size()>0) {
 //DBG_DEBUG("spieler_t::add_undo()","tile at (%i,%i)",k.x,k.y);
@@ -1040,9 +1032,7 @@ spieler_t::add_undo(koord3d k)
 }
 
 
-
-bool
-spieler_t::undo()
+sint64 spieler_t::undo()
 {
 	if (last_built.empty()) {
 		// nothing to UNDO
@@ -1095,21 +1085,21 @@ spieler_t::undo()
 	}
 
 	// ok, now remove everything last built
-	uint32 cost=0;
+	sint64 cost=0;
 	for(  uint32 i=0;  i<last_built.get_count();  i++  ) {
 		grund_t* gr = welt->lookup(last_built[i]);
 		if(  undo_type != powerline_wt  ) {
 			cost += gr->weg_entfernen(undo_type,true);
 		}
 		else {
-			cost = 1;
 			leitung_t* lt = gr->get_leitung();
+			cost += lt->get_besch()->get_preis();
 			lt->entferne(NULL);
 			delete lt;
 		}
 	}
 	last_built.clear();
-	return cost!=0;
+	return cost;
 }
 
 

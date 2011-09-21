@@ -29,6 +29,7 @@
 #define CONVOI_DISTANCE           5 // total distance traveled this month
 #define MAX_CONVOI_COST           6 // Total number of cost items
 
+class weg_t;
 class depot_t;
 class karte_t;
 class spieler_t;
@@ -187,6 +188,11 @@ private:
 	 * (only needed for leaving/entering depot)
 	 */
 	sint16 steps_driven;
+
+	/*
+	 * chaches the running costs
+	 */
+	sint32 sum_running_costs;
 
 	/**
 	* Gesamtleistung. Wird nicht gespeichert, sondern aus den Einzelleistungen
@@ -555,7 +561,7 @@ public:
 	 * Add the costs for traveling one tile
 	 * @author Hj. Malthaner
 	 */
-	void add_running_cost();
+	void add_running_cost( const weg_t *weg );
 
 	/**
 	 * moving the veicles of a convoi and acceleration/deacceleration

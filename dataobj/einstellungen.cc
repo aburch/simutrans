@@ -204,6 +204,7 @@ settings_t::settings_t() :
 	}
 
 	maint_building = 5000;	// normal buildings
+	way_toll_fraction = 0;
 
 	// stop buildings
 	cst_multiply_dock=-50000;
@@ -691,6 +692,7 @@ void settings_t::rdwr(loadsave_t *file)
 			}
 			file->rdwr_bool( drive_on_left );
 			file->rdwr_bool( signals_on_left );
+			file->rdwr_long( way_toll_fraction );
 		}
 		// otherwise the default values of the last one will be used
 	}
@@ -1074,6 +1076,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	just_in_time = contents.get_int("just_in_time", just_in_time) != 0;
 	beginner_price_factor = contents.get_int("beginner_price_factor", beginner_price_factor ); /* this manipulates the good prices in beginner mode */
 	beginner_mode = contents.get_int("first_beginner", beginner_mode ); /* start in beginner mode */
+
+	way_toll_fraction = contents.get_int("way_toll_fraction", way_toll_fraction );
 
 	/* now the cost section */
 	cst_multiply_dock = contents.get_int64("cost_multiply_dock", cst_multiply_dock/(-100) ) * -100;

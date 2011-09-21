@@ -344,6 +344,11 @@ allow_buying_obsolete_vehicles = 1
 # the loss is given in 1/1000th, i.e 300 mean the value will be 70%
 used_vehicle_reduction = 0
 
+# if a convoi runs on a way that belongs to another player, toll may
+# be charged. The number given is the percentage of the running cost
+# of the convoi. (defualt 0)
+way_toll_fraction = 0
+
 # Maintenance costs of buildings
 #maintenance_building = 2000
 

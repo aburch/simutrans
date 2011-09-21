@@ -18,6 +18,8 @@
 
 #include "../player/simplay.h"
 
+#define MAX_PLAYER_COST_BUTTON (14)
+
 /**
  * Finances dialog
  *
@@ -58,6 +60,7 @@ private:
 	gui_label_t money;
 	gui_label_t margin;
 	gui_label_t transport, old_transport;
+	gui_label_t toll, old_toll;
 	gui_label_t powerline, old_powerline;
 
 	gui_label_t maintenance_label;
@@ -84,10 +87,11 @@ private:
 	sint64 money_tmp, money_min, money_max;
 	sint64 baseline, scale;
 	char cmoney_min[128], cmoney_max[128];
-	button_t filterButtons[MAX_PLAYER_COST];
+	button_t filterButtons[MAX_PLAYER_COST_BUTTON];
 	void calc_chart_values();
-	static const char cost_type[MAX_PLAYER_COST][64];
-	static const int cost_type_color[MAX_PLAYER_COST];
+	static const char *cost_type_name[MAX_PLAYER_COST_BUTTON];
+	static const COLOR_VAL cost_type_color[MAX_PLAYER_COST_BUTTON];
+	static const uint8 cost_type[MAX_PLAYER_COST_BUTTON];
 	gui_tab_panel_t year_month_tabs;
 
 	button_t headquarter, goto_headquarter;

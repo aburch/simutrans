@@ -39,6 +39,7 @@ enum player_cost {
 	COST_TRANSPORTED_GOOD,
 	COST_ALL_CONVOIS,		// number of convois
 	COST_SCENARIO_COMPLETED,// scenario success (only useful if there is one ... )
+	COST_WAY_TOLLS,
 	MAX_PLAYER_COST
 };
 
@@ -382,7 +383,7 @@ private:
 public:
 	void init_undo(waytype_t t, unsigned short max );
 	void add_undo(koord3d k);
-	bool undo();
+	sint64 undo();
 
 	// headquarter stuff
 private:

@@ -115,7 +115,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	besitzer_p = sp;
 
 	is_electric = false;
-	sum_gesamtgewicht = sum_gewicht = sum_gear_und_leistung = sum_leistung = 0;
+	sum_running_costs = sum_gesamtgewicht = sum_gewicht = sum_gear_und_leistung = sum_leistung = 0;
 	previous_delta_v = 0;
 	min_top_speed = SPEED_UNLIMITED;
 
@@ -583,18 +583,20 @@ uint32 convoi_t::get_length() const
  * convoi add their running cost for traveling one tile
  * @author Hj. Malthaner
  */
-void convoi_t::add_running_cost()
+void convoi_t::add_running_cost( const weg_t *weg )
 {
-	sint64 cost = 0;
-	for( uint8 i=0; i<anz_vehikel; i++ ) {
-		cost -= fahr[i]->get_besch()->get_betriebskosten();
+	jahresgewinn += sum_running_costs;
+
+	if(  weg  &&  weg->get_besitzer()!=get_besitzer()  &&  weg->get_besitzer()!=NULL  ) {
+		// running on non-public way costs toll
+		const sint32 toll = (sum_running_costs*welt->get_settings().get_way_toll_fraction())/100l;
+		weg->get_besitzer()->buche( -toll, COST_WAY_TOLLS );
+		get_besitzer()->buche( toll, COST_WAY_TOLLS );
 	}
-	jahresgewinn += cost;
+	get_besitzer()->buche( sum_running_costs, COST_VEHICLE_RUN);
 
-	get_besitzer()->buche(cost, COST_VEHICLE_RUN);
-
-	book( cost, CONVOI_OPERATIONS );
-	book( cost, CONVOI_PROFIT );
+	book( sum_running_costs, CONVOI_OPERATIONS );
+	book( sum_running_costs, CONVOI_PROFIT );
 
 	total_distance_traveled ++;
 	book( 1, CONVOI_DISTANCE );
@@ -1370,6 +1372,7 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_
 		sum_leistung += info->get_leistung();
 		sum_gear_und_leistung += info->get_leistung()*info->get_gear();
 		sum_gewicht += info->get_gewicht();
+		sum_running_costs -= info->get_betriebskosten();
 		min_top_speed = min( min_top_speed, kmh_to_speed( v->get_besch()->get_geschw() ) );
 		sum_gesamtgewicht = sum_gewicht;
 		calc_loading();
@@ -1417,6 +1420,7 @@ vehikel_t *convoi_t::remove_vehikel_bei(uint16 i)
 			sum_leistung -= info->get_leistung();
 			sum_gear_und_leistung -= info->get_leistung()*info->get_gear();
 			sum_gewicht -= info->get_gewicht();
+			sum_running_costs += info->get_betriebskosten();
 		}
 		sum_gesamtgewicht = sum_gewicht;
 		calc_loading();
@@ -1991,6 +1995,7 @@ void convoi_t::rdwr(loadsave_t *file)
 				sum_leistung += info->get_leistung();
 				sum_gear_und_leistung += info->get_leistung()*info->get_gear();
 				sum_gewicht += info->get_gewicht();
+				sum_running_costs -= info->get_betriebskosten();
 				is_electric |= info->get_engine_type()==vehikel_besch_t::electric;
 			}
 			else {

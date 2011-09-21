@@ -1056,10 +1056,6 @@ void vehikel_t::betrete_feld()
 
 void vehikel_t::hop()
 {
-	if(  ist_erstes  ) {
-		cnv->add_running_cost();
-	}
-
 	verlasse_feld();
 
 	pos_prev = get_pos();
@@ -1102,6 +1098,10 @@ void vehikel_t::hop()
 	}
 	else {
 		speed_limit = SPEED_UNLIMITED;
+	}
+
+	if(  ist_erstes  ) {
+		cnv->add_running_cost( weg );
 	}
 
 	if(  check_for_finish  &  ist_erstes  ) {
