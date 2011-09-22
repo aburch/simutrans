@@ -243,6 +243,11 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->intro_date    = decode_uint16(p);
 		besch->obsolete_date = decode_uint16(p);
 		besch->animation_time = 300;
+		// correct old station buildings ...
+		if(  besch->level==0  &&  (besch->utype >= haus_besch_t::bahnhof  ||  besch->utype == haus_besch_t::fabrik)  ) {
+			DBG_DEBUG("building_reader_t::read_node()","old station building -> set level to 4");
+			besch->level = 4;
+		}
 	}
 	else if(version == 2) {
 		// Versioned node, version 2
@@ -301,12 +306,6 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	// there are additional nodes for cursor/icon
 	if(  node.children > 2+besch->groesse.x*besch->groesse.y*besch->layouts  ) {
 		besch->flags |= haus_besch_t::FLAG_HAS_CURSOR;
-	}
-
-	// correct old station buildings ...
-	if (besch->level > 32767 && (besch->utype >= haus_besch_t::bahnhof || besch->utype == haus_besch_t::fabrik)) {
-		DBG_DEBUG("building_reader_t::read_node()","old station building -> set level to 4");
-		besch->level = 4;
 	}
 
 	if (besch->level == 65535) {
