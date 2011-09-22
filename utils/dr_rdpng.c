@@ -1,7 +1,8 @@
 
-#include <setjmp.h>
 
 #include <png.h>
+#include <setjmp.h>
+
 #include <stdlib.h>
 #include "dr_rdpng.h"
 
