@@ -19,8 +19,6 @@
 
 tunnelboden_t::tunnelboden_t(karte_t *welt, loadsave_t *file, koord pos ) : boden_t(welt, koord3d(pos,0), 0)
 {
-	xml_tag_t t( file, "tunnelboden_t" );
-
 	rdwr(file);
 
 	// some versions had tunnel without tunnel objects
