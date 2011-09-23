@@ -31,7 +31,7 @@ class float32e8_t
 private:
 	uint32 m;	// mantissa
 	sint16 e;	// exponent
-	bool ms:1;	// sign of manitissa
+	bool ms:1;	// sign of mantissa
 
 	inline void set_zero() { m = 0L; e = 0; ms = false; }
 public:
