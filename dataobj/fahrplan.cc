@@ -352,7 +352,6 @@ bool schedule_t::matches(karte_t *welt, const schedule_t *fpl)
 			&& fpl->eintrag[f2].ladegrad == eintrag[f1].ladegrad 
 			&& fpl->eintrag[f2].waiting_time_shift == eintrag[f1].waiting_time_shift 
 			&& fpl->eintrag[f2].spacing_shift == eintrag[f1].spacing_shift
-			&& fpl->eintrag[f2].reverse == eintrag[f1].reverse
 		  ) {
 			// ladegrad/waiting ignored: identical
 			f1++;

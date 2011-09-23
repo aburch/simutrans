@@ -479,6 +479,23 @@ void grund_t::zeige_info()
 
 void grund_t::info(cbuffer_t& buf) const
 {
+	stadt_t* city = get_welt()->get_city(get_pos().get_2d());
+	if(city)
+	{
+		buf.append(city->get_name());
+	}
+	else
+	{
+		if(ist_wasser())
+		{
+			buf.append(translator::translate("Open water"));
+		}
+		else
+		{
+			buf.append(translator::translate("Open countryside"));
+		}
+	}
+	buf.append("\n\n");
 	if(!ist_wasser()) {
 		if(flags&has_way1) {
 			// bridges / tunnels only carry dummy ways
