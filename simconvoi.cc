@@ -707,6 +707,9 @@ void convoi_t::calc_acceleration(long delta_t)
 		recalc_data = false;
 	}
 	
+	// existing_convoy_t is designed to become a part of convoi_t. 
+	// There it will help to minimize updating convoy summary data.
+	existing_convoy_t convoy(*this);
 	if(  recalc_brake_soll  ) 
 	{
 		// brake at the end of stations/in front of signals and crossings
@@ -723,6 +726,7 @@ void convoi_t::calc_acceleration(long delta_t)
 			const uint32 tiles_left = 1 + get_next_stop_index() - front()->get_route_index();
 			const uint32 meters_left = tiles_left * welt->get_settings().get_meters_per_tile();
 
+			/*
 			waytype_t waytype = front()->get_waytype();
 			uint16 braking_rate;  // km/h decay per km. TODO: Consider having this set in .dat files. Look for all instances of "braking_rate".
 			switch(waytype)
@@ -744,14 +748,17 @@ void convoi_t::calc_acceleration(long delta_t)
 
 			brake_speed_soll = kmh_to_speed((sint32)(braking_rate * meters_left) / 1000);
 			brake_speed_soll = max(brake_speed_soll, kmh_to_speed(16));
+			*/
+
+			const sint32 brake_distance = convoy.calc_min_braking_distance(convoy.get_weight_summary(), akt_speed);
+			if (meters_left <= (sint32) brake_distance)
+				brake_speed_soll = kmh_to_speed(16);
+			else
+				brake_speed_soll = SPEED_UNLIMITED;
 		}
 
 		recalc_brake_soll = false;
- 	}
-	
-	// existing_convoy_t is designed to become a part of convoi_t. 
-	// There it will help to minimize updating convoy summary data.
-	existing_convoy_t convoy(*this);
+ 	}	
 	convoy.calc_move(delta_t, float32e8_t(get_welt()->get_settings().get_meters_per_tile(), 1000), min( min_top_speed, brake_speed_soll ), akt_speed, sp_soll);
 }
 

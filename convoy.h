@@ -20,37 +20,40 @@ complete explanation of the force equation of a land vehicle.
 Force balance: Fm = Ff + Fr + Fs + Fa; 
 
 Fm: machine force in Newton [N] = [kg*m/s^2]
+
 Ff: air resistance, always > 0
     Ff = cw/2 * A * rho * v^2, 
 		cw: friction factor: average passenger cars and high speed trains: 0.25 - 0.5, average trucks and trains: 0.7
 		A: largest profile: average passenger cars: 3, average trucks: 6, average train: 10 [m^2]
 		rho = density of medium (air): 1.2 [kg/m^3]
 		v: speed [m/s]
+
 Fr: roll resistance, always > 0 
     Fr = fr * g * m * cos(alpha)
 		fr: roll resistance factor: steel wheel on track: 0.0015, car wheel on road: 0.015
 		g: gravitation constant: 9,81 [m/s^2]
 		m: mass [kg]
 		alpha: inclination: 0=flat
+
 Fs: slope force/resistance, downhill: Fs < 0 (force), uphill: Fs > 0 (resistance)
 	Fs = g * m * sin(alpha)
 		g: gravitation constant: 9.81 [m/s^2]
 		m: mass [kg]
 		alpha: inclination: 0=flat
+
 Fa: accelerating force
 	Fa = m * a
 		m: mass [kg]
 		a: acceleration
 
-Let F = Fm - Fr - Fs.
+Let Frs = Fr + Fs = g * m * (fr * cos(alpha) + sin(alpha)).
 Let cf = cw/2 * A * rho.
-Let Frs = Fr + Fs = g * (fr * m * cos(alpha) + m * sin(alpha))
 
 Then
 
-cf * v^2 + m * a - F = 0
+Fm = cf * v^2 + Frs + m * a
 
-a = (F - cf * v^2 - Frs) / m
+a = (Fm - Frs - cf * v^2) / m
 
 *******************************************************************************/
 #pragma once
@@ -97,7 +100,7 @@ a = (F - cf * v^2 - Frs) / m
 
 #define WEIGHT_UNLIMITED ((std::numeric_limits<sint32>::max)())
 
-// anything greater then 2097151 will give us overflow in kmh_to_speed. 
+// anything greater than 2097151 will give us overflow in kmh_to_speed. 
 #define KMH_SPEED_UNLIMITED  (300000)
 
 
@@ -308,6 +311,11 @@ protected:
 	virtual sint32 get_continuous_power() { 
 		return get_power_summary(get_vehicle_summary().max_speed) * 1000; 
 	}
+
+	virtual sint32 get_braking_force() {
+		// assuming the brakes are up to 5 times stronger than the start-up force.
+		return get_starting_force();
+	}
 public:
 	/**
 	 * For calculating max speed at an arbitrary weight apply this result to your weight_summary_t() constructor as param sin_alpha.
@@ -328,6 +336,11 @@ public:
 	sint32 calc_max_weight(sint32 sin_alpha); 
 
 	sint32 calc_max_starting_weight(sint32 sin_alpha);
+
+	/**
+	 * Get the minimum braking distance in m for the convoy with given weight summary at given simutrans speed.
+	 */
+	sint32 calc_min_braking_distance(const weight_summary_t &weight, sint32 akt_speed);
 
 	/** 
 	 * Calculate the movement within delta_t
