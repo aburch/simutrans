@@ -274,11 +274,11 @@ int say(SOCKET socket, uint32 command_id, int argc, char **argv) {
 void usage()
 {
 	fprintf(stderr,
-		"nettool for simutrans " VERSION_NUMBER " and higher\n"
+		"nettool for simutrans " VERSION_NUMBER NARROW_EXPERIMENTAL_VERSION " and higher\n"
 		"\n"
 		"  Usage:\n"
 		"\n"
-		"      nettool [options] <command> [command argument]\n"
+		"      nettool-experimental [options] <command> [command argument]\n"
 		"\n"
 		"    Options:\n"
 		"      -s <server[:port]> : Specify server to connect to (default is localhost:13353)\n"
@@ -437,7 +437,7 @@ int main(int argc, char* argv[]) {
 	// Print copyright notice unless quiet flag set
 	if (!opt_q) {
 		fprintf(stderr,
-			"nettool for simutrans " VERSION_NUMBER " and higher\n"
+			"nettool for simutrans " VERSION_NUMBER NARROW_EXPERIMENTAL_VERSION " and higher\n"
 		);
 	}
 

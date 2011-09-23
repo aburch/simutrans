@@ -166,16 +166,6 @@ void ding_t::info(cbuffer_t & buf) const
 		translation[i-1] = 0;
 	}
 	buf.append( translation );
-	buf.append("\n\n");
-	stadt_t* city = welt->get_city(pos.get_2d());
-	if(city)
-	{
-		buf.append(city->get_name());
-	}
-	else
-	{
-		buf.append(translator::translate("Open countryside"));
-	}
 	// only append linebreaks if not empty
 	if(  buf.len()>0  ) {
 		buf.append( "\n\n" );
