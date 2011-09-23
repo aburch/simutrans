@@ -1,11 +1,10 @@
 
-//#include <png.h>
-
+#include <png.h>
 #include <setjmp.h>
 
 #include <stdlib.h>
 #include "dr_rdpng.h"
-#include "openttd/png.h"
+//#include "openttd/png.h"
 
 
 static int bit_depth, color_type, interlace_type;
