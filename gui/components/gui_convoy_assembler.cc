@@ -225,6 +225,8 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(karte_t *w, waytype_t wt, signed 
 		{
 			livery_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(scheme->get_name()), COL_BLACK));
 			livery_scheme_indices.append(i);
+			livery_selector.set_selection(i);
+			livery_scheme_index = i;
 		}
 	}
 
@@ -786,7 +788,12 @@ void gui_convoy_assembler_t::add_to_vehicle_list(const vehikel_besch_t *info)
 	// prissi: and retirement date
 	gui_image_list_t::image_data_t img_data;
 
-	
+	if(livery_scheme_index >=  welt->get_settings().get_livery_schemes()->get_count())
+	{
+		// To prevent errors when loading a game with fewer livery schemes than that just played.
+		livery_scheme_index = 0;
+	}
+
 	const livery_scheme_t* const scheme = welt->get_settings().get_livery_scheme(livery_scheme_index);
 	uint16 date = welt->get_timeline_year_month();
 	if(scheme)
@@ -798,7 +805,22 @@ void gui_convoy_assembler_t::add_to_vehicle_list(const vehikel_besch_t *info)
 		}
 		else
 		{
-			img_data.image = info->get_basis_bild();
+			bool found = false;
+			for(int j = 0; j < welt->get_settings().get_livery_schemes()->get_count(); j ++)
+			{
+				const livery_scheme_t* const new_scheme = welt->get_settings().get_livery_scheme(j);
+				const char* new_livery = new_scheme->get_latest_available_livery(date, info);
+				if(new_livery)
+				{
+					img_data.image = info->get_basis_bild(new_livery);
+					found = true;
+					break;
+				}
+			}
+			if(!found)
+			{
+				img_data.image =info->get_basis_bild();
+			}
 		}
 	}
 	else
@@ -988,7 +1010,22 @@ void gui_convoy_assembler_t::update_data()
 				}
 				else
 				{
-					img_data.image = vehicles[i]->get_basis_bild();
+					bool found = false;
+					for(int j = 0; j < welt->get_settings().get_livery_schemes()->get_count(); j ++)
+					{
+						const livery_scheme_t* const new_scheme = welt->get_settings().get_livery_scheme(j);
+						const char* new_livery = new_scheme->get_latest_available_livery(date, vehicles[i]);
+						if(new_livery)
+						{
+							img_data.image = vehicles[i]->get_basis_bild(new_livery);
+							found = true;
+							break;
+						}
+					}
+					if(!found)
+					{
+						img_data.image = vehicles[i]->get_basis_bild();
+					}
 				}
 			}
 			else
