@@ -551,12 +551,15 @@ void gui_convoy_assembler_t::zeichnen(koord parent_pos)
 				}
 			}
 		}
+		const sint32 brake_distance_min = convoy.calc_min_braking_distance(weight_summary_t(min_weight, friction), kmh_to_speed(max_speed));
+		const sint32 brake_distance_max = convoy.calc_min_braking_distance(weight_summary_t(max_weight, friction), kmh_to_speed(max_speed));
 		sprintf(txt_convoi_count, "%s %d (%s %i)",
 			translator::translate("Fahrzeuge:"), vehicles.get_count(),
 			translator::translate("Station tiles:"), vsum.tiles);
-		sprintf(txt_convoi_speed + txt_convoi_speed_offs,  
+		txt_convoi_speed_offs += sprintf(txt_convoi_speed + txt_convoi_speed_offs,  
 			min_speed == max_speed ? " %d km/h @ %g t" : " %d km/h @ %g t %s %d km/h @ %g t", 
 			min_speed, max_weight * 0.001f,	translator::translate("..."), max_speed, min_weight * 0.001f);
+		txt_convoi_speed_offs += sprintf(txt_convoi_speed + txt_convoi_speed_offs, "; brakes from max. speed in %i - %i m", brake_distance_min, brake_distance_max);
 		lb_convoi_speed.set_color(col_convoi_speed);
 	}
 

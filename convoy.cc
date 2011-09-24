@@ -190,12 +190,12 @@ sint32 convoy_t::calc_max_starting_weight(sint32 sin_alpha)
 	return abs(get_starting_force() / (_101_percent * g_accel * (adverse.fr + milli * sin_alpha))); // 1.01 to compensate inaccuracy of calculation 
 }
 
-sint32 convoy_t::calc_min_braking_distance(const weight_summary_t &weight, sint32 akt_speed)
+sint32 convoy_t::calc_min_braking_distance(const weight_summary_t &weight, sint32 speed)
 {
-	const float32e8_t v = speed_to_v(akt_speed); // v in m/s, akt_speed in simutrans vehicle speed;
+	const float32e8_t v = speed_to_v(speed); // v in m/s, akt_speed in simutrans vehicle speed;
 	const float32e8_t vv = v * v;
 	const float32e8_t Frs = g_accel * (adverse.fr * weight.weight_cos + weight.weight_sin); // Frs in N
-	const float32e8_t f = get_braking_force() + Frs + sgn(v) * adverse.cf * vv;
+	const float32e8_t f = get_braking_force(weight.weight) + Frs + sgn(v) * adverse.cf * vv;
 	return (weight.weight / 2) * (vv / f); // min braking distance in m
 }
 
@@ -287,21 +287,21 @@ void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const 
 				is_braking = true;
 				// running too fast, apply the brakes! 
 				// hill-down Frs might become negative and works against the brake.
-				f = -(get_braking_force() + Frs);
+				f = -(get_braking_force(weight.weight) + Frs);
 			}
 			else if (v < vmax - 200)
 			{
 				is_braking = true;
 				// running much too fast, slam on the brakes! 
 				// hill-down Frs might become negative and works against the brake.
-				f = -(get_braking_force() + Frs);
+				f = -(get_braking_force(weight.weight) + Frs);
 			}
 			else
 			{
 				is_braking = true;
 				// running very much too fast, slam on the brakes! 
 				// hill-down Frs might become negative and works against the brake.
-				f = -(get_braking_force() * 7 + Frs);
+				f = -(get_braking_force(weight.weight) * 7 + Frs);
 			}
 
 			// accelerate: calculate new speed according to acceleration within the passed second(s).

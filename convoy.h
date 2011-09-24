@@ -234,7 +234,7 @@ struct freight_summary_t
 
 struct weight_summary_t
 {
-	sint32 weight;			// vehicle and freight weight in kg. depends on vehicle (weight) and freight (weight)
+	sint32 weight;				// vehicle and freight weight in kg. depends on vehicle (weight) and freight (weight)
 	float32e8_t weight_cos;		// vehicle and freight weight in kg multiplied by cos(alpha). depends on adverse (way/inclination), vehicle and freight
 	float32e8_t weight_sin;		// vehicle and freight weight in kg multiplied by sin(alpha). depends on adverse (way/inclination), vehicle and freight
 
@@ -312,10 +312,11 @@ protected:
 		return get_power_summary(get_vehicle_summary().max_speed) * 1000; 
 	}
 
-	virtual sint32 get_braking_force() {
-		// assuming the brakes are up to 5 times stronger than the start-up force.
-		const sint32 TEST = get_starting_force();
-		return 488;
+	virtual sint32 get_braking_force(const sint32 weight) 
+	{
+		// Assume that brake force in Kn ~= weight in tonnes: 
+		// http://www.railsimdownloads.com/wiki/tiki-index.php?page=Loco%20Only%20Air%20Brake%20Data%20Blueprint
+		return weight / 10;
 		//return get_starting_force();
 	}
 public:
