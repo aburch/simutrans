@@ -752,9 +752,19 @@ void convoi_t::calc_acceleration(long delta_t)
 
 			const sint32 brake_distance = convoy.calc_min_braking_distance(convoy.get_weight_summary(), akt_speed);
 			if (meters_left <= (sint32) brake_distance)
-				brake_speed_soll = kmh_to_speed(16);
+			{
+				// We are seeking to come to a halt here eventually, so being braking to zero.
+				brake_speed_soll = 0;
+				/*const sint32 braking_rate = brake_distance > 0 ? (speed_to_kmh(akt_speed) * 1000) / brake_distance : 0;
+				brake_speed_soll = kmh_to_speed((sint32)(braking_rate * meters_left) / 1000);
+				brake_speed_soll = max(brake_speed_soll, kmh_to_speed(16));
+				const sint32 TEST = speed_to_kmh(brake_speed_soll);
+				const int a = 1 + 1;*/
+			}
 			else
+			{
 				brake_speed_soll = SPEED_UNLIMITED;
+			}
 		}
 
 		recalc_brake_soll = false;

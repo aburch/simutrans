@@ -314,7 +314,9 @@ protected:
 
 	virtual sint32 get_braking_force() {
 		// assuming the brakes are up to 5 times stronger than the start-up force.
-		return get_starting_force();
+		const sint32 TEST = get_starting_force();
+		return 488;
+		//return get_starting_force();
 	}
 public:
 	/**
