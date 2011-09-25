@@ -330,7 +330,7 @@ private:
 	koord record_pos;
 
 	// needed for speed control/calculation
-	sint32 brake_speed_soll;    // brake target speed
+	//sint32 brake_speed_soll;    // brake target speed
 	sint32 akt_speed;	        // current speed
 	sint32 akt_speed_soll;		// Target speed
 	sint32 sp_soll;				// steps to go

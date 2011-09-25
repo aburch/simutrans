@@ -132,7 +132,7 @@ void convoi_t::reset()
 	max_record_speed = 0;
 	akt_speed = 0;          // momentane Geschwindigkeit / current speed
 	sp_soll = 0;
-	brake_speed_soll = 2147483647; // ==SPEED_UNLIMITED
+	//brake_speed_soll = 2147483647; // ==SPEED_UNLIMITED
 
 	heaviest_vehicle = 0;
 	longest_min_loading_time = 0;
@@ -188,7 +188,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	free_seats = 0;
 
 	max_record_speed = 0;
-	brake_speed_soll = SPEED_UNLIMITED;
+	//brake_speed_soll = SPEED_UNLIMITED;
 	akt_speed_soll = 0;            // Sollgeschwindigkeit
 	akt_speed = 0;                 // momentane Geschwindigkeit
 	sp_soll = 0;
@@ -693,12 +693,16 @@ void convoi_t::increment_odometer(uint32 steps)
 	}
 }
 
-
 /* Calculates (and sets) new akt_speed
  * needed for driving, entering and leaving a depot)
  */
 void convoi_t::calc_acceleration(long delta_t)
 {
+	// existing_convoy_t is designed to become a part of convoi_t. 
+	// There it will help to minimize updating convoy summary data.
+	existing_convoy_t convoy(*this);
+	const uint16 meters_per_tile = welt->get_settings().get_meters_per_tile();
+
 	// Dwachs: only compute this if a vehicle in the convoi hopped
 	if (recalc_data) 
 	{
@@ -709,82 +713,55 @@ void convoi_t::calc_acceleration(long delta_t)
 		// In the meantime, this does nothing interesting.
 		recalc_data = false;
 	}
-	
-	// existing_convoy_t is designed to become a part of convoi_t. 
-	// There it will help to minimize updating convoy summary data.
-	existing_convoy_t convoy(*this);
-	const uint16 meters_per_tile = welt->get_settings().get_meters_per_tile();
 
 	if(  recalc_brake_soll  ) 
 	{
-		brake_speed_soll = SPEED_UNLIMITED;
+		sint32 new_speed_soll = min_top_speed;
 
-		const sint32 brake_distance = convoy.calc_min_braking_distance(convoy.get_weight_summary(), akt_speed);
-		const uint16 brake_tiles = brake_distance / meters_per_tile;
+		// BG, 25.09.2011: strange: dividing brake_distance twice by meters_per_tile to get the tiles.
+		// - first to do the same force adjustment like calc_move() does
+		// - and then to calculate the number of tiles, that are required to slow down.
+		// Did I miss another compensation? If not, then the same convoy at the same speed and weight 
+		// needs 16 times more tiles to slow down on 250m tiles than on 1000m tiles. 
+		const sint32 brake_distance = (convoy.calc_min_braking_distance(convoy.get_weight_summary(), akt_speed) * 1000) / meters_per_tile;
+		const uint16 brake_tiles = brake_distance <= 0 ? 0 : (uint16) (brake_distance / meters_per_tile);
+		const sint32 vmin = kmh_to_speed(16);
+		const vehikel_t &front = *this->front();
+		const uint16 current_route_index = front.get_route_index();
 
-		// Brake for upcoming speed limits
-		/*if(speed_limits && speed_limits->get_count() > 0)
-		{
-			const uint32 check_until = min(speed_limits->get_count(), (fahr[0]->get_route_index() + brake_tiles));
-			for(uint32 i = fahr[0]->get_route_index(); i < check_until; i++)
-			{
-				const sint32 sl = speed_limits->get_element(i);
-				if(sl < akt_speed)
-				{
-					const sint32 limit_brake_tiles = convoy.calc_min_braking_distance(convoy.get_weight_summary(), (akt_speed - sl)) / meters_per_tile;
-					if(fahr[0]->get_route_index() + limit_brake_tiles >= i)
-					{
-						brake_speed_soll = min(brake_speed_soll, sl);
-					}
-				}
-			}
-		}*/
-		
 		// Brake for upcoming stops
-		if(get_next_stop_index() < INVALID_INDEX)
+		if(vmin < new_speed_soll && get_next_stop_index() < INVALID_INDEX)
 		{
-			const uint16 tiles_left = 1 + get_next_stop_index() - front()->get_route_index();
-			const uint32 meters_left = tiles_left * meters_per_tile;
-
-			/*
-			waytype_t waytype = front()->get_waytype();
-			uint16 braking_rate;  // km/h decay per km. TODO: Consider having this set in .dat files. Look for all instances of "braking_rate".
-			switch(waytype)
+			// BG, 25.09.2011: brake_distance is in real world meters. To compare with tiles of game the brake distance has to be divided by the 
+			// simtime_factor = meters_per_tile / 1000; as passed to convoy.calc_move() to reduce the force:
+			const uint16 tiles_left = get_next_stop_index() - current_route_index;
+			if ((sint32)tiles_left <= brake_tiles)
 			{
-			case track_wt:
-			case narrowgauge_wt:
-			case monorail_wt:
-			case maglev_wt:
-				braking_rate = 63;
-				break;
-			case tram_wt:
-				braking_rate = 85;
-				break;
-
-			default:
-				braking_rate = 100;
-				break;
-			}
-
-			brake_speed_soll = kmh_to_speed((sint32)(braking_rate * meters_left) / 1000);
-			brake_speed_soll = max(brake_speed_soll, kmh_to_speed(16));
-			*/
-
-			if (meters_left <= (sint32)brake_distance)
-			{
-				// We are seeking to come to a halt here eventually, so brake to zero.
-				brake_speed_soll = kmh_to_speed(16);
-				/*const sint32 braking_rate = brake_distance > 0 ? (speed_to_kmh(akt_speed) * 1000) / brake_distance : 0;
-				brake_speed_soll = kmh_to_speed((sint32)(braking_rate * meters_left) / 1000);
-				brake_speed_soll = max(brake_speed_soll, kmh_to_speed(16));
-				const sint32 TEST = speed_to_kmh(brake_speed_soll);
-				const int a = 1 + 1;*/
+				new_speed_soll = vmin;
 			}
 		}
 
+		//// Brake for upcoming speed limits
+		//if(new_speed_soll > vmin && speed_limits && speed_limits->get_count() > 0)
+		//{
+		//	const uint16 check_until = min(speed_limits->get_count(), (uint16)(current_route_index + brake_tiles + 1));
+		//	for(uint16 i = current_route_index; i < check_until; i++)
+		//	{
+		//		const sint32 sl = speed_limits->get_element(i);
+		//		if(sl < akt_speed && sl < new_speed_soll)
+		//		{
+		//			const uint16 limit_brake_tiles = (brake_distance - (convoy.calc_min_braking_distance(convoy.get_weight_summary(), sl) * 1000 / meters_per_tile)) / meters_per_tile;
+		//			if(current_route_index + limit_brake_tiles >= i)
+		//			{
+		//				new_speed_soll = sl;
+		//			}
+		//		}
+		//	}
+		//}
+		akt_speed_soll = new_speed_soll;
 		recalc_brake_soll = false;
- 	}	
-	convoy.calc_move(delta_t, float32e8_t(meters_per_tile, 1000), min( min_top_speed, brake_speed_soll ), akt_speed, sp_soll);
+	}	
+	convoy.calc_move(delta_t, float32e8_t(meters_per_tile, 1000), akt_speed_soll, akt_speed, sp_soll);
 }
 
 

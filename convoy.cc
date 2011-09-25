@@ -225,8 +225,9 @@ void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const 
 	{
 		// After 30 minutes any vehicle has reached its akt_speed_soll. 
 		// Shorten the process. 
-		akt_speed = min(akt_speed_soll, kmh_to_speed(calc_max_speed(weight)));
-		sp_soll += (sint32)delta_t * akt_speed;
+		sint32 new_speed = min(akt_speed_soll, kmh_to_speed(calc_max_speed(weight)));
+		sp_soll += (sint32)delta_t * (akt_speed + new_speed) / 2; // assume average speed. Otherwize in case of braking (akt_speed_soll == 0) the convoy won't move at all.
+		akt_speed = new_speed;
 	}
 	else
 	{
@@ -282,31 +283,19 @@ void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const 
 				// slightly above set speed: coasting 'til back to set speed.
 				f = -Frs;
 			}
-			else if (v < float32e8_t((uint32)15, (uint32)10) * vmax)
-			{
-				is_braking = true;
-				// running too fast, apply the brakes! 
-				// hill-down Frs might become negative and works against the brake.
-				f = -(get_braking_force(weight.weight) + Frs);
-			}
-			else if (v < vmax - 200)
-			{
-				is_braking = true;
-				// running much too fast, slam on the brakes! 
-				// hill-down Frs might become negative and works against the brake.
-				f = -(get_braking_force(weight.weight) + Frs);
-			}
 			else
 			{
 				is_braking = true;
-				// running very much too fast, slam on the brakes! 
+				// running too fast, slam on the brakes! 
 				// hill-down Frs might become negative and works against the brake.
-				f = -(get_braking_force(weight.weight) * 7 + Frs);
+				f = -get_braking_force(weight.weight) - Frs;
 			}
 
 			// accelerate: calculate new speed according to acceleration within the passed second(s).
+			f -= sgn(v) * adverse.cf * v * v;
+			float32e8_t df = simtime_factor * f;
+			float32e8_t v0 = v;
 			long dt;
-			float32e8_t df = simtime_factor * (f - sgn(v) * adverse.cf * v * v);
 			if (delta_t >= DT_SLICE && (sint32)abs(df) > weight.weight / (10 * DT_SLICE_SECONDS))
 			{
 				// This part is important for acceleration/deceleration phases only.
@@ -332,7 +321,7 @@ void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const 
 			{
 				v = 1;
 			}
-			dx += v * float32e8_t((sint32)dt);
+			dx += (v + v0) * float32e8_t((sint32)dt / 2);
 			delta_t -= dt; // another DT_SLICE_SECONDS passed
 		}
 		akt_speed = v_to_speed(v); // akt_speed in simutrans vehicle speed, v in m/s

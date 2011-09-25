@@ -315,8 +315,8 @@ protected:
 	virtual sint32 get_braking_force(const sint32 weight) 
 	{
 		// Assume that brake force in Kn ~= 1/2 weight in tonnes
-		return weight / 2;
-		//return get_starting_force();
+		//return weight / 2;
+		return get_starting_force() + weight / 2;
 	}
 public:
 	/**
