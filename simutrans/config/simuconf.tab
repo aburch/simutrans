@@ -346,8 +346,10 @@ used_vehicle_reduction = 0
 
 # if a convoi runs on a way that belongs to another player, toll may
 # be charged. The number given is the percentage of the running cost
-# of the convoi. (defualt 0)
-way_toll_fraction = 0
+# of the convoi or the way cost (include electrification if needed).
+# (default 0)
+toll_runningcost_percentage = 0
+toll_waycost_percentage = 0
 
 # Maintenance costs of buildings
 #maintenance_building = 2000

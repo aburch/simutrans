@@ -43,6 +43,7 @@
 
 #include "dings/crossing.h"
 #include "dings/roadsign.h"
+#include "dings/wayobj.h"
 
 #include "vehicle/simvehikel.h"
 #include "vehicle/overtaker.h"
@@ -589,7 +590,24 @@ void convoi_t::add_running_cost( const weg_t *weg )
 
 	if(  weg  &&  weg->get_besitzer()!=get_besitzer()  &&  weg->get_besitzer()!=NULL  ) {
 		// running on non-public way costs toll
-		const sint32 toll = (sum_running_costs*welt->get_settings().get_way_toll_fraction())/100l;
+		sint32 toll = (sum_running_costs*welt->get_settings().get_way_toll_runningcost_percentage())/100l;
+		if(  welt->get_settings().get_way_toll_waycost_percentage()  ) {
+			if(  weg->is_electrified()  &&  needs_electrification()  ) {
+				// toll for using electricity
+				grund_t *gr = welt->lookup(weg->get_pos());
+				for(  int i=1;  i<gr->get_top();  i++  ) {
+					ding_t *d=gr->obj_bei(i);
+					if(  wayobj_t const* const wo = ding_cast<wayobj_t>(d)  )  {
+						if(  wo->get_waytype()==weg->get_waytype()  ) {
+							toll += (wo->get_besch()->get_wartung()*welt->get_settings().get_way_toll_waycost_percentage())/100l;
+							break;
+						}
+					}
+				}
+			}
+			// now add normal way toll be maintenance
+			toll += (weg->get_besch()->get_wartung()*welt->get_settings().get_way_toll_waycost_percentage())/100l;
+		}
 		weg->get_besitzer()->buche( -toll, COST_WAY_TOLLS );
 		get_besitzer()->buche( toll, COST_WAY_TOLLS );
 	}

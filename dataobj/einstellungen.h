@@ -254,7 +254,8 @@ private:
 	bool signals_on_left;
 
 	// fraction of running costs charged for going on other players way
-	sint32 way_toll_fraction;
+	sint32 way_toll_runningcost_percentage;
+	sint32 way_toll_waycost_percentage;
 
 public:
 	/* the big cost section */
@@ -517,7 +518,8 @@ public:
 	bool is_drive_left() const { return drive_on_left; }
 	bool is_signals_left() const { return signals_on_left; }
 
-	sint32 get_way_toll_fraction() const { return way_toll_fraction; }
+	sint32 get_way_toll_runningcost_percentage() const { return way_toll_runningcost_percentage; }
+	sint32 get_way_toll_waycost_percentage() const { return way_toll_waycost_percentage; }
 };
 
 #endif
