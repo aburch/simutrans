@@ -218,6 +218,7 @@ convoi_t::convoi_t(karte_t* wl, loadsave_t* file) : fahr(max_vehicle, NULL)
 	delete departure_times;
 	average_journey_times = new koordhashtable_tpl<id_pair, average_tpl<uint16> >;
 	departure_times = new inthashtable_tpl<uint16, sint64>;
+	speed_limits = new vector_tpl<sint32>;
 	rdwr(file);
 	current_stop = fpl == NULL ? 255 : fpl->get_aktuell() - 1;
 
@@ -246,6 +247,7 @@ convoi_t::convoi_t(spieler_t* sp) : fahr(max_vehicle, NULL)
 
 	average_journey_times = new koordhashtable_tpl<id_pair, average_tpl<uint16> >;
 	departure_times = new inthashtable_tpl<uint16, sint64>;
+	speed_limits = new vector_tpl<sint32>;
 }
 
 
@@ -292,6 +294,7 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 
 	delete average_journey_times;
 	delete departure_times;
+	delete speed_limits;
 
 	// @author hsiegeln - deregister from line (again) ...
 	unset_line();
@@ -710,21 +713,38 @@ void convoi_t::calc_acceleration(long delta_t)
 	// existing_convoy_t is designed to become a part of convoi_t. 
 	// There it will help to minimize updating convoy summary data.
 	existing_convoy_t convoy(*this);
+	const uint16 meters_per_tile = welt->get_settings().get_meters_per_tile();
+
 	if(  recalc_brake_soll  ) 
 	{
-		// brake at the end of stations/in front of signals and crossings
-		//const uint32 tiles_left = get_next_stop_index() - get_route()->index_of(get_pos());
+		brake_speed_soll = SPEED_UNLIMITED;
 
-		if(get_next_stop_index() >= INVALID_INDEX)
+		const sint32 brake_distance = convoy.calc_min_braking_distance(convoy.get_weight_summary(), akt_speed);
+		const uint16 brake_tiles = brake_distance / meters_per_tile;
+
+		// Brake for upcoming speed limits
+		if(speed_limits && speed_limits->get_count() > 0)
 		{
-			// The next stop is a non-reversing waypoint.
-			brake_speed_soll = SPEED_UNLIMITED;
+			const uint32 check_until = min(speed_limits->get_count(), (fahr[0]->get_route_index() + brake_tiles));
+			for(uint32 i = fahr[0]->get_route_index(); i < check_until; i++)
+			{
+				const sint32 sl = speed_limits->get_element(i);
+				if(sl < akt_speed)
+				{
+					const sint32 limit_brake_tiles = convoy.calc_min_braking_distance(convoy.get_weight_summary(), (akt_speed - sl)) / meters_per_tile;
+					if(fahr[0]->get_route_index() + limit_brake_tiles >= i)
+					{
+						brake_speed_soll = min(brake_speed_soll, sl);
+					}
+				}
+			}
 		}
-
-		else
+		
+		// Brake for upcoming stops
+		if(get_next_stop_index() < INVALID_INDEX)
 		{
 			const uint32 tiles_left = 1 + get_next_stop_index() - front()->get_route_index();
-			const uint32 meters_left = tiles_left * welt->get_settings().get_meters_per_tile();
+			const uint32 meters_left = tiles_left * meters_per_tile;
 
 			/*
 			waytype_t waytype = front()->get_waytype();
@@ -750,7 +770,6 @@ void convoi_t::calc_acceleration(long delta_t)
 			brake_speed_soll = max(brake_speed_soll, kmh_to_speed(16));
 			*/
 
-			const sint32 brake_distance = convoy.calc_min_braking_distance(convoy.get_weight_summary(), akt_speed);
 			if (meters_left <= (sint32)brake_distance)
 			{
 				// We are seeking to come to a halt here eventually, so brake to zero.
@@ -761,15 +780,11 @@ void convoi_t::calc_acceleration(long delta_t)
 				const sint32 TEST = speed_to_kmh(brake_speed_soll);
 				const int a = 1 + 1;*/
 			}
-			else
-			{
-				brake_speed_soll = SPEED_UNLIMITED;
-			}
 		}
 
 		recalc_brake_soll = false;
  	}	
-	convoy.calc_move(delta_t, float32e8_t(get_welt()->get_settings().get_meters_per_tile(), 1000), min( min_top_speed, brake_speed_soll ), akt_speed, sp_soll);
+	convoy.calc_move(delta_t, float32e8_t(meters_per_tile, 1000), min( min_top_speed, brake_speed_soll ), akt_speed, sp_soll);
 }
 
 

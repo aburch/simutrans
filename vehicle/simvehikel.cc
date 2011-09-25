@@ -1323,28 +1323,24 @@ void vehikel_t::hop()
 	gr = welt->lookup(pos_next);
 
 	const weg_t * weg = gr != NULL ? gr->get_weg(get_waytype()) : NULL;
+
+	gr = welt->lookup(pos_prev);
+
+	const weg_t * weg_prev = gr != NULL ? gr->get_weg(get_waytype()) : NULL;
+
 	if(weg)
 	{
-		speed_limit = kmh_to_speed( weg->get_max_speed() );
+		speed_limit = calc_speed_limit(weg, weg_prev, &pre_corner_direction, fahrtrichtung, alte_fahrtrichtung);
+
 		// Weight limit needed for GUI flag
 		const uint32 weight_limit = (weg->get_max_weight()) > 0 ? weg->get_max_weight() : 1;
 		// Necessary to prevent division by zero exceptions if
 		// weight limit is set to 0 in the file.
 
-		// This is just used for the GUI display, so only set to true if the weight limit is set to enforce by speed restriction.
-		is_overweight = (cnv->get_heaviest_vehicle() > weight_limit &&welt->get_settings().get_enforce_weight_limits() == 1); 
+		// This is just used for the GUI, so only set to true if the weight limit is set to enforce by speed restriction.
+		is_overweight = (cnv->get_heaviest_vehicle() > weight_limit && welt->get_settings().get_enforce_weight_limits() == 1); 
 
-		//if(alte_fahrtrichtung != fahrtrichtung)
-		//{
-			pre_corner_direction.add_to_tail(get_direction_degrees(ribi_t::get_dir(alte_fahrtrichtung)));
-		//}
-		//else
-		//{
-			//pre_corner_direction.add_to_tail(999);
-		//}
-
-		speed_limit = calc_modified_speed_limit(&get_pos(), fahrtrichtung, (alte_fahrtrichtung != fahrtrichtung));
-		if(weg->is_crossing()) 
+		if(weg->is_crossing() && gr->find<crossing_t>(2)) 
 		{
 			gr->find<crossing_t>(2)->add_to_crossing(this);
 		}
@@ -1370,25 +1366,20 @@ void vehikel_t::hop()
 	
 	calc_drag_coefficient(gr);
 
-	sint8 trim_size = pre_corner_direction.get_count() - direction_steps;
-	pre_corner_direction.trim_from_head((trim_size >= 0) ? trim_size : 0);
 	hop_count ++;
 }
 
-/* Calculates the modified speed limit of the current way,
- * taking into account the curve and weight limit.
- * @author: jamespetts
- */
-sint32 vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi current_direction, bool is_corner)
-{
-	grund_t *g;
-	g = welt->lookup(*position);
-	if(g == NULL)
+
+sint32 vehikel_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fixed_list_tpl<sint16, 16>* cornering_data, ribi_t::ribi current_direction, ribi_t::ribi previous_direction)
+{	
+	cornering_data->add_to_tail(get_direction_degrees(ribi_t::get_dir(previous_direction)));
+
+	const bool is_corner = current_direction != previous_direction;
+
+	if(w == NULL)
 	{
 		return speed_limit;
 	}
-	waytype_t waytype = get_waytype();
-	const weg_t *w = g->get_weg(waytype);
 	sint32 base_limit;
 	uint16 weight_limit;
 	const bool is_tilting = besch->get_tilting();
@@ -1410,7 +1401,7 @@ sint32 vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::rib
 
 	//Reduce speed for overweight vehicles
 
-	if(heaviest_vehicle > weight_limit &&welt->get_settings().get_enforce_weight_limits() == 1)
+	if(heaviest_vehicle > weight_limit && welt->get_settings().get_enforce_weight_limits() == 1)
 	{
 		if((heaviest_vehicle * 100) / weight_limit <= 110)
 		{
@@ -1424,15 +1415,15 @@ sint32 vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::rib
 		}
 	}
 
-	waytype = cnv->get_schedule()->get_waytype();
+	waytype_t waytype = cnv->get_schedule()->get_waytype();
 
 	// Cornering settings. Vehicles must slow to take corners.
-	const uint32 max_corner_limit =welt->get_settings().get_max_corner_limit(waytype);
-	const uint32 min_corner_limit =welt->get_settings().get_min_corner_limit(waytype);
-	const uint16 max_corner_adjustment_factor =welt->get_settings().get_max_corner_adjustment_factor(waytype);
-	const uint16 min_corner_adjustment_factor =welt->get_settings().get_min_corner_adjustment_factor(waytype);
-	const uint8 min_direction_steps =welt->get_settings().get_min_direction_steps(waytype);
-	const uint8 max_direction_steps =welt->get_settings().get_max_direction_steps(waytype);
+	const uint32 max_corner_limit = welt->get_settings().get_max_corner_limit(waytype);
+	const uint32 min_corner_limit = welt->get_settings().get_min_corner_limit(waytype);
+	const uint16 max_corner_adjustment_factor = welt->get_settings().get_max_corner_adjustment_factor(waytype);
+	const uint16 min_corner_adjustment_factor = welt->get_settings().get_min_corner_adjustment_factor(waytype);
+	const uint8 min_direction_steps = welt->get_settings().get_min_direction_steps(waytype);
+	const uint8 max_direction_steps = welt->get_settings().get_max_direction_steps(waytype);
 	
 #ifndef debug_corners	
 	if(is_corner && max_direction_steps > 0)
@@ -1440,13 +1431,6 @@ sint32 vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::rib
 #endif
  		sint16 direction_difference = 0;
 		const sint16 direction = get_direction_degrees(ribi_t::get_dir(current_direction));
-		const uint16 modified_route_index = min(route_index - 1, cnv->get_route()->get_count() - 1);
-		const koord3d *previous_tile = &cnv->get_route()->position_bei(modified_route_index);
-		ribi_t::ribi old_direction = current_direction;
-		if(previous_tile != NULL)
-		{
-			old_direction = calc_check_richtung(previous_tile->get_2d(), position->get_2d());
-		}
 	
 		uint16 limit_adjustment_percentage = 100;
 		
@@ -1483,10 +1467,10 @@ sint32 vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::rib
 		int steps_to_135 = 0;
 		int steps_to_180 = 0;
 		int smoothing_percentage = 0;
-		for(int i = pre_corner_direction.get_count() - 1; i >= 0 && counter <= direction_steps; i --)
+		for(int i = cornering_data->get_count() - 1; i >= 0 && counter <= direction_steps; i --)
 		{
 			counter ++;
-			tmp = vehikel_t::compare_directions(direction, pre_corner_direction.get_element(i));
+			tmp = vehikel_t::compare_directions(direction, cornering_data->get_element(i));
 			if(tmp > direction_difference)
 			{
 				direction_difference = tmp;
@@ -1523,11 +1507,11 @@ sint32 vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::rib
 #ifdef debug_corners
 		current_corner = direction_difference;
 #endif
-		const sint16 old_direction_degrees = get_direction_degrees(ribi_t::get_dir(old_direction));
-		if(direction_difference == 0 && current_direction != old_direction)
+		const sint16 previous_direction_degrees = get_direction_degrees(ribi_t::get_dir(previous_direction));
+		if(direction_difference == 0 && current_direction != previous_direction)
 		{
 			//Fallback code in case the checking the histories did not work properly (for example, if the histories were cleared recently) 
-			direction_difference = compare_directions(direction, old_direction_degrees);
+			direction_difference = compare_directions(direction, previous_direction_degrees);
 		}
 
 		// Maximum speeds for sharper corners no matter what the base limit of the way.	
@@ -1642,6 +1626,9 @@ sint32 vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::rib
 	{
 		new_limit = overweight_speed_limit;
 	}
+	
+	sint8 trim_size = cornering_data->get_count() - direction_steps;
+	cornering_data->trim_from_head((trim_size >= 0) ? trim_size : 0);
 
 	//Speed limit must never be 0.
 	if(new_limit > 0)
@@ -1740,6 +1727,8 @@ vehikel_t::direction_degrees vehikel_t::get_direction_degrees(ribi_t::dir direct
 		return vehikel_t::West;
 	case ribi_t::dir_nordwest :
 		return vehikel_t::Northwest;
+	default:
+		return vehikel_t::North;
 	};
 	return vehikel_t::North;
 }
@@ -3172,6 +3161,46 @@ bool waggon_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t
 		block_reserver(cnv->get_route(), cnv->back()->get_route_index(), dummy, dummy, target_halt.is_bound() ? 100000 : 1, false, true);
 	}
 	target_halt = halthandle_t();	// no block reserved
+	
+	if(ist_erstes)
+	{
+		vector_tpl<sint32>* speed_limits = cnv->get_speed_limits();
+		const uint32 route_count = cnv->get_route()->get_count();
+		koord3d current_tile = route_count > 0 ? cnv->get_route()->position_bei(0) : pos_next;
+		koord3d next_tile;
+		ribi_t::ribi current_direction = fahrtrichtung;
+		ribi_t::ribi next_direction;
+		speed_limits->clear();
+		fixed_list_tpl<sint16, 16> corner_data;
+		for(uint32 i = 1; i < route_count; i ++)
+		{
+			next_tile = cnv->get_route()->position_bei(i);
+			next_direction = calc_set_richtung(current_tile.get_2d(), next_tile.get_2d());
+			
+			grund_t *gr;
+			gr = welt->lookup(next_tile);
+
+			const weg_t * weg = gr != NULL ? gr->get_weg(get_waytype()) : NULL;
+			
+			gr = welt->lookup(current_tile);
+			const weg_t * weg_previous = gr != NULL ? gr->get_weg(get_waytype()) : NULL;
+
+			if(weg)
+			{
+				sint32 sl = calc_speed_limit(weg, weg_previous, &corner_data, next_direction, current_direction);
+				const sint32 TEST = speed_to_kmh(sl);
+				speed_limits->append(sl);
+			}
+			else
+			{
+				speed_limits->append(SPEED_UNLIMITED);
+			}
+
+			current_direction = next_direction;
+			current_tile = next_tile;
+		}
+	}
+	
 	return route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight(), 8888 /*cnv->get_tile_length()*/ );
 }
 

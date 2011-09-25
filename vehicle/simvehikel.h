@@ -195,8 +195,6 @@ private:
 	 */
 	virtual void calc_drag_coefficient(const grund_t *gr);
 
-	sint32 calc_modified_speed_limit(const koord3d *position, ribi_t::ribi current_direction, bool is_corner);
-
 	/**
 	 * Unload freight to halt
 	 * @return sum of unloaded goods
@@ -298,6 +296,8 @@ protected:
 	bool has_driven:1;
 
 	virtual void calc_bild();
+
+	sint32 calc_speed_limit(const weg_t *weg, const weg_t *weg_previous, fixed_list_tpl<sint16, 16>* cornering_data, ribi_t::ribi current_direction, ribi_t::ribi previous_direction);
 
 public:
 	virtual bool ist_befahrbar(const grund_t* ) const {return false;}
@@ -753,8 +753,6 @@ protected:
 
 	void calc_drag_coefficient(const grund_t *gr);
 
-	//uint32 calc_modified_speed_limit(const weg_t *w, uint8 s, ribi_t::ribi current_direction) { return base_limit; }  //Ships do not modify speed limits.
-
 	bool ist_befahrbar(const grund_t *bd) const;
 
 public:
@@ -865,8 +863,6 @@ public:
 
 	// the drag calculation happens it calc_height
 	void calc_drag_coefficient(const grund_t*) {}
-
-	//uint32 calc_modified_speed_limit(const weg_t *w, uint32 base_limit, uint8 s, ribi_t::ribi current_direction) { return base_limit; } 
 
 	bool is_on_ground() const { return flughoehe==0  &&  !(state==circling  ||  state==flying); }
 

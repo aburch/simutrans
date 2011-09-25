@@ -513,6 +513,12 @@ private:
 	 */
 	void book_departure_time(sint64 time);
 
+	/** 
+	  * List of upcoming speed limits; for braking purposes.
+	  * @author: jamespetts, September 2011
+	  */
+	vector_tpl<sint32> *speed_limits;
+
 public:
 	
 // updates a line schedule and tries to find the best next station to go
@@ -1120,6 +1126,8 @@ public:
 	static uint16 get_waiting_minutes(uint32 waiting_ticks);
 	
 	bool is_wait_infinite() const { return go_on_ticks == WAIT_INFINITE; }
+
+	vector_tpl<sint32>* get_speed_limits() { return speed_limits; }
 };
 
 #endif
