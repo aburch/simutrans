@@ -367,7 +367,7 @@ const float32e8_t float32e8_t::operator + (const float32e8_t & x) const
 
 const float32e8_t float32e8_t::operator - (const float32e8_t & x) const
 {
-	if (!m) return x;
+	if (!m) return -x;
 	if (!x.m) return *this;
 
 	sint16 msx = x.e;
