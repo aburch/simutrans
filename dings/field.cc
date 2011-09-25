@@ -56,8 +56,7 @@ void field_t::entferne(spieler_t *sp)
 
 
 // return the  right month graphic for factories
-image_id
-field_t::get_bild() const
+image_id field_t::get_bild() const
 {
 	const skin_besch_t *s=besch->get_bilder();
 	uint16 anzahl=s->get_bild_anzahl() - besch->has_snow_image();

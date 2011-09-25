@@ -2800,7 +2800,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 	sint64            cost   = s.cst_multiply_post * factor;
 	if(sp!=halt->get_besitzer()  &&  halt->get_besitzer()==welt->get_spieler(1)) {
 		// public stops are expensive!
-		cost -= (s.maint_building * factor * 60) << (welt->ticks_per_world_month_shift - 18);
+		cost -= (s.maint_building * factor * 60);
 	}
 	sp->buche( cost, pos, COST_CONSTRUCTION);
 	halt->recalc_station_type();
@@ -2952,7 +2952,7 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.
 	sint64 costs = welt->get_settings().cst_multiply_dock * besch->get_level();
 	if(sp!=halt->get_besitzer()) {
 		// public stops are expensive!
-		costs -= (welt->get_settings().maint_building * besch->get_level() * 60) << (welt->ticks_per_world_month_shift - 18);
+		costs -= (welt->get_settings().maint_building * besch->get_level() * 60);
 	}
 	for(int i=0;  i<=len;  i++ ) {
 		koord p=pos-dx*i;
@@ -3158,7 +3158,7 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 	cost -= old_cost/2;
 	if(sp!=halt->get_besitzer()) {
 		// public stops are expensive!
-		cost -= (welt->get_settings().maint_building * besch->get_level() * besch->get_b() * besch->get_h() * 60) << (welt->ticks_per_world_month_shift - 18);
+		cost -= (welt->get_settings().maint_building * besch->get_level() * besch->get_b() * besch->get_h() * 60);
 	}
 	sp->buche( cost, pos, COST_CONSTRUCTION);
 	if(umgebung_t::station_coverage_show  &&  welt->get_zeiger()->get_pos().get_2d()==pos) {
@@ -4758,7 +4758,7 @@ bool wkz_make_stop_public_t::init( karte_t *, spieler_t * )
 
 const char* wkz_make_stop_public_t::get_tooltip(const spieler_t *sp) const
 {
-	sint32 const cost = ((sp->get_welt()->get_settings().maint_building * 60) << (sp->get_welt()->ticks_per_world_month_shift - 18)) / 100;
+	sint32 const cost = (sp->get_welt()->get_settings().maint_building * 60);
 	sprintf(toolstr, translator::translate("make stop public (or join with public stop next) costs %i per tile and level"), cost);
 	return toolstr;
 }
@@ -4773,8 +4773,30 @@ const char *wkz_make_stop_public_t::move( karte_t *welt, spieler_t *sp, uint16, 
 			sint64 costs = halt->calc_maintenance();
 			// set only tooltip if it costs (us)
 			if(costs>0) {
-				win_set_static_tooltip( tooltip_with_price("Building costs estimates", -((costs*60)<<(welt->ticks_per_world_month_shift-18)) ) );
+				win_set_static_tooltip( tooltip_with_price("Building costs estimates", costs*60 ) );
 			}
+		}
+		else if(  const grund_t *gr = welt->lookup(p)  ) {
+			weg_t *w = gr->get_weg_nr(0);
+			// no need for action if already player(1) => XOR ...
+			if(  !(w  &&  (  (w->get_besitzer()==sp)  ^  (sp==welt->get_spieler(1))  ))  ) {
+				w = gr->get_weg_nr(1);
+				if(  !(w  &&  (  (w->get_besitzer()==sp)  ^  (sp==welt->get_spieler(1))  ))  ) {
+					w = NULL;
+				}
+			}
+			if(  w  ) {
+				sint64 costs = w->get_besch()->get_wartung();
+				// set only tooltip if it costs (us)
+				if(costs>0) {
+					win_set_static_tooltip( tooltip_with_price("Building costs estimates", -costs*60 ) );
+				}
+
+			}
+		}
+		else {
+			// boing ...
+			return "";
 		}
 	}
 	return NULL;
@@ -4783,8 +4805,37 @@ const char *wkz_make_stop_public_t::move( karte_t *welt, spieler_t *sp, uint16, 
 const char *wkz_make_stop_public_t::work( karte_t *welt, spieler_t *sp, koord3d p )
 {
 	const planquadrat_t *pl = welt->lookup(p.get_2d());
-	if(!pl  ||  !pl->get_halt().is_bound()) {
-		return "No stop here!";
+	if(  !pl  ||  !pl->get_halt().is_bound()  ||  pl->get_halt()->get_besitzer()==welt->get_spieler(1)  ) {
+		weg_t *w = NULL;
+		//convert a way here, if there is no halt or already public halt
+		if(  const grund_t *gr = welt->lookup(p)  ) {
+			w = gr->get_weg_nr(0);
+			// no need for action if already player(1) => XOR ...
+			if(  !(w  &&  (  (w->get_besitzer()==sp)  ^  (sp==welt->get_spieler(1))  ))  ) {
+				w = gr->get_weg_nr(1);
+				if(  !(w  &&  (  (w->get_besitzer()==sp)  ^  (sp==welt->get_spieler(1))  ))  ) {
+					w = NULL;
+				}
+			}
+			if(  w  ) {
+				// change maintenance and ownership
+				sint64 costs = w->get_besch()->get_wartung();
+				spieler_t::add_maintenance( w->get_besitzer(), -costs );
+				spieler_t::accounting( w->get_besitzer(), -costs*60, gr->get_pos().get_2d(), COST_CONSTRUCTION);
+				w->set_besitzer( welt->get_spieler(1) );
+				w->set_flag(ding_t::dirty);
+				spieler_t::add_maintenance( welt->get_spieler(1), costs );
+				// and add message
+				if(  sp->get_player_nr()!=1  &&  umgebung_t::networkmode  ) {
+					cbuffer_t buf;
+					buf.printf( translator::translate("(%s) now public way."), w->get_pos().get_str() );
+					welt->get_message()->add_message( buf, w->get_pos().get_2d(), message_t::ai, PLAYER_FLAG|sp->get_player_nr(), IMG_LEER );
+				}
+			}
+		}
+		if(  w==NULL  ) {
+			return "No stop here!";
+		}
 	}
 	else {
 		halthandle_t halt = pl->get_halt();
