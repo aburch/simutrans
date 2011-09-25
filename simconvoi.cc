@@ -723,7 +723,7 @@ void convoi_t::calc_acceleration(long delta_t)
 		const uint16 brake_tiles = brake_distance / meters_per_tile;
 
 		// Brake for upcoming speed limits
-		if(speed_limits && speed_limits->get_count() > 0)
+		/*if(speed_limits && speed_limits->get_count() > 0)
 		{
 			const uint32 check_until = min(speed_limits->get_count(), (fahr[0]->get_route_index() + brake_tiles));
 			for(uint32 i = fahr[0]->get_route_index(); i < check_until; i++)
@@ -738,12 +738,12 @@ void convoi_t::calc_acceleration(long delta_t)
 					}
 				}
 			}
-		}
+		}*/
 		
 		// Brake for upcoming stops
 		if(get_next_stop_index() < INVALID_INDEX)
 		{
-			const uint32 tiles_left = 1 + get_next_stop_index() - front()->get_route_index();
+			const uint16 tiles_left = 1 + get_next_stop_index() - front()->get_route_index();
 			const uint32 meters_left = tiles_left * meters_per_tile;
 
 			/*
@@ -773,7 +773,7 @@ void convoi_t::calc_acceleration(long delta_t)
 			if (meters_left <= (sint32)brake_distance)
 			{
 				// We are seeking to come to a halt here eventually, so brake to zero.
-				brake_speed_soll = 0;
+				brake_speed_soll = kmh_to_speed(16);
 				/*const sint32 braking_rate = brake_distance > 0 ? (speed_to_kmh(akt_speed) * 1000) / brake_distance : 0;
 				brake_speed_soll = kmh_to_speed((sint32)(braking_rate * meters_left) / 1000);
 				brake_speed_soll = max(brake_speed_soll, kmh_to_speed(16));
