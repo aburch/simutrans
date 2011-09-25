@@ -63,12 +63,14 @@ void building_reader_t::register_obj(obj_besch_t *&data)
 	haus_besch_t *besch = static_cast<haus_besch_t *>(data);
 
 	if(  besch->utype == haus_besch_t::fabrik  ) {
-		// this stuff is just for compatibility
-		if(  strcmp("Oelbohrinsel",besch->get_name())==0  ) {
-			besch->enables = 1|2|4;
-		}
-		else if(  strcmp("fish_swarm",besch->get_name())==0  ) {
-			besch->enables = 4;
+		if(  besch->enables == 0  ) {
+			// this stuff is just for compatibility
+			if(  strcmp("Oelbohrinsel",besch->get_name())==0  ) {
+				besch->enables = 1|2|4;
+			}
+			else if(  strcmp("fish_swarm",besch->get_name())==0  ) {
+				besch->enables = 4;
+			}
 		}
 	}
 
