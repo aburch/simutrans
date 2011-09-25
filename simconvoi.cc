@@ -744,6 +744,7 @@ void convoi_t::calc_acceleration(long delta_t)
 		if(get_next_stop_index() < INVALID_INDEX)
 		{
 			const uint16 tiles_left = 1 + get_next_stop_index() - front()->get_route_index();
+			const uint32 meters_left = tiles_left * meters_per_tile;
 
 			/*
 			waytype_t waytype = front()->get_waytype();
@@ -769,10 +770,10 @@ void convoi_t::calc_acceleration(long delta_t)
 			brake_speed_soll = max(brake_speed_soll, kmh_to_speed(16));
 			*/
 
-			if (tiles_left <= brake_tiles)
+			if (meters_left <= (sint32)brake_distance)
 			{
 				// We are seeking to come to a halt here eventually, so brake to zero.
-				brake_speed_soll = 16;
+				brake_speed_soll = kmh_to_speed(16);
 				/*const sint32 braking_rate = brake_distance > 0 ? (speed_to_kmh(akt_speed) * 1000) / brake_distance : 0;
 				brake_speed_soll = kmh_to_speed((sint32)(braking_rate * meters_left) / 1000);
 				brake_speed_soll = max(brake_speed_soll, kmh_to_speed(16));
