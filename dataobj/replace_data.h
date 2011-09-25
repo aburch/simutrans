@@ -91,6 +91,8 @@ public:
 	void increment_convoys(convoihandle_t cnv);
 	void decrement_convoys(convoihandle_t cnv);
 
+	bool check_contained(convoihandle_t cnv);
+
 	/**
 	 * fills the given buffer with replace data
 	 */

@@ -233,6 +233,11 @@ void replace_data_t::decrement_convoys(convoihandle_t cnv)
 	}
 }
 
+bool replace_data_t::check_contained(convoihandle_t cnv)
+{
+	return replacing_convoys->append_unique(cnv);
+}
+
 void replace_data_t::add_vehicle(const vehikel_besch_t* vehicle, bool add_at_front)
 {
 	if(add_at_front)

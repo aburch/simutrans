@@ -88,8 +88,9 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	convoy_assembler.set_electrified( weg_electrified );
 	convoy_assembler.set_convoy_tabs_skip(-2*LINESPACE+3*LINESPACE+2*margin+a_button_height);
 	convoy_assembler.add_listener(this);
-	if(cnv->get_replace())
+	if(cnv.is_bound() && cnv->get_replace())
 	{
+		cnv->get_replace()->check_contained(cnv);
 		convoy_assembler.set_vehicles(cnv->get_replace()->get_replacing_vehicles());
 	}
 	else
