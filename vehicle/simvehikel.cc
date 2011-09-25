@@ -3668,7 +3668,7 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 	existing_convoy_t convoy(*cnv);
 	// BG, 25.09.2011: brake_distance is in real world meters. To compare with tiles of game the brake distance has to be divided by the 
 	// simtime_factor = meters_per_tile / 1000; as passed to convoy.calc_move() to reduce the force:
-	const uint16 meters_check_for_signal = (convoy.calc_min_braking_distance(convoy.get_weight_summary(), cnv->get_akt_speed()) * 1000) / meters_per_tile;;
+	const uint16 meters_check_for_signal = (convoy.calc_min_braking_distance(convoy.get_weight_summary(), cnv->get_akt_speed()) * 1000) / meters_per_tile;
 	// const uint16 tiles_check_for_signal = (1000 * speed) / (braking_rate * meters_per_tile);
 	// Necessary to round up here.
 	const uint16 tiles_check_for_signal = (meters_check_for_signal + (meters_per_tile / 2)) / meters_per_tile;

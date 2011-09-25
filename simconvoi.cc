@@ -741,23 +741,23 @@ void convoi_t::calc_acceleration(long delta_t)
 			}
 		}
 
-		//// Brake for upcoming speed limits
-		//if(new_speed_soll > vmin && speed_limits && speed_limits->get_count() > 0)
-		//{
-		//	const uint16 check_until = min(speed_limits->get_count(), (uint16)(current_route_index + brake_tiles + 1));
-		//	for(uint16 i = current_route_index; i < check_until; i++)
-		//	{
-		//		const sint32 sl = speed_limits->get_element(i);
-		//		if(sl < akt_speed && sl < new_speed_soll)
-		//		{
-		//			const uint16 limit_brake_tiles = (brake_distance - (convoy.calc_min_braking_distance(convoy.get_weight_summary(), sl) * 1000 / meters_per_tile)) / meters_per_tile;
-		//			if(current_route_index + limit_brake_tiles >= i)
-		//			{
-		//				new_speed_soll = sl;
-		//			}
-		//		}
-		//	}
-		//}
+		// Brake for upcoming speed limits
+		/*if(new_speed_soll > vmin && speed_limits && speed_limits->get_count() > 0)
+		{
+			const uint16 check_until = min(speed_limits->get_count(), (uint16)(current_route_index + brake_tiles + 1));
+			for(uint16 i = current_route_index; i < check_until; i++)
+			{
+				const sint32 sl = speed_limits->get_element(i);
+				if(sl < akt_speed && sl < new_speed_soll)
+				{
+					const uint16 limit_brake_tiles = (brake_distance - (convoy.calc_min_braking_distance(convoy.get_weight_summary(), sl) * 1000 / meters_per_tile)) / meters_per_tile;
+					if(current_route_index + limit_brake_tiles >= i)
+					{
+						new_speed_soll = sl;
+					}
+				}
+			}
+		}*/
 		akt_speed_soll = new_speed_soll;
 		recalc_brake_soll = false;
 	}	
