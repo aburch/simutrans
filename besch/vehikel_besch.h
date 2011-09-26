@@ -215,7 +215,7 @@ public:
 		// do not get stuck with constraints. 
 		way_constraints.set_permissive(0);
 		way_constraints.set_prohibitive(255);
-		min_loading_time = max_loading_time = seconds_to_ticks(30, 250); 
+		min_loading_time = max_loading_time = (uint32)seconds_to_ticks(30, 250); 
 		tractive_effort = 0;
 	}
 
@@ -640,17 +640,17 @@ public:
 
 	void set_scale(uint16 scale_factor)
 	{ 
-		const uint32 scaled_price = set_scale_generic<sint64>(preis, scale_factor);
+		const uint32 scaled_price = (uint32)set_scale_generic<sint64>(preis, scale_factor);
 		const uint32 scaled_maintenance = set_scale_generic<uint32>(fixed_maintenance, scale_factor);
 		preis = (preis == 0 ? 0 : (scaled_price >= 1 ? scaled_price : 1));
 		fixed_maintenance = (uint32)(fixed_maintenance == 0 ? 0 :(scaled_maintenance >= 1 ? scaled_maintenance : 1));
 		if(max_loading_time_seconds != 65535)
 		{
-			max_loading_time = seconds_to_ticks(max_loading_time_seconds, scale_factor);
+			max_loading_time = (uint32)seconds_to_ticks(max_loading_time_seconds, scale_factor);
 		}
 		if(min_loading_time_seconds != 65535)
 		{
-			min_loading_time = seconds_to_ticks(min_loading_time_seconds, scale_factor);
+			min_loading_time = (uint32)seconds_to_ticks(min_loading_time_seconds, scale_factor);
 		}
 	}
 
