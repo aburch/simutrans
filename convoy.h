@@ -316,7 +316,7 @@ protected:
 	{
 		// Assume that brake force in Kn ~= 1/2 weight in tonnes
 		//return weight / 2;
-		return get_starting_force() + weight / 2;
+		return (get_starting_force() + weight) / 2;
 	}
 public:
 	/**
