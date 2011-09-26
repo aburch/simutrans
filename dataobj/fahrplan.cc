@@ -526,3 +526,15 @@ bool schedule_t::sscanf_schedule( const char *ptr )
 	}
 	return true;
 }
+
+bool schedule_t::is_contained (koord3d pos)
+{
+	ITERATE(eintrag, i)
+	{
+		if(pos == eintrag[i].pos)
+		{
+			return true;
+		}
+	}
+	return false;
+}
