@@ -209,6 +209,8 @@ float32e8_t convoy_t::calc_speed_holding_force(float32e8_t speed /* in m/s */, f
 #define DT_TIME_FACTOR 64
 #define DT_SLICE_SECONDS 2
 #define DT_SLICE (DT_TIME_FACTOR * DT_SLICE_SECONDS)
+const float32e8_t fl_time_factor = float32e8_t(1, DT_TIME_FACTOR); 
+const float32e8_t fl_slice_seconds = float32e8_t(DT_SLICE_SECONDS, 1);
 
 void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll)
 {
@@ -237,6 +239,7 @@ void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const 
 		float32e8_t v = speed_to_v(akt_speed); // v in m/s, akt_speed in simutrans vehicle speed;
 		float32e8_t fvmax = 0; // force needed to hold vmax. will be calculated as needed
 		float32e8_t speed_ratio = 0; 
+		float32e8_t fweight = weight.weight;
 		//static uint32 count1 = 0;
 		//static sint32 count2 = 0;
 		//static sint32 count3 = 0;
@@ -244,7 +247,7 @@ void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const 
 		// iterate the passed time.
 		while (delta_t > 0)
 		{
-			// the driver's part: select accelerating force:
+			// 1) The driver's part: select the force:
 			float32e8_t f;
 			bool is_braking = false; // don't roll backwards, due to braking
 			if (v < float32e8_t((uint32)999, (uint32)1000) * vmax)
@@ -290,26 +293,30 @@ void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const 
 				// hill-down Frs might become negative and works against the brake.
 				f = -get_braking_force(weight.weight) - Frs;
 			}
-
-			// accelerate: calculate new speed according to acceleration within the passed second(s).
 			f -= sgn(v) * adverse.cf * v * v;
-			float32e8_t df = simtime_factor * f;
-			float32e8_t v0 = v;
-			long dt;
-			if (delta_t >= DT_SLICE && (sint32)abs(df) > weight.weight / (10 * DT_SLICE_SECONDS))
+
+			// 2) The "differential equation" part: calculate new speed:
+			uint32 dt;
+			float32e8_t dt_s;
+			if (delta_t >= DT_SLICE && abs(f.to_sint32()) > weight.weight / (10 * DT_SLICE_SECONDS))
 			{
-				// This part is important for acceleration/deceleration phases only.
-				// When a small force produces small speed change, we can add it at once in the 'else' section.
+				// This part is important for acceleration/deceleration phases only. 
+				// If the force to weight ratio exceeds a certain level, then we must calculate speed iterative,
+				// as it depends on previous speed.
 				//count2++;
-				v += (DT_SLICE_SECONDS * df) / weight.weight; 
 				dt = DT_SLICE;
+				dt_s = fl_slice_seconds;
 			}
 			else
 			{
+				// If a small force produces a small speed change, we can add the difference at once in the 'else' section
+				// with a disregardable inaccuracy.
 				//count3++;
-				v += (float32e8_t((uint32)delta_t) * df) / float32e8_t((sint32)DT_TIME_FACTOR * weight.weight);
 				dt = delta_t;
+				dt_s = fl_time_factor * dt;
 			}
+			float32e8_t v0 = v;
+			v += (dt_s * f) / weight.weight;
 			if (is_braking)
 			{
 				if (v < vmax)
@@ -321,12 +328,14 @@ void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const 
 			{
 				v = 1;
 			}
-			dx += (v + v0) * float32e8_t((sint32)dt / 2);
-			delta_t -= dt; // another DT_SLICE_SECONDS passed
+			dx += (v + v0) * float32e8_t::half * dt_s;
+			delta_t -= dt; // another time slice passed
 		}
 		akt_speed = v_to_speed(v); // akt_speed in simutrans vehicle speed, v in m/s
-		sp_soll += v_to_speed(dx);
+		sp_soll += v_to_speed(dx * DT_TIME_FACTOR); // sp_soll in simutrans steps, dx in m
 	}
+	// BG, 26.09.2011: NOTICE: sp_soll is not a speed, but the number of steps to move. 
+	//  Reducing it to KMH_SPEED_UNLIMITED may have solved a problem once upon a time, but looks weird.
 	if (sp_soll > KMH_SPEED_UNLIMITED)
 	{
 		sp_soll = KMH_SPEED_UNLIMITED;

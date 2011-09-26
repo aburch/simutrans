@@ -696,6 +696,7 @@ void convoi_t::increment_odometer(uint32 steps)
 /* Calculates (and sets) new akt_speed
  * needed for driving, entering and leaving a depot)
  */
+const sint32 vmin = kmh_to_speed(16);
 void convoi_t::calc_acceleration(long delta_t)
 {
 	// existing_convoy_t is designed to become a part of convoi_t. 
@@ -714,37 +715,24 @@ void convoi_t::calc_acceleration(long delta_t)
 		recalc_data = false;
 	}
 
-	if(  recalc_brake_soll  ) 
+	sint32 new_speed_soll = min_top_speed;
+	if (new_speed_soll > vmin)
 	{
-		sint32 new_speed_soll = min_top_speed;
-
-		// BG, 25.09.2011: strange: dividing brake_distance twice by meters_per_tile to get the tiles.
-		// - first to do the same force adjustment like calc_move() does
-		// - and then to calculate the number of tiles, that are required to slow down.
-		// Did I miss another compensation? If not, then the same convoy at the same speed and weight 
-		// needs 16 times more tiles to slow down on 250m tiles than on 1000m tiles. 
-		const sint32 brake_distance = (convoy.calc_min_braking_distance(convoy.get_weight_summary(), akt_speed) * 1000) / meters_per_tile;
-		const uint16 brake_tiles = brake_distance <= 0 ? 0 : (uint16) (brake_distance / meters_per_tile);
-		const sint32 vmin = kmh_to_speed(16);
+		const sint32 brake_meters = convoy.calc_min_braking_distance(convoy.get_weight_summary(), akt_speed);// * 1000 / meters_per_tile; // in m
 		const vehikel_t &front = *this->front();
 		const uint16 current_route_index = front.get_route_index();
-
-		// Brake for upcoming stops
-		if(vmin < new_speed_soll && get_next_stop_index() < INVALID_INDEX)
+		const uint16 next_stop_index = get_next_stop_index();
+		const uint32 tile_meters = (((uint32)front.get_steps_next() + 1 - front.get_steps()) * meters_per_tile) / VEHICLE_STEPS_PER_TILE;
+		const uint32 route_meters = (next_stop_index - current_route_index) * meters_per_tile + tile_meters;
+		if (route_meters <= brake_meters)
 		{
-			// BG, 25.09.2011: brake_distance is in real world meters. To compare with tiles of game the brake distance has to be divided by the 
-			// simtime_factor = meters_per_tile / 1000; as passed to convoy.calc_move() to reduce the force:
-			const uint16 tiles_left = get_next_stop_index() - current_route_index;
-			if ((sint32)tiles_left <= brake_tiles)
-			{
-				new_speed_soll = vmin;
-			}
+			// Brake for upcoming stop
+			new_speed_soll = vmin;
 		}
-
-		// Brake for upcoming speed limits
-		/*if(new_speed_soll > vmin && speed_limits && speed_limits->get_count() > 0)
-		{
-			const uint16 check_until = min(speed_limits->get_count(), (uint16)(current_route_index + brake_tiles + 1));
+		else if (speed_limits && speed_limits->get_count() > 0)
+		{/*
+			// Brake for upcoming speed limit?
+			const uint16 check_until = min(speed_limits->get_count(), (uint16)(max_check_index + 1));
 			for(uint16 i = current_route_index; i < check_until; i++)
 			{
 				const sint32 sl = speed_limits->get_element(i);
@@ -756,11 +744,59 @@ void convoi_t::calc_acceleration(long delta_t)
 						new_speed_soll = sl;
 					}
 				}
-			}
-		}*/
-		akt_speed_soll = new_speed_soll;
-		recalc_brake_soll = false;
-	}	
+			}*/
+		}
+	}
+	akt_speed_soll = new_speed_soll;
+
+
+	//if(  recalc_brake_soll  ) 
+	//{
+
+	//	// BG, 25.09.2011: strange: dividing brake_distance twice by meters_per_tile to get the tiles.
+	//	// - first to do the same force adjustment like calc_move() does
+	//	// - and then to calculate the number of tiles, that are required to slow down.
+	//	// Did I miss another compensation? If not, then the same convoy at the same speed and weight 
+	//	// needs 16 times more tiles to slow down on 250m tiles than on 1000m tiles. 
+	//	const sint32 brake_meters = convoy.calc_min_braking_distance(convoy.get_weight_summary(), akt_speed); // in m
+	//	const sint32 brake_distance = (brake_meters * 1000) / meters_per_tile;
+	//	const uint16 brake_tiles = brake_distance <= 0 ? 0 : (uint16) (brake_distance / meters_per_tile);
+	//	const vehikel_t &front = *this->front();
+	//	const uint16 current_route_index = front.get_route_index();
+	//	const uint16 max_check_index = current_route_index + brake_tiles;
+
+	//	// Brake for upcoming stops
+	//	if(vmin < new_speed_soll && get_next_stop_index() <= max_check_index)
+	//	{
+	//		// BG, 25.09.2011: brake_distance is in real world meters. To compare with tiles of game the brake distance has to be divided by the 
+	//		// simtime_factor = meters_per_tile / 1000; as passed to convoy.calc_move() to reduce the force:
+	//		const uint16 tiles_left = get_next_stop_index() - current_route_index;
+	//		if (tiles_left <= brake_tiles)
+	//		{
+	//			new_speed_soll = vmin;
+	//		}
+	//	}
+
+	//	// Brake for upcoming speed limits
+	//	/*if(new_speed_soll > vmin && speed_limits && speed_limits->get_count() > 0)
+	//	{
+	//		const uint16 check_until = min(speed_limits->get_count(), (uint16)(max_check_index + 1));
+	//		for(uint16 i = current_route_index; i < check_until; i++)
+	//		{
+	//			const sint32 sl = speed_limits->get_element(i);
+	//			if(sl < akt_speed && sl < new_speed_soll)
+	//			{
+	//				const uint16 limit_brake_tiles = (brake_distance - (convoy.calc_min_braking_distance(convoy.get_weight_summary(), sl) * 1000 / meters_per_tile)) / meters_per_tile;
+	//				if(current_route_index + limit_brake_tiles >= i)
+	//				{
+	//					new_speed_soll = sl;
+	//				}
+	//			}
+	//		}
+	//	}*/
+	//	akt_speed_soll = new_speed_soll;
+	//	recalc_brake_soll = false;
+	//}	
 	convoy.calc_move(delta_t, float32e8_t(meters_per_tile, 1000), akt_speed_soll, akt_speed, sp_soll);
 }
 
@@ -886,7 +922,7 @@ bool convoi_t::sync_step(long delta_t)
 				}
 				// now move the rest (so all vehikel are moving synchroniously)
 				for(unsigned i=1; i<anz_vehikel; i++) {
-					fahr[i]->fahre_basis(sp_hat); //"cycle basis" (Google)
+					fahr[i]->fahre_basis(sp_hat); //"move basis"
 				}
 				// maybe we have been stopped be something => avoid wide jumps
 				sp_soll = (sp_soll-sp_hat) & 0x0FFF;

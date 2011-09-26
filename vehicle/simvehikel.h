@@ -125,7 +125,8 @@ public:
 	virtual image_id get_bild() const {return bild;}
 
 	sint8 get_hoff() const {return hoff;}
-	uint8 get_steps() const {return steps;}
+	uint8 get_steps() const {return steps;} // number of steps pass on the current tile. 
+	uint8 get_steps_next() const {return steps_next;} // total number of steps to pass on the current tile - 1. Mostly VEHICLE_STEPS_PER_TILE - 1 for straight route or diagonal_vehicle_steps_per_tile - 1 for a diagonal route.
 
 	// to make smaller steps than the tile granularity, we have to calculate our offsets ourselves!
 	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const;
