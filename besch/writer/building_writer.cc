@@ -277,7 +277,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	}
 
 	// Hajo: write version data
-	node.write_uint16(fp, 0x8005,            0);
+	node.write_uint16(fp, 0x8006,            0);
 
 	// Hajo: write besch data
 	node.write_uint8 (fp, gtyp,              2);

@@ -193,7 +193,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	const uint16 v = decode_uint16(p);
 	const int version = (v & 0x8000)!=0 ? v&0x7FFF : 0;
 
-	if(version == 5) {
+	if(version == 5  ||  version == 6) {
 		// Versioned node, version 5
 		// animation intergvall in ms added
 		besch->gtyp      = (gebaeude_t::typ)decode_uint8(p);
@@ -245,11 +245,6 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->intro_date    = decode_uint16(p);
 		besch->obsolete_date = decode_uint16(p);
 		besch->animation_time = 300;
-		// correct old station buildings ...
-		if(  besch->level==0  &&  (besch->utype >= haus_besch_t::bahnhof  ||  besch->utype == haus_besch_t::fabrik)  ) {
-			DBG_DEBUG("building_reader_t::read_node()","old station building -> set level to 4");
-			besch->level = 4;
-		}
 	}
 	else if(version == 2) {
 		// Versioned node, version 2
@@ -309,6 +304,17 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	if(  node.children > 2+besch->groesse.x*besch->groesse.y*besch->layouts  ) {
 		besch->flags |= haus_besch_t::FLAG_HAS_CURSOR;
 	}
+
+	// correct old station buildings ...
+	if(  version<=3  &&  (besch->utype >= haus_besch_t::bahnhof  ||  besch->utype == haus_besch_t::fabrik  ||  besch->utype == haus_besch_t::depot)  &&  besch->level==0  ) {
+		DBG_DEBUG("building_reader_t::read_node()","old station building -> set level to 4");
+		besch->level = 4;
+	}
+	else if(  version<=5  &&  (besch->utype == haus_besch_t::fabrik  ||  besch->utype == haus_besch_t::depot)  ) {
+		besch->level ++;
+		DBG_DEBUG("building_reader_t::read_node()","old station building -> increment level by one to %i", besch->level );
+	}
+
 
 	if (besch->level == 65535) {
 		besch->level = 0;	// apparently wrong level
