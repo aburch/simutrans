@@ -5506,7 +5506,7 @@ static void encode_URI(cbuffer_t& buf, char const* const text)
 			char const two[] = { c, '\0' };
 			buf.append(two);
 		} else {
-			buf.printf("%02X", (unsigned char)c);
+			buf.printf("%%%02X", (unsigned char)c);
 		}
 	}
 }
