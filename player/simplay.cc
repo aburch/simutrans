@@ -415,12 +415,12 @@ void spieler_t::calc_finance_history()
 
 	finance_history_year[0][COST_CASH] = konto;
 	finance_history_year[0][COST_NETWEALTH] = finance_history_year[0][COST_ASSETS] + konto;
-	finance_history_year[0][COST_OPERATING_PROFIT] = finance_history_year[0][COST_INCOME] + finance_history_year[0][COST_VEHICLE_RUN] + finance_history_year[0][COST_MAINTENANCE];
+	finance_history_year[0][COST_OPERATING_PROFIT] = finance_history_year[0][COST_INCOME] + finance_history_year[0][COST_POWERLINES] + finance_history_year[0][COST_VEHICLE_RUN] + finance_history_year[0][COST_MAINTENANCE] + finance_history_year[0][COST_WAY_TOLLS];
 	finance_history_year[0][COST_MARGIN] = calc_margin(finance_history_year[0][COST_OPERATING_PROFIT], finance_history_year[0][COST_INCOME]);
 
 	finance_history_month[0][COST_CASH] = konto;
 	finance_history_month[0][COST_NETWEALTH] = finance_history_month[0][COST_ASSETS] + konto;
-	finance_history_month[0][COST_OPERATING_PROFIT] = finance_history_month[0][COST_INCOME] + finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE];
+	finance_history_month[0][COST_OPERATING_PROFIT] = finance_history_month[0][COST_INCOME] + finance_history_month[0][COST_POWERLINES] + finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE] + finance_history_month[0][COST_WAY_TOLLS];
 	finance_history_month[0][COST_MARGIN] = calc_margin(finance_history_month[0][COST_OPERATING_PROFIT], finance_history_month[0][COST_INCOME]);
 	finance_history_month[0][COST_SCENARIO_COMPLETED] = finance_history_year[0][COST_SCENARIO_COMPLETED] = welt->get_scenario()->completed(player_nr);
 }
@@ -459,7 +459,7 @@ void spieler_t::buche(sint64 const betrag, player_cost const type)
 	finance_history_year[0][type] += betrag;
 	finance_history_month[0][type] += betrag;
 
-	if(  type < COST_ASSETS  ||  type == COST_WAY_TOLLS  ) {
+	if(  type < COST_ASSETS  ||  type == COST_POWERLINES  ||  type == COST_WAY_TOLLS  ) {
 		konto += betrag;
 
 		// fill year history
