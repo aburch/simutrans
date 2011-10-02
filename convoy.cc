@@ -190,15 +190,6 @@ sint32 convoy_t::calc_max_starting_weight(sint32 sin_alpha)
 	return abs(get_starting_force() / (_101_percent * g_accel * (adverse.fr + milli * sin_alpha))); // 1.01 to compensate inaccuracy of calculation 
 }
 
-sint32 convoy_t::calc_min_braking_distance(const weight_summary_t &weight, sint32 speed)
-{
-	const float32e8_t v = speed_to_v(speed); // v in m/s, akt_speed in simutrans vehicle speed;
-	const float32e8_t vv = v * v;
-	const float32e8_t Frs = g_accel * (adverse.fr * weight.weight_cos + weight.weight_sin); // Frs in N
-	const float32e8_t f = get_braking_force(weight.weight) + Frs + sgn(v) * adverse.cf * vv;
-	return (weight.weight / 2) * (vv / f); // min braking distance in m
-}
-
 float32e8_t convoy_t::calc_speed_holding_force(float32e8_t speed /* in m/s */, float32e8_t Frs /* in N */)
 {
 	return double_min(adverse.cf * speed * speed, get_force(speed) - Frs); /* in N */
@@ -212,15 +203,33 @@ float32e8_t convoy_t::calc_speed_holding_force(float32e8_t speed /* in m/s */, f
 const float32e8_t fl_time_factor = float32e8_t(1, DT_TIME_FACTOR); 
 const float32e8_t fl_slice_seconds = float32e8_t(DT_SLICE_SECONDS, 1);
 
+sint32 convoy_t::calc_min_braking_distance(const weight_summary_t &weight, const float32e8_t &v)
+{
+	// breaking distance: x = 1/2 at². 
+	// with a = v/t, v = at, and v² = a²t² --> x = 1/2 v²/a.
+	// with F = ma, a = F/m --> x = 1/2 v²m/F.
+
+	const float32e8_t vv = v * v; // v in m/s
+	const float32e8_t Frs = g_accel * (adverse.fr * weight.weight_cos + weight.weight_sin); // Frs in N
+	const float32e8_t Fa = sgn(v) * adverse.cf * vv; // Frs in N
+	const float32e8_t f = get_braking_force(weight.weight) + Frs + Fa; // f in N
+	return (weight.weight / 2) * (vv / f); // min braking distance in m
+}
+
+sint32 convoy_t::calc_min_braking_distance(const float32e8_t &simtime_factor, const weight_summary_t &weight, sint32 speed)
+{
+	const float32e8_t x = calc_min_braking_distance(weight, speed_to_v(speed));
+	const sint32 yards = v_to_speed(x / simtime_factor) * DT_TIME_FACTOR;
+	return yards >> YARDS_PER_VEHICLE_STEP_SHIFT;
+}
+
 void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll)
 {
-	if (adverse.max_speed < KMH_SPEED_UNLIMITED)
+	sint32 max_speed = min(adverse.max_speed, vehicle.max_speed);
+	max_speed = kmh_to_speed(max_speed);
+	if (akt_speed_soll > max_speed)
 	{
-		const sint32 speed_limit = kmh_to_speed(adverse.max_speed);
-		if (akt_speed_soll > speed_limit)
-		{
-			akt_speed_soll = speed_limit;
-		}
+		akt_speed_soll = max_speed;
 	}
 
 	if (delta_t > 1800 * DT_TIME_FACTOR)
@@ -228,6 +237,10 @@ void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const 
 		// After 30 minutes any vehicle has reached its akt_speed_soll. 
 		// Shorten the process. 
 		sint32 new_speed = min(akt_speed_soll, kmh_to_speed(calc_max_speed(weight)));
+		if (new_speed > max_speed)
+		{
+			new_speed = max_speed;
+		}
 		sp_soll += (sint32)delta_t * (akt_speed + new_speed) / 2; // assume average speed. Otherwize in case of braking (akt_speed_soll == 0) the convoy won't move at all.
 		akt_speed = new_speed;
 	}
@@ -294,6 +307,7 @@ void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const 
 				f = -get_braking_force(weight.weight) - Frs;
 			}
 			f -= sgn(v) * adverse.cf * v * v;
+			f *= simtime_factor;
 
 			// 2) The "differential equation" part: calculate new speed:
 			uint32 dt;
@@ -328,7 +342,11 @@ void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const 
 			{
 				v = 1;
 			}
-			dx += (v + v0) * float32e8_t::half * dt_s;
+			else if (v > vmax)	
+			{
+				v = vmax;
+			}
+			dx += v * dt_s;
 			delta_t -= dt; // another time slice passed
 		}
 		akt_speed = v_to_speed(v); // akt_speed in simutrans vehicle speed, v in m/s
@@ -336,11 +354,11 @@ void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const 
 	}
 	// BG, 26.09.2011: NOTICE: sp_soll is not a speed, but the number of steps to move. 
 	//  Reducing it to KMH_SPEED_UNLIMITED may have solved a problem once upon a time, but looks weird.
-	if (sp_soll > KMH_SPEED_UNLIMITED)
-	{
-		sp_soll = KMH_SPEED_UNLIMITED;
-	}
-	akt_speed = min(akt_speed, kmh_to_speed(adverse.max_speed));
+	//if (sp_soll > KMH_SPEED_UNLIMITED)
+	//{
+	//	sp_soll = KMH_SPEED_UNLIMITED;
+	//}
+	//akt_speed = min(akt_speed, kmh_to_speed(adverse.max_speed));
 }
 
 /******************************************************************************/

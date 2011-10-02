@@ -314,9 +314,9 @@ protected:
 
 	virtual sint32 get_braking_force(const sint32 weight) 
 	{
-		// Assume that brake force in Kn ~= 1/2 weight in tonnes
-		//return weight / 2;
-		return (get_starting_force() + weight) / 2;
+		// Usual brake deceleration is about -0.5 m/s². 
+		// With F=ma, a = F/m follows that brake force in N is ~= 1/2 weight in kg
+		return weight / 2;
 	}
 public:
 	/**
@@ -340,9 +340,14 @@ public:
 	sint32 calc_max_starting_weight(sint32 sin_alpha);
 
 	/**
-	 * Get the minimum braking distance in m for the convoy with given weight summary at given simutrans speed.
+	 * Get the minimum braking distance in m for the convoy with given weight summary at given speed v in m/s.
 	 */
-	sint32 calc_min_braking_distance(const weight_summary_t &weight, sint32 akt_speed);
+	sint32 calc_min_braking_distance(const weight_summary_t &weight, const float32e8_t &v);
+
+	/**
+	 * Get the minimum braking distance in steps for the convoy with given weight summary at given simutrans speed.
+	 */
+	sint32 calc_min_braking_distance(const float32e8_t &simtime_factor, const weight_summary_t &weight, sint32 speed);
 
 	/** 
 	 * Calculate the movement within delta_t

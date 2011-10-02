@@ -703,6 +703,7 @@ void convoi_t::calc_acceleration(long delta_t)
 	// There it will help to minimize updating convoy summary data.
 	existing_convoy_t convoy(*this);
 	const uint16 meters_per_tile = welt->get_settings().get_meters_per_tile();
+	const float32e8_t simtime_factor = float32e8_t(meters_per_tile, 1000);
 
 	// Dwachs: only compute this if a vehicle in the convoi hopped
 	if (recalc_data) 
@@ -718,13 +719,15 @@ void convoi_t::calc_acceleration(long delta_t)
 	sint32 new_speed_soll = min_top_speed;
 	if (new_speed_soll > vmin)
 	{
-		const sint32 brake_meters = convoy.calc_min_braking_distance(convoy.get_weight_summary(), akt_speed);// * 1000 / meters_per_tile; // in m
+		//const sint32 brake_meters = convoy.calc_min_braking_distance(convoy.get_weight_summary(), speed_to_v(akt_speed));
+		const sint32 brake_steps = convoy.calc_min_braking_distance(simtime_factor, convoy.get_weight_summary(), akt_speed);
 		const vehikel_t &front = *this->front();
 		const uint16 current_route_index = front.get_route_index();
 		const uint16 next_stop_index = get_next_stop_index();
-		const uint32 tile_meters = (((uint32)front.get_steps_next() + 1 - front.get_steps()) * meters_per_tile) / VEHICLE_STEPS_PER_TILE;
-		const uint32 route_meters = (next_stop_index - current_route_index) * meters_per_tile + tile_meters;
-		if (route_meters <= brake_meters)
+		const sint32 route_steps = (uint32)front.get_steps_next() + 1 - front.get_steps() + (next_stop_index - current_route_index) * VEHICLE_STEPS_PER_TILE; 
+		//const uint32 tile_meters = (((uint32)front.get_steps_next() + 1 - front.get_steps()) * meters_per_tile) / VEHICLE_STEPS_PER_TILE;
+		//const uint32 route_meters = (next_stop_index - current_route_index) * meters_per_tile + tile_meters;
+		if (route_steps <= brake_steps)
 		{
 			// Brake for upcoming stop
 			new_speed_soll = vmin;
