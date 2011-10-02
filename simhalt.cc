@@ -643,7 +643,7 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 			slist_iterator_tpl<fabrik_t*> fab_iter(fabs);
 			while (fab_iter.next()) {
 				// with factories
-				buf.printf( fab_base, city_name, translator::translate(fab_iter.get_current()->get_besch()->get_name(),lang), stop );
+				buf.printf( fab_base, city_name, fab_iter.get_current()->get_name(), stop );
 				if(  !all_names.get(buf).is_bound()  ) {
 					return strdup(buf);
 				}

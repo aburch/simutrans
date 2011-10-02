@@ -17,6 +17,7 @@
 #include "../simgraph.h"
 #include "../simcity.h"
 #include "../simwin.h"
+#include "../simmenu.h"
 #include "../player/simplay.h"
 #include "../simworld.h"
 #include "../simskin.h"
@@ -200,7 +201,21 @@ bool fabrik_info_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		set_min_windowsize(koord(TOTAL_WIDTH, 16+offset_below_viewport+BUTTON_HEIGHT+LINESPACE*3));
 		resize( koord(0,(chart_button.pressed ? chart.get_groesse().y : -chart.get_groesse().y) ) );
 	}
-	if(komp == &details_button) {
+	else if(komp == &input) {
+		const char* t = input.get_text();
+		if(  t  &&  t[0]  &&  strcmp(t, fab->get_name())) {
+			// text changed => call tool
+			cbuffer_t buf;
+			buf.printf( "f%s,%s", fab->get_pos().get_str(), t );
+			werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
+			w->set_default_param( buf );
+			karte_t* const welt = fab->get_besitzer()->get_welt();
+			welt->set_werkzeug( w, welt->get_spieler(1));
+			// since init always returns false, it is save to delete immediately
+			delete w;
+		}
+	}
+	else if(komp == &details_button) {
 		help_frame_t * frame = new help_frame_t();
 		char key[256];
 		sprintf(key, "factory_%s_details", fab->get_besch()->get_name());
@@ -220,6 +235,10 @@ bool fabrik_info_t::action_triggered( gui_action_creator_t *komp, value_t v)
 
 void fabrik_info_t::update_info()
 {
+	tstrncpy( fabname, fab->get_name(), lengthof(fabname) );
+	gui_frame_t::set_name( fabname );
+	input.set_text( fabname, lengthof(fabname) );
+
 	cont.remove_all();
 
 	delete [] lieferbuttons;

@@ -327,6 +327,9 @@ private:
 	arrival_statistics_t arrival_stats_pax;
 	arrival_statistics_t arrival_stats_mail;
 
+
+	const char *name;
+
 	/**
 	 * For advancement of slots for boost calculation
 	 * @author Knightly
@@ -439,7 +442,9 @@ public:
 	void step(long delta_t);                  // fabrik muss auch arbeiten
 	void neuer_monat();
 
-	char const* get_name() const { return translator::translate(besch->get_name()); }
+	char const* get_name() const { return name; }
+	void set_name( const char *name );
+
 	sint32 get_kennfarbe() const { return besch->get_kennfarbe(); }
 
 	spieler_t *get_besitzer() const

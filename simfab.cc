@@ -580,6 +580,7 @@ fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
 	power = 0;
 	power_demand = 0;
 	prodfactor_electric = 0;
+	name = NULL;
 
 	rdwr(file);
 
@@ -672,6 +673,9 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 	update_scaled_electric_amount();
 	update_scaled_pax_demand();
 	update_scaled_mail_demand();
+
+	name = NULL;
+	set_name( translator::translate(besch->get_name()) );
 }
 
 
@@ -875,6 +879,19 @@ bool fabrik_t::ist_da_eine(karte_t *welt, koord min_pos, koord max_pos )
 		}
 	}
 	return false;
+}
+
+
+void fabrik_t::set_name(const char *new_name)
+{
+	if(name==NULL  ||  strcmp(name,new_name)) {
+		free( (void *)name );
+		name = strdup( new_name );
+	}
+	fabrik_info_t *win = dynamic_cast<fabrik_info_t*>(win_get_magic((long)this));
+	if (win) {
+		win->update_info();
+	}
 }
 
 
@@ -1129,6 +1146,16 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 	}
 	else if(  file->is_loading()  ) {
 		activity_count = 0;
+	}
+
+	// save name
+	if (file->get_version() >= 110007) {
+		file->rdwr_str(name);
+	}
+	else {
+		if (file->is_loading()) {
+			set_name( translator::translate(besch->get_name()) );
+		}
 	}
 }
 

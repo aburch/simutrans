@@ -51,10 +51,10 @@ class fabrik_info_t : public gui_frame_t, public action_listener_t
 	gui_container_t cont;
 	gui_textarea_t prod, txt;
 
+ public:
 	// refreshes all text and location pointers
 	void update_info();
 
- public:
 	fabrik_info_t(const fabrik_t* fab, const gebaeude_t* gb);
 	virtual ~fabrik_info_t();
 

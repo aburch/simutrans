@@ -5676,10 +5676,10 @@ bool wkz_change_city_t::init( karte_t *welt, spieler_t * )
 
 
 
-/* Handles all action of lines. Needs a default param:
- * [object='c|h|l|m|t'][id|pos],[name]
- * c=convoi, h=halt, l=line,  m=marker, t=town, p=player
- * in case of marker, id is a pos3d string
+/* Handles renaming of ingame entities. Needs a default param:
+ * [object='c|h|l|m|t|p|f'][id|pos],[name]
+ * c=convoi, h=halt, l=line,  m=marker, t=town, p=player, f=factory
+ * in case of marker / factory, id is a pos3d string
  */
 bool wkz_rename_t::init(karte_t* const welt, spieler_t *sp)
 {
@@ -5700,8 +5700,9 @@ bool wkz_rename_t::init(karte_t* const welt, spieler_t *sp)
 			}
 			break;
 		case 'm':
+		case 'f':
 			if(  3!=sscanf( p, "%hi,%hi,%hi", &pos.x, &pos.y, &id )  ) {
-				dbg->error( "wkz_rename_t::init", "no position given for marker! (%s)", default_param );
+				dbg->error( "wkz_rename_t::init", "no position given for marker/factory! (%s)", default_param );
 				return false;
 			}
 			while(  *p>0  &&  *p++!=','  ) {
@@ -5780,6 +5781,18 @@ bool wkz_rename_t::init(karte_t* const welt, spieler_t *sp)
 				welt->get_spieler(id)->set_name(p);
 				return false;
 			}
+
+		case 'f':
+		{
+			if(  grund_t *gr = welt->lookup(pos)  ) {
+				if(  gebaeude_t* gb = gr->find<gebaeude_t>()  ) {
+					if (  fabrik_t *fab = gb->get_fabrik()  ) {
+						fab->set_name(p);
+						return false;
+					}
+				}
+			}
+		}
 	}
 	// we are only getting here, if we could not process this request
 	dbg->error( "wkz_rename_t::init", "could not perform (%s)", default_param );
