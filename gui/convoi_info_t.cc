@@ -44,7 +44,12 @@ static const char cost_type[MAX_CONVOI_COST][64] =
 
 static const int cost_type_color[MAX_CONVOI_COST] =
 {
-	COL_FREE_CAPACITY, COL_TRANSPORTED, COL_REVENUE, COL_OPERATION, COL_PROFIT, COL_DISTANCE
+	COL_FREE_CAPACITY,
+	COL_TRANSPORTED,
+	COL_REVENUE,
+	COL_OPERATION,
+	COL_PROFIT,
+	COL_DISTANCE
 };
 
 static const bool cost_type_money[MAX_CONVOI_COST] =

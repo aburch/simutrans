@@ -51,12 +51,24 @@
 
 static const char *cost_type[MAX_LINE_COST] =
 {
-	"Free Capacity", "Transported", "Revenue", "Operation", "Profit", "Convoys", "Distance"
+	"Free Capacity",
+	"Transported",
+	"Revenue",
+	"Operation",
+	"Profit",
+	"Convoys",
+	"Distance"
 };
 
 const int cost_type_color[MAX_LINE_COST] =
 {
-	COL_FREE_CAPACITY, COL_TRANSPORTED, COL_REVENUE, COL_OPERATION, COL_PROFIT, COL_VEHICLE_ASSETS, COL_DISTANCE
+	COL_FREE_CAPACITY,
+	COL_TRANSPORTED,
+	COL_REVENUE,
+	COL_OPERATION,
+	COL_PROFIT,
+	COL_COUNVOI_COUNT,
+	COL_DISTANCE
 };
 
 static uint8 tabs_to_lineindex[9];

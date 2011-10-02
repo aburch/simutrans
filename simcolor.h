@@ -76,20 +76,27 @@ typedef unsigned char COLOR_VAL;
 #define MONEY_PLUS COL_BLACK
 #define MONEY_MINUS COL_RED
 
-// special chart colors
-#define COL_REVENUE (157)
-#define COL_OPERATION (23)
-#define COL_MAINTENANCE (46)
-#define COL_OPS_PROFIT (215)
-#define COL_NEW_VEHICLES (31)
+// used in many dialogues graphs
+#define COL_REVENUE (141)
+#define COL_OPERATION (132)
+#define COL_MAINTENANCE (134)
+#define COL_TOLL (157)
+#define COL_POWERLINES (46)
+#define COL_OPS_PROFIT (87)
+#define COL_NEW_VEHICLES (79)
 #define COL_CONSTRUCTION (110)
-#define COL_PROFIT (79)
-#define COL_CASH (63)
-#define COL_VEHICLE_ASSETS (55)
-#define COL_WEALTH (131)
-#define COL_MARGIN (122)
-#define COL_TRANSPORTED (141)
-#define COL_FREE_CAPACITY (39)
+#define COL_PROFIT (122)
+#define COL_TRANSPORTED (171)
+
+#define COL_CASH (6)
+#define COL_VEHICLE_ASSETS (63)
+#define COL_MARGIN (175)
+#define COL_WEALTH (95)
+
+#define COL_COUNVOI_COUNT (55)
+#define COL_FREE_CAPACITY (COL_TOLL)
+#define COL_DISTANCE (COL_OPS_PROFIT)
+
 #define COL_CITICENS COL_WHITE
 #define COL_GROWTH (122)
 #define COL_HAPPY COL_WHITE
@@ -98,8 +105,5 @@ typedef unsigned char COLOR_VAL;
 #define COL_WAITING COL_YELLOW
 #define COL_ARRIVED COL_DARK_ORANGE
 #define COL_DEPARTED COL_DARK_YELLOW
-#define COL_TOLL COL_DARK_PURPLE
-#define COL_POWERLINES (87)
-#define COL_DISTANCE (87)
 
 #endif

@@ -53,6 +53,7 @@ const char *money_frame_t::cost_type_name[MAX_PLAYER_COST_BUTTON] =
 	"Net Wealth"
 };
 
+
 const COLOR_VAL money_frame_t::cost_type_color[MAX_PLAYER_COST_BUTTON] =
 {
 	COL_REVENUE,
@@ -85,8 +86,8 @@ const uint8 money_frame_t::cost_type[MAX_PLAYER_COST_BUTTON] =
 	COST_ALL_TRANSPORTED, // all transported goods
 	COST_CASH,          // Cash
 	COST_ASSETS,        // value of all vehicles and buildings
+	COST_MARGIN,        // COST_OPERATING_PROFIT/COST_INCOME
 	COST_NETWEALTH,     // Total Cash + Assets
-	COST_MARGIN        // COST_OPERATING_PROFIT/COST_INCOME
 };
 
 

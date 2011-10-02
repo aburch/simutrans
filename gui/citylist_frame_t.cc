@@ -62,7 +62,7 @@ const uint8 citylist_frame_t::hist_type_color[karte_t::MAX_WORLD_COST] =
 	COL_LIGHT_PURPLE,
 	71 /*COL_GREEN*/,
 	COL_TURQUOISE,
-	COL_POWERLINES,
+	87,
 	COL_LIGHT_BLUE,
 	COL_BLUE,
 	COL_LIGHT_YELLOW,
