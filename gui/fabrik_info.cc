@@ -25,7 +25,7 @@
 #include "../utils/simstring.h"
 
 
-fabrik_info_t::fabrik_info_t(const fabrik_t* fab_, const gebaeude_t* gb) :
+fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	gui_frame_t("", fab_->get_besitzer()),
 	fab(fab_),
 	chart(fab_),
@@ -170,6 +170,10 @@ void fabrik_info_t::zeichnen(koord pos, koord gr)
 		if(  fab->get_besch()->get_mail_boost()  ) {
 			display_color_img( skinverwaltung_t::post->get_bild_nr(0), pos.x + x_prod_pos, pos.y + view.get_pos().y + 20, 0, false, false);
 		}
+	}
+	// name changed?
+	if(  strcmp( fab->get_name(), fabname )!=0  &&  *fabname  ) {
+		fab->set_name( fabname );
 	}
 }
 

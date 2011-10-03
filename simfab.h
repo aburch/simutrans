@@ -453,7 +453,7 @@ public:
 		return p ? p->first_obj()->get_besitzer() : 0;
 	}
 
-	void zeige_info() const;
+	void zeige_info();
 
 	// infostring on production
 	void info_prod(cbuffer_t& buf) const;

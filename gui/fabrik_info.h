@@ -28,7 +28,7 @@ class button_t;
 class fabrik_info_t : public gui_frame_t, public action_listener_t
 {
  private:
-	const fabrik_t* fab;
+	fabrik_t* fab;
 
 	cbuffer_t info_buf, prod_buf;
 
@@ -55,7 +55,7 @@ class fabrik_info_t : public gui_frame_t, public action_listener_t
 	// refreshes all text and location pointers
 	void update_info();
 
-	fabrik_info_t(const fabrik_t* fab, const gebaeude_t* gb);
+	fabrik_info_t(fabrik_t* fab, const gebaeude_t* gb);
 	virtual ~fabrik_info_t();
 
 	/**
