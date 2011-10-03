@@ -589,8 +589,8 @@ void convoi_t::add_running_cost( const weg_t *weg )
 	jahresgewinn += sum_running_costs;
 
 	if(  weg  &&  weg->get_besitzer()!=get_besitzer()  &&  weg->get_besitzer()!=NULL  ) {
-		// running on non-public way costs toll
-		sint32 toll = (sum_running_costs*welt->get_settings().get_way_toll_runningcost_percentage())/100l;
+		// running on non-public way costs toll (since running costas are positive => invert)
+		sint32 toll = -(sum_running_costs*welt->get_settings().get_way_toll_runningcost_percentage())/100l;
 		if(  welt->get_settings().get_way_toll_waycost_percentage()  ) {
 			if(  weg->is_electrified()  &&  needs_electrification()  ) {
 				// toll for using electricity
@@ -608,8 +608,8 @@ void convoi_t::add_running_cost( const weg_t *weg )
 			// now add normal way toll be maintenance
 			toll += (weg->get_besch()->get_wartung()*welt->get_settings().get_way_toll_waycost_percentage())/100l;
 		}
-		weg->get_besitzer()->buche( -toll, COST_WAY_TOLLS );
-		get_besitzer()->buche( toll, COST_WAY_TOLLS );
+		weg->get_besitzer()->buche( toll, COST_WAY_TOLLS );
+		get_besitzer()->buche( -toll, COST_WAY_TOLLS );
 	}
 	get_besitzer()->buche( sum_running_costs, COST_VEHICLE_RUN);
 
