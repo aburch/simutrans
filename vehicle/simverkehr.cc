@@ -763,8 +763,9 @@ bool stadtauto_t::hop_check()
 					}
 					// check, if roadsign forbid next step ...
 					if(w->has_sign()) {
-						const roadsign_besch_t* rs_besch = to->find<roadsign_t>()->get_besch();
-						if(rs_besch->get_min_speed()>besch->get_geschw()  ||  rs_besch->is_private_way()) {
+						const roadsign_t* rs = to->find<roadsign_t>();
+						const roadsign_besch_t* rs_besch = rs->get_besch();
+						if(rs_besch->get_min_speed()>besch->get_geschw()  ||  (rs_besch->is_private_way()  &&  (rs->get_player_mask()&2)==0)  ) {
 							// not allowed to go here
 							ribi &= ~ribi_t::nsow[r];
 							continue;

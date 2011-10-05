@@ -53,6 +53,7 @@
 #include "gui/signal_spacing.h"
 #include "gui/stadt_info.h"
 #include "gui/trafficlight_info.h"
+#include "gui/privatesign_info.h"
 
 #include "dings/zeiger.h"
 #include "dings/bruecke.h"
@@ -3419,6 +3420,11 @@ const char* wkz_roadsign_t::check_pos_intern(karte_t *welt, spieler_t *sp, koord
 			return error;
 		}
 
+		if(  besch->is_private_way()  &&  !ribi_t::ist_gerade(dir)  ) {
+			// only on straight tiles ...
+			return error;
+		}
+
 		const bool two_way = besch->is_single_way()  ||  besch->is_signal() ||  besch->is_pre_signal();
 
 		if(!(besch->is_traffic_light() || two_way)  ||  (two_way  &&  ribi_t::is_twoway(dir))  ||  (besch->is_traffic_light()  &&  ribi_t::is_threeway(dir))) {
@@ -3431,7 +3437,8 @@ const char* wkz_roadsign_t::check_pos_intern(karte_t *welt, spieler_t *sp, koord
 						return "Das Feld gehoert\neinem anderen Spieler\n";
 					}
 				}
-			} else {
+			}
+			else {
 				// if there is already a sign, we might need to inverse the direction
 				rs = gr->find<roadsign_t>();
 				if (rs) {
@@ -5625,7 +5632,7 @@ bool wkz_change_traffic_light_t::init( karte_t *welt, spieler_t *sp )
 	pos.z = (sint8)z;
 	if(  grund_t *gr = welt->lookup(pos)  ) {
 		if( roadsign_t *rs = gr->find<roadsign_t>()  ) {
-			if(  rs->get_besch()->is_traffic_light()  &&  spieler_t::check_owner(rs->get_besitzer(),sp)  ) {
+			if(  (  rs->get_besch()->is_traffic_light()  ||  rs->get_besch()->is_private_way()  )  &&  spieler_t::check_owner(rs->get_besitzer(),sp)  ) {
 				if(  ns == 1  ) {
 					rs->set_ticks_ns( ticks );
 				}
@@ -5636,15 +5643,24 @@ bool wkz_change_traffic_light_t::init( karte_t *welt, spieler_t *sp )
 					rs->set_ticks_offset( ticks );
 				}
 				// update the window
-				trafficlight_info_t* trafficlight_win = (trafficlight_info_t*)win_get_magic((long)rs);
-				if (trafficlight_win) {
-					trafficlight_win->update_data();
+				if(  rs->get_besch()->is_traffic_light()  ) {
+					trafficlight_info_t* trafficlight_win = (trafficlight_info_t*)win_get_magic((long)rs);
+					if (trafficlight_win) {
+						trafficlight_win->update_data();
+					}
+				}
+				else {
+					privatesign_info_t* trafficlight_win = (privatesign_info_t*)win_get_magic((long)rs);
+					if (trafficlight_win) {
+						trafficlight_win->update_data();
+					}
 				}
 			}
 		}
 	}
 	return false;
 }
+
 
 /**
  * change city:

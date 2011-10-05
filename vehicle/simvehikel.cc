@@ -2405,33 +2405,33 @@ bool waggon_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t
 bool waggon_t::ist_befahrbar(const grund_t *bd) const
 {
 	schiene_t const* const sch = ding_cast<schiene_t>(bd->get_weg(get_waytype()));
+	if(  !sch  ) {
+		return false;
+	}
 
 	// Hajo: diesel and steam engines can use electrifed track as well.
 	// also allow driving on foreign tracks ...
 	const bool needs_no_electric = !(cnv!=NULL ? cnv->needs_electrification() : besch->get_engine_type()==vehikel_besch_t::electric);
-	bool ok = (sch!=0)  &&  (needs_no_electric  ||  sch->is_electrified())  &&  (sch->get_max_speed()>0);
-
-	if(!ok) {
+	if(  (!needs_no_electric  &&  !sch->is_electrified())  ||  sch->get_max_speed() == 0  ) {
 		return false;
 	}
 
-	if(  !target_halt.is_bound()  ||  !cnv->is_waiting()  ) {
-		if(sch->has_sign()) {
-			const roadsign_t* rs = bd->find<roadsign_t>();
-			if(  rs->get_besch()->get_wtyp()==get_waytype()  ) {
-				if(  rs->get_besch()->get_min_speed() > 0  &&  rs->get_besch()->get_min_speed() > cnv->get_min_top_speed()  ) {
-					// below speed limit
-					return false;
-				}
-				if(  rs->get_besch()->is_private_way()  &&  (rs->get_player_mask() & (1<<get_player_nr()) ) == 0  ) {
-					// prvate road
-					return false;
-				}
+	// now check for special signs
+	if(sch->has_sign()) {
+		const roadsign_t* rs = bd->find<roadsign_t>();
+		if(  rs->get_besch()->get_wtyp()==get_waytype()  ) {
+			if(  rs->get_besch()->get_min_speed() > 0  &&  rs->get_besch()->get_min_speed() > cnv->get_min_top_speed()  ) {
+				// below speed limit
+				return false;
+			}
+			if(  rs->get_besch()->is_private_way()  &&  (rs->get_player_mask() & (1<<get_player_nr()) ) == 0  ) {
+				// prvate road
+				return false;
 			}
 		}
-		return ok;
 	}
-	else {
+
+	if(  target_halt.is_bound()  &&  cnv->is_waiting()  ) {
 		// we are searching a stop here:
 		// ok, we can go where we already are ...
 		if(bd->get_pos()==get_pos()) {
@@ -2444,16 +2444,14 @@ bool waggon_t::ist_befahrbar(const grund_t *bd) const
 				if(  rs->get_besch()->get_flags() & roadsign_besch_t::END_OF_CHOOSE_AREA  ) {
 					return false;
 				}
-				if(  rs->get_besch()->get_min_speed() > 0  &&  rs->get_besch()->get_min_speed() > cnv->get_min_top_speed()  ) {
-					// below speed limit
-					return false;
-				}
 			}
 		}
 		// but we can only use empty blocks ...
 		// now check, if we could enter here
 		return sch->can_reserve(cnv->self);
 	}
+
+	return true;
 }
 
 

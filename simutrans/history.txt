@@ -24,6 +24,7 @@
 	ADD: new file streetlist_xx.txt will be used for stop names for cities. With one parameter the halt type will be used, with two the city name and the halt type
 	ADD: configurable way toll for using other players way (see simuconf.tab)
 	ADD: renaming of factories
+	ADD: private way sign now blocking for specific players
 
 
 Release of 110.0.1 (r4359 on 12-Mar-2011):
