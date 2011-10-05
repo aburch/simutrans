@@ -766,6 +766,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gui\privatesign_info.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\dataobj\ribi.cc"
 				>
 			</File>
@@ -1883,6 +1887,10 @@
 			</File>
 			<File
 				RelativePath=".\tpl\prioqueue_tpl.h"
+				>
+			</File>
+			<File
+				RelativePath=".\gui\privatesign_info.h"
 				>
 			</File>
 			<File

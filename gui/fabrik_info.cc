@@ -35,6 +35,7 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	txt(&info_buf)
 {
 	lieferbuttons = supplierbuttons = stadtbuttons = NULL;
+	welt = fab->get_besitzer()->get_welt();
 
 	tstrncpy( fabname, fab->get_name(), lengthof(fabname) );
 	gui_frame_t::set_name( fabname );
@@ -93,9 +94,27 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 
 fabrik_info_t::~fabrik_info_t()
 {
+	rename_factory();
+	fabname[0] = 0;
+
 	delete [] lieferbuttons;
 	delete [] supplierbuttons;
 	delete [] stadtbuttons;
+}
+
+
+void fabrik_info_t::rename_factory()
+{
+	if(  fabname[0]  &&  welt->get_fab_list().is_contained(fab)  &&  strcmp(fabname, fab->get_name())  ) {
+		// text changed and factory still exists => call tool
+		cbuffer_t buf;
+		buf.printf( "f%s,%s", fab->get_pos().get_str(), fabname );
+		werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
+		w->set_default_param( buf );
+		welt->set_werkzeug( w, welt->get_spieler(1));
+		// since init always returns false, it is save to delete immediately
+		delete w;
+	}
 }
 
 
@@ -171,10 +190,6 @@ void fabrik_info_t::zeichnen(koord pos, koord gr)
 			display_color_img( skinverwaltung_t::post->get_bild_nr(0), pos.x + x_prod_pos, pos.y + view.get_pos().y + 20, 0, false, false);
 		}
 	}
-	// name changed?
-	if(  strcmp( fab->get_name(), fabname )!=0  &&  *fabname  ) {
-		fab->set_name( fabname );
-	}
 }
 
 
@@ -185,7 +200,7 @@ void fabrik_info_t::zeichnen(koord pos, koord gr)
  * Returns true, if action is done and no more
  * components should be triggered.
  * V.Meyer
-   */
+ */
 bool fabrik_info_t::action_triggered( gui_action_creator_t *komp, value_t v)
 {
 	if(komp == &chart_button) {
@@ -206,18 +221,7 @@ bool fabrik_info_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		resize( koord(0,(chart_button.pressed ? chart.get_groesse().y : -chart.get_groesse().y) ) );
 	}
 	else if(komp == &input) {
-		const char* t = input.get_text();
-		if(  t  &&  t[0]  &&  strcmp(t, fab->get_name())) {
-			// text changed => call tool
-			cbuffer_t buf;
-			buf.printf( "f%s,%s", fab->get_pos().get_str(), t );
-			werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
-			w->set_default_param( buf );
-			karte_t* const welt = fab->get_besitzer()->get_welt();
-			welt->set_werkzeug( w, welt->get_spieler(1));
-			// since init always returns false, it is save to delete immediately
-			delete w;
-		}
+		rename_factory();
 	}
 	else if(komp == &details_button) {
 		help_frame_t * frame = new help_frame_t();
@@ -234,7 +238,6 @@ bool fabrik_info_t::action_triggered( gui_action_creator_t *komp, value_t v)
 
 	return true;
 }
-
 
 
 void fabrik_info_t::update_info()

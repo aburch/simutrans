@@ -62,6 +62,9 @@ public:
 	typ get_typ() const { return roadsign; }
 	const char* get_name() const { return "Roadsign"; }
 
+	// assuming this is a private way sign
+	uint16 get_player_mask() const { return (ticks_ow<<8)|ticks_ns; }
+
 	/**
 	 * waytype associated with this object
 	 */

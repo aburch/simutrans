@@ -54,6 +54,9 @@
 // vector_tpl can be faster for sync_lists
 #define SYNC_VECTOR
 
+// allow minspeed and private way signs on waterways (imho pointless)
+//#define ENABLE_WATERWAY_SIGNS
+
 /*********************** Useful things for debugging ... ********************/
 
 /* will highlite marked areas and convoi will leave traces */

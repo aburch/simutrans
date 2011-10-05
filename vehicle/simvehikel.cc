@@ -1824,7 +1824,11 @@ bool automobil_t::ist_befahrbar(const grund_t *bd) const
 	if(str->has_sign()) {
 		const roadsign_t* rs = bd->find<roadsign_t>();
 		if(rs!=NULL) {
-			if(rs->get_besch()->get_min_speed()>0  &&  rs->get_besch()->get_min_speed()>kmh_to_speed(get_besch()->get_geschw())) {
+			if(  rs->get_besch()->get_min_speed()>0  &&  rs->get_besch()->get_min_speed()>kmh_to_speed(get_besch()->get_geschw())  ) {
+				return false;
+			}
+			if(  rs->get_besch()->is_private_way()  &&  (rs->get_player_mask() & (1<<get_player_nr()) ) == 0  ) {
+				// prvate road
 				return false;
 			}
 			// do not search further for a free stop beyond here
@@ -2407,7 +2411,24 @@ bool waggon_t::ist_befahrbar(const grund_t *bd) const
 	const bool needs_no_electric = !(cnv!=NULL ? cnv->needs_electrification() : besch->get_engine_type()==vehikel_besch_t::electric);
 	bool ok = (sch!=0)  &&  (needs_no_electric  ||  sch->is_electrified())  &&  (sch->get_max_speed()>0);
 
-	if(!ok  ||  !target_halt.is_bound()  ||  !cnv->is_waiting()) {
+	if(!ok) {
+		return false;
+	}
+
+	if(  !target_halt.is_bound()  ||  !cnv->is_waiting()  ) {
+		if(sch->has_sign()) {
+			const roadsign_t* rs = bd->find<roadsign_t>();
+			if(  rs->get_besch()->get_wtyp()==get_waytype()  ) {
+				if(  rs->get_besch()->get_min_speed() > 0  &&  rs->get_besch()->get_min_speed() > cnv->get_min_top_speed()  ) {
+					// below speed limit
+					return false;
+				}
+				if(  rs->get_besch()->is_private_way()  &&  (rs->get_player_mask() & (1<<get_player_nr()) ) == 0  ) {
+					// prvate road
+					return false;
+				}
+			}
+		}
 		return ok;
 	}
 	else {
@@ -2419,8 +2440,14 @@ bool waggon_t::ist_befahrbar(const grund_t *bd) const
 		// we cannot pass an end of choose area
 		if(sch->has_sign()) {
 			const roadsign_t* rs = bd->find<roadsign_t>();
-			if(rs->get_besch()->get_wtyp()==get_waytype()  &&  rs->get_besch()->get_flags()&roadsign_besch_t::END_OF_CHOOSE_AREA) {
-				return false;
+			if(  rs->get_besch()->get_wtyp()==get_waytype()  ) {
+				if(  rs->get_besch()->get_flags() & roadsign_besch_t::END_OF_CHOOSE_AREA  ) {
+					return false;
+				}
+				if(  rs->get_besch()->get_min_speed() > 0  &&  rs->get_besch()->get_min_speed() > cnv->get_min_top_speed()  ) {
+					// below speed limit
+					return false;
+				}
 			}
 		}
 		// but we can only use empty blocks ...
@@ -3078,7 +3105,23 @@ bool schiff_t::ist_befahrbar(const grund_t *bd) const
 	if(  bd->ist_wasser()  ) {
 		return true;
 	}
+	// channel can have more stuff to check
 	const weg_t *w = bd->get_weg(water_wt);
+#if ENABLE_WATERWAY_SIGNS
+	if(  w  &&  w->has_sign()  ) {
+		const roadsign_t* rs = bd->find<roadsign_t>();
+		if(  rs->get_besch()->get_wtyp()==get_waytype()  ) {
+			if(  rs->get_besch()->get_min_speed() > 0  &&  rs->get_besch()->get_min_speed() > cnv->get_min_top_speed()  ) {
+				// below speed limit
+				return false;
+			}
+			if(  rs->get_besch()->is_private_way()  &&  (rs->get_player_mask() & (1<<get_player_nr()) ) == 0  ) {
+				// prvate road
+				return false;
+			}
+		}
+	}
+#endif
 	return (w  &&  w->get_max_speed()>0);
 }
 
