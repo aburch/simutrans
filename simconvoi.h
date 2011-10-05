@@ -687,6 +687,7 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	inline sint32 get_akt_speed() const { return akt_speed; }
+	inline sint32 get_akt_speed_soll() const { return akt_speed_soll; }
 
 	/**
 	 * @return total power of this convoi

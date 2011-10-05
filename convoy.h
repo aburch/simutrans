@@ -277,15 +277,23 @@ private:
 	/**
 	 * Get force in N according to current speed in m/s
 	 */
-	inline sint32 get_force(float32e8_t speed) 
+	inline sint32 get_force(const float32e8_t &speed) 
 	{
 		sint32 v = (sint32)abs(speed);
 		return (v == 0) ? get_starting_force() : get_force_summary(v) * 1000;
 	}
-	/*
+
+	/**
 	 * Get force in N that holds the given speed v or maximum available force, what ever is lesser.
+	 * Ff: air resistance, always > 0
+	 * Frs = Fr + Fs
+	 * Fr: roll resistance, always > 0 
+	 * Fs: slope force/resistance, downhill: Fs < 0 (force), uphill: Fs > 0 (resistance)
 	 */
-	float32e8_t calc_speed_holding_force(float32e8_t speed /* in m/s */, float32e8_t Frs /* in N */); /* in N */
+	inline float32e8_t calc_speed_holding_force(const float32e8_t &speed /* in m/s */, const float32e8_t &Frs /* in N */, const float32e8_t &Ff /* in N */)
+	{
+		return min(get_force(speed) - Frs, Ff); /* in N */
+	}
 protected:
 	vehicle_summary_t vehicle;
 	adverse_summary_t adverse;
