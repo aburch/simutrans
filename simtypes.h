@@ -166,6 +166,16 @@ public:
 		count ++;
 	}
 
+	inline void add_check_overflow_16(T value)
+	{
+		const uint32 new_total = total + value;
+		if(new_total > 65535)
+		{
+			reduce();
+		}
+		add(value);
+	}
+
 	inline T get_average() const
 	{
 		if(count == 0)
@@ -180,6 +190,12 @@ public:
 		total = 0;
 		count = 0;
 	}		
+
+	inline void reduce()
+	{
+		total /= 2;
+		count /= 2;
+	}
 };
 
 struct id_pair

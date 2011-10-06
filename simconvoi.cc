@@ -151,7 +151,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	welt = wl;
 	besitzer_p = sp;
 
-	average_journey_times = new koordhashtable_tpl<id_pair, average_tpl<uint32> >;
+	average_journey_times = new koordhashtable_tpl<id_pair, average_tpl<uint16> >;
 	departure_times = new inthashtable_tpl<uint16, sint64>;
 
 	reset();
@@ -216,7 +216,7 @@ convoi_t::convoi_t(karte_t* wl, loadsave_t* file) : fahr(max_vehicle, NULL)
 	replace = NULL;
 	delete average_journey_times;
 	delete departure_times;
-	average_journey_times = new koordhashtable_tpl<id_pair, average_tpl<uint32> >;
+	average_journey_times = new koordhashtable_tpl<id_pair, average_tpl<uint16> >;
 	departure_times = new inthashtable_tpl<uint16, sint64>;
 	speed_limits = new vector_tpl<sint32>;
 	rdwr(file);
@@ -245,7 +245,7 @@ convoi_t::convoi_t(spieler_t* sp) : fahr(max_vehicle, NULL)
 
 	livery_scheme_index = 0;
 
-	average_journey_times = new koordhashtable_tpl<id_pair, average_tpl<uint32> >;
+	average_journey_times = new koordhashtable_tpl<id_pair, average_tpl<uint16> >;
 	departure_times = new inthashtable_tpl<uint16, sint64>;
 	speed_limits = new vector_tpl<sint32>;
 }
@@ -3354,32 +3354,14 @@ void convoi_t::rdwr(loadsave_t *file)
 			uint32 count = average_journey_times->get_count();
 			file->rdwr_long(count);
 
-			koordhashtable_iterator_tpl<id_pair, average_tpl<uint32> > iter(average_journey_times);
+			koordhashtable_iterator_tpl<id_pair, average_tpl<uint16> > iter(average_journey_times);
 			while(iter.next())
 			{
 				id_pair idp = iter.get_current_key();
 				file->rdwr_short(idp.x);
 				file->rdwr_short(idp.y);
-				if(file->get_experimental_version() >= 11)
-				{
-					file->rdwr_long(iter.access_current_value().count);
-					file->rdwr_long(iter.access_current_value().total);
-				}
-				else
-				{
-					uint16 tmp_count = (uint16)iter.get_current_value().count;
-					uint16 tmp_total;
-					if(iter.get_current_value().total > 65535)
-					{
-						tmp_total = 65535;
-					}
-					else
-					{
-						tmp_total = (uint16)iter.get_current_value().total;
-					}
-					file->rdwr_short(tmp_count);
-					file->rdwr_short(tmp_total);
-				}
+				file->rdwr_short(iter.access_current_value().count);
+				file->rdwr_short(iter.access_current_value().total);
 			}
 		}
 		else
@@ -3392,26 +3374,12 @@ void convoi_t::rdwr(loadsave_t *file)
 				file->rdwr_short(idp.x);
 				file->rdwr_short(idp.y);
 				
-				uint32 count;
-				uint32 total;
-				if(file->get_experimental_version() >= 11)
-				{
-					file->rdwr_long(count);
-					file->rdwr_long(total);
-				}
-				else
-				{
-					uint16 tmp_count = 0;
-					uint16 tmp_total = 0;
-					file->rdwr_short(tmp_count);
-					file->rdwr_short(tmp_total);
+				uint16 count;
+				uint16 total;
+				file->rdwr_short(count);
+				file->rdwr_short(total);				
 
-					count = (uint32)tmp_count;
-					total = (uint32)tmp_total;
-				}
-				
-
-				average_tpl<uint32> average;
+				average_tpl<uint16> average;
 				average.count = count;
 				average.total = total;
 
@@ -3724,7 +3692,7 @@ void convoi_t::laden() //"load" (Babelfish)
 				journey_time = welt->ticks_to_tenths_of_minutes(arrival_time - departure_times->get(pair.x));
 				if(!average_journey_times->is_contained(pair))
 				{
-					average_tpl<uint32> average;
+					average_tpl<uint16> average;
 					average.add(journey_time);
 					id_pair idp;
 					idp.y = pair.y;
@@ -3734,13 +3702,13 @@ void convoi_t::laden() //"load" (Babelfish)
 				}
 				else
 				{
-					average_journey_times->access(pair)->add(journey_time);
+					average_journey_times->access(pair)->add_check_overflow_16(journey_time);
 				}
 				if(line.is_bound())
 				{
 					if(!line->average_journey_times->is_contained(pair))
 					{
-						average_tpl<uint32> average;
+						average_tpl<uint16> average;
 						average.add(journey_time);
 						id_pair idp;
 						idp.y = pair.y;
@@ -3750,7 +3718,7 @@ void convoi_t::laden() //"load" (Babelfish)
 					}
 					else
 					{
-						line->average_journey_times->access(pair)->add(journey_time);
+						line->average_journey_times->access(pair)->add_check_overflow_16(journey_time);
 					}
 				}
 

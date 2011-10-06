@@ -857,7 +857,7 @@ void path_explorer_t::compartment_t::step()
 						new_connexion->waiting_time = halt_list[h]->get_average_waiting_time(halt_list[t], catg);
 						if(current_linkage.line.is_bound())
 						{
-							average_tpl<uint32>* ave = current_linkage.line->average_journey_times->access(id_pair(halt_list[h].get_id(), halt_list[t].get_id()));
+							average_tpl<uint16>* ave = current_linkage.line->average_journey_times->access(id_pair(halt_list[h].get_id(), halt_list[t].get_id()));
 							if(ave && ave->count > 0)
 							{
 								new_connexion->journey_time = ave->get_average();
@@ -873,7 +873,7 @@ void path_explorer_t::compartment_t::step()
 						}
 						else if(current_linkage.convoy.is_bound())
 						{
-							average_tpl<uint32>* ave = current_linkage.convoy->average_journey_times->access(id_pair(halt_list[h].get_id(), halt_list[t].get_id()));
+							average_tpl<uint16>* ave = current_linkage.convoy->average_journey_times->access(id_pair(halt_list[h].get_id(), halt_list[t].get_id()));
 							if(ave && ave->count > 0)
 							{
 								new_connexion->journey_time = ave->get_average();
