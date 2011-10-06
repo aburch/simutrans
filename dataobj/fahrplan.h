@@ -162,6 +162,11 @@ public:
 	// converts this string into a schedule
 	bool sscanf_schedule( const char * );
 
+	/** Checks whetehr the given stop is contained in the schedule
+	 * @author: jamespetts, September 2011
+	 */
+	bool is_contained (koord3d pos);
+
 private:
 	bool abgeschlossen;
 	bool bidirectional;
