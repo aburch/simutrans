@@ -1,0 +1,38 @@
+# Simutranslator settings for Simutrans-Experimental texts
+# Addendum for version 10.0
+#
+# Author: jamespetts
+# Created: April 2011
+#
+obj=program_text
+name=Livery scheme:
+note=Used in the various places where the livery scheme combo box appears to describe it.
+-
+obj=program_text
+name=Avg trip time
+note=Used in the convoy information dialogue to show the average round trip time for that convoy.
+-
+obj=program_text
+name=Loading. %s left!
+note=Used to show the remaining loading time left.
+-
+obj=program_text
+name=Groups:
+note=Used in the replace window as the label for the button to determine the number of convoys to replace at once.
+-
+obj=program_text
+name=on foot)
+note=Used in the halt detail window to show a halt reachable by walking. Note that only a close bracket should be used here.
+-
+obj=program_text
+name=[R]
+note=Used to show that a schedule entry is one after which the convoy must reverse.
+-
+obj=program_text
+name=Reversing. %s left
+note=Shown as a tooltip when vehicles reverse. This is a new version for 10.0, which gives the remaining reversing time.
+-
+obj=program_text
+name=Distance\nComfort\nCatering level\nSpeedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h.
+note=Revised text (now including catering level) shown to explain the various buttons in the goods list window.
+

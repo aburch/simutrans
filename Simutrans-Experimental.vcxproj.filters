@@ -1856,6 +1856,9 @@
     <None Include="base_texts_experimental_10.1.dat">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="base_texts_experimental_braking_branch.dat">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="simres.rc">

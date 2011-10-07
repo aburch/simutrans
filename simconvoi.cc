@@ -701,7 +701,7 @@ void convoi_t::increment_odometer(uint32 steps)
 /* Calculates (and sets) new akt_speed
  * needed for driving, entering and leaving a depot)
  */
-const sint32 vmin = kmh_to_speed(16);
+const sint32 vmin = kmh_to_speed(4);
 void convoi_t::calc_acceleration(long delta_t)
 {
 	// existing_convoy_t is designed to become a part of convoi_t. 
