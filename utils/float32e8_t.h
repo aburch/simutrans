@@ -49,6 +49,7 @@ public:
 	inline float32e8_t(const float32e8_t &value) { m = value.m; e = value.e; ms = value.ms; }
 	inline float32e8_t(const uint32 mantissa, const sint16 exponent, const bool negative_man) { m = mantissa; e = exponent; ms = negative_man; }
 	inline void set_value(const float32e8_t &value) { m = value.m; e = value.e; ms = value.ms; }
+	inline bool is_zero() const { return m == 0L; }
 
 #ifdef USE_DOUBLE
 	inline float32e8_t(const double value) { set_value(value); }
@@ -220,7 +221,7 @@ inline const float32e8_t operator / (const uint64 x, const float32e8_t &y) {retu
 inline const float32e8_t abs(const float32e8_t &x) { return x.abs(); }
 inline const float32e8_t log2(const float32e8_t &x) { return x.log2(); }
 inline const float32e8_t exp2(const float32e8_t &x) { return x.exp2(); }
-inline const float32e8_t pow(const float32e8_t &base, const float32e8_t &expo) { return exp2(expo * base.log2()); }
+inline const float32e8_t pow(const float32e8_t &base, const float32e8_t &expo) { return base.is_zero() ? float32e8_t::zero : exp2(expo * base.log2()); }
 
 class float32e8_exception_t {
 private:

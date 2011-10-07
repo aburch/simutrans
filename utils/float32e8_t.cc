@@ -126,9 +126,9 @@ const float32e8_pair_t & get_pair(int i) { return ld_tbl[i]; }
 
 const float32e8_t float32e8_t::log2() const
 {
-	if (ms)
+	if (ms || m == 0L)
 	{
-		dbg->error("float32e8_t float32e8_t::log2()", "Illegal argument of log2(%.9G): must be >= 0.", to_double());
+		dbg->error("float32e8_t float32e8_t::log2()", "Illegal argument of log2(%.9G): must be > 0.", to_double());
 	}
 	float32e8_t r((sint32)(e - 1L));
 	float32e8_t v(m, 1, false);
