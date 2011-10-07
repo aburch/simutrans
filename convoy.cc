@@ -20,13 +20,10 @@ static const float32e8_t third((uint32) 1, (uint32)  3);
 static const float32e8_t tenth((uint32) 1, (uint32) 10);
 
 static const float32e8_t _101_percent((uint32) 101, (uint32) 100);
+static const float32e8_t _110_percent((uint32) 110, (uint32) 100);
 
 static const float32e8_t milli((uint32) 1, (uint32) 1000);
 static const float32e8_t kilo((uint32) 1000, (uint32) 1);
-
-// some unit conversions:
-static const float32e8_t kmh2ms((uint32) 10, (uint32) 36);
-static const float32e8_t ms2kmh((uint32) 36, (uint32) 10);
 
 // helps to calculate roots. pow fails to calculate roots of negative bases.
 inline const float32e8_t signed_power(const float32e8_t &base, const float32e8_t &expo)
@@ -127,7 +124,6 @@ void freight_summary_t::add_vehicle(const vehikel_besch_t &b)
 
 void weight_summary_t::add_weight(sint32 kgs, sint32 sin_alpha)
 {
-	//sint32 kgs = tons > 0 ? tons * 1000 : 100; // give a minimum weight
 	weight += kgs; 
 	// sin_alpha <-- v.get_frictionfactor() between about -14 (downhill) and 50 (uphill). 
 	// Including the factor 1000 for tons to kg conversion, 50 corresponds to an inclination of 28 per mille.
@@ -140,7 +136,7 @@ void weight_summary_t::add_weight(sint32 kgs, sint32 sin_alpha)
 	//{
 	//	// Below sin_alpha = 200 the deviation from correct result is less than 2%! Noone will ever see the difference,
 	//	// but for the time being, we always save a lot of time skipping this evaluation.
-	//	weight_cos += tons * sqrt(1000000.0 - sin_alpha * sin_alpha); // Remember: sin(alpha)^2 + cos(alpha)^2 = 1
+	//	weight_cos += kgs * sqrt(1000000.0 - sin_alpha * sin_alpha); // Remember: sin(alpha)^2 + cos(alpha)^2 = 1
 	//}
 	//else
 	{			 
@@ -209,7 +205,7 @@ sint32 convoy_t::calc_min_braking_distance(const weight_summary_t &weight, const
 
 sint32 convoy_t::calc_min_braking_distance(const float32e8_t &simtime_factor, const weight_summary_t &weight, sint32 speed)
 {
-	const float32e8_t x = calc_min_braking_distance(weight, speed_to_v(speed));
+	const float32e8_t x = calc_min_braking_distance(weight, speed_to_v(speed)) * _110_percent;
 	const sint32 yards = v_to_speed(x / simtime_factor) * DT_TIME_FACTOR;
 	return yards >> YARDS_PER_VEHICLE_STEP_SHIFT;
 }

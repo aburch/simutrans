@@ -78,22 +78,22 @@ a = (Fm - Frs - cf * v^2) / m
 
 //#define CF_TRACK 0.7 / 2 * 10 * 1.2
 //#define CF_TRACK 4.2
-#define CF_TRACK float32e8_t((uint32) 13)
-#define CF_MAGLEV float32e8_t((uint32) 10)
+static const float32e8_t CF_TRACK = float32e8_t((uint32) 13);
+static const float32e8_t CF_MAGLEV = float32e8_t((uint32) 10);
 //#define CF_ROAD 0.7 / 2 * 6 * 1.2
-#define CF_ROAD float32e8_t((uint32) 252, (uint32) 100)
-#define CF_WATER float32e8_t((uint32) 25)
-#define CF_AIR float32e8_t((uint32)1)
+static const float32e8_t CF_ROAD = float32e8_t((uint32) 252, (uint32) 100);
+static const float32e8_t CF_WATER = float32e8_t((uint32) 25);
+static const float32e8_t CF_AIR = float32e8_t((uint32)1);
 
 // FR_*: constants related to roll resistance
 
 //should be 0.0015, but for game balance it is higher 
 //#define FR_TRACK 0.0015
-#define FR_MAGLEV float32e8_t((uint32) 15, (uint32) 10000)
-#define FR_TRACK float32e8_t((uint32) 51, (uint32) 10000)
-#define FR_ROAD  float32e8_t((uint32) 15, (uint32) 1000)
-#define FR_WATER float32e8_t((uint32) 1, (uint32) 1000)
-#define FR_AIR float32e8_t((uint32) 1, (uint32) 1000)
+static const float32e8_t FR_MAGLEV = float32e8_t((uint32) 15, (uint32) 10000);
+static const float32e8_t FR_TRACK = float32e8_t((uint32) 51, (uint32) 10000);
+static const float32e8_t FR_ROAD = float32e8_t((uint32) 15, (uint32) 1000);
+static const float32e8_t FR_WATER = float32e8_t((uint32) 1, (uint32) 1000);
+static const float32e8_t FR_AIR = float32e8_t((uint32) 1, (uint32) 1000);
 
 // GEAR_FACTOR: a gear of 1.0 is stored as 64
 #define GEAR_FACTOR 64
@@ -103,12 +103,19 @@ a = (Fm - Frs - cf * v^2) / m
 // anything greater than 2097151 will give us overflow in kmh_to_speed. 
 #define KMH_SPEED_UNLIMITED  (300000)
 
-
 /**
- * Convert simutrans speed to m/s
+ * Conversion between km/h and m/s
  */
 
-// scale to convert m/s to simutrans speed
+// scale to convert between km/h and m/s
+static const float32e8_t kmh2ms((uint32) 10, (uint32) 36);
+static const float32e8_t ms2kmh((uint32) 36, (uint32) 10);
+
+/**
+ * Conversion between simutrans speed and m/s
+ */
+
+// scale to convert between simutrans speed and m/s
 const float32e8_t simspeed2ms((uint32) 10, (uint32) 36 * 1024);
 const float32e8_t ms2simspeed((uint32) 36 * 1024, (uint32) 10);
 
@@ -168,6 +175,7 @@ struct adverse_summary_t
 {
 	float32e8_t cf;	// air resistance constant: cf = cw/2 * A * rho. Depends on rho, which depends on altitude.
 	float32e8_t fr;	// roll resistance: depends on way
+	float32e8_t br; // brake force factor
 	sint32 max_speed;
 
 	inline void clear()
@@ -183,30 +191,40 @@ struct adverse_summary_t
 			case air_wt:
 				cf = CF_AIR;
 				fr = FR_AIR;
+				br = float32e8_t(2, 1);
 				break;
 
 			case water_wt:
 				cf = CF_WATER;
 				fr = FR_WATER;
+				br = float32e8_t(1, 10);
 				break;
 		
 			case track_wt:
-			case overheadlines_wt: 
-			case tram_wt:
 			case narrowgauge_wt:
+			case overheadlines_wt: 
+				cf = CF_TRACK;
+				fr = FR_TRACK;
+				br = float32e8_t(1, 2);
+				break;
+
+			case tram_wt:
 			case monorail_wt:      
 				cf = CF_TRACK;
 				fr = FR_TRACK;
+				br = float32e8_t(1, 1);
 				break;
 			
 			case maglev_wt:
 				cf = CF_MAGLEV;
 				fr = FR_MAGLEV;
+				br = float32e8_t(12, 10);
 				break;
 
 			default:
 				cf = CF_ROAD;
 				fr = FR_ROAD;
+				br = float32e8_t(1, 1);
 				break;
 		}
 	}
@@ -299,9 +317,13 @@ protected:
 	adverse_summary_t adverse;
 
 	/**
-	 * get force in kN according to current speed m/s in
+	 * get force in kN according to current speed in m/s
 	 */
 	virtual sint32 get_force_summary(sint32 speed) = 0;
+
+	/**
+	 * get power in kW according to current speed in m/s
+	 */
 	virtual sint32 get_power_summary(sint32 speed) = 0;
 
 	virtual const vehicle_summary_t &get_vehicle_summary() {
@@ -324,7 +346,8 @@ protected:
 	{
 		// Usual brake deceleration is about -0.5 m/s². 
 		// With F=ma, a = F/m follows that brake force in N is ~= 1/2 weight in kg
-		return weight / 2;
+		// TODO: get braking force from vehicles.
+		return adverse.br * weight;
 	}
 public:
 	/**
