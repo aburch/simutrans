@@ -548,6 +548,11 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 	if(  !line.is_bound()  ) {
 		register_stops();
 	}
+
+	for(int i = 0; i < anz_vehikel; i++) 
+	{
+		fahr[i]->remove_stale_freight();
+	}
 }
 
 
@@ -3376,7 +3381,7 @@ void convoi_t::rdwr(loadsave_t *file)
 				uint16 count;
 				uint16 total;
 				file->rdwr_short(count);
-				file->rdwr_short(total);
+				file->rdwr_short(total);				
 
 				average_tpl<uint16> average;
 				average.count = count;
@@ -3701,7 +3706,7 @@ void convoi_t::laden() //"load" (Babelfish)
 				}
 				else
 				{
-					average_journey_times->access(pair)->add(journey_time);
+					average_journey_times->access(pair)->add_check_overflow_16(journey_time);
 				}
 				if(line.is_bound())
 				{
@@ -3717,7 +3722,7 @@ void convoi_t::laden() //"load" (Babelfish)
 					}
 					else
 					{
-						line->average_journey_times->access(pair)->add(journey_time);
+						line->average_journey_times->access(pair)->add_check_overflow_16(journey_time);
 					}
 				}
 
