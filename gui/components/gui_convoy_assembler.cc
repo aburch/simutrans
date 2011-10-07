@@ -566,7 +566,7 @@ void gui_convoy_assembler_t::zeichnen(koord parent_pos)
 	}
 
 	bt_obsolete.pressed = show_retired_vehicles;	// otherwise the button would not show depressed
-	bt_show_all.pressed = show_all;	// otherwise the button would not show depressed
+	bt_show_all.pressed = show_all;					// otherwise the button would not show depressed
 	draw_vehicle_info_text(parent_pos+pos);
 	gui_container_t::zeichnen(parent_pos);
 }

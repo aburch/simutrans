@@ -969,8 +969,12 @@ void haltestelle_t::step()
 					// Only consider for discarding if the goods care about their timings.
 					// Goods/passengers' maximum waiting times are proportionate to the length of the journey.
 					const uint16 base_max_minutes = (welt->get_settings().get_passenger_max_wait() / tmp.get_besch()->get_speed_bonus()) * 10;  // Minutes are recorded in tenths
-					const uint16 thrice_journey = connexions[tmp.get_besch()->get_catg_index()]->get(tmp.get_zwischenziel()) != NULL ? connexions[tmp.get_besch()->get_catg_index()]->get(tmp.get_zwischenziel())->journey_time * 3 : base_max_minutes;
-					const uint16 max_minutes = base_max_minutes < thrice_journey ? base_max_minutes : thrice_journey;
+					halthandle_t h = haltestelle_t::get_halt(welt, tmp.get_zielpos(), besitzer_p);
+					uint16 journey_time = 655535;
+					path_explorer_t::get_catg_path_between(tmp.get_besch()->get_catg_index(), tmp.get_origin(), tmp.get_ziel(), journey_time, h);
+					const uint16 thrice_journey = journey_time * 3;
+					const uint16 min_minutes = base_max_minutes / 8;
+					const uint16 max_minutes = base_max_minutes < thrice_journey ? base_max_minutes : max(thrice_journey, min_minutes);
 
 					const uint16 waiting_minutes = convoi_t::get_waiting_minutes(welt->get_zeit_ms() - tmp.arrival_time);
 					if(waiting_minutes > max_minutes)
@@ -991,8 +995,7 @@ void haltestelle_t::step()
 							if(distance > 0) // No point in calculating refund if passengers/goods are discarded from their origin stop.
 							{
 								// Refund is approximation: 2x distance at standard rate with no adjustments. 
-								sint64 refund_amount = tmp.menge * tmp.get_besch()->get_preis() * distance * 2;
-								refund_amount = (refund_amount + 1500ll) / 3000ll;
+								const sint64 refund_amount = ((tmp.menge * tmp.get_besch()->get_preis() * distance * 2000ll) + 1500ll) / 3000ll;
 								
 								besitzer_p->buche(-refund_amount, get_basis_pos(), COST_INCOME);
 								linehandle_t account_line = get_preferred_line(tmp.get_zwischenziel(), tmp.get_catg());
