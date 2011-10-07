@@ -719,35 +719,39 @@ void convoi_t::calc_acceleration(long delta_t)
 	sint32 new_speed_soll = min_top_speed;
 	if (new_speed_soll > vmin)
 	{
-		//const sint32 brake_meters = convoy.calc_min_braking_distance(convoy.get_weight_summary(), speed_to_v(akt_speed));
-		const sint32 brake_steps = convoy.calc_min_braking_distance(simtime_factor, convoy.get_weight_summary(), akt_speed);
-		const vehikel_t &front = *this->front();
-		const uint16 current_route_index = front.get_route_index();
-		const uint16 next_stop_index = get_next_stop_index();
-		const sint32 route_steps = (uint32)front.get_steps_next() + 1 - front.get_steps() + (next_stop_index - current_route_index) * VEHICLE_STEPS_PER_TILE; 
-		//const uint32 tile_meters = (((uint32)front.get_steps_next() + 1 - front.get_steps()) * meters_per_tile) / VEHICLE_STEPS_PER_TILE;
-		//const uint32 route_meters = (next_stop_index - current_route_index) * meters_per_tile + tile_meters;
-		if (route_steps <= brake_steps)
+		uint16 next_stop_index = get_next_stop_index();
+		if (next_stop_index == 65535u) // BG, 07.10.2011: currently only waggon_t sets next_stop_index. 
 		{
-			// Brake for upcoming stop
-			new_speed_soll = vmin;
+			next_stop_index = route.get_count();
 		}
-		else if (speed_limits && speed_limits->get_count() > 0)
-		{/*
-			// Brake for upcoming speed limit?
-			const uint16 check_until = min(speed_limits->get_count(), (uint16)(max_check_index + 1));
-			for(uint16 i = current_route_index; i < check_until; i++)
+		if (next_stop_index < INVALID_INDEX)
+		{
+			const sint32 brake_steps = convoy.calc_min_braking_distance(simtime_factor, convoy.get_weight_summary(), akt_speed);
+			const vehikel_t &front = *this->front();
+			const uint16 current_route_index = front.get_route_index();
+			const sint32 route_steps = (uint32)front.get_steps_next() + 1 - front.get_steps() + (next_stop_index - current_route_index) * VEHICLE_STEPS_PER_TILE; 
+			if (route_steps <= brake_steps)
 			{
-				const sint32 sl = speed_limits->get_element(i);
-				if(sl < akt_speed && sl < new_speed_soll)
+				// Brake for upcoming stop
+				new_speed_soll = vmin;
+			}
+			else if (speed_limits && speed_limits->get_count() > 0)
+			{/*
+				// Brake for upcoming speed limit?
+				const uint16 check_until = min(speed_limits->get_count(), (uint16)(max_check_index + 1));
+				for(uint16 i = current_route_index; i < check_until; i++)
 				{
-					const uint16 limit_brake_tiles = (brake_distance - (convoy.calc_min_braking_distance(convoy.get_weight_summary(), sl) * 1000 / meters_per_tile)) / meters_per_tile;
-					if(current_route_index + limit_brake_tiles >= i)
+					const sint32 sl = speed_limits->get_element(i);
+					if(sl < akt_speed && sl < new_speed_soll)
 					{
-						new_speed_soll = sl;
+						const uint16 limit_brake_tiles = (brake_distance - (convoy.calc_min_braking_distance(convoy.get_weight_summary(), sl) * 1000 / meters_per_tile)) / meters_per_tile;
+						if(current_route_index + limit_brake_tiles >= i)
+						{
+							new_speed_soll = sl;
+						}
 					}
-				}
-			}*/
+				}*/
+			}
 		}
 	}
 	akt_speed_soll = new_speed_soll;
