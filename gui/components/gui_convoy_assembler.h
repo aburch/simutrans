@@ -97,6 +97,9 @@ class gui_convoy_assembler_t :
 	//gui_label_t lb_upgrade;
 	gui_combobox_t upgrade_selector;
 
+	gui_label_t lb_livery_selector;
+	gui_combobox_t livery_selector;
+
 	vector_tpl<gui_image_list_t::image_data_t> convoi_pics;
 	gui_image_list_t convoi;
 
@@ -117,9 +120,6 @@ class gui_convoy_assembler_t :
 	gui_container_t cont_electrics;
 	gui_container_t cont_loks;
 	gui_container_t cont_waggons;
-
-	gui_label_t lb_livery_selector;
-	gui_combobox_t livery_selector;
 
 	char txt_convoi_count[120];
 	char txt_convoi_speed[120];

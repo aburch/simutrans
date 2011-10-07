@@ -918,8 +918,8 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities sizes");
 	double adjusted_counter = 1;
 	double population;
 	double adjusted_city_size = 2.0 * new_anzahl_staedte;
-	const int division_1 = new_anzahl_staedte / 3.25;
-	const int division_2 = new_anzahl_staedte / 2.5;
+	const unsigned division_1 = new_anzahl_staedte / 3.25;
+	const unsigned division_2 = new_anzahl_staedte / 2.5;
 	for(unsigned i = 0; i < new_anzahl_staedte; i++) 
 	{
 		do {	

@@ -2615,7 +2615,7 @@ void stadt_t::calc_growth()
 	 * (@author: jamespetts)
 	 */
 
-	sint64     const(& h)[MAX_CITY_HISTORY] = city_history_month[0];
+	//unused: sint64     const(& h)[MAX_CITY_HISTORY] = city_history_month[0];
 	settings_t const&  s           = welt->get_settings();
 
 	const uint8 electricity_multiplier = 20;
@@ -3314,7 +3314,7 @@ void stadt_t::step_passagiere()
 
 						// Now, decide whether passengers would prefer to use their private cars,
 						// even though they can travel by public transport.
-						const uint32 distance = shortest_distance(destinations[current_destination].location, origin_pos);			
+						//unused: const uint32 distance = shortest_distance(destinations[current_destination].location, origin_pos);
 						
 						//Weighted random.
 						const uint16 private_car_chance = (uint16)simrand(100, "void stadt_t::step_passagiere() (private car chance?)");
@@ -4491,7 +4491,7 @@ void stadt_t::baue_gebaeude(const koord k, bool new_town)
 
 void stadt_t::erzeuge_verkehrsteilnehmer(koord pos, sint32 /*level*/, koord target)
 {
-	const int verkehr_level =welt->get_settings().get_verkehr_level();
+	//unused: const int verkehr_level =welt->get_settings().get_verkehr_level();
 	//if (verkehr_level > 0 && level % (17 - verkehr_level) == 0) {
 	if((sint32)current_cars.get_count() < number_of_cars)
 	{

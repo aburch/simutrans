@@ -402,8 +402,10 @@ bool translator::load(const string &scenario_path)
 	// now read the scenario specific text
 	// there can be more than one file per language, provided it is name like iso_xyz.tab
 	const string folderName(scenario_path + "text/");
+#ifdef DEBUG
 	int num_pak_lang_dat = folder.search(folderName, "tab");
 	DBG_MESSAGE("translator::load()", "search folder \"%s\" and found %i files", folderName.c_str(), num_pak_lang_dat);
+#endif
 	//read now the basic language infos
 	for (searchfolder_t::const_iterator i = folder.begin(), end = folder.end(); i != end; ++i) {
 		const string fileName(*i);

@@ -3188,7 +3188,7 @@ bool waggon_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t
 			if(weg)
 			{
 				sint32 sl = calc_speed_limit(weg, weg_previous, &corner_data, next_direction, current_direction);
-				const sint32 TEST = speed_to_kmh(sl);
+				//unused: const sint32 TEST = speed_to_kmh(sl);
 				speed_limits->append(sl);
 			}
 			else

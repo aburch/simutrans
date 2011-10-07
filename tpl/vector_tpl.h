@@ -253,23 +253,23 @@ template<class T> class vector_tpl
 			}
 		}
 
-		T& get_element(uint e)
+		T& get_element(uint32 e)
 		{
 			return (*this)[e];
 		}
 		
-		T& operator [](uint i)
+		T& operator [](uint32 i)
 		{
 			if (i >= count) {
-				dbg->fatal("vector_tpl<T>::[]", "%s: index out of bounds: %i not in 0..%d", typeid(T).name(), i, count - 1);
+				dbg->fatal("vector_tpl<T>::[]", "%s: index out of bounds: %lu not in 0..%lu", typeid(T).name(), i, count - 1);
 			}
 			return data[i];
 		}
 
-		const T& operator [](uint i) const
+		const T& operator [](uint32 i) const
 		{
 			if (i >= count) {
-				dbg->fatal("vector_tpl<T>::[]", "%s: index out of bounds: %i not in 0..%d", typeid(T).name(), i, count - 1);
+				dbg->fatal("vector_tpl<T>::[]", "%s: index out of bounds: %lu not in 0..%lu", typeid(T).name(), i, count - 1);
 			}
 			return data[i];
 		}

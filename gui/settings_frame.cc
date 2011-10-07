@@ -34,9 +34,9 @@ settings_frame_t::settings_frame_t(settings_t* const s) :
 	scrolly_economy(&economy),
 	scrolly_routing(&routing),
 	scrolly_costs(&costs),
+	scrolly_climates(&climates),
 	scrolly_exp_general(&exp_general),
-	scrolly_exp_revenue(&exp_revenue),
-	scrolly_climates(&climates)
+	scrolly_exp_revenue(&exp_revenue)
 {
 	revert_to_default.init( button_t::roundbox, "Simuconf.tab", koord( BUTTON1_X, 0), koord( BUTTON_WIDTH, BUTTON_HEIGHT ) );
 	revert_to_default.disable();
