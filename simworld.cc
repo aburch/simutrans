@@ -6653,7 +6653,7 @@ void karte_t::calc_max_road_check_depth()
 	max_road_check_depth = ((uint32)settings.get_max_longdistance_tolerance() * 100) / (settings.get_meters_per_tile() * 6) * min(citycar_speed_average, max_road_speed);
 }
 
-void karte_t::sprintf_ticks(char *p, size_t size, uint32 ticks) const
+void karte_t::sprintf_ticks(char *p, size_t size, sint64 ticks) const
 {
 	uint32 seconds = (uint32)ticks_to_seconds(ticks);
 	sprintf_time(p, size, seconds);
