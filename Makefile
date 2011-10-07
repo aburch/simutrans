@@ -297,6 +297,7 @@ SOURCES += gui/optionen.cc
 SOURCES += gui/pakselector.cc
 SOURCES += gui/password_frame.cc
 SOURCES += gui/player_frame_t.cc
+SOURCES += gui/privatesign_info.cc
 SOURCES += gui/savegame_frame.cc
 SOURCES += gui/scenario_frame.cc
 SOURCES += gui/schedule_list.cc
