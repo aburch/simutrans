@@ -41,8 +41,12 @@ public:
 	static const sint16 max_exponent;
 	static const uint32 max_mantissa;
 	static const float32e8_t zero;
+	static const float32e8_t tenth;
+	static const float32e8_t third;
 	static const float32e8_t half;
 	static const float32e8_t one;
+	static const float32e8_t two;
+	static const float32e8_t three;
 
 	inline float32e8_t() {};
 

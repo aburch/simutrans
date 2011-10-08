@@ -204,9 +204,13 @@ const sint16 float32e8_t::min_exponent = MIN_EXPONENT;
 const sint16 float32e8_t::max_exponent = MAX_EXPONENT;
 const uint32 float32e8_t::max_mantissa = MAX_MANTISSA;
 
-const float32e8_t float32e8_t::zero((uint32)0ul);
-const float32e8_t float32e8_t::half((uint32)1ul, (uint32)2ul);
-const float32e8_t float32e8_t::one((uint32)1ul);
+const float32e8_t float32e8_t::zero((uint32) 0);
+const float32e8_t float32e8_t::tenth((uint32) 1, (uint32) 10);
+const float32e8_t float32e8_t::third((uint32) 1, (uint32)  3);
+const float32e8_t float32e8_t::half((uint32) 1, (uint32) 2);
+const float32e8_t float32e8_t::one((uint32) 1);
+const float32e8_t float32e8_t::two((uint32) 2);
+const float32e8_t float32e8_t::three((uint32) 3);
 
 #ifdef USE_DOUBLE
 void float32e8_t::set_value(const double value)

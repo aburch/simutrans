@@ -349,6 +349,13 @@ protected:
 		// TODO: get braking force from vehicles.
 		return adverse.br * weight;
 	}
+
+	/**
+	 * convert power index into power in W or convert force index into force in N.
+	 * power_index: a value gotten from vehicles (e.g. from get_effective_force_index()/get_effective_power_index()).
+	 * power_factor: the global power factor percentage. Must not be 0!.
+	 */
+	sint32 power_index_to_power(sint32 power_index, sint32 power_factor);
 public:
 	/**
 	 * For calculating max speed at an arbitrary weight apply this result to your weight_summary_t() constructor as param sin_alpha.

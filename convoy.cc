@@ -13,17 +13,17 @@
 #include "bauer/warenbauer.h"
 #include "vehicle/simvehikel.h"
 
-static const float32e8_t g_accel((uint32)980665L, (uint32)100000L); // gravitational acceleration
+static const float32e8_t g_accel((uint32) 980665, (uint32) 100000); // gravitational acceleration
 
-static const float32e8_t  half((uint32) 1, (uint32)  2);
-static const float32e8_t third((uint32) 1, (uint32)  3);
-static const float32e8_t tenth((uint32) 1, (uint32) 10);
+static const float32e8_t  _999_permille((uint32) 999, (uint32) 1000);
+static const float32e8_t _1001_permille((uint32)1001, (uint32) 1000);
 
 static const float32e8_t _101_percent((uint32) 101, (uint32) 100);
 static const float32e8_t _110_percent((uint32) 110, (uint32) 100);
 
 static const float32e8_t milli((uint32) 1, (uint32) 1000);
-static const float32e8_t kilo((uint32) 1000, (uint32) 1);
+//static const float32e8_t thousand((uint32) 1000, (uint32) 1);
+static const float32e8_t million((uint32) 1000000);
 
 // helps to calculate roots. pow fails to calculate roots of negative bases.
 inline const float32e8_t signed_power(const float32e8_t &base, const float32e8_t &expo)
@@ -154,10 +154,10 @@ sint32 convoy_t::calc_max_speed(const weight_summary_t &weight)
 		// this convoy is too heavy to start.
 		return 0;
 	}
-	const float32e8_t p3 =  Frs / (float32e8_t((uint32) 3) * adverse.cf);
-	const float32e8_t q2 = get_continuous_power() / (float32e8_t((uint32) 2) * adverse.cf);
-	const float32e8_t sd = signed_power(q2 * q2 + p3 * p3 * p3, half);;
-	const float32e8_t vmax = signed_power(q2 + sd, third) + signed_power(q2 - sd, third); 
+	const float32e8_t p3 =  Frs / (float32e8_t::three * adverse.cf);
+	const float32e8_t q2 = get_continuous_power() / (float32e8_t::two * adverse.cf);
+	const float32e8_t sd = signed_power(q2 * q2 + p3 * p3 * p3, float32e8_t::half);
+	const float32e8_t vmax = signed_power(q2 + sd, float32e8_t::third) + signed_power(q2 - sd, float32e8_t::third); 
 	return min(vehicle.max_speed, (sint32)(vmax * ms2kmh + float32e8_t::one)); // 1.0 to compensate inaccuracy of calculation and make sure this is at least what calc_move() evaluates.
 }
 
@@ -252,29 +252,29 @@ void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const 
 			// 1) The driver's part: select the force:
 			float32e8_t f;
 			bool is_braking = false; // don't roll backwards, due to braking
-			if (v < float32e8_t((uint32)999, (uint32)1000) * vsoll)
+			if (v < _999_permille * vsoll)
 			{
 				// Below set speed: full acceleration
 				// If set speed is far below the convoy max speed as e.g. aircrafts on ground reduce force.
 				// If set speed is at most a 10th of convoy's maximum, we reduce force to its 10th.
 				f = get_force(v) - Frs;
-				if (f > float32e8_t((uint32)1000000)) // reducing force does not apply to 'weak' convoy's, thus we can save a lot of time skipping this code.
+				if (f > million) // reducing force does not apply to 'weak' convoy's, thus we can save a lot of time skipping this code.
 				{
 					if (speed_ratio == 0) // speed_ratio is a constant within this function. So calculate it once only.
 					{
 						speed_ratio = ms2kmh * vsoll / vehicle.max_speed;
 					}
-					if (speed_ratio < tenth)
+					if (speed_ratio < float32e8_t::tenth)
 					{
 						fvsoll = calc_speed_holding_force(vsoll, Frs, Ff);
 						if (f > fvsoll)
 						{
-							f = (f - fvsoll) * tenth + fvsoll;
+							f = (f - fvsoll) * float32e8_t::tenth + fvsoll;
 						}
 					}
 				}
 			}
-			else if (v < float32e8_t((uint32)1001, (uint32)1000) * vsoll)
+			else if (v < _1001_permille * vsoll)
 			{
 				// at or slightly above set speed: hold this speed
 				if (fvsoll == 0) // fvsoll is a constant within this function. So calculate it once only.
@@ -283,7 +283,7 @@ void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const 
 				}
 				f = fvsoll;
 			}
-			else if (v < float32e8_t((uint32)11, (uint32)10) * vsoll)
+			else if (v < _110_percent * vsoll)
 			{
 				// slightly above set speed: coasting 'til back to set speed.
 				f = -Frs;
@@ -350,6 +350,16 @@ void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const 
 	//akt_speed = min(akt_speed, kmh_to_speed(adverse.max_speed));
 }
 
+sint32 convoy_t::power_index_to_power(sint32 power_index, sint32 power_factor)
+{
+	// avoid integer overflow for large powers
+	if (power_index >= ((sint32)2147483647L) / power_factor)
+	{
+		return ((power_index / 100) * power_factor + GEAR_FACTOR / 2) / GEAR_FACTOR;
+	}
+	return (power_index * power_factor + 50 * GEAR_FACTOR) / (100 * GEAR_FACTOR);
+}
+
 /******************************************************************************/
 
 void potential_convoy_t::update_vehicle_summary(vehicle_summary_t &vehicle)
@@ -397,7 +407,7 @@ sint32 potential_convoy_t::get_force_summary(sint32 speed /* in m/s */)
 	{
 		force += vehicles[i]->get_effective_force_index(speed);
 	}
-	return (force * world.get_settings().get_global_power_factor_percent() + 50 * GEAR_FACTOR) / (100 * GEAR_FACTOR);
+	return power_index_to_power(force, world.get_settings().get_global_power_factor_percent());
 }
 
 
@@ -408,7 +418,7 @@ sint32 potential_convoy_t::get_power_summary(sint32 speed /* in m/s */)
 	{
 		power += vehicles[i]->get_effective_power_index(speed);
 	}
-	return (power * world.get_settings().get_global_power_factor_percent() + 50 * GEAR_FACTOR) / (100 * GEAR_FACTOR);
+	return power_index_to_power(power, world.get_settings().get_global_power_factor_percent());
 }
 
 // Bernd Gabriel, Dec, 25 2009
@@ -485,7 +495,7 @@ sint32 existing_convoy_t::get_force_summary(sint32 speed /* in m/s */)
 	{
 		force += convoy.get_vehikel(i)->get_besch()->get_effective_force_index(speed);
 	}
-	return (force * convoy.get_welt()->get_settings().get_global_power_factor_percent() + 50 * GEAR_FACTOR) / (100 * GEAR_FACTOR);
+	return power_index_to_power(force, convoy.get_welt()->get_settings().get_global_power_factor_percent());
 }
 
 
@@ -496,6 +506,6 @@ sint32 existing_convoy_t::get_power_summary(sint32 speed /* in m/s */)
 	{
 		power += convoy.get_vehikel(i)->get_besch()->get_effective_power_index(speed);
 	}
-	return (power * convoy.get_welt()->get_settings().get_global_power_factor_percent() + 50 * GEAR_FACTOR) / (100 * GEAR_FACTOR);
+	return power_index_to_power(power, convoy.get_welt()->get_settings().get_global_power_factor_percent());
 }
 
