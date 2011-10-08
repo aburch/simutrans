@@ -973,7 +973,7 @@ void haltestelle_t::step()
 					uint16 journey_time = 655535;
 					path_explorer_t::get_catg_path_between(tmp.get_besch()->get_catg_index(), tmp.get_origin(), tmp.get_ziel(), journey_time, h);
 					const uint16 thrice_journey = journey_time * 3;
-					const uint16 min_minutes = base_max_minutes / 8;
+					const uint16 min_minutes = base_max_minutes / 12;
 					const uint16 max_minutes = base_max_minutes < thrice_journey ? base_max_minutes : max(thrice_journey, min_minutes);
  
 
