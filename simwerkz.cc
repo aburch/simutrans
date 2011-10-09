@@ -4784,6 +4784,10 @@ const char *wkz_make_stop_public_t::move( karte_t *welt, spieler_t *sp, uint16, 
 			}
 		}
 		else if(  const grund_t *gr = welt->lookup(p)  ) {
+			if(  gr->get_typ()==grund_t::brueckenboden  ||  gr->get_grund_hang()!=hang_t::flach  ) {
+				// not making ways public on bridges or slopes
+				return "No suitable ground!";
+			}
 			weg_t *w = gr->get_weg_nr(0);
 			// no need for action if already player(1) => XOR ...
 			if(  !(w  &&  (  (w->get_besitzer()==sp)  ^  (sp==welt->get_spieler(1))  ))  ) {
@@ -4793,7 +4797,15 @@ const char *wkz_make_stop_public_t::move( karte_t *welt, spieler_t *sp, uint16, 
 				}
 			}
 			if(  w  ) {
+				// no public way with signs
+				if(  w->has_sign()  ) {
+					return "No suitable ground!";
+				}
 				sint64 costs = w->get_besch()->get_wartung();
+				if(  gr->ist_im_tunnel()  ) {
+					tunnel_t *t = gr->find<tunnel_t>();
+					costs = t->get_besch()->get_wartung();
+				}
 				// set only tooltip if it costs (us)
 				if(costs>0) {
 					win_set_static_tooltip( tooltip_with_price("Building costs estimates", -costs*60 ) );
@@ -4816,6 +4828,10 @@ const char *wkz_make_stop_public_t::work( karte_t *welt, spieler_t *sp, koord3d 
 		weg_t *w = NULL;
 		//convert a way here, if there is no halt or already public halt
 		if(  const grund_t *gr = welt->lookup(p)  ) {
+			if(  gr->get_typ()==grund_t::brueckenboden  ||  gr->get_grund_hang()!=hang_t::flach  ) {
+				// not making ways public on bridges or slopes
+				return "No suitable ground!";
+			}
 			w = gr->get_weg_nr(0);
 			// no need for action if already player(1) => XOR ...
 			if(  !(w  &&  (  (w->get_besitzer()==sp)  ^  (sp==welt->get_spieler(1))  ))  ) {
@@ -4825,13 +4841,33 @@ const char *wkz_make_stop_public_t::work( karte_t *welt, spieler_t *sp, koord3d 
 				}
 			}
 			if(  w  ) {
+				// no public way with signs
+				if(  w->has_sign()  ) {
+					return "No suitable ground!";
+				}
 				// change maintenance and ownership
 				sint64 costs = w->get_besch()->get_wartung();
+				if(  gr->ist_im_tunnel()  ) {
+					tunnel_t *t = gr->find<tunnel_t>();
+					costs = t->get_besch()->get_wartung();
+					t->set_besitzer( welt->get_spieler(1) );
+				}
 				spieler_t::add_maintenance( w->get_besitzer(), -costs );
 				spieler_t::accounting( w->get_besitzer(), -costs*60, gr->get_pos().get_2d(), COST_CONSTRUCTION);
 				w->set_besitzer( welt->get_spieler(1) );
 				w->set_flag(ding_t::dirty);
 				spieler_t::add_maintenance( welt->get_spieler(1), costs );
+				// now search for wayobjects
+				for(  uint8 i=1;  i<gr->get_top();  i++  ) {
+					if(  wayobj_t *wo = ding_cast<wayobj_t>(gr->obj_bei(i))  ) {
+						costs = wo->get_besch()->get_wartung();
+						spieler_t::add_maintenance( wo->get_besitzer(), -costs );
+						spieler_t::accounting( wo->get_besitzer(), -costs*60, gr->get_pos().get_2d(), COST_CONSTRUCTION);
+						wo->set_besitzer( welt->get_spieler(1) );
+						wo->set_flag(ding_t::dirty);
+						spieler_t::add_maintenance( welt->get_spieler(1), costs );
+					}
+				}
 				// and add message
 				if(  sp->get_player_nr()!=1  &&  umgebung_t::networkmode  ) {
 					cbuffer_t buf;

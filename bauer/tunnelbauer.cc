@@ -67,7 +67,6 @@ void tunnelbauer_t::register_besch(tunnel_besch_t *besch)
 }
 
 
-
 // now we have to convert old tunnel to new ones ...
 bool tunnelbauer_t::laden_erfolgreich()
 {
@@ -99,12 +98,10 @@ bool tunnelbauer_t::laden_erfolgreich()
 }
 
 
-
 const tunnel_besch_t *tunnelbauer_t::get_besch(const char *name)
 {
 	return tunnel_by_name.get(name);
 }
-
 
 
 /**
@@ -173,12 +170,10 @@ void tunnelbauer_t::fill_menu(werkzeug_waehler_t* wzw, const waytype_t wtyp, sin
 }
 
 
-
 /* now construction stuff */
 
 
-koord3d
-tunnelbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, waytype_t wegtyp)
+koord3d tunnelbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, waytype_t wegtyp)
 {
 	const grund_t *gr;
 
@@ -230,7 +225,6 @@ tunnelbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, waytype_t wegtyp
 		// Alles frei - weitersuchen
 	}
 }
-
 
 
 const char *tunnelbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, const tunnel_besch_t *besch, bool full_tunnel )
@@ -294,7 +288,6 @@ const char *tunnelbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, const 
 }
 
 
-
 bool tunnelbauer_t::baue_tunnel(karte_t *welt, spieler_t *sp, koord3d start, koord3d end, koord zv, const tunnel_besch_t *besch)
 {
 	ribi_t::ribi ribi;
@@ -339,8 +332,8 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 		tunnel->calc_bild();
 		tunnel->set_flag(grund_t::dirty);
 		assert(!tunnel->ist_karten_boden());
-		spieler_t::add_maintenance( sp,  -weg->get_besch()->get_wartung() );
-		spieler_t::add_maintenance( sp,  besch->get_wartung() );
+		spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung() );
+		spieler_t::add_maintenance( sp, besch->get_wartung() );
 		cost += besch->get_preis();
 		pos = pos + zv;
 	}
@@ -374,7 +367,6 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 	spieler_t::accounting(sp, -cost, start.get_2d(), COST_CONSTRUCTION);
 	return true;
 }
-
 
 
 const weg_besch_t *tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, koord3d end, koord zv, const tunnel_besch_t *besch, const weg_besch_t *weg_besch, int &cost)
@@ -450,10 +442,7 @@ const weg_besch_t *tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, ko
 }
 
 
-
-
-const char *
-tunnelbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d start, waytype_t wegtyp)
+const char *tunnelbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d start, waytype_t wegtyp)
 {
 	marker_t    marker(welt->get_groesse_x(),welt->get_groesse_y());
 	slist_tpl<koord3d>  end_list;
