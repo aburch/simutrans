@@ -11,10 +11,6 @@ endif
 CFLAGS += -DNETTOOL
 CXXFLAGS += -DNETTOOL
 
-# Curses needed for password non-echo
-CFLAGS += -lcurses
-CXXFLAGS += -lcurses
-
 ifeq ($(OSTYPE),cygwin)
   OS_INC   ?= -I/usr/include/mingw
   OS_OPT   ?= -mwin32
