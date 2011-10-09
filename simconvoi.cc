@@ -3629,26 +3629,28 @@ void convoi_t::laden() //"load" (Babelfish)
 
 			const uint8 starting_stop = current_stop;
 
+			id_pair idp;
+			idp.y = pair.y;
+			idp.x = pair.x;
+
 			do
 			{			
 				// Book the journey times from all origins served by this convoy,
 				// and for which data are available, to this destination.
 
-				if(!departure_times->is_contained(pair.x))
+				if(!departure_times->is_contained(idp.x))
 				{
 					fpl->increment_index(&current_stop, &reverse);
 					pair.x = welt->lookup(fpl->eintrag[current_stop].pos)->get_halt().get_id();
+					idp.x = pair.x;
 					continue;
 				}
 
 				journey_time = welt->ticks_to_tenths_of_minutes(arrival_time - departure_times->get(pair.x));
-				if(!average_journey_times->is_contained(pair))
+				if(!average_journey_times->is_contained(idp))
 				{
 					average_tpl<uint16> average;
 					average.add(journey_time);
-					id_pair idp;
-					idp.y = pair.y;
-					idp.x = pair.x;
 					average_journey_times->put(idp, average);
 					/*average_journey_times->put(pair, average);*/
 				}
@@ -3658,26 +3660,24 @@ void convoi_t::laden() //"load" (Babelfish)
 				}
 				if(line.is_bound())
 				{
-					if(!line->average_journey_times->is_contained(pair))
+					if(!line->average_journey_times->is_contained(idp))
 					{
 						average_tpl<uint16> average;
 						average.add(journey_time);
-						id_pair idp;
-						idp.y = pair.y;
-						idp.x = pair.x;
 						line->average_journey_times->put(idp, average);
 						/*line->average_journey_times->put(pair, average);*/
 					}
 					else
 					{
-						line->average_journey_times->access(pair)->add_check_overflow_16(journey_time);
+						line->average_journey_times->access(idp)->add_check_overflow_16(journey_time);
 					}
 				}
 
 				fpl->increment_index(&current_stop, &reverse);
 				pair.x = welt->lookup(fpl->eintrag[current_stop].pos)->get_halt().get_id();
+				idp.x = pair.x;
 			}
-			while(starting_stop != current_stop && pair.x != pair.y);
+			while(starting_stop != current_stop && idp.x != idp.y);
 		}
 	}
 
