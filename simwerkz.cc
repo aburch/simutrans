@@ -2191,7 +2191,6 @@ uint8 wkz_wayremover_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord3
 	return 2;
 }
 
-
 bool wkz_wayremover_t::calc_route( route_t &verbindung, spieler_t *sp, const koord3d &start, const koord3d &end )
 {
 	waytype_t wt = (waytype_t)atoi(default_param);
