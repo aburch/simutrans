@@ -64,6 +64,7 @@ ifeq ($(OSTYPE),mingw)
   CFLAGS  += -mno-cygwin -DPNG_STATIC -DZLIB_STATIC -march=pentium
   ifeq ($(BACKEND),gdi)
     LIBS += -lunicows
+    LDFLAGS +=  -mwindows
   endif
   LIBS += -lmingw32 -lgdi32 -lwinmm -lwsock32 -lz -lbz2
 endif
