@@ -396,6 +396,10 @@ private:
 	bool drive_on_left;
 	bool signals_on_left;
 
+	// fraction of running costs charged for going on other players way
+	sint32 way_toll_runningcost_percentage;
+	sint32 way_toll_waycost_percentage;
+
 public:
 	/* the big cost section */
 	sint32 maint_building;	// normal building
@@ -855,6 +859,9 @@ public:
 
 	uint16 get_min_wait_airport() const { return min_wait_airport; }
 	void set_min_wait_airport(uint16 value) { min_wait_airport = value; }
+
+	sint32 get_way_toll_runningcost_percentage() const { return way_toll_runningcost_percentage; }
+	sint32 get_way_toll_waycost_percentage() const { return way_toll_waycost_percentage; }
 };
 
 #endif 

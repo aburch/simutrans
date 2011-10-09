@@ -63,12 +63,14 @@ void building_reader_t::register_obj(obj_besch_t *&data)
 	haus_besch_t *besch = static_cast<haus_besch_t *>(data);
 
 	if(  besch->utype == haus_besch_t::fabrik  ) {
-		// this stuff is just for compatibility
-		if(  strcmp("Oelbohrinsel",besch->get_name())==0  ) {
-			besch->enables = 1|2|4;
-		}
-		else if(  strcmp("fish_swarm",besch->get_name())==0  ) {
-			besch->enables = 4;
+		if(  besch->enables == 0  ) {
+			// this stuff is just for compatibility
+			if(  strcmp("Oelbohrinsel",besch->get_name())==0  ) {
+				besch->enables = 1|2|4;
+			}
+			else if(  strcmp("fish_swarm",besch->get_name())==0  ) {
+				besch->enables = 4;
+			}
 		}
 	}
 
@@ -215,8 +217,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	// value so that simhalt.cc can detect when they need to be set properly.
 	besch->station_maintenance = 2147483647; 
 	besch->station_price = 2147483647;
-
-	if(version == 5) 
+	if(version == 5  ||  version == 6) 
 	{
 		// Versioned node, version 5
 		// animation intergvall in ms added
@@ -392,15 +393,21 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	besch->scaled_station_price = besch->station_price;
 
 	// correct old station buildings ...
+
 	if(besch->level > 32767 && besch->utype == haus_besch_t::depot)
 	{
 		besch->level = experimental_version > 0 ? 1 : 4;
 	}
-	else if(besch->level > 32767 && (besch->utype >= haus_besch_t::bahnhof || besch->utype == haus_besch_t::fabrik)) 
+	else if((besch->level > 32767 && (besch->utype >= haus_besch_t::bahnhof || besch->utype == haus_besch_t::fabrik)) || version<=3  &&  (besch->utype >= haus_besch_t::bahnhof  ||  besch->utype == haus_besch_t::fabrik  ||  besch->utype == haus_besch_t::depot)  &&  besch->level==0)
 	{
 		DBG_DEBUG("building_reader_t::read_node()","old station building -> set level to 4");
 		besch->level = 4;
 	}
+	else if(  version<=5  &&  (besch->utype == haus_besch_t::fabrik  ||  besch->utype == haus_besch_t::depot)  ) {
+		besch->level ++;
+		DBG_DEBUG("building_reader_t::read_node()","old station building -> increment level by one to %i", besch->level );
+	}
+
 
 	if (besch->level == 65535) {
 		besch->level = 0;	// apparently wrong level

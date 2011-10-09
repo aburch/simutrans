@@ -53,12 +53,28 @@ uint16 schedule_list_gui_t::livery_scheme_index = 0;
 
 static const char *cost_type[MAX_LINE_COST] =
 {
-	"Free Capacity", "Transported", "Average speed", "Comfort", "Revenue", "Operation", "Profit", "Convoys", "Distance", "Refunds"
+	"Free Capacity",
+	"Transported",
+	"Average speed",
+	"Comfort",
+	"Revenue", 
+	"Operation",
+	"Profit",
+	"Convoys",
+	"Distance",
+	"Refunds"
 };
 
 const int cost_type_color[MAX_LINE_COST] =
 {
-	COL_FREE_CAPACITY, COL_TRANSPORTED, COL_AVERAGE_SPEED, COL_COMFORT, COL_REVENUE, COL_OPERATION, COL_PROFIT, COL_VEHICLE_ASSETS, COL_DISTANCE, COL_LIGHT_RED
+	COL_FREE_CAPACITY, 
+	COL_TRANSPORTED, 
+	COL_AVERAGE_SPEED, COL_COMFORT, 
+	COL_REVENUE, COL_OPERATION, 
+	COL_PROFIT,
+	COL_VEHICLE_ASSETS, 
+	COL_DISTANCE, 
+	COL_LIGHT_RED
 };
  
 static uint8 tabs_to_lineindex[8];

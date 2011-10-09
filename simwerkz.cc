@@ -54,6 +54,7 @@
 #include "gui/signal_spacing.h"
 #include "gui/stadt_info.h"
 #include "gui/trafficlight_info.h"
+#include "gui/privatesign_info.h"
 
 #include "dings/zeiger.h"
 #include "dings/bruecke.h"
@@ -2975,7 +2976,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 	if(sp!=halt->get_besitzer()  &&  halt->get_besitzer()==welt->get_spieler(1)) 
 	{
 		// public stops are expensive!
-		cost -= (s.maint_building * factor * 60) << (welt->ticks_per_world_month_shift - 18);
+		cost -= (s.maint_building * factor * 60);
 	}
 
 	if(!sp->can_afford(cost))
@@ -3162,7 +3163,9 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.
 		{
 			maint = besch->get_station_maintenance();
 		}
-		costs -= welt->calc_adjusted_monthly_figure(maint * 60);
+
+		costs -= (maint * 60);
+
 	}
 	for(int i=0;  i<=len;  i++ ) {
 		koord p=pos-dx*i;
@@ -3399,11 +3402,11 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 		// public stops are expensive!
 		if(besch->get_base_station_price() != 2147483647)
 		{
-			cost -= welt->calc_adjusted_monthly_figure(cost * 60);
+			cost -= cost * 60;
 		}
 		else
 		{
-			cost -= welt->calc_adjusted_monthly_figure(welt->get_settings().maint_building * besch->get_level() * besch->get_b() * besch->get_h() * 60);
+			cost -= welt->get_settings().maint_building * besch->get_level() * besch->get_b() * besch->get_h() * 60;
 		}
 	}
 
@@ -3779,6 +3782,11 @@ const char* wkz_roadsign_t::check_pos_intern(karte_t *welt, spieler_t *sp, koord
 			return error;
 		}
 
+		if(  besch->is_private_way()  &&  !ribi_t::ist_gerade(dir)  ) {
+			// only on straight tiles ...
+			return error;
+		}
+
 		const bool two_way = besch->is_single_way()  ||  besch->is_signal() ||  besch->is_pre_signal();
 
 		if(!(besch->is_traffic_light() || two_way)  ||  (two_way  &&  ribi_t::is_twoway(dir))  ||  (besch->is_traffic_light()  &&  ribi_t::is_threeway(dir))) {
@@ -3791,7 +3799,8 @@ const char* wkz_roadsign_t::check_pos_intern(karte_t *welt, spieler_t *sp, koord
 						return "Das Feld gehoert\neinem anderen Spieler\n";
 					}
 				}
-			} else {
+			}
+			else {
 				// if there is already a sign, we might need to inverse the direction
 				rs = gr->find<roadsign_t>();
 				if (rs) {
@@ -5185,7 +5194,8 @@ bool wkz_make_stop_public_t::init( karte_t *, spieler_t * )
 
 const char *wkz_make_stop_public_t::get_tooltip(const spieler_t *sp) const 
 {
-	sint32 const cost = sp->get_welt()->calc_adjusted_monthly_figure(sp->get_welt()->get_settings().maint_building * 60) / 100;
+	sint32 const cost = (sp->get_welt()->get_settings().maint_building * 60) / 100;
+
 	sprintf(toolstr, translator::translate("make stop public (or join with public stop next) costs %i per tile and level"), cost);
 	return toolstr;
 }
@@ -5200,8 +5210,30 @@ const char *wkz_make_stop_public_t::move( karte_t *welt, spieler_t *sp, uint16, 
 			sint64 costs = halt->calc_maintenance();
 			// set tooltip only if it costs (us)
 			if(costs>0) {
-				win_set_static_tooltip( tooltip_with_price("Building costs estimates", -welt->calc_adjusted_monthly_figure(costs*60)));
+				win_set_static_tooltip( tooltip_with_price("Building costs estimates", -costs*60));
 			}
+		}
+		else if(  const grund_t *gr = welt->lookup(p)  ) {
+			weg_t *w = gr->get_weg_nr(0);
+			// no need for action if already player(1) => XOR ...
+			if(  !(w  &&  (  (w->get_besitzer()==sp)  ^  (sp==welt->get_spieler(1))  ))  ) {
+				w = gr->get_weg_nr(1);
+				if(  !(w  &&  (  (w->get_besitzer()==sp)  ^  (sp==welt->get_spieler(1))  ))  ) {
+					w = NULL;
+				}
+			}
+			if(  w  ) {
+				sint64 costs = w->get_besch()->get_wartung();
+				// set only tooltip if it costs (us)
+				if(costs>0) {
+					win_set_static_tooltip( tooltip_with_price("Building costs estimates", -costs*60 ) );
+				}
+
+			}
+		}
+		else {
+			// boing ...
+			return "";
 		}
 	}
 	return NULL;
@@ -5210,9 +5242,37 @@ const char *wkz_make_stop_public_t::move( karte_t *welt, spieler_t *sp, uint16, 
 const char *wkz_make_stop_public_t::work( karte_t *welt, spieler_t *sp, koord3d p )
 {
 	const planquadrat_t *pl = welt->lookup(p.get_2d());
-	if(!pl  ||  !pl->get_halt().is_bound()) 
-	{
-		return "No stop here!";
+	if(  !pl  ||  !pl->get_halt().is_bound()  ||  pl->get_halt()->get_besitzer()==welt->get_spieler(1)  ) {
+		weg_t *w = NULL;
+		//convert a way here, if there is no halt or already public halt
+		if(  const grund_t *gr = welt->lookup(p)  ) {
+			w = gr->get_weg_nr(0);
+			// no need for action if already player(1) => XOR ...
+			if(  !(w  &&  (  (w->get_besitzer()==sp)  ^  (sp==welt->get_spieler(1))  ))  ) {
+				w = gr->get_weg_nr(1);
+				if(  !(w  &&  (  (w->get_besitzer()==sp)  ^  (sp==welt->get_spieler(1))  ))  ) {
+					w = NULL;
+				}
+			}
+			if(  w  ) {
+				// change maintenance and ownership
+				sint64 costs = w->get_besch()->get_wartung();
+				spieler_t::add_maintenance( w->get_besitzer(), -costs );
+				spieler_t::accounting( w->get_besitzer(), -costs*60, gr->get_pos().get_2d(), COST_CONSTRUCTION);
+				w->set_besitzer( welt->get_spieler(1) );
+				w->set_flag(ding_t::dirty);
+				spieler_t::add_maintenance( welt->get_spieler(1), costs );
+				// and add message
+				if(  sp->get_player_nr()!=1  &&  umgebung_t::networkmode  ) {
+					cbuffer_t buf;
+					buf.printf( translator::translate("(%s) now public way."), w->get_pos().get_str() );
+					welt->get_message()->add_message( buf, w->get_pos().get_2d(), message_t::ai, PLAYER_FLAG|sp->get_player_nr(), IMG_LEER );
+				}
+			}
+		}
+		if(  w==NULL  ) {
+			return "No stop here!";
+		}
 	}
 	else 
 	{
@@ -6125,7 +6185,7 @@ bool wkz_change_traffic_light_t::init( karte_t *welt, spieler_t *sp )
 	pos.z = (sint8)z;
 	if(  grund_t *gr = welt->lookup(pos)  ) {
 		if( roadsign_t *rs = gr->find<roadsign_t>()  ) {
-			if(  rs->get_besch()->is_traffic_light()  &&  spieler_t::check_owner(rs->get_besitzer(),sp)  ) {
+			if(  (  rs->get_besch()->is_traffic_light()  ||  rs->get_besch()->is_private_way()  )  &&  spieler_t::check_owner(rs->get_besitzer(),sp)  ) {
 				if(  ns == 1  ) {
 					rs->set_ticks_ns( ticks );
 				}
@@ -6136,15 +6196,24 @@ bool wkz_change_traffic_light_t::init( karte_t *welt, spieler_t *sp )
 					rs->set_ticks_offset( ticks );
 				}
 				// update the window
-				trafficlight_info_t* trafficlight_win = (trafficlight_info_t*)win_get_magic((long)rs);
-				if (trafficlight_win) {
-					trafficlight_win->update_data();
+				if(  rs->get_besch()->is_traffic_light()  ) {
+					trafficlight_info_t* trafficlight_win = (trafficlight_info_t*)win_get_magic((long)rs);
+					if (trafficlight_win) {
+						trafficlight_win->update_data();
+					}
+				}
+				else {
+					privatesign_info_t* trafficlight_win = (privatesign_info_t*)win_get_magic((long)rs);
+					if (trafficlight_win) {
+						trafficlight_win->update_data();
+					}
 				}
 			}
 		}
 	}
 	return false;
 }
+
 
 /**
  * change city:
@@ -6176,10 +6245,10 @@ bool wkz_change_city_t::init( karte_t *welt, spieler_t * )
 
 
 
-/* Handles all action of lines. Needs a default param:
- * [object='c|h|l|m|t'][id|pos],[name]
- * c=convoi, h=halt, l=line,  m=marker, t=town, p=player
- * in case of marker, id is a pos3d string
+/* Handles renaming of ingame entities. Needs a default param:
+ * [object='c|h|l|m|t|p|f'][id|pos],[name]
+ * c=convoi, h=halt, l=line,  m=marker, t=town, p=player, f=factory
+ * in case of marker / factory, id is a pos3d string
  */
 bool wkz_rename_t::init(karte_t* const welt, spieler_t *sp)
 {
@@ -6200,8 +6269,9 @@ bool wkz_rename_t::init(karte_t* const welt, spieler_t *sp)
 			}
 			break;
 		case 'm':
+		case 'f':
 			if(  3!=sscanf( p, "%hi,%hi,%hi", &pos.x, &pos.y, &id )  ) {
-				dbg->error( "wkz_rename_t::init", "no position given for marker! (%s)", default_param );
+				dbg->error( "wkz_rename_t::init", "no position given for marker/factory! (%s)", default_param );
 				return false;
 			}
 			while(  *p>0  &&  *p++!=','  ) {
@@ -6280,6 +6350,18 @@ bool wkz_rename_t::init(karte_t* const welt, spieler_t *sp)
 				welt->get_spieler(id)->set_name(p);
 				return false;
 			}
+
+		case 'f':
+		{
+			if(  grund_t *gr = welt->lookup(pos)  ) {
+				if(  gebaeude_t* gb = gr->find<gebaeude_t>()  ) {
+					if (  fabrik_t *fab = gb->get_fabrik()  ) {
+						fab->set_name(p);
+						return false;
+					}
+				}
+			}
+		}
 	}
 	// we are only getting here, if we could not process this request
 	dbg->error( "wkz_rename_t::init", "could not perform (%s)", default_param );

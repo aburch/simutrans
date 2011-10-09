@@ -213,7 +213,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		enables |= 4;
 	}
 
-	if(  utype==haus_besch_t::generic_extension  ||  utype==haus_besch_t::generic_stop  ||  utype==haus_besch_t::hafen  ||  utype==haus_besch_t::depot  ) {
+	if(  utype==haus_besch_t::generic_extension  ||  utype==haus_besch_t::generic_stop  ||  utype==haus_besch_t::hafen  ||  utype==haus_besch_t::depot  ||  utype==haus_besch_t::fabrik  ) {
 		// since elevel was reduced by one beforehand ...
 		++level;
 	}
@@ -352,7 +352,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		}
 	}
 
-	uint16 version = 0x8005;
+	uint16 version = 0x8006;
 	
 	// This is the overlay flag for Simutrans-Experimental
 	// This sets the *second* highest bit to 1. 

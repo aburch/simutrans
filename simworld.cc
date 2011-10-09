@@ -6076,7 +6076,7 @@ static void encode_URI(cbuffer_t& buf, char const* const text)
 			char const two[] = { c, '\0' };
 			buf.append(two);
 		} else {
-			buf.printf("%02X", (unsigned char)c);
+			buf.printf("%%%02X", (unsigned char)c);
 		}
 	}
 }
@@ -6615,6 +6615,11 @@ sint32 karte_t::calc_generic_road_speed(const weg_besch_t* besch)
 		{
 			speed_average = road_speed_limit;
 		}
+	}
+
+	if(speed_average == 0)
+	{
+		speed_average = 1;
 	}
 	
 	return ((6 * 15) * settings.get_meters_per_tile()) /  (speed_average * 100);

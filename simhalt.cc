@@ -722,7 +722,7 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 			slist_iterator_tpl<fabrik_t*> fab_iter(fabs);
 			while (fab_iter.next()) {
 				// with factories
-				buf.printf( fab_base, city_name, translator::translate(fab_iter.get_current()->get_besch()->get_name(),lang), stop );
+				buf.printf( fab_base, city_name, fab_iter.get_current()->get_name(), stop );
 				if(  !all_names.get(buf).is_bound()  ) {
 					return strdup(buf);
 				}
@@ -2153,7 +2153,7 @@ bool haltestelle_t::make_public_and_join( spieler_t *sp )
 			}
 		}
 		// transfer ownership
-		spieler_t::accounting( sp, -(welt->calc_adjusted_monthly_figure(total_costs*60)), get_basis_pos(), COST_CONSTRUCTION);
+		spieler_t::accounting( sp, -total_costs*60, get_basis_pos(), COST_CONSTRUCTION);
 		besitzer_p->halt_remove(self);
 		besitzer_p = public_owner;
 		public_owner->halt_add(self);
@@ -2201,7 +2201,7 @@ bool haltestelle_t::make_public_and_join( spieler_t *sp )
 					}
 					
 					spieler_t::add_maintenance( gb_sp, -costs );
-					spieler_t::accounting(gb_sp, -(welt->calc_adjusted_monthly_figure(costs*60)), gr->get_pos().get_2d(), COST_CONSTRUCTION);
+					spieler_t::accounting(gb_sp, costs*60, gr->get_pos().get_2d(), COST_CONSTRUCTION);
 					gb->set_besitzer(public_owner);
 					gb->set_flag(ding_t::dirty);
 					spieler_t::add_maintenance(public_owner, costs );

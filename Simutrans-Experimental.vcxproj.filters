@@ -771,6 +771,9 @@
     <ClCompile Include="besch\reader\imagelist3d_reader.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="gui\privatesign_info.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gui\components\action_listener.h">
@@ -1778,6 +1781,9 @@
     <ClInclude Include="besch\reader\imagelist3d_reader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="gui\privatesign_info.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="base_texts_experimental.dat">
@@ -1854,6 +1860,9 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="base_texts_experimental_10.1.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="base_texts_experimental_10.2.dat">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

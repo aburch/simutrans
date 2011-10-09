@@ -2568,7 +2568,13 @@ bool automobil_t::ist_befahrbar(const grund_t *bd) const
 	if(str->has_sign()) {
 		const roadsign_t* rs = bd->find<roadsign_t>();
 		if(rs!=NULL) {
-			if(get_besch() && rs->get_besch()->get_min_speed()>0  &&  rs->get_besch()->get_min_speed()>kmh_to_speed(get_besch()->get_geschw())) {
+			if(get_besch() && rs->get_besch()->get_min_speed()>0  &&  rs->get_besch()->get_min_speed()>kmh_to_speed(get_besch()->get_geschw())  ) 
+			{
+				return false;
+			}
+			if(get_besch() &&  rs->get_besch()->is_private_way()  &&  (rs->get_player_mask() & (1<<get_player_nr()) ) == 0  ) 
+			{
+				// prvate road
 				return false;
 			}
 			// do not search further for a free stop beyond here
@@ -3180,20 +3186,35 @@ bool waggon_t::ist_befahrbar(const grund_t *bd) const
 {
 	if(!bd) return false;
 	schiene_t const* const sch = ding_cast<schiene_t>(bd->get_weg(get_waytype()));
+	if(  !sch  ) {
+		return false;
+	}
 
 	// Hajo: diesel and steam engines can use electrifed track as well.
 	// also allow driving on foreign tracks ...
 	const bool needs_no_electric = !(cnv!=NULL ? cnv->needs_electrification() : besch->get_engine_type() == vehikel_besch_t::electric);
 	
-	const bool ok = sch && (needs_no_electric || sch->is_electrified()) &&  (sch->get_max_speed() > 0 && check_way_constraints(*sch));
-	
-
-	if(!ok || !target_halt.is_bound() || !cnv->is_waiting()) 
+	if((!needs_no_electric  &&  !sch->is_electrified())  ||  sch->get_max_speed() == 0 || !check_way_constraints(*sch)) 
 	{
-		return ok;
+		return false;
 	}
 
-	else 
+	// now check for special signs
+	if(sch->has_sign()) {
+		const roadsign_t* rs = bd->find<roadsign_t>();
+		if(  rs->get_besch()->get_wtyp()==get_waytype()  ) {
+			if(  rs->get_besch()->get_min_speed() > 0  &&  rs->get_besch()->get_min_speed() > cnv->get_min_top_speed()  ) {
+				// below speed limit
+				return false;
+			}
+			if(  rs->get_besch()->is_private_way()  &&  (rs->get_player_mask() & (1<<get_player_nr()) ) == 0  ) {
+				// prvate road
+				return false;
+			}
+		}
+	}
+
+	if(  target_halt.is_bound()  &&  cnv->is_waiting()  ) 
 	{
 		// we are searching a stop here:
 		// ok, we can go where we already are ...
@@ -3205,15 +3226,20 @@ bool waggon_t::ist_befahrbar(const grund_t *bd) const
 		if(sch->has_sign()) 
 		{
 			const roadsign_t* rs = bd->find<roadsign_t>();
-			if(rs->get_besch()->get_wtyp()==get_waytype() && rs->get_besch()->get_flags() & roadsign_besch_t::END_OF_CHOOSE_AREA) 
+			if(  rs->get_besch()->get_wtyp()==get_waytype()  ) 
 			{
-				return false;
+				if(  rs->get_besch()->get_flags() & roadsign_besch_t::END_OF_CHOOSE_AREA  ) 
+				{
+					return false;
+				}
 			}
 		}
 		// but we can only use empty blocks ...
 		// now check, if we could enter here
 		return sch->can_reserve(cnv->self);
 	}
+
+	return true;
 }
 
 
@@ -3968,8 +3994,23 @@ bool schiff_t::ist_befahrbar(const grund_t *bd) const
 		// If there are permissive constraints, this vehicle cannot use the open water.
 		return besch->get_way_constraints().get_permissive() == 0;
 	}
-
+	// channel can have more stuff to check
 	const weg_t *w = bd->get_weg(water_wt);
+#if ENABLE_WATERWAY_SIGNS
+	if(  w  &&  w->has_sign()  ) {
+		const roadsign_t* rs = bd->find<roadsign_t>();
+		if(  rs->get_besch()->get_wtyp()==get_waytype()  ) {
+			if(  rs->get_besch()->get_min_speed() > 0  &&  rs->get_besch()->get_min_speed() > cnv->get_min_top_speed()  ) {
+				// below speed limit
+				return false;
+			}
+			if(  rs->get_besch()->is_private_way()  &&  (rs->get_player_mask() & (1<<get_player_nr()) ) == 0  ) {
+				// prvate road
+				return false;
+			}
+		}
+	}
+#endif
 	return (w  &&  w->get_max_speed()>0 && check_way_constraints(*w));
 }
 

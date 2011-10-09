@@ -42,6 +42,7 @@
  */
 #define WAIT_INFINITE 0xFFFFFFFFu
 
+class weg_t;
 class depot_t;
 class karte_t;
 class spieler_t;
@@ -234,6 +235,11 @@ private:
 	 * (only needed for leaving/entering depot)
 	 */
 	sint16 steps_driven;
+
+	/*
+	 * chaches the running costs
+	 */
+	sint32 sum_running_costs;
 
 	/**
 	* Gesamtleistung. Wird nicht gespeichert, sondern aus den Einzelleistungen
@@ -710,7 +716,7 @@ public:
 	 * Add the costs for traveling one tile
 	 * @author Hj. Malthaner
 	 */
-	void add_running_cost(sint64 cost);
+	void add_running_cost(sint64 cost, const weg_t *weg);
 
 	// Increment the odometer,
 	// adjusting for the distance scale.

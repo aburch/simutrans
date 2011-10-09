@@ -35,48 +35,65 @@ static uint32 bFilterStates[MAX_PLAYER_COUNT];
 #define BUTTONSPACE 14
 
 // @author hsiegeln
-const char money_frame_t::cost_type[MAX_PLAYER_COST][64] =
+const char *money_frame_t::cost_type_name[MAX_PLAYER_COST_BUTTON] =
 {
-  "Construction_Btn", "Operation", "New Vehicles", "Revenue",
-  "Maintenance", "Assets", "Cash", "Net Wealth", "Gross Profit", "Ops Profit", "Margin (%)", "Transported", "Powerlines", 
-  "", "", "", "", "", "Interest", "Credit limit"
+  "Revenue",
+  "Operation", 
+  "Maintenance",
+  "Road toll",
+  "Powerlines", 
+  "Ops Profit",
+  "New Vehicles",
+  "Construction_Btn", 
+  "Gross Profit",
+  "Transported", 
+  "Cash",
+  "Assets", 
+  "Margin (%)", 
+  "Net Wealth", 
+  "", "", "", "", "", 
+  "Interest",
+  "Credit limit"
 };
 
 const char money_frame_t::cost_tooltip[MAX_PLAYER_COST][256] =
 {
-  "Capital expenditure on infrastructure", 
-  "Vehicle running costs (both fixed and distance related)", 
-  "Capital expenditure on vehicle purchases and upgrades", 
   "Gross revenue",
+  "Vehicle running costs (both fixed and distance related)",
   "Recurring expenses of infrastructure maintenance", 
-  "Total capital assets, excluding liabilities", 
-  "Total liquid assets", 
-  "Total assets less total liabilities", 
-  "Total income less total expenditure", 
-  "Operating revenue less operating expenditure", 
-  "Percentage of revenue retained as profit", 
-  "Number of units of passengers and goods transported", 
+  "The charges incurred or revenues earned by running on other players' ways",
   "Revenue from electricity transmission", 
+  "Operating revenue less operating expenditure", 
+  "Capital expenditure on vehicle purchases and upgrades", 	
+  "Capital expenditure on infrastructure", 
+  "Total income less total expenditure", 
+  "Number of units of passengers and goods transported", 
+  "Total liquid assets", 
+  "Total capital assets, excluding liabilities", 
+  "Percentage of revenue retained as profit", 
+  "Total assets less total liabilities", 
   "", "", "", "", "", 
   "Cost of overdraft interest payments", 
   "The maximum amount that can be borrowed without prohibiting further capital outlays"
 };
 
-const int money_frame_t::cost_type_color[MAX_PLAYER_COST] =
+
+const COLOR_VAL money_frame_t::cost_type_color[MAX_PLAYER_COST_BUTTON] =
 {
-	COL_CONSTRUCTION,
-	COL_OPERATION,
-	COL_NEW_VEHICLES,
 	COL_REVENUE,
+	COL_OPERATION,
 	COL_MAINTENANCE,
-	COL_VEHICLE_ASSETS,
-	COL_CASH,
-	COL_WEALTH,
-	COL_PROFIT,
-	COL_OPS_PROFIT,
-	COL_MARGIN,
-	COL_TRANSPORTED,
+	COL_TOLL,
 	COL_POWERLINES,
+	COL_OPS_PROFIT,
+	COL_NEW_VEHICLES,
+	COL_CONSTRUCTION,
+	COL_PROFIT,
+	COL_TRANSPORTED,
+	COL_CASH,
+	COL_VEHICLE_ASSETS,
+	COL_MARGIN,
+	COL_WEALTH,
 	COL_WHITE,
 	COL_WHITE,
 	COL_WHITE,
@@ -86,10 +103,24 @@ const int money_frame_t::cost_type_color[MAX_PLAYER_COST] =
 	COL_PURPLE
 };
 
-const uint8 button_order[MAX_PLAYER_COST] =
+const uint8 money_frame_t::cost_type[MAX_PLAYER_COST_BUTTON] =
 {
-	3, 1, 4, 9, 2, 0, 18, 8, 12, 11,
-	6, 5, 10, 7, 19
+	COST_INCOME,			// Income
+	COST_VEHICLE_RUN,		// Vehicle running costs
+	COST_MAINTENANCE,		// Upkeep
+	COST_WAY_TOLLS,			// Way access charges
+	COST_POWERLINES,		// revenue from the power grid
+	COST_OPERATING_PROFIT,	// COST_INCOME-(COST_VEHICLE_RUN+COST_MAINTENANCE)
+	COST_NEW_VEHICLE,		// New vehicles
+	COST_CONSTRUCTION,		// Construction
+	COST_PROFIT,			// COST_POWERLINES+COST_INCOME-(COST_CONSTRUCTION+COST_VEHICLE_RUN+COST_NEW_VEHICLE+COST_MAINTENANCE)
+	COST_ALL_TRANSPORTED,	// all transported goods
+	COST_CASH,				// Cash
+	COST_ASSETS,			// value of all vehicles and buildings
+	COST_MARGIN,			// COST_OPERATING_PROFIT/COST_INCOME
+	COST_NETWEALTH,			// Total Cash + Assets
+	COST_INTEREST,			// Interest paid servicing debt
+	COST_CREDIT_LIMIT,		// Maximum amount that can be borrowed
 };
 
 
@@ -152,6 +183,8 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		margin(NULL, COL_WHITE, gui_label_t::money),
 		transport(NULL, COL_WHITE, gui_label_t::right),
 		old_transport(NULL, COL_WHITE, gui_label_t::right),
+		toll(NULL, COL_WHITE, gui_label_t::money),
+		old_toll(NULL, COL_WHITE, gui_label_t::money),
 		powerline(NULL, COL_WHITE, gui_label_t::money),
 		old_powerline(NULL, COL_WHITE, gui_label_t::money),
 		maintenance_label("Next Month:",COL_WHITE, gui_label_t::right),
@@ -179,9 +212,9 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	chart.set_dimension(MAX_PLAYER_HISTORY_YEARS, 10000);
 	chart.set_seed(sp->get_welt()->get_last_year());
 	chart.set_background(MN_GREY1);
-	chart.set_ltr(umgebung_t::left_to_right_graphs);
-	for (int i = 0; i<MAX_PLAYER_COST; i++) {
-		chart.add_curve(cost_type_color[i], sp->get_finance_history_year(), MAX_PLAYER_COST, i, 12, (i <= COST_ALL_TRANSPORTED) ||  i == COST_POWERLINES || i == COST_INTEREST || i == COST_CREDIT_LIMIT ? MONEY: STANDARD, false, false, (i < COST_ALL_TRANSPORTED) ||  i==COST_POWERLINES ? 2 : 0  );
+	for (int i = 0; i<MAX_PLAYER_COST_BUTTON; i++) {
+		const int type = cost_type[i];
+		chart.add_curve( cost_type_color[i], sp->get_finance_history_year(), MAX_PLAYER_COST, type, 12, (type < COST_ALL_TRANSPORTED  ||  type==COST_POWERLINES || type==COST_INTEREST  || type==COST_CREDIT_LIMIT)  ||  type==COST_WAY_TOLLS  ? MONEY: STANDARD, false, false, (type < COST_ALL_TRANSPORTED) ||  type==COST_POWERLINES  ||  type==COST_WAY_TOLLS ? 2 : 0 );
 	}
 	//CHART YEAR END
 
@@ -191,10 +224,9 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	mchart.set_dimension(MAX_PLAYER_HISTORY_MONTHS, 10000);
 	mchart.set_seed(0);
 	mchart.set_background(MN_GREY1);
-	mchart.set_ltr(umgebung_t::left_to_right_graphs);
-
-	for (int i = 0; i<MAX_PLAYER_COST; i++) {
-		mchart.add_curve(cost_type_color[i], sp->get_finance_history_month(), MAX_PLAYER_COST, i, 12, (i <= 10) ||  i == COST_POWERLINES || i == COST_INTEREST || i == COST_CREDIT_LIMIT ? MONEY: STANDARD, false, false, (i < COST_ALL_TRANSPORTED) ||  i==COST_POWERLINES ? 2 : 0 );
+	for (int i = 0; i<MAX_PLAYER_COST_BUTTON; i++) {
+		const int type = cost_type[i];
+		mchart.add_curve( cost_type_color[i], sp->get_finance_history_month(), MAX_PLAYER_COST, type, 12, (type < COST_ALL_TRANSPORTED  ||  type==COST_POWERLINES ||  type==COST_INTEREST ||  type==COST_CREDIT_LIMIT)  ||  type==COST_WAY_TOLLS  ? MONEY: STANDARD, false, false, (type < COST_ALL_TRANSPORTED) ||  type==COST_POWERLINES  ||  type==COST_WAY_TOLLS ? 2 : 0 );
 	}
 	mchart.set_visible(false);
 	//CHART MONTH END
@@ -219,20 +251,22 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	old_vrmoney.set_pos(koord(lyl_x,top+1*BUTTONSPACE));
 	mmoney.set_pos(koord(tyl_x,top+2*BUTTONSPACE));
 	old_mmoney.set_pos(koord(lyl_x,top+2*BUTTONSPACE));
-	omoney.set_pos(koord(tyl_x,top+3*BUTTONSPACE));
-	old_omoney.set_pos(koord(lyl_x,top+3*BUTTONSPACE));
-	nvmoney.set_pos(koord(tyl_x,top+4*BUTTONSPACE));
-	old_nvmoney.set_pos(koord(lyl_x,top+4*BUTTONSPACE));
-	conmoney.set_pos(koord(tyl_x,top+5*BUTTONSPACE));
-	old_conmoney.set_pos(koord(lyl_x,top+5*BUTTONSPACE));
-	interest.set_pos(koord(tyl_x,top+6*BUTTONSPACE));
-	old_interest.set_pos(koord(lyl_x,top+6*BUTTONSPACE));
-	tmoney.set_pos(koord(tyl_x,top+7*BUTTONSPACE));
-	old_tmoney.set_pos(koord(lyl_x,top+7*BUTTONSPACE));
-	powerline.set_pos(koord(tyl_x,top+8*BUTTONSPACE));
-	old_powerline.set_pos(koord(lyl_x,top+8*BUTTONSPACE));
-	transport.set_pos(koord(tyl_x+19, top+9*BUTTONSPACE));
-	old_transport.set_pos(koord(lyl_x+19, top+9*BUTTONSPACE));
+	toll.set_pos(koord(tyl_x,top+3*BUTTONSPACE));
+	old_toll.set_pos(koord(lyl_x,top+3*BUTTONSPACE));
+	powerline.set_pos(koord(tyl_x,top+4*BUTTONSPACE));
+	old_powerline.set_pos(koord(lyl_x,top+4*BUTTONSPACE));
+	omoney.set_pos(koord(tyl_x,top+5*BUTTONSPACE));
+	old_omoney.set_pos(koord(lyl_x,top+5*BUTTONSPACE));
+	nvmoney.set_pos(koord(tyl_x,top+6*BUTTONSPACE));
+	old_nvmoney.set_pos(koord(lyl_x,top+6*BUTTONSPACE));
+	conmoney.set_pos(koord(tyl_x,top+7*BUTTONSPACE));
+	old_conmoney.set_pos(koord(lyl_x,top+7*BUTTONSPACE));
+	interest.set_pos(koord(tyl_x,top+8*BUTTONSPACE));
+	old_interest.set_pos(koord(lyl_x,top+8*BUTTONSPACE));
+	tmoney.set_pos(koord(tyl_x,top+9*BUTTONSPACE));
+	old_tmoney.set_pos(koord(lyl_x,top+9*BUTTONSPACE));
+	transport.set_pos(koord(tyl_x+19, top+10*BUTTONSPACE));
+	old_transport.set_pos(koord(lyl_x+19, top+10*BUTTONSPACE));
 
 	// right column
 	maintenance_label.set_pos(koord(left+340+80, top-1*BUTTONSPACE-2));
@@ -266,6 +300,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	add_komponente(&interest);
 	add_komponente(&tmoney);
 	add_komponente(&omoney);
+	add_komponente(&toll);
 	add_komponente(&powerline);
 	add_komponente(&transport);
 
@@ -277,6 +312,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	add_komponente(&old_interest);
 	add_komponente(&old_tmoney);
 	add_komponente(&old_omoney);
+	add_komponente(&old_toll);
 	add_komponente(&old_powerline);
 	add_komponente(&old_transport);
 	
@@ -331,19 +367,15 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	}
 
 	// add filter buttons
-	for(int i = 0; i < 10; i++) 
-	{
-		int ibutton=button_order[i];
-		filterButtons[ibutton].init(button_t::box, cost_type[ibutton], koord(left, top+i*BUTTONSPACE-2), koord(120, BUTTONSPACE));
+	for(int ibutton=0;  ibutton<11;  ibutton++) {
+		filterButtons[ibutton].init(button_t::box, cost_type_name[ibutton], koord(left, top+ibutton*BUTTONSPACE-2), koord(120, BUTTONSPACE));
 		filterButtons[ibutton].add_listener(this);
 		filterButtons[ibutton].background = cost_type_color[ibutton];
 		filterButtons[ibutton].set_tooltip(cost_tooltip[ibutton]);
 		add_komponente(filterButtons + ibutton);
 	}
-	for(int i = 10; i < 15; i++) 
-	{
-		int ibutton=button_order[i];
-		filterButtons[ibutton].init(button_t::box, cost_type[ibutton], koord(left+335, top+(i-5)*BUTTONSPACE-2), koord(120, BUTTONSPACE));
+	for(int ibutton=11;  ibutton<MAX_PLAYER_COST_BUTTON;  ibutton++) {
+		filterButtons[ibutton].init(button_t::box, cost_type_name[ibutton], koord(left+335, top+(ibutton-5)*BUTTONSPACE-2), koord(120, BUTTONSPACE));
 		filterButtons[ibutton].add_listener(this);
 		filterButtons[ibutton].background = cost_type_color[ibutton];
 		filterButtons[ibutton].set_tooltip(cost_tooltip[ibutton]);
@@ -351,7 +383,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	}
 
 	// states ...
-	for ( int i = 0; i<MAX_PLAYER_COST; i++) {
+	for ( int i = 0; i<MAX_PLAYER_COST_BUTTON; i++) {
 		if (bFilterStates[sp->get_player_nr()] & (1<<i)) {
 			chart.show_curve(i);
 			mchart.show_curve(i);
@@ -375,7 +407,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 void money_frame_t::zeichnen(koord pos, koord gr)
 {
 	// Hajo: each label needs its own buffer
-	static char str_buf[29][256];
+	static char str_buf[30][256];
 
 	sp->calc_finance_history();
 
@@ -408,12 +440,14 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	old_transport.set_text(str_buf[17]);
 	old_transport.set_color(get_money_colour(COST_ALL_TRANSPORTED, 0));
 
-	//money_to_string(str_buf[22], sp->get_finance_history_year(0, COST_POWERLINES) );
-	powerline.set_text(display_money(COST_POWERLINES, str_buf[18], 0)); //set_text(str_buf[22]);
-	powerline.set_color(get_money_colour(COST_POWERLINES, 0));
+	toll.set_text(display_money(COST_WAY_TOLLS, str_buf[24], 0));
+	toll.set_color(get_money_colour(COST_WAY_TOLLS, 0));
+	old_toll.set_text(display_money(COST_WAY_TOLLS, str_buf[25], 1));
+	old_toll.set_color(get_money_colour(COST_WAY_TOLLS, 1));
 
-	//money_to_string(str_buf[23], sp->get_finance_history_year(1, COST_POWERLINES) );
-	old_powerline.set_text(display_money(COST_POWERLINES, str_buf[19], 1));
+	powerline.set_text(display_money(COST_POWERLINES, str_buf[22], 0));
+	powerline.set_color(get_money_colour(COST_POWERLINES, 0));
+	old_powerline.set_text(display_money(COST_POWERLINES, str_buf[23], 1));
 	old_powerline.set_color(get_money_colour(COST_POWERLINES, 1));
 
 	//clamount.set_text(display_money(sp->get_credit_limit(), str_buf[24], 1));

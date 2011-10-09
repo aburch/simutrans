@@ -41,6 +41,7 @@ enum player_cost {
 	COST_TRANSPORTED_GOOD,
 	COST_ALL_CONVOIS,		// number of convois
 	COST_SCENARIO_COMPLETED,// scenario success (only useful if there is one ... )
+	COST_WAY_TOLLS,			// The cost of running on other players' ways
 	COST_INTEREST,			// Interest paid servicing debt
 	COST_CREDIT_LIMIT,		// Player's credit limit.
 	MAX_PLAYER_COST
@@ -415,7 +416,7 @@ protected:
 public:
 	void init_undo(waytype_t t, unsigned short max );
 	void add_undo(koord3d k);
-	bool undo();
+	sint64 undo();
 
 	// Checks the affordability of any possible purchase.
 	// Check is disapplied to the public service player.
