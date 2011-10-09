@@ -190,11 +190,44 @@ vehikel_t* vehikelbauer_t::baue(koord3d k, spieler_t* sp, convoi_t* cnv, const v
 		livery_scheme_index = cnv->get_livery_scheme_index();
 	}
 
-	const livery_scheme_t* const liv = sp->get_welt()->get_settings().get_livery_scheme(livery_scheme_index);
-	const char* livery = liv ? liv->get_latest_available_livery(sp->get_welt()->get_timeline_year_month(), vb) : "default";
-	if(livery)
+	if(livery_scheme_index >= sp->get_welt()->get_settings().get_livery_schemes()->get_count())
 	{
-		v->set_current_livery(livery);
+		// To prevent errors when loading a game with fewer livery schemes than that just played.
+		livery_scheme_index = 0;
+	}
+
+	const livery_scheme_t* const scheme = sp->get_welt()->get_settings().get_livery_scheme(livery_scheme_index);
+	uint16 date = sp->get_welt()->get_timeline_year_month();
+	if(scheme)
+	{
+		const char* livery = scheme->get_latest_available_livery(date, vb);
+		if(livery)
+		{
+			v->set_current_livery(livery);
+		}
+		else
+		{
+			bool found = false;
+			for(int j = 0; j < sp->get_welt()->get_settings().get_livery_schemes()->get_count(); j ++)
+			{
+				const livery_scheme_t* const new_scheme = sp->get_welt()->get_settings().get_livery_scheme(j);
+				const char* new_livery = new_scheme->get_latest_available_livery(date, vb);
+				if(new_livery)
+				{
+					v->set_current_livery(new_livery);
+					found = true;
+					break;
+				}
+			}
+			if(!found)
+			{
+				v->set_current_livery("default");
+			}
+		}
+	}
+	else
+	{
+		v->set_current_livery("default");
 	}
 	
 	sint64 price = 0;
