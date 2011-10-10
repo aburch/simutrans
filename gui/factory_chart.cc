@@ -49,7 +49,7 @@ static const int goods_color[MAX_GOODS_COLOR][MAX_FAB_GOODS_STAT] =
 
 static const char *const input_type[MAX_FAB_GOODS_STAT] =
 {
-	"Storage", "Received", "Consumed"
+	"Storage", "Arrived", "Consumed"
 };
 
 static const char *const output_type[MAX_FAB_GOODS_STAT] =
