@@ -863,17 +863,17 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 				if(show_grid){
 					const uint8 hang = get_grund_hang();
 					const uint8 back_hang = (hang&1) + ((hang>>1)&6);
-					display_normal(grund_besch_t::borders->get_bild(back_hang), xpos, ypos, 0, true, dirty);
+					display_normal( grund_besch_t::borders->get_bild(back_hang), xpos, ypos, 0, true, dirty);
 				}
 			}
 		}
 		else {
 			// take animation into account
 			if (underground_mode!=ugm_all) {
-				display_normal(get_bild()+wasser_t::stage, xpos, ypos, 0, true, dirty|wasser_t::change_stage);
+				display_normal( grund_besch_t::sea->get_bild(get_bild(),wasser_t::stage), xpos, ypos, 0, true, dirty|wasser_t::change_stage );
 			}
 			else {
-				display_blend(get_bild()+wasser_t::stage, xpos, ypos, 0, TRANSPARENT50_FLAG, true, dirty|wasser_t::change_stage);
+				display_blend( grund_besch_t::sea->get_bild(get_bild(),wasser_t::stage), xpos, ypos, 0, TRANSPARENT50_FLAG, true, dirty|wasser_t::change_stage);
 			}
 			return;
 		}

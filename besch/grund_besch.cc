@@ -282,7 +282,8 @@ const uint8 grund_besch_t::slopetable[80] =
 #endif
 
 // how many animation stages we got for waves
-int grund_besch_t::water_animation_stages = 1;
+uint16 grund_besch_t::water_animation_stages = 1;
+sint16 grund_besch_t::water_depth_levels = 0;
 
 static const grund_besch_t* boden_texture            = NULL;
 static const grund_besch_t* light_map                = NULL;
@@ -346,6 +347,10 @@ bool grund_besch_t::register_besch(const grund_besch_t *besch)
 		// then ignore all ms settings
 		if(water_animation_stages==1) {
 			umgebung_t::water_animation = 0;
+		}
+		water_depth_levels = besch->get_child<bildliste2d_besch_t>(2)->get_anzahl()-2;
+		if(water_depth_levels<=0) {
+			water_depth_levels = 0;
 		}
 	}
 	return 	::register_besch(grounds, besch);
