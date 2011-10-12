@@ -18,7 +18,7 @@
 
 #include "../player/simplay.h"
 
-#define MAX_PLAYER_COST_BUTTON (21)
+#define MAX_PLAYER_COST_BUTTON (16)
 
 /**
  * Finances dialog
@@ -102,7 +102,7 @@ private:
 	char cmoney_min[128], cmoney_max[128];
 	button_t filterButtons[MAX_PLAYER_COST_BUTTON];
 	void calc_chart_values();
-	static const char cost_tooltip[MAX_PLAYER_COST][256];
+	static const char cost_tooltip[MAX_PLAYER_COST_BUTTON][256];
 
 	static const char *cost_type_name[MAX_PLAYER_COST_BUTTON];
 	static const COLOR_VAL cost_type_color[MAX_PLAYER_COST_BUTTON];
