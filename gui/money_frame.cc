@@ -428,15 +428,53 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	old_transport.set_text(str_buf[17]);
 	old_transport.set_color(get_money_colour(COST_ALL_TRANSPORTED, 0));
 
+	powerline.set_text(display_money(COST_POWERLINES, str_buf[18], 0));
+	powerline.set_color(get_money_colour(COST_POWERLINES, 0));
+	old_powerline.set_text(display_money(COST_POWERLINES, str_buf[19], 1));
+	old_powerline.set_color(get_money_colour(COST_POWERLINES, 1));
+
+	gtmoney.set_text(display_money(COST_CASH, str_buf[20], 0));
+	gtmoney.set_color(get_money_colour(COST_CASH, 0));
+
+	vtmoney.set_text(display_money(COST_ASSETS, str_buf[21], 0));
+	vtmoney.set_color(get_money_colour(COST_ASSETS, 0));
+
+	display_money(COST_MARGIN, str_buf[23], 0);
+	str_buf[23][strlen(str_buf[23])-1] = '%';	// remove cent sign
+	margin.set_text(str_buf[23]);
+	margin.set_color(get_money_colour(COST_MARGIN, 0));
+
 	toll.set_text(display_money(COST_WAY_TOLLS, str_buf[24], 0));
 	toll.set_color(get_money_colour(COST_WAY_TOLLS, 0));
 	old_toll.set_text(display_money(COST_WAY_TOLLS, str_buf[25], 1));
 	old_toll.set_color(get_money_colour(COST_WAY_TOLLS, 1));
 
-	powerline.set_text(display_money(COST_POWERLINES, str_buf[22], 0));
-	powerline.set_color(get_money_colour(COST_POWERLINES, 0));
-	old_powerline.set_text(display_money(COST_POWERLINES, str_buf[23], 1));
-	old_powerline.set_color(get_money_colour(COST_POWERLINES, 1));
+	money.set_text(display_money(COST_NETWEALTH, str_buf[26], 0));
+	money.set_color(get_money_colour(COST_NETWEALTH, 0));
+
+	credit_limit.set_text(display_money(COST_CREDIT_LIMIT, str_buf[22], 0));
+	credit_limit.set_color(get_money_colour(COST_CREDIT_LIMIT, 0));
+
+	// warning/success messages
+	if(sp->get_player_nr()==0  &&  sp->get_welt()->get_scenario()->active()) {
+		sprintf( str_buf[29], translator::translate("Scenario complete: %i%%"), sp->get_welt()->get_scenario()->completed(0) );
+	}
+	else if(sp->get_konto_ueberzogen()) {
+		warn.set_color( COL_RED );
+		if(sp->get_finance_history_year(0, COST_NETWEALTH) < 0 && sp->get_welt()->get_settings().bankruptsy_allowed()) 
+		{
+			tstrncpy(str_buf[29], translator::translate("Company bankrupt"), lengthof(str_buf[29]) );
+		}
+		else 
+		{
+			sprintf(str_buf[29], translator::translate("On loan since %i month(s)"), sp->get_konto_ueberzogen() );
+		}
+	}
+	else 
+	{
+		str_buf[29][0] = '\0';
+	}
+	warn.set_text(str_buf[29]);
 
 	conmoney.set_color(get_money_colour(COST_CONSTRUCTION, 0));
 	nvmoney.set_color(get_money_colour(COST_NEW_VEHICLE, 0));
@@ -455,44 +493,6 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	old_tmoney.set_color(get_money_colour(COST_PROFIT, 1));
 	old_omoney.set_color(get_money_colour(COST_OPERATING_PROFIT, 1));
 	old_interest.set_color(get_money_colour(COST_INTEREST, 1));
-
-	gtmoney.set_text(display_money(COST_CASH, str_buf[20], 0));
-	gtmoney.set_color(get_money_colour(COST_CASH, 0));
-
-	vtmoney.set_text(display_money(COST_ASSETS, str_buf[21], 0));
-	vtmoney.set_color(get_money_colour(COST_ASSETS, 0));
-
-	money.set_text(display_money(COST_NETWEALTH, str_buf[26], 0));
-	money.set_color(get_money_colour(COST_NETWEALTH, 0));
-
-	display_money(COST_MARGIN, str_buf[23], 0);
-	str_buf[23][strlen(str_buf[27])-1] = '%';	// remove cent sign
-	margin.set_text(str_buf[27]);
-	margin.set_color(get_money_colour(COST_MARGIN, 0));
-
-	credit_limit.set_text(display_money(COST_CREDIT_LIMIT, str_buf[28], 0));
-	credit_limit.set_color(get_money_colour(COST_CREDIT_LIMIT, 0));
-
-	// warning/success messages
-	if(sp->get_player_nr()==0  &&  sp->get_welt()->get_scenario()->active()) {
-		sprintf( str_buf[25], translator::translate("Scenario complete: %i%%"), sp->get_welt()->get_scenario()->completed(0) );
-	}
-	else if(sp->get_konto_ueberzogen()) {
-		warn.set_color( COL_RED );
-		if(sp->get_finance_history_year(0, COST_NETWEALTH) < 0 && sp->get_welt()->get_settings().bankruptsy_allowed()) 
-		{
-			tstrncpy(str_buf[15], translator::translate("Company bankrupt"), lengthof(str_buf[15]) );
-		}
-		else 
-		{
-			sprintf(str_buf[29], translator::translate("On loan since %i month(s)"), sp->get_konto_ueberzogen() );
-		}
-	}
-	else 
-	{
-		str_buf[25][0] = '\0';
-	}
-	warn.set_text(str_buf[30]);
 
 	headquarter.disable();
 	if(sp!=sp->get_welt()->get_active_player()) {
