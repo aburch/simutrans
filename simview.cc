@@ -256,6 +256,9 @@ void karte_ansicht_t::display(bool force_dirty)
 						display_img_blend( grund_besch_t::get_ground_tile(0,gr->get_hoehe()), x, y, transparent, 0, true );
 					}
 				}
+				else if(  gr->get_typ()==grund_t::wasser  ) {
+					display_img_blend( grund_besch_t::sea->get_bild(gr->get_bild(),wasser_t::stage), x, y, transparent, 0, true );
+				}
 				else {
 					display_img_blend( gr->get_bild(), x, y, transparent, 0, true );
 				}
