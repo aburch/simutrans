@@ -74,7 +74,7 @@ const int cost_type_color[MAX_LINE_COST] =
 	COL_PROFIT,
 	COL_VEHICLE_ASSETS, 
 	COL_DISTANCE, 
-	COL_LIGHT_RED
+	COL_CAR_OWNERSHIP
 };
  
 static uint8 tabs_to_lineindex[8];

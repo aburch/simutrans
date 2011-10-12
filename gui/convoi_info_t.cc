@@ -58,7 +58,7 @@ static const int cost_type_color[BUTTON_COUNT] =
 	COL_OPERATION, 
 	COL_PROFIT, 
 	COL_DISTANCE, 
-	COL_LIGHT_RED
+	COL_CAR_OWNERSHIP
 #ifdef ACCELERATION_BUTTON
 	, COL_YELLOW
 #endif
