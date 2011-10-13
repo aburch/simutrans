@@ -270,6 +270,8 @@ public:
 
 	static settings_t default_einstellungen;
 
+	static bool straight_way_without_control;
+
 	// init with default values
 	static void init();
 

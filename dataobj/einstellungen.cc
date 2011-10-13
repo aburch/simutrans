@@ -712,7 +712,9 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	umgebung_t::ground_object_probability = contents.get_int("random_grounds_probability", umgebung_t::ground_object_probability );
 	umgebung_t::moving_object_probability = contents.get_int("random_wildlife_probability", umgebung_t::moving_object_probability );
 
-	umgebung_t::verkehrsteilnehmer_info = contents.get_int("pedes_and_car_info", umgebung_t::verkehrsteilnehmer_info) != 0;
+	umgebung_t::straight_way_without_control = contents.get_int("straight_way_without_control", umgebung_t::straight_way_without_control) != 0;
+
+	umgebung_t::verkehrsteilnehmer_info = contents.get_int("pedes_and_car_info", umgebung_t::straight_way_without_control) != 0;
 	umgebung_t::tree_info = contents.get_int("tree_info", umgebung_t::tree_info) != 0;
 	umgebung_t::ground_info = contents.get_int("ground_info", umgebung_t::ground_info) != 0;
 	umgebung_t::townhall_info = contents.get_int("townhall_info", umgebung_t::townhall_info) != 0;

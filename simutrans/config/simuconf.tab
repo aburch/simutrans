@@ -189,6 +189,9 @@ factory_enforce_demand = 1
 
 ##################################display stuff#################################
 
+# if defined, the default tool will try to calculate straight ways (like OpenTTD)
+straight_way_without_control = 0
+
 # player color can be fixed for several players or set totally random
 # in the latter case each player will get unique but random coloring
 # (default 0)

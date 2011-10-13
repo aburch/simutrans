@@ -1686,13 +1686,12 @@ void wkz_wegebau_t::calc_route( wegbauer_t &bauigel, const koord3d &start, const
 	}
 
 	bauigel.route_fuer(bautyp, besch);
-	if(is_ctrl_pressed()) {
+	bauigel.set_keep_existing_ways( !is_ctrl_pressed() );
+	if(  umgebung_t::straight_way_without_control  ||  is_ctrl_pressed()  ) {
 		DBG_MESSAGE("wkz_wegebau()", "try straight route");
-		bauigel.set_keep_existing_ways(false);
 		bauigel.calc_straight_route(start,end);
 	}
 	else {
-		bauigel.set_keep_existing_faster_ways(true);
 		bauigel.calc_route(start,end);
 	}
 	DBG_MESSAGE("wkz_wegebau()", "builder found route with %d sqaures length.", bauigel.get_count());
