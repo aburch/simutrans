@@ -124,7 +124,6 @@ private:
 	uint8 engine_type; // diesel, steam, electric (requires electrified ways), fuel_cell, etc.
 
 	sint8 freight_image_type;	// number of freight images (displayed for different goods)
-
 	sint8 livery_image_type;	// Number of different liveries (@author: jamespetts, April 2011)
 
 	bool is_tilting; //Whether it is a tilting train (can take corners at higher speeds). 0 for no, 1 for yes. Anything other than 1 is assumed to be no.
@@ -168,8 +167,13 @@ private:
 	bool available_only_as_upgrade; // If true, can not be bought as new: only upgraded.
 	
 	uint16 tractive_effort; // tractive effort / force in kN
+	uint16 brake_force;		// The brake force in kN 
+							// (that is, vehicle brake force, not the force of the brakes on the wheels;
+							// this latter measure is commonly cited for deisel railway locomotives on
+							// Wikipedia, but is no use here).
 
 	float32e8_t air_resistance; // The "cf" value in physics calculations.
+	float32e8_t rolling_resistance; // The "fr" value in physics calculations.
 
 	// these values are not stored and therefore calculated in loaded():
 	uint32 geared_power; // @author: Bernd Gabriel, Nov  4, 2009: == leistung * gear in kW
@@ -216,7 +220,7 @@ public:
 		way_constraints.set_permissive(0);
 		way_constraints.set_prohibitive(255);
 		min_loading_time = max_loading_time = (uint32)seconds_to_ticks(30, 250); 
-		tractive_effort = 0;
+		tractive_effort = brake_force = 0;
 	}
 
 	ware_besch_t const* get_ware() const { return get_child<ware_besch_t>(2); }
@@ -560,6 +564,8 @@ public:
 		return tractive_effort ? tractive_effort : calc_max_force(leistung);
 	}
 
+	uint16 get_brake_force() const { return brake_force; }
+
 	/**
 	* @return introduction year
 	* @author Hj. Malthaner
@@ -630,6 +636,7 @@ public:
 	bool get_can_be_at_rear() const { return can_be_at_rear; }
 
 	float32e8_t get_air_resistance() const { return air_resistance; }
+	float32e8_t get_rolling_resistance() const { return rolling_resistance; }
 	
 	const way_constraints_of_vehicle_t& get_way_constraints() const { return way_constraints; }
 	void set_way_constraints(const way_constraints_of_vehicle_t& value) { way_constraints = value; }

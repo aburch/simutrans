@@ -68,6 +68,51 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		experimental_version -=1;
 	}
 
+	uint16 air_default;
+	switch(besch->get_waytype())
+	{
+		default:
+		case road_wt:
+			air_default = 252; //2.52 when read
+			break;
+		case track_wt:
+		case tram_wt:
+		case monorail_wt:
+		case narrowgauge_wt:
+			air_default = 1300; //13 when read
+			break;
+		case water_wt:
+			air_default = 2500; //25 when read
+			break;
+		case maglev_wt:		
+			air_default = 1000; //10 when read
+			break;
+		case air_wt:
+		air_default = 100; //1 when read
+	};
+
+	uint16 rolling_default;
+	switch(besch->get_waytype())
+	{
+		default:
+		case road_wt:
+			rolling_default = 150; //0.015 when read
+			break;
+		case track_wt:
+		case tram_wt:
+		case monorail_wt:
+		case narrowgauge_wt:
+			rolling_default = 51; //0.0051 when read
+			break;
+		case air_wt:
+		case water_wt:
+			rolling_default = 10; //0.001 when read
+			break;
+		case maglev_wt:		
+			rolling_default = 15; //0.0015 when read
+			break;
+	};
+
 	if(version == 1) {
 		// Versioned node, version 1
 
@@ -189,7 +234,7 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->freight_image_type = decode_uint8(p);
 		if(experimental)
 		{
-			if(experimental_version <= 6)
+			if(experimental_version <= 7)
 			{
 				besch->is_tilting = decode_uint8(p);
 				way_constraints.set_permissive(decode_uint8(p));
@@ -224,10 +269,21 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 					besch->tractive_effort = 0;
 				}
 
-				if(experimental_version >=4)
+				if(experimental_version >= 4)
 				{
 					uint16 air_resistance_hundreds = decode_uint16(p);
 					besch->air_resistance = float32e8_t((uint32) air_resistance_hundreds, (uint32)100);
+					if(experimental_version >= 7)
+					{
+						uint16 rolling_resistance_tenths_thousands = decode_uint16(p);
+						besch->rolling_resistance = float32e8_t((uint32) rolling_resistance_tenths_thousands, (uint32)10000);
+						besch->brake_force = decode_uint16(p);
+					}
+					else
+					{
+						besch->rolling_resistance = float32e8_t((uint32) rolling_default, (uint32)10000);
+						besch->brake_force = 65535;
+					}
 					besch->can_be_at_rear = (bool)decode_uint8(p);
 					besch->increase_maintenance_after_years = decode_uint16(p);
 					besch->increase_maintenance_by_percent = decode_uint16(p);
@@ -235,29 +291,9 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				}
 				else
 				{
-					uint16 air_default;
-					switch(besch->get_waytype())
-					{
-						default:
-						case road_wt:
-							air_default = 252; //2.52 when read
-							break;
-						case track_wt:
-						case tram_wt:
-						case monorail_wt:
-						case narrowgauge_wt:
-							air_default = 1300; //13 when read
-							break;
-						case water_wt:
-							air_default = 2500; //25 when read
-							break;
-						case maglev_wt:		
-							air_default = 1000; //10 when read
-							break;
-						case air_wt:
-							air_default = 100; //1 when read
-					};
 					besch->air_resistance = float32e8_t((uint32) air_default, (uint32)100);
+					besch->rolling_resistance = float32e8_t((uint32) rolling_default, (uint32)10000);
+					besch->brake_force = 65535;
 					besch->can_be_at_rear = true;
 					besch->increase_maintenance_after_years = 0;
 					besch->increase_maintenance_by_percent = 0;
@@ -387,30 +423,9 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			besch->min_loading_time = besch->max_loading_time = 30000;
 			break;
 		}
-		uint16 air_default;
 
-		switch(besch->get_waytype())
-		{
-			default:
-			case road_wt:
-				air_default = 252; //2.52 when read
-				break;
-			case track_wt:
-			case tram_wt:
-			case monorail_wt:
-			case narrowgauge_wt:
-				air_default = 1300; //13 when read
-				break;
-			case water_wt:
-				air_default = 2500; //25 when read
-				break;
-			case maglev_wt:		
-				air_default = 1000; //10 when read
-				break;
-			case air_wt:
-				air_default = 100; //1 when read
-		};
 		besch->air_resistance = float32e8_t((uint32) air_default, (uint32)100);
+		besch->rolling_resistance = float32e8_t((uint32) rolling_default, (uint32)10000);
 		besch->upgrades = 0;
 		besch->upgrade_price = besch->preis;
 		besch->available_only_as_upgrade = false;
@@ -422,6 +437,7 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->livery_image_type = 0;
 		besch->min_loading_time_seconds = 20;
 		besch->max_loading_time_seconds = 60;
+		besch->brake_force = 65535;
 	}
 	besch->set_way_constraints(way_constraints);
 

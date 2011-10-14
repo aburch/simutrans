@@ -86,14 +86,19 @@ void adverse_summary_t::add_vehicle(const vehikel_t &v)
 			}
 		}
 	}
-	if (v.is_first()) {
+	if (v.is_first()) 
+	{
 		cf = v.get_besch()->get_air_resistance();
 	}
+
+	fr = v.get_besch()->get_rolling_resistance();
+
 	// The vehicle may be limited by braking approaching a station
 	// Or airplane circling for landing, or airplane height,
 	// Or cornering, or other odd cases
 	// These are carried in vehikel_t unlike other speed limits 
-	if (v.get_speed_limit() == vehikel_t::speed_unlimited() ) {
+	if (v.get_speed_limit() == vehikel_t::speed_unlimited() ) 
+	{
 		max_speed = KMH_SPEED_UNLIMITED;
 	}
 	else

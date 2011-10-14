@@ -98,7 +98,7 @@ static const float32e8_t FR_AIR = float32e8_t((uint32) 1, (uint32) 1000);
 #define WEIGHT_UNLIMITED ((std::numeric_limits<sint32>::max)())
 
 // anything greater than 2097151 will give us overflow in kmh_to_speed. 
-#define KMH_SPEED_UNLIMITED  (300000)
+#define KMH_SPEED_UNLIMITED (300000)
 
 /**
  * Conversion between km/h and m/s
@@ -171,7 +171,7 @@ struct vehicle_summary_t
 struct adverse_summary_t
 {
 	float32e8_t cf;	// air resistance constant: cf = cw/2 * A * rho. Depends on rho, which depends on altitude.
-	float32e8_t fr;	// roll resistance: depends on way
+	float32e8_t fr;	// rolling resistance
 	float32e8_t br; // brake force factor
 	sint32 max_speed;
 
