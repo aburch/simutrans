@@ -18,7 +18,7 @@ char const* network_receive_file(SOCKET const s, char const* const save_as, long
 	// ok, we have a socket to connect
 	remove(save_as);
 
-	DBG_MESSAGE("network_receive_file","Game size %li", length );
+	DBG_MESSAGE("network_receive_file", "File size %li", length );
 
 #ifndef NETTOOL // no display, no translator available
 	if(is_display_init()  &&  length>0) {
@@ -258,39 +258,144 @@ error:
 	return "Client closed connection during transfer";
 }
 
+/*
+  POST a message (poststr) to an HTTP server at the specified address and relative path (name)
+  Optionally: Receive response to file localname
+*/
+const char *network_http_post( const char *address, const char *name, const char *poststr, const char *localname )
+{
+	DBG_MESSAGE("network_http_post", "");
+	// Open socket
+	const char *err = NULL;
+	SOCKET my_client_socket = network_open_address( address, 5000, err );
+	if (err==NULL) {
+#ifndef REVISION
+#	define REVISION 0
+#endif
+		const char* format = "POST %s HTTP/1.1\r\n"
+				"User-Agent: Simutrans/r%s\r\n"
+				"Host: %s\r\n"
+				"Content-Type: application/x-www-form-urlencoded\r\n"
+				"Content-Length: %d\r\n\r\n%s";
+		if ((strlen(format) + strlen(name) + strlen(address) + strlen(poststr) + strlen(QUOTEME(REVISION))) > 4060) {
+			// We will get a buffer overwrite here if we continue
+			return "Error: String too long";
+		}
+		DBG_MESSAGE("network_http_post", "2");
+		char request[4096];
+		int const len = sprintf(request, format, name, QUOTEME(REVISION), address, strlen(poststr), poststr);
+		uint16 dummy;
+		if (!network_send_data(my_client_socket, request, len, dummy, 250)) {
+			err = "Server did not respond!";
+		}
 
-// download a http file from server address="www.simutrans.com:88" at path "/b/xxx.htm" to file localname="list.txt"
+
+		DBG_MESSAGE("network_http_post", "3");
+		// Read the response header
+		// line is max length of a header line
+		// rbuf is a single char
+		char line[1024], rbuf;
+		unsigned int pos = 0;
+		long length = 0;
+
+		// TODO better handling of error message from listing server		// TODO
+
+		while(1) {
+			// Returns number of bytes received
+			// Receive one char from socket into rbuf
+			int i = recv( my_client_socket, &rbuf, 1, 0 );
+			if(  i>0  ) {
+				// If char is above 32 in ascii table + not going to overflow line[]
+				// Note: This will truncate any header to 1023 chars!
+				// Add char to line at the next position
+				// This ignores non-printable chars, including the CR char
+				if(  rbuf>=32  &&  pos<sizeof(line)-1  ) {
+					line[pos++] = rbuf;
+				}
+				// This doesn't follow the HTTP spec! Headers can be split across multiple lines if the next line is whitespace!
+				// Should also accept tab char as whitespace (but maybe convert to space?)
+				// If char is an LF (\n) then this signifies an EOL
+				if(  rbuf==10  ) {
+					// If EOL at position 0, blank line (remember we ignore code points less than 32, e.g. the CR)
+					// Next line will be data
+					if(  pos == 0  ) {
+						DBG_MESSAGE("network_http_post", "all headers received, message body follows");
+						// this line was empty => now data will follow
+						break;
+					}
+					// NUL at the end of our constructed line string
+					line[pos] = 0;
+					// we only need the length tag
+					// Compare string so far constructed against the header we
+					// are seeking (e.g. Content-Length)
+					DBG_MESSAGE("network_http_post", "received header: %s", line);
+					if(  STRNICMP("Content-Length:",line,15)==0  ) {
+						length = atol( line+15 );
+					}
+					// Begin again to parse the next line
+					pos = 0;
+				}
+			} else {
+				break;
+			}
+		}
+		DBG_MESSAGE("network_http_post", "5");
+		// for a simple query, just pass an empty filename
+		if(  localname  &&  *localname  ) {
+			err = network_receive_file( my_client_socket, localname, length );
+		}
+		network_close_socket( my_client_socket );
+	}
+	return err;
+}
+
+/*
+ GET a file from an HTTP server at address (e.g. "www.simutrans.com:80"), relative path name (e.g. "/b/xxx.html")
+ and save it to local file localname (e.g. "list.txt")
+*/
 const char *network_download_http( const char *address, const char *name, const char *localname )
 {
 	// open from network
 	const char *err = NULL;
 	SOCKET my_client_socket = network_open_address( address, 5000, err );
-	if(  err==NULL  ) {
-		char uri[1024];
-		int const len = sprintf(uri, "GET %s HTTP/1.1\r\nHost: %s\r\n\r\n", name, address);
+	if ( err==NULL ) {
+#ifndef REVISION
+#	define REVISION 0
+#endif
+		const char* format = "GET %s HTTP/1.1\r\n"
+				"User-Agent: Simutrans/r%s\r\n"
+				"Host: %s\r\n\r\n";
+		if ((strlen(format) + strlen(name) + strlen(address) + strlen(QUOTEME(REVISION))) > 4060) {
+			// We will get a buffer overwrite here if we continue
+			return "Error: String too long";
+		}
+		char request[1024];
+		int const len = sprintf(request, format, name, QUOTEME(REVISION), address);
 		uint16 dummy;
-		if(  !network_send_data(my_client_socket, uri, len, dummy, 250)  ) {
+		if ( !network_send_data(my_client_socket, request, len, dummy, 250) ) {
 			err = "Server did not respond!";
 		}
-		// read the header
+
+		// Read the response header and parse arguments as needed
 		char line[1024], rbuf;
 		unsigned int pos = 0;
 		long length = 0;
 		while(1) {
 			int i = recv( my_client_socket, &rbuf, 1, 0 );
-			if(  i>0  ) {
-				if(  rbuf>=32  &&  pos<sizeof(line)-1  ) {
+			if ( i > 0 ) {
+				if ( rbuf >= 32 && pos < sizeof(line) - 1 ) {
 					line[pos++] = rbuf;
 				}
-				if(  rbuf==10  ) {
-					if(  pos == 0  ) {
+				if ( rbuf == 10 ) {
+					if ( pos == 0 ) {
 						// this line was empty => now data will follow
 						break;
 					}
 					line[pos] = 0;
-					// we only need the length tag
-					if(  STRNICMP("Content-Length:",line,15)==0  ) {
-						length = atol( line+15 );
+					DBG_MESSAGE("network_download_http", "received header: %s", line);
+					// Parse out the length tag to get length of content
+					if ( STRNICMP("Content-Length:", line, 15) == 0 ) {
+						length = atol(line + 15);
 					}
 					pos = 0;
 				}

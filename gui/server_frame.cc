@@ -10,6 +10,7 @@
 #include "../simgraph.h"
 #include "../simwin.h"
 #include "../utils/simstring.h"
+#include "../simversion.h"
 
 #include "components/list_button.h"
 #include "../dataobj/translator.h"
@@ -88,7 +89,12 @@ server_frame_t::server_frame_t(karte_t* w) :
 
 		// only update serverlist, when not already in network mode
 		// otherwise desync to current game may happen
-		update_serverlist( gi.get_game_engine_revision()*show_all_rev.pressed, show_all_rev.pressed ? NULL : gi.get_pak_name() );
+		if (  show_all_rev.pressed  ) {
+			update_serverlist( 0, NULL );
+		}
+		else {
+			update_serverlist( gi.get_game_engine_revision(), gi.get_pak_name() );
+		}
 
 		pos_y += 6+BUTTON_HEIGHT;
 	}
@@ -193,57 +199,145 @@ void server_frame_t::update_info()
 }
 
 
+/*
+  Takes a pointer to a CSV formatted string to parse
+  And a pointer to a char array to store the result in
+  The pointer to the string will be moved to the end of the parsed field
+*/
+int server_frame_t::parse_csv_field( char **c, char *field, size_t maxlen )
+{
+	char *n;
+	if (  c == NULL  ||  *c == NULL ) {
+		return -1;
+	}
+	if (  **c == '"'  ) {
+		n = strstr( *c, "\"," );
+		if (  n == NULL  ) {
+			n = strstr( *c, "\"\n" );
+			if (  n == NULL  ) {
+				// Copy everything up to end of string into field buffer
+				tstrncpy( field, *c + 1, min(strlen(*c + 1), maxlen) );
+			}
+			else {
+				// Copy everything up to the EOL (\n) into field buffer
+				tstrncpy( field, *c + 1, min(n - *c, maxlen) );
+			}
+			// Move to end of string
+			*c += strlen( *c );
+		}
+		else {
+			tstrncpy(field, *c + 1, min(n - *c, maxlen));
+			// Move to start of next field
+			*c = n + 2;
+		}
+		dbg->warning( "server_frame_t::parse_csv_field", "Parsed field: '%s'", field );
+	}
+	else {
+		n = strstr( *c, "," );
+		// If n is NULL then this is the last field (no more field seperators)
+		if (  n == NULL  ) {
+			dbg->warning( "server_frame_t::parse_csv_field", "last field" );
+			n = strstr( *c, "\n" );
+			if (  n==NULL  ) {
+				// Copy everything up to end of string into field buffer
+				tstrncpy( field, *c, min(strlen(*c + 1), maxlen) );
+			}
+			else {
+				// Copy everything up to the EOL (\n) into field buffer
+				tstrncpy( field, *c, min(n - *c + 1, maxlen) );
+			}
+			// Move to end of string
+			*c += strlen( *c );
+		}
+		else {
+			tstrncpy( field, *c, min(n - *c + 1, maxlen) );
+			// Move to start of next field
+			*c = n + 1;
+		}
+		dbg->warning( "server_frame_t::parse_csv_field", "Parsed field: '%s'", field );
+	}
+	return 0;
+}
+
 bool server_frame_t::update_serverlist( uint revision, const char *pakset )
 {
+	dbg->warning( "server_frame_t::update_serverlist", "called with revision: %i, pakset: %s", revision, pakset );
 	// download list from main server
-	if(  const char *err = network_download_http( "simutrans-germany.com:80", "/serverlist/data/serverlist.txt", "serverlist.txt" )  ) {
+	if (  const char *err = network_download_http(ANNOUNCE_SERVER, ANNOUNCE_LIST_URL, SERVER_LIST_FILE)  ) {
 		dbg->warning( "server_frame_t::update_serverlist", "could not download list: %s", err );
 		return false;
 	}
 	// read the list
-	FILE *fh = fopen( "serverlist.txt", "r" );
-	if (fh) {
+	// CSV format
+	// name of server,dnsname.com:12345,4567,pak128 blah blah
+	FILE *fh = fopen( SERVER_LIST_FILE, "r" );
+	if (  fh  ) {
 		serverlist.clear_elements();
-		while( !feof(fh) ) {
+		while (  !feof( fh )  ) {
 			char line[4096];
-			fgets( line, sizeof(line), fh );
+			line[0] = '\0';
+			char *d = line;
+			char **c = &d;
+			int ret;
 
-			// find servername
-			const char *c = strstr( line, " : " );
-			if(  c==NULL  ) {
-				continue;
-			}
+			fgets( line, sizeof( line ), fh );
+			dbg->warning( "server_frame_t::update_serverlist", "parsing line: '%s'", line );
+//			if (  feof( fh )  ) { continue; }
 
-			// get servername (and remove default port)
+			// First field is display name of server
 			char servername[4096];
-			tstrncpy( servername, line, c-line+1 );
-			if(  strcmp( servername+strlen(servername)-6, ":13353" )==0  ) {
-				servername[strlen(servername)-6] = 0;
+			ret = parse_csv_field( c, servername, 4096 );
+			if (  ret > 0  ||  servername[0] == '\0'  ) { continue; }
+
+			// Second field is dns name of server (for connection)
+			char serverdns[4096];
+			ret = parse_csv_field( c, serverdns, 4096 );
+			if (  ret > 0  ||  servername[0] == '\0'  ) { continue; }
+			// Strip default port
+			if (  strcmp(serverdns + strlen(serverdns) - 6, ":13353") == 0  ) {
+				dbg->warning( "server_frame_t::update_serverlist", "stripping default port from entry %s", serverdns );
+				serverdns[strlen(serverdns) - 6] = 0;
 			}
 
-			// now program revision
-			const char *c2 = strstr( c+3, " : " );
-			if(  c2==NULL  ) {
-				continue;
-			}
-			uint32 serverrev = atol(c2);
-			if(  revision!=0  &&  serverrev!=0  &&  revision!=serverrev  ) {
+			// Third field is server revision (use for filtering)
+			char serverrevision[100];
+			ret = parse_csv_field( c, serverrevision, 4096 );
+			if (  ret > 0  ||  servername[0] == '\0'  ) { continue; }
+			uint32 serverrev = atol( serverrevision );
+			if (  revision != 0  &&  revision != serverrev  ) {
 				// do not add mismatched servers
+				dbg->warning( "server_frame_t::update_serverlist", "revision %i does not match our revision (%i), skipping", serverrev, revision );
 				continue;
 			}
 
+			// Fourth field is server pakset (use for filtering)
+			char serverpakset[4096];
+			ret = parse_csv_field( c, serverpakset, 4096 );
+			if (  ret > 0  ||  servername[0] == '\0'  ) { continue; }
 			// now check pakset match
-			if(  pakset!=NULL  ) {
-				if(  strncmp( pakset, c2+3, strlen(pakset) )  ) {
+			if (  pakset != NULL  ) {
+				if (  strncmp( pakset, serverpakset, strlen( pakset ) )  ) {
+					dbg->warning( "server_frame_t::update_serverlist", "pakset '%s' does not match our pakset ('%s'), skipping", serverpakset, pakset );
 					continue;
 				}
 			}
 
+			char serverentry[4096];
+			// const char *format = "%s (%s)";
+			// sprintf(serverentry, format, servername, serverdns);
+			const char *format = "%s";
+			sprintf( serverentry, format, serverdns );
+
 			// now add entry
-			serverlist.append_element( new gui_scrolled_list_t::var_text_scrollitem_t( servername, COL_BLUE ) );
+
+			// TODO - Need to decouple the text which is displayed in the listing box from the actual DNS/IP entry which is used to connect to the server in question
+
+			serverlist.append_element( new gui_scrolled_list_t::var_text_scrollitem_t( serverentry, COL_BLUE ) );
+			dbg->warning( "server_frame_t::update_serverlist", "Appended %s to list", serverentry );
 		}
+		// Clean up, remove temp file used for recv. listings
 		fclose( fh );
-		remove( "serverlist.txt" );
+		remove( SERVER_LIST_FILE );
 		serverlist.set_selection( -1 );
 	}
 	else {
@@ -295,7 +389,11 @@ bool server_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 	}
 	else if(  &show_all_rev == komp  ) {
 		show_all_rev.pressed ^= 1;
-		update_serverlist( gi.get_game_engine_revision()*show_all_rev.pressed, show_all_rev.pressed ? NULL : gi.get_pak_name() );
+		if ( show_all_rev.pressed ) {
+			update_serverlist( 0, NULL );
+		} else {
+			update_serverlist( gi.get_game_engine_revision(), gi.get_pak_name() );
+		}
 	}
 	else if(  &join == komp  ) {
 		if(  serverlist.get_selection()==-1  ) {

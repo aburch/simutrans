@@ -751,14 +751,32 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	umgebung_t::server_sync_steps_between_checks = contents.get_int("server_frames_between_checks", umgebung_t::server_sync_steps_between_checks );
 	umgebung_t::pause_server_no_clients = contents.get_int("pause_server_no_clients", umgebung_t::pause_server_no_clients );
 
-	umgebung_t::announce_server = contents.get_int("announce_server", umgebung_t::announce_server );
-	umgebung_t::announce_server = contents.get_int("server_announce", umgebung_t::announce_server );
-	umgebung_t::announce_server_intervall = contents.get_int("server_announce_intervall", umgebung_t::announce_server );
+	umgebung_t::server_announce = contents.get_int("announce_server", umgebung_t::server_announce );
+	umgebung_t::server_announce = contents.get_int("server_announce", umgebung_t::server_announce );
+	umgebung_t::server_announce_interval = contents.get_int("server_announce_intervall", umgebung_t::server_announce_interval );
+	umgebung_t::server_announce_interval = contents.get_int("server_announce_interval", umgebung_t::server_announce_interval );
+	if (umgebung_t::server_announce_interval < 60) {
+		umgebung_t::server_announce_interval = 60;
+	} else if (umgebung_t::server_announce_interval > 86400) {
+		umgebung_t::server_announce_interval = 86400;
+	}
+	if(  *contents.get("server_dns")  ) {
+		umgebung_t::server_dns = ltrim(contents.get("server_dns"));
+	}
 	if(  *contents.get("server_name")  ) {
 		umgebung_t::server_name = ltrim(contents.get("server_name"));
 	}
-	if(  *contents.get("server_comment")  ) {
-		umgebung_t::server_comment = ltrim(contents.get("server_comment"));
+	if(  *contents.get("server_comments")  ) {
+		umgebung_t::server_comments = ltrim(contents.get("server_comments"));
+	}
+	if(  *contents.get("server_email")  ) {
+		umgebung_t::server_email = ltrim(contents.get("server_email"));
+	}
+	if(  *contents.get("server_pakurl")  ) {
+		umgebung_t::server_pakurl = ltrim(contents.get("server_pakurl"));
+	}
+	if(  *contents.get("server_infurl")  ) {
+		umgebung_t::server_infurl = ltrim(contents.get("server_infurl"));
 	}
 	if(  *contents.get("server_admin_pw")  ) {
 		umgebung_t::server_admin_pw = ltrim(contents.get("server_admin_pw"));

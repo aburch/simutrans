@@ -741,7 +741,8 @@ bool nwc_service_t::execute(karte_t *welt)
 		}
 
 		case SRVC_ANNOUNCE_SERVER:
-			welt->announce_server();
+			// Startup announce, to force full details resend
+			welt->announce_server( 0 );
 			break;
 
 		case SRVC_GET_CLIENT_LIST: {

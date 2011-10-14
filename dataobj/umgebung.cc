@@ -17,15 +17,16 @@ bool umgebung_t::restore_UI = false;
 extern uint16 network_server_port;
 uint16 const &umgebung_t::server = network_server_port;
 
-// if !=0 contains ID from simutrans-germany.com
-uint32 umgebung_t::announce_server = 0;
-// how often to announce
-// ==0 off
-// ==-1: only on join/leave
-// otherwise: every xx months
-sint32 umgebung_t::announce_server_intervall = 0;
+// Disable announce by default
+uint32 umgebung_t::server_announce = 0;
+// Minimum is every 60 seconds, default is every 15 minutes (900 seconds), maximum is 86400 (1 day)
+sint32 umgebung_t::server_announce_interval = 900;
+std::string umgebung_t::server_dns;
 std::string umgebung_t::server_name;
-std::string umgebung_t::server_comment;
+std::string umgebung_t::server_comments;
+std::string umgebung_t::server_email;
+std::string umgebung_t::server_pakurl;
+std::string umgebung_t::server_infurl;
 std::string umgebung_t::server_admin_pw;
 
 long umgebung_t::server_frames_ahead = 4;
