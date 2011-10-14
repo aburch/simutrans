@@ -240,10 +240,6 @@ void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const 
 		float32e8_t speed_ratio = 0; // requested speed / convoy's max speed. calculated when needed.
 		float32e8_t dx = 0; // covered distance in m
 		float32e8_t v = speed_to_v(akt_speed); // v in m/s, akt_speed in simutrans vehicle speed.
-		//static uint32 count1 = 0;
-		//static sint32 count2 = 0;
-		//static sint32 count3 = 0;
-		//count1++;
 		// iterate the passed time.
 		while (delta_t > 0)
 		{
@@ -306,7 +302,6 @@ void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const 
 				// This part is important for acceleration/deceleration phases only. 
 				// If the force to weight ratio exceeds a certain level, then we must calculate speed iterative,
 				// as it depends on previous speed.
-				//count2++;
 				dt = DT_SLICE;
 				dt_s = fl_slice_seconds;
 			}
@@ -314,7 +309,6 @@ void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const 
 			{
 				// If a small force produces a small speed change, we can add the difference at once in the 'else' section
 				// with a disregardable inaccuracy.
-				//count3++;
 				dt = delta_t;
 				dt_s = fl_time_factor * dt;
 			}

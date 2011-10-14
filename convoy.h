@@ -66,15 +66,12 @@ a = (Fm - Frs - cf * v^2) / m
 #include "utils/float32e8_t.h"
 #include "tpl/vector_tpl.h"
 #include "besch/vehikel_besch.h"
-//#include "simconst.h"
 #include "simtypes.h"
 #include "vehicle/simvehikel.h"
 #include "simconvoi.h"
 #include "simworld.h"
 
 // CF_*: constants related to air resistance
-// TODO: Add a "streamline" value to road/rail
-// which reduces the CF value.
 
 //#define CF_TRACK 0.7 / 2 * 10 * 1.2
 //#define CF_TRACK 4.2
@@ -85,7 +82,7 @@ static const float32e8_t CF_ROAD = float32e8_t((uint32) 252, (uint32) 100);
 static const float32e8_t CF_WATER = float32e8_t((uint32) 25);
 static const float32e8_t CF_AIR = float32e8_t((uint32)1);
 
-// FR_*: constants related to roll resistance
+// FR_*: constants related to rolling resistance
 
 //should be 0.0015, but for game balance it is higher 
 //#define FR_TRACK 0.0015
