@@ -79,6 +79,7 @@ Simutrans command line options
 Alphabetical list of options:
 
 -addons
+-announce
 -debug n=1..4
 -freeplay
 -fullscreen
@@ -93,9 +94,9 @@ Alphabetical list of options:
 -res n=1..5
 -screensize 600x350
 -server
--server_id
--server_name
--server_comment
+-server_dns IP/name
+-server_name text
+-server_comment text
 -singleuser
 -timeline n=0|1
 -use_workdir
@@ -210,11 +211,11 @@ simutrans -server [portnr]
 It is recommended to start server-games without addons with the pak
 set without modifications.
 
-If you want to announce your server, you need an ID from the serverlist
-of simutrans-germany.com. You can set this ID via simuconf.tab or
-commandline option "-server_id 12345678"
+If you want to announce your server, you need to supply a valid dns name
+or IPv4 or IPv6 [] number.
+commandline option "-server_dns mysever.homunix.org:13355"
 
-Similary you can set serv name and commetns via -server_name "Testserver"
+Similary you can set server name and commetns via -server_name "Testserver"
 and -server_comment "professionals".
 
 
