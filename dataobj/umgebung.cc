@@ -12,6 +12,7 @@ char umgebung_t::program_dir[1024];
 const char *umgebung_t::user_dir = 0;
 const char *umgebung_t::savegame_version_str = SAVEGAME_VER_NR;
 const char *umgebung_t::savegame_ex_version_str = EXPERIMENTAL_VER_NR;
+bool umgebung_t::straight_way_without_control = false;
 bool umgebung_t::networkmode = false;
 bool umgebung_t::restore_UI = false;
 extern uint16 network_server_port;
