@@ -1578,7 +1578,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 	 * also prevent stops from overflowing, if possible
 	 * Since we can called with menge>max/2 are at least 10 are there, we must first limit the amount we distribute
 	 */
-	sint32 menge = min( 10, ausgang[produkt].menge >> precision_bits );
+	sint32 menge = min( (prodbase > 640 ? (prodbase>>6) : 10), ausgang[produkt].menge >> precision_bits );
 
 	// ok, first generate list of possible destinations
 	const halthandle_t *haltlist = plan->get_haltlist();
