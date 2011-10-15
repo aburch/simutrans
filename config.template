@@ -74,6 +74,12 @@
 #    (defaults to BUILDDIR)
 # PROGDIR  = build/default
 #
+# .. for the executables makeobj / nettool
+#    (both default to BUILDDIR)
+#
+# MAKEOBJ_PROGDIR
+# NETTOOL_PROGDIR
+#
 # use this to build into same directory, where the sources are:
 #
 # BUILDDIR = $(shell pwd)

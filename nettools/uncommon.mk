@@ -16,17 +16,17 @@ else
   Q =
 endif
 
-all: $(PROGDIR)/$(PROG)
+all: $(NETTOOL_PROGDIR)/$(PROG)
 
-$(PROGDIR)/$(PROG): $(OBJS)
+$(NETTOOL_PROGDIR)/$(PROG): $(OBJS)
 	@echo "===> LD  $@"
-	$(Q)$(CXX) $(OBJS) $(LDFLAGS) $(STD_LIBS) $(LIBS) -o $(PROGDIR)/$(PROG)
+	$(Q)$(CXX) $(OBJS) $(LDFLAGS) $(STD_LIBS) $(LIBS) -o $(NETTOOL_PROGDIR)/$(PROG)
 
 clean:
 	@echo "===> Cleaning up"
 	$(Q)rm -f $(OBJS)
 	$(Q)rm -f $(DEPS)
-	$(Q)rm -f $(PROGDIR)/$(PROG)
+	$(Q)rm -f $(NETTOOL_PROGDIR)/$(PROG)
 
 -include $(DEPS)
 

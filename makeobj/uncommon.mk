@@ -16,17 +16,17 @@ else
   Q =
 endif
 
-all: $(PROGDIR)/$(PROG)
+all: $(MAKEOBJ_PROGDIR)/$(PROG)
 
-$(PROGDIR)/$(PROG): $(OBJS)
+$(MAKEOBJ_PROGDIR)/$(PROG): $(OBJS)
 	@echo "===> LD  $@"
-	$(Q)$(CXX) $(OBJS) $(LDFLAGS) $(STD_LIBS) $(LIBS) -o $(PROGDIR)/$(PROG)
+	$(Q)$(CXX) $(OBJS) $(LDFLAGS) $(STD_LIBS) $(LIBS) -o $(MAKEOBJ_PROGDIR)/$(PROG)
 
 clean:
 	@echo "===> Cleaning up"
 	$(Q)rm -f $(OBJS)
 	$(Q)rm -f $(DEPS)
-	$(Q)rm -f $(PROGDIR)/$(PROG)
+	$(Q)rm -f $(MAKEOBJ_PROGDIR)/$(PROG)
 
 -include $(DEPS)
 

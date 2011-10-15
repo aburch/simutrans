@@ -88,9 +88,10 @@ VARIANT_SOURCES += ../dataobj/network_file_transfer.cc
 
 SOURCES ?= $(SOLO_SOURCES) $(SHARED_SOURCES) $(VARIANT_SOURCES)
 
-BUILDDIR ?= ../build/$(CFG)
-TOOL ?= nettool
+BUILDDIR ?= build/$(CFG)
+BUILDDIR := ../$(BUILDDIR)
+TOOL  = nettool
 PROG ?= nettool
-PROGDIR ?= $(BUILDDIR)/$(TOOL)
+NETTOOL_PROGDIR ?= $(BUILDDIR)/$(TOOL)
 
 include uncommon.mk
