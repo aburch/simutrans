@@ -157,7 +157,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 
 	reset();
 	is_electric = false;
-	sum_running_costs = sum_gesamtgewicht = sum_gewicht = sum_gear_und_leistung = sum_leistung = 0;
+	sum_gesamtgewicht = sum_gewicht = sum_gear_und_leistung = sum_leistung = 0;
 	previous_delta_v = 0;
 	min_top_speed = SPEED_UNLIMITED;
 
@@ -674,24 +674,24 @@ void convoi_t::add_running_cost(sint64 cost, const weg_t *weg)
 {
 	jahresgewinn += cost;
 
-	if(weg  &&  weg->get_besitzer()!=get_besitzer()  &&  weg->get_besitzer()!=NULL)
+	if(weg && weg->get_besitzer()!=get_besitzer() && weg->get_besitzer()!=NULL)
 	{
 		// running on non-public way costs toll (since running costas are positive => invert)
-		sint32 toll = -(sum_running_costs*welt->get_settings().get_way_toll_runningcost_percentage())/100l;
-		if(  welt->get_settings().get_way_toll_waycost_percentage()  )
+		sint32 toll = -(cost * welt->get_settings().get_way_toll_runningcost_percentage()) / 100l;
+		if(welt->get_settings().get_way_toll_waycost_percentage())
 		{
-			if(  weg->is_electrified()  &&  needs_electrification()  )
+			if(weg->is_electrified() && needs_electrification())
 			{
 				// toll for using electricity
 				grund_t *gr = welt->lookup(weg->get_pos());
-				for(  int i=1;  i<gr->get_top();  i++  ) 
+				for(int i = 1; i < gr->get_top(); i++) 
 				{
-					ding_t *d=gr->obj_bei(i);
-					if(  wayobj_t const* const wo = ding_cast<wayobj_t>(d)  )  
+					ding_t *d = gr->obj_bei(i);
+					if(wayobj_t const* const wo = ding_cast<wayobj_t>(d))  
 					{
-						if(  wo->get_waytype()==weg->get_waytype()  )
+						if(wo->get_waytype()==weg->get_waytype())
 						{
-							toll += (wo->get_besch()->get_wartung()*welt->get_settings().get_way_toll_waycost_percentage())/100l;
+							toll += (wo->get_besch()->get_wartung() * welt->get_settings().get_way_toll_waycost_percentage()) / 100l;
 							break;
 						}
 					}
@@ -704,10 +704,10 @@ void convoi_t::add_running_cost(sint64 cost, const weg_t *weg)
 		get_besitzer()->buche( -toll, COST_WAY_TOLLS );
 	}
 
-	get_besitzer()->buche( sum_running_costs, COST_VEHICLE_RUN);
+	get_besitzer()->buche( cost, COST_VEHICLE_RUN);
 
-	book( sum_running_costs, CONVOI_OPERATIONS );
-	book( sum_running_costs, CONVOI_PROFIT );
+	book( cost, CONVOI_OPERATIONS );
+	book( cost, CONVOI_PROFIT );
 }
 
 void convoi_t::increment_odometer(uint32 steps)
@@ -1831,7 +1831,6 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_
 		//}
 		sum_gear_und_leistung += (info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor_percent() + 50) / 100;
 		sum_gewicht += info->get_gewicht();
-		sum_running_costs -= info->get_betriebskosten(welt);
 		min_top_speed = min( min_top_speed, kmh_to_speed( v->get_besch()->get_geschw() ) );
 		sum_gesamtgewicht = sum_gewicht;
 		calc_loading();
@@ -1988,7 +1987,6 @@ vehikel_t *convoi_t::remove_vehikel_bei(uint16 i)
 			//}
 			sum_gear_und_leistung -= (info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor_percent() + 50) / 100;
 			sum_gewicht -= info->get_gewicht();
-			sum_running_costs += info->get_betriebskosten(welt);
 		}
 		sum_gesamtgewicht = sum_gewicht;
 		calc_loading();
@@ -2816,7 +2814,6 @@ void convoi_t::rdwr(loadsave_t *file)
 				//}
 				sum_gear_und_leistung += (info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor_percent() + 50) / 100;
 				sum_gewicht += info->get_gewicht();
-				sum_running_costs -= info->get_betriebskosten(welt);
 				is_electric |= info->get_engine_type()==vehikel_besch_t::electric;
 			}
 			else {

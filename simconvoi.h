@@ -236,11 +236,6 @@ private:
 	 */
 	sint16 steps_driven;
 
-	/*
-	 * chaches the running costs
-	 */
-	sint32 sum_running_costs;
-
 	/**
 	* Gesamtleistung. Wird nicht gespeichert, sondern aus den Einzelleistungen
 	* errechnet.
