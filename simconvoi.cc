@@ -1831,7 +1831,7 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_
 		//}
 		sum_gear_und_leistung += (info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor_percent() + 50) / 100;
 		sum_gewicht += info->get_gewicht();
-		sum_running_costs -= info->get_betriebskosten();
+		sum_running_costs -= info->get_betriebskosten(welt);
 		min_top_speed = min( min_top_speed, kmh_to_speed( v->get_besch()->get_geschw() ) );
 		sum_gesamtgewicht = sum_gewicht;
 		calc_loading();
@@ -1988,7 +1988,7 @@ vehikel_t *convoi_t::remove_vehikel_bei(uint16 i)
 			//}
 			sum_gear_und_leistung -= (info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor_percent() + 50) / 100;
 			sum_gewicht -= info->get_gewicht();
-			sum_running_costs += info->get_betriebskosten();
+			sum_running_costs += info->get_betriebskosten(welt);
 		}
 		sum_gesamtgewicht = sum_gewicht;
 		calc_loading();
@@ -2816,7 +2816,7 @@ void convoi_t::rdwr(loadsave_t *file)
 				//}
 				sum_gear_und_leistung += (info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor_percent() + 50) / 100;
 				sum_gewicht += info->get_gewicht();
-				sum_running_costs -= info->get_betriebskosten();
+				sum_running_costs -= info->get_betriebskosten(welt);
 				is_electric |= info->get_engine_type()==vehikel_besch_t::electric;
 			}
 			else {
@@ -3448,7 +3448,7 @@ void convoi_t::info(cbuffer_t & buf) const
 	if (v != NULL) {
 		char tmp[128];
 
-		buf.printf("\n %d/%dkm/h (%1.2f$/km)\n", speed_to_kmh(min_top_speed), v->get_besch()->get_geschw(), get_running_cost() / 100.0F);
+		buf.printf("\n %d/%dkm/h (%1.2f$/km)\n", speed_to_kmh(min_top_speed), v->get_besch()->get_geschw(), get_running_cost(welt) / 100.0F);
 
 		buf.printf(" %s: %ikW\n", translator::translate("Leistung"), sum_leistung );
 

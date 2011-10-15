@@ -25,6 +25,7 @@
 	ADD: configurable way toll for using other players way (see simuconf.tab)
 	ADD: renaming of factories
 	ADD: private way sign now blocking for specific players
+	CHG: (Timothy) new serverlist without any registration needed
 
 
 Release of 110.0.1 (r4359 on 12-Mar-2011):

@@ -567,24 +567,35 @@ fast_forward = 50
 # Small values should improve the timing of the clients.
 #server_frames_between_checks = 256
 
-# Automatically announce server on the central server directory
-# 0 (default) = off, any other number is ID from
-# http://simutrans-germany.com/serverlist/
+# Automatically announce server on the central server directory (http://servers.simutrans.org/)
+# 0 (default) = off, 1 = on
 #server_announce = 0
 
-# intervall of announcement (if enabled)
-# 0=only on start/exit, -1=on join/leave, intervall>0 every x month
-#server_announce_intervall = 0
+# Interval of server announcement (if enabled)
+# Value is number of seconds between server announcements, default is 900 (15 minutes)
+# Minimum value is 60 (1 minute), for accurate listing it is recommended not to increase
+# this value to greater than 3600 (1 hour)
+# To disable announcements set server_announce to 0
+#server_announce_interval = 900
 
-# DNS name or IP of your server also IPv6 is accepted
-#server_name = 127.0.0.1
+# Fully Qualified Domain Name (FQDN) or IP address of your server (IPv6 or IPv4)
+#server_dns = 127.0.0.1
 
-# Additionally comment on your server; will be shown on game-info
-#server_comment = Testserver
+# Name of server in server listing
+#server_name = My Simutrans Server
 
-# Admin password for server; if not set, command-line tool nettool not usable
-#server_admin_pw = abc
+# Additional information about your server (for display on the list server)
+#server_comments = Comments about my server
 
-# Pause server if no clients are connected
+# Email address of server maintainer (for display on the list server)
+#server_email = maintainer@your.server
+
+# Pakset download URL (for display on the list server)
+#server_pakurl = http://your.domain/pakset.zip
+
+# Server info URL (for display on the list server)
+#server_infurl = http://your.domain/server-info.html
+
+# Pause server when no clients are connected
 #pause_server_no_clients = 1
 

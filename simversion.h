@@ -21,6 +21,19 @@
 
 #define RES_VERSION_NUMBER  110, 6, 10, 3
 
-#define ANNOUNCE_SERVER "simutrans-germany.com:80"
+
+/*********************** Settings related to network games ********************/
+
+/* Server to announce status to */
+#define ANNOUNCE_SERVER "servers.simutrans.org:80"
+
+/* Relative URL of the announce function on server */
+#define ANNOUNCE_URL "/announce"
+
+/* Relative URL of the list function on server */
+#define ANNOUNCE_LIST_URL "/list?format=csv"
+
+/* Name of file to save server listing to temporarily while downloading list */
+#define SERVER_LIST_FILE "serverlist.csv"
 
 #endif

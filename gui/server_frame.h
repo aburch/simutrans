@@ -28,6 +28,8 @@ private:
 	gui_label_t pakset_checksum;
 #endif
 
+	int parse_csv_field( char **c, char *field, size_t maxlen);
+
 	void update_info();
 
 	// pass 0 for mismatched revisions and NULL for pakset to see all
