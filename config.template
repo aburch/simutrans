@@ -66,6 +66,7 @@
 # FLAGS = -DUSE_C
 
 # Output directories:
+#    all paths are relative trunk/
 #
 # .. for object files
 #    (defaults to 'build/default')
