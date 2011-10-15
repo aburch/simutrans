@@ -536,14 +536,8 @@ void roadsign_t::rdwr(loadsave_t *file)
 		}
 		// init ownership of private ways signs
 		if(  file->get_version()<110007  &&  besch->is_private_way()  ) {
-			ticks_ns = ticks_ow = 0;
-			const uint owner = get_player_nr();
-			if(  owner >= 8  ) {
-				ticks_ow = 1 << (owner-8);
-			}
-			else {
-				ticks_ns = 1 << owner;
-			}
+			ticks_ns = 0xFD;
+			ticks_ow = 0xFF;
 		}
 	}
 }
