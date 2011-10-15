@@ -8,7 +8,7 @@ DIRS := $(sort $(dir $(OBJS)))
 # Make build directories
 DUMMY := $(shell mkdir -p $(DIRS))
 
-.PHONY: clean
+.PHONY: clean clean-prog
 
 ifeq ($(VERBOSE),)
   Q = @
@@ -16,17 +16,20 @@ else
   Q =
 endif
 
-all: $(NETTOOL_PROGDIR)/$(PROG)
+all: $(TOOL_PROGDIR)/$(PROG)
 
-$(NETTOOL_PROGDIR)/$(PROG): $(OBJS)
+$(TOOL_PROGDIR)/$(PROG): $(OBJS)
 	@echo "===> LD  $@"
-	$(Q)$(CXX) $(OBJS) $(LDFLAGS) $(STD_LIBS) $(LIBS) -o $(NETTOOL_PROGDIR)/$(PROG)
+	$(Q)$(CXX) $(OBJS) $(LDFLAGS) $(STD_LIBS) $(LIBS) -o $(TOOL_PROGDIR)/$(PROG)
+
+clean-prog:
+	$(Q)rm -f $(TOOL_PROGDIR)/$(PROG)
 
 clean:
 	@echo "===> Cleaning up"
 	$(Q)rm -f $(OBJS)
 	$(Q)rm -f $(DEPS)
-	$(Q)rm -f $(NETTOOL_PROGDIR)/$(PROG)
+	$(Q)rm -f $(TOOL_PROGDIR)/$(PROG)
 
 -include $(DEPS)
 

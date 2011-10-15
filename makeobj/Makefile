@@ -128,9 +128,13 @@ SOURCES ?= $(SOLO_SOURCES) $(SHARED_SOURCES) $(VARIANT_SOURCES)
 BUILDDIR ?= build/$(CFG)
 TOOL  = makeobj
 PROG ?= makeobj
-MAKEOBJ_PROGDIR ?= $(BUILDDIR)/$(TOOL)
+ifeq ($(origin MAKEOBJ_PROGDIR), undefined)
+  MAKEOBJ_PROGDIR := $(BUILDDIR)/$(TOOL)
+endif
 
 BUILDDIR := ../$(BUILDDIR)
-NETTOOL_PROGDIR := ../$(NETTOOL_PROGDIR)
+MAKEOBJ_PROGDIR := ../$(MAKEOBJ_PROGDIR)
 
-include uncommon.mk
+TOOL_PROGDIR = $(MAKEOBJ_PROGDIR)
+
+include ../uncommon.mk

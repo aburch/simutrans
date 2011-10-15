@@ -91,9 +91,13 @@ SOURCES ?= $(SOLO_SOURCES) $(SHARED_SOURCES) $(VARIANT_SOURCES)
 BUILDDIR ?= build/$(CFG)
 TOOL  = nettool
 PROG ?= nettool
-NETTOOL_PROGDIR ?= $(BUILDDIR)/$(TOOL)
+ifeq ($(origin NETTOOL_PROGDIR), undefined)
+  NETTOOL_PROGDIR := $(BUILDDIR)/$(TOOL)
+endif
 
 BUILDDIR := ../$(BUILDDIR)
 NETTOOL_PROGDIR := ../$(NETTOOL_PROGDIR)
 
-include uncommon.mk
+TOOL_PROGDIR = $(NETTOOL_PROGDIR)
+
+include ../uncommon.mk
