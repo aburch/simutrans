@@ -273,17 +273,6 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				{
 					uint16 air_resistance_hundreds = decode_uint16(p);
 					besch->air_resistance = float32e8_t((uint32) air_resistance_hundreds, (uint32)100);
-					if(experimental_version >= 7)
-					{
-						uint16 rolling_resistance_tenths_thousands = decode_uint16(p);
-						besch->rolling_resistance = float32e8_t((uint32) rolling_resistance_tenths_thousands, (uint32)10000);
-						besch->brake_force = decode_uint16(p);
-					}
-					else
-					{
-						besch->rolling_resistance = float32e8_t((uint32) rolling_default, (uint32)10000);
-						besch->brake_force = 65535;
-					}
 					besch->can_be_at_rear = (bool)decode_uint8(p);
 					besch->increase_maintenance_after_years = decode_uint16(p);
 					besch->increase_maintenance_by_percent = decode_uint16(p);
@@ -317,7 +306,17 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				{
 					besch->min_loading_time_seconds = besch->max_loading_time_seconds = 65535;
 				}
-
+				if(experimental_version >= 7)
+				{
+					uint16 rolling_resistance_tenths_thousands = decode_uint16(p);
+					besch->rolling_resistance = float32e8_t((uint32) rolling_resistance_tenths_thousands, (uint32)10000);
+					besch->brake_force = decode_uint16(p);
+				}
+				else
+				{
+					besch->rolling_resistance = float32e8_t((uint32) rolling_default, (uint32)10000);
+					besch->brake_force = 65535;
+				}
 			}
 			else
 			{
