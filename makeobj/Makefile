@@ -126,9 +126,16 @@ VARIANT_SOURCES += ../utils/log.cc
 
 SOURCES ?= $(SOLO_SOURCES) $(SHARED_SOURCES) $(VARIANT_SOURCES)
 
-BUILDDIR ?= ../build/$(CFG)
-TOOL ?= makeobj
+BUILDDIR ?= build/$(CFG)
+TOOL  = makeobj
 PROG ?= makeobj
-PROGDIR ?= $(BUILDDIR)/$(TOOL)
+ifeq ($(origin MAKEOBJ_PROGDIR), undefined)
+  MAKEOBJ_PROGDIR := $(BUILDDIR)/$(TOOL)
+endif
 
-include uncommon.mk
+BUILDDIR := ../$(BUILDDIR)
+MAKEOBJ_PROGDIR := ../$(MAKEOBJ_PROGDIR)
+
+TOOL_PROGDIR = $(MAKEOBJ_PROGDIR)
+
+include ../uncommon.mk

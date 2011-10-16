@@ -1276,6 +1276,7 @@ DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s stucked!", cnv->ge
 		default:
 DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s, state %i!", cnv->get_name(), cnv->get_state());
 	}
+	(void)ziel;
 }
 
 

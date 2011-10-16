@@ -66,11 +66,20 @@
 # FLAGS = -DUSE_C
 
 # Output directories:
+#    all paths are relative trunk/
 #
 # .. for object files
-# BUILDDIR = .build/default  # default setting
+#    (defaults to 'build/default')
+# BUILDDIR = build/default
 # .. for the executable
-# PROGDIR  = .build/default  # default setting
+#    (defaults to BUILDDIR)
+# PROGDIR  = build/default
+#
+# .. for the executables makeobj / nettool
+#    (both default to BUILDDIR)
+#
+# MAKEOBJ_PROGDIR
+# NETTOOL_PROGDIR
 #
 # use this to build into same directory, where the sources are:
 #

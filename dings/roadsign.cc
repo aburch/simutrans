@@ -216,9 +216,14 @@ void roadsign_t::calc_bild()
 			image += 2;
 		}
 		set_bild( besch->get_bild_nr(image) );
-		yoff = -gr->get_weg_yoff()/2;
-		if(  gr->get_weg_hang()  ) {
-			yoff -= TILE_HEIGHT_STEP;
+		set_yoff( 0 );
+		if(  hang_t::typ hang = gr->get_weg_hang()  ) {
+			if(hang==hang_t::west ||  hang==hang_t::nord) {
+				set_yoff( -TILE_HEIGHT_STEP );
+			}
+		}
+		else {
+			set_yoff( -gr->get_weg_yoff() );
 		}
 		after_bild = IMG_LEER;
 		return;
@@ -456,13 +461,12 @@ bool roadsign_t::sync_step(long /*delta_t*/)
 
 void roadsign_t::rotate90()
 {
-	ding_t::rotate90();
 	// only meaningful for traffic lights
+	ding_t::rotate90();
 	if(automatic) {
 		zustand = (zustand+1)&1;
 	}
 	dir = ribi_t::rotate90( dir );
-	calc_bild();
 }
 
 
@@ -540,26 +544,17 @@ void roadsign_t::rdwr(loadsave_t *file)
 		}
 		// init ownership of private ways signs
 		if(  file->get_version()<110007  &&  besch->is_private_way()  ) {
-			ticks_ns = ticks_ow = 0;
-			const uint owner = get_player_nr();
-			if(  owner >= 8  ) {
-				ticks_ow = 1 << (owner-8);
-			}
-			else {
-				ticks_ns = 1 << owner;
-			}
+			ticks_ns = 0xFD;
+			ticks_ow = 0xFF;
 		}
 	}
 }
-
-
 
 
 void roadsign_t::entferne(spieler_t *sp)
 {
 	spieler_t::accounting(sp, -besch->get_preis(), get_pos().get_2d(), COST_CONSTRUCTION);
 }
-
 
 
 /**
@@ -586,8 +581,6 @@ void roadsign_t::laden_abschliessen()
 }
 
 
-
-
 // to sort compare_roadsign_besch for always the same menu order
 static bool compare_roadsign_besch(const roadsign_besch_t* a, const roadsign_besch_t* b)
 {
@@ -609,7 +602,6 @@ static bool compare_roadsign_besch(const roadsign_besch_t* a, const roadsign_bes
 }
 
 
-
 /* static stuff from here on ... */
 bool roadsign_t::alles_geladen()
 {
@@ -618,7 +610,6 @@ bool roadsign_t::alles_geladen()
 	}
 	return true;
 }
-
 
 
 bool roadsign_t::register_besch(roadsign_besch_t *besch)
@@ -654,8 +645,6 @@ bool roadsign_t::register_besch(roadsign_besch_t *besch)
 
 	return true;
 }
-
-
 
 
 /**

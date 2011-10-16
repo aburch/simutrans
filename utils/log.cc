@@ -209,7 +209,9 @@ void log_t::fatal(const char *who, const char *format, ...)
 	// no display available
 	puts( buffer );
 #else
+#  ifdef DEBUG
 	int old_level = umgebung_t::verbose_debug;
+#  endif
 	umgebung_t::verbose_debug = 0;	// no more window concerning messages
 	if(is_display_init()) {
 		// show notification

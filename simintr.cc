@@ -102,6 +102,7 @@ void interrupt_check(const char* caller_info)
 			enabled = true;
 		}
 	}
+	(void)caller_info;
 }
 
 
