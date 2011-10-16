@@ -758,8 +758,7 @@ void convoi_t::calc_acceleration(long delta_t)
 					const sint32 sl = speed_limits->get_element(i);
 					if(sl < akt_speed && sl < new_speed_soll)
 					{
-						// + VEHICLE_STEPS_PER_TILE to add a margin of error, as the speed limit calculations are per tile, not per step.
-						const sint32 limit_brake = convoy.calc_min_braking_distance(simtime_factor, convoy.get_weight_summary(), akt_speed - sl) + VEHICLE_STEPS_PER_TILE; 
+						const sint32 limit_brake = convoy.calc_min_braking_distance(simtime_factor, convoy.get_weight_summary(), akt_speed - sl); 
 						const sint32 route_steps = (uint32)front.get_steps_next() + 1 - front.get_steps() + (i - current_route_index) * VEHICLE_STEPS_PER_TILE; 
 						
 						if (route_steps <= limit_brake)
