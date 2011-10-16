@@ -30,7 +30,6 @@ ware_t::ware_t() : ziel(), zwischenziel(), zielpos(-1, -1)
 {
 	menge = 0;
 	index = 0;
-	accumulated_distance = 0;
 	arrival_time = 0;
 	to_factory = 0;
 }
@@ -41,7 +40,6 @@ ware_t::ware_t(const ware_besch_t *wtyp) : ziel(), zwischenziel(), zielpos(-1, -
 	//This constructor is called from simcity.cc
 	menge = 0;
 	index = wtyp->get_index();
-	accumulated_distance = 0;
 	arrival_time = 0;
 	to_factory = 0;
 }
@@ -53,7 +51,6 @@ ware_t::ware_t(const ware_besch_t *wtyp, halthandle_t o) : ziel(), zwischenziel(
 	menge = 0;
 	index = wtyp->get_index();
 	origin = o;
-	accumulated_distance = 0;
 	arrival_time = 0;
 }
 
@@ -206,7 +203,13 @@ void ware_t::rdwr(karte_t *welt,loadsave_t *file)
 
 	if(file->get_experimental_version() >= 2)
 	{
-		file->rdwr_long(accumulated_distance);
+		if(file->get_version() < 110007)
+		{
+			// Was accumulated distance
+			// (now handled in convoys)
+			uint32 dummy = 0;
+			file->rdwr_long(dummy);
+		}
 		if(file->get_experimental_version() < 4)
 		{
 			// Was journey steps
@@ -217,7 +220,6 @@ void ware_t::rdwr(karte_t *welt,loadsave_t *file)
 	}
 	else
 	{
-		accumulated_distance = 0;
 		arrival_time = 0;
 	}
 	
@@ -243,9 +245,4 @@ void ware_t::laden_abschliessen(karte_t *welt, spieler_t * /*sp*/)  //"Invite fi
 	if(origin.is_bound()) {
 		origin = welt->lookup(origin->get_init_pos())->get_halt();
 	}
-}
-
-void ware_t::add_distance(uint32 distance)
-{
-	accumulated_distance += distance; 
 }

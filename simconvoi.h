@@ -23,6 +23,8 @@
 #include "convoihandle_t.h"
 #include "halthandle_t.h"
 
+#include "simconst.h"
+
 #define MAX_CONVOI_COST				9 // Total number of cost items
 #define MAX_MONTHS					12 // Max history
 
@@ -87,6 +89,97 @@ public:
 		ENTERING_DEPOT,
 		REVERSING,
 		MAX_STATES
+	};
+
+	struct departure_data_t
+	{
+	public:
+		/** 
+		  * Departure time in internal ticks
+		  */
+		sint64 departure_time;
+
+		/**
+		* Accumulated distance since the convoy departed from
+		* this stop, indexed by the player number of the way 
+		* over which the convoy has passed. If the way is
+		* ownerless, it is recorded as belonging to the owner
+		* of they convoy, unless it is open water, in which case
+		* it is recorded as being MAX_PLAYER_COUNT (in other 
+		* words, two greater than the maximum number of players).
+		* This is to facilitate proper apportionment of revenues
+		* for ocean-going ships coming into ports owned by
+		* other players (+2) and the measurement of journey
+		* distance by straight line distance between halts,
+		* rather than route distance (+1)
+		*/
+	private:
+		uint32 accumulated_distance_since_departure[MAX_PLAYER_COUNT + 2];
+
+	public:
+
+		departure_data_t()
+		{
+			departure_time = 0ll;
+			for(int i = 0; i <= MAX_PLAYER_COUNT; i ++)
+			{
+				accumulated_distance_since_departure[i] = 0;
+			}
+		}
+
+		/**
+		 * Method for adding the total distance at intermediate halts
+		 */
+		void add_overall_distance(uint32 distance)
+		{
+			accumulated_distance_since_departure[MAX_PLAYER_COUNT] += distance;
+		}
+
+		/** 
+		 * Method to get the overall distance. This should be the basis
+		 * for measuring the total revenue.
+		 */
+		uint32 get_overall_distance() const
+		{
+			return accumulated_distance_since_departure[MAX_PLAYER_COUNT];
+		}
+
+		uint32 get_way_distance(uint8 index) const
+		{
+			return accumulated_distance_since_departure [index];
+		}
+
+		/** 
+		 * Method to increment by one the distance recorded as
+		 * travelled by a vehicle over a particular way, indexed
+		 * by the player ID of the way. This is used for revenue
+		 * apportionment.
+		 */
+		void increment_way_distance(uint8 player)
+		{
+			accumulated_distance_since_departure[player] ++;
+		}
+
+		/**
+		 * Method to increment by one the distance recorded
+		 * as travelled by a vehicle over open water. This
+		 * is used for apportionment of revenue for sea-going
+		 * vehicles at ports (to determine whether to charge
+		 * for the use of ways or the use of the port itself)
+		 */
+		void increment_way_distance_water()
+		{
+			accumulated_distance_since_departure[MAX_PLAYER_COUNT + 1] ++;
+		}
+
+		/**
+		 * Method for setting values in the array ab initio. 
+		 * Used when loading from a saved game only.
+		 */
+		void set_distance(uint8 index, uint32 value)
+		{
+			accumulated_distance_since_departure[index] = value;
+		}
 	};
 
 private:
@@ -442,11 +535,13 @@ private:
 
 	/**
 	 * Time in ticks since this convoy last departed from
-	 * any given stop, indexed here by its handle ID.
+	 * any given stop, plus accumulated distance since the last
+	 * stop, indexed here by its handle ID.
 	 * @author: jamespetts, August 2011. Replaces the original
 	 * "last_departure_time" member.
+	 * Modified October 2011 to include accumulated distance.
 	 */
-	inthashtable_tpl<uint16, sint64> *departure_times;
+	inthashtable_tpl<uint16, departure_data_t> *departures;
 
 	// When we arrived at current stop
 	// @author Inkelyad
@@ -840,7 +935,7 @@ public:
 	void set_reverse_schedule(bool reverse) { reverse_schedule = reverse; }
 
 	/**
-	* The table of point-to-point average speeds.
+	* The table of point-to-point average journey times.
 	* @author jamespetts
 	*/
 	koordhashtable_tpl<id_pair, average_tpl<uint16> > * average_journey_times;

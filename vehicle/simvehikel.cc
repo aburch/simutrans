@@ -931,9 +931,6 @@ bool vehikel_t::load_freight(halthandle_t halt, bool overcrowd)
 			//hinein = inside (Google)
 
 			ware_t ware = halt->hole_ab(besch->get_ware(), hinein, fpl, cnv->get_besitzer(), cnv, overcrowd);
-			
-			// Needed here to prevent over-accumulation.
-			ware.reset_accumulated_distance();
 					
 			if(ware.menge == 0) 
 			{

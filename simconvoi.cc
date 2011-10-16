@@ -139,7 +139,7 @@ void convoi_t::reset()
 	longest_min_loading_time = 0;
 	longest_max_loading_time = 0;
 	current_loading_time = 0;
-	departure_times->clear();
+	departures->clear();
 	for(uint8 i = 0; i < MAX_CONVOI_COST; i ++)
 	{	
 		rolling_average[i] = 0;
@@ -153,7 +153,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	besitzer_p = sp;
 
 	average_journey_times = new koordhashtable_tpl<id_pair, average_tpl<uint16> >;
-	departure_times = new inthashtable_tpl<uint16, sint64>;
+	departures = new inthashtable_tpl<uint16, departure_data_t>;
 
 	reset();
 	is_electric = false;
@@ -216,9 +216,9 @@ convoi_t::convoi_t(karte_t* wl, loadsave_t* file) : fahr(max_vehicle, NULL)
 	init(wl, 0);
 	replace = NULL;
 	delete average_journey_times;
-	delete departure_times;
+	delete departures;
 	average_journey_times = new koordhashtable_tpl<id_pair, average_tpl<uint16> >;
-	departure_times = new inthashtable_tpl<uint16, sint64>;
+	departures = new inthashtable_tpl<uint16, departure_data_t>;
 	rdwr(file);
 	current_stop = fpl == NULL ? 255 : fpl->get_aktuell() - 1;
 
@@ -246,7 +246,7 @@ convoi_t::convoi_t(spieler_t* sp) : fahr(max_vehicle, NULL)
 	livery_scheme_index = 0;
 
 	average_journey_times = new koordhashtable_tpl<id_pair, average_tpl<uint16> >;
-	departure_times = new inthashtable_tpl<uint16, sint64>;
+	departures = new inthashtable_tpl<uint16, departure_data_t>;
 }
 
 
@@ -292,7 +292,7 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 	clear_replace();
 
 	delete average_journey_times;
-	delete departure_times;
+	delete departures;
 
 	// @author hsiegeln - deregister from line (again) ...
 	unset_line();
@@ -894,7 +894,7 @@ bool convoi_t::sync_step(long delta_t)
 				}
 			}
 
-			departure_times->clear();
+			departures->clear();
 
 			break;	// LEAVING_DEPOT
 			
@@ -1731,7 +1731,7 @@ void convoi_t::ziel_erreicht()
 		}
 
 		// we still book the money for the trip; however, the frieght will be lost
-		departure_times->clear();
+		departures->clear();
 
 		akt_speed = 0;
 		if (!replace || !replace->get_autostart()) {
@@ -3271,29 +3271,42 @@ void convoi_t::rdwr(loadsave_t *file)
 		if(file->get_experimental_version() <= 9)
 		{
 			uint16 last_halt_id = welt->lookup(fahr[0]->last_stop_pos)->get_halt().get_id();
-			sint64 departure_time = departure_times->get(last_halt_id);
+			sint64 departure_time = departures->get(last_halt_id).departure_time;
 			file->rdwr_longlong(departure_time);
 			if(file->is_loading())
 			{
-				departure_times->clear();
-				departure_times->put(last_halt_id, departure_time);
+				departures->clear();
+				departure_data_t dep;
+				dep.departure_time = departure_time;
+				departures->put(last_halt_id, dep);
 			}
 		}
 		else
 		{
 			uint16 id;
 			sint64 departure_time;
+			uint32 accumulated_distance;
 			if(file->is_saving())
 			{
-				uint32 count = departure_times->get_count();
+				uint32 count = departures->get_count();
 				file->rdwr_long(count);
-				inthashtable_iterator_tpl<uint16, sint64> iter(departure_times);
+				inthashtable_iterator_tpl<uint16, departure_data_t> iter(departures);
 				while(iter.next())
 				{
 					id = iter.get_current_key();
-					departure_time = iter.get_current_value();
+					departure_time = iter.get_current_value().departure_time;
 					file->rdwr_short(id);
 					file->rdwr_longlong(departure_time);
+					if(file->get_version() >= 110007)
+					{
+						uint8 player_count = MAX_PLAYER_COUNT + 2;
+						file->rdwr_byte(player_count);
+						for(int i = 0; i < player_count; i ++)
+						{
+							accumulated_distance = iter.get_current_value().get_way_distance(i);
+							file->rdwr_long(accumulated_distance);
+						}
+					}
 				}
 			}
 
@@ -3301,12 +3314,25 @@ void convoi_t::rdwr(loadsave_t *file)
 			{
 				uint32 count = 0;
 				file->rdwr_long(count);
-				departure_times->clear();
+				departures->clear();
+				uint32 accumulated_distance = 0;
 				for(int i = 0; i < count; i ++)
 				{
 					file->rdwr_short(id);
 					file->rdwr_longlong(departure_time);
-					departure_times->put(id, departure_time);
+					departure_data_t dep;
+					dep.departure_time = departure_time;
+					if(file->get_version() >= 110007)
+					{
+						uint8 player_count = 0;
+						file->rdwr_byte(player_count);
+						for(int i = 0; i < player_count; i ++)
+						{
+							file->rdwr_long(accumulated_distance);
+							dep.set_distance(i, accumulated_distance);
+						}
+					}
+					departures->put(id, dep);
 				}
 			}
 		}
@@ -3319,7 +3345,7 @@ void convoi_t::rdwr(loadsave_t *file)
 	}
 	else if(file->is_loading())
 	{
-		departure_times->clear();
+		departures->clear();
 	}
 
 	if(file->get_experimental_version() >= 9 && file->get_version() >= 110006)
@@ -3638,7 +3664,7 @@ void convoi_t::laden() //"load" (Babelfish)
 	if(journey_distance > 0)
 	{
 		arrival_time = welt->get_zeit_ms();
-		sint64 journey_time = welt->ticks_to_tenths_of_minutes(arrival_time - departure_times->get(last_halt.get_id()));
+		sint64 journey_time = welt->ticks_to_tenths_of_minutes(arrival_time - departures->get(last_halt.get_id()).departure_time);
 		if(journey_time <= 0)
 		{
 			// Necessary to prevent divisions by zero.
@@ -3670,7 +3696,7 @@ void convoi_t::laden() //"load" (Babelfish)
 				// Book the journey times from all origins served by this convoy,
 				// and for which data are available, to this destination.
 
-				if(!departure_times->is_contained(idp.x))
+				if(!departures->is_contained(idp.x))
 				{
 					fpl->increment_index(&current_stop, &reverse);
 					pair.x = welt->lookup(fpl->eintrag[current_stop].pos)->get_halt().get_id();
@@ -3678,7 +3704,7 @@ void convoi_t::laden() //"load" (Babelfish)
 					continue;
 				}
 
-				journey_time = welt->ticks_to_tenths_of_minutes(arrival_time - departure_times->get(pair.x));
+				journey_time = welt->ticks_to_tenths_of_minutes(arrival_time - departures->get(pair.x).departure_time);
 				if(!average_journey_times->is_contained(idp))
 				{
 					average_tpl<uint16> average;
@@ -3715,16 +3741,11 @@ void convoi_t::laden() //"load" (Babelfish)
 
 	uint8 stop = fpl->get_aktuell();
 	bool rev = reverse_schedule;
+	bool clear_departures = false;
 	fpl->increment_index(&stop, &rev);
 	if(reverse_schedule != rev || fpl->get_aktuell() == 0)
 	{
-		// If this is the end of the schedule, the departure times need to be reset
-		// so as to avoid over-writing good journey time data with data comprising 
-		// the time between the last departure on the previous run to the current
-		// stop, which will give excessively long times.
-			
-		// Must first save and then re-add the last stop.
-		departure_times->clear();
+		clear_departures = true;
 	}
 		
 	// Recalculate comfort
@@ -3734,14 +3755,11 @@ void convoi_t::laden() //"load" (Babelfish)
 		book(get_comfort(), CONVOI_COMFORT);
 	}
 
-	for(uint8 i = 0; i < anz_vehikel; i++)
+	inthashtable_iterator_tpl<uint16, departure_data_t> iter(departures);
+	while(iter.next())
 	{
 		// Accumulate distance 
-		slist_iterator_tpl<ware_t> iter_cargo(fahr[i]->get_fracht());
-		while(iter_cargo.next())
-		{
-			iter_cargo.access_current().add_distance(journey_distance);
-		}
+		iter.access_current_value().add_overall_distance(journey_distance);
 	}
 
 	if(state == FAHRPLANEINGABE) //"ENTER SCHEDULE" (Google)
@@ -3776,6 +3794,17 @@ void convoi_t::laden() //"load" (Babelfish)
 		else {
 			halt = halthandle_t();
 		}
+	}
+
+	if(clear_departures)
+	{
+		// If this is the end of the schedule, the departure times need to be reset
+		// so as to avoid over-writing good journey time data with data comprising 
+		// the time between the last departure on the previous run to the current
+		// stop, which will give excessively long times.
+			
+		// Must first save and then re-add the last stop.
+		departures->clear();
 	}
 
 	if (wait_lock == 0 ) {
@@ -3820,10 +3849,8 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	const uint32 max_distance = ware.get_origin().is_bound() ? 
 		shortest_distance(ware.get_origin()->get_basis_pos(), fahr[0]->get_pos().get_2d()) * 2 :
 		3 * shortest_distance(last_stop_pos.get_2d(), fahr[0]->get_pos().get_2d());
-	const uint32 distance = ware.get_accumulated_distance();
+	const uint32 distance = departures->get(ware.get_origin().get_id()).get_overall_distance();
 	const uint32 revenue_distance = distance < max_distance ? distance : max_distance;
-
-	ware.reset_accumulated_distance();
 
 	if(overall_average_speed == 0)
 	{
@@ -5460,7 +5487,7 @@ void convoi_t::snprintf_remaining_loading_time(char *p, size_t size) const
  */
 void convoi_t::snprintf_remaining_reversing_time(char *p, size_t size) const
 {
-	const sint32 remaining_ticks = (int)(departure_times->get(welt->lookup(fahr[0]->last_stop_pos)->get_halt().get_id()) - welt->get_zeit_ms());
+	const sint32 remaining_ticks = (int)(departures->get(welt->lookup(fahr[0]->last_stop_pos)->get_halt().get_id()).departure_time - welt->get_zeit_ms());
 	uint32 ticks_left = 0;
 	if(remaining_ticks >= 0)
 	{
@@ -5639,7 +5666,9 @@ void convoi_t::clear_replace()
 	if(halt.is_bound())
 	{
 		// Only book a departure time if this convoy is at a station/stop.
-		departure_times->set(halt.get_id(), time);
+		departure_data_t dep;
+		dep.departure_time = time;
+		departures->set(halt.get_id(), dep);
 	}
  }
 

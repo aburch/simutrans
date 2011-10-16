@@ -2914,7 +2914,7 @@ uint16 stadt_t::check_road_connexion(koord3d dest)
 	}
 	const sint32 speed_average = (speed_sum * 100) / (count * 13); // was (float)(speed_sum / ((float)count / 10.0F))  / 1.3F;
 	const uint32 journey_distance_m = private_car_route->get_count() *welt->get_settings().get_meters_per_tile();
-	const uint16 journey_time = (6 * journey_distance_m) / (10 * speed_average); // *Tenths* of minutes: hence *0.6, not *0.06.
+	const uint16 journey_time = speed_average == 0 ? 65535 : (6 * journey_distance_m) / (10 * speed_average); // *Tenths* of minutes: hence *0.6, not *0.06.
 	const uint16 straight_line_distance_tiles = shortest_distance(origin.get_2d(), dest.get_2d());
 	return journey_time / (straight_line_distance_tiles == 0 ? 1 : straight_line_distance_tiles);
 }
