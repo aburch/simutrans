@@ -213,6 +213,7 @@ settings_t::settings_t() :
 	maint_building = 5000;	// normal buildings
 	way_toll_runningcost_percentage = 0;
 	way_toll_waycost_percentage = 0;
+	way_toll_revenue_percentage = 0;
 
 	// stop buildings
 	cst_multiply_dock=-50000;
@@ -1218,6 +1219,10 @@ void settings_t::rdwr(loadsave_t *file)
 		{
 			file->rdwr_long( way_toll_runningcost_percentage );
 			file->rdwr_long( way_toll_waycost_percentage );
+			if(file->get_experimental_version() >= 10)
+			{
+				file->rdwr_long(way_toll_revenue_percentage);
+			}
 		}
 
 		if (file->get_experimental_version() >= 9 && file->get_version() >= 110006) 
@@ -1641,7 +1646,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	way_toll_runningcost_percentage = contents.get_int("toll_runningcost_percentage", way_toll_runningcost_percentage );
 	way_toll_waycost_percentage = contents.get_int("toll_waycost_percentage", way_toll_waycost_percentage );
-
+	way_toll_revenue_percentage = contents.get_int("toll_revenue_percentage", way_toll_revenue_percentage );
+	
 	/* now the cost section */
 	cst_multiply_dock = (contents.get_int64("cost_multiply_dock", cst_multiply_dock/(-100) ) * -100) * distance_per_tile;
 	cst_multiply_station = (contents.get_int64("cost_multiply_station", cst_multiply_station/(-100) ) * -100) * distance_per_tile;

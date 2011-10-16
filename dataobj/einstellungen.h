@@ -399,6 +399,7 @@ private:
 	// fraction of running costs charged for going on other players way
 	sint32 way_toll_runningcost_percentage;
 	sint32 way_toll_waycost_percentage;
+	sint32 way_toll_revenue_percentage;
 
 public:
 	/* the big cost section */
@@ -862,6 +863,7 @@ public:
 
 	sint32 get_way_toll_runningcost_percentage() const { return way_toll_runningcost_percentage; }
 	sint32 get_way_toll_waycost_percentage() const { return way_toll_waycost_percentage; }
+	sint32 get_way_toll_revenue_percentage() const { return way_toll_revenue_percentage; }
 };
 
 #endif 
