@@ -1578,6 +1578,8 @@ bool convoi_t::set_schedule(schedule_t * f)
 	if(old_state!=INITIAL) {
 		state = FAHRPLANEINGABE;
 	}
+	// to avoid jumping trains
+	alte_richtung = fahr[0]->get_fahrtrichtung();
 	wait_lock = 0;
 	return true;
 }
