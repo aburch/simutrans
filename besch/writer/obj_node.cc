@@ -81,7 +81,7 @@ void obj_node_t::write_data(FILE* fp, const void* data)
 
 void obj_node_t::write_data_at(FILE* fp, const void* data, int offset, int size)
 {
-	if (offset < 0 || size < 0 || offset + size > desc.size) {
+	if (offset < 0 || size < 0 || (uint32)(offset + size) > desc.size) {
 		char reason[1024];
 		sprintf(reason, "invalid parameters (offset=%d, size=%d, obj_size=%d)", offset, size, desc.size);
 		throw obj_pak_exception_t("obj_node_t", reason);
