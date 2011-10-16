@@ -2153,6 +2153,8 @@ bool convoi_t::set_schedule(schedule_t * f)
 	{
 		state = FAHRPLANEINGABE;
 	}
+	// to avoid jumping trains
+	alte_richtung = fahr[0]->get_fahrtrichtung();
 	wait_lock = 0;
 	return true;
 }
@@ -2330,6 +2332,7 @@ void convoi_t::vorfahren()
 
 	koord3d k0 = route.front();
 	grund_t *gr = welt->lookup(k0);
+	bool at_dest = false;
 	if(gr  &&  gr->get_depot()) {
 		// start in depot
 		for(unsigned i=0; i<anz_vehikel; i++) {
@@ -2454,6 +2457,7 @@ void convoi_t::vorfahren()
 
 			// now advance all convoi until it is completely on the track
 			fahr[0]->set_erstes(false); // switches off signal checks ...
+
 			if(reversed && (reversable || fahr[0]->is_reversed()))
 			{
 				//train_length -= fahr[0]->get_besch()->get_length();
@@ -2520,27 +2524,32 @@ void convoi_t::vorfahren()
 			}
 		}
 
-		if(state != REVERSING)
+		if(!at_dest)
 		{
-			state = CAN_START;
-		}
-
-		// to advance more smoothly
-		int restart_speed=-1;
-		if(fahr[0]->ist_weg_frei(restart_speed,false)) {
-			// can reserve new block => drive on
-			if(haltestelle_t::get_halt(welt,k0,besitzer_p).is_bound()) {
-				fahr[0]->play_sound();
-			}
 			if(state != REVERSING)
 			{
-				state = DRIVING;
+				state = CAN_START;
 			}
+			// to advance more smoothly
+			int restart_speed=-1;
+			if(fahr[0]->ist_weg_frei(restart_speed,false)) {
+				// can reserve new block => drive on
+				if(haltestelle_t::get_halt(welt,k0,besitzer_p).is_bound()) {
+					fahr[0]->play_sound();
+				}
+				if(state != REVERSING)
+				{
+					state = DRIVING;
+				}
+			}
+		}
+		else {
+			ziel_erreicht();
 		}
 	}
 
 	// finally reserve route (if needed)
-	if(  fahr[0]->get_waytype()!=air_wt  ) {
+	if(  fahr[0]->get_waytype()!=air_wt  &&  !at_dest  ) {
 		// do not prereserve for airplanes
 		for(unsigned i=0; i<anz_vehikel; i++) {
 			// eventually reserve this
