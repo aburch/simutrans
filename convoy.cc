@@ -88,14 +88,19 @@ void adverse_summary_t::add_vehicle(const vehikel_t &v)
 			}
 		}
 	}
-	if (v.is_first()) {
+	if (v.is_first()) 
+	{
 		cf = v.get_besch()->get_air_resistance();
 	}
+
+	fr = v.get_besch()->get_rolling_resistance();
+
 	// The vehicle may be limited by braking approaching a station
 	// Or airplane circling for landing, or airplane height,
 	// Or cornering, or other odd cases
 	// These are carried in vehikel_t unlike other speed limits 
-	if (v.get_speed_limit() == vehikel_t::speed_unlimited() ) {
+	if (v.get_speed_limit() == vehikel_t::speed_unlimited() ) 
+	{
 		max_speed = KMH_SPEED_UNLIMITED;
 	}
 	else
@@ -195,7 +200,7 @@ sint32 convoy_t::calc_min_braking_distance(const weight_summary_t &weight, const
 	// with F = ma, a = F/m --> x = 1/2 v²m/F.
 	// This equation is a rough estimation:
 	// - it does not take into account, that Ff depends on v (getting a differential equation).
-	// - Frs depends on the inclinationn of the way. The above Frs is asnapshot of the current position only.
+	// - Frs depends on the inclination of the way. The above Frs is asnapshot of the current position only.
 
 	// Therefore and because the actual braking lasts longer than this estimation predicts anyway, we ignore Frs and Ff here:
 	const float32e8_t vv = v * v; // v in m/s
@@ -242,10 +247,6 @@ void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const 
 		float32e8_t speed_ratio = 0; // requested speed / convoy's max speed. calculated when needed.
 		float32e8_t dx = 0; // covered distance in m
 		float32e8_t v = speed_to_v(akt_speed); // v in m/s, akt_speed in simutrans vehicle speed.
-		//static uint32 count1 = 0;
-		//static sint32 count2 = 0;
-		//static sint32 count3 = 0;
-		//count1++;
 		// iterate the passed time.
 		while (delta_t > 0)
 		{
@@ -327,7 +328,6 @@ void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const 
 				// This part is important for acceleration/deceleration phases only. 
 				// If the force to weight ratio exceeds a certain level, then we must calculate speed iterative,
 				// as it depends on previous speed.
-				//count2++;
 				dt = DT_SLICE;
 				dt_s = fl_slice_seconds;
 			}
@@ -335,7 +335,6 @@ void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const 
 			{
 				// If a small force produces a small speed change, we can add the difference at once in the 'else' section
 				// with a disregardable inaccuracy.
-				//count3++;
 				dt = delta_t;
 				dt_s = fl_time_factor * dt;
 			}

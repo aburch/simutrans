@@ -742,21 +742,32 @@ void convoi_t::calc_acceleration(long delta_t)
 				new_speed_soll = speedmin;
 			}
 			else if (speed_limits && speed_limits->get_count() > 0)
-			{/*
+			{
 				// Brake for upcoming speed limit?
-				const uint16 check_until = min(speed_limits->get_count(), (uint16)(max_check_index + 1));
-				for(uint16 i = current_route_index; i < check_until; i++)
+				const sint32 brake_steps = convoy.calc_min_braking_distance(simtime_factor, convoy.get_weight_summary(), akt_speed);
+				const uint16 check_tiles = min(speed_limits->get_count() - 1, (brake_steps / VEHICLE_STEPS_PER_TILE) + current_route_index);
+				const vehikel_t &front = *this->front();
+				const uint16 current_route_index = front.get_route_index();
+				ITERATE_PTR(speed_limits, n)
+				{
+					const sint32 TEST = speed_limits->get_element(n);
+					const uint16 TEST_speed = speed_to_kmh(TEST);
+					const uint8 x = 1 + 1;
+				}
+				for(uint16 i = current_route_index; i < check_tiles; i++)
 				{
 					const sint32 sl = speed_limits->get_element(i);
 					if(sl < akt_speed && sl < new_speed_soll)
 					{
-						const uint16 limit_brake_tiles = (brake_distance - (convoy.calc_min_braking_distance(convoy.get_weight_summary(), sl) * 1000 / meters_per_tile)) / meters_per_tile;
-						if(current_route_index + limit_brake_tiles >= i)
+						const sint32 limit_brake = convoy.calc_min_braking_distance(simtime_factor, convoy.get_weight_summary(), akt_speed - sl); 
+						const sint32 route_steps = (uint32)front.get_steps_next() + 1 - front.get_steps() + (i - current_route_index) * VEHICLE_STEPS_PER_TILE; 
+						
+						if (route_steps <= limit_brake)
 						{
 							new_speed_soll = sl;
 						}
 					}
-				}*/
+				}
 			}
 		}
 	}
@@ -3682,26 +3693,28 @@ void convoi_t::laden() //"load" (Babelfish)
 
 			const uint8 starting_stop = current_stop;
 
+			id_pair idp;
+			idp.y = pair.y;
+			idp.x = pair.x;
+
 			do
 			{			
 				// Book the journey times from all origins served by this convoy,
 				// and for which data are available, to this destination.
 
-				if(!departure_times->is_contained(pair.x))
+				if(!departure_times->is_contained(idp.x))
 				{
 					fpl->increment_index(&current_stop, &reverse);
 					pair.x = welt->lookup(fpl->eintrag[current_stop].pos)->get_halt().get_id();
+					idp.x = pair.x;
 					continue;
 				}
 
 				journey_time = welt->ticks_to_tenths_of_minutes(arrival_time - departure_times->get(pair.x));
-				if(!average_journey_times->is_contained(pair))
+				if(!average_journey_times->is_contained(idp))
 				{
 					average_tpl<uint16> average;
 					average.add(journey_time);
-					id_pair idp;
-					idp.y = pair.y;
-					idp.x = pair.x;
 					average_journey_times->put(idp, average);
 					/*average_journey_times->put(pair, average);*/
 				}
@@ -3711,26 +3724,24 @@ void convoi_t::laden() //"load" (Babelfish)
 				}
 				if(line.is_bound())
 				{
-					if(!line->average_journey_times->is_contained(pair))
+					if(!line->average_journey_times->is_contained(idp))
 					{
 						average_tpl<uint16> average;
 						average.add(journey_time);
-						id_pair idp;
-						idp.y = pair.y;
-						idp.x = pair.x;
 						line->average_journey_times->put(idp, average);
 						/*line->average_journey_times->put(pair, average);*/
 					}
 					else
 					{
-						line->average_journey_times->access(pair)->add_check_overflow_16(journey_time);
+						line->average_journey_times->access(idp)->add_check_overflow_16(journey_time);
 					}
 				}
 
 				fpl->increment_index(&current_stop, &reverse);
 				pair.x = welt->lookup(fpl->eintrag[current_stop].pos)->get_halt().get_id();
+				idp.x = pair.x;
 			}
-			while(starting_stop != current_stop && pair.x != pair.y);
+			while(starting_stop != current_stop && idp.x != idp.y);
 		}
 	}
 

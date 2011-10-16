@@ -79,7 +79,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	int i;
 	uint8  uv8;
 
-	int total_len = 67;
+	int total_len = 71;
 
 	// prissi: must be done here, since it may affect the len of the header!
 	string sound_str = ltrim( obj.get("sound") );
@@ -117,7 +117,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// Finally, this is the experimental version number. This is *added*
 	// to the standard version number, to be subtracted again when read.
 	// Start at 0x100 and increment in hundreds (hex).
-	version += 0x700;
+	version += 0x800;
 
 	node.write_uint16(fp, version, 0);
 
@@ -827,10 +827,38 @@ end:
 	uint16 max_loading_time = obj.get_int("max_loading_time", 65535);
 	node.write_uint16(fp, max_loading_time, 65);
 
+	uint16 rolling_default;
+	switch(waytype)
+	{
+		default:
+		case road_wt:
+			rolling_default = 150; //0.015 when read
+			break;
+		case track_wt:
+		case tram_wt:
+		case monorail_wt:
+		case narrowgauge_wt:
+			rolling_default = 51; //0.0051 when read
+			break;
+		case air_wt:
+		case water_wt:
+			rolling_default = 10; //0.001 when read
+			break;
+		case maglev_wt:		
+			rolling_default = 15; //0.0015 when read
+			break;
+	};
+
+	uint16 rolling_resistance_tenths_thousands = obj.get_int("rolling_resistance", rolling_default);
+	node.write_uint16(fp, rolling_resistance_tenths_thousands, 67);
+
+	uint16 brake_force = obj.get_int("brake_force", 65535);
+	node.write_uint16(fp, brake_force, 69);
+
 	sint8 sound_str_len = sound_str.size();
 	if (sound_str_len > 0) {
-		node.write_sint8  (fp, sound_str_len, 67);
-		node.write_data_at(fp, sound_str.c_str(),     68, sound_str_len);
+		node.write_sint8  (fp, sound_str_len, 71);
+		node.write_data_at(fp, sound_str.c_str(),     72, sound_str_len);
 	}
 
 	node.write(fp);
