@@ -121,10 +121,7 @@ public:
 		departure_data_t()
 		{
 			departure_time = 0ll;
-			for(int i = 0; i <= MAX_PLAYER_COUNT; i ++)
-			{
-				accumulated_distance_since_departure[i] = 0;
-			}
+			reset_distances();
 		}
 
 		/**
@@ -179,6 +176,20 @@ public:
 		void set_distance(uint8 index, uint32 value)
 		{
 			accumulated_distance_since_departure[index] = value;
+		}
+
+		/**
+		 * Method for resetting the value of the overall distance
+		 * Used in circular routes when the convoy reaches a
+		 * halt from which it has previously departed, to
+		 * prevent over-accumulation of distance.
+		 */
+		void reset_distances()
+		{
+			for(int i = 0; i <= MAX_PLAYER_COUNT; i ++)
+			{
+				accumulated_distance_since_departure[i] = 0;
+			}
 		}
 	};
 
@@ -1216,6 +1227,8 @@ public:
 	static uint16 get_waiting_minutes(uint32 waiting_ticks);
 	
 	bool is_wait_infinite() const { return go_on_ticks == WAIT_INFINITE; }
+
+	inline bool is_circular_route() const;
 };
 
 #endif

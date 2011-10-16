@@ -3739,13 +3739,47 @@ void convoi_t::laden() //"load" (Babelfish)
 		}
 	}
 
-	uint8 stop = fpl->get_aktuell();
-	bool rev = reverse_schedule;
 	bool clear_departures = false;
-	fpl->increment_index(&stop, &rev);
-	if(reverse_schedule != rev || fpl->get_aktuell() == 0)
+	minivec_tpl<uint8> departure_entries_to_remove(fpl->get_count());
+	
+	if(!is_circular_route())
 	{
-		clear_departures = true;
+		uint8 stop = fpl->get_aktuell();
+		uint8 previous_stop = stop;
+
+		bool rev = reverse_schedule;
+		bool anti_rev = !rev;
+		halthandle_t stop_hh;
+		halthandle_t previous_stop_hh;
+
+		for(int i = 0; i < fpl->get_count(); i ++)
+		{
+			fpl->increment_index(&previous_stop, &anti_rev);
+			fpl->increment_index(&stop, &rev);
+			if(i == 0)
+			{
+				clear_departures = reverse_schedule != rev;
+				if(clear_departures)
+				{
+					break;
+				}
+			}
+			stop_hh = welt->lookup(fpl->eintrag[stop].pos)->get_halt();
+			previous_stop_hh = welt->lookup(fpl->eintrag[previous_stop].pos)->get_halt();
+			if(previous_stop_hh.get_id() == stop_hh.get_id())
+			{
+				departure_entries_to_remove.append(stop_hh.get_id());
+			}
+			else
+			{
+				clear_departures = false;
+				break;
+			}
+			// If we reach the end of the list without breaking,
+			// we can simply clear the whole list.
+			clear_departures = true;
+		}
+		
 	}
 		
 	// Recalculate comfort
@@ -3759,7 +3793,18 @@ void convoi_t::laden() //"load" (Babelfish)
 	while(iter.next())
 	{
 		// Accumulate distance 
-		iter.access_current_value().add_overall_distance(journey_distance);
+		if(is_circular_route() && iter.get_current_key() == welt->lookup(fpl->get_current_eintrag().pos)->get_halt().get_id())
+		{
+			// If this is a circular route, reset distances from this halt,
+			// as the list of departures is never reset for a circular route,
+			// so, without this resetting, the distance would accumulate for
+			// ever!
+			iter.access_current_value().reset_distances();
+		}
+		else
+		{
+			iter.access_current_value().add_overall_distance(journey_distance);
+		}
 	}
 
 	if(state == FAHRPLANEINGABE) //"ENTER SCHEDULE" (Google)
@@ -3802,9 +3847,18 @@ void convoi_t::laden() //"load" (Babelfish)
 		// so as to avoid over-writing good journey time data with data comprising 
 		// the time between the last departure on the previous run to the current
 		// stop, which will give excessively long times.
-			
-		// Must first save and then re-add the last stop.
 		departures->clear();
+	}
+	else
+	{
+		// In many cases, simply clearing the list does not help, such as a 
+		// Y shaped route. In such cases, halts must be pruned
+		// selectively. 
+
+		ITERATE(departure_entries_to_remove, i)
+		{
+			departures->remove(departure_entries_to_remove[i]);
+		}
 	}
 
 	if (wait_lock == 0 ) {
@@ -5714,4 +5768,12 @@ void convoi_t::clear_replace()
 	 const uint32 percentage = (load_charge * 100) / total_capacity;
 	 const uint32 difference = ((longest_max_loading_time - longest_min_loading_time) * percentage) / 100;
 	 current_loading_time = difference + longest_min_loading_time;
+ }
+
+ bool convoi_t::is_circular_route() const
+ {
+	// Three lines used here to aid debugging.
+	const uint32 departures_count = departures->get_count();
+	const uint8 schedule_count = fpl->get_count();
+	return departures_count == schedule_count;
  }
