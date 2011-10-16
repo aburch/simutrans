@@ -1758,6 +1758,7 @@ void convoi_t::vorfahren()
 
 	koord3d k0 = route.front();
 	grund_t *gr = welt->lookup(k0);
+	bool at_dest = false;
 	if(gr  &&  gr->get_depot()) {
 		// start in depot
 		for(unsigned i=0; i<anz_vehikel; i++) {
@@ -1824,32 +1825,47 @@ void convoi_t::vorfahren()
 
 			// now advance all convoi until it is completely on the track
 			fahr[0]->set_erstes(false); // switches off signal checks ...
+			uint32 dist = VEHICLE_STEPS_PER_CARUNIT*train_length<<YARDS_PER_VEHICLE_STEP_SHIFT;
 			for(unsigned i=0; i<anz_vehikel; i++) {
 				vehikel_t* v = fahr[i];
 
 				v->darf_rauchen(false);
-				fahr[i]->fahre_basis( (VEHICLE_STEPS_PER_CARUNIT*train_length)<<YARDS_PER_VEHICLE_STEP_SHIFT );
-				train_length -= v->get_besch()->get_length();
+				uint32 const driven = fahr[i]->fahre_basis( dist );
+				if (i==0  &&  driven < dist) {
+					// we are already at our destination
+					at_dest = true;
+				}
 				// this gives the length in carunits, 1/CARUNITS_PER_TILE of a full tile => all cars closely coupled!
 				v->darf_rauchen(true);
+
+				uint32 const vlen = ((VEHICLE_STEPS_PER_CARUNIT*v->get_besch()->get_length())<<YARDS_PER_VEHICLE_STEP_SHIFT);
+				if (vlen > dist) {
+					break;
+				}
+				dist = driven - vlen;
 			}
 			fahr[0]->set_erstes(true);
 		}
-		state = CAN_START;
+		if (!at_dest) {
+			state = CAN_START;
 
-		// to advance more smoothly
-		int restart_speed=-1;
-		if(fahr[0]->ist_weg_frei(restart_speed,false)) {
-			// can reserve new block => drive on
-			if(haltestelle_t::get_halt(welt,k0,besitzer_p).is_bound()) {
-				fahr[0]->play_sound();
+			// to advance more smoothly
+			int restart_speed=-1;
+			if(fahr[0]->ist_weg_frei(restart_speed,false)) {
+				// can reserve new block => drive on
+				if(haltestelle_t::get_halt(welt,k0,besitzer_p).is_bound()) {
+					fahr[0]->play_sound();
+				}
+				state = DRIVING;
 			}
-			state = DRIVING;
+		}
+		else {
+			ziel_erreicht();
 		}
 	}
 
 	// finally reserve route (if needed)
-	if(  fahr[0]->get_waytype()!=air_wt  ) {
+	if(  fahr[0]->get_waytype()!=air_wt  &&  !at_dest  ) {
 		// do not prereserve for airplanes
 		for(unsigned i=0; i<anz_vehikel; i++) {
 			// eventually reserve this

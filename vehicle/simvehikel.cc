@@ -1027,6 +1027,12 @@ bool vehikel_t::hop_check()
 			return false;
 		}
 	}
+	else {
+		// this is needed since in convoi_t::vorfahren the flag ist_erstes is set to null
+		if(check_for_finish) {
+			return false;
+		}
+	}
 	return true;
 }
 
