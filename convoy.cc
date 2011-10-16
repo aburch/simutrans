@@ -18,6 +18,8 @@ static const float32e8_t g_accel((uint32) 980665, (uint32) 100000); // gravitati
 static const float32e8_t  _999_permille((uint32) 999, (uint32) 1000);
 static const float32e8_t _1001_permille((uint32)1001, (uint32) 1000);
 
+static const float32e8_t  _90_percent((uint32)  90, (uint32) 100);
+static const float32e8_t  _99_percent((uint32)  99, (uint32) 100);
 static const float32e8_t _101_percent((uint32) 101, (uint32) 100);
 static const float32e8_t _110_percent((uint32) 110, (uint32) 100);
 
@@ -197,15 +199,15 @@ sint32 convoy_t::calc_min_braking_distance(const weight_summary_t &weight, const
 
 	// Therefore and because the actual braking lasts longer than this estimation predicts anyway, we ignore Frs and Ff here:
 	const float32e8_t vv = v * v; // v in m/s
-	//const float32e8_t Frs = g_accel * (adverse.fr * weight.weight_cos + weight.weight_sin); // Frs in N
+	const float32e8_t Frs = g_accel * (adverse.fr * weight.weight_cos + weight.weight_sin); // Frs in N
 	//const float32e8_t Ff = sgn(v) * adverse.cf * vv; // Frs in N
 	const float32e8_t F = get_braking_force(weight.weight); // f in N
-	return (weight.weight / 2) * (vv / (F /*+ Frs + Ff*/)); // min braking distance in m
+	return (weight.weight / 2) * (vv / (F + Frs /*+ Ff*/)); // min braking distance in m
 }
 
 sint32 convoy_t::calc_min_braking_distance(const float32e8_t &simtime_factor, const weight_summary_t &weight, sint32 speed)
 {
-	const float32e8_t x = calc_min_braking_distance(weight, speed_to_v(speed)) * _110_percent;
+	const float32e8_t x = calc_min_braking_distance(weight, speed_to_v(speed)); // * _110_percent;
 	const sint32 yards = v_to_speed(x / simtime_factor) * DT_TIME_FACTOR;
 	return yards >> YARDS_PER_VEHICLE_STEP_SHIFT;
 }
@@ -251,8 +253,12 @@ void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const 
 
 			// 1) The driver's part: select the force:
 			float32e8_t f;
-			bool is_braking = false; // don't roll backwards, due to braking
-			if (v < _999_permille * vsoll)
+			bool is_braking = akt_speed_soll <= speedmin; // don't roll backwards, due to braking
+			if (is_braking)
+			{
+				f = -get_braking_force(weight.weight) - Frs;
+			}
+			else if (v < _90_percent * vsoll)
 			{
 				// Below set speed: full acceleration
 				// If set speed is far below the convoy max speed as e.g. aircrafts on ground reduce force.
@@ -266,7 +272,10 @@ void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const 
 					}
 					if (speed_ratio < float32e8_t::tenth)
 					{
-						fvsoll = calc_speed_holding_force(vsoll, Frs, Ff);
+						if (fvsoll == 0) // fvsoll is a constant within this function. So calculate it once only.
+						{
+							fvsoll = calc_speed_holding_force(vsoll, Frs);
+						}
 						if (f > fvsoll)
 						{
 							f = (f - fvsoll) * float32e8_t::tenth + fvsoll;
@@ -274,15 +283,27 @@ void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const 
 					}
 				}
 			}
-			else if (v < _1001_permille * vsoll)
+			else if (v <= vsoll)
 			{
-				// at or slightly above set speed: hold this speed
+				f = get_force(v) - Frs;
 				if (fvsoll == 0) // fvsoll is a constant within this function. So calculate it once only.
 				{
-					fvsoll = calc_speed_holding_force(vsoll, Frs, Ff);
+					fvsoll = calc_speed_holding_force(vsoll, Frs);
 				}
-				f = fvsoll;
+				if (f > fvsoll)
+				{
+					f = (f - fvsoll) * float32e8_t::half + fvsoll;
+				}
 			}
+			//else if (v < _101_percent * vsoll)
+			//{
+			//	// at or slightly above set speed: hold this speed
+			//	if (fvsoll == 0) // fvsoll is a constant within this function. So calculate it once only.
+			//	{
+			//		fvsoll = calc_speed_holding_force(vsoll, Frs);
+			//	}
+			//	f = fvsoll;
+			//}
 			else if (v < _110_percent * vsoll)
 			{
 				// slightly above set speed: coasting 'til back to set speed.

@@ -701,7 +701,6 @@ void convoi_t::increment_odometer(uint32 steps)
 /* Calculates (and sets) new akt_speed
  * needed for driving, entering and leaving a depot)
  */
-const sint32 vmin = kmh_to_speed(4);
 void convoi_t::calc_acceleration(long delta_t)
 {
 	// existing_convoy_t is designed to become a part of convoi_t. 
@@ -722,7 +721,7 @@ void convoi_t::calc_acceleration(long delta_t)
 	}
 
 	sint32 new_speed_soll = min_top_speed;
-	if (new_speed_soll > vmin)
+	if (new_speed_soll > speedmin)
 	{
 		uint16 next_stop_index = get_next_stop_index();
 		if (next_stop_index == 65535u) // BG, 07.10.2011: currently only waggon_t sets next_stop_index. 
@@ -735,10 +734,12 @@ void convoi_t::calc_acceleration(long delta_t)
 			const vehikel_t &front = *this->front();
 			const uint16 current_route_index = front.get_route_index();
 			const sint32 route_steps = (uint32)front.get_steps_next() + 1 - front.get_steps() + (next_stop_index - current_route_index) * VEHICLE_STEPS_PER_TILE; 
-			if (route_steps <= brake_steps)
+			// BG, 08.10.2011: don't accelerate again in a braking phase just because we braked a bit stronger than expected.
+			// Therefore increase the brake_steps level if convoy should be slower than it is.
+			if (route_steps <= brake_steps + (akt_speed_soll == speedmin && akt_speed > speedmin ? 1000 : 0))
 			{
 				// Brake for upcoming stop
-				new_speed_soll = vmin;
+				new_speed_soll = speedmin;
 			}
 			else if (speed_limits && speed_limits->get_count() > 0)
 			{/*
