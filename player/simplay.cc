@@ -1209,6 +1209,13 @@ DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this 
 			finance_history_month[0][COST_CREDIT_LIMIT] = calc_credit_limit();
 		}
 	}
+
+	// Save the colour
+	if(file->get_version() >= 110007 && file->get_experimental_version() >= 10)
+	{
+		file->rdwr_byte(kennfarbe1);
+		file->rdwr_byte(kennfarbe2);
+	}
 }
 
 /*

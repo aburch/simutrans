@@ -925,6 +925,14 @@ public:
 	virtual bool is_init_network_save() const { return false; }
 };
 
+// internal tool: change player colours
+class wkz_recolour_t : public werkzeug_t {
+public:
+	wkz_recolour_t() : werkzeug_t() { id = WKZ_RECOLOUR_TOOL | SIMPLE_TOOL; }
+	virtual bool init( karte_t *, spieler_t * );
+	virtual bool is_init_network_save() const { return false; }
+};
+
 // internal tool: send message (could be used for chats)
 class wkz_add_message_t : public werkzeug_t {
 public:

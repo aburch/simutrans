@@ -143,7 +143,7 @@ protected:
 	uint8 kennfarbe1, kennfarbe2;
 
 	/**
-	 * Player number; only player 0 can do interaction
+	 * Player number
 	 * @author Hj. Malthaner
 	 */
 	uint8 player_nr;
@@ -155,7 +155,7 @@ protected:
 	bool automat;
 
 	/**
-	 * Are this player allowed to do any changes?
+	 * Are this player allowed to make any changes?
 	 * @author Hj. Malthaner
 	 */
 	bool locked;
