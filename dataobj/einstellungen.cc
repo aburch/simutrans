@@ -1214,7 +1214,7 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_bool( signals_on_left );
 		}
 
-		if(file->get_experimental_version() >= 11 || (file->get_experimental_version() == 0 && file->get_version() >= 10007))
+		if(file->get_version() >= 10007)
 		{
 			file->rdwr_long( way_toll_runningcost_percentage );
 			file->rdwr_long( way_toll_waycost_percentage );
