@@ -741,21 +741,33 @@ void convoi_t::calc_acceleration(long delta_t)
 				new_speed_soll = vmin;
 			}
 			else if (speed_limits && speed_limits->get_count() > 0)
-			{/*
+			{
 				// Brake for upcoming speed limit?
-				const uint16 check_until = min(speed_limits->get_count(), (uint16)(max_check_index + 1));
-				for(uint16 i = current_route_index; i < check_until; i++)
+				const sint32 brake_steps = convoy.calc_min_braking_distance(simtime_factor, convoy.get_weight_summary(), akt_speed);
+				const uint16 check_tiles = min(speed_limits->get_count() - 1, (brake_steps / VEHICLE_STEPS_PER_TILE) + current_route_index);
+				const vehikel_t &front = *this->front();
+				const uint16 current_route_index = front.get_route_index();
+				ITERATE_PTR(speed_limits, n)
+				{
+					const sint32 TEST = speed_limits->get_element(n);
+					const uint16 TEST_speed = speed_to_kmh(TEST);
+					const uint8 x = 1 + 1;
+				}
+				for(uint16 i = current_route_index; i < check_tiles; i++)
 				{
 					const sint32 sl = speed_limits->get_element(i);
 					if(sl < akt_speed && sl < new_speed_soll)
 					{
-						const uint16 limit_brake_tiles = (brake_distance - (convoy.calc_min_braking_distance(convoy.get_weight_summary(), sl) * 1000 / meters_per_tile)) / meters_per_tile;
-						if(current_route_index + limit_brake_tiles >= i)
+						// + VEHICLE_STEPS_PER_TILE to add a margin of error, as the speed limit calculations are per tile, not per step.
+						const sint32 limit_brake = convoy.calc_min_braking_distance(simtime_factor, convoy.get_weight_summary(), akt_speed - sl) + VEHICLE_STEPS_PER_TILE; 
+						const sint32 route_steps = (uint32)front.get_steps_next() + 1 - front.get_steps() + (i - current_route_index) * VEHICLE_STEPS_PER_TILE; 
+						
+						if (route_steps <= limit_brake)
 						{
 							new_speed_soll = sl;
 						}
 					}
-				}*/
+				}
 			}
 		}
 	}

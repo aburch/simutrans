@@ -198,7 +198,7 @@ sint32 convoy_t::calc_min_braking_distance(const weight_summary_t &weight, const
 	// with F = ma, a = F/m --> x = 1/2 v²m/F.
 	// This equation is a rough estimation:
 	// - it does not take into account, that Ff depends on v (getting a differential equation).
-	// - Frs depends on the inclinationn of the way. The above Frs is asnapshot of the current position only.
+	// - Frs depends on the inclination of the way. The above Frs is asnapshot of the current position only.
 
 	// Therefore and because the actual braking lasts longer than this estimation predicts anyway, we ignore Frs and Ff here:
 	const float32e8_t vv = v * v; // v in m/s
