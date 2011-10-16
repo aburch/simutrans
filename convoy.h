@@ -129,6 +129,10 @@ inline sint32 v_to_speed(const float32e8_t &v)
 	return ((sint32)(ms2simspeed * v) + VEHICLE_SPEED_FACTOR - 1) / VEHICLE_SPEED_FACTOR;
 }
 
+#define KMH_MIN 4
+static const sint32 speedmin = kmh_to_speed(KMH_MIN);
+
+
 //inline float32e8_t x_to_steps(const float32e8_t &x)
 //{
 //	return (ms2simspeed * x + float32e8_t(VEHICLE_SPEED_FACTOR - 1)) / float32e8_t(VEHICLE_SPEED_FACTOR);
@@ -308,9 +312,9 @@ private:
 	 * Fr: roll resistance, always > 0 
 	 * Fs: slope force/resistance, downhill: Fs < 0 (force), uphill: Fs > 0 (resistance)
 	 */
-	inline float32e8_t calc_speed_holding_force(const float32e8_t &speed /* in m/s */, const float32e8_t &Frs /* in N */, const float32e8_t &Ff /* in N */)
+	inline float32e8_t calc_speed_holding_force(const float32e8_t &v /* in m/s */, const float32e8_t &Frs /* in N */)
 	{
-		return min(get_force(speed) - Frs, Ff); /* in N */
+		return min(get_force(v) - Frs, adverse.cf * v * v); /* in N */
 	}
 protected:
 	vehicle_summary_t vehicle;
