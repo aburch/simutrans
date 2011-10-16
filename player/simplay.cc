@@ -1048,7 +1048,7 @@ void spieler_t::rdwr(loadsave_t *file)
 			{
 				if(cost_type < COST_NETWEALTH || cost_type > COST_MARGIN)
 				{
-					if((file->get_experimental_version() <= 1 && (cost_type == COST_INTEREST || cost_type == COST_CREDIT_LIMIT)) || (((file->get_experimental_version() < 11 || (file->get_experimental_version() == 0 && file->get_version() < 10007)) && cost_type == COST_WAY_TOLLS)))
+					if((file->get_experimental_version() <= 1 && (cost_type == COST_INTEREST || cost_type == COST_CREDIT_LIMIT)) || (((file->get_experimental_version() < 11 || (file->get_experimental_version() == 0 && file->get_version() < 110007)) && cost_type == COST_WAY_TOLLS)))
 					{
 						finance_history_year[year][cost_type] = 0;
 					}
@@ -1065,7 +1065,7 @@ void spieler_t::rdwr(loadsave_t *file)
 			{
 				if(cost_type < COST_NETWEALTH || cost_type > COST_MARGIN)
 				{
-					if((file->get_experimental_version() <= 1 && (cost_type == COST_INTEREST || cost_type == COST_CREDIT_LIMIT)) || (((file->get_experimental_version() < 11 || (file->get_experimental_version() == 0 && file->get_version() < 10007)) && cost_type == COST_WAY_TOLLS)))
+					if((file->get_experimental_version() <= 1 && (cost_type == COST_INTEREST || cost_type == COST_CREDIT_LIMIT)) || (((file->get_experimental_version() < 11 || (file->get_experimental_version() == 0 && file->get_version() < 110007)) && cost_type == COST_WAY_TOLLS)))
 					{
 						finance_history_month[month][cost_type] = 0;
 					}
