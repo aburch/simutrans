@@ -2272,7 +2272,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 			welt->get_message()->add_message(buf, best_pos, message_t::city, CITY_KI, besch->get_tile(layout, 0, 0)->get_hintergrund(0, 0, 0));
 		}
 		else {
-			welt->lookup_kartenboden(best_pos)->set_text( name );
+			welt->lookup_kartenboden(best_pos + offset)->set_text( name );
 		}
 
 		if (neugruendung || umziehen) {
