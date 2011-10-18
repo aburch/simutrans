@@ -284,7 +284,7 @@ struct weight_summary_t
 	{
 		// v.get_frictionfactor() between about -14 (downhill) and 50 (uphill). 
 		// Including the factor 1000 for tons to kg conversion, 50 corresponds to an inclination of 28 per mille.
-		add_weight(v.get_gesamtgewicht() * 1000, v.get_frictionfactor());
+		add_weight(v.get_gesamtgewicht(), v.get_frictionfactor());
 	}
 };
 
@@ -318,14 +318,19 @@ protected:
 	adverse_summary_t adverse;
 
 	/**
-	 * get force in kN according to current speed in m/s
+	 * get brake force in kN according to current speed in m/s
 	 */
-	virtual sint32 get_force_summary(sint32 speed) = 0;
+	virtual sint32 get_brake_summary(const sint32 speed) = 0;
 
 	/**
-	 * get power in kW according to current speed in m/s
+	 * get engine force in kN according to current speed in m/s
 	 */
-	virtual sint32 get_power_summary(sint32 speed) = 0;
+	virtual sint32 get_force_summary(const sint32 speed) = 0;
+
+	/**
+	 * get engine power in kW according to current speed in m/s
+	 */
+	virtual sint32 get_power_summary(const sint32 speed) = 0;
 
 	virtual const vehicle_summary_t &get_vehicle_summary() {
 		return vehicle;
@@ -335,20 +340,26 @@ protected:
 		return adverse;
 	}
 
+	/**
+	 * get braking force in N according to current weight in kg
+	 */
+	virtual sint32 get_braking_force(const sint32 speed) 
+	{
+		return get_brake_summary(speed) * 1000;
+	}
+
+	/*
+	 * get starting force in N
+	 */
 	virtual sint32 get_starting_force() { 
 		return get_force_summary(0) * 1000; 
 	}
 
+	/*
+	 * get continuous power in W
+	 */
 	virtual sint32 get_continuous_power() { 
 		return get_power_summary(get_vehicle_summary().max_speed) * 1000; 
-	}
-
-	virtual sint32 get_braking_force(const sint32 weight) 
-	{
-		// Usual brake deceleration is about -0.5 m/s². 
-		// With F=ma, a = F/m follows that brake force in N is ~= 1/2 weight in kg
-		// TODO: get braking force from vehicles.
-		return adverse.br * weight;
 	}
 
 	/**
@@ -582,8 +593,9 @@ protected:
 	virtual void update_vehicle_summary(vehicle_summary_t &vehicle);
 	virtual void update_adverse_summary(adverse_summary_t &adverse);
 	virtual void update_freight_summary(freight_summary_t &freight);
-	virtual sint32 get_force_summary(sint32 speed /* in m/s */);
-	virtual sint32 get_power_summary(sint32 speed /* in m/s */);
+	virtual sint32 get_brake_summary(const sint32 speed /* in m/s */); 
+	virtual sint32 get_force_summary(const sint32 speed /* in m/s */);
+	virtual sint32 get_power_summary(const sint32 speed /* in m/s */);
 public:
 	potential_convoy_t(karte_t &world, vector_tpl<const vehikel_besch_t *> &besch) : lazy_convoy_t(), vehicles(besch), world(world)
 	{
@@ -617,8 +629,9 @@ protected:
 	virtual void update_adverse_summary(adverse_summary_t &adverse);
 	virtual void update_freight_summary(freight_summary_t &freight);
 	virtual void update_weight_summary(weight_summary_t &weight);
-	virtual sint32 get_force_summary(sint32 speed /* in m/s */);
-	virtual sint32 get_power_summary(sint32 speed /* in m/s */);
+	virtual sint32 get_brake_summary(const sint32 speed /* in m/s */); 
+	virtual sint32 get_force_summary(const sint32 speed /* in m/s */);
+	virtual sint32 get_power_summary(const sint32 speed /* in m/s */);
 public:
 	existing_convoy_t(convoi_t &vehicles) : lazy_convoy_t(), convoy(vehicles)
 	{
