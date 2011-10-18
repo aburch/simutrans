@@ -282,7 +282,7 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				{
 					besch->air_resistance = float32e8_t((uint32) air_default, (uint32)100);
 					besch->rolling_resistance = float32e8_t((uint32) rolling_default, (uint32)10000);
-					besch->brake_force = 65535;
+					besch->brake_force = BRAKE_FORCE_UNKNOWN;
 					besch->can_be_at_rear = true;
 					besch->increase_maintenance_after_years = 0;
 					besch->increase_maintenance_by_percent = 0;
@@ -315,7 +315,7 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				else
 				{
 					besch->rolling_resistance = float32e8_t((uint32) rolling_default, (uint32)10000);
-					besch->brake_force = 65535;
+					besch->brake_force = BRAKE_FORCE_UNKNOWN;
 				}
 			}
 			else
@@ -436,7 +436,7 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->livery_image_type = 0;
 		besch->min_loading_time_seconds = 20;
 		besch->max_loading_time_seconds = 60;
-		besch->brake_force = 65535;
+		besch->brake_force = BRAKE_FORCE_UNKNOWN;
 	}
 	besch->set_way_constraints(way_constraints);
 

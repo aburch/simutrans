@@ -25,6 +25,9 @@
 // GEAR_FACTOR: a gear of 1.0 is stored as 64
 #define GEAR_FACTOR 64
 
+// BRAKE_FORCE_UNDEFINED
+#define BRAKE_FORCE_UNKNOWN 65535
+
 const uint32 DEFAULT_FIXED_VEHICLE_MAINTENANCE = 0;
 class checksum_t;
 
@@ -220,7 +223,8 @@ public:
 		way_constraints.set_permissive(0);
 		way_constraints.set_prohibitive(255);
 		min_loading_time = max_loading_time = (uint32)seconds_to_ticks(30, 250); 
-		tractive_effort = brake_force = 0;
+		tractive_effort = 0;
+		brake_force = BRAKE_FORCE_UNKNOWN;
 	}
 
 	ware_besch_t const* get_ware() const { return get_child<ware_besch_t>(2); }
