@@ -254,7 +254,7 @@ void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const 
 
 			// 1) The driver's part: select the force:
 			float32e8_t f;
-			bool is_braking = akt_speed_soll <= speedmin; // don't roll backwards, due to braking
+			bool is_braking = akt_speed_soll <= SPEED_MIN; // don't roll backwards, due to braking
 			if (is_braking)
 			{
 				f = -get_braking_force(v.to_sint32()) - Frs;

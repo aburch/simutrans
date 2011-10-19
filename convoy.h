@@ -127,7 +127,7 @@ inline sint32 v_to_speed(const float32e8_t &v)
 }
 
 #define KMH_MIN 4
-static const sint32 speedmin = kmh_to_speed(KMH_MIN);
+static const sint32 SPEED_MIN = kmh_to_speed(KMH_MIN);
 
 
 //inline float32e8_t x_to_steps(const float32e8_t &x)

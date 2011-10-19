@@ -721,7 +721,7 @@ void convoi_t::calc_acceleration(long delta_t)
 	}
 
 	sint32 new_speed_soll = min_top_speed;
-	if (new_speed_soll > speedmin)
+	if (new_speed_soll > SPEED_MIN)
 	{
 		uint16 next_stop_index = get_next_stop_index();
 		if (next_stop_index == 65535u) // BG, 07.10.2011: currently only waggon_t sets next_stop_index. 
@@ -736,31 +736,22 @@ void convoi_t::calc_acceleration(long delta_t)
 			const sint32 route_steps = (uint32)front.get_steps_next() + 1 - front.get_steps() + (next_stop_index - current_route_index) * VEHICLE_STEPS_PER_TILE; 
 			// BG, 08.10.2011: don't accelerate again in a braking phase just because we braked a bit stronger than expected.
 			// Therefore increase the brake_steps level if convoy should be slower than it is.
-			if (route_steps <= brake_steps + (akt_speed_soll == speedmin && akt_speed > speedmin ? 1000 : 0))
+			if (route_steps <= brake_steps + (akt_speed_soll == SPEED_MIN && akt_speed > SPEED_MIN ? 1000 : 0))
 			{
 				// Brake for upcoming stop
-				new_speed_soll = speedmin;
+				new_speed_soll = SPEED_MIN;
 			}
 			else if (speed_limits && speed_limits->get_count() > 0)
 			{
 				// Brake for upcoming speed limit?
-				const sint32 brake_steps = convoy.calc_min_braking_distance(simtime_factor, convoy.get_weight_summary(), akt_speed);
-				const uint16 check_tiles = min(speed_limits->get_count() - 1, (brake_steps / VEHICLE_STEPS_PER_TILE) + current_route_index);
-				const vehikel_t &front = *this->front();
-				const uint16 current_route_index = front.get_route_index();
-				ITERATE_PTR(speed_limits, n)
+				const uint16 check_tiles = min(speed_limits->get_count() - current_route_index, brake_steps / VEHICLE_STEPS_PER_TILE);
+				for(uint16 i = 0; i < check_tiles; i++)
 				{
-					const sint32 TEST = speed_limits->get_element(n);
-					const uint16 TEST_speed = speed_to_kmh(TEST);
-					const uint8 x = 1 + 1;
-				}
-				for(uint16 i = current_route_index; i < check_tiles; i++)
-				{
-					const sint32 sl = speed_limits->get_element(i);
+					const sint32 sl = speed_limits->get_element(i + current_route_index);
 					if(sl < akt_speed && sl < new_speed_soll)
 					{
-						const sint32 limit_brake = convoy.calc_min_braking_distance(simtime_factor, convoy.get_weight_summary(), akt_speed - sl); 
-						const sint32 route_steps = (uint32)front.get_steps_next() + 1 - front.get_steps() + (i - current_route_index) * VEHICLE_STEPS_PER_TILE; 
+						const sint32 limit_brake = brake_steps - convoy.calc_min_braking_distance(simtime_factor, convoy.get_weight_summary(), sl);
+						const sint32 route_steps = (uint32)front.get_steps_next() + 1 - front.get_steps() + i * VEHICLE_STEPS_PER_TILE;
 						
 						if (route_steps <= limit_brake)
 						{
