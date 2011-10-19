@@ -3172,7 +3172,7 @@ bool waggon_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t
 		ribi_t::ribi next_direction;
 		speed_limits->clear();
 		fixed_list_tpl<sint16, 16> corner_data;
-		for(sint32 i = route_count - 1; i > 0; i --)
+		for(sint32 i = route_count - 1; i >= 0; i --)
 		{
 			next_tile = cnv->get_route()->position_bei(i);
 			next_direction = calc_set_richtung(current_tile.get_2d(), next_tile.get_2d());
