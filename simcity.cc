@@ -2127,6 +2127,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 				return; // Rathaus ist schon okay
 			}
 			old_layout = gb->get_tile()->get_layout();
+			const sint8 old_z = gb->get_pos().z;
 			koord pos_alt = best_pos = gr->get_pos().get_2d() - gb->get_tile()->get_offset();
 			// guess layout for broken townhall's
 			if(besch_alt->get_b() != besch_alt->get_h()  &&  besch_alt->get_all_layouts()==1) {
@@ -2148,17 +2149,18 @@ void stadt_t::check_bau_rathaus(bool new_town)
 			koord groesse_alt = besch_alt->get_groesse(old_layout);
 
 			// do we need to move
-			if (old_layout<=besch->get_all_layouts()  &&  besch->get_b(old_layout) <= groesse_alt.x  &&  besch->get_h(old_layout) <= groesse_alt.y) {
+			if(  old_layout<=besch->get_all_layouts()  &&  besch->get_b(old_layout) <= groesse_alt.x  &&  besch->get_h(old_layout) <= groesse_alt.y  ) {
 				// no, the size is ok
 				// correct position if new townhall is smaller than old
-				if (old_layout == 0) {
+				if(  old_layout == 0  ) {
 					best_pos.y -= besch->get_h(old_layout) - groesse_alt.y;
 				}
 				else if (old_layout == 1) {
 					best_pos.x -= besch->get_b(old_layout) - groesse_alt.x;
 				}
 				umziehen = false;
-			} else {
+			}
+			else {
 				// we need to built a new road, thus we will use the old as a starting point (if found)
 				if (welt->lookup_kartenboden(townhall_road)  &&  welt->lookup_kartenboden(townhall_road)->hat_weg(road_wt)) {
 					alte_str = townhall_road;
@@ -2178,13 +2180,13 @@ void stadt_t::check_bau_rathaus(bool new_town)
 			}
 
 			// remove old townhall
-			if (gb) {
+			if(  gb  ) {
 				DBG_MESSAGE("stadt_t::check_bau_rathaus()", "delete townhall at (%s)", pos_alt.get_str());
 				hausbauer_t::remove(welt, NULL, gb);
 			}
 
 			// replace old space by normal houses level 0 (must be 1x1!)
-			if (umziehen) {
+			if(  umziehen  ) {
 				for (k.x = 0; k.x < groesse_alt.x; k.x++) {
 					for (k.y = 0; k.y < groesse_alt.y; k.y++) {
 						// we iterate over all tiles, since the townhalls are allowed sizes bigger than 1x1
@@ -2200,11 +2202,13 @@ void stadt_t::check_bau_rathaus(bool new_town)
 			}
 			else {
 				// make tiles flat, hausbauer_t::remove could have set some natural slopes
-				for (k.x = 0; k.x < besch->get_b(old_layout); k.x++) {
-					for (k.y = 0; k.y < besch->get_h(old_layout); k.y++) {
+				for(  k.x = 0;  k.x < besch->get_b(old_layout);  k.x++  ) {
+					for(  k.y = 0;  k.y < besch->get_h(old_layout);  k.y++  ) {
 						gr = welt->lookup_kartenboden(best_pos + k);
-						if (gr  &&  gr->ist_natur()) {
+						if(  gr  &&  gr->ist_natur()  ) {
+							// make flat and use right height
 							gr->set_grund_hang(hang_t::flach);
+							gr->set_pos( koord3d( best_pos + k, old_z ) );
 						}
 					}
 				}
