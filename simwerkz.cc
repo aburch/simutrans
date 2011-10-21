@@ -1032,21 +1032,21 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 		}
 
 
-		if(new_slope == RESTORE_SLOPE) {
+		if(  new_slope == RESTORE_SLOPE  ) {
 			// prissi: special action: set to natural slope
 			sint8 min_hgt;
 			new_slope = welt->recalc_natural_slope(pos.get_2d(),min_hgt);
 			new_pos = koord3d(pos.get_2d(), min_hgt);
 			DBG_MESSAGE("natural_slope","%i",new_slope);
 		}
-		else if(new_slope == ALL_DOWN_SLOPE) {
+		else if(  new_slope == ALL_DOWN_SLOPE  ) {
 			new_slope = hang_t::flach;
 			// is more intuitive: if there is a slope, first downgrade it
-			if (gr1->get_grund_hang()==0  ) {
+			if(  gr1->get_grund_hang()==0  ) {
 				new_pos.z -= Z_TILE_STEP;
 			}
 		}
-		else if(new_slope == ALL_UP_SLOPE) {
+		else if(  new_slope == ALL_UP_SLOPE  ) {
 			new_slope = hang_t::flach;
 			new_pos.z += Z_TILE_STEP;
 		}
