@@ -4491,7 +4491,7 @@ void stadt_t::baue_gebaeude(const koord k, bool new_town)
 
 void stadt_t::erzeuge_verkehrsteilnehmer(koord pos, sint32 /*level*/, koord target)
 {
-	const int verkehr_level =welt->get_settings().get_verkehr_level();
+	const int verkehr_level = welt->get_settings().get_verkehr_level();
 	//if (verkehr_level > 0 && level % (17 - verkehr_level) == 0) {
 	if((sint32)current_cars.get_count() < number_of_cars)
 	{
