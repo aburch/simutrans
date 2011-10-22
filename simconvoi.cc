@@ -711,12 +711,41 @@ void convoi_t::add_running_cost(sint64 cost, const weg_t *weg)
 }
 
 void convoi_t::increment_odometer(uint32 steps)
-{
+{ 
+	// Increament the way distance: used for apportioning revenue by owner of ways.
+	uint8 player;
+	weg_t* way = welt->lookup(get_pos())->get_weg(fahr[0]->get_waytype());
+	if(way == NULL)
+	{
+		if(welt->lookup(get_pos())->ist_wasser())
+		{
+			// Record journey over open seas to use
+			// to decide how to apportion costs for 
+			// ships arriving into port.
+			player = MAX_PLAYER_COUNT + 1;
+		}
+		else
+		{
+			player = besitzer_p->get_player_nr();
+		}
+	}
+	else
+	{
+		player = way->get_player_nr();
+	}
+
+	inthashtable_iterator_tpl<uint16, departure_data_t> iter(departures);
+	while(iter.next())
+	{
+		iter.access_current_value().increment_way_distance(player, steps);
+	}
+	
 	steps_since_last_odometer_increment += steps;
 	if ( steps_since_last_odometer_increment < welt->get_settings().get_steps_per_km())
 	{
 		return;
 	}
+
 	const sint64 km = steps_since_last_odometer_increment / welt->get_settings().get_steps_per_km();
 	book( km, CONVOI_DISTANCE );
 	total_distance_traveled += km;
@@ -3904,6 +3933,11 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 		}
 	}
 
+	if(overall_average_speed == 0)
+	{
+		overall_average_speed = 1;
+	}
+
 	// Cannot not charge for journey if the journey distance is more than a certain proportion of the straight line distance.
 	// This eliminates the possibility of cheating by building circuitous routes, or the need to prevent that by always using
 	// the straight line distance, which makes the game difficult and unrealistic. 
@@ -3912,13 +3946,9 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	const uint32 max_distance = ware.get_origin().is_bound() ? 
 		shortest_distance(ware.get_origin()->get_basis_pos(), fahr[0]->get_pos().get_2d()) * 2 :
 		3 * shortest_distance(last_stop_pos.get_2d(), fahr[0]->get_pos().get_2d());
-	const uint32 distance = departures->get(ware.get_origin().get_id()).get_overall_distance();
+	const departure_data_t dep = departures->get(ware.get_origin().get_id());
+	const uint32 distance = dep.get_overall_distance();
 	const uint32 revenue_distance = distance < max_distance ? distance : max_distance;
-
-	if(overall_average_speed == 0)
-	{
-		overall_average_speed = 1;
-	}
 	
 	// 100/1667 = 60min/hr / 1000 m/km
 	uint16 journey_minutes = 0;
@@ -4152,6 +4182,32 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	}
 
 	final_revenue = (final_revenue + 1500ll) / 3000ll;
+
+	// Now apportion the revenue.
+	uint32 total_way_distance = 0;
+	const uint32 sea_distance = dep.get_way_distance(MAX_PLAYER_COUNT + 1);
+	for(uint8 i = 0; i <= MAX_PLAYER_COUNT; i ++)
+	{
+		total_way_distance += dep.get_way_distance(i);
+	}
+	
+	uint32 player_way_distance;
+	for(uint8 i = 0; i < MAX_PLAYER_COUNT; i ++)
+	{
+		if(besitzer_p->get_player_nr() == i)
+		{
+			continue;
+		}
+		player_way_distance = dep.get_way_distance(i);
+		if(player_way_distance > 0)
+		{
+			spieler_t* sp = welt->get_spieler(i);
+			if(sp)
+			{
+				sp->interim_apportioned_revenue += (final_revenue * player_way_distance) / total_way_distance;
+			}
+		}
+	}
 	
 	return final_revenue;
 }
@@ -4326,7 +4382,6 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 		// we need not to call this on the same position		if(  v->last_stop_pos != v->get_pos().get_2d()  ) {		// calc_revenue
 		if(!second_run || anz_vehikel == 1)
 		{
-			//convoi_t *tmp = this;	
 			v->last_stop_pos = v->get_pos().get_2d();
 			//Unload
 			v->current_revenue = 0;
@@ -4375,6 +4430,33 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 		besitzer_p->buche(gewinn, fahr[0]->get_pos().get_2d(), COST_INCOME);
 		book(gewinn, CONVOI_PROFIT);
 		book(gewinn, CONVOI_REVENUE);
+
+		// Check the apportionment of revenue.
+		// The proportion paid to other players is
+		// not deducted from revenue, but rather
+		// added as a "WAY_TOLL" cost.
+
+		for(int i = 0; i < MAX_PLAYER_COUNT; i ++)
+		{
+			if(i == besitzer_p->get_player_nr())
+			{
+				continue;
+			}
+			spieler_t* sp = welt->get_spieler(i);
+			if(sp && sp->interim_apportioned_revenue)
+			{
+				if(welt->get_active_player() == sp)
+				{
+					sp->buche(sp->interim_apportioned_revenue, fahr[0]->get_pos().get_2d(), COST_WAY_TOLLS);
+				}
+				else
+				{
+					sp->buche(sp->interim_apportioned_revenue, COST_WAY_TOLLS);
+				}
+				besitzer_p->buche(-sp->interim_apportioned_revenue, COST_WAY_TOLLS);
+				welt->get_spieler(i)->interim_apportioned_revenue = 0;
+			}
+		}
 	}
 
 	if(state == REVERSING)

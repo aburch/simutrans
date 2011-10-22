@@ -152,9 +152,9 @@ public:
 		 * by the player ID of the way. This is used for revenue
 		 * apportionment.
 		 */
-		void increment_way_distance(uint8 player)
+		void increment_way_distance(uint8 player, uint32 steps)
 		{
-			accumulated_distance_since_departure[player] ++;
+			accumulated_distance_since_departure[player] += steps;
 		}
 
 		/**
@@ -164,9 +164,9 @@ public:
 		 * vehicles at ports (to determine whether to charge
 		 * for the use of ways or the use of the port itself)
 		 */
-		void increment_way_distance_water()
+		void increment_way_distance_water(uint32 steps)
 		{
-			accumulated_distance_since_departure[MAX_PLAYER_COUNT + 1] ++;
+			accumulated_distance_since_departure[MAX_PLAYER_COUNT + 1] += steps;
 		}
 
 		/**

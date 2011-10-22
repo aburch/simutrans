@@ -854,6 +854,7 @@ vehikel_t::unload_freight(halthandle_t halt)
 						// Calculates the revenue for each packet. 
 						// @author: jamespetts
 						current_revenue += cnv->calc_revenue(iter.access_current());
+
 						// book delivered goods to destination
 						if(end_halt == halt) 
 						{

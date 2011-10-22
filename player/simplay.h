@@ -442,6 +442,16 @@ public:
 	short get_headquarter_level(void) const { return headquarter_level; }
 
 	void ai_bankrupt();
+
+	/**
+	 * Used for summing the revenue generated
+	 * for this player by other players' convoys
+	 * whilst unloading.
+	 * This value is not saved, as it is not
+	 * carried over between sync steps.
+	 * @author: jamespetts, October 2011
+	 */
+	sint64 interim_apportioned_revenue;
 };
 
 #endif

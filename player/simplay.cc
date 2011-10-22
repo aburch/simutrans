@@ -121,6 +121,8 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 
 	base_credit_limit = get_base_credit_limit();
 	finance_history_month[0][COST_CREDIT_LIMIT] = calc_credit_limit();
+
+	interim_apportioned_revenue = 0;
 }
 
 
