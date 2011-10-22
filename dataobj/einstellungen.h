@@ -233,6 +233,15 @@ private:
 	 */
 	uint16 min_wait_airport;
 
+	/**
+	 * If true, players will not be charged
+	 * for using roads owned by the public
+	 * service player. Other way types are
+	 * not affected.
+	 * @author: jamespetts, October 2011
+	 */
+	bool toll_free_public_roads;
+
 
 public:
 
@@ -864,6 +873,8 @@ public:
 	sint32 get_way_toll_runningcost_percentage() const { return way_toll_runningcost_percentage; }
 	sint32 get_way_toll_waycost_percentage() const { return way_toll_waycost_percentage; }
 	sint32 get_way_toll_revenue_percentage() const { return way_toll_revenue_percentage; }
+
+	bool get_toll_free_public_roads() const { return toll_free_public_roads; }
 };
 
 #endif 

@@ -674,7 +674,7 @@ void convoi_t::add_running_cost(sint64 cost, const weg_t *weg)
 {
 	jahresgewinn += cost;
 
-	if(weg && weg->get_besitzer()!=get_besitzer() && weg->get_besitzer()!=NULL)
+	if(weg && weg->get_besitzer() != get_besitzer() && weg->get_besitzer() != NULL && (!welt->get_settings().get_toll_free_public_roads() || (weg->get_waytype() != road_wt || weg->get_player_nr() != 1)))
 	{
 		// running on non-public way costs toll (since running costas are positive => invert)
 		sint32 toll = -(cost * welt->get_settings().get_way_toll_runningcost_percentage()) / 100l;
@@ -698,7 +698,7 @@ void convoi_t::add_running_cost(sint64 cost, const weg_t *weg)
 				}
 			}
 			// now add normal way toll be maintenance
-			toll += (weg->get_besch()->get_wartung()*welt->get_settings().get_way_toll_waycost_percentage()) / 100l;
+			toll += (weg->get_besch()->get_wartung() * welt->get_settings().get_way_toll_waycost_percentage()) / 100l;
 		}
 		weg->get_besitzer()->buche( toll, COST_WAY_TOLLS );
 		get_besitzer()->buche( -toll, COST_WAY_TOLLS );
@@ -713,8 +713,10 @@ void convoi_t::add_running_cost(sint64 cost, const weg_t *weg)
 void convoi_t::increment_odometer(uint32 steps)
 { 
 	// Increament the way distance: used for apportioning revenue by owner of ways.
+	// Use steps, as only relative distance is important here.
 	uint8 player;
-	weg_t* way = welt->lookup(get_pos())->get_weg(fahr[0]->get_waytype());
+	waytype_t waytpe = fahr[0]->get_waytype();
+	weg_t* way = welt->lookup(get_pos())->get_weg(waytpe);
 	if(way == NULL)
 	{
 		if(welt->lookup(get_pos())->ist_wasser())
@@ -731,7 +733,14 @@ void convoi_t::increment_odometer(uint32 steps)
 	}
 	else
 	{
-		player = way->get_player_nr();
+		if(waytpe == road_wt && way->get_player_nr() == 1 && welt->get_settings().get_toll_free_public_roads())
+		{
+			player = besitzer_p->get_player_nr();
+		}
+		else
+		{
+			player = way->get_player_nr();
+		}
 	}
 
 	inthashtable_iterator_tpl<uint16, departure_data_t> iter(departures);
@@ -4181,11 +4190,9 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 		}
 	}
 
-	final_revenue = (final_revenue + 1500ll) / 3000ll;
-
 	// Now apportion the revenue.
 	uint32 total_way_distance = 0;
-	const uint32 sea_distance = dep.get_way_distance(MAX_PLAYER_COUNT + 1);
+	const uint32 sea_distance = dep.get_sea_distance();
 	for(uint8 i = 0; i <= MAX_PLAYER_COUNT; i ++)
 	{
 		total_way_distance += dep.get_way_distance(i);
@@ -4426,6 +4433,12 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 
 	if(gewinn) 
 	{
+		gewinn = (gewinn + 1500ll) / 3000ll;
+		if(gewinn == 0)
+		{
+			// Revenue should never be rounded down to zero.
+			gewinn = 1;
+		}
 		jahresgewinn += gewinn; //"annual profit" (Babelfish)
 		besitzer_p->buche(gewinn, fahr[0]->get_pos().get_2d(), COST_INCOME);
 		book(gewinn, CONVOI_PROFIT);
@@ -4445,6 +4458,9 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 			spieler_t* sp = welt->get_spieler(i);
 			if(sp && sp->interim_apportioned_revenue)
 			{
+				sp->interim_apportioned_revenue = (sp->interim_apportioned_revenue + 1500ll) / 3000ll;
+				sp->interim_apportioned_revenue *= welt->get_settings().get_way_toll_revenue_percentage();
+				sp->interim_apportioned_revenue /= 100;
 				if(welt->get_active_player() == sp)
 				{
 					sp->buche(sp->interim_apportioned_revenue, fahr[0]->get_pos().get_2d(), COST_WAY_TOLLS);

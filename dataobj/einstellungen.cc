@@ -431,6 +431,8 @@ settings_t::settings_t() :
 
 	min_wait_airport = 0;
 
+	toll_free_public_roads = false;
+
 	city_threshold_size = 1000;
 	capital_threshold_size = 10000;
 	
@@ -1268,6 +1270,10 @@ void settings_t::rdwr(loadsave_t *file)
 		{
 			file->rdwr_bool(allow_routing_on_foot);
 			file->rdwr_short(min_wait_airport);
+			if(file->get_version() >= 110007)
+			{
+				file->rdwr_bool(toll_free_public_roads);
+			}
 		}
 	}
 }
@@ -1851,6 +1857,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	allow_routing_on_foot = (bool)(contents.get_int("allow_routing_on_foot", allow_routing_on_foot));
 
 	min_wait_airport = contents.get_int("min_wait_airport", min_wait_airport) * 10; // Stored as 10ths of minutes
+
+	toll_free_public_roads = (bool)contents.get_int("toll_free_public_roads", toll_free_public_roads);
 
 	assume_everywhere_connected_by_road = (bool)(contents.get_int("assume_everywhere_connected_by_road", assume_everywhere_connected_by_road));
 

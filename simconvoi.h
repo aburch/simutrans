@@ -129,7 +129,7 @@ public:
 		 */
 		void add_overall_distance(uint32 distance)
 		{
-			accumulated_distance_since_departure[MAX_PLAYER_COUNT] += distance;
+			accumulated_distance_since_departure[MAX_PLAYER_COUNT + 1] += distance;
 		}
 
 		/** 
@@ -138,12 +138,17 @@ public:
 		 */
 		uint32 get_overall_distance() const
 		{
-			return accumulated_distance_since_departure[MAX_PLAYER_COUNT];
+			return accumulated_distance_since_departure[MAX_PLAYER_COUNT + 1];
 		}
 
 		uint32 get_way_distance(uint8 index) const
 		{
-			return accumulated_distance_since_departure [index];
+			return accumulated_distance_since_departure[index];
+		}
+
+		uint32 get_sea_distance() const
+		{
+			return accumulated_distance_since_departure[MAX_PLAYER_COUNT];
 		}
 
 		/** 
@@ -166,7 +171,7 @@ public:
 		 */
 		void increment_way_distance_water(uint32 steps)
 		{
-			accumulated_distance_since_departure[MAX_PLAYER_COUNT + 1] += steps;
+			accumulated_distance_since_departure[MAX_PLAYER_COUNT] += steps;
 		}
 
 		/**
@@ -186,7 +191,7 @@ public:
 		 */
 		void reset_distances()
 		{
-			for(int i = 0; i <= MAX_PLAYER_COUNT; i ++)
+			for(int i = 0; i < MAX_PLAYER_COUNT + 2; i ++)
 			{
 				accumulated_distance_since_departure[i] = 0;
 			}
