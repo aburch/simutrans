@@ -744,7 +744,7 @@ void path_explorer_t::compartment_t::step()
 
 				uint8 index = 0;
 
-				while (entry_count--)
+				while (entry_count-- && index < current_schedule->get_count())
 				{
 					current_halt = haltestelle_t::get_halt(world, current_schedule->eintrag[index].pos, current_owner);
                
