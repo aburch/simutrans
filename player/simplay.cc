@@ -123,6 +123,13 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 	finance_history_month[0][COST_CREDIT_LIMIT] = calc_credit_limit();
 
 	interim_apportioned_revenue = 0;
+	
+	const bool allow_access_by_default = player_nr == 1;
+
+	for(int i = 0; i < MAX_PLAYER_COUNT; i ++)
+	{
+		access[i] = allow_access_by_default;
+	}
 }
 
 
@@ -1212,11 +1219,19 @@ DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this 
 		}
 	}
 
-	// Save the colour
 	if(file->get_version() >= 110007 && file->get_experimental_version() >= 10)
 	{
+		// Save the colour
 		file->rdwr_byte(kennfarbe1);
 		file->rdwr_byte(kennfarbe2);
+
+		// Save access parameters
+		uint8 max_players = MAX_PLAYER_COUNT;
+		file->rdwr_byte(max_players);
+		for(int i = 0; i < max_players; i ++)
+		{
+			file->rdwr_bool(access[i]);
+		}
 	}
 }
 

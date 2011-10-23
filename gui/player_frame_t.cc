@@ -53,6 +53,8 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 	cash_label.set_pos(koord(244,8));
 	add_komponente( &cash_label );
 
+	const spieler_t* const current_player = welt->get_active_player();
+
 	for(int i=0; i<MAX_PLAYER_COUNT-1; i++) 
 	{
 		const spieler_t *const sp = welt->get_spieler(i);
@@ -104,12 +106,13 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 
 		// password/locked button
 		player_lock[i].init(button_t::box, "", koord(160+1,4+(i+1)*2*LINESPACE+1), koord(BUTTON_HEIGHT-2,BUTTON_HEIGHT-2));
-		player_lock[i].background = sp  &&  sp->is_locked() ? COL_RED : COL_GREEN;
+		player_lock[i].background = sp && sp->is_locked() ? COL_RED : COL_GREEN;
 		player_lock[i].add_listener(this);
 		add_komponente( player_lock+i );
 
 		// Access buttons
 		access_out[i].init(button_t::square_state, "",  koord(190+1,4+(i+1)*2*LINESPACE+1));
+		access_out[i].pressed = sp && current_player->allows_access_to(sp->get_player_nr());
 		if(access_out[i].pressed && sp)
 		{
 			tooltip_out[i].printf("Withdraw %s's access your ways and stops", sp->get_name());
@@ -120,8 +123,10 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 		}
 		access_out[i].set_tooltip(tooltip_out[i]);
 		add_komponente( access_out+i );
+		access_out[i].add_listener(this);
 		
 		access_in[i].init(button_t::square_state, "",  koord(222+1,4+(i+1)*2*LINESPACE+1));
+		access_in[i].pressed = sp && sp->allows_access_to(current_player->get_player_nr());
 		if(access_in[i].pressed && sp)
 		{
 			tooltip_in[i].printf("%s allows you to access its ways and stops", sp->get_name());
@@ -136,6 +141,12 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 		if(i == welt->get_active_player_nr())
 		{
 			access_in[i].set_visible(false);
+			access_out[i].set_visible(false);
+		}
+		if(i == 1)
+		{
+			// Public players have no convoys - 
+			// hence, no need for an access out button.
 			access_out[i].set_visible(false);
 		}
 
@@ -183,10 +194,13 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t p )
 		return true;
 	}
 
-	for(int i=0; i<MAX_PLAYER_COUNT-1; i++) {
-		if(i>=2  &&  komp==(player_active+i-2)) {
+	for(int i=0; i<MAX_PLAYER_COUNT-1; i++) 
+	{
+		if(i>=2  &&  komp==(player_active+i-2)) 
+		{
 			// switch AI on/off
-			if(  welt->get_spieler(i)==NULL  ) {
+			if(  welt->get_spieler(i)==NULL  ) 
+			{
 				// create
 				sprintf( param, "n,%i,%i", i, player_select[i].get_selection() );
 				werkzeug_t::simple_tool[WKZ_SET_PLAYER_TOOL]->set_default_param( param );
@@ -196,7 +210,8 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t p )
 				werkzeug_t::simple_tool[WKZ_SET_PLAYER_TOOL]->set_default_param( param );
 				welt->set_werkzeug( werkzeug_t::simple_tool[WKZ_SET_PLAYER_TOOL], welt->get_active_player() );
 			}
-			else {
+			else 
+			{
 				// activate
 				sprintf( param, "a,%i,%i", i, !welt->get_spieler(i)->is_active() );
 				werkzeug_t::simple_tool[WKZ_SET_PLAYER_TOOL]->set_default_param( param );
@@ -204,7 +219,8 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t p )
 			}
 			break;
 		}
-		if(komp==(player_get_finances+i)) {
+		if(komp==(player_get_finances+i)) 
+		{
 			// get finances
 			player_get_finances[i].pressed = false;
 			create_win( new money_frame_t(welt->get_spieler(i)), w_info, magic_finances_t+welt->get_spieler(i)->get_player_nr() );
@@ -216,23 +232,46 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t p )
 			update_data();
 			break;
 		}
-		if(komp==(player_lock+i)  &&  welt->get_spieler(i)) {
+		if(komp==(player_lock+i)  &&  welt->get_spieler(i))
+		{
 			// set password
 			create_win( -1, -1, new password_frame_t(welt->get_spieler(i)), w_info, (long)(welt->get_player_password_hash(i)) );
 			player_lock[i].pressed = false;
 		}
-		if(komp==(player_select+i)) {
+		if(komp==(player_select+i)) 
+		{
 			// make active player
 			remove_komponente( player_active+i-2 );
-			if(  p.i<spieler_t::MAX_AI  &&  p.i>0  ) {
+			if(  p.i<spieler_t::MAX_AI  &&  p.i>0  )
+			{
 				add_komponente( player_active+i-2 );
 				welt->get_settings().set_player_type(i, (uint8)p.i);
 			}
-			else {
+			else 
+			{
 				player_select[i].set_selection(0);
 				welt->get_settings().set_player_type(i, 0);
 			}
 			break;
+		}
+		if(komp == access_out + i)
+		{
+			// Allow access to the selected player
+			access_out[i].pressed = !access_out[i].pressed;
+			spieler_t* sp = welt->get_spieler(i);
+			if(access_out[i].pressed && sp)
+			{
+				tooltip_out[i].clear();
+				tooltip_out[i].printf("Withdraw %s's access your ways and stops", sp->get_name());
+			}
+			else if(sp)
+			{
+				tooltip_out[i].clear();
+				tooltip_out[i].printf("Allow %s to access your ways and stops", sp->get_name());
+			}
+			
+			// TEMPORARY - needs network transmission code.
+			welt->get_active_player()->set_allow_access_to(i, access_out[i].pressed);
 		}
 	}
 	return true;
@@ -258,6 +297,29 @@ void ki_kontroll_t::update_data()
 				player_get_finances[i].set_text(sp->get_name());
 			}
 
+			access_in[i].pressed = sp && sp->allows_access_to(welt->get_active_player_nr());
+			if(access_in[i].pressed && sp)
+			{
+				tooltip_in[i].clear();
+				tooltip_in[i].printf("%s allows you to access its ways and stops", sp->get_name());
+			}
+			else if(sp)
+			{
+				tooltip_in[i].clear();
+				tooltip_in[i].printf("%s does not allow you to access its ways and stops", sp->get_name());
+			}
+			access_out[i].pressed = sp && welt->get_active_player()->allows_access_to(sp->get_player_nr());
+			if(access_out[i].pressed && sp)
+			{
+				tooltip_out[i].clear();
+				tooltip_out[i].printf("Withdraw %s's access your ways and stops", sp->get_name());
+			}
+			else if(sp)
+			{
+				tooltip_out[i].clear();
+				tooltip_out[i].printf("%s does not allow you to access its ways and stops", sp->get_name());
+			}
+
 			if(welt->get_active_player_nr() == i)
 			{
 				access_in[i].set_visible(false);
@@ -266,7 +328,10 @@ void ki_kontroll_t::update_data()
 			else
 			{
 				access_in[i].set_visible(true);
-				access_out[i].set_visible(true);
+				if(i != 1)
+				{
+					access_out[i].set_visible(true);
+				}
 			}
 
 			// always update locking status

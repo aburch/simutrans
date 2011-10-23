@@ -163,6 +163,13 @@ protected:
 	// contains the password hash for local games
 	pwd_hash_t pwd_hash;
 
+	/**
+	 * Allow access to the player number
+	 * in the array.
+	 * @author: jamespetts, October 2011
+	 */
+	bool access[MAX_PLAYER_COUNT];
+
 public:
 	virtual bool set_active( bool b ) { return automat = b; }
 
@@ -444,14 +451,17 @@ public:
 	void ai_bankrupt();
 
 	/**
-	 * Used for summing the revenue generated
-	 * for this player by other players' convoys
-	 * whilst unloading.
+	 * Used for summing the revenue 
+	 * generatedfor this player by other  
+	 * players' convoys whilst unloading.
 	 * This value is not saved, as it is not
 	 * carried over between sync steps.
 	 * @author: jamespetts, October 2011
 	 */
 	sint64 interim_apportioned_revenue;
+
+	bool allows_access_to(uint8 player_nr) const { return access[player_nr]; }
+	void set_allow_access_to(uint8 player_nr, bool allow) { access[player_nr] = allow; }
 };
 
 #endif
