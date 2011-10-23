@@ -468,13 +468,24 @@ void simline_t::set_schedule(schedule_t* fpl)
 void simline_t::new_month()
 {
 	recalc_status();
-	for (int j = 0; j<MAX_LINE_COST; j++) {
-		for (int k = MAX_MONTHS-1; k>0; k--) {
+	for (int j = 0; j<MAX_LINE_COST; j++) 
+	{
+		for (int k = MAX_MONTHS-1; k>0; k--)
+		{
 			financial_history[k][j] = financial_history[k-1][j];
 		}
 		financial_history[0][j] = 0;
 	}
 	financial_history[0][LINE_CONVOIS] = count_convoys();
+
+	if(financial_history[1][LINE_AVERAGE_SPEED] == 0)
+	{
+		// Last month's average speed is recorded as zero. This means that no
+		// average speed data have been recorded in the last month, making 
+		// revenue calculations inaccurate. Use the second previous month's average speed
+		// for the previous month's average speed.
+		financial_history[1][LINE_AVERAGE_SPEED] = financial_history[2][LINE_AVERAGE_SPEED];
+	}
 
 	for(uint8 i = 0; i < MAX_LINE_COST; i ++)
 	{	
