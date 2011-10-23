@@ -299,6 +299,8 @@ protected:
 
 	virtual void calc_bild();
 
+	bool check_access(const weg_t* way) const;
+
 public:
 	virtual bool ist_befahrbar(const grund_t* ) const {return false;}
 

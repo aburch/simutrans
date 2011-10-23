@@ -2323,6 +2323,13 @@ bool vehikel_t::check_way_constraints(const weg_t &way) const
 	return missing_way_constraints_t(besch->get_way_constraints(), way.get_way_constraints()).ist_befahrbar();
 }
 
+bool vehikel_t::check_access(const weg_t* way) const
+{
+	const grund_t* const gr = welt->lookup(get_pos());
+	const weg_t* const current_way = gr ? welt->lookup(get_pos())->get_weg(get_waytype()) : NULL;
+	return way && (way->get_besitzer() == NULL || way->get_besitzer() == get_besitzer() || get_besitzer() == NULL || way->get_besitzer() == current_way->get_besitzer() || way->get_besitzer()->allows_access_to(get_besitzer()->get_player_nr()));
+}
+
 
 vehikel_t::~vehikel_t()
 {
@@ -2589,9 +2596,9 @@ bool automobil_t::ist_befahrbar(const grund_t *bd) const
 	}
 	if(!is_checker)
 	{
-		return check_way_constraints(*str);
+		return check_access(str) && check_way_constraints(*str);
 	}
-	return true;
+	return check_access(str);
 }
 
 
@@ -3224,7 +3231,7 @@ bool waggon_t::ist_befahrbar(const grund_t *bd) const
 		// ok, we can go where we already are ...
 		if(bd->get_pos() == get_pos()) 
 		{
-			return true;
+			return check_access(sch);
 		}
 		// we cannot pass an end of choose area
 		if(sch->has_sign()) 
@@ -3240,10 +3247,10 @@ bool waggon_t::ist_befahrbar(const grund_t *bd) const
 		}
 		// but we can only use empty blocks ...
 		// now check, if we could enter here
-		return sch->can_reserve(cnv->self);
+		return check_access(sch) && sch->can_reserve(cnv->self);
 	}
 
-	return true;
+	return check_access(sch);
 }
 
 
@@ -4015,7 +4022,7 @@ bool schiff_t::ist_befahrbar(const grund_t *bd) const
 		}
 	}
 #endif
-	return (w  &&  w->get_max_speed()>0 && check_way_constraints(*w));
+	return (check_access(w)  &&  w->get_max_speed()>0 && check_way_constraints(*w));
 }
 
 
