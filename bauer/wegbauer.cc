@@ -366,7 +366,8 @@ bool wegbauer_t::check_crossing(const koord zv, const grund_t *bd, waytype_t wty
 		return true;
 	}
 	// right owner of the other way
-	if(!check_owner(w->get_besitzer(),sp)) {
+	if(!check_owner(w->get_besitzer(),sp) && !check_access(w, sp)) 
+	{
 		return false;
 	}
 	// check for existing crossing
@@ -562,7 +563,8 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		if(gb) {
 			// no halt => citybuilding => do not touch
 			// also check for too high buildings ...
-			if(!check_owner(gb->get_besitzer(),sp)  ||  gb->get_tile()->get_hintergrund(0,1,0)!=IMG_LEER) {
+			if(!check_owner(gb->get_besitzer(),sp) || gb->get_tile()->get_hintergrund(0,1,0)!=IMG_LEER) 
+			{
 				return false;
 			}
 			// building above houses is expensive ... avoid it!
@@ -685,7 +687,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 			}
 			// ok, regular construction here
 			// if no way there: check for right ground type, otherwise check owner
-			ok = sch==NULL  ?  (!fundament  &&  !to->ist_wasser())  :  check_owner(sch->get_besitzer(),sp);
+			ok = sch == NULL ? (!fundament && !to->ist_wasser()) : check_owner(sch->get_besitzer(),sp) || check_access(sch, sp);
 			if(!ok) {
 				return false;
 			}
@@ -710,7 +712,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 			const weg_t *sch=to->get_weg(track_wt);
 			// roads are checked in check_crossing
 			// if no way there: check for right ground type, otherwise check owner
-			ok = sch==NULL  ?  (!fundament  &&  !to->ist_wasser())  :  check_owner(sch->get_besitzer(),sp);
+			ok = sch == NULL ? (!fundament && !to->ist_wasser()) : check_owner(sch->get_besitzer(),sp) || check_access(sch, sp);
 			// tram track allowed in road tunnels, but only along existing roads / tracks
 			if(from!=to) {
 				if(from->ist_tunnel()) {
@@ -774,7 +776,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		{
 			const weg_t *sch=to->get_weg(water_wt);
 			// if no way there: check for right ground type, otherwise check owner
-			ok = sch==NULL  ?  !fundament  :  check_owner(sch->get_besitzer(),sp);
+			ok = sch == NULL ? !fundament :  check_owner(sch->get_besitzer(), sp) || check_access(sch, sp);
 			// calculate costs
 			if(ok) {
 				*costs = to->ist_wasser() || to->hat_weg(water_wt) ? s.way_count_straight : s.way_count_leaving_road; // prefer water very much
@@ -2553,4 +2555,9 @@ uint32 wegbauer_t::calc_distance( const koord3d &pos, const koord3d &mini, const
 		dist += (pos.z - maxi.z) * s.way_count_slope;
 	}
 	return dist;
+}
+
+bool wegbauer_t::check_access(const weg_t* way, const spieler_t* sp) const
+{
+	return way && (way->get_besitzer() == NULL || way->get_besitzer() == sp || sp == NULL || way->get_besitzer()->allows_access_to(sp->get_player_nr()));
 }

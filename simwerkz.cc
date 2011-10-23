@@ -1629,20 +1629,22 @@ const char *wkz_plant_tree_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 
 
 /* the following three routines add waypoints/halts to a schedule
- * because we do not like to stop at AIs stop, but we still want to force the truck to use AI roads
- * So if there is a halt, then it must be either public or ours!
+ * Players' vehicles can stop at other players' stops when they are allowed access rights.
  * @author prissi
  */
 static const char *wkz_fahrplan_insert_aux(karte_t *welt, spieler_t *sp, koord3d pos, schedule_t *fpl, bool append){
-	if(fpl == NULL) {
+	if(fpl == NULL) 
+	{
 		dbg->warning("wkz_fahrplan_insert_aux()","Schedule is (null), doing nothing");
 		return false;
 	}
 	grund_t *bd = welt->lookup(pos);
-	if (bd) {
+	if (bd) 
+	{
 		// now just for error messages, we're assuming a valid ground
 		// check for right way type
-		if(!fpl->ist_halt_erlaubt(bd)) {
+		if(!fpl->ist_halt_erlaubt(bd)) 
+		{
 			return fpl->fehlermeldung();
 		}
 		// and check for ownership
@@ -1653,21 +1655,26 @@ static const char *wkz_fahrplan_insert_aux(karte_t *welt, spieler_t *sp, koord3d
 		}
 		if(  !bd->is_halt()  )
 		{
-			if(  w!=NULL  &&  w->get_besitzer()!=welt->get_spieler(1)  &&  !spieler_t::check_owner(w->get_besitzer(),sp)  ) {
+			if(w != NULL && !w->get_besitzer()->allows_access_to(sp->get_player_nr()) && !spieler_t::check_owner(w->get_besitzer(),sp)) 
+			{
 				return "Das Feld gehoert\neinem anderen Spieler\n";
 			}
-			if(  bd->get_depot()  &&  !spieler_t::check_owner( bd->get_depot()->get_besitzer(), sp )  ) {
+			if(  bd->get_depot()  &&  !spieler_t::check_owner( bd->get_depot()->get_besitzer(), sp )  )
+			{
 				return "Das Feld gehoert\neinem anderen Spieler\n";
 			}
 		}
-		if(bd->is_halt()  && (!spieler_t::check_owner( sp, bd->get_halt()->get_besitzer()) && (w!=NULL  &&  w->get_besitzer()!=welt->get_spieler(1)  &&  !spieler_t::check_owner(w->get_besitzer(),sp)))) {
+		if(bd->is_halt()  && (!spieler_t::check_owner(sp, bd->get_halt()->get_besitzer()) && (w != NULL && !w->get_besitzer()->allows_access_to(sp->get_player_nr()) && !spieler_t::check_owner(w->get_besitzer(), sp)))) 
+		{
 			return "Das Feld gehoert\neinem anderen Spieler\n";
 		}
 		// ok, now we have a valid ground
-		if(append) {
+		if(append) 
+		{
 			fpl->append(bd);
 		}
-		else {
+		else 
+		{
 			fpl->insert(bd);
 		}
 	}
@@ -1794,8 +1801,9 @@ uint8 wkz_wegebau_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord3d &
 		// test if way already exists on the way and if we are allowed to connect
 		weg_t *way = gr->get_weg(besch->get_wtyp());
 		if(way) {
-			// allow to connect to any road
-			if (besch->get_wtyp() == road_wt) {
+			// allow to connect to any road, or anywhere where the player has been granted access rights.
+			if(besch->get_wtyp() == road_wt || way->get_besitzer()->allows_access_to(sp->get_player_nr()))
+			{
 				return 2;
 			}
 			error = way->ist_entfernbar(sp);

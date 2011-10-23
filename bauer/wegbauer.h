@@ -175,6 +175,8 @@ private:
 
 	uint32 calc_distance( const koord3d &pos, const koord3d &mini, const koord3d &maxi );
 
+	bool check_access(const weg_t* way, const spieler_t* sp) const;
+
 public:
 	const koord3d_vector_t &get_route() const { return route; }
 
