@@ -1118,21 +1118,21 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 		}
 
 
-		if(new_slope == RESTORE_SLOPE) {
+		if(  new_slope == RESTORE_SLOPE  ) {
 			// prissi: special action: set to natural slope
 			sint8 min_hgt;
 			new_slope = welt->recalc_natural_slope(pos.get_2d(),min_hgt);
 			new_pos = koord3d(pos.get_2d(), min_hgt);
 			DBG_MESSAGE("natural_slope","%i",new_slope);
 		}
-		else if(new_slope == ALL_DOWN_SLOPE) {
+		else if(  new_slope == ALL_DOWN_SLOPE  ) {
 			new_slope = hang_t::flach;
 			// is more intuitive: if there is a slope, first downgrade it
-			if (gr1->get_grund_hang()==0  ) {
+			if(  gr1->get_grund_hang()==0  ) {
 				new_pos.z -= Z_TILE_STEP;
 			}
 		}
-		else if(new_slope == ALL_UP_SLOPE) {
+		else if(  new_slope == ALL_UP_SLOPE  ) {
 			new_slope = hang_t::flach;
 			new_pos.z += Z_TILE_STEP;
 		}
@@ -1831,7 +1831,12 @@ void wkz_wegebau_t::calc_route( wegbauer_t &bauigel, const koord3d &start, const
 	}
 
 	bauigel.route_fuer(bautyp, besch);
-	bauigel.set_keep_existing_ways( !is_ctrl_pressed() );
+	if(  is_ctrl_pressed()  ) {
+		bauigel.set_keep_existing_ways( false );
+	}
+	else {
+		bauigel.set_keep_existing_faster_ways( true );
+	}
 	if(  umgebung_t::straight_way_without_control  ||  is_ctrl_pressed()  ) {
 		DBG_MESSAGE("wkz_wegebau()", "try straight route");
 		bauigel.calc_straight_route(start,end);
