@@ -708,111 +708,60 @@ void convoi_t::calc_acceleration(long delta_t)
 	existing_convoy_t convoy(*this);
 	const uint16 meters_per_tile = welt->get_settings().get_meters_per_tile();
 	const float32e8_t simtime_factor = float32e8_t(meters_per_tile, 1000);
+	const vehikel_t &front = *this->front();
 
-	// Dwachs: only compute this if a vehicle in the convoi hopped
-	if (recalc_data) 
+	// TODO: calculate next_limit and steps_til_brake once per tile.
+	// TODO: tile_count * VEHICLE_STEPS_PER_TILE isn't the correct length, if there are curves.
+	sint32 next_speed_limit = 0;
+	sint32 steps_til_limit;
+	sint32 steps_til_brake;
+	uint16 next_stop_index = get_next_stop_index();
+	if (next_stop_index == 65535u) // BG, 07.10.2011: currently only waggon_t sets next_stop_index. 
 	{
-		// neroden: Speed limits based on the track etc. are handled by
-		// convoy.calc_move, in the 'adverse' class.
-		// When there is a permanent convoy_t for each convoi_t,
-		// replace the recalc_data calls with invalidate_* calls.
-		// In the meantime, this does nothing interesting.
-		recalc_data = false;
+		next_stop_index = route.get_count();
 	}
-
-	sint32 new_speed_soll = min_top_speed;
-	if (new_speed_soll > SPEED_MIN)
+	if (next_stop_index < INVALID_INDEX)
 	{
-		uint16 next_stop_index = get_next_stop_index();
-		if (next_stop_index == 65535u) // BG, 07.10.2011: currently only waggon_t sets next_stop_index. 
+		const sint32 brake_steps = convoy.calc_min_braking_distance(simtime_factor, convoy.get_weight_summary(), akt_speed);
+		const uint16 current_route_index = front.get_route_index();
+		steps_til_limit = (sint32)(next_stop_index - current_route_index) * VEHICLE_STEPS_PER_TILE; 
+		steps_til_brake = steps_til_limit - brake_steps;
+		if (speed_limits && speed_limits->get_count() > 0)
 		{
-			next_stop_index = route.get_count();
-		}
-		if (next_stop_index < INVALID_INDEX)
-		{
-			const sint32 brake_steps = convoy.calc_min_braking_distance(simtime_factor, convoy.get_weight_summary(), akt_speed);
-			const vehikel_t &front = *this->front();
-			const uint16 current_route_index = front.get_route_index();
-			const sint32 route_steps = (uint32)front.get_steps_next() + 1 - front.get_steps() + (next_stop_index - current_route_index) * VEHICLE_STEPS_PER_TILE; 
-			// BG, 08.10.2011: don't accelerate again in a braking phase just because we braked a bit stronger than expected.
-			// Therefore increase the brake_steps level if convoy should be slower than it is.
-			if (route_steps <= brake_steps + (akt_speed_soll == SPEED_MIN && akt_speed > SPEED_MIN ? 1000 : 0))
-			{
-				// Brake for upcoming stop
-				new_speed_soll = SPEED_MIN;
-			}
-			else if (speed_limits && speed_limits->get_count() > 0)
+			if (speed_limits->get_count() > current_route_index)
 			{
 				// Brake for upcoming speed limit?
 				const uint16 check_tiles = min(speed_limits->get_count() - current_route_index, brake_steps / VEHICLE_STEPS_PER_TILE);
-				for(uint16 i = 0; i < check_tiles; i++)
+				for (uint16 i = 0; i < check_tiles; i++)
 				{
 					const sint32 sl = speed_limits->get_element(i + current_route_index);
-					if(sl < akt_speed && sl < new_speed_soll)
-					{
-						const sint32 limit_brake = brake_steps - convoy.calc_min_braking_distance(simtime_factor, convoy.get_weight_summary(), sl);
-						const sint32 route_steps = (uint32)front.get_steps_next() + 1 - front.get_steps() + i * VEHICLE_STEPS_PER_TILE;
+					const sint32 limit_steps = brake_steps - convoy.calc_min_braking_distance(simtime_factor, convoy.get_weight_summary(), sl);
+					const sint32 route_steps = (sint32)i * VEHICLE_STEPS_PER_TILE;
+					const sint32 st = route_steps - limit_steps;
 						
-						if (route_steps <= limit_brake)
-						{
-							new_speed_soll = sl;
-						}
+					if (steps_til_brake > st)
+					{
+						next_speed_limit = sl;
+						steps_til_limit = route_steps;
+						steps_til_brake = st;
 					}
 				}
 			}
 		}
 	}
-	akt_speed_soll = new_speed_soll;
-
-
-	//if(  recalc_brake_soll  ) 
-	//{
-
-	//	// BG, 25.09.2011: strange: dividing brake_distance twice by meters_per_tile to get the tiles.
-	//	// - first to do the same force adjustment like calc_move() does
-	//	// - and then to calculate the number of tiles, that are required to slow down.
-	//	// Did I miss another compensation? If not, then the same convoy at the same speed and weight 
-	//	// needs 16 times more tiles to slow down on 250m tiles than on 1000m tiles. 
-	//	const sint32 brake_meters = convoy.calc_min_braking_distance(convoy.get_weight_summary(), akt_speed); // in m
-	//	const sint32 brake_distance = (brake_meters * 1000) / meters_per_tile;
-	//	const uint16 brake_tiles = brake_distance <= 0 ? 0 : (uint16) (brake_distance / meters_per_tile);
-	//	const vehikel_t &front = *this->front();
-	//	const uint16 current_route_index = front.get_route_index();
-	//	const uint16 max_check_index = current_route_index + brake_tiles;
-
-	//	// Brake for upcoming stops
-	//	if(vmin < new_speed_soll && get_next_stop_index() <= max_check_index)
-	//	{
-	//		// BG, 25.09.2011: brake_distance is in real world meters. To compare with tiles of game the brake distance has to be divided by the 
-	//		// simtime_factor = meters_per_tile / 1000; as passed to convoy.calc_move() to reduce the force:
-	//		const uint16 tiles_left = get_next_stop_index() - current_route_index;
-	//		if (tiles_left <= brake_tiles)
-	//		{
-	//			new_speed_soll = vmin;
-	//		}
-	//	}
-
-	//	// Brake for upcoming speed limits
-	//	/*if(new_speed_soll > vmin && speed_limits && speed_limits->get_count() > 0)
-	//	{
-	//		const uint16 check_until = min(speed_limits->get_count(), (uint16)(max_check_index + 1));
-	//		for(uint16 i = current_route_index; i < check_until; i++)
-	//		{
-	//			const sint32 sl = speed_limits->get_element(i);
-	//			if(sl < akt_speed && sl < new_speed_soll)
-	//			{
-	//				const uint16 limit_brake_tiles = (brake_distance - (convoy.calc_min_braking_distance(convoy.get_weight_summary(), sl) * 1000 / meters_per_tile)) / meters_per_tile;
-	//				if(current_route_index + limit_brake_tiles >= i)
-	//				{
-	//					new_speed_soll = sl;
-	//				}
-	//			}
-	//		}
-	//	}*/
-	//	akt_speed_soll = new_speed_soll;
-	//	recalc_brake_soll = false;
-	//}	
-	convoy.calc_move(delta_t, float32e8_t(meters_per_tile, 1000), akt_speed_soll, akt_speed, sp_soll);
+	else
+	{
+		steps_til_limit = SINT32_MAX_VALUE;
+		steps_til_brake = SINT32_MAX_VALUE;
+	}
+	sint32 steps_left_on_current_tile = (sint32)front.get_steps_next() + 1 - (sint32)front.get_steps();
+	steps_til_brake += steps_left_on_current_tile;
+	steps_til_limit += steps_left_on_current_tile;
+	if (steps_til_brake > 0)
+		akt_speed_soll = min_top_speed;
+	else
+		akt_speed_soll = next_speed_limit;
+	convoy.calc_move(delta_t, simtime_factor, akt_speed_soll, next_speed_limit, steps_til_limit, steps_til_brake, akt_speed, sp_soll);
 }
 
 

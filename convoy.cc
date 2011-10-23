@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009 Bernd Gabriel
+ * Copyright (c) 2009..2011 Bernd Gabriel
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -187,10 +187,10 @@ sint32 convoy_t::calc_max_starting_weight(sint32 sin_alpha)
 }
 
 // The timeslice to calculate acceleration, speed and covered distance in reasonable small chuncks. 
-#define DT_TIME_FACTOR 64
 #define DT_SLICE_SECONDS 2
 #define DT_SLICE (DT_TIME_FACTOR * DT_SLICE_SECONDS)
-const float32e8_t fl_time_factor = float32e8_t(1, DT_TIME_FACTOR); 
+const float32e8_t fl_time_factor = float32e8_t(DT_TIME_FACTOR, 1); 
+const float32e8_t fl_time_divisor = float32e8_t(1, DT_TIME_FACTOR); 
 const float32e8_t fl_slice_seconds = float32e8_t(DT_SLICE_SECONDS, 1);
 
 sint32 convoy_t::calc_min_braking_distance(const weight_summary_t &weight, const float32e8_t &v)
@@ -217,7 +217,7 @@ sint32 convoy_t::calc_min_braking_distance(const float32e8_t &simtime_factor, co
 	return yards >> YARDS_PER_VEHICLE_STEP_SHIFT;
 }
 
-void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll)
+void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 next_speed_limit, sint32 steps_til_limit, sint32 steps_til_brake, sint32 &akt_speed, sint32 &sp_soll)
 {
 	sint32 max_speed = min(adverse.max_speed, vehicle.max_speed);
 	max_speed = kmh_to_speed(max_speed);
@@ -230,19 +230,19 @@ void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const 
 	{
 		// After 30 minutes any vehicle has reached its akt_speed_soll. 
 		// Shorten the process. 
-		sint32 new_speed = min(akt_speed_soll, kmh_to_speed(calc_max_speed(weight)));
-		if (new_speed > max_speed)
-		{
-			new_speed = max_speed;
-		}
-		sp_soll += (sint32)delta_t * (akt_speed + new_speed) / 2; // assume average speed. Otherwize in case of braking (akt_speed_soll == 0) the convoy won't move at all.
+		sint32 max_speed = max(akt_speed_soll, akt_speed);
+		sint32 new_speed = min(max_speed, kmh_to_speed(calc_max_speed(weight)));
+		sp_soll += (sint32)delta_t * new_speed; 
 		akt_speed = new_speed;
 	}
 	else
 	{
 		const float32e8_t fweight = weight.weight; // convoy's weight in kg
 		const float32e8_t Frs = g_accel * (adverse.fr * weight.weight_cos + weight.weight_sin); // Frs in N, weight.weight_cos and weight.weight_sin are calculated per vehicle due to vehicle specific slope angle.
-		const float32e8_t vsoll = speed_to_v(akt_speed_soll); // vsoll in m/s, akt_speed_soll in simutrans vehicle speed.
+		const float32e8_t vlim = speed_to_v(next_speed_limit); // vlim in m/s, next_speed_limit in simutrans vehicle speed.
+		const float32e8_t xlim = steps_to_x(simtime_factor, steps_til_limit); // xbrk in m, steps_til_limit in simutrans steps
+		const float32e8_t xbrk = steps_to_x(simtime_factor, steps_til_brake); // xbrk in m, steps_til_brake in simutrans steps
+		float32e8_t vsoll = speed_to_v(akt_speed_soll); // vsoll in m/s, akt_speed_soll in simutrans vehicle speed.
 		float32e8_t fvsoll = 0; // force in N needed to hold vsoll. calculated when needed.
 		float32e8_t speed_ratio = 0; // requested speed / convoy's max speed. calculated when needed.
 		float32e8_t dx = 0; // covered distance in m
@@ -250,21 +250,27 @@ void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const 
 		// iterate the passed time.
 		while (delta_t > 0)
 		{
-			const float32e8_t Ff = sgn(v) * adverse.cf * v * v;
-
 			// 1) The driver's part: select the force:
+			bool is_braking = v >= _110_percent * vsoll;
+			if (dx + v * fl_slice_seconds >= xbrk)
+			{
+				vsoll = vlim;
+				is_braking = true;
+			}
+
 			float32e8_t f;
-			bool is_braking = akt_speed_soll <= SPEED_MIN; // don't roll backwards, due to braking
 			if (is_braking)
 			{
-				f = -get_braking_force(v.to_sint32()) - Frs;
+				// running too fast, slam on the brakes! 
+				// hill-down Frs might become negative and works against the brake.
+				f = -get_braking_force(v.to_sint32());
 			}
 			else if (v < _90_percent * vsoll)
 			{
 				// Below set speed: full acceleration
 				// If set speed is far below the convoy max speed as e.g. aircrafts on ground reduce force.
 				// If set speed is at most a 10th of convoy's maximum, we reduce force to its 10th.
-				f = get_force(v) - Frs;
+				f = get_force(v);
 				if (f > million) // reducing force does not apply to 'weak' convoy's, thus we can save a lot of time skipping this code.
 				{
 					if (speed_ratio == 0) // speed_ratio is a constant within this function. So calculate it once only.
@@ -284,9 +290,9 @@ void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const 
 					}
 				}
 			}
-			else if (v <= vsoll)
+			else if (v < vsoll)
 			{
-				f = get_force(v) - Frs;
+				f = get_force(v);
 				if (fvsoll == 0) // fvsoll is a constant within this function. So calculate it once only.
 				{
 					fvsoll = calc_speed_holding_force(vsoll, Frs);
@@ -296,28 +302,21 @@ void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const 
 					f = (f - fvsoll) * float32e8_t::half + fvsoll;
 				}
 			}
-			//else if (v < _101_percent * vsoll)
-			//{
-			//	// at or slightly above set speed: hold this speed
-			//	if (fvsoll == 0) // fvsoll is a constant within this function. So calculate it once only.
-			//	{
-			//		fvsoll = calc_speed_holding_force(vsoll, Frs);
-			//	}
-			//	f = fvsoll;
-			//}
-			else if (v < _110_percent * vsoll)
+			else if (v == vsoll)
+			{
+				if (fvsoll == 0) // fvsoll is a constant within this function. So calculate it once only.
+				{
+					fvsoll = calc_speed_holding_force(vsoll, Frs);
+				}
+				f = fvsoll;
+			}
+			else 
 			{
 				// slightly above set speed: coasting 'til back to set speed.
-				f = -Frs;
+				f = float32e8_t::zero;
 			}
-			else
-			{
-				is_braking = true;
-				// running too fast, slam on the brakes! 
-				// hill-down Frs might become negative and works against the brake.
-				f = -get_braking_force(v.to_sint32()) - Frs;
-			}
-			f -= Ff;
+			const float32e8_t Ff = sgn(v) * adverse.cf * v * v;
+			f -= Ff + Frs;
 			f *= simtime_factor;
 
 			// 2) The "differential equation" part: calculate new speed:
@@ -336,38 +335,53 @@ void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const 
 				// If a small force produces a small speed change, we can add the difference at once in the 'else' section
 				// with a disregardable inaccuracy.
 				dt = delta_t;
-				dt_s = fl_time_factor * dt;
+				dt_s = fl_time_divisor * dt;
 			}
 			float32e8_t v0 = v;
-			v += (dt_s * f) / weight.weight;
+			v += (dt_s * f) / fweight;
+			float32e8_t x;
 			if (is_braking)
 			{
 				if (v < vsoll)
 				{
+					// don't brake too much
 					v = vsoll;
 				}
+				x = dx + v * dt_s;
+				if (x > xlim && v < V_MIN)
+				{
+					// don't stop before arrival.
+					v = V_MIN;
+					x = dx + v * dt_s;
+				}
 			}
-			else if (/* is_braking */ f < 0 && v < 1)
+			else 
 			{
-				v = 1;
+				if (v > vsoll)	
+				{
+					// don't accelerate too much
+					v = vsoll;
+				}
+				x = dx + v * dt_s;
+				if (x > xbrk)
+				{
+					// don't run beyond xbrk, where we must start braking.
+
+					// poor solution: start braking now:
+					vsoll = vlim;
+					v = v0;
+					continue;
+
+					// TODO: better solution: calculate the dt at which we pass xbrk.
+				}
 			}
-			else if (v > vsoll)	
-			{
-				v = vsoll;
-			}
-			dx += v * dt_s;
+			dx = x;
+
 			delta_t -= dt; // another time slice passed
 		}
 		akt_speed = v_to_speed(v); // akt_speed in simutrans vehicle speed, v in m/s
-		sp_soll += v_to_speed(dx * DT_TIME_FACTOR); // sp_soll in simutrans steps, dx in m
+		sp_soll += x_to_yards(dx); // sp_soll in simutrans yards, dx in m
 	}
-	// BG, 26.09.2011: NOTICE: sp_soll is not a speed, but the number of steps to move. 
-	//  Reducing it to KMH_SPEED_UNLIMITED may have solved a problem once upon a time, but looks weird.
-	//if (sp_soll > KMH_SPEED_UNLIMITED)
-	//{
-	//	sp_soll = KMH_SPEED_UNLIMITED;
-	//}
-	//akt_speed = min(akt_speed, kmh_to_speed(adverse.max_speed));
 }
 
 sint32 convoy_t::power_index_to_power(sint32 power_index, sint32 power_factor)

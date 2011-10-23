@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009 Bernd Gabriel
+ * Copyright (c) 2009..2011 Bernd Gabriel
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -95,6 +95,8 @@ static const float32e8_t FR_AIR = float32e8_t((uint32) 1, (uint32) 1000);
 // GEAR_FACTOR: a gear of 1.0 is stored as 64
 #define GEAR_FACTOR 64
 
+#define DT_TIME_FACTOR 64
+
 #define WEIGHT_UNLIMITED ((std::numeric_limits<sint32>::max)())
 
 // anything greater than 2097151 will give us overflow in kmh_to_speed. 
@@ -113,27 +115,51 @@ static const float32e8_t ms2kmh((uint32) 36, (uint32) 10);
  */
 
 // scale to convert between simutrans speed and m/s
-const float32e8_t simspeed2ms((uint32) 10, (uint32) 36 * 1024);
-const float32e8_t ms2simspeed((uint32) 36 * 1024, (uint32) 10);
+const float32e8_t simspeed2ms((uint32) 10 * VEHICLE_SPEED_FACTOR, (uint32) 36 * 1024);
+const float32e8_t ms2simspeed((uint32) 36 * 1024, (uint32) 10 * VEHICLE_SPEED_FACTOR);
 
 inline float32e8_t speed_to_v(const sint32 speed)
 {
-	return simspeed2ms * (speed * VEHICLE_SPEED_FACTOR);
+	return simspeed2ms * speed;
 }
 
 inline sint32 v_to_speed(const float32e8_t &v)
 {
-	return ((sint32)(ms2simspeed * v) + VEHICLE_SPEED_FACTOR - 1) / VEHICLE_SPEED_FACTOR;
+	return (sint32)(ms2simspeed * v + float32e8_t::half);
 }
+
+/**
+ * Conversion between simutrans steps and meters
+ */
+
+// scale to convert between simutrans speed and m/s
+const float32e8_t yards2m((uint32) 10 * VEHICLE_SPEED_FACTOR, (uint32) 36 * 1024 * DT_TIME_FACTOR);
+const float32e8_t m2yards((uint32) 36 * 1024 * DT_TIME_FACTOR, (uint32) 10 * VEHICLE_SPEED_FACTOR);
+
+inline float32e8_t yards_to_x(const sint32 yards)
+{
+	return yards2m * yards;
+}
+
+inline sint32 x_to_yards(const float32e8_t &x)
+{
+	return (sint32)(m2yards * x + float32e8_t::half);
+}
+
+inline float32e8_t steps_to_x(const float32e8_t &simtime_factor, const sint32 steps)
+{
+	return yards_to_x(steps << YARDS_PER_VEHICLE_STEP_SHIFT) * simtime_factor;
+}
+
+inline sint32 x_to_steps(const float32e8_t &simtime_factor, const float32e8_t x)
+{
+	return x_to_yards(x / simtime_factor) >> YARDS_PER_VEHICLE_STEP_SHIFT;
+}
+
 
 #define KMH_MIN 4
 static const sint32 SPEED_MIN = kmh_to_speed(KMH_MIN);
-
-
-//inline float32e8_t x_to_steps(const float32e8_t &x)
-//{
-//	return (ms2simspeed * x + float32e8_t(VEHICLE_SPEED_FACTOR - 1)) / float32e8_t(VEHICLE_SPEED_FACTOR);
-//}
+static const float32e8_t V_MIN = kmh2ms * KMH_MIN;
 
 /******************************************************************************/
 
@@ -304,14 +330,13 @@ private:
 
 	/**
 	 * Get force in N that holds the given speed v or maximum available force, what ever is lesser.
-	 * Ff: air resistance, always > 0
 	 * Frs = Fr + Fs
 	 * Fr: roll resistance, always > 0 
 	 * Fs: slope force/resistance, downhill: Fs < 0 (force), uphill: Fs > 0 (resistance)
 	 */
 	inline float32e8_t calc_speed_holding_force(const float32e8_t &v /* in m/s */, const float32e8_t &Frs /* in N */)
 	{
-		return min(get_force(v) - Frs, adverse.cf * v * v); /* in N */
+		return min(get_force(v), adverse.cf * v * v + Frs); /* in N */
 	}
 protected:
 	vehicle_summary_t vehicle;
@@ -402,11 +427,16 @@ public:
 	/** 
 	 * Calculate the movement within delta_t
 	 *
-	 * @param akt_speed_soll is the desired end speed in simutrans speed.
-	 * @param akt_speed is the current speed and returns the new speed after delta_t has gone in simutrans speed.
-	 * @param sp_soll is the number of simutrans steps still to go and returns the new number of steps to go.
+	 * @param simtime_factor the factor for translating simutrans time. Currently (Oct, 23th 2011) this is the length of a tile in meters divided by the standard tile length (1000 meters).
+	 * @param weight the current weight summary of the convoy.
+	 * @param akt_speed_soll the desired end speed in simutrans speed.
+	 * @param next_speed_limit the next speed limit in simutrans speed.
+	 * @param steps_til_limit the distance in simutrans steps to the next speed limit.
+	 * @param steps_til_brake the distance in simutrans steps to the point where we must start braking to obey the speed limit at steps_til_limit.
+	 * @param akt_speed the current speed and returns the new speed after delta_t has gone in simutrans speed.
+	 * @param sp_soll the number of simutrans yards still to go and returns the new number of simutrans yards to go.
 	 */
-	void calc_move(long delta_t, const float32e8_t &simtime_factor, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll);
+	void calc_move(long delta_t, const float32e8_t &simtime_factor, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 next_speed_limit, sint32 steps_til_limit, sint32 steps_til_brake, sint32 &akt_speed, sint32 &sp_soll);
 	virtual ~convoy_t(){}
 };
 
@@ -573,11 +603,11 @@ public:
 		return convoy_t::calc_max_starting_weight(sin_alpha);
 	}
 
-	void calc_move(long delta_t, const float32e8_t &simtime_factor, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll)
+	void calc_move(long delta_t, const float32e8_t &simtime_factor, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 next_speed_limit, sint32 steps_til_limit, sint32 steps_til_break, sint32 &akt_speed, sint32 &sp_soll)
 	{
 		validate_vehicle_summary();
 		validate_adverse_summary();
-		convoy_t::calc_move(delta_t, simtime_factor, weight, akt_speed_soll, akt_speed, sp_soll);
+		convoy_t::calc_move(delta_t, simtime_factor, weight, akt_speed_soll, next_speed_limit, steps_til_limit, steps_til_break, akt_speed, sp_soll);
 	}
 	virtual ~lazy_convoy_t(){}
 };
@@ -666,10 +696,10 @@ public:
 		return weight;
 	}
 
-	inline void calc_move(long delta_t, const float32e8_t &simtime_factor, sint32 akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll)
+	inline void calc_move(long delta_t, const float32e8_t &simtime_factor, sint32 akt_speed_soll, sint32 next_speed_limit, sint32 steps_til_limit, sint32 steps_til_brake, sint32 &akt_speed, sint32 &sp_soll)
 	{
 		validate_weight_summary();
-		convoy_t::calc_move(delta_t, simtime_factor, weight, akt_speed_soll, akt_speed, sp_soll);
+		convoy_t::calc_move(delta_t, simtime_factor, weight, akt_speed_soll, next_speed_limit, steps_til_limit, steps_til_brake, akt_speed, sp_soll);
 	}
 
 };
