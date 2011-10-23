@@ -37,14 +37,31 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 {
 	this->welt = wl;
 
-	for(int i=0; i<MAX_PLAYER_COUNT-1; i++) {
+	player_label.set_text("Spieler");
+	player_label.set_pos(koord(20,8));
+	add_komponente( &player_label );
+
+	password_label.set_text("Name/password");
+	password_label.set_pos(koord(81,8));
+	add_komponente( &password_label );
+
+	access_label.set_text("Access");
+	access_label.set_pos(koord(190,8));
+	add_komponente( &access_label );
+
+	cash_label.set_text("Cash");
+	cash_label.set_pos(koord(244,8));
+	add_komponente( &cash_label );
+
+	for(int i=0; i<MAX_PLAYER_COUNT-1; i++) 
+	{
 		const spieler_t *const sp = welt->get_spieler(i);
 
-		player_change_to[i].init(button_t::arrowright_state, " ", koord(16+4,6+i*2*LINESPACE), koord(10,BUTTON_HEIGHT));
+		player_change_to[i].init(button_t::arrowright_state, " ", koord(16+4,6+(i+1)*2*LINESPACE), koord(10,BUTTON_HEIGHT));
 		player_change_to[i].add_listener(this);
 
 		if(i>=2) {
-			player_active[i-2].init(button_t::square_state, "", koord(4,6+i*2*LINESPACE));
+			player_active[i-2].init(button_t::square_state, "", koord(4,6+(i+1)*2*LINESPACE));
 			player_active[i-2].add_listener(this);
 			if(sp  &&  sp->get_ai_id()!=spieler_t::HUMAN) {
 				add_komponente( player_active+i-2 );
@@ -57,11 +74,11 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 		}
 
 		// finances button
-		player_get_finances[i].init(button_t::box, "", koord(34,4+i*2*LINESPACE), koord(120,BUTTON_HEIGHT));
-		player_get_finances[i].background = PLAYER_FLAG|((sp ? sp->get_player_color1():i*8)+4);
+		player_get_finances[i].init(button_t::box, "", koord(34,4+(i+1)*2*LINESPACE), koord(120,BUTTON_HEIGHT));
+		player_get_finances[i].background = PLAYER_FLAG|((sp ? sp->get_player_color1():(i+1)*8)+4);
 		player_get_finances[i].add_listener(this);
 
-		player_select[i].set_pos( koord(34,4+i*2*LINESPACE) );
+		player_select[i].set_pos( koord(34,4+(i+1)*2*LINESPACE) );
 		player_select[i].set_groesse( koord(120,BUTTON_HEIGHT) );
 		player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("slot empty"), COL_BLACK ) );
 		player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Manual (Human)"), COL_BLACK ) );
@@ -86,19 +103,49 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 		}
 
 		// password/locked button
-		player_lock[i].init(button_t::box, "", koord(160+1,4+i*2*LINESPACE+1), koord(BUTTON_HEIGHT-2,BUTTON_HEIGHT-2));
+		player_lock[i].init(button_t::box, "", koord(160+1,4+(i+1)*2*LINESPACE+1), koord(BUTTON_HEIGHT-2,BUTTON_HEIGHT-2));
 		player_lock[i].background = sp  &&  sp->is_locked() ? COL_RED : COL_GREEN;
 		player_lock[i].add_listener(this);
 		add_komponente( player_lock+i );
 
+		// Access buttons
+		access_out[i].init(button_t::square_state, "",  koord(190+1,4+(i+1)*2*LINESPACE+1));
+		if(access_out[i].pressed && sp)
+		{
+			tooltip_out[i].printf("Withdraw %s's access your ways and stops", sp->get_name());
+		}
+		else if(sp)
+		{
+			tooltip_out[i].printf("Allow %s to access your ways and stops", sp->get_name());
+		}
+		access_out[i].set_tooltip(tooltip_out[i]);
+		add_komponente( access_out+i );
+		
+		access_in[i].init(button_t::square_state, "",  koord(222+1,4+(i+1)*2*LINESPACE+1));
+		if(access_in[i].pressed && sp)
+		{
+			tooltip_in[i].printf("%s allows you to access its ways and stops", sp->get_name());
+		}
+		else if(sp)
+		{
+			tooltip_in[i].printf("%s does not allow you to access its ways and stops", sp->get_name());
+		}
+		access_in[i].set_tooltip(tooltip_in[i]);
+		add_komponente( access_in+i );
+
+		if(i == welt->get_active_player_nr())
+		{
+			access_in[i].set_visible(false);
+			access_out[i].set_visible(false);
+		}
+
 		// income label
 		ai_income[i] = new gui_label_t(account_str[i], MONEY_PLUS, gui_label_t::money);
-		ai_income[i]->set_pos( koord( 261, 8+i*2*LINESPACE ) );
 		add_komponente( ai_income[i] );
 	}
 
 	// freeplay mode
-	freeplay.init( button_t::square_state, "freeplay mode", koord(4,2+(MAX_PLAYER_COUNT-1)*LINESPACE*2) );
+	freeplay.init( button_t::square_state, "freeplay mode", koord(4,2+(MAX_PLAYER_COUNT)*LINESPACE*2) );
 	freeplay.add_listener(this);
 	if (welt->get_spieler(1)->is_locked() || !welt->get_settings().get_allow_player_change()) {
 		freeplay.disable();
@@ -106,7 +153,7 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 	freeplay.pressed = welt->get_settings().is_freeplay();
 	add_komponente( &freeplay );
 
-	set_fenstergroesse(koord(295, (MAX_PLAYER_COUNT-1)*LINESPACE*2+16+14+4));
+	set_fenstergroesse(koord(350, (MAX_PLAYER_COUNT)*LINESPACE*2+16+14+4));
 	update_data();
 }
 
@@ -166,6 +213,7 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t p )
 		if(komp==(player_change_to+i)) {
 			// make active player
 			welt->switch_active_player(i,false);
+			update_data();
 			break;
 		}
 		if(komp==(player_lock+i)  &&  welt->get_spieler(i)) {
@@ -193,53 +241,82 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t p )
 
 void ki_kontroll_t::update_data()
 {
-	for(int i=0; i<MAX_PLAYER_COUNT-1; i++) {
-		if(  spieler_t *sp = welt->get_spieler(i)  ) {
+	for(int i=0; i<MAX_PLAYER_COUNT-1; i++)
+	{
+		if(  spieler_t *sp = welt->get_spieler(i)  ) 
+		{
 			// active player -> remove selection
-			if (player_select[i].is_visible()) {
+			if (player_select[i].is_visible())
+			{
 				player_select[i].set_visible(false);
 				player_get_finances[i].set_visible(true);
 				add_komponente(player_get_finances+i);
-				if (welt->get_settings().get_allow_player_change() || !welt->get_spieler(1)->is_locked()) {
+				if (welt->get_settings().get_allow_player_change() || !welt->get_spieler(1)->is_locked()) 
+				{
 					add_komponente(player_change_to+i);
 				}
 				player_get_finances[i].set_text(sp->get_name());
 			}
+
+			if(welt->get_active_player_nr() == i)
+			{
+				access_in[i].set_visible(false);
+				access_out[i].set_visible(false);
+			}
+			else
+			{
+				access_in[i].set_visible(true);
+				access_out[i].set_visible(true);
+			}
+
 			// always update locking status
 			player_get_finances[i].background = PLAYER_FLAG | (sp->get_player_color1()+4);
 			player_lock[i].background = sp->is_locked() ? COL_RED : COL_GREEN;
 			// human players cannot be deactivated
-			if (i>1) {
+			if (i>1) 
+			{
 				remove_komponente( player_active+i-2 );
-				if(  sp->get_ai_id()!=spieler_t::HUMAN  ) {
+				if(  sp->get_ai_id()!=spieler_t::HUMAN  ) 
+				{
 					add_komponente( player_active+i-2 );
 				}
 			}
 		}
-		else {
+		else 
+		{
 			// inactive player => button needs removal?
-			if (player_get_finances[i].is_visible()) {
+			access_in[i].set_visible(false);
+			access_out[i].set_visible(false);
+			if (player_get_finances[i].is_visible()) 
+			{
 				player_get_finances[i].set_visible(false);
 				remove_komponente(player_get_finances+i);
 				remove_komponente(player_change_to+i);
 				player_select[i].set_visible(true);
 			}
-			if (i>1) {
+			if (i>1) 
+			{
 				remove_komponente( player_active+i-2 );
-				if(  0<player_select[i].get_selection()  &&  player_select[i].get_selection()<spieler_t::MAX_AI) {
+				if(  0<player_select[i].get_selection()  &&  player_select[i].get_selection()<spieler_t::MAX_AI) 
+				{
 					add_komponente( player_active+i-2 );
 				}
 			}
-			if(  umgebung_t::networkmode  ) {
+			if(  umgebung_t::networkmode  ) 
+			{
 				// change available selection of AIs
-				if(  !welt->get_spieler(1)->is_locked()  ) {
-					if(  player_select[i].count_elements()==2  ) {
+				if(  !welt->get_spieler(1)->is_locked()  ) 
+				{
+					if(  player_select[i].count_elements()==2  ) 
+					{
 						player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Goods AI"), COL_BLACK ) );
 						player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Passenger AI"), COL_BLACK ) );
 					}
 				}
-				else {
-					if(  player_select[i].count_elements()==4  ) {
+				else 
+				{
+					if(  player_select[i].count_elements()==4  )
+					{
 						player_select[i].clear_elements();
 						player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("slot empty"), COL_BLACK ) );
 						player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Manual (Human)"), COL_BLACK ) );
@@ -279,14 +356,14 @@ void ki_kontroll_t::zeichnen(koord pos, koord gr)
 		if(  sp!=NULL  ) {
 			if (i != 1 && !welt->get_settings().is_freeplay() && sp->get_finance_history_year(0, COST_NETWEALTH) < 0) {
 				ai_income[i]->set_color( MONEY_MINUS );
-				ai_income[i]->set_pos( koord( gr.x-4, 8+i*2*LINESPACE ) );
+				ai_income[i]->set_pos( koord(315, 8+(i+1)*2*LINESPACE ) );
 				tstrncpy(account_str[i], translator::translate("Company bankrupt"), lengthof(account_str[i]));
 			}
 			else {
 				double account=sp->get_konto_als_double();
 				money_to_string(account_str[i], account );
 				ai_income[i]->set_color( account>=0.0 ? MONEY_PLUS : MONEY_MINUS );
-				ai_income[i]->set_pos( koord( 261, 8+i*2*LINESPACE ) );
+				ai_income[i]->set_pos( koord(315, 8+(i+1)*2*LINESPACE ) );
 			}
 		}
 		else {
