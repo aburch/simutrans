@@ -270,8 +270,13 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t p )
 				tooltip_out[i].printf("Allow %s to access your ways and stops", sp->get_name());
 			}
 			
-			// TEMPORARY - needs network transmission code.
-			welt->get_active_player()->set_allow_access_to(i, access_out[i].pressed);
+			static char param[16];
+			sprintf(param,"g%hi,%hi,%hi", welt->get_active_player_nr(), i, access_out[i].pressed);
+			werkzeug_t *w = create_tool( WKZ_ACCESS_TOOL | SIMPLE_TOOL );
+			w->set_default_param(param);
+			sp->get_welt()->set_werkzeug( w, sp );
+			// since init always returns false, it is save to delete immediately
+			delete w;
 		}
 	}
 	return true;

@@ -146,6 +146,7 @@ werkzeug_t *create_simple_tool(int toolnr)
 		case WKZ_RENAME_TOOL:       tool = new wkz_rename_t(); break;
 		case WKZ_ADD_MESSAGE_TOOL:  tool = new wkz_add_message_t(); break;
 		case WKZ_RECOLOUR_TOOL:		tool = new wkz_recolour_t(); break;
+		case WKZ_ACCESS_TOOL:		tool = new wkz_access_t(); break;
 		default:                    dbg->error("create_simple_tool()","cannot satisfy request for simple_tool[%i]!",toolnr);
 		                            return NULL;
 	}

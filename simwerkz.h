@@ -933,6 +933,14 @@ public:
 	virtual bool is_init_network_save() const { return false; }
 };
 
+// internal tool: allow/disallow access
+class wkz_access_t : public werkzeug_t {
+public:
+	wkz_access_t() : werkzeug_t() { id = WKZ_ACCESS_TOOL | SIMPLE_TOOL; }
+	virtual bool init( karte_t *, spieler_t * );
+	virtual bool is_init_network_save() const { return false; }
+};
+
 // internal tool: send message (could be used for chats)
 class wkz_add_message_t : public werkzeug_t {
 public:

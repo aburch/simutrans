@@ -6408,15 +6408,18 @@ bool wkz_recolour_t::init(karte_t* const welt, spieler_t *sp)
 	// skip the rest of the command
 	const char *p = default_param;
 	const char what = *p++;
-	switch(  what  ) {
+	switch(  what  ) 
+	{
 		case '1':
 		case '2':
 			id = atoi(p);
-			while(  *p>0  &&  *p++!=','  ) {
+			while(  *p>0  &&  *p++!=','  ) 
+			{
+				// Do nothing
 			}
 			break;
 		default:
-			dbg->error( "wkz_rename_t::init", "illegal request! (%s)", default_param );
+			dbg->error( "wkz_recolour_t::init", "illegal request! (%s)", default_param );
 			return false;
 	}
 
@@ -6447,6 +6450,32 @@ bool wkz_recolour_t::init(karte_t* const welt, spieler_t *sp)
 	// we are only getting here, if we could not process this request
 	dbg->error( "wkz_recolour_t::init", "could not perform (%s)", default_param );
 	return false;
+}
+
+bool wkz_access_t::init(karte_t* const welt, spieler_t *sp)
+{
+	uint16 id_setting_player;
+	uint16 id_receiving_player;
+	sint16 allow_access;
+
+	if(3 != sscanf(default_param, "g%hi,%hi,%hi", &id_setting_player, &id_receiving_player, &allow_access)) 
+	{
+		dbg->error( "wkz_access_t::init", "could not perform (%s)", default_param );
+		return false;
+	}
+
+	spieler_t* const setting_player = welt->get_spieler(id_setting_player);
+	setting_player->set_allow_access_to(id_receiving_player, allow_access);
+	cbuffer_t message;
+	if(allow_access)
+	{
+		message.printf("%s has allowed access rights to %s", welt->get_spieler(id_setting_player)->get_name(), welt->get_spieler(id_receiving_player)->get_name());
+	}
+	else
+	{
+		message.printf("%s has withdrawn access rights from %s",  welt->get_spieler(id_setting_player)->get_name(), welt->get_spieler(id_receiving_player)->get_name());
+	}
+	welt->get_message()->add_message(message, koord::invalid, message_t::ai, setting_player->get_player_color1());
 }
 
 
