@@ -114,7 +114,7 @@ public:
 		* rather than route distance (+1)
 		*/
 	private:
-		uint32 accumulated_distance_since_departure[MAX_PLAYER_COUNT + 2];
+		uint32 accumulated_distance_since_departure[MAX_PLAYER_COUNT + 1];
 
 	public:
 
@@ -129,7 +129,7 @@ public:
 		 */
 		void add_overall_distance(uint32 distance)
 		{
-			accumulated_distance_since_departure[MAX_PLAYER_COUNT + 1] += distance;
+			accumulated_distance_since_departure[MAX_PLAYER_COUNT] += distance;
 		}
 
 		/** 
@@ -138,7 +138,7 @@ public:
 		 */
 		uint32 get_overall_distance() const
 		{
-			return accumulated_distance_since_departure[MAX_PLAYER_COUNT + 1];
+			return accumulated_distance_since_departure[MAX_PLAYER_COUNT];
 		}
 
 		uint32 get_way_distance(uint8 index) const
@@ -146,10 +146,6 @@ public:
 			return accumulated_distance_since_departure[index];
 		}
 
-		uint32 get_sea_distance() const
-		{
-			return accumulated_distance_since_departure[MAX_PLAYER_COUNT];
-		}
 
 		/** 
 		 * Method to increment by one the distance recorded as
@@ -160,18 +156,6 @@ public:
 		void increment_way_distance(uint8 player, uint32 steps)
 		{
 			accumulated_distance_since_departure[player] += steps;
-		}
-
-		/**
-		 * Method to increment by one the distance recorded
-		 * as travelled by a vehicle over open water. This
-		 * is used for apportionment of revenue for sea-going
-		 * vehicles at ports (to determine whether to charge
-		 * for the use of ways or the use of the port itself)
-		 */
-		void increment_way_distance_water(uint32 steps)
-		{
-			accumulated_distance_since_departure[MAX_PLAYER_COUNT] += steps;
 		}
 
 		/**
@@ -191,7 +175,7 @@ public:
 		 */
 		void reset_distances()
 		{
-			for(int i = 0; i < MAX_PLAYER_COUNT + 2; i ++)
+			for(int i = 0; i < MAX_PLAYER_COUNT + 1; i ++)
 			{
 				accumulated_distance_since_departure[i] = 0;
 			}

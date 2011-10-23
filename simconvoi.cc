@@ -4192,7 +4192,6 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 
 	// Now apportion the revenue.
 	uint32 total_way_distance = 0;
-	const uint32 sea_distance = dep.get_sea_distance();
 	for(uint8 i = 0; i <= MAX_PLAYER_COUNT; i ++)
 	{
 		total_way_distance += dep.get_way_distance(i);
@@ -4372,7 +4371,6 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	halt->update_alternative_seats(self);
 	// only load vehicles in station
 
-	//int convoy_length = 0;
 	bool second_run = anz_vehikel <= 1;
 	uint8 convoy_length = 0;
 	uint16 changed_loading_level = 0;
@@ -4471,6 +4469,42 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 				}
 				besitzer_p->buche(-sp->interim_apportioned_revenue, COST_WAY_TOLLS);
 				welt->get_spieler(i)->interim_apportioned_revenue = 0;
+			}
+		}
+
+		//  Apportion revenue for air/sea ports
+		if(gr->ist_wasser())
+		{
+			// This must be a sea port.
+			if(halt.is_bound() && halt->get_besitzer() != besitzer_p)
+			{
+				const sint64 port_charge = (gewinn * welt->get_settings().get_seaport_toll_revenue_percentage()) / 100;
+				if(welt->get_active_player() == halt->get_besitzer())
+				{
+					halt->get_besitzer()->buche(port_charge, fahr[0]->get_pos().get_2d(), COST_WAY_TOLLS);
+				}
+				else
+				{
+					halt->get_besitzer()->buche(port_charge, COST_WAY_TOLLS);
+				}
+				besitzer_p->buche(-port_charge, COST_WAY_TOLLS);
+			}
+		}
+		else if(fahr[0]->get_besch()->get_waytype() == air_wt)
+		{
+			// This is an aircraft - this must be an airport.
+			if(halt.is_bound() && halt->get_besitzer() != besitzer_p)
+			{
+				const sint64 port_charge = (gewinn * welt->get_settings().get_airport_toll_revenue_percentage()) / 100;
+				if(welt->get_active_player() == halt->get_besitzer())
+				{
+					halt->get_besitzer()->buche(port_charge, fahr[0]->get_pos().get_2d(), COST_WAY_TOLLS);
+				}
+				else
+				{
+					halt->get_besitzer()->buche(port_charge, COST_WAY_TOLLS);
+				}
+				besitzer_p->buche(-port_charge, COST_WAY_TOLLS);
 			}
 		}
 	}

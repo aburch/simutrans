@@ -405,10 +405,12 @@ private:
 	bool drive_on_left;
 	bool signals_on_left;
 
-	// fraction of running costs charged for going on other players way
+	// fraction of running costs (etc.) charged for going on other players way
 	sint32 way_toll_runningcost_percentage;
 	sint32 way_toll_waycost_percentage;
 	sint32 way_toll_revenue_percentage;
+	sint32 seaport_toll_revenue_percentage;
+	sint32 airport_toll_revenue_percentage;
 
 public:
 	/* the big cost section */
@@ -873,6 +875,8 @@ public:
 	sint32 get_way_toll_runningcost_percentage() const { return way_toll_runningcost_percentage; }
 	sint32 get_way_toll_waycost_percentage() const { return way_toll_waycost_percentage; }
 	sint32 get_way_toll_revenue_percentage() const { return way_toll_revenue_percentage; }
+	sint32 get_seaport_toll_revenue_percentage() const { return seaport_toll_revenue_percentage; }
+	sint32 get_airport_toll_revenue_percentage() const { return airport_toll_revenue_percentage; }
 
 	bool get_toll_free_public_roads() const { return toll_free_public_roads; }
 };
