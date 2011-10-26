@@ -856,7 +856,7 @@ class wkz_toggle_reservation_t : public werkzeug_t {
 public:
 	wkz_toggle_reservation_t() : werkzeug_t() { id = WKZ_TOGGLE_RESERVATION | SIMPLE_TOOL; }
 	const char *get_tooltip(const spieler_t *) const { return translator::translate("show/hide block reservations"); }
-	bool is_selected(const karte_t *welt) const { return schiene_t::show_reservations; }
+	bool is_selected(const karte_t*) const { return schiene_t::show_reservations; }
 	bool init( karte_t *welt, spieler_t * ) {
 		schiene_t::show_reservations ^= 1;
 		welt->set_dirty();
