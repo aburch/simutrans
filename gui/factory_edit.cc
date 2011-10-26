@@ -291,7 +291,7 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 
 			fabrik_besch_t const& f = *fablist[entry];
 			buf.printf( translator::translate("Passenger Demand %d\n"), f.get_pax_demand()  != 65535 ? f.get_pax_demand()  : f.get_pax_level());
-			buf.printf( translator::translate("Mail Demand %s\n"),      f.get_mail_demand() != 65535 ? f.get_mail_demand() : f.get_pax_level() >> 2);
+			buf.printf( translator::translate("Mail Demand %d\n"),      f.get_mail_demand() != 65535 ? f.get_mail_demand() : f.get_pax_level() >> 2);
 
 			buf.printf("%s%u", translator::translate("\nBauzeit von"), besch->get_intro_year_month() / 12);
 			if(besch->get_retire_year_month()!=DEFAULT_RETIRE_DATE*12) {
