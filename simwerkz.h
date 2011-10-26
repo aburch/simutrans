@@ -15,6 +15,8 @@
 
 #include "besch/way_obj_besch.h"
 
+#include "boden/wege/schiene.h"
+
 #include "dataobj/umgebung.h"
 #include "dataobj/translator.h"
 
@@ -809,14 +811,13 @@ public:
 	virtual bool is_work_network_save() const { return true; }
 };
 
-
-/* change day/night view manually */
 class wkz_vehicle_tooltips_t : public werkzeug_t {
 public:
 	wkz_vehicle_tooltips_t() : werkzeug_t() { id = WKZ_VEHICLE_TOOLTIPS | SIMPLE_TOOL; }
 	const char *get_tooltip(const spieler_t *) const { return translator::translate("Toggle vehicle tooltips"); }
-	bool init( karte_t *, spieler_t * ) {
+	bool init( karte_t *welt, spieler_t * ) {
 		umgebung_t::show_vehicle_states = (umgebung_t::show_vehicle_states+1)%3;
+		welt->set_dirty();
 		return false;
 	}
 	virtual bool is_init_network_save() const { return true; }
@@ -851,6 +852,21 @@ public:
 	virtual bool is_init_network_save() const { return false; }
 };
 
+class wkz_toggle_reservation_t : public werkzeug_t {
+public:
+	wkz_toggle_reservation_t() : werkzeug_t() { id = WKZ_TOGGLE_RESERVATION | SIMPLE_TOOL; }
+	const char *get_tooltip(const spieler_t *) const { return translator::translate("show/hide block reservations"); }
+	bool is_selected(const karte_t *welt) const { return schiene_t::show_reservations; }
+	bool init( karte_t *welt, spieler_t * ) {
+		schiene_t::show_reservations ^= 1;
+		welt->set_dirty();
+		return false;
+	}
+	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
+};
+
+/******************************** Internal tools ***********/
 /* internal simple tools needed for networksynchronisation */
 class wkz_traffic_level_t : public werkzeug_t {
 public:
