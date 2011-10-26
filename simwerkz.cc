@@ -1495,7 +1495,7 @@ const char *wkz_plant_tree_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 static const char *wkz_fahrplan_insert_aux(karte_t *welt, spieler_t *sp, koord3d pos, schedule_t *fpl, bool append){
 	if(fpl == NULL) {
 		dbg->warning("wkz_fahrplan_insert_aux()","Schedule is (null), doing nothing");
-		return false;
+		return 0;
 	}
 	grund_t *bd = welt->lookup(pos);
 	if (bd) {
@@ -3898,7 +3898,7 @@ const char *wkz_depot_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 {
 	if(sp==welt->get_spieler(1)) {
 		// no depots for player 1
-		return false;
+		return 0;
 	}
 
 	haus_besch_t const* const besch = hausbauer_t::find_tile(default_param,0)->get_besch();
