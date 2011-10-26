@@ -15,7 +15,7 @@ template<class key_t, class value_t, class hash_t>  class hashtable_iterator_tpl
  * hash_t (see ifc/hash_tpl.h)
  */
 template<class key_t, class value_t, class hash_t>
-class hashtable_tpl : public hash_t
+class hashtable_tpl
 {
 	friend class hashtable_iterator_tpl<key_t, value_t, hash_t>;
 
@@ -48,7 +48,7 @@ public:
 		while(iter.next()) {
 			node_t node = iter.get_current();
 
-			if(comp(node.key, key) == 0) {
+			if (hash_t::comp(node.key, key) == 0) {
 				return node.object;
 			}
 		}
@@ -61,7 +61,7 @@ public:
 		while(iter.next()) {
 			node_t &node = iter.access_current();
 
-			if(comp(node.key, key) == 0) {
+			if (hash_t::comp(node.key, key) == 0) {
 				return &node.object;
 			}
 		}
@@ -84,7 +84,7 @@ public:
 		while(iter.next()) {
 			node_t &node = iter.access_current();
 
-			if(comp(node.key, key) == 0) {
+			if (hash_t::comp(node.key, key) == 0) {
 				// duplicate
 				return false;
 			}
@@ -111,7 +111,7 @@ public:
 
 		while(iter.next()) {
 			node_t &node = iter.access_current();
-			if(comp(node.key, key) == 0) {
+			if (hash_t::comp(node.key, key) == 0) {
 				value_t value = node.object;
 				node.object = object;
 				return value;
@@ -138,7 +138,7 @@ public:
 
 		while(iter.next()) {
 			node_t node = iter.get_current();
-			if(comp(node.key, key) == 0) {
+			if (hash_t::comp(node.key, key) == 0) {
 				bags[code].remove( node );
 
 				return node.object;
