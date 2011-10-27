@@ -19,11 +19,6 @@ public:
 		return (uint32)key;
     }
 
-	static key_t null()
-    {
-		return 0;
-    }
-
 	static void dump(const key_t key)
     {
 		printf("%d", (int)key);

@@ -24,7 +24,7 @@ struct dimension
 static int special_hist[SPECIAL];
 
 
-string image_writer_t::last_img_file("");
+string image_writer_t::last_img_file;
 
 unsigned image_writer_t::width;
 unsigned image_writer_t::height;
