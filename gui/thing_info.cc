@@ -20,7 +20,7 @@
 
 
 ding_infowin_t::ding_infowin_t(const ding_t* ding) :
-	gui_frame_t("", ding->get_besitzer()),
+	gui_frame_t(translator::translate( ding->get_name() ), ding->get_besitzer()),
 	view(ding, koord( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width()*7)/8) )),
 	textarea(&buf, 170 + view.get_groesse().x, view.get_groesse() + koord(10, 10))
 {
@@ -50,10 +50,6 @@ ding_infowin_t::ding_infowin_t(const ding_t* ding) :
 void ding_infowin_t::zeichnen(koord pos, koord gr)
 {
 	set_dirty();
-	if (ding_t const* const ding = get_ding()) {
-		set_owner( ding->get_besitzer() );
-	}
-	gui_frame_t::set_name( translator::translate( get_ding()->get_name() ) );
 
 	buf.clear();
 	info(buf);
