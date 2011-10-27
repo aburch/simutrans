@@ -513,7 +513,6 @@ public:
 	// time lapse mode ...
 	bool is_paused() const { return step_mode&PAUSE_FLAG; }
 	void set_pause( bool );	// stops the game with interaction
-	void do_freeze();	// stops the game and all interaction
 
 	bool is_fast_forward() const { return step_mode == FAST_FORWARD; }
 	void set_fast_forward(bool ff);

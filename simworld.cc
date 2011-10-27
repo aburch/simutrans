@@ -4848,15 +4848,6 @@ void karte_t::load_heightfield(settings_t* const sets)
 }
 
 
-static void warte_auf_mausklick_oder_taste(event_t *ev)
-{
-	do {
-		win_get_event(ev);
-	}while( !(IS_LEFTRELEASE(ev)  ||  (ev->ev_class == EVENT_KEYBOARD  &&  (ev->ev_code >= 32  &&  ev->ev_code < 256) ) ) );
-}
-
-
-
 /**
  * marks an area using the grund_t mark flag
  * @author prissi
@@ -5005,25 +4996,6 @@ void karte_t::change_time_multiplier(sint32 delta)
 		}
 	}
 }
-
-
-
-void karte_t::do_freeze()
-{
-	dr_prepare_flush();
-
-	display_fillbox_wh(display_get_width()/2-100, display_get_height()/2-50, 200,100, MN_GREY2, true);
-	display_ddd_box(display_get_width()/2-100, display_get_height()/2-50, 200,100, MN_GREY4, MN_GREY0);
-	display_ddd_box(display_get_width()/2-92, display_get_height()/2-42, 200-16,100-16, MN_GREY0, MN_GREY4);
-	display_proportional(display_get_width()/2, display_get_height()/2-5, translator::translate("GAME PAUSED"), ALIGN_MIDDLE, COL_BLACK, false);
-
-	// Pause: warten auf die naechste Taste
-	event_t ev;
-	dr_flush();
-	warte_auf_mausklick_oder_taste(&ev);
-	reset_timer();
-}
-
 
 
 void karte_t::set_pause(bool p)
