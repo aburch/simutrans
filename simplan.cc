@@ -523,8 +523,6 @@ void planquadrat_t::halt_list_insert_at( halthandle_t halt, uint8 pos )
 void planquadrat_t::add_to_haltlist(halthandle_t halt)
 {
 	if(halt.is_bound()) {
-		spieler_t *sp=halt->get_besitzer();
-
 		unsigned insert_pos = 0;
 		// quick and dirty way to our 2d koodinates ...
 		const koord pos = get_kartenboden()->get_pos().get_2d();
