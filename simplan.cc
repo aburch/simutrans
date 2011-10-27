@@ -529,34 +529,21 @@ void planquadrat_t::add_to_haltlist(halthandle_t halt)
 		// quick and dirty way to our 2d koodinates ...
 		const koord pos = get_kartenboden()->get_pos().get_2d();
 
-		// exact position does matter only for passenger/mail transport
-		if (sp && (!halt->get_pax_connections()->empty() || !halt->get_mail_connections()->empty()) && halt_list_count > 0) {
-			halt_list_remove(halt);
+		if(  halt_list_count > 0  ) {
 
-			// since only the first one gets all the passengers, we want the closest one for passenger transport to be on top
+			// since only the first one gets all, we want the closest halt one to be first
+			halt_list_remove(halt);
+			const koord halt_next_pos = halt->get_next_pos(pos);
 			for(insert_pos=0;  insert_pos<halt_list_count;  insert_pos++) {
 
-				// not a passenger KI or other is farer away
-				if ((halt_list[insert_pos]->get_pax_connections()->empty() && halt_list[insert_pos]->get_mail_connections()->empty()) ||
-				     koord_distance(halt_list[insert_pos]->get_next_pos(pos), pos) > koord_distance(halt->get_next_pos(pos), pos))
-				{
+				if(  koord_distance(halt_list[insert_pos]->get_next_pos(pos), pos) > koord_distance(halt_next_pos, pos)  ) {
 					halt_list_insert_at( halt, insert_pos );
 					return;
 				}
 			}
 			// not found
 		}
-		else {
-			// just look, if it is not there ...
-			for(insert_pos=0;  insert_pos<halt_list_count;  insert_pos++) {
-				if(halt_list[insert_pos]==halt) {
-					// do not add twice
-					return;
-				}
-			}
-		}
-
-		// first or no passenger or append to the end ...
+		// first just or just append to the end ...
 		halt_list_insert_at( halt, halt_list_count );
 	}
 }
