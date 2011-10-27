@@ -2,7 +2,7 @@
 ; See this header file for more info
 !include "MUI2.nsh"
 !include "Sections.nsh"
-!include "zipdll.nsh"
+#!include "zipdll.nsh"
 
 
 ; Parameter for functions
@@ -89,29 +89,29 @@ FunctionEnd
 
 Section "Executable (GDI, Unicode)" GDIexe
   AddSize 6913
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/110-0-1/"
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/110-0-1/simuwin-110-0-1.zip"
   StrCpy $archievename "simuwin-110-0-1.zip"
   StrCpy $downloadname "Simutrans Executable (GDI)"
-  Call DownloadInstall
-  Call PostExeInstall
+#  Call DownloadInstallZip
+#  Call PostExeInstall
 SectionEnd
 
 
 Section /o "Executable (SDL, better sound)" SDLexe
   AddSize 8849
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/110-0-1/"
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/110-0-1/simuwin-sdl-110-0-1.zip"
   StrCpy $archievename "simuwin-sdl-110-0-1.zip"
   StrCpy $downloadname "Simutrans Executable (SDL)"
-  Call DownloadInstall
+  Call DownloadInstallZip
   Call PostExeInstall
 SectionEnd
 
 Section /o "Chinese Font" wenquanyi_font
   AddSize 3245
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/"
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/wenquanyi_9pt-font-bdf.zip"
   StrCpy $archievename "wenquanyi_9pt-font-bdf.zip"
   StrCpy $downloadname "wenquanyi_9pt"
-  Call DownloadInstall
+  Call DownloadInstallZip
 SectionEnd
 
 SectionGroupEnd
@@ -122,36 +122,36 @@ SectionGroup "Pak64: main and addons" pak64group
 
 Section "!pak64 (standard)" pak64
   AddSize 10438
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/110-0-1/"
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/110-0-1/simupak64-110-0-1.zip"
   StrCpy $archievename "simupak64-110-0-1.zip"
   StrCpy $downloadname "pak64"
-  Call DownloadInstall
+  Call DownloadInstallZip
 SectionEnd
 
 
 Section /o "pak64 Food addon 110.0.1"
   AddSize 222
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/110-0-1/"
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/110-0-1/simupak64-addon-food-110-0-1.zip"
   StrCpy $archievename "simupak64-addon-food-110-0-1.zip"
   StrCpy $downloadname "pak64"
 
   StrCmp $multiuserinstall "1" InstallInUserDir
 
   ; no multiuser => install in normal directory
-  Call DownloadInstall
+  Call DownloadInstallZip
   goto FinishFood64
 
 InstallInUserDir:
   ; else install in User directory
   Call ConnectInternet
   RMdir /r "$TEMP\simutrans"
-  NSISdl::download $downloadlink$archievename "$Temp\$archievename"
+  NSISdl::download $downloadlink "$Temp\$archievename"
   Pop $R0 ;Get the return value
   StrCmp $R0 "success" +3
      MessageBox MB_OK "Download of food addon pak64 failed: $R0"
      Abort
 
-  ZipDLL::extractall "$Temp\$archievename" "$TEMP"
+  nsisunz::Unzip "$Temp\$archievename" "$TEMP"
   Pop $0
   StrCmp $0 "success" +4
     DetailPrint "$0" ;print error message to log
@@ -170,10 +170,10 @@ SectionGroupEnd
 
 Section /o "pak64.german (Freeware) 110.0" pak64german
   AddSize 18126
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak.german/pak64.german_0-110-0/"
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak.german/pak64.german_0-110-0/pak64.german_0-110-0_full.zip"
   StrCpy $archievename "pak64.german_0-110-0_full.zip"
   StrCpy $downloadname "pak64.German"
-  Call DownloadInstall
+  Call DownloadInstallZip
   RMdir /r "$INSTDIR\Simutrans\Maps"
 SectionEnd
 
@@ -181,61 +181,72 @@ SectionEnd
 
 Section /o "pak64.japan 110.0.0" pak64japan
   AddSize 6596
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak.japan/110-0/"
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak.japan/110-0/simupak64.japan-110-0.zip"
   StrCpy $archievename "simupak64.japan-110-0.zip"
   StrCpy $downloadname "pak64.japan"
-  Call DownloadInstall
+  Call DownloadInstallZip
+SectionEnd
+
+
+
+Section /o "pak64 HO-scale (GPL)" pak64HO
+  AddSize 8527
+  StrCpy $downloadlink "http://simutrans.bilkinfo.de/pak64.ho-scale-latest.tar.gz"
+  StrCpy $archievename "pak64.ho-scale-latest.tar.gz"
+  StrCpy $downloadname "pak64.HO"
+  Call DownloadInstallTgzWithoutSimutrans
 SectionEnd
 
 
 
 Section /o "pak64 HAJO (Freeware) 102.2.2" pak64HAJO
   AddSize 6376
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pakHAJO/pakHAJO_102-2-2/"
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pakHAJO/pakHAJO_102-2-2/pakHAJO_0-102-2-2.zip"
   StrCpy $archievename "pakHAJO_0-102-2-2.zip"
   StrCpy $downloadname "pak64.HAJO"
-  Call DownloadInstall
+  Call DownloadInstallZip
 SectionEnd
 
 
 
 # download does not work this way
-#Section /o "pak64.contrast (GPL) 102.2.2" pak64contrast
-#  AddSize 1367
-#  StrCpy $downloadlink "http://addons.simutrans.com/get.php?type=addon&aid=166"
-#  StrCpy $downloadname "pak64.contrast"
-#  Call DownloadInstall
-#SectionEnd
+Section /o "pak64.contrast (GPL) 102.2.2" pak64contrast
+   AddSize 1367
+  StrCpy $downloadlink "http://addons.simutrans.com/get.php?type=addon&aid=166"
+  StrCpy $archievename "simuAddon_Contrast_910.zip"
+  StrCpy $downloadname "pak64.contrast"
+  Call DownloadInstallZipWithoutSimutrans
+SectionEnd
 
 
 
-Section /o "pak96 Comic (beta, Freeware) V0.4.7  for 102.2" pak96comic
-  AddSize 16976
-  StrCpy $downloadlink "http://www.simutrans-forum.de/forum/attachment.php?attachmentid=12730"
-  StrCpy $archievename "Pak96comic.zip"
+Section /o "pak96 Comic (Freeware) V0.4.10" pak96comic
+  AddSize 29447
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak96.comic/pak96.comic%20for%20110-0-1/pak96.comic-0.4.10.zip"
+  StrCpy $archievename "pak96.comic-0.4.10.zip"
   StrCpy $downloadname "pak96.Comic"
-  Call DownloadInstall
+  Call DownloadInstallZip
 SectionEnd
 
 
 
 Section /o "pak96.HD (0.4) for 102.2.2" pak96HD
   AddSize 26189
-  StrCpy $downloadlink "http://hd.simutrans.com/release/"
+  StrCpy $downloadlink "http://hd.simutrans.com/release/PakHD_v04B_100-0.zip"
   StrCpy $archievename "PakHD_v04B_100-0.zip"
   StrCpy $downloadname "pak96.HD"
 # since download works different, we have to do it by hand
   RMdir /r "$TEMP\simutrans"
   CreateDirectory "$TEMP\simutrans"
-  NSISdl::download $downloadlink$archievename "$Temp\$archievename"
+  NSISdl::download $downloadlink "$Temp\$archievename"
   Pop $R0 ;Get the return value
   StrCmp $R0 "success" +3
      MessageBox MB_OK "Download of $archievename failed: $R0"
      Quit
 
-  ZipDLL::extractall "$TEMP\$archievename" "$TEMP\simutrans"
-  Pop $0
-  StrCmp $0 "success" +4
+  nsisunz::Unzip "$TEMP\$archievename" "$TEMP\simutrans"
+  Pop $R0
+  StrCmp $R0 "success" +4
     DetailPrint "$0" ;print error message to log
     RMdir /r "$TEMP\simutrans"
     Quit
@@ -249,62 +260,94 @@ SectionEnd
 
 
 
-Section /o "pak128 (Freeware) V1.4.6 for 102.2.2" pak128
-  AddSize 63445
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128/pak128%20for%20102-2-2/"
-  StrCpy $archievename "pak128-1.4.6--102.2.zip"
+Section /o "pak128 (1.99 alpha)" pak128
+  AddSize 70765
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128/pak128%20for%20110-0-1/pak128-1.99.0-alpha--110.0.1.zip"
+  StrCpy $archievename "pak128-1.99.0-alpha--110.0.1.zip"
   StrCpy $downloadname "pak128"
-  Call DownloadInstall
+  Call DownloadInstallZip
 SectionEnd
 
-
-
-Section /o "pak128 Japan 101.0" pak128japan
-  AddSize 15605
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128.japan/for%20Simutrans%20101-0/"
-  StrCpy $archievename "pak128.japan_0-101.zip"
-  StrCpy $downloadname "pak128.Japan"
-  Call DownloadInstall
-SectionEnd
 
 
 # attention: This is not in simutrans/ folder, so we have to install it manually
 Section /o "pak128 Britain (0.8) 102.2.1" pak128britain
   AddSize 97051
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128.britain/pak128.britain%20for%20102-0/"
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128.britain/pak128.britain%20for%20102-0/pak128.Britain_1-0-8_0-102.zip"
   StrCpy $archievename "pak128.Britain_1-0-8_0-102.zip"
   StrCpy $downloadname "pak128.Britain"
-  Call DownloadInstallWithoutSimutrans
+  Call DownloadInstallZipWithoutSimutrans
 SectionEnd
 
+
+
+Section /o "pak128 German V0.1.1" pak128german
+  AddSize 47265
+  StrCpy $downloadlink "http://www.simutrans-germany.com/~pak128german/files/PAK128.german_0.1.1.zip"
+  StrCpy $archievename "PAK128.german_0.1.1.zip"
+  StrCpy $downloadname "pak128.German"
+# since download works different, we have to do it by hand
+  RMdir /r "$TEMP\simutrans"
+  CreateDirectory "$TEMP\simutrans"
+  NSISdl::download $downloadlink "$Temp\$archievename"
+  Pop $R0 ;Get the return value
+  StrCmp $R0 "success" +3
+     MessageBox MB_OK "Download of $archievename failed: $R0"
+     Quit
+
+  nsisunz::Unzip "$TEMP\$archievename" "$TEMP\Simutrans"
+  Pop $0
+  StrCmp $0 "success" +4
+    DetailPrint "$0" ;print error message to log
+    RMdir /r "$TEMP\Simutrans"
+    Quit
+
+  CreateDirectory "$INSTDIR"
+  Delete "$Temp\$archievename"
+  RMdir /r "$TEMP\Simutrans\PAK128.german_0.1.1\de.tab_fuer_programmordner"
+  RMdir "$TEMP\Simutrans\PAK128.german_0.1.1\*.txt"
+  CopyFiles "$TEMP\Simutrans\PAK128.german_0.1.1\*.*" "$INSTDIR"
+  RMdir /r "$TEMP\Simutrans"
+SectionEnd
+
+
+Section /o "pak128.Japan 110.0.1" pak128japan
+  AddSize 17555
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128.japan/for%20Simutrans%20110.0.1/pak128.japan-110.0.1-version16-08-2011.zip"
+#  StrCpy $downloadlink "http://sourceforge.net/projects/simutrans/files/pak128.japan/for%20Simutrans%20110.0.1/pak128.japan-110.0.1-version16-08-2011.zip"
+#  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128.japan/for%20Simutrans%20110.0.1/pak128.japan-110.0.1-version16-08-2011.zip"
+  StrCpy $archievename "pak128.japan-110.0.1-version16-08-2011.zip"
+  StrCpy $downloadname "pak128.Japan"
+  Call DownloadInstallZipWithoutSimutrans
+SectionEnd
 
 
 Section /o "pak192 Comic (Freeware) 102.2.1" pak192comic
   AddSize 23893
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak192.comic/pak192.comic_102-2-1/"
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak192.comic/pak192.comic_102-2-1/pak192.comic_0-1-9-1_102-2-1.zip"
   StrCpy $archievename "pak192.comic_0-1-9-1_102-2-1.zip"
   StrCpy $downloadname "pak192.Comic"
-  Call DownloadInstall
+  Call DownloadInstallZip
 SectionEnd
 
 
 
-;Section /o "pak48 excentrique (Freeware, alpha) 102.2.1" pak48excentrique
-;  AddSize 1136
-;  StrCpy $downloadlink "http://www.funkelwerk.de/data/pak.excentrique/releases/"
-;  StrCpy $archievename "pak48.excentrique-v0002.zip"
-;  StrCpy $downloadname "pak48.Excentrique"
-;  Call DownloadInstallWithoutSimutrans
-;SectionEnd
+#Section /o "pak48 excentrique (Freeware, alpha) 102.2.1" pak48excentrique
+#  AddSize 1136
+#  StrCpy $downloadlink "http://www.funkelwerk.de/data/pak.excentrique/releases/pak48.excentrique-v0002.zip"
+#  StrCpy $archievename "pak48.excentrique-v0002.zip"
+#  StrCpy $downloadname "pak48.Excentrique"
+#  Call DownloadInstallZipWithoutSimutrans
+#SectionEnd
 
 
 
 Section /o "pak32 Comic (alpha) 102.2.1" pak32comic
   AddSize 2108
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak32.comic/pak32.comic%20for%20102-0/"
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak32.comic/pak32.comic%20for%20102-0/pak32.comic_102-0.zip"
   StrCpy $archievename "pak32.comic_102-0.zip"
   StrCpy $downloadname "pak32.Comic"
-  Call DownloadInstall
+  Call DownloadInstallZip
 SectionEnd
 
 
@@ -354,41 +397,69 @@ Function CheckForClosedSource
 
   SectionGetFlags ${pak64german} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
-  IntCmp $R0 ${SF_SELECTED} show
+  IntCmp $R0 ${SF_SELECTED} showFW
 
 ;  SectionGetFlags ${pak48excentrique} $R0
 ;  IntOp $R0 $R0 & ${SF_SELECTED}
-;  IntCmp $R0 ${SF_SELECTED} show
+;  IntCmp $R0 ${SF_SELECTED} showFW
 
   SectionGetFlags ${pak64HAJO} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
-  IntCmp $R0 ${SF_SELECTED} show
+  IntCmp $R0 ${SF_SELECTED} showFW
 
   SectionGetFlags ${pak96comic} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
-  IntCmp $R0 ${SF_SELECTED} show
+  IntCmp $R0 ${SF_SELECTED} showFW
 
   SectionGetFlags ${pak96HD} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
-  IntCmp $R0 ${SF_SELECTED} show
+  IntCmp $R0 ${SF_SELECTED} showFW
 
-  SectionGetFlags ${pak128} $R0
+  SectionGetFlags ${pak128japan} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
-  IntCmp $R0 ${SF_SELECTED} show
+  IntCmp $R0 ${SF_SELECTED} showFW
+
+  SectionGetFlags ${pak128german} $R0
+  IntOp $R0 $R0 & ${SF_SELECTED}
+  IntCmp $R0 ${SF_SELECTED} showFW
 
   SectionGetFlags ${pak192comic} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
-  IntCmp $R0 ${SF_SELECTED} show
+  IntCmp $R0 ${SF_SELECTED} showFW
 
   Abort
 
-show:
+showFW:
   ; here is ok
 FunctionEnd
 
 PageEx License
  LicenseData "pak128.txt"
  PageCallbacks CheckForClosedSource "" ""
+PageExEnd
+
+
+
+; Some packs are GPL
+Function CheckForGPL
+
+  SectionGetFlags ${pak64HO} $R0
+  IntOp $R0 $R0 & ${SF_SELECTED}
+  IntCmp $R0 ${SF_SELECTED} showGPL
+
+  SectionGetFlags ${pak64contrast} $R0
+  IntOp $R0 $R0 & ${SF_SELECTED}
+  IntCmp $R0 ${SF_SELECTED} showGPL
+
+  Abort
+
+showGPL:
+  ; here is ok
+FunctionEnd
+
+PageEx License
+ LicenseData "GPL.txt"
+ PageCallbacks CheckForGPL "" ""
 PageExEnd
 
 
@@ -401,6 +472,7 @@ PageExEnd
 
 
 Function .oninit
+  InitPluginsDir
   StrCpy $multiuserinstall "1"
  ; activates GDI by default
  StrCpy $group1 ${GDIexe} ; Group 1 - Option 1 is selected by default
@@ -477,6 +549,12 @@ test_for_pak:
   SectionGetFlags ${pak64japan} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} show_not
+  SectionGetFlags ${pak64HO} $R0
+  IntOp $R0 $R0 & ${SF_SELECTED}
+  IntCmp $R0 ${SF_SELECTED} show_not
+  SectionGetFlags ${pak64contrast} $R0
+  IntOp $R0 $R0 & ${SF_SELECTED}
+  IntCmp $R0 ${SF_SELECTED} show_not
   SectionGetFlags ${pak96comic} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} show_not
@@ -490,6 +568,8 @@ test_for_pak:
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} show_not
   SectionGetFlags ${pak128britain} $R0
+  IntCmp $R0 ${SF_SELECTED} show_not
+  SectionGetFlags ${pak128german} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} show_not
   SectionGetFlags ${pak192comic} $R0
@@ -509,19 +589,19 @@ FunctionEnd
 
 
 ; $downloadlink is then name of the link, $downloadname the name of the pak for error messages
-Function DownloadInstall
-;  MessageBox MB_OK|MB_ICONINFORMATION "Download of $downloadname from\n$downloadlink$archievename"
+Function DownloadInstallZip
+#  MessageBox MB_OK|MB_ICONINFORMATION "Download of $downloadname from\n$downloadlink to $archievename"
   Call ConnectInternet
   RMdir /r "$TEMP\simutrans"
-  NSISdl::download $downloadlink$archievename "$Temp\$archievename"
+  NSISdl::download $downloadlink "$Temp\$archievename"
   Pop $R0 ;Get the return value
   StrCmp $R0 "success" +3
      MessageBox MB_OK "Download of $archievename failed: $R0"
      Quit
 
-  ZipDLL::extractall "$TEMP\$archievename" "$TEMP"
-  Pop $0
-  StrCmp $0 "success" +4
+  nsisunz::Unzip "$TEMP\$archievename" "$TEMP"
+  Pop $R0 ;Get the return value
+  StrCmp $R0 "success" +4
     DetailPrint "$0" ;print error message to log
     RMdir /r "$TEMP\simutrans"
     Quit
@@ -535,26 +615,76 @@ FunctionEnd
 
 
 ; $downloadlink is then name of the link, $downloadname the name of the pak for error messages
-Function DownloadInstallWithoutSimutrans
-;  MessageBox MB_OK|MB_ICONINFORMATION "Download of $downloadname from\n$downloadlink$archievename"
+Function DownloadInstallZipWithoutSimutrans
+#  MessageBox MB_OK|MB_ICONINFORMATION "Download of $downloadname from\n$downloadlink to $archievename"
   Call ConnectInternet
   RMdir /r "$TEMP\simutrans"
   CreateDirectory "$TEMP\simutrans"
-  NSISdl::download $downloadlink$archievename "$Temp\$archievename"
+# since we also want to download from addons ...
+   inetc::get $downloadlink "$Temp\$archievename"
+#  NSISdl::download $downloadlink "$Temp\$archievename"
+  Pop $R0 ;Get the return value
+  StrCmp $R0 "OK" +3
+     MessageBox MB_OK "Download of $archievename failed: $R0"
+     Quit
+
+  CreateDirectory "$INSTDIR"
+  nsisunz::Unzip "$TEMP\$archievename" "$INSTDIR"
+  Pop $R0
+  StrCmp $R0 "success" +4
+    Delete "$Temp\$archievename"
+    DetailPrint "$0" ;print error message to log
+    Quit
+
+  Delete "$Temp\$archievename"
+FunctionEnd
+
+
+
+Function DownloadInstallCabWithoutSimutrans
+  MessageBox MB_OK|MB_ICONINFORMATION "Download of $downloadname from\n$downloadlink to $archievename"
+  Call ConnectInternet
+  RMdir /r "$TEMP\simutrans"
+  NSISdl::download $downloadlink "$Temp\$archievename"
   Pop $R0 ;Get the return value
   StrCmp $R0 "success" +3
      MessageBox MB_OK "Download of $archievename failed: $R0"
      Quit
 
-  ZipDLL::extractall "$TEMP\$archievename" "$TEMP\simutrans"
-  Pop $0
-  StrCmp $0 "success" +4
+  CabDLL::CabView "$TEMP\$archievename"
+  MessageBox MB_OK "Download of $archievename to $TEMP"
+  CabDLL::CabExtractAll "$TEMP\$archievename" "$TEMP\Simutrans"
+  DumpState::debug
+  StrCmp $R0 "success" +4
     DetailPrint "$0" ;print error message to log
     RMdir /r "$TEMP\simutrans"
     Quit
 
   CreateDirectory "$INSTDIR"
-  Delete "$Temp\$archievename"
   CopyFiles "$TEMP\Simutrans\*.*" "$INSTDIR"
-  RMdir /r "$TEMP\simutrans"
+  RMdir /r "$TEMP\Simutrans"
+  Delete "$Temp\$archievename"
 FunctionEnd
+
+
+
+Function DownloadInstallTgzWithoutSimutrans
+#  MessageBox MB_OK|MB_ICONINFORMATION "Download of $downloadname from\n$downloadlink to $archievename"
+  Call ConnectInternet
+  RMdir /r "$TEMP\simutrans"
+  NSISdl::download $downloadlink "$Temp\$archievename"
+  Pop $R0 ;Get the return value
+  StrCmp $R0 "success" +3
+     MessageBox MB_OK "Download of $archievename failed: $R0"
+     Quit
+
+  CreateDirectory "$INSTDIR"
+  untgz::extract -d "$INSTDIR" "$TEMP\$archievename"
+  StrCmp $R0 "success" +4
+    Delete "$Temp\$archievename"
+    MessageBox MB_OK "Extraction of $archievename failed: $R0"
+    Quit
+
+  Delete "$Temp\$archievename"
+FunctionEnd
+

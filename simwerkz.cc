@@ -1118,21 +1118,21 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 		}
 
 
-		if(new_slope == RESTORE_SLOPE) {
+		if(  new_slope == RESTORE_SLOPE  ) {
 			// prissi: special action: set to natural slope
 			sint8 min_hgt;
 			new_slope = welt->recalc_natural_slope(pos.get_2d(),min_hgt);
 			new_pos = koord3d(pos.get_2d(), min_hgt);
 			DBG_MESSAGE("natural_slope","%i",new_slope);
 		}
-		else if(new_slope == ALL_DOWN_SLOPE) {
+		else if(  new_slope == ALL_DOWN_SLOPE  ) {
 			new_slope = hang_t::flach;
 			// is more intuitive: if there is a slope, first downgrade it
-			if (gr1->get_grund_hang()==0  ) {
+			if(  gr1->get_grund_hang()==0  ) {
 				new_pos.z -= Z_TILE_STEP;
 			}
 		}
-		else if(new_slope == ALL_UP_SLOPE) {
+		else if(  new_slope == ALL_UP_SLOPE  ) {
 			new_slope = hang_t::flach;
 			new_pos.z += Z_TILE_STEP;
 		}
@@ -1636,7 +1636,7 @@ static const char *wkz_fahrplan_insert_aux(karte_t *welt, spieler_t *sp, koord3d
 	if(fpl == NULL) 
 	{
 		dbg->warning("wkz_fahrplan_insert_aux()","Schedule is (null), doing nothing");
-		return false;
+		return 0;
 	}
 	grund_t *bd = welt->lookup(pos);
 	if (bd) 
@@ -1839,7 +1839,12 @@ void wkz_wegebau_t::calc_route( wegbauer_t &bauigel, const koord3d &start, const
 	}
 
 	bauigel.route_fuer(bautyp, besch);
-	bauigel.set_keep_existing_ways( !is_ctrl_pressed() );
+	if(  is_ctrl_pressed()  ) {
+		bauigel.set_keep_existing_ways( false );
+	}
+	else {
+		bauigel.set_keep_existing_faster_ways( true );
+	}
 	if(  umgebung_t::straight_way_without_control  ||  is_ctrl_pressed()  ) {
 		DBG_MESSAGE("wkz_wegebau()", "try straight route");
 		bauigel.calc_straight_route(start,end);
@@ -4308,7 +4313,7 @@ const char *wkz_depot_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 {
 	if(sp==welt->get_spieler(1)) {
 		// no depots for player 1
-		return false;
+		return 0;
 	}
 
 	haus_besch_t const* const besch = hausbauer_t::find_tile(default_param,0)->get_besch();
@@ -4781,6 +4786,7 @@ bool wkz_headquarter_t::init( karte_t *welt, spieler_t *sp )
 const char *wkz_headquarter_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 {
 	bool ok=false;
+	bool built = false;
 DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y);
 
 	const haus_besch_t* besch = next_level(sp);
@@ -4804,37 +4810,91 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 		if (!gr) {
 			return "";
 		}
-		// remove previous one
+		gebaeude_t *hq = NULL;
+		// check for current head quarter
 		koord previous = sp->get_headquarter_pos();
 		if(previous!=koord::invalid) {
-			grund_t *gr = welt->lookup_kartenboden(previous);
-			gebaeude_t *prev_hq = gr->find<gebaeude_t>();
-			sp->add_headquarter( prev_hq->get_tile()->get_besch()->get_extra(), koord::invalid );
-			hausbauer_t::remove( welt, sp, prev_hq );
-			// resize cursor
-			init(welt, sp);
-		}
+			grund_t *gr_hq = welt->lookup_kartenboden(previous);
+			gebaeude_t *prev_hq = gr_hq->find<gebaeude_t>();
+			// check if upgrade should be built at same place as current one
+			gebaeude_t *gb = gr->find<gebaeude_t>();
+			if (gb  &&  gb->get_besitzer()==sp  &&  prev_hq->get_tile()->get_besch()==gb->get_tile()->get_besch()) {
+				const haus_besch_t* prev_besch = prev_hq->get_tile()->get_besch();
+				// check if sizes fit
+				uint8 prev_layout = prev_hq->get_tile()->get_layout();
+				uint8 layout =  prev_layout % besch->get_all_layouts();
+				koord size = besch->get_groesse(layout);
+				if (prev_besch->get_groesse(prev_layout) == size) {
+					// check for same tile structure
+					ok = true;
+					for (sint16 x=0; x<size.x  &&  ok; x++) {
+						for (sint16 y=0; y<size.y  &&  ok; y++) {
+							ok = (prev_besch->get_tile(prev_layout, x, y)==NULL)==(besch->get_tile(layout, x, y)==NULL);
+						}
+					}
+					hq = gb;
+					if (ok) {
+						// upgrade the tiles
+						koord pos_hq = pos.get_2d() - gb->get_tile()->get_offset();
+						for (sint16 x=0; x<size.x; x++) {
+							for (sint16 y=0; y<size.y; y++) {
+								if (const haus_tile_besch_t *tile = besch->get_tile(layout, x, y)) {
+									if (grund_t *gr = welt->lookup_kartenboden(pos_hq + koord(x,y))) {
+										if (gebaeude_t *gb = gr->find<gebaeude_t>()) {
+											if (gb  &&  gb->get_besitzer()==sp  &&  prev_besch==gb->get_tile()->get_besch()) {
+												gb->set_tile( tile );
+											}
+										}
+									}
+								}
+							}
+						}
+						built = true;
+					}
 
-		int rotate = 0;
-
-		if(welt->ist_platz_frei(pos.get_2d(), size.x, size.y, NULL, besch->get_allowed_climate_bits())) {
-			ok = true;
-		}
-		if(!ok  &&  besch->get_all_layouts()>1  &&  size.y != size.x  &&  welt->ist_platz_frei(pos.get_2d(), size.y, size.x, NULL, besch->get_allowed_climate_bits())) {
-			rotate = 1;
-			ok = true;
-		}
-
-		if(ok) 
-		{
-			// then built is
-			gebaeude_t *hq = hausbauer_t::baue(welt, sp, welt->lookup_kartenboden(pos.get_2d())->get_pos(), rotate, besch, NULL);
-			stadt_t *city = welt->suche_naechste_stadt( pos.get_2d() );
-			if(city) {
-				city->add_gebaeude_to_stadt( hq );
+				}
 			}
+			// did not upgrade old one, need to remove it
+			if (!built) {
+				sp->add_headquarter( prev_hq->get_tile()->get_besch()->get_extra(), koord::invalid );
+				// remove previous one
+				hausbauer_t::remove( welt, sp, prev_hq );
+				// resize cursor
+				init(welt, sp);
+			}
+		}
+
+
+		// build new one
+		if (!built) {
+			int rotate = 0;
+
+			if(welt->ist_platz_frei(pos.get_2d(), size.x, size.y, NULL, besch->get_allowed_climate_bits())) {
+				ok = true;
+			}
+			if(!ok  &&  besch->get_all_layouts()>1  &&  size.y != size.x  &&  welt->ist_platz_frei(pos.get_2d(), size.y, size.x, NULL, besch->get_allowed_climate_bits())) {
+				rotate = 1;
+				ok = true;
+			}
+
+			if(ok) {
+				// then built it
+				hq = hausbauer_t::baue(welt, sp, welt->lookup_kartenboden(pos.get_2d())->get_pos(), rotate, besch, NULL);
+				stadt_t *city = welt->suche_naechste_stadt( pos.get_2d() );
+				if(city) {
+					city->add_gebaeude_to_stadt( hq );
+				}
+				built = true;
+			}
+			else {
+				return "No suitable ground!";
+			}
+		}
+
+
+		if (built) {
 			// sometimes those are not correct after rotation ...
-			sp->add_headquarter( besch->get_extra()+1, hq->get_pos().get_2d()-hq->get_tile()->get_offset() );
+			sp->add_headquarter(besch->get_extra()+1, hq->get_pos().get_2d()-hq->get_tile()->get_offset() );
 			sp->buche( cost, pos.get_2d(), COST_CONSTRUCTION);
 			// tell the world of it ...
 			cbuffer_t buf;
@@ -4843,12 +4903,9 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 			// reset to query tool, since costly relocations should be avoided
 			if(is_local_execution()  &&  sp == welt->get_active_player()) {
 				welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], sp );
+				welt->get_zeiger()->set_area( koord(1,1), false );
 			}
 			return NULL;
-		}
-		else 
-		{
-			return "No suitable ground!";
 		}
 	}
 	return "";

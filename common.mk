@@ -5,7 +5,7 @@ DIRS := $(sort $(dir $(OBJS)))
 # Make build directories
 DUMMY := $(shell mkdir -p $(DIRS))
 
-.PHONY: clean depend
+.PHONY: all clean
 
 .SUFFIXES: .rc
 
