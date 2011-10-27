@@ -1607,7 +1607,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 							}	
 						}
 	
-						// Refuse to be overcrowded if alternative exist
+						// Refuse to be overcrowded if alternative exists
 						connexion * const next_connexion = connexions[catg_index]->get(next_transfer);
 						if (next_connexion &&  overcrowded && next_connexion->alternative_seats )
 						{

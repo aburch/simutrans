@@ -4371,10 +4371,10 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	halt->update_alternative_seats(self);
 	// only load vehicles in station
 
-	bool second_run = anz_vehikel <= 1;
+	bool second_run = false;
 	uint8 convoy_length = 0;
 	uint16 changed_loading_level = 0;
-	for(sint8 i=0; i < anz_vehikel ; i++) 
+	for(int i = 0; i < anz_vehikel ; i++) 
 	{
 		vehikel_t* v = fahr[i];
 
@@ -4385,7 +4385,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 		}
 
 		// we need not to call this on the same position		if(  v->last_stop_pos != v->get_pos().get_2d()  ) {		// calc_revenue
-		if(!second_run || anz_vehikel == 1)
+		if(!second_run)
 		{
 			v->last_stop_pos = v->get_pos().get_2d();
 			//Unload
