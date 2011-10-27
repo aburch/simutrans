@@ -218,19 +218,20 @@ void curiositylist_stats_t::zeichnen(koord offset)
 		// the other infos
 		const unsigned char *name = (const unsigned char *)ltrim( translator::translate(geb->get_tile()->get_besch()->get_name()) );
 		char short_name[256];
-		int i=0, cr=0;
+		char* dst = short_name;
+		int    cr = 0;
 		for( int j=0;  j<255  &&  name[j]>='\n'  &&  cr<2;  j++  ) {
 			if(name[j]>0  &&  name[j]<=' ') {
 				cr++;
-				if(i>0  &&  short_name[i-1]!=' ') {
-					short_name[i++] = ' ';
+				if (dst != short_name && dst[-1] != ' ') {
+					*dst++ = ' ';
 				}
 			}
 			else {
-				short_name[i++] = name[j];
+				*dst++ = name[j];
 			}
 		}
-		short_name[i] = 0;
+		*dst = '\0';
 		// now we have a short name ...
 		buf.printf("%s (%d)", short_name, geb->get_passagier_level());
 

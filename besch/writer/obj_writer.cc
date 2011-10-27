@@ -94,7 +94,7 @@ void obj_writer_t::list_nodes(FILE* infp)
 void obj_writer_t::show_capabilites()
 {
 	slist_tpl<obj_writer_t*> liste;
-	string min_s = "";
+	string min_s;
 
 	while (true) {
 		stringhashtable_iterator_tpl<obj_writer_t *> iter(writer_by_name);

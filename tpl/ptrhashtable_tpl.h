@@ -20,11 +20,6 @@ public:
 		return (uint32)(size_t)key;
 	}
 
-	static key_t null()
-	{
-		return NULL;
-	}
-
 	static void dump(const key_t key)
 	{
 		printf("%p", (void *)key);
