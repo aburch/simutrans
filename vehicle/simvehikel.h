@@ -183,8 +183,9 @@ private:
 	* frictionforce = gamma*speed*weight
 	* since the total weight is needed a lot of times, we save it
 	* @author prissi
+	* BG, 18.10.2011: in tons in simutrans standard, in kg in simutrans experimental
 	*/
-	uint16 sum_weight;
+	uint32 sum_weight; 
 
 	bool hop_check();
 
@@ -549,7 +550,7 @@ public:
 	// vehicles in reverse formation.
 	ribi_t::ribi get_direction_of_travel();
 
-	uint16 get_sum_weight() const { return sum_weight; }
+	uint16 get_sum_weight() const { return (sum_weight + 499) / 1000; }
 
 	// @author: jamespetts
 	uint16 get_overcrowding() const;

@@ -1133,7 +1133,7 @@ vehikel_t::vehikel_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp) :
 
 	current_friction = 4;
 	total_freight = 0;
-	sum_weight = besch->get_gewicht();
+	sum_weight = besch->get_gewicht() * 1000UL;
 
 	ist_erstes = ist_letztes = false;
 	check_for_finish = false;
@@ -1171,7 +1171,7 @@ vehikel_t::vehikel_t(karte_t *welt) :
 
 	route_index = 1;
 	current_friction = 4;
-	sum_weight = 10;
+	sum_weight = 10000UL;
 	total_freight = 0;
 
 	ist_erstes = ist_letztes = false;
@@ -1839,7 +1839,7 @@ uint16 vehikel_t::beladen(halthandle_t halt, bool overcrowd)
 	{
 		ok = load_freight(halt, overcrowd);
 	}
-	sum_weight = (get_fracht_gewicht()+499)/1000 + besch->get_gewicht();
+	sum_weight = get_fracht_gewicht() + besch->get_gewicht() * 1000UL;
 	calc_bild();
 	if(ok)
 	{
@@ -2193,7 +2193,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 		if(besch) {
 			calc_bild();
 			// full weight after loading
-			sum_weight = (get_fracht_gewicht()+499)/1000 + besch->get_gewicht();
+			sum_weight = get_fracht_gewicht() + besch->get_gewicht() * 1000UL;
 		}
 		// recalc total freight
 		total_freight = 0;
@@ -2607,7 +2607,7 @@ int automobil_t::get_kosten(const grund_t *gr, const sint32 max_speed, koord fro
 	//@author: jamespetts
 	// Strongly prefer routes for which the vehicle is not overweight.
 	uint16 weight_limit = w->get_max_weight();
-	if(vehikel_t::get_gesamtgewicht() > weight_limit &&welt->get_settings().get_enforce_weight_limits() == 1)
+	if(vehikel_t::get_sum_weight() > weight_limit &&welt->get_settings().get_enforce_weight_limits() == 1)
 	{
 		costs += 40;
 	}
@@ -3172,7 +3172,7 @@ bool waggon_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t
 		ribi_t::ribi next_direction;
 		speed_limits->clear();
 		fixed_list_tpl<sint16, 16> corner_data;
-		for(sint32 i = route_count - 1; i > 0; i --)
+		for(sint32 i = route_count - 1; i >= 0; i --)
 		{
 			next_tile = cnv->get_route()->position_bei(i);
 			next_direction = calc_set_richtung(current_tile.get_2d(), next_tile.get_2d());
@@ -3274,7 +3274,7 @@ int waggon_t::get_kosten(const grund_t *gr, const sint32 max_speed, koord from_p
 	//@author: jamespetts
 	// Strongly prefer routes for which the vehicle is not overweight.
 	uint16 weight_limit = w->get_max_weight();
-	if(vehikel_t::get_gesamtgewicht() > weight_limit &&welt->get_settings().get_enforce_weight_limits() == 1)
+	if(vehikel_t::get_sum_weight() > weight_limit &&welt->get_settings().get_enforce_weight_limits() == 1)
 	{
 		costs += 40;
 	}
