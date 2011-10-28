@@ -41,6 +41,9 @@
  */
 karte_t * ding_t::welt = NULL;
 
+bool ding_t::show_owner = false;
+
+
 
 void ding_t::init(karte_t *wl)
 {
@@ -218,42 +221,50 @@ void ding_t::rdwr(loadsave_t *file)
  */
 void ding_t::display(int xpos, int ypos, bool /*reset_dirty*/) const
 {
-	const int raster_width = get_current_tile_raster_width();
-
-	if (vehikel_basis_t const* const v = ding_cast<vehikel_basis_t>(this)) {
-		// vehicles need finer steps to appear smoother
-		v->get_screen_offset( xpos, ypos, raster_width );
-	}
-	xpos += tile_raster_scale_x(get_xoff(), raster_width);
-	ypos += tile_raster_scale_y(get_yoff(), raster_width);
-
-	const int start_ypos = ypos;
-
-	bool dirty = get_flag(ding_t::dirty);
-	int j = 0;
 	image_id bild = get_bild();
+	if(  bild!=IMG_LEER  ) {
+		const int raster_width = get_current_tile_raster_width();
 
-	while(bild!=IMG_LEER) {
+		if (vehikel_basis_t const* const v = ding_cast<vehikel_basis_t>(this)) {
+			// vehicles need finer steps to appear smoother
+			v->get_screen_offset( xpos, ypos, raster_width );
+		}
+		xpos += tile_raster_scale_x(get_xoff(), raster_width);
+		ypos += tile_raster_scale_y(get_yoff(), raster_width);
 
-		if(besitzer_n!=PLAYER_UNOWNED) {
-			display_color(bild, xpos, ypos, besitzer_n, true, dirty);
-		}
-		else {
-			display_normal(bild, xpos, ypos, 0, true, dirty);
-		}
-		// this ding has another image on top (e.g. skyscraper)
-		ypos -= raster_width;
-		bild = get_bild(++j);
+		const int start_ypos = ypos;
+
+		bool dirty = get_flag(ding_t::dirty);
+		int j = 0;
+
+
+		do {
+
+			if(besitzer_n!=PLAYER_UNOWNED) {
+				if(  ding_t::show_owner  ) {
+					display_blend(bild, xpos, ypos, besitzer_n, (welt->get_spieler(besitzer_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, dirty);
+				}
+				else {
+					display_color(bild, xpos, ypos, besitzer_n, true, dirty);
+				}
+			}
+			else {
+				display_normal(bild, xpos, ypos, 0, true, dirty);
+			}
+			// this ding has another image on top (e.g. skyscraper)
+			ypos -= raster_width;
+			bild = get_bild(++j);
+		} while(  bild!=IMG_LEER  );
+
+		ypos = start_ypos;	// may be needed for transparency
 	}
-
 	// transparency?
 	const PLAYER_COLOR_VAL transparent = get_outline_colour();
 	if(TRANSPARENT_FLAGS&transparent) {
 		// only transparent outline
-		display_blend(get_outline_bild(), xpos, start_ypos, besitzer_n, transparent, 0, dirty);
+		display_blend(get_outline_bild(), xpos, ypos, besitzer_n, transparent, 0, dirty);
 	}
 }
-
 
 
 // called during map rotation
@@ -281,7 +292,12 @@ void ding_t::display_after(int xpos, int ypos, bool /*is_global*/ ) const
 		ypos += tile_raster_scale_y(get_yoff(), raster_width);
 
 		if(besitzer_n!=PLAYER_UNOWNED) {
-			display_color(bild, xpos, ypos, besitzer_n, true, dirty );
+			if(  ding_t::show_owner  ) {
+				display_blend(bild, xpos, ypos, besitzer_n, (welt->get_spieler(besitzer_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, dirty);
+			}
+			else {
+				display_color(bild, xpos, ypos, besitzer_n, true, dirty);
+			}
 		}
 		else {
 			display_normal(bild, xpos, ypos, 0, true, dirty );

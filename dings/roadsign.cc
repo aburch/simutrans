@@ -474,8 +474,13 @@ void roadsign_t::display_after(int xpos, int ypos, bool ) const
 		xpos += tile_raster_scale_x(after_xoffset, raster_width);
 		ypos += tile_raster_scale_y(after_yoffset, raster_width);
 		// draw with owner
-		if(get_player_nr()!=-1) {
-			display_color(after_bild, xpos, ypos, get_player_nr(), true, get_flag(ding_t::dirty) );
+		if(get_player_nr()!=PLAYER_UNOWNED) {
+			if(  ding_t::show_owner  ) {
+				display_blend(after_bild, xpos, ypos, 0, (get_besitzer()->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, dirty);
+			}
+			else {
+				display_color(after_bild, xpos, ypos, get_player_nr(), true, get_flag(ding_t::dirty) );
+			}
 		}
 		else {
 			display_normal(after_bild, xpos, ypos, 0, true, get_flag(ding_t::dirty) );

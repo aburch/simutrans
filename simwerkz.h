@@ -12,6 +12,7 @@
 #include "simworld.h"
 #include "simmenu.h"
 #include "simwin.h"
+#include "simdings.h"
 
 #include "besch/way_obj_besch.h"
 
@@ -859,6 +860,20 @@ public:
 	bool is_selected(const karte_t*) const { return schiene_t::show_reservations; }
 	bool init( karte_t *welt, spieler_t * ) {
 		schiene_t::show_reservations ^= 1;
+		welt->set_dirty();
+		return false;
+	}
+	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
+};
+
+class wkz_view_owner_t : public werkzeug_t {
+public:
+	wkz_view_owner_t() : werkzeug_t() { id = WKZ_VIEW_OWNER | SIMPLE_TOOL; }
+	const char *get_tooltip(const spieler_t *) const { return translator::translate("show/hide object owner"); }
+	bool is_selected(const karte_t*) const { return ding_t::show_owner; }
+	bool init( karte_t *welt, spieler_t * ) {
+		ding_t::show_owner ^= 1;
 		welt->set_dirty();
 		return false;
 	}
