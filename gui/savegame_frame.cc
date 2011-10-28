@@ -15,13 +15,13 @@
 
 #include <string>
 
-#include <sys/stat.h>
 #include <string.h>
 #include <time.h>
 
 #include "../pathes.h"
 
 #include "../simdebug.h"
+#include "../simsys.h"
 #include "../simwin.h"
 #include "../simintr.h"
 
@@ -100,11 +100,7 @@ void savegame_frame_t::fill_list()
 #else
 		sprintf( searchpath, "%s/*%s", SAVE_PATH, suffix==NULL ? "" : suffix );
 #endif
-#ifndef	_WIN32
-		mkdir(SAVE_PATH, 0700);
-#else
-		mkdir(SAVE_PATH);
-#endif
+		dr_mkdir(SAVE_PATH);
 		fullpath = SAVE_PATH_X;
 	}
 	else {
