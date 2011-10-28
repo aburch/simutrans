@@ -3,8 +3,6 @@
 
 #include "sha1.h"
 
-class SHA1;
-
 class checksum_t
 {
 private:
