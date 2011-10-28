@@ -714,9 +714,7 @@
     <ClInclude Include="gui\depot_frame.h" />
     <ClInclude Include="dataobj\dingliste.h" />
     <ClInclude Include="utils\dbg_weightmap.h" />
-    <ClInclude Include="utils\dr_rdgif.h" />
     <ClInclude Include="utils\dr_rdpng.h" />
-    <ClInclude Include="utils\dr_rdppm.h" />
     <ClInclude Include="dings\dummy.h" />
     <ClInclude Include="dataobj\einstellungen.h" />
     <ClInclude Include="gui\enlarge_map_frame_t.h" />

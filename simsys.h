@@ -71,6 +71,8 @@ resolution dr_query_screen_resolution();
 int dr_os_open(int w, int h, int fullscreen);
 int dr_os_close(void);
 
+void dr_mkdir(char const* path);
+
 /* query home directory */
 char const* dr_query_homedir();
 

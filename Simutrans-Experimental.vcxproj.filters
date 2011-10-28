@@ -920,13 +920,7 @@
     <ClInclude Include="dataobj\dingliste.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="utils\dr_rdgif.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="utils\dr_rdpng.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\dr_rdppm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="dings\dummy.h">
