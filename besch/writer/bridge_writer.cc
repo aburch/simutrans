@@ -68,7 +68,7 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 	char keybuf[40];
 
 	string str = obj.get("backimage[ns][0]");
-	if(str.size() == 0) {
+	if (str.empty()) {
 		node.write_data_at(outfp, &number_seasons, 21, sizeof(uint8));
 		write_head(outfp, node, obj);
 		const char* const * ptr = names;
@@ -109,7 +109,7 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 		while(number_seasons < 2) {
 			sprintf(keybuf, "backimage[ns][%d]", number_seasons+1);
 			string str = obj.get(keybuf);
-			if(str.size() > 0) {
+			if (!str.empty()) {
 				number_seasons++;
 			} else {
 				break;

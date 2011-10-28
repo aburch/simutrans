@@ -242,11 +242,11 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 								string str = obj.get(buf);
 
 								// if no string check to see whether using format without seasons parameter
-								if (str.size() == 0 && seasons == 1) {
+								if (str.empty() && seasons == 1) {
 									sprintf(buf, "%simage[%d][%d][%d][%d][%d]", pos ? "back" : "front", l, y, x, h, phase);
 									str = obj.get(buf);
 								}
-								if (str.size() == 0) {
+								if (str.empty()) {
 #if 0
 									printf("Not found: %s\n", buf);
 									fflush(NULL);
@@ -302,7 +302,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	string i = string(obj.get("icon"));
 	cursorkeys.append(c);
 	cursorkeys.append(i);
-	if (c.size() > 0 || i.size() > 0) {
+	if (!c.empty() || !i.empty()) {
 		cursorskin_writer_t::instance()->write_obj(fp, node, obj, cursorkeys);
 	}
 	node.write(fp);

@@ -61,7 +61,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// prissi: must be done here, since it may affect the len of the header!
 	string sound_str = ltrim( obj.get("sound") );
 	sint8 sound_id=NO_SOUND;
-	if (sound_str.size() > 0) {
+	if (!sound_str.empty()) {
 		// ok, there is some sound
 		sound_id = atoi(sound_str.c_str());
 		if (sound_id == 0 && sound_str[0] == '0') {
@@ -71,7 +71,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 			// old style id
 			sound_str = "";
 		}
-		if (sound_str.size() > 0) {
+		if (!sound_str.empty()) {
 			sound_id = LOAD_SOUND;
 			total_len += sound_str.size() + 1;
 		}
@@ -176,7 +176,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		char buf[40];
 		sprintf(buf, "freightimage[%d][%s]", i, dir_codes[0]);
 		str = obj.get(buf);
-		if (str.size() == 0) {
+		if (str.empty()) {
 			freight_max = i;
 			break;
 		}
@@ -189,7 +189,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		// Hajodoc: Empty vehicle image for direction, direction in "s", "w", "sw", "se", unsymmetric vehicles need also "n", "e", "ne", "nw"
 		sprintf(buf, "emptyimage[%s]", dir_codes[i]);
 		str = obj.get(buf);
-		if (str.size() > 0) {
+		if (!str.empty()) {
 			emptykeys.append(str);
 			if (i >= 4) {
 				has_8_images = true;
@@ -204,7 +204,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 			// old style definition - just [direction]
 			sprintf(buf, "freightimage[%s]", dir_codes[i]);
 			str = obj.get(buf);
-			if (str.size() > 0) {
+			if (!str.empty()) {
 				freightkeys_old.append(str);
 			}
 		} else {
@@ -212,7 +212,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 			for(int freight = 0; freight < freight_max; freight++) {
 				sprintf(buf, "freightimage[%d][%s]", freight, dir_codes[i]);
 				str = obj.get(buf);
-				if (str.size() == 0) {
+				if (str.empty()) {
 					printf("*** FATAL ***:\nMissing freightimage[%d][%s]!\n", freight, dir_codes[i]);
 					fflush(NULL);
 					exit(0);
@@ -257,7 +257,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		sprintf(buf, "constraint[prev][%d]", besch_vorgaenger);
 
 		str = obj.get(buf);
-		found = str.size() > 0;
+		found = !str.empty();
 		if (found) {
 			if (!STRICMP(str.c_str(), "none")) {
 				str = "";
@@ -276,7 +276,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		sprintf(buf, "constraint[next][%d]", besch_nachfolger);
 
 		str = obj.get(buf);
-		found = str.size() > 0;
+		found = !str.empty();
 		if (found) {
 			if (!STRICMP(str.c_str(), "none")) {
 				str = "";

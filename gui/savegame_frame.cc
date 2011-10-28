@@ -234,7 +234,7 @@ void savegame_frame_t::add_file(const char *filename, const char *pak, const boo
 	button->set_no_translate(true);
 	button->set_text(name);	// to avoid translation
 
-	const std::string compare_to = umgebung_t::objfilename.size()>0  ?  umgebung_t::objfilename.substr( 0, umgebung_t::objfilename.size()-1 ) + " -"  :  std::string();
+	std::string const compare_to = !umgebung_t::objfilename.empty() ? umgebung_t::objfilename.substr(0, umgebung_t::objfilename.size() - 1) + " -" : std::string();
 	// sort by date descending:
 	slist_tpl<entry>::iterator i = entries.begin();
 	slist_tpl<entry>::iterator end = entries.end();

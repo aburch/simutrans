@@ -65,7 +65,7 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	// Check for broad portals
 	sprintf(buf, "%simage[%s%s][0]", "front", indices[0], add[1]);
 	str = obj.get(buf);
-	if(  str.size() == 0  ) {
+	if (str.empty()) {
 		// Test short version
 		sprintf(buf, "%simage[%s%s]", "front", indices[0], add[1]);
 		str = obj.get(buf);
@@ -83,7 +83,7 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 				for(  uint8 i = 0;  i < 4;  i++  ) {
 					sprintf(buf, "%simage[%s%s][%d]", pos ? "back" : "front", indices[i], add[j], season);
 					string str = obj.get(buf);
-					if(  str.size() == 0  &&  season == 0 ) {
+					if (str.empty() && season == 0) {
 						// Test also the short version.
 						sprintf(buf, "%simage[%s%s]", pos ? "back" : "front", indices[i], add[j]);
 						str = obj.get(buf);
@@ -102,7 +102,7 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	}
 
 	str = obj.get("way");
-	if (str.size() > 0) {
+	if (!str.empty()) {
 		xref_writer_t::instance()->write_obj(fp, node, obj_way, str.c_str(), true);
 		node.write_sint8(fp, 1, 20);
 	}

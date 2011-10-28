@@ -1446,7 +1446,7 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	clear_random_mode( 0xFFFF );
 	set_random_mode( MAP_CREATE_RANDOM );
 
-	if (old_x == 0 && settings.heightfield.size() > 0) {
+	if (old_x == 0 && !settings.heightfield.empty()) {
 		// init from file
 		int const display_total = 16 + settings.get_anzahl_staedte()*4 + settings.get_land_industry_chains();
 

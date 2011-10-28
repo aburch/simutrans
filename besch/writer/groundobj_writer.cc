@@ -59,7 +59,7 @@ void groundobj_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& o
 				// age is 1..5 (usually five stages, seasons is the seaons
 				sprintf(buf, "image[%d][%d]", phase, seasons);
 				string str = obj.get(buf);
-				if (str.size() == 0) {
+				if (str.empty()) {
 					if(seasons==0) {
 						goto finish_images;
 					}
@@ -86,7 +86,7 @@ void groundobj_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& o
 				// age is 1..5 (usually five stages, seasons is the seaons
 				sprintf(buf, "image[%s][%d]", dir_codes[dir], seasons);
 				string str = obj.get(buf);
-				if (str.size() == 0) {
+				if (str.empty()) {
 					printf("Missing images in moving groundobj (expected %s)!\n", buf );
 					dbg->fatal("groundobj_writer_t","Season image for season %i missing (%s)!",seasons);
 				}
