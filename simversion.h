@@ -26,7 +26,7 @@
 /*********************** Settings related to network games ********************/
 
 /* Server to announce status to */
-#define ANNOUNCE_SERVER "servers.experimental.simutrans.org:8080"
+#define ANNOUNCE_SERVER "servers.experimental.simutrans.org:80"
 
 /* Relative URL of the announce function on server */
 #define ANNOUNCE_URL "/announce"
