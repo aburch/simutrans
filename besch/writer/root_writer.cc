@@ -381,7 +381,7 @@ void root_writer_t::uncopy(const char* name)
 			else if(  writer=="bridge"  ) {
 				size_t pos=ftell(infp);
 				node_name = name_from_next_node(infp);
-				if(  node_name.size()==0  ) {
+				if (node_name.empty()) {
 					fseek( infp, pos, SEEK_SET );
 					// we need to take name from thrid children, the cursor node ...
 					obj_node_info_t node;
@@ -402,7 +402,7 @@ void root_writer_t::uncopy(const char* name)
 			}
 			// use a clever default name, if no name there
 			// note: this doesn't work because node_name.size() is not 0 even if invalid file characters are contained. (z9999)
-			if(  node_name.size() == 0  ) {
+			if (node_name.empty()) {
 				char random_name[16];
 				// we use the file position as unique name
 				sprintf( random_name, "p%li", ftell(infp) );

@@ -7,17 +7,18 @@
 
 #ifdef _WIN32
 #	define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+#	include <direct.h>
+#	include <windows.h>
 #	define PATH_MAX MAX_PATH
 #else
 #	include <limits.h>
 #endif
 
 
-static void dr_mkdir(char const* const path)
+void dr_mkdir(char const* const path)
 {
 #ifdef _WIN32
-	CreateDirectoryA(path, 0);
+	mkdir(path);
 #else
 	mkdir(path, 0777);
 #endif
