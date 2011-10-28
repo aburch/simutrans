@@ -31,6 +31,9 @@ public:
 	// flags
 	enum flag_values {keine_flags=0, dirty=1, not_on_map=2, is_vehicle=4, is_wayding=8 };
 
+	// display only outline with player color on owner stuff
+	static bool show_owner;
+
 private:
 	/**
 	* Dies ist die Koordinate des Planquadrates in der Karte zu

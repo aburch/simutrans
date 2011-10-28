@@ -249,12 +249,12 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		char buf[40];
 		sprintf(buf, "upgrade[%d]", upgrades);
 		str = obj.get(buf);
-		if (str.size() > 0) 
+		if(!str.empty()) 
 		{
 			xref_writer_t::instance()->write_obj(fp, node, obj_factory, str.c_str(), false);
 			upgrades++;
 		}
-	} while (str.size() > 0);
+	} while (!str.empty());
 
 	// new version with factory boost, etc.
 	uint16 version = 0x8003;

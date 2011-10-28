@@ -98,10 +98,4 @@ void rtrim(char *);
  */
 const char * ltrim(const char *);
 
-/**
- * Zaehlt Vorkommen ein Buchstabens in einem String
- * @author Hj. Malthaner
- */
-int count_char(const char* str, const char c);
-
 #endif

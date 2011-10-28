@@ -15,12 +15,13 @@
 
 #include <string>
 
-#include <sys/stat.h>
+#include <string.h>
 #include <time.h>
 
 #include "../pathes.h"
 
 #include "../simdebug.h"
+#include "../simsys.h"
 #include "../simwin.h"
 #include "../simintr.h"
 
@@ -119,11 +120,7 @@ void savegame_frame_t::fill_list()
 #else
 		sprintf( searchpath, "%s/*%s", SAVE_PATH, suffix==NULL ? "" : suffix );
 #endif
-#ifndef	_WIN32
-		mkdir(SAVE_PATH, 0700);
-#else
-		mkdir(SAVE_PATH);
-#endif
+		dr_mkdir(SAVE_PATH);
 		fullpath = SAVE_PATH_X;
 	}
 	else {
@@ -290,7 +287,7 @@ void savegame_frame_t::add_file(const char *filename, const char *pak, const boo
 		button->set_no_translate(true);
 		button->set_text(name);	// to avoid translation
 
-		const string compare_to = umgebung_t::objfilename.size()>0  ?  umgebung_t::objfilename.substr(0, umgebung_t::objfilename.size()-1 ) + " -"  :  string("");
+		std::string const compare_to = umgebung_t::objfilename.size()>0  ?  umgebung_t::objfilename.substr(0, umgebung_t::objfilename.size()-1 ) + " -"  :  std::string("");
 		// sort by date descending:
 		slist_tpl<entry>::iterator i = entries.begin();
 		slist_tpl<entry>::iterator end = entries.end();
