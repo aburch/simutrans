@@ -527,7 +527,7 @@ int simu_main(int argc, char** argv)
 		}
 	}
 
-	// unmgebung: overide previous settings
+	// umgebung: overide previous settings
 	if(  (gimme_arg(argc, argv, "-freeplay", 0) != NULL)  ) {
 		umgebung_t::default_einstellungen.set_freeplay( true );
 	}
@@ -696,7 +696,7 @@ int simu_main(int argc, char** argv)
 
 	// now find the pak specific tab file ...
 	const string obj_conf = umgebung_t::objfilename + path_to_simuconf;
-	string dummy;
+	string dummy("");
 	if (simuconf.open(obj_conf.c_str())) {
 		sint16 idummy;
 		printf("parse_simuconf() at %s: ", obj_conf.c_str());
@@ -975,6 +975,10 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		umgebung_t::autosave = old_autosave;
 	}
 	else {
+		// override freeplay setting when provided on command line
+		if(  (gimme_arg(argc, argv, "-freeplay", 0) != NULL)  ) {
+			welt->get_settings().set_freeplay( true );
+		}
 		// just init view (world was loaded from file)
 		intr_set(welt, view);
 		win_set_welt(welt);
