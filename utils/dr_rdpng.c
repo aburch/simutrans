@@ -1,10 +1,13 @@
 
+#ifndef LOCAL
 #include <png.h>
+#else
+#include "openttd/png.h"
+#endif
 #include <setjmp.h>
 
 #include <stdlib.h>
 #include "dr_rdpng.h"
-//#include "openttd/png.h"
 
 
 static int bit_depth, color_type, interlace_type;

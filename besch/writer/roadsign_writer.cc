@@ -56,7 +56,7 @@ void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		sprintf(buf, "image[%i]", i);
 		str = obj.get(buf);
 		// make sure, there are always 4, 8, 12, ... images (for all directions)
-		if (str.size() == 0 && i % 4 == 0) {
+		if (str.empty() && i % 4 == 0) {
 			break;
 		}
 		keys.append(str);
@@ -69,7 +69,7 @@ void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	string c = string(obj.get("cursor")), i=string(obj.get("icon"));
 	cursorkeys.append(c);
 	cursorkeys.append(i);
-	if (c.size() > 0 || i.size() > 0) {
+	if (!c.empty() || !i.empty()) {
 		cursorskin_writer_t::instance()->write_obj(fp, node, obj, cursorkeys);
 	}
 

@@ -43,7 +43,7 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	// prissi: must be done here, since it may affect the len of the header!
 	string sound_str = ltrim( obj.get("sound") );
 	sint8 sound_id=NO_SOUND;
-	if (sound_str.size() > 0) {
+	if (!sound_str.empty()) {
 		// ok, there is some sound
 		sound_id = atoi(sound_str.c_str());
 		if (sound_id == 0 && sound_str[0] == '0') {
@@ -53,7 +53,7 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 			// old style id
 			sound_str = "";
 		}
-		if (sound_str.size() > 0) {
+		if (!sound_str.empty()) {
 			sound_id = LOAD_SOUND;
 			total_len += sound_str.size() + 1;
 		}
@@ -102,7 +102,7 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	node.write_uint8(fp, sound_id, 16);
 	uint8 index = 17;
 
-	if(sound_str.size() > 0) {
+	if (!sound_str.empty()) {
 		sint8 sv8 = sound_str.size();
 		node.write_data_at(fp, &sv8, 17, sizeof(sint8));
 		node.write_data_at(fp, sound_str.c_str(), 18, sound_str.size());
