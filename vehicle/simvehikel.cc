@@ -2327,6 +2327,10 @@ bool vehikel_t::check_access(const weg_t* way) const
 {
 	const grund_t* const gr = welt->lookup(get_pos());
 	const weg_t* const current_way = gr ? welt->lookup(get_pos())->get_weg(get_waytype()) : NULL;
+	if(current_way == NULL)
+	{
+		return true;
+	}
 	return way && (way->get_besitzer() == NULL || way->get_besitzer() == get_besitzer() || get_besitzer() == NULL || way->get_besitzer() == current_way->get_besitzer() || way->get_besitzer()->allows_access_to(get_besitzer()->get_player_nr()));
 }
 
