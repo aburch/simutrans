@@ -2472,7 +2472,7 @@ void convoi_t::vorfahren()
 		{
 			 counter = 2;
 		}
-		while(counter > 0)
+		while(counter > 0 && schedule->get_count() > 0)
 		{
 			uint8 stop = fpl->get_aktuell();
 			bool rev = !reverse_schedule;
