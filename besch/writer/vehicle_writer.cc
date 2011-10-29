@@ -589,7 +589,7 @@ end:
 			}
 			break;
 		}
-		if(!str.empty())
+		if(str.empty())
 		{
 			printf("*** FATAL ***:\nMissing liverytype[%i] for %i liveries!\n", i, livery_max + 1);
 			exit(0);
