@@ -461,6 +461,9 @@ void roadsign_t::rotate90()
 	ding_t::rotate90();
 	if(automatic) {
 		zustand = (zustand+1)&1;
+		uint8 temp = ticks_ns;
+		ticks_ns = ticks_ow;
+		ticks_ow = temp;
 	}
 	dir = ribi_t::rotate90( dir );
 }
