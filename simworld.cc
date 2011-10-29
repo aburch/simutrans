@@ -1446,7 +1446,7 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	clear_random_mode( 0xFFFF );
 	set_random_mode( MAP_CREATE_RANDOM );
 
-	if (old_x == 0 && !settings.heightfield.empty()) {
+	if (old_x == 0 && settings.heightfield.size() > 0) {
 		// init from file
 		int const display_total = 16 + settings.get_anzahl_staedte()*4 + settings.get_land_industry_chains();
 
@@ -3245,12 +3245,12 @@ void karte_t::step()
 			}
 		}
 		else if(simloops>8u*umgebung_t::max_acceleration) {
-			if(idle_time<get_frame_time()-10) {
+			if((long)idle_time<get_frame_time()-10) {
 				idle_time ++;
 			}
 		}
 		// cap it ...
-		if(idle_time>=get_frame_time()-10) {
+		if( (long)idle_time>=get_frame_time()-10) {
 			idle_time = get_frame_time()-10;
 		}
 		next_step_time = time+idle_time;
@@ -5828,8 +5828,8 @@ bool karte_t::interactive(uint32 quit_month)
 		}
 
 		// Interval-based server announcements
-		// TODO - fix comparison between signed and unsigned integer expressions
-		if (  umgebung_t::server_announce && dr_time() - server_last_announce_time >= umgebung_t::server_announce_interval * 1000  ) {
+		if (  umgebung_t::server_announce  &&  umgebung_t::server_announce_interval > 0  &&
+			dr_time() >= server_last_announce_time + (uint32)umgebung_t::server_announce_interval * 1000  ) {
 			announce_server( 1 );
 		}
 
