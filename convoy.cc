@@ -338,7 +338,8 @@ void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const 
 				dt_s = fl_time_divisor * dt;
 			}
 			float32e8_t v0 = v;
-			v += (dt_s * f) / fweight;
+			float32e8_t a = f / fweight;
+			v += dt_s * a;
 			float32e8_t x;
 			if (is_braking)
 			{
@@ -366,17 +367,13 @@ void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const 
 				if (x > xbrk)
 				{
 					// don't run beyond xbrk, where we must start braking.
-
-					// poor solution: start braking now:
+					x = xbrk;
+					dt_s = (sqrt(v0 * v0 + 2 * a * (xbrk - dx)) - v0) / a;
+					dt = fl_time_factor * dt_s;
 					vsoll = vlim;
-					v = v0;
-					continue;
-
-					// TODO: better solution: calculate the dt at which we pass xbrk.
 				}
 			}
 			dx = x;
-
 			delta_t -= dt; // another time slice passed
 		}
 		akt_speed = v_to_speed(v); // akt_speed in simutrans vehicle speed, v in m/s
