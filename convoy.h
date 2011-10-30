@@ -71,26 +71,26 @@ a = (Fm - Frs - cf * v^2) / m
 #include "simconvoi.h"
 #include "simworld.h"
 
-// CF_*: constants related to air resistance
-
-//#define CF_TRACK 0.7 / 2 * 10 * 1.2
-//#define CF_TRACK 4.2
-static const float32e8_t CF_TRACK = float32e8_t((uint32) 13);
-static const float32e8_t CF_MAGLEV = float32e8_t((uint32) 10);
-//#define CF_ROAD 0.7 / 2 * 6 * 1.2
-static const float32e8_t CF_ROAD = float32e8_t((uint32) 252, (uint32) 100);
-static const float32e8_t CF_WATER = float32e8_t((uint32) 25);
-static const float32e8_t CF_AIR = float32e8_t((uint32)1);
-
-// FR_*: constants related to rolling resistance
-
-//should be 0.0015, but for game balance it is higher 
-//#define FR_TRACK 0.0015
-static const float32e8_t FR_MAGLEV = float32e8_t((uint32) 15, (uint32) 10000);
-static const float32e8_t FR_TRACK = float32e8_t((uint32) 51, (uint32) 10000);
-static const float32e8_t FR_ROAD = float32e8_t((uint32) 15, (uint32) 1000);
-static const float32e8_t FR_WATER = float32e8_t((uint32) 1, (uint32) 1000);
-static const float32e8_t FR_AIR = float32e8_t((uint32) 1, (uint32) 1000);
+//// CF_*: constants related to air resistance
+//
+////#define CF_TRACK 0.7 / 2 * 10 * 1.2
+////#define CF_TRACK 4.2
+//static const float32e8_t CF_TRACK = float32e8_t((uint32) 13);
+//static const float32e8_t CF_MAGLEV = float32e8_t((uint32) 10);
+////#define CF_ROAD 0.7 / 2 * 6 * 1.2
+//static const float32e8_t CF_ROAD = float32e8_t((uint32) 252, (uint32) 100);
+//static const float32e8_t CF_WATER = float32e8_t((uint32) 25);
+//static const float32e8_t CF_AIR = float32e8_t((uint32)1);
+//
+//// FR_*: constants related to rolling resistance
+//
+////should be 0.0015, but for game balance it is higher 
+////#define FR_TRACK 0.0015
+//static const float32e8_t FR_MAGLEV = float32e8_t((uint32) 15, (uint32) 10000);
+//static const float32e8_t FR_TRACK = float32e8_t((uint32) 51, (uint32) 10000);
+//static const float32e8_t FR_ROAD = float32e8_t((uint32) 15, (uint32) 1000);
+//static const float32e8_t FR_WATER = float32e8_t((uint32) 1, (uint32) 1000);
+//static const float32e8_t FR_AIR = float32e8_t((uint32) 1, (uint32) 1000);
 
 // GEAR_FACTOR: a gear of 1.0 is stored as 64
 #define GEAR_FACTOR 64
@@ -207,56 +207,12 @@ struct adverse_summary_t
 
 	inline void clear()
 	{
-		cf = fr = 0;
+		cf = fr = br = 0;
 		max_speed = KMH_SPEED_UNLIMITED; 
 	}
 
-	inline void set_by_waytype(waytype_t waytype)
-	{
-		switch (waytype)
-		{
-			case air_wt:
-				cf = CF_AIR;
-				fr = FR_AIR;
-				br = float32e8_t(2, 1);
-				break;
-
-			case water_wt:
-				cf = CF_WATER;
-				fr = FR_WATER;
-				br = float32e8_t(1, 10);
-				break;
-		
-			case track_wt:
-			case narrowgauge_wt:
-			case overheadlines_wt: 
-				cf = CF_TRACK;
-				fr = FR_TRACK;
-				br = float32e8_t(1, 2);
-				break;
-
-			case tram_wt:
-			case monorail_wt:      
-				cf = CF_TRACK;
-				fr = FR_TRACK;
-				br = float32e8_t(1, 1);
-				break;
-			
-			case maglev_wt:
-				cf = CF_MAGLEV;
-				fr = FR_MAGLEV;
-				br = float32e8_t(12, 10);
-				break;
-
-			default:
-				cf = CF_ROAD;
-				fr = FR_ROAD;
-				br = float32e8_t(1, 1);
-				break;
-		}
-	}
-
 	void add_vehicle(const vehikel_t &v);
+	void add_vehicle(const vehikel_besch_t &b, bool is_first);
 };
 
 /******************************************************************************/

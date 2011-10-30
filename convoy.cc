@@ -66,12 +66,9 @@ static void get_possible_freight_weight(uint8 catg_index, sint32 &min_weight, si
 
 void adverse_summary_t::add_vehicle(const vehikel_t &v)
 {
+	add_vehicle(*v.get_besch(), v.is_first());
+
 	const waytype_t waytype = v.get_waytype();
-	if (max_speed == KMH_SPEED_UNLIMITED)
-	{
-		// all vehicles have the same waytype, thus setting once is enough
-		set_by_waytype(waytype);
-	}
 	if (waytype != air_wt || ((const aircraft_t &)v).get_flyingheight() <= 0)
 	{
 		const grund_t *gr = v.get_welt()->lookup(v.get_pos());
@@ -88,22 +85,12 @@ void adverse_summary_t::add_vehicle(const vehikel_t &v)
 			}
 		}
 	}
-	if (v.is_first()) 
-	{
-		cf = v.get_besch()->get_air_resistance();
-	}
-
-	fr = v.get_besch()->get_rolling_resistance();
 
 	// The vehicle may be limited by braking approaching a station
 	// Or airplane circling for landing, or airplane height,
 	// Or cornering, or other odd cases
 	// These are carried in vehikel_t unlike other speed limits 
-	if (v.get_speed_limit() == vehikel_t::speed_unlimited() ) 
-	{
-		max_speed = KMH_SPEED_UNLIMITED;
-	}
-	else
+	if (v.get_speed_limit() != vehikel_t::speed_unlimited()) 
 	{
 		sint32 limit = speed_to_kmh(v.get_speed_limit());
 		if (max_speed > limit)
@@ -111,6 +98,50 @@ void adverse_summary_t::add_vehicle(const vehikel_t &v)
 			max_speed = limit;
 		}
 	}
+}
+
+
+void adverse_summary_t::add_vehicle(const vehikel_besch_t &b, bool is_first)
+{
+	if (br.is_zero())
+	{
+		switch (b.get_waytype())
+		{
+			case air_wt:
+				br = float32e8_t(2, 1);
+				break;
+
+			case water_wt:
+				br = float32e8_t(1, 10);
+				break;
+		
+			case track_wt:
+			case narrowgauge_wt:
+			case overheadlines_wt: 
+				br = float32e8_t(1, 2);
+				break;
+
+			case tram_wt:
+			case monorail_wt:      
+				br = float32e8_t(1, 1);
+				break;
+			
+			case maglev_wt:
+				br = float32e8_t(12, 10);
+				break;
+
+			default:
+				br = float32e8_t(1, 1);
+				break;
+		}
+	}
+
+	if (is_first) 
+	{
+		cf = b.get_air_resistance();
+	}
+
+	fr += b.get_rolling_resistance();
 }
 
 /******************************************************************************/
@@ -161,7 +192,7 @@ sint32 convoy_t::calc_max_speed(const weight_summary_t &weight)
 		// this convoy is too heavy to start.
 		return 0;
 	}
-	const float32e8_t p3 =  Frs / (float32e8_t::three * adverse.cf);
+	const float32e8_t p3 = Frs / (float32e8_t::three * adverse.cf);
 	const float32e8_t q2 = get_continuous_power() / (float32e8_t::two * adverse.cf);
 	const float32e8_t sd = signed_power(q2 * q2 + p3 * p3 * p3, float32e8_t::half);
 	const float32e8_t vmax = signed_power(q2 + sd, float32e8_t::third) + signed_power(q2 - sd, float32e8_t::third); 
@@ -293,6 +324,7 @@ void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const 
 			else if (v < vsoll)
 			{
 				f = get_force(v);
+				/*
 				if (fvsoll == 0) // fvsoll is a constant within this function. So calculate it once only.
 				{
 					fvsoll = calc_speed_holding_force(vsoll, Frs);
@@ -301,6 +333,7 @@ void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const 
 				{
 					f = (f - fvsoll) * float32e8_t::half + fvsoll;
 				}
+				*/
 			}
 			else if (v == vsoll)
 			{
@@ -411,12 +444,15 @@ void potential_convoy_t::update_vehicle_summary(vehicle_summary_t &vehicle)
 void potential_convoy_t::update_adverse_summary(adverse_summary_t &adverse)
 {
 	adverse.clear();
-	uint32 i = vehicles.get_count();
-	if (i > 0)
+	uint32 count = vehicles.get_count();
+	for (uint32 i = count; i-- > 0; )
 	{
-		const vehikel_besch_t &b = *vehicles[0];
-		adverse.set_by_waytype(b.get_waytype());
-	}		
+		adverse.add_vehicle(*vehicles[i], i == 0);
+	}
+	if (count > 0)
+	{
+		adverse.fr /= count;
+	}
 }
 
 
@@ -510,10 +546,15 @@ void existing_convoy_t::update_vehicle_summary(vehicle_summary_t &vehicle)
 void existing_convoy_t::update_adverse_summary(adverse_summary_t &adverse)
 {
 	adverse.clear();
-	for (uint16 i = convoy.get_vehikel_anzahl(); i-- > 0; )
+	uint16 count = convoy.get_vehikel_anzahl();
+	for (uint16 i = count; i-- > 0; )
 	{
 		vehikel_t &v = *convoy.get_vehikel(i);
 		adverse.add_vehicle(v);
+	}
+	if (count > 0)
+	{
+		adverse.fr /= count;
 	}
 }
 
