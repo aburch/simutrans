@@ -9,10 +9,13 @@
 #define dataobj_umgebung_h
 
 #include <string>
+#include <vector>
 #include "../simtypes.h"
 #include "../simconst.h"
 #include "../simcolor.h"
 #include "einstellungen.h"
+
+#include "../tpl/vector_tpl.h"
 
 #define TILE_HEIGHT_STEP (umgebung_t::pak_tile_height_step)
 
@@ -71,6 +74,9 @@ public:
 	static std::string server_infurl;
 	// Server admin password (for use with nettool)
 	static std::string server_admin_pw;
+
+	// IP addresses to listen on/send announcements on
+	static vector_tpl<std::string> listen;
 
 	// pause server if no client connected
 	static bool pause_server_no_clients;

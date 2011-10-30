@@ -28,6 +28,7 @@ std::string umgebung_t::server_email;
 std::string umgebung_t::server_pakurl;
 std::string umgebung_t::server_infurl;
 std::string umgebung_t::server_admin_pw;
+vector_tpl<std::string> umgebung_t::listen;
 
 long umgebung_t::server_frames_ahead = 4;
 long umgebung_t::additional_client_frames_behind = 0;
@@ -200,6 +201,10 @@ void umgebung_t::init()
 	front_window_text_color = COL_WHITE; // 215
 	bottom_window_bar_color = 4;
 	bottom_window_text_color = 209;	// dark grey
+
+	// Listen on all addresses by default
+	listen.append_unique("::");
+	listen.append_unique("0.0.0.0");
 }
 
 

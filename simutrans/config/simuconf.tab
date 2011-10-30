@@ -548,6 +548,12 @@ fast_forward = 50
 # likely to compensate for clients running slightly faster than the rest.
 #
 
+# Sets the local addresses Simutrans should listen on and use for making outgoing connections
+# By default it will use all local IPv4 and IPv6 addresses
+# This setting has no effect if Simutrans has been compiled with the USE_IP4_ONLY flag set!
+# The addresses listed will be tried in the order specified
+#listen = ::,0.0.0.0
+
 # How much delay before comands are executed on the clients.
 # A larger number will catch even clients running slightly ahead but cause delay.
 # This is set by the server side.

@@ -782,6 +782,27 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 		umgebung_t::server_admin_pw = ltrim(contents.get("server_admin_pw"));
 	}
 
+	// listen directive is a comma seperated list of IP addresses to listen on
+	if(  *contents.get("listen")  ) {
+		umgebung_t::listen.clear();
+		std::string s = ltrim(contents.get("listen"));
+
+		// Find index of first ',' copy from start of string to that position
+		// Set start index to last position, then repeat
+		// When ',' not found, copy remainder of string
+
+		size_t start = 0;
+		size_t end;
+
+		end = s.find_first_of(",");
+		umgebung_t::listen.append_unique( ltrim( s.substr( start, end ).c_str() ) );
+		while (  end != std::string::npos  ) {
+			start = end;
+			end = s.find_first_of( ",", start + 1 );
+			umgebung_t::listen.append_unique( ltrim( s.substr( start + 1, end - 1 - start ).c_str() ) );
+		}
+	}
+
 	drive_on_left = contents.get_int("drive_left", drive_on_left );
 	signals_on_left = contents.get_int("signals_on_left", signals_on_left );
 
