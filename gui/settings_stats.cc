@@ -21,7 +21,7 @@ INIT_NUM( "diagonal_multiplier", pak_diagonal_multiplier);
 */
 
 
-static const char *version[8]=
+static char const* const version[] =
 {
 	"0.99.17",
 	"0.100.0",
