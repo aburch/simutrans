@@ -84,33 +84,49 @@ public:
 	inline bool operator < (const float32e8_t &value) const
 	{
 		if (ms)
-			return !value.ms ||	  e > value.e || (e == value.e && m > value.m);
+			return !value.ms || e > value.e || (e == value.e && m > value.m);
+		else if (value.ms)
+			return false;
+		else if (m == 0 || value.m == 0)
+			return m < value.m;
 		else
-			return 	!value.ms && (e < value.e || (e == value.e && m < value.m));
+			return e < value.e || (e == value.e && m < value.m);
 	}
 
 	inline bool operator <= (const float32e8_t &value) const
 	{
 		if (ms)
-			return !value.ms ||	  e > value.e || (e == value.e && m >= value.m);
+			return !value.ms || e > value.e || (e == value.e && m >= value.m);
+		else if (value.ms)
+			return false;
+		else if (m == 0 || value.m == 0)
+			return m <= value.m;
 		else
-			return !value.ms && (e < value.e || (e == value.e && m <= value.m));
+			return e < value.e || (e == value.e && m <= value.m);
 	}
 
 	inline bool operator > (const float32e8_t &value) const
 	{
 		if (ms)
-			return  value.ms &&	 (e < value.e || (e == value.e && m < value.m));
+			return value.ms && (e < value.e || (e == value.e && m < value.m));
+		else if (value.ms)
+			return true;
+		else if (m == 0 || value.m == 0)
+			return m > value.m;
 		else
-			return  value.ms ||  e > value.e || (e == value.e && m > value.m);
+			return e > value.e || (e == value.e && m > value.m);
 	}
 
 	inline bool operator >= (const float32e8_t &value) const
 	{
 		if (ms)
-			return  value.ms && (e < value.e || (e == value.e && m <= value.m));
+			return value.ms && (e < value.e || (e == value.e && m <= value.m));
+		else if (value.ms)
+			return true;
+		else if (m == 0 || value.m == 0)
+			return m >= value.m;
 		else
-			return  value.ms ||  e > value.e || (e == value.e && m >= value.m);
+			return e > value.e || (e == value.e && m >= value.m);
 	}
 
 	inline bool operator == (const float32e8_t &value) const { return m == value.m && e == value.e && ms == value.ms; }
