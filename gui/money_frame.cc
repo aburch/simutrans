@@ -529,7 +529,7 @@ void money_frame_t::rdwr( loadsave_t *file )
 
 	if(  file->is_loading()  ) {
 		// states ...
-		for( uint32 i = 0; i<MAX_PLAYER_COST; i++) {
+		for( uint32 i = 0; i<MAX_PLAYER_COST_BUTTON; i++) {
 			if (bFilterStates[sp->get_player_nr()] & (1<<i)) {
 				chart.show_curve(i);
 				mchart.show_curve(i);
