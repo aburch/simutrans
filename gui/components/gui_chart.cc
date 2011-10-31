@@ -76,7 +76,7 @@ uint32 gui_chart_t::add_line(int color, const sint64 *value, int times, bool sho
 
 void gui_chart_t::hide_curve(unsigned int id)
 {
-	if (id <= curves.get_count()) {
+	if (id < curves.get_count()) {
 		curves.at(id).show = false;
 	}
 }
@@ -84,7 +84,7 @@ void gui_chart_t::hide_curve(unsigned int id)
 
 void gui_chart_t::show_curve(unsigned int id)
 {
-	if (id <= curves.get_count()) {
+	if (id < curves.get_count()) {
 		curves.at(id).show = true;
 	}
 }
