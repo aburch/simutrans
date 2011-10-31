@@ -125,7 +125,7 @@ tourist_percentage = 16
 # The increase between the year will increase first slow then fast towards
 # the final years
 locality_factor[0]=1835,1
-locality_factor[1]=2050,10000
+locality_factor[1]=2050,2500
 
 # A factory will be added as worker's destination to a town, if it has either
 # is within factory_worker_radius
