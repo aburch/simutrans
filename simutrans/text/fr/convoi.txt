@@ -14,7 +14,7 @@ informations comme le coût, revenu, chargement de votre véhicule.
 
 <p>
 Vous pouvez modifier les critère d'affichage des véhicules en appuyant sur le
-bouton à gauche : Nom, Revenu ou Type de véhicule. Le bouton juste à coté sert
+bouton à gauche : Nom, Revenu ou Type de véhicule. Le bouton juste à coté ser
 à afficher les véhicules selon l'ordre croissant ou décroissant.
 </p>
 
