@@ -587,7 +587,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 
 	// universal check for crossings
 	if (to!=from  &&  (bautyp&bautyp_mask)!=leitung) {
-		waytype_t const wtyp = bautyp == river ? water_wt : static_cast<waytype_t>(bautyp & bautyp_mask);
+		waytype_t const wtyp = (bautyp == river) ? water_wt : (waytype_t)(bautyp & bautyp_mask);
 		if(!check_crossing(zv,to,wtyp,sp)  ||  !check_crossing(-zv,from,wtyp,sp)) {
 			return false;
 		}
