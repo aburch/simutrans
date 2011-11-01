@@ -3,7 +3,7 @@
 <h1>Finances (<em>f</em>)</h1>
 
 <p>
-Vous pouvez gérer vos finances par cet écran, accessible soit en pressant la touche 'f' ou en cliquant
+Vous pouvez gérer vos finances par cet écran, accessible soit en pressant la touche 'f' ou en cliquan
 sur l'icône 'billet' dans la partie droite de la barre d'outils.
 <br>
 Vous y trouverez les informations financières de votre entreprise pour l'année passée et l'année en cours.

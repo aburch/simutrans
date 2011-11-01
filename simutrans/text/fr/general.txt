@@ -5,9 +5,9 @@
 <p>
 Simutrans est un jeu de simulation de transport routier, maritime et ferroviaire.
 Le transport aérien n'est pas encore développé. Vous pourrez créer des réseaux de
-communication, et de livraison de marchandises diverses. Il faudra être vigilant
-sur la logique à tenir pour vous déployer : le fabriquant de meubles ne peut
-travailler s'il n'a pas de planches, donc il est inutile de développer le transport
+communication, et de livraison de marchandises diverses. Il faudra être vigilan
+sur la logique à tenir pour vous déployer : le fabriquant de meubles ne peu
+travailler s'il n'a pas de planches, donc il est inutile de développer le transpor
 des meubles vers le supermarché avant le transport du bois vers la scierie, puis
 des planches vers le fabriquant de meubles.
 </p>

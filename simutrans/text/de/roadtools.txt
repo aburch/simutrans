@@ -35,12 +35,12 @@ Eine wichtige Bauhilfe stellt die Nutzung des Gitternetzes dar
 Willst du nur ein Tunnelportal bauen, dann kannst du einen Ctrl (Strg)+Mausklick machen. Danach kann du dann in den Untergrundmodus wechseln (mit <em>U</em> oder unter <a href="display.txt">Anzeigeeinstellungen</a>) und mit dem Tunnelwerkzeug weitere Strecken bauen.
 </p>
 <p>
-Die <em>Verkehrssignalisation</em> wird genutzt, um die Bewegungen der Strassenfahrzeuge zu kontrollieren.
+Die <em>Verkehrssignalisation</em> wird genutzt, um die Bewegungen der Strassenfahrzeuge zu kontrollieren. Die meisten Schilder sind selbsterklärend. Eine Besonderheit ist das Schild <a href="privatesign_info.txt ">Privatweg</a>, das nur Fahrzeuge bestimmte Spieler passieren lässt.
 </p>
 <p>
 Der <em>Wegweiser</em> dient zur Verteilung von Fahrzeugen auf gleichartige Halteplätze an der selben Haltestelle, wenn (bei Vorbeifahrt am Wegweiser) der vom Fahrplan festgelegte Halteplatz besetzt ist.
 Er wird in Fahrtrichtung vor der Haltestelle aufgestellt.<br/>
-Die <em>Ampeln</em> können an Kreuzungen und Einmündungen aufgestellt werden und regeln den Verkehr.<br/>
+Die <em>Ampeln</em> können an Kreuzungen und Einmündungen aufgestellt werden und regeln den Verkehr. Durch geschicktes Einstellen der <a href="trafficlight_info.txt">Ampelphasen</a> lassen sich grüne Wellen realisieren.<br/>
 Die <em>Baustellenabschrankung</em> sorgt dafür, dass kein Fahrzeug mehr ein Strassenstück befährt.
 Die Straße wird ganz oder einseitig gesperrt. Bei der einseitigen Sperrung mehrmals klicken um die Straßenseite zu wechseln.<br/>
 Das <em>Einfahrt verboten</em> Schild macht eine Strasse zur Einbahnstrasse, der Verkehr rollt dort nur noch in Gegenrichtung.<br/>

@@ -88,7 +88,7 @@ bool gui_scrollpane_t::infowin_event(const event_t *ev)
 		translate_event(&ev2, -scroll_x.get_pos().x, -scroll_x.get_pos().y);
 		return scroll_x.infowin_event(&ev2);
 	}
-	else if(((b_show_scroll_y  &&  !IS_SHIFT_PRESSED(ev))  ||  (b_show_scroll_x  &&  IS_SHIFT_PRESSED(ev)))  &&  (IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev))) {
+	else if((IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev))  &&  ((b_show_scroll_y  &&  !IS_SHIFT_PRESSED(ev))  ||  (b_show_scroll_x  &&  IS_SHIFT_PRESSED(ev)))) {
 		// otherwise these events are only registered where directly over the scroll region
 		// (and sometime even not then ... )
 		return IS_SHIFT_PRESSED(ev) ? scroll_x.infowin_event(ev) : scroll_y.infowin_event(ev);

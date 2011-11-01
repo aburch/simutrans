@@ -411,9 +411,9 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos, const 
 
 			// only transparent outline
 			image_id img = gr->get_bild();
-			if(img==IMG_LEER) {
+			if(img==IMG_LEER  ||  gr->get_typ()==grund_t::wasser) {
 				// default image (since i.e. foundations do not have an image)
-				img = grund_besch_t::get_ground_tile( gr->get_disp_slope(), gr->get_disp_height() );
+				img = grund_besch_t::ausserhalb->get_bild(0);
 			}
 
 			for(int halt_count = 0; halt_count < halt_list_count; halt_count++) {
