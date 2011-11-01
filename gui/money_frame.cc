@@ -474,7 +474,7 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	maintenance_money.set_text(str_buf[16]);
 	maintenance_money.set_color(sp->get_maintenance()>=0?MONEY_PLUS:MONEY_MINUS);
 
-	for (int i = 0;  i<MAX_PLAYER_COST;  i++) {
+	for (int i = 0;  i<MAX_PLAYER_COST_BUTTON;  i++) {
 		filterButtons[i].pressed = ( (bFilterStates[sp->get_player_nr()]&(1<<i)) != 0 );
 		// year_month_toggle.pressed = mchart.is_visible();
 	}
@@ -494,7 +494,7 @@ bool money_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 		return true;
 	}
 
-	for ( int i = 0; i<MAX_PLAYER_COST; i++) {
+	for ( int i = 0; i<MAX_PLAYER_COST_BUTTON; i++) {
 		if (komp == &filterButtons[i]) {
 			bFilterStates[sp->get_player_nr()] ^= (1<<i);
 			if (bFilterStates[sp->get_player_nr()] & (1<<i)) {

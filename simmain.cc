@@ -696,7 +696,7 @@ int simu_main(int argc, char** argv)
 
 	// now find the pak specific tab file ...
 	const string obj_conf = umgebung_t::objfilename + path_to_simuconf;
-	string dummy("");
+	string dummy;
 	if (simuconf.open(obj_conf.c_str())) {
 		sint16 idummy;
 		printf("parse_simuconf() at %s: ", obj_conf.c_str());
