@@ -9,7 +9,6 @@
 #define dataobj_umgebung_h
 
 #include <string>
-//#include <vector>
 #include "../simtypes.h"
 #include "../simconst.h"
 #include "../simcolor.h"
