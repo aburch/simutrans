@@ -1,0 +1,36 @@
+<title>Aiuto dettagli del convoglio</title>
+
+<h1><strong>Dettagli del convoglio</strong></h1>
+
+<p>
+<strong>Dettagli del convoglio</strong> fornisce più informazioni riguardo un determinato convoglio (un veicolo o una combinazione di essi) e può essere usato per venderlo immediatamente.
+</p>
+<p>
+
+<strong>Dettagli del convoglio</strong> si apre dal bottone <a href="convoiinfo.txt">Dettagli</a> ne <strong>Informazioni sul convoglio</strong>.
+<br>
+Se tutti gli elementi non fossero visibili, <a href="mouse.txt">ridimensiona</a> <strong>Dettagli del convoglio</strong> o usa una barra di scorrimento per muoverli.
+</p>
+<p>
+In cima a <strong>Dettagli del convoglio</strong>, le informazioni includono:
+</p>
+<p>
+<em>Potenza:</em> del convoglio (combinazione della potenza di tutti gli elementi motorizzati in esso).
+</p>
+<p>
+<em>Valore di vendita:</em> denaro ricevuto se il convoglio venisse venduto (prezzo d'acquisto meno tutte le perdite di valore).
+</p>
+<p>
+ATTENZIONE: Clicca sull'opzione <em>Modalità vendita</em> per vendere il convoglio immediatamente. Nessuna conferma sarà richiesta. Esso sarà rimosso dal gioco e il bilancio del giocatore riceverà in credito il prezzo di vendita.
+</p>
+<p>
+<strong>Dettagli convoglio</strong> elenca tutti gli elementi in esso.<br>
+Le informazioni presenti per tutti i veicoli includono:<br>
+- <em>Immagine:</em> una figura dell'unità (usata anche in <a href="depot.txt">Depositi</a>).<br>
+- <em>Costruito:</em> mese e anno di costruzione e di introduzione se si sta giocando con la <a href="new_world.txt">linea del tempo</a>.<br>
+- <em>Valore di rivendita:</em> somma ricevuta se venduto.<br>
+- <em>Potenza:</em> potenza generata (dai veicoli motorizzati).<br>
+- <em>Frizione:</em> livello di frizione corrente.<br>
+- <em>Guadagno massimo:</em> guadagno dell'unità secondo il tipo di bene trasportato dal convoglio.<br>
+- <em>Beni a bordo</em> ammontare e destinazione dei beni trasportati dal veicolo.
+</p>
