@@ -98,9 +98,9 @@ SectionEnd
 
 
 Section /o "Executable (SDL, better sound)" SDLexe
-  AddSize 8849
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/110-0-1/simuwin-sdl-110-0-1.zip"
-  StrCpy $archievename "simuwin-sdl-110-0-1.zip"
+  AddSize 9277
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/110-1/simuwin-sdl-111-0.zip"
+  StrCpy $archievename "simuwin-sdl-111-0.zip"
   StrCpy $downloadname "Simutrans Executable (SDL)"
   Call DownloadInstallZip
   Call PostExeInstall
@@ -121,9 +121,9 @@ SectionGroupEnd
 SectionGroup "Pak64: main and addons" pak64group
 
 Section "!pak64 (standard)" pak64
-  AddSize 10438
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/110-0-1/simupak64-110-0-1.zip"
-  StrCpy $archievename "simupak64-110-0-1.zip"
+  AddSize 10557
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/111-0/simupak64-111-0.zip"
+  StrCpy $archievename "simupak64-111-0.zip"
   StrCpy $downloadname "pak64"
   Call DownloadInstallZip
 SectionEnd
@@ -271,10 +271,10 @@ SectionEnd
 
 
 # attention: This is not in simutrans/ folder, so we have to install it manually
-Section /o "pak128 Britain (0.8) 102.2.1" pak128britain
-  AddSize 97051
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128.britain/pak128.britain%20for%20102-0/pak128.Britain_1-0-8_0-102.zip"
-  StrCpy $archievename "pak128.Britain_1-0-8_0-102.zip"
+Section /o "pak128 Britain (1.09) 111.0" pak128britain
+  AddSize 144922
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128.britain/pak128.Britain%20for%20111-0/pak128.Britain-1.09-111-0.zip"
+  StrCpy $archievename "pak128.Britain-1.09-111-0.zip"
   StrCpy $downloadname "pak128.Britain"
   Call DownloadInstallZipWithoutSimutrans
 SectionEnd
