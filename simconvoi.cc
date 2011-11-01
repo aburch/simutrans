@@ -757,10 +757,7 @@ void convoi_t::calc_acceleration(long delta_t)
 	sint32 steps_left_on_current_tile = (sint32)front.get_steps_next() + 1 - (sint32)front.get_steps();
 	steps_til_brake += steps_left_on_current_tile;
 	steps_til_limit += steps_left_on_current_tile;
-	if (steps_til_brake > 0)
-		akt_speed_soll = min_top_speed;
-	else
-		akt_speed_soll = next_speed_limit;
+	akt_speed_soll = min_top_speed;
 	convoy.calc_move(delta_t, simtime_factor, akt_speed_soll, next_speed_limit, steps_til_limit, steps_til_brake, akt_speed, sp_soll);
 }
 
