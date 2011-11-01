@@ -396,6 +396,10 @@ void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const 
 					// don't accelerate too much
 					v = vsoll;
 				}
+				else if (v < V_MIN)
+				{
+					v = V_MIN;
+				}
 				x = dx + v * dt_s;
 				if (x > xbrk)
 				{
