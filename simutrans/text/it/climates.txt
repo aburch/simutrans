@@ -1,0 +1,89 @@
+<title>Aiuto imposta clima</title>
+
+<h1><strong>Imposta clima</strong></h1>
+
+<p>
+La finestra <strong>Imposta clima</strong> imposta le opzioni per gli aspetti topografici e meteorologici del mondo. Si può aprire dalle finestre <a href="new_world.txt">Crea nuovo gioco</a> e <a href="language.txt">Lingue</a>.
+</p>
+
+<p>
+Per modificare ogni impostazione, cliccare sulle frecce a lato di ognuna di esse.
+</p>
+
+<p>
+<it>Opzioni mappa</it>
+</p>
+
+<p>
+<em>Livello acqua</em> - Imposta quant'è alto il livello dell'acqua nella mappa. Valori più alti riducono la terra ferma a favore dei mari.
+</p>
+
+<p>
+<em>Altezza montagne</em> - Imposta l'altezza massima del terreno.
+</p>
+
+<p>
+<em>Asprezza mappa</em> - Imposta l'asprezza del terreno. Un numero grande crea delle linee di costa più ondulate. Per creare una mappa realistica, impostare un valore alto.<br>
+</p>
+
+<p>
+<it>Limite neve</it>
+<br>È l'altezza oltre la quale appare la neve.
+</p>
+<p>
+
+<em>Limite neve estivo</em> - È il limite della neve durante l'estate. È il valore più alto da impostare tra le opzioni del clima.
+</p>
+
+<p>
+<em>Limite neve invernale</em> - Imposta il limite della neve per l'inverno. Per far apparire la neve in zone ampie della mappa, impostare un valore basso.
+</p>
+
+<p>
+<it>Opzioni clima</it>
+<br>Impostare le differenti opzioni climatiche per la mappa. <br>Il valore dopo ogni opzione imposta le altezze del terreno dove appare quel dato clima. Per disattivarne uno in particolare, inserire 0 (zero).
+</p>
+
+<p>
+<em>Clima desertico</em>  - Pochissime precipitazioni e temperature estreme. Pochi alberi e paesaggio piatto
+</p>
+<p>
+
+<em>Clima tropicale</em> - Tipico delle zone non aride intorno all'equatore, con temperature costantemente alte al livello del mare e a piccole elevazioni
+</p>
+
+<p>
+<em>Clima mediterraneo</em> - Clima moderatamente variabile ed umido
+</p>
+
+<p>
+<em>Clima temperato</em> - Presente nelle aree tra i topici e i poli. Tempo variabile
+</p>
+
+<p>
+<em>Tundra</em> - Basse temperature, ai limiti dei poli
+</p>
+
+<p>
+<em>Clima alpino</em> - Clima secco con inverni freddi
+</p>
+
+<p>
+<it>Altre opzioni</it>
+</p>
+
+<p>
+<em>Nessun albero</em> - Cliccare per abilitare. Attivare quest'opzione per evitare che Simutrans disegni alberi. Il loro disegno occupa la CPU. Usare quest'opzione su computer lenti o con poca RAM.
+</p>
+
+<p>
+<em>Numero di fiumi</em> - Imposta il numero massimo di fiumi che possono essere generati e usati in una mappa. Essi non possono essere navigati da alcun tipo di barca o nave.
+</p>
+
+<p>
+<em>Lunghezza minima dei fiumi</em> - Imposta la lunghezza minima dei fiumi in termini di numero di settori.
+</p>
+
+<p>
+<em>Lunghezza massima dei fiumi</em> - Imposta la lunghezza massima dei fiumi in termini di numero di settori.
+</p>
