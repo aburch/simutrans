@@ -281,10 +281,10 @@ SectionEnd
 
 
 
-Section /o "pak128 German V0.1.1" pak128german
-  AddSize 47265
-  StrCpy $downloadlink "http://www.simutrans-germany.com/~pak128german/files/PAK128.german_0.1.1.zip"
-  StrCpy $archievename "PAK128.german_0.1.1.zip"
+Section /o "pak128 German V0.1.2" pak128german
+  AddSize 47307
+  StrCpy $downloadlink "http://www.simutrans-germany.com/~pak128german/files/PAK128.german_0.1.2.zip"
+  StrCpy $archievename "PAK128.german_0.1.2.zip"
   StrCpy $downloadname "pak128.German"
 # since download works different, we have to do it by hand
   RMdir /r "$TEMP\simutrans"
@@ -304,9 +304,9 @@ Section /o "pak128 German V0.1.1" pak128german
 
   CreateDirectory "$INSTDIR"
   Delete "$Temp\$archievename"
-  RMdir /r "$TEMP\Simutrans\PAK128.german_0.1.1\de.tab_fuer_programmordner"
-  RMdir "$TEMP\Simutrans\PAK128.german_0.1.1\*.txt"
-  CopyFiles "$TEMP\Simutrans\PAK128.german_0.1.1\*.*" "$INSTDIR"
+  RMdir /r "$TEMP\Simutrans\PAK128.german_0.1.2\de.tab_fuer_programmordner"
+  RMdir "$TEMP\Simutrans\PAK128.german_0.1.2\*.txt"
+  CopyFiles "$TEMP\Simutrans\PAK128.german_0.1.2\*.*" "$INSTDIR"
   RMdir /r "$TEMP\Simutrans"
 SectionEnd
 

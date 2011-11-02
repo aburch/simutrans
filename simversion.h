@@ -3,8 +3,8 @@
 
 #define MAKEOBJ_VERSION "52"
 
-#define VERSION_NUMBER " 111.0"
-#define WIDE_VERSION_NUMBER L" 111.0"
+#define VERSION_NUMBER " nightly 111.0.1"
+#define WIDE_VERSION_NUMBER L" nightly 111.0.1"
 
 #define VERSION_DATE __DATE__
 
@@ -14,7 +14,7 @@
 #define SAVEGAME_VER_NR  "0.111.0"
 #define SERVER_SAVEGAME_VER_NR  "0.111.0"
 
-#define RES_VERSION_NUMBER  0, 110, 0, 7
+#define RES_VERSION_NUMBER  0, 110, 0, 1
 
 
 /*********************** Settings related to network games ********************/
