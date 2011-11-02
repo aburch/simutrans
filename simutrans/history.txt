@@ -1,3 +1,5 @@
+Release of 110.0.1 (r4911 on 1-Nov-2011):
+
 	ADD: factory charts
 	ADD: storage capacities scale with base production for factories which do not support fields
 	ADD: factory-going passengers/mail are handled separately
