@@ -410,10 +410,17 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos, const 
 		if(umgebung_t::use_transparency_station_coverage) {
 
 			// only transparent outline
-			image_id img = gr->get_bild();
-			if(img==IMG_LEER  ||  gr->get_typ()==grund_t::wasser) {
-				// default image (since i.e. foundations do not have an image)
+			image_id img;
+			if(  gr->get_typ()==grund_t::wasser  ) {
+				// water is always flat and do not return proper imaga_id
 				img = grund_besch_t::ausserhalb->get_bild(0);
+			}
+			else {
+				img = gr->get_bild();
+				if(  img==IMG_LEER  ) {
+					// foundations or underground mode
+					img = grund_besch_t::get_ground_tile( gr->get_disp_slope(), gr->get_disp_height() );
+				}
 			}
 
 			for(int halt_count = 0; halt_count < halt_list_count; halt_count++) {
