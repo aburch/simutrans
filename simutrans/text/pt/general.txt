@@ -71,7 +71,7 @@
 <p>
 Se você não encontrou aqui a ajuda que procura, então tente:<br>
 <em>http://docs.simutrans.com</em>, ou<br>
-<em>http://wiki.simutrans.com</em>, ou<br>
+<em>http://wiki.simutrans-germany.com/</em>, ou<br>
 <em>http://simutrans-tips.com</em>, ou<br>
 <em>http://forum.simutrans.com</em>, ou<br>
 <em>http://pt.simutrans.com</em>.
@@ -91,7 +91,7 @@ FaconBill<br>
 Fire_wolf_br<br>
 Francisco Gonçalves<br>
 haspwolf<br>
-IgorTekton<br>
+IgorEliezer<br>
 Silcorfa
 </p>
 <p>
