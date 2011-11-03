@@ -218,7 +218,7 @@ convoi_t::convoi_t(karte_t* wl, loadsave_t* file) : fahr(max_vehicle, NULL)
 	delete departure_times;
 	average_journey_times = new koordhashtable_tpl<id_pair, average_tpl<uint16> >;
 	departure_times = new inthashtable_tpl<uint16, sint64>;
-	speed_limits = new vector_tpl<sint32>;
+	//speed_limits = new vector_tpl<sint32>;
 	rdwr(file);
 	current_stop = fpl == NULL ? 255 : fpl->get_aktuell() - 1;
 
@@ -247,7 +247,7 @@ convoi_t::convoi_t(spieler_t* sp) : fahr(max_vehicle, NULL)
 
 	average_journey_times = new koordhashtable_tpl<id_pair, average_tpl<uint16> >;
 	departure_times = new inthashtable_tpl<uint16, sint64>;
-	speed_limits = new vector_tpl<sint32>;
+	//speed_limits = new vector_tpl<sint32>;
 }
 
 
@@ -294,7 +294,7 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 
 	delete average_journey_times;
 	delete departure_times;
-	delete speed_limits;
+	//delete speed_limits;
 
 	// @author hsiegeln - deregister from line (again) ...
 	unset_line();
@@ -726,15 +726,15 @@ void convoi_t::calc_acceleration(long delta_t)
 		const uint16 current_route_index = front.get_route_index();
 		steps_til_limit = (sint32)(next_stop_index - current_route_index) * VEHICLE_STEPS_PER_TILE; 
 		steps_til_brake = steps_til_limit - brake_steps;
-		if (speed_limits && speed_limits->get_count() > 0)
+		if (speed_limits.get_count() > 0)
 		{
-			if (speed_limits->get_count() > current_route_index)
+			if (speed_limits.get_count() > current_route_index)
 			{
 				// Brake for upcoming speed limit?
-				const uint16 check_tiles = min(speed_limits->get_count() - current_route_index, brake_steps / VEHICLE_STEPS_PER_TILE);
+				const uint16 check_tiles = min(speed_limits.get_count() - current_route_index, brake_steps / VEHICLE_STEPS_PER_TILE);
 				for (uint16 i = 0; i < check_tiles; i++)
 				{
-					const sint32 sl = speed_limits->get_element(i + current_route_index);
+					const sint32 sl = speed_limits.get_element(i + current_route_index);
 					const sint32 limit_steps = brake_steps - convoy.calc_min_braking_distance(simtime_factor, convoy.get_weight_summary(), sl);
 					const sint32 route_steps = (sint32)i * VEHICLE_STEPS_PER_TILE;
 					const sint32 st = route_steps - limit_steps;
@@ -3271,7 +3271,7 @@ void convoi_t::rdwr(loadsave_t *file)
 				uint32 count = 0;
 				file->rdwr_long(count);
 				departure_times->clear();
-				for(int i = 0; i < count; i ++)
+				for(uint32 i = 0; i < count; i ++)
 				{
 					file->rdwr_short(id);
 					file->rdwr_longlong(departure_time);

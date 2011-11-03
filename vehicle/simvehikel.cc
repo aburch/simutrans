@@ -1372,28 +1372,19 @@ void vehikel_t::hop()
 
 sint32 vehikel_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fixed_list_tpl<sint16, 16>* cornering_data, ribi_t::ribi current_direction, ribi_t::ribi previous_direction)
 {	
-	cornering_data->add_to_tail(get_direction_degrees(ribi_t::get_dir(previous_direction)));
-
-	const bool is_corner = current_direction != previous_direction;
-
+	if (weg_previous)
+	{
+		cornering_data->add_to_tail(get_direction_degrees(ribi_t::get_dir(previous_direction)));
+	}
 	if(w == NULL)
 	{
 		return speed_limit;
 	}
-	sint32 base_limit;
-	uint16 weight_limit;
+	const bool is_corner = current_direction != previous_direction;
+
 	const bool is_tilting = besch->get_tilting();
-	if(w != NULL)
-	{
-		base_limit = kmh_to_speed(w->get_max_speed());
-		weight_limit = w->get_max_weight();
-	}
-	else
-	{
-		//Necessary to prevent access violations in some cases of loading saved games.
-		base_limit = kmh_to_speed(200);
-		weight_limit = 999;
-	}
+	const sint32 base_limit = kmh_to_speed(w->get_max_speed());
+	const uint16 weight_limit = w->get_max_weight();
 	sint32 overweight_speed_limit = base_limit;
 	sint32 corner_speed_limit = base_limit;
 	sint32 new_limit = base_limit;
@@ -3155,53 +3146,52 @@ void waggon_t::set_convoi(convoi_t *c)
 // need to reset halt reservation (if there was one)
 bool waggon_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route)
 {
-	if(ist_erstes  &&  route_index<cnv->get_route()->get_count()) {
+	if (ist_erstes && route_index < cnv->get_route()->get_count())
+	{
 		// free all reserved blocks
 		uint16 dummy;
-		block_reserver(cnv->get_route(), cnv->back()->get_route_index(), dummy, dummy, target_halt.is_bound() ? 100000 : 1, false, true);
+		block_reserver(cnv->get_route(), cnv->back()->get_route_index(), dummy,
+				dummy, target_halt.is_bound() ? 100000 : 1, false, true);
 	}
-	target_halt = halthandle_t();	// no block reserved
+	target_halt = halthandle_t(); // no block reserved
+	bool result = route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight(), 8888 /*cnv->get_tile_length()*/ );
 	
 	if(ist_erstes)
 	{
-		vector_tpl<sint32>* speed_limits = cnv->get_speed_limits();
-		const uint32 route_count = cnv->get_route()->get_count();
-		koord3d current_tile = route_count > 0 ? cnv->get_route()->position_bei(0) : pos_next;
-		koord3d next_tile;
-		ribi_t::ribi current_direction = fahrtrichtung;
-		ribi_t::ribi next_direction;
-		speed_limits->clear();
+		vector_tpl<sint32>& speed_limits = cnv->get_speed_limits();
+		speed_limits.clear();
 		fixed_list_tpl<sint16, 16> corner_data;
-		for(sint32 i = route_count - 1; i >= 0; i --)
+		const waytype_t waytype = get_waytype();
+		const route_t &route = *cnv->get_route();
+		const uint32 route_count = route.get_count(); // at least ziel will be there, even if there is no route (result == false)
+		// get first tile fake data
+		ribi_t::ribi current_direction = fahrtrichtung;
+		koord3d current_tile = route.position_bei(0);
+		const weg_t *current_weg = NULL;
+		for (uint16 i = 0; i < route_count; i++)
 		{
-			next_tile = cnv->get_route()->position_bei(i);
-			next_direction = calc_set_richtung(current_tile.get_2d(), next_tile.get_2d());
-			
-			grund_t *gr;
-			gr = welt->lookup(next_tile);
+			const koord3d next_tile = route.position_bei(i);
+			const grund_t *next_gr = welt->lookup(next_tile);
+			const weg_t *next_weg = next_gr != NULL ? next_gr->get_weg(get_waytype()) : NULL;
+			const ribi_t::ribi next_direction = i == 0 ? fahrtrichtung : calc_richtung(current_tile.get_2d(), next_tile.get_2d());
 
-			const weg_t * weg = gr != NULL ? gr->get_weg(get_waytype()) : NULL;
-			
-			gr = welt->lookup(current_tile);
-			const weg_t * weg_previous = gr != NULL ? gr->get_weg(get_waytype()) : NULL;
-
-			if(weg)
+			if (next_weg)
 			{
-				sint32 sl = calc_speed_limit(weg, weg_previous, &corner_data, next_direction, current_direction);
-				const sint32 TEST = speed_to_kmh(sl);
-				speed_limits->append(sl);
+				sint32 sl = calc_speed_limit(next_weg, current_weg, &corner_data, next_direction, current_direction);
+				speed_limits.append(sl);
 			}
 			else
 			{
-				speed_limits->append(SPEED_UNLIMITED);
+				speed_limits.append(SPEED_UNLIMITED);
 			}
 
-			current_direction = next_direction;
 			current_tile = next_tile;
+			current_weg = next_weg;
+			current_direction = next_direction;
 		}
 	}
-	
-	return route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight(), 8888 /*cnv->get_tile_length()*/ );
+
+	return result;
 }
 
 
@@ -3689,8 +3679,9 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 		// note: crossing and signal might exist on same tile
 		// so first check crossing
 		if(  sch1->is_crossing()  ) {
-			if(  crossing_t* cr = gr_next_block->find<crossing_t>(2)  ) {
-					// ok, here is a draw/turnbridge ...
+			crossing_t* cr = gr_next_block->find<crossing_t>(2);
+			if (cr) {
+				// ok, here is a draw/turnbridge ...
 				bool ok = cr->request_crossing(this);
 				if(!ok) {
 					// cannot cross => wait here

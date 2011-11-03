@@ -242,20 +242,12 @@ private:
 	*/
 	uint32 sum_leistung;
 
-	// How much of the convoy's power comes from steam engines?
-	// Needed when applying realistic physics to steam engines.
-	// @author: jamespetts
-	//uint32 power_from_steam;
-
 	/**
 	* Gesamtleistung mit Gear. Wird nicht gespeichert, sondern aus den Einzelleistungen
 	* errechnet.
 	* @author prissi
 	*/
 	sint32 sum_gear_und_leistung;
-
-	// @author: jamespetts
-	//sint32 power_from_steam_with_gear;
 
 	/* sum_gewicht: leergewichte aller vehicles *
 	* sum_gesamtgewicht: gesamtgewichte aller vehicles *
@@ -330,7 +322,6 @@ private:
 	koord record_pos;
 
 	// needed for speed control/calculation
-	//sint32 brake_speed_soll;    // brake target speed
 	sint32 akt_speed;	        // current speed
 	sint32 akt_speed_soll;		// Target speed
 	sint32 sp_soll;				// steps to go
@@ -517,7 +508,7 @@ private:
 	  * List of upcoming speed limits; for braking purposes.
 	  * @author: jamespetts, September 2011
 	  */
-	vector_tpl<sint32> *speed_limits;
+	vector_tpl<sint32> speed_limits;
 
 public:
 	
@@ -1128,7 +1119,7 @@ public:
 	
 	bool is_wait_infinite() const { return go_on_ticks == WAIT_INFINITE; }
 
-	vector_tpl<sint32>* get_speed_limits() { return speed_limits; }
+	vector_tpl<sint32>& get_speed_limits() { return speed_limits; }
 };
 
 #endif
