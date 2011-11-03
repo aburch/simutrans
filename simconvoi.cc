@@ -219,6 +219,7 @@ convoi_t::convoi_t(karte_t* wl, loadsave_t* file) : fahr(max_vehicle, NULL)
 	delete departures;
 	average_journey_times = new koordhashtable_tpl<id_pair, average_tpl<uint16> >;
 	departures = new inthashtable_tpl<uint16, departure_data_t>;
+	no_route_retry_count = 0;
 	rdwr(file);
 	current_stop = fpl == NULL ? 255 : fpl->get_aktuell() - 1;
 
@@ -244,6 +245,8 @@ convoi_t::convoi_t(spieler_t* sp) : fahr(max_vehicle, NULL)
 	free_seats = 0;
 
 	livery_scheme_index = 0;
+
+	no_route_retry_count = 0;
 
 	average_journey_times = new koordhashtable_tpl<id_pair, average_tpl<uint16> >;
 	departures = new inthashtable_tpl<uint16, departure_data_t>;
@@ -1339,9 +1342,50 @@ end_loop:
 
 		case NO_ROUTE:
 			// stuck vehicles
-			if (fpl->empty()) {
+			no_route_retry_count ++;
+			if(no_route_retry_count >= 3)
+			{
+				// If the convoy is stuck for too long, send it to a depot.
+				if(!go_to_depot(true))
+				{
+					// Teleport to depot if cannot get there by normal means.
+					depot_t* dep = welt->lookup(home_depot)->get_depot();
+					if(!dep)
+					{
+						dep = depot_t::find_depot(this->get_pos(), get_depot_type(), get_besitzer(), true);
+					}
+					for(int i = 0; i < anz_vehikel; i ++)
+					{
+						vehikel_t* v = fahr[i];
+						grund_t *gr = welt->lookup(v->get_pos());
+						if(gr) 
+						{
+							gr->obj_remove(v);
+							if(gr->ist_uebergang()) 
+							{
+								crossing_t *cr = gr->find<crossing_t>(2);
+								cr->release_crossing(v);
+							}
+							// eventually unreserve this
+							if (schiene_t* const sch0 = ding_cast<schiene_t>(gr->get_weg(fahr[i]->get_waytype()))) 
+							{
+								sch0->unreserve(v);
+							}
+						}
+						v->set_pos(home_depot);
+						v->betrete_feld();
+					}	
+					dep->convoi_arrived(self, false);
+					state = INITIAL;	
+					fpl->set_aktuell(0);
+				}
+			}
+			else if (fpl->empty()) 
+			{
 				// no entries => no route ...
-			} else {
+			} 
+			else 
+			{
 				// Hajo: now calculate a new route
 				drive_to();
 			}
@@ -3469,6 +3513,10 @@ void convoi_t::rdwr(loadsave_t *file)
 		}
 
 		file->rdwr_long(current_loading_time);
+		if(file->get_version() >= 111000)
+		{
+			file->rdwr_byte(no_route_retry_count);
+		}
 	}
 	
 	else
@@ -5917,4 +5965,31 @@ void convoi_t::clear_replace()
 	const uint32 departures_count = departures->get_count();
 	const uint8 schedule_count = fpl->get_count();
 	return departures_count == schedule_count;
+ }
+
+ ding_t::typ convoi_t::get_depot_type() const
+ {
+	 const waytype_t wt = fahr[0]->get_waytype();
+	 switch(wt)
+	 {
+	 case road_wt:
+		 return ding_t::strassendepot;
+	 case track_wt:
+		 return ding_t::bahndepot;
+	 case water_wt:
+		 return ding_t::schiffdepot;
+	 case monorail_wt:
+		 return ding_t::monoraildepot;
+	 case maglev_wt:
+		 return ding_t::maglevdepot;
+	 case tram_wt:
+		 return ding_t::tramdepot;
+	 case narrowgauge_wt:
+		 return ding_t::narrowgaugedepot;
+	 case air_wt:
+		 return ding_t::airdepot;
+	 default:
+		 dbg->error("ding_t::typ convoi_t::get_depot_type() const", "Invalid waytype: cannot find correct depot type");
+	 };
+
  }

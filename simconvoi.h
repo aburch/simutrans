@@ -25,6 +25,8 @@
 
 #include "simconst.h"
 
+#include "simdings.h"
+
 #define MAX_CONVOI_COST				9 // Total number of cost items
 #define MAX_MONTHS					12 // Max history
 
@@ -554,10 +556,20 @@ private:
 	uint32 rolling_average[MAX_CONVOI_COST];
 	uint16 rolling_average_count[MAX_CONVOI_COST];
 
-	// To prevent repeat bookings of journey time
-	// and comfort when a vehicle is waiting for
-	// load at a stop.
+	/**To prevent repeat bookings of journey time
+	 * and comfort when a vehicle is waiting for
+	 * load at a stop.
+	 */
 	uint8 current_stop;
+
+	/**
+	 * The number of times that this
+	 * convoy has attempted to find
+	 * a route to its destination
+	 * and failed.
+	 * @author: jamespetts, November 2011
+	 */
+	uint8 no_route_retry_count;
 
 	/**
 	 * Get obsolescence from vehicle list.
@@ -608,6 +620,8 @@ private:
 	 * @author: jamespetts
 	 */
 	void book_departure_time(sint64 time);
+
+	ding_t::typ get_depot_type() const;
 
 public:
 	
