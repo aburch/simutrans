@@ -4882,8 +4882,8 @@ void stadt_t::baue(bool new_town)
 	koord c( (ur.x + lo.x)/2 , (ur.y + lo.y)/2);
 	double maxdist(koord_distance(ur,c));
 	if (maxdist < 10) {maxdist = 10;}
-	int was_renovated=0;
-	int try_nr = 0;
+	uint32 was_renovated = 0;
+	uint32 try_nr = 0;
 	if (!buildings.empty() && simrand(100, "void stadt_t::baue") <= renovation_percentage  ) {
 		while (was_renovated < renovations_count && try_nr++ < renovations_try) { // trial an errors parameters
 			// try to find a public owned building

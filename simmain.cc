@@ -81,6 +81,7 @@
 
 using std::string;
 
+#ifdef DEBUG
 /* diagnostic routine:
  * show the size of several internal structures
  */
@@ -178,7 +179,7 @@ static void show_times(karte_t *welt, karte_ansicht_t *view)
 	}
 	DBG_MESSAGE("test", "welt->sync_step/step(200,1,1): %i iterations took %i ms", i, dr_time() - ms);
 }
-
+#endif
 
 
 void modal_dialogue( gui_frame_t *gui, long magic, karte_t *welt, bool (*quit)() )

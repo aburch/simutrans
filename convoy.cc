@@ -15,11 +15,7 @@
 
 static const float32e8_t g_accel((uint32) 980665, (uint32) 100000); // gravitational acceleration
 
-static const float32e8_t  _999_permille((uint32) 999, (uint32) 1000);
-static const float32e8_t _1001_permille((uint32)1001, (uint32) 1000);
-
 static const float32e8_t  _90_percent((uint32)  90, (uint32) 100);
-static const float32e8_t  _99_percent((uint32)  99, (uint32) 100);
 static const float32e8_t _101_percent((uint32) 101, (uint32) 100);
 static const float32e8_t _110_percent((uint32) 110, (uint32) 100);
 

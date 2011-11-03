@@ -209,7 +209,6 @@ void log_t::fatal(const char *who, const char *format, ...)
 	// no display available
 	puts( buffer );
 #else
-	int old_level = umgebung_t::verbose_debug;
 	umgebung_t::verbose_debug = 0;	// no more window concerning messages
 	if(is_display_init()) {
 		// show notification
@@ -244,6 +243,7 @@ void log_t::fatal(const char *who, const char *format, ...)
 	}
 
 #ifdef DEBUG
+	int old_level = umgebung_t::verbose_debug;
 	if (old_level > 4) {
 		// generate a division be zero error, if the user request it
 		static int make_this_a_division_by_zero = 0;
