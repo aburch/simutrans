@@ -1,3 +1,6 @@
+	FIX: owner of way gates were accidently rotated
+
+
 Release of 111.0 (r4911 on 1-Nov-2011):
 
 	ADD: factory charts

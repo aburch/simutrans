@@ -459,7 +459,7 @@ void roadsign_t::rotate90()
 {
 	// only meaningful for traffic lights
 	ding_t::rotate90();
-	if(automatic) {
+	if(automatic  &&  !besch->is_private_way()) {
 		zustand = (zustand+1)&1;
 		uint8 temp = ticks_ns;
 		ticks_ns = ticks_ow;
