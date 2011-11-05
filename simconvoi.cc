@@ -1354,27 +1354,7 @@ end_loop:
 					{
 						dep = depot_t::find_depot(this->get_pos(), get_depot_type(), get_besitzer(), true);
 					}
-					for(int i = 0; i < anz_vehikel; i ++)
-					{
-						vehikel_t* v = fahr[i];
-						grund_t *gr = welt->lookup(v->get_pos());
-						if(gr) 
-						{
-							gr->obj_remove(v);
-							if(gr->ist_uebergang()) 
-							{
-								crossing_t *cr = gr->find<crossing_t>(2);
-								cr->release_crossing(v);
-							}
-							// eventually unreserve this
-							if (schiene_t* const sch0 = ding_cast<schiene_t>(gr->get_weg(fahr[i]->get_waytype()))) 
-							{
-								sch0->unreserve(v);
-							}
-						}
-						v->set_pos(home_depot);
-						v->betrete_feld();
-					}	
+					betrete_depot(dep);
 					dep->convoi_arrived(self, false);
 					state = INITIAL;	
 					fpl->set_aktuell(0);
