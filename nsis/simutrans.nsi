@@ -88,18 +88,18 @@ finishGDIexe:
 FunctionEnd
 
 Section "Executable (GDI, Unicode)" GDIexe
-  AddSize 6913
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/110-0-1/simuwin-110-0-1.zip"
-  StrCpy $archievename "simuwin-110-0-1.zip"
+  AddSize 8588
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/111-0/simuwin-111-0.zip"
+  StrCpy $archievename "simuwin-111-0.zip"
   StrCpy $downloadname "Simutrans Executable (GDI)"
-#  Call DownloadInstallZip
-#  Call PostExeInstall
+  Call DownloadInstallZip
+  Call PostExeInstall
 SectionEnd
 
 
 Section /o "Executable (SDL, better sound)" SDLexe
   AddSize 9277
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/110-1/simuwin-sdl-111-0.zip"
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/111-0/simuwin-sdl-111-0.zip"
   StrCpy $archievename "simuwin-sdl-111-0.zip"
   StrCpy $downloadname "Simutrans Executable (SDL)"
   Call DownloadInstallZip
@@ -129,10 +129,10 @@ Section "!pak64 (standard)" pak64
 SectionEnd
 
 
-Section /o "pak64 Food addon 110.0.1"
+Section /o "pak64 Food addon"
   AddSize 222
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/110-0-1/simupak64-addon-food-110-0-1.zip"
-  StrCpy $archievename "simupak64-addon-food-110-0-1.zip"
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/111-0/simupak64-addon-food-111-0.zip"
+  StrCpy $archievename "simupak64-addon-food-111-0.zip"
   StrCpy $downloadname "pak64"
 
   StrCmp $multiuserinstall "1" InstallInUserDir
@@ -281,10 +281,10 @@ SectionEnd
 
 
 
-Section /o "pak128 German V0.1.1" pak128german
-  AddSize 47265
-  StrCpy $downloadlink "http://www.simutrans-germany.com/~pak128german/files/PAK128.german_0.1.1.zip"
-  StrCpy $archievename "PAK128.german_0.1.1.zip"
+Section /o "pak128 German V0.1.2" pak128german
+  AddSize 47307
+  StrCpy $downloadlink "http://www.simutrans-germany.com/~pak128german/files/PAK128.german_0.1.2.zip"
+  StrCpy $archievename "PAK128.german_0.1.2.zip"
   StrCpy $downloadname "pak128.German"
 # since download works different, we have to do it by hand
   RMdir /r "$TEMP\simutrans"
@@ -304,9 +304,9 @@ Section /o "pak128 German V0.1.1" pak128german
 
   CreateDirectory "$INSTDIR"
   Delete "$Temp\$archievename"
-  RMdir /r "$TEMP\Simutrans\PAK128.german_0.1.1\de.tab_fuer_programmordner"
-  RMdir "$TEMP\Simutrans\PAK128.german_0.1.1\*.txt"
-  CopyFiles "$TEMP\Simutrans\PAK128.german_0.1.1\*.*" "$INSTDIR"
+  RMdir /r "$TEMP\Simutrans\PAK128.german_0.1.2\de.tab_fuer_programmordner"
+  RMdir "$TEMP\Simutrans\PAK128.german_0.1.2\*.txt"
+  CopyFiles "$TEMP\Simutrans\PAK128.german_0.1.2\*.*" "$INSTDIR"
   RMdir /r "$TEMP\Simutrans"
 SectionEnd
 
