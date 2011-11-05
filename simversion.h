@@ -14,7 +14,7 @@
 #define SAVEGAME_VER_NR  "0.111.0"
 #define SERVER_SAVEGAME_VER_NR  "0.111.0"
 
-#define RES_VERSION_NUMBER  0, 110, 0, 1
+#define RES_VERSION_NUMBER  0, 111, 0, 1
 
 
 /*********************** Settings related to network games ********************/
