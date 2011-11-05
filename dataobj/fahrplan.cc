@@ -99,9 +99,8 @@ bool schedule_t::insert(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_sh
 	stop.ladegrad = ladegrad;
 	stop.waiting_time_shift = waiting_time_shift;
 	stop.spacing_shift = spacing_shift;
-	stop.reverse = false;
-
 #endif
+	stop.reverse = false;
 	// stored in minivec, so wie have to avoid adding too many
 	if(  eintrag.get_count()>=254  ) 
 	{
@@ -139,8 +138,9 @@ bool schedule_t::append(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_sh
 	stop.ladegrad = ladegrad;
 	stop.waiting_time_shift = waiting_time_shift;
 	stop.spacing_shift = spacing_shift;
-	stop.reverse = false;
 #endif
+	
+	stop.reverse = false;
 
 	// stored in minivec, so wie have to avoid adding too many
 	if(eintrag.get_count()>=254) {

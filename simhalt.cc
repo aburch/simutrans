@@ -115,23 +115,32 @@ void haltestelle_t::step_all()
 halthandle_t haltestelle_t::get_halt(const karte_t *welt, const koord pos, const spieler_t *sp )
 {
 	const planquadrat_t *plan = welt->lookup(pos);
-	if(plan) {
-		if(plan->get_halt().is_bound()  &&  spieler_t::check_owner(sp,plan->get_halt()->get_besitzer())  ) {
+	if(plan) 
+	{
+		if(plan->get_halt().is_bound()  && plan->get_halt()->check_access(sp)) 
+		{
 			return plan->get_halt();
 		}
 		// no halt? => we do the water check
-		if(plan->get_kartenboden()->ist_wasser()) {
+		if(plan->get_kartenboden()->ist_wasser()) 
+		{
 			// may catch bus stops close to water ...
 			const uint8 cnt = plan->get_haltlist_count();
 			// first check for own stop
-			for(  uint8 i=0;  i<cnt;  i++  ) {
-				if(  plan->get_haltlist()[i]->get_besitzer()==sp  ) {
+			for(uint8 i = 0; i < cnt; i++)  
+			{
+				if(plan->get_haltlist()[i]->get_besitzer() == sp) 
+				{
 					return plan->get_haltlist()[i];
 				}
 			}
-			// then for public stop
-			for(  uint8 i=0;  i<cnt;  i++  ) {
-				if(  plan->get_haltlist()[i]->get_besitzer()==welt->get_spieler(1)  ) {
+			// then for other stops to which access is allowed
+			// (This is second because it is preferable to dock at one's own
+			// port to avoid charges)
+			for(uint8 i = 0; i < cnt; i++) 
+			{
+				if(plan->get_haltlist()[i]->check_access(sp)) 
+				{
 					return plan->get_haltlist()[i];
 				}
 			}
@@ -142,7 +151,7 @@ halthandle_t haltestelle_t::get_halt(const karte_t *welt, const koord pos, const
 }
 
 
-halthandle_t haltestelle_t::get_halt(const karte_t *welt, const koord3d pos, const spieler_t *sp )
+halthandle_t haltestelle_t::get_halt(const karte_t *welt, const koord3d pos, const spieler_t *sp)
 {
 	const grund_t *gr = welt->lookup(pos);
 	if(gr) 
@@ -154,24 +163,31 @@ halthandle_t haltestelle_t::get_halt(const karte_t *welt, const koord3d pos, con
 			w = gr->get_weg_nr(1);
 		}
 
-		if(gr->get_halt().is_bound() && (spieler_t::check_owner(sp, gr->get_halt()->get_besitzer()) || (w && spieler_t::check_owner(w->get_besitzer(), sp))))
+		if(gr->get_halt().is_bound() && (gr->get_halt()->check_access(sp) || (w && spieler_t::check_owner(w->get_besitzer(), sp))))
 		{
 			return gr->get_halt();
 		}
 		// no halt? => we do the water check
-		if(gr->ist_wasser()) {
+		if(gr->ist_wasser()) 
+		{
 			// may catch bus stops close to water ...
 			const planquadrat_t *plan = welt->lookup(pos.get_2d());
 			const uint8 cnt = plan->get_haltlist_count();
 			// first check for own stop
-			for(  uint8 i=0;  i<cnt;  i++  ) {
-				if(  plan->get_haltlist()[i]->get_besitzer()==sp  ) {
+			for(uint8 i = 0; i < cnt; i++) 
+			{
+				if(plan->get_haltlist()[i]->get_besitzer() == sp) 
+				{
 					return plan->get_haltlist()[i];
 				}
 			}
-			// then for public stop
-			for(  uint8 i=0;  i<cnt;  i++  ) {
-				if(  plan->get_haltlist()[i]->get_besitzer()==welt->get_spieler(1)  ) {
+			// then for other stops to which access is allowed
+			// (This is second because it is preferable to dock at one's own
+			// port to avoid charges)
+			for(uint8 i = 0; i < cnt; i++) 
+			{
+				if(plan->get_haltlist()[i]->check_access(sp))  
+				{
 					return plan->get_haltlist()[i];
 				}
 			}
@@ -3478,3 +3494,8 @@ uint32 haltestelle_t::get_number_of_halts_within_walking_distance() const
 		return 0;
 	}
 } 
+
+bool haltestelle_t::check_access(const spieler_t* sp) const
+{
+	return !sp || sp == besitzer_p || besitzer_p == NULL || besitzer_p->allows_access_to(sp->get_player_nr());
+}
