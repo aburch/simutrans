@@ -1232,6 +1232,11 @@ public:
 	bool is_wait_infinite() const { return go_on_ticks == WAIT_INFINITE; }
 
 	inline bool is_circular_route() const;
+	
+	/** For going to a depot automatically
+	 *  when stuck - will teleport if necessary.
+	 */
+	void emergency_go_to_depot();
 };
 
 #endif

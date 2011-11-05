@@ -1272,10 +1272,12 @@ end_loop:
 
 				set_schedule(fpl);
 
-				if(  fpl->empty()  ) {
+				if(  fpl->empty()  ) 
+				{
 					// no entry => no route ...
 					state = NO_ROUTE;
-					besitzer_p->bescheid_vehikel_problem( self, koord3d::invalid );
+					// A convoy without a schedule should not be left lingering on the map.
+					emergency_go_to_depot();
 				}
 				else {
 					// Schedule changed at station
@@ -1347,19 +1349,7 @@ end_loop:
 			if(no_route_retry_count >= 3)
 			{
 				// If the convoy is stuck for too long, send it to a depot.
-				if(!go_to_depot(true))
-				{
-					// Teleport to depot if cannot get there by normal means.
-					depot_t* dep = welt->lookup(home_depot)->get_depot();
-					if(!dep)
-					{
-						dep = depot_t::find_depot(this->get_pos(), get_depot_type(), get_besitzer(), true);
-					}
-					betrete_depot(dep);
-					dep->convoi_arrived(self, false);
-					state = INITIAL;	
-					fpl->set_aktuell(0);
-				}
+				emergency_go_to_depot();
 			}
 			else if (fpl->empty()) 
 			{
@@ -5973,5 +5963,21 @@ void convoi_t::clear_replace()
 	 default:
 		 dbg->error("ding_t::typ convoi_t::get_depot_type() const", "Invalid waytype: cannot find correct depot type");
 	 };
+ }
 
+ void convoi_t::emergency_go_to_depot()
+ {
+	if(!go_to_depot(true))
+	{
+		// Teleport to depot if cannot get there by normal means.
+		depot_t* dep = welt->lookup(home_depot)->get_depot();
+		if(!dep)
+		{
+			dep = depot_t::find_depot(this->get_pos(), get_depot_type(), get_besitzer(), true);
+		}
+		betrete_depot(dep);
+		dep->convoi_arrived(self, false);
+		state = INITIAL;	
+		fpl->set_aktuell(0);
+	}
  }

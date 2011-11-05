@@ -6536,6 +6536,91 @@ bool wkz_access_t::init(karte_t* const welt, spieler_t *sp)
 
 	spieler_t* const setting_player = welt->get_spieler(id_setting_player);
 	setting_player->set_allow_access_to(id_receiving_player, allow_access);
+	if(allow_access == false)
+	{
+		// If access is withdrawn, the routing/scheduling must be updated to take account of the fact
+		// that convoys may not be able to stop where once they were able to stop.
+		spieler_t* const receiving_player = welt->get_spieler(id_receiving_player);
+		schedule_t* fpl;
+		uint8 count;
+		koord3d pos;
+		weg_t* way;
+		waytype_t waytype;
+		spieler_t* way_owner;
+		uint8 current_aktuell;
+		halthandle_t halt;
+		linehandle_t current_line;
+		for (vector_tpl<linehandle_t>::const_iterator j = receiving_player->simlinemgmt.get_all_lines().begin(), 
+					 end = receiving_player->simlinemgmt.get_all_lines().end(); j != end; j++) 
+		{
+			current_line = *j;
+			if(current_line.is_bound())
+			{
+				fpl = current_line->get_schedule();
+				current_aktuell = fpl->get_aktuell();
+				waytype = fpl->get_waytype();
+				count = fpl->get_count();
+				for(uint8 n = 0; n < count; n ++)
+				{
+					pos = fpl->eintrag[n].pos;
+					halt = welt->lookup(pos)->get_halt();
+					way = welt->lookup(pos)->get_weg(waytype);
+					way_owner = way->get_besitzer();
+					if(way_owner && receiving_player && way_owner != receiving_player && !way_owner->allows_access_to(receiving_player->get_player_nr()))
+					{
+						// The player no longer allows access: remove the stop.
+						fpl->set_aktuell(n);
+						fpl->remove();
+						fpl->set_aktuell(current_aktuell);
+						fpl->cleanup();
+						halt->remove_line(current_line);
+					}
+					receiving_player->simlinemgmt.update_line(current_line);
+				}
+			}
+		}
+
+		const uint32 convoy_count = welt->get_convoi_count();
+		convoihandle_t cnv;
+		for(uint32 i = 0; i < convoy_count; i ++)
+		{
+			cnv = welt->get_convoi(i);
+			fpl = cnv->get_schedule();
+			if(!cnv.is_bound() || cnv->get_line().is_bound())
+			{
+				// We dealt above with lines.
+				continue;
+			}
+			current_aktuell = fpl->get_aktuell();
+			waytype = fpl->get_waytype();
+			count = fpl->get_count();
+			for(uint8 n = 0; n < count; n ++)
+			{
+				pos = fpl->eintrag[n].pos;
+				halt = welt->lookup(pos)->get_halt();
+				way = welt->lookup(pos)->get_weg(waytype);
+				way_owner = way->get_besitzer();
+				if(way_owner && receiving_player && way_owner != receiving_player && !way_owner->allows_access_to(receiving_player->get_player_nr()))
+				{
+					// The player no longer allows access: remove the stop.
+					fpl->set_aktuell(n);
+					fpl->remove();
+					fpl->set_aktuell(current_aktuell);
+					fpl->cleanup();
+					halt->remove_convoy(cnv);
+				}
+			}
+			if(fpl->get_count() < 2)
+			{
+				// We need to make sure that convoys with fewer than two
+				// stops are not left stranded and blocking things.
+				cnv->emergency_go_to_depot();
+			}
+		}
+		
+		path_explorer_t::full_instant_refresh();
+	}
+
 	cbuffer_t message;
 	if(allow_access)
 	{
