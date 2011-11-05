@@ -763,7 +763,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		case luft: // hsiegeln: runway
 			{
 				const weg_t *w = to->get_weg(air_wt);
-				if(  w  &&  w->get_besch()->get_styp()!=besch->get_styp()  &&  ribi_t::ist_einfach(w->get_ribi_unmasked())  ) {
+				if(  w  &&  w->get_besch()->get_styp()==1  &&  besch->get_styp()!=1 &&  ribi_t::ist_einfach(w->get_ribi_unmasked())  ) {
 					// cannot go over the end of a runway with a taxiway
 					return false;
 				}
@@ -1573,6 +1573,9 @@ DBG_MESSAGE("wegbauer_t::intern_calc_straight_route()","found straight route max
 // special for starting/landing runways
 bool wegbauer_t::intern_calc_route_runways(koord3d start3d, const koord3d ziel3d)
 {
+	route.clear();
+	terraform_index.clear();
+
 	const koord start=start3d.get_2d();
 	const koord ziel=ziel3d.get_2d();
 	// check for straight line!
@@ -1649,7 +1652,7 @@ bool wegbauer_t::intern_calc_route_runways(koord3d start3d, const koord3d ziel3d
 void wegbauer_t::calc_straight_route(koord3d start, const koord3d ziel)
 {
 	DBG_MESSAGE("wegbauer_t::calc_straight_route()","from %d,%d,%d to %d,%d,%d",start.x,start.y,start.z, ziel.x,ziel.y,ziel.z );
-	if(bautyp==luft  &&  besch->get_topspeed()>=250) {
+	if(bautyp==luft  &&  besch->get_styp()==1) {
 		// these are straight anyway ...
 		intern_calc_route_runways(start, ziel);
 	}
