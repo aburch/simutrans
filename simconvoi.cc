@@ -1077,7 +1077,8 @@ void convoi_t::step()
 
 		case INITIAL:
 			// If there is a pending replacement, just do it
-			if (replace && replace->get_replacing_vehicles()->get_count()>0) {
+			if (replace && replace->get_replacing_vehicles()->get_count()>0) 
+			{
 				
 				autostart = replace->get_autostart();
 
@@ -3899,19 +3900,20 @@ void convoi_t::laden() //"load" (Babelfish)
 		if(fpl->get_waytype() == tram_wt)
 		{
 			const weg_t *street = welt->lookup(fpl->get_current_eintrag().pos)->get_weg(road_wt);
-			if(street && (street->get_besitzer() == get_besitzer() || street->get_besitzer() == welt->get_spieler(1) || street->get_besitzer() == NULL))
+			if(street && (street->get_besitzer() == get_besitzer() || street->get_besitzer() == NULL || street->get_besitzer()->allows_access_to(get_besitzer()->get_player_nr())))
 			{
 				tram_stop_public = true;
 			}
 		}
 		const spieler_t *sp = w ? w->get_besitzer() : NULL;
-		if(  owner == get_besitzer()  ||  owner == welt->get_spieler(1) || (w && sp == NULL) || (w && sp == welt->get_spieler(1)) || tram_stop_public)
+		if(halt->check_access(get_besitzer()) || (w && sp == NULL) || (w && sp->allows_access_to(get_besitzer()->get_player_nr())) || tram_stop_public)
 		{
 			// loading/unloading ...
 			halt->request_loading( self );
 		}
 
-		else {
+		else 
+		{
 			halt = halthandle_t();
 		}
 	}
