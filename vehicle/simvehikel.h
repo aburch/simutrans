@@ -135,7 +135,7 @@ public:
 
 	ribi_t::ribi calc_richtung(koord start, koord ende) const;
 	ribi_t::ribi calc_set_richtung(koord start, koord ende);
-	ribi_t::ribi calc_check_richtung(koord start, koord ende);
+	uint16 get_tile_steps(const koord &start, const koord &ende, /*out*/ ribi_t::ribi &richtung);
 
 	ribi_t::ribi get_fahrtrichtung() const {return fahrtrichtung;}
 

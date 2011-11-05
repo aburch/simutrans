@@ -504,11 +504,25 @@ private:
 	 */
 	void book_departure_time(sint64 time);
 
+public: 
+	/**
+	 * Some precalculated often used infos about a tile of the convoy's route.
+	 * @author B. Gabriel
+	 */
+	class route_info_t
+	{
+	public:
+		sint32 speed_limit;
+		uint32 steps_from_start; // steps including this tile's length, which is VEHICLE_STEPS_PER_TILE for a straight and diagonal_vehicle_steps_per_tile for a diagonal way.
+		ribi_t::ribi direction;
+	};
+
+private:
 	/** 
 	  * List of upcoming speed limits; for braking purposes.
 	  * @author: jamespetts, September 2011
 	  */
-	vector_tpl<sint32> speed_limits;
+	vector_tpl<route_info_t> route_infos;
 
 public:
 	
@@ -1119,7 +1133,7 @@ public:
 	
 	bool is_wait_infinite() const { return go_on_ticks == WAIT_INFINITE; }
 
-	vector_tpl<sint32>& get_speed_limits() { return speed_limits; }
+	vector_tpl<route_info_t>& get_route_infos() { return route_infos; }
 };
 
 #endif

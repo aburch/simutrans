@@ -412,6 +412,19 @@ void vehikel_basis_t::get_screen_offset( int &xoff, int &yoff, const sint16 rast
 }
 
 
+uint16 vehikel_basis_t::get_tile_steps(const koord &start, const koord &ende, /*out*/ ribi_t::ribi &richtung)
+{
+	static const ribi_t::ribi ribis[3][3] = {
+			{ribi_t::nordwest, ribi_t::nord,  ribi_t::nordost},
+			{ribi_t::west,     ribi_t::keine, ribi_t::ost},
+			{ribi_t::suedwest, ribi_t::sued,  ribi_t::suedost}
+	};
+	const sint8 di = sgn(ende.x - start.x);
+	const sint8 dj = sgn(ende.y - start.y);
+	richtung = ribis[dj + 1][di + 1];
+	return di == 0 || dj == 0 ? VEHICLE_STEPS_PER_TILE : diagonal_vehicle_steps_per_tile;
+}
+
 
 // calcs new direction and applies it to the vehicles
 ribi_t::ribi
@@ -466,36 +479,6 @@ vehikel_basis_t::calc_set_richtung(koord start, koord ende)
 	// we could artificially make diagonals shorter: but this would break existing game behaviour
 	return richtung;
 }
-
-ribi_t::ribi
-vehikel_basis_t::calc_check_richtung(koord start, koord ende)
-//Dry run version of calc_set_richtung.
-{
-	ribi_t::ribi richtung = ribi_t::keine; //"richtung" = direction (Google); "keine" = none (Google)
-
-	const sint8 di = ende.x - start.x;
-	const sint8 dj = ende.y - start.y;
-
-	if(dj < 0 && di == 0) {
-		richtung = ribi_t::nord;
-	} else if(dj > 0 && di == 0) {
-		richtung = ribi_t::sued;
-	} else if(di < 0 && dj == 0) {
-		richtung = ribi_t::west;
-	} else if(di >0 && dj == 0) {
-		richtung = ribi_t::ost;
-	} else if(di > 0 && dj > 0) {
-		richtung = ribi_t::suedost;
-	} else if(di < 0 && dj < 0) {
-		richtung = ribi_t::nordwest;
-	} else if(di > 0 && dj < 0) {
-		richtung = ribi_t::nordost;
-	} else {
-		richtung = ribi_t::suedwest;
-	}
-	return richtung;
-}
-
 
 ribi_t::ribi
 vehikel_basis_t::calc_richtung(koord start, koord ende) const
@@ -2553,7 +2536,7 @@ bool automobil_t::ist_befahrbar(const grund_t *bd) const
 				return false;
 			}
 			// do not search further for a free stop beyond here
-			if(target_halt.is_bound()  &&  cnv->is_waiting()  &&  rs->get_besch()->get_flags()&roadsign_besch_t::END_OF_CHOOSE_AREA) {
+			if(target_halt.is_bound()  &&  cnv->is_waiting()  &&  (rs->get_besch()->get_flags() & roadsign_besch_t::END_OF_CHOOSE_AREA)) {
 				return false;
 			}
 		}
@@ -3142,6 +3125,10 @@ void waggon_t::set_convoi(convoi_t *c)
 	}
 }
 
+inline weg_t *get_weg_on_grund(const grund_t *grund, const waytype_t waytype)
+{
+	return grund != NULL ? grund->get_weg(waytype) : NULL;
+}
 
 // need to reset halt reservation (if there was one)
 bool waggon_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route)
@@ -3158,36 +3145,33 @@ bool waggon_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t
 	
 	if(ist_erstes)
 	{
-		vector_tpl<sint32>& speed_limits = cnv->get_speed_limits();
-		speed_limits.clear();
+		vector_tpl<convoi_t::route_info_t> &route_infos = cnv->get_route_infos();
+		route_infos.clear();
 		fixed_list_tpl<sint16, 16> corner_data;
 		const waytype_t waytype = get_waytype();
 		const route_t &route = *cnv->get_route();
 		const uint32 route_count = route.get_count(); // at least ziel will be there, even if there is no route (result == false)
-		// get first tile fake data
-		ribi_t::ribi current_direction = fahrtrichtung;
-		koord3d current_tile = route.position_bei(0);
-		const weg_t *current_weg = NULL;
-		for (uint16 i = 0; i < route_count; i++)
-		{
-			const koord3d next_tile = route.position_bei(i);
-			const grund_t *next_gr = welt->lookup(next_tile);
-			const weg_t *next_weg = next_gr != NULL ? next_gr->get_weg(get_waytype()) : NULL;
-			const ribi_t::ribi next_direction = i == 0 ? fahrtrichtung : calc_richtung(current_tile.get_2d(), next_tile.get_2d());
 
-			if (next_weg)
-			{
-				sint32 sl = calc_speed_limit(next_weg, current_weg, &corner_data, next_direction, current_direction);
-				speed_limits.append(sl);
-			}
-			else
-			{
-				speed_limits.append(SPEED_UNLIMITED);
-			}
+		// calc route infos
+		route_infos.set_count(route_count);
+		koord3d current_tile = route.position_bei(0);
+		convoi_t::route_info_t &start_info = route_infos.get_element(0);
+		start_info.direction = fahrtrichtung;
+		start_info.steps_from_start = 0;
+		const weg_t *current_weg = get_weg_on_grund(welt->lookup(current_tile), waytype);
+		start_info.speed_limit = calc_speed_limit(current_weg, NULL, &corner_data, start_info.direction, start_info.direction);
+
+		for (uint16 i = 1; i < route_count; i++)
+		{
+			convoi_t::route_info_t &current_info = route_infos.get_element(i - 1);
+			convoi_t::route_info_t &next_info = route_infos.get_element(i);
+			const koord3d next_tile = route.position_bei(i);
+			next_info.steps_from_start = current_info.steps_from_start + get_tile_steps(current_tile.get_2d(), next_tile.get_2d(), next_info.direction);
+			const weg_t *next_weg = get_weg_on_grund(welt->lookup(next_tile), waytype);
+			next_info.speed_limit = next_weg ? calc_speed_limit(next_weg, current_weg, &corner_data, next_info.direction, current_info.direction) : SPEED_UNLIMITED;
 
 			current_tile = next_tile;
 			current_weg = next_weg;
-			current_direction = next_direction;
 		}
 	}
 
@@ -3225,7 +3209,7 @@ bool waggon_t::ist_befahrbar(const grund_t *bd) const
 		if(sch->has_sign()) 
 		{
 			const roadsign_t* rs = bd->find<roadsign_t>();
-			if(rs->get_besch()->get_wtyp()==get_waytype() && rs->get_besch()->get_flags() & roadsign_besch_t::END_OF_CHOOSE_AREA) 
+			if(rs->get_besch()->get_wtyp()==get_waytype() && (rs->get_besch()->get_flags() & roadsign_besch_t::END_OF_CHOOSE_AREA))
 			{
 				return false;
 			}
@@ -3322,7 +3306,7 @@ bool waggon_t::ist_ziel(const grund_t *gr,const grund_t *prev_gr) const
 					// end of stop could be also signal!
 					uint16 tiles = cnv->get_tile_length();
 					while(  tiles>1  ) {
-						if(  gr->get_weg(get_waytype())->get_ribi_maske() & ribi_typ(dir)  ||  !gr->get_neighbour(to,get_waytype(),-dir)  ||  !(to->get_halt()==target_halt)  ) {
+						if(  (gr->get_weg(get_waytype())->get_ribi_maske() & ribi_typ(dir))  ||  !gr->get_neighbour(to,get_waytype(),-dir)  ||  !(to->get_halt()==target_halt)  ) {
 							return false;
 						}
 						gr = to;

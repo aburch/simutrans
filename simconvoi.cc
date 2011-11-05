@@ -710,53 +710,55 @@ void convoi_t::calc_acceleration(long delta_t)
 	const float32e8_t simtime_factor = float32e8_t(meters_per_tile, 1000);
 	const vehikel_t &front = *this->front();
 
-	// TODO: calculate next_limit and steps_til_brake once per tile.
-	// TODO: tile_count * VEHICLE_STEPS_PER_TILE isn't the correct length, if there are curves.
-	sint32 next_speed_limit = 0;
-	sint32 steps_til_limit;
-	sint32 steps_til_brake;
+	/*
+	 * get next speed limit of my route.
+	 */
+	sint32 next_speed_limit = 0; // 'limit' for next stop is 0, of course.
 	uint16 next_stop_index = get_next_stop_index();
-	if (next_stop_index == 65535u) // BG, 07.10.2011: currently only waggon_t sets next_stop_index. 
+	if (next_stop_index == 65535u) // BG, 07.10.2011: currently only waggon_t sets next_stop_index
 	{
 		next_stop_index = route.get_count();
 	}
-	if (next_stop_index < INVALID_INDEX)
+	sint32 steps_til_limit;
+	sint32 steps_til_brake;
+	const sint32 brake_steps = convoy.calc_min_braking_distance(simtime_factor, convoy.get_weight_summary(), akt_speed);
+	const uint16 current_route_index = front.get_route_index();
+	// BG, 04.11.2011: currently only waggon_t calculates route infos and changing the route does not yet recalculate the route infos.
+	if (route_infos.get_count() >= next_stop_index && next_stop_index > current_route_index)
 	{
-		const sint32 brake_steps = convoy.calc_min_braking_distance(simtime_factor, convoy.get_weight_summary(), akt_speed);
-		const uint16 current_route_index = front.get_route_index();
-		steps_til_limit = (sint32)(next_stop_index - current_route_index) * VEHICLE_STEPS_PER_TILE; 
+		const convoi_t::route_info_t &current_info = route_infos.get_element(current_route_index);
+		const convoi_t::route_info_t &limit_info = route_infos.get_element(next_stop_index - 1);
+		steps_til_limit = limit_info.steps_from_start - current_info.steps_from_start;
 		steps_til_brake = steps_til_limit - brake_steps;
-		if (speed_limits.get_count() > 0)
+
+		// Brake for upcoming speed limit?
+		for (uint16 i = current_route_index + 1; i < next_stop_index; i++)
 		{
-			if (speed_limits.get_count() > current_route_index)
+			const convoi_t::route_info_t &limit_info = route_infos.get_element(i);
+			const sint32 limit_steps = brake_steps - convoy.calc_min_braking_distance(simtime_factor, convoy.get_weight_summary(), limit_info.speed_limit);
+			const sint32 route_steps = limit_info.steps_from_start - current_info.steps_from_start;;
+			const sint32 st = route_steps - limit_steps;
+
+			if (steps_til_brake > st)
 			{
-				// Brake for upcoming speed limit?
-				const uint16 check_tiles = min(speed_limits.get_count() - current_route_index, brake_steps / VEHICLE_STEPS_PER_TILE);
-				for (uint16 i = 0; i < check_tiles; i++)
-				{
-					const sint32 sl = speed_limits.get_element(i + current_route_index);
-					const sint32 limit_steps = brake_steps - convoy.calc_min_braking_distance(simtime_factor, convoy.get_weight_summary(), sl);
-					const sint32 route_steps = (sint32)i * VEHICLE_STEPS_PER_TILE;
-					const sint32 st = route_steps - limit_steps;
-						
-					if (steps_til_brake > st)
-					{
-						next_speed_limit = sl;
-						steps_til_limit = route_steps;
-						steps_til_brake = st;
-					}
-				}
+				next_speed_limit = limit_info.speed_limit;
+				steps_til_limit = route_steps;
+				steps_til_brake = st;
 			}
 		}
 	}
 	else
 	{
-		steps_til_limit = SINT32_MAX_VALUE;
-		steps_til_brake = SINT32_MAX_VALUE;
+		steps_til_limit = (sint32)(next_stop_index - current_route_index) * VEHICLE_STEPS_PER_TILE;
+		steps_til_brake = steps_til_limit - brake_steps;
 	}
 	sint32 steps_left_on_current_tile = (sint32)front.get_steps_next() + 1 - (sint32)front.get_steps();
 	steps_til_brake += steps_left_on_current_tile;
 	steps_til_limit += steps_left_on_current_tile;
+
+	/*
+	 * calculate movement in the next delta_t ticks.
+	 */
 	akt_speed_soll = min_top_speed;
 	convoy.calc_move(delta_t, simtime_factor, akt_speed_soll, next_speed_limit, steps_til_limit, steps_til_brake, akt_speed, sp_soll);
 }
