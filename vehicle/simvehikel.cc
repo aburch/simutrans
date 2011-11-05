@@ -2325,7 +2325,7 @@ bool vehikel_t::check_way_constraints(const weg_t &way) const
 
 bool vehikel_t::check_access(const weg_t* way) const
 {
-	if(get_besitzer()->get_player_nr == 1)
+	if(get_besitzer() && get_besitzer()->get_player_nr() == 1)
 	{
 		// The public player can always connect to ways. It has no vehicles.
 		return true;
