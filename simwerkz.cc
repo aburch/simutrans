@@ -5249,14 +5249,19 @@ bool wkz_daynight_level_t::init( karte_t *, spieler_t * ) {
 
 /* make all tiles of this player a public stop
  * if this player is public, make all connected tiles a public stop */
-bool wkz_make_stop_public_t::init( karte_t *, spieler_t * )
+bool wkz_make_stop_public_t::init( karte_t *welt, spieler_t *sp )
 {
 	win_set_static_tooltip( NULL );
-	return true;
+	return welt->get_settings().get_allow_making_public() || sp && sp->get_player_nr() == 1;
 }
 
 const char *wkz_make_stop_public_t::get_tooltip(const spieler_t *sp) const 
 {
+	if(sp->get_player_nr() != 1 && !sp->get_welt()->get_settings().get_allow_making_public())
+	{
+		sprintf(toolstr, translator::translate("Only %s can use this tool"), sp->get_welt()->get_spieler(1)->get_name());
+		return toolstr;
+	}
 	sint32 const cost = (sp->get_welt()->get_settings().maint_building * 60) / 100;
 
 	sprintf(toolstr, translator::translate("make stop public (or join with public stop next) costs %i per tile and level"), cost);

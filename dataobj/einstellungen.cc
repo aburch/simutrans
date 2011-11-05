@@ -437,6 +437,8 @@ settings_t::settings_t() :
 
 	city_threshold_size = 1000;
 	capital_threshold_size = 10000;
+
+	allow_making_public = true;
 	
 	for(uint8 i = 0; i < 17; i ++)
 	{
@@ -1278,6 +1280,10 @@ void settings_t::rdwr(loadsave_t *file)
 			{
 				file->rdwr_bool(toll_free_public_roads);
 			}
+			if(file->get_version() >= 111000)
+			{
+				file->rdwr_bool(allow_making_public);
+			}
 		}
 	}
 }
@@ -1888,6 +1894,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	toll_free_public_roads = (bool)contents.get_int("toll_free_public_roads", toll_free_public_roads);
 
 	assume_everywhere_connected_by_road = (bool)(contents.get_int("assume_everywhere_connected_by_road", assume_everywhere_connected_by_road));
+
+	allow_making_public = (bool)(contents.get_int("allow_making_public", allow_making_public));
 
 	for(uint8 i = road_wt; i <= air_wt; i ++)
 	{
