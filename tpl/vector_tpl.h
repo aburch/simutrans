@@ -211,6 +211,19 @@ template<class T> class vector_tpl
  		}
 
 		/**
+		 * set length of vector.
+		 * BEWARE: using this function will create default objects, depending on
+		 * the type of the vector
+		 */
+		void set_count(const uint32 count)
+		{
+			if (count >= size) {
+				resize((count & 0xFFFFFFF8) + 8);
+			}
+			this->count = count;
+		}
+
+		/**
 		 * put the data at a certain position
 		 * BEWARE: using this function will create default objects, depending on
 		 * the type of the vector
@@ -218,7 +231,7 @@ template<class T> class vector_tpl
 		void store_at(const uint32 pos, const T& elem)
 		{
 			if (pos >= size) {
-				resize((pos & 0xFFFFFFF7) + 8);
+				resize((pos & 0xFFFFFFF8) + 8);
 			}
 			data[pos] = elem;
 			if (pos >= count) {
