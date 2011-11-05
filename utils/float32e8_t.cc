@@ -263,6 +263,7 @@ void float32e8_t::set_value(const uint32 value)
 			set_value(one);
 			return;
 		}
+		break;
 
 	case 2:
 		if (two.m) // after initializing two.m is no longer 0
@@ -270,6 +271,7 @@ void float32e8_t::set_value(const uint32 value)
 			set_value(two);
 			return;
 		}
+		break;
 
 	case 3:
 		if (three.m) // after initializing three.m is no longer 0
@@ -277,6 +279,7 @@ void float32e8_t::set_value(const uint32 value)
 			set_value(three);
 			return;
 		}
+		break;
 	}
 	ms = false;
 	e = ild(value);
