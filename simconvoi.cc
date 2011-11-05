@@ -3,7 +3,6 @@
  * von Hansjörg Malthaner
  */
 
-#include <math.h>
 #include <stdlib.h>
 
 #include "simdebug.h"
@@ -21,6 +20,7 @@
 #include "simintr.h"
 #include "simlinemgmt.h"
 #include "simline.h"
+#include "simtools.h"
 #include "freight_list_sorter.h"
 
 #include "gui/karte.h"
@@ -119,6 +119,8 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	sum_running_costs = sum_gesamtgewicht = sum_gewicht = sum_gear_und_leistung = sum_leistung = 0;
 	previous_delta_v = 0;
 	min_top_speed = SPEED_UNLIMITED;
+	max_power_speed = SPEED_UNLIMITED;
+	speedbonus_kmh = SPEED_UNLIMITED; // speed_to_kmh() not needed
 
 	fpl = NULL;
 	line = linehandle_t();
@@ -133,6 +135,9 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 
 	jahresgewinn = 0;
 	total_distance_traveled = 0;
+
+	distance_since_last_stop = 0;
+	sum_speed_limit = 0;
 
 	alte_richtung = ribi_t::keine;
 	next_wolke = 0;
@@ -160,7 +165,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	home_depot = koord3d::invalid;
 	last_stop_pos = koord3d::invalid;
 
-	recalc_brake_soll = true;
+	recalc_data_front = true;
 	recalc_data = true;
 }
 
@@ -629,7 +634,7 @@ void convoi_t::calc_acceleration(long delta_t)
 	// Dwachs: only compute this if a vehicle in the convoi hopped
 	if (recalc_data) {
 		// calculate total friction and lowest speed limit
-		sint32 min_speed_limit = min( min_top_speed, front()->get_speed_limit() );
+		speed_limit = min( min_top_speed, front()->get_speed_limit() );
 		sum_gesamtgewicht = front()->get_gesamtgewicht();
 		sum_friction_weight = front()->get_frictionfactor() * sum_gesamtgewicht;
 		for(  unsigned i=1; i<anz_vehikel; i++  ) {
@@ -638,10 +643,10 @@ void convoi_t::calc_acceleration(long delta_t)
 
 			sum_friction_weight += v->get_frictionfactor() * total_vehicle_weight;
 			sum_gesamtgewicht += total_vehicle_weight;
-			min_speed_limit = min( min_speed_limit, v->get_speed_limit() );
+			speed_limit = min( speed_limit, v->get_speed_limit() );
 		}
 
-		if(  recalc_brake_soll  ) {
+		if(  recalc_data_front  ) {
 			// brake at the end of stations/in front of signals and crossings
 			const uint32 tiles_left = 1 + get_next_stop_index() - front()->get_route_index();
 			brake_speed_soll = SPEED_UNLIMITED;
@@ -654,9 +659,12 @@ void convoi_t::calc_acceleration(long delta_t)
 				};
 				brake_speed_soll = brake_speed_countdown[tiles_left];
 			}
-			recalc_brake_soll = false;
+			distance_since_last_stop++;
+			sum_speed_limit += speed_to_kmh( min( min_top_speed, speed_limit ));
+
+			recalc_data_front = false;
 		}
-		akt_speed_soll = min( min_speed_limit, brake_speed_soll );
+		akt_speed_soll = min( speed_limit, brake_speed_soll );
 
 		recalc_data = false;
 	}
@@ -1279,6 +1287,7 @@ void convoi_t::start()
 
 		// calc state for convoi
 		calc_loading();
+		calc_max_power_speed();
 
 		if(line.is_bound()) {
 			// might have changed the vehicles in this car ...
@@ -1753,7 +1762,7 @@ void convoi_t::vorfahren()
 	// Hajo: init speed settings
 	sp_soll = 0;
 	set_tiles_overtaking( 0 );
-	recalc_brake_soll = true;
+	recalc_data_front = true;
 	recalc_data = true;
 
 	koord3d k0 = route.front();
@@ -2238,8 +2247,14 @@ void convoi_t::rdwr(loadsave_t *file)
 		file->rdwr_bool(withdraw);
 	}
 
+	if(file->get_version()>=111001) {
+		file->rdwr_long( distance_since_last_stop );
+		file->rdwr_long( sum_speed_limit );
+	}
+
 	if( file->is_loading() ) {
 		recalc_catg_index();
+		calc_max_power_speed();
 	}
 }
 
@@ -2484,6 +2499,9 @@ void convoi_t::calc_gewinn()
 		v->last_stop_pos = v->get_pos().get_2d();
 	}
 
+	distance_since_last_stop = 0;
+	sum_speed_limit = 0;
+
 	if(gewinn) {
 		besitzer_p->buche(gewinn, fahr[0]->get_pos().get_2d(), COST_INCOME);
 		jahresgewinn += gewinn;
@@ -2571,6 +2589,9 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	calc_loading();
 	loading_limit = fpl->get_current_eintrag().ladegrad;
 
+	distance_since_last_stop = 0;
+	sum_speed_limit = 0;
+
 	if(gewinn) {
 		besitzer_p->buche(gewinn, fahr[0]->get_pos().get_2d(), COST_INCOME);
 		jahresgewinn += gewinn;
@@ -2587,6 +2608,8 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 			self_destruct();
 			return;
 		}
+
+		calc_max_power_speed();
 
 		// add available capacity after loading(!) to statistics
 		for (unsigned i = 0; i<anz_vehikel; i++) {
@@ -2633,6 +2656,42 @@ void convoi_t::calc_loading()
 
 	// since weight has changed
 	recalc_data=true;
+}
+
+
+void convoi_t::calc_max_power_speed()
+{
+	const sint32 cnv_min_top_kmh = speed_to_kmh( min_top_speed );
+	if(  front()->get_waytype() == air_wt  ) {
+		// flying aircraft have 0 friction --> speed not limited by power, so just use top_speed
+		max_power_speed = min_top_speed;
+		speedbonus_kmh = cnv_min_top_kmh;
+	}
+	else {
+		const sint32 total_power = sum_gear_und_leistung/64;
+		sint32 total_max_weight = 0;
+		sint32 total_weight = 0;
+		for(  unsigned i=0;  i<anz_vehikel;  i++  ) {
+			const vehikel_besch_t* const besch = fahr[i]->get_besch();
+			total_max_weight += besch->get_gewicht();
+			total_weight += fahr[i]->get_gesamtgewicht(); // convoi_t::sum_gesamgewicht may not be updated yet when this method is called...
+			if(  besch->get_ware() == warenbauer_t::nichts  ) {
+				; // nothing
+			}
+			else if(  besch->get_ware()->get_catg() == 0  ) {
+				// use full weight for passengers, post, and special goods
+				total_max_weight += (besch->get_ware()->get_weight_per_unit() * besch->get_zuladung()+499)/1000;
+			}
+			else {
+				// use actual weight for regular goods
+				total_max_weight += (fahr[i]->get_fracht_gewicht()+499)/1000;
+			}
+		}
+		max_power_speed = kmh_to_speed( total_power < total_weight ? 1 : min( cnv_min_top_kmh, sqrt_i32(((total_power<<8)/total_weight-(1<<8))<<8)*50 >>8 ) );
+
+		// uses weight of full passenger, mail, and special goods cars and current weight of regular goods cars for convoi weight
+		speedbonus_kmh = total_power < total_max_weight ? 1 : min( cnv_min_top_kmh, sqrt_i32(((total_power<<8)/total_max_weight-(1<<8))<<8)*50 >>8 );
+	}
 }
 
 

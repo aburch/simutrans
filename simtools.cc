@@ -298,3 +298,30 @@ uint32 log10(uint32 v)
 	uint32 t = (r + 1) * 1233 >> 12; // 1 / log_2(10) ~~ 1233 / 4096
 	return t;
 }
+
+
+// compute integer sqrt
+uint32 sqrt_i32(uint32 num)
+{
+	// taken from http://en.wikipedia.org/wiki/Methods_of_computing_square_roots
+    uint32 res = 0;
+    uint32 bit = 1 << 30; // The second-to-top bit is set: 1<<14 for short
+
+    // "bit" starts at the highest power of four <= the argument.
+    while(  bit > num  ) {
+        bit >>= 2;
+    }
+
+    while(  bit != 0  ) {
+        if(  num >= res + bit  ) {
+            num -= res + bit;
+            res = (res >> 1) + bit;
+        }
+        else {
+            res >>= 1;
+        }
+        bit >>= 2;
+    }
+    return res;
+}
+

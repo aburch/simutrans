@@ -220,11 +220,10 @@ private:
 	// cached values
 	// will be recalculated if
 	// recalc_data is true
-	bool recalc_brake_soll;
-	bool recalc_data;
+	bool recalc_data_front; // true when front vehicle in convoi hops
+	bool recalc_data; // true when any vehicle in convoi hops
 	sint32 sum_friction_weight;
 	sint32 speed_limit;
-
 
 	/**
 	* Lowest top speed of all vehicles. Doesn't get saved, but calculated
@@ -262,6 +261,12 @@ private:
 
 	/* the odometer */
 	sint64 total_distance_traveled;
+
+	uint32 distance_since_last_stop; // number of tiles entered since last stop
+	uint32 sum_speed_limit; // sum of the speed limits encountered since the last stop
+
+	sint32 max_power_speed; // max achievable speed at current power/weight
+	sint32 speedbonus_kmh; // speed used for speedbonus calculation in km/h
 
 	/**
 	* Set, when there was a income calculation (avoids some cheats)
@@ -460,6 +465,10 @@ public:
 	const sint64 & get_jahresgewinn() const {return jahresgewinn;}
 
 	const sint64 & get_total_distance_traveled() const { return total_distance_traveled; }
+
+	// to calculate the average speed limit of the trip for speedbonus speedbase calculation
+	uint32 get_distance_since_last_stop() const { return distance_since_last_stop; }
+	uint32 get_sum_speed_limit() const { return sum_speed_limit; }
 
 	/**
 	 * returns the total running cost for all vehicles in convoi
@@ -826,7 +835,12 @@ public:
 	void set_no_load(bool new_no_load) { no_load = new_no_load; }
 
 	void must_recalc_data() { recalc_data = true; }
-	void must_recalc_brake_soll() { recalc_brake_soll = true; }
+	void must_recalc_data_front() { recalc_data_front = true; }
+
+	// calculates the max achievable speed at current power/weight, and the speed used for the speedbonus base
+	void calc_max_power_speed();
+	sint32 get_max_power_speed() const { return max_power_speed; }
+	sint32 get_speedbonus_kmh() const { return speedbonus_kmh; }
 
 	// Overtaking for convois
 	virtual bool can_overtake(overtaker_t *other_overtaker, int other_speed, int steps_other, int diagonal_vehicle_steps_per_tile);

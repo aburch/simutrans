@@ -6,7 +6,6 @@
  */
 
 #include <stdio.h>
-#include <math.h>
 
 #include "../simunits.h"
 #include "../simworld.h"
@@ -20,6 +19,7 @@
 #include "../simline.h"
 #include "../simlinemgmt.h"
 #include "../simmenu.h"
+#include "../simtools.h"
 
 #include "../tpl/slist_tpl.h"
 
@@ -1122,53 +1122,55 @@ void depot_frame_t::zeichnen(koord pos, koord groesse)
 
 	if(cnv.is_bound()) {
 		if(cnv->get_vehikel_anzahl() > 0) {
-			uint32 total_power=0;
-			uint32 total_empty_weight=0;
-			uint32 total_max_weight=0;
-			uint32 total_min_weight=0;
-			sint32 empty_speed=0;
-			sint32 max_speed=0;
-			sint32 min_speed=0;
-			for( unsigned i=0;  i<cnv->get_vehikel_anzahl();  i++) {
-				const vehikel_besch_t *besch = cnv->get_vehikel(i)->get_besch();
-
-				total_power += besch->get_leistung()*besch->get_gear()/64;
-				total_min_weight += besch->get_gewicht();
-				total_max_weight += besch->get_gewicht();
-				total_empty_weight += besch->get_gewicht();
-
-				uint32 max_weight =0;
-				uint32 min_weight =100000;
-				for(uint32 j=0; j<warenbauer_t::get_waren_anzahl(); j++) {
-					const ware_besch_t *ware = warenbauer_t::get_info(j);
-
-					if(besch->get_ware()->get_catg_index()==ware->get_catg_index()) {
-						max_weight = max(max_weight, ware->get_weight_per_unit());
-						min_weight = min(min_weight, ware->get_weight_per_unit());
-					}
-				}
-				total_max_weight += (max_weight*besch->get_zuladung()+499)/1000;
-				total_min_weight += (min_weight*besch->get_zuladung()+499)/1000;
+			sint32 empty_kmh, max_kmh, min_kmh;
+			if(  cnv->front()->get_waytype() == air_wt  ) {
+				// flying aircraft have 0 friction --> speed not limited by power, so just use top_speed
+				empty_kmh = max_kmh = min_kmh = speed_to_kmh( cnv->get_min_top_speed() );
 			}
-			// ensure that argument of sqrt is not negative
-			const sint32 cnv_min_top_speed = speed_to_kmh( cnv->get_min_top_speed() );
-			empty_speed = total_power < total_empty_weight ? 0 : min( cnv_min_top_speed, sqrt( (double)total_power/total_empty_weight - 1)*50 );
-			max_speed = total_power < total_min_weight ? 0 : min( cnv_min_top_speed, sqrt( (double)total_power/total_min_weight - 1)*50 );
-			min_speed = total_power < total_max_weight ? 0 : min( cnv_min_top_speed, sqrt( (double)total_power/total_max_weight - 1)*50 );
+			else {
+				uint32 total_power = 0;
+				uint32 total_empty_weight = 0;
+				uint32 total_max_weight = 0;
+				uint32 total_min_weight = 0;
+				for(  unsigned i=0;  i<cnv->get_vehikel_anzahl();  i++  ) {
+					const vehikel_besch_t *besch = cnv->get_vehikel(i)->get_besch();
+
+					total_power += besch->get_leistung()*besch->get_gear()/64;
+
+					uint32 max_weight = 0;
+					uint32 min_weight = 100000;
+					for(  uint32 j=0;  j<warenbauer_t::get_waren_anzahl();  j++  ) {
+						const ware_besch_t *ware = warenbauer_t::get_info(j);
+
+						if(  besch->get_ware()->get_catg_index() == ware->get_catg_index()  ) {
+							max_weight = max(max_weight, (uint32)ware->get_weight_per_unit());
+							min_weight = min(min_weight, (uint32)ware->get_weight_per_unit());
+						}
+					}
+					total_empty_weight += besch->get_gewicht();
+					total_max_weight += besch->get_gewicht() + (max_weight*besch->get_zuladung()+499)/1000;
+					total_min_weight += besch->get_gewicht() + (min_weight*besch->get_zuladung()+499)/1000;
+				}
+
+				const sint32 cnv_min_top_kmh = speed_to_kmh( cnv->get_min_top_speed() );
+				empty_kmh = total_power < total_empty_weight ? 1 : min( cnv_min_top_kmh, sqrt_i32(((total_power<<8)/total_empty_weight-(1<<8))<<8)*50 >>8 );
+				max_kmh = total_power < total_min_weight ? 1 : min( cnv_min_top_kmh, sqrt_i32(((total_power<<8)/total_min_weight-(1<<8))<<8)*50 >>8 );
+				min_kmh = total_power < total_max_weight ? 1 : min( cnv_min_top_kmh, sqrt_i32(((total_power<<8)/total_max_weight-(1<<8))<<8)*50 >>8 );
+			}
 
 			sprintf(txt_convoi_count, "%s %d (%s %i)",
 				translator::translate("Fahrzeuge:"), cnv->get_vehikel_anzahl(),
 				translator::translate("Station tiles:"), cnv->get_tile_length() );
-			if(  empty_speed != min_speed  ) {
-				if(  max_speed != min_speed  ) {
-					sprintf( txt_convoi_speed, "%s %d km/h, %d-%d km/h %s", translator::translate("Max. speed:"), empty_speed, min_speed, max_speed, translator::translate("loaded") );
+			if(  empty_kmh != min_kmh  ) {
+				if(  max_kmh != min_kmh  ) {
+					sprintf( txt_convoi_speed, "%s %d km/h, %d-%d km/h %s", translator::translate("Max. speed:"), empty_kmh, min_kmh, max_kmh, translator::translate("loaded") );
 				}
 				else {
-					sprintf( txt_convoi_speed, "%s %d km/h, %d km/h %s", translator::translate("Max. speed:"), empty_speed, min_speed, translator::translate("loaded") );
+					sprintf( txt_convoi_speed, "%s %d km/h, %d km/h %s", translator::translate("Max. speed:"), empty_kmh, min_kmh, translator::translate("loaded") );
 				}
 			}
 			else {
-					sprintf( txt_convoi_speed, "%s %d km/h", translator::translate("Max. speed:"), empty_speed );
+					sprintf( txt_convoi_speed, "%s %d km/h", translator::translate("Max. speed:"), empty_kmh );
 			}
 			sprintf(txt_convoi_value, "%s %ld$", translator::translate("Restwert:"), (long)(cnv->calc_restwert()/100) );
 			if(  cnv->get_line().is_bound()  &&  cnv->get_line()->get_schedule()->matches( get_welt(),cnv->get_schedule() )  ) {

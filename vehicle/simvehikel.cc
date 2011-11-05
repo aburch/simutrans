@@ -1108,19 +1108,14 @@ void vehikel_t::hop()
 
 	if(  ist_erstes  ) {
 		cnv->add_running_cost( weg );
-	}
-
-	if(  check_for_finish  &  ist_erstes  ) {
-		if(  fahrtrichtung==ribi_t::nord  || fahrtrichtung==ribi_t::west ) {
+		if(  check_for_finish  &&  (fahrtrichtung==ribi_t::nord  ||  fahrtrichtung==ribi_t::west)  ) {
 			steps_next = (steps_next/2)+1;
 		}
+		cnv->must_recalc_data_front();
 	}
 
 	// friction factors and speedlimit may have changed
 	cnv->must_recalc_data();
-	if(  ist_erstes  ) {
-		cnv->must_recalc_brake_soll();
-	}
 
 	calc_akt_speed(gr);
 }
@@ -1206,8 +1201,14 @@ sint64 vehikel_t::calc_gewinn(koord start, koord end) const
 	}
 
 	//const long dist = abs(end.x - start.x) + abs(end.y - start.y);
-	const sint32 ref_speed = welt->get_average_speed( get_besch()->get_waytype() );
-	const sint32 speed_base = (100*speed_to_kmh(cnv->get_min_top_speed()))/ref_speed-100;
+	const sint32 ref_kmh = welt->get_average_speed( get_besch()->get_waytype() );
+
+	// kmh_base = lesser of min_top_speed, power limited top speed, and average way speed limits on trip, except aircraft which are not power limited and don't have speed limits
+	sint32 cnv_kmh = cnv->get_speedbonus_kmh();
+	if(  cnv->get_distance_since_last_stop() > 0  &&  get_waytype() != air_wt  ) {
+		cnv_kmh = min( cnv_kmh, cnv->get_sum_speed_limit() / cnv->get_distance_since_last_stop() );
+	}
+	const sint32 kmh_base = (100 * cnv_kmh) / ref_kmh - 100;
 
 	sint64 value = 0;
 	slist_iterator_tpl <ware_t> iter (fracht);
@@ -1228,7 +1229,7 @@ sint64 vehikel_t::calc_gewinn(koord start, koord end) const
 			const sint32 dist = (sint32)koord_distance( zwpos, start ) - (sint32)koord_distance( end, zwpos );
 
 			const sint32 grundwert128 = ware.get_besch()->get_preis()<<7;	// bonus price will be always at least 0.128 of the real price
-			const sint32 grundwert_bonus = (ware.get_besch()->get_preis()*(1000+speed_base*ware.get_besch()->get_speed_bonus()));
+			const sint32 grundwert_bonus = (ware.get_besch()->get_preis()*(1000+kmh_base*ware.get_besch()->get_speed_bonus()));
 			const sint64 price = (sint64)(grundwert128>grundwert_bonus ? grundwert128 : grundwert_bonus) * (sint64)dist * (sint64)ware.menge;
 
 			// sum up new price
@@ -1250,7 +1251,7 @@ sint64 vehikel_t::calc_gewinn(koord start, koord end) const
 			const sint32 dist = (sint32)koord_distance( zwpos, start ) - (sint32)koord_distance( end, zwpos );
 
 			const sint32 grundwert128 = ware.get_besch()->get_preis()<<7;	// bonus price will be always at least 0.128 of the real price
-			const sint32 grundwert_bonus = (ware.get_besch()->get_preis()*(1000+speed_base*ware.get_besch()->get_speed_bonus()));
+			const sint32 grundwert_bonus = (ware.get_besch()->get_preis()*(1000+kmh_base*ware.get_besch()->get_speed_bonus()));
 			const sint64 price = (sint64)(grundwert128>grundwert_bonus ? grundwert128 : grundwert_bonus) * (sint64)dist * (sint64)ware.menge;
 
 			// sum up new price
@@ -1270,7 +1271,7 @@ sint64 vehikel_t::calc_gewinn(koord start, koord end) const
 
 			// now only use the real gain in difference for the revenue (may as well be negative!)
 			const sint32 grundwert128 = ware.get_besch()->get_preis()<<7;	// bonus price will be always at least 0.128 of the real price
-			const sint32 grundwert_bonus = (ware.get_besch()->get_preis()*(1000+speed_base*ware.get_besch()->get_speed_bonus()));
+			const sint32 grundwert_bonus = (ware.get_besch()->get_preis()*(1000+kmh_base*ware.get_besch()->get_speed_bonus()));
 			const sint64 price = (sint64)(grundwert128>grundwert_bonus ? grundwert128 : grundwert_bonus) * (sint64)dist * (sint64)ware.menge;
 
 			// sum up new price
@@ -3533,7 +3534,7 @@ bool aircraft_t::ist_weg_frei(int & restart_speed,bool)
 			state = circling;
 			cnv->must_recalc_data();
 			if(  ist_erstes  ) {
-				cnv->must_recalc_brake_soll();
+				cnv->must_recalc_data_front();
 			}
 		}
 	}

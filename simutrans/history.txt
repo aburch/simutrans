@@ -1,4 +1,5 @@
 	FIX: owner of way gates were accidently rotated
+	ADD: speedbonus speed limited by way speedlimits and achievable convoi max speed
 
 
 Release of 111.0 (r4911 on 1-Nov-2011):
