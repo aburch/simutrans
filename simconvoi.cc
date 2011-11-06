@@ -698,7 +698,29 @@ void convoi_t::increment_odometer(uint32 steps)
 	}
 }
 
-/* Calculates (and sets) new akt_speed
+// BG, 06.11.2011
+bool convoi_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed)
+{
+	route_infos.clear();
+	return fahr[0]->calc_route(start, ziel, max_speed, &route);
+}
+
+void convoi_t::update_route(uint32 index, const route_t &replacement)
+{
+	// replace route with replacement starting at index.
+	route_infos.clear();
+	route.remove_koord_from(index);
+	route.append(&replacement);
+}
+
+
+// BG, 06.11.2011
+inline weg_t *get_weg_on_grund(const grund_t *grund, const waytype_t waytype)
+{
+	return grund != NULL ? grund->get_weg(waytype) : NULL;
+}
+
+/* Calculates (and sets) new akt_speed and sp_soll
  * needed for driving, entering and leaving a depot)
  */
 void convoi_t::calc_acceleration(long delta_t)
@@ -706,44 +728,83 @@ void convoi_t::calc_acceleration(long delta_t)
 	// existing_convoy_t is designed to become a part of convoi_t. 
 	// There it will help to minimize updating convoy summary data.
 	existing_convoy_t convoy(*this);
-	const uint16 meters_per_tile = welt->get_settings().get_meters_per_tile();
-	const float32e8_t simtime_factor = float32e8_t(meters_per_tile, 1000);
-	const vehikel_t &front = *this->front();
+	vehikel_t &front = *this->front();
+
+	const uint32 route_count = route.get_count(); // at least ziel will be there, even if calculating a route failed.
+	const uint16 current_route_index = front.get_route_index(); // actually this is current route index + 1!!!
+
+	/*
+	 * calculate route infos, if not yet done.
+	 */
+	if (route_infos.get_count() == 0)
+	{
+		fixed_list_tpl<sint16, 16> corner_data;
+		const waytype_t waytype = front.get_waytype();
+
+		// calc route infos
+		route_infos.set_count(route_count);
+		uint16 i = current_route_index - 1;
+
+		koord3d current_tile = route.position_bei(i);
+		convoi_t::route_info_t &start_info = route_infos.get_element(i);
+		start_info.direction = front.get_fahrtrichtung();
+		start_info.steps_from_start = 0;
+		const weg_t *current_weg = get_weg_on_grund(welt->lookup(current_tile), waytype);
+		start_info.speed_limit = front.calc_speed_limit(current_weg, NULL, &corner_data, start_info.direction, start_info.direction);
+
+		for (i++; i < route_count; i++)
+		{
+			convoi_t::route_info_t &current_info = route_infos.get_element(i - 1);
+			convoi_t::route_info_t &next_info = route_infos.get_element(i);
+			const koord3d next_tile = route.position_bei(i);
+			next_info.steps_from_start = current_info.steps_from_start + front.get_tile_steps(current_tile.get_2d(), next_tile.get_2d(), next_info.direction);
+			const weg_t *next_weg = get_weg_on_grund(welt->lookup(next_tile), waytype);
+			next_info.speed_limit = next_weg ? front.calc_speed_limit(next_weg, current_weg, &corner_data, next_info.direction, current_info.direction) : SPEED_UNLIMITED;
+
+			current_tile = next_tile;
+			current_weg = next_weg;
+		}
+	}
 
 	/*
 	 * get next speed limit of my route.
 	 */
 	sint32 next_speed_limit = 0; // 'limit' for next stop is 0, of course.
-	uint16 next_stop_index = get_next_stop_index();
+	uint32 next_stop_index = get_next_stop_index(); // actually this is next stop index + 1!!!
 	if (next_stop_index == 65535u) // BG, 07.10.2011: currently only waggon_t sets next_stop_index
 	{
-		next_stop_index = route.get_count();
+		next_stop_index = route_count;
 	}
 	sint32 steps_til_limit;
 	sint32 steps_til_brake;
+	const float32e8_t simtime_factor = float32e8_t(welt->get_settings().get_meters_per_tile(), 1000);
 	const sint32 brake_steps = convoy.calc_min_braking_distance(simtime_factor, convoy.get_weight_summary(), akt_speed);
-	const uint16 current_route_index = front.get_route_index();
-	// BG, 04.11.2011: currently only waggon_t calculates route infos and changing the route does not yet recalculate the route infos.
 	if (route_infos.get_count() >= next_stop_index && next_stop_index > current_route_index)
 	{
-		const convoi_t::route_info_t &current_info = route_infos.get_element(current_route_index);
+		uint32 i = current_route_index - 1;
+		const convoi_t::route_info_t &current_info = route_infos.get_element(i);
 		const convoi_t::route_info_t &limit_info = route_infos.get_element(next_stop_index - 1);
 		steps_til_limit = limit_info.steps_from_start - current_info.steps_from_start;
 		steps_til_brake = steps_til_limit - brake_steps;
 
 		// Brake for upcoming speed limit?
-		for (uint16 i = current_route_index + 1; i < next_stop_index; i++)
+		sint32 min_limit = akt_speed; // no need to check limits above min_limit, as it won't lead to further restrictions
+		for (i++; i < next_stop_index; i++)
 		{
 			const convoi_t::route_info_t &limit_info = route_infos.get_element(i);
-			const sint32 limit_steps = brake_steps - convoy.calc_min_braking_distance(simtime_factor, convoy.get_weight_summary(), limit_info.speed_limit);
-			const sint32 route_steps = limit_info.steps_from_start - current_info.steps_from_start;;
-			const sint32 st = route_steps - limit_steps;
-
-			if (steps_til_brake > st)
+			if (limit_info.speed_limit < min_limit)
 			{
-				next_speed_limit = limit_info.speed_limit;
-				steps_til_limit = route_steps;
-				steps_til_brake = st;
+				min_limit = limit_info.speed_limit;
+				const sint32 limit_steps = brake_steps - convoy.calc_min_braking_distance(simtime_factor, convoy.get_weight_summary(), limit_info.speed_limit);
+				const sint32 route_steps = limit_info.steps_from_start - current_info.steps_from_start;;
+				const sint32 st = route_steps - limit_steps;
+
+				if (steps_til_brake > st)
+				{
+					next_speed_limit = limit_info.speed_limit;
+					steps_til_limit = route_steps;
+					steps_til_brake = st;
+				}
 			}
 		}
 	}
@@ -952,7 +1013,7 @@ bool convoi_t::drive_to()
 			}
 		}
 
-		if(  !fahr[0]->calc_route( start, ziel, speed_to_kmh(min_top_speed), &route )  ) {
+		if(  !calc_route( start, ziel, speed_to_kmh(min_top_speed))  ) {
 			if(  state != NO_ROUTE  ) {
 				state = NO_ROUTE;
 				get_besitzer()->bescheid_vehikel_problem( self, ziel );
@@ -5053,7 +5114,7 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 				// the current route is already shorter, no need to search further
 				continue;
 			}
-			bool found = get_vehikel(0)->calc_route(get_pos(), pos, 50, route); // do not care about speed
+			bool found = calc_route(get_pos(), pos, 50); // do not care about speed
 			if (found) 
 			{
 				if(  route->get_count()-1 < shortest_route->get_count()-1    ||    shortest_route->empty()  ) 

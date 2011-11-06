@@ -135,7 +135,7 @@ public:
 
 	ribi_t::ribi calc_richtung(koord start, koord ende) const;
 	ribi_t::ribi calc_set_richtung(koord start, koord ende);
-	uint16 get_tile_steps(const koord &start, const koord &ende, /*out*/ ribi_t::ribi &richtung);
+	uint16 get_tile_steps(const koord &start, const koord &ende, /*out*/ ribi_t::ribi &richtung) const;
 
 	ribi_t::ribi get_fahrtrichtung() const {return fahrtrichtung;}
 
@@ -299,9 +299,9 @@ protected:
 
 	virtual void calc_bild();
 
+public:
 	sint32 calc_speed_limit(const weg_t *weg, const weg_t *weg_previous, fixed_list_tpl<sint16, 16>* cornering_data, ribi_t::ribi current_direction, ribi_t::ribi previous_direction);
 
-public:
 	virtual bool ist_befahrbar(const grund_t* ) const {return false;}
 
 	inline bool check_way_constraints(const weg_t &way) const;
@@ -473,9 +473,9 @@ public:
 		Northwest = 315,
 	};
 
-	direction_degrees get_direction_degrees(ribi_t::ribi);
+	direction_degrees get_direction_degrees(ribi_t::ribi) const;
 
-	sint16 compare_directions(sint16 first_direction, sint16 second_direction);
+	sint16 compare_directions(sint16 first_direction, sint16 second_direction) const;
 
 	/**
 	* loescht alle fracht aus dem Fahrzeug

@@ -537,6 +537,8 @@ public:
 
 	route_t* get_route() { return &route; }
 	route_t* access_route() { return &route; }
+	bool calc_route(koord3d start, koord3d ziel, sint32 max_speed);
+	void update_route(uint32 index, const route_t &replacement); // replace route with replacement starting at index.
 
 	/**
 	* Checks if this convoi has a driveable route
