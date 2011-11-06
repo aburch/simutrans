@@ -1,6 +1,7 @@
 	FIX: owner of way gates were accidently rotated
 	ADD: speedbonus speed limited by way speedlimits and achievable convoi max speed
 	ADD: record also walked pax
+	FIX: CJK description of houses correctly breaking
 
 
 Release of 111.0 (r4911 on 1-Nov-2011):

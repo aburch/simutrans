@@ -81,31 +81,31 @@ void gui_fixedwidth_textarea_t::calc_display_text(const koord offset, const bool
 		do {
 
 			// end of line?
-			if(*p==0  ||  *p=='\n') {
-				line_end = p;
-				if(*p!=0) {
-					// skip newline
-					p ++;
+			size_t len = 0;
+			uint16 next_char = unicode ? utf8_to_utf16(p, &len) : *p++;
+			p += len;
+
+			if(next_char==0  ||  next_char=='\n') {
+				line_end = p-1;
+				if(  next_char == 0  ) {
+					p--;
 				}
 				word_start = p;
 				word_x = 0;
 				break;
 			}
 			// Space: Maybe break here
-			else if(*p==' ') {
+			else if(  next_char==' '  ||  (next_char >= 0x3000  &&   next_char<0xFE70)  ) {
 				// ignore space at start of line
-				if(x>0) {
-					x += (KOORD_VAL)display_get_char_width(' ');
+				if(next_char!=' '  ||  x>0) {
+					x += (KOORD_VAL)display_get_char_width( next_char );
 				}
-				p ++;
 				word_start = p;
 				word_x = 0;
 			}
 			else {
 				// normal char: retrieve and calculate width
-				size_t len = 0;
-				int ch_width = display_get_char_width( unicode ? utf8_to_utf16(p, &len) : *p++ );
-				p += len;
+				int ch_width = display_get_char_width( next_char );
 				x += ch_width;
 				word_x += ch_width;
 			}
