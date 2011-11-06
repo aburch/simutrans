@@ -35,8 +35,29 @@ public:
 // AI helper functions
 class ai_t : public spieler_t
 {
+protected:
+	// set the allowed modes of transport
+	bool road_transport;
+	bool rail_transport;
+	bool ship_transport;
+	bool air_transport;
+
 public:
-	ai_t(karte_t *wl, uint8 nr) : spieler_t( wl, nr ) {}
+	bool has_road_transport() const { return road_transport; }
+	virtual void set_road_transport( bool yesno ) { road_transport = yesno; }
+
+	bool has_rail_transport() const { return rail_transport; }
+	virtual void set_rail_transport( bool yesno ) { rail_transport = yesno; }
+
+	bool has_ship_transport() const { return ship_transport; }
+	virtual void set_ship_transport( bool yesno ) { ship_transport = yesno; }
+
+	bool has_air_transport() const { return air_transport; }
+	virtual void set_air_transport( bool yesno ) { air_transport = yesno; }
+
+	ai_t(karte_t *wl, uint8 nr) : spieler_t( wl, nr ) { road_transport = rail_transport = air_transport = ship_transport = false; }
+
+	virtual void rdwr(loadsave_t *file);
 
 	// return true, if there is already a connection
 	bool is_connected(const koord star_pos, const koord end_pos, const ware_besch_t *wtyp) const;

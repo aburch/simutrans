@@ -31,24 +31,6 @@ private:
 	// vars für die KI
 	zustand state;
 
-	/*
-	 * if this is false, this AI won't use roads
-	 * @author prissi
-	 */
-	bool road_transport;
-
-	/*
-	 * if this is false, this AI won't use rails
-	 * @author prissi
-	 */
-	bool rail_transport;
-
-	/*
-	 * if this is false, this AI won't use ships
-	 * @author prissi
-	 */
-	bool ship_transport;
-
 	/* test more than one supplier and more than one good *
 	 * save last factory for building next supplier/consumer *
 	 * @author prissi
@@ -132,6 +114,9 @@ public:
 
 	// this type of AIs identifier
 	virtual uint8 get_ai_id() const { return AI_GOODS; }
+
+	// cannot do airfreight at the moment
+	virtual void set_air_transport( bool ) { air_transport = false; }
 
 	virtual void rdwr(loadsave_t *file);
 

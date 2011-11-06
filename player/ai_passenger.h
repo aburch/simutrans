@@ -29,18 +29,6 @@ private:
 	// vars für die KI
 	zustand state;
 
-	/*
-	 * if this is false, this AI won't use rails
-	 * @author prissi
-	 */
-	bool air_transport;
-
-	/*
-	 * if this is false, this AI won't use ships
-	 * @author prissi
-	 */
-	bool ship_transport;
-
 	// we will use this vehicle!
 	const vehikel_besch_t *road_vehicle;
 
@@ -95,6 +83,10 @@ public:
 
 	// this type of AIs identifier
 	virtual uint8 get_ai_id() const { return AI_PASSENGER; }
+
+	// must do road and cannot do rail
+	virtual void set_rail_transport( bool ) { rail_transport = false; }
+	virtual void set_road_transport( bool ) { rail_transport = true; }
 
 	virtual void bescheid_vehikel_problem(convoihandle_t cnv,const koord3d ziel);
 

@@ -43,6 +43,8 @@ ai_passenger_t::ai_passenger_t(karte_t *wl, uint8 nr) : ai_t( wl, nr )
 	construction_speed = 8000;
 	next_contruction_steps = welt->get_steps() + 50;
 
+	road_transport = true;
+	rail_transport = false;
 	air_transport = true;
 	ship_transport = false;
 
@@ -1380,6 +1382,9 @@ void ai_passenger_t::rdwr(loadsave_t *file)
 	// first: do all the administration
 	spieler_t::rdwr(file);
 
+	// general settings
+	ai_t::rdwr(file);
+
 	// then check, if we have to do something or the game is too old ...
 	if(file->get_version()<101000) {
 		// ignore saving, reinit on loading
@@ -1392,8 +1397,12 @@ void ai_passenger_t::rdwr(loadsave_t *file)
 	// now save current state ...
 	file->rdwr_enum(state);
 	file->rdwr_long(construction_speed);
-	file->rdwr_bool(air_transport);
-	file->rdwr_bool(ship_transport);
+	if(  file->get_version()<111001  ) {
+		file->rdwr_bool(air_transport);
+		file->rdwr_bool(ship_transport);
+		road_transport = true;
+		rail_transport = false;
+	}
 	platz1.rdwr( file );
 	platz2.rdwr( file );
 

@@ -24,6 +24,8 @@
 
 #include "../besch/haus_besch.h"
 
+#include "../dataobj/loadsave.h"
+
 #include "../dings/zeiger.h"
 
 #include "../utils/cbuffer_t.h"
@@ -536,4 +538,17 @@ void ai_t::tell_tool_result(werkzeug_t *tool, koord3d pos, const char *err, bool
 	spieler_t::tell_tool_result(tool, pos, err, local);
 
 	// TODO: process the result...
+}
+
+
+void ai_t::rdwr(loadsave_t *file)
+{
+	if(  file->get_version()<111001  ) {
+		// do not know about ai_t
+		return;
+	}
+	file->rdwr_bool( road_transport );
+	file->rdwr_bool( rail_transport );
+	file->rdwr_bool( air_transport );
+	file->rdwr_bool( ship_transport );
 }
