@@ -64,7 +64,9 @@ ifeq ($(OSTYPE),mingw)
   CFLAGS  += -mno-cygwin -DPNG_STATIC -DZLIB_STATIC -march=pentium
   ifeq ($(BACKEND),gdi)
     LIBS += -lunicows
-    LDFLAGS +=  -mwindows
+    ifeq  ($(WIN32_CONSOLE),)
+      LDFLAGS += -mwindows
+    endif
   endif
   LIBS += -lmingw32 -lgdi32 -lwinmm -lwsock32 -lz -lbz2
 endif
@@ -408,7 +410,10 @@ ifeq ($(BACKEND),sdl)
       SDL_LDFLAGS := -framework SDL -framework Cocoa -I/System/Libraries/Frameworks/SDL/Headers SDLMain.m
     else
       SDL_CFLAGS  := -I$(MINGDIR)/include/SDL -Dmain=SDL_main
-      SDL_LDFLAGS := -lSDLmain -lSDL -mwindows
+      SDL_LDFLAGS := -lSDLmain -lSDL
+      ifeq  ($(WIN32_CONSOLE),)
+        SDL_LDFLAGS += -mwindows
+      endif
     endif
   else
     SDL_CFLAGS  := $(shell $(SDL_CONFIG) --cflags)
@@ -427,7 +432,10 @@ ifeq ($(BACKEND),mixer_sdl)
   CFLAGS  += -DUSE_16BIT_DIB
   ifeq ($(SDL_CONFIG),)
     SDL_CFLAGS  := -I$(MINGDIR)/include/SDL -Dmain=SDL_main
-    SDL_LDFLAGS := -lmingw32 -lSDLmain -lSDL -mwindows
+    SDL_LDFLAGS := -lmingw32 -lSDLmain -lSDL
+    ifeq  ($(WIN32_CONSOLE),)
+      SDL_LDFLAGS += -mwindows
+    endif
   else
     SDL_CFLAGS  := $(shell $(SDL_CONFIG) --cflags)
     SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)

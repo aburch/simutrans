@@ -31,6 +31,8 @@
 #WITH_REVISION = 1 # adds the revision from svn; required for networkgames
 # if you do not use SVN, add -DREVISION="1234" to the FLAGS below
 
+#WIN32_CONSOLE = 1 # adds a console for windows debugging
+
 # Define these as empty strings, if you don't have the respective config program
 #ALLEGRO_CONFIG = allegro-config
 #PNG_CONFIG     = pkg-config libpng
