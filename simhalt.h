@@ -29,7 +29,7 @@
 #define RECONNECTING (1)
 #define REROUTING (2)
 
-#define MAX_HALT_COST   7 // Total number of cost items
+#define MAX_HALT_COST   8 // Total number of cost items
 #define MAX_MONTHS     12 // Max history
 #define MAX_HALT_NON_MONEY_TYPES 7 // number of non money types in HALT's financial statistic
 #define HALT_ARRIVED   0 // the amount of ware that arrived here
@@ -39,6 +39,7 @@
 #define HALT_UNHAPPY		4 // number of unhappy passangers
 #define HALT_NOROUTE         5 // number of no-route passangers
 #define HALT_CONVOIS_ARRIVED             6 // number of convois arrived this month
+#define HALT_WALKED 7 // could walk to destination
 
 class cbuffer_t;
 class grund_t;
@@ -270,6 +271,12 @@ private:
 	uint32 pax_happy;
 
 	/**
+	 * Found route but could walk to destination
+	 * @author Hj. Malthaner
+	 */
+	uint32 pax_walked;
+
+	/**
 	 * Found no route
 	 * @author Hj. Malthaner
 	 */
@@ -494,6 +501,12 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	void add_pax_happy(int n);
+
+	/**
+	 * Station in wlaking distance
+	 * @author Hj. Malthaner
+	 */
+	void add_pax_walked(int n);
 
 	/**
 	 * Found no route

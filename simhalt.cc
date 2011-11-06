@@ -1643,6 +1643,17 @@ void haltestelle_t::add_pax_happy(int n)
 
 
 /**
+ * Station in wlaking distance
+ * @author Hj. Malthaner
+ */
+void haltestelle_t::add_pax_walked(int n)
+{
+	pax_walked += n;
+	book(n, HALT_WALKED);
+}
+
+
+/**
  * Station crowded
  * @author Hj. Malthaner
  */
@@ -2492,12 +2503,27 @@ void haltestelle_t::rdwr(loadsave_t *file)
 
 	}
 
-	for (int j = 0; j<MAX_HALT_COST; j++) {
-		for (int k = MAX_MONTHS-1; k>=0; k--) {
-			file->rdwr_longlong(financial_history[k][j]);
+	if(  file->get_version()>=111001  ) {
+		for (int j = 0; j<MAX_HALT_COST; j++) {
+			for (int k = MAX_MONTHS-1; k>=0; k--) {
+				file->rdwr_longlong(financial_history[k][j]);
+			}
 		}
 	}
+	else {
+		// old history did not know about walked pax
+		for (int j = 0; j<7; j++) {
+			for (int k = MAX_MONTHS-1; k>=0; k--) {
+				file->rdwr_longlong(financial_history[k][j]);
+			}
+		}
+		for (int k = MAX_MONTHS-1; k>=0; k--) {
+			financial_history[k][HALT_WALKED] = 0;
+		}
+	}
+
 	pax_happy    = financial_history[0][HALT_HAPPY];
+	pax_walked   = financial_history[0][HALT_WALKED];
 	pax_unhappy  = financial_history[0][HALT_UNHAPPY];
 	pax_no_route = financial_history[0][HALT_NOROUTE];
 }

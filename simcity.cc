@@ -1236,7 +1236,6 @@ void stadt_t::rdwr(loadsave_t* file)
 }
 
 
-
 /**
  * Wird am Ende der Laderoutine aufgerufen, wenn die Welt geladen ist
  * und nur noch die Datenstrukturenneu verknuepft werden muessen.
@@ -1761,6 +1760,7 @@ void stadt_t::step_passagiere()
 					factory_entry->factory->liefere_an(wtyp, pax_left_to_do);
 				}
 				// people who walk or mail delivered by hand do not count as transported or happy
+				start_halt->add_pax_walked(num_pax);
 			}
 			else if(  route_result==haltestelle_t::ROUTE_OVERCROWDED  ) {
 				merke_passagier_ziel(dest_pos, COL_ORANGE );
