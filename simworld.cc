@@ -1367,11 +1367,11 @@ void karte_t::init(settings_t* const sets, sint8 const* const h_field)
 	snowline = sets->get_winter_snowline()*Z_TILE_STEP + grundwasser;
 
 	if(sets->get_beginner_mode()) {
-		warenbauer_t::set_multiplier(settings.get_beginner_price_factor());
+		warenbauer_t::set_multiplier(settings.get_beginner_price_factor(), settings.get_meters_per_tile());
 		sets->set_just_in_time( 0 );
 	}
 	else {
-		warenbauer_t::set_multiplier( 1000 );
+		warenbauer_t::set_multiplier(1000, settings.get_meters_per_tile());
 	}
 	max_rail_speed.speed = max_monorail_speed.speed = max_maglev_speed.speed = max_narrowgauge_speed.speed = max_road_speed.speed = max_ship_speed.speed = max_air_speed.speed = 0;
 
@@ -1748,7 +1748,7 @@ karte_t::karte_t() :
 	set_scroll_lock(false);
 
 	// standard prices
-	warenbauer_t::set_multiplier( 1000 );
+	warenbauer_t::set_multiplier( 1000, settings.get_meters_per_tile() );
 
 	zeiger = 0;
 	plan = 0;
@@ -4794,10 +4794,10 @@ void karte_t::laden(loadsave_t *file)
 		}
 	}
 	if (settings.get_beginner_mode()) {
-		warenbauer_t::set_multiplier(settings.get_beginner_price_factor());
+		warenbauer_t::set_multiplier(settings.get_beginner_price_factor(), settings.get_meters_per_tile());
 	}
 	else {
-		warenbauer_t::set_multiplier( 1000 );
+		warenbauer_t::set_multiplier( 1000, settings.get_meters_per_tile() );
 	}
 
 	if(old_scale_factor != get_settings().get_meters_per_tile())

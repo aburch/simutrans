@@ -13,6 +13,8 @@
 #include "warenbauer.h"
 #include "../dataobj/translator.h"
 
+#include "../besch/ware_besch.h"
+
 
 stringhashtable_tpl<const ware_besch_t *> warenbauer_t::besch_names;
 
@@ -120,7 +122,11 @@ static bool compare_ware_besch(const ware_besch_t* a, const ware_besch_t* b)
 
 bool warenbauer_t::register_besch(ware_besch_t *besch)
 {
-	besch->value = besch->base_value;
+	besch->values.clear();
+	ITERATE(besch->base_values, i)
+	{
+		besch->values.append(besch->base_values[i]);
+	}
 	::register_besch(spezial_objekte, besch);
 	// avoid duplicates with same name
 	ware_besch_t *old_besch = const_cast<ware_besch_t *>(besch_names.get(besch->get_name()));
@@ -185,11 +191,18 @@ const ware_besch_t *warenbauer_t::get_info_catg_index(const uint8 catg_index)
 
 
 // adjuster for dummies ...
-void warenbauer_t::set_multiplier(sint32 multiplier)
+void warenbauer_t::set_multiplier(sint32 multiplier, uint16 scale_factor)
 {
 //DBG_MESSAGE("warenbauer_t::set_multiplier()","new factor %i",multiplier);
-	for(unsigned i=0;  i<get_waren_anzahl();  i++  ) {
-		sint32 long_base_value = waren[i]->base_value;
-		waren[i]->value = (uint16)((long_base_value*multiplier)/1000l);
+	for(unsigned i=0;  i<get_waren_anzahl();  i++  ) 
+	{
+		waren[i]->values.clear();
+		ITERATE(waren[i]->base_values, n)
+		{
+			sint32 long_base_value = waren[i]->base_values[n].price;
+			uint16 new_value = (uint16)((long_base_value * multiplier) / 1000l);
+			waren[i]->values.append(fare_stage_t(waren[i]->base_values[n].to_distance, new_value));
+		}
+		waren[i]->set_scale(scale_factor);
 	}
 }

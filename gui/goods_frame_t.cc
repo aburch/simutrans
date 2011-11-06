@@ -19,6 +19,8 @@
 #include "../simworld.h"
 #include "../simconvoi.h"
 
+#include "../besch/ware_besch.h"
+
 /**
  * This variable defines the current speed for bonus calculation
  * @author prissi
@@ -202,11 +204,11 @@ bool goods_frame_t::compare_goods(uint16 const a, uint16 const b)
 				sint32 price[2];
 				for(uint8 i = 0; i < 2; i ++)
 				{
-					const uint16 base_price = w[i]->get_preis();
-					const sint32 min_price = base_price / 10;
+					const sint64 base_fare = w[i]->get_fare(tile_distance);
+					const sint64 min_fare = base_fare / 10ll;
 					const uint16 speed_bonus_rating = convoi_t::calc_adjusted_speed_bonus(w[i]->get_speed_bonus(), tile_distance, NULL);
-					const sint32 base_bonus = base_price * (1000l + (relative_speed_change - 100l) * speed_bonus_rating);
-					const sint32 revenue = (min_price > base_bonus ? min_price : base_bonus) * tile_distance;
+					const sint64 base_bonus = base_fare * (1000l + (relative_speed_change - 100l) * speed_bonus_rating);
+					const sint64 revenue = max(min_fare, base_bonus);
 					price[i] = revenue;
 
 					const uint16 journey_minutes = ((float)tile_distance / (float)((50 * relative_speed_change)/100)) * 0.3 * 60;
@@ -302,7 +304,8 @@ void goods_frame_t::sort_list()
 
 		// Hajo: we skip goods that don't generate income
 		//       this should only be true for the special good 'None'
-		if(wtyp->get_preis()!=0) {
+		if(wtyp->get_fare(1) != 0) 
+		{
 			good_list[n++] = i;
 		}
 	}

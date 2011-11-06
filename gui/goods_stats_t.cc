@@ -20,6 +20,7 @@
 #include "../utils/simstring.h"
 #include "components/list_button.h"
 
+#include "../besch/ware_besch.h"
 
 goods_stats_t::goods_stats_t()
 {
@@ -51,11 +52,11 @@ void goods_stats_t::zeichnen(koord offset)
 		// prissi
 		// Modified by jamespetts 18 Apr. 2009
 
-		const sint64 base_price = (sint64)wtyp->get_preis();
-		const sint64 min_price = base_price / 10ll;
+		const sint64 base_fare = wtyp->get_fare(distance);
+		const sint64 min_fare = base_fare / 10ll;
 		const sint64 speed_bonus_rating = (sint64)convoi_t::calc_adjusted_speed_bonus(wtyp->get_speed_bonus(), distance, welt);
-		const sint64 base_bonus = base_price * (1000ll + ((sint64)bonus - 100ll) * speed_bonus_rating);
-		const sint64 revenue = (min_price > base_bonus ? min_price : base_bonus) * (sint64)distance;
+		const sint64 base_bonus = base_fare * (1000ll + ((sint64)bonus - 100ll) * speed_bonus_rating);
+		const sint64 revenue = max(min_fare, base_bonus);
 		sint64 price = revenue;
 
 		//const uint16 journey_minutes = ((float)distance / (((float)welt->get_average_speed(way_type) * bonus) / 100)) *welt->get_settings().get_meters_per_tile() * 6;

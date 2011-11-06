@@ -72,7 +72,7 @@ public:
 	 * allow to multiply all prices, 1000=1.0
 	 * used for the beginner mode
 	 */
-	static void set_multiplier(sint32 multiplier);
+	static void set_multiplier(sint32 multiplier, uint16 scale_factor);
 };
 
 #endif

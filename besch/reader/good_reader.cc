@@ -54,7 +54,7 @@ obj_besch_t * good_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	if(version == 1) {
 		// Versioned node, version 1
-		besch->base_value = decode_uint16(p);
+		besch->base_values.append(fare_stage_t(0, decode_uint16(p)));
 		besch->catg = decode_uint16(p);
 		besch->speed_bonus = decode_uint16(p);
 		besch->weight_per_unit = 100;
@@ -62,14 +62,14 @@ obj_besch_t * good_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	} else if(version == 2) {
 		// Versioned node, version 2
 
-		besch->base_value = decode_uint16(p);
+		besch->base_values.append(fare_stage_t(0, decode_uint16(p)));
 		besch->catg = decode_uint16(p);
 		besch->speed_bonus = decode_uint16(p);
 		besch->weight_per_unit = decode_uint16(p);
 
 	} else if(version == 3) {
 		// Versioned node, version 3
-		besch->base_value = decode_uint16(p);
+		besch->base_values.append(fare_stage_t(0, decode_uint16(p)));
 		besch->catg = decode_uint8(p);
 		besch->speed_bonus = decode_uint16(p);
 		besch->weight_per_unit = decode_uint16(p);
@@ -78,11 +78,11 @@ obj_besch_t * good_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 	else {
 		// old node, version 0
-		besch->base_value = v;
+		besch->base_values.append(fare_stage_t(0, v));
 		besch->catg = decode_uint16(p);
 	}
 
-	DBG_DEBUG("good_reader_t::read_node()","version=%d value=%d catg=%d bonus=%d",version, besch->value, besch->catg, besch->speed_bonus);
+	DBG_DEBUG("good_reader_t::read_node()","version=%d value=%d catg=%d bonus=%d",version, besch->base_values.get_count() > 0 ? besch->base_values[0].price : 0, besch->catg, besch->speed_bonus);
 
 
   return besch;

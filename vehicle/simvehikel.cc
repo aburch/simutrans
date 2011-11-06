@@ -68,7 +68,7 @@
 #include "../utils/cbuffer_t.h"
 
 #include "../simtools.h"
-
+#include "../besch/ware_besch.h"
 
 #include "../bauer/vehikelbauer.h"
 
@@ -830,7 +830,7 @@ vehikel_t::unload_freight(halthandle_t halt)
 							// Cannot refund unless we know the origin.
 							const uint16 distance = shortest_distance(halt->get_basis_pos(), tmp.get_origin()->get_basis_pos());
 							// Refund is approximation: twice distance at standard rate with no adjustments.
-							const sint64 refund_amount = tmp.menge * tmp.get_besch()->get_preis() * distance * 2000ll;
+							const sint64 refund_amount = tmp.menge * tmp.get_fare(distance) * 2000ll;
 							current_revenue -= refund_amount;
 							cnv->book(refund_amount, CONVOI_REFUNDS);
 							if(cnv->get_line().is_bound())
@@ -1335,7 +1335,7 @@ void vehikel_t::hop()
 		// weight limit is set to 0 in the file.
 
 		// This is just used for the GUI display, so only set to true if the weight limit is set to enforce by speed restriction.
-		is_overweight = (cnv->get_heaviest_vehicle() > weight_limit &&welt->get_settings().get_enforce_weight_limits() == 1); 
+		is_overweight = (cnv->get_heaviest_vehicle() > weight_limit && welt->get_settings().get_enforce_weight_limits() == 1); 
 
 		//if(alte_fahrtrichtung != fahrtrichtung)
 		//{

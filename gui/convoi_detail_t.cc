@@ -437,8 +437,8 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 
 				// bonus stuff
 				int len = 5+display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, translator::translate("Max income:"), ALIGN_LEFT, COL_BLACK, true );
-				const sint32 grundwert128 = v->get_fracht_typ()->get_preis()<<7;
-				const sint32 grundwert_bonus = v->get_fracht_typ()->get_preis()*(1000l+speed_base*v->get_fracht_typ()->get_speed_bonus());
+				const sint32 grundwert128 = v->get_fracht_typ()->get_fare(1)<<7;
+				const sint32 grundwert_bonus = v->get_fracht_typ()->get_fare(1)*(1000l+speed_base*v->get_fracht_typ()->get_speed_bonus());
 				const sint32 price = (v->get_fracht_max()*(grundwert128>grundwert_bonus ? grundwert128 : grundwert_bonus))/30 - v->get_betriebskosten(cnv->get_welt());
 				money_to_string( number, price/100.0 );
 				display_proportional_clip( pos.x+w+offset.x+len, pos.y+offset.y+total_height+extra_y, number, ALIGN_LEFT, price>0?MONEY_PLUS:MONEY_MINUS, true );

@@ -13,9 +13,10 @@
 #include "simplay.h"
 
 #include "../sucher/bauplatz_sucher.h"
+#include "../besch/ware_besch.h"
 
 class karte_t;
-class ware_besch_t;
+
 
 /**
  * bauplatz_mit_strasse_sucher_t:
