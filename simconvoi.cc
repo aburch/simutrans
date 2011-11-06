@@ -3845,7 +3845,6 @@ void convoi_t::laden() //"load" (Babelfish)
 			// we can simply clear the whole list.
 			clear_departures = true;
 		}
-		
 	}
 		
 	// Recalculate comfort
@@ -3899,6 +3898,7 @@ void convoi_t::laden() //"load" (Babelfish)
 		if(halt->check_access(get_besitzer()) || (w && sp == NULL) || (w && sp->allows_access_to(get_besitzer()->get_player_nr())) || tram_stop_public)
 		{
 			// loading/unloading ...
+			// NOTE: Revenue is calculated here.
 			halt->request_loading( self );
 		}
 
@@ -3972,24 +3972,23 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	// the straight line distance, which makes the game difficult and unrealistic. 
 	// If the origin has been deleted since the packet departed, then the best that we can do is guess by
 	// trebling the distance to the last stop.
-	const uint32 max_distance = ware.get_origin().is_bound() ? 
-		shortest_distance(ware.get_origin()->get_basis_pos(), fahr[0]->get_pos().get_2d()) * 2 :
+	const uint32 max_distance = ware.get_last_transfer().is_bound() ? 
+		shortest_distance(ware.get_last_transfer()->get_basis_pos(), fahr[0]->get_pos().get_2d()) * 2 :
 		3 * shortest_distance(last_stop_pos.get_2d(), fahr[0]->get_pos().get_2d());
-	const departure_data_t dep = departures->get(ware.get_origin().get_id());
+	const departure_data_t dep = departures->get(ware.get_last_transfer().get_id());
 	const uint32 distance = dep.get_overall_distance();
 	const uint32 revenue_distance = distance < max_distance ? distance : max_distance;
 	
-	// 100/1667 = 60min/hr / 1000 m/km
 	uint16 journey_minutes = 0;
-	if(ware.get_origin().is_bound())
+	if(ware.get_last_transfer().is_bound())
 	{
 		if(line.is_bound())
 		{
-			journey_minutes = line->average_journey_times->get(id_pair(ware.get_origin().get_id(), welt->get_halt_koord_index(fahr[0]->get_pos().get_2d()).get_id())).get_average();
+			journey_minutes = line->average_journey_times->get(id_pair(ware.get_last_transfer().get_id(), welt->get_halt_koord_index(fahr[0]->get_pos().get_2d()).get_id())).get_average();
 		}
 		else
 		{
-			journey_minutes = average_journey_times->get(id_pair(ware.get_origin().get_id(), welt->get_halt_koord_index(fahr[0]->get_pos().get_2d()).get_id())).get_average();
+			journey_minutes = average_journey_times->get(id_pair(ware.get_last_transfer().get_id(), welt->get_halt_koord_index(fahr[0]->get_pos().get_2d()).get_id())).get_average();
 		}
 	}
 
@@ -3997,6 +3996,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	if(journey_minutes == 0)
 	{
 		// Fallback to the overall average speed if there are no data for point-to-point timings.
+		// 100/1667 = 60min/hr / 1000 m/km
 		journey_minutes = (((distance * 100) / overall_average_speed) * welt->get_settings().get_meters_per_tile()) / 1667;
 		average_speed = overall_average_speed;
 	}
@@ -4021,7 +4021,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	const sint64 revenue = min_revenue * (sint64)revenue_distance * (sint64)ware.menge;
 	sint64 final_revenue = revenue;
 
-	const uint16 happy_percentage = ware.get_origin().is_bound() ? ware.get_origin()->get_unhappy_percentage(1) : 100;
+	const uint16 happy_percentage = ware.get_last_transfer().is_bound() ? ware.get_last_transfer()->get_unhappy_percentage(1) : 100;
 	if(speed_bonus_rating > 0 && happy_percentage > 0)
 	{
 		// Reduce revenue if the origin stop is crowded, if speed is important for the cargo.
@@ -5866,7 +5866,7 @@ void convoi_t::clear_replace()
 		slist_iterator_tpl<ware_t> iter(fahr[i]->get_fracht());
 		while(iter.next())
 		{
-			if(iter.get_current().get_origin().get_id() == halt.get_id())
+			if(iter.get_current().get_last_transfer().get_id() == halt.get_id())
 			{
 				waiting_minutes = max(get_waiting_minutes(current_time - iter.get_current().arrival_time), airport_wait);
 				halt->add_waiting_time(waiting_minutes, iter.get_current().get_zwischenziel(), iter.get_current().get_besch()->get_catg_index());
@@ -5884,6 +5884,10 @@ void convoi_t::clear_replace()
 		departure_data_t dep;
 		dep.departure_time = time;
 		departures->set(halt.get_id(), dep);
+	}
+	else
+	{
+		dbg->error("void convoi_t::book_departure_time(sint64 time)", "Cannot find last halt to set departure time");
 	}
  }
 

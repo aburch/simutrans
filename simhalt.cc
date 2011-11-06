@@ -920,7 +920,7 @@ void haltestelle_t::request_loading( convoihandle_t cnv )
 {
 	if(  !loading_here.is_contained(cnv)  ) 
 	{
-		loading_here.append (cnv);
+		loading_here.append(cnv);
 	}
 	if(  last_loading_step != welt->get_steps()  ) 
 	{
@@ -1826,7 +1826,9 @@ void haltestelle_t::add_ware_to_halt(ware_t ware, bool from_saved)
 	if(!from_saved)
 	{
 		ware.arrival_time = welt->get_zeit_ms();
-	}
+	}	
+	
+	ware.set_last_transfer(self);
 
 	// now we have to add the ware to the stop
 	vector_tpl<ware_t> * warray = waren[ware.get_besch()->get_catg_index()];
