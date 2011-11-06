@@ -244,6 +244,11 @@ sint32 convoy_t::calc_min_braking_distance(const float32e8_t &simtime_factor, co
 	return yards >> YARDS_PER_VEHICLE_STEP_SHIFT;
 }
 
+inline float32e8_t _calc_move(const float32e8_t &a, const float32e8_t &t, const float32e8_t &x0, const float32e8_t &v0)
+{
+	return (float32e8_t::half * a * t + v0) * t + x0;
+}
+
 void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 next_speed_limit, sint32 steps_til_limit, sint32 steps_til_brake, sint32 &akt_speed, sint32 &sp_soll)
 {
 	sint32 max_speed = min(adverse.max_speed, vehicle.max_speed);
@@ -366,23 +371,25 @@ void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const 
 				dt = delta_t;
 				dt_s = fl_time_divisor * dt;
 			}
-			float32e8_t v0 = v;
 			float32e8_t a = f / fweight;
-			v += dt_s * a;
+			float32e8_t v0 = v;
 			float32e8_t x;
+			v += a * dt_s;
 			if (is_braking)
 			{
 				if (v < vsoll)
 				{
 					// don't brake too much
 					v = vsoll;
+					a = v / dt_s;
 				}
-				x = dx + v * dt_s;
+				x = _calc_move(a, dt_s, dx, v0);
 				if (x > xlim && v < V_MIN)
 				{
 					// don't stop before arrival.
 					v = V_MIN;
-					x = dx + v * dt_s;
+					a = v / dt_s;
+					x = _calc_move(a, dt_s, dx, v0);
 				}
 			}
 			else 
@@ -396,7 +403,7 @@ void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const 
 				{
 					v = V_MIN;
 				}
-				x = dx + v * dt_s;
+				x = _calc_move(a, dt_s, dx, v0);
 				if (x > xbrk)
 				{
 					// don't run beyond xbrk, where we must start braking.
