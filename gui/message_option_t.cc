@@ -7,8 +7,6 @@
  * (see licence.txt)
  */
 
-#include <stdio.h>
-
 #include "../simmesg.h"
 #include "../simskin.h"
 #include "../simworld.h"
