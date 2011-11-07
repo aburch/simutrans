@@ -18,8 +18,8 @@
 #include "components/action_listener.h"
 #include "components/gui_chart.h"
 
-#include "../halthandle_t.h"
 #include "../utils/cbuffer_t.h"
+#include "../simhalt.h"
 #include "../simwin.h"
 
 
@@ -50,7 +50,7 @@ private:
 	location_view_t view;
 	button_t button;
 	button_t sort_button;     // @author hsiegeln
-	button_t filterButtons[7];
+	button_t filterButtons[MAX_HALT_COST];
 	button_t toggler;
 
 	halthandle_t halt;

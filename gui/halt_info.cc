@@ -8,7 +8,6 @@
 #include "halt_detail.h"
 #include "halt_info.h"
 #include "../simworld.h"
-#include "../simhalt.h"
 #include "../simware.h"
 #include "../simcolor.h"
 #include "../simgraph.h"
@@ -46,7 +45,8 @@ const char cost_type[MAX_HALT_COST][64] =
 	"hl_btn_sort_waiting",
 	"Arrived",
 	"Departed",
-	"Convoys"
+	"Convoys",
+	"Walked"
 };
 
 const uint8 index_of_haltinfo[MAX_HALT_COST] = {
@@ -56,7 +56,8 @@ const uint8 index_of_haltinfo[MAX_HALT_COST] = {
 	HALT_WAITING,
 	HALT_ARRIVED,
 	HALT_DEPARTED,
-	HALT_CONVOIS_ARRIVED
+	HALT_CONVOIS_ARRIVED,
+	HALT_WALKED
 };
 
 #define COL_HAPPY COL_WHITE
@@ -74,7 +75,8 @@ const int cost_type_color[MAX_HALT_COST] =
 	COL_WAITING,
 	COL_ARRIVED,
 	COL_DEPARTED,
-	COL_COUNVOI_COUNT
+	COL_COUNVOI_COUNT,
+	COL_LILAC
 };
 
 halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt) :
