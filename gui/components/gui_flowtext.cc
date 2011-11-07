@@ -150,6 +150,10 @@ koord gui_flowtext_t::get_preferred_size()
 	return output(koord(0, 0), false);
 }
 
+koord gui_flowtext_t::get_text_size()
+{
+	return output(koord(0, 0), false, false);
+}
 
 void gui_flowtext_t::zeichnen(koord offset)
 {
@@ -162,7 +166,7 @@ void gui_flowtext_t::zeichnen(koord offset)
 }
 
 
-koord gui_flowtext_t::output(koord offset, bool doit)
+koord gui_flowtext_t::output(koord offset, bool doit, bool return_max_width)
 {
 	const int width = groesse.x;
 
@@ -174,6 +178,7 @@ koord gui_flowtext_t::output(koord offset, bool doit)
 	int double_color = COL_BLACK;
 	bool double_it   = false;
 	int max_width    = width;
+	int text_width   = width;
 
 	for (slist_tpl<node_t>::const_iterator node = nodes.begin(), end = nodes.end(); node != end; ++node) {
 		switch (node->att) {
@@ -188,6 +193,9 @@ koord gui_flowtext_t::output(koord offset, bool doit)
 					nxpos -= xpos;
 					xpos = 0;
 					ypos += LINESPACE;
+				}
+				if (nxpos >= text_width) {
+					text_width = nxpos;
 				}
 
 				if (doit) {
@@ -282,7 +290,7 @@ koord gui_flowtext_t::output(koord offset, bool doit)
 		mark_rect_dirty_wc( offset.x, offset.y, offset.x+max_width, offset.y+ypos+LINESPACE );
 		dirty = false;
 	}
-	return koord(max_width, ypos + LINESPACE);
+	return koord( return_max_width ? max_width : text_width, ypos + LINESPACE);
 }
 
 
