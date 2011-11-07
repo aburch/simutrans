@@ -298,10 +298,6 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 
 	welt = wl;
 
-	pax_happy = 0;
-	pax_unhappy = 0;
-	pax_no_route = 0;
-
 	waren = (vector_tpl<ware_t> **)calloc( warenbauer_t::get_max_catg_index(), sizeof(vector_tpl<ware_t> *) );
 	connections = new vector_tpl<connection_t>[ warenbauer_t::get_max_catg_index() ];
 	serving_schedules = new uint8[ warenbauer_t::get_max_catg_index() ];
@@ -355,9 +351,6 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 		serving_schedules[i] = 0;
 	}
 
-	pax_happy = 0;
-	pax_unhappy = 0;
-	pax_no_route = 0;
 	status_color = COL_YELLOW;
 
 	sortierung = freight_list_sorter_t::by_name;
@@ -880,11 +873,6 @@ void haltestelle_t::neuer_monat()
 		welt->get_message()->add_message(buf, get_basis_pos(),message_t::full, PLAYER_FLAG|besitzer_p->get_player_nr(), IMG_LEER );
 		enables &= (PAX|POST|WARE);
 	}
-
-	// Hajo: reset passenger statistics
-	pax_happy = 0;
-	pax_no_route = 0;
-	pax_unhappy = 0;
 
 	// hsiegeln: roll financial history
 	for (int j = 0; j<MAX_HALT_COST; j++) {
@@ -1636,7 +1624,6 @@ void haltestelle_t::search_route_resumable(  ware_t &ware   )
  */
 void haltestelle_t::add_pax_happy(int n)
 {
-	pax_happy += n;
 	book(n, HALT_HAPPY);
 	recalc_status();
 }
@@ -1648,7 +1635,6 @@ void haltestelle_t::add_pax_happy(int n)
  */
 void haltestelle_t::add_pax_walked(int n)
 {
-	pax_walked += n;
 	book(n, HALT_WALKED);
 }
 
@@ -1659,7 +1645,6 @@ void haltestelle_t::add_pax_walked(int n)
  */
 void haltestelle_t::add_pax_unhappy(int n)
 {
-	pax_unhappy += n;
 	book(n, HALT_UNHAPPY);
 	recalc_status();
 }
@@ -1671,7 +1656,6 @@ void haltestelle_t::add_pax_unhappy(int n)
  */
 void haltestelle_t::add_pax_no_route(int n)
 {
-	pax_no_route += n;
 	book(n, HALT_NOROUTE);
 }
 
@@ -2032,7 +2016,7 @@ haltestelle_t::quote_bezeichnung(int quote, convoihandle_t cnv) const
 
 void haltestelle_t::info(cbuffer_t & buf) const
 {
-	buf.printf(translator::translate("Passengers %d %c, %d %c, %d no route"), pax_happy, 30, pax_unhappy, 31, pax_no_route);
+	buf.printf(translator::translate("Passengers %d %c, %d %c, %d no route"), get_pax_happy(), 30, get_pax_unhappy(), 31, get_pax_no_route());
 	buf.append("\n\n");
 }
 
@@ -2521,11 +2505,6 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			financial_history[k][HALT_WALKED] = 0;
 		}
 	}
-
-	pax_happy    = financial_history[0][HALT_HAPPY];
-	pax_walked   = financial_history[0][HALT_WALKED];
-	pax_unhappy  = financial_history[0][HALT_UNHAPPY];
-	pax_no_route = financial_history[0][HALT_NOROUTE];
 }
 
 
@@ -2601,9 +2580,6 @@ void haltestelle_t::init_financial_history()
 			financial_history[k][j] = 0;
 		}
 	}
-	financial_history[0][HALT_HAPPY] = pax_happy;
-	financial_history[0][HALT_UNHAPPY] = pax_unhappy;
-	financial_history[0][HALT_NOROUTE] = pax_no_route;
 }
 
 

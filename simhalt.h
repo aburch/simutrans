@@ -261,30 +261,6 @@ private:
 	/* station flags (most what enabled) */
 	uint8 enables;
 
-	/**
-	 * Found route and station uncrowded
-	 * @author Hj. Malthaner
-	 */
-	uint32 pax_happy;
-
-	/**
-	 * Found route but could walk to destination
-	 * @author Hj. Malthaner
-	 */
-	uint32 pax_walked;
-
-	/**
-	 * Found no route
-	 * @author Hj. Malthaner
-	 */
-	uint32 pax_no_route;
-
-	/**
-	 * Station crowded
-	 * @author Hj. Malthaner
-	 */
-	uint32 pax_unhappy;
-
 #ifdef USE_QUOTE
 	// for station rating
 	const char * quote_bezeichnung(int quote) const;
@@ -500,8 +476,8 @@ public:
 	void add_pax_happy(int n);
 
 	/**
-	 * Station in wlaking distance
-	 * @author Hj. Malthaner
+	 * Station in walking distance
+	 * @author prissi
 	 */
 	void add_pax_walked(int n);
 
@@ -517,9 +493,9 @@ public:
 	 */
 	void add_pax_unhappy(int n);
 
-	int get_pax_happy()    const { return pax_happy;    }
-	int get_pax_no_route() const { return pax_no_route; }
-	int get_pax_unhappy()  const { return pax_unhappy;  }
+	int get_pax_happy()    const { return financial_history[0][HALT_HAPPY]; }
+	int get_pax_no_route() const { return financial_history[0][HALT_NOROUTE]; }
+	int get_pax_unhappy()  const { return financial_history[0][HALT_UNHAPPY]; }
 
 
 	bool add_grund(grund_t *gb);
