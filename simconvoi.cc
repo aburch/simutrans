@@ -3976,8 +3976,21 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 		shortest_distance(ware.get_last_transfer()->get_basis_pos(), fahr[0]->get_pos().get_2d()) * 2 :
 		3 * shortest_distance(last_stop_pos.get_2d(), fahr[0]->get_pos().get_2d());
 	const departure_data_t dep = departures->get(ware.get_last_transfer().get_id());
-	const uint32 distance = dep.get_overall_distance();
+	const uint32 distance = dep.get_overall_distance() > 0 ? dep.get_overall_distance() : max_distance / 2;
 	const uint32 revenue_distance = distance < max_distance ? distance : max_distance;
+
+	/*inthashtable_iterator_tpl<uint16, departure_data_t> TEST_iter(departures);
+	halthandle_t TEST_last_transfer = ware.get_last_transfer();
+	const char* TEST_last_transfer_name = TEST_last_transfer.is_bound() ? TEST_last_transfer->get_name() : "NULL";
+	departure_data_t TEST_departure;
+	while(TEST_iter.next())
+	{
+		halthandle_t TEST_this_iteration;
+		TEST_this_iteration.set_id(TEST_iter.get_current_key());
+		const char* TEST_this_iteration_name = TEST_this_iteration.is_bound() ? TEST_this_iteration->get_name() : "NULL";
+		TEST_departure = TEST_iter.get_current_value();
+		const uint8 a = 1 + 1;
+	}*/
 	
 	uint16 journey_minutes = 0;
 	if(ware.get_last_transfer().is_bound())

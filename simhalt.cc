@@ -1155,6 +1155,15 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 				continue;
 			}
 
+			// If the passengers have re-routed so that they now
+			// walk to the next transfer, go there immediately.
+			if(ware.is_passenger() && is_within_walking_distance_of(ware.get_zwischenziel()) && !connexions[0]->get(ware.get_zwischenziel())->best_convoy.is_bound() && !connexions[0]->get(ware.get_zwischenziel())->best_line.is_bound())
+			{
+				erzeuge_fussgaenger(welt, get_basis_pos3d(), ware.menge);
+				ware.get_zwischenziel()->liefere_an(ware);
+				continue;
+			}
+
 			// add to new array
 			new_warray->append( ware );
 		}	
