@@ -43,16 +43,27 @@ private:
 	 */
 	halthandle_t zwischenziel;
 
-	//@author: jamespetts
-	//A handle to the ultimate origin.
+	/**
+	 * A handle to the ultimate origin.
+	 * @author: jamespetts
+	 */
 	halthandle_t origin;
+
+	/**
+	 * A handle to the previous transfer
+	 * for the purposes of distance calculation
+	 * @author: jamespetts, November 2011
+	 */
+	halthandle_t last_transfer;
 
 	/**
 	 * die engültige Zielposition,
 	 * das ist i.a. nicht die Zielhaltestellenposition
+	 * 
+	 * "the final target position, which is on behalf 
+	 * not the goal stop position"
 	 * @author Hj. Malthaner
 	 */
-	// "the final target position, which is on behalf not the goal stop position"
 	koord zielpos;
 
 public:
@@ -85,6 +96,8 @@ public:
 	//@author: jamespetts
 	halthandle_t get_origin() const { return origin; }
 	void set_origin(halthandle_t value) { origin = value; }
+	halthandle_t get_last_transfer() const { return last_transfer; }
+	void set_last_transfer(halthandle_t value) { last_transfer = value; }
 
 	const ware_besch_t* get_besch() const { return index_to_besch[index]; }
 	void set_besch(const ware_besch_t* type);
@@ -109,7 +122,8 @@ public:
 			index  == w.index  &&
 			ziel  == w.ziel  &&
 			zielpos == w.zielpos &&
-			origin == w.origin;
+			origin == w.origin && 
+			last_transfer == w.last_transfer;
 	}
 
 	// Lighter version of operator == that only checks equality
@@ -122,7 +136,8 @@ public:
 			ziel  == w.ziel  &&
 			// Only merge the destination *position* if the load is not freight
 			(index < 2 || zielpos == w.zielpos) &&
-			origin == w.origin;
+			origin == w.origin &&
+			last_transfer == w.last_transfer;
 	}
 
 	int operator!=(const ware_t &w) { return !(*this == w); 	}

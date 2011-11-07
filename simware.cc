@@ -222,6 +222,25 @@ void ware_t::rdwr(karte_t *welt,loadsave_t *file)
 	{
 		arrival_time = 0;
 	}
+
+	if(file->get_experimental_version() >= 10 && file->get_version() >= 111000)
+	{
+		if(file->is_saving()) 
+		{
+			uint16 halt_id = last_transfer.is_bound() ? last_transfer.get_id() : 0;
+			file->rdwr_short(halt_id);
+		}
+		else
+		{
+			uint16 halt_id;
+			file->rdwr_short(halt_id);
+			last_transfer.set_id(halt_id);
+		}
+	}
+	else
+	{
+		last_transfer.set_id(origin.get_id());
+	}
 	
 	// restore factory-flag
 	if(  file->get_version()<110005  &&  file->is_loading()  ) {

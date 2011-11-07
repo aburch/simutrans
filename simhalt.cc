@@ -922,7 +922,7 @@ void haltestelle_t::request_loading( convoihandle_t cnv )
 {
 	if(  !loading_here.is_contained(cnv)  ) 
 	{
-		loading_here.append (cnv);
+		loading_here.append(cnv);
 	}
 	if(  last_loading_step != welt->get_steps()  ) 
 	{
@@ -1154,6 +1154,15 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 			if(find_route(ware) == 65535)
 			{
 				// remove invalid destinations
+				continue;
+			}
+
+			// If the passengers have re-routed so that they now
+			// walk to the next transfer, go there immediately.
+			if(ware.is_passenger() && is_within_walking_distance_of(ware.get_zwischenziel()) && !connexions[0]->get(ware.get_zwischenziel())->best_convoy.is_bound() && !connexions[0]->get(ware.get_zwischenziel())->best_line.is_bound())
+			{
+				erzeuge_fussgaenger(welt, get_basis_pos3d(), ware.menge);
+				ware.get_zwischenziel()->liefere_an(ware);
 				continue;
 			}
 
@@ -1828,7 +1837,9 @@ void haltestelle_t::add_ware_to_halt(ware_t ware, bool from_saved)
 	if(!from_saved)
 	{
 		ware.arrival_time = welt->get_zeit_ms();
-	}
+	}	
+	
+	ware.set_last_transfer(self);
 
 	// now we have to add the ware to the stop
 	vector_tpl<ware_t> * warray = waren[ware.get_besch()->get_catg_index()];
