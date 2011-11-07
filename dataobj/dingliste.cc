@@ -19,9 +19,6 @@
 #include "../dings/tunnel.h"
 #include "../dings/gebaeude.h"
 #include "../dings/signal.h"
-#ifdef LAGER_NOT_IN_USE
-#include "../dings/lagerhaus.h"
-#endif
 #include "../dings/label.h"
 #include "../dings/gebaeude.h"
 #include "../dings/leitung2.h"

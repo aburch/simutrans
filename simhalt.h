@@ -46,9 +46,6 @@ class grund_t;
 class fabrik_t;
 class karte_t;
 class koord3d;
-#ifdef LAGER_NOT_IN_USE
-class lagerhaus_t;
-#endif
 class loadsave_t;
 class schedule_t;
 class spieler_t;
@@ -524,10 +521,6 @@ public:
 	int get_pax_no_route() const { return pax_no_route; }
 	int get_pax_unhappy()  const { return pax_unhappy;  }
 
-
-#ifdef LAGER_NOT_IN_USE
-	void set_lager(lagerhaus_t* l) { lager = l; }
-#endif
 
 	bool add_grund(grund_t *gb);
 	bool rem_grund(grund_t *gb);
