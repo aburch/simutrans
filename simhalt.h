@@ -493,9 +493,9 @@ public:
 	 */
 	void add_pax_unhappy(int n);
 
-	int get_pax_happy()    const { return financial_history[0][HALT_HAPPY]; }
-	int get_pax_no_route() const { return financial_history[0][HALT_NOROUTE]; }
-	int get_pax_unhappy()  const { return financial_history[0][HALT_UNHAPPY]; }
+	int get_pax_happy()    const { return (int)financial_history[0][HALT_HAPPY]; }
+	int get_pax_no_route() const { return (int)financial_history[0][HALT_NOROUTE]; }
+	int get_pax_unhappy()  const { return (int)financial_history[0][HALT_UNHAPPY]; }
 
 
 	bool add_grund(grund_t *gb);

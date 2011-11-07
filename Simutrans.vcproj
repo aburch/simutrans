@@ -202,6 +202,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gui\ai_option_t.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\player\ai_passenger.cc"
 				>
 			</File>
@@ -1179,6 +1183,10 @@
 			</File>
 			<File
 				RelativePath=".\player\ai_goods.h"
+				>
+			</File>
+			<File
+				RelativePath=".\gui\ai_option_t.h"
 				>
 			</File>
 			<File

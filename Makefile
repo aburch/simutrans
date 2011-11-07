@@ -229,6 +229,7 @@ SOURCES += dings/wolke.cc
 SOURCES += dings/zeiger.cc
 SOURCES += font.cc
 SOURCES += freight_list_sorter.cc
+SOURCES += gui/ai_option_t.cc
 SOURCES += gui/banner.cc
 SOURCES += gui/baum_edit.cc
 SOURCES += gui/citybuilding_edit.cc

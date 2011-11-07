@@ -86,7 +86,7 @@ public:
 
 	// must do road and cannot do rail
 	virtual void set_rail_transport( bool ) { rail_transport = false; }
-	virtual void set_road_transport( bool ) { rail_transport = true; }
+	virtual void set_road_transport( bool ) { road_transport = true; }
 
 	virtual void bescheid_vehikel_problem(convoihandle_t cnv,const koord3d ziel);
 

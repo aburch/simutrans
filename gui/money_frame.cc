@@ -8,6 +8,7 @@
 #include <string.h>
 
 #include "money_frame.h"
+#include "ai_option_t.h"
 
 #include "../simworld.h"
 #include "../simdebug.h"
@@ -506,6 +507,7 @@ bool money_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 {
 	if(komp==&headquarter) {
 		if(  sp->get_ai_id()!=spieler_t::HUMAN  ) {
+			create_win( new ai_option_t(sp), w_info, magic_ai_options_t+sp->get_player_nr() );
 		}
 		else {
 			sp->get_welt()->set_werkzeug( werkzeug_t::general_tool[WKZ_HEADQUARTER], sp );
@@ -535,7 +537,6 @@ uint32 money_frame_t::get_rdwr_id()
 {
 	return magic_finances_t+sp->get_player_nr();
 }
-
 
 
 void money_frame_t::rdwr( loadsave_t *file )
