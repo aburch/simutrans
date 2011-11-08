@@ -971,7 +971,7 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 					length = (rail_engine->get_length() + count_rail*rail_vehicle->get_length()+CARUNITS_PER_TILE-1)/CARUNITS_PER_TILE;
 					if(suche_platz1_platz2(start, ziel, length)) {
 						state = ship_vehicle ? NR_BAUE_WATER_ROUTE : NR_BAUE_SIMPLE_SCHIENEN_ROUTE;
-						next_contruction_steps += 80;
+						next_contruction_steps += 10;
 					}
 				}
 				// if state is still NR_BAUE_ROUTE1 then there are no sutiable places
@@ -979,7 +979,7 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 					// rail was too expensive or not successfull
 					count_rail = 255;
 					state = ship_vehicle ? NR_BAUE_WATER_ROUTE : NR_BAUE_STRASSEN_ROUTE;
-					next_contruction_steps += 80;
+					next_contruction_steps += 10;
 				}
 			}
 			// no success at all?
@@ -1176,7 +1176,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 		// remove stucked vehicles (only from roads!)
 		case CHECK_CONVOI:
 		{
-			next_contruction_steps = welt->get_steps() + simrand( 8000 )+1000;
+			next_contruction_steps = welt->get_steps() + simrand( ai_t::construction_speed ) + 25;
 
 			for( int i = welt->get_convoi_count()-1;  i>=0;  i--  ) {
 				const convoihandle_t cnv = welt->get_convoi(i);

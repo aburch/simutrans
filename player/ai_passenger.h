@@ -38,9 +38,6 @@ private:
 	// time to wait before next contruction
 	sint32 next_contruction_steps;
 
-	// the shorter the faster construction will occur
-	sint32 construction_speed;
-
 	/* start and end stop position (and their size) */
 	koord platz1, platz2;
 
@@ -84,9 +81,8 @@ public:
 	// this type of AIs identifier
 	virtual uint8 get_ai_id() const { return AI_PASSENGER; }
 
-	// must do road and cannot do rail
+	// cannot do rail
 	virtual void set_rail_transport( bool ) { rail_transport = false; }
-	virtual void set_road_transport( bool ) { road_transport = true; }
 
 	virtual void bescheid_vehikel_problem(convoihandle_t cnv,const koord3d ziel);
 

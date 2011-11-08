@@ -42,7 +42,15 @@ protected:
 	bool ship_transport;
 	bool air_transport;
 
+	// the shorter the faster construction will occur
+	sint32 construction_speed;
+
 public:
+	ai_t(karte_t *wl, uint8 nr) : spieler_t( wl, nr ) {
+		road_transport = rail_transport = air_transport = ship_transport = false;
+		construction_speed = 8000;
+	}
+
 	bool has_road_transport() const { return road_transport; }
 	virtual void set_road_transport( bool yesno ) { road_transport = yesno; }
 
@@ -55,7 +63,8 @@ public:
 	bool has_air_transport() const { return air_transport; }
 	virtual void set_air_transport( bool yesno ) { air_transport = yesno; }
 
-	ai_t(karte_t *wl, uint8 nr) : spieler_t( wl, nr ) { road_transport = rail_transport = air_transport = ship_transport = false; }
+	sint32 get_construction_speed() const { return construction_speed; }
+	virtual void set_construction_speed( sint32 newspeed ) { construction_speed = newspeed; }
 
 	virtual void rdwr(loadsave_t *file);
 

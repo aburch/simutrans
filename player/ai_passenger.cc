@@ -40,20 +40,17 @@ ai_passenger_t::ai_passenger_t(karte_t *wl, uint8 nr) : ai_t( wl, nr )
 	road_vehicle = NULL;
 	road_weg = NULL;
 
-	construction_speed = 8000;
 	next_contruction_steps = welt->get_steps() + 50;
 
 	road_transport = true;
 	rail_transport = false;
 	air_transport = true;
-	ship_transport = false;
+	ship_transport = true;
 
 	start_stadt = end_stadt = NULL;
 	ziel = NULL;
 	end_ausflugsziel = NULL;
 }
-
-
 
 
 /* Activates/deactivates a player
@@ -67,9 +64,6 @@ bool ai_passenger_t::set_active(bool new_state)
 	}
 	return spieler_t::set_active( new_state );
 }
-
-
-
 
 
 /* return the hub of a city (always the very first stop) or zero
@@ -90,7 +84,6 @@ DBG_MESSAGE("ai_passenger_t::get_our_hub()","found %s at (%i,%i)",s->get_name(),
 	}
 	return halthandle_t();
 }
-
 
 
 koord ai_passenger_t::find_area_for_hub( const koord lo, const koord ru, const koord basis ) const
@@ -135,7 +128,6 @@ DBG_MESSAGE("ai_passenger_t::find_area_for_hub()","suggest hub at (%i,%i)",best_
 }
 
 
-
 /* tries to built a hub near the koordinate
  * @author prissi
  */
@@ -147,7 +139,6 @@ koord ai_passenger_t::find_place_for_hub( const stadt_t *s ) const
 	}
 	return find_area_for_hub( s->get_linksoben(), s->get_rechtsunten(), s->get_pos() );
 }
-
 
 
 koord ai_passenger_t::find_harbour_pos(karte_t* welt, const stadt_t *s )
@@ -182,7 +173,6 @@ koord ai_passenger_t::find_harbour_pos(karte_t* welt, const stadt_t *s )
 	}
 	return bestpos;
 }
-
 
 
 bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, const koord target_pos)
@@ -451,7 +441,6 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 }
 
 
-
 halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int rotation)
 {
 	// not too close to border?
@@ -580,7 +569,6 @@ halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int r
 }
 
 
-
 static koord find_airport_pos(karte_t* welt, const stadt_t *s )
 {
 	koord bestpos = koord::invalid, k;
@@ -604,7 +592,6 @@ static koord find_airport_pos(karte_t* welt, const stadt_t *s )
 	}
 	return bestpos;
 }
-
 
 
 /* builts airports and planes
@@ -763,7 +750,6 @@ bool ai_passenger_t::create_air_transport_vehikel(const stadt_t *start_stadt, co
 }
 
 
-
 /* creates a more general road transport
  * @author prissi
  */
@@ -803,8 +789,9 @@ DBG_MESSAGE("ai_passenger_t::create_bus_transport_vehikel()","bus at (%i,%i)",st
 }
 
 
-// now we follow all adjacent streets recursively and mark them
-// if they below to this stop, then we continue
+/* now we follow all adjacent streets recursively and mark them
+ * if they below to this stop, then we continue
+ */
 void ai_passenger_t::walk_city( linehandle_t &line, grund_t *&start, const int limit )
 {
 	//maximum number of stops reached?
@@ -885,7 +872,6 @@ void ai_passenger_t::walk_city( linehandle_t &line, grund_t *&start, const int l
 }
 
 
-
 /* tries to cover a city with bus stops that does not overlap much and cover as much as possible
  * returns the line created, if sucessful
  */
@@ -927,7 +913,6 @@ void ai_passenger_t::cover_city_with_bus_route(koord start_pos, int number_of_st
 }
 
 
-// BUS AI
 void ai_passenger_t::step()
 {
 	// needed for schedule of stops ...
@@ -1146,6 +1131,10 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 		case NR_BAUE_STRASSEN_ROUTE:
 		{
 			state = NR_BAUE_WATER_ROUTE;	// assume failure
+			if(  !ai_t::road_transport  ) {
+				// no overland bus lines
+				break;
+			}
 			const haus_besch_t* bs = hausbauer_t::get_random_station(haus_besch_t::generic_stop, road_wt, welt->get_timeline_year_month(), haltestelle_t::PAX);
 			if(bs  &&  create_simple_road_transport(platz1, koord(1,1),platz2,koord(1,1),road_weg)  ) {
 				// since the road my have led to a crossing at the indended stop position ...
@@ -1195,6 +1184,11 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 		break;
 
 		case NR_BAUE_WATER_ROUTE:
+			if(  !ai_t::ship_transport  ) {
+				// no overland bus lines
+				state = NR_BAUE_AIRPORT_ROUTE;
+				break;
+			}
 			if(  end_ausflugsziel == NULL  &&  ship_transport  &&
 					create_water_transport_vehikel(start_stadt, end_stadt ? end_stadt->get_pos() : ziel->get_pos().get_2d())) {
 				// add two intown routes
@@ -1258,7 +1252,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 		{
 			// next time: do something different
 			state = NR_INIT;
-			next_contruction_steps = welt->get_steps() + simrand( construction_speed ) + 25;
+			next_contruction_steps = welt->get_steps() + simrand( ai_t::construction_speed ) + 25;
 
 			vector_tpl<linehandle_t> lines(0);
 			simlinemgmt.get_lines( simline_t::line, &lines);
@@ -1389,15 +1383,15 @@ void ai_passenger_t::rdwr(loadsave_t *file)
 	if(file->get_version()<101000) {
 		// ignore saving, reinit on loading
 		if(  file->is_loading()  ) {
-			next_contruction_steps = welt->get_steps()+simrand(construction_speed);
+			next_contruction_steps = welt->get_steps()+simrand(ai_t::construction_speed);
 		}
 		return;
 	}
 
 	// now save current state ...
 	file->rdwr_enum(state);
-	file->rdwr_long(construction_speed);
 	if(  file->get_version()<111001  ) {
+		file->rdwr_long(ai_t::construction_speed);
 		file->rdwr_bool(air_transport);
 		file->rdwr_bool(ship_transport);
 		road_transport = true;
