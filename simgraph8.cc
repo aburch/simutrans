@@ -524,12 +524,6 @@ static void rezoom(void)
 }
 
 
-int get_zoom_factor()
-{
-	return zoom_factor;
-}
-
-
 void set_zoom_factor(int z)
 {
 	if (z > 0) {

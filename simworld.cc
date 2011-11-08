@@ -664,15 +664,6 @@ void karte_t::rem_convoi(convoihandle_t& cnv)
 	convoi_array.remove(cnv);
 }
 
-/**
- * Zugriff auf das Staedte Array.
- * @author Hj. Malthaner
- */
-const stadt_t *karte_t::get_random_stadt() const
-{
-	return pick_any_weighted(stadt);
-}
-
 void karte_t::add_stadt(stadt_t *s)
 {
 	settings.set_anzahl_staedte(settings.get_anzahl_staedte() + 1);
@@ -2542,19 +2533,6 @@ bool karte_t::rem_fab(fabrik_t *fab)
 	return true;
 }
 
-fabrik_t *
-karte_t::get_random_fab() const
-{
-	const int anz = fab_list.get_count();
-	fabrik_t *result = NULL;
-
-	if(anz > 0) {
-		const int end = simrand( anz );
-		result = fab_list.at(end);
-	}
-	return result;
-}
-
 
 /*----------------------------------------------------------------------------------------------------------------------*/
 /* same procedure for tourist attractions */
@@ -2581,19 +2559,6 @@ void karte_t::remove_ausflugsziel(gebaeude_t *gb)
 	for(  uint32 c=0;  c<stadt.get_count();  ++c  ) {
 		stadt[c]->remove_target_attraction(gb);
 	}
-}
-
-
-/* select a random target for a tourist; targets are weighted by their importance */
-const gebaeude_t *
-karte_t::get_random_ausflugsziel() const
-{
-	if (!ausflugsziele.empty()) {
-		return pick_any_weighted(ausflugsziele);
-	}
-	// so there are no destinations ... should never occur ...
-	dbg->fatal("karte_t::get_random_ausflugsziel()","nothing found.");
-	return NULL;
 }
 
 

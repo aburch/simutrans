@@ -405,8 +405,8 @@ public:
 	{ /* nothing */ }
 
 	/**
-		* Returns true if `a' is closer to the origin than `b', otherwise false.
-		*/
+	* Returns true if `a' is closer to the origin than `b', otherwise false.
+	*/
 	bool operator()(const stadt_t *a, const stadt_t *b) const
 	{
 		return koord_distance(m_origin, a->get_pos()) < koord_distance(m_origin, b->get_pos());

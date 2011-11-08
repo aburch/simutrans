@@ -2062,7 +2062,7 @@ void convoi_t::rdwr(loadsave_t *file)
 						v->set_pos( gr->get_pos() );
 					}
 					else {
-						dbg->fatal("convoi_t::rdwr()", "invalid position %s for vehicle %s in state %d (setting to %i,%i,%i)", v->get_pos().get_str(), v->get_name(), state, gr->get_pos().x, gr->get_pos().y, gr->get_pos().z );
+						dbg->fatal("convoi_t::rdwr()", "invalid position %s for vehicle %s in state %d", v->get_pos().get_str(), v->get_name(), state);
 					}
 					state = INITIAL;
 				}

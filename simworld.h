@@ -886,14 +886,12 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	const weighted_vector_tpl<stadt_t*>& get_staedte() const { return stadt; }
-	const stadt_t *get_random_stadt() const;
 	void add_stadt(stadt_t *s);
 	bool rem_stadt(stadt_t *s);
 
 	/* tourist attraction list */
 	void add_ausflugsziel(gebaeude_t *gb);
 	void remove_ausflugsziel(gebaeude_t *gb);
-	const gebaeude_t *get_random_ausflugsziel() const;
 	const weighted_vector_tpl<gebaeude_t*> &get_ausflugsziele() const {return ausflugsziele; }
 
 	void add_label(koord pos) { if (!labels.is_contained(pos)) labels.append(pos); }
@@ -905,11 +903,6 @@ public:
 	int get_fab_index(fabrik_t* fab)  const { return fab_list.index_of(fab); }
 	fabrik_t* get_fab(unsigned index) const { return index < fab_list.get_count() ? fab_list.at(index) : NULL; }
 	const slist_tpl<fabrik_t*>& get_fab_list() const { return fab_list; }
-
-	/* sucht zufaellig eine Fabrik aus der Fabrikliste
-	 * @author Hj. Malthaner
-	 */
-	fabrik_t *get_random_fab() const;
 
 	/**
 	 * sucht naechstgelegene Stadt an Position i,j
