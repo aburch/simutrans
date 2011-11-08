@@ -1866,6 +1866,7 @@ sint64 wegbauer_t::calc_costs()
 
 	for(uint32 i=0; i<get_count(); i++) {
 		sint32 old_speedlimit = -1;
+		sint32 replace_cost = 0;
 
 		const grund_t* gr = welt->lookup(route[i] + offset);
 		if( gr ) {
@@ -1885,6 +1886,7 @@ sint64 wegbauer_t::calc_costs()
 				}
 				else {
 					if (weg_t const* const weg = gr->get_weg(besch->get_wtyp())) {
+						replace_cost = weg->get_besch()->get_preis();
 						if( weg->get_besch() == besch ) {
 							continue; // Nothing to pay on this tile.
 						}
@@ -1914,7 +1916,7 @@ sint64 wegbauer_t::calc_costs()
 			}
 		}
 		if(  !keep_existing_faster_ways  ||  old_speedlimit < new_speedlimit  ) {
-			costs += single_cost;
+			costs += max(single_cost, replace_cost);
 		}
 
 		// last tile cannot be start of tunnel/bridge
