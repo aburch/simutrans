@@ -11,18 +11,6 @@
 #include "../besch/writer/image_writer.h"
 
 
-
-extern "C" {
-
-// dummy definition, since we print to screen anyway
-bool dr_fatal_notify(char const*, int)
-{
-	return false;
-}
-
-}
-
-
 int main(int argc, char* argv[])
 {
 	argv++, argc--;
