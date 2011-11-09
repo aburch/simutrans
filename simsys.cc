@@ -1,3 +1,5 @@
+#include "macros.h"
+#include "simmain.h"
 #include "simsys.h"
 
 #include <stdlib.h>
@@ -12,6 +14,9 @@
 #	define PATH_MAX MAX_PATH
 #else
 #	include <limits.h>
+#	if !defined __AMIGA__ && !defined __BEOS__
+#		include <unistd.h>
+#	endif
 #endif
 
 
@@ -72,4 +77,34 @@ void dr_fatal_notify(char const* const msg)
 #else
 	fputs(msg, stderr);
 #endif
+}
+
+
+int sysmain(int const argc, char** const argv)
+{
+#ifdef _WIN32
+	char pathname[1024];
+	GetModuleFileNameA(GetModuleHandle(0), pathname, lengthof(pathname));
+	argv[0] = pathname;
+#elif !defined __BEOS__
+#	if defined __GLIBC__ && !defined __AMIGA__
+	/* glibc has a non-standard extension */
+	char* buffer2 = 0;
+#	else
+	char buffer2[PATH_MAX];
+#	endif
+#	ifndef __AMIGA__
+	char buffer[PATH_MAX];
+	int length = readlink("/proc/self/exe", buffer, lengthof(buffer) - 1);
+	if (length != -1) {
+		buffer[length] = '\0'; /* readlink() does not NUL-terminate */
+		argv[0] = buffer;
+	}
+#	endif
+	// no process file system => need to parse argv[0]
+	/* should work on most unix or gnu systems */
+	argv[0] = realpath(argv[0], buffer2);
+#endif
+
+	return simu_main(argc, argv);
 }

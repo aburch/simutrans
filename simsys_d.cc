@@ -4,17 +4,10 @@
  * This file is part of the Simutrans project under the artistic licence.
  */
 
-#include <stddef.h>
-#include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 
-#include <sys/types.h>
-
-#include <math.h>
-
 #include "macros.h"
-#include "simmain.h"
 #include "simsys.h"
 #include "simevent.h"
 #include "simgraph.h"
@@ -28,8 +21,6 @@
 #include <windows.h>
 #undef BITMAP
 #undef WinMain
-#else
-#	include <limits.h>
 #endif
 
 #include <allegro.h>
@@ -511,33 +502,6 @@ void dr_sleep(uint32 usec)
 
 int main(int argc, char **argv)
 {
-#ifdef _WIN32
-	char pathname[1024];
-
-	// prepare commandline
-	GetModuleFileNameA( GetModuleHandle(NULL), pathname, 1024 );
-	argv[0] = pathname;
-#else
-#ifndef __BEOS__
-#  if defined(__GLIBC__)  &&  !defined(__AMIGA__)
-	/* glibc has a non-standard extension */
-	char* buffer2 = NULL;
-#  else
-	char buffer2[PATH_MAX];
-#  endif
-#  ifndef __AMIGA__
-	char buffer[PATH_MAX];
-	int length = readlink("/proc/self/exe", buffer, lengthof(buffer) - 1);
-	if (length != -1) {
-		buffer[length] = '\0'; /* readlink() does not NUL-terminate */
-		argv[0] = buffer;
-	}
-#  endif
-	// no process file system => need to parse argv[0]
-	/* should work on most unix or gnu systems */
-	argv[0] = realpath (argv[0], buffer2);
-#endif
-#endif
-	return simu_main(argc, argv);
+	return sysmain(argc, argv);
 }
 END_OF_MAIN()

@@ -8,11 +8,6 @@
 #error "Only Windows has GDI!"
 #endif
 
-#ifndef _MSC_VER
-#include <unistd.h>
-#include <sys/time.h>
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -42,7 +37,6 @@
 // for redraws in another thread
 //#define MULTI_THREAD
 
-#include "simmain.h"
 #include "simmem.h"
 #include "simsys_w32_png.h"
 #include "simversion.h"
@@ -752,12 +746,6 @@ int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR, int)
 
 	RegisterClass(&wc);
 
-	int    const argc = __argc;
-	char** const argv = __argv;
-	char         pathname[1024];
-	GetModuleFileNameA(hInstance, pathname, lengthof(pathname));
-	argv[0] = pathname;
-
 	GetWindowRect(GetDesktopWindow(), &MaxSize);
 
 	// maybe set timer to 1ms intervall on Win2k upwards ...
@@ -769,7 +757,7 @@ int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR, int)
 		}
 	}
 
-	simu_main(argc, argv);
+	int const res = sysmain(__argc, __argv);
 	timeEndPeriod(1);
 
 #ifdef MULTI_THREAD
@@ -777,5 +765,5 @@ int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR, int)
 		TerminateThread( hFlushThread, 0 );
 	}
 #endif
-	return 0;
+	return res;
 }

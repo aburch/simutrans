@@ -6,37 +6,15 @@
 
 #include <SDL.h>
 
-#ifndef _MSC_VER
-#include <unistd.h>
-#include <sys/time.h>
-#endif
-
 #ifdef _WIN32
-#include <SDL_syswm.h>
 // windows.h defines min and max macros which we don't want
 #define NOMINMAX 1
 #include <windows.h>
-#else
-#	include "limits.h"
-#ifndef __HAIKU__
-#include <sys/errno.h>
-#else
-#include <posix/errno.h>
-#endif
 #endif
 
-#include <dirent.h>
 #include <stdio.h>
-#include <stddef.h>
-#include <string.h>
-#include <stdlib.h>
-#include <math.h>
-
-#undef min
-#undef max
 
 #include "macros.h"
-#include "simmain.h"
 #include "simsys_w32_png.h"
 #include "simversion.h"
 #include "simsys.h"
@@ -619,7 +597,7 @@ void dr_sleep(uint32 usec)
 
 
 #ifdef _WIN32
-int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR, int)
+int CALLBACK WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #else
 int main(int argc, char **argv)
 #endif
@@ -627,27 +605,6 @@ int main(int argc, char **argv)
 #ifdef _WIN32
 	int    const argc = __argc;
 	char** const argv = __argv;
-	char         pathname[1024];
-	GetModuleFileNameA(hInstance, pathname, lengthof(pathname));
-	argv[0] = pathname;
-#elif !defined __BEOS__
-#  if defined(__GLIBC__)  &&  !defined(__AMIGA__)
-	/* glibc has a non-standard extension */
-	char* buffer2 = NULL;
-#  else
-	char buffer2[PATH_MAX];
-#  endif
-#  ifndef __AMIGA__
-	char buffer[PATH_MAX];
-	int length = readlink("/proc/self/exe", buffer, lengthof(buffer) - 1);
-	if (length != -1) {
-		buffer[length] = '\0'; /* readlink() does not NUL-terminate */
-		argv[0] = buffer;
-	}
-#  endif
-	// no process file system => need to parse argv[0]
-	/* should work on most unix or gnu systems */
-	argv[0] = realpath(argv[0], buffer2);
 #endif
-	return simu_main(argc, argv);
+	return sysmain(argc, argv);
 }

@@ -139,4 +139,6 @@ void dr_copy(const char *source, size_t length);
  */
 size_t dr_paste(char *target, size_t max_length);
 
+int sysmain(int argc, char** argv);
+
 #endif

@@ -4,12 +4,6 @@
  * This file is part of the Simutrans project under the artistic licence.
  */
 
-#include <dirent.h>
-#include <stddef.h>
-#include <string.h>
-#include <stdlib.h>
-#include <math.h>
-
 #ifndef _MSC_VER
 #include <unistd.h>
 #include <sys/time.h>
@@ -19,23 +13,11 @@
 // windows.h defines min and max macros which we don't want
 #define NOMINMAX 1
 #include <windows.h>
-#else
-#	include <limits.h>
-#ifndef  __HAIKU__
-#include <sys/errno.h>
-#else
-#include <posix/errno.h>
 #endif
-#endif
-
-#undef min
-#undef max
 
 #include "macros.h"
-#include "simmain.h"
 #include "simsys.h"
 
-#include <time.h>
 
 int dr_os_init(const int*)
 {
@@ -166,31 +148,6 @@ void dr_sleep(uint32 msec)
 
 int main(int argc, char **argv)
 {
-#ifdef _WIN32
-	char pathname[1024];
-
-	// prepare commandline
-	GetModuleFileNameA( GetModuleHandle(NULL), pathname, 1024 );
-	argv[0] = pathname;
-#else
-#ifndef __BEOS__
-#if defined __GLIBC__
-	/* glibc has a non-standard extension */
-	char* buffer2 = NULL;
-#else
-	char buffer2[PATH_MAX];
-#endif
-	char buffer[PATH_MAX];
-	int length = readlink("/proc/self/exe", buffer, lengthof(buffer) - 1);
-	if (length != -1) {
-		buffer[length] = '\0'; /* readlink() does not NUL-terminate */
-		argv[0] = buffer;
-	}
-	// no process file system => need to parse argv[0]
-	/* should work on most unix or gnu systems */
-	argv[0] = realpath(argv[0], buffer2);
-#endif
-#endif
 	gettimeofday(&first,NULL);
-	return simu_main(argc, argv);
+	return sysmain(argc, argv);
 }
