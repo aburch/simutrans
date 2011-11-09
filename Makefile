@@ -476,5 +476,7 @@ PROG     ?= sim
 include common.mk
 
 
-makeobj_prog:
+.PHONY: makeobj
+
+makeobj:
 	$(Q)$(MAKE) -e -C makeobj FLAGS="$(FLAGS)"
