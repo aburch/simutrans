@@ -107,9 +107,6 @@
 #include "player/ai_goods.h"
 
 
-//#define DEMO
-//#undef DEMO
-
 // advance 201 ms per sync_step in fast forward mode
 #define MAGIC_STEP (201)
 
@@ -1343,13 +1340,11 @@ DBG_DEBUG("karte_t::init()","built timeline");
 
 	recalc_average_speed();
 
-#ifndef DEMO
 	for (int i = 0; i < MAX_PLAYER_COUNT; i++) {
 		if(  spieler[i]  ) {
 			spieler[i]->set_active(settings.automaten[i]);
 		}
 	}
-#endif
 
 	active_player_nr = 0;
 	active_player = spieler[0];
@@ -3860,7 +3855,6 @@ bool karte_t::play_sound_area_clipped(koord pos, sound_info info) const
 
 void karte_t::speichern(const char *filename, const char *version_str, bool silent )
 {
-#ifndef DEMO
 DBG_MESSAGE("karte_t::speichern()", "saving game to '%s'", filename);
 
 	loadsave_t  file;
@@ -3888,7 +3882,6 @@ DBG_MESSAGE("karte_t::speichern()", "saving game to '%s'", filename);
 		reset_interaction();
 	}
 	display_show_load_pointer( false );
-#endif
 }
 
 
@@ -4102,7 +4095,6 @@ bool karte_t::laden(const char *filename)
 	mute_sound(true);
 	display_show_load_pointer(true);
 
-#ifndef DEMO
 	loadsave_t file;
 
 	DBG_MESSAGE("karte_t::laden", "loading game from '%s'", filename);
@@ -4215,7 +4207,6 @@ DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 		werkzeug_t::update_toolbars(this);
 		set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], get_active_player() );
 	}
-#endif
 	settings.set_filename(filename);
 	display_show_load_pointer(false);
 	return ok;
