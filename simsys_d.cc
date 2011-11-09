@@ -511,14 +511,6 @@ void dr_sleep(uint32 usec)
 }
 
 
-void dr_fatal_notify(char const* const msg)
-{
-#ifdef _WIN32
-	MessageBox(0, msg, "Fatal Error", MB_ICONEXCLAMATION | MB_OK);
-#endif
-}
-
-
 int main(int argc, char **argv)
 {
 #ifdef _WIN32

@@ -60,3 +60,13 @@ char const* dr_query_homedir()
 
 	return buffer;
 }
+
+
+void dr_fatal_notify(char const* const msg)
+{
+#ifdef _WIN32
+	MessageBoxA(0, msg, "Fatal Error", MB_ICONEXCLAMATION);
+#else
+	fputs(msg, stderr);
+#endif
+}

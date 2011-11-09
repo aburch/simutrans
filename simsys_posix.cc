@@ -4,7 +4,6 @@
  * This file is part of the Simutrans project under the artistic licence.
  */
 
-#include <stdio.h>
 #include <dirent.h>
 #include <stddef.h>
 #include <string.h>
@@ -164,12 +163,6 @@ void dr_sleep(uint32 msec)
 #else
 	sleep( msec );
 #endif
-}
-
-
-void dr_fatal_notify(char const* const msg)
-{
-	fputs(msg, stderr);
 }
 
 

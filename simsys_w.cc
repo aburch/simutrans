@@ -736,12 +736,6 @@ void dr_sleep(uint32 millisec)
 }
 
 
-void dr_fatal_notify(char const* const msg)
-{
-	MessageBoxA(hwnd, msg, "Fatal Error", MB_ICONEXCLAMATION | MB_OK);
-}
-
-
 int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR, int)
 {
 	WNDCLASSW wc;

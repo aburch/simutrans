@@ -620,16 +620,6 @@ void dr_sleep(uint32 usec)
 }
 
 
-void dr_fatal_notify(char const* const msg)
-{
-#ifdef _WIN32
-	MessageBoxA(0, msg, "Fatal Error", MB_ICONEXCLAMATION | MB_OK);
-#else
-	fputs(msg, stderr);
-#endif
-}
-
-
 #ifdef _WIN32
 int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR, int)
 #else
