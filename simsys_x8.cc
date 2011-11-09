@@ -16,9 +16,6 @@
 #include "simsys.h"
 
 
-struct sys_event sys_event;
-
-
 static int using_shm = FALSE;
 static int doing_sync = TRUE;
 

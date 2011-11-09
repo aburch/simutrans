@@ -106,8 +106,6 @@ static int height = 16;
 // switch off is a little faster (<3%)
 static int sync_blit = 0;
 
-struct sys_event sys_event;
-
 static SDL_Cursor* arrow;
 static SDL_Cursor* hourglass;
 

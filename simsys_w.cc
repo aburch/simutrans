@@ -438,7 +438,6 @@ static inline unsigned int ModifierKeys()
 		(GetKeyState(VK_CONTROL) < 0  ? 2 : 0); // highest bit set or return value<0 -> key is pressed
 }
 
-struct sys_event sys_event;
 
 /* Windows eventhandler: does most of the work */
 LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam)

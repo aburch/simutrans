@@ -15,6 +15,9 @@
 #endif
 
 
+struct sys_event sys_event;
+
+
 void dr_mkdir(char const* const path)
 {
 #ifdef _WIN32

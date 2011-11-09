@@ -37,8 +37,6 @@
 
 #include <time.h>
 
-struct sys_event sys_event;
-
 int dr_os_init(const int*)
 {
 	// prepare for next event
