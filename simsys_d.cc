@@ -299,7 +299,6 @@ unsigned short* dr_textur_init(void)
 	return (unsigned short *)(texture_map->line[0]);
 }
 
-extern void display_set_actual_width(KOORD_VAL w);
 
 // resizes screen (Not allowed)
 int dr_textur_resize(unsigned short**, int, int)

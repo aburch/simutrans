@@ -160,9 +160,6 @@ resolution dr_query_screen_resolution()
 }
 
 
-extern void display_set_actual_width(KOORD_VAL w);
-
-
 // open the window
 int dr_os_open(int w, int const h, int const fullscreen)
 {
