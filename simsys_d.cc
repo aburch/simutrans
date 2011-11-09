@@ -217,7 +217,7 @@ int dr_os_init(const int* parameter)
 	set_close_button_callback(my_close_button_callback);
 
 	if (ok != 0) {
-		dr_fatal_notify("Could not init Allegro.\n",0);
+		dr_fatal_notify("Could not init Allegro.\n");
 	}
 	simtimer_init();
 
@@ -493,7 +493,7 @@ static void simtimer_init(void)
 		printf("Timer installed.\n");
 	}
 	else {
-		dr_fatal_notify("Error: Timer not available, aborting.\n",0);
+		dr_fatal_notify("Error: Timer not available, aborting.\n");
 		exit(1);
 	}
 }
@@ -511,19 +511,10 @@ void dr_sleep(uint32 usec)
 }
 
 
-bool dr_fatal_notify(const char* msg, int choices)
+void dr_fatal_notify(char const* const msg)
 {
 #ifdef _WIN32
-	if(choices==0) {
-		MessageBox( NULL, msg, "Fatal Error", MB_ICONEXCLAMATION|MB_OK );
-		return 0;
-	}
-	else {
-		return MessageBox( NULL, msg, "Fatal Error", MB_ICONEXCLAMATION|MB_RETRYCANCEL	)==IDRETRY;
-	}
-#else
-//	beep();
-	return choices;
+	MessageBox(0, msg, "Fatal Error", MB_ICONEXCLAMATION | MB_OK);
 #endif
 }
 

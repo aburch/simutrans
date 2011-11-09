@@ -736,16 +736,9 @@ void dr_sleep(uint32 millisec)
 }
 
 
-
-bool dr_fatal_notify(const char* msg, int choices)
+void dr_fatal_notify(char const* const msg)
 {
-	if(choices==0) {
-		MessageBoxA( hwnd, msg, "Fatal Error", MB_ICONEXCLAMATION|MB_OK );
-		return 0;
-	}
-	else {
-		return MessageBoxA( hwnd, msg, "Fatal Error", MB_ICONEXCLAMATION|MB_RETRYCANCEL	)==IDRETRY;
-	}
+	MessageBoxA(hwnd, msg, "Fatal Error", MB_ICONEXCLAMATION | MB_OK);
 }
 
 

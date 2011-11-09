@@ -166,11 +166,12 @@ void dr_sleep(uint32 msec)
 #endif
 }
 
-bool dr_fatal_notify(const char* msg, int choices)
+
+void dr_fatal_notify(char const* const msg)
 {
 	fputs(msg, stderr);
-	return choices;
 }
+
 
 int main(int argc, char **argv)
 {

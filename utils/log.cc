@@ -242,7 +242,7 @@ void log_t::fatal(const char *who, const char *format, ...)
 	}
 	else {
 		// use OS means, if there
-		dr_fatal_notify( buffer, 0 );
+		dr_fatal_notify(buffer);
 	}
 
 #ifdef DEBUG
