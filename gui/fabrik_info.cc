@@ -173,7 +173,7 @@ void fabrik_info_t::zeichnen(koord pos, koord gr)
 			x_prod_pos += skinverwaltung_t::electricity->get_bild(0)->get_pic()->w+4;
 		}
 	}
-	if(  skinverwaltung_t::electricity->get_bild_nr(0)!=IMG_LEER  ) {
+	if(  skinverwaltung_t::passagiere->get_bild_nr(0)!=IMG_LEER  ) {
 		if(  fab->get_prodfactor_pax()>0  ) {
 			display_color_img(skinverwaltung_t::passagiere->get_bild_nr(0), pos.x + view.get_pos().x + 4 + 8, pos.y + view.get_pos().y + 20, 0, false, false);
 		}
