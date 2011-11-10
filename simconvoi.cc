@@ -202,7 +202,6 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 
 	reversable = false;
 	reversed = false;
-	recalc_brake_soll = true;
 	recalc_data = true;
 
 	livery_scheme_index = 0;
@@ -786,6 +785,20 @@ void convoi_t::calc_acceleration(long delta_t)
 		const convoi_t::route_info_t &limit_info = route_infos.get_element(next_stop_index - 1);
 		steps_til_limit = limit_info.steps_from_start - current_info.steps_from_start;
 		steps_til_brake = steps_til_limit - brake_steps;
+		switch (limit_info.direction)
+		{
+			case ribi_t::nord:
+			case ribi_t::west:
+				// BG, 10-11-2011: vehikel_t::hop() reduces the length of the tile, if convoy is going to stop on the tile.
+				// Most probably for eye candy reasons vehicles do not exactly move on their tiles.
+				// We must do the same here to avoid abrupt stopping.
+				sint32 	delta_tile_len = current_info.steps_from_start;
+				if (i > 0) delta_tile_len -= route_infos.get_element(i - 1).steps_from_start;
+				delta_tile_len -= (delta_tile_len/2) + 1;
+				steps_til_limit -= delta_tile_len;
+				steps_til_brake -= delta_tile_len;
+				break;
+		}
 
 		// Brake for upcoming speed limit?
 		sint32 min_limit = akt_speed; // no need to check limits above min_limit, as it won't lead to further restrictions
@@ -796,7 +809,7 @@ void convoi_t::calc_acceleration(long delta_t)
 			{
 				min_limit = limit_info.speed_limit;
 				const sint32 limit_steps = brake_steps - convoy.calc_min_braking_distance(simtime_factor, convoy.get_weight_summary(), limit_info.speed_limit);
-				const sint32 route_steps = limit_info.steps_from_start - current_info.steps_from_start;;
+				const sint32 route_steps = limit_info.steps_from_start - current_info.steps_from_start;
 				const sint32 st = route_steps - limit_steps;
 
 				if (steps_til_brake > st)
@@ -1399,7 +1412,8 @@ end_loop:
 				}
 				break;
 			}
-			// no break. continue with case SELF_DESTRUCT.
+			// no break
+			// continue with case SELF_DESTRUCT.
 
 		// must be here; may otherwise confuse window management
 		case SELF_DESTRUCT:
@@ -1535,10 +1549,11 @@ uint8 convoi_t::get_comfort() const
 	case 4:
 		return base_comfort + 20;
 
+	//case 5:
 	default:
-	case 5:
-		return base_comfort + 25;
+		break;
 	};
+	return base_comfort + 25;
 }
 
 void convoi_t::new_month()
@@ -2358,7 +2373,6 @@ void convoi_t::vorfahren()
 	uint16 reverse_delay = 0;
 
 	recalc_data = true;
-	recalc_brake_soll = true;
 
 	koord3d k0 = route.front();
 	grund_t *gr = welt->lookup(k0);

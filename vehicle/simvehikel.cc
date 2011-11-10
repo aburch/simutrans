@@ -350,26 +350,37 @@ uint32 vehikel_basis_t::fahre_basis(uint32 distance)
 		steps_done += steps;
 		distance_travelled = steps_done << YARDS_PER_VEHICLE_STEP_SHIFT;
 
-		if(has_hopped) {
-			set_xoff( (dx<0) ? OBJECT_OFFSET_STEPS : -OBJECT_OFFSET_STEPS );
-			set_yoff( (dy<0) ? OBJECT_OFFSET_STEPS/2 : -OBJECT_OFFSET_STEPS/2 );
-			if(dx*dy==0) {
-				if(dx==0) {
-					if(dy>0) {
-						set_xoff( pos_prev.x!=get_pos().x ? -OBJECT_OFFSET_STEPS : OBJECT_OFFSET_STEPS );
-					}
-					else {
-						set_xoff( pos_prev.x!=get_pos().x ? OBJECT_OFFSET_STEPS : -OBJECT_OFFSET_STEPS );
-					}
+		if	(has_hopped)
+		{
+			if (dx == 0)
+			{
+				if (dy > 0)
+				{
+					set_xoff( pos_prev.x != get_pos().x ? -OBJECT_OFFSET_STEPS : OBJECT_OFFSET_STEPS );
+				}
+				else
+				{
+					set_xoff( pos_prev.x != get_pos().x ? OBJECT_OFFSET_STEPS : -OBJECT_OFFSET_STEPS );
+				}
+			}
+			else
+			{
+				set_xoff( dx < 0 ? OBJECT_OFFSET_STEPS : -OBJECT_OFFSET_STEPS );
+			}
+
+			if (dy == 0)
+			{
+				if (dx > 0)
+				{
+					set_yoff( pos_prev.y != get_pos().y ? OBJECT_OFFSET_STEPS/2 : -OBJECT_OFFSET_STEPS/2 );
 				}
 				else {
-					if(dx>0) {
-						set_yoff( pos_prev.y!=get_pos().y ? OBJECT_OFFSET_STEPS/2 : -OBJECT_OFFSET_STEPS/2 );
-					}
-					else {
-						set_yoff( pos_prev.y!=get_pos().y ? -OBJECT_OFFSET_STEPS/2 : OBJECT_OFFSET_STEPS/2 );
-					}
+					set_yoff( pos_prev.y != get_pos().y ? -OBJECT_OFFSET_STEPS/2 : OBJECT_OFFSET_STEPS/2 );
 				}
+			}
+			else
+			{
+				set_yoff( dy < 0 ? OBJECT_OFFSET_STEPS/2 : -OBJECT_OFFSET_STEPS/2 );
 			}
 		}
 	}
@@ -395,14 +406,14 @@ void vehikel_basis_t::get_screen_offset( int &xoff, int &yoff, const sint16 rast
 {
 	// vehicles needs finer steps to appear smoother
 	sint32 display_steps = (uint32)steps*(uint16)raster_width;
-	if(dx*dy) {
+	if(dx | dy) {
 		display_steps &= 0xFFFFFC00;
 	}
 	else {
 		display_steps = (display_steps*diagonal_multiplier)>>10;
 	}
 	xoff += (display_steps*dx) >> 10;
-	yoff += ((display_steps*dy) >> 10) + (hoff*raster_width)/(4*16);
+	yoff += ((display_steps*dy) >> 10) + ((hoff*raster_width) >> 6);
 
 	if(  drives_on_left  ) {
 		const int drive_left_dir = ribi_t::get_dir(get_fahrtrichtung());
@@ -1333,23 +1344,15 @@ void vehikel_t::hop()
 		speed_limit = speed_unlimited();
 	}
 
-	// BG, 06.11.2011: exclude this weird "correction". 
-	// Now vehicles actually run too far, but the braking physics code is able to brake at the end of the calculated route.
-	// TODO: find and fix the origin of the errornous length caculation. 
-	// My hottest tip: I will find it in the route starting code, as depending on the direction the route starts at index 1 or 2.
-	//if(  check_for_finish  &  ist_erstes  ) {
-	//	if(  fahrtrichtung==ribi_t::nord  || fahrtrichtung==ribi_t::west ) 
-	//	{
-	//		steps_next = (steps_next/2)+1;
-	//	}
-	//}
+	if(  check_for_finish  &  ist_erstes  ) {
+		if(  fahrtrichtung==ribi_t::nord  || fahrtrichtung==ribi_t::west )
+		{
+			steps_next = (steps_next/2)+1;
+		}
+	}
 
 	// speedlimit may have changed
 	cnv->must_recalc_data();
-		
-	if(  ist_erstes  ) {
-		cnv->must_recalc_brake_soll();
-	}
 	
 	calc_drag_coefficient(gr);
 
@@ -1396,8 +1399,8 @@ sint32 vehikel_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 	waytype_t waytype = cnv->get_schedule()->get_waytype();
 
 	// Cornering settings. Vehicles must slow to take corners.
-	const uint32 max_corner_limit = welt->get_settings().get_max_corner_limit(waytype);
-	const uint32 min_corner_limit = welt->get_settings().get_min_corner_limit(waytype);
+	const sint32 max_corner_limit = welt->get_settings().get_max_corner_limit(waytype);
+	const sint32 min_corner_limit = welt->get_settings().get_min_corner_limit(waytype);
 	const uint16 max_corner_adjustment_factor = welt->get_settings().get_max_corner_adjustment_factor(waytype);
 	const uint16 min_corner_adjustment_factor = welt->get_settings().get_min_corner_adjustment_factor(waytype);
 	const uint8 min_direction_steps = welt->get_settings().get_min_direction_steps(waytype);
@@ -4362,9 +4365,6 @@ bool aircraft_t::ist_weg_frei(int & restart_speed,bool)
 			// circle slowly next round
 			state = circling;
 			cnv->must_recalc_data();
-			if(  ist_erstes  ) {
-				cnv->must_recalc_brake_soll();
-			}
 		}
 	}
 
