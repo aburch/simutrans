@@ -326,6 +326,7 @@ private:
 	sint32 akt_speed_soll;		// Target speed
 	sint32 sp_soll;				// steps to go
 	sint32 previous_delta_v;	// Stores the previous delta_v value; otherwise these digits are lost during calculation and vehicle do not accelrate
+	float32e8_t v; // current speed in m/s.
 
 	uint32 next_wolke;	// time to next smoke
 
@@ -1136,6 +1137,8 @@ public:
 	bool is_wait_infinite() const { return go_on_ticks == WAIT_INFINITE; }
 
 	vector_tpl<route_info_t>& get_route_infos() { return route_infos; }
+
+	void set_akt_speed(sint32 akt_speed) { this->akt_speed = akt_speed; v = speed_to_v(akt_speed); }
 };
 
 #endif

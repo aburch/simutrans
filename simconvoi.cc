@@ -130,7 +130,7 @@ void convoi_t::reset()
 	jahresgewinn = 0;
 
 	max_record_speed = 0;
-	akt_speed = 0;          // momentane Geschwindigkeit / current speed
+	set_akt_speed(0);          // momentane Geschwindigkeit / current speed
 	sp_soll = 0;
 	//brake_speed_soll = 2147483647; // ==SPEED_UNLIMITED
 
@@ -190,7 +190,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	max_record_speed = 0;
 	//brake_speed_soll = SPEED_UNLIMITED;
 	akt_speed_soll = 0;            // Sollgeschwindigkeit
-	akt_speed = 0;                 // momentane Geschwindigkeit
+	set_akt_speed(0);                 // momentane Geschwindigkeit
 	sp_soll = 0;
 
 	next_stop_index = 65535;
@@ -821,7 +821,7 @@ void convoi_t::calc_acceleration(long delta_t)
 	 * calculate movement in the next delta_t ticks.
 	 */
 	akt_speed_soll = min_top_speed;
-	convoy.calc_move(delta_t, simtime_factor, akt_speed_soll, next_speed_limit, steps_til_limit, steps_til_brake, akt_speed, sp_soll);
+	convoy.calc_move(delta_t, simtime_factor, akt_speed_soll, next_speed_limit, steps_til_limit, steps_til_brake, akt_speed, sp_soll, v);
 }
 
 
@@ -1364,7 +1364,7 @@ end_loop:
 					}
 				}
 				if(restart_speed>=0) {
-					akt_speed = restart_speed;
+					set_akt_speed(restart_speed);
 				}
 				if(state==CAN_START  ||  state==CAN_START_ONE_MONTH) {
 					set_tiles_overtaking( 0 );
@@ -1381,7 +1381,7 @@ end_loop:
 					state = (steps_driven>=0) ? LEAVING_DEPOT : DRIVING;
 				}
 				if(restart_speed>=0) {
-					akt_speed = restart_speed;
+					set_akt_speed(restart_speed);
 				}
 				if(state!=DRIVING) {
 					set_tiles_overtaking( 0 );
@@ -1599,7 +1599,7 @@ void convoi_t::new_month()
 			state = DRIVING;
 		}
 		if(restart_speed>=0) {
-			akt_speed = restart_speed;
+			set_akt_speed(restart_speed);
 		}
 	}
 	else if(state==WAITING_FOR_CLEARANCE_ONE_MONTH) {
@@ -1765,7 +1765,7 @@ void convoi_t::ziel_erreicht()
 		// we still book the money for the trip; however, the frieght will be lost
 		departure_times->clear();
 
-		akt_speed = 0;
+		set_akt_speed(0);
 		if (!replace || !replace->get_autostart()) {
 			buf.printf( translator::translate("!1_DEPOT_REACHED"), get_name() );
 			welt->get_message()->add_message(buf, v->get_pos().get_2d(),message_t::warnings, PLAYER_FLAG|get_besitzer()->get_player_nr(), IMG_LEER);
@@ -1779,7 +1779,7 @@ void convoi_t::ziel_erreicht()
 		halthandle_t halt = haltestelle_t::get_halt(welt, v->get_pos(),besitzer_p);
 		if(  halt.is_bound() &&  gr->get_weg_ribi(v->get_waytype())!=0  ) {
 			// seems to be a stop, so book the money for the trip
-			akt_speed = 0;
+			set_akt_speed(0);
 			halt->book(1, HALT_CONVOIS_ARRIVED);
 			state = LOADING;
 			go_on_ticks = WAIT_INFINITE;	// we will eventually wait from now on
@@ -1812,7 +1812,7 @@ void convoi_t::warten_bis_weg_frei(int restart_speed)
 	if(restart_speed>=0) {
 		// langsam anfahren
 		// "slow start" (Google)
-		akt_speed = restart_speed;
+		set_akt_speed(restart_speed);
 	}
 }
 
@@ -2220,7 +2220,7 @@ bool convoi_t::can_go_alte_richtung()
 	ribi_t::ribi neue_richtung_rwr = ribi_t::rueckwaerts(fahr[0]->calc_richtung(route.front().get_2d(), route.position_bei(min(2, route.get_count() - 1)).get_2d()));
 //	DBG_MESSAGE("convoi_t::go_alte_richtung()","neu=%i,rwr_neu=%i,alt=%i",neue_richtung_rwr,ribi_t::rueckwaerts(neue_richtung_rwr),alte_richtung);
 	if(neue_richtung_rwr&alte_richtung) {
-		akt_speed = 8;
+		set_akt_speed(8);
 		return false;
 	}
 
@@ -2243,7 +2243,7 @@ bool convoi_t::can_go_alte_richtung()
 			// ending here is an error!
 			// this is an already broken train => restart
 			dbg->warning("convoi_t::go_alte_richtung()","broken convoy (id %i) found => fixing!",self.get_id());
-			akt_speed = 8;
+			set_akt_speed(8);
 			return false;
 		}
 
@@ -2251,7 +2251,7 @@ bool convoi_t::can_go_alte_richtung()
 		ribi_t::ribi weg_ribi = gr->get_weg_ribi_unmasked(v->get_waytype());
 		if(ribi_t::ist_gerade(weg_ribi)  &&  (weg_ribi|v->get_fahrtrichtung())!=weg_ribi) {
 			dbg->warning("convoi_t::go_alte_richtung()","convoy with wrong vehicle directions (id %i) found => fixing!",self.get_id());
-			akt_speed = 8;
+			set_akt_speed(8);
 			return false;
 		}
 
@@ -2265,7 +2265,7 @@ bool convoi_t::can_go_alte_richtung()
 	tile_length += (ribi_t::ist_gerade(welt->lookup(fahr[anz_vehikel-1]->get_pos())->get_weg_ribi_unmasked(fahr[anz_vehikel-1]->get_waytype())) ? 16 : 8192/vehikel_t::get_diagonal_multiplier());
 	if(  convoi_length>tile_length  ) {
 		dbg->warning("convoi_t::go_alte_richtung()","convoy too short (id %i) => fixing!",self.get_id());
-		akt_speed = 8;
+		set_akt_speed(8);
 		return false;
 	}
 
@@ -2278,7 +2278,7 @@ bool convoi_t::can_go_alte_richtung()
 		for(unsigned i=0; i<anz_vehikel; i++) {
 			if (gr->obj_ist_da(fahr[i])) {
 				// we are turning around => start slowly and rebuilt train
-				akt_speed = 8;
+				set_akt_speed(8);
 				return false;
 			}
 		}
@@ -3596,7 +3596,7 @@ void convoi_t::open_schedule_window( bool show )
 		return;
 	}
 
-	akt_speed = 0;	// stop the train ...
+	set_akt_speed(0);	// stop the train ...
 	if(state!=INITIAL) {
 		state = FAHRPLANEINGABE;
 	}

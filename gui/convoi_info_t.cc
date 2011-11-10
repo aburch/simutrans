@@ -273,13 +273,14 @@ void convoi_info_t::zeichnen(koord pos, koord gr)
 		if (filterButtons[ACCELERATION_BUTTON].is_visible() && filterButtons[ACCELERATION_BUTTON].pressed)
 		{
 			const int akt_speed_soll = kmh_to_speed(convoy.calc_max_speed(convoy.get_weight_summary()));
+			float32e8_t akt_v = 0;
 			sint32 akt_speed = 0;
 			sint32 sp_soll = 0;
 			int i = MAX_MONTHS;
 			physics_curves[--i][0] = akt_speed;
 			while (i > 0)
 			{
-				convoy.calc_move(15 * 64, float32e8_t::one, akt_speed_soll, akt_speed_soll, SINT32_MAX_VALUE, SINT32_MAX_VALUE, akt_speed, sp_soll);
+				convoy.calc_move(15 * 64, float32e8_t::one, akt_speed_soll, akt_speed_soll, SINT32_MAX_VALUE, SINT32_MAX_VALUE, akt_speed, sp_soll, akt_v);
 				physics_curves[--i][0] = speed_to_kmh(akt_speed);
 			}
 		}

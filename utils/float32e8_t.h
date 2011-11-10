@@ -49,6 +49,8 @@ public:
 	static const float32e8_t two;
 	static const float32e8_t three;
 	static const float32e8_t four;
+	static const float32e8_t milli;
+	static const float32e8_t micro;
 
 	inline float32e8_t() {};
 
@@ -202,6 +204,7 @@ public:
 
 	inline const float32e8_t abs() const { return ms ? float32e8_t(m, e, false) : *this; }
 	inline const int sgn() const { return ms ? -1 : m ? 1 : 0; }
+	inline const int sgn(const float32e8_t &eps) const { return *this < -eps ? -1 : *this > eps ? 1 : 0; }
 	const float32e8_t log2() const;
 	const float32e8_t exp2() const;
 
@@ -247,6 +250,7 @@ inline const float32e8_t exp2(const float32e8_t &x) { return x.exp2(); }
 inline const float32e8_t pow(const float32e8_t &base, const float32e8_t &expo) { return base.is_zero() ? float32e8_t::zero : exp2(expo * base.log2()); }
 inline const float32e8_t sqrt(const float32e8_t &x) { return pow(x, float32e8_t::half); }
 inline const int sgn(const float32e8_t &x) { return x.sgn(); }
+inline const int sgn(const float32e8_t &x, const float32e8_t &eps) { return x.sgn(eps); }
 
 class float32e8_exception_t {
 private:
