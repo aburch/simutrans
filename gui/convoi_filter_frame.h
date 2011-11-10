@@ -87,7 +87,7 @@ public:
      */
     convoi_filter_frame_t(spieler_t *sp, convoi_frame_t *main_frame);
 
-		~convoi_filter_frame_t();
+	virtual ~convoi_filter_frame_t();
 
     /*
      * Propagate funktion from main_frame for ware_item_t

@@ -90,7 +90,7 @@ public:
 
 	virtual int get_kosten( const grund_t* gr, const sint32 max_speed, koord from_pos) const;
 
-	~road_destination_finder_t()
+	virtual ~road_destination_finder_t()
 	{
 		delete master;
 	}

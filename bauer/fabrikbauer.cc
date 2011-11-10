@@ -344,14 +344,13 @@ finish:
 	if (list.empty()) {
 		return koord3d(-1, -1, -1);
 	}
-	else {
-		koord3d k = pick_any(list);
-		if(wasser) {
-			// take care of offset
-			k += koord3d(3, 3, 0);
-		}
-		return k;
+
+	koord3d k3 = pick_any(list);
+	if(wasser) {
+		// take care of offset
+		k3 += koord3d(3, 3, 0);
 	}
+	return k3;
 }
 
 

@@ -668,7 +668,7 @@ public:
 
 	waggon_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last);
 	waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t *cnv); // start und fahrplan
-	~waggon_t();
+	virtual ~waggon_t();
 
 	virtual void set_convoi(convoi_t *c);
 
@@ -824,7 +824,7 @@ public:
 	aircraft_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv); // start und fahrplan
 
 	// since we are drawing ourselves, we must mark ourselves dirty during deletion
-	~aircraft_t();
+	virtual ~aircraft_t();
 
 	virtual waytype_t get_waytype() const { return air_wt; }
 

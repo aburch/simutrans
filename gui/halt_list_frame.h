@@ -101,7 +101,7 @@ private:
 public:
     halt_list_frame_t(spieler_t *sp);
 
-	~halt_list_frame_t();
+	virtual ~halt_list_frame_t();
 
     /**
      * The filter frame tells us when it is closed.

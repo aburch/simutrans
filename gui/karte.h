@@ -160,7 +160,7 @@ public:
 	// calculates the current size of the map (but do nopt change anything else)
 	void calc_map_groesse();
 
-	~reliefkarte_t();
+	virtual ~reliefkarte_t();
 
 	karte_t * get_welt() const {return welt;}
 

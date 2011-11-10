@@ -90,7 +90,7 @@ private:
 public:
 	gui_scrolled_list_t(enum type);
 
-	~gui_scrolled_list_t() { clear_elements(); }
+	virtual ~gui_scrolled_list_t() { clear_elements(); }
 
 	/**
 	* Sets the color of selected entry

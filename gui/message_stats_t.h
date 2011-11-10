@@ -32,7 +32,7 @@ private:
 
 public:
 	message_stats_t(karte_t *welt);
-	~message_stats_t() { filtered_messages.clear(); }
+	virtual ~message_stats_t() { filtered_messages.clear(); }
 
 	/**
 	 * Filter messages by type

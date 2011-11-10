@@ -95,7 +95,7 @@ private:
 public:
     halt_list_filter_frame_t(spieler_t *sp, halt_list_frame_t *main_frame);
 
-		~halt_list_filter_frame_t();
+	virtual ~halt_list_filter_frame_t();
 
     /*
      * Propagate funktion from main_frame for ware_item_t

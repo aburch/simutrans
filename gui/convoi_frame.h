@@ -98,7 +98,7 @@ public:
 
 	convoi_frame_t(spieler_t *sp);
 
-	~convoi_frame_t();
+	virtual ~convoi_frame_t();
 
 	/**
 	 * Events werden hiermit an die GUI-Komponenten

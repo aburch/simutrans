@@ -112,7 +112,7 @@ public:
 	/**
 	 * save hashtable to xml file
 	 */
-	~loadsave_frame_t();
+	virtual ~loadsave_frame_t();
 };
 
 #endif
