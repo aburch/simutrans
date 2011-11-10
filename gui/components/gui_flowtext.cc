@@ -10,6 +10,7 @@ gui_flowtext_t::gui_flowtext_t()
 {
 	title[0] = '\0';
 	last_offset = koord::invalid;
+	dirty = true;
 }
 
 
