@@ -882,6 +882,15 @@ bool fabrik_t::ist_da_eine(karte_t *welt, koord min_pos, koord max_pos )
 }
 
 
+/**
+ * if name==NULL translate besch factory name in game language
+ */
+char const* fabrik_t::get_name() const
+{
+	return name ? name : translator::translate( besch->get_name(), welt->get_settings().get_name_language_id() );
+}
+
+
 void fabrik_t::set_name(const char *new_name)
 {
 	if(new_name==NULL  ||  strcmp(new_name, translator::translate(besch->get_name()))==0) {

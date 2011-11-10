@@ -335,8 +335,8 @@ void sim_new_handler()
 
 static const char *gimme_arg(int argc, char *argv[], const char *arg, int off)
 {
-	for (int i = 1; i < argc; i++) {
-		if (strcmp(argv[i], arg) == 0 && i < argc - off) {
+	for(  int i = 1;  i < argc;  i++  ) {
+		if(strcmp(argv[i], arg) == 0  &&  i < argc - off  ) {
 			return argv[i + off];
 		}
 	}

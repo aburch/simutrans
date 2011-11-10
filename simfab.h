@@ -442,10 +442,7 @@ public:
 	void step(long delta_t);                  // fabrik muss auch arbeiten
 	void neuer_monat();
 
-	/**
-	 * if name==NULL take translated factory name
-	 */
-	char const* get_name() const { return name ? name : translator::translate( besch->get_name() ); }
+	char const* get_name() const;
 	void set_name( const char *name );
 
 	sint32 get_kennfarbe() const { return besch->get_kennfarbe(); }

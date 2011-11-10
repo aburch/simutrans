@@ -483,7 +483,8 @@ const char* haltestelle_t::get_name() const
 	const char *name = "Unknown";
 	if (tiles.empty()) {
 		name = "Unnamed";
-	} else {
+	}
+	else {
 		grund_t* bd = welt->lookup(get_basis_pos3d());
 		if(bd  &&  bd->get_flag(grund_t::has_text)) {
 			name = bd->get_text();
