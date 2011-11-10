@@ -675,7 +675,6 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 	update_scaled_mail_demand();
 
 	name = NULL;
-	set_name( translator::translate(besch->get_name()) );
 }
 
 
@@ -695,6 +694,7 @@ fabrik_t::~fabrik_t()
 		}
 		fields.remove_at(fields.get_count()-1);
 	}
+	free((void*)name);
 	// destroy chart window, if present
 	destroy_win( (long)this );
 }
@@ -884,10 +884,18 @@ bool fabrik_t::ist_da_eine(karte_t *welt, koord min_pos, koord max_pos )
 
 void fabrik_t::set_name(const char *new_name)
 {
-	if(name==NULL  ||  strcmp(name,new_name)) {
+	if(new_name==NULL  ||  strcmp(new_name, translator::translate(besch->get_name()))==0) {
+		// new name is equal to name given by besch/translation -> set name to NULL
 		free( (void *)name );
-		name = strdup( new_name );
+		name = NULL;
 	}
+	else {
+		if(name==NULL  ||  strcmp(name,new_name)) {
+			free( (void *)name );
+			name = strdup( new_name );
+		}
+	}
+
 	fabrik_info_t *win = dynamic_cast<fabrik_info_t*>(win_get_magic((long)this));
 	if (win) {
 		win->update_info();
@@ -1150,11 +1158,17 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 
 	// save name
 	if (file->get_version() >= 110007) {
-		file->rdwr_str(name);
-	}
-	else {
+		const char* fullname = name;
+		if (file->is_saving()  &&  name == NULL) {
+			fullname = besch->get_name();
+		}
+		file->rdwr_str(fullname);
 		if (file->is_loading()) {
-			set_name( translator::translate(besch->get_name()) );
+			if ( strcmp(fullname, besch->get_name()) ) {
+				// different from besch name
+				set_name( fullname );
+			}
+			free((void*)fullname);
 		}
 	}
 }
