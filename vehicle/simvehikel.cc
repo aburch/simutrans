@@ -177,7 +177,7 @@ vehikel_basis_t::vehikel_basis_t(karte_t *welt):
 	steps = 0;
 	steps_next = VEHICLE_STEPS_PER_TILE - 1;
 	use_calc_height = true;
-	drives_on_left = welt->get_settings().is_drive_left();
+	drives_on_left = false;
 	dx = 0;
 	dy = 0;
 }
@@ -192,7 +192,7 @@ vehikel_basis_t::vehikel_basis_t(karte_t *welt, koord3d pos):
 	steps = 0;
 	steps_next = VEHICLE_STEPS_PER_TILE - 1;
 	use_calc_height = true;
-	drives_on_left = welt->get_settings().is_drive_left();
+	drives_on_left = false;
 	dx = 0;
 	dy = 0;
 }
@@ -1765,6 +1765,7 @@ automobil_t::automobil_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* s
 	vehikel_t(pos, besch, sp)
 {
 	cnv = cn;
+	drives_on_left = welt->get_settings().is_drive_left();
 }
 
 
@@ -1797,6 +1798,7 @@ automobil_t::automobil_t(karte_t *welt, loadsave_t *file, bool is_first, bool is
 			last_besch = besch;
 		}
 	}
+	drives_on_left = welt->get_settings().is_drive_left();
 }
 
 
