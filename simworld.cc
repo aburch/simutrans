@@ -568,6 +568,14 @@ DBG_MESSAGE("karte_t::destroy()", "convois destroyed");
 DBG_MESSAGE("karte_t::destroy()", "stops destroyed");
 	display_progress(old_progress, max_display_progress);
 
+	// remove all target cities (we can skip recalculation anyway)
+	{
+		slist_iterator_tpl<fabrik_t*> fab_iter(fab_list);
+		while(fab_iter.next()) {
+			fab_iter.get_current()->clear_target_cities();
+		}
+	}
+
 	// delete towns first (will also delete all their houses)
 	// for the next game we need to remember the desired number ...
 	sint32 const no_of_cities = settings.get_anzahl_staedte();
@@ -626,9 +634,11 @@ DBG_MESSAGE("karte_t::destroy()", "marker destroyed");
 DBG_MESSAGE("karte_t::destroy()", "player destroyed");
 
 	// alle fabriken aufraeumen
-	slist_iterator_tpl<fabrik_t*> fab_iter(fab_list);
-	while(fab_iter.next()) {
-		delete fab_iter.get_current();
+	{
+		slist_iterator_tpl<fabrik_t*> fab_iter(fab_list);
+		while(fab_iter.next()) {
+			delete fab_iter.get_current();
+		}
 	}
 	fab_list.clear();
 DBG_MESSAGE("karte_t::destroy()", "factories destroyed");
