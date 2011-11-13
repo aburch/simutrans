@@ -4655,13 +4655,9 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 #endif
 	// recalculate halt connections
 	set_schedule_counter();
-	int hnr=0, hmax=haltestelle_t::get_alle_haltestellen().get_count();
-	for(  slist_tpl<halthandle_t>::const_iterator i=haltestelle_t::get_alle_haltestellen().begin(); i!=haltestelle_t::get_alle_haltestellen().end();  ++i  ) {
-		if((hnr++%64)==0) {
-			display_progress(get_groesse_y()+48+stadt.get_count()+128+(hnr*80)/hmax, get_groesse_y()+256+stadt.get_count());
-		}
-		(*i)->rebuild_connections();
-	}
+	do {
+		haltestelle_t::step_all();
+	} while (  haltestelle_t::get_rerouting_status()==RECONNECTING  );
 #ifdef DEBUG
 	DBG_MESSAGE("rebuild_destinations()","for all haltstellen_t took %ld ms", dr_time()-dt );
 #endif

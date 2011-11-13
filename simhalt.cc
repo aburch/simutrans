@@ -2560,6 +2560,7 @@ void haltestelle_t::laden_abschliessen()
 		}
 	}
 	recalc_status();
+	reconnect_counter = welt->get_schedule_counter()-1;
 }
 
 
