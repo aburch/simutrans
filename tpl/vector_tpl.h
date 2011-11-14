@@ -96,7 +96,7 @@ template<class T> class vector_tpl
 					return i;
 				}
 			}
-			assert(false);
+			//assert(false);
 			return 0xFFFFFFFFu;
 		}
 
