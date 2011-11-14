@@ -2370,19 +2370,15 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 			if(max_loaded_waren[i]>0  &&  i!=warenbauer_t::INDEX_NONE) {
 				ware_t ware(warenbauer_t::get_info(i));
 				ware.menge = max_loaded_waren[i];
-				if(ware.get_catg()==0) {
-					capacity.append( ware );
+				// append to category?
+				slist_tpl<ware_t>::iterator j   = capacity.begin();
+				slist_tpl<ware_t>::iterator end = capacity.end();
+				while (j != end && j->get_besch()->get_catg_index() < ware.get_besch()->get_catg_index()) ++j;
+				if (j != end && j->get_besch()->get_catg_index() == ware.get_besch()->get_catg_index()) {
+					j->menge += max_loaded_waren[i];
 				} else {
-					// append to category?
-					slist_tpl<ware_t>::iterator j   = capacity.begin();
-					slist_tpl<ware_t>::iterator end = capacity.end();
-					while (j != end && j->get_catg() < ware.get_catg()) ++j;
-					if (j != end && j->get_catg() == ware.get_catg()) {
-						j->menge += max_loaded_waren[i];
-					} else {
-						// not yet there
-						capacity.insert(j, ware);
-					}
+					// not yet there
+					capacity.insert(j, ware);
 				}
 			}
 		}
