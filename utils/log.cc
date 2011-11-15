@@ -149,7 +149,7 @@ void log_t::error(const char *who, const char *format, ...)
 			}
 
 			fprintf(log ,"Please report all errors to\n");
-			fprintf(log ,"team@64.simutrans.com\n");
+			fprintf(log ,"http://forum.simutrans.com/\n");
 		}
 		va_end(argptr);
 
