@@ -1773,8 +1773,8 @@ void stadt_t::step_passagiere()
 				// since there is no route from any start halt -> register no route at all start halts
 				for(  uint32 s=0;  s<start_halts.get_count();  ++s  ) {
 					start_halts[s]->add_pax_no_route(pax_left_to_do);
-					merke_passagier_ziel(dest_pos, COL_DARK_ORANGE);
 				}
+				merke_passagier_ziel(dest_pos, COL_DARK_ORANGE);
 #ifdef DESTINATION_CITYCARS
 				//citycars with destination
 				erzeuge_verkehrsteilnehmer(start_halt->get_basis_pos(), step_count, ziel);
