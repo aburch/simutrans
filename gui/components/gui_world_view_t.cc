@@ -56,7 +56,7 @@ void world_view_t::internal_draw(const koord offset, ding_t const* const ding)
 	koord         fine_here = koord(0, 0);
 	sint16        y_offset  = 0;
 	if(ding) { // offsets?
-		fine_here = koord(tile_raster_scale_x(-ding->get_xoff(), raster), tile_raster_scale_x(-ding->get_yoff() % (OBJECT_OFFSET_STEPS * 2), raster));
+		fine_here = koord(tile_raster_scale_x(-ding->get_xoff(), raster), tile_raster_scale_y(-ding->get_yoff() % (OBJECT_OFFSET_STEPS * 2), raster));
 		y_offset  = ding->get_yoff() / (OBJECT_OFFSET_STEPS * 2);
 		if(vehikel_basis_t const* const v = ding_cast<vehikel_basis_t>(ding)) {
 			int x = 0;
