@@ -1118,7 +1118,8 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 
 		// ok, now we set the slope ...
 		ok = (new_pos!=pos);
-		ok |= new_slope!=gr1->get_grund_hang();
+		bool slope_changed = new_slope!=gr1->get_grund_hang();
+		ok |= slope_changed;
 
 		if(ok) {
 
@@ -1161,6 +1162,15 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 				if(  new_pos!=pos  ) {
 					for(  int i=0;  i<gr1->get_top();  i++  ) {
 						gr1->obj_bei(i)->set_pos( new_pos );
+					}
+				}
+				// correct tree offsets if slope has changed
+				if(  slope_changed  ) {
+					for(  int i=0;  i<gr1->get_top();  i++  ) {
+						baum_t *tree = ding_cast<baum_t>(gr1->obj_bei(i));
+						if (tree) {
+							tree->recalc_off();
+						}
 					}
 				}
 				if(  !gr1->ist_karten_boden()  ) {

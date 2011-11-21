@@ -75,6 +75,11 @@ public:
 	inline int get_top() const {return top;}
 
 	/**
+	 * sorts the trees according to their offsets
+	 */
+	void sort_trees(uint8 index, uint8 count);
+
+	/**
 	* @return NULL wenn OK, oder Meldung, warum nicht
 	* @author Hj. Malthaner
 	*/

@@ -3,6 +3,7 @@
  */
 
 #include <stdio.h>
+#include <algorithm>
 
 #include "../simdebug.h"
 #include "../simgraph.h"
@@ -413,6 +414,27 @@ bool dingliste_t::intern_add_moving(ding_t* ding)
 	return false;
 }
 
+/**
+ * @returns true if tree1 must be sorted before tree2 (tree1 stands behind tree2)
+ */
+bool compare_trees(const ding_t *tree1, const ding_t *tree2)
+{
+	// the tree with larger yoff is in front
+	sint8 diff = tree2->get_yoff() - tree1->get_yoff();
+	if (diff==0) {
+		// .. or the one that is the left most (ie xoff is small)
+		diff = tree1->get_xoff() - tree2->get_xoff();
+	}
+	return diff>=0;
+}
+
+
+void dingliste_t::sort_trees(uint8 index, uint8 count)
+{
+	if(top>=index+count) {
+		std::sort(&obj.some[index], &obj.some[index+count], compare_trees);
+	}
+}
 
 
 bool dingliste_t::add(ding_t* ding)
@@ -465,11 +487,9 @@ bool dingliste_t::add(ding_t* ding)
 			/* trees are a little tricky, since they cast a shadow
 			 * therefore the y-order must be correct!
 			 */
-			const sint8 offset = ding->get_yoff() + ding->get_xoff();
-
 			for(  ;  i<top;  i++) {
 				baum_t const* const tree = ding_cast<baum_t>(obj.some[i]);
-				if (!tree || tree->get_yoff() + tree->get_xoff() > offset) {
+				if (!tree  ||  compare_trees(ding, tree)) {
 					break;
 				}
 			}

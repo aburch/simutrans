@@ -342,6 +342,8 @@ public:
 	// map rotation
 	virtual void rotate90();
 
+	void sort_trees();
+
 	/**
 	* Gibt die 3d-Koordinaten des Planquadrates zurueck, zu dem der
 	* Untergrund gehoert.

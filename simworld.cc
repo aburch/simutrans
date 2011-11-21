@@ -4583,6 +4583,9 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 						d->laden_abschliessen();
 					}
 				}
+				if(file->get_version()<=111000  &&  gr->ist_natur()) {
+					gr->sort_trees();
+				}
 				gr->calc_bild();
 			}
 		}

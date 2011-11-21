@@ -292,52 +292,51 @@ bool baum_t::register_besch(baum_besch_t *besch)
 }
 
 
-#define LOWRAND(i,x) (((i)%x)-(x/2))
-#define HIGHRAND(i,x) ((((i)/x)%x)-(x/2))
-
-
 // calculates tree position on a tile
 // takes care of slopes
-void baum_t::calc_off( uint8 slope )
+void baum_t::calc_off(uint8 slope, sint8 x_, sint8 y_)
 {
-	int liob;
-	int reob;
-	int random = get_pos().x + get_pos().y + get_pos().z + slope + baumtype + get_age() + (long)this;
-	switch( slope ) {
-		case 0:
-			liob = LOWRAND(random,27);
-			reob = HIGHRAND(random,27);
-			set_xoff( reob - liob  );
-			set_yoff( (reob + liob)/2 );
-			break;
+	sint16 random = get_pos().x + get_pos().y + get_pos().z + slope + (long)this;
+	// point on tile (imaginary origin at sw corner, x axis: north, y axis: east
+	sint16 x = x_==-128 ? (random + baumtype) & 31  : x_;
+	sint16 y = y_==-128 ? (random + get_age()) & 31 : y_;
 
-		case 1:
-		case 4:
-		case 5:
-		case 8:
-		case 9:
-		case 12:
-		case 13:
-			liob = LOWRAND(random,13);
-			reob = HIGHRAND(random,13);
-			set_xoff( reob - liob  );
-			set_yoff( reob + liob );
-			break;
+	// the last bit has to be the same
+	y = y ^ (x&1);
 
-		case 2:
-		case 3:
-		case 6:
-		case 7:
-		case 10:
-		case 11:
-		case 14:
-		case 15:
-			liob = LOWRAND(random,OBJECT_OFFSET_STEPS-1);
-			reob = HIGHRAND(random,OBJECT_OFFSET_STEPS-1);
-			set_xoff( reob + liob  );
-			set_yoff( -(10*OBJECT_OFFSET_STEPS/16)-(reob - liob)/2 );
-			break;
-	}
+	// bilinear interpolation of tile height
+	uint32 zoff_ = ((corner3(slope)*x*y + corner4(slope)*x*(32-y)
+	                 + corner2(slope)*(32-x)*y + corner1(slope)*(32-x)*(32-y)) * TILE_HEIGHT_STEP) / (32*32);
+	// now zoff between 0 and TILE_HEIGHT_STEP-1
+	zoff = zoff_ < (uint32)TILE_HEIGHT_STEP ? zoff_ : TILE_HEIGHT_STEP-1u;
+
+	// xoff must be even
+	set_xoff( x + y - 32 );
+	set_yoff( (y - x)/2 - zoff);
+}
+
+
+void baum_t::recalc_off()
+{
+	// reconstruct position on tile
+	const sint8 xoff = get_xoff() + 32;       // = x+y
+	const sint8 yoff = 2*(get_yoff() + zoff); // = y-x
+	sint8 x = (xoff - yoff) / 2;
+	sint8 y = (xoff + yoff) / 2;
+	calc_off(x, y);
+}
+
+
+void baum_t::rotate90()
+{
+	// cant use ding_t::rotate90 to rotate offsets as it rotates them only if xoff!=0
+	sint8 old_yoff = get_yoff() + zoff;
+	sint8 old_xoff = get_xoff();
+	// rotate position
+	ding_t::rotate90();
+	// .. and the offsets
+	set_xoff( -2 * old_yoff );
+	set_yoff( old_xoff/2 - zoff);
 }
 
 
@@ -473,7 +472,11 @@ bool baum_t::saee_baum()
 bool baum_t::check_season(long month)
 {
 	// take care of birth/death and seasons
-	const long alter = (month - geburt);
+	long alter = (month - geburt);
+	// attention: integer underflow (geburt is 16bit, month 32bit);
+	while (alter < 0) {
+		alter += 0x7fff;
+	}
 	calc_bild();
 	if(alter>=512  &&  alter<=515  ) {
 		// only in this month a tree can span new trees
@@ -527,8 +530,30 @@ void baum_t::rdwr(loadsave_t *file)
 		const char *c = get_besch()->get_name();
 		file->rdwr_str(c);
 	}
+
+	// z-offset
+	if(file->get_version() > 111000) {
+		uint8 zoff_ = zoff;
+		file->rdwr_byte(zoff_);
+		zoff = zoff_;
+	}
+	else {
+		// correct z-offset
+		if(file->is_loading()) {
+			// this will trigger recalculation of offset in laden_abschliessen()
+			// we cant call calc_off() since this->pos is still invalid
+			set_xoff(-128);
+		}
+	}
 }
 
+
+void baum_t::laden_abschliessen()
+{
+	if(get_xoff()==-128) {
+		calc_off(welt->lookup( get_pos())->get_grund_hang());
+	}
+}
 
 
 /**

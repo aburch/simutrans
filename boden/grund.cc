@@ -404,6 +404,23 @@ grund_t::~grund_t()
 }
 
 
+void grund_t::sort_trees()
+{
+	if (get_typ() != boden) {
+		return;
+	}
+	uint8 trees = 0, offset = 0;
+	for(  int i=0;  i<dinge.get_top();  i++  ) {
+		if (obj_bei(i)->get_typ() == ding_t::baum) {
+			trees++;
+			offset = i;
+		}
+	}
+	if(trees > 1) {
+		dinge.sort_trees(offset-trees+1u, trees);
+	}
+}
+
 
 void grund_t::rotate90()
 {
@@ -415,8 +432,17 @@ void grund_t::rotate90()
 	pos.rotate90( welt->get_groesse_y()-1 );
 	slope = hang_t::rotate90( slope );
 	// then rotate the things on this tile
+	uint8 trees = 0, offset = 0;
 	for(  int i=0;  i<dinge.get_top();  i++  ) {
 		obj_bei(i)->rotate90();
+		if (obj_bei(i)->get_typ() == ding_t::baum) {
+			trees++;
+			offset = i;
+		}
+	}
+	// if more than one tree on a tile .. resort since offsets changed
+	if(trees > 1) {
+		dinge.sort_trees(offset-trees+1u, trees);
 	}
 	// then the text ...
 	if(flags&has_text) {
