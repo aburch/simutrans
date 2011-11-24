@@ -726,6 +726,16 @@ int simu_main(int argc, char** argv)
 		// not possible for single user
 		umgebung_t::default_einstellungen.set_with_private_paks( false );
 	}
+	// parse ~/simutrans/pakxyz/config.tab"
+	if(umgebung_t::user_dir!=umgebung_t::program_dir  &&  umgebung_t::default_einstellungen.get_with_private_paks()  ) {
+		const string obj_conf = string(umgebung_t::user_dir) + umgebung_t::objfilename + "config/simuconf.tab";
+		if (simuconf.open(obj_conf.c_str())) {
+			sint16 idummy;
+			printf("parse_simuconf() at %s: ", obj_conf.c_str());
+			umgebung_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
+			simuconf.close();
+		}
+	}
 
 	// now (re)set the correct length from the pak
 	umgebung_t::default_einstellungen.set_pak_diagonal_multiplier( pak_diagonal_multiplier );
