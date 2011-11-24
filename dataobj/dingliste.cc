@@ -425,7 +425,7 @@ bool compare_trees(const ding_t *tree1, const ding_t *tree2)
 		// .. or the one that is the left most (ie xoff is small)
 		diff = tree1->get_xoff() - tree2->get_xoff();
 	}
-	return diff>=0;
+	return diff>0;
 }
 
 
