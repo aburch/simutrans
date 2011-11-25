@@ -85,7 +85,9 @@ ifneq ($(OPTIMISE),)
     CFLAGS += -O3 -fno-schedule-insns
   ifneq ($(OSTYPE),mac)
     ifneq ($(OSTYPE),haiku)
-      CFLAGS += -minline-all-stringops
+      ifneq ($(OSTYPE),amiga)
+        CFLAGS += -minline-all-stringops
+      endif
     endif
   endif
 else

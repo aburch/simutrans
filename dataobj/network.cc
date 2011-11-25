@@ -1,6 +1,6 @@
 /* basic network functionality, borrowed from OpenTTD */
 
-#ifdef  __MINGW32__
+#if defined(__MINGW32__) ||  defined(__amiga__)
 // warning: IPv6 will only work on XP and up ...
 #define USE_IP4_ONLY
 #endif
