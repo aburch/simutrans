@@ -110,10 +110,15 @@ void karte_ansicht_t::display(bool force_dirty)
 	// gr->get_disp_height() == min(gr->get_hoehe(), hmax_ground)
 	const sint8 hmax_ground = (grund_t::underground_mode==grund_t::ugm_level) ? grund_t::underground_level : 127;
 
-
 	// lower limit for y: display correctly water/outside graphics at upper border of screen
 	int y_min = (-const_y_off + 4*tile_raster_scale_y( min(hmax_ground,welt->get_grundwasser())*TILE_HEIGHT_STEP/Z_TILE_STEP, IMG_SIZE )
 					+ 4*(menu_height -IMG_SIZE) -IMG_SIZE/2-1) / IMG_SIZE;
+
+	// prepare for selectively display
+	const koord cursor_pos = welt->get_zeiger() ? welt->get_zeiger()->get_pos().get_2d() : koord(-1000,-1000);
+	const bool saved_grid = grund_t::show_grid;
+	const bool saved_hide_trees = umgebung_t::hide_trees;
+	const uint8 saved_hide_buildings = umgebung_t::hide_buildings;
 
 	// first display ground
 	DBG_DEBUG4("karte_ansicht_t::display", "display ground");
@@ -131,11 +136,16 @@ void karte_ansicht_t::display(bool force_dirty)
 			const sint16 xpos = x*(IMG_SIZE/2) + const_x_off;
 
 			if(xpos+IMG_SIZE>0  &&  xpos<disp_width) {
-				if (grund_t const* const kb = welt->lookup_kartenboden(koord(i, j))) {
+				const koord pos(i,j);
+				if (grund_t const* const kb = welt->lookup_kartenboden(pos)) {
 					const sint16 yypos = ypos - tile_raster_scale_y(min(kb->get_hoehe(), hmax_ground) * TILE_HEIGHT_STEP / Z_TILE_STEP, IMG_SIZE);
 					if(yypos-IMG_SIZE<disp_height  &&  yypos+IMG_SIZE>menu_height) {
+						if(  umgebung_t::hide_under_cursor  &&  koord_distance(pos,cursor_pos)<=umgebung_t::cursor_hide_range  ) {
+							grund_t::show_grid = true;
+						}
 						kb->display_if_visible(xpos, yypos, IMG_SIZE);
 						plotted = true;
+						grund_t::show_grid = saved_grid;
 					}
 				}
 				else {
@@ -153,9 +163,10 @@ void karte_ansicht_t::display(bool force_dirty)
 		}
 	}
 
+	DBG_DEBUG4("karte_ansicht_t::display", "display things");
+
 	// and then things (and other ground)
 	// especially necessary for vehicles
-	DBG_DEBUG4("karte_ansicht_t::display", "display things");
 	for(y=y_min; y<dpy_height+4*4; y++) {
 
 		const sint16 ypos = y*(IMG_SIZE/4) + const_y_off;
@@ -167,7 +178,8 @@ void karte_ansicht_t::display(bool force_dirty)
 			const int xpos = x*(IMG_SIZE/2) + const_x_off;
 
 			if(xpos+IMG_SIZE>0  &&  xpos<disp_width) {
-				const planquadrat_t *plan=welt->lookup(koord(i,j));
+				const koord pos(i,j);
+				const planquadrat_t *plan=welt->lookup(pos);
 				if(plan  &&  plan->get_kartenboden()) {
 					const grund_t *gr = plan->get_kartenboden();
 					// minimum height: ground height for overground,
@@ -196,7 +208,17 @@ void karte_ansicht_t::display(bool force_dirty)
 					} */
 					sint16 yypos = ypos - tile_raster_scale_y( min(gr->get_hoehe(),hmax_ground)*TILE_HEIGHT_STEP/Z_TILE_STEP, IMG_SIZE);
 					if(yypos-IMG_SIZE*3<disp_height  &&  yypos+IMG_SIZE>menu_height) {
+
+						if(  umgebung_t::hide_under_cursor  &&  koord_distance(pos,cursor_pos)<=umgebung_t::cursor_hide_range  ) {
+							// If the corresponding setting is on, then hide trees and buildings under mouse cursor
+							umgebung_t::hide_trees = true;
+							umgebung_t::hide_buildings = umgebung_t::ALL_HIDDEN_BUIDLING;
+						}
+
 						plan->display_dinge(xpos, yypos, IMG_SIZE, true, hmin, hmax);
+
+						umgebung_t::hide_trees = saved_hide_trees;
+						umgebung_t::hide_buildings = saved_hide_buildings;
 					}
 				}
 			}

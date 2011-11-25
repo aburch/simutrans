@@ -147,6 +147,7 @@ werkzeug_t *create_simple_tool(int toolnr)
 		case WKZ_ADD_MESSAGE_TOOL:  tool = new wkz_add_message_t(); break;
 		case WKZ_TOGGLE_RESERVATION:tool = new wkz_toggle_reservation_t(); break;
 		case WKZ_VIEW_OWNER:        tool = new wkz_view_owner_t(); break;
+		case WKZ_HIDE_UNDER_CURSOR: tool = new wkz_hide_under_cursor_t(); break;
 		default:                    dbg->error("create_simple_tool()","cannot satisfy request for simple_tool[%i]!",toolnr);
 		                            return NULL;
 	}

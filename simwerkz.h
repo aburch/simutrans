@@ -881,6 +881,21 @@ public:
 	virtual bool is_work_network_save() const { return true; }
 };
 
+class wkz_hide_under_cursor_t : public werkzeug_t {
+public:
+	wkz_hide_under_cursor_t() : werkzeug_t() { id = WKZ_HIDE_UNDER_CURSOR | SIMPLE_TOOL; }
+	const char *get_tooltip(const spieler_t *) const { return translator::translate("hide objects under cursor"); }
+	bool is_selected(const karte_t *) const { return umgebung_t::hide_under_cursor; }
+	bool init( karte_t *welt, spieler_t * ) {
+		umgebung_t::hide_under_cursor = !umgebung_t::hide_under_cursor  &&  umgebung_t::cursor_hide_range>0;
+		welt->set_dirty();
+		return false;
+	}
+	bool exit( karte_t *w, spieler_t *s ) { return init(w,s); }
+	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
+};
+
 /******************************** Internal tools ***********/
 /* internal simple tools needed for networksynchronisation */
 class wkz_traffic_level_t : public werkzeug_t {

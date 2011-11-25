@@ -122,6 +122,16 @@ public:
 	static bool hide_trees;
 
 	/**
+	 * When set, buildings and trees under mouse cursor will be hidden
+	 */
+	static bool hide_under_cursor;
+
+	/**
+	 * Range of tiles from current cursor position to hide
+	 */
+	static uint16 cursor_hide_range;
+
+	/**
 	* Namen (Städte, Haltestellen) anzeigen? (0 .. 3)
 	* lable type 4..7
 	*

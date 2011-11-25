@@ -59,6 +59,8 @@ bool umgebung_t::night_shift;
 bool umgebung_t::hide_with_transparency;
 bool umgebung_t::hide_trees;
 uint8 umgebung_t::hide_buildings;
+bool umgebung_t::hide_under_cursor;
+uint16 umgebung_t::cursor_hide_range;
 bool umgebung_t::use_transparency_station_coverage;
 uint8 umgebung_t::station_coverage_show;
 sint32 umgebung_t::show_names;
@@ -120,6 +122,8 @@ void umgebung_t::init()
 	hide_with_transparency = true;
 	hide_trees = false;
 	hide_buildings = umgebung_t::NOT_HIDE;
+	hide_under_cursor = false;
+	cursor_hide_range = 5;
 
 	/* station stuff */
 	use_transparency_station_coverage = true;
@@ -300,7 +304,6 @@ void umgebung_t::rdwr(loadsave_t *file)
 		file->rdwr_bool( add_player_name_to_message );
 		file->rdwr_short( window_snap_distance );
 	}
-
 	else if(  file->is_loading()  ) {
 		// did not know about chat message, so we enable it
 		message_flags[0] |= (1 << message_t::chat);	// ticker
@@ -308,6 +311,11 @@ void umgebung_t::rdwr(loadsave_t *file)
 		message_flags[2] &= ~(1 << message_t::chat); // tiem window off
 		message_flags[3] &= ~(1 << message_t::chat); // do not ignore completely
 
+	}
+
+	if(  file->get_version()>=111001  ) {
+		file->rdwr_bool( hide_under_cursor );
+		file->rdwr_short( cursor_hide_range );
 	}
 
 	// server settings are not saved, since the are server specific and could be different on different servers on the save computers
