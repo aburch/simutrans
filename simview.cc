@@ -137,11 +137,12 @@ void karte_ansicht_t::display(bool force_dirty)
 
 			if(xpos+IMG_SIZE>0  &&  xpos<disp_width) {
 				const koord pos(i,j);
-				if (grund_t const* const kb = welt->lookup_kartenboden(pos)) {
+				if (grund_t* const kb = welt->lookup_kartenboden(pos)) {
 					const sint16 yypos = ypos - tile_raster_scale_y(min(kb->get_hoehe(), hmax_ground) * TILE_HEIGHT_STEP / Z_TILE_STEP, IMG_SIZE);
 					if(yypos-IMG_SIZE<disp_height  &&  yypos+IMG_SIZE>menu_height) {
-						if(  umgebung_t::hide_under_cursor  &&  koord_distance(pos,cursor_pos)<=umgebung_t::cursor_hide_range  ) {
+						if(  !saved_grid  &&  umgebung_t::hide_under_cursor  &&  koord_distance(pos,cursor_pos)<=umgebung_t::cursor_hide_range  ) {
 							grund_t::show_grid = true;
+							kb->set_flag(grund_t::dirty);
 						}
 						kb->display_if_visible(xpos, yypos, IMG_SIZE);
 						plotted = true;
