@@ -3878,7 +3878,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	const sint64 speed_base = (100ll * average_speed) / ref_speed - 100ll;
 	const sint64 base_bonus = (price * (1000ll + speed_base * speed_bonus_rating));
 	const sint64 min_revenue = min_price > base_bonus ? min_price : base_bonus;
-	const sint64 revenue = min_revenue * (sint64)revenue_distance * (sint64)ware.menge;
+	const sint64 revenue = min_revenue * (sint64)revenue_distance * /*(sint64)ware.menge*/ 10;
 	sint64 final_revenue = revenue;
 
 	const uint16 happy_percentage = ware.get_origin().is_bound() ? ware.get_origin()->get_unhappy_percentage(1) : 100;
