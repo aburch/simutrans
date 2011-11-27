@@ -82,8 +82,8 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 
 	y=BUTTON_HEIGHT+4+5*LINESPACE;
 
-	filter_goods_toggle.init(button_t::square_state, "Show current goods", koord(BUTTON1_X, y));
-	filter_goods_toggle.set_tooltip(translator::translate("Only show goods currently in play"));
+	filter_goods_toggle.init(button_t::square_state, "Show only used", koord(BUTTON1_X, y));
+	filter_goods_toggle.set_tooltip(translator::translate("Only show goods which are currently handled by factories"));
 	filter_goods_toggle.add_listener(this);
 	filter_goods_toggle.pressed = filter_goods;
 	add_komponente(&filter_goods_toggle);
