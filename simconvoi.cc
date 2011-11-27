@@ -717,7 +717,7 @@ void convoi_t::increment_odometer(uint32 steps)
 { 
 	// Increament the way distance: used for apportioning revenue by owner of ways.
 	// Use steps, as only relative distance is important here.
-	uint8 player;
+	sint8 player;
 	waytype_t waytpe = fahr[0]->get_waytype();
 	weg_t* way = welt->lookup(get_pos())->get_weg(waytpe);
 	if(way == NULL)
@@ -744,6 +744,11 @@ void convoi_t::increment_odometer(uint32 steps)
 		{
 			player = way->get_player_nr();
 		}
+	}
+
+	if(player < 0)
+	{
+		player = besitzer_p->get_player_nr();
 	}
 
 	inthashtable_iterator_tpl<uint16, departure_data_t> iter(departures);
