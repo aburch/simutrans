@@ -764,7 +764,15 @@ void convoi_t::increment_odometer(uint32 steps)
 	steps_since_last_odometer_increment -= km * steps_since_last_odometer_increment;
 	for(uint8 i= 0; i < anz_vehikel; i++) 
 	{
-		add_running_cost(-fahr[i]->get_besch()->get_betriebskosten(welt), welt->lookup(fahr[0]->get_pos())->get_weg(fahr[0]->get_waytype()));
+		const grund_t *gr = welt->lookup(fahr[0]->get_pos());
+		if(gr)
+		{
+			add_running_cost(-fahr[i]->get_besch()->get_betriebskosten(welt), gr->get_weg(fahr[0]->get_waytype()));
+		}
+		else
+		{
+			add_running_cost(-fahr[i]->get_besch()->get_betriebskosten(welt), NULL);
+		}
 	}
 }
 
