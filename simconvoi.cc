@@ -3845,11 +3845,11 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	{
 		if(line.is_bound())
 		{
-			journey_minutes = line->average_journey_times->get(id_pair(ware.get_origin().get_id(), welt->get_halt_koord_index(fahr[0]->get_pos().get_2d()).get_id())).get_average();
+			journey_minutes = (line->average_journey_times->get(id_pair(ware.get_origin().get_id(), welt->get_halt_koord_index(fahr[0]->get_pos().get_2d()).get_id())).get_average()) / 10;
 		}
 		else
 		{
-			journey_minutes = average_journey_times->get(id_pair(ware.get_origin().get_id(), welt->get_halt_koord_index(fahr[0]->get_pos().get_2d()).get_id())).get_average();
+			journey_minutes = (average_journey_times->get(id_pair(ware.get_origin().get_id(), welt->get_halt_koord_index(fahr[0]->get_pos().get_2d()).get_id())).get_average()) / 10;
 		}
 	}
 
@@ -3878,7 +3878,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	const sint64 speed_base = (100ll * average_speed) / ref_speed - 100ll;
 	const sint64 base_bonus = (price * (1000ll + speed_base * speed_bonus_rating));
 	const sint64 min_revenue = min_price > base_bonus ? min_price : base_bonus;
-	const sint64 revenue = min_revenue * (sint64)revenue_distance * /*(sint64)ware.menge*/ 10;
+	const sint64 revenue = min_revenue * (sint64)revenue_distance * 10;
 	sint64 final_revenue = revenue;
 
 	const uint16 happy_percentage = ware.get_origin().is_bound() ? ware.get_origin()->get_unhappy_percentage(1) : 100;
