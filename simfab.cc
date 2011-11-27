@@ -2169,3 +2169,16 @@ void fabrik_t::get_tile_list( vector_tpl<koord> &tile_list ) const
 		}
 	}
 }
+
+// Returns a list of goods produced by this factory. The caller must delete
+// the list when done
+slist_tpl<const ware_besch_t*> *fabrik_t::get_produced_goods() const
+{
+	slist_tpl<const ware_besch_t*> *goods = new slist_tpl<const ware_besch_t*>();
+
+	for (uint32 i = 0;  i < ausgang.get_count();  ++i) {
+		goods->append(ausgang[i].get_typ());
+	}
+
+	return goods;
+}

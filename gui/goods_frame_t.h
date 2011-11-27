@@ -32,6 +32,7 @@ private:
 	static int relative_speed_change;
 	static bool sortreverse;
 	static sort_mode_t sortby;
+	static bool filter_goods;
 
 	karte_t * welt;
 	char	speed_bonus[6];
@@ -44,6 +45,7 @@ private:
 	gui_label_t change_speed_label;
 	button_t	speed_up;
 	button_t	speed_down;
+	button_t	filter_goods_toggle;
 
 	goods_stats_t goods_stats;
 	gui_scrollpane_t scrolly;

@@ -6,6 +6,7 @@
 	FIX: better tree offsets on tiles, should give less errors with trees on roads, in water etc
 	ADD: read (when with addon loadin) also ~/Simutrans/pakxyz/config.simuconf.tab
 	ADD: (falconne) hide only objects around cursor
+	ADD: (falconne) hide factories and goods currently not on the map
 
 
 Release of 111.0 (r4911 on 1-Nov-2011):

@@ -18,6 +18,8 @@
 #include "../simcolor.h"
 #include "../simworld.h"
 
+#include "../simfab.h"
+
 /**
  * This variable defines the current speed for bonus calculation
  * @author prissi
@@ -48,6 +50,13 @@ const char *goods_frame_t::sort_text[SORT_MODES] = {
 	"gl_btn_sort_catg"
 };
 
+/**
+ * This variable controls whether all goods are displayed, or
+ * just the ones relevant to the current game
+ * Values: false = all goods shown, true = relevant goods shown
+ * @author falconne
+ */
+bool goods_frame_t::filter_goods = false;
 
 
 goods_frame_t::goods_frame_t(karte_t *wl) :
@@ -72,6 +81,13 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	add_komponente(&speed_up);
 
 	y=BUTTON_HEIGHT+4+5*LINESPACE;
+
+	filter_goods_toggle.init(button_t::square_state, "Show current goods", koord(BUTTON1_X, y));
+	filter_goods_toggle.set_tooltip(translator::translate("Only show goods currently in play"));
+	filter_goods_toggle.add_listener(this);
+	filter_goods_toggle.pressed = filter_goods;
+	add_komponente(&filter_goods_toggle);
+	y += LINESPACE+2;
 
 	sort_label.set_pos(koord(BUTTON1_X, y));
 	add_komponente(&sort_label);
@@ -104,7 +120,6 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	set_resizemode(vertical_resize);
 	resize (koord(0,0));
 }
-
 
 
 bool goods_frame_t::compare_goods(uint16 const a, uint16 const b)
@@ -145,12 +160,26 @@ bool goods_frame_t::compare_goods(uint16 const a, uint16 const b)
 }
 
 
-
-// creates the list and pass it to the child finction good_stats, which does the display stuff ...
+// creates the list and pass it to the child function good_stats, which does the display stuff ...
 void goods_frame_t::sort_list()
 {
 	sortedby.set_text(sort_text[sortby]);
 	sorteddir.set_text(sortreverse ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
+
+	slist_tpl<const ware_besch_t*> goods_in_game;
+	if (filter_goods){
+		goods_in_game.append( warenbauer_t::passagiere );
+		goods_in_game.append( warenbauer_t::post );
+		//Build a list of the goods produced by the factories that exist in the current game
+		const slist_tpl<fabrik_t*> &factories_in_game = welt->get_fab_list();
+		for (slist_tpl<fabrik_t *>::const_iterator factory = factories_in_game.begin(), end = factories_in_game.end(); factory != end;  ++factory) {
+			slist_tpl<const ware_besch_t*> *produced_goods = (*factory)->get_produced_goods();
+			for (slist_tpl<const ware_besch_t*>::iterator good = produced_goods->begin(), end = produced_goods->end(); good != end; ++good) {
+				goods_in_game.append_unique(*good);
+			}
+			delete produced_goods;
+		}
+	}
 
 	int n=0;
 	for(unsigned int i=0; i<warenbauer_t::get_waren_anzahl(); i++) {
@@ -158,16 +187,15 @@ void goods_frame_t::sort_list()
 
 		// Hajo: we skip goods that don't generate income
 		//       this should only be true for the special good 'None'
-		if(wtyp->get_preis()!=0) {
+		if(  wtyp->get_preis()!=0  &&  (!filter_goods  ||  goods_in_game.is_contained(wtyp))  ) {
 			good_list[n++] = i;
 		}
 	}
 
 	std::sort(good_list, good_list + n, compare_goods);
 
-	goods_stats.update_goodslist( good_list, relative_speed_change );
+	goods_stats.update_goodslist( good_list, relative_speed_change, n );
 }
-
 
 
 /**
@@ -178,10 +206,9 @@ void goods_frame_t::sort_list()
 void goods_frame_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta);
-	koord groesse = get_fenstergroesse()-koord(0,BUTTON_HEIGHT+4+5*LINESPACE+LINESPACE+1+BUTTON_HEIGHT+2+TITLEBAR_HEIGHT+1);
+	koord groesse = get_fenstergroesse()-scrolly.get_pos()-koord(0,TITLEBAR_HEIGHT);
 	scrolly.set_groesse(groesse);
 }
-
 
 
 /**
@@ -210,9 +237,14 @@ bool goods_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 		relative_speed_change ++;
 		sort_list();
 	}
+	else if(komp == &filter_goods_toggle) {
+		filter_goods = !filter_goods;
+		filter_goods_toggle.pressed = filter_goods;
+		sort_list();
+	}
+
 	return true;
 }
-
 
 
 /**

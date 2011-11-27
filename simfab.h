@@ -554,6 +554,9 @@ public:
 	uint32 get_scaled_electric_amount() const { return scaled_electric_amount; }
 	uint32 get_scaled_pax_demand() const { return scaled_pax_demand; }
 	uint32 get_scaled_mail_demand() const { return scaled_mail_demand; }
+
+	// Returns a list of goods produced by this factory.
+	slist_tpl<const ware_besch_t*> *get_produced_goods() const;
 };
 
 #endif

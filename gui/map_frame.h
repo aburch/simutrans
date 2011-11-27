@@ -18,6 +18,8 @@
 #include "components/action_listener.h"
 #include "components/gui_button.h"
 #include "components/gui_label.h"
+#include "../besch/fabrik_besch.h"
+#include "../tpl/stringhashtable_tpl.h"
 
 class karte_t;
 
@@ -47,8 +49,12 @@ private:
 	static bool legend_visible;
 	static bool scale_visible;
 	static bool directory_visible;
+	static bool filter_factory_list;
 
 	static bool is_cursor_hidden;
+
+	// Cache of factories in current game world
+	static stringhashtable_tpl<const fabrik_besch_t *> factory_list;
 
 	  /**
 	   * We need to keep track of trag/click events
@@ -80,7 +86,9 @@ private:
 	button_t b_show_legend;
 	button_t b_show_scale;
 	button_t b_show_directory;
+	button_t b_filter_factory_list;
 
+	void update_factory_legend(karte_t *welt = NULL);
 	void show_hide_legend(const bool show);
 	void show_hide_scale(const bool show);
 	void show_hide_directory(const bool show);

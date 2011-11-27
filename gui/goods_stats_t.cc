@@ -22,7 +22,16 @@
 
 goods_stats_t::goods_stats_t()
 {
-	set_groesse(koord(BUTTON4_X+BUTTON_WIDTH+2,-10+(warenbauer_t::get_waren_anzahl()-1)*(LINESPACE+1)));
+	set_groesse(koord(BUTTON4_X+BUTTON_WIDTH+2,(warenbauer_t::get_waren_anzahl()-1)*(LINESPACE+1)));
+}
+
+
+void goods_stats_t::update_goodslist( uint16 *g, int b, int l )
+{
+	goodslist = g;
+	bonus = b;
+	listed_goods = l;
+	set_groesse(koord(BUTTON4_X+BUTTON_WIDTH+2,max(2,listed_goods-2)*(LINESPACE+1)));
 }
 
 
@@ -36,7 +45,7 @@ void goods_stats_t::zeichnen(koord offset)
 	char money_buf[256];
 	cbuffer_t buf;
 
-	for(  uint16 i=0;  i<warenbauer_t::get_waren_anzahl()-1u;  i++  ) {
+	for(  uint16 i=0;  i<listed_goods;  i++  ) {
 		const ware_besch_t * wtyp = warenbauer_t::get_info(goodslist[i]);
 
 		display_ddd_box_clip(offset.x + 2, yoff, 8, 8, MN_GREY0, MN_GREY4);

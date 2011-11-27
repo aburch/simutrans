@@ -23,10 +23,15 @@ private:
 	uint16 *goodslist;
 	int bonus;
 
+	// The number of goods to be displayed. May be less than maximum number of goods possible,
+	// if we are filtering to only the goods being produced by factories in the current game.
+	int listed_goods;
+
 public:
 	goods_stats_t();
 
-	void update_goodslist(unsigned short *g, int b) {goodslist = g; bonus = b; }
+	// update list and resize
+	void update_goodslist( uint16 *g, int bonus, int listcount );
 
 	/**
 	* Zeichnet die Komponente
