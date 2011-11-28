@@ -474,9 +474,11 @@ pumpe_t::pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , p
 
 pumpe_t::~pumpe_t()
 {
-	if(fab) {
+	pumpe_list.remove( this );
+	if(fab) 
+	{
 		fab->set_transformer_connected( NULL );
-		pumpe_list.remove( this );
+		
 		fab = NULL;
 	}
 	spieler_t::add_maintenance(get_besitzer(), welt->get_settings().cst_maintain_transformer);
@@ -593,10 +595,10 @@ senke_t::senke_t(karte_t *welt, koord3d pos, spieler_t *sp, stadt_t* c) : leitun
 
 senke_t::~senke_t()
 {
+	senke_list.remove( this );
+	welt->sync_remove( this );
 	if(fab || city)
 	{
-		senke_list.remove( this );
-		welt->sync_remove( this );
 		if(fab)
 		{
 			fab->set_transformer_connected( NULL );
