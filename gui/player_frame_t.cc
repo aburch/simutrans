@@ -257,7 +257,7 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t p )
 		if(komp == access_out + i)
 		{
 			// Allow access to the selected player
-			access_out[i].pressed = !access_out[i].pressed;
+			access_out[i].pressed =! access_out[i].pressed;
 			spieler_t* sp = welt->get_spieler(i);
 			if(access_out[i].pressed && sp)
 			{
@@ -277,6 +277,8 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t p )
 			sp->get_welt()->set_werkzeug( w, sp );
 			// since init always returns false, it is save to delete immediately
 			delete w;
+
+			access_out[i].pressed = welt->get_active_player()->allows_access_to(i);
 		}
 	}
 	return true;

@@ -6558,6 +6558,10 @@ bool wkz_access_t::init(karte_t* const welt, spieler_t *sp)
 			if(current_line.is_bound())
 			{
 				fpl = current_line->get_schedule();
+				if(!fpl)
+				{
+					continue;
+				}
 				current_aktuell = fpl->get_aktuell();
 				waytype = fpl->get_waytype();
 				for(uint8 n = 0; n < fpl->get_count(); n ++)
@@ -6596,7 +6600,7 @@ bool wkz_access_t::init(karte_t* const welt, spieler_t *sp)
 		{
 			cnv = welt->get_convoi(i);
 			fpl = cnv->get_schedule();
-			if(!cnv.is_bound() || cnv->get_line().is_bound())
+			if(!cnv.is_bound() || cnv->get_line().is_bound() || !fpl)
 			{
 				// We dealt above with lines.
 				continue;
