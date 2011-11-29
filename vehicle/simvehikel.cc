@@ -3459,7 +3459,7 @@ bool aircraft_t::block_reserver( uint32 start, uint32 end, bool reserve ) const
 
 
 // handles all the decisions on the ground an in the air
-bool aircraft_t::ist_weg_frei(int & restart_speed,bool)
+bool aircraft_t::ist_weg_frei( int & restart_speed, bool )
 {
 	restart_speed = -1;
 
@@ -3476,10 +3476,15 @@ bool aircraft_t::ist_weg_frei(int & restart_speed,bool)
 	}
 
 	if(route_index<takeoff  &&  route_index>1  &&  takeoff<cnv->get_route()->get_count()-1) {
-		if (route_index > 1 && gr->find<aircraft_t>()) {
-			// check, if tile occupied, if not on stop
-			restart_speed = 0;
-			return false;
+		// check, if tile occupied by a plane on ground
+		if(  route_index > 1  ) {
+			for(  uint8 i = 1;  i<gr->get_top();  i++  ) {
+				ding_t *d = gr->obj_bei(i);
+				if(  d->get_typ()==ding_t::aircraft  &&  ((aircraft_t *)d)->is_on_ground()  ) {
+					restart_speed = 0;
+					return false;
+				}
+			}
 		}
 		// need to reserve runway?
 		runway_t *rw = (runway_t *)gr->get_weg(air_wt);
