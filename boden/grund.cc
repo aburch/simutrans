@@ -654,7 +654,7 @@ void grund_t::mark_image_dirty()
 // artifical walls from here on ...
 void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 {
-	if (underground_mode == ugm_all) {
+	if(  underground_mode == ugm_all  ) {
 		this->back_bild_nr = 0;
 		return;
 	}

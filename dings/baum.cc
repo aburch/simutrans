@@ -340,16 +340,15 @@ void baum_t::rotate90()
 }
 
 
+// actually calculates onyl the season
 void baum_t::calc_bild()
 {
-	// alter/2048 is the age of the tree
-	const baum_besch_t *besch=get_besch();
-	const sint16 seasons = besch->get_seasons();
-	season=0;
+	const sint16 seasons = get_besch()->get_seasons();
 
+	season = 0;
 	if(seasons>1) {
 		// two possibilities
-		if(besch->get_seasons()<4) {
+		if(seasons<4) {
 			// only summer and winter
 			season = welt->get_snowline()<=get_pos().z;
 		}
@@ -379,12 +378,11 @@ void baum_t::calc_bild()
 
 image_id baum_t::get_bild() const
 {
-	// alter/2048 is the age of the tree
 	if(umgebung_t::hide_trees) {
 		return umgebung_t::hide_with_transparency ? IMG_LEER : get_besch()->get_bild_nr( season, 0 );
 		// we need the real age for transparency or real image
 	}
-	uint8 baum_alter = baum_bild_alter[min((welt->get_current_month() - geburt)>>6, 11u)];
+	uint8 baum_alter = baum_bild_alter[min(get_age()>>6, 11u)];
 	return get_besch()->get_bild_nr( season, baum_alter );
 }
 
@@ -392,12 +390,12 @@ image_id baum_t::get_bild() const
 // image which transparent outline is used
 image_id baum_t::get_outline_bild() const
 {
-	uint8 baum_alter = baum_bild_alter[min((welt->get_current_month() - geburt)>>6, 11u)];
+	uint8 baum_alter = baum_bild_alter[min(get_age()>>6, 11u)];
 	return get_besch()->get_bild_nr( season, baum_alter );
 }
 
 
-sint32 baum_t::get_age() const
+uint32 baum_t::get_age() const
 {
 	return  welt->get_current_month()-geburt;
 }
@@ -468,17 +466,18 @@ bool baum_t::saee_baum()
 }
 
 
-/* we should be as fast as possible for this, because trees are nearly the most common object on a map */
+/* we should be as fast as possible, because trees are nearly the most common object on a map */
 bool baum_t::check_season(long month)
 {
 	// take care of birth/death and seasons
 	long alter = (month - geburt);
+
 	// attention: integer underflow (geburt is 16bit, month 32bit);
 	while (alter < 0) {
 		alter += 0x7fff;
 	}
-	calc_bild();
-	if(alter>=512  &&  alter<=515  ) {
+
+	if(  alter>=512  &&  alter<=515  ) {
 		// only in this month a tree can span new trees
 		// only 1-3 trees will be planted....
 		uint8 const c_plant_tree_max = 1 + simrand(welt->get_settings().get_max_no_of_trees_on_square());
@@ -492,11 +491,15 @@ bool baum_t::check_season(long month)
 		// we make the tree four months older to avoid second spawning
 		geburt = geburt-4;
 	}
+
 	// tree will die after 704 month (i.e. 58 years 8 month)
 	if(alter>=704) {
 		mark_image_dirty( get_bild(), 0 );
 		return false;
 	}
+
+	calc_bild();
+
 	return true;
 }
 

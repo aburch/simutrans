@@ -56,6 +56,7 @@ void gebaeude_t::init()
 	count = 0;
 	zeige_baugrube = false;
 	snow = false;
+	remove_ground = true;
 }
 
 
@@ -272,6 +273,7 @@ void gebaeude_t::set_tile(const haus_tile_besch_t *new_tile)
 		sync = true;
 	}
 	tile = new_tile;
+	remove_ground = tile->get_hintergrund(0,0,0)!=IMG_LEER  &&  tile->get_vordergrund(0,0)!=IMG_LEER  &&  !tile->get_besch()->ist_mit_boden();
 	set_flag(ding_t::dirty);
 }
 
@@ -342,15 +344,15 @@ bool gebaeude_t::sync_step(long delta_t)
 
 void gebaeude_t::calc_bild()
 {
-	grund_t *gr=welt->lookup(get_pos());
-	// snow image?
-	snow = (!gr->ist_tunnel()  ||  gr->ist_karten_boden())  &&  (get_pos().z-(get_yoff()/TILE_HEIGHT_STEP)>= welt->get_snowline());
+	grund_t *gr = welt->lookup(get_pos());
 	// need no ground?
-	if(!tile->get_besch()->ist_mit_boden()  ||  !tile->has_image()) {
-		grund_t *gr=welt->lookup(get_pos());
-		if(gr  &&  gr->get_typ()==grund_t::fundament) {
-			gr->set_bild( IMG_LEER );
-		}
+	if(  remove_ground  &&  gr->get_typ()==grund_t::fundament  ) {
+		gr->set_bild( IMG_LEER );
+	}
+	// snow image?
+	snow = 0;
+	if(  tile->get_seasons()>1  ) {
+		snow = (!gr->ist_tunnel()  ||  gr->ist_karten_boden())  &&  (get_pos().z-(get_yoff()/TILE_HEIGHT_STEP)>= welt->get_snowline());
 	}
 }
 

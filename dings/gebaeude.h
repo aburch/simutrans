@@ -82,6 +82,9 @@ private:
 	 */
 	bool snow:1;
 
+	/* true if ground image can go */
+	bool remove_ground:1;
+
 	/**
 	 * Initializes all variables with save, usable values
 	 * @author Hj. Malthaner
