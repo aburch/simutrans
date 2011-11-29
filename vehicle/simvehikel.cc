@@ -3627,6 +3627,8 @@ aircraft_t::aircraft_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp,
 	state = taxiing;
 	old_x = old_y = -1;
 	old_bild = IMG_LEER;
+	flughoehe = 0;
+	target_height = pos.z;
 }
 
 
@@ -3672,11 +3674,18 @@ void aircraft_t::set_convoi(convoi_t *c)
 				}
 			}
 			// restore reservation
-			if(route_index>=takeoff  &&  route_index<touchdown-21  &&  state!=flying) {
-				block_reserver( takeoff, takeoff+100, true );
-			}
-			else if(route_index>=touchdown-1  &&  state!=taxiing) {
-				block_reserver( touchdown, suchen+1, true );
+			if(  grund_t *gr = welt->lookup(get_pos())  ) {
+				if(  weg_t *weg = gr->get_weg(air_wt)  ) {
+					if(  weg->get_besch()->get_styp()==1  ) {
+						// but only if we are on a runway ...
+						if(  route_index>=takeoff  &&  route_index<touchdown-21  &&  state!=flying  ) {
+							block_reserver( takeoff, takeoff+100, true );
+						}
+						else if(  route_index>=touchdown-1  &&  state!=taxiing  ) {
+							block_reserver( touchdown, suchen+1, true );
+						}
+					}
+				}
 			}
 		}
 	}
