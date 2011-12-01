@@ -1020,6 +1020,7 @@ void haltestelle_t::step()
 								{
 									account_line->book(-refund_amount, LINE_PROFIT);
 									account_line->book(-refund_amount, LINE_REFUNDS);
+									get_besitzer()->buche(-refund_amount, COST_VEHICLE_RUN);
 								}
 								else
 								{
@@ -1028,6 +1029,7 @@ void haltestelle_t::step()
 									{
 										account_convoy->book(-refund_amount, CONVOI_PROFIT);
 										account_convoy->book(-refund_amount, CONVOI_REFUNDS);
+										get_besitzer()->buche(-refund_amount, COST_VEHICLE_RUN);
 									}
 								}
 							}
