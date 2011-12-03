@@ -49,6 +49,7 @@
 
 #include "sucher/bauplatz_sucher.h"
 #include "bauer/wegbauer.h"
+#include "bauer/brueckenbauer.h"
 #include "bauer/hausbauer.h"
 #include "bauer/fabrikbauer.h"
 #include "utils/cbuffer_t.h"
@@ -2761,10 +2762,16 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 			// now we have to check for several problems ...
 			grund_t* bd2;
 			if(bd->get_neighbour(bd2, invalid_wt, koord::nsow[r])) {
-				if(bd2->get_typ()==grund_t::fundament) {
+				if(bd2->get_typ()==grund_t::fundament  ||  bd2->get_typ()==grund_t::wasser) {
 					// not connecting to a building of course ...
-				} else if (bd2->get_typ()!=grund_t::boden  &&  ribi_t::nsow[r]!=ribi_typ(bd2->get_grund_hang())) {
-					// not the same slope => tunnel or bridge
+				} else if (!bd2->ist_karten_boden()) {
+					// do not connect to elevated ways / bridges
+				} else if (bd2->get_typ()==grund_t::tunnelboden  &&  ribi_t::nsow[r]!=ribi_typ(bd2->get_grund_hang())) {
+					// not the correct slope
+				} else if (bd2->get_typ()==grund_t::brueckenboden
+					&&  (bd2->get_grund_hang()==hang_t::flach  ?  ribi_t::nsow[r]!=ribi_typ(bd2->get_weg_hang())
+					                                           :  ribi_t::rueckwaerts(ribi_t::nsow[r])!=ribi_typ(bd2->get_grund_hang()))) {
+					// not the correct slope
 				} else if(bd2->hat_weg(road_wt)) {
 					const gebaeude_t* gb = bd2->find<gebaeude_t>();
 					if(gb) {
@@ -2823,6 +2830,31 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 			weg->set_gehweg(true);
 			bd->neuen_weg_bauen(weg, connection_roads, sp);
 			bd->calc_bild();	// otherwise the
+		}
+		// check to bridge a river
+		if (ribi_t::ist_einfach(connection_roads)) {
+			koord zv = koord(ribi_t::rueckwaerts(connection_roads));
+			grund_t *bd_next = welt->lookup_kartenboden( k + zv );
+			if (bd_next  &&  (bd_next->ist_wasser()  ||  (bd_next->hat_weg(water_wt)  &&  bd_next->get_weg(water_wt)->get_besch()->get_styp()==255))) {
+				// ok there is a river
+				const bruecke_besch_t *bridge = brueckenbauer_t::find_bridge(road_wt, 50, welt->get_timeline_year_month() );
+				const char *err = NULL;
+				koord3d end = brueckenbauer_t::finde_ende(welt, bd->get_pos(), zv, bridge, err, false);
+				if (err  ||   koord_distance( k, end.get_2d())>3) {
+					// try to find shortest possible
+					end = brueckenbauer_t::finde_ende(welt, bd->get_pos(), zv, bridge, err, true);
+				}
+				if (err==NULL  &&   koord_distance( k, end.get_2d())<=3) {
+					brueckenbauer_t::baue_bruecke(welt, NULL, bd->get_pos(), end, zv, bridge, welt->get_city_road());
+					// try to build one connecting piece of road
+					baue_strasse( (end+zv).get_2d(), NULL, false);
+					// try to build a house near the bridge end
+					uint32 old_count = buildings.get_count();
+					for(uint8 i=0; i<lengthof(koord::neighbours)  &&  buildings.get_count() == old_count; i++) {
+						baue_gebaeude(end.get_2d()+zv+koord::neighbours[i]);
+					}
+				}
+			}
 		}
 		return true;
 	}
