@@ -332,7 +332,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", sta
 		}
 		else {
 			// test also for realignment
-			sint16 step_pos;
+			sint16 step_pos = 0;
 			koord3d drive_pos;
 			uint8 const diagonal_vehicle_steps_per_tile = (uint8)(130560U / welt->get_settings().get_pak_diagonal_multiplier());
 			for( uint8 i=0;  i<anz_vehikel;  i++ ) {
@@ -3172,7 +3172,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int s
 
 		uint16 idx = fahr[0]->get_route_index();
 		const sint32 tiles = (steps_other-1)/(CARUNITS_PER_TILE*VEHICLE_STEPS_PER_CARUNIT) + get_tile_length() + 1;
-		if(  idx+tiles >= route.get_count()  ) {
+		if(  tiles > 0  &&  idx+(uint32)tiles >= route.get_count()  ) {
 			// needs more space than there
 			return false;
 		}
