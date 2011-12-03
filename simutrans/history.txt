@@ -7,7 +7,9 @@
 	ADD: read (when with addon loadin) also ~/Simutrans/pakxyz/config.simuconf.tab
 	ADD: (falconne) hide only objects around cursor
 	ADD: (falconne) hide factories and goods currently not on the map
+	FIX: several bugs with airplanes and reservation
 	ADD: cities build bridges over rivers
+
 
 Release of 111.0 (r4911 on 1-Nov-2011):
 
