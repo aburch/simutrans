@@ -28,6 +28,8 @@
 #	define NOT_REACHED
 #endif
 
+#define GCC_ATLEAST(major, minor) (defined __GNUC__ && (__GNUC__ > (major) || (__GNUC__ == (major) && __GNUC_MINOR__ >= (minor))))
+
 #ifdef __cplusplus
 #	define ENUM_BITSET(T) \
 		static inline T operator ~  (T  a)      { return     (T)~(unsigned)a;                } \

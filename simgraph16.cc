@@ -41,7 +41,7 @@
 # if defined(USE_C)  ||  !defined(__i386__)
 #  undef USE_C
 #  define USE_C
-#  if (__GNUC__>=4  &&  __GNUC_MINOR__>=2)  ||  !defined(__i386__)
+#  if GCC_ATLEAST(4, 2) || !defined(__i386__)
 #   define ALIGN_COPY
 #   warning "Needs to use slower copy with GCC > 4.2.x"
 #  endif
