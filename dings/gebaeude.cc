@@ -273,7 +273,7 @@ void gebaeude_t::set_tile(const haus_tile_besch_t *new_tile)
 		sync = true;
 	}
 	tile = new_tile;
-	remove_ground = tile->get_hintergrund(0,0,0)!=IMG_LEER  &&  tile->get_vordergrund(0,0)!=IMG_LEER  &&  !tile->get_besch()->ist_mit_boden();
+	remove_ground = tile->has_image()  &&  !tile->get_besch()->ist_mit_boden();
 	set_flag(ding_t::dirty);
 }
 
@@ -819,6 +819,9 @@ void gebaeude_t::rdwr(loadsave_t *file)
 		 */
 		if (tile  &&  tile->get_besch()->get_utyp() == haus_besch_t::denkmal) {
 			hausbauer_t::denkmal_gebaut(tile->get_besch());
+		}
+		if (tile) {
+			remove_ground = tile->has_image()  &&  !tile->get_besch()->ist_mit_boden();
 		}
 	}
 
