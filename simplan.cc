@@ -383,7 +383,32 @@ void planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const si
 	if(gr0->get_flag(grund_t::draw_as_ding)  ||  !gr0->is_karten_boden_visible()) {
 		gr0->display_boden(xpos, ypos, raster_tile_width);
 	}
+
+	// clip everything at the next tile above
+	struct clip_dimension p_cr;
+	if (i<ground_size) {
+		p_cr = display_get_clip_wh();
+		for(uint8 j=i; j<ground_size; j++) {
+			const sint8 h = data.some[j]->get_hoehe();
+			// too high?
+			if (h > hmax) break;
+			// not too low?
+			if (h >= hmin) {
+				// something on top: clip horizontally to prevent trees etc shining trough bridges
+				const sint16 yh = ypos - tile_raster_scale_y( (h-h0)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width) + ((3*raster_tile_width)>>2);
+				if (yh>=p_cr.y   &&  yh<p_cr.y+p_cr.h) {
+					display_set_clip_wh(p_cr.x, yh, p_cr.w, p_cr.h+p_cr.y-yh);
+				}
+				break;
+			}
+		}
+
+	}
 	gr0->display_dinge_all(xpos, ypos, raster_tile_width, is_global);
+	// restore clipping
+	if(i<ground_size) {
+		display_set_clip_wh(p_cr.x, p_cr.y, p_cr.w, p_cr.h);
+	}
 	// above ground
 	for(;  i<ground_size;  i++) {
 		const grund_t* gr=data.some[i];
