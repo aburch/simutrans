@@ -17,6 +17,7 @@
 #include "besch/fabrik_besch.h"
 #include "halthandle_t.h"
 #include "simworld.h"
+#include "utils/plainstring.h"
 
 
 class spieler_t;
@@ -322,8 +323,7 @@ private:
 	arrival_statistics_t arrival_stats_pax;
 	arrival_statistics_t arrival_stats_mail;
 
-
-	const char *name;
+	plainstring name;
 
 	/**
 	 * For advancement of slots for boost calculation
