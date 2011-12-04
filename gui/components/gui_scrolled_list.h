@@ -1,12 +1,11 @@
 #ifndef gui_scrolled_list_h
 #define gui_scrolled_list_h
 
-#include <string.h>
-
 #include "gui_scrollbar.h"
 #include "action_listener.h"
 #include "gui_action_creator.h"
 #include "../../simcolor.h"
+#include "../../utils/plainstring.h"
 
 /**
  * Scrollable list.
@@ -45,18 +44,14 @@ public:
 	// editable text
 	class var_text_scrollitem_t : public scrollitem_t {
 	private:
-		char* text;
+		plainstring text;
+
 	public:
-		var_text_scrollitem_t( const char *t, uint8 col ) : scrollitem_t(col) {
-			text = strdup( t );
-		}
-		~var_text_scrollitem_t() OVERRIDE { free(text); }
+		var_text_scrollitem_t(char const* const t, uint8 const col) : scrollitem_t(col), text(t) {}
+
 		char const* get_text() OVERRIDE { return text; }
-		void set_text(char const* const t) OVERRIDE {
-			assert(  t!=text  );
-			free(text);
-			text = strdup(t);
-		}
+
+		void set_text(char const* const t) OVERRIDE { text = t; }
 	};
 
 	// only uses pointer, non-editable
