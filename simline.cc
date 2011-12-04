@@ -206,16 +206,7 @@ void simline_t::rdwr(loadsave_t *file)
 
 	assert(fpl);
 
-	if(  file->is_loading()  ) {
-		char name[1024];
-		file->rdwr_str(name, lengthof(name));
-		this->name = name;
-	}
-	else {
-		char name[1024];
-		tstrncpy( name, this->name.c_str(), lengthof(name) );
-		file->rdwr_str(name, lengthof(name));
-	}
+	file->rdwr_str(name);
 
 	rdwr_linehandle_t(file, self);
 

@@ -6,14 +6,13 @@
 #ifndef simline_h
 #define simline_h
 
-#include <string>
-
 #include "convoihandle_t.h"
 #include "linehandle_t.h"
 #include "simtypes.h"
 
 #include "tpl/minivec_tpl.h"
 #include "tpl/vector_tpl.h"
+#include "utils/plainstring.h"
 
 #define MAX_LINE_COST   7 // Total number of cost items
 #define MAX_MONTHS     12 // Max history
@@ -46,7 +45,7 @@ protected:
 
 private:
 	static karte_t * welt;
-	std::string name;
+	plainstring name;
 
 	/**
 	 * Handle for ourselves. Can be used like the 'this' pointer
@@ -137,7 +136,7 @@ public:
 	 * get name of line
 	 * @author hsiegeln
 	 */
-	const char *get_name() const { return name.c_str(); }
+	char const* get_name() const { return name; }
 	void set_name(const char *str) { name = str; }
 
 	/*
