@@ -996,6 +996,17 @@ stadt_t::~stadt_t()
 }
 
 
+static bool name_used(weighted_vector_tpl<stadt_t*> const& cities, char const* const name)
+{
+	for (weighted_vector_tpl<stadt_t*>::const_iterator i = cities.begin(), end = cities.end(); i != end; ++i) {
+		if (strcmp((*i)->get_name(), name) == 0) {
+			return true;
+		}
+	}
+	return false;
+}
+
+
 stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 	buildings(16),
 	pax_destinations_old(koord(PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE)),
@@ -1027,28 +1038,20 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 	DBG_MESSAGE("stadt_t::stadt_t()", "Welt %p", welt);
 
 	/* get a unique cityname */
-	/* 9.1.2005, prissi */
-	const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
-	vector_tpl<char *> city_names( translator::get_city_name_list() );
-
-	name = NULL;
-	while(  !city_names.empty()  &&  name==NULL  ) {
-		uint32 idx = simrand(city_names.get_count());
-		for (weighted_vector_tpl<stadt_t*>::const_iterator i = staedte.begin(), end = staedte.end(); i != end; ++i) {
-			if(  strcmp( (*i)->get_name(), city_names[idx] )==0  ) {
-				city_names.remove_at( idx );
-				idx = city_names.get_count();
-				break;
-			}
-		}
-		if(  idx < city_names.get_count()  ) {
-			name = strdup( city_names[idx] );
+	char                          const* n       = "simcity";
+	weighted_vector_tpl<stadt_t*> const& staedte = welt->get_staedte();
+	for (vector_tpl<char*> city_names(translator::get_city_name_list()); !city_names.empty();) {
+		size_t      const idx  = simrand(city_names.get_count());
+		char const* const cand = city_names[idx];
+		if (name_used(staedte, cand)) {
+			city_names.remove_at(idx);
+		} else {
+			n = cand;
+			break;
 		}
 	}
-	if(  name==NULL  ) {
-		name = strdup( "simcity" );
-	}
-	DBG_MESSAGE("stadt_t::stadt_t()", "founding new city named '%s'", name);
+	DBG_MESSAGE("stadt_t::stadt_t()", "founding new city named '%s'", n);
+	name = strdup(n);
 
 	// 1. Rathaus bei 0 Leuten bauen
 	check_bau_rathaus(true);
