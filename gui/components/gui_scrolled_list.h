@@ -65,7 +65,6 @@ public:
 		const char *text;
 	public:
 		const_text_scrollitem_t( const char *t, uint8 col ) : scrollitem_t(col) { text = t; }
-		virtual ~const_text_scrollitem_t() {}
 		const char *get_text() { return text; }
 		virtual void set_text(char *) {}
 	};
