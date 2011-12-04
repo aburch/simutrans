@@ -14,6 +14,7 @@
 #include "tpl/vector_tpl.h"
 #include "tpl/weighted_vector_tpl.h"
 #include "tpl/sparse_tpl.h"
+#include "utils/plainstring.h"
 
 #include <string>
 
@@ -97,7 +98,7 @@ public:
 private:
 	static karte_t *welt;
 	spieler_t *besitzer_p;
-	const char *name;
+	plainstring name;
 
 	weighted_vector_tpl <gebaeude_t *> buildings;
 

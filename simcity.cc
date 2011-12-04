@@ -992,7 +992,6 @@ stadt_t::~stadt_t()
 			}
 		}
 	}
-	free( (void *)name );
 }
 
 
@@ -1051,7 +1050,7 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 		}
 	}
 	DBG_MESSAGE("stadt_t::stadt_t()", "founding new city named '%s'", n);
-	name = strdup(n);
+	name = n;
 
 	// 1. Rathaus bei 0 Leuten bauen
 	check_bau_rathaus(true);
@@ -1099,7 +1098,6 @@ stadt_t::stadt_t(karte_t* wl, loadsave_t* file) :
 	has_low_density = false;
 
 	wachstum = 0;
-	name = NULL;
 	stadtinfo_options = 3;
 
 	rdwr(file);
@@ -1252,7 +1250,7 @@ void stadt_t::laden_abschliessen()
 	next_bau_step = 0;
 
 	// there might be broken savegames
-	if(name==NULL) {
+	if (!name) {
 		set_name( "simcity" );
 	}
 
@@ -1344,10 +1342,7 @@ void stadt_t::rotate90( const sint16 y_size )
 
 void stadt_t::set_name(const char *new_name)
 {
-	if(name==NULL  ||  strcmp(name,new_name)) {
-		free( (void *)name );
-		name = strdup( new_name );
-	}
+	name = new_name;
 	grund_t *gr = welt->lookup_kartenboden(pos);
 	if(gr) {
 		gr->set_text( new_name );
@@ -2130,7 +2125,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 		koord k;
 		int old_layout(0);
 
-		DBG_MESSAGE("check_bau_rathaus()", "bev=%d, new=%d name=%s", bev, neugruendung, name);
+		DBG_MESSAGE("check_bau_rathaus()", "bev=%d, new=%d name=%s", bev, neugruendung, name.c_str());
 
 		if(  bev!=0  ) {
 
@@ -2285,7 +2280,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 		// if not during initialization
 		if (!new_town) {
 			cbuffer_t buf;
-			buf.printf( translator::translate("%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants."), name, get_einwohner() );
+			buf.printf(translator::translate("%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants."), name.c_str(), get_einwohner());
 			welt->get_message()->add_message(buf, best_pos, message_t::city, CITY_KI, besch->get_tile(layout, 0, 0)->get_hintergrund(0, 0, 0));
 		}
 		else {
