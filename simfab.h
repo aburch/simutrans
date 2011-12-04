@@ -93,7 +93,7 @@ public:
 	sint64 get_stat(int month, int stat_type) const { assert(stat_type<MAX_FAB_GOODS_STAT); return statistics[month][stat_type]; }
 	void book_weighted_sum_storage(sint64 delta_time);
 
-	sint32 menge;	// in internal untis shifted by precision (see produktion)
+	sint32 menge;	// in internal untis shifted by precision_bits (see produktion)
 	sint32 max;
 };
 
@@ -101,11 +101,6 @@ public:
 /**
  * Eine Klasse für Fabriken in Simutrans. Fabriken produzieren und
  * verbrauchen Waren und beliefern nahe Haltestellen.
- *
- * Die Abfragefunktionen liefern -1 wenn eine Ware niemals
- * hergestellt oder verbraucht wird, 0 wenn gerade nichts
- * hergestellt oder verbraucht wird und > 0 sonst
- * (entspricht Vorrat/Verbrauch).
  *
  * @date 1998
  * @see haltestelle_t
