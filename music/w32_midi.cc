@@ -18,6 +18,7 @@
 #undef max
 #undef min
 
+#include "../utils/plainstring.h"
 #include "music.h"
 #include "../simsound.h"
 
@@ -25,9 +26,8 @@
 /*
  * MIDI: Owen Rudge
  */
-static int midi_number = -1;
-
-char *midi_filenames[MAX_MIDI];
+static int         midi_number = -1;
+static plainstring midi_filenames[MAX_MIDI];
 
 
 static int OldMIDIVol[2] = {-1, -1};
@@ -57,8 +57,6 @@ void dr_set_midi_volume(int vol)
 
 int dr_load_midi(const char *filename)
 {
-	unsigned j;
-
 		//   printf("dr_load_midi(%s)\n", filename);
 	if(midi_number < MAX_MIDI-1) {
 		const int i = midi_number + 1;
@@ -68,12 +66,12 @@ int dr_load_midi(const char *filename)
 			// MCI doesn't like relative paths
 			// but we get absolute ones anyway
 			// already absolute path
-			midi_filenames[i] = strdup(filename);
+			midi_filenames[i] = filename;
 
 			// need to make dos path seperators
-			for (j = 0; j < strlen(midi_filenames[i]); j++)	{
-				if (midi_filenames[i][j] == '/') {
-					midi_filenames[i][j] = '\\';
+			for (char* j = midi_filenames[i]; *j != '\0'; ++j) {
+				if (*j == '/') {
+					*j = '\\';
 				}
 			}
 
@@ -96,7 +94,7 @@ void dr_play_midi(int key)
 	if (midi_number > 0) {
 
 		if (key >= 0 && key <= midi_number) {
-			sprintf(str, "open \"%s\" type sequencer alias SimuMIDI", midi_filenames[key]);
+			sprintf(str, "open \"%s\" type sequencer alias SimuMIDI", midi_filenames[key].c_str());
 			printf("MCI string: %s\n", str);
 
 			if (mciSendStringA(str, NULL, 0, NULL) != 0) {
