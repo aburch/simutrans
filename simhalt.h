@@ -216,6 +216,8 @@ public:
 		static bool compare(const connection_t &a, const connection_t &b) { return a.halt.get_id() < b.halt.get_id(); }
 	};
 
+	bool is_transfer(const uint8 catg) const { return serving_schedules[catg] > 1u; }
+
 private:
 	slist_tpl<tile_t> tiles;
 
@@ -398,8 +400,9 @@ private:
 		// in member function search_route_resumable(): first transfer halt to get there
 		halthandle_t transfer;
 		uint16 best_weight;
-		uint16 depth:15;
+		uint16 depth:14;
 		bool destination:1;
+		bool overcrowded:1;
 	};
 
 	// store the best weight so far for a halt, and indicate whether it is a destination

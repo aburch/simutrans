@@ -1023,10 +1023,21 @@ void haltestelle_t::remove_fabriken(fabrik_t *fab)
 #define WEIGHT_MIN (WEIGHT_WAIT+WEIGHT_HALT)
 sint32 haltestelle_t::rebuild_connections()
 {
+	// Knightly : halts which either immediately precede or succeed self halt in serving schedules
+	static vector_tpl<halthandle_t> consecutive_halts[256];
+	// Dwachs : halts which either immediately precede or succeed self halt in currently processed schedule
+	static vector_tpl<halthandle_t> consecutive_halts_fpl[256];
+	// remember max number of consecutive halts for one schedule
+	uint8 max_consecutive_halts_fpl[256];
+	MEMZERON(max_consecutive_halts_fpl, warenbauer_t::get_max_catg_index());
+	// Knightly : previous halt supporting the ware categories of the serving line
+	static halthandle_t previous_halt[256];
+
 	// Hajo: first, remove all old entries
 	for(  uint8 i=0;  i<warenbauer_t::get_max_catg_index();  i++  ){
 		connections[i].clear();
 		serving_schedules[i] = 0;
+		consecutive_halts[i].clear();
 	}
 	resort_freight_info = true;	// might result in error in routing
 
@@ -1034,10 +1045,6 @@ sint32 haltestelle_t::rebuild_connections()
 	sint32 connections_searched = 0;
 
 // DBG_MESSAGE("haltestelle_t::rebuild_destinations()", "Adding new table entries");
-
-	// since per schedule the serving_schedules counter must be incremented only once to identify transfer stops (which have >1):
-	uint8 suitable_halt_found[256];
-	MEMZERON(suitable_halt_found, warenbauer_t::get_max_catg_index());
 
 	const spieler_t *owner;
 	schedule_t *fpl;
@@ -1080,11 +1087,12 @@ sint32 haltestelle_t::rebuild_connections()
 			goods_catg_index = &cnv->get_goods_catg_index();
 		}
 
-		// find first own index
-		uint8 first_self_index = 0;
-		while(  first_self_index < fpl->get_count()  &&  get_halt( welt, fpl->eintrag[first_self_index].pos, owner ) != self  ) {
-			++first_self_index;
+		// find the index from which to start processing
+		uint8 start_index = 0;
+		while(  start_index < fpl->get_count()  &&  get_halt( welt, fpl->eintrag[start_index].pos, owner ) != self  ) {
+			++start_index;
 		}
+		++start_index;	// the next index after self halt; it's okay to be out-of-range
 
 		// determine goods category indices supported by this halt
 		supported_catg_index.clear();
@@ -1092,6 +1100,8 @@ sint32 haltestelle_t::rebuild_connections()
 			const uint8 catg_index = (*goods_catg_index)[ctg];
 			if(  is_enabled(catg_index)  ) {
 				supported_catg_index.append(catg_index);
+				previous_halt[catg_index] = self;
+				consecutive_halts_fpl[catg_index].clear();
 			}
 		}
 
@@ -1104,14 +1114,23 @@ sint32 haltestelle_t::rebuild_connections()
 
 		// now we add the schedule to the connection array
 		uint16 aggregate_weight = WEIGHT_WAIT;
-		for(  uint8 j=1;  j<fpl->get_count();  ++j  ) {
+		for(  uint8 j=0;  j<fpl->get_count();  ++j  ) {
 
-			halthandle_t current_halt = get_halt(welt, fpl->eintrag[(first_self_index+j)%fpl->get_count()].pos,owner);
+			halthandle_t current_halt = get_halt(welt, fpl->eintrag[(start_index+j)%fpl->get_count()].pos,owner);
 			if(  !current_halt.is_bound()  ) {
 				// ignore way points
 				continue;
 			}
 			if(  current_halt==self  ) {
+				// Knightly : check for consecutive halts which precede self halt
+				for(  uint8 ctg=0;  ctg<supported_catg_index.get_count();  ++ctg  ) {
+					const uint8 catg_index = supported_catg_index[ctg];
+					if(  previous_halt[catg_index]!=self  ) {
+						consecutive_halts[catg_index].append_unique(previous_halt[catg_index]);
+						consecutive_halts_fpl[catg_index].append_unique(previous_halt[catg_index]);
+						previous_halt[catg_index] = self;
+					}
+				}
 				// reset aggregate weight
 				aggregate_weight = WEIGHT_WAIT;
 				continue;
@@ -1122,8 +1141,12 @@ sint32 haltestelle_t::rebuild_connections()
 			for(  uint8 ctg=0;  ctg<supported_catg_index.get_count();  ++ctg  ) {
 				const uint8 catg_index = supported_catg_index[ctg];
 				if(  current_halt->is_enabled(catg_index)  ) {
-					// there is at least a reachable halt served by this schedule and supporting this goods category
-					suitable_halt_found[catg_index] = true;
+					// Knightly : check for consecutive halts which succeed self halt
+					if(  previous_halt[catg_index]==self  ) {
+						consecutive_halts[catg_index].append_unique(current_halt);
+						consecutive_halts_fpl[catg_index].append_unique(current_halt);
+					}
+					previous_halt[catg_index] = current_halt;
 
 					// either add a new connection or update the weight of an existing connection where necessary
 					connection_t *const existing_connection = connections[catg_index].insert_unique_ordered( connection_t( current_halt, aggregate_weight ), connection_t::compare );
@@ -1136,14 +1159,23 @@ sint32 haltestelle_t::rebuild_connections()
 
 		for(  uint8 ctg=0;  ctg<supported_catg_index.get_count();  ++ctg  ) {
 			const uint8 catg_index = supported_catg_index[ctg];
-			if(  suitable_halt_found[catg_index]  ) {
-				suitable_halt_found[catg_index] = false;
-				if(  serving_schedules[catg_index]<255  ) {
-					serving_schedules[catg_index]++;
-				}
+
+			if (consecutive_halts_fpl[catg_index].get_count() > max_consecutive_halts_fpl[catg_index]) {
+				max_consecutive_halts_fpl[catg_index] = consecutive_halts_fpl[catg_index].get_count();
 			}
 		}
 		connections_searched += fpl->get_count();
+	}
+	for(  uint8 i=0;  i<warenbauer_t::get_max_catg_index();  i++  ){
+		if (!consecutive_halts[i].empty()) {
+			if (consecutive_halts[i].get_count() == max_consecutive_halts_fpl[i]) {
+				// one schedule reaches all consecutive halts -> this is not transfer halt
+				serving_schedules[i] = 1u;
+			}
+			else {
+				serving_schedules[i] = 2u;
+			}
+		}
 	}
 	return connections_searched;
 }
@@ -1245,6 +1277,7 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 
 	open_list.clear();
 
+	uint32 overcrowded_nodes = 0;
 	// initialise the origin node(s)
 	for(  ;  allocation_pointer<start_halt_count;  ++allocation_pointer  ) {
 		halthandle_t start_halt = start_halts[allocation_pointer];
@@ -1255,7 +1288,9 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 		start_data.best_weight = 65535u;
 		start_data.destination = 0;
 		start_data.depth       = 0;
+		start_data.overcrowded = no_routing_over_overcrowding  &&  start_halt->is_overcrowded(ware_catg_idx);
 		start_data.transfer    = halthandle_t();
+		overcrowded_nodes     += start_data.overcrowded;
 
 		markers[ start_halt.get_id() ] = current_marker;
 	}
@@ -1268,7 +1303,12 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 
 		const uint16 current_halt_id = current_node.halt.get_id();
 		halt_data_t & current_halt_data = halt_data[ current_halt_id ];
+		overcrowded_nodes -= current_halt_data.overcrowded;
 
+		if(  overcrowded_nodes  &&  overcrowded_nodes == open_list.get_count()  ) {
+			// all route go over overcrowded stations
+			return ROUTE_OVERCROWDED;
+		}
 		if(  current_halt_data.destination  ) {
 			// destination found
 			ware.set_ziel( current_node.halt );
@@ -1281,27 +1321,16 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 				return_ware->set_zwischenziel(current_halt_data.transfer);
 				const vector_tpl<connection_t> &conns = current_node.halt->connections[ware_catg_idx];
 				// count the connected transfer halts (including end halt)
-				uint8 t = current_node.halt->serving_schedules[ware_catg_idx] > 1;
+				uint8 t = current_node.halt->is_transfer(ware_catg_idx);
 				for(  uint32 i=0; t<=1  &&  i<conns.get_count();  ++i  ) {
-					t += conns[i].halt.is_bound() && conns[i].halt->serving_schedules[ware_catg_idx] > 1;
+					t += conns[i].halt.is_bound() && conns[i].halt->is_transfer(ware_catg_idx);
 				}
 				return_ware->set_zwischenziel(  t<=1  ?  current_halt_data.transfer  : halthandle_t());
 			}
 			// find the next transfer
-			bool via_overcrowded_transfer = false;
 			halthandle_t transfer_halt = current_node.halt;
-			if(  no_routing_over_overcrowding  ) {
-				while(  halt_data[ transfer_halt.get_id() ].depth > 1   ) {
-					transfer_halt = halt_data[ transfer_halt.get_id() ].transfer;
-					if(  !via_overcrowded_transfer  &&  transfer_halt->is_overcrowded(ware_catg_idx)  ) {
-						via_overcrowded_transfer = true;
-					}
-				}
-			}
-			else {
-				while(  halt_data[ transfer_halt.get_id() ].depth > 1   ) {
-					transfer_halt = halt_data[ transfer_halt.get_id() ].transfer;
-				}
+			while(  halt_data[ transfer_halt.get_id() ].depth > 1   ) {
+				transfer_halt = halt_data[ transfer_halt.get_id() ].transfer;
 			}
 			ware.set_zwischenziel(transfer_halt);
 			if(  return_ware  ) {
@@ -1309,7 +1338,7 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 				assert( halt_data[ transfer_halt.get_id() ].transfer.get_id() );
 				return_ware->set_ziel( halt_data[ transfer_halt.get_id() ].transfer );
 			}
-			return via_overcrowded_transfer ? ROUTE_OVERCROWDED : ROUTE_OK;
+			return current_halt_data.overcrowded ? ROUTE_OVERCROWDED : ROUTE_OK;
 		}
 
 		// check if the current halt is already in closed list
@@ -1332,13 +1361,15 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 
 			const uint16 reachable_halt_id = current_conn.halt.get_id();
 
+			const bool overcrowded_transfer = no_routing_over_overcrowding  &&  (current_halt_data.overcrowded  ||  current_conn.halt->is_overcrowded(ware_catg_idx) );
+
 			if(  markers[ reachable_halt_id ]!=current_marker  ) {
 				// Case : not processed before
 
 				// indicate that this halt has been processed
 				markers[ reachable_halt_id ] = current_marker;
 
-				if(  current_conn.halt.is_bound()  &&  current_conn.halt->serving_schedules[ware_catg_idx]>1u  &&  allocation_pointer<max_hops  ) {
+				if(  current_conn.halt.is_bound()  &&  current_conn.halt->is_transfer(ware_catg_idx)  &&  allocation_pointer<max_hops  ) {
 					// Case : transfer halt
 					const uint16 total_weight = current_halt_data.best_weight + current_conn.weight;
 
@@ -1348,6 +1379,8 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 						halt_data[ reachable_halt_id ].destination = 0;
 						halt_data[ reachable_halt_id ].depth       = current_halt_data.depth + 1u;
 						halt_data[ reachable_halt_id ].transfer    = current_node.halt;
+						halt_data[ reachable_halt_id ].overcrowded = overcrowded_transfer;
+						overcrowded_nodes                         += overcrowded_transfer;
 
 						allocation_pointer++;
 						// as the next halt is not a destination add WEIGHT_MIN
@@ -1377,6 +1410,8 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 					// no need to update destination, as halt nature (as destination or transfer) will not change
 					halt_data[ reachable_halt_id ].depth       = current_halt_data.depth + 1u;
 					halt_data[ reachable_halt_id ].transfer    = current_node.halt;
+					halt_data[ reachable_halt_id ].overcrowded = overcrowded_transfer;
+					overcrowded_nodes                         += overcrowded_transfer;
 
 					if (halt_data[ reachable_halt_id ].destination) {
 						best_destination_weight = total_weight;
@@ -1546,7 +1581,7 @@ void haltestelle_t::search_route_resumable(  ware_t &ware   )
 			// update best_destination_weight to leave loop due to first check above
 			best_destination_weight = current_weight;
 			// if this destination halt is not a transfer halt -> do not proceed to process its reachable halt(s)
-			if(  current_node.halt->serving_schedules[ware_catg_idx]<=1u  ) {
+			if(  !current_node.halt->is_transfer(ware_catg_idx)  ) {
 				continue;
 			}
 		}
@@ -1582,7 +1617,7 @@ void haltestelle_t::search_route_resumable(  ware_t &ware   )
 				halt_data[ reachable_halt_id ].depth       = current_halt_data.depth + 1u;
 				halt_data[ reachable_halt_id ].transfer    = current_halt_data.transfer.get_id() ? current_halt_data.transfer : current_conn.halt;
 
-				if(  current_conn.halt->serving_schedules[ware_catg_idx]>1u  &&  allocation_pointer<max_hops  ) {
+				if(  current_conn.halt->is_transfer(ware_catg_idx)  &&  allocation_pointer<max_hops  ) {
 					// Case : transfer halt
 					allocation_pointer++;
 					open_list.insert( route_node_t(current_conn.halt, total_weight) );
@@ -1598,7 +1633,7 @@ void haltestelle_t::search_route_resumable(  ware_t &ware   )
 					halt_data[ reachable_halt_id ].transfer    = current_halt_data.transfer.get_id() ? current_halt_data.transfer : current_conn.halt;
 
 					// for transfer/destination nodes create new node
-					if ( (halt_data[ reachable_halt_id ].destination  ||  current_conn.halt->serving_schedules[ware_catg_idx] > 1u)  &&  allocation_pointer<max_hops ) {
+					if ( (halt_data[ reachable_halt_id ].destination  ||  current_conn.halt->is_transfer(ware_catg_idx) )  &&  allocation_pointer<max_hops ) {
 						halt_data[ reachable_halt_id ].depth = current_halt_data.depth + 1u;
 						allocation_pointer++;
 						open_list.insert( route_node_t(current_conn.halt, total_weight) );

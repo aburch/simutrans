@@ -1765,9 +1765,18 @@ void stadt_t::step_passagiere()
 			}
 			else if(  route_result==haltestelle_t::ROUTE_OVERCROWDED  ) {
 				merke_passagier_ziel(dest_pos, COL_ORANGE );
-				start_halt->add_pax_unhappy(pax_left_to_do);
-				if(  will_return  ) {
-					pax.get_ziel()->add_pax_unhappy(pax_left_to_do);
+				if (start_halt.is_bound()) {
+					start_halt->add_pax_unhappy(pax_left_to_do);
+					if(  will_return  ) {
+						pax.get_ziel()->add_pax_unhappy(pax_left_to_do);
+					}
+				}
+				else {
+					// all routes to goal are overcrowded -> register at all start halts
+					for(  uint32 s=0;  s<start_halts.get_count();  ++s  ) {
+						start_halts[s]->add_pax_unhappy(pax_left_to_do);
+						merke_passagier_ziel(dest_pos, COL_ORANGE);
+					}
 				}
 			}
 			else {
