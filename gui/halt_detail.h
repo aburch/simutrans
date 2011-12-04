@@ -48,7 +48,7 @@ private:
 	slist_tpl<button_t *>linebuttons;
 	slist_tpl<gui_label_t *> convoylabels;
 	slist_tpl<button_t *> convoybuttons;
-	slist_tpl<const char *> label_names;
+	slist_tpl<char*> label_names;
 
 public:
 	halt_detail_t(halthandle_t halt);
