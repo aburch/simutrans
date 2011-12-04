@@ -31,6 +31,12 @@
 #define GCC_ATLEAST(major, minor) (defined __GNUC__ && (__GNUC__ > (major) || (__GNUC__ == (major) && __GNUC_MINOR__ >= (minor))))
 #define CXX11(major, minor)       (__cplusplus >= 201103L || (defined __GXX_EXPERIMENTAL_CXX0X__ && GCC_ATLEAST((major), (minor))))
 
+#if CXX11(4, 4)
+#	define DELETED = delete
+#else
+#	define DELETED
+#endif
+
 #if CXX11(4, 7)
 #	define OVERRIDE override
 #else
