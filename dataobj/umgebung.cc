@@ -80,10 +80,7 @@ uint8 umgebung_t::default_sortmode;
 sint8 umgebung_t::default_mapmode;
 uint8 umgebung_t::show_month;
 sint32 umgebung_t::intercity_road_length;
-const char *umgebung_t::river_type[10] = {
-	0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0,
-};
+plainstring umgebung_t::river_type[10];
 uint8 umgebung_t::river_types;
 sint32 umgebung_t::autosave;
 uint32 umgebung_t::fps;

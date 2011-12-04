@@ -813,9 +813,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 		const char *test = ltrim(contents.get(name) );
 		if(*test) {
 			const int add_river = i<umgebung_t::river_types ? i : umgebung_t::river_types;
-			free( (void *)(umgebung_t::river_type[add_river]) );
-			umgebung_t::river_type[add_river] = NULL;
-			umgebung_t::river_type[add_river] = strdup( test );
+			umgebung_t::river_type[add_river] = test;
 			if(  add_river==umgebung_t::river_types  ) {
 				umgebung_t::river_types++;
 			}

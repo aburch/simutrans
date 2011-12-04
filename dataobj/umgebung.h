@@ -16,6 +16,7 @@
 #include "einstellungen.h"
 
 #include "../tpl/vector_tpl.h"
+#include "../utils/plainstring.h"
 
 #define TILE_HEIGHT_STEP (umgebung_t::pak_tile_height_step)
 
@@ -223,7 +224,7 @@ public:
 	 * Name of rivers; first the river with the lowest number
 	 * @author prissi
 	 */
-	static const char *river_type[10];
+	static plainstring river_type[10];
 	static uint8 river_types;
 
 	enum date_fmt {
