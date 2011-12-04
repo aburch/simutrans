@@ -2008,15 +2008,10 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 			buf.append("\n\n");
 		}
 		has_previous = true;
-		buf.append(ausgang.empty() && !besch->is_electricity_producer() ? translator::translate("Customers live in:") : translator::translate("Arbeiter aus:"));
+		buf.append( is_end_consumer() ? translator::translate("Customers live in:") : translator::translate("Arbeiter aus:") );
 
 		for(  uint32 c=0;  c<target_cities.get_count();  ++c  ) {
-			const stadt_t::factory_entry_t *const pax_entry = target_cities[c]->get_target_factories_for_pax().get_entry(this);
-			const stadt_t::factory_entry_t *const mail_entry = target_cities[c]->get_target_factories_for_mail().get_entry(this);
-			assert( pax_entry && mail_entry );
-
-			buf.printf("\n   %s     ", target_cities[c]->get_name() );
-			buf.printf( translator::translate("Pax <%i>  Mail <%i>"), pax_entry->supply, mail_entry->supply );
+			buf.append("\n");
 		}
 	}
 
@@ -2027,6 +2022,7 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 		}
 		has_previous = true;
 		buf.append(translator::translate("Connected stops"));
+
 		for(  uint i=0;  i<plan->get_haltlist_count();  i++  ) {
 			buf.printf("\n - %s", plan->get_haltlist()[i]->get_name() );
 		}

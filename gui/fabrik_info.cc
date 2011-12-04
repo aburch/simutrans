@@ -30,7 +30,8 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	fab(fab_),
 	chart(fab_),
 	view(gb, koord( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width() * 7) / 8))),
-	scrolly(&cont),
+	scrolly(&fab_info),
+	fab_info(fab_),
 	prod(&prod_buf),
 	txt(&info_buf)
 {
@@ -80,12 +81,12 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	txt.recalc_size();
 	update_info();
 
-	scrolly.set_pos(koord(0, offset_below_viewport+BUTTON_HEIGHT));
+	scrolly.set_pos(koord(0, offset_below_viewport+BUTTON_HEIGHT+3));
 	scrolly.set_show_scroll_x(false);
 	add_komponente(&scrolly);
 
-	gui_frame_t::set_fenstergroesse(koord(TOTAL_WIDTH, 16+offset_below_viewport+BUTTON_HEIGHT+cont.get_groesse().y+10));
-	set_min_windowsize(koord(TOTAL_WIDTH, 16+offset_below_viewport+BUTTON_HEIGHT+LINESPACE*3));
+	gui_frame_t::set_fenstergroesse(koord(TOTAL_WIDTH, 16+offset_below_viewport+BUTTON_HEIGHT+3+fab_info.get_groesse().y+LINESPACE+10-1));
+	set_min_windowsize(koord(TOTAL_WIDTH, 16+offset_below_viewport+BUTTON_HEIGHT+3+LINESPACE*3));
 
 	set_resizemode(vertical_resize);
 	resize(koord(0,0));
@@ -146,7 +147,7 @@ void fabrik_info_t::zeichnen(koord pos, koord gr)
 	fab->info_prod( prod_buf );
 	fab->info_conn( info_buf );
 	txt.recalc_size();
-	if(  cont.get_groesse().y!=txt.get_groesse().y-3  ) {
+	if(  fab_info.get_groesse().y!=txt.get_groesse().y-LINESPACE  ) {
 		update_info();
 	}
 	gui_frame_t::zeichnen(pos,gr);
@@ -216,8 +217,8 @@ bool fabrik_info_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		}
 		chart_button.set_pos( koord(BUTTON3_X,offset_below_viewport) );
 		details_button.set_pos( koord(BUTTON4_X,offset_below_viewport) );
-		scrolly.set_pos( koord(0,offset_below_viewport+BUTTON_HEIGHT) );
-		set_min_windowsize(koord(TOTAL_WIDTH, 16+offset_below_viewport+BUTTON_HEIGHT+LINESPACE*3));
+		scrolly.set_pos( koord(0,offset_below_viewport+BUTTON_HEIGHT+3) );
+		set_min_windowsize(koord(TOTAL_WIDTH, 16+offset_below_viewport+BUTTON_HEIGHT+3+LINESPACE*3));
 		resize( koord(0,(chart_button.pressed ? chart.get_groesse().y : -chart.get_groesse().y) ) );
 	}
 	else if(komp == &input) {
@@ -246,18 +247,18 @@ void fabrik_info_t::update_info()
 	gui_frame_t::set_name( fabname );
 	input.set_text( fabname, lengthof(fabname) );
 
-	cont.remove_all();
+	fab_info.remove_all();
 
 	delete [] lieferbuttons;
 	delete [] supplierbuttons;
 	delete [] stadtbuttons;
 
 	// needs to update all text
-	cont.set_pos( koord(0,0) );
+	fab_info.set_pos( koord(0,0) );
 	txt.set_pos( koord(10,-LINESPACE) );
-	cont.add_komponente(&txt);
+	fab_info.add_komponente(&txt);
 
-	int y_off = LINESPACE-3;
+	int y_off = LINESPACE;
 
 	const vector_tpl <koord> & lieferziele =  fab->get_lieferziele();
 #ifdef _MSC_VER
@@ -272,10 +273,11 @@ void fabrik_info_t::update_info()
 		lieferbuttons[i].set_typ(button_t::posbutton);
 		lieferbuttons[i].set_targetpos(lieferziele[i]);
 		lieferbuttons[i].add_listener(this);
-		cont.add_komponente(&lieferbuttons[i]);
+		fab_info.add_komponente(&lieferbuttons[i]);
 	}
 
 	y_off += (lieferziele.get_count() ? 2*LINESPACE : 0);
+
 	const vector_tpl <koord> & suppliers =  fab->get_suppliers();
 #ifdef _MSC_VER
 	// V.Meyer: MFC has a bug with "new x[0]"
@@ -289,7 +291,7 @@ void fabrik_info_t::update_info()
 		supplierbuttons[i].set_typ(button_t::posbutton);
 		supplierbuttons[i].set_targetpos(suppliers[i]);
 		supplierbuttons[i].add_listener(this);
-		cont.add_komponente(&supplierbuttons[i]);
+		fab_info.add_komponente(&supplierbuttons[i]);
 	}
 
 	y_off += (suppliers.get_count() ? 2*LINESPACE : 0);
@@ -307,7 +309,58 @@ void fabrik_info_t::update_info()
 		stadtbuttons[c].set_typ(button_t::posbutton);
 		stadtbuttons[c].set_targetpos(target_cities[c]->get_pos());
 		stadtbuttons[c].add_listener(this);
-		cont.add_komponente(&stadtbuttons[c]);
+		fab_info.add_komponente(&stadtbuttons[c]);
 	}
-	cont.set_groesse( koord( cont.get_groesse().x, txt.get_groesse().y-3 ) );
+	fab_info.set_groesse( koord( fab_info.get_groesse().x, txt.get_groesse().y-LINESPACE ) );
+}
+
+
+// component for city demand icons display
+gui_fabrik_info_t::gui_fabrik_info_t(const fabrik_t* fab)
+{
+	this->fab = fab;
+}
+
+
+void gui_fabrik_info_t::zeichnen(koord offset)
+{
+	int xoff = pos.x+offset.x+10+16;
+	int yoff = pos.y+offset.y;
+
+	gui_container_t::zeichnen( offset );
+
+	yoff += fab->get_lieferziele().get_count() * LINESPACE;
+	yoff += fab->get_lieferziele().get_count() ? 2*LINESPACE : 0;
+
+	yoff += fab->get_suppliers().get_count() * LINESPACE;
+	yoff += fab->get_suppliers().get_count() ? 2*LINESPACE : 0;
+
+	const vector_tpl<stadt_t *> &target_cities = fab->get_target_cities();
+	if(  !target_cities.empty()  ) {
+		yoff += LINESPACE;
+
+		for(  uint32 c = 0;  c < target_cities.get_count();  c++  ) {
+			const stadt_t::factory_entry_t *const pax_entry = target_cities[c]->get_target_factories_for_pax().get_entry(fab);
+			const stadt_t::factory_entry_t *const mail_entry = target_cities[c]->get_target_factories_for_mail().get_entry(fab);
+			assert( pax_entry && mail_entry );
+
+			cbuffer_t buf;
+			int w;
+
+			buf.clear();
+			buf.printf("%i", pax_entry->supply);
+			w = proportional_string_width( buf );
+			display_proportional_clip( xoff+18+(w>21?w-21:0), yoff, buf, ALIGN_RIGHT, COL_BLACK, true );
+			display_color_img(skinverwaltung_t::passagiere->get_bild_nr(0), xoff+20+1+(w>21?w-21:0), yoff, 0, false, false);
+
+			buf.clear();
+			buf.printf("%i", mail_entry->supply);
+			w = proportional_string_width( buf );
+			display_proportional_clip( xoff+62+(w>21?w-21:0), yoff, buf, ALIGN_RIGHT, COL_BLACK, true );
+			display_color_img(skinverwaltung_t::post->get_bild_nr(0), xoff+64+1+(w>21?w-21:0), yoff, 0, false, false);
+
+			display_proportional_clip( xoff+90, yoff, target_cities[c]->get_name(), ALIGN_LEFT, COL_BLACK, true );
+			yoff += LINESPACE;
+		}
+	}
 }
