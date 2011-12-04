@@ -17,7 +17,7 @@ COLOR_VAL line_scrollitem_t::get_color()
 }
 
 
-void line_scrollitem_t::set_text(char *t)
+void line_scrollitem_t::set_text(char const* const t)
 {
 	if(  t  &&  t[0]  &&  strcmp(t, line->get_name())) {
 		// text changed => call tool

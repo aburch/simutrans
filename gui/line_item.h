@@ -17,7 +17,7 @@ public:
 	linehandle_t get_line() const { return line; }
 	void set_color(COLOR_VAL) { assert(false); }
 	virtual const char *get_text();
-	virtual void set_text(char *t);
+	virtual void set_text(char const*);
 	virtual bool is_valid() { return line.is_bound(); }	//  can be used to indicate invalid entries
 };
 

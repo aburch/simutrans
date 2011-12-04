@@ -38,7 +38,7 @@ public:
 		virtual uint8 get_color() { return color; }
 		virtual void set_color(uint8 col) { color = col; }
 		virtual const char *get_text() = 0;
-		virtual void set_text(char *) = 0;
+		virtual void set_text(char const*) = 0;
 		virtual bool is_valid() { return true; }	//  can be used to indicate invalid entries
 	};
 
@@ -52,7 +52,7 @@ public:
 		}
 		virtual ~var_text_scrollitem_t() { free(text); }
 		const char *get_text() { return text; }
-		virtual void set_text(char *t) {
+		virtual void set_text(char const* const t) {
 			assert(  t!=text  );
 			free(text);
 			text = strdup(t);
@@ -66,7 +66,7 @@ public:
 	public:
 		const_text_scrollitem_t( const char *t, uint8 col ) : scrollitem_t(col) { text = t; }
 		const char *get_text() { return text; }
-		virtual void set_text(char *) {}
+		virtual void set_text(char const*) {}
 	};
 
 private:
