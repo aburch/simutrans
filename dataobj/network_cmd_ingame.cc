@@ -576,20 +576,6 @@ bool nwc_tool_t::cmp_default_param(const char *d1, const char *d2)
 }
 
 
-void nwc_tool_t::tool_node_t::set_default_param(const char* param) {
-	if (param == default_param) {
-		return;
-	}
-	if (default_param) {
-		free( (void *)default_param );
-		default_param = NULL;
-	}
-	if (param) {
-		default_param = strdup(param);
-	}
-}
-
-
 void nwc_tool_t::tool_node_t::set_tool(werkzeug_t *wkz_) {
 	if (wkz == wkz_) {
 		return;

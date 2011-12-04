@@ -4,6 +4,7 @@
 #include "network_cmd.h"
 #include "../simworld.h"
 #include "../tpl/slist_tpl.h"
+#include "../utils/plainstring.h"
 #include "koord3d.h"
 
 class memory_rw_t;
@@ -227,16 +228,18 @@ private:
 	 */
 	class tool_node_t {
 	private:
-		const char* default_param;
+		plainstring default_param;
 		werkzeug_t *wkz;
-		// own memory management for default_param
-		void set_default_param(const char* param);
+
+		void set_default_param(char const* param) { default_param = param; }
+
 		void set_tool(werkzeug_t *wkz_);
 	public:
 		uint32 client_id;
 		uint8 player_id;
-		tool_node_t() : default_param(NULL), wkz(NULL), client_id(0), player_id(255) {}
-		tool_node_t(werkzeug_t *_wkz, uint8 _player_id, uint32 _client_id) : default_param(NULL), wkz(_wkz), client_id(_client_id), player_id(_player_id) {}
+
+		tool_node_t() : wkz(NULL), client_id(0), player_id(255) {}
+		tool_node_t(werkzeug_t *_wkz, uint8 _player_id, uint32 _client_id) : wkz(_wkz), client_id(_client_id), player_id(_player_id) {}
 
 		const char* get_default_param() const { return default_param;}
 
