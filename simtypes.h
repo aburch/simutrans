@@ -29,6 +29,7 @@
 #endif
 
 #define GCC_ATLEAST(major, minor) (defined __GNUC__ && (__GNUC__ > (major) || (__GNUC__ == (major) && __GNUC_MINOR__ >= (minor))))
+#define CXX11(major, minor)       (__cplusplus >= 201103L || (defined __GXX_EXPERIMENTAL_CXX0X__ && GCC_ATLEAST((major), (minor))))
 
 #ifdef __cplusplus
 #	define ENUM_BITSET(T) \
