@@ -10,6 +10,7 @@
 #include "../simversion.h"
 #include "../simmem.h"
 #include "../simdebug.h"
+#include "../utils/plainstring.h"
 #include "loadsave.h"
 
 #include "../utils/simstring.h"
@@ -771,6 +772,19 @@ void loadsave_t::rdwr_str(char* s, size_t const size)
 				}
 			}
 		}
+	}
+}
+
+
+void loadsave_t::rdwr_str(plainstring& s)
+{
+	if (is_loading()) {
+		char buf[1024];
+		rdwr_str(buf, lengthof(buf));
+		s = buf;
+	} else {
+		char const* tmp = s.c_str();
+		rdwr_str(tmp);
 	}
 }
 

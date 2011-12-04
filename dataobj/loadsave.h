@@ -16,6 +16,8 @@
 
 #define INVALID_RDWR_ID (-1)
 
+class plainstring;
+
 /**
  * loadsave_t:
  *
@@ -105,6 +107,8 @@ public:
 
 	// s is a buf of size given
 	void rdwr_str(char* s, size_t size);
+
+	void rdwr_str(plainstring&);
 
 	// only meaningful for XML
 	void start_tag( const char *tag );
