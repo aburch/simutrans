@@ -13,12 +13,12 @@ private:
 	linehandle_t line;
 public:
 	line_scrollitem_t( linehandle_t l ) : gui_scrolled_list_t::scrollitem_t( COL_ORANGE ) { line = l; }
-	COLOR_VAL get_color();
+	COLOR_VAL get_color() OVERRIDE;
 	linehandle_t get_line() const { return line; }
-	void set_color(COLOR_VAL) { assert(false); }
-	virtual const char *get_text();
-	virtual void set_text(char const*);
-	virtual bool is_valid() { return line.is_bound(); }	//  can be used to indicate invalid entries
+	void set_color(COLOR_VAL) OVERRIDE { assert(false); }
+	char const* get_text() OVERRIDE;
+	void set_text(char const*) OVERRIDE;
+	bool is_valid() OVERRIDE { return line.is_bound(); }	//  can be used to indicate invalid entries
 };
 
 #endif

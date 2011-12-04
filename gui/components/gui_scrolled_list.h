@@ -50,9 +50,9 @@ public:
 		var_text_scrollitem_t( const char *t, uint8 col ) : scrollitem_t(col) {
 			text = strdup( t );
 		}
-		virtual ~var_text_scrollitem_t() { free(text); }
-		const char *get_text() { return text; }
-		virtual void set_text(char const* const t) {
+		~var_text_scrollitem_t() OVERRIDE { free(text); }
+		char const* get_text() OVERRIDE { return text; }
+		void set_text(char const* const t) OVERRIDE {
 			assert(  t!=text  );
 			free(text);
 			text = strdup(t);
@@ -65,8 +65,8 @@ public:
 		const char *text;
 	public:
 		const_text_scrollitem_t( const char *t, uint8 col ) : scrollitem_t(col) { text = t; }
-		const char *get_text() { return text; }
-		virtual void set_text(char const*) {}
+		char const* get_text() OVERRIDE { return text; }
+		void set_text(char const*) OVERRIDE {}
 	};
 
 private:
