@@ -1909,6 +1909,7 @@ uint32 haltestelle_t::starte_mit_route(ware_t ware)
 	{
 		// add to internal storage
 		add_ware_to_halt(ware);
+		return ware.menge;
 	}
 }
 

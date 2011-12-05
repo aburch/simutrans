@@ -5396,8 +5396,8 @@ const char *wkz_make_stop_public_t::work( karte_t *welt, spieler_t *sp, koord3d 
 				halt->make_public_and_join(sp);
  			}
 		}
-	return NULL;
 	}
+	return NULL;
 }
 
 sint8 wkz_show_underground_t::save_underground_level = -128;
@@ -6535,6 +6535,11 @@ bool wkz_access_t::init(karte_t* const welt, spieler_t *sp)
 	}
 
 	spieler_t* const setting_player = welt->get_spieler(id_setting_player);
+	if(!setting_player)
+	{
+		return false;
+	}
+
 	setting_player->set_allow_access_to(id_receiving_player, allow_access);
 	if(allow_access == false)
 	{
@@ -6542,9 +6547,7 @@ bool wkz_access_t::init(karte_t* const welt, spieler_t *sp)
 		// that convoys may not be able to stop where once they were able to stop.
 		spieler_t* const receiving_player = welt->get_spieler(id_receiving_player);
 		schedule_t* fpl;
-		uint8 count;
 		koord3d pos;
-		weg_t* way;
 		waytype_t waytype;
 		spieler_t* halt_owner;
 		uint8 current_aktuell;
@@ -6599,10 +6602,14 @@ bool wkz_access_t::init(karte_t* const welt, spieler_t *sp)
 		for(uint32 i = 0; i < convoy_count; i ++)
 		{
 			cnv = welt->get_convoi(i);
-			fpl = cnv->get_schedule();
-			if(!cnv.is_bound() || cnv->get_line().is_bound() || !fpl)
+			if(!cnv.is_bound() || cnv->get_line().is_bound())
 			{
 				// We dealt above with lines.
+				continue;
+			}
+			fpl = cnv->get_schedule();
+			if(!fpl)
+			{
 				continue;
 			}
 			current_aktuell = fpl->get_aktuell();
@@ -6652,6 +6659,7 @@ bool wkz_access_t::init(karte_t* const welt, spieler_t *sp)
 		message.printf("%s has withdrawn access rights from %s",  welt->get_spieler(id_setting_player)->get_name(), welt->get_spieler(id_receiving_player)->get_name());
 	}
 	welt->get_message()->add_message(message, koord::invalid, message_t::ai, setting_player->get_player_color1());
+	return false;
 }
 
 
