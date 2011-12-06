@@ -195,7 +195,7 @@ private:
 	 */
 	virtual void calc_drag_coefficient(const grund_t *gr);
 
-	sint32 calc_modified_speed_limit(const koord3d *position, ribi_t::ribi current_direction, bool is_corner);
+	sint32 calc_modified_speed_limit(koord3d position, ribi_t::ribi current_direction, bool is_corner);
 
 	/**
 	 * Unload freight to halt
