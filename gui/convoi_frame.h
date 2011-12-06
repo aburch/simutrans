@@ -32,10 +32,30 @@ class convoi_frame_t :
 {
 public:
 	enum sort_mode_t { nach_name=0, nach_gewinn=1, nach_typ=2, nach_id=3, SORT_MODES=4 };
-	enum filter_flag_t { any_filter=1, name_filter=2, typ_filter=4, ware_filter=8, spezial_filter=16,
-		sub_filter=32,	// Ab hier beginnen die Unterfilter!
-		lkws_filter=32, zuege_filter=64, schiffe_filter=128, aircraft_filter=256,
-		noroute_filter=512, nofpl_filter=1024, noincome_filter=2048, indepot_filter=4096, noline_filter=8192, stucked_filter=16384, monorail_filter=32768, maglev_filter=65536, narrowgauge_filter=131072, tram_filter=131072*2, obsolete_filter=131072*4 };
+	enum filter_flag_t {
+		any_filter     =1,
+		name_filter    =2,
+		typ_filter     =4,
+		ware_filter    =8,
+		spezial_filter =16,
+		lkws_filter        = 1 << 5,
+		zuege_filter       = 1 << 6,
+		schiffe_filter     = 1 << 7,
+		aircraft_filter    = 1 << 8,
+		noroute_filter     = 1 << 9,
+		nofpl_filter       = 1 << 10,
+		noincome_filter    = 1 << 11,
+		indepot_filter     = 1 << 12,
+		noline_filter      = 1 << 13,
+		stucked_filter     = 1 << 14,
+		monorail_filter    = 1 << 15,
+		maglev_filter      = 1 << 16,
+		narrowgauge_filter = 1 << 17,
+		tram_filter        = 1 << 18,
+		obsolete_filter    = 1 << 19,
+		// number of first special filter
+		sub_filter         = lkws_filter
+	};
 
 private:
 	spieler_t *owner;

@@ -62,31 +62,31 @@ const char *convoi_filter_frame_t::filter_buttons_text[FILTER_BUTTONS] = {
 };
 
 convoi_frame_t::filter_flag_t convoi_filter_frame_t::filter_buttons_types[FILTER_BUTTONS] = {
-    convoi_frame_t::name_filter,
-    convoi_frame_t::typ_filter,
-    convoi_frame_t::lkws_filter,
-    convoi_frame_t::zuege_filter,
-    convoi_frame_t::schiffe_filter,
-    convoi_frame_t::aircraft_filter,
-    convoi_frame_t::spezial_filter,
-    convoi_frame_t::noroute_filter,
-    convoi_frame_t::stucked_filter,
-    convoi_frame_t::noincome_filter,
-    convoi_frame_t::indepot_filter,
-    convoi_frame_t::nofpl_filter,
-    convoi_frame_t::noline_filter,
-    convoi_frame_t::ware_filter,
-    convoi_frame_t::monorail_filter,
-    convoi_frame_t::maglev_filter,
-    convoi_frame_t::narrowgauge_filter,
+	convoi_frame_t::name_filter,
+	convoi_frame_t::typ_filter,
+	convoi_frame_t::lkws_filter,
+	convoi_frame_t::zuege_filter,
+	convoi_frame_t::schiffe_filter,
+	convoi_frame_t::aircraft_filter,
+	convoi_frame_t::spezial_filter,
+	convoi_frame_t::noroute_filter,
+	convoi_frame_t::stucked_filter,
+	convoi_frame_t::noincome_filter,
+	convoi_frame_t::indepot_filter,
+	convoi_frame_t::nofpl_filter,
+	convoi_frame_t::noline_filter,
+	convoi_frame_t::ware_filter,
+	convoi_frame_t::monorail_filter,
+	convoi_frame_t::maglev_filter,
+	convoi_frame_t::narrowgauge_filter,
 	convoi_frame_t::tram_filter,
 	convoi_frame_t::obsolete_filter
 };
 
 
 convoi_filter_frame_t::convoi_filter_frame_t(spieler_t *sp, convoi_frame_t *main_frame) :
-    gui_frame_t( translator::translate("clf_title"), sp),
-    ware_scrolly(&ware_cont)
+	gui_frame_t( translator::translate("clf_title"), sp),
+	ware_scrolly(&ware_cont)
 {
 	unsigned i;
 	unsigned n;
