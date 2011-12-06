@@ -17,6 +17,7 @@
 #include "components/gui_label.h"
 #include "components/gui_button.h"
 #include "components/gui_tab_panel.h"
+#include "../tpl/array2d_tpl.h"
 
 class stadt_t;
 template <class T> class sparse_tpl;
@@ -34,6 +35,8 @@ private:
 
 	stadt_t *stadt;
 
+	uint32 minimapSize;	// size of minimaps
+
     button_t allow_growth;
 
 	gui_textinput_t name_input;
@@ -45,13 +48,12 @@ private:
 	button_t filterButtons[MAX_CITY_HISTORY];
 	bool bFilterIsActive[MAX_CITY_HISTORY];
 
-	uint8* pax_dest_old;
-	uint8* pax_dest_new;
+	array2d_tpl<uint8> pax_dest_old, pax_dest_new;
 
 	unsigned long pax_destinations_last_change;
 
-	void init_pax_dest( uint8* pax_dest );
-	void add_pax_dest( uint8* pax_dest, const sparse_tpl< uint8 >* city_pax_dest );
+	void init_pax_dest( array2d_tpl<uint8> &pax_dest );
+	void add_pax_dest( array2d_tpl<uint8> &pax_dest, const sparse_tpl< uint8 >* city_pax_dest );
 
 	void rename_city();
 
@@ -94,6 +96,18 @@ public:
 	bool infowin_event(const event_t *ev);
 
 	void update_data();
+
+	/**
+	 * Does this window need a min size button in the title bar?
+	 * @return true if such a button is needed
+	 * @author Hj. Malthaner
+	 */
+	virtual bool has_min_sizer() const {return true;}
+
+	/**
+	* Set window size and adjust component sizes and/or positions accordingly
+	*/
+	virtual void set_fenstergroesse(koord groesse);
 };
 
 #endif

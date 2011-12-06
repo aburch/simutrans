@@ -51,7 +51,7 @@ public:
 
 		char const* get_text() OVERRIDE { return text; }
 
-		void set_text(char const* const t) OVERRIDE { text = t; }
+		void set_text(char const *t) OVERRIDE { text = t; }
 	};
 
 	// only uses pointer, non-editable
@@ -61,7 +61,7 @@ public:
 	public:
 		const_text_scrollitem_t( const char *t, uint8 col ) : scrollitem_t(col) { text = t; }
 		char const* get_text() OVERRIDE { return text; }
-		void set_text(char const*) OVERRIDE {}
+		void set_text(char const *) OVERRIDE {}
 	};
 
 private:

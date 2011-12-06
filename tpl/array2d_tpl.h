@@ -52,7 +52,8 @@ public:
 		return h;
 	}
 
-	void init( T value ) {
+	void init( T value )
+	{
 		if(sizeof(T)==1) {
 			memset( data, value, w*h );
 		}
@@ -64,28 +65,41 @@ public:
 		}
 	}
 
-	T& at(unsigned x, unsigned y) {
-		if(x<w  &&  y<h) {
-			return data[y*w + x];
+	// YOu will loose all informations in the array
+	void resize(unsigned resize_x, unsigned resize_y )
+	{
+		if( w*h != resize_x*resize_y  ) {
+			T* new_data = new T[resize_x*resize_y];
+			delete [] data;
+			data = new_data;
 		}
-		else {
-			dbg->fatal("array2d_tpl<T>::at()","index out of bounds: (%d,%d) not in (0..%d, 0..%d)", x, y, w-1, h-1);
-			return data[0];//dummy
-		}
+		w = resize_x;
+		h = resize_y;
 	}
 
-	T& at(koord k) {
+	T& at(unsigned x, unsigned y)
+	{
+		if(  (int)((w-x)|(h-y))<0  ) {
+			dbg->fatal("array2d_tpl<T>::at()","index out of bounds: (%d,%d) not in (0..%d, 0..%d)", x, y, w-1, h-1);
+		}
+		return data[y*w + x];
+	}
+
+	T& at(koord k)
+	{
 		return at((unsigned)k.x, (unsigned)k.y);
 	}
 
 	/*
 	 * use this with care, you'll lose all checks!
 	 */
-	const T* to_array() const {
+	const T* to_array() const
+	{
 		return data;
 	}
 
-	array2d_tpl<T> & operator = (const array2d_tpl <T> &other) {
+	array2d_tpl<T> & operator = (const array2d_tpl <T> &other)
+	{
 		if(  this != &other  ) // protect against invalid self-assignment
         {
 			if(  h != other.h  &&  w != other.w  ) {
