@@ -1350,7 +1350,7 @@ void vehikel_t::hop()
 			//pre_corner_direction.add_to_tail(999);
 		//}
 
-		speed_limit = calc_modified_speed_limit(&get_pos(), fahrtrichtung, (alte_fahrtrichtung != fahrtrichtung));
+		speed_limit = calc_modified_speed_limit(get_pos(), fahrtrichtung, (alte_fahrtrichtung != fahrtrichtung));
 		if(weg->is_crossing()) 
 		{
 			gr->find<crossing_t>(2)->add_to_crossing(this);
@@ -1386,10 +1386,10 @@ void vehikel_t::hop()
  * taking into account the curve and weight limit.
  * @author: jamespetts
  */
-sint32 vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi current_direction, bool is_corner)
+sint32 vehikel_t::calc_modified_speed_limit(const koord3d position, ribi_t::ribi current_direction, bool is_corner)
 {
 	grund_t *g;
-	g = welt->lookup(*position);
+	g = welt->lookup(position);
 	if(g == NULL)
 	{
 		return speed_limit;
@@ -1452,7 +1452,7 @@ sint32 vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::rib
 		ribi_t::ribi old_direction = current_direction;
 		if(previous_tile != NULL)
 		{
-			old_direction = calc_check_richtung(previous_tile->get_2d(), position->get_2d());
+			old_direction = calc_check_richtung(previous_tile->get_2d(), position.get_2d());
 		}
 	
 		uint16 limit_adjustment_percentage = 100;

@@ -1241,7 +1241,7 @@ void haltestelle_t::remove_fabriken(fabrik_t *fab)
 
 uint16 haltestelle_t::get_average_waiting_time(halthandle_t halt, uint8 category) const
 {
-	if(&waiting_times[category].get(halt.get_id()) != NULL)
+	if(waiting_times[category].is_contained((halt.get_id())))
 	{
 		fixed_list_tpl<uint16, 16> times = waiting_times[category].get(halt.get_id()).times;
 		const uint16 count = times.get_count();
