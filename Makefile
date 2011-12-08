@@ -245,6 +245,7 @@ SOURCES += gui/colors.cc
 SOURCES += gui/components/gui_button.cc
 SOURCES += gui/components/gui_chart.cc
 SOURCES += gui/components/gui_combobox.cc
+SOURCES += gui/components/ding_view_t.cc
 SOURCES += gui/components/gui_fixedwidth_textarea.cc
 SOURCES += gui/components/gui_flowtext.cc
 SOURCES += gui/components/gui_image_list.cc

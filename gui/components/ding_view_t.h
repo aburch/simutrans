@@ -10,11 +10,17 @@ class ding_view_t : public world_view_t
 	public:
 		ding_view_t(karte_t *w, koord const size) : world_view_t(w, size), ding(NULL) {}
 
-		ding_view_t(ding_t const* d, koord const size) : world_view_t(d->get_welt(), size), ding(d) {}
+		ding_view_t(ding_t const* d, koord const size);
 
 		ding_t const* get_ding() const { return ding; }
 
 		void zeichnen(koord offset) { internal_draw(offset, ding); }
+
+		/**
+		 * resize window in response to a resize event
+		 * need to recalculate the list of offsets
+		 */
+		virtual void set_groesse(koord groesse);
 
 	protected:
 		koord3d get_location() { return ding->get_pos(); }

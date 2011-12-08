@@ -9,6 +9,7 @@
 #define world_view_t_h
 
 #include "gui_komponente.h"
+#include "../../simgraph.h"
 #include "../../dataobj/koord3d.h"
 #include "../../tpl/vector_tpl.h"
 
@@ -25,6 +26,8 @@ class world_view_t : public gui_komponente_t
 {
 	public:
 		world_view_t(karte_t*, koord size);
+
+		world_view_t(karte_t* const welt) : raster(get_base_tile_raster_width()), welt(welt) {}
 
 		/**
 		 * Events werden hiermit an die GUI-Komponenten
@@ -44,6 +47,8 @@ class world_view_t : public gui_komponente_t
 		virtual koord3d get_location() = 0;
 
 		void internal_draw(koord offset, ding_t const*);
+
+		void calc_offsets(koord size, sint16 dy_off);
 
 	private:
 		vector_tpl<koord> offsets; /**< Offsets are stored. */
