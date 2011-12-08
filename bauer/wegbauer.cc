@@ -2189,7 +2189,7 @@ void wegbauer_t::baue_schiene()
 				if(besch->get_wtyp()==water_wt  &&  gr->get_hoehe()==welt->get_grundwasser()) {
 					grund_t *sea = welt->lookup_kartenboden(gr->get_pos().get_2d() - koord( ribi_typ(gr->get_grund_hang() ) ));
 					if (sea  &&  sea->ist_wasser()) {
-						gr->weg_erweitern(water_wt, ribi_t::rueckwaerts(ribi));
+						gr->weg_erweitern(water_wt, ribi_t::doppelt(ribi_typ(gr->get_grund_hang() )));
 						sea->calc_bild();
 					}
 				}
