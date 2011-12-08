@@ -22,7 +22,7 @@
 #include "gui/jump_frame.h"
 #include "gui/optionen.h"
 #include "gui/map_frame.h"
-#include "gui/colors.h"
+#include "gui/display_settings.h"
 #include "gui/player_frame_t.h"
 #include "gui/loadsave_frame.h"
 #include "gui/money_frame.h"

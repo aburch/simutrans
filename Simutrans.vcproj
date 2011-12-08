@@ -286,10 +286,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\gui\colors.cc"
-				>
-			</File>
-			<File
 				RelativePath=".\gui\convoi_detail_t.cc"
 				>
 			</File>
@@ -335,6 +331,10 @@
 			</File>
 			<File
 				RelativePath=".\dataobj\dingliste.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\gui\display_settings.cc"
 				>
 			</File>
 			<File
@@ -1294,10 +1294,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\gui\colors.h"
-				>
-			</File>
-			<File
 				RelativePath=".\gui\convoi_detail_t.h"
 				>
 			</File>
@@ -1351,6 +1347,10 @@
 			</File>
 			<File
 				RelativePath=".\dataobj\dingliste.h"
+				>
+			</File>
+			<File
+				RelativePath=".\gui\display_settings.h"
 				>
 			</File>
 			<File

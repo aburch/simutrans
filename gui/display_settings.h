@@ -1,5 +1,5 @@
-#ifndef color_gui_h
-#define color_gui_h
+#ifndef _display_settings_h_
+#define _display_settings_h_
 
 #include "gui_frame.h"
 #include "components/gui_button.h"

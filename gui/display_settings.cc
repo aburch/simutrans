@@ -7,7 +7,7 @@
 
 #include "components/list_button.h"
 
-#include "colors.h"
+#include "display_settings.h"
 
 #include "../simdebug.h"
 #include "../simworld.h"
