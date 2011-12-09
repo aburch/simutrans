@@ -141,11 +141,11 @@ bool goods_frame_t::compare_goods(uint16 const a, uint16 const b)
 				const sint32 grundwert1282 = w2->get_preis()<<7;
 				const sint32 grundwert_bonus2 = w2->get_preis()*(1000l+(relative_speed_change-100l)*w2->get_speed_bonus());
 				const sint32 price2 = (grundwert1282>grundwert_bonus2 ? grundwert1282 : grundwert_bonus2);
-				order = price2-price1;
+				order = price1-price2;
 			}
 			break;
 		case 3: // sort by speed bonus
-			order = w2->get_speed_bonus()-w1->get_speed_bonus();
+			order = w1->get_speed_bonus()-w2->get_speed_bonus();
 			break;
 		case 4: // sort by catg_index
 			order = w1->get_catg()-w2->get_catg();
