@@ -14,7 +14,7 @@
 #include "components/gui_textarea.h"
 #include "components/gui_textinput.h"
 #include "components/gui_button.h"
-#include "components/location_view_t.h"
+#include "components/gui_location_view_t.h"
 #include "components/action_listener.h"
 #include "components/gui_chart.h"
 

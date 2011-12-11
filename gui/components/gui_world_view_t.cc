@@ -21,12 +21,21 @@
 #include "../../dataobj/koord3d.h"
 
 
+karte_t *world_view_t::welt = NULL;
 
-world_view_t::world_view_t(karte_t* const welt, koord const size) :
-	raster(get_base_tile_raster_width()),
-	welt(welt)
+
+world_view_t::world_view_t(karte_t* w, koord size ) :
+		raster(get_base_tile_raster_width())
 {
-	set_groesse(size);
+	welt = w;
+	set_groesse( size );
+}
+
+
+world_view_t::world_view_t(karte_t* w) :
+		raster(get_base_tile_raster_width())
+{
+	welt = w;
 }
 
 

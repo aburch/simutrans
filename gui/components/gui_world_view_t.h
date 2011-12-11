@@ -9,7 +9,7 @@
 #define world_view_t_h
 
 #include "gui_komponente.h"
-#include "../../simgraph.h"
+
 #include "../../dataobj/koord3d.h"
 #include "../../tpl/vector_tpl.h"
 
@@ -19,41 +19,42 @@ class karte_t;
 
 /**
  * Displays a little piece of the world
- *
  * @autor Hj. Malthaner
  */
 class world_view_t : public gui_komponente_t
 {
-	public:
-		world_view_t(karte_t*, koord size);
+private:
+	vector_tpl<koord> offsets; /**< Offsets are stored. */
+	sint16            raster;  /**< For this rastersize. */
+	static karte_t*   welt;    /**< The world to display. */
 
-		world_view_t(karte_t* const welt) : raster(get_base_tile_raster_width()), welt(welt) {}
+protected:
+	virtual koord3d get_location() = 0;
 
-		/**
-		 * Events werden hiermit an die GUI-Komponenten
-		 * gemeldet
-		 * @author Hj. Malthaner
-		 */
-		bool infowin_event(const event_t *);
+	void internal_draw(koord offset, ding_t const *);
 
-		/**
-		 * resize window in response to a resize event
-		 * need to recalculate the list of offsets
-		 * @author prissi
-		 */
-		virtual void set_groesse(koord groesse);
+	void calc_offsets(koord size, sint16 dy_off);
 
-	protected:
-		virtual koord3d get_location() = 0;
+public:
+	world_view_t(karte_t*, koord size);
 
-		void internal_draw(koord offset, ding_t const*);
+	world_view_t(karte_t* welt);
 
-		void calc_offsets(koord size, sint16 dy_off);
+	virtual ~world_view_t() {}
 
-	private:
-		vector_tpl<koord> offsets; /**< Offsets are stored. */
-		sint16            raster;  /**< For this rastersize. */
-		karte_t*          welt;    /**< The world to display. */
+	/**
+	 * Events werden hiermit an die GUI-Komponenten
+	 * gemeldet
+	 * @author Hj. Malthaner
+	 */
+	bool infowin_event(const event_t *);
+
+	/**
+	 * resize window in response to a resize event
+	 * need to recalculate the list of offsets
+	 * @author prissi
+	 */
+	virtual void set_groesse(koord groesse);
 };
 
 #endif

@@ -1,6 +1,5 @@
-#include "ding_view_t.h"
+#include "gui_ding_view_t.h"
 #include "../../vehicle/simvehikel.h"
-
 
 
 ding_view_t::ding_view_t(ding_t const* d, koord const size) :
@@ -23,4 +22,10 @@ void ding_view_t::set_groesse(koord size)
 
 	gui_komponente_t::set_groesse(size);
 	world_view_t::calc_offsets(size, max_dy_off);
+}
+
+
+koord3d ding_view_t::get_location()
+{
+	return ding->get_pos();
 }

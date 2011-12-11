@@ -13,7 +13,7 @@
 #include "components/gui_button.h"
 #include "components/gui_label.h"
 #include "components/gui_chart.h"
-#include "components/ding_view_t.h"
+#include "components/gui_ding_view_t.h"
 #include "components/action_listener.h"
 #include "../convoihandle_t.h"
 #include "../linehandle_t.h"

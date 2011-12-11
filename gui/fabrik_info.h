@@ -13,7 +13,7 @@
 #include "components/gui_scrollpane.h"
 #include "components/gui_textarea.h"
 #include "components/gui_textinput.h"
-#include "components/ding_view_t.h"
+#include "components/gui_ding_view_t.h"
 #include "gui_container.h"
 #include "../utils/cbuffer_t.h"
 

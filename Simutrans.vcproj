@@ -474,6 +474,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gui\components\gui_ding_view_t.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\gui\components\gui_fixedwidth_textarea.cc"
 				>
 			</File>
@@ -1342,10 +1346,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\gui\components\ding_view_t.h"
-				>
-			</File>
-			<File
 				RelativePath=".\dataobj\dingliste.h"
 				>
 			</File>
@@ -1507,6 +1507,10 @@
 			</File>
 			<File
 				RelativePath=".\gui\gui_convoiinfo.h"
+				>
+			</File>
+			<File
+				RelativePath=".\gui\components\gui_ding_view_t.h"
 				>
 			</File>
 			<File
@@ -1723,10 +1727,6 @@
 			</File>
 			<File
 				RelativePath=".\gui\loadsave_frame.h"
-				>
-			</File>
-			<File
-				RelativePath=".\gui\components\location_view_t.h"
 				>
 			</File>
 			<File

@@ -39,6 +39,7 @@ bool ai_bauplatz_mit_strasse_sucher_t::strasse_bei(sint16 x, sint16 y) const {
 	return bd && bd->hat_weg(road_wt);
 }
 
+
 bool ai_bauplatz_mit_strasse_sucher_t::ist_platz_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const {
 	if(bauplatz_sucher_t::ist_platz_ok(pos, b, h, cl)) {
 		// check to not built on a road

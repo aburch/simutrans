@@ -11,7 +11,7 @@
 #include "../simdebug.h"
 #include "../simdings.h"
 #include "gui_frame.h"
-#include "components/ding_view_t.h"
+#include "components/gui_ding_view_t.h"
 #include "components/gui_fixedwidth_textarea.h"
 #include "../utils/cbuffer_t.h"
 
