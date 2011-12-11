@@ -426,6 +426,16 @@ void spieler_t::calc_finance_history()
 }
 
 
+void spieler_t::update_assets(sint64 const delta)
+{
+	finance_history_year[0][COST_ASSETS] += delta;
+	finance_history_year[0][COST_NETWEALTH] += delta;
+
+	finance_history_month[0][COST_ASSETS] += delta;
+	finance_history_month[0][COST_NETWEALTH] += delta;
+}
+
+
 // add and amount, including the display of the message and some other things ...
 void spieler_t::buche(sint64 const betrag, koord const pos, player_cost const type)
 {

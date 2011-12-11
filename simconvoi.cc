@@ -1273,10 +1273,13 @@ void convoi_t::start()
 
 		// recalc weight and image
 		// also for any vehicle entered a depot, set_letztes is true! => reset it correctly
+		sint64 restwert_delta = 0;
 		for(unsigned i=0; i<anz_vehikel; i++) {
 			fahr[i]->set_erstes( false );
 			fahr[i]->set_letztes( false );
+			restwert_delta -= fahr[i]->calc_restwert();
 			fahr[i]->set_driven();
+			restwert_delta += fahr[i]->calc_restwert();
 			fahr[i]->clear_flag( ding_t::not_on_map );
 			fahr[i]->beladen( halthandle_t() );
 		}
@@ -1284,6 +1287,9 @@ void convoi_t::start()
 		fahr[anz_vehikel-1]->set_letztes( true );
 		// do not show the vehicle - it will be wrong positioned -vorfahren() will correct this
 		fahr[0]->set_bild(IMG_LEER);
+
+		// update finances for used vehicle reduction when first driven
+		besitzer_p->update_assets( restwert_delta );
 
 		// calc state for convoi
 		calc_loading();
