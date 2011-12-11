@@ -341,6 +341,11 @@ public:
 	void calc_finance_history();
 
 	/**
+	* Calculates the assets of the player
+	*/
+	void calc_assets();
+
+	/**
 	* Updates the assets value of the player
 	*/
 	void update_assets(sint64 const delta);
