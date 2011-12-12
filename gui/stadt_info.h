@@ -35,7 +35,8 @@ private:
 
 	stadt_t *stadt;
 
-	uint32 minimapSize;	// size of minimaps
+	koord minimaps_size; // size of minimaps
+	koord minimap2_offset; // position offset of second minimap
 
     button_t allow_growth;
 
@@ -105,9 +106,9 @@ public:
 	virtual bool has_min_sizer() const {return true;}
 
 	/**
-	* Set window size and adjust component sizes and/or positions accordingly
-	*/
-	virtual void set_fenstergroesse(koord groesse);
+	 * resize window in response to a resize event
+	 */
+	void resize(const koord delta);
 };
 
 #endif
