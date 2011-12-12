@@ -16,6 +16,8 @@
 #include "components/gui_textinput.h"
 #include "components/gui_numberinput.h"
 
+#include "../tpl/array2d_tpl.h"
+
 class settings_t;
 class karte_t;
 
@@ -29,13 +31,12 @@ class welt_gui_t  : public gui_frame_t, private action_listener_t
 private:
 	settings_t* sets;
 
-	enum { preview_size = 64 };
-
 	/**
 	* Mini Karten-Preview
 	* @author Hj. Malthaner
 	*/
-	unsigned char karte[preview_size*preview_size];
+	array2d_tpl<uint8> karte;
+	koord karte_size;
 
 	bool load_heightfield, loaded_heightfield;
 	bool load;
@@ -76,6 +77,7 @@ private:
 	*/
 	bool update_from_heightfield(const char *filename);
 
+	void resize_preview();
 
 public:
 	welt_gui_t(karte_t*, settings_t*);

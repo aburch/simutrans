@@ -72,18 +72,23 @@
 #define RIGHT_COLUMN (185)
 #define RIGHT_COLUMN_WIDTH (60)
 
+#define PREVIEW_SIZE (64) // size of the minimap
+
 #include <sys/stat.h>
 #include <time.h>
 
 
 welt_gui_t::welt_gui_t(karte_t* const welt, settings_t* const sets) :
-	gui_frame_t( translator::translate("Neue Welt" ) )
+	gui_frame_t( translator::translate("Neue Welt" ) ),
+	karte(0,0)
 {
 DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struct tm) );
 	this->welt = welt;
 	this->sets = sets;
 	this->old_lang = -1;
 	this->sets->beginner_mode = umgebung_t::default_einstellungen.get_beginner_mode();
+
+	karte_size = koord(PREVIEW_SIZE, PREVIEW_SIZE); // default preview minimap size
 
 	// find earliest start and end date ...
 	uint16 game_start = 4999;
@@ -272,7 +277,6 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 }
 
 
-
 /**
  * Calculates preview from height map
  * @param filename name of heightfield file
@@ -288,42 +292,22 @@ bool welt_gui_t::update_from_heightfield(const char *filename)
 		sets->set_groesse_x(w);
 		sets->set_groesse_y(h);
 
-		// ensure correct display under all circumstances
-		const float skip_x = (float)preview_size/(float)w;
-		const long skip_y = h>preview_size  ? h/preview_size :  1;
-		for(int karte_y=0, y=0; y<h  &&  karte_y<preview_size; y++) {
-			// new line?
-			if(y%skip_y==0) {
-				int karte_x=0;
-				float rest_x=0.0;
+		inp_x_size.set_value(sets->get_groesse_x());
+		inp_y_size.set_value(sets->get_groesse_y());
 
-				for(int x=0; x<w; x++) {
-					while(karte_x<=rest_x  &&  karte_x<preview_size) {
-						karte[(karte_y*preview_size)+karte_x] = reliefkarte_t::calc_hoehe_farbe( h_field[x+y*w], sets->get_grundwasser()-1 );
-						karte_x ++;
-					}
-					rest_x += skip_x;
-				}
-				karte_y++;
+		resize_preview();
+
+		const int mx = sets->get_groesse_x()/karte_size.x;
+		const int my = sets->get_groesse_y()/karte_size.y;
+		for(  int y=0;  y<karte_size.y;  y++  ) {
+			for(  int x=0;  x<karte_size.x;  x++  ) {
+				karte.at(x,y) = reliefkarte_t::calc_hoehe_farbe( h_field[x*mx+y*my*w], sets->get_grundwasser()-1 );
 			}
 		}
-
-		// blow up y direction
-		if(h<preview_size) {
-			const sint16 repeat_y = ((sint16)preview_size)/h;
-			for(sint16 oy=h-1, y=preview_size-1;  oy>0;  oy--  ) {
-				for( sint16 i=0;  i<=repeat_y  &&  y>0;  i++  ) {
-					memcpy( karte+y, karte+oy, 3*preview_size );
-					y --;
-				}
-			}
-		}
-
 		return true;
 	}
 	return false;
 }
-
 
 
 /**
@@ -332,25 +316,40 @@ bool welt_gui_t::update_from_heightfield(const char *filename)
  */
 void welt_gui_t::update_preview()
 {
-	const int mx = sets->get_groesse_x()/preview_size;
-	const int my = sets->get_groesse_y()/preview_size;
-
-	if(loaded_heightfield) {
+	if(  loaded_heightfield  ) {
 		update_from_heightfield(sets->heightfield.c_str());
 	}
 	else {
+		resize_preview();
+
 		setsimrand( 0xFFFFFFFF, sets->get_karte_nummer() );
-		for(int j=0; j<preview_size; j++) {
-			for(int i=0; i<preview_size; i++) {
-				karte[j*preview_size+i] = reliefkarte_t::calc_hoehe_farbe(karte_t::perlin_hoehe( sets, koord(i*mx,j*my), koord::invalid ), sets->get_grundwasser()/Z_TILE_STEP);
+
+		const int mx = sets->get_groesse_x()/karte_size.x;
+		const int my = sets->get_groesse_y()/karte_size.y;
+		for(  int y=0;  y<karte_size.y;  y++  ) {
+			for(  int x=0;  x<karte_size.x;  x++  ) {
+				karte.at(x,y) = reliefkarte_t::calc_hoehe_farbe(karte_t::perlin_hoehe( sets, koord(x*mx,y*my), koord::invalid ), sets->get_grundwasser()/Z_TILE_STEP);
 			}
 		}
 		sets->heightfield = "";
-		loaded_heightfield = false;
 	}
 }
 
 
+void welt_gui_t::resize_preview()
+{
+	const float world_aspect = (float)sets->get_groesse_x() / (float)sets->get_groesse_y();
+
+	if(  world_aspect > 1.0  ) {
+		karte_size.x = PREVIEW_SIZE;
+		karte_size.y = (float)karte_size.x / world_aspect;
+	}
+	else {
+		karte_size.y = PREVIEW_SIZE;
+		karte_size.x = (float)karte_size.y * world_aspect;
+	}
+	karte.resize( karte_size.x, karte_size.y );
+}
 
 
 /**
@@ -362,17 +361,29 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 	// check for changed map (update preview for any event)
 	int knr = inp_map_number.get_value(); //
 
-	if(komp==&inp_x_size) {
-		sets->set_groesse_x( v.i );
-		inp_x_size.set_increment_mode( v.i>=64 ? (v.i>=512 ? 128 : 64) : 8 );
-		inp_y_size.set_limits( 8, min(32000,16777216/sets->get_groesse_x()) );
-		update_preview();
+	if(komp==&inp_map_number) {
+		sets->heightfield = "";
+		loaded_heightfield = false;
+	}
+	else if(komp==&inp_x_size) {
+		if(  !loaded_heightfield  ) {
+			sets->set_groesse_x( v.i );
+			inp_x_size.set_increment_mode( v.i>=64 ? (v.i>=512 ? 128 : 64) : 8 );
+			inp_y_size.set_limits( 8, min(32000,16777216/sets->get_groesse_x()) );
+		}
+		else {
+			inp_x_size.set_value(sets->get_groesse_x()); // can't change size with heightfield loaded
+		}
 	}
 	else if(komp==&inp_y_size) {
-		sets->set_groesse_y( v.i );
-		inp_y_size.set_increment_mode( v.i>=64 ? (v.i>=512 ? 128 : 64) : 8 );
-		inp_x_size.set_limits( 8, min(32000,16777216/sets->get_groesse_y()) );
-		update_preview();
+		if(  !loaded_heightfield  ) {
+			sets->set_groesse_y( v.i );
+			inp_y_size.set_increment_mode( v.i>=64 ? (v.i>=512 ? 128 : 64) : 8 );
+			inp_x_size.set_limits( 8, min(32000,16777216/sets->get_groesse_y()) );
+		}
+		else {
+			inp_y_size.set_value(sets->get_groesse_y()); // can't change size with heightfield loaded
+		}
 	}
 	else if(komp==&inp_number_of_towns) {
 		sets->set_anzahl_staedte( v.i );
@@ -493,7 +504,6 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 }
 
 
-
 bool  welt_gui_t::infowin_event(const event_t *ev)
 {
 	gui_frame_t::infowin_event(ev);
@@ -504,7 +514,6 @@ bool  welt_gui_t::infowin_event(const event_t *ev)
 
 	return true;
 }
-
 
 
 void welt_gui_t::zeichnen(koord pos, koord gr)
@@ -554,8 +563,8 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 	display_proportional_clip(x, y-20, translator::translate("1WORLD_CHOOSE"),ALIGN_LEFT, COL_BLACK, true);
 	display_ddd_box_clip(x, y-5, RIGHT_ARROW, 0, MN_GREY0, MN_GREY4);		// seperator
 
-	display_ddd_box_clip(x+173, y-20, preview_size+2, preview_size+2, MN_GREY0,MN_GREY4);
-	display_array_wh(x+174, y-19, preview_size, preview_size, karte);
+	display_ddd_box_clip(x+173, y-20, karte_size.x+2, karte_size.y+2, MN_GREY0,MN_GREY4);
+	display_array_wh(x+174, y-19, karte_size.x, karte_size.y, karte.to_array());
 
 	display_proportional_clip(x, y, translator::translate("2WORLD_CHOOSE"), ALIGN_LEFT, COL_BLACK, true);
 	// since the display is done via a textfiled, we have nothing to do
