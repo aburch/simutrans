@@ -544,7 +544,8 @@ void ai_t::tell_tool_result(werkzeug_t *tool, koord3d pos, const char *err, bool
 
 void ai_t::rdwr(loadsave_t *file)
 {
-//	spieler_t::rdwr(file); /* with this spieler_t is saved twice and not loading any old games again */
+	spieler_t::rdwr(file);
+
 	if(  file->get_version()<111001  ) {
 		// do not know about ai_t
 		return;

@@ -1316,9 +1316,6 @@ void ai_goods_t::rdwr(loadsave_t *file)
 	// first: do all the administration
 	spieler_t::rdwr(file);
 
-	// general settings
-	ai_t::rdwr(file);
-
 	// then check, if we have to do something or the game is too old ...
 	if(file->get_version()<101000) {
 		// ignore saving, reinit on loading

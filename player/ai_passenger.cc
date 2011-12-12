@@ -1366,7 +1366,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 void ai_passenger_t::rdwr(loadsave_t *file)
 {
 	if(  file->get_version()<102002  ) {
-		// do to an error the player was never saved correctly
+		// due to an error the player was never saved correctly
 		spieler_t::rdwr(file);
 		return;
 	}
@@ -1375,9 +1375,6 @@ void ai_passenger_t::rdwr(loadsave_t *file)
 
 	// first: do all the administration
 	spieler_t::rdwr(file);
-
-	// general settings
-	ai_t::rdwr(file);
 
 	// then check, if we have to do something or the game is too old ...
 	if(file->get_version()<101000) {
