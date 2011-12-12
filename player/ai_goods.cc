@@ -1313,8 +1313,7 @@ void ai_goods_t::rdwr(loadsave_t *file)
 
 	xml_tag_t t( file, "ai_goods_t" );
 
-	// first: do all the administration
-	spieler_t::rdwr(file);
+	ai_t::rdwr(file);
 
 	// then check, if we have to do something or the game is too old ...
 	if(file->get_version()<101000) {
