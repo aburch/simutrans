@@ -134,6 +134,31 @@ public:
 		}
 	}
 
+	// connects with last handle
+	explicit quickstone_tpl(T* p,bool last)
+	{
+		uint16 i;
+
+		// scan rest of array
+		for(  i=size-1;  i>0;  i++  ) {
+			if(  data[i] == 0  ) {
+				entry = i;
+				data[entry] = p;
+				return;
+			}
+		}
+		enlarge();
+		// repeat
+		for(  i=size-1;  i>0;  i++  ) {
+			if(  data[i] == 0  ) {
+				entry = i;
+				data[entry] = p;
+				return;
+			}
+		}
+		dbg->fatal( "quickstone_tpl(bool last)", "Now more handles!\nShould have already failed with enlarge!" );
+	}
+
 	// creates handle with id, fails if already taken
 	quickstone_tpl(T* p, uint16 id)
 	{

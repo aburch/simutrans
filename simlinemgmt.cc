@@ -143,9 +143,9 @@ DBG_MESSAGE("simlinemgmt_t::rdwr()","number of lines=%i",totalLines);
 			}
 		}
 
-		if (unbound_line) {
+		if(  unbound_line  ) {
 			// linehandle will be corrected in simline_t::laden_abschliessen
-			line_with_id_zero = linehandle_t(unbound_line);
+			line_with_id_zero = linehandle_t(unbound_line,true);
 			add_line( line_with_id_zero );
 		}
 	}
