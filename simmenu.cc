@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2008 prissi
  *
- * This file is part of the Simutrans project under the artistic licence.
+ * This file is part of the Simutrans project under the artistic license.
  *
  * New configurable OOP tool system
  */

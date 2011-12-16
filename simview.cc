@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2001 Hansjörg Malthaner
  *
- * This file is part of the Simutrans project under the artistic licence.
+ * This file is part of the Simutrans project under the artistic license.
  */
 
 #include <stdio.h>

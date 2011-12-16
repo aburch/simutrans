@@ -4,7 +4,7 @@
  * contains tools that will open windows
  * (split from simwerkz.h)
  *
- * This file is part of the Simutrans project under the artistic licence.
+ * This file is part of the Simutrans project under the artistic license.
  */
 
 #ifndef simwerkz_dialogs_h

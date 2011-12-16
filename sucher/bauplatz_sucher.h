@@ -1,8 +1,8 @@
 /*
  * Copyright (c) 1997 - 2002 Hansjörg Malthaner
  *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans project under the artistic license.
+ * (see license.txt)
  */
 
 #ifndef bauplatz_sucher_t_h

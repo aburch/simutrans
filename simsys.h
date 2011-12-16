@@ -1,7 +1,7 @@
 /*
  * definitions for the system dependent part of simutrans
  *
- * This file is part of the Simutrans project under the artistic licence.
+ * This file is part of the Simutrans project under the artistic license.
  */
 
 #ifndef simsys_h

@@ -1,7 +1,7 @@
 /*
  * Bit depth independent backend using allgro (mainly for BeOS)
  *
- * This file is part of the Simutrans project under the artistic licence.
+ * This file is part of the Simutrans project under the artistic license.
  */
 
 #include <stdlib.h>
