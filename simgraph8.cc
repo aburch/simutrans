@@ -1022,8 +1022,8 @@ static void calc_base_pal_from_night_shift(const int night)
 	//                     0,75 - quite bright                 80        17
 	//                     0,8    bright                      104        22
 
-	const double RG_nihgt_multiplier = pow(0.75, night) * ((light_level + 8.0) / 8.0);
-	const double B_nihgt_multiplier  = pow(0.83, night) * ((light_level + 8.0) / 8.0);
+	const double RG_night_multiplier = pow(0.75, night) * ((light_level + 8.0) / 8.0);
+	const double B_night_multiplier  = pow(0.83, night) * ((light_level + 8.0) / 8.0);
 
 	for (i = 0; i<224; i++) {
 		// (1<<15) this is total no of all possible colors in RGB555)
@@ -1035,9 +1035,9 @@ static void calc_base_pal_from_night_shift(const int night)
 
 		// lines generate all possible colors in 555RGB code - input
 		// however the result is in 888RGB - 8bit per channel
-		R = (int)(R * RG_nihgt_multiplier);
-		G = (int)(G * RG_nihgt_multiplier);
-		B = (int)(B * B_nihgt_multiplier);
+		R = (int)(R * RG_night_multiplier);
+		G = (int)(G * RG_night_multiplier);
+		B = (int)(B * B_night_multiplier);
 
 		textur_palette[i * 3 + 0] = R;
 		textur_palette[i * 3 + 1] = G;

@@ -33,7 +33,7 @@
 #include "../vehicle/simvehikel.h"
 
 
-/* The flesh for the place with road for headqurter searcher ... */
+/* The flesh for the place with road for headquarter searcher ... */
 bool ai_bauplatz_mit_strasse_sucher_t::strasse_bei(sint16 x, sint16 y) const {
 	grund_t *bd = welt->lookup_kartenboden( koord(x,y) );
 	return bd && bd->hat_weg(road_wt);

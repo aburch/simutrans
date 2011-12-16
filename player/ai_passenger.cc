@@ -40,7 +40,7 @@ ai_passenger_t::ai_passenger_t(karte_t *wl, uint8 nr) : ai_t( wl, nr )
 	road_vehicle = NULL;
 	road_weg = NULL;
 
-	next_contruction_steps = welt->get_steps() + 50;
+	next_construction_steps = welt->get_steps() + 50;
 
 	road_transport = true;
 	rail_transport = false;
@@ -924,7 +924,7 @@ void ai_passenger_t::step()
 	}
 
 	// one route per month ...
-	if(  welt->get_steps() < next_contruction_steps  ) {
+	if(  welt->get_steps() < next_construction_steps  ) {
 		return;
 	}
 
@@ -1242,7 +1242,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 		case NR_SUCCESS:
 		{
 			state = CHECK_CONVOI;
-			next_contruction_steps = welt->get_steps() + simrand( construction_speed/16 );
+			next_construction_steps = welt->get_steps() + simrand( construction_speed/16 );
 		}
 		break;
 
@@ -1252,7 +1252,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 		{
 			// next time: do something different
 			state = NR_INIT;
-			next_contruction_steps = welt->get_steps() + simrand( ai_t::construction_speed ) + 25;
+			next_construction_steps = welt->get_steps() + simrand( ai_t::construction_speed ) + 25;
 
 			vector_tpl<linehandle_t> lines(0);
 			simlinemgmt.get_lines( simline_t::line, &lines);
@@ -1379,7 +1379,7 @@ void ai_passenger_t::rdwr(loadsave_t *file)
 	if(file->get_version()<101000) {
 		// ignore saving, reinit on loading
 		if(  file->is_loading()  ) {
-			next_contruction_steps = welt->get_steps()+simrand(ai_t::construction_speed);
+			next_construction_steps = welt->get_steps()+simrand(ai_t::construction_speed);
 		}
 		return;
 	}
@@ -1398,7 +1398,7 @@ void ai_passenger_t::rdwr(loadsave_t *file)
 
 	if(file->is_saving()) {
 		// save current pointers
-		sint32 delta_steps = next_contruction_steps-welt->get_steps();
+		sint32 delta_steps = next_construction_steps-welt->get_steps();
 		file->rdwr_long(delta_steps);
 		koord k = start_stadt ? start_stadt->get_pos() : koord::invalid;
 		k.rdwr(file);
@@ -1411,8 +1411,8 @@ void ai_passenger_t::rdwr(loadsave_t *file)
 	}
 	else {
 		// since steps in loaded game == 0
-		file->rdwr_long(next_contruction_steps);
-		next_contruction_steps += welt->get_steps();
+		file->rdwr_long(next_construction_steps);
+		next_construction_steps += welt->get_steps();
 		// reinit current pointers
 		koord k;
 		k.rdwr(file);
