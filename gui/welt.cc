@@ -73,7 +73,7 @@
 #define RIGHT_COLUMN_WIDTH (60)
 
 #define PREVIEW_SIZE (64) // size of the minimap
-#define PREVIEW_SIZE_MIN (16) // minimum of width/height of the minimap
+#define PREVIEW_SIZE_MIN (16) // minimum width/height of the minimap
 
 #include <sys/stat.h>
 #include <time.h>
@@ -343,11 +343,11 @@ void welt_gui_t::resize_preview()
 
 	if(  world_aspect > 1.0  ) {
 		karte_size.x = PREVIEW_SIZE;
-		karte_size.y = max( (float)karte_size.x / world_aspect, 16);
+		karte_size.y = max( (float)karte_size.x / world_aspect, PREVIEW_SIZE_MIN);
 	}
 	else {
 		karte_size.y = PREVIEW_SIZE;
-		karte_size.x = max( (float)karte_size.y * world_aspect, 16);
+		karte_size.x = max( (float)karte_size.y * world_aspect, PREVIEW_SIZE_MIN);
 	}
 	karte.resize( karte_size.x, karte_size.y );
 }

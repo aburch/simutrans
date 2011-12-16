@@ -24,6 +24,7 @@
 #define PAX_DEST_X (138)
 #define PAX_DEST_Y (20)
 #define PAX_DEST_MARGIN (4)
+#define PAX_DEST_MIN_SIZE (16)		// minimum width/height of the minimap
 #define PAX_DEST_VERTICAL (4.0/3.0) // aspect factor where minimaps change to over/under instead of left/right
 
 // @author hsiegeln
@@ -130,7 +131,7 @@ void stadt_info_t::resize(const koord delta)
 		minimaps_size.x = (float)minimaps_size.y * world_aspect;
 		if(  minimaps_size.x  > space.x  ) {
 			minimaps_size.x = space.x;
-			minimaps_size.y = (float)minimaps_size.x / world_aspect;
+			minimaps_size.y = max((float)minimaps_size.x / world_aspect, PAX_DEST_MIN_SIZE);
 		}
 		minimap2_offset = koord( 0, minimaps_size.y + PAX_DEST_MARGIN );
 	}
@@ -139,7 +140,7 @@ void stadt_info_t::resize(const koord delta)
 		minimaps_size.y = (float)minimaps_size.x / world_aspect;
 		if(  minimaps_size.y > space.y  ) {
 			minimaps_size.y = space.y;
-			minimaps_size.x = (float)minimaps_size.y * world_aspect;
+			minimaps_size.x = max((float)minimaps_size.y * world_aspect, PAX_DEST_MIN_SIZE);
 		}
 		minimap2_offset = koord( minimaps_size.x + PAX_DEST_MARGIN, 0 );
 	}
