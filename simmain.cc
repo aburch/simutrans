@@ -1015,9 +1015,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	welt->reset_timer();
 	if(  !umgebung_t::networkmode  &&  !umgebung_t::server  ) {
 #ifdef display_in_main
-		DBG_MESSAGE("simmain", "calling view->display");
 		view->display(true);
-		DBG_MESSAGE("simmain", "calling intr_refresh_display");
 		intr_refresh_display(true);
 #endif
 		intr_enable();
@@ -1034,7 +1032,6 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		display_set_pointer(skinverwaltung_t::mouse_cursor->get_bild_nr(0));
 	}
 #endif
-	DBG_MESSAGE("simmain", "calling display_show_pointer");
 	display_show_pointer(true);
 	show_pointer(1);
 	set_pointer(0);
@@ -1043,7 +1040,6 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 	// Hajo: simgraph init loads default fonts, now we need to load
 	// the real fonts for the current language
-	DBG_MESSAGE("simmain", "sprachengui_t::init_font_from_lang");
 	sprachengui_t::init_font_from_lang();
 
 	destroy_all_win(true);
@@ -1055,156 +1051,29 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		check_midi();
 
 		if(  !umgebung_t::networkmode  &&  new_world  ) {
-			DBG_MESSAGE("simmain", "show banner");
 			printf( "Show banner ... \n" );
 			ticker::add_msg("Welcome to Simutrans, a game created by Hj. Malthaner and the Simutrans community.", koord::invalid, PLAYER_FLAG + 1);
 			modal_dialogue( new banner_t(welt), magic_none, welt, never_quit );
 			// only show new world, if no other dialoge is active ...
 			new_world = win_get_open_count()==0;
-			DBG_MESSAGE("simmain", "banner closed");
 		}
 		if(  umgebung_t::quit_simutrans  ) {
 			break;
 		}
 
 		// to purge all previous old messages
-		DBG_MESSAGE("simmain", "set_message_flags");
 		welt->get_message()->set_message_flags(umgebung_t::message_flags[0], umgebung_t::message_flags[1], umgebung_t::message_flags[2], umgebung_t::message_flags[3]);
 
 		if(  !umgebung_t::networkmode  &&  !umgebung_t::server  ) {
 			welt->set_pause( false );
 		}
 
-#if 1
 		if(  new_world  ) {
 			modal_dialogue( new welt_gui_t(welt, &umgebung_t::default_einstellungen), magic_welt_gui_t, welt, never_quit );
 			if(  umgebung_t::quit_simutrans  ) {
 				break;
 			}
 		}
-#else
-		if (new_world) {
-			climate_gui_t *cg = new climate_gui_t(&umgebung_t::default_einstellungen);
-			event_t ev;
-
-			view->display(true);
-
-			create_win((disp_width - cg->get_fenstergroesse().x-10), 40, cg, w_info, magic_climate );
-
-			// we want to center wg (width 260) between sg (width 220) and cg (176)
-			welt_gui_t *wg = new welt_gui_t(welt, &umgebung_t::default_einstellungen);
-			create_win((disp_width - 220 - cg->get_fenstergroesse().x -10 -10- 260)/2 + 220 + 10, (disp_height - 300) / 2, wg, w_do_not_delete, magic_welt_gui_t );
-
-			do {
-				// disable pause to allow for screen updates
-				welt->set_pause( false );
-				welt->set_fast_forward(false);
-
-				INT_CHECK("simmain 803");
-				DBG_DEBUG4("wait_for_new_world", "calling win_poll_event");
-				win_poll_event(&ev);
-				INT_CHECK("simmain 805");
-				DBG_DEBUG4("wait_for_new_world", "calling check_pos_win");
-				check_pos_win(&ev);
-				if(  ev.ev_class == EVENT_SYSTEM  &&  ev.ev_code == SYSTEM_QUIT  ) {
-					umgebung_t::quit_simutrans = true;
-				}
-				INT_CHECK("simmain 807");
-				if(  umgebung_t::networkmode  ) {
-					static int count = 0;
-					if(  ((count++)&7)==0 ) {
-						static uint32 last_step = dr_time();
-						uint32 next_step = dr_time();
-						DBG_DEBUG4("wait_for_new_world", "calling welt->sync_step");
-						welt->sync_step( next_step-last_step, true, true );
-						DBG_DEBUG4("wait_for_new_world", "calling win_poll_event");
-						welt->step();
-						DBG_DEBUG4("wait_for_new_world", "calling welt->step");
-						last_step = next_step;
-						DBG_DEBUG4("wait_for_new_world", "back from welt->step");
-					}
-				}
-				dr_sleep(5);
-				welt->reset_interaction();
-				DBG_DEBUG4("wait_for_new_world", "end of loop");
-			} while(
-				!wg->get_load() &&
-				!wg->get_scenario() &&
-				!wg->get_load_heightfield() &&
-				!wg->get_start() &&
-				!wg->get_close() &&
-				!wg->get_quit() &&
-				!umgebung_t::quit_simutrans
-			);
-
-			if (IS_LEFTCLICK(&ev)) {
-				do {
-					DBG_DEBUG4("wait_for_new_world", "calling display_get_event");
-					display_get_event(&ev);
-				} while (!IS_LEFTRELEASE(&ev));
-			}
-
-			DBG_DEBUG4("wait_for_new_world", "calling destroy_all_win");
-			destroy_all_win(true);
-			welt->get_message()->clear();
-
-			// scenario?
-			if(wg->get_scenario()) {
-				char path[1024];
-				sprintf( path, "%s%sscenario/", umgebung_t::program_dir, umgebung_t::objfilename.c_str() );
-				chdir( path );
-				delete wg;
-				create_win( new scenario_frame_t(welt), w_info, magic_load_t );
-				chdir( umgebung_t::user_dir );
-			}
-			// Neue Karte erzeugen
-			else if (wg->get_start()) {
-				// since not autodelete
-				DBG_DEBUG4("wait_for_new_world", "delete wg");
-				delete wg;
-
-				create_win(200, 100, new news_img("Erzeuge neue Karte.\n", skinverwaltung_t::neueweltsymbol->get_bild_nr(0)), w_info, magic_none);
-
-				DBG_DEBUG4("wait_for_new_world", "calling intr_refresh_display");
-				intr_refresh_display(true);
-
-				umgebung_t::default_einstellungen.heightfield = "";
-				DBG_DEBUG4("wait_for_new_world", "calling welt->init");
-				welt->init(&umgebung_t::default_einstellungen,0);
-
-				// save setting ...
-				loadsave_t file;
-				if(file.wr_open("default.sve",loadsave_t::binary,"settings only",SAVEGAME_VER_NR)) {
-					// save default setting
-					umgebung_t::default_einstellungen.rdwr(&file);
-					file.close();
-				}
-				DBG_DEBUG4("wait_for_new_world", "calling destroy_all_win");
-				destroy_all_win(true);
-				DBG_DEBUG4("wait_for_new_world", "calling welt->step_month");
-				welt->step_month( umgebung_t::default_einstellungen.get_starting_month() );
-				welt->set_pause(false);
-				DBG_DEBUG4("wait_for_new_world", "new world created");
-			}
-			else if(wg->get_load()) {
-				delete wg;
-				create_win( new loadsave_frame_t(welt, true), w_info, magic_load_t);
-			}
-			else if(wg->get_load_heightfield()) {
-				delete wg;
-				welt->load_heightfield(&umgebung_t::default_einstellungen);
-				welt->step_month( umgebung_t::default_einstellungen.get_starting_month() );
-			}
-			else {
-				// quit the game
-				if (wg->get_quit()  ||  umgebung_t::quit_simutrans  ) {
-					delete wg;
-					break;
-				}
-			}
-			DBG_DEBUG4("wait_for_new_world", "the end");
-		}
-#endif
 		printf( "Running world, pause=%i, fast forward=%i ... \n", welt->is_paused(), welt->is_fast_forward() );
 		loadgame = ""; // only first time
 
