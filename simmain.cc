@@ -758,7 +758,11 @@ int simu_main(int argc, char** argv)
 	// Adam - Moved away loading from simmain and placed into translator for better modularisation
 	if(  !translator::load(umgebung_t::objfilename)  ) {
 		// installation error: likely only program started
-		dbg->fatal("simmain::main()", "Unable to load any language files\n*** PLEASE INSTALL PROPER BASE FILES ***\n");
+		dbg->fatal("simmain::main()", "Unable to load any language files\n"
+		                              "*** PLEASE INSTALL PROPER BASE FILES ***\n\n"
+							"either run ./get_lang_files.sh\n\nor\n\n"
+							"download a complete simutrans archive and put the text/ folder here."
+		);
 		exit(11);
 	}
 
