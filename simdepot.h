@@ -127,7 +127,6 @@ public:
 	 * @author Volker Meyer
 	 * @date  30.05.2003
 	 */
-	unsigned vehicle_count() const { return vehicles.get_count(); }
 	slist_tpl<vehikel_t*> const& get_vehicle_list() { return vehicles; }
 
 	/**
