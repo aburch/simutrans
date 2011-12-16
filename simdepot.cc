@@ -308,8 +308,7 @@ bool depot_t::disassemble_convoi(convoihandle_t cnv, bool sell)
 
 		if(!sell) {
 			// store vehicles in depot
-			vehikel_t *v;
-			while(  (v=cnv->remove_vehikel_bei(0))!=NULL  ) {
+			while (vehikel_t* const v = cnv->remove_vehikel_bei(0)) {
 				v->loesche_fracht();
 				v->set_erstes(false);
 				v->set_letztes(false);

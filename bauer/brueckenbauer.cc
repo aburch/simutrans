@@ -678,8 +678,7 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 
 		// finally delete all pillars (if there)
 		gr = welt->lookup_kartenboden(pos.get_2d());
-		ding_t *p;
-		while ((p = gr->find<pillar_t>()) != 0) {
+		while (ding_t* const p = gr->find<pillar_t>()) {
 			p->entferne(p->get_besitzer());
 			delete p;
 		}
@@ -692,8 +691,7 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 
 		grund_t *gr = welt->lookup(pos);
 		if(wegtyp==powerline_wt) {
-			ding_t *br;
-			while ((br = gr->find<bruecke_t>()) != 0) {
+			while (ding_t* const br = gr->find<bruecke_t>()) {
 				br->entferne(sp);
 				delete br;
 			}

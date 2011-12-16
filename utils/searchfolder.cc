@@ -84,13 +84,10 @@ int searchfolder_t::search(const std::string &filepath, const std::string &exten
 #else
 	lookfor = path + ".";
 
-	DIR* dir = opendir(lookfor.c_str());
-	struct  dirent  *entry;
-
-	if(dir != NULL) {
+	if (DIR* const dir = opendir(lookfor.c_str())) {
 		lookfor = (name == "*") ? ext : name + ext;
 
-		while((entry = readdir(dir)) != NULL) {
+		while (dirent const* const entry = readdir(dir)) {
 			if(entry->d_name[0]!='.' || (entry->d_name[1]!='.' && entry->d_name[1]!=0)) {
 				int entry_len = strlen(entry->d_name);
 				if (strcasecmp(entry->d_name + entry_len - lookfor.size(), lookfor.c_str()) == 0) {
