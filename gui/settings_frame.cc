@@ -6,7 +6,6 @@
  */
 
 #ifdef _MSC_VER
-#include <new.h> // for _set_new_handler
 #include <direct.h>
 #else
 #include <unistd.h>
