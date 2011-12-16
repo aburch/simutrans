@@ -135,7 +135,7 @@ public:
 	}
 
 	// connects with last handle
-	explicit quickstone_tpl(T* p,bool last)
+	explicit quickstone_tpl(T* p, bool)
 	{
 		uint16 i;
 
@@ -156,7 +156,7 @@ public:
 				return;
 			}
 		}
-		dbg->fatal( "quickstone_tpl(bool last)", "Now more handles!\nShould have already failed with enlarge!" );
+		dbg->fatal( "quickstone_tpl(bool)", "No more handles!\nShould have already failed with enlarge!" );
 	}
 
 	// creates handle with id, fails if already taken
