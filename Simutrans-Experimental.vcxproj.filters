@@ -1813,19 +1813,10 @@
     <None Include="config.template">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="..\simutrans-experimental-binaries\config\electricity.tab">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="..\simutrans-experimental-binaries\text\en.tab">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="Makefile">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\simutrans-experimental-binaries\config\privatecar.tab">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\simutrans-experimental-binaries\config\simuconf.tab">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="makeobj\Makefile" />
@@ -1857,6 +1848,15 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="base_texts_experimental_10.2.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="simutrans\config\electricity.tab">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="simutrans\config\privatecar.tab">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="simutrans\config\simuconf.tab">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

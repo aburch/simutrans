@@ -6,22 +6,22 @@
 # June 2009. Released under the Artistic Licence.
 # Further adapted by Nathanael Nerode December 2011, under Artistic Licence
 #
-# Lines starting with '#' or any non_character letter will be ignored!
-# To actually set a value, remove the leading '#'!
+# Lines starting with '#' or any non_character letter will be ignored.
+# To actually set a value, remove the leading '#'.
 #
 # This file can be found in many places:
 #
 # simutrans/config/simuconf.tab (this one)
 # ~/simutrans/simuconf.tab (in the user directory, if singleuser_install == 0 or not present, first only pak-file path will be read)
 # simutrans/pakfilefolder/config/simuconf.tab
-# ~/simutrans/simuconf.tab (readed a second time, s.a.)
+# ~/simutrans/simuconf.tab (read a second time, s.a.)
 #
 # Any values set in this file will be over-written by any values set in the simuconf.tab files
 # for individual paksets. Any values set here that are not set in the simuconf.tab files for 
 # individual paksets will be used. 
 
 
-#################################program stuff##################################
+################################# Pakset settings ##################################
 #
 # This simuconf.tab will be read first => we set meaningful defaults here.
 #
@@ -38,14 +38,16 @@
 # and will be overwritten by the settings from simutrans/simuconf.tab in the user directory
 #
 #pak_file_path = pak128.Britain-Ex/
+#pak_file_path = pak.64-experimental/
 #pak_file_path = pak/
 #pak_file_path = pak.german/
 #pak_file_path = pak128/
-#pak_file_path = pak.japan/
-#pak_file_path = pak.winter/
-#pak_file_path = pak.ttd/
+#pak_file_path = pak96.comic/
+#pak_file_path = pak.64.ho-scale/
+#pak_file_path = pak.192.comic/
+#pak_file_path = pakHajo/
 #
-#################################program stuff##################################
+################################## Program settings ####################################
 
 # maximum number of position tested during a way search
 # 100000 should be ok even for large maps with ships
@@ -115,20 +117,41 @@ way_tunnel=8
 way_max_bridge_len=15
 way_leaving_road=25
 
-###############################passenger stuff##############################
-#################################### Gameplay settings ##################################
-# also pak dependent
+# This setting determines whether passengers can reach their journies by walking
+# between stops en route. If this setting is false, passengers will walk from their
+# origin to the start station/stop and from the destination station/stop to their
+# destination, but will not walk between intermediate stops, even if the distance
+# between the intermediate stops is the same as or less than the distance between
+# their origin and the starting stop. If this setting is set to true then passengers
+# will walk between intermediate stops as well as from their origin to the first stop 
+# on their journey. However, with the setting enabled, there is no means of preventing
+# passengers from walking between two or more consecutive stops (for techincal reasons
+# relating to the need to have a simplified routing system to make the game run at an
+# acceptable speed), or from walking as the first or last stage in their journey, such
+# that their overall walking distance is higher than would be permissible for walking
+# from their origin to the first stop on their journey. This setting might also have
+# the incidental effects of allowing a stop to take passengers from an area not covered
+# by that stop's coverage radius, but covered by the radius of another stop (possibly
+# owned by a rival player) in the nearby vicinity, and of passengers walking instead
+# of using player transport in some cases.
+# 0 = false; 1 = true. Default: false.
 
-# distance_per_tile represents the length of each tile in tens of meters. So, at a setting of 1, 
-# each tile would represent 10 meters. At a setting of 100, each tile would repreesnt 1 kilometre. 
-# The default is 25. (In earlier versions, the default was 30). 
+allow_routing_on_foot = 0
+
+################################ General gameplay settings ##############################
+# These settings are also pakset dependent
+
+# meters_per_tile represents the length of each tile in meters. 
+# The default is 250.
 #
 # This setting is used for calculating journey times, revenues, maintenance costs, comfort and
-# catering values. In previous versions, it was known as the "journey_time_multiplier_percent".
+# catering values.
 #
-# Changing this requires rebalancing an entire pak.
-# It is not advisable to change this outside a pak.
-distance_per_tile = 25
+# Note that, in versions of Simutrans-Experimental before 10.0, the setting "distance_per_tile"
+# was used instead. That setting was calculated in tens of meters. If "distance_per_tile" is
+# specified in simuconf.tab, it will be converted to meters_per_tile by the game.
+
+meters_per_tile = 250
 
 # Town growth multiplier factors. 
 # A higher factor mean faster growth. 
@@ -159,7 +182,6 @@ growthfactor_villages = 400
 growthfactor_cities = 200
 growthfactor_capitals = 100
 
-# This is the most important number for all gameplay.
 # The higher this value, the more passengers generated. (Default: 16)
 passenger_factor=16
 
@@ -195,9 +217,71 @@ avoid_overcrowding = 0
 # make the game run more slowly. Default = 7.
 passenger_routing_packet_size = 7
 
-################ Passenger trips in experimental ###############
-# Here experimental uses an entirely different trip generation system
-# from standard.
+# This setting determines the amount of private traffic generated on the roads in the game.
+# It does not affect the actual usage of private cars: just how many vehicles appear on the roads.
+# Range: 0 - 16. Recommended: 11
+
+citycar_level = 11
+
+# After how many month a citycar breaks (and will be forever gone) ...
+# default is ten years
+default_citycar_life = 250
+
+# If enabled (deafault = 0, off), the default tool will try to calculate straight ways (like OpenTTD)
+straight_way_without_control = 0
+
+# These settings determine how players pay for running on the ways of other players. 
+#
+# way_toll_runningcost_percentage apportions the specified percentage of the convoy's
+# running cost to the player on whose way the convoy is being run.
+#
+# way_toll_waycost_percentage apportions the specified percentage of the way tile's
+# monthly maintenance cost (and, for electrically powered convoys, also the specified 
+# percentage of way objects' monthly maintenance cost) from the convoy for every
+# tile of the other player's way over which it passes.
+#
+# way_toll_revenue_percentage apportions the specified percentage of the convoy's 
+# revenue according to the proportion of the journey that the convoy has undertaken
+# on the specified player's way. For example, if way_toll_revenue_percentage is set
+# to 50, and the convoy travels half its journey over another player's way, that
+# other player will receive 25% of the total revenue for that journey.
+
+way_toll_runningcost_percentage = 0
+way_toll_waycost_percentage = 0
+way_toll_revenue_percentage = 33
+
+# These settings determine how players pay for landing/docking in the ports
+# of other players.
+# 
+# airport_toll_revenue_percentage is the percentage of the revenue of
+# a trip by aircraft charged to a player landing at another player's
+# airport.
+#
+# seaport_toll_revenue_percentage is the precentage of the revenue
+# of a trip by sea charged to a player docking at another player's
+# sea port.
+
+airport_toll_revenue_percentage = 20
+seaport_toll_revenue_percentage = 15
+
+# If this is set to 1, players will not be charged to use roads owned by the public
+# service player. This does not affect other sorts of ways. 
+# Default: 0
+
+toll_free_public_roads = 1
+
+# If this is set to 1, any player may transfer any way tile or stop to the ownership
+# of the public player. If this is set to 0, only the public player may transfer
+# stops and way tiles to public ownership.
+# Default: 1 (which replicates the behaviour in Standard)
+
+allow_making_public = 0
+
+
+#################################### Passenger settings ##################################
+#
+# Here, Experimental uses an entirely different trip generation system
+# from Standard.
 
 # The program will generate three groups of passengers: (1) local;
 # (2) midrange; and (3) long distance. The program will look for a town within
@@ -249,7 +333,8 @@ max_midrange_tolerance = 480
 min_longdistance_tolerance = 150
 max_longdistance_tolerance = 4320
 
-################ Revenue system in experimental ##############
+#################################### Revenue settings ##################################
+#
 # Settings for calibrating the revenue system
 #
 # These settings calibrate the way in which revenue is calculated in the game. Changing
@@ -261,7 +346,7 @@ max_longdistance_tolerance = 4320
 # the convoy's maximum speed. 
 #
 # All distances in these settings are measured in kilometres and calibrated using the
-# distance_per_tile setting.
+# meters_per_tile setting.
 #
 # min_bonus_max_distance is the distance below which the speed bonus (or penalty) does not
 # apply. Below this distance, goods pay the same no matter what the average speed.
@@ -446,6 +531,13 @@ passenger_max_wait = 19440
 # number, the more up to date that routes will be, but the slower that the game will be.
 # It is recommended to set this at either 2 or 4.
 
+# This is the minimum time in minutes that passengers or goods may wait at an airport.
+# This simulates the need for check-in, security checks, etc., that makes travelling by
+# air a slower process at the boarding stage than transport by other means such as road
+# or rail. Setting this to 0 will make air transport behave like any other transport.
+
+min_wait_airport = 30
+
 max_rerouting_interval_months = 2
 
 # Simutrans-Experimental 8.0 introduced a new system of growing cities, which preserved
@@ -479,9 +571,9 @@ city_isolation_factor = 32
 
 max_walking_distance_km_tenth = 15
 
-##################################factory stuff#################################
 ################################## Industry settings #################################
-# also pak dependent
+#
+# These are also pakset dependent
 
 # The following is disabled in experimental, which has a new system
 # when a city reaches 2^n times of this number
@@ -489,7 +581,7 @@ max_walking_distance_km_tenth = 15
 #industry_increase_every = 2000
 # The preceding is disabled in experimental
 
-# Minimum distance between factories (in tiles)
+# Minimum distance between factories (in tiles) 
 factory_spacing = 6
 
 # allow all possible supplier to connect to your factories?
@@ -522,11 +614,7 @@ factory_enforce_demand = 1
 # chance increases the closer to this value that factories get.
 max_years_obsolete = 30
 
-##################################display stuff#################################
 ################################# Display settings ################################
-
-# if defined, the default tool will try to calculate straight ways (like OpenTTD)
-straight_way_without_control = 0
 
 # player color can be fixed for several players or set totally random
 # in the latter case each player will get unique but random coloring
@@ -564,16 +652,6 @@ water_animation_ms = 250
 # (1=on, 0=off)
 pedes_and_car_info = 1
 
-# This setting determines the amount of private traffic generated on the roads in the game.
-# It does not affect the actual usage of private cars: just how many vehicles appear in
-# the game. Range: 0 - 16.
-
-citycar_level = 16
-
-# After how many month a citycar breaks (and will be forever gone) ...
-# default is ten years
-default_citycar_life = 250
-
 # (=1) drive on the left side of the road
 drive_left = 0
 
@@ -605,7 +683,7 @@ numbered_stations = 0
 #   0 = black name in color box
 #   4 = name in player color with outline
 #   8 = box left of name in yellow outline
-show_names = 3
+show_names = 7
 
 # Color of cursor overlay, which is blended over marked ground tiles
 # The available colors and their numbers can be found on
@@ -616,7 +694,28 @@ show_names = 3
 # -- pak128.japan
 #cursor_overlay_color = 149
 
-##################################window stuff##################################
+# display (screen/window) width
+# also see readme.txt, -screensize option
+#display_width  = 704
+
+# display (screen/window) height
+# also see readme.txt, -screensize option
+#display_height = 560
+
+# show full screen
+#fullscreen = 0
+
+# maximum size of tool bars (0 = no limit)
+# if more tools than allowed by height,
+# next and prev arrows for scrolling appears
+toolbar_max_width = 0
+toolbar_max_height = 0
+
+# if 1, print the company name in front of a message
+add_player_name_to_message = 1
+
+##################################w Window settings ##################################
+#
 # show the windows close etc. buttons on the right (like windows 98)
 #window_buttons_right = 0
 
@@ -653,7 +752,6 @@ tooltip_delay = 500
 # duration in ms during tooltip is visible (default 5000ms=5s)
 tooltip_duration = 5000
 
-###################################money stuff##################################
 ################################## Finance settings #################################
 #
 # These values are usually set in the pak files
@@ -744,7 +842,7 @@ toll_waycost_percentage = 0
 # 0, set allow_bankruptsy to 1, and set allow_purchases_when_insolvent to 1.
 
 interest_rate_percent = 10
-allow_bankruptsy = 0
+allow_bankruptsy = 1
 allow_purhcases_when_insolvent = 0	
 
 # This is a compatibility setting for Simutrans-Standard. Because, in
@@ -753,7 +851,8 @@ allow_purhcases_when_insolvent = 0
 # speedbonus.tab will be too high. Use this setting to reduce them if playing 
 # with an incompatible pakset. For paksets produced with Simutrans-Standard in
 # mind, the setting should be somewhere between 60-70. For compatible paksets,
-# the setting should be 100. 
+# the setting should be 100. (This should be set in the pakset simuconf.tab 
+# for Experimental compatible paksets).
 
 speed_bonus_multiplier_percent = 70
 
@@ -803,8 +902,8 @@ default_increase_maintenance_after_years_other = 30
 #allow_buying_obsolete_vehicles = 1
 
 # This allows for a "driving it off the lot" drop in value.
-# This is not on by default, even in experimental.
-# vehicle can loose a part of their value, when the are once used
+# This is not on by default, even in Experimental.
+# vehicle can loose a part of their value, when they are once used
 # the loss is given in 1/1000th, i.e 300 mean the value will be 70%
 used_vehicle_reduction = 0
 
@@ -940,8 +1039,8 @@ global_power_factor_percent=100
 
 enforce_weight_limits=1
 
-################################# forest stuff #################################
 ################################# Tree settings #################################
+#
 #  please be careful in changing them, I spent lot of time finding optimals.
 #  those values have impact on no. of spawned trees -> memory consumption
 #
@@ -971,7 +1070,6 @@ no_tree_climates = 130
 # the season change will be much smoother on small machines)
 #no_tree = 0
 
-###################################time stuff###################################
 ################################### Time settings ###################################
 
 # Enforce vehicle introduction dates?
@@ -995,20 +1093,19 @@ starting_year = 1900
 starting_month = 1
 
 # Should month be shown in date?
-# 0=no, 1=yes
-# 2>=show day in japan format=2, us format=3, german=4
-# 5>=show no season but everything else in japan format=5, us format=5, german=6
-show_month = 4
+# (0=no, 1=yes, 2>=show day in japan format=2, us format=3, german=4, japanese no season=5, us no season=6, german no season = 7, journey time equivalent = 8)
+# This is most useful, if you use longer months than the default length (see below)
+
+show_month = 8
 
 # Global time multiplier (will be save with new games)
 # 2^bits_per_month = duration of a game month in microseconds real time
-# default before 99.x was 18. For example, 21 will make the month 2^3=8 times longer in real time
+# default is 18. For example, 21 will make the month 2^3=8 times longer in real time
 # production and maintainance cost will be adjusted accordingly.
-#
-bits_per_month = 19
 
-#################################system stuff#################################
-################################### System settings ##########################
+bits_per_month = 20
+
+################################# System settings ############################
 
 # compress savegames?
 # "binary" means uncompressed, "zipped" means compressed
@@ -1018,28 +1115,6 @@ saveformat = bzip2
 
 # autosave every x months (0=off)
 autosave = 12
-
-######Extra display settings
-
-# display (screen/window) width
-# also see readme.txt, -screensize option
-#display_width  = 704
-
-# display (screen/window) height
-# also see readme.txt, -screensize option
-#display_height = 560
-
-# show full screen
-#fullscreen = 0
-
-# maximum size of tool bars (0 = no limit)
-# if more tools than allowed by height,
-# next and prev arrows for scrolling appears
-toolbar_max_width = 0
-toolbar_max_height = 0
-
-# if 1, print the company name in front of a message
-#add_player_name_to_message = 1
 
 # How many frames per second to use? Display may look pretty until 10 or so
 # (depends very much on computer, game complexity and graphics driver)
@@ -1079,30 +1154,35 @@ fast_forward = 100
 # The server sends after a fixed number of steps some information to the clients.
 # Large values here means: reduced server communication (if that is of importance...)
 # Small values should improve the timing of the clients.
-#server_frames_between_checks = 256
+server_frames_between_checks = 320
 
 # Automatically announce server on the central server directory (http://servers.simutrans.org/)
 # 0 (default) = off, 1 = on
-#server_announce = 0
+server_announce = 0
 
 # Interval of server announcement (if enabled)
 # Value is number of seconds between server announcements, default is 900 (15 minutes)
 # Minimum value is 60 (1 minute), for accurate listing it is recommended not to increase
 # this value to greater than 3600 (1 hour)
 # To disable announcements set server_announce to 0
-#server_announce_interval = 900
+server_announce_interval = 900
 
 # Fully Qualified Domain Name (FQDN) or IP address of your server (IPv6 or IPv4)
 #server_dns = 127.0.0.1
 
 # Name of server in server listing
-#server_name = My Simutrans Experimental Server
+#server_name = A generic Simutrans-Experimental server
 
 # Additional information about your server (for display on the list server)
-#server_comments = Comments about my server
+#server_comments = This is a Simutrans-Experimental server running with default settings.
 
 # Email address of server maintainer (for display on the list server)
 #server_email = maintainer@your.server
+
+# The password required for administering the server. 
+# NOTE: This should be changed from the default when used, for
+# obvious reasons.
+server_admin_pw = Insecure
 
 # Pakset download URL (for display on the list server)
 #server_pakurl = http://your.domain/pakset.zip
@@ -1111,4 +1191,4 @@ fast_forward = 100
 #server_infurl = http://your.domain/server-info.html
 
 # Pause server when no clients are connected
-#pause_server_no_clients = 1
+pause_server_no_clients = 1

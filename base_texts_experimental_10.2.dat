@@ -1,0 +1,38 @@
+# Simutranslator settings for Simutrans-Experimental texts
+# Addendum for version 10.4
+#
+# Author: jamespetts
+# Created: October 2011
+#
+obj=program_text
+name=The charges incurred or revenues earned by running on other players' ways
+note=Tooltip for the way access charges in the finances window.
+-
+obj=program_text
+name=Name/password
+note=Heading for the password button in the player list
+-
+=program_text
+name=Access
+note=Heading for the access buttons in the player list
+-
+=program_text
+name=Withdraw %s's access your ways and stops
+note=Tooltip for the access in button in the player list when pressed
+-
+=program_text
+name=Allow %s to access your ways and stops
+note=Tooltip for the access in button in the player list when not pressed
+-
+=program_text
+name=%s allows you to access its ways and stops
+note=Tooltip for the access out button in the player list when pressed
+-
+=program_text
+name=%s does not allow you to access its ways and stops
+note=Tooltip for the access out button in the player list when not pressed
+-
+=program_text
+name=Only %s can use this tool
+note=Tooltip for the make stop/way public button when not enabled
+-
