@@ -1655,16 +1655,16 @@ static const char *wkz_fahrplan_insert_aux(karte_t *welt, spieler_t *sp, koord3d
 		}
 		if(  !bd->is_halt()  )
 		{
-			if(w != NULL && w->get_besitzer() && !w->get_besitzer()->allows_access_to(sp->get_player_nr()) && !spieler_t::check_owner(w->get_besitzer(),sp)) 
+			if(w != NULL && w->get_besitzer() && !w->get_besitzer()->allows_access_to(sp->get_player_nr()))
 			{
 				return "Das Feld gehoert\neinem anderen Spieler\n";
 			}
-			if(  bd->get_depot()  &&  !spieler_t::check_owner( bd->get_depot()->get_besitzer(), sp )  )
+			if(  bd->get_depot()  &&  !spieler_t::check_owner( bd->get_depot()->get_besitzer(), sp ))
 			{
 				return "Das Feld gehoert\neinem anderen Spieler\n";
 			}
 		}
-		if(bd->is_halt()  && (!spieler_t::check_owner(sp, bd->get_halt()->get_besitzer()) && (w != NULL && !w->get_besitzer()->allows_access_to(sp->get_player_nr()) && !spieler_t::check_owner(w->get_besitzer(), sp)))) 
+		if(bd->is_halt() && (!spieler_t::check_owner(sp, bd->get_halt()->get_besitzer()) && (w != NULL && !w->get_besitzer()->allows_access_to(sp->get_player_nr()))))
 		{
 			return "Das Feld gehoert\neinem anderen Spieler\n";
 		}

@@ -1339,16 +1339,9 @@ void vehikel_t::hop()
 		// weight limit is set to 0 in the file.
 
 		// This is just used for the GUI display, so only set to true if the weight limit is set to enforce by speed restriction.
-		is_overweight = (cnv->get_heaviest_vehicle() > weight_limit &&welt->get_settings().get_enforce_weight_limits() == 1); 
+		is_overweight = (cnv->get_heaviest_vehicle() > weight_limit && welt->get_settings().get_enforce_weight_limits() == 1); 
 
-		//if(alte_fahrtrichtung != fahrtrichtung)
-		//{
-			pre_corner_direction.add_to_tail(get_direction_degrees(ribi_t::get_dir(alte_fahrtrichtung)));
-		//}
-		//else
-		//{
-			//pre_corner_direction.add_to_tail(999);
-		//}
+		pre_corner_direction.add_to_tail(get_direction_degrees(ribi_t::get_dir(alte_fahrtrichtung)));
 
 		speed_limit = calc_modified_speed_limit(get_pos(), fahrtrichtung, (alte_fahrtrichtung != fahrtrichtung));
 		if(weg->is_crossing()) 
@@ -2340,7 +2333,7 @@ bool vehikel_t::check_access(const weg_t* way) const
 	{
 		return true;
 	}
-	return way && (way->get_besitzer() == NULL || way->get_besitzer() == get_besitzer() || get_besitzer() == NULL || way->get_besitzer() == current_way->get_besitzer() || way->get_besitzer()->allows_access_to(get_besitzer()->get_player_nr()));
+	return way && (way->get_besitzer() == NULL || way->get_besitzer() == get_besitzer() || get_besitzer() == NULL || way->get_besitzer() == current_way->get_besitzer() || way->get_besitzer()->allows_access_to(get_besitzer()->get_player_nr()) || (welt->get_city(way->get_pos().get_2d()) && way->get_waytype() == road_wt));
 }
 
 
