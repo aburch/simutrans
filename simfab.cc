@@ -1172,7 +1172,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 }
 
 
-/*
+/**
  * let the chimney smoke, if there is something to produce
  * @author Hj. Malthaner
  */
@@ -1194,34 +1194,35 @@ void fabrik_t::smoke() const
 }
 
 
-/*
+/**
  * calculates the produktion per delta_t; scaled to PRODUCTION_DELTA_T
  * @author Hj. Malthaner - original
  */
 uint32 fabrik_t::produktion(const uint32 produkt, const long delta_t) const
 {
-	// default prodfactor = 256 => shift 8, default time = 1024 => shift 10, rest precion
+	// default prodfactor = 256 => shift 8, default time = 1024 => shift 10, rest precision
 	const sint64 max = (sint64)prodbase * (sint64)(get_prodfactor());
 	uint32 menge = (uint32)((max >> (18-10+DEFAULT_PRODUCTION_FACTOR_BITS-fabrik_t::precision_bits)) * delta_t / PRODUCTION_DELTA_T);
-
-	if (ausgang.get_count() > produkt) {
-		// wenn das lager voller wird, produziert eine Fabrik weniger pro step
+	if(  ausgang.get_count() > produkt  ) {
+		// prorate production based upon amount of product in storage
+		// but allow full production rate for storage amounts less than the normal minimum distribution amount (10)
 
 		const uint32 maxi = ausgang[produkt].max;
 		const uint32 actu = ausgang[produkt].menge;
-
-		if(actu<maxi) {
-			if(menge>(0x7FFFFFFFu/maxi)) {
-				// avoid overflow
-				menge = (((maxi-actu)>>5)*(menge>>5))/(maxi>>10);
-			}
-			else {
-				// and that is the simple formula
-				menge = (menge*(maxi-actu)) / maxi;
+		if(  actu<maxi  ) {
+			if(  actu >= ((10+1)<<fabrik_t::precision_bits)-1  ) {
+				if(  menge>(0x7FFFFFFFu/maxi)  ) {
+					// avoid overflow
+					menge = (((maxi-actu)>>5)*(menge>>5))/(maxi>>10);
+				}
+				else {
+					// and that is the simple formula
+					menge = (menge*(maxi-actu)) / maxi;
+				}
 			}
 		}
 		else {
-			// overfull? Reduce to maximum
+			// overfull? No production
 			menge = 0;
 		}
 	}
