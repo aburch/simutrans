@@ -2664,8 +2664,9 @@ void convoi_t::calc_loading()
 void convoi_t::calc_max_power_speed()
 {
 	const sint32 cnv_min_top_kmh = speed_to_kmh( min_top_speed );
-	if(  front()->get_waytype() == air_wt  ) {
+	if(  front()==NULL  ||  front()->get_waytype() == air_wt  ) {
 		// flying aircraft have 0 friction --> speed not limited by power, so just use top_speed
+		// use this for empty convoys, too, to avoid division by zero
 		max_power_speed = min_top_speed;
 		speedbonus_kmh = cnv_min_top_kmh;
 	}
