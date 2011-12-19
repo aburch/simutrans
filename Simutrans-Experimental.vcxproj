@@ -21,6 +21,10 @@
       <Configuration>Release (command-line server)</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Release (IP v. 4 only)|Win32">
+      <Configuration>Release (IP v. 4 only)</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release (SDL)|Win32">
       <Configuration>Release (SDL)</Configuration>
       <Platform>Win32</Platform>
@@ -47,6 +51,11 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release (IP v. 4 only)|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -83,6 +92,9 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release (IP v. 4 only)|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
@@ -108,10 +120,13 @@
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug (network)|Win32'">true</LinkIncremental>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug (command-line server)|Win32'">true</LinkIncremental>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\simutrans</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release (IP v. 4 only)|Win32'">.\simutrans</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|Win32'">.\simutrans</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\intermediates\release</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release (IP v. 4 only)|Win32'">.\intermediates\release</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|Win32'">.\intermediates\release-command-line-server</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release (IP v. 4 only)|Win32'">false</LinkIncremental>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|Win32'">false</LinkIncremental>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">.\simutrans</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">.\intermediates\release-SDL</IntDir>
@@ -126,10 +141,13 @@
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug (network)|Win32'">..\OpenTTD\win32\library;..\bzip\lib;$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug (command-line server)|Win32'">..\OpenTTD\win32\library;..\bzip\lib;$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\OpenTTD\win32\library;..\bzip\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release (IP v. 4 only)|Win32'">..\OpenTTD\win32\library;..\bzip\lib;$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|Win32'">..\OpenTTD\win32\library;..\bzip\lib;$(LibraryPath)</LibraryPath>
     <SourcePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">(SourcePath)</SourcePath>
+    <SourcePath Condition="'$(Configuration)|$(Platform)'=='Release (IP v. 4 only)|Win32'">(SourcePath)</SourcePath>
     <SourcePath Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|Win32'">(SourcePath)</SourcePath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\OpenTTD\shared\include;..\bzip\include;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release (IP v. 4 only)|Win32'">..\OpenTTD\shared\include;..\bzip\include;$(IncludePath)</IncludePath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|Win32'">..\OpenTTD\shared\include;..\bzip\include;$(IncludePath)</IncludePath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">F:\My Documents\Development\Simutrans\Open TTD binaries\OpenTTD essentials\win32\include;F:\My Documents\Development\Simutrans\Open TTD binaries\OpenTTD essentials\shared\include;F:\My Documents\Development\Zlib\include;F:\My Documents\Development\Simutrans\SDL-1.2.13\include;$(IncludePath)</IncludePath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">F:\My Documents\Development\Lib Png\bin;F:\My Documents\Development\Simutrans\SDL-1.2.13\lib;F:\My Documents\Development\Zlib\lib;F:\My Documents\Development\Simutrans\Open TTD binaries\OpenTTD essentials\win32\library;$(LibraryPath)</LibraryPath>
@@ -145,6 +163,7 @@
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug (network)|Win32'">$(ProjectName)-Debug</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug (command-line server)|Win32'">$(ProjectName)-Debug</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|Win32'">$(ProjectName)-command-line-server</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release (IP v. 4 only)|Win32'">$(ProjectName)-ipv4</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -253,6 +272,41 @@
       <OmitFramePointers>true</OmitFramePointers>
       <AdditionalIncludeDirectories>F:\My Documents\Development\Zlib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>USE_INDEPENDENT_PATH_POOL;ZLIB_WINAPI;LITTLE_ENDIAN;WIN32;NDEBUG;%(PreprocessorDefinitions);COLOUR_DEPTH=16</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4200;4800;4311;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <Optimization>Full</Optimization>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;Strmiids.lib;Ws2_32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>F:\My Documents\Development\Bzlib;F:\My Documents\Development\Zlib\include;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release (IP v. 4 only)|Win32'">
+    <ClCompile>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <OmitFramePointers>true</OmitFramePointers>
+      <AdditionalIncludeDirectories>F:\My Documents\Development\Zlib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>USE_INDEPENDENT_PATH_POOL;ZLIB_WINAPI;LITTLE_ENDIAN;WIN32;NDEBUG;%(PreprocessorDefinitions);COLOUR_DEPTH=16;USE_IP4_ONLY</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FloatingPointModel>Fast</FloatingPointModel>
       <PrecompiledHeader>
@@ -577,8 +631,10 @@
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
       <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release (IP v. 4 only)|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
       <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release (IP v. 4 only)|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
       <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
     </ClCompile>
     <ClCompile Include="simfab.cc" />

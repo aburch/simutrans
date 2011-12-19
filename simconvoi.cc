@@ -5980,6 +5980,7 @@ void convoi_t::clear_replace()
 		 return ding_t::airdepot;
 	 default:
 		 dbg->error("ding_t::typ convoi_t::get_depot_type() const", "Invalid waytype: cannot find correct depot type");
+		 return ding_t::strassendepot;
 	 };
  }
 
