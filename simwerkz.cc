@@ -1655,16 +1655,16 @@ static const char *wkz_fahrplan_insert_aux(karte_t *welt, spieler_t *sp, koord3d
 		}
 		if(  !bd->is_halt()  )
 		{
-			if(w != NULL && w->get_besitzer() && !w->get_besitzer()->allows_access_to(sp->get_player_nr()) && !spieler_t::check_owner(w->get_besitzer(),sp)) 
+			if(w != NULL && w->get_besitzer() && !w->get_besitzer()->allows_access_to(sp->get_player_nr()))
 			{
 				return "Das Feld gehoert\neinem anderen Spieler\n";
 			}
-			if(  bd->get_depot()  &&  !spieler_t::check_owner( bd->get_depot()->get_besitzer(), sp )  )
+			if(  bd->get_depot()  &&  !spieler_t::check_owner( bd->get_depot()->get_besitzer(), sp ))
 			{
 				return "Das Feld gehoert\neinem anderen Spieler\n";
 			}
 		}
-		if(bd->is_halt()  && (!spieler_t::check_owner(sp, bd->get_halt()->get_besitzer()) && (w != NULL && !w->get_besitzer()->allows_access_to(sp->get_player_nr()) && !spieler_t::check_owner(w->get_besitzer(), sp)))) 
+		if(bd->is_halt() && (!spieler_t::check_owner(sp, bd->get_halt()->get_besitzer()) && (w != NULL && !w->get_besitzer()->allows_access_to(sp->get_player_nr()))))
 		{
 			return "Das Feld gehoert\neinem anderen Spieler\n";
 		}
@@ -5396,8 +5396,8 @@ const char *wkz_make_stop_public_t::work( karte_t *welt, spieler_t *sp, koord3d 
 				halt->make_public_and_join(sp);
  			}
 		}
-	return NULL;
 	}
+	return NULL;
 }
 
 sint8 wkz_show_underground_t::save_underground_level = -128;
@@ -6535,6 +6535,11 @@ bool wkz_access_t::init(karte_t* const welt, spieler_t *sp)
 	}
 
 	spieler_t* const setting_player = welt->get_spieler(id_setting_player);
+	if(!setting_player)
+	{
+		return false;
+	}
+
 	setting_player->set_allow_access_to(id_receiving_player, allow_access);
 	if(allow_access == false)
 	{
@@ -6542,14 +6547,13 @@ bool wkz_access_t::init(karte_t* const welt, spieler_t *sp)
 		// that convoys may not be able to stop where once they were able to stop.
 		spieler_t* const receiving_player = welt->get_spieler(id_receiving_player);
 		schedule_t* fpl;
-		uint8 count;
 		koord3d pos;
-		weg_t* way;
 		waytype_t waytype;
-		spieler_t* way_owner;
+		spieler_t* halt_owner;
 		uint8 current_aktuell;
 		halthandle_t halt;
 		linehandle_t current_line;
+		vector_tpl<uint8> entries_to_remove;
 		for (vector_tpl<linehandle_t>::const_iterator j = receiving_player->simlinemgmt.get_all_lines().begin(), 
 					 end = receiving_player->simlinemgmt.get_all_lines().end(); j != end; j++) 
 		{
@@ -6557,59 +6561,83 @@ bool wkz_access_t::init(karte_t* const welt, spieler_t *sp)
 			if(current_line.is_bound())
 			{
 				fpl = current_line->get_schedule();
+				if(!fpl)
+				{
+					continue;
+				}
 				current_aktuell = fpl->get_aktuell();
 				waytype = fpl->get_waytype();
-				count = fpl->get_count();
-				for(uint8 n = 0; n < count; n ++)
+				for(uint8 n = 0; n < fpl->get_count(); n ++)
 				{
 					pos = fpl->eintrag[n].pos;
 					halt = welt->lookup(pos)->get_halt();
-					way = welt->lookup(pos)->get_weg(waytype);
-					way_owner = way->get_besitzer();
-					if(way_owner && receiving_player && way_owner != receiving_player && !way_owner->allows_access_to(receiving_player->get_player_nr()))
+					halt_owner = halt.is_bound() ? halt->get_besitzer() : NULL;
+					if(halt_owner && receiving_player && halt_owner != receiving_player && !halt_owner->allows_access_to(receiving_player->get_player_nr()))
 					{
 						// The player no longer allows access: remove the stop.
-						fpl->set_aktuell(n);
-						fpl->remove();
-						fpl->set_aktuell(current_aktuell);
-						fpl->cleanup();
+						entries_to_remove.append(n);
+					}
+				}
+				ITERATE(entries_to_remove, j)
+				{
+					fpl->set_aktuell(j);
+					fpl->remove();
+					fpl->set_aktuell(current_aktuell);
+					fpl->cleanup();
+					if(halt.is_bound())
+					{
 						halt->remove_line(current_line);
 					}
+				}
+				if(!entries_to_remove.empty())
+				{
 					receiving_player->simlinemgmt.update_line(current_line);
 				}
 			}
 		}
 
+		entries_to_remove.clear();
 		const uint32 convoy_count = welt->get_convoi_count();
 		convoihandle_t cnv;
 		for(uint32 i = 0; i < convoy_count; i ++)
 		{
 			cnv = welt->get_convoi(i);
-			fpl = cnv->get_schedule();
 			if(!cnv.is_bound() || cnv->get_line().is_bound())
 			{
 				// We dealt above with lines.
 				continue;
 			}
+			fpl = cnv->get_schedule();
+			if(!fpl)
+			{
+				continue;
+			}
 			current_aktuell = fpl->get_aktuell();
 			waytype = fpl->get_waytype();
-			count = fpl->get_count();
-			for(uint8 n = 0; n < count; n ++)
+			for(uint8 n = 0; n < fpl->get_count(); n ++)
 			{
 				pos = fpl->eintrag[n].pos;
 				halt = welt->lookup(pos)->get_halt();
-				way = welt->lookup(pos)->get_weg(waytype);
-				way_owner = way->get_besitzer();
-				if(way_owner && receiving_player && way_owner != receiving_player && !way_owner->allows_access_to(receiving_player->get_player_nr()))
+				halt_owner = halt.is_bound() ? halt->get_besitzer() : NULL;
+				if(halt_owner && receiving_player && halt_owner != receiving_player && !halt_owner->allows_access_to(receiving_player->get_player_nr()))
 				{
+					entries_to_remove.append(n);
 					// The player no longer allows access: remove the stop.
-					fpl->set_aktuell(n);
-					fpl->remove();
-					fpl->set_aktuell(current_aktuell);
-					fpl->cleanup();
+				}
+			}
+
+			ITERATE(entries_to_remove, j)
+			{
+				fpl->set_aktuell(j);
+				fpl->remove();
+				fpl->set_aktuell(current_aktuell);
+				fpl->cleanup();
+				if(halt.is_bound())
+				{
 					halt->remove_convoy(cnv);
 				}
 			}
+
 			if(fpl->get_count() < 2)
 			{
 				// We need to make sure that convoys with fewer than two
@@ -6631,6 +6659,7 @@ bool wkz_access_t::init(karte_t* const welt, spieler_t *sp)
 		message.printf("%s has withdrawn access rights from %s",  welt->get_spieler(id_setting_player)->get_name(), welt->get_spieler(id_receiving_player)->get_name());
 	}
 	welt->get_message()->add_message(message, koord::invalid, message_t::ai, setting_player->get_player_color1());
+	return false;
 }
 
 

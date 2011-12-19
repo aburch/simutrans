@@ -2502,12 +2502,27 @@ void karte_t::set_werkzeug( werkzeug_t *w, spieler_t *sp )
 		dbg->warning("karte_t::set_werkzeug", "Ignored tool %i during loading.", w->get_id() );
 		return;
 	}
+	spieler_t* action_player = sp;
+	if(w->get_id() == (WKZ_ACCESS_TOOL | SIMPLE_TOOL))
+	{
+		uint16 id_setting_player;
+		uint16 id_receiving_player;
+		sint16 allow_access;
+
+		if(3 != sscanf(w->get_default_param(), "g%hi,%hi,%hi", &id_setting_player, &id_receiving_player, &allow_access)) 
+		{
+			dbg->error( "karte_t::set_werkzeug", "could not perform (%s)", w->get_default_param() );
+			return;
+		}
+		action_player = this->get_spieler(id_setting_player);
+	}
 
 	if(  (!w->is_init_network_save()  ||  !w->is_work_network_save())  &&
 		 !(w->get_id()==(WKZ_PWDHASH_TOOL|SIMPLE_TOOL)  ||  w->get_id()==(WKZ_SET_PLAYER_TOOL|SIMPLE_TOOL))  &&
-		 sp  &&  sp->set_unlock(player_password_hash[sp->get_player_nr()])  ) {
+		 action_player  &&  action_player->set_unlock(player_password_hash[action_player->get_player_nr()])  ) 
+	{
 		// player is currently password protected => request unlock first
-		create_win( -1, -1, new password_frame_t(sp), w_info, (long)(player_password_hash[sp->get_player_nr()]) );
+		create_win( -1, -1, new password_frame_t(action_player), w_info, (long)(player_password_hash[action_player->get_player_nr()]) );
 		return;
 	}
 	w->flags = event_get_last_control_shift();

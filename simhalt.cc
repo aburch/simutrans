@@ -1022,6 +1022,7 @@ void haltestelle_t::step()
 								{
 									account_line->book(-refund_amount, LINE_PROFIT);
 									account_line->book(-refund_amount, LINE_REFUNDS);
+									get_besitzer()->buche(-refund_amount, COST_VEHICLE_RUN);
 								}
 								else
 								{
@@ -1030,6 +1031,7 @@ void haltestelle_t::step()
 									{
 										account_convoy->book(-refund_amount, CONVOI_PROFIT);
 										account_convoy->book(-refund_amount, CONVOI_REFUNDS);
+										get_besitzer()->buche(-refund_amount, COST_VEHICLE_RUN);
 									}
 								}
 							}
@@ -1241,7 +1243,7 @@ void haltestelle_t::remove_fabriken(fabrik_t *fab)
 
 uint16 haltestelle_t::get_average_waiting_time(halthandle_t halt, uint8 category) const
 {
-	if(&waiting_times[category].get(halt.get_id()) != NULL)
+	if(waiting_times[category].is_contained((halt.get_id())))
 	{
 		fixed_list_tpl<uint16, 16> times = waiting_times[category].get(halt.get_id()).times;
 		const uint16 count = times.get_count();
@@ -1909,6 +1911,7 @@ uint32 haltestelle_t::starte_mit_route(ware_t ware)
 	{
 		// add to internal storage
 		add_ware_to_halt(ware);
+		return ware.menge;
 	}
 }
 

@@ -98,26 +98,26 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\simutrans-experimental-binaries\</OutDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug (network)|Win32'">..\simutrans-experimental-binaries\</OutDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug (command-line server)|Win32'">..\simutrans-experimental-binaries\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\simutrans-experimental-binaries\intermediates\debug\</IntDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug (network)|Win32'">..\simutrans-experimental-binaries\intermediates\debug\</IntDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug (command-line server)|Win32'">..\simutrans-experimental-binaries\intermediates\debug\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\simutrans</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug (network)|Win32'">.\simutrans</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug (command-line server)|Win32'">.\simutrans</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\intermediates\debug</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug (network)|Win32'">.\intermediates\debug</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug (command-line server)|Win32'">.\intermediates\debug-command-line-server</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug (network)|Win32'">true</LinkIncremental>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug (command-line server)|Win32'">true</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\simutrans-experimental-binaries\</OutDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|Win32'">..\simutrans-experimental-binaries\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\simutrans-experimental-binaries\intermediates\release\</IntDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|Win32'">..\simutrans-experimental-binaries\intermediates\release\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\simutrans</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|Win32'">.\simutrans</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\intermediates\release</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|Win32'">.\intermediates\release-command-line-server</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|Win32'">false</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">..\simutrans-experimental-binaries\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">..\simutrans-experimental-binaries\intermediates\release-SDL\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">.\simutrans</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">.\intermediates\release-SDL</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">false</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">..\simutrans-experimental-binaries\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">..\simutrans-experimental-binaries\intermediates\debug-SDL\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">.\simutrans</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">.\intermediates\debug-SDL</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">true</LinkIncremental>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\OpenTTD\shared\include;..\bzip\include;$(IncludePath)</IncludePath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug (network)|Win32'">..\OpenTTD\shared\include;..\bzip\include;$(IncludePath)</IncludePath>
@@ -1007,12 +1007,12 @@
     <None Include="base_texts_experimental_forgotten_items_2.dat" />
     <None Include="config.default" />
     <None Include="config.template" />
-    <None Include="..\simutrans-experimental-binaries\config\electricity.tab" />
     <None Include="..\simutrans-experimental-binaries\text\en.tab" />
     <None Include="Makefile" />
-    <None Include="..\simutrans-experimental-binaries\config\privatecar.tab" />
-    <None Include="..\simutrans-experimental-binaries\config\simuconf.tab" />
     <None Include="makeobj\Makefile" />
+    <None Include="simutrans\config\electricity.tab" />
+    <None Include="simutrans\config\privatecar.tab" />
+    <None Include="simutrans\config\simuconf.tab" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="simres.rc" />

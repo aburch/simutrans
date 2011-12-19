@@ -719,7 +719,7 @@ void convoi_t::increment_odometer(uint32 steps)
 { 
 	// Increament the way distance: used for apportioning revenue by owner of ways.
 	// Use steps, as only relative distance is important here.
-	uint8 player;
+	sint8 player;
 	waytype_t waytpe = fahr[0]->get_waytype();
 	weg_t* way = welt->lookup(get_pos())->get_weg(waytpe);
 	if(way == NULL)
@@ -748,6 +748,11 @@ void convoi_t::increment_odometer(uint32 steps)
 		}
 	}
 
+	if(player < 0)
+	{
+		player = besitzer_p->get_player_nr();
+	}
+
 	inthashtable_iterator_tpl<uint16, departure_data_t> iter(departures);
 	while(iter.next())
 	{
@@ -766,7 +771,15 @@ void convoi_t::increment_odometer(uint32 steps)
 	steps_since_last_odometer_increment -= km * steps_since_last_odometer_increment;
 	for(uint8 i= 0; i < anz_vehikel; i++) 
 	{
-		add_running_cost(-fahr[i]->get_besch()->get_betriebskosten(welt), welt->lookup(fahr[0]->get_pos())->get_weg(fahr[0]->get_waytype()));
+		const grund_t *gr = welt->lookup(fahr[0]->get_pos());
+		if(gr)
+		{
+			add_running_cost(-fahr[i]->get_besch()->get_betriebskosten(welt), gr->get_weg(fahr[0]->get_waytype()));
+		}
+		else
+		{
+			add_running_cost(-fahr[i]->get_besch()->get_betriebskosten(welt), NULL);
+		}
 	}
 }
 
@@ -3739,7 +3752,7 @@ void convoi_t::laden() //"load" (Babelfish)
 			journey_time = 1;
 		}
 		const sint32 journey_distance_meters = journey_distance * welt->get_settings().get_meters_per_tile();
-		const sint32 average_speed = (journey_distance_meters * 3) / (journey_time * 5);
+		const sint32 average_speed = (journey_distance_meters * 3) / (journey_time * 50);
 		
 		// For some odd reason, in some cases, laden() is called when the journey time is
 		// excessively low, resulting in perverse average speeds and journey times.
@@ -3980,30 +3993,17 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	const departure_data_t dep = departures->get(ware.get_last_transfer().get_id());
 	const uint32 distance = dep.get_overall_distance() > 0 ? dep.get_overall_distance() : max_distance / 2;
 	const uint32 revenue_distance = distance < max_distance ? distance : max_distance;
-
-	/*inthashtable_iterator_tpl<uint16, departure_data_t> TEST_iter(departures);
-	halthandle_t TEST_last_transfer = ware.get_last_transfer();
-	const char* TEST_last_transfer_name = TEST_last_transfer.is_bound() ? TEST_last_transfer->get_name() : "NULL";
-	departure_data_t TEST_departure;
-	while(TEST_iter.next())
-	{
-		halthandle_t TEST_this_iteration;
-		TEST_this_iteration.set_id(TEST_iter.get_current_key());
-		const char* TEST_this_iteration_name = TEST_this_iteration.is_bound() ? TEST_this_iteration->get_name() : "NULL";
-		TEST_departure = TEST_iter.get_current_value();
-		const uint8 a = 1 + 1;
-	}*/
 	
 	uint16 journey_minutes = 0;
 	if(ware.get_last_transfer().is_bound())
 	{
 		if(line.is_bound())
 		{
-			journey_minutes = line->average_journey_times->get(id_pair(ware.get_last_transfer().get_id(), welt->get_halt_koord_index(fahr[0]->get_pos().get_2d()).get_id())).get_average();
+			journey_minutes = (line->average_journey_times->get(id_pair(ware.get_last_transfer().get_id(), welt->get_halt_koord_index(fahr[0]->get_pos().get_2d()).get_id())).get_average()) / 10;
 		}
 		else
 		{
-			journey_minutes = average_journey_times->get(id_pair(ware.get_last_transfer().get_id(), welt->get_halt_koord_index(fahr[0]->get_pos().get_2d()).get_id())).get_average();
+			journey_minutes = (average_journey_times->get(id_pair(ware.get_last_transfer().get_id(), welt->get_halt_koord_index(fahr[0]->get_pos().get_2d()).get_id())).get_average()) / 10;
 		}
 	}
 
@@ -4018,7 +4018,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	else
 	{
 		const sint32 journey_distance_meters = distance * welt->get_settings().get_meters_per_tile();
-		average_speed = (journey_distance_meters * 3) / (journey_minutes * 5);
+		average_speed = (journey_distance_meters * 3) / (journey_minutes * 50);
 		if(average_speed == 0)
 		{
 			average_speed = 1;
@@ -4250,6 +4250,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 		}
 	}
 	
+	const sint64 TEST_revenue = (final_revenue + 1500ll) / 3000ll;
 	return final_revenue;
 }
 

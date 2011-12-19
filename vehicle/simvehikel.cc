@@ -829,13 +829,19 @@ vehikel_t::unload_freight(halthandle_t halt)
 						{
 							// Cannot refund unless we know the origin.
 							const uint16 distance = shortest_distance(halt->get_basis_pos(), tmp.get_origin()->get_basis_pos());
-							// Refund is approximation: twice distance at standard rate with no adjustments.
-							const sint64 refund_amount = tmp.menge * tmp.get_fare(distance) * 2000ll;
+
+							// Refund is approximation: 2x distance at standard rate with no adjustments. 
+							const sint64 refund_amount = ((tmp.menge * tmp.get_fare(distance) * 2000ll) + 1500ll) / 3000ll;
+
 							current_revenue -= refund_amount;
-							cnv->book(refund_amount, CONVOI_REFUNDS);
+							cnv->book(-refund_amount, CONVOI_PROFIT);
+							cnv->book(-refund_amount, CONVOI_REFUNDS);
+							get_besitzer()->buche(-refund_amount, COST_VEHICLE_RUN);
 							if(cnv->get_line().is_bound())
 							{
-								cnv->get_line()->book(refund_amount, LINE_REFUNDS);
+								cnv->get_line()->book(-refund_amount, LINE_REFUNDS);
+								cnv->get_line()->book(-refund_amount, LINE_PROFIT);
+								get_besitzer()->buche(-refund_amount, COST_VEHICLE_RUN);
 							}
 						}
 
@@ -1337,16 +1343,9 @@ void vehikel_t::hop()
 		// This is just used for the GUI display, so only set to true if the weight limit is set to enforce by speed restriction.
 		is_overweight = (cnv->get_heaviest_vehicle() > weight_limit && welt->get_settings().get_enforce_weight_limits() == 1); 
 
-		//if(alte_fahrtrichtung != fahrtrichtung)
-		//{
-			pre_corner_direction.add_to_tail(get_direction_degrees(ribi_t::get_dir(alte_fahrtrichtung)));
-		//}
-		//else
-		//{
-			//pre_corner_direction.add_to_tail(999);
-		//}
+		pre_corner_direction.add_to_tail(get_direction_degrees(ribi_t::get_dir(alte_fahrtrichtung)));
 
-		speed_limit = calc_modified_speed_limit(&get_pos(), fahrtrichtung, (alte_fahrtrichtung != fahrtrichtung));
+		speed_limit = calc_modified_speed_limit(get_pos(), fahrtrichtung, (alte_fahrtrichtung != fahrtrichtung));
 		if(weg->is_crossing()) 
 		{
 			gr->find<crossing_t>(2)->add_to_crossing(this);
@@ -1382,10 +1381,10 @@ void vehikel_t::hop()
  * taking into account the curve and weight limit.
  * @author: jamespetts
  */
-sint32 vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi current_direction, bool is_corner)
+sint32 vehikel_t::calc_modified_speed_limit(const koord3d position, ribi_t::ribi current_direction, bool is_corner)
 {
 	grund_t *g;
-	g = welt->lookup(*position);
+	g = welt->lookup(position);
 	if(g == NULL)
 	{
 		return speed_limit;
@@ -1448,7 +1447,7 @@ sint32 vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::rib
 		ribi_t::ribi old_direction = current_direction;
 		if(previous_tile != NULL)
 		{
-			old_direction = calc_check_richtung(previous_tile->get_2d(), position->get_2d());
+			old_direction = calc_check_richtung(previous_tile->get_2d(), position.get_2d());
 		}
 	
 		uint16 limit_adjustment_percentage = 100;
@@ -2336,7 +2335,7 @@ bool vehikel_t::check_access(const weg_t* way) const
 	{
 		return true;
 	}
-	return way && (way->get_besitzer() == NULL || way->get_besitzer() == get_besitzer() || get_besitzer() == NULL || way->get_besitzer() == current_way->get_besitzer() || way->get_besitzer()->allows_access_to(get_besitzer()->get_player_nr()));
+	return way && (way->get_besitzer() == NULL || way->get_besitzer() == get_besitzer() || get_besitzer() == NULL || way->get_besitzer() == current_way->get_besitzer() || way->get_besitzer()->allows_access_to(get_besitzer()->get_player_nr()) || (welt->get_city(way->get_pos().get_2d()) && way->get_waytype() == road_wt));
 }
 
 

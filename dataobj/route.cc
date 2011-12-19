@@ -392,7 +392,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 	queue.insert(tmp);
 
 //DBG_MESSAGE("route_t::itern_calc_route()","calc route from %d,%d,%d to %d,%d,%d",ziel.x, ziel.y, ziel.z, start.x, start.y, start.z);
-	const uint8 enforce_weight_limits =welt->get_settings().get_enforce_weight_limits();
+	const uint8 enforce_weight_limits = welt->get_settings().get_enforce_weight_limits();
 	uint32 beat=1;
 	do {
 		// Hajo: this is too expensive to be called each step
