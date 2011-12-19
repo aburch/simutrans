@@ -288,21 +288,36 @@ SOCKET network_open_address( const char *cp, long timeout_ms, const char * &err 
 
 #endif // NETTOOL
 
+#ifdef HAS_NTOP_AND_NTOP
 		// Check address is valid
 		if (  ip.find(":") != std::string::npos  ) {
+/* Windows could use the code below; but getaddrinfo will take care of that anyway ...
+			char *c = (char *)(const char *)ip.c_str();
+			struct sockaddr sin;
+			int MyAddrSize = sizeof(struct sockaddr_storage);
+			if (  WSAStringToAddressA( c, AF_INET6, NULL, &sin, &MyAddrSize ) != 0  ) {
+*/
 			struct sockaddr_in6 sa;
 			if (  inet_pton( AF_INET6, ip.c_str(), &(sa.sin6_addr) ) <= 0  ) {
+
 				dbg->warning( "network_open_address()", "%s is not a valid IPv6 address, check listen directive in your simuconf.tab", ip.c_str() );
 				continue;
 			}
 		}
 		else {
+/* Windows could use the code below; but getaddrinfo will take care of that anyway ...
+			struct sockaddr sin;
+			int MyAddrSize = sizeof(struct sockaddr_storage);
+			char *c = (char *)(const char *)ip.c_str();
+			if (  WSAStringToAddressA( c, AF_INET, NULL, &sin, &MyAddrSize ) != 0  ) {
+*/
 			struct sockaddr_in sa;
 			if (  inet_pton( AF_INET, ip.c_str(), &(sa.sin_addr) ) <= 0  ) {
 				dbg->warning( "network_open_address()", "%s is not a valid IPv4 address, check listen directive in your simuconf.tab", ip.c_str() );
 				continue;
 			}
 		}
+#endif
 
 		int ret;
 		char port_nr[8];
@@ -333,6 +348,8 @@ SOCKET network_open_address( const char *cp, long timeout_ms, const char * &err 
 		local_hints.ai_family = PF_UNSPEC;
 		if (  (ret = getaddrinfo( ip.c_str(), 0, &local_hints, &local )) != 0  ) {
 			dbg->error( "network_open_address()", "Failed to getaddrinfo for %s, error was: %s", ip.c_str(), gai_strerror(ret) );
+			umgebung_t::listen.remove_at( i );
+			i --;
 			continue;
 		}
 
@@ -342,20 +359,26 @@ SOCKET network_open_address( const char *cp, long timeout_ms, const char * &err 
 			my_client_socket = socket( walk_local->ai_family, walk_local->ai_socktype, walk_local->ai_protocol );
 
 			char ipstr_local[INET6_ADDRSTRLEN];
+#ifndef HAS_NTOP_AND_NTOP
+			if(  getnameinfo( (walk_local->ai_addr), sizeof(struct sockaddr), ipstr_local, sizeof(ipstr_local), NULL, 0, NI_NUMERICSERV ) !=0  ) {
+				DBG_MESSAGE( "network_open_address()", "Invalid socket, skipping..." );
+				continue;
+			}
+#else
 			switch( walk_local->ai_addr->sa_family ) {
 				case AF_INET:
-					inet_ntop( AF_INET, &(((struct sockaddr_in *)walk_local->ai_addr)->sin_addr), ipstr_local, sizeof ipstr_local );
+					inet_ntop( AF_INET, &(((struct sockaddr_in *)walk_local->ai_addr)->sin_addr), ipstr_local, sizeof(ipstr_local) );
 					break;
 
 				case AF_INET6:
-					inet_ntop( AF_INET6, &(((struct sockaddr_in6 *)walk_local->ai_addr)->sin6_addr), ipstr_local, sizeof ipstr_local );
+					inet_ntop( AF_INET6, &(((struct sockaddr_in6 *)walk_local->ai_addr)->sin6_addr), ipstr_local, sizeof(ipstr_local) );
 					break;
 
 				default:
 					continue;
 			}
+#endif
 			DBG_MESSAGE( "network_open_address()", "Potential local address: %s", ipstr_local );
-
 
 			if (  my_client_socket == INVALID_SOCKET  ) {
 				DBG_MESSAGE( "network_open_address()", "Invalid socket, skipping..." );
@@ -373,18 +396,26 @@ SOCKET network_open_address( const char *cp, long timeout_ms, const char * &err 
 			for(  walk_remote = remote;  !connected  &&  walk_remote != NULL;  walk_remote = walk_remote->ai_next  ) {
 
 				char ipstr_remote[INET6_ADDRSTRLEN];
+#if _WIN32
+			if(  getnameinfo( walk_remote->ai_addr, sizeof(struct sockaddr), ipstr_remote, sizeof(ipstr_remote), NULL, 0, NI_NUMERICSERV ) !=0  ) {
+				DBG_MESSAGE( "network_open_address()", "Invalid socket, skipping..." );
+				continue;
+			}
+//				WSAAddressToStringA( &(((struct sockaddr_in *)walk_remote->ai_addr)->sin_addr), sizeof(((struct sockaddr_in *)walk_remote->ai_addr)->sin_addr), NULL, ipstr_remote, sizeof(ipstr_remote) );
+#else
 				switch( walk_remote->ai_addr->sa_family ) {
 					case AF_INET:
-						inet_ntop( AF_INET, &(((struct sockaddr_in *)walk_remote->ai_addr)->sin_addr), ipstr_remote, sizeof ipstr_remote );
+						inet_ntop( AF_INET, &(((struct sockaddr_in *)walk_remote->ai_addr)->sin_addr), ipstr_remote, sizeof(ipstr_remote) );
 						break;
 
 					case AF_INET6:
-						inet_ntop( AF_INET6, &(((struct sockaddr_in6 *)walk_remote->ai_addr)->sin6_addr), ipstr_remote, sizeof ipstr_remote );
+						inet_ntop( AF_INET6, &(((struct sockaddr_in6 *)walk_remote->ai_addr)->sin6_addr), ipstr_remote, sizeof(ipstr_remote) );
 						break;
 
 					default:
 						continue;
 				}
+#endif
 				DBG_MESSAGE( "network_open_address()", "Potential remote address: %s", ipstr_remote );
 
 				if (  connect( my_client_socket, walk_remote->ai_addr, walk_remote->ai_addrlen ) != 0  ) {
@@ -472,8 +503,15 @@ bool network_init_server( int port )
 
 #endif // NETTOOL
 
+#ifdef HAS_NTOP_AND_NTOP
 		// Check address is valid
 		if (  ip.find(":") != std::string::npos  ) {
+/* Windows could use the code below; but getaddrinfo will take care of that anyway ...
+			char *c = (char *)(const char *)ip.c_str();
+			struct sockaddr sin;
+			int MyAddrSize = sizeof(struct sockaddr_storage);
+			if (  WSAStringToAddressA( c, AF_INET6, NULL, &sin, &MyAddrSize ) != 0  ) {
+*/
 			struct sockaddr_in6 sa;
 			if (  inet_pton( AF_INET6, ip.c_str(), &(sa.sin6_addr) ) <= 0  ) {
 				dbg->warning( "network_init_server()", "%s is not a valid IPv6 address, check listen directive in your simuconf.tab", ip.c_str() );
@@ -481,12 +519,19 @@ bool network_init_server( int port )
 			}
 		}
 		else {
+/* Windows could use the code below; but getaddrinfo will take care of that anyway ...
+			char *c = (char *)(const char *)ip.c_str();
+			struct sockaddr sin;
+			int MyAddrSize = sizeof(struct sockaddr_storage);
+			if (  WSAStringToAddressA( c, AF_INET, NULL, &sin, &MyAddrSize ) != 0  ) {
+*/
 			struct sockaddr_in sa;
 			if (  inet_pton( AF_INET, ip.c_str(), &(sa.sin_addr) ) <= 0  ) {
 				dbg->warning( "network_init_server()", "%s is not a valid IPv4 address, check listen directive in your simuconf.tab", ip.c_str() );
 				continue;
 			}
 		}
+#endif
 
 		int ret;
 		char port_nr[16];
@@ -504,24 +549,30 @@ bool network_init_server( int port )
 			dbg->error( "network_init_server()", "Failed to getaddrinfo for %s, error was: %s", ip.c_str(), gai_strerror(ret) );
 		}
 
-
 		SOCKET server_socket;
 		struct addrinfo *walk;
 		for (  walk = server;  walk != NULL;  walk = walk->ai_next  ) {
 			server_socket = socket( walk->ai_family, walk->ai_socktype, walk->ai_protocol );
 			char ipstr[INET6_ADDRSTRLEN];
+#ifndef HAS_NTOP_AND_NTOP
+			if(  getnameinfo( (walk->ai_addr), sizeof(struct sockaddr), ipstr, sizeof(ipstr), NULL, 0, NI_NUMERICSERV ) !=0  ) {
+				DBG_MESSAGE( "network_open_address()", "Invalid socket, skipping..." );
+				continue;
+			}
+#else
 			switch( walk->ai_addr->sa_family ) {
 				case AF_INET:
-					inet_ntop( AF_INET, &(((struct sockaddr_in *)walk->ai_addr)->sin_addr), ipstr, sizeof ipstr );
+					inet_ntop( AF_INET, &(((struct sockaddr_in *)walk->ai_addr)->sin_addr), ipstr, sizeof(ipstr) );
 					break;
 
 				case AF_INET6:
-					inet_ntop( AF_INET6, &(((struct sockaddr_in6 *)walk->ai_addr)->sin6_addr), ipstr, sizeof ipstr );
+					inet_ntop( AF_INET6, &(((struct sockaddr_in6 *)walk->ai_addr)->sin6_addr), ipstr, sizeof(ipstr) );
 					break;
 
 				default:
 					continue;
 			}
+#endif
 			DBG_MESSAGE( "network_init_server()", "Potential bind address: %s", ipstr );
 
 			if (  server_socket == INVALID_SOCKET  ) {
@@ -629,22 +680,22 @@ network_command_t* network_check_activity(karte_t *, int timeout)
 			socklen_t size = sizeof(client_name);
 			SOCKET s = accept(accept_sock, (struct sockaddr *)&client_name, &size);
 			if(  s!=INVALID_SOCKET  ) {
-	#ifdef _WIN32
+#ifdef _WIN32
 				uint32 ip = ntohl((uint32)client_name.sin_addr.S_un.S_addr);
-	#else
+#else
 				uint32 ip = ntohl((uint32)client_name.sin_addr.s_addr);
-	#endif
+#endif
 				if (blacklist.contains(net_address_t( ip ))) {
 					// refuse connection
 					network_close_socket(s);
 					continue;
 				}
-	#ifdef  __BEOS__
+#ifdef  __BEOS__
 				char name[256];
 				sprintf(name, "%lh", client_name.sin_addr.s_addr );
-	#else
+#else
 				const char *name = inet_ntoa(client_name.sin_addr);
-	#endif
+#endif
 				dbg->message("check_activity()", "Accepted connection from: %s.",  name);
 				socket_list_t::add_client(s, ip);
 			}
