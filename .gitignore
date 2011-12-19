@@ -3,14 +3,35 @@
 *.old
 *.user
 *.sdf
+*.pdb
+*.o
+*.d
 *.vcproj.*
+*.opensdf
+*.tar.gz
+*.log
+*.out
 ipch
 /Debug
+/Debug (SDL)
+/Debug-nettool
 /Release
+/Release (SDL)
 /build
 /config.*
+/intermediates
 /makeobj/makeobj
 /makeobj/makeobj.exe
 /sim
 /sim.exe
 /binaries
+/save
+/screenshot
+/maps
+Pak*
+pak*
+text*
+settings.xml
+simutrans-experimental
+simutrans-experimental.exe
+_UpgradeReport_Files*

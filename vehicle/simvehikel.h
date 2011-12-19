@@ -197,6 +197,8 @@ private:
 	 */
 	virtual void calc_drag_coefficient(const grund_t *gr);
 
+	sint32 calc_modified_speed_limit(koord3d position, ribi_t::ribi current_direction, bool is_corner);
+
 	/**
 	 * Unload freight to halt
 	 * @return sum of unloaded goods
@@ -298,6 +300,8 @@ protected:
 	bool has_driven:1;
 
 	virtual void calc_bild();
+
+	bool check_access(const weg_t* way) const;
 
 public:
 	sint32 calc_speed_limit(const weg_t *weg, const weg_t *weg_previous, fixed_list_tpl<sint16, 16>* cornering_data, ribi_t::ribi current_direction, ribi_t::ribi previous_direction);

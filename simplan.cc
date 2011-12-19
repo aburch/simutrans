@@ -410,10 +410,17 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos, const 
 		if(umgebung_t::use_transparency_station_coverage) {
 
 			// only transparent outline
-			image_id img = gr->get_bild();
-			if(img==IMG_LEER) {
-				// default image (since i.e. foundations do not have an image)
-				img = grund_besch_t::get_ground_tile( gr->get_disp_slope(), gr->get_disp_height() );
+			image_id img;
+			if(  gr->get_typ()==grund_t::wasser  ) {
+				// water is always flat and do not return proper imaga_id
+				img = grund_besch_t::ausserhalb->get_bild(0);
+			}
+			else {
+				img = gr->get_bild();
+				if(  img==IMG_LEER  ) {
+					// foundations or underground mode
+					img = grund_besch_t::get_ground_tile( gr->get_disp_slope(), gr->get_disp_height() );
+				}
 			}
 
 			for(int halt_count = 0; halt_count < halt_list_count; halt_count++) {
@@ -523,41 +530,25 @@ void planquadrat_t::halt_list_insert_at( halthandle_t halt, uint8 pos )
 void planquadrat_t::add_to_haltlist(halthandle_t halt)
 {
 	if(halt.is_bound()) {
-		spieler_t *sp=halt->get_besitzer();
-
 		unsigned insert_pos = 0;
 		// quick and dirty way to our 2d koodinates ...
 		const koord pos = get_kartenboden()->get_pos().get_2d();
+		if(  halt_list_count > 0  ) {
 
-		// exact position does matter only for passenger/mail transport 
-		if(sp != NULL && !(halt->get_connexions(0)->empty() && halt->get_connexions(1)->empty()) && halt_list_count > 0)
-		{
+			// since only the first one gets all, we want the closest halt one to be first
 			halt_list_remove(halt);
-
-			// since only the first one gets all the passengers, we want the closest one for passenger transport to be on top
+			const koord halt_next_pos = halt->get_next_pos(pos);
 			for(insert_pos=0;  insert_pos<halt_list_count;  insert_pos++) {
 
-				// not a passenger KI or other is farer away
-				if ((halt_list[insert_pos]->get_connexions(0)->empty() && halt_list[insert_pos]->get_connexions(1)->empty()) || 
-					shortest_distance(halt_list[insert_pos]->get_next_pos(pos), pos) > shortest_distance(halt->get_next_pos(pos), pos))
-				{
+
+				if(  shortest_distance(halt_list[insert_pos]->get_next_pos(pos), pos) > shortest_distance(halt_next_pos, pos)  ) {
 					halt_list_insert_at( halt, insert_pos );
 					return;
 				}
 			}
 			// not found
 		}
-		else {
-			// just look, if it is not there ...
-			for(insert_pos=0;  insert_pos<halt_list_count;  insert_pos++) {
-				if(halt_list[insert_pos]==halt) {
-					// do not add twice
-					return;
-				}
-			}
-		}
-
-		// first or no passenger or append to the end ...
+		// first just or just append to the end ...
 		halt_list_insert_at( halt, halt_list_count );
 	}
 }

@@ -8,7 +8,7 @@
 #include "components/gui_combobox.h"
 #include "components/gui_label.h"
 #include "components/action_listener.h"
-
+#include "../utils/cbuffer_t.h"
 
 class karte_t;
 
@@ -22,11 +22,21 @@ private:
 	gui_label_t *ai_income[MAX_PLAYER_COUNT-1];
 	char account_str[MAX_PLAYER_COUNT-1][32];
 
-	button_t	player_active[MAX_PLAYER_COUNT-2-1];
-	button_t	player_get_finances[MAX_PLAYER_COUNT-1];
-	button_t	player_change_to[MAX_PLAYER_COUNT-1];
-	button_t	player_lock[MAX_PLAYER_COUNT-1];
-	gui_combobox_t player_select[MAX_PLAYER_COUNT-1];
+	button_t		player_active[MAX_PLAYER_COUNT-2-1];
+	button_t		player_get_finances[MAX_PLAYER_COUNT-1];
+	button_t		player_change_to[MAX_PLAYER_COUNT-1];
+	button_t		player_lock[MAX_PLAYER_COUNT-1];
+	gui_combobox_t	player_select[MAX_PLAYER_COUNT-1];
+	button_t		access_out[MAX_PLAYER_COUNT-1];
+	button_t		access_in[MAX_PLAYER_COUNT-1];
+
+	gui_label_t		player_label;
+	gui_label_t		password_label;
+	gui_label_t		access_label;
+	gui_label_t		cash_label;
+
+	cbuffer_t tooltip_out[MAX_PLAYER_COUNT];
+	cbuffer_t tooltip_in[MAX_PLAYER_COUNT];
 
 	button_t	freeplay;
 

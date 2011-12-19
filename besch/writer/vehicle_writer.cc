@@ -84,7 +84,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// prissi: must be done here, since it may affect the len of the header!
 	string sound_str = ltrim( obj.get("sound") );
 	sint8 sound_id=NO_SOUND;
-	if (sound_str.size() > 0) {
+	if (!sound_str.empty()) {
 		// ok, there is some sound
 		sound_id = atoi(sound_str.c_str());
 		if (sound_id == 0 && sound_str[0] == '0') {
@@ -94,7 +94,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 			// old style id
 			sound_str = "";
 		}
-		if (sound_str.size() > 0) {
+		if (!sound_str.empty()) {
 			sound_id = LOAD_SOUND;
 			total_len += sound_str.size() + 1;
 		}
@@ -216,7 +216,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		sprintf(buf, "freightimage[%d][%s]", i, dir_codes[0]);
 		printf("Reading freightimage[%d][%s]\n", i, dir_codes[0]);
 		str = obj.get(buf);
-		if (str.size() == 0)
+		if(str.empty())
 		{
 			freight_max += i;
 			break;
@@ -232,7 +232,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 			sprintf(buf, "freightimage[%d][%s][%d]", i, dir_codes[0], j);
 			printf("Reading freightimage[%d][%s][%d]\n", i, dir_codes[0], j);
 			str = obj.get(buf);
-			if (str.size() == 0)
+			if(str.empty())
 			{
 				freight_max += i;
 				livery_max += j;
@@ -250,7 +250,7 @@ end:
 		sprintf(buf, "emptyimage[%s][%d]", dir_codes[0], i);
 		printf("Reading emptyimage[%s][%d]\n", dir_codes[0], i);
 		str = obj.get(buf);
-		if (str.size() == 0)
+		if(str.empty())
 		{
 			livery_max += i;
 			break;
@@ -264,7 +264,7 @@ end:
 		sprintf(buf, "freightimage[%s][%d]", dir_codes[0], i);
 		printf("Reading freightimage[%s][%d]\n", dir_codes[0], i);
 		str = obj.get(buf);
-		if (str.size() == 0)
+		if(str.empty())
 		{
 			livery_max += i;
 			break;
@@ -280,7 +280,7 @@ end:
 		sprintf(buf, "freightimage[%s]", dir_codes[0]);
 		printf("Reading freightimage[%s]\n", dir_codes[0]);
 		str = obj.get(buf);
-		if (str.size() == 0)
+		if(str.empty())
 		{
 			basic_freight_images = i;
 			break;
@@ -298,7 +298,7 @@ end:
 			// Empty images without multiple liveries
 			sprintf(buf, "emptyimage[%s]", dir_codes[i]);
 			str = obj.get(buf);
-			if (str.size() > 0) 
+			if(!str.empty())
 			{
 				emptykeys.append(str);
 				if (i >= 4) 
@@ -320,7 +320,7 @@ end:
 			{
 				sprintf(buf, "emptyimage[%s][%d]", dir_codes[i], livery);
 				str = obj.get(buf);
-				if (str.size() == 0) 
+				if(str.empty())
 				{
 					printf("*** FATAL ***:\nMissing emptyimage[%s][%d]!\n", dir_codes[i], livery);
 					fflush(NULL);
@@ -337,7 +337,7 @@ end:
 			// old style definition - just [direction]
 			sprintf(buf, "freightimage[%s]", dir_codes[i]);
 			str = obj.get(buf);
-			if (str.size() > 0) 
+			if(!str.empty())
 			{
 				printf("Appending freightimage[%s]\n", dir_codes[i]);
 				freightkeys_old.append(str);
@@ -350,7 +350,7 @@ end:
 			{
 				sprintf(buf, "freightimage[%d][%s]", freight, dir_codes[i]);
 				str = obj.get(buf);
-				if (str.size() == 0) 
+				if(str.empty())
 				{
 					printf("*** FATAL ***:\nMissing freightimage[%d][%s]!\n", freight, dir_codes[i]);
 					fflush(NULL);
@@ -370,7 +370,7 @@ end:
 			{
 				sprintf(buf, "freightimage[%s][%d]", dir_codes[i], livery);
 				str = obj.get(buf);
-				if (str.size() == 0) 
+				if(str.empty())
 				{
 					break;
 				}
@@ -388,7 +388,7 @@ end:
 				{
 					sprintf(buf, "freightimage[%d][%s][%d]", freight, dir_codes[i], livery);
 					str = obj.get(buf);
-					if (str.size() == 0) 
+					if(str.empty())
 					{
 						printf("*** FATAL ***:\nMissing freightimage[%d][%s][%d]!\n", freight, dir_codes[i], livery);
 						fflush(NULL);
@@ -481,7 +481,7 @@ end:
 		sprintf(buf, "constraint[prev][%d]", besch_vorgaenger);
 
 		str = obj.get(buf);
-		found = str.size() > 0;
+		found = !str.empty();
 		if (found) {
 			if (!STRICMP(str.c_str(), "none")) {
 				str = "";
@@ -502,7 +502,7 @@ end:
 
 		str = obj.get(buf);
 
-		found = str.size() > 0;
+		found = !str.empty();
 		if (found)
 		{
 			if (!STRICMP(str.c_str(), "none")) 
@@ -532,7 +532,7 @@ end:
 		char buf[40];
 		sprintf(buf, "upgrade[%d]", upgrades);
 		str = obj.get(buf);
-		found = str.size() > 0;
+		found = !str.empty();
 		if (found)
 		{
 			if (!STRICMP(str.c_str(), "none"))
@@ -557,14 +557,14 @@ end:
 		if (i == freight_max) 
 		{
 			// check for superflous definitions
-			if (str.size() > 0) 
+			if(!str.empty())
 			{
 				printf("WARNING: More freightimagetype (%i) than freight_images (%i)!\n", i, freight_max);
 				fflush(NULL);
 			}
 			break;
 		}
-		if (str.size() == 0) 
+		if(str.empty())
 		{
 			printf("*** FATAL ***:\nMissing freightimagetype[%i] for %i freight_images!\n", i, freight_max + 1);
 			exit(0);
@@ -582,14 +582,14 @@ end:
 		if (i == livery_max) 
 		{
 			// check for superflous definitions
-			if (str.size() > 0) 
+			if(!str.empty())
 			{
 				printf("WARNING: More livery types (%i) than liveries (%i)!\n", i, livery_max);
 				fflush(NULL);
 			}
 			break;
 		}
-		if (str.size() == 0) 
+		if(str.empty())
 		{
 			printf("*** FATAL ***:\nMissing liverytype[%i] for %i liveries!\n", i, livery_max + 1);
 			exit(0);

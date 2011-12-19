@@ -65,6 +65,7 @@ ifeq ($(OSTYPE),mingw)
   LDFLAGS += -static-libgcc -static-libstdc++
   ifeq ($(BACKEND),gdi)
     LIBS += -lunicows
+    LDFLAGS +=  -mwindows
   endif
   LIBS += -lmingw32 -lgdi32 -lwinmm -lwsock32 -lz -lbz2
 endif
@@ -305,6 +306,7 @@ SOURCES += gui/optionen.cc
 SOURCES += gui/pakselector.cc
 SOURCES += gui/password_frame.cc
 SOURCES += gui/player_frame_t.cc
+SOURCES += gui/privatesign_info.cc
 SOURCES += gui/replace_frame.cc
 SOURCES += gui/savegame_frame.cc
 SOURCES += gui/scenario_frame.cc

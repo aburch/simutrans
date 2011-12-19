@@ -44,7 +44,7 @@ void wasser_t::calc_bild_internal()
 		set_bild(IMG_LEER);
 	}
 	else {
-		set_bild( grund_besch_t::get_ground_tile(0,zpos) );
+		set_bild( min( welt->get_grundwasser()-zpos, grund_besch_t::water_depth_levels ) /*grund_besch_t::get_ground_tile(0,zpos)*/ );
 	}
 	// test for ribis
 	ribi = ribi_t::keine;

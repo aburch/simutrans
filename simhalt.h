@@ -793,6 +793,8 @@ public:
 	 * @author Inkelyad
 	 */
 	int get_queue_pos(convoihandle_t cnv) const;
+
+	bool check_access(const spieler_t* sp) const;
 };
 
 ENUM_BITSET(haltestelle_t::stationtyp)

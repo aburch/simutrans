@@ -454,13 +454,14 @@ private:
 
 	uint32 max_road_check_depth;
 
-	// when this month is reached, server will do next announcement
-	uint32 server_next_announce_month;
+	// The last time when a server announce was performed (in ms)
+	uint32 server_last_announce_time;
 
 public:
-	// announce server and current state to listserver
-	// will be done in step when client number changed
-	void announce_server();
+	// Announce server and current state to listserver
+	// Single argument specifies what information should be announced
+	// or offline (the latter only in cases where it is shutting down)
+	void announce_server(int status);
 
 	// The month in which the next city generated will update its private car 
 	// routes if an update is needed. This spreads the computational load over
@@ -574,7 +575,6 @@ public:
 	// time lapse mode ...
 	bool is_paused() const { return step_mode&PAUSE_FLAG; }
 	void set_pause( bool );	// stops the game with interaction
-	void do_freeze();	// stops the game and all interaction
 
 	bool is_fast_forward() const { return step_mode == FAST_FORWARD; }
 	void set_fast_forward(bool ff);

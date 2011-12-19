@@ -1,18 +1,27 @@
 # simuconf.tab
 #
-# Low-Level values and constants
+# Low level settings
 #
-# Lines starting with '#' or any non_character letter will be ignored!
-# To actually set a value, remove the leading '#'!
+# Adapted for Simutrans-Experimental by James E. Petts
+# June 2009. Released under the Artistic Licence.
+# Further adapted by Nathanael Nerode December 2011, under Artistic Licence
+#
+# Lines starting with '#' or any non_character letter will be ignored.
+# To actually set a value, remove the leading '#'.
 #
 # This file can be found in many places:
 #
 # simutrans/config/simuconf.tab (this one)
 # ~/simutrans/simuconf.tab (in the user directory, if singleuser_install == 0 or not present, first only pak-file path will be read)
 # simutrans/pakfilefolder/config/simuconf.tab
-# ~/simutrans/simuconf.tab (readed a second time, s.a.)
+# ~/simutrans/simuconf.tab (read a second time, s.a.)
 #
-#################################program stuff##################################
+# Any values set in this file will be over-written by any values set in the simuconf.tab files
+# for individual paksets. Any values set here that are not set in the simuconf.tab files for 
+# individual paksets will be used. 
+
+
+################################# Pakset settings ##################################
 #
 # This simuconf.tab will be read first => we set meaningful defaults here.
 #
@@ -21,21 +30,24 @@
 # will be only used if this file is located in the program directory at config/simuconf.tab!
 #singleuser_install = 0
 
-# Default pak file path
-# which graphics you want to play?
-# Nothing means automatic selection
-# ATTENTION!
-# This will be only used if this file is located in the program directory at config/simuconf.tab!
+# Automatic loading of paksets. If a path to a pakset is specified below, that pakset
+# will be loaded by default when the game starts. If no pakset is specified, the user
+# will be presented with a menu of all available paksets.
+# ATTENTION:
+# This will be only used if this file is located in the program directory at config/simuconf.tab
 # and will be overwritten by the settings from simutrans/simuconf.tab in the user directory
 #
+#pak_file_path = pak128.Britain-Ex/
+#pak_file_path = pak.64-experimental/
 #pak_file_path = pak/
 #pak_file_path = pak.german/
 #pak_file_path = pak128/
-#pak_file_path = pak.japan/
-#pak_file_path = pak.winter/
-#pak_file_path = pak.ttd/
+#pak_file_path = pak96.comic/
+#pak_file_path = pak.64.ho-scale/
+#pak_file_path = pak.192.comic/
+#pak_file_path = pakHajo/
 #
-#################################program stuff##################################
+################################## Program settings ####################################
 
 # maximum number of position tested during a way search
 # 100000 should be ok even for large maps with ships
@@ -59,6 +71,11 @@ station_coverage = 2
 # Depending on your CPU power, you might want to limit the search
 # depth.
 #
+# 300 seems to be a good compromise for most games. 100 is ok for
+# small games. 8000 should suffice for even the largest maps, but
+# will take a good amount of CPU time if you have complex transport
+# networks. Max. allowed value is 9994.
+#
 # prissi: On a 512x512 map with more than 150000 people daily, the saturation
 # value for "no route" was higher, around 8000. Using 300 instead almost doubled
 # the value of "no route"
@@ -80,6 +97,11 @@ max_hops = 2000
 # T. Kubes: I would say 8 for now, but this definitely should be difficulty
 # dependent setting.
 #
+# Note: in Simutrans-Experimental, the number of max_transfers is no longer
+# a hard limit on transfers, but affects routing depth. Use lower settings if
+# performance is too slow; use higher settings if passengers or goods are not
+# finding routes where they ought to be.
+#
 max_transfers = 9
 
 # way builder internal weights (defaults)
@@ -95,37 +117,80 @@ way_tunnel=8
 way_max_bridge_len=15
 way_leaving_road=25
 
-###############################passenger stuff##############################
-# also pak dependent
+# This setting determines whether passengers can reach their journies by walking
+# between stops en route. If this setting is false, passengers will walk from their
+# origin to the start station/stop and from the destination station/stop to their
+# destination, but will not walk between intermediate stops, even if the distance
+# between the intermediate stops is the same as or less than the distance between
+# their origin and the starting stop. If this setting is set to true then passengers
+# will walk between intermediate stops as well as from their origin to the first stop 
+# on their journey. However, with the setting enabled, there is no means of preventing
+# passengers from walking between two or more consecutive stops (for techincal reasons
+# relating to the need to have a simplified routing system to make the game run at an
+# acceptable speed), or from walking as the first or last stage in their journey, such
+# that their overall walking distance is higher than would be permissible for walking
+# from their origin to the first stop on their journey. This setting might also have
+# the incidental effects of allowing a stop to take passengers from an area not covered
+# by that stop's coverage radius, but covered by the radius of another stop (possibly
+# owned by a rival player) in the nearby vicinity, and of passengers walking instead
+# of using player transport in some cases.
+# 0 = false; 1 = true. Default: false.
 
-# town growth multiplier factors (electricity is not used at the moment)
-# A heigher factor mean faster growth
-# passenger_multiplier = 40
-mail_multiplier = 20
-goods_multiplier = 20
-electricity_multiplier = 0
+allow_routing_on_foot = 0
 
-# town growth is size dependent. There are three different sizes (<1000, 1000-10000, >10000)
-# the idea is, that area increase by square but growth is linear
+################################ General gameplay settings ##############################
+# These settings are also pakset dependent
+
+# meters_per_tile represents the length of each tile in meters. 
+# The default is 250.
+#
+# This setting is used for calculating journey times, revenues, maintenance costs, comfort and
+# catering values.
+#
+# Note that, in versions of Simutrans-Experimental before 10.0, the setting "distance_per_tile"
+# was used instead. That setting was calculated in tens of meters. If "distance_per_tile" is
+# specified in simuconf.tab, it will be converted to meters_per_tile by the game.
+
+meters_per_tile = 250
+
+# Town growth multiplier factors. 
+# A higher factor mean faster growth. 
+# These are percentage figures.
+passenger_multiplier = 40
+goods_multiplier = 24
+
+# NOTE: These two settings are used in Simutrans-Standard, but not Simutrans-Experimental.
+# In Simutrans-Experimental, the electricity multiplier is set from electricity.tab, and
+# the mail multiplier is set as the remaining percentage after passengers, goods and electricity
+# have been taken into account.
+# mail_multiplier = 20 
+# electricity_multiplier = 0
+
+# The rate at which towns grow depends on their size. There are three different size categories:
+# "Villages", "Cities" and "Capitals". The following settings define the thresholds (in numbers 
+# of population) above which towns become "Cities" and "Capitals". Anything smaller than 
+# city_threshold_size is a "Village".
+
+city_threshold_size = 1000
+capital_threshold_size = 10000
+
+# These values represent the rate at which towns grow. The raw growth number is *divided*
+# by the growth factors; ergo, the lower the number, the higher the growth. Longer games
+# should have less growth, whereas shorter games do better with more growth.
+
 growthfactor_villages = 400
 growthfactor_cities = 200
 growthfactor_capitals = 100
 
-# passenger generation (default is 16) Smaller values means less passengers
+# The higher this value, the more passengers generated. (Default: 16)
 passenger_factor=16
 
 # amount of passengers that travel from/to factories or attractions
 # the remaining percentage is intercity and intracity travel
-factory_worker_percentage = 33
-tourist_percentage = 16
+factory_worker_percentage = 15
+tourist_percentage = 7
 
-# how much local destinations are prefrerred over time
-# 1 means almost local passengers/mail only, 10000 spreads them over the map
-# You can have up to ten entries, first is the year, next is the factor.
-# The increase between the year will increase first slow then fast towards
-# the final years
-locality_factor[0]=1835,1
-locality_factor[1]=2050,10000
+# Note that locality_factor from simutrans-standard is not present in experimental
 
 # A factory will be added as worker's destination to a town, if it has either
 # is within factory_worker_radius
@@ -138,46 +203,402 @@ factory_worker_minimum_towns = 1
 factory_worker_maximum_towns = 4
 
 # if enabled (default = 0 off) stops may have different capacities for passengers, mail, and  freight
-seperate_halt_capacities = 0
+# If this setting is set to 1, halts will have different capacities for each type of goods.
+seperate_halt_capacities = 1
 
-# three modes (default = 0)
-# 1: the payment is only relative to the distance to next interchange, 2 to the trips destination (default 0 is distance since last stop)
-pay_for_total_distance = 0
-
-# things to overcrowded destinations won't load if active (default off)
+# If "avoid_overcrowding" is enabled (avoid_overcrowding = 1), then passengers or goods
+# unloading at an overcrowded stop that is not their destination (i.e., a transfer stop)
+# will be discarded, and will not pay for their journey so far. Passengers will be added
+# to the "unhappy passengers" graph, which will have an effect on revenue.
 avoid_overcrowding = 0
 
-# do not create goods/passenger/mail when the only route is over an overcrowded stop
-no_routing_over_overcrowded = 0
+# This is the number of passengers routed at once,
+# to save CPU resources. Decreasing this number will
+# make the game run more slowly. Default = 7.
+passenger_routing_packet_size = 7
 
-# in beginner mode, all good prices are multiplied by a factor (default 1500=1.5)
-beginner_price_factor = 1500
+# This setting determines the amount of private traffic generated on the roads in the game.
+# It does not affect the actual usage of private cars: just how many vehicles appear on the roads.
+# Range: 0 - 16. Recommended: 11
 
-##################################factory stuff#################################
+citycar_level = 11
 
+# After how many month a citycar breaks (and will be forever gone) ...
+# default is ten years
+default_citycar_life = 250
+
+# If enabled (deafault = 0, off), the default tool will try to calculate straight ways (like OpenTTD)
+straight_way_without_control = 0
+
+# These settings determine how players pay for running on the ways of other players. 
+#
+# way_toll_runningcost_percentage apportions the specified percentage of the convoy's
+# running cost to the player on whose way the convoy is being run.
+#
+# way_toll_waycost_percentage apportions the specified percentage of the way tile's
+# monthly maintenance cost (and, for electrically powered convoys, also the specified 
+# percentage of way objects' monthly maintenance cost) from the convoy for every
+# tile of the other player's way over which it passes.
+#
+# way_toll_revenue_percentage apportions the specified percentage of the convoy's 
+# revenue according to the proportion of the journey that the convoy has undertaken
+# on the specified player's way. For example, if way_toll_revenue_percentage is set
+# to 50, and the convoy travels half its journey over another player's way, that
+# other player will receive 25% of the total revenue for that journey.
+
+way_toll_runningcost_percentage = 0
+way_toll_waycost_percentage = 0
+way_toll_revenue_percentage = 33
+
+# These settings determine how players pay for landing/docking in the ports
+# of other players.
+# 
+# airport_toll_revenue_percentage is the percentage of the revenue of
+# a trip by aircraft charged to a player landing at another player's
+# airport.
+#
+# seaport_toll_revenue_percentage is the precentage of the revenue
+# of a trip by sea charged to a player docking at another player's
+# sea port.
+
+airport_toll_revenue_percentage = 20
+seaport_toll_revenue_percentage = 15
+
+# If this is set to 1, players will not be charged to use roads owned by the public
+# service player. This does not affect other sorts of ways. 
+# Default: 0
+
+toll_free_public_roads = 1
+
+# If this is set to 1, any player may transfer any way tile or stop to the ownership
+# of the public player. If this is set to 0, only the public player may transfer
+# stops and way tiles to public ownership.
+# Default: 1 (which replicates the behaviour in Standard)
+
+allow_making_public = 0
+
+
+#################################### Passenger settings ##################################
+#
+# Here, Experimental uses an entirely different trip generation system
+# from Standard.
+
+# The program will generate three groups of passengers: (1) local;
+# (2) midrange; and (3) long distance. The program will look for a town within
+# the specified distance ranges for each class of passenger. If it cannot
+# find such a town within a certain number of tries, it will pick a random town.
+# The ranges *may* overlap - indeed, this is encouraged.
+#
+# All distances are in kilometres, calibrated by the distance_per_tile setting.
+
+local_passengers_min_distance = 0
+local_passengers_max_distance = 16
+midrange_passengers_min_distance = 0
+midrange_passengers_max_distance = 96
+longdistance_passengers_min_distance = 0
+longdistance_passengers_max_distance = 16384
+
+# The following are percentage chances. They represent the chances that
+# any passengers generated will try to find a town within each of the three
+# ranges, respectively. 
+
+passenger_routing_local_chance = 33
+passenger_routing_midrange_chance = 33
+# passenger_routing_longdistance_chance is 100 minus the sum of the two above values,
+# but not stipulated individually.
+
+# Some passengers who are not able to find a route will be content
+# to go to an alternative destination. Set the maximum number here.
+# (Note: whether any given passenger is content to go to an alternative
+# destination, and, if so, the number, will be random. For each 
+# possible number of alternative destinations, the chances will be even.
+# For example, if the number is set at 2, there will be an equal chance
+# of passengers having 0, 1 or 2 alternative destinations).
+
+max_alternative_destinations = 4
+
+# Passengers have a maximum tolerance level for how long that they will
+# spend travelling. The further that the passengers want to go, the more
+# time that they will be prepared to spend travelling. The number is 
+# expressed in minutes. For each packet of passengers, the number of 
+# minutes travelling time (including waiting time) that they are prepared
+# to tolerate is randomised between the minimum and maximum amount. The
+# local, mid-range and long-distance passenger groups correspond to those
+# above. 
+
+min_local_tolerance = 30
+max_local_tolerance = 180
+min_midrange_tolerance = 45
+max_midrange_tolerance = 480
+min_longdistance_tolerance = 150
+max_longdistance_tolerance = 4320
+
+#################################### Revenue settings ##################################
+#
+# Settings for calibrating the revenue system
+#
+# These settings calibrate the way in which revenue is calculated in the game. Changing
+# them might make the game easier or harder, or, if they are changed in odd ways, make it
+# behave eratically. Make sure to know what you are doing before changing these values.
+
+# These settings calibrate the speed bonus. Note that, with Simutrans-Experimental, unlike
+# Simutrans-Standard, the speed bonus is based on the convoy or line's *average* speed, not
+# the convoy's maximum speed. 
+#
+# All distances in these settings are measured in kilometres and calibrated using the
+# meters_per_tile setting.
+#
+# min_bonus_max_distance is the distance below which the speed bonus (or penalty) does not
+# apply. Below this distance, goods pay the same no matter what the average speed.
+#
+# median_bonus_distance is the distance at which 100% of the speed bonus/penalty applies. 
+# At anything between min_bonus_max_distance and median_bonus_distance, a scaled proportion
+# of the speed bonus applies. For example, if the min_bonus_max_distance was 10, and the 
+# median_bonus_distance was 110, then, for a journey of 50 tiles, 50% of the speed bonus or
+# penalty would apply. median_bonus_distance is optional: if it is not specified, or set to
+# 0, it will be calculated as the mid point between min_bonus_max_distance and
+# max_bonus_min_distance.
+#
+# max_bonus_min_distance is the distance above which the rate of the speed bonus increases
+# no further. In other words, the rate of the speed bonus (or penalty) keeps increasing with
+# the distance, until it reaches the max_bonus_min_distance, after which it remains steady.
+#
+# max_bonus_multiplier_percent is the percentage of the speed bonus that applies at or above
+# the distance specified in max_bonus_min_distance. So, if the speed bonus rating was 10%, the
+# distance exceeded the max_bonus_min_distance value, and the max_bonus_multiplier_percent was
+# set to 200, the speed bonus rating would effectively be 20% for that journey.
+# Between the median_bonus_distance and the max_bonus_min_distance, a scaled proportion applies.
+# So, if, for example, the median_bonus_distance was 100, the max_bonus_min_distance was 1,100
+# the actual distance 500, and the max_bonus_multiplier_percent 200, the speed bonus rating
+# would be increased by half of the multiplier, or 150%.
+
+min_bonus_max_distance = 4
+median_bonus_distance = 100
+max_bonus_min_distance = 300
+max_bonus_multiplier_percent = 300
+
+# These next settings affect the interaction between comfort and revenue in Simutrans. Comfort only
+# affects passenger traffic, for obvious reasons. Passengers have a certain level of comfort that
+# they will tolerate for certain distances. All comfort ratings are in the range of between 0 and
+# 255. At the tolerable level, the revnue is unaffected. At above the tolerable level, a luxury
+# bonus is applied. At below the tolerable level, a discomfort penalty is applied. The values can
+# be set to anything, but, to reflect real life, it is suggested that the discomfort penalty is
+# significantly higher than the luxury bonus. 
+#
+# tolerable_comfort_short is the tolerable comfort rating of a vehicle (0 - 255) for a journey of no
+# more than tolerable_comfort_short_minutes.
+#
+# tolerable_comfort_median_short is the tolerable comfort rating of a vehicle for a journey of no more
+# than tolerable_comfort_median_short minutes.
+#
+# tolerable_comfort_median_median is the tolerable comfort rating of a vehicle for a journey of no more
+# than tolerable_comfort_median_median minutes.
+#
+# tolerable_comfort_median_long is the tolerable comfort rating of a vehicle for a journey of no more
+# than tolerable_comfort_median_long minutes.
+#
+# tolerable_comfort_long is the tolerable comfort rating of a vehicle for a journey of at least
+# tolerable_comfort_long minutes.
+#
+# For any journeys of a time between any of the values, a scaled proportion is taken. 
+# 
+# Note that (versions 7.2 onwards), the impact of comfort on revenue decreases with journey time.
+# It is at its maximum level down to tolerable_comfort_median_long_minutes, after which it gradually
+# reduces to 20% of its maximum at tolerable_comfort_short_minutes, and does not decrease further
+# thereafter. 
+
+tolerable_comfort_short_minutes=2
+tolerable_comfort_short=15
+
+tolerable_comfort_median_short_minutes=30
+tolerable_comfort_median_short=60
+
+#Two hours
+tolerable_comfort_median_median_minutes=120
+tolerable_comfort_median_median=100
+
+#Five hours
+tolerable_comfort_median_long_minutes=300
+tolerable_comfort_median_long=160
+
+#12 hours
+tolerable_comfort_long_minutes=720
+tolerable_comfort_long=220
+
+# max_luxury_bonus_differential is the maximum number of comfort rating points above the tolerable level
+# that affects the luxury bonus. Anything beyond that, and further added luxury makes no difference to the
+# revenue.
+#
+# max_luxury_bonus_percent is the percentage increase in revenue from the maximum level of luxury specified in
+# max_luxury_bonus_differential. So, if the tolerable comfort level for any given travelling time was 100, the 
+# max_luxury_bonus_differential 50, and the max_luxury_bonus_percent 50, then the revenue would increase up to
+# 50% beyond the normal revenue for additional comfort up to 150, but would not increase further with any increase
+# in comfort beyond 150. 
+
+max_luxury_bonus_differential=55
+max_luxury_bonus_percent=45
+
+# The discomfort penalty works in exactly the same way as the comfort bonus. max_discomfort_penalty_percent is the
+# percentage decrease in revenue from the maximum level of discomfort specified in max_discomfort_penalty_differential. 
+
+max_discomfort_penalty_differential=200
+max_discomfort_penalty_percent=95
+
+# These settings control the revenue that can be earned from catering and travelling post offices. Note that catering
+# vehicles on a convoy also increase the comfort by a small amount, which has an indirect effect on the revenue. These
+# settings do not affect that: these settings affect the revenue earned from the catering itself: i.e., by selling food
+# and drink. 
+#
+# catering_min_minutes is the shortest journey time that will provide any catering revenue. Anything below that, and 
+# passengers will not bother to buy any food or drink at all. 
+#
+# catering_level1_minutes is the journey time at which any convoy with a catering level of 1 or higher will earn, per
+# passenger, the number of Simu-cents (1/100th of a Simucredit) specified in catering_level1_max_revenue. 
+# 
+# The same applies for each subsequent catering level: in other words, higher catering levels only earn more than lower
+# catering levels on journeys of at least the catering_levelX_minutes (where X is the catering level in question).
+#
+# Between each level, the a scaled proportion is applied. So, for example, if catering_min_minutes is 100, 
+# catering_level1_minutes is 200, and the actual journey time is 150 minutes, then, any convoy with a catering level 
+# of at least 1 will earn 50% of the amount specified in catering_level1_max_revenue per passenger. 
+
+catering_min_minutes=60
+catering_level1_minutes=90
+catering_level1_max_revenue=150
+catering_level2_minutes=120
+catering_level2_max_revenue=250
+catering_level3_minutes=150
+catering_level3_max_revenue=350
+catering_level4_minutes=240
+catering_level4_max_revenue=400
+catering_level5_minutes=300
+catering_level5_max_revenue=475
+
+# Travelling post office revenue is simpler than catering revenue. For every journey that mail makes in a convoy containing
+# a travelling post office vehicle (that is, a mail carrying vehicle with a catering level above zero) where the journey time
+# exceeds that specified in tpo_min_minutes, the trip will earn the amount specified in tpo_revenue, multiplied by the number
+# of mail bags carried, in addition to the ordinary revenue.
+
+tpo_min_minutes=120
+tpo_revenue=300
+
+# These settings relate to private car use. See /config/privatecar.tab for
+# the configuration of private car ownership for different years.
+#
+# "Base car preference percent" is the chance, expressed in percentage, that, all
+# other things being equal, a passenger with a private car will choose to use that
+# car in preference to using public (i.e., the player's) transport. Higher values
+# are more realistic; lower values make the game easier. 
+# 
+# "Always prefer car percent" is the percentage of drivers who prefer to use their
+# car no matter how congested the roads. The remaining percentage of drivers are 
+# deterred from using their car to go to or from (or within) towns that have a
+# high level of congestion. The default is 10. 
+#
+# "Congestion density factor" is the factor by which the population density (in
+# citizens per tile) is divided to get a factor multiplied by the number of cars
+# per tile per month to get the congestion figure. In simple terms, the lower this
+# number, the easier that it will be for cities to register as congested, and 
+# the more likely that it is that passengers will opt for public (i.e., the player's)
+# transport instead. If "congestion density factor" is set to zero, then the congestion
+# will be calculated using a much simpler formula that does not depend on the city's
+# population density at all.  
+#
+# To revert to the behaviour of Simutrans Standard (with no competition from private cars 
+# at all), simply set "base_car_preference_percent" to 0. Passengers will then only choose
+# private cars if no public transport is available.
+
+base_car_preference_percent = 95
+always_prefer_car_percent = 10
+congestion_density_factor = 16
+
+# This setting gives the maximum time that passengers are prepared to wait for their
+# transport. The setting is divided by speed bonus value to get the number of minutes.
+# In pak128.Britain and pak128, the default speed bonus value for passengers is 18. So,
+# at the default wait time of 2,700, the maximum time that passengers are prepared to
+# wait is 2,700 / 18 = 150 minutes, or two and a half hours. 
+#
+# The same applies for other sorts of goods: for example, the speed bonus value for
+# mail is 15. So, with a passenger_max_weight of 2700, mail would wait for 180 
+# minutes before being discarded.
+
+passenger_max_wait = 19440
+
+# This is the maximum interval between which routes already calculated will be declared
+# stale, and require recalculation next time that they are called. The connexions from
+# the stations are staggered so that, at the default value of 2, the station connexions
+# will recalculate every one month, and the routes every other two months. The lower the
+# number, the more up to date that routes will be, but the slower that the game will be.
+# It is recommended to set this at either 2 or 4.
+
+# This is the minimum time in minutes that passengers or goods may wait at an airport.
+# This simulates the need for check-in, security checks, etc., that makes travelling by
+# air a slower process at the boarding stage than transport by other means such as road
+# or rail. Setting this to 0 will make air transport behave like any other transport.
+
+min_wait_airport = 30
+
+max_rerouting_interval_months = 2
+
+# Simutrans-Experimental 8.0 introduced a new system of growing cities, which preserved
+# density more accurately. However, this can adversely affect performance. Select
+# quick_city_growth = 1 to use the old, faster system. Note, however, that the old system
+# will result in cities with too high a proportion of high density buildings on map 
+# generation. 
+
+quick_city_growth = 0
+
+# Simutrans-Experimental 8.0 introduced a new feature whereby private car traffic first 
+# checks to see whether its destination is reachable by road before registering a trip
+# (and thus competing with player's transport). On slow systems, this might reduce
+# performance. Disable it by setting: assume_everywhere_connected_by_road = 1. 
+# assume_everywhere_connected_by_road = 0 is the default. 
+
+assume_everywhere_connected_by_road = 0
+
+# This setting determines the extent to which cities should be built far away from
+# other cities when the map is first generated. The higher the number, the further
+# away from each other that the cities are built. This is introduced in Simutrans-Experimental
+# 9.0. It replaces Simutrans-Standard's setting of "minimum_city_distance".
+
+city_isolation_factor = 32
+
+# Passengers will walk to their destination if it is close enough, rather than use
+# players' transport or private cars. This parameter defines how close that close
+# enough is. It is expressed in hundreds of meters (or tenths of kilometres), so
+# the default setting of 15 means that passnegers will walk to their destination if
+# it is within 1.5km of their origin.
+
+max_walking_distance_km_tenth = 15
+
+################################## Industry settings #################################
+#
+# These are also pakset dependent
+
+# The following is disabled in experimental, which has a new system
 # when a city reaches 2^n times of this number
 # then a factory is extended, or a new factory chain is spawned
 #industry_increase_every = 2000
+# The preceding is disabled in experimental
 
-# smallest distance between two adjacent factories
+# Minimum distance between factories (in tiles) 
 factory_spacing = 6
 
 # allow all possible supplier to connect to your factories?
-# best to leave it in default position. (only on for simuTTD)
+# This will also affect savegames!
+# best to leave it in default position (0). (only on for simuTTD)
 crossconnect_factories = 0
 
 # how big is the chance for crossconnections in percent
 # (100% will give nearly the same results as crossconnect_factories=1)
 crossconnect_factories_percentage = 33
 
-# how much is the total electric power available (in relation to total production) in parts per thousand
-electric_promille = 330
+# How much is the total electric power available (in relation to total production) 
+# in parts per thousand. 1000 = 100% and default for Simutrans-Experimental.
+electric_promille = 1000
 
 # with this switch on (default), overcrowded factories will not recieve goods any more
 just_in_time = 1
-
-# use beginner mode for new maps (can be switched anyway on the new map dialog)
-first_beginner = 0
 
 # number of periods for averaging the amount of arrived pax/mail at factories for boost calculation
 # one period represents a fixed interval of 2^18 ms in-game time
@@ -187,7 +608,13 @@ factory_arrival_periods = 4
 # whether factory's pax/mail demands are enforced or not; default is on
 factory_enforce_demand = 1
 
-##################################display stuff#################################
+# Some factories have a retirement date, after which they are obsolete. After
+# that date, factories may close down (random chance each month). After the number
+# of years stipulated below, factories have a 100% chance of closing down. The
+# chance increases the closer to this value that factories get.
+max_years_obsolete = 30
+
+################################# Display settings ################################
 
 # player color can be fixed for several players or set totally random
 # in the latter case each player will get unique but random coloring
@@ -199,14 +626,6 @@ random_player_colors = 0
 # color values range from 0 to 27 for first and second player color
 # and there are 0...15 player in the game
 player_color[1] = 1,4
-
-# how long is a diagonal (512: faktor 2=1024/512, old way, 724: sqrt(2)=1024/724
-# THIS WILL BE ONLY USED, WHEN THIS FILE IS IN THE pakxyz/config!
-#diagonal_multiplier = 724
-
-# how height is a tile in z-direction (default 16, TTD 8)
-# THIS WILL BE ONLY USED, WHEN THIS FILE IS IN THE pakxyz/config!
-#tile_height = 16
 
 # Do you want to have random pedestrians in town? Look nice but needs some
 # CPU time to process them. (1=on, 0=off)
@@ -225,20 +644,13 @@ random_grounds_probability = 10
 # show random moving animals (n = every n suited tiles, default 1000)
 random_wildlife_probability = 1000
 
-# animate the water each intervall (if images available)
+# animate the water each interval (if images available)
 # costs some time for the additional redraw (~1-3%)
 water_animation_ms = 250
 
 # Show info windows for private cars and pedestrians?
 # (1=on, 0=off)
-pedes_and_car_info = 0
-
-# How much citycars will be generated
-citycar_level = 5
-
-# After how many month a citycar breaks (and will be forever gone) ...
-# default is ten years
-default_citycar_life = 36
+pedes_and_car_info = 1
 
 # (=1) drive on the left side of the road
 drive_left = 0
@@ -249,7 +661,7 @@ tree_info = 1
 
 # Show infos also on bare ground?
 # (1=on, 0=off)
-ground_info = 0
+ground_info = 1
 
 # Show passenger level of townhalls?
 # (1=on, 0=off)
@@ -260,7 +672,7 @@ townhall_info = 0
 #only_single_info = 1
 
 # Should stations get numbered names? (1=yes, 0=no)
-#numbered_stations = 0
+numbered_stations = 0
 
 # Show name signs and statistic?
 # 0 = don't show anything
@@ -271,7 +683,7 @@ townhall_info = 0
 #   0 = black name in color box
 #   4 = name in player color with outline
 #   8 = box left of name in yellow outline
-show_names = 3
+show_names = 7
 
 # Color of cursor overlay, which is blended over marked ground tiles
 # The available colors and their numbers can be found on
@@ -282,7 +694,28 @@ show_names = 3
 # -- pak128.japan
 #cursor_overlay_color = 149
 
-##################################window stuff##################################
+# display (screen/window) width
+# also see readme.txt, -screensize option
+#display_width  = 704
+
+# display (screen/window) height
+# also see readme.txt, -screensize option
+#display_height = 560
+
+# show full screen
+#fullscreen = 0
+
+# maximum size of tool bars (0 = no limit)
+# if more tools than allowed by height,
+# next and prev arrows for scrolling appears
+toolbar_max_width = 0
+toolbar_max_height = 0
+
+# if 1, print the company name in front of a message
+add_player_name_to_message = 1
+
+##################################w Window settings ##################################
+#
 # show the windows close etc. buttons on the right (like windows 98)
 #window_buttons_right = 0
 
@@ -319,17 +752,24 @@ tooltip_delay = 500
 # duration in ms during tooltip is visible (default 5000ms=5s)
 tooltip_duration = 5000
 
-###################################money stuff##################################
+################################## Finance settings #################################
 #
 # These values are usually set in the pak files
 # You can adjust all the cost in the game, that are not inside some pak file
 #
 
-# show graphs old style (right to left, default) or rather left to right
-left_to_right_graphs  = 0
+# Use beginner mode for new maps
+first_beginner = 0
+
+# In beginner mode, all revenues are multiplied by a factor (default 1500=1.5)
+beginner_price_factor = 1500
+
+# Show graphs left to right (normal graph format)
+# or right to left (old Simutrans format)?
+left_to_right_graphs = 1
 
 # Starting money of the player. Given in Credit cents (1/100 Cr)
-#starting_money = 20000000
+#starting_money = 30000000
 
 # New system of year dependent starting money. Up to ten triplets are
 # possible. The entries are of the form:
@@ -337,13 +777,14 @@ left_to_right_graphs  = 0
 # starting_money[0]=1930,20000000,1
 # starting_money[1]=2030,35000000,1
 
-# allow buying obsolete vehicles (=1) in depot
-allow_buying_obsolete_vehicles = 1
+# if a convoi runs on a way that belongs to another player, toll may
+# be charged. The number given is the percentage of the running cost
+# of the convoi or the way cost (include electrification if needed).
+# (default 0)
+toll_runningcost_percentage = 0
+toll_waycost_percentage = 0
 
-# vehicle can loose a part of their value, when the are once used
-# the loss is given in 1/1000th, i.e 300 mean the value will be 70%
-used_vehicle_reduction = 0
-
+# Costs: these should be set in paks, not here
 # Maintenance costs of buildings
 #maintenance_building = 2000
 
@@ -378,56 +819,228 @@ used_vehicle_reduction = 0
 #cost_transformer=2500
 #cost_maintain_transformer=20
 
-###################################other stuff##################################
+# Insolvency and debt settings
 #
-# also pak dependent
+# These settings allow what happens when the player runs out of money and goes
+# into the red to be customised. 
 #
-
-# minimum distance between two townhalls
-#minimum_city_distance = 16
-
-# Max. length of initial intercity road connections
-# If you want to speed up map creation, lower this value.
-# If you want more initial intercity roads, raise this value.
-# If the value is too large then very long bridges might be created.
-# 200 seems to be a good compromise between speed and road number
-# note: this will slow down map creation dramatically!
+# "interest_rate_percent" is the annual interest rate (charged monthly) on all
+# overdraft debt (i.e., on all negative account balances). It can be between 0
+# and 255. 
+# 
+# "allow_bankruptsy" determines whether, when the player is deemed to have been
+# insolvent for more than a certain period, the player should be declared
+# bankrupt and the game over. 0 = no, 1 = yes.
+# 
+# "allow_purchases_when_insolvent" determines whether, if the player's bank
+# balance falls below the player's credit limit (shown in the finance window),
+# the player will be unable to spend any new money on capital items (excluding
+# bulldozing) until the player has come back within the credit limit again.
+# 0 = no, 1 = yes.
 #
-#intercity_road_length = 200
+# To revert to the behaviour of Simutrans standard, set interest_rate_percent to
+# 0, set allow_bankruptsy to 1, and set allow_purchases_when_insolvent to 1.
 
-# Type of intercity roads - must be available as PAK file.
-# Intercityroad with timeline: intercity_road[number]=name,intro-year,retire-year
-# .. number = 0..9 - up to ten different intercity_roads possible
-# .. name = name of an existing pak file
-#intercity_road[0] = asphalt_road,0,1990
-# default: city_road
-# (old, 102.2.2 and before) intercity_road_type = asphalt_road
+interest_rate_percent = 10
+allow_bankruptsy = 1
+allow_purhcases_when_insolvent = 0	
 
-# Type of city roads - must be available as PAK file.
-# Cityroad with timeline: city_road[number]=name,intro-year,retire-year
-# .. number = 0..9 - up to ten different city_roads possible
-# .. name = name of an existing pak file
-#city_road[0] = dirt_road,1920,1940
-# default: asphalt_road
-# (old, 102.2.2 and before) city_road_type = city_road
+# This is a compatibility setting for Simutrans-Standard. Because, in
+# Simutrans-Standard, the speed bonus data (in speedbonus.tab) is based on the
+# *maximum*, rather than the *average* speed of the vehicles, the speeds in
+# speedbonus.tab will be too high. Use this setting to reduce them if playing 
+# with an incompatible pakset. For paksets produced with Simutrans-Standard in
+# mind, the setting should be somewhere between 60-70. For compatible paksets,
+# the setting should be 100. (This should be set in the pakset simuconf.tab 
+# for Experimental compatible paksets).
 
-# now river stuff
-# first river type (should be defined in pak dependent file)
-# The highest number is the smallest. A river with max_speed==0 is not navigavable by ships.
-#river_type[0] = river
-#river_type[1] = small_river
-#river_type[2] = just_the source
+speed_bonus_multiplier_percent = 70
 
-# river number (16 gives a few nicely branched rivers)
-#river_number = 16
+# Settings for obsolete vehicles
+#
+# Obsolete vehicles cost more to maintain, depending on these settings. The increase
+# percent is the extra amount that it costs to maintain a vehicle after its retire
+# date. For example, if a vehicle cost 0.10c to maintain when not obsolete, and
+# obsolete_running_cost_increase_percent was set to 200, it would cost 0.20c to
+# maintain after its retire date.
+#
+# The phase years stipulate how long it should be after the retirement date before the
+# full percentage increase comes into effect. Between the retirement date and that number
+# of years after the retirement date, a proportion of the increase percentage applies.
+# For example, if the obsolete_running_cost_increase_phase_years was set to 10 in the 
+# above example, then, 5 years after the retirement date for the vehicle, the running 
+# costs would be 0.15c, and ten or more years after the retirement date, they would be
+# 0.20c. 
+#
+# To revert to previous behaviour (as of Simutrans stable 100 and earlier), in which
+# there was no increase in the running costs for obsolete vehicles, set the increase
+# percent to 100 and the phase years to 1. 
 
-# min length
-#river_min_length = 16
+obsolete_running_cost_increase_percent = 400
+obsolete_running_cost_increase_phase_years = 50
 
-# max length
-#river_max_length = 320
+# These settings determine how long after their retirement date that vehicles become
+# obsolete. Obsolete vehicles cost more to maintain than current vehicles. The number
+# is expressed in a number of years. So, for example, if a rail vehicle is no longer 
+# available after January 1900, and default_increase_maintenance_after_years_rail = 30
+# is set, the vehicle will become obsolete in January 1930, and its maintenance cost
+# will begin to increase from then. 
 
-################################# forest stuff #################################
+default_increase_maintenance_after_years_road = 15
+default_increase_maintenance_after_years_rail = 30
+default_increase_maintenance_after_years_water = 40
+default_increase_maintenance_after_years_monorail = 30
+default_increase_maintenance_after_years_maglev = 30
+default_increase_maintenance_after_years_tram = 25
+default_increase_maintenance_after_years_narrowgauge = 30
+default_increase_maintenance_after_years_air = 35
+default_increase_maintenance_after_years_other = 30
+
+# This determines whether obsolete vehicles can be purchased new
+# Default is "no" (0)
+# allow buying obsolete vehicles (=1) in depot
+#allow_buying_obsolete_vehicles = 1
+
+# This allows for a "driving it off the lot" drop in value.
+# This is not on by default, even in Experimental.
+# vehicle can loose a part of their value, when they are once used
+# the loss is given in 1/1000th, i.e 300 mean the value will be 70%
+used_vehicle_reduction = 0
+
+################################ Vehicle settings ##############################
+
+# These settings determine how vehicles take corners, for each individual type of way.  They
+# only apply to vehicles that use fixed ways (road, rail, monorail, etc.), and not aircraft or
+# ships.
+#
+# Corner adjustment facotor (min/max) (%): The percentage of the normal speed limit applied
+# on a 45 degree bend (for example, if the speed limit was 200kph, and the adjustment
+# factor set to 50, the speed limit on the corner would be 100kph). 
+# 
+# Corner limit (min/max) (kph): The minimum and maximum speed limits for phasing of the 
+# corner adjustment factor. On a way with the speed limit at or below the minimum limit,
+# the minimum adjustment factor applies. On a way with the limit at or above the maximum
+# speed limit, the maximum adjustment factor applies. Between the two, a phased proportion
+# of the adjustment factor applies as a linear function of the difference between the two.
+# For example, at halfway between the minimum and maximum speeds, halfway between the
+# minimum and maximum adjustment factors apply.
+#
+# Direction steps (min/max) (number of tiles): The number of steps that the simulation takes
+# into account when determining how sharp that a corner is. For example, if the number is set
+# to 6, the corner speed limit will be based on the greatest difference in angle between the
+# current direction and the direction in which the vehicle was travelling over the last 6 tiles.
+# The higher the number, therefore, the more important that it is to have straight ways.
+# Higher numbers should be set for railways and track based ways, and lower numbers for roadways.
+# The direction steps are phased in the same way as the adjustment factor.
+#
+# Curve friction factor (x): The number of times extra friction that applies as a vehicle corners.
+# Since the friction occasioned by cornering is not usually a significant speed limiting factor for
+# most transport vehicles, it is recommended to set this to 0. It is preserved for those who prefer
+# the Simutrans-Standard system of cornering.
+#
+# Reverting to the older cornering system: To make Simutrans behave in the conventional way (by
+# using friction rather than speed limits to reduce speed in corners), set the minimum and
+# maximum adjustment factors, and the minimum and maximum direction steps, to 1, and the friction
+# factor to 8. With those settings, the minimum and maximum speed will be irrelevant. 
+
+max_corner_limit_road=200
+min_corner_limit_road=30
+max_corner_adjustment_factor_road=80
+min_corner_adjustment_factor_road=90
+min_direction_steps_road=2
+max_direction_steps_road=2
+curve_friction_factor_road=0
+
+max_corner_limit_track=425
+min_corner_limit_track=45
+max_corner_adjustment_factor_track=50
+min_corner_adjustment_factor_track=85
+min_direction_steps_track=4
+max_direction_steps_track=14
+curve_friction_factor_track=0
+
+max_corner_limit_tram=250
+min_corner_limit_tram=30
+max_corner_adjustment_factor_tram=70
+min_corner_adjustment_factor_tram=87
+min_direction_steps_tram=3
+max_direction_steps_tram=8
+curve_friction_factor_tram=0
+
+max_corner_limit_monorail=425
+min_corner_limit_monorail=75
+max_corner_adjustment_factor_monorail=50
+min_corner_adjustment_factor_monorail=85
+min_direction_steps_monorail=5
+max_direction_steps_monorail=16
+curve_friction_factor_monorail=0
+
+max_corner_limit_maglev=500
+min_corner_limit_maglev=50
+max_corner_adjustment_factor_maglev=40
+min_corner_adjustment_factor_maglev=80
+min_direction_steps_maglev=4
+max_direction_steps_maglev=16
+curve_friction_factor_maglev=0
+
+max_corner_limit_narrowgauge=250
+min_corner_limit_narrowgauge=30
+max_corner_adjustment_factor_narrowgauge=66
+min_corner_adjustment_factor_narrowgauge=92
+min_direction_steps_narrowgauge=3
+max_direction_steps_narrowgauge=8
+curve_friction_factor_narrowgauge=0
+
+# These settings determine how long that it takes a train-type convoy to turn
+# around when it reaches the end of the line. They do not apply to road vehicles
+# or aircraft.
+#
+# "unit_reverse_time" refers to trains/convoys, such as multiple units, that have
+# a cab at each and, and can be driven in reverse without any re-arrangement of 
+# the order of the vehicles. These will generally take the least time to reverse.
+#
+# "hauled_reverse_time" refers to trains/convoys that cannot be driven from the
+# rear, so the locomotive at the front has to run around the train and attach
+# to the rear, but where that locomotive can itself be driven in either direction,
+# so that it does not need to turn around.
+#
+# "turntable_reverse_time" refers to trains/convoys that, as for the above category,
+# cannot be driven from the rear, but that also require their locomotive to be turned
+# around to face the other direction (such as steam locomotives with tenders) at the
+# end of the journey. These will genearlly take the most time to reverse.
+#
+# All times are in milliseconds (1000 = 1 sec), assuming that the game is set to the 
+# normal speed (i.e., not fast-forwarded).
+
+unit_reverse_time=1500
+hauled_reverse_time=2500
+turntable_reverse_time=4000
+
+# This setting allows the power of all vehicles to be adjusted at once. It is a
+# percentage figure. Thus, if, for example, a vehicle has a power rating of 1,200kw
+# and the global_power_factor_percent is set to 200, it will behave in game as if
+# it had a power rating of 2,400kw. This setting is applied *in addition to* the
+# "gear" setting, such that, if a vehicle had a power rating of 1,200kw, a gear of
+# 2.0 and the global_power_factor_percent was set to 200, the vehicle would behave
+# as if it had a total power of 4,800kw. 
+#
+# The default is 100.
+
+global_power_factor_percent=100
+
+# This setting allows the way in which weight limits are enforced to be customised.
+# If enforce_weight_limits is set to 0, weight limits are ignored entirely. If
+# enforce_weight_limits is set to 1, then vehicles can travel over roads, rails,
+# tunnels and bridges for which they are too heavy, but only at greatly reduced
+# speed. If enforce_weight_limits is set to 2, then vehicles cannot travel over
+# ways for which they are overweight at all. 
+#
+# To revert to the behaviour of Simutrans-Standard, set enforce_weight_limits=0
+
+enforce_weight_limits=1
+
+################################# Tree settings #################################
+#
 #  please be careful in changing them, I spent lot of time finding optimals.
 #  those values have impact on no. of spawned trees -> memory consumption
 #
@@ -457,7 +1070,7 @@ no_tree_climates = 130
 # the season change will be much smoother on small machines)
 #no_tree = 0
 
-###################################time stuff###################################
+################################### Time settings ###################################
 
 # Enforce vehicle introduction dates?
 # 0 = all vehicles available from start of the game
@@ -474,26 +1087,25 @@ use_timeline = 3
 #
 # other recommended vaule for 64 is 1956
 #
-starting_year = 1930
+starting_year = 1900
 
 # Starting month of the game for people who want to start in summer (default 1=January)
 starting_month = 1
 
 # Should month be shown in date?
-# 0=no, 1=yes
-# 2>=show day in japan format=2, us format=3, german=4
-# 5>=show no season but everything else in japan format=5, us format=5, german=6
+# (0=no, 1=yes, 2>=show day in japan format=2, us format=3, german=4, japanese no season=5, us no season=6, german no season = 7, journey time equivalent = 8)
 # This is most useful, if you use longer months than the default length (see below)
-#show_month = 1
+
+show_month = 8
 
 # Global time multiplier (will be save with new games)
 # 2^bits_per_month = duration of a game month in microseconds real time
-# default before 99.x was 18. For example, 21 will make the month 2^3=8 times longer in real time
+# default is 18. For example, 21 will make the month 2^3=8 times longer in real time
 # production and maintainance cost will be adjusted accordingly.
-#
+
 bits_per_month = 20
 
-#################################system stuff#################################
+################################# System settings ############################
 
 # compress savegames?
 # "binary" means uncompressed, "zipped" means compressed
@@ -502,43 +1114,30 @@ bits_per_month = 20
 saveformat = bzip2
 
 # autosave every x months (0=off)
-autosave = 0
-
-# display (screen/window) width
-# also see readme.txt, -screensize option
-#display_width  = 704
-
-# display (screen/window) height
-# also see readme.txt, -screensize option
-#display_height = 560
-
-# show full screen
-#fullscreen = 0
-
-# maximum size of tool bars (0 = no limit)
-# if more tools than allowed by height,
-# next and prev arrows for scrolling appears
-toolbar_max_width = 0
-toolbar_max_height = 0
-
-# if 1, print the company name in front of a message
-#add_player_name_to_message = 1
+autosave = 12
 
 # How many frames per second to use? Display may look pretty until 10 or so
 # (depends very much on computer, game complexity and graphics driver)
-frames_per_second = 25
+frames_per_second = 30
 
-# How much faster should the game proceed with fast forward (limited by your computer and size of the map)
-fast_forward = 50
+# How much faster should the game proceed with fast forward
+# (limited by your computer and the size of the map)
+fast_forward = 100
 
-###################################network stuff##############################
+################################### Network settings ##############################
 #
 # Synchronized networking is always a trade off between fast respone and safe
 # connections. A more relaxed timing will cause delay of commands but is more
 # likely to compensate for clients running slightly faster than the rest.
 #
 
-# How much delay before comands are executed on the clients.
+# Sets the local addresses Simutrans should listen on and use for making outgoing connections
+# By default it will use all local IPv4 and IPv6 addresses
+# This setting has no effect if Simutrans has been compiled with the USE_IP4_ONLY flag set!
+# The addresses listed will be tried in the order specified
+#listen = ::,0.0.0.0
+
+# How much commands should be delayed before sending back to clients.
 # A larger number will catch even clients running slightly ahead but cause delay.
 # This is set by the server side.
 #server_frames_ahead = 4
@@ -555,26 +1154,41 @@ fast_forward = 50
 # The server sends after a fixed number of steps some information to the clients.
 # Large values here means: reduced server communication (if that is of importance...)
 # Small values should improve the timing of the clients.
-#server_frames_between_checks = 256
+server_frames_between_checks = 320
 
-# Automatically announce server on the central server directory
-# 0 (default) = off, any other number is ID from
-# http://simutrans-germany.com/serverlist/
-#server_announce = 0
+# Automatically announce server on the central server directory (http://servers.simutrans.org/)
+# 0 (default) = off, 1 = on
+server_announce = 0
 
-# intervall of announcement (if enabled)
-# 0=only on start/exit, -1=on join/leave, intervall>0 every x month
-#server_announce_intervall = 0
+# Interval of server announcement (if enabled)
+# Value is number of seconds between server announcements, default is 900 (15 minutes)
+# Minimum value is 60 (1 minute), for accurate listing it is recommended not to increase
+# this value to greater than 3600 (1 hour)
+# To disable announcements set server_announce to 0
+server_announce_interval = 900
 
-# DNS name or IP of your server also IPv6 is accepted
-#server_name = 127.0.0.1
+# Fully Qualified Domain Name (FQDN) or IP address of your server (IPv6 or IPv4)
+#server_dns = 127.0.0.1
 
-# Additionally comment on your server; will be shown on game-info
-#server_comment = Testserver
+# Name of server in server listing
+#server_name = A generic Simutrans-Experimental server
 
-# Admin password for server; if not set, command-line tool nettool not usable
-#server_admin_pw = abc
+# Additional information about your server (for display on the list server)
+#server_comments = This is a Simutrans-Experimental server running with default settings.
 
-# Pause server if no clients are connected
-#pause_server_no_clients = 1
+# Email address of server maintainer (for display on the list server)
+#server_email = maintainer@your.server
 
+# The password required for administering the server. 
+# NOTE: This should be changed from the default when used, for
+# obvious reasons.
+server_admin_pw = Insecure
+
+# Pakset download URL (for display on the list server)
+#server_pakurl = http://your.domain/pakset.zip
+
+# Server info URL (for display on the list server)
+#server_infurl = http://your.domain/server-info.html
+
+# Pause server when no clients are connected
+pause_server_no_clients = 1

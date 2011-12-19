@@ -133,7 +133,7 @@ void bild_besch_t::decode_img(sint16 xoff, sint16 yoff, uint32 *target, uint32 t
 				while (runlen--) {
 					// get rgb components
 					uint16 s = *src++;
-					if(  max_w>=0  &&  max_w<target_width  &&  y>=0  ) {
+					if(  max_w>=0  &&  (uint32)max_w<target_width  &&  y>=0  ) {
 						if(  s>=0x8000  ) {
 							// special color
 							*p++ = 0;
@@ -151,7 +151,7 @@ void bild_besch_t::decode_img(sint16 xoff, sint16 yoff, uint32 *target, uint32 t
 					max_w ++;
 				}
 				runlen = *src++;
-			} while(  runlen!=0  &&  y<target_height  );
+			} while(  runlen!=0  &&  (y<0  ||  (uint32)y<target_height)  );
 		}
 	}
 }

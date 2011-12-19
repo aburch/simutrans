@@ -366,7 +366,8 @@ bool wegbauer_t::check_crossing(const koord zv, const grund_t *bd, waytype_t wty
 		return true;
 	}
 	// right owner of the other way
-	if(!check_owner(w->get_besitzer(),sp)) {
+	if(!check_owner(w->get_besitzer(),sp) && !check_access(w, sp)) 
+	{
 		return false;
 	}
 	// check for existing crossing
@@ -562,7 +563,8 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		if(gb) {
 			// no halt => citybuilding => do not touch
 			// also check for too high buildings ...
-			if(!check_owner(gb->get_besitzer(),sp)  ||  gb->get_tile()->get_hintergrund(0,1,0)!=IMG_LEER) {
+			if(!check_owner(gb->get_besitzer(),sp) || gb->get_tile()->get_hintergrund(0,1,0)!=IMG_LEER) 
+			{
 				return false;
 			}
 			// building above houses is expensive ... avoid it!
@@ -632,7 +634,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 
 	// universal check for crossings
 	if (to!=from  &&  (bautyp&bautyp_mask)!=leitung) {
-		waytype_t const wtyp = bautyp == river ? water_wt : static_cast<waytype_t>(bautyp & bautyp_mask);
+		waytype_t const wtyp = (bautyp == river) ? water_wt : (waytype_t)(bautyp & bautyp_mask);
 		if(!check_crossing(zv,to,wtyp,sp)  ||  !check_crossing(-zv,from,wtyp,sp)) {
 			return false;
 		}
@@ -685,7 +687,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 			}
 			// ok, regular construction here
 			// if no way there: check for right ground type, otherwise check owner
-			ok = sch==NULL  ?  (!fundament  &&  !to->ist_wasser())  :  check_owner(sch->get_besitzer(),sp);
+			ok = sch == NULL ? (!fundament && !to->ist_wasser()) : check_owner(sch->get_besitzer(),sp) || check_access(sch, sp);
 			if(!ok) {
 				return false;
 			}
@@ -710,7 +712,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 			const weg_t *sch=to->get_weg(track_wt);
 			// roads are checked in check_crossing
 			// if no way there: check for right ground type, otherwise check owner
-			ok = sch==NULL  ?  (!fundament  &&  !to->ist_wasser())  :  check_owner(sch->get_besitzer(),sp);
+			ok = sch == NULL ? (!fundament && !to->ist_wasser()) : check_owner(sch->get_besitzer(),sp) || check_access(sch, sp);
 			// tram track allowed in road tunnels, but only along existing roads / tracks
 			if(from!=to) {
 				if(from->ist_tunnel()) {
@@ -774,7 +776,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		{
 			const weg_t *sch=to->get_weg(water_wt);
 			// if no way there: check for right ground type, otherwise check owner
-			ok = sch==NULL  ?  !fundament  :  check_owner(sch->get_besitzer(),sp);
+			ok = sch == NULL ? !fundament :  check_owner(sch->get_besitzer(), sp) || check_access(sch, sp);
 			// calculate costs
 			if(ok) {
 				*costs = to->ist_wasser() || to->hat_weg(water_wt) ? s.way_count_straight : s.way_count_leaving_road; // prefer water very much
@@ -808,7 +810,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		case luft: // hsiegeln: runway
 			{
 				const weg_t *w = to->get_weg(air_wt);
-				if(  w  &&  w->get_besch()->get_styp()!=besch->get_styp()  &&  ribi_t::ist_einfach(w->get_ribi_unmasked())  ) {
+				if(  w  &&  w->get_besch()->get_styp()==1  &&  besch->get_styp()!=1 &&  ribi_t::ist_einfach(w->get_ribi_unmasked())  ) {
 					// cannot go over the end of a runway with a taxiway
 					return false;
 				}
@@ -1618,6 +1620,9 @@ DBG_MESSAGE("wegbauer_t::intern_calc_straight_route()","found straight route max
 // special for starting/landing runways
 bool wegbauer_t::intern_calc_route_runways(koord3d start3d, const koord3d ziel3d)
 {
+	route.clear();
+	terraform_index.clear();
+
 	const koord start=start3d.get_2d();
 	const koord ziel=ziel3d.get_2d();
 	// check for straight line!
@@ -1694,7 +1699,7 @@ bool wegbauer_t::intern_calc_route_runways(koord3d start3d, const koord3d ziel3d
 void wegbauer_t::calc_straight_route(koord3d start, const koord3d ziel)
 {
 	DBG_MESSAGE("wegbauer_t::calc_straight_route()","from %d,%d,%d to %d,%d,%d",start.x,start.y,start.z, ziel.x,ziel.y,ziel.z );
-	if(bautyp==luft  &&  besch->get_topspeed()>=250) {
+	if(bautyp==luft  &&  besch->get_styp()==1) {
 		// these are straight anyway ...
 		intern_calc_route_runways(start, ziel);
 	}
@@ -2554,4 +2559,9 @@ uint32 wegbauer_t::calc_distance( const koord3d &pos, const koord3d &mini, const
 		dist += (pos.z - maxi.z) * s.way_count_slope;
 	}
 	return dist;
+}
+
+bool wegbauer_t::check_access(const weg_t* way, const spieler_t* sp) const
+{
+	return way && (way->get_besitzer() == NULL || way->get_besitzer() == sp || sp == NULL || way->get_besitzer()->allows_access_to(sp->get_player_nr()));
 }

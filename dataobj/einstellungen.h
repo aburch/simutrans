@@ -233,6 +233,15 @@ private:
 	 */
 	uint16 min_wait_airport;
 
+	/**
+	 * If true, players will not be charged
+	 * for using roads owned by the public
+	 * service player. Other way types are
+	 * not affected.
+	 * @author: jamespetts, October 2011
+	 */
+	bool toll_free_public_roads;
+
 
 public:
 
@@ -395,6 +404,17 @@ private:
 
 	bool drive_on_left;
 	bool signals_on_left;
+
+	// The fraction of running costs (etc.) charged for going on other players' ways
+	// and using their air and sea ports.
+	sint32 way_toll_runningcost_percentage;
+	sint32 way_toll_waycost_percentage;
+	sint32 way_toll_revenue_percentage;
+	sint32 seaport_toll_revenue_percentage;
+	sint32 airport_toll_revenue_percentage;
+
+	// Whether non-public players are allowed to make stops and ways public.
+	bool allow_making_public;
 
 public:
 	/* the big cost section */
@@ -855,6 +875,16 @@ public:
 
 	uint16 get_min_wait_airport() const { return min_wait_airport; }
 	void set_min_wait_airport(uint16 value) { min_wait_airport = value; }
+
+	sint32 get_way_toll_runningcost_percentage() const { return way_toll_runningcost_percentage; }
+	sint32 get_way_toll_waycost_percentage() const { return way_toll_waycost_percentage; }
+	sint32 get_way_toll_revenue_percentage() const { return way_toll_revenue_percentage; }
+	sint32 get_seaport_toll_revenue_percentage() const { return seaport_toll_revenue_percentage; }
+	sint32 get_airport_toll_revenue_percentage() const { return airport_toll_revenue_percentage; }
+
+	bool get_toll_free_public_roads() const { return toll_free_public_roads; }
+
+	bool get_allow_making_public() const { return allow_making_public; }
 };
 
 #endif 

@@ -11,21 +11,17 @@ endif
 CFLAGS += -DNETTOOL
 CXXFLAGS += -DNETTOOL
 
-# Curses needed for password non-echo
-CFLAGS += -lcurses
-CXXFLAGS += -lcurses
-
 ifeq ($(OSTYPE),cygwin)
   OS_INC   ?= -I/usr/include/mingw
   OS_OPT   ?= -mwin32
-  STD_LIBS += -lwinmm
+  STD_LIBS += -lwinmm -lcurses
 endif
 
 ifeq ($(OSTYPE),mingw)
   CC ?= gcc
   OS_OPT   ?= -mno-cygwin -march=pentium
   # we need the libraries EXACTLY in this order to link
-  STD_LIBS = -lmingw32 -lstdc++
+  STD_LIBS = -lmingw32 -lstdc++ -lwsock32
 endif
 
 ifeq ($(OSTYPE),mac)
@@ -92,9 +88,16 @@ VARIANT_SOURCES += ../dataobj/network_file_transfer.cc
 
 SOURCES ?= $(SOLO_SOURCES) $(SHARED_SOURCES) $(VARIANT_SOURCES)
 
-BUILDDIR ?= ../build/$(CFG)
-TOOL ?= nettool
+BUILDDIR ?= build/$(CFG)
+TOOL  = nettool
 PROG ?= nettool
-PROGDIR ?= $(BUILDDIR)/$(TOOL)
+ifeq ($(origin NETTOOL_PROGDIR), undefined)
+  NETTOOL_PROGDIR := $(BUILDDIR)/$(TOOL)
+endif
 
-include uncommon.mk
+BUILDDIR := ../$(BUILDDIR)
+NETTOOL_PROGDIR := ../$(NETTOOL_PROGDIR)
+
+TOOL_PROGDIR = $(NETTOOL_PROGDIR)
+
+include ../uncommon.mk

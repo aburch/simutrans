@@ -23,6 +23,10 @@
 #include "convoihandle_t.h"
 #include "halthandle_t.h"
 
+#include "simconst.h"
+
+#include "simdings.h"
+
 #define MAX_CONVOI_COST				9 // Total number of cost items
 #define MAX_MONTHS					12 // Max history
 
@@ -42,6 +46,7 @@
  */
 #define WAIT_INFINITE 0xFFFFFFFFu
 
+class weg_t;
 class depot_t;
 class karte_t;
 class spieler_t;
@@ -86,6 +91,97 @@ public:
 		ENTERING_DEPOT,
 		REVERSING,
 		MAX_STATES
+	};
+
+	struct departure_data_t
+	{
+	public:
+		/** 
+		  * Departure time in internal ticks
+		  */
+		sint64 departure_time;
+
+		/**
+		* Accumulated distance since the convoy departed from
+		* this stop, indexed by the player number of the way 
+		* over which the convoy has passed. If the way is
+		* ownerless, it is recorded as belonging to the owner
+		* of they convoy, unless it is open water, in which case
+		* it is recorded as being MAX_PLAYER_COUNT (in other 
+		* words, two greater than the maximum number of players).
+		* This is to facilitate proper apportionment of revenues
+		* for ocean-going ships coming into ports owned by
+		* other players (+2) and the measurement of journey
+		* distance by straight line distance between halts,
+		* rather than route distance (+1)
+		*/
+	private:
+		uint32 accumulated_distance_since_departure[MAX_PLAYER_COUNT + 1];
+
+	public:
+
+		departure_data_t()
+		{
+			departure_time = 0ll;
+			reset_distances();
+		}
+
+		/**
+		 * Method for adding the total distance at intermediate halts
+		 */
+		void add_overall_distance(uint32 distance)
+		{
+			accumulated_distance_since_departure[MAX_PLAYER_COUNT] += distance;
+		}
+
+		/** 
+		 * Method to get the overall distance. This should be the basis
+		 * for measuring the total revenue.
+		 */
+		uint32 get_overall_distance() const
+		{
+			return accumulated_distance_since_departure[MAX_PLAYER_COUNT];
+		}
+
+		uint32 get_way_distance(uint8 index) const
+		{
+			return accumulated_distance_since_departure[index];
+		}
+
+
+		/** 
+		 * Method to increment by one the distance recorded as
+		 * travelled by a vehicle over a particular way, indexed
+		 * by the player ID of the way. This is used for revenue
+		 * apportionment.
+		 */
+		void increment_way_distance(uint8 player, uint32 steps)
+		{
+			accumulated_distance_since_departure[player] += steps;
+		}
+
+		/**
+		 * Method for setting values in the array ab initio. 
+		 * Used when loading from a saved game only.
+		 */
+		void set_distance(uint8 index, uint32 value)
+		{
+			accumulated_distance_since_departure[index] = value;
+		}
+
+		/**
+		 * Method for resetting the value of the overall distance
+		 * Used in circular routes when the convoy reaches a
+		 * halt from which it has previously departed, to
+		 * prevent over-accumulation of distance.
+		 */
+		void reset_distances()
+		{
+			for(int i = 0; i < MAX_PLAYER_COUNT + 1; i ++)
+			{
+				accumulated_distance_since_departure[i] = 0;
+			}
+		}
 	};
 
 private:
@@ -432,11 +528,13 @@ private:
 
 	/**
 	 * Time in ticks since this convoy last departed from
-	 * any given stop, indexed here by its handle ID.
+	 * any given stop, plus accumulated distance since the last
+	 * stop, indexed here by its handle ID.
 	 * @author: jamespetts, August 2011. Replaces the original
 	 * "last_departure_time" member.
+	 * Modified October 2011 to include accumulated distance.
 	 */
-	inthashtable_tpl<uint16, sint64> *departure_times;
+	inthashtable_tpl<uint16, departure_data_t> *departures;
 
 	// When we arrived at current stop
 	// @author Inkelyad
@@ -449,10 +547,20 @@ private:
 	uint32 rolling_average[MAX_CONVOI_COST];
 	uint16 rolling_average_count[MAX_CONVOI_COST];
 
-	// To prevent repeat bookings of journey time
-	// and comfort when a vehicle is waiting for
-	// load at a stop.
+	/**To prevent repeat bookings of journey time
+	 * and comfort when a vehicle is waiting for
+	 * load at a stop.
+	 */
 	uint8 current_stop;
+
+	/**
+	 * The number of times that this
+	 * convoy has attempted to find
+	 * a route to its destination
+	 * and failed.
+	 * @author: jamespetts, November 2011
+	 */
+	uint8 no_route_retry_count;
 
 	/**
 	 * Get obsolescence from vehicle list.
@@ -525,6 +633,7 @@ private:
 	vector_tpl<route_info_t> route_infos;
 
 public:
+	ding_t::typ get_depot_type() const;
 	
 // updates a line schedule and tries to find the best next station to go
 	void check_pending_updates();	
@@ -724,7 +833,7 @@ public:
 	 * Add the costs for traveling one tile
 	 * @author Hj. Malthaner
 	 */
-	void add_running_cost(sint64 cost);
+	void add_running_cost(sint64 cost, const weg_t *weg);
 
 	// Increment the odometer,
 	// adjusting for the distance scale.
@@ -853,7 +962,7 @@ public:
 	void set_reverse_schedule(bool reverse) { reverse_schedule = reverse; }
 
 	/**
-	* The table of point-to-point average speeds.
+	* The table of point-to-point average journey times.
 	* @author jamespetts
 	*/
 	koordhashtable_tpl<id_pair, average_tpl<uint16> > * average_journey_times;
@@ -1137,6 +1246,13 @@ public:
 	vector_tpl<route_info_t>& get_route_infos() { return route_infos; }
 
 	void set_akt_speed(sint32 akt_speed) { this->akt_speed = akt_speed; v = speed_to_v(akt_speed); }
+
+	inline bool is_circular_route() const;
+	
+	/** For going to a depot automatically
+	 *  when stuck - will teleport if necessary.
+	 */
+	void emergency_go_to_depot();
 };
 
 #endif

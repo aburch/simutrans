@@ -1,0 +1,12 @@
+# Private car ownership over different years. The numbers other than years are
+# percentages, and should be integers (i.e., no decimal point). For early years,
+# horse-drawn private vehicles are assumed.
+#
+# Source of data (1951 onwards): http://www.dft.gov.uk/pgr/statistics/datatablespublications/tsgb/2008edition/sectionninevehicles.pdf
+#
+# Figures before 1951 and after 2006 are educated guesses. Data is for the UK:
+# other countries might vary.
+#
+# Author: James E. Petts (jamespetts)
+
+car_ownership=1492,0,1750,1,1890,2,1906,4,1935,6,1945,7,1951,14,1955,20,1958,26,1960,29,1963,36,1966,45,1968,49,1971,52,1974,55,1977,57,1980,59,1983,61,1986,62,1989,66,1993,69,1996,70,1999,72,2003,74,2006,76,2015,82

@@ -20,7 +20,7 @@ class ding_view_t : public world_view_t
 		koord3d get_location() { return ding->get_pos(); }
 
 	private:
-		ding_t const* ding; /**< The object to display */
+		ding_t const* const ding; /**< The object to display */
 };
 
 #endif

@@ -211,6 +211,11 @@ settings_t::settings_t() :
 	}
 
 	maint_building = 5000;	// normal buildings
+	way_toll_runningcost_percentage = 0;
+	way_toll_waycost_percentage = 0;
+	way_toll_revenue_percentage = 0;
+	seaport_toll_revenue_percentage = 0;
+	airport_toll_revenue_percentage = 0;
 
 	// stop buildings
 	cst_multiply_dock=-50000;
@@ -428,8 +433,12 @@ settings_t::settings_t() :
 
 	min_wait_airport = 0;
 
+	toll_free_public_roads = false;
+
 	city_threshold_size = 1000;
 	capital_threshold_size = 10000;
+
+	allow_making_public = true;
 	
 	for(uint8 i = 0; i < 17; i ++)
 	{
@@ -1212,6 +1221,18 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_bool( signals_on_left );
 		}
 
+		if(file->get_version() >= 110007)
+		{
+			file->rdwr_long( way_toll_runningcost_percentage );
+			file->rdwr_long( way_toll_waycost_percentage );
+			if(file->get_experimental_version() >= 10)
+			{
+				file->rdwr_long(way_toll_revenue_percentage);
+				file->rdwr_long(seaport_toll_revenue_percentage);
+				file->rdwr_long(airport_toll_revenue_percentage);
+			}
+		}
+
 		if (file->get_experimental_version() >= 9 && file->get_version() >= 110006) 
 		{
 			file->rdwr_byte(spacing_shift_mode);
@@ -1255,6 +1276,14 @@ void settings_t::rdwr(loadsave_t *file)
 		{
 			file->rdwr_bool(allow_routing_on_foot);
 			file->rdwr_short(min_wait_airport);
+			if(file->get_version() >= 110007)
+			{
+				file->rdwr_bool(toll_free_public_roads);
+			}
+			if(file->get_version() >= 111000)
+			{
+				file->rdwr_bool(allow_making_public);
+			}
 		}
 	}
 }
@@ -1281,7 +1310,9 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	umgebung_t::ground_object_probability = contents.get_int("random_grounds_probability", umgebung_t::ground_object_probability);
 	umgebung_t::moving_object_probability = contents.get_int("random_wildlife_probability", umgebung_t::moving_object_probability);
 
-	umgebung_t::verkehrsteilnehmer_info = contents.get_int("pedes_and_car_info", umgebung_t::verkehrsteilnehmer_info) != 0;
+	umgebung_t::straight_way_without_control = contents.get_int("straight_way_without_control", umgebung_t::straight_way_without_control) != 0;
+
+	umgebung_t::verkehrsteilnehmer_info = contents.get_int("pedes_and_car_info", umgebung_t::straight_way_without_control) != 0;
 	umgebung_t::tree_info = contents.get_int("tree_info", umgebung_t::tree_info) != 0;
 	umgebung_t::ground_info = contents.get_int("ground_info", umgebung_t::ground_info) != 0;
 	umgebung_t::townhall_info = contents.get_int("townhall_info", umgebung_t::townhall_info) != 0;
@@ -1318,17 +1349,56 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	umgebung_t::server_sync_steps_between_checks = contents.get_int("server_frames_between_checks", umgebung_t::server_sync_steps_between_checks );
 	umgebung_t::pause_server_no_clients = contents.get_int("pause_server_no_clients", umgebung_t::pause_server_no_clients );
 
-	umgebung_t::announce_server = contents.get_int("announce_server", umgebung_t::announce_server );
-	umgebung_t::announce_server = contents.get_int("server_announce", umgebung_t::announce_server );
-	umgebung_t::announce_server_intervall = contents.get_int("server_announce_intervall", umgebung_t::announce_server );
+	umgebung_t::server_announce = contents.get_int("announce_server", umgebung_t::server_announce );
+	umgebung_t::server_announce = contents.get_int("server_announce", umgebung_t::server_announce );
+	umgebung_t::server_announce_interval = contents.get_int("server_announce_intervall", umgebung_t::server_announce_interval );
+	umgebung_t::server_announce_interval = contents.get_int("server_announce_interval", umgebung_t::server_announce_interval );
+	if (umgebung_t::server_announce_interval < 60) {
+		umgebung_t::server_announce_interval = 60;
+	} else if (umgebung_t::server_announce_interval > 86400) {
+		umgebung_t::server_announce_interval = 86400;
+	}
+	if(  *contents.get("server_dns")  ) {
+		umgebung_t::server_dns = ltrim(contents.get("server_dns"));
+	}
 	if(  *contents.get("server_name")  ) {
 		umgebung_t::server_name = ltrim(contents.get("server_name"));
 	}
-	if(  *contents.get("server_comment")  ) {
-		umgebung_t::server_comment = ltrim(contents.get("server_comment"));
+	if(  *contents.get("server_comments")  ) {
+		umgebung_t::server_comments = ltrim(contents.get("server_comments"));
+	}
+	if(  *contents.get("server_email")  ) {
+		umgebung_t::server_email = ltrim(contents.get("server_email"));
+	}
+	if(  *contents.get("server_pakurl")  ) {
+		umgebung_t::server_pakurl = ltrim(contents.get("server_pakurl"));
+	}
+	if(  *contents.get("server_infurl")  ) {
+		umgebung_t::server_infurl = ltrim(contents.get("server_infurl"));
 	}
 	if(  *contents.get("server_admin_pw")  ) {
 		umgebung_t::server_admin_pw = ltrim(contents.get("server_admin_pw"));
+	}
+
+	// listen directive is a comma seperated list of IP addresses to listen on
+	if(  *contents.get("listen")  ) {
+		umgebung_t::listen.clear();
+		std::string s = ltrim(contents.get("listen"));
+
+		// Find index of first ',' copy from start of string to that position
+		// Set start index to last position, then repeat
+		// When ',' not found, copy remainder of string
+
+		size_t start = 0;
+		size_t end;
+
+		end = s.find_first_of(",");
+		umgebung_t::listen.append_unique( ltrim( s.substr( start, end ).c_str() ) );
+		while (  end != std::string::npos  ) {
+			start = end;
+			end = s.find_first_of( ",", start + 1 );
+			umgebung_t::listen.append_unique( ltrim( s.substr( start + 1, end - 1 - start ).c_str() ) );
+		}
 	}
 
 	drive_on_left = contents.get_int("drive_left", drive_on_left );
@@ -1611,6 +1681,12 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	beginner_price_factor = contents.get_int("beginner_price_factor", beginner_price_factor ); /* this manipulates the good prices in beginner mode */
 	beginner_mode = contents.get_int("first_beginner", beginner_mode ); /* start in beginner mode */
 
+	way_toll_runningcost_percentage = contents.get_int("toll_runningcost_percentage", way_toll_runningcost_percentage );
+	way_toll_waycost_percentage = contents.get_int("toll_waycost_percentage", way_toll_waycost_percentage );
+	way_toll_revenue_percentage = contents.get_int("toll_revenue_percentage", way_toll_revenue_percentage );
+	seaport_toll_revenue_percentage = contents.get_int("seaport_toll_revenue_percentage", seaport_toll_revenue_percentage );
+	airport_toll_revenue_percentage = contents.get_int("airport_toll_revenue_percentage", airport_toll_revenue_percentage );
+	
 	/* now the cost section */
 	cst_multiply_dock = (contents.get_int64("cost_multiply_dock", cst_multiply_dock/(-100) ) * -100) * distance_per_tile;
 	cst_multiply_station = (contents.get_int64("cost_multiply_station", cst_multiply_station/(-100) ) * -100) * distance_per_tile;
@@ -1815,7 +1891,11 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	min_wait_airport = contents.get_int("min_wait_airport", min_wait_airport) * 10; // Stored as 10ths of minutes
 
+	toll_free_public_roads = (bool)contents.get_int("toll_free_public_roads", toll_free_public_roads);
+
 	assume_everywhere_connected_by_road = (bool)(contents.get_int("assume_everywhere_connected_by_road", assume_everywhere_connected_by_road));
+
+	allow_making_public = (bool)(contents.get_int("allow_making_public", allow_making_public));
 
 	for(uint8 i = road_wt; i <= air_wt; i ++)
 	{

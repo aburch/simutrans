@@ -12,9 +12,9 @@ Indlæs dialogen er opbygget analogt til<br>
 <p>
 <em>Udseende:</em><br>
 Øverst i dialogen er overskriften 'Filnavn:' med en tilhørende tekstboks. Denne
-tekstboks giver mulighed for at indtaste navnet på et tidligere gemt
+tekstboks giver mulighed for at indtaste navnet på et tidligere gem
 spil. Derunder er en liste bestående af de spil, der befinder sig i
-simutrans/save mappen. For alle spil er vist en slet-knap, spillets navn samt
+simutrans/save mappen. For alle spil er vist en slet-knap, spillets navn sam
 "gem-tidspunktet".<br>
 Nederst er en 'OK' og en 'Fortryd' knap.
 </p>

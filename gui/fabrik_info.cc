@@ -17,6 +17,7 @@
 #include "../simgraph.h"
 #include "../simcity.h"
 #include "../simwin.h"
+#include "../simmenu.h"
 #include "../player/simplay.h"
 #include "../simworld.h"
 #include "../simskin.h"
@@ -24,7 +25,7 @@
 #include "../utils/simstring.h"
 
 
-fabrik_info_t::fabrik_info_t(const fabrik_t* fab_, const gebaeude_t* gb) :
+fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	gui_frame_t("", fab_->get_besitzer()),
 	fab(fab_),
 	chart(fab_),
@@ -34,6 +35,7 @@ fabrik_info_t::fabrik_info_t(const fabrik_t* fab_, const gebaeude_t* gb) :
 	txt(&info_buf)
 {
 	lieferbuttons = supplierbuttons = stadtbuttons = NULL;
+	welt = fab->get_besitzer()->get_welt();
 
 	tstrncpy( fabname, fab->get_name(), lengthof(fabname) );
 	gui_frame_t::set_name( fabname );
@@ -92,9 +94,27 @@ fabrik_info_t::fabrik_info_t(const fabrik_t* fab_, const gebaeude_t* gb) :
 
 fabrik_info_t::~fabrik_info_t()
 {
+	rename_factory();
+	fabname[0] = 0;
+
 	delete [] lieferbuttons;
 	delete [] supplierbuttons;
 	delete [] stadtbuttons;
+}
+
+
+void fabrik_info_t::rename_factory()
+{
+	if(  fabname[0]  &&  welt->get_fab_list().is_contained(fab)  &&  strcmp(fabname, fab->get_name())  ) {
+		// text changed and factory still exists => call tool
+		cbuffer_t buf;
+		buf.printf( "f%s,%s", fab->get_pos().get_str(), fabname );
+		werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
+		w->set_default_param( buf );
+		welt->set_werkzeug( w, welt->get_spieler(1));
+		// since init always returns false, it is save to delete immediately
+		delete w;
+	}
 }
 
 
@@ -184,7 +204,7 @@ void fabrik_info_t::zeichnen(koord pos, koord gr)
  * Returns true, if action is done and no more
  * components should be triggered.
  * V.Meyer
-   */
+ */
 bool fabrik_info_t::action_triggered( gui_action_creator_t *komp, value_t v)
 {
 	if(komp == &chart_button) {
@@ -204,7 +224,10 @@ bool fabrik_info_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		set_min_windowsize(koord(TOTAL_WIDTH, 16+offset_below_viewport+BUTTON_HEIGHT+LINESPACE*3));
 		resize( koord(0,(chart_button.pressed ? chart.get_groesse().y : -chart.get_groesse().y) ) );
 	}
-	if(komp == &details_button) {
+	else if(komp == &input) {
+		rename_factory();
+	}
+	else if(komp == &details_button) {
 		help_frame_t * frame = new help_frame_t();
 		char key[256];
 		sprintf(key, "factory_%s_details", fab->get_besch()->get_name());
@@ -221,9 +244,12 @@ bool fabrik_info_t::action_triggered( gui_action_creator_t *komp, value_t v)
 }
 
 
-
 void fabrik_info_t::update_info()
 {
+	tstrncpy( fabname, fab->get_name(), lengthof(fabname) );
+	gui_frame_t::set_name( fabname );
+	input.set_text( fabname, lengthof(fabname) );
+
 	cont.remove_all();
 
 	delete [] lieferbuttons;

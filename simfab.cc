@@ -631,6 +631,7 @@ fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
 	power = 0;
 	power_demand = 0;
 	prodfactor_electric = 0;
+	name = NULL;
 
 	rdwr(file);
 
@@ -788,6 +789,9 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 	update_scaled_electric_amount();
 	update_scaled_pax_demand();
 	update_scaled_mail_demand();
+
+	name = NULL;
+	set_name( translator::translate(besch->get_name()) );
 }
 
 void fabrik_t::delete_all_fields()
@@ -1054,6 +1058,19 @@ bool fabrik_t::ist_da_eine(karte_t *welt, koord min_pos, koord max_pos )
 }
 
 
+void fabrik_t::set_name(const char *new_name)
+{
+	if(name==NULL  ||  strcmp(name,new_name)) {
+		free( (void *)name );
+		name = strdup( new_name );
+	}
+	fabrik_info_t *win = dynamic_cast<fabrik_info_t*>(win_get_magic((long)this));
+	if (win) {
+		win->update_info();
+	}
+}
+
+
 void fabrik_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t f( file, "fabrik_t" );
@@ -1308,6 +1325,16 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 	}
 	else if(  file->is_loading()  ) {
 		activity_count = 0;
+	}
+
+	// save name
+	if (file->get_version() >= 110007) {
+		file->rdwr_str(name);
+	}
+	else {
+		if (file->is_loading()) {
+			set_name( translator::translate(besch->get_name()) );
+		}
 	}
 }
 
@@ -1745,7 +1772,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 	 * also prevent stops from overflowing, if possible
 	 * Since we can called with menge>max/2 are at least 10 are there, we must first limit the amount we distribute
 	 */
-	sint32 menge = min( 10, ausgang[produkt].menge >> precision_bits );
+	sint32 menge = min( (prodbase > 640 ? (prodbase>>6) : 10), ausgang[produkt].menge >> precision_bits );
 
 	// ok, first generate list of possible destinations
 	const halthandle_t *haltlist = plan->get_haltlist();
@@ -2196,7 +2223,7 @@ void fabrik_t::recalc_factory_status()
 }
 
 
-void fabrik_t::zeige_info() const
+void fabrik_t::zeige_info()
 {
 	gebaeude_t *gb = welt->lookup(pos)->find<gebaeude_t>();
 	create_win(new fabrik_info_t(this, gb), w_info, (long)gb );

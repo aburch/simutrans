@@ -1,0 +1,131 @@
+<title>Aiuto uso interfaccia di gioco</title>
+
+
+
+<h1><strong>Interfaccia di gioco</strong></h1>
+
+
+
+<p>
+
+In Simutrans si gioca attraverso l'<strong>Interfaccia di gioco</strong> che contiene le informazioni sul gioco corrente, l'accesso alle barre degli strumenti e controlli di gioco e una vista della mappa.
+
+</p>
+
+<p>
+
+<em>Barra del titolo</em>: nella parte sinistra della barra del titolo dell'<strong>Interfaccia di gioco</strong> è riportata la versione e la data di rilascio di Simutrans che sta girando.<br>
+
+La parte destra contiene i controlli per minimizzare e massimizzare l'<strong>Interfaccia di gioco</strong> e per uscire da Simutrans.
+
+</p>
+
+<p>
+
+<em>Icone</em>: una riga di icone, usata per accedere alle barre degli strumenti e dei controlli mentre si gioca a Simutrans, è direttamente sotto la <em>barra del titolo</em>. <em>Icone</em> (cliccare per utilizzarle) sono raggruppate in tre set:
+
+</p>
+
+<p>
+
+- <a href="general.txt"><it>Menù principale</it></a> include:<br>
+
+- <it>floppy-disc</it>: apre <a href="options.txt">Opzioni di gioco</a><br>
+
+- <it>map</it>: apre <a href="map.txt">Mappa</a><br>
+
+- <it>lente d'ingrandimento</it>: seleziona <a href="inspection_tool.txt">Visualizza</a><br>
+
+- <it>modifica terreno</it>: apre la <a href="slopetools.txt">barra terreno</a><br>
+
+- <it>treno</it>: apre la <a href="railtools.txt">barra ferrovie/treni</a><br>
+
+- <it>monorotaia/maglev</it>: apre la <a href="monorailtools.txt">barra dei trasporti su monorotaia</a><br>
+
+- <it>tram</it>: apre la <a href="tramtools.txt">barra dei tram</a><br>
+
+- <it>camion</it>: apre la <a href="roadtools.txt">barra trasporti su strada</a><br>
+
+- <em>nave</em>: apre la <a href="shiptools.txt">barra trasporti su acqua</a><br>
+
+- <em>aeroplano</em>: apre la <a href="airtools.txt">barra trasporti aerei</a><br>
+
+- <em>pallino rosso dentro cerchio giallo</em> (<em>gru</em> in pak128): apre la <a href="special.txt">barra delle costruzioni speciali</a><br>
+
+- <em>croce rossa</em> (<it>bulldozer</it> in pak128): seleziona lo <a href="removal_tool.txt">strumento di rimozione</a>
+
+</p>
+
+<p>
+
+- <a href="general.txt"><it>Menù gestione</it></a> include:<br>
+
+- <em>rete</em>: apre la <a href="linemanagement.txt">gestione linee</a><br>
+
+- <em>lista</em>: apre la <a href="list.txt">lista</a><br>
+
+- <em>cassetta delle lettere</em>: apre il <a href="mailbox.txt">centro messaggi</a><br>
+
+- <em>money-icon</em>: opens <a href="finances.txt">Finances</a>
+
+</p>
+
+<p>
+
+- <a href="general.txt"><it>Altre opzioni</it></a> include:<br>
+
+- <em>macchina fotografica</em>: cattura il contenuto dell'<strong>Interfaccia di gioco</strong> (senza la <em>barra del titolo</em>) e la salva come file bitmap nella cartella simutrans/screeshot/<br>
+
+{Consiglio: le immagini possono essere catturate premendo <a href="keys.txt">[c]</a>.}<br>
+
+- <em>tazzina di caffè</em>: mette o toglie dalla pausa il gioco.<br>
+
+{Consiglio: può essere usato anche il tasto [p]}.<br>
+
+- <em>>></em>: seleziona e deseleziona l'accelerazione del tempo. (cambia la velocità con cui <em>T</em> passa nel gioco).<br>
+
+{Consiglio: può essere usato anche il tasto <a href="keys.txt">[W]</a><br>
+
+IMPORTANTE: il gioco non può essere rallentato;<a href="display.txt"><strong>Display Information</strong></a>indica se il computer può resistere al cambiamento.}<br>
+
+- <it>?</it>: apre <a href="general.txt">Aiuto Simutrans</a>
+
+</p>
+
+<p>
+
+La <em>vista di gioco</em> di una porzione della mappa corrente è rappresentata sotto le <em>icone</em>.<br>
+
+Puoi ingrandire o rimpicciolire la vista o muoverti per la mappa utilizzando il <a href="mouse.txt">mouse</a> o la <a href="keys.txt">tastiera</a>.
+
+</p>
+
+<p>
+
+Una <em>barra di scorrimento temporanea</em> appare in fondo e riporta i <a href="mailbox.txt">messaggi</a>.<br>
+
+{Consigli: clicca sul messaggio per centrale la relativa posizione.}
+
+</p>
+
+<p>
+
+Una barra in fondo riporta le informazioni riguardanti la mappa corrente.<br>
+
+Le informazioni riportate, da sinistra a destra, includono:<br>
+
+<em>data e ora</em>: data e ora correnti, a cui seguono un'icona e il nome della stagione.<br>
+
+<em>bilancio</em>: soldi disponibili per le costruzioni e altre spese (acquisto veicoli, mantenimento infrastrutture e costi operativi dei veicoli).<br>
+
+<em>coordinate</em>: indicano la posizione del cursore nella vista di gioco. Sono riportate le coordinate X e Y e l'altezza.<br>
+
+<em>T</em>: indica la velocità a cui passa il tempo nel gioco.<br>
+
+{Consigli: Usa <a href="keys.txt">[.]</a> / [,] per accelerare/decelerare il tempo, T ; <a href="display.txt"><strong>Visualizza informazioni</strong></a>indica se il computer può resistere al cambiamento.<br>
+
+L'uso di <a href="fast_forward.txt">scorrimento veloce</a> sostituisce <em>T</em> con ">>" on bottom-bar.}<br>
+
+<em>linea del tempo</em>: indica se la <a href="new_world.txt">linea del tempo</a> è stata selezionata nel gioco corrente.
+
+</p>

@@ -28,11 +28,6 @@ public:
 		return hash;
 	}
 
-	static const char *null()
-	{
-		return NULL;
-	}
-
 	static void dump(const char *key)
 	{
 		printf("%s", key);

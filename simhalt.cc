@@ -115,23 +115,32 @@ void haltestelle_t::step_all()
 halthandle_t haltestelle_t::get_halt(const karte_t *welt, const koord pos, const spieler_t *sp )
 {
 	const planquadrat_t *plan = welt->lookup(pos);
-	if(plan) {
-		if(plan->get_halt().is_bound()  &&  spieler_t::check_owner(sp,plan->get_halt()->get_besitzer())  ) {
+	if(plan) 
+	{
+		if(plan->get_halt().is_bound()  && plan->get_halt()->check_access(sp)) 
+		{
 			return plan->get_halt();
 		}
 		// no halt? => we do the water check
-		if(plan->get_kartenboden()->ist_wasser()) {
+		if(plan->get_kartenboden()->ist_wasser()) 
+		{
 			// may catch bus stops close to water ...
 			const uint8 cnt = plan->get_haltlist_count();
 			// first check for own stop
-			for(  uint8 i=0;  i<cnt;  i++  ) {
-				if(  plan->get_haltlist()[i]->get_besitzer()==sp  ) {
+			for(uint8 i = 0; i < cnt; i++)  
+			{
+				if(plan->get_haltlist()[i]->get_besitzer() == sp) 
+				{
 					return plan->get_haltlist()[i];
 				}
 			}
-			// then for public stop
-			for(  uint8 i=0;  i<cnt;  i++  ) {
-				if(  plan->get_haltlist()[i]->get_besitzer()==welt->get_spieler(1)  ) {
+			// then for other stops to which access is allowed
+			// (This is second because it is preferable to dock at one's own
+			// port to avoid charges)
+			for(uint8 i = 0; i < cnt; i++) 
+			{
+				if(plan->get_haltlist()[i]->check_access(sp)) 
+				{
 					return plan->get_haltlist()[i];
 				}
 			}
@@ -142,7 +151,7 @@ halthandle_t haltestelle_t::get_halt(const karte_t *welt, const koord pos, const
 }
 
 
-halthandle_t haltestelle_t::get_halt(const karte_t *welt, const koord3d pos, const spieler_t *sp )
+halthandle_t haltestelle_t::get_halt(const karte_t *welt, const koord3d pos, const spieler_t *sp)
 {
 	const grund_t *gr = welt->lookup(pos);
 	if(gr) 
@@ -154,24 +163,31 @@ halthandle_t haltestelle_t::get_halt(const karte_t *welt, const koord3d pos, con
 			w = gr->get_weg_nr(1);
 		}
 
-		if(gr->get_halt().is_bound() && (spieler_t::check_owner(sp, gr->get_halt()->get_besitzer()) || (w && spieler_t::check_owner(w->get_besitzer(), sp))))
+		if(gr->get_halt().is_bound() && (gr->get_halt()->check_access(sp) || (w && spieler_t::check_owner(w->get_besitzer(), sp))))
 		{
 			return gr->get_halt();
 		}
 		// no halt? => we do the water check
-		if(gr->ist_wasser()) {
+		if(gr->ist_wasser()) 
+		{
 			// may catch bus stops close to water ...
 			const planquadrat_t *plan = welt->lookup(pos.get_2d());
 			const uint8 cnt = plan->get_haltlist_count();
 			// first check for own stop
-			for(  uint8 i=0;  i<cnt;  i++  ) {
-				if(  plan->get_haltlist()[i]->get_besitzer()==sp  ) {
+			for(uint8 i = 0; i < cnt; i++) 
+			{
+				if(plan->get_haltlist()[i]->get_besitzer() == sp) 
+				{
 					return plan->get_haltlist()[i];
 				}
 			}
-			// then for public stop
-			for(  uint8 i=0;  i<cnt;  i++  ) {
-				if(  plan->get_haltlist()[i]->get_besitzer()==welt->get_spieler(1)  ) {
+			// then for other stops to which access is allowed
+			// (This is second because it is preferable to dock at one's own
+			// port to avoid charges)
+			for(uint8 i = 0; i < cnt; i++) 
+			{
+				if(plan->get_haltlist()[i]->check_access(sp))  
+				{
 					return plan->get_haltlist()[i];
 				}
 			}
@@ -722,7 +738,7 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 			slist_iterator_tpl<fabrik_t*> fab_iter(fabs);
 			while (fab_iter.next()) {
 				// with factories
-				buf.printf( fab_base, city_name, translator::translate(fab_iter.get_current()->get_besch()->get_name(),lang), stop );
+				buf.printf( fab_base, city_name, fab_iter.get_current()->get_name(), stop );
 				if(  !all_names.get(buf).is_bound()  ) {
 					return strdup(buf);
 				}
@@ -904,7 +920,7 @@ void haltestelle_t::request_loading( convoihandle_t cnv )
 {
 	if(  !loading_here.is_contained(cnv)  ) 
 	{
-		loading_here.append (cnv);
+		loading_here.append(cnv);
 	}
 	if(  last_loading_step != welt->get_steps()  ) 
 	{
@@ -1003,6 +1019,7 @@ void haltestelle_t::step()
 								{
 									account_line->book(-refund_amount, LINE_PROFIT);
 									account_line->book(-refund_amount, LINE_REFUNDS);
+									get_besitzer()->buche(-refund_amount, COST_VEHICLE_RUN);
 								}
 								else
 								{
@@ -1011,6 +1028,7 @@ void haltestelle_t::step()
 									{
 										account_convoy->book(-refund_amount, CONVOI_PROFIT);
 										account_convoy->book(-refund_amount, CONVOI_REFUNDS);
+										get_besitzer()->buche(-refund_amount, COST_VEHICLE_RUN);
 									}
 								}
 							}
@@ -1222,7 +1240,7 @@ void haltestelle_t::remove_fabriken(fabrik_t *fab)
 
 uint16 haltestelle_t::get_average_waiting_time(halthandle_t halt, uint8 category) const
 {
-	if(&waiting_times[category].get(halt.get_id()) != NULL)
+	if(waiting_times[category].is_contained((halt.get_id())))
 	{
 		fixed_list_tpl<uint16, 16> times = waiting_times[category].get(halt.get_id()).times;
 		const uint16 count = times.get_count();
@@ -1818,7 +1836,9 @@ void haltestelle_t::add_ware_to_halt(ware_t ware, bool from_saved)
 	if(!from_saved)
 	{
 		ware.arrival_time = welt->get_zeit_ms();
-	}
+	}	
+	
+	ware.set_last_transfer(self);
 
 	// now we have to add the ware to the stop
 	vector_tpl<ware_t> * warray = waren[ware.get_besch()->get_catg_index()];
@@ -1888,6 +1908,7 @@ uint32 haltestelle_t::starte_mit_route(ware_t ware)
 	{
 		// add to internal storage
 		add_ware_to_halt(ware);
+		return ware.menge;
 	}
 }
 
@@ -2161,7 +2182,7 @@ bool haltestelle_t::make_public_and_join( spieler_t *sp )
 			}
 		}
 		// transfer ownership
-		spieler_t::accounting( sp, -(welt->calc_adjusted_monthly_figure(total_costs*60)), get_basis_pos(), COST_CONSTRUCTION);
+		spieler_t::accounting( sp, -total_costs*60, get_basis_pos(), COST_CONSTRUCTION);
 		besitzer_p->halt_remove(self);
 		besitzer_p = public_owner;
 		public_owner->halt_add(self);
@@ -2209,7 +2230,7 @@ bool haltestelle_t::make_public_and_join( spieler_t *sp )
 					}
 					
 					spieler_t::add_maintenance( gb_sp, -costs );
-					spieler_t::accounting(gb_sp, -(welt->calc_adjusted_monthly_figure(costs*60)), gr->get_pos().get_2d(), COST_CONSTRUCTION);
+					spieler_t::accounting(gb_sp, costs*60, gr->get_pos().get_2d(), COST_CONSTRUCTION);
 					gb->set_besitzer(public_owner);
 					gb->set_flag(ding_t::dirty);
 					spieler_t::add_maintenance(public_owner, costs );
@@ -3486,3 +3507,8 @@ uint32 haltestelle_t::get_number_of_halts_within_walking_distance() const
 		return 0;
 	}
 } 
+
+bool haltestelle_t::check_access(const spieler_t* sp) const
+{
+	return !sp || sp == besitzer_p || besitzer_p == NULL || besitzer_p->allows_access_to(sp->get_player_nr());
+}

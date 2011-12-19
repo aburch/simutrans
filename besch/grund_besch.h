@@ -34,7 +34,8 @@ private:
 	static image_id image_offset;
 
 public:
-	static int water_animation_stages;
+	static uint16 water_animation_stages;
+	static sint16 water_depth_levels;
 
 	// only these textures need external access
 	static const grund_besch_t *fundament;

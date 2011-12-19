@@ -14,6 +14,8 @@
 #include "../simcolor.h"
 #include "einstellungen.h"
 
+#include "../tpl/vector_tpl.h"
+
 #define TILE_HEIGHT_STEP (umgebung_t::pak_tile_height_step)
 
 
@@ -55,11 +57,28 @@ public:
 	// if we are the server, we are at this port ...
 	static const uint16 &server;
 
-	static uint32 announce_server;
-	static sint32 announce_server_intervall;
+	// Enable/disable server announcement
+	static uint32 server_announce;
+	// Number of seconds between announcements
+	static sint32 server_announce_interval;
+
+	// DNS name or IP address clients should use to connect to server
+	static std::string server_dns;
+	// Name of server for display on list server
 	static std::string server_name;
-	static std::string server_comment;
+	// Comments about server for display on list server
+	static std::string server_comments;
+	// Email address of server maintainer
+	static std::string server_email;
+	// Download location for pakset needed to play on server
+	static std::string server_pakurl;
+	// Link to further information about server
+	static std::string server_infurl;
+	// Server admin password (for use with nettool)
 	static std::string server_admin_pw;
+
+	// IP addresses to listen on/send announcements on
+	static vector_tpl<std::string> listen;
 
 	// pause server if no client connected
 	static bool pause_server_no_clients;
@@ -283,6 +302,8 @@ public:
 	static sint8 pak_tile_height_step;
 
 	static settings_t default_einstellungen;
+
+	static bool straight_way_without_control;
 
 	// init with default values
 	static void init();

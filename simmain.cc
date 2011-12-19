@@ -415,9 +415,9 @@ int simu_main(int argc, char** argv)
 			" -screensize WxH     set screensize to width W and height H\n"
 			" -server [PORT]      starts program as server (for network game)\n"
 			"                     without port specified uses 13353\n"
-			" -server_id NUM      ID for server announcements\n"
-			" -server_name NAME   name for server announcements\n"
-			" -server_comment TXT comment for server announcements\n"
+			" -announce           Enable server announcements\n"
+			" -server_dns FQDN/IP FQDN or IP address of server for announcements\n"
+			" -server_name NAME   Name of server for announcements\n"
 			" -server_admin_pw PW password for server administration\n"
 			" -singleuser         Save everything in program directory (portable version)\n"
 #ifdef DEBUG
@@ -572,7 +572,7 @@ int simu_main(int argc, char** argv)
 			// reset to false (otherwise these settings will persist)
 			umgebung_t::default_einstellungen.set_freeplay( false );
 			umgebung_t::default_einstellungen.set_allow_player_change( true );
-			umgebung_t::announce_server = 0;
+			umgebung_t::server_announce = 0;
 		}
 	}
 
@@ -595,7 +595,7 @@ int simu_main(int argc, char** argv)
 		}
 	}
 
-	// unmgebung: overide previous settings
+	// umgebung: overide previous settings
 	if(  (gimme_arg(argc, argv, "-freeplay", 0) != NULL)  ) {
 		umgebung_t::default_einstellungen.set_freeplay( true );
 	}
@@ -660,7 +660,7 @@ int simu_main(int argc, char** argv)
 	}
 	else {
 		// no announce for clients ...
-		umgebung_t::announce_server = 0;
+		umgebung_t::server_announce = 0;
 	}
 
 	DBG_MESSAGE( "simmain::main()", "Version: " VERSION_NUMBER NARROW_EXPERIMENTAL_VERSION "  Date: " VERSION_DATE);
@@ -765,7 +765,7 @@ int simu_main(int argc, char** argv)
 
 	// now find the pak specific tab file ...
 	const string obj_conf = umgebung_t::objfilename + path_to_simuconf;
-	string dummy("");
+	string dummy;
 	if (simuconf.open(obj_conf.c_str())) {
 		sint16 idummy;
 		printf("parse_simuconf() at %s: ", obj_conf.c_str());
@@ -994,19 +994,19 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	}
 
 	// query server stuff
-	ref_str = gimme_arg(argc, argv, "-server_id", 1);
+	// Enable server announcements
+	if(gimme_arg(argc, argv, "-announce", 0) != NULL) {
+		umgebung_t::server_announce = 1;
+	}
+
+	ref_str = gimme_arg(argc, argv, "-server_dns", 1);
 	if (ref_str != NULL) {
-		umgebung_t::announce_server = atoi(ref_str);
+		umgebung_t::server_dns = ref_str;
 	}
 
 	ref_str = gimme_arg(argc, argv, "-server_name", 1);
 	if (ref_str != NULL) {
 		umgebung_t::server_name = ref_str;
-	}
-
-	ref_str = gimme_arg(argc, argv, "-server_name", 1);
-	if (ref_str != NULL) {
-		umgebung_t::server_comment = ref_str;
 	}
 
 	ref_str = gimme_arg(argc, argv, "-server_admin_pw", 1);
@@ -1050,6 +1050,10 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		umgebung_t::autosave = old_autosave;
 	}
 	else {
+		// override freeplay setting when provided on command line
+		if(  (gimme_arg(argc, argv, "-freeplay", 0) != NULL)  ) {
+			welt->get_settings().set_freeplay( true );
+		}
 		// just init view (world was loaded from file)
 		intr_set(welt, view);
 		win_set_welt(welt);

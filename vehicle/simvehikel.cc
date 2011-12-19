@@ -824,13 +824,17 @@ vehikel_t::unload_freight(halthandle_t halt)
 						{
 							// Cannot refund unless we know the origin.
 							const uint16 distance = shortest_distance(halt->get_basis_pos(), tmp.get_origin()->get_basis_pos());
-							// Refund is approximation: twice distance at standard rate with no adjustments.
-							const sint64 refund_amount = tmp.menge * tmp.get_besch()->get_preis() * distance * 2000ll;
+							// Refund is approximation: 2x distance at standard rate with no adjustments. 
+							const sint64 refund_amount = ((tmp.menge * tmp.get_besch()->get_preis() * distance * 2000ll) + 1500ll) / 3000ll;
 							current_revenue -= refund_amount;
-							cnv->book(refund_amount, CONVOI_REFUNDS);
+							cnv->book(-refund_amount, CONVOI_PROFIT);
+							cnv->book(-refund_amount, CONVOI_REFUNDS);
+							get_besitzer()->buche(-refund_amount, COST_VEHICLE_RUN);
 							if(cnv->get_line().is_bound())
 							{
-								cnv->get_line()->book(refund_amount, LINE_REFUNDS);
+								cnv->get_line()->book(-refund_amount, LINE_REFUNDS);
+								cnv->get_line()->book(-refund_amount, LINE_PROFIT);
+								get_besitzer()->buche(-refund_amount, COST_VEHICLE_RUN);
 							}
 						}
 
@@ -849,6 +853,7 @@ vehikel_t::unload_freight(halthandle_t halt)
 						// Calculates the revenue for each packet. 
 						// @author: jamespetts
 						current_revenue += cnv->calc_revenue(iter.access_current());
+
 						// book delivered goods to destination
 						if(end_halt == halt) 
 						{
@@ -926,9 +931,6 @@ bool vehikel_t::load_freight(halthandle_t halt, bool overcrowd)
 			//hinein = inside (Google)
 
 			ware_t ware = halt->hole_ab(besch->get_ware(), hinein, fpl, cnv->get_besitzer(), cnv, overcrowd);
-			
-			// Needed here to prevent over-accumulation.
-			ware.reset_accumulated_distance();
 					
 			if(ware.menge == 0) 
 			{
@@ -1244,6 +1246,12 @@ bool vehikel_t::hop_check()
 			return false;
 		}
 	}
+	else {
+		// this is needed since in convoi_t::vorfahren the flag ist_erstes is set to null
+		if(check_for_finish) {
+			return false;
+		}
+	}
 	return true;
 }
 
@@ -1331,7 +1339,7 @@ void vehikel_t::hop()
 		// Necessary to prevent division by zero exceptions if
 		// weight limit is set to 0 in the file.
 
-		// This is just used for the GUI, so only set to true if the weight limit is set to enforce by speed restriction.
+		// This is just used for the GUI display, so only set to true if the weight limit is set to enforce by speed restriction.
 		is_overweight = (cnv->get_heaviest_vehicle() > weight_limit && welt->get_settings().get_enforce_weight_limits() == 1); 
 
 		if(weg->is_crossing() && gr->find<crossing_t>(2)) 
@@ -1359,7 +1367,10 @@ void vehikel_t::hop()
 	hop_count ++;
 }
 
-
+/* Calculates the modified speed limit of the current way,
+ * taking into account the curve and weight limit.
+ * @author: jamespetts/Bernd Gabriel
+ */
 sint32 vehikel_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fixed_list_tpl<sint16, 16>* cornering_data, ribi_t::ribi current_direction, ribi_t::ribi previous_direction)
 {	
 	if (weg_previous)
@@ -1412,6 +1423,8 @@ sint32 vehikel_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 #endif
  		sint16 direction_difference = 0;
 		const sint16 direction = get_direction_degrees(ribi_t::get_dir(current_direction));
+		const uint16 modified_route_index = min(route_index - 1, cnv->get_route()->get_count() - 1);
+		const koord3d *previous_tile = &cnv->get_route()->position_bei(modified_route_index);
 	
 		uint16 limit_adjustment_percentage = 100;
 		
@@ -2290,6 +2303,22 @@ bool vehikel_t::check_way_constraints(const weg_t &way) const
 	return missing_way_constraints_t(besch->get_way_constraints(), way.get_way_constraints()).ist_befahrbar();
 }
 
+bool vehikel_t::check_access(const weg_t* way) const
+{
+	if(get_besitzer() && get_besitzer()->get_player_nr() == 1)
+	{
+		// The public player can always connect to ways. It has no vehicles.
+		return true;
+	}
+	const grund_t* const gr = welt->lookup(get_pos());
+	const weg_t* const current_way = gr ? welt->lookup(get_pos())->get_weg(get_waytype()) : NULL;
+	if(current_way == NULL)
+	{
+		return true;
+	}
+	return way && (way->get_besitzer() == NULL || way->get_besitzer() == get_besitzer() || get_besitzer() == NULL || way->get_besitzer() == current_way->get_besitzer() || way->get_besitzer()->allows_access_to(get_besitzer()->get_player_nr()) || (welt->get_city(way->get_pos().get_2d()) && way->get_waytype() == road_wt));
+}
+
 
 vehikel_t::~vehikel_t()
 {
@@ -2539,7 +2568,13 @@ bool automobil_t::ist_befahrbar(const grund_t *bd) const
 	if(str->has_sign()) {
 		const roadsign_t* rs = bd->find<roadsign_t>();
 		if(rs!=NULL) {
-			if(get_besch() && rs->get_besch()->get_min_speed()>0  &&  rs->get_besch()->get_min_speed()>kmh_to_speed(get_besch()->get_geschw())) {
+			if(get_besch() && rs->get_besch()->get_min_speed()>0  &&  rs->get_besch()->get_min_speed()>kmh_to_speed(get_besch()->get_geschw())  ) 
+			{
+				return false;
+			}
+			if(get_besch() &&  rs->get_besch()->is_private_way()  &&  (rs->get_player_mask() & (1<<get_player_nr()) ) == 0  ) 
+			{
+				// prvate road
 				return false;
 			}
 			// do not search further for a free stop beyond here
@@ -2550,9 +2585,9 @@ bool automobil_t::ist_befahrbar(const grund_t *bd) const
 	}
 	if(!is_checker)
 	{
-		return check_way_constraints(*str);
+		return check_access(str) && check_way_constraints(*str);
 	}
-	return true;
+	return check_access(str);
 }
 
 
@@ -3150,40 +3185,60 @@ bool waggon_t::ist_befahrbar(const grund_t *bd) const
 {
 	if(!bd) return false;
 	schiene_t const* const sch = ding_cast<schiene_t>(bd->get_weg(get_waytype()));
+	if(  !sch  ) {
+		return false;
+	}
 
 	// Hajo: diesel and steam engines can use electrifed track as well.
 	// also allow driving on foreign tracks ...
 	const bool needs_no_electric = !(cnv!=NULL ? cnv->needs_electrification() : besch->get_engine_type() == vehikel_besch_t::electric);
 	
-	const bool ok = sch && (needs_no_electric || sch->is_electrified()) &&  (sch->get_max_speed() > 0 && check_way_constraints(*sch));
-	
-
-	if(!ok || !target_halt.is_bound() || !cnv->is_waiting()) 
+	if((!needs_no_electric  &&  !sch->is_electrified())  ||  sch->get_max_speed() == 0 || !check_way_constraints(*sch)) 
 	{
-		return ok;
+		return false;
 	}
 
-	else 
+	// now check for special signs
+	if(sch->has_sign()) {
+		const roadsign_t* rs = bd->find<roadsign_t>();
+		if(  rs->get_besch()->get_wtyp()==get_waytype()  ) {
+			if(  rs->get_besch()->get_min_speed() > 0  &&  rs->get_besch()->get_min_speed() > cnv->get_min_top_speed()  ) {
+				// below speed limit
+				return false;
+			}
+			if(  rs->get_besch()->is_private_way()  &&  (rs->get_player_mask() & (1<<get_player_nr()) ) == 0  ) {
+				// prvate road
+				return false;
+			}
+		}
+	}
+
+	if(  target_halt.is_bound()  &&  cnv->is_waiting()  ) 
 	{
 		// we are searching a stop here:
 		// ok, we can go where we already are ...
 		if(bd->get_pos() == get_pos()) 
 		{
-			return true;
+			return check_access(sch);
 		}
 		// we cannot pass an end of choose area
 		if(sch->has_sign()) 
 		{
 			const roadsign_t* rs = bd->find<roadsign_t>();
-			if(rs->get_besch()->get_wtyp()==get_waytype() && (rs->get_besch()->get_flags() & roadsign_besch_t::END_OF_CHOOSE_AREA))
+			if(  rs->get_besch()->get_wtyp()==get_waytype()  ) 
 			{
-				return false;
+				if(  rs->get_besch()->get_flags() & roadsign_besch_t::END_OF_CHOOSE_AREA  ) 
+				{
+					return false;
+				}
 			}
 		}
 		// but we can only use empty blocks ...
 		// now check, if we could enter here
-		return sch->can_reserve(cnv->self);
+		return check_access(sch) && sch->can_reserve(cnv->self);
 	}
+
+	return check_access(sch);
 }
 
 
@@ -3944,9 +3999,24 @@ bool schiff_t::ist_befahrbar(const grund_t *bd) const
 		// If there are permissive constraints, this vehicle cannot use the open water.
 		return besch->get_way_constraints().get_permissive() == 0;
 	}
-
+	// channel can have more stuff to check
 	const weg_t *w = bd->get_weg(water_wt);
-	return (w  &&  w->get_max_speed()>0 && check_way_constraints(*w));
+#if ENABLE_WATERWAY_SIGNS
+	if(  w  &&  w->has_sign()  ) {
+		const roadsign_t* rs = bd->find<roadsign_t>();
+		if(  rs->get_besch()->get_wtyp()==get_waytype()  ) {
+			if(  rs->get_besch()->get_min_speed() > 0  &&  rs->get_besch()->get_min_speed() > cnv->get_min_top_speed()  ) {
+				// below speed limit
+				return false;
+			}
+			if(  rs->get_besch()->is_private_way()  &&  (rs->get_player_mask() & (1<<get_player_nr()) ) == 0  ) {
+				// prvate road
+				return false;
+			}
+		}
+	}
+#endif
+	return (check_access(w)  &&  w->get_max_speed()>0 && check_way_constraints(*w));
 }
 
 

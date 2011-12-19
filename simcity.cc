@@ -2615,7 +2615,7 @@ void stadt_t::calc_growth()
 	 * (@author: jamespetts)
 	 */
 
-	//unused: sint64     const(& h)[MAX_CITY_HISTORY] = city_history_month[0];
+	sint64     const(& h)[MAX_CITY_HISTORY] = city_history_month[0];
 	settings_t const&  s           = welt->get_settings();
 
 	const uint8 electricity_multiplier = 20;
@@ -2914,7 +2914,7 @@ uint16 stadt_t::check_road_connexion(koord3d dest)
 	}
 	const sint32 speed_average = (speed_sum * 100) / (count * 13); // was (float)(speed_sum / ((float)count / 10.0F))  / 1.3F;
 	const uint32 journey_distance_m = private_car_route->get_count() *welt->get_settings().get_meters_per_tile();
-	const uint16 journey_time = (6 * journey_distance_m) / (10 * speed_average); // *Tenths* of minutes: hence *0.6, not *0.06.
+	const uint16 journey_time = speed_average == 0 ? 65535 : (6 * journey_distance_m) / (10 * speed_average); // *Tenths* of minutes: hence *0.6, not *0.06.
 	const uint16 straight_line_distance_tiles = shortest_distance(origin.get_2d(), dest.get_2d());
 	return journey_time / (straight_line_distance_tiles == 0 ? 1 : straight_line_distance_tiles);
 }
@@ -3314,7 +3314,7 @@ void stadt_t::step_passagiere()
 
 						// Now, decide whether passengers would prefer to use their private cars,
 						// even though they can travel by public transport.
-						//unused: const uint32 distance = shortest_distance(destinations[current_destination].location, origin_pos);
+						const uint32 distance = shortest_distance(destinations[current_destination].location, origin_pos);			
 						
 						//Weighted random.
 						const uint16 private_car_chance = (uint16)simrand(100, "void stadt_t::step_passagiere() (private car chance?)");
@@ -4099,6 +4099,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 				return; // Rathaus ist schon okay
 			}
 			old_layout = gb->get_tile()->get_layout();
+			const sint8 old_z = gb->get_pos().z;
 			koord pos_alt = best_pos = gr->get_pos().get_2d() - gb->get_tile()->get_offset();
 			// guess layout for broken townhall's
 			if(besch_alt->get_b() != besch_alt->get_h()  &&  besch_alt->get_all_layouts()==1) {
@@ -4120,17 +4121,18 @@ void stadt_t::check_bau_rathaus(bool new_town)
 			koord groesse_alt = besch_alt->get_groesse(old_layout);
 
 			// do we need to move
-			if (old_layout<=besch->get_all_layouts()  &&  besch->get_b(old_layout) <= groesse_alt.x  &&  besch->get_h(old_layout) <= groesse_alt.y) {
+			if(  old_layout<=besch->get_all_layouts()  &&  besch->get_b(old_layout) <= groesse_alt.x  &&  besch->get_h(old_layout) <= groesse_alt.y  ) {
 				// no, the size is ok
 				// correct position if new townhall is smaller than old
-				if (old_layout == 0) {
+				if(  old_layout == 0  ) {
 					best_pos.y -= besch->get_h(old_layout) - groesse_alt.y;
 				}
 				else if (old_layout == 1) {
 					best_pos.x -= besch->get_b(old_layout) - groesse_alt.x;
 				}
 				umziehen = false;
-			} else {
+			}
+			else {
 				// we need to built a new road, thus we will use the old as a starting point (if found)
 				if (welt->lookup_kartenboden(townhall_road)  &&  welt->lookup_kartenboden(townhall_road)->hat_weg(road_wt)) {
 					alte_str = townhall_road;
@@ -4149,13 +4151,13 @@ void stadt_t::check_bau_rathaus(bool new_town)
 				}
 			}
 			// remove old townhall
-			if (gb) {
+			if(  gb  ) {
 				DBG_MESSAGE("stadt_t::check_bau_rathaus()", "delete townhall at (%s)", pos_alt.get_str());
 				hausbauer_t::remove(welt, NULL, gb);
 			}
 
 			// replace old space by normal houses level 0 (must be 1x1!)
-			if (umziehen) {
+			if(  umziehen  ) {
 				for (k.x = 0; k.x < groesse_alt.x; k.x++) {
 					for (k.y = 0; k.y < groesse_alt.y; k.y++) {
 						// we iterate over all tiles, since the townhalls are allowed sizes bigger than 1x1
@@ -4171,11 +4173,13 @@ void stadt_t::check_bau_rathaus(bool new_town)
 			}
 			else {
 				// make tiles flat, hausbauer_t::remove could have set some natural slopes
-				for (k.x = 0; k.x < besch->get_b(old_layout); k.x++) {
-					for (k.y = 0; k.y < besch->get_h(old_layout); k.y++) {
+				for(  k.x = 0;  k.x < besch->get_b(old_layout);  k.x++  ) {
+					for(  k.y = 0;  k.y < besch->get_h(old_layout);  k.y++  ) {
 						gr = welt->lookup_kartenboden(best_pos + k);
-						if (gr  &&  gr->ist_natur()) {
+						if(  gr  &&  gr->ist_natur()  ) {
+							// make flat and use right height
 							gr->set_grund_hang(hang_t::flach);
+							gr->set_pos( koord3d( best_pos + k, old_z ) );
 						}
 					}
 				}
@@ -4243,7 +4247,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 			welt->get_message()->add_message(buf, best_pos, message_t::city, CITY_KI, besch->get_tile(layout, 0, 0)->get_hintergrund(0, 0, 0));
 		}
 		else {
-			welt->lookup_kartenboden(best_pos)->set_text( name );
+			welt->lookup_kartenboden(best_pos + offset)->set_text( name );
 		}
 
 		if (neugruendung || umziehen) {
@@ -4491,7 +4495,7 @@ void stadt_t::baue_gebaeude(const koord k, bool new_town)
 
 void stadt_t::erzeuge_verkehrsteilnehmer(koord pos, sint32 /*level*/, koord target)
 {
-	//unused: const int verkehr_level =welt->get_settings().get_verkehr_level();
+	const int verkehr_level = welt->get_settings().get_verkehr_level();
 	//if (verkehr_level > 0 && level % (17 - verkehr_level) == 0) {
 	if((sint32)current_cars.get_count() < number_of_cars)
 	{
@@ -4882,8 +4886,8 @@ void stadt_t::baue(bool new_town)
 	koord c( (ur.x + lo.x)/2 , (ur.y + lo.y)/2);
 	double maxdist(koord_distance(ur,c));
 	if (maxdist < 10) {maxdist = 10;}
-	uint32 was_renovated = 0;
-	uint32 try_nr = 0;
+	int was_renovated=0;
+	int try_nr = 0;
 	if (!buildings.empty() && simrand(100, "void stadt_t::baue") <= renovation_percentage  ) {
 		while (was_renovated < renovations_count && try_nr++ < renovations_try) { // trial an errors parameters
 			// try to find a public owned building

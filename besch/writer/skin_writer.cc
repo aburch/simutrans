@@ -18,7 +18,7 @@ void skin_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 		sprintf(buf, "image[%d]", i);
 
 		string str = obj.get(buf);
-		if (str.size() == 0) {
+		if (str.empty()) {
 			break;
 		}
 		keys.append(str);

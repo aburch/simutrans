@@ -14,6 +14,8 @@
 #include "kennfarbe.h"
 #include "../player/simplay.h"
 
+#include "../simwerkz.h"
+
 
 
 farbengui_t::farbengui_t(spieler_t *sp) :
@@ -56,22 +58,36 @@ farbengui_t::farbengui_t(spieler_t *sp) :
 bool farbengui_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 {
 	for(unsigned i=0;  i<28;  i++) {
-		// new player 1 color ?
+		// new player 1 colour ?
 		if(komp==player_color_1+i) {
 			for(unsigned j=0;  j<28;  j++) {
 				player_color_1[j].pressed = false;
 			}
 			player_color_1[i].pressed = true;
-			sp->set_player_color( i*8, sp->get_player_color2() );
+
+			// re-colour a player
+			cbuffer_t buf;
+			buf.printf( "1%u,%i", sp->get_player_nr(), i*8);
+			werkzeug_t *w = create_tool( WKZ_RECOLOUR_TOOL | SIMPLE_TOOL );
+			w->set_default_param( buf );
+			sp->get_welt()->set_werkzeug( w, sp );
+			// since init always returns false, it is save to delete immediately
+			delete w;
 			return true;
 		}
-		// new player color 2?
+		// new player colour 2?
 		if(komp==player_color_2+i) {
 			for(unsigned j=0;  j<28;  j++) {
 				player_color_2[j].pressed = false;
 			}
-			player_color_2[i].pressed = true;
-			sp->set_player_color( sp->get_player_color1(), i*8 );
+			// re-colour a player
+			cbuffer_t buf;
+			buf.printf( "2%u,%i", sp->get_player_nr(), i*8);
+			werkzeug_t *w = create_tool( WKZ_RECOLOUR_TOOL | SIMPLE_TOOL );
+			w->set_default_param( buf );
+			sp->get_welt()->set_werkzeug( w, sp );
+			// since init always returns false, it is save to delete immediately
+			delete w;
 			return true;
 		}
 	}

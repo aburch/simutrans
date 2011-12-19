@@ -9,6 +9,8 @@
 #include <stdlib.h>
 #include <time.h>
 
+#include <string>
+
 #include "network.h"
 #include "network_address.h"
 #include "network_socket_list.h"
@@ -19,6 +21,10 @@
 
 #ifndef NETTOOL
 #include "../dataobj/umgebung.h"
+#endif
+
+#ifdef NETTOOL
+#include "../tpl/vector_tpl.h"
 #endif
 
 #include "../utils/simstring.h"
@@ -87,8 +93,12 @@ bool network_initialize()
 }
 
 
-// open a socket or give a decent error message
-SOCKET network_open_address( const char *cp, long timeout_ms, const char * &err)
+/**
+ * Open a socket connected to a remote address
+ * In case of failure err is populated with a meaningful error
+ * @return a valid socket or INVALID_SOCKET if the connection fails
+ */
+SOCKET network_open_address( const char *cp, long timeout_ms, const char * &err )
 {
 	err = NULL;
 #ifdef USE_IP4_ONLY
@@ -126,7 +136,7 @@ SOCKET network_open_address( const char *cp, long timeout_ms, const char * &err)
 		}
 	}
 	if(!ok) {
-#else
+#else // _WIN32
 	/* inet_anon does not work on BeOS; but since gethostbyname() can
 	 * do this job on all other systems too, we use it only:
      * instead of if(inet_aton(cp,&server_name.sin_addr)==0) { // Bad address
@@ -157,7 +167,7 @@ SOCKET network_open_address( const char *cp, long timeout_ms, const char * &err)
 #ifdef  _WIN32
 		unsigned long opt =1;
 		ioctlsocket(my_client_socket, FIONBIO, &opt);
-#else
+#else // _WIN32
 		int opt;
 		if(  (opt = fcntl(my_client_socket, F_GETFL, NULL)) < 0  ) {
 			err = "fcntl error";
@@ -174,7 +184,7 @@ SOCKET network_open_address( const char *cp, long timeout_ms, const char * &err)
 			// WSAEWOULDBLOCK indicate, that it may still succeed
 			if (WSAGetLastError() != WSAEWOULDBLOCK) {
 				FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM,NULL,WSAGetLastError(),MAKELANGID(LANG_NEUTRAL,SUBLANG_NEUTRAL),err_str,sizeof(err_str),NULL);
-#else
+#else // _WIN32
 			// EINPROGRESS indicate, that it may still succeed
 			if(  errno != EINPROGRESS  ) {
 				sprintf( err_str, "Could not connect to %s", cp );
@@ -210,7 +220,7 @@ SOCKET network_open_address( const char *cp, long timeout_ms, const char * &err)
 #ifdef  _WIN32
 		opt = 0;
 		ioctlsocket(my_client_socket, FIONBIO, &opt);
-#else
+#else // _WIN32
 		opt &= (~O_NONBLOCK);
 		fcntl(my_client_socket, F_SETFL, opt);
 #endif // _WIN32
@@ -222,158 +232,345 @@ SOCKET network_open_address( const char *cp, long timeout_ms, const char * &err)
 			RET_ERR_STR;
 		}
 	}
-#else
+
+#else // USE_IP4_ONLY
+
 	// Address format e.g.: "128.0.0.1:13353" or "[::1]:80"
 	char address[1024];
 	static char err_str[256];
 	uint16 port = 13353;
-	const char *cp2 = strrchr(cp,':');
-	const char *cp1 = strrchr(cp,']');
+	const char *cp2 = strrchr( cp, ':' );
+	const char *cp1 = strrchr( cp, ']' );
 
-	if(cp1!=NULL  ||  cp2!=NULL) {
-		if(  cp2!=NULL  &&  cp2>cp1  ) {
-			port=atoi(cp2+1);
+	if (  cp1 != NULL  ||  cp2 != NULL  ) {
+		if (  cp2 != NULL  &&  cp2 > cp1  ) {
+			port = atoi( cp2 + 1 );
 		}
 		else {
-			cp2 = cp1+1;
+			cp2 = cp1 + 1;
 		}
-		if(  cp1  ) {
+		if (  cp1  ) {
 			// IPv6 addresse net:[....]:port
-			tstrncpy(address,cp+1,cp1-cp>=sizeof(address)?sizeof(address):cp1-cp);
+			tstrncpy( address, cp + 1, cp1 - cp >= sizeof(address) ? sizeof(address) : cp1 - cp);
 		}
 		else {
 			// Copy the address part
-			tstrncpy(address,cp,cp2-cp>31?31:cp2-cp+1);
+			tstrncpy( address, cp, cp2 - cp > 31 ? 31 : cp2 - cp + 1 );
 		}
 		cp = address;
 	}
 
-	// now activate network
-	if(  !network_initialize()  ) {
+	// Now activate network
+	if (  !network_initialize()  ) {
 		err = "Cannot init network!";
 		return INVALID_SOCKET;
 	}
 
-	char port_nr[8];
-	struct addrinfo hints;
-	memset(&hints, 0, sizeof(struct addrinfo));
-	hints.ai_family = PF_UNSPEC;
-	hints.ai_socktype = SOCK_STREAM;
-
-	struct addrinfo *res;
-	int ret;
-	sprintf( port_nr, "%u", port );
-	if ((ret = getaddrinfo(cp, port_nr, &hints, &res))!=0) {
-		sprintf( err_str, "Bad address %s", cp );
-		RET_ERR_STR;
-	}
-
 	SOCKET my_client_socket = INVALID_SOCKET;
-	struct addrinfo *walk;
-	for(  walk = res;  walk != NULL;  walk = walk->ai_next  ) {
-		my_client_socket = socket( walk->ai_family, walk->ai_socktype, walk->ai_protocol );
-		if (my_client_socket < 0){
-			/* actually not a valid socket ... */
+
+	bool connected = false;
+
+#ifdef NETTOOL
+
+	// Nettool doesn't have umgebung, so fake it
+	vector_tpl<std::string> ips;
+	ips.append_unique("::");
+	ips.append_unique("0.0.0.0");
+	for (  uint i = 0;  !connected  &&  i < ips.get_count();  i++  ) {
+		std::string ip = ips[i];
+
+#else // NETTOOL
+
+	// For each address in the list of listen addresses try and create a socket to transmit on
+	// Use the first one which works
+	for (  uint i = 0;  !connected  &&  i < umgebung_t::listen.get_count();  i++  ) {
+		std::string ip = umgebung_t::listen[i];
+
+#endif // NETTOOL
+
+		// Check address is valid
+		if (  ip.find(":") != std::string::npos  ) {
+			struct sockaddr_in6 sa;
+			if (  inet_pton( AF_INET6, ip.c_str(), &(sa.sin6_addr) ) <= 0  ) {
+				dbg->warning( "network_open_address()", "%s is not a valid IPv6 address, check listen directive in your simuconf.tab", ip.c_str() );
+				continue;
+			}
+		}
+		else {
+			struct sockaddr_in sa;
+			if (  inet_pton( AF_INET, ip.c_str(), &(sa.sin_addr) ) <= 0  ) {
+				dbg->warning( "network_open_address()", "%s is not a valid IPv4 address, check listen directive in your simuconf.tab", ip.c_str() );
+				continue;
+			}
+		}
+
+		int ret;
+		char port_nr[8];
+		sprintf( port_nr, "%u", port );
+
+		// Set up remote addrinfo
+		struct addrinfo *remote;
+		struct addrinfo remote_hints;
+		memset( &remote_hints, 0, sizeof( struct addrinfo ) );
+		remote_hints.ai_socktype = SOCK_STREAM;
+		remote_hints.ai_family = PF_UNSPEC;
+
+		// Test remote address to ensure it is valid
+		// Fill out remote address structure
+		if (  (ret = getaddrinfo( cp, port_nr, &remote_hints, &remote) ) != 0  ) {
+			sprintf( err_str, "Bad address %s", cp );
+			RET_ERR_STR;
+		}
+
+		// Set up local addrinfo
+		struct addrinfo *local;
+		struct addrinfo local_hints;
+		memset( &local_hints, 0, sizeof( struct addrinfo ) );
+		local_hints.ai_socktype = SOCK_STREAM;
+
+		// Insert listen address into local_hints struct to influence local address to bind to
+		DBG_MESSAGE( "network_open_address()", "Preparing to bind address: %s", ip.c_str() );
+		local_hints.ai_family = PF_UNSPEC;
+		if (  (ret = getaddrinfo( ip.c_str(), 0, &local_hints, &local )) != 0  ) {
+			dbg->error( "network_open_address()", "Failed to getaddrinfo for %s, error was: %s", ip.c_str(), gai_strerror(ret) );
 			continue;
 		}
-		if(  connect(my_client_socket, walk->ai_addr, walk->ai_addrlen) != 0  ) {
-			network_close_socket(my_client_socket);
-			my_client_socket = INVALID_SOCKET;
-			/* could not connect with this! */
-			continue;
+
+		// Now try and open a socket to communicate with our remote endpoint
+		struct addrinfo *walk_local;
+		for(  walk_local = local;  !connected  &&  walk_local != NULL;  walk_local = walk_local->ai_next  ) {
+			my_client_socket = socket( walk_local->ai_family, walk_local->ai_socktype, walk_local->ai_protocol );
+
+			char ipstr_local[INET6_ADDRSTRLEN];
+			switch( walk_local->ai_addr->sa_family ) {
+				case AF_INET:
+					inet_ntop( AF_INET, &(((struct sockaddr_in *)walk_local->ai_addr)->sin_addr), ipstr_local, sizeof ipstr_local );
+					break;
+
+				case AF_INET6:
+					inet_ntop( AF_INET6, &(((struct sockaddr_in6 *)walk_local->ai_addr)->sin6_addr), ipstr_local, sizeof ipstr_local );
+					break;
+
+				default:
+					continue;
+			}
+			DBG_MESSAGE( "network_open_address()", "Potential local address: %s", ipstr_local );
+
+
+			if (  my_client_socket == INVALID_SOCKET  ) {
+				DBG_MESSAGE( "network_open_address()", "Invalid socket, skipping..." );
+				continue;
+			}
+
+			// Bind socket to local IP
+			if (  bind( my_client_socket, local->ai_addr, local->ai_addrlen )  ) {
+				DBG_MESSAGE( "network_open_address()", "Unable to bind socket to local IP address!" );
+				continue;
+			}
+
+			// For each address in remote, try and connect
+			struct addrinfo *walk_remote;
+			for(  walk_remote = remote;  !connected  &&  walk_remote != NULL;  walk_remote = walk_remote->ai_next  ) {
+
+				char ipstr_remote[INET6_ADDRSTRLEN];
+				switch( walk_remote->ai_addr->sa_family ) {
+					case AF_INET:
+						inet_ntop( AF_INET, &(((struct sockaddr_in *)walk_remote->ai_addr)->sin_addr), ipstr_remote, sizeof ipstr_remote );
+						break;
+
+					case AF_INET6:
+						inet_ntop( AF_INET6, &(((struct sockaddr_in6 *)walk_remote->ai_addr)->sin6_addr), ipstr_remote, sizeof ipstr_remote );
+						break;
+
+					default:
+						continue;
+				}
+				DBG_MESSAGE( "network_open_address()", "Potential remote address: %s", ipstr_remote );
+
+				if (  connect( my_client_socket, walk_remote->ai_addr, walk_remote->ai_addrlen ) != 0  ) {
+					DBG_MESSAGE( "network_open_address()", "Could not connect using this socket." );
+					continue;
+				}
+				connected = true;
+			}
+			// If no connection throw away this socket and try the next one
+			if (  !connected  ) {
+				network_close_socket( my_client_socket );
+				my_client_socket = INVALID_SOCKET;
+			}
 		}
-		break;
+
+		freeaddrinfo( local );
+		freeaddrinfo( remote );
 	}
 
-	freeaddrinfo(res);
-	if (my_client_socket == INVALID_SOCKET) {
+	if (  my_client_socket == INVALID_SOCKET  ) {
 		sprintf( err_str, "Could not connect to %s", cp );
 		RET_ERR_STR;
 	}
+
 	(void) timeout_ms;
 #endif // USE_IP4_ONLY
 	return my_client_socket;
 }
 
 
-// if sucessful, starts a server on this port
+/**
+ * Start up server on the port specified
+ * Server will listen on all addresses specified in umgebung_t::listen
+ * @return true on success
+ */
 bool network_init_server( int port )
 {
-	network_initialize();
+	// First activate network
+	if (  !network_initialize()  ) {
+		dbg->fatal( "network_init_server()", "Failed to initialize network!" );
+	}
+
 #ifdef USE_IP4_ONLY
-	SOCKET my = socket(PF_INET, SOCK_STREAM, 0);
-	if(  my==INVALID_SOCKET  ) {
-		dbg->fatal("init_server()", "Fail to open socket!");
+
+	SOCKET my = socket( PF_INET, SOCK_STREAM, 0 );
+	if (  my == INVALID_SOCKET  ) {
+		dbg->fatal( "network_init_server()", "Failed to open socket!" );
 		return false;
 	}
 
 	struct sockaddr_in name;
 	name.sin_family = AF_INET;
-	name.sin_port = htons(port);
-	name.sin_addr.s_addr = htonl(INADDR_ANY);
-	if(  bind(my, (struct sockaddr *)&name, sizeof(name))==-1  ) {
-		dbg->fatal("init_server()", "Bind failed!");
+	name.sin_port = htons( port );
+	name.sin_addr.s_addr = htonl( INADDR_ANY );
+
+	if (  bind( my, (struct sockaddr *)&name, sizeof( name ) ) == -1  ) {
+		dbg->fatal( "network_init_server()", "Bind failed!" );
 		return false;
 	}
 
-	if(  listen(my, MAX_PLAYER_COUNT /* max pending connections */)==-1  ) {
-		dbg->fatal("init_server()", "Listen failed for %i sockets!", MAX_PLAYER_COUNT );
+	/* Max pending connections */
+	if (  listen( my, MAX_PLAYER_COUNT ) == -1  ) {
+		dbg->fatal( "network_init_server()", "Listen failed for %i sockets!", MAX_PLAYER_COUNT );
 		return false;
 	}
 
 	socket_list_t::add_server( my );
-#else
-	struct addrinfo *res;
-	struct addrinfo hints;
-	memset(&hints, 0, sizeof(struct addrinfo));
-	hints.ai_family = PF_UNSPEC;
-	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_flags = AI_PASSIVE;
-	int ret;
-	char port_nr[16];
-	sprintf( port_nr, "%u", port );
-	if((ret = getaddrinfo(NULL, port_nr, &hints, &res)) != 0) {
-		dbg->fatal("init_server()", "Fail to open socket!");
-	}
 
-	SOCKET fd;
-	struct addrinfo *walk;
-	for (walk = res; walk != NULL; walk = walk->ai_next) {
-		fd = socket(walk->ai_family, walk->ai_socktype, walk->ai_protocol);
-		if (fd == INVALID_SOCKET) {
-			continue;
+#else // USE_IP4_ONLY
+
+#ifdef NETTOOL
+
+	// Nettool doesn't have umgebung, so fake it
+	vector_tpl<std::string> ips;
+	ips.append_unique("::");
+	ips.append_unique("0.0.0.0");
+	for (  uint i = 0;  i < ips.get_count();  i++  ) {
+		std::string ip = ips[i];
+
+#else // NETTOOL
+
+	// For each address in the list of listen addresses try and create a socket to listen on
+	for (  uint i = 0;  i < umgebung_t::listen.get_count();  i++  ) {
+		std::string ip = umgebung_t::listen[i];
+
+#endif // NETTOOL
+
+		// Check address is valid
+		if (  ip.find(":") != std::string::npos  ) {
+			struct sockaddr_in6 sa;
+			if (  inet_pton( AF_INET6, ip.c_str(), &(sa.sin6_addr) ) <= 0  ) {
+				dbg->warning( "network_init_server()", "%s is not a valid IPv6 address, check listen directive in your simuconf.tab", ip.c_str() );
+				continue;
+			}
 		}
-
-		if (walk->ai_family == AF_INET6) {
-			int on = 1;
-			if (setsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY, (char*)&on, sizeof(on)) == -1) {
-				// only use real IPv6 sockets for IPv6
+		else {
+			struct sockaddr_in sa;
+			if (  inet_pton( AF_INET, ip.c_str(), &(sa.sin_addr) ) <= 0  ) {
+				dbg->warning( "network_init_server()", "%s is not a valid IPv4 address, check listen directive in your simuconf.tab", ip.c_str() );
 				continue;
 			}
 		}
 
-		if (bind(fd, walk->ai_addr, walk->ai_addrlen)) {
-			/* Hier kann eine Fehlermeldung hin, z.B. mit warn() */
-			continue;
+		int ret;
+		char port_nr[16];
+		sprintf( port_nr, "%u", port );
+
+		struct addrinfo *server;
+		struct addrinfo hints;
+		memset( &hints, 0, sizeof( struct addrinfo ) );
+		hints.ai_socktype = SOCK_STREAM;
+
+		// Insert potential listen address into hints struct to influence local address to bind to
+		DBG_MESSAGE( "network_init_server()", "Preparing to bind address: %s", ip.c_str() );
+		hints.ai_family = PF_UNSPEC;
+		if (  (ret = getaddrinfo( ip.c_str(), port_nr, &hints, &server )) != 0  ) {
+			dbg->error( "network_init_server()", "Failed to getaddrinfo for %s, error was: %s", ip.c_str(), gai_strerror(ret) );
 		}
 
-		if (listen(fd, 32) == -1) {
-			/* Hier kann eine Fehlermeldung hin, z.B. mit warn() */
-			continue;
-		}
 
-		socket_list_t::add_server( fd );
+		SOCKET server_socket;
+		struct addrinfo *walk;
+		for (  walk = server;  walk != NULL;  walk = walk->ai_next  ) {
+			server_socket = socket( walk->ai_family, walk->ai_socktype, walk->ai_protocol );
+			char ipstr[INET6_ADDRSTRLEN];
+			switch( walk->ai_addr->sa_family ) {
+				case AF_INET:
+					inet_ntop( AF_INET, &(((struct sockaddr_in *)walk->ai_addr)->sin_addr), ipstr, sizeof ipstr );
+					break;
+
+				case AF_INET6:
+					inet_ntop( AF_INET6, &(((struct sockaddr_in6 *)walk->ai_addr)->sin6_addr), ipstr, sizeof ipstr );
+					break;
+
+				default:
+					continue;
+			}
+			DBG_MESSAGE( "network_init_server()", "Potential bind address: %s", ipstr );
+
+			if (  server_socket == INVALID_SOCKET  ) {
+				DBG_MESSAGE( "network_init_server()", "Invalid socket, skipping..." );
+				continue;
+			}
+
+			if (  walk->ai_family == AF_INET6  ) {
+				int on = 1;
+				if (  setsockopt(server_socket, IPPROTO_IPV6, IPV6_V6ONLY, (char*)&on, sizeof(on)) == -1  ) {
+					// only use real IPv6 sockets for IPv6
+					DBG_MESSAGE( "network_init_server()", "Not a real IPv6 socket, skipping..." );
+					continue;
+				}
+			}
+
+			if (  bind( server_socket, walk->ai_addr, walk->ai_addrlen )  ) {
+				/* Hier kann eine Fehlermeldung hin, z.B. mit warn() */
+				DBG_MESSAGE( "network_init_server()", "Unable to bind socket to IP address!" );
+				continue;
+			}
+
+			if (  listen( server_socket, 32 ) == -1  ) {
+				/* Hier kann eine Fehlermeldung hin, z.B. mit warn() */
+				DBG_MESSAGE( "network_init_server()", "Unable to set socket to listen for incoming connections!" );
+				continue;
+			}
+
+			socket_list_t::add_server( server_socket );
+		}
+		freeaddrinfo( server );
 	}
-	freeaddrinfo(res);
 
-	dbg->message("network_init_server", "added server %d sockets", socket_list_t::get_server_sockets());
-#endif
+	// Fatal error if no server sockets could be opened, since we're supposed to be a server!
+	if (  socket_list_t::get_server_sockets() == 0  ) {
+		dbg->fatal( "network_init_server()", "Unable to add any server sockets!" );
+	}
+	else {
+		dbg->message( "network_init_server()", "added %d server sockets", socket_list_t::get_server_sockets() );
+	}
+
+#endif // USE_IP4_ONLY
+
 	network_server_port = port;
 	client_id = 0;
 	clear_command_queue();
 #ifndef NETTOOL
 	nwc_ready_t::clear_map_counters();
-#endif
+#endif // NETTOOL
 
 	return true;
 }

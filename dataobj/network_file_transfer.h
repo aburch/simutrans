@@ -23,6 +23,10 @@ const char *network_send_file( uint32 client_id, const char *filename );
 // receive file
 char const* network_receive_file(SOCKET const s, char const* const save_as, long const length);
 
+// POST message data in poststr to an HTTP server and then receive the response
+// The response is saved to file given by localname, closes the connection afterwards
+const char *network_http_post( const char *address, const char *name, const char *poststr, const char *localname );
+
 // connect to address with path name, receive to localname, close
 const char *network_download_http( const char *address, const char *name, const char *localname );
 

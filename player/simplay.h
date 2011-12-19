@@ -41,6 +41,7 @@ enum player_cost {
 	COST_TRANSPORTED_GOOD,
 	COST_ALL_CONVOIS,		// number of convois
 	COST_SCENARIO_COMPLETED,// scenario success (only useful if there is one ... )
+	COST_WAY_TOLLS,			// The cost of running on other players' ways
 	COST_INTEREST,			// Interest paid servicing debt
 	COST_CREDIT_LIMIT,		// Player's credit limit.
 	MAX_PLAYER_COST
@@ -142,7 +143,7 @@ protected:
 	uint8 kennfarbe1, kennfarbe2;
 
 	/**
-	 * Player number; only player 0 can do interaction
+	 * Player number
 	 * @author Hj. Malthaner
 	 */
 	uint8 player_nr;
@@ -154,13 +155,20 @@ protected:
 	bool automat;
 
 	/**
-	 * Are this player allowed to do any changes?
+	 * Are this player allowed to make any changes?
 	 * @author Hj. Malthaner
 	 */
 	bool locked;
 
 	// contains the password hash for local games
 	pwd_hash_t pwd_hash;
+
+	/**
+	 * Allow access to the player number
+	 * in the array.
+	 * @author: jamespetts, October 2011
+	 */
+	bool access[MAX_PLAYER_COUNT];
 
 public:
 	virtual bool set_active( bool b ) { return automat = b; }
@@ -415,7 +423,7 @@ protected:
 public:
 	void init_undo(waytype_t t, unsigned short max );
 	void add_undo(koord3d k);
-	bool undo();
+	sint64 undo();
 
 	// Checks the affordability of any possible purchase.
 	// Check is disapplied to the public service player.
@@ -441,6 +449,19 @@ public:
 	short get_headquarter_level(void) const { return headquarter_level; }
 
 	void ai_bankrupt();
+
+	/**
+	 * Used for summing the revenue 
+	 * generatedfor this player by other  
+	 * players' convoys whilst unloading.
+	 * This value is not saved, as it is not
+	 * carried over between sync steps.
+	 * @author: jamespetts, October 2011
+	 */
+	sint64 interim_apportioned_revenue;
+
+	bool allows_access_to(uint8 player_nr) const { return access[player_nr]; }
+	void set_allow_access_to(uint8 player_nr, bool allow) { access[player_nr] = allow; }
 };
 
 #endif

@@ -270,7 +270,7 @@ int dr_os_open(int const w, int const h, int const fullscreen)
 
 	set_window_title("Simutrans");
 
-	return TRUE;
+	return w;
 }
 
 
