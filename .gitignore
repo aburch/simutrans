@@ -30,6 +30,7 @@ ipch
 /maps
 Pak*
 pak*
+/text
 text*
 settings.xml
 simutrans-experimental
