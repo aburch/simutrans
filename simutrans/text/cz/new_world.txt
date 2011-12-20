@@ -1,0 +1,71 @@
+<title>Nápovìda - nová mapa</title>
+<h1>Nová mapa</h1>
+
+<p>
+Dialog nová mapa vám poskytuje mo¾nost vytvoøit si mapu podle vlastních pøedstav. Mù¾ete ovlivnit reliéf mapy, hustotu prùmyslu, poèet mìst aj.
+</p>
+
+<p>
+Ní¾e následuje krátký popis jednotlivých nastavení nové mapy:
+</p>
+
+<p>
+<em>Èíslo mapy</em> - Urèuje reliéf mapy - kde jsou hory, voda atp.
+</p>
+
+<p>
+<em>Velikost mapy</em> - Urèuje, jak bude mapa velká, tzn. kolik bude mít ètvereèkù. Od 128x128, a¾ po 640x640. Standardnì je nastaveno 256x256.<br>
+<em>Dùle¾ité:</em> Velké mapy jsou hodnì nároèné na pamì», zva¾te proto, zda máte dostateènì velkou operaèní pamì», aby hra fungovala plynule.
+</p>
+
+<p>
+<em>Hustota prùmyslu</em> - Urèuje, jaká bude hustota prùmyslu - továren, obchodù aj. - na generované mapì. Pokud si chcete hru ztí¾it, nastavte malé èíslo, bude potom obtí¾nìj¹í propojit prùmysl.
+</p>
+
+<p>
+<em>Poèet mìst</em> - Urèuje poèet mìst na mapì. Dostupné nastavení je od 2 a¾ do 64 mìst. Standardnì je nastaveno 8.
+</p>
+
+<p>
+<em>Hustota provozu</em> - Hustota soukromých aut ve mìstech. Standardnì je nastaveno 8. Doporuèujeme si zvolit malé èíslo, pøíli¹ná hustota není vhodná. Pozdìji mohou pøeká¾et va¹im vozidlùm.
+</p>
+
+<p>
+<em>Úroveò vody</em> - Nastavuje, jak vysoko bude voda nad dnem. Pøi nízkém èísle moho být na mapì zálivy a prùlivy.
+</p>
+
+<p>
+<em>Vý¹ka hor</em> -  Urèuje velikost nejvy¹¹ích hor na mapì. Dostupné nastavení je od 0 a¾ do 160. Nízké nastavení vytvoøí malé kopce a prùsmyky.
+</p>
+
+<p>
+<em>Zaoblení mapy</em> - Hodnota, která urèuje, jak hladké bude pøechody mezi hranami reliéfu.
+</p>
+
+<p>
+<em>Náhodná mapa</em> -  Vybere náhodnou mapu (èíslo mapy). Neovlivòuje ostatní nastavení.
+</p>
+
+<p>
+<em>Zobrazovat chodce</em> - Nastaví, zda budou zobrazováni chodci. Toto nastavení je mo¾né zmìnit bìhem hry v dialogu <a href="display.txt">zobrazení</a>.
+</p>
+
+<p>
+<em>Støídat den a noc</em> - Zapne mód støídání dne a noci. Toto nastavení je mo¾né zmìnit bìhem hry v dialogu <a href="display.txt">zobrazení</a>.
+</p>
+
+<p>
+<em>Naèíst</em> - Zobrazí dialog pro <a href="load.txt">naètení hry</a>.
+</p>
+
+<p>
+<em>Zaèít hru</em> - Vytvoøí novou mapu podle nastavení. Pokud je nastavena velká mapa èi jsou nastaveny velké hodnoty napø. poètu mìst èi husoty prùmyslu, vytváøení zabere del¹í dobu.
+</p>
+
+<p>
+<em>Konec</em> - Ukonèí hru bez dal¹ího potvrzení.
+</p>
+
+<p>
+-><a href="about.txt">Informace o pøekladu</a>
+</p>

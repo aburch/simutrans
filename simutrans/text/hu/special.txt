@@ -1,0 +1,36 @@
+<title>Speciális eszközök Sugó</title>
+
+<h1>Speciális eszközök</h1>
+<p>
+Itt találhatók azok az eszközök melyekkel a posta szállítási vonalakat felépítheted, illetve olyan eszközök melyekkel az egyes állomások, megállók/rakodóudvarok kapacitását megnövelheted.
+</p>
+<p>
+Eszközök:
+<br>
+<br>
+<em>- Posta:</em> több fajta postai épületet lehet építeni.
+<br>
+<br>
+<em>- Egy állomás kapacitását növelõ épületek:</em> ezeket az épületeket egy már meglévõ megálló vagy állomás mellé kell építeni.
+<br>
+<br>
+<em>- Játékos váltás:</em> nagy P betûvel válthatsz az AI vezérelte játékosok és magad álltal kontrolált játékos között. Azt, hogy épp melyék játékos aktív az a képernyõ alján látható. Illetve itt érhetõek el egyébb <a href="edittools.txt">"Szerkesztõ"</a> eszközök.
+<br>
+<br>
+<em>- Új város alapítása:</em> ezt az eszközt kell alkalmazs, ha egy teljesen új várost akarsz építeni.
+<br>
+<br>
+<em>- Faültetés:</em> minél több fát ültetsz annál nyereségesebb az egész rendszer.
+<br>
+<br>
+<em>- Elektromos hálózat építése:</em> ezzel az eszközzel építheted ki az elektromos hálózatodat. A vezetékek a termelõegységekhez egy Trafóállomáson keresztül csatlakoznak.
+<br>
+<br>
+<em>- Trafóállomás építése:</em> ez az eszköz szükséges a Trafóállomások felépítéséhez. A Trafóállomást közel kell építeni a termelõ egységekhez. A villamos vezetékek ide kell csatlakozzanak.
+<br>
+<br>
+<em>- Jelzõtábla:</em> a térképen jelzõtáblákat helyezhetsz el a jobb tájékozódást elõsegítve.
+</p>
+<p>
+
+</p>

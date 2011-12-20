@@ -1,0 +1,35 @@
+<title>Lists Help</title>
+
+<h1><strong>Lists</strong></h1>
+
+<p>
+<strong>Lists</strong> has options to open controls for information about the current status of the game (and also a control to adjust relative income recieved from the transport of different <a href="goods_filter.txt">goods, passengers & mail</a>).
+</p>
+<p>
+Information is available for a player in lists about: <a href="station.txt">Stops</a>; <a href="convoiinfo.txt">Convoys</a>; <a href="citywindow.txt">urban areas</a>; incomes received from different <a href="goods_filter.txt">goods</a>, passengers & mail; <a href="industry_info.txt">industry</a>; and tourist attractions.
+</p>
+<p>
+Click on list-icon at top of game-view to open <strong>Lists</strong>.<br>
+Hover mouse-cursor, after opening or clicking on toolbar, over list-tool-option to see name.
+</p>
+<p>
+Click on tool-option to open controls for information, from left to right, about:
+</p>
+<p>
+<a href="haltlist.txt"><em>Station List:</em></a> <a href="station.txt">Stops</a>, where vehicles pick-up and drop-off goods & passengers (but not Stops just for water-transport-vehicles).
+</p>
+<p>
+<a href="convoi.txt"><em>Vehicle List:</em></a> road and rail <a href="convoiinfo.txt">vehicles</a>, aircraft and boats.
+</p>
+<p>
+<a href="citylist_filter.txt"><em>List of all towns:</em></a> <a href="citywindow.txt">urban areas</a> (villages, towns and cities).
+</p>
+<p>
+<a href="goods_filter.txt"><em>List of all goods:</em></a> incomes received from different goods, passengers & mail (includes control to adjust relative income).
+</p>
+<p>
+<a href="factorylist_filter.txt"><em>Factory List:</em></a> <a href="industry_info.txt">industry</a> (consumers and suppliers of goods).
+</p>
+<p>
+<a href="curiositylist_filter.txt"><em>Attraction List:</em></a> tourist attractions.
+</p>

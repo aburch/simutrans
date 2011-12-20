@@ -1,0 +1,67 @@
+<title>MiniKaart Help (Nederlands)</title>
+
+<h1><strong>MiniKaart</strong></h1>
+
+<p>
+De <strong>MiniKaart</strong> toont een overzicht van de simutrans wereld. Het geeft informatie over het terrein, belangrijke locaties en de transportinfrastructuur. Daarnaast geeft het de mogelijkheid het speel-scherm naar een andere positie van de simutrans wereld te verplaatsen.
+</p>
+<p>
+Klik op het MiniKaart icoon in het menu of druk op de <a href="keys.txt">[m]</a> toets om het MiniKaart scherm te openen.
+Met behulp van de rechts/links pijltjes kan de minikaart in 7 stappen in- en uitgezoomd worden. De knop [<em>#</em> ] <em>isometric view</em> toont de minikaart gelijk aan het het speel-scherm.
+</p>
+<p>
+Het minikaartscherm heeft drie optieknoppen: <em>toon legenda</em>; <em>toon schaal</em> en <em>toon industriën</em>
+</p>
+
+<p>
+Water is blauw op de kaart en het land groen. Het hoogte- (land) en diepte- (water) niveau wordt weergegeven in lichtere en donkere tinten. Het gedeelte van de simutranswereld dat zichtbaar is wordt op de minikaart aangegeven door een geel kader.
+</p>
+<p>
+Links-klik, of links-klik en sleep het kader op de minikaart om het speel-scherm snel door de simutrans wereld te verplaatsen.
+</p>
+<p>
+Als de muis-cursor op een <a href="industry_info.txt">industrie</a> op de minikaart wordt geplaatst, wordt de naam getoond en worden witte lijntjes getoond naar afnemende industriën. Als eerst de [Shift] wordt ingedrukt wordt m.b.v. rode lijntjes de aanleverende industriën aangegeven.
+</p>
+<p>
+<a href="citywindow.txt">Steden en dorpen</a>, attracties, tunnels en kanalen worden donker grijs weergegeven; wegen zwart; spoor- en tramlijnen grijs; bruggen licht grijs; <a href="station.txt">stations/haltes</a> rood/geel; monorail- en maglevlijnen oranje; luchthavens wit en voertuigen geel.
+</p>
+<p>
+Op de minikaart kan extra detailinformatie gegeven worden. Klik hiervoor op [<em>toon legenda</em>]. Er verschijnt nu een hele serie extra optie-knoppen waarmee de informatie die op de minikaart getoond wordt in- en uitgeschakeld kan worden. Een aantal opties maakt gebruik van een min-max schaal. De min-max schaal kan met behulp van de knop [<em>toon schaal</em>] zichtbaar/verborgen worden.<br><br>
+
+De volgende opties zijn beschikbaar:
+</p>
+<p>
+<it>Plaatsnamen:</it> namen van <a href="citywindow.txt">steden en dorpen</a>.<br>
+
+<it>Passagiers:</it> gebieden die voorzien zijn van <a href="station.txt">stations en haltes</a> voor passagiersvervoer.<br>
+
+<it>Post:</it> gebieden die voorzien zijn van <a href="station.txt">stations en haltes</a> voor postvervoer.<br>
+
+<it>Vracht:</it>aantallen passagiers en/of goederen op het spoor of de weg (min-max schaal).<br>
+
+<it>Halte status:</it> operationele status van de <a href="station.txt">stations/haltes</a>. De status wordt als volgt weergegeven:<br>
+geel: halte/station niet opgenomen in een route;  groen: status OK;
+oranje: station/halte druk. Actie nemen wordt aangeraden; rood: station/halte overvol. Actie nemen noodzakelijk.<br>
+
+<it>Service:</it> aantallen passagiers en/of goederen dat gebruik maakt van een <a href="station.txt">station of halte</a>(min-max schaal).<br>
+
+<it>Verkeer:</it> aantallen <a href="convoiinfo.txt">voertuigen</a> op het spoor of de weg (min-max schaal).<br>
+
+<it>Herkomst:</it> aantallen passagiers en/of goederen dat het <a href="station.txt">station/halte</a> als beginpunt heeft (min-max schaal).<br>
+
+<it>Bestemming:</it> aantallen passagiers en/of goederen dat het <a href="station.txt">station/halte</a> als eindpunt heeft (min-max schaal).<br>
+
+<it>Wachtend:</it> aantallen passagiers en/of goederen dat bij het <a href="station.txt">station/halte</a> wacht op vervoer (min-max schaal).<br>
+
+<it>Spoorwegen:</it> trein- en tramrails; -bruggen; -tunnels en -seinen (kleur: wit of rood indien geëlectrificeerd; seinen: geel).<br>
+
+<it>Max snelheid:</it> maximaal toegestane snelheid op spoorwegen en wegen (min-max schaal).<br>
+
+<it>HSP leidingen:</it> <a href="special.txt">hoogspanningsleidingen</a> in de simutranswereld. De kleur is een indicatie voor het vermogen dat getransporteerd wordt (min-max schaal).<br>
+
+<it>Attracties:</it> positie van toeristische attracties in de simutranswereld. Tevens toont het de aantallen passagiers dat gegenereerd wordt door attracties (min-max schaal).<br>
+
+<it>Fabrieken:</it> positie van <a href="industry_info.txt">industriën</a> in de simutranswereld. De verschillende soorten industriën hebben verschillende kleuren. Klik voor de gedefinieerde kleuren op [<em>toon industriën</em>].<br>
+
+<it>Depots:</it> positie van <a href="depot.txt">depots</a> in de simutranswereld. De kleuren duiden op verschillende typen. Schepen:geel; bus/truck:oranje; trein:rood; vliegtuigen:groen; trams:blauw; en monorail/maglev:grijs.
+</p>

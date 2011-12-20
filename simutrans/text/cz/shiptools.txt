@@ -1,0 +1,22 @@
+<title>Nápovìda - lodní doprava</title>
+<h1>Lodní doprava</h1>
+
+<p>
+Tento dialog vám umo¾òuje stavìt doky a pøístavy.
+</p>
+
+<p>
+První je symbol pøístavù. Kliknutím na nìj se vám kurzor zmìní v obrázek pøístavu. Pøístavy dovolují naloïovat cestující a zbo¾í z nedalekých továren a mìst. Ke stavbì pøístavu si vyberte místo na konci pevniny, které pøechází na vodu. Lze také stavìt velké pøístavy - musí se v¹ak navzájem dotýkat, èi být jinak spojeny - napø. ¾eleznièní zastávkou.
+</p>
+
+<p>
+K nastavení lodní zastávky musíte vybrat políèko, které je pøímo pøed pøístavem, ne v¹ak samotný pøístav!<strong>Buïte rozvá¾ní se stavbou pøístavù, odstraòování pøístavù je¹tì není zcela funkèní!</strong>
+</p>
+
+<p>
+Dva podobné symboly jsou pro stavbu doku, rozdíl je pouze v jejich orientaci, severní nebo východní. Kliknutím na jeden z nich se vám kurzor zmìní v obrázek doku. Doky jsou urèeny pro nákup v¹ech dostupných typù lodí, a pro správu lodí zde zaparkovaných (prodávání, nastavování linek a jízdního plánu aj.). Ke stavbì si vyberte místo na vodì, které chcete, mù¾e to být jakýkoliv vodní ètverec.
+</p>
+
+<p>
+-><a href="about.txt">Informace o pøekladu</a>
+</p>

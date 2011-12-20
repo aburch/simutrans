@@ -1,0 +1,17 @@
+<title>Farve vælger hjælp</title>
+
+<h1>Farve vælger</h1>
+
+<p>
+<em>Udseende:</em><br>
+Dialogen består af en tekst med tilhørende farvepalette, hvor en farve vælges
+ved at venstreklikke på farven.
+</p>
+
+<p>
+<em>Beskrivelse:</em><br>
+Her kan du vælge din firmafarve. Firmafarven er den farve, som alle dine
+besiddelser såsom toge, bygninger etc. vil have. Bemærk venligst, at ikke alle
+objekter vil være "farvekodet". Det er et valg, der er overladt til den
+respektive designer.
+</p>

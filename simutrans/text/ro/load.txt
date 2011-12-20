@@ -1,0 +1,15 @@
+<title>Help Încarcã</title>
+
+<h1>Încãrcarea jocurilor salvate:</h1>
+
+<p>
+Sub opþiunea  "Încarcã" poþi gãsi  jocurele deja salvate. Butoanele au
+aceeaºi semnificaþie ca ºi sub meniul <a href="save.txt">"Salvare"</a>
+</p>
+
+<p>Dacã se încarcã un joc care deja nu mai existã va apãrea un mesaj
+de eroare.</p>
+
+<p><em>Important!</em> Jocurile salvate în versiunile mai vechi ale Simutrans
+probabil nu pot fi utilizate sub versiunile noi ale jocului.
+</p>

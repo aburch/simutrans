@@ -1,0 +1,24 @@
+<title>Nбpovмda - o pшekladu</title>
+
+<h1>О переводе</h1>
+
+<p>
+Данный перевод игры Simutrans выполнил <strong>Семиченков Александр</strong>.<br>
+Все комментарии, замечания, предложения и сообщения об ошибках направляйте по адресу электронной почты deep-dream@narod.ru или в ICQ 130901822.
+</p>
+
+<p>
+Официальная страница Simutrans находится по адресу <strong>http://simutrans.de</strong>.<br>
+Информацию на русском языке можно получить по адресу: <strong>http://russian.simutrans.com</strong>,
+где можно получить актуальный перевод, дополнительную информацию и справку о Simutrans,
+о последних версиях и там же находится русскоязычный форум <strong>http://russian.simutrans.com/forum/</strong>...
+</p>
+
+<p>
+Дата обновления данного перевода: 02.01.2005 г.<br>
+Актуально для версии Simutrans: 0.84.19.0 beta<br>
+</p>
+
+<p>
+<strong>Simutrans (c) Hj. Malthaner</strong>
+</p>

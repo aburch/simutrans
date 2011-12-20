@@ -1,0 +1,15 @@
+<title>POMOC: Mapa</title>
+
+<h1>Okno mapy</h1>
+
+<p>
+Mapa pokazuje wyglad utworzonego swiata z zaznaczeniem miast, rozmieszczenia przemyslu, kolei itp.
+</p>
+
+<p>
+Kazdy rodzaj przemyslu oznaczony jest innym kolorem (Legenda kolorów znajduje sie u dolu mapy)
+</p>
+
+<p>
+Jesli chcesz powiekszyc poglad mapy kliknij na niej prawym przyciskiem myszy. W ten sposób mozesz wybierac korzystac z dwuch stopni powiekszenia.
+</p>

@@ -1,0 +1,56 @@
+<title>Message Centre & Message Centre Options Help</title>
+
+<h1><strong>Message Centre</strong></h1>
+
+<p>
+<strong>Message Centre</strong> lists messages from game and opens controls to select how messages are shown in game.
+</p>
+<p>
+Click on mailbox-icon at top of game-view or press <a href="keys.txt">[B]</a> to open <strong>Message Centre</strong>, which lists messages from game.<br>
+Click on a message to move game-view to a related position.
+</p>
+<p>
+<em>Options</em> button (click to use) opens <strong>Message Centre Options</strong> which has controls to determine how messages are displayed.
+</p>
+<br>
+<p>
+<strong>Message Centre Options</strong>
+</p>
+<p>
+<strong>Message Centre Options</strong> has three columns of square-buttons which select how messages are displayed.
+</p>
+<p>
+From left to right, the columns select whether messages are shown as: a scroll-text at bottom of game-view; a temporary message; or a permanent message.<br>
+{Tips: Click on x in top-left-corner of message or use keyboard to close permanent messages.}
+</p>
+<p>
+Click on square-buttons to select message options (buttons are indented when selected) for following messages:
+</p>
+<p>
+<em>New Year:</em> a new year has started.
+</p>
+<p>
+<em>AI News:</em> an <a href="players.txt">AI player</a>
+ has opened a new line.
+</p>
+<p>
+<em>City News:</em> an <a href="citywindow.txt">urban area</a> is building a bigger townhall.
+</p>
+<p>
+<em>No Route:</em> a vehicle can not find a route to its next <a href="schedule.txt">destination</a> (a <a href="station.txt">Stop</a> or waypoint).
+</p>
+<p>
+<em>New Industries:</em> a new <a href="industryinfo.txt">industry</a> chain (an end-consumer and any necessary suppliers) has been built due to <a href="citywindow.txt">town</a> growth.
+</p>
+<p>
+<em>Tourist:</em> a city <a href="curiositylist_filter.txt">attraction</a> or memorial has been built.
+</p>
+<p>
+<em>New Vehicles:</em> a new vehicle becomes available, or a vehicle is retired (if <a href="new_world.txt">timeline</a> is used).
+</p>
+<p>
+<em>Station full:</em> a <a href="station.txt">Stop</a> is overcrowded.
+</p>
+<p>
+<em>Problems:</em> player company is in debt and other critical messages.
+</p>

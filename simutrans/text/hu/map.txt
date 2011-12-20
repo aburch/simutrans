@@ -1,0 +1,54 @@
+<title>Térkép ablak Sugó</title>
+
+<h1>Térkép ablak</h1>
+
+<p>
+Az egész "világról" mutat egy madártávlat típusú térképet. Alapállásban a térképen nincs feltüntetve semmi.
+Azt, hogy mi látszodjon a kis térképen azt a "Jelmagyarázat" ablakban tudod beállítani.
+</p>
+<p>
+A "Jelmagyarázat" ablakban a következõ dolgokat lehet a kis térképre kihelyezni:
+<br>
+<em>Városok</em> - Megjeleníti a városok nevét illetve helyét.
+<br>
+<em>Utas</em> - Megjeleníti azokat a pontokat ahol utasok tartozkodnak. A terhelési színekbõl lehet következtetni
+(lásd az ablak felsõ részén a minimum és maximum színkódjait), hogy egy adott állomás vagy megálló mennyire zsúfolt.
+<br>
+<em>Posta</em> - Feltünteti a posták helyét.
+<br>
+<em>Rakomány</em> - Megjeleníti azokat a pontokat ahol rakomány van (legyen az árú, vagy nyersanyag, vagy posta).
+<br>
+<em>Státusz</em> - Megjeleníti azokat a helyeket, ahol túlterheltség vagy zsúfoltság van.
+<br>
+<em>Szerviz</em> - Jelzi azokat az útvonalakat és egységeket melyek szervizelést igényelnek.
+<br>
+<em>Forgalom</em> - A forgalom nagyságát jelzi utakon vasútakon.
+<br>
+<em>Kiindulás</em> - Kijelöli azokat az állomásokat vagy megállókat ahonnan az árúk, utasok kiindulnak illetve itt lehet követni azt,
+hogy honnan indul ki a legtöbb utas vagy árú.
+<br>
+<em>Célállomás</em> - Jelzi azokat a célállomásokat és megállókat ahova a legtöbb utas vagy árú tart.
+<br>
+<em>Várakozik</em> - Kijelöli azokat a megállókat vagy állomásokat ahol a legtöbb árú vagy utas várakozik.
+<br>
+<em>Vonalak</em> - Megjeleníti az összes vasúti és közúti vonalat.
+<br>
+<em>Sebes.korlát.</em> - Kijelzi azokat a szakaszokat ahol sebességkorlátozás van.
+<br>
+<em>Elektr.hálóz.</em> - Megjeleníti az egész elektromos hálózatot.
+<br>
+<em>Turisták</em> - Kijelzi azokat a helyeket ahol turisták illetve turistacélpontok vannak.
+<br>
+<em>Gyárak</em> - Megjeleníti az összes termelõ egységet (gyárakat, bányákat, iparegységeket).
+</p>
+
+<p>
+Minden egyes termelési egység külön színnel van feltüntetve. A részletes színkódott a térkép alján
+találod.A minimum és maximum értéket is színkód jelzi (vagyis azt, hogy sok az utas vagy kevés, túlterhelt egy állomás
+vagy nem, nagy forgalom vagy kicsi stb.).
+</p>
+
+<p>
+A madártávlat térképre kétfoklozatú nagyítás alkalmazható. Bármelyék részére az egér jobb gombjával, vagy a középsõ görgõvel
+ráklikkelve változtathatód a nagyítás mértékét.
+</p>

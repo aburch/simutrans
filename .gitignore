@@ -13,7 +13,10 @@
 *.out
 ipch
 /Debug
+/Debug (SDL)
+/Debug-nettool
 /Release
+/Release (SDL)
 /build
 /config.*
 /intermediates
@@ -21,15 +24,12 @@ ipch
 /makeobj/makeobj.exe
 /sim
 /sim.exe
+/binaries
 /save
 /screenshot
 /maps
 Pak*
 pak*
-text*
-/Debug (SDL)
-/Debug-nettool
-/Release (SDL)
 settings.xml
 simutrans-experimental
 simutrans-experimental.exe

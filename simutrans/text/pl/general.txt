@@ -1,0 +1,21 @@
+<h1>SIMUTRANS - POMOC</h1>
+
+<p>
+Polska wersja
+</p>
+
+<p>
+SimuTrans: Najlepsza i darmowa gra symulujaca rozwój sieci transportowej w powiazaniu z dzia³alno¶ci± gospodarcz±.
+W grze mo¿esz zarz±dzaæ transportem l±dowym (samochody, poci±gi) oraz morskim. Tworzysz linie komunikacyjne pomiêdzy o¶rodkami przemys³owymi i miastami. Od ciebie zale¿y ile wydasz i ile zarobisz. Do wyboru masz wiele typów pojazdów.
+Niewatpliwymi zaletami gry jest tez jej wielkosc oraz mo¿liwosc uruchomienia nawet na s³abych komputerach.
+Gra jest ci±gle w fazie rozwojowej. Na stronie autora gry pojawiaj± sie czêsto uaktualnienia i dodatki! (np. dzwiêki, nowe wersje jezykowe itp.)
+</p>
+<p>
+Autorzy polskiej wersji i plików pomocy:
+Piotr Pietrzak: pyotr@wp.pl
+Jaros³aw Domañski: domanoid@gmail.com
+</p>
+<p>
+Autor gry: Hansjörg Malthaner - Fuggerstr. 1 - D-70563 Stuttgart - E-Mail: hansjoerg.malthaner@gmx.de
+http://www.simutrans.de/
+</p>

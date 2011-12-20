@@ -1,0 +1,71 @@
+Indonesia
+PROP_FONT_FILE
+Prop-Latin1.bdf
+################################################################################
+#                                                                              #
+#                Simutrans Scenario Specific Translation File                  #
+#                          Scenario: Sim-Experimental                          #
+#                            Language: id Indonesia                            #
+#                             Encoding: ISO-8859-1                             #
+#                            Font : Prop-Latin1.bdf                            #
+#                           Date Created: 10.04 2010                           #
+#                                                                              #
+#                                   authors:                                   #
+#                             Edi Imanto - EImanto                             #
+#                                    note:                                     #
+#                              Frank Penz - FrankP                             #
+#                                    note:                                     #
+#                          Markus Pristovsek - prissi                          #
+#                                    note:                                     #
+#                                                                              #
+################################################################################
+#_____________________________Simutrans Base Texts______________________________
+#_____________________________Simutrans Base Texts______________________________
+#__________________________________button_text__________________________________
+#__________________________________button_text__________________________________
+hl_btn_sort_waiting
+Menunggu
+hlf_btn_alle
+Semua
+hlf_btn_invers
+Balik
+koord
+kordinat
+#_________________________________climates_text_________________________________
+#_________________________________climates_text_________________________________
+#__________________________________error_text___________________________________
+#__________________________________error_text___________________________________
+#___________________________________help_text___________________________________
+#___________________________________help_text___________________________________
+#____________________________________ki_text____________________________________
+#____________________________________ki_text____________________________________
+#___________________________________menu_text___________________________________
+#___________________________________menu_text___________________________________
+#_________________________________message_text__________________________________
+#_________________________________message_text__________________________________
+#_________________________________program_text__________________________________
+#_________________________________program_text__________________________________
+hl_title
+Daftar Stasiun
+hl_txt_filter
+Filter:
+hl_txt_sort
+Disusun menurut:
+hlf_chk_anleger
+Pelabuhan
+hlf_chk_bahnhof
+Stasiun Kereta Api
+hlf_chk_bushalt
+Pemberhentian Bus
+hlf_chk_keine_verb
+tidak ada jaringan
+hlf_chk_maglevstop
+Stasiun Maglev
+player 2
+Trikky Transport
+player 3
+Meyer Moving Co.
+#__________________________________record_text__________________________________
+#__________________________________record_text__________________________________
+#_________________________Simutrans Experimental Texts__________________________
+#_________________________Simutrans Experimental Texts__________________________

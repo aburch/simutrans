@@ -1,0 +1,92 @@
+<title>Create a New Game Help</title>
+
+<h1><strong>Create a New Game</strong></h1>
+
+<p>
+The <strong>Create a New Game</strong> window sets options for a new game. This creates a new map with the selected settings. You can configure many game variables including the size of terrain, initial number of urban areas and the number of industries.
+A preview of the selected terrain is also displayed in the <strong>Create a New Game</strong> window.
+</p>
+
+<p>
+When the <strong>New Game</strong> window is open all other game-options are disabled. Use the <em>New Game</em> button in the <strong>Game Options</strong> window to start the new game.
+</p>
+
+<p>
+To return to current game by closing the <strong>Create a New Game</strong> window, click the <em>x</em> button located on the title bar.
+</p>
+
+<p>
+Arrow-buttons adjust settings and buttons switch on/off options or open new controls.
+</p>
+
+<p>
+<em>Map Number</em> - Selects a terrain to use for the game.<br><br>  Click on number-box and type the required map number or use the arrow-buttons to cycle through the terrains. The preview area shows the selected terrain as it would appear in the game (water is blue, lower land is darker than higher land).
+</p>
+
+<p>
+<em>Size</em> - Sets the map size.<br><br>
+Map size is set as <em>W x H</em>.The number-box on top is the width, and the one below it is the height.
+The memory required for the map is displayed in brackets. <br><br>
+<i>IMPORTANT</i> Large maps need more memory and take more time to generate. The game and other graphics require an extra 88MB in pak64 and 144MB in pak128. As a general rule of thumb, on a computer with 256MB RAM do not try maps much larger than 512 x 512 squares.
+</p>
+
+<p>
+<em>Random map</em> - Selects a new terrain at random. Other settings do not change.
+</p>
+
+<p>
+<em>Load Height Map</em> - Loads a custom terrain. Opens the <strong>Load</strong> window. For more information on custom terrains, click <a href="load_relief.txt">here</a>.
+</p>
+
+<p>
+<em>Nr. of cities</em> - Sets the initial number of <a href="citywindow.txt">urban areas</a> in your game.
+</p>
+
+<p>
+<em>Median Citizens per City</em> - Sets the initial population of all urban areas.<br><br>This setting is an average value. Simutrans will try to generate more small villages than large cities.
+</p>
+
+<p>
+<em>Intercity Road Length</em> - Sets the initial length of roads between urban areas, for a new game. Set this to a higher value to create more connecting roads between urban areas.
+</p>
+
+<p>
+<em>Industry Chains</em> - Sets the initial number of <a href="industry_info.txt">Industry Supply Chains</a> outside urban areas.<br><br>
+<i>NOTE</i> If the terrain is very hilly, suitable flat space may not be found  for creating industry chains and less industries appear.
+</p>
+
+<p>
+<em>Tourist attractions</em></a> - Sets the inital number of sites outside of urban areas that attract passengers and mail. <a href="curiositylist_filter.txt">Tourist Attractions</a> appear outside urban areas and in addition to any attractions generated with new towns or cities at the start of the game. Attractions also generate passengers and mail.
+</p>
+
+<p>
+<em>Use chronology from Year</em> - Sets the start year for your game game. Click the square-button to play your game with time based constraints. As time passes in the game, more vehicles, buildings, and industries appear. <br><br>When this option is not selected, all vehicles, buildings, and industries are available and used in your game. Urban areas appear with buildings from all eras; and slower vehicles are not as profitable as faster ones as income is calculated by the average speed of transport vehicle used. This is the default mode.
+</p>
+
+<p>
+<em>Beginner Mode</em> - Sets the option that allows a higher level of income to be received in game-play from transporting goods and passengers . By default, when played in <strong>Beginner Mode</strong>, you will receive 150% of value as received when playing in normal mode. Furthermore, <a href="industry_info.txt">Industry</a> will not cease supply when consumer(s) have excess supply.
+</p>
+
+<p>
+<em>Settings</em> - Opens the <a href="settings.txt">Extended Settings</a>. Here all parameter can be accessed that are available also in simuconf.tab.
+</p>
+
+<p>
+<em>Landscape settings</em> - Opens the <a href="climate.txt">Landscape settings</a> which control roughness, water level, climates, forests, and rivers.
+</p>
+
+<p>
+<em>Load Game</em> - Loads a <a href="save.txt">saved game</a>. This displays the <a href="load.txt">Load Game</a> window with controls to re-start a previously <a href="save.txt">saved</a> game. When a saved game is loaded, it replaces the current game.
+</p>
+
+<p>
+<em>Load Scenario</em> - Loads a <a href="scenario.txt">Scenario</a>, i.e. a game where a certain goal must be fulfilled.
+</p>
+
+<p>
+<em>Start Game </em> - Starts a game by creating a new world, using the selected settings.  Click this button to start playing Simutrans. Good Luck and Enjoy your game!
+</p>
+
+<p>
+<i>TIP</i> To change default values when starting Simutrans or to change other global properties, modify values in the <em>simuconf.tab</em> file.
+</p>

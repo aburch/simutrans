@@ -1,0 +1,37 @@
+<title>Ayuda de la Lista de Ciudades</title>
+
+<h1><strong>Lista de Ciudades</strong></h1>
+
+<p>
+<strong>Lista de Ciudades</strong> muestra los detalles acerca de las <a href="citywindow.txt">areas urbanas</a> (villas, pueblos y ciudades) y poblaciones.
+</p>
+<p>
+Para abrirla: pulsa en la herramienta Lista de Ciudades, en <a href="list.txt">Administracion de Listas</a> o pulsa <a href="keys.txt">[T]</a>.<br>
+<strong>Lista de Ciudades</strong> tiene dos botones de opcion, los cuales determinan el orden en que se muestran las areas urbanas y sus poblaciones.<br>
+{Consejos: Si los elementos listados solo son parcialmente visibles, entonces <a href="mouse.txt">ajusta la ventana</a> de la <strong>Lista de Ciudades</strong> o desplaza la lista usando la barra lateral.}
+</p>
+<p>
+<em>Total de habitantes:</em> es el numero total de habitantes en el juego (la poblacion total de todas las areas urbanas). El reciente incremento de poblacion se muestra entre parentesis.
+</p>
+<p>
+<em>Ordenado por:</em> tiene opciones para determinar el orden en que son mostradas las areas urbanas en la lista.<br>
+Pulsa en los botones de opcion para pasar a la siguiente opcion (cambia el nombre del boton de opcion):
+</p>
+<p>
+- <em>Nombre</em> lista alfabeticamente (mayusculas antes que minusculas) los <a href="convoi_info.txt">nombres</a>.<br>
+- <em>Ciudadanos</em> ordena por poblacion.<br>
+- <em>Crecimiento urbano</em> ordena por tasa de crecimiento (depende del terreno cubierto por el area urbana y el numero de pasajeros transportado).
+</p>
+<p>
+- <em>ascendente</em> / <em>descendente</em> invierte el orden de la lista.
+</p>
+<p>
+Pulsa en un elemento listado en la <strong>Lista de Ciudades</strong>para ver mas <a href="citywindow.txt">informacion</a> sobre esa area urbana.<br>
+Los elementos listados para cada area urbana incluyen:
+</p>
+<p>
+<em>nombre</em> asignado al area urbana (puede ser cambiado en el menu Informacion de la Ciudad)..
+</p>
+<p>
+<em>numero de habitantes</em> de un area urbana, entre parentesis se muestra el incremento de poblacion.
+</p>

@@ -1,0 +1,102 @@
+<title>Aiuto - Grafica</title>
+
+<h1><strong>Grafica</strong></h1>
+
+<p>
+<strong>Grafica</strong> permette di controllare l'aspetto grafico del gioco e fornisce informazioni sulle performance.
+</p>
+<p>
+Click sul pulsante Grafica nel menù <a href="options.txt">Opzioni di Gioco</a> per aprire il menù <strong>Grafica</strong>.
+</p>
+<p>
+Click sui bottoni quadrati permette di selezionare / deselezionare le opzioni, mentre si possono utilizzare i <a href="mouse.txt">bottoni freccia</a> per regolare i
+
+settaggi:
+</p>
+<p>
+<em>Mostra griglia:</em> evidenzia i bordi dei quadrati in cui è suddivisa la mappa.
+</p>
+<p>
+<em>Modalità sotterranea:</em> visualizza cosa si trova subito sotto al livello del suolo (utile per costruire tunnel, metropolitane, ferrovie sotterranee)
+</p>
+<p>
+<em>Sliced underground mode:</em> seleziona il livello del terreno da visualizzare.<br>
+In questa modalità il terreno viene suddiviso "a fette" di pari livello, viene visualizzato il livello selezionato utilizzando i bottoni freccia.
+</p>
+<p>
+<em>Modalità giorno e notte:</em> attiva / disattiva la variazione della luminosità in base all'ora del giorno.
+</p>
+<p>
+<em>
+Luminosità:</em> permette di impostare la massima luminosità ad un determinato valore indicato utilizzando i bottoni freccia; 0 imposta la massimà luminosità, 9 la minima.
+</p>
+<p>
+<em>Inverti scrolling:</em> inverte la direzione dello scroll nella <a href="window.txt">finestra del gioco</a>.<br>
+Tenendo premuto il tasto destro nella finestra di gioco è possibile trascinare o spostare il terreno.
+</p>
+<p>
+<em>Vel. scrolling:</em> imposta la velocità dello scroll nella <a href="window.txt">finestra del gioco</a>.
+</p>
+<p>
+<em>Nascondi trasparenti:</em> tutti gli oggetti nascosti (siano essi alberi od edifici) saranno resi trasparenti.
+</p>
+<p>
+<em>Nascondi alberi:</em> selezionare questa opzione comporta che se "nascondi trasparenti" è selezionato gli alberi saranno resi trasparenti, altrimenti saranno
+
+miniaturizzati.
+</p>
+<p>
+<em>Copertura stazione trasparente:</em> con questa opzione è possibile modificare l'aspetto grafico con cui viene indicata la copertura della stazione.
+</p>
+<p>
+<em>Mostra copertura stazione:</em> visualizza un segnaposto, il cui aspetto è selezionabile da "copertura stazione trasparente", sulle caselle che possono usufruire dei
+
+servizi della stazione.
+</p>
+<p>
+<em>Mostra nomi stazioni:</em> in prossimità di ogni stazione ne viene visualizzato il nome.
+</p>
+<p>
+<em>Visualizza barre di attesa:</em> in prossimità di ogni stazione viene visualizzata una barra contenente informazioni su tutti i prodotti che vi sono in attesa.
+</p>
+<p>
+<em>Pedoni in città:</em> abilita la visualizzazione dei pedoni che transitano sulle strade delle <a href="citywindow.txt">aree urbane</a>.
+</p>
+<p>
+<em>Pedoni alle fermate:</em> abilita la visualizzazione dei pedoni quando un veicolo arriva ad una <a href="station.txt">fermata</a>.
+</p>
+<p>
+<em>Densità di traffico:</em> imposta il numero di auto private che circolano nelle <a href="citywindow.txt">aree urbane</a>.<br>
+Il numero di auto private cresce al crescere della dimensione della città ed alla densità di traffico impostata. Impostando densità di traffico a 0 non verranno generate
+
+auto private.
+</p>
+<p>
+{Consiglio: Maggiori opzioni e valori di default al caricamento di simutrans possono essere modificati in simuconf.tab}.
+</p>
+<br>
+<p>
+<strong>Display informativo:</strong>
+</p>
+<p>
+Sotto alle impostazioni sono visualizzate delle informazioni sulle prestazioni di simutrans durante il suo funzionamento.<br>
+I numeri sono normalmente visualizzati in bianco, se sono gialli o rossi occorre modificare le impostazioni.<br>
+Modifiche alla velocità di scorrimento del gioco, <a href="window.txt">T</a>, (utilizzando l'icona Fast Forward  >> in alto alla finestra di gioco, o [,]/ [.]) può
+
+modificare il colore dei numeri.
+</p>
+<p>
+<em>Tempo del frame:</em> tempo tra tra un frame e il successivo.
+</p>
+<p>
+<em>Inattivi:</em> quando è maggiore di 0 il computer può eseguire altri software.
+</p>
+<p>
+<em>
+FPS:</em> valori elevati significano che i veicoli scorrono più fluidamenti. Se il numero rimane rosso significa che il computer è troppo lento per le attuali impostazioni,
+
+provate a ridurre la dimensione della finestra di gioco.
+</p>
+<p>
+<em>Sim:</em> se il numero rimane rosso significa che il computer è troppo lento per la mappa attuale, provate con una mappa più piccola o con meno aree urbane.
+</p>

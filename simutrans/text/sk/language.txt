@@ -1,0 +1,29 @@
+<title>Nastavenie jazyka - pomoc</title>
+
+<h1>Nastavenie jazyka</h1>
+
+<p>
+Spôsob ako zmenit nastavenie jazyka v hre Simutrans je voµbou
+Tvojho jazyka. Ak zvolí¹ jazyk predtým, ako spustí¹ novú hru,
+názvy miest u¾ budú vytvorené podµa tohto jazyka.
+</p>
+<p>
+Nastavenie jazyka môze¹ kedykoµvek zmenit. Obsah otvorených
+okien nemô¾e byt aktualizovaný ihneï, ale a¾ po ich znovuotvorení.
+</p>
+<p>
+Teda ak chce¹ mat názvy miest v Tvojom jazyku, najprv vyber svoj jazyk
+a a¾ potom spusti novú hru.
+</p>
+<p>
+Ak chýba Tvoj po¾adovaný jazyk, skús pohµada» ïal¹ie preklady na:<br>
+http://www.simutrans.de<br>
+http://www.simutrans.cjb.net<br>
+v sekcii <strong>,,Download''</strong>.<br>
+<br>
+Èeské stránky venované tejto hre nájde¹ na:<br>
+http://www.simutrans.wz.cz
+</p>
+<p>Pozn. : Ale mô¾u to byt' star¹ie verzie prekladov.
+Väè¹ina textov vsak býva bezprostredne aktualizovaná.
+</p>

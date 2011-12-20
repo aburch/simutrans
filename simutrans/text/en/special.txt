@@ -1,0 +1,59 @@
+<title>Special Construction Tools Help</title>
+
+<h1><strong>Special Construction Tools</strong></h1>
+
+<p>
+<strong>Special Construction Tools</strong> construct items that are not traffic related and also allow you to operate as another player in the game.
+</p>
+<p>
+Click red-drop-in-yellow-circle-icon (crane-icon in pak128) at top of game-view to open toolbar. <br>
+Hover mouse-cursor over tool-option (after opening or clicking on toolbar) to see name & where appropriate: construction<a href="finances.txt">cost</a>.
+</p>
+<p>
+<strong>Special Construction Tools</strong>include, from left to right:
+</p>
+<p>
+<em>Post Office:</em> tools build a post office that enable a <a href="station.txt">Stop</a> to handle mail. Post Offices increase the capacity and catchment area of the Stop and have a maintenance cost.<br>
+To build a post office: click on tool to select, then click in game-view by an existing Stop. The new Post Office is now considered to be part of the Stop.<br>
+{Tips: Remove Post Offices and some obstructions with Destroy/Remove.}
+</p>
+<p>
+<em>Station Extensions:</em> tools construct extensions & buildings for <a href="station.txt">Stops</a>. Extensions may increase capacity & catchment area for goods & passengers, and maintenance costs. In the corner of some tool-options an icon (used in <a href="haltlist.txt">Station List</a> & Stop Information) shows which items the extension allows the Stop to handle.<br>
+To build an extension: click on tool to select (changes cursor to extension), then click required position, beside an existing Stop, in game-view. The new extension is now considered to be part of the Stop.<br>
+{Tips: Remove extensions with Destroy/Remove.}
+</p>
+<p>
+<em>P+ Change Player:</em> allows game-play as another <a href="players.txt">player </a> if <a href="new_world.txt">Allow player change</a> was selected at the start of the game. Extra <a href="edittools.txt">options</a> are available as the public service player.<br>
+Click on tool (or press <a href="keys.txt">[P]</a>) to cycle through players. A confirmation message appears that player has been changed: click on x in top-left corner of message or use keyboard to close.
+</p>
+<p>
+<em>found a new city:</em> tools establishes a new <a href="citywindow.txt">urban area</a>.<br>
+To build a new city: click on tool or press [C] to select (changes cursor to town hall), then click required position, in game-view. The new city costs 5 million credits and will be built without further confirmation.<br>
+{Tips: Click on the town hall in game-view with Destroy/Remove to remove the new city buildings.}
+</p>
+<p>
+<em>Plant trees:</em> tool places a tree in game-view.<br>
+To plant a tree: click on tool to select (changes cursor to tree), then click required position.<br>
+{Tips: Remove trees with Destroy/Remove.}
+</p>
+<p>
+<em>Build Power Transmission Line:</em> tool builds powerlines that supply power between transformer stations at power plants and <a href="industry_info.txt">industry</a> (to increase productivity). The supply of power generates income. These powerlines cannot cross diagonal tracks and roads.<br>
+To build a high power transmission line: click on to tool or press [l] to select (changes cursor to power lines), then click on a transformer station placed next to a power station, & finally click on a transformer station at an industry to supply it with power to increase production.<br>
+</p>
+<p>
+<em>Transformer station</em> tool builds a transformer station at power plants or <a href="industry_info.txt">industry</a> for connection to high power transmission lines.<br>
+To build a transformer station: click on tool or press [g] to select (changes cursor to a red-drop-in-yellow-circle), then click required position beside an industry or power plant, in game-view.<br>
+Transformer stations built at power plants must be connected to transformer stations at industry with powerlines to supply electricity.<br>
+If no electricity is being supplied, the transformer station in game-view shows a yellow-lightning-strike, when electricity is being supplied it shows a red-lightning-strike.<br>
+{Tips: Industry and power plants can have multiple transformer stations to increase electricity supply. Remove transformer stations with Destroy/Remove.}
+</p>
+<p>
+<em>Make a sign:
+</em> tool opens controls to place a sign with personalised text in game-view and can be used to move game-view to a different point.<br>
+Click on tool to select or press [M], changes cursor to a text-marker, then click at required point in game-view to open Make a Sign controls. At the top of Make a Sign controls are co-ordinates on map of selected position and an empty box, enter required text in to box (click on box, type the text and click <em>OK</em> or press [Enter] or [Return]) to place sign. The new sign is shown in game-view and listed in Make a Sign controls (with map co-ordinates) when re-opened.<br>
+To move game-view to a sign point: open Make a Sign controls and click on required position in list.<br>
+To remove a Sign: click on <em>Make a Sign
+</em> tool or press [M] to select, changes cursor to a text-marker; then click on co-ordinates of sign in game-view; then click on <em>Remove</em> in Make a Sign controls.<br>
+To close Make a Sign controls: click on x in top-left-corner of controls; or click on<em>Cancel</em>; or use keyboard.<br>
+{Tips: Map co-ordinates of cursors can be seen on right of bottom-bar under game-view. Use [!] to toggle texts of signs in game-view.}
+</p>

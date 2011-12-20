@@ -1,0 +1,27 @@
+<title>Ajuda - Carregar jogo</title>
+
+<h1><strong>Carregar jogo</strong></h1>
+
+<p>
+A janela <strong>Carregar</strong> reabre um jogo <a href="save.txt">salvo</a> (para continuar a jogar de onde parou) e pode ser usado para apagá-los. Um jogo é reaberto por cima do mundo atual, que é perdido.
+</p>
+<p>
+<strong>Carregar</strong> abre de <a href="new_world.txt">Novo Mundo</a> e <a href="options.txt">Preferências</a> ou pressionando <a href="keys.txt">[L]</a>, e mostra os nomes e data e hora de salvamento dos jogos disponíveis.<br>
+Se todos os jogos não estiverem visíveis: use a <a href="mouse.txt">barra de rolagem</a> no lado direito da lista para percorrer os nomes.
+</p>
+<p>
+Clique em um nome da lista para reabrir o jogo, ou digite o nome na caixa de texto do topo da janela: clique na caixa, digite o nome e pressione [Enter] ou [Return] ou clique em <em>OK</em>.<br>
+Um nome incorreto mostra uma mensagem de erro: feche a mensagem e tente novamente.
+</p>
+<p>
+AVISO: clique no X ao lado do nome para DELETAR o jogo imediata e permanentemente.<br>
+O nome é removido da lista e a janela se fecha. Use com cuidado.
+</p>
+<p>
+IMPORTANTE: novas versões do Simutrans surgem regularmente e jogos de versões anteriores podem não funcionar com versões mais novas. Consulte as notas da nova versão para saber se jogos antigos são compatíveis.
+</p>
+<p>
+Clique em <em>Cancelar</em> para fechar a janela <strong>Carregar</strong>, ou no X do canto superior esquerdo, ou use o teclado.
+</p>
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008.
+</p>

@@ -1,0 +1,54 @@
+<title>Ajuda - Editor de mapa</title>
+
+<h1><strong>Editor de mapa</strong></h1>
+
+<p>
+O <strong>Editor de mapa</strong> permite a personalização avançada do mundo em que se está jogando.<br>
+As ferramentas podem: aumentar/diminuir a população das cidades; construir vias urbanas, atrações, usinas de energia e indústrias; proibir a mudança de jogador e também avançar alguns anos na linha do tempo.
+</p>
+<p>
+Esta barra de ferramentas abre quando se joga como o Poder Público, selecionado através da <a href="players.txt">Lista de jogadores</a> ou <a href="special.txt">Mudar jogador (P+)</a> nas ferramentas especiais (ou pressionando <a href="keys.txt">[P]</a>). A barra irá se fechar ao mudar de jogador novamente.<br>
+Passe o cursor do mouse em cima das opções (após ter aberto ou clicado na barra de ferramentas) para ver o nome e mais informações de algumas delas.
+</p>
+<p>
+As opções incluem, da esquerda para a direita:
+</p>
+<p>
+<em>Aumentar cidade:</em> aumenta a população de uma <a href="citywindow.txt">área urbana</a> em 100 habitantes, construindo novas estradas e prédios, se necessário.<br>
+Para aumentar a cidade: clique na ferramenta para ativá-la (o cursor mudará para uma seta vermelha apontando para cima), e clique na área urbana.
+</p>
+<p>
+<em>Diminuir a cidade:</em> reduz a população de uma <a href="citywindow.txt">área urbana</a> em 100 habitantes. Áreas urbanas somente continuarão a crescer se a quantidade de sem-tetos e desempregados aumentar.<br>
+Para diminuir a cidade: clique na ferramenta para ativá-la (o cursor mudará para uma seta vermelha apontando para baixo), e clique na área urbana.
+</p>
+<p>
+<em>Via urbana:</em> constrói uma via urbana entre dois pontos, como o Poder público, que qualquer jogador pode usar. Vias urbanas podem não ser construídas em áreas ocupadas por outros prédios, e podem não encontrar um caminho através de terreno acidentado, água e obstáculos. A via urbana construída entre dois pontos pode usar estradas existentes em seu caminho.<br>
+Passe o cursor do mouse em cima das opções (após ter aberto ou clicado na barra de ferramentas) para ver o nome, custo de manutenção e construção para o Poder público e o limite máximo de velocidade.
+Para construir uma via urbana: clique na ferramenta para ativá-la (o cursor mudará para um trecho de via urbana), e clique na área de jogo no ponto de início da via (mostra um trator na área de jogo e as coordenadas do mapa no lado direito da barra inferior da área de jogo), e finalmente clique no local desejado para o ponto final da via.<br>
+{Dicas: tipos diferentes de estradas podem ser conectadas. Use pontes e túneis para conectar estradas através de terreno acidentado, ou para desviar de obstáculos. Use o <a href="slopetools.txt">Editor de terrenos</a> para aplainar o relevo, possibilitando caminhos para as estradas. Use a ferramenta Remover para remover estradas e obstáculos. Use <a href="keys.txt">[Ctrl]</a> ao mesmo tempo para algumas funções adicionais.}
+</p>
+<p>
+<em>Construir atração aleatória:</em> constrói uma atração turística que passageiros vão querer visitar. Diferentes atrações geram quantidades diferentes de passageiros e correio. O tipo de atração construída é aleatório e somente aparece se houver espaço suficiente livre de obstáculos.<br>
+Para construir uma atração: clique na ferramenta para ativá-la (o cursor mudará para uma gota vermelha em um círculo amarelo), e clique na posição desejada na área de jogo.<br>
+{Dicas: use a ferramenta Remover jogando como Poder público para remover atrações. Use a ferramenta Remover e/ou o Editor de terrenos para criar lugares propícios para receber atrações.}
+</p>
+<p>
+<em>Construir usina de energia:</em> constrói uma usina de energia elétrica (e possíveis fornecedores). O tipo de usina de energia construído é aleatório e somente aparece se houver espaço suficiente livre de obstáculos.<br>
+Para construir uma usina: clique na ferramenta ou pressione [I] para ativá-la (o cursor mudará para uma gota vermelha em um círculo amarelo), e clique na posição desejada na área de jogo.<br>
+{Dicas: use a ferramenta Remover jogando como Poder público para remover as usinas de energia. Use a ferramenta Remover e/ou o Editor de terrenos para criar lugares propícios para receber usinas.}
+</p>
+<p>
+<em>Construir mercado:</em> constrói um consumidor-final de mercadorias em uma <a href="citywindow.txt">área urbana</a> (e possíveis fornecedores, não necessariamente na área urbana). O tipo de indústria construída é aleatório e somente aparece se houver espaço suficiente livre de obstáculos.<br>
+Para construir um mercado: clique na ferramenta para ativá-la (o cursor mudará para uma gota vermelha em um círculo amarelo), e clique na área de jogo para construir um mercado na área urbana mais próxima.<br>
+{Dicas: use a ferramenta Remover jogando como Poder público para remover os mercados. Use a ferramenta Remover e/ou o Editor de terrenos para criar lugares propícios para receber mercados.}
+</p>
+<p>
+<em>Proibir mudança de jogador:</em> remove a opção de atuar como outro <a href="players.txt">jogador</a> e abrir as ferramentas de <strong>Editor de mapa</strong>.<br>
+Para usá-la: clique na ferramenta para ativá-la (o cursor mudará para um cadeado), e clique em qualquer lugar na área de jogo, não é pedida confirmação ao jogador.
+</p>
+<p>
+<em>Pular linha do tempo em um ano:</em> avança a data no jogo em um ano. Se estiver jogando com <a href="new_world.txt">linha do tempo</a>, conforme o tempo passa mais opções de transporte e construção aparecem e veículos lentos deixam de ser tão lucrativos (a receita é calculada pela velocidade média do transporte disponível).<br>
+Para avançar no tempo: clique na ferramenta, não é pedida confirmação ao jogador (a data muda no lado direito da barra inferior da tela do jogo).
+</p>
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008.
+</p>

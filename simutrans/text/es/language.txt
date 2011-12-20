@@ -1,0 +1,21 @@
+<title>Ayuda de Idioma</title>
+
+<h1><strong>Idioma</strong></h1>
+
+<p>
+<strong>Idioma</strong> cambia el idioma usado en el juego
+</p>
+<p>
+<strong>Idioma</strong> se abre desde <a href="options.txt">Opciones del juego</a> & con <a href="new_world.txt">Crear un nuevo mundo</a>.
+</p>
+<p>
+Para jugar en otros idiomas: haga click en el buton correspondiente al idioma deseado, antes de empezar a jugar.
+</p>
+<p>
+El nuevo idioma aparecera reflejado solamente en barras de herramientas nuevas o reabiertas,<br>
+en el menu opciones y en algunos de los textos del juego. Si la traduccion no esta disponible <br>
+en el idioma seleccionado, aparecera en Ingles.
+</p>
+<p>
+Visite http://translator.simutrans.com para ayudar con la traduccion
+</p>

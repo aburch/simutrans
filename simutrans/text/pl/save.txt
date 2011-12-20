@@ -1,0 +1,18 @@
+<title>POMOC: zapis gry</title>
+
+<h1>Zapisywanie stanu gry</h1>
+
+<p>
+Jesli zamierzasz kontynuowac gre po wyjsciu z Simutrans bedziesz musial
+zapisac stan gry. Mozesz zapisac wszystkie gre w dowolnym momencie aby pózniej
+do niej powrócic.</p>
+
+<p>W tym menu mozesz zapisac gre w nowym pliku, nadpisac istniejacy plik, lub usunac zapisana gre.
+Aby zapisac gre w nowym pliku musisz podac nazwe pliku i wcisnac przycisk 'zapisz' - za chwile pojawi sie komunikta potwierdzajacy zapis gry.
+Jesli chcesz nadpisac istniejacy plik kliknij na nazwie tego pliku.
+</p>
+
+<p>
+Jesli chcesz usunac plik musisz sie dobrze zastanowic, poniewaz usunietego pliku nie da sie juz odzyskc (nawet z kosza w systemie Windows).
+W celu usuniecia pliku kliknij na przycisk 'X' obok nazwy danego pliku.<br>
+</p>

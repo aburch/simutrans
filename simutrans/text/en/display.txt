@@ -1,0 +1,62 @@
+<title>Display Settings Help</title>
+
+<h1><strong>Display Settings</strong></h1>
+
+<p>
+<strong>Display Settings</strong>has controls for how the game appears; & provides information on computer performance.
+</p>
+<p>
+Click on Display-button in <a href="options.txt">Game Options</a> to open <strong>Display Settings</strong>.
+</p>
+<p>
+Click on square-buttons to select options (button is indented when option is selected), or use <a href="mouse.txt">arrow-buttons</a> to adjust settings:
+</p>
+<p>
+<em>day and night change:</em> view of night-time in game.
+</p>
+<p>
+<em>
+Brightness:</em>sets how light/dark view of game appears; lower number to darken; too low or high values produce problems; use <a href="keys.txt">[+]</a> to increase value over 0.
+</p>
+<p>
+<em>Scroll Inverse:</em> reverses direction of scroll for game-view in <a href="window.txt">?Game Window</a>.
+</p>
+<p>
+<em>
+Scroll Speed:</em> sets speed of scroll for game-view in Game Window.
+</p>
+<p>
+<em>Pedestrians in towns:</em> view of pedestrians that appear in <a href="citywindow.txt">urban areas</a>.
+</p>
+<p>
+<em>Pedestrians at stops:</em> view of pedestrians that appear when a vehicle arrives at a <a href="station.txt">Stop</a>.
+</p>
+<p>
+<em>Traffic density:</em> sets number of private cars in <a href="citywindow.txt">urban areas</a>.<br>
+Number of new private cars that appear as urban areas grow is dependent on size of urban area and traffic density. Higher values create more private traffic, 0 generates none.
+</p>
+<p>
+{Tips: More options and default values for when Simutrans starts can be changed in simuconf.tab}.
+</p>
+<br>
+<p>
+<strong>Display Information:</strong>
+</p>
+<p>
+Below these settings, information is shown on computer performance when running Simutrans.<br>
+If numbers (usually white) are red or ?yellow you may need to change your settings.<br>
+Changes in rate that time passes in game, <a href="window.txt">T</a>, (using Fast Forward  >> icon at top of game-view, or [,]/ [.]) may change number colour.
+</p>
+<p>
+<em>Frame Time:</em> ?First number is intended time between frames; second number is actual time between frames.
+</p>
+<p>
+<em>Idle:</em> When above 0, the computer has capacity to run other software.
+</p>
+<p>
+<em>
+FPS:</em> Higher values mean vehicles appear to move more smoothly. If number remains red, the computer is too slow for current settings (?try reducing the size of the game-view window).
+</p>
+<p>
+<em>Simloops:</em> If number remains red, the computer is too slow for current settings - try a smaller map with fewer urban areas.
+</p>

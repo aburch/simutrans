@@ -1,0 +1,7 @@
+<title>Help Staþii </title>
+<h1>Staþii</h1>
+
+<p>
+Sunt afiºate parametrii staþiei selectate (câþi pasageri sunt,
+câtã materie primã staþioneazã etc.)
+</p>

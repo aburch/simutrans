@@ -1,0 +1,35 @@
+<title>Ayuda de Listas</title>
+
+<h1><strong>Listas</strong></h1>
+
+<p>
+<strong>Listas</strong> tiene opciones para abrir los controles con informacion acerca del estado actual de la partida (y tambien tiene controles para ajustar los ingresos relativos recividos del transporte de <a href="goods_filter.txt">pasajeros, mercancias y correo</a>).
+</p>
+<p>
+La informacion esta disponible para el jugador en listas : <a href="station.txt">Paradas</a>; <a href="convoiinfo.txt">Convoys</a>; <a href="citywindow.txt">ciudades</a>; ingresos recibidos de las <a href="goods_filter.txt">diferentes mercancias</a>, pasajeros y correo; <a href="industry_info.txt">industrias</a>; y atracciones turisticas.
+</p>
+<p>
+Pulsa en un icono tipo lista en la barra de herramientas de la parte de arriba de la pantalla para abrir <strong>Listas</strong>.<br>
+Pasa el raton por encima de los iconos, para ver los nombres.
+</p>
+<p>
+Pulsa en la herramienta seleccionada para abrir los controles con informacion,de izquierda a derecha, acerca de:
+</p>
+<p>
+<a href="haltlist.txt"><em>Lista de Estaciones:</em></a> <a href="station.txt">Paradas</a>, donde los vehiculos cargan y descargan mercancias y pasajeros (no incluye las paradas de vehiculos maritimos).
+</p>
+<p>
+<a href="convoi.txt"><em>Lista de Vehiculos:</em></a> vehiculos sobre <a href="convoiinfo.txt">carretera y via del tren</a>, aviones y barcos.
+</p>
+<p>
+<a href="citylist_filter.txt"><em>Lista de todas las ciudades:</em></a> <a href="citywindow.txt">ciudades</a> (villas, pueblos y ciudades).
+</p>
+<p>
+<a href="goods_filter.txt"><em>Lista de todas las mercancias:</em></a> ingresos recividos de las diferentes mercancias, pasajeros y correo (incluye controles para ajustar los ingresos relativos).
+</p>
+<p>
+<a href="factorylist_filter.txt"><em>Lista de Fabricas:</em></a> <a href="industry_info.txt">industrias</a> (consumidores y suministradores de mercancias).
+</p>
+<p>
+<a href="curiositylist_filter.txt"><em>Lista de Atracciones :</em></a> atracciones turisticas.
+</p>

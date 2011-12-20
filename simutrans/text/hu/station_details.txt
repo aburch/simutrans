@@ -1,0 +1,11 @@
+<title>Részletek Sugó</title>
+
+<h1>Részletek</h1>
+
+<p>
+Itt megnézheted, hogy ehhez az egységhez milyen gyárak,
+termelõegységek kapcsolódnak.
+</p>
+<p>
+Továbbá kijelzi a direkt útat, a tároló kapacitást és egyéb infót.
+</p>

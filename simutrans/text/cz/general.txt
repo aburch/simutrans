@@ -1,0 +1,13 @@
+<h1>Nápovìda - hlavní strana</h1>
+Odkazy na nìkolik nejdùle¾itìj¹ích témat nápovìdy:<br>
+<p>
+-><a href="keys.txt">Popis klávesových zkratek</a></p>
+<p>
+-><a href="schedule.txt">Jak dìlat jízdní plány</a></p>
+<p>
+-><a href="depot.txt">Nápovìda pro depo</a><br>
+</p>
+
+<p>
+-><a href="about.txt">Informace o èeském pøekladu</a>
+</p>

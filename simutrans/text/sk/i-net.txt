@@ -1,0 +1,7 @@
+<title>Simutrans - domovská stránka</title>
+<p>
+Domovská stránka hry Simutrans.
+</p>
+<p>
+Simutrans (c) Hj. Malthaner
+</p>

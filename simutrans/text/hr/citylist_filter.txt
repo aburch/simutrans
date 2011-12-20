@@ -1,0 +1,37 @@
+<title>Pomoc Liste Gradova</title>
+
+<h1><strong>Lista Gradova</strong></h1>
+
+<p>
+<strong>Lista Gradova</strong> prikazuje detalje o <a href="citywindow.txt">urbanim podrucjima</a> (selima, gradovima i velegradovima) i stanovnicima.
+</p>
+<p>
+Za otvaranje: klik nba city-list-tool u <a href="list.txt">Upravljanje Listom</a> ili stisnuti <a href="keys.txt">[T]</a>.<br>
+<strong>Lista Gradova</strong> ima dva gumba postavki koji odredjuju redoslijed po kojemu se pokazuju urbana poruèja (i njihovi stanovnici).<br>
+{Savjeti: Ako su stavke u listi djelomicno vidljive, tada <a href="mouse.txt">promijeniti velicinu</a> <strong>Lista Gradova</strong> ili pomicati se koristeci klizni pokazivac.}
+</p>
+<p>
+<em>Ukupno stanovnika:</em> je potpun broj stanovnika u igri (potpuni stanovnici svih urbanih podrucja). Nedavni porast stanovnika se prikazuje u zagradama.
+</p>
+<p>
+<em>Sortiranje po:</em> ima postavke za odredjivanje redoslijeda urbanih podrucja prikazanih u listi.<br>
+Kiliknuti na gumb postavki za kruzenje kroz postavke (mijenja ime gumba postavki):
+</p>
+<p>
+- <em>Ime</em> prikazuje alfanumericki koristeci ASCC-code redoslijed (velika slova prije malih slova) dodijeljenih <a href="convoi_info.txt">imena</a>.<br>
+- <em>Citizens</em> slaze prema velicini stanovnika.<br>
+- <em>Town growth</em> slaze prema rastu (koji je ovisan o velicini urbanih podrucja i broju prevezenih putnika).
+</p>
+<p>
+- <em>rastuce</em> / <em>padajuce</em> mijenja redoslijed liste.
+</p>
+<p>
+Kilik na stavku prikazanu u<strong>Lista Gradova</strong>za pregled vise <a href="citywindow.txt">informacija</a> o urvbanim podrucjima.<br>
+Stavke prikazane za svako urbano podrucje sadrze:
+</p>
+<p>
+<em>ime</em> dodijeljenih urbanom podrucju (moze se promijeniti u Informaciji Gradova)..
+</p>
+<p>
+<em>broj stanovnika</em> urbanog podrucja, u zagradama je nedavni porast stanovnika.
+</p>

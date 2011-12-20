@@ -1,0 +1,56 @@
+<title>Ayuda de Lista de Vehiculos</title>
+
+<h1><strong>Lista de Vehiculos</strong></h1>
+
+<p>
+<strong>Lista de Vehiculos</strong> muestra informacion y tiene controles para filtrar y listar los diferentes <a href="convoiinfo.txt">Convoys</a> (un Convoy esta compuesto por un unico vehiculo o una combinacion de varias unidades).
+</p>
+<p>
+Para abrirlo: pulsa en la herramienta de Lista de Vehiculos en <a href="list.txt">Administracion de Listas</a> o presiona <a href="keys.txt">[V]</a>. <strong>Lista de Vehiculos</strong> tiene cuatro botones de opciones, dos se usan para ordenar los elementos de la lista y los otros dos se usan para aplicar opciones a los elementos seleccionados de la lista.<br>
+Los botones de debajo son una lista de <a href="convoiinfo.txt">Convoys</a> que concuerdan con el criterio usado en las opciones de filtro.<br>
+{Consejos: Si no se listan Convoys cambia las opciones de <em>Filtrado</em>.Si los elementos de la lista son parcialmente visibles, entonces <a href="mouse.txt">ajusta</a> la ventana <strong>Lista de Vehiculos </strong> o desplaza ls lista usando la barra de desplazamiento.}
+</p>
+<p>
+Pulsa en los botones de opcion para pasar a la siguiente opcion (cambia el nombre del boton) o abre el menu Opciones de Filtro:
+</p>
+<p>
+<em>Ordenar por:</em> Dos botones de opcion determinan el orden de los <a href="convoiinfo.txt">Convoys</a> mostrados en la lista.
+</p>
+<p>
+- <em>Tipo</em> ordena por tipo de transporte (en orden ascendente de vehiculo de carretera, vehiculo de carretera, vehiculo de via ferrea, barcos y aviones) <br>
+- <em>Nombre</em> ordena por nombre asignado, alfanumericamente: mayusculas entes que minusculas (por defecto esto se hace para la primera unidad del un vehiculo <a href="depot.txt">comprado</a> o unido para formar un Convoy).<br>
+- <em>Ingresos</em> ordena por beneficio (ingresos generados menos costes operativos).
+- <em>ID interno</em> ordena por un numero ID unico para cada convoy (asignado por defecto cuando un Convoy es comprado o ensamblado por primera vez en un <a href=depot.txt">deposito</a> mostrado en la titulo de la ventana de <a href="convoiinfo.txt">Informacion del Convoy</a>).
+</p>
+<p>
+- <em>ascendente</em> / <em>descendente</em> invierte el orden de la lista.
+</p>
+<p>
+<em>Filtro:</em> Dos botones de opcion, enciende/apaga el criterio de selecciona para la lista y los controles de acceso para cambiar los criterios.
+</p>
+<p>
+- <em>habilitar</em> / <em>deshabilitar</em> pulsa para aplicar los criterios de flitrado para los <a href="convoiinfo.txt">Convoys</a> en lista.
+</p>
+<p>
+- <a href="convoi_filter.txt"><em>Ajustes</em></a> abre controles para cambiar los criterios de filtrado.
+</p>
+<p>
+Pulsa en un elemento listado para ver mas informacion acerca de ese <a href="convoiinfo.txt">Convoy</a>.
+</p>
+<p>
+Los elementos listados por cada Convoy incluyen:
+</p>
+<em>ID interno</em>: un numero ID unico por convoy (asignado por defecto cuando el Convoy es comprado o ensamblado por primera vez en un <a href=depot.txt">deposito</a> y se muestra en el titulo de la ventana de<a href="convoiinfo.txt">Informacion del Convoy</a>).
+</p>
+<p>
+<em>nombre</em> que has sido asignado (por defecto se hace cuando el primer vehiculo es comprado o ensamblado).
+</p>
+<p>
+<em>ingresos</em> muestra los beneficios (ingresos generados menos costes operativos cuando esta en movimiento).
+</p>
+<p>
+<em>Linea:</em> muestra la <a href="linemanagement.txt">Linea</a> asignadae indica si el Convoy esta en un <a href="depot.txt">deposito</a>.
+</p>
+<p>
+<em>graficos</em> muestra el tipo y nivel de carga.
+</p>

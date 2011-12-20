@@ -1,0 +1,54 @@
+<title>Nástroje na stavbu cesty - pomoc</title>
+<h1>Stavba cesty</h1>
+<p>
+Tu má¹ prístup ku v¹etkým nástrojom, ktoré bude¹ potrebovat' na stavbu cesty,
+autobusových zastávok, cestných tunelov, depa a nákladných rámp.
+</p>
+<p>
+<em>Cesta</em> - nástrojom stavia¹ cestu medzi dvoma µubovolne vzdialenými bodmi
+(¹tvorèekmi), alebo cestu èast' po èasti. Kliknutím na zvolené miesto vytvorenej
+cesty zase vytvára¹ kri¾ovatky. Postup : Klikni my¹ou na nástroj cesty a pokraèuj
+kliknutím na bod, z ktorého chce¹ viest' cestu. Kurzor bude zobrazený ako malý buldozér.
+Premiestni sa na koniec zamý¹µanej cesty a klikni tam my¹ou. Simutrans vytvorí
+spojenie medzi týmito dvomi bodmi. Pozn. prekladateµa : pokiaµ by sa Ti cesta zdala
+príli¹ kµukatá, má¹ mo¾nost' urobit' korekcie (zbúrat' tú èast', kde bude¹
+robit' úpravy
+a potom pridávat' cestu èast' po èasti. Stavbu cesty po uhloprieèkach je
+vhodnej¹ie robit' èast' po èasti. Výsledok je lep¹í ;-) ). Na stavbu cesty mô¾e¹ pou¾it' len voµné pozície
+(¹tvorèeky). Ak nechce¹ kri¾ovat' inú cestu, pou¾i stavbu mosta alebo tunela.
+Ak nie je mo¾né úspe¹ne pokraèovat' v budovaní cesty, skús najprv vykonat' terénne
+úpravy.<br>
+<em>Autobusová zastávka</em> - nástrojom stavia¹ obojsmerné autobusové zastávky.
+My¹ou klikni na nástroj a umiestni ju na cestu. Autobusová zastávka Ti tak umo¾ní
+prijímat' a vysadzovat' pasia¾ierov v oboch smeroch. Zastávky je mo¾né budovat' aj za sebou.
+Autobus tak v¾dy zastaví na tej, ktorú si mu v cestovnom poriadku oznaèil. Autobusové
+zastávky nemô¾e¹ budovat' na koµajniciach, v zákrutách alebo priamo na kri¾ovatkách.<br>
+<em>Tunel</em> - voµbou tohto nástroja bude kurzor zobrazený symbolom tunela.
+Aby si tunel mohol úspe¹ne vytvorit', musia mat' kopce rovnú stenu na oboch stranách.
+Pomô¾ si úpravou terénu. Potiahni cestu e¹te o 1-nu pozíciu na kopec a tak isto aj
+na druhej strane. My¹ou klikni na nástroj tunela. Pokraèuj kliknutím na jeden z koncov
+cesty (na kopci). Ak Ti v¹etko presne lícuje (t.j. trafil si sa), Simutrans urobí
+tunel a odpoèíta Ti náklady na stavbu. Nadmorská vý¹ka ciest, ktoré spája¹ tunelom
+musí byt' rovnaká. Inak sa Ti tunel nevytvorí. Pozn. prekladateµa : Pokiaµ zabudne¹
+na druhej strane urobit' ukonèenie cesty, alebo ju tam ani nemá¹, Simutrans vie
+aj v tomto prípade urobit' tunel. Cestu potom pripojí¹ (po navolení cesty) k tomuto
+voµnému koncu kliknutím na vchod do tunela ;-).<br>
+<em>Cestný most</em> - klikni na text : <a href" bridges.txt">Mosty</a>.<br>
+<em>Nákladná rampa</em> - nástroj slú¾i na stavbu nákladnej rampy.
+Kliknutím my¹ou na tento symbol sa Ti kurzor zobrazí v tvare nákladnej rampy.
+Nákladná rampa musí le¾at' na konci cesty alebo konci odboèky a musí byt'
+na rovnom teréne. Mô¾e¹ postavit aj niekolko rámp vedµa seba.
+Tu mô¾e¹ nakladat' a vykladat' suroviny aj tovar. Nákladné autá budú chodit' iba na tie rampy,
+ktoré im oznaèí¹ v cestovnom poriadku. Mno¾stvo èakajúcich surovín alebo tovaru pritom
+nezávisí od poètu takýchto rámp vedµa seba (pozn. prekladateµa : ale èím je viac rámp vedµa
+seba, tým viac toho mô¾e¹ naraz odniest' alebo priniest' ;-) ). Jedna takáto rampa doká¾e obslú¾it'
+max. 2 vozidlá (vrátane prívesov).<br>
+<em>Depo</em> - nástrojom mô¾e¹ postavit' depo na konci cesty, príp. urobit'
+odboèku a umiestnit' ho na jej koniec. My¹ou klikni na nástroj depa a klinutím ho umiestni
+na ¾iadané miesto. V¹etky ostatné informácie o nákupe vozidiel sa dozvie¹
+kliknutím na vybudované depo a potom kliknutím na otáznik (pomoc) vedµa nadpisu.<br>
+<em>®eleznièné priecestie</em> - touto voµbou stavia¹ ¾eleznièné priecestie.
+Kliknutím na tento symbol sa kurzor zobrazí ako kri¾ovatka ¾eleznice s cestou.
+Naraz mô¾e¹ urobit' priecestie cez jednu koµaj. Ak ich tam má¹ viac, musí¹ kliknút'
+na ka¾dú koµaj osobitne.
+</p>
