@@ -1547,15 +1547,15 @@ public:
 		space_total = t;
 		amount_waiting = a;
 		ware = w;
-		// ensure overfull stations compare equal allowing tie breaker clause
-		ratio_free_space = ( max(space_left,0) << fabrik_t::precision_bits) / max(space_total,1);
+		// ensure overfull stations compare equal allowing tie breaker clause (amount waiting)
+		ratio_free_space = max(space_left,0) / max(space_total>>fabrik_t::precision_bits,1);
 	}
 	distribute_ware_t() {}
 
 	static bool compare(const distribute_ware_t &dw1, const distribute_ware_t &dw2)
 	{
 		return  (dw1.ratio_free_space > dw2.ratio_free_space)
-		        ||  (dw1.ratio_free_space == dw2.ratio_free_space  &&  dw1.amount_waiting <= dw2.amount_waiting);
+				||  (dw1.ratio_free_space == dw2.ratio_free_space  &&  dw1.amount_waiting <= dw2.amount_waiting);
 	}
 };
 
@@ -1629,7 +1629,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 
 				if(  !welt->get_settings().get_just_in_time()  ) {
 					// without production stop when target overflowing, distribute to least overflow target
-					dist_list.insert_ordered( distribute_ware_t( halt, ziel_fab->get_eingang()[w].menge + 2000*overflown, ziel_fab->get_eingang()[w].max, (sint32)halt->get_ware_fuer_zielpos(ausgang[produkt].get_typ(),ware.get_zielpos()), ware ), distribute_ware_t::compare );
+					dist_list.insert_ordered( distribute_ware_t( halt, ziel_fab->get_eingang()[w].max, ziel_fab->get_eingang()[w].menge, (sint32)halt->get_ware_fuer_zielpos(ausgang[produkt].get_typ(),ware.get_zielpos()), ware ), distribute_ware_t::compare );
 				}
 				else if(  !overflown  ) {
 					// Station can only store up to a maximum amount of goods per square
