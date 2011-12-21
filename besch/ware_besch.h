@@ -103,6 +103,12 @@ public:
 		ITERATE(scaled_values, i)
 		{
 			per_tile_fare = scaled_values[i].price;
+			if(i < scaled_values.get_count() - 1 && starting_distance >= scaled_values[i].to_distance)
+			{
+				starting_distance -= scaled_values[i].to_distance;
+				continue;
+			}
+
 			if(scaled_values[i].to_distance >= remaining_distance || i == scaled_values.get_count() - 1)
 			{
 				// The last item in the list must trigger the use of the full remaining distance.
@@ -111,8 +117,9 @@ public:
 			}
 			else
 			{
-				total_fare += (sint64)per_tile_fare * scaled_values[i].to_distance;
-				remaining_distance -= scaled_values[i].to_distance;
+				total_fare += (sint64)per_tile_fare * (scaled_values[i].to_distance - starting_distance);
+				remaining_distance -= (scaled_values[i].to_distance - starting_distance);
+				starting_distance = 0;
 			}
 		}
 		return total_fare;
