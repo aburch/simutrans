@@ -91,12 +91,13 @@ SOURCES ?= $(SOLO_SOURCES) $(SHARED_SOURCES) $(VARIANT_SOURCES)
 BUILDDIR ?= build/$(CFG)
 TOOL  = nettool
 PROG ?= nettool
-ifeq ($(origin NETTOOL_PROGDIR), undefined)
-  NETTOOL_PROGDIR := $(BUILDDIR)/$(TOOL)
+
+ifeq ($(origin MAKEOBJ_PROGDIR), undefined)
+  MAKEOBJ_PROGDIR := ../$(BUILDDIR)/$(TOOL)
 endif
 
+
 BUILDDIR := ../$(BUILDDIR)
-NETTOOL_PROGDIR := ../$(NETTOOL_PROGDIR)
 
 TOOL_PROGDIR = $(NETTOOL_PROGDIR)
 
