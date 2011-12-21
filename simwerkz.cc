@@ -1338,9 +1338,6 @@ image_id wkz_transformer_t::get_icon(const spieler_t *sp) const
 const char *wkz_transformer_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 {
 	DBG_MESSAGE("wkz_transformer_t()","called on %d,%d", k.x, k.y);
-	if(  !is_powerline_available(welt)  ) {
-		return "Powerline not available!";
-	}
 
 	grund_t *gr=welt->lookup_kartenboden(k.get_2d());
 	if(gr  &&  gr->get_grund_hang()==0  &&  !gr->ist_wasser()  &&  gr->ist_natur()  &&  gr->kann_alle_obj_entfernen(sp)==NULL) {
@@ -1663,9 +1660,15 @@ bool wkz_wegebau_t::init( karte_t *welt, spieler_t *sp )
 	two_click_werkzeug_t::init( welt, sp );
 
 	// now get current besch
-	besch = get_besch(welt->get_timeline_year_month(), is_local_execution());
-	if(besch  &&  besch->get_cursor()->get_bild_nr(0) != IMG_LEER) {
+	besch = get_besch( welt->get_timeline_year_month(), is_local_execution() );
+	if(  besch  &&  besch->get_cursor()->get_bild_nr(0) != IMG_LEER  ) {
 		cursor = besch->get_cursor()->get_bild_nr(0);
+	}
+	if(  besch  &&  welt->get_timeline_year_month()  &&  sp!=NULL  &&  sp!=welt->get_spieler(1)  ) {
+		if(  welt->get_timeline_year_month() < besch->get_intro_year_month()  ||  welt->get_timeline_year_month() >= besch->get_retire_year_month()  ) {
+			// non avaialable way => fail
+			return false;
+		}
 	}
 	return besch!=NULL;
 }
