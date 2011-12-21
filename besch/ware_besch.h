@@ -95,15 +95,15 @@ public:
 	 * not the per-tile fare
 	 * @author: jamespetts, November 2011
 	 */
-	sint64 get_fare(uint32 tile_distance) const
+	sint64 get_fare(uint32 tile_distance, uint32 starting_distance = 0) const
 	{
 		sint64 total_fare = 0;
-		uint16 per_tile_fare = 0;
+		uint16 per_tile_fare;
 		uint32 remaining_distance = tile_distance;
 		ITERATE(scaled_values, i)
 		{
 			per_tile_fare = scaled_values[i].price;
-			if(scaled_values[i].to_distance <= remaining_distance || i == scaled_values.get_count() - 1)
+			if(scaled_values[i].to_distance >= remaining_distance || i == scaled_values.get_count() - 1)
 			{
 				// The last item in the list must trigger the use of the full remaining distance.
 				total_fare += (sint64)per_tile_fare * remaining_distance;
