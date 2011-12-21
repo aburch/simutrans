@@ -281,6 +281,7 @@ private:
 public:
 	wkz_wayremover_t() : two_click_werkzeug_t() { id = WKZ_WAYREMOVER | GENERAL_TOOL; }
 	virtual const char *get_tooltip(const spieler_t *) const;
+	virtual image_id get_icon(spieler_t *sp) const;
 	virtual bool is_init_network_save() const { return true; }
 };
 

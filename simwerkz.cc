@@ -2192,6 +2192,23 @@ char const* wkz_wayremover_t::get_tooltip(spieler_t const*) const
 	return NULL;
 }
 
+image_id wkz_wayremover_t::get_icon(spieler_t *sp) const
+{
+	const karte_t *welt = sp->get_welt();
+	if(  !welt->get_settings().get_use_timeline()  ) {
+		return icon;
+	}
+	// find out if powerline is already available
+	if(  const weg_besch_t *w = wegbauer_t::get_earliest_way(powerline_wt)  ) {
+		return  welt->get_timeline_year_month() >= w->get_intro_year_month() ? icon : IMG_LEER;
+	}
+	// find out if powerline is still available
+	if(  const weg_besch_t *w = wegbauer_t::get_latest_way(powerline_wt)  ) {
+		return  welt->get_timeline_year_month() < w->get_retire_year_month() ? icon : IMG_LEER;
+	}
+	return IMG_LEER;
+}
+
 class electron_t : public fahrer_t {
 	bool ist_befahrbar(const grund_t* gr) const { return gr->get_leitung()!=NULL; }
 	virtual ribi_t::ribi get_ribi(const grund_t* gr) const { return gr->get_leitung()->get_ribi(); }
