@@ -411,6 +411,9 @@ void map_frame_t::zoom(bool zoom_out)
  */
 bool map_frame_t::infowin_event(const event_t *ev)
 {
+	event_t ev2 = *ev;
+	translate_event(&ev2, -scrolly.get_pos().x, -scrolly.get_pos().y-TITLEBAR_HEIGHT);
+
 	if(ev->ev_class == INFOWIN) {
 		if(ev->ev_code == WIN_OPEN) {
 			reliefkarte_t::get_karte()->set_xy_offset_size( koord(0,0), koord(0,0) );
@@ -420,7 +423,7 @@ bool map_frame_t::infowin_event(const event_t *ev)
 		}
 	}
 
-	if(  (IS_WHEELUP(ev) || IS_WHEELDOWN(ev))  &&  reliefkarte_t::get_karte()->getroffen(ev->mx-scrolly.get_pos().x,ev->my-scrolly.get_pos().y-TITLEBAR_HEIGHT)) {
+	if(  (IS_WHEELUP(ev) || IS_WHEELDOWN(ev))  &&  reliefkarte_t::get_karte()->getroffen(ev2.mx,ev2.my)  ) {
 		// otherwise these would go to the vertical scroll bar
 		zoom(IS_WHEELUP(ev));
 		return true;
@@ -445,7 +448,7 @@ bool map_frame_t::infowin_event(const event_t *ev)
 		reliefkarte_t::get_karte()->get_welt()->set_scroll_lock(false);
 		return true;
 	}
-	else if(  IS_RIGHTDRAG(ev)  &&  reliefkarte_t::get_karte()->getroffen(ev->mx,ev->my)  ) {
+	else if(  IS_RIGHTDRAG(ev)  &&  reliefkarte_t::get_karte()->getroffen(ev2.mx,ev2.my)  &&  reliefkarte_t::get_karte()->getroffen(ev2.cx,ev2.cy)  ) {
 		int x = scrolly.get_scroll_x();
 		int y = scrolly.get_scroll_y();
 		const int scroll_direction = ( umgebung_t::scroll_multi>0 ? 1 : -1 );
