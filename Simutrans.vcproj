@@ -127,7 +127,7 @@
 				Optimization="3"
 				InlineFunctionExpansion="0"
 				AdditionalIncludeDirectories="&quot;G:\Projects\SDL-1.2.10\include&quot;;&quot;G:\Program Files\PlatformSDK\Include&quot;;G:\Projects\zlib\include"
-				PreprocessorDefinitions="ZLIB_WINAPI;LITTLE_ENDIAN;NDEBUG;REVISION=&quot;4353&quot;;COLOUR_DEPTH=16"
+				PreprocessorDefinitions="ZLIB_WINAPI;LITTLE_ENDIAN;NDEBUG;COLOUR_DEPTH=16"
 				StringPooling="true"
 				ExceptionHandling="1"
 				BasicRuntimeChecks="0"
