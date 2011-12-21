@@ -201,7 +201,7 @@ convoi_frame_t::convoi_frame_t(spieler_t* sp) :
 	owner(sp),
 	vscroll( scrollbar_t::vertical ),
 	sort_label("cl_txt_sort"),
-	filter_label("cl_txt_filter")
+	filter_label("Filter:")
 {
 	filter_frame = NULL;
 
