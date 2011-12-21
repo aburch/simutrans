@@ -76,7 +76,7 @@ public:
 	virtual image_id get_icon(spieler_t *) const { return grund_t::underground_mode==grund_t::ugm_all ? IMG_LEER : icon; }
 	bool init( karte_t *, spieler_t * ) { is_dragging = false; return true; }
 	bool exit( karte_t *, spieler_t * ) { is_dragging = false; return true; }
-	const char *check( karte_t *, spieler_t *, koord3d );
+	const char *check_pos( karte_t *, spieler_t *, koord3d );
 	const char *work( karte_t *, spieler_t *, koord3d );
 	const char *move( karte_t *, spieler_t *, uint16 /* buttonstate */, koord3d );
 	virtual bool is_init_network_save() const { return true; }
@@ -92,7 +92,7 @@ public:
 	virtual image_id get_icon(spieler_t *) const { return grund_t::underground_mode==grund_t::ugm_all ? IMG_LEER : icon; }
 	bool init( karte_t *, spieler_t * ) { is_dragging = false; return true; }
 	bool exit( karte_t *, spieler_t * ) { is_dragging = false; return true; }
-	const char *check( karte_t *, spieler_t *, koord3d );
+	const char *check_pos( karte_t *, spieler_t *, koord3d );
 	const char *work( karte_t *, spieler_t *, koord3d);
 	const char *move( karte_t *, spieler_t *, uint16 /* buttonstate */, koord3d );
 	virtual bool is_init_network_save() const { return true; }
@@ -105,7 +105,7 @@ public:
 	static const char *wkz_set_slope_work( karte_t *welt, spieler_t *sp, koord3d pos, int slope );
 	const char *get_tooltip(const spieler_t *sp) const { return tooltip_with_price("Built artifical slopes", sp->get_welt()->get_settings().cst_set_slope); }
 	virtual bool is_init_network_save() const { return true; }
-	const char *check( karte_t *, spieler_t *, koord3d );
+	const char *check_pos( karte_t *, spieler_t *, koord3d );
 	virtual const char *work( karte_t *welt, spieler_t *sp, koord3d k ) { return wkz_set_slope_work( welt, sp, k, atoi(default_param) ); }
 };
 
@@ -114,7 +114,7 @@ public:
 	wkz_restoreslope_t() : werkzeug_t() { id = WKZ_RESTORESLOPE | GENERAL_TOOL; }
 	const char *get_tooltip(const spieler_t *sp) const { return tooltip_with_price("Restore natural slope", sp->get_welt()->get_settings().cst_set_slope); }
 	virtual bool is_init_network_save() const { return true; }
-	const char *check( karte_t *, spieler_t *, koord3d );
+	const char *check_pos( karte_t *, spieler_t *, koord3d );
 	virtual const char *work( karte_t *welt, spieler_t *sp, koord3d k ) { return wkz_setslope_t::wkz_set_slope_work( welt, sp, k, RESTORE_SLOPE ); }
 };
 
@@ -130,16 +130,20 @@ class wkz_clear_reservation_t : public werkzeug_t {
 public:
 	wkz_clear_reservation_t() : werkzeug_t() { id = WKZ_CLEAR_RESERVATION | GENERAL_TOOL; }
 	const char *get_tooltip(const spieler_t *) const { return translator::translate("Clear block reservation"); }
-	bool init( karte_t *, spieler_t * );
-	bool exit( karte_t *, spieler_t * );
+	virtual bool init( karte_t *, spieler_t * );
+	virtual bool exit( karte_t *, spieler_t * );
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
 	virtual bool is_init_network_save() const { return true; }
 };
 
 class wkz_transformer_t : public kartenboden_werkzeug_t {
+private:
+	bool is_powerline_available( const karte_t * ) const;
 public:
 	wkz_transformer_t() : kartenboden_werkzeug_t() { id = WKZ_TRANSFORMER | GENERAL_TOOL; }
-	const char *get_tooltip(const spieler_t *) const;
+	virtual const char *get_tooltip(const spieler_t *) const;
+	virtual image_id get_icon(const spieler_t *) const;
+	virtual bool init( karte_t *welt, spieler_t * ) { return is_powerline_available(welt); }
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
 	virtual bool is_init_network_save() const { return true; }
 };
@@ -262,7 +266,7 @@ public:
 	wkz_tunnelbau_t() : two_click_werkzeug_t() { id = WKZ_TUNNELBAU | GENERAL_TOOL; }
 	const char *get_tooltip(const spieler_t *) const;
 	virtual bool is_move_network_save(spieler_t *) const { return false;}
-	const char *check( karte_t *, spieler_t *, koord3d );
+	const char *check_pos( karte_t *, spieler_t *, koord3d );
 	virtual bool is_init_network_save() const { return true; }
 };
 
@@ -322,7 +326,7 @@ public:
 	virtual image_id get_icon(spieler_t *) const;
 	const char *get_tooltip(const spieler_t *) const;
 	bool init( karte_t *, spieler_t * );
-	const char *check( karte_t *, spieler_t *, koord3d );
+	const char *check_pos( karte_t *, spieler_t *, koord3d );
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
 	virtual bool is_init_network_save() const { return true; }
 };

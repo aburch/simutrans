@@ -765,7 +765,7 @@ const char *wkz_raise_t::move( karte_t *welt, spieler_t *sp, uint16 buttonstate,
 }
 
 
-const char *wkz_raise_t::check( karte_t *welt, spieler_t *, koord3d k )
+const char *wkz_raise_t::check_pos( karte_t *welt, spieler_t *, koord3d k )
 {
 	// check for underground mode
 	if (is_dragging  &&  drag_height-1 > grund_t::underground_level) {
@@ -854,7 +854,7 @@ const char *wkz_lower_t::move( karte_t *welt, spieler_t *sp, uint16 buttonstate,
 }
 
 
-const char *wkz_lower_t::check( karte_t *welt, spieler_t *, koord3d k )
+const char *wkz_lower_t::check_pos( karte_t *welt, spieler_t *, koord3d k )
 {
 	// check for underground mode
 	if (is_dragging  &&  drag_height+1 > grund_t::underground_level) {
@@ -923,7 +923,7 @@ const char *wkz_lower_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 }
 
 
-const char *wkz_setslope_t::check( karte_t *welt, spieler_t *, koord3d pos)
+const char *wkz_setslope_t::check_pos( karte_t *welt, spieler_t *, koord3d pos)
 {
 	grund_t *gr1 = welt->lookup(pos);
 	if(gr1) {
@@ -938,7 +938,7 @@ const char *wkz_setslope_t::check( karte_t *welt, spieler_t *, koord3d pos)
 	return NULL;
 }
 
-const char *wkz_restoreslope_t::check( karte_t *welt, spieler_t *, koord3d pos)
+const char *wkz_restoreslope_t::check_pos( karte_t *welt, spieler_t *, koord3d pos)
 {
 	grund_t *gr1 = welt->lookup(pos);
 	if(gr1) {
@@ -1303,7 +1303,6 @@ const char *wkz_clear_reservation_t::work( karte_t *welt, spieler_t *, koord3d k
 }
 
 
-
 // transformer for electricity supply
 const char* wkz_transformer_t::get_tooltip(const spieler_t *sp) const
 {
@@ -1312,9 +1311,37 @@ const char* wkz_transformer_t::get_tooltip(const spieler_t *sp) const
 	return toolstr;
 }
 
+bool wkz_transformer_t::is_powerline_available( const karte_t *welt ) const
+{
+	if(  !welt->get_settings().get_use_timeline()  ) {
+		return wegbauer_t::get_earliest_way(powerline_wt)!=0;
+	}
+	// find out if powerline is already available
+	if(  const weg_besch_t *w = wegbauer_t::get_earliest_way(powerline_wt)  ) {
+		return welt->get_timeline_year_month() >= w->get_intro_year_month();
+	}
+	// find out if powerline is still available
+	if(  const weg_besch_t *w = wegbauer_t::get_latest_way(powerline_wt)  ) {
+		return  welt->get_timeline_year_month() < w->get_retire_year_month();
+	}
+	return false;
+}
+
+image_id wkz_transformer_t::get_icon(const spieler_t *sp) const
+{
+	if(  is_powerline_available( sp->get_welt() )  ) {
+		return icon;
+	}
+	return IMG_LEER;
+}
+
 const char *wkz_transformer_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 {
-DBG_MESSAGE("wkz_senke()","called on %d,%d", k.x, k.y);
+	DBG_MESSAGE("wkz_transformer_t()","called on %d,%d", k.x, k.y);
+	if(  !is_powerline_available(welt)  ) {
+		return "Powerline not available!";
+	}
+
 	grund_t *gr=welt->lookup_kartenboden(k.get_2d());
 	if(gr  &&  gr->get_grund_hang()==0  &&  !gr->ist_wasser()  &&  gr->ist_natur()  &&  gr->kann_alle_obj_entfernen(sp)==NULL) {
 		fabrik_t *fab=leitung_t::suche_fab_4(k.get_2d());
@@ -1560,7 +1587,7 @@ karte_t *wkz_wegebau_t::welt = NULL;	// for default city road
 const weg_besch_t *wkz_wegebau_t::get_besch( uint16 timeline_year_month, bool remember ) const
 {
 	const weg_besch_t *besch = default_param ? wegbauer_t::get_besch(default_param,0) :NULL;
-	if(besch==NULL  &&  default_param  ) {
+	if(  besch==NULL  &&  default_param  ) {
 		waytype_t wt = (waytype_t)atoi(default_param);
 		besch = defaults[wt&63];
 		if(besch==NULL) {
@@ -1569,7 +1596,7 @@ const weg_besch_t *wkz_wegebau_t::get_besch( uint16 timeline_year_month, bool re
 		}
 	}
 	assert(besch);
-	if(remember) {
+	if(  remember  ) {
 		if(  besch->get_styp() == weg_t::type_tram  ) {
 			defaults[ tram_wt ] = besch;
 		}
@@ -2010,13 +2037,13 @@ const char* wkz_tunnelbau_t::get_tooltip(const spieler_t *sp) const
 	return toolstr;
 }
 
-const char *wkz_tunnelbau_t::check( karte_t *welt, spieler_t *sp, koord3d pos)
+const char *wkz_tunnelbau_t::check_pos( karte_t *welt, spieler_t *sp, koord3d pos)
 {
 	if (grund_t::underground_mode == grund_t::ugm_all) {
 		return NULL;
 	}
 	else {
-		return two_click_werkzeug_t::check(welt, sp, pos);
+		return two_click_werkzeug_t::check_pos(welt, sp, pos);
 	}
 }
 
@@ -3295,9 +3322,9 @@ invalid:
 }
 
 
-const char *wkz_station_t::check( karte_t *welt, spieler_t *sp, koord3d pos )
+const char *wkz_station_t::check_pos( karte_t *welt, spieler_t *sp, koord3d pos )
 {
-	const char *msg = werkzeug_t::check(welt,sp, pos);
+	const char *msg = werkzeug_t::check_pos(welt,sp, pos);
 	if (msg==NULL) {
 		sint8 rotation;
 		const haus_besch_t *besch=get_besch(rotation);

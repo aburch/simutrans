@@ -246,7 +246,7 @@ public:
 	 * check: called before work (and move too?) koord3d already valid coordinate, checks visibility
 	 * work / move should depend on undergroundmode for not network safe tools
 	 */
-	virtual const char *check( karte_t *, spieler_t *, koord3d );
+	virtual const char *check_pos( karte_t *, spieler_t *, koord3d );
 	virtual const char *work( karte_t *, spieler_t *, koord3d ) { return NULL; }
 	virtual const char *move( karte_t *, spieler_t *, uint16 /* buttonstate */, koord3d ) { return ""; }
 };
@@ -256,7 +256,7 @@ public:
  */
 class kartenboden_werkzeug_t : public werkzeug_t {
 public:
-	virtual const char *check( karte_t *, spieler_t *, koord3d );
+	virtual const char *check_pos( karte_t *, spieler_t *, koord3d );
 };
 
 /*

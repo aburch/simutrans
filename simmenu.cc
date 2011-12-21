@@ -733,13 +733,13 @@ bool werkzeug_t::is_selected(const karte_t *welt) const
 	return welt->get_werkzeug(welt->get_active_player_nr())==this;
 }
 
-const char *werkzeug_t::check( karte_t *welt, spieler_t *, koord3d pos)
+const char *werkzeug_t::check_pos( karte_t *welt, spieler_t *, koord3d pos )
 {
 	grund_t *gr = welt->lookup(pos);
 	return (gr  &&  !gr->is_visible()) ? "" : NULL;
 }
 
-const char *kartenboden_werkzeug_t::check( karte_t *welt, spieler_t *, koord3d pos)
+const char *kartenboden_werkzeug_t::check_pos( karte_t *welt, spieler_t *, koord3d pos )
 {
 	grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
 	return (gr  &&  !gr->is_visible()) ? "" : NULL;

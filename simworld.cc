@@ -5119,12 +5119,12 @@ void karte_t::bewege_zeiger(const event_t *ev)
 			werkzeug_t *wkz = werkzeug[get_active_player_nr()];
 			if(  !umgebung_t::networkmode  ||  wkz->is_move_network_save(get_active_player())) {
 				wkz->flags = event_get_last_control_shift() | werkzeug_t::WFL_LOCAL;
-				if(wkz->check( this, get_active_player(), zeiger->get_pos() )==NULL) {
+				if(wkz->check_pos( this, get_active_player(), zeiger->get_pos() )==NULL) {
 					if(  ev->button_state == 0  ) {
 						is_dragging = false;
 					}
 					else if(ev->ev_class==EVENT_DRAG) {
-						if(!is_dragging  &&  wkz->check( this, get_active_player(), prev_pos )==NULL) {
+						if(!is_dragging  &&  wkz->check_pos( this, get_active_player(), prev_pos )==NULL) {
 							wkz->move( this, get_active_player(), 1, prev_pos );
 							is_dragging = true;
 						}
@@ -5312,9 +5312,7 @@ void karte_t::interactive_event(event_t &ev)
 		}
 	}
 
-	if(  IS_LEFTRELEASE(&ev)
-		&&  ev.my < display_get_height()-32+(16*ticker::empty())
-	) {
+	if(  IS_LEFTRELEASE(&ev)  &&  ev.my < display_get_height() - 32 + (16*ticker::empty())  ) {
 
 		DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "calling a tool");
 
@@ -5323,7 +5321,7 @@ void karte_t::interactive_event(event_t &ev)
 			bool result = true;
 			werkzeug_t *wkz = werkzeug[get_active_player_nr()];
 			// first check for visibility etc
-			err = wkz->check( this, get_active_player(), zeiger->get_pos() );
+			err = wkz->check_pos( this, get_active_player(), zeiger->get_pos() );
 			if (err==NULL) {
 				wkz->flags = event_get_last_control_shift();
 				if (!umgebung_t::networkmode  ||  wkz->is_work_network_save()  ||  wkz->is_work_here_network_save( this, get_active_player(), zeiger->get_pos() ) ) {
