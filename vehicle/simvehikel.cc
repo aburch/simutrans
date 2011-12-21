@@ -406,7 +406,7 @@ void vehikel_basis_t::get_screen_offset( int &xoff, int &yoff, const sint16 rast
 {
 	// vehicles needs finer steps to appear smoother
 	sint32 display_steps = (uint32)steps*(uint16)raster_width;
-	if(dx | dy) {
+	if(dx*dy) {
 		display_steps &= 0xFFFFFC00;
 	}
 	else {

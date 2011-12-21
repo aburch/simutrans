@@ -294,6 +294,7 @@
     <ClCompile Include="dataobj\pakset_info.cc" />
     <ClCompile Include="gui\factory_chart.cc" />
     <ClCompile Include="gui\line_item.cc" />
+    <ClCompile Include="gui\privatesign_info.cc" />
     <ClCompile Include="gui\server_frame.cc" />
     <ClCompile Include="player\ai.cc" />
     <ClCompile Include="player\ai_goods.cc" />
@@ -553,7 +554,10 @@
     <ClInclude Include="dataobj\pakset_info.h" />
     <ClInclude Include="dataobj\pwd_hash.h" />
     <ClInclude Include="gui\components\action_listener.h" />
+    <ClInclude Include="gui\components\gui_fixedwidth_textarea.h" />
     <ClInclude Include="gui\factory_chart.h" />
+    <ClInclude Include="gui\privatesign_info.h" />
+    <ClInclude Include="gui\server_frame.h" />
     <ClInclude Include="player\ai.h" />
     <ClInclude Include="player\ai_goods.h" />
     <ClInclude Include="player\ai_passenger.h" />
