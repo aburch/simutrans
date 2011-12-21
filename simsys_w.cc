@@ -223,7 +223,9 @@ int dr_os_close(void)
 	AllDibData = NULL;
 	free(AllDib);
 	AllDib = NULL;
-	ChangeDisplaySettings(NULL, 0);
+	if(  is_fullscreen  ) {
+		ChangeDisplaySettings(NULL, 0);
+	}
 	return TRUE;
 }
 
