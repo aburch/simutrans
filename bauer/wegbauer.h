@@ -49,6 +49,8 @@ public:
 
 	static const weg_besch_t *get_latest_way(const waytype_t wtyp);
 
+	static bool waytype_available( const waytype_t wtyp, uint16 time );
+
 	/**
 	 * Fill menu with icons of given waytype
 	 * @author Hj. Malthaner

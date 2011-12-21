@@ -143,7 +143,7 @@ public:
 	wkz_transformer_t() : kartenboden_werkzeug_t() { id = WKZ_TRANSFORMER | GENERAL_TOOL; }
 	virtual const char *get_tooltip(const spieler_t *) const;
 	virtual image_id get_icon(const spieler_t *) const;
-	virtual bool init( karte_t *welt, spieler_t * ) { return is_powerline_available(welt); }
+	virtual bool init( karte_t *welt, spieler_t * );
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
 	virtual bool is_init_network_save() const { return true; }
 };
@@ -370,7 +370,7 @@ private:
 	const char *wkz_depot_aux(karte_t *welt, spieler_t *sp, koord3d pos, const haus_besch_t *besch, waytype_t wegtype, sint64 cost);
 public:
 	wkz_depot_t() : werkzeug_t() { id = WKZ_DEPOT | GENERAL_TOOL; }
-	virtual image_id get_icon(spieler_t *sp) const { return sp->get_player_nr()==1 ? IMG_LEER : icon; }
+	virtual image_id get_icon(spieler_t *sp) const;
 	virtual const char *get_tooltip(const spieler_t *) const;
 	virtual bool init( karte_t *, spieler_t * );
 	virtual const char *work( karte_t *, spieler_t *, koord3d );

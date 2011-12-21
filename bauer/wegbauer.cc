@@ -203,6 +203,23 @@ const weg_besch_t *wegbauer_t::get_latest_way(const waytype_t wtyp)
 }
 
 
+// ture if the way is available with timely
+bool wegbauer_t::waytype_available( const waytype_t wtyp, uint16 time )
+{
+	if(  time==0  ) {
+		return true;
+	}
+
+	for(  stringhashtable_iterator_tpl<const weg_besch_t*> iter(alle_wegtypen); iter.next();  ) {
+		const weg_besch_t* const test = iter.get_current_value();
+		if(  test->get_wtyp()==wtyp  &&  test->get_intro_year_month()<=time  &&  test->get_retire_year_month()>time  ) {
+			return true;
+		}
+	}
+	return false;
+}
+
+
 
 const weg_besch_t * wegbauer_t::get_besch(const char * way_name,const uint16 time)
 {

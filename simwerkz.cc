@@ -1311,28 +1311,14 @@ const char* wkz_transformer_t::get_tooltip(const spieler_t *sp) const
 	return toolstr;
 }
 
-bool wkz_transformer_t::is_powerline_available( const karte_t *welt ) const
-{
-	if(  !welt->get_settings().get_use_timeline()  ) {
-		return wegbauer_t::get_earliest_way(powerline_wt)!=0;
-	}
-	// find out if powerline is already available
-	if(  const weg_besch_t *w = wegbauer_t::get_earliest_way(powerline_wt)  ) {
-		return welt->get_timeline_year_month() >= w->get_intro_year_month();
-	}
-	// find out if powerline is still available
-	if(  const weg_besch_t *w = wegbauer_t::get_latest_way(powerline_wt)  ) {
-		return  welt->get_timeline_year_month() < w->get_retire_year_month();
-	}
-	return false;
-}
-
 image_id wkz_transformer_t::get_icon(const spieler_t *sp) const
 {
-	if(  is_powerline_available( sp->get_welt() )  ) {
-		return icon;
-	}
-	return IMG_LEER;
+	return wegbauer_t::waytype_available( powerline_wt, sp->get_welt()->get_timeline_year_month() ) ? icon : IMG_LEER;
+}
+
+bool wkz_transformer_t::init( karte_t *welt, spieler_t *)
+{
+	return wegbauer_t::waytype_available( powerline_wt, welt->get_timeline_year_month() );
 }
 
 const char *wkz_transformer_t::work( karte_t *welt, spieler_t *sp, koord3d k )
@@ -1800,6 +1786,7 @@ void wkz_wegebau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &sta
 	}
 }
 
+
 /* city road construction */
 const weg_besch_t *wkz_build_cityroad::get_besch(uint16,bool) const
 {
@@ -1827,6 +1814,7 @@ const char *wkz_build_cityroad::do_work( karte_t *welt, spieler_t *sp, const koo
 	return "";
 }
 
+
 /* bridge construction */
 const char* wkz_brueckenbau_t::get_tooltip(const spieler_t *sp) const
 {
@@ -1842,7 +1830,6 @@ const char* wkz_brueckenbau_t::get_tooltip(const spieler_t *sp) const
 	return toolstr;
 }
 
-
 const char *wkz_brueckenbau_t::do_work( karte_t *welt, spieler_t *sp, const koord3d &start, const koord3d &end )
 {
 	const bruecke_besch_t *besch = brueckenbauer_t::get_besch(default_param);
@@ -1855,6 +1842,7 @@ const char *wkz_brueckenbau_t::do_work( karte_t *welt, spieler_t *sp, const koor
 		return NULL; // all checks are performed before building.
 	}
 }
+
 void wkz_brueckenbau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &start, const koord3d &end )
 {
 	const ribi_t::ribi ribi_mark = ribi_typ(end-start);
@@ -1944,6 +1932,7 @@ void wkz_brueckenbau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d 
 	}
 	win_set_static_tooltip( tooltip_with_price("Building costs estimates", costs ) );
 }
+
 uint8 wkz_brueckenbau_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord3d &pos, const char *&error, const koord3d &start )
 {
 	const bruecke_besch_t *besch = brueckenbauer_t::get_besch(default_param);
@@ -2194,17 +2183,8 @@ char const* wkz_wayremover_t::get_tooltip(spieler_t const*) const
 
 image_id wkz_wayremover_t::get_icon(spieler_t *sp) const
 {
-	const karte_t *welt = sp->get_welt();
-	if(  !welt->get_settings().get_use_timeline()  ) {
+	if(  default_param  &&  wegbauer_t::waytype_available( (waytype_t)atoi(default_param), sp->get_welt()->get_timeline_year_month() )  ) {
 		return icon;
-	}
-	// find out if powerline is already available
-	if(  const weg_besch_t *w = wegbauer_t::get_earliest_way(powerline_wt)  ) {
-		return  welt->get_timeline_year_month() >= w->get_intro_year_month() ? icon : IMG_LEER;
-	}
-	// find out if powerline is still available
-	if(  const weg_besch_t *w = wegbauer_t::get_latest_way(powerline_wt)  ) {
-		return  welt->get_timeline_year_month() < w->get_retire_year_month() ? icon : IMG_LEER;
 	}
 	return IMG_LEER;
 }
@@ -3918,6 +3898,18 @@ const char *wkz_depot_t::wkz_depot_aux(karte_t *welt, spieler_t *sp, koord3d pos
 	return "";
 }
 
+image_id wkz_depot_t::get_icon(spieler_t *sp) const
+{
+	if(  sp  &&  sp->get_player_nr()!=1  ) {
+		const haus_besch_t *besch = hausbauer_t::find_tile(default_param,0)->get_besch();
+		const uint16 time = sp->get_welt()->get_timeline_year_month();
+		if(  time==0  ||  (besch->get_intro_year_month() >= time  &&  besch->get_retire_year_month() < time)  ) {
+			return besch->get_cursor()->get_bild_nr(1);
+		}
+	}
+	return IMG_LEER;
+}
+
 bool wkz_depot_t::init( karte_t *welt, spieler_t *sp )
 {
 	// no depots for player 1
@@ -3927,7 +3919,6 @@ bool wkz_depot_t::init( karte_t *welt, spieler_t *sp )
 	}
 	return false;
 }
-
 
 const char* wkz_depot_t::get_tooltip(const spieler_t *sp) const
 {
@@ -3949,7 +3940,6 @@ const char* wkz_depot_t::get_tooltip(const spieler_t *sp) const
 	}
 	return tooltip_with_price_maintenance(&welt, tip, price, settings.maint_building * besch.get_level());
 }
-
 
 const char *wkz_depot_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 {
