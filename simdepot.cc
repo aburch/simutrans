@@ -49,6 +49,7 @@ depot_t::depot_t(karte_t *welt,loadsave_t *file) : gebaeude_t(welt)
 		set_yoff(0);
 	}
 	all_depots.append(this);
+	selected_filter = VEHICLE_FILTER_RELEVANT;
 }
 
 
@@ -57,6 +58,7 @@ depot_t::depot_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_tile_besc
     gebaeude_t(welt, pos, sp, t)
 {
 	all_depots.append(this);
+	selected_filter = VEHICLE_FILTER_RELEVANT;
 }
 
 

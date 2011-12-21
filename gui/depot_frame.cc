@@ -87,7 +87,8 @@ depot_frame_t::depot_frame_t(depot_t* depot) :
 	scrolly_pas(&cont_pas),
 	scrolly_electrics(&cont_electrics),
 	scrolly_loks(&cont_loks),
-	scrolly_waggons(&cont_waggons)
+	scrolly_waggons(&cont_waggons),
+	lb_vehicle_filter("Filter:", COL_BLACK, gui_label_t::left)
 {
 DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->get_max_convoi_length());
 	selected_line = depot->get_selected_line();
@@ -193,6 +194,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	add_komponente(&tabs);
 	add_komponente(&div_tabbottom);
 	add_komponente(&lb_veh_action);
+	add_komponente(&lb_vehicle_filter);
 
 	veh_action = va_append;
 	bt_veh_action.set_typ(button_t::roundbox);
@@ -213,6 +215,9 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	bt_show_all.add_listener(this);
 	bt_show_all.set_tooltip("Show also vehicles that do not match for current action.");
 	add_komponente(&bt_show_all);
+
+	vehicle_filter.add_listener(this);
+	add_komponente(&vehicle_filter);
 
 	koord gr = koord(0,0);
 	build_vehicle_lists();
@@ -316,7 +321,7 @@ void depot_frame_t::layout(koord *gr)
 	/*
 	*	Structure of [VINFO] is one multiline text.
 	*/
-	int VINFO_HEIGHT = 9*LINESPACE-1;
+	int VINFO_HEIGHT = 11*LINESPACE-1;
 
 	/*
 	* Total width is the max from [CONVOI] and [ACTIONS] width.
@@ -493,16 +498,22 @@ void depot_frame_t::layout(koord *gr)
 	div_tabbottom.set_pos(koord(0,PANEL_VSTART+PANEL_HEIGHT));
 	div_tabbottom.set_groesse(koord(TOTAL_WIDTH,0));
 
-	lb_veh_action.set_pos(koord(TOTAL_WIDTH-ABUTTON_WIDTH, PANEL_VSTART + PANEL_HEIGHT+4));
+	lb_veh_action.set_pos(koord(TOTAL_WIDTH-ABUTTON_WIDTH, PANEL_VSTART + PANEL_HEIGHT + 4));
 
-	bt_veh_action.set_pos(koord(TOTAL_WIDTH-ABUTTON_WIDTH, PANEL_VSTART + PANEL_HEIGHT + 14));
+	bt_veh_action.set_pos(koord(TOTAL_WIDTH-ABUTTON_WIDTH, PANEL_VSTART + PANEL_HEIGHT + 16));
 	bt_veh_action.set_groesse(koord(ABUTTON_WIDTH, ABUTTON_HEIGHT));
 
-	bt_show_all.set_pos(koord(TOTAL_WIDTH-(ABUTTON_WIDTH*5)/2, PANEL_VSTART + PANEL_HEIGHT + 4 ));
+	bt_show_all.set_pos(koord(4, PANEL_VSTART + PANEL_HEIGHT + 14 ));
 	bt_show_all.pressed = show_all;
 
-	bt_obsolete.set_pos(koord(TOTAL_WIDTH-(ABUTTON_WIDTH*5)/2, PANEL_VSTART + PANEL_HEIGHT + 16));
+	bt_obsolete.set_pos(koord(4, PANEL_VSTART + PANEL_HEIGHT+28));
 	bt_obsolete.pressed = show_retired_vehicles;
+
+	lb_vehicle_filter.set_pos(koord(TOTAL_WIDTH - (ABUTTON_WIDTH*5)/2 + 4, PANEL_VSTART + PANEL_HEIGHT + 4));
+
+	vehicle_filter.set_pos(koord(TOTAL_WIDTH - (ABUTTON_WIDTH*5)/2 + 4, PANEL_VSTART + PANEL_HEIGHT + 16));
+	vehicle_filter.set_groesse(koord(ABUTTON_WIDTH + 30, 14));
+	vehicle_filter.set_max_size(koord(ABUTTON_WIDTH + 60, LINESPACE * 8));
 
 	const uint8 margin = 4;
 	img_bolt.set_pos(koord(get_fenstergroesse().x-skinverwaltung_t::electricity->get_bild(0)->get_pic()->w-margin,margin));
@@ -556,6 +567,37 @@ void depot_frame_t::add_to_vehicle_list(const vehikel_besch_t *info)
 	// prissi: ist a non-electric track?
 	// Hajo: check for timeline
 	// prissi: and retirement date
+
+	// Check if vehicle should be filtered
+	const ware_besch_t *freight = info->get_ware();
+	// Only filter when required and never filter engines
+	if (depot->selected_filter > 0 && info->get_zuladung() > 0) {
+		if (depot->selected_filter == VEHICLE_FILTER_RELEVANT) {
+			if(freight->get_catg_index() >= 3) {
+				const vector_tpl<const ware_besch_t*> &goods = get_welt()->get_goods_list();
+				bool found = false;
+				for(uint32 i = 0; i<goods.get_count(); i++) {
+					if (freight->get_catg_index() == goods[i]->get_catg_index()) {
+						found = true;
+						break;
+					}
+				}
+
+				// If no current goods can be transported by this vehicle, don't display it
+				if (!found) return;
+			}
+		} else if (depot->selected_filter > VEHICLE_FILTER_RELEVANT) {
+			// Filter on specific selected good
+			uint32 goods_index = depot->selected_filter - VEHICLE_FILTER_GOODS_OFFSET;
+			if (goods_index < get_welt()->get_goods_list().get_count()) {
+				const ware_besch_t *selected_good = get_welt()->get_goods_list()[goods_index];
+				if (freight->get_catg_index() != selected_good->get_catg_index()) {
+					return; // This vehicle can't transport the selected good
+				}
+			}
+		}
+	}
+
 	gui_image_list_t::image_data_t img_data;
 
 	img_data.image = info->get_basis_bild();
@@ -850,6 +892,21 @@ void depot_frame_t::update_data()
 			line_selector.set_selection( line_selector.count_elements()-1 );
 		}
 	}
+
+	// Update vehicle filter
+	vehicle_filter.clear_elements();
+	vehicle_filter.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("All"), COL_BLACK));
+	vehicle_filter.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("Relevant"), COL_BLACK));
+
+	const vector_tpl<const ware_besch_t*> &goods = get_welt()->get_goods_list();
+	for(uint32 i = 0; i<goods.get_count(); i++) {
+		vehicle_filter.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(goods[i]->get_name()), COL_BLACK));
+	}
+
+	if (depot->selected_filter > vehicle_filter.count_elements()) {
+		depot->selected_filter = VEHICLE_FILTER_RELEVANT;
+	}
+	vehicle_filter.set_selection(depot->selected_filter);
 }
 
 
@@ -1028,6 +1085,8 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 				depot->set_selected_line(selected_line);
 				line_selector.set_selection( 0 );
 			}
+		} else if(komp == &vehicle_filter) {
+			depot->selected_filter = vehicle_filter.get_selection();
 		}
 		else {
 			return false;
@@ -1350,7 +1409,7 @@ void depot_frame_t::draw_vehicle_info_text(koord pos)
 				veh_type->get_geschw()
 				);
 		}
-		display_multiline_text( pos.x + 4, pos.y + tabs.get_pos().y + tabs.get_groesse().y + 31 + LINESPACE*1 + 4, buf,  COL_BLACK);
+		display_multiline_text( pos.x + 4, pos.y + tabs.get_pos().y + tabs.get_groesse().y + 31 + LINESPACE*1 + 4 + 16, buf,  COL_BLACK);
 
 		// column 2
 		int n = sprintf(buf, "%s %s %04d\n",
@@ -1389,7 +1448,7 @@ void depot_frame_t::draw_vehicle_info_text(koord pos)
 			sprintf(buf + strlen(buf), "%s %d Cr", translator::translate("Restwert:"), 	value);
 		}
 
-		display_multiline_text( pos.x + 200, pos.y + tabs.get_pos().y + tabs.get_groesse().y + 31 + LINESPACE*2 + 4, buf, COL_BLACK);
+		display_multiline_text( pos.x + 200, pos.y + tabs.get_pos().y + tabs.get_groesse().y + 31 + LINESPACE*2 + 4 + 16, buf, COL_BLACK);
 	}
 	POP_CLIP();
 }

@@ -126,6 +126,9 @@ private:
 	static char no_line_text[128];
 	gui_combobox_t line_selector;
 
+	gui_combobox_t vehicle_filter;
+	gui_label_t lb_vehicle_filter;
+
 	gui_image_t img_bolt;
 
 	linehandle_t selected_line;

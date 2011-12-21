@@ -47,6 +47,7 @@ class scenario_t;
 class message_t;
 class weg_besch_t;
 class network_world_command_t;
+class ware_besch_t;
 class memory_rw_t;
 
 
@@ -213,6 +214,9 @@ private:
 	vector_tpl<convoihandle_t> convoi_array;
 
 	slist_tpl<fabrik_t *> fab_list;
+
+	// Stores a list of goods produced by factories currently in the game;
+	vector_tpl<const ware_besch_t*> goods_in_game;
 
 	weighted_vector_tpl<gebaeude_t *> ausflugsziele;
 
@@ -903,6 +907,9 @@ public:
 	int get_fab_index(fabrik_t* fab)  const { return fab_list.index_of(fab); }
 	fabrik_t* get_fab(unsigned index) const { return index < fab_list.get_count() ? fab_list.at(index) : NULL; }
 	const slist_tpl<fabrik_t*>& get_fab_list() const { return fab_list; }
+
+	// Returns a list of goods produced by factories that exist in current game
+	const vector_tpl<const ware_besch_t*> &get_goods_list();
 
 	/**
 	 * sucht naechstgelegene Stadt an Position i,j

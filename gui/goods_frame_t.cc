@@ -18,8 +18,6 @@
 #include "../simcolor.h"
 #include "../simworld.h"
 
-#include "../simfab.h"
-
 /**
  * This variable defines the current speed for bonus calculation
  * @author prissi
@@ -166,20 +164,8 @@ void goods_frame_t::sort_list()
 	sortedby.set_text(sort_text[sortby]);
 	sorteddir.set_text(sortreverse ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
 
-	slist_tpl<const ware_besch_t*> goods_in_game;
-	if (filter_goods){
-		goods_in_game.append( warenbauer_t::passagiere );
-		goods_in_game.append( warenbauer_t::post );
-		//Build a list of the goods produced by the factories that exist in the current game
-		const slist_tpl<fabrik_t*> &factories_in_game = welt->get_fab_list();
-		for (slist_tpl<fabrik_t *>::const_iterator factory = factories_in_game.begin(), end = factories_in_game.end(); factory != end;  ++factory) {
-			slist_tpl<const ware_besch_t*> *produced_goods = (*factory)->get_produced_goods();
-			for (slist_tpl<const ware_besch_t*>::iterator good = produced_goods->begin(), end = produced_goods->end(); good != end; ++good) {
-				goods_in_game.append_unique(*good);
-			}
-			delete produced_goods;
-		}
-	}
+	// Fetch the list of goods produced by the factories that exist in the current game
+	const vector_tpl<const ware_besch_t*> &goods_in_game = welt->get_goods_list();
 
 	int n=0;
 	for(unsigned int i=0; i<warenbauer_t::get_waren_anzahl(); i++) {

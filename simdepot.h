@@ -13,6 +13,9 @@
 #include "convoihandle_t.h"
 #include "simline.h"
 
+#define VEHICLE_FILTER_RELEVANT 1
+#define VEHICLE_FILTER_GOODS_OFFSET 2
+
 
 class karte_t;
 class vehikel_t;
@@ -48,6 +51,9 @@ protected:
 	static slist_tpl<depot_t *> all_depots;
 
 public:
+	// Last selected vehicle filter
+	int selected_filter;
+
 	// finds the next/previous depot relative to the current position
 	static depot_t *find_depot( koord3d start, const ding_t::typ depot_type, const spieler_t *sp, bool next);
 
@@ -201,7 +207,6 @@ public:
 	 */
 	void set_selected_line(const linehandle_t sel_line);
 	linehandle_t get_selected_line();
-
 
 	/*
 	 * Will update all depot_frame_t (new vehicles!)

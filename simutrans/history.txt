@@ -10,6 +10,7 @@
 	FIX: several bugs with airplanes and reservation
 	ADD: cities build bridges over rivers
 	FIX: clip buildings to not shine through bridges
+	ADD: (falconne) filter vehicles in depots according to their freight
 
 
 Release of 111.0 (r4911 on 1-Nov-2011):

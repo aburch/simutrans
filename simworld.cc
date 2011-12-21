@@ -2489,6 +2489,7 @@ karte_t::add_fab(fabrik_t *fab)
 //DBG_MESSAGE("karte_t::add_fab()","fab = %p",fab);
 	assert(fab != NULL);
 	fab_list.insert( fab );
+	goods_in_game.clear(); // Force rebuild of goods list
 	return true;
 }
 
@@ -2500,6 +2501,9 @@ bool karte_t::rem_fab(fabrik_t *fab)
 	if(!fab_list.remove( fab )) {
 		return false;
 	}
+
+	// Force rebuild of goods list
+	goods_in_game.clear();
 
 	// now all the interwoven connections must be cleared
 	koord pos = fab->get_pos().get_2d();
@@ -5940,4 +5944,38 @@ void karte_t::network_disconnect()
 	last_active_player_nr = active_player_nr;
 
 	beenden(false);
+}
+
+
+static bool sort_ware_by_name(const ware_besch_t* a, const ware_besch_t* b)
+{
+	int diff = strcmp(translator::translate(a->get_name()), translator::translate(b->get_name()));
+	return diff < 0;
+}
+
+// Returns a list of goods produced by factories that exist in current game
+const vector_tpl<const ware_besch_t*> &karte_t::get_goods_list()
+{
+	if (goods_in_game.get_count() == 0) {
+		// Goods list needs to be rebuilt
+
+		// Reset last vehicle filter in all depots, in case goods list has changed
+		slist_iterator_tpl<depot_t *> iter(depot_t::get_depot_list());
+		while (iter.next()) {
+			iter.get_current()->selected_filter = VEHICLE_FILTER_RELEVANT;
+		}
+
+		const slist_tpl<fabrik_t*> &factories_in_game = get_fab_list();
+		for (slist_tpl<fabrik_t *>::const_iterator factory = factories_in_game.begin(), end = factories_in_game.end(); factory != end;  ++factory) {
+			slist_tpl<const ware_besch_t*> *produced_goods = (*factory)->get_produced_goods();
+			for (slist_tpl<const ware_besch_t*>::iterator good = produced_goods->begin(), end = produced_goods->end(); good != end; ++good) {
+				goods_in_game.insert_unique_ordered(*good, sort_ware_by_name);
+			}
+			delete produced_goods;
+		}
+		goods_in_game.insert_at(0, warenbauer_t::passagiere);
+		goods_in_game.insert_at(1, warenbauer_t::post);
+	}
+
+	return goods_in_game;
 }
