@@ -728,7 +728,7 @@ int simu_main(int argc, char** argv)
 	}
 	// parse ~/simutrans/pakxyz/config.tab"
 	if(umgebung_t::user_dir!=umgebung_t::program_dir  &&  umgebung_t::default_einstellungen.get_with_private_paks()  ) {
-		const string obj_conf = string(umgebung_t::user_dir) + umgebung_t::objfilename + "config/simuconf.tab";
+		string obj_conf = string(umgebung_t::user_dir) + umgebung_t::objfilename + "config/simuconf.tab";
 		if (simuconf.open(obj_conf.c_str())) {
 			sint16 idummy;
 			printf("parse_simuconf() at %s: ", obj_conf.c_str());
