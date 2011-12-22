@@ -825,7 +825,7 @@ void convoi_t::calc_acceleration(long delta_t)
 
 		// calc route infos
 		route_infos.set_count(route_count);
-		uint16 i = current_route_index - 1;
+		uint16 i = max(0, current_route_index - 2);
 
 		koord3d current_tile = route.position_bei(i);
 		convoi_t::route_info_t &start_info = route_infos.get_element(i);
