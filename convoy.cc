@@ -135,6 +135,7 @@ void adverse_summary_t::add_vehicle(const vehikel_besch_t &b, bool is_first)
 	if (is_first) 
 	{
 		cf = b.get_air_resistance();
+		fr = 0;
 	}
 
 	fr += b.get_rolling_resistance();
