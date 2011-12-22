@@ -735,6 +735,14 @@ int simu_main(int argc, char** argv)
 			umgebung_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 			simuconf.close();
 		}
+		// and parse user settings again ...
+		obj_conf = string(umgebung_t::user_dir) + "simuconf.tab";
+		if (simuconf.open(obj_conf.c_str())) {
+			sint16 idummy;
+			printf("parse_simuconf() at %s: ", obj_conf.c_str());
+			umgebung_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
+			simuconf.close();
+		}
 	}
 
 	// now (re)set the correct length from the pak
