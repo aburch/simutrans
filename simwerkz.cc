@@ -3903,7 +3903,7 @@ image_id wkz_depot_t::get_icon(spieler_t *sp) const
 	if(  sp  &&  sp->get_player_nr()!=1  ) {
 		const haus_besch_t *besch = hausbauer_t::find_tile(default_param,0)->get_besch();
 		const uint16 time = sp->get_welt()->get_timeline_year_month();
-		if(  time==0  ||  (besch->get_intro_year_month() >= time  &&  besch->get_retire_year_month() < time)  ) {
+		if(  time==0  ||  (besch->get_intro_year_month() <= time  &&  time < besch->get_retire_year_month())  ) {
 			return besch->get_cursor()->get_bild_nr(1);
 		}
 	}
