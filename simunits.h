@@ -178,6 +178,7 @@ inline sint32 v_to_speed(const float32e8_t &v)
 // scale to convert between simutrans speed and m/s
 const float32e8_t yards2m((uint32) 10 * VEHICLE_SPEED_FACTOR, (uint32) 36 * 1024 * DT_TIME_FACTOR);
 const float32e8_t m2yards((uint32) 36 * 1024 * DT_TIME_FACTOR, (uint32) 10 * VEHICLE_SPEED_FACTOR);
+const float32e8_t steps2yards((uint32)1 << YARDS_PER_VEHICLE_STEP_SHIFT);
 
 inline float32e8_t yards_to_x(const sint32 yards)
 {
@@ -191,7 +192,7 @@ inline sint32 x_to_yards(const float32e8_t &x)
 
 inline float32e8_t steps_to_x(const float32e8_t &simtime_factor, const sint32 steps)
 {
-	return yards_to_x(steps << YARDS_PER_VEHICLE_STEP_SHIFT) * simtime_factor;
+	return yards_to_x(steps2yards * float32e8_t(steps) * simtime_factor);
 }
 
 inline sint32 x_to_steps(const float32e8_t &simtime_factor, const float32e8_t x)
