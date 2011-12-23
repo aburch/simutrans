@@ -61,6 +61,8 @@
 #    target (undefined means no limit)
 # USE_DIFFERENT_WIND: different airplane approach directions over the map
 # DESTINATION_CITYCARS: Citycars can have a destination (not recommended)
+# COMMAND_LINE_SERVER: Necessary for compiling with simgraph0.cc for the 
+# command line only server.
 #
 # In order to use the flags, add a line like this: (-Dxxx)
 # FLAGS = -DUSE_C
