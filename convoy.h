@@ -283,6 +283,13 @@ protected:
 	sint32 power_index_to_power(sint32 power_index, sint32 power_factor);
 public:
 	/**
+	 * Update adverse.max_speed. If given speed is less than current adverse.max_speed, then speed becomes the new adverse.max_speed.
+	 */
+	void update_max_speed(const int speed) { 
+		if (adverse.max_speed > speed ) adverse.max_speed = speed; 
+	}
+
+	/**
 	 * For calculating max speed at an arbitrary weight apply this result to your weight_summary_t() constructor as param sin_alpha.
 	 */
 	virtual sint16 get_current_friction() = 0;
