@@ -256,7 +256,7 @@ public:
  */
 class kartenboden_werkzeug_t : public werkzeug_t {
 public:
-	virtual const char *check_pos( karte_t *, spieler_t *, koord3d );
+	char const* check_pos(karte_t*, spieler_t*, koord3d) OVERRIDE;
 };
 
 /*
@@ -270,15 +270,15 @@ public:
 		MEMZERO(start_marker);
 	}
 
-	virtual void rdwr_custom_data(uint8 player_nr, memory_rw_t*);
-	virtual bool init( karte_t *, spieler_t * );
-	virtual bool exit( karte_t *welt, spieler_t *sp ) { return init( welt, sp ); }
+	void rdwr_custom_data(uint8 player_nr, memory_rw_t*) OVERRIDE;
+	bool init(karte_t*, spieler_t*) OVERRIDE;
+	bool exit(karte_t* const welt, spieler_t* const sp) OVERRIDE { return init(welt, sp); }
 
-	virtual const char *work( karte_t *, spieler_t *, koord3d );
-	virtual const char *move( karte_t *, spieler_t *, uint16 /* buttonstate */, koord3d );
+	char const* work(karte_t*, spieler_t*, koord3d) OVERRIDE;
+	char const* move(karte_t*, spieler_t*, uint16 /* buttonstate */, koord3d) OVERRIDE;
 
-	virtual bool is_move_network_save(spieler_t *) const { return true; }
-	virtual bool is_work_here_network_save(karte_t *, spieler_t *, koord3d);
+	bool is_move_network_save(spieler_t*) const OVERRIDE { return true; }
+	bool is_work_here_network_save(karte_t*, spieler_t *, koord3d) OVERRIDE;
 
 	bool is_first_click(spieler_t *sp) const;
 	void cleanup( spieler_t *, bool delete_start_marker );
@@ -336,17 +336,17 @@ public:
 		wzw = NULL;
 		iconsize = size;
 	}
-	const char *get_tooltip(const spieler_t *) const { return translator::translate(default_param); }
+	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate(default_param); }
 	werkzeug_waehler_t *get_werkzeug_waehler() const { return wzw; }
-	virtual image_id get_icon(spieler_t *) const;
-	bool is_selected(const karte_t *welt) const;
-	virtual bool is_init_network_save() const { return true; }
-	virtual bool is_work_network_save() const { return true; }
-	virtual bool is_move_network_save(spieler_t *) const { return true; }
+	image_id get_icon(spieler_t*) const OVERRIDE;
+	bool is_selected(karte_t const*) const OVERRIDE;
+	bool is_init_network_save() const OVERRIDE { return true; }
+	bool is_work_network_save() const OVERRIDE { return true; }
+	bool is_move_network_save(spieler_t*) const OVERRIDE { return true; }
 	// show this toolbar
-	virtual bool init(karte_t *w, spieler_t *sp);
+	bool init(karte_t*, spieler_t*) OVERRIDE;
 	// close this toolbar
-	virtual bool exit( karte_t *welt, spieler_t *sp );
+	bool exit(karte_t*, spieler_t*) OVERRIDE;
 	void update(karte_t *, spieler_t *);	// just refresh content
 	void append(werkzeug_t *w) { tools.append(w); }
 };
