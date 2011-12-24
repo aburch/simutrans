@@ -1311,7 +1311,7 @@ const char* wkz_transformer_t::get_tooltip(const spieler_t *sp) const
 	return toolstr;
 }
 
-image_id wkz_transformer_t::get_icon(const spieler_t *sp) const
+image_id wkz_transformer_t::get_icon(spieler_t* const sp) const
 {
 	return wegbauer_t::waytype_available( powerline_wt, sp->get_welt()->get_timeline_year_month() ) ? icon : IMG_LEER;
 }

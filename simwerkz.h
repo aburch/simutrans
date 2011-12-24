@@ -142,7 +142,7 @@ private:
 public:
 	wkz_transformer_t() : kartenboden_werkzeug_t() { id = WKZ_TRANSFORMER | GENERAL_TOOL; }
 	virtual const char *get_tooltip(const spieler_t *) const;
-	virtual image_id get_icon(const spieler_t *) const;
+	image_id get_icon(spieler_t*) const OVERRIDE;
 	virtual bool init( karte_t *welt, spieler_t * );
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
 	virtual bool is_init_network_save() const { return true; }
