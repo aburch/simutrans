@@ -16,7 +16,7 @@ public:
 	COLOR_VAL get_color() OVERRIDE;
 	linehandle_t get_line() const { return line; }
 	void set_color(COLOR_VAL) OVERRIDE { assert(false); }
-	char const* get_text() OVERRIDE;
+	char const* get_text() const OVERRIDE;
 	void set_text(char const*) OVERRIDE;
 	bool is_valid() OVERRIDE { return line.is_bound(); }	//  can be used to indicate invalid entries
 };

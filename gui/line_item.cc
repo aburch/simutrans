@@ -5,7 +5,7 @@
 #include "../utils/cbuffer_t.h"
 
 
-const char* line_scrollitem_t::get_text()
+const char* line_scrollitem_t::get_text() const
 {
 	return line->get_name();
 }
