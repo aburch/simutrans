@@ -866,7 +866,10 @@ void convoi_t::calc_acceleration(long delta_t)
 	{
 		uint32 i = current_route_index - 1;
 		const convoi_t::route_info_t &current_info = route_infos.get_element(i);
-		convoy.update_max_speed(speed_to_kmh(current_info.speed_limit));
+		if (current_info.speed_limit != SPEED_UNLIMITED)
+		{
+			convoy.update_max_speed(speed_to_kmh(current_info.speed_limit));
+		}
 		const convoi_t::route_info_t &limit_info = route_infos.get_element(next_stop_index - 1);
 		steps_til_limit = limit_info.steps_from_start - current_info.steps_from_start;
 		steps_til_brake = steps_til_limit - brake_steps;
