@@ -9,16 +9,16 @@ class tunnel_reader_t : public obj_reader_t {
 
 	tunnel_reader_t() { register_reader(); }
 protected:
-	virtual void register_obj(obj_besch_t *&data);
+	void register_obj(obj_besch_t*&) OVERRIDE;
 
-	bool successfully_loaded() const;
+	bool successfully_loaded() const OVERRIDE;
 public:
 	static tunnel_reader_t*instance() { return &the_instance; }
 
-	obj_besch_t * read_node(FILE *fp, obj_node_info_t &node);
+	obj_besch_t* read_node(FILE*, obj_node_info_t&) OVERRIDE;
 
-	virtual obj_type get_type() const { return obj_tunnel; }
-	virtual const char *get_type_name() const { return "tunnel"; }
+	obj_type get_type() const OVERRIDE { return obj_tunnel; }
+	char const* get_type_name() const OVERRIDE { return "tunnel"; }
 };
 
 #endif

@@ -9,14 +9,14 @@ class tree_reader_t : public obj_reader_t {
 
 	tree_reader_t() { register_reader(); }
 protected:
-	virtual bool successfully_loaded() const;
-	virtual void register_obj(obj_besch_t *&data);
+	bool successfully_loaded() const OVERRIDE;
+	void register_obj(obj_besch_t*&) OVERRIDE;
 public:
 	static tree_reader_t*instance() { return &the_instance; }
 
-	virtual obj_type get_type() const { return obj_tree; }
-	virtual const char *get_type_name() const { return "tree"; }
-	virtual obj_besch_t *read_node(FILE *fp, obj_node_info_t &node);
+	obj_type get_type() const OVERRIDE { return obj_tree; }
+	char const* get_type_name() const OVERRIDE { return "tree"; }
+	obj_besch_t* read_node(FILE*, obj_node_info_t&) OVERRIDE;
 };
 
 #endif
