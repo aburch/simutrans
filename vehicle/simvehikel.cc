@@ -3977,7 +3977,7 @@ bool aircraft_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route
 
 void aircraft_t::hop()
 {
-	if(!get_flag(ding_t::dirty)) {
+	if(  !get_flag(ding_t::dirty)  ) {
 		mark_image_dirty( bild, get_yoff()-flughoehe-hoff-2 );
 	}
 
@@ -3989,92 +3989,96 @@ void aircraft_t::hop()
 	const sint16 h_next = height_scaling((sint16)pos_next.z)*TILE_HEIGHT_STEP/Z_TILE_STEP;
 
 	switch(state) {
-		case departing:
-			{
-				flughoehe = 0;
-				target_height = h_cur;
-				new_friction = max( 0, 25-route_index-takeoff )*4;
+		case departing: {
+			flughoehe = 0;
+			target_height = h_cur;
+			new_friction = max( 1, 28/(1+(route_index-takeoff)*2) ); // 9 5 4 3 2 2 1 1...
 
-				// take off, when a) end of runway or b) last tile of runway or c) fast enough
-				weg_t *weg=welt->lookup(get_pos())->get_weg(air_wt);
-				if(
-					(weg==NULL  ||  // end of runway (broken runway)
-					 weg->get_besch()->get_styp()!=1  ||  // end of runway (gras now ... )
-					 (route_index>takeoff+1  &&  ribi_t::ist_einfach(weg->get_ribi_unmasked())) )  ||  // single ribi at end of runway
-					 cnv->get_akt_speed()>kmh_to_speed(besch->get_geschw())/3 // fast enough
-				){
-					state = flying;
-					new_friction = 16;
-					block_reserver( takeoff, takeoff+100, false );
-					flughoehe = h_cur - h_next;
-					target_height = h_cur+TILE_HEIGHT_STEP*3;
-				}
+			// take off, when a) end of runway or b) last tile of runway or c) fast enough
+			weg_t *weg=welt->lookup(get_pos())->get_weg(air_wt);
+			if(  (weg==NULL  ||  // end of runway (broken runway)
+				 weg->get_besch()->get_styp()!=1  ||  // end of runway (grass now ... )
+				 (route_index>takeoff+1  &&  ribi_t::ist_einfach(weg->get_ribi_unmasked())) )  ||  // single ribi at end of runway
+				 cnv->get_akt_speed()>kmh_to_speed(besch->get_geschw())/3 // fast enough
+			) {
+				state = flying;
+				new_friction = 1;
+				block_reserver( takeoff, takeoff+100, false );
+				flughoehe = h_cur - h_next;
+				target_height = h_cur+TILE_HEIGHT_STEP*3;
 			}
 			break;
-
-		case circling:
+		}
+		case circling: {
 			new_speed_limit = kmh_to_speed(besch->get_geschw())/3;
-			new_friction = 16;
+			new_friction = 4;
 			// do not change height any more while circling
 			flughoehe += h_cur;
 			flughoehe -= h_next;
 			break;
-
-		case flying:
+		}
+		case flying: {
 			// since we are at a tile border, round up to the nearest value
 			flughoehe += h_cur;
-			if(flughoehe<target_height) {
+			if(  flughoehe < target_height  ) {
 				flughoehe = (flughoehe+TILE_HEIGHT_STEP) & ~(TILE_HEIGHT_STEP-1);
 			}
-			else if(flughoehe>target_height) {
+			else if(  flughoehe > target_height  ) {
 				flughoehe = (flughoehe-TILE_HEIGHT_STEP);
 			}
 			flughoehe -= h_next;
 			// did we have to change our flight height?
-			if(target_height-h_next > TILE_HEIGHT_STEP*5) {
+			if(  target_height-h_next > TILE_HEIGHT_STEP*5  ) {
 				// sinken
 				target_height -= TILE_HEIGHT_STEP*2;
 			}
-			else if(target_height-h_next < TILE_HEIGHT_STEP*2) {
+			else if(  target_height-h_next < TILE_HEIGHT_STEP*2  ) {
 				// steigen
 				target_height += TILE_HEIGHT_STEP*2;
 			}
 			break;
-
-		case landing:
-		{
+		}
+		case landing: {
 			flughoehe += h_cur;
-			new_speed_limit = kmh_to_speed(besch->get_geschw())/3;
-			new_friction = 16;
-			if(flughoehe>target_height) {
+			new_speed_limit = kmh_to_speed(besch->get_geschw())/3; // ==approach speed
+			new_friction = 8;
+			if(  flughoehe > target_height  ) {
 				// still decenting
 				flughoehe = (flughoehe-TILE_HEIGHT_STEP) & ~(TILE_HEIGHT_STEP-1);
 				flughoehe -= h_next;
 			}
-			else if(flughoehe==h_cur) {
+			else if(  flughoehe == h_cur  ) {
 				// touchdown!
 				flughoehe = 0;
 				target_height = h_next;
-				// all planes taxi with same speed
-				new_speed_limit = kmh_to_speed(60);
-				new_friction = 16;
+				const sint32 taxi_speed = kmh_to_speed( min( 60, besch->get_geschw()/4 ) );
+				if(  cnv->get_akt_speed() <= taxi_speed  ) {
+					new_speed_limit = taxi_speed;
+					new_friction = 16;
+				}
+				else {
+					const sint32 runway_left = suchen - route_index;
+					new_speed_limit = min( new_speed_limit, runway_left*runway_left*taxi_speed ); // ...approach 540 240 60 60
+					const sint32 runway_left_fr = max( 0, 6-runway_left );
+					new_friction = max( new_friction, min( besch->get_geschw()/12, 4 + 4*(runway_left_fr*runway_left_fr+1) )); // ...8 8 12 24 44 72 108 152
+				}
 			}
 			else {
-				const sint16 landehoehe = height_scaling(cnv->get_route()->position_bei(touchdown).z)+(touchdown-route_index)*TILE_HEIGHT_STEP;
+				const sint16 landehoehe = height_scaling(cnv->get_route()->position_bei(touchdown).z) + (touchdown-route_index)*TILE_HEIGHT_STEP;
 				if(landehoehe<=flughoehe) {
 					target_height = height_scaling((sint16)cnv->get_route()->position_bei(touchdown).z)*TILE_HEIGHT_STEP/Z_TILE_STEP;
 				}
 				flughoehe -= h_next;
 			}
+			break;
 		}
-		break;
-
-		default:
-			new_speed_limit = kmh_to_speed(60);
+		default: {
+			new_speed_limit = kmh_to_speed( min( 60, besch->get_geschw()/4 ) );
 			new_friction = 16;
 			flughoehe = 0;
 			target_height = h_next;
 			break;
+		}
 	}
 
 	// hop to next tile
