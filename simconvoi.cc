@@ -837,14 +837,15 @@ void convoi_t::calc_acceleration(long delta_t)
 		for (i++; i < route_count; i++)
 		{
 			convoi_t::route_info_t &current_info = route_infos.get_element(i - 1);
-			convoi_t::route_info_t &next_info = route_infos.get_element(i);
-			const koord3d next_tile = route.position_bei(i);
-			next_info.steps_from_start = current_info.steps_from_start + front.get_tile_steps(current_tile.get_2d(), next_tile.get_2d(), next_info.direction);
-			const weg_t *next_weg = get_weg_on_grund(welt->lookup(next_tile), waytype);
-			next_info.speed_limit = next_weg ? front.calc_speed_limit(next_weg, current_weg, &corner_data, next_info.direction, current_info.direction) : SPEED_UNLIMITED;
+			convoi_t::route_info_t &this_info = route_infos.get_element(i);
+			const koord3d this_tile = route.position_bei(i);
+			const koord3d next_tile = route.position_bei(min(i + 1, route_count - 1));
+			this_info.steps_from_start = current_info.steps_from_start + front.get_tile_steps(current_tile.get_2d(), next_tile.get_2d(), this_info.direction);
+			const weg_t *this_weg = get_weg_on_grund(welt->lookup(this_tile), waytype);
+			this_info.speed_limit = this_weg ? front.calc_speed_limit(this_weg, current_weg, &corner_data, this_info.direction, current_info.direction) : SPEED_UNLIMITED;
 
-			current_tile = next_tile;
-			current_weg = next_weg;
+			current_tile = this_tile;
+			current_weg = this_weg;
 		}
 	}
 
