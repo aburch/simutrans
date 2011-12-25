@@ -271,22 +271,17 @@ SOCKET network_open_address( const char *cp, long timeout_ms, const char * &err 
 	bool connected = false;
 
 #ifdef NETTOOL
-
 	// Nettool doesn't have umgebung, so fake it
 	vector_tpl<std::string> ips;
 	ips.append_unique("::");
 	ips.append_unique("0.0.0.0");
-	for (  uint i = 0;  !connected  &&  i < ips.get_count();  i++  ) {
-		std::string ip = ips[i];
-
-#else // NETTOOL
-
+#else
+	vector_tpl<std::string> const& ips = umgebung_t::listen;
+#endif
 	// For each address in the list of listen addresses try and create a socket to transmit on
 	// Use the first one which works
-	for (  uint i = 0;  !connected  &&  i < umgebung_t::listen.get_count();  i++  ) {
-		std::string ip = umgebung_t::listen[i];
-
-#endif // NETTOOL
+	for (uint i = 0; !connected && i != ips.get_count(); ++i) {
+		std::string const& ip = ips[i];
 
 #ifdef HAS_NTOP_AND_PTON
 		// Check address is valid
@@ -487,21 +482,16 @@ bool network_init_server( int port )
 #else // USE_IP4_ONLY
 
 #ifdef NETTOOL
-
 	// Nettool doesn't have umgebung, so fake it
 	vector_tpl<std::string> ips;
 	ips.append_unique("::");
 	ips.append_unique("0.0.0.0");
-	for (  uint i = 0;  i < ips.get_count();  i++  ) {
-		std::string ip = ips[i];
-
-#else // NETTOOL
-
+#else
+	vector_tpl<std::string> const& ips = umgebung_t::listen;
+#endif
 	// For each address in the list of listen addresses try and create a socket to listen on
-	for (  uint i = 0;  i < umgebung_t::listen.get_count();  i++  ) {
-		std::string ip = umgebung_t::listen[i];
-
-#endif // NETTOOL
+	for (uint i = 0; i != ips.get_count(); ++i) {
+		std::string const& ip = ips[i];
 
 #ifdef HAS_NTOP_AND_PTON
 		// Check address is valid
