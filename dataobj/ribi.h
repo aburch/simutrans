@@ -179,7 +179,6 @@ public:
 	static bool ist_gerade(ribi x) { return (flags[x] & (gerade_ns | gerade_ow)) != 0; }
 	static bool ist_gerade_ns(ribi x) { return (flags[x] & gerade_ns) != 0; }
 	static bool ist_gerade_ow(ribi x) { return (flags[x] & gerade_ow) != 0; }
-	static bool ist_kreuzung(ribi x) { return x > 0 && flags[x] == 0; }
 
 	static ribi doppelt(ribi x) { return doppelr[x]; }
 	static ribi rueckwaerts(ribi x) { return rwr[x]; }
