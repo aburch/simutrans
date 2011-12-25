@@ -40,7 +40,11 @@
 #if CXX11(4, 7)
 #	define OVERRIDE override
 #else
+#if _MSC_VER >= 1400
+#	define OVERRIDE override
+#else
 #	define OVERRIDE
+#endif
 #endif
 
 #ifdef __cplusplus
