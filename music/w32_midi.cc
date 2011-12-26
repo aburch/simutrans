@@ -134,7 +134,6 @@ void dr_stop_midi(void)
 long dr_midi_pos(void)
 {
 	char retstr[200];
-	static long lastpos;
 	long length;
 
 	mciSendStringA("set SimuMIDI time format milliseconds", retstr, 200, NULL);
@@ -149,7 +148,6 @@ long dr_midi_pos(void)
 			return (-1);
 		}
 		else {
-			lastpos = pos;
 			return pos;
 		}
 	}

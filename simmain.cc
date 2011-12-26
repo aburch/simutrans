@@ -923,6 +923,8 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	if(!midi_get_mute()) {
 		// not muted => play first song
 		midi_play(0);
+		// reset volume after first play call else no/low sound or music with win32 and sdl
+		sound_set_midi_volume( umgebung_t::midi_volume );
 	}
 
 	karte_t *welt = new karte_t();
