@@ -1014,7 +1014,6 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 	// now ways? - no clipping needed, avoid all the ribi-checks
 	if (ribi==ribi_t::keine) {
 		// display background
-		activate_ribi_clip(ribi_t::nordwest & ribi);
 		const uint8 offset_vh = display_dinge_bg(xpos, ypos, is_global, true, visible);
 		if (visible) {
 			// display our vehicles
