@@ -377,30 +377,36 @@ bool map_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 
 void map_frame_t::zoom(bool zoom_out)
 {
-	if (zoom_out) {
+	zoomed = false;
+	if(  zoom_out  ) {
 		// zoom out
-		if(reliefkarte_t::get_karte()->zoom_in>1) {
+		if(  reliefkarte_t::get_karte()->zoom_in>1  ) {
 			reliefkarte_t::get_karte()->zoom_in--;
+			zoomed = true;
 		}
-		else if(reliefkarte_t::get_karte()->zoom_out<4  ) {
+		else if(  reliefkarte_t::get_karte()->zoom_out<4  ) {
 			reliefkarte_t::get_karte()->zoom_out++;
+			zoomed = true;
 		}
 	}
 	else {
 		// zoom in
-		if(reliefkarte_t::get_karte()->zoom_out>1) {
+		if(  reliefkarte_t::get_karte()->zoom_out>1  ) {
 			reliefkarte_t::get_karte()->zoom_out--;
+			zoomed = true;
 		}
-		else if(reliefkarte_t::get_karte()->zoom_in<8  ) {
+		else if(  reliefkarte_t::get_karte()->zoom_in<8  ) {
 			reliefkarte_t::get_karte()->zoom_in++;
+			zoomed = true;
 		}
 	}
-	// recalc map size
-	reliefkarte_t::get_karte()->calc_map_groesse();
-	// recalc all the other data incl scrollbars
-	resize(koord(0,0));
 
-	zoomed = true;
+	if(  zoomed  ){
+		// recalc map size
+		reliefkarte_t::get_karte()->calc_map_groesse();
+		// recalc all the other data incl scrollbars
+		resize(koord(0,0));
+	}
 }
 
 
@@ -423,7 +429,7 @@ bool map_frame_t::infowin_event(const event_t *ev)
 		}
 	}
 
-	if(  (IS_WHEELUP(ev) || IS_WHEELDOWN(ev))  &&  reliefkarte_t::get_karte()->getroffen(ev2.mx,ev2.my)  ) {
+	if(  (IS_WHEELUP(ev) || IS_WHEELDOWN(ev))  ) {
 		// otherwise these would go to the vertical scroll bar
 		zoom(IS_WHEELUP(ev));
 		return true;
@@ -463,6 +469,35 @@ bool map_frame_t::infowin_event(const event_t *ev)
 
 		// Hajo: re-center mouse pointer
 		display_move_pointer(screenpos.x+ev->cx, screenpos.y+ev->cy);
+		return true;
+	}
+	else if(  IS_LEFTDBLCLK(ev)  &&  reliefkarte_t::get_karte()->getroffen(ev2.mx,ev2.my)  ) {
+		// recenter cursor by scrolling
+		koord ij = reliefkarte_t::get_karte()->get_welt()->get_world_position();
+		reliefkarte_t::get_karte()->karte_to_screen(ij);
+		const koord s_gr = scrolly.get_groesse();
+
+		scrolly.set_scroll_position(max(0,ij.x-(s_gr.x/2)), max(0,ij.y-(s_gr.y/2)));
+		zoomed = false;
+
+		// remember world position, we do not want to have surprises when scrolling later on
+		old_ij = ij;
+		return true;
+	}
+	else if(  IS_RIGHTDBLCLK(ev)  ) {
+		// zoom to fit window
+		do { // first, zoom all the way in
+			zoom(true);
+		} while(  zoomed  );
+
+		// then zoom back out to fit
+		const koord s_gr = scrolly.get_groesse() - koord(scrollbar_t::BAR_SIZE, scrollbar_t::BAR_SIZE);
+		koord gr = reliefkarte_t::get_karte()->get_groesse();
+		zoomed = true;
+		while(  zoomed  &&  max(gr.x/s_gr.x, gr.y/s_gr.y)  ) {
+			zoom(false);
+			gr = reliefkarte_t::get_karte()->get_groesse();
+		}
 		return true;
 	}
 	else if(  is_cursor_hidden  ) {
