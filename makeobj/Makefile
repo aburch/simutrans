@@ -31,9 +31,9 @@ endif
 
 ifeq ($(OSTYPE),mingw)
   CC ?= gcc
-  OS_OPT   ?= -mno-cygwin -DPNG_STATIC -DZLIB_STATIC -march=pentium
+  OS_OPT   ?= -DPNG_STATIC -DZLIB_STATIC -march=pentium
   # we need the libraries EXACTLY in this order to link
-  STD_LIBS = -lmingw32 -lpng -lz -lstdc++
+  STD_LIBS = -lmingw32 -lpng -lz
 endif
 
 ifeq ($(OSTYPE),mac)
