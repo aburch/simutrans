@@ -67,8 +67,8 @@ ifeq ($(OSTYPE),mingw)
   CFLAGS  += -DPNG_STATIC -DZLIB_STATIC -march=pentium
   ifeq ($(BACKEND),gdi)
     LIBS += -lunicows
-    ifneq  ($(WIN32_CONSOLE),)
-      LDFLAGS += -mconsole
+    ifeq  ($(WIN32_CONSOLE),)
+      LDFLAGS += -mwindows
     endif
   endif
   LIBS += -lmingw32 -lgdi32 -lwinmm -lwsock32 -lz -lbz2
@@ -406,7 +406,7 @@ ifeq ($(BACKEND),sdl)
   else
     SOURCES  += sound/sdl_sound.cc
     ifeq ($(findstring $(OSTYPE), cygwin mingw),)
-	    SOURCES += music/no_midi.cc
+      SOURCES += music/no_midi.cc
     else
       SOURCES += music/w32_midi.cc
     endif
@@ -418,8 +418,8 @@ ifeq ($(BACKEND),sdl)
     else
       SDL_CFLAGS  := -I$(MINGDIR)/include/SDL -Dmain=SDL_main
       SDL_LDFLAGS := -lSDLmain -lSDL
-      ifneq  ($(WIN32_CONSOLE),)
-        SDL_LDFLAGS += -mconsole
+      ifeq  ($(WIN32_CONSOLE),)
+        SDL_LDFLAGS += -mwindows
       endif
     endif
   else
@@ -443,12 +443,15 @@ ifeq ($(BACKEND),mixer_sdl)
   ifeq ($(SDL_CONFIG),)
     SDL_CFLAGS  := -I$(MINGDIR)/include/SDL -Dmain=SDL_main
     SDL_LDFLAGS := -lmingw32 -lSDLmain -lSDL
-    ifneq  ($(WIN32_CONSOLE),)
-      SDL_LDFLAGS += -mconsole
+    ifeq  ($(WIN32_CONSOLE),)
+      SDL_LDFLAGS += -mwindows
     endif
   else
     SDL_CFLAGS  := $(shell $(SDL_CONFIG) --cflags)
     SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
+    ifneq  ($(WIN32_CONSOLE),)
+      SDL_LDFLAGS += -mconsole
+    endif
   endif
   CFLAGS += $(SDL_CFLAGS)
   LIBS   += $(SDL_LDFLAGS) -lSDL_mixer
