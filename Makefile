@@ -67,8 +67,8 @@ ifeq ($(OSTYPE),mingw)
   CFLAGS  += -DPNG_STATIC -DZLIB_STATIC -march=pentium
   ifeq ($(BACKEND),gdi)
     LIBS += -lunicows
-    ifeq  ($(WIN32_CONSOLE),)
-      LDFLAGS += -mwindows
+    ifneq  ($(WIN32_CONSOLE),)
+      LDFLAGS += -mconsole
     endif
   endif
   LIBS += -lmingw32 -lgdi32 -lwinmm -lwsock32 -lz -lbz2
@@ -418,13 +418,16 @@ ifeq ($(BACKEND),sdl)
     else
       SDL_CFLAGS  := -I$(MINGDIR)/include/SDL -Dmain=SDL_main
       SDL_LDFLAGS := -lSDLmain -lSDL
-      ifeq  ($(WIN32_CONSOLE),)
-        SDL_LDFLAGS += -mwindows
+      ifneq  ($(WIN32_CONSOLE),)
+        SDL_LDFLAGS += -mconsole
       endif
     endif
   else
     SDL_CFLAGS  := $(shell $(SDL_CONFIG) --cflags)
     SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
+    ifneq  ($(WIN32_CONSOLE),)
+      SDL_LDFLAGS += -mconsole
+    endif
   endif
 
   CFLAGS += $(SDL_CFLAGS)
@@ -440,8 +443,8 @@ ifeq ($(BACKEND),mixer_sdl)
   ifeq ($(SDL_CONFIG),)
     SDL_CFLAGS  := -I$(MINGDIR)/include/SDL -Dmain=SDL_main
     SDL_LDFLAGS := -lmingw32 -lSDLmain -lSDL
-    ifeq  ($(WIN32_CONSOLE),)
-      SDL_LDFLAGS += -mwindows
+    ifneq  ($(WIN32_CONSOLE),)
+      SDL_LDFLAGS += -mconsole
     endif
   else
     SDL_CFLAGS  := $(shell $(SDL_CONFIG) --cflags)
