@@ -74,8 +74,6 @@ verkehrsteilnehmer_t::~verkehrsteilnehmer_t()
 }
 
 
-
-
 verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt, koord3d pos) :
 	vehikel_basis_t(welt, pos)
 {
@@ -119,7 +117,8 @@ verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt, koord3d pos) :
 	if(count) {
 		from->get_neighbour(to, road_wt, fahrtrichtung);
 		pos_next = to->get_pos();
-	} else {
+	}
+	else {
 		pos_next = welt->lookup_kartenboden(pos.get_2d() + koord(fahrtrichtung))->get_pos();
 	}
 	set_besitzer( welt->get_spieler(1) );

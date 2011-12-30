@@ -120,7 +120,7 @@ public:
 
 	virtual void rotate90();
 
-	ribi_t::ribi calc_richtung(koord start, koord ende) const;
+	static ribi_t::ribi calc_richtung(koord start, koord ende);
 	ribi_t::ribi calc_set_richtung(koord start, koord ende);
 
 	ribi_t::ribi get_fahrtrichtung() const {return fahrtrichtung;}

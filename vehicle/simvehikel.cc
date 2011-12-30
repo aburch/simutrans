@@ -451,7 +451,7 @@ ribi_t::ribi vehikel_basis_t::calc_set_richtung(koord start, koord ende)
 }
 
 
-ribi_t::ribi vehikel_basis_t::calc_richtung(koord start, koord ende) const
+ribi_t::ribi vehikel_basis_t::calc_richtung(koord start, koord ende)
 {
 #if 0
 	// may be faster on some architectures
