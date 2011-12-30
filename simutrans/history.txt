@@ -11,6 +11,7 @@
 	ADD: cities build bridges over rivers
 	FIX: clip buildings to not shine through bridges
 	ADD: (falconne) filter vehicles in depots according to their freight
+	FIX: pedestrians on crossings were considered cars after leading
 
 
 Release of 111.0 (r4911 on 1-Nov-2011):
