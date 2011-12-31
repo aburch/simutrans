@@ -906,7 +906,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 	}
 	// display ways
 	if(visible  &&  (flags&has_way1)){
-		const bool clip = (flags&draw_as_ding)  ||  !ist_karten_boden();
+		const bool clip = (  (flags&draw_as_ding)  ||  !ist_karten_boden()  )  &&  raster_tile_width>24;
 		const int hgt_step = tile_raster_scale_y( TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width);
 		for (uint8 i=0; i< offsets[flags/has_way1]; i++) {
 			ding_t* d = obj_bei(i);
@@ -972,6 +972,68 @@ hang_t::typ grund_t::get_disp_way_slope() const
 	}
 }
 
+
+/** The old main display routine. Only used for very small tiel sizes, where clipping error
+ * will be only one or two pixels
+ */
+void grund_t::display_dinge_all_quick_and_dirty(const sint16 xpos, sint16 ypos, const sint16 raster_tile_width, const bool is_global) const
+{
+	const bool dirty = get_flag(grund_t::dirty);
+	const uint8 start_offset=offsets[flags/has_way1];
+
+	// here: we are either ground(kartenboden) or visible
+	const bool visible = !ist_karten_boden()  ||  is_karten_boden_visible();
+	clear_all_poly_clip();
+
+	if(visible) {
+		if(is_global  &&  get_flag(grund_t::marked)) {
+			const uint8 hang = get_grund_hang();
+			const uint8 back_hang = (hang&1) + ((hang>>1)&6)+8;
+			display_img(grund_besch_t::marker->get_bild(back_hang), xpos, ypos, dirty);
+			dinge.display_dinge_quick_and_dirty( xpos, ypos, start_offset, is_global );
+			display_img(grund_besch_t::marker->get_bild(get_grund_hang()&7), xpos, ypos, dirty);
+			//display_img(grund_besch_t::marker->get_bild(get_weg_hang()&7), xpos, ypos, dirty);
+
+			if (!ist_karten_boden()) {
+				const grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
+				if (pos.z > gr->get_hoehe()) {
+					//display front part of marker for grunds in between
+					for(sint8 z = pos.z-Z_TILE_STEP; z>gr->get_hoehe(); z-=Z_TILE_STEP) {
+						display_img(grund_besch_t::marker->get_bild(0), xpos, ypos - tile_raster_scale_y( (z-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), true);
+					}
+					//display front part of marker for ground
+					display_img(grund_besch_t::marker->get_bild(gr->get_grund_hang()&7), xpos, ypos - tile_raster_scale_y( (gr->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), true);
+				}
+				else if (pos.z < gr->get_disp_height()) {
+					//display back part of marker for grunds in between
+					for(sint8 z = pos.z+Z_TILE_STEP; z<gr->get_disp_height(); z+=Z_TILE_STEP) {
+						display_img(grund_besch_t::borders->get_bild(0), xpos, ypos - tile_raster_scale_y( (z-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), true);
+					}
+					//display back part of marker for ground
+					const uint8 hang = gr->get_grund_hang() | gr->get_weg_hang();
+					const uint8 back_hang = (hang&1) + ((hang>>1)&6);
+					display_img(grund_besch_t::borders->get_bild(back_hang), xpos, ypos - tile_raster_scale_y( (gr->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), true);
+				}
+			}
+		}
+		else {
+			dinge.display_dinge_quick_and_dirty( xpos, ypos, start_offset, is_global );
+		}
+	}
+	else { // must be karten_boden
+		// in undergroundmode: draw ground grid
+		const uint8 hang = underground_mode==ugm_all ? get_grund_hang() : hang_t::flach;
+		const uint8 back_hang = (hang&1) + ((hang>>1)&6);
+		display_img(grund_besch_t::borders->get_bild(back_hang), xpos, ypos, dirty);
+		// show marker for marked but invisible tiles
+		if(is_global  &&  get_flag(grund_t::marked)) {
+			display_img(grund_besch_t::marker->get_bild(back_hang+8), xpos, ypos, dirty);
+			display_img(grund_besch_t::marker->get_bild(hang&7), xpos, ypos, dirty);
+		}
+	}
+}
+
+
 /* The main display routine
 
 Premise:
@@ -994,6 +1056,11 @@ Algorithm:
 */
 void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, const bool is_global) const
 {
+	if(  raster_tile_width <= 24  ) {
+		display_dinge_all_quick_and_dirty( xpos, ypos, raster_tile_width, is_global );
+		return;
+	}
+
 	// end of clipping
 	clear_all_poly_clip();
 

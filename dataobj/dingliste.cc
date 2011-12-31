@@ -1095,6 +1095,37 @@ void dingliste_t::dump() const
 }
 
 
+/** display all things, faster, but will lead to clipping errors
+ *  @author prissi
+ */
+void dingliste_t::display_dinge_quick_and_dirty( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const bool reset_dirty ) const
+{
+	if(capacity==0) {
+		return;
+	}
+	else if(capacity==1) {
+		if(start_offset==0) {
+			obj.one->display(xpos, ypos, reset_dirty );
+			obj.one->display_after(xpos, ypos, reset_dirty );
+			if(reset_dirty) {
+				obj.one->clear_flag(ding_t::dirty);
+			}
+		}
+		return;
+	}
+
+	for(uint8 n=start_offset; n<top; n++) {
+		// ist dort ein objekt ?
+		obj.some[n]->display(xpos, ypos, reset_dirty );
+	}
+	// foreground (needs to be done backwards!
+	for(int n=top-1; n>=0;  n--) {
+		obj.some[n]->display_after(xpos, ypos, reset_dirty );
+		obj.some[n]->clear_flag(ding_t::dirty);
+	}
+}
+
+
 /**
  * Routine to display background images of non-moving things
  * powerlines have to be drawn after vehicles (and thus are in the obj-array inserted after vehicles)

@@ -450,6 +450,14 @@ public:
 	void display_dinge_all(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, const bool is_global) const;
 
 	/**
+	 * similar to above but yieleds clipping error
+	 * => only used for zoom out
+	 * @param is_global set to true, if this is called during the whole screen update
+	 * @author prissi
+	 */
+	void display_dinge_all_quick_and_dirty(const sint16 xpos, sint16 ypos, const sint16 raster_tile_width, const bool is_global) const;
+
+	/**
 	 * displays background images of all non-moving objects on the tile
 	 * @param is_global set to true, if this is called during the whole screen update
 	 * @param draw_ways if true then draw images of ways
