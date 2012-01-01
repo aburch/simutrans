@@ -743,6 +743,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	umgebung_t::show_names = contents.get_int("show_names", umgebung_t::show_names );
 	umgebung_t::show_month = contents.get_int("show_month", umgebung_t::show_month );
 	umgebung_t::max_acceleration = contents.get_int("fast_forward", umgebung_t::max_acceleration );
+	umgebung_t::fps = contents.get_int("frames_per_second",umgebung_t::fps );
+	umgebung_t::simple_drawing_tile_size = contents.get_int("simple_drawing_tile_size",umgebung_t::simple_drawing_tile_size );
 
 	// network stuff
 	umgebung_t::server_frames_ahead = contents.get_int("server_frames_ahead", umgebung_t::server_frames_ahead );
@@ -925,9 +927,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 		num_intercity_roads = 1;
 	}
 
-
 	umgebung_t::autosave = (contents.get_int("autosave", umgebung_t::autosave) );
-	umgebung_t::fps = contents.get_int("frames_per_second",umgebung_t::fps );
 
 	// routing stuff
 	max_route_steps = contents.get_int("max_route_steps", max_route_steps );

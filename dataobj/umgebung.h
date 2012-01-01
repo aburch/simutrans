@@ -299,6 +299,9 @@ public:
 	// how many internal pixel per hieght step (default 16)
 	static sint8 pak_tile_height_step;
 
+	// use the faster drwing routine (and allow for clipping errors)
+	static sint16 simple_drawing_tile_size;
+
 	static settings_t default_einstellungen;
 
 	static bool straight_way_without_control;

@@ -71,6 +71,7 @@ void settings_general_stats_t::init(settings_t const* const sets)
 	INIT_NUM( "autosave", umgebung_t::autosave, 0, 12, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "frames_per_second",umgebung_t::fps, 10, 25, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "fast_forward", umgebung_t::max_acceleration, 1, 1000, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "simple_drawing_tile_size",umgebung_t::simple_drawing_tile_size, 0, 256, gui_numberinput_t::POWER2, false );
 	SEPERATOR
 	INIT_BOOL( "numbered_stations", sets->get_numbered_stations() );
 	INIT_NUM( "show_names", umgebung_t::show_names, 0, 3, gui_numberinput_t::AUTOLINEAR, true );
@@ -137,6 +138,7 @@ void settings_general_stats_t::read(settings_t* const sets)
 	READ_NUM_VALUE( umgebung_t::autosave );
 	READ_NUM_VALUE( umgebung_t::fps );
 	READ_NUM_VALUE( umgebung_t::max_acceleration );
+	READ_NUM_VALUE( umgebung_t::simple_drawing_tile_size );
 
 	READ_BOOL_VALUE( sets->numbered_stations );
 	READ_NUM_VALUE( umgebung_t::show_names );

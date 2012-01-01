@@ -70,15 +70,11 @@ void set_frame_time(long time)
 
 void intr_refresh_display(bool dirty)
 {
-	static uint32 last_ms = 0;
-	if(  welt_modell->get_zeit_ms() != last_ms  ) {
-		wasser_t::prepare_for_refresh();
-		dr_prepare_flush();
-		welt_ansicht->display( dirty );
-		win_display_flush(welt_modell->get_active_player()->get_konto_als_double());
-		dr_flush();
-	}
-	last_ms = welt_modell->get_zeit_ms();
+	wasser_t::prepare_for_refresh();
+	dr_prepare_flush();
+	welt_ansicht->display( dirty );
+	win_display_flush(welt_modell->get_active_player()->get_konto_als_double());
+	dr_flush();
 }
 
 
@@ -94,17 +90,21 @@ void interrupt_check(const char* caller_info)
 {
 	DBG_DEBUG4("interrupt_check", "called from (%s)", caller_info);
 	if(enabled) {
-		const long now = dr_time();
-		if((now-last_time)*FRAME_TIME_MULTI < frame_time) {
-			return;
+		static uint32 last_ms = 0;
+		if(  !welt_modell->is_fast_forward()  ||  welt_modell->get_zeit_ms() != last_ms  ) {
+			const long now = dr_time();
+			if((now-last_time)*FRAME_TIME_MULTI < frame_time) {
+				return;
+			}
+			const long diff = ((now - last_time)*welt_modell->get_time_multiplier())/16;
+			if(diff>0) {
+				enabled = false;
+				last_time = now;
+				welt_modell->sync_step( diff, !welt_modell->is_fast_forward(), true );
+				enabled = true;
+			}
 		}
-		const long diff = ((now - last_time)*welt_modell->get_time_multiplier())/16;
-		if(diff>0) {
-			enabled = false;
-			last_time = now;
-			welt_modell->sync_step( diff, !welt_modell->is_fast_forward(), true );
-			enabled = true;
-		}
+		last_ms = welt_modell->get_zeit_ms();
 	}
 	(void)caller_info;
 }
