@@ -17,6 +17,7 @@
 #include "../dataobj/einstellungen.h"
 #include "../dataobj/umgebung.h"
 #include "../dataobj/translator.h"
+#include "../dings/baum.h"
 #include "../dings/zeiger.h"
 #include "../simgraph.h"
 #include "../simmenu.h"
@@ -281,8 +282,10 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	} else if((buttons+10)==komp) {
 		umgebung_t::hide_with_transparency = !umgebung_t::hide_with_transparency;
 		buttons[10].pressed ^= 1;
+		baum_t::recalc_outline_color();
 	} else if((buttons+11)==komp) {
 		umgebung_t::hide_trees = !umgebung_t::hide_trees;
+		baum_t::recalc_outline_color();
 	} else if((buttons+12)==komp) {
 		umgebung_t::hide_buildings = (umgebung_t::hide_buildings+2)%3;
 	} else if((buttons+13)==komp) {

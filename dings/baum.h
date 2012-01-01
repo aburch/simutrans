@@ -23,6 +23,8 @@
 class baum_t : public ding_t
 {
 private:
+	static PLAYER_COLOR_VAL outline_color;
+
 	// month of birth
 	uint16 geburt;
 
@@ -66,8 +68,10 @@ public:
 	image_id get_bild() const;
 
 	// hide trees eventually with transparency
-	PLAYER_COLOR_VAL get_outline_colour() const { return (umgebung_t::hide_trees  &&  umgebung_t::hide_with_transparency) ? (TRANSPARENT25_FLAG | OUTLINE_FLAG | COL_BLACK) : 0; }
+	PLAYER_COLOR_VAL get_outline_colour() const { return outline_color; }
 	image_id get_outline_bild() const;
+
+	static void recalc_outline_color() { outline_color = (umgebung_t::hide_trees  &&  umgebung_t::hide_with_transparency) ? (TRANSPARENT25_FLAG | OUTLINE_FLAG | COL_BLACK) : 0; }
 
 	/**
 	 * Berechnet Alter und Bild abhängig vom Alter

@@ -4998,6 +4998,15 @@ const char *wkz_make_stop_public_t::work( karte_t *welt, spieler_t *sp, koord3d 
 
 
 
+bool wkz_show_trees_t::init( karte_t *welt, spieler_t * )
+{
+	umgebung_t::hide_trees = !umgebung_t::hide_trees;
+	baum_t::recalc_outline_color();
+	welt->set_dirty();
+	return false;
+}
+
+
 sint8 wkz_show_underground_t::save_underground_level = -128;
 
 bool wkz_show_underground_t::init( karte_t *welt, spieler_t * )

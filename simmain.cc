@@ -1009,6 +1009,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	}
 
 	welt->set_fast_forward(false);
+	baum_t::recalc_outline_color();
 #if defined DEBUG || defined PROFILE
 	// do a render test?
 	if (gimme_arg(argc, argv, "-times", 0) != NULL) {

@@ -720,12 +720,8 @@ class wkz_show_trees_t : public werkzeug_t {
 public:
 	wkz_show_trees_t() : werkzeug_t() { id = WKZ_SHOW_TREES | SIMPLE_TOOL; }
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("hide trees"); }
-	bool is_selected(karte_t const*) const OVERRIDE { return umgebung_t::hide_trees; }
-	bool init( karte_t *welt, spieler_t * ) {
-		umgebung_t::hide_trees = !umgebung_t::hide_trees;
-		welt->set_dirty();
-		return false;
-	}
+	bool is_selected(karte_t const*) const OVERRIDE {return umgebung_t::hide_trees; }
+	bool init( karte_t *welt, spieler_t * );
 	bool exit( karte_t *w, spieler_t *s ) { return init(w,s); }
 	bool is_init_network_save() const OVERRIDE { return true; }
 	bool is_work_network_save() const OVERRIDE { return true; }
