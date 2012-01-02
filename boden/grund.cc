@@ -973,7 +973,7 @@ hang_t::typ grund_t::get_disp_way_slope() const
 }
 
 
-/** The old main display routine. Only used for very small tiel sizes, where clipping error
+/** The old main display routine. Only used for very small tile sizes, where clipping error
  * will be only one or two pixels
  */
 void grund_t::display_dinge_all_quick_and_dirty(const sint16 xpos, sint16 ypos, const sint16 raster_tile_width, const bool is_global) const
@@ -992,7 +992,6 @@ void grund_t::display_dinge_all_quick_and_dirty(const sint16 xpos, sint16 ypos, 
 			display_img(grund_besch_t::marker->get_bild(back_hang), xpos, ypos, dirty);
 			dinge.display_dinge_quick_and_dirty( xpos, ypos, start_offset, is_global );
 			display_img(grund_besch_t::marker->get_bild(get_grund_hang()&7), xpos, ypos, dirty);
-			//display_img(grund_besch_t::marker->get_bild(get_weg_hang()&7), xpos, ypos, dirty);
 
 			if (!ist_karten_boden()) {
 				const grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
@@ -1022,7 +1021,7 @@ void grund_t::display_dinge_all_quick_and_dirty(const sint16 xpos, sint16 ypos, 
 	}
 	else { // must be karten_boden
 		// in undergroundmode: draw ground grid
-		const uint8 hang = underground_mode==ugm_all ? get_grund_hang() : hang_t::flach;
+		const uint8 hang = underground_mode==ugm_all ? get_grund_hang() : (uint8)hang_t::flach;
 		const uint8 back_hang = (hang&1) + ((hang>>1)&6);
 		display_img(grund_besch_t::borders->get_bild(back_hang), xpos, ypos, dirty);
 		// show marker for marked but invisible tiles

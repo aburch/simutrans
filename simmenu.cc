@@ -760,7 +760,7 @@ werkzeug_t *werkzeug_t::dummy = new wkz_dummy_t();
 image_id toolbar_t::get_icon(spieler_t *sp) const
 {
 	// no image for edit tools => do not open
-	if(  icon==IMG_LEER  ||  sp!=NULL  &&  strcmp(default_param,"EDITTOOLS")==0  &&  sp->get_player_nr()!=1  ) {
+	if(  icon==IMG_LEER  ||  (sp!=NULL  &&  strcmp(default_param,"EDITTOOLS")==0  &&  sp->get_player_nr()!=1)  ) {
 		return IMG_LEER;
 	}
 	// now have we a least one visible tool?
