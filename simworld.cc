@@ -4869,6 +4869,7 @@ void karte_t::reset_timer()
 	}
 	else if(step_mode==FAST_FORWARD) {
 		next_step_time = last_tick_sync+1;
+		idle_time = 0;
 		set_frame_time( 100 );
 		time_multiplier = 16;
 		intr_enable();
