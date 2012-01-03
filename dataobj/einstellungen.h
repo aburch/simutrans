@@ -503,6 +503,7 @@ public:
 	void set_no_trees(bool b) { no_trees = b; }
 
 	uint32 get_industry_increase_every() const { return industry_increase; }
+	void set_industry_increase_every( uint32 n ) { industry_increase = n; }
 	uint32 get_minimum_city_distance() const { return minimum_city_distance; }
 
 	sint16 get_used_vehicle_reduction() const { return used_vehicle_reduction; }

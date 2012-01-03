@@ -897,40 +897,86 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 		if (old_x+old_y == 0)
 			change_world_position( koord3d((*pos)[0], min_hgt((*pos)[0])) );
 
-		// Loop only new cities:
+		{
+			// Loop only new cities:
 #ifdef DEBUG
-		uint32 tbegin = dr_time();
+			uint32 tbegin = dr_time();
 #endif
-		for(  int i=0;  i<new_anzahl_staedte;  i++  ) {
-//			int citizens=(int)(new_mittlere_einwohnerzahl*0.9);
-//			citizens = citizens/10+simrand(2*citizens+1);
-			int current_citicens = (2500l * new_mittlere_einwohnerzahl) /(simrand(20000)+100);
-			stadt_t* s = new stadt_t(spieler[1], (*pos)[i], current_citicens);
-DBG_DEBUG("karte_t::distribute_groundobjs_cities()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_city_history_month())[HIST_CITICENS] );
-			add_stadt(s);
-			if(is_display_init()) {
-				old_progress ++;
-				display_progress(old_progress, max_display_progress);
+			for(  int i=0;  i<new_anzahl_staedte;  i++  ) {
+				stadt_t* s = new stadt_t(spieler[1], (*pos)[i], 1 );
+				DBG_DEBUG("karte_t::distribute_groundobjs_cities()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_city_history_month())[HIST_CITICENS] );
+				add_stadt(s);
 			}
-			else {
-				printf("*");fflush(NULL);
-			}
-		}
 
-		delete pos;
-DBG_DEBUG("karte_t::distribute_groundobjs_cities()","took %lu ms for all towns", dr_time()-tbegin );
+			delete pos;
+			DBG_DEBUG("karte_t::distribute_groundobjs_cities()","took %lu ms for all towns", dr_time()-tbegin );
 
-		for(  uint32 i=old_anzahl_staedte;  i<stadt.get_count();  i++  ) {
-			// Hajo: do final init after world was loaded/created
-			stadt[i]->laden_abschliessen();
-			// the growth is slow, so update here the progress bar
-			if(is_display_init()) {
-				old_progress ++;
-				display_progress(old_progress, max_display_progress);
+			uint32 game_start = current_month;
+			// townhalls available since?
+			const vector_tpl<const haus_besch_t *> *s = hausbauer_t::get_list(haus_besch_t::rathaus);
+			for (uint32 i = 0; i<s->get_count(); i++) {
+				const haus_besch_t *besch = (*s)[i];
+				uint32 intro_year_month = besch->get_intro_year_month();
+				if(  intro_year_month<game_start  ) {
+					game_start = intro_year_month;
+				}
 			}
-			else {
-				printf("*");fflush(NULL);
+			// streets since when?
+			game_start = max( game_start, wegbauer_t::get_earliest_way(road_wt)->get_intro_year_month() );
+
+			uint32 original_start_year = current_month;
+			uint32 original_industry_gorwth = settings.get_industry_increase_every();
+			settings.set_industry_increase_every( 0 );
+
+			for(  uint32 i=old_anzahl_staedte;  i<stadt.get_count();  i++  ) {
+				// Hajo: do final init after world was loaded/created
+				stadt[i]->laden_abschliessen();
+
+	//			int citizens=(int)(new_mittlere_einwohnerzahl*0.9);
+	//			citizens = citizens/10+simrand(2*citizens+1);
+				const uint32 citizens = (2500l * new_mittlere_einwohnerzahl) /(simrand(20000)+100);
+
+				sint32 diff = (original_start_year-game_start)/2;
+				sint32 growth = 32;
+				sint32 current_bev = 1;
+
+				/* grow gradually while aging
+				 * the difference to the current end year will be halved,
+				 * while the growth step is doubled
+				 */
+				current_month = game_start;
+				bool not_updated = false;
+				while(  current_bev < citizens  ) {
+					growth = min( citizens-current_bev, growth*2 );
+					current_bev += growth;
+					stadt[i]->change_size( growth );
+					if(  current_bev > citizens/2  &&  not_updated  ) {
+						if(is_display_init()) {
+							old_progress ++;
+							display_progress(old_progress, max_display_progress);
+						}
+						else {
+							printf("*");fflush(NULL);
+						}
+						not_updated = true;
+					}
+					current_month += diff;
+					diff >>= 1;
+				}
+
+				// the growth is slow, so update here the progress bar
+				if(is_display_init()) {
+					old_progress ++;
+					display_progress(old_progress, max_display_progress);
+				}
+				else {
+					printf("*");fflush(NULL);
+				}
 			}
+
+			current_month = original_start_year;
+			settings.set_industry_increase_every( original_industry_gorwth );
+			msg->clear();
 		}
 		finance_history_year[0][WORLD_TOWNS] = finance_history_month[0][WORLD_TOWNS] = stadt.get_count();
 		finance_history_year[0][WORLD_CITICENS] = finance_history_month[0][WORLD_CITICENS] = last_month_bev;
