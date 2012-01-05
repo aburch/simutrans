@@ -340,8 +340,8 @@ bool map_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 	}
 	else if(komp==&b_rotate45) {
 		// rotated/straight map
-		reliefkarte_t::get_karte()->rotate45 ^= 1;
-		b_rotate45.pressed = reliefkarte_t::get_karte()->rotate45;
+		reliefkarte_t::get_karte()->isometric ^= 1;
+		b_rotate45.pressed = reliefkarte_t::get_karte()->isometric;
 		reliefkarte_t::get_karte()->calc_map_groesse();
 		scrolly.set_groesse( scrolly.get_groesse() );
 	}
@@ -646,7 +646,7 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 
 void map_frame_t::rdwr( loadsave_t *file )
 {
-	file->rdwr_bool( reliefkarte_t::get_karte()->rotate45 );
+	file->rdwr_bool( reliefkarte_t::get_karte()->isometric );
 	file->rdwr_bool( reliefkarte_t::get_karte()->is_show_schedule );
 	file->rdwr_bool( reliefkarte_t::get_karte()->is_show_fab );
 	file->rdwr_short( reliefkarte_t::get_karte()->zoom_in );
