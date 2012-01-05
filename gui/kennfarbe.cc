@@ -19,7 +19,7 @@
 farbengui_t::farbengui_t(spieler_t *sp) :
 	gui_frame_t( translator::translate("Meldung"), sp ),
 	txt(&buf),
-	bild(skinverwaltung_t::color_options->get_bild_nr(0),PLAYER_FLAG|sp->get_player_nr())
+	bild(skinverwaltung_t::color_options->get_bild_nr(0), sp->get_player_nr())
 {
 	this->sp = sp;
 	buf.clear();

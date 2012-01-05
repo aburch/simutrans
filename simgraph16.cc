@@ -1746,7 +1746,8 @@ void display_set_player_color_scheme(const int player, const COLOR_VAL col1, con
 			if(night_shift!=0) {
 				calc_base_pal_from_night_shift(night_shift);
 			}
-			player_day = player_night = player;
+			// calc_base_pal_from_night_shift resets player_night to 0
+			player_day = player_night;
 		}
 		recode();
 		mark_rect_dirty_nc(0, 32, disp_width - 1, disp_height - 1);
