@@ -722,17 +722,7 @@ void convoi_t::increment_odometer(uint32 steps)
 	weg_t* way = welt->lookup(get_pos())->get_weg(waytpe);
 	if(way == NULL)
 	{
-		if(welt->lookup(get_pos())->ist_wasser())
-		{
-			// Record journey over open seas to use
-			// to decide how to apportion costs for 
-			// ships arriving into port.
-			player = MAX_PLAYER_COUNT + 1;
-		}
-		else
-		{
-			player = besitzer_p->get_player_nr();
-		}
+		player = besitzer_p->get_player_nr();
 	}
 	else
 	{
