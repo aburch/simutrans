@@ -3740,7 +3740,7 @@ void convoi_t::laden() //"load" (Babelfish)
 			journey_time = 1;
 		}
 		const sint32 journey_distance_meters = journey_distance * welt->get_settings().get_meters_per_tile();
-		const sint32 average_speed = (journey_distance_meters * 3) / (journey_time * 50);
+		const sint32 average_speed = (journey_distance_meters * 3) / (journey_time * 5);
 		
 		// For some odd reason, in some cases, laden() is called when the journey time is
 		// excessively low, resulting in perverse average speeds and journey times.
