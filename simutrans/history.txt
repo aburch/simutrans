@@ -15,6 +15,8 @@
 	FIX: endless loop when fast forward and zooming out too much
 	CHG: using old display routines for zoom out to speed up display
 	CHG: cities will now grow gradually in time and size during creation, startinf with 32 citiciens in the first townhall year
+	CHG: minimap now really isometric
+	ADD: allow elevated ways over water with depth = 1
 
 
 Release of 111.0 (r4911 on 1-Nov-2011):

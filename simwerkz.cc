@@ -1669,8 +1669,11 @@ uint8 wkz_wegebau_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord3d &
 			return 0;
 		}
 		// ignore water
-		if( besch->get_wtyp() != water_wt  &&  gr->get_typ() == grund_t::wasser ) {
-			return 0;
+		if(  besch->get_wtyp() != water_wt  &&  gr->get_typ() == grund_t::wasser  ) {
+			if(  besch->get_styp() != 1  ||  besch->get_wtyp() == air_wt  ||   welt->lookup_hgt(gr->get_pos().get_2d()) < welt->get_grundwasser()  ) {
+				return 0;
+			}
+			// here either channel or elevated way over not too deep water
 		}
 		// test if way already exists on the way and if we are allowed to connect
 		weg_t *way = gr->get_weg(besch->get_wtyp());
@@ -1725,7 +1728,7 @@ void wkz_wegebau_t::calc_route( wegbauer_t &bauigel, const koord3d &start, const
 	else {
 		bauigel.calc_route(start,end);
 	}
-	DBG_MESSAGE("wkz_wegebau()", "builder found route with %d sqaures length.", bauigel.get_count());
+	DBG_MESSAGE("wkz_wegebau()", "builder found route with %d squares length.", bauigel.get_count());
 }
 
 const char *wkz_wegebau_t::do_work( karte_t *welt, spieler_t *sp, const koord3d &start, const koord3d &end )
