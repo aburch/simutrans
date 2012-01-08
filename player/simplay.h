@@ -460,8 +460,8 @@ public:
 	 */
 	sint64 interim_apportioned_revenue;
 
-	bool allows_access_to(uint8 player_nr) const { return access[player_nr]; }
-	void set_allow_access_to(uint8 player_nr, bool allow) { access[player_nr] = allow; }
+	bool allows_access_to(uint8 other_player_nr) const { return this == NULL || player_nr == other_player_nr || access[other_player_nr]; }
+	void set_allow_access_to(uint8 other_player_nr, bool allow) { access[other_player_nr] = allow; }
 };
 
 #endif
