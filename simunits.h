@@ -192,7 +192,7 @@ inline sint32 x_to_yards(const float32e8_t &x)
 
 inline float32e8_t steps_to_x(const float32e8_t &simtime_factor, const sint32 steps)
 {
-	return yards_to_x(steps2yards * float32e8_t(steps) * simtime_factor);
+	return steps2yards * yards2m * float32e8_t(steps) * simtime_factor;
 }
 
 inline sint32 x_to_steps(const float32e8_t &simtime_factor, const float32e8_t x)
