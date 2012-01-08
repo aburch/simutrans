@@ -1,0 +1,28 @@
+<title>Seinen Help (Nederlands)</title>
+
+<h1><strong>Seinen</strong></h1>
+
+<p>
+<em>Seinen</em> worden gebruikt om de loop van treinen, trams en monorail/maglevs te controleren bij stations, kruisingen, bruggen etc. Ze verdelen het spoor in baanvakken. In een baanvak kan zich maar een trein tegelijk bevinden.
+</p>
+<p>
+Er zijn verschillende soorten seinen:<br>
+         - (normale) Seinen<br>
+         - Voorseinen<br>
+         - Keuzeseinen<br>
+Seinen kunnen in eenrichting- en tweerichtingmode gebouwd worden. In eenrichtingmode kan een sein maar in een richting gepasseerd worden. Let er bij het gebruik van eenrichtingseinen op dat de treinen hun bestemming wel kunnen bereiken. Houd in het begin een eenrichtingsbaanvak extra in de gaten.
+</p>
+<p>
+<em>Seinen:</em> treinen passeren een normaal sein alleen als het baanvak tot het volgende sein of tot de bestemming (station/halte) niet bezet is door een andere trein.
+</p>
+<p>
+<em>Voorseinen:</em> treinen passeren een voorsein alleen als de volgende twee baanvakken niet bezet zijn door een andere trein of als de volgende baanvakken tot de bestemming (station/halte) niet door een andere trein bezet zijn.
+</p>
+<p>
+<em>Keuzeseinen:</em> sturen een trein naar een beschikbaar (leeg) perron. Bij een station met meerdere perrons mag een trein een willekeurig beschikbaar perron gebruiken. Als er geen beschikbaar perron is zal de trein bij het sein blijven wachten.
+</p>
+<p>
+<em>Bouw en positie:</em> Seinen kunnen alleen op trein, tram of monorail/maglev banen gebouwd worden. Er kan maar een sein per veld zijn; het kortst mogelijke baanvak is dus twee velden lang. Neem voor het bepalen van de baanvakgrootte de lengte van de langste trein in velden en tel daar nog een veld bij op. Dit bevordert een soepele dienstregeling.<br><br>
+Klik om een sein te bouwen op de betreffende sein optie in het menu (de cursor verandert in een sein) en klik op de gewenste plaats op de baan. Er wordt nu aan beide zijden van de baan een sein geplaatst. Het sein kan nu in twee richtingen gepasseerd worden (tweerichtingenmode). Klik nogmaals op hetzelfde veld waar het sein geplaatst is en er zal een sein verdwijnen, en het sein kan alleen nog in de richting van het sein gepasseerd worden (eenrichtingmode). In het algemeen staan seinen in Simutrans aan rechter zijde van het spoor/baan. Bij de volgende klik wordt de toegestane richting omgedraaid; het sein staat aan de andere kant van het spoor/baan. Door hierna nog een keer te klikken kom je weer in de beginsituatie (tweerichtingenmode).<br><br>
+<em>Werkzaamheden</em> aan het spoor kun je door twee blokkerende seinen ongestoord uitvoeren. Na het aanpassen van een baanvak herstel je de seinen weer naar "normaal" bedrijf. Open dan de getroffen lijnen (via lijnManagement, Klik op "Klaar" waarna de route opnieuw wordt ingelezen en de treinen weer gaan rijden.
+</p>

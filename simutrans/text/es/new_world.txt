@@ -1,0 +1,82 @@
+<title>Ayuda de Crear un Nuevo Mundo</title>
+
+<h1><strong>Crear un Nuevo Mundo</strong></h1>
+
+<p>
+<strong>Crear un Nuevo Mundo</strong> establece las opciones para una nueva partida, con un nuevo mapa y nuevas opciones.<br>
+Se incluyen muchas variables : tamaño del terreno, numero inicial de cuidades e industrias.<br>
+Se muestra una vista previa del terreno, segun las opciones elegidas.
+</p>
+<p>
+<strong>Crear un Nuevo Mundo</strong> se abre junto con las ventanas de <a href="language.txt">Idiomas</a> y <a href="climates.txt">Control del Clima</a> cuando arranca Simutrans (las otras opciones del juego estan deshabilitadas) y tambien se puede abrir desde el boton <a href="options.txt">Opciones de Juego</a> en la parte superior de la pantalla (las otras barras de herramientas, textos y opciones de la partida actual se cierran).<br>
+Los atajos del teclado para abrir la ventana <strong>Crear un Nuevo Mundo</strong> incluyen pulsar las teclas <a href="keys.txt">[Q]</a> and [X].
+</p>
+<p>
+Para volver a la partida actual, cierra la ventana <strong>Crear un Nuevo Mundo</strong>: pulsa en la X en la esquina superior izquierda de la ventana; o usa el teclado.
+</p>
+<p>
+Los botones de las flechas ajustan las opciones y el resto activan/desactivan las opciones o abren nuevos controles:
+</p>
+<p>
+<em>Numero de Mapa:</em> selecciona el terreno a usar en la partida.<br>
+Puls en la caja de texto y escribe el numero deseado o usa los botones de flechas para pasar de un terreno a otro.<br>
+La vista previa muestra el terreno seleccionado (el agua es azul, el terreno bajo es mas oscuro que el terreno elevado).
+</p>
+<p>
+<em>Tamaño:</em> establece el tamaño del mapa (la cifra superior es el ancho, la inferior es el alto).<br>
+El numero entre parentesis es la cantidad de memoria requerida por el mapa<br>
+IMPORTANTE: Los mapas granges necesitan mas memoria y tardan mas tiempo en crearse. El juego y los graficos requieren aproximadamente 88MB en el pak64 y 144MB en el pak128. Como regla general,en un ordenador con 256MB RAM no intentes mapas mas grandes de 512 x 512.
+</p>
+<p>
+<em>Mapa al azar:</em> selecciona un nuevo terreno de forma aleatoria , conservando el resto de las opciones.
+</p>
+<p>
+<a href="load_relief.txt"><em>Cargar topografia:</em></a> abre los controles para cargar un mapa personalizado entre los disponibles.
+</p>
+<p>
+<em>Numero de ciudades:</em> establece el numero inicial de <a href="citywindow.txt">ciudades</a> en el juego.
+</p>
+<p>
+<em>Poblacion media por ciudad:</em> establece la poblacion inicial de las ciudades.<br>
+Esta opcion es un valor medio, Simutrans tendera a generar mas ciudades pequeñas que grandes.
+</p>
+<p>
+<em>Longitud carretera interurbana:</em> establece la longitud inicial de las carretera entre las ciudades.
+</p>
+<p>
+<em>Dens. de trafico:</em> establece en numero de vehiculos privados en las ciudades.<br>
+Los valores alto dan lugar a mas vehiculos privados,el valor 0 no genera ninguno. A medida que crecen las ciudades, aparecen nuevos coches.
+</p>
+<p>
+<em>Fabricas fuera de las ciudades:</em> establece el numero inicial de <a href="industry_info.txt">Cadenas industriales de suministro</a> fuera de las ciudades.<br>
+Si el terreno tiene muchas cuestas, apareceran pocas industrias.
+</p>
+<p>
+<em>Mercados en las ciudades:</em> establece el numero inicial de <a href="industry_info.txt">consumidores finales</a> de mercancias en las ciudades.<br>
+Los nuevos consumidores (y los posibles suministradores, no necesariamente en ciudades) aparecen cada vez que se dobla la problacion a partir de los 2000 habitantes.
+</p>
+<p>
+<a href="curiositylist_filter.txt"><em>Atracciones turisticas:</em></a> establece el numero inicial de lugares fuera de las ciudades que atraen pasajeros y correo.<br>
+Estas aparecen en las afueras de las ciudades, ademas de las atracciones generadas dentro de los pueblos y ciudades al inicion de la partida. Las atracciones tambien generan pasajeros y correo.
+</p>
+<p>
+<em>Usar cronologia desde el año:</em> establece el año de inicio de la partida.
+Cuando la opcion esta seleccionada, a medida que pasa el tiempo en la partida, pueden aparecer mas vehiculos y edificios.<br>
+Cuando no esta seleccionada: la partida comienza en el ao elegido pero estan disponibles todos los vehiculos y edificios; las ciudades aparecen con edificios de todos los periodos; y los vehiculos mas lentos no son tan rentables (ya que en el calculo de los ingresos influye la velocidad media del vehiculo de transporte).
+</p>
+<p>
+<em>Permitir cambio de jugador:</em> opcion que permite jugar como un <a href="players.txt">jugador</a> IA o como servicio publico (esta opcion no se puede cambiar un vez has iniciado una partida nueva).
+</p>
+<p>
+<em>Beginner mode:</em> opcion que permite un nivel mas alto de ingresos que recibes por transportar mercancias y pasajeros(por defecto: el 150% del valor recibido en el modo normal). Ademas, las <a href="industry_info.txt">Industrias</a> no pararan de suministrar cuando el consumidor tenga exceso de suministro.
+</p>
+<p>
+<a href="load.txt">
+<em>Cargar juego:</em></a> abre los controles para retomar una partida <a href="save.txt">salvada</a>, reemplazando el mundo actual que se pierde.
+</p>
+<p>
+<em>Empezar juego:</em> crea un mundo nuevo, usando las opciones establecidas. Pulsa para comenzar a jugar - Buena suerte y divierte..
+</p>
+<p>
+{Consejos: Los valores por defectos y otras propiedades cuando arranca Simutrans se pueden modificar en el archivo simuconf.tab}
+</p>

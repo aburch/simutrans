@@ -1,0 +1,22 @@
+<title>Ajuda - Língua</title>
+
+<h1><strong>Linguagem</strong></h1>
+
+<p>
+<strong>Língua</strong> altera o idioma utilizado no jogo.
+</p>
+<p>
+<strong>Língua</strong> abre a partir de <a href="options.txt">Preferências</a> ou a partir de <a href="new_world.txt">Novo Mundo</a>.
+</p>
+<p>
+Para jogar com outro idioma: clique no botão ao lado do idioma desejado para selecionar este idioma; para que os lugares tenham os nomes no novo idioma, faça isso antes de começar um novo mapa.
+</p>
+<p>
+O novo idioma pode apenas aparecer em novas ou reabertas barras de ferramentas, opções e textos no jogo.<br>
+Se uma tradução não está disponível no idioma selecionado, ele pode abrir em inglês.
+</p>
+<p>
+Visite http://translator.simutrans.com para ajuda com traduções.
+</p>
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008.
+</p>

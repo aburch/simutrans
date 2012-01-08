@@ -1,0 +1,41 @@
+<title>Ayuda de Opciones de Juego</title>
+
+<h1><strong>Opciones de Juego</strong></h1>
+
+<p>
+<strong>Opciones de Juego</strong> abre controles para configurar eljuego; puedes salir del juego desde <strong>Opciones de Juego</strong>.
+</p>
+<p>
+Pulsa en el icono del diskette en la parte superior izquierda de la pantalla para abrir <strong>Opciones de Juego</strong>.
+</p>
+<p>
+Pulsa el boton para abrir el menu correspondiente:
+</p>
+<p>
+<a href="language.txt"><em>Idioma:</em></a> establece el idioma usado en el juego.
+</p>
+<p>
+<a href="color.txt"><em>Color:</em></a> establece el color de jugador
+</p>
+<p>
+<a href="display.txt"><em>Pantalla:</em></a> parametros para configurar la apariencia del juego.
+</p>
+<p>
+<a href="sound.txt"><em>
+Sonido:</em></a> parametros para el sonido y la musica en el juego.
+</p>
+<p>
+<a href="players.txt"><em>Jugadores:</em></a> abre el menu para configurar los diferentes jugadores.
+</p>
+<p>
+<a href="load.txt"><em>Cargar:</em></a> abre el menu para cargar un juego salvado.
+</p>
+<p>
+<a href="save.txt"><em>Guardar:</em></a> abre el menu para guardar la partida.
+</p>
+<p>
+<a href="new_world.txt"><em>Nuevo Mapa:</em></a> abre el menu para empezar un nuevo juego (cierra el resto de menus y ventanas activas del juego).
+</p>
+<p>
+<em>Salir:</em> sales de juego, la partida actual en juego no es salvada.
+</p>

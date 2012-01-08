@@ -1,0 +1,50 @@
+<title>Attraction List Help</title>
+
+<h1><strong>Attraction List</strong></h1>
+
+<p>
+<strong>Attraction List</strong> has information about all tourist attractions that are both a destination and an origin for passengers and mail.
+</p>
+<p>
+To open <strong>Attraction List</strong>: click on attraction-list-tool in <a href="list.txt">List Management</a>.<br>
+{Tips: If items in list are only partially visible, then <a href="mouse.txt">re-size</a> <strong>Attraction List</strong> or scroll list using slider-bar.}
+</p>
+<p>
+<em>Sorted by:</em> has options to determine the order of tourist attractions shown.<br>
+Click on buttons to cycle through options (changes name of option-button):
+</p>
+<p>
+- <em>Name</em> orders alphabetically by name.<br>
+- <em>Passenger level</em> orders by relative popularity as a destination for passengers and mail.
+</p>
+<p>
+- <em>ascending</em> / <em>descending</em> reverses order of list.
+</p>
+<p>
+Click on a item listed in<strong>Attraction List</strong>to see more information about that tourist attraction.<br>
+{Tips: click on picture of tourist attraction in more information to move game-view to that attraction.}
+</p>
+<p>
+Items listed for each tourist attraction include:
+</p>
+<p>
+<em>status-colour-bar</em> colours indicate the rating of the attraction:<br>
+- <em>yellow:</em>does not fall in the catchment area of a <a href="station.txt">Stop</a>.<br>
+- <em>green:</em> has associated Stop(s) for passengers.<br>
+- <em>blue:</em> has associated Stop(s) for mail.<br>
+- <em>turquoise:</em> has associated Stop(s) for passengers and mail.<br>
+- <em>orange:</em> an associated Stop is overcrowded.<br>
+- <em>red:</em> all associated Stops are overcrowded.
+</p>
+<p>
+<em>building-graphic</em> indicates if it is a <a href="citywindow.txt">city</a> attraction.
+</p>
+<p>
+<em>name</em> of the tourist attraction.
+</p>
+<p>
+<em>passenger level</em> in brackets is a value that indicates the relative popularity as a destination for passengers and mail.
+</p>
+<p>
+{Tips: For provision of an optimum service the whole tourist attraction must fall within the catchment area of either one or several Stops.}
+</p>

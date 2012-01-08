@@ -1,0 +1,37 @@
+<title>City List Help</title>
+
+<h1><strong>City List</strong></h1>
+
+<p>
+<strong>City List</strong> shows details about <a href="citywindow.txt">urban areas</a> (villages, towns and cities) and populations.
+</p>
+<p>
+To open: click on city-list-tool in <a href="list.txt">List Management</a> or press <a href="keys.txt">[T]</a>.<br>
+<strong>City List</strong> has two option buttons which determine the order that urban areas (and their populations) are shown.<br>
+{Tips: If items in list are only partially visible, then <a href="mouse.txt">re-size</a> <strong>City List</strong> or scroll list using slider-bar.}
+</p>
+<p>
+<em>Total inhabitants:</em> is the total number of citizens in the game (the total population of all urban areas). The recent increase in population is shown in brackets.
+</p>
+<p>
+<em>Sorted by:</em> has options to determine the order of urban areas shown in list.<br>
+Click on option-buttons to cycle through options (changes name of option-button):
+</p>
+<p>
+- <em>Name</em> lists alphanumerically within ASCII-code order (capital letters before lower case letters) of assigned <a href="convoi_info.txt">names</a>.<br>
+- <em>Citizens</em> orders by size of population.<br>
+- <em>Town growth</em> orders by growth rate (which is dependant on size of urban area and number of passengers transported).
+</p>
+<p>
+- <em>ascending</em> / <em>descending</em> reverses order of list.
+</p>
+<p>
+Click on a item listed in<strong>City List</strong>to see more <a href="citywindow.txt">information</a> about that urban area.<br>
+Items listed for each urban area include:
+</p>
+<p>
+<em>name</em> assigned to urban area (can be changed in City Information)..
+</p>
+<p>
+<em>number of inhabitants</em> of urban area, in brackets is the recent increase in population.
+</p>

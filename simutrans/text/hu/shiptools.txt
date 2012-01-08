@@ -1,0 +1,11 @@
+<title>Hajózási eszközõk Sugó</title>
+
+<h1>Hajózási eszközõk</h1>
+<p>
+Itt találhatód a hajók, dokkok építéséhez használatos eszközõket.
+</p>
+<p>
+Megállókat a kiválasztott hely közvetlen
+közelébe kell elhelyezd, hogy azt a program a te álltalad
+igényelt állomásnak ismerje fel!
+</p>

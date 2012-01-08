@@ -1,0 +1,40 @@
+<title> Stanica, zastávka - pomoc</title>
+
+<h1>Stanica, zastávka a nákladná rampa</h1>
+
+<p>
+Tu sa dozvie¹ informácie o stanici, zastávke, alebo nákladnej rampe,
+ktorú si zvolil. Prvou informáciou je èakajúci tovar, ktorý je potrebný
+pre blízko le¾iace priemyselné odvetvia a na ktoré stanice alebo zastávky
+sú priame spojenia.
+</p>
+<p>
+Mô¾e¹ tie¾ premenovat' svoju stanicu alebo zastávku - klikni na textové pole s názvom
+svojej stanice alebo zastávky. Objaví sa kurzor, èo znamená, ze mô¾e¹ upravovat'
+názov.
+Po úpravách názvu stlaè kláves Enter.
+</p>
+<p>
+Informácia o zastávke zobrazuje, ktorý tovar alebo pasa¾ieri èakajú na stanici.
+Informácie sú usporiadané tak, ¾e ka¾dá má svoje záhlavie pre rozdielny typ
+tovaru a iné, napr.<br>
+402 áut èaká<br>
+83 pasa¾ierov èaká
+</p>
+<p>
+a ka¾dá informácia z tohoto záhlavia e¹te mô¾e obsahovat' podrobnej¹ie údaje (podriadené).
+Tieto udávajú cieµ, kam má tovar íst' a presné mno¾stvo tovaru alebo pasa¾ierov napr.
+</p>
+<p>
+56 pasa¾ierov èaká<br>
+- 25 pasa¾ierov > Pre¹ovská Kopanica BF<br>
+- 29 pasa¾ierov > Trnavské Mesto   cez Svitovská Dedina východ<br>
+- 2  pasa¾ieri > Ko¹ické Mesto Hlavné H
+</p>
+<p>
+Úplne vpravo nájde¹ tlaèidlo ,,Detaily''. Obsahuje informácie o tovare
+potrebnom
+pre ïal¹í priemysel, priamych spojeniach s ïal¹ími stanicami alebo zastávkami a tovar,
+ktorý sa sem privá¾a alebo odtiaµto odvá¾a preè.
+V¹etko je usporiadané tak, ¾e okam¾ite má¹ prehµad odkiaµ, èo a kam ide.
+</p>

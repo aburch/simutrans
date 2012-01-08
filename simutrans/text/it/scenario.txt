@@ -1,0 +1,7 @@
+<title>Aiuto - Scenario</title>
+
+<h1><strong>Scenari</strong></h1>
+
+<p>
+Simutrans permette di giocare utilizzando scenari, la vincita negli scenari si ottiene raggiungendo determinati obbiettivi quali ad esempio: raggiungere una certa ricchezza entro un determinato lasso di tempo, erigere un quartier generale monumentale, connettere tra loro determinate fabbriche etc. etc.
+</p>

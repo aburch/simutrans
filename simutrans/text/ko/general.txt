@@ -1,0 +1,64 @@
+<title>Simutrans 종합 헬프</title>
+
+<h1>종합 헬프</h1>
+<p>
+※표의 것은 오랫동안, 갱신되고 있지 않습니다.현재의 내용과 크게 다른 경우<br>
+하지만 있습니다.
+영어의 것은, 일본어 헬프가 아직 없습니다.
+</p>
+<p>
+<a href="simutrans.txt">Welcome</a>　|　<a href="window.txt">Game Interface</a>　|　<a href="mouse.txt">Mouse Help</a> (to be written)<br><br>
+<a href="keys.txt">키보드</a>
+<br>
+</p>
+<p>
+<it>게임 옵션</it>: <a href="options.txt">※게임 옵션</a><br><br>
+<a href="language.txt">※언어</a>|　<a href="color.txt">※칼라 다이얼로그</a>|　<a href="display.txt">※표시 설정</a><br><br>
+<a href="sound.txt">※사운드 다이얼로그</a>|　<a href="players.txt">라이벌 회사 일람</a>|　<a href="load.txt">※게임의 재개</a><br><br>
+<a href="save.txt">※게임의 보존</a>|　<a href="new_world.txt">※새로운 맵의 작성</a>|　
+<a href="climates.txt">Climate Control</a><br><br>
+<a href="load_relief.txt">Load Height Map</a>　|　<a href="settings.txt">고도의 설정</a>
+</p>
+
+<p>
+<it>메인 메뉴</it><br><br>
+<a href="options.txt">※게임 옵션</a>|　<a href="map.txt">맵 윈도우</a>
+　|　<a href="inspection_tool.txt">Inspection Tool</a><br><br>
+<a href="slopetools.txt">슬로프 툴</a>|　<a href="railtools.txt">※철도 툴</a>|　<a href="monorailtools.txt">Monorail Tools</a><br><br>
+<a href="tramtools.txt">Tram Tools</a>　|　<a href="roadtools.txt">※도로 툴</a>|　<a href="shiptools.txt">※선박 툴</a><br><br>
+<a href="airtools.txt">Airport Tools</a>　|　<a href="special.txt">Special Construction Tools</a>　|　 <a href="edittools.txt">Game Edit Tools</a><br><br>
+<a href="removal_tool.txt">Destroy/Remove</a>
+</p>
+<p>
+<it>일람표</it><br><br>
+<a href="linemanagement.txt">Line Management</a>　|　<a href="list.txt">Lists</a>　|　<a href="haltlist.txt">Stops/Station List</a><br><br>
+<a href="haltlist_filter.txt">Stops/Station List Filter</a>　|　<a href="convoi.txt">Vehicle List</a>　|　<a href="convoi_filter.txt">Vehicle List Filter</a><br><br>
+<a href="citylist_filter.txt">마을 일람</a>|　<a href="goods_filter.txt">Goods List</a>　|　<a href="factorylist_filter.txt">Industry List</a><br><br>
+<a href="curiositylist_filter.txt">Attractions List</a>　|　<a href="mailbox.txt">메세지표/메세지표 설정</a>|　<a href="finances.txt">※재무</a>
+</p>
+<p>
+<it>그 외의 옵션</it><br><br>
+<a href="window.txt">Save Screenshot</a>　|　<a href="window.txt">Pause</a>　|　<a href="window.txt">Fast Forward</a>　|　<a href="window.txt">Help</a>
+</p>
+<p>
+<a href="inspection_tool.txt"><i>그 외의 다이얼로그</i><br><br>
+<a href="depot.txt">※차고 다이얼로그</a>|　<a href="schedule.txt">※스케줄 다이얼로그</a>|　<a href="station.txt">※역 정보 다이얼로그</a><br><br>
+<a href="station_details.txt">※역 정보 상세 다이얼로그</a>|　<a href="convoiinfo.txt">Convoy/Vehicle Information</a><br><br>
+<a href="convoidetail.txt">Convoy/Vehicle Details</a>　|　<a href="citywindow.txt">거리의 상세</a>|　<a href="industry_info.txt">Industry Information</a>
+</p>
+
+<p>
+If no help is found here, try<br>
+<em>http://guide.simutrans.com</em>, or<br>
+<em>http://wiki.simutrans.com</em>, or<br>
+<em>http://simutrans-tips.com</em>, or<br>
+<em>http://forum.simutrans.com</em>.
+</p>
+
+<p>
+원저 Hj. Malthaner
+</p>
+
+<p>
+　한국어 번역 simutrans와 OpenTTD를 즐기는 「JHLee」
+</p>

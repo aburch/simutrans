@@ -1,0 +1,70 @@
+<title>Ajuda - Finanças</title>
+
+<h1><strong>Finanças</strong></h1>
+
+<p>
+A janela de <strong>Finanças</strong> mostra como está o fluxo de caixa de sua empresa, mostra o quanto você gastou com veiculos, tranpostes e etc.
+</p>
+<p>
+Clique no ícone de dinheiro na parte superior de seu monitor, ou tecle <a href="keys.txt">[f]</a>, ou clique no nome de um <a href="players.txt">Jogador</a>, para abrir <strong>Finaças</strong>.
+</p>
+<p>
+Os valores estão em Hajo Credits, nessa janela você pode ver seu fluxo deste ano e do ano anterior.<br>
+<em>Este Ano:</em> ano atual do calendário do jogo (o ano é mostrado na parte inferior a esquerda do seu monitor).<br>
+<em>Ano passado:</em> ano anterior do calendário do jogo.
+</p>
+<p>
+Os valores anuais podem também ser vistos em um gráfico para os últimos doze anos, ou valores mensais para o ano passado.<br>
+Clique sobre o valor ou no botão de nome para mostrar o valor: O eixo vertical é a quantidade, o eixo horizontal é o tempo.<br>
+Clique nas abas para alterar os valores do gráfico<br>
+<em>Últimos 12 Anos:</em> mostra os valores anuais dos últimos doze anos do jogo.<br>
+<em>Últimos 12 Meses:</em> mostra os valores mensais dos últimos doze meses do jogo.
+</p>
+<p>
+Para ver os detalhes dos valores, clique nos botões dos valores para ver os detalhes no gráfico. Os valores incluem:
+</p>
+<p>
+<em>Faturamento</em> e <em>L. Elétricas</em> - renda total do transporte de passageiros, bens, correio e de <a href="special.txt">transmissão de energia</a>.
+</p>
+<p>
+<em>Operação</em> - custo total de todas as operações dos <a href="convoiinfo.txt">Comboios</a> quando em trânsito.<br>
+{OBS: A operação de quanto o comboio gastou por quilômetro pode se vista em <a href="depot.txt">depósitos</a> ou em Informações de Comboios.}
+</p>
+<p>
+<em>Manutenção</em> - custo total para manter a rede de transporte.<br>
+{OBS: O custo por o mês para manter a rede (<em>Manutenção (mês)</em> é mostrado na direita de <strong>Finanças</strong>) é deduzido no fim do mês de calendário do jogo.}
+</p>
+<p>
+<em>Lucro Operacional</em> - lucro com o transporte dos bens, passageiros o correio e a transmissão de energia (lucros menos custos de manutenção e operação).
+</p>
+<p>
+<em>Veículos Novos</em> - despesa e renda recebida da compra e da venda dos veículos.
+</p>
+<p>
+<em>Construção</em> - custo total gasto com construção de linhas da transmissão, redes do transporte, reflorestação, alta-voltagem, e de usar a ferramenta <a href="removal_tool.txt">Destruir/Remover</a> e outras ferramentas para remoção própria (canais, estradas, aeroporto, monotrilhos).
+</p>
+<p>
+<em>Fluxo de Caixa</em> - renda total menos despesa total (custos).
+</p>
+<p>
+<em>Vol. Transportado</em> - é o número total dos bens, dos passageiros e de correio transportados.
+</p>
+<p>
+<em>Balanço</em> - é o dinheiro atual disponível para a construção ou compra de veículos novos (mostrada também no centro da barra na parte inferior do monitor).<br>
+{OBS: Se o jogador humano está no vermelho (balanço negativo) por três meses seguidos, o jogado irá à falência e o jogo acaba}.
+</p>
+<p>
+<em>Valor dos Veículos</em> - é o valor de todos os veículos da companhia no fim do último mês do calendário.<br>
+{OBS: a cada mês, os valores dos veiculos caem ligeiramente, o valor de venda atual para os veículos pode ser visto dentro de <a href="convoidetail.txt">Detalhes do Comboio</a> ou quando o veiculo está no depósito.}
+</p>
+<p>
+<em>Margem (%)</em> - é a relação do lucro operacional aos rendimentos.
+</p>
+<p>
+<em>Ativos</em> - é a soma entre Balanço e Valor dos Veículos.
+</p>
+<p>
+{OBS: Alguns custos, valor inicial do balanço e as finanças no jogo podem ser mudados dentro do simuconf.tab}
+</p>
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008.
+</p>

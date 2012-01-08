@@ -1,0 +1,13 @@
+<h1>Simutrans almen hjælp</h1>
+
+<p>
+Skal skrives
+</p>
+
+<p>
+<a href="keys.txt">Tastatur hjælp</a>
+</p>
+
+<p>
+(c) Hj. Malthaner
+</p>

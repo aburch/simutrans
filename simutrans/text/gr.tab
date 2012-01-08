@@ -1,0 +1,447 @@
+§Ellinika
+PROP_FONT_FILE
+cyr.bdf
+################################################################################
+#                                                                              #
+#                Simutrans Scenario Specific Translation File                  #
+#                          Scenario: Sim-Experimental                          #
+#                             Language: gr Ellinika                            #
+#                                Encoding: UTF-8                               #
+#                                Font : cyr.bdf                                #
+#                           Date Created: 10.04 2010                           #
+#                                                                              #
+#                                   authors:                                   #
+#                              Frank Penz - FrankP                             #
+#                                    note:                                     #
+#                          Markus Pristovsek - prissi                          #
+#                                    note:                                     #
+#                         Yannis Kaskamanidis - yannis                         #
+#                                    note:                                     #
+#                                                                              #
+################################################################################
+#_____________________________Simutrans Base Texts______________________________
+#_____________________________Simutrans Base Texts______________________________
+#__________________________________button_text__________________________________
+#__________________________________button_text__________________________________
+Apply Line
+Εφαρμογή γραμμής
+cl_btn_filter_disable
+απενεργοποιημένο
+cl_btn_filter_enable
+ενεργοποιημένο
+cl_btn_filter_settings
+Ρυθμίσεις
+cl_btn_sort_asc
+με αύξουσα σειρά
+cl_btn_sort_desc
+με φθίνουσα σειρά
+cl_btn_sort_id
+εσωτερικό ID
+cl_btn_sort_income
+Εισόδημα
+cl_btn_sort_name
+Όνομα
+cl_btn_sort_type
+Είδος
+clf_btn_alle
+όλα
+clf_btn_keine
+κανένα
+gl_btn_sort_catg
+ανά κατηγορία
+gl_btn_sort_name
+ανά όνομα
+gl_btn_unsort
+αταξινόμητο
+go home
+Μετάβαση στον χώρο στάθμευσης
+hl_btn_filter_disable
+απενεργοποιημένο
+hl_btn_filter_enable
+ενεργοποιημένο
+hl_btn_filter_settings
+Ρυθμίσεις
+hl_btn_sort_asc
+ανιών
+hl_btn_sort_desc
+κατιών
+hl_btn_sort_name
+Όνομα
+hl_btn_sort_type
+Είδος
+hl_btn_sort_waiting
+Αναμονή
+hlf_btn_alle
+όλα
+hlf_btn_invers
+αντίστροφα
+hlf_btn_keine
+κανένα
+#_________________________________climates_text_________________________________
+#_________________________________climates_text_________________________________
+arctic
+αρκτικό κλίμα
+desert
+κλίμα της ερήμου
+#__________________________________error_text___________________________________
+#__________________________________error_text___________________________________
+Autohalt muss auf\nStrasse liegen!\n
+Οι χώροι στάθμευσης αυτοκινήτων ή λεωφορείων\nπρέπει να τοποθετηθούν\nκοντά στον δρόμο.
+bridge is too high for its type!
+Για τέτοιου τύπου γέφυρες, το ύψος αυτό είναι πολύ μεγάλο!
+Bridge is too long for this type!\n
+Για τέτοιου τύπου γέφυρες,\nτο άνοιγμα είναι πολύ μεγάλο.\n
+Bruecke muss an\neinfachem\nHang beginnen!\n
+Οι γέφυρες πρέπει\nνα ξεκινούν από μια\nεπιφάνεια με κλίση!\n
+Cannot built depot here!
+Δεν μπορείτε να χτίσετε έναν χώρο στάθμευσης εδώ.
+Cannot create generic line!\nSelect line type by\nusing filter tabs.
+Δεν μπορείτε να φτιάξετε μια γραμμή γενικού τύπου!\nΕπιλέξτε ένα είδος γραμμής\nχρησιμοποιώντας φίλτρα καρτελών.
+Das Feld gehoert\neinem anderen Spieler\n
+Αυτό το τμήμα\nτου εδάφους ανήκει σε\nέναν άλλο παίκτη!\n
+Der Besitzer erlaubt das Entfernen nicht
+\nΟ ιδιοκτήτης δεν δίνει\nάδεια για να\nτο διαγράψετε!\n
+Der Tunnel ist nicht frei!\n
+Η σήραγγα δεν είναι άδεια.\n
+Die Bruecke ist nicht frei!\n
+Η γέφυρα δεν είναι ελεύθερη!\n
+Hier kann dieses\nFlughafengebaeude nicht\ngebaut werden!\n
+Δεν μπορείτε να χτίσετε\n\nκτίριο αεροδρομίου εδώ.\n
+Hier kann kein\nSignal aufge-\nstellt werden!\n
+Δεν μπορείτε να τοποθετήσετε\nσήματα σιδηροδρόμων εδώ.\n
+#____________________________________ki_text____________________________________
+#____________________________________ki_text____________________________________
+%s now\noffers bus services\nbetween %s\nand attraction\n%s\nat (%i,%i).\n
+%s τώρα\nπροσφέρει υπηρεσίες για λεωφορεία\nμεταξύ %s\nκαι δελεαστικές προτάσεις\n%s\nat (%i,%i).\n
+%s now\noffers bus services\nbetween %s\nand factory\n%s\nat (%i,%i).\n
+%s τώρα\nπροσφέρει υπηρεσίες για λεωφορεία\nμεταξύ %s\nκαι εργοστάσιο\n%s\nat (%i,%i).\n
+#_________________________________message_text__________________________________
+#_________________________________message_text__________________________________
+%s s\nheadquarter now\nat (%i,%i).
+%s's έχει χτίσει ένα καινούριο διοικητήριο
+%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
+%s \nέχτισε ένα\nκαινούριο δημαρχείο\nόταν αυξήθηκαν\n%i οι κάτοικοι.
+Bankrott:\n\nDu bist bankrott.\n
+Χρεοκοπημένος:\n\nΕίστε χρεοκοπημένος!\n
+Du hast %d Monate Zeit, deine Schulden zurueckzuzahlen
+Έχετε %d μήνες για να εξοφλήσετε τις οφειλές σας.
+On this map, you are not\nallowed to change player!\n
+Αυτό το παιχνίδι είναι κλειδωμένο.\nΔεν είναι δυνατές αλλαγές από τον παίκτη.\n
+#_________________________________program_text__________________________________
+#_________________________________program_text__________________________________
+!0_STATION_CROWDED
+%s\σταθμός γεμάτος.
+!1_DEPOT_REACHED
+%s έχει μπει στον χώρο στάθμευσης οχημάτων.
+(%i)-
+(%i)
+(in depot)
+(στον χώρο στάθμευσης οχημάτων)
+\nBauzeit bis
+μέχρι
+\nBauzeit von
+\nΕμφανίζεται από
+\nCan't open heightfield file.\n
+\nΑδυναμία φόρτωσης ύψους του χάρτη.\n\n
+\ndirection:
+\nκατευθύνσεις: 
+\nelektrified
+\nμε ηλεκτρισμό\n
+\nHeightfield has wrong image type.\n
+\nΤο πεδίο ύψους έχει λανθασμένο\nτύπο εικόνας.\n
+\nis reserved by:
+\nδεσμευμένο από τρένο
+\nminimum speed:
+\nελάχιστη ταχύτητα: 
+\nnot elektrified
+\nχωρίς ηλεκτρισμό\n
+\nRibi (masked)
+\nκατευθύνσεις\m (με απόκρυψη): 
+\nRibi (unmasked)
+\nκατευθύνσεις\n (χωρίς απόκρυψη): 
+\nsingle way
+\nΑπλή διαδρομή
+\nway1 reserved by
+διαδρομή 1 δεσμευμένη από\nδιαδρομή 1 δεσμευμένη από
+\nway2 reserved by
+διαδρομή 2 δεσμευμένη από\nδιαδρομή 2 δεσμευμένη από
+\nwith sign/signal\n
+\nμε σήμα/σήμα\n
+&0_CITY_SYLL
+Δεν υπάρχει!
+&1_CITY_SYLL
+πόλη
+&5_CITY_SYLL
+αστικό κέντρο
+&7_CITY_SYLL
+χωράφι
+&8_CITY_SYLL
+στόμα
+&9_CITY_SYLL
+κλειδώνω
+&A_CITY_SYLL
+διασταύρωση
+&D_CITY_SYLL
+Δεν υπάρχει!
+&E_CITY_SYLL
+Δεν υπάρχει!
+%0_CITY_SYLL
+Δεν υπάρχει!
+%2_CITY_SYLL
+πεζόδρομος
+%4_CITY_SYLL
+άνοιξη
+%A_CITY_SYLL
+Παλιό
+%B_CITY_SYLL
+Λόφος
+%C_CITY_SYLL
+Δεν υπάρχει!
+%d buildings\n
+%d κτίρια
+%d convois
+%d φάλαγγες οχημάτων
+%d Einzelfahrzeuge im Depot
+%d οχήματα σταθμευμένα εδώ.
+%D_CITY_SYLL
+Δεν υπάρχει!
+%E_CITY_SYLL
+Δεν υπάρχει!
+%F_CITY_SYLL
+Δεν υπάρχει!
+%i km/h (max. %ikm/h)
+%i χμ/ώ (μέγ. %iχμ/ώ)
+%s building %s %s
+%s %s %s
+%s city %d %s
+%s πόλη %d %s
+%s land %d %s
+%s γη %d %s
+%s\nwas liquidated.
+%s\nέχει εξοφληθεί.
+<em>%C</em> - %s<br>\n
+[<em>%C</em>]: %s<br>\n
+<no line>
+<δεν υπάρχει γραμμή>
+1 convoi
+1 φάλαγγα οχημάτων
+1 Einzelfahrzeug im Depot
+1 όχημα πάρκαρε εδώ.
+1center
+%s %s
+1LIGHT_CHOOSE
+Φωτεινότητα:
+1suburb
+%s %s %s
+1WORLD_CHOOSE
+Ρυθμίσεις νέου παιχνιδιού:
+April
+Απρίλιος
+Arbeiter aus:
+Οι εργαζόμενοι ζουν σε:
+August
+Αύγουστος
+Available
+Διαθέσιμο
+Bahndepot
+Χώρος στάθμευσης τρένων
+battery
+Μπαταρία
+Bruecke
+Γέφυρα
+Brueckenboden
+γέφυρα
+Build air depot
+Δεν υπάρχει!
+build choosesignals
+Δημιουργία πλατφόρμας, επιλογή σημάτων
+Build city market
+Χτίστε μια νέα αγορά στην κοντινότερη πόλη.
+Build drain
+Σταθμός μετασχηματιστών
+build HQ
+Χτίστε HQ
+Build land consumer
+Χτίστε ένα νέο σταθμό ενέργειας.
+Build maglev depot
+Χτίστε έναν χώρο στάθμευσης για αεροτρένα.
+Build monorail depot
+Χτίστε χώρο στάθμευσης αεροτρένων μονής τροχιάς.
+Build narrowgauge depot
+Χτίστε χώρο στάθμευσης για τρένα με στενές γραμμές.
+Build powerline
+Χτίστε γραμμή μεταφοράς ενέργειας.
+Build presignals
+Τοποθετήστε σήματα διπλού μπλοκ.
+Build road depot
+Χτίστε χώρο στάθμευσης αυτοκινήτων.
+Build ship depot
+Χτίστε ναυπηγείο.
+Build signals
+Τοποθετήστε σήματα.
+Build train depot
+Χτίστε χώρο στάθμευσης τρένων.
+Build tram depot
+Χτίστε χώρο στάθμευσης τραμ.
+Build truck depot
+Χτίστε χώρο στάθμευσης αυτοκινήτων.
+Building costs estimates
+Δεν υπάρχει!
+Buildings
+Δεν υπάρχει!
+Built artifical slopes
+Κατασκευάστε τεχνητές επιφάνειες.
+Built random attraction
+Κατασκευάστε τυχαία κάτι ελκυστικό.
+Bus_tab
+Λεωφορεία
+Can only move from halt to halt or waypoint to waypoint.
+Η κίνηση είναι δυνατή μόνο n\από στάση σε στάση ή \nαπό ένα ενδιάμεσο σημείο σε ένα άλλο.
+Cancel
+Άκυρο
+Capacity: %s\nLoad: %d (%d%%)
+Χωρητικότητα: %s\n? %d (%d%%)
+Cars are not available yet!
+Δεν υπάρχουν διαθέσιμα αυτοκίνητα ακόμη.
+cars.\nstate
+αυτοκίνητα\n
+Cash
+Υπόλοιπο λογαριασμού
+Change player
+Αλλάξτε παίκτη
+Chart
+Διάγραμμα
+Choose direction
+Δεν υπάρχει!
+Choose operation executed on clicking stored/new vehicles
+Επιλέξτε τη λειτουργία που θα εκτελεστεί με κλικ στα παλιά/καινούρια αυτοκίνητα.
+chooses a random map
+Επιλέξτε έναν τυχαίο χάρτη.
+citicens
+Πολίτες
+City attraction
+Δεν υπάρχει!
+City industries
+Αγορές στις πόλεις
+City list
+Κατάλογος πόλεων
+City size
+Μέγεθος πόλης
+city_road
+Δρόμος πόλης
+citybuilding builder
+Δεν υπάρχει!
+CityLimit
+Όρια πόλης
+cl_title
+Κατάλογος οχημάτων
+cl_txt_filter
+Φίλτρο:
+cl_txt_sort
+Ταξινόμηση κατά:
+clf_chk_aircrafts
+αεροπλάνα
+clf_chk_cars
+Λεωφορεία/Φορτηγά
+clf_chk_indepot
+μέσα σε χώρο στάθμευσης
+clf_chk_maglev
+Αεροτρένα
+clf_chk_monorail
+Αεροτρένα μονής τροχιάς
+clf_chk_name_filter
+Ονόματα φίλτρων:
+Copy Convoi
+Αντιγραφή φάλαγγας οχημάτων
+Copy the selected convoi and its schedule or line
+Αντιγράψτε την επιλεγμένη φάλαγγα οχημάτων και το χρονοδιάγραμμά της ή τη γραμμή
+Create a new line based on this schedule
+Κατασκευάστε μια νέα γραμμή βασισμένη σε αυτό το χρονοδιάγραμμα
+Deccelerate time
+Χρόνος επιβράδυνσης
+December
+Δεκέμβριος
+Del Stop
+Αφαίρεση
+Delete Line
+Διαγραφή γραμμής
+Delete this file.
+Διαγραφή αυτού του αρχείου.
+Denkmal
+Μνημείο
+Depots
+Χώροι στάθμευσης
+Destination
+Προορισμός
+Details
+Λεπτομέρειες
+diesel
+πετρελαιοκινητήρας
+Give the selected vehicle(s) an individual schedule
+Δώστε στο επιλεγμένο όχημα(τα) ένα ατομικό χρονοδιάγραμμα.
+gl_title
+Κατάλογος όλων των αγαθών
+Goods list
+Κατάλογος εμπορευμάτων
+Gross Profit
+Ρευστότητα επιχείρησης
+Grow city
+Μεγέθυνση πόλης.
+Growth
+Ανάπτυξη πόλης
+H
+στάση
+Hangar
+Υπόστεγο
+Helligk.
+Εμφάνιση
+Helligk. u. Farben
+Ρυθμίσεις εμφάνισης
+Help
+Βοήθεια
+Help text not found
+Λείπει το κείμενο βοήθειας.
+hide all building
+απόκρυψη όλων των κτιρίων
+hide city building
+απόκρυψη των κτιρίων της πόλης
+hide transparent
+διαφάνεια αντί απόκρυψης
+hide trees
+Απόκρυψη δέντρων
+Hier warten/lagern:
+Εμπορεύματα και επιβάτες σε αναμονή:
+hl_title
+Κατάλογος σταθμών
+hl_txt_filter
+Φίλτρο:
+hl_txt_sort
+Ταξινόμηση κατά:
+hlf_chk_airport
+Αεροδρόμια
+hlf_chk_anleger
+Αποβάθρα
+hlf_chk_bahnhof
+Σιδηροδρομικός σταθμός
+hlf_chk_bushalt
+Στάση λεωφορείου
+hlf_chk_frachthof
+Εξέδρα φόρτωσης
+hlf_chk_keine_verb
+δεν υπάρχει σύνδεση
+hlf_chk_maglevstop
+Σταθμός αεροτρένου
+hlf_chk_monorailstop
+Στάση αεροτρένου μονής τροχιάς
+hlf_chk_name_filter
+Ονόματα φίλτρων:
+No suitable ground!
+Δεν υπάρχει!
+Oktober
+Οκτώβριος
+player 2
+Trikky Transport
+player 3
+Meyer Moving Co.
+#_________________________Simutrans Experimental Texts__________________________
+#_________________________Simutrans Experimental Texts__________________________

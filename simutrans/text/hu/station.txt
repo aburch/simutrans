@@ -1,0 +1,7 @@
+<title> Megálló/állomás infó Sugó </title>
+<h1>Megálló/állomás infó</h1>
+
+<p>
+Itt találhatod az aktuális állomás paramétereit. Pld. mennyi nyersanyag
+vagy utas várakozik, különbözõ statisztikai grafikonok stb.
+</p>

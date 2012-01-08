@@ -1,0 +1,24 @@
+<title>Help Scule pt. trenuri</title>
+
+<h1>Scule pt. trenuri</h1>
+
+<p>
+De aici se poate procura tren, vagoane, semafoare etc.
+</p>
+<p>
+Sunt mai multe tipuri de cale feratã, fiecare permiþând o
+anumitã vitezã maximã.
+</p>
+<p>
+Semafoarele la început pot semnala în ambele direcþii.
+Pt. a impune o anumitã direcþie trebuie fãcut click pe semafor,
+pânã ce se obþine direcþia doritã.
+</p>
+<p>
+La construirea tunelului trebuie luat în considerare faptul,
+cã ºinele trebuie urcate pe pantã. În caz contrar programul
+nu permite construirea tunelezului.
+</p>
+<p>
+Convoiul dorit se poate asambla în combinaþia doritã în depou.
+</p>

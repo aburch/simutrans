@@ -1,0 +1,1599 @@
+Lithuanian
+PROP_FONT_FILE
+prop-latin2.fnt
+################################################################################
+#                                                                              #
+#                Simutrans Scenario Specific Translation File                  #
+#                          Scenario: Sim-Experimental                          #
+#                            Language: lt Lithuanian                           #
+#                             Encoding: ISO-8859-2                             #
+#                            Font : prop-latin2.fnt                            #
+#                           Date Created: 10.04 2010                           #
+#                                                                              #
+#                                   authors:                                   #
+#                              Frank Penz - FrankP                             #
+#                                    note:                                     #
+#                          Ignas Brasiskis - enternald                         #
+#note: I love simutrans. Reikalui esant teikite si?lymus Lietuvi? kalbai Simutr#
+#                          Markus Pristovsek - prissi                          #
+#                                    note:                                     #
+#                                                                              #
+################################################################################
+#_____________________________Simutrans Base Texts______________________________
+#_____________________________Simutrans Base Texts______________________________
+#__________________________________button_text__________________________________
+#__________________________________button_text__________________________________
+Apply Line
+Pritaikyti linij±
+cl_btn_filter_disable
+i¹jungtas
+cl_btn_filter_enable
+?jungtas
+cl_btn_filter_settings
+Nustatymai
+cl_btn_sort_asc
+did?janèiai
+cl_btn_sort_desc
+ma¾?janèiai
+cl_btn_sort_id
+serijos numer?
+cl_btn_sort_income
+Pajamas
+cl_btn_sort_name
+Vard±
+cl_btn_sort_type
+R?¹?
+clf_btn_alle
+visi
+clf_btn_invers
+atv.
+clf_btn_keine
+joks
+Construction_Btn
+Konstrukcijos kaina
+follow me
+Sek mane!
+gl_btn_sort_bonus
+pagal bonus±
+gl_btn_sort_catg
+pagal kategorij±
+gl_btn_sort_name
+pagal vard±
+gl_btn_sort_revenue
+pagal pajamas
+gl_btn_unsort
+nesurikiuota
+go home
+gr±¾inti ? dep±\n
+hl_btn_filter_disable
+I¹jungti
+hl_btn_filter_enable
+?jungti
+hl_btn_filter_settings
+Nustatymai
+hl_btn_sort_asc
+did?janèiai
+hl_btn_sort_desc
+ma¾?janèiai
+hl_btn_sort_name
+Pavadinim±
+hl_btn_sort_type
+R?¹?
+hl_btn_sort_waiting
+Laukia
+hlf_btn_alle
+visi
+hlf_btn_invers
+atvirk¹èiai
+hlf_btn_keine
+n?ra
+koord
+koordinat?s
+Lade Relief
+U¾krauti auk¹èi? ¾em?lap?
+Load game
+u¾krauti ¾aidim±
+Load scenario
+U¾krauti scenarij?
+Optionen
+Parametrai
+Sprache
+Kalba
+Start
+Prad?ti
+Starte Spiel
+Paleisti ¾aidim±
+#_________________________________climates_text_________________________________
+#_________________________________climates_text_________________________________
+arctic
+arktinis klimatas
+desert
+dykum? klimatas
+mediterran
+vidur¾emio j. klimatas
+rocky
+kaln? klimatas
+temperate
+vidutinis klimatas
+tropic
+tropikai
+#__________________________________error_text___________________________________
+#__________________________________error_text___________________________________
+A bridge must start on a way!
+Tiltai privalo\nprasid?ti ant\negistuojanèio kelio.
+Autohalt muss auf\nStrasse liegen!\n
+Autobuso ar automobilio stotel?s\ndedamos \nant kelio.
+bridge is too high for its type!
+B?simas tiltas per auk¹tas naudojamai konstrukcijos r?¹iai!
+Bridge is too long for this type!\n
+Tiltas per ilgas\nnaudojamam konstrukcijos\ntipui.\n
+Bruecke muss an\neinfachem\nHang beginnen!\n
+Tiltas privalo\nprasid?ti ant\nb?gi? esanèi? nuokaln?je!\n
+Cannot built depot here!
+Negalima èia pastatyti depo.
+Cannot built this station/building\nin underground mode here.
+Pastatas negali b?ti\npastatytas po ¾eme.\n
+Cannot create generic line!\nSelect line type by\nusing filter tabs.
+Negalima sukurtu neesanèios linijos!\npasirinkitr tip±\nfiltrancijoslentel?se.
+Convoi handles exhausted!
+Pasiektas maksimalus transporto priemoni? skaièius.
+Das Feld gehoert\neinem anderen Spieler\n
+©itas ¾em?s lopin?lis\nvaldomas\nkito ¾aid?jo!\n
+Der Besitzer erlaubt das Entfernen nicht
+\nLaukelio savininkas atsisako\nduoti leidim±\nsunaikinti ¹it± objekt±!\n
+Der Tunnel ist nicht frei!\n
+Tunelis n?ra tu¹èias.\n 
+Die Bruecke ist nicht frei!\n
+Tiltas u¾imtas \n
+Diese Zusammenstellung kann nicht fahren!\n
+©ita kombinacija\nneva¾iuoja!\n
+Dock must be built on single slope!
+Dokai turi b?ti pastatyti ant lygios pakrant?s.
+Fahrzeuge koennen so nicht entfernt werden
+ma¹inos negali b?ti\npa¹alintos tokiu b?du!\n
+Flugzeughalt muss auf\nRunway liegen!\n
+L?ktuvo sustojimas\nturi b?ti ant orouosto dangos.
+Hier kann dieses\nFlughafengebaeude nicht\ngebaut werden!\n
+J?s negalite èia statyti\n\naerousto pastat?.\n
+Hier kann kein\nSignal aufge-\nstellt werden!\n
+J?s èia negalite\nstatyti signalo.\n
+Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
+Depas nerastas.\nSi?skite transporto priemonê\nrankiniu b?du.
+Kann Spielstand\nnicht laden.\n
+Ne?manoma u¾krauti i¹saugoto ¾aidimo!
+Kann Spielstand\nnicht speichern.\n
+Ne?manoma atverti\npasirinktos bylos\n?ra¹imui!
+Lost connection\nto server!
+Prarastas ry¹ys\nsu serveriu!
+Maglevhalt muss auf\nMaglevschiene liegen!\n
+M. levitacijos traukinio stotel? privalo b?ti ant atitinkam? b?gi?!
+Monorailhalt muss auf\nMonorail liegen!\n
+Vienb?gio stotel?s privalo\nb?ti ant atitinkam? b?gi?.
+Monorails are not available yet!
+Vienb?giai dar neatsirado.
+Narrowgauge are not available yet!
+Siauruko dar negalima statyti.
+Narrowgaugehalt muss auf\nNarrowgauge liegen!\n
+Siauruko sustojimas tik ant atitinkam? b?gi?
+No through station here!
+Ne?manoma pastatyti stoties
+Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
+Duokite tvarkara¹t?\n(a) schedule(s), prie¹ \nduodami ?sakym±!\n
+Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
+Transporto priemon?s\ngrafiko nekeisti\nper kelio ie¹k±.
+Not enough money!
+Tr?ksta pinig?!
+On narrowgauge track only!\n
+Tik ant siauruko b?gi?!
+Planes are not available yet!
+L?ktuvai dar neasirado
+Post muss neben\nHaltestelle\nliegen!\n
+Stotel?s i¹pl?timas\n(and?liai, kita)\nprivalo b?ti ¹alia\negzistuojanèios stotel?s.\n
+Schiffhalt muss im\nWasser liegen!\n
+Laiv? stotel?\n gali b?ti tik ant vandens\n¹alia prieplaukos!\n
+Terraforming not possible\nhere in underground view
+Ne?manoma po ¾eme tvarkyti aplinkos.
+Upgrade must have\na higher level
+Atnaujinimas turi b?ti\nauk¹tesnio lygio
+Zughalt muss auf\nSchiene liegen!\n
+Gele¾inkelio stotys\n turi b?ti pad?tos ant b?gi?.\n
+#___________________________________help_text___________________________________
+#___________________________________help_text___________________________________
+<title>Keyboard Help</title>\n<h1><strong>Keyboard Help</strong></h1><p>\n
+<title>Klaviat?ros pagalba</title>\n<h1><strong>Klaviat?ros pagalba</strong></h1>\n<p>\n<strong>Klaviat?ros pagalba</strong> rodo ?vairi? mygtuk? funkcijas.\n</p>\n<p>\n<strong>Klaviat?ros pagalba</strong> atsirado tada kai paspaud¾iana neegzistuojanti klavi¹? kombinacija <a href="general.txt">General Help</a>.\n</p>\n<p>\nmygtukai skiria did¾iasias ir ma¾±sias raides (naudoti [<em>Shift</em>] pakeisti raides(ne caps lock)).\n</p>\n<p>\nFunkcionuojantys mygtukai:\n</p>\n<p>\n[<em>Rodykl?s</em>]: Slenka ¾aidimo vaizd±.<br>\n[<em>Backspace</em>]: u¾daro visus langus, ?rankines ir pagalbos tekstus.<br>\n[<em>Delete</em>], arba [<em>Escape</em>]: u¾daro aktyv? lang±, ?rankinê ar pagalbos tekstus ¾aidime.<br>\n[<em>Enter</em>], arba [<em>Return</em>]: patvirtina veiksmus.<br>\n[<em>Page-Up</em>], arba [<em>></em>]: artina vaizd±.<br>\n[<em>Page-Down</em>], or [<em> less than symbol</em>]: tolina vaizd±.\n[<em>F1</em>]: atveria <a href="general.txt">Simutrans pagalb±</a>.<br></p>\n<p>\n[<em>1</em>]: slenka vaizd±.<br>\n[<em>2</em>]: slenka vaizd±.<br>\n[<em>3</em>]: slenka vaizd±.<br>\n[<em>4</em>]: slenka vaizd±.<br>\n[<em>6</em>]: slenka vaizd±.<br>\n[<em>7</em>]: slenka vaizd±.<br>\n[<em>8</em>]: slenka vaizd±.<br>\n[<em>9</em>]: slenka vaizd±.\n</p>\n<p>\n[<em>Shift</em>] + <a href="mouse.txt">pel?</a>: naudojama <a href="map.txt">®em?lapyje</a> rodyti jungtis tarp gamykl?<a href="industry_info.txt">tiekimo linij?</a>.<br>\n[<em>CTRL</em>] + tool: construct (signals & <a href="station.txt">Stops</a>) on upper level; or build slower roads and tracks over faster ones; or build straighter (more direct) roads and tracks.<br>\n[<em>CTRL</em>] + ([<em>F2</em>] to [<em>F12</em>]): sets select current tool to keypresses [<em>F2</em>] to [<em>F12</em>].\n</p>\n<p>
+Clear block reservation
+Naikinti bloko rezervacij±
+#____________________________________ki_text____________________________________
+#____________________________________ki_text____________________________________
+%s now\noffers bus services\nbetween %s\nand attraction\n%s\nat (%i,%i).\n
+%s dabar\nsi?lo autobuso paslaugas\ntarp %s\nir lankytinos vietos\n%s\nat (%i,%i).\n
+%s now\noffers bus services\nbetween %s\nand factory\n%s\nat (%i,%i).\n
+%s dabar\nsi?lo autobuso paslaugas\ntarp %s\nir gamyklos\n%s\n (%i,%i).\n
+%s\nnow operates\n%i trucks between\n%s at (%i,%i)\nand %s at (%i,%i).
+%s\ndabar valdo\n%i sunkve¾imius tarp\n%s esanèios (%i,%i)\nir %s\n (%i,%i).
+%s\nopened a new railway\nbetween %s\nat (%i,%i) and\n%s at (%i,%i).
+%s\natidar? nauj± gele¾inkel?\ntarp %s\n (%i,%i) ir\n%s\n (%i,%i).
+Airline service by\n%s\nnow between\n%s \nand %s.\n
+Naujos oro linijos\n%s\ndabar tarp\n%s \nir %s.\n
+Ferry service by\n%s\nnow between\n%s \nand %s.\n
+Kompanijos\n%s\keltas veikia tarp\n%s \nir %s.\n
+Travellers now\nuse %s's\nbusses between\n%s \nand %s.\n
+%s\natidar? nauj±\nautobus? linij± tarp\n%s ir\n%s.
+#___________________________________menu_text___________________________________
+#___________________________________menu_text___________________________________
+AIRTOOLS
+Orousto statybos ?rankiai
+EDITTOOLS
+®em?lapio redagavimo ?rankiai 
+LISTTOOLS
+s±ra¹ai
+MAGLEVTOOLS
+Maglev ?rankiai
+MONORAILTOOLS
+Vienb?gi? traukini? statybos ?rankiai
+NARROWGAUGETOOLS
+Siauruko stat. ?rankiai
+RAILTOOLS
+Gele¾inkeliai
+ROADTOOLS
+Keliai
+SHIPTOOLS
+Uost? statybos ?rankiai
+SLOPETOOLS
+kelti/leisti ¾emê
+SPECIALTOOLS
+Spec. statybos ?rankiai
+TRAMTOOLS
+Tramvaj?/lengvojo traukinio ?rankiai
+#_________________________________message_text__________________________________
+#_________________________________message_text__________________________________
+%s s\nheadquarter now\nat (%i,%i).
+%s'as pastat? nauj± vadavietê.
+%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
+%s \npastat?\nnauj± rotu¹ê\nkada pasiek?\n%i gyventojus.
+Bankrott:\n\nDu bist bankrott.\n
+Bankrotas:\n\nTU BANKRUTAVAI!\n
+Congratulation\nScenario was complete in\n%i months %i years.
+Sveikiname!\nj?s pabaig?te \nscenarij? per \n%i m?nesi? ir %i met?!
+Du hast %d Monate Zeit, deine Schulden zurueckzuzahlen
+Tu turi %d m?nesi? gra¾inti skol±.
+Factory chain extended\nfor %s near\n%s built with\n%i factories.
+Ekonomika pakilo: \n%s ¹alia %s prapl?t? gamyb±. \n%i pastatyta nauja gamykla.
+New %s now available:\n%s\n
+Naujas %s :\n%s\n
+New factory chain\nfor %s near\n%s built with\n%i factories.
+Ekonomikos pakilimas: Nauja gamykl? linija\nskirta %s ¹alia\n%s sudaryta i¹\n%i gamykl?.
+New vehicle now available:\n%s\n
+\n Dabar galima\n pirkti nauj± automobil?:\n\n\n -- %s --\n\n
+On this map, you are not\nallowed to change player!\n
+®aidimas u¾rakintas.\n®aid?jo keitimas \nu¾draustas.\n
+Production of %s has been stopped:\n%s\n
+Gamyba %s sustabdyta:\n%s\n
+Remove vehicle from map. Use with care!
+Naikinti transport±. (Naudoti atsargiai!)
+Scenario complete: %i%%
+Scenarijus baigtas: %i%%
+Screenshot\ngespeichert.\n
+Ekrano fonas\ni¹saugotas.\n
+Sends the convoi to the last depot it departed from!
+Siunèia konvoj? ? praeit± dep± i¹ kurio i¹vyko
+Spielstand wurde\ngeladen!\n
+\n®aidimas u¾krautas.\n
+Spielstand wurde\ngespeichert!\n
+\n®aidimas i¹saugotas.\n
+Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
+Tu turi %d m?nesi?\ni¹mok?ti skol±.\n
+With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
+©vesdami,\n%s pastat?\nnauj± paminkl±.\n%i Miesti?èiai linksminosi.
+#_________________________________program_text__________________________________
+#_________________________________program_text__________________________________
+!0_STATION_CROWDED
+%s\nis u¾imta.
+!1_DEPOT_REACHED
+%s pasiek? dep±.
+(%i)-
+(%i) 
+(in depot)
+(gara¾e)
+\nBauzeit bis
+iki
+\nBauzeit von
+\nAtsiranda nuo 
+\nCan't open heightfield file.\n
+\nNe?manoma atverti auk¹èio ¾em?lapio.\n
+\ndirection:
+\nkryptys: 
+\nelektrified
+\nelektrifikuotas\n
+\nHeightfield has wrong image type.\n
+\nNetinkamas failas uk¹èio ¾em?lapiui\n
+\nis reserved by:
+\nparuo¹ta kitam traukiniui:
+\nminimum speed:
+\nma¾iausias greitis: 
+\nnot elektrified
+\nneelektrifikuota\n
+\nRibi (masked)
+\nkryptys (masked)
+\nRibi (unmasked)
+\nkryptys\n (unmasked): 
+\nSet phases:
+\nustatyti ilg? ns/ew:
+\nsingle way
+\nViena kryptis
+\nway1 reserved by
+kelias 1 reservuotas \nkelias 1 reservuotas 
+\nway2 reserved by
+kelias 2 u¾imtas: \nkelias 2 paruo¹tas 
+\nwith sign/signal\n
+\nsu ¾enklu/signalu\n
+%1_CITY_SYLL
+Appingas
+%d buildings\n
+%d Pastatai
+%d convois
+%d vilkstin?s
+%d Einzelfahrzeuge im Depot
+%d transporto priemon?s laikomos èia.
+%s building %s %s
+%s %s %s
+%s city %d %s
+%s miestas %d %s
+%s land %d %s
+%s ¾em? %d %s
+%s\nspeed %i\nmax_speed %i\ndx:%i dy:%i
+%s\ngreitis %i\nmax greitis %i\ndx:%i dy:%i
+%s\nwas liquidated.
+%s\nbuvo likviduota.
+<em>%C</em> - %s<br>\n
+[<em>%C</em>]: %s<br>\n
+<no line>
+<linija neegzistuoja>
+1 convoi
+1 konvojus
+1 Einzelfahrzeug im Depot
+1 transporto priemon? laikoma èia.
+1center
+%s %s
+1extern
+%s at¹aka %s
+1LIGHT_CHOOSE
+Ry¹kumas:
+1suburb
+%s %s %s
+1WORLD_CHOOSE
+Nustatymai naujam ¾aidimui:
+2center
+%s centrin? %s
+2extern
+%s I¹orin? %s
+2LIGHT_CHOOSE
+Spalvos:
+2suburb
+%s Greenfieldas %s %s
+2WORLD_CHOOSE
+®em?lapio numeris:
+3center
+%s pagrindinis %s
+3extern
+%s ¾em? %s
+3LIGHT_CHOOSE
+Lango slinkties greitis:
+3suburb
+%s kaimas %s %s
+3WORLD_CHOOSE
+Dydis (%d MB):
+4center
+%s vidin? %s
+4extern
+%s i¹orin? %s
+4LIGHT_CHOOSE
+Atvirk¹tine slinktis
+5center
+%s perk?la %s
+5extern
+%s krova %s
+5LIGHT_CHOOSE
+P?stieji stotel?se
+5WORLD_CHOOSE
+Gyvenvieèi? skaièius:
+6center
+%s sankirta %s
+6extern
+%s pami¹k? %s
+6LIGHT_CHOOSE
+P?stieji gatv?se
+6WORLD_CHOOSE
+Eismo intensyvumas:
+7center
+%s miestas %s
+8WORLD_CHOOSE
+dienos ir nakties kaita
+Abfrage
+Tikrinimo ?rankis
+Abnehmer
+Vartotojas
+About
+Apie
+Abriss
+Sunaikinti/pa¹alinti
+Absenken
+Nuleisti ¾emê
+Accelerate time
+?sib?g?jimo laikas
+Account above %s
+S±skaita vir¹ %s
+Active player only
+Tik aktyvus ¾aid?jas
+Add forest
+Prid?ti mi¹k±
+Add random citycar
+Prid?ti bet kok? automobil?
+Add Stop
+Pastatyti stotelê
+Add stops for backward travel
+Prid?ti stot? atgaliniam keliavimui.
+Add the selected vehicle(s) to the selected line
+Prid?ti pasirinkt± transporto priemonê ? linij±.
+air
+takas
+aircraft_tab
+Krovininiai l?ktuvai
+airplane
+L?ktuvas
+Airport
+Aerouostas
+All
+Visi
+Allow city growth
+Leisti miestui augti
+Allow player change
+Leisti ¾aid?jo apsikeitim±
+allowed climates:\n
+Leid¾iami klimatai:\n
+Alters a schedule.
+Prideda/naikina stoteles i¹ grafiko
+Angenommene Waren
+Prek?s reikalingos kitoms gamykloms
+anhaengen
+I¹ardyti
+Anhaenger_tab
+Priekabos
+Anheben
+Kelti ¾emê
+Appends stops at the end of the schedule
+Prid?ti stotelê grafiko gale
+April
+Balandis
+Arbeiter aus:
+Darbininkai gyvena:
+Arrived
+Atvykê
+Assets
+Turtas
+Aufloesen
+I¹ardyti
+August
+Rugpj?tis
+Available
+?manoma
+Bahndepot
+Traukini? depas
+battery
+Baterija
+Baum
+Medis
+baum builder
+Sodinti med¾ius
+Baustelle
+Statybviet?
+Bauzeit
+stat. laikas
+Beenden
+I¹eiti
+Beginner mode
+Naujok? r?¾imas
+Besonderes Gebaeude
+Lankoma vieta
+BF
+stotis
+bio
+biologinis
+Blockstrecke ist\nbelegt\n
+\nB?gi? blokas naudojamas\nkito traukinio!\n
+Boden
+®em?
+Bruecke
+Tiltas
+Brueckenboden
+tiltas
+Build air depot
+Statyti angar±
+build choosesignals
+Pastatyti platformos pasirinkimo signalus.
+Build city market
+Pastatyti nauj± prekybos centr± artimiausiame mieste.
+Build drain
+Transformatorin?
+build HQ
+Vadaviet?
+Build land consumer
+Pastatyti elektrinê.
+Build maglev depot
+Statyti maglev dep±
+Build monorail depot
+Pastatyti vienb?gio dep±
+Build narrowgauge depot
+Statyti siauruko dep±
+Build powerline
+Pastatyti elektros tras±
+Build presignals
+Pastatyti signalus reaguojanèius ? 2 blokus
+Build road depot
+Pastatyti gara¾±
+Build ship depot
+Pastatyti laiv? dep±
+Build signals
+Pastatyti signalus
+Build train depot
+Pastatyti traukini? dep±
+Build tram depot
+Pastatyti tramvaj? dep±
+Build truck depot
+Pastatyti gara¾±
+Building costs estimates
+Apytiksl? statyb? kaina
+Buildings
+Pastatai
+Built artifical slopes
+Pastatyti dirbtines pakylas
+Built random attraction
+Pastatyti atsitiktinê lankom± viet±
+Bus_tab
+Autobusai
+Can only move from halt to halt or waypoint to waypoint.
+Tegalima jud?ti\ntik nuo gair?s iki gair?s\nar nuo sustojimo iki sustojimo.
+Cancel
+At¹aukti
+Capacity: %s\nLoad: %d (%d%%)
+Talpa: %s\n? %d (%d%%)
+Cars are not available yet!
+Ma¹inos dar neprieinamos.
+cars.\nstate
+automobiliai /n
+Cash
+S±skaitos balansas.
+Change player
+Pakeisti ¾aid?j±
+Chart
+Diagrama
+Choose direction
+Rinkit?s krypt?
+Choose operation executed on clicking stored/new vehicles
+Pasirenkamas veiksmas vykdomas paspaudus ant laikom?/nauj? transporto priemoni?
+chooses a random map
+Pasirenkamas atsitiktinis ¾em?lapis.
+citicens
+Gyventojai
+City attraction
+Lankoma vieta
+City industries
+Prekybos centrai miestuose
+City list
+Miest? s±ra¹as
+City size
+Miesto dydis
+city_road
+Miesto kelias
+citybuilding builder
+Miesto pastat? ?rankis
+CityLimit
+Miesto ribos
+cl_title
+Tr. priemoni? s±ra¹as
+cl_txt_filter
+Filtras:
+cl_txt_sort
+Sutrumpinti pagal:
+clf_chk_aircrafts
+l?ktuvai
+clf_chk_cars
+Autobusai/sunkve¾imiai
+clf_chk_indepot
+depe
+clf_chk_maglev
+Magnetiniai tr.
+clf_chk_monorail
+Vienb?giai
+clf_chk_name_filter
+Filtr? pavadinimai:
+clf_chk_narrowgauge
+Siauruko traukiniai
+clf_chk_noincome
+n?ra pelno
+clf_chk_noline
+n?ra linijos
+clf_chk_noroute
+n?ra kelio
+clf_chk_noschedule
+n?ra grafiko
+clf_chk_ships
+Laivai
+clf_chk_spezial_filter
+Specialus filtras
+clf_chk_stucked
+u¾strigo
+clf_chk_trains
+Traukiniai
+clf_chk_trams
+Tramvajai
+clf_chk_type_filter
+Filtro tipai:
+clf_chk_waren
+Krovini? filtras:
+clf_title
+Tr. priemoni? s±ra¹o filtras
+Climate Control
+Nustatyti klimat±
+closed
+u¾daryta
+COLOR_CHOOSE\n
+Pra¹ome pasirinkti\nspalv± i¹ lentel?s:\n
+Company bankrupt
+Kompanijos bankrotas
+Connect factory
+Sujungti gamyklas
+Connected stops
+Sujungtos stotel?s
+Constructed by
+Nupie¹? :
+Constructed by %s
+Nupie¹? %s
+convoi %d of %d
+Konvojus %d i¹ %d
+Convoi has been sent\nto the nearest depot\nof appropriate type.\n
+Konvojus buvo i¹si?stas\n? artimiausia atitinkama\ndep±.
+Convoi is sold when all wagons are empty.
+Transporto priemon? bus perduota i¹kart kai bus tu¹èia. 
+convoi passed last\nmonth %i\n
+\nkonvojiai prava¾iavê praeit±\nm?nes?: %i\n
+Convois
+Konvojai
+Convois: %d\nProfit: %s
+Tr. priemon?s: %d\nPelnas: %s
+Convoys
+Konvojai
+Copy Convoi
+Nukopijuoti ma¹in±
+Copy the selected convoi and its schedule or line
+Kopijuoti pasirinkta konvoj? ir jo grafik± ar linij± 
+cost for removal
+pa¹alinimo kaina 
+Costs
+Kainuoja
+Create a new line based on this schedule
+Sukurti linija paremta ¹iuo grafiku
+curiosity builder
+?vair?s pastatai
+curlist_title
+Lankom? viet? s±ra¹as 
+Currently playing:
+Grojama:
+Deccelerate time
+Sul?tinti laik±
+December
+Gruodis
+Del Stop
+Pa¹alinti
+Delete Line
+Pa¹alinti linija
+Delete the current stop
+Sugriauti stotelê 
+Delete this file.
+I¹trinti ¹? fail±
+Denkmal
+Monumentas
+Departed
+I¹vykê
+Depots
+Depai
+Destination
+Tikslas 
+Details
+Informacija
+diesel
+dyzelis
+Direkt erreichbare Haltestellen
+Tiesioginiai mar¹rutai i¹ ¹ios vietos
+disable midi
+I¹jungti muzik±
+Distance
+Atstumas
+Dock
+dokai
+Durchsatz
+Max. 
+Economy
+Miestai ir ekonomika
+Eigenbesitz\n
+Vie¹a nuosavyb?\n
+Ein %s\npasst hier nicht.\n
+'%s'\nèia netinka!\n
+Einstellungen
+Nustatymai:
+Einstellungen aendern
+Pakeisti nustatymus:\n
+Einstellungsfenster
+®aidimo nustatymai
+electric
+elektrinis
+Electricity
+Elektra
+Electricity producer\n\n
+Elektros gamintojas\n\n
+Electrics_tab
+Elektriniai
+Electrify track
+?elektrinti b?gai
+enlarge map
+Padidinti ¾em?lap?
+enter a value between %i and %i
+?veskite reik¹mê tarp %i ir %i
+Error
+Klaida
+Erzeuge neue Karte.\n
+Pra¹om palaukti kol naujas\n¾em?lapis kuriamas.\n\n(Tai gali u¾trukti kelias\nminutes dideliems ¾em?lapiams.) 
+Es wird bereits\nein Fahrplan\neingegeben\n
+Grafikas\nsuplanuotas.\nPirm± j? pabaikite\nprie¹ pakeisdami j? i¹ naujo!\n
+Fabrikanschluss
+Sujungtos gamyklos
+Fabrikname
+gamyklos pavadinimas
+Factories
+Gamyklos
+factory details
+Gamyklos informacija
+factorybuilder
+Statyti gamykl±
+Fahrplan
+Grafikas
+Fahrtziel
+Tikslas:
+Fahrzeuge:
+Transportas:
+Farbe
+®aid?jo spalvos
+Fast forward
+Prasukti laik±
+February
+Vasaris
+Ferry_tab
+Keltai
+Fertig
+Atlikta
+Filename
+Bylos pavadinimas:
+Finances of %s
+Financai %s
+Finanzen
+Financai
+fl_title
+Gamykl? s±ra¹as
+Flug_tab
+Keleivinis l?ktuvas
+Follow the convoi on the map.
+Sekti konvoj? ¾em?lapyje.
+Forest
+Mi¹kas
+Found new city
+?kurti nauj± miest±
+FPS:
+Kadrai/s:
+Fracht
+Krovinys
+Frame time:
+Kadro laikas:
+Free Capacity
+Laisva Talpa
+freeplay mode
+laisvas ¾aidimas
+Friction:
+Trinties faktorius:
+fuel_cell
+kuro elementas
+Full load
+Minimali apkrova:
+Fussgaenger
+P?stysis
+GAME PAUSED
+®aidimas sustabdytas
+Gear:
+Pavara:
+Gebaeude
+Pastatas
+General
+Pagrindiniai
+Gewicht
+Svoris
+Gewinn
+Pelnas:
+Give the selected vehicle(s) an individual schedule
+Duoti transporto priemonei nuosav± grafik±.
+gl_title
+Vis? preki? s±ra¹as
+Goods
+Prek?s
+Goods AI
+Preki? DI
+Goods list
+Preki? s±ra¹as
+Gross Profit
+Grynas pelnas
+Groundobj
+Objektas
+Grow city
+Pl?sti miest±.
+Growth
+Miesto augimas
+H
+stotel?
+Hangar
+Angaras
+Happy
+Laimingi
+Haus kaufen
+Nupirkti nam±
+Headquarter and %li trains
+Valdo ir %li traukini?
+Helligk.
+Rodyti
+Helligk. u. Farben
+Vaizdo nustatymai
+Help
+Pagalba
+Help text not found
+Tr?ksta pagalbinio teksto.
+hide all building
+sl?pti pastatus
+hide city building
+sl?pti pastatus
+hide station names
+sl?pti stoteli? pavadinimus
+hide transparent
+permatomi u¾uot pasl?pti
+hide trees
+Sl?pti med¾ius
+Hier warten/lagern:
+Laukiantys keleiviai ir prek?s:
+hl_title
+Stoèi? s±ra¹as
+hl_txt_filter
+Filtras:
+hl_txt_sort
+Sutrumpinta pagal:
+hlf_chk_airport
+Aerouostai
+hlf_chk_anleger
+Dokai
+hlf_chk_bahnhof
+gele¾inkelio stotis
+hlf_chk_bushalt
+Autobuso stotel?
+hlf_chk_frachthof
+Krovos punktas
+hlf_chk_keine_verb
+Nesujungta
+hlf_chk_maglevstop
+Magnetinio tr. stotel?
+hlf_chk_monorailstop
+vienb?gio stotel?
+hlf_chk_name_filter
+Filtro pavadinimas:
+hlf_chk_narrowgaugestop
+Siauruko stotel?
+hlf_chk_overflow
+Vir¹ talpos
+hlf_chk_spezial_filter
+Specialus filtras:
+hlf_chk_tramstop
+Tramvajaus stotel?
+hlf_chk_type_filter
+Filtro tipai:
+hlf_chk_waren_abgabe
+Produkcija:
+hlf_chk_waren_annahme
+Reikalingos prek?s:
+hlf_title
+Stoties s±ra¹o filtras
+Homeless
+Benami?
+hydrogene
+Vandenilis
+Idle:
+Laisvi:
+ignore climates
+nekreipti d?mesio ? klimat±
+Increase Industry density
+Padidinti gamykl? tinklo tank?
+industrial building
+Pramoninis pastatas
+Init map ...
+Paled¾iamas ¾em?lapis ...
+Input
+?vestis
+Ins Stop
+?terpti
+Insert stop before the current stop
+?terpia stotelê prie¹ pasirinkt±
+Intercity road len:
+Tarpmiestinio kelio ilgis:
+Intro. date:
+Atsiradimo data:
+invalid
+nenustatyta.
+Invalid coordinate
+Netinkamas nurodymas
+isometric map
+izometrinis ¾em?lapis
+January
+Sausis
+July
+Liepa
+Jump to
+Per¹okti ?
+June
+Bir¾elis
+Kein Besitzer\n
+Neturi savininko\n
+keine
+n?ra
+Keine Einzelfahrzeuge im Depot
+Èia n?ra transporto priemoni?.
+Keyboard_Help\n
+Klaviat?ros pagalba\n
+Kreuzung
+Perva¾a
+labellist_title
+®ymekli? s±ra¹as
+Laden
+U¾krauti
+Land attraction
+Traukos vieta
+Land industries
+?moni? grandin?s
+LANG_CHOOSE\n
+Pra¹ome pasirinkti kalb±:\n
+LARGE_NUMBER_STRING
+M
+LARGE_NUMBER_VALUE
+1e6
+Last Year
+Praeiti metai:
+Leaving depot!
+Paliek± dep±!
+leer
+tu¹èia
+Legend
+Sutartiniai ¾enklai
+Leistung
+Galia
+Leistung: %d kW
+Galia: %d kW
+Leitung
+Elektros linija
+letzen Monat: diesen Monat:
+Praeit± m?nes?:  ©? m?nes?:
+Line
+Linija
+Line Management
+Linijos valdymas
+Lines are used to manage groups of vehicles
+Linijos naudojamos valdyti transporto priemoni? grupes
+Lines serving this stop
+Linijos aptarnaujanèios ¹i± stotelê
+LKW_tab
+Sunkve¾imiai
+load height data from file
+U¾krauti auk¹èi? duomenis i¹ failo.
+loaded
+u¾krauta
+loaded passenger/freight
+Rikiuoti prekes/krovinius pagal
+Loading (%i->%i%%)!
+Krauna (%i->%i%%)!
+Loading addon paks ...
+Krauna papildinius ...
+Loading map ...
+Kraunamas pasaulis...
+Lock game
+U¾drausti ¾aid?j? apsikeitim± (reikia patvirtinimo).
+LOCO_CAP
+Talpa: %d%s %s\n
+LOCO_INFO
+%s\nKaina: %d$ (%1.2f$/km)\nGalia: %dkW, %dkm/h\nSvoris: %dt\n
+Lokomotive_tab
+Lokomotyvai
+m3
+m?
+Maglev
+Magnetinis tr.
+maglev vehicle
+magnetinis traukinys
+Maglevdepot
+Magnetinio traukinio depas
+Mailbox
+®inut?s
+Mailbox Options
+®inuèi? nustatymai
+Maintenance
+Tvarkymas
+make stop public (or join with public stop next) costs %i per tile and level
+Paversti stotelê vie¹a (ar sujungti su gretimomis stotel?mis) kainuoja %i$ per auk¹t? ir langel?
+Manual (Human)
+Rankinis (¾mogus)
+Manufactured:
+Pagaminta:
+Map roughness
+®em?lapio ¹iurk¹tumas:
+map zoom
+priartinimas
+March
+Kovas
+Margin (%)
+Margin'as
+Marker
+Pastatyti ¾enkl±
+Max income:
+Max pajamos:
+Max. speed:
+Max greitis:
+Maximum 254 stops\nin a schedule!\n
+Daugiausia 254 stotel?s\ngrafike!\n
+maximum length of rivers
+Max. upi? ilgis
+Maximum tile height difference reached.
+Did¾iausias auk¹èi?\nskirtumas tarp\ndviej? langeli?\nbuvo pasiektas.
+May
+Gegu¾?
+Median Citizen per town
+Vidutinis miesto gyventoj? sk.:
+Meldung
+®inut?
+Menge
+kiekis
+MessageOptionsText
+\nNauji metai\n\nDI Naujienos\n\nMiesto naujienos\n\nn?ra kelio\n\nNaujos ?mon?s\n\nTuristai\n\nNaujos tr. priemon?s\n\nStote?l? pilna\n\nProblemos
+min
+min.
+minimum length of rivers
+Min. upi? ilgis
+Modify the selected line
+Modifikuoti pasirinkt± linij±
+Monate alt
+m?nesi? am¾iaus.
+Monorail
+Vienb?gis
+monorail vehicle
+Vienb?gis traukinys
+Monorailboden
+Vienb?gio kelio atrama
+Monoraildepot
+Vienb?gio depas
+month wait time
+laukimo laikas m?nesiais
+Months
+M?nesiai
+Monument
+Statula
+Monuments
+Statulos
+Mountain height
+Kalno auk¹tis
+Move the selected vehicle(s) back to the depot
+I¹ardyti transporto priemonê perrinkimui.
+Movingobj
+Judinti objekt±
+Music playing disabled/not available
+Muzikos groti ne?manoma arba ji i¹jungta.
+Music volume:
+Muzikos garsas:
+mute sound
+Be garso
+Name
+Pavadinimas
+Narrowgauge
+Siaurukas
+narrowgauge vehicle
+Siauruko traukinys
+Narrowgaugedepot
+Siauruko depas
+Net Wealth
+Turto vert?
+Neue Karte
+Naujas ¾em?lapis
+Neue Welt
+Paleisti nauj± ¾aidim±
+new convoi
+Naujas junginys
+New Line
+Nauja linija
+New line created!\nYou can assign the line now\nby selecting it from the\nline selector above.
+Nauja linija ?kurta!\nJ?s galite j± paleisti\npasirinkdami s±ra¹±\nesant? vir¹uje.
+New Vehicles
+Nauji automobiliai
+no convois
+N?ra s±stat?
+No goods are loaded onto this convoi.
+©iame s±state nebus pakrauta krovinio.
+no goods waiting
+n?ra preki?
+no load
+Nepakrauti
+No Route
+N?ra kelio
+No stop here!
+?rank? naudoti tik ant stoteli? lageli?.
+No suitable ground!
+Netinkamas plotas
+No terminal station here!
+Ne?manoma pastatyti \nstoties èia!reikia d?ti ant jau egzistuojanèio /n kelio ar b?gi?.
+no timeline
+visos eros
+no tree
+n?ra med¾io
+none
+joks (-ia)
+nord
+©iaur?
+nordost
+©iaur?s rytai
+nordwest
+©iaur?s vakarai
+Not enough fields would remain.
+Per ma¾ai lauk?\nliks apie ferm±.
+November
+Lapkritis
+Now active as %s.\n
+Dabar veikiate kaip %s.\n
+Number of rivers
+Upi? kiekis
+Object
+Objektas
+Ok
+Gerai
+Oktober
+Spalis
+On loan since %i month(s)
+Skoloje %i m?nesius
+Only city chains
+Tik miesto ?mon?m.
+Only land chains
+Tik sausumos ?mon?m.
+open
+atverti.
+Operation
+Veikimo kaina
+Ops Profit
+Atne¹tas pelnas
+Origin
+Kilm?
+ost
+Rytai
+Output
+I¹eiga
+paletten
+d?¾?s
+Pas_tab
+Keleiviniai traukiniai
+Passagiere
+Keleiviai
+Passagierrate
+Keleivi? kiekis
+Passagierziele
+Keleivi?/ pa¹to tikslai
+Passenger AI
+Keleivi? DI
+Passengers %d %c, %d %c, %d no route
+Keleiviai %d %c, %d %c, %d neturi kelio
+Pause
+Pauz?
+Percent Electricity
+Procentai elektrifikuoti
+Plant tree
+Sodinti med¾ius
+player
+¾aid?jas
+player -1
+¾mogus
+player 0
+valstyb?
+player 1
+Napik 128 AS
+player 10
+¾aid?jas nr. 10
+player 11
+¾aid?jas nr. 10
+player 12
+¾aid?jas nr. 12
+player 13
+¾aid?jas nr. 13
+player 2
+Trikky Transport
+player 3
+Meyer Moving Co.
+player 4
+Eksppedicija VM
+player 5
+Hayo, the conqueror UAB
+player 6
+PSK & Co KG
+player 7
+¾aid?jas nr. 7
+player 9
+¾aid?jas nr. 9
+Please choose vehicles first\n
+Pirma pasirinkite automobil?!\n
+Post
+pa¹tas
+Postrate
+Pa¹to lygis
+Power
+Galia
+Power:
+Galia:
+Powerlines
+Elektros linijos
+Produktion
+Gamyba
+Profit
+Pelnas
+promote to line
+Paversti ? linij±
+q1
+Pavasaris
+q2
+Vasara
+q3
+Ruduo
+q4
+®iema
+rail car
+vagonas
+random
+atsitiktinis
+Random age
+Bet kok? am¾i?
+Random map
+Bet koks ¾em?lapis
+Rathaus
+Rotu¹?
+Rating
+Reitingas
+Reliefkarte
+®em?lapis
+Remove
+pa¹alinti
+remove airstrips
+naikinti pakilimo takus
+remove channels
+sunaikinti kanalus
+remove maglev tracks
+¹alinti magnetinius b?gius
+remove monorails
+¹alinti vienb?g?
+remove narrowgauge tracks
+naikinti siauruk±
+remove roads
+griauti keli±
+remove tracks
+ardyti b?gius
+replace stop
+keisti stotelê
+request closing
+pra¹yti u¾darymo
+residential house
+Gyvenamasis namas\n
+Restore natural slope
+Sugra¾inti kalvos ¹lait±
+Restwert:
+Perpardavimo vert?:
+Retire. date:
+Pasens:
+return ticket
+atkartoti kitaip
+Revenue
+Pajamos
+road vehicle
+automobilis
+Roadsign
+®enklas
+Rotate map
+sukti vaizd±
+Rotation
+sukimas
+sack
+ mai¹ai
+sail
+V?jas
+Saving map ...
+I¹saugomas ¾em?lapis ...
+Schienentunnel
+Statyti gele¾inkelio tunel?
+Schiff_tab
+Laivai
+Schiffdepot
+Dokai
+Schleppkahn_tab
+Bar¾os
+Screenshot
+Nufotograpuoti ekrano fon±.
+Sehenswuerdigkeit
+Lankytina vieta
+Sell the selected vehicle(s)
+Parduoti transporto priemones
+sended
+i¹si?sta
+SEP_FRACTION
+,
+SEP_THOUSAND
+ 
+September
+Rugs?jis
+Serves Line:
+Aptarnaujama linija:
+Service
+Aptarnavimas
+Ship
+Laivai
+shops and stores
+Parduotuv?s ir biurai\n
+Show all
+Rodyti visk±
+show all building
+Rodyti visus pastatus
+Show also vehicles no longer in production.
+Rodyti ir automobilius kurie daugiau nebegaminami
+Show also vehicles that do not match for current action.
+Taip pat parodyti tr. priemones, kurios negali b?ti panaudotos.
+show grid
+Rodyti tinklel?
+Show industry
+Rodyti ?mones
+Show legend
+Rodyti legend±
+Show map scale
+Rodyti skalê
+Show obsolete
+Rodyti pasenusius
+Show schedules
+Rodyti mar¹rutus
+show station coverage
+Rodyti stoteli? apr?pt?
+show station names
+Rodyti stoteli? pavadinimus
+show waiting bars
+Rodyti laukimo juostas
+Show/hide statistics
+Rodyti/sl?pti statistik±
+Shows consumer/suppliers for factories
+Rodyti tiek?jus ir vartotojus gamyklose
+Shows the currently selected schedule
+Rodyti esam± grafik±
+Shrink city
+Ma¾inti miest±
+shuffle midis
+i¹mai¹yti muzik±
+Sim:
+Simuliacijos/min
+Start the selected vehicle(s)
+Paleid¾ia transporto priemones.
+Station tiles:
+Stotel?s laukeliai:
+Status
+stotel?s statusas
+steam
+garai
+Step timeline one year
+Praleisti 1 metus.
+Storage capacity
+Saugyklos talpa
+Strassendepot
+Gara¾as
+Strassentunnel
+Statyti gele¾inkelio tunel?
+street car
+lengvasis automobilis
+sued
+Piet?s
+suedost
+Pietryèiai
+suedwest
+Pietvakariai
+Summer snowline
+Vasaros sniego juosta:
+Suppliers
+Tiek?jai
+Supply %s at (%i,%i)
+Tiekia %s kuri(s) yra (%i,%i)
+Tage alt
+dien? senumo.
+There are still vehicles\nstored in this depot!\n
+©itame depe\nyra automobili?!\n
+This Month
+©? m?nes?
+This Year
+©iais metais:
+Tile not empty.
+Apvalykite laukel?\nprie¹ kasdami ¹lait±.
+timeline
+prad¾ios era
+tl_title
+Vaizduoti visus miestus
+To attract more tourists\n%s built\na %s\nwith the aid of\n%i tax payers.
+Pritraukti turistams,\n%s pastat?\n %s\nsu pagalbaf\n%i moke¹èi? mok?toj?.
+To heavy traffic\nresults in traffic jam.\n
+Didelis eismas\nsuk?l? kam¹t?.\n
+Toggle day/night view
+Dienos/ nakties r?¾imas
+tonnen
+t
+Total inhabitants:
+Gyventojai:
+Tourist attractions
+Turist? traukos centrai
+Tourists
+Lankytinos vietos
+Town: %s\n
+Miestas %s.\n
+Towns
+Miestai
+track
+b?giai
+Tracks
+B?giai
+Traffic
+Eismas
+Train
+Traukinys
+Trains are not available yet!
+Traukini? dar negalima statyti.
+Tram
+Tramvajus
+tram %i km/h, monorail %i km/h\nmaglev %i km/h, narrowgauge %i km/h.
+tramvajus %i km/h, vienb?gis %i km/h\nmaglev %i km/h, siaurukas %i km/h
+tram_track
+Tramvajaus b?giai
+Tramdepot
+Tramvajus depas
+Trams are not available yet!
+Tramvaj? dar negalima gaminti.
+Transformer only next to factory!
+Transformatoriai privalo b?ti\nant laisvo ¾êm?s ploto\nprie gamyklos!
+Translation
+Vertimas
+transparent station coverage
+permatomas stoties vaizdas
+Transport %li passengers
+Transportuoti %li keleivius
+Transported
+Nukeliavo
+TrolleyBus_tab
+troleibusai
+Truck
+Sunkve¾imiai
+Tunnel muss an\neinfachem\nHang beginnen!\n
+Tuneliai\nprasideda ant\ntiesaus ¹laito!\n
+Tunnel must start on single way!
+Tuneliai privalo prasid?ti viename kelyje
+Tunnelboden
+Tunelis
+underground mode
+po¾eminis vaizdas
+UNDO failed!
+Undo nebe?manomas.\n Undo veikia tik \n kai n?ra ant kelio\n signal?, stoteli?\n ir kit? daikt?.
+Undo last ways construction
+At¹aukti paskutinê konstrukcij±
+Unemployed
+Bedarbiai
+Unhappy
+Nepatenkinti
+units/day
+ vienetai/m?nes?
+Update Line
+Atnaujinti linij±
+upgrade HQ
+Patobulinti b?stinê
+Use timeline start year
+Prad?ti nuo (jei reikia laiko tekm?s):
+Vehicle %s can't find a route!
+Automobilis %s\nneranda kelio!
+Vehicle %s is stucked!
+Automobilis %s u¾strigo!
+Vehicle details
+Transporto priemon?s info
+Verbrauch
+Vartojimas
+Vergroessere die Karte\n
+Padidinti ¾em?lap? \n
+Verkauf
+Parduoti
+verkaufen
+Pardavimas
+Verkehrsteilnehmer
+miesto ma¹inos
+via
+per (info)
+via %s\n
+ per %s\n
+via Menge
+per (kiekis)
+voranstellen
+Perkelti priekin
+WAGGON_INFO
+%s\nKaina:     %d$ (%1.2f$/km)\nTalpa: %d%s %s\nSvoris: %dt\nmax greitis: %dkm/h\n
+Waggon_tab
+Automobiliai
+waiting
+laukia
+Waiting for clearance!
+Laukia laisvo kelio!
+water
+Kanalas
+Water level
+Vandens lygis:
+water vehicle
+laivas
+way %s cannot longer used:\n
+Kelio %s daugiau nebegalima naudoti.\n
+way %s cannot longer used:\n%s\n
+Kelio r?¹is %s negali b?ti naudijama:\n
+way %s now available:\n
+Nauja kelio r?¹is : %s .\n
+way %s now available:\n%s\n
+keli± %s galima statyti:\n%s\n
+Ways not connected
+Keliai nesujungti
+Wegpunkt
+Patikros punktas
+Wert
+Vert?
+west
+Vakarai
+Winter snowline
+®iemos sniego juosta
+withdraw
+trauktis
+Withdraw All
+©alinti visus
+WRONGSAVE
+\nI¹saugotas ¾aidimas ne tai versijai.\nNe?manoma ?krauti failo.\n
+Year %i has started.
+Metai %i prasid?jo.
+Years
+Metai
+Zielort
+tikslas
+zooming in
+pritraukiama
+zooming out
+atitraukti vaizd±
+Zu nah am Kartenrand
+Negalite statyti\nper arti \n¾em?lapio kra¹to.
+#__________________________________record_text__________________________________
+#__________________________________record_text__________________________________
+New world record for maglevs: %.1f km/h by %s.
+Naujas pasaulio rekordas magnetiniam traukiniam: %.1f km/h padarytas %s.
+New world record for monorails: %.1f km/h by %s.
+Naujas vienb?gio pasaulio\n rekordas: %.1f km/h\npadarytas %s.
+New world record for motorcars: %.1f km/h by %s.
+Naujas pasaulio automobilio\nrekordas:\n %.1f km/h\npadarytas %s.
+New world record for narrowgauges: %.1f km/h by %s.
+Naujas siauruko pasaulio rekordas:/n %.1f km/h padarytas %s.
+New world record for planes: %.1f km/h by %s.
+Naujas l?ktuvo pasaulio \nrekordas:\n %.1f km/h\npadarytas %s.
+New world record for railways: %.1f km/h by %s.
+Naujas traukinio pasaulio \nrekordas:\n %.1f km/h \npadarytas %s.
+New world record for ship: %.1f km/h by %s.
+Naujas pasaulio rekordas\nlaivas:\n %.1f km/h\npadarytas %s.
+#_________________________Simutrans Experimental Texts__________________________
+#_________________________Simutrans Experimental Texts__________________________

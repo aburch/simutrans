@@ -899,7 +899,7 @@ default_increase_maintenance_after_years_other = 30
 # This determines whether obsolete vehicles can be purchased new
 # Default is "no" (0)
 # allow buying obsolete vehicles (=1) in depot
-#allow_buying_obsolete_vehicles = 1
+allow_buying_obsolete_vehicles = 0
 
 # This allows for a "driving it off the lot" drop in value.
 # This is not on by default, even in Experimental.

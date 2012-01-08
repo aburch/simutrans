@@ -1,0 +1,51 @@
+<title>POMOC: Tworzenie nowego swiata</title>
+<h1>Tworzenie nowego swiata</h1>
+
+<p>
+W tym oknie masz mozliwosc utworzenia nowej mapy. Mozesz przy tym korzystac z wielu opcji (wielkosc, gestosc przemyslu itp.)
+</p>
+
+<p>
+Ponizej znajduje sie lista opcji dostepnych przy tworzeniu swiata wraz z ich krotkim objasnienim .</p>
+
+<p>
+<em>Numer mapy</em> - Okresla wyglad ?wiata wraz z iloscia miast, obszarem i polozeniem wody, wzniesien itp. Dla kazdej mapy dostepny jest podglad (Podglad zmienia sie jesli ustawisz opcje dodatkowe).
+Domyslnie ustawiona jest mapa nr 33.
+<br>
+<em>Wielkosc mapy</em> - okresla wielkosc mapy w kwadratach w zakresi od 128*128 do 640*640. Domyslna wielkoscia jest 256.<br>
+<em>Uwaga:</em> Duze mapy wymagaja wiecej pamieci od komputera!
+</p>
+
+<p>
+<em>Osrodki przemyslowe</em> - Wielkosc ta oznacza ilosc zakladów przemyslowych/kopaln na mapie. Mala gestosc oznacza trudniejsza gre (trudniej jest ustalic trasy przejazdu, trasy te sa czesto bardzo dlugi)
+Domyslna gestosc osrodków przemyslowych wynosi 125.
+<br>
+<em>Ilosc miast</em> - Pozwala ustalic ilosc miast na naszej mapie (od 2 do 64 miast). Domyslnie ustawiono 16 miast.
+<br>
+<em>Transport osobowy</em> - Okresla ilosc poruszajacych sie pojazdów prywatnych. Domyslna wielkoscia jest 8.
+</p>
+
+<p>
+<em>Poziomo wody</em> - Okresla wysokosc (w kwadratach) poziomu wody. Mniejsza liczba oznacza odsloniecie wiekszej ilosci ladów. Domyslny poziom wody to 4.
+<br>
+<em>Wysokosc gór</em> -  Okresla wysokosc najwiekszych gór na mapie. Mniejsza liczba oznacza mniej malych gór i wawozów. Dostepny zakres ustawien 0-160. Domyslna wilkoscia jest 160.
+<br>
+<em>Wygladzanie mapy</em> - Dzieki tej opcji wzniesienia moga byc lagodniejsze (zakres ustawien: 1-3).
+</p>
+
+<p>
+<em>Mapa losowa</em> -  Losowy wybór mapy (Bez mozliwosci zmian innych efektów).
+</p>
+
+<p>
+<em>Pokaz pasazerów</em> - Wlacza/wylacza pokazywanie ludzi poruszajacych sie w miastach.
+Opcje ta mozna zmienic w czasie gry wybierajac <a href="display.txt">'Opcje wyswietlania'</a>.
+<br>
+<em>Tryb dzien/noc</em> - Pozwala wybrac cykl dnia/nocy. Opcje te mozna zmienic podczas gry w menu <a href="display.txt">'Opcje wyswietlania'</a>.
+</p>
+
+<p>
+<em>Wczytaj gre</em> - Wczytanie zapisanej wczesniej gry (zobacz tez <a href="load.txt">'Wczytaj gre'</a>)<br>
+<em>Rozpocznij gre</em> Tworzy nowa mape na podstawie ustawien tego okna. Wygenerowanie duzej mapy moze zajac troche czasu.<br>
+<em>Wyjscie</em> - Wyjscie z gry.<br>
+</p>

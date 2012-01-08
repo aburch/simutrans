@@ -721,17 +721,7 @@ void convoi_t::increment_odometer(uint32 steps)
 	weg_t* way = welt->lookup(get_pos())->get_weg(waytpe);
 	if(way == NULL)
 	{
-		if(welt->lookup(get_pos())->ist_wasser())
-		{
-			// Record journey over open seas to use
-			// to decide how to apportion costs for 
-			// ships arriving into port.
-			player = MAX_PLAYER_COUNT + 1;
-		}
-		else
-		{
-			player = besitzer_p->get_player_nr();
-		}
+		player = besitzer_p->get_player_nr();
 	}
 	else
 	{
@@ -3825,7 +3815,7 @@ void convoi_t::laden() //"load" (Babelfish)
 			journey_time = 1;
 		}
 		const sint32 journey_distance_meters = journey_distance * welt->get_settings().get_meters_per_tile();
-		const sint32 average_speed = (journey_distance_meters * 3) / (journey_time * 50);
+		const sint32 average_speed = (journey_distance_meters * 3) / (journey_time * 5);
 		
 		// For some odd reason, in some cases, laden() is called when the journey time is
 		// excessively low, resulting in perverse average speeds and journey times.

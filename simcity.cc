@@ -2407,7 +2407,7 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 	}
 	else
 	{
-		const uint8 congestion_density_factor =welt->get_settings().get_congestion_density_factor();
+		const uint8 congestion_density_factor = welt->get_settings().get_congestion_density_factor();
 		const uint16 percentage = congestion_density_factor > 0 ? ((((cars_per_tile_thousandths - 400) / 45) * population_density) / congestion_density_factor) / 10 : (cars_per_tile_thousandths - 400) / 30;
 		city_history_month[0][HIST_CONGESTION] = percentage;
 	}

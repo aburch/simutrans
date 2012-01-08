@@ -1,0 +1,56 @@
+<title>Voertuigen Lijst Help (Nederlands)</title>
+
+<h1><strong>Voertuigen Lijst</strong></h1>
+
+<p>
+<strong>Voertuigen Lijst</strong> toont informatie over  <a href="convoiinfo.txt">voertuigen</a>  en kan een filter toepassen op de lijst met voertuigen (een voertuig is een enkel voertuig of een samenstelling van voertuigen).
+</p>
+<p>
+Hoe te benaderen: klik op het voertuigen lijst icoontje in <a href="list.txt">Lijstenbeheer</a> of toets <a href="keys.txt">[V]</a>. De <strong>voertuigen  lijst</strong> heeft vier knoppen, de eerste twee knoppen bepalen de sortering van de lijst en de andere twee zijn voor het filter.<br>
+Onder de knoppen wordt een lijst met <a href="convoiinfo.txt">voertuigen</a> getoond die (indien geactiveerd) voldoen aan de filter voorwaarden.<br>
+{TIP: indien er geen voertuigen te zien zijn kun je de <em>filter</em> instellingen aanpassen. Indien de lijst slechts voor een deel zichtbaar is, kun je de  <a href="mouse.txt">grootte van het scherm </a> <strong>voertuigen lijst</strong> of scrollen door middel van de schuifbalk.}
+</p>
+<p>
+Klik op de knoppen om door de opties te bladeren (verandert de naam van de betreffende knop in het op dat moment gekozen instelling) of opent een scherm voor de instellingen van het filter :
+</p>
+<p>
+<em>Gesorteerd op:</em> Twee knoppen regelen de instelling van de volgorde waarop de <a href="convoiinfo.txt">voertuigen</a> worden getoond in de lijst.
+</p>
+<p>
+- <em>Naam</em> sorteert op de naam van het voertuig, alfanumeriek op de volgorde van ASCII-code order (hoofdletters voor kleine letters (de naam is standaard het merk en naam van het eerst gekozen voertuig van de samenstelling in een <a href="depot.txt">remise of hangar (depot)</a>).<br>
+- <em>Inkomsten</em> sorteert de lijst op inkomsten (netto).
+- <em>Type</em> sorteert de lijst op het type transport (in oplopende volgorde wegverkeer, treinen, schepen en vliegtuigen) <br>
+- <em>id nummer</em> sorteert de lijst op het unieke id-nummer van het voertuig (wordt automatisch toegekend op het moment dat het voertuig in een <a href=depot.txt">remise of hangar (depot)</a> wordt gekocht en wordt getoond in de titelbalk van het  scherm <a href="convoiinfo.txt">voertuig informatie</a>).
+</p>
+<p>
+- <em>oplopend</em> / <em>aflopend</em> keert de volgorde van de lijst om.
+</p>
+<p>
+<em>Filter:</em> Twee knoppen waarvan de eerste het filter in- en uitschakelt en de tweede een scherm opent met <a href="convoi_filter.txt">instellingen van het filter</a>.
+</p>
+<p>
+- <em>aan</em> / <em>uit</em> klik op de knop om het filter voor <a href="convoiinfo.txt">voertuig informatie</a> aan of uit te zetten.
+</p>
+<p>
+- <a href="convoi_filter.txt"><em>Instellingen</em></a> opent het scherm om de selectiecriteria voor het filter aan te passen.
+</p>
+<p>
+Klik op een voertuig in de lijst om meer informatie te zien van het <a href="convoiinfo.txt">voertuig</a>.
+</p>
+<p>
+De volgende informatie wordt getoond voor elk voertuig:
+</p>
+<em>id-nummer</em>: een uniek nummer dat automatisch wordt toegekend op het moment dat het voertuig in een <a href=depot.txt">remise of hangar (depot)</a> wordt gekocht en wordt getoond in de titelbalk van het  scherm <a href="convoiinfo.txt">voertuig informatie</a>).
+</p>
+<p>
+<em>naam</em> naam van het voertuig (dit is standaard het merk en naam van het eerst gekozen voertuig van de samenstelling in een <a href="depot.txt">remise of hangar (depot)</a>).
+</p>
+<p>
+<em>Inkomsten</em> toont inkomsten (netto).
+</p>
+<p>
+<em>Lijn:</em> toont de toegekende <a href="linemanagement.txt">lijn</a> en toont of een voertuig zich in een <a href=depot.txt">remise of hangar (depot)</a>.
+</p>
+<p>
+<em>plaatje</em> toont een plaatje van het voertuig en een groene balk die weergeeft hoeveel lading het voertuig op dit moment vervoert ten opzichte van het maximum laadvermogen.
+</p>

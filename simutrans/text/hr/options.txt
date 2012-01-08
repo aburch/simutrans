@@ -1,0 +1,41 @@
+<title>Pomoc Postavki Igre</title>
+
+<h1><strong>Postavke Igre</strong></h1>
+
+<p>
+<strong>Postavke Igre</strong> otvara kontrole za operaciju & prezentacijzu igre; izlaz iz Simutrans-a iz <strong>Postavke Igre</strong>.
+</p>
+<p>
+Kliknuti na ikonu diskete na gornjem dijelu pogleda igre za otvaranje <strong>Postavke Igre</strong>.
+</p>
+<p>
+Kilik na gumb za otvaranje novih kontrola:
+</p>
+<p>
+<a href="language.txt"><em>Jezik:</em></a> postavljanje jezika koristenom u igri.
+</p>
+<p>
+<a href="color.txt"><em>Boja Igraca:</em></a> postavljanje boje Igraceve kompanije.
+</p>
+<p>
+<a href="display.txt"><em>Prikaz:</em></a> postavke kako se igra pjavljuje u Simutrans-u.
+</p>
+<p>
+<a href="sound.txt"><em>
+Zvuk:</em></a> postavke za zvuk & glazbu u igri.
+</p>
+<p>
+<a href="players.txt"><em>Igraci:</em></a> otvara kontrole za razlicite kompanije igraca.
+</p>
+<p>
+<a href="load.txt"><em>Ucitavanje:</em></a> otvara kontrole za restart snimljene igre.
+</p>
+<p>
+<a href="save.txt"><em>Spremanje:</em></a> otvara kontrole za spremanje trenutne igte, kako ni se nastavila kasnije.
+</p>
+<p>
+<a href="new_world.txt"><em>Nova ?Igra/Mapa:</em></a> otvara kontrole za pocetak nove igre (zatvara ostale trake izbornika, tekstove & postavke u trenutnoj igri).
+</p>
+<p>
+<em>Izlaz:</em>napusta Simutrans, trenutna igra se ne sprema.
+</p>

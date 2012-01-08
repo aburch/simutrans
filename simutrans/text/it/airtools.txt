@@ -1,0 +1,53 @@
+<title>Aiuto strumenti aeroporto</title>
+
+<h1><strong>Strumenti aeroporto</strong></h1>
+
+<p>
+<strong>Strumenti aeroporto</strong> contiene gli strumenti per costruire reti aeree. Gli strumenti possono costruire o rimuovere: piste di rullaggio o di atterraggio, spiazzi per carico/scarico (sia merci sia passeggeri), depositi per aerei (per comprare e gestire i mezzi) e vari edifici aeroportuali. Se giochi con la <a href="new_world.txt">linea del tempo</a> attivata, più il tempo passa e più strumenti ed edifici diventeranno disponibili.
+</p>
+<p>
+Clicca sull'icona dell'aeroplano in cima alla vista di gioco per aprire la barra.<br>
+Posiziona il cursore sopra l'opzione o strumento voluto (dopo aver aperto o cliccato sulla barra) per vedere il nome e, dove previsto, il <a href="finances.txt">costo</a> di costruzione, con quello di mantenimento tra parentesi, e la velocità massima consentita.
+</p>
+<p>
+{Consigli: un semplice metodo per costruire un aeroporto è:<br>
+I) costruisci e collega piste di rullaggio e atterraggio;<br>
+II) piazza degli spiazzi alla fine delle piste di rullaggio;<br>
+III) aggiungi gli edifici richiesti.}
+</p>
+<p>
+Gli strumenti possono includere, da sinistra a destra:
+</p>
+<p>
+<em>Pista di rullaggio:</em> lo strumento costruisce delle aree di movimentazione per aerei per andare dal piazzale alle piste di atterraggio. Le piste di rullaggio sono costruite a livello del terreno.<br>
+IMPORTANTE: Se li piste di rullaggio sono connesse alla fine di una di atterraggio, gli aerei non atterreranno o decolleranno.<br>
+Come costruire una pista di rullaggio: clicca sullo strumento e seleziona (il cursore cambia su pista di atterraggio), poi clicca sul terreno per il punto di partenza (compare un bulldozer sul punto scelto) e sul punto finale.<br>
+{Consiglio: Usa Rimuovi per rimuovere parti individuali della pista di rullaggio. Annullare con <a href="keys.txt">[z]</a> non rimborsa i costi di costruzione.}
+</p>
+<p>
+<em>Pista d'atterraggio:</em> gli strumenti costruiscono una pista, usata dagli aerei per decollare e atterrare. Esse sono costruite a livello del terreno e si possono incrociare una all'altra.<br>
+Come costruire una pista d'atterraggio: clicca sullo strumento e seleziona (il cursore cambia su pista), poi clicca sul terreno per il punto iniziale (compare un bulldozer) e, infine, clicca sul punto finale.<br>
+{Consiglio: Lascia le estremità della pista non collegata, altrimenti gli aerei non partiranno o atterreranno. Usa Rimuovi per eliminare singoli pezzi di pista. Annullare con <a href="keys.txt">[z]</a> non rimborsa i costi di costruzione.}
+</p>
+<p>
+<em>Rimuovere piste:</em> lo strumento rimuove un segmento di pista di rullaggio o atterraggio, quando non ci sono aerei, tra due punti nella vista di gioco. L'uso dello strumento prevede un <a href="finances.txt">costo di costruzione</a>.<br>
+Come rimuovere una pista: clicca sullo strumento (il cursore diventa una croce rossa), poi clicca sulla pista da rimuovere (seleziona il punto iniziale da rimuovere) e, infine, sul punto finale per rimuovere la porzione tra i due punti.
+{Consigli: Lascia gli estremi delle piste d'atterraggio non connessi, altrimenti gli aerei non atterreranno o decolleranno. Usa Rimuovi per eliminare singole parti di piste.}
+</p>
+<p>
+<em><a href="depot.txt"><em>Deposito aerei:</em></a></em> lo strumento costruisce un hangar per comprare e gestire gli aerei. Gli hangar hanno un costo di mantenimento e devono essere costruiti alla fine di una pista di rullaggio.<br>
+Come costruire un hangar: clicca sullo strumento (il cursore cambia in un deposito) e poi alla fine di una pista di rullaggio.<br>
+{Consiglio: Rimuovi il deposito con Rimuovi.}
+</p>
+<p>
+<em>Piazzole di sosta</em> e <em>ponte di imbarco:</em> gli strumenti costruiscono una fermata nella vista di gioco per caricare e scaricare merci e passeggeri.<br>
+Un piazzola non costruita a fianco un'altra <a href="station.txt">Fermata</a> ne creerà una nuova.<br>
+Le piazzole sono costruite alla fine di una pista di rullaggio, hanno costi di mantenimento e un bacino d'utenza per merci, passeggeri e posta. Un aereo atterrerà solo se c'è una piazzola libera.<br>
+Come costruire una fermata: clicca sullo strumento e poi su un'estremità di una pista di rullaggio.<br>
+{Consigli: elimina le piste con Rimuovi. Premi [v] per vedere/nascondere il bacino d'utenza per merci e passeggeri nella vista di gioco.}
+</p>
+<p>
+<em>Edifici aeroportuali:</em> gli strumenti costruiscono estensioni per le <a href="station.txt">Fermate</em></a> e possono aumentare i costi di mantenimento, la capacità e il bacino d'utenza per merci e passeggeri. Nell'angolo di alcuni strumenti sono riportate le icone (usate in <a href="haltlist.txt">Lista Stazioni</a> e Informazioni fermata) mostrano che tipo di bene l'estensione consente alla fermata di gestire.<br>
+Come costruire un'estensione: clicca sullo strumento per selezionare l'estensione (il cursore cambia nell'estensione), poi clicca sulla posizione richiesta, vicino a una fermata preesistente. La nuova estensione è ora considerata come parte della fermata.<br>
+{Consigli: rimuovere estensioni con Rimuovi. Premi [v] per visualizzare/nascondere i bacini di raccolta di merci e passeggeri nella vista di gioco.}
+</p>

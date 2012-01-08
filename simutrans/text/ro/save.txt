@@ -1,0 +1,6 @@
+<title>Help Salvare</title>
+
+<h1>Salvare</h1>
+
+<p>
+Aici se poate salva jocul actual.</p>

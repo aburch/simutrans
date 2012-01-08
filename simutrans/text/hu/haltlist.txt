@@ -1,0 +1,12 @@
+<title>Állomás/megálló lista Sugó</title>
+
+<h1>Állomás/megálló lista</h1>
+
+<p>
+Az <strong>Állomás/megálló lista</strong>lehetõvé teszi a kis világodban fellelhetõ megállok és állomásák kilistázását, különbözõ opciók szerint.
+Az állomások/megállók név, a várakozó utas vagy termék, típus és számozás szerint sorba állíthatóak, illetve az azonos kategoriák növekvõ vagy csökkenõ sorrendbe jeleníthetõek meg.
+</p>
+<p>
+A <a href="haltlist_filter.txt">Filterek</a> segítségével tovább szûkithetõ a megjelenített állomások/megállók listája. A filterek hatása csak engedélyezés után jelenik meg.
+ A Filterek tulajdonságait a <a href="haltlist_filter.txt">Beállítások</a> gombbal lehet beállítani.
+</p>

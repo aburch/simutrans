@@ -1,0 +1,25 @@
+<title>Bäume pflanzen</title>
+
+<h1><strong>Bäume pflanzen</strong></h1>
+
+<p>
+Der Dialog ist in vier Bereiche aufgeteilt.
+<br>
+· oben links befindet sich die Auswahlliste mit den Bäumen<br>
+· unten links wird das Bild des ausgewählten Baums angezeigt<br>
+· oben rechts befinden sich einige Optionen<br>
+· unten rechts werden die Informationen des ausgewählten Baums angezeigt<br>
+</p>
+<h1>Auswahlliste</h1>
+<p>
+In der Auswahlliste werden alle zur Verfügung stehenden Bäume angezeigt.
+Oben befinden sich zwei Reiter, die die Anzeige umschalten.<br>
+· <em>Übersetzung:</em> Zeigt die Namen so an, wie diese im Spiel verwendet werden. Dies ist abhängig von der eingestellten Sprache. Wenn keine Übersetzung für die eingestellte Sprache vorhanden ist, wird der Objektname angezeigt.<br>
+· <em>Objekt:</em> Zeigt die internen Objektnamen an.<br>
+<br>
+</p>
+<h1>Optionen</h1>
+<p>
+· <em>alle Klimazonen:</em> Diese Option deaktiviert die Klimazonenzuordnung beim Pflanzen des Baums.<br>
+· <em>Zufallsjahr:</em> Es wird beim Pflanzen des Baums ein zufälliges Baumalter gewählt.<br>
+</p>

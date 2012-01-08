@@ -1,0 +1,27 @@
+<title>Jármûlista Sugó</title>
+<h1>Jármûlista</h1>
+
+<p>
+<em>A következõ beállítások lehetségesek:</em>
+</p>
+
+<p>
+<em>1.) Szortírozás:</em><br>
+Lehetõség van a kilistázott jármûvek szortírozására "Név", "Bevétel" vagy "Típus"
+szerint illetve az így kapott lista a jármûvek betétele függvényében növekvõ, vagy
+csökkenõ sorrendbe rakható.
+</p>
+
+<p>
+<em>2.) Filter:</em><br>
+A kilistázott jármûvekre filtereket is alkalmazhatsz. Vagyis a jármûvek egyedi
+kritériumok alapján is listázhatóak. A filtereket engedélyezni kell.
+</p>
+
+<p>
+-><a href="convoi_filter.txt">Segédlet a filterek használatához</a>
+</p>
+
+<p>
+-><a href="general.txt">Áltlános információk</a>
+</p>

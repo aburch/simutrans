@@ -1,0 +1,63 @@
+<title>Aiuto statistiche città</title>
+
+<h1><strong>Statistiche città</strong></h1>
+
+<p>
+<strong>Statistiche città</strong> visualizza le statistiche dell'area urbana selezionata e può essere usata per cambiarne il nome. Un'area urbana è una città, un paese o un villaggio; tutte le aree urbane sono chiamate città.
+</p>
+<p>
+Ogni città ha il suo Municipio e cresce attorno ad esso. Il trasporto di passeggeri e di posta aiuta la crescita, che provoca la costruzione di strade o l'assorbimento di quelle esistenti da parte del <a href="players.txt">servizio pubblico</a>; appaiono nuovi edifici cittadini e <a href="industry_info.txt">industrie</a> e i limiti della città di espandono.
+</p>
+<p>
+Clicca su un Municipio nella vista di gioco con lo <a href="inspection_tool.txt">Strumento ispezione</a> o su una città elencata nella <a href="citylist_filter.txt">Lista città</a> per aprire le <strong>Statistiche città</strong>. Qui puoi vedere e modificare il nome della città, alcune statistiche, due mini mappe e un grafico dove puoi vedere lo sviluppo nel tempo di certi fattori riguardanti la città.
+</p>
+<p>
+<em>Nome:</em> il nome assegnato alla città appare in un riquadro nella parte alta di <strong>Statistiche città</strong>. <br>
+I nomi di queste aree urbane sono usati per creare quelli delle <a href="station.txt">fermate</a> nei limiti della città.
+Per cambiare il nomer cliccare semplicemente sul riquadro e inserirne uno nuovo.<br>
+{Suggerimento: Usa <a href="keys.txt">[!]</a> per vedere il nome della città sopra il Municipio nella finestra di gioco. Guarda readme_citylist.txt (in ...simutrans/text/) per più informazioni su come sono generati i nomi delle città}.
+</p>
+<p>
+Sotto il riquadro del nome sono presentate le statistiche base della città:<br>
+<em>Dimensioni:</em> numero di cittadini corrente. Il recente aumento di popolazione è riportato tra parentesi.<br>
+<em>Edifici:</em> numero di edifici (residenziali/commerciali e industriali) nella città.<br>
+<em>Coordinate sulla mappa:</em> indica i limiti della città (cambieranno con la crescita della città). Il primo paio di valori indica l'angolo in alto a sinistra e il secondo quello in basso a destra. Con la crescita delle città, i limiti si possono sovrapporre.
+</p>
+<p>
+Numero corrente di <em>disoccupati</em> e <em>senza tetto</em> nella città. Essi aumenteranno quando la città espanderà i propri limiti e scenderanno quando saranno eretti nuovi edifici. L'equilibrio tra questi numeri determina che tipo di edifici (residenziale/commerciale/industriale) verrà costruito.
+</p>
+<p>
+Il bottone <em>Permetti crescita città</em> ti permette di attivare o disattivare la crescita delle città.
+</p>
+<p>
+Le <em>Mini mappe</em> del mondo nelle <strong>Statistiche città</strong> mostrano le destinazioni dei passeggeri e posta generati nella città come pallini colorati.<br>
+La mini mappa sulla destra riporta i dati dell'ultimo mese, e quella a sinistra del mese precedente. Il colore di ogni punto indica se la destinazione può essere raggiunta o meno:<br>
+- punto giallo: c'è un percorso e una <a href="station.txt">fermata</a> non troppo affollata per iniziare il viaggio (faccina felice nelle Informazioni sulla fermata).<br>
+- punto arancione: non c'è un tragitto per questa destinazione.<br>
+- punto rosso: c'è un tragitto fino alla destinazione, ma la fermata della partenza era troppo affollata (faccia triste nelle Informazioni sulla fermata).
+</p>
+<p>
+Sotto le mini mappe c'è un <em>grafico</em> che mostra le statistiche per la città. <br>
+Sull'asse delle y c'è la quantità, mentre sulle x il tempo.
+Clicca su uno dei due tab sopra per cambiare la scala dell'asse delle x:<br>
+<em>Anni:</em> visualizza valori annuali per gli ultimi 12 anni.<br>
+<em>Mesi:</em> visualizza valori mensili per gli ultimi 12 mesi.
+</p>
+
+<p>
+Cliccando sul bottone delle opzioni del grafico, attiverai e disattiverai le relative curve. Quando un bottone è selezionato, appare come premuto.<br>
+Le curve hanno lo stesso colore del loro bottone:<br>
+<em>Popolazione:</em> il numero di abitanti che vivono nella città.<br>
+<em>Crescita città:</em> aumento o calo di popolazione (dipendente dalle dimensioni della città e dal servizio di trasporto fornito a passeggeri e posta).<br>
+<em>N° edifici:</em> quanti edifici sono presenti nella città.<br>
+<em>Auto da città:</em> quante auto sono state generate.<br>
+<em>Viaggi:</em> quanti passeggeri sono entrati nella rete di trasporto (rappresentato da una <a href="station.txt">faccina felice</a> nelle informazioni sulla fermata)<br>
+<em>Passeggeri:</em> il numero totale di passeggeri generati dalla città.<br>
+<em>Posta spedita:</em> quantità di posta che è entrata nella rete di trasporti.<br>
+<em>Posta:</em> quantità totale di posta generata nella città.<br>
+<em>Approvvigionamento:</em> numero di volte che ci sono state merci nelle fabbriche della città.<br>
+<em>Merci:</em> numero di volte che il magazzino delle fabbriche in città è stato controllato.<br>
+</p>
+<p>
+{Suggerimento: le impostazioni relative alle città possono essere cambiate in simuconf.tab e cityrules.tab}.
+</p>

@@ -1,0 +1,39 @@
+<title>Ayuda de Herramientas del Terreno - elevar/bajar el terreno</title>
+
+<h1><strong>Herramientas del Terreno</strong></h1>
+
+<p>
+<strong>Herramientas del Terreno</strong> eleva y baja el terreno y puede ser usado para crear lugares adecuados para la construccion.
+</p>
+<p>
+Pulsa en el icono del terreno en cuesta, en la parte superior de la pantalla para abrir la barra de herramientas.<br>
+Pon el cursor encima, despues de abrir o pulsar en la barra de herramientas, sobre una herramienta para ver el nombre y los <a href="finances.txt">costes de construccion</a>.
+</p>
+<p>Las herramientas se utilizan en areas vacias con obstrucciones (e.g. carretras, vias, edificios, paradas y estaciones).
+</p>
+<p>
+Pulsa en la herramienta para seleccionar, el cursor cambiara, despues posiciona el cursor en el terreno y pulsa en el mismo para usar:
+</p>
+<p>
+<em>Elevar terreno</em>/<em>Rebajar terreno:</em> eleva/rebaja el terreno<br>
+El cursor es una flecha hacia arriba o hacia abajo.<br>
+Las herramientas tambien se pueden abrir pulsando <a href="keys.txt">[u]</a> y [d].
+</p>
+<p>
+<em>Pendientes:</em> crea una pendiente, en la direccion indicada por la herramienta. Se puede crear una superficie vertical durante el proceso.<br>
+El cursor el un cubo amarillo solo con lineas que posiciona la pendiente.
+</p>
+<p>
+<em>Cuadrado elevado</em>/<em>rebajado:</em> rebaja/eleve un cuadrado de terreno especifico. Se puede crear una superficie vertical durante el proceso.<br>
+El cursor el un cubo amarillo solo con lineas que selecciona la pendiente.
+
+</p>
+<p>
+<em>Restaurar pendiente natural:</em> devuelve el terreno a su estado natural, eliminando las superficies artificiales verticales durante el proceso.<br>
+El cursor el un cubo amarillo solo con lineas que posiciona la pendiente.
+</p>
+<p>
+{Consejo: Las herramientas del Terreno son faciles de usar con la cuadricula, presiona [#] y acerca el zoom.<br>
+Usa la herramienta Eliminar para eliminar algunos obstaculos.<br>
+Dependiendo del mapa, las herramientas puede elevar el terreno dentro o fuera del agua.}
+</p>

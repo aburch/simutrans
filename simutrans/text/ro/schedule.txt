@@ -1,0 +1,11 @@
+<title>Help Traseu/rutã</title>
+
+<h1>Traseu/rutã</h1>
+
+<p>
+Aici defineºti trasee pt. convoaiele dorite. În fiecare staþie poþi defini
+cât la sutã din capacitatea de transport sã fie utilizat. Însã trebuie luat în
+considerare cã dacã unitatea de producþie nu poate sã umple vehicolul,
+atunci acesta va sta în staþie pânã ce se va umple la capacitatea setatã.
+
+</p>

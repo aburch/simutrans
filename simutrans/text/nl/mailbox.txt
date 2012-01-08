@@ -1,0 +1,57 @@
+<title>Berichtencentrum & Opties</title>
+
+<h1><it>Berichtencentrum</it></h1>
+
+<p>
+<strong>Het Berichtencentrum</strong> toont berichten uit het spel en geeft toegang tot de opties die betrekking hebben op de wijze waarop de berichten getoont worden.
+</p>
+<p>
+Klik op het mailbox icoon in het menu of druk op de <a href="keys.txt">[B]</a> toets om het <strong>berichtencentrum</strong> te openen.
+</p>
+<p>
+Het berichtencentrum toont de berichten uit het spel. Door op een bericht te klikken wordt de <a href="window.txt">spel-scherm</a> naar de gerelateerde positie verplaatst.
+</p>
+<p>
+De knop <strong>[Opties]</strong> geeft toegang tot de opties voor het <strong>berichtencentrum</strong>. De opties bepalen hoe de diverse berichten worden getoond.
+</p>
+<br>
+<br>
+<h1><it>Berichtencentrum Opties</it></h1>
+<p>
+Het scherm <strong>Berichtencentrum Opties</strong> bevat drie kolommen met check-boxes die bepalen hoe de diverse berichten worden getoond.
+</p>
+<p>
+Van links naar rechts bepalen de kolommenof berichten als:<br>
+a)  scrollende tekst in de statusbalk; b)  een tijdelijke popup; of c)  een permanente popup<br>
+getoond worden. De tijdelijke popup verdwijnt weer na een aantal seconden van het scherm, de permanente popup moet door de speler (m.b.v. [x]) gesloten worden.
+</p>
+<p>
+De volgende bericht-categorien zijn afzonderlijk in te stellen:
+</p>
+<p>
+<em>Nieuw Jaar:</em> Een nieuw jaar is begonnen.
+</p>
+<p>
+<em>AI Nieuws:</em> Berichten betreffende de simutrans <a href="players.txt">spelers</a>.
+</p>
+<p>
+<em>Stadnieuws:</em> Berichten betreffende de <a href="citywindow.txt">steden</a> en de stedelijke ontwikkelingen.
+</p>
+<p>
+<em>Geen Route:</em> Een voertuig kan geen route vinden naar de volgende <a href="schedule.txt">bestemming</a>, <a href="station.txt">station</a> of routepunt.
+</p>
+<p>
+<em>Nieuwe Industrie:</em> Berichten betreffende de <a href="industryinfo.txt">industrie</a> ketens van grondstof producerende industrieen tot de eind-gebruikers.
+</p>
+<p>
+<em>Tourisme:</em> Berichten betreffende <a href="curiositylist_filter.txt">attracties</a> en monumenten.
+</p>
+<p>
+<em>Nieuwe Voertuigen:</em> een nieuw voertuig komt beschikbaar of is niet langer meer beschikbaar (als <a href="new_world.txt">timeline</a> wordt gebruikt).
+</p>
+<p>
+<em>Station vol:</em> Een <a href="station.txt">Station</a> is overvol.
+</p>
+<p>
+<em>Problemen:</em> Roodstaan en andere kritieke berichten.
+</p>

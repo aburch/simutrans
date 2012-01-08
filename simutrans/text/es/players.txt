@@ -1,0 +1,32 @@
+<title>Ayuda de Lista de Jugadores</title>
+
+<h1><strong>Lista de Jugadores</strong></h1>
+
+<p>
+<strong>Lista de Jugadores</strong> da informacion y tiene controles para gestionar los distintos jugadores.
+</p>
+<p>
+Pulsa en el boton Jugadores en <a href="options.txt">Opciones de juego</a> o pulsa <a href="keys.txt">[k]</a> para abrir la <strong>Lista de Jugadores</strong> que muestra los nombres y <a href="finances.txt">balance economico</a> de los jugadores.
+</p>
+<p>
+Hay 8 jugadores : humano, servicio publico y 6 jugadores IA. Los controles permiten jugar como diferentes jugadores si se activo la opcion <a href="new_world.txt">Permitir cambio de jugador</a> al inicio de la partida.
+</p>
+<p>
+Pulsa en las flechas para jugar como ese jugador en la partida actual. Aparecera un mensaje de confirmacion diciendo que has cambiado de jugador: pulsa en la X de la parte superior izquierda del mensaje o usa el teclado para cerrarlo.
+</p>
+<p>
+Pulsa en el nombre del jugador para ver sus <a href="finances.txt">Finanzas</a>.
+</p>
+<p>
+Pulsa en el boton cuadrado junto al nombre del jugador IA para activar/desactivar dicho jugador (el boton se oscurece cuando esta activado el jugador).
+</p>
+<p>
+Los jugadores IA no caen en bancarrota y gestionan vehiculos con maxima eficiencia.<br>
+Desactivar un jugador IA durante la partida no eliminara su red de transporte.<br>
+Algunos jugadores IA pueden usar solo vehiculos por carretera o via, o transportar solo mercancias o pasajeros.
+</p>
+<p>
+{Consejos: Los vehiculos no usaran las vias o carreteras de otros jugadores, asi como tampoco <a href="station.txt">Paradas</a> (sin embargo, los vehiculos de todos los jugadores pueden usar elementos creados por el jugador servicio publico).<br>
+Los jugadores no pueden construir elementos o poner puntos de paso en las vias de otros jugadores, asi como tampoco en <a href="roadtools.txt">carreteras</a>, o eliminar elementos creados por otros jugadores (sin embargo algunos elementos creados por el jugador servicio publico pueden ser eliminados usando la herramienta <a href="removal_tool.txt">Eliminar</a>).<br>
+Desactiva la opcion cambio de jugador y accede a <a href="edittools.txt">herramientas</a> extra como el jugador servicio publico.}
+</p>

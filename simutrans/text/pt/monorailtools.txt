@@ -1,0 +1,57 @@
+<title>Ajuda - Monotrilhos e Maglevs</title>
+
+<h1><strong>Monotrilhos e Maglevs</strong></h1>
+
+<p>
+A <strong>Barra Monotrilhos e Maglevs</strong> mostra as ferramentas para construir uma rede de transporte de monotrilhos ou Maglevs. As ferramentas podem construir ou remover: trilhos de monotrilhos e Maglevs; pontes; túneis; sinais; depósitos; estações-plataforma e extensões. Se jogar com a <a href="new_world.txt">Linha do Tempo</a> ativa, com a passagem do tempo no Simutrans, novas opções podem aparecer.
+</p>
+<p>
+Clique no ícone do monotrilho na barra de ferramentas. Mova o cursor do mouse sobre a barra de opções (após abrir ou clicar na barra de ferramentas) para ver o nome e, onde for o caso, o <a href="finances.txt">custo</a> da construção, custo de manutenção (em parênteses) e limites de velocidade máxima e comprimento máximo.
+</p>
+<p>
+A <strong>Barra Monotrilhos e Maglevs</strong> inclui, da esquerda para a direita:
+</p>
+<p>
+<em>Trilho de monotrilho/Maglev:</em> ferramenta que constrói trilhos, para veículos monotrilhos e Maglevs entre dois pontos. Os trilhos só podem ser construídos em barrancos na direção dos mesmos e não podem encontrar um caminho através de terrenos acidentados, água ou obstáculos. Novos trilhos construídos entre dois pontos podem usar outros trilhos existentes em seu caminho.<br>
+Para construir trilhos: clique no botão para selecionar o trilho desejado (para monotrilho ou Maglev; então o cursor do mouse muda para o formato de um trilho), e então clicar no terreno para construir o ponto inicial para os trilhos (mostra um trator na tela do jogo e mostra as coordenadas no canto direito da barra inferior na tela) e finalmente clique em um outro ponto no terreno para construir o ponto final do trilho. <br>
+{Dica: Diferentes tipos de trilhos podem conectar (não poderão quando construídos por outras <a href="players.txt">companhias</a>). Use o<a href="slopetools.txt"> Editor de terrenos</a> para modificar o terreno, para abrir caminhos para os trilhos. Use o botão Remover para remover trilhos individuais e alguns obstáculos. Pressione <a href="keys.txt">[Ctrl]</a> ao mesmo tempo para acessar funções extras. Para desfazer algo já feito aperte [z], mas isso não o reembolsará dos custos de construção.}
+</p>
+<p>
+<em>Remover trecho de monotrilho:</em> essa ferramenta remove trilhos de monotrilhos e Maglevs, quando não há nenhum veículo no momento obstruíndo, entre dois pontos na tela do jogo (platformas and sinais no caminho também são removidos).<br>
+O uso dessa ferramenta implica em <a href="finances.txt">custos de construção</a>.<br>
+Para remover um trilho: clique neste botão (o cursor torna-se num X vermelho); e então clique no trilho a ser destruído (nesse mesmo ponto é fixado um X vermelho); e finalmente clique em um outro ponto nos trilhos, para remover o trecho entre estes dois pontos.<br>
+{Dica: Altere o <a href="players.txt">jogador</a> para remover os trilhos de cada companhia.}
+</p>
+<p>
+<em>Rampas</em> e <em>Pontes:</em> ferramentas que constroem pontes retas, para veículos de monotrilho/maglev passarem, entre dois treços de trilho de monotrilho/maglev na visão do jogo. As pontes têm um comprimento máximo. A ferramenta contrói pontes de uma ponta de trilho até um outro lugar adequado (outra ponta de trilho ou um barranco mais alto, dentro do limite de comprimento.<br>
+Para construir uma rampa ou ponte: clique no botão para selecioná-lo (o cursor torna-se numa ponte), e então clique no fim de um trilho (ponto inicial da ponte) para construí-la. Certas obstruções ou a falta de um local adequado para o fim da ponte evitará a construção da ponte: coloque trilhos em ambos os lados a serem conectados pela ponte, e tente novamente.<br>
+{Dica: Use o botão Remover para remover pontes (clique no fim da ponte) e alguns obstáculos à construção da ponte. Use as ferramentas para trilhos para conectar o fim das pontes aos trilhos.}
+</p>
+<p>
+<em>Sinais:</em> essa ferramenta constrói sinais para monotrilhos e Maglevs num trilho na visão do jogo. Os sinais direcionam e regulam o fluxo de veículos em trilhos e pontes, cruzamentos e <a href="station.txt">Paradas</a> (onde os passageiros embarcam e desembarcam nos veículos).<br>
+Versões de sinais de mão-dupla e única podem ser construídas. Para construir um sinal de mão-dupla em um trilho: clique em um dos botões de sinais para escolher um desejado (muda-se o cursor para um sinal); e então clique no trilho. Para construir um sinal de mão-única: clique de novo no mesmo ponto, com o cursor com a forma de um sinal, para escolher entre os sinais de mão-única e dupla.<br>
+IMPORTANTE: Tome cuidado para não colocar sinais de mão-única que impeçam os veículos de chegar aos seus destinos, por padrão os veículos dirigem pela direita (isso pode ser alterado no simuconf.tab).<br>
+- <em>Semáforo de monotrilho:</em> os veículos prosseguem somente se o trilho à frente até o próximo semáforo ou destino na <a href="schedule.txt">Programação</a> (a <a href="station.txt">Parada</a> ou ponto de passagem) não estiver ocupado por um outro veículo. No modo de mão-única os veículos passam apenas em uma única direção.<br>
+- <em>PreSignals:</em> os veículos prosseguem se a seção do trilho à frente (ou entre três sinais consecutivos ou até o próximo destino na <a href="schedule.txt">Programação</a>) não estiver ocupada por um outro veículo. No modo de mão-única eles deixam os veículos passarem em apenas uma direção.<br>
+- <em>Direcionador de monotrilho para vaga livre:</em> direciona os veículos a uma estação vazia, em uma <a href="station.txt">Parada</a> multi-plataforma: um veículo que passa por esse sinal pode usar qualquer plataforma vazia no seu próximo destino, e não apenas aquelas que foram definidas em sua <a href="schedule.txt">Programação</a>. Se não for encontrada uma plataforma vazia ou um caminho vazio até o próximo destino, então os veículos aguardarão nesse sinal.<br>
+{Dica:  Remova sinais com o botão Remover. Pressione [Ctrl] para colocar sinais em pontes sobre trilhos em nível inferior.}
+</p>
+<p>
+<a href="depot.txt"><em>Depósito</em></a> <em>de monotrilhos:</em> essa ferramenta constrói um depósito para comprar e gerenciar monotrilhos e Maglevs, tanto veículos como seus vagões. Os depósitos possuem um custo de manutenção e são construídos no fim de um trilho de monotrilho/Maglev.<br>
+Para construir um depósito de monotrilhos: clique no botão (o cursor torna-se num depósito), então clique no fim de um trilho.
+</p>
+<p>
+<em>Estação:</em> essa ferramenta constrói estações, utilizadas por monotrilhos e Maglevs para carregar e descarregar passageiros e correio.<br>
+Uma seção de estação quando não é construída adjacente a uma <a href="station.txt">Parada</a> já existente criará uma nova Parada.<br>
+As estações possuem um custo de manutenção e são construídos sobre trilhos (mas não em curvas e cruzamentos).<br>
+As estações possuem uma área de captura para mercadorias, passageiros e correio. Diferentes estações podem ter diferentes capacidades para mercadorias, passageiros e correio. No canto de alguns botões um ícone (utilizado em <a href="haltlist.txt">Lista de Paradas</a> e <a href="station.txt">Informações das Paradas</a>) mostra quais itens a estação aceita.<br>
+Para construir uma estação: clique neste botão para selecionar (o cursor torna-se numa estação), e então clique em um trilho.<br>
+{Dica: Remova as estações com o botão Remover. Estender e criar estações multi-plataformas (construindo mais plataformas nos trilhos) servem para acomodar veículos mais longos e em maior número, aumentar a capacidade e área de captura. Aperte [v] para mostrar/ocultar a área de captura de mercadorias e passageiros na tela do jogo. Pressione [Ctrl] para construir em cima de pontes ou trilhos elevados sobre trilhos em nível inferior.}
+</p>
+<p>
+<em>Suporte para monotrilho:</em>essa ferramenta constrói uma extensão a uma <a href="station.txt">Parada</a> e aumenta a capacidade da mesma. Fundações de monotrilhos são construídas no final de um trilho de monotrilho/Maglev e possuem um custo de manutenção.<br>
+Para construir uma fundação de monotrilho: clique neste botão para selecionar (o cursor torna-se numa fundação), então clique na posição desejada no fim de um trilho.<br>
+{Dica: Remova as fundações de monotrilho com a ferramenta Remover.}
+</p>
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 07/02/2008.
+</p>
