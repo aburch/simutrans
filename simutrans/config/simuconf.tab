@@ -211,6 +211,12 @@ player_color[1] = 1,4
 # THIS WILL BE ONLY USED, WHEN THIS FILE IS IN THE pakxyz/config!
 #tile_height = 16
 
+# (=1) drive on the left side of the road
+drive_left = 0
+
+# (=1) signals on the left side
+signals_on_left = 0
+
 # Do you want to have random pedestrians in town? Look nice but needs some
 # CPU time to process them. (1=on, 0=off)
 # Impact on frame time: ~10% (16 cities on a new standard map)
@@ -242,9 +248,6 @@ citycar_level = 5
 # After how many month a citycar breaks (and will be forever gone) ...
 # default is ten years
 default_citycar_life = 36
-
-# (=1) drive on the left side of the road
-drive_left = 0
 
 # Show infos on trees?
 # (1=on, 0=off)
