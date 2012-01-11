@@ -62,11 +62,14 @@ void fahrplan_gui_t::gimme_stop_name(cbuffer_t & buf, karte_t *welt, const spiel
 	}
 	else {
 		const grund_t* gr = welt->lookup(entry.pos);
-		if(gr==NULL) {
+		if(  gr==NULL  ) {
 			buf.printf("%s (%s)", translator::translate("Invalid coordinate"), entry.pos.get_str() );
 		}
-		else if(gr->get_depot() != NULL) {
+		else if(  gr->get_depot() != NULL  ) {
 			buf.printf("%s (%s)", translator::translate("Depot"), entry.pos.get_str() );
+		}
+		else if(  const char *label_text = gr->get_text()  ){
+			buf.printf("%s %s (%s)", translator::translate("Wegpunkt"), label_text, entry.pos.get_str() );
 		}
 		else {
 			buf.printf("%s (%s)", translator::translate("Wegpunkt"), entry.pos.get_str() );
