@@ -289,18 +289,18 @@ uint32 vehikel_basis_t::fahre_basis(uint32 distance)
 
 	uint32 steps_to_do = distance >> YARDS_PER_VEHICLE_STEP_SHIFT;
 
-	if(steps_to_do==0) {
+	if(  steps_to_do == 0  ) {
 		// ok, we will not move in this steps
 		return 0;
 	}
 	// ok, so moving ...
-	if(!get_flag(ding_t::dirty)) {
+	if(  !get_flag(ding_t::dirty)  ) {
 		mark_image_dirty(get_bild(),hoff);
 		set_flag(ding_t::dirty);
 	}
 	uint32 steps_target = steps_to_do + steps;
 
-	if(steps_target>steps_next) {
+	if(  steps_target > steps_next  ) {
 		// We are going far enough to hop.
 
 		// We'll be adding steps_next+1 for each hop, as if we
@@ -310,7 +310,7 @@ uint32 vehikel_basis_t::fahre_basis(uint32 distance)
 		bool has_hopped = false;
 
 		// Hop as many times as possible.
-		while(steps_target>steps_next  &&  hop_check()) {
+		while(  steps_target > steps_next  &&  hop_check()  ) {
 			steps_target -= steps_next+1;
 			steps_done += steps_next+1;
 			pos_prev = get_pos();
@@ -319,7 +319,7 @@ uint32 vehikel_basis_t::fahre_basis(uint32 distance)
 			has_hopped = true;
 		}
 
-		if(steps_next==0) {
+		if(  steps_next == 0  ) {
 			// only needed for aircrafts, which can turn on the same tile
 			// the indicate the turn with this here
 			steps_next = VEHICLE_STEPS_PER_TILE - 1;
@@ -327,7 +327,7 @@ uint32 vehikel_basis_t::fahre_basis(uint32 distance)
 			steps_done -= VEHICLE_STEPS_PER_TILE - 1;
 		}
 
-		if(steps_target>steps_next) {
+		if(  steps_target > steps_next  ) {
 			// could not go as far as we wanted (hop_check failed) => stop at end of tile
 			steps_target = steps_next;
 		}
@@ -337,7 +337,7 @@ uint32 vehikel_basis_t::fahre_basis(uint32 distance)
 		steps_done += steps;
 		distance_travelled = steps_done << YARDS_PER_VEHICLE_STEP_SHIFT;
 
-		if(has_hopped) {
+		if(  has_hopped  ) {
 			set_xoff( (dx<0) ? OBJECT_OFFSET_STEPS : -OBJECT_OFFSET_STEPS );
 			set_yoff( (dy<0) ? OBJECT_OFFSET_STEPS/2 : -OBJECT_OFFSET_STEPS/2 );
 			if(dx*dy==0) {
@@ -370,7 +370,6 @@ uint32 vehikel_basis_t::fahre_basis(uint32 distance)
 		hoff = calc_height();
 	}
 	// remaining steps
-	set_flag(ding_t::dirty);
 	return distance_travelled;
 }
 
@@ -3036,8 +3035,7 @@ void waggon_t::betrete_feld()
 {
 	vehikel_t::betrete_feld();
 
-	schiene_t * sch0 = (schiene_t *) welt->lookup(get_pos())->get_weg(get_waytype());
-	if(sch0) {
+	if(  schiene_t *sch0 = (schiene_t *) welt->lookup(get_pos())->get_weg(get_waytype())  ) {
 		// way statistics
 		const int cargo = get_fracht_menge();
 		sch0->book(cargo, WAY_STAT_GOODS);
