@@ -698,7 +698,6 @@ void vehikel_t::set_convoi(convoi_t *c)
  */
 uint16 vehikel_t::unload_freight(halthandle_t halt)
 {
-	assert(halt.is_bound());
 	uint16 sum_menge = 0;
 
 	if(halt->is_enabled( get_fracht_typ() )) {
