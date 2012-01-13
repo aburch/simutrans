@@ -583,8 +583,13 @@ fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
 
 	rdwr(file);
 
-	if(  !welt->ist_in_kartengrenzen(pos.get_2d())  ) {
-		dbg->error( "fabrik_t::baue()", "%s is not a valid position! (Will not be built!)", pos.get_str() );
+	if(besch == 0) {
+		dbg->warning( "fabrik_t::fabrik_t()", "No pak-file for factory at (%s) - will not be built!", pos.get_str() );
+		return;
+	}
+	else	if(  !welt->ist_in_kartengrenzen(pos.get_2d())  ) {
+		dbg->warning( "fabrik_t::fabrik_t()", "%s is not a valid position! (Will not be built!)", pos.get_str() );
+		besch = NULL; // to get rid of this broken factory later...
 	}
 	else {
 		baue(rotate, false);
@@ -926,9 +931,8 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		besch = fabrikbauer_t::get_fabesch(s);
 		if(besch==NULL) {
 			besch = fabrikbauer_t::get_fabesch(translator::compatibility_name(s));
-			if (!besch) {
-				dbg->fatal("fabrik_t::rdwr()", "no besch for %s", s);
-			}
+			dbg->warning( "fabrik_t::rdwr()", "Pak-file for factory '%s' missing!", s );
+			// we continue loading even if besch==NULL
 		}
 	}
 	pos.rdwr(file);
@@ -1018,7 +1022,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 	if(file->is_loading()) {
 		// take care of old files
 		if(file->get_version() < 86001) {
-			koord k=besch->get_haus()->get_groesse();
+			koord k=besch ? besch->get_haus()->get_groesse() : koord(1,1);
 			DBG_DEBUG("fabrik_t::rdwr()","correction of production by %i",k.x*k.y);
 			// since we step from 86.01 per factory, not per tile!
 			prodbase *= k.x*k.y*2;
@@ -1087,7 +1091,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 				for(  uint16 i=0  ;  i<nr  ;  ++i  ) {
 					k.rdwr(file);
 					file->rdwr_short(idx);
-					if(  idx>=besch->get_field_group()->get_field_class_count()  ) {
+					if(  besch==NULL  ||  idx>=besch->get_field_group()->get_field_class_count()  ) {
 						// set class index to 0 if it is out of range
 						idx = 0;
 					}
@@ -1163,7 +1167,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 			file->rdwr_str(fullname);
 		} else {
 			file->rdwr_str(name);
-			if (file->is_loading() && name == besch->get_name()) {
+			if (file->is_loading()  &&  besch!=NULL  &&  name == besch->get_name()) {
 				// equal to besch name
 				name = 0;
 			}

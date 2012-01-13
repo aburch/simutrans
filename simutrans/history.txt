@@ -17,7 +17,7 @@
 	CHG: cities will now grow gradually in time and size during creation, startinf with 32 citiciens in the first townhall year
 	CHG: minimap now really isometric
 	ADD: allow elevated ways over water with depth = 1
-
+	FIX: load savegames even if factory pak is missing
 
 Release of 111.0 (r4911 on 1-Nov-2011):
 

@@ -4513,6 +4513,7 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 		}
 		else {
 			dbg->error("karte_t::laden()","Unknown fabrik skipped!");
+			delete fab;
 		}
 		if(i&7) {
 			display_progress(get_groesse_y()+(24*i)/fabs, get_groesse_y()+stadt.get_count()+256);
