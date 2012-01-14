@@ -202,7 +202,10 @@ void translator::load_custom_list( int lang, vector_tpl<char*> &name_list, const
 	FILE* file;
 
 	// alle namen aufräumen
-	clear_ptr_vector( name_list );
+	for(uint32 i=0; i<name_list.get_count(); i++) {
+		free( name_list[i] );
+	}
+	name_list.clear();
 
 	// @author prissi: first try in scenario
 	{
