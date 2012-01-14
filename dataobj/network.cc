@@ -343,7 +343,9 @@ SOCKET network_open_address( const char *cp, long timeout_ms, const char * &err 
 		local_hints.ai_family = PF_UNSPEC;
 		if (  (ret = getaddrinfo( ip.c_str(), 0, &local_hints, &local )) != 0  ) {
 			dbg->error( "network_open_address()", "Failed to getaddrinfo for %s, error was: %s", ip.c_str(), gai_strerror(ret) );
+#ifndef NETTOOL
 			umgebung_t::listen.remove_at( i );
+#endif
 			i --;
 			continue;
 		}
