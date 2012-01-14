@@ -50,7 +50,7 @@ int leitung_t::gimme_neighbours(leitung_t **conn)
 		// get next connected tile (if there)
 		grund_t *gr;
 		conn[i] = NULL;
-		if(  gr_base->get_neighbour( gr, invalid_wt, koord::nsow[i] ) ) {
+		if(  gr_base->get_neighbour( gr, invalid_wt, ribi_t::nsow[i] ) ) {
 			leitung_t *lt = gr->get_leitung();
 			if(  lt  ) {
 				const spieler_t *owner = get_besitzer();

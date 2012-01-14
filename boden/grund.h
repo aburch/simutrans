@@ -12,6 +12,7 @@
 #include "../halthandle_t.h"
 #include "../simimg.h"
 #include "../simcolor.h"
+#include "../simconst.h"
 #include "../dataobj/koord3d.h"
 #include "../dataobj/dingliste.h"
 #include "wege/weg.h"
@@ -696,7 +697,7 @@ public:
 	 *      Uses helper function "get_vmove()"
 	 *
 	 * Parameters:
-	 *      If dir is not (-1,0), (1,0), (0,-1) or (0, 1), the function fails
+	 *      If dir is notsingle direct it will assert
 	 *      If wegtyp is set to invalid_wt, no way checking is performed
 	 *
 	 * In case of success:
@@ -706,10 +707,8 @@ public:
 	 *      "to" ist not touched
 	 *      false is returned
 	 *
-	 * @author: Volker Meyer
-	 * @date: 21.05.2003
 	 */
-	bool get_neighbour(grund_t *&to, waytype_t type, koord dir) const;
+	bool get_neighbour(grund_t *&to, waytype_t type, ribi_t::ribi r ) const;
 
 	/**
 	 * Description;
@@ -723,9 +722,24 @@ public:
 	 * Notice:
 	 *      helper function for "get_neighbour"
 	 *
-	 * @author: Volker Meyer, dwachs
+	 * This is called many times, so it is inline
 	 */
-	sint8 get_vmove(ribi_t::ribi ribi) const;
+	inline sint8 get_vmove(ribi_t::ribi ribi) const {
+		const sint8 way_slope=get_weg_hang();
+		sint8 h=get_hoehe();
+		if(ist_bruecke()  &&  get_grund_hang()!=0) {
+			h += Z_TILE_STEP;	// end or start of a bridge
+		}
+
+		if(ribi & ribi_t::nordost) {
+			h += corner3(way_slope)*Z_TILE_STEP;
+		}
+		else {
+			h += corner1(way_slope)*Z_TILE_STEP;
+		}
+
+		return h;
+	}
 
 	/* removes everything from a tile, including a halt but i.e. leave a
 	 * powerline ond other stuff

@@ -643,7 +643,7 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 
 		// search neighbors
 		for(int r = 0; r < 4; r++) {
-			if(  (zv == koord::invalid  ||  zv == koord::nsow[r])  &&  from->get_neighbour(to, delete_wegtyp, koord::nsow[r])  &&  !marker.ist_markiert(to)  &&  to->ist_bruecke()  ) {
+			if(  (zv == koord::invalid  ||  zv == koord::nsow[r])  &&  from->get_neighbour(to, delete_wegtyp, ribi_t::nsow[r])  &&  !marker.ist_markiert(to)  &&  to->ist_bruecke()  ) {
 				if(  wegtyp != powerline_wt  ||  (to->find<bruecke_t>()  &&  to->find<bruecke_t>()->get_besch()->get_waytype() == powerline_wt)  ) {
 					tmp_list.insert(to->get_pos());
 					marker.markiere(to);

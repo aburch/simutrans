@@ -1268,7 +1268,7 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->get_pos().x,gr->get_pos().y,g
 
 			bool do_terraform = false;
 			const koord zv(r);
-			if(!gr->get_neighbour(to,invalid_wt,zv)  ||  !check_slope(gr, to)) {
+			if(!gr->get_neighbour(to,invalid_wt,r)  ||  !check_slope(gr, to)) {
 				// slopes do not match
 				// terraforming enabled?
 				if (bautyp==river  ||  (bautyp & terraform_flag) == 0) {
@@ -1470,12 +1470,12 @@ void wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d z
 
 		bool do_terraform = false;
 		// shortest way
-		koord diff;
+		ribi_t::ribi diff;
 		if(abs(pos.x-ziel.x)>=abs(pos.y-ziel.y)) {
-			diff = (pos.x>ziel.x) ? koord(-1,0) : koord(1,0);
+			diff = (pos.x>ziel.x) ? ribi_t::west : ribi_t::ost;
 		}
 		else {
-			diff = (pos.y>ziel.y) ? koord(0,-1) : koord(0,1);
+			diff = (pos.y>ziel.y) ? ribi_t::nord : ribi_t::sued;
 		}
 		if(bautyp&tunnel_flag) {
 #ifdef ONLY_TUNNELS_BELOW_GROUND
@@ -1572,7 +1572,7 @@ void wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d z
 		if (do_terraform) {
 			terraform_index.append(route.get_count()-2);
 		}
-DBG_MESSAGE("wegbauer_t::calc_straight_route()","step %i,%i = %i",diff.x,diff.y,ok);
+		DBG_MESSAGE("wegbauer_t::calc_straight_route()","step %s = %i",koord(diff).get_str(),ok);
 	}
 	ok = ok && ( target_3d ? pos==ziel : pos.get_2d()==ziel.get_2d() );
 

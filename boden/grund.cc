@@ -1133,18 +1133,18 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 	grund_t *gr_nw = NULL, *gr_ne = NULL, *gr_se = NULL, *gr_sw = NULL;
 	if (ribi & ribi_t::west) {
 		grund_t *gr;
-		if (get_neighbour(gr, invalid_wt, koord(-1,0))) {
+		if (get_neighbour(gr, invalid_wt, ribi_t::west)) {
 			gr->display_dinge_vh(xpos-raster_tile_width/2, ypos-raster_tile_width/4-tile_raster_scale_y( (gr->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), is_global, 0, ribi_t::west, false);
-			if (ribi & ribi_t::sued) gr->get_neighbour(gr_nw, invalid_wt, koord(0,-1));
-			if (ribi & ribi_t::nord) gr->get_neighbour(gr_sw, invalid_wt, koord(0,1));
+			if (ribi & ribi_t::sued) gr->get_neighbour(gr_nw, invalid_wt, ribi_t::nord);
+			if (ribi & ribi_t::nord) gr->get_neighbour(gr_sw, invalid_wt, ribi_t::sued);
 		}
 	}
 	if (ribi & ribi_t::nord) {
 		grund_t *gr;
-		if (get_neighbour(gr, invalid_wt, koord(0,-1))) {
+		if (get_neighbour(gr, invalid_wt, ribi_t::nord)) {
 			gr->display_dinge_vh(xpos+raster_tile_width/2, ypos-raster_tile_width/4-tile_raster_scale_y( (gr->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), is_global, 0, ribi_t::nord, false);
-			if ((ribi & ribi_t::ost)  &&  (gr_nw==NULL)) gr->get_neighbour(gr_nw, invalid_wt, koord(-1,0));
-			if ((ribi & ribi_t::west))                   gr->get_neighbour(gr_ne, invalid_wt, koord(1,0));
+			if ((ribi & ribi_t::ost)  &&  (gr_nw==NULL)) gr->get_neighbour(gr_nw, invalid_wt, ribi_t::west);
+			if ((ribi & ribi_t::west))                   gr->get_neighbour(gr_ne, invalid_wt, ribi_t::ost);
 		}
 	}
 	if ((ribi & ribi_t::nordwest)  &&  gr_nw) {
@@ -1153,7 +1153,7 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 	// display background s/e
 	if (ribi & ribi_t::ost) {
 		grund_t *gr;
-		if (get_neighbour(gr, invalid_wt, koord(1,0))) {
+		if (get_neighbour(gr, invalid_wt, ribi_t::ost)) {
 			const bool draw_other_ways = (flags&draw_as_ding)  ||  (gr->flags&draw_as_ding)  ||  !gr->ist_karten_boden();
 			activate_ribi_clip(ribi_t::ost);
 			gr->display_dinge_bg(xpos+raster_tile_width/2, ypos+raster_tile_width/4-tile_raster_scale_y( (gr->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), is_global, draw_other_ways, true);
@@ -1161,7 +1161,7 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 	}
 	if (ribi & ribi_t::sued) {
 		grund_t *gr;
-		if (get_neighbour(gr, invalid_wt, koord(0,1))) {
+		if (get_neighbour(gr, invalid_wt, ribi_t::sued)) {
 			const bool draw_other_ways = (flags&draw_as_ding)  ||  (gr->flags&draw_as_ding)  ||  !gr->ist_karten_boden();
 			activate_ribi_clip(ribi_t::sued);
 			gr->display_dinge_bg(xpos-raster_tile_width/2, ypos+raster_tile_width/4-tile_raster_scale_y( (gr->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), is_global, draw_other_ways, true);
@@ -1173,18 +1173,18 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 	// display vehicles of ne/e/se/s/sw neighbors
 	if (ribi & ribi_t::ost) {
 		grund_t *gr;
-		if (get_neighbour(gr, invalid_wt, koord(1,0))) {
+		if (get_neighbour(gr, invalid_wt, ribi_t::ost)) {
 			gr->display_dinge_vh(xpos+raster_tile_width/2, ypos+raster_tile_width/4-tile_raster_scale_y( (gr->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), is_global, 0, ribi_t::ost, ontile_se);
-			if ((ribi & ribi_t::sued) && (gr_ne==NULL)) gr->get_neighbour(gr_ne, invalid_wt, koord(0,-1));
-			if ((ribi & ribi_t::nord) && (gr_se==NULL)) gr->get_neighbour(gr_se, invalid_wt, koord(0,1));
+			if ((ribi & ribi_t::sued) && (gr_ne==NULL)) gr->get_neighbour(gr_ne, invalid_wt, ribi_t::nord);
+			if ((ribi & ribi_t::nord) && (gr_se==NULL)) gr->get_neighbour(gr_se, invalid_wt, ribi_t::sued);
 		}
 	}
 	if (ribi & ribi_t::sued) {
 		grund_t *gr;
-		if (get_neighbour(gr, invalid_wt, koord(0,1))) {
+		if (get_neighbour(gr, invalid_wt, ribi_t::sued)) {
 			gr->display_dinge_vh(xpos-raster_tile_width/2, ypos+raster_tile_width/4-tile_raster_scale_y( (gr->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), is_global, 0, ribi_t::sued, ontile_se);
-			if ((ribi & ribi_t::ost)  && (gr_sw==NULL)) gr->get_neighbour(gr_sw, invalid_wt, koord(-1,0));
-			if ((ribi & ribi_t::west) && (gr_se==NULL)) gr->get_neighbour(gr_se, invalid_wt, koord(1,0));
+			if ((ribi & ribi_t::ost)  && (gr_sw==NULL)) gr->get_neighbour(gr_sw, invalid_wt, ribi_t::west);
+			if ((ribi & ribi_t::west) && (gr_se==NULL)) gr->get_neighbour(gr_se, invalid_wt, ribi_t::ost);
 		}
 	}
 	if ((ribi & ribi_t::nordost)  &&  gr_ne) {
@@ -1479,7 +1479,7 @@ DBG_MESSAGE("grund_t::weg_entfernen()","weg %p",weg);
 			grund_t *to;
 
 			for(int r = 0; r < 4; r++) {
-				if((ribi & ribi_t::nsow[r]) && get_neighbour(to, wegtyp, koord::nsow[r])) {
+				if((ribi & ribi_t::nsow[r]) && get_neighbour(to, wegtyp, ribi_t::nsow[r])) {
 					weg_t *weg2 = to->get_weg(wegtyp);
 					if(weg2) {
 						weg2->ribi_rem(ribi_t::rueckwaerts(ribi_t::nsow[r]));
@@ -1523,59 +1523,49 @@ DBG_MESSAGE("grund_t::weg_entfernen()","weg %p",weg);
 }
 
 
-bool grund_t::get_neighbour(grund_t *&to, waytype_t type, koord dir) const
+// this funtion is called many many times => make it as fast as possible
+// i.e. no reverse lookup of ribis from koord
+bool grund_t::get_neighbour(grund_t *&to, waytype_t type, ribi_t::ribi ribi) const
 {
 	// must be a single direction
-	if(  (abs(dir.x)^abs(dir.y))!=1  ) {
-		return false;
-	}
-	const ribi_t::ribi ribi = (ribi_t::ribi)( dir.x ? (dir.x>0 ? ribi_t::ost : ribi_t::west) : (dir.y>0 ? ribi_t::sued : ribi_t::nord) );
-
-	const planquadrat_t * plan = welt->lookup(pos.get_2d() + dir);
-	if(!plan) {
-		return false;
-	}
+	assert( ribi_t::ist_einfach(ribi) );
 
 	if (type != invalid_wt   &&   (get_weg_ribi_unmasked(type) & ribi) == 0) {
 		// no way on this tile in the given direction
 		return false;
 	}
 
+	const planquadrat_t * plan = welt->lookup(pos.get_2d() + koord(ribi) );
+	if(!plan) {
+		return false;
+	}
 	const ribi_t::ribi back = ribi_t::rueckwaerts(ribi);
 
-	// find ground in the right height
+	// most common on empty round => much faster this way
+	if(  get_grund_hang() == hang_t::flach  &&  get_weg_hang() == hang_t::flach  ) {
+		if(  grund_t *gr = plan->get_boden_in_hoehe( pos.z )  ) {
+			if(  gr->get_grund_hang() == hang_t::flach  &&  gr->get_weg_hang() == hang_t::flach  ) {
+				if(  type == invalid_wt  ||  (gr->get_weg_ribi_unmasked(type) & back)  ) {
+					to = gr;
+					return true;
+				}
+			}
+		}
+	}
+
+	// most common on empty round => much faster this way
 	const sint16 this_height = get_vmove(ribi);
 	for( unsigned i=0;  i<plan->get_boden_count();  i++  ) {
 		grund_t* gr = plan->get_boden_bei(i);
 		if(gr->get_vmove(back)==this_height) {
 			// test, if connected
-			if(type == invalid_wt  ||  (gr->get_weg_ribi_unmasked(type) & back) ) {
+			if(  type == invalid_wt  ||  (gr->get_weg_ribi_unmasked(type) & back)  ) {
 				to = gr;
 				return true;
 			}
 		}
 	}
 	return false;
-}
-
-
-// now we need a more sophisticated calculations ...
-sint8 grund_t::get_vmove(ribi_t::ribi ribi) const
-{
-	const sint8 slope=get_weg_hang();
-	sint8 h=get_hoehe();
-	if(ist_bruecke()  &&  get_grund_hang()!=0) {
-		h += Z_TILE_STEP;	// end or start of a bridge
-	}
-
-	if(ribi & ribi_t::nordost) {
-		h += corner3(slope)*Z_TILE_STEP;
-	}
-	else {
-		h += corner1(slope)*Z_TILE_STEP;
-	}
-
-	return h;
 }
 
 

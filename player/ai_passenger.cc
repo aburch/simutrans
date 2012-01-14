@@ -810,7 +810,7 @@ void ai_passenger_t::walk_city( linehandle_t &line, grund_t *&start, const int l
 
 		// ok, if connected, not marked, and not owner by somebody else
 		grund_t *to;
-		if(  start->get_neighbour(to, road_wt, koord::nsow[r] )  &&  !welt->ist_markiert(to)  &&  check_owner(to->obj_bei(0)->get_besitzer(),this)  ) {
+		if(  start->get_neighbour(to, road_wt, ribi_t::nsow[r] )  &&  !welt->ist_markiert(to)  &&  check_owner(to->obj_bei(0)->get_besitzer(),this)  ) {
 
 			// ok, here is a valid street tile
 			welt->markiere(to);

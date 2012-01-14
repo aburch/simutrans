@@ -205,7 +205,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 			grund_t* to;
 			if(  (ribi & ribi_t::nsow[r] & start_dir)!=0  // allowed dir (we can restrict the first step by start_dir)
 				&& koord_distance(start.get_2d(),gr->get_pos().get_2d()+koord::nsow[r])<max_depth	// not too far away
-				&& gr->get_neighbour(to, wegtyp, koord::nsow[r])  // is connected
+				&& gr->get_neighbour(to, wegtyp, ribi_t::nsow[r])  // is connected
 				&& fahr->ist_befahrbar(to)	// can be driven on
 			) {
 				unsigned index;
@@ -408,7 +408,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 			}
 
 			// a way goes here, and it is not marked (i.e. in the closed list)
-			if((to  ||  gr->get_neighbour(to, wegtyp, koord(next_ribi[r]) ))  &&  fahr->ist_befahrbar(to)  &&  !welt->ist_markiert(to)) {
+			if((to  ||  gr->get_neighbour(to, wegtyp, next_ribi[r]))  &&  fahr->ist_befahrbar(to)  &&  !welt->ist_markiert(to)) {
 
 				// Do not go on a tile, where a oneway sign forbids going.
 				// This saves time and fixed the bug, that a oneway sign on the final tile was ignored.
@@ -546,7 +546,7 @@ DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x
 				grund_t *gr = welt->lookup(start);
 				const waytype_t wegtyp=fahr->get_waytype();
 
-				while(  max_len>0  &&  gr->get_neighbour(gr,wegtyp,zv)  &&  gr->get_halt()==halt  &&   fahr->ist_befahrbar(gr)   &&  (fahr->get_ribi(gr)&&ribi)!=0  ) {
+				while(  max_len>0  &&  gr->get_neighbour(gr,wegtyp,ribi)  &&  gr->get_halt()==halt  &&   fahr->ist_befahrbar(gr)   &&  (fahr->get_ribi(gr)&&ribi)!=0  ) {
 					// Do not go on a tile, where a oneway sign forbids going.
 					// This saves time and fixed the bug, that a oneway sign on the finaly tile was ignored.
 					ribi_t::ribi go_dir=gr->get_weg(wegtyp)->get_ribi_maske();

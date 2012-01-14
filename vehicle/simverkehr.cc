@@ -90,7 +90,7 @@ verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt, koord3d pos) :
 
 	// verfügbare ribis in liste eintragen
 	for(int r = 0; r < 4; r++) {
-		if(from->get_neighbour(to, road_wt, koord::nsow[r])) {
+		if(from->get_neighbour(to, road_wt, ribi_t::nsow[r])) {
 			liste[count++] = ribi_t::nsow[r];
 		}
 	}
@@ -169,7 +169,7 @@ void verkehrsteilnehmer_t::hop()
 	int ribi = weg->get_ribi_unmasked();
 	for(int r = 0; r < 4; r++) {
 		if(  (ribi & ribi_t::nsow[r])!=0  &&  (ribi_t::nsow[r]&gegenrichtung)==0 &&
-			from->get_neighbour(to, road_wt, koord::nsow[r])
+			from->get_neighbour(to, road_wt, ribi_t::nsow[r])
 		) {
 			// check, if this is just a single tile deep
 			int next_ribi =  to->get_weg(road_wt)->get_ribi_unmasked();
@@ -753,17 +753,11 @@ bool stadtauto_t::hop_check()
 			const uint8 r = (i+offset)&3;
 #endif
 			if(  (ribi&ribi_t::nsow[r])!=0  ) {
-				// get_neighbour need a lot of time, so we use guess next tile first
-				grund_t *to = from->get_weg_hang()==hang_t::flach ? welt->lookup(pos_next+koord(ribi_t::nsow[(r+2)&3])) : NULL;
-				if(  to==NULL  ||  to->get_weg(road_wt)==NULL  ) {
-					to = NULL;
-					from->get_neighbour(to, road_wt, koord::nsow[r]);
-				}
-				// now we have a tile, which also has a way
-				if(  to  ) {
+				grund_t *to;
+				if(  from->get_neighbour(to, road_wt, ribi_t::nsow[r])  ) {
 					// check, if this is just a single tile deep after a crossing
 					weg_t *w = to->get_weg(road_wt);
-					if(ribi_t::ist_einfach(w->get_ribi())  &&  (w->get_ribi()&ribi_t::nsow[r])==0  &&  !ribi_t::ist_einfach(ribi)) {
+					if(  ribi_t::ist_einfach(w->get_ribi())  &&  (w->get_ribi()&ribi_t::nsow[r])==0  &&  !ribi_t::ist_einfach(ribi)  ) {
 						ribi &= ~ribi_t::nsow[r];
 						continue;
 					}
@@ -1077,7 +1071,7 @@ bool stadtauto_t::can_overtake( overtaker_t *other_overtaker, int other_speed, i
 				if(  (rib&ribi_t::nsow[r])==0  ||  check_pos.get_2d()+koord::nsow[r]==pos_prev) {
 					continue;
 				}
-				if(gr->get_neighbour(to, road_wt, koord::nsow[r])) {
+				if(gr->get_neighbour(to, road_wt, ribi_t::nsow[r])) {
 					if(found_one) {
 						// two directions to go: unexpected cars may occurs => abort
 						return false;
@@ -1145,7 +1139,7 @@ bool stadtauto_t::can_overtake( overtaker_t *other_overtaker, int other_speed, i
 				if(check_pos.get_2d()+koord::nsow[r]==pos_prev) {
 					continue;
 				}
-				if(gr->get_neighbour(to, road_wt, koord::nsow[r])) {
+				if(gr->get_neighbour(to, road_wt, ribi_t::nsow[r])) {
 					if(found_one) {
 						return false;
 					}

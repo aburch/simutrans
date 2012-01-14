@@ -3580,7 +3580,7 @@ bool wkz_roadsign_t::calc_route( route_t &verbindung, spieler_t *sp, const koord
 		// but the step start->to is now allowed
 		if (can_built  &&  koord_distance(start, to)==1  &&  verbindung.get_count()>2) {
 			grund_t *gr, *grto = sp->get_welt()->lookup(to);
-			if (sp->get_welt()->lookup(start)->get_neighbour(gr, besch->get_wtyp(), to.get_2d()-start.get_2d())  &&  gr==grto) {
+			if(  sp->get_welt()->lookup(start)->get_neighbour(gr, besch->get_wtyp(), ribi_typ(to-start) )  &&  gr==grto) {
 				can_built = false;
 			}
 		}

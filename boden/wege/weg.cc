@@ -418,7 +418,7 @@ void weg_t::calc_bild()
 					if(recursion == 0) {
 						recursion++;
 						for(int r = 0; r < 4; r++) {
-							if(from->get_neighbour(to, get_waytype(), koord::nsow[r])) {
+							if(from->get_neighbour(to, get_waytype(), ribi_t::nsow[r])) {
 								to->get_weg(get_waytype())->calc_bild();
 							}
 						}
@@ -458,10 +458,10 @@ void weg_t::check_diagonal()
 	switch(ribi) {
 
 		case ribi_t::nordost:
-			if(  from->get_neighbour(to, get_waytype(), koord::ost)  ) {
+			if(  from->get_neighbour(to, get_waytype(), ribi_t::ost)  ) {
 				r1 = to->get_weg_ribi_unmasked(get_waytype());
 			}
-			if(  from->get_neighbour(to, get_waytype(), koord::nord)  ) {
+			if(  from->get_neighbour(to, get_waytype(), ribi_t::nord)  ) {
 				r2 = to->get_weg_ribi_unmasked(get_waytype());
 			}
 			diagonal =
@@ -471,10 +471,10 @@ void weg_t::check_diagonal()
 		break;
 
 		case ribi_t::suedost:
-			if(  from->get_neighbour(to, get_waytype(), koord::ost)  ) {
+			if(  from->get_neighbour(to, get_waytype(), ribi_t::ost)  ) {
 				r1 = to->get_weg_ribi_unmasked(get_waytype());
 			}
-			if(  from->get_neighbour(to, get_waytype(), koord::sued)  ) {
+			if(  from->get_neighbour(to, get_waytype(), ribi_t::sued)  ) {
 				r2 = to->get_weg_ribi_unmasked(get_waytype());
 			}
 			diagonal =
@@ -484,10 +484,10 @@ void weg_t::check_diagonal()
 		break;
 
 		case ribi_t::nordwest:
-			if(  from->get_neighbour(to, get_waytype(), koord::west)  ) {
+			if(  from->get_neighbour(to, get_waytype(), ribi_t::west)  ) {
 				r1 = to->get_weg_ribi_unmasked(get_waytype());
 			}
-			if(  from->get_neighbour(to, get_waytype(), koord::nord)  ) {
+			if(  from->get_neighbour(to, get_waytype(), ribi_t::nord)  ) {
 				r2 = to->get_weg_ribi_unmasked(get_waytype());
 			}
 			diagonal =
@@ -497,10 +497,10 @@ void weg_t::check_diagonal()
 		break;
 
 		case ribi_t::suedwest:
-			if(  from->get_neighbour(to, get_waytype(), koord::west)  ) {
+			if(  from->get_neighbour(to, get_waytype(), ribi_t::west)  ) {
 				r1 = to->get_weg_ribi_unmasked(get_waytype());
 			}
-			if(  from->get_neighbour(to, get_waytype(), koord::sued)  ) {
+			if(  from->get_neighbour(to, get_waytype(), ribi_t::sued)  ) {
 				r2 = to->get_weg_ribi_unmasked(get_waytype());
 			}
 			diagonal =

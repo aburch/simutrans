@@ -229,12 +229,11 @@ void wayobj_t::rotate90()
 
 
 // helper function: gets the ribi on next tile
-ribi_t::ribi
-wayobj_t::find_next_ribi(const grund_t *start, const koord dir, const waytype_t wt) const
+ribi_t::ribi wayobj_t::find_next_ribi(const grund_t *start, const koord dir, const waytype_t wt) const
 {
 	grund_t *to;
 	ribi_t::ribi r1 = ribi_t::keine;
-	if(start->get_neighbour(to,wt,dir)) {
+	if(start->get_neighbour(to,wt,ribi_typ(dir))) {
 		const wayobj_t* wo = to->get_wayobj( wt );
 		if(wo) {
 			r1 = wo->get_dir();
@@ -324,7 +323,7 @@ wayobj_t::calc_bild()
 					grund_t *to;
 					rekursion++;
 					for(int r = 0; r < 4; r++) {
-						if(gr->get_neighbour(to, wt, koord::nsow[r])) {
+						if(gr->get_neighbour(to, wt, ribi_t::nsow[r])) {
 							wayobj_t* wo = to->get_wayobj( wt );
 							if(wo) {
 								wo->calc_bild();

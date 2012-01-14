@@ -506,9 +506,11 @@ sint8 vehikel_basis_t::calc_height()
 		// slope changed below a moving thing?!?
 		return 0;
 	}
-	else if(gr->ist_tunnel()  &&  gr->ist_karten_boden()  ) {
+	else if(  gr->ist_tunnel()  &&  gr->ist_karten_boden()  ) {
 		use_calc_height = true; // to avoid errors if undergroundmode is switched
-		if(grund_t::underground_mode==grund_t::ugm_none || (grund_t::underground_mode==grund_t::ugm_level && gr->get_hoehe()<grund_t::underground_level)) {
+		if(  grund_t::underground_mode == grund_t::ugm_none  ||
+			(grund_t::underground_mode == grund_t::ugm_level  &&  gr->get_hoehe() < grund_t::underground_level)
+		) {
 			// need hiding? One of the few uses of XOR: not half driven XOR exiting => not hide!
 			ribi_t::ribi hang_ribi = ribi_typ( gr->get_grund_hang() );
 			if((steps<(steps_next/2))  ^  ((hang_ribi&fahrtrichtung)!=0)  ) {
@@ -519,7 +521,7 @@ sint8 vehikel_basis_t::calc_height()
 			}
 		}
 	}
-	else if (!gr->is_visible()) {
+	else if(  !gr->is_visible()  ) {
 		set_bild(IMG_LEER);
 	}
 	else {
@@ -1887,16 +1889,17 @@ bool automobil_t::ist_ziel(const grund_t *gr, const grund_t *prev_gr) const
 		// now we must check the precessor => try to advance as much as possible
 		if(prev_gr!=NULL) {
 			const koord dir=gr->get_pos().get_2d()-prev_gr->get_pos().get_2d();
-			if(  gr->get_weg(get_waytype())->get_ribi_maske() & ribi_typ(dir)  ) {
+			ribi_t::ribi ribi = ribi_typ(dir);
+			if(  gr->get_weg(get_waytype())->get_ribi_maske() & ribi  ) {
 				// one way sign wrong direction
 				return false;
 			}
 			grund_t *to;
-			if(  !gr->get_neighbour(to,road_wt,dir)  ||  !(to->get_halt()==target_halt)  ||  (gr->get_weg(get_waytype())->get_ribi_maske() & ribi_typ(dir))!=0  ||  !target_halt->is_reservable(to,cnv->self)  ) {
+			if(  !gr->get_neighbour(to,road_wt,ribi)  ||  !(to->get_halt()==target_halt)  ||  (gr->get_weg(get_waytype())->get_ribi_maske() & ribi_typ(dir))!=0  ||  !target_halt->is_reservable(to,cnv->self)  ) {
 				// end of stop: Is it long enough?
 				uint16 tiles = cnv->get_tile_length();
 				while(  tiles>1  ) {
-					if(  !gr->get_neighbour(to,get_waytype(),-dir)  ||  !(to->get_halt()==target_halt)  ||  !target_halt->is_reservable(to,cnv->self)  ) {
+					if(  !gr->get_neighbour(to,get_waytype(),ribi_t::rueckwaerts(ribi))  ||  !(to->get_halt()==target_halt)  ||  !target_halt->is_reservable(to,cnv->self)  ) {
 						return false;
 					}
 					gr = to;
@@ -2501,17 +2504,18 @@ bool waggon_t::ist_ziel(const grund_t *gr,const grund_t *prev_gr) const
 			// now we must check the precessor ...
 			if(  prev_gr!=NULL  ) {
 				const koord dir=gr->get_pos().get_2d()-prev_gr->get_pos().get_2d();
-				if(  gr->get_weg(get_waytype())->get_ribi_maske() & ribi_typ(dir)  ) {
+				const ribi_t::ribi ribi = ribi_typ(dir);
+				if(  gr->get_weg(get_waytype())->get_ribi_maske() & ribi  ) {
 					// signal/one way sign wrong direction
 					return false;
 				}
 				grund_t *to;
-				if(  !gr->get_neighbour(to,get_waytype(),dir)  ||  !(to->get_halt()==target_halt)  ||  (to->get_weg(get_waytype())->get_ribi_maske() & ribi_typ(dir))!=0  ) {
+				if(  !gr->get_neighbour(to,get_waytype(),ribi)  ||  !(to->get_halt()==target_halt)  ||  (to->get_weg(get_waytype())->get_ribi_maske() & ribi_typ(dir))!=0  ) {
 					// end of stop: Is it long enough?
 					// end of stop could be also signal!
 					uint16 tiles = cnv->get_tile_length();
 					while(  tiles>1  ) {
-						if(  gr->get_weg(get_waytype())->get_ribi_maske() & ribi_typ(dir)  ||  !gr->get_neighbour(to,get_waytype(),-dir)  ||  !(to->get_halt()==target_halt)  ) {
+						if(  gr->get_weg(get_waytype())->get_ribi_maske() & ribi  ||  !gr->get_neighbour(to,get_waytype(),ribi_t::rueckwaerts(ribi))  ||  !(to->get_halt()==target_halt)  ) {
 							return false;
 						}
 						gr = to;

@@ -150,7 +150,7 @@ old_blockmanager_t::laden_abschliessen(karte_t *welt)
 		grund_t *to=NULL;
 		uint8 directions=0;
 		waytype_t wt=gr->hat_weg(track_wt) ? track_wt : monorail_wt;
-		if(gr->get_neighbour(to,wt,koord((ribi_t::ribi)os1->get_dir()))) {
+		if(  gr->get_neighbour(to,wt,os1->get_dir())  ) {
 			slist_iterator_tpl<oldsignal_t *> iter(signale);
 			while(iter.next()) {
 				if(iter.get_current()->get_pos()==to->get_pos()) {

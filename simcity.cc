@@ -2768,7 +2768,7 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 		if (ribi_t::nsow[r] & allowed_dir) {
 			// now we have to check for several problems ...
 			grund_t* bd2;
-			if(bd->get_neighbour(bd2, invalid_wt, koord::nsow[r])) {
+			if(bd->get_neighbour(bd2, invalid_wt, ribi_t::nsow[r])) {
 				if(bd2->get_typ()==grund_t::fundament  ||  bd2->get_typ()==grund_t::wasser) {
 					// not connecting to a building of course ...
 				} else if (!bd2->ist_karten_boden()) {

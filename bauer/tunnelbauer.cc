@@ -482,7 +482,7 @@ const char *tunnelbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d start, w
 		// Nachbarn raussuchen
 		for(int r = 0; r < 4; r++) {
 			if((zv == koord::invalid || zv == koord::nsow[r]) &&
-				from->get_neighbour(to, wegtyp, koord::nsow[r]) &&
+				from->get_neighbour(to, wegtyp, ribi_t::nsow[r]) &&
 				!marker.ist_markiert(to))
 			{
 				tmp_list.insert(to->get_pos());
