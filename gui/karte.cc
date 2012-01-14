@@ -316,7 +316,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 
 	// always use to uppermost ground
 	const planquadrat_t *plan=welt->lookup(k);
-	if(plan==NULL) {
+	if(plan==NULL  ||  plan->get_boden_count()==0) {
 		return;
 	}
 	const grund_t *gr=plan->get_boden_bei(plan->get_boden_count()-1);

@@ -725,17 +725,27 @@ public:
 	 * This is called many times, so it is inline
 	 */
 	inline sint8 get_vmove(ribi_t::ribi ribi) const {
-		const sint8 way_slope=get_weg_hang();
-		sint8 h=get_hoehe();
-		if(ist_bruecke()  &&  get_grund_hang()!=0) {
-			h += Z_TILE_STEP;	// end or start of a bridge
+		sint8 h = pos.z;
+		const hang_t::typ way_slope = get_weg_hang();
+
+		// only on slope height may changes
+		if(  way_slope  ) {
+			if(ribi & ribi_t::nordost) {
+				h += corner3(way_slope)*Z_TILE_STEP;
+			}
+			else {
+				h += corner1(way_slope)*Z_TILE_STEP;
+			}
 		}
 
-		if(ribi & ribi_t::nordost) {
-			h += corner3(way_slope)*Z_TILE_STEP;
-		}
-		else {
-			h += corner1(way_slope)*Z_TILE_STEP;
+		/* ground and way slope are only different on tunnelmound or bridgehead
+		 * since we already know both slopes, this check is faster than the virtual
+		 * call involved in ist_bruecke()
+		 */
+		if(  way_slope != slope  ) {
+			if(  ist_bruecke()  &&  slope  ) {
+				h += Z_TILE_STEP;	// end or start of a bridge
+			}
 		}
 
 		return h;

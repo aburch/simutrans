@@ -1095,10 +1095,10 @@ void vehikel_t::hop()
 
 	betrete_feld();
 	grund_t *gr = welt->lookup(get_pos());
-	const weg_t * weg = gr->get_weg(get_waytype());
-	if(weg) {
+	const weg_t *weg = gr->get_weg(get_waytype());
+	if(  weg  ) {
 		speed_limit = kmh_to_speed( weg->get_max_speed() );
-		if(weg->is_crossing()) {
+		if(  weg->is_crossing()  ) {
 			gr->find<crossing_t>(2)->add_to_crossing(this);
 		}
 	}

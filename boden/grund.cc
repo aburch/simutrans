@@ -1541,7 +1541,7 @@ bool grund_t::get_neighbour(grund_t *&to, waytype_t type, ribi_t::ribi ribi) con
 	}
 	const ribi_t::ribi back = ribi_t::rueckwaerts(ribi);
 
-	// most common on empty round => much faster this way
+	// most common on empty ground => check this first
 	if(  get_grund_hang() == hang_t::flach  &&  get_weg_hang() == hang_t::flach  ) {
 		if(  grund_t *gr = plan->get_boden_in_hoehe( pos.z )  ) {
 			if(  gr->get_grund_hang() == hang_t::flach  &&  gr->get_weg_hang() == hang_t::flach  ) {

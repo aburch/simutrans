@@ -72,22 +72,21 @@ public:
 	bool boden_entfernen(grund_t *bd);
 
 	/**
-	* Rückegabe des Bodens an der gegebenen Höhe, falls vorhanden.
-	* Inline, da von karte_t::lookup() benutzt und daher sehr(!)
-	* häufig aufgerufen
-	* @return NULL wenn Boden nicht gefunden
+	* Return either ground tile in this height or NULL if not existing
+	* Inline, since called from karte_t::lookup() and thus extremely often
+	* @return NULL if not ground in this height
 	* @author Hj. Malthaner
 	*/
 	inline grund_t *get_boden_in_hoehe(const sint16 z) const {
-		if(ground_size<=1) {
-			if(data.one  &&  data.one->get_hoehe()==z) {
+		if(ground_size==1) {
+			// must be valid ground at this point!
+			if(  data.one->get_hoehe() == z  ) {
 				return data.one;
 			}
-			//assert(ground_size==0  &&  data.one==NULL);
 		}
 		else {
-			for(uint8 i=0;  i<ground_size;  i++) {
-				if(data.some[i]->get_hoehe()==z) {
+			for(  uint8 i = 0;  i < ground_size;  i++  ) {
+				if(  data.some[i]->get_hoehe() == z  ) {
 					return data.some[i];
 				}
 			}
@@ -96,24 +95,27 @@ public:
 	}
 
 	/**
-	* Rückgabe des "normalen" Bodens auf Kartenniveau
-	* @return NULL wenn boden nicht existiert
+	* returns normal ground (always first index)
+	* @return not defined if no ground (must not happen!)
 	* @author Hansjörg Malthaner
 	*/
 	inline grund_t *get_kartenboden() const { return (ground_size<=1) ? data.one : data.some[0]; }
 
 	/**
-	* Rückegabe des Bodens, der das gegebene Objekt enthält, falls vorhanden.
+	* find ground if thing is on this planquadrat
+	* @return grund_t * with thing or NULL
 	* @author V. Meyer
 	*/
 	grund_t *get_boden_von_obj(ding_t *obj) const;
 
 	/**
-	* Rückegabe des n-ten Bodens. Inlined weil sehr häufig aufgerufen!
-	* @return NULL wenn boden nicht existiert
+	* ground saved at index position idx (zero would be normal ground)
+	* Since it is always called from loops or with other checks, no
+	* range check is done => if only one ground, range is ignored!
+	* @return ground at idx, undefined if ground_size==NULL
 	* @author Hj. Malthaner
 	*/
-	inline grund_t *get_boden_bei(const unsigned idx) const { return (idx<ground_size) ? (ground_size<=1 ? data.one : data.some[idx]) : NULL; }
+	inline grund_t *get_boden_bei(const unsigned idx) const { return (ground_size<=1 ? data.one : data.some[idx]); }
 
 	/**
 	* @return Anzahl der Böden dieses Planquadrats
