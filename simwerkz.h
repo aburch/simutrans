@@ -457,7 +457,10 @@ public:
 class wkz_lock_game_t : public werkzeug_t {
 public:
 	wkz_lock_game_t() : werkzeug_t() { id = WKZ_LOCK_GAME | GENERAL_TOOL; }
-	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("Lock game"); }
+	char const* get_tooltip(spieler_t const*) const OVERRIDE { return umgebung_t::networkmode ? translator::translate("deactivated in online mode") : translator::translate("Lock game"); }
+	image_id get_icon(spieler_t*) const OVERRIDE { return umgebung_t::networkmode ? IMG_LEER : icon; }
+	// deactivate in network mode
+	bool init( karte_t *, spieler_t *) { return !umgebung_t::networkmode; }
 	const char *work( karte_t *welt, spieler_t *, koord3d );
 	bool is_init_network_save() const OVERRIDE { return true; }
 };
