@@ -418,7 +418,8 @@ bool stadtauto_t::sync_step(long delta_t)
 		// stuck in traffic jam
 		uint32 old_ms_traffic_jam = ms_traffic_jam;
 		ms_traffic_jam += delta_t;
-		if(  (ms_traffic_jam>>7) != (old_ms_traffic_jam>>7)  ) {
+		// check only every 1.024 s if stopped
+		if(  (ms_traffic_jam>>10) != (old_ms_traffic_jam>>10)  ) {
 			pos_next_next = koord3d::invalid;
 			if(  hop_check(  )) {
 				ms_traffic_jam = 0;
