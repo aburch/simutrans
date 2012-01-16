@@ -1065,6 +1065,7 @@
     <None Include="config.default" />
     <None Include="config.template" />
     <None Include="..\simutrans-experimental-binaries\text\en.tab" />
+    <None Include="config.template.linux-server" />
     <None Include="Makefile" />
     <None Include="makeobj\Makefile" />
     <None Include="simutrans\config\electricity.tab" />

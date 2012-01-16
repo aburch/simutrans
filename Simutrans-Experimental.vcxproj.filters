@@ -1859,6 +1859,10 @@
     <None Include="simutrans\config\simuconf.tab">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="base_texts_experimental_braking_branch.dat" />
+    <None Include="config.template.linux-server">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="simres.rc">

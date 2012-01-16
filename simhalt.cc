@@ -71,6 +71,10 @@ stringhashtable_tpl<halthandle_t> haltestelle_t::all_names;
 
 static uint32 halt_iterator_start = 0;
 
+uint8 haltestelle_t::pedestrian_limit = 0;
+
+static const uint8 pedestrian_generate_max = 16;
+
 void haltestelle_t::step_all()
 {
 	if (!alle_haltestellen.empty())
@@ -1977,10 +1981,11 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 	}
 #endif
 	
-	if(ware.is_passenger() && is_within_walking_distance_of(ware.get_zwischenziel()) && !connexions[0]->get(ware.get_zwischenziel())->best_convoy.is_bound() && !connexions[0]->get(ware.get_zwischenziel())->best_line.is_bound())
+	if(ware.is_passenger() && is_within_walking_distance_of(ware.get_zwischenziel()) && !connexions[0]->get(ware.get_zwischenziel())->best_convoy.is_bound() && !connexions[0]->get(ware.get_zwischenziel())->best_line.is_bound() && ware.get_last_transfer().is_bound() && ware.get_last_transfer()->get_basis_pos() != ware.get_zwischenziel()->get_basis_pos())
 	{
 		// If this is within walking distance of the next transfer, and there is not a faster way there, walk there.
 		erzeuge_fussgaenger(welt, get_basis_pos3d(), ware.menge);
+		ware.set_last_transfer(self);
 		return ware.get_zwischenziel()->liefere_an(ware);
 	}
 	else
@@ -2415,9 +2420,14 @@ void haltestelle_t::recalc_station_type()
 
 int haltestelle_t::erzeuge_fussgaenger(karte_t *welt, koord3d pos, int anzahl)
 {
-	fussgaenger_t::erzeuge_fussgaenger_an(welt, pos, anzahl);
-	for(int i=0; i<4 && anzahl>0; i++) {
-		fussgaenger_t::erzeuge_fussgaenger_an(welt, pos+koord::nsow[i], anzahl);
+	if(pedestrian_limit < pedestrian_generate_max)
+	{
+		pedestrian_limit ++;
+		fussgaenger_t::erzeuge_fussgaenger_an(welt, pos, anzahl);
+		for(int i=0; i<4 && anzahl>0; i++) 
+		{
+			fussgaenger_t::erzeuge_fussgaenger_an(welt, pos+koord::nsow[i], anzahl);
+		}
 	}
 	return anzahl;
 }
@@ -2797,6 +2807,8 @@ void haltestelle_t::rdwr(loadsave_t *file)
 	pax_unhappy  = financial_history[0][HALT_UNHAPPY];
 	pax_no_route = financial_history[0][HALT_NOROUTE];
 	pax_too_slow = financial_history[0][HALT_TOO_SLOW];
+
+	pedestrian_limit = 0;
 }
 
 

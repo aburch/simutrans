@@ -187,6 +187,8 @@ public:
 
 	halthandle_t get_halt_within_walking_distance(uint32 index) const { return halts_within_walking_distance[index]; }
 
+	static uint8 pedestrian_limit;
+
 private:
 	/**
 	 * Handle for ourselves. Can be used like the 'this' pointer

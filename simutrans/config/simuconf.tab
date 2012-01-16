@@ -1140,23 +1140,23 @@ fast_forward = 100
 # How much commands should be delayed before sending back to clients.
 # A larger number will catch even clients running slightly ahead but cause delay.
 # This is set by the server side.
-#server_frames_ahead = 4
+server_frames_ahead = 4
 
 # How much extra delay in command execution on the client side, on top of server_frames_ahead.
 # A larger number can compensate for larger fluctuations in communication latency.
 # This is set by the client side.
-#additional_client_frames_behind = 0
+additional_client_frames_behind = 2
 
 # In network mode, there will be a fixed number of screen updates before a step.
 # Reasonable values should result in 2-5 steps per second.
-#server_frames_per_step = 4
+server_frames_per_step = 4
 
 # The server sends after a fixed number of steps some information to the clients.
 # Large values here means: reduced server communication (if that is of importance...)
 # Small values should improve the timing of the clients.
 server_frames_between_checks = 320
 
-# Automatically announce server on the central server directory (http://servers.simutrans.org/)
+# Automatically announce server on the central server directory (http://servers.experimental.simutrans.org)
 # 0 (default) = off, 1 = on
 server_announce = 0
 

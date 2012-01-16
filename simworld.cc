@@ -2946,6 +2946,7 @@ bool karte_t::sync_remove(sync_steppable *obj)	// entfernt alle dinge == obj aus
 void karte_t::sync_step(long delta_t, bool sync, bool display )
 {
 	set_random_mode( SYNC_STEP_RANDOM );
+	haltestelle_t::pedestrian_limit = 0;
 	if(sync) {
 		// only omitted, when called to display a new frame during fast forward
 		sync_step_running = true;
