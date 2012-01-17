@@ -1544,6 +1544,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 			besch = vehikelbauer_t::get_info(translator::compatibility_name(s));
 		}
 		if(besch==NULL) {
+			welt->add_missing_paks( s, karte_t::MISSING_VEHICLE );
 			dbg->warning("vehikel_t::rdwr_from_convoi()","no vehicle pak for '%s' search for something similar", s);
 		}
 	}

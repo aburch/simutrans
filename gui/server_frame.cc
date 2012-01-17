@@ -259,6 +259,7 @@ int server_frame_t::parse_csv_field( char **c, char *field, size_t maxlen )
 	return 0;
 }
 
+
 bool server_frame_t::update_serverlist( uint revision, const char *pakset )
 {
 	dbg->warning( "server_frame_t::update_serverlist", "called with revision: %i, pakset: %s", revision, pakset );
@@ -282,7 +283,6 @@ bool server_frame_t::update_serverlist( uint revision, const char *pakset )
 
 			fgets( line, sizeof( line ), fh );
 			dbg->warning( "server_frame_t::update_serverlist", "parsing line: '%s'", line );
-//			if (  feof( fh )  ) { continue; }
 
 			// First field is display name of server
 			char servername[4096];

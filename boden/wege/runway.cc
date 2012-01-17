@@ -5,6 +5,7 @@
  * von Hj. Malthaner
  */
 
+#include "../../simworld.h"
 #include "../../bauer/wegbauer.h"
 #include "../../besch/weg_besch.h"
 #include "../../dataobj/loadsave.h"
@@ -45,6 +46,7 @@ void runway_t::rdwr(loadsave_t *file)
 			besch = wegbauer_t::weg_search(air_wt,old_max_speed>0 ? old_max_speed : 20, 0, (weg_t::system_type)(old_max_speed>250) );
 			if(besch==NULL) {
 				besch = default_runway;
+				welt->add_missing_paks( bname, karte_t::MISSING_WAY );
 			}
 			dbg->warning("runway_t::rdwr()", "Unknown runway %s replaced by %s (old_max_speed %i)", bname, besch->get_name(), old_max_speed );
 		}

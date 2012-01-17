@@ -379,6 +379,7 @@ void leitung_t::rdwr(loadsave_t *file)
 				if(besch==NULL) {
 					besch = wegbauer_t::get_besch(translator::compatibility_name(bname));
 					if(besch==NULL) {
+						welt->add_missing_paks( bname, karte_t::MISSING_WAY );
 						besch = wegbauer_t::leitung_besch;
 					}
 					dbg->warning("strasse_t::rdwr()", "Unknown powerline %s replaced by %s", bname, besch->get_name() );
@@ -549,10 +550,10 @@ senke_t::~senke_t()
 {
 	if(fab!=NULL) {
 		fab->set_transformer_connected( false );
-		senke_list.remove( this );
 		welt->sync_remove( this );
 		fab = NULL;
 	}
+	senke_list.remove( this );
 	spieler_t::add_maintenance(get_besitzer(), welt->get_settings().cst_maintain_transformer);
 }
 
@@ -669,7 +670,9 @@ void senke_t::laden_abschliessen()
 
 	if(fab==NULL  &&  get_net()) {
 		fab = leitung_t::suche_fab_4(get_pos().get_2d());
-		fab->set_transformer_connected( true );
+		if(  fab  ) {
+			fab->set_transformer_connected( true );
+		}
 	}
 	senke_list.insert( this );
 	welt->sync_add(this);

@@ -112,6 +112,11 @@ public:
 
 	enum { NORMAL=0, PAUSE_FLAG = 0x01, FAST_FORWARD=0x02, FIX_RATIO=0x04 };
 
+	/* Missing things during loading:
+	 * factories, vehicles, roadsigns or catenary may be severe
+	 */
+	enum missing_level_t { NOT_MISSING=0, MISSING_FACTORY=1, MISSING_VEHICLE=2, MISSING_SIGN=3, MISSING_WAYOBJ=4, MISSING_ERROR=4, MISSING_BRIDGE, MISSING_BUILDING, MISSING_WAY };
+
 private:
 	settings_t settings;
 
@@ -421,6 +426,12 @@ public:
 
 	// set to something useful, if there is a total distance != 0 to show in the bar below
 	koord3d show_distance;
+
+	/* for warning, when stuff had to be removed/replaced
+	 * level must be >=1 (1=factory, 2=vechiles, 3=not so important)
+	 * may be refined later
+	 */
+	void add_missing_paks( const char *name, missing_level_t critical_level );
 
 	/**
 	 * Absoluter Monat

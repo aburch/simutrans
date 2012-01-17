@@ -810,6 +810,7 @@ void gebaeude_t::rdwr(loadsave_t *file)
 
 					default:
 						dbg->warning("gebaeude_t::rwdr", "description %s for building at %d,%d not found (will be removed)!", buf, get_pos().x, get_pos().y);
+						welt->add_missing_paks( buf, karte_t::MISSING_BUILDING );
 				}
 			}
 		}	// here we should have a valid tile pointer or nothing ...

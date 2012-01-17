@@ -8,6 +8,7 @@
 #include <stdio.h>
 
 #include "../../simconvoi.h"
+#include "../../simworld.h"
 #include "../../vehicle/simvehikel.h"
 
 #include "../../dataobj/loadsave.h"
@@ -163,6 +164,7 @@ void schiene_t::rdwr(loadsave_t *file)
 			besch = wegbauer_t::get_besch(translator::compatibility_name(bname));
 			if(besch==NULL) {
 				besch = default_schiene;
+				welt->add_missing_paks( bname, karte_t::MISSING_WAY );
 			}
 			dbg->warning("schiene_t::rdwr()", "Unknown rail %s replaced by %s (old_max_speed %i)", bname, besch->get_name(), old_max_speed );
 		}

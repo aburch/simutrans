@@ -119,6 +119,8 @@ static uint32 last_clients = -1;
 static uint8 last_active_player_nr = 0;
 static std::string last_network_game;
 
+stringhashtable_tpl<karte_t::missing_level_t>missing_pak_names;
+
 
 void checklist_t::rdwr(memory_rw_t *buffer)
 {
@@ -4145,6 +4147,14 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved messages");
 }
 
 
+// store missing obj during load and their severity
+void karte_t::add_missing_paks( const char *name, missing_level_t level )
+{
+	if(  missing_pak_names.get( name )==NOT_MISSING  ) {
+		missing_pak_names.put( strdup(name), level );
+	}
+}
+
 
 // just the preliminaries, opens the file, checks the versions ...
 bool karte_t::laden(const char *filename)
@@ -4154,8 +4164,10 @@ bool karte_t::laden(const char *filename)
 	bool restore_player_nr = false;
 	mute_sound(true);
 	display_show_load_pointer(true);
-
 	loadsave_t file;
+
+	// clear hash table with missing paks (may cause some small memory loss though)
+	missing_pak_names.clear();
 
 	DBG_MESSAGE("karte_t::laden", "loading game from '%s'", filename);
 
@@ -4222,11 +4234,6 @@ bool karte_t::laden(const char *filename)
 		create_win(new news_img("WRONGSAVE"), w_info, magic_none);
 	}
 	else {
-/*
-		event_t ev;
-		ev.ev_class=EVENT_NONE;
-		check_pos_win(&ev);
-*/
 DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 
 		laden(&file);
@@ -4255,6 +4262,49 @@ DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 		ok = true;
 		file.close();
 		if(  !umgebung_t::networkmode  ||  !umgebung_t::restore_UI  ) {
+			// warning message about missing paks
+			if(  !missing_pak_names.empty()  ) {
+				cbuffer_t msg;
+				msg.append("<title>");
+				msg.append(translator::translate("Missing pakfiles"));
+				msg.append("</title>\n");
+
+				cbuffer_t error_paks;
+				cbuffer_t warning_paks;
+				stringhashtable_iterator_tpl<missing_level_t> iterator(missing_pak_names);
+				while(iterator.next()) {
+					if(  iterator.get_current_value() <= MISSING_ERROR  ) {
+						error_paks.append(translator::translate(iterator.get_current_key()));
+						error_paks.append("<br>\n");
+					}
+					else {
+						warning_paks.append(translator::translate(iterator.get_current_key()));
+						warning_paks.append("<br>\n");
+					}
+				}
+
+				if(  error_paks.len()>0  ) {
+					msg.append("<h1>");
+					msg.append(translator::translate("Pak which may cause severe errors:"));
+					msg.append("</h1><br>\n");
+					msg.append("<br>\n");
+					msg.append( error_paks );
+					msg.append("<br>\n");
+				}
+
+				if(  warning_paks.len()>0  ) {
+					msg.append("<h1>");
+					msg.append(translator::translate("Pak which may cause visual errors:"));
+					msg.append("</h1><br>\n");
+					msg.append("<br>\n");
+					msg.append( warning_paks );
+					msg.append("<br>\n");
+				}
+
+				help_frame_t *win = new help_frame_t();
+				win->set_text( msg );
+				create_win(win, w_info, magic_pakset_info_t);
+			}
 			// do not notify if we restore everything
 			create_win( new news_img("Spielstand wurde\ngeladen!\n"), w_time_delete, magic_none);
 		}

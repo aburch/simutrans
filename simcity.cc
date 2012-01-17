@@ -767,7 +767,6 @@ void stadt_t::factory_entry_t::rdwr(loadsave_t *file)
 void stadt_t::factory_entry_t::resolve_factory()
 {
 	factory = fabrik_t::get_fab( welt, koord(factory_pos_x, factory_pos_y) );
-	assert( factory );
 }
 
 
@@ -953,8 +952,15 @@ void stadt_t::factory_set_t::rdwr(loadsave_t *file)
 
 void stadt_t::factory_set_t::resolve_factories()
 {
+	uint32 remove_count = 0;
 	for(  uint32 e=0;  e<entries.get_count();  ++e  ) {
 		entries[e].resolve_factory();
+		if(  entries[e].factory == NULL  ) {
+			remove_count ++;
+		}
+	}
+	for(  uint32 e=0;  e<remove_count;  ++e  ) {
+		this->remove_factory( NULL );
 	}
 }
 

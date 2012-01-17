@@ -151,7 +151,7 @@ bool warenbauer_t::register_besch(ware_besch_t *besch)
 const ware_besch_t *warenbauer_t::get_info(const char* name)
 {
 	const ware_besch_t *ware = besch_names.get(name);
-	if (ware==NULL) {
+	if(  ware==NULL  ) {
 		ware = besch_names.get(translator::compatibility_name(name));
 	}
 	return ware;

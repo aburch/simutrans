@@ -147,6 +147,17 @@ public:
 		return value_t();
 	}
 
+	value_t remove_first()
+	{
+		for(STHT_BAG_COUNTER_T i = 0; i < STHT_BAGSIZE; i++) {
+			if(  !bags[i].empty()  ) {
+				return bags[i].remove_first().object;
+			}
+		}
+		dbg->fatal( "hashtable_tpl::remove_first()", "Hashtable already empty!" );
+		return value_t();
+	}
+
 	void dump_stats()
 	{
 		for(STHT_BAG_COUNTER_T i = 0; i < STHT_BAGSIZE; i++) {

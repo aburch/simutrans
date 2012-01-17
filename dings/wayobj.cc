@@ -152,6 +152,7 @@ void wayobj_t::rdwr(loadsave_t *file)
 				}
 				if(besch==NULL) {
 					dbg->warning("wayobj_t::rwdr", "description %s for wayobj_t at %d,%d not found, will be removed!", bname, get_pos().x, get_pos().y );
+					welt->add_missing_paks( bname, karte_t::MISSING_WAYOBJ );
 				}
 				else {
 					dbg->warning("wayobj_t::rwdr", "wayobj %s at %d,%d replaced by %s", bname, get_pos().x, get_pos().y, besch->get_name() );
