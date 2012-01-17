@@ -517,14 +517,12 @@ int simu_main(int argc, char** argv)
 		}
 	}
 
-	// if set for multiuser, then parses the users config (if there)
-	// retrieve everything (but we must do this again once more ... )
-	if(multiuser) {
-		const string obj_conf = string(umgebung_t::user_dir) + "simuconf.tab";
-		if (simuconf.open(obj_conf.c_str())) {
-			printf("parse_simuconf() at %s: ", obj_conf.c_str() );
-			umgebung_t::default_einstellungen.parse_simuconf( simuconf, disp_width, disp_height, fullscreen, umgebung_t::objfilename );
-		}
+	// a portable installation could have a personal simuconf.tab in the main dir of simutrans
+	// otherwise it is in ~/simutrans/simuconf.tab
+	string obj_conf = string(umgebung_t::user_dir) + "simuconf.tab";
+	if (simuconf.open(obj_conf.c_str())) {
+		printf("parse_simuconf() at %s: ", obj_conf.c_str() );
+		umgebung_t::default_einstellungen.parse_simuconf( simuconf, disp_width, disp_height, fullscreen, umgebung_t::objfilename );
 	}
 
 	// umgebung: overide previous settings
@@ -694,43 +692,42 @@ int simu_main(int argc, char** argv)
 	}
 
 	// now find the pak specific tab file ...
-	const string obj_conf = umgebung_t::objfilename + path_to_simuconf;
-	string dummy;
-	if (simuconf.open(obj_conf.c_str())) {
+	obj_conf = umgebung_t::objfilename + path_to_simuconf;
+	if(  simuconf.open(obj_conf.c_str())  ) {
 		sint16 idummy;
+		string dummy;
 		printf("parse_simuconf() at %s: ", obj_conf.c_str());
 		umgebung_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 		pak_diagonal_multiplier = umgebung_t::default_einstellungen.get_pak_diagonal_multiplier();
 		pak_tile_height = TILE_HEIGHT_STEP;
 		simuconf.close();
 	}
-	// and parse again parse the user settings
-	if(umgebung_t::user_dir!=umgebung_t::program_dir) {
-		const string obj_conf = string(umgebung_t::user_dir) + "simuconf.tab";
-		if (simuconf.open(obj_conf.c_str())) {
-			sint16 idummy;
-			printf("parse_simuconf() at %s: ", obj_conf.c_str());
-			umgebung_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
-			simuconf.close();
+	// and parse again the user settings
+	obj_conf = string(umgebung_t::user_dir) + "simuconf.tab";
+	if (simuconf.open(obj_conf.c_str())) {
+		sint16 idummy;
+		string dummy;
+		printf("parse_simuconf() at %s: ", obj_conf.c_str());
+		umgebung_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
+		simuconf.close();
+	}
+
+	// load with private addons (now in addons/pak-name either in simutrans main dir or in userdir)
+	if(  gimme_arg(argc, argv, "-objects", 1) != NULL  ) {
+		if(gimme_arg(argc, argv, "-addons", 0) != NULL) {
+			umgebung_t::default_einstellungen.set_with_private_paks( true );
 		}
-		if(  gimme_arg(argc, argv, "-objects", 1) != NULL  ) {
-			if(gimme_arg(argc, argv, "-addons", 0) != NULL) {
-				umgebung_t::default_einstellungen.set_with_private_paks( true );
-			}
-			if(gimme_arg(argc, argv, "-noaddons", 0) != NULL) {
-				umgebung_t::default_einstellungen.set_with_private_paks( false );
-			}
+		if(gimme_arg(argc, argv, "-noaddons", 0) != NULL) {
+			umgebung_t::default_einstellungen.set_with_private_paks( false );
 		}
 	}
-	else {
-		// not possible for single user
-		umgebung_t::default_einstellungen.set_with_private_paks( false );
-	}
+
 	// parse ~/simutrans/pakxyz/config.tab"
-	if(umgebung_t::user_dir!=umgebung_t::program_dir  &&  umgebung_t::default_einstellungen.get_with_private_paks()  ) {
-		string obj_conf = string(umgebung_t::user_dir) + umgebung_t::objfilename + "config/simuconf.tab";
+	if(  umgebung_t::default_einstellungen.get_with_private_paks()  ) {
+		obj_conf = string(umgebung_t::user_dir) + "addons/" + umgebung_t::objfilename + "config/simuconf.tab";
+		sint16 idummy;
+		string dummy;
 		if (simuconf.open(obj_conf.c_str())) {
-			sint16 idummy;
 			printf("parse_simuconf() at %s: ", obj_conf.c_str());
 			umgebung_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 			simuconf.close();
@@ -738,7 +735,6 @@ int simu_main(int argc, char** argv)
 		// and parse user settings again ...
 		obj_conf = string(umgebung_t::user_dir) + "simuconf.tab";
 		if (simuconf.open(obj_conf.c_str())) {
-			sint16 idummy;
 			printf("parse_simuconf() at %s: ", obj_conf.c_str());
 			umgebung_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 			simuconf.close();
@@ -829,14 +825,14 @@ int simu_main(int argc, char** argv)
 	bool new_world = true;
 	std::string loadgame;
 
-	if (gimme_arg(argc, argv, "-load", 0) != NULL) {
+	if(  gimme_arg(argc, argv, "-load", 0) != NULL  ) {
 		cbuffer_t buf;
 		chdir( umgebung_t::user_dir );
 		/**
 		 * Added automatic adding of extension
 		 */
 		const char *name = gimme_arg(argc, argv, "-load", 1);
-		if(  strstr(name,"net:")==name  ) {
+		if(  strstr(name,"net:") == name  ) {
 			buf.append( name );
 		}
 		else {
@@ -880,16 +876,16 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		}
 	}
 
-	if (gimme_arg(argc, argv, "-timeline", 0) != NULL) {
+	if(  gimme_arg(argc, argv, "-timeline", 0) != NULL  ) {
 		const char* ref_str = gimme_arg(argc, argv, "-timeline", 1);
-		if (ref_str != NULL) {
+		if(  ref_str != NULL  ) {
 			umgebung_t::default_einstellungen.set_use_timeline( atoi(ref_str) );
 		}
 	}
 
-	if (gimme_arg(argc, argv, "-startyear", 0) != NULL) {
+	if(  gimme_arg(argc, argv, "-startyear", 0) != NULL  ) {
 		const char * ref_str = gimme_arg(argc, argv, "-startyear", 1); //1930
-		if (ref_str != NULL) {
+		if(  ref_str != NULL  ) {
 			umgebung_t::default_einstellungen.set_starting_year( clamp(atoi(ref_str),1,2999) );
 		}
 	}
@@ -898,7 +894,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	chdir( umgebung_t::user_dir );
 
 	// init midi before loading sounds
-	if(dr_init_midi()) {
+	if(  dr_init_midi()  ) {
 		printf("Reading midi data ...\n");
 		if(!midi_init(umgebung_t::user_dir)) {
 			if(!midi_init(umgebung_t::program_dir)) {
@@ -920,7 +916,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	midi_set_mute(  umgebung_t::mute_midi  ||  midi_get_mute() );
 	sound_set_global_volume( umgebung_t::global_volume );
 	sound_set_midi_volume( umgebung_t::midi_volume );
-	if(!midi_get_mute()) {
+	if(  !midi_get_mute()  ) {
 		// not muted => play first song
 		midi_play(0);
 		// reset volume after first play call else no/low sound or music with win32 and sdl
@@ -935,30 +931,26 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	welt->get_message()->set_message_flags(0, 0, 0, 0);
 
 	// set the frame per second
-	const char *ref_str = gimme_arg(argc, argv, "-fps", 1);
-	if (ref_str != NULL) {
+	if(  const char *ref_str = gimme_arg(argc, argv, "-fps", 1)  ) {
 		int want_refresh = atoi(ref_str);
 		umgebung_t::fps = want_refresh < 5 ? 5 : (want_refresh > 100 ? 100 : want_refresh);
 	}
 
 	// query server stuff
 	// Enable server announcements
-	if(gimme_arg(argc, argv, "-announce", 0) != NULL) {
+	if(  gimme_arg(argc, argv, "-announce", 0) != NULL  ) {
 		umgebung_t::server_announce = 1;
 	}
 
-	ref_str = gimme_arg(argc, argv, "-server_dns", 1);
-	if (ref_str != NULL) {
+	if(  const char *ref_str = gimme_arg(argc, argv, "-server_dns", 1)  ) {
 		umgebung_t::server_dns = ref_str;
 	}
 
-	ref_str = gimme_arg(argc, argv, "-server_name", 1);
-	if (ref_str != NULL) {
+	if(  const char *ref_str = gimme_arg(argc, argv, "-server_name", 1)  ) {
 		umgebung_t::server_name = ref_str;
 	}
 
-	ref_str = gimme_arg(argc, argv, "-server_admin_pw", 1);
-	if (ref_str != NULL) {
+	if(  const char *ref_str = gimme_arg(argc, argv, "-server_admin_pw", 1)  ) {
 		umgebung_t::server_admin_pw = ref_str;
 	}
 
@@ -968,7 +960,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	setsimrand(dr_time(), dr_time());
 	clear_random_mode( 7 );	// allow all
 
-	if(loadgame==""  ||  !welt->laden(loadgame.c_str())) {
+	if(  loadgame==""  ||  !welt->laden(loadgame.c_str())  ) {
 		// create a default map
 		DBG_MESSAGE("init with default map","(failing will be a pak error!)");
 		// no autosave on initial map during the first six month ...
@@ -1104,7 +1096,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 	// save setting ...
 	chdir( umgebung_t::user_dir );
-	if(file.wr_open("settings.xml",loadsave_t::xml,"settings only/",SAVEGAME_VER_NR)) {
+	if(  file.wr_open("settings.xml",loadsave_t::xml,"settings only/",SAVEGAME_VER_NR)  ) {
 		umgebung_t::rdwr(&file);
 		umgebung_t::default_einstellungen.rdwr(&file);
 		file.close();

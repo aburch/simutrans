@@ -103,16 +103,14 @@ void pakselector_t::fill_list()
 	// do the search ...
 	savegame_frame_t::fill_list();
 
-	bool disable = umgebung_t::program_dir==umgebung_t::user_dir;
-
 	int y = 0;
 	for(  slist_tpl<entry>::iterator iter = entries.begin(), end = entries.end();  iter != end;  ++iter  ) {
 		char path[1024];
-		sprintf(path,"%s%s", umgebung_t::user_dir, iter->button->get_text() );
+		sprintf(path,"%saddons/%s", umgebung_t::user_dir, iter->button->get_text() );
 		iter->del->groesse.x += 150;
 		iter->del->set_text( "Load with addons" );
 		iter->button->set_pos( koord(150,0)+iter->button->get_pos() );
-		if(  disable  ||  chdir( path )!=0  ) {
+		if(  chdir( path )!=0  ) {
 			// no addons for this
 			iter->del->set_visible( false );
 			iter->del->disable();

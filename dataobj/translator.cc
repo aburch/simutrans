@@ -426,11 +426,11 @@ bool translator::load(const string &scenario_path)
 		}
 	}
 
-	if(  umgebung_t::program_dir!=umgebung_t::user_dir  &&  umgebung_t::default_einstellungen.get_with_private_paks()  ) {
+	if(  umgebung_t::default_einstellungen.get_with_private_paks()  ) {
 		chdir( umgebung_t::user_dir );
 		// now read the scenario specific text
 		// there can be more than one file per language, provided it is name like iso_xyz.tab
-		const string folderName(scenario_path + "text/");
+		const string folderName("addons/" + scenario_path + "text/");
 		folder.search(folderName, "tab");
 		//read now the basic language infos
 		for (searchfolder_t::const_iterator i = folder.begin(), end = folder.end(); i != end; ++i) {
@@ -473,9 +473,9 @@ bool translator::load(const string &scenario_path)
 	}
 
 	// also addon compatibility ...
-	if(  umgebung_t::program_dir!=umgebung_t::user_dir  &&  umgebung_t::default_einstellungen.get_with_private_paks()  ) {
+	if(  umgebung_t::default_einstellungen.get_with_private_paks()  ) {
 		chdir( umgebung_t::user_dir );
-		FILE* file = fopen((scenario_path + "compat.tab").c_str(), "rb");
+		FILE* file = fopen(string("addons/"+scenario_path + "compat.tab").c_str(), "rb");
 		if (file != NULL) {
 			load_language_file_body(file, &compatibility, false, false);
 			DBG_MESSAGE("translator::load()", "scenario addon compatibility texts loaded.");

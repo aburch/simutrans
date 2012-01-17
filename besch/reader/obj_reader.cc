@@ -59,7 +59,7 @@ bool obj_reader_t::init()
 	// search for skins first
 	chdir( umgebung_t::program_dir );
 	load( "skin/", translator::translate("Loading skins ...") );
-	if(  umgebung_t::program_dir!=umgebung_t::user_dir  ) {
+	if(  umgebung_t::program_dir != umgebung_t::user_dir  ) {
 		chdir( umgebung_t::user_dir );
 		load( "skin/", translator::translate("Loading skins ...") );
 	}
