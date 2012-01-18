@@ -69,8 +69,6 @@ DBG_MESSAGE("verteile_baeume()","creating %i forest",c_forest_count);
 }
 
 
-
-
 /*************************** first the static function for the baum_t and baum_besch_t administration ***************/
 
 /*
@@ -409,11 +407,16 @@ void baum_t::calc_bild()
 
 image_id baum_t::get_bild() const
 {
-	if(  umgebung_t::hide_trees  &&  umgebung_t::hide_with_transparency  ) {
-		return IMG_LEER;
-		// we need the real age for transparency or real image
+	if(  umgebung_t::hide_trees  ) {
+		if(  umgebung_t::hide_with_transparency  ) {
+			// we need the real age for transparency or real image
+			return IMG_LEER;
+		}
+		else {
+			return baumtype_to_bild[ baumtype ][ season*5 ];
+		}
 	}
-	uint8 baum_alter = baum_bild_alter[min(get_age()>>6, 11u)] & ~(int)umgebung_t::hide_trees;
+	const uint8 baum_alter = baum_bild_alter[min(get_age()>>6, 11u)];
 	return baumtype_to_bild[ baumtype ][ season*5 + baum_alter ];
 //	return get_besch()->get_bild_nr( season, baum_alter );
 }
@@ -422,7 +425,7 @@ image_id baum_t::get_bild() const
 // image which transparent outline is used
 image_id baum_t::get_outline_bild() const
 {
-	uint8 baum_alter = baum_bild_alter[min(get_age()>>6, 11u)];
+	const uint8 baum_alter = baum_bild_alter[min(get_age()>>6, 11u)];
 	return baumtype_to_bild[ baumtype ][ season*5 + baum_alter ];
 //	return get_besch()->get_bild_nr( season, baum_alter );
 }
