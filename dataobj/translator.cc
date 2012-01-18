@@ -196,7 +196,7 @@ vector_tpl<char*> translator::city_name_list;
 vector_tpl<char*> translator::street_name_list;
 
 
-// fills a list from a file with the given prfix followed by a language code
+// fills a list from a file with the given prefix followed by a language code
 void translator::load_custom_list( int lang, vector_tpl<char*> &name_list, const char *fileprefix )
 {
 	FILE* file;
@@ -210,7 +210,7 @@ void translator::load_custom_list( int lang, vector_tpl<char*> &name_list, const
 	// @author prissi: first try in pakset
 	{
 		string local_file_name(umgebung_t::user_dir);
-		local_file_name = local_file_name + pakset_path + "text/" + fileprefix + langs[lang].iso_base + ".txt";
+		local_file_name = local_file_name + "addons/" + pakset_path + "text/" + fileprefix + langs[lang].iso_base + ".txt";
 		DBG_DEBUG("translator::load_custom_list()", "try to read city name list from '%s'", local_file_name.c_str());
 		file = fopen(local_file_name.c_str(), "rb");
 	}
