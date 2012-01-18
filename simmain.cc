@@ -805,7 +805,7 @@ int simu_main(int argc, char** argv)
 	if(  umgebung_t::default_einstellungen.get_with_private_paks()  ) {
 		// try to read addons from private directory
 		chdir( umgebung_t::user_dir );
-		if(!obj_reader_t::load(umgebung_t::objfilename.c_str(), translator::translate("Loading addon paks ..."))) {
+		if(!obj_reader_t::load(("addons/" + umgebung_t::objfilename).c_str(), translator::translate("Loading addon paks ..."))) {
 			fprintf(stderr, "reading addon object data failed (disabling).\n");
 			umgebung_t::default_einstellungen.set_with_private_paks( false );
 		}
