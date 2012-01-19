@@ -49,6 +49,9 @@ void simlinemgmt_t::line_management_window(spieler_t *sp)
 		schedule_list_gui = new schedule_list_gui_t(sp);
 		create_win( schedule_list_gui, w_info, magic_line_management_t+sp->get_player_nr() );
 	}
+	else {
+		top_win( schedule_list_gui );
+	}
 }
 
 

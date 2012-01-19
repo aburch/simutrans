@@ -741,6 +741,7 @@ int top_win(int win)
 
 	simwin_t tmp = wins[win];
 	wins.remove_at(win);
+	tmp.rollup = false;	// make visible when topping
 	wins.append(tmp);
 
 	 // mark new dirty
