@@ -1205,9 +1205,6 @@ sint64 vehikel_t::calc_gewinn(koord start, koord end) const
 
 	// kmh_base = lesser of min_top_speed, power limited top speed, and average way speed limits on trip, except aircraft which are not power limited and don't have speed limits
 	sint32 cnv_kmh = cnv->get_speedbonus_kmh();
-	if(  cnv->get_distance_since_last_stop() > 0  &&  get_waytype() != air_wt  ) {
-		cnv_kmh = min( cnv_kmh, cnv->get_sum_speed_limit() / cnv->get_distance_since_last_stop() );
-	}
 	const sint32 kmh_base = (100 * cnv_kmh) / ref_kmh - 100;
 
 	sint64 value = 0;
@@ -1367,7 +1364,7 @@ bool vehikel_t::entladen(halthandle_t halt)
 	uint16 menge = unload_freight(halt);
 	if(menge>0) {
 		// add delivered goods to statistics
-		cnv->book(menge, CONVOI_TRANSPORTED_GOODS);
+		cnv->book(menge, convoi_t::CONVOI_TRANSPORTED_GOODS);
 		// add delivered goods to halt's statistics
 		halt->book(menge, HALT_ARRIVED);
 		return true;

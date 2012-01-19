@@ -56,7 +56,7 @@ convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
 	withdraw_button.add_listener(this);
 	add_komponente(&withdraw_button);
 
-	scrolly.set_pos(koord(0, 50));
+	scrolly.set_pos(koord(0, 2+16+5*LINESPACE));
 	scrolly.set_show_scroll_x(true);
 	add_komponente(&scrolly);
 
@@ -94,24 +94,30 @@ void convoi_detail_t::zeichnen(koord pos, koord gr)
 
 		// current power
 		buf.printf( translator::translate("Leistung: %d kW"), cnv->get_sum_leistung() );
-		display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, MONEY_PLUS, true );
+		display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, COL_BLACK, true );
 		offset_y += LINESPACE;
 
 		number_to_string( number, cnv->get_total_distance_traveled(), 0 );
 		buf.clear();
 		buf.printf( translator::translate("Odometer: %s km"), number );
-		display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, MONEY_PLUS, true );
+		display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, COL_BLACK, true );
 		offset_y += LINESPACE;
 
 		buf.clear();
 		buf.printf("%s %i", translator::translate("Station tiles:"), cnv->get_tile_length() );
-		display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, MONEY_PLUS, true );
+		display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, COL_BLACK, true );
 		offset_y += LINESPACE;
 
 		money_to_string( number, cnv->calc_restwert()/100.0 );
 		buf.clear();
 		buf.printf("%s %s", translator::translate("Restwert:"), number );
 		display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, MONEY_PLUS, true );
+		offset_y += LINESPACE;
+
+		money_to_string( number, cnv->calc_restwert()/100.0 );
+		buf.clear();
+		buf.printf(translator::translate("Bonusspeed: %i km/h"), cnv->get_speedbonus_kmh() );
+		display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, COL_BLACK, true );
 		offset_y += LINESPACE;
 	}
 }

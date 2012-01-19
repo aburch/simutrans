@@ -1191,7 +1191,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 
 				sint64 gewinn = 0;
 				for( int j=0;  j<12;  j++  ) {
-					gewinn += cnv->get_finance_history( j, CONVOI_PROFIT );
+					gewinn += cnv->get_finance_history( j, convoi_t::CONVOI_PROFIT );
 				}
 
 				// apparently we got the toatlly wrong vehicle here ...
@@ -1204,7 +1204,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 					sint64 goods=0;
 					// no goods for six months?
 					for( int i=0;  i<6;  i ++) {
-						goods += cnv->get_finance_history(i,CONVOI_TRANSPORTED_GOODS);
+						goods += cnv->get_finance_history( i, convoi_t::CONVOI_TRANSPORTED_GOODS );
 					}
 					delete_this = (goods==0);
 				}

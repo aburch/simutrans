@@ -21,13 +21,6 @@
 #include "halthandle_t.h"
 
 #define MAX_MONTHS               12 // Max history
-#define CONVOI_CAPACITY           0 // the amount of ware that could be transported, theoretically
-#define CONVOI_TRANSPORTED_GOODS  1 // the amount of ware that has been transported
-#define CONVOI_REVENUE            2 // the income this CONVOI generated
-#define CONVOI_OPERATIONS         3 // the cost of operations this CONVOI generated
-#define CONVOI_PROFIT             4 // total profit of this convoi
-#define CONVOI_DISTANCE           5 // total distance traveled this month
-#define MAX_CONVOI_COST           6 // Total number of cost items
 
 class weg_t;
 class depot_t;
@@ -48,9 +41,20 @@ class cbuffer_t;
 class convoi_t : public sync_steppable, public overtaker_t
 {
 public:
+	enum {
+		CONVOI_CAPACITY = 0,       // the amount of ware that could be transported, theoretically
+		CONVOI_TRANSPORTED_GOODS,  // the amount of ware that has been transported
+		CONVOI_REVENUE,            // the income this CONVOI generated
+		CONVOI_OPERATIONS,         // the cost of operations this CONVOI generated
+		CONVOI_PROFIT,             // total profit of this convoi
+		CONVOI_DISTANCE,           // total distance traveled this month
+		CONVOI_MAXSPEED,           // average max. possible speed
+		MAX_CONVOI_COST            // Total number of cost items
+	};
+
 	/* Konstanten
-	* @author prissi
-	*/
+	 * @author prissi
+	 */
 	enum { max_vehicle=4, max_rail_vehicle = 24 };
 
 	enum states {INITIAL,
@@ -265,8 +269,8 @@ private:
 	uint32 distance_since_last_stop; // number of tiles entered since last stop
 	uint32 sum_speed_limit; // sum of the speed limits encountered since the last stop
 
-	sint32 max_power_speed; // max achievable speed at current power/weight
 	sint32 speedbonus_kmh; // speed used for speedbonus calculation in km/h
+	sint32 maxspeed_average_count;	// just a simple count to average for statsitics
 
 	/**
 	* Set, when there was a income calculation (avoids some cheats)
@@ -465,10 +469,6 @@ public:
 	const sint64 & get_jahresgewinn() const {return jahresgewinn;}
 
 	const sint64 & get_total_distance_traveled() const { return total_distance_traveled; }
-
-	// to calculate the average speed limit of the trip for speedbonus speedbase calculation
-	uint32 get_distance_since_last_stop() const { return distance_since_last_stop; }
-	uint32 get_sum_speed_limit() const { return sum_speed_limit; }
 
 	/**
 	 * returns the total running cost for all vehicles in convoi
@@ -839,8 +839,7 @@ public:
 
 	// calculates the max achievable speed at current power/weight, and the speed used for the speedbonus base
 	void calc_max_power_speed();
-	sint32 get_max_power_speed() const { return max_power_speed; }
-	sint32 get_speedbonus_kmh() const { return speedbonus_kmh; }
+	sint32 get_speedbonus_kmh() const;
 
 	// Overtaking for convois
 	virtual bool can_overtake(overtaker_t *other_overtaker, int other_speed, int steps_other, int diagonal_vehicle_steps_per_tile);

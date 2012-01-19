@@ -13,13 +13,13 @@
 #include "simlinemgmt.h"
 
 
-uint8 convoi_to_line_catgory_[MAX_CONVOI_COST] = {
-	LINE_CAPACITY, LINE_TRANSPORTED_GOODS, LINE_REVENUE, LINE_OPERATIONS, LINE_PROFIT, LINE_DISTANCE
+uint8 convoi_to_line_catgory_[convoi_t::MAX_CONVOI_COST] = {
+	LINE_CAPACITY, LINE_TRANSPORTED_GOODS, LINE_REVENUE, LINE_OPERATIONS, LINE_PROFIT, LINE_DISTANCE, LINE_MAXSPEED
 };
 
 uint8 simline_t::convoi_to_line_catgory(uint8 cnv_cost)
 {
-	assert(cnv_cost < MAX_CONVOI_COST);
+	assert(cnv_cost < convoi_t::MAX_CONVOI_COST);
 	return convoi_to_line_catgory_[cnv_cost];
 }
 
@@ -152,7 +152,6 @@ void simline_t::add_convoy(convoihandle_t cnv)
 }
 
 
-
 void simline_t::remove_convoy(convoihandle_t cnv)
 {
 	if(line_managed_convoys.is_contained(cnv)) {
@@ -165,6 +164,7 @@ void simline_t::remove_convoy(convoihandle_t cnv)
 		unregister_stops();
 	}
 }
+
 
 // invalid line id prior to 110.0
 #define INVALID_LINE_ID_OLD ((uint16)(-1))
@@ -221,6 +221,17 @@ void simline_t::rdwr(loadsave_t *file)
 		}
 		for (int k = MAX_MONTHS-1; k>=0; k--) {
 			financial_history[k][LINE_DISTANCE] = 0;
+			financial_history[k][LINE_MAXSPEED] = 0;
+		}
+	}
+	else if(  file->get_version()<111001  ) {
+		for (int j = 0; j<7; j++) {
+			for (int k = MAX_MONTHS-1; k>=0; k--) {
+				file->rdwr_longlong(financial_history[k][j]);
+			}
+		}
+		for (int k = MAX_MONTHS-1; k>=0; k--) {
+			financial_history[k][LINE_MAXSPEED] = 0;
 		}
 	}
 	else {
@@ -280,7 +291,6 @@ void simline_t::unregister_stops()
 }
 
 
-
 void simline_t::unregister_stops(schedule_t * fpl)
 {
 	for (int i = 0; i<fpl->get_count(); i++) {
@@ -292,7 +302,6 @@ void simline_t::unregister_stops(schedule_t * fpl)
 }
 
 
-
 void simline_t::renew_stops()
 {
 	if (!line_managed_convoys.empty()) {
@@ -302,10 +311,24 @@ void simline_t::renew_stops()
 }
 
 
-
 void simline_t::new_month()
 {
 	recalc_status();
+	// then calculate maxspeed
+	sint64 line_max_speed = 0, line_max_speed_count = 0;
+	for(  unsigned i=0;  i < line_managed_convoys.get_count();  i++ ) {
+		if(  !line_managed_convoys[i]->in_depot()  ) {
+			// since convoi stepped first, our history is in month 1 ...
+			line_max_speed += line_managed_convoys[i]->get_finance_history( 1, convoi_t::CONVOI_MAXSPEED );
+			line_max_speed_count ++;
+		}
+	}
+	// to avoid div by zero
+	if(  line_max_speed_count  ) {
+		line_max_speed /= line_max_speed_count;
+	}
+	financial_history[0][LINE_MAXSPEED] = line_max_speed;
+	// now roll history
 	for (int j = 0; j<MAX_LINE_COST; j++) {
 		for (int k = MAX_MONTHS-1; k>0; k--) {
 			financial_history[k][j] = financial_history[k-1][j];

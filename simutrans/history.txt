@@ -20,6 +20,7 @@
 	FIX: load savegames even if factory pak is missing
 	CHG: pak addons now in folder addons, to have same structure in protable and normal installation
 	ADD: warn about missing pak files after loading a game
+	ADD: logging of speedbonus speed in line window
 
 
 Release of 111.0 (r4911 on 1-Nov-2011):

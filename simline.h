@@ -14,7 +14,6 @@
 #include "tpl/vector_tpl.h"
 #include "utils/plainstring.h"
 
-#define MAX_LINE_COST   7 // Total number of cost items
 #define MAX_MONTHS     12 // Max history
 #define MAX_NON_MONEY_TYPES 2 // number of non money types in line's financial statistic
 
@@ -25,6 +24,8 @@
 #define LINE_OPERATIONS     4 // the cost of operations this line generated
 #define LINE_PROFIT         5 // total profit of line
 #define LINE_DISTANCE       6 // distance converd by all convois
+#define LINE_MAXSPEED       7 // maximum speed for bonus calculation of all convois
+#define MAX_LINE_COST   8 // Total number of cost items
 
 class karte_t;
 class loadsave_t;
