@@ -5228,7 +5228,6 @@ bool wkz_increase_industry_t::init( karte_t *welt, spieler_t * )
  * 'g' : apply a schedule
  * 'n' : toggle 'no load'
  * 'w' : toggle withdraw
- * 'd' : dissassemble convoi and store vehicle in this depot
  * 's' : change state to [number] (and maybe set open schedule flag)
  * 'l' : apply new line [number]
  */
@@ -5270,6 +5269,15 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 	switch(  tool  ) {
 		case 'x': // self destruction ...
 			if(cnv.is_bound()) {
+				if (cnv->get_state()==convoi_t::INITIAL) {
+					// delete cnv in depot
+					if (grund_t *gr = welt->lookup(cnv->get_pos())) {
+						if (depot_t *dep = gr->get_depot()) {
+							dep->disassemble_convoi(cnv, true);
+							return false;
+						}
+					}
+				}
 				cnv->self_destruct();
 			}
 			return false;
