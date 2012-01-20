@@ -4022,7 +4022,7 @@ bool schiff_t::ist_befahrbar(const grund_t *bd) const
 				return false;
 			}
 			if(  rs->get_besch()->is_private_way()  &&  (rs->get_player_mask() & (1<<get_player_nr()) ) == 0  ) {
-				// prvate road
+				// private road
 				return false;
 			}
 		}
