@@ -4398,6 +4398,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	bool second_run = false;
 	uint8 convoy_length = 0;
 	uint16 changed_loading_level = 0;
+	const koord old_last_stop_pos = fahr[0]->last_stop_pos;
 	for(int i = 0; i < anz_vehikel ; i++) 
 	{
 		vehikel_t* v = fahr[i];
@@ -4414,11 +4415,9 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 			v->last_stop_pos = v->get_pos().get_2d();
 			//Unload
 			v->current_revenue = 0;
-			freight_info_resort |= v->entladen(halt);
+			changed_loading_level += v->entladen(halt);
 			gewinn += v->current_revenue;
 		}
-
-		changed_loading_level += v->entladen(halt);
 
 		if(!no_load) 
 		{
@@ -4451,7 +4450,13 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	calc_loading();
 	loading_limit = fpl->get_current_eintrag().ladegrad; //"charge degree" (??) (Babelfish)
 	heaviest_vehicle = calc_heaviest_vehicle(); // Bernd Gabriel, Mar 10, 2010: was missing.
-	calc_current_loading_time(changed_loading_level);
+	if(old_last_stop_pos != fahr[0]->get_pos().get_2d())
+	{
+		// Only calculate the loading time once, on arriving at the stop:
+		// otherwise, the change in the vehicle's load will not be calculated
+		// correctly.
+		calc_current_loading_time(changed_loading_level);
+	}
 
 	if(gewinn) 
 	{
@@ -5731,10 +5736,10 @@ uint32 convoi_t::calc_heaviest_vehicle()
 
 uint32 convoi_t::calc_longest_min_loading_time()
 {
-	uint16 longest = 0;
-	for(uint8 i = 0; i < anz_vehikel; i ++)
+	uint32 longest = 0;
+	for(int i = 0; i < anz_vehikel; i ++)
 	{
-		uint16 tmp = fahr[i]->get_besch()->get_min_loading_time();
+		uint32 tmp = fahr[i]->get_besch()->get_min_loading_time();
 		if(tmp > longest)
 		{
 			longest = tmp;
@@ -5745,10 +5750,10 @@ uint32 convoi_t::calc_longest_min_loading_time()
 
 uint32 convoi_t::calc_longest_max_loading_time()
 {
-	uint16 longest = 0;
-	for(uint8 i = 0; i < anz_vehikel; i ++)
+	uint32 longest = 0;
+	for(int i = 0; i < anz_vehikel; i ++)
 	{
-		uint16 tmp = fahr[i]->get_besch()->get_max_loading_time();
+		uint32 tmp = fahr[i]->get_besch()->get_max_loading_time();
 		if(tmp > longest)
 		{
 			longest = tmp;
@@ -5918,25 +5923,25 @@ void convoi_t::clear_replace()
 
  void convoi_t::calc_current_loading_time(uint16 load_charge)
  {
-	 if(longest_max_loading_time == longest_min_loading_time || load_charge == 0)
-	 {
-		 current_loading_time = longest_min_loading_time;
-		 return;
-	 }
+	if(longest_max_loading_time == longest_min_loading_time || load_charge == 0)
+	{
+		current_loading_time = longest_min_loading_time;
+		return;
+	}
 
-	 uint16 total_capacity = 0;
-	 for(uint8 i = 0; i < anz_vehikel; i ++)
-	 {
+	uint16 total_capacity = 0;
+	for(uint8 i = 0; i < anz_vehikel; i ++)
+	{
 		total_capacity += fahr[i]->get_besch()->get_zuladung();
 		total_capacity += fahr[i]->get_besch()->get_overcrowded_capacity();
-	 }
-	 // Multiply this by 2, as goods/passengers can both board and alight, so
-	 // the maximum load charge is twice the capacity: all alighting, then all
-	 // boarding.
-	 load_charge *= 2;
-	 const uint32 percentage = (load_charge * 100) / total_capacity;
-	 const uint32 difference = ((longest_max_loading_time - longest_min_loading_time) * percentage) / 100;
-	 current_loading_time = difference + longest_min_loading_time;
+	}
+	// Multiply this by 2, as goods/passengers can both board and alight, so
+	// the maximum load charge is twice the capacity: all alighting, then all
+	// boarding.
+	total_capacity *= 2;
+	const sint32 percentage = (load_charge * 100) / total_capacity;
+	const sint32 difference = abs((((sint32)longest_max_loading_time - (sint32)longest_min_loading_time)) * percentage) / 100;
+	current_loading_time = difference + longest_min_loading_time;
  }
 
  bool convoi_t::is_circular_route() const
