@@ -3,18 +3,18 @@
 
 #define MAKEOBJ_VERSION "52"
 
-#define VERSION_NUMBER " nightly 111.0.1"
-#define WIDE_VERSION_NUMBER L" nightly 111.0.1"
+#define VERSION_NUMBER " nightly 111.1"
+#define WIDE_VERSION_NUMBER L" nightly 111.1"
 
 #define VERSION_DATE __DATE__
 
 #define SAVEGAME_PREFIX  "Simutrans "
 #define XML_SAVEGAME_PREFIX  "<?xml version=\"1.0\"?>"
 
-#define SAVEGAME_VER_NR  "0.111.0"
-#define SERVER_SAVEGAME_VER_NR  "0.111.0"
+#define SAVEGAME_VER_NR  "0.111.1"
+#define SERVER_SAVEGAME_VER_NR  "0.111.1"
 
-#define RES_VERSION_NUMBER  0, 111, 0, 1
+#define RES_VERSION_NUMBER  0, 111, 1, 0
 
 
 /*********************** Settings related to network games ********************/
