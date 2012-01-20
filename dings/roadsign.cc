@@ -89,7 +89,7 @@ roadsign_t::roadsign_t(karte_t *welt, spieler_t *sp, koord3d pos, ribi_t::ribi d
 
 roadsign_t::~roadsign_t()
 {
-	if(  besch->is_single_way()  ||  besch->is_signal_type()  ) {
+	if(  besch  &&  (besch->is_single_way()  ||  besch->is_signal_type())  ) {
 		const grund_t *gr = welt->lookup(get_pos());
 		if(gr) {
 			weg_t *weg = gr->get_weg(besch->get_wtyp()!=tram_wt ? besch->get_wtyp() : track_wt);
