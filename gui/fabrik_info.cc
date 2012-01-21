@@ -88,7 +88,7 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	gui_frame_t::set_fenstergroesse(koord(TOTAL_WIDTH, 16+offset_below_viewport+BUTTON_HEIGHT+3+fab_info.get_groesse().y+LINESPACE+10-1));
 	set_min_windowsize(koord(TOTAL_WIDTH, 16+offset_below_viewport+BUTTON_HEIGHT+3+LINESPACE*3));
 
-	set_resizemode(vertical_resize);
+	set_resizemode(diagonal_resize);
 	resize(koord(0,0));
 }
 
@@ -128,8 +128,8 @@ void fabrik_info_t::set_fenstergroesse(koord groesse)
 	gui_frame_t::set_fenstergroesse(groesse);
 
 	// would be only needed in case of enabling horizontal resizes
-//	input.set_groesse(koord(get_fenstergroesse().x-20, 13));
-//	view.set_pos(koord(get_fenstergroesse().x - view.get_groesse().x - 10 , 21));
+	input.set_groesse(koord(get_fenstergroesse().x-20, 13));
+	view.set_pos(koord(get_fenstergroesse().x - view.get_groesse().x - 10 , 21));
 
 	scrolly.set_groesse(get_client_windowsize()-scrolly.get_pos());
 }
