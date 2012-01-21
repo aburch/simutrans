@@ -618,11 +618,11 @@ void weg_t::laden_abschliessen()
 
 
 // returns NULL, if removal is allowed
-// players can remove public owned ways
+// players can remove public owned ways (Depracated)
 const char *weg_t::ist_entfernbar(const spieler_t *sp)
 {
-	if(  get_player_nr()==1  ) {
+	/*if(  get_player_nr()==1  ) {
 		return NULL;
-	}
+	}*/
 	return ding_t::ist_entfernbar(sp);
 }

@@ -2570,7 +2570,12 @@ void convoi_t::vorfahren()
 			bool rev = !reverse_schedule;
 			schedule->increment_index(&stop, &rev);
 			const uint8 last_stop = stop;
-			schedule->eintrag[stop].reverse = (state == REVERSING);
+			if(stop < schedule->get_count())
+			{
+				// It might be possible for "stop" to be > the number of 
+				// items in the schedule if the schedule has changed recently.
+				schedule->eintrag[stop].reverse = (state == REVERSING);
+			}
 			const bool check_rev = rev;
 			schedule->increment_index(&stop, &rev);
 			counter --;
