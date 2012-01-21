@@ -1156,9 +1156,9 @@ server_frames_per_step = 4
 # Small values should improve the timing of the clients.
 server_frames_between_checks = 320
 
-# Automatically announce server on the central server directory (http://servers.experimental.simutrans.org)
+# Automatically announce server on the central server directory (http://servers.simutrans.org/)
 # 0 (default) = off, 1 = on
-server_announce = 1
+server_announce = 0
 
 # Interval of server announcement (if enabled)
 # Value is number of seconds between server announcements, default is 900 (15 minutes)
@@ -1168,16 +1168,16 @@ server_announce = 1
 server_announce_interval = 900
 
 # Fully Qualified Domain Name (FQDN) or IP address of your server (IPv6 or IPv4)
-server_dns = 127.0.0.1
+#server_dns = 127.0.0.1
 
 # Name of server in server listing
-server_name = A generic Simutrans-Experimental server
+#server_name = A generic Simutrans-Experimental server
 
 # Additional information about your server (for display on the list server)
-server_comments = This is a Simutrans-Experimental server running with default settings.
+#server_comments = This is a Simutrans-Experimental server running with default settings.
 
 # Email address of server maintainer (for display on the list server)
-server_email = maintainer@your.server
+#server_email = maintainer@your.server
 
 # The password required for administering the server. 
 # NOTE: This should be changed from the default when used, for
