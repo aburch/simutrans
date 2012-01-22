@@ -17,6 +17,7 @@
 " Daniel Wachsmuth", "developer",
 " Christoph Mallon","Makefile, patches",
 " Knightly", "developer",
+" TurfIt", "developer"
 "","",
 "","",
 "Additional Programming:","",

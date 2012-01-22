@@ -34,17 +34,18 @@ banner_t::banner_t( karte_t *w) : gui_frame_t(""),
 	line = 0;
 	logo.set_pos( koord( 238, 40 ) );
 	add_komponente( &logo );
-	set_fenstergroesse( koord( BUTTON_WIDTH*3+40, 16+111+11*LINESPACE+2*BUTTON_HEIGHT+12 ) );
-	new_map.init( button_t::roundbox, "Neue Karte", koord( 10, 232 ), koord( BUTTON_WIDTH, BUTTON_HEIGHT ) );
+	const koord size( BUTTON_WIDTH*3+40, 16+113+12*LINESPACE+2*BUTTON_HEIGHT+12 );
+	set_fenstergroesse( size );
+	new_map.init( button_t::roundbox, "Neue Karte", koord( 10, size.y-16-2*BUTTON_HEIGHT-12 ), koord( BUTTON_WIDTH, BUTTON_HEIGHT ) );
 	new_map.add_listener( this );
 	add_komponente( &new_map );
-	load_map.init( button_t::roundbox, "Load game", koord( 10+BUTTON_WIDTH+10, 232 ), koord( BUTTON_WIDTH, BUTTON_HEIGHT ) );
+	load_map.init( button_t::roundbox, "Load game", koord( 10+BUTTON_WIDTH+10, size.y-16-2*BUTTON_HEIGHT-12 ), koord( BUTTON_WIDTH, BUTTON_HEIGHT ) );
 	load_map.add_listener( this );
 	add_komponente( &load_map );
-	join_map.init( button_t::roundbox, "join game", koord( 10+2*BUTTON_WIDTH+20, 232 ), koord( BUTTON_WIDTH, BUTTON_HEIGHT ) );
+	join_map.init( button_t::roundbox, "join game", koord( 10+2*BUTTON_WIDTH+20, size.y-16-2*BUTTON_HEIGHT-12 ), koord( BUTTON_WIDTH, BUTTON_HEIGHT ) );
 	join_map.add_listener( this );
 	add_komponente( &join_map );
-	quit.init( button_t::roundbox, "Beenden", koord( 10+2*BUTTON_WIDTH+20, 232+BUTTON_HEIGHT+5 ), koord( BUTTON_WIDTH, BUTTON_HEIGHT ) );
+	quit.init( button_t::roundbox, "Beenden", koord( 10+2*BUTTON_WIDTH+20, size.y-16-BUTTON_HEIGHT-7 ), koord( BUTTON_WIDTH, BUTTON_HEIGHT ) );
 	quit.add_listener( this );
 	add_komponente( &quit );
 }
@@ -56,12 +57,6 @@ bool banner_t::infowin_event(const event_t *ev)
 	if(  gui_frame_t::getroffen( ev->cx, ev->cy  )  ) {
 		gui_frame_t::infowin_event( ev );
 	}
-/*
-	else if(  ev->ev_class==EVENT_RELEASE  ||  (ev->ev_class==EVENT_KEYBOARD  &&  ev->ev_code!=0)  ) {
-		destroy_win(this);
-		return true;
-	}
-*/
 	return false;
 }
 
@@ -87,12 +82,13 @@ bool banner_t::action_triggered( gui_action_creator_t *komp, value_t)
 	return true;
 }
 
+#define COL_PT (6)
 
 void banner_t::zeichnen(koord pos, koord gr )
 {
 	gui_frame_t::zeichnen( pos, gr );
 	KOORD_VAL yp = pos.y+22;
-	display_shadow_proportional( pos.x+10, yp, 7, COL_BLACK, "This is a beta version of Simutrans:", true );
+	display_shadow_proportional( pos.x+10, yp, COL_PT, COL_BLACK, "This is a beta version of Simutrans:", true );
 	yp += LINESPACE+5;
 #ifdef REVISION
 	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "Version " VERSION_NUMBER " " VERSION_DATE " r" QUOTEME(REVISION), true );
@@ -101,7 +97,7 @@ void banner_t::zeichnen(koord pos, koord gr )
 #endif
 	yp += LINESPACE+7;
 
-	display_shadow_proportional( pos.x+10, yp, 7, COL_BLACK, "This version is developed by", true );
+	display_shadow_proportional( pos.x+10, yp, COL_PT, COL_BLACK, "This version is developed by", true );
 	yp += LINESPACE+5;
 	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "the simutrans team, based on", true );
 	yp += LINESPACE+2;
@@ -112,8 +108,11 @@ void banner_t::zeichnen(koord pos, koord gr )
 	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "under Artistic Licence.", true );
 	yp += LINESPACE+7;
 
-	display_shadow_proportional( pos.x+10, yp, 7, COL_BLACK, "For questions and support please visit:", true );
+	display_shadow_proportional( pos.x+10, yp, COL_LIGHT_ORANGE, COL_BLACK, "Selling of the program is forbidden.", true );
 	yp += LINESPACE+5;
+
+	display_shadow_proportional( pos.x+10, yp, COL_PT, COL_BLACK, "For questions and support please visit:", true );
+	yp += LINESPACE+2;
 	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "http://www.simutrans.com", true );
 	yp += LINESPACE+2;
 	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "http://forum.simutrans.com", true );
