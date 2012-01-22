@@ -4,7 +4,7 @@
 #define MAKEOBJ_VERSION "52"
 
 #define VERSION_NUMBER "111.1"
-#define WIDE_VERSION_NUMBER L"-111.1"
+#define WIDE_VERSION_NUMBER L"111.1"
 
 #define VERSION_DATE __DATE__
 
