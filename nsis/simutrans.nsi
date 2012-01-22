@@ -12,6 +12,7 @@ var archievename
 
 var group1
 var multiuserinstall
+var installinsimutransfolder
 
 Name "Simutrans Transport Simulator"
 OutFile "simutrans-online-install.exe"
@@ -89,20 +90,20 @@ FunctionEnd
 
 Section "Executable (GDI, Unicode)" GDIexe
   AddSize 8588
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/111-0/simuwin-111-0.zip"
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/111-1/simuwin-111-1.zip"
   StrCpy $archievename "simuwin-111-0.zip"
   StrCpy $downloadname "Simutrans Executable (GDI)"
-  Call DownloadInstallZip
+;  Call DownloadInstallZip
   Call PostExeInstall
 SectionEnd
 
 
 Section /o "Executable (SDL, better sound)" SDLexe
   AddSize 9277
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/111-0/simuwin-sdl-111-0.zip"
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/111-1/simuwin-sdl-111-1.zip"
   StrCpy $archievename "simuwin-sdl-111-0.zip"
   StrCpy $downloadname "Simutrans Executable (SDL)"
-  Call DownloadInstallZip
+;  Call DownloadInstallZip
   Call PostExeInstall
 SectionEnd
 
@@ -156,11 +157,10 @@ Section /o "pak64.german (Freeware) 110.0c" pak64german
 SectionEnd
 
 Section /o "pak64.german full industries"
-  AddSize 222
+  AddSize 2873
   StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak.german/pak64.german-110-0c/simupak-german64-industry-110-0.zip"
   StrCpy $archievename "simupak-german64-industry-110-0.zip"
   StrCpy $downloadname "pak64.german"
-  MessageBox MB_OK|MB_ICONINFORMATION "Download of $downloadname from\n$downloadlink to $archievename"
   StrCmp $multiuserinstall "1" +3
   ; no multiuser => install in normal directory
   Call DownloadInstallZip
@@ -169,11 +169,10 @@ Section /o "pak64.german full industries"
 SectionEnd
 
 Section /o "pak64.german Tourist addon"
-  AddSize 222
+  AddSize 424
   StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak.german/pak64.german-110-0c/simutrans-german64-addons-110-0.zip"
   StrCpy $archievename "simutrans-german64-addons-110-0.zip"
   StrCpy $downloadname "pak64.german"
-  MessageBox MB_OK|MB_ICONINFORMATION "Download of $downloadname from\n$downloadlink to $archievename"
   StrCmp $multiuserinstall "1" +3
   ; no multiuser => install in normal directory
   Call DownloadInstallZip
@@ -267,7 +266,7 @@ SectionEnd
 
 
 Section /o "pak128 2.00" pak128
-  AddSize 70765
+  AddSize 73136
   StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128/pak128%20for%20111-0/pak128-2.0.0--111.0.zip"
   StrCpy $archievename "pak128-2.0.0--111.0.zip"
   StrCpy $downloadname "pak128"
@@ -277,7 +276,7 @@ SectionEnd
 
 
 Section /o "pak128 Britain (1.10) 111.0" pak128britain
-  AddSize 144922
+  AddSize 161855
   StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128.britain/pak128.Britain%20for%20111-0/pak128.Britain.1.10-111-0.zip"
   StrCpy $archievename "pak128.Britain.1.10-111-0.zip"
   StrCpy $downloadname "pak128.Britain"
@@ -336,7 +335,7 @@ SectionEnd
 
 
 Section /o "pak48 excentrique 0.15" pak48excentrique
-  AddSize 1136
+  AddSize 1448
   StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak48.Excentrique/v0.15-for-Simutrans-111.0/pak48_excentrique-v0_15.zip"
   StrCpy $archievename "pak48_excentrique-v0_15.zip"
   StrCpy $downloadname "pak48.Excentrique"
@@ -382,6 +381,11 @@ Function CheckForPortableInstall
 Portable:
   StrCpy $multiuserinstall "0"
 NonPortable:
+  ; now check, whether the path ends with "simutrans"
+  StrCpy $installinsimutransfolder "1"
+  StrCpy $0 $INSTDIR 9 -9
+  StrCmp $0 simutrans +2
+  StrCpy $installinsimutransfolder "0"
 FunctionEnd
 
 PageEx directory
@@ -598,17 +602,23 @@ Function DownloadInstallZip
      MessageBox MB_OK "Download of $archievename failed: $R0"
      Quit
 
-  nsisunz::Unzip "$TEMP\$archievename" "$TEMP"
+  ; we need the magic with temporary copy only if the folder does not end with simutrans ...
+  StrCmp $installinsimutransfolder "0" +4
+    CreateDirectory "$INSTDIR"
+    nsisunz::Unzip "$TEMP\$archievename" "$INSTDIR\.."
+    goto +2
+    nsisunz::Unzip "$TEMP\$archievename" "$TEMP"
   Pop $R0 ;Get the return value
   StrCmp $R0 "success" +4
     MessageBox MB_OK|MB_ICONINFORMATION "$R0"
     RMdir /r "$TEMP\simutrans"
     Quit
 
+  Delete "$Temp\$archievename"
+  StrCmp $installinsimutransfolder "1" +3
   CreateDirectory "$INSTDIR"
   CopyFiles "$TEMP\Simutrans\*.*" "$INSTDIR"
   RMdir /r "$TEMP\simutrans"
-  Delete "$Temp\$archievename"
 FunctionEnd
 
 
