@@ -2278,6 +2278,14 @@ void convoi_t::rdwr(loadsave_t *file)
 		file->rdwr_long( sum_speed_limit );
 	}
 
+	if(  file->get_version()>=111002  ) {
+		file->rdwr_long( sum_speed_limit );
+	}
+	else if(  file->is_loading()  ) {
+		// default when not saved
+		maxspeed_average_count = 0;
+	}
+
 	if( file->is_loading() ) {
 		recalc_catg_index();
 		calc_speedbonus_kmh();
