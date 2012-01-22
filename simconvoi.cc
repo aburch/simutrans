@@ -3745,7 +3745,7 @@ void convoi_t::laden() //"load" (Babelfish)
 			journey_time = 1;
 		}
 		const sint32 journey_distance_meters = journey_distance * welt->get_settings().get_meters_per_tile();
-		const sint32 average_speed = (journey_distance_meters * 3) / (journey_time * 5);
+		const sint32 average_speed = (journey_distance_meters * 3) / ((sint32)journey_time * 5);
 		
 		// For some odd reason, in some cases, laden() is called when the journey time is
 		// excessively low, resulting in perverse average speeds and journey times.
@@ -4784,9 +4784,9 @@ void convoi_t::book(sint64 amount, int cost_type)
 	else
 	{
 		// Average types
-		rolling_average[cost_type] += amount;
+		rolling_average[cost_type] += (uint32)amount;
 		rolling_average_count[cost_type] ++;
-		const sint32 tmp = rolling_average[cost_type] / rolling_average_count[cost_type];
+		const sint64 tmp = (sint64)rolling_average[cost_type] / (sint64)rolling_average_count[cost_type];
 		financial_history[0][cost_type] = tmp;
 	}
 	if (line.is_bound()) 

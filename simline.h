@@ -192,9 +192,11 @@ public:
 		}
 		else
 		{
-			rolling_average[cost_type] += (uint32) amount;
+			// Average types
+			rolling_average[cost_type] += (uint32)amount;
 			rolling_average_count[cost_type] ++;
-			financial_history[0][cost_type] = rolling_average[cost_type] / rolling_average_count[cost_type];
+			const sint64 tmp = (sint64)rolling_average[cost_type] / (sint64)rolling_average_count[cost_type];
+			financial_history[0][cost_type] = tmp;
 		}
 	}
 

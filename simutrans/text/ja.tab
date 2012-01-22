@@ -8,9 +8,11 @@ m+10r.bdf
 #                             Language: ja Japanese                            #
 #                                Encoding: UTF-8                               #
 #                               Font : m+10r.bdf                               #
-#                           Date Created: 10.04 2010                           #
+#                           Date Created: 22.01 2012                           #
 #                                                                              #
 #                                   authors:                                   #
+#                                    - Dwachs                                  #
+#                                    note:                                     #
 #                              Frank Penz - FrankP                             #
 #                                    note:                                     #
 #                                    - Hamo73                                  #
@@ -143,6 +145,8 @@ Cannot built this station/building\nin underground mode here.
 駅ビル/駅舎は、\n地下には建設できません。
 Cannot create generic line!\nSelect line type by\nusing filter tabs.
 汎用の路線を作成することはできません。\nタブで路線のタイプを選んでください。
+Cannot create socket
+ソケットエラー:\n接続を確立できません。\nCannot create socket
 Convoi handles exhausted!
 最大編成数(65535)に達しました。\nこれ以上追加できません。
 Das Feld gehoert\neinem anderen Spieler\n
@@ -167,16 +171,26 @@ Hier kann kein\nSignal aufge-\nstellt werden!\n
 ここに信号機を\n設置することはできません。\n
 Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
 帰るべき車庫が確認できません。\n手動で入庫先を指定してください。
+In order to lock the game, you have to protect the public player by password!
+ゲームを保護するため、\n公共事業にパスワードを\nかけて下さい。
 Kann Spielstand\nnicht laden.\n
 ゲームを読み込む\nことができません。\n
 Kann Spielstand\nnicht speichern.\n
 ゲームを保存できません。\n
+Lost connection\nto server!
+サーバーへの接続が\n切断されました
+Lost synchronisation\nwith server.
+サーバーとの同期が\n失われました
 Maglevhalt muss auf\nMaglevschiene liegen!\n
 リニアはリニア軌道上にのみ\n停車することができます
 Monorailhalt muss auf\nMonorail liegen!\n
 モノレールはモノレール軌道上にのみ\n停車することができます
 Monorails are not available yet!
 モノレールはまだ開発されていません！
+Narrowgauge are not available yet!
+ナローゲージは\nまだ利用できません。
+Narrowgaugehalt muss auf\nNarrowgauge liegen!\n
+ナローゲージ用の駅は\nナローゲージ上にのみ\n設置できます。
 No through station here!
 ここに駅/停車場を建てることは\nできません！
 Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
@@ -187,12 +201,22 @@ Not enough money!
 資金が不足しています。
 On narrowgauge track only!\n
 ナローゲージ上にのみ\n停車することができます
+Only one transformer per factory!
+工場ごとに変圧所は一つのみ建設できます。
+Only public player can lock games!
+公共事業だけが「プレイヤー変更の禁止」とその解除ができます。\nまたロック解除には公共事業のパスワードが必要です。
 Planes are not available yet!
 飛行機はまだ開発されていません！
 Post muss neben\nHaltestelle\nliegen!\n
 郵便局や駅舎は、駅や停車場の\n付近に建設してください。\n
+Protocoll error (expecting game)
+プロトコルエラー\nProtocoll error (expecting game)
 Schiffhalt muss im\nWasser liegen!\n
 船舶は港の周辺にのみ\n停泊することができます。\n
+Server busy
+サーバー使用中\nServer busy
+Server did not respond!
+サーバーの応答がありません。
 Terraforming not possible\nhere in underground view
 スロープツールは、\n地下では使用できません。
 Upgrade must have\na higher level
@@ -229,8 +253,12 @@ EDITTOOLS
 マップ編集ツール
 LISTTOOLS
 一覧表
+MAGLEVTOOLS
+リニアツール
 MONORAILTOOLS
 モノレール/リニアツール
+NARROWGAUGETOOLS
+ナローツール
 RAILTOOLS
 鉄道ツール
 ROADTOOLS
@@ -263,8 +291,10 @@ New factory chain\nfor %s near\n%s built with\n%i factories.
 新しい産業チェーン\n「%s」は\n%s近郊に\n%iの産業施設を建てました。
 New vehicle now available:\n%s\n
 「%s」が\n新たに使用可能になりました。
+Now %u clients connected.
+現在、 %u 名のプレーヤーが接続しています。
 On this map, you are not\nallowed to change player!\n
-このマップではプレイヤーの交代は認められ\nていません。
+このマップではプレイヤーの交代は認められていません。
 Production of %s has been stopped:\n%s\n
 %s\n「%s」が\n製造中止になりました。
 Remove vehicle from map. Use with care!
@@ -314,7 +344,7 @@ With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
 \nRibi (unmasked)
 \n接続方向　　　　：
 \nSet phases:
-\n南北（秒間）　東西（秒間）
+\n　　南北　:　東西　:　オフセット
 \nsingle way
 \n一方通行
 \nway1 reserved by
@@ -323,136 +353,56 @@ With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
 \n通過中車両：
 \nwith sign/signal\n
 \n信号/標識あり\n
-&0_CITY_SYLL
-坂
-&1_CITY_SYLL
-崎
-&2_CITY_SYLL
-田
-&3_CITY_SYLL
-野
-&4_CITY_SYLL
-橋
-&5_CITY_SYLL
-塚
-&6_CITY_SYLL
-島
-&7_CITY_SYLL
-沼
-&8_CITY_SYLL
-原
-&9_CITY_SYLL
-岡
-&A_CITY_SYLL
-谷
-&B_CITY_SYLL
-井
-&C_CITY_SYLL
-内
-&D_CITY_SYLL
-平
-&E_CITY_SYLL
-沢
-%1_CITY_SYLL
-森
-%2_CITY_SYLL
-山
-%3_CITY_SYLL
-櫻
-%4_CITY_SYLL
-大
-%5_CITY_SYLL
-松
-%6_CITY_SYLL
-堀
-%7_CITY_SYLL
-倉
-%8_CITY_SYLL
-竹
-%9_CITY_SYLL
-福
-%A_CITY_SYLL
-川
-%B_CITY_SYLL
-富士
-%C_CITY_SYLL
-白
-%d buildings\n
-市街地 %d ブロック
 %d convois
 %d 編成
 %d Einzelfahrzeuge im Depot
 %d台/両が留置されています。
-%D_CITY_SYLL
-石
-%E_CITY_SYLL
-古
-%F_CITY_SYLL
-神
 %i km/h (max. %ikm/h)
  %i km/h (最高速度 %ikm/h)
+%i years %i months old.
+樹齢 %i 年と %i ヶ月です。
+%s at (%i,%i) now public stop.
+%s は公共の停車場となりました。
 %s building %s %s
 %s %s前 %s
 %s city %d %s
 %s第%d%s
+%s factory %s %s
+%s %s前 %s
 %s land %d %s
 %s郊外第%d%s
-%s\nwas liquidated.
-%s社は\n破産しました。\n資産はすべて清算されました。
+%u Client(s)\n
+%u 名のクライアント\n
+%u Player (%u locked)\n
+%u のプレーヤー (%u はロック済み)\n
 <em>%C</em> - %s<br>\n
 %C - %s<br>\n
 <no line>
 <路線指定なし>
-1 convoi
-1編成
 1 Einzelfahrzeug im Depot
 1台/両が留置されています。
-1center
-%s%s
-1extern
-前%s%s
 1LIGHT_CHOOSE
 明るさ:
-1suburb
-%s%s%s
 1WORLD_CHOOSE
 新しいマップの設定：
-2center
-%s中央%s
-2extern
-上%s%s
 2LIGHT_CHOOSE
 カラー:
 2WORLD_CHOOSE
 マップ番号：
-3center
-%s本町%s
-3extern
-下%s%s
 3LIGHT_CHOOSE
 スクロールの速さ:
 3WORLD_CHOOSE
 サイズ (%d MB)：
-4center
-中%s%s
-4extern
-%s外%s
 4LIGHT_CHOOSE
 スクロールの反転
-5center
-新%s%s
 5LIGHT_CHOOSE
 乗降客を表示する
 5WORLD_CHOOSE
 町の数：
-6center
-元%s%s
 6LIGHT_CHOOSE
 歩行者を表示する
 6WORLD_CHOOSE
 交通量：
-7center
-%s大通り%s
 8WORLD_CHOOSE
 夜間は暗くする
 Abfrage
@@ -465,24 +415,30 @@ Abriss
 撤去/取り壊し
 Absenken
 陸地を低くする
+Abspanntransformator
+変圧所
 Accelerate time
 ゲームスピードを速くする
 Account above %s
 現金を %s以上に
+Act. load: %u MW\n
+送電量:%u MW\n
 Active player only
 自社のみ表示
 Add forest
 森を作成する
 Add random citycar
 自家用車を道路上に配置
+add server
+サーバーを追加
 Add Stop
  追加
 Add stops for backward travel
 折り返して戻るための停車駅を追加します
 Add the selected vehicle(s) to the selected line
 現在選択されている編成に、選択されている路線を適用します
-air
-航空
+Air
+航空機
 aircraft_tab
 貨物機
 airplane
@@ -521,6 +477,8 @@ Assets
 資産
 Aufloesen
 編成解除
+Aufspanntransformator
+変圧所
 August
 8月
 Available
@@ -551,6 +509,8 @@ Blockstrecke ist\nbelegt\n
 閉塞区間に他の列車があります。\n
 Boden
 地表
+Boost (%)
+増産率 (%)
 Bruecke
 橋
 Brueckenboden
@@ -605,6 +565,8 @@ Cancel
 キャンセル
 Capacity: %s\nLoad: %d (%d%%)
 定員/積載: %s\n積載: %d (%d%%)
+Capacity: %u MW\n
+最大送電量:%u MW\n
 Cars are not available yet!
 自動車は・・・\nいえ、馬すら見あたりません・・・
 cars.\nstate
@@ -615,6 +577,8 @@ Change player
 プレイヤー変更
 Chart
 グラフ
+Chat_msg
+ チャット 
 Choose direction
 向きを選択してください
 Choose operation executed on clicking stored/new vehicles
@@ -639,8 +603,6 @@ CityLimit
 市域
 cl_title
 乗り物一覧
-cl_txt_filter
-フィルター:
 cl_txt_sort
 並び替え:
 clf_chk_aircrafts
@@ -689,14 +651,22 @@ COLOR_CHOOSE\n
 カラーを選んで下さい。\n
 Company bankrupt
 破産しました
+Company_msg
+ライバル企業
+Comparing pak files ...
+pakを比較しています ...
 Connect factory
 産業チェーンを繋ぐ
 Connected stops
 接続駅:
+Connected with server
+サーバーと接続しました。
 Constructed by
 作者：
 Constructed by %s
 作者: %s
+Consumed
+消費量
 convoi %d of %d
 入庫中の編成 %d / %d
 convoi error tooltips
@@ -731,6 +701,10 @@ curlist_title
 名所旧跡一覧
 Currently playing:
 演奏中の曲：
+Customers live in:
+顧客居住地:
+deactivated in online mode
+ネットゲームでは使用できません
 Deccelerate time
 ゲームスピードを遅くする
 December
@@ -745,6 +719,12 @@ Delete the current stop
 削除する駅名をクリックして削除
 Delete this file.
 ファイルの削除
+Delivered
+出荷量
+Demand
+需要量
+Demand: %u MW\n
+需要電力: %u MW\n
 Denkmal
 モニュメント
 Departed
@@ -753,6 +733,8 @@ Depots
 車庫
 Destination
 目的地
+Destroying map ...
+現在のマップを終了しています ...
 Details
 詳細
 diesel
@@ -766,7 +748,7 @@ Distance
 Dock
 港
 Durchsatz
-最高生産
+生産能力
 Economy
 　経済　
 Eigenbesitz\n
@@ -781,6 +763,8 @@ Einstellungsfenster
 ゲームオプション
 electric
 電気
+Electricity
+電力
 Electricity producer\n\n
 電力供給施設\n\n
 Electrics_tab
@@ -791,6 +775,10 @@ enlarge map
 マップの拡張
 enter a value between %i and %i
 %i～%i
+Enter address
+(IPアドレス/ホスト名を入力)
+Enter Password
+プレーヤー名とパスワードを変更します。
 Error
 エラー
 Erzeuge neue Karte.\n
@@ -825,10 +813,14 @@ Fertig
  終了
 Filename
 ファイル名:
+Filter:
+フィルター:
 Finances of %s
 %s の財務
 Finanzen
 財務
+find mismatch
+パックファイルを比較
 fl_title
 産業一覧
 Flug_tab
@@ -855,16 +847,26 @@ fuel_cell
 燃料電池
 Full load
 積むまで待機(％): 
+Fundament
+土地
 Fussgaenger
 歩行者
+Game info
+ゲームの情報
 GAME PAUSED
 一時停止
+Game_msg
+ゲーム
 Gear:
 ギア比:
 Gebaeude
 建築物
 General
 　全般　
+Generated
+発生
+Generation: %u MW\n
+発電量: %u MW\n
 Gewicht
 重量
 Gewinn
@@ -917,6 +919,8 @@ hide trees
 樹木を隠す
 Hier warten/lagern:
 待機中の旅客/貨物
+Higher transport fees, crossconnect all factories
+運賃収入が1.5倍に増え、ジャストインタイム生産が無効になります
 hl_title
 駅一覧
 hl_txt_filter
@@ -991,6 +995,8 @@ isometric map
 回転して表示
 January
 1月
+join game
+ゲームに参加
 July
 7月
 Jump to
@@ -1039,6 +1045,8 @@ Line
 路線
 Line Management
 路線編集
+Lineless convoys serving this stop
+路線に所属していない車両
 Lines are used to manage groups of vehicles
 複数の編成を一括して運行するための路線を作ります
 Lines serving this stop
@@ -1062,11 +1070,11 @@ pakを読み込み中 ...
 Loading skins ...
 スキンを読み込み中 ...
 Lock game
-プレイヤー変更の禁止【解除不可】
+プレイヤー変更の禁止
 LOCO_CAP
 定員/積載量: %d%s %s\n 
 LOCO_INFO
-%s\n価格: %d$ (%1.2f$/km)\n出力: %dKW, 最高速度:%dkm/h\n重量: %dt\n
+%s\n価格: %d$ (%1.2f$/km)\n出力: %dKW\n最高速度: %dkm/h\n重量: %dt\n
 Lokomotive_tab
 機関車
 m3
@@ -1079,6 +1087,8 @@ maglev_track
 リニア
 Maglevdepot
 リニア車庫
+Mail Demand %d\n
+郵便需要 %d\n
 Mailbox
 メッセージ表
 Mailbox Options
@@ -1103,6 +1113,8 @@ Marker
 マーカー
 max
 高
+Max Boost (%)
+増産能力 (%)
 Max income:
 最大収益：
 Max. speed:
@@ -1122,7 +1134,7 @@ Meldung
 Menge
 待機数
 MessageOptionsText
-\n新年\n\n他社\n\n都市\n\nルート不明\n\n産業\n\n名所旧跡\n\n車両登場\n\n駅の混雑\n\n問題\n\n警告
+\n新年\n\n他社\n\n都市\n\nルート不明\n\n産業\n\nチャット\n\n車両登場\n\n駅の混雑\n\n問題\n\n警告
 min
 低
 minimum length of rivers
@@ -1171,6 +1183,8 @@ narrowgauge_track
 ナローゲージ
 Narrowgaugedepot
 ナローゲージ車庫
+Net ID: %u\n
+電力網 ID: %u\n
 Net Wealth
 総資産
 Neue Karte
@@ -1235,6 +1249,8 @@ On loan since %i month(s)
 現在、負債があります。(%iヶ月間)
 Only city chains
 都市にチェーンを作成
+Only first %d differing paks reported. There are probably more.
+違いが多いため、%d個以上は表示を省略しています。
 Only land chains
 発電所/郊外のチェーンを作成
 open
@@ -1249,6 +1265,14 @@ ost
 東
 Output
 製品
+Pak(s) different:
+名前が同じで内容が異なるpak:
+Pak(s) missing on client:
+不足しているpak:
+Pak(s) not on server:
+サーバーにはない余分なpak:
+Pakset differences
+Pakセットの差異
 paletten
 パレット
 Pas_tab
@@ -1261,10 +1285,16 @@ Passagierziele
 旅客/郵便物の行き先
 Passenger AI
 AI 旅客
+Passenger Demand %d\n
+労働者/顧客需要: %d\n
 Passengers %d %c, %d %c, %d no route
 旅客の評価 %d %c, %d %c, %d 経路無し
+Password
+パスワード:
 Pause
 一時停止
+Pax <%i>  Mail <%i>
+旅客 <%i>  郵便 <%i>
 PaxDest
 旅客/郵便目的地
 Percent Electricity
@@ -1311,10 +1341,18 @@ Postrate
 郵便度
 Power
 電力
+Power (MW)
+電力 (MW)
 Power:
 出力：
 Powerlines
 高圧線
+Problems_msg
+ 問題 
+Produced
+生産量
+Production/Boost
+生産能力/増産
 Produktion
 生産
 Profit
@@ -1351,6 +1389,8 @@ remove airstrips
 滑走路・誘導路の撤去
 remove channels
 運河の撤去
+remove interm. signals
+途中の信号を削除
 remove maglev tracks
 リニアの撤去
 remove monorails
@@ -1365,6 +1405,8 @@ remove tracks
 鉄道の撤去
 Remove wayobj %s
 %s 架線の撤去
+replace other signals
+他の信号を置換
 replace stop
 スケジュール移動ツール
 request closing
@@ -1381,8 +1423,12 @@ return ticket
 往復路線
 Revenue
 収入
+Revision:
+リビジョン:
 road
 道路
+Road toll
+通行料
 road vehicle
 自動車
 Roadsign
@@ -1423,12 +1469,16 @@ SEP_FRACTION
 .
 SEP_THOUSAND
 ,
+SEP_THOUSAND_EXPONENT
+4
 September
 9月
 Serves Line:
 指定路線:
 Service
 編成数
+set signal spacing
+信号/標識の間隔設定
 Setting
 高度な設定
 Ship
@@ -1443,6 +1493,8 @@ Show also vehicles no longer in production.
 生産を終了している乗り物も表示します。
 Show also vehicles that do not match for current action.
 このボタンをオフにすると、選択/連結できない乗り物を隠します
+Show even servers with wrong version or pakset
+リビジョンや種類が不明または異なるサーバーも表示する
 show grid
 グリッドを表示する
 Show industry
@@ -1471,6 +1523,10 @@ Shrink city
 都市の人口を減らす
 shuffle midis
 シャッフル演奏
+Signal
+信号
+signal spacing
+信号/標識の間隔
 Sim:
 演算回数：
 sliced underground mode
@@ -1490,7 +1546,7 @@ Sound volume:
 special freight
 専用貨物
 Speedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h.
-速達ボーナス:\n        道路 %i km/h, 鉄道 %i km/h, \n        海路 %i km/h 空路 %i km/h.
+速達ボーナス:\n        道路 %i km/h　　　　鉄道 %i km/h\n        海路 %i km/h　　　　空路 %i km/h
 Speedlimit
 制限速度
 Speichern
@@ -1509,12 +1565,18 @@ Start the selected vehicle(s)
 選択している編成を発進させます
 Station tiles:
 ホームの長さ：
+Station_msg
+ 駅 
 Status
 待合状態
 steam
 蒸気
 Step timeline one year
 １年進める
+Stops
+駅
+Storage
+在庫量
 Storage capacity
 待合室定員
 Strassendepot
@@ -1531,6 +1593,8 @@ suedwest
 南西
 Summer snowline
 雪線
+Supplied: %u %%
+供給率: %u %%
 Suppliers
 供給元
 Supply %s at (%i,%i)
@@ -1565,6 +1629,8 @@ Tourist attractions
 名所旧跡
 Tourists
 名所
+Town_msg
+ 都市 
 Town: %s\n
 所在地: %s\n
 Towns
@@ -1582,13 +1648,15 @@ Trains are not available yet!
 Tram
 市電
 tram %i km/h, monorail %i km/h\nmaglev %i km/h, narrowgauge %i km/h.
-        市電 %i km/h, モノレール %i km/h, \n        リニア %i km/h ナローゲージ %i km/h
+        市電 %i km/h　　　　モノレール %i km/h\n        リニア %i km/h　　　ナローゲージ %i km/h
 tram_track
 市電
 Tramdepot
 市電車庫
 Trams are not available yet!
 路面電車はまだ開発されていません！
+Transferring game ...
+ゲームを転送しています ...
 Transformer only next to factory!
 変圧所は、産業施設に\n隣接して建設してください。
 Translation
@@ -1625,6 +1693,12 @@ Update Line
 路線編集
 upgrade HQ
 本社を拡張移転する
+Usage: %u %%
+稼動率: %u %%
+Usage/Output
+使用量/発電量
+Use beginner mode
+初心者モード
 Use timeline start year
 年代設定を使用　　　開始年：
 Vehicle %s can't find a route!
@@ -1659,13 +1733,19 @@ waiting
 待機中
 Waiting for clearance!
 停止
+Warnings_msg
+ 警告 
+Wasser
+海上
 water
-水上
+沿岸
 Water level
 海面水位：
 water vehicle
 船舶
 way %s cannot longer used:\n
+この先、\n%sは\n建設できません。
+way %s cannot longer used:\n%s\n
 この先、\n%sは\n建設できません。
 way %s now available:\n
 %s が\n新しく建設可能になりました。\n\n
@@ -1715,6 +1795,92 @@ New world record for railways: %.1f km/h by %s.
 最高速度記録（鉄道）\n　時速 %.1f km\n「%s」が達成
 New world record for ship: %.1f km/h by %s.
 最高速度記録（船舶）\n　時速 %.1f km\n「%s」が達成
+#_______________________________unnecessary_text________________________________
+#_______________________________unnecessary_text________________________________
+&0_CITY_SYLL
+坂
+&1_CITY_SYLL
+崎
+&2_CITY_SYLL
+田
+&3_CITY_SYLL
+野
+&4_CITY_SYLL
+橋
+&5_CITY_SYLL
+塚
+&6_CITY_SYLL
+島
+&7_CITY_SYLL
+沼
+&8_CITY_SYLL
+原
+&9_CITY_SYLL
+岡
+&A_CITY_SYLL
+谷
+&B_CITY_SYLL
+井
+&C_CITY_SYLL
+内
+&D_CITY_SYLL
+平
+&E_CITY_SYLL
+沢
+%1_CITY_SYLL
+森
+%2_CITY_SYLL
+山
+%3_CITY_SYLL
+櫻
+%4_CITY_SYLL
+大
+%5_CITY_SYLL
+松
+%6_CITY_SYLL
+堀
+%7_CITY_SYLL
+倉
+%8_CITY_SYLL
+竹
+%9_CITY_SYLL
+福
+%A_CITY_SYLL
+川
+%B_CITY_SYLL
+富士
+%C_CITY_SYLL
+白
+%D_CITY_SYLL
+石
+%E_CITY_SYLL
+古
+%F_CITY_SYLL
+神
+1center
+%s%s
+1extern
+前%s%s
+1suburb
+%s%s%s
+2center
+%s中央%s
+2extern
+上%s%s
+3center
+%s本町%s
+3extern
+下%s%s
+4center
+中%s%s
+4extern
+%s外%s
+5center
+新%s%s
+6center
+元%s%s
+7center
+%s大通り%s
 #_________________________Simutrans Experimental Texts__________________________
 #_________________________Simutrans Experimental Texts__________________________
 #_________________________________program_text__________________________________
@@ -1723,14 +1889,6 @@ New world record for ship: %.1f km/h by %s.
 分所要
  mins. waiting)
 分待ち)
-\nMax. weight:
-制限重量: 
-%s\nCost:     %d$\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d (%d)%s %s\nWeight: %dt\nTop speed: %dkm/h\n
-%s\n価格: %d$\n運行経費: %1.2f$/km, %1.2f$/月\n定員/積載: %d (%d)%s %s\n重量: %dt\最高速度: %dkm/h\n
-%s\nCost:     %d$\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d%s %s\nWeight: %dt\nTop speed: %dkm/h\n
-%s\n価格: %d$\n運行経費: %1.2f$/km, %1.2f$/月\n定員/積載: %d%s %s\n重量: %dt\n最高速度: %dkm/h\n
-Catering level: %i\n
-接客設備: %i\n
 Comfort:
 快適性:
 Full replace
@@ -1777,8 +1935,6 @@ signale bauen
 OK
 Skip
 非交換
-This is a tilting vehicle\n
-振り子式車両\n
 To be replaced by:
 置き換える編成:
 too heavy
