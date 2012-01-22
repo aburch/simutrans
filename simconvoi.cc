@@ -1299,7 +1299,7 @@ void convoi_t::start()
 
 		// calc state for convoi
 		calc_loading();
-		calc_max_power_speed();
+		calc_speedbonus_kmh();
 		maxspeed_average_count = 0;
 
 		if(line.is_bound()) {
@@ -2277,13 +2277,10 @@ void convoi_t::rdwr(loadsave_t *file)
 		file->rdwr_long( distance_since_last_stop );
 		file->rdwr_long( sum_speed_limit );
 	}
-	else {
-		maxspeed_average_count = 0;
-	}
 
 	if( file->is_loading() ) {
 		recalc_catg_index();
-		calc_max_power_speed();
+		calc_speedbonus_kmh();
 	}
 }
 
@@ -2618,6 +2615,10 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 		halt->recalc_status();
 	}
 
+	// any loading went on?
+	calc_loading();
+	loading_limit = fpl->get_current_eintrag().ladegrad;
+
 	// update statistics of average speed
 	if(  distance_since_last_stop  ) {
 		financial_history[0][CONVOI_MAXSPEED] *= maxspeed_average_count;
@@ -2625,13 +2626,6 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 		maxspeed_average_count ++;
 		financial_history[0][CONVOI_MAXSPEED] /= maxspeed_average_count;
 	}
-	distance_since_last_stop = 0;
-	sum_speed_limit = 0;
-
-	// any loading went on?
-	calc_loading();
-	loading_limit = fpl->get_current_eintrag().ladegrad;
-
 	distance_since_last_stop = 0;
 	sum_speed_limit = 0;
 
@@ -2652,7 +2646,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 			return;
 		}
 
-		calc_max_power_speed();
+		calc_speedbonus_kmh();
 
 		// add available capacity after loading(!) to statistics
 		for (unsigned i = 0; i<anz_vehikel; i++) {
@@ -2702,7 +2696,7 @@ void convoi_t::calc_loading()
 }
 
 
-void convoi_t::calc_max_power_speed()
+void convoi_t::calc_speedbonus_kmh()
 {
 	// init with default
 	const sint32 cnv_min_top_kmh = speed_to_kmh( min_top_speed );

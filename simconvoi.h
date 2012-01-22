@@ -837,8 +837,8 @@ public:
 	void must_recalc_data() { recalc_data = true; }
 	void must_recalc_data_front() { recalc_data_front = true; }
 
-	// calculates the max achievable speed at current power/weight, and the speed used for the speedbonus base
-	void calc_max_power_speed();
+	// calculates the speed used for the speedbonus base, and the max achievable speed at current power/weight for overtakers
+	void calc_speedbonus_kmh();
 	sint32 get_speedbonus_kmh() const;
 
 	// Overtaking for convois
