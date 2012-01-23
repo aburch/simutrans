@@ -1,4 +1,4 @@
-Release of 111.1 (r5109 on 22-Jan-2012):
+Release of 111.1 (r5114 on 23-Jan-2012):
 	FIX: owner of way gates were accidently rotated
 	ADD: speedbonus speed limited by way speedlimits and achievable convoi max speed
 	ADD: record also walked pax
