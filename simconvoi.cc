@@ -5984,8 +5984,8 @@ void convoi_t::clear_replace()
 	 };
  }
 
- void convoi_t::emergency_go_to_depot()
- {
+void convoi_t::emergency_go_to_depot()
+{
 	if(!go_to_depot(true))
 	{
 		// Teleport to depot if cannot get there by normal means.
@@ -5994,9 +5994,17 @@ void convoi_t::clear_replace()
 		{
 			dep = depot_t::find_depot(this->get_pos(), get_depot_type(), get_besitzer(), true);
 		}
-		betrete_depot(dep);
-		dep->convoi_arrived(self, false);
-		state = INITIAL;	
-		fpl->set_aktuell(0);
+		if(dep)
+		{
+			// Only do this if a depot can be found, or else a crash will result.
+			betrete_depot(dep);
+			dep->convoi_arrived(self, false);
+			state = INITIAL;	
+			fpl->set_aktuell(0);
+		}
+		else
+		{
+			dbg->error("void convoi_t::emergency_go_to_depot()", "Could not find a depot to which to send the convoy");
+		}
 	}
- }
+}
