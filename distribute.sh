@@ -23,7 +23,7 @@ distribute()
 }
 
 # fetch language files
-./get_lang_files.sh
+sh ./get_lang_files.sh
 
 # now built the archive for distribution
 cd simutrans
