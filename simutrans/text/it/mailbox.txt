@@ -1,0 +1,56 @@
+<title>Aiuto centro messaggi e sue opzioni</title>
+
+<h1><strong>Centro messaggi</strong></h1>
+
+<p>
+Il <strong>centro messaggi</strong> riporta i messaggi dal gioco e apre i controlli per selezionare quali sono visualizzati nel gioco.
+</p>
+<p>
+Clicca sull'icona del centro messaggi in cima alla vista di gioco o premi <a href="keys.txt">[B]</a> per aprire <strong>Message Centre</strong>, che elenca i messaggi dal gioco.<br>
+Clicca su un messaggio per muovere la vista di gioco sulla relativa posizione.
+</p>
+<p>
+Il tasto <em>Opzioni</em> (clicca per usarlo) apre le <strong>Opzioni centro messaggi</strong> che controlla quali messaggi possono essere visualizzati.
+</p>
+<br>
+<p>
+<strong>Opzioni centro messaggi</strong>
+</p>
+<p>
+<strong>Opzioni centro messaggi</strong> ha tre colonne di bottoni quadrati che stabiliscono come sono visualizzati i messaggi.
+</p>
+<p>
+Da sinistra a destra, le colonne indicano come sono presentati i messaggi: come testo scorrevole in fondo alla vista di gioco, messaggio temporaneo o messaggio permanente.<br>
+{Consiglio: clicca sull'angolo in alto a sinistra del messaggio o usa la tastiera per chiudere i messaggi permanenti}
+</p>
+<p>
+Clicca sui bottoni quadrati per selezionare le opzioni dei messaggi (i bottoni sono evidenziati quando selezionati) per i seguenti messaggi:
+</p>
+<p>
+<em>Anno nuovo:</em> un nuovo anno è iniziato.
+</p>
+<p>
+<em>Notizie AI:</em> un <a href="players.txt">giocatore gestito dal computer</a>
+ ha aperto una nuova linea.
+</p>
+<p>
+<em>Notizie città:</em> un'<a href="citywindow.txt">area urbana</a> sta costruendo un municipio più grande.
+</p>
+<p>
+<em>Nessuna via:</em> un veicolo non può trovare una via per la sua prossima <a href="schedule.txt">destinazione</a> (a <a href="station.txt">Fermata</a> o punto di transito).
+</p>
+<p>
+<em>Nuove industrie:</em> una nuova catena <a href="industryinfo.txt">industriale</a> (un consumatore finale e ogni fornitore necessario) è stata costruita per la crescita della <a href="citywindow.txt">città</a>.
+</p>
+<p>
+<em>Turismo:</em> sono stati costruiti un'<a href="curiositylist_filter.txt">attrazione</a> o un memorial.
+</p>
+<p>
+<em>Nuovi veicoli:</em> un nuovo veicolo è disponibile o ritirato (se è utilizzata la <a href="new_world.txt">linea temporale</a>).
+</p>
+<p>
+<em>Stazione piena:</em> una <a href="station.txt">fermata</a> è troppo piena.
+</p>
+<p>
+<em>Problemi:</em> la società di un giocatore è in debito o altri messaggi di problemi.
+</p>
