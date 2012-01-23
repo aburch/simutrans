@@ -472,6 +472,8 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 	if(  !line.is_bound()  ) {
 		register_stops();
 	}
+
+	calc_speedbonus_kmh();
 }
 
 
@@ -2288,7 +2290,6 @@ void convoi_t::rdwr(loadsave_t *file)
 
 	if( file->is_loading() ) {
 		recalc_catg_index();
-		calc_speedbonus_kmh();
 	}
 }
 
@@ -2734,6 +2735,11 @@ void convoi_t::calc_speedbonus_kmh()
 		if(  total_weight>0  ) {
 			// uses weight of full passenger, mail, and special goods cars and current weight of regular goods cars for convoi weight
 			speedbonus_kmh = total_power < total_max_weight ? 1 : min( cnv_min_top_kmh, sqrt_i32(((total_power<<8)/total_max_weight-(1<<8))<<8)*50 >>8 );
+
+			// convoi overtakers use current actual weight for achievable speed
+			if(  front()->get_overtaker()  ) {
+				max_power_speed = kmh_to_speed( total_power < total_weight ? 1 : min( cnv_min_top_kmh, sqrt_i32(((total_power<<8)/total_weight-(1<<8))<<8)*50 >>8 ) );
+			}
 		}
 	}
 }
@@ -3202,7 +3208,7 @@ void convoi_t::set_withdraw(bool new_withdraw)
  * The city car is not overtaking/being overtaken.
  * @author isidoro
  */
-bool convoi_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int steps_other, int diagonal_vehicle_steps_per_tile)
+bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, sint16 steps_other)
 {
 	if(fahr[0]->get_waytype()!=road_wt) {
 		return false;
@@ -3331,7 +3337,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int s
 			return false;
 		}
 
-		int d = ribi_t::ist_gerade(str->get_ribi()) ? VEHICLE_STEPS_PER_TILE : diagonal_vehicle_steps_per_tile;
+		int d = ribi_t::ist_gerade(str->get_ribi()) ? VEHICLE_STEPS_PER_TILE : vehikel_basis_t::get_diagonal_vehicle_steps_per_tile();
 		distance -= d;
 		time_overtaking += d;
 
@@ -3390,7 +3396,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int s
 			time_overtaking -= (VEHICLE_STEPS_PER_TILE<<16) / kmh_to_speed(str->get_max_speed());
 		}
 		else {
-			time_overtaking -= (diagonal_vehicle_steps_per_tile<<16) / kmh_to_speed(str->get_max_speed());
+			time_overtaking -= (vehikel_basis_t::get_diagonal_vehicle_steps_per_tile()<<16) / kmh_to_speed(str->get_max_speed());
 		}
 
 		// Check for other vehicles in facing direction

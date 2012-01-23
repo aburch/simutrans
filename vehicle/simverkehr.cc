@@ -588,12 +588,12 @@ bool stadtauto_t::ist_weg_frei(grund_t *gr)
 							if(!over->is_overtaking()) {
 								// otherwise the overtaken car would stop for us ...
 								if(  automobil_t const* const car = ding_cast<automobil_t>(dt)  ) {
-									convoi_t* const cnv = car->get_convoi();
-									if(  cnv==NULL  ||  !can_overtake( cnv, (cnv->get_state()==convoi_t::LOADING ? 0 : cnv->get_min_top_speed()), cnv->get_length_in_steps(), diagonal_vehicle_steps_per_tile)  ) {
+									convoi_t* const ocnv = car->get_convoi();
+									if(  ocnv==NULL  ||  !can_overtake( ocnv, (ocnv->get_state()==convoi_t::LOADING ? 0 : over->get_max_power_speed()), ocnv->get_length_in_steps()+ocnv->get_vehikel(0)->get_steps())  ) {
 										frei = false;
 									}
 								} else if(  stadtauto_t* const caut = ding_cast<stadtauto_t>(dt)  ) {
-									if(  !can_overtake(caut, caut->get_besch()->get_geschw(), VEHICLE_STEPS_PER_TILE, diagonal_vehicle_steps_per_tile)  ) {
+									if(  !can_overtake(caut, caut->get_besch()->get_geschw(), VEHICLE_STEPS_PER_TILE)  ) {
 										frei = false;
 									}
 								}
@@ -924,7 +924,7 @@ void stadtauto_t::get_screen_offset( int &xoff, int &yoff, const sint16 raster_w
  * The city car is not overtaking/being overtaken.
  * @author isidoro
  */
-bool stadtauto_t::can_overtake( overtaker_t *other_overtaker, int other_speed, int steps_other, int diagonal_vehicle_steps_per_tile)
+bool stadtauto_t::can_overtake( overtaker_t *other_overtaker, sint32 other_speed, sint16 steps_other)
 {
 	if(  !other_overtaker->can_be_overtaken()  ) {
 		return false;

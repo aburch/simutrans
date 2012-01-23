@@ -842,7 +842,7 @@ public:
 	sint32 get_speedbonus_kmh() const;
 
 	// Overtaking for convois
-	virtual bool can_overtake(overtaker_t *other_overtaker, int other_speed, int steps_other, int diagonal_vehicle_steps_per_tile);
+	virtual bool can_overtake(overtaker_t *other_overtaker, sint32 other_speed, sint16 steps_other);
 };
 
 #endif

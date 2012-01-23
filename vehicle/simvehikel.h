@@ -101,6 +101,7 @@ public:
 	// only called during load time: set some offsets
 	static void set_diagonal_multiplier( uint32 multiplier, uint32 old_multiplier );
 	static uint16 get_diagonal_multiplier() { return diagonal_multiplier; }
+	static uint8 get_diagonal_vehicle_steps_per_tile() { return diagonal_vehicle_steps_per_tile; }
 
 	static void set_overtaking_offsets( bool driving_on_the_left );
 
