@@ -2281,11 +2281,7 @@ void convoi_t::rdwr(loadsave_t *file)
 	}
 
 	if(  file->get_version()>=111002  ) {
-		file->rdwr_long( sum_speed_limit );
-	}
-	else if(  file->is_loading()  ) {
-		// default when not saved
-		maxspeed_average_count = 0;
+		file->rdwr_long( maxspeed_average_count );
 	}
 
 	if( file->is_loading() ) {
