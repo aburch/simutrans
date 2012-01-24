@@ -225,6 +225,7 @@ void ding_t::display(int xpos, int ypos, bool /*reset_dirty*/) const
 	image_id const outline_bild = get_outline_bild();
 	if(  bild!=IMG_LEER  ||  outline_bild!=IMG_LEER  ) {
 		const int raster_width = get_current_tile_raster_width();
+		const bool dirty = get_flag(ding_t::dirty);
 
 		if (vehikel_basis_t const* const v = ding_cast<vehikel_basis_t>(this)) {
 			// vehicles need finer steps to appear smoother
