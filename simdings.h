@@ -335,16 +335,16 @@ public:
 	virtual const char *ist_entfernbar(const spieler_t *sp);
 
 	/**
-	 * Draw the thing.
-	 * @author Hj. Malthaner
+	 * Draw backgroung image of object
+	 * (everything that could be potentially behind vehicles)
 	 */
-	void display(int xpos, int ypos, bool dirty) const;
+	void display(int xpos, int ypos) const;
 
 	/**
-	 * 2. Teil zeichnen (was hinter Fahrzeugen kommt
-	 * @author V. Meyer
+	 * Draw foreground image
+	 * (everything that is in front of vehicles)
 	 */
-	virtual void display_after(int xpos, int ypos, bool dirty) const;
+	virtual void display_after(int xpos, int ypos, bool is_global) const;
 
 	/*
 	* when a vehicle moves or a cloud moves, it needs to mark the old spot as dirty (to copy to screen)

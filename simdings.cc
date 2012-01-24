@@ -215,11 +215,10 @@ void ding_t::rdwr(loadsave_t *file)
 
 
 /**
- * Ding zeichnen
- * (reset dirty will be done from dingliste! It is true only for drawing the main window.)
- * @author Hj. Malthaner
+ * draw the object
+ * the dirty-flag is resetted from dingliste_t::display_dinge_fg
  */
-void ding_t::display(int xpos, int ypos, bool /*reset_dirty*/) const
+void ding_t::display(int xpos, int ypos) const
 {
 	image_id bild = get_bild();
 	image_id const outline_bild = get_outline_bild();
@@ -280,7 +279,7 @@ void ding_t::rotate90()
 
 
 
-void ding_t::display_after(int xpos, int ypos, bool /*is_global*/ ) const
+void ding_t::display_after(int xpos, int ypos, bool) const
 {
 	image_id bild = get_after_bild();
 	if(bild != IMG_LEER) {

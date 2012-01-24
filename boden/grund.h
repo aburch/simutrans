@@ -470,13 +470,12 @@ public:
 
 	/**
 	 * displays vehicle (background) images
-	 * @param is_global set to true, if this is called during the whole screen update
 	 * @param start_offset start with object at this index
 	 * @param ribi draws only vehicles driving in this direction (or against this)
 	 * @param ontile is true if we are on the tile that defines the clipping
 	 * @author dwachs
 	 */
-	uint8 display_dinge_vh(const sint16 xpos, const sint16 ypos, const bool is_global, const uint8 start_offset, const ribi_t::ribi ribi, const bool ontile) const;
+	uint8 display_dinge_vh(const sint16 xpos, const sint16 ypos, const uint8 start_offset, const ribi_t::ribi ribi, const bool ontile) const;
 
 	/**
 	 *  displays all foreground images

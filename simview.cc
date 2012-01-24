@@ -287,7 +287,7 @@ void karte_ansicht_t::display(bool force_dirty)
 				}
 			}
 		}
-		zeiger->display( x + tile_raster_scale_x( zeiger->get_xoff(), rasterweite), y + tile_raster_scale_y( zeiger->get_yoff(), rasterweite), true );
+		zeiger->display( x + tile_raster_scale_x( zeiger->get_xoff(), rasterweite), y + tile_raster_scale_y( zeiger->get_yoff(), rasterweite));
 		zeiger->clear_flag(ding_t::dirty);
 	}
 

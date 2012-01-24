@@ -1098,16 +1098,16 @@ void dingliste_t::dump() const
 /** display all things, faster, but will lead to clipping errors
  *  @author prissi
  */
-void dingliste_t::display_dinge_quick_and_dirty( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const bool reset_dirty ) const
+void dingliste_t::display_dinge_quick_and_dirty( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const bool is_global ) const
 {
 	if(capacity==0) {
 		return;
 	}
 	else if(capacity==1) {
 		if(start_offset==0) {
-			obj.one->display(xpos, ypos, reset_dirty );
-			obj.one->display_after(xpos, ypos, reset_dirty );
-			if(reset_dirty) {
+			obj.one->display(xpos, ypos);
+			obj.one->display_after(xpos, ypos, is_global);
+			if(is_global) {
 				obj.one->clear_flag(ding_t::dirty);
 			}
 		}
@@ -1116,12 +1116,14 @@ void dingliste_t::display_dinge_quick_and_dirty( const sint16 xpos, const sint16
 
 	for(uint8 n=start_offset; n<top; n++) {
 		// ist dort ein objekt ?
-		obj.some[n]->display(xpos, ypos, reset_dirty );
+		obj.some[n]->display(xpos, ypos );
 	}
 	// foreground (needs to be done backwards!
 	for(int n=top-1; n>=0;  n--) {
-		obj.some[n]->display_after(xpos, ypos, reset_dirty );
-		obj.some[n]->clear_flag(ding_t::dirty);
+		obj.some[n]->display_after(xpos, ypos, is_global);
+		if(is_global) {
+			obj.some[n]->clear_flag(ding_t::dirty);
+		}
 	}
 }
 
@@ -1129,38 +1131,37 @@ void dingliste_t::display_dinge_quick_and_dirty( const sint16 xpos, const sint16
 /**
  * Routine to display background images of non-moving things
  * powerlines have to be drawn after vehicles (and thus are in the obj-array inserted after vehicles)
- * @param reset_dirty will be only true for the main display; all miniworld windows should still reset main window
  * @return the index of the first moving thing (or powerline)
  *
  * dingliste_t::display_dinge_bg() .. called by the methods in grund_t
  * local_display_dinge_bg()        .. local function to avoid code duplication, returns false if the first non-valid obj is reached
  * @author Dwachs
  */
-inline bool local_display_dinge_bg(const ding_t *ding, const sint16 xpos, const sint16 ypos, const bool reset_dirty )
+inline bool local_display_dinge_bg(const ding_t *ding, const sint16 xpos, const sint16 ypos)
 {
 	const bool display_ding = !ding->is_moving();
 	if (display_ding) {
-		ding->display(xpos, ypos, reset_dirty );
+		ding->display(xpos, ypos);
 	}
 	return display_ding;
 }
 
 
-uint8 dingliste_t::display_dinge_bg( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const bool reset_dirty ) const
+uint8 dingliste_t::display_dinge_bg( const sint16 xpos, const sint16 ypos, const uint8 start_offset) const
 {
 	if(start_offset>=top) {
 		return start_offset;
 	}
 
 	if(capacity==1) {
-		if(local_display_dinge_bg(obj.one, xpos, ypos, reset_dirty)) {
+		if(local_display_dinge_bg(obj.one, xpos, ypos)) {
 			return 1;
 		}
 		return 0;
 	}
 
 	for(uint8 n=start_offset; n<top; n++) {
-		if (!local_display_dinge_bg(obj.some[n], xpos, ypos, reset_dirty)) {
+		if (!local_display_dinge_bg(obj.some[n], xpos, ypos)) {
 			return n;
 		}
 	}
@@ -1173,14 +1174,13 @@ uint8 dingliste_t::display_dinge_bg( const sint16 xpos, const sint16 ypos, const
  * .. vehicles are draws if driving in direction ribi (with special treatment of flying aircrafts)
  * .. clips vehicle only along relevant edges (depends on ribi and vehicle direction)
  * @param ontile if true then vehicles are on the tile that defines the clipping
- * @param reset_dirty will be only true for the main display; all miniworld windows should still reset main window
  * @return the index of the first non-moving thing
  *
  * dingliste_t::display_dinge_vh() .. called by the methods in grund_t
  * local_display_dinge_vh()        .. local function to avoid code duplication, returns false if the first non-valid obj is reached
  * @author Dwachs
  */
-inline bool local_display_dinge_vh(const ding_t *ding, const sint16 xpos, const sint16 ypos, const bool reset_dirty, const ribi_t::ribi ribi, const bool ontile)
+inline bool local_display_dinge_vh(const ding_t *ding, const sint16 xpos, const sint16 ypos, const ribi_t::ribi ribi, const bool ontile)
 {
 	vehikel_basis_t const* const v = ding_cast<vehikel_basis_t>(ding);
 	aircraft_t      const*       a;
@@ -1190,7 +1190,7 @@ inline bool local_display_dinge_vh(const ding_t *ding, const sint16 xpos, const 
 			// activate clipping only for our direction masked by the ribi argument
 			// use non-convex clipping (16) only if we are on the currently drawn tile or its n/w neighbours
 			activate_ribi_clip( ((veh_ribi|ribi_t::rueckwaerts(veh_ribi))&ribi)  |  (ontile  ||  ribi==ribi_t::nord || ribi==ribi_t::west ? 16 : 0));
-			ding->display(xpos, ypos, reset_dirty );
+			ding->display(xpos, ypos);
 		}
 		return true;
 	}
@@ -1201,14 +1201,14 @@ inline bool local_display_dinge_vh(const ding_t *ding, const sint16 xpos, const 
 }
 
 
-uint8 dingliste_t::display_dinge_vh( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const bool reset_dirty, const ribi_t::ribi ribi, const bool ontile ) const
+uint8 dingliste_t::display_dinge_vh( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const ribi_t::ribi ribi, const bool ontile ) const
 {
 	if(start_offset>=top) {
 		return start_offset;
 	}
 
 	if(capacity==1) {
-		if(local_display_dinge_vh(obj.one, xpos, ypos, reset_dirty, ribi, ontile)) {
+		if(local_display_dinge_vh(obj.one, xpos, ypos, ribi, ontile)) {
 			return 1;
 		}
 		else {
@@ -1218,7 +1218,7 @@ uint8 dingliste_t::display_dinge_vh( const sint16 xpos, const sint16 ypos, const
 
 	uint8 nr_v = start_offset;
 	for(uint8 n=start_offset; n<top; n++) {
-		if (local_display_dinge_vh(obj.some[n], xpos, ypos, reset_dirty, ribi, ontile)) {
+		if (local_display_dinge_vh(obj.some[n], xpos, ypos, ribi, ontile)) {
 			nr_v = n;
 		}
 		else {
@@ -1233,19 +1233,19 @@ uint8 dingliste_t::display_dinge_vh( const sint16 xpos, const sint16 ypos, const
 /**
  * Routine to draw foreground images of everything on the tile (no clipping) and powerlines
  * @param start_offset .. draws also background images of all objects with index>=start_offset
- * @param reset_dirty will be only true for the main display; all miniworld windows should still reset main window
+ * @param is_global will be only true for the main display; all miniworld windows should still reset main window
  */
-void dingliste_t::display_dinge_fg( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const bool reset_dirty ) const
+void dingliste_t::display_dinge_fg( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const bool is_global ) const
 {
 	if(capacity==0) {
 		return;
 	}
 	else if(capacity==1) {
 		if(start_offset==0) {
-			obj.one->display(xpos, ypos, reset_dirty );
+			obj.one->display(xpos, ypos);
 		}
-		obj.one->display_after(xpos, ypos, reset_dirty );
-		if(reset_dirty) {
+		obj.one->display_after(xpos, ypos, is_global);
+		if(is_global) {
 			obj.one->clear_flag(ding_t::dirty);
 		}
 		return;
@@ -1253,12 +1253,12 @@ void dingliste_t::display_dinge_fg( const sint16 xpos, const sint16 ypos, const 
 
 	for(uint8 n=start_offset; n<top; n++) {
 		// ist dort ein objekt ?
-		obj.some[n]->display(xpos, ypos, reset_dirty );
+		obj.some[n]->display(xpos, ypos);
 	}
 	// foreground (needs to be done backwards!
 	for(int n=top-1; n>=0;  n--) {
-		obj.some[n]->display_after(xpos, ypos, reset_dirty );
-		if(reset_dirty) {
+		obj.some[n]->display_after(xpos, ypos, is_global);
+		if(is_global) {
 			obj.some[n]->clear_flag(ding_t::dirty);
 		}
 	}
