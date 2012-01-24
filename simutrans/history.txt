@@ -1,4 +1,5 @@
 	ADD: more info on bare ground
+	ADD: show ownership in minimap
 
 
 Release of 111.1 (r5115 on 23-Jan-2012):

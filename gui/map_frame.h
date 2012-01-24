@@ -13,6 +13,7 @@
 #define gui_map_frame_h
 
 #include "gui_frame.h"
+#include "karte.h"
 #include "../simwin.h"
 #include "components/gui_scrollpane.h"
 #include "components/action_listener.h"
@@ -22,8 +23,6 @@
 #include "../tpl/stringhashtable_tpl.h"
 
 class karte_t;
-
-#define MAX_BUTTON_TYPE (19)
 
 /**
  * Reliefkartenfenster für Simutrans.
@@ -71,9 +70,9 @@ private:
 	gui_scrollpane_t scrolly;
 
 	// buttons
-	static const char map_type[MAX_BUTTON_TYPE][64];
-	static const uint8 map_type_color[MAX_BUTTON_TYPE];
-	button_t filter_buttons[MAX_BUTTON_TYPE];
+	static const char map_type[reliefkarte_t::MAX_MAP_BUTTON][64];
+	static const uint8 map_type_color[reliefkarte_t::MAX_MAP_BUTTON];
+	button_t filter_buttons[reliefkarte_t::MAX_MAP_BUTTON];
 
 	void zoom(bool zoom_out);
 	button_t zoom_buttons[2];

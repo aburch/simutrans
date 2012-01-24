@@ -48,7 +48,9 @@ public:
 		MAP_DEPOT,
 		MAP_FOREST,
 		MAP_CITYLIMIT,
-		MAP_PAX_DEST
+		MAP_PAX_DEST,
+		MAP_OWNER,
+		MAX_MAP_BUTTON
 	};
 
 private:

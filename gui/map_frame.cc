@@ -63,7 +63,7 @@ static vector_tpl<legend_entry_t> legend(16);
 
 
 // @author hsiegeln
-const char map_frame_t::map_type[MAX_BUTTON_TYPE][64] =
+const char map_frame_t::map_type[reliefkarte_t::MAX_MAP_BUTTON][64] =
 {
 	"Towns",
 	"Passagiere",
@@ -83,12 +83,13 @@ const char map_frame_t::map_type[MAX_BUTTON_TYPE][64] =
 	"Depots",
 	"Forest",
 	"CityLimit",
-	"PaxDest"
+	"PaxDest",
+	"Ownership"
 };
 
-const uint8 map_frame_t::map_type_color[MAX_BUTTON_TYPE] =
+const uint8 map_frame_t::map_type_color[reliefkarte_t::MAX_MAP_BUTTON] =
 {
-	215, 23, 31, 157, 46, 55, 63, 133, 79, 191, 207, 11, 123, 221, 71, 135, 127, 198, 23
+	215, 23, 31, 157, 46, 55, 63, 133, 79, 191, 207, 11, 123, 221, 71, 135, 127, 198, 23, COL_BLUE
 };
 
 
@@ -156,7 +157,7 @@ map_frame_t::map_frame_t(karte_t *welt) :
 	add_komponente(&scrolly);
 
 	// and now the buttons
-	for (int type=0; type<MAX_BUTTON_TYPE; type++) {
+	for (int type=0; type<reliefkarte_t::MAX_MAP_BUTTON; type++) {
 		filter_buttons[type].init(button_t::box_state, translator::translate(map_type[type]), koord(0,0), koord(BUTTON_WIDTH, BUTTON_HEIGHT));
 		filter_buttons[type].background = map_type_color[type];
 		filter_buttons[type].set_visible(false);
@@ -257,12 +258,12 @@ void map_frame_t::show_hide_legend(const bool show)
 	b_show_legend.pressed = show;
 	legend_visible = show;
 
-	const int col = max( 1, min( (get_fenstergroesse().x-2)/(BUTTON_WIDTH+BUTTON_SPACER), MAX_BUTTON_TYPE ) );
-	const int row = ((MAX_BUTTON_TYPE-1)/col)+1;
+	const int col = max( 1, min( (get_fenstergroesse().x-2)/(BUTTON_WIDTH+BUTTON_SPACER), reliefkarte_t::MAX_MAP_BUTTON ) );
+	const int row = ((reliefkarte_t::MAX_MAP_BUTTON-1)/col)+1;
 	const int offset_y = (BUTTON_HEIGHT+2)*row;
 	const koord offset = show ? koord(0, offset_y) : koord(0, -offset_y);
 
-	for(  int type=0;  type<MAX_BUTTON_TYPE;  type++  ) {
+	for(  int type=0;  type<reliefkarte_t::MAX_MAP_BUTTON;  type++  ) {
 		filter_buttons[type].set_visible(show);
 	}
 	scrolly.set_pos(scrolly.get_pos() + offset);
@@ -356,7 +357,7 @@ bool map_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 		b_show_fab_connections.pressed = reliefkarte_t::get_karte()->is_show_fab;
 	}
 	else {
-		for (int i=0;i<MAX_BUTTON_TYPE;i++) {
+		for (int i=0;i<reliefkarte_t::MAX_MAP_BUTTON;i++) {
 			if (komp == &filter_buttons[i]) {
 				if(filter_buttons[i].pressed) {
 					umgebung_t::default_mapmode = -1;
@@ -367,7 +368,7 @@ bool map_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 			}
 		}
 		reliefkarte_t::get_karte()->set_mode((reliefkarte_t::MAP_MODES)umgebung_t::default_mapmode);
-		for (int i=0;i<MAX_BUTTON_TYPE;i++) {
+		for (int i=0;i<reliefkarte_t::MAX_MAP_BUTTON;i++) {
 			filter_buttons[i].pressed = i==umgebung_t::default_mapmode;
 		}
 	}
@@ -537,11 +538,11 @@ void map_frame_t::resize(const koord delta)
 
 	if(legend_visible) {
 		// calculate space with legend
-		const int col = max( 1, min( (get_fenstergroesse().x-2)/(BUTTON_WIDTH+BUTTON_SPACER), MAX_BUTTON_TYPE ) );
-		const int row = ((MAX_BUTTON_TYPE-1)/col)+1;
+		const int col = max( 1, min( (get_fenstergroesse().x-2)/(BUTTON_WIDTH+BUTTON_SPACER), reliefkarte_t::MAX_MAP_BUTTON ) );
+		const int row = ((reliefkarte_t::MAX_MAP_BUTTON-1)/col)+1;
 
 		// set button pos
-		for (int type=0; type<MAX_BUTTON_TYPE; type++) {
+		for (int type=0; type<reliefkarte_t::MAX_MAP_BUTTON; type++) {
 			koord pos = koord( 2+(BUTTON_WIDTH+BUTTON_SPACER)*(type%col), offset_y+(BUTTON_HEIGHT+2)*((int)type/col) );
 			filter_buttons[type].set_pos( pos );
 		}
@@ -611,7 +612,7 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 
 	int offset_y = BUTTON_HEIGHT*4 + 2 + TITLEBAR_HEIGHT;
 	if(legend_visible) {
-		offset_y = 16+filter_buttons[MAX_BUTTON_TYPE-1].get_pos().y+BUTTON_HEIGHT+2;
+		offset_y = 16+filter_buttons[reliefkarte_t::MAX_MAP_BUTTON-1].get_pos().y+BUTTON_HEIGHT+2;
 	}
 
 	// draw scale
@@ -673,7 +674,7 @@ void map_frame_t::rdwr( loadsave_t *file )
 		scrolly.set_scroll_position( xoff, yoff );
 
 		reliefkarte_t::get_karte()->set_mode((reliefkarte_t::MAP_MODES)umgebung_t::default_mapmode);
-		for (int i=0;i<MAX_BUTTON_TYPE;i++) {
+		for (int i=0;i<reliefkarte_t::MAX_MAP_BUTTON;i++) {
 			filter_buttons[i].pressed = i==umgebung_t::default_mapmode;
 		}
 		if(  legend_visible!=show_legend_state  ) {
