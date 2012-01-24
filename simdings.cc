@@ -225,7 +225,7 @@ void ding_t::display(int xpos, int ypos, bool /*reset_dirty*/) const
 	image_id const outline_bild = get_outline_bild();
 	if(  bild!=IMG_LEER  ||  outline_bild!=IMG_LEER  ) {
 		const int raster_width = get_current_tile_raster_width();
-		const bool dirty = get_flag(ding_t::dirty);
+		const bool is_dirty = get_flag(ding_t::dirty);
 
 		if (vehikel_basis_t const* const v = ding_cast<vehikel_basis_t>(this)) {
 			// vehicles need finer steps to appear smoother
@@ -239,14 +239,14 @@ void ding_t::display(int xpos, int ypos, bool /*reset_dirty*/) const
 
 			if(besitzer_n!=PLAYER_UNOWNED) {
 				if(  ding_t::show_owner  ) {
-					display_blend(bild, xpos, ypos, besitzer_n, (welt->get_spieler(besitzer_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, dirty);
+					display_blend(bild, xpos, ypos, besitzer_n, (welt->get_spieler(besitzer_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty);
 				}
 				else {
-					display_color(bild, xpos, ypos, besitzer_n, true, dirty);
+					display_color(bild, xpos, ypos, besitzer_n, true, is_dirty);
 				}
 			}
 			else {
-				display_normal(bild, xpos, ypos, 0, true, dirty);
+				display_normal(bild, xpos, ypos, 0, true, is_dirty);
 			}
 			// this ding has another image on top (e.g. skyscraper)
 			ypos -= raster_width;
@@ -259,7 +259,7 @@ void ding_t::display(int xpos, int ypos, bool /*reset_dirty*/) const
 			ypos = start_ypos;	// may be needed for transparency
 			if(TRANSPARENT_FLAGS&transparent) {
 				// only transparent outline
-				display_blend(get_outline_bild(), xpos, ypos, besitzer_n, transparent, 0, dirty);
+				display_blend(get_outline_bild(), xpos, ypos, besitzer_n, transparent, 0, is_dirty);
 			}
 		}
 	}
@@ -285,21 +285,21 @@ void ding_t::display_after(int xpos, int ypos, bool /*is_global*/ ) const
 	image_id bild = get_after_bild();
 	if(bild != IMG_LEER) {
 		const int raster_width = get_current_tile_raster_width();
-		const bool dirty = get_flag(ding_t::dirty);
+		const bool is_dirty = get_flag(ding_t::dirty);
 
 		xpos += tile_raster_scale_x(get_xoff(), raster_width);
 		ypos += tile_raster_scale_y(get_yoff(), raster_width);
 
 		if(besitzer_n!=PLAYER_UNOWNED) {
 			if(  ding_t::show_owner  ) {
-				display_blend(bild, xpos, ypos, besitzer_n, (welt->get_spieler(besitzer_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, dirty);
+				display_blend(bild, xpos, ypos, besitzer_n, (welt->get_spieler(besitzer_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty);
 			}
 			else {
-				display_color(bild, xpos, ypos, besitzer_n, true, dirty);
+				display_color(bild, xpos, ypos, besitzer_n, true, is_dirty);
 			}
 		}
 		else {
-			display_normal(bild, xpos, ypos, 0, true, dirty );
+			display_normal(bild, xpos, ypos, 0, true, is_dirty );
 		}
 	}
 }
