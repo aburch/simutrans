@@ -1,3 +1,6 @@
+	ADD: more info on bare ground
+
+
 Release of 111.1 (r5115 on 23-Jan-2012):
 	FIX: owner of way gates were accidently rotated
 	ADD: speedbonus speed limited by way speedlimits and achievable convoi max speed
