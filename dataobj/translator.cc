@@ -323,8 +323,12 @@ static void load_language_file_body(FILE* file, stringhashtable_tpl<const char*>
 		}
 		if (!feof(file)) {
 			fgets_line(buffer2, sizeof(buffer2), file);
-
-			table->set(recode(buffer1, file_is_utf, false), recode(buffer2, false, convert_to_unicode));
+			if(  strcmp(buffer1,buffer2)  ) {
+				// only add line which are actually different
+				const char *raw = recode(buffer1, file_is_utf, false);
+				const char *translated = recode(buffer2, false, convert_to_unicode);
+				table->set( raw, translated );
+			}
 		}
 	} while (!feof(file));
 }
