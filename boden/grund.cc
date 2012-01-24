@@ -521,34 +521,19 @@ void grund_t::info(cbuffer_t& buf) const
 		}
 	}
 
-#if 0
-	if(buf.len() >= 0) {
-		uint8 hang= get_grund_hang();
-		buf.append(get_hoehe());
-		buf.append("\nslope: ");
-		buf.append(hang);
-		buf.append("\nback0: ");
-		buf.append(get_back_bild(0)-grund_besch_t::slopes->get_bild(0));
-		buf.append("\nback1: ");
-		buf.append(get_back_bild(1)-grund_besch_t::slopes->get_bild(0));
+	buf.printf("%s\n%s", get_name(), translator::translate(grund_besch_t::get_climate_name_from_bit(welt->get_climate(get_hoehe()))) );
+#if DEBUG >= 3
+	buf.printf("\n\npos: (%s)",pos.get_str());
+	buf.printf("\nslope: %i",get_grund_hang());
+	buf.printf("\nback0: %i",get_back_bild(0)-grund_besch_t::slopes->get_bild(0));
+	buf.printf("\nback1: %i",get_back_bild(1)-grund_besch_t::slopes->get_bild(0));
+	if(  get_weg_nr(0)  ) {
+		buf.printf("\nway slope %i", (int)get_weg_hang() );
 	}
-	buf.append("\nway slope");
-	buf.append((int)get_weg_hang());
-	buf.append("\npos: ");
-	buf.append(pos.x);
-	buf.append(", ");
-	buf.append(pos.y);
-	buf.append(", ");
-	buf.append(pos.z);
-
-	buf.append("\n\n");
-	buf.append(get_name());
 	if(get_weg_ribi_unmasked(water_wt)) {
-		buf.append("\nwater ribi: ");
-		buf.append(get_weg_ribi_unmasked(water_wt));
+		buf.printf("\nwater ribi: %i",get_weg_ribi_unmasked(water_wt));
 	}
-	buf.append("\ndraw_as_ding=");
-	buf.append((flags&draw_as_ding)!=0);
+	buf.printf("\ndraw_as_ding= %i",(flags&draw_as_ding)!=0);
 #endif
 }
 
