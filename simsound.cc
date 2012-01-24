@@ -1,8 +1,8 @@
 /*
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner
  *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans project under the artistic license.
+ * (see license.txt)
  */
 
 /*
@@ -23,6 +23,7 @@
 #include "simdebug.h"
 
 #include "dataobj/umgebung.h"
+#include "utils/plainstring.h"
 #include "utils/simstring.h"
 
 
@@ -30,8 +31,8 @@
  * max sound index
  * @author hj. Malthaner
  */
-static int new_midi = 0;
-static char *midi_title[MAX_MIDI];
+static int         new_midi = 0;
+static plainstring midi_title[MAX_MIDI];
 
 
 /**
@@ -192,7 +193,7 @@ int midi_init(const char *directory)
 						while(len>0  &&  title[--len] <= 32) {
 							title[len] = 0;
 						}
-						midi_title[max_midi] = strdup(title);
+						midi_title[max_midi] = title;
 					}
 				}
 			}

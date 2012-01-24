@@ -75,6 +75,11 @@ public:
 	inline int get_top() const {return top;}
 
 	/**
+	 * sorts the trees according to their offsets
+	 */
+	void sort_trees(uint8 index, uint8 count);
+
+	/**
 	* @return NULL wenn OK, oder Meldung, warum nicht
 	* @author Hj. Malthaner
 	*/
@@ -84,6 +89,11 @@ public:
 	* @author prissi
 	*/
 	void calc_bild();
+
+	/** display all things, faster, but will lead to clipping errors
+	 *  @author prissi
+	 */
+	void display_dinge_quick_and_dirty( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const bool reset_dirty ) const;
 
 	/* display all things, called by the routines in grund_t
 	*  @author prissi,dwachs

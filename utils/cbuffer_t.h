@@ -33,8 +33,6 @@ public:
 
 	/**
 	 * Creates a new cbuffer with capacity cap
-	 * @param cap the capacity
-	 * @author Hj. Malthaner
 	 */
 	cbuffer_t();
 	~cbuffer_t();

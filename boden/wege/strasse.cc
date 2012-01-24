@@ -8,6 +8,7 @@
 #include <stdio.h>
 
 #include "strasse.h"
+#include "../../simworld.h"
 #include "../../dataobj/loadsave.h"
 #include "../../besch/weg_besch.h"
 #include "../../bauer/wegbauer.h"
@@ -68,6 +69,7 @@ void strasse_t::rdwr(loadsave_t *file)
 			besch = wegbauer_t::get_besch(translator::compatibility_name(bname));
 			if(besch==NULL) {
 				besch = default_strasse;
+				welt->add_missing_paks( bname, karte_t::MISSING_WAY );
 			}
 			dbg->warning("strasse_t::rdwr()", "Unknown street %s replaced by %s (old_max_speed %i)", bname, besch->get_name(), old_max_speed );
 		}

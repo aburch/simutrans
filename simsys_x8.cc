@@ -12,11 +12,7 @@
 #include <sys/time.h>
 #include <X11/extensions/XShm.h>
 
-#include "simmain.h"
 #include "simsys.h"
-
-
-struct sys_event sys_event;
 
 
 static int using_shm = FALSE;
@@ -497,5 +493,5 @@ void dr_sleep(unsigned long usec)
 
 int main(int argc, char **argv)
 {
-	return simu_main(argc, argv);
+	return sysmain(argc, argv);
 }

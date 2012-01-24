@@ -54,6 +54,13 @@ const char *goods_frame_t::sort_text[SORT_MODES] = {
 	"gl_btn_sort_catg"
 };
 
+/**
+ * This variable controls whether all goods are displayed, or
+ * just the ones relevant to the current game
+ * Values: false = all goods shown, true = relevant goods shown
+ * @author falconne
+ */
+bool goods_frame_t::filter_goods = false;
 
 goods_frame_t::goods_frame_t(karte_t *wl) :
 	gui_frame_t( translator::translate("gl_title") ),
@@ -134,6 +141,13 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	
 	y=BUTTON_HEIGHT+6+5*LINESPACE + 25;
 
+	filter_goods_toggle.init(button_t::square_state, "Show only used", koord(BUTTON1_X, y));
+	filter_goods_toggle.set_tooltip(translator::translate("Only show goods which are currently handled by factories"));
+	filter_goods_toggle.add_listener(this);
+	filter_goods_toggle.pressed = filter_goods;
+	add_komponente(&filter_goods_toggle);
+	y += LINESPACE+2;
+
 	sort_label.set_pos(koord(BUTTON1_X, y));
 	add_komponente(&sort_label);
 
@@ -181,7 +195,6 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	set_resizemode(vertical_resize);
 	resize (koord(0,0));
 }
-
 
 
 bool goods_frame_t::compare_goods(uint16 const a, uint16 const b)
@@ -289,12 +302,14 @@ bool goods_frame_t::compare_goods(uint16 const a, uint16 const b)
 	return sortreverse ? order > 0 : order < 0;
 }
 
-
-// creates the list and pass it to the child finction good_stats, which does the display stuff...
+// creates the list and pass it to the child function good_stats, which does the display stuff ...
 void goods_frame_t::sort_list()
 {
 	sortedby.set_text(sort_text[sortby]);
 	sorteddir.set_text(sortreverse ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
+
+	// Fetch the list of goods produced by the factories that exist in the current game
+	const vector_tpl<const ware_besch_t*> &goods_in_game = welt->get_goods_list();
 
 	int n=0;
 	for(unsigned int i=0; i<warenbauer_t::get_waren_anzahl(); i++) {
@@ -302,16 +317,16 @@ void goods_frame_t::sort_list()
 
 		// Hajo: we skip goods that don't generate income
 		//       this should only be true for the special good 'None'
-		if(wtyp->get_preis()!=0) {
+		// Also skip goods not in the game (Standard 111.1 and later).
+		if(  wtyp->get_preis()!=0  &&  (!filter_goods  ||  goods_in_game.is_contained(wtyp))  ) {
 			good_list[n++] = i;
 		}
 	}
 
 	std::sort(good_list, good_list + n, compare_goods);
 
-	goods_stats.update_goodslist(good_list, relative_speed_change, goods_frame_t::tile_distance, goods_frame_t::comfort, goods_frame_t::catering_level, goods_frame_t::welt, wtype);
+	goods_stats.update_goodslist(good_list, relative_speed_change, goods_frame_t::tile_distance, goods_frame_t::comfort, goods_frame_t::catering_level, goods_frame_t::welt, wtype, n);
 }
-
 
 
 /**
@@ -322,10 +337,13 @@ void goods_frame_t::sort_list()
 void goods_frame_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta);
-	koord groesse = get_fenstergroesse()-koord(0,BUTTON_HEIGHT+4+5*LINESPACE+LINESPACE+1+BUTTON_HEIGHT+2+TITLEBAR_HEIGHT+1+25);
+
+	//Pre 111.1
+	/*koord groesse = get_fenstergroesse()-koord(0,BUTTON_HEIGHT+4+5*LINESPACE+LINESPACE+1+BUTTON_HEIGHT+2+TITLEBAR_HEIGHT+1+25);*/
+
+	koord groesse = get_fenstergroesse()-scrolly.get_pos()-koord(0,TITLEBAR_HEIGHT+25);
 	scrolly.set_groesse(groesse);
 }
-
 
 
 /**
@@ -354,6 +372,7 @@ bool goods_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 		relative_speed_change ++;
 		sort_list();
 	}
+
 	else if(komp == &distance_down) 
 	{
 		if(distance > 1) 
@@ -439,9 +458,14 @@ bool goods_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 		};
 		sort_list();
 	}
+	else if(komp == &filter_goods_toggle) {
+		filter_goods = !filter_goods;
+		filter_goods_toggle.pressed = filter_goods;
+		sort_list();
+	}
+
 	return true;
 }
-
 
 
 /**

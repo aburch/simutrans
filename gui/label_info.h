@@ -12,7 +12,7 @@
 #include "components/gui_label.h"
 #include "components/gui_textarea.h"
 #include "components/gui_textinput.h"
-#include "components/location_view_t.h"
+#include "components/gui_location_view_t.h"
 #include "components/action_listener.h"
 
 class label_t;

@@ -6,17 +6,15 @@
 #ifndef simline_h
 #define simline_h
 
-#include <string>
-
 #include "convoihandle_t.h"
 #include "linehandle_t.h"
 #include "simtypes.h"
 
 #include "tpl/minivec_tpl.h"
 #include "tpl/vector_tpl.h"
+#include "utils/plainstring.h"
 #include "tpl/koordhashtable_tpl.h"
 
-#define MAX_LINE_COST			10 // Total number of cost items
 #define MAX_MONTHS				12 // Max history
 #define MAX_NON_MONEY_TYPES		4 // number of non money types in line's financial statistic
 
@@ -30,6 +28,7 @@
 #define LINE_CONVOIS			7 // number of convois for this line
 #define LINE_DISTANCE		    8 // distance converd by all convois
 #define LINE_REFUNDS			9 // Total refunds paid to passengers/goods owners desiring to use this line but kept waiting too long to do so.
+#define MAX_LINE_COST			10 // Total number of cost items
 
 class karte_t;
 class loadsave_t;
@@ -50,7 +49,7 @@ protected:
 
 private:
 	static karte_t * welt;
-	std::string name;
+	plainstring name;
 
 	/**
 	 * Handle for ourselves. Can be used like the 'this' pointer
@@ -149,7 +148,7 @@ public:
 	 * get name of line
 	 * @author hsiegeln
 	 */
-	const char *get_name() const { return name.c_str(); }
+	char const* get_name() const { return name; }
 	void set_name(const char *str) { name = str; }
 
 	/*

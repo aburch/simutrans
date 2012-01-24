@@ -1,13 +1,10 @@
 This is a form for reporting problems with Simutrans.
 
-If this is the first time you submit a problem report for Simutrans
-please fill the Systems specs. Later on you can leave the specs empty,
-until your system specs have changed.
+Please report any problems, crashes, and bugs to the forum
 
-Please give as much information as possible, and as detailed as
-possible. This helps to fix the problems faster.
+http://forum.simutrans.com
 
-Please send all problem reports to team@64.simutrans.com
+Try to provide as much information as possible. The following list may serve as a guide line:
 
 
 1.) System specs (CPU, memory, graphics, sound, operating system,
@@ -23,13 +20,13 @@ preferred screen resolution):
 ->
 
 
-4.) How can this problem be reproded?
+4.) How can this problem be reproduced?
 (Note: if the problem can't be reproduced, there is only
 a very small chance that it can be fixed.)
 ->
 
 
-5.) What did you/the game do when the problem occured?
+5.) What did you/the game do when the problem occurred?
 (Only needed if (4) is left blank.)
 ->
 
@@ -46,5 +43,3 @@ a very small chance that it can be fixed.)
 (One of high, medium, low or a more detailed description)
 ->
 
-
-Please don't forget to note your name and email address somewhere!

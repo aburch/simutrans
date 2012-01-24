@@ -1,8 +1,8 @@
 /*
  * Copyright (c) 1997 - 2003 Hansjörg Malthaner
  *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans project under the artistic license.
+ * (see license.txt)
  */
 
 /* Subfenster fuer Sim
@@ -744,6 +744,7 @@ int top_win(int win)
 
 	simwin_t tmp = wins[win];
 	wins.remove_at(win);
+	tmp.rollup = false;	// make visible when topping
 	wins.append(tmp);
 
 	 // mark new dirty

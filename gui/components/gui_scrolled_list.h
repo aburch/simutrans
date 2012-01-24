@@ -1,12 +1,11 @@
 #ifndef gui_scrolled_list_h
 #define gui_scrolled_list_h
 
-#include <string.h>
-
 #include "gui_scrollbar.h"
 #include "action_listener.h"
 #include "gui_action_creator.h"
 #include "../../simcolor.h"
+#include "../../utils/plainstring.h"
 
 /**
  * Scrollable list.
@@ -37,26 +36,22 @@ public:
 		virtual ~scrollitem_t() {}
 		virtual uint8 get_color() { return color; }
 		virtual void set_color(uint8 col) { color = col; }
-		virtual const char *get_text() = 0;
-		virtual void set_text(char *) = 0;
+		virtual char const* get_text() const = 0;
+		virtual void set_text(char const*) = 0;
 		virtual bool is_valid() { return true; }	//  can be used to indicate invalid entries
 	};
 
 	// editable text
 	class var_text_scrollitem_t : public scrollitem_t {
 	private:
-		char* text;
+		plainstring text;
+
 	public:
-		var_text_scrollitem_t( const char *t, uint8 col ) : scrollitem_t(col) {
-			text = strdup( t );
-		}
-		virtual ~var_text_scrollitem_t() { free(text); }
-		const char *get_text() { return text; }
-		virtual void set_text(char *t) {
-			assert(  t!=text  );
-			free(text);
-			text = strdup(t);
-		}
+		var_text_scrollitem_t(char const* const t, uint8 const col) : scrollitem_t(col), text(t) {}
+
+		char const* get_text() const OVERRIDE { return text; }
+
+		void set_text(char const *t) OVERRIDE { text = t; }
 	};
 
 	// only uses pointer, non-editable
@@ -65,9 +60,8 @@ public:
 		const char *text;
 	public:
 		const_text_scrollitem_t( const char *t, uint8 col ) : scrollitem_t(col) { text = t; }
-		virtual ~const_text_scrollitem_t() {}
-		const char *get_text() { return text; }
-		virtual void set_text(char *) {}
+		char const* get_text() const OVERRIDE { return text; }
+		void set_text(char const *) OVERRIDE {}
 	};
 
 private:

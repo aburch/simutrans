@@ -14,6 +14,7 @@
 
 #include "../simconvoi.h"
 #include "../simdebug.h"
+#include "../simdepot.h"
 #include "../simhalt.h"
 #include "../simintr.h"
 #include "../simline.h"
@@ -308,15 +309,7 @@ void spieler_t::neuer_monat()
 	}
 
 	// new month has started => recalculate vehicle value
-	sint64 assets = 0;
-	for(  vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end();  i != end;  ++i  ) {
-		convoihandle_t cnv = *i;
-		if(cnv->get_besitzer()==this) {
-			assets += cnv->calc_restwert();
-		}
-	}
-	finance_history_year[0][COST_ASSETS] = finance_history_month[0][COST_ASSETS] = assets;
-	finance_history_year[0][COST_NETWEALTH] = finance_history_month[0][COST_NETWEALTH] = assets+konto;
+	calc_assets();
 
 	calc_finance_history();
 
@@ -563,6 +556,45 @@ sint64 spieler_t::get_base_credit_limit()
 {
 	return welt->get_settings().get_starting_money(welt->get_current_month() / 12) / 10;
 }
+
+void spieler_t::calc_assets()
+{
+	sint64 assets = 0;
+	// all convois
+	for(  vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end();  i != end;  ++i  ) {
+		convoihandle_t cnv = *i;
+		if(  cnv->get_besitzer() == this  ) {
+			assets += cnv->calc_restwert();
+		}
+	}
+
+	// all vehikels stored in depot not part of a convoi
+	slist_iterator_tpl<depot_t *> depot_iter(depot_t::get_depot_list());
+	while(  depot_iter.next()  ) {
+		depot_t* const depot = depot_iter.get_current();
+		if(  depot->get_player_nr() == player_nr  ) {
+			slist_iterator_tpl<vehikel_t *> veh_iter(depot->get_vehicle_list());
+			while(  veh_iter.next()  ) {
+				const vehikel_t* const veh = veh_iter.get_current();
+				assets += veh->calc_restwert();
+			}
+		}
+	}
+
+	finance_history_year[0][COST_ASSETS] = finance_history_month[0][COST_ASSETS] = assets;
+	finance_history_year[0][COST_NETWEALTH] = finance_history_month[0][COST_NETWEALTH] = assets+konto;
+}
+
+
+void spieler_t::update_assets(sint64 const delta)
+{
+	finance_history_year[0][COST_ASSETS] += delta;
+	finance_history_year[0][COST_NETWEALTH] += delta;
+
+	finance_history_month[0][COST_ASSETS] += delta;
+	finance_history_month[0][COST_NETWEALTH] += delta;
+}
+
 
 // add and amount, including the display of the message and some other things ...
 void spieler_t::buche(sint64 const betrag, koord const pos, player_cost const type)
@@ -1235,7 +1267,7 @@ DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this 
 	}
 }
 
-/*
+/**
  * called after game is fully loaded;
  */
 void spieler_t::laden_abschliessen()
@@ -1243,15 +1275,7 @@ void spieler_t::laden_abschliessen()
 	simlinemgmt.laden_abschliessen();
 	display_set_player_color_scheme( player_nr, kennfarbe1, kennfarbe2 );
 	// recalculate vehicle value
-	sint64 assets = 0;
-	for(  vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end();  i != end;  ++i  ) {
-		convoihandle_t cnv = *i;
-		if(cnv->get_besitzer()==this) {
-			assets += cnv->calc_restwert();
-		}
-	}
-	finance_history_year[0][COST_ASSETS] = finance_history_month[0][COST_ASSETS] = assets;
-	finance_history_year[0][COST_NETWEALTH] = finance_history_month[0][COST_NETWEALTH] = assets+konto;
+	calc_assets();
 }
 
 

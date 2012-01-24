@@ -3,8 +3,8 @@
  *
  * Copyright (c) 1997 - 2001 Hj. Malthaner
  *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans project under the artistic license.
+ * (see license.txt)
  */
 
 #include <stdio.h>
@@ -828,7 +828,7 @@ const char *wkz_raise_t::move( karte_t *welt, spieler_t *sp, uint16 buttonstate,
 }
 
 
-const char *wkz_raise_t::check( karte_t *welt, spieler_t *, koord3d k )
+const char *wkz_raise_t::check_pos( karte_t *welt, spieler_t *, koord3d k )
 {
 	// check for underground mode
 	if (is_dragging  &&  drag_height-1 > grund_t::underground_level) {
@@ -940,7 +940,7 @@ const char *wkz_lower_t::move( karte_t *welt, spieler_t *sp, uint16 buttonstate,
 }
 
 
-const char *wkz_lower_t::check( karte_t *welt, spieler_t *, koord3d k )
+const char *wkz_lower_t::check_pos( karte_t *welt, spieler_t *, koord3d k )
 {
 	// check for underground mode
 	if (is_dragging  &&  drag_height+1 > grund_t::underground_level) {
@@ -1009,7 +1009,7 @@ const char *wkz_lower_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 }
 
 
-const char *wkz_setslope_t::check( karte_t *welt, spieler_t *, koord3d pos)
+const char *wkz_setslope_t::check_pos( karte_t *welt, spieler_t *, koord3d pos)
 {
 	grund_t *gr1 = welt->lookup(pos);
 	if(gr1) {
@@ -1024,7 +1024,7 @@ const char *wkz_setslope_t::check( karte_t *welt, spieler_t *, koord3d pos)
 	return NULL;
 }
 
-const char *wkz_restoreslope_t::check( karte_t *welt, spieler_t *, koord3d pos)
+const char *wkz_restoreslope_t::check_pos( karte_t *welt, spieler_t *, koord3d pos)
 {
 	grund_t *gr1 = welt->lookup(pos);
 	if(gr1) {
@@ -1204,7 +1204,8 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 
 		// ok, now we set the slope ...
 		ok = (new_pos!=pos);
-		ok |= new_slope!=gr1->get_grund_hang();
+		bool slope_changed = new_slope!=gr1->get_grund_hang();
+		ok |= slope_changed;
 
 		if(ok) {
 
@@ -1247,6 +1248,15 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 				if(  new_pos!=pos  ) {
 					for(  int i=0;  i<gr1->get_top();  i++  ) {
 						gr1->obj_bei(i)->set_pos( new_pos );
+					}
+				}
+				// correct tree offsets if slope has changed
+				if(  slope_changed  ) {
+					for(  int i=0;  i<gr1->get_top();  i++  ) {
+						baum_t *tree = ding_cast<baum_t>(gr1->obj_bei(i));
+						if (tree) {
+							tree->recalc_off();
+						}
 					}
 				}
 				if(  !gr1->ist_karten_boden()  ) {
@@ -1397,7 +1407,6 @@ const char *wkz_clear_reservation_t::work( karte_t *welt, spieler_t *, koord3d k
 }
 
 
-
 // transformer for electricity supply
 const char* wkz_transformer_t::get_tooltip(const spieler_t *sp) const
 {
@@ -1410,14 +1419,24 @@ const char* wkz_transformer_t::get_tooltip(const spieler_t *sp) const
 	return toolstr;
 }
 
+image_id wkz_transformer_t::get_icon(spieler_t* const sp) const
+{
+	return wegbauer_t::waytype_available( powerline_wt, sp->get_welt()->get_timeline_year_month() ) ? icon : IMG_LEER;
+}
+
+bool wkz_transformer_t::init( karte_t *welt, spieler_t *)
+{
+	return wegbauer_t::waytype_available( powerline_wt, welt->get_timeline_year_month() );
+}
+
 const char *wkz_transformer_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 {
-DBG_MESSAGE("wkz_senke()","called on %d,%d", k.x, k.y);
+	DBG_MESSAGE("wkz_transformer_t()","called on %d,%d", k.x, k.y);
 
 	if(!sp->can_afford(welt->get_settings().cst_transformer))
 	{
 		return CREDIT_MESSAGE;
-	}	
+	}
 	grund_t *gr=welt->lookup_kartenboden(k.get_2d());
 
 	if(gr  && gr->is_visible() &&  gr->get_grund_hang()==0  &&  !gr->ist_wasser()  &&  gr->ist_natur() &&  gr->kann_alle_obj_entfernen(sp)==NULL) {
@@ -1700,7 +1719,7 @@ karte_t *wkz_wegebau_t::welt = NULL;	// for default city road
 const weg_besch_t *wkz_wegebau_t::get_besch( uint16 timeline_year_month, bool remember ) const
 {
 	const weg_besch_t *besch = default_param ? wegbauer_t::get_besch(default_param,0) :NULL;
-	if(besch==NULL  &&  default_param  ) {
+	if(  besch==NULL  &&  default_param  ) {
 		waytype_t wt = (waytype_t)atoi(default_param);
 		besch = defaults[wt&63];
 		if(besch==NULL) {
@@ -1709,7 +1728,7 @@ const weg_besch_t *wkz_wegebau_t::get_besch( uint16 timeline_year_month, bool re
 		}
 	}
 	assert(besch);
-	if(remember) {
+	if(  remember  ) {
 		if(  besch->get_styp() == weg_t::type_tram  ) {
 			defaults[ tram_wt ] = besch;
 		}
@@ -1778,9 +1797,15 @@ bool wkz_wegebau_t::init( karte_t *welt, spieler_t *sp )
 	two_click_werkzeug_t::init( welt, sp );
 
 	// now get current besch
-	besch = get_besch(welt->get_timeline_year_month(), is_local_execution());
-	if(besch  &&  besch->get_cursor()->get_bild_nr(0) != IMG_LEER) {
+	besch = get_besch( welt->get_timeline_year_month(), is_local_execution() );
+	if(  besch  &&  besch->get_cursor()->get_bild_nr(0) != IMG_LEER  ) {
 		cursor = besch->get_cursor()->get_bild_nr(0);
+	}
+	if(  besch  &&  welt->get_timeline_year_month()  &&  sp!=NULL  &&  sp!=welt->get_spieler(1)  ) {
+		if(  welt->get_timeline_year_month() < besch->get_intro_year_month()  ||  welt->get_timeline_year_month() >= besch->get_retire_year_month()  ) {
+			// non avaialable way => fail
+			return false;
+		}
 	}
 	return besch!=NULL;
 }
@@ -1795,8 +1820,11 @@ uint8 wkz_wegebau_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord3d &
 			return 0;
 		}
 		// ignore water
-		if( besch->get_wtyp() != water_wt  &&  gr->get_typ() == grund_t::wasser ) {
-			return 0;
+		if(  besch->get_wtyp() != water_wt  &&  gr->get_typ() == grund_t::wasser  ) {
+			if(  besch->get_styp() != 1  ||  besch->get_wtyp() == air_wt  ||   welt->lookup_hgt(gr->get_pos().get_2d()) < welt->get_grundwasser()  ) {
+				return 0;
+			}
+			// here either channel or elevated way over not too deep water
 		}
 		// test if way already exists on the way and if we are allowed to connect
 		weg_t *way = gr->get_weg(besch->get_wtyp());
@@ -1852,7 +1880,7 @@ void wkz_wegebau_t::calc_route( wegbauer_t &bauigel, const koord3d &start, const
 	else {
 		bauigel.calc_route(start,end);
 	}
-	DBG_MESSAGE("wkz_wegebau()", "builder found route with %d sqaures length.", bauigel.get_count());
+	DBG_MESSAGE("wkz_wegebau()", "builder found route with %d squares length.", bauigel.get_count());
 }
 
 const char *wkz_wegebau_t::do_work( karte_t *welt, spieler_t *sp, const koord3d &start, const koord3d &end )
@@ -1917,6 +1945,7 @@ void wkz_wegebau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &sta
 	}
 }
 
+
 /* city road construction */
 const weg_besch_t *wkz_build_cityroad::get_besch(uint16,bool) const
 {
@@ -1944,6 +1973,7 @@ const char *wkz_build_cityroad::do_work( karte_t *welt, spieler_t *sp, const koo
 	return "";
 }
 
+
 /* bridge construction */
 const char* wkz_brueckenbau_t::get_tooltip(const spieler_t *sp) const
 {
@@ -1961,7 +1991,6 @@ const char* wkz_brueckenbau_t::get_tooltip(const spieler_t *sp) const
 	return toolstr;
 }
 
-
 const char *wkz_brueckenbau_t::do_work( karte_t *welt, spieler_t *sp, const koord3d &start, const koord3d &end )
 {
 	const bruecke_besch_t *besch = brueckenbauer_t::get_besch(default_param);
@@ -1974,6 +2003,7 @@ const char *wkz_brueckenbau_t::do_work( karte_t *welt, spieler_t *sp, const koor
 		return NULL; // all checks are performed before building.
 	}
 }
+
 void wkz_brueckenbau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &start, const koord3d &end )
 {
 	const ribi_t::ribi ribi_mark = ribi_typ(end-start);
@@ -2164,13 +2194,13 @@ const char* wkz_tunnelbau_t::get_tooltip(const spieler_t *sp) const
 	return toolstr;
 }
 
-const char *wkz_tunnelbau_t::check( karte_t *welt, spieler_t *sp, koord3d pos)
+const char *wkz_tunnelbau_t::check_pos( karte_t *welt, spieler_t *sp, koord3d pos)
 {
 	if (grund_t::underground_mode == grund_t::ugm_all) {
 		return NULL;
 	}
 	else {
-		return two_click_werkzeug_t::check(welt, sp, pos);
+		return two_click_werkzeug_t::check_pos(welt, sp, pos);
 	}
 }
 
@@ -2314,6 +2344,14 @@ char const* wkz_wayremover_t::get_tooltip(spieler_t const*) const
 		case powerline_wt: return translator::translate("remove powerlines");
 	}
 	return NULL;
+}
+
+image_id wkz_wayremover_t::get_icon(spieler_t *sp) const
+{
+	if(  default_param  &&  wegbauer_t::waytype_available( (waytype_t)atoi(default_param), sp->get_welt()->get_timeline_year_month() )  ) {
+		return icon;
+	}
+	return IMG_LEER;
 }
 
 class electron_t : public fahrer_t {
@@ -3594,9 +3632,9 @@ const char* wkz_station_t::get_tooltip(const spieler_t *sp) const
 }
 
 
-const char *wkz_station_t::check( karte_t *welt, spieler_t *sp, koord3d pos )
+const char *wkz_station_t::check_pos( karte_t *welt, spieler_t *sp, koord3d pos )
 {
-	const char *msg = werkzeug_t::check(welt,sp, pos);
+	const char *msg = werkzeug_t::check_pos(welt,sp, pos);
 	if (msg==NULL) {
 		sint8 rotation;
 		const haus_besch_t *besch=get_besch(rotation);
@@ -3910,7 +3948,7 @@ bool wkz_roadsign_t::calc_route( route_t &verbindung, spieler_t *sp, const koord
 		// but the step start->to is now allowed
 		if (can_built  &&  koord_distance(start, to)==1  &&  verbindung.get_count()>2) {
 			grund_t *gr, *grto = sp->get_welt()->lookup(to);
-			if (sp->get_welt()->lookup(start)->get_neighbour(gr, besch->get_wtyp(), to.get_2d()-start.get_2d())  &&  gr==grto) {
+			if(  sp->get_welt()->lookup(start)->get_neighbour(gr, besch->get_wtyp(), ribi_typ(to-start) )  &&  gr==grto) {
 				can_built = false;
 			}
 		}
@@ -4273,6 +4311,18 @@ const char *wkz_depot_t::wkz_depot_aux(karte_t *welt, spieler_t *sp, koord3d pos
 	return "";
 }
 
+image_id wkz_depot_t::get_icon(spieler_t *sp) const
+{
+	if(  sp  &&  sp->get_player_nr()!=1  ) {
+		const haus_besch_t *besch = hausbauer_t::find_tile(default_param,0)->get_besch();
+		const uint16 time = sp->get_welt()->get_timeline_year_month();
+		if(  time==0  ||  (besch->get_intro_year_month() <= time  &&  time < besch->get_retire_year_month())  ) {
+			return besch->get_cursor()->get_bild_nr(1);
+		}
+	}
+	return IMG_LEER;
+}
+
 bool wkz_depot_t::init( karte_t *welt, spieler_t *sp )
 {
 	// no depots for player 1
@@ -4282,7 +4332,6 @@ bool wkz_depot_t::init( karte_t *welt, spieler_t *sp )
 	}
 	return false;
 }
-
 
 const char* wkz_depot_t::get_tooltip(const spieler_t *sp) const
 {
@@ -4307,7 +4356,6 @@ const char* wkz_depot_t::get_tooltip(const spieler_t *sp) const
 	}
 	return tooltip_with_price_maintenance(&welt, tip, price, settings.maint_building * level);
 }
-
 
 const char *wkz_depot_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 {
@@ -5400,6 +5448,15 @@ const char *wkz_make_stop_public_t::work( karte_t *welt, spieler_t *sp, koord3d 
 	return NULL;
 }
 
+
+bool wkz_show_trees_t::init( karte_t *welt, spieler_t * )
+{
+	umgebung_t::hide_trees = !umgebung_t::hide_trees;
+	baum_t::recalc_outline_color();
+	welt->set_dirty();
+	return false;
+}
+
 sint8 wkz_show_underground_t::save_underground_level = -128;
 
 bool wkz_show_underground_t::init( karte_t *welt, spieler_t * )
@@ -5661,6 +5718,15 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 	switch(  tool  ) {
 		case 'x': // self destruction ...
 			if(cnv.is_bound()) {
+				if (cnv->get_state()==convoi_t::INITIAL) {
+					// delete cnv in depot
+					if (grund_t *gr = welt->lookup(cnv->get_pos())) {
+						if (depot_t *dep = gr->get_depot()) {
+							dep->disassemble_convoi(cnv, true);
+							return false;
+						}
+					}
+				}
 				cnv->self_destruct();
 			}
 			return false;

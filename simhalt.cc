@@ -1,8 +1,8 @@
 /*
  * Copyright (c) 1997 - 2001 Hansj. Malthaner
  *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans project under the artistic license.
+ * (see license.txt)
  */
 
 /*
@@ -329,11 +329,6 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 
 	welt = wl;
 
-	pax_happy = 0;
-	pax_unhappy = 0;
-	pax_no_route = 0;
-	pax_too_slow = 0;
-
 	const uint8 max_categories = warenbauer_t::get_max_catg_index();
 
 	waren = (vector_tpl<ware_t> **)calloc( max_categories, sizeof(vector_tpl<ware_t> *) );
@@ -405,10 +400,6 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 	}
 	do_alternative_seats_calculation = true;
 
-	pax_happy = 0;
-	pax_unhappy = 0;
-	pax_no_route = 0;
-	pax_too_slow = 0;
 	status_color = COL_YELLOW;
 
 	sortierung = freight_list_sorter_t::by_name;
@@ -586,7 +577,8 @@ const char* haltestelle_t::get_name() const
 	const char *name = "Unknown";
 	if (tiles.empty()) {
 		name = "Unnamed";
-	} else {
+	}
+	else {
 		grund_t* bd = welt->lookup(get_basis_pos3d());
 		if(bd  &&  bd->get_flag(grund_t::has_text)) {
 			name = bd->get_text();
@@ -1078,12 +1070,6 @@ void haltestelle_t::neuer_monat()
 		enables &= (PAX|POST|WARE);
 	}
 
-	// Hajo: reset passenger statistics
-	pax_happy = 0;
-	pax_no_route = 0;
-	pax_unhappy = 0;
-	pax_too_slow = 0;
-
 	// If the waiting times have not been updated for too long, gradually re-set them; also increment the timing records.
 	for ( int category = 0; category < warenbauer_t::get_max_catg_index(); category++ )
 	{
@@ -1425,9 +1411,18 @@ uint16 haltestelle_t::find_route (ware_t &ware, const uint16 previous_journey_ti
  */
 void haltestelle_t::add_pax_happy(int n)
 {
-	pax_happy += n;
 	book(n, HALT_HAPPY);
 	recalc_status();
+}
+
+
+/**
+ * Station in wlaking distance
+ * @author Hj. Malthaner
+ */
+void haltestelle_t::add_pax_walked(int n)
+{
+	book(n, HALT_WALKED);
 }
 
 
@@ -1437,7 +1432,6 @@ void haltestelle_t::add_pax_happy(int n)
  */
 void haltestelle_t::add_pax_unhappy(int n)
 {
-	pax_unhappy += n;
 	book(n, HALT_UNHAPPY);
 	recalc_status();
 }
@@ -1447,7 +1441,6 @@ void haltestelle_t::add_pax_unhappy(int n)
 
 void haltestelle_t::add_pax_too_slow(int n)
 {
-	pax_too_slow += n;
 	book(n, HALT_TOO_SLOW);
 }
 
@@ -1457,7 +1450,6 @@ void haltestelle_t::add_pax_too_slow(int n)
  */
 void haltestelle_t::add_pax_no_route(int n)
 {
-	pax_no_route += n;
 	book(n, HALT_NOROUTE);
 }
 
@@ -2031,12 +2023,12 @@ void haltestelle_t::info(cbuffer_t & buf) const
 {
 	buf.printf(
 		translator::translate("Passengers %d %c, %d %c, %d no route, %d too slow"),
-		pax_happy,
+		get_pax_happy(),
 		30,
-		pax_unhappy,
+		get_pax_unhappy(),
 		31,
-		pax_no_route,
-		pax_too_slow
+		get_pax_no_route(),
+		get_pax_too_slow()
 		);
 	buf.append("\n\n");
 }
@@ -2604,11 +2596,28 @@ void haltestelle_t::rdwr(loadsave_t *file)
 	else
 	{
 		// Earlier versions did not have pax_too_slow
-		for (int j = 0; j < 7 /*MAX_HALT_COST - 1*/; j++) 
+		for (int j = 0; j < 8 /*MAX_HALT_COST - 1*/; j++) 
 		{
 			for (int k = MAX_MONTHS - 1; k >= 0; k--) 
 			{
-				file->rdwr_longlong(financial_history[k][j]);
+				if(j == 7)
+				{
+					// Walked passengers in Standard
+					// (Experimental stores these in cities, not stops)
+					if(file->get_version() >= 111001)
+					{
+						sint64 dummy = 0;
+						file->rdwr_longlong(dummy);
+					}
+					else
+					{
+						continue;
+					}
+				}
+				else
+				{
+					file->rdwr_longlong(financial_history[k][j]);
+				}
 			}
 		}
 		for (int k = MAX_MONTHS - 1; k >= 0; k--) 
@@ -2794,11 +2803,6 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			check_nearby_halts();
 		}
 	}
-	
-	pax_happy    = financial_history[0][HALT_HAPPY];
-	pax_unhappy  = financial_history[0][HALT_UNHAPPY];
-	pax_no_route = financial_history[0][HALT_NOROUTE];
-	pax_too_slow = financial_history[0][HALT_TOO_SLOW];
 }
 
 
@@ -2888,10 +2892,6 @@ void haltestelle_t::init_financial_history()
 			financial_history[k][j] = 0;
 		}
 	}
-	financial_history[0][HALT_HAPPY] = pax_happy;
-	financial_history[0][HALT_UNHAPPY] = pax_unhappy;
-	financial_history[0][HALT_NOROUTE] = pax_no_route;
-	financial_history[0][HALT_TOO_SLOW] = pax_too_slow;
 }
 
 

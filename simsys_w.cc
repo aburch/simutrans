@@ -1,17 +1,12 @@
 /*
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner
  *
- * This file is part of the Simutrans project under the artistic licence.
+ * This file is part of the Simutrans project under the artistic license.
  */
 
 #ifndef SDL
 #ifndef _WIN32
 #error "Only Windows has GDI!"
-#endif
-
-#ifndef _MSC_VER
-#include <unistd.h>
-#include <sys/time.h>
 #endif
 
 #include <stdio.h>
@@ -44,7 +39,6 @@
 // for redraws in another thread
 //#define MULTI_THREAD
 
-#include "simmain.h"
 #include "simmem.h"
 #include "simsys_w32_png.h"
 #include "simversion.h"
@@ -234,7 +228,9 @@ int dr_os_close(void)
 	AllDibData = NULL;
 	free(AllDib);
 	AllDib = NULL;
-	ChangeDisplaySettings(NULL, 0);
+if(  is_fullscreen  ) {
+		ChangeDisplaySettings(NULL, 0);
+	}
 
 	timeEndPeriod(1);
 
@@ -446,7 +442,6 @@ static inline unsigned int ModifierKeys()
 		(GetKeyState(VK_CONTROL) < 0  ? 2 : 0); // highest bit set or return value<0 -> key is pressed
 }
 
-struct sys_event sys_event;
 
 /* Windows eventhandler: does most of the work */
 LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -744,19 +739,6 @@ void dr_sleep(uint32 millisec)
 }
 
 
-
-bool dr_fatal_notify(const char* msg, int choices)
-{
-	if(choices==0) {
-		MessageBoxA( hwnd, msg, "Fatal Error", MB_ICONEXCLAMATION|MB_OK );
-		return 0;
-	}
-	else {
-		return MessageBoxA( hwnd, msg, "Fatal Error", MB_ICONEXCLAMATION|MB_RETRYCANCEL	)==IDRETRY;
-	}
-}
-
-
 int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR, int)
 {
 	WNDCLASSW wc;
@@ -774,12 +756,6 @@ int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR, int)
 
 	RegisterClass(&wc);
 
-	int    const argc = __argc;
-	char** const argv = __argv;
-	char         pathname[1024];
-	GetModuleFileNameA(hInstance, pathname, lengthof(pathname));
-	argv[0] = pathname;
-
 	GetWindowRect(GetDesktopWindow(), &MaxSize);
 
 	// maybe set timer to 1ms intervall on Win2k upwards ...
@@ -791,7 +767,7 @@ int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR, int)
 		}
 	}
 
-	simu_main(argc, argv);
+	int const res = sysmain(__argc, __argv);
 	timeEndPeriod(1);
 
 #ifdef MULTI_THREAD
@@ -799,6 +775,6 @@ int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR, int)
 		TerminateThread( hFlushThread, 0 );
 	}
 #endif
-	return 0;
+	return res;
 }
 #endif

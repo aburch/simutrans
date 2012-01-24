@@ -1,8 +1,8 @@
 /*
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner
  *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans project under the artistic license.
+ * (see license.txt)
  */
 
 #ifndef simfab_h
@@ -17,6 +17,7 @@
 #include "besch/fabrik_besch.h"
 #include "halthandle_t.h"
 #include "simworld.h"
+#include "utils/plainstring.h"
 
 
 class spieler_t;
@@ -93,7 +94,7 @@ public:
 	sint64 get_stat(int month, int stat_type) const { assert(stat_type<MAX_FAB_GOODS_STAT); return statistics[month][stat_type]; }
 	void book_weighted_sum_storage(sint64 delta_time);
 
-	sint32 menge;	// in internal untis shifted by precision (see produktion)
+	sint32 menge;	// in internal untis shifted by precision_bits (see produktion)
 	sint32 max;
 };
 
@@ -338,8 +339,7 @@ private:
 	arrival_statistics_t arrival_stats_pax;
 	arrival_statistics_t arrival_stats_mail;
 
-
-	const char *name;
+	plainstring name;
 
 	/**
 	 * For advancement of slots for boost calculation
@@ -471,7 +471,7 @@ public:
 
 	void neuer_monat();
 
-	char const* get_name() const { return name; }
+	char const* get_name() const;
 	void set_name( const char *name );
 
 	sint32 get_kennfarbe() const { return besch->get_kennfarbe(); }
@@ -596,6 +596,11 @@ public:
 	uint32 get_scaled_electric_amount() const { return scaled_electric_amount; }
 	uint32 get_scaled_pax_demand() const { return scaled_pax_demand; }
 	uint32 get_scaled_mail_demand() const { return scaled_mail_demand; }
+
+	bool is_end_consumer() const { return (ausgang.empty() && !besch->is_electricity_producer()); }
+
+	// Returns a list of goods produced by this factory.
+	slist_tpl<const ware_besch_t*> *get_produced_goods() const;
 };
 
 #endif

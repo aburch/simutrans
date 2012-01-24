@@ -54,11 +54,12 @@ ai_goods_t::ai_goods_t(karte_t *wl, uint8 nr) : ai_t(wl,nr)
 	ship_vehicle = NULL;
 	road_weg = NULL;
 
-	next_contruction_steps = welt->get_steps()+ 50;
+	next_construction_steps = welt->get_steps()+ 50;
 
-	road_transport = nr<7;
+	road_transport = nr!=6;
 	rail_transport = nr>2;
 	ship_transport = true;
+	air_transport = false;
 }
 
 
@@ -749,7 +750,7 @@ void ai_goods_t::step()
 	}
 
 	// one route per month ...
-	if(  welt->get_steps() < next_contruction_steps  ) {
+	if(  welt->get_steps() < next_construction_steps  ) {
 		return;
 	}
 
@@ -989,7 +990,7 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 					length = (rail_engine->get_length() + count_rail*rail_vehicle->get_length()+CARUNITS_PER_TILE-1)/CARUNITS_PER_TILE;
 					if(suche_platz1_platz2(start, ziel, length)) {
 						state = ship_vehicle ? NR_BAUE_WATER_ROUTE : NR_BAUE_SIMPLE_SCHIENEN_ROUTE;
-						next_contruction_steps += 80;
+						next_construction_steps += 10;
 					}
 				}
 				// if state is still NR_BAUE_ROUTE1 then there are no sutiable places
@@ -997,7 +998,7 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 					// rail was too expensive or not successfull
 					count_rail = 255;
 					state = ship_vehicle ? NR_BAUE_WATER_ROUTE : NR_BAUE_STRASSEN_ROUTE;
-					next_contruction_steps += 80;
+					next_construction_steps += 10;
 				}
 			}
 			// no success at all?
@@ -1215,7 +1216,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 		// remove stucked vehicles (only from roads!)
 		case CHECK_CONVOI:
 		{
-			next_contruction_steps = welt->get_steps() + simrand( 8000, "void ai_goods_t::step()" )+1000;
+			next_construction_steps = welt->get_steps() + simrand( ai_t::construction_speed, "void ai_goods_t::step()" ) + 25;
 
 			for( int i = welt->get_convoi_count()-1;  i>=0;  i--  ) {
 				const convoihandle_t cnv = welt->get_convoi(i);
@@ -1230,7 +1231,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 
 				sint64 gewinn = 0;
 				for( int j=0;  j<12;  j++  ) {
-					gewinn += cnv->get_finance_history( j, CONVOI_PROFIT );
+					gewinn += cnv->get_finance_history( j, convoi_t::CONVOI_PROFIT );
 				}
 
 				// apparently we got the toatlly wrong vehicle here ...
@@ -1243,7 +1244,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 					sint64 goods=0;
 					// no goods for six months?
 					for( int i=0;  i<6;  i ++) {
-						goods += cnv->get_finance_history(i,CONVOI_TRANSPORTED_GOODS);
+						goods += cnv->get_finance_history( i, convoi_t::CONVOI_TRANSPORTED_GOODS );
 					}
 					delete_this = (goods==0);
 				}
@@ -1352,8 +1353,7 @@ void ai_goods_t::rdwr(loadsave_t *file)
 
 	xml_tag_t t( file, "ai_goods_t" );
 
-	// first: do all the administration
-	spieler_t::rdwr(file);
+	ai_t::rdwr(file);
 
 	// then check, if we have to do something or the game is too old ...
 	if(file->get_version()<101000) {
@@ -1364,11 +1364,7 @@ void ai_goods_t::rdwr(loadsave_t *file)
 			road_vehicle = NULL;
 			road_weg = NULL;
 
-			next_contruction_steps = welt->get_steps()+simrand(400, "void ai_goods_t::rdwr()");
-
-			road_transport = player_nr!=7;
-			rail_transport = player_nr>3;
-			ship_transport = true;
+			next_construction_steps = welt->get_steps()+simrand(400, "void ai_goods_t::rdwr()");
 
 			root = start = ziel = NULL;
 		}
@@ -1384,13 +1380,16 @@ void ai_goods_t::rdwr(loadsave_t *file)
 	file->rdwr_long(count_rail);
 	file->rdwr_long(count_road);
 	file->rdwr_long(count);
-	file->rdwr_bool(road_transport);
-	file->rdwr_bool(rail_transport);
-	file->rdwr_bool(ship_transport);
+	if(  file->get_version()<111001  ) {
+		file->rdwr_bool(road_transport);
+		file->rdwr_bool(rail_transport);
+		file->rdwr_bool(ship_transport);
+		air_transport = false;
+	}
 
 	if(file->is_saving()) {
 		// save current pointers
-		sint32 delta_steps = next_contruction_steps-welt->get_steps();
+		sint32 delta_steps = next_construction_steps-welt->get_steps();
 		file->rdwr_long(delta_steps);
 		koord3d k3d = root ? root->get_pos() : koord3d::invalid;
 		k3d.rdwr(file);
@@ -1418,7 +1417,7 @@ void ai_goods_t::rdwr(loadsave_t *file)
 	}
 	else {
 		// since steps in loaded game == 0
-		file->rdwr_long(next_contruction_steps);
+		file->rdwr_long(next_construction_steps);
 		// reinit current pointers
 		koord3d k3d;
 		k3d.rdwr(file);
@@ -1478,6 +1477,7 @@ void ai_goods_t::rdwr(loadsave_t *file)
 	}
 }
 
+
 bool ai_goods_t::is_forbidden( fabrik_t *fab1, fabrik_t *fab2, const ware_besch_t *w ) const
 {
 	fabconnection_t fc(fab1, fab2, w);
@@ -1490,6 +1490,7 @@ bool ai_goods_t::is_forbidden( fabrik_t *fab1, fabrik_t *fab2, const ware_besch_
 	}
 	return false;
 }
+
 
 void ai_goods_t::fabconnection_t::rdwr(loadsave_t *file)
 {
@@ -1512,8 +1513,6 @@ void ai_goods_t::fabconnection_t::rdwr(loadsave_t *file)
 		ware = warenbauer_t::get_info(temp);
 	}
 }
-
-
 
 
 /**

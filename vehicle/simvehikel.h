@@ -1,8 +1,8 @@
 /*
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner
  *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans project under the artistic license.
+ * (see license.txt)
  */
 
 /*
@@ -132,7 +132,7 @@ public:
 
 	virtual void rotate90();
 
-	ribi_t::ribi calc_richtung(koord start, koord ende) const;
+	static ribi_t::ribi calc_richtung(koord start, koord ende);
 	ribi_t::ribi calc_set_richtung(koord start, koord ende);
 	ribi_t::ribi calc_check_richtung(koord start, koord ende);
 

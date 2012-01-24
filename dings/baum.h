@@ -23,13 +23,19 @@
 class baum_t : public ding_t
 {
 private:
-	// type of tree (was 9 but for more compact saves now only 254 different ree types are allowed)
-	uint32 baumtype:8;
+	static PLAYER_COLOR_VAL outline_color;
 
 	// month of birth
-	sint32 geburt:20;
+	uint16 geburt;
 
-	uint32 season:3;
+	// type of tree (was 9 but for more compact saves now only 254 different ree types are allowed)
+	uint8 baumtype;
+
+	uint8 season:3;
+
+	// z-offset, max TILE_HEIGHT_STEP ie 4 bits
+	uint8 zoff:4;
+	// one bit free ;)
 
 	// static for administration
 	static stringhashtable_tpl<const baum_besch_t *> besch_names;
@@ -39,9 +45,9 @@ private:
 	bool saee_baum();
 
 	/**
-	 * Berechnet offsets für gepflanzte Bäume
+	 * calculate offsets for new trees
 	 */
-	void calc_off( uint8 slope );
+	void calc_off(uint8 slope, sint8 x=-128, sint8 y=-128);
 
 	static uint16 random_tree_for_climate_intern(climate cl);
 
@@ -57,17 +63,28 @@ public:
 
 	void rdwr(loadsave_t *file);
 
+	void laden_abschliessen();
+
 	image_id get_bild() const;
 
 	// hide trees eventually with transparency
-	PLAYER_COLOR_VAL get_outline_colour() const { return (umgebung_t::hide_trees  &&  umgebung_t::hide_with_transparency) ? (TRANSPARENT25_FLAG | OUTLINE_FLAG | COL_BLACK) : 0; }
+	PLAYER_COLOR_VAL get_outline_colour() const { return outline_color; }
 	image_id get_outline_bild() const;
+
+	static void recalc_outline_color() { outline_color = (umgebung_t::hide_trees  &&  umgebung_t::hide_with_transparency) ? (TRANSPARENT25_FLAG | OUTLINE_FLAG | COL_BLACK) : 0; }
 
 	/**
 	 * Berechnet Alter und Bild abhängig vom Alter
 	 * @author Hj. Malthaner
 	 */
 	void calc_bild();
+
+	void rotate90();
+
+	/**
+	 * re-calculate z-offset if slope of the tile has changed
+	 */
+	void recalc_off();
 
 	const char *get_name() const {return "Baum";}
 	typ get_typ() const { return baum; }
@@ -85,7 +102,7 @@ public:
 
 	const baum_besch_t* get_besch() const { return baum_typen[baumtype]; }
 	uint16 get_besch_id() const { return baumtype; }
-	sint32 get_age() const;
+	uint32 get_age() const;
 
 	// static functions to handle trees
 

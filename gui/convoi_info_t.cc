@@ -511,7 +511,7 @@ void convoi_info_t::show_hide_statistics( bool show )
 	chart.set_visible(show);
 	set_fenstergroesse(get_fenstergroesse() + offset + koord(0,show?LINESPACE:-LINESPACE));
 	resize(koord(0,0));
-	for (int i=0;i<MAX_CONVOI_COST;i++) {
+	for(  int i = 0;  i < convoi_t::MAX_CONVOI_COST;  i++  ) {
 		filterButtons[i].set_visible(toggler.pressed);
 	}
 }
@@ -712,7 +712,7 @@ void convoi_info_t::rdwr(loadsave_t *file)
 	sint32 yoff = scrolly.get_scroll_y();
 	if(  file->is_saving()  ) {
 		cnv_pos = cnv->front()->get_pos();
-		for( int i = 0; i<MAX_CONVOI_COST; i++) {
+		for(  int i = 0;  i < convoi_t::MAX_CONVOI_COST;  i++  ) {
 			if(  filterButtons[i].pressed  ) {
 				flags |= (1<<i);
 			}
@@ -766,10 +766,20 @@ void convoi_info_t::rdwr(loadsave_t *file)
 			gr.y -= 170;
 		}
 		w->set_fenstergroesse( gr );
-		for( int i = 0; i<MAX_CONVOI_COST; i++) {
-			w->filterButtons[i].pressed = (flags>>i)&1;
-			if(w->filterButtons[i].pressed) {
-				w->chart.show_curve(i);
+		if(  file->get_version()<111001  ) {
+			for(  int i = 0;  i < 6;  i++  ) {
+				w->filterButtons[i].pressed = (flags>>i)&1;
+				if(w->filterButtons[i].pressed) {
+					w->chart.show_curve(i);
+				}
+			}
+		}
+		else {
+			for(  int i = 0;  i < convoi_t::MAX_CONVOI_COST;  i++  ) {
+				w->filterButtons[i].pressed = (flags>>i)&1;
+				if(w->filterButtons[i].pressed) {
+					w->chart.show_curve(i);
+				}
 			}
 		}
 		if(  stats  ) {

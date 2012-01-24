@@ -3,6 +3,7 @@
  */
 
 #include <stdio.h>
+#include <algorithm>
 
 #include "../simdebug.h"
 #include "../simgraph.h"
@@ -19,9 +20,6 @@
 #include "../dings/tunnel.h"
 #include "../dings/gebaeude.h"
 #include "../dings/signal.h"
-#ifdef LAGER_NOT_IN_USE
-#include "../dings/lagerhaus.h"
-#endif
 #include "../dings/label.h"
 #include "../dings/gebaeude.h"
 #include "../dings/leitung2.h"
@@ -416,6 +414,27 @@ bool dingliste_t::intern_add_moving(ding_t* ding)
 	return false;
 }
 
+/**
+ * @returns true if tree1 must be sorted before tree2 (tree1 stands behind tree2)
+ */
+bool compare_trees(const ding_t *tree1, const ding_t *tree2)
+{
+	// the tree with larger yoff is in front
+	sint8 diff = tree2->get_yoff() - tree1->get_yoff();
+	if (diff==0) {
+		// .. or the one that is the left most (ie xoff is small)
+		diff = tree1->get_xoff() - tree2->get_xoff();
+	}
+	return diff>0;
+}
+
+
+void dingliste_t::sort_trees(uint8 index, uint8 count)
+{
+	if(top>=index+count) {
+		std::sort(&obj.some[index], &obj.some[index+count], compare_trees);
+	}
+}
 
 
 bool dingliste_t::add(ding_t* ding)
@@ -468,11 +487,9 @@ bool dingliste_t::add(ding_t* ding)
 			/* trees are a little tricky, since they cast a shadow
 			 * therefore the y-order must be correct!
 			 */
-			const sint8 offset = ding->get_yoff() + ding->get_xoff();
-
 			for(  ;  i<top;  i++) {
 				baum_t const* const tree = ding_cast<baum_t>(obj.some[i]);
-				if (!tree || tree->get_yoff() + tree->get_xoff() > offset) {
+				if (!tree  ||  compare_trees(ding, tree)) {
 					break;
 				}
 			}
@@ -1074,6 +1091,37 @@ void dingliste_t::dump() const
 	DBG_MESSAGE("dingliste_t::dump()","%i objects", top );
 	for(uint8 n=0; n<top; n++) {
 		DBG_MESSAGE( obj.some[n]->get_name(), "at %i owned by sp %p", n, obj.some[n]->get_besitzer() );
+	}
+}
+
+
+/** display all things, faster, but will lead to clipping errors
+ *  @author prissi
+ */
+void dingliste_t::display_dinge_quick_and_dirty( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const bool reset_dirty ) const
+{
+	if(capacity==0) {
+		return;
+	}
+	else if(capacity==1) {
+		if(start_offset==0) {
+			obj.one->display(xpos, ypos, reset_dirty );
+			obj.one->display_after(xpos, ypos, reset_dirty );
+			if(reset_dirty) {
+				obj.one->clear_flag(ding_t::dirty);
+			}
+		}
+		return;
+	}
+
+	for(uint8 n=start_offset; n<top; n++) {
+		// ist dort ein objekt ?
+		obj.some[n]->display(xpos, ypos, reset_dirty );
+	}
+	// foreground (needs to be done backwards!
+	for(int n=top-1; n>=0;  n--) {
+		obj.some[n]->display_after(xpos, ypos, reset_dirty );
+		obj.some[n]->clear_flag(ding_t::dirty);
 	}
 }
 

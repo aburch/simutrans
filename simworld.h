@@ -1,8 +1,8 @@
 /*
  * Copyright (c) 1997 - 2001 Hj. Malthaner
  *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans project under the artistic license.
+ * (see license.txt)
  */
 
 /*
@@ -52,6 +52,7 @@ class message_t;
 class weg_besch_t;
 class tunnel_besch_t;
 class network_world_command_t;
+class ware_besch_t;
 class memory_rw_t;
 
 
@@ -130,6 +131,10 @@ public:
 
 	enum { NORMAL=0, PAUSE_FLAG = 0x01, FAST_FORWARD=0x02, FIX_RATIO=0x04 };
 
+	/* Missing things during loading:
+	 * factories, vehicles, roadsigns or catenary may be severe
+	 */
+	enum missing_level_t { NOT_MISSING=0, MISSING_FACTORY=1, MISSING_VEHICLE=2, MISSING_SIGN=3, MISSING_WAYOBJ=4, MISSING_ERROR=4, MISSING_BRIDGE, MISSING_BUILDING, MISSING_WAY };
 
 private:
 	settings_t settings;
@@ -239,6 +244,9 @@ private:
 	vector_tpl<convoihandle_t> convoi_array;
 
 	vector_tpl<fabrik_t *> fab_list;
+
+	// Stores a list of goods produced by factories currently in the game;
+	vector_tpl<const ware_besch_t*> goods_in_game;
 
 	weighted_vector_tpl<gebaeude_t *> ausflugsziele;
 
@@ -479,6 +487,12 @@ public:
 
 	// set to something useful, if there is a total distance != 0 to show in the bar below
 	koord3d show_distance;
+
+	/* for warning, when stuff had to be removed/replaced
+	 * level must be >=1 (1=factory, 2=vechiles, 3=not so important)
+	 * may be refined later
+	 */
+	void add_missing_paks( const char *name, missing_level_t critical_level );
 
 	/**
 	 * Absoluter Monat
@@ -1070,16 +1084,15 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	const weighted_vector_tpl<stadt_t*>& get_staedte() const { return stadt; }
-	const stadt_t *get_random_stadt() const;
 	stadt_t *get_town_at(const uint32 weight) { return stadt.at_weight(weight); }
 	uint32 get_town_list_weight() const { return stadt.get_sum_weight(); }
+
 	void add_stadt(stadt_t *s);
 	bool rem_stadt(stadt_t *s);
 
 	/* tourist attraction list */
 	void add_ausflugsziel(gebaeude_t *gb);
 	void remove_ausflugsziel(gebaeude_t *gb);
-	const gebaeude_t *get_random_ausflugsziel() const;
 	const weighted_vector_tpl<gebaeude_t*> &get_ausflugsziele() const {return ausflugsziele; }
 
 	void add_label(koord pos) { if (!labels.is_contained(pos)) labels.append(pos); }
@@ -1093,10 +1106,8 @@ public:
 	const vector_tpl<fabrik_t*>& get_fab_list() const { return fab_list; }
 	vector_tpl<fabrik_t*>& access_fab_list() { return fab_list; }
 
-	/* sucht zufaellig eine Fabrik aus der Fabrikliste
-	 * @author Hj. Malthaner
-	 */
-	fabrik_t *get_random_fab() const;
+	// Returns a list of goods produced by factories that exist in current game
+	const vector_tpl<const ware_besch_t*> &get_goods_list();
 
 	/**
 	 * sucht naechstgelegene Stadt an Position i,j

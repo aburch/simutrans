@@ -372,6 +372,16 @@ public:
 	void calc_finance_history();
 
 	/**
+	* Calculates the assets of the player
+	*/
+	void calc_assets();
+
+	/**
+	* Updates the assets value of the player
+	*/
+	void update_assets(sint64 const delta);
+
+	/**
 	* rolls the finance history for player (needed when neues_jahr() or neuer_monat()) triggered
 	* @author hsiegeln
 	*/

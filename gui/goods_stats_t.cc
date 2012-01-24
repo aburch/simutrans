@@ -23,7 +23,21 @@
 
 goods_stats_t::goods_stats_t()
 {
-	set_groesse(koord(BUTTON4_X+BUTTON_WIDTH+2,-10+(warenbauer_t::get_waren_anzahl()-1)*(LINESPACE+1)));
+	set_groesse(koord(BUTTON4_X+BUTTON_WIDTH+2,(warenbauer_t::get_waren_anzahl()-1)*(LINESPACE+1)));
+}
+
+
+void goods_stats_t::update_goodslist( uint16 *g, int b, uint16 d, uint8 c, uint8 ct, karte_t* w, waytype_t wt, int listcount );
+{
+	goodslist = g;
+	bonus = b;
+	distance = d;
+	comfort = c;
+	catering_level = ct;
+	welt = w;
+	way_type = wt;
+	listed_goods = l;
+	set_groesse(koord(BUTTON4_X+BUTTON_WIDTH+2,max(2,listed_goods-2)*(LINESPACE+1)));
 }
 
 
@@ -37,7 +51,10 @@ void goods_stats_t::zeichnen(koord offset)
 	char money_buf[256];
 	cbuffer_t buf;
 
-	for(  uint16 i=0;  i<warenbauer_t::get_waren_anzahl()-1u;  i++  ) 
+	// Pre-111.1 in case current does not work.
+	/*for(  uint16 i=0;  i<warenbauer_t::get_waren_anzahl()-1u;  i++  )*/
+
+	for(  uint16 i=0;  i<listed_goods;  i++  ) 
 	{
 		const ware_besch_t * wtyp = warenbauer_t::get_info(goodslist[i]);
 

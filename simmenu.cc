@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2008 prissi
  *
- * This file is part of the Simutrans project under the artistic licence.
+ * This file is part of the Simutrans project under the artistic license.
  *
  * New configurable OOP tool system
  */
@@ -147,6 +147,8 @@ werkzeug_t *create_simple_tool(int toolnr)
 		case WKZ_ADD_MESSAGE_TOOL:  tool = new wkz_add_message_t(); break;
 		case WKZ_TOGGLE_RESERVATION:tool = new wkz_toggle_reservation_t(); break;
 		case WKZ_VIEW_OWNER:        tool = new wkz_view_owner_t(); break;
+		case WKZ_HIDE_UNDER_CURSOR: tool = new wkz_hide_under_cursor_t(); break;
+		// Experimental non-UI tools - should be at the end.
 		case WKZ_RECOLOUR_TOOL:		tool = new wkz_recolour_t(); break;
 		case WKZ_ACCESS_TOOL:		tool = new wkz_access_t(); break;
 		default:                    dbg->error("create_simple_tool()","cannot satisfy request for simple_tool[%i]!",toolnr);
@@ -734,13 +736,13 @@ bool werkzeug_t::is_selected(const karte_t *welt) const
 	return welt->get_werkzeug(welt->get_active_player_nr())==this;
 }
 
-const char *werkzeug_t::check( karte_t *welt, spieler_t *, koord3d pos)
+const char *werkzeug_t::check_pos( karte_t *welt, spieler_t *, koord3d pos )
 {
 	grund_t *gr = welt->lookup(pos);
 	return (gr  &&  !gr->is_visible()) ? "" : NULL;
 }
 
-const char *kartenboden_werkzeug_t::check( karte_t *welt, spieler_t *, koord3d pos)
+const char *kartenboden_werkzeug_t::check_pos( karte_t *welt, spieler_t *, koord3d pos )
 {
 	grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
 	return (gr  &&  !gr->is_visible()) ? "" : NULL;
@@ -748,10 +750,10 @@ const char *kartenboden_werkzeug_t::check( karte_t *welt, spieler_t *, koord3d p
 
 // seperator in toolbars
 class wkz_dummy_t : public werkzeug_t {
-	bool init( karte_t *, spieler_t * ) { return false; }
-	virtual bool is_init_network_save() const { return true; }
-	virtual bool is_work_network_save() const { return true; }
-	virtual bool is_move_network_save(spieler_t *) const { return true; }
+	bool init(karte_t*, spieler_t*) OVERRIDE { return false; }
+	bool is_init_network_save() const OVERRIDE { return true; }
+	bool is_work_network_save() const OVERRIDE { return true; }
+	bool is_move_network_save(spieler_t*) const OVERRIDE { return true; }
 };
 
 werkzeug_t *werkzeug_t::dummy = new wkz_dummy_t();
@@ -761,10 +763,16 @@ werkzeug_t *werkzeug_t::dummy = new wkz_dummy_t();
 image_id toolbar_t::get_icon(spieler_t *sp) const
 {
 	// no image for edit tools => do not open
-	if(sp!=NULL  &&  strcmp(default_param,"EDITTOOLS")==0  &&  sp!=sp->get_welt()->get_spieler(1)  ) {
+	if(  icon==IMG_LEER  ||  (sp!=NULL  &&  strcmp(default_param,"EDITTOOLS")==0  &&  sp->get_player_nr()!=1)  ) {
 		return IMG_LEER;
 	}
-	return icon;
+	// now have we a least one visible tool?
+	for(  slist_tpl<werkzeug_t *>::const_iterator iter = tools.begin(), end = tools.end();  iter != end;  ++iter  ) {
+		if(  (*iter)->get_icon(sp)!=IMG_LEER  ) {
+			return icon;
+		}
+	}
+	return IMG_LEER;
 }
 
 

@@ -42,7 +42,7 @@
 # if defined(USE_C)  ||  !defined(__i386__)
 #  undef USE_C
 #  define USE_C
-#  if (__GNUC__>=4  &&  __GNUC_MINOR__>=2)  ||  !defined(__i386__)
+#  if GCC_ATLEAST(4, 2) || !defined(__i386__)
 #   define ALIGN_COPY
 #   warning "Needs to use slower copy with GCC > 4.2.x"
 #  endif
@@ -1645,8 +1645,8 @@ static void calc_base_pal_from_night_shift(const int night)
 	//                     0,75 - quite bright                 80        17
 	//                     0,8    bright                      104        22
 
-	const double RG_nihgt_multiplier = pow(0.75, night) * ((light_level + 8.0) / 8.0);
-	const double B_nihgt_multiplier  = pow(0.83, night) * ((light_level + 8.0) / 8.0);
+	const double RG_night_multiplier = pow(0.75, night) * ((light_level + 8.0) / 8.0);
+	const double B_night_multiplier  = pow(0.83, night) * ((light_level + 8.0) / 8.0);
 
 	for (i = 0; i < 0x8000; i++) {
 		// (1<<15) this is total no of all possible colors in RGB555)
@@ -1657,18 +1657,18 @@ static void calc_base_pal_from_night_shift(const int night)
 		// lines generate all possible colors in 555RGB code - input
 		// however the result is in 888RGB - 8bit per channel
 
-		R = (int)(R * RG_nihgt_multiplier);
-		G = (int)(G * RG_nihgt_multiplier);
-		B = (int)(B * B_nihgt_multiplier);
+		R = (int)(R * RG_night_multiplier);
+		G = (int)(G * RG_night_multiplier);
+		B = (int)(B * B_night_multiplier);
 
 		rgbmap_day_night[i] = get_system_color(R, G, B);
 	}
 
 	// player color map (and used for map display etc.)
 	for (i = 0; i < 224; i++) {
-		const int R = (int)(special_pal[i*3 + 0] * RG_nihgt_multiplier);
-		const int G = (int)(special_pal[i*3 + 1] * RG_nihgt_multiplier);
-		const int B = (int)(special_pal[i*3 + 2] * B_nihgt_multiplier);
+		const int R = (int)(special_pal[i*3 + 0] * RG_night_multiplier);
+		const int G = (int)(special_pal[i*3 + 1] * RG_night_multiplier);
+		const int B = (int)(special_pal[i*3 + 2] * B_night_multiplier);
 
 		specialcolormap_day_night[i] = get_system_color(R, G, B);
 	}
@@ -1747,7 +1747,8 @@ void display_set_player_color_scheme(const int player, const COLOR_VAL col1, con
 			if(night_shift!=0) {
 				calc_base_pal_from_night_shift(night_shift);
 			}
-			player_day = player_night = player;
+			// calc_base_pal_from_night_shift resets player_night to 0
+			player_day = player_night;
 		}
 		recode();
 		mark_rect_dirty_nc(0, 32, disp_width - 1, disp_height - 1);

@@ -59,6 +59,8 @@ convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
 	add_komponente(&retire_button);
 	retire_button.add_listener(this);
 
+	// From new Standard (111.1) - probably associated with new features logged for convoys not used in Standard.
+	//scrolly.set_pos(koord(0, 2+16+5*LINESPACE));
 	scrolly.set_pos(koord(0, 50));
 	scrolly.set_show_scroll_x(true);
 	add_komponente(&scrolly);
@@ -100,18 +102,18 @@ void convoi_detail_t::zeichnen(koord pos, koord gr)
 
 		// current power
 		buf.printf( translator::translate("Leistung: %d kW"), cnv->get_sum_leistung() );
-		display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, MONEY_PLUS, true );
+		display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, COL_BLACK, true );
 		offset_y += LINESPACE;
 
 		number_to_string( number, cnv->get_total_distance_traveled(), 0 );
 		buf.clear();
 		buf.printf( translator::translate("Odometer: %s km"), number );
-		display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, MONEY_PLUS, true );
+		display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, COL_BLACK, true );
 		offset_y += LINESPACE;
 
 		buf.clear();
 		buf.printf("%s %i", translator::translate("Station tiles:"), cnv->get_tile_length() );
-		display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, MONEY_PLUS, true );
+		display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, COL_BLACK, true );
 		offset_y += LINESPACE;
 
 		// current resale value
@@ -322,8 +324,9 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 		cbuffer_t buf;
 
 		// for bonus stuff
-		sint32 const ref_speed = cnv->get_welt()->get_average_speed(cnv->front()->get_waytype());
-		const sint32 speed_base = (100*speed_to_kmh(cnv->get_min_top_speed()))/ref_speed-100;
+		const sint32 ref_kmh = cnv->get_welt()->get_average_speed( cnv->front()->get_waytype() );
+		const sint32 cnv_kmh = cnv->get_line().is_bound() ? cnv->get_line()->get_finance_history(1, LINE_AVERAGE_SPEED): cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED);
+		const sint32 kmh_base = (100 * cnv_kmh) / ref_kmh - 100;
 
 		static cbuffer_t freight_info;
 		for(unsigned veh=0;  veh<cnv->get_vehikel_anzahl(); veh++ ) {
@@ -438,7 +441,7 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 				// bonus stuff
 				int len = 5+display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, translator::translate("Max income:"), ALIGN_LEFT, COL_BLACK, true );
 				const sint32 grundwert128 = v->get_fracht_typ()->get_preis()<<7;
-				const sint32 grundwert_bonus = v->get_fracht_typ()->get_preis()*(1000l+speed_base*v->get_fracht_typ()->get_speed_bonus());
+				const sint32 grundwert_bonus = v->get_fracht_typ()->get_preis()*(1000l+kmh_base*v->get_fracht_typ()->get_speed_bonus());
 				const sint32 price = (v->get_fracht_max()*(grundwert128>grundwert_bonus ? grundwert128 : grundwert_bonus))/30 - v->get_betriebskosten(cnv->get_welt());
 				money_to_string( number, price/100.0 );
 				display_proportional_clip( pos.x+w+offset.x+len, pos.y+offset.y+total_height+extra_y, number, ALIGN_LEFT, price>0?MONEY_PLUS:MONEY_MINUS, true );

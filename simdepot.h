@@ -1,8 +1,8 @@
 /*
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner
  *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans project under the artistic license.
+ * (see license.txt)
  */
 
 #ifndef _simdepot_h
@@ -48,6 +48,9 @@ protected:
 	static slist_tpl<depot_t *> all_depots;
 
 public:
+	// Last selected vehicle filter
+	int selected_filter;
+
 	// finds the next/previous depot relative to the current position
 	static depot_t *find_depot( koord3d start, const ding_t::typ depot_type, const spieler_t *sp, bool next);
 
@@ -128,7 +131,7 @@ public:
 	 * @date  30.05.2003
 	 */
 	unsigned vehicle_count() const { return vehicles.get_count(); }
-	slist_tpl<vehikel_t *> *get_vehicle_list() { return &vehicles; }
+	slist_tpl<vehikel_t*> const& get_vehicle_list() { return vehicles; }
 
 	/**
 	 * A new vehicle is bought and added to the vehicle list.

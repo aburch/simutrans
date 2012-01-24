@@ -56,6 +56,7 @@ void gebaeude_t::init()
 	count = 0;
 	zeige_baugrube = false;
 	snow = false;
+	remove_ground = true;
 }
 
 
@@ -303,6 +304,7 @@ void gebaeude_t::set_tile(const haus_tile_besch_t *new_tile)
 		sync = true;
 	}
 	tile = new_tile;
+	remove_ground = tile->has_image()  &&  !tile->get_besch()->ist_mit_boden();
 	set_flag(ding_t::dirty);
 }
 
@@ -373,22 +375,20 @@ bool gebaeude_t::sync_step(long delta_t)
 
 void gebaeude_t::calc_bild()
 {
-	grund_t *gr=welt->lookup(get_pos());
-	// snow image?
-	snow = (!gr->ist_tunnel()  ||  gr->ist_karten_boden())  &&  (get_pos().z-(get_yoff()/TILE_HEIGHT_STEP)>= welt->get_snowline());
+	grund_t *gr = welt->lookup(get_pos());
 	// need no ground?
-	if(!tile->get_besch()->ist_mit_boden()  ||  !tile->has_image()) {
-		grund_t *gr=welt->lookup(get_pos());
-		if(gr  &&  gr->get_typ()==grund_t::fundament) {
-			gr->set_bild( IMG_LEER );
-		}
+	if(  remove_ground  &&  gr->get_typ()==grund_t::fundament  ) {
+		gr->set_bild( IMG_LEER );
+	}
+	// snow image?
+	snow = 0;
+	if(  tile->get_seasons()>1  ) {
+		snow = (!gr->ist_tunnel()  ||  gr->ist_karten_boden())  &&  (get_pos().z-(get_yoff()/TILE_HEIGHT_STEP)>= welt->get_snowline());
 	}
 }
 
 
-
-image_id
-gebaeude_t::get_bild() const
+image_id gebaeude_t::get_bild() const
 {
 	if(umgebung_t::hide_buildings!=0) {
 		// opaque houses
@@ -420,9 +420,7 @@ gebaeude_t::get_bild() const
 }
 
 
-
-image_id
-gebaeude_t::get_outline_bild() const
+image_id gebaeude_t::get_outline_bild() const
 {
 	if(umgebung_t::hide_buildings!=0  &&  umgebung_t::hide_with_transparency  &&  !zeige_baugrube) {
 		// opaque houses
@@ -432,10 +430,8 @@ gebaeude_t::get_outline_bild() const
 }
 
 
-
 /* gives outline colour and plots background tile if needed for transparent view */
-PLAYER_COLOR_VAL
-gebaeude_t::get_outline_colour() const
+PLAYER_COLOR_VAL gebaeude_t::get_outline_colour() const
 {
 	COLOR_VAL colours[] = { COL_BLACK, COL_YELLOW, COL_YELLOW, COL_PURPLE, COL_RED, COL_GREEN };
 	PLAYER_COLOR_VAL disp_colour = 0;
@@ -451,9 +447,7 @@ gebaeude_t::get_outline_colour() const
 }
 
 
-
-image_id
-gebaeude_t::get_bild(int nr) const
+image_id gebaeude_t::get_bild(int nr) const
 {
 	if(zeige_baugrube || umgebung_t::hide_buildings) {
 		return IMG_LEER;
@@ -465,9 +459,7 @@ gebaeude_t::get_bild(int nr) const
 }
 
 
-
-image_id
-gebaeude_t::get_after_bild() const
+image_id gebaeude_t::get_after_bild() const
 {
 	if(zeige_baugrube) {
 		return IMG_LEER;
@@ -480,7 +472,6 @@ gebaeude_t::get_after_bild() const
 		return tile->get_vordergrund(count, snow);
 	}
 }
-
 
 
 /*
@@ -497,6 +488,7 @@ int gebaeude_t::get_passagier_level() const
 	return pax*dim.x*dim.y;
 }
 
+
 int gebaeude_t::get_post_level() const
 {
 	koord dim = tile->get_besch()->get_groesse();
@@ -506,7 +498,6 @@ int gebaeude_t::get_post_level() const
 	}
 	return post*dim.x*dim.y;
 }
-
 
 
 /**
@@ -562,15 +553,18 @@ bool gebaeude_t::ist_rathaus() const
 	return tile->get_besch()->ist_rathaus();
 }
 
+
 bool gebaeude_t::is_monument() const
 {
 	return tile->get_besch()->get_utyp() == haus_besch_t::denkmal;
 }
 
+
 bool gebaeude_t::ist_firmensitz() const
 {
 	return tile->get_besch()->ist_firmensitz();
 }
+
 
 gebaeude_t::typ gebaeude_t::get_haustyp() const
 {
@@ -578,8 +572,7 @@ gebaeude_t::typ gebaeude_t::get_haustyp() const
 }
 
 
-void
-gebaeude_t::zeige_info()
+void gebaeude_t::zeige_info()
 {
 	// Für die Anzeige ist bei mehrteiliggen Gebäuden immer
 	// das erste laut Layoutreihenfolge zuständig.
@@ -727,7 +720,6 @@ void gebaeude_t::info(cbuffer_t & buf) const
 }
 
 
-
 void gebaeude_t::rdwr(loadsave_t *file)
 {
 	// do not save factory buildings => factory will reconstruct them
@@ -862,6 +854,7 @@ void gebaeude_t::rdwr(loadsave_t *file)
 
 					default:
 						dbg->warning("gebaeude_t::rwdr", "description %s for building at %d,%d not found (will be removed)!", buf, get_pos().x, get_pos().y);
+						welt->add_missing_paks( buf, karte_t::MISSING_BUILDING );
 				}
 			}
 		}	// here we should have a valid tile pointer or nothing ...
@@ -871,6 +864,9 @@ void gebaeude_t::rdwr(loadsave_t *file)
 		 */
 		if (tile  &&  tile->get_besch()->get_utyp() == haus_besch_t::denkmal) {
 			hausbauer_t::denkmal_gebaut(tile->get_besch());
+		}
+		if (tile) {
+			remove_ground = tile->has_image()  &&  !tile->get_besch()->ist_mit_boden();
 		}
 	}
 

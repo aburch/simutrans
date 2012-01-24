@@ -39,6 +39,7 @@ private:
 	static uint8 catering_level;
 	static bool sortreverse;
 	static sort_mode_t sortby;
+	static bool filter_goods;
 	//static waytype_t wtype;
 	waytype_t wtype;
 
@@ -66,6 +67,7 @@ private:
 	button_t		catering_up;
 	button_t		catering_down;
 	gui_combobox_t	way_type;
+	button_t		filter_goods_toggle;
 
 	goods_stats_t goods_stats;
 	gui_scrollpane_t scrolly;

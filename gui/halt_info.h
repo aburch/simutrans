@@ -14,12 +14,12 @@
 #include "components/gui_textarea.h"
 #include "components/gui_textinput.h"
 #include "components/gui_button.h"
-#include "components/location_view_t.h"
+#include "components/gui_location_view_t.h"
 #include "components/action_listener.h"
 #include "components/gui_chart.h"
 
-#include "../halthandle_t.h"
 #include "../utils/cbuffer_t.h"
+#include "../simhalt.h"
 #include "../simwin.h"
 
 
@@ -50,7 +50,7 @@ private:
 	location_view_t view;
 	button_t button;
 	button_t sort_button;     // @author hsiegeln
-	button_t filterButtons[8];
+	button_t filterButtons[MAX_HALT_COST];
 	button_t toggler;
 
 	halthandle_t halt;

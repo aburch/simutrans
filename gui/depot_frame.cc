@@ -8,7 +8,6 @@
 #include "depot_frame.h"
 
 #include <stdio.h>
-#include <math.h>
 
 #include "../simunits.h"
 #include "../simconvoi.h"
@@ -21,6 +20,7 @@
 #include "../simlinemgmt.h"
 #include "../vehicle/simvehikel.h"
 #include "../simmenu.h"
+#include "../simtools.h"
 
 #include "../besch/haus_besch.h"
 
@@ -564,6 +564,8 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 				depot->set_selected_line(selected_line);
 				line_selector.set_selection( 0 );
 			}
+		} else if(komp == &vehicle_filter) {
+			depot->selected_filter = vehicle_filter.get_selection();
 		}
 		else {
 			return false;

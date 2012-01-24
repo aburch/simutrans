@@ -1,7 +1,7 @@
 /*
  * definitions for the system dependent part of simutrans
  *
- * This file is part of the Simutrans project under the artistic licence.
+ * This file is part of the Simutrans project under the artistic license.
  */
 
 #ifndef simsys_h
@@ -112,8 +112,7 @@ unsigned long dr_time(void);
 void dr_sleep(uint32 millisec);
 
 // error message in case of fatal events
-// if choice!=0 then there will be a scond button
-bool dr_fatal_notify(const char* msg, int choices);
+void dr_fatal_notify(char const* msg);
 
 /**
  * Some wrappers can save screenshots.
@@ -139,5 +138,7 @@ void dr_copy(const char *source, size_t length);
  * @author Knightly
  */
 size_t dr_paste(char *target, size_t max_length);
+
+int sysmain(int argc, char** argv);
 
 #endif

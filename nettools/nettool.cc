@@ -252,7 +252,7 @@ int say(SOCKET socket, uint32 command_id, int argc, char **argv) {
 	int remaining = maxlen - 1;
 	char msg[maxlen];
 	int ind = 0;
-	strncpy(msg, argv[ind], remaining);
+	tstrncpy(msg, argv[ind], remaining);
 	remaining -= strlen(argv[ind]);
 	ind++;
 	while (ind < argc && remaining > 1) {

@@ -8,6 +8,7 @@
 #include <string.h>
 
 #include "money_frame.h"
+#include "ai_option_t.h"
 
 #include "../simworld.h"
 #include "../simdebug.h"
@@ -328,7 +329,15 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	// easier headquarter access
 	old_level = sp->get_headquarter_level();
 	old_pos = sp->get_headquarter_pos();
-	if(old_level > 0  ||  hausbauer_t::get_headquarter(0,sp->get_welt()->get_timeline_year_month())!=NULL) {
+
+	if(  sp->get_ai_id()!=spieler_t::HUMAN  ) {
+		// misuse headquarter button for AI configure
+		headquarter.init(button_t::box, "Configure AI", koord(582-12-120, 0), koord(120, BUTTONSPACE));
+		headquarter.add_listener(this);
+		add_komponente(&headquarter);
+		headquarter.set_tooltip( "Configure AI setttings" );
+	}
+	else if(old_level > 0  ||  hausbauer_t::get_headquarter(0,sp->get_welt()->get_timeline_year_month())!=NULL) {
 
 		headquarter.init(button_t::box, old_pos!=koord::invalid ? "upgrade HQ" : "build HQ", koord(582-12-120, 0), koord(120, BUTTONSPACE));
 		headquarter.add_listener(this);
@@ -344,13 +353,13 @@ money_frame_t::money_frame_t(spieler_t *sp)
 			headquarter.set_tooltip( headquarter_tooltip );
 			headquarter.enable();
 		}
-
-		if(sp->get_headquarter_pos()!=koord::invalid) {
-			headquarter_view.set_location( sp->get_welt()->lookup_kartenboden( sp->get_headquarter_pos() )->get_pos() );
-		}
-		headquarter_view.set_pos( koord(582-12-120, BUTTONSPACE) );
-		add_komponente(&headquarter_view);
 	}
+
+	if(old_pos!=koord::invalid) {
+		headquarter_view.set_location( sp->get_welt()->lookup_kartenboden( sp->get_headquarter_pos() )->get_pos() );
+	}
+	headquarter_view.set_pos( koord(582-12-120, BUTTONSPACE) );
+	add_komponente(&headquarter_view);
 
 	// add filter buttons
 	for(int ibutton=0;  ibutton<11;  ibutton++) {
@@ -493,7 +502,12 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	old_interest.set_color(get_money_colour(COST_INTEREST, 1));
 
 	headquarter.disable();
-	if(sp!=sp->get_welt()->get_active_player()) {
+	if(  sp->get_ai_id()!=spieler_t::HUMAN  ) {
+		headquarter.set_tooltip( "Configure AI setttings" );
+		headquarter.set_text( "Configure AI" );
+		headquarter.enable();
+	}
+	else if(sp!=sp->get_welt()->get_active_player()) {
 		headquarter.set_tooltip( NULL );
 	}
 	else {
@@ -519,7 +533,9 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	}
 
 	if(old_level!=sp->get_headquarter_level()  ||  old_pos!=sp->get_headquarter_pos()) {
-		headquarter.set_text( sp->get_headquarter_pos()!=koord::invalid ? "upgrade HQ" : "build HQ" );
+		if(  sp->get_ai_id()!=spieler_t::HUMAN  ) {
+			headquarter.set_text( sp->get_headquarter_pos()!=koord::invalid ? "upgrade HQ" : "build HQ" );
+		}
 		remove_komponente(&headquarter_view);
 		old_level = sp->get_headquarter_level();
 		old_pos = sp->get_headquarter_pos();
@@ -559,7 +575,12 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 bool money_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 {
 	if(komp==&headquarter) {
-		sp->get_welt()->set_werkzeug( werkzeug_t::general_tool[WKZ_HEADQUARTER], sp );
+		if(  sp->get_ai_id()!=spieler_t::HUMAN  ) {
+			create_win( new ai_option_t(sp), w_info, magic_ai_options_t+sp->get_player_nr() );
+		}
+		else {
+			sp->get_welt()->set_werkzeug( werkzeug_t::general_tool[WKZ_HEADQUARTER], sp );
+		}
 		return true;
 	}
 
@@ -585,7 +606,6 @@ uint32 money_frame_t::get_rdwr_id()
 {
 	return magic_finances_t+sp->get_player_nr();
 }
-
 
 
 void money_frame_t::rdwr( loadsave_t *file )

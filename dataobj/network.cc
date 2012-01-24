@@ -271,24 +271,19 @@ SOCKET network_open_address( const char *cp, long timeout_ms, const char * &err 
 	bool connected = false;
 
 #ifdef NETTOOL
-
 	// Nettool doesn't have umgebung, so fake it
 	vector_tpl<std::string> ips;
 	ips.append_unique("::");
 	ips.append_unique("0.0.0.0");
-	for (  uint i = 0;  !connected  &&  i < ips.get_count();  i++  ) {
-		std::string ip = ips[i];
-
-#else // NETTOOL
-
+#else
+	vector_tpl<std::string> const& ips = umgebung_t::listen;
+#endif
 	// For each address in the list of listen addresses try and create a socket to transmit on
 	// Use the first one which works
-	for (  uint i = 0;  !connected  &&  i < umgebung_t::listen.get_count();  i++  ) {
-		std::string ip = umgebung_t::listen[i];
+	for (uint i = 0; !connected && i != ips.get_count(); ++i) {
+		std::string const& ip = ips[i];
 
-#endif // NETTOOL
-
-#ifdef HAS_NTOP_AND_NTOP
+#ifdef HAS_NTOP_AND_PTON
 		// Check address is valid
 		if (  ip.find(":") != std::string::npos  ) {
 /* Windows could use the code below; but getaddrinfo will take care of that anyway ...
@@ -350,8 +345,8 @@ SOCKET network_open_address( const char *cp, long timeout_ms, const char * &err 
 			dbg->error( "network_open_address()", "Failed to getaddrinfo for %s, error was: %s", ip.c_str(), gai_strerror(ret) );
 #ifndef NETTOOL
 			umgebung_t::listen.remove_at( i );
-			i --;
 #endif
+			i --;
 			continue;
 		}
 
@@ -361,7 +356,8 @@ SOCKET network_open_address( const char *cp, long timeout_ms, const char * &err 
 			my_client_socket = socket( walk_local->ai_family, walk_local->ai_socktype, walk_local->ai_protocol );
 
 			char ipstr_local[INET6_ADDRSTRLEN];
-#ifndef HAS_NTOP_AND_NTOP
+
+#ifndef HAS_NTOP_AND_PTON
 			if(  getnameinfo( (walk_local->ai_addr), sizeof(struct sockaddr), ipstr_local, sizeof(ipstr_local), NULL, 0, NI_NUMERICSERV ) !=0  ) {
 				DBG_MESSAGE( "network_open_address()", "Invalid socket, skipping..." );
 				continue;
@@ -489,23 +485,18 @@ bool network_init_server( int port )
 #else // USE_IP4_ONLY
 
 #ifdef NETTOOL
-
 	// Nettool doesn't have umgebung, so fake it
 	vector_tpl<std::string> ips;
 	ips.append_unique("::");
 	ips.append_unique("0.0.0.0");
-	for (  uint i = 0;  i < ips.get_count();  i++  ) {
-		std::string ip = ips[i];
-
-#else // NETTOOL
-
+#else
+	vector_tpl<std::string> const& ips = umgebung_t::listen;
+#endif
 	// For each address in the list of listen addresses try and create a socket to listen on
-	for (  uint i = 0;  i < umgebung_t::listen.get_count();  i++  ) {
-		std::string ip = umgebung_t::listen[i];
+	for (uint i = 0; i != ips.get_count(); ++i) {
+		std::string const& ip = ips[i];
 
-#endif // NETTOOL
-
-#ifdef HAS_NTOP_AND_NTOP
+#ifdef HAS_NTOP_AND_PTON
 		// Check address is valid
 		if (  ip.find(":") != std::string::npos  ) {
 /* Windows could use the code below; but getaddrinfo will take care of that anyway ...
@@ -556,7 +547,8 @@ bool network_init_server( int port )
 		for (  walk = server;  walk != NULL;  walk = walk->ai_next  ) {
 			server_socket = socket( walk->ai_family, walk->ai_socktype, walk->ai_protocol );
 			char ipstr[INET6_ADDRSTRLEN];
-#ifndef HAS_NTOP_AND_NTOP
+
+#ifndef HAS_NTOP_AND_PTON
 			if(  getnameinfo( (walk->ai_addr), sizeof(struct sockaddr), ipstr, sizeof(ipstr), NULL, 0, NI_NUMERICSERV ) !=0  ) {
 				DBG_MESSAGE( "network_open_address()", "Invalid socket, skipping..." );
 				continue;
