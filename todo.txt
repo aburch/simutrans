@@ -1,94 +1,23 @@
 To be done:
-- limit number of worker towns for industry to a setting like four or so
-- connection weighted by their intermediate stops => A* for goods routing [A* did not worked out, but intermediate stops may be considered]
-- when import translation: ignore entries which are identical (saving runtime)
-- limit construction costs
+- fixed_maintenance_cost for vehicles (low for trailers/wagons, high for engines,trucksbus,planes)
+- menu_position (left, top, right, bottom?)
+- ownership in minimap
+- loading times for convois (entry loading_time per unit and car; easy change and open more freedom for pak set design)
+- weight limit on ways by axle_load entry in vehicles (to avoid problem when going back and forth with diff. load)
+- when import translation: ignore entries which are identical (saving runtime) (check?)
 - busy platforms
 - Signals switching nearly like before (should be easy)
-- Odometer/Lifetime
-- renaming factories/player
-- longer financial history
+- more financial history
 - detail on vehicles (like factory_details)
-- another road type for tramways?
+
+partially done:
+- connection weighted by their intermediate stops => A* for goods routing [A* did not worked out, but intermediate stops may be considered]
+- tile 2x height: halfway-> need conversion for textures needed
+- merge identical images in makeobj: done, merged them on loadtime
+- scripting for AI: AIs are now seperate files and can be added: on the way
 
 CHECK:
 resize greater than 2400*1536 crashes simutrans
 Toolwindow with 10 last used tools (in fixed order)
-bahnhofsdetaildialog??
+bahnhofsdetaildialog (on the station buildings)
 
-
-Stichpunkte
-
-- mehrere Stationen: done
-- Statistiken für Stadtfenster: done
-- Einzugsbereich einstellbar: done
-- Vorsignale: done
-- Güterbalken eins daneben: done
-- Hauptquartier: done
-- bevorzugt für nächsten Halt einsteigen lassen: done
-- step für citycars/vehicles (für turnaround/stau): done
-- nur 2x1 und nur 1x2 Gebäude: done
-- Linksverkehr: done
-- Pfeiler für Brücken: done
-- Monorail als Brückenstrecke: done
-- Fabrikliste: done
-- Stadtwachstum abhängig von größe: bis 1000/4  bis 10000/2  dann normal: done
-- Gebäude gleichen Levels sollten nicht mehr wechseln wenn renoviert: done
-- oberstes Fenster schließen: done
-- timeline/distribution für Gebäude: done
-- Bahnhöfe auf Brücken: done
-- Start aus Depot nur mit gültiger Route: done
-- nur an nicht überfüllte Abnehmer liefern: done
-- bonus mit Jahr anpassen: done
-- Sehenwürdigkeitenliste: done
-- FastForward-Button: done
-- A* pfadsuche: done
-- cursor für up/down: finished
-- KI noch mehr auf Kette drillen, bessere Bahnhöfe: done
-- A* for ways: done
-- Warteschleife für Flugzeuge: done
-- sound: done
-- Kurven auf Brücken: well, monorails
-- Linienverwaltung kollidiert mit AI Spieler: done
-- Oneway Rollbahnen: done
-- more than one translation: done
-- Jahreszeiten: done
-- set animation speed in pak-file, allow season in pak file: done
--  and using halthandles instead coordinates: done
-- details for convois: halfway
-- Brücken an senkrechten Wänden: done/halfway
-- plane shadow: done
-- blocking crossing with animation/sound and transparent graphics: done
-- tile 2x height: halfway-> need conversion for textures needed
-passengers from/to headquarters: done
-- synchronized traffic lights: done
-- smoother movements: done
-- Sort signals so simple signal is first: done
-- industry density linked to population density; consumer would building branches slowly: done
-- power generation linked with total industry production: done
-- more statistics for world and all convois: nearly all finished
-- waiting only a certain intervall (when waiting for a load percentage): need savegame bump
-- waybuilder preview: done (drag building)
-- more names: done
-- Landfabrik alle x Jahre/Fakriken: done
-- custom tool bars: done
-Main meinu configurable in size and order: done
-- maintenance cost at start of month: done
-- integrate the edit modus: done
-- timeline bonus speeds from a file: done
-- bankrupt only when the net company value (i.e. after selling everything) is below zero (like for AI): done
-- factory density instead of fixed population linked growth: somewhat done, different system
-- merge identical images in makeobj: done, merged them on loadtime
-- A* for goods: done but not useful!
-- scripting for AI: AIs are now seperate files and can be added
-
-Impossible:
-- vehicle N/E longer than 8 px must be aligned by top, not end; need change of moving code: impossible
-
-Immer zu tun:
-- Aufräumen von Datentypen für bessere Portierbarkeit
-- Testen auf BeOS und PowerPC
-
-
-Unmögliches ...
-- echte Abzweige nur in eine Richtung
