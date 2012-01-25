@@ -240,8 +240,6 @@ public:
 
 	bool is_within_walking_distance_of(halthandle_t halt) const;
 
-	bool is_transfer(const uint8 catg) const { return serving_schedules[catg] > 1u; }
-
 private:
 	slist_tpl<tile_t> tiles;
 
