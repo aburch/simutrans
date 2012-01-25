@@ -991,9 +991,19 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 				stadt_t* s = new stadt_t(spieler[1], (*pos)[i], 1 );
 				DBG_DEBUG("karte_t::distribute_groundobjs_cities()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_city_history_month())[HIST_CITICENS] );
 				add_stadt(s);
+				if(is_display_init()) 
+				{
+					old_progress ++;
+					display_progress(old_progress, max_display_progress);
+				}
+				else 
+				{
+					printf("*");fflush(NULL);
+				}
 			}
 
 			delete pos;
+			delete city_population;
 			DBG_DEBUG("karte_t::distribute_groundobjs_cities()","took %lu ms for all towns", dr_time()-tbegin );
 
 			uint32 game_start = current_month;
@@ -1019,7 +1029,8 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 
 	//			int citizens=(int)(new_mittlere_einwohnerzahl*0.9);
 	//			citizens = citizens/10+simrand(2*citizens+1);
-				const uint32 citizens = (2500l * new_mittlere_einwohnerzahl) /(simrand(20000)+100);
+				//const uint32 citizens = (2500l * new_mittlere_einwohnerzahl) /(simrand(20000)+100);
+				const uint32 citizens = rank1_population;
 
 				sint32 diff = (original_start_year-game_start)/2;
 				sint32 growth = 32;
