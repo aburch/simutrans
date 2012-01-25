@@ -32,7 +32,6 @@
  * @author Hj- Malthaner
  */
 #define WAIT_INFINITE 0xFFFFFFFFu
-=======
 #define MAX_MONTHS               12 // Max history
 
 class weg_t;
@@ -66,6 +65,7 @@ public:
 		CONVOI_PROFIT =				6, // total profit of this convoi
 		CONVOI_DISTANCE =			7, // total distance traveld this month
 		CONVOI_REFUNDS =			8, // The refunds passengers waiting for this convoy (only when not attached to a line) have received.
+		MAX_CONVOI_COST =			9
 	};
 
 	/* Konstanten

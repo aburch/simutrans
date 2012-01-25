@@ -830,8 +830,8 @@ vehikel_t::unload_freight(halthandle_t halt)
 							// Refund is approximation: 2x distance at standard rate with no adjustments. 
 							const sint64 refund_amount = ((tmp.menge * tmp.get_besch()->get_preis() * distance * 2000ll) + 1500ll) / 3000ll;
 							current_revenue -= refund_amount;
-							cnv->book(-refund_amount, CONVOI_PROFIT);
-							cnv->book(-refund_amount, CONVOI_REFUNDS);
+							cnv->book(-refund_amount, convoi_t::CONVOI_PROFIT);
+							cnv->book(-refund_amount, convoi_t::CONVOI_REFUNDS);
 							get_besitzer()->buche(-refund_amount, COST_VEHICLE_RUN);
 							if(cnv->get_line().is_bound())
 							{

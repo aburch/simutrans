@@ -1019,8 +1019,8 @@ void haltestelle_t::step()
 									convoihandle_t account_convoy = get_preferred_convoy(tmp.get_zwischenziel(), tmp.get_catg());
 									if(account_convoy.is_bound())
 									{
-										account_convoy->book(-refund_amount, CONVOI_PROFIT);
-										account_convoy->book(-refund_amount, CONVOI_REFUNDS);
+										account_convoy->book(-refund_amount, convoi_t::CONVOI_PROFIT);
+										account_convoy->book(-refund_amount, convoi_t::CONVOI_REFUNDS);
 										get_besitzer()->buche(-refund_amount, COST_VEHICLE_RUN);
 									}
 								}
@@ -1414,17 +1414,6 @@ void haltestelle_t::add_pax_happy(int n)
 	book(n, HALT_HAPPY);
 	recalc_status();
 }
-
-
-/**
- * Station in wlaking distance
- * @author Hj. Malthaner
- */
-void haltestelle_t::add_pax_walked(int n)
-{
-	book(n, HALT_WALKED);
-}
-
 
 /**
  * Station crowded

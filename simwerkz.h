@@ -333,17 +333,6 @@ public:
 };
 
 class wkz_roadsign_t : public two_click_werkzeug_t {
-public:
-	wkz_roadsign_t();
-	const char *get_tooltip(const spieler_t *) const;
-	bool init( karte_t *, spieler_t * );
-	bool exit( karte_t *welt, spieler_t *sp );
-
-	void set_values(spieler_t *sp, uint8 spacing, bool remove, bool replace );
-	void get_values(spieler_t *sp, uint8 &spacing, bool &remove, bool &replace );
-	bool is_init_network_save() const { return true; }
-	void draw_after( karte_t *welt, koord pos ) const;
-	const char* get_default_param(spieler_t *sp) const;
 
 private:
 	const roadsign_besch_t* besch;

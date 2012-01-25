@@ -588,10 +588,14 @@ DBG_MESSAGE("karte_t::destroy()", "stops destroyed");
 
 	// remove all target cities (we can skip recalculation anyway)
 	{
-		slist_iterator_tpl<fabrik_t*> fab_iter(fab_list);
+		ITERATE(fab_list, i)
+		{
+			fab_list[i]->clear_target_cities();
+		}
+		/*slist_iterator_tpl<fabrik_t*> fab_iter(fab_list);
 		while(fab_iter.next()) {
 			fab_iter.get_current()->clear_target_cities();
-		}
+		}*/
 	}
 
 	// delete towns first (will also delete all their houses)
