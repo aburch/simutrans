@@ -92,8 +92,8 @@ BUILDDIR ?= build/$(CFG)
 TOOL  = nettool
 PROG ?= nettool
 
-ifeq ($(origin MAKEOBJ_PROGDIR), undefined)
-  MAKEOBJ_PROGDIR := ../$(BUILDDIR)/$(TOOL)
+ifeq ($(origin NETTOOL_PROGDIR), undefined)
+  NETTOOL_PROGDIR := ../$(BUILDDIR)/$(TOOL)
 endif
 
 
