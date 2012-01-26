@@ -17,6 +17,7 @@
 " Daniel Wachsmuth", "developer",
 " Christoph Mallon","Makefile, patches",
 " TurfIt", "developer",
+" Markohs", "3D branch",
 "","",
 "","",
 "Additional Programming:","",

@@ -67,10 +67,13 @@ public:
 private:
 	uint32  preis;
 	uint16  zuladung;
+	uint16	loading_time;	// time per full loading/unloading
 	uint16  geschw;
 	uint16  gewicht;
+	uint16  axle_load;
 	uint32  leistung;
-	uint16  betriebskosten;
+	uint16  running_cost;
+	uint16  fixed_cost;
 
 	uint16  intro_date; // introduction date
 	uint16  obsolete_date; //phase out at
@@ -95,8 +98,9 @@ public:
 	// default vehicle (used for way seach and similar tasks)
 	// since it has no images and not even a name knot any calls to this will case a crash
 	vehikel_besch_t(uint8 wtyp, uint16 speed, engine_t engine) {
-		freight_image_type = preis = zuladung = betriebskosten = intro_date = vorgaenger = nachfolger = 0;
+		freight_image_type = preis = zuladung = axle_load = running_cost = fixed_cost = intro_date = vorgaenger = nachfolger = 0;
 		leistung = gewicht = 1;
+		loading_time = 1000;
 		gear = 64;
 		len = 8;
 		sound = -1;
@@ -238,11 +242,14 @@ public:
 
 	waytype_t get_waytype() const { return static_cast<waytype_t>(typ); }
 	uint16 get_zuladung() const { return zuladung; }
+	uint16 get_loading_time() const { return loading_time; } // ms per full loading/unloading
 	uint32 get_preis() const { return preis; }
 	sint32 get_geschw() const { return geschw; }
 	uint16 get_gewicht() const { return gewicht; }
+	uint16 get_axle_load() const { return axle_load; }
 	uint32 get_leistung() const { return leistung; }
-	uint16 get_betriebskosten() const { return betriebskosten; }
+	uint16 get_betriebskosten() const { return running_cost; }
+	uint16 get_maintenance() const { return fixed_cost; }
 	sint8 get_sound() const { return sound; }
 
 	/**

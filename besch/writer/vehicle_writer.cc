@@ -56,7 +56,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	int i;
 	uint8  uv8;
 
-	int total_len = 31;
+	int total_len = 37;
 
 	// prissi: must be done here, since it may affect the len of the header!
 	string sound_str = ltrim( obj.get("sound") );
@@ -67,7 +67,8 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		if (sound_id == 0 && sound_str[0] == '0') {
 			sound_id = 0;
 			sound_str = "";
-		} else if (sound_id != 0) {
+		}
+		else if (sound_id != 0) {
 			// old style id
 			sound_str = "";
 		}
@@ -80,75 +81,105 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	obj_node_t	node(this, total_len, &parent);
 
 	write_head(fp, node, obj);
-
+	uint16 pos = 0;
 
 	// Hajo: version number
 	// Hajo: Version needs high bit set as trigger -> this is required
 	//       as marker because formerly nodes were unversionend
-	uint16 version = 0x8008;
-	node.write_uint16(fp, version, 0);
-
+	uint16 version = 0x8009;
+	node.write_uint16(fp, version, pos);
+	pos += sizeof(uint16);
 
 	// Hajodoc: Price of this vehicle in cent
-	// Hajoval: int
 	uint32 cost = obj.get_int("cost", 0);
-	node.write_uint32(fp, cost, 2);
+	node.write_uint32(fp, cost, pos);
+	pos += sizeof(uint32);
 
 
 	// Hajodoc: Payload of this vehicle
-	// Hajoval: int
 	uint16 payload = obj.get_int("payload", 0);
-	node.write_uint16(fp, payload, 6);
+	node.write_uint16(fp, payload, pos);
+	pos += sizeof(uint16);
 
+	// ms per loading/unloading everything
+	uint16 loading_time = obj.get_int("loading_time", 1000 );
+	node.write_uint16(fp, loading_time, pos);
+	pos += sizeof(uint16);
 
 	// Hajodoc: Top speed of this vehicle. Must be greater than 0
-	// Hajoval: int
 	uint16 top_speed = obj.get_int("speed", 0);
-	node.write_uint16(fp, top_speed, 8);
-
+	node.write_uint16(fp, top_speed, pos);
+	pos += sizeof(payload);
 
 	// Hajodoc: Total weight of this vehicle in tons
-	// Hajoval: int
 	uint16 weight = obj.get_int("weight", 0);
-	node.write_uint16(fp, weight, 10);
+	node.write_uint16(fp, weight, pos);
+	pos += sizeof(uint16);
 
+	// axle_load (determine ways usage)
+	uint16 axle_load = obj.get_int("axle_load", 0);
+	node.write_uint16(fp, axle_load, pos);
+	pos += sizeof(uint16);
 
 	// Hajodoc: Power of this vehicle in KW
-	// Hajoval: int
 	uint32 power = obj.get_int("power", 0);
-	node.write_uint32(fp, power, 12);
-
+	node.write_uint32(fp, power, pos);
+	pos += sizeof(uint32);
 
 	// Hajodoc: Running costs, given in cent per square
-	// Hajoval: int
 	uint16 runningcost = obj.get_int("runningcost", 0);
-	node.write_uint16(fp, runningcost, 16);
+	node.write_uint16(fp, runningcost, pos);
+	pos += sizeof(uint16);
 
+	// monthly maintenance
+	uint16 fixcost = obj.get_int("fixed_cost", 0);
+	node.write_uint16(fp, fixcost, pos);
+	pos += sizeof(uint16);
 
 	// Hajodoc: Introduction date (year * 12 + month)
-	// Hajoval: int
 	uint16 intro  = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
 	intro += obj.get_int("intro_month", 1) - 1;
-	node.write_uint16(fp, intro, 18);
+	node.write_uint16(fp, intro, pos);
+	pos += sizeof(uint16);
 
 	// Hajodoc: retire date (year * 12 + month)
-	// Hajoval: int
 	uint16 retire = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12;
 	retire += obj.get_int("retire_month", 1) - 1;
-	node.write_uint16(fp, retire, 20);
+	node.write_uint16(fp, retire, pos);
+	pos += sizeof(uint16);
 
 	// Hajodoc: Engine gear (power multiplier)
-	// Hajoval: int
 	uint16 gear = (obj.get_int("gear", 100) * 64) / 100;
-	node.write_uint16(fp, gear, 22);
-
+	node.write_uint16(fp, gear, pos);
+	pos += sizeof(uint16);
 
 	// Hajodoc: Type of way this vehicle drives on
-	// Hajoval: road, track, electrified_track, monorail_track, maglev_track, water
 	char const* const waytype_name = obj.get("waytype");
 	waytype_t   const waytype      = get_waytype(waytype_name);
 	uv8 = waytype != overheadlines_wt ? waytype : track_wt;
-	node.write_uint8(fp, uv8, 24);
+	node.write_uint8(fp, uv8, pos);
+	pos += sizeof(uint8);
+
+	// sound id byte
+	node.write_sint8(fp, sound_id, pos);
+	pos += sizeof(uint8);
+
+	// engine
+	if (waytype == overheadlines_wt) {
+		// Hajo: compatibility for old style DAT files
+		uv8 = vehikel_besch_t::electric;
+	}
+	else {
+		const char* engine_type = obj.get("engine_type");
+		uv8 = get_engine_type(engine_type);
+	}
+	node.write_uint8(fp, uv8, pos);
+	pos += sizeof(uint8);
+
+	// the length (default 8)
+	uint8 length = obj.get_int("length", 8);
+	node.write_uint8(fp, length, pos);
+	pos += sizeof(uint8);
 
 	// Hajodoc: The freight type
 	// Hajoval: string
@@ -194,7 +225,8 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 			if (i >= 4) {
 				has_8_images = true;
 			}
-		} else {
+		}
+		else {
 			// stop when empty string is found
 			break;
 		}
@@ -207,7 +239,8 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 			if (!str.empty()) {
 				freightkeys_old.append(str);
 			}
-		} else {
+		}
+		else {
 			freightkeys.append(slist_tpl<string>());
 			for(int freight = 0; freight < freight_max; freight++) {
 				sprintf(buf, "freightimage[%d][%s]", freight, dir_codes[i]);
@@ -235,10 +268,12 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	imagelist_writer_t::instance()->write_obj(fp, node, emptykeys);
 	if (freight_max > 0) {
 		imagelist2d_writer_t::instance()->write_obj(fp, node, freightkeys);
-	} else {
+	}
+	else {
 		if (freightkeys_old.get_count() == emptykeys.get_count()) {
 			imagelist_writer_t::instance()->write_obj(fp, node, freightkeys_old);
-		} else {
+		}
+		else {
 			// really empty list ...
 			xref_writer_t::instance()->write_obj(fp, node, obj_imagelist, "", false);
 		}
@@ -313,29 +348,19 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		xref_writer_t::instance()->write_obj(fp, node, obj_good, freight, false);
 	}
 
-	node.write_sint8(fp, sound_id, 25);
-
-	if (waytype == overheadlines_wt) {
-		// Hajo: compatibility for old style DAT files
-		uv8 = vehikel_besch_t::electric;
-	} else {
-		const char* engine_type = obj.get("engine_type");
-		uv8 = get_engine_type(engine_type);
-	}
-	node.write_uint8(fp, uv8, 26);
-
-	// the length (default 8)
-	uint8 length = obj.get_int("length", 8);
-	node.write_uint8(fp, length, 27);
-
-	node.write_sint8(fp, besch_vorgaenger, 28);
-	node.write_sint8(fp, besch_nachfolger, 29);
-	node.write_uint8(fp, (uint8) freight_max, 30);
+	node.write_sint8(fp, besch_vorgaenger, pos);
+	pos += sizeof(uint8);
+	node.write_sint8(fp, besch_nachfolger, pos);
+	pos += sizeof(uint8);
+	node.write_uint8(fp, (uint8) freight_max, pos);
+	pos += sizeof(uint8);
 
 	sint8 sound_str_len = sound_str.size();
 	if (sound_str_len > 0) {
-		node.write_sint8  (fp, sound_str_len, 31);
-		node.write_data_at(fp, sound_str.c_str(),     32, sound_str_len);
+		node.write_sint8  (fp, sound_str_len, pos);
+		pos += sizeof(uint8);
+		node.write_data_at(fp, sound_str.c_str(), pos, sound_str_len);
+		pos += sound_str_len;
 	}
 
 	node.write(fp);

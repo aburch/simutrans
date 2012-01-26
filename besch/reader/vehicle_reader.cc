@@ -59,7 +59,7 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->geschw = decode_uint16(p);
 		besch->gewicht = decode_uint16(p);
 		besch->leistung = decode_uint16(p);
-		besch->betriebskosten = decode_uint16(p);
+		besch->running_cost = decode_uint16(p);
 
 		besch->intro_date = decode_uint16(p);
 		besch->gear = decode_uint8(p);
@@ -70,7 +70,8 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->nachfolger = decode_uint8(p);
 
 		besch->obsolete_date = (DEFAULT_RETIRE_DATE*16);
-	} else if(version == 2) {
+	}
+	else if(version == 2) {
 		// Versioned node, version 2
 
 		besch->preis = decode_uint32(p);
@@ -78,7 +79,7 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->geschw = decode_uint16(p);
 		besch->gewicht = decode_uint16(p);
 		besch->leistung = decode_uint16(p);
-		besch->betriebskosten = decode_uint16(p);
+		besch->running_cost = decode_uint16(p);
 
 		besch->intro_date = decode_uint16(p);
 		besch->gear = decode_uint8(p);
@@ -90,7 +91,8 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->engine_type = decode_uint8(p);
 
 		besch->obsolete_date = (DEFAULT_RETIRE_DATE*16);
-	} else if (version==3   ||  version==4  ||  version==5) {
+	}
+	else if (version==3   ||  version==4  ||  version==5) {
 		// Versioned node, version 3 with retire date
 		// version 4 identical, just other values for the waytype
 		// version 5 just uses the new scheme for data calculation
@@ -100,7 +102,7 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->geschw = decode_uint16(p);
 		besch->gewicht = decode_uint16(p);
 		besch->leistung = decode_uint16(p);
-		besch->betriebskosten = decode_uint16(p);
+		besch->running_cost = decode_uint16(p);
 
 		besch->intro_date = decode_uint16(p);
 		besch->obsolete_date = decode_uint16(p);
@@ -111,7 +113,8 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->vorgaenger = decode_uint8(p);
 		besch->nachfolger = decode_uint8(p);
 		besch->engine_type = decode_uint8(p);
-	} else if (version==6) {
+	}
+	else if (version==6) {
 		// version 5 just 32 bit for power and 16 Bit for gear
 
 		besch->preis = decode_uint32(p);
@@ -119,7 +122,7 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->geschw = decode_uint16(p);
 		besch->gewicht = decode_uint16(p);
 		besch->leistung = decode_uint32(p);
-		besch->betriebskosten = decode_uint16(p);
+		besch->running_cost = decode_uint16(p);
 
 		besch->intro_date = decode_uint16(p);
 		besch->obsolete_date = decode_uint16(p);
@@ -130,7 +133,8 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->engine_type = decode_uint8(p);
 		besch->vorgaenger = decode_uint8(p);
 		besch->nachfolger = decode_uint8(p);
-	} else if (version==7) {
+	}
+	else if (version==7) {
 		// different length of cars ...
 
 		besch->preis = decode_uint32(p);
@@ -138,7 +142,7 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->geschw = decode_uint16(p);
 		besch->gewicht = decode_uint16(p);
 		besch->leistung = decode_uint32(p);
-		besch->betriebskosten = decode_uint16(p);
+		besch->running_cost = decode_uint16(p);
 
 		besch->intro_date = decode_uint16(p);
 		besch->obsolete_date = decode_uint16(p);
@@ -150,14 +154,39 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->len = decode_uint8(p);
 		besch->vorgaenger = decode_uint8(p);
 		besch->nachfolger = decode_uint8(p);
-	} else if (version==8) {
+	}
+	else if (version==8) {
 		// multiple freight images...
 		besch->preis = decode_uint32(p);
 		besch->zuladung = decode_uint16(p);
 		besch->geschw = decode_uint16(p);
 		besch->gewicht = decode_uint16(p);
 		besch->leistung = decode_uint32(p);
-		besch->betriebskosten = decode_uint16(p);
+		besch->running_cost = decode_uint16(p);
+
+		besch->intro_date = decode_uint16(p);
+		besch->obsolete_date = decode_uint16(p);
+		besch->gear = decode_uint16(p);
+
+		besch->typ = decode_uint8(p);
+		besch->sound = decode_sint8(p);
+		besch->engine_type = decode_uint8(p);
+		besch->len = decode_uint8(p);
+		besch->vorgaenger = decode_uint8(p);
+		besch->nachfolger = decode_uint8(p);
+		besch->freight_image_type = decode_uint8(p);
+	}
+	else if (version==9) {
+		// new: fixed_cost, loading_time, axle_load
+		besch->preis = decode_uint32(p);
+		besch->zuladung = decode_uint16(p);
+		besch->loading_time = decode_uint16(p);
+		besch->geschw = decode_uint16(p);
+		besch->gewicht = decode_uint16(p);
+		besch->axle_load = decode_uint16(p);
+		besch->leistung = decode_uint32(p);
+		besch->running_cost = decode_uint16(p);
+		besch->fixed_cost = decode_uint16(p);
 
 		besch->intro_date = decode_uint16(p);
 		besch->obsolete_date = decode_uint16(p);
@@ -179,11 +208,12 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 		besch->typ = (sint8)v;
 		besch->zuladung = decode_uint16(p);
+		besch->loading_time = decode_uint16(p);
 		besch->preis = decode_uint32(p);
 		besch->geschw = decode_uint16(p);
 		besch->gewicht = decode_uint16(p);
 		besch->leistung = decode_uint16(p);
-		besch->betriebskosten = decode_uint16(p);
+		besch->running_cost = decode_uint16(p);
 		besch->sound = (sint8)decode_sint16(p);
 		besch->vorgaenger = (sint8)decode_uint16(p);
 		besch->nachfolger = (sint8)decode_uint16(p);
@@ -250,7 +280,7 @@ DBG_MESSAGE("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,besch
 
 	DBG_DEBUG("vehicle_reader_t::read_node()",
 		"version=%d "
-		"way=%d zuladung=%d preis=%d geschw=%d gewicht=%d leistung=%d "
+		"way=%d zuladung=%d preis=%d geschw=%d gewicht=%d axle_load=%d leistung=%d "
 		"betrieb=%d sound=%d vor=%d nach=%d "
 		"date=%d/%d gear=%d engine_type=%d len=%d",
 		version,
@@ -259,8 +289,9 @@ DBG_MESSAGE("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,besch
 		besch->preis,
 		besch->geschw,
 		besch->gewicht,
+		besch->axle_load,
 		besch->leistung,
-		besch->betriebskosten,
+		besch->running_cost,
 		besch->sound,
 		besch->vorgaenger,
 		besch->nachfolger,

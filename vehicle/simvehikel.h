@@ -287,7 +287,7 @@ public:
 	const vehikel_besch_t *get_besch() const {return besch; }
 
 	/**
-	* @return die Betriebskosten in Cr/100Km
+	* @return die running_cost in Cr/100Km
 	* @author Hj. Malthaner
 	*/
 	int get_betriebskosten() const { return besch->get_betriebskosten(); }

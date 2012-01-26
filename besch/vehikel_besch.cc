@@ -6,10 +6,13 @@ void vehikel_besch_t::calc_checksum(checksum_t *chk) const
 {
 	chk->input(preis);
 	chk->input(zuladung);
+	chk->input(loading_time);
 	chk->input(geschw);
 	chk->input(gewicht);
+	chk->input(axle_load);
 	chk->input(leistung);
-	chk->input(betriebskosten);
+	chk->input(running_cost);
+	chk->input(fixed_cost);
 	chk->input(intro_date);
 	chk->input(obsolete_date);
 	chk->input(gear);
