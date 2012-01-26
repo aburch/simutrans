@@ -5316,19 +5316,6 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 #ifdef DEBUG
 	long dt = dr_time();
 #endif
-	// recalculate halt connections
-	do {
-		haltestelle_t::step_all();
-	} while (  haltestelle_t::get_rerouting_status()==RECONNECTING  );
-#ifdef DEBUG
-	DBG_MESSAGE("rebuild_destinations()","for all haltstellen_t took %ld ms", dr_time()-dt );
-
-	// reroute goods for benchmarking
-	dt = dr_time();
-
-	DBG_MESSAGE("reroute_goods()","for all haltstellen_t took %ld ms", dr_time()-dt );
-#endif
-
 	// load history/create world history
 	if(file->get_version()<99018) {
 		restore_history();
