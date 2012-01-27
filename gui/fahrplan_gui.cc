@@ -126,21 +126,29 @@ void fahrplan_gui_stats_t::zeichnen(koord offset)
 	if(fpl) {
 		sint16 width = get_groesse().x-16;
 
-		for (int i = 0; i < fpl->get_count(); i++) {
-
+		if(  fpl->get_count()==0  ) {
 			buf.clear();
-			buf.printf( "%i) ", i+1 );
-			fahrplan_gui_t::gimme_stop_name( buf, welt, sp, fpl->eintrag[i] );
-			sint16 w = display_proportional_clip(offset.x + 4 + 10, offset.y + i * (LINESPACE + 1), buf, ALIGN_LEFT, COL_BLACK, true);
-			if(  w>width  ) {
-				width = w;
-			}
-
-			// the goto button (right arrow)
-			display_color_img( i!=fpl->get_aktuell() ? button_t::arrow_right_normal : button_t::arrow_right_pushed,
-				offset.x + 2, offset.y + i * (LINESPACE + 1), 0, false, true);
+			buf.append( translator::translate( "Please click on the map to add\nwaypoints or stops to the\nschedule." ) );
+			width = display_multiline_text( offset.x+4, offset.y, buf, COL_WHITE );
+			set_groesse( koord(width+4+16,3*LINESPACE ) );
 		}
-		set_groesse( koord(width+16, fpl->get_count() * (LINESPACE + 1) ) );
+		else {
+			for (int i = 0; i < fpl->get_count(); i++) {
+
+				buf.clear();
+				buf.printf( "%i) ", i+1 );
+				fahrplan_gui_t::gimme_stop_name( buf, welt, sp, fpl->eintrag[i] );
+				sint16 w = display_proportional_clip(offset.x + 4 + 10, offset.y + i * (LINESPACE + 1), buf, ALIGN_LEFT, COL_BLACK, true);
+				if(  w>width  ) {
+					width = w;
+				}
+
+				// the goto button (right arrow)
+				display_color_img( i!=fpl->get_aktuell() ? button_t::arrow_right_normal : button_t::arrow_right_pushed,
+					offset.x + 2, offset.y + i * (LINESPACE + 1), 0, false, true);
+			}
+			set_groesse( koord(width+16,fpl->get_count() * (LINESPACE + 1) ) );
+		}
 	}
 }
 
