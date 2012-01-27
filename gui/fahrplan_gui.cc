@@ -128,7 +128,7 @@ void fahrplan_gui_stats_t::zeichnen(koord offset)
 
 		if(  fpl->get_count()==0  ) {
 			buf.clear();
-			buf.append( translator::translate( "Please click on the map to add\nwaypoints or stops to the\nschedule." ) );
+			buf.append( translator::translate( "Please click on the map to add\nwaypoints or stops to this\nschedule." ) );
 			width = display_multiline_text( offset.x+4, offset.y, buf, COL_WHITE );
 			set_groesse( koord(width+4+16,3*LINESPACE ) );
 		}
