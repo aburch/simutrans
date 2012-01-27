@@ -524,6 +524,8 @@ public:
 
 	sint32 get_way_toll_runningcost_percentage() const { return way_toll_runningcost_percentage; }
 	sint32 get_way_toll_waycost_percentage() const { return way_toll_waycost_percentage; }
+
+	sint32 get_bonus_basefactor() const { return bonus_basefactor; }
 };
 
 #endif
