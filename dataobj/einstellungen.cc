@@ -162,6 +162,8 @@ settings_t::settings_t() :
 	max_hops = 2000;
 	no_routing_over_overcrowding = false;
 
+	bonus_basefactor = 125;
+
 	/* multiplier for steps on diagonal:
 	 * 1024: TT-like, faktor 2, vehicle will be too long and too fast
 	 * 724: correct one, faktor sqrt(2)
@@ -696,6 +698,14 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_long( way_toll_runningcost_percentage );
 			file->rdwr_long( way_toll_waycost_percentage );
 		}
+
+		if(  file->get_version()>=111002  ) {
+			file->rdwr_long( bonus_basefactor );
+		}
+		else if(  file->is_loading()  ) {
+			bonus_basefactor = 125;
+		}
+
 		// otherwise the default values of the last one will be used
 	}
 }
@@ -933,6 +943,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	max_route_steps = contents.get_int("max_route_steps", max_route_steps );
 	max_hops = contents.get_int("max_hops", max_hops );
 	max_transfers = contents.get_int("max_transfers", max_transfers );
+	bonus_basefactor = contents.get_int("bonus_basefactor", bonus_basefactor );
+
 	minimum_city_distance = contents.get_int("minimum_city_distance", minimum_city_distance );
 	industry_increase = contents.get_int("industry_increase_every", industry_increase );
 	passenger_factor = contents.get_int("passenger_factor", passenger_factor ); /* this can manipulate the passenger generation */

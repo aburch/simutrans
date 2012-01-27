@@ -350,6 +350,9 @@ allow_buying_obsolete_vehicles = 1
 # the loss is given in 1/1000th, i.e 300 mean the value will be 70%
 used_vehicle_reduction = 0
 
+# lowest possible income with speedbonus (1000=1) default 125
+bonus_basefactor = 125
+
 # if a convoi runs on a way that belongs to another player, toll may
 # be charged. The number given is the percentage of the running cost
 # of the convoi or the way cost (include electrification if needed).

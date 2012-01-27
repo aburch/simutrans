@@ -237,6 +237,9 @@ private:
 	/* if set, goods will not routed over overcroded stations but rather try detours (if possible) */
 	bool no_routing_over_overcrowding;
 
+	// lowest possible income with speedbonus (1000=1) default 125
+	sint32 bonus_basefactor;
+
 	// true, if this pak should be used with extensions (default)
 	bool with_private_paks;
 
