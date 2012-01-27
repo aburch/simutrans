@@ -323,8 +323,6 @@ void haltestelle_t::destroy_all(karte_t *welt)
 
 haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 {
-	self = halthandle_t(this);
-
 	last_loading_step = wl->get_steps();
 
 	welt = wl;
