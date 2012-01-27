@@ -274,7 +274,7 @@ DBG_MESSAGE("vehicle_reader_t::register_obj()","sound %s to %i",wavname,besch->s
 	}
 	else if(besch->sound>=0  &&  besch->sound<=MAX_OLD_SOUNDS) {
 		sint16 old_id = besch->sound;
-		besch->sound = (sint8)sound_besch_t::get_compatible_sound_id(old_id);
+		besch->sound = (sint8)sound_besch_t::get_compatible_sound_id((sint8)old_id);
 DBG_MESSAGE("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,besch->sound);
 	}
 

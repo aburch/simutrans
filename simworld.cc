@@ -936,7 +936,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 
 	//			int citizens=(int)(new_mittlere_einwohnerzahl*0.9);
 	//			citizens = citizens/10+simrand(2*citizens+1);
-				const uint32 citizens = (2500l * new_mittlere_einwohnerzahl) /(simrand(20000)+100);
+				const sint32 citizens = (2500l * new_mittlere_einwohnerzahl) /(simrand(20000)+100);
 
 				sint32 diff = (original_start_year-game_start)/2;
 				sint32 growth = 32;
@@ -1323,7 +1323,7 @@ void karte_t::init(settings_t* const sets, sint8 const* const h_field)
 	recalc_average_speed();	// resets timeline
 	koord::locality_factor = settings.get_locality_factor( letztes_jahr );
 
-	grundwasser = sets->get_grundwasser();      //29-Nov-01     Markus Weber    Changed
+	grundwasser = (sint8)sets->get_grundwasser();      //29-Nov-01     Markus Weber    Changed
 	grund_besch_t::calc_water_level( this, height_to_climate );
 	snowline = sets->get_winter_snowline()*Z_TILE_STEP + grundwasser;
 
@@ -3903,7 +3903,7 @@ bool karte_t::play_sound_area_clipped(koord pos, sound_info info) const
 			int xw = (2*display_get_width())/get_tile_raster_width();
 			int yw = (4*display_get_height())/get_tile_raster_width();
 
-			info.volume = (255l*(xw+yw))/(xw+yw+(64*dist));
+			info.volume = (uint8)( (255l*(xw+yw))/(xw+yw+(64*dist)) );
 			if(  info.volume>8  ) {
 				sound_play(info);
 			}
@@ -4376,7 +4376,7 @@ void karte_t::laden(loadsave_t *file)
 		warenbauer_t::set_multiplier( 1000 );
 	}
 
-	grundwasser = settings.get_grundwasser();
+	grundwasser = (sint8)(settings.get_grundwasser());
 DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
 	grund_besch_t::calc_water_level( this, height_to_climate );
 
@@ -4901,7 +4901,7 @@ void karte_t::load_heightfield(settings_t* const sets)
 {
 	sint16 w, h;
 	sint8 *h_field;
-	if(karte_t::get_height_data_from_file(sets->heightfield.c_str(), sets->get_grundwasser(), h_field, w, h, false )) {
+	if(karte_t::get_height_data_from_file(sets->heightfield.c_str(), (sint8)(sets->get_grundwasser()), h_field, w, h, false )) {
 		sets->set_groesse(w,h);
 		// create map
 		init(sets,h_field);
@@ -5700,7 +5700,7 @@ bool karte_t::interactive(uint32 quit_month)
 					}
 					else {
 						// more gentle catching up
-						ms_difference = (sint32 )difftime;
+						ms_difference = (sint32)difftime;
 					}
 					dbg->message("NWC_CHECK","time difference to server %lli",difftime);
 				}

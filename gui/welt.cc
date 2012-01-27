@@ -288,7 +288,7 @@ bool welt_gui_t::update_from_heightfield(const char *filename)
 
 	sint16 w, h;
 	sint8 *h_field=NULL;
-	if(karte_t::get_height_data_from_file(filename, sets->get_grundwasser(), h_field, w, h, false )) {
+	if(karte_t::get_height_data_from_file(filename, (sint8)sets->get_grundwasser(), h_field, w, h, false )) {
 		sets->set_groesse_x(w);
 		sets->set_groesse_y(h);
 
@@ -342,11 +342,11 @@ void welt_gui_t::resize_preview()
 
 	if(  world_aspect > 1.0  ) {
 		karte_size.x = PREVIEW_SIZE;
-		karte_size.y = max( (float)karte_size.x / world_aspect, PREVIEW_SIZE_MIN);
+		karte_size.y = (sint16) max( (float)karte_size.x / world_aspect, PREVIEW_SIZE_MIN);
 	}
 	else {
 		karte_size.y = PREVIEW_SIZE;
-		karte_size.x = max( (float)karte_size.y * world_aspect, PREVIEW_SIZE_MIN);
+		karte_size.x = (sint16) max( (float)karte_size.y * world_aspect, PREVIEW_SIZE_MIN);
 	}
 	karte.resize( karte_size.x, karte_size.y );
 }
@@ -402,7 +402,7 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		sets->set_tourist_attractions( v.i );
 	}
 	else if(komp==&inp_intro_date) {
-		sets->set_starting_year( v.i );
+		sets->set_starting_year( (sint16)(v.i) );
 	}
 	else if(komp==&random_map) {
 		knr = simrand(9999);

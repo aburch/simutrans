@@ -128,19 +128,19 @@ void stadt_info_t::resize(const koord delta)
 
 	if(  world_aspect / space_aspect > PAX_DEST_VERTICAL  ) { // world wider than space, use vertical minimap layout
 		minimaps_size.y = (space.y - PAX_DEST_MARGIN) / 2;
-		minimaps_size.x = (float)minimaps_size.y * world_aspect;
+		minimaps_size.x = (sint16) ((float)minimaps_size.y * world_aspect);
 		if(  minimaps_size.x  > space.x  ) {
 			minimaps_size.x = space.x;
-			minimaps_size.y = max((float)minimaps_size.x / world_aspect, PAX_DEST_MIN_SIZE);
+			minimaps_size.y = max((int)((float)minimaps_size.x / world_aspect), PAX_DEST_MIN_SIZE);
 		}
 		minimap2_offset = koord( 0, minimaps_size.y + PAX_DEST_MARGIN );
 	}
 	else { // horizontal minimap layout
 		minimaps_size.x = (space.x - PAX_DEST_MARGIN) / 2;
-		minimaps_size.y = (float)minimaps_size.x / world_aspect;
+		minimaps_size.y = (sint16) ((float)minimaps_size.x / world_aspect);
 		if(  minimaps_size.y > space.y  ) {
 			minimaps_size.y = space.y;
-			minimaps_size.x = max((float)minimaps_size.y * world_aspect, PAX_DEST_MIN_SIZE);
+			minimaps_size.x = max((int)((float)minimaps_size.y * world_aspect), PAX_DEST_MIN_SIZE);
 		}
 		minimap2_offset = koord( minimaps_size.x + PAX_DEST_MARGIN, 0 );
 	}

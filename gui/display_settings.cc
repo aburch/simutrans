@@ -246,7 +246,7 @@ void color_gui_t::set_fenstergroesse(koord groesse)
 bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 {
 	if(&brightness==komp) {
-		umgebung_t::daynight_level = v.i;
+		umgebung_t::daynight_level = (sint8)v.i;
 	} else if(&traffic_density==komp) {
 		if(  !umgebung_t::networkmode  ||  welt->get_active_player_nr()==1  ) {
 			static char level[16];
@@ -258,7 +258,7 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 			traffic_density.set_value(welt->get_settings().get_verkehr_level());
 		}
 	} else if(&scrollspeed==komp) {
-		umgebung_t::scroll_multi = buttons[6].pressed ? -v.i : v.i;
+		umgebung_t::scroll_multi = (sint16)( buttons[6].pressed ? -v.i : v.i );
 	} else if (&cursor_hide_range==komp) {
 		umgebung_t::cursor_hide_range = cursor_hide_range.get_value();
 	} else if((buttons+0)==komp) {

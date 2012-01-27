@@ -858,7 +858,7 @@ void win_rotate90( sint16 new_ysize )
 static void remove_old_win()
 {
 	// alte fenster entfernen, falls dauer abgelaufen
-	for(  int i=wins.get_count()-1;  i>=0;  i=min(i,wins.get_count())-1  ) {
+	for(  int i=wins.get_count()-1;  i>=0;  i=min(i,(int)wins.get_count())-1  ) {
 		if(wins[i].dauer > 0) {
 			wins[i].dauer --;
 			if(wins[i].dauer == 0) {
@@ -1197,7 +1197,7 @@ bool check_pos_win(event_t *ev)
 	}
 
 	// handle all the other events
-	for(  int i=wins.get_count()-1;  i>=0  &&  !swallowed;  i=min(i,wins.get_count())-1  ) {
+	for(  int i=wins.get_count()-1;  i>=0  &&  !swallowed;  i=min(i,(int)wins.get_count())-1  ) {
 
 		if(  wins[i].gui->getroffen( x-wins[i].pos.x, y-wins[i].pos.y )  ) {
 
@@ -1631,7 +1631,7 @@ bool win_change_zoom_factor(bool magnify)
 		ev.cy = 0;
 		ev.button_state = 0;
 
-		for(  sint32 i=wins.get_count()-1;  i>=0;  i=min(i,wins.get_count())-1  ) {
+		for(  sint32 i=wins.get_count()-1;  i>=0;  i=min(i,(int)wins.get_count())-1  ) {
 			wins[i].gui->infowin_event(&ev);
 		}
 	}
