@@ -145,7 +145,8 @@ public:
 				enlarge();
 			}
 			if(  data[id]!=NULL  &&  data[id]!=p  ) {
-				dbg->fatal("quickstone<T>::quickstone_tpl(T*,uint16)","slot (%d) already taken", id);
+				/* Was fatal, but seemed to cause avoidable crashes*/
+				dbg->error("quickstone<T>::quickstone_tpl(T*,uint16)","slot (%d) already taken", id);
 			}
 			entry = id;
 			data[entry] = p;
