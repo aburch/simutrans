@@ -236,7 +236,7 @@ void simlinemgmt_t::get_lines(int type, vector_tpl<linehandle_t>* lines) const
 	lines->clear();
 	for (vector_tpl<linehandle_t>::const_iterator i = all_managed_lines.begin(), end = all_managed_lines.end(); i != end; i++) {
 		linehandle_t line = *i;
-		if (line.is_bound() && (type == simline_t::line || line->get_linetype() == simline_t::line || line->get_linetype() == type)) {
+		if (type == simline_t::line || line->get_linetype() == simline_t::line || line->get_linetype() == type) {
 			lines->append(line);
 		}
 	}
