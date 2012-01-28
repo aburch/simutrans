@@ -232,23 +232,23 @@ straight_way_without_control = 0
 
 # These settings determine how players pay for running on the ways of other players. 
 #
-# way_toll_runningcost_percentage apportions the specified percentage of the convoy's
+# toll_runningcost_percentage apportions the specified percentage of the convoy's
 # running cost to the player on whose way the convoy is being run.
 #
-# way_toll_waycost_percentage apportions the specified percentage of the way tile's
+# toll_waycost_percentage apportions the specified percentage of the way tile's
 # monthly maintenance cost (and, for electrically powered convoys, also the specified 
 # percentage of way objects' monthly maintenance cost) from the convoy for every
 # tile of the other player's way over which it passes.
 #
-# way_toll_revenue_percentage apportions the specified percentage of the convoy's 
+# toll_revenue_percentage apportions the specified percentage of the convoy's 
 # revenue according to the proportion of the journey that the convoy has undertaken
 # on the specified player's way. For example, if way_toll_revenue_percentage is set
 # to 50, and the convoy travels half its journey over another player's way, that
 # other player will receive 25% of the total revenue for that journey.
 
-way_toll_runningcost_percentage = 0
-way_toll_waycost_percentage = 0
-way_toll_revenue_percentage = 33
+toll_runningcost_percentage = 0
+toll_waycost_percentage = 0
+toll_revenue_percentage = 33
 
 # These settings determine how players pay for landing/docking in the ports
 # of other players.
