@@ -345,7 +345,7 @@ void convoi_frame_t::zeichnen(koord pos, koord gr)
 
 		if(cnv.is_bound()) {
 			gui_convoiinfo_t ci(cnv, 0);
-			ci.zeichnen( pos+koord(0,yoffset) );
+			ci.zeichnen( pos+koord(4,yoffset) );
 		}
 		// full height of a convoi is 40 for all info
 		yoffset += 40;
