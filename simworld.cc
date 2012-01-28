@@ -6501,7 +6501,7 @@ void karte_t::announce_server(int status)
 			// Simple revision used for matching (integer)
 			buf.printf( "&rev=%d", atol( QUOTEME(REVISION) ) );
 			// Complex version string used for display
-			buf.printf( "&ver=Simutrans %s (r%s) built %s", QUOTEME(VERSION_NUMBER), QUOTEME(REVISION), QUOTEME(VERSION_DATE) );
+			buf.printf( "&ver=Simutrans %s (r%s) built %s", QUOTEME(VERSION_NUMBER, NARROW_EXPERIMENTAL_VERSION), QUOTEME(REVISION), QUOTEME(VERSION_DATE) );
 			// Pakset version
 			buf.append( "&pak=" );
 			// Announce pak set, ideally get this from the copyright field of ground.Outside.pak

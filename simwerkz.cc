@@ -851,7 +851,7 @@ const char *wkz_raise_t::check( karte_t *welt, spieler_t *sp, koord3d k )
 	for(int n = 0; n < 16; n ++)
 	{
 		const koord pos = k.get_2d().second_neighbours[n] + k.get_2d();
-		const sint8 height = welt->lookup_hgt(TEST);
+		const sint8 height = welt->lookup_hgt(pos);
 		if(height < (welt->get_grundwasser()))
 		{
 			return "Cannot terraform in deep water";
