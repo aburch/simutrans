@@ -3838,8 +3838,20 @@ void convoi_t::laden() //"load" (Babelfish)
 					break;
 				}
 			}
-			stop_hh = welt->lookup(fpl->eintrag[stop].pos)->get_halt();
-			previous_stop_hh = welt->lookup(fpl->eintrag[previous_stop].pos)->get_halt();
+			const grund_t* gr_this = welt->lookup(fpl->eintrag[stop].pos);
+			const grund_t* gr_previous = welt->lookup(fpl->eintrag[previous_stop].pos);
+			if(gr_previous && gr_this)
+			{
+				stop_hh = gr_this->get_halt();
+				previous_stop_hh = gr_previous->get_halt();
+			}
+			else
+			{
+				// Something has gone wrong.
+				dbg->error("void convoi_t::laden() ", "Cannot lookup halt");
+				continue;
+			}
+
 			if(previous_stop_hh.get_id() == stop_hh.get_id())
 			{
 				departure_entries_to_remove.append(stop_hh.get_id());
