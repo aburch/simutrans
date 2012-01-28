@@ -120,6 +120,13 @@ resolution dr_query_screen_resolution()
 }
 
 
+static void create_window(DWORD const ex_style, DWORD const style, int const x, int const y, int const w, int const h)
+{
+	hwnd = CreateWindowEx(ex_style, L"Simu", title, style, x, y, w, h, 0, 0, hInstance, 0);
+	ShowWindow(hwnd, SW_SHOW);
+}
+
+
 // open the window
 int dr_os_open(int const w, int const h, int fullscreen)
 {
@@ -154,25 +161,12 @@ int dr_os_open(int const w, int const h, int fullscreen)
 		is_fullscreen = fullscreen;
 	}
 	if(  fullscreen  ) {
-		hwnd = CreateWindowEx(
-			WS_EX_TOPMOST,
-			L"Simu", title,
-			WS_POPUP,
-			0, 0,
-			w, h,
-			NULL, NULL, hInstance, NULL
-		);
+		create_window(WS_EX_TOPMOST, WS_POPUP, 0, 0, w, h);
 	} else {
-		hwnd = CreateWindow(
-			L"Simu", title,
-			WS_OVERLAPPEDWINDOW,
-			CW_USEDEFAULT, CW_USEDEFAULT,
-			w + GetSystemMetrics(SM_CXFRAME),
-			h - 1 + 2 * GetSystemMetrics(SM_CYFRAME) + GetSystemMetrics(SM_CYCAPTION),
-			NULL, NULL, hInstance, NULL
-		);
+		int const ww = w     +     GetSystemMetrics(SM_CXFRAME);
+		int const hh = h - 1 + 2 * GetSystemMetrics(SM_CYFRAME) + GetSystemMetrics(SM_CYCAPTION);
+		create_window(0, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, ww, hh);
 	}
-	ShowWindow(hwnd, SW_SHOW);
 
 	WindowSize.right  = w;
 	WindowSize.bottom = h;
@@ -472,15 +466,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 
 					Beep( 110, 250 );
 					// must reshow window, otherwise startbar will be topmost ...
-					hwnd = CreateWindowEx(
-						WS_EX_TOPMOST,
-						L"Simu", title,
-						WS_POPUP,
-						0, 0,
-						MaxSize.right, MaxSize.bottom,
-						NULL, NULL, hInstance, NULL
-					);
-					ShowWindow( hwnd, SW_SHOW );
+					create_window(WS_EX_TOPMOST, WS_POPUP, 0, 0, MaxSize.right, MaxSize.bottom);
 					DestroyWindow( this_hwnd );
 					while_handling = false;
 					return true;
