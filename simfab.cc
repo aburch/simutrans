@@ -894,7 +894,7 @@ char const* fabrik_t::get_name() const
 
 void fabrik_t::set_name(const char *new_name)
 {
-	if(new_name==NULL  ||  strcmp(new_name, translator::translate(besch->get_name()))==0) {
+	if(new_name==NULL  ||  strcmp(new_name, translator::translate(besch->get_name(), welt->get_settings().get_name_language_id()))==0) {
 		// new name is equal to name given by besch/translation -> set name to NULL
 		name = NULL;
 	} else {
