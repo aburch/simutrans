@@ -5,7 +5,7 @@
 #include "components/gui_button.h"
 #include "components/gui_numberinput.h"
 
-#define COLORS_MAX_BUTTONS (22)
+#define COLORS_MAX_BUTTONS (23)
 
 class karte_t;
 
