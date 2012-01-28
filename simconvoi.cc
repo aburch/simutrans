@@ -4255,7 +4255,6 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 		}
 	}
 	
-	const sint64 TEST_revenue = (final_revenue + 1500ll) / 3000ll;
 	return final_revenue;
 }
 
@@ -4554,6 +4553,9 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 			}
 		}
 	}
+
+	book(-port_charge, CONVOI_PROFIT);
+	book(-sp->interim_apportioned_revenue, CONVOI_PROFIT);
 
 	if(state == REVERSING)
 	{
