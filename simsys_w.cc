@@ -66,13 +66,6 @@ static PIXVAL*     AllDibData;
 
 volatile HDC hdc = NULL;
 
-static char const* const title =
-			SAVEGAME_PREFIX " " VERSION_NUMBER " - " VERSION_DATE
-#ifdef REVISION
-			" - r" QUOTEME(REVISION)
-#endif
-;
-
 #ifdef MULTI_THREAD
 
 
@@ -115,7 +108,7 @@ static void create_window(DWORD const ex_style, DWORD const style, int const x, 
 {
 	RECT r = { 0, 0, w, h };
 	AdjustWindowRectEx(&r, style, false, ex_style);
-	hwnd = CreateWindowExA(ex_style, "Simu", title, style, x, y, r.right - r.left, r.bottom - r.top, 0, 0, hInstance, 0);
+	hwnd = CreateWindowExA(ex_style, "Simu", SIM_TITLE, style, x, y, r.right - r.left, r.bottom - r.top, 0, 0, hInstance, 0);
 	ShowWindow(hwnd, SW_SHOW);
 }
 

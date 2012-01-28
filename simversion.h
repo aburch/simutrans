@@ -15,6 +15,14 @@
 
 #define RES_VERSION_NUMBER  0, 111, 1, 0
 
+#ifdef REVISION
+#	define SIM_TITLE_REVISION_STRING " - r" QUOTEME(REVISION)
+#else
+#	define SIM_TITLE_REVISION_STRING
+#endif
+
+#	define SIM_TITLE SAVEGAME_PREFIX VERSION_NUMBER SIM_TITLE_REVISION_STRING
+
 
 /*********************** Settings related to network games ********************/
 

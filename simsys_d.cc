@@ -12,6 +12,7 @@
 #include "simevent.h"
 #include "simgraph.h"
 #include "simsys_w32_png.h"
+#include "simversion.h"
 
 #ifdef _WIN32
 #define BITMAP winBITMAP
@@ -257,7 +258,7 @@ int dr_os_open(int const w, int const h, int const fullscreen)
 	sys_event.mx = mouse_x;
 	sys_event.my = mouse_y;
 
-	set_window_title("Simutrans");
+	set_window_title(SIM_TITLE);
 
 	return w;
 }

@@ -176,7 +176,7 @@ int dr_os_open(int w, int const h, int const fullscreen)
 	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 
 	// set the caption for the window
-	SDL_WM_SetCaption("Simutrans " VERSION_NUMBER,NULL);
+	SDL_WM_SetCaption(SIM_TITLE, 0);
 	SDL_ShowCursor(0);
 	arrow = SDL_GetCursor();
 	hourglass = SDL_CreateCursor(hourglass_cursor, hourglass_cursor_mask, 16, 22, 8, 11);

@@ -13,6 +13,7 @@
 #include <X11/extensions/XShm.h>
 
 #include "simsys.h"
+#include "simversion.h"
 
 
 static int using_shm = FALSE;
@@ -133,7 +134,7 @@ int dr_os_open(int const w, int const h, int)
 		mfg, mbg
 	);
 
-	XSetStandardProperties(md, mw, "Simutrans", "Simu", None, NULL, 0, NULL);
+	XSetStandardProperties(md, mw, SIM_TITLE, "Simu", None, NULL, 0, NULL);
 
 	mgc =XCreateGC(md, mw, 0, 0);
 	XSetBackground(md, mgc, mbg);
