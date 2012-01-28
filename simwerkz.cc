@@ -829,7 +829,7 @@ const char *wkz_raise_t::move( karte_t *welt, spieler_t *sp, uint16 buttonstate,
 }
 
 
-const char *wkz_raise_t::check( karte_t *welt, spieler_t *, koord3d k )
+const char *wkz_raise_t::check( karte_t *welt, spieler_t *sp, koord3d k )
 {
 	// check for underground mode
 	if (is_dragging  &&  drag_height-1 > grund_t::underground_level) {
@@ -843,6 +843,11 @@ const char *wkz_raise_t::check( karte_t *welt, spieler_t *, koord3d k )
 	sint8 h = gr->get_hoehe() + corner4(gr->get_grund_hang());
 	if (h > grund_t::underground_level) {
 			return "Terraforming not possible\nhere in underground view";
+	}
+	const sint64 cost = welt->get_settings().cst_alter_land;
+	if(!sp->can_afford(-cost))
+	{
+		return CREDIT_MESSAGE;
 	}
 	return NULL;
 }
@@ -888,27 +893,20 @@ const char *wkz_raise_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 
 			if(n>0) 
 			{
-				const sint64 cost =welt->get_settings().cst_alter_land * n;
-				if(sp->can_afford(-cost))
+				const sint64 cost = welt->get_settings().cst_alter_land * n;
+				spieler_t::accounting(sp, cost, pos, COST_CONSTRUCTION);
+				// update image
+				for(int j=-n; j<=n; j++) 
 				{
-					spieler_t::accounting(sp, cost, pos, COST_CONSTRUCTION);
-					// update image
-					for(int j=-n; j<=n; j++) 
+					for(int i=-n; i<=n; i++) 
 					{
-						for(int i=-n; i<=n; i++) 
+						const planquadrat_t* p = welt->lookup(pos + koord(i, j));
+						if (p)  
 						{
-							const planquadrat_t* p = welt->lookup(pos + koord(i, j));
-							if (p)  
-							{
-								grund_t* g = p->get_kartenboden();
-								if (g) g->calc_bild();
-							}
+							grund_t* g = p->get_kartenboden();
+							if (g) g->calc_bild();
 						}
 					}
-				}
-				else
-				{
-					return CREDIT_MESSAGE;
 				}
 			}
 			return !ok ? "Tile not empty." : (n ? NULL : "");
@@ -941,7 +939,7 @@ const char *wkz_lower_t::move( karte_t *welt, spieler_t *sp, uint16 buttonstate,
 }
 
 
-const char *wkz_lower_t::check( karte_t *welt, spieler_t *, koord3d k )
+const char *wkz_lower_t::check( karte_t *welt, spieler_t *sp, koord3d k )
 {
 	// check for underground mode
 	if (is_dragging  &&  drag_height+1 > grund_t::underground_level) {
@@ -955,6 +953,11 @@ const char *wkz_lower_t::check( karte_t *welt, spieler_t *, koord3d k )
 	sint8 h = gr->get_hoehe() + corner4(gr->get_grund_hang()) - 1;
 	if (h > grund_t::underground_level) {
 			return "Terraforming not possible\nhere in underground view";
+	}
+	const sint64 cost = welt->get_settings().cst_alter_land;
+	if(!sp->can_afford(-cost))
+	{
+		return CREDIT_MESSAGE;
 	}
 	return NULL;
 }
