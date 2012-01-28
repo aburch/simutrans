@@ -122,7 +122,9 @@ resolution dr_query_screen_resolution()
 
 static void create_window(DWORD const ex_style, DWORD const style, int const x, int const y, int const w, int const h)
 {
-	hwnd = CreateWindowEx(ex_style, L"Simu", title, style, x, y, w, h, 0, 0, hInstance, 0);
+	RECT r = { 0, 0, w, h };
+	AdjustWindowRectEx(&r, style, false, ex_style);
+	hwnd = CreateWindowEx(ex_style, L"Simu", title, style, x, y, r.right - r.left, r.bottom - r.top, 0, 0, hInstance, 0);
 	ShowWindow(hwnd, SW_SHOW);
 }
 
@@ -163,9 +165,7 @@ int dr_os_open(int const w, int const h, int fullscreen)
 	if(  fullscreen  ) {
 		create_window(WS_EX_TOPMOST, WS_POPUP, 0, 0, w, h);
 	} else {
-		int const ww = w     +     GetSystemMetrics(SM_CXFRAME);
-		int const hh = h - 1 + 2 * GetSystemMetrics(SM_CYFRAME) + GetSystemMetrics(SM_CYCAPTION);
-		create_window(0, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, ww, hh);
+		create_window(0, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, w, h);
 	}
 
 	WindowSize.right  = w;
