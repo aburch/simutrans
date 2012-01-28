@@ -1,0 +1,11 @@
+# Simutranslator settings for Simutrans-Experimental texts
+# Addendum for version 10.8
+#
+# Author: jamespetts
+# Created: 28th of January 2012
+#
+obj=program_text
+name=Bridge cannot be built over deep water\n
+note=Error message when players try to build a non-length restricted bridge over water more than 1 tile deep.
+-
+
