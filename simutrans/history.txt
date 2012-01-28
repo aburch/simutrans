@@ -2,6 +2,7 @@
 	ADD: show ownership in minimap
 	ADD: bonus_basefactor = 125 incorporated, determines minimum income for slow vehicles in case of speedbonus
 	ADD: hint text in empty schedules
+	ADD: highlite (land)tiles, which are part of a schedule
 
 
 Release of 111.1 (r5115 on 23-Jan-2012):

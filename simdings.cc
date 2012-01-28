@@ -255,11 +255,16 @@ void ding_t::display(int xpos, int ypos) const
 		if(  outline_bild!=IMG_LEER  ) {
 			// transparency?
 			const PLAYER_COLOR_VAL transparent = get_outline_colour();
-			ypos = start_ypos;	// may be needed for transparency
+			ypos = start_ypos;
 			if(TRANSPARENT_FLAGS&transparent) {
 				// only transparent outline
 				display_blend(get_outline_bild(), xpos, ypos, besitzer_n, transparent, 0, is_dirty);
 			}
+		}
+		else if(  ding_t::get_flag( highlite )  ) {
+			// highlite this tile
+			ypos = start_ypos;
+			display_blend(get_bild(), xpos, ypos, besitzer_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty);
 		}
 	}
 }

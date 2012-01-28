@@ -265,6 +265,15 @@ townhall_info = 0
 # even if there are more objects on this tile
 #only_single_info = 1
 
+# show a tooltip on convois at several conditions
+# 0 no messages
+# 1 (default) only no_route and stuck
+# loading and waiting at signals too
+#show_vehicle_states = 1
+
+# show (default) tiles with a halt when editing a schedule
+#visualize_schedule = 1
+
 # Should stations get numbered names? (1=yes, 0=no)
 #numbered_stations = 0
 

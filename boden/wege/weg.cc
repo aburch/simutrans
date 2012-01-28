@@ -51,7 +51,6 @@
 slist_tpl <weg_t *> alle_wege;
 
 
-
 /**
  * Get list of all ways
  * @author Hj. Malthaner
@@ -155,7 +154,6 @@ void weg_t::init_statistics()
  */
 void weg_t::init()
 {
-	set_flag(ding_t::is_wayding);
 	ribi = ribi_maske = ribi_t::keine;
 	max_speed = 450;
 	besch = 0;

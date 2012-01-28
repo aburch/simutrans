@@ -29,7 +29,7 @@ class ding_t
 {
 public:
 	// flags
-	enum flag_values {keine_flags=0, dirty=1, not_on_map=2, is_vehicle=4, is_wayding=8 };
+	enum flag_values {keine_flags=0, dirty=1, not_on_map=2, is_vehicle=4, highlite=8 };
 
 	// display only outline with player color on owner stuff
 	static bool show_owner;
@@ -177,9 +177,6 @@ public:
 
 	// true for all moving objects
 	inline bool is_moving() const { return flags&is_vehicle; }
-
-	// true for ways
-	inline bool is_way() const { return flags&is_wayding; }
 
 	// while in principle, this should trigger the dirty, it takes just too much time to do it
 	// TAKE CARE OF SET IT DIRTY YOURSELF!!!

@@ -26,6 +26,7 @@
 #include "../dataobj/fahrplan.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
+#include "../dataobj/umgebung.h"
 
 #include "../player/simplay.h"
 #include "../vehicle/simvehikel.h"
@@ -146,6 +147,18 @@ void fahrplan_gui_stats_t::zeichnen(koord offset)
 				// the goto button (right arrow)
 				display_color_img( i!=fpl->get_aktuell() ? button_t::arrow_right_normal : button_t::arrow_right_pushed,
 					offset.x + 2, offset.y + i * (LINESPACE + 1), 0, false, true);
+
+				if(  grund_t *gr = welt->lookup(fpl->eintrag[i].pos)  ) {
+					if(  weg_t * way = gr->get_weg( fpl->get_waytype() )  ) {
+						if(  umgebung_t::visualize_schedule  ) {
+							way->set_flag( ding_t::highlite );
+						}
+						else {
+							way->clear_flag( ding_t::highlite );
+						}
+					}
+				}
+
 			}
 			set_groesse( koord(width+16,fpl->get_count() * (LINESPACE + 1) ) );
 		}
@@ -385,6 +398,11 @@ bool fahrplan_gui_t::infowin_event(const event_t *ev)
 				else if(ev->mx<scrolly.get_groesse().x-11) {
 					fpl->set_aktuell( line );
 					if(mode == removing) {
+						if(  grund_t *gr = welt->lookup(fpl->eintrag[fpl->get_aktuell()].pos)  ) {
+							if(  weg_t * way = gr->get_weg( fpl->get_waytype() )  ) {
+								way->clear_flag( ding_t::highlite );
+							}
+						}
 						fpl->remove();
 						action_triggered( &bt_add, value_t() );
 					}
@@ -394,6 +412,14 @@ bool fahrplan_gui_t::infowin_event(const event_t *ev)
 		}
 	}
 	else if(ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE  &&  fpl!=NULL  ) {
+
+		for(  int i=0;  i<fpl->get_count();  i++  ) {
+			if(  grund_t *gr = welt->lookup(fpl->eintrag[i].pos)  ) {
+				if(  weg_t * way = gr->get_weg( fpl->get_waytype() )  ) {
+					way->clear_flag( ding_t::highlite );
+				}
+			}
+		}
 
 		update_werkzeug( false );
 		fpl->cleanup();
