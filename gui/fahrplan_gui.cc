@@ -157,6 +157,13 @@ void fahrplan_gui_stats_t::zeichnen(koord offset)
 							way->clear_flag( ding_t::highlite );
 						}
 					}
+					// here on water
+					else if(  umgebung_t::visualize_schedule  ) {
+						gr->set_flag( grund_t::marked );
+					}
+					else {
+						gr->clear_flag( grund_t::marked );
+					}
 				}
 
 			}
@@ -417,6 +424,9 @@ bool fahrplan_gui_t::infowin_event(const event_t *ev)
 			if(  grund_t *gr = welt->lookup(fpl->eintrag[i].pos)  ) {
 				if(  weg_t * way = gr->get_weg( fpl->get_waytype() )  ) {
 					way->clear_flag( ding_t::highlite );
+				}
+				else {
+					gr->clear_flag( grund_t::marked );
 				}
 			}
 		}
