@@ -5370,6 +5370,12 @@ void karte_t::interactive_event(event_t &ev)
 				break;
 
 			case SIM_KEY_F1:
+				if(  gui_frame_t *win = win_get_top()  ) {
+					if(  win->get_hilfe_datei()!=NULL  ) {
+						create_win(new help_frame_t(win->get_hilfe_datei()), w_info, (long)(win->get_hilfe_datei()) );
+						break;
+					}
+				}
 				set_werkzeug( werkzeug_t::dialog_tool[WKZ_HELP], get_active_player() );
 				break;
 

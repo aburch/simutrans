@@ -242,8 +242,8 @@ koord gui_flowtext_t::output(koord offset, bool doit, bool return_max_width)
 				break;
 
 			case ATT_H1_START:
-				color        = COL_BLACK;
-				double_color = COL_WHITE;
+				color        = COL_ORANGE;
+				double_color = COL_BLACK;
 				double_it    = true;
 				break;
 
@@ -277,11 +277,15 @@ koord gui_flowtext_t::output(koord offset, bool doit, bool return_max_width)
 				break;
 
 			case ATT_STRONG_START:
-				color = COL_RED;
+				if(  !double_it  ) {
+					color = COL_RED;
+				}
 				break;
 
 			case ATT_STRONG_END:
-				color = COL_BLACK;
+				if(  !double_it  ) {
+					color = COL_BLACK;
+				}
 				break;
 
 			default: break;

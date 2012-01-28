@@ -47,6 +47,7 @@
 #include "gui/banner.h"
 #include "gui/pakselector.h"
 #include "gui/welt.h"
+#include "gui/help_frame.h"
 #include "gui/sprachen.h"
 #include "gui/climates.h"
 #include "gui/messagebox.h"
@@ -210,6 +211,14 @@ void modal_dialogue( gui_frame_t *gui, long magic, karte_t *welt, bool (*quit)()
 				}
 				if(  ev.cy < werkzeug_t::toolbar_tool[0]->iconsize.y  ) {
 					ev.cy = werkzeug_t::toolbar_tool[0]->iconsize.y;
+				}
+				if(  ev.ev_class == EVENT_KEYBOARD  &&  ev.ev_code == SIM_KEY_F1  ) {
+					if(  gui_frame_t *win = win_get_top()  ) {
+						if(  win->get_hilfe_datei()!=NULL  ) {
+							create_win(new help_frame_t(win->get_hilfe_datei()), w_info, (long)(win->get_hilfe_datei()) );
+							continue;
+						}
+					}
 				}
 				DBG_DEBUG4("zeige_banner", "calling check_pos_win");
 				check_pos_win(&ev);
