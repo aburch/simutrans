@@ -4,7 +4,6 @@
 #define MAKEOBJ_VERSION "53"
 
 #define VERSION_NUMBER "nightly 111.2"
-#define WIDE_VERSION_NUMBER L"nightly 111.2"
 
 #define VERSION_DATE __DATE__
 

@@ -66,19 +66,10 @@ static PIXVAL*     AllDibData;
 
 volatile HDC hdc = NULL;
 
-const wchar_t* const title =
-#ifdef _MSC_VER
-#define TOW_(x) L#x
-#define TOW(x) TOW_(x)
-			L"Simutrans " WIDE_VERSION_NUMBER
-#ifdef REVISION
-			L" - r" TOW(REVISION)
-#endif
-#else
-			L"" SAVEGAME_PREFIX " " VERSION_NUMBER " - " VERSION_DATE
+static char const* const title =
+			SAVEGAME_PREFIX " " VERSION_NUMBER " - " VERSION_DATE
 #ifdef REVISION
 			" - r" QUOTEME(REVISION)
-#endif
 #endif
 ;
 
@@ -124,7 +115,7 @@ static void create_window(DWORD const ex_style, DWORD const style, int const x, 
 {
 	RECT r = { 0, 0, w, h };
 	AdjustWindowRectEx(&r, style, false, ex_style);
-	hwnd = CreateWindowEx(ex_style, L"Simu", title, style, x, y, r.right - r.left, r.bottom - r.top, 0, 0, hInstance, 0);
+	hwnd = CreateWindowExA(ex_style, "Simu", title, style, x, y, r.right - r.left, r.bottom - r.top, 0, 0, hInstance, 0);
 	ShowWindow(hwnd, SW_SHOW);
 }
 
