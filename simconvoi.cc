@@ -4513,6 +4513,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 					sp->buche(sp->interim_apportioned_revenue, COST_WAY_TOLLS);
 				}
 				besitzer_p->buche(-sp->interim_apportioned_revenue, COST_WAY_TOLLS);
+				book(-sp->interim_apportioned_revenue, CONVOI_PROFIT);
 				welt->get_spieler(i)->interim_apportioned_revenue = 0;
 			}
 		}
@@ -4533,6 +4534,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 					halt->get_besitzer()->buche(port_charge, COST_WAY_TOLLS);
 				}
 				besitzer_p->buche(-port_charge, COST_WAY_TOLLS);
+				book(-port_charge, CONVOI_PROFIT);
 			}
 		}
 		else if(fahr[0]->get_besch()->get_waytype() == air_wt)
@@ -4550,12 +4552,10 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 					halt->get_besitzer()->buche(port_charge, COST_WAY_TOLLS);
 				}
 				besitzer_p->buche(-port_charge, COST_WAY_TOLLS);
+				book(-port_charge, CONVOI_PROFIT);
 			}
 		}
 	}
-
-	book(-port_charge, CONVOI_PROFIT);
-	book(-sp->interim_apportioned_revenue, CONVOI_PROFIT);
 
 	if(state == REVERSING)
 	{
