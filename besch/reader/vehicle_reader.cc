@@ -12,8 +12,7 @@
 
 
 
-void
-vehicle_reader_t::register_obj(obj_besch_t *&data)
+void vehicle_reader_t::register_obj(obj_besch_t *&data)
 {
 	vehikel_besch_t *besch = static_cast<vehikel_besch_t *>(data);
 	vehikelbauer_t::register_besch(besch);
@@ -25,16 +24,13 @@ vehicle_reader_t::register_obj(obj_besch_t *&data)
 }
 
 
-
-bool
-vehicle_reader_t::successfully_loaded() const
+bool vehicle_reader_t::successfully_loaded() const
 {
 	return vehikelbauer_t::alles_geladen();
 }
 
 
-obj_besch_t *
-vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
+obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	ALLOCA(char, besch_buf, node.size);
 
@@ -259,6 +255,12 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	// before version 8 vehicles could only have one freight image in each direction
 	if(version<8) {
 		besch->freight_image_type=0;
+	}
+
+	if(version<9) {
+		besch->fixed_cost = 0;
+		besch->axle_load = 0;
+		besch->loading_time = 1800;
 	}
 
 	if(besch->sound==LOAD_SOUND) {
