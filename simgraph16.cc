@@ -21,6 +21,7 @@
 #include "simdebug.h"
 #include "besch/bild_besch.h"
 #include "unicode.h"
+#include "simticker.h"
 
 
 #ifdef _MSC_VER
@@ -3591,16 +3592,30 @@ void display_flush_buffer(void)
 	unsigned char* tmp;
 
 #ifdef USE_SOFTPOINTER
-	if (softpointer != -1) {
-		ex_ord_update_mx_my();
+	ex_ord_update_mx_my();
+
+	// use mouse pointer image if available
+	if (softpointer != -1 && standard_pointer >= 0) {
 		display_color_img(standard_pointer, sys_event.mx, sys_event.my, 0, false, true);
+
+		// if software emulated mouse pointer is over the ticker, redraw it totally at next occurs
+		if (!ticker::empty() && sys_event.my+images[standard_pointer].h >= disp_height-TICKER_YPOS_BOTTOM &&
+		   sys_event.my <= disp_height-TICKER_YPOS_BOTTOM+TICKER_HEIGHT) {
+			ticker::set_redraw_all(true);
+		}
 	}
+	// no pointer image available, draw a crosshair
 	else {
-		// crosshair, if nowthing there ...
 		display_fb_internal( sys_event.mx-1, sys_event.my-3, 3, 7, COL_WHITE, 1, 0, disp_width, 0, disp_height);
 		display_fb_internal( sys_event.mx-3, sys_event.my-1, 7, 3, COL_WHITE, 1, 0, disp_width, 0, disp_height);
 		display_direct_line( sys_event.mx-2, sys_event.my, sys_event.mx+2, sys_event.my, COL_BLACK );
 		display_direct_line( sys_event.mx, sys_event.my-2, sys_event.mx, sys_event.my+2, COL_BLACK );
+
+		// if crosshair is over the ticker, redraw it totally at next occurs
+		if(!ticker::empty() && sys_event.my+2 >= disp_height-TICKER_YPOS_BOTTOM &&
+		   sys_event.my-2 <= disp_height-TICKER_YPOS_BOTTOM+TICKER_HEIGHT) {
+			ticker::set_redraw_all(true);
+		}
 	}
 	old_my = sys_event.my;
 #endif

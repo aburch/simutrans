@@ -10,6 +10,11 @@
 
 #include "simcolor.h"
 
+// ticker height
+#define TICKER_HEIGHT      15
+// ticker vertical position from bottom of screen
+#define TICKER_YPOS_BOTTOM 32
+
 class koord;
 
 /**
@@ -36,6 +41,11 @@ namespace ticker
 	 * Ticker redraw
 	 */
 	void zeichnen();
+
+	/**
+	 * Set true if ticker has to be redrawn
+	 */
+	void set_redraw_all(const bool);
 
 	/**
 	 * Ticker text redraw after resize
