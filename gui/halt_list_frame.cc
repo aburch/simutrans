@@ -102,7 +102,6 @@ bool halt_list_frame_t::compare_halts(halthandle_t const halt1, halthandle_t con
 }
 
 
-
 bool halt_list_frame_t::passes_filter(halthandle_t halt)
 {
 	bool ok;
@@ -275,14 +274,12 @@ halt_list_frame_t::halt_list_frame_t(spieler_t *sp) :
 }
 
 
-
 halt_list_frame_t::~halt_list_frame_t()
 {
 	if(filter_frame) {
 		destroy_win(filter_frame);
 	}
 }
-
 
 
 /**
@@ -335,9 +332,10 @@ void halt_list_frame_t::display_list(void)
 }
 
 
-
 bool halt_list_frame_t::infowin_event(const event_t *ev)
 {
+	const sint16 xr = vscroll.is_visible() ? scrollbar_t::BAR_SIZE : 1;
+
 	if(ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE) {
 		if(filter_frame) {
 			filter_frame->infowin_event(ev);
@@ -348,7 +346,7 @@ bool halt_list_frame_t::infowin_event(const event_t *ev)
 		// (and sometime even not then ... )
 		return vscroll.infowin_event(ev);
 	}
-	else if((IS_LEFTRELEASE(ev)  ||  IS_RIGHTRELEASE(ev))  &&  ev->my>47  &&  ev->mx+11<get_fenstergroesse().x) {
+	else if(  (IS_LEFTRELEASE(ev)  ||  IS_RIGHTRELEASE(ev))  &&  ev->my>47  &&  ev->mx<get_fenstergroesse().x-xr  ) {
 		const int y = (ev->my-47)/28 + vscroll.get_knob_offset();
 
 		if(  y<num_filtered_stops  ) {
@@ -365,7 +363,6 @@ bool halt_list_frame_t::infowin_event(const event_t *ev)
 	}
 	return gui_frame_t::infowin_event(ev);
 }
-
 
 
 /**
@@ -408,6 +405,7 @@ void halt_list_frame_t::resize(const koord size_change)
 {
 	gui_frame_t::resize(size_change);
 	koord groesse = get_fenstergroesse()-koord(0,47);
+	vscroll.set_visible(false);
 	remove_komponente(&vscroll);
 	vscroll.set_knob( groesse.y/28, num_filtered_stops );
 	if(  num_filtered_stops<=groesse.y/28  ) {
@@ -415,12 +413,12 @@ void halt_list_frame_t::resize(const koord size_change)
 	}
 	else {
 		add_komponente(&vscroll);
+		vscroll.set_visible(true);
 		vscroll.set_pos(koord(groesse.x-scrollbar_t::BAR_SIZE, 47-TITLEBAR_HEIGHT-1));
 		vscroll.set_groesse(groesse-koord(scrollbar_t::BAR_SIZE,scrollbar_t::BAR_SIZE));
 		vscroll.set_scroll_amount( 1 );
 	}
 }
-
 
 
 void halt_list_frame_t::zeichnen(koord pos, koord gr)
@@ -429,7 +427,8 @@ void halt_list_frame_t::zeichnen(koord pos, koord gr)
 
 	gui_frame_t::zeichnen(pos, gr);
 
-	PUSH_CLIP(pos.x, pos.y+47, gr.x-scrollbar_t::BAR_SIZE, gr.y-48 );
+	const sint16 xr = vscroll.is_visible() ? scrollbar_t::BAR_SIZE+4 : 6;
+	PUSH_CLIP(pos.x, pos.y+47, gr.x-xr, gr.y-48 );
 
 	const sint32 start = vscroll.get_knob_offset();
 	sint16 yoffset = 47;
@@ -459,7 +458,6 @@ void halt_list_frame_t::zeichnen(koord pos, koord gr)
 }
 
 
-
 void halt_list_frame_t::set_ware_filter_ab(const ware_besch_t *ware, int mode)
 {
 	if(ware != warenbauer_t::nichts) {
@@ -476,6 +474,7 @@ void halt_list_frame_t::set_ware_filter_ab(const ware_besch_t *ware, int mode)
 	}
 }
 
+
 void halt_list_frame_t::set_ware_filter_an(const ware_besch_t *ware, int mode)
 {
 	if(ware != warenbauer_t::nichts) {
@@ -491,6 +490,7 @@ void halt_list_frame_t::set_ware_filter_an(const ware_besch_t *ware, int mode)
 		}
 	}
 }
+
 
 void halt_list_frame_t::set_alle_ware_filter_ab(int mode)
 {
