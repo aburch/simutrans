@@ -91,9 +91,9 @@ void banner_t::zeichnen(koord pos, koord gr )
 	display_shadow_proportional( pos.x+10, yp, COL_PT, COL_BLACK, "This is an experimental version of Simutrans:", true );
 	yp += LINESPACE+5;
 #ifdef REVISION
-	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "Version " VERSION_NUMBER " " NARROW_EXPERIMENTAL_VERSION " " VERSION_DATE " r" QUOTEME(REVISION), true );
+	display_shadow_proportional( pos.x+10, yp, COL_WHITE, COL_BLACK, "Version " VERSION_NUMBER " " NARROW_EXPERIMENTAL_VERSION " " VERSION_DATE " r" QUOTEME(REVISION), true );
 #else
-	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "Version " VERSION_NUMBER " " NARROW_EXPERIMENTAL_VERSION " " VERSION_DATE, true );
+	display_shadow_proportional( pos.x+10, yp, COL_WHITE, COL_BLACK, "Version " VERSION_NUMBER " " NARROW_EXPERIMENTAL_VERSION " " VERSION_DATE, true );
 #endif
 	yp += LINESPACE+7;
 
