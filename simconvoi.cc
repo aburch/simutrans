@@ -3864,8 +3864,20 @@ void convoi_t::laden() //"load" (Babelfish)
 					break;
 				}
 			}
-			stop_hh = welt->lookup(fpl->eintrag[stop].pos)->get_halt();
-			previous_stop_hh = welt->lookup(fpl->eintrag[previous_stop].pos)->get_halt();
+			const grund_t* gr_this = welt->lookup(fpl->eintrag[stop].pos);
+			const grund_t* gr_previous = welt->lookup(fpl->eintrag[previous_stop].pos);
+			if(gr_previous && gr_this)
+			{
+				stop_hh = gr_this->get_halt();
+				previous_stop_hh = gr_previous->get_halt();
+			}
+			else
+			{
+				// Something has gone wrong.
+				dbg->error("void convoi_t::laden() ", "Cannot lookup halt");
+				continue;
+			}
+
 			if(previous_stop_hh.get_id() == stop_hh.get_id())
 			{
 				departure_entries_to_remove.append(stop_hh.get_id());
@@ -4269,7 +4281,6 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 		}
 	}
 	
-	const sint64 TEST_revenue = (final_revenue + 1500ll) / 3000ll;
 	return final_revenue;
 }
 
@@ -4529,6 +4540,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 					sp->buche(sp->interim_apportioned_revenue, COST_WAY_TOLLS);
 				}
 				besitzer_p->buche(-sp->interim_apportioned_revenue, COST_WAY_TOLLS);
+				book(-sp->interim_apportioned_revenue, CONVOI_PROFIT);
 				welt->get_spieler(i)->interim_apportioned_revenue = 0;
 			}
 		}
@@ -4549,6 +4561,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 					halt->get_besitzer()->buche(port_charge, COST_WAY_TOLLS);
 				}
 				besitzer_p->buche(-port_charge, COST_WAY_TOLLS);
+				book(-port_charge, CONVOI_PROFIT);
 			}
 		}
 		else if(fahr[0]->get_besch()->get_waytype() == air_wt)
@@ -4566,6 +4579,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 					halt->get_besitzer()->buche(port_charge, COST_WAY_TOLLS);
 				}
 				besitzer_p->buche(-port_charge, COST_WAY_TOLLS);
+				book(-port_charge, CONVOI_PROFIT);
 			}
 		}
 	}

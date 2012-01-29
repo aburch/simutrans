@@ -1,0 +1,13 @@
+# Simutranslator settings for Simutrans-Experimental texts
+# Addendum for version 10.8
+#
+# Author: jamespetts
+# Created: January 2012
+#
+obj=program_text
+name=Bridge cannot be built over deep water\n
+note=Error message when players try to build a non-length restricted bridge over water more than 1 tile deep.
+-
+obj=program_text
+name=Cannot terraform in deep water
+note=Error message when players try to raise or lower land in deep water.

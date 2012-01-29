@@ -958,10 +958,14 @@ void settings_t::rdwr(loadsave_t *file)
 
 			if(file->get_experimental_version() < 6)
 			{
-				float32e8_t km_per_tile(meters_per_tile, 1000);
-				min_bonus_max_distance /= km_per_tile;
-				max_bonus_min_distance /= km_per_tile;
+				const uint32 min_bonus_max_distance_scaled = min_bonus_max_distance * meters_per_tile;
+				const uint32 max_bonus_min_distance_scaled = max_bonus_min_distance * meters_per_tile;
+
+				min_bonus_max_distance = min_bonus_max_distance_scaled / 1000;
+				max_bonus_min_distance = max_bonus_min_distance_scaled / 1000;
+
 				// Scale the costs to match the scale factor.
+				float32e8_t km_per_tile(meters_per_tile, 1000);
 				cst_multiply_dock *= km_per_tile;
 				cst_multiply_station *= km_per_tile;
 				cst_multiply_roadstop *= km_per_tile;

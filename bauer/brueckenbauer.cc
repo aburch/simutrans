@@ -82,6 +82,7 @@ const bruecke_besch_t *brueckenbauer_t::get_besch(const char *name)
 
 
 
+// "successfully load" (Babelfish)
 bool brueckenbauer_t::laden_erfolgreich()
 {
 	bool strasse_da = false;
@@ -201,8 +202,15 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const 
 			error_msg = "Bridge is too long for this type!\n";
 			return koord3d::invalid;
 		}
+
+		// Check for non-length restricted bridges over deep water.
+		if(besch->get_max_length() == 0 && welt->lookup_hgt(pos.get_2d())<welt->get_grundwasser())
+		{
+			error_msg = "Bridge cannot be built over deep water\n";
+		}
+
 		// check for height
-		sint16 height = pos.z -welt->lookup_kartenboden(pos.get_2d())->get_hoehe();
+		sint16 height = pos.z - welt->lookup_kartenboden(pos.get_2d())->get_hoehe(); // "heohe" = "height" (Babelfish)
 		if(besch->get_max_height()!=0  &&  height>besch->get_max_height()) {
 			error_msg = "bridge is too high for its type!";
 			return koord3d::invalid;
@@ -557,6 +565,7 @@ void brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, ko
 	}
 }
 
+// "Build ramp" (Babelfish)
 void brueckenbauer_t::baue_auffahrt(karte_t* welt, spieler_t* sp, koord3d end, koord zv, const bruecke_besch_t* besch)
 {
 	grund_t *alter_boden = welt->lookup(end);

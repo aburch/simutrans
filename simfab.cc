@@ -285,7 +285,7 @@ void fabrik_t::update_scaled_electric_amount()
 void fabrik_t::update_scaled_pax_demand()
 {
 	// first, scaling based on current production base
-	const sint64 prod = besch->get_produktivitaet();
+	const sint64 prod = besch->get_produktivitaet() > 0 ? besch->get_produktivitaet() : 1;
 	const sint64 besch_pax_demand = ( besch->get_pax_demand()==65535 ? besch->get_pax_level() : besch->get_pax_demand() );
 	// formula : besch_pax_demand * (current_production_base / besch_production_base); (prod >> 1) is for rounding
 	const uint32 pax_demand = (uint32)( ( besch_pax_demand * (sint64)prodbase + (prod >> 1) ) / prod );
@@ -311,7 +311,7 @@ void fabrik_t::update_scaled_pax_demand()
 void fabrik_t::update_scaled_mail_demand()
 {
 	// first, scaling based on current production base
-	const sint64 prod = besch->get_produktivitaet();
+	const sint64 prod = besch->get_produktivitaet() > 0 ? besch->get_produktivitaet() : 1;
 	const sint64 besch_mail_demand = ( besch->get_mail_demand()==65535 ? (besch->get_pax_level()>>2) : besch->get_mail_demand() );
 	// formula : besch_mail_demand * (current_production_base / besch_production_base); (prod >> 1) is for rounding
 	const uint32 mail_demand = (uint32)( ( besch_mail_demand * (sint64)prodbase + (prod >> 1) ) / prod );
