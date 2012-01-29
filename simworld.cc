@@ -3836,7 +3836,8 @@ void karte_t::restore_history()
 		sint64 total_pas = 1, trans_pas = 0;
 		sint64 total_mail = 1, trans_mail = 0;
 		sint64 total_goods = 1, supplied_goods = 0;
-		for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
+		for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) 
+		{
 			bev += (*i)->get_finance_history_month( m, HIST_CITICENS );
 			trans_pas += (*i)->get_finance_history_month( m, HIST_PAS_TRANSPORTED );
 			total_pas += (*i)->get_finance_history_month( m, HIST_PAS_GENERATED );

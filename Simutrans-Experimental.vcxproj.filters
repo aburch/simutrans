@@ -1871,6 +1871,9 @@
     <None Include="base_texts_experimental_10.8.dat">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="base_texts_experimental_10.9.dat">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="simres.rc">

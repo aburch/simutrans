@@ -1771,23 +1771,44 @@ void stadt_t::rdwr(loadsave_t* file)
 	}
 
 	// we probably need to load/save the city history
-	if (file->get_version() < 86000) {
+	if (file->get_version() < 86000) 
+	{
 		DBG_DEBUG("stadt_t::rdwr()", "is old version: No history!");
-	} else if(file->get_version()<99016) {
+	}
+	else if(file->get_version()<99016) 
+	{
 		// 86.00.0 introduced city history
-		for (uint year = 0; year < MAX_CITY_HISTORY_YEARS; year++) {
-			for (uint hist_type = 0; hist_type < 2; hist_type++) {
+		for (uint year = 0; year < MAX_CITY_HISTORY_YEARS; year++) 
+		{
+			for (uint hist_type = 0; hist_type < 2; hist_type++) 
+			{
 				file->rdwr_longlong(city_history_year[year][hist_type]);
 			}
-			for (uint hist_type = 4; hist_type < 6; hist_type++) {
+			for (uint hist_type = 4; hist_type < 7; hist_type++) 
+			{
+				if(hist_type == HIST_PAS_WALKED)
+				{
+					// Versions earlier than 111.1 Ex 10.8 did not record walking passengers.
+					city_history_year[year][hist_type] = 0;
+					continue;
+				}
 				file->rdwr_longlong(city_history_year[year][hist_type]);
 			}
 		}
-		for (uint month = 0; month < MAX_CITY_HISTORY_MONTHS; month++) {
-			for (uint hist_type = 0; hist_type < 2; hist_type++) {
+		for (uint month = 0; month < MAX_CITY_HISTORY_MONTHS; month++) 
+		{
+			for (uint hist_type = 0; hist_type < 2; hist_type++) 
+			{
 				file->rdwr_longlong(city_history_month[month][hist_type]);
 			}
-			for (uint hist_type = 4; hist_type < 6; hist_type++) {
+			for (uint hist_type = 4; hist_type < 7; hist_type++) 
+			{
+				if(hist_type == HIST_PAS_WALKED)
+				{
+					// Versions earlier than 111.1 Ex 10.8 did not record walking passengers.
+					city_history_month[month][hist_type] = 0;
+					continue;
+				}
 				file->rdwr_longlong(city_history_month[month][hist_type]);
 			}
 		}
@@ -1808,6 +1829,12 @@ void stadt_t::rdwr(loadsave_t* file)
 		{
 			for (uint hist_type = 0; hist_type < MAX_CITY_HISTORY - 3; hist_type++) 
 			{
+				if(hist_type == HIST_PAS_WALKED)
+				{
+					// Versions earlier than 111.1 Ex 10.8 did not record walking passengers.
+					city_history_year[year][hist_type] = 0;
+					continue;
+				}
 				file->rdwr_longlong(city_history_year[year][hist_type]);
 			}
 		}
@@ -1815,6 +1842,12 @@ void stadt_t::rdwr(loadsave_t* file)
 		{
 			for (uint hist_type = 0; hist_type < MAX_CITY_HISTORY - 3; hist_type++) 
 			{
+				if(hist_type == HIST_PAS_WALKED)
+				{
+					// Versions earlier than 111.1 Ex 10.8 did not record walking passengers.
+					city_history_month[month][hist_type] = 0;
+					continue;
+				}
 				file->rdwr_longlong(city_history_month[month][hist_type]);
 			}
 		}
@@ -1834,6 +1867,12 @@ void stadt_t::rdwr(loadsave_t* file)
 					city_history_year[year][HIST_POWER_RECIEVED] = 0;
 					hist_type = HIST_CONGESTION;
 				}
+				if(hist_type == HIST_PAS_WALKED)
+				{
+					// Versions earlier than 111.1 Ex 10.8 did not record walking passengers.
+					city_history_year[year][hist_type] = 0;
+					continue;
+				}
 				file->rdwr_longlong(city_history_year[year][hist_type]);
 			}
 		}
@@ -1845,6 +1884,12 @@ void stadt_t::rdwr(loadsave_t* file)
 				{
 					city_history_month[month][HIST_POWER_RECIEVED] = 0;
 					hist_type = HIST_CONGESTION;
+				}
+				if(hist_type == HIST_PAS_WALKED)
+				{
+					// Versions earlier than 111.1 Ex 10.8 did not record walking passengers.
+					city_history_month[month][hist_type] = 0;
+					continue;
 				}
 				file->rdwr_longlong(city_history_month[month][hist_type]);
 			}
@@ -1858,6 +1903,12 @@ void stadt_t::rdwr(loadsave_t* file)
 		{
 			for (uint hist_type = 0; hist_type < MAX_CITY_HISTORY; hist_type++) 
 			{
+				if(hist_type == HIST_PAS_WALKED && (file->get_experimental_version() < 10 || file->get_version() < 111001))
+				{
+					// Versions earlier than 111.1 Ex 10.8 did not record walking passengers.
+					city_history_year[year][hist_type] = 0;
+					continue;
+				}
 				file->rdwr_longlong(city_history_year[year][hist_type]);
 			}
 		}
@@ -1865,6 +1916,12 @@ void stadt_t::rdwr(loadsave_t* file)
 		{
 			for (uint hist_type = 0; hist_type < MAX_CITY_HISTORY; hist_type++) 
 			{
+				if(hist_type == HIST_PAS_WALKED && (file->get_experimental_version() < 10 || file->get_version() < 111001))
+				{
+					// Versions earlier than 111.1 Ex 10.8 did not record walking passengers.
+					city_history_month[month][hist_type] = 0;
+					continue;
+				}
 				file->rdwr_longlong(city_history_month[month][hist_type]);
 			}
 		}
@@ -2627,7 +2684,7 @@ void stadt_t::calc_growth()
 	const uint8 electricity_proportion = (get_electricity_consumption(welt->get_timeline_year_month()) * electricity_multiplier / 100);
 	const uint8 mail_proportion = 100 - (s.get_passenger_multiplier() + electricity_proportion + s.get_goods_multiplier());
 
-	const sint32 pas = ((city_history_month[0][HIST_PAS_TRANSPORTED] + (city_history_month[0][HIST_CITYCARS] - outgoing_private_cars)) * (s.get_passenger_multiplier()<<6)) / (city_history_month[0][HIST_PAS_GENERATED] + 1);
+	const sint32 pas = ((city_history_month[0][HIST_PAS_TRANSPORTED] + city_history_month[0][HIST_PAS_WALKED] + (city_history_month[0][HIST_CITYCARS] - outgoing_private_cars)) * (s.get_passenger_multiplier()<<6)) / (city_history_month[0][HIST_PAS_GENERATED] + 1);
 	const sint32 mail = (city_history_month[0][HIST_MAIL_TRANSPORTED] * (mail_proportion)<<6) / (city_history_month[0][HIST_MAIL_GENERATED] + 1);
 	const sint32 electricity = city_history_month[0][HIST_POWER_NEEDED] == 0 ? 0 : (city_history_month[0][HIST_POWER_RECIEVED] * (electricity_proportion<<6)) / (city_history_month[0][HIST_POWER_NEEDED]);
 	const sint32 goods = city_history_month[0][HIST_GOODS_NEEDED]==0 ? 0 : (city_history_month[0][HIST_GOODS_RECIEVED] * (s.get_goods_multiplier()<<6)) / (city_history_month[0][HIST_GOODS_NEEDED]);
@@ -3208,11 +3265,7 @@ void stadt_t::step_passagiere()
 						}
 					}
 					
-					// Passengers who walk to their destinations should not count as "passengers"
-					// at all, especially since the percentage of passengers transported is used
-					// in growth calculations.
-					city_history_year[0][history_type+1] -= pax_left_to_do;
-					city_history_month[0][history_type+1] -= pax_left_to_do;
+					add_walking_passengers(pax_left_to_do);
 					break;
 				}
 
@@ -3600,11 +3653,8 @@ void stadt_t::step_passagiere()
 				destination_now.factory_entry->factory->liefere_an(wtyp, amount);
 			}
 			merke_passagier_ziel(destination_now.location, COL_DARK_YELLOW);
-			// Passengers who walk to their destinations should not count as "passengers"
-			// at all, especially since the percentage of passengers transported is used
-			// in growth calculations.
-			city_history_year[0][history_type+1] -= num_pax;
-			city_history_month[0][history_type+1] -= num_pax;
+			
+			add_walking_passengers(amount);
 		}
 		else
 		{
