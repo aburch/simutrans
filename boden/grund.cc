@@ -1618,7 +1618,7 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 
 			ding_t *d=obj_bei((uint8)i);
 			// do not delete ways
-			if(  d->get_typ()!=ding_t::way  ) {
+			if(  d->get_typ()==ding_t::way  ) {
 				continue;
 			}
 			if (roadsign_t* const sign = ding_cast<roadsign_t>(d)) {
