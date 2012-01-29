@@ -419,10 +419,10 @@ void gui_convoy_assembler_t::layout()
 	upgrade_selector.set_max_size(koord(ABUTTON_WIDTH - 8, LINESPACE*2+2+16));
 	upgrade_selector.set_highlight_color(1);
 
-	bt_show_all.set_pos(koord(4, PANEL_VSTART + get_panel_height() + 14 ));
+	bt_show_all.set_pos(koord(4, PANEL_VSTART + get_panel_height() + 34 ));
 	bt_show_all.pressed = show_all;
 
-	bt_obsolete.set_pos(koord(groesse.x-(ABUTTON_WIDTH*5)/2, PANEL_VSTART + get_panel_height() + 16));
+	bt_obsolete.set_pos(koord(groesse.x-(ABUTTON_WIDTH*5)/2, PANEL_VSTART + get_panel_height() + 44));
 	bt_obsolete.pressed = show_retired_vehicles;
 
 	lb_vehicle_filter.set_pos(koord(groesse.x - (ABUTTON_WIDTH*5)/2 + 4, PANEL_VSTART + get_panel_height() + 4));
@@ -431,11 +431,11 @@ void gui_convoy_assembler_t::layout()
 	vehicle_filter.set_groesse(koord(ABUTTON_WIDTH + 30, 14));
 	vehicle_filter.set_max_size(koord(ABUTTON_WIDTH + 60, LINESPACE * 8));
 	
-	lb_livery_selector.set_pos(koord(2, PANEL_VSTART + get_panel_height() + 6));
+	lb_livery_selector.set_pos(koord(groesse.x / 4, PANEL_VSTART + get_panel_height() + 4));
 
-	livery_selector.set_pos(koord(groesse.x / 4, PANEL_VSTART + get_panel_height() + 4));
+	livery_selector.set_pos(koord(groesse.x / 4, PANEL_VSTART + get_panel_height() + 16));
 	livery_selector.set_groesse(koord((groesse.x / 5), ABUTTON_HEIGHT));
-	livery_selector.set_max_size(koord(ABUTTON_WIDTH - 8, LINESPACE*3+2+16));
+	livery_selector.set_max_size(koord(ABUTTON_WIDTH + 80, LINESPACE * 8));
 	livery_selector.set_highlight_color(1);
 
 	const livery_scheme_t* const liv = welt->get_settings().get_livery_scheme(livery_scheme_index);
@@ -1474,6 +1474,21 @@ void gui_convoy_assembler_t::update_tabs()
 			break;
 		}
 	}
+
+	// Update vehicle filter
+	vehicle_filter.clear_elements();
+	vehicle_filter.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("All"), COL_BLACK));
+	vehicle_filter.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("Relevant"), COL_BLACK));
+
+	const vector_tpl<const ware_besch_t*> &goods = get_welt()->get_goods_list();
+	for(uint32 i = 0; i<goods.get_count(); i++) {
+		vehicle_filter.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(goods[i]->get_name()), COL_BLACK));
+	}
+
+	if (selected_filter > vehicle_filter.count_elements()) {
+		selected_filter = VEHICLE_FILTER_RELEVANT;
+	}
+	vehicle_filter.set_selection(selected_filter);
 }
 
 
