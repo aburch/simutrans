@@ -22,6 +22,8 @@
 #include "../../tpl/ptrhashtable_tpl.h"
 #include "../../tpl/vector_tpl.h"
 
+#define VEHICLE_FILTER_RELEVANT 1
+#define VEHICLE_FILTER_GOODS_OFFSET 2
 
 /**
  * This class allows the player to assemble a convoy from vehicles.
@@ -121,6 +123,9 @@ class gui_convoy_assembler_t :
 	gui_label_t lb_livery_selector;
 	gui_combobox_t livery_selector;
 
+	gui_combobox_t vehicle_filter;
+	gui_label_t lb_vehicle_filter;
+
 	char txt_convoi_count[120];
 	char txt_convoi_speed[120];
 
@@ -158,12 +163,15 @@ class gui_convoy_assembler_t :
 	// add a single vehicle (helper function)
 	void add_to_vehicle_list(const vehikel_besch_t *info);
 
-	static const sint16 VINFO_HEIGHT = 186 + 12;
+	static const sint16 VINFO_HEIGHT = 186 + 14;
 
 	static uint16 livery_scheme_index;
 	vector_tpl<uint16> livery_scheme_indices;
 
 public:
+	// Last selected vehicle filter
+	static int selected_filter;
+	
 	// Used for listeners to know what has happened
 	enum { clear_convoy_action, remove_vehicle_action, insert_vehicle_in_front_action, append_vehicle_action };
 

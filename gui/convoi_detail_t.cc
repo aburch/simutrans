@@ -325,7 +325,7 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 
 		// for bonus stuff
 		const sint32 ref_kmh = cnv->get_welt()->get_average_speed( cnv->front()->get_waytype() );
-		const sint32 cnv_kmh = cnv->get_line().is_bound() ? cnv->get_line()->get_finance_history(1, LINE_AVERAGE_SPEED): cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED);
+		const sint32 cnv_kmh = cnv->get_line().is_bound() ? cnv->get_line()->get_finance_history(1, LINE_AVERAGE_SPEED): cnv->get_finance_history(1, convoi_t::CONVOI_AVERAGE_SPEED);
 		const sint32 kmh_base = (100 * cnv_kmh) / ref_kmh - 100;
 
 		static cbuffer_t freight_info;

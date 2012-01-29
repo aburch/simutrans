@@ -1590,7 +1590,7 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 	char                          const* n       = "simcity";
 	weighted_vector_tpl<stadt_t*> const& staedte = welt->get_staedte();
 	for (vector_tpl<char*> city_names(translator::get_city_name_list()); !city_names.empty();) {
-		size_t      const idx  = simrand(city_names.get_count());
+		size_t      const idx  = simrand(city_names.get_count(), "stadt_t::stadt_t()");
 		char const* const cand = city_names[idx];
 		if (name_used(staedte, cand)) {
 			city_names.remove_at(idx);
@@ -3809,15 +3809,15 @@ stadt_t::destination stadt_t::find_destination(factory_set_t &target_factories, 
 		return current_destination;
 	} 
 	
-	else if(rand <welt->get_settings().get_tourist_percentage() +welt->get_settings().get_factory_worker_percentage() && welt->get_ausflugsziele().get_sum_weight() > 0 ) 
+	else if(rand <welt->get_settings().get_tourist_percentage() + welt->get_settings().get_factory_worker_percentage() && welt->get_ausflugsziele().get_sum_weight() > 0 ) 
 	{ 		
 		*will_return = tourist_return;	// tourists will return
-		const gebaeude_t* gb = welt->get_random_ausflugsziel();
+		const gebaeude_t* gb = pick_any_weighted(target_attractions);
 		current_destination.type = TOURIST_PAX;
 		uint8 counter = 0;
 		while(counter ++ < 32 && (shortest_distance(origin, gb->get_pos().get_2d()) > max_distance || shortest_distance(origin, gb->get_pos().get_2d()) < min_distance))
 		{
-			gb =  welt->get_random_ausflugsziel();
+			gb =  pick_any_weighted(target_attractions);
 		}
 		current_destination.location = gb->get_pos().get_2d();
 		current_destination.object.attraction = gb;
@@ -4853,7 +4853,7 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 					// try to build a house near the bridge end
 					uint32 old_count = buildings.get_count();
 					for(uint8 i=0; i<lengthof(koord::neighbours)  &&  buildings.get_count() == old_count; i++) {
-						baue_gebaeude(end.get_2d()+zv+koord::neighbours[i]);
+						baue_gebaeude(end.get_2d()+zv+koord::neighbours[i], true);
 					}
 				}
 			}

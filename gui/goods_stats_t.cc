@@ -27,7 +27,7 @@ goods_stats_t::goods_stats_t()
 }
 
 
-void goods_stats_t::update_goodslist( uint16 *g, int b, uint16 d, uint8 c, uint8 ct, karte_t* w, waytype_t wt, int listcount );
+void goods_stats_t::update_goodslist( uint16 *g, int b, int l, uint16 d, uint8 c, uint8 ct, karte_t* w, waytype_t wt)
 {
 	goodslist = g;
 	bonus = b;

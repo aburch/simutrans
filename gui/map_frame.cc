@@ -216,12 +216,13 @@ void map_frame_t::update_factory_legend(karte_t *welt /*= NULL*/)
 	minivec_tpl<uint8> colours;
 
 	// When dialog is opened, update the list of industries currently in the world
-	if (welt != NULL) {
+	if (welt != NULL) 
+	{
 		factory_list.clear();
-		const slist_tpl<fabrik_t*> &factories_in_game = welt->get_fab_list();
-		slist_iterator_tpl<fabrik_t*> iter(factories_in_game);
-		while (iter.next()) {
-			const fabrik_besch_t *factory_description = iter.get_current()->get_besch();
+		const vector_tpl<fabrik_t*> &factories_in_game = welt->get_fab_list();
+		ITERATE(factories_in_game, n)
+		{
+			const fabrik_besch_t *factory_description = factories_in_game[n]->get_besch();
 			factory_list.put(factory_description->get_name(), factory_description);
 		}
 	}

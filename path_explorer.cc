@@ -725,8 +725,8 @@ void path_explorer_t::compartment_t::step()
 					// Case : a lineless convoy
 					current_schedule = current_linkage.convoy->get_schedule();
 					current_owner = current_linkage.convoy->get_besitzer();
-					current_average_speed = (uint32) ( current_linkage.convoy->get_finance_history(1, CONVOI_AVERAGE_SPEED) > 0 ? 
-													   current_linkage.convoy->get_finance_history(1, CONVOI_AVERAGE_SPEED) : 
+					current_average_speed = (uint32) ( current_linkage.convoy->get_finance_history(1, convoi_t::CONVOI_AVERAGE_SPEED) > 0 ? 
+													   current_linkage.convoy->get_finance_history(1, convoi_t::CONVOI_AVERAGE_SPEED) : 
 													   ( speed_to_kmh(current_linkage.convoy->get_min_top_speed()) >> 1 ) );
 				}
 				else

@@ -81,6 +81,7 @@
 #include "gui/help_frame.h"
 #include "gui/karte.h"
 #include "gui/player_frame_t.h"
+#include "gui/components/gui_convoy_assembler.h"
 
 #include "dataobj/network.h"
 #include "dataobj/network_file_transfer.h"
@@ -6800,20 +6801,20 @@ const vector_tpl<const ware_besch_t*> &karte_t::get_goods_list()
 	if (goods_in_game.get_count() == 0) {
 		// Goods list needs to be rebuilt
 
-		// Reset last vehicle filter in all depots, in case goods list has changed
-		slist_iterator_tpl<depot_t *> iter(depot_t::get_depot_list());
-		while (iter.next()) {
-			iter.get_current()->selected_filter = VEHICLE_FILTER_RELEVANT;
-		}
+		// Reset last vehicle filter, in case goods list has changed
+		gui_convoy_assembler_t::selected_filter = VEHICLE_FILTER_RELEVANT;
 
-		const slist_tpl<fabrik_t*> &factories_in_game = get_fab_list();
-		for (slist_tpl<fabrik_t *>::const_iterator factory = factories_in_game.begin(), end = factories_in_game.end(); factory != end;  ++factory) {
-			slist_tpl<const ware_besch_t*> *produced_goods = (*factory)->get_produced_goods();
-			for (slist_tpl<const ware_besch_t*>::iterator good = produced_goods->begin(), end = produced_goods->end(); good != end; ++good) {
+		const vector_tpl<fabrik_t*> &factories_in_game = get_fab_list();
+		ITERATE(factories_in_game, n)
+		{
+			slist_tpl<const ware_besch_t*> *produced_goods = factories_in_game[n]->get_produced_goods();
+			for (slist_tpl<const ware_besch_t*>::iterator good = produced_goods->begin(), end = produced_goods->end(); good != end; ++good) 
+			{
 				goods_in_game.insert_unique_ordered(*good, sort_ware_by_name);
 			}
 			delete produced_goods;
 		}
+
 		goods_in_game.insert_at(0, warenbauer_t::passagiere);
 		goods_in_game.insert_at(1, warenbauer_t::post);
 	}

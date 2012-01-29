@@ -1180,7 +1180,7 @@ end_loop:
 							old_veh->loesche_fracht();
 							old_veh->set_erstes(false);
 							old_veh->set_letztes(false);
-							dep->get_vehicle_list()->append(old_veh);
+							dep->get_vehicle_list().append(old_veh);
 						}
 					}
 					anz_vehikel = 0;
@@ -1687,7 +1687,6 @@ void convoi_t::betrete_depot(depot_t *dep)
 	// remove the current sync object from
 	// the sync list from inside sync_step()
 	welt->sync_remove(this);
-	maxspeed_average_count = 0;
 	state = INITIAL;
 	wait_lock = 0;
 }

@@ -38,7 +38,7 @@ public:
 	goods_stats_t();
 
 	// update list and resize
-	void update_goodslist( uint16 *g, int bonus, uint16 distance, uint8 comfort, uint8 catering, karte_t* welt, waytype_t waytype, int listcount );
+	void update_goodslist(uint16 *g, int bonus, int listed_goods, uint16 distance, uint8 comfort, uint8 catering, karte_t* welt, waytype_t waytype);
 
 	/**
 	* Zeichnet die Komponente

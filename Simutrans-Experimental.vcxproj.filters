@@ -75,9 +75,6 @@
     <ClCompile Include="gui\climates.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="gui\colors.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="gui\convoi_detail_t.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -780,6 +777,9 @@
     <ClCompile Include="gui\display_settings.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="gui\ai_option_t.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gui\components\action_listener.h">
@@ -873,9 +873,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gui\climates.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gui\colors.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gui\convoi_detail_t.h">
@@ -1785,6 +1782,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gui\components\gui_ding_view_t.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\ai_option_t.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -67,7 +67,8 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(karte_t *w, waytype_t wt, signed 
 	scrolly_pas(&cont_pas),
 	scrolly_electrics(&cont_electrics),
 	scrolly_loks(&cont_loks),
-	scrolly_waggons(&cont_waggons)
+	scrolly_waggons(&cont_waggons),
+	lb_vehicle_filter("Filter:", COL_BLACK, gui_label_t::left)
 
 {
 
@@ -178,7 +179,7 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(karte_t *w, waytype_t wt, signed 
 	add_komponente(&div_tabbottom);
 	add_komponente(&lb_veh_action);
 	add_komponente(&lb_livery_selector);
-	//add_komponente(&lb_upgrade);
+	add_komponente(&lb_vehicle_filter);
 
 	veh_action = va_append;
 	action_selector.add_listener(this);
@@ -213,6 +214,9 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(karte_t *w, waytype_t wt, signed 
 	bt_show_all.set_tooltip("Show also vehicles that do not match for current action.");
 	add_komponente(&bt_show_all);
 
+	vehicle_filter.add_listener(this);
+	add_komponente(&vehicle_filter);
+
 	livery_selector.add_listener(this);
 	add_komponente(&livery_selector);
 	livery_selector.clear_elements();
@@ -232,6 +236,8 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(karte_t *w, waytype_t wt, signed 
 
 	lb_convoi_count.set_text_pointer(txt_convoi_count);
 	lb_convoi_speed.set_text_pointer(txt_convoi_speed);
+
+	selected_filter = VEHICLE_FILTER_RELEVANT;
 
 	replace_frame = NULL;
 }
@@ -318,6 +324,7 @@ bool  gui_convoy_assembler_t::show_all = false;
 
 uint16 gui_convoy_assembler_t::livery_scheme_index = 0;
 
+int gui_convoy_assembler_t::selected_filter = VEHICLE_FILTER_RELEVANT;
 
 void gui_convoy_assembler_t::layout()
 {
@@ -401,9 +408,8 @@ void gui_convoy_assembler_t::layout()
 	sint16 ABUTTON_WIDTH=96;
 	sint16 ABUTTON_HEIGHT=14;
 	lb_veh_action.set_pos(koord(groesse.x-ABUTTON_WIDTH, PANEL_VSTART + get_panel_height() + 4));
-	//lb_upgrade.set_pos(koord(groesse.x-ABUTTON_WIDTH, PANEL_VSTART + get_panel_height() + 34));
 
-	action_selector.set_pos(koord(groesse.x-ABUTTON_WIDTH, PANEL_VSTART + get_panel_height() + 14));
+	action_selector.set_pos(koord(groesse.x-ABUTTON_WIDTH, PANEL_VSTART + get_panel_height() + 16));
 	action_selector.set_groesse(koord(ABUTTON_WIDTH, ABUTTON_HEIGHT));
 	action_selector.set_max_size(koord(ABUTTON_WIDTH - 8, LINESPACE*3+2+16));
 	action_selector.set_highlight_color(1);
@@ -413,15 +419,21 @@ void gui_convoy_assembler_t::layout()
 	upgrade_selector.set_max_size(koord(ABUTTON_WIDTH - 8, LINESPACE*2+2+16));
 	upgrade_selector.set_highlight_color(1);
 
-	bt_show_all.set_pos(koord(groesse.x-(ABUTTON_WIDTH*5)/2, PANEL_VSTART + get_panel_height() + 4 ));
+	bt_show_all.set_pos(koord(4, PANEL_VSTART + get_panel_height() + 14 ));
 	bt_show_all.pressed = show_all;
 
 	bt_obsolete.set_pos(koord(groesse.x-(ABUTTON_WIDTH*5)/2, PANEL_VSTART + get_panel_height() + 16));
 	bt_obsolete.pressed = show_retired_vehicles;
-	
-	lb_livery_selector.set_pos(koord(2, PANEL_VSTART + get_panel_height() + 4));
 
-	livery_selector.set_pos(koord(groesse.x / 4, PANEL_VSTART + get_panel_height() + 2));
+	lb_vehicle_filter.set_pos(koord(groesse.x - (ABUTTON_WIDTH*5)/2 + 4, PANEL_VSTART + get_panel_height() + 4));
+
+	vehicle_filter.set_pos(koord(groesse.x - (ABUTTON_WIDTH*5)/2 + 4, PANEL_VSTART +  get_panel_height() + 16));
+	vehicle_filter.set_groesse(koord(ABUTTON_WIDTH + 30, 14));
+	vehicle_filter.set_max_size(koord(ABUTTON_WIDTH + 60, LINESPACE * 8));
+	
+	lb_livery_selector.set_pos(koord(2, PANEL_VSTART + get_panel_height() + 6));
+
+	livery_selector.set_pos(koord(groesse.x / 4, PANEL_VSTART + get_panel_height() + 4));
 	livery_selector.set_groesse(koord((groesse.x / 5), ABUTTON_HEIGHT));
 	livery_selector.set_max_size(koord(ABUTTON_WIDTH - 8, LINESPACE*3+2+16));
 	livery_selector.set_highlight_color(1);
@@ -478,7 +490,9 @@ bool gui_convoy_assembler_t::action_triggered( gui_action_creator_t *komp,value_
 				veh_action=(unsigned)(selection);
 				build_vehicle_lists();
 				update_data();
-			}
+				}
+		} else if(komp == &vehicle_filter) {
+			selected_filter = vehicle_filter.get_selection();
 		} else if(komp == &livery_selector) {
 			sint32 livery_selection = p.i;
 			if(livery_selection < 0) {
@@ -778,6 +792,46 @@ void gui_convoy_assembler_t::add_to_vehicle_list(const vehikel_besch_t *info)
 	if(vehicle_map.is_contained(info))
 	{
 		return;
+	}
+
+	// Check if vehicle should be filtered
+	const ware_besch_t *freight = info->get_ware();
+	// Only filter when required and never filter engines
+	if (selected_filter > 0 && info->get_zuladung() > 0) 
+	{
+		if (selected_filter == VEHICLE_FILTER_RELEVANT) 
+		{
+			if(freight->get_catg_index() >= 3) 
+			{
+				const vector_tpl<const ware_besch_t*> &goods = get_welt()->get_goods_list();
+				bool found = false;
+				for(uint32 i = 0; i<goods.get_count(); i++) 
+				{
+					if (freight->get_catg_index() == goods[i]->get_catg_index()) 
+					{
+						found = true;
+						break;
+					}
+				}
+
+				// If no current goods can be transported by this vehicle, don't display it
+				if (!found) return;
+			}
+		} 
+		
+		else if (selected_filter > VEHICLE_FILTER_RELEVANT) 
+		{
+			// Filter on specific selected good
+			uint32 goods_index = selected_filter - VEHICLE_FILTER_GOODS_OFFSET;
+			if (goods_index < get_welt()->get_goods_list().get_count()) 
+			{
+				const ware_besch_t *selected_good = get_welt()->get_goods_list()[goods_index];
+				if (freight->get_catg_index() != selected_good->get_catg_index()) 
+				{
+					return; // This vehicle can't transport the selected good
+				}
+			}
+		}
 	}
 	
 	// prissi: ist a non-electric track?
@@ -1696,7 +1750,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 			}
 		}
 
-		display_multiline_text( pos.x + 4, pos.y + tabs.get_pos().y + tabs.get_groesse().y + 31 + LINESPACE*1 + 4, buf,  COL_BLACK);
+		display_multiline_text( pos.x + 4, pos.y + tabs.get_pos().y + tabs.get_groesse().y + 31 + LINESPACE*1 + 4 + 16, buf,  COL_BLACK);
 
 		// column 2
 	
@@ -1789,7 +1843,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 			}
 		}
 
-		display_multiline_text( pos.x + 220, pos.y + tabs.get_pos().y + tabs.get_groesse().y + 31 + LINESPACE*3 + 4, buf, COL_BLACK);
+		display_multiline_text( pos.x + 220, pos.y + tabs.get_pos().y + tabs.get_groesse().y + 31 + LINESPACE*3 + 4 + 16, buf, COL_BLACK);
 	}
 	POP_CLIP();
 }
