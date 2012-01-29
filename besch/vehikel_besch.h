@@ -105,9 +105,10 @@ private:
 	uint16 overcrowded_capacity; // The capacity of a vehicle if overcrowded (usually expressed as the standing capacity).
 	uint16 geschw; //Speed in km/h
 	uint16 gewicht; //Weight in tons
+	uint16  axle_load; // New for Standard, not used yet.
 	uint32 leistung; //Power in kW
-	uint16 betriebskosten;  //Running costs
-	uint32 fixed_maintenance; //@author: jamespetts, April 2009
+	uint16 running_cost;  //Running costs
+	uint32 fixed_cost; //@author: jamespetts, April 2009
 
 	uint16 intro_date; // introduction date
 	uint16 obsolete_date; //phase out at
@@ -200,8 +201,8 @@ public:
 	// default vehicle (used for way seach and similar tasks)
 	// since it has no images and not even a name knot any calls to this will case a crash
 	vehikel_besch_t(uint8 wtyp, uint16 speed, engine_t engine) {
-		freight_image_type = livery_image_type = preis = upgrade_price = zuladung = overcrowded_capacity = betriebskosten = intro_date = vorgaenger = nachfolger = catering_level = upgrades = 0;
-		fixed_maintenance = DEFAULT_FIXED_VEHICLE_MAINTENANCE;
+		freight_image_type = livery_image_type = preis = upgrade_price = zuladung = overcrowded_capacity = running_cost = intro_date = vorgaenger = nachfolger = catering_level = upgrades = 0;
+		fixed_cost = DEFAULT_FIXED_VEHICLE_MAINTENANCE;
 		leistung = gewicht = comfort = 1;
 		gear = GEAR_FACTOR;
 		geared_power = GEAR_FACTOR;
@@ -528,11 +529,13 @@ public:
 	uint32 get_preis() const { return preis; }
 	sint32 get_geschw() const { return geschw; }
 	uint16 get_gewicht() const { return gewicht; }
-	uint16 get_betriebskosten() const { return betriebskosten; }
-	uint16 get_betriebskosten(karte_t *welt) const; //Overloaded method - includes increase for obsolescence.
-	uint32 get_fixed_maintenance() const { return fixed_maintenance; }
-	uint32 get_fixed_maintenance(karte_t *welt) const;  //Overloaded method - includes increase for obsolescence.
-	uint32 get_adjusted_monthly_fixed_maintenance(karte_t *welt) const; // includes increase for obsolescence and adjustment for monthly figures
+	uint16 get_running_cost() const { return running_cost; }
+	uint16 get_running_cost(karte_t *welt) const; //Overloaded method - includes increase for obsolescence.
+	uint32 get_fixed_cost() const { return fixed_cost; }
+	uint32 get_fixed_cost(karte_t *welt) const;  //Overloaded method - includes increase for obsolescence.
+	uint32 get_adjusted_monthly_fixed_cost(karte_t *welt) const; // includes increase for obsolescence and adjustment for monthly figures
+	uint16 get_axle_load() const { return axle_load; } /* New Standard - not implemented yet */
+	//uint16 get_maintenance() const { return fixed_cost; } /* New Standard - not implemented yet */
 	sint8 get_sound() const { return sound; }
 	bool is_bidirectional() const { return bidirectional; }
 	bool get_can_lead_from_rear() const { return can_lead_from_rear; }
@@ -543,7 +546,7 @@ public:
 	uint32 get_upgrade_price() const { return upgrade_price; }
 	bool is_available_only_as_upgrade() const { return available_only_as_upgrade; }
 
-	// BG, 15.06.2009: the formula for obsolescence formerly implemented twice in get_betriebskosten() and get_fixed_maintenance()
+	// BG, 15.06.2009: the formula for obsolescence formerly implemented twice in get_running_cost() and get_fixed_cost()
 	uint32 calc_running_cost(const karte_t *welt, uint32 base_cost) const;	
 
 	float32e8_t get_power_force_ratio() const;
@@ -641,9 +644,9 @@ public:
 	void set_scale(uint16 scale_factor)
 	{ 
 		const uint32 scaled_price = set_scale_generic<sint64>(preis, scale_factor);
-		const uint32 scaled_maintenance = set_scale_generic<uint32>(fixed_maintenance, scale_factor);
+		const uint32 scaled_maintenance = set_scale_generic<uint32>(fixed_cost, scale_factor);
 		preis = (preis == 0 ? 0 : (scaled_price >= 1 ? scaled_price : 1));
-		fixed_maintenance = (uint32)(fixed_maintenance == 0 ? 0 :(scaled_maintenance >= 1 ? scaled_maintenance : 1));
+		fixed_cost = (uint32)(fixed_cost == 0 ? 0 :(scaled_maintenance >= 1 ? scaled_maintenance : 1));
 		if(max_loading_time_seconds != 65535)
 		{
 			max_loading_time = seconds_to_ticks(max_loading_time_seconds, scale_factor);

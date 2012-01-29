@@ -762,11 +762,11 @@ void convoi_t::increment_odometer(uint32 steps)
 		const grund_t *gr = welt->lookup(fahr[0]->get_pos());
 		if(gr)
 		{
-			add_running_cost(-fahr[i]->get_besch()->get_betriebskosten(welt), gr->get_weg(fahr[0]->get_waytype()));
+			add_running_cost(-fahr[i]->get_besch()->get_running_cost(welt), gr->get_weg(fahr[0]->get_waytype()));
 		}
 		else
 		{
-			add_running_cost(-fahr[i]->get_besch()->get_betriebskosten(welt), NULL);
+			add_running_cost(-fahr[i]->get_besch()->get_running_cost(welt), NULL);
 		}
 	}
 }
@@ -1579,7 +1579,7 @@ void convoi_t::new_month()
 	uint32 monthly_cost = 0;
 	for(unsigned j=0;  j<get_vehikel_anzahl();  j++ ) 
 	{
-		monthly_cost += fahr[j]->get_besch()->get_fixed_maintenance(welt);
+		monthly_cost += fahr[j]->get_besch()->get_fixed_cost(welt);
 	}
 	
 	add_running_cost(welt->calc_adjusted_monthly_figure(monthly_cost), NULL);
@@ -3522,16 +3522,13 @@ void convoi_t::rdwr(loadsave_t *file)
 		file->rdwr_long( dummy ); // Was sum_speed_limit
 	}
 
-	/*
-	* Check with Prissi whether this second file load/save command
-	* should be here at all: http://forum.simutrans.com/index.php?topic=9046.new#new
-	if(  file->get_version()>=111002  ) {
-		file->rdwr_long( sum_speed_limit );
+
+	if(file->get_version()>=111002 && file->get_experimental_version() == 0) 
+	{
+		// Was maxspeed_average_count
+		uint32 dummy = 0;
+		file->rdwr_long(dummy);
 	}
-	else if(  file->is_loading()  ) {
-		// default when not saved
-		maxspeed_average_count = 0;
-	}*/
 
 	// This must come *after* all the loading/saving.
 	if( file->is_loading() ) {
@@ -4855,7 +4852,7 @@ sint32 convoi_t::get_running_cost() const
 {
 	sint32 running_cost = 0;
 	for (unsigned i = 0; i<get_vehikel_anzahl(); i++) { //"anzahl" = "number" (Babelfish)
-		sint32 vehicle_running_cost = fahr[i]->get_betriebskosten(welt); //"get_operatingCost" (Google). "Fahr" = "Drive" (Babelfish)
+		sint32 vehicle_running_cost = fahr[i]->get_running_cost(welt); //"get_operatingCost" (Google). "Fahr" = "Drive" (Babelfish)
 		running_cost += vehicle_running_cost;
 	}
 	return running_cost;
@@ -4865,17 +4862,17 @@ sint32 convoi_t::get_per_kilometre_running_cost() const
 {
 	sint32 running_cost = 0;
 	for (unsigned i = 0; i<get_vehikel_anzahl(); i++) { //"anzahl" = "number" (Babelfish)
-		sint32 vehicle_running_cost = fahr[i]->get_besch()->get_betriebskosten(welt);
+		sint32 vehicle_running_cost = fahr[i]->get_besch()->get_running_cost(welt);
 		running_cost += vehicle_running_cost;
 	}
 	return running_cost;
 }
 
-uint32 convoi_t::get_fixed_maintenance() const
+uint32 convoi_t::get_fixed_cost() const
 {
 	uint32 maint = 0;
 	for (unsigned i = 0; i<get_vehikel_anzahl(); i++) {
-		maint += fahr[i]->get_fixed_maintenance(welt); 
+		maint += fahr[i]->get_fixed_cost(welt); 
 	}
 	return maint;
 }
@@ -5491,7 +5488,7 @@ void convoi_t::set_withdraw(bool new_withdraw)
  * The city car is not overtaking/being overtaken.
  * @author isidoro
  */
-bool convoi_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int steps_other, int diagonal_vehicle_steps_per_tile)
+bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, sint16 steps_other)
 {
 	if(fahr[0]->get_waytype()!=road_wt) {
 		return false;
@@ -5620,7 +5617,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int s
 			return false;
 		}
 
-		int d = ribi_t::ist_gerade(str->get_ribi()) ? VEHICLE_STEPS_PER_TILE : diagonal_vehicle_steps_per_tile;
+		int d = ribi_t::ist_gerade(str->get_ribi()) ? VEHICLE_STEPS_PER_TILE : vehikel_basis_t::get_diagonal_vehicle_steps_per_tile();
 		distance -= d;
 		time_overtaking += d;
 
@@ -5683,7 +5680,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int s
 			time_overtaking -= (VEHICLE_STEPS_PER_TILE<<16) / kmh_to_speed(str->get_max_speed());
 		}
 		else {
-			time_overtaking -= (diagonal_vehicle_steps_per_tile<<16) / kmh_to_speed(str->get_max_speed());
+			time_overtaking -= (vehikel_basis_t::get_diagonal_vehicle_steps_per_tile()<<16) / kmh_to_speed(str->get_max_speed());
 		}
 
 		// Check for other vehicles in facing direction

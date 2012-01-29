@@ -79,7 +79,10 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	int i;
 	uint8  uv8;
 
-	int total_len = 67;
+	// +6 from previous Standard version
+	// -2 Fixed maintenance
+	// -2 Loading time
+	int total_len = 69;
 
 	// prissi: must be done here, since it may affect the len of the header!
 	string sound_str = ltrim( obj.get("sound") );
@@ -90,7 +93,8 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		if (sound_id == 0 && sound_str[0] == '0') {
 			sound_id = 0;
 			sound_str = "";
-		} else if (sound_id != 0) {
+		}
+		else if (sound_id != 0) {
 			// old style id
 			sound_str = "";
 		}
@@ -103,12 +107,15 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	obj_node_t	node(this, total_len, &parent);
 
 	write_head(fp, node, obj);
-
+	
+	// This variable counts the number of bytes written so far in the file semi-automatically.
+	// It is important that data are read back in exactly the same order as they were written.
+	uint16 pos = 0;
 
 	// Hajo: version number
 	// Hajo: Version needs high bit set as trigger -> this is required
 	//       as marker because formerly nodes were unversionend
-	uint16 version = 0x8008;
+	uint16 version = 0x8009;
 	
 	// This is the overlay flag for Simutrans-Experimental
 	// This sets the *second* highest bit to 1. 
@@ -119,68 +126,108 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// Start at 0x100 and increment in hundreds (hex).
 	version += 0x700;
 
-	node.write_uint16(fp, version, 0);
+	node.write_uint16(fp, version, pos);
 
+	pos += sizeof(uint16);
 
-	// Hajodoc: Price of this vehicle in cent
-	// Hajoval: int
+	// Hajodoc: Price of this vehicle in Simucents
 	uint32 cost = obj.get_int("cost", 0);
-	node.write_uint32(fp, cost, 2);
-
+	node.write_uint32(fp, cost, pos);
+	pos += sizeof(uint32);
 
 	// Hajodoc: Payload of this vehicle
-	// Hajoval: int
 	uint16 payload = obj.get_int("payload", 0);
-	node.write_uint16(fp, payload, 6);
+	node.write_uint16(fp, payload, pos);
+	pos += sizeof(uint16);
 
+	/*
+	* This duplicates a system used in Experimental for some time.
+	* The keyword is the same.
+	*
+	// ms per loading/unloading everything
+	uint16 loading_time = obj.get_int("loading_time", 1000 );
+	node.write_uint16(fp, loading_time, pos);
+	pos += sizeof(uint16);
+	*/
 
 	// Hajodoc: Top speed of this vehicle. Must be greater than 0
-	// Hajoval: int
 	uint16 top_speed = obj.get_int("speed", 0);
-	node.write_uint16(fp, top_speed, 8);
-
+	node.write_uint16(fp, top_speed, pos);
+	pos += sizeof(payload);
 
 	// Hajodoc: Total weight of this vehicle in tonnes
-	// Hajoval: int
 	uint16 weight = obj.get_int("weight", 0);
-	node.write_uint16(fp, weight, 10);
+	node.write_uint16(fp, weight, pos);
+	pos += sizeof(uint16);
 
+	// axle_load (determine ways usage)
+	uint16 axle_load = obj.get_int("axle_load", 0);
+	node.write_uint16(fp, axle_load, pos);
+	pos += sizeof(uint16);
 
 	// Hajodoc: Power of this vehicle in KW
-	// Hajoval: int
 	uint32 power = obj.get_int("power", 0);
-	node.write_uint32(fp, power, 12);
-
+	node.write_uint32(fp, power, pos);
+	pos += sizeof(uint32);
 
 	// Hajodoc: Running costs, given in cent per square
-	// Hajoval: int
 	uint16 runningcost = obj.get_int("runningcost", 0);
-	node.write_uint16(fp, runningcost, 16);
+	node.write_uint16(fp, runningcost, pos);
+	pos += sizeof(uint16);
 
+	/*
+	* uint16 size used in Standard. Stored in a different position
+	* in the file in Experimental, and is a uint32.
+	*
+	// monthly maintenance
+	uint16 fixcost = obj.get_int("fixed_cost", 0);
+	node.write_uint16(fp, fixcost, pos);
+	pos += sizeof(uint16);*/
 
 	// Hajodoc: Introduction date (year * 12 + month)
-	// Hajoval: int
 	uint16 intro  = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
 	intro += obj.get_int("intro_month", 1) - 1;
-	node.write_uint16(fp, intro, 18);
+	node.write_uint16(fp, intro, pos);
+	pos += sizeof(uint16);
 
 	// Hajodoc: retire date (year * 12 + month)
-	// Hajoval: int
 	uint16 retire = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12;
 	retire += obj.get_int("retire_month", 1) - 1;
-	node.write_uint16(fp, retire, 20);
+	node.write_uint16(fp, retire, pos);
+	pos += sizeof(uint16);
 
 	// Hajodoc: Engine gear (power multiplier)
-	// Hajoval: int
 	uint16 gear = (obj.get_int("gear", 100) * 64) / 100;
-	node.write_uint16(fp, gear, 22);
+	node.write_uint16(fp, gear, pos);
+	pos += sizeof(uint16);
 
 	// Hajodoc: Type of way this vehicle drives on
-	// Hajoval: road, track, electrified_track, monorail_track, maglev_track, water
 	char const* const waytype_name = obj.get("waytype");
 	waytype_t   const waytype      = get_waytype(waytype_name);
 	uv8 = waytype != overheadlines_wt ? waytype : track_wt;
-	node.write_uint8(fp, uv8, 24);
+	node.write_uint8(fp, uv8, pos);
+	pos += sizeof(uint8);
+
+	// sound id byte
+	node.write_sint8(fp, sound_id, pos);
+	pos += sizeof(uint8);
+
+	// engine
+	if (waytype == overheadlines_wt) {
+		// Hajo: compatibility for old style DAT files
+		uv8 = vehikel_besch_t::electric;
+	}
+	else {
+		const char* engine_type = obj.get("engine_type");
+		uv8 = get_engine_type(engine_type);
+	}
+	node.write_uint8(fp, uv8, pos);
+	pos += sizeof(uint8);
+
+	// the length (default 8)
+	uint8 length = obj.get_int("length", 8);
+	node.write_uint8(fp, length, pos);
+	pos += sizeof(uint8);
 
 	// Hajodoc: The freight type
 	// Hajoval: string
@@ -609,30 +656,19 @@ end:
 		text_writer_t::instance()->write_obj(fp, node, "default");
 	}
 
-	node.write_sint8(fp, sound_id, 25);
-
-	if (waytype == overheadlines_wt) {
-		// Hajo: compatibility for old style DAT files
-		uv8 = vehikel_besch_t::electric;
-	} else {
-		const char* engine_type = obj.get("engine_type");
-		uv8 = get_engine_type(engine_type);
-	}
-	node.write_uint8(fp, uv8, 26);
-
-	// the length (default 8)
-	uint8 length = obj.get_int("length", 8);
-	node.write_uint8(fp, length, 27);
-
-	node.write_sint8(fp, besch_vorgaenger, 28);
-	node.write_sint8(fp, besch_nachfolger, 29);
-	node.write_uint8(fp, (uint8) freight_max, 30);
+	node.write_sint8(fp, besch_vorgaenger, pos);
+	pos += sizeof(uint8);
+	node.write_sint8(fp, besch_nachfolger, pos);
+	pos += sizeof(uint8);
+	node.write_uint8(fp, (uint8) freight_max, pos);
+	pos += sizeof(uint8);
 
 	// Whether this is a tilting train
 	// int
 	//@author: jamespetts
 	uint8 tilting = (obj.get_int("is_tilting", 0));
-	node.write_uint8(fp, tilting, 31);
+	node.write_uint8(fp, tilting, pos);
+	pos += sizeof(uint8);
 
 	// Way constraints
 	// One byte for permissive, one byte for prohibitive.
@@ -666,15 +702,18 @@ end:
 			prohibitive_way_constraints = (tmp_prohibitive > 0) ? prohibitive_way_constraints | (uint8)pow(2, (double)tmp_prohibitive) : prohibitive_way_constraints | 1;
 		}
 	}
-	node.write_uint8(fp, permissive_way_constraints, 32);
-	node.write_uint8(fp, prohibitive_way_constraints, 33);
+	node.write_uint8(fp, permissive_way_constraints, pos);
+	pos += sizeof(uint8);
+	node.write_uint8(fp, prohibitive_way_constraints, pos);
+	pos += sizeof(uint8);
 
 	// Catering level. 0 = no catering. 
 	// Higher numbers, better catering.
 	// Catering boosts passenger revenue.
 	// @author: jamespetts
 	uint8 catering_level = (obj.get_int("catering_level", 0));
-	node.write_uint8(fp, catering_level, 34);		
+	node.write_uint8(fp, catering_level, pos);	
+	pos += sizeof(uint8);
 
 	//Reverseing settings.
 	//@author: jamespetts
@@ -682,22 +721,26 @@ end:
 	// Bidirectional: vehicle can travel backwards without turning around.
 	// Function is disabled for road and air vehicles.
 	uint8 bidirectional = (obj.get_int("bidirectional", 0));
-	node.write_uint8(fp, bidirectional, 35);
+	node.write_uint8(fp, bidirectional, pos);
+	pos += sizeof(uint8);
 
 	// Can lead from rear: train can run backwards without turning around.
 	uint8 can_lead_from_rear = (obj.get_int("can_lead_from_rear", 0));
-	node.write_uint8(fp, can_lead_from_rear, 36);
+	node.write_uint8(fp, can_lead_from_rear, pos);
+	pos += sizeof(uint8);
 
 	// Passenger comfort rating - affects revenue on longer journies.
 	//@author: jamespetts
 	uint8 comfort = (obj.get_int("comfort", 100));
-	node.write_uint8(fp, comfort, 37);
+	node.write_uint8(fp, comfort, pos);
+	pos += sizeof(uint8);
 
 	// Overcrowded capacity - can take this much *in addition to* normal capacity,
 	// but revenue will be lower and dwell times higher. Mainly for passengers.
 	//@author: jamespetts
 	uint16 overcrowded_capacity = (obj.get_int("overcrowded_capacity", 0));
-	node.write_uint8(fp, overcrowded_capacity, 38);
+	node.write_uint8(fp, overcrowded_capacity, pos);
+	pos += sizeof(uint8);
 
 	// The time in ms that it takes the vehicle to load and unload at stations (i.e.,  
 	// the dwell time). The default is 2,000 because that is the value used in 
@@ -739,32 +782,41 @@ end:
 	 * @author: jamespetts
 	 */
 	uint16 loading_time = (obj.get_int("loading_time", default_loading_time));
-	node.write_uint16(fp, loading_time, 40);
+	node.write_uint16(fp, loading_time, pos);
+	pos += sizeof(uint16);
 
 	// Upgrading settings
 	//@author: jamespetts
-
-	node.write_sint8(fp, upgrades, 42);
+	node.write_sint8(fp, upgrades, pos);
+	pos += sizeof(sint8);
 
 	// This is the cost of upgrading to this vehicle, rather than buying it new.
 	// By default, the cost is the same as a new purchase.
 	uint32 upgrade_price = (obj.get_int("upgrade_price", cost));
-	node.write_uint32(fp, upgrade_price, 43);
+	node.write_uint32(fp, upgrade_price, pos);
+	pos += sizeof(uint32);
 
 	// If this is set to true (is read as a bool), this will only be able to be purchased
 	// as an upgrade to another vehicle, not as a new vehicle.
 	uint8 available_only_as_upgrade = (obj.get_int("available_only_as_upgrade", 0));
-	node.write_uint8(fp, available_only_as_upgrade, 47);
+	node.write_uint8(fp, available_only_as_upgrade, pos);
+	pos += sizeof(uint8);
 
 	// Fixed monthly maintenance costs
 	// @author: jamespetts
-	uint32 fixed_maintenance = obj.get_int("fixed_maintenance", 0);
-	node.write_uint32(fp, fixed_maintenance, 48);
+	// (The original Experimental name was "fixed_maintenance".
+	// The new Standard name is "fixed_cost". It is necessary
+	// to accommodate both.)
+	uint32 fixed_cost = obj.get_int("fixed_maintenance", 0);
+	fixed_cost = obj.get_int("fixed_cost", fixed_cost);
+	node.write_uint32(fp, fixed_cost, pos);
+	pos += sizeof(uint32);
 
 	// Tractive effort
 	// @author: jamespetts
 	uint16 tractive_effort = obj.get_int("tractive_effort", 0);
-	node.write_uint16(fp, tractive_effort, 52);
+	node.write_uint16(fp, tractive_effort, pos);
+	pos += sizeof(uint16);
 
 	// Air resistance
 	// @author: jamespetts & Bernd Gabriel
@@ -792,22 +844,28 @@ end:
 	};
 
 	uint16 air_resistance_hundreds = obj.get_int("air_resistance", air_default);
-	node.write_uint16(fp, air_resistance_hundreds, 54);
+	node.write_uint16(fp, air_resistance_hundreds, pos);
+	pos += sizeof(uint16);
 
-	node.write_uint8(fp, (uint8)can_be_at_rear, 56);
+	node.write_uint8(fp, (uint8)can_be_at_rear, pos);
+	pos += sizeof(uint8);
 
 	// Obsolescence. Zeros indicate that simuconf.tab values should be used.
 	// @author: jamespetts
 	uint16 increase_maintenance_after_years = obj.get_int("increase_maintenance_after_years", 0);
-	node.write_uint16(fp, increase_maintenance_after_years, 57);
+	node.write_uint16(fp, increase_maintenance_after_years, pos);
+	pos += sizeof(uint16);
 
 	uint16 increase_maintenance_by_percent = obj.get_int("increase_maintenance_by_percent", 0);
-	node.write_uint16(fp, increase_maintenance_by_percent, 59);
+	node.write_uint16(fp, increase_maintenance_by_percent, pos);
+	pos += sizeof(uint16);
 
 	uint8 years_before_maintenance_max_reached = obj.get_int("years_before_maintenance_max_reached", 0);
-	node.write_uint8(fp, years_before_maintenance_max_reached, 61);
+	node.write_uint8(fp, years_before_maintenance_max_reached, pos);
+	pos += sizeof(uint8);
 
-	node.write_uint8(fp, (uint8) livery_max, 62);
+	node.write_uint8(fp, (uint8) livery_max, pos);
+	pos += sizeof(uint8);
 
 	/**
 	 * The loading times (minimum and maximum) of this
@@ -823,14 +881,18 @@ end:
 	 * @author: jamespetts, August 2011
 	 */
 	uint16 min_loading_time = obj.get_int("min_loading_time", 65535);
-	node.write_uint16(fp, min_loading_time, 63);
+	node.write_uint16(fp, min_loading_time, pos);
+	pos += sizeof(uint16);
 	uint16 max_loading_time = obj.get_int("max_loading_time", 65535);
-	node.write_uint16(fp, max_loading_time, 65);
+	node.write_uint16(fp, max_loading_time, pos);
+	pos += sizeof(uint16);
 
 	sint8 sound_str_len = sound_str.size();
 	if (sound_str_len > 0) {
-		node.write_sint8  (fp, sound_str_len, 67);
-		node.write_data_at(fp, sound_str.c_str(),     68, sound_str_len);
+		node.write_sint8  (fp, sound_str_len, pos);
+		pos += sizeof(uint8);
+		node.write_data_at(fp, sound_str.c_str(), pos, sound_str_len);
+		pos += sound_str_len;
 	}
 
 	node.write(fp);

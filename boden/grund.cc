@@ -541,34 +541,19 @@ void grund_t::info(cbuffer_t& buf) const
 		}
 	}
 
-#if 0
-	if(buf.len() >= 0) {
-		uint8 hang= get_grund_hang();
-		buf.append(get_hoehe());
-		buf.append("\nslope: ");
-		buf.append(hang);
-		buf.append("\nback0: ");
-		buf.append(get_back_bild(0)-grund_besch_t::slopes->get_bild(0));
-		buf.append("\nback1: ");
-		buf.append(get_back_bild(1)-grund_besch_t::slopes->get_bild(0));
+	buf.printf("%s\n%s", get_name(), translator::translate(grund_besch_t::get_climate_name_from_bit(welt->get_climate(get_hoehe()))) );
+#if DEBUG >= 3
+	buf.printf("\n\npos: (%s)",pos.get_str());
+	buf.printf("\nslope: %i",get_grund_hang());
+	buf.printf("\nback0: %i",get_back_bild(0)-grund_besch_t::slopes->get_bild(0));
+	buf.printf("\nback1: %i",get_back_bild(1)-grund_besch_t::slopes->get_bild(0));
+	if(  get_weg_nr(0)  ) {
+		buf.printf("\nway slope %i", (int)get_weg_hang() );
 	}
-	buf.append("\nway slope");
-	buf.append((int)get_weg_hang());
-	buf.append("\npos: ");
-	buf.append(pos.x);
-	buf.append(", ");
-	buf.append(pos.y);
-	buf.append(", ");
-	buf.append(pos.z);
-
-	buf.append("\n\n");
-	buf.append(get_name());
 	if(get_weg_ribi_unmasked(water_wt)) {
-		buf.append("\nwater ribi: ");
-		buf.append(get_weg_ribi_unmasked(water_wt));
+		buf.printf("\nwater ribi: %i",get_weg_ribi_unmasked(water_wt));
 	}
-	buf.append("\ndraw_as_ding=");
-	buf.append((flags&draw_as_ding)!=0);
+	buf.printf("\ndraw_as_ding= %i",(flags&draw_as_ding)!=0);
 #endif
 }
 
@@ -946,7 +931,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 				}
 				activate_ribi_clip(way_ribi & ribi_t::nordwest);
 			}
-			d->display(xpos, ypos, dirty);
+			d->display(xpos, ypos);
 		}
 		// end of clipping
 		if (clip) {
@@ -1103,7 +1088,7 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 		const uint8 offset_vh = display_dinge_bg(xpos, ypos, is_global, true, visible);
 		if (visible) {
 			// display our vehicles
-			const uint8 offset_fg = display_dinge_vh(xpos, ypos, is_global, offset_vh, ribi, true);
+			const uint8 offset_fg = display_dinge_vh(xpos, ypos, offset_vh, ribi, true);
 			// foreground
 			display_dinge_fg(xpos, ypos, is_global, offset_fg);
 		}
@@ -1154,7 +1139,7 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 	if (ribi & ribi_t::west) {
 		grund_t *gr;
 		if (get_neighbour(gr, invalid_wt, ribi_t::west)) {
-			gr->display_dinge_vh(xpos-raster_tile_width/2, ypos-raster_tile_width/4-tile_raster_scale_y( (gr->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), is_global, 0, ribi_t::west, false);
+			gr->display_dinge_vh(xpos-raster_tile_width/2, ypos-raster_tile_width/4-tile_raster_scale_y( (gr->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), 0, ribi_t::west, false);
 			if (ribi & ribi_t::sued) gr->get_neighbour(gr_nw, invalid_wt, ribi_t::nord);
 			if (ribi & ribi_t::nord) gr->get_neighbour(gr_sw, invalid_wt, ribi_t::sued);
 		}
@@ -1162,13 +1147,13 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 	if (ribi & ribi_t::nord) {
 		grund_t *gr;
 		if (get_neighbour(gr, invalid_wt, ribi_t::nord)) {
-			gr->display_dinge_vh(xpos+raster_tile_width/2, ypos-raster_tile_width/4-tile_raster_scale_y( (gr->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), is_global, 0, ribi_t::nord, false);
+			gr->display_dinge_vh(xpos+raster_tile_width/2, ypos-raster_tile_width/4-tile_raster_scale_y( (gr->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), 0, ribi_t::nord, false);
 			if ((ribi & ribi_t::ost)  &&  (gr_nw==NULL)) gr->get_neighbour(gr_nw, invalid_wt, ribi_t::west);
 			if ((ribi & ribi_t::west))                   gr->get_neighbour(gr_ne, invalid_wt, ribi_t::ost);
 		}
 	}
 	if ((ribi & ribi_t::nordwest)  &&  gr_nw) {
-		gr_nw->display_dinge_vh(xpos, ypos-raster_tile_width/2-tile_raster_scale_y( (gr_nw->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), is_global, 0, ribi_t::nordwest, false);
+		gr_nw->display_dinge_vh(xpos, ypos-raster_tile_width/2-tile_raster_scale_y( (gr_nw->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), 0, ribi_t::nordwest, false);
 	}
 	// display background s/e
 	if (ribi & ribi_t::ost) {
@@ -1188,13 +1173,13 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 		}
 	}
 	// display our vehicles
-	const uint8 offset_fg = display_dinge_vh(xpos, ypos, is_global, offset_vh, ribi, true);
+	const uint8 offset_fg = display_dinge_vh(xpos, ypos, offset_vh, ribi, true);
 
 	// display vehicles of ne/e/se/s/sw neighbors
 	if (ribi & ribi_t::ost) {
 		grund_t *gr;
 		if (get_neighbour(gr, invalid_wt, ribi_t::ost)) {
-			gr->display_dinge_vh(xpos+raster_tile_width/2, ypos+raster_tile_width/4-tile_raster_scale_y( (gr->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), is_global, 0, ribi_t::ost, ontile_se);
+			gr->display_dinge_vh(xpos+raster_tile_width/2, ypos+raster_tile_width/4-tile_raster_scale_y( (gr->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), 0, ribi_t::ost, ontile_se);
 			if ((ribi & ribi_t::sued) && (gr_ne==NULL)) gr->get_neighbour(gr_ne, invalid_wt, ribi_t::nord);
 			if ((ribi & ribi_t::nord) && (gr_se==NULL)) gr->get_neighbour(gr_se, invalid_wt, ribi_t::sued);
 		}
@@ -1202,19 +1187,19 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 	if (ribi & ribi_t::sued) {
 		grund_t *gr;
 		if (get_neighbour(gr, invalid_wt, ribi_t::sued)) {
-			gr->display_dinge_vh(xpos-raster_tile_width/2, ypos+raster_tile_width/4-tile_raster_scale_y( (gr->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), is_global, 0, ribi_t::sued, ontile_se);
+			gr->display_dinge_vh(xpos-raster_tile_width/2, ypos+raster_tile_width/4-tile_raster_scale_y( (gr->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), 0, ribi_t::sued, ontile_se);
 			if ((ribi & ribi_t::ost)  && (gr_sw==NULL)) gr->get_neighbour(gr_sw, invalid_wt, ribi_t::west);
 			if ((ribi & ribi_t::west) && (gr_se==NULL)) gr->get_neighbour(gr_se, invalid_wt, ribi_t::ost);
 		}
 	}
 	if ((ribi & ribi_t::nordost)  &&  gr_ne) {
-		gr_ne->display_dinge_vh(xpos+raster_tile_width, ypos-tile_raster_scale_y( (gr_ne->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), is_global, 0, ribi_t::nordost, ontile_se);
+		gr_ne->display_dinge_vh(xpos+raster_tile_width, ypos-tile_raster_scale_y( (gr_ne->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), 0, ribi_t::nordost, ontile_se);
 	}
 	if ((ribi & ribi_t::suedwest)  &&  gr_sw) {
-		gr_sw->display_dinge_vh(xpos-raster_tile_width, ypos-tile_raster_scale_y( (gr_sw->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), is_global, 0, ribi_t::suedwest, ontile_se);
+		gr_sw->display_dinge_vh(xpos-raster_tile_width, ypos-tile_raster_scale_y( (gr_sw->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), 0, ribi_t::suedwest, ontile_se);
 	}
 	if ((ribi & ribi_t::suedost)  &&  gr_se) {
-		gr_se->display_dinge_vh(xpos, ypos+raster_tile_width/2-tile_raster_scale_y( (gr_se->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), is_global, 0, ribi_t::suedost, ontile_se);
+		gr_se->display_dinge_vh(xpos, ypos+raster_tile_width/2-tile_raster_scale_y( (gr_se->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), 0, ribi_t::suedost, ontile_se);
 	}
 	// end of clipping
 	clear_all_poly_clip();
@@ -1251,7 +1236,7 @@ uint8 grund_t::display_dinge_bg(const sint16 xpos, const sint16 ypos, const bool
 		}
 		// display background images of everything but vehicles
 		const uint8 start_offset=draw_ways ? 0 : offsets[flags/has_way1];
-		return dinge.display_dinge_bg( xpos, ypos, start_offset, is_global );
+		return dinge.display_dinge_bg( xpos, ypos, start_offset);
 	}
 	else { // must be karten_boden
 		// in undergroundmode: draw ground grid
@@ -1268,9 +1253,9 @@ uint8 grund_t::display_dinge_bg(const sint16 xpos, const sint16 ypos, const bool
 }
 
 
-uint8 grund_t::display_dinge_vh(const sint16 xpos, const sint16 ypos, const bool is_global, const uint8 start_offset, const ribi_t::ribi ribi, const bool ontile) const
+uint8 grund_t::display_dinge_vh(const sint16 xpos, const sint16 ypos, const uint8 start_offset, const ribi_t::ribi ribi, const bool ontile) const
 {
-	return dinge.display_dinge_vh(xpos, ypos, start_offset, is_global, ribi, ontile);
+	return dinge.display_dinge_vh(xpos, ypos, start_offset, ribi, ontile);
 }
 
 
@@ -1662,7 +1647,7 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 
 			ding_t *d=obj_bei((uint8)i);
 			// do not delete ways
-			if(d->is_way()) {
+			if(  d->get_typ()==ding_t::way  ) {
 				continue;
 			}
 			if (roadsign_t* const sign = ding_cast<roadsign_t>(d)) {

@@ -48,19 +48,19 @@ uint32 vehikel_besch_t::calc_running_cost(const karte_t *welt, uint32 base_cost)
 
 // Get running costs. Running costs increased if the vehicle is obsolete.
 // @author: jamespetts
-uint16 vehikel_besch_t::get_betriebskosten(karte_t* welt) const
+uint16 vehikel_besch_t::get_running_cost(karte_t* welt) const
 {
-	return calc_running_cost(welt, get_betriebskosten());
+	return calc_running_cost(welt, get_running_cost());
 }
 
-uint32 vehikel_besch_t::get_fixed_maintenance(karte_t *welt) const
+uint32 vehikel_besch_t::get_fixed_cost(karte_t *welt) const
 {
-	return calc_running_cost(welt, get_fixed_maintenance());
+	return calc_running_cost(welt, get_fixed_cost());
 }
 
-uint32 vehikel_besch_t::get_adjusted_monthly_fixed_maintenance(karte_t *welt) const
+uint32 vehikel_besch_t::get_adjusted_monthly_fixed_cost(karte_t *welt) const
 {
-	return welt->calc_adjusted_monthly_figure(calc_running_cost(welt, get_fixed_maintenance()));
+	return welt->calc_adjusted_monthly_figure(calc_running_cost(welt, get_fixed_cost()));
 }
 
 /**
@@ -212,8 +212,10 @@ void vehikel_besch_t::calc_checksum(checksum_t *chk) const
 	chk->input(zuladung);
 	chk->input(geschw);
 	chk->input(gewicht);
+	chk->input(axle_load);
 	chk->input(leistung);
-	chk->input(betriebskosten);
+	chk->input(running_cost);
+	chk->input(fixed_cost);
 	chk->input(intro_date);
 	chk->input(obsolete_date);
 	chk->input(gear);
@@ -234,7 +236,7 @@ void vehikel_besch_t::calc_checksum(checksum_t *chk) const
 	// Experimental settings
 	chk->input(upgrade_price);
 	chk->input(overcrowded_capacity);
-	chk->input(fixed_maintenance);
+	chk->input(fixed_cost);
 	chk->input(upgrades);
 	chk->input(is_tilting ? 1 : 0);
 	chk->input(way_constraints.get_permissive());

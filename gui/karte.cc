@@ -567,11 +567,26 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 				);
 				const uint8 color = city->get_pax_destinations_new()->get(p);
 				if( color != 0 ) {
-					set_relief_farbe(k, color);
 				}
 			}
-
 			break;
+
+		case MAP_OWNER:
+			// show ownership
+			{
+				if(  gr->is_halt()  ) {
+					set_relief_farbe(k, gr->get_halt()->get_besitzer()->get_player_color1()+3);
+				}
+				else if(  weg_t *weg = gr->get_weg_nr(0)  ) {
+					set_relief_farbe(k, weg->get_besitzer()==NULL ? COL_ORANGE : weg->get_besitzer()->get_player_color1()+3 );
+				}
+				if(  gebaeude_t *gb = gr->find<gebaeude_t>()  ) {
+					if(  gb->get_besitzer()!=NULL  ) {
+						set_relief_farbe(k, gb->get_besitzer()->get_player_color1()+3 );
+					}
+				}
+				break;
+			}
 
 		default:
 			break;

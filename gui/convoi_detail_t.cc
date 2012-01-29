@@ -157,10 +157,10 @@ void convoi_detail_t::zeichnen(koord pos, koord gr)
 			karte_t *welt = cnv->get_welt();
 			for (uint16 i = 0; i < count; i++) {
 				const vehikel_besch_t *besch = cnv->get_vehikel(i)->get_besch();
-				run_nominal += besch->get_betriebskosten();
-				run_actual  += besch->get_betriebskosten(welt);
-				mon_nominal += besch->get_fixed_maintenance();
-				mon_actual  += besch->get_fixed_maintenance(welt);
+				run_nominal += besch->get_running_cost();
+				run_actual  += besch->get_running_cost(welt);
+				mon_nominal += besch->get_fixed_cost();
+				mon_actual  += besch->get_fixed_cost(welt);
 			}
 			buf.clear();
 			if (run_nominal) run_percent = ((run_actual - run_nominal) * 100) / run_nominal;
@@ -442,7 +442,7 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 				int len = 5+display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, translator::translate("Max income:"), ALIGN_LEFT, COL_BLACK, true );
 				const sint32 grundwert128 = v->get_fracht_typ()->get_preis()<<7;
 				const sint32 grundwert_bonus = v->get_fracht_typ()->get_preis()*(1000l+kmh_base*v->get_fracht_typ()->get_speed_bonus());
-				const sint32 price = (v->get_fracht_max()*(grundwert128>grundwert_bonus ? grundwert128 : grundwert_bonus))/30 - v->get_betriebskosten(cnv->get_welt());
+				const sint32 price = (v->get_fracht_max()*(grundwert128>grundwert_bonus ? grundwert128 : grundwert_bonus))/30 - v->get_running_cost(cnv->get_welt());
 				money_to_string( number, price/100.0 );
 				display_proportional_clip( pos.x+w+offset.x+len, pos.y+offset.y+total_height+extra_y, number, ALIGN_LEFT, price>0?MONEY_PLUS:MONEY_MINUS, true );
 				extra_y += LINESPACE;

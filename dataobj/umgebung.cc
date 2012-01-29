@@ -94,6 +94,7 @@ uint8 umgebung_t::toolbar_max_width;
 uint8 umgebung_t::toolbar_max_height;
 uint8 umgebung_t::cursor_overlay_color;
 uint8 umgebung_t::show_vehicle_states;
+bool umgebung_t::visualize_schedule;
 sint8 umgebung_t::daynight_level;
 bool umgebung_t::hilly = false;
 bool umgebung_t::cities_ignore_height = false;
@@ -136,6 +137,8 @@ void umgebung_t::init()
 	hide_buildings = umgebung_t::NOT_HIDE;
 	hide_under_cursor = false;
 	cursor_hide_range = 5;
+
+	visualize_schedule = true;
 
 	/* station stuff */
 	use_transparency_station_coverage = true;
@@ -347,5 +350,8 @@ void umgebung_t::rdwr(loadsave_t *file)
 		file->rdwr_short( cursor_hide_range );
 	}
 
+	if(  file->get_version()>=111002  ) {
+		file->rdwr_bool( visualize_schedule );
+	}
 	// server settings are not saved, since the are server specific and could be different on different servers on the save computers
 }

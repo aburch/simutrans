@@ -91,9 +91,9 @@ FunctionEnd
 Section "Executable (GDI, Unicode)" GDIexe
   AddSize 8588
   StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/111-1/simuwin-111-1.zip"
-  StrCpy $archievename "simuwin-111-0.zip"
+  StrCpy $archievename "simuwin-111-1.zip"
   StrCpy $downloadname "Simutrans Executable (GDI)"
-;  Call DownloadInstallZip
+  Call DownloadInstallZip
   Call PostExeInstall
 SectionEnd
 
@@ -101,9 +101,9 @@ SectionEnd
 Section /o "Executable (SDL, better sound)" SDLexe
   AddSize 9277
   StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/111-1/simuwin-sdl-111-1.zip"
-  StrCpy $archievename "simuwin-sdl-111-0.zip"
+  StrCpy $archievename "simuwin-sdl-111-1.zip"
   StrCpy $downloadname "Simutrans Executable (SDL)"
-;  Call DownloadInstallZip
+  Call DownloadInstallZip
   Call PostExeInstall
 SectionEnd
 

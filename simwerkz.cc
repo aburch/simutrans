@@ -1667,14 +1667,13 @@ const char *wkz_plant_tree_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 }
 
 
-
-/* the following three routines add waypoints/halts to a schedule
+/* the following routines add waypoints/halts to a schedule
  * Players' vehicles can stop at other players' stops when they are allowed access rights.
  * @author prissi
  */
-static const char *wkz_fahrplan_insert_aux(karte_t *welt, spieler_t *sp, koord3d pos, schedule_t *fpl, bool append){
-	if(fpl == NULL) 
-	{
+static const char *wkz_fahrplan_insert_aux(karte_t *welt, spieler_t *sp, koord3d pos, schedule_t *fpl, bool append)
+{
+	if(fpl == NULL) {
 		dbg->warning("wkz_fahrplan_insert_aux()","Schedule is (null), doing nothing");
 		return 0;
 	}
@@ -1730,7 +1729,6 @@ const char *wkz_fahrplan_ins_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 {
 	return wkz_fahrplan_insert_aux( welt, sp, k, (schedule_t *)default_param, false );
 }
-
 
 
 /* way construction */

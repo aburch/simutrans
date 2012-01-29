@@ -220,9 +220,12 @@ void curiositylist_stats_t::zeichnen(koord offset)
 		char short_name[256];
 		char* dst = short_name;
 		int    cr = 0;
-		for( int j=0;  j<255  &&  name[j]>='\n'  &&  cr<2;  j++  ) {
+		for( int j=0;  j<255  &&  cr<10;  j++  ) {
 			if(name[j]>0  &&  name[j]<=' ') {
 				cr++;
+				if(  name[j]<32  ) {
+					break;
+				}
 				if (dst != short_name && dst[-1] != ' ') {
 					*dst++ = ' ';
 				}

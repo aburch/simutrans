@@ -1070,7 +1070,7 @@ char const* fabrik_t::get_name() const
 
 void fabrik_t::set_name(const char *new_name)
 {
-	if(new_name==NULL  ||  strcmp(new_name, translator::translate(besch->get_name()))==0) {
+	if(new_name==NULL  ||  strcmp(new_name, translator::translate(besch->get_name(), welt->get_settings().get_name_language_id()))==0) {
 		// new name is equal to name given by besch/translation -> set name to NULL
 		name = NULL;
 	} else {
@@ -1902,7 +1902,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 			//  we will reroute some goods
 			if(  best->amount_waiting==0  &&  most_waiting.menge>0  ) {
 				// remove something from the most waiting goods
-				if(  best_halt->recall_ware( most_waiting, min(most_waiting.menge/2, 1 - best->space_left) )  ) {
+				if(  best_halt->recall_ware( most_waiting, min((sint32)(most_waiting.menge/2), 1 - best->space_left) )  ) {
 					best_ware.menge += most_waiting.menge;
 				}
 				else {

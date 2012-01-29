@@ -40,7 +40,7 @@
 #define SEPERATE1						(LEFT_TO_RIGHT_GRAPHS+13)
 
 #define USE_TRANSPARENCY	(SEPERATE1+4)
-#define HIDE_TREES				(USE_TRANSPARENCY+13)
+#define HIDE_TREES			(USE_TRANSPARENCY+13)
 #define HIDE_CITY_HOUSES	(HIDE_TREES+13)
 #define HIDE_UNDER_CURSOR	(HIDE_CITY_HOUSES+13)
 #define CURSOR_HIDE_RANGE	(HIDE_UNDER_CURSOR)
@@ -54,12 +54,13 @@
 
 #define SEPERATE3						(SHOW_STATION_GOODS+13)
 
-#define CITY_WALKER						(SEPERATE3+4)
-#define STOP_WALKER						(CITY_WALKER+13)
-#define DENS_TRAFFIC					(STOP_WALKER+13)
-#define CONVOI_TOOLTIPS					(DENS_TRAFFIC+13)
+#define CITY_WALKER								(SEPERATE3+4)
+#define STOP_WALKER								(CITY_WALKER+13)
+#define DENS_TRAFFIC							(STOP_WALKER+13)
+#define CONVOI_TOOLTIPS							(DENS_TRAFFIC+13)
+#define HIGHLITE_SCHEDULE						(CONVOI_TOOLTIPS+13)
 
-#define SEPERATE4						(CONVOI_TOOLTIPS+13)
+#define SEPERATE4	(HIGHLITE_SCHEDULE+13)
 
 #define FPS_DATA						(SEPERATE4+4)
 #define IDLE_DATA						(FPS_DATA+13)
@@ -241,6 +242,10 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[b].set_text( "Smart hide objects" );
 	buttons[b].set_tooltip( "hide objects under cursor" );
 
+	buttons[22].set_pos( koord(10,HIGHLITE_SCHEDULE) );
+	buttons[22].set_typ( button_t::square_state );
+	buttons[22].set_text( "Highlite schedule" );
+
 	for(int i=0;  i<COLORS_MAX_BUTTONS;  i++ ) {
 		buttons[i].add_listener(this);
 	}
@@ -269,6 +274,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	add_komponente( &traffic_density );
 	add_komponente( buttons+0 );
 	add_komponente( buttons+1 );
+	add_komponente( buttons+22);
 
 	// unused buttons
 	// add_komponente( buttons+2 );
@@ -299,7 +305,7 @@ void color_gui_t::set_fenstergroesse(koord groesse)
 bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 {
 	if(&brightness==komp) {
-		umgebung_t::daynight_level = v.i;
+		umgebung_t::daynight_level = (sint8)v.i;
 	} else if(&traffic_density==komp) {
 		if(  !umgebung_t::networkmode  ||  welt->get_active_player_nr()==1  ) {
 			static char level[16];
@@ -311,7 +317,7 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 			traffic_density.set_value(welt->get_settings().get_verkehr_level());
 		}
 	} else if(&scrollspeed==komp) {
-		umgebung_t::scroll_multi = buttons[6].pressed ? -v.i : v.i;
+		umgebung_t::scroll_multi = (sint16)( buttons[6].pressed ? -v.i : v.i );
 	} else if (&cursor_hide_range==komp) {
 		umgebung_t::cursor_hide_range = cursor_hide_range.get_value();
 	} else if((buttons+0)==komp) {
@@ -387,6 +393,9 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		buttons[21].pressed = umgebung_t::hide_under_cursor;
 		// renew toolbar
 		werkzeug_t::update_toolbars(welt);
+	} else if((buttons+22)==komp) {
+		umgebung_t::visualize_schedule = !umgebung_t::visualize_schedule;
+		buttons[22].pressed = umgebung_t::visualize_schedule;
 	} else if (komp == &inp_underground_level) {
 		if(grund_t::underground_mode==grund_t::ugm_level) {
 			grund_t::underground_level = inp_underground_level.get_value();
@@ -420,6 +429,7 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 	//buttons[18].pressed = umgebung_t::show_names&1;
 	buttons[19].pressed = (umgebung_t::show_names&2)!=0;
 	buttons[21].pressed = grund_t::underground_mode == grund_t::ugm_level;
+	buttons[23].pressed = umgebung_t::visualize_schedule;
 
 	gui_frame_t::zeichnen(pos, gr);
 

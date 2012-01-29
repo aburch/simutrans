@@ -47,6 +47,7 @@
 #include "gui/banner.h"
 #include "gui/pakselector.h"
 #include "gui/welt.h"
+#include "gui/help_frame.h"
 #include "gui/sprachen.h"
 #include "gui/climates.h"
 #include "gui/messagebox.h"
@@ -210,6 +211,14 @@ void modal_dialogue( gui_frame_t *gui, long magic, karte_t *welt, bool (*quit)()
 				}
 				if(  ev.cy < werkzeug_t::toolbar_tool[0]->iconsize.y  ) {
 					ev.cy = werkzeug_t::toolbar_tool[0]->iconsize.y;
+				}
+				if(  ev.ev_class == EVENT_KEYBOARD  &&  ev.ev_code == SIM_KEY_F1  ) {
+					if(  gui_frame_t *win = win_get_top()  ) {
+						if(  win->get_hilfe_datei()!=NULL  ) {
+							create_win(new help_frame_t(win->get_hilfe_datei()), w_info, (long)(win->get_hilfe_datei()) );
+							continue;
+						}
+					}
 				}
 				DBG_DEBUG4("zeige_banner", "calling check_pos_win");
 				check_pos_win(&ev);
@@ -379,7 +388,7 @@ int simu_main(int argc, char** argv)
 		printf(
 			"\n"
 			"---------------------------------------\n"
-			"  Simutrans " VERSION_NUMBER NARROW_EXPERIMENTAL_VERSION "\n"
+			"  Simutrans " VERSION_NUMBER EXPERIMENTAL_VERSION "\n"
 			"  released " VERSION_DATE "\n"
 			"  modified by James E. Petts\n"
 			"  from Simutrans - developed\n"
@@ -623,9 +632,9 @@ int simu_main(int argc, char** argv)
 
 
 #ifdef REVISION
-	const char *version = "Simutrans version " VERSION_NUMBER NARROW_EXPERIMENTAL_VERSION " from " VERSION_DATE " r" QUOTEME(REVISION) "\n";
+	const char *version = "Simutrans version " VERSION_NUMBER EXPERIMENTAL_VERSION " from " VERSION_DATE " r" QUOTEME(REVISION) "\n";
 #else
-	const char *version = "Simutrans version " VERSION_NUMBER NARROW_EXPERIMENTAL_VERSION " from " VERSION_DATE "\n";
+	const char *version = "Simutrans version " VERSION_NUMBER EXPERIMENTAL_VERSION " from " VERSION_DATE "\n";
 #endif
 	if (gimme_arg(argc, argv, "-log", 0)) {
 		chdir( umgebung_t::user_dir );
@@ -660,7 +669,7 @@ int simu_main(int argc, char** argv)
 		umgebung_t::server_announce = 0;
 	}
 
-	DBG_MESSAGE( "simmain::main()", "Version: " VERSION_NUMBER NARROW_EXPERIMENTAL_VERSION "  Date: " VERSION_DATE);
+	DBG_MESSAGE( "simmain::main()", "Version: " VERSION_NUMBER EXPERIMENTAL_VERSION "  Date: " VERSION_DATE);
 	DBG_MESSAGE( "Debuglevel","%i", umgebung_t::verbose_debug );
 	DBG_MESSAGE( "program_dir", umgebung_t::program_dir );
 	DBG_MESSAGE( "home_dir", umgebung_t::user_dir );

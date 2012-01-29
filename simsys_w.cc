@@ -69,22 +69,6 @@ static PIXVAL*     AllDibData;
 
 volatile HDC hdc = NULL;
 
-const wchar_t* const title =
-#ifdef _MSC_VER
-#define TOW_(x) L#x
-#define TOW(x) TOW_(x)
-			L"Simutrans " WIDE_VERSION_NUMBER EXPERIMENTAL_VERSION
-#ifdef REVISION
-			L" - r" TOW(REVISION)
-#endif
-#else
-			L"" SAVEGAME_PREFIX " " VERSION_NUMBER NARROW_EXPERIMENTAL_VERSION " - " VERSION_DATE
-#ifdef REVISION
-			" - r" QUOTEME(REVISION)
-#endif	
-#endif
-;
-
 #ifdef MULTI_THREAD
 
 
@@ -125,6 +109,15 @@ resolution dr_query_screen_resolution()
 }
 
 
+static void create_window(DWORD const ex_style, DWORD const style, int const x, int const y, int const w, int const h)
+{
+	RECT r = { 0, 0, w, h };
+	AdjustWindowRectEx(&r, style, false, ex_style);
+	hwnd = CreateWindowExA(ex_style, "Simu", SIM_TITLE, style, x, y, r.right - r.left, r.bottom - r.top, 0, 0, hInstance, 0);
+	ShowWindow(hwnd, SW_SHOW);
+}
+
+
 // open the window
 int dr_os_open(int const w, int const h, int fullscreen)
 {
@@ -159,25 +152,10 @@ int dr_os_open(int const w, int const h, int fullscreen)
 		is_fullscreen = fullscreen;
 	}
 	if(  fullscreen  ) {
-		hwnd = CreateWindowEx(
-			WS_EX_TOPMOST,
-			L"Simu", title,
-			WS_POPUP,
-			0, 0,
-			w, h,
-			NULL, NULL, hInstance, NULL
-		);
+		create_window(WS_EX_TOPMOST, WS_POPUP, 0, 0, w, h);
 	} else {
-		hwnd = CreateWindow(
-			L"Simu", title,
-			WS_OVERLAPPEDWINDOW,
-			CW_USEDEFAULT, CW_USEDEFAULT,
-			w + GetSystemMetrics(SM_CXFRAME),
-			h - 1 + 2 * GetSystemMetrics(SM_CYFRAME) + GetSystemMetrics(SM_CYCAPTION),
-			NULL, NULL, hInstance, NULL
-		);
+		create_window(0, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, w, h);
 	}
-	ShowWindow(hwnd, SW_SHOW);
 
 	WindowSize.right  = w;
 	WindowSize.bottom = h;
@@ -480,15 +458,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 
 					Beep( 110, 250 );
 					// must reshow window, otherwise startbar will be topmost ...
-					hwnd = CreateWindowEx(
-						WS_EX_TOPMOST,
-						L"Simu", title,
-						WS_POPUP,
-						0, 0,
-						MaxSize.right, MaxSize.bottom,
-						NULL, NULL, hInstance, NULL
-					);
-					ShowWindow( hwnd, SW_SHOW );
+					create_window(WS_EX_TOPMOST, WS_POPUP, 0, 0, MaxSize.right, MaxSize.bottom);
 					DestroyWindow( this_hwnd );
 					while_handling = false;
 					return true;

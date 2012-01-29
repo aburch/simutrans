@@ -718,7 +718,7 @@ public:
 	* returns the total monthly fixed maintenance cost for all vehicles in convoi
 	* @author Bernd Gabriel
 	*/
-	uint32 get_fixed_maintenance() const;
+	uint32 get_fixed_cost() const;
 
 	/**
 	* Constructor for loading from file,
@@ -1164,7 +1164,7 @@ public:
 	void must_recalc_data_front() { recalc_data_front = true; }
 
 	// Overtaking for convois
-	virtual bool can_overtake(overtaker_t *other_overtaker, int other_speed, int steps_other, int diagonal_vehicle_steps_per_tile);
+	virtual bool can_overtake(overtaker_t *other_overtaker, sint32 other_speed, sint16 steps_other);
 
 	//Returns the maximum catering level of the category type given in the convoy.
 	//@author: jamespetts
