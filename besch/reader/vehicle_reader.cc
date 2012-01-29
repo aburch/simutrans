@@ -208,7 +208,6 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 		besch->typ = (sint8)v;
 		besch->zuladung = decode_uint16(p);
-		besch->loading_time = decode_uint16(p);
 		besch->preis = decode_uint32(p);
 		besch->geschw = decode_uint16(p);
 		besch->gewicht = decode_uint16(p);
