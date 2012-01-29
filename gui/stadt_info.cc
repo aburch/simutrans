@@ -67,7 +67,7 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 	name_input.add_listener( this );
 
 	add_komponente(&name_input);
-	set_fenstergroesse(koord(410, 325 + (14*(1+((MAX_CITY_HISTORY - 1) / BUTTONS_PER_ROW)))));
+	set_fenstergroesse(koord(410, 325 + (14*(1+((MAX_CITY_HISTORY) / BUTTONS_PER_ROW)))));
 
 	allow_growth.init( button_t::square_state, "Allow city growth", koord(8,114) );
 	allow_growth.pressed = stadt->get_citygrowth();
@@ -129,8 +129,8 @@ void stadt_info_t::resize(const koord delta)
 	gui_frame_t::resize(delta);
 
 	// calculate layout of filter buttons
-	const int col = max( 1, min( (get_fenstergroesse().x-2)/(BUTTON_WIDTH+BUTTON_SPACER), MAX_CITY_HISTORY-1 ) );
-	const int row = ((MAX_CITY_HISTORY-2)/col)+1;
+	const int col = max( 1, min( (get_fenstergroesse().x-2)/(BUTTON_WIDTH+BUTTON_SPACER), MAX_CITY_HISTORY ) );
+	const int row = ((MAX_CITY_HISTORY-1)/col)+1;
 
 	// calculate new minimaps size : expand horizontally or vertically ?
 	const karte_t* const welt = stadt_t::get_welt();
@@ -173,7 +173,7 @@ void stadt_info_t::resize(const koord delta)
 	year_month_tabs.set_groesse(koord(get_fenstergroesse().x - 80, get_fenstergroesse().y - TITLEBAR_HEIGHT - year_month_tabs.get_pos().y - 4 - (BUTTON_HEIGHT+2)*(row+1) - 1 ));
 
 	// move and resize filter buttons
-	for(  int hist=0;  hist<MAX_CITY_HISTORY-1;  hist++  ) {
+	for(  int hist=0;  hist<MAX_CITY_HISTORY;  hist++  ) {
 		const koord pos = koord(2 + (BUTTON_WIDTH+BUTTON_SPACER)*(hist%col), get_fenstergroesse().y - (BUTTON_HEIGHT+2)*(row+1) - 1 + (BUTTON_HEIGHT+2)*((int)hist/col) );
 		filterButtons[hist].set_pos( pos );
 	}

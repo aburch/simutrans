@@ -3,92 +3,89 @@
 <h1><strong>Convoy Information</strong></h1>
 
 <p>
-<strong>Convoy Information</strong> provides information about a Convoy (an operational vehicle or combination of vehicle-units) which is used to transport goods and passengers.<br>
-It lists items carried by a Convoy and also has controls to access further details and sell the Convoy; follow the Convoy in game-view; and change the name and <a href="schedule.txt">Schedule</a> of Convoy.
-</p>
-
-<p>
-A Convoy is composed of at least one powered (motorised) vehicle-unit and any attached trailers/carriages.<br>
-Examples of Convoys include: a team of horses pulling a carriage; or a train engine attached to a tender and carriages; or a bus; or a van; or a truck attached to a trailer; or connected tram cars; or a ship; or a tugboat pulling a barge; or an aircraft.<br>
-Convoys are assembled and purchased from the <a href="depot.txt">depot</a> for their type of transport.<br>
-{Tips: ?A Convoy has maximum limit to number of vehicle-units in its composition: trains, 24; road vehicles, 4 .}
+<strong>Convoy Information</strong> provides information about convoys in the game. <em>Convoys</em> are the individual units of transport that move around the map following schedules and transporting goods and passengers. Convoys can consist of either a single vehicle (such as a 'bus or an aircraft) or multiple vehicles (such as a railway train consisting of a locomotive and carriages, a lorry with a trailer or a horse and carriage). In order to move around the map, convoys need at least one powered vehicle, but may also have one or more unpowered vehicles.
 </p>
 <p>
-Click on a Convoy in game-view with the <a href="inspection_tool.txt">Inspection Tool</a> or click on a Convoy listed in <a href="convoi.txt">Vehicle List</a> or <a href="linemanagement.txt">Line Management</a> to open <strong>Convoy Information</strong><br>
-The title-bar of <strong>Convoy Information</strong> shows a unique ID number and name of Convoy (by default this is make of first vehicle unit purchased or assembled in a <a href="depot.txt">depot</a>).<br>
-<strong>Convoy Information</strong> contains a name-box; a mini-view and information about the Convoy; option buttons; and a list of all items currently carried (if all items are not visible <a href="mouse.txt">re-size</a> <strong>Convoy Information</strong> or use slider-bars to scroll items).
+The convoy information window lists the items (goods, passengers or mail) carried by a convoy and also has controls to access further details, to and sell upgrade and the convoy; to follow the Convoy in the main game window; to change the name and <a href="schedule.txt">Schedule</a> of the convoy; and to <a href="replace.txt">replace</a> it and like convoys with different vehicles.
 </p>
 <p>
-Information shown at top of <strong>Convoy Information</strong> includes:
+Convoys are assembled and purchased from <a href="depot.txt">depots</a>, or by <a href="replace.txt">replacing</a> existing convoys. 
 </p>
 <p>
-<em>Internal ID</em>: a unique ID number for Convoy (assigned by default when Convoy is first purchased or assembled in a <a href=depot.txt">depot</a>).
+Click on a convoy in the main game window with the <a href="inspection_tool.txt">inspection tool</a> or click on a convoy listed in the <a href="convoi.txt">cehicle list</a> or the <a href="linemanagement.txt">line management</a> window to open the <strong>convoy information</strong> window.<br>
+The title bar of the <strong>convoy information</strong> window shows a unique ID number (in brackets) and the name of the convoy (by default, this is the name of the type of the first vehicle added to the convoy, but this can be changed).
 </p>
 <p>
-- <em>name</em>: shows assigned name of Convoy (by default this is make of first vehicle-unit purchased or assembled in a <a href="depot.txt">depot</a> for Convoy).<br>
-Click on name-box and type new name to change name of Convoy.
+The <strong>convoy information</strong> window contains a name box; a mini-view; information about the convoy; option buttons; and a list of all mail, passengers or goods currently carried (if all items are not visible <a href="mouse.txt">re-size</a> the <strong>convoy information</strong> window or use slider bars to scroll the items).
 </p>
 <p>
-- <em>speed:</em> current speed is shown in km/h.<br>
-In brackets is maximum speed limit of Convoy (determined by slowest vehicle unit in Convoy).<br>
-A green-progress-bar indicates current speed relative to maximum speed limit.
+Information shown at the top of the <strong>convoy information</strong> window includes:
 </p>
 <p>
-- <em>Income:</em> profit made by vehicle (income generated less operation costs) in current game-calendar-year.<br>
-In brackets is operational cost of Convoy in Hajo Credits per game square.
+<em>Internal ID</em>: a unique ID number for the convoy, assigned by default when the convoy is first purchased or assembled.
 </p>
 <p>
-- <em>Weight:</em> current combined weight of Convoy and items carried in tonnes.<br>
-In brackets is current weight of items carried.<br>
-A green-progress-bar indicates capacity used, to carry goods and passengers.<br>
-A yellow-bar indicates <a href="schedule.txt">Wait For</a> level (minimum quantity of goods and passengers required by Convoy to proceed) set in Schedule Controls.<br>
-{Tips: To set or change Wait For levels for all Convoys on a Line, use Update Line option-button in <a href="linemanagement.txt">Line Management</a> or <a href="depot.txt">Depot Controls</a>. To set or change the Wait For level for a Convoy and no other Convoy on assigned Line, use <em>Schedule</em> option-button in <strong>Convoy Information</strong> or Depot Controls.}
+- <em>Name</em>: shows the name assigned to the convoy. By default, the name is the name of the type of the first the vehicle added to the convoy. To change the name, cick on the name box and enter a new name.
 </p>
 <p>
-- <em>Destination:</em> The next <a href="station.txt">Stop</a> or waypoint in the Convoy's <a href="schedule.txt">Schedule</a>.<br>
-A green-progress-bar indicates progress by Convoy to next destination.
+- <em>Speed</em>: the current speed in kilometres per hour. The convoy's maximum speed is shown in brackets. A convoy's maximum speed is the maximum speed of the slowest vehicle in the convoy. Note that the maximum speed of the convoy might be greater than the maximum speed of the way, in which case, the convoy will not exceed the way's limit. A green progress bar indicates the current speed relative to the convoy's maximum speed.
 </p>
 <p>
-- <em>Serves line:</em> Line assigned to Convoy. The triangle opens the line in the <a href="linelist.txt">Line management window</a>. (Only visible if a line is assigned.)
+- <em>Revenue:</em> the profit made by the convoy in the current game calendar year. In brackets after that is the variable operating cost of the whole convoy per tile. Note that there might also be fixed costs per month that are not shown in this display.
 </p>
 <p>
-- <em>mini-view</em> shows Convoy.<br>
-Click on mini-view to centre game-view on Convoy.
+- <em>Weight:</em> current combined weight of the vehicles in the convoy and items carried, in metric tonnes. In brackets is the current weight of items (goods, passengers or mail) carried. A green progress bar indicates the proportion of the convoy's carrying capacity currently in use. If the bar is yellow instead of green, this indicates that the convoy is <a href="schedule.txt">waiting</a> for a set minimum load. <br>
+<em>Tip:</em> To set or change wait levels for all convoys in a line, use the update line option button in the <a href="linemanagement.txt">line management</a> window. To set or change the wait level for individual convoys, use the <em>Schedule</em> button in the <strong>Convoy Information</strong> or <strong>depot</strong> windows.
 </p>
 <p>
-Click on buttons in <strong>Convoy Information</strong> to open controls or select options:
+- <em>Destination:</em> the next <a href="station.txt">stop</a> or waypoint in the convoy's <a href="schedule.txt">schedule</a>. A green progress bar indicates the progress of the convoy towards the next destination.
 </p>
 <p>
-<a href="schedule.txt"><em>Schedule:</em></a> opens controls to change the route and minimum quantity of goods and passengers required by Convoy to proceed.
+- <em>Serves line:</em> indicates any <a href="linemanagement.txt">line</a> assigned to the convoy. Click the grey arrow next to the name of the line to open the line in the <a href="linemanagement.txt">line management</a> window.
 </p>
 <p>
-<em>go to depot:</em> sends Convoy to nearest appropriate <a href="depot.txt">depot</a>. Any items being carried are lost, though income is received for transportation to depot.<br>
-In the depot the Convoy keeps its <a href="schedule.txt">Schedule</a> and assigned <a href="linemanagement.txt">Line</a>.
+- <em>Mini-view</em> shows the convoy moving around in the game world. Click on the mini-view to centre the main game window on the convoy.
 </p>
 <p>
-<em>follow me:</em> button when indented moves game-view with Convoy.<br>
-To deselect option, click on button again or left-click on <a href="map.txt">Map</a>.
+Click on the following buttons in to open controls or select options:
 </p>
 <p>
-<em>Chart:</em> click option-button to toggle graph (button is indentented when graph is visible) in <strong>Convoy Information</strong>.<br>
-The graph shows statistics for the last 12 months (x-axis) when a graph-option is selected.<br>
-Click on graph-option-button to see information on graph (button is indented when option selected).<br>
-Colours of lines on graph correspond to colours of graph-option-buttons:<br>
-- <em>Free Capacity</em> indicates unused space on Convoy.<br>
-- <em>Travel?ed</em> indicates number of goods, passengers and mail transported.<br>
-- <em>Proceeds</em> indicates income generated by transportation.<br>
-- <em>Operation Costs</em> indicates costs incurred by Convoy when in transit.<br>
-- <em>Profit</em> indicates profit received from transportation (Proceeds less Operation Costs).
+<a href="schedule.txt"><em>Schedule:</em></a> opens a window with controls to change the route and other scheduling options for the convoy. <em>Note</em>: changing a schedule on a convoy assigned to a line will change the behaviour of only that convoy, not other convoys in the line, and will also de-assign the convoy from the line. To change the schedule of the whole line, use the <a href="linemanagement.txt">line management</a> window instead.
 </p>
 <p>
-<em>Details</em> opens <a href="convoidetail.txt">Convoy Details</a> which contains more information and option to sell Convoy.
+<em>Go to depot:</em> sends the convoy to the nearest appropriate <a href="depot.txt">depot</a>. Any items being conveyed are lost. In the depot, the convoy keeps its <a href="schedule.txt">schedule</a> and any assigned <a href="linemanagement.txt">line</a>.
 </p>
 <p>
-<em>Sort Passengers/freight by:</em> lists items currently carried by Convoy.<br>
-Information shown includes quantity carried and capacity of Convoy, type of item, final destination and first transit <a href="station.txt">Stop</a>.<br>
-Option-button (changes name with selection) sorts of items carried in groups of passengers, mail and goods:<br>
- - <em>destination:</em> sorts items carried, alphanumerically within ASCII-code order (capital letters before lower case letters), by assigned name of final destination Stop.<br>
- - <em>via (detail):</em> sorts items carried, alphanumerically within ASCII-code order (capital letters before lower case letters), by assigned name of first transfer Stop.<br>
- - <em>via (amount):</em> sorts items carried by quantity headed to first transfer Stop.<br>
- - <em>amount:</em> sorts items carried by quantity in descending order.
+<em>Follow me:</em> when selected, this causes the main game window to track the movements of the convoy. To turn off convoy following, click on the button again or left click anywhere in the on <a href="map.txt">main game window</a>.
+</p>
+<p>
+<em>Replace:</em> opens the <a href="replace.txt">replace</a> window, which allows the convoy, either individually, or along with all other like convoys in the line, or all other like convoys owned by the same player, to be replaced automatically.
+</p>
+<p>
+<em>Reverse route:</em> determines the order in which this convoy follows its schedule. If this is not selected, the convoy will follow its schedule from the first item in the list to the last item in the list. If this button is selected, will follow its schedule from the last item in the list to the first item in the list. For information on how to set up convoys and lines to alternate between forward and reverse running automatically, see the information about the <a href="schedule.txt">schedule</a> window.
+</p>
+<p>
+<em>Chart:</em> click on the "chart" button to toggle graphs showing statistics relating to the convoy over the last twelve months. Click one or more of the coloured buttons to select which statistics are displayed (colours on the graph correspond to colours of the buttons pressed):<br>
+- <em>Free Capacity</em> the proportion of the convoy that is running empty. This might be negative if the convoy is regularly overcrowded;<br>
+- <em>Transported</em> the quantity of goods, passengers or mail transported;<br>
+- <em>Average speed</em> the average speed of the convoy;<br>
+- <em>Comfort</em> the average comfort of vehicles in the convoy, adjusted for overcrowding and any catering present in the convoy;<br>
+- <em>Revenue</em> the gross income received from this convoy's transport activities;<br>
+- <em>Running costs</em> the costs of operating this convoy, being a total of (1) the distance dependant costs; and (2) the monthly fixed costs;<br>
+- <em>Profit</em> the net profit earned by this convoy (total revenue less total costs).<br>
+- <em>Distance</em> the total distance (in kilometres) that this convoy has travelled.
+</p>
+<p>
+<em>Details</em> shows additional <a href="convoidetail.txt">details</a> about the convoy and its vehicles, including some additional options.
+</p>
+<p>
+<em>Sort Passengers/freight by:</em> lists the items currently carried by the convoy.<br>
+Information shown includes the quantity carried and capacity of the convoy, the type of item carried, the final destination and next interchange <a href="station.txt">stop</a>. Note that, if the vehicle is overcrowded, the number currently being conveyed might be higher than the capacity.<br>
+Use the button (which changes its text depending on what option is selected) to sort items in order of:<br>
+ - <em>destination:</em> sorted alphabetically by the ultimate destination of the goods, passengers or mail carried;<br>
+ - <em>via (detail):</em> sorted alphabetically by the next interchange of the goods, passengers or mail carried, also showing information about final destination;<br>
+ - <em>via (amount):</em> sorted alphabetically by the next interchange of the goods, passengers or mail carried, with no other information;<br>
+ - <em>amount:</em> sorted in numerical (descending) order of the number of each item carried by destination;<br>
+ - <em>origin (detail):</em> sorted alphabetically by the ultimate destination of the goods, passengers or mail carried, also showing infromation on the origins of those items; and<br>
+ - <em>origin (amount):</em> sorted in numerical (descending) order of the number of each item carried by origin.
 </p>

@@ -1,1 +1,20 @@
-<title>Build city buildings</title> <h1><strong>Build city buildings</strong></h1> <p>The dialogue is divided into four sections. <br> · top left is a selection list of available city buildings<br> · bottom left is shown a picture of the chosen city building<br> · top right some options may be set<br> · bottom right is information about the chosen city building given<br></p> <h1>Selection list</h1> <p> In the selection list are given all urban buildings that are available with the options specified top right (<em>Residential houses</em>, <em>Shops and offices</em>, <em>Industrial buildings</em>). There are two tabs that will allow you to change how the urban buildings are identified.<br> · <em>Translation:</em> Shows the name of the building in the given language. If there is no translation available in the given language, the object name will be used.<br> · <em>Object:</em> Shows the Simutrans internal object name for the building type.<br> <br> The color of the text has the following meaning:<br> · <em>blue text</em> signifies a residential building.<br> · <em>green text</em> signifies a shop or office building.<br> · <em>black text</em> signifies an industrial building.<br> </p> <h1>Options</h1> <p> · <em>ignore climates:</em> This option deactivates the climate restrictions associated with various building types.<br> · <em>Use timeline year:</em> The selection list will only contain buildings that are available the current Simutrans year.<br> · <em>Show obsolete too:</em> Expand the selection list to also contain buildings that are obsolete the current Simutrans year.<br> · <em>Residential houses:</em> There will be residential houses in the selection list.<br> · <em>Shops and offices:</em> There will be shops and offices in the selection list.<br> · <em>Industrial buildings:</em> There will be industrial buildings in the selection list. <br> · <em>Rotation:</em> If the chosen building can be shown from different angles, then it is possible to chose a specific view of it here. The image bottom left will change to reflect this. If this option is set to <em>random</em> a random view of the building will be used.<br> </p>
+<title>Build city buildings Help</title>
+
+<h1><strong>Build city buildings</strong></h1>
+
+<p>
+The <strong>Build city buildings</strong> window allows construction of individual city buildings. It is a map customisation option, rather than an element of the gameplay itself: players do not buy city buildings during the course of the game.
+</p>
+<p>
+At the left, there is a list of all of the city buildings that are available to be built. The two tabs, <strong>Translation</strong> and <strong>Object</strong> allow switching between the base name as defined in the pakset (object) and the user-friendly name displayed in the game (translation). Click on an item in the list to see more information about that particular city building. To place the industry, click in the main game window on the desired location after selecting it from the list.
+</p>
+<p>
+On the right, there are a number of options:<br>
+<em>Ignore climate:</em> allow the building of city buildings in climatic regions where they would not normally be permitted.<br>
+<em>Use timeline:</em> show only those city buildings in the current year and month.<br>
+<em>Show obsolete:</em> show city buildings that were available in the past.<br>
+<em>Residential house:</em> show residential city buildings. These accomodate people, and are built automatically whenever the population increases.<br>
+<em>Shopes and offices:</em> show commercial city buildings. These accomodate businesses and create jobs. They are built automatically whenever the number of jobs available in the city is lower than the number of citizens.<br>
+<em>Industrial building:</em> show minor industrial buildings. These act in the same way as commercial city buildings. These are not industries to or from which players can transport goods.<br>
+<em>Rotation:</em> if multiple rotations of the city building graphics are available, select the orientation in which the city building is built. This can be made random by selecting "random" (select by pressing the left arrow when the number is already at zero).<br>
+</p>

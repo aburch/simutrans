@@ -3,34 +3,32 @@
 <h1><strong>Stop Details</strong></h1>
 
 <p>
-<strong>Stop Details</strong> provides more information about a Stop (where vehicles pick-up and drop-off goods and passengers).
+<strong>Stop Details</strong> provides more information about a <em>stop</em>.
 </p>
 <p>
-<strong>Stop Details</strong> opens from
-<a href="station.txt">
-Details</a> option-button in Stop Information.
-<br>
-If all items are not visible <a href="mouse.txt">re-size</a> <strong>Stop Details</strong> or use slider-bars to scroll items)
+<strong>Stop Details</strong> opens from the <em>Details</em> option button in the <a href="station.txt">stop information</a> window.
+</p>
+<p>
+If all items are not visible <a href="mouse.txt">re-size</a> <strong>Stop Details</strong>, or use the slider bars to scroll items.
 </p>
 <p>
 Information listed includes:<br>
-<em>Connected factories:</em> names and map co-ordinates (in brackets) of <a href="industry_info.txt">industry</a> in catchment area of Stop.<br>
-{Tips: Use
-<a href="keys.txt">[v]</a> to toggle view of catchment area of stops in game.}
+<em>Connected factories:</em> names and map co-ordinates (in brackets) of any <a href="industry_info.txt">industries</a> in the catchment area of the stop.<br>
+<em>Tip</em>: Use the <a href="keys.txt">[v]</a> key to toggle the display of catchments area for all the stops in the game.
 </p>
 <p>
 <em>Goods needed by nearby industries:</em> types of
-<a href="goods_filter.txt">goods</a> required by <a href="industryinfo.txt">industry</a> in catchment area of Stop.
+<a href="goods_filter.txt">goods</a> required by <a href="industryinfo.txt">industries</a> in the catchment area of the stop.
 </p>
 <p>
 <em>Lines serving this Stop:</em>
 <a href="linemanagement.txt">Lines</a> that use this Stop.<br>
-Lines are listed alphanumerically within ASCII-code order (capital letters before lower case letters).
+Lines are listed in alphabetical order, with capital letters before lower case letters. Click on the small <em>arrow</em> next to the line to open that line in the <a href="linemanagement.txt">line management</a> window.
 </p>
 <p>
-<em>Lineless convoys serving this stops:</em> Convoy not assigned to a line, which stop here.
+<em>Direct routes from here:</em>lists the names of stops that can be reached directly (i.e., without changing) by lines and convoys serving this stop. This is lised by the type of items (goods and passnegers) that can be transported from here.<br>
+Stops are listed are listed in alphabetical order, with capital letters before lower case letters. Click on the small <em>arrow</em> next to the line to go to that stop in the main window.
 </p>
 <p>
-<em>Direct routes from here:</em>lists name of Stops that can be reached without a transfer and type of items (goods and passnegers) that can be delivered.<br>
-Stops are listed alphanumerically within ASCII-code order (capital letters before lower case letters) by ?type of transport, name of Stop, and type of item that can be delivered (which is also shown for each Stop).
+Beneath each stop listed, there is a display of the average <em>travelling and waiting time</em> from the present stop to each of the destinations. Goods and passengers will always try to find the shortest route (in terms of journey time: that is, total travelling time plus total waiting time) between their origin and destination stops. Goods that care about how fast that they are transported (have a speed bonus rating of over 0%) and passengers will leave if they have to wait too long at any stop. How long is too long depends on their speed bonus rating.
 </p>
