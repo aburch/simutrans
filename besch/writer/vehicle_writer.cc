@@ -657,9 +657,9 @@ end:
 	}
 
 	node.write_sint8(fp, besch_vorgaenger, pos);
-	pos += sizeof(uint8);
+	pos += sizeof(sint8);
 	node.write_sint8(fp, besch_nachfolger, pos);
-	pos += sizeof(uint8);
+	pos += sizeof(sint8);
 	node.write_uint8(fp, (uint8) freight_max, pos);
 	pos += sizeof(uint8);
 
@@ -739,8 +739,8 @@ end:
 	// but revenue will be lower and dwell times higher. Mainly for passengers.
 	//@author: jamespetts
 	uint16 overcrowded_capacity = (obj.get_int("overcrowded_capacity", 0));
-	node.write_uint8(fp, overcrowded_capacity, pos);
-	pos += sizeof(uint8);
+	node.write_uint16(fp, overcrowded_capacity, pos);
+	pos += sizeof(uint16);
 
 	// The time in ms that it takes the vehicle to load and unload at stations (i.e.,  
 	// the dwell time). The default is 2,000 because that is the value used in 
@@ -890,7 +890,7 @@ end:
 	sint8 sound_str_len = sound_str.size();
 	if (sound_str_len > 0) {
 		node.write_sint8  (fp, sound_str_len, pos);
-		pos += sizeof(uint8);
+		pos += sizeof(sint8);
 		node.write_data_at(fp, sound_str.c_str(), pos, sound_str_len);
 		pos += sound_str_len;
 	}
