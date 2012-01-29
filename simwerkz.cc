@@ -264,7 +264,7 @@ static halthandle_t suche_nahe_haltestelle(spieler_t *sp, karte_t *welt, koord3d
 
 
 // converts a 2d koord to a suitable ground pointer
-static grund_t *wkz_intern_koord_to_weg_grund(spieler_t *sp, karte_t *welt, koord3d pos, waytype_t wt)
+static grund_t *wkz_intern_koord_to_weg_grund(spieler_t *sp, karte_t *welt, koord3d pos, waytype_t wt, bool allow_public = false)
 {
 	// check for valid ground
 	grund_t *gr=welt->lookup(pos);
@@ -300,7 +300,8 @@ static grund_t *wkz_intern_koord_to_weg_grund(spieler_t *sp, karte_t *welt, koor
 		return NULL;
 	}
 	// check for ownership
-	if(gr->get_weg(wt)->ist_entfernbar(sp)!=NULL){
+	if(gr->get_weg(wt)->ist_entfernbar(sp, allow_public) != NULL)
+	{
 		return NULL;
 	}
 	// ok, now we have a valid ground
@@ -828,7 +829,7 @@ const char *wkz_raise_t::move( karte_t *welt, spieler_t *sp, uint16 buttonstate,
 }
 
 
-const char *wkz_raise_t::check( karte_t *welt, spieler_t *, koord3d k )
+const char *wkz_raise_t::check( karte_t *welt, spieler_t *sp, koord3d k )
 {
 	// check for underground mode
 	if (is_dragging  &&  drag_height-1 > grund_t::underground_level) {
@@ -842,6 +843,24 @@ const char *wkz_raise_t::check( karte_t *welt, spieler_t *, koord3d k )
 	sint8 h = gr->get_hoehe() + corner4(gr->get_grund_hang());
 	if (h > grund_t::underground_level) {
 			return "Terraforming not possible\nhere in underground view";
+	}
+	if(welt->lookup_hgt(k.get_2d()) < welt->get_grundwasser() - 1)
+	{
+		return "Cannot terraform in deep water";
+	}
+	for(int n = 0; n < 16; n ++)
+	{
+		const koord pos = k.get_2d().second_neighbours[n] + k.get_2d();
+		const sint8 height = welt->lookup_hgt(pos);
+		if(height < (welt->get_grundwasser()))
+		{
+			return "Cannot terraform in deep water";
+		}
+	}
+	const sint64 cost = welt->get_settings().cst_alter_land;
+	if(!sp->can_afford(-cost))
+	{
+		return CREDIT_MESSAGE;
 	}
 	return NULL;
 }
@@ -887,27 +906,20 @@ const char *wkz_raise_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 
 			if(n>0) 
 			{
-				const sint64 cost =welt->get_settings().cst_alter_land * n;
-				if(sp->can_afford(-cost))
+				const sint64 cost = welt->get_settings().cst_alter_land * n;
+				spieler_t::accounting(sp, cost, pos, COST_CONSTRUCTION);
+				// update image
+				for(int j=-n; j<=n; j++) 
 				{
-					spieler_t::accounting(sp, cost, pos, COST_CONSTRUCTION);
-					// update image
-					for(int j=-n; j<=n; j++) 
+					for(int i=-n; i<=n; i++) 
 					{
-						for(int i=-n; i<=n; i++) 
+						const planquadrat_t* p = welt->lookup(pos + koord(i, j));
+						if (p)  
 						{
-							const planquadrat_t* p = welt->lookup(pos + koord(i, j));
-							if (p)  
-							{
-								grund_t* g = p->get_kartenboden();
-								if (g) g->calc_bild();
-							}
+							grund_t* g = p->get_kartenboden();
+							if (g) g->calc_bild();
 						}
 					}
-				}
-				else
-				{
-					return CREDIT_MESSAGE;
 				}
 			}
 			return !ok ? "Tile not empty." : (n ? NULL : "");
@@ -940,7 +952,7 @@ const char *wkz_lower_t::move( karte_t *welt, spieler_t *sp, uint16 buttonstate,
 }
 
 
-const char *wkz_lower_t::check( karte_t *welt, spieler_t *, koord3d k )
+const char *wkz_lower_t::check( karte_t *welt, spieler_t *sp, koord3d k )
 {
 	// check for underground mode
 	if (is_dragging  &&  drag_height+1 > grund_t::underground_level) {
@@ -954,6 +966,15 @@ const char *wkz_lower_t::check( karte_t *welt, spieler_t *, koord3d k )
 	sint8 h = gr->get_hoehe() + corner4(gr->get_grund_hang()) - 1;
 	if (h > grund_t::underground_level) {
 			return "Terraforming not possible\nhere in underground view";
+	}
+	if(k.z < welt->get_grundwasser())
+	{
+		return "Cannot terraform in deep water";
+	}
+	const sint64 cost = welt->get_settings().cst_alter_land;
+	if(!sp->can_afford(-cost))
+	{
+		return CREDIT_MESSAGE;
 	}
 	return NULL;
 }
@@ -3206,7 +3227,7 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 
 	// underground is checked in work(); if underground only simple stations are allowed
 	// get valid ground
-	grund_t *bd = wkz_intern_koord_to_weg_grund(sp, welt, k, wegtype);
+	grund_t *bd = wkz_intern_koord_to_weg_grund(sp, welt, k, wegtype, (wegtype == road_wt || wegtype == water_wt));
 
 	if(!bd  ||  bd->get_weg_hang()!=hang_t::flach) {
 		// only flat tiles, only one stop per map square

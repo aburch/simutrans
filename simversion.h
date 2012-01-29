@@ -15,19 +15,21 @@
 #define SERVER_SAVEGAME_VER_NR  "0.111.0"
 
 
-#define EXPERIMENTAL_VERSION L"10.5"
-#define NARROW_EXPERIMENTAL_VERSION "10.5"
+#define EXPERIMENTAL_VERSION L"10.8"
+#define NARROW_EXPERIMENTAL_VERSION "10.8"
 #define EXPERIMENTAL_VER_NR ".10"
 #define EXPERIMENTAL_SAVEGAME_VERSION (SAVEGAME_PREFIX SAVEGAME_VER_NR EXPERIMENTAL_VER_NR)
+#define REVISION 108
 
-
-#define RES_VERSION_NUMBER  111, 0, 10, 5
+#define RES_VERSION_NUMBER  111, 0, 10, 8
 
 
 /*********************** Settings related to network games ********************/
 
 /* Server to announce status to */
-#define ANNOUNCE_SERVER "servers.experimental.simutrans.org:80"
+//#define ANNOUNCE_SERVER "servers.experimental.simutrans.org:80"
+// Temporary workaround for DNS problem
+#define ANNOUNCE_SERVER "82.113.155.83:80"
 
 /* Relative URL of the announce function on server */
 #define ANNOUNCE_URL "/announce"

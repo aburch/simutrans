@@ -8,7 +8,7 @@ Prop-Latin1.bdf
 #                             Language: it Italiano                            #
 #                             Encoding: ISO-8859-1                             #
 #                            Font : Prop-Latin1.bdf                            #
-#                           Date Created: 18.09 2011                           #
+#                           Date Created: 20.01 2012                           #
 #                                                                              #
 #                                   authors:                                   #
 #                                    - Dwachs                                  #
@@ -205,6 +205,8 @@ On narrowgauge track only!\n
 Solo su linee a scartamento ridotto!\n
 Only one transformer per factory!
 Solo un trasformatore per fabbrica!
+Only public player can lock games!
+Solo il giocatore pubblico può bloccare i giochi!
 Planes are not available yet!
 Aerei non ancora disponibili.
 Post muss neben\nHaltestelle\nliegen!\n
@@ -213,6 +215,8 @@ Protocoll error (expecting game)
 Errore nel protocollo (aspettando il gioco)
 Schiffhalt muss im\nWasser liegen!\n
 Le fermate delle barche\npossono essere piazzate\nsolo sull'acqua\nvicino ad un attracco!\n
+Server busy
+Server sovraccarico
 Server did not respond!
 Il server non risponde!
 Terraforming not possible\nhere in underground view
@@ -274,7 +278,9 @@ Strumenti tram/ferrovia leggera
 %s s\nheadquarter now\nat (%i,%i).
 %s ha costruito una nuova sede.
 %s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
-%s\nha raggiunto\n%i abitanti.
+%s ha sprecato dei\n soldi costruendo un\nnuovo municipio\nquando ha raggiunto\n%i abitanti.
+%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
+%s ha sprecato dei\n soldi costruendo un\nnuovo municipio\nquando ha raggiunto\n%i abitanti.
 Bankrott:\n\nDu bist bankrott.\n
 Bancarotta:\n\nSei fallito!\n
 Congratulation\nScenario was complete in\n%i months %i years.
@@ -354,7 +360,7 @@ via 2 riservata da\nvia 2 riservata da
 \nwith sign/signal\n
 \ncon cartello/segnale\n
 %d buildings\n
-%d edifici
+%d palazzi\n
 %d convois
 %d convogli
 %d Einzelfahrzeuge im Depot
@@ -373,8 +379,6 @@ ha %i anni e %i mesi.
 %s fabbrica %s %s
 %s land %d %s
 %s terreno %d %s
-%s\nspeed %i\nmax_speed %i\ndx:%i dy:%i
-%s\nvelocità %i\nmassima velocità %i\ndx:%i dy:%i
 %s\nwas liquidated.
 %s\nè stato liquidato.
 %u Client(s)\n
@@ -385,8 +389,6 @@ ha %i anni e %i mesi.
 [<em>%C</em>]: %s<br>\n
 <no line>
 <nessuna linea>
-1 convoi
-1 convoglio
 1 Einzelfahrzeug im Depot
 1 veicolo in deposito
 1LIGHT_CHOOSE
@@ -515,6 +517,8 @@ Blockstrecke ist\nbelegt\n
 Questo tratto di\nlinea è usato\nda un altro treno\n
 Boden
 Terreno
+Boost (%)
+Incremento (%)
 Bruecke
 Ponte
 Brueckenboden
@@ -607,8 +611,6 @@ CityLimit
 Limiti città
 cl_title
 Lista veicoli
-cl_txt_filter
-Filtro:
 cl_txt_sort
 Ordina per:
 clf_chk_aircrafts
@@ -633,6 +635,8 @@ clf_chk_noroute
 nessuna rotta
 clf_chk_noschedule
 nessun percorso
+clf_chk_obsolete
+obsoleto
 clf_chk_ships
 Imbarcazioni
 clf_chk_spezial_filter
@@ -661,6 +665,10 @@ Company_msg
 Concorrenti
 Comparing pak files ...
 Comparazione pak files...
+Configure AI
+Configura AI
+Configure AI setttings
+Configura impostazioni AI
 Connect factory
 Collega industrie
 Connected stops
@@ -671,6 +679,10 @@ Constructed by
 Disegno di
 Constructed by %s
 Disegno di %s
+construction speed
+velocità di costruzione
+Consumed
+Consumato
 convoi %d of %d
 convoglio %d di %d
 convoi error tooltips
@@ -705,6 +717,8 @@ curlist_title
 Lista attrazioni
 Currently playing:
 Brano in esecuzione:
+Customers live in:
+Clienti abitano a:
 deactivated in online mode
 Non attivo online.
 Deccelerate time
@@ -723,6 +737,10 @@ Delete the current stop
 Cancella la fermata corrente
 Delete this file.
 Cancella questo file
+Delivered
+Consegnati
+Demand
+Richiesta
 Demand: %u MW\n
 Domanda %u MW\n
 Denkmal
@@ -733,6 +751,8 @@ Depots
 Depositi
 Destination
 Destinazione
+Destroying map ...
+Distruzione della mappa...
 Details
 Dettagli
 Direkt erreichbare Haltestellen
@@ -771,6 +791,8 @@ enlarge map
 Allarga mappa
 enter a value between %i and %i
 Inserisci un valore tra %i e %i
+Enter address
+Inserire l'indirizzo
 Enter Password
 Inserire Password
 Error
@@ -807,6 +829,8 @@ Fertig
 Fatto
 Filename
 Nome file:
+Filter:
+Filtro:
 Finances of %s
 Finanze di %s
 Finanzen
@@ -853,6 +877,8 @@ Gebaeude
 Edificio
 General
 Generale
+Generated
+Generati
 Generation: %u MW\n
 Generazione: %u MW\n
 Gewicht
@@ -897,6 +923,8 @@ hide all building
 Nascondi edifici
 hide city building
 Nascondi edifici città
+hide objects under cursor
+nascondi gli oggetti sotto il cursore
 hide station names
 nascondi nomi stazioni
 hide transparent
@@ -1071,6 +1099,8 @@ maglev_track
 Linea maglev
 Maglevdepot
 Deposito maglev
+Mail Demand %d\n
+Richiesta di posta %d\n
 Mailbox
 Centro Messaggi
 Mailbox Options
@@ -1093,6 +1123,8 @@ Margin (%)
 Margine (%)
 Marker
 Cartello
+Max Boost (%)
+Massimo incremento (%)
 Max income:
 Guadagno max:
 Max. speed:
@@ -1229,6 +1261,8 @@ Only first %d differing paks reported. There are probably more.
 Solo i primi %d paks differenti sono segnalati. Probabilmente le differenze sono di più.
 Only land chains
 Solo catene di campagna
+Only show goods which are currently handled by factories
+Mostra solo i beni che sono attualmente gestiti dalle fabbriche
 open
 apri
 Operation
@@ -1259,12 +1293,16 @@ Passagierziele
 Destinazioni passeggeri/posta
 Passenger AI
 Passeggeri IA
+Passenger Demand %d\n
+Richiesta di passeggeri %d\n
 Passengers %d %c, %d %c, %d no route
 Passeggeri %d %c, %d %c, %d non serviti
 Password
 Password:
 Pause
 Pausa
+Pax <%i>  Mail <%i>
+Passeggeri <%i> Posta <%i>
 PaxDest
 Destinazioni
 Percent Electricity
@@ -1311,12 +1349,18 @@ Postrate
 Livello Posta
 Power
 Potenza
+Power (MW)
+Potenza (MW)
 Power:
 Potenza:
 Powerlines
 Elettrodotti
 Problems_msg
 Problemi
+Produced
+Prodotti
+Production/Boost
+Produzione/Incremento
 Produktion
 Produzione
 Profit
@@ -1345,6 +1389,8 @@ Rating
 Valutazione
 ratio_pax
 Rapporto pass.
+Relevant
+Rilevante
 Reliefkarte
 Mappa
 Remove
@@ -1391,6 +1437,8 @@ Revision:
 Revisione:
 road
 strada
+Road toll
+Casello stradale
 road vehicle
 Veicolo da strada
 Roadsign
@@ -1465,6 +1513,8 @@ Show map scale
 Scala valori
 Show obsolete
 Mostra Veicoli Vecchi
+Show only used
+Mostra solo quelli utilizzati
 Show schedules
 Mostra programmi
 show station coverage
@@ -1473,6 +1523,10 @@ show station names
 Mostra nomi stazioni
 show waiting bars
 Visualizza barre di attesa
+show/hide block reservations
+mostra/nascondi blocco prenotazioni
+show/hide object owner
+mostra/nascondi possessore dell'oggetto
 Show/hide statistics
 Mostra/Nascondi Statistiche
 Shows consumer/suppliers for factories
@@ -1493,6 +1547,8 @@ sliced underground mode
 Vista per livelli
 slot empty
 Slot vuoto
+Smart hide objects
+Nascondi oggetti intelligente
 Sort by
 ordina passeggeri/merci per
 Sort waiting list by
@@ -1535,6 +1591,8 @@ Step timeline one year
 Salta un anno.
 Stops
 Fermate
+Storage
+Accoglienza
 Storage capacity
 Capacità di accoglienza
 Strassendepot
@@ -1551,6 +1609,8 @@ suedwest
 Sud-Ovest
 Summer snowline
 0°C estate
+Supplied: %u %%
+Forniti: %u %%
 Suppliers
 Fornitori
 Supply %s at (%i,%i)
@@ -1649,6 +1709,8 @@ upgrade HQ
 Migliora sede
 Usage: %u %%
 Utilizzo: %u %%
+Usage/Output
+Utilizzo/Produzione
 Use beginner mode
 Modalità principiante
 Use timeline start year
@@ -1685,6 +1747,8 @@ waiting
 in attesa
 Waiting for clearance!
 In attesa di permesso!
+Walked
+Camminato
 Warnings_msg
 Traffico
 Wasser
@@ -1975,6 +2039,8 @@ Cost of overdraft interest payments
 Costo interessi sullo scoperto
 Credit limit
 Limite del credito
+Distance\nComfort\nCatering level\nSpeedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h.
+Distanza (km)\nComfort\nLivello catering\nSpeedbonus\nStrada %i km/h, Ferrovia %i km/h\nNavi %i km/h, Aerei %i km/h.
 Distance\nComfort\nSpeedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h.
 Distanza (km)\nComfort\nSpeedbonus\nStrada %i km/h, Ferrovia %i km/h\nNave %i km/h, Aereo %i km/h.
 Electrical consumption: 
@@ -2043,6 +2109,8 @@ max luxury bonus
 Max bonus lusso
 min comfort\nrating
 Minima percentuale comfort
+Name/password
+Login/Password
 Narrow gauge
 Scartamento ridotto
 Next Month:
@@ -2061,6 +2129,8 @@ Obsolescence increase
 Costo aggiuntivo obsolescenza
 on foot)
 a piedi)
+Open water
+Mare aperto
 Operating revenue less operating expenditure
 Ricavo operativo meno costi operativi
 origin
@@ -2207,6 +2277,8 @@ That would exceed\nyour credit limit.
 Questa operazione supera\nil tuo limite di credito.
 The amount of mail transported in the region overall
 Ammontare della posta trasportata nella regione
+The charges incurred or revenues earned by running on other players' ways
+Oneri sostenuti viaggiando su tratte possedute da altri giocatori o ricavi conseguiti da altri giocatori che hanno viaggiato sui tratti di percorso di tua proprietà.
 The convoy has been sent\nto its home depot.\n
 Il convoglio è stato inviato\nal suo deposito base.\n
 The display of the station coverage can either be a transparent rectangle or a series of boxes.

@@ -325,8 +325,6 @@ void haltestelle_t::destroy_all(karte_t *welt)
 
 haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 {
-	self = halthandle_t(this);
-
 	last_loading_step = wl->get_steps();
 
 	welt = wl;
@@ -993,8 +991,6 @@ void haltestelle_t::step()
 					const uint16 thrice_journey = journey_time * 3;
 					const uint16 min_minutes = base_max_minutes / 12;
 					const uint16 max_minutes = base_max_minutes < thrice_journey ? base_max_minutes : max(thrice_journey, min_minutes);
- 
-
 					const uint16 waiting_minutes = convoi_t::get_waiting_minutes(welt->get_zeit_ms() - tmp.arrival_time);
 					if(waiting_minutes > max_minutes)
 					{
@@ -1040,15 +1036,14 @@ void haltestelle_t::step()
 						// If goods/passengers leave, then they must register a waiting time, or else
 						// overcrowded stops would have excessively low waiting times. Because they leave
 						// before they have got transport, the waiting time registered must be increased
-						// by 1.5x to reflect an estimate of how long that they would likely have had to
+						// by 4x to reflect an estimate of how long that they would likely have had to
 						// have waited to get transport.
 						uint16 waiting_minutes = convoi_t::get_waiting_minutes(welt->get_zeit_ms() - tmp.arrival_time);
 						if(waiting_minutes == 0 && welt->get_zeit_ms() != tmp.arrival_time)
 						{						
 							waiting_minutes = 4;
 						}
-						waiting_minutes *= 3;
-						waiting_minutes /= 2;
+						waiting_minutes *= 4;
 						if(waiting_minutes > 0)
 						{
 							add_waiting_time(waiting_minutes, tmp.get_zwischenziel(), tmp.get_besch()->get_catg_index());
@@ -1980,10 +1975,11 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 	}
 #endif
 	
-	if(ware.is_passenger() && is_within_walking_distance_of(ware.get_zwischenziel()) && !connexions[0]->get(ware.get_zwischenziel())->best_convoy.is_bound() && !connexions[0]->get(ware.get_zwischenziel())->best_line.is_bound())
+	if(ware.is_passenger() && is_within_walking_distance_of(ware.get_zwischenziel()) && !connexions[0]->get(ware.get_zwischenziel())->best_convoy.is_bound() && !connexions[0]->get(ware.get_zwischenziel())->best_line.is_bound() && ware.get_last_transfer().is_bound() && ware.get_last_transfer()->get_basis_pos() != ware.get_zwischenziel()->get_basis_pos())
 	{
 		// If this is within walking distance of the next transfer, and there is not a faster way there, walk there.
 		erzeuge_fussgaenger(welt, get_basis_pos3d(), ware.menge);
+		ware.set_last_transfer(self);
 		return ware.get_zwischenziel()->liefere_an(ware);
 	}
 	else
