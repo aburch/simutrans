@@ -2650,7 +2650,12 @@ void convoi_t::vorfahren()
 			bool rev = !reverse_schedule;
 			schedule->increment_index(&stop, &rev);
 			const uint8 last_stop = stop;
-			schedule->eintrag[stop].reverse = (state == REVERSING);
+			if(stop < schedule->get_count())
+			{
+				// It might be possible for "stop" to be > the number of 
+				// items in the schedule if the schedule has changed recently.
+				schedule->eintrag[stop].reverse = (state == REVERSING);
+			}
 			const bool check_rev = rev;
 			schedule->increment_index(&stop, &rev);
 			counter --;
@@ -3820,7 +3825,7 @@ void convoi_t::laden() //"load" (Babelfish)
 			journey_time = 1;
 		}
 		const sint32 journey_distance_meters = journey_distance * welt->get_settings().get_meters_per_tile();
-		const sint32 average_speed = (journey_distance_meters * 3) / (journey_time * 5);
+		const sint32 average_speed = (journey_distance_meters * 3) / ((sint32)journey_time * 5);
 		
 		// For some odd reason, in some cases, laden() is called when the journey time is
 		// excessively low, resulting in perverse average speeds and journey times.
@@ -3913,8 +3918,20 @@ void convoi_t::laden() //"load" (Babelfish)
 					break;
 				}
 			}
-			stop_hh = welt->lookup(fpl->eintrag[stop].pos)->get_halt();
-			previous_stop_hh = welt->lookup(fpl->eintrag[previous_stop].pos)->get_halt();
+			const grund_t* gr_this = welt->lookup(fpl->eintrag[stop].pos);
+			const grund_t* gr_previous = welt->lookup(fpl->eintrag[previous_stop].pos);
+			if(gr_previous && gr_this)
+			{
+				stop_hh = gr_this->get_halt();
+				previous_stop_hh = gr_previous->get_halt();
+			}
+			else
+			{
+				// Something has gone wrong.
+				dbg->error("void convoi_t::laden() ", "Cannot lookup halt");
+				continue;
+			}
+
 			if(previous_stop_hh.get_id() == stop_hh.get_id())
 			{
 				departure_entries_to_remove.append(stop_hh.get_id());
@@ -4318,7 +4335,6 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 		}
 	}
 	
-	const sint64 TEST_revenue = (final_revenue + 1500ll) / 3000ll;
 	return final_revenue;
 }
 
@@ -4478,6 +4494,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	bool second_run = false;
 	uint8 convoy_length = 0;
 	uint16 changed_loading_level = 0;
+	const koord old_last_stop_pos = fahr[0]->last_stop_pos;
 	for(int i = 0; i < anz_vehikel ; i++) 
 	{
 		vehikel_t* v = fahr[i];
@@ -4494,11 +4511,9 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 			v->last_stop_pos = v->get_pos().get_2d();
 			//Unload
 			v->current_revenue = 0;
-			freight_info_resort |= v->entladen(halt);
+			changed_loading_level += v->entladen(halt);
 			gewinn += v->current_revenue;
 		}
-
-		changed_loading_level += v->entladen(halt);
 
 		if(!no_load) 
 		{
@@ -4531,7 +4546,13 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	calc_loading();
 	loading_limit = fpl->get_current_eintrag().ladegrad; //"charge degree" (??) (Babelfish)
 	heaviest_vehicle = calc_heaviest_vehicle(); // Bernd Gabriel, Mar 10, 2010: was missing.
-	calc_current_loading_time(changed_loading_level);
+	if(old_last_stop_pos != fahr[0]->get_pos().get_2d())
+	{
+		// Only calculate the loading time once, on arriving at the stop:
+		// otherwise, the change in the vehicle's load will not be calculated
+		// correctly.
+		calc_current_loading_time(changed_loading_level);
+	}
 
 	if(gewinn) 
 	{
@@ -4572,6 +4593,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 					sp->buche(sp->interim_apportioned_revenue, COST_WAY_TOLLS);
 				}
 				besitzer_p->buche(-sp->interim_apportioned_revenue, COST_WAY_TOLLS);
+				book(-sp->interim_apportioned_revenue, CONVOI_PROFIT);
 				welt->get_spieler(i)->interim_apportioned_revenue = 0;
 			}
 		}
@@ -4592,6 +4614,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 					halt->get_besitzer()->buche(port_charge, COST_WAY_TOLLS);
 				}
 				besitzer_p->buche(-port_charge, COST_WAY_TOLLS);
+				book(-port_charge, CONVOI_PROFIT);
 			}
 		}
 		else if(fahr[0]->get_besch()->get_waytype() == air_wt)
@@ -4609,6 +4632,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 					halt->get_besitzer()->buche(port_charge, COST_WAY_TOLLS);
 				}
 				besitzer_p->buche(-port_charge, COST_WAY_TOLLS);
+				book(-port_charge, CONVOI_PROFIT);
 			}
 		}
 	}
@@ -4854,9 +4878,9 @@ void convoi_t::book(sint64 amount, int cost_type)
 	else
 	{
 		// Average types
-		rolling_average[cost_type] += amount;
+		rolling_average[cost_type] += (uint32)amount;
 		rolling_average_count[cost_type] ++;
-		const sint32 tmp = rolling_average[cost_type] / rolling_average_count[cost_type];
+		const sint64 tmp = (sint64)rolling_average[cost_type] / (sint64)rolling_average_count[cost_type];
 		financial_history[0][cost_type] = tmp;
 	}
 	if (line.is_bound()) 
@@ -5811,10 +5835,10 @@ uint32 convoi_t::calc_heaviest_vehicle()
 
 uint32 convoi_t::calc_longest_min_loading_time()
 {
-	uint16 longest = 0;
-	for(uint8 i = 0; i < anz_vehikel; i ++)
+	uint32 longest = 0;
+	for(int i = 0; i < anz_vehikel; i ++)
 	{
-		uint16 tmp = fahr[i]->get_besch()->get_min_loading_time();
+		uint32 tmp = fahr[i]->get_besch()->get_min_loading_time();
 		if(tmp > longest)
 		{
 			longest = tmp;
@@ -5825,10 +5849,10 @@ uint32 convoi_t::calc_longest_min_loading_time()
 
 uint32 convoi_t::calc_longest_max_loading_time()
 {
-	uint16 longest = 0;
-	for(uint8 i = 0; i < anz_vehikel; i ++)
+	uint32 longest = 0;
+	for(int i = 0; i < anz_vehikel; i ++)
 	{
-		uint16 tmp = fahr[i]->get_besch()->get_max_loading_time();
+		uint32 tmp = fahr[i]->get_besch()->get_max_loading_time();
 		if(tmp > longest)
 		{
 			longest = tmp;
@@ -5998,25 +6022,25 @@ void convoi_t::clear_replace()
 
  void convoi_t::calc_current_loading_time(uint16 load_charge)
  {
-	 if(longest_max_loading_time == longest_min_loading_time || load_charge == 0)
-	 {
-		 current_loading_time = longest_min_loading_time;
-		 return;
-	 }
+	if(longest_max_loading_time == longest_min_loading_time || load_charge == 0)
+	{
+		current_loading_time = longest_min_loading_time;
+		return;
+	}
 
-	 uint16 total_capacity = 0;
-	 for(uint8 i = 0; i < anz_vehikel; i ++)
-	 {
+	uint16 total_capacity = 0;
+	for(uint8 i = 0; i < anz_vehikel; i ++)
+	{
 		total_capacity += fahr[i]->get_besch()->get_zuladung();
 		total_capacity += fahr[i]->get_besch()->get_overcrowded_capacity();
-	 }
-	 // Multiply this by 2, as goods/passengers can both board and alight, so
-	 // the maximum load charge is twice the capacity: all alighting, then all
-	 // boarding.
-	 load_charge *= 2;
-	 const uint32 percentage = (load_charge * 100) / total_capacity;
-	 const uint32 difference = ((longest_max_loading_time - longest_min_loading_time) * percentage) / 100;
-	 current_loading_time = difference + longest_min_loading_time;
+	}
+	// Multiply this by 2, as goods/passengers can both board and alight, so
+	// the maximum load charge is twice the capacity: all alighting, then all
+	// boarding.
+	total_capacity *= 2;
+	const sint32 percentage = (load_charge * 100) / total_capacity;
+	const sint32 difference = abs((((sint32)longest_max_loading_time - (sint32)longest_min_loading_time)) * percentage) / 100;
+	current_loading_time = difference + longest_min_loading_time;
  }
 
  bool convoi_t::is_circular_route() const
@@ -6054,8 +6078,8 @@ void convoi_t::clear_replace()
 	 };
  }
 
- void convoi_t::emergency_go_to_depot()
- {
+void convoi_t::emergency_go_to_depot()
+{
 	if(!go_to_depot(true))
 	{
 		// Teleport to depot if cannot get there by normal means.
@@ -6064,9 +6088,17 @@ void convoi_t::clear_replace()
 		{
 			dep = depot_t::find_depot(this->get_pos(), get_depot_type(), get_besitzer(), true);
 		}
-		betrete_depot(dep);
-		dep->convoi_arrived(self, false);
-		state = INITIAL;	
-		fpl->set_aktuell(0);
+		if(dep)
+		{
+			// Only do this if a depot can be found, or else a crash will result.
+			betrete_depot(dep);
+			dep->convoi_arrived(self, false);
+			state = INITIAL;	
+			fpl->set_aktuell(0);
+		}
+		else
+		{
+			dbg->error("void convoi_t::emergency_go_to_depot()", "Could not find a depot to which to send the convoy");
+		}
 	}
- }
+}

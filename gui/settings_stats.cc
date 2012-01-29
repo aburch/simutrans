@@ -447,7 +447,7 @@ void settings_general_stats_t::init(settings_t const* const sets)
 	INIT_NUM( "fast_forward", umgebung_t::max_acceleration, 1, 1000, gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR
 	INIT_BOOL( "numbered_stations", sets->get_numbered_stations() );
-	INIT_NUM( "show_names", umgebung_t::show_names, 0, 3, gui_numberinput_t::AUTOLINEAR, true );
+	INIT_NUM( "show_names", umgebung_t::show_names, 0, 7, gui_numberinput_t::AUTOLINEAR, true );
 	INIT_NUM( "show_month", umgebung_t::show_month, 0, 8, gui_numberinput_t::AUTOLINEAR, true );
 	INIT_BOOL( "add_player_name_to_message", umgebung_t::add_player_name_to_message );
 	SEPERATOR
@@ -646,7 +646,7 @@ void settings_economy_stats_t::init(settings_t const* const sets)
 	INIT_NUM( "used_vehicle_reduction", sets->get_used_vehicle_reduction(), 0, 1000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "toll_runningcost_percentage", sets->get_way_toll_runningcost_percentage(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "toll_waycost_percentage", sets->get_way_toll_waycost_percentage(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
-	INIT_NUM( "way_toll_revenue_percentage", sets->get_way_toll_revenue_percentage(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "toll_revenue_percentage", sets->get_way_toll_revenue_percentage(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR
 
 	INIT_BOOL( "just_in_time", sets->get_just_in_time() );
