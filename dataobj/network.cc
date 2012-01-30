@@ -251,7 +251,7 @@ SOCKET network_open_address( const char *cp, long timeout_ms, const char * &err 
 		}
 		if (  cp1  ) {
 			// IPv6 addresse net:[....]:port
-			tstrncpy( address, cp + 1, cp1 - cp >= sizeof(address) ? sizeof(address) : cp1 - cp);
+			tstrncpy( address, cp + 1, (size_t)(cp1 - cp) >= sizeof(address) ? sizeof(address) : cp1 - cp);
 		}
 		else {
 			// Copy the address part

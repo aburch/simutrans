@@ -108,7 +108,7 @@ uint8 reliefkarte_t::calc_severity_color(sint32 amount, sint32 max_value)
 
 void reliefkarte_t::set_relief_color_clip( sint16 x, sint16 y, uint8 color )
 {
-	if(  x < relief->get_width()  &&  y < relief->get_height()  ) {
+	if(  0<=x  &&  (uint16)x < relief->get_width()  &&  0<=y  &&  (uint16)y < relief->get_height()  ) {
 		relief->at( x, y ) = color;
 	}
 }
