@@ -906,14 +906,15 @@ void spieler_t::rdwr(loadsave_t *file)
 		for(  int year=0;  year<MAX_PLAYER_HISTORY_YEARS;  year++  ) {
 			finance_history_year[year][COST_NETWEALTH] = finance_history_year[year][COST_CASH]+finance_history_year[year][COST_ASSETS];
 			// only revnue minus running costs
-			finance_history_year[year][COST_OPERATING_PROFIT] = finance_history_year[year][COST_INCOME]+finance_history_year[year][COST_VEHICLE_RUN]+finance_history_year[year][COST_MAINTENANCE];
+			finance_history_year[year][COST_OPERATING_PROFIT] = finance_history_year[year][COST_INCOME] + finance_history_year[year][COST_POWERLINES] + finance_history_year[year][COST_VEHICLE_RUN] + finance_history_year[year][COST_MAINTENANCE] + finance_history_year[year][COST_WAY_TOLLS];
+
 			// including also investements into vehicles/infrastructure
 			finance_history_year[year][COST_PROFIT] = finance_history_year[year][COST_INCOME]+finance_history_year[year][COST_VEHICLE_RUN]+finance_history_year[year][COST_MAINTENANCE]+finance_history_year[year][COST_CONSTRUCTION]+finance_history_year[year][COST_NEW_VEHICLE];
 			finance_history_year[year][COST_MARGIN] = calc_margin(finance_history_year[year][COST_OPERATING_PROFIT], finance_history_year[year][COST_INCOME]);
 		}
 		for(  int month=0;  month<MAX_PLAYER_HISTORY_MONTHS;  month++  ) {
 			finance_history_month[month][COST_NETWEALTH] = finance_history_month[month][COST_CASH]+finance_history_month[month][COST_ASSETS];
-			finance_history_month[month][COST_OPERATING_PROFIT] = finance_history_month[month][COST_INCOME]+finance_history_month[month][COST_VEHICLE_RUN]+finance_history_month[month][COST_MAINTENANCE];
+			finance_history_month[month][COST_OPERATING_PROFIT] = finance_history_month[month][COST_INCOME] + finance_history_month[month][COST_POWERLINES] + finance_history_month[month][COST_VEHICLE_RUN] + finance_history_month[month][COST_MAINTENANCE] + finance_history_month[month][COST_WAY_TOLLS];
 			finance_history_month[month][COST_PROFIT] = finance_history_month[month][COST_INCOME]+finance_history_month[month][COST_VEHICLE_RUN]+finance_history_month[month][COST_MAINTENANCE]+finance_history_month[month][COST_CONSTRUCTION]+finance_history_month[month][COST_NEW_VEHICLE];
 			finance_history_month[month][COST_MARGIN] = calc_margin(finance_history_month[month][COST_OPERATING_PROFIT], finance_history_month[month][COST_INCOME]);
 		}
