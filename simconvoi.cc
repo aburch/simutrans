@@ -2730,11 +2730,11 @@ void convoi_t::calc_speedbonus_kmh()
 		// very old vehicles have zero weight ...
 		if(  total_weight>0  ) {
 			// uses weight of full passenger, mail, and special goods cars and current weight of regular goods cars for convoi weight
-			speedbonus_kmh = total_power < total_max_weight ? 1 : min( cnv_min_top_kmh, sqrt_i32(((total_power<<8)/total_max_weight-(1<<8))<<8)*50 >>8 );
+			speedbonus_kmh = total_power < total_max_weight ? 1 : min( cnv_min_top_kmh, sint32( sqrt_i32(((total_power<<8)/total_max_weight-(1<<8))<<8)*50 >>8 ) );
 
 			// convoi overtakers use current actual weight for achievable speed
 			if(  front()->get_overtaker()  ) {
-				max_power_speed = kmh_to_speed( total_power < total_weight ? 1 : min( cnv_min_top_kmh, sqrt_i32(((total_power<<8)/total_weight-(1<<8))<<8)*50 >>8 ) );
+				max_power_speed = kmh_to_speed( total_power < total_weight ? 1 : min( cnv_min_top_kmh, (sint32)( sqrt_i32(((total_power<<8)/total_weight-(1<<8))<<8)*50 >>8 ) ) );
 			}
 		}
 	}
@@ -2745,7 +2745,7 @@ void convoi_t::calc_speedbonus_kmh()
 sint32 convoi_t::get_speedbonus_kmh() const
 {
 	if(  distance_since_last_stop > 0  &&  front()!=NULL  &&  front()->get_waytype() != air_wt  ) {
-		return min( speedbonus_kmh, sum_speed_limit / distance_since_last_stop );
+		return min( speedbonus_kmh, (sint32)(sum_speed_limit / distance_since_last_stop) );
 	}
 	return speedbonus_kmh;
 }

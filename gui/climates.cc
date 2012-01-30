@@ -203,7 +203,7 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		sint16 arctic = 0;
 		for(  int i=desert_climate;  i<=rocky_climate;  i++  ) {
 			if(  komp==climate_borders_ui+i-1  ) {
-				sets->climate_borders[i] = v.i;
+				sets->climate_borders[i] = (sint16)v.i;
 			}
 			if(sets->climate_borders[i]>arctic) {
 				arctic = sets->climate_borders[i];

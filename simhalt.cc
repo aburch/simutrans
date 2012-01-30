@@ -2154,10 +2154,10 @@ void haltestelle_t::make_public_and_join( spieler_t *sp )
 				spieler_t *gb_sp=gb->get_besitzer();
 				sint64 const costs = welt->get_settings().maint_building * gb->get_tile()->get_besch()->get_level();
 				total_costs += costs;
-				spieler_t::add_maintenance( gb_sp, -costs );
+				spieler_t::add_maintenance( gb_sp, (sint32)-costs );
 				gb->set_besitzer(public_owner);
 				gb->set_flag(ding_t::dirty);
-				spieler_t::add_maintenance(public_owner, costs );
+				spieler_t::add_maintenance(public_owner, (sint32)costs );
 			}
 			// ok, valid start, now we can join them
 			for( uint8 i=0;  i<8;  i++  ) {
@@ -2206,11 +2206,11 @@ void haltestelle_t::make_public_and_join( spieler_t *sp )
 				if(public_owner!=gb_sp) {
 					spieler_t *gb_sp=gb->get_besitzer();
 					sint64 const costs = welt->get_settings().maint_building * gb->get_tile()->get_besch()->get_level();
-					spieler_t::add_maintenance( gb_sp, -costs );
+					spieler_t::add_maintenance( gb_sp, (sint32)-costs );
 					spieler_t::accounting(gb_sp, costs*60, gr->get_pos().get_2d(), COST_CONSTRUCTION);
 					gb->set_besitzer(public_owner);
 					gb->set_flag(ding_t::dirty);
-					spieler_t::add_maintenance(public_owner, costs );
+					spieler_t::add_maintenance( public_owner, (sint32)costs );
 				}
 			}
 			// transfer tiles to us

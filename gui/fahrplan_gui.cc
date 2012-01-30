@@ -496,7 +496,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 
 	} else if(komp == &numimp_load) {
 		if (!fpl->empty()) {
-			fpl->eintrag[fpl->get_aktuell()].ladegrad = p.i;
+			fpl->eintrag[fpl->get_aktuell()].ladegrad = (uint8)p.i;
 			update_selection();
 		}
 	} else if(komp == &bt_wait_prev) {

@@ -369,12 +369,12 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	old_omoney.set_text(display_money(COST_OPERATING_PROFIT, str_buf[13], 1));
 
 	// transported goods
-	money_to_string(str_buf[20], sp->get_finance_history_year(0, COST_ALL_TRANSPORTED) );
+	money_to_string(str_buf[20], (double)sp->get_finance_history_year(0, COST_ALL_TRANSPORTED) );
 	str_buf[20][strlen(str_buf[20])-4] = 0;	// remove comma
 	transport.set_text(str_buf[20]);
 	transport.set_color(get_money_colour(COST_ALL_TRANSPORTED, 0));
 
-	money_to_string(str_buf[21], sp->get_finance_history_year(1, COST_ALL_TRANSPORTED) );
+	money_to_string(str_buf[21], (double)sp->get_finance_history_year(1, COST_ALL_TRANSPORTED) );
 	str_buf[21][strlen(str_buf[21])-4] = 0;	// remove comma
 	old_transport.set_text(str_buf[21]);
 	old_transport.set_color(get_money_colour(COST_ALL_TRANSPORTED, 0));

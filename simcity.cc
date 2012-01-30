@@ -1553,7 +1553,7 @@ void stadt_t::neuer_monat( bool recalc_destinations )
 		// computes (1.0 - s[0]/s[1]) * city_history_month[1][HIST_CITICENS]
 #		define comp_factor(s) (city_history_month[1][HIST_CITICENS] *( s[1]-s[0] )) / s[1]
 
-		uint32 factor = comp_stats(pax_stat, mail_stat) ? (comp_stats(good_stat, pax_stat) ? comp_factor(good_stat) : comp_factor(pax_stat)) : comp_factor(mail_stat);
+		uint32 factor = (uint32)( comp_stats(pax_stat, mail_stat) ? (comp_stats(good_stat, pax_stat) ? comp_factor(good_stat) : comp_factor(pax_stat)) : comp_factor(mail_stat) );
 		factor = log10(factor);
 
 		uint16 number_of_cars = simrand( factor * s.get_verkehr_level() ) / 16;
@@ -1613,10 +1613,10 @@ void stadt_t::calc_growth()
 	 */
 	sint64     const(& h)[MAX_CITY_HISTORY] = city_history_month[0];
 	settings_t const&  s           = welt->get_settings();
-	sint32     const   pas         = (h[HIST_PAS_TRANSPORTED]  * (s.get_passenger_multiplier() << 6)) / (h[HIST_PAS_GENERATED]  + 1);
-	sint32     const   mail        = (h[HIST_MAIL_TRANSPORTED] * (s.get_mail_multiplier()      << 6)) / (h[HIST_MAIL_GENERATED] + 1);
+	sint32     const   pas         = (sint32)( (h[HIST_PAS_TRANSPORTED]  * (s.get_passenger_multiplier() << 6)) / (h[HIST_PAS_GENERATED]  + 1) );
+	sint32     const   mail        = (sint32)( (h[HIST_MAIL_TRANSPORTED] * (s.get_mail_multiplier()      << 6)) / (h[HIST_MAIL_GENERATED] + 1) );
 	sint32     const   electricity = 0;
-	sint32     const   goods       = h[HIST_GOODS_NEEDED] == 0 ? 0 : (h[HIST_GOODS_RECIEVED] * (s.get_goods_multiplier() << 6)) / (h[HIST_GOODS_NEEDED]);
+	sint32     const   goods       = (sint32)( h[HIST_GOODS_NEEDED] == 0 ? 0 : (h[HIST_GOODS_RECIEVED] * (s.get_goods_multiplier() << 6)) / (h[HIST_GOODS_NEEDED]) );
 
 	// smaller towns should growth slower to have villages for a longer time
 	sint32 const weight_factor =

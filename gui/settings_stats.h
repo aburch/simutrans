@@ -42,7 +42,7 @@ class settings_t;
 {\
 	width = max(width, proportional_string_width(t)+66);\
 	gui_numberinput_t *ni = new gui_numberinput_t();\
-	ni->init( (a), (b), (c), (d), (e) );\
+	ni->init( (sint32)(a), (b), (c), (d), (e) );\
 	ni->set_pos( koord( 2, ypos ) );\
 	ni->set_groesse( koord( 37+7*max(1,(sint16)(log10((double)(c)+1.0)+0.5)), BUTTON_HEIGHT ) );\
 	numinp.append( ni );\
@@ -61,7 +61,7 @@ class settings_t;
 {\
 	width = max(width, proportional_string_width(t)+66);\
 	gui_numberinput_t *ni = new gui_numberinput_t();\
-	ni->init( (a)/(sint64)100, (b), (c), (d), (e) );\
+	ni->init( (sint32)( (a)/(sint64)100 ), (b), (c), (d), (e) );\
 	ni->set_pos( koord( 2, ypos ) );\
 	ni->set_groesse( koord( 37+7*max(1,(sint16)(log10((double)(c)+1.0)+0.5)), BUTTON_HEIGHT ) );\
 	numinp.append( ni );\

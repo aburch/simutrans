@@ -3324,7 +3324,7 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
 		// do the display
 
 		if(  y_offset>char_yoffset  ) {
-			char_yoffset = y_offset;
+			char_yoffset = (uint8)y_offset;
 		}
 		screen_pos = (y+char_yoffset) * disp_width + x;
 

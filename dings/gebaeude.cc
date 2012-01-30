@@ -302,7 +302,7 @@ bool gebaeude_t::sync_step(long delta_t)
 	}
 	else {
 		// normal animated building
-		anim_time += delta_t;
+		anim_time += (uint16)delta_t;
 		if(anim_time>tile->get_besch()->get_animation_time()) {
 			if(!zeige_baugrube)  {
 
@@ -673,7 +673,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 
 		buf.append("\n");
 		if(get_besitzer()==NULL) {
-			long const v = -welt->get_settings().cst_multiply_remove_haus * (tile->get_besch()->get_level() + 1) / 100;
+			long const v = (long)( -welt->get_settings().cst_multiply_remove_haus * (tile->get_besch()->get_level() + 1) / 100 );
 			buf.printf("\n%s: %ld$\n", translator::translate("Wert"), v);
 		}
 

@@ -5700,9 +5700,9 @@ bool karte_t::interactive(uint32 quit_month)
 					// are we on time?
 					ms_difference = 0;
 					sint64 const difftime = (sint64)next_step_time - dr_time() + ((sint64)nwcheck->server_sync_step - sync_steps - settings.get_server_frames_ahead() - umgebung_t::additional_client_frames_behind) * fix_ratio_frame_time;
-					if(  difftime < 0) {
+					if(  difftime<0  ) {
 						// running ahead
-						next_step_time -= difftime;
+						next_step_time += (uint32)(-difftime);
 					}
 					else {
 						// more gentle catching up

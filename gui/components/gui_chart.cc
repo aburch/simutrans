@@ -137,13 +137,13 @@ void gui_chart_t::zeichnen(koord offset)
 	}
 
 	// draw zero line
-	display_direct_line(offset.x+1, offset.y+baseline, offset.x+groesse.x-2, offset.y+baseline, MN_GREY4);
+	display_direct_line(offset.x+1, offset.y+(KOORD_VAL)baseline, offset.x+groesse.x-2, offset.y+(KOORD_VAL)baseline, MN_GREY4);
 
 	if (show_y_axis) {
 
 		// draw zero number only, if it will not disturb any other printed values!
 		if ((baseline > 18) && (baseline < groesse.y -18)) {
-			display_proportional_clip(offset.x - 4, offset.y+baseline-3, "0", ALIGN_RIGHT, COL_WHITE, true );
+			display_proportional_clip(offset.x - 4, offset.y+(KOORD_VAL)baseline-3, "0", ALIGN_RIGHT, COL_WHITE, true );
 		}
 
 		// display min/max money values
@@ -192,20 +192,20 @@ void gui_chart_t::zeichnen(koord offset)
 					tmp /= 100;
 				}
 				// display marker(box) for financial value
-				display_fillbox_wh_clip(tmpx+factor*(groesse.x / (x_elements - 1))*i-2, offset.y+baseline- (int)(tmp/scale)-2, 5, 5, c.color, true);
+				display_fillbox_wh_clip(tmpx+factor*(groesse.x / (x_elements - 1))*i-2, (KOORD_VAL)(offset.y+baseline- (int)(tmp/scale)-2), 5, 5, c.color, true);
 
 				// display tooltip?
 				if(i==tooltip_n  &&  abs((int)(baseline-(int)(tmp/scale)-tooltipkoord.y))<10) {
-					number_to_string(tooltip, tmp, c.precision);
+					number_to_string(tooltip, (double)tmp, c.precision);
 					win_set_tooltip( get_maus_x()+8, get_maus_y()-12, tooltip );
 				}
 
 				// draw line between two financial markers; this is only possible from the second value on
 				if (i>0) {
 					display_direct_line(tmpx+factor*(groesse.x / (x_elements - 1))*(i-1),
-						offset.y+baseline-(int)(last_year/scale),
+						(KOORD_VAL)( offset.y+baseline-(int)(last_year/scale) ),
 						tmpx+factor*(groesse.x / (x_elements - 1))*(i),
-						offset.y+baseline-(int)(tmp/scale),
+						(KOORD_VAL)( offset.y+baseline-(int)(tmp/scale) ),
 						c.color);
 				}
 				else {
@@ -213,13 +213,13 @@ void gui_chart_t::zeichnen(koord offset)
 					// only print value if not too narrow to min/max/zero
 					if(  c.show_value  ) {
 						if(  umgebung_t::left_to_right_graphs  ) {
-							number_to_string(cmin, tmp, c.precision);
+							number_to_string(cmin, (double)tmp, c.precision);
 							const sint16 width = proportional_string_width(cmin)+7;
-							display_ddd_proportional( tmpx + 8, offset.y+baseline-(int)(tmp/scale)-4, width, 0, COL_GREY4, c.color, cmin, true);
+							display_ddd_proportional( tmpx + 8, (KOORD_VAL)(offset.y+baseline-(int)(tmp/scale)-4), width, 0, COL_GREY4, c.color, cmin, true);
 						}
 						else if(  (baseline-tmp/scale-8) > 0  &&  (baseline-tmp/scale+8) < groesse.y  &&  abs((int)(tmp/scale)) > 9  ) {
-							number_to_string(cmin, tmp, c.precision);
-							display_proportional_clip(tmpx - 4, offset.y+baseline-(int)(tmp/scale)-4, cmin, ALIGN_RIGHT, c.color, true );
+							number_to_string(cmin, (double)tmp, c.precision);
+							display_proportional_clip(tmpx - 4, (KOORD_VAL)(offset.y+baseline-(int)(tmp/scale)-4), cmin, ALIGN_RIGHT, c.color, true );
 						}
 					}
 				}
@@ -236,29 +236,29 @@ void gui_chart_t::zeichnen(koord offset)
 			tmp = ( line.convert ? line.convert(*(line.value)) : *(line.value) );
 			for(  int t=0;  t<line.times;  ++t  ) {
 				// display marker(box) for financial value
-				display_fillbox_wh_clip(tmpx+factor*(groesse.x / (x_elements - 1))*t-2, offset.y+baseline- (int)(tmp/scale)-2, 5, 5, line.color, true);
+				display_fillbox_wh_clip(tmpx+factor*(groesse.x / (x_elements - 1))*t-2, (KOORD_VAL)(offset.y+baseline- (int)(tmp/scale)-2), 5, 5, line.color, true);
 
 				// display tooltip?
 				if(  t==tooltip_n  &&  abs((int)(baseline-(int)(tmp/scale)-tooltipkoord.y))<10  ) {
-					number_to_string(tooltip, tmp, line.precision);
+					number_to_string(tooltip, (double)tmp, line.precision);
 					win_set_tooltip( get_maus_x()+8, get_maus_y()-12, tooltip );
 				}
 				// for the first element print the current value (optionally)
 				// only print value if not too close to min/max/zero
 				if(  t==0  &&  line.show_value  ) {
 					if(  umgebung_t::left_to_right_graphs  ) {
-						number_to_string(cmin, tmp, line.precision);
+						number_to_string(cmin, (double)tmp, line.precision);
 						const sint16 width = proportional_string_width(cmin)+7;
-						display_ddd_proportional( tmpx + 8, offset.y+baseline-(int)(tmp/scale)-4, width, 0, COL_GREY4, line.color, cmin, true);
+						display_ddd_proportional( tmpx + 8, (KOORD_VAL)(offset.y+baseline-(int)(tmp/scale)-4), width, 0, COL_GREY4, line.color, cmin, true);
 					}
 					else if(  (baseline-tmp/scale-8) > 0  &&  (baseline-tmp/scale+8) < groesse.y  &&  abs((int)(tmp/scale)) > 9  ) {
-						number_to_string(cmin, tmp, line.precision);
-						display_proportional_clip(tmpx - 4, offset.y+baseline-(int)(tmp/scale)-4, cmin, ALIGN_RIGHT, line.color, true );
+						number_to_string(cmin, (double)tmp, line.precision);
+						display_proportional_clip(tmpx - 4, (KOORD_VAL)(offset.y+baseline-(int)(tmp/scale)-4), cmin, ALIGN_RIGHT, line.color, true );
 					}
 				}
 			}
 			// display horizontal line that passes through all markers
-			const int y_offset = offset.y + baseline - (int)(tmp/scale);
+			const int y_offset = (int)( offset.y + baseline - (sint64)(tmp/scale) );
 			display_fillbox_wh(tmpx, y_offset, factor*(groesse.x / (x_elements - 1))*(line.times-1), 1, line.color, true);
 		}
 	}
@@ -312,8 +312,8 @@ void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cm
 		}
 	}
 
-	number_to_string(cmin, min, precision);
-	number_to_string(cmax, max, precision);
+	number_to_string(cmin, (double)min, precision);
+	number_to_string(cmax, (double)max, precision);
 
 	// scale: factor to calculate money with, to get y-pos offset
 	*scale = (float)(max - min) / (groesse.y-2);

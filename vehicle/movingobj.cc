@@ -231,7 +231,7 @@ void movingobj_t::rdwr(loadsave_t *file)
 			groundobjtype = simrand(movingobj_typen.get_count());
 		}
 		else {
-			groundobjtype = besch->get_index();
+			groundobjtype = (uint8)besch->get_index();
 		}
 		// if not there, besch will be zero
 		use_calc_height = true;

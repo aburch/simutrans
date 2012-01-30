@@ -1058,7 +1058,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 					}
 				}
 				locality_factor_per_year[k].year = (sint16)test[1];
-				locality_factor_per_year[k].factor = test[2];
+				locality_factor_per_year[k].factor = (uint32)test[2];
 				j++;
 			}
 		}

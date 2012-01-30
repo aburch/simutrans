@@ -198,7 +198,7 @@ uint32 baum_t::create_forest(karte_t *welt, koord new_center, koord wh )
 			const sint32 y_tree_pos = (i-(wh.y>>1));
 
 			const uint64 distance = 1 + ((uint64) sqrt( ((double)x_tree_pos*x_tree_pos*(wh.y*wh.y) + (double)y_tree_pos*y_tree_pos*(wh.x*wh.x))));
-			const uint32 tree_probability = ( 8 * (uint32)((wh.x*wh.x)+(wh.y*wh.y)) ) / distance;
+			const uint32 tree_probability = (uint32)( ( 8 * (uint32)((wh.x*wh.x)+(wh.y*wh.y)) ) / distance );
 
 			if (tree_probability < 38) {
 				continue;
@@ -325,7 +325,7 @@ bool baum_t::register_besch(baum_besch_t *besch)
 // takes care of slopes
 void baum_t::calc_off(uint8 slope, sint8 x_, sint8 y_)
 {
-	sint16 random = get_pos().x + get_pos().y + get_pos().z + slope + (long)this;
+	sint16 random = (sint16)( get_pos().x + get_pos().y + get_pos().z + slope + (long)this );
 	// point on tile (imaginary origin at sw corner, x axis: north, y axis: east
 	sint16 x = x_==-128 ? (random + baumtype) & 31  : x_;
 	sint16 y = y_==-128 ? (random + get_age()) & 31 : y_;
@@ -461,7 +461,7 @@ baum_t::baum_t(karte_t *welt, koord3d pos) : ding_t(welt, pos)
 {
 	// Hajo: auch aeltere Baeume erzeugen
 	geburt = welt->get_current_month() - simrand(703);
-	baumtype = random_tree_for_climate_intern(welt->get_climate(pos.z));
+	baumtype = (uint8)random_tree_for_climate_intern(welt->get_climate(pos.z));
 	season = 0;
 	calc_off( welt->lookup( get_pos())->get_grund_hang() );
 	calc_bild();
@@ -471,7 +471,7 @@ baum_t::baum_t(karte_t *welt, koord3d pos) : ding_t(welt, pos)
 baum_t::baum_t(karte_t *welt, koord3d pos, uint16 type, sint32 age, uint8 slope ) : ding_t(welt, pos)
 {
 	geburt = welt->get_current_month()-age;
-	baumtype = type;
+	baumtype = (uint8)type;
 	season = 0;
 	calc_off( slope );
 	calc_bild();

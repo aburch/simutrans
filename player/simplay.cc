@@ -466,7 +466,7 @@ void spieler_t::buche(sint64 const betrag, koord const pos, player_cost const ty
 	if(betrag != 0) {
 		if(  koord_distance(welt->get_world_position(),pos)<2*(uint32)(display_get_width()/get_tile_raster_width())+3  ) {
 			// only display, if near the screen ...
-			add_message(pos, betrag);
+			add_message(pos, (sint32)betrag);
 
 			// and same for sound too ...
 			if(  betrag>=10000  &&  !welt->is_fast_forward()  ) {
