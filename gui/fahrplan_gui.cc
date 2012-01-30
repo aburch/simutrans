@@ -23,6 +23,8 @@
 
 #include "../boden/grund.h"
 
+#include "../dings/zeiger.h"
+
 #include "../dataobj/fahrplan.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
@@ -41,7 +43,6 @@
 
 char fahrplan_gui_t::no_line[128];	// contains the current translation of "<no line>"
 karte_t *fahrplan_gui_t::welt = NULL;
-
 
 /**
  * Fills buf with description of schedule's i'th entry.
@@ -119,6 +120,7 @@ void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t &buf, karte_t *welt, const 
 
 
 
+zeiger_t *fahrplan_gui_stats_t::aktuell_mark = NULL;
 karte_t *fahrplan_gui_stats_t::welt = NULL;
 cbuffer_t fahrplan_gui_stats_t::buf;
 
@@ -164,12 +166,43 @@ void fahrplan_gui_stats_t::zeichnen(koord offset)
 					else {
 						gr->clear_flag( grund_t::marked );
 					}
+					if(  i==fpl->get_aktuell()  &&  fpl->eintrag[i].pos!=aktuell_mark->get_pos()  ) {
+						if(  grund_t *gr = welt->lookup(aktuell_mark->get_pos())  ) {
+							gr->obj_remove( aktuell_mark );
+						}
+						gr->obj_add( aktuell_mark );
+						aktuell_mark->set_pos( fpl->eintrag[i].pos );
+					}
+					gr->set_flag( grund_t::dirty );
 				}
 
 			}
 			set_groesse( koord(width+16,fpl->get_count() * (LINESPACE + 1) ) );
 		}
 	}
+}
+
+
+
+fahrplan_gui_stats_t::fahrplan_gui_stats_t(karte_t* w, spieler_t *s)
+{
+	welt = w;
+	fpl = NULL;
+	sp = s;
+	if(  aktuell_mark==NULL  ) {
+		aktuell_mark = new zeiger_t( welt, koord3d::invalid, NULL );
+		aktuell_mark->set_bild( werkzeug_t::general_tool[WKZ_FAHRPLAN_ADD]->cursor );
+	}
+}
+
+
+
+fahrplan_gui_stats_t::~fahrplan_gui_stats_t()
+{
+	if(  grund_t *gr = welt->lookup(aktuell_mark->get_pos())  ) {
+		gr->obj_remove(aktuell_mark);
+	}
+	aktuell_mark->set_pos( koord3d::invalid );
 }
 
 

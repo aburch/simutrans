@@ -58,7 +58,7 @@ public:
 	// otherwise I suggest use the plant tree function (see below)
 	baum_t(karte_t *welt, loadsave_t *file);
 	baum_t(karte_t *welt, koord3d pos);
-	baum_t(karte_t *welt, koord3d pos, uint16 type, sint32 age, uint8 slope );
+	baum_t(karte_t *welt, koord3d pos, uint8 type, sint32 age, uint8 slope );
 	baum_t(karte_t *welt, koord3d pos, const baum_besch_t *besch);
 
 	void rdwr(loadsave_t *file);

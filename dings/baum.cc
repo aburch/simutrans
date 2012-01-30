@@ -468,10 +468,10 @@ baum_t::baum_t(karte_t *welt, koord3d pos) : ding_t(welt, pos)
 }
 
 
-baum_t::baum_t(karte_t *welt, koord3d pos, uint16 type, sint32 age, uint8 slope ) : ding_t(welt, pos)
+baum_t::baum_t(karte_t *welt, koord3d pos, uint8 type, sint32 age, uint8 slope ) : ding_t(welt, pos)
 {
 	geburt = welt->get_current_month()-age;
-	baumtype = (uint8)type;
+	baumtype = type;
 	season = 0;
 	calc_off( slope );
 	calc_bild();
