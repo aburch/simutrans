@@ -35,7 +35,7 @@ class schedule_t;
 class simline_t {
 
 public:
-	enum linetype { line = 0, truckline = 1, trainline = 2, shipline = 3, airline = 4, monorailline=5, tramline=6, maglevline=7, narrowgaugeline=8};
+	enum linetype { line = 0, truckline = 1, trainline = 2, shipline = 3, airline = 4, monorailline=5, tramline=6, maglevline=7, narrowgaugeline=8, MAX_LINE_TYPE};
 
 protected:
 	schedule_t * fpl;

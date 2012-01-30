@@ -137,6 +137,13 @@ static bool compare_lines(line_scrollitem_t* a, line_scrollitem_t* b)
 }
 
 
+/// selected tab per player
+static uint8 last_active_player = MAX_PLAYER_COUNT+1;
+static uint8 selected_tab = 0;
+
+/// selected line per tab
+static linehandle_t selected_line[simline_t::MAX_LINE_TYPE];
+
 // Hajo: 17-Jan-04: changed layout to make components fit into
 // a width of 400 pixels -> original size was unuseable in 640x480
 schedule_list_gui_t::schedule_list_gui_t(spieler_t *sp_) :
@@ -157,6 +164,15 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t *sp_) :
 	scl.set_pos(koord(0,1));
 	scl.set_highlight_color(sp->get_player_color1()+1);
 	scl.add_listener(this);
+
+	// reset selected tab / line if player changed
+	if (last_active_player != sp->get_player_nr()) {
+		last_active_player = sp->get_player_nr();
+		selected_tab = 0;
+		for(uint i=0; i<lengthof(selected_line); i++) {
+			selected_line[i] = linehandle_t();
+		}
+	}
 
 	// tab panel
 	tabs.set_pos(koord(11,5));
@@ -267,7 +283,17 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t *sp_) :
 		add_komponente(filterButtons + i);
 	}
 
-	update_lineinfo( linehandle_t() );
+	// recover last selected line
+	int index = 0;
+	for(uint i=0; i<max_idx; i++) {
+		if (tabs_to_lineindex[i] == selected_tab) {
+			line = selected_line[ selected_tab ];
+			index = i;
+			break;
+		}
+	}
+	selected_tab = tabs_to_lineindex[i]; // reset if previous selected tab is not there anymore
+	update_lineinfo( line );
 
 	// resize button
 	set_min_windowsize(koord(488, 300));
@@ -275,7 +301,7 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t *sp_) :
 	resize(koord(0,0));
 	resize(koord(0,100));
 
-	build_line_list(0);
+	build_line_list(index);
 }
 
 
@@ -350,9 +376,11 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t 
 		}
 	}
 	else if (komp == &tabs) {
-		update_lineinfo( linehandle_t() );
-		build_line_list(tabs.get_active_tab_index());
-		if (tabs.get_active_tab_index()>0) {
+		int const tab = tabs.get_active_tab_index();
+		selected_tab = tabs_to_lineindex[tab];
+		update_lineinfo( selected_line[selected_tab] );
+		build_line_list(tab);
+		if (tab>0) {
 			bt_new_line.enable();
 		}
 		else {
@@ -367,6 +395,7 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t 
 			// no valid line
 			update_lineinfo(linehandle_t());
 		}
+		selected_line[selected_tab] = line;
 		// brute force: just recalculate whole list on each click to keep it current
 		build_line_list(tabs.get_active_tab_index());
 	}
