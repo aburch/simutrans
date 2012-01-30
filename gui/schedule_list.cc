@@ -292,7 +292,7 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t *sp_) :
 			break;
 		}
 	}
-	selected_tab = tabs_to_lineindex[i]; // reset if previous selected tab is not there anymore
+	selected_tab = tabs_to_lineindex[index]; // reset if previous selected tab is not there anymore
 	update_lineinfo( line );
 
 	// resize button
