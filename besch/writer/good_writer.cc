@@ -25,7 +25,7 @@ void good_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	version += 0x100;
 
 	int pos = 0;
-	uint32 len = 3; // 10 (now 11)
+	uint32 len = 3; // Should end up as 11 for Experimental version 1 combined with Standard version 3.
 
 	// Used only for the old fixed values (no fare stages)
 	const uint16 value = obj.get_int("value", 0);
