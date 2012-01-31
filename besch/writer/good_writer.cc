@@ -6,7 +6,11 @@
 
 #include "good_writer.h"
 
+// For TEST purposes only.
+#include <iostream>
+
 using std::string;
+using std::cout;
 
 void good_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
@@ -51,6 +55,8 @@ void good_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	uint16 staged_values[MAX_FARE_STAGES];
 	uint16 staged_distances[MAX_FARE_STAGES];
 
+	cout << "TEST init";
+	puts("TEST!!");
 	do
 	{
 		char buf_v[40];
@@ -63,8 +69,10 @@ void good_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 		str = obj.get(buf_d);
 		distance_check = !str.empty();
 
+		cout << "TEST cycle.";
 		if (value_check && distance_check)
 		{
+			cout << "TEST hit!";
 			fare_stages++;
 		}
 	} while (value_check && distance_check && fare_stages < MAX_FARE_STAGES);
