@@ -61,7 +61,7 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 
 	add_komponente(&name_input);
 
-	allow_growth.init( button_t::square_state, "Allow city growth", koord(8,104) );
+	allow_growth.init( button_t::square_state, "Allow city growth", koord(8, 4 + (BUTTON_HEIGHT+2) + 8*LINESPACE) );
 	allow_growth.pressed = stadt->get_citygrowth();
 	allow_growth.add_listener( this );
 	add_komponente(&allow_growth);
