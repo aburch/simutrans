@@ -1145,7 +1145,7 @@ server_frames_ahead = 4
 # How much extra delay in command execution on the client side, on top of server_frames_ahead.
 # A larger number can compensate for larger fluctuations in communication latency.
 # This is set by the client side.
-additional_client_frames_behind = 3
+additional_client_frames_behind = 4
 
 # In network mode, there will be a fixed number of screen updates before a step.
 # Reasonable values should result in 2-5 steps per second.
