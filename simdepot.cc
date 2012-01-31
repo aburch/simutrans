@@ -178,7 +178,7 @@ void depot_t::convoi_arrived(convoihandle_t acnv, bool fpl_adjust)
 
 void depot_t::zeige_info()
 {
-	create_win(20, 20, new depot_frame_t(this), w_info, (long)this);
+	create_win( new depot_frame_t(this), w_info, (long)this );
 }
 
 
