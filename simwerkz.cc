@@ -436,13 +436,18 @@ DBG_MESSAGE("wkz_remover_intern()","at (%s)", pos.get_str());
 
 	// marker?
 	label_t* l = gr->find<label_t>();
-	if (l) {
+	if(l) {
 		msg = l->ist_entfernbar(sp);
-		if(msg) {
+		if(msg==NULL) {
+			delete l;
+			return true;
+		}
+		else if(  gr->get_top()==1  ) {
+			// only complain if this is the last object on this tile ...
 			return false;
 		}
-		delete l;
-		return true;
+		msg = NULL;
+		// not deletable: skip it
 	}
 
 	// citycar? (we allow always)
@@ -621,6 +626,11 @@ DBG_MESSAGE("wkz_remover()",  "took out powerline");
 	if(zeiger) {
 		gr->obj_remove(zeiger);
 	}
+	// do not delete other players label
+	label_t *label = gr->find<label_t>();
+	if(label) {
+		gr->obj_remove(label);
+	}
 
 	// remove all other stuff (clouds, ...)
 	bool return_ok = false;
@@ -640,6 +650,9 @@ DBG_MESSAGE("wkz_remover()",  "took out powerline");
 	}
 	if(zeiger) {
 		gr->obj_add(zeiger);
+	}
+	if(label) {
+		gr->obj_add(label);
 	}
 
 	// could not delete everything
