@@ -501,7 +501,7 @@ void depot_frame_t::layout(koord *gr)
 	lb_veh_action.set_pos(koord(TOTAL_WIDTH-ABUTTON_WIDTH, PANEL_VSTART + PANEL_HEIGHT + 4));
 
 	bt_veh_action.set_pos(koord(TOTAL_WIDTH-ABUTTON_WIDTH, PANEL_VSTART + PANEL_HEIGHT + 16));
-	bt_veh_action.set_groesse(koord(ABUTTON_WIDTH, ABUTTON_HEIGHT));
+	bt_veh_action.set_groesse(koord(ABUTTON_WIDTH-2, ABUTTON_HEIGHT));
 
 	bt_show_all.set_pos(koord(4, PANEL_VSTART + PANEL_HEIGHT + 14 ));
 	bt_show_all.pressed = show_all;
