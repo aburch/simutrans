@@ -171,13 +171,14 @@ void fahrplan_gui_stats_t::zeichnen(koord offset)
 						gr->clear_flag( grund_t::marked );
 					}
 					if(  i==fpl->get_aktuell()  &&  fpl->eintrag[i].pos!=aktuell_mark->get_pos()  ) {
-						if(  grund_t *gr = welt->lookup(aktuell_mark->get_pos())  ) {
-							gr->obj_remove( aktuell_mark );
+						if(  grund_t *old_gr = welt->lookup(aktuell_mark->get_pos())  ) {
+							old_gr->obj_remove( aktuell_mark );
+							old_gr->set_flag( grund_t::dirty );
 						}
 						gr->obj_add( aktuell_mark );
 						aktuell_mark->set_pos( fpl->eintrag[i].pos );
+						gr->set_flag( grund_t::dirty );
 					}
-					gr->set_flag( grund_t::dirty );
 				}
 
 			}
