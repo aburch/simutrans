@@ -113,8 +113,8 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	/*
 	* [SELECT ROUTE]:
 	*/
-	line_selector.set_highlight_color(PLAYER_FLAG | (depot->get_besitzer()->get_player_color1()+1));
 	line_selector.add_listener(this);
+	line_selector.set_highlight_color(depot->get_besitzer()->get_player_color1() + 1);
 	add_komponente(&line_selector);
 	depot->get_besitzer()->simlinemgmt.sort_lines();
 
@@ -216,6 +216,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	bt_show_all.set_tooltip("Show also vehicles that do not match for current action.");
 	add_komponente(&bt_show_all);
 
+	vehicle_filter.set_highlight_color(depot->get_besitzer()->get_player_color1() + 1);
 	vehicle_filter.add_listener(this);
 	add_komponente(&vehicle_filter);
 
@@ -391,7 +392,6 @@ void depot_frame_t::layout(koord *gr)
 	line_selector.set_pos(koord(3, SELECT_VSTART + 14));
 	line_selector.set_groesse(koord(TOTAL_WIDTH - 3, 14));
 	line_selector.set_max_size(koord(TOTAL_WIDTH - 3, LINESPACE*13+2+16));
-	line_selector.set_highlight_color(1);
 
 	/*
 	 * [CONVOI]

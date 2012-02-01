@@ -138,17 +138,26 @@ void fahrplan_gui_stats_t::zeichnen(koord offset)
 		else {
 			for (int i = 0; i < fpl->get_count(); i++) {
 
+				if(  i==fpl->get_aktuell()  ) {
+/*display_vline_wh_clip( offset.x, offset.y+(i*LINESPACE), LINESPACE-1, COL_ORANGE, false );
+display_vline_wh_clip( offset.x+width, offset.y+(i*LINESPACE), LINESPACE-1, COL_ORANGE, false );
+display_fillbox_wh_clip( offset.x, offset.y+(i*LINESPACE), width, 1, COL_ORANGE, false );
+display_fillbox_wh_clip( offset.x, offset.y+(i*(LINESPACE+1))-1, width, 1, COL_ORANGE, false );
+*/
+					display_fillbox_wh_clip( offset.x, offset.y+(i*LINESPACE), get_groesse().x, LINESPACE, sp->get_player_color1()+1, false );
+				}
+
 				buf.clear();
 				buf.printf( "%i) ", i+1 );
 				fahrplan_gui_t::gimme_stop_name( buf, welt, sp, fpl->eintrag[i] );
-				sint16 w = display_proportional_clip(offset.x + 4 + 10, offset.y + i * (LINESPACE + 1), buf, ALIGN_LEFT, COL_BLACK, true);
+				sint16 w = display_proportional_clip(offset.x + 4 + 10, offset.y + i * (LINESPACE + 1), buf, ALIGN_LEFT, i!=fpl->get_aktuell() ? COL_BLACK : COL_WHITE, true);
 				if(  w>width  ) {
 					width = w;
 				}
 
 				// the goto button (right arrow)
-				display_color_img( i!=fpl->get_aktuell() ? button_t::arrow_right_normal : button_t::arrow_right_pushed,
-					offset.x + 2, offset.y + i * (LINESPACE + 1), 0, false, true);
+//				display_color_img( i!=fpl->get_aktuell() ? button_t::arrow_right_normal : button_t::arrow_right_pushed, offset.x + 2, offset.y + i * (LINESPACE + 1), 0, false, true);
+				display_color_img( button_t::arrow_right_normal, offset.x + 2, offset.y + i * (LINESPACE + 1), 0, false, true);
 
 				if(  grund_t *gr = welt->lookup(fpl->eintrag[i].pos)  ) {
 					if(  weg_t * way = gr->get_weg( fpl->get_waytype() )  ) {
