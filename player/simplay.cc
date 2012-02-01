@@ -395,13 +395,15 @@ void spieler_t::calc_finance_history()
 	*/
 	sint64 profit, mprofit;
 	profit = mprofit = 0;
-	for (int i=0; i<MAX_PLAYER_COST; i++) {
+	for (int i=0; i<COST_ASSETS; i++) {
 		// all costs < COST_ASSETS influence profit, so we must sum them up
-		if(i<COST_ASSETS) {
-			profit += finance_history_year[0][i];
-			mprofit += finance_history_month[0][i];
-		}
+		profit += finance_history_year[0][i];
+		mprofit += finance_history_month[0][i];
 	}
+	profit += finance_history_year[0][COST_POWERLINES];
+	profit += finance_history_year[0][COST_WAY_TOLLS];
+	mprofit += finance_history_month[0][COST_POWERLINES];
+	mprofit += finance_history_month[0][COST_WAY_TOLLS];
 
 	finance_history_year[0][COST_PROFIT] = profit;
 	finance_history_month[0][COST_PROFIT] = mprofit;
