@@ -139,11 +139,7 @@ void fahrplan_gui_stats_t::zeichnen(koord offset)
 			for (int i = 0; i < fpl->get_count(); i++) {
 
 				if(  i==fpl->get_aktuell()  ) {
-/*display_vline_wh_clip( offset.x, offset.y+(i*LINESPACE), LINESPACE-1, COL_ORANGE, false );
-display_vline_wh_clip( offset.x+width, offset.y+(i*LINESPACE), LINESPACE-1, COL_ORANGE, false );
-display_fillbox_wh_clip( offset.x, offset.y+(i*LINESPACE), width, 1, COL_ORANGE, false );
-display_fillbox_wh_clip( offset.x, offset.y+(i*(LINESPACE+1))-1, width, 1, COL_ORANGE, false );
-*/
+					// highlite current entry
 					display_fillbox_wh_clip( offset.x, offset.y+(i*LINESPACE), get_groesse().x, LINESPACE, sp->get_player_color1()+1, false );
 				}
 
@@ -156,8 +152,7 @@ display_fillbox_wh_clip( offset.x, offset.y+(i*(LINESPACE+1))-1, width, 1, COL_O
 				}
 
 				// the goto button (right arrow)
-//				display_color_img( i!=fpl->get_aktuell() ? button_t::arrow_right_normal : button_t::arrow_right_pushed, offset.x + 2, offset.y + i * (LINESPACE + 1), 0, false, true);
-				display_color_img( button_t::arrow_right_normal, offset.x + 2, offset.y + i * (LINESPACE + 1), 0, false, true);
+				display_color_img( i!=fpl->get_aktuell() ? button_t::arrow_right_normal : button_t::arrow_right_pushed, offset.x + 2, offset.y + i * (LINESPACE + 1), 0, false, true);
 
 				if(  grund_t *gr = welt->lookup(fpl->eintrag[i].pos)  ) {
 					if(  weg_t * way = gr->get_weg( fpl->get_waytype() )  ) {
