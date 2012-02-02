@@ -1178,13 +1178,13 @@ bool check_pos_win(event_t *ev)
 	}
 
 	// swallow all other events in the infobar
-	if(  y > display_get_height()-16  ) {
+	if(  ev->ev_class != EVENT_KEYBOARD  &&  y > display_get_height()-16  ) {
 		// swallow event
 		return true;
 	}
 
 	// swallow all other events in ticker (if there)
-	if(  show_ticker  &&  y > display_get_height()-32  ) {
+	if(  ev->ev_class != EVENT_KEYBOARD  &&  show_ticker  &&  y > display_get_height()-32  ) {
 		if(  IS_LEFTCLICK(ev)  ) {
 			// goto infowin koordinate, if ticker is active
 			koord p = ticker::get_welt_pos();
