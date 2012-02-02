@@ -98,7 +98,8 @@ const uint8 money_frame_t::cost_type[MAX_PLAYER_COST_BUTTON] =
  */
 const char *money_frame_t::display_money(int type, char *buf, int old)
 {
-	money_to_string(buf, sp->get_finance_history_year(old, type) / 100.0 );
+	const double cost = (year_month_tabs.get_active_tab_index() ? sp->get_finance_history_month(old, type) : sp->get_finance_history_year(old, type)) / 100.0;
+	money_to_string(buf, cost );
 	return(buf);
 }
 
@@ -108,7 +109,7 @@ const char *money_frame_t::display_money(int type, char *buf, int old)
  */
 int money_frame_t::get_money_colour(int type, int old)
 {
-	sint64 i = sp->get_finance_history_year(old, type);
+	sint64 i = (year_month_tabs.get_active_tab_index() ? sp->get_finance_history_month(old, type) : sp->get_finance_history_year(old, type));
 	if (i < 0) return MONEY_MINUS;
 	if (i > 0) return MONEY_PLUS;
 	return COL_YELLOW;
@@ -160,44 +161,12 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	const int top = 30;
 	const int left = 12;
 
-	//CHART YEAR
-	chart.set_pos(koord(1,1));
-	chart.set_groesse(koord(443,120));
-	chart.set_dimension(MAX_PLAYER_HISTORY_YEARS, 10000);
-	chart.set_seed(sp->get_welt()->get_last_year());
-	chart.set_background(MN_GREY1);
-	for (int i = 0; i<MAX_PLAYER_COST_BUTTON; i++) {
-		const int type = cost_type[i];
-		chart.add_curve( cost_type_color[i], sp->get_finance_history_year(), MAX_PLAYER_COST, type, 12, (type < COST_ALL_TRANSPORTED  ||  type==COST_POWERLINES)  ||  type==COST_WAY_TOLLS  ? MONEY: STANDARD, false, true, (type < COST_ALL_TRANSPORTED) ||  type==COST_POWERLINES  ||  type==COST_WAY_TOLLS ? 2 : 0 );
-	}
-	//CHART YEAR END
-
-	//CHART MONTH
-	mchart.set_pos(koord(1,1));
-	mchart.set_groesse(koord(443,120));
-	mchart.set_dimension(MAX_PLAYER_HISTORY_MONTHS, 10000);
-	mchart.set_seed(0);
-	mchart.set_background(MN_GREY1);
-	for (int i = 0; i<MAX_PLAYER_COST_BUTTON; i++) {
-		const int type = cost_type[i];
-		mchart.add_curve( cost_type_color[i], sp->get_finance_history_month(), MAX_PLAYER_COST, type, 12, (type < COST_ALL_TRANSPORTED  ||  type==COST_POWERLINES)  ||  type==COST_WAY_TOLLS  ? MONEY: STANDARD, false, true, (type < COST_ALL_TRANSPORTED) ||  type==COST_POWERLINES  ||  type==COST_WAY_TOLLS ? 2 : 0 );
-	}
-	mchart.set_visible(false);
-	//CHART MONTH END
-
-	// tab (month/year)
-	year_month_tabs.add_tab(&chart, translator::translate("Years"));
-	year_month_tabs.add_tab(&mchart, translator::translate("Months"));
-	year_month_tabs.set_pos(koord(112, top+11*BUTTONSPACE-6));
-	year_month_tabs.set_groesse(koord(443, 125));
-	add_komponente(&year_month_tabs);
-
 	const sint16 tyl_x = left+140+55;
 	const sint16 lyl_x = left+240+55;
 
 	// left column
-	tylabel.set_pos(koord(tyl_x+25,top-1*BUTTONSPACE-2));
-	lylabel.set_pos(koord(lyl_x+25,top-1*BUTTONSPACE-2));
+	tylabel.set_pos(koord(tyl_x+25,top-1*BUTTONSPACE));
+	lylabel.set_pos(koord(lyl_x+25,top-1*BUTTONSPACE));
 
 	imoney.set_pos(koord(tyl_x,top+0*BUTTONSPACE));
 	old_imoney.set_pos(koord(lyl_x,top+0*BUTTONSPACE));
@@ -231,12 +200,43 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	money.set_pos(koord(left+140+335+55, top+8*BUTTONSPACE));
 
 	// return money or else stuff ...
-	warn.set_pos(koord(left+335, top+10*BUTTONSPACE));
+	warn.set_pos(koord(left+335, top+9*BUTTONSPACE));
 	if(sp->get_player_nr()==0  &&  sp->get_welt()->get_scenario()->active()) {
-		scenario.set_pos( koord( 10,0 ) );
+		scenario.set_pos( koord( 10,1 ) );
 		scenario.set_text( sp->get_welt()->get_scenario()->get_description() );
 		add_komponente(&scenario);
 	}
+
+	//CHART YEAR
+	chart.set_pos(koord(105,top+10*BUTTONSPACE+11));
+	chart.set_groesse(koord(455,120));
+	chart.set_dimension(MAX_PLAYER_HISTORY_YEARS, 10000);
+	chart.set_seed(sp->get_welt()->get_last_year());
+	chart.set_background(MN_GREY1);
+	for (int i = 0; i<MAX_PLAYER_COST_BUTTON; i++) {
+		const int type = cost_type[i];
+		chart.add_curve( cost_type_color[i], sp->get_finance_history_year(), MAX_PLAYER_COST, type, 12, (type < COST_ALL_TRANSPORTED  ||  type==COST_POWERLINES)  ||  type==COST_WAY_TOLLS  ? MONEY: STANDARD, false, true, (type < COST_ALL_TRANSPORTED) ||  type==COST_POWERLINES  ||  type==COST_WAY_TOLLS ? 2 : 0 );
+	}
+	//CHART YEAR END
+
+	//CHART MONTH
+	mchart.set_pos(koord(105,top+10*BUTTONSPACE+11));
+	mchart.set_groesse(koord(455,120));
+	mchart.set_dimension(MAX_PLAYER_HISTORY_MONTHS, 10000);
+	mchart.set_seed(0);
+	mchart.set_background(MN_GREY1);
+	for (int i = 0; i<MAX_PLAYER_COST_BUTTON; i++) {
+		const int type = cost_type[i];
+		mchart.add_curve( cost_type_color[i], sp->get_finance_history_month(), MAX_PLAYER_COST, type, 12, (type < COST_ALL_TRANSPORTED  ||  type==COST_POWERLINES)  ||  type==COST_WAY_TOLLS  ? MONEY: STANDARD, false, true, (type < COST_ALL_TRANSPORTED) ||  type==COST_POWERLINES  ||  type==COST_WAY_TOLLS ? 2 : 0 );
+	}
+	//CHART MONTH END
+
+	// tab (month/year)
+	year_month_tabs.add_tab( &year_dummy, translator::translate("Years"));
+	year_month_tabs.add_tab( &month_dummy, translator::translate("Months"));
+	year_month_tabs.set_pos(koord(0, LINESPACE-2));
+	year_month_tabs.set_groesse(koord(lyl_x+25, gui_tab_panel_t::HEADER_VSIZE));
+	add_komponente(&year_month_tabs);
 
 	add_komponente(&conmoney);
 	add_komponente(&nvmoney);
@@ -273,6 +273,9 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	add_komponente(&maintenance_money);
 
 	add_komponente(&warn);
+
+	add_komponente(&chart);
+	add_komponente(&mchart);
 
 	// easier headquarter access
 	old_level = sp->get_headquarter_level();
@@ -339,18 +342,18 @@ money_frame_t::money_frame_t(spieler_t *sp)
 }
 
 
-/**
- * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
- * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
- * in dem die Komponente dargestellt wird.
- * @author Hj. Malthaner
- */
 void money_frame_t::zeichnen(koord pos, koord gr)
 {
 	// Hajo: each label needs its own buffer
 	static char str_buf[26][64];
 
 	sp->calc_finance_history();
+
+	chart.set_visible( year_month_tabs.get_active_tab_index()==0 );
+	mchart.set_visible( year_month_tabs.get_active_tab_index()==1 );
+
+	tylabel.set_text( year_month_tabs.get_active_tab_index() ? "This Month" : "This Year" );
+	lylabel.set_text( year_month_tabs.get_active_tab_index() ? "Last Month" : "Last Year" );
 
 	conmoney.set_text(display_money(COST_CONSTRUCTION, str_buf[0], 0));
 	nvmoney.set_text(display_money(COST_NEW_VEHICLE, str_buf[1], 0));
@@ -500,7 +503,6 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 
 	gui_frame_t::zeichnen(pos, gr);
 }
-
 
 
 bool money_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)

@@ -69,6 +69,8 @@ private:
 	gui_label_t warn;
 	gui_label_t scenario;
 
+	gui_container_t month_dummy, year_dummy;
+
 	/**
 	 * fills buffer (char array) with finance info
 	 * @author Owen Rudge, Hj. Malthaner
