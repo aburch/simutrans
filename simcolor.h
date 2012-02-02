@@ -87,6 +87,7 @@ typedef unsigned char COLOR_VAL;
 #define COL_CONSTRUCTION (110)
 #define COL_PROFIT (6)
 #define COL_TRANSPORTED (171)
+#define COL_MAXSPEED (53)
 
 #define COL_CASH (52)
 #define COL_VEHICLE_ASSETS (63)

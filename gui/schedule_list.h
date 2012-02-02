@@ -3,6 +3,7 @@
 
 #include "gui_frame.h"
 #include "gui_container.h"
+#include "components/gui_label.h"
 #include "components/gui_chart.h"
 #include "components/gui_textinput.h"
 #include "components/gui_scrolled_list.h"
@@ -29,10 +30,11 @@ private:
 
 	button_t bt_new_line, bt_change_line, bt_delete_line, bt_withdraw_line;;
 	gui_container_t cont, cont_haltestellen;
-	gui_scrollpane_t scrolly, scrolly_haltestellen;
+	gui_scrollpane_t scrolly_convois, scrolly_haltestellen;
 	gui_scrolled_list_t scl;
 	gui_speedbar_t filled_bar;
-	gui_textinput_t inp_name;
+	gui_textinput_t inp_name, inp_filter;
+	gui_label_t lbl_filter;
 	gui_chart_t chart;
 	button_t filterButtons[MAX_LINE_COST];
 	gui_tab_panel_t tabs;
@@ -42,6 +44,9 @@ private:
 	uint32 old_line_count;
 	sint32 last_schedule_count;
 	uint32 last_vehicle_count;
+
+	// only show schedules containing ...
+	char schedule_filter[512], old_schedule_filter[512];
 
 	// so even japanese can have long enough names ...
 	char line_name[512], old_line_name[512];

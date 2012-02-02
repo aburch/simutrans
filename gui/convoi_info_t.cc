@@ -50,7 +50,7 @@ static const int cost_type_color[convoi_t::MAX_CONVOI_COST] =
 	COL_OPERATION,
 	COL_PROFIT,
 	COL_DISTANCE,
-	COL_TOLL
+	COL_MAXSPEED
 };
 
 static const bool cost_type_money[convoi_t::MAX_CONVOI_COST] =

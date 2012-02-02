@@ -9,6 +9,7 @@ To be done:
 - more financial history
 - detail on vehicles (like factory_details)
 - city wayobj instead just sidewalks
+- heights in dats
 
 partially done:
 - connection weighted by their intermediate stops => A* for goods routing [A* did not worked out, but intermediate stops may be considered]
