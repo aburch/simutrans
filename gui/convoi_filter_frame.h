@@ -49,80 +49,90 @@ private:
 		}
 	};
 
-    /*
-     * As long we do not have resource scripts, we display make
-     * some tables for the main attributes of each button.
-     */
-    enum { FILTER_BUTTONS=19 };
+	/*
+	 * As long we do not have resource scripts, we display make
+	 * some tables for the main attributes of each button.
+	 */
+	enum { FILTER_BUTTONS=19 };
 
-    static koord filter_buttons_pos[FILTER_BUTTONS];
-    static convoi_frame_t::filter_flag_t filter_buttons_types[FILTER_BUTTONS];
-    static const char *filter_buttons_text[FILTER_BUTTONS];
+	static koord filter_buttons_pos[FILTER_BUTTONS];
+	static convoi_frame_t::filter_flag_t filter_buttons_types[FILTER_BUTTONS];
+	static const char *filter_buttons_text[FILTER_BUTTONS];
 
-    /*
-     * We are bound to this window. All filter states are stored in main_frame.
-     */
-    convoi_frame_t *main_frame;
+	/*
+	 * We are bound to this window. All filter states are stored in main_frame.
+	 */
+	convoi_frame_t *main_frame;
 
-    /*
-     * All gui elements of this dialog:
-     */
-    button_t filter_buttons[FILTER_BUTTONS];
+	/*
+	 * All gui elements of this dialog:
+	 */
+	button_t filter_buttons[FILTER_BUTTONS];
 
-    gui_textinput_t name_filter_input;
+	gui_textinput_t name_filter_input;
 
-    button_t typ_filter_enable;
+	button_t typ_filter_enable;
 
-    button_t ware_alle;
-    button_t ware_keine;
-    button_t ware_invers;
+	button_t ware_alle;
+	button_t ware_keine;
+	button_t ware_invers;
 
-    gui_scrollpane_t ware_scrolly;
-    gui_container_t ware_cont;
+	gui_scrollpane_t ware_scrolly;
+	gui_container_t ware_cont;
 
 public:
-    /**
-     * Konstruktor. Erzeugt alle notwendigen Subkomponenten.
-     * @author V. Meyer
-     */
-    convoi_filter_frame_t(spieler_t *sp, convoi_frame_t *main_frame);
+	/**
+	 * Konstruktor. Erzeugt alle notwendigen Subkomponenten.
+	 * @author V. Meyer
+	 */
+	convoi_filter_frame_t(spieler_t *sp, convoi_frame_t *main_frame);
+	~convoi_filter_frame_t();
 
-		~convoi_filter_frame_t();
+	/*
+	 * Propagate funktion from main_frame for ware_item_t
+	 * @author V. Meyer
+	 */
+	bool get_ware_filter(const ware_besch_t *ware) const { return main_frame->get_ware_filter(ware); }
 
-    /*
-     * Propagate funktion from main_frame for ware_item_t
-     * @author V. Meyer
-     */
-    bool get_ware_filter(const ware_besch_t *ware) const { return main_frame->get_ware_filter(ware); }
+	/*
+	 * Handler for ware_item_t event.
+	 * @author V. Meyer
+	 */
+	void ware_item_triggered(const ware_besch_t *ware);
 
-    /*
-     * Handler for ware_item_t event.
-     * @author V. Meyer
-     */
-    void ware_item_triggered(const ware_besch_t *ware);
+	/**
+	 * Does this window need a min size button in the title bar?
+	 * @return true if such a button is needed
+	 */
+	bool has_min_sizer() const {return true;}
 
-    /**
-     * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
-     * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
-     * in dem die Komponente dargestellt wird.
-     * @author V. Meyer
-     */
-    void zeichnen(koord pos, koord gr);
-
-    /**
-     * Manche Fenster haben einen Hilfetext assoziiert.
-     * @return den Dateinamen für die Hilfe, oder NULL
-     * @author V. Meyer
-     */
-    const char * get_hilfe_datei() const {return "convoi_filter.txt"; }
+	/**
+	 * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
+	 * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
+	 * in dem die Komponente dargestellt wird.
+	 * @author V. Meyer
+	 */
+	void zeichnen(koord pos, koord gr);
 
     /**
-     * This method is called if an action is triggered
-     * @author Hj. Malthaner
-     *
-     * Returns true, if action is done and no more
-     * components should be triggered.
-     * V.Meyer
+     * resize window in response to a resize event
      */
-    bool action_triggered( gui_action_creator_t *komp, value_t extra);
+	void resize(const koord delta);
+
+	/**
+	 * Manche Fenster haben einen Hilfetext assoziiert.
+	 * @return den Dateinamen für die Hilfe, oder NULL
+	 * @author V. Meyer
+	 */
+	const char * get_hilfe_datei() const {return "convoi_filter.txt"; }
+
+	/**
+	 * This method is called if an action is triggered
+	 * @author Hj. Malthaner
+	 *
+	 * Returns true, if action is done and no more
+	 * components should be triggered.
+	 * V.Meyer
+	 */
+	bool action_triggered( gui_action_creator_t *komp, value_t extra);
 };

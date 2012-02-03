@@ -50,7 +50,7 @@ bool halt_list_frame_t::sortreverse = false;
 /**
  * Default filter: keine Ölbohrinseln!
  */
-int halt_list_frame_t::filter_flags = any_filter|typ_filter|frachthof_filter|bushalt_filter|bahnhof_filter|tramstop_filter;
+int halt_list_frame_t::filter_flags = 0;
 
 char halt_list_frame_t::name_filter_value[64] = "";
 
