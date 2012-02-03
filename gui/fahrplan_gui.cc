@@ -155,12 +155,13 @@ void fahrplan_gui_stats_t::zeichnen(koord offset)
 				display_color_img( i!=fpl->get_aktuell() ? button_t::arrow_right_normal : button_t::arrow_right_pushed, offset.x + 2, offset.y + i * (LINESPACE + 1), 0, false, true);
 
 				if(  grund_t *gr = welt->lookup(fpl->eintrag[i].pos)  ) {
-					if(  weg_t * way = gr->get_weg( fpl->get_waytype() )  ) {
+					for(  uint i=0;  i<gr->get_top();  i++  ) {
+						ding_t *d = gr->obj_bei(i);
 						if(  umgebung_t::visualize_schedule  ) {
-							way->set_flag( ding_t::highlite );
+							d->set_flag( ding_t::highlite );
 						}
 						else {
-							way->clear_flag( ding_t::highlite );
+							d->clear_flag( ding_t::highlite );
 						}
 					}
 					// here on water

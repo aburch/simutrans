@@ -1,7 +1,6 @@
 To be done:
 - fixed_maintenance_cost for vehicles (low for trailers/wagons, high for engines,trucksbus,planes)
 - menu_position (left, top, right, bottom?)
-- ownership in minimap
 - loading times for convois (entry loading_time per unit and car; easy change and open more freedom for pak set design)
 - weight limit on ways by axle_load entry in vehicles (to avoid problem when going back and forth with diff. load)
 - busy platform images
@@ -9,7 +8,8 @@ To be done:
 - more financial history
 - detail on vehicles (like factory_details)
 - city wayobj instead just sidewalks
-- heights in dats
+- building/tree heights in dats
+- special colors from pakset
 
 partially done:
 - connection weighted by their intermediate stops => A* for goods routing [A* did not worked out, but intermediate stops may be considered]
