@@ -44,6 +44,10 @@ void ticker::clear_ticker()
 	list.clear();
 }
 
+void ticker::set_redraw_all(const bool b)
+{
+	redraw_all=b;
+}
 
 void ticker::add_msg(const char* txt, koord pos, int color)
 {
@@ -94,20 +98,19 @@ koord ticker::get_welt_pos()
 void ticker::zeichnen(void)
 {
 	if (!list.empty()) {
-		const int start_y=display_get_height()-32;
+		const int start_y=display_get_height()-TICKER_YPOS_BOTTOM;
 		const int width = display_get_width();
 
+		// redraw whole ticker
 		if(redraw_all) {
-			// there should be only a single message, when this is true
-			display_fillbox_wh(0, start_y, width, 1, COL_BLACK, true);
-			display_fillbox_wh(0, start_y+1, width, 15, MN_GREY2, true);
+			redraw_ticker();
 		}
+		// redraw ticker partially
 		else {
-			display_scroll_band( start_y+4, X_DIST, 12 );
-//			display_fillbox_wh(width-X_DIST, start_y, X_DIST, 1, COL_BLACK, true);
-			display_fillbox_wh(width-X_DIST, start_y+1, X_DIST, 15, MN_GREY2, true);
+			display_scroll_band( start_y+4, X_DIST, TICKER_HEIGHT-3 );
+			display_fillbox_wh(width-X_DIST, start_y+1, X_DIST, TICKER_HEIGHT, MN_GREY2, true);
 			// ok, ready for the text
-			PUSH_CLIP(width-X_DIST-1,start_y+1,X_DIST+1,15);
+			PUSH_CLIP(width-X_DIST-1,start_y+1,X_DIST+1,TICKER_HEIGHT);
 			for (slist_iterator_tpl<node> i(list); i.next();) {
 				node* n = &i.access_current();
 				n->xpos -= X_DIST;
@@ -116,15 +119,17 @@ void ticker::zeichnen(void)
 					default_pos = n->pos;
 				}
 			}
-			// remove old news
-			while (!list.empty()  &&  list.front().xpos + list.front().w < 0) {
-				list.remove_first();
-			}
-			if(next_pos>width) {
-				next_pos -= X_DIST;
-			}
 			POP_CLIP();
 		}
+
+		// remove old news
+		while (!list.empty()  &&  list.front().xpos + list.front().w < 0) {
+			list.remove_first();
+		}
+		if(next_pos>width) {
+			next_pos -= X_DIST;
+		}
+
 		redraw_all = false;
 	}
 }
@@ -135,12 +140,12 @@ void ticker::zeichnen(void)
 void ticker::redraw_ticker()
 {
 	if (!list.empty()) {
-		const int start_y=display_get_height()-32;
+		const int start_y=display_get_height()-TICKER_YPOS_BOTTOM;
 		const int width = display_get_width();
 
 		// just draw the ticker grey ... (to be sure ... )
 		display_fillbox_wh(0, start_y, width, 1, COL_BLACK, true);
-		display_fillbox_wh(0, start_y+1, width, 15, MN_GREY2, true);
+		display_fillbox_wh(0, start_y+1, width, TICKER_HEIGHT, MN_GREY2, true);
 		for (slist_iterator_tpl<node> i(list); i.next();) {
 			node* n = &i.access_current();
 			n->xpos -= X_DIST;

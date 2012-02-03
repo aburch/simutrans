@@ -2143,10 +2143,10 @@ bool haltestelle_t::make_public_and_join( spieler_t *sp )
 					// Bernd Gabriel: does anybody reassign the already disappropriated buildings?
 					return false;
 				}
-				spieler_t::add_maintenance( gb_sp, -costs );
+				spieler_t::add_maintenance( gb_sp, (sint32)-costs );
 				gb->set_besitzer(public_owner);
 				gb->set_flag(ding_t::dirty);
-				spieler_t::add_maintenance(public_owner, costs );
+				spieler_t::add_maintenance(public_owner, (sint32)costs );
 			}
 			// ok, valid start, now we can join them
 			for( uint8 i=0;  i<8;  i++  ) {
@@ -2208,10 +2208,11 @@ bool haltestelle_t::make_public_and_join( spieler_t *sp )
 					}
 					
 					spieler_t::add_maintenance( gb_sp, -costs );
+
 					spieler_t::accounting(gb_sp, costs*60, gr->get_pos().get_2d(), COST_CONSTRUCTION);
 					gb->set_besitzer(public_owner);
 					gb->set_flag(ding_t::dirty);
-					spieler_t::add_maintenance(public_owner, costs );
+					spieler_t::add_maintenance( public_owner, (sint32)costs );
 				}
 			}
 			// transfer tiles to us

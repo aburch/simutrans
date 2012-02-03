@@ -226,7 +226,7 @@ void init_perlin_map( sint32 w, sint32 h )
 		{
 			for(  sint32 x=0;  x<map_w;  x++ ) 
 			{
-				map[x+(y*map_w)] = int_noise( x-1, y-1 );
+				map[x+(y*map_w)] = (float)int_noise( x-1, y-1 );
 			}
 		}
 	}

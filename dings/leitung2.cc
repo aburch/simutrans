@@ -482,7 +482,7 @@ pumpe_t::~pumpe_t()
 		
 		fab = NULL;
 	}
-	spieler_t::add_maintenance(get_besitzer(), welt->get_settings().cst_maintain_transformer);
+	spieler_t::add_maintenance(get_besitzer(), (sint32)welt->get_settings().cst_maintain_transformer);
 }
 
 
@@ -520,7 +520,7 @@ void pumpe_t::step(long delta_t)
 void pumpe_t::laden_abschliessen()
 {
 	leitung_t::laden_abschliessen();
-	spieler_t::add_maintenance(get_besitzer(), -welt->get_settings().cst_maintain_transformer);
+	spieler_t::add_maintenance(get_besitzer(), (sint32)-welt->get_settings().cst_maintain_transformer);
 
 	if(fab==NULL  &&  get_net()) {
 		fab = leitung_t::suche_fab_4(get_pos().get_2d());
@@ -609,7 +609,7 @@ senke_t::~senke_t()
 			city->remove_substation(this);
 		}
 	}
-	spieler_t::add_maintenance(get_besitzer(), welt->get_settings().cst_maintain_transformer);
+	spieler_t::add_maintenance(get_besitzer(), (sint32)welt->get_settings().cst_maintain_transformer);
 }
 
 
@@ -886,7 +886,7 @@ bool senke_t::sync_step(long delta_t)
 void senke_t::laden_abschliessen()
 {
 	leitung_t::laden_abschliessen();
-	spieler_t::add_maintenance(get_besitzer(), -welt->get_settings().cst_maintain_transformer);
+	spieler_t::add_maintenance(get_besitzer(), (sint32)-welt->get_settings().cst_maintain_transformer);
 
 	check_industry_connexion();
 

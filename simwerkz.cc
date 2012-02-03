@@ -449,13 +449,18 @@ DBG_MESSAGE("wkz_remover_intern()","at (%s)", pos.get_str());
 
 	// marker?
 	label_t* l = gr->find<label_t>();
-	if (l) {
+	if(l) {
 		msg = l->ist_entfernbar(sp);
-		if(msg) {
+		if(msg==NULL) {
+			delete l;
+			return true;
+		}
+		else if(  gr->get_top()==1  ) {
+			// only complain if this is the last object on this tile ...
 			return false;
 		}
-		delete l;
-		return true;
+		msg = NULL;
+		// not deletable: skip it
 	}
 
 	// citycar? (we allow always)
@@ -672,6 +677,11 @@ DBG_MESSAGE("wkz_remover()",  "took out powerline");
 	if(zeiger) {
 		gr->obj_remove(zeiger);
 	}
+	// do not delete other players label
+	label_t *label = gr->find<label_t>();
+	if(label) {
+		gr->obj_remove(label);
+	}
 
 	// remove all other stuff (clouds, ...)
 	bool return_ok = false;
@@ -691,6 +701,9 @@ DBG_MESSAGE("wkz_remover()",  "took out powerline");
 	}
 	if(zeiger) {
 		gr->obj_add(zeiger);
+	}
+	if(label) {
+		gr->obj_add(label);
 	}
 
 	// could not delete everything
@@ -5417,20 +5430,20 @@ const char *wkz_make_stop_public_t::work( karte_t *welt, spieler_t *sp, koord3d 
 					costs = t->get_besch()->get_wartung();
 					t->set_besitzer( welt->get_spieler(1) );
 				}
-				spieler_t::add_maintenance( w->get_besitzer(), -costs );
+				spieler_t::add_maintenance( w->get_besitzer(), (sint32)-costs );
 				spieler_t::accounting( w->get_besitzer(), -costs*60, gr->get_pos().get_2d(), COST_CONSTRUCTION);
 				w->set_besitzer( welt->get_spieler(1) );
 				w->set_flag(ding_t::dirty);
-				spieler_t::add_maintenance( welt->get_spieler(1), costs );
+				spieler_t::add_maintenance( welt->get_spieler(1), (sint32)costs );
 				// now search for wayobjects
 				for(  uint8 i=1;  i<gr->get_top();  i++  ) {
 					if(  wayobj_t *wo = ding_cast<wayobj_t>(gr->obj_bei(i))  ) {
 						costs = wo->get_besch()->get_wartung();
-						spieler_t::add_maintenance( wo->get_besitzer(), -costs );
+						spieler_t::add_maintenance( wo->get_besitzer(), (sint32)-costs );
 						spieler_t::accounting( wo->get_besitzer(), -costs*60, gr->get_pos().get_2d(), COST_CONSTRUCTION);
 						wo->set_besitzer( welt->get_spieler(1) );
 						wo->set_flag(ding_t::dirty);
-						spieler_t::add_maintenance( welt->get_spieler(1), costs );
+						spieler_t::add_maintenance( welt->get_spieler(1), (sint32)costs );
 					}
 				}
 				// and add message
@@ -5791,7 +5804,7 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 						aktuell = l->get_schedule()->get_aktuell();
 					}
 					cnv->set_line( l );
-					cnv->get_schedule()->set_aktuell(aktuell);
+					cnv->get_schedule()->set_aktuell((uint8)aktuell);
 					cnv->get_schedule()->eingabe_abschliessen();
 				}
 			}
@@ -6376,13 +6389,13 @@ bool wkz_change_traffic_light_t::init( karte_t *welt, spieler_t *sp )
 		if( roadsign_t *rs = gr->find<roadsign_t>()  ) {
 			if(  (  rs->get_besch()->is_traffic_light()  ||  rs->get_besch()->is_private_way()  )  &&  spieler_t::check_owner(rs->get_besitzer(),sp)  ) {
 				if(  ns == 1  ) {
-					rs->set_ticks_ns( ticks );
+					rs->set_ticks_ns( (uint8)ticks );
 				}
 				else if(  ns == 0  ) {
-					rs->set_ticks_ow( ticks );
+					rs->set_ticks_ow( (uint8)ticks );
 				}
 				else if(  ns == 2  ) {
-					rs->set_ticks_offset( ticks );
+					rs->set_ticks_offset( (uint8)ticks );
 				}
 				// update the window
 				if(  rs->get_besch()->is_traffic_light()  ) {
@@ -6468,7 +6481,7 @@ bool wkz_rename_t::init(karte_t* const welt, spieler_t *sp)
 			}
 			while(  *p>0  &&  *p++!=','  ) {
 			}
-			pos.z = id;
+			pos.z = (sint8)id;
 			id = 0;
 			break;
 		default:
@@ -6534,8 +6547,8 @@ bool wkz_rename_t::init(karte_t* const welt, spieler_t *sp)
 			break;
 
 		case 'p':
-			if(  welt->get_spieler(id)  ) {
-				welt->get_spieler(id)->set_name(p);
+			if(  welt->get_spieler((uint8)id)  ) {
+				welt->get_spieler((uint8)id)->set_name(p);
 				return false;
 			}
 

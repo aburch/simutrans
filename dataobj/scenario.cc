@@ -201,7 +201,7 @@ int scenario_t::completed(int player_nr)
 		}
 
 		case TRANSPORT_1000_PAX:
-			return min( 100, (welt->get_spieler(player_nr)->get_finance_history_month(0,COST_TRANSPORTED_PAS)*(sint64)100)/(sint64)factor );
+			return (int)min( 100, (welt->get_spieler(player_nr)->get_finance_history_month(0,COST_TRANSPORTED_PAS)*(sint64)100)/(sint64)factor );
 
 	}
 	return 0;

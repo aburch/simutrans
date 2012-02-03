@@ -347,11 +347,12 @@ bool schedule_t::matches(karte_t *welt, const schedule_t *fpl)
 	// we need to do this that complicated, because the last stop may make the difference
 	uint16 f1=0, f2=0;
 	while(  f1+f2<eintrag.get_count()+fpl->eintrag.get_count()  ) {
+
 		if(		f1<eintrag.get_count()  &&  f2<fpl->eintrag.get_count()
-			&& fpl->eintrag[f2].pos == eintrag[f1].pos 
-			&& fpl->eintrag[f2].ladegrad == eintrag[f1].ladegrad 
-			&& fpl->eintrag[f2].waiting_time_shift == eintrag[f1].waiting_time_shift 
-			&& fpl->eintrag[f2].spacing_shift == eintrag[f1].spacing_shift
+			&& fpl->eintrag[(uint8)f2].pos == eintrag[(uint8)f1].pos 
+			&& fpl->eintrag[(uint8)f2].ladegrad == eintrag[(uint8)f1].ladegrad 
+			&& fpl->eintrag[(uint8)f2].waiting_time_shift == eintrag[(uint8)f1].waiting_time_shift 
+			&& fpl->eintrag[(uint8)f2].spacing_shift == eintrag[(uint8)f1].spacing_shift
 		  ) {
 			// ladegrad/waiting ignored: identical
 			f1++;
@@ -360,7 +361,7 @@ bool schedule_t::matches(karte_t *welt, const schedule_t *fpl)
 		else {
 			bool ok = false;
 			if(  f1<eintrag.get_count()  ) {
-				grund_t *gr1 = welt->lookup(eintrag[f1].pos);
+				grund_t *gr1 = welt->lookup(eintrag[(uint8)f1].pos);
 				if(  gr1  &&  gr1->get_depot()  ) {
 					// skip depot
 					f1++;
@@ -368,7 +369,7 @@ bool schedule_t::matches(karte_t *welt, const schedule_t *fpl)
 				}
 			}
 			if(  f2<fpl->eintrag.get_count()  ) {
-				grund_t *gr2 = welt->lookup(fpl->eintrag[f2].pos);
+				grund_t *gr2 = welt->lookup(fpl->eintrag[(uint8)f2].pos);
 				if(  gr2  &&  gr2->get_depot()  ) {
 					ok = true;
 					f2++;
@@ -516,11 +517,11 @@ bool schedule_t::sscanf_schedule( const char *ptr )
 		struct linieneintrag_t stop = { koord3d(values[0],values[1],values[2]), values[3], values[4], values[5], values[6] };
 #else
 		struct linieneintrag_t stop;
-		stop.pos = koord3d(values[0],values[1],values[2]);
-		stop.ladegrad = values[3];
-		stop.waiting_time_shift = values[4];
+		stop.pos = koord3d(values[0], values[1], (sint8)values[2]);
+		stop.ladegrad = (uint8)values[3];
+		stop.waiting_time_shift = (sint8)values[4];
 		stop.spacing_shift = values[5];
-		stop.reverse = values[6];
+		stop.reverse = (bool)values[6];
 #endif
 		eintrag.append( stop );
 	}

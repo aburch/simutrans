@@ -408,7 +408,7 @@ void loadsave_t::rdwr_byte(sint8 &c)
 	else {
 		sint64 ll = c;
 		rdwr_xml_number( ll, "i8" );
-		c = ll;
+		c = (sint8)ll;
 	}
 }
 
@@ -443,7 +443,7 @@ void loadsave_t::rdwr_short(sint16 &i)
 	else {
 		sint64 ll = i;
 		rdwr_xml_number( ll, "i16" );
-		i = ll;
+		i = (sint16)ll;
 	}
 }
 
@@ -478,7 +478,7 @@ void loadsave_t::rdwr_long(sint32 &l)
 	else {
 		sint64 ll = l;
 		rdwr_xml_number( ll, "i32" );
-		l = ll;
+		l = (sint32)ll;
 	}
 }
 

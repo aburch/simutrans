@@ -333,7 +333,7 @@ bool gebaeude_t::sync_step(long delta_t)
 	}
 	else {
 		// normal animated building
-		anim_time += delta_t;
+		anim_time += (uint16)delta_t;
 		if(anim_time>tile->get_besch()->get_animation_time()) {
 			if(!zeige_baugrube)  {
 

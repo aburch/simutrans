@@ -77,7 +77,7 @@ typedef unsigned char COLOR_VAL;
 #define MONEY_MINUS COL_RED
 
 // used in many dialogues graphs
-#define COL_REVENUE (141)
+#define COL_REVENUE (142)
 #define COL_OPERATION (132)
 #define COL_MAINTENANCE (134)
 #define COL_TOLL (157)
@@ -87,6 +87,7 @@ typedef unsigned char COLOR_VAL;
 #define COL_CONSTRUCTION (110)
 #define COL_PROFIT (6)
 #define COL_TRANSPORTED (171)
+#define COL_MAXSPEED (53)
 
 #define COL_CASH (52)
 #define COL_VEHICLE_ASSETS (63)

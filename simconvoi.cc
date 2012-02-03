@@ -4695,6 +4695,7 @@ void convoi_t::calc_loading()
 	recalc_data=true;
 }
 
+
 /**
  * Schedule convoi for self destruction. Will be executed
  * upon next sync step

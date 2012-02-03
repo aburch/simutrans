@@ -4,6 +4,7 @@
 	ADD: hint text in empty schedules
 	ADD: highlite (land)tiles, which are part of a schedule
 	ADD: F1 open dialog help in all dialogs with a help
+	ADD: only show line names which contains a pattern (optional) and other tunign of dialoges
 
 
 Release of 111.1 (r5115 on 23-Jan-2012):

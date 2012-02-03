@@ -214,6 +214,7 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(karte_t *w, waytype_t wt, signed 
 	bt_show_all.set_tooltip("Show also vehicles that do not match for current action.");
 	add_komponente(&bt_show_all);
 
+	vehicle_filter.set_highlight_color(depot_frame ? depot_frame->get_depot()->get_besitzer()->get_player_color1() + 1 : replace_frame->get_convoy()->get_besitzer()->get_player_color1() + 1);
 	vehicle_filter.add_listener(this);
 	add_komponente(&vehicle_filter);
 

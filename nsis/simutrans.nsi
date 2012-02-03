@@ -23,7 +23,8 @@ InstallDir $PROGRAMFILES\Simutrans
 XPStyle on
 
 ; Request application privileges for Windows Vista
-RequestExecutionLevel admin
+RequestExecutionLevel highest
+
 
 !define MUI_HEADERIMAGE
 !define MUI_HEADERIMAGE_BITMAP "simutranssmall.bmp"
@@ -376,6 +377,11 @@ PageExEnd
 ; If not installed to program dir, ask for a portable installation
 Function CheckForPortableInstall
   StrCpy $multiuserinstall "1"
+  StrLen $1 $PROGRAMFILES
+  StrCpy $0 $INSTDIR $1
+  StrCmp $0 $PROGRAMFILES +4
+  Goto NonPortable
+  ; ask whether this is a protable installation
   StrCmp $INSTDIR $PROGRAMFILES\Simutrans NonPortable
   MessageBox MB_YESNO|MB_ICONINFORMATION "Should this be a portable installation?" IDYES Portable IDNO NonPortable
 Portable:
@@ -485,6 +491,16 @@ Function .oninit
  StrCmp $R0 0 +3
    MessageBox MB_OK|MB_ICONEXCLAMATION "The installer is already running."
    Abort
+
+  ;# call userInfo plugin to get user info.  The plugin puts the result in the stack
+  userInfo::getAccountType
+  pop $0
+  ; compare the result with the string "Admin" to see if the user is admin.
+  ; If match, jump 3 lines down.
+  strCmp $0 "Admin" +3
+  ; we are not admin: default install in a different dir
+  StrCpy $INSTDIR "C:\simutrans"
+  ; ok, we are admin
 FunctionEnd
 
 
@@ -654,8 +670,7 @@ Function DownloadInstallZipWithoutSimutrans
   RMdir /r "$TEMP\simutrans"
   CreateDirectory "$TEMP\simutrans"
 # since we also want to download from addons ...
-   inetc::get $downloadlink "$Temp\$archievename"
-#  NSISdl::download $downloadlink "$Temp\$archievename"
+  inetc::get $downloadlink "$Temp\$archievename"
   Pop $R0 ;Get the return value
   StrCmp $R0 "OK" +3
      MessageBox MB_OK "Download of $archievename failed: $R0"

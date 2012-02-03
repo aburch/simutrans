@@ -489,14 +489,19 @@ void spieler_t::calc_finance_history()
 	*/
 	sint64 profit, mprofit;
 	profit = mprofit = 0;
-	for (int i=0; i<MAX_PLAYER_COST; i++) {
-		// all costs < COST_ASSETS (and also COST_INTEREST) influence profit, so we must sum them up
-		if(i < COST_ASSETS || i == COST_INTEREST) 
-		{
-			profit += finance_history_year[0][i];
-			mprofit += finance_history_month[0][i];
-		}
+
+	for (int i=0; i<COST_ASSETS; i++) {
+		// all costs < COST_ASSETS influence profit, so we must sum them up
+		profit += finance_history_year[0][i];
+		mprofit += finance_history_month[0][i];
+
 	}
+	profit += finance_history_year[0][COST_POWERLINES];
+	profit += finance_history_year[0][COST_WAY_TOLLS];
+	profit += finance_history_year[0][COST_INTEREST];
+	mprofit += finance_history_month[0][COST_POWERLINES];
+	mprofit += finance_history_month[0][COST_WAY_TOLLS];
+	mprofit += finance_history_month[0][COST_INTEREST];
 
 	finance_history_year[0][COST_PROFIT] = profit;
 	finance_history_month[0][COST_PROFIT] = mprofit;
@@ -604,7 +609,7 @@ void spieler_t::buche(sint64 const betrag, koord const pos, player_cost const ty
 	if(betrag != 0) {
 		if(  shortest_distance(welt->get_world_position(),pos)<2*(uint32)(display_get_width()/get_tile_raster_width())+3  ) {
 			// only display, if near the screen ...
-			add_message(pos, betrag);
+			add_message(pos, (sint32)betrag);
 
 			// and same for sound too ...
 			if(  betrag>=10000  &&  !welt->is_fast_forward()  ) {
@@ -1167,14 +1172,15 @@ void spieler_t::rdwr(loadsave_t *file)
 		for(  int year=0;  year<MAX_PLAYER_HISTORY_YEARS;  year++  ) {
 			finance_history_year[year][COST_NETWEALTH] = finance_history_year[year][COST_CASH]+finance_history_year[year][COST_ASSETS];
 			// only revnue minus running costs
-			finance_history_year[year][COST_OPERATING_PROFIT] = finance_history_year[year][COST_INCOME]+finance_history_year[year][COST_VEHICLE_RUN]+finance_history_year[year][COST_MAINTENANCE];
+			finance_history_year[year][COST_OPERATING_PROFIT] = finance_history_year[year][COST_INCOME] + finance_history_year[year][COST_POWERLINES] + finance_history_year[year][COST_VEHICLE_RUN] + finance_history_year[year][COST_MAINTENANCE] + finance_history_year[year][COST_WAY_TOLLS];
+
 			// including also investements into vehicles/infrastructure
 			finance_history_year[year][COST_PROFIT] = finance_history_year[year][COST_INCOME]+finance_history_year[year][COST_VEHICLE_RUN]+finance_history_year[year][COST_MAINTENANCE]+finance_history_year[year][COST_CONSTRUCTION]+finance_history_year[year][COST_NEW_VEHICLE]+finance_history_month[year][COST_INTEREST];
 			finance_history_year[year][COST_MARGIN] = calc_margin(finance_history_year[year][COST_OPERATING_PROFIT], finance_history_year[year][COST_INCOME]);
 		}
 		for(  int month=0;  month<MAX_PLAYER_HISTORY_MONTHS;  month++  ) {
 			finance_history_month[month][COST_NETWEALTH] = finance_history_month[month][COST_CASH]+finance_history_month[month][COST_ASSETS];
-			finance_history_month[month][COST_OPERATING_PROFIT] = finance_history_month[month][COST_INCOME]+finance_history_month[month][COST_VEHICLE_RUN]+finance_history_month[month][COST_MAINTENANCE];
+			finance_history_month[month][COST_OPERATING_PROFIT] = finance_history_month[month][COST_INCOME] + finance_history_month[month][COST_POWERLINES] + finance_history_month[month][COST_VEHICLE_RUN] + finance_history_month[month][COST_MAINTENANCE] + finance_history_month[month][COST_WAY_TOLLS];
 			finance_history_month[month][COST_PROFIT] = finance_history_month[month][COST_INCOME]+finance_history_month[month][COST_VEHICLE_RUN]+finance_history_month[month][COST_MAINTENANCE]+finance_history_month[month][COST_CONSTRUCTION]+finance_history_month[month][COST_NEW_VEHICLE]+finance_history_month[month][COST_INTEREST];
 			finance_history_month[month][COST_MARGIN] = calc_margin(finance_history_month[month][COST_OPERATING_PROFIT], finance_history_month[month][COST_INCOME]);
 		}

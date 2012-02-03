@@ -24,6 +24,9 @@
 #include "../boden/grund.h"
 
 #include "../dataobj/umgebung.h"
+
+#include "../dings/zeiger.h"
+
 #include "../dataobj/fahrplan.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
@@ -42,7 +45,6 @@
 
 char fahrplan_gui_t::no_line[128];	// contains the current translation of "<no line>"
 karte_t *fahrplan_gui_t::welt = NULL;
-
 
 /**
  * Fills buf with description of schedule's i'th entry.
@@ -135,6 +137,7 @@ void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t &buf, karte_t *welt, const 
 
 
 
+zeiger_t *fahrplan_gui_stats_t::aktuell_mark = NULL;
 karte_t *fahrplan_gui_stats_t::welt = NULL;
 cbuffer_t fahrplan_gui_stats_t::buf;
 
@@ -152,17 +155,21 @@ void fahrplan_gui_stats_t::zeichnen(koord offset)
 		else {
 			for (int i = 0; i < fpl->get_count(); i++) {
 
+				if(  i==fpl->get_aktuell()  ) {
+					// highlite current entry
+					display_fillbox_wh_clip( offset.x, offset.y+(i*LINESPACE), get_groesse().x, LINESPACE, sp->get_player_color1()+1, false );
+				}
+
 				buf.clear();
 				buf.printf( "%i) ", i+1 );
 				fahrplan_gui_t::gimme_stop_name( buf, welt, sp, fpl->eintrag[i] );
-				sint16 w = display_proportional_clip(offset.x + 4 + 10, offset.y + i * (LINESPACE + 1), buf, ALIGN_LEFT, COL_BLACK, true);
+				sint16 w = display_proportional_clip(offset.x + 4 + 10, offset.y + i * (LINESPACE + 1), buf, ALIGN_LEFT, i!=fpl->get_aktuell() ? COL_BLACK : COL_WHITE, true);
 				if(  w>width  ) {
 					width = w;
 				}
 
 				// the goto button (right arrow)
-				display_color_img( i!=fpl->get_aktuell() ? button_t::arrow_right_normal : button_t::arrow_right_pushed,
-					offset.x + 2, offset.y + i * (LINESPACE + 1), 0, false, true);
+				display_color_img( i!=fpl->get_aktuell() ? button_t::arrow_right_normal : button_t::arrow_right_pushed, offset.x + 2, offset.y + i * (LINESPACE + 1), 0, false, true);
 
 				if(  grund_t *gr = welt->lookup(fpl->eintrag[i].pos)  ) {
 					if(  weg_t * way = gr->get_weg( fpl->get_waytype() )  ) {
@@ -180,12 +187,44 @@ void fahrplan_gui_stats_t::zeichnen(koord offset)
 					else {
 						gr->clear_flag( grund_t::marked );
 					}
+					if(  i==fpl->get_aktuell()  &&  fpl->eintrag[i].pos!=aktuell_mark->get_pos()  ) {
+						if(  grund_t *old_gr = welt->lookup(aktuell_mark->get_pos())  ) {
+							old_gr->obj_remove( aktuell_mark );
+							old_gr->set_flag( grund_t::dirty );
+						}
+						gr->obj_add( aktuell_mark );
+						aktuell_mark->set_pos( fpl->eintrag[i].pos );
+						gr->set_flag( grund_t::dirty );
+					}
 				}
 
 			}
 			set_groesse( koord(width+16,fpl->get_count() * (LINESPACE + 1) ) );
 		}
 	}
+}
+
+
+
+fahrplan_gui_stats_t::fahrplan_gui_stats_t(karte_t* w, spieler_t *s)
+{
+	welt = w;
+	fpl = NULL;
+	sp = s;
+	if(  aktuell_mark==NULL  ) {
+		aktuell_mark = new zeiger_t( welt, koord3d::invalid, NULL );
+		aktuell_mark->set_bild( werkzeug_t::general_tool[WKZ_FAHRPLAN_ADD]->cursor );
+	}
+}
+
+
+
+fahrplan_gui_stats_t::~fahrplan_gui_stats_t()
+{
+	if(  grund_t *gr = welt->lookup(aktuell_mark->get_pos())  ) {
+		gr->obj_remove(aktuell_mark);
+	}
+	aktuell_mark->set_pos( koord3d::invalid );
 }
 
 
@@ -604,7 +643,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 
 	} else if(komp == &numimp_load) {
 		if (!fpl->empty()) {
-			fpl->eintrag[fpl->get_aktuell()].ladegrad = p.i;
+			fpl->eintrag[fpl->get_aktuell()].ladegrad = (uint8)p.i;
 			update_selection();
 		}
 	} else if(komp == &bt_wait_prev) {
