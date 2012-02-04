@@ -2,6 +2,7 @@
 #define _NETWORK_CMD_INGAME_H_
 
 #include "network_cmd.h"
+#include "pwd_hash.h"
 #include "../simworld.h"
 #include "../tpl/slist_tpl.h"
 #include "../utils/plainstring.h"
@@ -97,6 +98,31 @@ public:
 	uint32 len;
 };
 
+
+/**
+ * nwc_auth_player_t
+ * @from-client: client sends password hash to unlock player / set player password
+ *		 server sends nwc_auth_player_t to sender
+ * @from-server:
+ *		 information whether players are locked / unlocked
+ */
+class nwc_auth_player_t : public network_command_t {
+public:
+	nwc_auth_player_t() : network_command_t(NWC_AUTH_PLAYER), hash(), player_unlocked(0), player_nr(255)  { }
+	nwc_auth_player_t(uint8 nr, const pwd_hash_t& hash_) : network_command_t(NWC_AUTH_PLAYER), hash(hash_), player_unlocked(0), player_nr(nr)  { }
+	virtual bool execute(karte_t *);
+	virtual void rdwr();
+	virtual const char* get_name() { return "nwc_auth_player_t";}
+	pwd_hash_t hash;
+	uint16 player_unlocked;
+	uint8  player_nr;
+
+	/**
+	 * sets unlocked flags for playing at server
+	 */
+	static void init_player_lock_server(karte_t *);
+};
+
 /**
  * commands that have to be executed at a certain sync_step
  */
@@ -150,7 +176,7 @@ private:
  * @from-server:
  *		@data checklist random seed and quickstone next check entries at previous sync_step
  *		clients: check random seed, if check fails disconnect.
- *      the check is done in karte_t::interactive
+ *		the check is done in karte_t::interactive
  */
 class nwc_check_t : public network_world_command_t {
 public:
@@ -166,6 +192,58 @@ public:
 };
 
 /**
+ * commands that need to be executed at a certain syncstep
+ * the command will be cloned at the server and broadcasted to all clients
+ */
+class network_broadcast_world_command_t : public network_world_command_t {
+public:
+	network_broadcast_world_command_t(uint16 id, uint32 sync_step=0, uint32 map_counter=0)
+	: network_world_command_t(id, sync_step, map_counter), exec(false) { }
+
+	virtual void rdwr();
+	virtual bool execute(karte_t *);
+
+	// prepare the command before it will be put in the command queue
+	virtual void pre_execute() { }
+
+	// clones the command to be broadcasted
+	// all validity checks must be done here
+	// it must return a new command
+	// clone() must return NULL to indicate failure
+	virtual network_broadcast_world_command_t* clone(karte_t *) = 0;
+
+	bool is_from_initiator() const { return !exec; }
+private:
+	// at server: true if command needs to be put in command queue
+	// it will be cloned and broadcasted otherwise
+	bool exec;
+};
+
+/**
+ * nwc_chg_player_t (commands that require special authentication checks)
+ * @from-server:
+ *		@data checklist random seed and quickstone next check entries at previous sync_step
+ *		clients: check random seed, if check fails disconnect.
+ *      the check is done in karte_t::interactive
+ */
+class nwc_chg_player_t : public network_broadcast_world_command_t {
+public:
+	nwc_chg_player_t() : network_broadcast_world_command_t(NWC_CHG_PLAYER, 0, 0) { }
+	nwc_chg_player_t(uint32 sync_steps, uint32 map_counter, uint8 cmd_=255, uint8 player_nr_=255, uint16 param_=0)
+	: network_broadcast_world_command_t(NWC_CHG_PLAYER, sync_steps, map_counter), cmd(cmd_), player_nr(player_nr_), param(param_) {};
+	virtual void rdwr();
+	virtual void do_command(karte_t*);
+	// do some special checks
+	virtual network_broadcast_world_command_t* clone(karte_t *);
+	virtual const char* get_name() { return "nwc_chg_player_t"; }
+
+	uint8 cmd;
+	uint8 player_nr;
+	uint16 param;
+	uint32 tool_client_id;
+};
+
+/**
  * nwc_tool_t
  * @from-client: client sends tool init/work
  * @from-server: server sends nwc_tool_t to all clients with step when tool has to be executed
@@ -177,8 +255,7 @@ public:
  *		@data default_param
  *		@data exec (if true executes, else server sends it to clients)
  */
-
-class nwc_tool_t : public network_world_command_t {
+class nwc_tool_t : public network_broadcast_world_command_t {
 public:
 	// to detect desync we sent these infos always together (only valid for tools)
 	checklist_t last_checklist;
@@ -194,12 +271,14 @@ public:
 	virtual ~nwc_tool_t();
 
 	virtual void rdwr();
-	// send to clients or put to command queue (depending on exec)
-	virtual bool execute(karte_t *);
+
+	virtual void pre_execute();
+	// clone performs authentication checks
+	virtual network_broadcast_world_command_t* clone(karte_t *);
+
 	// really executes it, here exec should be true
 	virtual void do_command(karte_t*);
 	virtual const char* get_name() { return "nwc_tool_t"; }
-	bool is_from_initiator() const { return !exec; }
 private:
 	char *default_param;
 	uint32 tool_client_id;
@@ -208,7 +287,6 @@ private:
 	uint8 flags;
 	uint8 player_nr;
 	bool init;
-	bool exec;
 
 	uint8 custom_data_buf[256];
 	memory_rw_t *custom_data;

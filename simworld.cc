@@ -797,6 +797,10 @@ void karte_t::init_felder()
 	scenario = new scenario_t(this);
 
 	nosave_warning = nosave = false;
+
+	if (umgebung_t::server) {
+		nwc_auth_player_t::init_player_lock_server(this);
+	}
 }
 
 
@@ -2301,22 +2305,79 @@ bool karte_t::ebne_planquadrat(spieler_t *sp, koord pos, sint8 hgt, bool keep_wa
 }
 
 
-void karte_t::set_player_password_hash( uint8 player_nr, uint8 *hash )
+void karte_t::store_player_password_hash( uint8 player_nr, const pwd_hash_t& hash )
 {
-	memcpy( player_password_hash[player_nr], hash, 20 );
+	player_password_hash[player_nr] = hash;
 }
 
 
 void karte_t::clear_player_password_hashes()
 {
 	for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
-		MEMZERO(player_password_hash[i]);
+		player_password_hash[i].clear();
 		if (spieler[i]) {
-			spieler[i]->set_unlock(player_password_hash[i]);
+			spieler[i]->check_unlock(player_password_hash[i]);
 		}
 	}
 }
 
+
+/**
+ * network safe method to init new players, change freeplay
+ * @param param player type (human / ai) of new players
+ */
+void karte_t::call_change_player_tool(uint8 cmd, uint8 player_nr, uint16 param)
+{
+	nwc_chg_player_t *nwc = new nwc_chg_player_t(sync_steps, map_counter, cmd, player_nr, param);
+
+	if (umgebung_t::networkmode) {
+		network_send_server(nwc);
+	}
+	else {
+		change_player_tool(cmd, player_nr, param, !get_spieler(1)->is_locked(), true);
+		// update the window
+		ki_kontroll_t* playerwin = (ki_kontroll_t*)win_get_magic(magic_ki_kontroll_t);
+		if (playerwin) {
+			playerwin->update_data();
+		}
+	}
+}
+
+
+bool karte_t::change_player_tool(uint8 cmd, uint8 player_nr, uint16 param, bool public_player_unlocked, bool exec)
+{
+	switch(cmd) {
+		case new_player: {
+			// only public player can start AI
+			if ( (param != spieler_t::HUMAN  &&  !public_player_unlocked)  ||  param >= spieler_t::MAX_AI) {
+				return false;
+			}
+			if (exec) {
+				new_spieler( player_nr, param );
+				// activate/deactivate AI immediately
+				spieler_t *sp = get_spieler(player_nr);
+				if (param != spieler_t::HUMAN  &&  sp) {
+					sp->set_active(true);
+					settings.set_player_active(player_nr, sp->is_active());
+				}
+			}
+			return true;
+		}
+		case toggle_freeplay: {
+			// only public player can change freeplay mode
+			if (!public_player_unlocked  ||  !settings.get_allow_player_change()) {
+				return false;
+			}
+			if (exec) {
+				settings.set_freeplay( !settings.is_freeplay() );
+			}
+			return true;
+		}
+		// unknown command: delete
+		default: ;
+	}
+	return false;
+}
 
 // new tool definition
 void karte_t::set_werkzeug( werkzeug_t *w, spieler_t *sp )
@@ -2327,10 +2388,10 @@ void karte_t::set_werkzeug( werkzeug_t *w, spieler_t *sp )
 	}
 
 	if(  (!w->is_init_network_save()  ||  !w->is_work_network_save())  &&
-		 !(w->get_id()==(WKZ_PWDHASH_TOOL|SIMPLE_TOOL)  ||  w->get_id()==(WKZ_SET_PLAYER_TOOL|SIMPLE_TOOL))  &&
-		 sp  &&  sp->set_unlock(player_password_hash[sp->get_player_nr()])  ) {
+		 !(w->get_id()==(WKZ_SET_PLAYER_TOOL|SIMPLE_TOOL))  &&
+		 sp  &&  sp->is_locked()  ) {
 		// player is currently password protected => request unlock first
-		create_win( -1, -1, new password_frame_t(sp), w_info, (long)(player_password_hash[sp->get_player_nr()]) );
+		create_win( -1, -1, new password_frame_t(sp), w_info, magic_pwd_t + sp->get_player_nr() );
 		return;
 	}
 	w->flags = event_get_last_control_shift();
@@ -4821,10 +4882,18 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 	}
 
 	// restore locked state
-	for(  uint8 i=0;  i<PLAYER_UNOWNED;  i++  ) {
-		if(  spieler[i]  ) {
-			spieler[i]->set_unlock( player_password_hash[i] );
+	// network game this will be done in nwc_sync_t::do_command
+	if(  !umgebung_t::networkmode  ) {
+		for(  uint8 i=0;  i<PLAYER_UNOWNED;  i++  ) {
+			if(  spieler[i]  ) {
+				spieler[i]->check_unlock( player_password_hash[i] );
+			}
 		}
+	}
+	// initialize lock info for local server player
+	// if call from sync command, lock info will be corrected there
+	if(  umgebung_t::server) {
+		nwc_auth_player_t::init_player_lock_server(this);
 	}
 
 	if(  file->get_version()>=102004  ) {

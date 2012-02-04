@@ -212,6 +212,7 @@ SOURCES += dataobj/pakset_info.cc
 SOURCES += dataobj/powernet.cc
 SOURCES += dataobj/ribi.cc
 SOURCES += dataobj/route.cc
+SOURCES += dataobj/pwd_hash.cc
 SOURCES += dataobj/scenario.cc
 SOURCES += dataobj/tabfile.cc
 SOURCES += dataobj/translator.cc

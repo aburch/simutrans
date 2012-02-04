@@ -4544,6 +4544,8 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 
 const char *wkz_lock_game_t::work( karte_t *welt, spieler_t *, koord3d )
 {
+	// tool can never be executed in network mode
+	// as the result depends on the local locked state of public player
 	if (welt->get_spieler(1)->is_locked() || !welt->get_settings().get_allow_player_change()) {
 		return "Only public player can lock games!";
 	}
@@ -5673,53 +5675,6 @@ bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 }
 
 
-// sets the password (hash) for a given player
-bool wkz_change_password_hash_t::init( karte_t *welt, spieler_t *sp)
-{
-	if(  default_param==NULL  ) {
-		return false;
-	}
-	pwd_hash_t new_hash;
-	const char *ptr = default_param;
-	for(  int i=0; i<40;  i++  ) {
-		uint8 nibble;
-		switch(*ptr) {
-			case '0':
-			case '1':
-			case '2':
-			case '3':
-			case '4':
-			case '5':
-			case '6':
-			case '7':
-			case '8':
-			case '9': nibble = *ptr-'0';
-				break;
-			case 'A':
-			case 'B':
-			case 'C':
-			case 'D':
-			case 'E':
-			case 'F': nibble = *ptr-'A'+10;
-				break;
-			default:
-				dbg->error( "wkz_change_password_hash_t::init()", "Password hash too short!" );
-				return false;
-		}
-		ptr ++;
-		if(  i&1 ) {
-			new_hash[i/2] |= nibble;
-		}
-		else {
-			new_hash[i/2] = (nibble<<4);
-		}
-	}
-	sp->get_password_hash() = new_hash;
-	sp->set_unlock( welt->get_player_password_hash(sp->get_player_nr()) );
-	return false;
-}
-
-
 /* Handles all player stuff default_param:
  * [function],[player_id],[state]
  * following command exists:
@@ -5728,7 +5683,7 @@ bool wkz_change_password_hash_t::init( karte_t *welt, spieler_t *sp)
  * 'f' : activates/deactivates freeplay
  * 'c' : change player color
  */
-bool wkz_change_player_t::init( karte_t *welt, spieler_t *sp )
+bool wkz_change_player_t::init( karte_t *welt, spieler_t * )
 {
 	if(  default_param==NULL  ) {
 		dbg->error( "wkz_change_player_t::init()", "nothing to do!" );
@@ -5749,15 +5704,7 @@ bool wkz_change_player_t::init( karte_t *welt, spieler_t *sp )
 	// ok now do our stuff
 	switch(  tool  ) {
 		case 'n': // new player with type state
-			if(  state==spieler_t::HUMAN  ||  sp==welt->get_spieler(1)  ||  !welt->get_spieler(1)->is_locked()  ) {
-				const char *msg = welt->new_spieler( id, state );
-				if(  msg  ) {
-					dbg->error( "wkz_change_player_t::init()", msg );
-				}
-			}
-			else {
-				dbg->error( "wkz_change_player_t::init()", "Only public player can enable AIs!" );
-			}
+			dbg->error( "wkz_change_player_t::init()", "deprecated command called" );
 			break;
 		case 'a': // activate/deactivate AI
 			if(welt->get_spieler(id)  &&  welt->get_spieler(id)->get_ai_id()!=spieler_t::HUMAN) {
@@ -5773,12 +5720,7 @@ bool wkz_change_player_t::init( karte_t *welt, spieler_t *sp )
 			}
 			break;
 		case 'f': // activate/deactivate freeplay
-			if (welt->get_spieler(1)->is_locked() || !welt->get_settings().get_allow_player_change()) {
-				dbg->error( "wkz_change_player_t::init()", "Only public player can enable freeplay!" );
-			}
-			else {
-				welt->get_settings().set_freeplay(!welt->get_settings().is_freeplay());
-			}
+			dbg->error( "wkz_change_player_t::init()", "deprecated command called" );
 			break;
 	}
 

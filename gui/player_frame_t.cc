@@ -18,6 +18,7 @@
 #include "../simcolor.h"
 #include "../simworld.h"
 #include "../simwerkz.h"
+#include "../dataobj/network_cmd_ingame.h"
 #include "../dataobj/umgebung.h"
 #include "../dataobj/translator.h"
 
@@ -87,11 +88,12 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 
 		// password/locked button
 		player_lock[i].init(button_t::box, "", koord(160+1,4+i*2*LINESPACE+1), koord(BUTTON_HEIGHT-2,BUTTON_HEIGHT-2));
-		player_lock[i].background = sp  &&  sp->is_locked() ? COL_RED : COL_GREEN;
+		player_lock[i].background = sp  &&  sp->is_locked() ? (sp->is_unlock_pending() ? COL_YELLOW : COL_RED) : COL_GREEN;
 		player_lock[i].add_listener(this);
 		add_komponente( player_lock+i );
 
 		// income label
+		account_str[i][0] = 0;
 		ai_income[i] = new gui_label_t(account_str[i], MONEY_PLUS, gui_label_t::money);
 		ai_income[i]->set_pos( koord( 261, 8+i*2*LINESPACE ) );
 		add_komponente( ai_income[i] );
@@ -130,9 +132,7 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t p )
 	static char param[16];
 
 	if(  komp==&freeplay  ) {
-		sprintf(param, "f,0,%i", !welt->get_settings().is_freeplay());
-		werkzeug_t::simple_tool[WKZ_SET_PLAYER_TOOL]->set_default_param( param );
-		welt->set_werkzeug( werkzeug_t::simple_tool[WKZ_SET_PLAYER_TOOL], welt->get_active_player() );
+		welt->call_change_player_tool(karte_t::toggle_freeplay, 255, 0);
 		return true;
 	}
 
@@ -141,13 +141,7 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t p )
 			// switch AI on/off
 			if(  welt->get_spieler(i)==NULL  ) {
 				// create
-				sprintf( param, "n,%i,%i", i, player_select[i].get_selection() );
-				werkzeug_t::simple_tool[WKZ_SET_PLAYER_TOOL]->set_default_param( param );
-				welt->set_werkzeug( werkzeug_t::simple_tool[WKZ_SET_PLAYER_TOOL], welt->get_active_player() );
-				// activate
-				sprintf( param, "a,%i,1", i );
-				werkzeug_t::simple_tool[WKZ_SET_PLAYER_TOOL]->set_default_param( param );
-				welt->set_werkzeug( werkzeug_t::simple_tool[WKZ_SET_PLAYER_TOOL], welt->get_active_player() );
+				welt->call_change_player_tool(karte_t::new_player, i, player_select[i].get_selection());
 			}
 			else {
 				// activate
@@ -169,9 +163,11 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t p )
 			break;
 		}
 		if(komp==(player_lock+i)  &&  welt->get_spieler(i)) {
-			// set password
-			create_win( -1, -1, new password_frame_t(welt->get_spieler(i)), w_info, (long)(welt->get_player_password_hash(i)) );
-			player_lock[i].pressed = false;
+			if (!welt->get_spieler(i)->is_unlock_pending()) {
+				// set password
+				create_win( -1, -1, new password_frame_t(welt->get_spieler(i)), w_info, magic_pwd_t + i );
+				player_lock[i].pressed = false;
+			}
 		}
 		if(komp==(player_select+i)) {
 			// make active player
@@ -207,7 +203,7 @@ void ki_kontroll_t::update_data()
 			}
 			// always update locking status
 			player_get_finances[i].background = PLAYER_FLAG | (sp->get_player_color1()+4);
-			player_lock[i].background = sp->is_locked() ? COL_RED : COL_GREEN;
+			player_lock[i].background = sp->is_locked() ? (sp->is_unlock_pending() ? COL_YELLOW : COL_RED) : COL_GREEN;
 			// human players cannot be deactivated
 			if (i>1) {
 				remove_komponente( player_active+i-2 );
@@ -273,9 +269,10 @@ void ki_kontroll_t::zeichnen(koord pos, koord gr)
 			player_active[i-2].pressed = welt->get_spieler(i)!=NULL  &&  welt->get_spieler(i)->is_active();
 		}
 
-		player_lock[i].background = (welt->get_spieler(i)  &&  welt->get_spieler(i)->is_locked()) ? COL_RED : COL_GREEN;
-
 		spieler_t *sp = welt->get_spieler(i);
+
+		player_lock[i].background = sp  &&  sp->is_locked() ? (sp->is_unlock_pending() ? COL_YELLOW : COL_RED) : COL_GREEN;
+
 		if(  sp!=NULL  ) {
 			if (i != 1 && !welt->get_settings().is_freeplay() && sp->get_finance_history_year(0, COST_NETWEALTH) < 0) {
 				ai_income[i]->set_color( MONEY_MINUS );

@@ -1,5 +1,6 @@
 #include "network_socket_list.h"
 #include "network_cmd.h"
+#include "network_cmd_ingame.h"
 #include "network_packet.h"
 #include "umgebung.h"
 
@@ -20,6 +21,7 @@ void socket_info_t::reset()
 	}
 	state = inactive;
 	socket = INVALID_SOCKET;
+	player_unlocked = 0;
 }
 
 
@@ -130,6 +132,7 @@ void socket_list_t::change_state(uint32 id, uint8 new_state)
 {
 	book_state_change(list[id].state, -1);
 	list[id].state = new_state;
+	list[id].player_unlocked = 0;
 	book_state_change(list[id].state, +1);
 }
 
@@ -233,6 +236,38 @@ uint32 socket_list_t::get_client_id( SOCKET sock ){
 		}
 	}
 	return list.get_count();
+}
+
+
+void socket_list_t::unlock_player_all(uint8 player_nr, bool unlock, uint32 except_client)
+{
+// nettool does not know about nwc_auth_player_t
+#ifndef NETTOOL
+	for(uint32 i=0; i<list.get_count(); i++) {
+		if (i!=except_client  &&  (i==0  ||  list[i].state == socket_info_t::playing) ) {
+			uint16 old_player_unlocked = list[i].player_unlocked;
+			if (unlock) {
+				list[i].unlock_player(player_nr);
+			}
+			else {
+				list[i].lock_player(player_nr);
+			}
+			if (old_player_unlocked != list[i].player_unlocked) {
+				dbg->warning("socket_list_t::unlock_player_all", "old = %d  new = %d  id = %d", old_player_unlocked, list[i].player_unlocked, i);
+				// tell the player
+				nwc_auth_player_t *nwc = new nwc_auth_player_t();
+				nwc->player_unlocked = list[i].player_unlocked;
+				if (i==0) {
+					network_send_server(nwc);
+				}
+				else {
+					nwc->send(list[i].socket);
+					delete nwc;
+				}
+			}
+		}
+	}
+#endif
 }
 
 

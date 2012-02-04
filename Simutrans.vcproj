@@ -777,6 +777,10 @@
 				RelativePath=".\gui\privatesign_info.cc"
 				>
 			</File>
+                        <File
+                                RelativePath=".\dataobj\pwd_hash.cc"
+                                >
+                        </File>
 			<File
 				RelativePath=".\dataobj\ribi.cc"
 				>

@@ -257,6 +257,7 @@
     <ClCompile Include="gui\player_frame_t.cc" />
     <ClCompile Include="dataobj\powernet.cc" />
     <ClCompile Include="gui\privatesign_info.cc" />
+    <ClCompile Include="dataobj\pwd_hash.cc" />
     <ClCompile Include="dataobj\ribi.cc" />
     <ClCompile Include="dings\roadsign.cc" />
     <ClCompile Include="besch\reader\roadsign_reader.cc" />

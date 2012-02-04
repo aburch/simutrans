@@ -26,6 +26,7 @@
 
 #include "dataobj/marker.h"
 #include "dataobj/einstellungen.h"
+#include "dataobj/pwd_hash.h"
 
 #include "simplan.h"
 
@@ -299,9 +300,14 @@ private:
 	 * @author Hj. Malthaner
 	 */
 	spieler_t *spieler[MAX_PLAYER_COUNT];   // Human player has index 0 (zero)
-	uint8 player_password_hash[MAX_PLAYER_COUNT][20];
 	spieler_t *active_player;
 	uint8 active_player_nr;
+
+	/**
+	 * locally store password hashes
+	 * will be used after reconnect to a server
+	 */
+	pwd_hash_t player_password_hash[MAX_PLAYER_COUNT];
 
 	/*
 	 * counter for schedules
@@ -550,11 +556,24 @@ public:
 	spieler_t * get_spieler(uint8 n) const { return spieler[n&15]; }
 	spieler_t* get_active_player() const { return active_player; }
 	uint8 get_active_player_nr() const { return active_player_nr; }
-	void set_player_password_hash( uint8 player_nr, uint8 *hash );
-	const uint8 *get_player_password_hash( uint8 player_nr ) const { return player_password_hash[player_nr]; }
 	void switch_active_player(uint8 nr, bool silent);
 	const char *new_spieler( uint8 nr, uint8 type );
+	void store_player_password_hash( uint8 player_nr, const pwd_hash_t& hash );
+	const pwd_hash_t& get_player_password_hash( uint8 player_nr ) const { return player_password_hash[player_nr]; }
 	void clear_player_password_hashes();
+
+	/**
+	 * network safe initiation of new players
+	 */
+	void call_change_player_tool(uint8 cmd, uint8 player_nr, uint16 param);
+
+	enum change_player_tool_cmds { new_player=1, toggle_freeplay=2 };
+	/**
+	 * @param exec: if false checks whether execution is allowed
+	 *              if true executes tool
+	 * @returns whether execution is allowed
+	 */
+	bool change_player_tool(uint8 cmd, uint8 player_nr, uint16 param, bool public_player_unlocked, bool exec);
 
 	// if a schedule is changed, it will increment the schedule counter
 	// every step the haltestelle will check and reroute the goods if needed

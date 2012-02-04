@@ -936,13 +936,6 @@ public:
 	bool is_init_network_save() const OVERRIDE { return false; }
 };
 
-class wkz_change_password_hash_t : public werkzeug_t {
-public:
-	wkz_change_password_hash_t() : werkzeug_t() { id = WKZ_PWDHASH_TOOL | SIMPLE_TOOL; }
-	bool init(karte_t*, spieler_t*) OVERRIDE;
-	bool is_init_network_save() const OVERRIDE { return false; }
-};
-
 // adds a new player of certain type to the map
 class wkz_change_player_t : public werkzeug_t {
 public:

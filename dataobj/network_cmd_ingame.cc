@@ -11,8 +11,10 @@
 #include "../simmenu.h"
 #include "../simsys.h"
 #include "../simversion.h"
+#include "../simwin.h"
 #include "../dataobj/umgebung.h"
 #include "../player/simplay.h"
+#include "../gui/player_frame_t.h"
 #include "../utils/cbuffer_t.h"
 
 // for chdir
@@ -20,10 +22,6 @@
 #include <direct.h>
 #else
 #include <unistd.h>
-#endif
-
-#ifdef DO_NOT_SEND_HASHES
-static vector_tpl<uint16>hashes_ok;	// bit set, if this player on that client is not protected
 #endif
 
 network_command_t* network_command_t::read_from_packet(packet_t *p)
@@ -45,6 +43,8 @@ network_command_t* network_command_t::read_from_packet(packet_t *p)
 		case NWC_CHECK:       nwc = new nwc_check_t(); break;
 		case NWC_PAKSETINFO:  nwc = new nwc_pakset_info_t(); break;
 		case NWC_SERVICE:     nwc = new nwc_service_t(); break;
+		case NWC_AUTH_PLAYER: nwc = new nwc_auth_player_t(); break;
+		case NWC_CHG_PLAYER:  nwc = new nwc_chg_player_t(); break;
 		default:
 			dbg->warning("network_command_t::read_from_socket", "received unknown packet id %d", p->get_id());
 	}
@@ -248,6 +248,93 @@ void nwc_game_t::rdwr()
 	packet->rdwr_long(len);
 }
 
+
+
+void nwc_auth_player_t::rdwr()
+{
+	network_command_t::rdwr();
+	for(uint32 i=0; i<20; i++) {
+		packet->rdwr_byte( hash[i] );
+	}
+	packet->rdwr_byte( player_nr );
+	packet->rdwr_short(player_unlocked);
+}
+
+
+bool nwc_auth_player_t::execute(karte_t *welt)
+{
+	dbg->message("nwc_auth_player_t::execute","plnr = %d  unlock = %d  our_client_id = %d", player_nr, player_unlocked, our_client_id);
+
+	if(  umgebung_t::server  &&  !(our_client_id==0  &&  player_nr==255)) {
+		// sent to server, and not sent to player playing on server
+		if (socket_list_t::is_valid_client_id(our_client_id)) {
+
+			// player activated for this client?
+			socket_info_t &info = socket_list_t::get_client(our_client_id);
+			if (info.is_player_unlocked(player_nr)) {
+				dbg->message("nwc_auth_player_t::execute","set pwd for plnr = %d", player_nr);
+
+				// change password
+				if (welt->get_spieler(player_nr)->access_password_hash() != hash) {
+					welt->get_spieler(player_nr)->access_password_hash() = hash;
+					// unlock all clients if new password is empty
+					// otherwise lock all
+					socket_list_t::unlock_player_all(player_nr, hash.empty(), our_client_id);
+				}
+			}
+			else if (player_nr < PLAYER_UNOWNED) {
+				// check password
+				if (welt->get_spieler(player_nr)->access_password_hash() == hash) {
+
+					dbg->message("nwc_auth_player_t::execute","unlock plnr = %d at our_client_id = %d", player_nr, our_client_id);
+
+					info.unlock_player(player_nr);
+					if (our_client_id == 0) {
+						// unlock player on the server
+						welt->get_spieler(player_nr)->unlock(true, false);
+					}
+				}
+				if (our_client_id != 0) {
+					// send unlock-info to player on the client (to clear unlock_pending flag)
+					nwc_auth_player_t nwc;
+					nwc.player_unlocked = info.player_unlocked;
+					nwc.send( get_sender());
+				}
+			}
+		}
+	}
+	else {
+		for(uint8 i=0; i<PLAYER_UNOWNED; i++) {
+			if (spieler_t *sp = welt->get_spieler(i)) {
+				sp->unlock( player_unlocked & (1<<i), false);
+			}
+		}
+	}
+	// update the player window
+	ki_kontroll_t* playerwin = (ki_kontroll_t*)win_get_magic(magic_ki_kontroll_t);
+	if (playerwin) {
+		playerwin->update_data();
+	}
+	return true;
+}
+
+
+void nwc_auth_player_t::init_player_lock_server(karte_t *welt)
+{
+	uint16 player_unlocked = 0;
+	for(uint8 i=0; i<PLAYER_UNOWNED; i++) {
+		// player not activated or password matches stores password
+		if (welt->get_spieler(i) == NULL  ||  welt->get_spieler(i)->access_password_hash() == welt->get_player_password_hash(i) ) {
+			player_unlocked |= 1<<i;
+		}
+	}
+	// get the local server socket
+	socket_info_t &info = socket_list_t::get_client(0);
+	info.player_unlocked = player_unlocked;
+	dbg->message("nwc_auth_player_t::init_player_lock_server", "new = %d", player_unlocked);
+}
+
+
 network_world_command_t::network_world_command_t(uint16 id, uint32 sync_step, uint32 map_counter)
 : network_command_t(id)
 {
@@ -303,6 +390,15 @@ void nwc_sync_t::do_command(karte_t *welt)
 	const sint16 yoff = welt->get_y_off();
 	// save active player
 	const uint8 active_player = welt->get_active_player_nr();
+	// save lock state
+	uint16 player_unlocked = 0;
+	for(uint8 i=0; i<PLAYER_UNOWNED; i++) {
+		if (spieler_t *sp = welt->get_spieler(i)) {
+			if (!sp->is_locked()) {
+				player_unlocked |= 1<<i;
+			}
+		}
+	}
 	// transfer game, all clients need to sync (save, reload, and pause)
 	// now save and send
 	chdir( umgebung_t::user_dir );
@@ -332,22 +428,21 @@ void nwc_sync_t::do_command(karte_t *welt)
 		char fn[256];
 		sprintf( fn, "server%d-network.sve", umgebung_t::server );
 
-#ifdef DO_NOT_SEND_HASHES
 		// remove passwords before transfer on the server and set default client mask
 		pwd_hash_t player_hashes[PLAYER_UNOWNED];
-		uint16 default_hashes = 0;
+		uint16 unlocked_players = 0;
 		for(  int i=0;  i<PLAYER_UNOWNED; i++  ) {
 			spieler_t *sp = welt->get_spieler(i);
-			if(  sp==NULL  ||  !sp->set_unlock(NULL)  ) {
-				default_hashes |= (1<<i);
+			if(  sp==NULL  ||  sp->access_password_hash().empty()  ) {
+				unlocked_players |= (1<<i);
 			}
 			else {
-				pwd_hash_t& p = sp->get_password_hash();
+				// player has password set: store and clear it
+				pwd_hash_t& p = sp->access_password_hash();
 				player_hashes[i] = p;
 				p.clear();
 			}
 		}
-#endif
 		bool old_restore_UI = umgebung_t::restore_UI;
 		umgebung_t::restore_UI = true;
 		welt->speichern( fn, SERVER_SAVEGAME_VER_NR, false );
@@ -364,16 +459,18 @@ void nwc_sync_t::do_command(karte_t *welt)
 		welt->laden( fn );
 		umgebung_t::restore_UI = old_restore_UI;
 
-#ifdef DO_NOT_SEND_HASHES
 		// restore password info
 		for(  int i=0;  i<PLAYER_UNOWNED; i++  ) {
 			spieler_t *sp = welt->get_spieler(i);
 			if(  sp  ) {
-				sp->get_password_hash() = player_hashes[i];
+				sp->access_password_hash() = player_hashes[i];
 			}
 		}
-		hashes_ok.insert_at(client_id,default_hashes);
-#endif
+
+		// initialize lock info for local server player
+		// we have to do it again here
+		nwc_auth_player_t::init_player_lock_server(welt);
+
 		// restore steps
 		welt->network_game_set_pause( false, old_sync_steps);
 
@@ -387,6 +484,13 @@ void nwc_sync_t::do_command(karte_t *welt)
 			nwc_ready_t nwc( old_sync_steps, welt->get_map_counter(), welt->get_checklist_at(old_sync_steps) );
 			if (nwc.send(sock)) {
 				socket_list_t::change_state( client_id, socket_info_t::playing);
+				if (socket_list_t::is_valid_client_id(client_id)) {
+					socket_list_t::get_client(client_id).player_unlocked = unlocked_players;
+					// send information about locked state
+					nwc_auth_player_t nwc;
+					nwc.player_unlocked = unlocked_players;
+					nwc.send(sock);
+				}
 			}
 			else {
 				dbg->warning( "nwc_sync_t::do_command", "send of NWC_READY failed" );
@@ -397,6 +501,12 @@ void nwc_sync_t::do_command(karte_t *welt)
 	// restore screen coordinates & offsets
 	welt->change_world_position(ij, xoff, yoff);
 	welt->switch_active_player(active_player,true);
+	// restore lock state
+	for(uint8 i=0; i<PLAYER_UNOWNED; i++) {
+		if (spieler_t *sp = welt->get_spieler(i)) {
+			sp->unlock(player_unlocked & (1<<i));
+		}
+	}
 }
 
 void nwc_check_t::rdwr()
@@ -411,7 +521,83 @@ void nwc_check_t::rdwr()
 }
 
 
-nwc_tool_t::nwc_tool_t() : network_world_command_t(NWC_TOOL, 0, 0)
+void network_broadcast_world_command_t::rdwr()
+{
+	network_world_command_t::rdwr();
+	packet->rdwr_bool(exec);
+
+	if (packet->is_loading()  &&  umgebung_t::server  &&  exec) {
+		// server does not receive exec-commands
+		packet->failed();
+	}
+}
+
+
+bool network_broadcast_world_command_t::execute(karte_t *welt)
+{
+	if (exec) {
+		pre_execute();
+		// append to command queue
+		return network_world_command_t::execute(welt);
+	}
+	else if (umgebung_t::server) {
+		// clone
+		network_broadcast_world_command_t *nwc = clone(welt);
+		if (nwc == NULL) {
+			return true;
+		}
+		// next call to execute will put it in command queue
+		nwc->exec = true;
+		nwc->sync_step = welt->get_sync_steps() + 1;
+		// broadcast
+		network_send_all(nwc, false);
+		// return true to delete this command only if clone() returned something new
+		return true;
+	}
+	else {
+		dbg->warning("network_broadcast_world_command_t::execute", "should not reach here!");
+	}
+	return true;
+}
+
+
+void nwc_chg_player_t::rdwr()
+{
+	network_broadcast_world_command_t::rdwr();
+	packet->rdwr_byte(cmd);
+	packet->rdwr_byte(player_nr);
+	packet->rdwr_short(param);
+	packet->rdwr_long(tool_client_id);
+}
+
+
+network_broadcast_world_command_t* nwc_chg_player_t::clone(karte_t *welt)
+{
+	if (!socket_list_t::is_valid_client_id(our_client_id)) {
+		return NULL;
+	}
+	socket_info_t const& info = socket_list_t::get_client(our_client_id); //.is_player_unlocked(player_nr)
+
+	if (welt->change_player_tool(cmd, player_nr, param, info.is_player_unlocked(1), false)) {
+		return new nwc_chg_player_t(get_sync_step(), get_map_counter(), cmd, player_nr, param);
+	}
+	return NULL;
+}
+
+
+void nwc_chg_player_t::do_command(karte_t *welt)
+{
+	welt->change_player_tool(cmd, player_nr, param, true, true);
+
+	// update the window
+	ki_kontroll_t* playerwin = (ki_kontroll_t*)win_get_magic(magic_ki_kontroll_t);
+	if (playerwin) {
+		playerwin->update_data();
+	}
+}
+
+
+nwc_tool_t::nwc_tool_t() : network_broadcast_world_command_t(NWC_TOOL, 0, 0)
 {
 	default_param = NULL;
 	custom_data = new memory_rw_t(custom_data_buf, lengthof(custom_data_buf), true);
@@ -419,14 +605,13 @@ nwc_tool_t::nwc_tool_t() : network_world_command_t(NWC_TOOL, 0, 0)
 
 
 nwc_tool_t::nwc_tool_t(spieler_t *sp, werkzeug_t *wkz, koord3d pos_, uint32 sync_steps, uint32 map_counter, bool init_)
-: network_world_command_t(NWC_TOOL, sync_steps, map_counter)
+: network_broadcast_world_command_t(NWC_TOOL, sync_steps, map_counter)
 {
 	pos = pos_;
 	player_nr = sp ? sp->get_player_nr() : -1;
 	wkz_id = wkz->get_id();
 	const char *dfp = wkz->get_default_param(sp);
 	default_param = dfp ? strdup(dfp) : NULL;
-	exec = false;
 	init = init_;
 	tool_client_id = 0;
 	flags = wkz->flags;
@@ -441,7 +626,7 @@ nwc_tool_t::nwc_tool_t(spieler_t *sp, werkzeug_t *wkz, koord3d pos_, uint32 sync
 
 
 nwc_tool_t::nwc_tool_t(const nwc_tool_t &nwt)
-: network_world_command_t(NWC_TOOL, nwt.get_sync_step(), nwt.get_map_counter())
+: network_broadcast_world_command_t(NWC_TOOL, nwt.get_sync_step(), nwt.get_map_counter())
 {
 	pos = nwt.pos;
 	player_nr = nwt.player_nr;
@@ -467,7 +652,7 @@ nwc_tool_t::~nwc_tool_t()
 
 void nwc_tool_t::rdwr()
 {
-	network_world_command_t::rdwr();
+	network_broadcast_world_command_t::rdwr();
 	packet->rdwr_long(last_sync_step);
 	last_checklist.rdwr(packet);
 	packet->rdwr_byte(player_nr);
@@ -477,7 +662,6 @@ void nwc_tool_t::rdwr()
 	packet->rdwr_short(wkz_id);
 	packet->rdwr_str(default_param);
 	packet->rdwr_bool(init);
-	packet->rdwr_bool(exec);
 	packet->rdwr_long(tool_client_id);
 	packet->rdwr_byte(flags);
 	// copy custom data of wkz to/from packet
@@ -491,17 +675,13 @@ void nwc_tool_t::rdwr()
 	}
 
 	//if (packet->is_loading()) {
-		dbg->warning("nwc_tool_t::rdwr", "rdwr id=%d client=%d plnr=%d pos=%s wkzid=%d defpar=%s init=%d exec=%d flags=%d", id, tool_client_id, player_nr, pos.get_str(), wkz_id, default_param, init, exec, flags);
+		dbg->warning("nwc_tool_t::rdwr", "rdwr id=%d client=%d plnr=%d pos=%s wkzid=%d defpar=%s init=%d flags=%d", id, tool_client_id, player_nr, pos.get_str(), wkz_id, default_param, init, flags);
 	//}
-	if (packet->is_loading()  &&  umgebung_t::server  &&  exec) {
-		// server does not receive exec-commands
-		packet->failed();
-	}
 }
 
-bool nwc_tool_t::execute(karte_t *welt)
+
+void nwc_tool_t::pre_execute()
 {
-	if (exec) {
 		if (custom_data->is_saving()) {
 			// create new memory_rw_t that is in reading mode to read wkz data
 			memory_rw_t *new_custom_data = new memory_rw_t(custom_data_buf, custom_data->get_current_index(), false);
@@ -509,15 +689,20 @@ bool nwc_tool_t::execute(karte_t *welt)
 			custom_data = new_custom_data;
 		}
 		// append to command queue
-		dbg->message("nwc_tool_t::execute", "append sync_step=%d current sync_step=%d  wkz=%d %s", get_sync_step(),welt->get_sync_steps(), wkz_id, init ? "init" : "work");
-		return network_world_command_t::execute(welt);
-	}
-	else if (umgebung_t::server) {
+		dbg->message("nwc_tool_t::pre_execute", "append sync_step=%d wkz=%d %s", get_sync_step(), wkz_id, init ? "init" : "work");
+}
+
+network_broadcast_world_command_t* nwc_tool_t::clone(karte_t *welt)
+{
 		if (map_counter != welt->get_map_counter()) {
 			// command from another world
 			// maybe sent before sync happened -> ignore
-			dbg->error("nwc_tool_t::execute", "wanted to execute(%d) from another world", get_id());
-			return true; // to delete cmd
+			dbg->error("nwc_tool_t::clone", "wanted to execute(%d) from another world", get_id());
+			return NULL; // indicate failure
+		}
+		if ( player_nr < PLAYER_UNOWNED  &&  !socket_list_t::get_client(our_client_id).is_player_unlocked(player_nr) ) {
+			dbg->warning("nwc_tool_t::clone", "client %d not allowed to act as player %d", our_client_id, player_nr);
+			return NULL; // indicate failure
 		}
 #if 0
 #error "Pause does not reset nwc_join_t::pending_join_client properly. Disabled for now here and in simwerkz.h (wkz_pause_t)"
@@ -531,12 +716,12 @@ bool nwc_tool_t::execute(karte_t *welt)
 				welt->network_game_set_pause(false, welt->get_sync_steps());
 				// reset pending_join_client to allow connection attempts again
 				nwc_join_t::pending_join_client = INVALID_SOCKET;
-				return true;
+				return NULL; // indicate failure
 			}
 			else {
 				// do not pause the game while a join process is active
 				if(  nwc_join_t::pending_join_client != INVALID_SOCKET  ) {
-					return true;
+					return NULL; // indicate failure
 				}
 				// set pending_join_client to block connection attempts during pause
 				nwc_join_t::pending_join_client = ~INVALID_SOCKET;
@@ -545,14 +730,10 @@ bool nwc_tool_t::execute(karte_t *welt)
 #endif
 		// copy data, sets tool_client_id to sender client_id
 		nwc_tool_t *nwt = new nwc_tool_t(*this);
-		nwt->exec = true;
-		nwt->sync_step = welt->get_sync_steps() + 1;
 		nwt->last_sync_step = welt->get_last_checklist_sync_step();
 		nwt->last_checklist = welt->get_last_checklist();
-		dbg->warning("nwc_tool_t::execute", "send sync_steps=%d  wkz=%d %s", nwt->get_sync_step(), wkz_id, init ? "init" : "work");
-		network_send_all(nwt, false);
-	}
-	return true;
+		dbg->warning("nwc_tool_t::clone", "send sync_steps=%d  wkz=%d %s", nwt->get_sync_step(), wkz_id, init ? "init" : "work");
+		return nwt;
 }
 
 
@@ -616,7 +797,6 @@ vector_tpl<nwc_tool_t::tool_node_t> nwc_tool_t::tool_list;
 void nwc_tool_t::do_command(karte_t *welt)
 {
 	DBG_MESSAGE("nwc_tool_t::do_command", "steps %d wkz %d %s", get_sync_step(), wkz_id, init ? "init" : "work");
-	if (exec) {
 		// commands are treated differently if they come from this client or not
 		bool local = tool_client_id == network_get_client_id();
 
@@ -626,7 +806,7 @@ void nwc_tool_t::do_command(karte_t *welt)
 		// pointer, where the active tool from a remote client is stored
 		tool_node_t *tool_node = NULL;
 
-		spieler_t *sp = player_nr < MAX_PLAYER_COUNT ? welt->get_spieler(player_nr) : NULL;
+		spieler_t *sp = player_nr < PLAYER_UNOWNED ? welt->get_spieler(player_nr) : NULL;
 
 		// do we have a tool for this client already?
 		tool_node_t new_tool_node(NULL, player_nr, tool_client_id);
@@ -687,7 +867,6 @@ void nwc_tool_t::do_command(karte_t *welt)
 				wkz->flags = 0;
 			}
 		}
-	}
 }
 
 // static list of execution times

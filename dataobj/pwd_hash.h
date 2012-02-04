@@ -6,12 +6,16 @@
 #include "../macros.h"
 #include "../simtypes.h"
 
+class SHA1;
+
 class pwd_hash_t
 {
 	public:
 		pwd_hash_t() { clear(); }
 
 		void clear() { MEMZERO(hash); }
+
+		void set(SHA1& sha);
 
 		bool empty() const
 		{
@@ -22,6 +26,10 @@ class pwd_hash_t
 		}
 
 		uint8& operator [](size_t const i) { return hash[i]; }
+
+		bool operator ==(const pwd_hash_t& o) const { return *this == o.hash; }
+
+		bool operator !=(const pwd_hash_t& o) const { return *this != o.hash; }
 
 		bool operator ==(uint8 const* const o) const { return memcmp(hash, o, sizeof(hash)) == 0; }
 
