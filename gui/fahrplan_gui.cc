@@ -178,11 +178,13 @@ void fahrplan_gui_stats_t::zeichnen(koord offset)
 					}
 					if(  i==fpl->get_aktuell()  &&  fpl->eintrag[i].pos!=aktuell_mark->get_pos()  ) {
 						if(  grund_t *old_gr = welt->lookup(aktuell_mark->get_pos())  ) {
+							aktuell_mark->mark_image_dirty( aktuell_mark->get_bild(), 0 );
 							old_gr->obj_remove( aktuell_mark );
 							old_gr->set_flag( grund_t::dirty );
 						}
 						gr->obj_add( aktuell_mark );
 						aktuell_mark->set_pos( fpl->eintrag[i].pos );
+						aktuell_mark->set_flag( ding_t::dirty );
 						gr->set_flag( grund_t::dirty );
 					}
 				}
@@ -211,6 +213,7 @@ fahrplan_gui_stats_t::fahrplan_gui_stats_t(karte_t* w, spieler_t *s)
 fahrplan_gui_stats_t::~fahrplan_gui_stats_t()
 {
 	if(  grund_t *gr = welt->lookup(aktuell_mark->get_pos())  ) {
+		aktuell_mark->mark_image_dirty( aktuell_mark->get_bild(), 0 );
 		gr->obj_remove(aktuell_mark);
 	}
 	aktuell_mark->set_pos( koord3d::invalid );
