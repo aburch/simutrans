@@ -780,6 +780,9 @@
     <ClCompile Include="gui\ai_option_t.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="dataobj\pwd_hash.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gui\components\action_listener.h">

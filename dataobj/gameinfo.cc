@@ -67,7 +67,7 @@ gameinfo_t::gameinfo_t(karte_t *welt) :
 		spieler_type[i] = spieler_t::EMPTY;
 		if(  spieler_t *sp = welt->get_spieler(i)  ) {
 			spieler_type[i] = sp->get_ai_id();
-			if(  !sp->get_password_hash().empty()  ) {
+			if(  !sp->access_password_hash().empty()  ) {
 				spieler_type[i] |= spieler_t::PASSWORD_PROTECTED;
 			}
 		}

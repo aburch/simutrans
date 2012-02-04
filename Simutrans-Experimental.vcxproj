@@ -445,6 +445,7 @@
     <ClCompile Include="dataobj\network_file_transfer.cc" />
     <ClCompile Include="dataobj\network_socket_list.cc" />
     <ClCompile Include="dataobj\pakset_info.cc" />
+    <ClCompile Include="dataobj\pwd_hash.cc" />
     <ClCompile Include="gui\ai_option_t.cc" />
     <ClCompile Include="gui\components\gui_ding_view_t.cc" />
     <ClCompile Include="gui\display_settings.cc" />
