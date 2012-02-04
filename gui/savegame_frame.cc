@@ -32,7 +32,7 @@
 #include "components/list_button.h"
 #include "savegame_frame.h"
 
-#define DIALOG_WIDTH (360)
+#define DIALOG_WIDTH (488)
 
 
 savegame_frame_t::savegame_frame_t(const char *suffix, const char *path, bool only_directories ) :
