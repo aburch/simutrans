@@ -3147,10 +3147,6 @@ void stadt_t::step_passagiere()
 				if(shortest_distance(destinations[current_destination].location, origin_pos) <= max_walking_distance)
 				{
 					// Passengers will always walk if they are close enough.
-					if(destinations[current_destination].location.x < 30)
-					{
-						int TEST = 1 + 1;
-					}
 					route_good = can_walk;
 				}
 
@@ -3168,10 +3164,6 @@ void stadt_t::step_passagiere()
 								{
 									route_good = can_walk;
 									// Passengers will always walk if they are close enough.
-									if(destinations[current_destination].location.x < 30)
-									{
-										int TEST = 1 + 1;
-									}
 									start_halt = start_halts[i];
 									// Mail does not walk, but people delivering it do.
 									break;
