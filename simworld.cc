@@ -4327,6 +4327,12 @@ DBG_MESSAGE("karte_t::speichern()", "saving game to '%s'", filename);
 	loadsave_t  file;
 
 	display_show_load_pointer( true );
+	loadsave_t::mode_t mode = loadsave_t::save_mode;
+	if(umgebung_t::networkmode && !umgebung_t::server && mode == loadsave_t::bzip2)
+	{
+		// Make local saving/loading faster in network mode.
+		mode = loadsave_t::zipped;
+	}
 	if(!file.wr_open(filename, loadsave_t::save_mode, umgebung_t::objfilename.c_str(), version_str, ex_version_str )) {
 		create_win(new news_img("Kann Spielstand\nnicht speichern.\n"), w_info, magic_none);
 		dbg->error("karte_t::speichern()","cannot open file for writing! check permissions!");

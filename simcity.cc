@@ -2982,7 +2982,7 @@ void stadt_t::step_passagiere()
 	// post oder pax erzeugen ?
 	// "post or generate pax"
 	const ware_besch_t *const wtyp = (simrand(400, "void stadt_t::step_passagiere() (mail or passengers?"))<300 ? warenbauer_t::passagiere : warenbauer_t::post;
-	const int history_type = (wtyp == warenbauer_t::passagiere) ? HIST_PAS_TRANSPORTED : HIST_MAIL_TRANSPORTED;
+	const city_cost history_type = (wtyp == warenbauer_t::passagiere) ? HIST_PAS_TRANSPORTED : HIST_MAIL_TRANSPORTED;
 	factory_set_t &target_factories = (  wtyp==warenbauer_t::passagiere ? target_factories_pax : target_factories_mail );
 
 	// restart at first buiulding?
@@ -3163,6 +3163,7 @@ void stadt_t::step_passagiere()
 								if(halt == start_halts[i])
 								{
 									route_good = can_walk;
+									// Passengers will always walk if they are close enough.
 									start_halt = start_halts[i];
 									// Mail does not walk, but people delivering it do.
 									break;
@@ -3191,7 +3192,7 @@ void stadt_t::step_passagiere()
 					
 					//start_halt->add_pax_happy(pax_left_to_do);
 
-					merke_passagier_ziel(destinations[0].location, COL_DARK_YELLOW);
+					merke_passagier_ziel(destinations[current_destination].location, COL_DARK_YELLOW);
 					if (s.get_random_pedestrians() && wtyp == warenbauer_t::passagiere) 
 					{
 						if(!start_halts.empty() && !start_halt.is_bound())
@@ -3411,6 +3412,19 @@ void stadt_t::step_passagiere()
 				// (Calculate a return journey)
 				if(will_return != no_return && (route_good == good || route_good == private_car_only))
 				{
+					// Because passengers/mail now register as transported on delivery, these are needed here
+					// to keep an accurate record of the proportion transported.
+					stadt_t* const destination_town = destinations[0].type == 1 ? destinations[0].object.town : NULL;
+					if(destination_town)
+					{
+						destination_town->set_generated_passengers(pax_left_to_do, history_type+1);
+					}
+					else
+					{
+						city_history_year[0][history_type+1] += pax_left_to_do;
+						city_history_month[0][history_type+1] += pax_left_to_do;
+					}
+
 					// this comes most of the times for free and balances also the amounts!
 					halthandle_t ret_halt = pax.get_ziel();
 					bool return_in_private_car = (route_good == private_car_only) || !ret_halt.is_bound();
@@ -3496,7 +3510,6 @@ void stadt_t::step_passagiere()
 						if(car_minutes < 65535)
 						{
 							// Do not check tolerance, as they must come back!
-							stadt_t* const destination_town = destinations[0].type == 1 ? destinations[0].object.town : NULL;
 							set_private_car_trip(num_pax, destination_town);
 							merke_passagier_ziel(destinations[current_destination].location, COL_TURQUOISE);
 

@@ -254,14 +254,22 @@ void ware_t::laden_abschliessen(karte_t *welt, spieler_t * /*sp*/)  //"Invite fi
 {
 	// since some halt was referred by with several koordinates
 	// this routine will correct it
-	if(ziel.is_bound()) {
+	if(ziel.is_bound() && ziel->get_init_pos() != koord::invalid) 
+	{
 		ziel = welt->lookup(ziel->get_init_pos())->get_halt();
 	}
-	if(zwischenziel.is_bound()) {
+	if(zwischenziel.is_bound() && zwischenziel->get_init_pos() != koord::invalid) 
+	{
 		zwischenziel = welt->lookup(zwischenziel->get_init_pos())->get_halt();
 	}
 
-	if(origin.is_bound()) {
+	if(last_transfer.is_bound() && last_transfer->get_init_pos() != koord::invalid)
+	{
+		last_transfer = welt->lookup(last_transfer->get_init_pos())->get_halt();
+	}
+
+	if(origin.is_bound() && origin->get_init_pos() != koord::invalid) 
+	{
 		origin = welt->lookup(origin->get_init_pos())->get_halt();
 	}
 }
