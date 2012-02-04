@@ -723,7 +723,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 		char str[256];
 		sprintf( str, "special_color[%i]", i );
 		int *c = contents.get_ints( str );
-		if(  c[0]==6  ) {
+		if(  c[0]>=6  ) {
 			// defined in simgraph16.cc
 			extern COLOR_VAL display_day_lights[LIGHT_COUNT*3];
 			extern COLOR_VAL display_night_lights[LIGHT_COUNT*3];
