@@ -5,6 +5,8 @@
 #ifndef simcolor_h
 #define simcolor_h
 
+#define LIGHT_COUNT (15)
+
 // this is a player color => use different table for conversion
 #define PLAYER_FLAG (0x8000)
 

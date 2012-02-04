@@ -111,7 +111,6 @@ static font_type large_font = { 0, 0, 0, NULL, NULL };
 // needed for gui
 int large_font_height = 10;
 
-#define LIGHT_COUNT (15)
 #define MAX_PLAYER_COUNT (16)
 
 #define RGBMAPSIZE (0x8000+LIGHT_COUNT+16)
@@ -128,7 +127,7 @@ static PIXVAL rgbmap_day_night[RGBMAPSIZE];
 
 
 /*
- * Hajo: same as rgbmap_day_night, but allways daytime colors
+ * Hajo: same as rgbmap_day_night, but always daytime colors
  */
 static PIXVAL rgbmap_all_day[RGBMAPSIZE];
 
@@ -247,7 +246,7 @@ static int night_shift = -1;
 /*
  * Hajo: speical colors during daytime
  */
-static const uint8 day_lights[LIGHT_COUNT*3] = {
+COLOR_VAL display_day_lights[LIGHT_COUNT*3] = {
 	0x57,	0x65,	0x6F, // Dark windows, lit yellowish at night
 	0x7F,	0x9B,	0xF1, // Lighter windows, lit blueish at night
 	0xFF,	0xFF,	0x53, // Yellow light
@@ -269,7 +268,7 @@ static const uint8 day_lights[LIGHT_COUNT*3] = {
 /*
  * Hajo: speical colors during nighttime
  */
-static const uint8 night_lights[LIGHT_COUNT*3] = {
+COLOR_VAL display_night_lights[LIGHT_COUNT*3] = {
 	0xD3,	0xC3,	0x80, // Dark windows, lit yellowish at night
 	0x80,	0xC3,	0xD3, // Lighter windows, lit blueish at night
 	0xFF,	0xFF,	0x53, // Yellow light
@@ -290,7 +289,7 @@ static const uint8 night_lights[LIGHT_COUNT*3] = {
 
 // the players colors and colors for simple drawing operations
 // each eight colors are corresponding to a player color
-static const uint8 special_pal[224*3]=
+static const COLOR_VAL special_pal[224*3]=
 {
 	36, 75, 103,
 	57, 94, 124,
@@ -1674,7 +1673,7 @@ static void calc_base_pal_from_night_shift(const int night)
 	}
 	// special light colors (actually, only non-darkening greys should be used
 	for(i=0;  i<LIGHT_COUNT;  i++  ) {
-		specialcolormap_day_night[i+224] = get_system_color( day_lights[i*3 + 0], day_lights[i*3 + 1], 	day_lights[i*3 + 2] );
+		specialcolormap_day_night[i+224] = get_system_color( display_day_lights[i*3 + 0], display_day_lights[i*3 + 1], 	display_day_lights[i*3 + 2] );
 	}
 	// init with black for forbidden colors
 	for(i=224+LIGHT_COUNT;  i<256;  i++  ) {
@@ -1689,13 +1688,13 @@ static void calc_base_pal_from_night_shift(const int night)
 
 	// Lights
 	for (i = 0; i < LIGHT_COUNT; i++) {
-		const int day_R = day_lights[i*3+0];
-		const int day_G = day_lights[i*3+1];
-		const int day_B = day_lights[i*3+2];
+		const int day_R = display_day_lights[i*3+0];
+		const int day_G = display_day_lights[i*3+1];
+		const int day_B = display_day_lights[i*3+2];
 
-		const int night_R = night_lights[i*3+0];
-		const int night_G = night_lights[i*3+1];
-		const int night_B = night_lights[i*3+2];
+		const int night_R = display_night_lights[i*3+0];
+		const int night_G = display_night_lights[i*3+1];
+		const int night_B = display_night_lights[i*3+2];
 
 		const int R = (day_R * day + night_R * night2) >> 2;
 		const int G = (day_G * day + night_G * night2) >> 2;
