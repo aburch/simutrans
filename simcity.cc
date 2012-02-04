@@ -3147,6 +3147,10 @@ void stadt_t::step_passagiere()
 				if(shortest_distance(destinations[current_destination].location, origin_pos) <= max_walking_distance)
 				{
 					// Passengers will always walk if they are close enough.
+					if(destinations[current_destination].location.x < 30)
+					{
+						int TEST = 1 + 1;
+					}
 					route_good = can_walk;
 				}
 
@@ -3163,6 +3167,11 @@ void stadt_t::step_passagiere()
 								if(halt == start_halts[i])
 								{
 									route_good = can_walk;
+									// Passengers will always walk if they are close enough.
+									if(destinations[current_destination].location.x < 30)
+									{
+										int TEST = 1 + 1;
+									}
 									start_halt = start_halts[i];
 									// Mail does not walk, but people delivering it do.
 									break;
@@ -3191,7 +3200,7 @@ void stadt_t::step_passagiere()
 					
 					//start_halt->add_pax_happy(pax_left_to_do);
 
-					merke_passagier_ziel(destinations[0].location, COL_DARK_YELLOW);
+					merke_passagier_ziel(destinations[current_destination].location, COL_DARK_YELLOW);
 					if (s.get_random_pedestrians() && wtyp == warenbauer_t::passagiere) 
 					{
 						if(!start_halts.empty() && !start_halt.is_bound())
