@@ -13,7 +13,7 @@
 #define SIM_SERVER_MINOR    1
 
 #define EX_VERSION_MAJOR	10
-#define EX_VERSION_MINOR	9
+#define EX_VERSION_MINOR	10
 
 #define MAKEOBJ_VERSION "53"
 
