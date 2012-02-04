@@ -90,7 +90,7 @@ obj_besch_t * good_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->speed_bonus = decode_uint16(p);
 		besch->weight_per_unit = decode_uint16(p);
 		besch->color = decode_uint8(p);
-		if(experimental_version >= 1)
+		if(experimental)
 		{
 			const uint8 fare_stages = decode_uint8(p);
 			if(fare_stages > 0)
@@ -98,7 +98,9 @@ obj_besch_t * good_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				// The base value is not used if fare stages are used. 
 				for(int i = 0; i < fare_stages; i ++)
 				{
-					besch->base_values.append(fare_stage_t(decode_uint16(p), decode_uint16(p)));
+					const uint16 to_distance = decode_uint16(p);
+					const uint16 val = decode_uint16(p);
+					besch->base_values.append(fare_stage_t((uint32)to_distance, val));
 				}
 			}
 			else

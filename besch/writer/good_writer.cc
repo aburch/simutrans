@@ -6,11 +6,7 @@
 
 #include "good_writer.h"
 
-// For TEST purposes only.
-#include <iostream>
-
 using std::string;
-using std::cout;
 
 void good_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
@@ -47,42 +43,37 @@ void good_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	const uint8 mapcolor = obj.get_int("mapcolor", 255);
 	len += sizeof(mapcolor);
 
-	string str;
+	uint16 val = 0;
+	uint16 to_distance = 0;
 	uint8 fare_stages = 0;
-	bool value_check = false;
-	bool distance_check = false;
 	const int MAX_FARE_STAGES = 32;
 	uint16 staged_values[MAX_FARE_STAGES];
 	uint16 staged_distances[MAX_FARE_STAGES];
 
-	cout << "TEST init";
-	puts("TEST!!");
 	do
 	{
 		char buf_v[40];
-		sprintf(buf_v, "value[%d]", staged_values[fare_stages]);
-		str = obj.get(buf_v);
-		value_check = !str.empty();
-
 		char buf_d[40];
-		sprintf(buf_d, "to_distance[%d]", staged_distances[fare_stages]);
-		str = obj.get(buf_d);
-		distance_check = !str.empty();
-
-		cout << "TEST cycle.";
-		if (value_check && distance_check)
+		sprintf(buf_v, "value[%i]", fare_stages);
+		sprintf(buf_d, "to_distance[%i]", fare_stages);
+		val = obj.get_int(buf_v, 65535);
+		to_distance =  obj.get_int(buf_d, to_distance);
+		if(val != 65535)
 		{
-			cout << "TEST hit!";
-			fare_stages++;
+			staged_values[fare_stages] = val;
+			staged_distances[fare_stages] = to_distance;
+			fare_stages ++;
 		}
-	} while (value_check && distance_check && fare_stages < MAX_FARE_STAGES);
+		else
+		{
+			break;
+		}
 
-	if(fare_stages >= MAX_FARE_STAGES)
-	{
-		fare_stages = MAX_FARE_STAGES - 1;
-	}
+	} while (fare_stages < MAX_FARE_STAGES);
 
-	len += fare_stages;
+
+	// For each fare stage, there are 2x 16-bit variables.
+	len += (fare_stages * 4);
 
 	obj_node_t node(this, len, &parent);
 
