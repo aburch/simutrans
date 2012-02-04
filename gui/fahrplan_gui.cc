@@ -157,7 +157,7 @@ void fahrplan_gui_stats_t::zeichnen(koord offset)
 
 				if(  i==fpl->get_aktuell()  ) {
 					// highlite current entry
-					display_fillbox_wh_clip( offset.x, offset.y+(i*LINESPACE), get_groesse().x, LINESPACE, sp->get_player_color1()+1, false );
+					display_fillbox_wh_clip( offset.x, offset.y + i*(LINESPACE+1), get_groesse().x, LINESPACE, sp->get_player_color1()+1, false );
 				}
 
 				buf.clear();
@@ -172,20 +172,26 @@ void fahrplan_gui_stats_t::zeichnen(koord offset)
 				display_color_img( i!=fpl->get_aktuell() ? button_t::arrow_right_normal : button_t::arrow_right_pushed, offset.x + 2, offset.y + i * (LINESPACE + 1), 0, false, true);
 
 				if(  grund_t *gr = welt->lookup(fpl->eintrag[i].pos)  ) {
-					if(  weg_t * way = gr->get_weg( fpl->get_waytype() )  ) {
+					for(  uint idx=0;  idx<gr->get_top();  idx++  ) {
+						ding_t *d = gr->obj_bei(idx);
 						if(  umgebung_t::visualize_schedule  ) {
-							way->set_flag( ding_t::highlite );
+							if(  !d->is_moving()  ) {
+								d->set_flag( ding_t::highlite );
+							}
 						}
 						else {
-							way->clear_flag( ding_t::highlite );
+							d->clear_flag( ding_t::highlite );
 						}
 					}
+					aktuell_mark->clear_flag( ding_t::highlite );
 					// here on water
-					else if(  umgebung_t::visualize_schedule  ) {
-						gr->set_flag( grund_t::marked );
-					}
-					else {
-						gr->clear_flag( grund_t::marked );
+					if(  gr->ist_wasser()  ||  gr->ist_natur()  ) {
+						if(  umgebung_t::visualize_schedule  ) {
+							gr->set_flag( grund_t::marked );
+						}
+						else {
+							gr->clear_flag( grund_t::marked );
+						}
 					}
 					if(  i==fpl->get_aktuell()  &&  fpl->eintrag[i].pos!=aktuell_mark->get_pos()  ) {
 						if(  grund_t *old_gr = welt->lookup(aktuell_mark->get_pos())  ) {
@@ -553,9 +559,11 @@ bool fahrplan_gui_t::infowin_event(const event_t *ev)
 					fpl->set_aktuell( line );
 					if(mode == removing) {
 						if(  grund_t *gr = welt->lookup(fpl->eintrag[fpl->get_aktuell()].pos)  ) {
-							if(  weg_t * way = gr->get_weg( fpl->get_waytype() )  ) {
-								way->clear_flag( ding_t::highlite );
+							for(  uint idx=0;  idx<gr->get_top();  idx++  ) {
+								ding_t *d = gr->obj_bei(idx);
+								d->clear_flag( ding_t::highlite );
 							}
+							gr->clear_flag( grund_t::marked );
 						}
 						fpl->remove();
 						action_triggered( &bt_add, value_t() );
@@ -569,12 +577,11 @@ bool fahrplan_gui_t::infowin_event(const event_t *ev)
 
 		for(  int i=0;  i<fpl->get_count();  i++  ) {
 			if(  grund_t *gr = welt->lookup(fpl->eintrag[i].pos)  ) {
-				if(  weg_t * way = gr->get_weg( fpl->get_waytype() )  ) {
-					way->clear_flag( ding_t::highlite );
+				for(  uint idx=0;  idx<gr->get_top();  idx++  ) {
+					ding_t *d = gr->obj_bei(idx);
+					d->clear_flag( ding_t::highlite );
 				}
-				else {
-					gr->clear_flag( grund_t::marked );
-				}
+				gr->clear_flag( grund_t::marked );
 			}
 		}
 
@@ -626,27 +633,28 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 		bt_insert.pressed = false;
 		bt_remove.pressed = false;
 		update_werkzeug( true );
-
-	} else if(komp == &bt_insert) {
+	}
+	else if(komp == &bt_insert) {
 		mode = inserting;
 		bt_add.pressed = false;
 		bt_insert.pressed = true;
 		bt_remove.pressed = false;
 		update_werkzeug( true );
-
-	} else if(komp == &bt_remove) {
+	}
+	else if(komp == &bt_remove) {
 		mode = removing;
 		bt_add.pressed = false;
 		bt_insert.pressed = false;
 		bt_remove.pressed = true;
 		update_werkzeug( false );
-
-	} else if(komp == &numimp_load) {
+	}
+	else if(komp == &numimp_load) {
 		if (!fpl->empty()) {
 			fpl->eintrag[fpl->get_aktuell()].ladegrad = (uint8)p.i;
 			update_selection();
 		}
-	} else if(komp == &bt_wait_prev) {
+	}
+	else if(komp == &bt_wait_prev) {
 		if (!fpl->empty()) {
 			sint8& wait = fpl->eintrag[fpl->get_aktuell()].waiting_time_shift;
 			if(wait>7) {
@@ -660,7 +668,8 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 			}
 			update_selection();
 		}
-	} else if(komp == &bt_wait_next) {
+	}
+	else if(komp == &bt_wait_next) {
 		if (!fpl->empty()) {
 			sint8& wait = fpl->eintrag[fpl->get_aktuell()].waiting_time_shift;
 			if(wait==0) {
@@ -676,10 +685,12 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 		}
 	/*} else if (komp == &bt_return) {
 		fpl->add_return_way();*/
-	} else if (komp == &numimp_spacing) {
+	}
+	else if (komp == &numimp_spacing) {
 		fpl->set_spacing(p.i);
 		update_selection();
-	} else if(komp == &numimp_spacing_shift) {
+	} 
+	else if(komp == &numimp_spacing_shift) {
 		if (!fpl->empty()) {
 			if ( fpl->is_same_spacing_shift() ) {
 			    for(  uint8 i=0;  i<fpl->eintrag.get_count();  i++  ) {
@@ -690,18 +701,22 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 			}
 			update_selection();
 		}
-	} else if (komp == &bt_mirror) {
+	} 
+	else if (komp == &bt_mirror) {
 		fpl->set_mirrored(bt_mirror.pressed);
-	} else if (komp == &bt_bidirectional) {
+	} 
+	else if (komp == &bt_bidirectional) {
 		fpl->set_bidirectional(bt_bidirectional.pressed);
-	} else if (komp == &bt_same_spacing_shift) {
+	} 
+	else if (komp == &bt_same_spacing_shift) {
 		fpl->set_same_spacing_shift(bt_same_spacing_shift.pressed);
 		if ( fpl->is_same_spacing_shift() ) {
 		    for(  uint8 i=0;  i<fpl->eintrag.get_count();  i++  ) {
 				fpl->eintrag[i].spacing_shift = fpl->eintrag[fpl->get_aktuell()].spacing_shift;
 			}
 		}
-	} else if (komp == &line_selector) {
+	} 
+	else if (komp == &line_selector) {
 		int selection = p.i;
 //DBG_MESSAGE("fahrplan_gui_t::action_triggered()","line selection=%i",selection);
 		if(  (uint32)(selection-1)<(uint32)line_selector.count_elements()  ) {
@@ -714,7 +729,8 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 			new_line = linehandle_t();
 			line_selector.set_selection( 0 );
 		}
-	} else if (komp == &bt_promote_to_line) {
+	}
+	else if (komp == &bt_promote_to_line) {
 		// update line schedule via tool!
 		werkzeug_t *w = create_tool( WKZ_LINE_TOOL | SIMPLE_TOOL );
 		cbuffer_t buf;

@@ -125,6 +125,9 @@ void banner_t::zeichnen(koord pos, koord gr )
 #include "../scrolltext.h"
 	};
 
+	// Hajo: add while line on top since this frame has no title bar.
+	display_fillbox_wh(pos.x, pos.y + 16, gr.x, 1, COL_GREY6, false);
+
 	const KOORD_VAL text_line = (line / 9) * 2;
 	const KOORD_VAL text_offset = line % 9;
 	const KOORD_VAL left = pos.x+10;

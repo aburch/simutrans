@@ -6,6 +6,7 @@
  */
 #include "gui_frame.h"
 #include "components/gui_label.h"
+#include "components/gui_scrollpane.h"
 #include "components/action_listener.h"
 #include "components/gui_button.h"
 #include "halt_list_frame.h"
@@ -15,15 +16,15 @@ class spieler_t;
 
 
 /**
- * Displays a filter settings for the halt list
+ * Displays filter settings for the halt list
  *
  * @author V. Meyer
  */
 class halt_list_filter_frame_t : public gui_frame_t , private action_listener_t
 {
 private:
-	/*
-	* Helper class for the entries of the srollable list of goods.
+	/**
+	* Helper class for the entries of the scrollable list of goods.
 	* Needed since a button_t does not know its parent.
 	*/
 	class ware_item_t : public button_t {
@@ -54,84 +55,94 @@ private:
 		}
 	};
 
-    /*
-     * As long we do not have resource scripts, we display make
-     * some tables for the main attributes of each button.
-     */
-    enum { FILTER_BUTTONS=16 };
+	/**
+	 * As long we do not have resource scripts, we display make
+	 * some tables for the main attributes of each button.
+	 */
+	enum { FILTER_BUTTONS=16 };
 
-    static koord filter_buttons_pos[FILTER_BUTTONS];
-    static halt_list_frame_t::filter_flag_t filter_buttons_types[FILTER_BUTTONS];
-    static const char *filter_buttons_text[FILTER_BUTTONS];
+	static koord filter_buttons_pos[FILTER_BUTTONS];
+	static halt_list_frame_t::filter_flag_t filter_buttons_types[FILTER_BUTTONS];
+	static const char *filter_buttons_text[FILTER_BUTTONS];
 
-    /*
-     * We are bound to this window. All filter states are stored in main_frame.
-     */
-    halt_list_frame_t *main_frame;
+	/**
+	 * We are bound to this window. All filter states are stored in main_frame.
+	 */
+	halt_list_frame_t *main_frame;
 
-    /*
-     * All gui elements of this dialog:
-     */
-    button_t filter_buttons[FILTER_BUTTONS];
+	/**
+	 * All gui elements of this dialog:
+	 */
+	button_t filter_buttons[FILTER_BUTTONS];
 
-    gui_textinput_t name_filter_input;
+	gui_textinput_t name_filter_input;
 
-    button_t typ_filter_enable;
+	button_t typ_filter_enable;
 
-    button_t ware_alle_ab;
-    button_t ware_keine_ab;
-    button_t ware_invers_ab;
+	button_t ware_alle_ab;
+	button_t ware_keine_ab;
+	button_t ware_invers_ab;
 
-    gui_scrollpane_t ware_scrolly_ab;
-    gui_container_t ware_cont_ab;
+	gui_scrollpane_t ware_scrolly_ab;
+	gui_container_t ware_cont_ab;
 
-    button_t ware_alle_an;
-    button_t ware_keine_an;
-    button_t ware_invers_an;
+	button_t ware_alle_an;
+	button_t ware_keine_an;
+	button_t ware_invers_an;
 
-    gui_scrollpane_t ware_scrolly_an;
-    gui_container_t ware_cont_an;
+	gui_scrollpane_t ware_scrolly_an;
+	gui_container_t ware_cont_an;
 
 public:
-    halt_list_filter_frame_t(spieler_t *sp, halt_list_frame_t *main_frame);
+	halt_list_filter_frame_t(spieler_t *sp, halt_list_frame_t *main_frame);
+	~halt_list_filter_frame_t();
 
-		~halt_list_filter_frame_t();
+	/**
+	 * Propagate function from main_frame for ware_item_t
+	 * @author V. Meyer
+	 */
+	bool get_ware_filter_ab(const ware_besch_t *ware) const { return main_frame->get_ware_filter_ab(ware); }
+	bool get_ware_filter_an(const ware_besch_t *ware) const { return main_frame->get_ware_filter_an(ware); }
 
-    /*
-     * Propagate funktion from main_frame for ware_item_t
-     * @author V. Meyer
-     */
-    bool get_ware_filter_ab(const ware_besch_t *ware) const { return main_frame->get_ware_filter_ab(ware); }
-    bool get_ware_filter_an(const ware_besch_t *ware) const { return main_frame->get_ware_filter_an(ware); }
+	/**
+	 * Handler for ware_item_t event.
+	 * @author V. Meyer
+	 */
+	void ware_item_triggered(const ware_besch_t *ware_ab, const ware_besch_t *ware_an);
 
-    /*
-     * Handler for ware_item_t event.
-     * @author V. Meyer
-     */
-    void ware_item_triggered(const ware_besch_t *ware_ab, const ware_besch_t *ware_an);
+	/**
+	 * Does this window need a min size button in the title bar?
+	 * @return true if such a button is needed
+	 */
+	bool has_min_sizer() const {return true;}
 
-    /**
-     * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
-     * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
-     * in dem die Komponente dargestellt wird.
-     * @author V. Meyer
-     */
-    void zeichnen(koord pos, koord gr);
-
-    /**
-     * Manche Fenster haben einen Hilfetext assoziiert.
-     * @return den Dateinamen für die Hilfe, oder NULL
-     * @author V. Meyer
-     */
-    const char * get_hilfe_datei() const {return "haltlist_filter.txt"; }
+	/**
+	 * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
+	 * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
+	 * in dem die Komponente dargestellt wird.
+	 * @author V. Meyer
+	 */
+	void zeichnen(koord pos, koord gr);
 
     /**
-     * This method is called if an action is triggered
-     * @author Hj. Malthaner
-     *
-     * Returns true, if action is done and no more
-     * components should be triggered.
-     * V.Meyer
+     * resize window in response to a resize event
      */
-    bool action_triggered( gui_action_creator_t *komp, value_t extra);
+	void resize(const koord delta);
+
+	/**
+	 * Manche Fenster haben einen Hilfetext assoziiert.
+	 * @return den Dateinamen für die Hilfe, oder NULL
+	 * @author V. Meyer
+	 */
+	const char * get_hilfe_datei() const {return "haltlist_filter.txt"; }
+
+	/**
+	 * This method is called if an action is triggered
+	 * @author Hj. Malthaner
+	 *
+	 * Returns true, if action is done and no more
+	 * components should be triggered.
+	 * V.Meyer
+	 */
+	bool action_triggered( gui_action_creator_t *komp, value_t extra);
 };
