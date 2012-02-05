@@ -321,7 +321,7 @@ static void ask_language()
  * Dies wird in main mittels set_new_handler gesetzt und von der
  * Laufzeitumgebung im Falle des Speichermangels bei new() aufgerufen
  */
-void sim_new_handler()
+static void sim_new_handler()
 {
 	dbg->fatal("sim_new_handler()", "OUT OF MEMORY");
 }
