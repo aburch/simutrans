@@ -172,10 +172,9 @@ int dr_os_open(int const w, int const h, int)
 }
 
 
-int dr_os_close(void)
+void dr_os_close()
 {
 	XCloseDisplay(md);
-	return TRUE;
 }
 
 

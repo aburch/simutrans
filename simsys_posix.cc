@@ -39,10 +39,9 @@ int dr_os_open(int, int, int)
 	return TRUE;
 }
 
-// shut down SDL
-int dr_os_close(void)
+
+void dr_os_close()
 {
-	return TRUE;
 }
 
 // reiszes screen

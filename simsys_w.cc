@@ -192,7 +192,7 @@ int dr_os_open(int const w, int const h, int fullscreen)
 }
 
 
-int dr_os_close(void)
+void dr_os_close()
 {
 	if (hwnd != NULL) {
 		DestroyWindow(hwnd);
@@ -204,7 +204,6 @@ int dr_os_close(void)
 	if(  is_fullscreen  ) {
 		ChangeDisplaySettings(NULL, 0);
 	}
-	return TRUE;
 }
 
 

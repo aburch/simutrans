@@ -264,10 +264,9 @@ int dr_os_open(int const w, int const h, int const fullscreen)
 }
 
 
-int dr_os_close(void)
+void dr_os_close()
 {
 	allegro_exit();
-	return TRUE;
 }
 
 
