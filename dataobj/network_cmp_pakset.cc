@@ -116,7 +116,7 @@ void network_compare_pakset_with_server(const char* cp, std::string &msg)
 {
 	// open from network
 	const char *err = NULL;
-	SOCKET my_client_socket = network_open_address( cp, 5000, err );
+	SOCKET const my_client_socket = network_open_address(cp, err);
 	if(  err==NULL  ) {
 		socket_list_t::add_client(my_client_socket); // for network_check_activity
 		// client side of comparison

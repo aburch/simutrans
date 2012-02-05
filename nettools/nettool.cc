@@ -453,7 +453,7 @@ int main(int argc, char* argv[]) {
 
 	// This is done whether we're executing a password protected command or not...
 	const char *error = NULL;
-	SOCKET socket = network_open_address(server_address, 100, error);
+	SOCKET const socket = network_open_address(server_address, error);
 	if (error) {
 		fprintf(stderr, "Could not connect to server at %s: %s\n", server_address, error);
 		return 1;

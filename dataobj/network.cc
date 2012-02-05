@@ -98,7 +98,7 @@ bool network_initialize()
  * In case of failure err is populated with a meaningful error
  * @return a valid socket or INVALID_SOCKET if the connection fails
  */
-SOCKET network_open_address( const char *cp, long timeout_ms, const char * &err )
+SOCKET network_open_address(char const* cp, char const*& err)
 {
 	err = NULL;
 #ifdef USE_IP4_ONLY
@@ -159,78 +159,9 @@ SOCKET network_open_address( const char *cp, long timeout_ms, const char * &err 
 		return INVALID_SOCKET;
 	}
 
-#if !defined(__BEOS__)  &&  !defined(__HAIKU__)
-	if(  0 &&  timeout_ms>0  ) {
-		// use non-blocking sockets to have a shorter timeout
-		fd_set fds;
-		struct timeval timeout;
-#ifdef  _WIN32
-		unsigned long opt =1;
-		ioctlsocket(my_client_socket, FIONBIO, &opt);
-#else // _WIN32
-		int opt;
-		if(  (opt = fcntl(my_client_socket, F_GETFL, NULL)) < 0  ) {
-			err = "fcntl error";
-			return INVALID_SOCKET;
-		}
-		opt |= O_NONBLOCK;
-		if( fcntl(my_client_socket, F_SETFL, opt) < 0) {
-			err = "fcntl error";
-			return INVALID_SOCKET;
-		}
-#endif // _WIN32
-		if(  !connect(my_client_socket, (struct sockaddr*) &server_name, sizeof(server_name))   ) {
-#ifdef  _WIN32
-			// WSAEWOULDBLOCK indicate, that it may still succeed
-			if (WSAGetLastError() != WSAEWOULDBLOCK) {
-				FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM,NULL,WSAGetLastError(),MAKELANGID(LANG_NEUTRAL,SUBLANG_NEUTRAL),err_str,sizeof(err_str),NULL);
-#else // _WIN32
-			// EINPROGRESS indicate, that it may still succeed
-			if(  errno != EINPROGRESS  ) {
-				sprintf( err_str, "Could not connect to %s", cp );
-#endif // _WIN32
-				err = err_str;
-				return INVALID_SOCKET;
-			}
-		}
-
-		// no add only this socket to set
-		FD_ZERO(&fds);
-		FD_SET(my_client_socket, &fds);
-
-		// enter timeout
-		timeout.tv_sec = timeout_ms/1000;
-		timeout.tv_usec = ((timeout_ms%1000)*1000);
-
-		// and wait ...
-		if(  !select( FD_SETSIZE, NULL, &fds, NULL, &timeout)  ) {
-			// some other problem?
-			err = "Call to select failed";
-			return INVALID_SOCKET;
-		}
-
-		// is this socket ok?
-		if (FD_ISSET(my_client_socket, &fds) == 0) {
-			// not in set => timeout
-			err = "Server did not respond!";
-			return INVALID_SOCKET;
-		}
-
-		// make a blocking socket out of it
-#ifdef  _WIN32
-		opt = 0;
-		ioctlsocket(my_client_socket, FIONBIO, &opt);
-#else // _WIN32
-		opt &= (~O_NONBLOCK);
-		fcntl(my_client_socket, F_SETFL, opt);
-#endif // _WIN32
-	} else
-#endif //  !defined(__BEOS__)  &&  !defined(__HAIKU__)
-	{
-		if(connect(my_client_socket,(struct sockaddr *)&server_name,sizeof(server_name))==-1) {
-			sprintf( err_str, "Could not connect to %s", cp );
-			RET_ERR_STR;
-		}
+	if (connect(my_client_socket, (struct sockaddr*)&server_name, sizeof(server_name)) == -1) {
+		sprintf(err_str, "Could not connect to %s", cp);
+		RET_ERR_STR;
 	}
 
 #else // USE_IP4_ONLY
@@ -436,8 +367,6 @@ SOCKET network_open_address( const char *cp, long timeout_ms, const char * &err 
 		sprintf( err_str, "Could not connect to %s", cp );
 		RET_ERR_STR;
 	}
-
-	(void) timeout_ms;
 #endif // USE_IP4_ONLY
 	return my_client_socket;
 }

@@ -79,7 +79,7 @@ void network_close_socket( SOCKET sock );
 void network_set_socket_nodelay( SOCKET sock );
 
 // open a socket or give a decent error message
-SOCKET network_open_address( const char *cp, long timeout_ms, const char * &err);
+SOCKET network_open_address(char const* cp, char const*& err);
 
 // if sucessful, starts a server on this port
 bool network_init_server( int port );
