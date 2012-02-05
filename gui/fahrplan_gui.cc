@@ -44,6 +44,58 @@
 char fahrplan_gui_t::no_line[128];	// contains the current translation of "<no line>"
 karte_t *fahrplan_gui_t::welt = NULL;
 
+
+// shows/deletes highliting of tiles
+void fahrplan_gui_stats_t::highlite_schedule( schedule_t *markfpl, bool marking )
+{
+	marking &= umgebung_t::visualize_schedule;
+	for(  int i=0;  i<markfpl->get_count();  i++  ) {
+		if(  grund_t *gr = welt->lookup(markfpl->eintrag[i].pos)  ) {
+			for(  uint idx=0;  idx<gr->get_top();  idx++  ) {
+				ding_t *d = gr->obj_bei(idx);
+				if(  marking  ) {
+					if(  !d->is_moving()  ) {
+						d->set_flag( ding_t::highlite );
+					}
+				}
+				else {
+					d->clear_flag( ding_t::highlite );
+				}
+			}
+			gr->set_flag( grund_t::dirty );
+			// here on water
+			if(  gr->ist_wasser()  ||  gr->ist_natur()  ) {
+				if(  marking  ) {
+					gr->set_flag( grund_t::marked );
+				}
+				else {
+					gr->clear_flag( grund_t::marked );
+				}
+			}
+
+		}
+	}
+	// always remove
+	if(  grund_t *old_gr = welt->lookup(aktuell_mark->get_pos())  ) {
+		aktuell_mark->mark_image_dirty( aktuell_mark->get_bild(), 0 );
+		old_gr->obj_remove( aktuell_mark );
+		old_gr->set_flag( grund_t::dirty );
+		aktuell_mark->set_pos( koord3d::invalid );
+	}
+	// add if required
+	if(  marking  &&  markfpl->get_aktuell() < markfpl->get_count() ) {
+		aktuell_mark->set_pos( markfpl->eintrag[markfpl->get_aktuell()].pos );
+		if(  grund_t *gr = welt->lookup(aktuell_mark->get_pos())  ) {
+			gr->obj_add( aktuell_mark );
+			aktuell_mark->set_flag( ding_t::dirty );
+			gr->set_flag( grund_t::dirty );
+		}
+	}
+	aktuell_mark->clear_flag( ding_t::highlite );
+}
+
+
+
 /**
  * Fills buf with description of schedule's i'th entry.
  *
@@ -139,8 +191,8 @@ void fahrplan_gui_stats_t::zeichnen(koord offset)
 			for (int i = 0; i < fpl->get_count(); i++) {
 
 				if(  i==fpl->get_aktuell()  ) {
-					// highlite current entry
-					display_fillbox_wh_clip( offset.x, offset.y + i*(LINESPACE+1), get_groesse().x, LINESPACE, sp->get_player_color1()+1, false );
+					// highlite current entry (width is just wide enough, scrolly will do clipping)
+					display_fillbox_wh_clip( offset.x, offset.y + i*(LINESPACE+1)-1, 2048, LINESPACE+1, sp->get_player_color1()+1, false );
 				}
 
 				buf.clear();
@@ -154,43 +206,9 @@ void fahrplan_gui_stats_t::zeichnen(koord offset)
 				// the goto button (right arrow)
 				display_color_img( i!=fpl->get_aktuell() ? button_t::arrow_right_normal : button_t::arrow_right_pushed, offset.x + 2, offset.y + i * (LINESPACE + 1), 0, false, true);
 
-				if(  grund_t *gr = welt->lookup(fpl->eintrag[i].pos)  ) {
-					for(  uint idx=0;  idx<gr->get_top();  idx++  ) {
-						ding_t *d = gr->obj_bei(idx);
-						if(  umgebung_t::visualize_schedule  ) {
-							if(  !d->is_moving()  ) {
-								d->set_flag( ding_t::highlite );
-							}
-						}
-						else {
-							d->clear_flag( ding_t::highlite );
-						}
-					}
-					aktuell_mark->clear_flag( ding_t::highlite );
-					// here on water
-					if(  gr->ist_wasser()  ||  gr->ist_natur()  ) {
-						if(  umgebung_t::visualize_schedule  ) {
-							gr->set_flag( grund_t::marked );
-						}
-						else {
-							gr->clear_flag( grund_t::marked );
-						}
-					}
-					if(  i==fpl->get_aktuell()  &&  fpl->eintrag[i].pos!=aktuell_mark->get_pos()  ) {
-						if(  grund_t *old_gr = welt->lookup(aktuell_mark->get_pos())  ) {
-							aktuell_mark->mark_image_dirty( aktuell_mark->get_bild(), 0 );
-							old_gr->obj_remove( aktuell_mark );
-							old_gr->set_flag( grund_t::dirty );
-						}
-						gr->obj_add( aktuell_mark );
-						aktuell_mark->set_pos( fpl->eintrag[i].pos );
-						aktuell_mark->set_flag( ding_t::dirty );
-						gr->set_flag( grund_t::dirty );
-					}
-				}
-
 			}
-			set_groesse( koord(width+16,fpl->get_count() * (LINESPACE + 1) ) );
+			set_groesse( koord(width+16, fpl->get_count() * (LINESPACE + 1) ) );
+			highlite_schedule( fpl, true );
 		}
 	}
 }
@@ -452,13 +470,7 @@ bool fahrplan_gui_t::infowin_event(const event_t *ev)
 				else if(ev->mx<scrolly.get_groesse().x-11) {
 					fpl->set_aktuell( line );
 					if(mode == removing) {
-						if(  grund_t *gr = welt->lookup(fpl->eintrag[fpl->get_aktuell()].pos)  ) {
-							for(  uint idx=0;  idx<gr->get_top();  idx++  ) {
-								ding_t *d = gr->obj_bei(idx);
-								d->clear_flag( ding_t::highlite );
-							}
-							gr->clear_flag( grund_t::marked );
-						}
+						stats.highlite_schedule( fpl, false );
 						fpl->remove();
 						action_triggered( &bt_add, value_t() );
 					}
@@ -470,13 +482,7 @@ bool fahrplan_gui_t::infowin_event(const event_t *ev)
 	else if(ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE  &&  fpl!=NULL  ) {
 
 		for(  int i=0;  i<fpl->get_count();  i++  ) {
-			if(  grund_t *gr = welt->lookup(fpl->eintrag[i].pos)  ) {
-				for(  uint idx=0;  idx<gr->get_top();  idx++  ) {
-					ding_t *d = gr->obj_bei(idx);
-					d->clear_flag( ding_t::highlite );
-				}
-				gr->clear_flag( grund_t::marked );
-			}
+			stats.highlite_schedule( fpl, false );
 		}
 
 		update_werkzeug( false );
@@ -586,6 +592,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 //DBG_MESSAGE("fahrplan_gui_t::action_triggered()","line selection=%i",selection);
 		if(  (uint32)(selection-1)<(uint32)line_selector.count_elements()  ) {
 			new_line = lines[selection - 1];
+			stats.highlite_schedule( fpl, false );
 			fpl->copy_from( new_line->get_schedule() );
 			fpl->eingabe_beginnen();
 		}
@@ -676,6 +683,8 @@ void fahrplan_gui_t::zeichnen(koord pos, koord gr)
 		cnv->call_convoi_tool( 's', "1" );
 	}
 
+	// always dirty, to cater for shortening of halt names and change of selections
+	set_dirty();
 	gui_frame_t::zeichnen(pos,gr);
 }
 
