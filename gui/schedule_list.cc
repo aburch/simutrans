@@ -586,15 +586,9 @@ void schedule_list_gui_t::build_line_list(int filter)
 
 	for (vector_tpl<linehandle_t>::const_iterator i = lines.begin(), end = lines.end(); i != end; i++) {
 		linehandle_t l = *i;
-		if(  schedule_filter[0]  ) {
-			// search name
-			if(  strstr( l->get_name(), schedule_filter )  ) {
-				selected_lines.append( new line_scrollitem_t(l) );
-			}
-		}
-		else {
-			selected_lines.append( new line_scrollitem_t(l) );
-		}
+		// search name
+		if (strstr(l->get_name(), schedule_filter))
+			selected_lines.append(new line_scrollitem_t(l));
 	}
 
 	std::sort(selected_lines.begin(),selected_lines.end(),compare_lines);
