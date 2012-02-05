@@ -1947,7 +1947,7 @@ static void display_vl_internal(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, c
 }
 
 
-void display_vline_wh(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PLAYER_COLOR_VAL color, int dirty)
+void display_vline_wh(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PLAYER_COLOR_VAL color, bool dirty)
 {
 	display_vl_internal(xp, yp, h, color, dirty, 0, disp_width - 1, 0, disp_height - 1);
 }
@@ -2373,8 +2373,8 @@ void display_ddd_box(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PLAYE
 
 	h -= 2;
 
-	display_vline_wh(x1,         y1 + 1, h, tl_color, TRUE);
-	display_vline_wh(x1 + w - 1, y1 + 1, h, rd_color, TRUE);
+	display_vline_wh(x1,         y1 + 1, h, tl_color, true);
+	display_vline_wh(x1 + w - 1, y1 + 1, h, rd_color, true);
 }
 
 

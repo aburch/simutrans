@@ -2956,7 +2956,7 @@ static void display_vl_internal(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, c
 }
 
 
-void display_vline_wh(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PLAYER_COLOR_VAL color, int dirty)
+void display_vline_wh(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PLAYER_COLOR_VAL color, bool dirty)
 {
 	display_vl_internal(xp, yp, h, color, dirty, 0, disp_width, 0, disp_height);
 }
@@ -3404,8 +3404,8 @@ void display_ddd_box(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PLAYE
 
 	h -= 2;
 
-	display_vline_wh(x1,         y1 + 1, h, tl_color, TRUE);
-	display_vline_wh(x1 + w - 1, y1 + 1, h, rd_color, TRUE);
+	display_vline_wh(x1,         y1 + 1, h, tl_color, true);
+	display_vline_wh(x1 + w - 1, y1 + 1, h, rd_color, true);
 }
 
 
@@ -3630,8 +3630,8 @@ void display_flush_buffer(void)
 					x++;
 				} while(x < tiles_per_line && is_tile_dirty(x, y));
 
-				display_vline_wh((xl << DIRTY_TILE_SHIFT) - 1, y << DIRTY_TILE_SHIFT, DIRTY_TILE_SIZE, 80, FALSE);
-				display_vline_wh(x << DIRTY_TILE_SHIFT, y << DIRTY_TILE_SHIFT, DIRTY_TILE_SIZE, 80, FALSE);
+				display_vline_wh((xl << DIRTY_TILE_SHIFT) - 1, y << DIRTY_TILE_SHIFT, DIRTY_TILE_SIZE, 80, false);
+				display_vline_wh( x  << DIRTY_TILE_SHIFT,      y << DIRTY_TILE_SHIFT, DIRTY_TILE_SIZE, 80, false);
 				display_fillbox_wh(xl << DIRTY_TILE_SHIFT,  y << DIRTY_TILE_SHIFT,                        (x - xl) << DIRTY_TILE_SHIFT, 1, 80, false);
 				display_fillbox_wh(xl << DIRTY_TILE_SHIFT, (y << DIRTY_TILE_SHIFT) + DIRTY_TILE_SIZE - 1, (x - xl) << DIRTY_TILE_SHIFT, 1, 80, false);
 			}
