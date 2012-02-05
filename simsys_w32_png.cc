@@ -103,18 +103,17 @@ template<typename T> static void GetProcAddress(T& dst, HMODULE const module, ch
  * Windows XP and newer
  * On Win98 and up, if .NET is installed
  */
-int dr_screenshot_png(const char *filename,  int w, int h, int maxwidth, unsigned short *data, int bitdepth )
+bool dr_screenshot_png(char const* filename,  int w, int h, int maxwidth, unsigned short* data, int bitdepth)
 {
 	// first we try as PNG
 	CLSID encoderClsid;
-	int ok=FALSE;
 	ULONG *myImage = NULL;
 	GdiplusStartupInput gdiplusStartupInput;
 	ULONG_PTR gdiplusToken;
 
 	HMODULE hGDIplus = LoadLibraryA( "gdiplus.dll" );
 	if(hGDIplus==NULL) {
-		return FALSE;
+		return false;
 	}
 
 	// retrieve names ...
@@ -164,6 +163,7 @@ int dr_screenshot_png(const char *filename,  int w, int h, int maxwidth, unsigne
 	// Passenden Encoder für jpegs suchen:
 	// Genausogut kann man auch image/png benutzen um png's zu speichern ;D
 	// ...oder image/gif um gif's zu speichern, ...
+	bool ok = false;
 	if(myImage!=NULL  &&  GetEncoderClsid(L"image/png", &encoderClsid)!=-1) {
 		char cfilename[1024];
 		sprintf(cfilename, "%.*s.png", (int)(strlen(filename) - 4), filename);
@@ -172,7 +172,7 @@ int dr_screenshot_png(const char *filename,  int w, int h, int maxwidth, unsigne
 		MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, cfilename, -1, wfilename, lengthof(wfilename));
 
 		if (GdipSaveImageToFile(myImage, wfilename, &encoderClsid, 0) == 0) {
-			ok = TRUE;
+			ok = true;
 		}
 		else {
 			//printf( filename, "Save() for png failed!\n");
