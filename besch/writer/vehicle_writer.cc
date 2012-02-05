@@ -108,7 +108,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// Hajo: version number
 	// Hajo: Version needs high bit set as trigger -> this is required
 	//       as marker because formerly nodes were unversionend
-	uint16 version = 0x8008;
+	uint16 version = 0x8008; 
 	
 	// This is the overlay flag for Simutrans-Experimental
 	// This sets the *second* highest bit to 1. 
