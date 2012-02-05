@@ -22,10 +22,6 @@ KOORD_VAL tile_raster_width = 16; // zoomed
 KOORD_VAL base_tile_raster_width = 16; // original
 
 
-COLOR_VAL display_day_lights[LIGHT_COUNT*3];
-COLOR_VAL display_night_lights[LIGHT_COUNT*3];
-
-
 KOORD_VAL display_set_base_raster_width(KOORD_VAL)
 {
 	return 0;

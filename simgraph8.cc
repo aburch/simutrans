@@ -85,8 +85,6 @@ int large_font_height = 10;
 #define CLEAR_COLOR (239)
 #define DEFAULT_COLOR (239)
 
-#define LIGHT_COUNT 15
-
 // the players colors and colors for simple drawing operations
 // each eight colors are corresponding to a player color
 static const uint8 colortable_simutrans[224*3]=
@@ -339,7 +337,7 @@ static const PIXVAL colortable_system[3 * 16] = {
 /*
  * Hajo: speical colors during daytime
  */
-static const uint8 day_lights[LIGHT_COUNT*3] = {
+COLOR_VAL display_day_lights[LIGHT_COUNT * 3] = {
 	0x57,	0x65,	0x6F, // Dark windows, lit yellowish at night
 	0x7F,	0x9B,	0xF1, // Lighter windows, lit blueish at night
 	0xFF,	0xFF,	0x53, // Yellow light
@@ -361,7 +359,7 @@ static const uint8 day_lights[LIGHT_COUNT*3] = {
 /*
  * Hajo: special colors during nighttime
  */
-static const uint8 night_lights[LIGHT_COUNT*3] = {
+COLOR_VAL display_night_lights[LIGHT_COUNT * 3] = {
 	0xD3,	0xC3,	0x80, // Dark windows, lit yellowish at night
 	0x80,	0xC3,	0xD3, // Lighter windows, lit blueish at night
 	0xFF,	0xFF,	0x53, // Yellow light
@@ -1046,13 +1044,13 @@ static void calc_base_pal_from_night_shift(const int night)
 
 	// Lights
 	for (i = 0; i < LIGHT_COUNT; i++) {
-		const int day_R =  day_lights[i*3];
-		const int day_B =  day_lights[i*3+1];
-		const int day_G = day_lights[i*3+2];
+		const int day_R = display_day_lights[i * 3 + 0];
+		const int day_B = display_day_lights[i * 3 + 1];
+		const int day_G = display_day_lights[i * 3 + 2];
 
-		const int night_R =  night_lights[i*3];
-		const int night_G =  night_lights[i*3+1];
-		const int night_B =  night_lights[i*3+2];
+		const int night_R =  display_night_lights[i * 3 + 0];
+		const int night_G =  display_night_lights[i * 3 + 1];
+		const int night_B =  display_night_lights[i * 3 + 2];
 
 		const int R = (day_R * day + night_R * night2) >> 2;
 		const int G = (day_G * day + night_G * night2) >> 2;

@@ -264,4 +264,9 @@ void display_snapshot(void);
 void display_set_progress_text(const char *text);
 void display_progress(int part, int total);
 
+#if COLOUR_DEPTH != 0
+extern COLOR_VAL display_day_lights[  LIGHT_COUNT * 3];
+extern COLOR_VAL display_night_lights[LIGHT_COUNT * 3];
+#endif
+
 #endif
