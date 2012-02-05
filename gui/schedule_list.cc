@@ -305,6 +305,7 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t *sp_) :
 		}
 	}
 	selected_tab = tabs_to_lineindex[index]; // reset if previous selected tab is not there anymore
+	tabs.set_active_tab_index(index);
 	update_lineinfo( line );
 
 	// resize button
