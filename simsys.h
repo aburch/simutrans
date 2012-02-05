@@ -18,12 +18,6 @@
 #endif
 
 
-#ifndef TRUE
-#define TRUE 1
-#define FALSE 0
-#endif
-
-
 /* Variablen zur Messageverarbeitung */
 
 /* Klassen */

@@ -14,11 +14,11 @@
 #include "simversion.h"
 
 
-static int using_shm = FALSE;
-static int doing_sync = TRUE;
+static bool using_shm  = false;
+static bool doing_sync = true;
 
 static int display_depth = 8;
-static int is_truecolor = FALSE;
+static bool is_truecolor = false;
 
 static Cursor standard_cursor;
 static Cursor invisible_cursor;
@@ -96,9 +96,9 @@ int dr_os_open(int const w, int const h, int)
 	fprintf(stderr, "Using %d bpp\n", display_depth);
 
 	if (display_depth == 8) {
-		is_truecolor = FALSE;
+		is_truecolor = false;
 	} else if(display_depth >= 15) {
-		is_truecolor = TRUE;
+		is_truecolor = true;
 		fprintf(stderr,"Warning: using experimental HiColor/TrueColor mode\n");
 	} else {
 		fprintf(
@@ -303,7 +303,7 @@ void dr_textur(int xp, int yp, int w, int h)
 
 void dr_flush(void)
 {
-	if (doing_sync) XSync(md, FALSE);
+	if (doing_sync) XSync(md, False);
 }
 
 

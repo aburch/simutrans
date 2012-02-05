@@ -619,7 +619,6 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 			if (AllDibData != NULL) {
 				sys_event.type = SIM_SYSTEM;
 				sys_event.code = SIM_SYSTEM_QUIT;
-				return FALSE;
 			}
 			break;
 
@@ -629,14 +628,13 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 			if (AllDibData == NULL) {
 				PostQuitMessage(0);
 				hwnd = NULL;
-				return TRUE;
 			}
-			return FALSE;
+			break;
 
 		default:
 			return DefWindowProc(this_hwnd, msg, wParam, lParam);
 	}
-	return FALSE;
+	return 0;
 }
 
 

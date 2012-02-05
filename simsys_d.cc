@@ -329,7 +329,7 @@ void dr_setRGB8multi(int first, int count, unsigned char* data)
 		p[n + first].b = data[n * 3 + 2] >> 2;
 	}
 
-	set_palette_range(p, first, first + count - 1, TRUE);
+	set_palette_range(p, first, first + count - 1, true);
 }
 
 

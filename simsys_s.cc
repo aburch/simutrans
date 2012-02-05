@@ -172,7 +172,7 @@ int dr_os_open(int w, int const h, int const fullscreen)
 	}
 	DBG_MESSAGE("dr_os_open(SDL)", "SDL realized screen size width=%d, height=%d (requested w=%d, h=%d)", screen->w, screen->h, w, h);
 
-	SDL_EnableUNICODE(TRUE);
+	SDL_EnableUNICODE(true);
 	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 
 	// set the caption for the window
@@ -379,13 +379,13 @@ static void internal_GetEvents(bool const wait)
 	}
 	else {
 		int n;
-		int got_one = FALSE;
+		bool got_one = false;
 
 		do {
 			n = SDL_PollEvent(&event);
 
 			if (n != 0) {
-				got_one = TRUE;
+				got_one = true;
 
 				if (event.type == SDL_MOUSEMOTION) {
 					sys_event.type = SIM_MOUSE_MOVE;
