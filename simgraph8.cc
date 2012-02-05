@@ -1271,17 +1271,17 @@ static int clip_wh(KOORD_VAL *x, KOORD_VAL *width, const KOORD_VAL min_width, co
 
 /**
  * places x and w within bounds left and right
- * if nothing to show, returns FALSE
+ * if nothing to show, returns false
  * @author Niels Roest
  */
-static int clip_lr(KOORD_VAL *x, KOORD_VAL *w, const KOORD_VAL left, const KOORD_VAL right)
+static bool clip_lr(KOORD_VAL *x, KOORD_VAL *w, const KOORD_VAL left, const KOORD_VAL right)
 {
 	const KOORD_VAL l = *x;          // leftmost pixel
 	const KOORD_VAL r = *x + *w - 1; // rightmost pixel
 
 	if (l > right || r < left) {
 		*w = 0;
-		return FALSE;
+		return false;
 	}
 
 	// there is something to show.
@@ -1292,7 +1292,7 @@ static int clip_lr(KOORD_VAL *x, KOORD_VAL *w, const KOORD_VAL left, const KOORD
 	if (r > right) {
 		*w -= r - right;
 	}
-	return TRUE;
+	return true;
 }
 
 
