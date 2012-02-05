@@ -1,15 +1,11 @@
 #ifndef TPL_VECTOR_H
 #define TPL_VECTOR_H
 
+#include <typeinfo>
+
 #include "../macros.h"
 #include "../simtypes.h"
 #include "../simdebug.h"
-
-#ifdef _MSC_VER
-#include <typeinfo.h>
-#else
-#include <typeinfo>
-#endif
 
 template<class T> class vector_tpl;
 template<class T> inline void swap(vector_tpl<T>& a, vector_tpl<T>& b);
