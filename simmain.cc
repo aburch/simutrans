@@ -841,7 +841,7 @@ int simu_main(int argc, char** argv)
 		 * Added automatic adding of extension
 		 */
 		const char *name = gimme_arg(argc, argv, "-load", 1);
-		if(  strstr(name,"net:") == name  ) {
+		if (strstart(name, "net:")) {
 			buf.append( name );
 		}
 		else {

@@ -4232,7 +4232,7 @@ bool karte_t::laden(const char *filename)
 
 	DBG_MESSAGE("karte_t::laden", "loading game from '%s'", filename);
 
-	if(  strstr(filename,"net:")==filename  ) {
+	if (strstart(filename, "net:")) {
 		// probably finish network mode?
 		if(  umgebung_t::networkmode  ) {
 			network_core_shutdown();
