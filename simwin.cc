@@ -1432,14 +1432,14 @@ void win_display_flush(double konto)
 		}
 	}
 
-	koord3d pos;
-	sint64 ticks=1, month=0, year=0;
+	//koord3d pos;
+	//sint64 ticks=1, month=0, year=0;
 
 	const ding_t *dt = wl->get_zeiger();
-	pos = dt->get_pos();
-	month = wl->get_last_month();
-	year = wl->get_last_year();
-	ticks = wl->get_zeit_ms();
+	const koord3d pos = dt->get_pos();
+	const uint32 month = wl->get_last_month();
+	const sint32 year = wl->get_last_year();
+	const sint64 ticks = wl->get_zeit_ms();
 
 	// calculate also days if desired
 	const sint64 ticks_this_month = ticks % wl->ticks_per_world_month;
@@ -1472,45 +1472,45 @@ void win_display_flush(double konto)
 	char const* const month_ = translator::get_month_name(month % 12);
 	switch (umgebung_t::show_month) {
 		case umgebung_t::DATE_FMT_GERMAN_NO_SEASON:
-			sprintf(time, "%d. %s %lld %d:%02dh", tage, month_, year, stunden, minuten);
+			sprintf(time, "%d. %s %d %d:%02dh", tage, month_, year, stunden, minuten);
 			break;
 
 		case umgebung_t::DATE_FMT_US_NO_SEASON: {
 			uint32 hours_ = stunden % 12;
 			if (hours_ == 0) hours_ = 12;
-			sprintf(time, "%s %d %lld %2d:%02d%s", month_, tage, year, hours_, minuten, stunden < 12 ? "am" : "pm");
+			sprintf(time, "%s %d %d %2d:%02d%s", month_, tage, year, hours_, minuten, stunden < 12 ? "am" : "pm");
 			break;
 		}
 
 		case umgebung_t::DATE_FMT_JAPANESE_NO_SEASON:
-			sprintf(time, "%lld/%s/%d %2d:%02dh", year, month_, tage, stunden, minuten);
+			sprintf(time, "%d/%s/%d %2d:%02dh", year, month_, tage, stunden, minuten);
 			break;
 
 		case umgebung_t::DATE_FMT_GERMAN:
-			sprintf(time, "%s, %d. %s %lld %d:%02dh", season, tage, month_, year, stunden, minuten);
+			sprintf(time, "%s, %d. %s %d %d:%02dh", season, tage, month_, year, stunden, minuten);
 			break;
 
 		case umgebung_t::DATE_FMT_US: {
 			uint32 hours_ = stunden % 12;
 			if (hours_ == 0) hours_ = 12;
-			sprintf(time, "%s, %s %d %lld %2d:%02d%s", season, month_, tage, year, hours_, minuten, stunden < 12 ? "am" : "pm");
+			sprintf(time, "%s, %s %d %d %2d:%02d%s", season, month_, tage, year, hours_, minuten, stunden < 12 ? "am" : "pm");
 			break;
 		}
 
 		case umgebung_t::DATE_FMT_JAPANESE:
-			sprintf(time, "%s, %lld/%s/%d %2d:%02dh", season, year, month_, tage, stunden, minuten);
+			sprintf(time, "%s, %d/%s/%d %2d:%02dh", season, year, month_, tage, stunden, minuten);
 			break;
 
 		case umgebung_t::DATE_FMT_MONTH:
-			sprintf(time, "%s, %s %lld %2d:%02dh", month_, season, year, stunden, minuten);
+			sprintf(time, "%s, %s %d %2d:%02dh", month_, season, year, stunden, minuten);
 			break;
 
 		case umgebung_t::DATE_FMT_SEASON:
-			sprintf(time, "%s %lld", season, year);
+			sprintf(time, "%s %d", season, year);
 			break;
 
 		case umgebung_t::DATE_FMT_INTERNAL_MINUTE:
-			sprintf(time, "%s %lld %s %s/%s", season, year, month_, ticks_as_clock, month_as_clock);
+			sprintf(time, "%s %d %s %s/%s", season, year, month_, ticks_as_clock, month_as_clock);
 			break;
 	}
 

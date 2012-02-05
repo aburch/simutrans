@@ -31,7 +31,7 @@ class float32e8_t
 private:
 	uint32 m;	// mantissa
 	sint16 e;	// exponent
-	bool ms:1;	// sign of manitissa
+	bool ms:1;	// sign of mantissa
 
 	inline void set_zero() { m = 0L; e = 0; ms = false; }
 public:
@@ -41,14 +41,23 @@ public:
 	static const sint16 max_exponent;
 	static const uint32 max_mantissa;
 	static const float32e8_t zero;
+	static const float32e8_t tenth;
+	static const float32e8_t quarter;
+	static const float32e8_t third;
 	static const float32e8_t half;
 	static const float32e8_t one;
+	static const float32e8_t two;
+	static const float32e8_t three;
+	static const float32e8_t four;
+	static const float32e8_t milli;
+	static const float32e8_t micro;
 
 	inline float32e8_t() {};
 
 	inline float32e8_t(const float32e8_t &value) { m = value.m; e = value.e; ms = value.ms; }
 	inline float32e8_t(const uint32 mantissa, const sint16 exponent, const bool negative_man) { m = mantissa; e = exponent; ms = negative_man; }
 	inline void set_value(const float32e8_t &value) { m = value.m; e = value.e; ms = value.ms; }
+	inline bool is_zero() const { return m == 0L; }
 
 #ifdef USE_DOUBLE
 	inline float32e8_t(const double value) { set_value(value); }
@@ -79,33 +88,49 @@ public:
 	inline bool operator < (const float32e8_t &value) const
 	{
 		if (ms)
-			return !value.ms ||	  e > value.e || (e == value.e && m > value.m);
+			return !value.ms || e > value.e || (e == value.e && m > value.m);
+		else if (value.ms)
+			return false;
+		else if (m == 0 || value.m == 0)
+			return m < value.m;
 		else
-			return 	!value.ms && (e < value.e || (e == value.e && m < value.m));
+			return e < value.e || (e == value.e && m < value.m);
 	}
 
 	inline bool operator <= (const float32e8_t &value) const
 	{
 		if (ms)
-			return !value.ms ||	  e > value.e || (e == value.e && m >= value.m);
+			return !value.ms || e > value.e || (e == value.e && m >= value.m);
+		else if (value.ms)
+			return false;
+		else if (m == 0 || value.m == 0)
+			return m <= value.m;
 		else
-			return !value.ms && (e < value.e || (e == value.e && m <= value.m));
+			return e < value.e || (e == value.e && m <= value.m);
 	}
 
 	inline bool operator > (const float32e8_t &value) const
 	{
 		if (ms)
-			return  value.ms &&	 (e < value.e || (e == value.e && m < value.m));
+			return value.ms && (e < value.e || (e == value.e && m < value.m));
+		else if (value.ms)
+			return true;
+		else if (m == 0 || value.m == 0)
+			return m > value.m;
 		else
-			return  value.ms ||  e > value.e || (e == value.e && m > value.m);
+			return e > value.e || (e == value.e && m > value.m);
 	}
 
 	inline bool operator >= (const float32e8_t &value) const
 	{
 		if (ms)
-			return  value.ms && (e < value.e || (e == value.e && m <= value.m));
+			return value.ms && (e < value.e || (e == value.e && m <= value.m));
+		else if (value.ms)
+			return true;
+		else if (m == 0 || value.m == 0)
+			return m >= value.m;
 		else
-			return  value.ms ||  e > value.e || (e == value.e && m >= value.m);
+			return e > value.e || (e == value.e && m >= value.m);
 	}
 
 	inline bool operator == (const float32e8_t &value) const { return m == value.m && e == value.e && ms == value.ms; }
@@ -178,6 +203,8 @@ public:
 	inline const float32e8_t & operator /= (const uint64 value) { set_value(*this / value); return *this; }
 
 	inline const float32e8_t abs() const { return ms ? float32e8_t(m, e, false) : *this; }
+	inline const int sgn() const { return ms ? -1 : m ? 1 : 0; }
+	inline const int sgn(const float32e8_t &eps) const { return *this < -eps ? -1 : *this > eps ? 1 : 0; }
 	const float32e8_t log2() const;
 	const float32e8_t exp2() const;
 
@@ -220,7 +247,10 @@ inline const float32e8_t operator / (const uint64 x, const float32e8_t &y) {retu
 inline const float32e8_t abs(const float32e8_t &x) { return x.abs(); }
 inline const float32e8_t log2(const float32e8_t &x) { return x.log2(); }
 inline const float32e8_t exp2(const float32e8_t &x) { return x.exp2(); }
-inline const float32e8_t pow(const float32e8_t &base, const float32e8_t &expo) { return exp2(expo * base.log2()); }
+inline const float32e8_t pow(const float32e8_t &base, const float32e8_t &expo) { return base.is_zero() ? float32e8_t::zero : exp2(expo * base.log2()); }
+inline const float32e8_t sqrt(const float32e8_t &x) { return pow(x, float32e8_t::half); }
+inline const int sgn(const float32e8_t &x) { return x.sgn(); }
+inline const int sgn(const float32e8_t &x, const float32e8_t &eps) { return x.sgn(eps); }
 
 class float32e8_exception_t {
 private:

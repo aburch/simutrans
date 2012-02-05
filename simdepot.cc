@@ -434,7 +434,7 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 				create_win( new news_img("Diese Zusammenstellung kann nicht fahren!\n"), w_time_delete, magic_none);
 			}
 		}
-		else if(  !cnv->front()->calc_route(this->get_pos(), cur_pos, cnv->get_min_top_speed(), cnv->access_route())  ) {
+		else if(  !cnv->calc_route(this->get_pos(), cur_pos, cnv->get_min_top_speed())  ) {
 			// no route to go ...
 			if(local_execution) {
 				static cbuffer_t buf;

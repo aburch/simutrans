@@ -125,7 +125,8 @@ public:
 	virtual image_id get_bild() const {return bild;}
 
 	sint8 get_hoff() const {return hoff;}
-	uint8 get_steps() const {return steps;}
+	uint8 get_steps() const {return steps;} // number of steps pass on the current tile. 
+	uint8 get_steps_next() const {return steps_next;} // total number of steps to pass on the current tile - 1. Mostly VEHICLE_STEPS_PER_TILE - 1 for straight route or diagonal_vehicle_steps_per_tile - 1 for a diagonal route.
 
 	// to make smaller steps than the tile granularity, we have to calculate our offsets ourselves!
 	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const;
@@ -134,7 +135,7 @@ public:
 
 	static ribi_t::ribi calc_richtung(koord start, koord ende);
 	ribi_t::ribi calc_set_richtung(koord start, koord ende);
-	ribi_t::ribi calc_check_richtung(koord start, koord ende);
+	uint16 get_tile_steps(const koord &start, const koord &ende, /*out*/ ribi_t::ribi &richtung) const;
 
 	ribi_t::ribi get_fahrtrichtung() const {return fahrtrichtung;}
 
@@ -182,8 +183,9 @@ private:
 	* frictionforce = gamma*speed*weight
 	* since the total weight is needed a lot of times, we save it
 	* @author prissi
+	* BG, 18.10.2011: in tons in simutrans standard, in kg in simutrans experimental
 	*/
-	uint16 sum_weight;
+	uint32 sum_weight; 
 
 	bool hop_check();
 
@@ -302,6 +304,8 @@ protected:
 	bool check_access(const weg_t* way) const;
 
 public:
+	sint32 calc_speed_limit(const weg_t *weg, const weg_t *weg_previous, fixed_list_tpl<sint16, 16>* cornering_data, ribi_t::ribi current_direction, ribi_t::ribi previous_direction);
+
 	virtual bool ist_befahrbar(const grund_t* ) const {return false;}
 
 	inline bool check_way_constraints(const weg_t &way) const;
@@ -473,9 +477,9 @@ public:
 		Northwest = 315,
 	};
 
-	direction_degrees get_direction_degrees(ribi_t::ribi);
+	direction_degrees get_direction_degrees(ribi_t::ribi) const;
 
-	sint16 compare_directions(sint16 first_direction, sint16 second_direction);
+	sint16 compare_directions(sint16 first_direction, sint16 second_direction) const;
 
 	/**
 	* loescht alle fracht aus dem Fahrzeug
@@ -550,7 +554,7 @@ public:
 	// vehicles in reverse formation.
 	ribi_t::ribi get_direction_of_travel();
 
-	uint16 get_sum_weight() const { return sum_weight; }
+	uint16 get_sum_weight() const { return (sum_weight + 499) / 1000; }
 
 	// @author: jamespetts
 	uint16 get_overcrowding() const;
@@ -668,7 +672,7 @@ public:
 
 	waggon_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last);
 	waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t *cnv); // start und fahrplan
-	~waggon_t();
+	virtual ~waggon_t();
 
 	virtual void set_convoi(convoi_t *c);
 
@@ -755,8 +759,6 @@ protected:
 
 	void calc_drag_coefficient(const grund_t *gr);
 
-	//uint32 calc_modified_speed_limit(const weg_t *w, uint8 s, ribi_t::ribi current_direction) { return base_limit; }  //Ships do not modify speed limits.
-
 	bool ist_befahrbar(const grund_t *bd) const;
 
 public:
@@ -826,7 +828,7 @@ public:
 	aircraft_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv); // start und fahrplan
 
 	// since we are drawing ourselves, we must mark ourselves dirty during deletion
-	~aircraft_t();
+	virtual ~aircraft_t();
 
 	virtual waytype_t get_waytype() const { return air_wt; }
 
@@ -867,8 +869,6 @@ public:
 
 	// the drag calculation happens it calc_height
 	void calc_drag_coefficient(const grund_t*) {}
-
-	//uint32 calc_modified_speed_limit(const weg_t *w, uint32 base_limit, uint8 s, ribi_t::ribi current_direction) { return base_limit; } 
 
 	bool is_on_ground() const { return flughoehe==0  &&  !(state==circling  ||  state==flying); }
 

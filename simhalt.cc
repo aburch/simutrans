@@ -73,6 +73,10 @@ stringhashtable_tpl<halthandle_t> haltestelle_t::all_names;
 
 static uint32 halt_iterator_start = 0;
 
+uint8 haltestelle_t::pedestrian_limit = 0;
+
+static const uint8 pedestrian_generate_max = 16;
+
 void haltestelle_t::step_all()
 {
 	if (!alle_haltestellen.empty())
@@ -978,7 +982,7 @@ void haltestelle_t::step()
 					// Goods/passengers' maximum waiting times are proportionate to the length of the journey.
 					const uint16 base_max_minutes = (welt->get_settings().get_passenger_max_wait() / tmp.get_besch()->get_speed_bonus()) * 10;  // Minutes are recorded in tenths
 					halthandle_t h = haltestelle_t::get_halt(welt, tmp.get_zielpos(), besitzer_p);
-					uint16 journey_time = 655535;
+					uint16 journey_time = 65535;
 					path_explorer_t::get_catg_path_between(tmp.get_besch()->get_catg_index(), tmp.get_origin(), tmp.get_ziel(), journey_time, h);
 					const uint16 thrice_journey = journey_time * 3;
 					const uint16 min_minutes = base_max_minutes / 12;
@@ -2396,9 +2400,14 @@ void haltestelle_t::recalc_station_type()
 
 int haltestelle_t::erzeuge_fussgaenger(karte_t *welt, koord3d pos, int anzahl)
 {
-	fussgaenger_t::erzeuge_fussgaenger_an(welt, pos, anzahl);
-	for(int i=0; i<4 && anzahl>0; i++) {
-		fussgaenger_t::erzeuge_fussgaenger_an(welt, pos+koord::nsow[i], anzahl);
+	if(pedestrian_limit < pedestrian_generate_max)
+	{
+		pedestrian_limit ++;
+		fussgaenger_t::erzeuge_fussgaenger_an(welt, pos, anzahl);
+		for(int i=0; i<4 && anzahl>0; i++) 
+		{
+			fussgaenger_t::erzeuge_fussgaenger_an(welt, pos+koord::nsow[i], anzahl);
+		}
 	}
 	return anzahl;
 }
@@ -2790,6 +2799,8 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			check_nearby_halts();
 		}
 	}
+
+	pedestrian_limit = 0;
 }
 
 

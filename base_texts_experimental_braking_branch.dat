@@ -1,0 +1,11 @@
+# Simutranslator settings for Simutrans-Experimental texts
+# Addendum for version 10.2 (or later, braking branch)
+#
+# Author: jamespetts
+# Created: October 2011
+#
+obj=program_text
+name=brakes from max. speed in %i m
+note=Used in the depot window to show the minimum braking distance of the current convoy
+-
+

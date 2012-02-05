@@ -1005,7 +1005,7 @@ loadsave_t::combined_version loadsave_t::int_version(const char *version_text, i
 		//*version_text -= count;
 		while(count > 0)
 		{
-			*version_text --;
+			version_text --;
 			count--;
 		}
 	}
@@ -1014,7 +1014,7 @@ loadsave_t::combined_version loadsave_t::int_version(const char *version_text, i
 		experimental_version = atoi(version_text);
 		while(count > 0)
 		{
-			*version_text --;
+			version_text --;
 			count--;
 		}
 	}

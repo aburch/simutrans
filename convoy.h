@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009 Bernd Gabriel
+ * Copyright (c) 2009..2011 Bernd Gabriel
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -20,37 +20,40 @@ complete explanation of the force equation of a land vehicle.
 Force balance: Fm = Ff + Fr + Fs + Fa; 
 
 Fm: machine force in Newton [N] = [kg*m/s^2]
+
 Ff: air resistance, always > 0
     Ff = cw/2 * A * rho * v^2, 
 		cw: friction factor: average passenger cars and high speed trains: 0.25 - 0.5, average trucks and trains: 0.7
 		A: largest profile: average passenger cars: 3, average trucks: 6, average train: 10 [m^2]
 		rho = density of medium (air): 1.2 [kg/m^3]
 		v: speed [m/s]
+
 Fr: roll resistance, always > 0 
     Fr = fr * g * m * cos(alpha)
 		fr: roll resistance factor: steel wheel on track: 0.0015, car wheel on road: 0.015
 		g: gravitation constant: 9,81 [m/s^2]
 		m: mass [kg]
 		alpha: inclination: 0=flat
+
 Fs: slope force/resistance, downhill: Fs < 0 (force), uphill: Fs > 0 (resistance)
 	Fs = g * m * sin(alpha)
 		g: gravitation constant: 9.81 [m/s^2]
 		m: mass [kg]
 		alpha: inclination: 0=flat
+
 Fa: accelerating force
 	Fa = m * a
 		m: mass [kg]
 		a: acceleration
 
-Let F = Fm - Fr - Fs.
+Let Frs = Fr + Fs = g * m * (fr * cos(alpha) + sin(alpha)).
 Let cf = cw/2 * A * rho.
-Let Frs = Fr + Fs = g * (fr * m * cos(alpha) + m * sin(alpha))
 
 Then
 
-cf * v^2 + m * a - F = 0
+Fm = cf * v^2 + Frs + m * a
 
-a = (F - cf * v^2 - Frs) / m
+a = (Fm - Frs - cf * v^2) / m
 
 *******************************************************************************/
 #pragma once
@@ -61,68 +64,34 @@ a = (F - cf * v^2 - Frs) / m
 #include <limits>
 #include <math.h>
 #include "utils/float32e8_t.h"
+#include "simunits.h"
 #include "tpl/vector_tpl.h"
 #include "besch/vehikel_besch.h"
-//#include "simconst.h"
 #include "simtypes.h"
 #include "vehicle/simvehikel.h"
 #include "simconvoi.h"
 #include "simworld.h"
 
-// CF_*: constants related to air resistance
-// TODO: Add a "streamline" value to road/rail
-// which reduces the CF value.
-
-//#define CF_TRACK 0.7 / 2 * 10 * 1.2
-//#define CF_TRACK 4.2
-#define CF_TRACK float32e8_t((uint32) 13)
-#define CF_MAGLEV float32e8_t((uint32) 10)
-//#define CF_ROAD 0.7 / 2 * 6 * 1.2
-#define CF_ROAD float32e8_t((uint32) 252, (uint32) 100)
-#define CF_WATER float32e8_t((uint32) 25)
-#define CF_AIR float32e8_t((uint32)1)
-
-// FR_*: constants related to roll resistance
-
-//should be 0.0015, but for game balance it is higher 
-//#define FR_TRACK 0.0015
-#define FR_MAGLEV float32e8_t((uint32) 15, (uint32) 10000)
-#define FR_TRACK float32e8_t((uint32) 51, (uint32) 10000)
-#define FR_ROAD  float32e8_t((uint32) 15, (uint32) 1000)
-#define FR_WATER float32e8_t((uint32) 1, (uint32) 1000)
-#define FR_AIR float32e8_t((uint32) 1, (uint32) 1000)
-
-// GEAR_FACTOR: a gear of 1.0 is stored as 64
-#define GEAR_FACTOR 64
-
-#define WEIGHT_UNLIMITED ((std::numeric_limits<sint32>::max)())
-
-// anything greater then 2097151 will give us overflow in kmh_to_speed. 
-#define KMH_SPEED_UNLIMITED  (300000)
-
-
-/**
- * Convert simutrans speed to m/s
- */
-
-// scale to convert m/s to simutrans speed
-const float32e8_t simspeed2ms((uint32) 10, (uint32) 36 * 1024);
-const float32e8_t ms2simspeed((uint32) 36 * 1024, (uint32) 10);
-
-inline float32e8_t speed_to_v(const sint32 speed)
-{
-	return simspeed2ms * (speed * VEHICLE_SPEED_FACTOR);
-}
-
-inline sint32 v_to_speed(const float32e8_t &v)
-{
-	return ((sint32)(ms2simspeed * v) + VEHICLE_SPEED_FACTOR - 1) / VEHICLE_SPEED_FACTOR;
-}
-
-//inline float32e8_t x_to_steps(const float32e8_t &x)
-//{
-//	return (ms2simspeed * x + float32e8_t(VEHICLE_SPEED_FACTOR - 1)) / float32e8_t(VEHICLE_SPEED_FACTOR);
-//}
+//// CF_*: constants related to air resistance
+//
+////#define CF_TRACK 0.7 / 2 * 10 * 1.2
+////#define CF_TRACK 4.2
+//static const float32e8_t CF_TRACK = float32e8_t((uint32) 13);
+//static const float32e8_t CF_MAGLEV = float32e8_t((uint32) 10);
+////#define CF_ROAD 0.7 / 2 * 6 * 1.2
+//static const float32e8_t CF_ROAD = float32e8_t((uint32) 252, (uint32) 100);
+//static const float32e8_t CF_WATER = float32e8_t((uint32) 25);
+//static const float32e8_t CF_AIR = float32e8_t((uint32)1);
+//
+//// FR_*: constants related to rolling resistance
+//
+////should be 0.0015, but for game balance it is higher 
+////#define FR_TRACK 0.0015
+//static const float32e8_t FR_MAGLEV = float32e8_t((uint32) 15, (uint32) 10000);
+//static const float32e8_t FR_TRACK = float32e8_t((uint32) 51, (uint32) 10000);
+//static const float32e8_t FR_ROAD = float32e8_t((uint32) 15, (uint32) 1000);
+//static const float32e8_t FR_WATER = float32e8_t((uint32) 1, (uint32) 1000);
+//static const float32e8_t FR_AIR = float32e8_t((uint32) 1, (uint32) 1000);
 
 /******************************************************************************/
 
@@ -164,51 +133,18 @@ struct vehicle_summary_t
 struct adverse_summary_t
 {
 	float32e8_t cf;	// air resistance constant: cf = cw/2 * A * rho. Depends on rho, which depends on altitude.
-	float32e8_t fr;	// roll resistance: depends on way
+	float32e8_t fr;	// rolling resistance
+	float32e8_t br; // brake force factor
 	sint32 max_speed;
 
 	inline void clear()
 	{
-		cf = fr = 0;
+		cf = fr = br = 0;
 		max_speed = KMH_SPEED_UNLIMITED; 
 	}
 
-	inline void set_by_waytype(waytype_t waytype)
-	{
-		switch (waytype)
-		{
-			case air_wt:
-				cf = CF_AIR;
-				fr = FR_AIR;
-				break;
-
-			case water_wt:
-				cf = CF_WATER;
-				fr = FR_WATER;
-				break;
-		
-			case track_wt:
-			case overheadlines_wt: 
-			case tram_wt:
-			case narrowgauge_wt:
-			case monorail_wt:      
-				cf = CF_TRACK;
-				fr = FR_TRACK;
-				break;
-			
-			case maglev_wt:
-				cf = CF_MAGLEV;
-				fr = FR_MAGLEV;
-				break;
-
-			default:
-				cf = CF_ROAD;
-				fr = FR_ROAD;
-				break;
-		}
-	}
-
 	void add_vehicle(const vehikel_t &v);
+	void add_vehicle(const vehikel_besch_t &b, bool is_first);
 };
 
 /******************************************************************************/
@@ -231,7 +167,7 @@ struct freight_summary_t
 
 struct weight_summary_t
 {
-	sint32 weight;			// vehicle and freight weight in kg. depends on vehicle (weight) and freight (weight)
+	sint32 weight;				// vehicle and freight weight in kg. depends on vehicle (weight) and freight (weight)
 	float32e8_t weight_cos;		// vehicle and freight weight in kg multiplied by cos(alpha). depends on adverse (way/inclination), vehicle and freight
 	float32e8_t weight_sin;		// vehicle and freight weight in kg multiplied by sin(alpha). depends on adverse (way/inclination), vehicle and freight
 
@@ -262,7 +198,7 @@ struct weight_summary_t
 	{
 		// v.get_frictionfactor() between about -14 (downhill) and 50 (uphill). 
 		// Including the factor 1000 for tons to kg conversion, 50 corresponds to an inclination of 28 per mille.
-		add_weight(v.get_gesamtgewicht() * 1000, v.get_frictionfactor());
+		add_weight(v.get_gesamtgewicht(), v.get_frictionfactor());
 	}
 };
 
@@ -274,24 +210,40 @@ private:
 	/**
 	 * Get force in N according to current speed in m/s
 	 */
-	inline sint32 get_force(float32e8_t speed) 
+	inline sint32 get_force(const float32e8_t &speed) 
 	{
 		sint32 v = (sint32)abs(speed);
 		return (v == 0) ? get_starting_force() : get_force_summary(v) * 1000;
 	}
-	/*
+
+	/**
 	 * Get force in N that holds the given speed v or maximum available force, what ever is lesser.
+	 * Frs = Fr + Fs
+	 * Fr: roll resistance, always > 0 
+	 * Fs: slope force/resistance, downhill: Fs < 0 (force), uphill: Fs > 0 (resistance)
 	 */
-	float32e8_t calc_speed_holding_force(float32e8_t speed /* in m/s */, float32e8_t Frs /* in N */); /* in N */
+	inline float32e8_t calc_speed_holding_force(const float32e8_t &v /* in m/s */, const float32e8_t &Frs /* in N */)
+	{
+		return min(get_force(v), adverse.cf * v * v + Frs); /* in N */
+	}
 protected:
 	vehicle_summary_t vehicle;
 	adverse_summary_t adverse;
 
 	/**
-	 * get force in kN according to current speed m/s in
+	 * get brake force in kN according to current speed in m/s
 	 */
-	virtual sint32 get_force_summary(sint32 speed) = 0;
-	virtual sint32 get_power_summary(sint32 speed) = 0;
+	virtual sint32 get_brake_summary(const sint32 speed) = 0;
+
+	/**
+	 * get engine force in kN according to current speed in m/s
+	 */
+	virtual sint32 get_force_summary(const sint32 speed) = 0;
+
+	/**
+	 * get engine power in kW according to current speed in m/s
+	 */
+	virtual sint32 get_power_summary(const sint32 speed) = 0;
 
 	virtual const vehicle_summary_t &get_vehicle_summary() {
 		return vehicle;
@@ -301,14 +253,42 @@ protected:
 		return adverse;
 	}
 
+	/**
+	 * get braking force in N according to current weight in kg
+	 */
+	virtual sint32 get_braking_force(const sint32 speed) 
+	{
+		return get_brake_summary(speed) * 1000;
+	}
+
+	/*
+	 * get starting force in N
+	 */
 	virtual sint32 get_starting_force() { 
 		return get_force_summary(0) * 1000; 
 	}
 
+	/*
+	 * get continuous power in W
+	 */
 	virtual sint32 get_continuous_power() { 
 		return get_power_summary(get_vehicle_summary().max_speed) * 1000; 
 	}
+
+	/**
+	 * convert power index into power in W or convert force index into force in N.
+	 * power_index: a value gotten from vehicles (e.g. from get_effective_force_index()/get_effective_power_index()).
+	 * power_factor: the global power factor percentage. Must not be 0!.
+	 */
+	sint32 power_index_to_power(sint32 power_index, sint32 power_factor);
 public:
+	/**
+	 * Update adverse.max_speed. If given speed is less than current adverse.max_speed, then speed becomes the new adverse.max_speed.
+	 */
+	void update_max_speed(const int speed) { 
+		if (adverse.max_speed > speed ) adverse.max_speed = speed; 
+	}
+
 	/**
 	 * For calculating max speed at an arbitrary weight apply this result to your weight_summary_t() constructor as param sin_alpha.
 	 */
@@ -329,14 +309,29 @@ public:
 
 	sint32 calc_max_starting_weight(sint32 sin_alpha);
 
+	/**
+	 * Get the minimum braking distance in m for the convoy with given weight summary at given speed v in m/s.
+	 */
+	sint32 calc_min_braking_distance(const weight_summary_t &weight, const float32e8_t &v);
+
+	/**
+	 * Get the minimum braking distance in steps for the convoy with given weight summary at given simutrans speed.
+	 */
+	sint32 calc_min_braking_distance(const float32e8_t &simtime_factor, const weight_summary_t &weight, sint32 speed);
+
 	/** 
 	 * Calculate the movement within delta_t
 	 *
-	 * @param akt_speed_soll is the desired end speed in simutrans speed.
-	 * @param akt_speed is the current speed and returns the new speed after delta_t has gone in simutrans speed.
-	 * @param sp_soll is the number of simutrans steps still to go and returns the new number of steps to go.
+	 * @param simtime_factor the factor for translating simutrans time. Currently (Oct, 23th 2011) this is the length of a tile in meters divided by the standard tile length (1000 meters).
+	 * @param weight the current weight summary of the convoy.
+	 * @param akt_speed_soll the desired end speed in simutrans speed.
+	 * @param next_speed_limit the next speed limit in simutrans speed.
+	 * @param steps_til_limit the distance in simutrans steps to the next speed limit.
+	 * @param steps_til_brake the distance in simutrans steps to the point where we must start braking to obey the speed limit at steps_til_limit.
+	 * @param akt_speed the current speed and returns the new speed after delta_t has gone in simutrans speed.
+	 * @param sp_soll the number of simutrans yards still to go and returns the new number of simutrans yards to go.
 	 */
-	void calc_move(long delta_t, const float32e8_t &simtime_factor, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll);
+	void calc_move(long delta_t, const float32e8_t &simtime_factor, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 next_speed_limit, sint32 steps_til_limit, sint32 steps_til_brake, sint32 &akt_speed, sint32 &sp_soll, float32e8_t &akt_v);
 	virtual ~convoy_t(){}
 };
 
@@ -503,11 +498,11 @@ public:
 		return convoy_t::calc_max_starting_weight(sin_alpha);
 	}
 
-	void calc_move(long delta_t, const float32e8_t &simtime_factor, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll)
+	void calc_move(long delta_t, const float32e8_t &simtime_factor, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 next_speed_limit, sint32 steps_til_limit, sint32 steps_til_break, sint32 &akt_speed, sint32 &sp_soll, float32e8_t &akt_v)
 	{
 		validate_vehicle_summary();
 		validate_adverse_summary();
-		convoy_t::calc_move(delta_t, simtime_factor, weight, akt_speed_soll, akt_speed, sp_soll);
+		convoy_t::calc_move(delta_t, simtime_factor, weight, akt_speed_soll, next_speed_limit, steps_til_limit, steps_til_break, akt_speed, sp_soll, akt_v);
 	}
 	virtual ~lazy_convoy_t(){}
 };
@@ -523,8 +518,9 @@ protected:
 	virtual void update_vehicle_summary(vehicle_summary_t &vehicle);
 	virtual void update_adverse_summary(adverse_summary_t &adverse);
 	virtual void update_freight_summary(freight_summary_t &freight);
-	virtual sint32 get_force_summary(sint32 speed /* in m/s */);
-	virtual sint32 get_power_summary(sint32 speed /* in m/s */);
+	virtual sint32 get_brake_summary(const sint32 speed /* in m/s */); 
+	virtual sint32 get_force_summary(const sint32 speed /* in m/s */);
+	virtual sint32 get_power_summary(const sint32 speed /* in m/s */);
 public:
 	potential_convoy_t(karte_t &world, vector_tpl<const vehikel_besch_t *> &besch) : lazy_convoy_t(), vehicles(besch), world(world)
 	{
@@ -558,8 +554,9 @@ protected:
 	virtual void update_adverse_summary(adverse_summary_t &adverse);
 	virtual void update_freight_summary(freight_summary_t &freight);
 	virtual void update_weight_summary(weight_summary_t &weight);
-	virtual sint32 get_force_summary(sint32 speed /* in m/s */);
-	virtual sint32 get_power_summary(sint32 speed /* in m/s */);
+	virtual sint32 get_brake_summary(const sint32 speed /* in m/s */); 
+	virtual sint32 get_force_summary(const sint32 speed /* in m/s */);
+	virtual sint32 get_power_summary(const sint32 speed /* in m/s */);
 public:
 	existing_convoy_t(convoi_t &vehicles) : lazy_convoy_t(), convoy(vehicles)
 	{
@@ -594,10 +591,10 @@ public:
 		return weight;
 	}
 
-	inline void calc_move(long delta_t, const float32e8_t &simtime_factor, sint32 akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll)
+	inline void calc_move(long delta_t, const float32e8_t &simtime_factor, sint32 akt_speed_soll, sint32 next_speed_limit, sint32 steps_til_limit, sint32 steps_til_brake, sint32 &akt_speed, sint32 &sp_soll, float32e8_t &akt_v)
 	{
 		validate_weight_summary();
-		convoy_t::calc_move(delta_t, simtime_factor, weight, akt_speed_soll, akt_speed, sp_soll);
+		convoy_t::calc_move(delta_t, simtime_factor, weight, akt_speed_soll, next_speed_limit, steps_til_limit, steps_til_brake, akt_speed, sp_soll, akt_v);
 	}
 
 };

@@ -181,24 +181,24 @@ class prioqueue_tpl
 		 * @author Hj. Malthaner
 		 */
 		T& pop() {
-			if (head) {
-				T& tmp = head->data;
-				node_t *p = head;
-
-				head = head->next;
-				delete p;
-
-				node_count --;
-
-				// list got empty?
-				if (head == 0) {
-					tail = 0;
-				}
-
-				return tmp;
-			} else {
+			if (!head) {
 				dbg->fatal("prioqueue_tpl<T>::pop()","called on empty queue!");
 			}
+
+			T& tmp = head->data;
+			node_t *p = head;
+
+			head = head->next;
+			delete p;
+
+			node_count --;
+
+			// list got empty?
+			if (head == 0) {
+				tail = 0;
+			}
+
+			return tmp;
 		}
 
 

@@ -339,20 +339,12 @@ private:
 	*/
 	uint32 sum_leistung;
 
-	// How much of the convoy's power comes from steam engines?
-	// Needed when applying realistic physics to steam engines.
-	// @author: jamespetts
-	//uint32 power_from_steam;
-
 	/**
 	* Gesamtleistung mit Gear. Wird nicht gespeichert, sondern aus den Einzelleistungen
 	* errechnet.
 	* @author prissi
 	*/
 	sint32 sum_gear_und_leistung;
-
-	// @author: jamespetts
-	//sint32 power_from_steam_with_gear;
 
 	/* sum_gewicht: leergewichte aller vehicles *
 	* sum_gesamtgewicht: gesamtgewichte aller vehicles *
@@ -366,8 +358,7 @@ private:
 	// cached values
 	// will be recalculated if
 	// recalc_data is true
-	bool recalc_data_front; // true when front vehicle in convoi hops
-	bool recalc_data; // true when any vehicle in convoi hops
+	bool recalc_data;
 	sint32 sum_friction_weight;
 	sint32 speed_limit;
 
@@ -427,11 +418,11 @@ private:
 	koord record_pos;
 
 	// needed for speed control/calculation
-	sint32 brake_speed_soll;    // brake target speed
 	sint32 akt_speed;	        // current speed
 	sint32 akt_speed_soll;		// Target speed
 	sint32 sp_soll;				// steps to go
 	sint32 previous_delta_v;	// Stores the previous delta_v value; otherwise these digits are lost during calculation and vehicle do not accelrate
+	float32e8_t v; // current speed in m/s.
 
 	uint32 next_wolke;	// time to next smoke
 
@@ -622,9 +613,28 @@ private:
 	 */
 	void book_departure_time(sint64 time);
 
-	ding_t::typ get_depot_type() const;
+public: 
+	/**
+	 * Some precalculated often used infos about a tile of the convoy's route.
+	 * @author B. Gabriel
+	 */
+	class route_info_t
+	{
+	public:
+		sint32 speed_limit;
+		uint32 steps_from_start; // steps including this tile's length, which is VEHICLE_STEPS_PER_TILE for a straight and diagonal_vehicle_steps_per_tile for a diagonal way.
+		ribi_t::ribi direction;
+	};
+
+private:
+	/** 
+	  * List of upcoming speed limits; for braking purposes.
+	  * @author: jamespetts, September 2011
+	  */
+	vector_tpl<route_info_t> route_infos;
 
 public:
+	ding_t::typ get_depot_type() const;
 	
 // updates a line schedule and tries to find the best next station to go
 	void check_pending_updates();	
@@ -637,6 +647,8 @@ public:
 
 	route_t* get_route() { return &route; }
 	route_t* access_route() { return &route; }
+	bool calc_route(koord3d start, koord3d ziel, sint32 max_speed);
+	void update_route(uint32 index, const route_t &replacement); // replace route with replacement starting at index.
 
 	/**
 	* Checks if this convoi has a driveable route
@@ -792,6 +804,7 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	inline sint32 get_akt_speed() const { return akt_speed; }
+	inline sint32 get_akt_speed_soll() const { return akt_speed_soll; }
 
 	/**
 	 * @return total power of this convoi
@@ -1161,7 +1174,6 @@ public:
 	bool has_no_cargo() const;
 
 	void must_recalc_data() { recalc_data = true; }
-	void must_recalc_data_front() { recalc_data_front = true; }
 
 	// Overtaking for convois
 	virtual bool can_overtake(overtaker_t *other_overtaker, sint32 other_speed, sint16 steps_other);
@@ -1231,6 +1243,10 @@ public:
 	static uint16 get_waiting_minutes(uint32 waiting_ticks);
 	
 	bool is_wait_infinite() const { return go_on_ticks == WAIT_INFINITE; }
+
+	vector_tpl<route_info_t>& get_route_infos() { return route_infos; }
+
+	void set_akt_speed(sint32 akt_speed) { this->akt_speed = akt_speed; v = speed_to_v(akt_speed); }
 
 	inline bool is_circular_route() const;
 	

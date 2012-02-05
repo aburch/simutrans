@@ -262,8 +262,6 @@ void fabrik_info_t::update_info()
 	txt.set_pos( koord(10,-LINESPACE) );
 	fab_info.add_komponente(&txt);
 
-	const uint8 x = fab->get_city() == NULL ? 1 : 3;
-
 	int y_off = LINESPACE ;
 
 	const vector_tpl <koord> & lieferziele =  fab->get_lieferziele();

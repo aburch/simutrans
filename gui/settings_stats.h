@@ -169,7 +169,7 @@ protected:
 
 public:
 	settings_stats_t() { width = 18; }
-	~settings_stats_t() { free_all(); }
+	virtual ~settings_stats_t() { free_all(); }
 
 	void init(settings_t const*);
 	void read(settings_t const*);

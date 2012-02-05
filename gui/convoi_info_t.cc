@@ -282,13 +282,14 @@ void convoi_info_t::zeichnen(koord pos, koord gr)
 		if (filterButtons[ACCELERATION_BUTTON].is_visible() && filterButtons[ACCELERATION_BUTTON].pressed)
 		{
 			const int akt_speed_soll = kmh_to_speed(convoy.calc_max_speed(convoy.get_weight_summary()));
+			float32e8_t akt_v = 0;
 			sint32 akt_speed = 0;
 			sint32 sp_soll = 0;
 			int i = MAX_MONTHS;
 			physics_curves[--i][0] = akt_speed;
 			while (i > 0)
 			{
-				convoy.calc_move(15 * 64, float32e8_t::one, akt_speed_soll, akt_speed, sp_soll);
+				convoy.calc_move(15 * 64, float32e8_t::one, akt_speed_soll, akt_speed_soll, SINT32_MAX_VALUE, SINT32_MAX_VALUE, akt_speed, sp_soll, akt_v);
 				physics_curves[--i][0] = speed_to_kmh(akt_speed);
 			}
 		}
@@ -456,8 +457,8 @@ enable_home:
 			char tmp[256];
 			// Bernd Gabriel, 01.07.2009: inconsistent adding of ':'. Sometimes in code, sometimes in translation. Consistently moved to code.
 			sprintf(tmp, caption, translator::translate("Gewicht"));
-			int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, COL_BLACK, true ) + 5;
-			int freight_weight = gross_weight - empty_weight; // cnv->get_sum_gesamtgewicht() - cnv->get_sum_gewicht();
+			const int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, COL_BLACK, true ) + 5;
+			const int freight_weight = gross_weight - empty_weight; // cnv->get_sum_gesamtgewicht() - cnv->get_sum_gewicht();
 			sprintf(tmp, translator::translate(freight_weight ? "%g (%g) t" : "%g t"), gross_weight * 0.001f, freight_weight * 0.001f);
 			display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, 
 				cnv->get_overcrowded() > 0 ? COL_DARK_PURPLE : // overcrowded
@@ -496,6 +497,21 @@ enable_home:
 			int len = display_proportional(line_x, pos_y, tmp, ALIGN_LEFT, COL_BLACK, true ) + 5;
 			display_proportional_clip(line_x + len, pos_y, cnv->get_line()->get_name(), ALIGN_LEFT, cnv->get_line()->get_state_color(), true );
 		}
+
+#ifdef DEBUG
+		/*
+		 * Show braking distance
+		 */
+		{
+			const int pos_y = pos_y0 + 6 * LINESPACE; // line 7
+			const sint32 brk_meters = convoy.calc_min_braking_distance(convoy.get_weight_summary(), speed_to_v(cnv->get_akt_speed()));
+			char tmp[256];
+			sprintf(tmp, translator::translate("minimum brake distance"), brk_meters);
+			const int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, COL_BLACK, true );
+			sprintf(tmp, translator::translate(": %im"), brk_meters);
+			display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, cnv->get_akt_speed() <= cnv->get_akt_speed_soll() ? COL_BLACK : COL_RED, true );
+		}
+#endif
 		POP_CLIP();
 	}
 }

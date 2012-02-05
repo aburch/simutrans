@@ -70,6 +70,8 @@
 #include "../simtools.h"
 #include "../besch/ware_besch.h"
 
+#include "../convoy.h"
+
 #include "../bauer/vehikelbauer.h"
 
 #include "simvehikel.h"
@@ -349,26 +351,37 @@ uint32 vehikel_basis_t::fahre_basis(uint32 distance)
 		steps_done += steps;
 		distance_travelled = steps_done << YARDS_PER_VEHICLE_STEP_SHIFT;
 
-		if(  has_hopped  ) {
-			set_xoff( (dx<0) ? OBJECT_OFFSET_STEPS : -OBJECT_OFFSET_STEPS );
-			set_yoff( (dy<0) ? OBJECT_OFFSET_STEPS/2 : -OBJECT_OFFSET_STEPS/2 );
-			if(dx*dy==0) {
-				if(dx==0) {
-					if(dy>0) {
-						set_xoff( pos_prev.x!=get_pos().x ? -OBJECT_OFFSET_STEPS : OBJECT_OFFSET_STEPS );
-					}
-					else {
-						set_xoff( pos_prev.x!=get_pos().x ? OBJECT_OFFSET_STEPS : -OBJECT_OFFSET_STEPS );
-					}
+		if	(has_hopped)
+		{
+			if (dx == 0)
+			{
+				if (dy > 0)
+				{
+					set_xoff( pos_prev.x != get_pos().x ? -OBJECT_OFFSET_STEPS : OBJECT_OFFSET_STEPS );
+				}
+				else
+				{
+					set_xoff( pos_prev.x != get_pos().x ? OBJECT_OFFSET_STEPS : -OBJECT_OFFSET_STEPS );
+				}
+			}
+			else
+			{
+				set_xoff( dx < 0 ? OBJECT_OFFSET_STEPS : -OBJECT_OFFSET_STEPS );
+			}
+
+			if (dy == 0)
+			{
+				if (dx > 0)
+				{
+					set_yoff( pos_prev.y != get_pos().y ? OBJECT_OFFSET_STEPS/2 : -OBJECT_OFFSET_STEPS/2 );
 				}
 				else {
-					if(dx>0) {
-						set_yoff( pos_prev.y!=get_pos().y ? OBJECT_OFFSET_STEPS/2 : -OBJECT_OFFSET_STEPS/2 );
-					}
-					else {
-						set_yoff( pos_prev.y!=get_pos().y ? -OBJECT_OFFSET_STEPS/2 : OBJECT_OFFSET_STEPS/2 );
-					}
+					set_yoff( pos_prev.y != get_pos().y ? -OBJECT_OFFSET_STEPS/2 : OBJECT_OFFSET_STEPS/2 );
 				}
+			}
+			else
+			{
+				set_yoff( dy < 0 ? OBJECT_OFFSET_STEPS/2 : -OBJECT_OFFSET_STEPS/2 );
 			}
 		}
 	}
@@ -400,7 +413,7 @@ void vehikel_basis_t::get_screen_offset( int &xoff, int &yoff, const sint16 rast
 		display_steps = (display_steps*diagonal_multiplier)>>10;
 	}
 	xoff += (display_steps*dx) >> 10;
-	yoff += ((display_steps*dy) >> 10) + (hoff*raster_width)/(4*16);
+	yoff += ((display_steps*dy) >> 10) + ((hoff*raster_width) >> 6);
 
 	if(  drives_on_left  ) {
 		const int drive_left_dir = ribi_t::get_dir(get_fahrtrichtung());
@@ -409,6 +422,19 @@ void vehikel_basis_t::get_screen_offset( int &xoff, int &yoff, const sint16 rast
 	}
 }
 
+
+uint16 vehikel_basis_t::get_tile_steps(const koord &start, const koord &ende, /*out*/ ribi_t::ribi &richtung) const
+{
+	static const ribi_t::ribi ribis[3][3] = {
+			{ribi_t::nordwest, ribi_t::nord,  ribi_t::nordost},
+			{ribi_t::west,     ribi_t::keine, ribi_t::ost},
+			{ribi_t::suedwest, ribi_t::sued,  ribi_t::suedost}
+	};
+	const sint8 di = sgn(ende.x - start.x);
+	const sint8 dj = sgn(ende.y - start.y);
+	richtung = ribis[dj + 1][di + 1];
+	return di == 0 || dj == 0 ? VEHICLE_STEPS_PER_TILE : diagonal_vehicle_steps_per_tile;
+}
 
 
 // calcs new direction and applies it to the vehicles
@@ -465,36 +491,8 @@ vehikel_basis_t::calc_set_richtung(koord start, koord ende)
 	return richtung;
 }
 
-ribi_t::ribi vehikel_basis_t::calc_check_richtung(koord start, koord ende)
-//Dry run version of calc_set_richtung.
-{
-	ribi_t::ribi richtung = ribi_t::keine; //"richtung" = direction (Google); "keine" = none (Google)
-
-	const sint8 di = ende.x - start.x;
-	const sint8 dj = ende.y - start.y;
-
-	if(dj < 0 && di == 0) {
-		richtung = ribi_t::nord;
-	} else if(dj > 0 && di == 0) {
-		richtung = ribi_t::sued;
-	} else if(di < 0 && dj == 0) {
-		richtung = ribi_t::west;
-	} else if(di >0 && dj == 0) {
-		richtung = ribi_t::ost;
-	} else if(di > 0 && dj > 0) {
-		richtung = ribi_t::suedost;
-	} else if(di < 0 && dj < 0) {
-		richtung = ribi_t::nordwest;
-	} else if(di > 0 && dj < 0) {
-		richtung = ribi_t::nordost;
-	} else {
-		richtung = ribi_t::suedwest;
-	}
-	return richtung;
-}
-
-
-ribi_t::ribi vehikel_basis_t::calc_richtung(koord start, koord ende)
+ribi_t::ribi
+vehikel_basis_t::calc_richtung(koord start, koord ende)
 {/*
 	static ribi_t::ribi didj_richtung[9] =
 	{
@@ -668,7 +666,7 @@ vehikel_basis_t *vehikel_basis_t::no_cars_blocking( const grund_t *gr, const con
 }
 
 
-sint16 vehikel_t::compare_directions(sint16 first_direction, sint16 second_direction)
+sint16 vehikel_t::compare_directions(sint16 first_direction, sint16 second_direction) const
 {
 	//Returns difference between two directions in degrees
 	sint16 difference = 0;
@@ -1134,7 +1132,7 @@ vehikel_t::vehikel_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp) :
 
 	current_friction = 4;
 	total_freight = 0;
-	sum_weight = besch->get_gewicht();
+	sum_weight = besch->get_gewicht() * 1000UL;
 
 	ist_erstes = ist_letztes = false;
 	check_for_finish = false;
@@ -1172,7 +1170,7 @@ vehikel_t::vehikel_t(karte_t *welt) :
 
 	route_index = 1;
 	current_friction = 4;
-	sum_weight = 10;
+	sum_weight = 10000UL;
 	total_freight = 0;
 
 	ist_erstes = ist_letztes = false;
@@ -1330,9 +1328,15 @@ void vehikel_t::hop()
 	gr = welt->lookup(pos_next);
 
 	const weg_t * weg = gr != NULL ? gr->get_weg(get_waytype()) : NULL;
+
+	gr = welt->lookup(pos_prev);
+
+	const weg_t * weg_prev = gr != NULL ? gr->get_weg(get_waytype()) : NULL;
+
 	if(weg)
 	{
-		speed_limit = kmh_to_speed( weg->get_max_speed() );
+		speed_limit = calc_speed_limit(weg, weg_prev, &pre_corner_direction, fahrtrichtung, alte_fahrtrichtung);
+
 		// Weight limit needed for GUI flag
 		const uint32 weight_limit = (weg->get_max_weight()) > 0 ? weg->get_max_weight() : 1;
 		// Necessary to prevent division by zero exceptions if
@@ -1341,10 +1345,7 @@ void vehikel_t::hop()
 		// This is just used for the GUI display, so only set to true if the weight limit is set to enforce by speed restriction.
 		is_overweight = (cnv->get_heaviest_vehicle() > weight_limit && welt->get_settings().get_enforce_weight_limits() == 1); 
 
-		pre_corner_direction.add_to_tail(get_direction_degrees(ribi_t::get_dir(alte_fahrtrichtung)));
-
-		speed_limit = calc_modified_speed_limit(get_pos(), fahrtrichtung, (alte_fahrtrichtung != fahrtrichtung));
-		if(weg->is_crossing()) 
+		if(weg->is_crossing() && gr->find<crossing_t>(2)) 
 		{
 			gr->find<crossing_t>(2)->add_to_crossing(this);
 		}
@@ -1354,10 +1355,9 @@ void vehikel_t::hop()
 		speed_limit = speed_unlimited();
 	}
 
-	if(  check_for_finish  &&  (fahrtrichtung==ribi_t::nord  ||  fahrtrichtung==ribi_t::west)  ) 
+	if(  check_for_finish  &  ist_erstes && (fahrtrichtung==ribi_t::nord  || fahrtrichtung==ribi_t::west))
 	{
 		steps_next = (steps_next/2)+1;
-		cnv->must_recalc_data_front();
 	}
 
 	// speedlimit may have changed
@@ -1365,39 +1365,28 @@ void vehikel_t::hop()
 	
 	calc_drag_coefficient(gr);
 
-	sint8 trim_size = pre_corner_direction.get_count() - direction_steps;
-	pre_corner_direction.trim_from_head((trim_size >= 0) ? trim_size : 0);
 	hop_count ++;
 }
 
 /* Calculates the modified speed limit of the current way,
  * taking into account the curve and weight limit.
- * @author: jamespetts
+ * @author: jamespetts/Bernd Gabriel
  */
-sint32 vehikel_t::calc_modified_speed_limit(const koord3d position, ribi_t::ribi current_direction, bool is_corner)
-{
-	grund_t *g;
-	g = welt->lookup(position);
-	if(g == NULL)
+sint32 vehikel_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fixed_list_tpl<sint16, 16>* cornering_data, ribi_t::ribi current_direction, ribi_t::ribi previous_direction)
+{	
+	if (weg_previous)
+	{
+		cornering_data->add_to_tail(get_direction_degrees(ribi_t::get_dir(previous_direction)));
+	}
+	if(w == NULL)
 	{
 		return speed_limit;
 	}
-	waytype_t waytype = get_waytype();
-	const weg_t *w = g->get_weg(waytype);
-	sint32 base_limit;
-	uint16 weight_limit;
+	const bool is_corner = current_direction != previous_direction;
+
 	const bool is_tilting = besch->get_tilting();
-	if(w != NULL)
-	{
-		base_limit = kmh_to_speed(w->get_max_speed());
-		weight_limit = w->get_max_weight();
-	}
-	else
-	{
-		//Necessary to prevent access violations in some cases of loading saved games.
-		base_limit = kmh_to_speed(200);
-		weight_limit = 999;
-	}
+	const sint32 base_limit = kmh_to_speed(w->get_max_speed());
+	const uint16 weight_limit = w->get_max_weight();
 	sint32 overweight_speed_limit = base_limit;
 	sint32 corner_speed_limit = base_limit;
 	sint32 new_limit = base_limit;
@@ -1405,7 +1394,7 @@ sint32 vehikel_t::calc_modified_speed_limit(const koord3d position, ribi_t::ribi
 
 	//Reduce speed for overweight vehicles
 
-	if(heaviest_vehicle > weight_limit &&welt->get_settings().get_enforce_weight_limits() == 1)
+	if(heaviest_vehicle > weight_limit && welt->get_settings().get_enforce_weight_limits() == 1)
 	{
 		if((heaviest_vehicle * 100) / weight_limit <= 110)
 		{
@@ -1419,15 +1408,15 @@ sint32 vehikel_t::calc_modified_speed_limit(const koord3d position, ribi_t::ribi
 		}
 	}
 
-	waytype = cnv->get_schedule()->get_waytype();
+	waytype_t waytype = cnv->get_schedule()->get_waytype();
 
 	// Cornering settings. Vehicles must slow to take corners.
-	const uint32 max_corner_limit =welt->get_settings().get_max_corner_limit(waytype);
-	const uint32 min_corner_limit =welt->get_settings().get_min_corner_limit(waytype);
-	const uint16 max_corner_adjustment_factor =welt->get_settings().get_max_corner_adjustment_factor(waytype);
-	const uint16 min_corner_adjustment_factor =welt->get_settings().get_min_corner_adjustment_factor(waytype);
-	const uint8 min_direction_steps =welt->get_settings().get_min_direction_steps(waytype);
-	const uint8 max_direction_steps =welt->get_settings().get_max_direction_steps(waytype);
+	const sint32 max_corner_limit = welt->get_settings().get_max_corner_limit(waytype);
+	const sint32 min_corner_limit = welt->get_settings().get_min_corner_limit(waytype);
+	const uint16 max_corner_adjustment_factor = welt->get_settings().get_max_corner_adjustment_factor(waytype);
+	const uint16 min_corner_adjustment_factor = welt->get_settings().get_min_corner_adjustment_factor(waytype);
+	const uint8 min_direction_steps = welt->get_settings().get_min_direction_steps(waytype);
+	const uint8 max_direction_steps = welt->get_settings().get_max_direction_steps(waytype);
 	
 #ifndef debug_corners	
 	if(is_corner && max_direction_steps > 0)
@@ -1437,11 +1426,6 @@ sint32 vehikel_t::calc_modified_speed_limit(const koord3d position, ribi_t::ribi
 		const sint16 direction = get_direction_degrees(ribi_t::get_dir(current_direction));
 		const uint16 modified_route_index = min(route_index - 1, cnv->get_route()->get_count() - 1);
 		const koord3d *previous_tile = &cnv->get_route()->position_bei(modified_route_index);
-		ribi_t::ribi old_direction = current_direction;
-		if(previous_tile != NULL)
-		{
-			old_direction = calc_check_richtung(previous_tile->get_2d(), position.get_2d());
-		}
 	
 		uint16 limit_adjustment_percentage = 100;
 		
@@ -1478,10 +1462,10 @@ sint32 vehikel_t::calc_modified_speed_limit(const koord3d position, ribi_t::ribi
 		int steps_to_135 = 0;
 		int steps_to_180 = 0;
 		int smoothing_percentage = 0;
-		for(int i = pre_corner_direction.get_count() - 1; i >= 0 && counter <= direction_steps; i --)
+		for(int i = cornering_data->get_count() - 1; i >= 0 && counter <= direction_steps; i --)
 		{
 			counter ++;
-			tmp = vehikel_t::compare_directions(direction, pre_corner_direction.get_element(i));
+			tmp = vehikel_t::compare_directions(direction, cornering_data->get_element(i));
 			if(tmp > direction_difference)
 			{
 				direction_difference = tmp;
@@ -1518,11 +1502,11 @@ sint32 vehikel_t::calc_modified_speed_limit(const koord3d position, ribi_t::ribi
 #ifdef debug_corners
 		current_corner = direction_difference;
 #endif
-		const sint16 old_direction_degrees = get_direction_degrees(ribi_t::get_dir(old_direction));
-		if(direction_difference == 0 && current_direction != old_direction)
+		const sint16 previous_direction_degrees = get_direction_degrees(ribi_t::get_dir(previous_direction));
+		if(direction_difference == 0 && current_direction != previous_direction)
 		{
 			//Fallback code in case the checking the histories did not work properly (for example, if the histories were cleared recently) 
-			direction_difference = compare_directions(direction, old_direction_degrees);
+			direction_difference = compare_directions(direction, previous_direction_degrees);
 		}
 
 		// Maximum speeds for sharper corners no matter what the base limit of the way.	
@@ -1637,6 +1621,9 @@ sint32 vehikel_t::calc_modified_speed_limit(const koord3d position, ribi_t::ribi
 	{
 		new_limit = overweight_speed_limit;
 	}
+	
+	sint8 trim_size = cornering_data->get_count() - direction_steps;
+	cornering_data->trim_from_head((trim_size >= 0) ? trim_size : 0);
 
 	//Speed limit must never be 0.
 	if(new_limit > 0)
@@ -1715,7 +1702,7 @@ void vehikel_t::calc_drag_coefficient(const grund_t *gr) //,const int h_alt, con
 	}
 }
 
-vehikel_t::direction_degrees vehikel_t::get_direction_degrees(ribi_t::dir direction)
+vehikel_t::direction_degrees vehikel_t::get_direction_degrees(ribi_t::dir direction) const
 {
 	switch(direction)
 	{
@@ -1735,6 +1722,8 @@ vehikel_t::direction_degrees vehikel_t::get_direction_degrees(ribi_t::dir direct
 		return vehikel_t::West;
 	case ribi_t::dir_nordwest :
 		return vehikel_t::Northwest;
+	default:
+		return vehikel_t::North;
 	};
 	return vehikel_t::North;
 }
@@ -1845,7 +1834,7 @@ uint16 vehikel_t::beladen(halthandle_t halt, bool overcrowd)
 	{
 		ok = load_freight(halt, overcrowd);
 	}
-	sum_weight = (get_fracht_gewicht()+499)/1000 + besch->get_gewicht();
+	sum_weight = get_fracht_gewicht() + besch->get_gewicht() * 1000UL;
 	calc_bild();
 	if(ok)
 	{
@@ -2200,7 +2189,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 		if(besch) {
 			calc_bild();
 			// full weight after loading
-			sum_weight = (get_fracht_gewicht()+499)/1000 + besch->get_gewicht();
+			sum_weight = get_fracht_gewicht() + besch->get_gewicht() * 1000UL;
 		}
 		// recalc total freight
 		total_freight = 0;
@@ -2593,7 +2582,7 @@ bool automobil_t::ist_befahrbar(const grund_t *bd) const
 				return false;
 			}
 			// do not search further for a free stop beyond here
-			if(target_halt.is_bound()  &&  cnv->is_waiting()  &&  rs->get_besch()->get_flags()&roadsign_besch_t::END_OF_CHOOSE_AREA) {
+			if(target_halt.is_bound()  &&  cnv->is_waiting()  &&  (rs->get_besch()->get_flags() & roadsign_besch_t::END_OF_CHOOSE_AREA)) {
 				return false;
 			}
 		}
@@ -2638,7 +2627,7 @@ int automobil_t::get_kosten(const grund_t *gr, const sint32 max_speed, koord fro
 	//@author: jamespetts
 	// Strongly prefer routes for which the vehicle is not overweight.
 	uint16 weight_limit = w->get_max_weight();
-	if(vehikel_t::get_gesamtgewicht() > weight_limit &&welt->get_settings().get_enforce_weight_limits() == 1)
+	if(vehikel_t::get_sum_weight() > weight_limit &&welt->get_settings().get_enforce_weight_limits() == 1)
 	{
 		costs += 40;
 	}
@@ -2754,7 +2743,7 @@ bool automobil_t::ist_weg_frei(int &restart_speed, bool second_check)
 						return false;
 					}
 
-					route_t *rt = cnv->access_route();
+					const route_t *rt = cnv->get_route();
 					// is our target occupied?
 					target_halt = haltestelle_t::get_halt( welt, rt->back(), get_besitzer() );
 					if(  target_halt.is_bound()  ) {
@@ -2801,8 +2790,7 @@ bool automobil_t::ist_weg_frei(int &restart_speed, bool second_check)
 							for(  uint32 length=0;  length<cnv->get_tile_length()  &&  length+1<target_rt.get_count();  length++  ) {
 								target_halt->reserve_position( welt->lookup( target_rt.position_bei( target_rt.get_count()-length-1) ), cnv->self );
 							}
-							rt->remove_koord_from( route_index );
-							rt->append( &target_rt );
+							cnv->update_route(route_index, target_rt);
 						}
 					}
 				}
@@ -2888,7 +2876,7 @@ bool automobil_t::ist_weg_frei(int &restart_speed, bool second_check)
 								return false;
 							}
 
-							route_t *rt = cnv->access_route();
+							const route_t *rt = cnv->get_route();
 							// is our target occupied?
 							target_halt = haltestelle_t::get_halt( welt, rt->back(), get_besitzer() );
 							if(  target_halt.is_bound()  ) {
@@ -2936,8 +2924,7 @@ bool automobil_t::ist_weg_frei(int &restart_speed, bool second_check)
 									for(  uint32 length=0;  length<cnv->get_tile_length()  &&  length+1<target_rt.get_count();  length++  ) {
 										target_halt->reserve_position( welt->lookup( target_rt.position_bei( target_rt.get_count()-length-1) ), cnv->self );
 									}
-									rt->remove_koord_from( test_index );
-									rt->append( &target_rt );
+									cnv->update_route(test_index, target_rt);
 								}
 							}
 						}
@@ -3124,7 +3111,7 @@ waggon_t::waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, con
 waggon_t::~waggon_t()
 {
 	if (cnv && ist_erstes) {
-		route_t & r = *cnv->access_route();
+		route_t & r = *cnv->get_route();
 		if (!r.empty() && route_index < r.get_count()) {
 			// free all reserved blocks
 			uint16 dummy;
@@ -3183,16 +3170,17 @@ void waggon_t::set_convoi(convoi_t *c)
 	}
 }
 
-
 // need to reset halt reservation (if there was one)
 bool waggon_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route)
 {
-	if(ist_erstes  &&  route_index<cnv->get_route()->get_count()) {
+	if (ist_erstes && route_index < cnv->get_route()->get_count())
+	{
 		// free all reserved blocks
 		uint16 dummy;
-		block_reserver(cnv->get_route(), cnv->back()->get_route_index(), dummy, dummy, target_halt.is_bound() ? 100000 : 1, false, true);
+		block_reserver(cnv->get_route(), cnv->back()->get_route_index(), dummy,
+				dummy, target_halt.is_bound() ? 100000 : 1, false, true);
 	}
-	target_halt = halthandle_t();	// no block reserved
+	target_halt = halthandle_t(); // no block reserved
 	return route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight(), 8888 /*cnv->get_tile_length()*/ );
 }
 
@@ -3286,7 +3274,7 @@ int waggon_t::get_kosten(const grund_t *gr, const sint32 max_speed, koord from_p
 	//@author: jamespetts
 	// Strongly prefer routes for which the vehicle is not overweight.
 	uint16 weight_limit = w->get_max_weight();
-	if(vehikel_t::get_gesamtgewicht() > weight_limit &&welt->get_settings().get_enforce_weight_limits() == 1)
+	if(vehikel_t::get_sum_weight() > weight_limit &&welt->get_settings().get_enforce_weight_limits() == 1)
 	{
 		costs += 40;
 	}
@@ -3523,8 +3511,7 @@ bool waggon_t::is_weg_frei_choose_signal( signal_t *sig, const uint16 start_bloc
 		}
 		else {
 			// try to alloc the whole route
-			cnv->access_route()->remove_koord_from(start_block);
-			cnv->access_route()->append( &target_rt );
+			cnv->update_route(start_block, target_rt);
 			if(  !block_reserver( cnv->get_route(), start_block+1, next_signal, next_crossing, 100000, true, false )  ) {
 				dbg->error( "waggon_t::is_weg_frei_choose_signal()", "could not reserved route after find_route!" );
 				target_halt = halthandle_t();
@@ -3674,11 +3661,17 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 
 	// Braking rate assumed at 63, as only rail vehicles use the block reserver.
 	// TODO: Set this from .dat files (or even physics computations)
-	const sint32 braking_rate = 63;
+	//const sint32 braking_rate = 63;
 	const sint32 meters_per_tile = welt->get_settings().get_meters_per_tile();
-	const sint32 speed = speed_to_kmh(cnv->get_akt_speed());
+	//const sint32 speed = speed_to_kmh(cnv->get_akt_speed());
 
-	const uint16 tiles_check_for_signal = (1000 * speed) / (braking_rate * meters_per_tile);
+	existing_convoy_t convoy(*cnv);
+	// BG, 25.09.2011: brake_distance is in real world meters. To compare with tiles of game the brake distance has to be divided by the 
+	// simtime_factor = meters_per_tile / 1000; as passed to convoy.calc_move() to reduce the force:
+	const uint16 meters_check_for_signal = (convoy.calc_min_braking_distance(convoy.get_weight_summary(), cnv->get_akt_speed()) * 1000) / meters_per_tile;
+	// const uint16 tiles_check_for_signal = (1000 * speed) / (braking_rate * meters_per_tile);
+	// Necessary to round up here.
+	const uint16 tiles_check_for_signal = (meters_check_for_signal + (meters_per_tile / 2)) / meters_per_tile;
 	
 	if(next_block <= route_index + tiles_check_for_signal) 
 	{ 	
@@ -3696,8 +3689,9 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 		// note: crossing and signal might exist on same tile
 		// so first check crossing
 		if(  sch1->is_crossing()  ) {
-			if(  crossing_t* cr = gr_next_block->find<crossing_t>(2)  ) {
-					// ok, here is a draw/turnbridge ...
+			crossing_t* cr = gr_next_block->find<crossing_t>(2);
+			if (cr) {
+				// ok, here is a draw/turnbridge ...
 				bool ok = cr->request_crossing(this);
 				if(!ok) {
 					// cannot cross => wait here
@@ -4286,8 +4280,7 @@ DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","found no route to free 
 		// now reserve our choice ...
 		target_halt->reserve_position(welt->lookup(target_rt.back()), cnv->self);
 		//DBG_MESSAGE("aircraft_t::find_route_to_stop_position()", "found free stop near %i,%i,%i", target_rt.back().x, target_rt.back().y, target_rt.back().z);
-		rt->remove_koord_from(suchen);
-		rt->append( &target_rt );
+		cnv->update_route(suchen, target_rt);
 		return true;
 	}
 }
@@ -4452,9 +4445,6 @@ bool aircraft_t::ist_weg_frei( int & restart_speed, bool )
 			// circle slowly next round
 			state = circling;
 			cnv->must_recalc_data();
-			if(  ist_erstes  ) {
-				cnv->must_recalc_data_front();
-			}
 		}
 	}
 

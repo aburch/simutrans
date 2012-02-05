@@ -2,11 +2,11 @@
 #define TPL_VECTOR_H
 
 #ifndef ITERATE
-#define ITERATE(collection,enumerator) for(int enumerator = 0; enumerator < (collection).get_count(); enumerator++)
+#define ITERATE(collection,enumerator) for(uint32 enumerator = 0; enumerator < (collection).get_count(); enumerator++)
 #endif
 
 #ifndef ITERATE_PTR
-#define ITERATE_PTR(collection,enumerator) for(int enumerator = 0; enumerator < (collection)->get_count(); enumerator++)
+#define ITERATE_PTR(collection,enumerator) for(uint32 enumerator = 0; enumerator < (collection)->get_count(); enumerator++)
 #endif 
 
 #include "../macros.h"
@@ -211,6 +211,19 @@ template<class T> class vector_tpl
  		}
 
 		/**
+		 * set length of vector.
+		 * BEWARE: using this function will create default objects, depending on
+		 * the type of the vector
+		 */
+		void set_count(const uint32 count)
+		{
+			if (count >= size) {
+				resize((count & 0xFFFFFFF8) + 8);
+			}
+			this->count = count;
+		}
+
+		/**
 		 * put the data at a certain position
 		 * BEWARE: using this function will create default objects, depending on
 		 * the type of the vector
@@ -218,7 +231,7 @@ template<class T> class vector_tpl
 		void store_at(const uint32 pos, const T& elem)
 		{
 			if (pos >= size) {
-				resize((pos & 0xFFFFFFF7) + 8);
+				resize((pos & 0xFFFFFFF8) + 8);
 			}
 			data[pos] = elem;
 			if (pos >= count) {
@@ -253,23 +266,23 @@ template<class T> class vector_tpl
 			}
 		}
 
-		T& get_element(uint e)
+		T& get_element(uint32 e)
 		{
 			return (*this)[e];
 		}
 		
-		T& operator [](uint i)
+		T& operator [](uint32 i)
 		{
 			if (i >= count) {
-				dbg->fatal("vector_tpl<T>::[]", "%s: index out of bounds: %i not in 0..%d", typeid(T).name(), i, count - 1);
+				dbg->fatal("vector_tpl<T>::[]", "%s: index out of bounds: %lu not in 0..%lu", typeid(T).name(), i, count - 1);
 			}
 			return data[i];
 		}
 
-		const T& operator [](uint i) const
+		const T& operator [](uint32 i) const
 		{
 			if (i >= count) {
-				dbg->fatal("vector_tpl<T>::[]", "%s: index out of bounds: %i not in 0..%d", typeid(T).name(), i, count - 1);
+				dbg->fatal("vector_tpl<T>::[]", "%s: index out of bounds: %lu not in 0..%lu", typeid(T).name(), i, count - 1);
 			}
 			return data[i];
 		}

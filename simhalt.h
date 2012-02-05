@@ -189,6 +189,8 @@ public:
 
 	halthandle_t get_halt_within_walking_distance(uint32 index) const { return halts_within_walking_distance[index]; }
 
+	static uint8 pedestrian_limit;
+
 private:
 	/**
 	 * Handle for ourselves. Can be used like the 'this' pointer
@@ -696,7 +698,7 @@ public:
 	// @author: jamespetts
 	// Returns the proportion of unhappy people of the total of
 	// happy and unhappy people.
-	uint16 get_unhappy_percentage(uint8 month) const { return financial_history[month][HALT_HAPPY] > 0 ? financial_history[month][HALT_UNHAPPY] * 100 / (financial_history[month][HALT_HAPPY] + financial_history[month][HALT_UNHAPPY]) : 0; }
+	uint16 get_unhappy_percentage(uint8 month) const { return (uint16)(financial_history[month][HALT_HAPPY] > 0 ? financial_history[month][HALT_UNHAPPY] * 100 / (financial_history[month][HALT_HAPPY] + financial_history[month][HALT_UNHAPPY]) : 0); }
  
 	// Getting and setting average waiting times in minutes
 	// @author: jamespetts

@@ -1,0 +1,9 @@
+# Simutranslator settings for Simutrans-Experimental texts
+# Addendum for version 9.3
+#
+# Author: jamespetts
+# Created: February 2011
+#
+obj=program_text
+name=\nOrigin: %s\nDestination: %s
+note=Text for extended information in the city car information window

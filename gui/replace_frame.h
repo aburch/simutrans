@@ -141,7 +141,7 @@ public:
 
 	const convoihandle_t get_convoy() const { return cnv; }
 
-	~replace_frame_t();
+	virtual ~replace_frame_t();
 };
 
 #endif

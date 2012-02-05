@@ -1168,6 +1168,7 @@ server_frames_per_step = 4
 # Small values should improve the timing of the clients.
 server_frames_between_checks = 320
 
+
 # Automatically announce server on the central server directory (http://servers.experimental.simutrans.org/)
 # 0 (default) = off, 1 = on
 server_announce = 1

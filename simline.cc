@@ -396,7 +396,7 @@ void simline_t::laden_abschliessen()
 void simline_t::register_stops(schedule_t * fpl)
 {
 DBG_DEBUG("simline_t::register_stops()", "%d fpl entries in schedule %p", fpl->get_count(),fpl);
-	for (int i = 0; i<fpl->get_count(); i++) {
+	for (uint8 i = 0; i<fpl->get_count(); i++) {
 		const halthandle_t halt = haltestelle_t::get_halt( welt, fpl->eintrag[i].pos, sp );
 		if(halt.is_bound()) {
 //DBG_DEBUG("simline_t::register_stops()", "halt not null");
@@ -410,7 +410,7 @@ DBG_DEBUG("simline_t::register_stops()", "halt null");
 
 int simline_t::get_replacing_convoys_count() const {
 	int count=0;
-	for (int i=0; i<line_managed_convoys.get_count(); ++i) {
+	for (uint32 i=0; i<line_managed_convoys.get_count(); ++i) {
 		if (line_managed_convoys[i]->get_replace()) {
 			count++;
 		}
@@ -426,7 +426,7 @@ void simline_t::unregister_stops()
 
 void simline_t::unregister_stops(schedule_t * fpl)
 {
-	for (int i = 0; i<fpl->get_count(); i++) {
+	for (uint8 i = 0; i<fpl->get_count(); i++) {
 		halthandle_t halt = haltestelle_t::get_halt( welt, fpl->eintrag[i].pos, sp );
 		if(halt.is_bound()) {
 			halt->remove_line(self);

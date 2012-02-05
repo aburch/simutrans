@@ -38,6 +38,7 @@ bool freight_list_sorter_t::compare_ware(ware_t const& w1, ware_t const& w2)
 	switch (sortby) {
 		default:
 			dbg->error("freight_list_sorter::compare_ware()", "illegal sort mode!");
+			break;
 
 		case by_via_sum:
 		case by_amount: { // sort by ware amount
@@ -45,6 +46,7 @@ bool freight_list_sorter_t::compare_ware(ware_t const& w1, ware_t const& w2)
 			if (order != 0) return order < 0;
 			/* FALLTHROUGH */
 		}
+		// no break
 
 		case by_via: { // sort by via_destination name
 			halthandle_t const v1 = w1.get_zwischenziel();
@@ -59,6 +61,7 @@ bool freight_list_sorter_t::compare_ware(ware_t const& w1, ware_t const& w2)
 			}
 			/* FALLTHROUGH */
 		}
+		// no break
 
 		case by_origin: // Sort by origin name
 		case by_origin_amount: {
@@ -74,6 +77,7 @@ bool freight_list_sorter_t::compare_ware(ware_t const& w1, ware_t const& w2)
 			}
 			/* FALLTHROUGH */
 		}
+		// no break
 
 		case by_name: { // sort by destination name
 			halthandle_t const d1 = w1.get_ziel();
@@ -83,15 +87,16 @@ bool freight_list_sorter_t::compare_ware(ware_t const& w1, ware_t const& w2)
 				const char *const name1 = ( w1.to_factory && sortby != by_origin ? ( (fab=fabrik_t::get_fab(welt,w1.get_zielpos())) ? fab->get_name() : "Invalid Factory" ) : d1->get_name() );
 				const char *const name2 = ( w2.to_factory && sortby != by_origin ? ( (fab=fabrik_t::get_fab(welt,w2.get_zielpos())) ? fab->get_name() : "Invalid Factory" ) : d2->get_name() );
 				return strcmp(name1, name2) < 0;
-			} else if (d1.is_bound()) {
+			}
+			if (d1.is_bound()) {
 				return false;
-			} else if (d2.is_bound()) {
+			}
+			if (d2.is_bound()) {
 				return true;
-			} else {
-				return false;
 			}
 		}
 	}
+	return false;
 }
 
 

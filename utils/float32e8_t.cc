@@ -126,9 +126,9 @@ const float32e8_pair_t & get_pair(int i) { return ld_tbl[i]; }
 
 const float32e8_t float32e8_t::log2() const
 {
-	if (ms)
+	if (ms || m == 0L)
 	{
-		dbg->error("float32e8_t float32e8_t::log2()", "Illegal argument of log2(%.9G): must be >= 0.", to_double());
+		dbg->error("float32e8_t float32e8_t::log2()", "Illegal argument of log2(%.9G): must be > 0.", to_double());
 	}
 	float32e8_t r((sint32)(e - 1L));
 	float32e8_t v(m, 1, false);
@@ -204,9 +204,20 @@ const sint16 float32e8_t::min_exponent = MIN_EXPONENT;
 const sint16 float32e8_t::max_exponent = MAX_EXPONENT;
 const uint32 float32e8_t::max_mantissa = MAX_MANTISSA;
 
-const float32e8_t float32e8_t::zero((uint32)0ul);
-const float32e8_t float32e8_t::half((uint32)1ul, (uint32)2ul);
-const float32e8_t float32e8_t::one((uint32)1ul);
+// some "integer" constants.
+const float32e8_t float32e8_t::zero((uint32) 0);
+const float32e8_t float32e8_t::one((uint32) 1);
+const float32e8_t float32e8_t::two((uint32) 2);
+const float32e8_t float32e8_t::three((uint32) 3);
+const float32e8_t float32e8_t::four((uint32) 4);
+
+// some "fractional" constants.
+const float32e8_t float32e8_t::tenth((uint32) 1, (uint32) 10);
+const float32e8_t float32e8_t::quarter((uint32) 1, (uint32)  4);
+const float32e8_t float32e8_t::third((uint32) 1, (uint32)  3);
+const float32e8_t float32e8_t::half((uint32) 1, (uint32) 2);
+const float32e8_t float32e8_t::milli((uint32) 1, (uint32) 1000);
+const float32e8_t float32e8_t::micro((uint32) 1, (uint32) 1000000);
 
 #ifdef USE_DOUBLE
 void float32e8_t::set_value(const double value)
@@ -242,14 +253,39 @@ void float32e8_t::set_value(const sint32 value)
 
 void float32e8_t::set_value(const uint32 value)
 {
-	if (value)
+	switch (value)
 	{
-		ms = false;
-		e = ild(value);
-		m = (value) << (32 - e);
-	}
-	else
+	case 0:
 		set_zero();
+		return;
+
+	case 1:
+		if (one.m) // after initializing one.m is no longer 0
+		{
+			set_value(one);
+			return;
+		}
+		break;
+
+	case 2:
+		if (two.m) // after initializing two.m is no longer 0
+		{
+			set_value(two);
+			return;
+		}
+		break;
+
+	case 3:
+		if (three.m) // after initializing three.m is no longer 0
+		{
+			set_value(three);
+			return;
+		}
+		break;
+	}
+	ms = false;
+	e = ild(value);
+	m = (value) << (32 - e);
 }
 
 void float32e8_t::set_value(const sint64 value)
@@ -265,24 +301,17 @@ void float32e8_t::set_value(const sint64 value)
 
 void float32e8_t::set_value(const uint64 value)
 {
-	if (value)
+	m = value >> 32;
+	if (m)
 	{
 		ms = false;
-		m = value >> 32;
-		if (m)
-		{
-			e = ild(m) + 32;
-			m = (uint32)(value >> (64 - e));
-		}
-		else
-		{
-			m = (uint32)value;
-			e = ild(m);
-			m <<= 32 - e;
-		}
+		e = ild(m) + 32;
+		m = (uint32)(value >> (64 - e));
 	}
 	else
-		set_zero();
+	{
+		set_value((uint32) value);
+	}
 }
 
 const float32e8_t float32e8_t::operator + (const float32e8_t & x) const
@@ -367,7 +396,7 @@ const float32e8_t float32e8_t::operator + (const float32e8_t & x) const
 
 const float32e8_t float32e8_t::operator - (const float32e8_t & x) const
 {
-	if (!m) return x;
+	if (!m) return -x;
 	if (!x.m) return *this;
 
 	sint16 msx = x.e;

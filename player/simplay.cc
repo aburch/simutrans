@@ -353,7 +353,6 @@ void spieler_t::neuer_monat()
 				else 
 				{
 					
-					int n = 0;
 					// tell the player
 					if(konto_ueberzogen > 1)
 					{

@@ -151,7 +151,7 @@ private:
 public:
 	pumpe_t(karte_t *welt, loadsave_t *file);
 	pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp);
-	~pumpe_t();
+	virtual ~pumpe_t();
 
 	typ get_typ() const { return pumpe; }
 
@@ -188,7 +188,7 @@ private:
 public:
 	senke_t(karte_t *welt, loadsave_t *file);
 	senke_t(karte_t *welt, koord3d pos, spieler_t *sp, stadt_t *c);
-	~senke_t();
+	virtual ~senke_t();
 
 	typ get_typ() const { return senke; }
 

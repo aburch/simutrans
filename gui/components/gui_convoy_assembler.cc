@@ -571,14 +571,20 @@ void gui_convoy_assembler_t::zeichnen(koord parent_pos)
 		sprintf(txt_convoi_count, "%s %d (%s %i)",
 			translator::translate("Fahrzeuge:"), vehicles.get_count(),
 			translator::translate("Station tiles:"), vsum.tiles);
-		sprintf(txt_convoi_speed + txt_convoi_speed_offs,  
+		txt_convoi_speed_offs += sprintf(txt_convoi_speed + txt_convoi_speed_offs,  
 			min_speed == max_speed ? " %d km/h @ %g t" : " %d km/h @ %g t %s %d km/h @ %g t", 
 			min_speed, max_weight * 0.001f,	translator::translate("..."), max_speed, min_weight * 0.001f);
+
+		const sint32 brake_distance_min = convoy.calc_min_braking_distance(weight_summary_t(min_weight, friction), kmh2ms * max_speed);
+		const sint32 brake_distance_max = convoy.calc_min_braking_distance(weight_summary_t(max_weight, friction), kmh2ms * max_speed);
+		txt_convoi_speed_offs += sprintf(txt_convoi_speed + txt_convoi_speed_offs, 
+			brake_distance_min == brake_distance_max ? "; brakes from max. speed in %i m" : "; brakes from max. speed in %i - %i m", 
+			brake_distance_min, brake_distance_max);
 		lb_convoi_speed.set_color(col_convoi_speed);
 	}
 
 	bt_obsolete.pressed = show_retired_vehicles;	// otherwise the button would not show depressed
-	bt_show_all.pressed = show_all;	// otherwise the button would not show depressed
+	bt_show_all.pressed = show_all;					// otherwise the button would not show depressed
 	draw_vehicle_info_text(parent_pos+pos);
 	gui_container_t::zeichnen(parent_pos);
 }
@@ -858,7 +864,7 @@ void gui_convoy_assembler_t::add_to_vehicle_list(const vehikel_besch_t *info)
 		else
 		{
 			bool found = false;
-			for(int j = 0; j < welt->get_settings().get_livery_schemes()->get_count(); j ++)
+			for(uint32 j = 0; j < welt->get_settings().get_livery_schemes()->get_count(); j ++)
 			{
 				const livery_scheme_t* const new_scheme = welt->get_settings().get_livery_scheme(j);
 				const char* new_livery = new_scheme->get_latest_available_livery(date, info);
