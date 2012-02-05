@@ -13,7 +13,7 @@
 #include "components/gui_scrollpane.h"
 #include "components/gui_textarea.h"
 #include "components/gui_textinput.h"
-#include "components/ding_view_t.h"
+#include "components/gui_ding_view_t.h"
 #include "gui_container.h"
 #include "../utils/cbuffer_t.h"
 
@@ -21,6 +21,24 @@ class welt_t;
 class fabrik_t;
 class gebaeude_t;
 class button_t;
+
+
+/**
+ * info on city demand
+
+ * @author
+ */
+class gui_fabrik_info_t : public gui_container_t
+{
+private:
+	const fabrik_t* fab;
+
+public:
+	gui_fabrik_info_t(const fabrik_t* fab);
+
+	void zeichnen(koord offset);
+};
+
 
 /**
  * Info window for factories
@@ -50,7 +68,7 @@ class fabrik_info_t : public gui_frame_t, public action_listener_t
 	button_t *stadtbuttons;
 
 	gui_scrollpane_t scrolly;
-	gui_container_t cont;
+	gui_fabrik_info_t fab_info;
 	gui_textarea_t prod, txt;
 
 	void rename_factory();

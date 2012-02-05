@@ -26,6 +26,7 @@
 #include "../tpl/vector_tpl.h"
 
 
+class zeiger_t;
 class schedule_t;
 struct linieneintrag_t;
 class spieler_t;
@@ -39,12 +40,15 @@ class fahrplan_gui_stats_t : public gui_komponente_t
 private:
 	static karte_t *welt;
 	static cbuffer_t buf;
+	static zeiger_t *aktuell_mark;
+
 
 	schedule_t* fpl;
 	spieler_t* sp;
 
 public:
-	fahrplan_gui_stats_t(karte_t* w, spieler_t *s) { welt = w; fpl = NULL; sp = s; }
+	fahrplan_gui_stats_t(karte_t* w, spieler_t *s);
+	~fahrplan_gui_stats_t();
 
 	void set_fahrplan( schedule_t* f ) { fpl = f; }
 

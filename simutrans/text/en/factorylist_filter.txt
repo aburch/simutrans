@@ -1,49 +1,51 @@
-<title>Factory List Help</title>
+<title>Industry List Help</title>
 
-<h1><strong>Factory List</strong></h1>
+<h1><strong>Industry List</strong></h1>
 
 <p>
-<strong>Factory List</strong> shows information about all <a href="industry_info.txt">factories</a> (suppliers and consumers of goods) in the current game.
+<strong>Industry List</strong> shows information about all <a href="industry_info.txt">industries</a> (suppliers and consumers of goods) in the current game.
 </p>
 <p>
-To open <strong>factory List</strong>: click on factory-list-tool in <a href="list.txt">List Management</a>.<br>
-{Tips: If items in list are only partially visible, then <a href="mouse.txt">re-size</a> <strong>Industry/factory List</strong> or scroll list using slider-bar.}
+To open the <strong>Industry List</strong> window: click on the industry list icon in the <a href="list.txt">List Management</a> window.<br>
+<em>Tip:</em> If items in list are only partially visible, then <a href="mouse.txt">re-size</a> the <strong>Industry List</strong> window or scroll the list using the slider bar.
 </p>
 <p>
-<em>Sorted by:</em> has options to determine the order of listed ndustries listed.<br>
-Click on buttons to cycle through options (changes name of option-button):
+<em>Sorted by:</em> has options to determine the order of the industries listed.<br>
+Click on the buttons to cycle through the options (changes name of the option button):
 </p>
 <p>
-- <em>factory name</em> orders alphabetically by name.<br>
-- <em>input</em> orders by input storage capacity.<br>
-- <em>output</em> orders by output storage capacity.<br>
-- <em>Production</em> orders Industry by production capability.<br>
-- <em>Rating</em> orders Industry by status-colour-bar (see below).<br>
-- <em>Power</em> orders Industry by electricity supplied.
+- <em>Factory name</em> orders alphabetically by name.<br>
+- <em>Input</em> orders by input storage capacity.<br>
+- <em>Output</em> orders by output storage capacity.<br>
+- <em>Production</em> orders by production capacity.<br>
+- <em>Status</em> orders by status colour bar (see below).<br>
+- <em>Power</em> orders by electricity supplied.
 </p>
 <p>
-- <em>ascending</em> / <em>descending</em> reverses order of list.
+- <em>ascending</em> / <em>descending</em> reverses the order of the list.
 </p>
 <p>
-Click on a item listed in<strong>Factory List</strong>to see more <a href="industry_info.txt">information</a> about that Industry.
-<br>Items listed for each Industry include:
+Click on an item listed in the <strong>Industry List</strong> window to see more <a href="industry_info.txt">information</a> about that industry. Click on the grey arrow next to each individual industry listed to be taken to the location of that industry in the main game window.
+<br>Items listed for each industry include:
 </p>
 <p>
-<em>status-colour-bar</em> colours indicate operation of the Industry (also used in <a href="industry_info.txt">Industry Information</a>):<br>
-- <em>white:</em> does not require supplements.<br>
-- <em>yellow:</em> connected by transport, but Industry Supply Chain has poor supply.<br>
-- <em>green:</em> at optimum status.<br>
-- <em>orange:</em> operational but improvements possible.<br>
-- <em>red:</em> operational but part of Industry Supply chain has excess supply.
+<em>Status colour bar:</em> colours indicate the status of the tndustry (also used in <a href="industry_info.txt">Industry Information</a>):<br>
+- <em>White:</em> does not require input.<br>
+- <em>Yellow:</em> connected by transport, but the supply of input commodities is poor or non-existant.<br>
+- <em>Green:</em> at optimum status.<br>
+- <em>Orange:</em> operational but improvements are possible.<br>
+- <em>Red:</em> operational, but part of the industry supply chain has excess supply.
 </p>
 <p>
-<em>red-lightning-strike-icon</em> is shown if the Industry has electricity supplied through <a href="special.txt">transformer</a>.
-</p>
-<p><em>factory name:</em> name of the <a href="industry_info.txt">industry</a>.
+A <em>Red lightning flash</em> is shown if the industry has an <a href="electricity.txt">electricity</a> supply.
 </p>
 <p>
-In brackets 3 values represent:<br>
-<em>current input:</em> amount of goods stored ready to be processed.<br>
-<em>current output:</em> amount of goods that are ready for transportation.<br>
-<em>total production:</em> production rate of the factory (maximum amount of goods produced per month)
+<em>Factory name:</em> the name of the <a href="industry_info.txt">industry</a>.
+</p>
+<p>
+The three numbers in brackets represent:<br>
+<em>Current input:</em> the amount of goods stored ready to be processed.<br>
+<em>Current output:</em> the amount of goods that are ready for transportation.<br>
+<em>Total production:</em> the production rate of the factory.<br>
+A dash ("-") is shown instead of a zero in each case.
 </p>

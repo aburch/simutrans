@@ -12,11 +12,8 @@
 #include <sys/time.h>
 #include <X11/extensions/XShm.h>
 
-#include "simmain.h"
 #include "simsys.h"
-
-
-struct sys_event sys_event;
+#include "simversion.h"
 
 
 static int using_shm = FALSE;
@@ -137,7 +134,7 @@ int dr_os_open(int const w, int const h, int)
 		mfg, mbg
 	);
 
-	XSetStandardProperties(md, mw, "Simutrans", "Simu", None, NULL, 0, NULL);
+	XSetStandardProperties(md, mw, SIM_TITLE, "Simu", None, NULL, 0, NULL);
 
 	mgc =XCreateGC(md, mw, 0, 0);
 	XSetBackground(md, mgc, mbg);
@@ -497,5 +494,5 @@ void dr_sleep(unsigned long usec)
 
 int main(int argc, char **argv)
 {
-	return simu_main(argc, argv);
+	return sysmain(argc, argv);
 }

@@ -14,14 +14,14 @@ PRODUCTVERSION RES_VERSION_NUMBER
  {
   BLOCK "040904E4"
   {
-   VALUE "CompanyName", "Simutrans Team\000"
-   VALUE "FileDescription", "Simutrans-Experimental\000"
-   VALUE "FileVersion", VERSION_NUMBER NARROW_EXPERIMENTAL_VERSION "\000"
-   VALUE "InternalName", "simutrans-experimental\000"
-   VALUE "LegalCopyright", "\251 Hj. Malthaner '97-'04 Simutrans Team '05-09 (Artistic Licence)\000"
-   VALUE "OriginalFilename", "simutrans-experimental.exe\000"
-   VALUE "ProductName", "Simutrans-Experimental\000"
-   VALUE "ProductVersion", VERSION_NUMBER NARROW_EXPERIMENTAL_VERSION "\000"
+   VALUE "CompanyName",      "Simutrans Team"
+   VALUE "FileDescription",  "Simutrans-Experimental"
+   VALUE "FileVersion",      VERSION_NUMBER EXPERIMENTAL_VERSION
+   VALUE "InternalName",     "SIMUTRANS"
+   VALUE "LegalCopyright",   "\251 Hj. Malthaner '97-'04 Simutrans Team '05-'12 (Artistic Licence)"
+   VALUE "OriginalFilename", "simutrans-experimental.exe"
+   VALUE "ProductName",      "Simutrans-Experimental"
+   VALUE "ProductVersion",   VERSION_NUMBER EXPERIMENTAL_VERSION
   }
 
  }

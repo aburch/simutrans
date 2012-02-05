@@ -4,7 +4,7 @@
  * Copyright 2010 Nathanael C. Nerode
  * & Simutrans Contributors
  * This file is part of the Simutrans project and is available under the
- * Artistic License -- see licence.txt
+ * Artistic License -- see license.txt
  */
 
 /*

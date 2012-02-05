@@ -86,7 +86,7 @@ halt_detail_t::~halt_detail_t()
 		delete b;
 	}
 	while(!label_names.empty()) {
-		free( (void *)(label_names.remove_first()) );
+		free(label_names.remove_first());
 	}
 }
 
@@ -124,7 +124,7 @@ void halt_detail_t::halt_detail_info()
 		delete b;
 	}
 	while(!label_names.empty()) {
-		free( (void *)(label_names.remove_first()) );
+		free(label_names.remove_first());
 	}
 	buf.clear();
 

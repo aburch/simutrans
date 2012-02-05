@@ -1,8 +1,8 @@
 /*
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner
  *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans project under the artistic license.
+ * (see license.txt)
  */
 
 #ifndef simcity_h
@@ -19,6 +19,7 @@
 
 #include "vehicle/simverkehr.h"
 #include "tpl/sparse_tpl.h"
+#include "utils/plainstring.h"
 
 #include <string>
 
@@ -35,24 +36,25 @@ class rule_t;
 #define MAX_CITY_HISTORY_YEARS  (12) // number of years to keep history
 #define MAX_CITY_HISTORY_MONTHS (12) // number of months to keep history
 
-#define PAX_DESTINATIONS_SIZE (128) // size of the minimap in the city window.
+#define PAX_DESTINATIONS_SIZE (256) // size of the minimap in the city window (sparse array)
 
 enum city_cost {
-	HIST_CITICENS=0,// total people
-	HIST_GROWTH,	// growth (just for convenience)
-	HIST_BUILDING,	// number of buildings
-	HIST_CITYCARS,	// Amount of private traffic produced by the city
-	HIST_PAS_TRANSPORTED, // number of passengers who could start their journey
-	HIST_PAS_GENERATED,	// total number generated
+	HIST_CITICENS=0,		// total people
+	HIST_GROWTH,			// growth (just for convenience)
+	HIST_BUILDING,			// number of buildings
+	HIST_CITYCARS,			// Amount of private traffic produced by the city
+	HIST_PAS_TRANSPORTED,	// number of passengers who could start their journey
+	HIST_PAS_GENERATED,		// total number generated
+	HIST_PAS_WALKED,		// The number of passengers who walked to their destination.
 	HIST_MAIL_TRANSPORTED,	// letters that could be sent
 	HIST_MAIL_GENERATED,	// all letters generated
 	HIST_GOODS_RECIEVED,	// times all storages were not empty
-	HIST_GOODS_NEEDED,	// times sotrages checked
+	HIST_GOODS_NEEDED,		// times sotrages checked
 	HIST_POWER_RECIEVED,	// power consumption 
 	HIST_POWER_NEEDED,		// Power demand by the city.
-	HIST_CONGESTION,	// Level of congestion in the city, expressed in percent.
-	HIST_CAR_OWNERSHIP,	// Proportion of total population who have access to cars.
-	MAX_CITY_HISTORY	// Total number of items in array
+	HIST_CONGESTION,		// Level of congestion in the city, expressed in percent.
+	HIST_CAR_OWNERSHIP,		// Proportion of total population who have access to cars.
+	MAX_CITY_HISTORY		// Total number of items in array
 };
 
 enum route_status 
@@ -155,7 +157,7 @@ public:
 private:
 	static karte_t *welt;
 	spieler_t *besitzer_p;
-	const char *name;
+	plainstring name;
 
 	weighted_vector_tpl <gebaeude_t *> buildings;
 
@@ -289,6 +291,12 @@ public:
 	{
 		city_history_year[0][HIST_PAS_TRANSPORTED] += passengers;
 		city_history_month[0][HIST_PAS_TRANSPORTED] += passengers;
+	}
+
+	inline void add_walking_passengers(uint16 passengers)
+	{
+		city_history_year[0][HIST_PAS_WALKED] += passengers;
+		city_history_month[0][HIST_PAS_WALKED] += passengers;
 	}
 
 	inline void add_transported_mail(uint16 mail)

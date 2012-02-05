@@ -2,7 +2,7 @@
 #define gui_messagebox_h
 
 #include "gui_frame.h"
-#include "components/location_view_t.h"
+#include "components/gui_location_view_t.h"
 #include "components/gui_image.h"
 #include "components/gui_fixedwidth_textarea.h"
 #include "../simskin.h"

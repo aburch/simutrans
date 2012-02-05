@@ -5,6 +5,8 @@
 #ifndef simcolor_h
 #define simcolor_h
 
+#define LIGHT_COUNT (15)
+
 // this is a player color => use different table for conversion
 #define PLAYER_FLAG (0x8000)
 
@@ -77,7 +79,7 @@ typedef unsigned char COLOR_VAL;
 #define MONEY_MINUS COL_RED
 
 // used in many dialogues graphs
-#define COL_REVENUE (141)
+#define COL_REVENUE (142)
 #define COL_OPERATION (132)
 #define COL_MAINTENANCE (134)
 #define COL_TOLL (157)
@@ -87,6 +89,7 @@ typedef unsigned char COLOR_VAL;
 #define COL_CONSTRUCTION (110)
 #define COL_PROFIT (6)
 #define COL_TRANSPORTED (171)
+#define COL_MAXSPEED (53)
 
 #define COL_CASH (52)
 #define COL_VEHICLE_ASSETS (63)

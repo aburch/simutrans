@@ -832,6 +832,7 @@ public:
 
 	uint32 get_industry_increase_every() const { return industry_increase; }
 	uint32 get_city_isolation_factor() const { return city_isolation_factor; }
+	void set_industry_increase_every( uint32 n ) { industry_increase = n; }
 
 	sint16 get_used_vehicle_reduction() const { return used_vehicle_reduction; }
 

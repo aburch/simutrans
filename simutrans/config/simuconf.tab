@@ -652,9 +652,6 @@ water_animation_ms = 250
 # (1=on, 0=off)
 pedes_and_car_info = 1
 
-# (=1) drive on the left side of the road
-drive_left = 0
-
 # Show infos on trees?
 # (1=on, 0=off)
 tree_info = 1
@@ -670,6 +667,15 @@ townhall_info = 0
 # always open only a single info window for the ground,
 # even if there are more objects on this tile
 #only_single_info = 1
+
+# show a tooltip on convois at several conditions
+# 0 no messages
+# 1 (default) only no_route and stuck
+# loading and waiting at signals too
+#show_vehicle_states = 1
+
+# show (default) tiles with a halt when editing a schedule
+#visualize_schedule = 1
 
 # Should stations get numbered names? (1=yes, 0=no)
 numbered_stations = 0
@@ -905,7 +911,7 @@ allow_buying_obsolete_vehicles = 0
 # This is not on by default, even in Experimental.
 # vehicle can loose a part of their value, when they are once used
 # the loss is given in 1/1000th, i.e 300 mean the value will be 70%
-used_vehicle_reduction = 0
+used_vehicle_reduction = 250
 
 ################################ Vehicle settings ##############################
 
@@ -1120,8 +1126,14 @@ autosave = 12
 # (depends very much on computer, game complexity and graphics driver)
 frames_per_second = 30
 
-# How much faster should the game proceed with fast forward
-# (limited by your computer and the size of the map)
+# during zooming out simutrans may get slow due to the very high number
+# of tiles visible. If the tiles become equal or smaller than the tile size
+# below, a simpler clipping algorithm will be used, which will give some
+# clipping errors, but is faster.
+simple_drawing_tile_size = 24
+
+# How much faster should the game proceed with fast forward 
+# (limited by your computer and size of the map)
 fast_forward = 100
 
 ################################### Network settings ##############################

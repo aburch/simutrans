@@ -1,49 +1,53 @@
-<title>Schedule Controls Help</title>
+<title>Schedule Help</title>
 
-<h1><strong>Schedule Controls</strong></h1>
+<h1><strong>Schedule</strong></h1>
 
 <p>
-<strong>Schedule Controls</strong> sets the Schedule (route and minimum quantity of goods and passengers required by a <a href="convoiinfo.txt">Convoy</a> to proceed) for a Convoy or a <a href="linemanagement.txt">Line</a>.<br>
-It lists<a href="station.txt">Stops</a> (where Convoys pick-up and drop-off goods and passengers) and waypoints (which can be used to direct Convoys to a path if more than one is available or provide interim destination points) with their map co-ordinates.
+The <strong>Schedule</strong> window sets the schedule for a <a href="convoiinfo.txt">Convoy</a> or a <a href="linemanagement.txt">Line</a>.
+It lists<a href="station.txt">Stops</a>, where convoys pick up and drop off goods and passengers, and waypoints, which can be used to determine which route that convoys use, with their respective map co-ordinates.
 </p>
 <p>
-<strong>Schedule Controls</strong> for a Convoy opens from Schedule option-button in <a href="convoiinfo.txt">Convoy Information</a> and <a href="depot.txt">Depot Controls</a>.<br>
-Controls for the Schedule of a Line open from New Line and Update Line option-buttons in <a href="linemanagement.txt">Line Management</a> and <a href="depot.txt">Depot Controls</a>.
+The <strong>Schedule</strong> window for a particular convoy can be accessed by pressing the "schedule" button in the <a href="convoiinfo.txt">Convoy Information</a> window or  the <a href="depot.txt">Depot</a> window.
+To open the <strong>Schedule</strong> window for a line, select "New line" or "Update line" in the <a href="linemanagement.txt">Line Management</a> or <a href="depot.txt">Depot</a> windows.
 </p>
 <p>
-When <strong>Schedule Controls</strong> is opened from Convoy Information the assigned Line (if any) is shown at top of controls.<br>
-<a href="linemanagement.txt"><em>Line</em></a> <em>Name:</em> Click on left/right-arrow buttons by name to cycle through Lines or click on name-box to open a drop-down-list of Lines (click on Line in drop-down list to select). <br>
-Click on name-box and type new name to change name of Line.
+When the <strong>Schedule</strong> window is opened from the Convoy Information window, the assigned Line (if there is one) is shown at the top of the window.
 </p>
 <p>
-<em>Wait For:</em> sets the minimum quantity of goods and passengers required by a <a href="convoiinfo.txt">Convoy</a> to proceed.
-The percentage figure refers to the total capacity of the Convoy and not an indiviual type of item carried.<br>
-A Convoy will wait at Stop until required percentage is on board.<br>
-To use: click on Stop in list to select (> by name shows that Stop has been selected), then use arrow-buttons to cycle through percentages.<br>
-{Tips: To set or change Wait For levels for all Convoys on a Line, use Update Line option-button in <a href="linemanagement.txt">Line Management</a> or <a href="depot.txt">Depot Controls</a>. To set or change the Wait For level for a Convoy and no other Convoy on assigned Line, use Schedule option-button in <a href="convoiinfo.txt">Convoy Information</a> or Depot Controls.}
+<em>Serves</em> <a href="linemanagement.txt"><em>line:</em></a> This shows the line currently served by the current convoy. To change the line served by this convoy, click on the left/right-arrow buttons to cycle through the lines, or click on the name box to open a drop-down-list of the lines, then click one to select it.
+Click on the name box and type new name to change the name of the line.
 </p>
 <p>
-Option-buttons (click to use, button is indented when selected) include:
+<em>Minimum load:</em> This is the minimum quantity of passengers or goods that must be loaded at the selected stop before the convoy will leave the stop for its next destination.
+The percentage figure refers to the total capacity of the convoy and not an indiviual type of item carried.<br>
+To use this feature, click on a stop in the list to select it, then use arrow buttons to cycle through the percentages, or type in a precise percentage in the text box.<br>
+</p>
+<em>Max. wait for load:</em> This is the maximum amount of time that a convoy will wait at a stop for the load level specified in "Minimum load". If this is set to "off", the convoy will wait as long as it takes to get the loading level stipulated. The remaining settings are proportions of game months: at 1/1, the convoy will wait up to one game month before departing the stop whether it has reached the specified loading level or not. At 1/512, the convoy will wait 1/512th of a month before moving off even if it does not have the specified level of load.<br>
+<em>Tip:</em> Use this feature on lines carrying passengers, mail or other time-sensitive loads to make sure that the journey times are not too long if the "minimum load" feature is set.
+</p>
+</p>
+<em>Spacing cnv/month</em>: This option only works if the "Minimum load" option is set. If this option is set in a schedule with a minimum load, the convoy will wait until either the minimum load specified or the stipulated departure time is reached. The "spacing" value represents the number of departures from each stop in the schedule stop per game month, and a departure time for each vehicle calling at the stop is automatically calculated based on an even distribution of these times.<br>
+<em>Note:</em> This feature is only available for the schedules of lines, not individual convoys. The "spacing" setting will not be visible when editing an individual convoy's schedule.<br>
+<em>Tip:</em> Use this feature to cause convoys to spaced evenly throughout a line, reducing waiting times. 
 </p>
 <p>
-<em>Add</em> <a href="station.txt"><em>Stop:</em></a> option places a Stop used by vehicles to pick-up or drop-off goods and passengers (water transport vehicles may use any square of water in the catchment area of a dock) or waypoint on route.<br>
-To add a Stop or waypoint: click on option to select (changes cursor to halt-arrow), then click required point in game-view for Stop or waypoint (point on road, track or water as appropriate for type of vehicle). The Stop or waypoint, is now listed in <strong>Schedule Controls</strong>.<br>
-{Tips: Vehicles do not pick-up or drop-off goods & passengers at waypoints.}
+<em>Mirror schedule:</em> If this option is selected, the convoys using this schedule will reverse the direction in which they follow the schedule when they get to the end of it. So, for example, if a line has the schedule A>B>C, if this button is not selected, the convoy will go A>B>C>A>B>C, etc. If this is selected, the convoy will instead travel A>B>C>B>A>B, etc.<br>
+<em>Tip:</em> If this option is used with trains on double-track railways, the game will automatically work out which direction platform should be used, but this does mean that the exact platform cannot always be specified when this option is enabled.
 </p>
 <p>
-<em>Insert:</em> option places a <a href="station.txt">Stop</a> or waypoint on route, before an existing Stop/waypoint.<br>
-To insert a Stop or waypoint: click on an existing stop/waypoint in list to select (> by name shows Stop/waypoint is selected), then click on Insert option-button (changes cursor to halt-arrow), then click required point in game-view for Stop or waypoint (point on road, track or water as appropriate for type of vehicle).<br>
-The new Stop or waypoint is listed in <strong>Schedule Controls</strong> before the previously selected Stop/waypoint.<br>
-{Tips: Vehicles do not pick-up or drop-off goods or passengers at waypoints.}
+<em>Alternate directions:</em> If this option is selected, each convoy assigned to this line will start in the opposite end of the schedule to the last convoy assigned to this line. This is useful for making sure that convoys are evenly spaced on a line.
 </p>
 <p>
-<em>Remove:</em> option deletes a <a href="station.txt">Stop</a> or waypoint from the route.<br>
-Click on option-button to select, then click on item in list to remove.
+<em>Add</em> <a href="station.txt"><em>Stop:</em></a> This places a stop used by vehicles to pick up or drop off goods and passengers (water transport vehicles may use any square of water in the catchment area of a dock) or waypoint on the route.
+To add a stop or waypoint: click on the option to select (which changes the cursor to a "stop" arrow), then click the required point in the main game window for the stop or waypoint. It must be a point on road, track or water as appropriate for type of vehicle. A stop placed outside a station will automatically create a waypoint.<br>
+<em>Tip:</em> Vehicles do not pick up or drop off goods and passengers at waypoints.
 </p>
 <p>
-<em>replicate backwards:</em> option adds existing <a href="station.txt">Stops</a> and waypoints in reverse order to route. <em>Wait For</em> levels are also replicated. Click on option-button to use: <strong>Schedule Controls</strong> lists new route.
+<em>Insert:</em> This inserts a stop or waypoint into a schedule immediately before the currently selected stop or waypoint. To insert a stop or waypoint, click on an existing stop or waypoint in list to select it, then click on the insert button (which changes the cursor to a "stop" arrow), then click the required point in the main game window.
 </p>
 <p>
-<em>Promote to</em> <a href="linemanagement.txt"><em>Line:</em></a> (only available when <strong>Schedule Controls</strong> is opened from <a href="convoiinfo.txt">Convoy Information</a>) creates a new Line
- using current Schedule. The new Line is assigned a number and listed in Line Management.
+<em>Remove:</em> option deletes a stop or waypoint from the schedule. Click on the "remove", then click on a stop or waypoint in the schedule to remove it.
+</p>
+<p>
+<em>Promote to</em> <a href="linemanagement.txt"><em>Line:</em></a> (only available when the <strong>Schedule</strong> window is opened from the <a href="convoiinfo.txt">Convoy Information</a> window) creates a new line using the current schedule.
 </p>

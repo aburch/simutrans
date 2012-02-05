@@ -671,7 +671,7 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 
 		// search neighbors
 		for(int r = 0; r < 4; r++) {
-			if(  (zv == koord::invalid  ||  zv == koord::nsow[r])  &&  from->get_neighbour(to, delete_wegtyp, koord::nsow[r])  &&  !marker.ist_markiert(to)  &&  to->ist_bruecke()  ) {
+			if(  (zv == koord::invalid  ||  zv == koord::nsow[r])  &&  from->get_neighbour(to, delete_wegtyp, ribi_t::nsow[r])  &&  !marker.ist_markiert(to)  &&  to->ist_bruecke()  ) {
 				if(  wegtyp != powerline_wt  ||  (to->find<bruecke_t>()  &&  to->find<bruecke_t>()->get_besch()->get_waytype() == powerline_wt)  ) {
 					tmp_list.insert(to->get_pos());
 					marker.markiere(to);
@@ -706,8 +706,7 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 
 		// finally delete all pillars (if there)
 		gr = welt->lookup_kartenboden(pos.get_2d());
-		ding_t *p;
-		while ((p = gr->find<pillar_t>()) != 0) {
+		while (ding_t* const p = gr->find<pillar_t>()) {
 			p->entferne(p->get_besitzer());
 			delete p;
 		}
@@ -720,8 +719,7 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 
 		grund_t *gr = welt->lookup(pos);
 		if(wegtyp==powerline_wt) {
-			ding_t *br;
-			while ((br = gr->find<bruecke_t>()) != 0) {
+			while (ding_t* const br = gr->find<bruecke_t>()) {
 				br->entferne(sp);
 				delete br;
 			}

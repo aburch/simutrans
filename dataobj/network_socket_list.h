@@ -15,6 +15,7 @@ private:
 	packet_t *packet;
 	slist_tpl<packet_t *> send_queue;
 
+
 public:
 	enum {
 		inactive	= 0, // client disconnected
@@ -29,7 +30,7 @@ public:
 
 	net_address_t address;
 
-	socket_info_t() : packet(0), send_queue(), state(inactive), socket(INVALID_SOCKET), address() {}
+	socket_info_t() : packet(0), send_queue(), state(inactive), socket(INVALID_SOCKET), address(), player_unlocked(0) {}
 
 	/**
 	 * marks all information as invalid
@@ -57,6 +58,16 @@ public:
 	 * rdwr client information to packet
 	 */
 	void rdwr(packet_t *p);
+
+
+	uint16 player_unlocked;
+	/**
+	 * human players on this connection can play with in-game companies/players?
+	 */
+	bool is_player_unlocked(uint8 player_nr) const { return (player_nr < 15)  &&  ((player_unlocked & 1<<player_nr)!=0); }
+
+	void unlock_player(uint8 player_nr) { if (player_nr < 15) player_unlocked |= 1<<player_nr; }
+	void lock_player(uint8 player_nr) { if (player_nr < 15) player_unlocked &= ~(1<<player_nr); }
 };
 
 /**
@@ -112,13 +123,17 @@ public:
 
 	static uint32 get_client_id( SOCKET sock );
 
+	static bool is_valid_client_id( uint32 client_id ) {
+		return client_id < list.get_count();
+	}
+
 	static SOCKET get_socket( uint32 client_id ) {
 		return client_id < list.get_count()  &&  list[client_id].state != socket_info_t::inactive
 			? list[client_id].socket : INVALID_SOCKET;
 	}
 
 	static socket_info_t& get_client(uint32 client_id ) {
-		assert(client_id < list.get_count());
+		assert (client_id < list.get_count());
 		return list[client_id];
 	}
 
@@ -128,6 +143,11 @@ public:
 	static SOCKET get_server_connection_socket() {
 		return get_socket(0);
 	}
+
+	/**
+	 * unlocks/locks player for all clients, except client number except_client
+	 */
+	static void unlock_player_all(uint8 player_nr, bool unlock, uint32 except_client);
 
 	static void send_all(network_command_t* nwc, bool only_playing_clients);
 

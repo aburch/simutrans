@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2008 by Markus Pristovsek
  *
- * This file is part of the Simutrans project under the artistic licence.
+ * This file is part of the Simutrans project under the artistic license.
  */
 
 #include <stdio.h>
@@ -230,7 +230,7 @@ void movingobj_t::rdwr(loadsave_t *file)
 			groundobjtype = simrand(movingobj_typen.get_count(), "void movingobj_t::rdwr");
 		}
 		else {
-			groundobjtype = besch->get_index();
+			groundobjtype = (uint8)besch->get_index();
 		}
 		// if not there, besch will be zero
 		use_calc_height = true;

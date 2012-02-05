@@ -63,29 +63,26 @@ void gui_convoiinfo_t::zeichnen(koord offset)
 {
 	clip_dimension clip = display_get_clip_wh();
 	if(! ((pos.y+offset.y) > clip.yy ||  (pos.y+offset.y) < clip.y-32) &&  cnv.is_bound()) {
-		int max_x = display_proportional_clip(pos.x+offset.x+2,pos.y+offset.y+6+LINESPACE, translator::translate("Gewinn"), ALIGN_LEFT, COL_BLACK, true);
+		// name, use the convoi status color for redraw: Possible colors are YELLOW (not moving) BLUE: obsolete in convoi, RED: minus income, BLACK: ok
+		int max_x = display_proportional_clip(pos.x+offset.x+2, pos.y+offset.y+6, cnv->get_name(), ALIGN_LEFT, cnv->get_status_color(), true)+2;
 
+		int w = display_proportional_clip(pos.x+offset.x+2,pos.y+offset.y+6+LINESPACE, translator::translate("Gewinn"), ALIGN_LEFT, COL_BLACK, true)+2;
 		char buf[256];
 		money_to_string(buf, (double)(cnv->get_jahresgewinn()/100) );
-		max_x += display_proportional_clip(pos.x+offset.x+2+max_x+5,pos.y+offset.y+6+LINESPACE, buf, ALIGN_LEFT, cnv->get_jahresgewinn()>0?MONEY_PLUS:MONEY_MINUS, true);
+		w += display_proportional_clip(pos.x+offset.x+2+w+5,pos.y+offset.y+6+LINESPACE, buf, ALIGN_LEFT, cnv->get_jahresgewinn()>0?MONEY_PLUS:MONEY_MINUS, true);
+		max_x = max(max_x,w+5);
 
-		/*
-		* only show assigned line, if there is one!
-		*/
+		// only show assigned line, if there is one!
 		if (cnv->in_depot()) {
-			const char *txt=translator::translate("(in depot)");
-			int w=display_proportional_clip(pos.x+offset.x+2, pos.y+offset.y+6+2*LINESPACE,txt,ALIGN_LEFT, COL_BLACK, true);
-			max_x = max(max_x,w+2);
+			const char *txt = translator::translate("(in depot)");
+			int w = display_proportional_clip(pos.x+offset.x+2, pos.y+offset.y+6+2*LINESPACE,txt,ALIGN_LEFT, COL_BLACK, true)+2;
+			max_x = max(max_x,w);
 		}
 		else if(cnv->get_line().is_bound()) {
-			sint16 w = display_proportional_clip( pos.x+offset.x+2, pos.y+offset.y+6+2*LINESPACE, translator::translate("Line"), ALIGN_LEFT, COL_BLACK, true );
-			w += display_proportional_clip( pos.x+offset.x+2+w+5, pos.y+offset.y+6+2*LINESPACE, cnv->get_line()->get_name(), ALIGN_LEFT, cnv->get_line()->get_state_color(), true );
+			int w = display_proportional_clip( pos.x+offset.x+2, pos.y+offset.y+6+2*LINESPACE, translator::translate("Line"), ALIGN_LEFT, COL_BLACK, true)+2;
+			w += display_proportional_clip( pos.x+offset.x+2+w+5, pos.y+offset.y+6+2*LINESPACE, cnv->get_line()->get_name(), ALIGN_LEFT, cnv->get_line()->get_state_color(), true);
 			max_x = max(max_x,w+5);
 		}
-
-		// name
-		int w = display_calc_proportional_string_len_width(cnv->get_name(), 35535) + 2;
-		max_x = max(max_x,w);
 
 		// we will use their images offests and width to shift them to their correct position
 		// this should work with any vehicle size ...
@@ -98,9 +95,6 @@ void gui_convoiinfo_t::zeichnen(koord offset)
 			display_base_img(bild,left-x,pos.y+offset.y+13-y-h/2,cnv->get_besitzer()->get_player_nr(),false,true);
 			left += (w*2)/3;
 		}
-
-		// use the convoi status color for redraw: Possible colors are YELLOW (not moving) BLUE: obsolete in convoi, RED: minus income, BLACK: ok
-		display_proportional_clip(pos.x+offset.x+2, pos.y+offset.y+6,cnv->get_name(),ALIGN_LEFT, cnv->get_status_color(), true);
 
 		// since the only remaining object is the loading bar, we can alter its position this way ...
 		filled_bar.zeichnen(pos+offset+koord(xoff,0));

@@ -12,6 +12,7 @@
 #include "../simworld.h"
 
 #include "../dataobj/translator.h"
+#include "../dataobj/network_cmd_ingame.h"
 
 #include "../utils/cbuffer_t.h"
 #include "../utils/sha1.h"
@@ -76,36 +77,31 @@ bool password_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 		SHA1 sha1;
 		size_t len = strlen( password.get_text() );
 		sha1.Input( password.get_text(), len );
-		uint8 hash[20];
-		MEMZERO(hash);
+		pwd_hash_t hash;
 		// remove hash to re-open slot if password is empty
 		if(len>0) {
-			sha1.Result( hash );
+			hash.set(sha1);
 		}
-		/* if current active player is player 1 and this is unlocked, he may reset passwords
-		 * otherwise you need the valid previous password
-		 */
-		if(  !sp->is_locked()  ||  (sp->get_welt()->get_active_player_nr()==1  &&  !sp->get_welt()->get_spieler(1)->is_locked())   ) {
-			// set this to world
-			sp->get_welt()->set_player_password_hash( sp->get_player_nr(), hash );
-			// and change player password
-			werkzeug_t *w = create_tool( WKZ_PWDHASH_TOOL | SIMPLE_TOOL );
-			cbuffer_t buf;
-			for(  int i=0;  i<20;  i++  ) {
-				buf.printf( "%02X", hash[i] );
-			}
-			w->set_default_param(buf);
-			sp->get_welt()->set_werkzeug( w, sp );
-			delete w;
+		// store the hash
+		sp->get_welt()->store_player_password_hash( sp->get_player_nr(), hash );
+
+		if(  umgebung_t::networkmode) {
+			sp->unlock(!sp->is_locked(), true);
+			// send hash to server: it will unlock player or change password
+			nwc_auth_player_t *nwc = new nwc_auth_player_t(sp->get_player_nr(), hash);
+			network_send_server(nwc);
 		}
 		else {
-			// set this to world to unlock
-			sp->get_welt()->set_player_password_hash( sp->get_player_nr(), hash );
-			sp->set_unlock( hash );
-			// update the player window
-			ki_kontroll_t* playerwin = (ki_kontroll_t*)win_get_magic(magic_ki_kontroll_t);
-			if (playerwin) {
-				playerwin->update_data();
+			/* if current active player is player 1 and this is unlocked, he may reset passwords
+			 * otherwise you need the valid previous password
+			 */
+			if(  !sp->is_locked()  ||  (sp->get_welt()->get_active_player_nr()==1  &&  !sp->get_welt()->get_spieler(1)->is_locked())   ) {
+				// set password
+				sp->access_password_hash() = hash;
+				sp->unlock(true, false);
+			}
+			else {
+				sp->check_unlock(hash);
 			}
 		}
 	}

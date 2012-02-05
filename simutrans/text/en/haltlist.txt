@@ -1,62 +1,61 @@
-<title>Station List Help</title>
+<title>Stop List Help</title>
 
-<h1><strong>Station List</strong></h1>
+<h1><strong>Stop List</strong></h1>
 
 <p>
-<strong>Station List</strong> shows information and has controls to filter and list different <a href="station.txt">Stops</a> (but not Stops just for water transport vehicles), where vehicles pick-up and drop-off goods & passengers.
+The <strong>Stop List</strong> window lists and gives information about the individual <a href="station.txt">stops</a> in the game world.
 </p>
 <p>
-To open: click on station-list-tool in <a href="list.txt">List Management</a>. <strong>Station List</strong> has four option buttons, two are used to order items in a list and two are used to apply options to select items to show in list. Below buttons is a list of <a href="station.txt">Stops</a> that fit criteria for filter options.<br>
-{Tips: If no Stops are listed change <em>Filter</em> options. If items in list are only partially visible, then <a href="mouse.txt">re-size</a> <strong>Station List</strong> or scroll list with slider-bar.}
+To open: click on the stop list icon in the <a href="list.txt">List Management</a> toolstrip. The <strong>stop list</strong> window has four option buttons: two are used to sort the list, and two are used to filter the list, to show only items matching certain criteria. Below the buttons is a list of the <a href="station.txt">stops</a> owned by the current player.<br>
+<em>Tip:</em> If no stops are listed, change the <em>filter</em> options, or disable the filter. If not all items in the list are visible, then <a href="mouse.txt">re-size</a> the window, or scroll the list with the slider bar.
 </p>
 <p>
-Click on buttons to cycle through options (changes name of option-button) or open Filter Settings controls:
+Click the buttons to cycle through the options (the button text changes to reflect the currently selected option) or, in the case of the filter settings button, open a <a href="haltlist_filter.txt">new window</a> with controls for the filter):
 </p>
 <p>
-<em>Sorted by:</em> two option-buttons determine the order of <a href="station.txt">Stops</a> shown in list:
+<em>Sorted by:</em> two option buttons determine the order in which the items in the list are shown:
 </p>
 <p>
-- <em>Type</em> orders by type of vehicle that is accepted.<br>
-- <em>unsorted</em> ?orders in random order.<br>
-- <em>Name</em> orders alphanumerically within ASCII-code order (capital letters before lower case letters) of assigned <a href="station.txt">name</a>.<br>
-- <em>waiting</em>orders by amount of goods & passengers present in relation to waiting capacity and transport service provided.
+- <em>Unsorted</em> no particular order<br>
+- <em>Type</em> ordered by type of stop (e.g., railway station, 'bus stop, etc.)<br>
+- <em>Name</em> ordered alphabetically by the name of the stop.<br>
+- <em>Waiting</em> ordered by the amount of passengers, mail or goods present in proportion to the stop's capacity.
 </p>
 <p>
-- <em>ascending</em> / <em>descending</em> reverses order of list.
+- <em>ascending</em> / <em>descending</em> reverses the order of the list.
 </p>
 <p>
-<em>Filter:</em> Two option buttons, switch on/off selection criteria for list and access controls to change criteria.
+<em>Filter:</em> two option buttons apply and set options for the filter.
 </p>
 <p>
-- <em>enabled</em> / <em>disabled</em> click to toggle filter criteria.
+- <em>Enabled</em> / <em>Disabled</em> sets whether the filter is applied to the list.
 </p>
 <p>
-- <a href="haltlist_filter.txt"><em>Settings</em></a> click to open controls to change filter criteria.
+- <em>Settings</em> opens a <a href="haltlist_filter.txt">new window</a> with settings for the filter.
 </p>
 <p>
-Click on a item listed in<strong>Station List</strong>to see more <a href="station.txt">information</a> about that Stop.<br>
-Items listed for each Stop include:
+Click on a item listed in the <strong>stop list</strong> window to see more <a href="station.txt">information</a> about that stop.<br>
+Items listed for each stop include:
 </p>
 <p>
-<em>status-colour-bar:</em> colours indicate operation of <a href="station.txt">Stop</a> with regards to how overcrowded it is. The colour-bar is also used in Stop Information and <a href="linemanagement.txt">Line Management</a> and is the same colour displayed in the colour-bar above Stop in game-display:<br>
-- <em>yellow:</em> no service and nothing waitung.<br>
-- <em>green:</em> no improvements necessary.<br>
-- <em>orange:</em> stop is slightly overcrowded (with transfer goods mostly).<br>
-- <em>red:</em> stop hold more than 1.5 of its capacity, or more than 200 unhappy passengers, or a factory must stop its production because the station is overcrowded.<br>
-{Tips: Use [!] to toggle colour-bar above Stop in game display.}
+<em>Status colour bar:</em> different colours show how well that a stop is coping with the level of traffic. The status colour bar is also used in the stop information and line management windows, and is the same colour displayed in the colour bar above a stop in the main game window. The colours are:<br>
+- <em>Yellow:</em> there is currently no service to this stop<br>
+- <em>Green:</em> the stop has good service<br>
+- <em>Orange:</em> the stop has poor service<br>
+- <em>Red:</em> the stop has critically poor service<br>
+<em>Tip:</em> Use [!] to toggle the colour bar above stop in the main game window.
 </p>
 <p>
-<em>name</em> that has been assigned
-{Tips: Option to assign numbers in Stop name available in simuconf.tab}.
+<em>Name:</em> the name of the stop. This name can be changed in the <a href="station.txt">stop information</a> window.
 </p>
 <p>
-<em>vehicle icon(s)</em> indicate which types of vehicle can use <a href="station.txt">Stop</a> (also used in Stop Information and Line Management).<br>
-Icons include: bus (for road passenger vehicles), truck (for road goods vehicles), train, boat and airplane. Trams can be indicated by a bus-icon or a train-icon depending on type of Stop.
+<em>Vehicle icons</em> indicate which types of vehicle can use <a href="station.txt">Stop</a> (also used in the stop information and line management windows).<br>
+Icons include: 'bus (for road passenger vehicles), truck (for road goods vehicles), train, narrow gauge train, monorail, maglev, boat and aircraft. Trams are a special case, since they can use either 'bus stops or railway stations, and do not have their own icon.
 </p>
 <p>
-<em>freight icon(s)</em> indicate which items (passengers, goods and/or mail) the <a href="station.txt">Stop</a> can handle (also used in Stop Information and Line Management).<br>
-{Tips: adding appropriate extensions changes the category of items a stop can handle. <a href="special.txt">Post offices</a> may be added to Stops to enable handling of mail}.
+<em>Freight icons</em> indicate which types of items (passengers, goods and/or mail) that the <a href="station.txt">stop</a> accepts.<br>
+<em>Tip:</em> adding extensions can enable a stop to handle new types of items.
 </p>
 <p>
-<em>waiting</em> details of different goods and passengers at <a href="station.txt">Stop</a>.
+<em>Waiting</em> details of different mail, goods and passengers waiting at the <a href="station.txt">stops</a> listed.
 </p>

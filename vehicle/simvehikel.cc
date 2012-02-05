@@ -1,8 +1,8 @@
 /*
  * Copyright (c) 1997 - 2001 Hj. Malthaner
  *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans project under the artistic license.
+ * (see license.txt)
  *
  * All moving stuff (vehikel_basis_t) and all player vehicle (derived from vehikel_t)
  *
@@ -301,18 +301,18 @@ uint32 vehikel_basis_t::fahre_basis(uint32 distance)
 
 	uint32 steps_to_do = distance >> YARDS_PER_VEHICLE_STEP_SHIFT;
 
-	if(steps_to_do==0) {
+	if(  steps_to_do == 0  ) {
 		// ok, we will not move in this steps
 		return 0;
 	}
 	// ok, so moving ...
-	if(!get_flag(ding_t::dirty)) {
+	if(  !get_flag(ding_t::dirty)  ) {
 		mark_image_dirty(get_bild(),hoff);
 		set_flag(ding_t::dirty);
 	}
 	uint32 steps_target = steps_to_do + steps;
 
-	if(steps_target>steps_next) {
+	if(  steps_target > steps_next  ) {
 		// We are going far enough to hop.
 
 		// We'll be adding steps_next+1 for each hop, as if we
@@ -322,7 +322,7 @@ uint32 vehikel_basis_t::fahre_basis(uint32 distance)
 		bool has_hopped = false;
 
 		// Hop as many times as possible.
-		while(steps_target>steps_next  &&  hop_check()) {
+		while(  steps_target > steps_next  &&  hop_check()  ) {
 			steps_target -= steps_next+1;
 			steps_done += steps_next+1;
 			pos_prev = get_pos();
@@ -331,7 +331,7 @@ uint32 vehikel_basis_t::fahre_basis(uint32 distance)
 			has_hopped = true;
 		}
 
-		if(steps_next==0) {
+		if(  steps_next == 0  ) {
 			// only needed for aircrafts, which can turn on the same tile
 			// the indicate the turn with this here
 			steps_next = VEHICLE_STEPS_PER_TILE - 1;
@@ -339,7 +339,7 @@ uint32 vehikel_basis_t::fahre_basis(uint32 distance)
 			steps_done -= VEHICLE_STEPS_PER_TILE - 1;
 		}
 
-		if(steps_target>steps_next) {
+		if(  steps_target > steps_next  ) {
 			// could not go as far as we wanted (hop_check failed) => stop at end of tile
 			steps_target = steps_next;
 		}
@@ -349,7 +349,7 @@ uint32 vehikel_basis_t::fahre_basis(uint32 distance)
 		steps_done += steps;
 		distance_travelled = steps_done << YARDS_PER_VEHICLE_STEP_SHIFT;
 
-		if(has_hopped) {
+		if(  has_hopped  ) {
 			set_xoff( (dx<0) ? OBJECT_OFFSET_STEPS : -OBJECT_OFFSET_STEPS );
 			set_yoff( (dy<0) ? OBJECT_OFFSET_STEPS/2 : -OBJECT_OFFSET_STEPS/2 );
 			if(dx*dy==0) {
@@ -382,7 +382,6 @@ uint32 vehikel_basis_t::fahre_basis(uint32 distance)
 		hoff = calc_height();
 	}
 	// remaining steps
-	set_flag(ding_t::dirty);
 	update_bookkeeping(distance_travelled  >> YARDS_PER_VEHICLE_STEP_SHIFT );
 	return distance_travelled;
 }
@@ -466,8 +465,7 @@ vehikel_basis_t::calc_set_richtung(koord start, koord ende)
 	return richtung;
 }
 
-ribi_t::ribi
-vehikel_basis_t::calc_check_richtung(koord start, koord ende)
+ribi_t::ribi vehikel_basis_t::calc_check_richtung(koord start, koord ende)
 //Dry run version of calc_set_richtung.
 {
 	ribi_t::ribi richtung = ribi_t::keine; //"richtung" = direction (Google); "keine" = none (Google)
@@ -496,8 +494,7 @@ vehikel_basis_t::calc_check_richtung(koord start, koord ende)
 }
 
 
-ribi_t::ribi
-vehikel_basis_t::calc_richtung(koord start, koord ende) const
+ribi_t::ribi vehikel_basis_t::calc_richtung(koord start, koord ende)
 {/*
 	static ribi_t::ribi didj_richtung[9] =
 	{
@@ -552,9 +549,11 @@ sint8 vehikel_basis_t::calc_height()
 		// slope changed below a moving thing?!?
 		return 0;
 	}
-	else if(gr->ist_tunnel()  &&  gr->ist_karten_boden()  ) {
+	else if(  gr->ist_tunnel()  &&  gr->ist_karten_boden()  ) {
 		use_calc_height = true; // to avoid errors if undergroundmode is switched
-		if(grund_t::underground_mode==grund_t::ugm_none || (grund_t::underground_mode==grund_t::ugm_level && gr->get_hoehe()<grund_t::underground_level)) {
+		if(  grund_t::underground_mode == grund_t::ugm_none  ||
+			(grund_t::underground_mode == grund_t::ugm_level  &&  gr->get_hoehe() < grund_t::underground_level)
+		) {
 			// need hiding? One of the few uses of XOR: not half driven XOR exiting => not hide!
 			ribi_t::ribi hang_ribi = ribi_typ( gr->get_grund_hang() );
 			if((steps<(steps_next/2))  ^  ((hang_ribi&fahrtrichtung)!=0)  ) {
@@ -565,7 +564,7 @@ sint8 vehikel_basis_t::calc_height()
 			}
 		}
 	}
-	else if (!gr->is_visible()) {
+	else if(  !gr->is_visible()  ) {
 		set_bild(IMG_LEER);
 	}
 	else {
@@ -776,7 +775,6 @@ void vehikel_t::set_convoi(convoi_t *c)
 uint16
 vehikel_t::unload_freight(halthandle_t halt)
 {
-	assert(halt.is_bound());
 	uint16 sum_menge = 0;
 
 	//slist_tpl<ware_t> kill_queue;
@@ -832,8 +830,8 @@ vehikel_t::unload_freight(halthandle_t halt)
 							// Refund is approximation: 2x distance at standard rate with no adjustments. 
 							const sint64 refund_amount = ((tmp.menge * tmp.get_besch()->get_preis() * distance * 2000ll) + 1500ll) / 3000ll;
 							current_revenue -= refund_amount;
-							cnv->book(-refund_amount, CONVOI_PROFIT);
-							cnv->book(-refund_amount, CONVOI_REFUNDS);
+							cnv->book(-refund_amount, convoi_t::CONVOI_PROFIT);
+							cnv->book(-refund_amount, convoi_t::CONVOI_REFUNDS);
 							get_besitzer()->buche(-refund_amount, COST_VEHICLE_RUN);
 							if(cnv->get_line().is_bound())
 							{
@@ -1354,19 +1352,14 @@ void vehikel_t::hop()
 		speed_limit = speed_unlimited();
 	}
 
-	if(  check_for_finish  &  ist_erstes  ) {
-		if(  fahrtrichtung==ribi_t::nord  || fahrtrichtung==ribi_t::west ) 
-		{
-			steps_next = (steps_next/2)+1;
-		}
+	if(  check_for_finish  &&  (fahrtrichtung==ribi_t::nord  ||  fahrtrichtung==ribi_t::west)  ) 
+	{
+		steps_next = (steps_next/2)+1;
+		cnv->must_recalc_data_front();
 	}
 
 	// speedlimit may have changed
 	cnv->must_recalc_data();
-		
-	if(  ist_erstes  ) {
-		cnv->must_recalc_brake_soll();
-	}
 	
 	calc_drag_coefficient(gr);
 
@@ -1874,7 +1867,7 @@ uint16 vehikel_t::entladen(halthandle_t halt)
 	if(menge > 0) 
 	{
 		// add delivered goods to statistics
-		cnv->book(menge, CONVOI_TRANSPORTED_GOODS);
+		cnv->book(menge, convoi_t::CONVOI_TRANSPORTED_GOODS);
 		// add delivered goods to halt's statistics
 		halt->book(menge, HALT_ARRIVED);
 	}
@@ -2153,6 +2146,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 			besch = vehikelbauer_t::get_info(translator::compatibility_name(s));
 		}
 		if(besch==NULL) {
+			welt->add_missing_paks( s, karte_t::MISSING_VEHICLE );
 			dbg->warning("vehikel_t::rdwr_from_convoi()","no vehicle pak for '%s' search for something similar", s);
 		}
 	}
@@ -2483,7 +2477,7 @@ void vehikel_t::laden_abschliessen()
 	spieler_t *sp = get_besitzer();
 	if (sp) {
 		// BG, 06.06.2009: fixed maintenance for loaded vehicles, which are located on the map
-		sp->add_maintenance((sint32)get_besch()->get_fixed_maintenance(welt), spieler_t::MAINT_VEHICLE);
+		sp->add_maintenance((sint32)get_besch()->get_fixed_cost(welt), spieler_t::MAINT_VEHICLE);
 	}
 }
 
@@ -2493,7 +2487,7 @@ void vehikel_t::before_delete()
 	spieler_t *sp = get_besitzer();
 	if (sp) {
 		// BG, 06.06.2009: withdraw fixed maintenance for deleted vehicles
-		sp->add_maintenance(-(sint32)get_besch()->get_fixed_maintenance(welt), spieler_t::MAINT_VEHICLE);
+		sp->add_maintenance(-(sint32)get_besch()->get_fixed_cost(welt), spieler_t::MAINT_VEHICLE);
 	}
 }
 
@@ -2506,6 +2500,7 @@ automobil_t::automobil_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* s
 {
 	cnv = cn;
 	is_checker = false;
+	drives_on_left = welt->get_settings().is_drive_left();
 }
 
 automobil_t::automobil_t(karte_t *welt) : vehikel_t(welt)
@@ -2545,6 +2540,7 @@ automobil_t::automobil_t(karte_t *welt, loadsave_t *file, bool is_first, bool is
 		}
 	}
 	is_checker = false;
+	drives_on_left = welt->get_settings().is_drive_left();
 }
 
 
@@ -2663,16 +2659,17 @@ bool automobil_t::ist_ziel(const grund_t *gr, const grund_t *prev_gr) const
 		// now we must check the precessor => try to advance as much as possible
 		if(prev_gr!=NULL) {
 			const koord dir=gr->get_pos().get_2d()-prev_gr->get_pos().get_2d();
-			if(  gr->get_weg(get_waytype())->get_ribi_maske() & ribi_typ(dir)  ) {
+			ribi_t::ribi ribi = ribi_typ(dir);
+			if(  gr->get_weg(get_waytype())->get_ribi_maske() & ribi  ) {
 				// one way sign wrong direction
 				return false;
 			}
 			grund_t *to;
-			if(  !gr->get_neighbour(to,road_wt,dir)  ||  !(to->get_halt()==target_halt)  ||  (gr->get_weg(get_waytype())->get_ribi_maske() & ribi_typ(dir))!=0  ||  !target_halt->is_reservable(to,cnv->self)  ) {
+			if(  !gr->get_neighbour(to,road_wt,ribi)  ||  !(to->get_halt()==target_halt)  ||  (gr->get_weg(get_waytype())->get_ribi_maske() & ribi_typ(dir))!=0  ||  !target_halt->is_reservable(to,cnv->self)  ) {
 				// end of stop: Is it long enough?
 				uint16 tiles = cnv->get_tile_length();
 				while(  tiles>1  ) {
-					if(  !gr->get_neighbour(to,get_waytype(),-dir)  ||  !(to->get_halt()==target_halt)  ||  !target_halt->is_reservable(to,cnv->self)  ) {
+					if(  !gr->get_neighbour(to,get_waytype(),ribi_t::rueckwaerts(ribi))  ||  !(to->get_halt()==target_halt)  ||  !target_halt->is_reservable(to,cnv->self)  ) {
 						return false;
 					}
 					gr = to;
@@ -2987,11 +2984,11 @@ bool automobil_t::ist_weg_frei(int &restart_speed, bool second_check)
 						// not overtaking/being overtake: we need to make a more thourough test!
 						if(  automobil_t const* const car = ding_cast<automobil_t>(dt)  ) {
 							convoi_t* const ocnv = car->get_convoi();
-							if(  cnv->can_overtake( ocnv, (ocnv->get_state()==convoi_t::LOADING ? 0 :  ocnv->get_akt_speed()), ocnv->get_length_in_steps()+ocnv->get_vehikel(0)->get_steps(), diagonal_vehicle_steps_per_tile)  ) {
+							if(  cnv->can_overtake( ocnv, (ocnv->get_state()==convoi_t::LOADING ? 0 :  ocnv->get_akt_speed()), ocnv->get_length_in_steps()+ocnv->get_vehikel(0)->get_steps())  ) {
 								return true;
 							}
 						} else if (stadtauto_t* const caut = ding_cast<stadtauto_t>(dt)) {
-							if(  cnv->can_overtake(caut, caut->get_besch()->get_geschw(), VEHICLE_STEPS_PER_TILE, diagonal_vehicle_steps_per_tile)  ) {
+							if(  cnv->can_overtake(caut, caut->get_besch()->get_geschw(), VEHICLE_STEPS_PER_TILE)  ) {
 								return true;
 							}
 						}
@@ -3335,17 +3332,18 @@ bool waggon_t::ist_ziel(const grund_t *gr,const grund_t *prev_gr) const
 			// now we must check the precessor ...
 			if(  prev_gr!=NULL  ) {
 				const koord dir=gr->get_pos().get_2d()-prev_gr->get_pos().get_2d();
-				if(  gr->get_weg(get_waytype())->get_ribi_maske() & ribi_typ(dir)  ) {
+				const ribi_t::ribi ribi = ribi_typ(dir);
+				if(  gr->get_weg(get_waytype())->get_ribi_maske() & ribi  ) {
 					// signal/one way sign wrong direction
 					return false;
 				}
 				grund_t *to;
-				if(  !gr->get_neighbour(to,get_waytype(),dir)  ||  !(to->get_halt()==target_halt)  ||  (to->get_weg(get_waytype())->get_ribi_maske() & ribi_typ(dir))!=0  ) {
+				if(  !gr->get_neighbour(to,get_waytype(),ribi)  ||  !(to->get_halt()==target_halt)  ||  (to->get_weg(get_waytype())->get_ribi_maske() & ribi_typ(dir))!=0  ) {
 					// end of stop: Is it long enough?
 					// end of stop could be also signal!
 					uint16 tiles = cnv->get_tile_length();
 					while(  tiles>1  ) {
-						if(  gr->get_weg(get_waytype())->get_ribi_maske() & ribi_typ(dir)  ||  !gr->get_neighbour(to,get_waytype(),-dir)  ||  !(to->get_halt()==target_halt)  ) {
+						if(  gr->get_weg(get_waytype())->get_ribi_maske() & ribi  ||  !gr->get_neighbour(to,get_waytype(),ribi_t::rueckwaerts(ribi))  ||  !(to->get_halt()==target_halt)  ) {
 							return false;
 						}
 						gr = to;
@@ -3933,8 +3931,7 @@ void waggon_t::betrete_feld()
 {
 	vehikel_t::betrete_feld();
 
-	schiene_t * sch0 = (schiene_t *) welt->lookup(get_pos())->get_weg(get_waytype());
-	if(sch0) {
+	if(  schiene_t *sch0 = (schiene_t *) welt->lookup(get_pos())->get_weg(get_waytype())  ) {
 		// way statistics
 		const int cargo = get_fracht_menge();
 		sch0->book(cargo, WAY_STAT_GOODS);
@@ -4372,7 +4369,7 @@ bool aircraft_t::block_reserver( uint32 start, uint32 end, bool reserve ) const
 
 
 // handles all the decisions on the ground an in the air
-bool aircraft_t::ist_weg_frei(int & restart_speed,bool)
+bool aircraft_t::ist_weg_frei( int & restart_speed, bool )
 {
 	restart_speed = -1;
 
@@ -4389,10 +4386,15 @@ bool aircraft_t::ist_weg_frei(int & restart_speed,bool)
 	}
 
 	if(route_index<takeoff  &&  route_index>1  &&  takeoff<cnv->get_route()->get_count()-1) {
-		if (route_index > 1 && gr->find<aircraft_t>()) {
-			// check, if tile occupied, if not on stop
-			restart_speed = 0;
-			return false;
+		// check, if tile occupied by a plane on ground
+		if(  route_index > 1  ) {
+			for(  uint8 i = 1;  i<gr->get_top();  i++  ) {
+				ding_t *d = gr->obj_bei(i);
+				if(  d->get_typ()==ding_t::aircraft  &&  ((aircraft_t *)d)->is_on_ground()  ) {
+					restart_speed = 0;
+					return false;
+				}
+			}
 		}
 		// need to reserve runway?
 		runway_t *rw = (runway_t *)gr->get_weg(air_wt);
@@ -4449,7 +4451,7 @@ bool aircraft_t::ist_weg_frei(int & restart_speed,bool)
 			state = circling;
 			cnv->must_recalc_data();
 			if(  ist_erstes  ) {
-				cnv->must_recalc_brake_soll();
+				cnv->must_recalc_data_front();
 			}
 		}
 	}
@@ -4543,6 +4545,8 @@ aircraft_t::aircraft_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp,
 	state = taxiing;
 	old_x = old_y = -1;
 	old_bild = IMG_LEER;
+	flughoehe = 0;
+	target_height = pos.z;
 }
 
 
@@ -4591,11 +4595,18 @@ aircraft_t::set_convoi(convoi_t *c)
 				}
 			}
 			// restore reservation
-			if(route_index>=takeoff  &&  route_index<touchdown-21  &&  state!=flying) {
-				block_reserver( takeoff, takeoff+100, true );
-			}
-			else if(route_index>=touchdown-1  &&  state!=taxiing) {
-				block_reserver( touchdown, suchen+1, true );
+			if(  grund_t *gr = welt->lookup(get_pos())  ) {
+				if(  weg_t *weg = gr->get_weg(air_wt)  ) {
+					if(  weg->get_besch()->get_styp()==1  ) {
+						// but only if we are on a runway ...
+						if(  route_index>=takeoff  &&  route_index<touchdown-21  &&  state!=flying  ) {
+							block_reserver( takeoff, takeoff+100, true );
+						}
+						else if(  route_index>=touchdown-1  &&  state!=taxiing  ) {
+							block_reserver( touchdown, suchen+1, true );
+						}
+					}
+				}
 			}
 		}
 	}
@@ -4890,7 +4901,7 @@ bool aircraft_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route
 void
 aircraft_t::hop()
 {
-	if(!get_flag(ding_t::dirty)) {
+	if(  !get_flag(ding_t::dirty)  ) {
 		mark_image_dirty( bild, get_yoff()-flughoehe-hoff-2 );
 	}
 
@@ -4903,92 +4914,96 @@ aircraft_t::hop()
 	const sint16 h_next = height_scaling((sint16)pos_next.z)*TILE_HEIGHT_STEP/Z_TILE_STEP;
 
 	switch(state) {
-		case departing:
-			{
-				flughoehe = 0;
-				target_height = h_cur;
-				new_friction = max( 0, 25-route_index-takeoff )*4;
+		case departing: {
+			flughoehe = 0;
+			target_height = h_cur;
+			new_friction = max( 1, 28/(1+(route_index-takeoff)*2) ); // 9 5 4 3 2 2 1 1...
 
-				// take off, when a) end of runway or b) last tile of runway or c) fast enough
-				weg_t *weg=welt->lookup(get_pos())->get_weg(air_wt);
-				if(
-					(weg==NULL  ||  // end of runway (broken runway)
-					 weg->get_besch()->get_styp()!=1  ||  // end of runway (gras now ... )
-					 (route_index>takeoff+1  &&  ribi_t::ist_einfach(weg->get_ribi_unmasked())) )  ||  // single ribi at end of runway
-					 cnv->get_akt_speed()>kmh_to_speed(besch->get_geschw())/3 // fast enough
-				){
-					state = flying;
-					new_friction = 16;
-					block_reserver( takeoff, takeoff+100, false );
-					flughoehe = h_cur - h_next;
-					target_height = h_cur+TILE_HEIGHT_STEP*3;
-				}
+			// take off, when a) end of runway or b) last tile of runway or c) fast enough
+			weg_t *weg=welt->lookup(get_pos())->get_weg(air_wt);
+			if(  (weg==NULL  ||  // end of runway (broken runway)
+				 weg->get_besch()->get_styp()!=1  ||  // end of runway (grass now ... )
+				 (route_index>takeoff+1  &&  ribi_t::ist_einfach(weg->get_ribi_unmasked())) )  ||  // single ribi at end of runway
+				 cnv->get_akt_speed()>kmh_to_speed(besch->get_geschw())/3 // fast enough
+			) {
+				state = flying;
+				new_friction = 1;
+				block_reserver( takeoff, takeoff+100, false );
+				flughoehe = h_cur - h_next;
+				target_height = h_cur+TILE_HEIGHT_STEP*3;
 			}
 			break;
-
-		case circling:
+		}
+		case circling: {
 			new_speed_limit = kmh_to_speed(besch->get_geschw())/3;
-			new_friction = 16;
+			new_friction = 4;
 			// do not change height any more while circling
 			flughoehe += h_cur;
 			flughoehe -= h_next;
 			break;
-
-		case flying:
+		}
+		case flying: {
 			// since we are at a tile border, round up to the nearest value
 			flughoehe += h_cur;
-			if(flughoehe<target_height) {
+			if(  flughoehe < target_height  ) {
 				flughoehe = (flughoehe+TILE_HEIGHT_STEP) & ~(TILE_HEIGHT_STEP-1);
 			}
-			else if(flughoehe>target_height) {
+			else if(  flughoehe > target_height  ) {
 				flughoehe = (flughoehe-TILE_HEIGHT_STEP);
 			}
 			flughoehe -= h_next;
 			// did we have to change our flight height?
-			if(target_height-h_next > TILE_HEIGHT_STEP*5) {
+			if(  target_height-h_next > TILE_HEIGHT_STEP*5  ) {
 				// sinken
 				target_height -= TILE_HEIGHT_STEP*2;
 			}
-			else if(target_height-h_next < TILE_HEIGHT_STEP*2) {
+			else if(  target_height-h_next < TILE_HEIGHT_STEP*2  ) {
 				// steigen
 				target_height += TILE_HEIGHT_STEP*2;
 			}
 			break;
-
-		case landing:
-		{
+		}
+		case landing: {
 			flughoehe += h_cur;
-			new_speed_limit = kmh_to_speed(besch->get_geschw())/3;
-			new_friction = 16;
-			if(flughoehe>target_height) {
+			new_speed_limit = kmh_to_speed(besch->get_geschw())/3; // ==approach speed
+			new_friction = 8;
+			if(  flughoehe > target_height  ) {
 				// still decenting
 				flughoehe = (flughoehe-TILE_HEIGHT_STEP) & ~(TILE_HEIGHT_STEP-1);
 				flughoehe -= h_next;
 			}
-			else if(flughoehe==h_cur) {
+			else if(  flughoehe == h_cur  ) {
 				// touchdown!
 				flughoehe = 0;
 				target_height = h_next;
-				// all planes taxi with same speed
-				new_speed_limit = kmh_to_speed(60);
-				new_friction = 16;
+				const sint32 taxi_speed = kmh_to_speed( min( 60, besch->get_geschw()/4 ) );
+				if(  cnv->get_akt_speed() <= taxi_speed  ) {
+					new_speed_limit = taxi_speed;
+					new_friction = 16;
+				}
+				else {
+					const sint32 runway_left = suchen - route_index;
+					new_speed_limit = min( new_speed_limit, runway_left*runway_left*taxi_speed ); // ...approach 540 240 60 60
+					const sint32 runway_left_fr = max( 0, 6-runway_left );
+					new_friction = max( new_friction, min( besch->get_geschw()/12, 4 + 4*(runway_left_fr*runway_left_fr+1) )); // ...8 8 12 24 44 72 108 152
+				}
 			}
 			else {
-				const sint16 landehoehe = height_scaling(cnv->get_route()->position_bei(touchdown).z)+(touchdown-route_index)*TILE_HEIGHT_STEP;
+				const sint16 landehoehe = height_scaling(cnv->get_route()->position_bei(touchdown).z) + (touchdown-route_index)*TILE_HEIGHT_STEP;
 				if(landehoehe<=flughoehe) {
 					target_height = height_scaling((sint16)cnv->get_route()->position_bei(touchdown).z)*TILE_HEIGHT_STEP/Z_TILE_STEP;
 				}
 				flughoehe -= h_next;
 			}
+			break;
 		}
-		break;
-
-		default:
-			new_speed_limit = kmh_to_speed(60);
+		default: {
+			new_speed_limit = kmh_to_speed( min( 60, besch->get_geschw()/4 ) );
 			new_friction = 16;
 			flughoehe = 0;
 			target_height = h_next;
 			break;
+		}
 	}
 
 	// hop to next tile

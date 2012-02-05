@@ -32,7 +32,7 @@
 #include "components/list_button.h"
 #include "savegame_frame.h"
 
-#define DIALOG_WIDTH (370)
+#define DIALOG_WIDTH (488)
 
 
 // we need this trick, with the function pointer.

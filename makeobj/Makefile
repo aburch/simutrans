@@ -31,9 +31,9 @@ endif
 
 ifeq ($(OSTYPE),mingw)
   CC ?= gcc
-  OS_OPT   ?= -mno-cygwin -DPNG_STATIC -DZLIB_STATIC -march=pentium
+  OS_OPT   ?= -DPNG_STATIC -DZLIB_STATIC -march=pentium
   # we need the libraries EXACTLY in this order to link
-  STD_LIBS = -lmingw32 -lpng -lz -lstdc++
+  STD_LIBS = -lmingw32 -lpng -lz
 endif
 
 ifeq ($(OSTYPE),mac)
@@ -129,12 +129,12 @@ SOURCES ?= $(SOLO_SOURCES) $(SHARED_SOURCES) $(VARIANT_SOURCES)
 BUILDDIR ?= build/$(CFG)
 TOOL  = makeobj
 PROG ?= makeobj
+
 ifeq ($(origin MAKEOBJ_PROGDIR), undefined)
-  MAKEOBJ_PROGDIR := $(BUILDDIR)/$(TOOL)
+  MAKEOBJ_PROGDIR := ../$(BUILDDIR)/$(TOOL)
 endif
 
 BUILDDIR := ../$(BUILDDIR)
-MAKEOBJ_PROGDIR := ../$(MAKEOBJ_PROGDIR)
 
 TOOL_PROGDIR = $(MAKEOBJ_PROGDIR)
 

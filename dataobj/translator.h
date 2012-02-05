@@ -67,7 +67,13 @@ public:
 	 * behaviour may follow if calls to translate message or similar are
 	 * called before load has been called
 	 */
-	static bool load(const std::string &scenario_path);
+	static bool load(const std::string &pakset_path);
+
+	/**
+	 * Loads all language file in folder folder_name
+	 * folder_name is relative to current dir (set by chdir)
+	 */
+	static void load_files_from_folder(const char* folder_name, const char* what);
 
 	/**
 	 * Get/Set the currently selected language, based on the

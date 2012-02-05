@@ -1,8 +1,8 @@
 /*
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner
  *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans project under the artistic license.
+ * (see license.txt)
  */
 
 #ifndef simhalt_h
@@ -44,15 +44,17 @@
 #define HALT_NOROUTE				5 // number of no-route passangers
 #define HALT_CONVOIS_ARRIVED        6 // number of convois arrived this month
 #define HALT_TOO_SLOW		        7 // The number of passengers whose estimated journey time exceeds their tolerance.
+/* NOTE - Standard has HALT_WALKED here as no. 7. In Experimental, this is in cities, not stops.*/
+
+// Query whether the below are redundant in Experimental.
+#define RECONNECTING (1)
+#define REROUTING (2)
 
 class cbuffer_t;
 class grund_t;
 class fabrik_t;
 class karte_t;
 class koord3d;
-#ifdef LAGER_NOT_IN_USE
-class lagerhaus_t;
-#endif
 class loadsave_t;
 class schedule_t;
 class spieler_t;
@@ -285,39 +287,6 @@ private:
 	/* station flags (most what enabled) */
 	uint8 enables;
 
-	/**
-	 * Found route and station uncrowded
-	 * @author Hj. Malthaner
-	 */
-	uint32 pax_happy;
-
-	/**
-	 * Found no route
-	 * @author Hj. Malthaner
-	 */
-	uint32 pax_no_route;
-
-	/**
-	 * Station crowded
-	 * @author Hj. Malthaner
-	 */
-	uint32 pax_unhappy;
-
-
-	// Number of passengers for whom the shortest journey
-	// exceeded their time tolerance.
-	// @author: jamespetts
-	uint32 pax_too_slow;
-
-	/**
-	 * Haltestellen werden beim warenrouting markiert. Jeder durchgang
-	 * hat eine eindeutige marke
-	 *
-	 * "Stops are at the routing were highlighted. Each passage has a unique brand" (Google)
-	 * @author Hj. Malthaner
-	 */
-	uint32 marke;
-
 #ifdef USE_QUOTE
 	// for station rating
 	//const char * quote_bezeichnung(int quote, convoihandle_t cnv) const;
@@ -497,6 +466,12 @@ public:
 	void add_pax_happy(int n);
 
 	/**
+	 * Station in walking distance
+	 * @author prissi
+	 */
+	void add_pax_walked(int n);
+
+	/**
 	 * Found no route
 	 * @author Hj. Malthaner
 	 */
@@ -513,15 +488,10 @@ public:
 	// @author: jamespetts
 	void add_pax_too_slow(int n);
 
-	int get_pax_happy()    const { return pax_happy;    }
-	int get_pax_no_route() const { return pax_no_route; }
-	int get_pax_unhappy()  const { return pax_unhappy;  }
-	int get_pax_too_slow()  const { return pax_too_slow;  }
-
-
-#ifdef LAGER_NOT_IN_USE
-	void set_lager(lagerhaus_t* l) { lager = l; }
-#endif
+	int get_pax_happy()    const { return (int)financial_history[0][HALT_HAPPY]; }
+	int get_pax_no_route() const { return (int)financial_history[0][HALT_NOROUTE]; }
+	int get_pax_unhappy()  const { return (int)financial_history[0][HALT_UNHAPPY]; }
+	int get_pax_too_slow()  const { return (int)financial_history[0][HALT_TOO_SLOW]; }
 
 	bool add_grund(grund_t *gb);
 	bool rem_grund(grund_t *gb);

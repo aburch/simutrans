@@ -1,8 +1,8 @@
 /*
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner
  *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans project under the artistic license.
+ * (see license.txt)
  */
 
 #ifndef simdings_h
@@ -29,7 +29,7 @@ class ding_t
 {
 public:
 	// flags
-	enum flag_values {keine_flags=0, dirty=1, not_on_map=2, is_vehicle=4, is_wayding=8 };
+	enum flag_values {keine_flags=0, dirty=1, not_on_map=2, is_vehicle=4, highlite=8 };
 
 	// display only outline with player color on owner stuff
 	static bool show_owner;
@@ -177,9 +177,6 @@ public:
 
 	// true for all moving objects
 	inline bool is_moving() const { return flags&is_vehicle; }
-
-	// true for ways
-	inline bool is_way() const { return flags&is_wayding; }
 
 	// while in principle, this should trigger the dirty, it takes just too much time to do it
 	// TAKE CARE OF SET IT DIRTY YOURSELF!!!
@@ -335,16 +332,16 @@ public:
 	virtual const char *ist_entfernbar(const spieler_t *sp);
 
 	/**
-	 * Draw the thing.
-	 * @author Hj. Malthaner
+	 * Draw backgroung image of object
+	 * (everything that could be potentially behind vehicles)
 	 */
-	void display(int xpos, int ypos, bool dirty) const;
+	void display(int xpos, int ypos) const;
 
 	/**
-	 * 2. Teil zeichnen (was hinter Fahrzeugen kommt
-	 * @author V. Meyer
+	 * Draw foreground image
+	 * (everything that is in front of vehicles)
 	 */
-	virtual void display_after(int xpos, int ypos, bool dirty) const;
+	virtual void display_after(int xpos, int ypos, bool is_global) const;
 
 	/*
 	* when a vehicle moves or a cloud moves, it needs to mark the old spot as dirty (to copy to screen)

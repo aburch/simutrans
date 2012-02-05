@@ -1,8 +1,8 @@
 /*
  * Copyright (c) 1997 - 2003 Hansjörg Malthaner
  *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans project under the artistic license.
+ * (see license.txt)
  */
 
 /* Subfenster fuer Sim
@@ -744,6 +744,7 @@ int top_win(int win)
 
 	simwin_t tmp = wins[win];
 	wins.remove_at(win);
+	tmp.rollup = false;	// make visible when topping
 	wins.append(tmp);
 
 	 // mark new dirty
@@ -860,7 +861,7 @@ void win_rotate90( sint16 new_ysize )
 static void remove_old_win()
 {
 	// alte fenster entfernen, falls dauer abgelaufen
-	for(  int i=wins.get_count()-1;  i>=0;  i=min(i,wins.get_count())-1  ) {
+	for(  int i=wins.get_count()-1;  i>=0;  i=min(i,(int)wins.get_count())-1  ) {
 		if(wins[i].dauer > 0) {
 			wins[i].dauer --;
 			if(wins[i].dauer == 0) {
@@ -1180,13 +1181,13 @@ bool check_pos_win(event_t *ev)
 	}
 
 	// swallow all other events in the infobar
-	if(  y > display_get_height()-16  ) {
+	if(  ev->ev_class != EVENT_KEYBOARD  &&  y > display_get_height()-16  ) {
 		// swallow event
 		return true;
 	}
 
 	// swallow all other events in ticker (if there)
-	if(  show_ticker  &&  y > display_get_height()-32  ) {
+	if(  ev->ev_class != EVENT_KEYBOARD  &&  show_ticker  &&  y > display_get_height()-32  ) {
 		if(  IS_LEFTCLICK(ev)  ) {
 			// goto infowin koordinate, if ticker is active
 			koord p = ticker::get_welt_pos();
@@ -1199,7 +1200,7 @@ bool check_pos_win(event_t *ev)
 	}
 
 	// handle all the other events
-	for(  int i=wins.get_count()-1;  i>=0  &&  !swallowed;  i=min(i,wins.get_count())-1  ) {
+	for(  int i=wins.get_count()-1;  i>=0  &&  !swallowed;  i=min(i,(int)wins.get_count())-1  ) {
 
 		if(  wins[i].gui->getroffen( x-wins[i].pos.x, y-wins[i].pos.y )  ) {
 
@@ -1631,7 +1632,7 @@ bool win_change_zoom_factor(bool magnify)
 		ev.cy = 0;
 		ev.button_state = 0;
 
-		for(  sint32 i=wins.get_count()-1;  i>=0;  i=min(i,wins.get_count())-1  ) {
+		for(  sint32 i=wins.get_count()-1;  i>=0;  i=min(i,(int)wins.get_count())-1  ) {
 			wins[i].gui->infowin_event(&ev);
 		}
 	}

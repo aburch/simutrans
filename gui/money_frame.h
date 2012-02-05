@@ -14,7 +14,7 @@
 #include "components/gui_label.h"
 #include "components/gui_tab_panel.h"
 #include "components/gui_chart.h"
-#include "components/location_view_t.h"
+#include "components/gui_location_view_t.h"
 
 #include "../player/simplay.h"
 
@@ -81,6 +81,8 @@ private:
 
 	gui_label_t warn;
 	gui_label_t scenario;
+
+	gui_container_t month_dummy, year_dummy;
 
 	/**
 	 * fills buffer (char array) with finance info

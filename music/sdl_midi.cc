@@ -7,15 +7,15 @@
  * date:   17-Jan-2007
  */
 
-#include <strings.h>
-
 #include <SDL.h>
 #include <SDL_mixer.h>
+
+#include "../utils/plainstring.h"
 #include "music.h"
 
-static int midi_number = -1;
+static int         midi_number = -1;
+static plainstring midi_filenames[MAX_MIDI];
 
-char *midi_filenames[MAX_MIDI];
 //Mix_Music *music[MAX_MIDI];
 Mix_Music *music = NULL;
 
@@ -42,7 +42,7 @@ int dr_load_midi(const char * filename)
 			music = Mix_LoadMUS(filename);
 			if(music) {
 				midi_number = i;
-				midi_filenames[i] = strdup(filename);
+				midi_filenames[i] = filename;
 			}
 			Mix_FreeMusic(music);
 			music = NULL;

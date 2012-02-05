@@ -1,5 +1,5 @@
-DEPS := $(patsubst %, $(BUILDDIR)/%.d, $(basename $(filter-out %.rc, $(SOURCES))))
 OBJS := $(patsubst %, $(BUILDDIR)/%.o, $(basename $(SOURCES)))
+DEPS := $(OBJS:%.o=%.d)
 DIRS := $(sort $(dir $(OBJS)))
 
 # Make build directories
@@ -51,4 +51,4 @@ $(BUILDDIR)/%.o: %.cc
 
 $(BUILDDIR)/%.o: %.rc
 	@echo "===> RES $<"
-	$(Q)$(WINDRES) -O COFF $< $@
+	$(Q)$(WINDRES) --preprocessor "$(CXX) -E -xc -DRC_INVOKED -MMD -MF $(@:%.o=%.d) -MT $@" -O COFF $< $@

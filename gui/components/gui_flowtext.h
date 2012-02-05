@@ -29,6 +29,8 @@ public:
 
 	koord get_preferred_size();
 
+	koord get_text_size();
+
 	/**
 	 * Paints the component
 	 * @author Hj. Malthaner
@@ -45,7 +47,7 @@ public:
 	koord last_offset;
 
 private:
-	koord output(koord pos, bool doit);
+	koord output(koord pos, bool doit, bool return_max_width=true);
 
 	enum attributes
 	{

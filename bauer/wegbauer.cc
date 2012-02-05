@@ -248,6 +248,23 @@ const weg_besch_t *wegbauer_t::get_latest_way(const waytype_t wtyp)
 }
 
 
+// true if the way is available with timely
+bool wegbauer_t::waytype_available( const waytype_t wtyp, uint16 time )
+{
+	if(  time==0  ) {
+		return true;
+	}
+
+	for(  stringhashtable_iterator_tpl<weg_besch_t*> iter(alle_wegtypen); iter.next();  ) {
+		const weg_besch_t* const test = iter.get_current_value();
+		if(  test->get_wtyp()==wtyp  &&  test->get_intro_year_month()<=time  &&  test->get_retire_year_month()>time  ) {
+			return true;
+		}
+	}
+	return false;
+}
+
+
 
 const weg_besch_t * wegbauer_t::get_besch(const char * way_name,const uint16 time)
 {
@@ -551,7 +568,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 
 	// universal check for elevated things ...
 	if(bautyp&elevated_flag) {
-		if(to->hat_weg(air_wt)  ||  to->ist_wasser()  ||  !check_for_leitung(zv,to)  || (!to->ist_karten_boden() && to->get_typ()!=grund_t::monorailboden) ||  to->get_typ()==grund_t::brueckenboden  ||  to->get_typ()==grund_t::tunnelboden) {
+		if(to->hat_weg(air_wt)  ||  welt->lookup_hgt(to->get_pos().get_2d())<welt->get_grundwasser()  ||  !check_for_leitung(zv,to)  || (!to->ist_karten_boden() && to->get_typ()!=grund_t::monorailboden) ||  to->get_typ()==grund_t::brueckenboden  ||  to->get_typ()==grund_t::tunnelboden) {
 			// no suitable ground below!
 			return false;
 		}
@@ -1298,7 +1315,7 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->get_pos().x,gr->get_pos().y,g
 
 			bool do_terraform = false;
 			const koord zv(r);
-			if(!gr->get_neighbour(to,invalid_wt,zv)  ||  !check_slope(gr, to)) {
+			if(!gr->get_neighbour(to,invalid_wt,r)  ||  !check_slope(gr, to)) {
 				// slopes do not match
 				// terraforming enabled?
 				if (bautyp==river  ||  (bautyp & terraform_flag) == 0) {
@@ -1500,12 +1517,12 @@ void wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d z
 
 		bool do_terraform = false;
 		// shortest way
-		koord diff;
+		ribi_t::ribi diff;
 		if(abs(pos.x-ziel.x)>=abs(pos.y-ziel.y)) {
-			diff = (pos.x>ziel.x) ? koord(-1,0) : koord(1,0);
+			diff = (pos.x>ziel.x) ? ribi_t::west : ribi_t::ost;
 		}
 		else {
-			diff = (pos.y>ziel.y) ? koord(0,-1) : koord(0,1);
+			diff = (pos.y>ziel.y) ? ribi_t::nord : ribi_t::sued;
 		}
 		if(bautyp&tunnel_flag) {
 #ifdef ONLY_TUNNELS_BELOW_GROUND
@@ -1602,7 +1619,7 @@ void wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d z
 		if (do_terraform) {
 			terraform_index.append(route.get_count()-2);
 		}
-DBG_MESSAGE("wegbauer_t::calc_straight_route()","step %i,%i = %i",diff.x,diff.y,ok);
+		DBG_MESSAGE("wegbauer_t::calc_straight_route()","step %s = %i",koord(diff).get_str(),ok);
 	}
 	ok = ok && ( target_3d ? pos==ziel : pos.get_2d()==ziel.get_2d() );
 
@@ -1913,6 +1930,7 @@ sint64 wegbauer_t::calc_costs()
 
 	for(uint32 i=0; i<get_count(); i++) {
 		sint32 old_speedlimit = -1;
+		sint32 replace_cost = 0;
 
 
 		const grund_t* gr = welt->lookup(route[i] + offset);
@@ -1933,6 +1951,7 @@ sint64 wegbauer_t::calc_costs()
 				}
 				else {
 					if (weg_t const* const weg = gr->get_weg(besch->get_wtyp())) {
+						replace_cost = weg->get_besch()->get_preis();
 						if( weg->get_besch() == besch ) {
 							continue; // Nothing to pay on this tile.
 						}
@@ -1962,7 +1981,7 @@ sint64 wegbauer_t::calc_costs()
 			}
 		}
 		if(  !keep_existing_faster_ways  ||  old_speedlimit < new_speedlimit  ) {
-			costs += single_cost;
+			costs += max(single_cost, replace_cost);
 		}
 
 		// last tile cannot be start of tunnel/bridge
@@ -2277,9 +2296,8 @@ void wegbauer_t::baue_schiene()
 				if(besch->get_wtyp()==water_wt  &&  gr->get_hoehe()==welt->get_grundwasser()) 
 				{
 					grund_t *sea = welt->lookup_kartenboden(gr->get_pos().get_2d() - koord( ribi_typ(gr->get_grund_hang() ) ));
-					if (sea  &&  sea->ist_wasser()) 
-					{
-						gr->weg_erweitern(water_wt, ribi_t::rueckwaerts(ribi));
+					if (sea  &&  sea->ist_wasser()) {
+						gr->weg_erweitern(water_wt, ribi_t::doppelt(ribi_typ(gr->get_grund_hang() )));
 						sea->calc_bild();
 					}
 

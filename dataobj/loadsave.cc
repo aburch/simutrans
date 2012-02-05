@@ -11,6 +11,7 @@
 #include "../simversion.h"
 #include "../simmem.h"
 #include "../simdebug.h"
+#include "../utils/plainstring.h"
 #include "loadsave.h"
 
 #include "../utils/simstring.h"
@@ -407,7 +408,7 @@ void loadsave_t::rdwr_byte(sint8 &c)
 	else {
 		sint64 ll = c;
 		rdwr_xml_number( ll, "i8" );
-		c = ll;
+		c = (sint8)ll;
 	}
 }
 
@@ -442,7 +443,7 @@ void loadsave_t::rdwr_short(sint16 &i)
 	else {
 		sint64 ll = i;
 		rdwr_xml_number( ll, "i16" );
-		i = ll;
+		i = (sint16)ll;
 	}
 }
 
@@ -477,7 +478,7 @@ void loadsave_t::rdwr_long(sint32 &l)
 	else {
 		sint64 ll = l;
 		rdwr_xml_number( ll, "i32" );
-		l = ll;
+		l = (sint32)ll;
 	}
 }
 
@@ -811,6 +812,19 @@ void loadsave_t::rdwr_str(char* s, size_t const size)
 				}
 			}
 		}
+	}
+}
+
+
+void loadsave_t::rdwr_str(plainstring& s)
+{
+	if (is_loading()) {
+		char buf[1024];
+		rdwr_str(buf, lengthof(buf));
+		s = buf;
+	} else {
+		char const* tmp = s.c_str();
+		rdwr_str(tmp);
 	}
 }
 

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997 - 2001 Hansj�rg Malthaner
  *
- * This file is part of the Simutrans project under the artistic licence.
+ * This file is part of the Simutrans project under the artistic license.
  */
 
 #include <stdlib.h>
@@ -242,7 +242,7 @@ void log_t::fatal(const char *who, const char *format, ...)
 	}
 	else {
 		// use OS means, if there
-		dr_fatal_notify( buffer, 0 );
+		dr_fatal_notify(buffer);
 	}
 
 #ifdef DEBUG

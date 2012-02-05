@@ -1,8 +1,8 @@
 /*
  * Copyright (c) 1997 - 2001 Hj. Malthaner
  *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans project under the artistic license.
+ * (see license.txt)
  */
 
 /*
@@ -26,6 +26,7 @@
 
 #include "dataobj/marker.h"
 #include "dataobj/einstellungen.h"
+#include "dataobj/pwd_hash.h"
 
 #include "simplan.h"
 
@@ -52,6 +53,7 @@ class message_t;
 class weg_besch_t;
 class tunnel_besch_t;
 class network_world_command_t;
+class ware_besch_t;
 class memory_rw_t;
 
 
@@ -130,6 +132,10 @@ public:
 
 	enum { NORMAL=0, PAUSE_FLAG = 0x01, FAST_FORWARD=0x02, FIX_RATIO=0x04 };
 
+	/* Missing things during loading:
+	 * factories, vehicles, roadsigns or catenary may be severe
+	 */
+	enum missing_level_t { NOT_MISSING=0, MISSING_FACTORY=1, MISSING_VEHICLE=2, MISSING_SIGN=3, MISSING_WAYOBJ=4, MISSING_ERROR=4, MISSING_BRIDGE, MISSING_BUILDING, MISSING_WAY };
 
 private:
 	settings_t settings;
@@ -240,6 +246,9 @@ private:
 
 	vector_tpl<fabrik_t *> fab_list;
 
+	// Stores a list of goods produced by factories currently in the game;
+	vector_tpl<const ware_besch_t*> goods_in_game;
+
 	weighted_vector_tpl<gebaeude_t *> ausflugsziele;
 
 	slist_tpl<koord> labels;
@@ -316,9 +325,14 @@ private:
 	 * @author Hj. Malthaner
 	 */
 	spieler_t *spieler[MAX_PLAYER_COUNT];   // Human player has index 0 (zero)
-	uint8 player_password_hash[MAX_PLAYER_COUNT][20];
 	spieler_t *active_player;
 	uint8 active_player_nr;
+
+	/**
+	 * locally store password hashes
+	 * will be used after reconnect to a server
+	 */
+	pwd_hash_t player_password_hash[MAX_PLAYER_COUNT];
 
 	/*
 	 * counter for schedules
@@ -480,6 +494,12 @@ public:
 	// set to something useful, if there is a total distance != 0 to show in the bar below
 	koord3d show_distance;
 
+	/* for warning, when stuff had to be removed/replaced
+	 * level must be >=1 (1=factory, 2=vechiles, 3=not so important)
+	 * may be refined later
+	 */
+	void add_missing_paks( const char *name, missing_level_t critical_level );
+
 	/**
 	 * Absoluter Monat
 	 * @author prissi
@@ -597,11 +617,24 @@ public:
 	spieler_t * get_spieler(uint8 n) const { return spieler[n&15]; }
 	spieler_t* get_active_player() const { return active_player; }
 	uint8 get_active_player_nr() const { return active_player_nr; }
-	void set_player_password_hash( uint8 player_nr, uint8 *hash );
-	const uint8 *get_player_password_hash( uint8 player_nr ) const { return player_password_hash[player_nr]; }
 	void switch_active_player(uint8 nr, bool silent);
 	const char *new_spieler( uint8 nr, uint8 type );
+	void store_player_password_hash( uint8 player_nr, const pwd_hash_t& hash );
+	const pwd_hash_t& get_player_password_hash( uint8 player_nr ) const { return player_password_hash[player_nr]; }
 	void clear_player_password_hashes();
+
+	/**
+	 * network safe initiation of new players
+	 */
+	void call_change_player_tool(uint8 cmd, uint8 player_nr, uint16 param);
+
+	enum change_player_tool_cmds { new_player=1, toggle_freeplay=2 };
+	/**
+	 * @param exec: if false checks whether execution is allowed
+	 *              if true executes tool
+	 * @returns whether execution is allowed
+	 */
+	bool change_player_tool(uint8 cmd, uint8 player_nr, uint16 param, bool public_player_unlocked, bool exec);
 
 	// if a schedule is changed, it will increment the schedule counter
 	// every step the haltestelle will check and reroute the goods if needed
@@ -1070,16 +1103,15 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	const weighted_vector_tpl<stadt_t*>& get_staedte() const { return stadt; }
-	const stadt_t *get_random_stadt() const;
 	stadt_t *get_town_at(const uint32 weight) { return stadt.at_weight(weight); }
 	uint32 get_town_list_weight() const { return stadt.get_sum_weight(); }
+
 	void add_stadt(stadt_t *s);
 	bool rem_stadt(stadt_t *s);
 
 	/* tourist attraction list */
 	void add_ausflugsziel(gebaeude_t *gb);
 	void remove_ausflugsziel(gebaeude_t *gb);
-	const gebaeude_t *get_random_ausflugsziel() const;
 	const weighted_vector_tpl<gebaeude_t*> &get_ausflugsziele() const {return ausflugsziele; }
 
 	void add_label(koord pos) { if (!labels.is_contained(pos)) labels.append(pos); }
@@ -1093,10 +1125,8 @@ public:
 	const vector_tpl<fabrik_t*>& get_fab_list() const { return fab_list; }
 	vector_tpl<fabrik_t*>& access_fab_list() { return fab_list; }
 
-	/* sucht zufaellig eine Fabrik aus der Fabrikliste
-	 * @author Hj. Malthaner
-	 */
-	fabrik_t *get_random_fab() const;
+	// Returns a list of goods produced by factories that exist in current game
+	const vector_tpl<const ware_besch_t*> &get_goods_list();
 
 	/**
 	 * sucht naechstgelegene Stadt an Position i,j

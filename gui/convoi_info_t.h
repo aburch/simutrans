@@ -13,7 +13,7 @@
 #include "components/gui_button.h"
 #include "components/gui_label.h"
 #include "components/gui_chart.h"
-#include "components/ding_view_t.h"
+#include "components/gui_ding_view_t.h"
 #include "components/action_listener.h"
 #include "../convoihandle_t.h"
 #include "../linehandle_t.h"
@@ -25,7 +25,7 @@
 //Bernd Gabriel, Dec, 03 2009: acceleration curve. 
 // define ACCELERATION_BUTTON to show it and the graph.
 // do not define it and there are neither button nor graph.
-#define ACCELERATION_BUTTON MAX_CONVOI_COST
+#define ACCELERATION_BUTTON convoi_t::MAX_CONVOI_COST
 #ifdef ACCELERATION_BUTTON
 #define BUTTON_COUNT (ACCELERATION_BUTTON + 1)
 #else

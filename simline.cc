@@ -12,14 +12,14 @@
 #include "simworld.h"
 #include "simlinemgmt.h"
 
-uint8 convoi_to_line_catgory_[MAX_CONVOI_COST]=
+uint8 convoi_to_line_catgory_[convoi_t::MAX_CONVOI_COST]=
 {
 	LINE_CAPACITY, LINE_TRANSPORTED_GOODS, LINE_AVERAGE_SPEED, LINE_COMFORT, LINE_REVENUE, LINE_OPERATIONS, LINE_PROFIT, LINE_DISTANCE, LINE_REFUNDS 
 };
 
 uint8 simline_t::convoi_to_line_catgory(uint8 cnv_cost)
 {
-	assert(cnv_cost < MAX_CONVOI_COST);
+	assert(cnv_cost < convoi_t::MAX_CONVOI_COST);
 	return convoi_to_line_catgory_[cnv_cost];
 }
 
@@ -182,7 +182,6 @@ void simline_t::add_convoy(convoihandle_t cnv, bool from_loading)
 }
 
 
-
 void simline_t::remove_convoy(convoihandle_t cnv)
 {
 	if(line_managed_convoys.is_contained(cnv)) {
@@ -195,6 +194,7 @@ void simline_t::remove_convoy(convoihandle_t cnv)
 		unregister_stops();
 	}
 }
+
 
 // invalid line id prior to 110.0
 #define INVALID_LINE_ID_OLD ((uint16)(-1))
@@ -236,16 +236,7 @@ void simline_t::rdwr(loadsave_t *file)
 
 	assert(fpl);
 
-	if(  file->is_loading()  ) {
-		char name[1024];
-		file->rdwr_str(name, lengthof(name));
-		this->name = name;
-	}
-	else {
-		char name[1024];
-		tstrncpy( name, this->name.c_str(), lengthof(name) );
-		file->rdwr_str(name, lengthof(name));
-	}
+	file->rdwr_str(name);
 
 	rdwr_linehandle_t(file, self);
 
@@ -299,6 +290,12 @@ void simline_t::rdwr(loadsave_t *file)
 						financial_history[k][j] = 0;
 					}
 					continue;
+				}
+				else if(j == 7 && file->get_version() >= 111001 && file->get_experimental_version() == 0)
+				{
+					// In Standard, this is LINE_MAXSPEED.
+					sint64 dummy = 0;
+					file->rdwr_longlong(dummy);
 				}
 				file->rdwr_longlong(financial_history[k][j]);
 			}
@@ -427,7 +424,6 @@ void simline_t::unregister_stops()
 }
 
 
-
 void simline_t::unregister_stops(schedule_t * fpl)
 {
 	for (int i = 0; i<fpl->get_count(); i++) {
@@ -462,7 +458,6 @@ void simline_t::set_schedule(schedule_t* fpl)
 	}
 	this->fpl = fpl;
 }
-
 
 
 void simline_t::new_month()

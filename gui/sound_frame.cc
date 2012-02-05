@@ -44,6 +44,7 @@ sound_frame_t::sound_frame_t()
 	digi.set_pos(koord(10, 22));
 	digi.set_knob(32, 255+32);
 	digi.set_knob_offset(sound_get_global_volume());
+	digi.set_scroll_discrete(false);
 	add_komponente(&digi);
 	digi.add_listener( this );
 
@@ -60,6 +61,7 @@ sound_frame_t::sound_frame_t()
 	midi.set_pos(koord(10, 70));
 	midi.set_knob(32, 255+32);
 	midi.set_knob_offset(sound_get_midi_volume());
+	midi.set_scroll_discrete(false);
 	midi.add_listener( this );
 	add_komponente(&midi);
 

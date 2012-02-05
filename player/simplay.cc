@@ -14,6 +14,7 @@
 
 #include "../simconvoi.h"
 #include "../simdebug.h"
+#include "../simdepot.h"
 #include "../simhalt.h"
 #include "../simintr.h"
 #include "../simline.h"
@@ -82,6 +83,7 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 	konto_ueberzogen = 0;
 	automat = false;		// Start nicht als automatischer Spieler
 	locked = false;	/* allowe to change anything */
+	unlock_pending = false;
 
 	headquarter_pos = koord::invalid;
 	headquarter_level = 0;
@@ -154,26 +156,6 @@ const char* spieler_t::get_name(void) const
 void spieler_t::set_name(const char *new_name)
 {
 	tstrncpy( spieler_name_buf, new_name, lengthof(spieler_name_buf) );
-}
-
-
-/* returns FALSE when unlocking!
- */
-bool spieler_t::set_unlock( const uint8 *hash )
-{
-	if(  pwd_hash.empty()  ) {
-		locked = false;
-	}
-	else if(  hash!=NULL  ) {
-		// matches password?
-		locked = (pwd_hash != hash);
-	}
-	if(  !locked  &&  player_nr==1  ) {
-		// public player unlocked:
-		// allow to change active player
-		welt->get_settings().set_allow_player_change(true);
-	}
-	return locked;
 }
 
 
@@ -308,15 +290,7 @@ void spieler_t::neuer_monat()
 	}
 
 	// new month has started => recalculate vehicle value
-	sint64 assets = 0;
-	for(  vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end();  i != end;  ++i  ) {
-		convoihandle_t cnv = *i;
-		if(cnv->get_besitzer()==this) {
-			assets += cnv->calc_restwert();
-		}
-	}
-	finance_history_year[0][COST_ASSETS] = finance_history_month[0][COST_ASSETS] = assets;
-	finance_history_year[0][COST_NETWEALTH] = finance_history_month[0][COST_NETWEALTH] = assets+konto;
+	calc_assets();
 
 	calc_finance_history();
 
@@ -496,14 +470,19 @@ void spieler_t::calc_finance_history()
 	*/
 	sint64 profit, mprofit;
 	profit = mprofit = 0;
-	for (int i=0; i<MAX_PLAYER_COST; i++) {
-		// all costs < COST_ASSETS (and also COST_INTEREST) influence profit, so we must sum them up
-		if(i < COST_ASSETS || i == COST_INTEREST) 
-		{
-			profit += finance_history_year[0][i];
-			mprofit += finance_history_month[0][i];
-		}
+
+	for (int i=0; i<COST_ASSETS; i++) {
+		// all costs < COST_ASSETS influence profit, so we must sum them up
+		profit += finance_history_year[0][i];
+		mprofit += finance_history_month[0][i];
+
 	}
+	profit += finance_history_year[0][COST_POWERLINES];
+	profit += finance_history_year[0][COST_WAY_TOLLS];
+	profit += finance_history_year[0][COST_INTEREST];
+	mprofit += finance_history_month[0][COST_POWERLINES];
+	mprofit += finance_history_month[0][COST_WAY_TOLLS];
+	mprofit += finance_history_month[0][COST_INTEREST];
 
 	finance_history_year[0][COST_PROFIT] = profit;
 	finance_history_month[0][COST_PROFIT] = mprofit;
@@ -564,6 +543,45 @@ sint64 spieler_t::get_base_credit_limit()
 	return welt->get_settings().get_starting_money(welt->get_current_month() / 12) / 10;
 }
 
+void spieler_t::calc_assets()
+{
+	sint64 assets = 0;
+	// all convois
+	for(  vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end();  i != end;  ++i  ) {
+		convoihandle_t cnv = *i;
+		if(  cnv->get_besitzer() == this  ) {
+			assets += cnv->calc_restwert();
+		}
+	}
+
+	// all vehikels stored in depot not part of a convoi
+	slist_iterator_tpl<depot_t *> depot_iter(depot_t::get_depot_list());
+	while(  depot_iter.next()  ) {
+		depot_t* const depot = depot_iter.get_current();
+		if(  depot->get_player_nr() == player_nr  ) {
+			slist_iterator_tpl<vehikel_t *> veh_iter(depot->get_vehicle_list());
+			while(  veh_iter.next()  ) {
+				const vehikel_t* const veh = veh_iter.get_current();
+				assets += veh->calc_restwert();
+			}
+		}
+	}
+
+	finance_history_year[0][COST_ASSETS] = finance_history_month[0][COST_ASSETS] = assets;
+	finance_history_year[0][COST_NETWEALTH] = finance_history_month[0][COST_NETWEALTH] = assets+konto;
+}
+
+
+void spieler_t::update_assets(sint64 const delta)
+{
+	finance_history_year[0][COST_ASSETS] += delta;
+	finance_history_year[0][COST_NETWEALTH] += delta;
+
+	finance_history_month[0][COST_ASSETS] += delta;
+	finance_history_month[0][COST_NETWEALTH] += delta;
+}
+
+
 // add and amount, including the display of the message and some other things ...
 void spieler_t::buche(sint64 const betrag, koord const pos, player_cost const type)
 {
@@ -572,7 +590,7 @@ void spieler_t::buche(sint64 const betrag, koord const pos, player_cost const ty
 	if(betrag != 0) {
 		if(  shortest_distance(welt->get_world_position(),pos)<2*(uint32)(display_get_width()/get_tile_raster_width())+3  ) {
 			// only display, if near the screen ...
-			add_message(pos, betrag);
+			add_message(pos, (sint32)betrag);
 
 			// and same for sound too ...
 			if(  betrag>=10000  &&  !welt->is_fast_forward()  ) {
@@ -1135,14 +1153,15 @@ void spieler_t::rdwr(loadsave_t *file)
 		for(  int year=0;  year<MAX_PLAYER_HISTORY_YEARS;  year++  ) {
 			finance_history_year[year][COST_NETWEALTH] = finance_history_year[year][COST_CASH]+finance_history_year[year][COST_ASSETS];
 			// only revnue minus running costs
-			finance_history_year[year][COST_OPERATING_PROFIT] = finance_history_year[year][COST_INCOME]+finance_history_year[year][COST_VEHICLE_RUN]+finance_history_year[year][COST_MAINTENANCE];
+			finance_history_year[year][COST_OPERATING_PROFIT] = finance_history_year[year][COST_INCOME] + finance_history_year[year][COST_POWERLINES] + finance_history_year[year][COST_VEHICLE_RUN] + finance_history_year[year][COST_MAINTENANCE] + finance_history_year[year][COST_WAY_TOLLS];
+
 			// including also investements into vehicles/infrastructure
 			finance_history_year[year][COST_PROFIT] = finance_history_year[year][COST_INCOME]+finance_history_year[year][COST_VEHICLE_RUN]+finance_history_year[year][COST_MAINTENANCE]+finance_history_year[year][COST_CONSTRUCTION]+finance_history_year[year][COST_NEW_VEHICLE]+finance_history_month[year][COST_INTEREST];
 			finance_history_year[year][COST_MARGIN] = calc_margin(finance_history_year[year][COST_OPERATING_PROFIT], finance_history_year[year][COST_INCOME]);
 		}
 		for(  int month=0;  month<MAX_PLAYER_HISTORY_MONTHS;  month++  ) {
 			finance_history_month[month][COST_NETWEALTH] = finance_history_month[month][COST_CASH]+finance_history_month[month][COST_ASSETS];
-			finance_history_month[month][COST_OPERATING_PROFIT] = finance_history_month[month][COST_INCOME]+finance_history_month[month][COST_VEHICLE_RUN]+finance_history_month[month][COST_MAINTENANCE];
+			finance_history_month[month][COST_OPERATING_PROFIT] = finance_history_month[month][COST_INCOME] + finance_history_month[month][COST_POWERLINES] + finance_history_month[month][COST_VEHICLE_RUN] + finance_history_month[month][COST_MAINTENANCE] + finance_history_month[month][COST_WAY_TOLLS];
 			finance_history_month[month][COST_PROFIT] = finance_history_month[month][COST_INCOME]+finance_history_month[month][COST_VEHICLE_RUN]+finance_history_month[month][COST_MAINTENANCE]+finance_history_month[month][COST_CONSTRUCTION]+finance_history_month[month][COST_NEW_VEHICLE]+finance_history_month[month][COST_INTEREST];
 			finance_history_month[month][COST_MARGIN] = calc_margin(finance_history_month[month][COST_OPERATING_PROFIT], finance_history_month[month][COST_INCOME]);
 		}
@@ -1191,9 +1210,8 @@ DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this 
 			file->rdwr_byte(pwd_hash[i]);
 		}
 		if(  file->is_loading()  ) {
-			locked = true;
-			// disallow all actions, if password set (might be unlocked by karte_t::set_werkzeug() )
-			set_unlock( NULL );
+			// disallow all actions, if password set (might be unlocked by password gui )
+			locked = !pwd_hash.empty();
 		}
 	}
 
@@ -1235,7 +1253,7 @@ DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this 
 	}
 }
 
-/*
+/**
  * called after game is fully loaded;
  */
 void spieler_t::laden_abschliessen()
@@ -1243,15 +1261,7 @@ void spieler_t::laden_abschliessen()
 	simlinemgmt.laden_abschliessen();
 	display_set_player_color_scheme( player_nr, kennfarbe1, kennfarbe2 );
 	// recalculate vehicle value
-	sint64 assets = 0;
-	for(  vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end();  i != end;  ++i  ) {
-		convoihandle_t cnv = *i;
-		if(cnv->get_besitzer()==this) {
-			assets += cnv->calc_restwert();
-		}
-	}
-	finance_history_year[0][COST_ASSETS] = finance_history_month[0][COST_ASSETS] = assets;
-	finance_history_year[0][COST_NETWEALTH] = finance_history_month[0][COST_NETWEALTH] = assets+konto;
+	calc_assets();
 }
 
 

@@ -84,6 +84,7 @@ void bruecke_t::rdwr(loadsave_t *file)
 		}
 		if(besch==NULL) {
 			dbg->warning( "bruecke_t::rdwr()", "unknown bridge \"%s\" at (%i,%i) will be replaced with best match!", s, get_pos().x, get_pos().y );
+			welt->add_missing_paks( s, karte_t::MISSING_BRIDGE );
 		}
 		guarded_free(const_cast<char *>(s));
 	}

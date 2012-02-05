@@ -65,7 +65,7 @@ void crossing_logic_t::recalc_state()
 			grund_t *gr = welt->lookup(crossings[i]->get_pos());
 			if(gr) {
 				for( uint8 i=3;  i<gr->get_top();  i++  ) {
-					if (vehikel_basis_t const* const v = ding_cast<vehikel_basis_t>(gr->obj_bei(i))) {
+					if(  vehikel_basis_t const* const v = ding_cast<vehikel_basis_t>(gr->obj_bei(i))  ) {
 						add_to_crossing( v );
 					}
 				}
@@ -122,16 +122,18 @@ bool crossing_logic_t::request_crossing( const vehikel_basis_t *v )
 // request permission to pass crossing
 void crossing_logic_t::add_to_crossing( const vehikel_basis_t *v )
 {
-	if(v->get_waytype()==besch->get_waytype(0)) {
-		on_way1.append_unique(v);
-	}
-	else if (v->get_waytype() == besch->get_waytype(1)) {
-		// add it and close crossing
-		on_way2.append_unique(v);
-		if(  request_close==v  ) {
-			request_close = NULL;
+	if(  v->get_typ()!=ding_t::fussgaenger  ) {
+		if(v->get_waytype()==besch->get_waytype(0)) {
+			on_way1.append_unique(v);
 		}
-		set_state( CROSSING_CLOSED );
+		else if (v->get_waytype() == besch->get_waytype(1)) {
+			// add it and close crossing
+			on_way2.append_unique(v);
+			if(  request_close==v  ) {
+				request_close = NULL;
+			}
+			set_state( CROSSING_CLOSED );
+		}
 	}
 }
 

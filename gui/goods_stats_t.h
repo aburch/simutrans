@@ -30,10 +30,15 @@ private:
 	karte_t *welt;
 	waytype_t way_type;
 
+	// The number of goods to be displayed. May be less than maximum number of goods possible,
+	// if we are filtering to only the goods being produced by factories in the current game.
+	int listed_goods;
+
 public:
 	goods_stats_t();
 
-	void update_goodslist(unsigned short *g, int b, uint16 d, uint8 c, uint8 ct, karte_t* w, waytype_t wt) {goodslist = g; bonus = b; distance = d; comfort = c; catering_level = ct; welt = w; way_type = wt;}
+	// update list and resize
+	void update_goodslist(uint16 *g, int bonus, int listed_goods, uint16 distance, uint8 comfort, uint8 catering, karte_t* welt, waytype_t waytype);
 
 	/**
 	* Zeichnet die Komponente

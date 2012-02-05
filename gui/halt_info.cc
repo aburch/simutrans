@@ -8,7 +8,6 @@
 #include "halt_detail.h"
 #include "halt_info.h"
 #include "../simworld.h"
-#include "../simhalt.h"
 #include "../simware.h"
 #include "../simcolor.h"
 #include "../simgraph.h"

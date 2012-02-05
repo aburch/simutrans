@@ -27,24 +27,12 @@
 
 #include "simdings.h"
 
-#define MAX_CONVOI_COST				9 // Total number of cost items
-#define MAX_MONTHS					12 // Max history
-
-#define CONVOI_CAPACITY				0 // the amount of ware that could be transported, theoretically
-#define CONVOI_TRANSPORTED_GOODS	1 // the amount of ware that has been transported
-#define CONVOI_AVERAGE_SPEED		2 // The average speed of the convoy per rolling month
-#define CONVOI_COMFORT				3 // The aggregate comfort rating of this convoy
-#define CONVOI_REVENUE				4 // the income this CONVOI generated
-#define CONVOI_OPERATIONS			5 // the cost of operations this CONVOI generated
-#define CONVOI_PROFIT				6 // total profit of this convoi
-#define CONVOI_DISTANCE				7 // total distance traveld this month
-#define CONVOI_REFUNDS				8 // The refunds passengers waiting for this convoy (only when not attached to a line) have received.
-
 /*
  * Waiting time for infinite loading (ms)
  * @author Hj- Malthaner
  */
 #define WAIT_INFINITE 0xFFFFFFFFu
+#define MAX_MONTHS               12 // Max history
 
 class weg_t;
 class depot_t;
@@ -67,6 +55,19 @@ class replace_data_t;
 class convoi_t : public sync_steppable, public overtaker_t
 {
 public:
+	enum {
+		CONVOI_CAPACITY =			0, // the amount of ware that could be transported, theoretically	
+		CONVOI_TRANSPORTED_GOODS =	1, // the amount of ware that has been transported
+		CONVOI_AVERAGE_SPEED =		2, // The average speed of the convoy per rolling month
+		CONVOI_COMFORT =			3, // The aggregate comfort rating of this convoy
+		CONVOI_REVENUE =			4, // the income this CONVOI generated
+		CONVOI_OPERATIONS =			5, // the cost of operations this CONVOI generated
+		CONVOI_PROFIT =				6, // total profit of this convoi
+		CONVOI_DISTANCE =			7, // total distance traveld this month
+		CONVOI_REFUNDS =			8, // The refunds passengers waiting for this convoy (only when not attached to a line) have received.
+		MAX_CONVOI_COST =			9
+	};
+
 	/* Konstanten
 	* @author prissi
 	*/
@@ -365,8 +366,8 @@ private:
 	// cached values
 	// will be recalculated if
 	// recalc_data is true
-	bool recalc_brake_soll;
-	bool recalc_data;
+	bool recalc_data_front; // true when front vehicle in convoi hops
+	bool recalc_data; // true when any vehicle in convoi hops
 	sint32 sum_friction_weight;
 	sint32 speed_limit;
 
@@ -717,7 +718,7 @@ public:
 	* returns the total monthly fixed maintenance cost for all vehicles in convoi
 	* @author Bernd Gabriel
 	*/
-	uint32 get_fixed_maintenance() const;
+	uint32 get_fixed_cost() const;
 
 	/**
 	* Constructor for loading from file,
@@ -1160,10 +1161,10 @@ public:
 	bool has_no_cargo() const;
 
 	void must_recalc_data() { recalc_data = true; }
-	void must_recalc_brake_soll() { recalc_brake_soll = true; }
+	void must_recalc_data_front() { recalc_data_front = true; }
 
 	// Overtaking for convois
-	virtual bool can_overtake(overtaker_t *other_overtaker, int other_speed, int steps_other, int diagonal_vehicle_steps_per_tile);
+	virtual bool can_overtake(overtaker_t *other_overtaker, sint32 other_speed, sint16 steps_other);
 
 	//Returns the maximum catering level of the category type given in the convoy.
 	//@author: jamespetts

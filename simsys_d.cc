@@ -1,24 +1,18 @@
 /*
  * Bit depth independent backend using allgro (mainly for BeOS)
  *
- * This file is part of the Simutrans project under the artistic licence.
+ * This file is part of the Simutrans project under the artistic license.
  */
 
-#include <stddef.h>
-#include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 
-#include <sys/types.h>
-
-#include <math.h>
-
 #include "macros.h"
-#include "simmain.h"
 #include "simsys.h"
 #include "simevent.h"
 #include "simgraph.h"
 #include "simsys_w32_png.h"
+#include "simversion.h"
 
 #ifdef _WIN32
 #define BITMAP winBITMAP
@@ -28,8 +22,6 @@
 #include <windows.h>
 #undef BITMAP
 #undef WinMain
-#else
-#	include <limits.h>
 #endif
 
 #include <allegro.h>
@@ -39,8 +31,6 @@ static void simtimer_init(void);
 
 static int width  = 800;
 static int height = 600;
-
-struct sys_event sys_event;
 
 
 /* event-handling */
@@ -217,7 +207,7 @@ int dr_os_init(const int* parameter)
 	set_close_button_callback(my_close_button_callback);
 
 	if (ok != 0) {
-		dr_fatal_notify("Could not init Allegro.\n",0);
+		dr_fatal_notify("Could not init Allegro.\n");
 	}
 	simtimer_init();
 
@@ -268,7 +258,7 @@ int dr_os_open(int const w, int const h, int const fullscreen)
 	sys_event.mx = mouse_x;
 	sys_event.my = mouse_y;
 
-	set_window_title("Simutrans");
+	set_window_title(SIM_TITLE);
 
 	return w;
 }
@@ -299,7 +289,6 @@ unsigned short* dr_textur_init(void)
 	return (unsigned short *)(texture_map->line[0]);
 }
 
-extern void display_set_actual_width(KOORD_VAL w);
 
 // resizes screen (Not allowed)
 int dr_textur_resize(unsigned short**, int, int)
@@ -494,7 +483,7 @@ static void simtimer_init(void)
 		printf("Timer installed.\n");
 	}
 	else {
-		dr_fatal_notify("Error: Timer not available, aborting.\n",0);
+		dr_fatal_notify("Error: Timer not available, aborting.\n");
 		exit(1);
 	}
 }
@@ -512,52 +501,8 @@ void dr_sleep(uint32 usec)
 }
 
 
-bool dr_fatal_notify(const char* msg, int choices)
-{
-#ifdef _WIN32
-	if(choices==0) {
-		MessageBox( NULL, msg, "Fatal Error", MB_ICONEXCLAMATION|MB_OK );
-		return 0;
-	}
-	else {
-		return MessageBox( NULL, msg, "Fatal Error", MB_ICONEXCLAMATION|MB_RETRYCANCEL	)==IDRETRY;
-	}
-#else
-//	beep();
-	return choices;
-#endif
-}
-
-
 int main(int argc, char **argv)
 {
-#ifdef _WIN32
-	char pathname[1024];
-
-	// prepare commandline
-	GetModuleFileNameA( GetModuleHandle(NULL), pathname, 1024 );
-	argv[0] = pathname;
-#else
-#ifndef __BEOS__
-#  if defined(__GLIBC__)  &&  !defined(__AMIGA__)
-	/* glibc has a non-standard extension */
-	char* buffer2 = NULL;
-#  else
-	char buffer2[PATH_MAX];
-#  endif
-#  ifndef __AMIGA__
-	char buffer[PATH_MAX];
-	int length = readlink("/proc/self/exe", buffer, lengthof(buffer) - 1);
-	if (length != -1) {
-		buffer[length] = '\0'; /* readlink() does not NUL-terminate */
-		argv[0] = buffer;
-	}
-#  endif
-	// no process file system => need to parse argv[0]
-	/* should work on most unix or gnu systems */
-	argv[0] = realpath (argv[0], buffer2);
-#endif
-#endif
-	return simu_main(argc, argv);
+	return sysmain(argc, argv);
 }
 END_OF_MAIN()

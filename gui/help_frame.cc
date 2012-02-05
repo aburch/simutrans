@@ -189,4 +189,7 @@ void help_frame_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta);
 	scrolly.set_groesse(get_client_windowsize());
+	koord gr = get_client_windowsize() -flow.get_pos() - koord(scrollbar_t::BAR_SIZE, scrollbar_t::BAR_SIZE);
+	flow.set_groesse( gr );
+	flow.set_groesse( flow.get_text_size());
 }

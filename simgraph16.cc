@@ -22,6 +22,7 @@
 #include "simdebug.h"
 #include "besch/bild_besch.h"
 #include "unicode.h"
+#include "simticker.h"
 
 
 #ifdef _MSC_VER
@@ -42,7 +43,7 @@
 # if defined(USE_C)  ||  !defined(__i386__)
 #  undef USE_C
 #  define USE_C
-#  if (__GNUC__>=4  &&  __GNUC_MINOR__>=2)  ||  !defined(__i386__)
+#  if GCC_ATLEAST(4, 2) || !defined(__i386__)
 #   define ALIGN_COPY
 #   warning "Needs to use slower copy with GCC > 4.2.x"
 #  endif
@@ -111,7 +112,6 @@ static font_type large_font = { 0, 0, 0, NULL, NULL };
 // needed for gui
 int large_font_height = 10;
 
-#define LIGHT_COUNT (15)
 #define MAX_PLAYER_COUNT (16)
 
 #define RGBMAPSIZE (0x8000+LIGHT_COUNT+16)
@@ -128,7 +128,7 @@ static PIXVAL rgbmap_day_night[RGBMAPSIZE];
 
 
 /*
- * Hajo: same as rgbmap_day_night, but allways daytime colors
+ * Hajo: same as rgbmap_day_night, but always daytime colors
  */
 static PIXVAL rgbmap_all_day[RGBMAPSIZE];
 
@@ -247,7 +247,7 @@ static int night_shift = -1;
 /*
  * Hajo: speical colors during daytime
  */
-static const uint8 day_lights[LIGHT_COUNT*3] = {
+COLOR_VAL display_day_lights[LIGHT_COUNT*3] = {
 	0x57,	0x65,	0x6F, // Dark windows, lit yellowish at night
 	0x7F,	0x9B,	0xF1, // Lighter windows, lit blueish at night
 	0xFF,	0xFF,	0x53, // Yellow light
@@ -269,7 +269,7 @@ static const uint8 day_lights[LIGHT_COUNT*3] = {
 /*
  * Hajo: speical colors during nighttime
  */
-static const uint8 night_lights[LIGHT_COUNT*3] = {
+COLOR_VAL display_night_lights[LIGHT_COUNT*3] = {
 	0xD3,	0xC3,	0x80, // Dark windows, lit yellowish at night
 	0x80,	0xC3,	0xD3, // Lighter windows, lit blueish at night
 	0xFF,	0xFF,	0x53, // Yellow light
@@ -290,7 +290,7 @@ static const uint8 night_lights[LIGHT_COUNT*3] = {
 
 // the players colors and colors for simple drawing operations
 // each eight colors are corresponding to a player color
-static const uint8 special_pal[224*3]=
+static const COLOR_VAL special_pal[224*3]=
 {
 	36, 75, 103,
 	57, 94, 124,
@@ -1645,8 +1645,8 @@ static void calc_base_pal_from_night_shift(const int night)
 	//                     0,75 - quite bright                 80        17
 	//                     0,8    bright                      104        22
 
-	const double RG_nihgt_multiplier = pow(0.75, night) * ((light_level + 8.0) / 8.0);
-	const double B_nihgt_multiplier  = pow(0.83, night) * ((light_level + 8.0) / 8.0);
+	const double RG_night_multiplier = pow(0.75, night) * ((light_level + 8.0) / 8.0);
+	const double B_night_multiplier  = pow(0.83, night) * ((light_level + 8.0) / 8.0);
 
 	for (i = 0; i < 0x8000; i++) {
 		// (1<<15) this is total no of all possible colors in RGB555)
@@ -1657,24 +1657,24 @@ static void calc_base_pal_from_night_shift(const int night)
 		// lines generate all possible colors in 555RGB code - input
 		// however the result is in 888RGB - 8bit per channel
 
-		R = (int)(R * RG_nihgt_multiplier);
-		G = (int)(G * RG_nihgt_multiplier);
-		B = (int)(B * B_nihgt_multiplier);
+		R = (int)(R * RG_night_multiplier);
+		G = (int)(G * RG_night_multiplier);
+		B = (int)(B * B_night_multiplier);
 
 		rgbmap_day_night[i] = get_system_color(R, G, B);
 	}
 
 	// player color map (and used for map display etc.)
 	for (i = 0; i < 224; i++) {
-		const int R = (int)(special_pal[i*3 + 0] * RG_nihgt_multiplier);
-		const int G = (int)(special_pal[i*3 + 1] * RG_nihgt_multiplier);
-		const int B = (int)(special_pal[i*3 + 2] * B_nihgt_multiplier);
+		const int R = (int)(special_pal[i*3 + 0] * RG_night_multiplier);
+		const int G = (int)(special_pal[i*3 + 1] * RG_night_multiplier);
+		const int B = (int)(special_pal[i*3 + 2] * B_night_multiplier);
 
 		specialcolormap_day_night[i] = get_system_color(R, G, B);
 	}
 	// special light colors (actually, only non-darkening greys should be used
 	for(i=0;  i<LIGHT_COUNT;  i++  ) {
-		specialcolormap_day_night[i+224] = get_system_color( day_lights[i*3 + 0], day_lights[i*3 + 1], 	day_lights[i*3 + 2] );
+		specialcolormap_day_night[i+224] = get_system_color( display_day_lights[i*3 + 0], display_day_lights[i*3 + 1], 	display_day_lights[i*3 + 2] );
 	}
 	// init with black for forbidden colors
 	for(i=224+LIGHT_COUNT;  i<256;  i++  ) {
@@ -1689,13 +1689,13 @@ static void calc_base_pal_from_night_shift(const int night)
 
 	// Lights
 	for (i = 0; i < LIGHT_COUNT; i++) {
-		const int day_R = day_lights[i*3+0];
-		const int day_G = day_lights[i*3+1];
-		const int day_B = day_lights[i*3+2];
+		const int day_R = display_day_lights[i*3+0];
+		const int day_G = display_day_lights[i*3+1];
+		const int day_B = display_day_lights[i*3+2];
 
-		const int night_R = night_lights[i*3+0];
-		const int night_G = night_lights[i*3+1];
-		const int night_B = night_lights[i*3+2];
+		const int night_R = display_night_lights[i*3+0];
+		const int night_G = display_night_lights[i*3+1];
+		const int night_B = display_night_lights[i*3+2];
 
 		const int R = (day_R * day + night_R * night2) >> 2;
 		const int G = (day_G * day + night_G * night2) >> 2;
@@ -1747,7 +1747,8 @@ void display_set_player_color_scheme(const int player, const COLOR_VAL col1, con
 			if(night_shift!=0) {
 				calc_base_pal_from_night_shift(night_shift);
 			}
-			player_day = player_night = player;
+			// calc_base_pal_from_night_shift resets player_night to 0
+			player_day = player_night;
 		}
 		recode();
 		mark_rect_dirty_nc(0, 32, disp_width - 1, disp_height - 1);
@@ -3323,7 +3324,7 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
 		// do the display
 
 		if(  y_offset>char_yoffset  ) {
-			char_yoffset = y_offset;
+			char_yoffset = (uint8)y_offset;
 		}
 		screen_pos = (y+char_yoffset) * disp_width + x;
 
@@ -3591,16 +3592,30 @@ void display_flush_buffer(void)
 	unsigned char* tmp;
 
 #ifdef USE_SOFTPOINTER
-	if (softpointer != -1) {
-		ex_ord_update_mx_my();
+	ex_ord_update_mx_my();
+
+	// use mouse pointer image if available
+	if (softpointer != -1 && standard_pointer >= 0) {
 		display_color_img(standard_pointer, sys_event.mx, sys_event.my, 0, false, true);
+
+		// if software emulated mouse pointer is over the ticker, redraw it totally at next occurs
+		if (!ticker::empty() && sys_event.my+images[standard_pointer].h >= disp_height-TICKER_YPOS_BOTTOM &&
+		   sys_event.my <= disp_height-TICKER_YPOS_BOTTOM+TICKER_HEIGHT) {
+			ticker::set_redraw_all(true);
+		}
 	}
+	// no pointer image available, draw a crosshair
 	else {
-		// crosshair, if nowthing there ...
 		display_fb_internal( sys_event.mx-1, sys_event.my-3, 3, 7, COL_WHITE, 1, 0, disp_width, 0, disp_height);
 		display_fb_internal( sys_event.mx-3, sys_event.my-1, 7, 3, COL_WHITE, 1, 0, disp_width, 0, disp_height);
 		display_direct_line( sys_event.mx-2, sys_event.my, sys_event.mx+2, sys_event.my, COL_BLACK );
 		display_direct_line( sys_event.mx, sys_event.my-2, sys_event.mx, sys_event.my+2, COL_BLACK );
+
+		// if crosshair is over the ticker, redraw it totally at next occurs
+		if(!ticker::empty() && sys_event.my+2 >= disp_height-TICKER_YPOS_BOTTOM &&
+		   sys_event.my-2 <= disp_height-TICKER_YPOS_BOTTOM+TICKER_HEIGHT) {
+			ticker::set_redraw_all(true);
+		}
 	}
 	old_my = sys_event.my;
 #endif

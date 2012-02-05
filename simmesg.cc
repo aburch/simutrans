@@ -3,8 +3,8 @@
  *
  * Copyright (c) 2005 Markus Pristovsek
  *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans project under the artistic license.
+ * (see license.txt)
  */
 
 #include "macros.h"

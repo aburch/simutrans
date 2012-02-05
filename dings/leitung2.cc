@@ -52,7 +52,7 @@ int leitung_t::gimme_neighbours(leitung_t **conn)
 		// get next connected tile (if there)
 		grund_t *gr;
 		conn[i] = NULL;
-		if(  gr_base->get_neighbour( gr, invalid_wt, koord::nsow[i] ) ) {
+		if(  gr_base->get_neighbour( gr, invalid_wt, ribi_t::nsow[i] ) ) {
 			leitung_t *lt = gr->get_leitung();
 			if(  lt  ) {
 				const spieler_t *owner = get_besitzer();
@@ -411,6 +411,7 @@ void leitung_t::rdwr(loadsave_t *file)
 					besch = wegbauer_t::get_besch(translator::compatibility_name(bname));
 					if(besch==NULL) 
 					{
+						welt->add_missing_paks( bname, karte_t::MISSING_WAY );
 						besch = wegbauer_t::leitung_besch;
 					}
 					dbg->warning("strasse_t::rdwr()", "Unknown powerline %s replaced by %s", bname, besch->get_name() );
@@ -481,7 +482,7 @@ pumpe_t::~pumpe_t()
 		
 		fab = NULL;
 	}
-	spieler_t::add_maintenance(get_besitzer(), welt->get_settings().cst_maintain_transformer);
+	spieler_t::add_maintenance(get_besitzer(), (sint32)welt->get_settings().cst_maintain_transformer);
 }
 
 
@@ -519,7 +520,7 @@ void pumpe_t::step(long delta_t)
 void pumpe_t::laden_abschliessen()
 {
 	leitung_t::laden_abschliessen();
-	spieler_t::add_maintenance(get_besitzer(), -welt->get_settings().cst_maintain_transformer);
+	spieler_t::add_maintenance(get_besitzer(), (sint32)-welt->get_settings().cst_maintain_transformer);
 
 	if(fab==NULL  &&  get_net()) {
 		fab = leitung_t::suche_fab_4(get_pos().get_2d());
@@ -608,7 +609,7 @@ senke_t::~senke_t()
 			city->remove_substation(this);
 		}
 	}
-	spieler_t::add_maintenance(get_besitzer(), welt->get_settings().cst_maintain_transformer);
+	spieler_t::add_maintenance(get_besitzer(), (sint32)welt->get_settings().cst_maintain_transformer);
 }
 
 
@@ -885,7 +886,7 @@ bool senke_t::sync_step(long delta_t)
 void senke_t::laden_abschliessen()
 {
 	leitung_t::laden_abschliessen();
-	spieler_t::add_maintenance(get_besitzer(), -welt->get_settings().cst_maintain_transformer);
+	spieler_t::add_maintenance(get_besitzer(), (sint32)-welt->get_settings().cst_maintain_transformer);
 
 	check_industry_connexion();
 

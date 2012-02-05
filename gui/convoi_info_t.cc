@@ -153,14 +153,14 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	chart.set_background(MN_GREY1);
 	chart.set_ltr(umgebung_t::left_to_right_graphs);
 	int btn;
-	for (btn = 0; btn < MAX_CONVOI_COST; btn++) {
-		chart.add_curve( cost_type_color[btn], cnv->get_finance_history(), MAX_CONVOI_COST, btn, MAX_MONTHS, cost_type_money[btn], false, true, cost_type_money[btn]*2 );
+	for (btn = 0; btn < convoi_t::MAX_CONVOI_COST; btn++) {
+		chart.add_curve( cost_type_color[btn], cnv->get_finance_history(), convoi_t::MAX_CONVOI_COST, btn, MAX_MONTHS, cost_type_money[btn], false, true, cost_type_money[btn]*2 );
 		filterButtons[btn].init(button_t::box_state, cost_type[btn], koord(BUTTON1_X+(BUTTON_WIDTH+BUTTON_SPACER)*(btn%4), view.get_groesse().y+174+(BUTTON_HEIGHT+BUTTON_SPACER)*(btn/4)), koord(BUTTON_WIDTH, BUTTON_HEIGHT));
 		filterButtons[btn].add_listener(this);
 		filterButtons[btn].background = cost_type_color[btn];
 		filterButtons[btn].set_visible(false);
 		filterButtons[btn].pressed = false;
-		if((btn == MAX_CONVOI_COST - 1) && cnv->get_line().is_bound())
+		if((btn == convoi_t::MAX_CONVOI_COST - 1) && cnv->get_line().is_bound())
 		{
 			continue;
 		}
@@ -417,7 +417,7 @@ enable_home:
 			money_to_string(tmp, cnv->get_jahresgewinn()/100.0 );
 			len += display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, cnv->get_jahresgewinn() > 0 ? MONEY_PLUS : MONEY_MINUS, true ) + 5;
 			// Bernd Gabriel, 17.06.2009: add fixed maintenance info
-			uint32 fixed_monthly = cnv->get_fixed_maintenance();
+			uint32 fixed_monthly = cnv->get_fixed_cost();
 			if (fixed_monthly)
 			{
 				char tmp_2[64];
@@ -461,7 +461,7 @@ enable_home:
 			sprintf(tmp, translator::translate(freight_weight ? "%g (%g) t" : "%g t"), gross_weight * 0.001f, freight_weight * 0.001f);
 			display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, 
 				cnv->get_overcrowded() > 0 ? COL_DARK_PURPLE : // overcrowded
-				!cnv->get_finance_history(0, CONVOI_TRANSPORTED_GOODS) && !cnv->get_finance_history(1, CONVOI_TRANSPORTED_GOODS) ? COL_YELLOW : // nothing moved in this and past month
+				!cnv->get_finance_history(0, convoi_t::CONVOI_TRANSPORTED_GOODS) && !cnv->get_finance_history(1, convoi_t::CONVOI_TRANSPORTED_GOODS) ? COL_YELLOW : // nothing moved in this and past month
 				COL_BLACK, true );
 		}
 
@@ -511,7 +511,7 @@ void convoi_info_t::show_hide_statistics( bool show )
 	chart.set_visible(show);
 	set_fenstergroesse(get_fenstergroesse() + offset + koord(0,show?LINESPACE:-LINESPACE));
 	resize(koord(0,0));
-	for (int i=0;i<MAX_CONVOI_COST;i++) {
+	for(  int i = 0;  i < convoi_t::MAX_CONVOI_COST;  i++  ) {
 		filterButtons[i].set_visible(toggler.pressed);
 	}
 }
@@ -712,7 +712,7 @@ void convoi_info_t::rdwr(loadsave_t *file)
 	sint32 yoff = scrolly.get_scroll_y();
 	if(  file->is_saving()  ) {
 		cnv_pos = cnv->front()->get_pos();
-		for( int i = 0; i<MAX_CONVOI_COST; i++) {
+		for(  int i = 0;  i < convoi_t::MAX_CONVOI_COST;  i++  ) {
 			if(  filterButtons[i].pressed  ) {
 				flags |= (1<<i);
 			}
@@ -766,10 +766,20 @@ void convoi_info_t::rdwr(loadsave_t *file)
 			gr.y -= 170;
 		}
 		w->set_fenstergroesse( gr );
-		for( int i = 0; i<MAX_CONVOI_COST; i++) {
-			w->filterButtons[i].pressed = (flags>>i)&1;
-			if(w->filterButtons[i].pressed) {
-				w->chart.show_curve(i);
+		if(  file->get_version()<111001  ) {
+			for(  int i = 0;  i < 6;  i++  ) {
+				w->filterButtons[i].pressed = (flags>>i)&1;
+				if(w->filterButtons[i].pressed) {
+					w->chart.show_curve(i);
+				}
+			}
+		}
+		else {
+			for(  int i = 0;  i < convoi_t::MAX_CONVOI_COST;  i++  ) {
+				w->filterButtons[i].pressed = (flags>>i)&1;
+				if(w->filterButtons[i].pressed) {
+					w->chart.show_curve(i);
+				}
 			}
 		}
 		if(  stats  ) {

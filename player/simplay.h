@@ -160,6 +160,8 @@ protected:
 	 */
 	bool locked;
 
+	bool unlock_pending;
+
 	// contains the password hash for local games
 	pwd_hash_t pwd_hash;
 
@@ -177,10 +179,14 @@ public:
 
 	bool is_locked() const { return locked; }
 
-	bool set_unlock( const uint8 *hash );
+	bool is_unlock_pending() const { return unlock_pending; }
+
+	void unlock(bool unlock_, bool unlock_pending_=false) { locked = !unlock_; unlock_pending = unlock_pending_; }
+
+	void check_unlock( const pwd_hash_t& hash ) { locked = (pwd_hash != hash); }
 
 	// some routine needs this for direct manipulation
-	pwd_hash_t& get_password_hash() { return pwd_hash; }
+	pwd_hash_t& access_password_hash() { return pwd_hash; }
 
 	// this type of AIs identifier
 	virtual uint8 get_ai_id() const { return HUMAN; }
@@ -370,6 +376,16 @@ public:
 	* @author hsiegeln
 	*/
 	void calc_finance_history();
+
+	/**
+	* Calculates the assets of the player
+	*/
+	void calc_assets();
+
+	/**
+	* Updates the assets value of the player
+	*/
+	void update_assets(sint64 const delta);
 
 	/**
 	* rolls the finance history for player (needed when neues_jahr() or neuer_monat()) triggered

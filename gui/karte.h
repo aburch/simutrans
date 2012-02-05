@@ -48,7 +48,9 @@ public:
 		MAP_DEPOT,
 		MAP_FOREST,
 		MAP_CITYLIMIT,
-		MAP_PAX_DEST
+		MAP_PAX_DEST,
+		MAP_OWNER,
+		MAX_MAP_BUTTON
 	};
 
 private:
@@ -71,7 +73,8 @@ private:
 
 	inline void screen_to_karte(koord &) const;
 
-	// to be prepared for more than one map => nonstatic
+	void set_relief_color_clip( sint16 x, sint16 y, uint8 color );
+
 	void set_relief_farbe_area(koord k, int areasize, uint8 color);
 
 	// for passenger destination display
@@ -114,7 +117,7 @@ public:
 	sint16 zoom_out, zoom_in;
 
 	// 45 rotated map
-	bool rotate45;
+	bool isometric;
 
 	// show/hide schedule of convoi
 	bool is_show_schedule;

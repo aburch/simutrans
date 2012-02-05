@@ -3,34 +3,34 @@
 <h1><strong>Vehicle List Filter</strong></h1>
 
 <p>
-<strong>Vehicle List Filter</strong> has options to determine which <a href="convoiinfo.txt">Convoys</a>, are shown in <a href="convoi.txt">Vehicle List</a>.
+<strong>Vehicle List Filter</strong> has options to determine which <a href="convoiinfo.txt">convoys</a>, are shown in the <a href="convoi.txt">Vehicle List</a>.
 </p>
 <p>
-Click on Settings in Vehicle List to open <strong>Vehicle List Filter</strong>.
+Click on "settings" in the vehicle list window to open the <strong>vehicle list filter</strong>.
 </p>
 <p>
-Option-buttons select Convoys to be listed in Vehicle List when filter option is <a href="convoi.txt">enabled</a>. Only Convoys that fit all criteria set, are listed.
+Option buttons select convoys to be listed in the vehicle list window when filter option is <a href="convoi.txt">enabled</a>. Only convoys that fit all the criteria that have been chosen are listed.
 </p>
 <p>
-Click on a square-button to set criteria for filter (button is indented when selected):
+Click on a checkbox to set the criteria for the filters (the button is indented when selected):
 </p>
 <p>
-<em>Filter names:</em> selects <a href="convoiinfo.txt">Convoy</a> by name. To use: click on button to select, then click on name-box and type required name exactly (option is case sensitive).
+<em>Filter names:</em> selects a <a href="convoiinfo.txt">convoy</a> by name. To use: click on the button to select, then click on the name box and type the name of the chosen convoy exactly (the text is case sensitive).
 </p>
 <p>
-<em>Filter types:</em> will list Convoys by type of transport if selected. To use: click on button to select, then click on transport type(s): road, rail, water and air.
+<em>Filter types:</em> will list convoys by the type of transport. To use: click on the button to select, then click on one or more of the following transport types: road, rail, monorail, tram, maglev, narrow gauge, water and air.
 </p>
 <p>
-<em>Special filter:</em> selects <a href="convoiinfo.txt">Convoys</a> to list by following criteria (click on button to select, then click on):<br>
-- <em>no route</em> - cannot find a path to next destination.<br>
+<em>Special filter:</em> selects <a href="convoiinfo.txt">convoys</a> by the following criteria (click on the button to select, then click on):<br>
+- <em>no route</em> - cannot find a path to the next destination.<br>
 - <em>no schedule</em> - not assigned a <a href="schedule.txt">route</a>.<br>
-- <em>no income</em> - not generating profit.<br>
-- <em>in a depot</em> - those in a <a href="depot.txt">depot</a>.<br>
-- <em>no line</em> - not assigned a <a href="linemanagement.txt">Line</a>.
+- <em>no income</em> - not generating any profit.<br>
+- <em>in a depot</em> - is in a <a href="depot.txt">depot</a>.<br>
+- <em>no line</em> - not assigned a <a href="linemanagement.txt">line</a>.
 </p>
 <p>
-<em>Filter goods:</em> selects Convoys by ability to transport different goods & passengers. Click on button next to name to select item(s). Use <a href="mouse.txt">slider-bar</a> to scroll item(s) in list. Options include:<br>
+<em>Filter goods:</em> selects convoys by ability to transport different goods and passengers. Click on the button next to the name to select the item(s). Use the <a href="mouse.txt">slider bar</a> to scroll items in list. Options include:<br>
 - <em>all</em> selects all items.<br>
-- <em>none</em> no items are selected.<br>
-- <em>inv.</em> inverses current selection of items.
+- <em>none</em> deselects all items.<br>
+- <em>inv.</em> reverses the  current selection of items.
 </p>

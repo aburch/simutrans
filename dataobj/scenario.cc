@@ -27,7 +27,6 @@ scenario_t::scenario_t(karte_t *w)
 	what_scenario = 0;
 	city = NULL;
 	target_factory = NULL;
-	scenario_name = NULL;
 }
 
 
@@ -38,9 +37,6 @@ void scenario_t::init( const char *filename, karte_t *w )
 	what_scenario = 0;
 	city = NULL;
 	target_factory = NULL;
-	if(scenario_name) {
-		free( scenario_name );
-	}
 	scenario_name = NULL;
 
 	tabfile_t scenario;
@@ -53,7 +49,7 @@ void scenario_t::init( const char *filename, karte_t *w )
 	tabfileobj_t contents;
 	scenario.read(contents);
 
-	scenario_name = strdup( contents.get( "savegame" ) );
+	scenario_name = contents.get("savegame");
 	what_scenario = contents.get_int( "type", 0 );
 	factor = contents.get_int( "factor", 1 );
 
@@ -205,7 +201,7 @@ int scenario_t::completed(int player_nr)
 		}
 
 		case TRANSPORT_1000_PAX:
-			return min( 100, (welt->get_spieler(player_nr)->get_finance_history_month(0,COST_TRANSPORTED_PAS)*(sint64)100)/(sint64)factor );
+			return (int)min( 100, (welt->get_spieler(player_nr)->get_finance_history_month(0,COST_TRANSPORTED_PAS)*(sint64)100)/(sint64)factor );
 
 	}
 	return 0;

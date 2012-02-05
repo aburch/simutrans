@@ -1,8 +1,8 @@
 /*
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner
  *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans project under the artistic license.
+ * (see license.txt)
  */
 
 /*
@@ -132,7 +132,7 @@ public:
 
 	virtual void rotate90();
 
-	ribi_t::ribi calc_richtung(koord start, koord ende) const;
+	static ribi_t::ribi calc_richtung(koord start, koord ende);
 	ribi_t::ribi calc_set_richtung(koord start, koord ende);
 	ribi_t::ribi calc_check_richtung(koord start, koord ende);
 
@@ -354,18 +354,18 @@ public:
 	void set_besch(const vehikel_besch_t* value) { besch = value; }
 
 	/**
-	* @return die Betriebskosten in Cr/100Km
+	* @return die running_cost in Cr/100Km
 	* @author Hj. Malthaner
 	*/
-	int get_betriebskosten() const { return besch->get_betriebskosten(); }
-	int get_betriebskosten(karte_t* welt) const { return besch->get_betriebskosten(welt); }
+	int get_running_cost() const { return besch->get_running_cost(); }
+	int get_running_cost(karte_t* welt) const { return besch->get_running_cost(welt); }
 
 	/**
 	* @return fixed maintenance costs in Cr/100months
 	* @author Bernd Gabriel
 	*/
-	uint32 get_fixed_maintenance() const { return besch->get_fixed_maintenance(); }
-	uint32 get_fixed_maintenance(karte_t* welt) const { return besch->get_fixed_maintenance(welt); }
+	uint32 get_fixed_cost() const { return besch->get_fixed_cost(); }
+	uint32 get_fixed_cost(karte_t* welt) const { return besch->get_fixed_cost(welt); }
 
 	/**
 	* spielt den Sound, wenn das Vehikel sichtbar ist

@@ -76,7 +76,7 @@ utf16 utf8_to_utf16(const utf8* text, size_t* len)
 int utf16_to_utf8(utf16 c, utf8* out)
 {
 	if (c < 0x80) {
-		out[0] = c;
+		out[0] = (utf8)c;
 		return 1;
 	} else if (c < 0x800) {
 		out[0] = 0xC0 | (c >> 6);

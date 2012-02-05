@@ -1,89 +1,80 @@
-<title>Set Climate Help</title>
+<title>Climate Settings Help</title>
 
-<h1><strong>Set Climate</strong></h1>
+<h1><strong>Climate Settings</strong></h1>
 
 <p>
-The <strong>Set Climate </strong> window sets options for topographical and meteorological aspects of the game world. It opens along with <a href="new_world.txt">Create a New Game</a> and <a href="language.txt">Languages</a> windows.
+<strong>Climate settings</strong> sets options for topograhical and meterological aspects of the game world.<br>
+<p>
+<strong>Climate settings</strong> opens with the <a href="new_world.txt">Create a New Game</a> window.
 </p>
-
 <p>
-To adjust each setting, click the arrow-buttons on the side of each option.
+Arrow buttons adjust settings:
 </p>
-
 <p>
-<it>Map Options</it>
-</p>
-
-<p>
-<em>Water Level</em> - Sets how high the water is on the map. Higher values provide lesser land and more water bodies.
-</p>
-
-<p>
-<em>Mountain Height</em> - Sets the maximum height of terrain.
-</p>
-
-<p>
-<em>Map Roughness</em> - Sets the roughness of the terrain. A larger number creates more undulations in the coastal areas. To create realistic coast lines, use a higher value.<br>
-</p>
-
-<p>
-<it>Snowline Options</it>
-<br>Snowline is the height on the map at which snow appears.
+<it>General options:</it>
 </p>
 <p>
 
-<em>summer snowline</em> - The snowline during summer. This value is the highest terrain value selected in the climate options.
-</p>
-
-<p>
-<em>Winter Snowline</em> - Sets height of snowline in winter. To have snow appear in larger areas on the map, keep this value low.
-</p>
-
-<p>
-<it>Climate Options</it>
-<br>Sets the different climate options for the new map. <br>The value next to each climate type sets the height in the terrain map where the climate appears. To turn off a particular climate, set its value to 0 (zero).
-</p>
-
-<p>
-<em>Desert Climate</em>  - Very little precipitation, extremes in temperature. Very few trees. Flat landscape.
+<em>Water level:</em> sets the sea level relative to the height of the terrain.
 </p>
 <p>
 
-<em>Tropical Climate</em> - Typical of non-arid areas around equator, constant high temperature at sea level and low elevations.
+<em>Mountain height:</em> sets the maximum height (in tiles) of any point in the landscape. Mountains will not be higher than this. The higher the setting, the more mountainous the terrain.
+</p>
+<p>
+
+<em>Map roughness:</em> sets the roughness of the terrain: the larger the number, the rougher and more undulating the landscape.<br>
 </p>
 
 <p>
-<em>Mediterranean climate</em> - Moderate changeable wet weather
+<em>Hilly landscape:</em> if selected, this option will make the landscape extra hilly. This gives a slightly different effect to increasing "mountain height".
 </p>
 
 <p>
-<em>Temperate Climate</em> - Found in areas between tropics and polar caps, changing weather.
+<it>Snowline options:</it>
+</p>
+<p>
+
+<em>Summer snowline:</em> shows the height of snowline in summer. This cannot be adjusted, as it is a product of other settings.
+</p>
+<p>
+
+<em>Winter snowline:</em> sets the height of snowline in winter (in tiles).<br>
+</p>
+<p>
+<it>Climate options:</it>
+</p>
+<p>
+There are six different <em>climates</em> in Simutrans. Each climate appears at a different map height (adjusted by the settings described below). The climate affects the appearance of the terrain, the types of trees that can grow on the terrain, and the types of industries and other buildings that appear on the terrain. The six climate types are:
+</p>
+<p>
+<em>- Desert</em><br>
+<em>- Tropical</em><br>
+<em>- Mediterranean</em><br>
+<em>- Temperate</em><br>
+<em>- Tundra</em><br>
+<em>- Mountain</em>
+</p>
+<p>
+Next to each of the climates is a number. This represents the height in tiles below which that climate will appear. If the number specified is the same as a climate further up the list, the climate type will not appear at all.
+<p>
+
+</p>
+<it>Tree and river options:</it>
+</p>
+<p>
+
+<em>No trees:</em> if this option is selected, the landscape will be generated devoid of trees.
 </p>
 
 <p>
-<em>Tundra</em> - Low temperatures, edges of polar caps
+<em>Number of rivers:</em> sets the number of rivers that will be generated.
 </p>
-
 <p>
-<em>Alpine Climate</em> - Dry climate, cold winters.
+<em>Min. river length:</em> sets the shortest length of river that will be created.
 </p>
-
 <p>
-<it>Other Options</it>
+<em>Max. river length:</em> sets the longest length of river that will be created.
 </p>
-
 <p>
-<em>No Tree</em> - Click to enable. Enable this option to prevent Simutrans from drawing trees. Trees take up CPU time to render. Use this option on PCs with slower CPU or low RAM.
-</p>
-
-<p>
-<em>Number of Rivers</em> - Sets the maximum number of rivers that can be generated and used in a terrain map. Rivers cannot be navigated by boats or ships of any kind.
-</p>
-
-<p>
-<em>Minimum length of river</em> - Sets the minimum length of rivers on the map in terms of number of squares.
-</p>
-
-<p>
-<em>Maximum length of river</em> - Sets the maximum length of rivers on the map in terms of number of squares.
-</p>
+<em>Tip:</em> Setting too many rivers to generate at the beginning of a game can make creating a new map very slow. 

@@ -89,7 +89,7 @@ roadsign_t::roadsign_t(karte_t *welt, spieler_t *sp, koord3d pos, ribi_t::ribi d
 
 roadsign_t::~roadsign_t()
 {
-	if(  besch->is_single_way()  ||  besch->is_signal_type()  ) {
+	if(  besch  &&  (besch->is_single_way()  ||  besch->is_signal_type())  ) {
 		const grund_t *gr = welt->lookup(get_pos());
 		if(gr) {
 			weg_t *weg = gr->get_weg(besch->get_wtyp()!=tram_wt ? besch->get_wtyp() : track_wt);
@@ -545,6 +545,7 @@ void roadsign_t::rdwr(loadsave_t *file)
 			besch = roadsign_t::table.get(translator::compatibility_name(bname));
 			if(besch==NULL) {
 				dbg->warning("roadsign_t::rwdr", "description %s for roadsign/signal at %d,%d not found! (may be ignored)", bname, get_pos().x, get_pos().y);
+				welt->add_missing_paks( bname, karte_t::MISSING_SIGN );
 			}
 			else {
 				dbg->warning("roadsign_t::rwdr", "roadsign/signal %s at %d,%d rpleaced by %s", bname, get_pos().x, get_pos().y, besch->get_name() );

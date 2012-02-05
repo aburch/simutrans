@@ -56,7 +56,6 @@ public:
 	// old style trees and new style tree support ...
 	int get_seasons() const
 	{
-
 		if(number_of_seasons==0) {
 			return get_child<bildliste2d_besch_t>(2)->get_anzahl() / 5;
 		}

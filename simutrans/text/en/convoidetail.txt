@@ -3,38 +3,43 @@
 <h1><strong>Convoy Details</strong></h1>
 
 <p>
-<strong>Convoy Details</strong> provides more information about a Convoy (an operational vehicle or combination of vehicle-units) and can be used to sell the Convoy immediately.
+<strong>Convoy details</strong> provides more information about a <a href="convoiinfo.txt">convoy</a> and can be used to sell the convoy immediately, or withdraw it.
 </p>
 <p>
 
-<strong>Convoy Details</strong> open from
-<a href="convoiinfo.txt">
-Details</a> option-button in Convoy Information</strong>.
+<strong>Convoy Details</strong> can be accessed from the <a href="convoiinfo.txt">Details</a> button in the <strong>convoy information</strong> window.
 <br>
-If all items are not visible <a href="mouse.txt">re-size</a> <strong>Convoy Details</strong> or use slider-bars to scroll items.
+If not all items are visible, <a href="mouse.txt">re-size</a> the <strong>convoy wetails</strong> window or use the slider bars to scroll.
 </p>
 <p>
-At the top of
-
-<strong>Convoy Details</strong> information shown includes:
+At the top of the <strong>convoy details</strong> window, information shown includes:
 </p>
 <p>
-<em>Power:</em> of Convoy (combined power of all motorised vehicle-units in Convoy).
+<em>Power:</em> of the convoy (combined power of all motorised vehicles in the convoy).
 </p>
 <p>
-<em>Resale Value:</em> money received if Convoy is sold (purchase price of Convoy less any depreciation).
+<em>Odometer:</em> the distance that the convoy has travelled in its lifetime.
 </p>
 <p>
-WARNING: Click on <em>Sell mode</em> option-button to sell Convoy immediately. No further confirmation is required. The Convoy is removed from the game and the player balnce credited with the selling price .
+<em>Station tiles:</em> the number of tiles that the convoy will occupy in a station.
 </p>
 <p>
-<strong>Convoy Details</strong> lists all vehicle-units in Convoy.<br>
-Information listed for all vehicle-units includes:<br>
-- <em>vehicle-unit-graphic</em> a picture of vehicle-unit (also used in <a href="depot.txt">depots</a>).<br>
-- <em>Manufactured:</em> month and year of manufacture and introduction date if playing with <a href="new_world.txt">timeline</a>.<br>
-- <em>Resale Value:</em> amount received if sold.<br>
-- <em>Power:</em> power generated (by motorised vehicle units).<br>
-- <em>Friction:</em> current friction level.<br>
-- <em>Max income:</em> Maximum possible income of vehicle-unit by type of item transported by this Convoy.<br>
-- <em>items on board</em> amount and destination of items currently carried by vehicle-unit.
+<em>Resale value:</em> the amount of money that would be realised if convoy was sold now (the older each vehicle in a convoy, the less that it is worth).
+</p>
+<p>
+<h1>Buttons:</h1><br>
+- <em>Withdraw</em>: The convoy will continue in service until all of the goods or passengers on board have reached their destination.  No new goods or passengers will be loaded. Once the vehicle is empty, it will be sold without returning to a depot. If the vehicle is already empty, it will be sold immediately.<br>
+- <em>Sell now</em>: The convoy will be sold straight away, without returning to a depot. All of the goods or passengers on board will be lost.<br>
+- <em>Retire</em>: The convoy will continue in service until all of the goods or passengers on board have reached their destination. No new goods or passengers will be loaded. Once the vehicle is empty, it will go to the nearest depot, but will be stored, not sold.
+</p>
+<p>
+Beneath the buttons, every vehicle in the convoy is listed individually, with details about that vehicle.<br>
+Information listed for the vehicles includes:<br>
+- <em>Graphic</em> a picture of the vehicle (also used in <a href="depot.txt">depots</a>).<br>
+- <em>Manufactured:</em> month and year of manufacture, and the introduction date if playing with a <a href="new_world.txt">timeline</a>.<br>
+- <em>Resale Value:</em> amount that would be realised if the vehicle was to be sold now.<br>
+- <em>Power:</em> power available from any motorised vehicles.<br>
+- <em>Current friction:</em> the vehicle's current friction level.<br>
+- <em>Max. income:</em> the income of the vehicle by type of item transported in the convoy.<br>
+- <em>Items on board</em> amount/number and destination of the goods/pasengers currently carried by the vehicle.
 </p>

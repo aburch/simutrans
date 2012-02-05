@@ -49,6 +49,9 @@ void simlinemgmt_t::line_management_window(spieler_t *sp)
 		schedule_list_gui = new schedule_list_gui_t(sp);
 		create_win( schedule_list_gui, w_info, magic_line_management_t+sp->get_player_nr() );
 	}
+	else {
+		top_win( schedule_list_gui );
+	}
 }
 
 
@@ -147,9 +150,9 @@ DBG_MESSAGE("simlinemgmt_t::rdwr()","number of lines=%i",totalLines);
 			}
 		}
 
-		if (unbound_line) {
+		if(  unbound_line  ) {
 			// linehandle will be corrected in simline_t::laden_abschliessen
-			line_with_id_zero = linehandle_t(unbound_line);
+			line_with_id_zero = linehandle_t(unbound_line,true);
 			add_line( line_with_id_zero );
 		}
 	}

@@ -1,17 +1,12 @@
 /*
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner
  *
- * This file is part of the Simutrans project under the artistic licence.
+ * This file is part of the Simutrans project under the artistic license.
  */
 
 #ifndef SDL
 #ifndef _WIN32
 #error "Only Windows has GDI!"
-#endif
-
-#ifndef _MSC_VER
-#include <unistd.h>
-#include <sys/time.h>
 #endif
 
 #include <stdio.h>
@@ -44,7 +39,6 @@
 // for redraws in another thread
 //#define MULTI_THREAD
 
-#include "simmain.h"
 #include "simmem.h"
 #include "simsys_w32_png.h"
 #include "simversion.h"
@@ -74,22 +68,6 @@ static BITMAPINFO* AllDib;
 static PIXVAL*     AllDibData;
 
 volatile HDC hdc = NULL;
-
-const wchar_t* const title =
-#ifdef _MSC_VER
-#define TOW_(x) L#x
-#define TOW(x) TOW_(x)
-			L"Simutrans " WIDE_VERSION_NUMBER EXPERIMENTAL_VERSION
-#ifdef REVISION
-			L" - r" TOW(REVISION)
-#endif
-#else
-			L"" SAVEGAME_PREFIX " " VERSION_NUMBER NARROW_EXPERIMENTAL_VERSION " - " VERSION_DATE
-#ifdef REVISION
-			" - r" QUOTEME(REVISION)
-#endif	
-#endif
-;
 
 #ifdef MULTI_THREAD
 
@@ -131,6 +109,15 @@ resolution dr_query_screen_resolution()
 }
 
 
+static void create_window(DWORD const ex_style, DWORD const style, int const x, int const y, int const w, int const h)
+{
+	RECT r = { 0, 0, w, h };
+	AdjustWindowRectEx(&r, style, false, ex_style);
+	hwnd = CreateWindowExA(ex_style, "Simu", SIM_TITLE, style, x, y, r.right - r.left, r.bottom - r.top, 0, 0, hInstance, 0);
+	ShowWindow(hwnd, SW_SHOW);
+}
+
+
 // open the window
 int dr_os_open(int const w, int const h, int fullscreen)
 {
@@ -165,25 +152,10 @@ int dr_os_open(int const w, int const h, int fullscreen)
 		is_fullscreen = fullscreen;
 	}
 	if(  fullscreen  ) {
-		hwnd = CreateWindowEx(
-			WS_EX_TOPMOST,
-			L"Simu", title,
-			WS_POPUP,
-			0, 0,
-			w, h,
-			NULL, NULL, hInstance, NULL
-		);
+		create_window(WS_EX_TOPMOST, WS_POPUP, 0, 0, w, h);
 	} else {
-		hwnd = CreateWindow(
-			L"Simu", title,
-			WS_OVERLAPPEDWINDOW,
-			CW_USEDEFAULT, CW_USEDEFAULT,
-			w + GetSystemMetrics(SM_CXFRAME),
-			h - 1 + 2 * GetSystemMetrics(SM_CYFRAME) + GetSystemMetrics(SM_CYCAPTION),
-			NULL, NULL, hInstance, NULL
-		);
+		create_window(0, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, w, h);
 	}
-	ShowWindow(hwnd, SW_SHOW);
 
 	WindowSize.right  = w;
 	WindowSize.bottom = h;
@@ -234,7 +206,9 @@ int dr_os_close(void)
 	AllDibData = NULL;
 	free(AllDib);
 	AllDib = NULL;
-	ChangeDisplaySettings(NULL, 0);
+if(  is_fullscreen  ) {
+		ChangeDisplaySettings(NULL, 0);
+	}
 
 	timeEndPeriod(1);
 
@@ -446,7 +420,6 @@ static inline unsigned int ModifierKeys()
 		(GetKeyState(VK_CONTROL) < 0  ? 2 : 0); // highest bit set or return value<0 -> key is pressed
 }
 
-struct sys_event sys_event;
 
 /* Windows eventhandler: does most of the work */
 LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -485,15 +458,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 
 					Beep( 110, 250 );
 					// must reshow window, otherwise startbar will be topmost ...
-					hwnd = CreateWindowEx(
-						WS_EX_TOPMOST,
-						L"Simu", title,
-						WS_POPUP,
-						0, 0,
-						MaxSize.right, MaxSize.bottom,
-						NULL, NULL, hInstance, NULL
-					);
-					ShowWindow( hwnd, SW_SHOW );
+					create_window(WS_EX_TOPMOST, WS_POPUP, 0, 0, MaxSize.right, MaxSize.bottom);
 					DestroyWindow( this_hwnd );
 					while_handling = false;
 					return true;
@@ -744,19 +709,6 @@ void dr_sleep(uint32 millisec)
 }
 
 
-
-bool dr_fatal_notify(const char* msg, int choices)
-{
-	if(choices==0) {
-		MessageBoxA( hwnd, msg, "Fatal Error", MB_ICONEXCLAMATION|MB_OK );
-		return 0;
-	}
-	else {
-		return MessageBoxA( hwnd, msg, "Fatal Error", MB_ICONEXCLAMATION|MB_RETRYCANCEL	)==IDRETRY;
-	}
-}
-
-
 int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR, int)
 {
 	WNDCLASSW wc;
@@ -774,12 +726,6 @@ int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR, int)
 
 	RegisterClass(&wc);
 
-	int    const argc = __argc;
-	char** const argv = __argv;
-	char         pathname[1024];
-	GetModuleFileNameA(hInstance, pathname, lengthof(pathname));
-	argv[0] = pathname;
-
 	GetWindowRect(GetDesktopWindow(), &MaxSize);
 
 	// maybe set timer to 1ms intervall on Win2k upwards ...
@@ -791,7 +737,7 @@ int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR, int)
 		}
 	}
 
-	simu_main(argc, argv);
+	int const res = sysmain(__argc, __argv);
 	timeEndPeriod(1);
 
 #ifdef MULTI_THREAD
@@ -799,6 +745,6 @@ int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR, int)
 		TerminateThread( hFlushThread, 0 );
 	}
 #endif
-	return 0;
+	return res;
 }
 #endif
