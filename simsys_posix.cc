@@ -36,7 +36,7 @@ resolution dr_query_screen_resolution()
 // open the window
 int dr_os_open(int, int, int)
 {
-	return TRUE;
+	return 1;
 }
 
 

@@ -242,12 +242,12 @@ int dr_os_open(int const w, int const h, int const fullscreen)
 	set_color_depth(COLOUR_DEPTH);
 	if (set_gfx_mode(fullscreen? GFX_AUTODETECT : GFX_AUTODETECT_WINDOWED, w, h, 0, 0) != 0) {
 		fprintf(stderr, "Error: %s\n", allegro_error);
-		return FALSE;
+		return 0;
 	}
 
 	if (install_mouse() < 0) {
 		fprintf(stderr, "Cannot init. mouse: no driver ?");
-		return FALSE;
+		return 0;
 	}
 
 	set_mouse_speed(1, 1);

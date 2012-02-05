@@ -168,7 +168,7 @@ int dr_os_open(int const w, int const h, int)
 
 	XSetForeground(md, mgc, 1);
 
-	return TRUE;
+	return w;
 }
 
 

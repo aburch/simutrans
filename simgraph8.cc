@@ -2583,7 +2583,7 @@ void simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 	// make sure it something of 16 (also better for caching ... )
 	width = (width + 15) & 0x7FF0;
 
-	if (dr_os_open(width, height, full_screen)) {
+	if (dr_os_open(width, height, full_screen) != 0) {
 		disp_width = width;
 		disp_height = height;
 
