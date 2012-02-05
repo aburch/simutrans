@@ -1,8 +1,6 @@
-#include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <math.h>
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -16,11 +14,11 @@
 #include "simversion.h"
 
 
-static int using_shm = FALSE;
-static int doing_sync = TRUE;
+static bool using_shm  = false;
+static bool doing_sync = true;
 
 static int display_depth = 8;
-static int is_truecolor = FALSE;
+static bool is_truecolor = false;
 
 static Cursor standard_cursor;
 static Cursor invisible_cursor;
@@ -66,7 +64,7 @@ static void init_cursors(void)
 }
 
 
-int dr_os_init(const int* parameter)
+bool dr_os_init(int const* parameter)
 {
 	using_shm  = parameter[0];
 	doing_sync = parameter[1];
@@ -74,7 +72,7 @@ int dr_os_init(const int* parameter)
 	// init time count
 	gettimeofday(&start, NULL);
 
-	return TRUE;
+	return true;
 }
 
 
@@ -98,9 +96,9 @@ int dr_os_open(int const w, int const h, int)
 	fprintf(stderr, "Using %d bpp\n", display_depth);
 
 	if (display_depth == 8) {
-		is_truecolor = FALSE;
+		is_truecolor = false;
 	} else if(display_depth >= 15) {
-		is_truecolor = TRUE;
+		is_truecolor = true;
 		fprintf(stderr,"Warning: using experimental HiColor/TrueColor mode\n");
 	} else {
 		fprintf(
@@ -170,14 +168,13 @@ int dr_os_open(int const w, int const h, int)
 
 	XSetForeground(md, mgc, 1);
 
-	return TRUE;
+	return w;
 }
 
 
-int dr_os_close(void)
+void dr_os_close()
 {
 	XCloseDisplay(md);
-	return TRUE;
 }
 
 
@@ -306,7 +303,7 @@ void dr_textur(int xp, int yp, int w, int h)
 
 void dr_flush(void)
 {
-	if (doing_sync) XSync(md, FALSE);
+	if (doing_sync) XSync(md, False);
 }
 
 
@@ -366,7 +363,7 @@ int dr_screenshot(const char *filename)
 /*
  * Hier sind die Funktionen zur Messageverarbeitung
  */
-static void internal_GetEvents(int wait)
+static void internal_GetEvents(bool const wait)
 {
 	XEvent event;
 
@@ -455,7 +452,7 @@ static void internal_GetEvents(int wait)
 
 void GetEvents(void)
 {
-	internal_GetEvents(TRUE);
+	internal_GetEvents(true);
 }
 
 void GetEventsNoWait(void)
@@ -465,7 +462,7 @@ void GetEventsNoWait(void)
 	sys_event.type = SIM_NOEVENT;
 	sys_event.code = 0;
 
-	if (n > 0) internal_GetEvents(FALSE);
+	if (n > 0) internal_GetEvents(false);
 }
 
 

@@ -4,12 +4,6 @@
 #include "network_socket_list.h"
 #include "../path_explorer.h"
 
-#ifdef _MSC_VER
-#include <direct.h>
-#else
-#include <unistd.h>
-#endif
-
 #include <stdlib.h>
 
 // needed by world to kick clients if needed

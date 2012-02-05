@@ -7,7 +7,6 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <time.h>
 
 #include "simdebug.h"
 #include "simsys.h"

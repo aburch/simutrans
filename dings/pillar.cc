@@ -112,7 +112,7 @@ void pillar_t::rdwr(loadsave_t *file)
 				dbg->warning("pillar_t::rdwr()","Unknown bridge %s replaced by ClassicRoad",s);
 			}
 		}
-		asymmetric = besch ? besch->has_pillar_asymmetric() : false;
+		asymmetric = besch && besch->has_pillar_asymmetric();
 	}
 }
 

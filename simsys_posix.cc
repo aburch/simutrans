@@ -19,12 +19,12 @@
 #include "simsys.h"
 
 
-int dr_os_init(const int*)
+bool dr_os_init(const int*)
 {
 	// prepare for next event
 	sys_event.type = SIM_NOEVENT;
 	sys_event.code = 0;
-	return TRUE;
+	return true;
 }
 
 resolution dr_query_screen_resolution()
@@ -36,13 +36,12 @@ resolution dr_query_screen_resolution()
 // open the window
 int dr_os_open(int, int, int)
 {
-	return TRUE;
+	return 1;
 }
 
-// shut down SDL
-int dr_os_close(void)
+
+void dr_os_close()
 {
-	return TRUE;
 }
 
 // reiszes screen

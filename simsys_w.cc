@@ -88,7 +88,7 @@ HANDLE	hFlushThread=0;
  * Schnittstelle untergebracht
  * -> init,open,close
  */
-int dr_os_init(const int* /*parameter*/)
+bool dr_os_init(int const* /*parameter*/)
 {
 	// prepare for next event
 	sys_event.type = SIM_NOEVENT;
@@ -96,7 +96,7 @@ int dr_os_init(const int* /*parameter*/)
 
 	timeBeginPeriod(1);
 
-	return TRUE;
+	return true;
 }
 
 
@@ -197,7 +197,7 @@ int dr_os_open(int const w, int const h, int fullscreen)
 }
 
 
-int dr_os_close(void)
+void dr_os_close()
 {
 	if (hwnd != NULL) {
 		DestroyWindow(hwnd);
@@ -209,10 +209,7 @@ int dr_os_close(void)
 if(  is_fullscreen  ) {
 		ChangeDisplaySettings(NULL, 0);
 	}
-
 	timeEndPeriod(1);
-
-	return TRUE;
 }
 
 
@@ -628,7 +625,6 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 			if (AllDibData != NULL) {
 				sys_event.type = SIM_SYSTEM;
 				sys_event.code = SIM_SYSTEM_QUIT;
-				return FALSE;
 			}
 			break;
 
@@ -638,18 +634,17 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 			if (AllDibData == NULL) {
 				PostQuitMessage(0);
 				hwnd = NULL;
-				return TRUE;
 			}
-			return FALSE;
+			break;
 
 		default:
 			return DefWindowProc(this_hwnd, msg, wParam, lParam);
 	}
-	return FALSE;
+	return 0;
 }
 
 
-static void internal_GetEvents(int wait)
+static void internal_GetEvents(bool const wait)
 {
 	do {
 		// wait for keybord/mouse event
@@ -664,7 +659,7 @@ void GetEvents()
 {
 	// already even processed?
 	if(sys_event.type==SIM_NOEVENT) {
-		internal_GetEvents(TRUE);
+		internal_GetEvents(true);
 	}
 }
 
@@ -672,7 +667,7 @@ void GetEvents()
 void GetEventsNoWait()
 {
 	if (sys_event.type==SIM_NOEVENT  &&  PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE)) {
-		internal_GetEvents(FALSE);
+		internal_GetEvents(false);
 	}
 }
 

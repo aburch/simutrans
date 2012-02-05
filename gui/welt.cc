@@ -6,13 +6,6 @@
  * April 2000
  */
 
-#include <string.h>
-#ifdef _MSC_VER
-#include <direct.h>
-#else
-#include <unistd.h>
-#endif
-
 #include "welt.h"
 #include "karte.h"
 
@@ -47,6 +40,7 @@
 
 #include "load_relief_frame.h"
 
+#include "../simsys.h"
 #include "../utils/simstring.h"
 #include "components/list_button.h"
 
@@ -74,15 +68,11 @@
 #define PREVIEW_SIZE (64) // size of the minimap
 #define PREVIEW_SIZE_MIN (16) // minimum width/height of the minimap
 
-#include <sys/stat.h>
-#include <time.h>
-
 
 welt_gui_t::welt_gui_t(karte_t* const welt, settings_t* const sets) :
 	gui_frame_t( translator::translate("Neue Welt" ) ),
 	karte(0,0)
 {
-DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struct tm) );
 	this->welt = welt;
 	this->sets = sets;
 	this->old_lang = -1;

@@ -14,7 +14,6 @@
 // <windows.h> also needed, but this is included by networking code
 #ifndef _WIN32
 #include <termios.h>
-#include <unistd.h>
 #endif
 
 #include "../dataobj/network.h"
@@ -26,8 +25,6 @@
 #include "../utils/simstring.h"
 #include "../utils/fetchopt.h"
 
-// declaration of stuff from network.cc needed here.
-SOCKET network_open_address( const char *cp, long timeout_ms, const char * &err);
 
 // dummy implementation
 // only receive nwc_service_t here
@@ -456,7 +453,7 @@ int main(int argc, char* argv[]) {
 
 	// This is done whether we're executing a password protected command or not...
 	const char *error = NULL;
-	SOCKET socket = network_open_address(server_address, 100, error);
+	SOCKET const socket = network_open_address(server_address, error);
 	if (error) {
 		fprintf(stderr, "Could not connect to server at %s: %s\n", server_address, error);
 		return 1;

@@ -190,9 +190,12 @@ END_OF_FUNCTION(my_close_button_callback)
  */
 
 
-int dr_os_init(const int* parameter)
+bool dr_os_init(int const* parameter)
 {
-	int ok = allegro_init();
+	if (allegro_init() != 0) {
+		dr_fatal_notify("Could not init Allegro.\n");
+		return false;
+	}
 
 	// prepare for next event
 	sys_event.type = SIM_NOEVENT;
@@ -206,12 +209,9 @@ int dr_os_init(const int* parameter)
 	LOCK_FUNCTION(my_close_button_callback);
 	set_close_button_callback(my_close_button_callback);
 
-	if (ok != 0) {
-		dr_fatal_notify("Could not init Allegro.\n");
-	}
 	simtimer_init();
 
-	return ok == 0;
+	return true;
 }
 
 
@@ -242,12 +242,12 @@ int dr_os_open(int const w, int const h, int const fullscreen)
 	set_color_depth(COLOUR_DEPTH);
 	if (set_gfx_mode(fullscreen? GFX_AUTODETECT : GFX_AUTODETECT_WINDOWED, w, h, 0, 0) != 0) {
 		fprintf(stderr, "Error: %s\n", allegro_error);
-		return FALSE;
+		return 0;
 	}
 
 	if (install_mouse() < 0) {
 		fprintf(stderr, "Cannot init. mouse: no driver ?");
-		return FALSE;
+		return 0;
 	}
 
 	set_mouse_speed(1, 1);
@@ -264,10 +264,9 @@ int dr_os_open(int const w, int const h, int const fullscreen)
 }
 
 
-int dr_os_close(void)
+void dr_os_close()
 {
 	allegro_exit();
-	return TRUE;
 }
 
 
@@ -330,7 +329,7 @@ void dr_setRGB8multi(int first, int count, unsigned char* data)
 		p[n + first].b = data[n * 3 + 2] >> 2;
 	}
 
-	set_palette_range(p, first, first + count - 1, TRUE);
+	set_palette_range(p, first, first + count - 1, true);
 }
 
 

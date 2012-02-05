@@ -73,9 +73,9 @@ int zoom_factor_down(void);
  * Initialises the graphics module
  * @author Hj. Malthaner
  */
-int simgraph_init(KOORD_VAL width, KOORD_VAL height, int fullscreen);
+void simgraph_init(KOORD_VAL width, KOORD_VAL height, int fullscreen);
 int is_display_init(void);
-int simgraph_exit(void);
+void simgraph_exit();
 void simgraph_resize(KOORD_VAL w, KOORD_VAL h);
 
 /*
@@ -176,10 +176,10 @@ extern signed short current_tile_raster_width;
 }
 
 
-void display_fillbox_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, int dirty);
-void display_fillbox_wh_clip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, int d);
-void display_vline_wh(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PLAYER_COLOR_VAL color, int dirty);
-void display_vline_wh_clip(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PLAYER_COLOR_VAL c, int d);
+void display_fillbox_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, bool dirty);
+void display_fillbox_wh_clip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, bool dirty);
+void display_vline_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, PLAYER_COLOR_VAL color, bool dirty);
+void display_vline_wh_clip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, PLAYER_COLOR_VAL c, bool dirty);
 void display_clear(void);
 
 void display_flush_buffer(void);
@@ -262,5 +262,10 @@ void display_snapshot(void);
 
 void display_set_progress_text(const char *text);
 void display_progress(int part, int total);
+
+#if COLOUR_DEPTH != 0
+extern COLOR_VAL display_day_lights[  LIGHT_COUNT * 3];
+extern COLOR_VAL display_night_lights[LIGHT_COUNT * 3];
+#endif
 
 #endif

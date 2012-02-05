@@ -23,10 +23,6 @@ KOORD_VAL tile_raster_width = 16; // zoomed
 KOORD_VAL base_tile_raster_width = 16; // original
 
 
-COLOR_VAL display_day_lights[LIGHT_COUNT*3];
-COLOR_VAL display_night_lights[LIGHT_COUNT*3];
-
-
 KOORD_VAL display_set_base_raster_width(KOORD_VAL)
 {
 	return 0;
@@ -187,19 +183,19 @@ void display_mark_img_dirty(unsigned, KOORD_VAL, KOORD_VAL)
 {
 }
 
-void display_fillbox_wh(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, int)
+void display_fillbox_wh(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, bool)
 {
 }
 
-void display_fillbox_wh_clip(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, int)
+void display_fillbox_wh_clip(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, bool)
 {
 }
 
-void display_vline_wh(const KOORD_VAL, KOORD_VAL, KOORD_VAL, const PLAYER_COLOR_VAL, int)
+void display_vline_wh(KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, bool)
 {
 }
 
-void display_vline_wh_clip(const KOORD_VAL, KOORD_VAL, KOORD_VAL, const PLAYER_COLOR_VAL, int)
+void display_vline_wh_clip(KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, bool)
 {
 }
 
@@ -294,9 +290,8 @@ void display_show_load_pointer(int)
 {
 }
 
-int simgraph_init(KOORD_VAL, KOORD_VAL, int)
+void simgraph_init(KOORD_VAL, KOORD_VAL, int)
 {
-	return TRUE;
 }
 
 int is_display_init(void)
@@ -308,9 +303,9 @@ void display_free_all_images_above( unsigned)
 {
 }
 
-int simgraph_exit()
+void simgraph_exit()
 {
-	return dr_os_close();
+	dr_os_close();
 }
 
 void simgraph_resize(KOORD_VAL, KOORD_VAL)

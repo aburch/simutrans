@@ -609,17 +609,17 @@ static int clip_wh(KOORD_VAL *x, KOORD_VAL *width, const KOORD_VAL min_width, co
 
 /**
  * places x and w within bounds left and right
- * if nothing to show, returns FALSE
+ * if nothing to show, returns false
  * @author Niels Roest
  */
-static int clip_lr(KOORD_VAL *x, KOORD_VAL *w, const KOORD_VAL left, const KOORD_VAL right)
+static bool clip_lr(KOORD_VAL *x, KOORD_VAL *w, const KOORD_VAL left, const KOORD_VAL right)
 {
 	const KOORD_VAL l = *x;      // leftmost pixel
 	const sint32 r = (sint32)*x + (sint32)*w; // rightmost pixel
 
 	if (*w <= 0 || l >= right || r <= left) {
 		*w = 0;
-		return FALSE;
+		return false;
 	}
 
 	// there is something to show.
@@ -2867,7 +2867,7 @@ static void display_pixel(KOORD_VAL x, KOORD_VAL y, PIXVAL color)
 /**
  * Zeichnet gefuelltes Rechteck
  */
-static void display_fb_internal(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, int color, int dirty, KOORD_VAL cL, KOORD_VAL cR, KOORD_VAL cT, KOORD_VAL cB)
+static void display_fb_internal(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, int color, bool dirty, KOORD_VAL cL, KOORD_VAL cR, KOORD_VAL cT, KOORD_VAL cB)
 {
 	if (clip_lr(&xp, &w, cL, cR) && clip_lr(&yp, &h, cT, cB)) {
 		PIXVAL *p = textur + xp + yp * disp_width;
@@ -2925,13 +2925,13 @@ static void display_fb_internal(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_V
 }
 
 
-void display_fillbox_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, int dirty)
+void display_fillbox_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, bool dirty)
 {
 	display_fb_internal(xp, yp, w, h, color, dirty, 0, disp_width, 0, disp_height);
 }
 
 
-void display_fillbox_wh_clip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, int dirty)
+void display_fillbox_wh_clip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, bool dirty)
 {
 	display_fb_internal(xp, yp, w, h, color, dirty, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy);
 }
@@ -2957,13 +2957,13 @@ static void display_vl_internal(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, c
 }
 
 
-void display_vline_wh(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PLAYER_COLOR_VAL color, int dirty)
+void display_vline_wh(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PLAYER_COLOR_VAL color, bool dirty)
 {
 	display_vl_internal(xp, yp, h, color, dirty, 0, disp_width, 0, disp_height);
 }
 
 
-void display_vline_wh_clip(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PLAYER_COLOR_VAL color, int dirty)
+void display_vline_wh_clip(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PLAYER_COLOR_VAL color, bool dirty)
 {
 	display_vl_internal(xp, yp, h, color, dirty, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy);
 }
@@ -3400,13 +3400,13 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
  */
 void display_ddd_box(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL tl_color, PLAYER_COLOR_VAL rd_color)
 {
-	display_fillbox_wh(x1, y1,         w, 1, tl_color, TRUE);
-	display_fillbox_wh(x1, y1 + h - 1, w, 1, rd_color, TRUE);
+	display_fillbox_wh(x1, y1,         w, 1, tl_color, true);
+	display_fillbox_wh(x1, y1 + h - 1, w, 1, rd_color, true);
 
 	h -= 2;
 
-	display_vline_wh(x1,         y1 + 1, h, tl_color, TRUE);
-	display_vline_wh(x1 + w - 1, y1 + 1, h, rd_color, TRUE);
+	display_vline_wh(x1,         y1 + 1, h, tl_color, true);
+	display_vline_wh(x1 + w - 1, y1 + 1, h, rd_color, true);
 }
 
 
@@ -3433,13 +3433,13 @@ void display_shadow_proportional(KOORD_VAL xpos, KOORD_VAL ypos, PLAYER_COLOR_VA
  */
 void display_ddd_box_clip(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL tl_color, PLAYER_COLOR_VAL rd_color)
 {
-	display_fillbox_wh_clip(x1, y1,         w, 1, tl_color, TRUE);
-	display_fillbox_wh_clip(x1, y1 + h - 1, w, 1, rd_color, TRUE);
+	display_fillbox_wh_clip(x1, y1,         w, 1, tl_color, true);
+	display_fillbox_wh_clip(x1, y1 + h - 1, w, 1, rd_color, true);
 
 	h -= 2;
 
-	display_vline_wh_clip(x1,         y1 + 1, h, tl_color, TRUE);
-	display_vline_wh_clip(x1 + w - 1, y1 + 1, h, rd_color, TRUE);
+	display_vline_wh_clip(x1,         y1 + 1, h, tl_color, true);
+	display_vline_wh_clip(x1 + w - 1, y1 + 1, h, rd_color, true);
 }
 
 
@@ -3567,10 +3567,10 @@ void display_progress(int part, int total)
 	display_ddd_box(width/2-1, disp_height/2-8, width+2, 18, COL_GREY4, COL_GREY6);
 
 	// inner
-	display_fillbox_wh(width/2, disp_height/2-7, width, 16, COL_GREY5, TRUE);
+	display_fillbox_wh(width / 2, disp_height / 2 - 7, width, 16, COL_GREY5, true);
 
 	// progress
-	display_fillbox_wh(width/2, disp_height/2-5, part, 12, COL_NO_ROUTE, TRUE);
+	display_fillbox_wh(width / 2, disp_height / 2 - 5, part, 12, COL_NO_ROUTE, true);
 
 	if(progress_text) {
 		display_proportional(width,disp_height/2-4,progress_text,ALIGN_MIDDLE,COL_WHITE,0);
@@ -3606,8 +3606,8 @@ void display_flush_buffer(void)
 	}
 	// no pointer image available, draw a crosshair
 	else {
-		display_fb_internal( sys_event.mx-1, sys_event.my-3, 3, 7, COL_WHITE, 1, 0, disp_width, 0, disp_height);
-		display_fb_internal( sys_event.mx-3, sys_event.my-1, 7, 3, COL_WHITE, 1, 0, disp_width, 0, disp_height);
+		display_fb_internal(sys_event.mx - 1, sys_event.my - 3, 3, 7, COL_WHITE, true, 0, disp_width, 0, disp_height);
+		display_fb_internal(sys_event.mx - 3, sys_event.my - 1, 7, 3, COL_WHITE, true, 0, disp_width, 0, disp_height);
 		display_direct_line( sys_event.mx-2, sys_event.my, sys_event.mx+2, sys_event.my, COL_BLACK );
 		display_direct_line( sys_event.mx, sys_event.my-2, sys_event.mx, sys_event.my+2, COL_BLACK );
 
@@ -3631,10 +3631,10 @@ void display_flush_buffer(void)
 					x++;
 				} while(x < tiles_per_line && is_tile_dirty(x, y));
 
-				display_vline_wh((xl << DIRTY_TILE_SHIFT) - 1, y << DIRTY_TILE_SHIFT, DIRTY_TILE_SIZE, 80, FALSE);
-				display_vline_wh(x << DIRTY_TILE_SHIFT, y << DIRTY_TILE_SHIFT, DIRTY_TILE_SIZE, 80, FALSE);
-				display_fillbox_wh(xl << DIRTY_TILE_SHIFT, y << DIRTY_TILE_SHIFT, (x - xl) << DIRTY_TILE_SHIFT, 1, 80, FALSE);
-				display_fillbox_wh(xl << DIRTY_TILE_SHIFT, (y << DIRTY_TILE_SHIFT) + DIRTY_TILE_SIZE - 1, (x - xl) << DIRTY_TILE_SHIFT, 1, 80, FALSE);
+				display_vline_wh((xl << DIRTY_TILE_SHIFT) - 1, y << DIRTY_TILE_SHIFT, DIRTY_TILE_SIZE, 80, false);
+				display_vline_wh( x  << DIRTY_TILE_SHIFT,      y << DIRTY_TILE_SHIFT, DIRTY_TILE_SIZE, 80, false);
+				display_fillbox_wh(xl << DIRTY_TILE_SHIFT,  y << DIRTY_TILE_SHIFT,                        (x - xl) << DIRTY_TILE_SHIFT, 1, 80, false);
+				display_fillbox_wh(xl << DIRTY_TILE_SHIFT, (y << DIRTY_TILE_SHIFT) + DIRTY_TILE_SIZE - 1, (x - xl) << DIRTY_TILE_SHIFT, 1, 80, false);
 			}
 			x++;
 		} while (x < tiles_per_line);
@@ -3738,7 +3738,7 @@ int get_maus_y(void)
  * Initialises the graphics module
  * @author Hj. Malthaner
  */
-int simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
+void simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 {
 	int i;
 
@@ -3819,8 +3819,6 @@ int simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 
 	printf("Init done.\n");
 	fflush(NULL);
-
-	return TRUE;
 }
 
 
@@ -3838,7 +3836,7 @@ int is_display_init(void)
  * Schliest das Grafikmodul
  * @author Hj. Malthaner
  */
-int simgraph_exit()
+void simgraph_exit()
 {
 	guarded_free(tile_dirty);
 	guarded_free(tile_dirty_old);
@@ -3848,7 +3846,7 @@ int simgraph_exit()
 	tile_dirty = tile_dirty_old = NULL;
 	images = NULL;
 
-	return dr_os_close();
+	dr_os_close();
 }
 
 

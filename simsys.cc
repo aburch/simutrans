@@ -95,7 +95,7 @@ int sysmain(int const argc, char** const argv)
 #	endif
 #	ifndef __AMIGA__
 	char buffer[PATH_MAX];
-	int length = readlink("/proc/self/exe", buffer, lengthof(buffer) - 1);
+	ssize_t const length = readlink("/proc/self/exe", buffer, lengthof(buffer) - 1);
 	if (length != -1) {
 		buffer[length] = '\0'; /* readlink() does not NUL-terminate */
 		argv[0] = buffer;
