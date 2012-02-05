@@ -11,6 +11,7 @@
 #include "../simmem.h"
 #include "../simwin.h"
 #include "../simmenu.h"
+#include "../simsys.h"
 #include "../simworld.h"
 
 #include "../utils/cbuffer_t.h"
@@ -20,13 +21,6 @@
 #include "../player/simplay.h"
 
 #include "help_frame.h"
-
-// for chdir
-#ifdef _WIN32
-#include <direct.h>
-#else
-#include <unistd.h>
-#endif
 
 
 void help_frame_t::set_text(const char * buf)

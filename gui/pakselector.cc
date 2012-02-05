@@ -1,20 +1,10 @@
 #include <string>
 #include <stdio.h>
 
-#ifndef _MSC_VER
-#include <unistd.h>
-#include <dirent.h>
-#else
-#include <io.h>
-#include <direct.h>
-#endif
-#include <sys/stat.h>
-#include <string.h>
-#include <time.h>
-
 #include "../simdebug.h"
 #include "pakselector.h"
 #include "../dataobj/umgebung.h"
+#include "../simsys.h"
 #include "components/list_button.h"
 
 

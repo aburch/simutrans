@@ -85,8 +85,6 @@ int large_font_height = 10;
 #define CLEAR_COLOR (239)
 #define DEFAULT_COLOR (239)
 
-#define LIGHT_COUNT 15
-
 // the players colors and colors for simple drawing operations
 // each eight colors are corresponding to a player color
 static const uint8 colortable_simutrans[224*3]=
@@ -339,7 +337,7 @@ static const PIXVAL colortable_system[3 * 16] = {
 /*
  * Hajo: speical colors during daytime
  */
-static const uint8 day_lights[LIGHT_COUNT*3] = {
+COLOR_VAL display_day_lights[LIGHT_COUNT * 3] = {
 	0x57,	0x65,	0x6F, // Dark windows, lit yellowish at night
 	0x7F,	0x9B,	0xF1, // Lighter windows, lit blueish at night
 	0xFF,	0xFF,	0x53, // Yellow light
@@ -361,7 +359,7 @@ static const uint8 day_lights[LIGHT_COUNT*3] = {
 /*
  * Hajo: special colors during nighttime
  */
-static const uint8 night_lights[LIGHT_COUNT*3] = {
+COLOR_VAL display_night_lights[LIGHT_COUNT * 3] = {
 	0xD3,	0xC3,	0x80, // Dark windows, lit yellowish at night
 	0x80,	0xC3,	0xD3, // Lighter windows, lit blueish at night
 	0xFF,	0xFF,	0x53, // Yellow light
@@ -1046,13 +1044,13 @@ static void calc_base_pal_from_night_shift(const int night)
 
 	// Lights
 	for (i = 0; i < LIGHT_COUNT; i++) {
-		const int day_R =  day_lights[i*3];
-		const int day_B =  day_lights[i*3+1];
-		const int day_G = day_lights[i*3+2];
+		const int day_R = display_day_lights[i * 3 + 0];
+		const int day_B = display_day_lights[i * 3 + 1];
+		const int day_G = display_day_lights[i * 3 + 2];
 
-		const int night_R =  night_lights[i*3];
-		const int night_G =  night_lights[i*3+1];
-		const int night_B =  night_lights[i*3+2];
+		const int night_R =  display_night_lights[i * 3 + 0];
+		const int night_G =  display_night_lights[i * 3 + 1];
+		const int night_B =  display_night_lights[i * 3 + 2];
 
 		const int R = (day_R * day + night_R * night2) >> 2;
 		const int G = (day_G * day + night_G * night2) >> 2;
@@ -1273,17 +1271,17 @@ static int clip_wh(KOORD_VAL *x, KOORD_VAL *width, const KOORD_VAL min_width, co
 
 /**
  * places x and w within bounds left and right
- * if nothing to show, returns FALSE
+ * if nothing to show, returns false
  * @author Niels Roest
  */
-static int clip_lr(KOORD_VAL *x, KOORD_VAL *w, const KOORD_VAL left, const KOORD_VAL right)
+static bool clip_lr(KOORD_VAL *x, KOORD_VAL *w, const KOORD_VAL left, const KOORD_VAL right)
 {
 	const KOORD_VAL l = *x;          // leftmost pixel
 	const KOORD_VAL r = *x + *w - 1; // rightmost pixel
 
 	if (l > right || r < left) {
 		*w = 0;
-		return FALSE;
+		return false;
 	}
 
 	// there is something to show.
@@ -1294,7 +1292,7 @@ static int clip_lr(KOORD_VAL *x, KOORD_VAL *w, const KOORD_VAL left, const KOORD
 	if (r > right) {
 		*w -= r - right;
 	}
-	return TRUE;
+	return true;
 }
 
 
@@ -1882,7 +1880,7 @@ static void display_pixel(KOORD_VAL x, KOORD_VAL y, int color)
 /**
  * Zeichnet gefuelltes Rechteck
  */
-static void display_fb_internal(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, int color, int dirty, KOORD_VAL cL, KOORD_VAL cR, KOORD_VAL cT, KOORD_VAL cB)
+static void display_fb_internal(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, int color, bool dirty, KOORD_VAL cL, KOORD_VAL cR, KOORD_VAL cT, KOORD_VAL cB)
 {
 	clip_lr(&xp, &w, cL, cR);
 	clip_lr(&yp, &h, cT, cB - 1);
@@ -1915,13 +1913,13 @@ static void display_fb_internal(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_V
 }
 
 
-void display_fillbox_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, int dirty)
+void display_fillbox_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, bool dirty)
 {
 	display_fb_internal(xp, yp, w, h, color, dirty, 0, disp_width - 1, 0, disp_height);
 }
 
 
-void display_fillbox_wh_clip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, int dirty)
+void display_fillbox_wh_clip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, bool dirty)
 {
 	display_fb_internal(xp, yp, w, h, color, dirty, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy);
 }
@@ -1949,13 +1947,13 @@ static void display_vl_internal(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, c
 }
 
 
-void display_vline_wh(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PLAYER_COLOR_VAL color, int dirty)
+void display_vline_wh(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PLAYER_COLOR_VAL color, bool dirty)
 {
 	display_vl_internal(xp, yp, h, color, dirty, 0, disp_width - 1, 0, disp_height - 1);
 }
 
 
-void display_vline_wh_clip(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PLAYER_COLOR_VAL color, int dirty)
+void display_vline_wh_clip(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PLAYER_COLOR_VAL color, bool dirty)
 {
 	display_vl_internal(xp, yp, h, color, dirty, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy);
 }
@@ -2201,7 +2199,6 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
 	KOORD_VAL yy = y + fnt->height;
 	KOORD_VAL x0;	// store the inital x (for dirty marking)
 	KOORD_VAL y0, y_offset, char_height;	// real y for display with clipping
-	bool v_clip;
 	unsigned char mask1, mask2;	// for horizontal clipping
 	const PIXVAL color = color_index;
 
@@ -2250,17 +2247,14 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
 	y0 = y;
 	y_offset = 0;
 	char_height = fnt->height;
-	v_clip = false;
 	// calculate vertical y clipping parameters
 	if (y < cT) {
 		y0 = cT;
 		y_offset = cT - y;
 		char_height -= y_offset;
-		v_clip = TRUE;
 	}
 	if (yy > cB) {
 		char_height -= yy - cB;
-		v_clip = TRUE;
 	}
 
 	// big loop, char by char
@@ -2370,13 +2364,13 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
  */
 void display_ddd_box(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL tl_color, PLAYER_COLOR_VAL rd_color)
 {
-	display_fillbox_wh(x1, y1,         w, 1, tl_color, TRUE);
-	display_fillbox_wh(x1, y1 + h - 1, w, 1, rd_color, TRUE);
+	display_fillbox_wh(x1, y1,         w, 1, tl_color, true);
+	display_fillbox_wh(x1, y1 + h - 1, w, 1, rd_color, true);
 
 	h -= 2;
 
-	display_vline_wh(x1,         y1 + 1, h, tl_color, TRUE);
-	display_vline_wh(x1 + w - 1, y1 + 1, h, rd_color, TRUE);
+	display_vline_wh(x1,         y1 + 1, h, tl_color, true);
+	display_vline_wh(x1 + w - 1, y1 + 1, h, rd_color, true);
 }
 
 
@@ -2386,13 +2380,13 @@ void display_ddd_box(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PLAYE
  */
 void display_ddd_box_clip(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL tl_color, PLAYER_COLOR_VAL rd_color)
 {
-	display_fillbox_wh_clip(x1, y1,         w, 1, tl_color, TRUE);
-	display_fillbox_wh_clip(x1, y1 + h - 1, w, 1, rd_color, TRUE);
+	display_fillbox_wh_clip(x1, y1,         w, 1, tl_color, true);
+	display_fillbox_wh_clip(x1, y1 + h - 1, w, 1, rd_color, true);
 
 	h -= 2;
 
-	display_vline_wh_clip(x1,         y1 + 1, h, tl_color, TRUE);
-	display_vline_wh_clip(x1 + w - 1, y1 + 1, h, rd_color, TRUE);
+	display_vline_wh_clip(x1,         y1 + 1, h, tl_color, true);
+	display_vline_wh_clip(x1 + w - 1, y1 + 1, h, rd_color, true);
 }
 
 
@@ -2489,10 +2483,10 @@ void display_flush_buffer(void)
 #ifdef DEBUG_FLUSH_BUFFER
 		for (x = 0; x < tiles_per_line; x++) {
 			if (is_tile_dirty(x, y)) {
-				display_fillbox_wh(x << DIRTY_TILE_SHIFT, y << DIRTY_TILE_SHIFT, DIRTY_TILE_SIZE/4, DIRTY_TILE_SIZE/4, 3, FALSE);
+				display_fillbox_wh(x << DIRTY_TILE_SHIFT, y << DIRTY_TILE_SHIFT, DIRTY_TILE_SIZE / 4, DIRTY_TILE_SIZE / 4, 3, false);
 				dr_textur(x << DIRTY_TILE_SHIFT, y << DIRTY_TILE_SHIFT, DIRTY_TILE_SIZE, DIRTY_TILE_SIZE);
 			} else {
-				display_fillbox_wh(x << DIRTY_TILE_SHIFT, y << DIRTY_TILE_SHIFT, DIRTY_TILE_SIZE/4, DIRTY_TILE_SIZE/4, 0, FALSE);
+				display_fillbox_wh(x << DIRTY_TILE_SHIFT, y << DIRTY_TILE_SHIFT, DIRTY_TILE_SIZE / 4, DIRTY_TILE_SIZE / 4, 0, false);
 				dr_textur(x << DIRTY_TILE_SHIFT, y << DIRTY_TILE_SHIFT, DIRTY_TILE_SIZE, DIRTY_TILE_SIZE);
 			}
 		}
@@ -2573,19 +2567,12 @@ void display_show_load_pointer(int loading)
  * Initialises the graphics module
  * @author Hj. Malthaner
  */
-int simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
+void simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 {
-	int parameter[2];
-
-	parameter[0] = 0;
-	parameter[1] = 1;
-
-	dr_os_init(parameter);
-
 	// make sure it something of 16 (also better for caching ... )
 	width = (width + 15) & 0x7FF0;
 
-	if (dr_os_open(width, height, full_screen)) {
+	if (dr_os_open(width, height, full_screen) != 0) {
 		disp_width = width;
 		disp_height = height;
 
@@ -2625,8 +2612,6 @@ int simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 
 	printf("Init done.\n");
 	fflush(NULL);
-
-	return TRUE;
 }
 
 
@@ -2665,7 +2650,7 @@ void display_free_all_images_above( unsigned above )
  * Schliest das Grafikmodul
  * @author Hj. Malthaner
  */
-int simgraph_exit()
+void simgraph_exit()
 {
 	guarded_free(tile_dirty);
 	guarded_free(tile_dirty_old);
@@ -2675,7 +2660,7 @@ int simgraph_exit()
 	tile_dirty = tile_dirty_old = NULL;
 	images = NULL;
 
-	return dr_os_close();
+	dr_os_close();
 }
 
 
@@ -2784,10 +2769,10 @@ void display_progress(int part, int total)
 	display_ddd_box(width/2-1, disp_height/2-8, width+2, 18, COL_GREY4, COL_GREY6);
 
 	// inner
-	display_fillbox_wh(width/2, disp_height/2-7, width, 16, COL_GREY5, TRUE);
+	display_fillbox_wh(width / 2, disp_height / 2 - 7, width, 16, COL_GREY5, true);
 
 	// progress
-	display_fillbox_wh(width/2, disp_height/2-5, part, 12, COL_BLUE, TRUE);
+	display_fillbox_wh(width / 2, disp_height / 2 - 5, part,  12, COL_BLUE,  true);
 
 	if(progress_text) {
 		display_proportional(width,display_get_height()/2-4,progress_text,ALIGN_MIDDLE,COL_WHITE,0);

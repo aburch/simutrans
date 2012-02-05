@@ -287,3 +287,12 @@ const char * ltrim(const char *p)
 	}
 	return p;
 }
+
+
+char const* strstart(char const* str, char const* start)
+{
+	while (*start != '\0') {
+		if (*str++ != *start++) return 0;
+	}
+	return str;
+}

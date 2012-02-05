@@ -17,12 +17,6 @@
 #include "../gui/player_frame_t.h"
 #include "../utils/cbuffer_t.h"
 
-// for chdir
-#ifdef _WIN32
-#include <direct.h>
-#else
-#include <unistd.h>
-#endif
 
 network_command_t* network_command_t::read_from_packet(packet_t *p)
 {

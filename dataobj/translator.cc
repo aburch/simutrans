@@ -8,14 +8,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#ifdef _MSC_VER
-#include <direct.h>
-#else
-#include <unistd.h>
-#endif
 
 #include "../macros.h"
 #include "../simdebug.h"
+#include "../simsys.h"
 #include "../simtypes.h"
 #include "../simgraph.h"	// for unicode stuff
 #include "translator.h"

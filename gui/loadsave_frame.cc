@@ -7,17 +7,9 @@
 
 #include "../simdebug.h"
 
-#ifndef _MSC_VER
-#include <unistd.h>
-#include <dirent.h>
-#include <string.h>
-#include <limits.h>
 // This gets us the max for a signed 32-bit int.  Hopefully.
 #define MAXINT INT_MAX
-#else
-#include <io.h>
-#include <direct.h>
-#endif
+
 #include <sys/stat.h>
 #include <time.h>
 #include <ctype.h>
