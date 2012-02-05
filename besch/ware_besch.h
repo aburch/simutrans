@@ -10,8 +10,25 @@
 #include "obj_besch_std_name.h"
 #include "../simcolor.h"
 #include "../utils/checksum.h"
+#include "../tpl/vector_tpl.h"
 
 class checksum_t;
+
+struct fare_stage_t
+{
+	fare_stage_t::fare_stage_t(uint32 d, uint16 p)
+	{
+		price = p;
+		to_distance = d;
+	}
+	fare_stage_t::fare_stage_t()
+	{
+		price = 0;
+		to_distance = 0;
+	}
+	uint16 price;
+	uint32 to_distance;
+};
 
 /*
  *  Autor:
@@ -29,9 +46,9 @@ class ware_besch_t : public obj_besch_std_name_t {
 	/*
 	* The base value is the one for multiplier 1000.
 	*/
-	uint16 value;
-	uint16 base_value;
-	uint16 scaled_value;
+	vector_tpl<fare_stage_t> values;
+	vector_tpl<fare_stage_t> base_values;
+	vector_tpl<fare_stage_t> scaled_values;
 
 	/**
 	* Category of the good
@@ -72,14 +89,53 @@ public:
 		return get_child<text_besch_t>(2)->get_text();
 	}
 
-	uint16 get_preis() const { return scaled_value; }
+	/**
+	 * This method returns the *total* fare for these
+	 * goods over the given distance, in tiles. This is
+	 * not the per-tile fare
+	 * @author: jamespetts, November 2011
+	 */
+	sint64 get_fare(uint32 tile_distance, uint32 starting_distance = 0) const
+	{
+		sint64 total_fare = 0;
+		uint16 per_tile_fare;
+		uint32 remaining_distance = tile_distance;
+		ITERATE(scaled_values, i)
+		{
+			per_tile_fare = scaled_values[i].price;
+			if(i < scaled_values.get_count() - 1 && starting_distance >= scaled_values[i].to_distance)
+			{
+				starting_distance -= scaled_values[i].to_distance;
+				continue;
+			}
 
-	uint16 get_base_value() const { return value; }
+			if(scaled_values[i].to_distance >= remaining_distance || i == scaled_values.get_count() - 1)
+			{
+				// The last item in the list must trigger the use of the full remaining distance.
+				total_fare += (sint64)per_tile_fare * remaining_distance;
+				break;
+			}
+			else
+			{
+				total_fare += (sint64)per_tile_fare * (scaled_values[i].to_distance - starting_distance);
+				remaining_distance -= (scaled_values[i].to_distance - starting_distance);
+				starting_distance = 0;
+			}
+		}
+		return total_fare;
+	}
 
 	void set_scale(uint16 scale_factor) 
 	{ 
-		scaled_value = (value * scale_factor) / 1000;
-		//set_scale_generic<uint16>(value, scale_factor);
+		scaled_values.clear();
+		uint16 new_price;
+		uint32 new_distance;
+		ITERATE(values, i)
+		{
+			new_price = (values[i].price * scale_factor) / 1000;		
+			new_distance = (values[i].to_distance * 1000) / scale_factor;
+			scaled_values.append(fare_stage_t(new_distance, new_price));
+		}
 	}
 
 	/**
@@ -139,8 +195,12 @@ public:
 
 	void calc_checksum(checksum_t *chk) const
 	{
-		chk->input(value);
-		chk->input(base_value);
+		chk->input(base_values.get_count());
+		ITERATE(base_values, i)
+		{
+			chk->input(base_values[i].to_distance);
+			chk->input(base_values[i].price);
+		}
 		chk->input(catg);
 		chk->input(catg_index);
 		chk->input(speed_bonus);

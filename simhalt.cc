@@ -63,6 +63,8 @@
 
 #include "vehicle/simpeople.h"
 
+#include "besch/ware_besch.h"
+
 karte_t *haltestelle_t::welt = NULL;
 
 slist_tpl<halthandle_t> haltestelle_t::alle_haltestellen;
@@ -1000,7 +1002,7 @@ void haltestelle_t::step()
 							if(distance > 0) // No point in calculating refund if passengers/goods are discarded from their origin stop.
 							{
 								// Refund is approximation: 2x distance at standard rate with no adjustments. 
-								const sint64 refund_amount = ((tmp.menge * tmp.get_besch()->get_preis() * distance * 2000ll) + 1500ll) / 3000ll;
+								const sint64 refund_amount = ((tmp.menge * tmp.get_fare(distance) * 2000ll) + 1500ll) / 3000ll;
 								
 								besitzer_p->buche(-refund_amount, get_basis_pos(), COST_INCOME);
 								linehandle_t account_line = get_preferred_line(tmp.get_zwischenziel(), tmp.get_catg());

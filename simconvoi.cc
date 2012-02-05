@@ -59,6 +59,8 @@
 
 #include "convoy.h"
 
+#include "besch/ware_besch.h"
+
 #if _MSC_VER
 #define snprintf _snprintf
 #endif
@@ -4054,14 +4056,15 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	}
 	
 	const ware_besch_t* goods = ware.get_besch();
-	const sint64 price = (sint64)goods->get_preis();
-	const sint64 min_price = price / 10ll;
+	const sint64 starting_distance = ware.get_origin().is_bound() ? shortest_distance(ware.get_origin()->get_basis_pos(), fahr[0]->get_pos().get_2d()) - revenue_distance : 0;
+	const sint64 base_fare = goods->get_fare(revenue_distance, starting_distance);
+	const sint64 min_fare = base_fare / 10ll;
 	const uint16 speed_bonus_rating = calc_adjusted_speed_bonus(goods->get_speed_bonus(), distance);
 	const sint64 ref_speed = welt->get_average_speed( fahr[0]->get_besch()->get_waytype() );
 	const sint64 speed_base = (100ll * average_speed) / ref_speed - 100ll;
-	const sint64 base_bonus = (price * (1000ll + speed_base * speed_bonus_rating));
-	const sint64 min_revenue = min_price > base_bonus ? min_price : base_bonus;
-	const sint64 revenue = min_revenue * (sint64)revenue_distance * ware.menge;
+	const sint64 base_bonus = (base_fare * (1000ll + speed_base * speed_bonus_rating));
+	const sint64 min_revenue = max(min_fare, base_bonus);
+	const sint64 revenue = min_revenue * (sint64)ware.menge;
 	sint64 final_revenue = revenue;
 
 	const uint16 happy_percentage = ware.get_last_transfer().is_bound() ? ware.get_last_transfer()->get_unhappy_percentage(1) : 100;

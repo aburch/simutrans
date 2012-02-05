@@ -49,7 +49,6 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	
 	// Whether the read file is from Simutrans-Experimental
 	//@author: jamespetts
-	way_constraints_of_vehicle_t way_constraints;
 	const bool experimental = version > 0 ? v & EXP_VER : false;
 	uint16 experimental_version = 0;
 	if(experimental)
@@ -61,8 +60,10 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			version -= 0x100;
 			experimental_version ++;
 		}
-		experimental_version -=1;
+		experimental_version -= 1;
 	}
+
+	way_constraints_of_vehicle_t way_constraints;
 
 	if(version == 1) {
 		// Versioned node, version 1

@@ -50,39 +50,75 @@ obj_besch_t * good_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	// But we know, the higher most bit was always cleared.
 
 	const uint16 v = decode_uint16(p);
-	const int version = v & 0x8000 ? v & 0x7FFF : 0;
+	int version = v & 0x8000 ? v & 0x7FFF : 0;
+
+	// Whether the read file is from Simutrans-Experimental
+	//@author: jamespetts
+	const bool experimental = version > 0 ? v & EXP_VER : false;
+	uint16 experimental_version = 0;
+	if(experimental)
+	{
+		// Experimental version to start at 0 and increment.
+		version = version & EXP_VER ? version & 0x3FFF : 0;
+		while(version > 0x100)
+		{
+			version -= 0x100;
+			experimental_version ++;
+		}
+		experimental_version -= 1;
+	}
 
 	if(version == 1) {
 		// Versioned node, version 1
-		besch->base_value = decode_uint16(p);
+		besch->base_values.append(fare_stage_t(0, decode_uint16(p)));
 		besch->catg = (uint8)decode_uint16(p);
 		besch->speed_bonus = decode_uint16(p);
 		besch->weight_per_unit = 100;
 
 	} else if(version == 2) {
 		// Versioned node, version 2
-
-		besch->base_value = decode_uint16(p);
+		besch->base_values.append(fare_stage_t(0, decode_uint16(p)));
 		besch->catg = (uint8)decode_uint16(p);
 		besch->speed_bonus = decode_uint16(p);
 		besch->weight_per_unit = decode_uint16(p);
 
 	} else if(version == 3) {
 		// Versioned node, version 3
-		besch->base_value = decode_uint16(p);
+		const uint16 base_value = decode_uint16(p);
 		besch->catg = decode_uint8(p);
 		besch->speed_bonus = decode_uint16(p);
 		besch->weight_per_unit = decode_uint16(p);
 		besch->color = decode_uint8(p);
-
+		if(experimental)
+		{
+			const uint8 fare_stages = decode_uint8(p);
+			if(fare_stages > 0)
+			{
+				// The base value is not used if fare stages are used. 
+				for(int i = 0; i < fare_stages; i ++)
+				{
+					const uint16 to_distance = decode_uint16(p);
+					const uint16 val = decode_uint16(p);
+					besch->base_values.append(fare_stage_t((uint32)to_distance, val));
+				}
+			}
+			else
+			{
+				besch->base_values.append(fare_stage_t(0, base_value));
+			}
+		}
+		else
+		{
+			besch->base_values.append(fare_stage_t(0, base_value));
+		}
 	}
 	else {
 		// old node, version 0
-		besch->base_value = v;
+		besch->base_values.append(fare_stage_t(0, v));
 		besch->catg = (uint8)decode_uint16(p);
 	}
 
-	DBG_DEBUG("good_reader_t::read_node()","version=%d value=%d catg=%d bonus=%d",version, besch->value, besch->catg, besch->speed_bonus);
+	DBG_DEBUG("good_reader_t::read_node()","version=%d value=%d catg=%d bonus=%d",version, besch->base_values.get_count() > 0 ? besch->base_values[0].price : 0, besch->catg, besch->speed_bonus);
 
 
   return besch;

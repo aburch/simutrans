@@ -68,7 +68,7 @@
 #include "../utils/cbuffer_t.h"
 
 #include "../simtools.h"
-
+#include "../besch/ware_besch.h"
 
 #include "../bauer/vehikelbauer.h"
 
@@ -827,8 +827,10 @@ vehikel_t::unload_freight(halthandle_t halt)
 						{
 							// Cannot refund unless we know the origin.
 							const uint16 distance = shortest_distance(halt->get_basis_pos(), tmp.get_origin()->get_basis_pos());
+
 							// Refund is approximation: 2x distance at standard rate with no adjustments. 
-							const sint64 refund_amount = ((tmp.menge * tmp.get_besch()->get_preis() * distance * 2000ll) + 1500ll) / 3000ll;
+							const sint64 refund_amount = ((tmp.menge * tmp.get_fare(distance) * 2000ll) + 1500ll) / 3000ll;
+
 							current_revenue -= refund_amount;
 							cnv->book(-refund_amount, convoi_t::CONVOI_PROFIT);
 							cnv->book(-refund_amount, convoi_t::CONVOI_REFUNDS);
