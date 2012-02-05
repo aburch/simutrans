@@ -182,7 +182,7 @@ void display_mark_img_dirty(unsigned, KOORD_VAL, KOORD_VAL)
 {
 }
 
-void display_fillbox_wh(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, int)
+void display_fillbox_wh(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, bool)
 {
 }
 

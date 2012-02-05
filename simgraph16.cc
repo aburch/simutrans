@@ -2924,7 +2924,7 @@ static void display_fb_internal(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_V
 }
 
 
-void display_fillbox_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, int dirty)
+void display_fillbox_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, bool dirty)
 {
 	display_fb_internal(xp, yp, w, h, color, dirty, 0, disp_width, 0, disp_height);
 }
@@ -3399,8 +3399,8 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
  */
 void display_ddd_box(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL tl_color, PLAYER_COLOR_VAL rd_color)
 {
-	display_fillbox_wh(x1, y1,         w, 1, tl_color, TRUE);
-	display_fillbox_wh(x1, y1 + h - 1, w, 1, rd_color, TRUE);
+	display_fillbox_wh(x1, y1,         w, 1, tl_color, true);
+	display_fillbox_wh(x1, y1 + h - 1, w, 1, rd_color, true);
 
 	h -= 2;
 
@@ -3566,10 +3566,10 @@ void display_progress(int part, int total)
 	display_ddd_box(width/2-1, disp_height/2-8, width+2, 18, COL_GREY4, COL_GREY6);
 
 	// inner
-	display_fillbox_wh(width/2, disp_height/2-7, width, 16, COL_GREY5, TRUE);
+	display_fillbox_wh(width / 2, disp_height / 2 - 7, width, 16, COL_GREY5, true);
 
 	// progress
-	display_fillbox_wh(width/2, disp_height/2-5, part, 12, COL_BLUE, TRUE);
+	display_fillbox_wh(width / 2, disp_height / 2 - 5, part,  12, COL_BLUE,  true);
 
 	if(progress_text) {
 		display_proportional(width,disp_height/2-4,progress_text,ALIGN_MIDDLE,COL_WHITE,0);
@@ -3632,8 +3632,8 @@ void display_flush_buffer(void)
 
 				display_vline_wh((xl << DIRTY_TILE_SHIFT) - 1, y << DIRTY_TILE_SHIFT, DIRTY_TILE_SIZE, 80, FALSE);
 				display_vline_wh(x << DIRTY_TILE_SHIFT, y << DIRTY_TILE_SHIFT, DIRTY_TILE_SIZE, 80, FALSE);
-				display_fillbox_wh(xl << DIRTY_TILE_SHIFT, y << DIRTY_TILE_SHIFT, (x - xl) << DIRTY_TILE_SHIFT, 1, 80, FALSE);
-				display_fillbox_wh(xl << DIRTY_TILE_SHIFT, (y << DIRTY_TILE_SHIFT) + DIRTY_TILE_SIZE - 1, (x - xl) << DIRTY_TILE_SHIFT, 1, 80, FALSE);
+				display_fillbox_wh(xl << DIRTY_TILE_SHIFT,  y << DIRTY_TILE_SHIFT,                        (x - xl) << DIRTY_TILE_SHIFT, 1, 80, false);
+				display_fillbox_wh(xl << DIRTY_TILE_SHIFT, (y << DIRTY_TILE_SHIFT) + DIRTY_TILE_SIZE - 1, (x - xl) << DIRTY_TILE_SHIFT, 1, 80, false);
 			}
 			x++;
 		} while (x < tiles_per_line);

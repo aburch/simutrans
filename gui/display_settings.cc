@@ -390,7 +390,7 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 			case 2:
 				display_outline_proportional( 16+x+buttons[18].get_pos().x+16, y+buttons[18].get_pos().y, COL_YELLOW, COL_BLACK, text, 1 );
 				display_ddd_box_clip( 16+x+buttons[18].get_pos().x, y+buttons[18].get_pos().y, LINESPACE, LINESPACE, pc-2, pc+2 );
-				display_fillbox_wh( 16+x+buttons[18].get_pos().x+1, y+buttons[18].get_pos().y+1, LINESPACE-2, LINESPACE-2, pc, 1 );
+				display_fillbox_wh(16 + x + buttons[18].get_pos().x + 1, y + buttons[18].get_pos().y + 1, LINESPACE - 2, LINESPACE - 2, pc, true);
 				break;
 		}
 	}
