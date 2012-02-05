@@ -72,8 +72,6 @@ class network_command_t;
 class gameinfo_t;
 class karte_t;
 
-bool network_initialize();
-
 void network_close_socket( SOCKET sock );
 
 void network_set_socket_nodelay( SOCKET sock );

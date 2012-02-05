@@ -74,7 +74,7 @@ uint32 network_get_client_id()
  * Initializes the network core (as that is needed for some platforms
  * @return true if the core has been initialized, false otherwise
  */
-bool network_initialize()
+static bool network_initialize()
 {
 	if(!network_active) {
 		socket_list_t::reset();
