@@ -1317,6 +1317,27 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	steps_per_km = (1000 * VEHICLE_STEPS_PER_TILE) / meters_per_tile;
 	float32e8_t distance_per_tile(meters_per_tile, 1000);
 
+		// special day/night colors
+	for(  int i=0;  i<LIGHT_COUNT;  i++  ) {
+		char str[256];
+		sprintf( str, "special_color[%i]", i );
+		int *c = contents.get_ints( str );
+		if(  c[0]>=6  ) {
+			// defined in simgraph16.cc
+			extern COLOR_VAL display_day_lights[LIGHT_COUNT*3];
+			extern COLOR_VAL display_night_lights[LIGHT_COUNT*3];
+
+			// now update RGB values
+			for(  int j=0;  j<3;  j++  ) {
+				display_day_lights[i*3+j] = c[j+1];
+			}
+			for(  int j=0;  j<3;  j++  ) {
+				display_night_lights[i*3+j] = c[j+4];
+			}
+		}
+		delete [] c;
+	}
+
 	umgebung_t::water_animation = contents.get_int("water_animation_ms", umgebung_t::water_animation);
 	umgebung_t::ground_object_probability = contents.get_int("random_grounds_probability", umgebung_t::ground_object_probability);
 	umgebung_t::moving_object_probability = contents.get_int("random_wildlife_probability", umgebung_t::moving_object_probability);

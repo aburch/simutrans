@@ -104,9 +104,15 @@ int tabfileobj_t::get_int(const char *key, int def)
 		return def;
 	}
 	else {
-		return atoi(value);
+		// skip spaces/tabs
+		do {
+			value ++;
+		} while ( *value>0  &&  *value<=32  );
+		// this inputs also hex correct
+		return strtol( value, NULL, 0 );
 	}
 }
+
 
 sint64 atosint64(const char* a)
 {
@@ -149,10 +155,15 @@ int *tabfileobj_t::get_ints(const char *key)
 
 	result[0] = count;
 	count = 1;
-	result[count++] = atoi(value);
+	result[count++] = strtol( value, NULL, 0 );
 	for(tmp = value; *tmp; tmp++) {
 		if(*tmp == ',') {
-			result[count++] = atoi(tmp + 1);
+			// skip spaces/tabs
+			do {
+				tmp ++;
+			} while ( *tmp>0  &&  *tmp<=32  );
+			// this inputs also hex correct
+			result[count++] = strtol( tmp, NULL, 0 );
 		}
 	}
 	return result;
