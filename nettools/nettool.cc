@@ -25,8 +25,6 @@
 #include "../utils/simstring.h"
 #include "../utils/fetchopt.h"
 
-// declaration of stuff from network.cc needed here.
-SOCKET network_open_address( const char *cp, long timeout_ms, const char * &err);
 
 // dummy implementation
 // only receive nwc_service_t here

@@ -112,9 +112,6 @@ void nwc_pakset_info_t::rdwr()
 }
 
 
-// declaration of stuff from network.cc needed here.
-SOCKET network_open_address( const char *cp, long timeout_ms, const char * &err);
-
 void network_compare_pakset_with_server(const char* cp, std::string &msg)
 {
 	// open from network
