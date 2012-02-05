@@ -75,7 +75,7 @@ int zoom_factor_down(void);
  */
 void simgraph_init(KOORD_VAL width, KOORD_VAL height, int fullscreen);
 int is_display_init(void);
-int simgraph_exit(void);
+void simgraph_exit();
 void simgraph_resize(KOORD_VAL w, KOORD_VAL h);
 
 /*

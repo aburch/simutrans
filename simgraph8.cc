@@ -2661,7 +2661,7 @@ void display_free_all_images_above( unsigned above )
  * Schliest das Grafikmodul
  * @author Hj. Malthaner
  */
-int simgraph_exit()
+void simgraph_exit()
 {
 	guarded_free(tile_dirty);
 	guarded_free(tile_dirty_old);
@@ -2671,7 +2671,7 @@ int simgraph_exit()
 	tile_dirty = tile_dirty_old = NULL;
 	images = NULL;
 
-	return dr_os_close();
+	dr_os_close();
 }
 
 

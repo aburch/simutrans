@@ -302,9 +302,9 @@ void display_free_all_images_above( unsigned)
 {
 }
 
-int simgraph_exit()
+void simgraph_exit()
 {
-	return dr_os_close();
+	dr_os_close();
 }
 
 void simgraph_resize(KOORD_VAL, KOORD_VAL)
