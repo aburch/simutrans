@@ -10,18 +10,7 @@
 
 #include "simconst.h"
 #include "simsys.h"
-#include "simdebug.h"
 #include "besch/bild_besch.h"
-
-#ifdef _MSC_VER
-#	include <io.h>
-#	include <direct.h>
-#	define W_OK 2
-#else
-#	include <sys/stat.h>
-#	include <fcntl.h>
-#	include <unistd.h>
-#endif
 
 #include "simgraph.h"
 
@@ -31,6 +20,10 @@ int large_font_height = 10;
 
 KOORD_VAL tile_raster_width = 16; // zoomed
 KOORD_VAL base_tile_raster_width = 16; // original
+
+
+COLOR_VAL display_day_lights[LIGHT_COUNT*3];
+COLOR_VAL display_night_lights[LIGHT_COUNT*3];
 
 
 KOORD_VAL display_set_base_raster_width(KOORD_VAL)
