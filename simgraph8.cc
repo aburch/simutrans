@@ -2573,13 +2573,6 @@ void display_show_load_pointer(int loading)
  */
 void simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 {
-	int parameter[2];
-
-	parameter[0] = 0;
-	parameter[1] = 1;
-
-	dr_os_init(parameter);
-
 	// make sure it something of 16 (also better for caching ... )
 	width = (width + 15) & 0x7FF0;
 
