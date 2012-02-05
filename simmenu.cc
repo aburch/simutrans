@@ -584,8 +584,8 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 				}
 			}
 
-			if(strstr(toolname,"general_tool[")) {
-				uint8 toolnr = atoi(toolname+13);
+			if (char const* const c = strstart(toolname, "general_tool[")) {
+				uint8 toolnr = atoi(c);
 				if(  toolnr<GENERAL_TOOL_COUNT  ) {
 					if(icon!=IMG_LEER  ||  key_str  ||  param_str) {
 						// compatibility mode: wkz_cityroad is used for wkz_wegebau with defaultparam 'cityroad'
@@ -617,9 +617,8 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 				else {
 					dbg->error( "werkzeug_t::read_menu()", "When parsing menuconf.tab: No general tool %i defined (max %i)!", toolnr, GENERAL_TOOL_COUNT );
 				}
-			}
-			else if(strstr(toolname,"simple_tool[")) {
-				uint8 toolnr = atoi(toolname+12);
+			} else if (char const* const c = strstart(toolname, "simple_tool[")) {
+				uint8 const toolnr = atoi(c);
 				if(  toolnr<SIMPLE_TOOL_COUNT  ) {
 					if(icon!=IMG_LEER  ||  key_str  ||  param_str) {
 						addtool = create_simple_tool( toolnr );
@@ -643,9 +642,8 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 				else {
 					dbg->error( "werkzeug_t::read_menu()", "When parsing menuconf.tab: No simple tool %i defined (max %i)!", toolnr, SIMPLE_TOOL_COUNT );
 				}
-			}
-			else if(strstr(toolname,"dialog_tool[")) {
-				uint8 toolnr = atoi(toolname+12);
+			} else if (char const* const c = strstart(toolname, "dialog_tool[")) {
+				uint8 const toolnr = atoi(c);
 				if(  toolnr<DIALOGE_TOOL_COUNT  ) {
 					if(icon!=IMG_LEER  ||  key_str  ||  param_str) {
 						addtool = create_dialog_tool( toolnr );
@@ -669,9 +667,8 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 				else {
 					dbg->error( "werkzeug_t::read_menu()", "When parsing menuconf.tab: No dialog tool %i defined (max %i)!", toolnr, DIALOGE_TOOL_COUNT );
 				}
-			}
-			else if(strstr(toolname,"toolbar[")) {
-				uint8 toolnr = atoi(toolname+8);
+			} else if (char const* const c = strstart(toolname, "toolbar[")) {
+				uint8 const toolnr = atoi(c);
 				assert(toolnr>0);
 				if(toolbar_tool.get_count()==toolnr) {
 					if(param_str==NULL) {
@@ -818,45 +815,37 @@ void toolbar_t::update(karte_t *welt, spieler_t *sp)
 		werkzeug_t *w = *iter;
 		// no way to call this tool? => then it is most likely a metatool
 		if(w->command_key==1  &&  w->get_icon(welt->get_active_player())==IMG_LEER) {
-			if(w->get_default_param()!=NULL) {
+			if (char const* const param = w->get_default_param()) {
 				if(  create  ) {
-					DBG_DEBUG( "toolbar_t::update()", "add metatool (param=%s)", w->get_default_param() );
+					DBG_DEBUG("toolbar_t::update()", "add metatool (param=%s)", param);
 				}
-				if(strstr(w->get_default_param(),"ways(")) {
-					const char *c = w->get_default_param()+5;
+				if (char const* c = strstart(param, "ways(")) {
 					waytype_t way = (waytype_t)atoi(c);
 					while(*c  &&  *c!=','  &&  *c!=')') {
 						c++;
 					}
 					weg_t::system_type subtype = (weg_t::system_type)(*c!=0 ? atoi(++c) : 0);
 					wegbauer_t::fill_menu( wzw, way, subtype, get_sound(c), welt );
-				}
-				else if(strstr(w->get_default_param(),"bridges(")) {
-					waytype_t way = (waytype_t)atoi(w->get_default_param()+8);
-					brueckenbauer_t::fill_menu( wzw, way, get_sound(w->get_default_param()+5), welt );
-				}
-				else if(strstr(w->get_default_param(),"tunnels(")) {
-					waytype_t way = (waytype_t)atoi(w->get_default_param()+8);
-					tunnelbauer_t::fill_menu( wzw, way, get_sound(w->get_default_param()+8), welt );
-				}
-				else if(strstr(w->get_default_param(),"signs(")) {
-					waytype_t way = (waytype_t)atoi(w->get_default_param()+6);
-					roadsign_t::fill_menu( wzw, way, get_sound(w->get_default_param()+6), welt );
-				}
-				else if(strstr(w->get_default_param(),"wayobjs(")) {
-					waytype_t way = (waytype_t)atoi(w->get_default_param()+8);
-					wayobj_t::fill_menu( wzw, way, get_sound(w->get_default_param()+8), welt );
-				}
-				else if(strstr(w->get_default_param(),"buildings(")) {
-					const char *c = w->get_default_param()+10;
-					haus_besch_t::utyp utype = (haus_besch_t::utyp)atoi(w->get_default_param()+10);
+				} else if (char const* const c = strstart(param, "bridges(")) {
+					waytype_t const way = (waytype_t)atoi(c);
+					brueckenbauer_t::fill_menu(wzw, way, get_sound(c), welt);
+				} else if (char const* const c = strstart(param, "tunnels(")) {
+					waytype_t const way = (waytype_t)atoi(c);
+					tunnelbauer_t::fill_menu(wzw, way, get_sound(c), welt);
+				} else if (char const* const c = strstart(param, "signs(")) {
+					waytype_t const way = (waytype_t)atoi(c);
+					roadsign_t::fill_menu(wzw, way, get_sound(c), welt);
+				} else if (char const* const c = strstart(param, "wayobjs(")) {
+					waytype_t const way = (waytype_t)atoi(c);
+					wayobj_t::fill_menu(wzw, way, get_sound(c), welt);
+				} else if (char const* c = strstart(param, "buildings(")) {
+					haus_besch_t::utyp const utype = (haus_besch_t::utyp)atoi(c);
 					while(*c  &&  *c!=','  &&  *c!=')') {
 						c++;
 					}
 					waytype_t way = (waytype_t)(*c!=0 ? atoi(++c) : 0);
 					hausbauer_t::fill_menu( wzw, utype, way, get_sound(c), welt );
-				}
-				else if(w->get_default_param()[0]=='-') {
+				} else if (param[0] == '-') {
 					// add dummy werkzeug as seperator
 					wzw->add_werkzeug( dummy );
 				}
