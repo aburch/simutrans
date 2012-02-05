@@ -289,9 +289,8 @@ void display_show_load_pointer(int)
 {
 }
 
-int simgraph_init(KOORD_VAL, KOORD_VAL, int)
+void simgraph_init(KOORD_VAL, KOORD_VAL, int)
 {
-	return TRUE;
 }
 
 int is_display_init(void)

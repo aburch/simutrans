@@ -3737,7 +3737,7 @@ int get_maus_y(void)
  * Initialises the graphics module
  * @author Hj. Malthaner
  */
-int simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
+void simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 {
 	int i;
 
@@ -3818,8 +3818,6 @@ int simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 
 	printf("Init done.\n");
 	fflush(NULL);
-
-	return TRUE;
 }
 
 

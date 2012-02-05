@@ -2571,7 +2571,7 @@ void display_show_load_pointer(int loading)
  * Initialises the graphics module
  * @author Hj. Malthaner
  */
-int simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
+void simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 {
 	int parameter[2];
 
@@ -2623,8 +2623,6 @@ int simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 
 	printf("Init done.\n");
 	fflush(NULL);
-
-	return TRUE;
 }
 
 

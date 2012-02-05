@@ -73,7 +73,7 @@ int zoom_factor_down(void);
  * Initialises the graphics module
  * @author Hj. Malthaner
  */
-int simgraph_init(KOORD_VAL width, KOORD_VAL height, int fullscreen);
+void simgraph_init(KOORD_VAL width, KOORD_VAL height, int fullscreen);
 int is_display_init(void);
 int simgraph_exit(void);
 void simgraph_resize(KOORD_VAL w, KOORD_VAL h);
