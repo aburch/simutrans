@@ -640,7 +640,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 }
 
 
-static void internal_GetEvents(int wait)
+static void internal_GetEvents(bool const wait)
 {
 	do {
 		// wait for keybord/mouse event
@@ -655,7 +655,7 @@ void GetEvents()
 {
 	// already even processed?
 	if(sys_event.type==SIM_NOEVENT) {
-		internal_GetEvents(TRUE);
+		internal_GetEvents(true);
 	}
 }
 
@@ -663,7 +663,7 @@ void GetEvents()
 void GetEventsNoWait()
 {
 	if (sys_event.type==SIM_NOEVENT  &&  PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE)) {
-		internal_GetEvents(FALSE);
+		internal_GetEvents(false);
 	}
 }
 

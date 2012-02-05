@@ -363,7 +363,7 @@ int dr_screenshot(const char *filename)
 /*
  * Hier sind die Funktionen zur Messageverarbeitung
  */
-static void internal_GetEvents(int wait)
+static void internal_GetEvents(bool const wait)
 {
 	XEvent event;
 
@@ -452,7 +452,7 @@ static void internal_GetEvents(int wait)
 
 void GetEvents(void)
 {
-	internal_GetEvents(TRUE);
+	internal_GetEvents(true);
 }
 
 void GetEventsNoWait(void)
@@ -462,7 +462,7 @@ void GetEventsNoWait(void)
 	sys_event.type = SIM_NOEVENT;
 	sys_event.code = 0;
 
-	if (n > 0) internal_GetEvents(FALSE);
+	if (n > 0) internal_GetEvents(false);
 }
 
 

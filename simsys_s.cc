@@ -364,7 +364,7 @@ static int conv_mouse_buttons(Uint8 const state)
 }
 
 
-static void internal_GetEvents(int wait)
+static void internal_GetEvents(bool const wait)
 {
 	SDL_Event event;
 	event.type = 1;
@@ -558,7 +558,7 @@ static void internal_GetEvents(int wait)
 
 void GetEvents(void)
 {
-	internal_GetEvents(TRUE);
+	internal_GetEvents(true);
 }
 
 
@@ -567,7 +567,7 @@ void GetEventsNoWait(void)
 	sys_event.type = SIM_NOEVENT;
 	sys_event.code = 0;
 
-	internal_GetEvents(FALSE);
+	internal_GetEvents(false);
 }
 
 
