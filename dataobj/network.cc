@@ -548,7 +548,7 @@ bool network_init_server( int port )
 			char ipstr[INET6_ADDRSTRLEN];
 #ifndef HAS_NTOP_AND_PTON
 			if(  getnameinfo( (walk->ai_addr), sizeof(struct sockaddr), ipstr, sizeof(ipstr), NULL, 0, NI_NUMERICSERV ) !=0  ) {
-				DBG_MESSAGE( "network_open_address()", "Invalid socket, skipping..." );
+				DBG_MESSAGE("network_init_server()", "Invalid socket, skipping...");
 				continue;
 			}
 #else
