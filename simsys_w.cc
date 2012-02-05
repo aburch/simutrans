@@ -85,13 +85,13 @@ HANDLE	hFlushThread=0;
  * Schnittstelle untergebracht
  * -> init,open,close
  */
-int dr_os_init(const int* /*parameter*/)
+bool dr_os_init(int const* /*parameter*/)
 {
 	// prepare for next event
 	sys_event.type = SIM_NOEVENT;
 	sys_event.code = 0;
 
-	return TRUE;
+	return true;
 }
 
 

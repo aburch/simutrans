@@ -93,11 +93,11 @@ static SDL_Cursor* hourglass;
  * Schnittstelle untergebracht
  * -> init,open,close
  */
-int dr_os_init(const int* parameter)
+bool dr_os_init(const int* parameter)
 {
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) != 0) {
 		fprintf(stderr, "Couldn't initialize SDL: %s\n", SDL_GetError());
-		return FALSE;
+		return false;
 	}
 
 	sync_blit = parameter[1];
@@ -107,7 +107,7 @@ int dr_os_init(const int* parameter)
 	sys_event.code = 0;
 
 	atexit(SDL_Quit); // clean up on exit
-	return TRUE;
+	return true;
 }
 
 

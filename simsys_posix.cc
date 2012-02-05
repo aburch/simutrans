@@ -19,12 +19,12 @@
 #include "simsys.h"
 
 
-int dr_os_init(const int*)
+bool dr_os_init(const int*)
 {
 	// prepare for next event
 	sys_event.type = SIM_NOEVENT;
 	sys_event.code = 0;
-	return TRUE;
+	return true;
 }
 
 resolution dr_query_screen_resolution()

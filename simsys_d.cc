@@ -190,7 +190,7 @@ END_OF_FUNCTION(my_close_button_callback)
  */
 
 
-int dr_os_init(const int* parameter)
+bool dr_os_init(int const* parameter)
 {
 	if (allegro_init() != 0) {
 		dr_fatal_notify("Could not init Allegro.\n");

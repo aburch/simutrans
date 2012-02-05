@@ -64,7 +64,7 @@ static void init_cursors(void)
 }
 
 
-int dr_os_init(const int* parameter)
+bool dr_os_init(int const* parameter)
 {
 	using_shm  = parameter[0];
 	doing_sync = parameter[1];
@@ -72,7 +72,7 @@ int dr_os_init(const int* parameter)
 	// init time count
 	gettimeofday(&start, NULL);
 
-	return TRUE;
+	return true;
 }
 
 

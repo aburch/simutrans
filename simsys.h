@@ -65,7 +65,7 @@ struct sys_event
 extern struct sys_event sys_event;
 
 
-int dr_os_init(const int* parameter);
+bool dr_os_init(int const* parameter);
 
 /* maximum size possible (if there) */
 struct resolution
