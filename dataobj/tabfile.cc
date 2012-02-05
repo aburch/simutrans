@@ -105,9 +105,9 @@ int tabfileobj_t::get_int(const char *key, int def)
 	}
 	else {
 		// skip spaces/tabs
-		do {
+		while ( *value>0  &&  *value<=32  ) {
 			value ++;
-		} while ( *value>0  &&  *value<=32  );
+		}
 		// this inputs also hex correct
 		return strtol( value, NULL, 0 );
 	}
