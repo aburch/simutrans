@@ -192,7 +192,10 @@ END_OF_FUNCTION(my_close_button_callback)
 
 int dr_os_init(const int* parameter)
 {
-	int ok = allegro_init();
+	if (allegro_init() != 0) {
+		dr_fatal_notify("Could not init Allegro.\n");
+		return false;
+	}
 
 	// prepare for next event
 	sys_event.type = SIM_NOEVENT;
@@ -206,12 +209,9 @@ int dr_os_init(const int* parameter)
 	LOCK_FUNCTION(my_close_button_callback);
 	set_close_button_callback(my_close_button_callback);
 
-	if (ok != 0) {
-		dr_fatal_notify("Could not init Allegro.\n");
-	}
 	simtimer_init();
 
-	return ok == 0;
+	return true;
 }
 
 

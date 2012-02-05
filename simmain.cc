@@ -660,7 +660,10 @@ int simu_main(int argc, char** argv)
 	int parameter[2];
 	parameter[0] = gimme_arg(argc, argv, "-net",   0)==NULL;
 	parameter[1] = gimme_arg(argc, argv, "-async", 0)==NULL;
-	dr_os_init(parameter);
+	if (!dr_os_init(parameter)) {
+		dr_fatal_notify("Failed to initialize backend.\n");
+		return EXIT_FAILURE;
+	}
 
 	// Get optimal resolution.
 	if (disp_width == 0 || disp_height == 0) {
