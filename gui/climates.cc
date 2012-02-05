@@ -32,9 +32,6 @@
 #define RIGHT_ARROW (180)
 #define TEXT_RIGHT (165) // 10 are offset in routine ..
 
-#include <sys/stat.h>
-#include <time.h>
-
 /**
  * set the climate borders
  * @author prissi
@@ -43,7 +40,6 @@
 climate_gui_t::climate_gui_t(settings_t* const sets) :
 	gui_frame_t( translator::translate("Climate Control") )
 {
-DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struct tm) );
 	this->sets = sets;
 
 	// select map stuff ..

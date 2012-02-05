@@ -3,12 +3,6 @@
 #include "network_packet.h"
 #include "network_socket_list.h"
 
-#ifdef _MSC_VER
-#include <direct.h>
-#else
-#include <unistd.h>
-#endif
-
 #include <stdlib.h>
 
 

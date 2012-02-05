@@ -6,17 +6,14 @@
  */
 
 #ifndef _MSC_VER
-#include <unistd.h>
 #include <dirent.h>
 #else
 #include <io.h>
-#include <direct.h>
 #endif
 
 #include <string>
 
 #include <string.h>
-#include <time.h>
 
 #include "../pathes.h"
 

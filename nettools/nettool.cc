@@ -14,7 +14,6 @@
 // <windows.h> also needed, but this is included by networking code
 #ifndef _WIN32
 #include <termios.h>
-#include <unistd.h>
 #endif
 
 #include "../dataobj/network.h"

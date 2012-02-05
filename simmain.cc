@@ -6,7 +6,6 @@
 #include <stdio.h>
 #include <string>
 #include <new>
-#include <time.h>
 
 #ifdef _MSC_VER
 #include <new.h> // for _set_new_handler

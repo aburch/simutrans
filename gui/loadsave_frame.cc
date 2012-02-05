@@ -7,13 +7,6 @@
 
 #include "../simdebug.h"
 
-#ifndef _MSC_VER
-#include <unistd.h>
-#include <dirent.h>
-#else
-#include <io.h>
-#include <direct.h>
-#endif
 #include <sys/stat.h>
 #include <time.h>
 
