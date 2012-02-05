@@ -194,7 +194,7 @@ void display_vline_wh(KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, bool)
 {
 }
 
-void display_vline_wh_clip(const KOORD_VAL, KOORD_VAL, KOORD_VAL, const PLAYER_COLOR_VAL, int)
+void display_vline_wh_clip(KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, bool)
 {
 }
 
