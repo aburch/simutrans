@@ -11,11 +11,6 @@
  */
 
 #include <stdio.h>
-#ifdef _MSC_VER
-#include <direct.h>
-#else
-#include <unistd.h>
-#endif
 
 #include "../simdebug.h"
 #include "../pathes.h"
@@ -28,6 +23,7 @@
 
 #include "../dataobj/umgebung.h"
 #include "../dataobj/translator.h"
+#include "../simsys.h"
 #include "../utils/simstring.h"
 
 

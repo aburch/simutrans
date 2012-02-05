@@ -10,6 +10,13 @@
 #include <stddef.h>
 #include "simtypes.h"
 
+// Provide chdir().
+#ifdef _WIN32
+#	include <direct.h>
+#else
+#	include <unistd.h>
+#endif
+
 
 #ifndef TRUE
 #define TRUE 1

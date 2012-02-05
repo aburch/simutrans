@@ -1,16 +1,10 @@
 #include <string>
 #include <string.h>
 
-#ifndef _MSC_VER
-#include <unistd.h>
-#else
-#include <direct.h>
-#endif
-
-
 // for the progress bar
 #include "../../simcolor.h"
 #include "../../simimg.h"
+#include "../../simsys.h"
 #include "../../simtypes.h"
 #include "../../simgraph.h"
 

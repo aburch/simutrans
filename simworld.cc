@@ -17,13 +17,6 @@
 #include <string.h>
 #include <math.h>
 
-#ifdef _MSC_VER
-#include <direct.h>
-#undef min
-#else
-#include <unistd.h>
-#endif
-
 #include "simcity.h"
 #include "simcolor.h"
 #include "simconvoi.h"

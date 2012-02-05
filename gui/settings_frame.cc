@@ -5,14 +5,9 @@
  * (see licence.txt)
  */
 
-#ifdef _MSC_VER
-#include <direct.h>
-#else
-#include <unistd.h>
-#endif
-
 #include <string>
 #include "../simcity.h"
+#include "../simsys.h"
 #include "../simwin.h"
 
 #include "../dataobj/umgebung.h"

@@ -6,12 +6,6 @@
  * April 2000
  */
 
-#ifdef _MSC_VER
-#include <direct.h>
-#else
-#include <unistd.h>
-#endif
-
 #include "welt.h"
 #include "karte.h"
 
@@ -46,6 +40,7 @@
 
 #include "load_relief_frame.h"
 
+#include "../simsys.h"
 #include "../utils/simstring.h"
 #include "components/list_button.h"
 
