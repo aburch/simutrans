@@ -101,6 +101,12 @@ static bool network_initialize()
 SOCKET network_open_address(char const* cp, char const*& err)
 {
 	err = NULL;
+
+	if (!network_initialize()) {
+		err = "Cannot init network!";
+		return INVALID_SOCKET;
+	}
+
 #ifdef USE_IP4_ONLY
 	// Network load. Address format e.g.: "128.0.0.1:13353"
 	char address[32];
@@ -112,12 +118,6 @@ SOCKET network_open_address(char const* cp, char const*& err)
 		// Copy the address part
 		tstrncpy(address,cp,cp2-cp>31?31:cp2-cp+1);
 		cp = address;
-	}
-
-	// now activate network
-	if(  !network_initialize()  ) {
-		err = "Cannot init network!";
-		return INVALID_SOCKET;
 	}
 
 	struct sockaddr_in server_name;
@@ -189,12 +189,6 @@ SOCKET network_open_address(char const* cp, char const*& err)
 			tstrncpy( address, cp, cp2 - cp > 31 ? 31 : cp2 - cp + 1 );
 		}
 		cp = address;
-	}
-
-	// Now activate network
-	if (  !network_initialize()  ) {
-		err = "Cannot init network!";
-		return INVALID_SOCKET;
 	}
 
 	SOCKET my_client_socket = INVALID_SOCKET;
