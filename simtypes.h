@@ -129,15 +129,13 @@ typedef unsigned int        uint32;
 typedef   signed long       sint32;
 typedef unsigned long       uint32;
 #endif
+typedef   signed long long  sint64;
+typedef unsigned long long  uint64;
 #ifdef _MSC_VER
-typedef   signed __int64	  sint64;
-typedef unsigned __int64    uint64;
 #	define GCC_PACKED
 #	define NORETURN __declspec(noreturn)
 #	pragma warning(disable: 4200 4311 4800 4996)
 #else
-typedef   signed long long  sint64;
-typedef unsigned long long  uint64;
 #	define GCC_PACKED __attribute__ ((__packed__))
 #	define NORETURN   __attribute__ ((noreturn))
 #endif
