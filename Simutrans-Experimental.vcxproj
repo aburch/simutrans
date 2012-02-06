@@ -1048,6 +1048,7 @@
   <ItemGroup>
     <None Include="..\..\..\Simutrans\simu-server.log" />
     <None Include="..\..\..\Simutrans\simu.log" />
+    <None Include=".gitignore" />
     <None Include="base_texts_experimental.dat" />
     <None Include="base_texts_experimental_10.0.dat" />
     <None Include="base_texts_experimental_10.1.dat" />
@@ -1071,8 +1072,8 @@
     <None Include="config.default" />
     <None Include="config.template" />
     <None Include="..\simutrans-experimental-binaries\text\en.tab" />
-    <None Include="config.template.linux-server" />
     <None Include="Makefile" />
+    <None Include="makeobj\Makefile" />
     <None Include="simutrans\config\electricity.tab" />
     <None Include="simutrans\config\privatecar.tab" />
     <None Include="simutrans\config\simuconf.tab" />
