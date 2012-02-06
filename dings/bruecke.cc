@@ -177,12 +177,11 @@ void bruecke_t::rotate90()
 
 // returns NULL, if removal is allowed
 // players can remove public owned ways
-const char *bruecke_t::ist_entfernbar(const spieler_t *sp)
+const char *bruecke_t::ist_entfernbar(const spieler_t *sp, bool allow_public)
 {
-	if (get_player_nr()==1) {
+	if(allow_public && get_player_nr() == 1) 
+	{
 		return NULL;
 	}
-	else {
-		return ding_t::ist_entfernbar(sp);
-	}
+	return ding_t::ist_entfernbar(sp);
 }

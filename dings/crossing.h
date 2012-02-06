@@ -58,7 +58,7 @@ public:
 	 * @return NULL wenn OK, ansonsten eine Fehlermeldung
 	 * @author Hj. Malthaner
 	 */
-	virtual const char *ist_entfernbar(const spieler_t *sp);
+	virtual const char *ist_entfernbar(const spieler_t *sp, bool allow_public = false);
 
 	/**
 	 * crossing logic is removed here
