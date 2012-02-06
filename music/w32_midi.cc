@@ -3,11 +3,6 @@
  *
  * author: Owen Rudge, Hj. Malthaner
  */
-#ifdef _MSC_VER
-#include <direct.h>
-#else
-#include <dir.h>
-#endif
 
 #include <stdio.h>
 // windows.h includes min and max macros which we don't want
