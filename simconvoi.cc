@@ -1504,11 +1504,6 @@ vehikel_t *convoi_t::remove_vehikel_bei(uint16 i)
 // recalc what good this convoy is moving
 void convoi_t::recalc_catg_index()
 {
-	// first copy old
-	minivec_tpl<uint8> old_goods_catg_index(goods_catg_index.get_count());
-	for(  uint i=0;  i<goods_catg_index.get_count();  i++  ) {
-		old_goods_catg_index.append( goods_catg_index[i] );
-	}
 	goods_catg_index.clear();
 
 	for(  uint8 i = 0;  i < get_vehikel_anzahl();  i++  ) {
