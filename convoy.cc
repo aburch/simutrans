@@ -512,6 +512,7 @@ sint32 potential_convoy_t::get_brake_summary(const sint32 speed /* in m/s */)
 		{
 			// Usual brake deceleration is about -0.5 .. -1.5 m/s² depending on vehicle and ground. 
 			// With F=ma, a = F/m follows that brake force in N is ~= 1/2 weight in kg
+			const uint32 TEST_FORCE = get_adverse_summary().br * (uint32) b.get_gewicht();
 			force += get_adverse_summary().br * (uint32) b.get_gewicht();
 		}
 	}
@@ -618,7 +619,7 @@ sint32 existing_convoy_t::get_brake_summary(const sint32 speed /* in m/s */)
 	for (uint16 i = convoy.get_vehikel_anzahl(); i-- > 0; )
 	{
 		vehikel_t &v = *convoy.get_vehikel(i);
-		uint16 bf = v.get_besch()->get_brake_force();
+		const uint16 bf = v.get_besch()->get_brake_force();
 		if (bf != BRAKE_FORCE_UNKNOWN)
 		{
 			force += bf;
@@ -627,6 +628,10 @@ sint32 existing_convoy_t::get_brake_summary(const sint32 speed /* in m/s */)
 		{
 			// Usual brake deceleration is about -0.5 .. -1.5 m/s² depending on vehicle and ground. 
 			// With F=ma, a = F/m follows that brake force in N is ~= 1/2 weight in kg
+			const sint32 TEST_FORCE = get_adverse_summary().br * float32e8_t(v.get_gesamtgewicht(), 1000);
+			const float32e8_t TEST_BR = get_adverse_summary().br;
+			const int TEST_WEIGHT = v.get_gesamtgewicht();
+			const sint32 TEST_FIXED_FORCE = get_adverse_summary().br * float32e8_t(100, 1);
 			force += get_adverse_summary().br * float32e8_t(v.get_gesamtgewicht(), 1000);
 		}
 	}
