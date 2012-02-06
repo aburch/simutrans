@@ -9,12 +9,7 @@
 
 #include <stddef.h>
 
-#ifdef _MSC_VER
-#	include <malloc.h>
-#	define guarded_free free
-#else
 void guarded_free(void* ptr);
-#endif
 
 void* xmalloc(size_t size);             // Throws std::bad_alloc on failure
 void* xrealloc(void * const ptr, size_t size); // Throws std::bad_alloc on failure

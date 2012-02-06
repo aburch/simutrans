@@ -8,16 +8,11 @@
 #ifndef ITERATE_PTR
 #define ITERATE_PTR(collection,enumerator) for(int enumerator = 0; enumerator < (collection)->get_count(); enumerator++)
 #endif 
+#include <typeinfo>
 
 #include "../macros.h"
 #include "../simtypes.h"
 #include "../simdebug.h"
-
-#ifdef _MSC_VER
-#include <typeinfo.h>
-#else
-#include <typeinfo>
-#endif
 
 template<class T> class vector_tpl;
 template<class T> inline void swap(vector_tpl<T>& a, vector_tpl<T>& b);
