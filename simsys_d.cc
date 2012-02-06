@@ -14,16 +14,6 @@
 #include "simsys_w32_png.h"
 #include "simversion.h"
 
-#ifdef _WIN32
-#define BITMAP winBITMAP
-#define WinMain winWinMain
-// windows.h defines min and max macros which we don't want
-#define NOMINMAX 1
-#include <windows.h>
-#undef BITMAP
-#undef WinMain
-#endif
-
 #include <allegro.h>
 
 
@@ -218,15 +208,10 @@ bool dr_os_init(int const* parameter)
 resolution dr_query_screen_resolution()
 {
 	resolution res;
-#ifdef _WIN32
-	res.w = GetSystemMetrics(SM_CXSCREEN);
-	res.h = GetSystemMetrics(SM_CYSCREEN);
-#else
 	if (get_desktop_resolution(&res.w, &res.h) != 0) {
 		res.w = width;
 		res.h = height;
 	}
-#endif
 	return res;
 }
 
@@ -413,13 +398,7 @@ void GetEvents(void)
 {
 	while (event_top_mark == event_bot_mark) {
 		// try to be nice where possible
-#if !defined(__MINGW32__)
-#if!defined(__BEOS__)
-		usleep(1000);
-#endif
-#else
-		Sleep(5);
-#endif
+		rest(1);
 	}
 
 	do {
