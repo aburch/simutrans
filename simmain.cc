@@ -7,10 +7,6 @@
 #include <string>
 #include <new>
 
-#ifdef _MSC_VER
-#include <new.h> // for _set_new_handler
-#endif
-
 #include "pathes.h"
 
 #include "simmain.h"
@@ -330,16 +326,9 @@ static void ask_language()
  * This is main means of set_new_handler set and the runtime environment 
  * in the case of memory shortage when new () is called (Google)
  */
-#ifdef _MSC_VER
-int sim_new_handler(unsigned int)
-#else
-void sim_new_handler()
-#endif
+static void sim_new_handler()
 {
 	dbg->fatal("sim_new_handler()", "OUT OF MEMORY or other error allocating new object");
-#ifdef _MSC_VER
-	return 0;
-#endif
 }
 
 
@@ -370,11 +359,8 @@ int simu_main(int argc, char** argv)
 
 	uint32 quit_month = 0x7FFFFFFFu;
 
-#ifdef _MSC_VER
-	_set_new_handler(sim_new_handler);
-#else
 	std::set_new_handler(sim_new_handler);
-#endif
+
 	umgebung_t::init();
 
 	// you really want help with this?
