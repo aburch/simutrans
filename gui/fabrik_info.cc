@@ -241,6 +241,30 @@ bool fabrik_info_t::action_triggered( gui_action_creator_t *komp, value_t v)
 }
 
 
+static inline koord const& get_coord(koord   const&       c) { return c; }
+static inline koord        get_coord(stadt_t const* const c) { return c->get_pos(); }
+
+
+template <typename T> static void make_buttons(button_t*& dst, T const& coords, int& y_off, gui_container_t& fab_info, action_listener_t* const listener)
+{
+	delete [] dst;
+	if (coords.empty()) {
+		dst = 0;
+	} else {
+		button_t* b = dst = new button_t[coords.get_count()];
+		for (typename T::const_iterator i = coords.begin(), end = coords.end(); i != end; ++b, ++i) {
+			b->set_pos(koord(10, y_off));
+			y_off += LINESPACE;
+			b->set_typ(button_t::posbutton);
+			b->set_targetpos(get_coord(*i));
+			b->add_listener(listener);
+			fab_info.add_komponente(b);
+		}
+		y_off += 2 * LINESPACE;
+	}
+}
+
+
 void fabrik_info_t::update_info()
 {
 	tstrncpy( fabname, fab->get_name(), lengthof(fabname) );
@@ -249,68 +273,16 @@ void fabrik_info_t::update_info()
 
 	fab_info.remove_all();
 
-	delete [] lieferbuttons;
-	delete [] supplierbuttons;
-	delete [] stadtbuttons;
-
 	// needs to update all text
 	fab_info.set_pos( koord(0,0) );
 	txt.set_pos( koord(10,-LINESPACE) );
 	fab_info.add_komponente(&txt);
 
 	int y_off = LINESPACE;
+	make_buttons(lieferbuttons,   fab->get_lieferziele(),   y_off, fab_info, this);
+	make_buttons(supplierbuttons, fab->get_suppliers(),     y_off, fab_info, this);
+	make_buttons(stadtbuttons,    fab->get_target_cities(), y_off, fab_info, this);
 
-	const vector_tpl <koord> & lieferziele =  fab->get_lieferziele();
-#ifdef _MSC_VER
-	// V.Meyer: MFC has a bug with "new x[0]"
-	lieferbuttons = new button_t [lieferziele.get_count()+1];
-#else
-	lieferbuttons = new button_t [lieferziele.get_count()];
-#endif
-	for(unsigned i=0; i<lieferziele.get_count(); i++) {
-		lieferbuttons[i].set_pos(koord(10, y_off));
-		y_off += LINESPACE;
-		lieferbuttons[i].set_typ(button_t::posbutton);
-		lieferbuttons[i].set_targetpos(lieferziele[i]);
-		lieferbuttons[i].add_listener(this);
-		fab_info.add_komponente(&lieferbuttons[i]);
-	}
-
-	y_off += (lieferziele.get_count() ? 2*LINESPACE : 0);
-
-	const vector_tpl <koord> & suppliers =  fab->get_suppliers();
-#ifdef _MSC_VER
-	// V.Meyer: MFC has a bug with "new x[0]"
-	supplierbuttons = new button_t [suppliers.get_count()+1];
-#else
-	supplierbuttons = new button_t [suppliers.get_count()];
-#endif
-	for(unsigned i=0; i<suppliers.get_count(); i++) {
-		supplierbuttons[i].set_pos(koord(10, y_off));
-		y_off += LINESPACE;
-		supplierbuttons[i].set_typ(button_t::posbutton);
-		supplierbuttons[i].set_targetpos(suppliers[i]);
-		supplierbuttons[i].add_listener(this);
-		fab_info.add_komponente(&supplierbuttons[i]);
-	}
-
-	y_off += (suppliers.get_count() ? 2*LINESPACE : 0);
-
-	const vector_tpl<stadt_t *> &target_cities = fab->get_target_cities();
-#ifdef _MSC_VER
-	// V.Meyer: MFC has a bug with "new x[0]"
-	stadtbuttons = new button_t [target_cities.get_count()+1];
-#else
-	stadtbuttons = new button_t [target_cities.get_count()];
-#endif
-	for(  uint32 c=0;  c<target_cities.get_count();  ++c  ) {
-		stadtbuttons[c].set_pos(koord(10, y_off));
-		y_off += LINESPACE;
-		stadtbuttons[c].set_typ(button_t::posbutton);
-		stadtbuttons[c].set_targetpos(target_cities[c]->get_pos());
-		stadtbuttons[c].add_listener(this);
-		fab_info.add_komponente(&stadtbuttons[c]);
-	}
 	fab_info.set_groesse( koord( fab_info.get_groesse().x, txt.get_groesse().y-LINESPACE ) );
 }
 
