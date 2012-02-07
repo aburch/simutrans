@@ -4389,13 +4389,12 @@ void karte_t::laden(loadsave_t *file)
 	}
 	destroy_all_win(true);
 
+	clear_random_mode(~LOAD_RANDOM);
+	set_random_mode(LOAD_RANDOM);
 	destroy();
 
 	display_set_progress_text(translator::translate("Loading map ..."));
 	display_progress(0, 100);	// does not matter, since fixed width
-
-	clear_random_mode(~LOAD_RANDOM);
-	set_random_mode(LOAD_RANDOM);
 
 	tile_counter = 0;
 	simloops = 60;
