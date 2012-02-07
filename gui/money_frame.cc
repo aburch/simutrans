@@ -102,6 +102,16 @@ const char *money_frame_t::display_money(int type, char *buf, int old)
 	return(buf);
 }
 
+
+const char *money_frame_t::display_number(int type, char *buf, int old)
+{
+	const double cost = (year_month_tabs.get_active_tab_index() ? sp->get_finance_history_month(old, type) : sp->get_finance_history_year(old, type)) / 1.0;
+	money_to_string(buf, cost );
+	buf[strlen(buf)-4] = 0;	// remove comma
+	return(buf);
+}
+
+
 /**
  * Returns the appropriate colour for a certain finance type
  * @author Owen Rudge
@@ -371,15 +381,11 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	old_omoney.set_text(display_money(COST_OPERATING_PROFIT, str_buf[13], 1));
 
 	// transported goods
-	money_to_string(str_buf[20], (double)sp->get_finance_history_year(0, COST_ALL_TRANSPORTED) );
-	str_buf[20][strlen(str_buf[20])-4] = 0;	// remove comma
-	transport.set_text(str_buf[20]);
+	transport.set_text(display_number(COST_ALL_TRANSPORTED, str_buf[20], 0));
 	transport.set_color(get_money_colour(COST_ALL_TRANSPORTED, 0));
 
-	money_to_string(str_buf[21], (double)sp->get_finance_history_year(1, COST_ALL_TRANSPORTED) );
-	str_buf[21][strlen(str_buf[21])-4] = 0;	// remove comma
-	old_transport.set_text(str_buf[21]);
-	old_transport.set_color(get_money_colour(COST_ALL_TRANSPORTED, 0));
+	old_transport.set_text(display_number(COST_ALL_TRANSPORTED, str_buf[21], 1));
+	old_transport.set_color(get_money_colour(COST_ALL_TRANSPORTED, 1));
 
 	toll.set_text(display_money(COST_WAY_TOLLS, str_buf[24], 0));
 	toll.set_color(get_money_colour(COST_WAY_TOLLS, 0));

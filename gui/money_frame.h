@@ -78,6 +78,11 @@ private:
 	const char *display_money(int, char * buf, int);
 
 	/**
+	 * fills buffer (char array) with number info (e.g. amount of transported items)
+	 */
+	const char *display_number(int, char * buf, int);
+
+	/**
 	 * Returns the appropriate colour for a certain finance type
 	 * @author Owen Rudge
 	 */
