@@ -9,8 +9,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "simintr.h"
-
 #include "simconvoi.h"
 #include "vehicle/simvehikel.h"
 #include "simwin.h"

@@ -6,16 +6,12 @@
  */
 
 #include "gui_convoiinfo.h"
-#include "../simdebug.h"
 #include "../simworld.h"
-#include "../simdepot.h"
 #include "../vehicle/simvehikel.h"
 #include "../simconvoi.h"
 #include "../simcolor.h"
 #include "../simgraph.h"
 #include "../player/simplay.h"
-#include "../simevent.h"
-#include "../simlinemgmt.h"
 #include "../simline.h"
 
 #include "../dataobj/translator.h"

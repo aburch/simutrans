@@ -13,11 +13,9 @@
 #include "../simcolor.h"
 #include "../simtools.h"
 #include "../simworld.h"
-#include "../simevent.h"
 #include "../simgraph.h"
 #include "../simskin.h"
 #include "../simwerkz.h"
-#include "../simwin.h"
 
 #include "components/list_button.h"
 

@@ -22,7 +22,6 @@
 #include "../dataobj/loadsave.h"
 // @author hsiegeln
 #include "../simline.h"
-#include "../boden/grund.h"
 #include "messagebox.h"
 
 #include "../player/simplay.h"

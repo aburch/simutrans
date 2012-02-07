@@ -12,7 +12,6 @@
 
 #include "../simworld.h"
 #include "../simdebug.h"
-#include "../simintr.h"
 #include "../simgraph.h"
 #include "../simcolor.h"
 #include "../simwin.h"
@@ -24,9 +23,8 @@
 
 // for headquarter construction only ...
 #include "../simskin.h"
-#include "../simwerkz.h"
+#include "../simmenu.h"
 #include "../bauer/hausbauer.h"
-#include "../besch/haus_besch.h"
 
 
 // remebers last settings

@@ -9,7 +9,6 @@
 #include <string.h>
 #include <algorithm>
 
-#include "gui_container.h"
 #include "gui_convoiinfo.h"
 #include "components/list_button.h"
 
@@ -19,7 +18,6 @@
 #include "../simconvoi.h"
 #include "../simwin.h"
 #include "../simworld.h"
-#include "../simdepot.h"
 #include "../besch/ware_besch.h"
 #include "../bauer/warenbauer.h"
 #include "../dataobj/translator.h"

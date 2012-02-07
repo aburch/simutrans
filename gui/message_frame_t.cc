@@ -7,9 +7,10 @@
 
 #include "../simwin.h"
 #include "../simworld.h"
-#include "../simwerkz.h"
+#include "../simmenu.h"
 
 #include "../dataobj/translator.h"
+#include "../dataobj/umgebung.h"
 #include "message_frame_t.h"
 #include "../simmesg.h"
 #include "message_option_t.h"

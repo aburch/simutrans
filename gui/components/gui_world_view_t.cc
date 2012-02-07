@@ -8,7 +8,6 @@
 #include <stdio.h>
 
 #include "gui_world_view_t.h"
-#include "../../simevent.h"
 #include "../../simworld.h"
 #include "../../simdings.h"
 #include "../../simgraph.h"

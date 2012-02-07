@@ -6,17 +6,13 @@
  * Juli 2000
  */
 
-#include "../simconvoi.h"
 #include "../simline.h"
-#include "../simlinemgmt.h"
 #include "../simcolor.h"
-#include "../simwin.h"
 #include "../simhalt.h"
 #include "../simskin.h"
 #include "../simworld.h"
 #include "../simmenu.h"
 #include "../simgraph.h"
-#include "../simtools.h"
 
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"

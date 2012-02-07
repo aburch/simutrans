@@ -26,7 +26,6 @@
 // @author hsiegeln
 #include "../simlinemgmt.h"
 #include "../simline.h"
-#include "../boden/grund.h"
 #include "messagebox.h"
 
 #include "../player/simplay.h"

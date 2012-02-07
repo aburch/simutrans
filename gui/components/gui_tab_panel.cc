@@ -5,7 +5,6 @@
  * (see licence.txt)
  */
 
-#include "../../simdebug.h"
 #include "gui_tab_panel.h"
 #include "../../simevent.h"
 #include "../../simgraph.h"
@@ -13,7 +12,6 @@
 #include "../../simwin.h"
 
 #include "../../besch/skin_besch.h"
-#include "../../besch/bild_besch.h"
 
 #define IMG_WIDTH 20
 

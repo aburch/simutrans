@@ -11,7 +11,6 @@
 #include "../simware.h"
 #include "../simcolor.h"
 #include "../simgraph.h"
-#include "../simwin.h"
 #include "../simmenu.h"
 #include "../simskin.h"
 
