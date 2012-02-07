@@ -17,6 +17,7 @@
 #include "simcity.h"
 #include "simtools.h"
 #include "simmesg.h"
+#include "simwin.h"
 
 #include "bauer/fabrikbauer.h"
 #include "bauer/vehikelbauer.h"
@@ -54,6 +55,7 @@
 #include "gui/stadt_info.h"
 #include "gui/trafficlight_info.h"
 #include "gui/privatesign_info.h"
+#include "gui/messagebox.h"
 
 #include "dings/zeiger.h"
 #include "dings/bruecke.h"
@@ -5226,12 +5228,52 @@ void wkz_show_underground_t::draw_after( karte_t *welt, koord pos ) const
 }
 
 
+bool wkz_quit_t::init( karte_t *welt, spieler_t * )
+{
+	destroy_all_win( true );
+	welt->beenden( true );
+	return false;
+}
+
+
+bool wkz_screenshot_t::init( karte_t *, spieler_t * )
+{
+	display_snapshot();
+	create_win( new news_img("Screenshot\ngespeichert.\n"), w_time_delete, magic_none);
+	return false;
+}
+
+
+bool wkz_undo_t::init( karte_t *, spieler_t *sp )
+{
+	if(!sp->undo()  &&  is_local_execution()) {
+		create_win( new news_img("UNDO failed!"), w_time_delete, magic_none);
+	}
+	return false;
+}
+
+
 bool wkz_increase_industry_t::init( karte_t *welt, spieler_t * )
 {
 	fabrikbauer_t::increase_industry_density( welt, false );
 	return false;
 }
 
+
+bool wkz_zoom_in_t::init( karte_t *welt, spieler_t * )
+{
+	win_change_zoom_factor(true);
+	welt->set_dirty();
+	return false;
+}
+
+
+bool wkz_zoom_out_t::init( karte_t *welt, spieler_t * )
+{
+	win_change_zoom_factor(false);
+	welt->set_dirty();
+	return false;
+}
 
 /************************* internal tools, only need for networking ***************/
 

@@ -8,7 +8,6 @@
 #include "gui_button.h"
 #include "../gui_frame.h"
 
-#include "../../simdebug.h"
 #include "../../simcolor.h"
 #include "../../simgraph.h"
 #include "../../simevent.h"

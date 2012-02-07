@@ -11,7 +11,6 @@
 #include "simskin.h"
 #include "simworld.h"
 #include "simmenu.h"
-#include "simwin.h"
 #include "simdings.h"
 
 #include "besch/way_obj_besch.h"
@@ -22,8 +21,6 @@
 #include "dataobj/translator.h"
 
 #include "dings/baum.h"
-
-#include "gui/messagebox.h"
 
 #include "player/simplay.h"
 
@@ -560,11 +557,7 @@ class wkz_screenshot_t : public werkzeug_t {
 public:
 	wkz_screenshot_t() : werkzeug_t() { id = WKZ_SCREENSHOT | SIMPLE_TOOL; }
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("Screenshot"); }
-	bool init( karte_t *, spieler_t * ) {
-		display_snapshot();
-		create_win( new news_img("Screenshot\ngespeichert.\n"), w_time_delete, magic_none);
-		return false;
-	}
+	bool init( karte_t *, spieler_t * ) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
 	bool is_work_network_save() const OVERRIDE { return true; }
 };
@@ -582,12 +575,7 @@ class wkz_undo_t : public werkzeug_t {
 public:
 	wkz_undo_t() : werkzeug_t() { id = WKZ_UNDO | SIMPLE_TOOL; }
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("Undo last ways construction"); }
-	bool init( karte_t *, spieler_t *sp ) {
-		if(!sp->undo()  &&  is_local_execution()) {
-			create_win( new news_img("UNDO failed!"), w_time_delete, magic_none);
-		}
-		return false;
-	}
+	bool init( karte_t *, spieler_t *sp ) OVERRIDE;
 };
 
 /* switch to next player
@@ -630,15 +618,12 @@ public:
 	}
 };
 
+
 class wkz_zoom_in_t : public werkzeug_t {
 public:
 	wkz_zoom_in_t() : werkzeug_t() { id = WKZ_ZOOM_IN | SIMPLE_TOOL; }
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("zooming in"); }
-	bool init( karte_t *welt, spieler_t * ) {
-		win_change_zoom_factor(true);
-		welt->set_dirty();
-		return false;
-	}
+	bool init( karte_t *welt, spieler_t * ) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
 	bool is_work_network_save() const OVERRIDE { return true; }
 };
@@ -647,11 +632,7 @@ class wkz_zoom_out_t : public werkzeug_t {
 public:
 	wkz_zoom_out_t() : werkzeug_t() { id = WKZ_ZOOM_OUT | SIMPLE_TOOL; }
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("zooming out"); }
-	bool init( karte_t *welt, spieler_t * ) {
-		win_change_zoom_factor(false);
-		welt->set_dirty();
-		return false;
-	}
+	bool init( karte_t *welt, spieler_t * ) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
 	bool is_work_network_save() const OVERRIDE { return true; }
 };
@@ -784,11 +765,7 @@ class wkz_quit_t : public werkzeug_t {
 public:
 	wkz_quit_t() : werkzeug_t() { id = WKZ_QUIT | SIMPLE_TOOL; }
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("Beenden"); }
-	bool init( karte_t *welt, spieler_t * ) {
-		destroy_all_win( true );
-		welt->beenden( true );
-		return false;
-	}
+	bool init( karte_t *welt, spieler_t * ) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
 	bool is_work_network_save() const OVERRIDE { return true; }
 };

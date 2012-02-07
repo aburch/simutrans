@@ -19,7 +19,7 @@
 #include "simdepot.h"
 #include "simline.h"
 #include "simlinemgmt.h"
-#include "simwerkz.h"
+#include "simmenu.h"
 
 #include "gui/depot_frame.h"
 #include "gui/messagebox.h"
@@ -32,8 +32,6 @@
 #include "dings/gebaeude.h"
 
 #include "bauer/vehikelbauer.h"
-
-#include "boden/wege/schiene.h"
 
 #include "besch/haus_besch.h"
 

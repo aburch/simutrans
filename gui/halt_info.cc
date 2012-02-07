@@ -12,7 +12,7 @@
 #include "../simcolor.h"
 #include "../simgraph.h"
 #include "../simwin.h"
-#include "../simwerkz.h"
+#include "../simmenu.h"
 #include "../simskin.h"
 
 #include "../freight_list_sorter.h"
