@@ -45,6 +45,10 @@ private:
 	bool scenario;
 	bool quit;
 
+	double city_density;
+	double industry_density;
+	double attraction_density;
+
 	int old_lang;
 
 	gui_numberinput_t inp_map_number, inp_x_size, inp_y_size;
@@ -78,6 +82,8 @@ private:
 	bool update_from_heightfield(const char *filename);
 
 	void resize_preview();
+
+	void update_densities();
 
 public:
 	welt_gui_t(karte_t*, settings_t*);
