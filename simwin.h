@@ -73,6 +73,7 @@ enum magic_numbers {
 	magic_factorylist,
 	magic_goodslist,
 	magic_messageframe,
+	magic_message_options,
 	magic_edit_factory,
 	magic_edit_attraction,
 	magic_edit_house,

@@ -107,7 +107,7 @@ void message_frame_t::resize(const koord delta)
 bool message_frame_t::action_triggered( gui_action_creator_t *komp, value_t v )
 {
 	if(  komp==&option_bt  ) {
-		create_win(320, 200, new message_option_t(welt), w_info, magic_none );
+		create_win(320, 200, new message_option_t(welt), w_info, magic_message_options );
 	}
 	else if(  komp==&input  &&  ibuf[0]!=0  ) {
 		// add message via tool!
