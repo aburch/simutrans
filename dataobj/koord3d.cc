@@ -5,6 +5,8 @@
  * (see licence.txt)
  */
 
+#include <stdio.h>
+
 #include "koord3d.h"
 #include "../dataobj/loadsave.h"
 
@@ -12,9 +14,7 @@
 const koord3d koord3d::invalid(-1, -1, -1);
 
 
-
-void
-koord3d::rotate90( sint16 y_diff )
+void koord3d::rotate90( sint16 y_diff )
 {
 	sint16 new_x = y_diff-y;
 	y = x;
@@ -22,8 +22,7 @@ koord3d::rotate90( sint16 y_diff )
 }
 
 
-void
-koord3d::rdwr(loadsave_t *file)
+void koord3d::rdwr(loadsave_t *file)
 {
 	xml_tag_t k( file, "koord3d" );
 	sint16 v16;
@@ -52,6 +51,7 @@ koord3d::rdwr(loadsave_t *file)
 		z = v8;
 	}
 }
+
 
 koord3d::koord3d(loadsave_t *file)
 {

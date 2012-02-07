@@ -4,9 +4,8 @@
  * Hj. Malthaner
  */
 
-#include <stdio.h>
-#include <string.h>
-
+#include "../simworld.h"
+#include "../simtypes.h"
 #include "../simdings.h"
 #include "../boden/grund.h"
 #include "../player/simplay.h"
@@ -26,9 +25,7 @@ bruecke_t::bruecke_t(karte_t* const welt, loadsave_t* const file) : ding_no_info
 }
 
 
-
-bruecke_t::bruecke_t(karte_t *welt, koord3d pos, spieler_t *sp,
-		     const bruecke_besch_t *besch, bruecke_besch_t::img_t img) :
+bruecke_t::bruecke_t(karte_t *welt, koord3d pos, spieler_t *sp, const bruecke_besch_t *besch, bruecke_besch_t::img_t img) :
  ding_no_info_t(welt, pos)
 {
 	this->besch = besch;
@@ -36,7 +33,6 @@ bruecke_t::bruecke_t(karte_t *welt, koord3d pos, spieler_t *sp,
 	set_besitzer( sp );
 	spieler_t::accounting( get_besitzer(), -besch->get_preis(), get_pos().get_2d(), COST_CONSTRUCTION);
 }
-
 
 
 void bruecke_t::calc_bild()
@@ -61,6 +57,11 @@ void bruecke_t::calc_bild()
 	}
 }
 
+
+image_id bruecke_t::get_after_bild() const
+{
+	return besch->get_vordergrund(img, get_pos().z+Z_TILE_STEP*(img>=bruecke_besch_t::N_Start  &&  img<=bruecke_besch_t::W_Start) >= welt->get_snowline());
+}
 
 
 void bruecke_t::rdwr(loadsave_t *file)
@@ -89,7 +90,6 @@ void bruecke_t::rdwr(loadsave_t *file)
 		guarded_free(const_cast<char *>(s));
 	}
 }
-
 
 
 // correct speed and maintenance
@@ -126,7 +126,6 @@ void bruecke_t::laden_abschliessen()
 }
 
 
-
 // correct speed and maintenance
 void bruecke_t::entferne( spieler_t *sp2 )
 {
@@ -152,7 +151,6 @@ void bruecke_t::entferne( spieler_t *sp2 )
 }
 
 
-
 // rotated segment names
 static bruecke_besch_t::img_t rotate90_img[12]= {
 	bruecke_besch_t::OW_Segment, bruecke_besch_t::NS_Segment,
@@ -168,6 +166,7 @@ void bruecke_t::rotate90()
 	// the rotated image parameter is just one in front/back
 	img = rotate90_img[img];
 }
+
 
 // returns NULL, if removal is allowed
 // players can remove public owned ways

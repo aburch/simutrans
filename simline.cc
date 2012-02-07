@@ -1,17 +1,18 @@
+
+#include "simtypes.h"
+#include "simline.h"
+#include "simhalt.h"
+#include "simworld.h"
+
 #include "utils/simstring.h"
 #include "dataobj/fahrplan.h"
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
-#include "simtypes.h"
-#include "simline.h"
-#include "simhalt.h"
 #include "player/simplay.h"
 #include "vehicle/simvehikel.h"
 #include "simconvoi.h"
 #include "convoihandle_t.h"
-#include "simworld.h"
 #include "simlinemgmt.h"
-
 
 uint8 convoi_to_line_catgory_[convoi_t::MAX_CONVOI_COST] = {
 	LINE_CAPACITY, LINE_TRANSPORTED_GOODS, LINE_REVENUE, LINE_OPERATIONS, LINE_PROFIT, LINE_DISTANCE, LINE_MAXSPEED

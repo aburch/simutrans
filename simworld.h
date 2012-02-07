@@ -32,7 +32,6 @@
 
 #include "simdebug.h"
 
-
 struct event_t;
 struct sound_info;
 class stadt_t;

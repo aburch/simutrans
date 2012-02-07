@@ -9,7 +9,8 @@
 #include "image_reader.h"
 #include "../obj_node_info.h"
 
-
+// no windows macros please ...
+#define NOMINMAX 1
 #include <zlib.h>
 #include "../../tpl/inthashtable_tpl.h"
 
