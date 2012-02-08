@@ -432,7 +432,7 @@ fabrik_t* fabrikbauer_t::baue_fabrik(karte_t* welt, koord3d* parent, const fabri
 	add_factory_to_fab_map(welt, fab);
 
 	// Adjust the actual industry density
-	welt->increase_actual_industry_density(1.0 / (double)info->get_gewichtung());
+	welt->increase_actual_industry_density(100 / info->get_gewichtung());
 
 	// make all water station
 	if(info->get_platzierung() == fabrik_besch_t::Wasser) {

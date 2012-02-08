@@ -1293,8 +1293,11 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		target_cities.clear();
 	}
 	
-	// Necessary to ensure that the industry density is correct after re-loading a game.
-	welt->increase_actual_industry_density(100 / besch->get_gewichtung());
+	if(file->get_experimental_version() < 9 && file->get_version() < 110006)
+	{
+		// Necessary to ensure that the industry density is correct after re-loading a game.
+		welt->increase_actual_industry_density(100 / besch->get_gewichtung());
+	}
 
 	if(  file->get_version()>=110005  ) {
 		file->rdwr_short(times_expanded);

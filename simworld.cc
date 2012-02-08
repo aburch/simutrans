@@ -5350,6 +5350,11 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 		{
 			file->rdwr_long(actual_industry_density);
 		}
+		if(fab_list.empty() && file->get_version() < 111100)
+		{
+			// Correct some older saved games where the actual industry density was over-stated.
+			actual_industry_density = 0;
+		}
 	}
 
 	if(  file->get_version()>=102004  ) {
