@@ -142,12 +142,15 @@ void checklist_t::rdwr(memory_rw_t *buffer)
 	buffer->rdwr_short(halt_entry);
 	buffer->rdwr_short(line_entry);
 	buffer->rdwr_short(convoy_entry);
+
+	buffer->rdwr_long(industry_density_proportion);
+	buffer->rdwr_long(actual_industry_density);
 }
 
 
 int checklist_t::print(char *buffer, const char *entity) const
 {
-	return sprintf(buffer, "%s=[rand=%u halt=%u line=%u cnvy=%u] ", entity, random_seed, halt_entry, line_entry, convoy_entry);
+	return sprintf(buffer, "%s=[rand=%u halt=%u line=%u cnvy=%u ind_dns_prop=%u act_ind_dens=%u] ", entity, random_seed, halt_entry, line_entry, convoy_entry, industry_density_proportion, actual_industry_density);
 }
 
 
@@ -6414,7 +6417,7 @@ bool karte_t::interactive(uint32 quit_month)
 						network_frame_count = 0;
 					}
 					sync_steps = steps * settings.get_frames_per_step() + network_frame_count;
-					LCHKLST(sync_steps) = checklist_t(get_random_seed(), halthandle_t::get_next_check(), linehandle_t::get_next_check(), convoihandle_t::get_next_check());
+					LCHKLST(sync_steps) = checklist_t(get_random_seed(), halthandle_t::get_next_check(), linehandle_t::get_next_check(), convoihandle_t::get_next_check(), industry_density_proportion, actual_industry_density);
 					// some serverside tasks
 					if(  umgebung_t::networkmode  &&  umgebung_t::server  ) {
 						// broadcast sync info
