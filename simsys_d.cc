@@ -343,7 +343,9 @@ int dr_screenshot(const char *filename)
 		return 1;
 	}
 #endif
-	return 0;
+	PALETTE pal;
+	get_palette(pal);
+	return save_bitmap(filename, texture_map, pal) == 0 ? 1 : -1;
 }
 
 
