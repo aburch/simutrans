@@ -1681,6 +1681,8 @@ karte_t::karte_t() :
 	grid_hgts = 0;
 	schedule_counter = 0;
 	nosave_warning = nosave = false;
+	letztes_jahr = 1930;
+	letzter_monat = 0;
 
 	for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
 		spieler[i] = NULL;
