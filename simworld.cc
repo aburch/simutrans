@@ -142,9 +142,11 @@ void checklist_t::rdwr(memory_rw_t *buffer)
 	buffer->rdwr_short(halt_entry);
 	buffer->rdwr_short(line_entry);
 	buffer->rdwr_short(convoy_entry);
-
-	buffer->rdwr_long(industry_density_proportion);
-	buffer->rdwr_long(actual_industry_density);
+	if(umgebung_t::networkmode)
+	{
+		buffer->rdwr_long(industry_density_proportion);
+		buffer->rdwr_long(actual_industry_density);
+	}
 }
 
 
