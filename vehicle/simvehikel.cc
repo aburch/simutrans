@@ -180,6 +180,7 @@ vehikel_basis_t::vehikel_basis_t(karte_t *welt):
 	drives_on_left = false;
 	dx = 0;
 	dy = 0;
+	hoff = 0;
 }
 
 
@@ -195,6 +196,7 @@ vehikel_basis_t::vehikel_basis_t(karte_t *welt, koord3d pos):
 	drives_on_left = false;
 	dx = 0;
 	dy = 0;
+	hoff = 0;
 }
 
 
