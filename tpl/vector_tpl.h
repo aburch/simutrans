@@ -273,6 +273,11 @@ template<class T> class vector_tpl
 		uint32 size;  ///< Capacity
 		uint32 count; ///< Number of elements in vector
 
+		vector_tpl& operator=( vector_tpl const& other ) {
+			vector_tpl tmp(other);
+			swap(tmp, *this);
+			return *this;
+		}
 
 	friend void swap<>(vector_tpl<T>& a, vector_tpl<T>& b);
 };

@@ -30,7 +30,10 @@
 
 
 static stringhashtable_tpl<const vehikel_besch_t*> name_fahrzeuge;
-static inthashtable_tpl<waytype_t, slist_tpl<const vehikel_besch_t*> > typ_fahrzeuge;
+
+// index 0 aur, 1...8 at normal waytype index
+#define GET_WAYTYPE_INDEX(wt) ((int)(wt)>8 ? 0 : (wt))
+static slist_tpl<const vehikel_besch_t*> typ_fahrzeuge[9];
 
 
 
@@ -128,11 +131,12 @@ sint32 vehikelbauer_t::get_speedbonus( sint32 monthyear, waytype_t wt )
 		sint32 speed_sum = 0;
 		sint32 num_averages = 0;
 		// needs to do it the old way => iterate over all vehicles with this type ...
-		if(typ_fahrzeuge.access(wt)) {
-			slist_iterator_tpl<const vehikel_besch_t*> vehinfo(typ_fahrzeuge.access(wt));
-			while (vehinfo.next()) {
+		const int wtidx = GET_WAYTYPE_INDEX(wt);
+		if(  !typ_fahrzeuge[wtidx].empty()  ) {
+			slist_iterator_tpl<const vehikel_besch_t*> vehinfo(typ_fahrzeuge[wtidx]);
+			while(  vehinfo.next()  ) {
 				const vehikel_besch_t* info = vehinfo.get_current();
-				if(info->get_leistung()>0  &&  !info->is_future(monthyear)  &&  !info->is_retired(monthyear)) {
+				if(  info->get_leistung()>0  &&  !info->is_future(monthyear)  &&  !info->is_retired(monthyear)  ) {
 					speed_sum += info->get_geschw();
 					num_averages ++;
 				}
@@ -194,24 +198,17 @@ vehikel_t* vehikelbauer_t::baue(koord3d k, spieler_t* sp, convoi_t* cnv, const v
 
 bool vehikelbauer_t::register_besch(const vehikel_besch_t *besch)
 {
-	// printf("N=%s T=%d V=%d P=%d\n", besch->get_name(), besch->get_typ(), besch->get_geschw(), besch->get_leistung());
+	// register waytype liste
+	const int idx = GET_WAYTYPE_INDEX( besch->get_waytype() );
 
 	const vehikel_besch_t *old_besch = name_fahrzeuge.get( besch->get_name() );
 	if(  old_besch  ) {
 		dbg->warning( "vehikelbauer_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
 		name_fahrzeuge.remove( besch->get_name() );
+		typ_fahrzeuge[idx].remove(old_besch);
 	}
 	name_fahrzeuge.put(besch->get_name(), besch);
-
-	// register waytype liste
-	waytype_t typ = besch->get_waytype();
-	slist_tpl<const vehikel_besch_t *> *typ_liste = typ_fahrzeuge.access(typ);
-	if(!typ_liste) {
-		typ_fahrzeuge.put(typ, slist_tpl<const vehikel_besch_t *>());
-		typ_liste = typ_fahrzeuge.access(typ);
-	}
-	typ_liste->remove(old_besch);
-	typ_liste->append(besch);
+	typ_fahrzeuge[idx].append(besch);
 
 	return true;
 }
@@ -265,21 +262,20 @@ bool vehikelbauer_t::alles_geladen()
 {
 	// first: check for bonus tables
 	DBG_MESSAGE("vehikelbauer_t::sort_lists()","called");
-	inthashtable_iterator_tpl<waytype_t, slist_tpl<const vehikel_besch_t*> > typ_iter(typ_fahrzeuge);
-	while (typ_iter.next()) {
-		slist_tpl<const vehikel_besch_t*>& typ_liste = typ_iter.access_current_value();
+	for(  int wt_idx=0;  wt_idx<9;  wt_idx++  ) {
+		slist_tpl<const vehikel_besch_t*>& typ_liste = typ_fahrzeuge[wt_idx];
 		uint count = typ_liste.get_count();
 		if (count == 0) {
 			continue;
 		}
 		const vehikel_besch_t** const tmp     = new const vehikel_besch_t*[count];
 		const vehikel_besch_t** const tmp_end = tmp + count;
-		for (const vehikel_besch_t** i = tmp; i != tmp_end; i++) {
-			*i = typ_liste.remove_first();
+		for(  const vehikel_besch_t** tmpptr = tmp;  tmpptr != tmp_end;  tmpptr++  ) {
+			*tmpptr = typ_liste.remove_first();
 		}
 		std::sort(tmp, tmp_end, compare_vehikel_besch);
-		for (const vehikel_besch_t** i = tmp; i != tmp_end; i++) {
-			typ_liste.append(*i);
+		for(  const vehikel_besch_t** tmpptr = tmp;  tmpptr != tmp_end;  tmpptr++  ) {
+			typ_liste.append(*tmpptr);
 		}
 		delete [] tmp;
 	}
@@ -297,7 +293,7 @@ const vehikel_besch_t *vehikelbauer_t::get_info(const char *name)
 
 slist_tpl<const vehikel_besch_t*>* vehikelbauer_t::get_info(waytype_t typ)
 {
-	return typ_fahrzeuge.access(typ);
+	return &typ_fahrzeuge[GET_WAYTYPE_INDEX(typ)];
 }
 
 
@@ -317,9 +313,9 @@ const vehikel_besch_t *vehikelbauer_t::vehikel_search( waytype_t wt, const uint1
 		return NULL;
 	}
 
-	if(typ_fahrzeuge.access(wt)) {
-		slist_iterator_tpl<const vehikel_besch_t*> vehinfo(typ_fahrzeuge.access(wt));
-		while (vehinfo.next()) {
+	if(  !typ_fahrzeuge[GET_WAYTYPE_INDEX(wt)].empty()  ) {
+		slist_iterator_tpl<const vehikel_besch_t*> vehinfo(typ_fahrzeuge[GET_WAYTYPE_INDEX(wt)]);
+		while(  vehinfo.next(  )) {
 			const vehikel_besch_t* test_besch = vehinfo.get_current();
 
 			// no constricts allow for rail vehicles concerning following engines
@@ -429,9 +425,9 @@ const vehikel_besch_t *vehikelbauer_t::get_best_matching( waytype_t wt, const ui
 	const vehikel_besch_t *besch = NULL;
 	long besch_index=-100000;
 
-	if(typ_fahrzeuge.access(wt)) {
-		slist_iterator_tpl<const vehikel_besch_t*> vehinfo(typ_fahrzeuge.access(wt));
-		while (vehinfo.next()) {
+	if(  !typ_fahrzeuge[GET_WAYTYPE_INDEX(wt)].empty()  ) {
+		slist_iterator_tpl<const vehikel_besch_t*> vehinfo(typ_fahrzeuge[GET_WAYTYPE_INDEX(wt)]);
+		while(  vehinfo.next()  ) {
 			const vehikel_besch_t* test_besch = vehinfo.get_current();
 
 			if(target_power>0  &&  test_besch->get_leistung()==0) {

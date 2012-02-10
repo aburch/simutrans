@@ -144,7 +144,9 @@ public:
 	{
 		node_t* tmp = new node_t(data, head);
 		head = tmp;
-		if (tail == NULL) tail = tmp;
+		if(  tail == NULL  ) {
+			tail = tmp;
+		}
 		node_count++;
 	}
 
@@ -388,6 +390,17 @@ public:
 		}
 		return t ? index : -1;
 	}
+
+/*
+ * if those are uncommented, then socket_list_t and obj_reader_t::xref_to_resolve have a problem,
+ * since those contain arrays/haslists of slists. This could certainly lead to errors,
+ * which might be not found be valgrind, as freelist_t is not really looked at by valgrind.
+ * Somehow this needs a fix!
+ *
+private:
+	slist_tpl(const slist_tpl& slist_tpl);
+	slist_tpl& operator=( slist_tpl const& other );
+*/
 };
 
 
