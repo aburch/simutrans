@@ -303,21 +303,6 @@ unsigned int get_system_color(unsigned int r, unsigned int g, unsigned int b)
 }
 
 
-void dr_setRGB8multi(int first, int count, unsigned char* data)
-{
-	PALETTE p;
-	int n;
-
-	for (n = 0; n < count; n++) {
-		p[n + first].r = data[n * 3 + 0] >> 2;
-		p[n + first].g = data[n * 3 + 1] >> 2;
-		p[n + first].b = data[n * 3 + 2] >> 2;
-	}
-
-	set_palette_range(p, first, first + count - 1, true);
-}
-
-
 void dr_prepare_flush()
 {
 	return;

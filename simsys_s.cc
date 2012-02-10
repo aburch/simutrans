@@ -255,21 +255,6 @@ unsigned int get_system_color(unsigned int r, unsigned int g, unsigned int b)
 }
 
 
-void dr_setRGB8multi(int first, int count, unsigned char* data)
-{
-	ALLOCA(SDL_Color, rgb, count);
-	int n;
-
-	for (n = 0; n < count; n++) {
-		rgb[n].r = *data++;
-		rgb[n].g = *data++;
-		rgb[n].b = *data++;
-	}
-
-	SDL_SetColors(screen, rgb, first, count);
-}
-
-
 void dr_prepare_flush()
 {
 	return;

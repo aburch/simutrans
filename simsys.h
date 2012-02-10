@@ -89,8 +89,6 @@ int dr_textur_resize(unsigned short** textur, int w, int h);
 void dr_prepare_flush();	// waits, if previous update not yet finished
 void dr_flush(void);	// copy to screen (eventuall multithreaded)
 
-void dr_setRGB8multi(int first, int count, unsigned char * data);
-
 /**
  * Transform a 24 bit RGB color into the system format.
  * @return converted color value
