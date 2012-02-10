@@ -33,7 +33,7 @@ public:
 		dirty=1,        /// mark image dirty when drawing
 		not_on_map=2,   /// this object is not placed on any tile (e.g. vehicles in a depot)
 		is_vehicle=4,   /// this object is a vehicle obviously
-		highlite=8      /// for drawing some highlighted outline
+		highlight=8      /// for drawing some highlighted outline
 	};
 
 	// display only outline with player color on owner stuff

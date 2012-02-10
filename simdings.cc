@@ -249,13 +249,13 @@ void ding_t::display(int xpos, int ypos) const
 				// only transparent outline
 				display_blend(get_outline_bild(), xpos, start_ypos, besitzer_n, transparent, 0, is_dirty);
 			}
-			else if(  ding_t::get_flag( highlite )  ) {
-				// highlite this tile
+			else if(  ding_t::get_flag( highlight )  ) {
+				// highlight this tile
 				display_blend(get_bild(), xpos, start_ypos, besitzer_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty);
 			}
 		}
-		else if(  ding_t::get_flag( highlite )  ) {
-			// highlite this tile
+		else if(  ding_t::get_flag( highlight )  ) {
+			// highlight this tile
 			display_blend(get_bild(), xpos, start_ypos, besitzer_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty);
 		}
 	}
@@ -290,16 +290,16 @@ void ding_t::display_after(int xpos, int ypos, bool) const
 			if(  ding_t::show_owner  ) {
 				display_blend(bild, xpos, ypos, besitzer_n, (welt->get_spieler(besitzer_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty);
 			}
-			else if(  ding_t::get_flag( highlite )  ) {
-				// highlite this tile
+			else if(  ding_t::get_flag( highlight )  ) {
+				// highlight this tile
 				display_blend( bild, xpos, ypos, besitzer_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty);
 			}
 			else {
 				display_color(bild, xpos, ypos, besitzer_n, true, is_dirty);
 			}
 		}
-		else if(  ding_t::get_flag( highlite )  ) {
-			// highlite this tile
+		else if(  ding_t::get_flag( highlight )  ) {
+			// highlight this tile
 			display_blend( bild, xpos, ypos, besitzer_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty);
 		}
 		else {

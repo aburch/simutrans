@@ -52,7 +52,7 @@ public:
 
 	void set_fahrplan( schedule_t* f ) { fpl = f; }
 
-	void highlite_schedule( schedule_t *markfpl, bool marking );
+	void highlight_schedule( schedule_t *markfpl, bool marking );
 
 	/** Zeichnet die Komponente */
 	void zeichnen(koord offset);
