@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hj. Malthaner
  *
  * This file is part of the Simutrans project under the artistic license.
  * (see license.txt)
@@ -48,7 +48,7 @@ bool ding_t::show_owner = false;
 void ding_t::init(karte_t *wl)
 {
 	welt = wl;
-	pos = koord3d::invalid;    // nicht in der karte enthalten!
+	pos = koord3d::invalid;
 
 	xoff = 0;
 	yoff = 0;
@@ -86,11 +86,10 @@ ding_t::~ding_t()
 	destroy_win((long)this);
 
 	if(flags&not_on_map  ||  !welt->ist_in_kartengrenzen(pos.get_2d())) {
-//		DBG_MESSAGE("ding_t::~ding_t()","deleted %p not on the map",this);
 		return;
 	}
 
-	// pruefe ob objekt auf karte und ggf. entfernen
+	// find object on the map and remove it
 	grund_t *gr = welt->lookup(pos);
 	if(!gr  ||  !gr->obj_remove(this)) {
 		// not found? => try harder at all map locations
@@ -123,14 +122,11 @@ ding_t::~ding_t()
 			}
 		}
 	}
-//DBG_MESSAGE("ding_t::~ding_t()","finished");
 }
 
 
 /**
- * setzt den Besitzer des dings
- * (public wegen Rathausumbau - V.Meyer)
- * @author Hj. Malthaner
+ * sets owner of object
  */
 void ding_t::set_besitzer(spieler_t *sp)
 {
@@ -140,12 +136,6 @@ void ding_t::set_besitzer(spieler_t *sp)
 }
 
 
-/**
- * Ein Objekt kann einen Besitzer haben.
- * @return Einen Zeiger auf den Besitzer des Objekts oder NULL,
- * wenn das Objekt niemand gehört.
- * @author Hj. Malthaner
- */
 spieler_t *ding_t::get_besitzer() const
 {
 	return welt->get_spieler(besitzer_n);

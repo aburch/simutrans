@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hj. Malthaner
  *
  * This file is part of the Simutrans project under the artistic license.
  * (see license.txt)
@@ -19,53 +19,53 @@ class karte_t;
 class spieler_t;
 
 /**
- * Von der Klasse ding_t sind alle Objekte in Simutrans abgeleitet.
+ * Base class of all objects on the map, ding == thing
  * Since everything is a 'ding' on the map, we need to make this as compact and fast as possible.
  *
  * @author Hj. Malthaner
- * @see planquadrat_t
  */
 class ding_t
 {
 public:
 	// flags
-	enum flag_values {keine_flags=0, dirty=1, not_on_map=2, is_vehicle=4, highlite=8 };
+	enum flag_values {
+		keine_flags=0,  /// no special properties
+		dirty=1,        /// mark image dirty when drawing
+		not_on_map=2,   /// this object is not placed on any tile (e.g. vehicles in a depot)
+		is_vehicle=4,   /// this object is a vehicle obviously
+		highlite=8      /// for drawing some highlighted outline
+	};
 
 	// display only outline with player color on owner stuff
 	static bool show_owner;
 
 private:
 	/**
-	* Dies ist die Koordinate des Planquadrates in der Karte zu
-	* dem das Objekt gehört.
-	* @author Hj. Malthaner
-	*/
+	 * Coordinate of position
+	 */
 	koord3d pos;
 
 	/**
-	* Dies ist der x-Offset in Bilschirmkoordinaten bei der
-	* Darstellung des Objektbildes.
-	* @author Hj. Malthaner
-	*/
+	 * x-offset of the object on the tile
+	 * used for drawing object image
+	 * if xoff and yoff are between 0 and OBJECT_OFFSET_STEPS-1 then
+	 * the top-left corner of the image is within tile boundaries
+	 */
 	sint8 xoff;
 
 	/**
-	* Dies ist der y-Offset in Bilschirmkoordinaten bei der
-	* Darstellung des Objektbildes.
-	* @author Hj. Malthaner
-	*/
+	 * y-offset of the object on the tile
+	 */
 	sint8 yoff;
 
 	/**
-	* Dies ist der Zeiger auf den Besitzer des Objekts.
-	* @author Hj. Malthaner
-	*/
+	 * Owner of the object (1 - public player, 15 - unowned)
+	 */
 	uint8 besitzer_n:4;
 
 	/**
-	* flags fuer Zustaende, etc
-	* @author Hj. Malthaner
-	*/
+	 * @see flag_values
+	 */
 	uint8 flags:4;
 
 private:
@@ -95,27 +95,24 @@ public:
 	sint8 get_player_nr() const { return besitzer_n; }
 
 	/**
-	* setzt den Besitzer des dings
-	* (public wegen Rathausumbau - V.Meyer)
-	* @author Hj. Malthaner
-	*/
+	 * sets owner of object
+	 */
 	void set_besitzer(spieler_t *sp);
 
 	/**
-	* Ein Objekt kann einen Besitzer haben.
-	* @return Einen Zeiger auf den Besitzer des Objekts oder NULL,
-	* wenn das Objekt niemand gehört.
-	* @author Hj. Malthaner
-	*/
+	 * returns owner of object
+	 */
 	spieler_t * get_besitzer() const;
 
 	/**
-	* setzt ein flag im flag-set des dings. Siehe auch flag_values
-	* @author Hj. Malthaner
-	*/
+	 * routines to set, clear, get bit flags
+	 * @author Hj. Malthaner
+	 */
 	inline void set_flag(flag_values flag) {flags |= flag;}
 	inline void clear_flag(flag_values flag) {flags &= ~flag;}
 	inline bool get_flag(flag_values flag) const {return ((flags & flag) != 0);}
+
+	/// all the different types of objects
 	enum typ {
 		undefined=-1, ding=0, baum=1, zeiger=2,
 		wolke=3, sync_wolke=4, async_wolke=5,
@@ -184,21 +181,14 @@ public:
 	inline void set_yoff(sint8 yoff) {this->yoff = yoff; }
 
 	/**
-	 * Mit diesem Konstruktor werden Objekte aus einer Datei geladen
-	 *
-	 * @param welt Zeiger auf die Karte, in die das Objekt geladen werden soll.
-	 * @param file Dateizeiger auf die Datei, die die Objektdaten enthält.
+	 * Constructor to load object from file
 	 * @author Hj. Malthaner
 	 */
 	ding_t(karte_t *welt, loadsave_t *file);
 
 	/**
-	 * Mit diesem Konstruktor werden Objekte für den Boden[x][y][z] erzeugt,
-	 * diese Objekte müssem nach der Erzeugung mit
-	 * plan[x][y][z].obj_add explizit auf das Planquadrat gesezt werden.
-	 *
-	 * @param welt Zeiger auf die Karte, zu der das Objekt gehören soll.
-	 * @param pos Die Koordinate des Planquadrates.
+	 * Constructor to set position of object
+	 * This does *not* add the object to the tile
 	 * @author Hj. Malthaner
 	 */
 	ding_t(karte_t *welt, koord3d pos);
@@ -206,29 +196,27 @@ public:
 	karte_t* get_welt() const { return welt; }
 
 	/**
-	 * Der Destruktor schließt alle Beobachtungsfenster für dieses Objekt.
-	 * Er entfernt das Objekt aus der Karte.
+	 * Destructor: removes object from tile, should close any inspection windows
 	 * @author Hj. Malthaner
 	 */
 	virtual ~ding_t();
 
 	/**
-	 * Zum buchen der Abrisskosten auf das richtige Konto
+	 * Routine for cleanup if object is removed (ie book maintenance, cost for removal)
 	 * @author Hj. Malthaner
 	 */
 	virtual void entferne(spieler_t *) {}
 
 	/**
-	 * 'Jedes Ding braucht einen Namen.'
-	 * @return Gibt den unübersetzten(!) Namen des Objekts zurück.
+	 * @returns untranslated name of object
 	 * @author Hj. Malthaner
 	 */
 	virtual const char *get_name() const {return "Ding";}
 
 	/**
-	 * 'Jedes Ding braucht einen Typ.'
-	 * @return Gibt den typ des Objekts zurück.
+	 * @return object type
 	 * @author Hj. Malthaner
+	 * @see typ
 	 */
 	virtual typ get_typ() const = 0;
 
@@ -237,11 +225,11 @@ public:
 	 */
 	virtual waytype_t get_waytype() const { return invalid_wt; }
 
-	/*
-	* called whenever the snowline height changes
-	* return false and the ding_t will be deleted
-	* @author prissi
-	*/
+	/**
+	 * called whenever the snowline height changes
+	 * return false and the ding_t will be deleted
+	 * @author prissi
+	 */
 	virtual bool check_season(const long /*month*/) { return true; }
 
 	/**
@@ -284,36 +272,31 @@ public:
 	virtual PLAYER_COLOR_VAL get_outline_bild() const {return IMG_LEER;}
 
 	/**
-	 * Speichert den Zustand des Objekts.
-	 *
-	 * @param file Zeigt auf die Datei, in die das Objekt geschrieben werden
-	 * soll.
+	 * Save and Load of object data in one routine
 	 * @author Hj. Malthaner
 	 */
 	virtual void rdwr(loadsave_t *file);
 
 	/**
-	 * Wird nach dem Laden der Welt aufgerufen - üblicherweise benutzt
-	 * um das Aussehen des Dings an Boden und Umgebung anzupassen
+	 * Called after the world is completely loaded from savegame
 	 *
 	 * @author Hj. Malthaner
 	 */
 	virtual void laden_abschliessen() {}
 
 	/**
-	 * Ein Objekt gehört immer zu einem grund_t
-	 * @return Die aktuellen Koordinaten des Grundes.
-	 * @author V. Meyer
-	 * @see ding_t#ding_t
+	 * @return position
 	 */
 	inline koord3d get_pos() const {return pos;}
 
-	// only zeiger_t overlays this function, so virtual definition is overkill
+	/**
+	 * set position - you would not have guessed it :)
+	 */
 	inline void set_pos(koord3d k) { if(k!=pos) { set_flag(dirty); pos = k;} }
 
 	/**
-	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
-	 * Beobachtungsfenster angezeigt wird.
+	 * put description of object into the buffer
+	 * (used for certain windows)
 	 * @author Hj. Malthaner
 	 * @see simwin
 	 */
@@ -343,7 +326,7 @@ public:
 	 */
 	virtual void display_after(int xpos, int ypos, bool is_global) const;
 
-	/*
+	/**
 	* when a vehicle moves or a cloud moves, it needs to mark the old spot as dirty (to copy to screen)
 	* sometimes they have an extra offset, this is the yoff parameter
 	* @author prissi
@@ -358,6 +341,10 @@ public:
 };
 
 
+/**
+ * Template to do casting of pointers based on ding_t::typ
+ * as a replacement of the slower dynamic_cast<>
+ */
 template<typename T> static T* ding_cast(ding_t*);
 
 template<typename T> static inline T const* ding_cast(ding_t const* const d)
@@ -366,6 +353,9 @@ template<typename T> static inline T const* ding_cast(ding_t const* const d)
 }
 
 
+/**
+ * Game objects that do not have description windows (for instance zeiger_t, wolke_t)
+ */
 class ding_no_info_t : public ding_t
 {
 public:
