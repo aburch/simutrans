@@ -408,11 +408,14 @@ void weg_t::calc_bild()
 			// try diagonal image
 			if(  besch->has_diagonal_bild()  ) {
 
+				bool const old_is_diagonal = is_diagonal();
+
 				check_diagonal();
 
-				if(is_diagonal()) {
+				if(is_diagonal()  || old_is_diagonal) {
 					static int recursion = 0; /* Communicate among different instances of this method */
 
+					// recalc image of neighbors also when this changed to non-diagonal
 					if(recursion == 0) {
 						recursion++;
 						for(int r = 0; r < 4; r++) {
@@ -423,9 +426,12 @@ void weg_t::calc_bild()
 						recursion--;
 					}
 
-					image_id diag_bild = besch->get_diagonal_bild_nr(ribi, snow);
-					if(diag_bild != IMG_LEER) {
-						set_bild(diag_bild);
+					// now apply diagonal image
+					if(is_diagonal()) {
+						image_id diag_bild = besch->get_diagonal_bild_nr(ribi, snow);
+						if(diag_bild != IMG_LEER) {
+							set_bild(diag_bild);
+						}
 					}
 				}
 			}
@@ -433,6 +439,7 @@ void weg_t::calc_bild()
 	}
 	if (bild!=old_bild) {
 		mark_image_dirty(old_bild, from->get_weg_yoff());
+		mark_image_dirty(bild, from->get_weg_yoff());
 	}
 }
 
