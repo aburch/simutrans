@@ -2504,12 +2504,12 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			}
 			// during loading and saving halts will be referred by their base postion
 			// so we may alrady be defined ...
-			if(gr->get_halt().is_bound()) {
+			if(gr && gr->get_halt().is_bound()) {
 				dbg->warning( "haltestelle_t::rdwr()", "bound to ground twice at (%i,%i)!", k.x, k.y );
 			}
 			// prissi: now check, if there is a building -> we allow no longer ground without building!
-			const gebaeude_t* gb = gr->find<gebaeude_t>();
-			const haus_besch_t *besch=gb?gb->get_tile()->get_besch():NULL;
+			const gebaeude_t* gb = gr ? gr->find<gebaeude_t>() : NULL;
+			const haus_besch_t *besch=gb ? gb->get_tile()->get_besch():NULL;
 			if(besch) {
 				add_grund( gr );
 			}
