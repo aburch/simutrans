@@ -2,8 +2,8 @@ CFG ?= default
 -include config.$(CFG)
 
 
-BACKENDS      = allegro gdi sdl mixer_sdl x11 posix
-COLOUR_DEPTHS = 0 8 16
+BACKENDS      = allegro gdi sdl mixer_sdl posix
+COLOUR_DEPTHS = 0 16
 OSTYPES       = amiga beos cygwin freebsd haiku linux mingw mac
 
 ifeq ($(findstring $(BACKEND), $(BACKENDS)),)
@@ -16,11 +16,6 @@ endif
 
 ifeq ($(findstring $(OSTYPE), $(OSTYPES)),)
   $(error Unkown OSTYPE "$(OSTYPE)", must be one of "$(OSTYPES)")
-endif
-
-
-ifeq ($(BACKEND), x11)
-  $(warning ATTENTION: X11 backend is broken)
 endif
 
 
@@ -456,14 +451,6 @@ ifeq ($(BACKEND),mixer_sdl)
   endif
   CFLAGS += $(SDL_CFLAGS)
   LIBS   += $(SDL_LDFLAGS) -lSDL_mixer
-endif
-
-ifeq ($(BACKEND),x11)
-  SOURCES  += simsys_x$(COLOUR_DEPTH).c
-  SOURCES += sound/no_sound.cc
-  SOURCES += music/no_midi.cc
-  CFLAGS  += -I/usr/X11R6/include
-  LIBS    += -L/usr/X11R6/lib/ -lX11 -lXext
 endif
 
 ifeq ($(BACKEND),posix)

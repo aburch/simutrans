@@ -7,7 +7,6 @@
 #BACKEND = gdi
 #BACKEND = sdl
 #BACKEND = mixer_sdl
-#BACKEND = x11
 #BACKEND = posix
 
 #COLOUR_DEPTH = 0
