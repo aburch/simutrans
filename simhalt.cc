@@ -2429,16 +2429,33 @@ void haltestelle_t::rdwr(loadsave_t *file)
 	koord3d k;
 
 	// will restore halthandle_t after loading
-	if(file->get_version() > 110005) {
-		if(file->is_saving()) {
+	if(file->get_version() > 110005) 
+	{
+		if(file->is_saving()) 
+		{
+			if(!self.is_bound())
+			{
+				// Something has gone a bit wrong here, as the handle to self is not bound.
+				if(!this)
+				{
+					// Probably superfluous, but best to be sure that this is really not a dud pointer.
+					return;
+				}
+				if(self.get_rep() != this)
+				{
+					uint16 id = self.get_id();
+					self = halthandle_t(this, id);
+				}
+			}
 			uint16 halt_id = self.is_bound() ? self.get_id() : 0;
 			file->rdwr_short(halt_id);
 		}
-		else {
+		else 
+		{
 			uint16 halt_id;
 			file->rdwr_short(halt_id);
 			self.set_id(halt_id);
-			if(file->get_experimental_version() >= 10 || file->get_experimental_version() == 0)
+			if((file->get_experimental_version() >= 10 || file->get_experimental_version() == 0) && halt_id != 0)
 			{
 				self = halthandle_t(this, halt_id);
 			}
@@ -2448,8 +2465,10 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			}
 		}
 	}
-	else {
-		if (file->is_loading()) {
+	else 
+	{
+		if (file->is_loading()) 
+		{
 			self = halthandle_t(this);
 		}
 	}
@@ -2627,6 +2646,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			
 				inthashtable_iterator_tpl<uint16, waiting_time_set > iter(waiting_times[i]);
 
+				halthandle_t halt;
 				while(iter.next())
 				{
 					uint16 id = iter.get_current_key();
@@ -2637,7 +2657,6 @@ void haltestelle_t::rdwr(loadsave_t *file)
 					}
 					else
 					{
-						halthandle_t halt;
 						halt.set_id(id);
 						koord save_koord = koord::invalid;
 						if(halt.is_bound())
@@ -2662,15 +2681,16 @@ void haltestelle_t::rdwr(loadsave_t *file)
 						file->rdwr_byte(wt.month);
 					}
 				}
+				halt.set_id(0);
 			}
 
 			else
 			{
 				uint16 halts_count;
 				file->rdwr_short(halts_count);
+				halthandle_t halt;
 				for(uint16 k = 0; k < halts_count; k ++)
 				{
-					halthandle_t halt;
 					if(file->get_experimental_version() >= 10)
 					{
 						uint16 id;
@@ -2727,6 +2747,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 						}
 					}
 				}
+				halt.set_id(0);
 			}
 		}
 
@@ -3458,10 +3479,7 @@ void haltestelle_t::add_halt_within_walking_distance(halthandle_t halt)
 
 void haltestelle_t::remove_halt_within_walking_distance(halthandle_t halt)
 {
-	if(halt != self)
-	{
-		halts_within_walking_distance.remove(halt);
-	}
+	halts_within_walking_distance.remove(halt);
 }
 
 void haltestelle_t::check_nearby_halts()
