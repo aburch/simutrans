@@ -283,19 +283,17 @@ uint32 log10(uint32 v)
 {
 	// taken from http://graphics.stanford.edu/~seander/bithacks.html
 	// compute log2 first
-	const uint32 b[] = {0x2, 0xC, 0xF0, 0xFF00, 0xFFFF0000};
-	const uint32 S[] = {1, 2, 4, 8, 16};
+	const uint32 b[] = { 0x2, 0xC, 0xF0, 0xFF00, 0xFFFF0000 };
+	const uint32 S[] = { 1, 2, 4, 8, 16 };
 
 	uint32 r = 0; // result of log2(v) will go here
-	for (int i = 4; i >= 0; i--)
-	{
-	  if (v & b[i])
-	  {
-		v >>= S[i];
-		r |= S[i];
-	  }
+	for(  int i = 4;  i >= 0;  i--  ) {
+		if(  v & b[i]  ) {
+			v >>= S[i];
+			r |= S[i];
+		}
 	}
-	uint32 t = (r + 1) * 1233 >> 12; // 1 / log_2(10) ~~ 1233 / 4096
+	uint32 t = ((r + 1) * 1233) >> 12; // 1 / log_2(10) ~~ 1233 / 4096
 	return t;
 }
 
