@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
 	} else {
 		puts(
 			"\nMakeobj version " MAKEOBJ_VERSION " for Simutrans " VERSION_NUMBER " and higher\n"
-			"(c) 2002-2006 V. Meyer , Hj. Malthaner, M. Pristovsek (markus@pristovsek.de)\n"
+			"(c) 2002-2006 V. Meyer, Hj. Malthaner, M. Pristovsek (markus@pristovsek.de)\n"
 		);
 	}
 
