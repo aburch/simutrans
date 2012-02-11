@@ -164,7 +164,7 @@ public:
 	 * Button getroffen wurde, false wenn x, y ausserhalb liegt
 	 * @author Hj. Malthaner
 	 */
-	bool getroffen(int x,int y);
+	bool getroffen(int x, int y) OVERRIDE;
 
 	/**
 	 * Events werden hiermit an die GUI-Komponenten
