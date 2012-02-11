@@ -115,7 +115,7 @@ public:
 	 * components should be triggered.
 	 * V.Meyer
 	 */
-	virtual bool action_triggered( gui_action_creator_t *komp, value_t extra);
+	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	// must catch open message to update list, since I am using virtual functions
 	virtual bool infowin_event(const event_t *ev);

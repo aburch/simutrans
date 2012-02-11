@@ -43,7 +43,7 @@ class trafficlight_info_t : public ding_infowin_t, public action_listener_t
 	 * components should be triggered.
 	 * V.Meyer
 	 */
-	bool action_triggered( gui_action_creator_t *komp, value_t extra);
+	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 
 	// called, after external change

@@ -71,7 +71,7 @@ public:
 	*/
 	void zeichnen(koord pos, koord gr);
 
-	bool action_triggered( gui_action_creator_t *komp, value_t extra);
+	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };
 
 #endif

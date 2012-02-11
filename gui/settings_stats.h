@@ -173,7 +173,7 @@ class settings_general_stats_t : protected settings_stats_t, public gui_containe
 	gui_combobox_t savegame;
 public:
 	// needed for savegame combobox
-	bool action_triggered(gui_action_creator_t *komp, value_t extra);
+	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 	void init(settings_t const*);
 	void read(settings_t*);
 };
@@ -207,7 +207,7 @@ private:
 public:
 	void init(settings_t*);
 	void read(settings_t*);
-	bool action_triggered(gui_action_creator_t *komp, value_t extra);
+	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };
 
 #endif

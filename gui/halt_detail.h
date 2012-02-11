@@ -68,7 +68,7 @@ public:
     virtual void set_fenstergroesse(koord groesse);
 
 	// callback for posbuttons
-	bool action_triggered( gui_action_creator_t *komp, value_t extra);
+	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	// only defined to update schedule, if changed
 	void zeichnen( koord pos, koord gr );

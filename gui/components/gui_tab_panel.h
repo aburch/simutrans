@@ -103,7 +103,7 @@ public:
 	 * This method is called if an action is triggered:
 	 * currently only left/right button
 	 */
-	bool action_triggered(gui_action_creator_t *komp, value_t p);
+	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	/**
 	 * Returns true if the hosted component of the active tab is focusable

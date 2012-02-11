@@ -36,7 +36,7 @@ class signal_spacing_frame_t : public gui_frame_t, private action_listener_t
 	 * components should be triggered.
 	 * V.Meyer
 	 */
-	bool action_triggered( gui_action_creator_t *komp, value_t extra);
+	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 
 	const char * get_hilfe_datei() const {return "signal_spacing.txt";}
