@@ -400,13 +400,11 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 			create_win( new news_img("Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n"), w_time_delete, magic_none);
 		}
 
-		if(!cnv.is_bound()) {
+		if (!cnv.is_bound()) {
 			dbg->warning("depot_t::start_convoi()","No convoi to start!");
-		}
-		if(cnv.is_bound() && cnv->get_schedule() == NULL) {
+		} else if (!cnv->get_schedule()) {
 			dbg->warning("depot_t::start_convoi()","No schedule for convoi.");
-		}
-		if (cnv.is_bound() && cnv->get_schedule() != NULL && !cnv->get_schedule()->ist_abgeschlossen()) {
+		} else if (!cnv->get_schedule()->ist_abgeschlossen()) {
 			dbg->warning("depot_t::start_convoi()","Schedule is incomplete/not finished");
 		}
 	}
