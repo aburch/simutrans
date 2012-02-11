@@ -19,10 +19,9 @@
 #include "../utils/simstring.h"
 
 
-gui_convoiinfo_t::gui_convoiinfo_t(convoihandle_t cnv, int n)
+gui_convoiinfo_t::gui_convoiinfo_t(convoihandle_t cnv)
 {
     this->cnv = cnv;
-    nummer = n;
 
     filled_bar.set_pos(koord(2, 33));
     filled_bar.set_groesse(koord(100, 4));

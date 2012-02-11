@@ -634,7 +634,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		cont.remove_all();
 		int ypos = 0;
 		for(i = 0;  i<icnv;  i++  ) {
-			gui_convoiinfo_t* const cinfo = new gui_convoiinfo_t(new_line->get_convoy(i), i + 1);
+			gui_convoiinfo_t* const cinfo = new gui_convoiinfo_t(new_line->get_convoy(i));
 			cinfo->set_pos(koord(0, ypos));
 			cinfo->set_groesse(koord(400, 40));
 			cont.add_komponente(cinfo);

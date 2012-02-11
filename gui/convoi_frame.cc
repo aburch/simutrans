@@ -257,7 +257,7 @@ bool convoi_frame_t::infowin_event(const event_t *ev)
 		int y = (ev->my-47)/40 + vscroll.get_knob_offset();
 		if(y<(sint32)convois.get_count()) {
 			// let gui_convoiinfo_t() handle this, since then it will be automatically consistent
-			gui_convoiinfo_t ci(convois[y], 0);
+			gui_convoiinfo_t ci(convois[y]);
 			return ci.infowin_event( ev );
 		}
 	}
@@ -339,7 +339,7 @@ void convoi_frame_t::zeichnen(koord pos, koord gr)
 		convoihandle_t cnv = convois[i];
 
 		if(cnv.is_bound()) {
-			gui_convoiinfo_t ci(cnv, 0);
+			gui_convoiinfo_t ci(cnv);
 			ci.zeichnen( pos+koord(4,yoffset) );
 		}
 		// full height of a convoi is 40 for all info
