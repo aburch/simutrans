@@ -15,13 +15,13 @@ int main(int argc, char* argv[])
 {
 	argv++, argc--;
 
-	init_logging( "stderr", true, true, "Makeobj version " MAKEOBJ_VERSION " for simutrans " VERSION_NUMBER " and higher\n" );
+	init_logging("stderr", true, true, "Makeobj version " MAKEOBJ_VERSION " for Simutrans " VERSION_NUMBER " and higher\n");
 
 	if (argc && !STRICMP(argv[0], "quiet")) {
 		argv++, argc--;
 	} else {
 		puts(
-			"\nMakeobj version " MAKEOBJ_VERSION " for simutrans " VERSION_NUMBER " and higher\n"
+			"\nMakeobj version " MAKEOBJ_VERSION " for Simutrans " VERSION_NUMBER " and higher\n"
 			"(c) 2002-2006 V. Meyer , Hj. Malthaner, M. Pristovsek (markus@pristovsek.de)\n"
 		);
 	}

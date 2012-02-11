@@ -271,7 +271,7 @@ int say(SOCKET socket, uint32 command_id, int argc, char **argv) {
 void usage()
 {
 	fprintf(stderr,
-		"nettool for simutrans " VERSION_NUMBER " and higher\n"
+		"nettool for Simutrans " VERSION_NUMBER " and higher\n"
 		"\n"
 		"  Usage:\n"
 		"\n"
@@ -434,7 +434,7 @@ int main(int argc, char* argv[]) {
 	// Print copyright notice unless quiet flag set
 	if (!opt_q) {
 		fprintf(stderr,
-			"nettool for simutrans " VERSION_NUMBER " and higher\n"
+			"nettool for Simutrans " VERSION_NUMBER " and higher\n"
 		);
 	}
 
