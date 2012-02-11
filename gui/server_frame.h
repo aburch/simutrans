@@ -49,7 +49,7 @@ public:
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
-	bool infowin_event(const event_t *ev);
+	bool infowin_event(event_t const*) OVERRIDE;
 };
 
 #endif

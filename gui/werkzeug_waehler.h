@@ -98,7 +98,7 @@ public:
 	 * gemeldet
 	 * @author Hj. Malthaner
 	 */
-	bool infowin_event(const event_t *ev);
+	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**
 	 * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf

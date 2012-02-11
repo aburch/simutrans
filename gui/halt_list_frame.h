@@ -110,7 +110,7 @@ public:
     void filter_frame_closed() { filter_frame = NULL; }
 
 	// must be handled, because we could not use scrollpane
-	bool infowin_event(const event_t*);
+	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**
      * This method is called if the size of the window should be changed

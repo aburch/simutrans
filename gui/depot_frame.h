@@ -267,7 +267,7 @@ public:
 	 */
 	void fahrplaneingabe();
 
-	bool infowin_event(const event_t *ev);
+	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**
 	 * Zeichnet das Frame

@@ -21,7 +21,8 @@ public:
 	line_management_gui_t(linehandle_t line, spieler_t* sp);
 	virtual ~line_management_gui_t();
 	const char * get_name() const;
-	bool infowin_event(const event_t *ev);
+
+	bool infowin_event(event_t const*) OVERRIDE;
 
 	// stuff for UI saving
 	line_management_gui_t(karte_t *welt);
