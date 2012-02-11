@@ -474,6 +474,8 @@ public:
 
 	uint32 city_threshold_size;
 	uint32 capital_threshold_size;
+	uint32 max_small_city_size;
+	uint32 max_city_size;
 
 	// player color suggestions for new games
 	bool default_player_color_random;
@@ -853,6 +855,10 @@ public:
 	void set_city_threshold_size(uint32 value) { city_threshold_size = value; }
 	uint32 get_capital_threshold_size() const { return capital_threshold_size; }
 	void set_capital_threshold_size(uint32 value) { capital_threshold_size = value; }
+	uint32 get_max_small_city_size() const { return max_small_city_size; }
+	void set_max_small_city_size(uint32 value) { max_small_city_size = value; }
+	uint32 get_max_city_size() const { return max_city_size; }
+	void set_max_city_size(uint32 value) { max_city_size = value; }
 
 	uint16 get_default_increase_maintenance_after_years(waytype_t wtype) const { return default_increase_maintenance_after_years[wtype]; }
 	void set_default_increase_maintenance_after_years(waytype_t wtype, uint16 value) { default_increase_maintenance_after_years[wtype] = value; }
