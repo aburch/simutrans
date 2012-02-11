@@ -39,7 +39,6 @@ public:
 
 	void sort(citylist::sort_mode_t sortby, bool sortreverse);
 
-	/** Events werden hiermit an die GUI-Komponenten gemeldet */
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	/** Recalc the current size required to display everything, and set komponente groesse */

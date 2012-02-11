@@ -111,11 +111,6 @@ public:
 	 */
 	char *get_text() const { return text; }
 
-	/**
-	 * Events werden hiermit an die GUI-Komponenten
-	 * gemeldet
-	 * @author Hj. Malthaner
-	 */
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**

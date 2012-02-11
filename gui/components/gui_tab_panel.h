@@ -65,11 +65,6 @@ public:
 	int get_active_tab_index() const { return min((int)tabs.get_count()-1,active_tab); }
 	void set_active_tab_index( int i ) { active_tab = min((int)tabs.get_count()-1,i); }
 
-	/**
-	 * Events werden hiermit an die GUI-Komponenten
-	 * gemeldet
-	 * @author Hj. Malthaner
-	 */
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**

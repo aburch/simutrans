@@ -172,7 +172,6 @@ public:
 	// updates the map (if needed)
 	void neuer_monat();
 
-	// these are the gui_container needed functions ...
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	void zeichnen(koord pos);

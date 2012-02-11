@@ -38,11 +38,6 @@ public:
 
 	void sort(factorylist::sort_mode_t sortby, bool sortreverse);
 
-	/**
-	* Events werden hiermit an die GUI-Komponenten
-	* gemeldet
-	* @author Hj. Malthaner
-	*/
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**

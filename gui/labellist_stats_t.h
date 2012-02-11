@@ -38,11 +38,6 @@ public:
 
 	void get_unique_labels(labellist::sort_mode_t sortby, bool reverse, bool filter);
 
-	/**
-	* Events werden hiermit an die GUI-Komponenten
-	* gemeldet
-	* @author Hj. Malthaner
-	*/
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**

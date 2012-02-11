@@ -94,11 +94,6 @@ public:
 		return m;
 	}
 
-	/**
-	 * Events werden hiermit an die GUI-Komponenten
-	 * gemeldet
-	 * @author Dwachs
-	 */
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**

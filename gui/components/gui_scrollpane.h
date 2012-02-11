@@ -65,11 +65,6 @@ public:
 	void set_scroll_discrete_x(const bool sd) { scroll_x.set_scroll_discrete(sd); }
 	void set_scroll_discrete_y(const bool sd) { scroll_y.set_scroll_discrete(sd); }
 
-	/**
-	 * Events werden hiermit an die GUI-Komponenten
-	 * gemeldet
-	 * @author Hj. Malthaner
-	 */
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**
