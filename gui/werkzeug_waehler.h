@@ -88,7 +88,7 @@ public:
 	/* returns true, if inside window area ...
 	 * @author Hj. Malthaner
 	 */
-	bool getroffen(int x, int y);
+	bool getroffen(int x, int y) OVERRIDE;
 
 	/**
 	 * Does this window need a next button in the title bar?

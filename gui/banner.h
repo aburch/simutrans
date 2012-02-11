@@ -55,7 +55,7 @@ public:
 	/* returns true, if inside window area ...
 	* @author Hj. Malthaner
 	*/
-	bool getroffen(int , int ) { return true; }
+	bool getroffen(int, int) OVERRIDE { return true; }
 
 	/* Events werden hiermit an die GUI-Komponenten
 	* gemeldet
