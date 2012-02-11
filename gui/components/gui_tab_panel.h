@@ -83,7 +83,7 @@ public:
 	 * @author Volker Meyer
 	 * @date  18.06.2003
 	 */
-	void set_groesse(koord groesse);
+	void set_groesse(koord groesse) OVERRIDE;
 
 	/*
 	 * Remove all tabs.

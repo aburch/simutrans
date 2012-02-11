@@ -31,7 +31,7 @@ public:
 	 * resize window in response to a resize event
 	 * need to recalculate the list of offsets
 	 */
-	virtual void set_groesse(koord groesse);
+	void set_groesse(koord groesse) OVERRIDE;
 };
 
 #endif

@@ -133,7 +133,7 @@ public:
 	 * obwohl groesse public ist.
 	 * @author Hj. Malthaner
 	 */
-	void set_groesse(koord groesse);
+	void set_groesse(koord groesse) OVERRIDE;
 
 	/**
 	 * called when the focus should be released

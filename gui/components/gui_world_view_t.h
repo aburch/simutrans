@@ -54,7 +54,7 @@ public:
 	 * need to recalculate the list of offsets
 	 * @author prissi
 	 */
-	virtual void set_groesse(koord groesse);
+	void set_groesse(koord groesse) OVERRIDE;
 };
 
 #endif

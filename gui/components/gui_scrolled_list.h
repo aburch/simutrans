@@ -118,7 +118,7 @@ public:
 	 */
 	koord request_groesse(koord request);
 
-	void set_groesse(koord groesse);
+	void set_groesse(koord groesse) OVERRIDE;
 
 	bool infowin_event(const event_t *ev);
 

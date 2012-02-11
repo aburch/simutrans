@@ -63,7 +63,7 @@ public:
 	 * obwohl groesse public ist.
 	 * @author Hj. Malthaner
 	 */
-	void set_groesse(koord groesse);
+	void set_groesse(koord groesse) OVERRIDE;
 
 	void set_scroll_amount(const sint32 sa) { knob_scroll_amount = sa; }
 	void set_scroll_discrete(const bool sd) { knob_scroll_discrete = sd; }

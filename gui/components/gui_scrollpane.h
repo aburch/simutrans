@@ -48,7 +48,7 @@ public:
 	 * benutzt werden.
 	 * @author Hj. Malthaner
 	 */
-	void set_groesse(koord groesse);
+	void set_groesse(koord groesse) OVERRIDE;
 
 	/**
 	 * Setzt Positionen der Scrollbars

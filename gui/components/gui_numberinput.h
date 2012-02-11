@@ -60,7 +60,7 @@ public:
 	gui_numberinput_t();
 	virtual ~gui_numberinput_t() {}
 
-	virtual void set_groesse(koord groesse);
+	void set_groesse(koord groesse) OVERRIDE;
 
 	// all init in one ...
 	void init( sint32 value, sint32 min, sint32 max, sint32 mode, bool wrap );
