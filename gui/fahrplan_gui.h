@@ -140,10 +140,6 @@ public:
 	// for updating info ...
 	void init_line_selector();
 
-	/**
-	 * Mausklicks werden hiermit an die GUI-Komponenten
-	 * gemeldet
-	 */
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	const char *get_hilfe_datei() const {return "schedule.txt";}

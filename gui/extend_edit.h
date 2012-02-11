@@ -83,10 +83,6 @@ public:
 	*/
 	bool has_min_sizer() const {return true;}
 
-	/**
-	 * Mausklicks werden hiermit an die GUI-Komponenten
-	 * gemeldet
-	 */
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;

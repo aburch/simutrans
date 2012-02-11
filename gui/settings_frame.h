@@ -64,11 +64,6 @@ public:
 	// does not work during new world dialoge
 	virtual bool has_sticky() const { return false; }
 
-	/**
-	 * Events werden hiermit an die GUI-Komponenten
-	 * gemeldet
-	 * @author V. Meyer
-	 */
 	bool infowin_event(event_t const*) OVERRIDE;
 };
 

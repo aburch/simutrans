@@ -118,11 +118,6 @@ public:
 
 	virtual uint32 get_rdwr_id() { return magic_reliefmap; }
 
-	/**
-	 * Events werden hiermit an die GUI-Komponenten
-	 * gemeldet
-	 * @author Hj. Malthaner
-	 */
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**
