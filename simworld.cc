@@ -3612,7 +3612,7 @@ void karte_t::update_history()
 void karte_t::set_scroll_lock(bool yesno)
 {
 	scroll_lock = yesno;
-	if(yesno  &&  follow_convoi.is_bound()) {
+	if (yesno) {
 		follow_convoi = convoihandle_t();
 	}
 }
@@ -5721,9 +5721,7 @@ bool karte_t::interactive(uint32 quit_month)
 					cursor_hidden = false;
 				} else if(IS_RIGHTDRAG(&ev)) {
 					// unset following
-					if(follow_convoi.is_bound()) {
-						follow_convoi = convoihandle_t();
-					}
+					follow_convoi = convoihandle_t();
 					blick_aendern(&ev);
 				}
 				else {
