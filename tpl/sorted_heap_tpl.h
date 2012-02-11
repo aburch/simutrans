@@ -139,6 +139,9 @@ public:
 
 
 	bool empty() const { return node_count == 0; }
+private:
+	sorted_heap_tpl(const sorted_heap_tpl& other);
+	sorted_heap_tpl& operator=( sorted_heap_tpl const& other );
 };
 
 #endif

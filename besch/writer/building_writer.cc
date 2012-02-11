@@ -228,8 +228,8 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 				slist_tpl<slist_tpl<slist_tpl<string> > > frontkeys;
 
 				for (int season = 0; season < seasons; season++) {
-					backkeys.append(slist_tpl<slist_tpl<string> >());
-					frontkeys.append(slist_tpl<slist_tpl<string> >());
+					backkeys.append();
+					frontkeys.append();
 
 					for (int pos = 0; pos < 2; pos++) {
 						slist_tpl<slist_tpl<slist_tpl<string> > >& keys = pos ? backkeys : frontkeys;
@@ -261,7 +261,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 									}
 								}
 								if (phase == 0) {
-									keys.at(season).append(slist_tpl<string>());
+									keys.at(season).append();
 								}
 								keys.at(season).at(h).append(str);
 							}

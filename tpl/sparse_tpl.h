@@ -221,6 +221,9 @@ class sparse_tpl
 		}
 
 	friend void swap<>(sparse_tpl<T>& a, sparse_tpl<T>& b);
+
+	sparse_tpl(const sparse_tpl& other);
+	sparse_tpl& operator=( sparse_tpl const& other );
 };
 
 template<class T> void swap(sparse_tpl<T>& a, sparse_tpl<T>& b)

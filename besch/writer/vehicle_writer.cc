@@ -241,7 +241,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 			}
 		}
 		else {
-			freightkeys.append(slist_tpl<string>());
+			freightkeys.append();
 			for(int freight = 0; freight < freight_max; freight++) {
 				sprintf(buf, "freightimage[%d][%s]", freight, dir_codes[i]);
 				str = obj.get(buf);

@@ -38,6 +38,11 @@ public:
 template<class key_t, class value_t>
 class inthashtable_tpl : public hashtable_tpl<key_t, value_t, inthash_tpl<key_t> >
 {
+public:
+	inthashtable_tpl() : hashtable_tpl<key_t, value_t, inthash_tpl<key_t> >() {}
+private:
+	inthashtable_tpl(const inthashtable_tpl&);
+	inthashtable_tpl& operator=( inthashtable_tpl const&);
 };
 
 

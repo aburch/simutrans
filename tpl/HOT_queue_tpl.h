@@ -166,6 +166,9 @@ public:
 	// the HOTqueue is empty, if the last pocket is empty
 	// this is always the heap ...
 	bool empty() const { return  node_top == node_size; }
+private:
+	HOT_queue_tpl(const HOT_queue_tpl& other);
+	HOT_queue_tpl& operator=( HOT_queue_tpl const& other );
 };
 
 #endif

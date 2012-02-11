@@ -87,6 +87,7 @@ template<class T> class array_tpl
 
 	private:
 		array_tpl(const array_tpl&);
+		array_tpl& operator=( array_tpl const& other );
 
 		T* data;
 		index size;

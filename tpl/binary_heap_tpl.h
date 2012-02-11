@@ -150,6 +150,9 @@ public:
 
 		return nodes[1];
 	}
+private:
+	binary_heap_tpl(const binary_heap_tpl& other);
+	binary_heap_tpl& operator=( binary_heap_tpl const& other );
 };
 
 #endif

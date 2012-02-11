@@ -46,6 +46,11 @@ public:
 template <class value_t>class stringhashtable_tpl :
 	public hashtable_tpl<const char *, value_t, stringhash_t>
 {
+public:
+	stringhashtable_tpl() : hashtable_tpl<const char *, value_t, stringhash_t>() {}
+private:
+	stringhashtable_tpl(const stringhashtable_tpl&);
+	stringhashtable_tpl& operator=( stringhashtable_tpl const&);
 };
 
 

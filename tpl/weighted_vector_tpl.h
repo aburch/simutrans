@@ -61,6 +61,12 @@ template<class T> class weighted_vector_tpl
 
 		weighted_vector_tpl() : nodes(NULL), size(0), count(0), total_weight(0) {}
 
+		weighted_vector_tpl& operator=( weighted_vector_tpl const& other )
+		{
+			assert(other.get_count()==0);
+			return *this;
+		}
+
 		/** Construct a vector for size elements */
 		explicit weighted_vector_tpl(uint32 size)
 		{
@@ -408,6 +414,8 @@ template<class T> class weighted_vector_tpl
 		uint32 size;                  ///< Capacity
 		uint32 count;                 ///< Number of elements in vector
 		unsigned long total_weight; ///< Sum of all weights
+
+		weighted_vector_tpl(const weighted_vector_tpl& other);
 
 	friend void swap<>(weighted_vector_tpl<T>&, weighted_vector_tpl<T>&);
 };
