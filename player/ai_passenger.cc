@@ -200,7 +200,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 	}
 
 	halthandle_t start_hub = get_our_hub( start_stadt );
-	halthandle_t start_connect_hub = halthandle_t();
+	halthandle_t start_connect_hub;
 	koord start_harbour = koord::invalid;
 	if(start_hub.is_bound()) {
 		if(  (start_hub->get_station_type()&haltestelle_t::dock)==0  ) {
@@ -229,7 +229,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 	}
 	// same for end
 	halthandle_t end_hub = end_stadt ? get_our_hub( end_stadt ) : ziel->get_halt();
-	halthandle_t end_connect_hub = halthandle_t();
+	halthandle_t end_connect_hub;
 	koord end_harbour = koord::invalid;
 	if(end_hub.is_bound()) {
 		if(  (end_hub->get_station_type()&haltestelle_t::dock)==0  ) {
@@ -611,7 +611,7 @@ bool ai_passenger_t::create_air_transport_vehikel(const stadt_t *start_stadt, co
 	}
 
 	halthandle_t start_hub = get_our_hub( start_stadt );
-	halthandle_t start_connect_hub = halthandle_t();
+	halthandle_t start_connect_hub;
 	koord start_airport;
 	if(start_hub.is_bound()) {
 		if(  (start_hub->get_station_type()&haltestelle_t::airstop)==0  ) {
@@ -640,7 +640,7 @@ bool ai_passenger_t::create_air_transport_vehikel(const stadt_t *start_stadt, co
 	}
 	// same for end
 	halthandle_t end_hub = get_our_hub( end_stadt );
-	halthandle_t end_connect_hub = halthandle_t();
+	halthandle_t end_connect_hub;
 	koord end_airport;
 	if(end_hub.is_bound()) {
 		if(  (end_hub->get_station_type()&haltestelle_t::airstop)==0  ) {

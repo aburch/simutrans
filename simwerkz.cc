@@ -2656,7 +2656,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 				koord offset(((j&1)^1)*(testsize.x-1),((j>>1)&1)*(testsize.y-1));
 				if(welt->ist_platz_frei(pos-offset, testsize.x, testsize.y, NULL, besch->get_allowed_climate_bits())) {
 					// first we must check over/under halt
-					halthandle_t last_halt = halthandle_t();
+					halthandle_t last_halt;
 					for(  sint16 x=0;  x<testsize.x;  x++  ) {
 						for(  sint16 y=0;  y<testsize.y;  y++  ) {
 							const planquadrat_t *pl = welt->lookup( pos-offset+koord(x,y) );
@@ -2881,7 +2881,7 @@ const char *wkz_station_t::wkz_station_dock_aux(karte_t *welt, spieler_t *sp, ko
 	int len = besch->get_groesse().y-1;
 	koord dx = koord((hang_t::typ)hang);
 	koord last_pos = pos - dx*len;
-	halthandle_t halt = halthandle_t();
+	halthandle_t halt;
 
 	// check, if we can build here ...
 	if(!hang_t::ist_einfach(hang)) {
