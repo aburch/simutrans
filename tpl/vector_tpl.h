@@ -175,30 +175,6 @@ template<class T> class vector_tpl
 		}
 
 		/**
-		 * Search for an element, assuming that the vector is sorted.
-		 * If the element is found, return its address; otherwise, return NULL
-		 */
-		template<class StrictWeakOrdering>
-		T* search_ordered(const T& elem, StrictWeakOrdering comp)
-		{
-			sint32 low = -1, high = count;
-			while(  high - low>1  ) {
-				const sint32 mid = ((uint32) (low + high)) >> 1;
-				T &mid_elem = data[mid];
-				if(  elem==mid_elem  ) {
-					return &mid_elem;
-				}
-				else if(  comp(elem, mid_elem)  ) {
-					high = mid;
-				}
-				else {
-					low = mid;
-				}
- 			}
-			return NULL;
- 		}
-
-		/**
 		 * put the data at a certain position
 		 * BEWARE: using this function will create default objects, depending on
 		 * the type of the vector
