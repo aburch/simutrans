@@ -128,11 +128,6 @@ public:
 	 */
 	void set_selection(int s);
 
-	/**
-	 * Vorzugsweise sollte diese Methode zum Setzen der Größe benutzt werden,
-	 * obwohl groesse public ist.
-	 * @author Hj. Malthaner
-	 */
 	void set_groesse(koord groesse) OVERRIDE;
 
 	/**

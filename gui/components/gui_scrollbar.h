@@ -58,11 +58,6 @@ public:
 	// type is either scrollbar_t::horizontal or scrollbar_t::vertical
 	scrollbar_t(enum type type);
 
-	/**
-	 * Vorzugsweise sollte diese Methode zum Setzen der Größe benutzt werden,
-	 * obwohl groesse public ist.
-	 * @author Hj. Malthaner
-	 */
 	void set_groesse(koord groesse) OVERRIDE;
 
 	void set_scroll_amount(const sint32 sa) { knob_scroll_amount = sa; }
