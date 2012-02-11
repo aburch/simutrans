@@ -126,7 +126,7 @@ void nwc_service_t::rdwr()
 
 		case SRVC_GET_CLIENT_LIST:
 			if (packet->is_loading()) {
-				socket_info = new vector_tpl<socket_info_t>(10);
+				socket_info = new vector_tpl<socket_info_t*>(10);
 				// read the list
 				socket_list_t::rdwr(packet, socket_info);
 			}

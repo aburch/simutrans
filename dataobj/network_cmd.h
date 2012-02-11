@@ -107,7 +107,7 @@ public:
 
 	uint32 number;
 	char *text;
-	vector_tpl<socket_info_t> *socket_info;
+	vector_tpl<socket_info_t*> *socket_info;
 	address_list_t *address_list;
 
 	nwc_service_t() : network_command_t(NWC_SERVICE), text(NULL), socket_info(NULL), address_list(NULL) { }

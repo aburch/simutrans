@@ -116,15 +116,15 @@ int get_client_list(SOCKET socket, uint32 command_id, int, char **) {
 		return 3;
 	}
 	// now get client list from packet
-	vector_tpl<socket_info_t> &list = *(nws->socket_info);
+	vector_tpl<socket_info_t*> &list = *(nws->socket_info);
 	bool head = false;
 	for(uint32 i=0; i<list.get_count(); i++) {
-		if (list[i].state==socket_info_t::playing) {
+		if (list[i]->state==socket_info_t::playing) {
 			if (!head) {
 				printf("List of playing clients:\n");
 				head = true;
 			}
-			uint32 ip = list[i].address.ip;
+			uint32 ip = list[i]->address.ip;
 			printf("  [%3d]  ..   %02d.%02d.%02d.%02d\n", i, (ip >> 24) & 0xff, (ip >> 16) & 0xff, (ip >> 8) & 0xff, ip & 0xff);
 		}
 	}
