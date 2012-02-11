@@ -1002,7 +1002,6 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 			}
 
 			delete pos;
-			delete city_population;
 			DBG_DEBUG("karte_t::distribute_groundobjs_cities()","took %lu ms for all towns", dr_time()-tbegin );
 
 			uint32 game_start = current_month;
@@ -1030,7 +1029,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 	//			citizens = citizens/10+simrand(2*citizens+1);
 	//			const sint32 citizens = (2500l * new_mittlere_einwohnerzahl) /(simrand(20000)+100);
 
-				const uint32 citizens = rank1_population;
+				const uint32 citizens = (*city_population)[i];
 
 				sint32 diff = (original_start_year-game_start)/2;
 				sint32 growth = 32;
@@ -1074,6 +1073,8 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 			settings.set_industry_increase_every( original_industry_gorwth );
 			msg->clear();
 		}
+		delete city_population;
+
 		finance_history_year[0][WORLD_TOWNS] = finance_history_month[0][WORLD_TOWNS] = stadt.get_count();
 		finance_history_year[0][WORLD_CITICENS] = finance_history_month[0][WORLD_CITICENS] = last_month_bev;
 
@@ -1312,6 +1313,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 		}
 	}
 	else {
+		delete city_population;
 		// could not generate any town
 		if(pos) {
 			delete pos;
