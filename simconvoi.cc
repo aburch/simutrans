@@ -3137,8 +3137,7 @@ uint8 convoi_t::get_status_color() const
 	if(state==INITIAL) {
 		// in depot/under assembly
 		return COL_WHITE;
-	}
-	else if(state==WAITING_FOR_CLEARANCE_ONE_MONTH  ||  state==CAN_START_ONE_MONTH  ||  hat_keine_route()) {
+	} else if (state == WAITING_FOR_CLEARANCE_ONE_MONTH || state == CAN_START_ONE_MONTH || get_state() == NO_ROUTE) {
 		// stuck or no route
 		return COL_ORANGE;
 	}

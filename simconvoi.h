@@ -406,12 +406,6 @@ public:
 	route_t* access_route() { return &route; }
 
 	/**
-	* Checks if this convoi has a driveable route
-	* @author Hanjsörg Malthaner
-	*/
-	bool hat_keine_route() const { return (state==NO_ROUTE); }
-
-	/**
 	* get line
 	* @author hsiegeln
 	*/

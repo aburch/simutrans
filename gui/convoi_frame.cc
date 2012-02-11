@@ -106,7 +106,7 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 	}
 
 	if(get_filter(spezial_filter)) {
-		if ((!get_filter(noroute_filter)  || !cnv->hat_keine_route()) &&
+		if ((!get_filter(noroute_filter)  || cnv->get_state() != convoi_t::NO_ROUTE) &&
 				(!get_filter(stucked_filter)  || (cnv->get_state() != convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS && cnv->get_state() != convoi_t::CAN_START_TWO_MONTHS)) &&
 				(!get_filter(indepot_filter)  || !cnv->in_depot()) &&
 				(!get_filter(noline_filter)   ||  cnv->get_line().is_bound()) &&
