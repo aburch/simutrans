@@ -38,7 +38,9 @@ private:
 			this->ware_an = ware_an;
 			this->parent = parent;
 		}
-		virtual bool infowin_event(const event_t *ev) {
+
+		bool infowin_event(event_t const* const ev) OVERRIDE
+		{
 			if(IS_LEFTRELEASE(ev)) {
 				parent->ware_item_triggered(ware_ab, ware_an);
 			}

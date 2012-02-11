@@ -99,7 +99,7 @@ public:
 	 * gemeldet
 	 * @author Dwachs
 	 */
-	bool infowin_event(const event_t *);
+	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**
 	 * Zeichnet die Komponente

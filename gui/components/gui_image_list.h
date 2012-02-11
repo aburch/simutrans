@@ -93,7 +93,7 @@ public:
 	 * gemeldet
 	 * @author Hj. Malthaner
 	 */
-	virtual bool infowin_event(const event_t *ev);
+	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**
 	 * Zeichnet die Bilder

@@ -120,7 +120,7 @@ public:
 
 	void set_groesse(koord groesse) OVERRIDE;
 
-	bool infowin_event(const event_t *ev);
+	bool infowin_event(event_t const*) OVERRIDE;
 
 	void zeichnen(koord pos);
 
