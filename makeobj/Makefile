@@ -121,6 +121,7 @@ SHARED_SOURCES += ../simdebug.cc
 SHARED_SOURCES += ../simmem.cc
 SHARED_SOURCES += ../utils/simstring.cc
 SHARED_SOURCES += ../utils/searchfolder.cc
+SHARED_SOURCES += ../utils/float32e8_t.cc
 VARIANT_SOURCES += ../simtools.cc
 VARIANT_SOURCES += ../utils/log.cc
 
