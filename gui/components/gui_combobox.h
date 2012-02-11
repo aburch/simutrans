@@ -72,10 +72,6 @@ public:
 	 */
 	bool infowin_event(const event_t *);
 
-	/**
-	 * This method is called if an action is triggered
-	 * @author Hj. Malthaner
-	 */
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	/**

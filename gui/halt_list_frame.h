@@ -158,16 +158,7 @@ public:
     static void set_ware_filter_an(const ware_besch_t *ware, int mode);
     static void set_alle_ware_filter_an(int mode);
 
-    /**
-     * This method is called if an action is triggered
-     * @author Hj. Malthaner
-     *
-     * Returns true, if action is done and no more
-     * components should be triggered.
-     * V.Meyer
-     */
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
-
 };
 
 #endif

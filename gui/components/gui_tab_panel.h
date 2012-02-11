@@ -99,10 +99,6 @@ public:
 	 */
 	uint32 get_count () const { return tabs.get_count(); }
 
-	/**
-	 * This method is called if an action is triggered:
-	 * currently only left/right button
-	 */
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	/**

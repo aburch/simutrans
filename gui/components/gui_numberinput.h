@@ -107,9 +107,6 @@ public:
 	 */
 	void zeichnen(koord offset);
 
-	/**
-	 * This method is called if an action is triggered
-	 */
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };
 

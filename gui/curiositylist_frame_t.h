@@ -59,14 +59,6 @@ class curiositylist_frame_t : public gui_frame_t, private action_listener_t
     static bool get_reverse() { return sortreverse; }
     static void set_reverse(const bool& reverse) { sortreverse = reverse; }
 
-    /**
-     * This method is called if an action is triggered
-     * @author Hj. Malthaner
-     *
-     * Returns true, if action is done and no more
-     * components should be triggered.
-     * V.Meyer
-     */
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };
 
