@@ -2499,9 +2499,6 @@ void convoi_t::laden()
 			// loading/unloading ...
 			halt->request_loading( self );
 		}
-		else {
-			halt = halthandle_t();
-		}
 	}
 
 	// just wait a little longer to get maximum load ...
