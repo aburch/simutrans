@@ -1917,11 +1917,13 @@ void convoi_t::rdwr(loadsave_t *file)
 		}
 	}
 
+	// do not change state during saving, only save changed state
+	states save_state = state;
 	// do the update, otherwise we might lose the line after save & reload
 	if(file->is_saving()  &&  line_update_pending.is_bound()) {
 		check_pending_updates();
 		if (fpl->ist_abgeschlossen()  &&  state == FAHRPLANEINGABE) {
-			state = ROUTING_1;
+			save_state = ROUTING_1;
 		}
 	}
 
@@ -1949,7 +1951,7 @@ void convoi_t::rdwr(loadsave_t *file)
 	file->rdwr_long(akt_speed);
 	file->rdwr_long(akt_speed_soll);
 	file->rdwr_long(sp_soll);
-	file->rdwr_enum(state);
+	file->rdwr_enum(file->is_saving() ? save_state : state);
 	file->rdwr_enum(alte_richtung);
 
 	// read the yearly income (which has since then become a 64 bit value)
