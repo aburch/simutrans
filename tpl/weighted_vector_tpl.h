@@ -261,30 +261,6 @@ template<class T> class weighted_vector_tpl
 		}
 
 		/**
-		 * Search for an element, assuming that the vector is sorted.
-		 * If the element is found, return its address; otherwise, return NULL.
-		 */
-		template<class StrictWeakOrdering>
-		T* search_ordered(const T& elem, StrictWeakOrdering comp)
-		{
-			sint32 high = count, low = -1;
-			while(  high-low>1  ) {
-				const sint32 mid = ((uint32)(high + low)) >> 1;
-				T &mid_elem = nodes[mid].data;
-				if(  elem==mid_elem  ) {
-					return &mid_elem;
-				}
-				else if(  comp(elem, mid_elem)  ) {
-					high = mid;
-				}
-				else {
-					low = mid;
-				}
-			}
-			return NULL;
-		}
-
-		/**
 		 * Update the weight of the element, if contained
 		 * @author Knightly
 		 */
