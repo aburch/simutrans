@@ -85,9 +85,6 @@ public:
 
 	PLAYER_COLOR_VAL get_titelcolor() const { return WIN_TITEL; }
 
-	/* returns true, if inside window area ...
-	 * @author Hj. Malthaner
-	 */
 	bool getroffen(int x, int y) OVERRIDE;
 
 	/**

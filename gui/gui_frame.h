@@ -208,8 +208,7 @@ public:
 	resize_modes get_resizemode(void) { return resize_mode; }
 
 	/**
-	 * Prüft, ob eine Position innerhalb der Komponente liegt.
-	 * @author Hj. Malthaner
+	 * Returns true, if inside window area.
 	 */
 	virtual bool getroffen(int x, int y)
 	{

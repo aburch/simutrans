@@ -52,9 +52,6 @@ public:
 	*/
 	PLAYER_COLOR_VAL get_titelcolor() const {return WIN_TITEL; }
 
-	/* returns true, if inside window area ...
-	* @author Hj. Malthaner
-	*/
 	bool getroffen(int, int) OVERRIDE { return true; }
 
 	/* Events werden hiermit an die GUI-Komponenten
