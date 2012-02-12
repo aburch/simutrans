@@ -459,10 +459,10 @@ settings_t::settings_t() :
 
 settings_t::~settings_t()
 {
-	/*ITERATE(livery_schemes, i)
+	ITERATE(livery_schemes, i)
 	{
 		delete livery_schemes[i];
-	}*/
+	}
 }
 
 
@@ -1245,10 +1245,10 @@ void settings_t::rdwr(loadsave_t *file)
 			uint16 livery_schemes_count = 0;
 			if(file->is_loading())
 			{
-				/*ITERATE(livery_schemes, i)
+				ITERATE(livery_schemes, i)
 				{
 					delete livery_schemes[i];
-				}*/
+				}
 				livery_schemes.clear();
 			}
 			if(file->is_saving())
