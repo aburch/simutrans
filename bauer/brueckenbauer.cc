@@ -132,7 +132,8 @@ const bruecke_besch_t *brueckenbauer_t::find_bridge(const waytype_t wtyp, const 
 			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 				if(find_besch==NULL  ||
 					(find_besch->get_topspeed()<min_speed  &&  find_besch->get_topspeed()<besch->get_topspeed())  ||
-					(besch->get_topspeed()>=min_speed  &&  besch->get_wartung()<find_besch->get_wartung())
+					(besch->get_topspeed()>=min_speed  &&  (besch->get_wartung()<find_besch->get_wartung() ||
+						(besch->get_wartung()==find_besch->get_wartung() &&  besch->get_preis()<find_besch->get_preis())))
 				) {
 					find_besch = besch;
 				}
