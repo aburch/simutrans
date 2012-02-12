@@ -52,6 +52,7 @@
 # DEBUG_ROUTES: show routing calculation information in minimap
 # SHOW_FORE_GRUND: show which objects are drawn as foreground
 # DEBUG_FLUSH_BUFFER: show the dirty areas on the screen
+# USE_VALGRIND_MEMCHECK: make valgrind-memcheck aware of the memory allocation stuff in dataobj/freelist
 #
 # Following flags alter game engine (and are off for standard builds)
 # OTTD_LIKE: Enables half height tiles and crossconnects all industries
