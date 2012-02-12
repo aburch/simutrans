@@ -12,12 +12,6 @@
 #include <valgrind/memcheck.h>
 #endif
 
-#ifdef DEBUG
-#define DEBUG_MEM
-#endif
-
-#undef DEBUG_MEM // XXX deactivate because it is broken
-
 
 struct nodelist_node_t
 {
@@ -133,32 +127,6 @@ void *freelist_t::gimme_node(size_t size)
 }
 
 
-#ifdef DEBUG_MEM
-// put back a node and check for consistency
-static void putback_check_node(nodelist_node_t** list, nodelist_node_t* p)
-{
-	if(*list<p) {
-		if(p==*list) {
-			dbg->fatal("freelist_t::putback_check_node()","node %p already freeded!",p);
-		}
-		p->next = *list;
-		*list = p;
-	}
-	else {
-		nodelist_node_t *tmp = *list;
-		while(tmp->next>p) {
-			tmp = tmp->next;
-		}
-		if(p==tmp->next) {
-			dbg->fatal("freelist_t::putback_check_node()","node %p already freeded!",p);
-		}
-		p->next = tmp->next;
-		tmp->next = p;
-	}
-}
-#endif
-
-
 void freelist_t::putback_node( size_t size, void *p )
 {
 	nodelist_node_t ** list = NULL;
@@ -178,9 +146,6 @@ void freelist_t::putback_node( size_t size, void *p )
 	else {
 		list = &(all_lists[size/4]);
 	}
-#ifdef DEBUG_MEM
-	putback_check_node(list,(nodelist_node_t *)p);
-#else
 
 #ifdef USE_VALGRIND_MEMCHECK
 	// tell valgrind that we keep access to a nodelist_node_t within the memory chunk
@@ -193,7 +158,6 @@ void freelist_t::putback_node( size_t size, void *p )
 	nodelist_node_t *tmp = (nodelist_node_t *)p;
 	tmp->next = *list;
 	*list = tmp;
-#endif
 }
 
 
