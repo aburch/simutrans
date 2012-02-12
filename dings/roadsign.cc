@@ -52,6 +52,9 @@ roadsign_t::roadsign_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
 		 */
 		automatic = (besch->get_bild_anzahl()>4  &&  besch->get_wtyp()==road_wt)  ||  (besch->get_bild_anzahl()>2  &&  besch->is_private_way());
 	}
+	else {
+		automatic = false;
+	}
 	// some sve had rather strange entries in zustand
 	if(  !automatic  ||  besch==NULL  ) {
 		zustand = 0;
