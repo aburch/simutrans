@@ -212,7 +212,6 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 
 convoi_t::convoi_t(karte_t* wl, loadsave_t* file) : fahr(max_vehicle, NULL)
 {
-	self = convoihandle_t(this);
 	init(wl, 0);
 	replace = NULL;
 	delete average_journey_times;
@@ -3501,6 +3500,34 @@ void convoi_t::rdwr(loadsave_t *file)
 	else
 	{
 		arrival_time = welt->get_zeit_ms();
+	}
+
+	if(file->get_experimental_version() >= 11)
+	{
+		// It is necessary to save the IDs for convoys, as these are
+		// used in the path explorer when the convoys run without
+		// lines. Network desyncs can result if these games are then
+		// played online.
+
+		uint16 id;
+		if (file->is_saving()) 
+		{
+			id = self.is_bound() ? self.get_id(): 0;
+		}
+		else 
+		{
+			// to avoid undefined errors during loading
+			id = 0;
+		}
+		file->rdwr_short(id);
+		if (file->is_loading()) 
+		{
+			self = convoihandle_t(this, id);
+		}
+	}
+	else
+	{
+		self = convoihandle_t(this);
 	}
 
 	// This must come *after* all the loading/saving.
