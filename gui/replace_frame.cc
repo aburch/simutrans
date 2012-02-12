@@ -56,15 +56,15 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	lb_sell.set_text_pointer(translator::translate("rpl_cnv_sell"));
 	lb_skip.set_text_pointer(translator::translate("rpl_cnv_skip"));
 	numinp[state_replace].set_value( 1 );
-	numinp[state_replace].set_limits( 0, 99 );
+	numinp[state_replace].set_limits( 0, 999 );
 	numinp[state_replace].set_increment_mode( 1 );
 	numinp[state_replace].add_listener(this);
 	numinp[state_sell].set_value( 0 );
-	numinp[state_sell].set_limits( 0, 99 );
+	numinp[state_sell].set_limits( 0, 999 );
 	numinp[state_sell].set_increment_mode( 1 );
 	numinp[state_sell].add_listener(this);
 	numinp[state_skip].set_value( 0 );
-	numinp[state_skip].set_limits( 0, 99 );
+	numinp[state_skip].set_limits( 0, 999 );
 	numinp[state_skip].set_increment_mode( 1 );
 	numinp[state_skip].add_listener(this);
 	lb_n_replace.set_text_pointer(txt_n_replace);
