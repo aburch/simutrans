@@ -588,7 +588,7 @@ void gui_convoy_assembler_t::zeichnen(koord parent_pos)
 // add all current vehicles
 void gui_convoy_assembler_t::build_vehicle_lists()
 {
-	if(vehikelbauer_t::get_info(way_type)==NULL) 
+	if(vehikelbauer_t::get_info(way_type).empty()) 
 	{
 		// there are tracks etc. but now vehicles => do nothing
 		// at least initialize some data

@@ -255,27 +255,21 @@ const kreuzung_besch_t *crossing_logic_t::get_crossing(const waytype_t ns, const
 		uint8 index = way0 * 9 + way1 - ((way0+2)*(way0+1))/2;
 		minivec_tpl<const kreuzung_besch_t *> &vec = can_cross_array[index];
 		for(  uint8 i=0;  i<vec.get_count();  i++  ) {
-			if(  vec[i]->is_available(timeline_year_month)  ) {
-				// better matching speed => take this
-				if(  best==NULL  ) {
-					best = vec[i];
-				}
-				else {
-					const uint8 way0_nr = way0==ow;
-					const uint8 way1_nr = way1==ow;
-					if(
-					// match maxspeed of first way
-						((vec[i]->get_maxspeed(way0_nr) >= way_0_speed  &&  vec[i]->get_maxspeed(way0_nr) <= best->get_maxspeed(way0_nr))  ||
-						 (best->get_maxspeed(way0_nr) <= way_0_speed  &&  best->get_maxspeed(way0_nr) <= vec[i]->get_maxspeed(way0_nr)))
-					// match maxspeed of second way
-						&&
-						((vec[i]->get_maxspeed(way1_nr) >= way_1_speed  &&  vec[i]->get_maxspeed(way1_nr) <= best->get_maxspeed(way1_nr))  ||
-						 (best->get_maxspeed(way1_nr) <= way_1_speed  &&  best->get_maxspeed(way1_nr) <= vec[i]->get_maxspeed(way1_nr)))
-					) {
-						best = vec[i];
-					}
-				}
+			if (!vec[i]->is_available(timeline_year_month)) continue;
+			// better matching speed => take this
+			if (best) {
+				// match maxspeed of first way
+				uint8  const way0_nr = way0 == ow;
+				sint32 const imax0   = vec[i]->get_maxspeed(way0_nr);
+				sint32 const bmax0   =   best->get_maxspeed(way0_nr);
+				if ((imax0 < way_0_speed || bmax0 < imax0) && (way_0_speed < bmax0 || imax0 < bmax0)) continue;
+				// match maxspeed of second way
+				uint8  const way1_nr = way1 == ow;
+				sint32 const imax1   = vec[i]->get_maxspeed(way1_nr);
+				sint32 const bmax1   =   best->get_maxspeed(way1_nr);
+				if ((imax1 < way_1_speed || bmax1 < imax1) && (way_1_speed < bmax1 || imax1 < bmax1)) continue;
 			}
+			best = vec[i];
 		}
 	}
 	return best;

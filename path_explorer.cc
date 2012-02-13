@@ -614,7 +614,7 @@ void path_explorer_t::compartment_t::step()
 
 
 			// loop through all convoys
-			for (vector_tpl<convoihandle_t>::const_iterator i = world->convois_begin(), end = world->convois_end(); i != end; i++) 
+			for (vector_tpl<convoihandle_t>::const_iterator i = world->convoys().begin(), end = world->convoys().end(); i != end; i++) 
 			{
 				current_convoy = *i;
 				// only consider lineless convoys which support this compartment's goods catetory

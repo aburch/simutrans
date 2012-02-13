@@ -546,7 +546,7 @@ void spieler_t::calc_assets()
 {
 	sint64 assets = 0;
 	// all convois
-	for(  vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end();  i != end;  ++i  ) {
+	for (vector_tpl<convoihandle_t>::const_iterator i = welt->convoys().begin(), end = welt->convoys().end(); i != end; ++i) {
 		convoihandle_t cnv = *i;
 		if(  cnv->get_besitzer() == this  ) {
 			assets += cnv->calc_restwert();
@@ -698,8 +698,8 @@ void spieler_t::ai_bankrupt()
 {
 	DBG_MESSAGE("spieler_t::ai_bankrupt()","Removing convois");
 
-	for( int i = welt->get_convoi_count()-1;  i>=0;  i--  ) {
-		const convoihandle_t cnv = welt->get_convoi(i);
+	for (size_t i = welt->convoys().get_count(); i-- != 0;) {
+		convoihandle_t const cnv = welt->convoys()[i];
 		if(cnv->get_besitzer()!=this) {
 			continue;
 		}

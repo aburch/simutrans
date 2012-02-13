@@ -58,11 +58,13 @@ private:
 public:
 
 	/**
-	 * Iterator classes
+	 * Iterator class: can be used to erase nodes and to modify nodes
 	 * Usage:
 	 * for (slist_tpl<T>::iterator iter = some_list->begin(); !iter.end(); ++iter) {
 	 * 	T& current = *iter;
 	 * }
+	 *
+	 * @see slist_iterator_tpl
 	 */
 	class iterator
 	{
@@ -96,14 +98,21 @@ public:
 		friend class slist_tpl;
 	};
 
+	/**
+	 * Iterator class: neither nodes nor the list can be modified
+	 * Usage:
+	 * for (slist_tpl<T>::const_iterator iter = some_list->begin(); !iter.end(); ++iter) {
+	 * 	T& current = *iter;
+	 * }
+	 */
 	class const_iterator
 	{
 		public:
 			typedef std::forward_iterator_tag iterator_category;
-			typedef const T                   value_type;
+			typedef T                         value_type;
 			typedef ptrdiff_t                 difference_type;
-			typedef value_type*               pointer;
-			typedef value_type&               reference;
+			typedef T const*                  pointer;
+			typedef T const&                  reference;
 
 			const_iterator(const iterator& o) : ptr(o.ptr) {}
 
@@ -440,35 +449,41 @@ private:
 /**
  * Iterator class for single linked lists.
  * Iterators may be invalid after any changing operation on the list!
+ *
+ * This iterator can modify nodes, but not the list
+ * Usage:
+ *
+ * slist_iterator_tpl<T> iter(some_list);
+ * while (iter.next()) {
+ * 	T& current = iter.access_current();
+ * }
+ *
  * @author Hj. Malthaner
  */
 template<class T>
 class slist_iterator_tpl
 {
 private:
-    typename slist_tpl<T>::node_t *current_node;
-    typename slist_tpl<T>::node_t lead;	// element zero
+	typename slist_tpl<T>::node_t *current_node;
+	typename slist_tpl<T>::node_t *next_node;
 
 public:
 	slist_iterator_tpl(const slist_tpl<T>* list) :
-		current_node(&lead),
-		lead(list->head)
+		// we start with NULL
+		// after one call to next() current_node points to first node in list
+		current_node(NULL),
+		next_node(list->head)
 	{}
 
 	slist_iterator_tpl(const slist_tpl<T>& list) :
-		current_node(&lead),
-		lead(list.head)
+		current_node(NULL),
+		next_node(list.head)
 	{}
 
 	slist_iterator_tpl<T> &operator = (const slist_iterator_tpl<T> &iter)
 	{
-		// only copy pointer of the node, not data, which is dummy anyway
-		lead.next = iter.lead.next;
-		if(iter.current_node == &iter.lead) {
-			current_node = &lead;
-		} else {
-			current_node = iter.current_node;
-		}
+		current_node = iter.current_node;
+		next_node    = iter.next_node;
 		return *this;
 	}
 
@@ -479,7 +494,10 @@ public:
 	 */
 	bool next()
 	{
-		current_node = current_node->next;
+		current_node = next_node;
+		if (next_node) {
+			next_node = next_node->next;
+		}
 		return (current_node!= 0);
 	}
 
@@ -489,8 +507,8 @@ public:
 	 */
 	const T& get_current() const
 	{
-		if(current_node==&lead) {
-			dbg->fatal("class slist_iterator_tpl.get_current()","Iteration: accessed lead!");
+		if(current_node==NULL) {
+			dbg->fatal("class slist_iterator_tpl.get_current()", "Iteration: accessed NULL!");
 		}
 		return current_node->data;
 	}
@@ -502,8 +520,8 @@ public:
 	 */
 	T& access_current()
 	{
-		if(current_node==&lead) {
-			dbg->fatal("class slist_iterator_tpl.get_current()","Iteration: accessed lead!");
+		if(current_node==NULL) {
+			dbg->fatal("class slist_iterator_tpl.access_current()", "Iteration: accessed NULL!");
 		}
 		return current_node->data;
 	}

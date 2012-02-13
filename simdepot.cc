@@ -607,7 +607,7 @@ vehikel_t* depot_t::find_oldest_newest(const vehikel_besch_t* besch, bool old, v
 }
 
 
-slist_tpl<vehikel_besch_t*>* depot_t::get_vehicle_type()
+slist_tpl<vehikel_besch_t*> & depot_t::get_vehicle_type()
 {
 	return vehikelbauer_t::get_info(get_wegtyp());
 }
