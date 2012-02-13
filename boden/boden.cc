@@ -30,7 +30,7 @@ boden_t::boden_t(karte_t *welt, loadsave_t *file, koord pos ) : grund_t( welt, k
 			sint32 age;
 			file->rdwr_long( age );
 			// check, if we still have this tree ... (if there are not trees, the first index is NULL!)
-			if(  baum_t::get_anzahl_besch()>id  &&  (*(baum_t::get_all_besch()))[id]!=NULL  ) {
+			if (id < baum_t::get_anzahl_besch() && baum_t::get_all_besch()[id]) {
 				baum_t *tree = new baum_t( welt, get_pos(), (uint8)id, age, slope );
 				dinge.add( tree );
 			}

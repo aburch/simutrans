@@ -117,9 +117,8 @@ public:
 	static uint32 create_forest(karte_t *welt, koord center, koord size );
 	static void fill_trees(karte_t *welt, int dichte);
 
-
 	// return list to beschs
-	static const vector_tpl<const baum_besch_t *> *get_all_besch() { return &baum_typen; }
+	static vector_tpl<baum_besch_t const*> const& get_all_besch() { return baum_typen; }
 
 	static const baum_besch_t *random_tree_for_climate(climate cl) { uint16 b = random_tree_for_climate_intern(cl);  return b!=0xFFFF ? baum_typen[b] : NULL; }
 

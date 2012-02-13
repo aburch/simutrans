@@ -68,8 +68,8 @@ baum_edit_frame_t::baum_edit_frame_t(spieler_t* sp_, karte_t* welt) :
 void baum_edit_frame_t::fill_list( bool translate )
 {
 	baumlist.clear();
-	const vector_tpl<const baum_besch_t *> *s = baum_t::get_all_besch();
-	for (vector_tpl<const baum_besch_t *>::const_iterator i = s->begin(), end = s->end(); i != end; ++i) {
+	vector_tpl<baum_besch_t const*> const& s = baum_t::get_all_besch();
+	for (vector_tpl<const baum_besch_t *>::const_iterator i = s.begin(), end = s.end(); i != end; ++i) {
 		baumlist.insert_ordered( *i, compare_baum_besch );
 	}
 
