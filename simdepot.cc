@@ -512,9 +512,9 @@ const char * depot_t::ist_entfernbar(const spieler_t *sp)
 }
 
 
-slist_tpl<const vehikel_besch_t*>* depot_t::get_vehicle_type()
+slist_tpl<vehikel_besch_t const*> const& depot_t::get_vehicle_type() const
 {
-	return &vehikelbauer_t::get_info(get_wegtyp());
+	return vehikelbauer_t::get_info(get_wegtyp());
 }
 
 
