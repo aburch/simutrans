@@ -40,7 +40,7 @@ private:
 	// static for administration
 	static stringhashtable_tpl<const baum_besch_t *> besch_names;
 	static vector_tpl<const baum_besch_t *> baum_typen;
-	static vector_tpl<weighted_vector_tpl<uint32> > baum_typen_per_climate;
+	static weighted_vector_tpl<uint32>* baum_typen_per_climate;
 
 	bool saee_baum();
 

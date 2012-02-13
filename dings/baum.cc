@@ -77,7 +77,7 @@ DBG_MESSAGE("verteile_baeume()","creating %i forest",c_forest_count);
 vector_tpl<const baum_besch_t *> baum_t::baum_typen(0);
 
 // index vector into baumtypen, accessible per climate
-vector_tpl<weighted_vector_tpl<uint32> > baum_t::baum_typen_per_climate(MAX_CLIMATES);
+weighted_vector_tpl<uint32>* baum_t::baum_typen_per_climate = NULL;
 
 /*
  * Diese Tabelle ermoeglicht das Auffinden einer Beschreibung durch ihren Namen
@@ -267,10 +267,12 @@ bool baum_t::alles_geladen()
 				break;
 			}
 		}
-		// fill the vector with zeros
-		for (uint8 j=0; j<MAX_CLIMATES; j++) {
-			baum_typen_per_climate.append( weighted_vector_tpl<uint32>() );
+
+		if (baum_typen_per_climate) {
+			delete [] baum_typen_per_climate;
 		}
+		baum_typen_per_climate = new weighted_vector_tpl<uint32>[MAX_CLIMATES];
+
 		// clear cache
 		memset( baumtype_to_bild, -1, lengthof(baumtype_to_bild) );
 		// now register all trees for all fitting climates
