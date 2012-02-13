@@ -61,7 +61,7 @@ gameinfo_t::gameinfo_t(karte_t *welt) :
 	total_pass_transported = welt->get_finance_history_month(1,karte_t::WORLD_PAS_RATIO);
 	total_mail_transported = welt->get_finance_history_month(1,karte_t::WORLD_MAIL_RATIO);
 	total_goods_transported = welt->get_finance_history_month(1,karte_t::WORLD_GOODS_RATIO);
-	convoi_count = welt->get_convoi_count();
+	convoi_count = welt->convoys().get_count();
 
 	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++ ) {
 		spieler_type[i] = spieler_t::EMPTY;

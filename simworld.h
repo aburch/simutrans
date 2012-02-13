@@ -909,7 +909,6 @@ public:
 	// the convois are also handled each step => thus we keep track of them too
 	void add_convoi(convoihandle_t &cnv);
 	void rem_convoi(convoihandle_t& cnv);
-	uint32 get_convoi_count() const {return convoi_array.get_count();}
 	vector_tpl<convoihandle_t> const& convoys() const { return convoi_array; }
 
 	/**

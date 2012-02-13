@@ -6076,7 +6076,7 @@ void karte_t::announce_server(int status)
 			buf.printf( "&towns=%u",     stadt.get_count() );
 			buf.printf( "&citizens=%u",  stadt.get_sum_weight() );
 			buf.printf( "&factories=%u", fab_list.get_count() );
-			buf.printf( "&convoys=%u",   get_convoi_count() );
+			buf.printf( "&convoys=%u",   convoys().get_count());
 			buf.printf( "&stops=%u",     haltestelle_t::get_alle_haltestellen().get_count() );
 		}
 
