@@ -459,10 +459,10 @@ settings_t::settings_t() :
 
 settings_t::~settings_t()
 {
-	/*ITERATE(livery_schemes, i)
+	ITERATE(livery_schemes, i)
 	{
 		delete livery_schemes[i];
-	}*/
+	}
 }
 
 

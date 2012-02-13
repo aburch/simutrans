@@ -3737,6 +3737,7 @@ void stadt_t::set_private_car_trip(int passengers, stadt_t* destination_town)
 		//And mark the trip as outgoing for growth calculations
 		outgoing_private_cars += passengers;
 	}
+	welt->buche(passengers, karte_t::WORLD_CITYCARS);
 }
 
 

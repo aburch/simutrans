@@ -2303,8 +2303,7 @@ void vehikel_t::info(cbuffer_t & buf) const
 }
 #endif
 
-const char *
-vehikel_t::ist_entfernbar(const spieler_t *)
+const char *vehikel_t::ist_entfernbar(const spieler_t *)
 {
 	return "Vehicles cannot be removed";
 }

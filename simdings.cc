@@ -185,10 +185,12 @@ void ding_t::zeige_info()
 // returns NULL, if removal is allowed
 const char *ding_t::ist_entfernbar(const spieler_t *sp)
 {
-	if(besitzer_n==PLAYER_UNOWNED  ||  welt->get_spieler(besitzer_n) == sp  ||  welt->get_spieler(1) == sp) {
+	if(besitzer_n==PLAYER_UNOWNED  ||  welt->get_spieler(besitzer_n) == sp  ||  welt->get_spieler(1) == sp) 
+	{
 		return NULL;
 	}
-	else {
+	else
+	{
 		return "Der Besitzer erlaubt das Entfernen nicht";
 	}
 }

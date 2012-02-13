@@ -42,6 +42,12 @@ template<class T> class vector_tpl
 				}
 			}
 
+		vector_tpl& operator=( vector_tpl const& other ) { 
+			vector_tpl tmp(other); 
+			swap(tmp, *this); 
+			return *this;
+		}
+
 		~vector_tpl() { delete [] data; }
 
 		/** sets the vector to empty */

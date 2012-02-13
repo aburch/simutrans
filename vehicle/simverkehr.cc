@@ -405,7 +405,6 @@ stadtauto_t::~stadtauto_t()
 			DBG_MESSAGE("stadtauto_t", "Succeeded in removing city car from list.");
 		}
 	}
-	welt->buche( -1, karte_t::WORLD_CITYCARS );
 	//"Buche" = "Books" (Babelfish)
 }
 
@@ -418,7 +417,6 @@ stadtauto_t::stadtauto_t(karte_t *welt, loadsave_t *file) :
 	if(besch) {
 		welt->sync_add(this);
 	}
-	welt->buche( +1, karte_t::WORLD_CITYCARS );
 }
 
 
@@ -436,7 +434,6 @@ stadtauto_t::stadtauto_t(karte_t* const welt, koord3d const pos, koord const tar
 	(void)target;
 #endif
 	calc_bild();
-	welt->buche( +1, karte_t::WORLD_CITYCARS );
 	current_list = car_list;
 	origin = pos.get_2d();
 }
