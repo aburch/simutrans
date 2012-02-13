@@ -27,6 +27,7 @@ scenario_t::scenario_t(karte_t *w)
 	what_scenario = 0;
 	city = NULL;
 	target_factory = NULL;
+	factor = 0;
 }
 
 
