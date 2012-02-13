@@ -1,6 +1,9 @@
 #ifndef TPL_WEIGHTED_VECTOR_H
 #define TPL_WEIGHTED_VECTOR_H
 
+#include <cstddef>
+#include <iterator>
+
 #include "../macros.h"
 #include "../simdebug.h"
 
@@ -25,6 +28,12 @@ template<class T> class weighted_vector_tpl
 		class iterator
 		{
 			public:
+				typedef std::forward_iterator_tag iterator_category;
+				typedef std::ptrdiff_t            difference_type;
+				typedef T const*                  pointer;
+				typedef T const&                  reference;
+				typedef T                         value_type;
+
 				T& operator *() const { return ptr->data; }
 
 				iterator& operator ++() { ++ptr; return *this; }
@@ -43,6 +52,12 @@ template<class T> class weighted_vector_tpl
 		class const_iterator
 		{
 			public:
+				typedef std::forward_iterator_tag iterator_category;
+				typedef std::ptrdiff_t            difference_type;
+				typedef T const*                  pointer;
+				typedef T const&                  reference;
+				typedef T                         value_type;
+
 				const_iterator(const iterator& o) : ptr(o.ptr) {}
 
 				const T& operator *() const { return ptr->data; }
