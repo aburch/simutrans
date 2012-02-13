@@ -910,7 +910,6 @@ public:
 	void add_convoi(convoihandle_t &cnv);
 	void rem_convoi(convoihandle_t& cnv);
 	uint32 get_convoi_count() const {return convoi_array.get_count();}
-	const convoihandle_t get_convoi(sint32 i) const {return convoi_array[(uint32)i];}
 	vector_tpl<convoihandle_t> const& convoys() const { return convoi_array; }
 
 	/**

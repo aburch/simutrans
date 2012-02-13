@@ -541,7 +541,7 @@ void spieler_t::ai_bankrupt()
 	DBG_MESSAGE("spieler_t::ai_bankrupt()","Removing convois");
 
 	for( int i = welt->get_convoi_count()-1;  i>=0;  i--  ) {
-		const convoihandle_t cnv = welt->get_convoi(i);
+		convoihandle_t const cnv = welt->convoys()[i];
 		if(cnv->get_besitzer()!=this) {
 			continue;
 		}

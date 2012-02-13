@@ -1179,7 +1179,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 			next_construction_steps = welt->get_steps() + simrand( ai_t::construction_speed ) + 25;
 
 			for( int i = welt->get_convoi_count()-1;  i>=0;  i--  ) {
-				const convoihandle_t cnv = welt->get_convoi(i);
+				convoihandle_t const cnv = welt->convoys()[i];
 				if(!cnv.is_bound()  ||  cnv->get_besitzer()!=this) {
 					continue;
 				}
