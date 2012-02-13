@@ -46,7 +46,6 @@
 #include "../dings/tunnel.h"
 
 #include "../gui/messagebox.h"
-#include "../gui/money_frame.h"
 
 #include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"

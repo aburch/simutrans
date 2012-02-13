@@ -4,7 +4,6 @@
  * 01/12/2003
  */
 
-#include "line_management_gui.h"
 #include "../dataobj/fahrplan.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/loadsave.h"
@@ -14,6 +13,7 @@
 #include "../simlinemgmt.h"
 #include "../utils/cbuffer_t.h"
 
+#include "line_management_gui.h"
 
 line_management_gui_t::line_management_gui_t(linehandle_t line, spieler_t* sp) :
 	fahrplan_gui_t(line->get_schedule()->copy(), sp, convoihandle_t() )

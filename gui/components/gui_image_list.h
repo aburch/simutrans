@@ -88,12 +88,8 @@ public:
 	void set_placement(koord placement) { this->placement = placement; }
 
 	void set_player_nr(sint8 player_nr) { this->player_nr = player_nr; }
-	/**
-	 * Events werden hiermit an die GUI-Komponenten
-	 * gemeldet
-	 * @author Hj. Malthaner
-	 */
-	virtual bool infowin_event(const event_t *ev);
+
+	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**
 	 * Zeichnet die Bilder

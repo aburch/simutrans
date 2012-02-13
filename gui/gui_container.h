@@ -49,12 +49,7 @@ public:
 	*/
 	void remove_komponente(gui_komponente_t *komp);
 
-	/**
-	* Events werden hiermit an die GUI-Komponenten
-	* gemeldet
-	* @author Hj. Malthaner
-	*/
-	virtual bool infowin_event(const event_t *);
+	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**
 	* Zeichnet die Komponente

@@ -1821,8 +1821,12 @@ karte_t::karte_t() :
 	y_off = 0;
 	grid_hgts = 0;
 	nosave_warning = nosave = false;
+
 	recheck_road_connexions = true;
 	actual_industry_density = industry_density_proportion = 0;
+
+	letztes_jahr = 1930;
+	letzter_monat = 0;
 
 	for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
 		spieler[i] = NULL;
@@ -4057,7 +4061,7 @@ void karte_t::update_history()
 void karte_t::set_scroll_lock(bool yesno)
 {
 	scroll_lock = yesno;
-	if(yesno  &&  follow_convoi.is_bound()) {
+	if (yesno) {
 		follow_convoi = convoihandle_t();
 	}
 }
@@ -4913,6 +4917,8 @@ void karte_t::laden(loadsave_t *file)
 	}
 	destroy_all_win(true);
 
+	clear_random_mode(~LOAD_RANDOM);
+	set_random_mode(LOAD_RANDOM);
 	destroy();
 
 	display_set_progress_text(translator::translate("Loading map ..."));
@@ -6326,9 +6332,7 @@ bool karte_t::interactive(uint32 quit_month)
 					cursor_hidden = false;
 				} else if(IS_RIGHTDRAG(&ev)) {
 					// unset following
-					if(follow_convoi.is_bound()) {
-						follow_convoi = convoihandle_t();
-					}
+					follow_convoi = convoihandle_t();
 					blick_aendern(&ev);
 				}
 				else {

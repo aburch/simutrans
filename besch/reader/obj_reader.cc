@@ -351,7 +351,7 @@ void obj_reader_t::resolve_xrefs()
 	inthashtable_iterator_tpl<obj_type, stringhashtable_tpl<slist_tpl<obj_besch_t **> > > xreftype_iter(unresolved);
 
 	while(xreftype_iter.next()) {
-		stringhashtable_iterator_tpl<slist_tpl<obj_besch_t **> > xrefname_iter(xreftype_iter.access_current_value());
+		stringhashtable_iterator_tpl<slist_tpl<obj_besch_t **> > xrefname_iter(xreftype_iter.get_current_value());
 
 		while(xrefname_iter.next()) {
 			obj_besch_t *obj_loaded = NULL;
@@ -366,7 +366,7 @@ void obj_reader_t::resolve_xrefs()
 				}*/
 			}
 
-			slist_iterator_tpl<obj_besch_t **> xref_iter(xrefname_iter.access_current_value());
+			slist_iterator_tpl<obj_besch_t **> xref_iter(xrefname_iter.get_current_value());
 			while(  xref_iter.next()  ) {
 				if(  !obj_loaded  &&  fatals.get(xref_iter.get_current())  ) {
 					dbg->fatal("obj_reader_t::resolve_xrefs", "cannot resolve '%4.4s-%s'",	&xreftype_iter.get_current_key(), xrefname_iter.get_current_key());
@@ -393,7 +393,7 @@ void obj_reader_t::obj_for_xref(obj_type type, const char *name, obj_besch_t *da
 	stringhashtable_tpl<obj_besch_t *> *objtype_loaded = loaded.access(type);
 
 	if(!objtype_loaded) {
-		loaded.put(type, stringhashtable_tpl<obj_besch_t *>());
+		loaded.put(type);
 		objtype_loaded = loaded.access(type);
 	}
 	objtype_loaded->remove(name);
@@ -406,12 +406,12 @@ void obj_reader_t::xref_to_resolve(obj_type type, const char *name, obj_besch_t 
 	stringhashtable_tpl< slist_tpl<obj_besch_t **> > *typeunresolved = unresolved.access(type);
 
 	if(!typeunresolved) {
-		unresolved.put(type, stringhashtable_tpl< slist_tpl<obj_besch_t **> >());
+		unresolved.put(type);
 		typeunresolved = unresolved.access(type);
 	}
 	slist_tpl<obj_besch_t **> *list = typeunresolved->access(name);
 	if(!list) {
-		typeunresolved->put(name, slist_tpl<obj_besch_t **>());
+		typeunresolved->put(name);
 		list = typeunresolved->access(name);
 	}
 	list->insert(dest);

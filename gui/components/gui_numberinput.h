@@ -60,7 +60,7 @@ public:
 	gui_numberinput_t();
 	virtual ~gui_numberinput_t() {}
 
-	virtual void set_groesse(koord groesse);
+	void set_groesse(koord groesse) OVERRIDE;
 
 	// all init in one ...
 	void init( sint32 value, sint32 min, sint32 max, sint32 mode, bool wrap );
@@ -94,12 +94,7 @@ public:
 		return m;
 	}
 
-	/**
-	 * Events werden hiermit an die GUI-Komponenten
-	 * gemeldet
-	 * @author Dwachs
-	 */
-	bool infowin_event(const event_t *);
+	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**
 	 * Zeichnet die Komponente
@@ -107,10 +102,7 @@ public:
 	 */
 	void zeichnen(koord offset);
 
-	/**
-	 * This method is called if an action is triggered
-	 */
-	virtual bool action_triggered(gui_action_creator_t *komp, value_t p);
+	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };
 
 #endif

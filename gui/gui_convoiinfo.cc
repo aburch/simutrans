@@ -6,16 +6,12 @@
  */
 
 #include "gui_convoiinfo.h"
-#include "../simdebug.h"
 #include "../simworld.h"
-#include "../simdepot.h"
 #include "../vehicle/simvehikel.h"
 #include "../simconvoi.h"
 #include "../simcolor.h"
 #include "../simgraph.h"
 #include "../player/simplay.h"
-#include "../simevent.h"
-#include "../simlinemgmt.h"
 #include "../simline.h"
 
 #include "../dataobj/translator.h"
@@ -23,10 +19,9 @@
 #include "../utils/simstring.h"
 
 
-gui_convoiinfo_t::gui_convoiinfo_t(convoihandle_t cnv, int n)
+gui_convoiinfo_t::gui_convoiinfo_t(convoihandle_t cnv)
 {
     this->cnv = cnv;
-    nummer = n;
 
     filled_bar.set_pos(koord(2, 33));
     filled_bar.set_groesse(koord(100, 4));

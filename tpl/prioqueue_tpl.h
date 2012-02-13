@@ -227,6 +227,9 @@ class prioqueue_tpl
 
 
 		bool empty() const { return head == 0; }
+private:
+	prioqueue_tpl(const prioqueue_tpl& other);
+	prioqueue_tpl& operator=( prioqueue_tpl const& other );
 };
 
 #endif

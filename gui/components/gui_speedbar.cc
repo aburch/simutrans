@@ -7,12 +7,9 @@
 
 #include <string.h>
 
-#include "../../simdebug.h"
 #include "gui_speedbar.h"
-#include "../../simevent.h"
 #include "../../simgraph.h"
 #include "../../simcolor.h"
-#include "../../simwin.h"
 #include "../../simtypes.h"
 
 

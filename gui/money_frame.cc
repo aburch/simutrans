@@ -12,9 +12,9 @@
 
 #include "../simworld.h"
 #include "../simdebug.h"
-#include "../simintr.h"
 #include "../simgraph.h"
 #include "../simcolor.h"
+#include "../simwin.h"
 #include "../utils/simstring.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/umgebung.h"
@@ -23,9 +23,8 @@
 
 // for headquarter construction only ...
 #include "../simskin.h"
-#include "../simwerkz.h"
+#include "../simmenu.h"
 #include "../bauer/hausbauer.h"
-#include "../besch/haus_besch.h"
 
 
 // remebers last settings
@@ -139,6 +138,16 @@ const char *money_frame_t::display_money(int type, char *buf, int old)
 	money_to_string(buf, cost );
 	return(buf);
 }
+
+
+const char *money_frame_t::display_number(int type, char *buf, int old)
+{
+	const double cost = (year_month_tabs.get_active_tab_index() ? sp->get_finance_history_month(old, type) : sp->get_finance_history_year(old, type)) / 1.0;
+	money_to_string(buf, cost );
+	buf[strlen(buf)-4] = 0;	// remove comma
+	return(buf);
+}
+
 
 /**
  * Returns the appropriate colour for a certain finance type
@@ -439,13 +448,13 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	// transported goods
 	money_to_string(str_buf[16], year_month_tabs.get_active_tab_index() ? (double)sp->get_finance_history_month(0, COST_ALL_TRANSPORTED) : (double)sp->get_finance_history_year(0, COST_ALL_TRANSPORTED) );
 	str_buf[16][strlen(str_buf[16])-4] = 0;	// remove comma
-	transport.set_text(str_buf[16]);
+	transport.set_text(display_number(COST_ALL_TRANSPORTED, str_buf[16], 0));
 	transport.set_color(get_money_colour(COST_ALL_TRANSPORTED, 0));
 
 	money_to_string(str_buf[17], year_month_tabs.get_active_tab_index() ? (double)sp->get_finance_history_month(1, COST_ALL_TRANSPORTED) : (double)sp->get_finance_history_year(1, COST_ALL_TRANSPORTED) );
 	str_buf[17][strlen(str_buf[17])-4] = 0;	// remove comma
-	old_transport.set_text(str_buf[17]);
-	old_transport.set_color(get_money_colour(COST_ALL_TRANSPORTED, 0));
+	old_transport.set_text(display_number(COST_ALL_TRANSPORTED, str_buf[17], 1));
+	old_transport.set_color(get_money_colour(COST_ALL_TRANSPORTED, 1));
 
 	powerline.set_text(display_money(COST_POWERLINES, str_buf[18], 0));
 	powerline.set_color(get_money_colour(COST_POWERLINES, 0));

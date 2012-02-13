@@ -17,7 +17,7 @@
 
 #include "../simcolor.h"
 #include "../simworld.h"
-#include "../simwerkz.h"
+#include "../simmenu.h"
 #include "../dataobj/network_cmd_ingame.h"
 #include "../dataobj/umgebung.h"
 #include "../dataobj/translator.h"

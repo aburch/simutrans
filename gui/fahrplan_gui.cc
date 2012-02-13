@@ -6,17 +6,13 @@
  * Juli 2000
  */
 
-#include "../simconvoi.h"
 #include "../simline.h"
-#include "../simlinemgmt.h"
 #include "../simcolor.h"
-#include "../simwin.h"
 #include "../simhalt.h"
 #include "../simskin.h"
 #include "../simworld.h"
 #include "../simmenu.h"
 #include "../simgraph.h"
-#include "../simtools.h"
 
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
@@ -48,7 +44,7 @@ karte_t *fahrplan_gui_t::welt = NULL;
 
 
 // shows/deletes highliting of tiles
-void fahrplan_gui_stats_t::highlite_schedule( schedule_t *markfpl, bool marking )
+void fahrplan_gui_stats_t::highlight_schedule( schedule_t *markfpl, bool marking )
 {
 	marking &= umgebung_t::visualize_schedule;
 	for(  int i=0;  i<markfpl->get_count();  i++  ) {
@@ -57,11 +53,11 @@ void fahrplan_gui_stats_t::highlite_schedule( schedule_t *markfpl, bool marking 
 				ding_t *d = gr->obj_bei(idx);
 				if(  marking  ) {
 					if(  !d->is_moving()  ) {
-						d->set_flag( ding_t::highlite );
+						d->set_flag( ding_t::highlight );
 					}
 				}
 				else {
-					d->clear_flag( ding_t::highlite );
+					d->clear_flag( ding_t::highlight );
 				}
 			}
 			gr->set_flag( grund_t::dirty );
@@ -93,7 +89,7 @@ void fahrplan_gui_stats_t::highlite_schedule( schedule_t *markfpl, bool marking 
 			gr->set_flag( grund_t::dirty );
 		}
 	}
-	aktuell_mark->clear_flag( ding_t::highlite );
+	aktuell_mark->clear_flag( ding_t::highlight );
 }
 
 
@@ -208,7 +204,7 @@ void fahrplan_gui_stats_t::zeichnen(koord offset)
 			for (int i = 0; i < fpl->get_count(); i++) {
 
 				if(  i==fpl->get_aktuell()  ) {
-					// highlite current entry (width is just wide enough, scrolly will do clipping)
+					// highlight current entry (width is just wide enough, scrolly will do clipping)
 					display_fillbox_wh_clip( offset.x, offset.y + i*(LINESPACE+1)-1, 2048, LINESPACE+1, sp->get_player_color1()+1, false );
 				}
 
@@ -225,7 +221,7 @@ void fahrplan_gui_stats_t::zeichnen(koord offset)
 
 			}
 			set_groesse( koord(width+16, fpl->get_count() * (LINESPACE + 1) ) );
-			highlite_schedule( fpl, true );
+			highlight_schedule( fpl, true );
 		}
 	}
 }
@@ -579,7 +575,7 @@ bool fahrplan_gui_t::infowin_event(const event_t *ev)
 				else if(ev->mx<scrolly.get_groesse().x-11) {
 					fpl->set_aktuell( line );
 					if(mode == removing) {
-						stats.highlite_schedule( fpl, false );
+						stats.highlight_schedule( fpl, false );
 						fpl->remove();
 						action_triggered( &bt_add, value_t() );
 					}
@@ -591,7 +587,7 @@ bool fahrplan_gui_t::infowin_event(const event_t *ev)
 	else if(ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE  &&  fpl!=NULL  ) {
 
 		for(  int i=0;  i<fpl->get_count();  i++  ) {
-			stats.highlite_schedule( fpl, false );
+			stats.highlight_schedule( fpl, false );
 		}
 
 		update_werkzeug( false );
@@ -730,7 +726,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 //DBG_MESSAGE("fahrplan_gui_t::action_triggered()","line selection=%i",selection);
 		if(  (uint32)(selection-1)<(uint32)line_selector.count_elements()  ) {
 			new_line = lines[selection - 1];
-			stats.highlite_schedule( fpl, false );
+			stats.highlight_schedule( fpl, false );
 			fpl->copy_from( new_line->get_schedule() );
 			fpl->eingabe_beginnen();
 		}

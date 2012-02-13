@@ -18,6 +18,7 @@
 #include "simcity.h"
 #include "simtools.h"
 #include "simmesg.h"
+#include "simwin.h"
 
 #include "bauer/fabrikbauer.h"
 #include "bauer/vehikelbauer.h"
@@ -55,6 +56,7 @@
 #include "gui/stadt_info.h"
 #include "gui/trafficlight_info.h"
 #include "gui/privatesign_info.h"
+#include "gui/messagebox.h"
 
 #include "dings/zeiger.h"
 #include "dings/bruecke.h"
@@ -2844,7 +2846,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 				koord offset(((j&1)^1)*(testsize.x-1),((j>>1)&1)*(testsize.y-1));
 				if(welt->ist_platz_frei(pos-offset, testsize.x, testsize.y, NULL, besch->get_allowed_climate_bits())) {
 					// first we must check over/under halt
-					halthandle_t last_halt = halthandle_t();
+					halthandle_t last_halt;
 					for(  sint16 x=0;  x<testsize.x;  x++  ) {
 						for(  sint16 y=0;  y<testsize.y;  y++  ) {
 							const planquadrat_t *pl = welt->lookup( pos-offset+koord(x,y) );
@@ -3087,7 +3089,7 @@ const char *wkz_station_t::wkz_station_dock_aux(karte_t *welt, spieler_t *sp, ko
 	int len = besch->get_groesse().y-1;
 	koord dx = koord((hang_t::typ)hang);
 	koord last_pos = pos - dx*len;
-	halthandle_t halt = halthandle_t();
+	halthandle_t halt;
 
 	sint64 costs;
 	if(besch->get_base_station_price() == 2147483647)
@@ -5692,12 +5694,52 @@ void wkz_show_underground_t::draw_after( karte_t *welt, koord pos ) const
 }
 
 
+bool wkz_quit_t::init( karte_t *welt, spieler_t * )
+{
+	destroy_all_win( true );
+	welt->beenden( true );
+	return false;
+}
+
+
+bool wkz_screenshot_t::init( karte_t *, spieler_t * )
+{
+	display_snapshot();
+	create_win( new news_img("Screenshot\ngespeichert.\n"), w_time_delete, magic_none);
+	return false;
+}
+
+
+bool wkz_undo_t::init( karte_t *, spieler_t *sp )
+{
+	if(!sp->undo()  &&  is_local_execution()) {
+		create_win( new news_img("UNDO failed!"), w_time_delete, magic_none);
+	}
+	return false;
+}
+
+
 bool wkz_increase_industry_t::init( karte_t *welt, spieler_t * )
 {
 	fabrikbauer_t::increase_industry_density( welt, true, false );
 	return false;
 }
 
+
+bool wkz_zoom_in_t::init( karte_t *welt, spieler_t * )
+{
+	win_change_zoom_factor(true);
+	welt->set_dirty();
+	return false;
+}
+
+
+bool wkz_zoom_out_t::init( karte_t *welt, spieler_t * )
+{
+	win_change_zoom_factor(false);
+	welt->set_dirty();
+	return false;
+}
 
 /************************* internal tools, only need for networking ***************/
 

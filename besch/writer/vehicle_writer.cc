@@ -392,7 +392,7 @@ end:
 		} 
 		else if (freight_max > 0 && livery_max == 0)
 		{
-			freightkeys.append(slist_tpl<string>());
+			freightkeys.append();
 			for(int freight = 0; freight < freight_max; freight++)
 			{
 				sprintf(buf, "freightimage[%d][%s]", freight, dir_codes[i]);
@@ -412,7 +412,7 @@ end:
 			// a single freight image
 			// old style definition - just [direction]
 			// With liveries
-			liverykeys_freight_old.append(slist_tpl<string>());
+			liverykeys_freight_old.append();
 			for(int livery = 0; livery < livery_max; livery++)
 			{
 				sprintf(buf, "freightimage[%s][%d]", dir_codes[i], livery);
@@ -428,7 +428,7 @@ end:
 		else if (freight_max > 0 && livery_max > 0)
 		{
 			// Liveries *and* freight
-			liverykeys_freight.append(slist_tpl<slist_tpl<string> >());
+			liverykeys_freight.append();
 			for(int livery = 0; livery < livery_max; livery++)
 			{
 				for(int freight = 0; freight < freight_max; freight++)

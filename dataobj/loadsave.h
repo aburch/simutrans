@@ -8,6 +8,9 @@
 #ifndef loadsave_h
 #define loadsave_h
 
+// no windows macros please ...
+#define NOMINMAX 1
+
 #include <stdio.h>
 #include <bzlib.h>
 #include <string>

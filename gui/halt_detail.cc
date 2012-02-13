@@ -6,7 +6,6 @@
  */
 
 #include "../simworld.h"
-#include "../simwin.h"
 #include "../simimg.h"
 #include "../simware.h"
 #include "../simfab.h"
@@ -23,8 +22,6 @@
 #include "../player/simplay.h"
 
 #include "../utils/simstring.h"
-
-#include "schedule_list.h"
 
 #include "halt_detail.h"
 

@@ -10,7 +10,6 @@
  */
 
 #include "gui_container.h"
-#include "../simwin.h"
 
 gui_container_t::gui_container_t() : gui_komponente_t(), komp_focus(NULL)
 {

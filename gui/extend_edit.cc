@@ -15,10 +15,10 @@
 #include "../simevent.h"
 #include "../simgraph.h"
 #include "../simskin.h"
-#include "../simwerkz.h"
-#include "../simwin.h"
 
 #include "../dataobj/translator.h"
+
+#include "../player/simplay.h"
 
 #include "components/list_button.h"
 

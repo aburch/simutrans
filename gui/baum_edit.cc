@@ -12,19 +12,16 @@
 #include "../simcolor.h"
 #include "../simtools.h"
 #include "../simworld.h"
-#include "../simevent.h"
 #include "../simgraph.h"
 #include "../simskin.h"
 #include "../simwerkz.h"
 #include "../simmenu.h"
-#include "../simwin.h"
 
 #include "../dataobj/translator.h"
 #include "components/list_button.h"
 
 #include "../besch/bild_besch.h"
 #include "../besch/grund_besch.h"
-#include "../besch/intro_dates.h"
 
 #include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"

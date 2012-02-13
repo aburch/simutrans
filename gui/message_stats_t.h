@@ -41,12 +41,7 @@ public:
 	 */
 	bool filter_messages(const sint32 msg_type);
 
-	/**
-	 * Events werden hiermit an die GUI-Komponenten
-	 * gemeldet
-	 * @author Hj. Malthaner
-	 */
-	bool infowin_event(const event_t *);
+	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**
 	* Recalc the current size required to display everything, and set komponente groesse

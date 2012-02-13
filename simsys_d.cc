@@ -14,16 +14,6 @@
 #include "simsys_w32_png.h"
 #include "simversion.h"
 
-#ifdef _WIN32
-#define BITMAP winBITMAP
-#define WinMain winWinMain
-// windows.h defines min and max macros which we don't want
-#define NOMINMAX 1
-#include <windows.h>
-#undef BITMAP
-#undef WinMain
-#endif
-
 #include <allegro.h>
 
 
@@ -218,15 +208,10 @@ bool dr_os_init(int const* parameter)
 resolution dr_query_screen_resolution()
 {
 	resolution res;
-#ifdef _WIN32
-	res.w = GetSystemMetrics(SM_CXSCREEN);
-	res.h = GetSystemMetrics(SM_CYSCREEN);
-#else
 	if (get_desktop_resolution(&res.w, &res.h) != 0) {
 		res.w = width;
 		res.h = height;
 	}
-#endif
 	return res;
 }
 
@@ -318,21 +303,6 @@ unsigned int get_system_color(unsigned int r, unsigned int g, unsigned int b)
 }
 
 
-void dr_setRGB8multi(int first, int count, unsigned char* data)
-{
-	PALETTE p;
-	int n;
-
-	for (n = 0; n < count; n++) {
-		p[n + first].r = data[n * 3 + 0] >> 2;
-		p[n + first].g = data[n * 3 + 1] >> 2;
-		p[n + first].b = data[n * 3 + 2] >> 2;
-	}
-
-	set_palette_range(p, first, first + count - 1, true);
-}
-
-
 void dr_prepare_flush()
 {
 	return;
@@ -358,7 +328,9 @@ int dr_screenshot(const char *filename)
 		return 1;
 	}
 #endif
-	return 0;
+	PALETTE pal;
+	get_palette(pal);
+	return save_bitmap(filename, texture_map, pal) == 0 ? 1 : -1;
 }
 
 
@@ -413,13 +385,7 @@ void GetEvents(void)
 {
 	while (event_top_mark == event_bot_mark) {
 		// try to be nice where possible
-#if !defined(__MINGW32__)
-#if!defined(__BEOS__)
-		usleep(1000);
-#endif
-#else
-		Sleep(5);
-#endif
+		rest(1);
 	}
 
 	do {

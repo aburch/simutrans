@@ -5,6 +5,7 @@
  * (see licence.txt)
  */
 
+#include "components/gui_button.h"
 #include "components/list_button.h"
 
 #include "message_stats_t.h"
@@ -13,14 +14,11 @@
 
 #include "../simgraph.h"
 #include "../simcolor.h"
-#include "../simcity.h"
 #include "../simwin.h"
 #include "../simworld.h"
 #include "../simskin.h"
 
 #include "../dataobj/umgebung.h"
-
-#include "../gui/stadt_info.h"
 
 
 message_stats_t::message_stats_t(karte_t *w) :

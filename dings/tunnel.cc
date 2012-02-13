@@ -10,13 +10,12 @@
 #include "../simworld.h"
 #include "../simdings.h"
 #include "../player/simplay.h"
-#include "../simwerkz.h"
 #include "../boden/grund.h"
-#include "../boden/tunnelboden.h"
 #include "../simimg.h"
 #include "../bauer/tunnelbauer.h"
 
 #include "../dataobj/loadsave.h"
+#include "../dataobj/translator.h"
 
 #include "../besch/tunnel_besch.h"
 

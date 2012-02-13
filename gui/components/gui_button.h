@@ -164,14 +164,9 @@ public:
 	 * Button getroffen wurde, false wenn x, y ausserhalb liegt
 	 * @author Hj. Malthaner
 	 */
-	bool getroffen(int x,int y);
+	bool getroffen(int x, int y) OVERRIDE;
 
-	/**
-	 * Events werden hiermit an die GUI-Komponenten
-	 * gemeldet
-	 * @author Hj. Malthaner
-	 */
-	bool infowin_event(const event_t *);
+	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**
 	 * Zeichnet die Komponente

@@ -36,7 +36,6 @@
 #include "tpl/fixed_list_tpl.h"
 #endif
 
-
 struct event_t;
 struct sound_info;
 class stadt_t;

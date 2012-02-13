@@ -58,7 +58,7 @@ void scenario_t::init( const char *filename, karte_t *w )
 	city = NULL;
 	if(*cityname) {
 		// find a city with this name ...
-		const weighted_vector_tpl<stadt_t*> staedte = welt->get_staedte();
+		const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
 		for(  int i=0;  staedte.get_count();  i++  ) {
 			if(  strcmp( staedte[i]->get_name(), cityname )==0  ) {
 				city = staedte[i];

@@ -65,12 +65,7 @@ public:
 	int get_active_tab_index() const { return min((int)tabs.get_count()-1,active_tab); }
 	void set_active_tab_index( int i ) { active_tab = min((int)tabs.get_count()-1,i); }
 
-	/**
-	 * Events werden hiermit an die GUI-Komponenten
-	 * gemeldet
-	 * @author Hj. Malthaner
-	 */
-	bool infowin_event(const event_t *ev);
+	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**
 	 * Zeichnet die Registerkarten
@@ -83,7 +78,7 @@ public:
 	 * @author Volker Meyer
 	 * @date  18.06.2003
 	 */
-	void set_groesse(koord groesse);
+	void set_groesse(koord groesse) OVERRIDE;
 
 	/*
 	 * Remove all tabs.
@@ -99,11 +94,7 @@ public:
 	 */
 	uint32 get_count () const { return tabs.get_count(); }
 
-	/**
-	 * This method is called if an action is triggered:
-	 * currently only left/right button
-	 */
-	bool action_triggered(gui_action_creator_t *komp, value_t p);
+	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	/**
 	 * Returns true if the hosted component of the active tab is focusable

@@ -28,7 +28,6 @@
 // @author hsiegeln
 #include "../simlinemgmt.h"
 #include "../simline.h"
-#include "../boden/grund.h"
 #include "messagebox.h"
 
 #include "../player/simplay.h"
@@ -379,7 +378,7 @@ enable_home:
 				break;
 				
 			default:
-				if (cnv->hat_keine_route()) 
+				if (cnv->get_state() != convoi_t::NO_ROUTE) 
 					color = COL_ORANGE;
 			}
 			display_ddd_box_clip(pos_x, pos_y, 64, 8, MN_GREY0, MN_GREY4);

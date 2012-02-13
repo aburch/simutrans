@@ -7,7 +7,8 @@
 
 #include "../simdebug.h"
 #include "../simgraph.h"
-#include "dingliste.h"
+#include "../simworld.h"
+
 #include "../bauer/hausbauer.h"
 #include "../dings/dummy.h"
 #include "../dings/wolke.h"
@@ -43,6 +44,8 @@
 #include "../dataobj/loadsave.h"
 #include "../dataobj/freelist.h"
 #include "../dataobj/umgebung.h"
+
+#include "dingliste.h"
 
 /* All things including ways are stored in this structure.
  * The entries are packed, i.e. the first free entry is at the top.

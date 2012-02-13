@@ -253,6 +253,9 @@ DBG_MESSAGE("HOT_queue_tpl::get_count()","expected %i found %i (%i in heap)",nod
 //		return nodes[node_top].empty();
 //		return heap.empty();
 	}
+private:
+	HOT_queue_tpl(const HOT_queue_tpl& other);
+	HOT_queue_tpl& operator=( HOT_queue_tpl const& other );
 };
 
 #endif
