@@ -9,6 +9,9 @@
 template<class T> class minivec_tpl
 {
 public:
+	typedef const T* const_iterator;
+	typedef       T* iterator;
+
 	minivec_tpl() : data(NULL), size(0), count(0) {}
 
 	/** Construct a vector for cap elements */
@@ -147,6 +150,12 @@ public:
 
 	T& back() { return data[count - 1]; }
 	const T& back() const { return data[count - 1]; }
+
+	iterator begin() { return data; }
+	iterator end()   { return data + count; }
+
+	const_iterator begin() const { return data; }
+	const_iterator end()   const { return data + count; }
 
 	/** Get the number of elements in the vector */
 	uint8 get_count() const { return count; }
