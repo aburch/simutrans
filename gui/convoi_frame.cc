@@ -175,7 +175,7 @@ void convoi_frame_t::sort_list()
 	convois.clear();
 	convois.resize( welt->get_convoi_count() );
 
-	for (vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end(); i != end; ++i) {
+	for (vector_tpl<convoihandle_t>::const_iterator i = welt->convoys().begin(), end = welt->convoys().end(); i != end; ++i) {
 		convoihandle_t cnv = *i;
 		if(cnv->get_besitzer()==owner  &&   passes_filter(cnv)) {
 			convois.append(cnv);

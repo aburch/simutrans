@@ -765,7 +765,7 @@ void fahrplan_gui_t::rdwr(loadsave_t *file)
 		}
 		if(  !cnv.is_bound() ) {
 			// not found (most likely convoi in depot ... )
-			for(  vector_tpl<convoihandle_t>::const_iterator i=welt->convois_begin(); i!=welt->convois_end();  ++i  ) {
+			for (vector_tpl<convoihandle_t>::const_iterator i = welt->convoys().begin(), end = welt->convoys().end(); i != end; ++i) {
 				if(  (*i)->get_besitzer()->get_player_nr()==player_nr  &&  strncmp( (*i)->get_name(), cnv_name, 256 )==0  &&  old_fpl->matches( welt, (*i)->get_schedule() )  ) {
 					// valid convoi found
 					cnv = *i;

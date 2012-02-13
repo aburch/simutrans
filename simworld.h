@@ -911,8 +911,7 @@ public:
 	void rem_convoi(convoihandle_t& cnv);
 	uint32 get_convoi_count() const {return convoi_array.get_count();}
 	const convoihandle_t get_convoi(sint32 i) const {return convoi_array[(uint32)i];}
-	vector_tpl<convoihandle_t>::const_iterator convois_begin() const { return convoi_array.begin(); }
-	vector_tpl<convoihandle_t>::const_iterator convois_end()   const { return convoi_array.end();   }
+	vector_tpl<convoihandle_t> const& convoys() const { return convoi_array; }
 
 	/**
 	 * Zugriff auf das Staedte Array.
