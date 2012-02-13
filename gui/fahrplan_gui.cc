@@ -374,8 +374,8 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	mode = adding;
 	update_selection();
 
-	set_fenstergroesse( koord(BUTTON4_X, ypos+BUTTON_HEIGHT+min(15,fpl->get_count())*(LINESPACE + 1)+TITLEBAR_HEIGHT) );
-	set_min_windowsize( koord(BUTTON4_X, ypos+BUTTON_HEIGHT+3*(LINESPACE + 1)+TITLEBAR_HEIGHT) );
+	set_fenstergroesse( koord(BUTTON4_X, ypos+BUTTON_HEIGHT+(fpl->get_count()>0 ? min(15,fpl->get_count()) : 15)*(LINESPACE+1)+TITLEBAR_HEIGHT) );
+	set_min_windowsize( koord(BUTTON4_X, ypos+BUTTON_HEIGHT+3*(LINESPACE+1)+TITLEBAR_HEIGHT) );
 
 	set_resizemode(diagonal_resize);
 	resize( koord(0,0) );
