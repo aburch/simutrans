@@ -290,12 +290,10 @@ const vehikel_besch_t *vehikelbauer_t::get_info(const char *name)
 }
 
 
-
-slist_tpl<const vehikel_besch_t*>* vehikelbauer_t::get_info(waytype_t typ)
+slist_tpl<vehikel_besch_t const*>& vehikelbauer_t::get_info(waytype_t const typ)
 {
-	return &typ_fahrzeuge[GET_WAYTYPE_INDEX(typ)];
+	return typ_fahrzeuge[GET_WAYTYPE_INDEX(typ)];
 }
-
 
 
 /* extended sreach for vehicles for KI *
