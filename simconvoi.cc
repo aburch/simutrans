@@ -3502,7 +3502,7 @@ void convoi_t::rdwr(loadsave_t *file)
 		arrival_time = welt->get_zeit_ms();
 	}
 
-	if(file->get_experimental_version() >= 11)
+	if(file->get_experimental_version() >= 10 && file->get_version() >= 111001)
 	{
 		// It is necessary to save the IDs for convoys, as these are
 		// used in the path explorer when the convoys run without

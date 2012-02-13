@@ -64,10 +64,11 @@ struct checklist_t
 
 	uint32 industry_density_proportion;
 	uint32 actual_industry_density;
+	uint32 traffic;
 
-	checklist_t() : random_seed(0), halt_entry(0), line_entry(0), convoy_entry(0), industry_density_proportion(0), actual_industry_density(0) { }
-	checklist_t(uint32 _random_seed, uint16 _halt_entry, uint16 _line_entry, uint16 _convoy_entry, uint32 _industry_denisty_proportion, uint32 _actual_industry_density)
-		: random_seed(_random_seed), halt_entry(_halt_entry), line_entry(_line_entry), convoy_entry(_convoy_entry), industry_density_proportion(_industry_denisty_proportion), actual_industry_density(_actual_industry_density) { }
+	checklist_t() : random_seed(0), halt_entry(0), line_entry(0), convoy_entry(0), industry_density_proportion(0), actual_industry_density(0), traffic(0) { }
+	checklist_t(uint32 _random_seed, uint16 _halt_entry, uint16 _line_entry, uint16 _convoy_entry, uint32 _industry_denisty_proportion, uint32 _actual_industry_density, uint32 _traffic)
+		: random_seed(_random_seed), halt_entry(_halt_entry), line_entry(_line_entry), convoy_entry(_convoy_entry), industry_density_proportion(_industry_denisty_proportion), actual_industry_density(_actual_industry_density), traffic(_traffic) { }
 
 	bool operator == (const checklist_t &other) const
 	{
@@ -109,7 +110,7 @@ public:
 		WORLD_TOWNS,	// number of all cities
 		WORLD_FACTORIES,	// number of all consuming only factories
 		WORLD_CONVOIS,	// total number of convois
-		WORLD_CITYCARS,	// number of citycars generated
+		WORLD_CITYCARS,	// Number of private car trips
 		WORLD_PAS_RATIO,	// percentage of passengers that started successful
 		WORLD_PAS_GENERATED,	// total number generated
 		WORLD_MAIL_RATIO,	// percentage of mail that started successful
