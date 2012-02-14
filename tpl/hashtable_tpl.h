@@ -22,8 +22,8 @@ class hashtable_tpl
 protected:
 	struct node_t {
 	public:
-		key_t	key;
-		value_t	object;
+		key_t	  key;
+		value_t	value;
 
 		int operator == (const node_t &x) const { return key == x.key; }
 	};
@@ -56,7 +56,7 @@ public:
 	{
 		FORT(slist_tpl<node_t>, const& node, bags[get_hash(key)]) {
 			if (hash_t::comp(node.key, key) == 0) {
-				return node.object;
+				return node.value;
 			}
 		}
 		return value_t();
@@ -66,7 +66,7 @@ public:
 	{
 		FORT(slist_tpl<node_t>, & node, bags[get_hash(key)]) {
 			if (hash_t::comp(node.key, key) == 0) {
-				return &node.object;
+				return &node.value;
 			}
 		}
 		return NULL;
@@ -92,8 +92,8 @@ public:
 		}
 		node_t node;
 
-		node.key = key;
-		node.object = object;
+		node.key   = key;
+		node.value = object;
 		bags[code].insert(node);
 		return true;
 	}
@@ -132,15 +132,15 @@ public:
 		const STHT_BAG_COUNTER_T code = get_hash(key);
 		FORT(slist_tpl<node_t>, & node, bags[code]) {
 			if (hash_t::comp(node.key, key) == 0) {
-				value_t value = node.object;
-				node.object = object;
+				value_t value = node.value;
+				node.value = object;
 				return value;
 			}
 		}
 		node_t node;
 
-		node.key = key;
-		node.object = object;
+		node.key   = key;
+		node.value = object;
 		bags[code].insert(node);
 
 		return value_t();
@@ -158,7 +158,7 @@ public:
 			if (hash_t::comp(node.key, key) == 0) {
 				bags[code].remove( node );
 
-				return node.object;
+				return node.value;
 			}
 		}
 		return value_t();
@@ -168,7 +168,7 @@ public:
 	{
 		for(STHT_BAG_COUNTER_T i = 0; i < STHT_BAGSIZE; i++) {
 			if(  !bags[i].empty()  ) {
-				return bags[i].remove_first().object;
+				return bags[i].remove_first().value;
 			}
 		}
 		dbg->fatal( "hashtable_tpl::remove_first()", "Hashtable already empty!" );
@@ -253,12 +253,12 @@ public:
 
 	const value_t & get_current_value() const
 	{
-		return bag_iter.get_current().object;
+		return bag_iter.get_current().value;
 	}
 
 	value_t & access_current_value()
 	{
-		return bag_iter.access_current().object;
+		return bag_iter.access_current().value;
 	}
 };
 
