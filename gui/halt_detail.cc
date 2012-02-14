@@ -150,10 +150,8 @@ void halt_detail_t::halt_detail_info()
 			buf.printf("   %s (%d, %d)\n", translator::translate(fab->get_name()), pos.x, pos.y);
 			offset_y += LINESPACE;
 
-			const array_tpl<ware_production_t>& eingang = fab->get_eingang();
-			for (uint32 i = 0; i < eingang.get_count(); i++) {
-				const ware_besch_t* ware = eingang[i].get_typ();
-
+			FOR(array_tpl<ware_production_t>, const& i, fab->get_eingang()) {
+				ware_besch_t const* const ware = i.get_typ();
 				if(!nimmt_an.is_contained(ware)) {
 					nimmt_an.append(ware);
 				}
@@ -287,8 +285,7 @@ void halt_detail_t::halt_detail_info()
 			buf.append(":\n");
 			offset_y += LINESPACE;
 
-			for(  uint32 idx=0;  idx<connections.get_count();  idx++  ) {
-				const haltestelle_t::connection_t &conn = connections[idx];
+			FOR(vector_tpl<haltestelle_t::connection_t>, const& conn, connections) {
 				if(  conn.halt.is_bound()  ) {
 
 					has_stops = true;

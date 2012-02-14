@@ -23,9 +23,9 @@ vector_tpl<const skin_besch_t *>wolke_t::all_clouds(0);
 bool wolke_t::register_besch(const skin_besch_t* besch)
 {
 	// avoid duplicates with same name
-	for(uint8 i=0; i<all_clouds.get_count(); i++) {
-		if (strcmp(all_clouds[i]->get_name(),besch->get_name())==0) {
-			all_clouds[i] = besch;
+	FOR(vector_tpl<skin_besch_t const*>, & i, all_clouds) {
+		if (strcmp(i->get_name(), besch->get_name()) == 0) {
+			i = besch;
 			return true;
 		}
 	}

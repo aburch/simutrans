@@ -149,20 +149,14 @@ void factory_edit_frame_t::fill_list( bool translate )
 	// now buil scrolled list
 	scl.clear_elements();
 	scl.set_selection(-1);
-	for(  uint i=0;  i<fablist.get_count();  i++  ) {
-		// color code for objects: BLACK: normal, YELLOW: consumer only, GREEN: source only
-		COLOR_VAL color=COL_BLACK;
-		if(fablist[i]->get_produkt(0)==NULL) {
-			color = COL_BLUE;
-		}
-		else if(fablist[i]->get_lieferant(0)==NULL) {
-			color = COL_DARK_GREEN;
-		}
-		scl.append_element( new gui_scrolled_list_t::const_text_scrollitem_t(
-			translate ? translator::translate( fablist[i]->get_name() ):fablist[i]->get_name(),
-			color )
-		);
-		if(fablist[i]==fab_besch) {
+	FOR(vector_tpl<fabrik_besch_t const*>, const i, fablist) {
+		COLOR_VAL const color =
+			!i->get_produkt(0)   ? COL_BLUE       : // consumer only
+			!i->get_lieferant(0) ? COL_DARK_GREEN : // source only
+			COL_BLACK;                              // normal
+		char const* const name = translate ? translator::translate(i->get_name()) : i->get_name();
+		scl.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(name, color));
+		if (i == fab_besch) {
 			scl.set_selection(scl.get_count()-1);
 		}
 	}

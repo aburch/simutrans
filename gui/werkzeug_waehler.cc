@@ -138,8 +138,8 @@ bool werkzeug_waehler_t::infowin_event(const event_t *ev)
 	}
 	// this resets to query-tool, when closing toolsbar - but only for selected general tools in the closing toolbar
 	else if(ev->ev_class==INFOWIN &&  ev->ev_code==WIN_CLOSE) {
-		for(  int i=0;  i<(int)tools.get_count();  i++) {
-			if(  tools[i]->is_selected(welt)   &&  (tools[i]->get_id()&GENERAL_TOOL)  ) {
+		FOR(vector_tpl<werkzeug_t*>, const i, tools) {
+			if (i->is_selected(welt) && i->get_id() & GENERAL_TOOL) {
 				welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], welt->get_active_player() );
 				break;
 			}

@@ -1045,8 +1045,8 @@ sint64 spieler_t::undo()
 		return false;
 	}
 	// check, if we can still do undo
-	for(unsigned short i=0;  i<last_built.get_count();  i++  ) {
-		grund_t* gr = welt->lookup(last_built[i]);
+	FOR(vector_tpl<koord3d>, const& i, last_built) {
+		grund_t* const gr = welt->lookup(i);
 		if(gr==NULL  ||  gr->get_typ()!=grund_t::boden) {
 			// well, something was built here ... so no undo
 			last_built.clear();
@@ -1092,8 +1092,8 @@ sint64 spieler_t::undo()
 
 	// ok, now remove everything last built
 	sint64 cost=0;
-	for(  uint32 i=0;  i<last_built.get_count();  i++  ) {
-		grund_t* gr = welt->lookup(last_built[i]);
+	FOR(vector_tpl<koord3d>, const& i, last_built) {
+		grund_t* const gr = welt->lookup(i);
 		if(  undo_type != powerline_wt  ) {
 			cost += gr->weg_entfernen(undo_type,true);
 		}

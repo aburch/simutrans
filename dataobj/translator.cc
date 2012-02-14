@@ -198,8 +198,8 @@ void translator::load_custom_list( int lang, vector_tpl<char*> &name_list, const
 	FILE* file;
 
 	// alle namen aufräumen
-	for(uint32 i=0; i<name_list.get_count(); i++) {
-		free( name_list[i] );
+	FOR(vector_tpl<char*>, const i, name_list) {
+		free(i);
 	}
 	name_list.clear();
 

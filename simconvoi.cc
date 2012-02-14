@@ -2367,10 +2367,8 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 			slist_iterator_tpl<ware_t> iter_vehicle_ware(v->get_fracht());
 			while(iter_vehicle_ware.next()) {
 				ware_t ware = iter_vehicle_ware.get_current();
-				for(unsigned i=0;  i<total_fracht.get_count();  i++ ) {
-
+				FOR(vector_tpl<ware_t>, & tmp, total_fracht) {
 					// could this be joined with existing freight?
-					ware_t &tmp = total_fracht[i];
 
 					// for pax: join according next stop
 					// for all others we *must* use target coordinates
@@ -3080,8 +3078,8 @@ void convoi_t::check_pending_updates()
 void convoi_t::register_stops()
 {
 	if(  fpl  ) {
-		for(  uint8 i=0;  i<fpl->get_count();  ++i  ) {
-			const halthandle_t halt = haltestelle_t::get_halt( welt, fpl->eintrag[i].pos, get_besitzer() );
+		FOR(minivec_tpl<linieneintrag_t>, const& i, fpl->eintrag) {
+			halthandle_t const halt = haltestelle_t::get_halt(welt, i.pos, get_besitzer());
 			if(  halt.is_bound()  ) {
 				halt->add_convoy(self);
 			}
@@ -3097,8 +3095,8 @@ void convoi_t::register_stops()
 void convoi_t::unregister_stops()
 {
 	if(  fpl  ) {
-		for(  uint8 i=0;  i<fpl->get_count();  ++i  ) {
-			const halthandle_t halt = haltestelle_t::get_halt( welt, fpl->eintrag[i].pos, get_besitzer() );
+		FOR(minivec_tpl<linieneintrag_t>, const& i, fpl->eintrag) {
+			halthandle_t const halt = haltestelle_t::get_halt(welt, i.pos, get_besitzer());
 			if(  halt.is_bound()  ) {
 				halt->remove_convoy(self);
 			}

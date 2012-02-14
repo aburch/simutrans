@@ -95,9 +95,9 @@ const groundobj_besch_t *movingobj_t::random_movingobj_for_climate(climate cl)
 
 	int weight = 0;
 
-	for( unsigned i=0;  i<movingobj_typen.get_count();  i++  ) {
-		if(  movingobj_typen[i]->is_allowed_climate(cl)   ) {
-			weight += movingobj_typen[i]->get_distribution_weight();
+	FOR(vector_tpl<groundobj_besch_t const*>, const i, movingobj_typen) {
+		if (i->is_allowed_climate(cl) ) {
+			weight += i->get_distribution_weight();
 		}
 	}
 
@@ -105,11 +105,11 @@ const groundobj_besch_t *movingobj_t::random_movingobj_for_climate(climate cl)
 	if (weight > 0) {
 		const int w=simrand(weight);
 		weight = 0;
-		for( unsigned i=0; i<movingobj_typen.get_count();  i++  ) {
-			if(  movingobj_typen[i]->is_allowed_climate(cl) ) {
-				weight += movingobj_typen[i]->get_distribution_weight();
+		FOR(vector_tpl<groundobj_besch_t const*>, const i, movingobj_typen) {
+			if (i->is_allowed_climate(cl)) {
+				weight += i->get_distribution_weight();
 				if(weight>=w) {
-					return movingobj_typen[i];
+					return i;
 				}
 			}
 		}

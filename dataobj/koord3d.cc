@@ -117,7 +117,7 @@ ribi_t::ribi koord3d_vector_t::get_short_ribi( uint32 index ) const
 
 void koord3d_vector_t::rotate90( sint16 y_size )
 {
-	for( uint32 i = 0; i < get_count(); i++ ) {
-		operator[](i).rotate90( y_size );
+	FOR(koord3d_vector_t, & i, *this) {
+		i.rotate90(y_size);
 	}
 }

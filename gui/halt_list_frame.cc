@@ -105,7 +105,7 @@ bool halt_list_frame_t::compare_halts(halthandle_t const halt1, halthandle_t con
 bool halt_list_frame_t::passes_filter(halthandle_t halt)
 {
 	bool ok;
-	uint32 i, j;
+	uint32 i;
 
 	if(!get_filter(any_filter)) {
 		return true;
@@ -174,9 +174,9 @@ bool halt_list_frame_t::passes_filter(halthandle_t halt)
 				  // begrenzt (Normal 1-2 Fabriken mit je 0-1 Ausgang) -  V. Meyer
 					slist_iterator_tpl<fabrik_t *> fab_iter(halt->get_fab_list());
 					while(!ok && fab_iter.next()) {
-						const array_tpl<ware_production_t>& ausgang = fab_iter.get_current()->get_ausgang();
-						for (j = 0; !ok && j < ausgang.get_count(); j++) {
-							ok = (ausgang[j].get_typ() == ware);
+						FOR(array_tpl<ware_production_t>, const& j, fab_iter.get_current()->get_ausgang()) {
+							ok = j.get_typ() == ware;
+							if (ok) break;
 						}
 					}
 				}
@@ -217,9 +217,9 @@ bool halt_list_frame_t::passes_filter(halthandle_t halt)
 
 					slist_iterator_tpl<fabrik_t *> fab_iter(halt->get_fab_list());
 					while(!ok && fab_iter.next()) {
-						const array_tpl<ware_production_t>& eingang = fab_iter.get_current()->get_eingang();
-						for (j = 0; !ok && j < eingang.get_count(); j++) {
-							ok = (eingang[j].get_typ() == ware);
+						FOR(array_tpl<ware_production_t>, const& j, fab_iter.get_current()->get_eingang()) {
+							ok = j.get_typ() == ware;
+							if (ok) break;
 						}
 					}
 				}
@@ -440,12 +440,12 @@ void halt_list_frame_t::zeichnen(koord pos, koord gr)
 		display_list();
 	}
 
-	for(  unsigned i=0;  i<stops.get_count();  i++  ) {
-		const halthandle_t halt = stops[i].get_halt();
+	FOR(vector_tpl<halt_list_stats_t>, & i, stops) {
+		halthandle_t const halt = i.get_halt();
 		if(  halt.is_bound()  &&  passes_filter(halt)  ) {
 			num_filtered_stops++;
 			if(  num_filtered_stops>start  &&  yoffset<gr.y+47  ) {
-				stops[i].zeichnen( pos+koord(0,yoffset) );
+				i.zeichnen(pos + koord(0, yoffset));
 				yoffset += 28;
 			}
 		}

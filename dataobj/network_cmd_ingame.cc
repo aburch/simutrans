@@ -199,8 +199,8 @@ bool nwc_ready_t::execute(karte_t *welt)
 			return true;
 		}
 		// check the validity of the map counter
-		for(  uint32 i=0;  i<all_map_counters.get_count();  ++i  ) {
-			if(  all_map_counters[i]==map_counter  ) {
+		FOR(vector_tpl<uint32>, const i, all_map_counters) {
+			if (i == map_counter) {
 				// unpause the sender by sending nwc_ready_t back
 				nwc_ready_t nwc(sync_step, map_counter, checklist);
 				if(  !nwc.send( get_sender())  ) {

@@ -483,9 +483,11 @@ fabrik_t* fabrikbauer_t::baue_fabrik(karte_t* welt, koord3d* parent, const fabri
 			distance_stadt.insert_ordered(i, RelativeDistanceOrdering(fab->get_pos().get_2d()));
 		}
 		settings_t const& s = welt->get_settings();
-		for (uint32 i = 0; i < distance_stadt.get_count() && fab->get_target_cities().get_count() < s.get_factory_worker_maximum_towns(); ++i) {
-			if (fab->get_target_cities().get_count() < s.get_factory_worker_minimum_towns() || koord_distance(fab->get_pos(), distance_stadt[i]->get_pos()) < s.get_factory_worker_radius()) {
-				fab->add_target_city(distance_stadt[i]);
+		FOR(vector_tpl<stadt_t*>, const i, distance_stadt) {
+			if (fab->get_target_cities().get_count() >= s.get_factory_worker_maximum_towns()) break;
+			if (fab->get_target_cities().get_count() < s.get_factory_worker_minimum_towns() ||
+					koord_distance(fab->get_pos(), i->get_pos()) < s.get_factory_worker_radius()) {
+				fab->add_target_city(i);
 			}
 		}
 	}
@@ -701,8 +703,9 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 					if (fb->get_produkt(gg)->get_ware() == ware && fab->get_lieferziele().get_count() < 10) { // does not make sense to split into more ...
 						sint32 production_left = fab->get_base_production() * fb->get_produkt(gg)->get_faktor();
 						const vector_tpl <koord> & lieferziele = fab->get_lieferziele();
-						for( uint32 ziel=0;  ziel<lieferziele.get_count()  &&  production_left>0;  ziel++  ) {
-							fabrik_t *zfab=fabrik_t::get_fab(welt,lieferziele[ziel]);
+						FOR(vector_tpl<koord>, const& i, lieferziele) {
+							if (production_left <= 0) break;
+							fabrik_t* const zfab = fabrik_t::get_fab(welt, i);
 							for(int zz=0;  zz<zfab->get_besch()->get_lieferanten();  zz++) {
 								if(zfab->get_besch()->get_lieferant(zz)->get_ware()==ware) {
 									production_left -= zfab->get_base_production()*zfab->get_besch()->get_lieferant(zz)->get_verbrauch();
@@ -722,8 +725,8 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 								 * needed is the same. Therefore, we just keep book
 								 * from whose factories from how many we stole */
 								crossconnected_supplier.append(fab);
-								for( unsigned ziel=0;  ziel<lieferziele.get_count();  ziel++  ) {
-									fabrik_t *zfab=fabrik_t::get_fab(welt,lieferziele[ziel]);
+								FOR(vector_tpl<koord>, const& t, lieferziele) {
+									fabrik_t* zfab = fabrik_t::get_fab(welt, t);
 									slist_tpl<fabs_to_crossconnect_t>::iterator i = std::find(factories_to_correct.begin(), factories_to_correct.end(), fabs_to_crossconnect_t(zfab, 0));
 									if (i == factories_to_correct.end()) {
 										factories_to_correct.append(fabs_to_crossconnect_t(zfab, 1));
@@ -881,8 +884,8 @@ int fabrikbauer_t::increase_industry_density( karte_t *welt, bool tell_me )
 		if(  last_built_consumer  ) {
 			for(  int i=0;  i < last_built_consumer->get_besch()->get_lieferanten();  i++  ) {
 				ware_besch_t const* const w = last_built_consumer->get_besch()->get_lieferant(i)->get_ware();
-				for(  uint32 j=0;  j<last_built_consumer->get_suppliers().get_count();  j++  ) {
-					fabrik_t *sup = fabrik_t::get_fab( welt, last_built_consumer->get_suppliers()[j] );
+				FOR(vector_tpl<koord>, const& j, last_built_consumer->get_suppliers()) {
+					fabrik_t* const sup = fabrik_t::get_fab(welt, j);
 					const fabrik_besch_t* const fb = sup->get_besch();
 					for (uint32 k = 0; k < fb->get_produkte(); k++) {
 						if (fb->get_produkt(k)->get_ware() == w) {

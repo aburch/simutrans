@@ -60,10 +60,9 @@ void crossing_logic_t::recalc_state()
 	if(  !crossings.empty()  ) {
 		on_way1.clear();
 		on_way2.clear();
-		for(  uint i=0;  i<crossings.get_count();  i++  ) {
+		FOR(minivec_tpl<crossing_t*>, const i, crossings) {
 			// add vehicles already there
-			grund_t *gr = welt->lookup(crossings[i]->get_pos());
-			if(gr) {
+			if (grund_t* const gr = welt->lookup(i->get_pos())) {
 				for( uint8 i=3;  i<gr->get_top();  i++  ) {
 					if(  vehikel_basis_t const* const v = ding_cast<vehikel_basis_t>(gr->obj_bei(i))  ) {
 						add_to_crossing( v );
@@ -178,8 +177,8 @@ crossing_logic_t::set_state( crossing_state_t new_state )
 
 	if(new_state!=zustand) {
 		zustand = new_state;
-		for(  uint8 i=0;  i<crossings.get_count();  i++  ) {
-			crossings[i]->state_changed();
+		FOR(minivec_tpl<crossing_t*>, const i, crossings) {
+			i->state_changed();
 		}
 	}
 }
@@ -253,23 +252,22 @@ const kreuzung_besch_t *crossing_logic_t::get_crossing(const waytype_t ns, const
 	const kreuzung_besch_t *best = NULL;
 	if(way0<8  &&  way1<9  &&  way0!=way1) {
 		uint8 index = way0 * 9 + way1 - ((way0+2)*(way0+1))/2;
-		minivec_tpl<const kreuzung_besch_t *> &vec = can_cross_array[index];
-		for(  uint8 i=0;  i<vec.get_count();  i++  ) {
-			if (!vec[i]->is_available(timeline_year_month)) continue;
+		FOR(minivec_tpl<kreuzung_besch_t const*>, const i, can_cross_array[index]) {
+			if (!i->is_available(timeline_year_month)) continue;
 			// better matching speed => take this
 			if (best) {
 				// match maxspeed of first way
 				uint8  const way0_nr = way0 == ow;
-				sint32 const imax0   = vec[i]->get_maxspeed(way0_nr);
-				sint32 const bmax0   =   best->get_maxspeed(way0_nr);
+				sint32 const imax0   =    i->get_maxspeed(way0_nr);
+				sint32 const bmax0   = best->get_maxspeed(way0_nr);
 				if ((imax0 < way_0_speed || bmax0 < imax0) && (way_0_speed < bmax0 || imax0 < bmax0)) continue;
 				// match maxspeed of second way
 				uint8  const way1_nr = way1 == ow;
-				sint32 const imax1   = vec[i]->get_maxspeed(way1_nr);
-				sint32 const bmax1   =   best->get_maxspeed(way1_nr);
+				sint32 const imax1   =    i->get_maxspeed(way1_nr);
+				sint32 const bmax1   = best->get_maxspeed(way1_nr);
 				if ((imax1 < way_1_speed || bmax1 < imax1) && (way_1_speed < bmax1 || imax1 < bmax1)) continue;
 			}
-			best = vec[i];
+			best = i;
 		}
 	}
 	return best;

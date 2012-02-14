@@ -672,8 +672,8 @@ void karte_t::add_stadt(stadt_t *s)
 	stadt.append(s, s->get_einwohner(), 64);
 
 	// Knightly : add links between this city and other cities as well as attractions
-	for(  uint32 c=0;  c<stadt.get_count();  ++c  ) {
-		stadt[c]->add_target_city(s);
+	FOR(weighted_vector_tpl<stadt_t*>, const c, stadt) {
+		c->add_target_city(s);
 	}
 	s->recalc_target_cities();
 	s->recalc_target_attractions();
@@ -699,8 +699,8 @@ bool karte_t::rem_stadt(stadt_t *s)
 	settings.set_anzahl_staedte(settings.get_anzahl_staedte() - 1);
 
 	// Knightly : remove links between this city and other cities
-	for(  uint32 c=0;  c<stadt.get_count();  ++c  ) {
-		stadt[c]->remove_target_city(s);
+	FOR(weighted_vector_tpl<stadt_t*>, const c, stadt) {
+		c->remove_target_city(s);
 	}
 
 	// remove all links from factories
@@ -912,9 +912,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 
 			uint32 game_start = current_month;
 			// townhalls available since?
-			const vector_tpl<const haus_besch_t *> *s = hausbauer_t::get_list(haus_besch_t::rathaus);
-			for (uint32 i = 0; i<s->get_count(); i++) {
-				const haus_besch_t *besch = (*s)[i];
+			FOR(vector_tpl<haus_besch_t const*>, const besch, *hausbauer_t::get_list(haus_besch_t::rathaus)) {
 				uint32 intro_year_month = besch->get_intro_year_month();
 				if(  intro_year_month<game_start  ) {
 					game_start = intro_year_month;
@@ -2540,8 +2538,8 @@ void karte_t::rotate90()
 	}
 
 	// rotate all other objects like factories and convois
-	for(unsigned i=0; i<convoi_array.get_count();  i++) {
-		convoi_array[i]->rotate90( cached_groesse_karte_x );
+	FOR(vector_tpl<convoihandle_t>, const i, convoi_array) {
+		i->rotate90(cached_groesse_karte_x);
 	}
 
 	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
@@ -2657,8 +2655,8 @@ void karte_t::add_ausflugsziel(gebaeude_t *gb)
 	ausflugsziele.append( gb, gb->get_tile()->get_besch()->get_level(), 16 );
 
 	// Knightly : add links between this attraction and all cities
-	for(  uint32 c=0;  c<stadt.get_count();  ++c  ) {
-		stadt[c]->add_target_attraction(gb);
+	FOR(weighted_vector_tpl<stadt_t*>, const c, stadt) {
+		c->add_target_attraction(gb);
 	}
 }
 
@@ -2669,8 +2667,8 @@ void karte_t::remove_ausflugsziel(gebaeude_t *gb)
 	ausflugsziele.remove( gb );
 
 	// Knightly : remove links between this attraction and all cities
-	for(  uint32 c=0;  c<stadt.get_count();  ++c  ) {
-		stadt[c]->remove_target_attraction(gb);
+	FOR(weighted_vector_tpl<stadt_t*>, const c, stadt) {
+		c->remove_target_attraction(gb);
 	}
 }
 
@@ -2966,8 +2964,7 @@ void karte_t::neuer_monat()
 
 //	DBG_MESSAGE("karte_t::neuer_monat()","convois");
 	// hsiegeln - call new month for convois
-	for(unsigned i=0;  i<convoi_array.get_count();  i++ ) {
-		convoihandle_t cnv = convoi_array[i];
+	FOR(vector_tpl<convoihandle_t>, const cnv, convoi_array) {
 		cnv->new_month();
 	}
 
@@ -3075,8 +3072,7 @@ DBG_MESSAGE("karte_t::neues_jahr()","speedbonus for %d %i, %i, %i, %i, %i, %i, %
 	buf.printf( translator::translate("Year %i has started."), letztes_jahr );
 	msg->add_message(buf,koord::invalid,message_t::general,COL_BLACK,skinverwaltung_t::neujahrsymbol->get_bild_nr(0));
 
-	for(unsigned i=0;  i<convoi_array.get_count();  i++ ) {
-		convoihandle_t cnv = convoi_array[i];
+	FOR(vector_tpl<convoihandle_t>, const cnv, convoi_array) {
 		cnv->neues_jahr();
 	}
 
@@ -4123,9 +4119,8 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved stops");
 		uint16 i=convoi_array.get_count();
 		file->rdwr_short(i);
 	}
-	for(unsigned i=0;  i<convoi_array.get_count();  i++ ) {
+	FOR(vector_tpl<convoihandle_t>, const cnv, convoi_array) {
 		// one MUST NOT call INT_CHECK here or else the convoi will be broken during reloading!
-		convoihandle_t cnv = convoi_array[i];
 		cnv->rdwr(file);
 	}
 	if(  file->get_version()<101000  ) {

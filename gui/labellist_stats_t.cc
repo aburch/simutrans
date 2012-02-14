@@ -160,9 +160,7 @@ void labellist_stats_t::recalc_size()
 
 	static cbuffer_t buf;
 
-	for(  uint32 i=0;  i<labels.get_count();   i++) {
-		const koord pos = labels[i];
-
+	FOR(vector_tpl<koord>, const& pos, labels) {
 		buf.clear();
 
 		// the other infos

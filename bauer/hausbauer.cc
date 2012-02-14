@@ -249,8 +249,8 @@ DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.get_count());
 void hausbauer_t::neue_karte()
 {
 	ungebaute_denkmaeler.clear();
-	for(uint32 i=0; i<denkmaeler.get_count(); i++) {
-		ungebaute_denkmaeler.append(denkmaeler[i]);
+	FOR(vector_tpl<haus_besch_t const*>, const i, denkmaeler) {
+		ungebaute_denkmaeler.append(i);
 	}
 }
 
@@ -677,8 +677,7 @@ const haus_besch_t* hausbauer_t::get_special(int bev, haus_besch_t::utyp utype, 
 	weighted_vector_tpl<const haus_besch_t *> auswahl(16);
 
 	vector_tpl<const haus_besch_t*> &list = utype == haus_besch_t::rathaus ? rathaeuser : (bev == -1 ? sehenswuerdigkeiten_land : sehenswuerdigkeiten_city);
-	for(uint32 i=0; i<list.get_count(); i++) {
-		const haus_besch_t *besch = list[i];
+	FOR(vector_tpl<haus_besch_t const*>, const besch, list) {
 		// extra data contains number of inhabitants for building
 		if(bev == -1 || besch->get_extra()==bev) {
 			if(cl==MAX_CLIMATES  ||  besch->is_allowed_climate(cl)) {
@@ -787,8 +786,7 @@ const haus_besch_t *hausbauer_t::waehle_aus_liste(vector_tpl<const haus_besch_t 
 	if (!liste.empty()) {
 		// previously just returned a random object; however, now we do als look at the chance entry
 		weighted_vector_tpl<const haus_besch_t *> auswahl(16);
-		for(uint32 i=0; i<liste.get_count(); i++) {
-			const haus_besch_t *besch = liste[i];
+		FOR(vector_tpl<haus_besch_t const*>, const besch, liste) {
 			if((cl==MAX_CLIMATES  ||  besch->is_allowed_climate(cl))  &&  besch->get_chance()>0  &&  (time==0  ||  (besch->get_intro_year_month()<=time  &&  (ignore_retire  ||  besch->get_retire_year_month()>time)  )  )  ) {
 //				DBG_MESSAGE("hausbauer_t::get_aus_liste()","appended %s at %i", besch->get_name(), thislevel );
 				auswahl.append(besch,besch->get_chance(),4);

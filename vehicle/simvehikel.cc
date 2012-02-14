@@ -832,13 +832,11 @@ void vehikel_t::remove_stale_freight()
 	if (!fracht.empty()) {
 		slist_iterator_tpl<ware_t> iter (fracht);
 		while(iter.next()) {
-			schedule_t *fpl = cnv->get_schedule();
-
 			ware_t& tmp = iter.access_current();
 			bool found = false;
 
-			for (int i = 0; i < fpl->get_count(); i++) {
-				if (haltestelle_t::get_halt( welt, fpl->eintrag[i].pos, cnv->get_besitzer() ) == tmp.get_zwischenziel()) {
+			FOR(minivec_tpl<linieneintrag_t>, const& i, cnv->get_schedule()->eintrag) {
+				if (haltestelle_t::get_halt( welt, i.pos, cnv->get_besitzer()) == tmp.get_zwischenziel()) {
 					found = true;
 					break;
 				}

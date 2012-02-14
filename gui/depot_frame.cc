@@ -574,10 +574,9 @@ void depot_frame_t::add_to_vehicle_list(const vehikel_besch_t *info)
 	if (depot->selected_filter > 0 && info->get_zuladung() > 0) {
 		if (depot->selected_filter == VEHICLE_FILTER_RELEVANT) {
 			if(freight->get_catg_index() >= 3) {
-				const vector_tpl<const ware_besch_t*> &goods = get_welt()->get_goods_list();
 				bool found = false;
-				for(uint32 i = 0; i<goods.get_count(); i++) {
-					if (freight->get_catg_index() == goods[i]->get_catg_index()) {
+				FOR(vector_tpl<ware_besch_t const*>, const i, get_welt()->get_goods_list()) {
+					if (freight->get_catg_index() == i->get_catg_index()) {
 						found = true;
 						break;
 					}
@@ -897,9 +896,8 @@ void depot_frame_t::update_data()
 	vehicle_filter.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("All"), COL_BLACK));
 	vehicle_filter.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("Relevant"), COL_BLACK));
 
-	const vector_tpl<const ware_besch_t*> &goods = get_welt()->get_goods_list();
-	for(uint32 i = 0; i<goods.get_count(); i++) {
-		vehicle_filter.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(goods[i]->get_name()), COL_BLACK));
+	FOR(vector_tpl<ware_besch_t const*>, const i, get_welt()->get_goods_list()) {
+		vehicle_filter.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(i->get_name()), COL_BLACK));
 	}
 
 	if (depot->selected_filter > vehicle_filter.count_elements()) {

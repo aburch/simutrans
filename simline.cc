@@ -132,9 +132,7 @@ void simline_t::add_convoy(convoihandle_t cnv)
 	// what goods can this line transport?
 	bool update_schedules = false;
 	if(  cnv->get_state()!=convoi_t::INITIAL  ) {
-		const minivec_tpl<uint8> &convoys_goods = cnv->get_goods_catg_index();
-		for(  uint8 i = 0;  i < convoys_goods.get_count();  i++  ) {
-			const uint8 catg_index = convoys_goods[i];
+		FOR(minivec_tpl<uint8>, const catg_index, cnv->get_goods_catg_index()) {
 			if(  !goods_catg_index.is_contained( catg_index )  ) {
 				goods_catg_index.append( catg_index, 1 );
 				update_schedules = true;
@@ -272,8 +270,8 @@ void simline_t::laden_abschliessen()
 void simline_t::register_stops(schedule_t * fpl)
 {
 DBG_DEBUG("simline_t::register_stops()", "%d fpl entries in schedule %p", fpl->get_count(),fpl);
-	for (int i = 0; i<fpl->get_count(); i++) {
-		const halthandle_t halt = haltestelle_t::get_halt( welt, fpl->eintrag[i].pos, sp );
+	FOR(minivec_tpl<linieneintrag_t>, const i, fpl->eintrag) {
+		halthandle_t const halt = haltestelle_t::get_halt(welt, i.pos, sp);
 		if(halt.is_bound()) {
 //DBG_DEBUG("simline_t::register_stops()", "halt not null");
 			halt->add_line(self);
@@ -294,8 +292,8 @@ void simline_t::unregister_stops()
 
 void simline_t::unregister_stops(schedule_t * fpl)
 {
-	for (int i = 0; i<fpl->get_count(); i++) {
-		halthandle_t halt = haltestelle_t::get_halt( welt, fpl->eintrag[i].pos, sp );
+	FOR(minivec_tpl<linieneintrag_t>, const i, fpl->eintrag) {
+		halthandle_t const halt = haltestelle_t::get_halt(welt, i.pos, sp);
 		if(halt.is_bound()) {
 			halt->remove_line(self);
 		}
@@ -317,10 +315,10 @@ void simline_t::new_month()
 	recalc_status();
 	// then calculate maxspeed
 	sint64 line_max_speed = 0, line_max_speed_count = 0;
-	for(  unsigned i=0;  i < line_managed_convoys.get_count();  i++ ) {
-		if(  !line_managed_convoys[i]->in_depot()  ) {
+	FOR(vector_tpl<convoihandle_t>, const i, line_managed_convoys) {
+		if (!i->in_depot()) {
 			// since convoi stepped first, our history is in month 1 ...
-			line_max_speed += line_managed_convoys[i]->get_finance_history( 1, convoi_t::CONVOI_MAXSPEED );
+			line_max_speed += i->get_finance_history(1, convoi_t::CONVOI_MAXSPEED);
 			line_max_speed_count ++;
 		}
 	}
@@ -368,8 +366,8 @@ void simline_t::recalc_status()
 	else if(welt->use_timeline()) {
 		// convois has obsolete vehicles?
 		bool has_obsolete = false;
-		for(unsigned i=0;  !has_obsolete  &&  i<line_managed_convoys.get_count();  i++ ) {
-			has_obsolete = line_managed_convoys[i]->has_obsolete_vehicles();
+		FOR(vector_tpl<convoihandle_t>, const i, line_managed_convoys) {
+			has_obsolete = i->has_obsolete_vehicles();
 		}
 		// now we have to set it
 		state_color = has_obsolete ? COL_DARK_BLUE : COL_BLACK;
@@ -387,21 +385,18 @@ void simline_t::recalc_catg_index()
 {
 	// first copy old
 	minivec_tpl<uint8> old_goods_catg_index(goods_catg_index.get_count());
-	for(  uint i=0;  i<goods_catg_index.get_count();  i++  ) {
-		old_goods_catg_index.append( goods_catg_index[i] );
+	FOR(minivec_tpl<uint8>, const i, goods_catg_index) {
+		old_goods_catg_index.append(i);
 	}
 	goods_catg_index.clear();
 	withdraw = !line_managed_convoys.empty();
 	// then recreate current
-	for(unsigned i=0;  i<line_managed_convoys.get_count();  i++ ) {
+	FOR(vector_tpl<convoihandle_t>, const i, line_managed_convoys) {
 		// what goods can this line transport?
-		// const convoihandle_t cnv = line_managed_convoys[i];
-		const convoi_t *cnv = line_managed_convoys[i].get_rep();
+		const convoi_t *cnv = i.get_rep();
 		withdraw &= cnv->get_withdraw();
 
-		const minivec_tpl<uint8> &convoys_goods = cnv->get_goods_catg_index();
-		for(  uint8 i = 0;  i < convoys_goods.get_count();  i++  ) {
-			const uint8 catg_index = convoys_goods[i];
+		FOR(minivec_tpl<uint8>, const catg_index, cnv->get_goods_catg_index()) {
 			goods_catg_index.append_unique( catg_index, 1 );
 		}
 	}
@@ -412,8 +407,8 @@ void simline_t::recalc_catg_index()
 	}
 	else {
 		// maybe changed => must test all entries
-		for(  uint i=0;  i<goods_catg_index.get_count();  i++  ) {
-			if(  !old_goods_catg_index.is_contained(goods_catg_index[i])  ) {
+		FOR(minivec_tpl<uint8>, const i, goods_catg_index) {
+			if (!old_goods_catg_index.is_contained(i)) {
 				// different => recalc
 				welt->set_schedule_counter();
 				break;

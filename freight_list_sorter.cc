@@ -118,8 +118,7 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 	int pos = 0;
 	ALLOCA(ware_t, wlist, warray->get_count());
 
-	for(unsigned i=0;  i<warray->get_count();  i++  ) {
-		const ware_t &ware = (*warray)[i];
+	FOR(vector_tpl<ware_t>, const& ware, *warray) {
 		if(ware.get_besch()==warenbauer_t::nichts  ||  ware.menge==0) {
 			continue;
 		}

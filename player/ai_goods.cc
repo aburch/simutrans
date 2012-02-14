@@ -139,14 +139,13 @@ bool ai_goods_t::get_factory_tree_lowest_missing( fabrik_t *fab )
 			continue;
 		}
 
-		const vector_tpl <koord> & sources = fab->get_suppliers();
-		for( unsigned q=0;  q<sources.get_count();  q++  ) {
-			fabrik_t *qfab = fabrik_t::get_fab(welt,sources[q]);
+		FOR(vector_tpl<koord>, const& q, fab->get_suppliers()) {
+			fabrik_t* const qfab = fabrik_t::get_fab(welt, q);
 			const fabrik_besch_t* const fb = qfab->get_besch();
 			for (uint qq = 0; qq < fb->get_produkte(); qq++) {
-				if (fb->get_produkt(qq)->get_ware() == ware
-					  &&  !is_forbidden( fabrik_t::get_fab(welt,sources[q]), fab, ware )
-					  &&  !is_connected( sources[q], fab->get_pos().get_2d(), ware )  ) {
+				if (fb->get_produkt(qq)->get_ware() == ware              &&
+						!is_forbidden(fabrik_t::get_fab(welt, q), fab, ware) &&
+						!is_connected(q, fab->get_pos().get_2d(), ware)) {
 					// find out how much is there
 					const array_tpl<ware_production_t>& ausgang = qfab->get_ausgang();
 					uint ware_nr;
@@ -192,11 +191,10 @@ int ai_goods_t::get_factory_tree_missing_count( fabrik_t *fab )
 		const ware_besch_t *ware = fab->get_besch()->get_lieferant(i)->get_ware();
 
 		bool complete = false;	// found at least one factory
-		const vector_tpl <koord> & sources = fab->get_suppliers();
-		for( unsigned q=0;  q<sources.get_count();  q++  ) {
-			fabrik_t *qfab = fabrik_t::get_fab(welt,sources[q]);
+		FOR(vector_tpl<koord>, const& q, fab->get_suppliers()) {
+			fabrik_t* const qfab = fabrik_t::get_fab(welt, q);
 			if(!qfab) {
-				dbg->error( "fabrik_t::get_fab()","fab %s at %s does not find supplier at %s.", fab->get_name(), fab->get_pos().get_str(), sources[q].get_str() );
+				dbg->error("fabrik_t::get_fab()","fab %s at %s does not find supplier at %s.", fab->get_name(), fab->get_pos().get_str(), q.get_str());
 				continue;
 			}
 			if( !is_forbidden( qfab, fab, ware ) ) {
@@ -206,7 +204,7 @@ int ai_goods_t::get_factory_tree_missing_count( fabrik_t *fab )
 						int n = get_factory_tree_missing_count( qfab );
 						if(n>=0) {
 							complete = true;
-							if(  !is_connected( sources[q], fab->get_pos().get_2d(), ware )  ) {
+							if (!is_connected(q, fab->get_pos().get_2d(), ware)) {
 								numbers += 1;
 							}
 							numbers += n;
@@ -263,8 +261,8 @@ bool ai_goods_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length 
 				add_neighbourhood( one_more, 1 );
 				// Any halts here?
 				vector_tpl<koord> halts;
-				for( uint32 j = 0; j < one_more.get_count(); j++ ) {
-					halthandle_t halt = haltestelle_t::get_halt( welt, one_more[j], this );
+				FOR(vector_tpl<koord>, const& j, one_more) {
+					halthandle_t const halt = haltestelle_t::get_halt(welt, j, this);
 					if( halt.is_bound() && !halts.is_contained(halt->get_basis_pos()) ) {
 						bool halt_connected = halt->get_fab_list().is_contained( fab );
 						FOR(slist_tpl<haltestelle_t::tile_t>, const& i, halt->get_tiles()) {
@@ -279,8 +277,8 @@ bool ai_goods_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length 
 				vector_tpl<koord> *next = &halts;
 				for( uint8 k = 0; k < 2; k++ ) {
 					// On which tiles we can start?
-					for( uint32 j = 0; j < next->get_count(); j++ ) {
-						const grund_t* gr = welt->lookup_kartenboden( next->operator[](j) );
+					FOR(vector_tpl<koord>, const& j, *next) {
+						grund_t const* const gr = welt->lookup_kartenboden(j);
 						if(  gr  &&  gr->get_grund_hang() == hang_t::flach  &&  !gr->hat_wege()  &&  !gr->get_leitung()  ) {
 							tile_list[i].append_unique( gr->get_pos() );
 						}

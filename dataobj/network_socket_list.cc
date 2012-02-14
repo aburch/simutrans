@@ -140,8 +140,8 @@ void socket_list_t::change_state(uint32 id, uint8 new_state)
 
 void socket_list_t::reset()
 {
-	for(uint32 j=0; j<list.get_count(); j++) {
-		list[j]->reset();
+	FOR(vector_tpl<socket_info_t*>, const i, list) {
+		i->reset();
 	}
 	connected_clients = 0;
 	playing_clients = 0;
@@ -295,9 +295,9 @@ void socket_list_t::send_all(network_command_t* nwc, bool only_playing_clients)
 SOCKET socket_list_t::fill_set(fd_set *fds)
 {
 	SOCKET s_max = 0;
-	for(uint32 i=0; i<list.get_count(); i++) {
-		if(  list[i]->state != socket_info_t::inactive  &&  list[i]->socket!=INVALID_SOCKET  ) {
-			SOCKET s = list[i]->socket;
+	FOR(vector_tpl<socket_info_t*>, const i, list) {
+		if (i->state != socket_info_t::inactive && i->socket != INVALID_SOCKET) {
+			SOCKET const s = i->socket;
 			s_max = max( s, s_max );
 			FD_SET( s, fds );
 		}

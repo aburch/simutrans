@@ -1483,10 +1483,9 @@ const char *wkz_change_city_size_t::work( karte_t *welt, spieler_t *, koord3d po
 	if(city!=NULL) {
 		city->change_size( atoi(default_param) );
 		// Knightly : update the links from other cities to this city
-		const weighted_vector_tpl<stadt_t *> &cities = welt->get_staedte();
-		for(  uint32 c=0;  c<cities.get_count();  ++c  ) {
-			cities[c]->remove_target_city(city);
-			cities[c]->add_target_city(city);
+		FOR(weighted_vector_tpl<stadt_t*>, const c, welt->get_staedte()) {
+			c->remove_target_city(city);
+			c->add_target_city(city);
 		}
 		return NULL;
 	}
@@ -2286,8 +2285,9 @@ bool wkz_wayremover_t::calc_route( route_t &verbindung, spieler_t *sp, const koo
 	bool can_delete = start == end  ||  verbindung.get_count()>1;
 	if(  can_delete  ) {
 		// found a route => check if I can delete anything on it
-		for(  uint32 i=0;  can_delete  &&  i<verbindung.get_count();  i++  ) {
-			grund_t *gr=welt->lookup(verbindung.position_bei(i));
+		FOR(koord3d_vector_t, const& i, verbindung.get_route()) {
+			if (!can_delete) break;
+			grund_t const* const gr = welt->lookup(i);
 			if(  wt!=powerline_wt  ) {
 				// no way found
 				if(  gr==NULL  ||  gr->get_weg(wt)==NULL  ) {
@@ -4774,9 +4774,10 @@ const char *wkz_stop_moving_t::do_work( karte_t *welt, spieler_t *sp, const koor
 					// check waytype
 					if(fpl  &&  fpl->ist_halt_erlaubt(bd)) {
 						bool updated = false;
-						for(  int k=0;  k<fpl->get_count();  k++  ) {
-							if(  (catch_all_halt  &&  haltestelle_t::get_halt(welt,fpl->eintrag[k].pos,cnv->get_besitzer())==last_halt)  ||  old_platform.is_contained(fpl->eintrag[k].pos)  ) {
-								fpl->eintrag[k].pos = pos;
+						FOR(minivec_tpl<linieneintrag_t>, & k, fpl->eintrag) {
+							if ((catch_all_halt && haltestelle_t::get_halt(welt, k.pos, cnv->get_besitzer()) == last_halt) ||
+									old_platform.is_contained(k.pos)) {
+								k.pos   = pos;
 								updated = true;
 							}
 						}
@@ -4808,10 +4809,11 @@ const char *wkz_stop_moving_t::do_work( karte_t *welt, spieler_t *sp, const koor
 				// check waytype
 				if(fpl->ist_halt_erlaubt(bd)) {
 					bool updated = false;
-					for(  int k=0;  k<fpl->get_count();  k++  ) {
+					FOR(minivec_tpl<linieneintrag_t>, & k, fpl->eintrag) {
 						// ok!
-						if(  (catch_all_halt  &&  haltestelle_t::get_halt(welt,fpl->eintrag[k].pos,line->get_besitzer())==last_halt)  ||  old_platform.is_contained(fpl->eintrag[k].pos)  ) {
-							fpl->eintrag[k].pos = pos;
+						if ((catch_all_halt && haltestelle_t::get_halt(welt, k.pos, line->get_besitzer()) == last_halt) ||
+								old_platform.is_contained(k.pos)) {
+							k.pos   = pos;
 							updated = true;
 						}
 					}

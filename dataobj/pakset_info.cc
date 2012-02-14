@@ -55,8 +55,8 @@ void pakset_info_t::calculate_checksum()
 		sorted.insert_ordered(entry_t(iterator.get_current_key(), iterator.get_current_value()), entry_cmp);
 	}
 	// now loop
-	for(uint32 i=0; i<sorted.get_count(); i++) {
-		sorted[i].chk->calc_checksum(&general);
+	FOR(vector_tpl<entry_t>, const& i, sorted) {
+		i.chk->calc_checksum(&general);
 	}
 	general.finish();
 }

@@ -243,14 +243,14 @@ void map_frame_t::update_factory_legend(karte_t *welt /*= NULL*/)
 		const int dot_len = proportional_string_width("..");
 		const int fac_cols = clamp(fabesch.get_count(), 1, get_fenstergroesse().x / (TOTAL_WIDTH/3));
 
-		for(  size_t l = 0;  l < legend.get_count();  l++  ) {
-			std::string label = legend[l].text;
+		FOR(vector_tpl<legend_entry_t>, & l, legend) {
+			std::string label = l.text;
 			size_t i;
 			for(  i=12;  i < label.size()  &&  display_calc_proportional_string_len_width(label.c_str(), i) < get_fenstergroesse().x / fac_cols - dot_len - 13;  i++  ) {}
 			if(  i < label.size()  ) {
 				label = label.substr(0, i);
 				label.append("..");
-				legend[l].text = label;
+				l.text = label;
 			}
 		}
 	}

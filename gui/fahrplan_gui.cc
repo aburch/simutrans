@@ -45,8 +45,8 @@ karte_t *fahrplan_gui_t::welt = NULL;
 void fahrplan_gui_stats_t::highlight_schedule( schedule_t *markfpl, bool marking )
 {
 	marking &= umgebung_t::visualize_schedule;
-	for(  int i=0;  i<markfpl->get_count();  i++  ) {
-		if(  grund_t *gr = welt->lookup(markfpl->eintrag[i].pos)  ) {
+	FOR(minivec_tpl<linieneintrag_t>, i, markfpl->eintrag) {
+		if (grund_t* const gr = welt->lookup(i.pos)) {
 			for(  uint idx=0;  idx<gr->get_top();  idx++  ) {
 				ding_t *d = gr->obj_bei(idx);
 				if(  marking  ) {

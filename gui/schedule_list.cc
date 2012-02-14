@@ -657,9 +657,8 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		// fill haltestellen container with info of line's haltestellen
 		cont_haltestellen.remove_all();
 		ypos = 0;
-		for(i=0; i<new_line->get_schedule()->get_count(); i++) {
-			const koord3d fahrplan_koord = new_line->get_schedule()->eintrag[i].pos;
-			halthandle_t halt = haltestelle_t::get_halt(sp->get_welt(),fahrplan_koord, sp);
+		FOR(minivec_tpl<linieneintrag_t>, const& i, new_line->get_schedule()->eintrag) {
+			halthandle_t const halt = haltestelle_t::get_halt(sp->get_welt(), i.pos, sp);
 			if (halt.is_bound()) {
 				halt_list_stats_t* cinfo = new halt_list_stats_t(halt);
 				cinfo->set_pos(koord(0, ypos));

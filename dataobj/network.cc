@@ -415,8 +415,7 @@ bool network_init_server( int port )
 	vector_tpl<std::string> const& ips = umgebung_t::listen;
 #endif
 	// For each address in the list of listen addresses try and create a socket to listen on
-	for (uint i = 0; i != ips.get_count(); ++i) {
-		std::string const& ip = ips[i];
+	FOR(vector_tpl<std::string>, const& ip, ips) {
 
 #ifdef HAS_NTOP_AND_PTON
 		// Check address is valid

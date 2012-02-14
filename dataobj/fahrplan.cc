@@ -45,8 +45,8 @@ void schedule_t::copy_from(const schedule_t *src)
 		return;
 	}
 	eintrag.clear();
-	for(  uint8 i=0;  i<src->eintrag.get_count();  i++  ) {
-		eintrag.append(src->eintrag[i]);
+	FOR(minivec_tpl<linieneintrag_t>, const& i, src->eintrag) {
+		eintrag.append(i);
 	}
 	set_aktuell( src->get_aktuell() );
 
@@ -259,8 +259,8 @@ void schedule_t::rdwr(loadsave_t *file)
 void schedule_t::rotate90( sint16 y_size )
 {
 	// now we have to rotate all entries ...
-	for(  uint8 i = 0;  i<eintrag.get_count();  i++  ) {
-		eintrag[i].pos.rotate90(y_size);
+	FOR(minivec_tpl<linieneintrag_t>, & i, eintrag) {
+		i.pos.rotate90(y_size);
 	}
 }
 
@@ -338,8 +338,8 @@ void schedule_t::add_return_way()
 void schedule_t::sprintf_schedule( cbuffer_t &buf ) const
 {
 	buf.printf("%u|%d|", aktuell, (int)get_type());
-	for(  uint8 i = 0;  i<eintrag.get_count();  i++  ) {
-		buf.printf( "%s,%i,%i|", eintrag[i].pos.get_str(), (int)eintrag[i].ladegrad, (int)eintrag[i].waiting_time_shift );
+	FOR(minivec_tpl<linieneintrag_t>, const& i, eintrag) {
+		buf.printf("%s,%i,%i|", i.pos.get_str(), (int)i.ladegrad, (int)i.waiting_time_shift);
 	}
 }
 
