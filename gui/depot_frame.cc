@@ -814,14 +814,14 @@ void depot_frame_t::update_data()
 		veh = (veh_action == va_insert ? cnv->front() : cnv->back())->get_besch();
 	}
 
-	ptrhashtable_iterator_tpl<const vehikel_besch_t *, gui_image_list_t::image_data_t *> iter1(vehicle_map);
-	while(iter1.next()) {
-		const vehikel_besch_t *info = iter1.get_current_key();
+	FOR(vehicle_image_map, const& i, vehicle_map) {
+		vehikel_besch_t const* const    info = i.key;
+		gui_image_list_t::image_data_t& img  = *i.value;
 		const uint8 ok_color = info->is_future(month_now) || info->is_retired(month_now) ? COL_BLUE: COL_GREEN;
 
-		iter1.get_current_value()->count = 0;
-		iter1.get_current_value()->lcolor = ok_color;
-		iter1.get_current_value()->rcolor = ok_color;
+		img.count = 0;
+		img.lcolor = ok_color;
+		img.rcolor = ok_color;
 
 		/*
 		* color bars for current convoi:
@@ -833,24 +833,22 @@ void depot_frame_t::update_data()
 
 		if(veh_action == va_insert) {
 			if(!info->can_lead(veh)  ||  (veh  &&  !veh->can_follow(info))) {
-				iter1.get_current_value()->lcolor = COL_RED;
-				iter1.get_current_value()->rcolor = COL_RED;
+				img.lcolor = COL_RED;
+				img.rcolor = COL_RED;
 			} else if(!info->can_follow(NULL)) {
-				iter1.get_current_value()->lcolor = COL_YELLOW;
+				img.lcolor = COL_YELLOW;
 			}
 		} else if(veh_action == va_append) {
 			if(!info->can_follow(veh)  ||  (veh  &&  !veh->can_lead(info))) {
-				iter1.get_current_value()->lcolor = COL_RED;
-				iter1.get_current_value()->rcolor = COL_RED;
+				img.lcolor = COL_RED;
+				img.rcolor = COL_RED;
 			} else if(!info->can_lead(NULL)) {
-				iter1.get_current_value()->rcolor = COL_YELLOW;
+				img.rcolor = COL_YELLOW;
 			}
 		} else if( veh_action == va_sell ) {
-			iter1.get_current_value()->lcolor = COL_RED;
-			iter1.get_current_value()->rcolor = COL_RED;
+			img.lcolor = COL_RED;
+			img.rcolor = COL_RED;
 		}
-
-//DBG_DEBUG("depot_frame_t::update_data()","current %i = %s with color %i",info->get_name(),iter1.get_current_value()->lcolor);
 	}
 
 	FOR(slist_tpl<vehikel_t*>, const v, depot->get_vehicle_list()) {

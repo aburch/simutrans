@@ -152,7 +152,8 @@ private:
 	 * @author Volker Meyer
 	 * @date  09.06.2003
 	 */
-	ptrhashtable_tpl<const vehikel_besch_t *, gui_image_list_t::image_data_t *> vehicle_map;
+	typedef ptrhashtable_tpl<vehikel_besch_t const*, gui_image_list_t::image_data_t*> vehicle_image_map;
+	vehicle_image_map vehicle_map;
 
 	/**
 	 * Draw the info text for the vehicle the mouse is over - if any.
