@@ -7,8 +7,6 @@
 #define STHT_BAGSIZE 101
 #define STHT_BAG_COUNTER_T uint8
 
-template<class key_t, class value_t, class hash_t>  class hashtable_iterator_tpl;
-
 
 /*
  * Generic hashtable, which maps key_t to value_t. key_t depended functions
@@ -18,8 +16,6 @@ template<class key_t, class value_t, class hash_t>  class hashtable_iterator_tpl
 template<class key_t, class value_t, class hash_t>
 class hashtable_tpl
 {
-	friend class hashtable_iterator_tpl<key_t, value_t, hash_t>;
-
 protected:
 	struct node_t {
 	public:
@@ -330,58 +326,6 @@ public:
 			}
 		}
 		return true;
-	}
-};
-
-
-/*
- * Generic iterator for hashtable
- */
-template<class key_t, class value_t, class hash_t>
-class hashtable_iterator_tpl {
-	const slist_tpl < typename hashtable_tpl<key_t, value_t, hash_t>::node_t> *bags;
-	slist_iterator_tpl < typename hashtable_tpl<key_t, value_t, hash_t>::node_t> bag_iter;
-
-	STHT_BAG_COUNTER_T current_bag;
-public:
-	hashtable_iterator_tpl(const hashtable_tpl<key_t, value_t, hash_t> *hashtable) :
-			bag_iter(hashtable->bags)
-	{
-		bags = hashtable->bags;
-		current_bag = 0;
-	}
-
-	hashtable_iterator_tpl(const hashtable_tpl<key_t, value_t, hash_t> &hashtable) :
-		bag_iter(hashtable.bags)
-	{
-		bags = hashtable.bags;
-		current_bag = 0;
-	}
-
-	bool next()
-	{
-		while(!bag_iter.next()) {
-			if(++current_bag == STHT_BAGSIZE) {
-				return false;
-			}
-	    bag_iter = slist_iterator_tpl < typename hashtable_tpl<key_t, value_t, hash_t>::node_t > (bags + current_bag);
-		}
-		return true;
-	}
-
-	const key_t & get_current_key() const
-	{
-		return bag_iter.get_current().key;
-	}
-
-	const value_t & get_current_value() const
-	{
-		return bag_iter.get_current().value;
-	}
-
-	value_t & access_current_value()
-	{
-		return bag_iter.access_current().value;
 	}
 };
 
