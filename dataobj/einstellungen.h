@@ -39,6 +39,34 @@ struct road_timeline_t
 	uint16 retire;
 };
 
+template <class T>
+class vector_with_ptr_ownership_tpl : public vector_tpl<T*> 
+{
+public:
+	vector_with_ptr_ownership_tpl(uint32 size = 0) : 
+		vector_tpl<T*>(size) {}
+
+	vector_with_ptr_ownership_tpl( vector_with_ptr_ownership_tpl const& src ) :
+		vector_tpl<T*>( src.get_count() ) {
+		ITERATE( src, i ) {
+			append( new T( *src[i] ) );
+		}
+	}
+
+	vector_with_ptr_ownership_tpl& operator=( vector_with_ptr_ownership_tpl const& other ) { 
+		vector_with_ptr_ownership_tpl tmp(other); 
+		swap( static_cast<vector_tpl<T*>&>(tmp), static_cast<vector_tpl<T*>&>(*this) ); 
+		return *this;
+	}
+
+	void clear() {
+		clear_ptr_vector(*this);
+	}
+
+	~vector_with_ptr_ownership_tpl() {
+		clear();
+	}
+};
 
 class settings_t
 {
@@ -217,7 +245,7 @@ private:
 	// true, if the different caacities (passengers/mail/freight) are counted seperately
 	bool seperate_halt_capacities;
 
-	vector_tpl<livery_scheme_t*> livery_schemes;
+	vector_with_ptr_ownership_tpl<livery_scheme_t> livery_schemes;
 
 	// Whether passengers might walk between stops en route.
 	// @author: jamespetts, August 2011
@@ -244,9 +272,6 @@ private:
 
 
 public:
-
-	~settings_t();
-
 	//Cornering settings
 	//@author: jamespetts
 	

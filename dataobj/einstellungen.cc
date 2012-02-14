@@ -457,15 +457,6 @@ settings_t::settings_t() :
 	spacing_shift_divisor = 24*60;
 }
 
-settings_t::~settings_t()
-{
-	ITERATE(livery_schemes, i)
-	{
-		delete livery_schemes[i];
-	}
-}
-
-
 void settings_t::set_default_climates()
 {
 	static sint16 borders[MAX_CLIMATES] = { 0, 0, 0, 3, 6, 8, 10, 10 };
@@ -1245,10 +1236,6 @@ void settings_t::rdwr(loadsave_t *file)
 			uint16 livery_schemes_count = 0;
 			if(file->is_loading())
 			{
-				/*ITERATE(livery_schemes, i)
-				{
-					delete livery_schemes[i];
-				}*/
 				livery_schemes.clear();
 			}
 			if(file->is_saving())
