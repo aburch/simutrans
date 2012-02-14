@@ -216,6 +216,7 @@ convoi_t::convoi_t(karte_t* wl, loadsave_t* file) : fahr(max_vehicle, NULL)
 	replace = NULL;
 	delete average_journey_times;
 	delete departures;
+
 	average_journey_times = new koordhashtable_tpl<id_pair, average_tpl<uint16> >;
 	departures = new inthashtable_tpl<uint16, departure_data_t>;
 	no_route_retry_count = 0;
