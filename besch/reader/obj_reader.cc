@@ -32,14 +32,15 @@
 #include "obj_reader.h"
 
 
-inthashtable_tpl<obj_type, stringhashtable_tpl<obj_besch_t *> > obj_reader_t::loaded;
-inthashtable_tpl<obj_type, stringhashtable_tpl< slist_tpl<obj_besch_t **> > > obj_reader_t::unresolved;
-ptrhashtable_tpl<obj_besch_t **, int> obj_reader_t::fatals;
+obj_reader_t::obj_map*                                         obj_reader_t::obj_reader;
+inthashtable_tpl<obj_type, stringhashtable_tpl<obj_besch_t*> > obj_reader_t::loaded;
+obj_reader_t::unresolved_map                                   obj_reader_t::unresolved;
+ptrhashtable_tpl<obj_besch_t**, int>                           obj_reader_t::fatals;
 
 void obj_reader_t::register_reader()
 {
 	if(!obj_reader) {
-		obj_reader =  new inthashtable_tpl<obj_type, obj_reader_t *>;
+		obj_reader = new obj_map;
 	}
 	obj_reader->put(get_type(), this);
 	//printf("This program can read %s objects\n", get_type_name());
@@ -65,12 +66,10 @@ bool obj_reader_t::laden_abschliessen()
 {
 	resolve_xrefs();
 
-	inthashtable_iterator_tpl<obj_type, obj_reader_t *> iter(obj_reader);
+	FOR(obj_map, const& i, *obj_reader) {
+		DBG_MESSAGE("obj_reader_t::laden_abschliessen()","Checking %s objects...", i.value->get_type_name());
 
-	while(iter.next()) {
-DBG_MESSAGE("obj_reader_t::laden_abschliessen()","Checking %s objects...",iter.get_current_value()->get_type_name());
-
-		if(!iter.get_current_value()->successfully_loaded()) {
+		if (!i.value->successfully_loaded()) {
 			dbg->warning("obj_reader_t::laden_abschliessen()","... failed!");
 			return false;
 		}
@@ -348,27 +347,21 @@ void obj_reader_t::delete_node(obj_besch_t *data)
 void obj_reader_t::resolve_xrefs()
 {
 	slist_tpl<obj_besch_t *> xref_nodes;
-	inthashtable_iterator_tpl<obj_type, stringhashtable_tpl<slist_tpl<obj_besch_t **> > > xreftype_iter(unresolved);
-
-	while(xreftype_iter.next()) {
-		stringhashtable_iterator_tpl<slist_tpl<obj_besch_t **> > xrefname_iter(xreftype_iter.get_current_value());
+	FOR(unresolved_map, const& u, unresolved) {
+		stringhashtable_iterator_tpl<slist_tpl<obj_besch_t**> > xrefname_iter(u.value);
 
 		while(xrefname_iter.next()) {
 			obj_besch_t *obj_loaded = NULL;
 
 			if(strlen(xrefname_iter.get_current_key()) > 0) {
-				stringhashtable_tpl<obj_besch_t *> *objtype_loaded = loaded.access(xreftype_iter.get_current_key());
-				if(objtype_loaded) {
+				if (stringhashtable_tpl<obj_besch_t*>* const objtype_loaded = loaded.access(u.key)) {
 					obj_loaded = objtype_loaded->get(xrefname_iter.get_current_key());
 				}
-				/*if(!objtype_loaded || !obj_loaded) {
-				dbg->fatal("obj_reader_t::resolve_xrefs", "cannot resolve '%4.4s-%s'",&xreftype_iter.get_current_key(), xrefname_iter.get_current_key());
-				}*/
 			}
 
 			FOR(slist_tpl<obj_besch_t**>, const x, xrefname_iter.get_current_value()) {
 				if (!obj_loaded && fatals.get(x)) {
-					dbg->fatal("obj_reader_t::resolve_xrefs", "cannot resolve '%4.4s-%s'",	&xreftype_iter.get_current_key(), xrefname_iter.get_current_key());
+					dbg->fatal("obj_reader_t::resolve_xrefs", "cannot resolve '%4.4s-%s'", &u.key, xrefname_iter.get_current_key());
 				}
 				// delete old xref-node
 				xref_nodes.append(*x);
