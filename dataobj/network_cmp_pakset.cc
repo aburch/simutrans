@@ -9,7 +9,7 @@
 
 #include <stdlib.h>
 
-stringhashtable_iterator_tpl<checksum_t*> nwc_pakset_info_t::server_iterator(pakset_info_t::info);
+stringhashtable_tpl<checksum_t*>::iterator nwc_pakset_info_t::server_iterator;
 SOCKET nwc_pakset_info_t::server_receiver = INVALID_SOCKET;
 
 
@@ -45,7 +45,7 @@ bool nwc_pakset_info_t::execute(karte_t *)
 				}
 				server_receiver = packet->get_sender();
 				// restart iterator
-				server_iterator = pakset_info_t::info;
+				server_iterator = pakset_info_t::info.begin();
 
 				nwi.flag = SV_PAKSET;
 				nwi.chk = new checksum_t(*pakset_info_t::get_checksum());
@@ -56,11 +56,12 @@ bool nwc_pakset_info_t::execute(karte_t *)
 			}
 
 			case CL_WANT_NEXT: // client received one info packet, wants next
-				if (server_iterator.next()) {
+				if (server_iterator != pakset_info_t::info.end()) {
 					nwi.flag = SV_DATA;
-					nwi.chk  = new checksum_t(*server_iterator.get_current_value());
-					nwi.name = strdup(server_iterator.get_current_key());
+					nwi.chk  = new checksum_t(*server_iterator->value);
+					nwi.name = strdup(server_iterator->key);
 					DBG_MESSAGE("nwc_pakset_info_t::execute", "send info about %s",nwi.name);
+					++server_iterator;
 				}
 				else {
 					nwi.flag = SV_LAST;
