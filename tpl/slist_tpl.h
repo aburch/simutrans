@@ -81,8 +81,8 @@ public:
 				return *this;
 			}
 
-			bool operator ==(const iterator& o) { return ptr == o.ptr; }
-			bool operator !=(const iterator& o) { return ptr != o.ptr; }
+			bool operator ==(iterator const& o) const { return ptr == o.ptr; }
+			bool operator !=(iterator const& o) const { return ptr != o.ptr; }
 			bool end() const { return ptr==NULL; };
 
 		private:
@@ -115,8 +115,8 @@ public:
 
 			const_iterator& operator ++() { ptr = ptr->next; return *this; }
 
-			bool operator ==(const const_iterator& o) { return ptr == o.ptr; }
-			bool operator !=(const const_iterator& o) { return ptr != o.ptr; }
+			bool operator ==(const_iterator const& o) const { return ptr == o.ptr; }
+			bool operator !=(const_iterator const& o) const { return ptr != o.ptr; }
 			bool end() const { return ptr==NULL; };
 
 		private:
