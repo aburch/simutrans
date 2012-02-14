@@ -71,6 +71,8 @@ public:
 			typedef value_type*               pointer;
 			typedef value_type&               reference;
 
+			iterator() : ptr(), pred() {}
+
 			pointer   operator ->() const { return &ptr->data; }
 			reference operator *()  const { return ptr->data;  }
 
@@ -107,6 +109,8 @@ public:
 			typedef ptrdiff_t                 difference_type;
 			typedef T const*                  pointer;
 			typedef T const&                  reference;
+
+			const_iterator() : ptr() {}
 
 			const_iterator(const iterator& o) : ptr(o.ptr) {}
 
