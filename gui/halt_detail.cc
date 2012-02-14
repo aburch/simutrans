@@ -132,11 +132,7 @@ void halt_detail_t::halt_detail_info()
 	offset_y += LINESPACE;
 
 	if (!fab_list.empty()) {
-
-		slist_iterator_tpl<fabrik_t *> fab_iter(fab_list);
-
-		while(fab_iter.next()) {
-			const fabrik_t * fab = fab_iter.get_current();
+		FOR(slist_tpl<fabrik_t*>, const fab, fab_list) {
 			const koord pos = fab->get_pos().get_2d();
 
 			// target button ...

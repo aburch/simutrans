@@ -9,12 +9,10 @@ void imagelist2d_writer_t::write_obj(FILE* fp, obj_node_t& parent, const slist_t
 {
 	obj_node_t node(this, 4, &parent);
 
-	slist_iterator_tpl<slist_tpl<std::string> > iter(keys);
-
 	uint16 const count = keys.get_count();
 
-	while (iter.next()) {
-		imagelist_writer_t::instance()->write_obj(fp, node, iter.get_current());
+	FOR(slist_tpl<slist_tpl<std::string> >, const& s, keys) {
+		imagelist_writer_t::instance()->write_obj(fp, node, s);
 	}
 	node.write_uint16(fp, count, 0);
 	node.write_uint16(fp, 0,     2);

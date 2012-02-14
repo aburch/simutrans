@@ -30,15 +30,12 @@ void gui_speedbar_t::zeichnen(koord offset)
 {
 	offset += pos;
 
-	slist_iterator_tpl<info_t> iter(values);
-	sint32 from, to;
-
 	if(vertical) {
-		for(from = groesse.y; iter.next();  ) {
-			to = groesse.y - min(*iter.get_current().value, base) * groesse.y / base;
-
+		sint32 from = groesse.y;
+		FOR(slist_tpl<info_t>, const& i, values) {
+			sint32 const to = groesse.y - min(*i.value, base) * groesse.y / base;
 			if(to < from) {
-				display_fillbox_wh_clip( offset.x, offset.y + to, groesse.x, from - to, iter.get_current().color, true);
+				display_fillbox_wh_clip(offset.x, offset.y + to, groesse.x, from - to, i.color, true);
 				from = to - 1;
 			}
 		}
@@ -47,11 +44,11 @@ void gui_speedbar_t::zeichnen(koord offset)
 		}
 	}
 	else {
-		for(from = 0; iter.next(); ) {
-			to = min(*iter.get_current().value, base) * groesse.x / base;
-
+		sint32 from = 0;
+		FOR(slist_tpl<info_t>, const& i, values) {
+			sint32 const to = min(*i.value, base) * groesse.x / base;
 			if(to > from) {
-				display_fillbox_wh_clip( offset.x + from, offset.y, to - from, groesse.y, iter.get_current().color, true);
+				display_fillbox_wh_clip(offset.x + from, offset.y, to - from, groesse.y, i.color, true);
 				from = to + 1;
 			}
 		}

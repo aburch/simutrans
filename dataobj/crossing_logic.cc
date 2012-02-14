@@ -345,9 +345,7 @@ void crossing_logic_t::add( karte_t *w, crossing_t *start_cr, crossing_state_t z
 	}
 
 	// set new crossing logic to all
-	slist_iterator_tpl<crossing_t *> iter(crossings);
-	while( iter.next() ) {
-		crossing_t *cr=iter.get_current();
+	FOR(slist_tpl<crossing_t*>, const cr, crossings) {
 		cr->set_logic( found_logic );
 		found_logic->append_crossing( cr );
 	}

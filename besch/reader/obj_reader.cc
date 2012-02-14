@@ -366,14 +366,13 @@ void obj_reader_t::resolve_xrefs()
 				}*/
 			}
 
-			slist_iterator_tpl<obj_besch_t **> xref_iter(xrefname_iter.get_current_value());
-			while(  xref_iter.next()  ) {
-				if(  !obj_loaded  &&  fatals.get(xref_iter.get_current())  ) {
+			FOR(slist_tpl<obj_besch_t**>, const x, xrefname_iter.get_current_value()) {
+				if (!obj_loaded && fatals.get(x)) {
 					dbg->fatal("obj_reader_t::resolve_xrefs", "cannot resolve '%4.4s-%s'",	&xreftype_iter.get_current_key(), xrefname_iter.get_current_key());
 				}
 				// delete old xref-node
-				xref_nodes.append(*xref_iter.get_current());
-				*xref_iter.get_current() = obj_loaded;
+				xref_nodes.append(*x);
+				*x = obj_loaded;
 			}
 		}
 	}

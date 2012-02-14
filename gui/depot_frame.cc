@@ -551,9 +551,8 @@ void depot_frame_t::activate_convoi( convoihandle_t c )
 // true if already stored here
 bool depot_frame_t::is_contained(const vehikel_besch_t *info)
 {
-	slist_iterator_tpl<vehikel_t*> iter(depot->get_vehicle_list());
-	while (iter.next()) {
-		if (iter.get_current()->get_besch() == info) {
+	FOR(slist_tpl<vehikel_t*>, const v, depot->get_vehicle_list()) {
+		if (v->get_besch() == info) {
 			return true;
 		}
 	}
@@ -645,9 +644,7 @@ void depot_frame_t::build_vehicle_lists()
 	 */
 	if(electrics_vec.empty()  &&  pas_vec.empty()  &&  loks_vec.empty()  &&  waggons_vec.empty()) {
 		int loks = 0, waggons = 0, pax=0, electrics = 0;
-		slist_iterator_tpl<const vehikel_besch_t*> vehinfo(depot->get_vehicle_type());
-		while (vehinfo.next()) {
-			const vehikel_besch_t* info = vehinfo.get_current();
+		FOR(slist_tpl<vehikel_besch_t const*>, const info, depot->get_vehicle_type()) {
 			if(  info->get_engine_type() == vehikel_besch_t::electric  &&  (info->get_ware()==warenbauer_t::passagiere  ||  info->get_ware()==warenbauer_t::post)) {
 				electrics++;
 			}
@@ -683,19 +680,15 @@ void depot_frame_t::build_vehicle_lists()
 	// use this to show only sellable vehicles
 	if(!show_all  &&  veh_action==va_sell) {
 		// just list the one to sell
-		slist_iterator_tpl<vehikel_t *> iter2(depot->get_vehicle_list());
-		while(iter2.next()) {
-			if(vehicle_map.get(iter2.get_current()->get_besch())) {
-				continue;
-			}
-			add_to_vehicle_list( iter2.get_current()->get_besch() );
+		FOR(slist_tpl<vehikel_t*>, const v, depot->get_vehicle_list()) {
+			vehikel_besch_t const* const d = v->get_besch();
+			if (vehicle_map.get(d)) continue;
+			add_to_vehicle_list(d);
 		}
 	}
 	else {
 		// list only matching ones
-		slist_iterator_tpl<const vehikel_besch_t*> vehinfo(depot->get_vehicle_type());
-		while (vehinfo.next()) {
-			const vehikel_besch_t* info = vehinfo.get_current();
+		FOR(slist_tpl<vehikel_besch_t const*>, const info, depot->get_vehicle_type()) {
 			const vehikel_besch_t *veh = NULL;
 			convoihandle_t cnv = depot->get_convoi(icnv);
 			if(cnv.is_bound() && cnv->get_vehikel_anzahl()>0) {
@@ -860,11 +853,9 @@ void depot_frame_t::update_data()
 //DBG_DEBUG("depot_frame_t::update_data()","current %i = %s with color %i",info->get_name(),iter1.get_current_value()->lcolor);
 	}
 
-	slist_iterator_tpl<vehikel_t *> iter2(depot->get_vehicle_list());
-	while(iter2.next()) {
-		gui_image_list_t::image_data_t *imgdat=vehicle_map.get(iter2.get_current()->get_besch());
+	FOR(slist_tpl<vehikel_t*>, const v, depot->get_vehicle_list()) {
 		// can fail, if currently not visible
-		if(imgdat) {
+		if (gui_image_list_t::image_data_t* const imgdat = vehicle_map.get(v->get_besch())) {
 			imgdat->count++;
 			if(veh_action == va_sell) {
 				imgdat->lcolor = COL_GREEN;
@@ -943,11 +934,9 @@ void depot_frame_t::rename_convoy(convoihandle_t cnv)
 sint32 depot_frame_t::calc_restwert(const vehikel_besch_t *veh_type)
 {
 	sint32 wert = 0;
-
-	slist_iterator_tpl<vehikel_t *> iter(depot->get_vehicle_list());
-	while(iter.next()) {
-		if(iter.get_current()->get_besch() == veh_type) {
-			wert += iter.get_current()->calc_restwert();
+	FOR(slist_tpl<vehikel_t*>, const v, depot->get_vehicle_list()) {
+		if (v->get_besch() == veh_type) {
+			wert += v->calc_restwert();
 		}
 	}
 	return wert;

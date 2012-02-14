@@ -172,13 +172,13 @@ bool halt_list_frame_t::passes_filter(halthandle_t halt)
 				  // Oh Mann - eine doppelte Schleife und das noch pro Haltestelle
 				  // Zum Glück ist die Anzahl der Fabriken und die ihrer Ausgänge
 				  // begrenzt (Normal 1-2 Fabriken mit je 0-1 Ausgang) -  V. Meyer
-					slist_iterator_tpl<fabrik_t *> fab_iter(halt->get_fab_list());
-					while(!ok && fab_iter.next()) {
-						FOR(array_tpl<ware_production_t>, const& j, fab_iter.get_current()->get_ausgang()) {
+					FOR(slist_tpl<fabrik_t*>, const f, halt->get_fab_list()) {
+						FOR(array_tpl<ware_production_t>, const& j, f->get_ausgang()) {
 							ok = j.get_typ() == ware;
-							if (ok) break;
+							if (ok) goto found_out;
 						}
 					}
+found_out:;
 				}
 			}
 		}
@@ -214,14 +214,13 @@ bool halt_list_frame_t::passes_filter(halthandle_t halt)
 					// Oh Mann - eine doppelte Schleife und das noch pro Haltestelle
 					// Zum Glück ist die Anzahl der Fabriken und die ihrer Ausgänge
 					// begrenzt (Normal 1-2 Fabriken mit je 0-1 Ausgang) -  V. Meyer
-
-					slist_iterator_tpl<fabrik_t *> fab_iter(halt->get_fab_list());
-					while(!ok && fab_iter.next()) {
-						FOR(array_tpl<ware_production_t>, const& j, fab_iter.get_current()->get_eingang()) {
+					FOR(slist_tpl<fabrik_t*>, const f, halt->get_fab_list()) {
+						FOR(array_tpl<ware_production_t>, const& j, f->get_eingang()) {
 							ok = j.get_typ() == ware;
-							if (ok) break;
+							if (ok) goto found_in;
 						}
 					}
+found_in:;
 				}
 			}
 		}
@@ -288,7 +287,6 @@ halt_list_frame_t::~halt_list_frame_t()
 */
 void halt_list_frame_t::display_list(void)
 {
-	slist_iterator_tpl<halthandle_t > halt_iter (haltestelle_t::get_alle_haltestellen());	// iteration with haltestellen (stations)
 	last_world_stops = haltestelle_t::get_alle_haltestellen().get_count();				// count of stations
 
 	ALLOCA(halthandle_t, a, last_world_stops);
@@ -301,8 +299,7 @@ void halt_list_frame_t::display_list(void)
 
 	// create a unsorted station list
 	num_filtered_stops = 0;
-	while(halt_iter.next()) {
-		halthandle_t halt = halt_iter.get_current();
+	FOR(slist_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {
 		if(  halt->get_besitzer() == m_sp  ) {
 			a[n++] = halt;
 			if(  passes_filter(halt)  ) {

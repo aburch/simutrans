@@ -404,12 +404,10 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot chang
 			route_search_in_progress = true;
 
 			// iterate over all depots and try to find shortest route
-			slist_iterator_tpl<depot_t *> depot_iter(depot_t::get_depot_list());
 			route_t * shortest_route = new route_t();
 			route_t * route = new route_t();
 			koord3d home = koord3d(0,0,0);
-			while (depot_iter.next()) {
-				depot_t *depot = depot_iter.get_current();
+			FOR(slist_tpl<depot_t*>, const depot, depot_t::get_depot_list()) {
 				vehikel_t& v = *cnv->front();
 				if (depot->get_wegtyp()   != v.get_besch()->get_waytype() ||
 						depot->get_besitzer() != cnv->get_besitzer()) {

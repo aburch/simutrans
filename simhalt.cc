@@ -611,15 +611,14 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 			if (self.is_bound()) {
 				// first factories (so with same distance, they have priority)
 				int this_distance = 999;
-				slist_iterator_tpl<fabrik_t*> fab_iter(get_fab_list());
-				while (fab_iter.next()) {
-					int distance = koord_distance(fab_iter.get_current()->get_pos().get_2d(), k);
+				FOR(slist_tpl<fabrik_t*>, const f, get_fab_list()) {
+					int distance = koord_distance(f->get_pos().get_2d(), k);
 					if (distance < this_distance) {
-						fabs.insert(fab_iter.get_current());
+						fabs.insert(f);
 						distance = this_distance;
 					}
 					else {
-						fabs.append(fab_iter.get_current());
+						fabs.append(f);
 					}
 				}
 			}
@@ -634,10 +633,9 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 			}
 
 			// are there fabs?
-			slist_iterator_tpl<fabrik_t*> fab_iter(fabs);
-			while (fab_iter.next()) {
+			FOR(slist_tpl<fabrik_t*>, const f, fabs) {
 				// with factories
-				buf.printf( fab_base, city_name, fab_iter.get_current()->get_name(), stop );
+				buf.printf(fab_base, city_name, f->get_name(), stop);
 				if(  !all_names.get(buf).is_bound()  ) {
 					return strdup(buf);
 				}
@@ -978,9 +976,8 @@ bool haltestelle_t::reroute_goods(sint16 &units_remaining)
 void haltestelle_t::verbinde_fabriken()
 {
 	// unlink all
-	slist_iterator_tpl <fabrik_t *> fab_iter(fab_list);
-	while( fab_iter.next() ) {
-		fab_iter.get_current()->unlink_halt(self);
+	FOR(slist_tpl<fabrik_t*>, const f, fab_list) {
+		f->unlink_halt(self);
 	}
 	fab_list.clear();
 
@@ -3101,9 +3098,8 @@ DBG_MESSAGE("haltestelle_t::reserve_position()","failed for gr=%i,%i, cnv=%d",gr
 */
 void haltestelle_t::release_factory_links()
 {
-	slist_iterator_tpl <fabrik_t *> fab_iter(fab_list);
-	while( fab_iter.next() ) {
-		fab_iter.get_current()->unlink_halt(self);
+	FOR(slist_tpl<fabrik_t*>, const f, fab_list) {
+		f->unlink_halt(self);
 	}
 	fab_list.clear();
 }

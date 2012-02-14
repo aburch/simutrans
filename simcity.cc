@@ -1373,9 +1373,7 @@ void stadt_t::verbinde_fabriken()
 	assert( target_factories_pax.get_entries().empty() );
 	assert( target_factories_mail.get_entries().empty() );
 
-	slist_iterator_tpl<fabrik_t*> fab_iter(welt->get_fab_list());
-	while (fab_iter.next()) {
-		fabrik_t* fab = fab_iter.get_current();
+	FOR(slist_tpl<fabrik_t*>, const fab, welt->get_fab_list()) {
 		const uint32 count = fab->get_target_cities().get_count();
 		settings_t const& s = welt->get_settings();
 		if (count < s.get_factory_worker_maximum_towns() && koord_distance(fab->get_pos(), pos) < s.get_factory_worker_radius()) {

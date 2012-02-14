@@ -95,8 +95,8 @@ void factorylist_stats_t::sort(factorylist::sort_mode_t sb, bool sr)
 	fab_list.clear();
 	fab_list.resize(welt->get_fab_list().get_count());
 
-	for (slist_iterator_tpl<fabrik_t*> i(welt->get_fab_list()); i.next();) {
-		fab_list.insert_ordered( i.get_current(), compare_factories(sortby, sortreverse) );
+	FOR(slist_tpl<fabrik_t*>, const f, welt->get_fab_list()) {
+		fab_list.insert_ordered(f, compare_factories(sortby, sortreverse));
 	}
 }
 

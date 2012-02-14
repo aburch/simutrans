@@ -633,9 +633,7 @@ void vehikel_t::rotate90()
 	pos_prev.rotate90( welt->get_groesse_y()-1 );
 	last_stop_pos.rotate90( welt->get_groesse_y()-1 );
 	// now rotate the freight
-	slist_iterator_tpl<ware_t> iter (fracht);
-	while(iter.next()) {
-		ware_t& tmp = iter.access_current();
+	FOR(slist_tpl<ware_t>, & tmp, fracht) {
 		koord k = tmp.get_zielpos();
 		k.rotate90( welt->get_groesse_y()-1 );
 		tmp.set_zielpos( k );
@@ -686,9 +684,8 @@ void vehikel_t::set_convoi(convoi_t *c)
 			}
 		}
 		// just correct freight deistinations
-		slist_iterator_tpl <ware_t> iter (fracht);
-		while(iter.next()) {
-			iter.access_current().laden_abschliessen(welt,get_besitzer());
+		FOR(slist_tpl<ware_t>, & c, fracht) {
+			c.laden_abschliessen(welt, get_besitzer());
 		}
 	}
 }
@@ -780,11 +777,8 @@ bool vehikel_t::load_freight(halthandle_t halt)
 
 			total_freight += ware.menge;
 
-			slist_iterator_tpl<ware_t> iter (fracht);
 			// could this be joined with existing freight?
-			while(iter.next()) {
-				ware_t &tmp = iter.access_current();
-
+			FOR(slist_tpl<ware_t>, & tmp, fracht) {
 				// for pax: join according next stop
 				// for all others we *must* use target coordinates
 				if(ware.same_destination(tmp)) {
@@ -830,9 +824,7 @@ void vehikel_t::remove_stale_freight()
 	total_freight = 0;
 
 	if (!fracht.empty()) {
-		slist_iterator_tpl<ware_t> iter (fracht);
-		while(iter.next()) {
-			ware_t& tmp = iter.access_current();
+		FOR(slist_tpl<ware_t>, & tmp, fracht) {
 			bool found = false;
 
 			FOR(minivec_tpl<linieneintrag_t>, const& i, cnv->get_schedule()->eintrag) {
@@ -855,9 +847,8 @@ void vehikel_t::remove_stale_freight()
 			}
 		}
 
-		slist_iterator_tpl<ware_t> killer (kill_queue);
-		while(killer.next()) {
-			fracht.remove(killer.get_current());
+		FOR(slist_tpl<ware_t>, const& c, kill_queue) {
+			fracht.remove(c);
 		}
 	}
 }
@@ -1208,14 +1199,10 @@ sint64 vehikel_t::calc_gewinn(koord start, koord end) const
 	const sint32 kmh_base = (100 * cnv_kmh) / ref_kmh - 100;
 
 	sint64 value = 0;
-	slist_iterator_tpl <ware_t> iter (fracht);
 
 	if (welt->get_settings().get_pay_for_total_distance_mode() == settings_t::TO_DESTINATION) {
 		// pay only the distance, we get closer to our destination
-		while( iter.next() ) {
-
-			const ware_t & ware = iter.get_current();
-
+		FOR(slist_tpl<ware_t>, const& ware, fracht) {
 			if(  ware.menge==0  ) {
 				continue;
 			}
@@ -1234,10 +1221,7 @@ sint64 vehikel_t::calc_gewinn(koord start, koord end) const
 		}
 	} else if (welt->get_settings().get_pay_for_total_distance_mode() == settings_t::TO_TRANSFER) {
 		// pay distance traveled to next trasnfer stop
-		while( iter.next() ) {
-
-			const ware_t & ware = iter.get_current();
-
+		FOR(slist_tpl<ware_t>, const& ware, fracht) {
 			if(ware.menge==0  ||  !ware.get_zwischenziel().is_bound()) {
 				continue;
 			}
@@ -1258,10 +1242,7 @@ sint64 vehikel_t::calc_gewinn(koord start, koord end) const
 	else {
 		// pay distance traveled
 		const long dist = koord_distance( start, end );
-		while( iter.next() ) {
-
-			const ware_t & ware = iter.get_current();
-
+		FOR(slist_tpl<ware_t>, const& ware, fracht) {
 			if(ware.menge==0  ||  !ware.get_zwischenziel().is_bound()) {
 				continue;
 			}
@@ -1296,11 +1277,8 @@ uint32 vehikel_t::get_fracht_gewicht() const
 {
 	uint32 weight = 0;
 
-	slist_iterator_tpl<ware_t> iter(fracht);
-	while(iter.next()) {
-		weight +=
-			iter.get_current().menge *
-			iter.get_current().get_besch()->get_weight_per_unit();
+	FOR(slist_tpl<ware_t>, const& c, fracht) {
+		weight += c.menge * c.get_besch()->get_weight_per_unit();
 	}
 	return weight;
 }
@@ -1319,11 +1297,7 @@ void vehikel_t::get_fracht_info(cbuffer_t & buf) const
 		buf.append(translator::translate("leer"));
 		buf.append("\n");
 	} else {
-
-		slist_iterator_tpl<ware_t> iter (fracht);
-
-		while(iter.next()) {
-			const ware_t& ware = iter.get_current();
+		FOR(slist_tpl<ware_t>, const& ware, fracht) {
 			const char * name = "Error in Routing";
 
 			halthandle_t halt = ware.get_ziel();
@@ -1557,9 +1531,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 			ware.rdwr(welt,file);
 		}
 		else {
-			slist_iterator_tpl<ware_t> iter(fracht);
-			while(iter.next()) {
-				ware_t ware = iter.get_current();
+			FOR(slist_tpl<ware_t>, ware, fracht) {
 				ware.rdwr(welt,file);
 			}
 		}
@@ -1597,9 +1569,8 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 		}
 		// recalc total freight
 		total_freight = 0;
-		slist_iterator_tpl<ware_t> iter(fracht);
-		while(iter.next()) {
-			total_freight += iter.get_current().menge;
+		FOR(slist_tpl<ware_t>, const& c, fracht) {
+			total_freight += c.menge;
 		}
 	}
 
@@ -2996,10 +2967,8 @@ bool waggon_t::block_reserver(const route_t *route, uint16 start_index, uint16 &
 	}
 
 	// ok, switch everything green ...
-	slist_iterator_tpl<grund_t *> iter(signs);
-	while(iter.next()) {
-		signal_t* signal = iter.get_current()->find<signal_t>();
-		if(signal) {
+	FOR(slist_tpl<grund_t*>, const g, signs) {
+		if (signal_t* const signal = g->find<signal_t>()) {
 			signal->set_zustand(roadsign_t::gruen);
 		}
 	}

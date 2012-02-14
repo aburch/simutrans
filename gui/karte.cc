@@ -669,23 +669,21 @@ void reliefkarte_t::calc_map()
 
 	// since we do iterate the factory info list, this must be done here
 	if(mode==MAP_FACTORIES) {
-		slist_iterator_tpl <fabrik_t *> iter (welt->get_fab_list());
-		while(iter.next()) {
-			koord pos = iter.get_current()->get_pos().get_2d();
+		FOR(slist_tpl<fabrik_t*>, const f, welt->get_fab_list()) {
+			koord const pos = f->get_pos().get_2d();
 			set_relief_farbe_area( pos, 9, COL_BLACK );
-			set_relief_farbe_area( pos, 7, iter.get_current()->get_kennfarbe() );
+			set_relief_farbe_area(pos, 7, f->get_kennfarbe());
 		}
 		return;
 	}
 
 	if(mode==MAP_DEPOT) {
-		slist_iterator_tpl <depot_t *> iter (depot_t::get_depot_list());
-		while(iter.next()) {
-			if(iter.get_current()->get_besitzer()==welt->get_active_player()) {
-				koord pos = iter.get_current()->get_pos().get_2d();
+		FOR(slist_tpl<depot_t*>, const d, depot_t::get_depot_list()) {
+			if (d->get_besitzer() == welt->get_active_player()) {
+				koord const pos = d->get_pos().get_2d();
 				// offset of one to avoid
 				static uint8 depot_typ_to_color[19]={ COL_ORANGE, COL_YELLOW, COL_RED, 0, 0, 0, 0, 0, 0, COL_PURPLE, COL_DARK_RED, COL_DARK_ORANGE, 0, 0, 0, 0, 0, 0, COL_LIGHT_RED };
-				set_relief_farbe_area(pos, 7, depot_typ_to_color[iter.get_current()->get_typ()-ding_t::bahndepot] );
+				set_relief_farbe_area(pos, 7, depot_typ_to_color[d->get_typ() - ding_t::bahndepot]);
 			}
 		}
 		return;

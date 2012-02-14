@@ -2101,13 +2101,7 @@ void fabrik_t::add_all_suppliers()
 		const fabrik_lieferant_besch_t *lieferant = besch->get_lieferant(i);
 		const ware_besch_t *ware = lieferant->get_ware();
 
-		const slist_tpl<fabrik_t *> & list = welt->get_fab_list();
-		slist_iterator_tpl <fabrik_t *> iter (list);
-
-		while( iter.next() ) {
-
-			fabrik_t * fab = iter.get_current();
-
+		FOR(slist_tpl<fabrik_t*>, const fab, welt->get_fab_list()) {
 			// connect to an existing one, if this is an producer
 			if(fab!=this  &&  fab->vorrat_an(ware) > -1) {
 				// add us to this factory

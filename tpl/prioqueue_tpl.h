@@ -15,8 +15,6 @@
 // #define PRIQ_STATS
 
 
-template<class T> class slist_iterator_tpl;
-
 /**
  * <p>A template class for a priority queue. The queue is built upon a
  * sorted linked list.

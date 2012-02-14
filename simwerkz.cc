@@ -1298,10 +1298,9 @@ const char *wkz_clear_reservation_t::work( karte_t *welt, spieler_t *, koord3d k
 					// reset driving state
 					cnv->suche_neue_route();
 				}
-				slist_iterator_tpl<weg_t *>iter(weg_t::get_alle_wege());
-				while(iter.next()) {
-					if(iter.get_current()->get_waytype()==waytype) {
-						schiene_t* const sch = ding_cast<schiene_t>(iter.access_current());
+				FOR(slist_tpl<weg_t*>, const w, weg_t::get_alle_wege()) {
+					if (w->get_waytype() == waytype) {
+						schiene_t* const sch = ding_cast<schiene_t>(w);
 						if (sch->get_reserved_convoi() == cnv) {
 							vehikel_t& v = *cnv->front();
 							if (!gr->suche_obj(v.get_typ())) {
@@ -4170,10 +4169,8 @@ const char *wkz_build_industries_land_t::work( karte_t *welt, spieler_t *sp, koo
 
 			// crossconnect all?
 			if (welt->get_settings().is_crossconnect_factories()) {
-				const slist_tpl<fabrik_t *> & list = welt->get_fab_list();
-				slist_iterator_tpl <fabrik_t *> iter (list);
-				while( iter.next() ) {
-					iter.get_current()->add_all_suppliers();
+				FOR(slist_tpl<fabrik_t*>, const f, welt->get_fab_list()) {
+					f->add_all_suppliers();
 				}
 			}
 			return NULL;
@@ -4240,10 +4237,8 @@ const char *wkz_build_industries_city_t::work( karte_t *welt, spieler_t *sp, koo
 
 		// crossconnect all?
 		if (welt->get_settings().is_crossconnect_factories()) {
-			const slist_tpl<fabrik_t *> & list = welt->get_fab_list();
-			slist_iterator_tpl <fabrik_t *> iter (list);
-			while( iter.next() ) {
-				iter.get_current()->add_all_suppliers();
+			FOR(slist_tpl<fabrik_t*>, const f, welt->get_fab_list()) {
+				f->add_all_suppliers();
 			}
 		}
 		// ain't going to be cheap
@@ -4336,10 +4331,8 @@ const char *wkz_build_factory_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 
 			// crossconnect all?
 			if (welt->get_settings().is_crossconnect_factories()) {
-				const slist_tpl<fabrik_t *> & list = welt->get_fab_list();
-				slist_iterator_tpl <fabrik_t *> iter (list);
-				while( iter.next() ) {
-					iter.get_current()->add_all_suppliers();
+				FOR(slist_tpl<fabrik_t*>, const f, welt->get_fab_list()) {
+					f->add_all_suppliers();
 				}
 			}
 			return NULL;

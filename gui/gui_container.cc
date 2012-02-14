@@ -84,25 +84,25 @@ bool gui_container_t::infowin_event(const event_t *ev)
 		if(  !swallowed  ||  (ev->ev_code==9  &&  komp_focus  &&  komp_focus->get_focus()==NULL)  ) {
 			if(  ev->ev_code==SIM_KEY_TAB  ) {
 				// TAB: find new focus
-				slist_iterator_tpl<gui_komponente_t *> iter (komponenten);
 				new_focus = NULL;
 				if(  !IS_SHIFT_PRESSED(ev)  ) {
 					// find next textinput field
-					while(  iter.next()  &&  (komp_focus==NULL  ||  iter.get_current()!=komp_focus)  ) {
-						if(  iter.get_current()->is_focusable()  ) {
-							new_focus = iter.get_current();
+					FOR(slist_tpl<gui_komponente_t*>, const c, komponenten) {
+						if (c == komp_focus) break;
+						if (c->is_focusable()) {
+							new_focus = c;
 						}
 					}
 				}
 				else {
 					// or previous input field
 					bool valid = komp_focus==NULL;
-					while(  iter.next()  ) {
-						if(  valid  &&  iter.get_current()->is_focusable()  ) {
-							new_focus = iter.get_current();
+					FOR(slist_tpl<gui_komponente_t*>, const c, komponenten) {
+						if (valid && c->is_focusable()) {
+							new_focus = c;
 							break;
 						}
-						if(  iter.get_current()==komp_focus  ) {
+						if (c == komp_focus) {
 							valid = true;
 						}
 					}
@@ -133,10 +133,9 @@ bool gui_container_t::infowin_event(const event_t *ev)
 		const int x = ev->ev_class==EVENT_MOVE ? ev->mx : ev->cx;
 		const int y = ev->ev_class==EVENT_MOVE ? ev->my : ev->cy;
 
-		slist_iterator_tpl<gui_komponente_t *> iter (komponenten);
 		slist_tpl<gui_komponente_t *>handle_mouseover;
-		while(  !list_dirty  &&  iter.next()  ) {
-			gui_komponente_t *komp = iter.get_current();
+		FOR(slist_tpl<gui_komponente_t*>, const komp, komponenten) {
+			if (list_dirty) break;
 
 			// Hajo: deliver events if
 			// a) The mouse or click coordinates are inside the component
@@ -153,14 +152,13 @@ bool gui_container_t::infowin_event(const event_t *ev)
 				}
 
 			} // if(komp)
-		} // while()
+		}
 
 		/* since the last drawn are overlaid over all others
 		 * the event-handling must go reverse too
 		 */
-		slist_iterator_tpl<gui_komponente_t *> iter_mouseover (handle_mouseover);
-		while(  !list_dirty  &&  iter_mouseover.next()  ) {
-			gui_komponente_t *komp = iter_mouseover.get_current();
+		FOR(slist_tpl<gui_komponente_t*>, const komp, handle_mouseover) {
+			if (list_dirty) break;
 
 			// Hajo: if componet hit, translate coordinates and deliver event
 			event_t ev2 = *ev;
@@ -213,13 +211,10 @@ bool gui_container_t::infowin_event(const event_t *ev)
 void gui_container_t::zeichnen(koord offset)
 {
 	const koord screen_pos = pos + offset;
-
-	slist_iterator_tpl<gui_komponente_t *> iter (komponenten);
-
-	while(iter.next()) {
-		if (iter.get_current()->is_visible()) {
+	FOR(slist_tpl<gui_komponente_t*>, const c, komponenten) {
+		if (c->is_visible()) {
 			// @author hsiegeln; check if component is hidden or displayed
-			iter.get_current()->zeichnen(screen_pos);
+			c->zeichnen(screen_pos);
 		}
 	}
 }
@@ -227,10 +222,8 @@ void gui_container_t::zeichnen(koord offset)
 
 bool gui_container_t::is_focusable()
 {
-	slist_iterator_tpl<gui_komponente_t *> iter (komponenten);
-
-	while(  iter.next()  ) {
-		if(  iter.get_current()->is_focusable()  ) {
+	FOR(slist_tpl<gui_komponente_t*>, const c, komponenten) {
+		if (c->is_focusable()) {
 			return true;
 		}
 	}

@@ -54,10 +54,7 @@ public:
 
 	const value_t get(const key_t key) const
 	{
-		slist_iterator_tpl<node_t> iter(bags[get_hash(key)]);
-		while(iter.next()) {
-			node_t node = iter.get_current();
-
+		FORT(slist_tpl<node_t>, const& node, bags[get_hash(key)]) {
 			if (hash_t::comp(node.key, key) == 0) {
 				return node.object;
 			}
@@ -67,10 +64,7 @@ public:
 
 	value_t *access(const key_t key)
 	{
-		slist_iterator_tpl<node_t> iter(bags[get_hash(key)]);
-		while(iter.next()) {
-			node_t &node = iter.access_current();
-
+		FORT(slist_tpl<node_t>, & node, bags[get_hash(key)]) {
 			if (hash_t::comp(node.key, key) == 0) {
 				return &node.object;
 			}
@@ -85,15 +79,12 @@ public:
 	bool put(const key_t key, value_t object)
 	{
 		const STHT_BAG_COUNTER_T code = get_hash(key);
-		slist_iterator_tpl<node_t> iter(bags[code]);
 
 		//
 		// Duplicate values are hard to debug, so better check here.
 		// ->exception? V.Meyer
 		//
-		while(iter.next()) {
-			const node_t &node = iter.get_current();
-
+		FORT(slist_tpl<node_t>, const& node, bags[code]) {
 			if (hash_t::comp(node.key, key) == 0) {
 				// duplicate
 				return false;
@@ -114,15 +105,12 @@ public:
 	bool put(const key_t key)
 	{
 		const STHT_BAG_COUNTER_T code = get_hash(key);
-		slist_iterator_tpl<node_t> iter(bags[code]);
 
 		//
 		// Duplicate values are hard to debug, so better check here.
 		// ->exception? V.Meyer
 		//
-		while(iter.next()) {
-			const node_t &node = iter.get_current();
-
+		FORT(slist_tpl<node_t>, const& node, bags[code]) {
 			if (hash_t::comp(node.key, key) == 0) {
 				// duplicate
 				return false;
@@ -142,11 +130,7 @@ public:
 	value_t set(const key_t key, value_t object)
 	{
 		const STHT_BAG_COUNTER_T code = get_hash(key);
-
-		slist_iterator_tpl<node_t> iter(bags[code]);
-
-		while(iter.next()) {
-			node_t &node = iter.access_current();
+		FORT(slist_tpl<node_t>, & node, bags[code]) {
 			if (hash_t::comp(node.key, key) == 0) {
 				value_t value = node.object;
 				node.object = object;
@@ -170,10 +154,7 @@ public:
 	value_t remove(const key_t key)
 	{
 		const STHT_BAG_COUNTER_T code = get_hash(key);
-		slist_iterator_tpl<node_t> iter(bags[code]);
-
-		while(iter.next()) {
-			node_t node = iter.get_current();
+		FORT(slist_tpl<node_t>, const node, bags[code]) {
 			if (hash_t::comp(node.key, key) == 0) {
 				bags[code].remove( node );
 
@@ -201,10 +182,7 @@ public:
 
 			printf("Bag %d contains %ud elements\n", i, count);
 
-			slist_iterator_tpl<node_t> iter ( bags[i] );
-
-			while(iter.next()) {
-				node_t node = iter.get_current();
+			FORT(slist_tpl<node_t>, const& node, bags[i]) {
 				printf(" ");
 				hash_t::dump(node.key);
 				printf("\n");

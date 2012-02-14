@@ -72,9 +72,8 @@ void init_fab_map( karte_t *welt )
 	for( int i=0;  i<fab_map_w*welt->get_groesse_y();  i++ ) {
 		fab_map[i] = 0;
 	}
-	slist_iterator_tpl <fabrik_t *> iter(welt->get_fab_list());
-	while(iter.next()) {
-		add_factory_to_fab_map(welt, iter.get_current());
+	FOR(slist_tpl<fabrik_t*>, const f, welt->get_fab_list()) {
+		add_factory_to_fab_map(welt, f);
 	}
 }
 
@@ -675,17 +674,9 @@ int fabrikbauer_t::baue_link_hierarchie(const fabrik_t* our_fab, const fabrik_be
 DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i of %s)",info->get_lieferanten(),lcount,verbrauch,ware->get_name());
 
 	// Hajo: search if there already is one or two (crossconnect everything if possible)
-	const slist_tpl<fabrik_t *> & list = welt->get_fab_list();
-	slist_iterator_tpl <fabrik_t *> iter (list);
-
-	while( iter.next() &&
-			// try to find matching factories for this consumption
-			( (lcount==0  &&  verbrauch>0) ||
-			// but don't find more than two times number of factories requested
-			  (lcount>=lfound+1) )
-			)
-	{
-		fabrik_t * fab = iter.get_current();
+	FOR(slist_tpl<fabrik_t*>, const fab, welt->get_fab_list()) {
+		// Try to find matching factories for this consumption, but don't find more than two times number of factories requested.
+		if ((lcount != 0 || verbrauch <= 0) && lcount < lfound + 1) break;
 
 		// connect to an existing one, if this is an producer
 		if(fab->vorrat_an(ware) > -1) {
@@ -872,9 +863,7 @@ int fabrikbauer_t::increase_industry_density( karte_t *welt, bool tell_me )
 
 	// find last consumer
 	if(!welt->get_fab_list().empty()) {
-		slist_iterator_tpl<fabrik_t*> iter (welt->get_fab_list());
-		while(iter.next()) {
-			fabrik_t *fab = iter.get_current();
+		FOR(slist_tpl<fabrik_t*>, const fab, welt->get_fab_list()) {
 			if(fab->get_besch()->get_produkte()==0) {
 				last_built_consumer = fab;
 				break;
@@ -951,9 +940,7 @@ next_ware_check:
 	uint32 total_produktivity = 1;
 	uint32 electric_productivity = 0;
 
-	slist_iterator_tpl<fabrik_t*> iter (welt->get_fab_list());
-	while(iter.next()) {
-		fabrik_t * fab = iter.get_current();
+	FOR(slist_tpl<fabrik_t*>, const fab, welt->get_fab_list()) {
 		if(fab->get_besch()->is_electricity_producer()) {
 			electric_productivity += fab->get_base_production();
 		}

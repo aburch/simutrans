@@ -564,11 +564,8 @@ DBG_MESSAGE("karte_t::destroy()", "stops destroyed");
 	display_progress(old_progress, max_display_progress);
 
 	// remove all target cities (we can skip recalculation anyway)
-	{
-		slist_iterator_tpl<fabrik_t*> fab_iter(fab_list);
-		while(fab_iter.next()) {
-			fab_iter.get_current()->clear_target_cities();
-		}
+	FOR(slist_tpl<fabrik_t*>, const f, fab_list) {
+		f->clear_target_cities();
 	}
 
 	// delete towns first (will also delete all their houses)
@@ -629,11 +626,8 @@ DBG_MESSAGE("karte_t::destroy()", "marker destroyed");
 DBG_MESSAGE("karte_t::destroy()", "player destroyed");
 
 	// alle fabriken aufraeumen
-	{
-		slist_iterator_tpl<fabrik_t*> fab_iter(fab_list);
-		while(fab_iter.next()) {
-			delete fab_iter.get_current();
-		}
+	FOR(slist_tpl<fabrik_t*>, const f, fab_list) {
+		delete f;
 	}
 	fab_list.clear();
 DBG_MESSAGE("karte_t::destroy()", "factories destroyed");
@@ -705,9 +699,8 @@ bool karte_t::rem_stadt(stadt_t *s)
 
 	// remove all links from factories
 	DBG_DEBUG4("karte_t::rem_stadt()", "fab_list %i", fab_list.get_count() );
-	slist_iterator_tpl<fabrik_t *> iter(fab_list);
-	while(iter.next()) {
-		(iter.get_current())->remove_target_city(s);
+	FOR(slist_tpl<fabrik_t*>, const f, fab_list) {
+		f->remove_target_city(s);
 	}
 
 	// ok, we can delete this
@@ -2478,9 +2471,8 @@ void karte_t::rotate90()
 	zeiger->change_pos( koord3d::invalid );
 
 	// preprocessing, detach stops from factories to prevent crash
-	slist_iterator_tpl <halthandle_t> halt_pre_iter (haltestelle_t::get_alle_haltestellen());
-	while( halt_pre_iter.next() ) {
-		halt_pre_iter.get_current()->release_factory_links();
+	FOR(slist_tpl<halthandle_t>, const s, haltestelle_t::get_alle_haltestellen()) {
+		s->release_factory_links();
 	}
 
 	// first: rotate all things on the map
@@ -2527,14 +2519,12 @@ void karte_t::rotate90()
 		i->rotate90(cached_groesse_karte_x);
 	}
 
-	slist_iterator_tpl<fabrik_t *> iter(fab_list);
-	while(iter.next()) {
-		iter.get_current()->rotate90( cached_groesse_karte_x );
+	FOR(slist_tpl<fabrik_t*>, const f, fab_list) {
+		f->rotate90(cached_groesse_karte_x);
 	}
 
-	slist_iterator_tpl <halthandle_t> halt_iter (haltestelle_t::get_alle_haltestellen());
-	while( halt_iter.next() ) {
-		halt_iter.get_current()->rotate90( cached_groesse_karte_x );
+	FOR(slist_tpl<halthandle_t>, const s, haltestelle_t::get_alle_haltestellen()) {
+		s->rotate90(cached_groesse_karte_x);
 	}
 
 	// rotate all other objects like factories and convois
@@ -2549,9 +2539,8 @@ void karte_t::rotate90()
 	}
 
 	// rotate label texts
-	slist_iterator_tpl <koord> label_iter (labels);
-	while( label_iter.next() ) {
-		label_iter.access_current().rotate90( cached_groesse_karte_x );
+	FOR(slist_tpl<koord>, & l, labels) {
+		l.rotate90(cached_groesse_karte_x);
 	}
 
 	// rotate view
@@ -2625,9 +2614,7 @@ bool karte_t::rem_fab(fabrik_t *fab)
 		}
 
 		// remove all links from factories
-		slist_iterator_tpl<fabrik_t *> iter (fab_list);
-		while(iter.next()) {
-			fabrik_t * fab = iter.get_current();
+		FOR(slist_tpl<fabrik_t*>, const fab, fab_list) {
 			fab->rem_lieferziel(pos);
 			fab->rem_supplier(pos);
 		}
@@ -2952,9 +2939,8 @@ void karte_t::neuer_monat()
 
 	// this should be done before a map update, since the map may want an update of the way usage
 //	DBG_MESSAGE("karte_t::neuer_monat()","ways");
-	slist_iterator_tpl <weg_t *> weg_iter (weg_t::get_alle_wege());
-	while( weg_iter.next() ) {
-		weg_iter.get_current()->neuer_monat();
+	FOR(slist_tpl<weg_t*>, const w, weg_t::get_alle_wege()) {
+		w->neuer_monat();
 	}
 
 	// recalc old settings (and maybe update the staops with the current values)
@@ -2971,9 +2957,7 @@ void karte_t::neuer_monat()
 	INT_CHECK("simworld 1701");
 
 //	DBG_MESSAGE("karte_t::neuer_monat()","factories");
-	slist_iterator_tpl<fabrik_t*> iter (fab_list);
-	while(iter.next()) {
-		fabrik_t * fab = iter.get_current();
+	FOR(slist_tpl<fabrik_t*>, const fab, fab_list) {
 		fab->neuer_monat();
 	}
 	INT_CHECK("simworld 1278");
@@ -3024,9 +3008,8 @@ void karte_t::neuer_monat()
 	INT_CHECK("simworld 1289");
 
 //	DBG_MESSAGE("karte_t::neuer_monat()","halts");
-	slist_iterator_tpl <halthandle_t> halt_iter (haltestelle_t::get_alle_haltestellen());
-	while( halt_iter.next() ) {
-		halt_iter.get_current()->neuer_monat();
+	FOR(slist_tpl<halthandle_t>, const s, haltestelle_t::get_alle_haltestellen()) {
+		s->neuer_monat();
 		INT_CHECK("simworld 1877");
 	}
 
@@ -3130,9 +3113,7 @@ void karte_t::recalc_average_speed()
 			}
 			vehicle_type = translator::translate( vehicle_type );
 
-			slist_iterator_tpl<vehikel_besch_t const*> vehinfo(vehikelbauer_t::get_info((waytype_t)i));
-			while (vehinfo.next()) {
-				const vehikel_besch_t* info = vehinfo.get_current();
+			FOR(slist_tpl<vehikel_besch_t const*>, const info, vehikelbauer_t::get_info((waytype_t)i)) {
 				const uint16 intro_month = info->get_intro_year_month();
 				if(intro_month == current_month) {
 					cbuffer_t buf;
@@ -3377,9 +3358,8 @@ void karte_t::step()
 	finance_history_month[0][WORLD_CITICENS] = bev;
 
 	DBG_DEBUG4("karte_t::step", "step factories");
-	slist_iterator_tpl<fabrik_t *> iter(fab_list);
-	while(iter.next()) {
-		iter.get_current()->step(delta_t);
+	FOR(slist_tpl<fabrik_t*>, const f, fab_list) {
+		f->step(delta_t);
 	}
 	finance_history_year[0][WORLD_FACTORIES] = finance_history_month[0][WORLD_FACTORIES] = fab_list.get_count();
 
@@ -4097,9 +4077,8 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved tiles");
 
 	sint32 fabs = fab_list.get_count();
 	file->rdwr_long(fabs);
-	slist_iterator_tpl<fabrik_t*> fiter( fab_list );
-	while(fiter.next()) {
-		(fiter.get_current())->rdwr(file);
+	FOR(slist_tpl<fabrik_t*>, const f, fab_list) {
+		f->rdwr(file);
 		if(silent) {
 			INT_CHECK("saving");
 		}
@@ -4108,9 +4087,8 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved fabs");
 
 	sint32 haltcount=haltestelle_t::get_alle_haltestellen().get_count();
 	file->rdwr_long(haltcount);
-	slist_iterator_tpl<halthandle_t> iter (haltestelle_t::get_alle_haltestellen());
-	while(iter.next()) {
-		iter.get_current()->rdwr( file );
+	FOR(slist_tpl<halthandle_t>, const s, haltestelle_t::get_alle_haltestellen()) {
+		s->rdwr(file);
 	}
 DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved stops");
 
@@ -4750,9 +4728,8 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 	DBG_MESSAGE("karte_t::laden()", "cities initialized");
 
 	DBG_MESSAGE("karte_t::laden()", "clean up factories");
-	slist_iterator_tpl<fabrik_t*> fiter ( fab_list );
-	while(fiter.next()) {
-		fiter.get_current()->laden_abschliessen();
+	FOR(slist_tpl<fabrik_t*>, const f, fab_list) {
+		f->laden_abschliessen();
 	}
 
 DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
@@ -6112,9 +6089,8 @@ const vector_tpl<const ware_besch_t*> &karte_t::get_goods_list()
 		// Goods list needs to be rebuilt
 
 		// Reset last vehicle filter in all depots, in case goods list has changed
-		slist_iterator_tpl<depot_t *> iter(depot_t::get_depot_list());
-		while (iter.next()) {
-			iter.get_current()->selected_filter = VEHICLE_FILTER_RELEVANT;
+		FOR(slist_tpl<depot_t*>, const d, depot_t::get_depot_list()) {
+			d->selected_filter = VEHICLE_FILTER_RELEVANT;
 		}
 
 		const slist_tpl<fabrik_t*> &factories_in_game = get_fab_list();

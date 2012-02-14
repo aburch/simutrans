@@ -767,9 +767,7 @@ void ai_goods_t::step()
 			if(root==NULL) {
 				// find a tree root to complete
 				weighted_vector_tpl<fabrik_t *> start_fabs(20);
-				slist_iterator_tpl<fabrik_t *> fabiter( welt->get_fab_list() );
-				while(fabiter.next()) {
-					fabrik_t *fab = fabiter.get_current();
+				FOR(slist_tpl<fabrik_t*>, const fab, welt->get_fab_list()) {
 					// consumer and not completely overcrowded
 					if(fab->get_besch()->get_produkte()==0  &&  fab->get_status()!=fabrik_t::bad) {
 						int missing = get_factory_tree_missing_count( fab );
@@ -1406,9 +1404,7 @@ void ai_goods_t::rdwr(loadsave_t *file)
 	sint32 cnt = forbidden_connections.get_count();
 	file->rdwr_long(cnt);
 	if(file->is_saving()) {
-		slist_iterator_tpl<fabconnection_t*> iter(forbidden_connections);
-		while(  iter.next()  ) {
-			fabconnection_t *fc = iter.get_current();
+		FOR(slist_tpl<fabconnection_t*>, const fc, forbidden_connections) {
 			fc->rdwr(file);
 		}
 	}
@@ -1437,9 +1433,7 @@ void ai_goods_t::rdwr(loadsave_t *file)
 bool ai_goods_t::is_forbidden( fabrik_t *fab1, fabrik_t *fab2, const ware_besch_t *w ) const
 {
 	fabconnection_t fc(fab1, fab2, w);
-	slist_iterator_tpl<fabconnection_t*> iter(forbidden_connections);
-	while(  iter.next()  ) {
-		fabconnection_t *test_fc = iter.get_current();
+	FOR(slist_tpl<fabconnection_t*>, const test_fc, forbidden_connections) {
 		if (fc == (*test_fc)) {
 			return true;
 		}

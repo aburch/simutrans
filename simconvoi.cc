@@ -2364,9 +2364,7 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 			}
 
 			// then add the actual load
-			slist_iterator_tpl<ware_t> iter_vehicle_ware(v->get_fracht());
-			while(iter_vehicle_ware.next()) {
-				ware_t ware = iter_vehicle_ware.get_current();
+			FOR(slist_tpl<ware_t>, ware, v->get_fracht()) {
 				FOR(vector_tpl<ware_t>, & tmp, total_fracht) {
 					// could this be joined with existing freight?
 

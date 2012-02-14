@@ -219,10 +219,8 @@ void map_frame_t::update_factory_legend(karte_t *welt /*= NULL*/)
 	// When dialog is opened, update the list of industries currently in the world
 	if (welt != NULL) {
 		factory_list.clear();
-		const slist_tpl<fabrik_t*> &factories_in_game = welt->get_fab_list();
-		slist_iterator_tpl<fabrik_t*> iter(factories_in_game);
-		while (iter.next()) {
-			const fabrik_besch_t *factory_description = iter.get_current()->get_besch();
+		FOR(slist_tpl<fabrik_t*>, const f, welt->get_fab_list()) {
+			fabrik_besch_t const* const factory_description = f->get_besch();
 			factory_list.put(factory_description->get_name(), factory_description);
 		}
 	}

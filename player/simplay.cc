@@ -178,10 +178,7 @@ void spieler_t::display_messages()
 	const sint16 raster = get_tile_raster_width();
 	const sint16 yoffset = welt->get_y_off()+((display_get_width()/raster)&1)*(raster/4);
 
-	slist_iterator_tpl<income_message_t *>iter(messages);
-	while(iter.next()) {
-		income_message_t *m = iter.get_current();
-
+	FOR(slist_tpl<income_message_t*>, const m, messages) {
 		const koord ij = m->pos - welt->get_world_position()-welt->get_ansicht_ij_offset();
 		const sint16 x = (ij.x-ij.y)*(raster/2) + welt->get_x_off();
 		const sint16 y = (ij.x+ij.y)*(raster/4) + (m->alter >> 4) - tile_raster_scale_y( welt->lookup_hgt(m->pos)*TILE_HEIGHT_STEP, raster) + yoffset;
@@ -412,13 +409,9 @@ void spieler_t::calc_assets()
 	}
 
 	// all vehikels stored in depot not part of a convoi
-	slist_iterator_tpl<depot_t *> depot_iter(depot_t::get_depot_list());
-	while(  depot_iter.next()  ) {
-		depot_t* const depot = depot_iter.get_current();
+	FOR(slist_tpl<depot_t*>, const depot, depot_t::get_depot_list()) {
 		if(  depot->get_player_nr() == player_nr  ) {
-			slist_iterator_tpl<vehikel_t *> veh_iter(depot->get_vehicle_list());
-			while(  veh_iter.next()  ) {
-				const vehikel_t* const veh = veh_iter.get_current();
+			FOR(slist_tpl<vehikel_t*>, const veh, depot->get_vehicle_list()) {
 				assets += veh->calc_restwert();
 			}
 		}
@@ -572,9 +565,7 @@ void spieler_t::ai_bankrupt()
 	}
 
 	// transfer all ways in public stops belonging to me to no one
-	slist_iterator_tpl<halthandle_t>iter(haltestelle_t::get_alle_haltestellen());
-	while(  iter.next()  ) {
-		halthandle_t halt = iter.get_current();
+	FOR(slist_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {
 		if(  halt->get_besitzer()==welt->get_spieler(1)  ) {
 			// only concerns public stops tiles
 			FOR(slist_tpl<haltestelle_t::tile_t>, const& i, halt->get_tiles()) {
