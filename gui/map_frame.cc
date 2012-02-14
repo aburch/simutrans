@@ -227,11 +227,11 @@ void map_frame_t::update_factory_legend(karte_t *welt /*= NULL*/)
 
 	// Build factory legend
 	const stringhashtable_tpl<const fabrik_besch_t *> & fabesch = (filter_factory_list) ? factory_list : fabrikbauer_t::get_fabesch();
-	stringhashtable_iterator_tpl<const fabrik_besch_t *> iter (fabesch);
-	while(  iter.next()  ) {
-		if(  iter.get_current_value()->get_gewichtung()>0  ) {
-			std::string label( translator::translate(iter.get_current_value()->get_name()) );
-			legend.append_unique( legend_entry_t(label, iter.get_current_value()->get_kennfarbe()) );
+	FOR(stringhashtable_tpl<fabrik_besch_t const*>, const& i, fabesch) {
+		fabrik_besch_t const& d = *i.value;
+		if (d.get_gewichtung() > 0) {
+			std::string const label(translator::translate(d.get_name()));
+			legend.append_unique(legend_entry_t(label, d.get_kennfarbe()));
 		}
 	}
 

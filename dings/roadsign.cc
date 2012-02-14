@@ -663,11 +663,10 @@ void roadsign_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 /*sou
 {
 	const uint16 time = welt->get_timeline_year_month();
 
-	stringhashtable_iterator_tpl<const roadsign_besch_t *>iter(table);
 	vector_tpl<const roadsign_besch_t *>matching;
 
-	while(  iter.next()  ) {
-		const roadsign_besch_t* besch = iter.get_current_value();
+	FOR(stringhashtable_tpl<roadsign_besch_t const*>, const& i, table) {
+		roadsign_besch_t const* const besch = i.value;
 		if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 
 			if(besch->get_builder()  &&  wtyp==besch->get_wtyp()) {
@@ -688,9 +687,8 @@ void roadsign_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 /*sou
  */
 const roadsign_besch_t *roadsign_t::roadsign_search(roadsign_besch_t::types const flag, waytype_t const wt, uint16 const time)
 {
-	stringhashtable_iterator_tpl<const roadsign_besch_t *>iter(table);
-	while(  iter.next()  ) {
-		const roadsign_besch_t* besch = iter.get_current_value();
+	FOR(stringhashtable_tpl<roadsign_besch_t const*>, const& i, table) {
+		roadsign_besch_t const* const besch = i.value;
 		if((time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time))
 			&&  besch->get_wtyp()==wt  &&  besch->get_flags()==flag) {
 				return besch;

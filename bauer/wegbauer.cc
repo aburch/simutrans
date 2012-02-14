@@ -154,8 +154,8 @@ const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const sint32 spe
 {
 	const weg_besch_t* best = NULL;
 	bool best_allowed = false; // Does the best way fulfill the timeline?
-	for(  stringhashtable_iterator_tpl<const weg_besch_t*> iter(alle_wegtypen); iter.next();  ) {
-		const weg_besch_t* const test = iter.get_current_value();
+	FOR(stringhashtable_tpl<weg_besch_t const*>, const& i, alle_wegtypen) {
+		weg_besch_t const* const test = i.value;
 		if(  ((test->get_wtyp()==wtyp  &&
 			(test->get_styp()==system_type  ||  system_type==weg_t::type_all))  ||  (test->get_wtyp()==track_wt  &&  test->get_styp()==weg_t::type_tram  &&  wtyp==tram_wt))
 			&&  test->get_cursor()->get_bild_nr(1)!=IMG_LEER  ) {
@@ -180,8 +180,8 @@ const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const sint32 spe
 const weg_besch_t *wegbauer_t::get_earliest_way(const waytype_t wtyp)
 {
 	const weg_besch_t *besch = NULL;
-	for(  stringhashtable_iterator_tpl<const weg_besch_t*> iter(alle_wegtypen); iter.next();  ) {
-		const weg_besch_t* const test = iter.get_current_value();
+	FOR(stringhashtable_tpl<weg_besch_t const*>, const& i, alle_wegtypen) {
+		weg_besch_t const* const test = i.value;
 		if(  test->get_wtyp()==wtyp  &&  (besch==NULL  ||  test->get_intro_year_month()<besch->get_intro_year_month())  ) {
 			besch = test;
 		}
@@ -194,8 +194,8 @@ const weg_besch_t *wegbauer_t::get_earliest_way(const waytype_t wtyp)
 const weg_besch_t *wegbauer_t::get_latest_way(const waytype_t wtyp)
 {
 	const weg_besch_t *besch = NULL;
-	for(  stringhashtable_iterator_tpl<const weg_besch_t*> iter(alle_wegtypen); iter.next();  ) {
-		const weg_besch_t* const test = iter.get_current_value();
+	FOR(stringhashtable_tpl<weg_besch_t const*>, const& i, alle_wegtypen) {
+		weg_besch_t const* const test = i.value;
 		if(  test->get_wtyp()==wtyp  &&  (besch==NULL  ||  test->get_retire_year_month()>besch->get_retire_year_month())  ) {
 			besch = test;
 		}
@@ -211,8 +211,8 @@ bool wegbauer_t::waytype_available( const waytype_t wtyp, uint16 time )
 		return true;
 	}
 
-	for(  stringhashtable_iterator_tpl<const weg_besch_t*> iter(alle_wegtypen); iter.next();  ) {
-		const weg_besch_t* const test = iter.get_current_value();
+	FOR(stringhashtable_tpl<weg_besch_t const*>, const& i, alle_wegtypen) {
+		weg_besch_t const* const test = i.value;
 		if(  test->get_wtyp()==wtyp  &&  test->get_intro_year_month()<=time  &&  test->get_retire_year_month()>time  ) {
 			return true;
 		}
@@ -241,9 +241,8 @@ void wegbauer_t::neuer_monat(karte_t *welt)
 	if(current_month!=0) {
 		// check, what changed
 		slist_tpl <const weg_besch_t *> matching;
-		stringhashtable_iterator_tpl<const weg_besch_t *> iter(alle_wegtypen);
-		while(iter.next()) {
-			const weg_besch_t * besch = iter.get_current_value();
+		FOR(stringhashtable_tpl<weg_besch_t const*>, const& i, alle_wegtypen) {
+			weg_besch_t const* const besch = i.value;
 			cbuffer_t buf;
 
 			const uint16 intro_month = besch->get_intro_year_month();
@@ -287,9 +286,8 @@ void wegbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const 
 	// list of matching types (sorted by speed)
 	vector_tpl<const weg_besch_t*> matching;
 
-	stringhashtable_iterator_tpl<const weg_besch_t*> iter(alle_wegtypen);
-	while(iter.next()) {
-		const weg_besch_t* besch = iter.get_current_value();
+	FOR(stringhashtable_tpl<weg_besch_t const*>, const& i, alle_wegtypen) {
+		weg_besch_t const* const besch = i.value;
 		if (besch->get_styp() == styp &&
 				besch->get_wtyp() == wtyp &&
 				besch->get_builder() && (

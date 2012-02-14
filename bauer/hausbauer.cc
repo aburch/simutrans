@@ -111,10 +111,8 @@ static bool compare_station_besch(const haus_besch_t* a, const haus_besch_t* b)
 
 bool hausbauer_t::alles_geladen()
 {
-	stringhashtable_iterator_tpl<const haus_besch_t *>iter(besch_names);
-	while(  iter.next()  ) {
-		const haus_besch_t* besch = iter.get_current_value();
-
+	FOR(stringhashtable_tpl<haus_besch_t const*>, const& i, besch_names) {
+		haus_besch_t const* const besch = i.value;
 		switch(besch->get_typ()) {
 			case gebaeude_t::wohnung:
 				wohnhaeuser.insert_ordered(besch,compare_haus_besch);

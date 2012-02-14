@@ -343,9 +343,8 @@ void stadtauto_t::built_timeline_liste(karte_t *welt)
 //DBG_DEBUG("stadtauto_t::built_timeline_liste()","year=%i, month=%i", month_now/12, month_now%12+1);
 
 		// check for every citycar, if still ok ...
-		stringhashtable_iterator_tpl<const stadtauto_besch_t *> iter(table);
-		while(   iter.next()  ) {
-			const stadtauto_besch_t* info = iter.get_current_value();
+		FOR(stringhashtable_tpl<stadtauto_besch_t const*>, const& i, table) {
+			stadtauto_besch_t const* const info = i.value;
 			const int intro_month = info->get_intro_year_month();
 			const int retire_month = info->get_retire_year_month();
 

@@ -4295,14 +4295,13 @@ DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 
 				cbuffer_t error_paks;
 				cbuffer_t warning_paks;
-				stringhashtable_iterator_tpl<missing_level_t> iterator(missing_pak_names);
-				while(iterator.next()) {
-					if(  iterator.get_current_value() <= MISSING_ERROR  ) {
-						error_paks.append(translator::translate(iterator.get_current_key()));
+				FOR(stringhashtable_tpl<missing_level_t>, const& i, missing_pak_names) {
+					if (i.value <= MISSING_ERROR) {
+						error_paks.append(translator::translate(i.key));
 						error_paks.append("<br>\n");
 					}
 					else {
-						warning_paks.append(translator::translate(iterator.get_current_key()));
+						warning_paks.append(translator::translate(i.key));
 						warning_paks.append("<br>\n");
 					}
 				}

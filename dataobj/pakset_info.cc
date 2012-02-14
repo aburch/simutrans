@@ -19,11 +19,8 @@ void pakset_info_t::append(const char* name, checksum_t *chk)
 
 void pakset_info_t::debug()
 {
-	stringhashtable_iterator_tpl<checksum_t*> iterator(info);
-	while(iterator.next()) {
-		checksum_t *chk = iterator.get_current_value();
-		dbg->message("pakset_info_t::debug", "%.30s -> sha1 = %s",
-			iterator.get_current_key(), chk->get_str());
+	FOR(stringhashtable_tpl<checksum_t*>, const& i, info) {
+		dbg->message("pakset_info_t::debug", "%.30s -> sha1 = %s", i.key, i.value->get_str());
 	}
 }
 
@@ -50,9 +47,8 @@ void pakset_info_t::calculate_checksum()
 
 	// first sort all the besch's
 	vector_tpl<entry_t> sorted(info.get_count());
-	stringhashtable_iterator_tpl<checksum_t*> iterator(info);
-	while(iterator.next()) {
-		sorted.insert_ordered(entry_t(iterator.get_current_key(), iterator.get_current_value()), entry_cmp);
+	FOR(stringhashtable_tpl<checksum_t*>, const& i, info) {
+		sorted.insert_ordered(entry_t(i.key, i.value), entry_cmp);
 	}
 	// now loop
 	FOR(vector_tpl<entry_t>, const& i, sorted) {

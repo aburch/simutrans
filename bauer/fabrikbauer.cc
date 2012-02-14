@@ -170,11 +170,10 @@ static bool compare_fabrik_besch(const fabrik_besch_t* a, const fabrik_besch_t* 
 const fabrik_besch_t *fabrikbauer_t::get_random_consumer(bool electric, climate_bits cl, uint16 timeline )
 {
 	// get a random city factory
-	stringhashtable_iterator_tpl<const fabrik_besch_t *> iter(table);
 	weighted_vector_tpl<const fabrik_besch_t *> consumer;
 
-	while(iter.next()) {
-		const fabrik_besch_t *current=iter.get_current_value();
+	FOR(stringhashtable_tpl<fabrik_besch_t const*>, const& i, table) {
+		fabrik_besch_t const* const current = i.value;
 		// nur endverbraucher eintragen
 		if(current->get_produkt(0)==NULL  &&  current->get_haus()->is_allowed_climate_bits(cl)  &&
 			(electric ^ !current->is_electricity_producer())  &&
@@ -220,9 +219,8 @@ DBG_DEBUG("fabrikbauer_t::register_besch()","Correction for old factory: Increas
 
 bool fabrikbauer_t::alles_geladen()
 {
-	stringhashtable_iterator_tpl<const fabrik_besch_t *> iter(table);
-	while(iter.next()) {
-		const fabrik_besch_t *current=iter.get_current_value();
+	FOR(stringhashtable_tpl<fabrik_besch_t const*>, const& i, table) {
+		fabrik_besch_t const* const current = i.value;
 		if(  field_group_besch_t * fg = const_cast<field_group_besch_t *>(current->get_field_group())  ) {
 			// initialize weighted vector for the field class indices
 			fg->init_field_class_indices();
@@ -237,12 +235,10 @@ bool fabrikbauer_t::alles_geladen()
 
 int fabrikbauer_t::finde_anzahl_hersteller(const ware_besch_t *ware, uint16 timeline)
 {
-	stringhashtable_iterator_tpl<const fabrik_besch_t *> iter(table);
 	int anzahl=0;
 
-	while(iter.next()) {
-		const fabrik_besch_t *tmp = iter.get_current_value();
-
+	FOR(stringhashtable_tpl<fabrik_besch_t const*>, const& t, table) {
+		fabrik_besch_t const* const tmp = t.value;
 		for (uint i = 0; i < tmp->get_produkte(); i++) {
 			const fabrik_produkt_besch_t *produkt = tmp->get_produkt(i);
 			if(produkt->get_ware()==ware  &&  tmp->get_gewichtung()>0  &&  (timeline==0  ||  (tmp->get_haus()->get_intro_year_month() <= timeline  &&  tmp->get_haus()->get_retire_year_month() > timeline))  ) {
@@ -261,12 +257,10 @@ DBG_MESSAGE("fabrikbauer_t::finde_anzahl_hersteller()","%i producer for good '%s
  */
 const fabrik_besch_t *fabrikbauer_t::finde_hersteller(const ware_besch_t *ware, uint16 timeline )
 {
-	stringhashtable_iterator_tpl<const fabrik_besch_t *> iter(table);
 	weighted_vector_tpl<const fabrik_besch_t *> producer;
 
-	while(iter.next()) {
-		const fabrik_besch_t *tmp = iter.get_current_value();
-
+	FOR(stringhashtable_tpl<fabrik_besch_t const*>, const& t, table) {
+		fabrik_besch_t const* const tmp = t.value;
 		if (tmp->get_gewichtung()>0  &&  (timeline==0  ||  (tmp->get_haus()->get_intro_year_month() <= timeline  &&  tmp->get_haus()->get_retire_year_month() > timeline))) {
 			for (uint i = 0; i < tmp->get_produkte(); i++) {
 				const fabrik_produkt_besch_t *produkt = tmp->get_produkt(i);
@@ -506,12 +500,10 @@ bool fabrikbauer_t::can_factory_tree_rotate( const fabrik_besch_t *besch )
 	for(  int i=0;  i<besch->get_lieferanten();  i++   ) {
 
 		const ware_besch_t *ware = besch->get_lieferant(i)->get_ware();
-		stringhashtable_iterator_tpl<const fabrik_besch_t *> iter(table);
 
 		// infortunately, for every for iteration, we have to check all factories ...
-		while(iter.next()) {
-			const fabrik_besch_t *tmp = iter.get_current_value();
-
+		FOR(stringhashtable_tpl<fabrik_besch_t const*>, const& t, table) {
+			fabrik_besch_t const* const tmp = t.value;
 			// now check, if we produce this ...
 			for (uint i = 0; i < tmp->get_produkte(); i++) {
 				if(tmp->get_produkt(i)->get_ware()==ware  &&  tmp->get_gewichtung()>0) {

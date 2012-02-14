@@ -119,10 +119,8 @@ void factory_edit_frame_t::fill_list( bool translate )
 	fablist.clear();
 
 	// timeline will be obeyed; however, we may show obsolete ones ...
-	stringhashtable_iterator_tpl<const fabrik_besch_t *> iter(fabrikbauer_t::get_fabesch());
-	while(iter.next()) {
-
-		const fabrik_besch_t *besch = iter.get_current_value();
+	FOR(stringhashtable_tpl<fabrik_besch_t const*>, const& i, fabrikbauer_t::get_fabesch()) {
+		fabrik_besch_t const* const besch = i.value;
 		if(besch->get_gewichtung()>0) {
 			// DistributionWeight=0 is obsoluted item, only for backward compatibility
 

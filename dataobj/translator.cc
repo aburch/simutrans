@@ -77,12 +77,11 @@ const translator::lang_info* translator::get_langs()
 // diagnosis
 static void dump_hashtable(stringhashtable_tpl<const char*>* tbl)
 {
-	stringhashtable_iterator_tpl<const char*> iter(tbl);
 	printf("keys\n====\n");
 	tbl->dump_stats();
 	printf("entries\n=======\n");
-	while (iter.next()) {
-		printf("%s\n",iter.get_current_value());
+	FOR(stringhashtable_tpl<char const*>, const& i, *tbl) {
+		printf("%s\n", i.object);
 	}
 	fflush(NULL);
 }

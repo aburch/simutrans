@@ -51,14 +51,12 @@ bool compare_groundobj_besch(const groundobj_besch_t* a, const groundobj_besch_t
 bool movingobj_t::alles_geladen()
 {
 	movingobj_typen.resize(besch_names.get_count());
-	stringhashtable_iterator_tpl<groundobj_besch_t *>iter(besch_names);
-	while(  iter.next()  ) {
-		movingobj_typen.insert_ordered( iter.get_current_value(), compare_groundobj_besch );
+	FOR(stringhashtable_tpl<groundobj_besch_t*>, const& i, besch_names) {
+		movingobj_typen.insert_ordered(i.value, compare_groundobj_besch);
 	}
 	// iterate again to assign the index
-	stringhashtable_iterator_tpl<groundobj_besch_t *>iter2(besch_names);
-	while(  iter2.next()  ) {
-		iter2.access_current_value()->index = movingobj_typen.index_of( iter2.get_current_value());
+	FOR(stringhashtable_tpl<groundobj_besch_t*>, const& i, besch_names) {
+		i.value->index = movingobj_typen.index_of(i.value);
 	}
 
 	if(besch_names.empty()) {

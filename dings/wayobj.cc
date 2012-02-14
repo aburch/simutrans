@@ -426,9 +426,8 @@ bool wayobj_t::alles_geladen()
 	}
 
 	way_obj_besch_t const* def = 0;
-	stringhashtable_iterator_tpl<way_obj_besch_t const*> i(table);
-	while (i.next()) {
-		way_obj_besch_t const& b = *i.get_current_value();
+	FOR(stringhashtable_tpl<way_obj_besch_t const*>, const& i, table) {
+		way_obj_besch_t const& b = *i.value;
 		if (b.get_own_wtyp() != overheadlines_wt)           continue;
 		if (b.get_wtyp()     != track_wt)                   continue;
 		if (def && def->get_topspeed() >= b.get_topspeed()) continue;
@@ -482,11 +481,10 @@ void wayobj_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 /*sound
 {
 	const uint16 time=welt->get_timeline_year_month();
 
-	stringhashtable_iterator_tpl<const way_obj_besch_t *>iter(table);
 	vector_tpl<const way_obj_besch_t *>matching;
 
-	while(  iter.next()  ) {
-		const way_obj_besch_t* besch = iter.get_current_value();
+	FOR(stringhashtable_tpl<way_obj_besch_t const*>, const& i, table) {
+		way_obj_besch_t const* const besch = i.value;
 		if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 
 			DBG_DEBUG("wayobj_t::fill_menu()", "try to add %s(%p)", besch->get_name(), besch);
@@ -507,9 +505,8 @@ void wayobj_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 /*sound
 
 const way_obj_besch_t *wayobj_t::wayobj_search(waytype_t wt,waytype_t own,uint16 time)
 {
-	stringhashtable_iterator_tpl<const way_obj_besch_t *>iter(table);
-	while(  iter.next()  ) {
-		const way_obj_besch_t* besch = iter.get_current_value();
+	FOR(stringhashtable_tpl<way_obj_besch_t const*>, const& i, table) {
+		way_obj_besch_t const* const besch = i.value;
 		if((time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time))
 			&&  besch->get_wtyp()==wt  &&  besch->get_own_wtyp()==own) {
 				return besch;

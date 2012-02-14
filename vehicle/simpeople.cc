@@ -50,10 +50,9 @@ bool fussgaenger_t::alles_geladen()
 	}
 	else {
 		vector_tpl<const fussgaenger_besch_t*> temp_liste(0);
-		stringhashtable_iterator_tpl<const fussgaenger_besch_t *>iter(table);
-		while(  iter.next()  ) {
+		FOR(stringhashtable_tpl<fussgaenger_besch_t const*>, const& i, table) {
 			// just entered them sorted
-			temp_liste.insert_ordered( iter.get_current_value(), compare_fussgaenger_besch );
+			temp_liste.insert_ordered(i.value, compare_fussgaenger_besch);
 		}
 		FOR(vector_tpl<fussgaenger_besch_t const*>, const i, temp_liste) {
 			liste.append(i, i->get_gewichtung());

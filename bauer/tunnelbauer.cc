@@ -70,10 +70,8 @@ void tunnelbauer_t::register_besch(tunnel_besch_t *besch)
 // now we have to convert old tunnel to new ones ...
 bool tunnelbauer_t::laden_erfolgreich()
 {
-	stringhashtable_iterator_tpl<tunnel_besch_t *>iter(tunnel_by_name);
-	while(  iter.next()  ) {
-		tunnel_besch_t* besch = iter.get_current_value();
-
+	FOR(stringhashtable_tpl<tunnel_besch_t*>, const& i, tunnel_by_name) {
+		tunnel_besch_t* const besch = i.value;
 		if(besch->get_topspeed()==0) {
 			// old style, need to convert
 			if(strcmp(besch->get_name(),"RoadTunnel")==0) {
@@ -112,10 +110,8 @@ const tunnel_besch_t *tunnelbauer_t::find_tunnel(const waytype_t wtyp, const sin
 {
 	const tunnel_besch_t *find_besch=NULL;
 
-	stringhashtable_iterator_tpl<tunnel_besch_t *>iter(tunnel_by_name);
-	while(  iter.next()  ) {
-		tunnel_besch_t* besch = iter.get_current_value();
-
+	FOR(stringhashtable_tpl<tunnel_besch_t*>, const& i, tunnel_by_name) {
+		tunnel_besch_t* const besch = i.value;
 		if(besch->get_waytype() == wtyp) {
 			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 				if(find_besch==NULL  ||
@@ -153,9 +149,8 @@ void tunnelbauer_t::fill_menu(werkzeug_waehler_t* wzw, const waytype_t wtyp, sin
 	const uint16 time=welt->get_timeline_year_month();
 	vector_tpl<const tunnel_besch_t*> matching(tunnel_by_name.get_count());
 
-	stringhashtable_iterator_tpl<tunnel_besch_t *>iter(tunnel_by_name);
-	while(  iter.next()  ) {
-		tunnel_besch_t* besch = iter.get_current_value();
+	FOR(stringhashtable_tpl<tunnel_besch_t*>, const& i, tunnel_by_name) {
+		tunnel_besch_t* const besch = i.value;
 		if (besch->get_waytype() == wtyp && (
 					time == 0 ||
 					(besch->get_intro_year_month() <= time && time < besch->get_retire_year_month())

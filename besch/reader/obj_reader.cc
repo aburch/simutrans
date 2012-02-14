@@ -348,20 +348,18 @@ void obj_reader_t::resolve_xrefs()
 {
 	slist_tpl<obj_besch_t *> xref_nodes;
 	FOR(unresolved_map, const& u, unresolved) {
-		stringhashtable_iterator_tpl<slist_tpl<obj_besch_t**> > xrefname_iter(u.value);
-
-		while(xrefname_iter.next()) {
+		FOR(stringhashtable_tpl<slist_tpl<obj_besch_t**> >, const& i, u.value) {
 			obj_besch_t *obj_loaded = NULL;
 
-			if(strlen(xrefname_iter.get_current_key()) > 0) {
+			if (strlen(i.key) > 0) {
 				if (stringhashtable_tpl<obj_besch_t*>* const objtype_loaded = loaded.access(u.key)) {
-					obj_loaded = objtype_loaded->get(xrefname_iter.get_current_key());
+					obj_loaded = objtype_loaded->get(i.key);
 				}
 			}
 
-			FOR(slist_tpl<obj_besch_t**>, const x, xrefname_iter.get_current_value()) {
+			FOR(slist_tpl<obj_besch_t**>, const x, i.value) {
 				if (!obj_loaded && fatals.get(x)) {
-					dbg->fatal("obj_reader_t::resolve_xrefs", "cannot resolve '%4.4s-%s'", &u.key, xrefname_iter.get_current_key());
+					dbg->fatal("obj_reader_t::resolve_xrefs", "cannot resolve '%4.4s-%s'", &u.key, i.key);
 				}
 				// delete old xref-node
 				xref_nodes.append(*x);
