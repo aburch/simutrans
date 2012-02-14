@@ -108,11 +108,6 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 	welt = world;
 	sortby = sort_mode;
 
-	// if there, give the capacity for each freight
-	slist_tpl <ware_t> dummy;
-	slist_iterator_tpl<ware_t> full_iter ( full_list==NULL ? &dummy : full_list );
-	bool list_finish=1;
-
 	// hsiegeln
 	// added sorting to ware's destination list
 	int pos = 0;
@@ -141,6 +136,12 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 //DBG_MESSAGE("freight_list_sorter_t::get_freight_info()","for halt %i added",pos);
 		pos++;
 	}
+
+	// if there, give the capacity for each freight
+	slist_tpl<ware_t>                 const  dummy;
+	slist_tpl<ware_t>                 const& list     = full_list ? *full_list : dummy;
+	slist_tpl<ware_t>::const_iterator        full_i   = list.begin();
+	slist_tpl<ware_t>::const_iterator const  full_end = list.end();
 
 	// at least some capacity added?
 	if(pos!=0) {
@@ -184,9 +185,8 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 				}
 				else {
 					// ok, we have a list of freights
-					while(list_finish  &&  (list_finish=full_iter.next())!=0) {
-
-						const ware_t& current = full_iter.get_current();
+					while (full_i != full_end) {
+						ware_t const& current = *full_i++;
 						if(last_ware_index==current.get_index()  ||  last_ware_catg==current.get_catg()) {
 							add_ware_heading( buf, sum, current.menge, &current, what_doing );
 							break;
@@ -232,7 +232,8 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 	}
 
 	// still entires left?
-	while(list_finish  &&  full_iter.next()) {
-		add_ware_heading( buf, 0, full_iter.get_current().menge, &(full_iter.get_current()), what_doing );
+	for (; full_i != full_end; ++full_i) {
+		ware_t const& g = *full_i;
+		add_ware_heading(buf, 0, g.menge, &g, what_doing);
 	}
 }

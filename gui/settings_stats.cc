@@ -384,6 +384,7 @@ void settings_costs_stats_t::init(settings_t const* const sets)
 void settings_costs_stats_t::read(settings_t* const sets)
 {
 	READ_INIT
+	(void)booliter;
 	READ_NUM_VALUE( sets->maint_building );
 	READ_COST_VALUE( sets->cst_multiply_dock )*(-1);
 	READ_COST_VALUE( sets->cst_multiply_station )*(-1);
