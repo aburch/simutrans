@@ -87,7 +87,6 @@ public:
 
 			bool operator ==(iterator const& o) const { return ptr == o.ptr; }
 			bool operator !=(iterator const& o) const { return ptr != o.ptr; }
-			bool end() const { return ptr==NULL; };
 
 		private:
 			iterator(node_t* ptr_, node_t* pred_) : ptr(ptr_), pred(pred_) {}
@@ -130,7 +129,6 @@ public:
 
 			bool operator ==(const_iterator const& o) const { return ptr == o.ptr; }
 			bool operator !=(const_iterator const& o) const { return ptr != o.ptr; }
-			bool end() const { return ptr==NULL; };
 
 		private:
 			explicit const_iterator(node_t* ptr_) : ptr(ptr_) {}

@@ -772,7 +772,7 @@ bool vehikel_t::load_freight(halthandle_t halt)
 			return ok;
 		}
 
-		for(slist_tpl<ware_t>::iterator iter_z=zuladung.begin(); !iter_z.end(); ) {
+		for (slist_tpl<ware_t>::iterator iter_z = zuladung.begin(); iter_z != zuladung.end();) {
 			ware_t &ware = *iter_z;
 
 			total_freight += ware.menge;

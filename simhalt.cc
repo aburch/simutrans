@@ -86,24 +86,24 @@ void haltestelle_t::step_all()
 	}
 
 	sint16 units_remaining = 128;
-	for(; !iter.end()  &&   units_remaining>0; ++iter) {
+	while (iter != alle_haltestellen.end()) {
+		if (units_remaining <= 0) return;
+
 		// iterate until the specified number of units were handled
 		if(  !(*iter)->step(status_step, units_remaining)  ) {
 			// too much rerouted => needs to continue at next round!
-			break;
+			return;
 		}
 	}
-	// ready?
-	if (iter.end()) {
-		if (status_step == RECONNECTING) {
-			// reroute in next call
-			status_step = REROUTING;
-		}
-		else if (status_step == REROUTING) {
-			status_step = 0;
-		}
-		iter = alle_haltestellen.begin();
+
+	if (status_step == RECONNECTING) {
+		// reroute in next call
+		status_step = REROUTING;
 	}
+	else if (status_step == REROUTING) {
+		status_step = 0;
+	}
+	iter = alle_haltestellen.begin();
 }
 
 
