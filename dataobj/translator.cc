@@ -365,8 +365,8 @@ void translator::load_files_from_folder(const char* folder_name, const char* wha
 	int num_pak_lang_dat = folder.search(folder_name, "tab");
 	DBG_MESSAGE("translator::load_files_from_folder()", "search folder \"%s\" and found %i files", folder_name, num_pak_lang_dat);
 	//read now the basic language infos
-	for (searchfolder_t::const_iterator i = folder.begin(), end = folder.end(); i != end; ++i) {
-		const string fileName(*i);
+	FOR(searchfolder_t, const& i, folder) {
+		string const fileName(i);
 		size_t pstart = fileName.rfind('/') + 1;
 		const string iso = fileName.substr(pstart, fileName.size() - pstart - 4);
 

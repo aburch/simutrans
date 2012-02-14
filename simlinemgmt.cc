@@ -102,10 +102,10 @@ void simlinemgmt_t::rdwr(karte_t * welt, loadsave_t *file, spieler_t *sp)
 
 		uint32 count = all_managed_lines.get_count();
 		file->rdwr_long(count);
-		for (vector_tpl<linehandle_t>::const_iterator i = all_managed_lines.begin(), end = all_managed_lines.end(); i != end; i++) {
-			simline_t::linetype lt = (*i)->get_linetype();
+		FOR(vector_tpl<linehandle_t>, const i, all_managed_lines) {
+			simline_t::linetype lt = i->get_linetype();
 			file->rdwr_enum(lt);
-			(*i)->rdwr(file);
+			i->rdwr(file);
 		}
 	}
 	else {
@@ -179,8 +179,8 @@ void simlinemgmt_t::sort_lines()
 
 void simlinemgmt_t::laden_abschliessen()
 {
-	for (vector_tpl<linehandle_t>::const_iterator i = all_managed_lines.begin(), end = all_managed_lines.end(); i != end; i++) {
-		(*i)->laden_abschliessen();
+	FOR(vector_tpl<linehandle_t>, const i, all_managed_lines) {
+		i->laden_abschliessen();
 	}
 	sort_lines();
 }
@@ -188,9 +188,8 @@ void simlinemgmt_t::laden_abschliessen()
 
 void simlinemgmt_t::rotate90( sint16 y_size )
 {
-	for (vector_tpl<linehandle_t>::const_iterator i = all_managed_lines.begin(), end = all_managed_lines.end(); i != end; i++) {
-		schedule_t *fpl = (*i)->get_schedule();
-		if(fpl) {
+	FOR(vector_tpl<linehandle_t>, const i, all_managed_lines) {
+		if (schedule_t* const fpl = i->get_schedule()) {
 			fpl->rotate90( y_size );
 		}
 	}
@@ -199,8 +198,8 @@ void simlinemgmt_t::rotate90( sint16 y_size )
 
 void simlinemgmt_t::new_month()
 {
-	for (vector_tpl<linehandle_t>::const_iterator i = all_managed_lines.begin(), end = all_managed_lines.end(); i != end; i++) {
-		(*i)->new_month();
+	FOR(vector_tpl<linehandle_t>, const i, all_managed_lines) {
+		i->new_month();
 	}
 }
 
@@ -233,8 +232,7 @@ linehandle_t simlinemgmt_t::create_line(int ltype, spieler_t * sp, schedule_t * 
 void simlinemgmt_t::get_lines(int type, vector_tpl<linehandle_t>* lines) const
 {
 	lines->clear();
-	for (vector_tpl<linehandle_t>::const_iterator i = all_managed_lines.begin(), end = all_managed_lines.end(); i != end; i++) {
-		linehandle_t line = *i;
+	FOR(vector_tpl<linehandle_t>, const line, all_managed_lines) {
 		if (type == simline_t::line || line->get_linetype() == simline_t::line || line->get_linetype() == type) {
 			lines->append(line);
 		}

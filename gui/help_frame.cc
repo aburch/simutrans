@@ -80,33 +80,31 @@ help_frame_t::help_frame_t(char const* const filename) :
 		buf.append( translator::translate( "<title>Keyboard Help</title>\n<h1><strong>Keyboard Help</strong></h1><p>\n" ) );
 		spieler_t *sp = spieler_t::get_welt()->get_active_player();
 		const char *trad_str = translator::translate( "<em>%s</em> - %s<br>\n" );
-		for (vector_tpl<werkzeug_t *>::const_iterator iter = werkzeug_t::char_to_tool.begin(), end = werkzeug_t::char_to_tool.end(); iter != end; ++iter) {
+		FOR(vector_tpl<werkzeug_t*>, const i, werkzeug_t::char_to_tool) {
 			char const* c = NULL;
 			char str[16];
-			switch(  (*iter)->command_key  ) {
+			switch (uint16 const key = i->command_key) {
 				case '<': c = "&lt;"; break;
 				case '>': c = "&gt;"; break;
 				case 27:  c = "ESC"; break;
 				case SIM_KEY_HOME:	c=translator::translate( "[HOME]" ); break;
 				case SIM_KEY_END:	c=translator::translate( "[END]" ); break;
 				default:
-					if((*iter)->command_key<32) {
-						sprintf( str, "%s + %C", translator::translate( "[CTRL]" ),  (*iter)->command_key+64 );
-					}
-					else if((*iter)->command_key<256) {
-						sprintf( str, "%C", (*iter)->command_key );
-					}
-					else if((*iter)->command_key<SIM_KEY_F15) {
-						sprintf( str, "F%i", (*iter)->command_key-255 );
+					if (key < 32) {
+						sprintf(str, "%s + %C", translator::translate("[CTRL]"), '@' + key);
+					} else if (key < 256) {
+						sprintf(str, "%C", key);
+					} else if (key < SIM_KEY_F15) {
+						sprintf(str, "F%i", key - SIM_KEY_F1 + 1);
 					}
 					else {
 						// try unicode
-						str[utf16_to_utf8( (*iter)->command_key, (utf8 *)str )] = 0;
+						str[utf16_to_utf8(key, (utf8*)str)] = '\0';
 					}
 					c = str;
 					break;
 			}
-			buf.printf( trad_str, c, (*iter)->get_tooltip(sp) );
+			buf.printf(trad_str, c, i->get_tooltip(sp));
 		}
 		set_text(buf);
 	}

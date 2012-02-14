@@ -267,8 +267,8 @@ bool ai_goods_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length 
 					halthandle_t halt = haltestelle_t::get_halt( welt, one_more[j], this );
 					if( halt.is_bound() && !halts.is_contained(halt->get_basis_pos()) ) {
 						bool halt_connected = halt->get_fab_list().is_contained( fab );
-						for( slist_tpl< haltestelle_t::tile_t >::const_iterator iter = halt->get_tiles().begin(); iter != halt->get_tiles().end(); ++iter ) {
-							koord pos = iter->grund->get_pos().get_2d();
+						FOR(slist_tpl<haltestelle_t::tile_t>, const& i, halt->get_tiles()) {
+							koord const pos = i.grund->get_pos().get_2d();
 							if( halt_connected || fab_tiles.is_contained(pos) ) {
 								halts.append_unique( pos );
 							}
@@ -1236,8 +1236,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 							vector_tpl<linehandle_t> lines;
 							koord water_stop = koord::invalid;
 							simlinemgmt.get_lines( simline_t::shipline, &lines );
-							for (vector_tpl<linehandle_t>::const_iterator iter2 = lines.begin(), end = lines.end(); iter2 != end; iter2++) {
-								linehandle_t line = *iter2;
+							FOR(vector_tpl<linehandle_t>, const line, lines) {
 								schedule_t *fpl=line->get_schedule();
 								if(fpl->get_count()>1  &&  haltestelle_t::get_halt(welt,fpl->eintrag[0].pos,this)==start_halt) {
 									water_stop = koord( (start_pos.x+fpl->eintrag[0].pos.x)/2, (start_pos.y+fpl->eintrag[0].pos.y)/2 );

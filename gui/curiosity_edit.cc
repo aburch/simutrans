@@ -145,20 +145,17 @@ void curiosity_edit_frame_t::fill_list( bool translate )
 	// now buil scrolled list
 	scl.clear_elements();
 	scl.set_selection(-1);
-	for (vector_tpl<const haus_besch_t *>::const_iterator i = hauslist.begin(), end = hauslist.end(); i != end; ++i) {
+	FOR(vector_tpl<haus_besch_t const*>, const i, hauslist) {
 		// color code for objects: BLACK: normal, YELLOW: consumer only, GREEN: source only
-		COLOR_VAL color=COL_BLACK;
-		if(  (*i)->get_utyp()==haus_besch_t::attraction_city  ) {
-			color = COL_BLUE;
+		COLOR_VAL color;
+		switch (i->get_utyp()) {
+			case haus_besch_t::attraction_city: color = COL_BLUE;       break;
+			case haus_besch_t::attraction_land: color = COL_DARK_GREEN; break;
+			default:                            color = COL_BLACK;      break;
 		}
-		else if(  (*i)->get_utyp()==haus_besch_t::attraction_land  ) {
-			color = COL_DARK_GREEN;
-		}
-		scl.append_element( new gui_scrolled_list_t::const_text_scrollitem_t(
-			translate ? translator::translate( (*i)->get_name() ):(*i)->get_name(),
-			color )
-		);
-		if(  (*i) == besch  ) {
+		char const* const name = translate ? translator::translate(i->get_name()) : i->get_name();
+		scl.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(name, color));
+		if (i == besch) {
 			scl.set_selection(scl.get_count()-1);
 		}
 	}

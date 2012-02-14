@@ -96,19 +96,19 @@ void pakselector_t::fill_list()
 	savegame_frame_t::fill_list();
 
 	int y = 0;
-	for(  slist_tpl<entry>::iterator iter = entries.begin(), end = entries.end();  iter != end;  ++iter  ) {
+	FOR(slist_tpl<entry>, const& i, entries) {
 		char path[1024];
-		sprintf(path,"%saddons/%s", umgebung_t::user_dir, iter->button->get_text() );
-		iter->del->groesse.x += 150;
-		iter->del->set_text( "Load with addons" );
-		iter->button->set_pos( koord(150,0)+iter->button->get_pos() );
+		sprintf(path,"%saddons/%s", umgebung_t::user_dir, i.button->get_text());
+		i.del->groesse.x += 150;
+		i.del->set_text("Load with addons");
+		i.button->set_pos(koord(150,0) + i.button->get_pos());
 		if(  chdir( path )!=0  ) {
 			// no addons for this
-			iter->del->set_visible( false );
-			iter->del->disable();
+			i.del->set_visible(false);
+			i.del->disable();
 			if(entries.get_count()==1) {
 				// only single entry and no addons => no need to question further ...
-				umgebung_t::objfilename = (std::string)iter->button->get_text() + "/";
+				umgebung_t::objfilename = (std::string)i.button->get_text() + "/";
 			}
 		}
 		y += BUTTON_HEIGHT;
@@ -131,16 +131,15 @@ void pakselector_t::set_fenstergroesse(koord groesse)
 	groesse = get_fenstergroesse();
 
 	sint16 y = 0;
-	for (slist_tpl<entry>::const_iterator i = entries.begin(), end = entries.end(); i != end; ++i) {
+	FOR(slist_tpl<entry>, const& i, entries) {
 		// resize all but delete button
-		if(  i->button->is_visible()  ) {
-			button_t*    button1 = i->del;
+		if (i.button->is_visible()) {
+			button_t* const button1 = i.del;
 			button1->set_pos( koord( button1->get_pos().x, y ) );
-			button_t*    button2 = i->button;
-			gui_label_t* label   = i->label;
+			button_t* const button2 = i.button;
 			button2->set_pos( koord( button2->get_pos().x, y ) );
 			button2->set_groesse(koord( groesse.x/2-40, BUTTON_HEIGHT));
-			label->set_pos(koord(groesse.x/2-40+30, y+2));
+			i.label->set_pos(koord(groesse.x / 2 - 40 + 30, y + 2));
 			y += BUTTON_HEIGHT;
 		}
 	}

@@ -44,8 +44,8 @@ gameinfo_t::gameinfo_t(karte_t *welt) :
 	tourist_attractions = welt->get_ausflugsziele().get_count();
 	anzahl_staedte = welt->get_staedte().get_count();
 	einwohnerzahl = 0;
-	for(  weighted_vector_tpl<stadt_t*>::const_iterator i = welt->get_staedte().begin(), end = welt->get_staedte().end();  i != end;  ++i  ) {
-		einwohnerzahl += (*i)->get_einwohner();
+	FOR(weighted_vector_tpl<stadt_t*>, const i, welt->get_staedte()) {
+		einwohnerzahl += i->get_einwohner();
 	}
 
 	const int gr_x = welt->get_groesse_x();

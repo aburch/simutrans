@@ -252,11 +252,11 @@ template <typename T> static void make_buttons(button_t*& dst, T const& coords, 
 		dst = 0;
 	} else {
 		button_t* b = dst = new button_t[coords.get_count()];
-		for (typename T::const_iterator i = coords.begin(), end = coords.end(); i != end; ++b, ++i) {
+		FORTX(T, const& i, coords, ++b) {
 			b->set_pos(koord(10, y_off));
 			y_off += LINESPACE;
 			b->set_typ(button_t::posbutton);
-			b->set_targetpos(get_coord(*i));
+			b->set_targetpos(get_coord(i));
 			b->add_listener(listener);
 			fab_info.add_komponente(b);
 		}

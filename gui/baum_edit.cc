@@ -68,20 +68,17 @@ baum_edit_frame_t::baum_edit_frame_t(spieler_t* sp_, karte_t* welt) :
 void baum_edit_frame_t::fill_list( bool translate )
 {
 	baumlist.clear();
-	vector_tpl<baum_besch_t const*> const& s = baum_t::get_all_besch();
-	for (vector_tpl<const baum_besch_t *>::const_iterator i = s.begin(), end = s.end(); i != end; ++i) {
-		baumlist.insert_ordered( *i, compare_baum_besch );
+	FOR(vector_tpl<baum_besch_t const*>, const i, baum_t::get_all_besch()) {
+		baumlist.insert_ordered(i, compare_baum_besch);
 	}
 
 	// now buil scrolled list
 	scl.clear_elements();
 	scl.set_selection(-1);
-	for (vector_tpl<const baum_besch_t *>::const_iterator i = baumlist.begin(), end = baumlist.end(); i != end; ++i) {
-		scl.append_element( new gui_scrolled_list_t::const_text_scrollitem_t(
-			translate ? translator::translate( (*i)->get_name() ):(*i)->get_name(),
-			COL_BLACK )
-		);
-		if(  (*i) == besch  ) {
+	FOR(vector_tpl<baum_besch_t const*>, const i, baumlist) {
+		char const* const name = translate ? translator::translate(i->get_name()): i->get_name();
+		scl.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(name, COL_BLACK));
+		if (i == besch) {
 			scl.set_selection(scl.get_count()-1);
 		}
 	}

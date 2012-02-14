@@ -49,9 +49,9 @@ bool message_stats_t::filter_messages(const sint32 msg_type)
 			// case : filter messages belonging to the specified type
 			message_list = &filtered_messages;
 			filtered_messages.clear();
-			for(  slist_tpl<message_t::node *>::const_iterator iter=msg->get_list().begin(), end=msg->get_list().end();  iter!=end;  ++iter  ) {
-				if(  (*iter)->get_type_shifted() & message_type  ) {
-					filtered_messages.append( *iter );
+			FOR(slist_tpl<message_t::node*>, const i, msg->get_list()) {
+				if (i->get_type_shifted() & message_type) {
+					filtered_messages.append(i);
 				}
 			}
 			recalc_size();
@@ -114,8 +114,8 @@ void message_stats_t::recalc_size()
 
 	// loop copied from ::zeichnen(), trimmed to minimum for x_size calculation
 
-	for(  slist_tpl<message_t::node *>::const_iterator iter=message_list->begin(), end=message_list->end();  iter!=end;  ++iter, y_size+=(LINESPACE+1)  ) {
-		const message_t::node &n = *(*iter);
+	FORX(slist_tpl<message_t::node*>, const i, *message_list, y_size += LINESPACE + 1) {
+		message_t::node const& n = *i;
 
 		// add time
 		char time[64];
@@ -181,9 +181,10 @@ void message_stats_t::zeichnen(koord offset)
 			uint32 entry_count = new_count - last_count;
 			// Knightly : for ensuring correct chronological order of the new messages
 			slist_tpl<message_t::node *> temp_list;
-			for(  slist_tpl<message_t::node *>::const_iterator iter=msg->get_list().begin(), end=msg->get_list().end();  iter!=end  &&  entry_count>0;  ++iter, --entry_count  ) {
-				if(  (*iter)->get_type_shifted() & message_type  ) {
-					temp_list.insert(*iter);
+			FOR(slist_tpl<message_t::node*>, const i, msg->get_list()) {
+				if (entry_count-- == 0) break;
+				if (i->get_type_shifted() & message_type) {
+					temp_list.insert(i);
 				}
 			}
 			// insert new messages to old messages
@@ -199,8 +200,7 @@ void message_stats_t::zeichnen(koord offset)
 	sint16 y = offset.y+2;
 
 	// changes to loop affecting x_size must be copied to ::recalc_size()
-	for(  slist_tpl<message_t::node *>::const_iterator iter=message_list->begin(), end=message_list->end();  iter!=end;  ++iter, y+=(LINESPACE+1)  ) {
-
+	FORX(slist_tpl<message_t::node*>, const i, *message_list, y += LINESPACE + 1) {
 		if(  y<cd.y  ) {
 			// below the top
 			continue;
@@ -208,7 +208,7 @@ void message_stats_t::zeichnen(koord offset)
 		if(  y>cd.yy  ) {
 			break;
 		}
-		const message_t::node &n = *(*iter);
+		message_t::node const n = *i;
 
 		// goto information
 		if(  n.pos!=koord::invalid  ) {

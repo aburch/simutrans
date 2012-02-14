@@ -113,10 +113,7 @@ void citybuilding_edit_frame_t::fill_list( bool translate )
 	hauslist.clear();
 
 	if(bt_res.pressed) {
-		const vector_tpl<const haus_besch_t *> *s = hausbauer_t::get_citybuilding_list( gebaeude_t::wohnung );
-		for (vector_tpl<const haus_besch_t *>::const_iterator i = s->begin(), end = s->end(); i != end; ++i) {
-
-			const haus_besch_t *besch = (*i);
+		FOR(vector_tpl<haus_besch_t const*>, const besch, *hausbauer_t::get_citybuilding_list(gebaeude_t::wohnung)) {
 			if(!use_timeline  ||  (!besch->is_future(month_now)  &&  (!besch->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
 				hauslist.insert_ordered(besch, compare_haus_besch);
@@ -125,10 +122,7 @@ void citybuilding_edit_frame_t::fill_list( bool translate )
 	}
 
 	if(bt_com.pressed) {
-		const vector_tpl<const haus_besch_t *> *s = hausbauer_t::get_citybuilding_list( gebaeude_t::gewerbe );
-		for (vector_tpl<const haus_besch_t *>::const_iterator i = s->begin(), end = s->end(); i != end; ++i) {
-
-			const haus_besch_t *besch = (*i);
+		FOR(vector_tpl<haus_besch_t const*>, const besch, *hausbauer_t::get_citybuilding_list(gebaeude_t::gewerbe)) {
 			if(!use_timeline  ||  (!besch->is_future(month_now)  &&  (!besch->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
 				hauslist.insert_ordered(besch, compare_haus_besch);
@@ -137,10 +131,7 @@ void citybuilding_edit_frame_t::fill_list( bool translate )
 	}
 
 	if(bt_ind.pressed) {
-		const vector_tpl<const haus_besch_t *> *s = hausbauer_t::get_citybuilding_list( gebaeude_t::industrie );
-		for (vector_tpl<const haus_besch_t *>::const_iterator i = s->begin(), end = s->end(); i != end; ++i) {
-
-			const haus_besch_t *besch = (*i);
+		FOR(vector_tpl<haus_besch_t const*>, const besch, *hausbauer_t::get_citybuilding_list(gebaeude_t::industrie)) {
 			if(!use_timeline  ||  (!besch->is_future(month_now)  &&  (!besch->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
 				hauslist.insert_ordered(besch, compare_haus_besch);
@@ -151,20 +142,17 @@ void citybuilding_edit_frame_t::fill_list( bool translate )
 	// now buil scrolled list
 	scl.clear_elements();
 	scl.set_selection(-1);
-	for (vector_tpl<const haus_besch_t *>::const_iterator i = hauslist.begin(), end = hauslist.end(); i != end; ++i) {
+	FOR(vector_tpl<haus_besch_t const*>, const i, hauslist) {
 		// color code for objects: BLACK: normal, YELLOW: consumer only, GREEN: source only
-		COLOR_VAL color=COL_BLACK;
-		if(  (*i)->get_typ()==gebaeude_t::wohnung  ) {
-			color = COL_BLUE;
+		COLOR_VAL color;
+		switch (i->get_typ()) {
+			case gebaeude_t::wohnung: color = COL_BLUE;       break;
+			case gebaeude_t::gewerbe: color = COL_DARK_GREEN; break;
+			default:                  color = COL_BLACK;      break;
 		}
-		else if(  (*i)->get_typ()==gebaeude_t::gewerbe  ) {
-			color = COL_DARK_GREEN;
-		}
-		scl.append_element( new gui_scrolled_list_t::const_text_scrollitem_t(
-			translate ? translator::translate( (*i)->get_name() ):(*i)->get_name(),
-			color )
-		);
-		if(  (*i) == besch  ) {
+		char const* const name = translate ? translator::translate(i->get_name()) : i->get_name();
+		scl.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(name, color));
+		if (i == besch) {
 			scl.set_selection(scl.get_count()-1);
 		}
 	}

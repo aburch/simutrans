@@ -42,12 +42,12 @@ void gui_tab_panel_t::set_groesse(koord gr)
 	gui_komponente_t::set_groesse(gr);
 
 	required_groesse = koord( 8, HEADER_VSIZE );
-	for (slist_tpl<tab>::iterator i = tabs.begin(), end = tabs.end(); i != end; ++i) {
-		i->x_offset = required_groesse.x-4;
-		i->width = 8 + (i->title ? proportional_string_width( i->title ) : IMG_WIDTH);
-		required_groesse.x += i->width;
-		i->component->set_pos( koord(0, HEADER_VSIZE) );
-		i->component->set_groesse( get_groesse() - koord(0, HEADER_VSIZE) );
+	FOR(slist_tpl<tab>, & i, tabs) {
+		i.x_offset          = required_groesse.x - 4;
+		i.width             = 8 + (i.title ? proportional_string_width(i.title) : IMG_WIDTH);
+		required_groesse.x += i.width;
+		i.component->set_pos(koord(0, HEADER_VSIZE));
+		i.component->set_groesse(get_groesse() - koord(0, HEADER_VSIZE));
 	}
 
 	if(  required_groesse.x>gr.x  ) {
@@ -89,15 +89,15 @@ bool gui_tab_panel_t::infowin_event(const event_t *ev)
 		// Reiter getroffen
 		int text_x = required_groesse.x>groesse.x ? 14 : 4;
 		int k=0;
-		for(  slist_tpl<tab>::const_iterator i = tabs.begin(), end = tabs.end();  i != end;  ++i, ++k  ) {
+		FORX(slist_tpl<tab>, const& i, tabs, ++k) {
 			if(  k>=offset_tab  ) {
-				if(  text_x < ev->mx  &&  text_x+i->width > ev->mx  ) {
+				if (text_x < ev->mx && text_x + i.width > ev->mx) {
 					// either tooltip or change
 					active_tab = k;
 					call_listeners((long)active_tab);
 					return true;
 				}
-				text_x += i->width;
+				text_x += i.width;
 			}
 		}
 		return true;
@@ -151,16 +151,16 @@ void gui_tab_panel_t::zeichnen(koord parent_pos)
 	int xx = required_groesse.x>get_groesse().x ? get_groesse().x-22 : get_groesse().x;
 
 	int i=0;
-	for (slist_tpl<tab>::const_iterator iter = tabs.begin(), end = tabs.end(); iter != end; ++iter, ++i) {
+	FORX(slist_tpl<tab>, const& iter, tabs, ++i) {
 		// just draw component, if here ...
 		if (i == active_tab) {
-			iter->component->zeichnen( parent_pos+pos );
+			iter.component->zeichnen(parent_pos + pos);
 		}
 		if(i>=offset_tab) {
 			// set clipping
 			PUSH_CLIP(xpos, ypos, xx, ypos+HEADER_VSIZE);
 			// only start drwing here ...
-			const char* text = iter->title;
+			char const* const text = iter.title;
 			const int width = text ? proportional_string_width( text ) : IMG_WIDTH;
 
 			if (i != active_tab) {
@@ -174,7 +174,9 @@ void gui_tab_panel_t::zeichnen(koord parent_pos)
 					display_proportional_clip(text_x, ypos+7, text, ALIGN_LEFT, COL_WHITE, true);
 				}
 				else {
-					display_img_blend( iter->img->get_nummer(), text_x - iter->img->get_pic()->x + (IMG_WIDTH/2) - (iter->img->get_pic()->w/2), ypos - iter->img->get_pic()->y + 10 - (iter->img->get_pic()->h/2), TRANSPARENT50_FLAG, false, true);
+					KOORD_VAL const y = ypos   - iter.img->get_pic()->y + 10            - iter.img->get_pic()->h / 2;
+					KOORD_VAL const x = text_x - iter.img->get_pic()->x + IMG_WIDTH / 2 - iter.img->get_pic()->w / 2;
+					display_img_blend(iter.img->get_nummer(), x, y, TRANSPARENT50_FLAG, false, true);
 				}
 			}
 			else {
@@ -187,7 +189,9 @@ void gui_tab_panel_t::zeichnen(koord parent_pos)
 					display_proportional_clip(text_x, ypos+7, text, ALIGN_LEFT, COL_BLACK, true);
 				}
 				else {
-					display_color_img( iter->img->get_nummer(), text_x - iter->img->get_pic()->x + (IMG_WIDTH/2) - (iter->img->get_pic()->w/2), ypos - iter->img->get_pic()->y + 10 - (iter->img->get_pic()->h/2), 0, false, true);
+					KOORD_VAL const y = ypos   - iter.img->get_pic()->y + 10            - iter.img->get_pic()->h / 2;
+					KOORD_VAL const x = text_x - iter.img->get_pic()->x + IMG_WIDTH / 2 - iter.img->get_pic()->w / 2;
+					display_color_img(iter.img->get_nummer(), x, y, 0, false, true);
 				}
 			}
 			text_x += width + 8;
@@ -204,14 +208,14 @@ void gui_tab_panel_t::zeichnen(koord parent_pos)
 		int mx = get_maus_x()-parent_pos.x-pos.x-11;
 		int text_x = 4;
 		int i=0;
-		for (slist_tpl<tab>::const_iterator iter = tabs.begin(), end = tabs.end(); iter != end; ++iter, ++i) {
+		FOR(slist_tpl<tab>, const& iter, tabs) {
 			if(  i>=offset_tab  ) {
-				const char* text = iter->title;
+				char const* const text = iter.title;
 				const int width = text ? proportional_string_width( text ) : IMG_WIDTH;
 
 				if(text_x < mx && text_x+width+8 > mx  && (required_groesse.x<=get_groesse().x || mx < right.get_pos().x-12)) {
 					// tooltip or change
-					win_set_tooltip(get_maus_x() + 16, ypos + HEADER_VSIZE + 12, iter->tooltip, &(*iter), this);
+					win_set_tooltip(get_maus_x() + 16, ypos + HEADER_VSIZE + 12, iter.tooltip, &iter, this);
 					break;
 				}
 

@@ -885,8 +885,7 @@ void depot_frame_t::update_data()
 	// check all matching lines
 	vector_tpl<linehandle_t> lines;
 	get_line_list(depot, &lines);
-	for (vector_tpl<linehandle_t>::const_iterator i = lines.begin(), end = lines.end(); i != end; i++) {
-		linehandle_t line = *i;
+	FOR(vector_tpl<linehandle_t>, const line, lines) {
 		line_selector.append_element( new line_scrollitem_t(line) );
 		if(line==selected_line) {
 			line_selector.set_selection( line_selector.count_elements()-1 );

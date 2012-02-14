@@ -479,8 +479,8 @@ fabrik_t* fabrikbauer_t::baue_fabrik(karte_t* welt, koord3d* parent, const fabri
 		const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
 		vector_tpl<stadt_t *>distance_stadt( staedte.get_count() );
 
-		for(  weighted_vector_tpl<stadt_t*>::const_iterator iter = staedte.begin(), end = staedte.end();  iter != end;  ++iter  ) {
-			distance_stadt.insert_ordered( *iter, RelativeDistanceOrdering(fab->get_pos().get_2d()) );
+		FOR(weighted_vector_tpl<stadt_t*>, const i, staedte) {
+			distance_stadt.insert_ordered(i, RelativeDistanceOrdering(fab->get_pos().get_2d()));
 		}
 		settings_t const& s = welt->get_settings();
 		for (uint32 i = 0; i < distance_stadt.get_count() && fab->get_target_cities().get_count() < s.get_factory_worker_maximum_towns(); ++i) {
@@ -828,17 +828,17 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","failed to built lieferant %s aroun
 	}
 
 	/* now we add us to all crossconnected factories */
-	for (slist_tpl<fabrik_t *>::iterator fab = crossconnected_supplier.begin(), fab_end = crossconnected_supplier.end(); fab != fab_end;  ++fab) {
-		(*fab)->add_lieferziel( our_fab->get_pos().get_2d() );
+	FOR(slist_tpl<fabrik_t*>, const i, crossconnected_supplier) {
+		i->add_lieferziel(our_fab->get_pos().get_2d());
 	}
 
 	/* now the crossconnect part:
 	 * connect also the factories we stole from before ... */
-	for (slist_tpl<fabrik_t *>::iterator fab = new_factories.begin(), fab_end = new_factories.end(); fab != fab_end;  ++fab) {
+	FOR(slist_tpl<fabrik_t*>, const fab, new_factories) {
 		for (slist_tpl<fabs_to_crossconnect_t>::iterator i = factories_to_correct.begin(), end = factories_to_correct.end(); i != end;) {
 			i->demand -= 1;
-			(*fab)->add_lieferziel( i->fab->get_pos().get_2d() );
-			(*i).fab->add_supplier( (*fab)->get_pos().get_2d() );
+			fab->add_lieferziel(i->fab->get_pos().get_2d());
+			(*i).fab->add_supplier(fab->get_pos().get_2d());
 			if (i->demand < 0) {
 				i = factories_to_correct.erase(i);
 			}

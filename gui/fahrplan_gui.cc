@@ -644,8 +644,7 @@ void fahrplan_gui_t::init_line_selector()
 		}
 	}
 
-	for (vector_tpl<linehandle_t>::const_iterator i = lines.begin(), end = lines.end(); i != end; i++) {
-		linehandle_t line = *i;
+	FOR(vector_tpl<linehandle_t>, const line, lines) {
 		line_selector.append_element( new line_scrollitem_t(line) );
 		if(  !new_line.is_bound()  ) {
 			if(  fpl->matches( sp->get_welt(), line->get_schedule() )  ) {
@@ -765,10 +764,12 @@ void fahrplan_gui_t::rdwr(loadsave_t *file)
 		}
 		if(  !cnv.is_bound() ) {
 			// not found (most likely convoi in depot ... )
-			for (vector_tpl<convoihandle_t>::const_iterator i = welt->convoys().begin(), end = welt->convoys().end(); i != end; ++i) {
-				if(  (*i)->get_besitzer()->get_player_nr()==player_nr  &&  strncmp( (*i)->get_name(), cnv_name, 256 )==0  &&  old_fpl->matches( welt, (*i)->get_schedule() )  ) {
+			FOR(vector_tpl<convoihandle_t>, const i, welt->convoys()) {
+				if (i->get_besitzer()->get_player_nr()    == player_nr &&
+						strncmp(i->get_name(), cnv_name, 256) == 0         &&
+						old_fpl->matches(welt, i->get_schedule())) {
 					// valid convoi found
-					cnv = *i;
+					cnv = i;
 					break;
 				}
 			}

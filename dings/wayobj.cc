@@ -498,8 +498,8 @@ void wayobj_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 /*sound
 	}
 	// sort the tools before adding to menu
 	std::sort(matching.begin(), matching.end(), compare_wayobj_besch);
-	for (vector_tpl<const way_obj_besch_t*>::const_iterator i = matching.begin(), end = matching.end(); i != end; ++i) {
-		wzw->add_werkzeug( (*i)->get_builder() );
+	FOR(vector_tpl<way_obj_besch_t const*>, const i, matching) {
+		wzw->add_werkzeug(i->get_builder());
 	}
 }
 

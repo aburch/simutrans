@@ -710,8 +710,8 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 void werkzeug_t::update_toolbars(karte_t *welt)
 {
 	// renew toolbar
-	for (vector_tpl<toolbar_t *>::const_iterator i = toolbar_tool.begin(), end = toolbar_tool.end();  i != end;  ++i  ) {
-		(*i)->update(welt, welt->get_active_player());
+	FOR(vector_tpl<toolbar_t*>, const i, toolbar_tool) {
+		i->update(welt, welt->get_active_player());
 	}
 }
 
@@ -761,8 +761,8 @@ image_id toolbar_t::get_icon(spieler_t *sp) const
 		return IMG_LEER;
 	}
 	// now have we a least one visible tool?
-	for(  slist_tpl<werkzeug_t *>::const_iterator iter = tools.begin(), end = tools.end();  iter != end;  ++iter  ) {
-		if(  (*iter)->get_icon(sp)!=IMG_LEER  ) {
+	FOR(slist_tpl<werkzeug_t*>, const i, tools) {
+		if (i->get_icon(sp) != IMG_LEER) {
 			return icon;
 		}
 	}
@@ -811,8 +811,7 @@ void toolbar_t::update(karte_t *welt, spieler_t *sp)
 
 	wzw->reset_tools();
 	// now (re)fill it
-	for (slist_tpl<werkzeug_t *>::const_iterator iter = tools.begin(), end = tools.end(); iter != end; ++iter) {
-		werkzeug_t *w = *iter;
+	FOR(slist_tpl<werkzeug_t*>, const w, tools) {
 		// no way to call this tool? => then it is most likely a metatool
 		if(w->command_key==1  &&  w->get_icon(welt->get_active_player())==IMG_LEER) {
 			if (char const* const param = w->get_default_param()) {

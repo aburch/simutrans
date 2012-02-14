@@ -158,10 +158,10 @@ void savegame_frame_t::fill_list()
 
 	// The file entries
 	int y = 0;
-	for (slist_tpl<entry>::const_iterator i = entries.begin(), end = entries.end(); i != end; ++i) {
-		button_t*    button1 = i->del;
-		button_t*    button2 = i->button;
-		gui_label_t* label   = i->label;
+	FOR(slist_tpl<entry>, const& i, entries) {
+		button_t*    const button1 = i.del;
+		button_t*    const button2 = i.button;
+		gui_label_t* const label   = i.label;
 
 		button1->set_groesse(koord(14, BUTTON_HEIGHT));
 		button1->set_text("X");
@@ -190,12 +190,12 @@ void savegame_frame_t::fill_list()
 
 savegame_frame_t::~savegame_frame_t()
 {
-	for (slist_tpl<entry>::const_iterator i = entries.begin(), end = entries.end(); i != end; ++i) {
-		delete [] const_cast<char*>(i->button->get_text());
-		delete i->button;
-		delete [] const_cast<char*>(i->label->get_text_pointer());
-		delete i->label;
-		delete i->del;
+	FOR(slist_tpl<entry>, const& i, entries) {
+		delete [] const_cast<char*>(i.button->get_text());
+		delete i.button;
+		delete [] const_cast<char*>(i.label->get_text_pointer());
+		delete i.label;
+		delete i.del;
 	}
 }
 
@@ -319,15 +319,16 @@ bool savegame_frame_t::action_triggered( gui_action_creator_t *komp, value_t /* 
 	else {
 		// File in list selected
 		//--------------------------
-		for(  slist_tpl<entry>::iterator i = entries.begin(), end = entries.end();  i != end  &&  !in_action;  ++i  ) {
-			if(  komp == i->button  ||  komp == i->del  ) {
+		FOR(slist_tpl<entry>, const& i, entries) {
+			if (in_action) break;
+			if (komp == i.button || komp == i.del) {
 				in_action = true;
-				const bool action_btn = komp == i->button;
+				bool const action_btn = komp == i.button;
 				buf[0] = 0;
 				if(fullpath) {
 					tstrncpy(buf, fullpath, lengthof(buf));
 				}
-				strcat(buf, i->button->get_text());
+				strcat(buf, i.button->get_text());
 				if(suffix) {
 					strcat(buf, suffix);
 				}
@@ -346,11 +347,11 @@ bool savegame_frame_t::action_triggered( gui_action_creator_t *komp, value_t /* 
 						set_focus(NULL);
 						// do not delete components
 						// simply hide them
-						i->button->set_visible(false);
-						i->del->set_visible(false);
-						i->label->set_visible(false);
-						i->button->set_groesse( koord( 0, 0 ) );
-						i->del->set_groesse( koord( 0, 0 ) );
+						i.button->set_visible(false);
+						i.del->set_visible(false);
+						i.label->set_visible(false);
+						i.button->set_groesse(koord(0, 0));
+						i.del->set_groesse(koord(0, 0));
 
 						resize( koord(0,0) );
 						in_action = false;
@@ -382,16 +383,15 @@ void savegame_frame_t::set_fenstergroesse(koord groesse)
 	input.set_groesse(koord(groesse.x-75-scrollbar_t::BAR_SIZE-1, BUTTON_HEIGHT));
 
 	sint16 y = 0;
-	for (slist_tpl<entry>::const_iterator i = entries.begin(), end = entries.end(); i != end; ++i) {
+	FOR(slist_tpl<entry>, const& i, entries) {
 		// resize all but delete button
-		if(  i->button->is_visible()  ) {
-			button_t*    button1 = i->del;
+		if (i.button->is_visible()) {
+			button_t* const button1 = i.del;
 			button1->set_pos( koord( button1->get_pos().x, y ) );
-			button_t*    button2 = i->button;
-			gui_label_t* label   = i->label;
+			button_t* const button2 = i.button;
 			button2->set_pos( koord( button2->get_pos().x, y ) );
 			button2->set_groesse(koord( groesse.x/2-40, BUTTON_HEIGHT));
-			label->set_pos(koord(groesse.x/2-40+30, y+2));
+			i.label->set_pos(koord(groesse.x / 2 - 40 + 30, y + 2));
 			y += BUTTON_HEIGHT;
 		}
 	}

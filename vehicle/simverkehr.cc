@@ -355,8 +355,8 @@ void stadtauto_t::built_timeline_liste(karte_t *welt)
 		}
 	}
 	liste_timeline.resize( temp_liste.get_count() );
-	for (vector_tpl<const stadtauto_besch_t*>::const_iterator i = temp_liste.begin(), end = temp_liste.end(); i != end; ++i) {
-		liste_timeline.append( (*i), (*i)->get_gewichtung() );
+	FOR(vector_tpl<stadtauto_besch_t const*>, const i, temp_liste) {
+		liste_timeline.append(i, i->get_gewichtung());
 	}
 }
 

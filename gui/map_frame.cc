@@ -635,15 +635,15 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 	if(directory_visible) {
 		const int fac_cols = clamp(legend.get_count(), 1, gr.x / (TOTAL_WIDTH/3));
 		uint u = 0;
-		for(  vector_tpl<legend_entry_t>::const_iterator i = legend.begin(), end = legend.end(); i != end; ++i, ++u  ) {
+		FORX(vector_tpl<legend_entry_t>, const& i, legend, ++u) {
 			const int xpos = pos.x + (u % fac_cols) * (gr.x-fac_cols/2-1)/fac_cols + 3;
 			const int ypos = pos.y + (u / fac_cols) * 14 + offset_y+2;
 
 			if(  ypos+LINESPACE > pos.y+gr.y  ) {
 				break;
 			}
-			display_fillbox_wh(xpos, ypos + 1 , 7, 7, i->colour, false);
-			display_proportional(xpos + 9, ypos, i->text.c_str(), ALIGN_LEFT, COL_BLACK, false);
+			display_fillbox_wh(xpos, ypos + 1 , 7, 7, i.colour, false);
+			display_proportional(xpos + 9, ypos, i.text.c_str(), ALIGN_LEFT, COL_BLACK, false);
 		}
 	}
 }

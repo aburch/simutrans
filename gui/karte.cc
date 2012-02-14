@@ -653,15 +653,14 @@ void reliefkarte_t::calc_map()
 		const weighted_vector_tpl<gebaeude_t *> &ausflugsziele = welt->get_ausflugsziele();
 		// find the current maximum
 		max_tourist_ziele = 1;
-		for (weighted_vector_tpl<gebaeude_t*>::const_iterator i = ausflugsziele.begin(), end = ausflugsziele.end(); i != end; ++i) {
-			int pax = (*i)->get_passagier_level();
+		FOR(weighted_vector_tpl<gebaeude_t*>, const i, ausflugsziele) {
+			int const pax = i->get_passagier_level();
 			if (max_tourist_ziele < pax) {
 				max_tourist_ziele = pax;
 			}
 		}
 		// draw them
-		for (weighted_vector_tpl<gebaeude_t*>::const_iterator i = ausflugsziele.begin(), end = ausflugsziele.end(); i != end; ++i) {
-			const gebaeude_t* g = *i;
+		FOR(weighted_vector_tpl<gebaeude_t*>, const g, ausflugsziele) {
 			koord pos = g->get_pos().get_2d();
 			set_relief_farbe_area( pos, 7, calc_severity_color(g->get_passagier_level(), max_tourist_ziele));
 		}
@@ -795,8 +794,7 @@ const fabrik_t* reliefkarte_t::draw_fab_connections(const uint8 colour, const ko
 		karte_to_screen( fabpos );
 		fabpos += pos;
 		const vector_tpl<koord>& lieferziele = event_get_last_control_shift() & 1 ? fab->get_suppliers() : fab->get_lieferziele();
-		for (vector_tpl<koord>::const_iterator i = lieferziele.begin(), end = lieferziele.end(); i != end; ++i) {
-			koord lieferziel = *i;
+		FOR(vector_tpl<koord>, lieferziel, lieferziele) {
 			const fabrik_t * fab2 = fabrik_t::get_fab(welt, lieferziel);
 			if (fab2) {
 				karte_to_screen( lieferziel );
@@ -919,8 +917,7 @@ void reliefkarte_t::zeichnen(koord pos)
 		// get city list
 		const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
 		// for all cities
-		for(  weighted_vector_tpl<stadt_t*>::const_iterator i = staedte.begin(), end = staedte.end();  i != end;  ++i  ) {
-			const stadt_t* stadt = *i;
+		FOR(weighted_vector_tpl<stadt_t*>, const stadt, staedte) {
 			koord k[4];
 			k[0] = stadt->get_linksoben(); // top left
 			k[2] = stadt->get_rechtsunten(); // bottom right
@@ -971,8 +968,7 @@ void reliefkarte_t::zeichnen(koord pos)
 	// ADD: if CRTL key is pressed, temporary show the name
 	if(  mode==MAP_TOWN  ||  event_get_last_control_shift()==2  ) {
 		const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
-		for (weighted_vector_tpl<stadt_t*>::const_iterator i = staedte.begin(), end = staedte.end(); i != end; ++i) {
-			const stadt_t* stadt = *i;
+		FOR(weighted_vector_tpl<stadt_t*>, const stadt, staedte) {
 			koord p = stadt->get_pos();
 			const char * name = stadt->get_name();
 

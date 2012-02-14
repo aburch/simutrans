@@ -3691,11 +3691,10 @@ const char *wkz_roadsign_t::do_work( karte_t *welt, spieler_t *sp, const koord3d
 	// mark tiles to calculate positions of signals
 	mark_tiles(welt, sp, start, end);
 	// only search the marked tiles
-	for(  slist_tpl<zeiger_t*>::const_iterator i=marked[sp->get_player_nr()].begin(); i!=marked[sp->get_player_nr()].end();  ++i  ) {
-		koord3d pos = (*i)->get_pos();
-		grund_t *gr = welt->lookup(pos);
+	FOR(slist_tpl<zeiger_t*>, const i, marked[sp->get_player_nr()]) {
+		grund_t* const gr = welt->lookup(i->get_pos());
 		weg_t *weg = gr->get_weg(besch->get_wtyp());
-		if( (*i)->get_richtung()) {
+		if (i->get_richtung()) {
 			// try to place signal
 			const char* error_text =  place_sign_intern( welt, sp, gr );
 			if(  error_text  ) {
@@ -3715,7 +3714,7 @@ const char *wkz_roadsign_t::do_work( karte_t *welt, spieler_t *sp, const koord3d
 			roadsign_t* rs = gr->find<signal_t>();
 			if(rs == NULL) rs = gr->find<roadsign_t>();
 			assert(rs);
-			rs->set_dir( (*i)->get_richtung() );
+			rs->set_dir(i->get_richtung());
 		}
 		else {
 			// Place no signal -> remove existing signal
@@ -4768,8 +4767,7 @@ const char *wkz_stop_moving_t::do_work( karte_t *welt, spieler_t *sp, const koor
 			}
 
 			// first, check convoi without line
-			for (vector_tpl<convoihandle_t>::const_iterator i = welt->convoys().begin(), end = welt->convoys().end(); i != end; ++i) {
-				convoihandle_t cnv = *i;
+			FOR(vector_tpl<convoihandle_t>, const cnv, welt->convoys()) {
 				// check line and owner
 				if(!cnv->get_line().is_bound()  &&  cnv->get_besitzer()==sp) {
 					schedule_t *fpl = cnv->get_schedule();
@@ -4805,8 +4803,7 @@ const char *wkz_stop_moving_t::do_work( karte_t *welt, spieler_t *sp, const koor
 			// next, check lines serving old_halt (no owner check needed for own lines ...
 			vector_tpl<linehandle_t>lines;
 			sp->simlinemgmt.get_lines(simline_t::line,&lines);
-			for (vector_tpl<linehandle_t>::const_iterator i = lines.begin(), end = lines.end(); i != end; ++i) {
-				linehandle_t line = (*i);
+			FOR(vector_tpl<linehandle_t>, const line, lines) {
 				schedule_t *fpl = line->get_schedule();
 				// check waytype
 				if(fpl->ist_halt_erlaubt(bd)) {
