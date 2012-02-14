@@ -83,6 +83,13 @@ public:
 				return *this;
 			}
 
+			iterator operator ++(int)
+			{
+				iterator const old = *this;
+				++*this;
+				return old;
+			}
+
 			bool operator ==(iterator const& o) const { return ptr == o.ptr; }
 			bool operator !=(iterator const& o) const { return ptr != o.ptr; }
 			bool end() const { return ptr==NULL; };
@@ -118,6 +125,13 @@ public:
 			reference operator *()  const { return ptr->data;  }
 
 			const_iterator& operator ++() { ptr = ptr->next; return *this; }
+
+			const_iterator operator ++(int)
+			{
+				const_iterator const old = *this;
+				++*this;
+				return old;
+			}
 
 			bool operator ==(const_iterator const& o) const { return ptr == o.ptr; }
 			bool operator !=(const_iterator const& o) const { return ptr != o.ptr; }
