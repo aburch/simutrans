@@ -96,17 +96,6 @@ public:
 		node_count ++;
 	}
 
-	/**
-	* Checks if the given element is already contained in the queue.
-	*
-	* @author Hj. Malthaner
-	*/
-	bool contains(const T data) const
-	{
-		// the fact that we are sorted does not help here ...
-		assert(0);
-	}
-
 
 	/**
 	* Retrieves the first element from the list. This element is

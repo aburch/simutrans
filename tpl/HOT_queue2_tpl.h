@@ -128,31 +128,6 @@ public:
 	}
 
 
-
-	// brute force search (not used in simutrans)
-	bool contains(const T data) const
-	{
-		assert(0);
-		uint32 d=data->get_distance();
-		if(d<node_top) {
-			return false;
-		}
-		else if(d==node_top) {
-			heap.constains(data);
-		}
-		else {
-			slist_iterator_tpl<T *>iter(nodes[d]);
-			while(iter.next()) {
-				if(iter.get_current()  &&  iter.get_current()->is_matching(*data)) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
-
-
 	/**
 	* Retrieves the first element from the list. This element is
 	* deleted from the list.

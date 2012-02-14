@@ -27,7 +27,6 @@ template<class T> class slist_iterator_tpl;
  *
  * <p>The insert() operation works in O(n), in average n/2 steps</p>
  * <p>The pop() operation works in O(1) steps</p>
- * <p>The contains() operation works in O(n), average n/2 steps</p>
  * <p>The remove() operation works in O(n), average n steps</p>
  * <p>The count() and empty() operation work in O(1) steps</p>
  *
@@ -155,23 +154,6 @@ class prioqueue_tpl
 				} while (true);
 			}
 			node_count ++;
-		}
-
-
-		/**
-		 * Checks if the given element is already contained in the queue.
-		 *
-		 * @author Hj. Malthaner
-		 */
-		bool contains(const T data) const
-		{
-			node_t *p = head;
-
-			while (p != 0 && p->data != data) {
-				p = p->next;
-			}
-
-			return (p != 0);         // ist 0 wenn nicht gefunden
 		}
 
 
