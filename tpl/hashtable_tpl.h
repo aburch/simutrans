@@ -1,6 +1,7 @@
 #ifndef tpl_hashtable_tpl_h
 #define tpl_hashtable_tpl_h
 
+#include "../macros.h"
 #include "slist_tpl.h"
 
 #define STHT_BAGSIZE 101
@@ -43,6 +44,128 @@ public:
 	STHT_BAG_COUNTER_T get_hash(const key_t key) const
 	{
 		return (STHT_BAG_COUNTER_T)(hash_t::hash(key) % STHT_BAGSIZE);
+	}
+
+	class iterator
+	{
+		public:
+			typedef std::forward_iterator_tag iterator_category;
+			typedef node_t                    value_type;
+			typedef ptrdiff_t                 difference_type;
+			typedef node_t*                   pointer;
+			typedef node_t&                   reference;
+
+			iterator() : bag_i(), bag_end(), node_i() {}
+
+			iterator(slist_tpl<node_t>* const bag_i,  slist_tpl<node_t>* const bag_end, typename slist_tpl<node_t>::iterator const& node_i) :
+				bag_i(bag_i),
+				bag_end(bag_end),
+				node_i(node_i)
+			{}
+
+			pointer   operator ->() const { return &*node_i; }
+			reference operator *()  const { return  *node_i; }
+
+			iterator& operator ++()
+			{
+				if (++node_i == bag_i->end()) {
+					for (;;) {
+						if (++bag_i == bag_end) {
+							node_i = typename slist_tpl<node_t>::iterator();
+							break;
+						}
+						if (!bag_i->empty()) {
+							node_i = bag_i->begin();
+							break;
+						}
+					}
+				}
+				return *this;
+			}
+
+			bool operator ==(iterator const& o) const { return bag_i == o.bag_i && node_i == o.node_i; }
+			bool operator !=(iterator const& o) const { return !(*this == o); }
+
+		private:
+			slist_tpl<node_t>*                   bag_i;
+			slist_tpl<node_t>*                   bag_end;
+			typename slist_tpl<node_t>::iterator node_i;
+	};
+
+	class const_iterator
+	{
+		public:
+			typedef std::forward_iterator_tag iterator_category;
+			typedef node_t                    value_type;
+			typedef ptrdiff_t                 difference_type;
+			typedef node_t const*             pointer;
+			typedef node_t const&             reference;
+
+			const_iterator() : bag_i(), bag_end(), node_i() {}
+
+			const_iterator(slist_tpl<node_t> const* const bag_i,  slist_tpl<node_t> const* const bag_end, typename slist_tpl<node_t>::const_iterator const& node_i) :
+				bag_i(bag_i),
+				bag_end(bag_end),
+				node_i(node_i)
+			{}
+
+			pointer   operator ->() const { return &*node_i; }
+			reference operator *()  const { return  *node_i; }
+
+			const_iterator& operator ++()
+			{
+				if (++node_i == bag_i->end()) {
+					for (;;) {
+						if (++bag_i == bag_end) {
+							node_i = typename slist_tpl<node_t>::const_iterator();
+							break;
+						}
+						if (!bag_i->empty()) {
+							node_i = bag_i->begin();
+							break;
+						}
+					}
+				}
+				return *this;
+			}
+
+			bool operator ==(const_iterator const& o) const { return bag_i == o.bag_i && node_i == o.node_i; }
+			bool operator !=(const_iterator const& o) const { return !(*this == o); }
+
+		private:
+			slist_tpl<node_t> const*                   bag_i;
+			slist_tpl<node_t> const*                   bag_end;
+			typename slist_tpl<node_t>::const_iterator node_i;
+	};
+
+	iterator begin()
+	{
+		for (slist_tpl<node_t>* i = bags; i != endof(bags); ++i) {
+			if (!i->empty()) {
+				return iterator(i, endof(bags), i->begin());
+			}
+		}
+		return end();
+	}
+
+	iterator end()
+	{
+		return iterator(endof(bags), endof(bags), typename slist_tpl<node_t>::iterator());
+	}
+
+	const_iterator begin() const
+	{
+		for (slist_tpl<node_t> const* i = bags; i != endof(bags); ++i) {
+			if (!i->empty()) {
+				return const_iterator(i, endof(bags), i->begin());
+			}
+		}
+		return end();
+	}
+
+	const_iterator end() const
+	{
+		return const_iterator(endof(bags), endof(bags), typename slist_tpl<node_t>::iterator());
 	}
 
 	void clear()
