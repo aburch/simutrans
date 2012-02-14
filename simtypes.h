@@ -8,6 +8,8 @@
 #ifndef SIMTYPES_H
 #define SIMTYPES_H
 
+#include "utils/for.h"
+
 #if defined _MSC_VER
 #	if _MSC_VER <= 1200
 #		error "Simutrans cannot be compiled with Visual C++ 6.0 or earlier."

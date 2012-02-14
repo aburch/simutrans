@@ -60,12 +60,7 @@ public:
 
 	/**
 	 * Iterator class: can be used to erase nodes and to modify nodes
-	 * Usage:
-	 * for (slist_tpl<T>::iterator iter = some_list->begin(); !iter.end(); ++iter) {
-	 * 	T& current = *iter;
-	 * }
-	 *
-	 * @see slist_iterator_tpl
+	 * Usage: @see utils/for.h
 	 */
 	class iterator
 	{
@@ -102,10 +97,7 @@ public:
 
 	/**
 	 * Iterator class: neither nodes nor the list can be modified
-	 * Usage:
-	 * for (slist_tpl<T>::const_iterator iter = some_list->begin(); !iter.end(); ++iter) {
-	 * 	T& current = *iter;
-	 * }
+	 * Usage: @see utils/for.h
 	 */
 	class const_iterator
 	{
