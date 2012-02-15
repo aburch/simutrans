@@ -2,11 +2,11 @@
 #define TPL_VECTOR_H
 
 #ifndef ITERATE
-#define ITERATE(collection,enumerator) for(int enumerator = 0; enumerator < (collection).get_count(); enumerator++)
+#define ITERATE(collection,enumerator) for(uint32 enumerator = 0; enumerator < (collection).get_count(); enumerator++)
 #endif
 
 #ifndef ITERATE_PTR
-#define ITERATE_PTR(collection,enumerator) for(int enumerator = 0; enumerator < (collection)->get_count(); enumerator++)
+#define ITERATE_PTR(collection,enumerator) for(uint32 enumerator = 0; enumerator < (collection)->get_count(); enumerator++)
 #endif 
 
 #include "../macros.h"
@@ -193,30 +193,6 @@ template<class T> class vector_tpl
 		}
 
 		/**
-		 * Search for an element, assuming that the vector is sorted.
-		 * If the element is found, return its address; otherwise, return NULL
-		 */
-		template<class StrictWeakOrdering>
-		T* search_ordered(const T& elem, StrictWeakOrdering comp)
-		{
-			sint32 low = -1, high = count;
-			while(  high - low>1  ) {
-				const sint32 mid = ((uint32) (low + high)) >> 1;
-				T &mid_elem = data[mid];
-				if(  elem==mid_elem  ) {
-					return &mid_elem;
-				}
-				else if(  comp(elem, mid_elem)  ) {
-					high = mid;
-				}
-				else {
-					low = mid;
-				}
- 			}
-			return NULL;
- 		}
-
-		/**
 		 * put the data at a certain position
 		 * BEWARE: using this function will create default objects, depending on
 		 * the type of the vector
@@ -260,6 +236,11 @@ template<class T> class vector_tpl
 		}
 
 		T& get_element(uint e)
+		{
+			return (*this)[e];
+		}
+
+		T const& get_element(uint e) const
 		{
 			return (*this)[e];
 		}

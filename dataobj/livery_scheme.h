@@ -24,20 +24,18 @@ class livery_scheme_t
 {
 private:
 	std::string scheme_name;
-	vector_tpl<livery_t> *liveries;
+	vector_tpl<livery_t> liveries;
 	uint16 retire_date;
 
 public:
 	livery_scheme_t(const char* n, const uint16 date);
 	
-	~livery_scheme_t();
-
 	const char* get_name() const { return scheme_name.c_str(); }
 
 	void add_livery(const char* name, uint16 intro)
 	{
 		livery_t liv = {name, intro};
-		liveries->append(liv);
+		liveries.append(liv);
 	}
 
 	bool is_available(uint16 date) const
@@ -54,9 +52,9 @@ public:
 		}
 		else
 		{
-			ITERATE_PTR(liveries, i)
+			ITERATE(liveries, i)
 			{
-				if(date >= liveries->get_element(i).intro_date)
+				if(date >= liveries.get_element(i).intro_date)
 				{ 
 					return true;
 				}

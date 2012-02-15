@@ -19,6 +19,7 @@ class hashtable_tpl
 {
 	friend class hashtable_iterator_tpl<key_t, value_t, hash_t>;
 
+protected:
 	struct node_t {
 	public:
 		key_t	key;
@@ -28,13 +29,22 @@ class hashtable_tpl
 	};
 
 	slist_tpl <node_t> bags[STHT_BAGSIZE];
+/*
+ * assigning hashtables seems also not sound
+ */
+private:
+	hashtable_tpl(const hashtable_tpl&);
+	hashtable_tpl& operator=( hashtable_tpl const&);
 
+public:
+	hashtable_tpl() {}
+
+public:
 	STHT_BAG_COUNTER_T get_hash(const key_t key) const
 	{
 		return (STHT_BAG_COUNTER_T)(hash_t::hash(key) % STHT_BAGSIZE);
 	}
 
-public:
 	void clear()
 	{
 		for(STHT_BAG_COUNTER_T i=0; i<STHT_BAGSIZE; i++) {
@@ -82,7 +92,7 @@ public:
 		// ->exception? V.Meyer
 		//
 		while(iter.next()) {
-			node_t &node = iter.access_current();
+			const node_t &node = iter.get_current();
 
 			if (hash_t::comp(node.key, key) == 0) {
 				// duplicate
@@ -119,6 +129,32 @@ public:
 			}
 		}
 		return false;
+	}
+
+	//
+	// Inserts a new instantiated value - failure, if key exists in table
+	// mostly used with value_t = slist_tpl<F>
+	//
+	bool put(const key_t key)
+	{
+		const STHT_BAG_COUNTER_T code = get_hash(key);
+		slist_iterator_tpl<node_t> iter(bags[code]);
+
+		//
+		// Duplicate values are hard to debug, so better check here.
+		// ->exception? V.Meyer
+		//
+		while(iter.next()) {
+			const node_t &node = iter.get_current();
+
+			if (hash_t::comp(node.key, key) == 0) {
+				// duplicate
+				return false;
+			}
+		}
+		bags[code].insert();
+		bags[code].front().key = key;
+		return true;
 	}
 
 	//

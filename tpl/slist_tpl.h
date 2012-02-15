@@ -40,6 +40,7 @@ private:
 	struct node_t
 	{
 		node_t(const T& data_, node_t* next_) : next(next_), data(data_) {}
+		node_t(node_t* next_) : next(next_), data() {}
 
 		void* operator new(size_t) { return freelist_t::gimme_node(sizeof(node_t)); }
 		void operator delete(void* p) { freelist_t::putback_node(sizeof(node_t), p); }
@@ -57,6 +58,10 @@ private:
 public:
 	class const_iterator;
 
+	/**
+	 * Iterator class: can be used to erase nodes and to modify nodes
+	 * Usage: @see utils/for.h
+	 */
 	class iterator
 	{
 		public:
@@ -90,14 +95,18 @@ public:
 		friend class const_iterator;
 	};
 
+	/**
+	 * Iterator class: neither nodes nor the list can be modified
+	 * Usage: @see utils/for.h
+	 */
 	class const_iterator
 	{
 		public:
 			typedef std::forward_iterator_tag iterator_category;
-			typedef const T                   value_type;
+			typedef T                         value_type;
 			typedef ptrdiff_t                 difference_type;
-			typedef value_type*               pointer;
-			typedef value_type&               reference;
+			typedef T const*                  pointer;
+			typedef T const&                  reference;
 
 			const_iterator(const iterator& o) : ptr(o.ptr) {}
 
@@ -144,7 +153,24 @@ public:
 	{
 		node_t* tmp = new node_t(data, head);
 		head = tmp;
-		if (tail == NULL) tail = tmp;
+		if(  tail == NULL  ) {
+			tail = tmp;
+		}
+		node_count++;
+	}
+
+	/**
+	 * Inserts an element initialized by standard constructor
+	 * at the beginning of the lists
+	 * (avoid the use of copy constructor)
+	 */
+	void insert()
+	{
+		node_t* tmp = new node_t(head);
+		head = tmp;
+		if(  tail == NULL  ) {
+			tail = tmp;
+		}
 		node_count++;
 	}
 
@@ -160,6 +186,23 @@ public:
 		}
 		else {
 			node_t* tmp = new node_t(data, 0);
+			tail->next = tmp;
+			tail = tmp;
+			node_count++;
+		}
+	}
+
+	/**
+	 * Append an zero/empty element
+	 * mostly used for T=slist_tpl<...>
+	 */
+	void append()
+	{
+		if (tail == 0) {
+			insert();
+		}
+		else {
+			node_t* tmp = new node_t(0);
 			tail->next = tmp;
 			tail = tmp;
 			node_count++;
@@ -388,6 +431,11 @@ public:
 		}
 		return t ? index : -1;
 	}
+
+private:
+	slist_tpl(const slist_tpl& slist_tpl);
+	slist_tpl& operator=( slist_tpl const& other );
+
 };
 
 
@@ -395,34 +443,41 @@ public:
 /**
  * Iterator class for single linked lists.
  * Iterators may be invalid after any changing operation on the list!
+ *
+ * This iterator can modify nodes, but not the list
+ * Usage:
+ *
+ * slist_iterator_tpl<T> iter(some_list);
+ * while (iter.next()) {
+ * 	T& current = iter.access_current();
+ * }
+ *
  * @author Hj. Malthaner
  */
 template<class T>
 class slist_iterator_tpl
 {
 private:
-    typename slist_tpl<T>::node_t *current_node;
-    typename slist_tpl<T>::node_t lead;	// element zero
+	typename slist_tpl<T>::node_t *current_node;
+	typename slist_tpl<T>::node_t *next_node;
 
 public:
 	slist_iterator_tpl(const slist_tpl<T>* list) :
-		current_node(&lead),
-		lead(T(), list->head)
+		// we start with NULL
+		// after one call to next() current_node points to first node in list
+		current_node(NULL),
+		next_node(list->head)
 	{}
 
 	slist_iterator_tpl(const slist_tpl<T>& list) :
-		current_node(&lead),
-		lead(T(), list.head)
+		current_node(NULL),
+		next_node(list.head)
 	{}
 
 	slist_iterator_tpl<T> &operator = (const slist_iterator_tpl<T> &iter)
 	{
-		lead = iter.lead;
-		if(iter.current_node == &iter.lead) {
-			current_node = &lead;
-		} else {
-			current_node = iter.current_node;
-		}
+		current_node = iter.current_node;
+		next_node    = iter.next_node;
 		return *this;
 	}
 
@@ -433,7 +488,10 @@ public:
 	 */
 	bool next()
 	{
-		current_node = current_node->next;
+		current_node = next_node;
+		if (next_node) {
+			next_node = next_node->next;
+		}
 		return (current_node!= 0);
 	}
 
@@ -443,8 +501,8 @@ public:
 	 */
 	const T& get_current() const
 	{
-		if(current_node==&lead) {
-			dbg->fatal("class slist_iterator_tpl.get_current()","Iteration: accesed lead!");
+		if(current_node==NULL) {
+			dbg->fatal("class slist_iterator_tpl.get_current()", "Iteration: accessed NULL!");
 		}
 		return current_node->data;
 	}
@@ -456,8 +514,8 @@ public:
 	 */
 	T& access_current()
 	{
-		if(current_node==&lead) {
-			dbg->fatal("class slist_iterator_tpl.get_current()","Iteration: accesed lead!");
+		if(current_node==NULL) {
+			dbg->fatal("class slist_iterator_tpl.access_current()", "Iteration: accessed NULL!");
 		}
 		return current_node->data;
 	}
