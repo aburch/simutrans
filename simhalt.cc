@@ -86,7 +86,7 @@ void haltestelle_t::step_all()
 	}
 
 	sint16 units_remaining = 128;
-	while (iter != alle_haltestellen.end()) {
+	for (; iter != alle_haltestellen.end(); ++iter) {
 		if (units_remaining <= 0) return;
 
 		// iterate until the specified number of units were handled
@@ -94,7 +94,6 @@ void haltestelle_t::step_all()
 			// too much rerouted => needs to continue at next round!
 			return;
 		}
-		iter ++;
 	}
 
 	if (status_step == RECONNECTING) {
