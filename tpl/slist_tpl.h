@@ -96,6 +96,7 @@ public:
 			node_t* pred;
 
 		friend class slist_tpl;
+		friend class const_iterator;
 	};
 
 	/**
