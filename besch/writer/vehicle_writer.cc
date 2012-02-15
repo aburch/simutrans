@@ -345,7 +345,7 @@ end:
 		} 
 		else if (freight_max > 0 && livery_max == 0)
 		{
-			freightkeys.append(slist_tpl<string>());
+			freightkeys.append();
 			for(int freight = 0; freight < freight_max; freight++)
 			{
 				sprintf(buf, "freightimage[%d][%s]", freight, dir_codes[i]);

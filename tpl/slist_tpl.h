@@ -40,6 +40,7 @@ private:
 	struct node_t
 	{
 		node_t(const T& data_, node_t* next_) : next(next_), data(data_) {}
+		node_t(node_t* next_) : next(next_), data() {}
 
 		void* operator new(size_t) { return freelist_t::gimme_node(sizeof(node_t)); }
 		void operator delete(void* p) { freelist_t::putback_node(sizeof(node_t), p); }
@@ -55,8 +56,14 @@ private:
 	friend class slist_iterator_tpl<T>;
 
 public:
-	class const_iterator;
 
+	/**
+	 * Iterator classes
+	 * Usage:
+	 * for (slist_tpl<T>::iterator iter = some_list->begin(); !iter.end(); ++iter) {
+	 * 	T& current = *iter;
+	 * }
+	 */
 	class iterator
 	{
 		public:
@@ -87,7 +94,6 @@ public:
 			node_t* pred;
 
 		friend class slist_tpl;
-		friend class const_iterator;
 	};
 
 	class const_iterator
@@ -151,6 +157,21 @@ public:
 	}
 
 	/**
+	 * Inserts an element initialized by standard constructor
+	 * at the beginning of the lists
+	 * (avoid the use of copy constructor)
+	 */
+	void insert()
+	{
+		node_t* tmp = new node_t(head);
+		head = tmp;
+		if(  tail == NULL  ) {
+			tail = tmp;
+		}
+		node_count++;
+	}
+
+	/**
 	 * Appends an element to the end of the list.
 	 *
 	 * @author Hj. Malthaner
@@ -162,6 +183,23 @@ public:
 		}
 		else {
 			node_t* tmp = new node_t(data, 0);
+			tail->next = tmp;
+			tail = tmp;
+			node_count++;
+		}
+	}
+
+	/**
+	 * Append an zero/empty element
+	 * mostly used for T=slist_tpl<...>
+	 */
+	void append()
+	{
+		if (tail == 0) {
+			insert();
+		}
+		else {
+			node_t* tmp = new node_t(0);
 			tail->next = tmp;
 			tail = tmp;
 			node_count++;
@@ -391,16 +429,10 @@ public:
 		return t ? index : -1;
 	}
 
-/*
- * if those are uncommented, then socket_list_t and obj_reader_t::xref_to_resolve have a problem,
- * since those contain arrays/haslists of slists. This could certainly lead to errors,
- * which might be not found be valgrind, as freelist_t is not really looked at by valgrind.
- * Somehow this needs a fix!
- *
 private:
 	slist_tpl(const slist_tpl& slist_tpl);
 	slist_tpl& operator=( slist_tpl const& other );
-*/
+
 };
 
 
@@ -420,17 +452,18 @@ private:
 public:
 	slist_iterator_tpl(const slist_tpl<T>* list) :
 		current_node(&lead),
-		lead(T(), list->head)
+		lead(list->head)
 	{}
 
 	slist_iterator_tpl(const slist_tpl<T>& list) :
 		current_node(&lead),
-		lead(T(), list.head)
+		lead(list.head)
 	{}
 
 	slist_iterator_tpl<T> &operator = (const slist_iterator_tpl<T> &iter)
 	{
-		lead = iter.lead;
+		// only copy pointer of the node, not data, which is dummy anyway
+		lead.next = iter.lead.next;
 		if(iter.current_node == &iter.lead) {
 			current_node = &lead;
 		} else {
@@ -457,7 +490,7 @@ public:
 	const T& get_current() const
 	{
 		if(current_node==&lead) {
-			dbg->fatal("class slist_iterator_tpl.get_current()","Iteration: accesed lead!");
+			dbg->fatal("class slist_iterator_tpl.get_current()","Iteration: accessed lead!");
 		}
 		return current_node->data;
 	}
@@ -470,7 +503,7 @@ public:
 	T& access_current()
 	{
 		if(current_node==&lead) {
-			dbg->fatal("class slist_iterator_tpl.get_current()","Iteration: accesed lead!");
+			dbg->fatal("class slist_iterator_tpl.get_current()","Iteration: accessed lead!");
 		}
 		return current_node->data;
 	}
