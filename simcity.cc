@@ -1577,8 +1577,8 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 	name = NULL;
 	while(  !city_names.empty()  &&  name==NULL  ) {
 		uint32 idx = simrand(city_names.get_count(), "stadt_t::stadt_t");
-		for (weighted_vector_tpl<stadt_t*>::const_iterator i = staedte.begin(), end = staedte.end(); i != end; ++i) {
-			if(  strcmp( (*i)->get_name(), city_names[idx] )==0  ) {
+		FOR(weighted_vector_tpl<stadt_t*>, const i, staedte) {
+			if (strcmp(i->get_name(), city_names[idx]) == 0) {
 				city_names.remove_at( idx );
 				idx = city_names.get_count();
 				break;
@@ -2581,9 +2581,8 @@ void stadt_t::calc_growth()
 {
 	// now iterate over all factories to get the ratio of producing version nonproducing factories
 	// we use the incoming storage as a measure und we will only look for end consumers (power stations, markets)
-	for(  vector_tpl<factory_entry_t>::const_iterator iter = target_factories_pax.get_entries().begin(), end = target_factories_pax.get_entries().end();  iter!=end;  ++iter  )
-	{
-		fabrik_t *const fab = iter->factory;
+	FOR(vector_tpl<factory_entry_t>, const& i, target_factories_pax.get_entries()) {
+		fabrik_t *const fab = i.factory;
 		if(fab && fab->get_lieferziele().empty() && !fab->get_suppliers().empty()) 
 		{
 			// consumer => check for it storage
@@ -3951,8 +3950,8 @@ class bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t
 		{
 			const weighted_vector_tpl<gebaeude_t*>& attractions = welt->get_ausflugsziele();
 			int dist = welt->get_groesse_x() * welt->get_groesse_y();
-			for (weighted_vector_tpl<gebaeude_t*>::const_iterator i = attractions.begin(), end = attractions.end(); i != end; ++i) {
-				int d = koord_distance((*i)->get_pos(), pos);
+			FOR(weighted_vector_tpl<gebaeude_t*>, const i, attractions) {
+				int const d = koord_distance(i->get_pos(), pos);
 				if (d < dist) {
 					dist = d;
 				}

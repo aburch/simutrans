@@ -55,8 +55,8 @@ bool fussgaenger_t::alles_geladen()
 			// just entered them sorted
 			temp_liste.insert_ordered( iter.get_current_value(), compare_fussgaenger_besch );
 		}
-		for (vector_tpl<const fussgaenger_besch_t *>::const_iterator i = temp_liste.begin(), end = temp_liste.end(); i != end; ++i) {
-			liste.append( (*i), (*i)->get_gewichtung() );
+		FOR(vector_tpl<fussgaenger_besch_t const*>, const i, temp_liste) {
+			liste.append(i, i->get_gewichtung());
 		}
 	}
 	return true;
