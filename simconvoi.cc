@@ -217,6 +217,8 @@ convoi_t::convoi_t(karte_t* wl, loadsave_t* file) : fahr(max_vehicle, NULL)
 	delete average_journey_times;
 	delete departures;
 
+	self = convoihandle_t(this);
+
 	average_journey_times = new koordhashtable_tpl<id_pair, average_tpl<uint16> >;
 	departures = new inthashtable_tpl<uint16, departure_data_t>;
 	no_route_retry_count = 0;
@@ -3502,7 +3504,7 @@ void convoi_t::rdwr(loadsave_t *file)
 		arrival_time = welt->get_zeit_ms();
 	}
 
-	if(file->get_experimental_version() >= 10 && file->get_version() >= 111001)
+	/*if(file->get_experimental_version() >= 10 && file->get_version() >= 111001)
 	{
 		// It is necessary to save the IDs for convoys, as these are
 		// used in the path explorer when the convoys run without
@@ -3528,7 +3530,7 @@ void convoi_t::rdwr(loadsave_t *file)
 	else
 	{
 		self = convoihandle_t(this);
-	}
+	}*/
 
 	// This must come *after* all the loading/saving.
 	if( file->is_loading() ) {

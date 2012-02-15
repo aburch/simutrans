@@ -878,6 +878,7 @@
     <ClInclude Include="dataobj\loadsave.h" />
     <ClInclude Include="gui\loadsave_frame.h" />
     <ClInclude Include="utils\float32e8_t.h" />
+    <ClInclude Include="utils\for.h" />
     <ClInclude Include="utils\log.h" />
     <ClInclude Include="macros.h" />
     <ClInclude Include="boden\wege\maglev.h" />

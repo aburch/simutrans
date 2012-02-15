@@ -1778,6 +1778,9 @@
     <ClInclude Include="gui\privatesign_info.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="utils\for.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="base_texts_experimental.dat">
