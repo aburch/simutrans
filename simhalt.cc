@@ -94,6 +94,7 @@ void haltestelle_t::step_all()
 			// too much rerouted => needs to continue at next round!
 			return;
 		}
+		iter ++;
 	}
 
 	if (status_step == RECONNECTING) {
