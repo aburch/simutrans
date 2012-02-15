@@ -134,41 +134,6 @@ public:
 	}
 
 	/**
-	* Checks if the given element is already contained in the queue.
-	*
-	* @author Hj. Malthaner
-	*/
-	bool contains(const T &item) const
-	{
-		// the fact that we are sorted does not help here ...
-		// assert(0);
-
-		// Knightly : Adapted from insert()
-		if( node_count > 0  &&  *(nodes[node_count-1]) <= *item  &&  *item <= *(nodes[0]) ) 
-		{
-			sint32 high = node_count, low = -1, probe;
-			while( high - low > 1) 
-			{
-				probe = ((uint32) (low + high)) >> 1;
-				if( *(nodes[probe]) == *item ) 
-				{
-					return true;
-				}
-				else if( *item <= *(nodes[probe]) ) 
-				{
-					low = probe;
-				}
-				else 
-				{
-					high = probe;
-				}
-			}
-		}
-		return false;
-	}
-
-
-	/**
 	* Retrieves the first element from the list. This element is
 	* deleted from the list. Useful for some queueing tasks.
 	* @author Hj. Malthaner
