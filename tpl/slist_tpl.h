@@ -56,6 +56,7 @@ private:
 	friend class slist_iterator_tpl<T>;
 
 public:
+	class const_iterator;
 
 	/**
 	 * Iterator class: can be used to erase nodes and to modify nodes
