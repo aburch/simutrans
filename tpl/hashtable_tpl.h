@@ -19,6 +19,7 @@ class hashtable_tpl
 {
 	friend class hashtable_iterator_tpl<key_t, value_t, hash_t>;
 
+protected:
 	struct node_t {
 	public:
 		key_t	key;
@@ -28,13 +29,25 @@ class hashtable_tpl
 	};
 
 	slist_tpl <node_t> bags[STHT_BAGSIZE];
+/*
+ * assigning hashtables seems also not sound;
+ * unfourtunately I do not have time right not to sort this out.
+ * obj_reader.cc stumbles over that!
+ *
+private:
+	hashtable_tpl(const hashtable_tpl&);
+	hashtable_tpl& operator=( hashtable_tpl const& other );
 
+public:
+	hashtable_tpl() {}
+*/
+
+public:
 	STHT_BAG_COUNTER_T get_hash(const key_t key) const
 	{
 		return (STHT_BAG_COUNTER_T)(hash_t::hash(key) % STHT_BAGSIZE);
 	}
 
-public:
 	void clear()
 	{
 		for(STHT_BAG_COUNTER_T i=0; i<STHT_BAGSIZE; i++) {

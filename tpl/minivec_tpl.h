@@ -170,6 +170,7 @@ template<class T> class minivec_tpl
 
 	private:
 		minivec_tpl(const minivec_tpl&);
+	minivec_tpl& operator=( minivec_tpl const& other );
 
 		T* data;
 		uint8 size;  ///< Capacity

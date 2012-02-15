@@ -43,8 +43,8 @@ public:
 /*
  * Ready to use class for hashing strings.
  */
-template <class value_t>
-class stringhashtable_tpl : public hashtable_tpl<const char *, value_t, stringhash_t>
+template <class value_t>class stringhashtable_tpl :
+	public hashtable_tpl<const char *, value_t, stringhash_t>
 {
 };
 
