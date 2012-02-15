@@ -263,6 +263,11 @@ template<class T> class vector_tpl
 		{
 			return (*this)[e];
 		}
+
+		T const& get_element(uint e) const
+		{
+			return (*this)[e];
+		}
 		
 		T& operator [](uint i)
 		{
