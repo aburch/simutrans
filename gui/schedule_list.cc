@@ -158,6 +158,7 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t *sp_) :
 	selection = -1;
 	loadfactor = 0;
 	schedule_filter[0] = 0;
+	old_schedule_filter[0] = 0;
 
 	// init scrolled list
 	scl.set_pos(koord(0,1));

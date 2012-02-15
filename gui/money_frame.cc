@@ -289,6 +289,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	// easier headquarter access
 	old_level = sp->get_headquarter_level();
 	old_pos = sp->get_headquarter_pos();
+	headquarter_tooltip[0] = 0;
 
 	if(  sp->get_ai_id()!=spieler_t::HUMAN  ) {
 		// misuse headquarter button for AI configure

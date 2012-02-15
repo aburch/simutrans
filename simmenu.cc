@@ -853,6 +853,7 @@ void toolbar_t::update(karte_t *welt, spieler_t *sp)
 		else if(w->get_icon(welt->get_active_player())!=IMG_LEER) {
 			// get the right city_road
 			if(w->get_id() == (WKZ_CITYROAD | GENERAL_TOOL)) {
+				w->flags = 0;
 				w->init(welt,sp);
 			}
 			if(  create  ) {
