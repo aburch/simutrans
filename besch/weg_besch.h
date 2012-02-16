@@ -20,13 +20,19 @@ class werkzeug_t;
  * Way type description. Contains all needed values to describe a
  * way type in Simutrans.
  *
- *  Kindknoten:
+ * Child nodes:
  *	0   Name
  *	1   Copyright
- *	2   Flache Bilder mit ribis
- *	3   Hangbilder
- *	4   Flache Bilder Diagonalstrecken
- *      5   Hajo: Skin (cursor and icon)
+ *	2   Images for flat ways (indexed by ribi)
+ *	3   Images for slopes
+ *	4   Images for straight diagonal ways
+ *	5   Hajo: Skin (cursor and icon)
+ * if number_seasons == 0  (no winter images)
+ *	6-8  front images of image lists 2-4
+ * else
+ *	6-8  winter images of image lists 2-4
+ *	9-11 front images of image lists 2-4
+ *	12-14 front winter images of image lists 2-4
  *
  * @author  Volker Meyer, Hj. Malthaner
  */
@@ -90,9 +96,36 @@ private:
 	*/
 	sint8 number_seasons;
 
-	// this is the defualt tools for building this way ...
+	/// if true front_images lists exists as nodes
+	bool front_images;
+
+	// this is the default tool for building this way ...
 	werkzeug_t *builder;
 
+	/**
+	 * calculates index of image list for flat ways
+	 * for winter and/or front images
+	 * add +1 and +2 to get slope and straight diagonal images, respectively
+	 */
+	int image_list_base_index(bool snow, bool front) const
+	{
+		if (number_seasons == 0  ||  !snow) {
+			if (front  &&  front_images) {
+				return (number_seasons == 0) ? 6 : 9;
+			}
+			else {
+				return 2;
+			}
+		}
+		else { // winter images
+			if (front  &&  front_images) {
+				return 12;
+			}
+			else {
+				return 6;
+			}
+		}
+	}
 public:
 	long get_preis() const { return price; }
 
@@ -118,16 +151,22 @@ public:
 	*/
 	uint8 get_styp() const { return styp; }
 
-	image_id get_bild_nr(ribi_t::ribi ribi, uint8 season) const
+	image_id get_bild_nr(ribi_t::ribi ribi, uint8 season, bool front = false) const
 	{
-		int const n = season && number_seasons == 1 ? 6 : 2;
+		if (front  &&  !front_images) {
+			return IMG_LEER;
+		}
+		int const n = image_list_base_index(season, front);
 		return get_child<bildliste_besch_t>(n)->get_bild_nr(ribi);
 	}
 
-	image_id get_bild_nr_switch(ribi_t::ribi ribi, uint8 season, bool nw) const
+	image_id get_bild_nr_switch(ribi_t::ribi ribi, uint8 season, bool nw, bool front = false) const
 	{
-		uint8 listen_nr = (season && number_seasons == 1) ? 6 : 2;
-		bildliste_besch_t const* const bl = get_child<bildliste_besch_t>(listen_nr);
+		if (front  &&  !front_images) {
+			return IMG_LEER;
+		}
+		int const n = image_list_base_index(season, front);
+		bildliste_besch_t const* const bl = get_child<bildliste_besch_t>(n);
 		// only do this if extended switches are there
 		if(  bl->get_anzahl()>16  ) {
 			static uint8 ribi_to_extra[16] = {
@@ -140,13 +179,16 @@ public:
 		return bl->get_bild_nr( ribi );
 	}
 
-	image_id get_hang_bild_nr(hang_t::typ hang, uint8 season) const
+	image_id get_hang_bild_nr(hang_t::typ hang, uint8 season, bool front = false) const
 	{
+		if (front  &&  !front_images) {
+			return IMG_LEER;
+		}
+		int const n = image_list_base_index(season, front) + 1;
 #ifndef DOUBLE_GROUNDS
 		if(!hang_t::ist_einfach(hang)) {
 			return IMG_LEER;
 		}
-		int const n = season && number_seasons == 1 ? 7 : 3;
 		return get_child<bildliste_besch_t>(n)->get_bild_nr(hang / 3 - 1);
 #else
 		int nr;
@@ -166,14 +208,13 @@ public:
 			default:
 				return IMG_LEER;
 		}
-		int const n = season && number_seasons == 1 ? 7 : 3;
 		return get_child<bildliste_besch_t>(n)->get_bild_nr(nr);
 #endif
 	}
 
-	image_id get_diagonal_bild_nr(ribi_t::ribi ribi, uint8 season) const
+	image_id get_diagonal_bild_nr(ribi_t::ribi ribi, uint8 season, bool front = false) const
 	{
-		int const n = season && number_seasons == 1 ? 8 : 4;
+		int const n = image_list_base_index(season, front) + 2;
 		return get_child<bildliste_besch_t>(n)->get_bild_nr(ribi / 3 - 1);
 	}
 
@@ -197,7 +238,7 @@ public:
 	*/
 	uint16 get_retire_year_month() const { return obsolete_date; }
 
-	/* true, if this tile is to be drawn as lie a normal thing */
+	/* true, if this tile is to be drawn as a normal thing */
 	bool is_draw_as_ding() const { return draw_as_ding; }
 
 	/**

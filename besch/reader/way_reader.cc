@@ -65,8 +65,8 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		const uint16 v = decode_uint16(p);
 		version = v & 0x7FFF;
 
-		if(version==4) {
-			// Versioned node, version 4
+		if(version==4  ||  version==5) {
+			// Versioned node, version 4+5
 			besch->price = decode_uint32(p);
 			besch->maintenance = decode_uint32(p);
 			besch->topspeed = decode_uint32(p);
@@ -123,7 +123,7 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		}
 	}
 
-	// some internal corrections to pay for orevious confusion with two waytypes
+	// some internal corrections to pay for previous confusion with two waytypes
 	if(besch->wtyp==tram_wt) {
 		besch->styp = 7;
 		besch->wtyp = track_wt;
@@ -139,6 +139,9 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		// runway!
 		besch->styp = 1;
 	}
+
+	// front images from version 5 on
+	besch->front_images = version > 4;
 
   DBG_DEBUG("way_reader_t::read_node()",
 	     "version=%d price=%d maintenance=%d topspeed=%d max_weight=%d "

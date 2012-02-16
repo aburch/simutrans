@@ -110,6 +110,7 @@ private:
 	uint16 max_speed;
 
 	image_id bild;
+	image_id after_bild;
 
 	/**
 	* Initializes all member variables
@@ -122,6 +123,18 @@ private:
 	* @author hsiegeln
 	*/
 	void init_statistics();
+
+
+	inline void set_after_bild( image_id b ) { after_bild = b; }
+	image_id get_after_bild() const {return after_bild;}
+
+
+	enum image_type { image_flat, image_slope, image_diagonal, image_switch };
+
+	/**
+	 * initializes both front and back images
+	 */
+	void set_images(image_type typ, uint8 ribi, bool snow, bool switch_nw=false);
 
 public:
 	weg_t(karte_t* const welt, loadsave_t*) : ding_no_info_t(welt) { init(); }

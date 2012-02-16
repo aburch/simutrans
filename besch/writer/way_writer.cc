@@ -30,7 +30,7 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 
 	// Hajo: Version needs high bit set as trigger -> this is required
 	//       as marker because formerly nodes were unversionend
-	uint16 version     = 0x8004;
+	uint16 version     = 0x8005;
 	uint32 price       = obj.get_int("cost",        100);
 	uint32 maintenance = obj.get_int("maintenance", 100);
 	sint32 topspeed    = obj.get_int("topspeed",    999);
@@ -66,6 +66,8 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 	node.write_uint8 (outfp, styp,         23);
 	node.write_uint8 (outfp, draw_as_ding, 24);
 
+	static const char* const image_type[] = { "", "front" };
+
 	slist_tpl<string> keys;
 	char buf[40];
 	sprintf(buf, "image[%s][0]", ribi_codes[0]);
@@ -76,13 +78,19 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 
 		sprintf(buf, "image[%s]", ribi_codes[0]);
 		string str = obj.get(buf);
-		if (!str.empty()) {
+		if (str.empty()) {
+			dbg->fatal("way_writer_t::write_obj", "image with label %s missing", buf);
+		}
+		for(int backtofront = 0; backtofront<2; backtofront++) {
 			// way images defined without seasons
-			const uint8 ribinr = *(obj.get("image[new2][0]"))==0 ? 16 : 26;
+			char buf[40];
+			sprintf(buf, "%simage[new2][0]", image_type[backtofront]);
+			// test for switch images
+			const uint8 ribinr = *(obj.get(buf))==0 ? 16 : 26;
 			for (ribi = 0; ribi < ribinr; ribi++) {
 				char buf[40];
 
-				sprintf(buf, "image[%s]", ribi_codes[ribi]);
+				sprintf(buf, "%simage[%s]", image_type[backtofront], ribi_codes[ribi]);
 				string str = obj.get(buf);
 				keys.append(str);
 			}
@@ -92,7 +100,7 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 			for (hang = 3; hang <= 12; hang += 3) {
 				char buf[40];
 
-				sprintf(buf, "imageup[%d]", hang);
+				sprintf(buf, "%simageup[%d]", image_type[backtofront], hang);
 				string str = obj.get(buf);
 				keys.append(str);
 			}
@@ -102,7 +110,7 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 			for (ribi = 3; ribi <= 12; ribi += 3) {
 				char buf[40];
 
-				sprintf(buf, "diagonal[%s]", ribi_codes[ribi]);
+				sprintf(buf, "%sdiagonal[%s]", image_type[backtofront], ribi_codes[ribi]);
 				string str = obj.get(buf);
 				keys.append(str);
 			}
@@ -119,8 +127,6 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 
 			// skip new write code
 			number_seasons = -1;
-		} else {
-			// no images - should complain probably...
 		}
 	} else {
 		while(number_seasons < 2) {
@@ -138,44 +144,46 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 		// has switch images for both directions?
 		const uint8 ribinr = *(obj.get("image[new2][0]"))==0 ? 16 : 26;
 
-		for (uint8 season = 0; season <= number_seasons ; season++) {
-			for (ribi = 0; ribi < ribinr; ribi++) {
-				char buf[40];
+		for(int backtofront = 0; backtofront<2; backtofront++) {
+			for (uint8 season = 0; season <= number_seasons ; season++) {
+				for (ribi = 0; ribi < ribinr; ribi++) {
+					char buf[40];
 
-				sprintf(buf, "image[%s][%d]", ribi_codes[ribi], season);
-				string str = obj.get(buf);
-				keys.append(str);
-			}
-			imagelist_writer_t::instance()->write_obj(outfp, node, keys);
+					sprintf(buf, "%simage[%s][%d]", image_type[backtofront], ribi_codes[ribi], season);
+					string str = obj.get(buf);
+					keys.append(str);
+				}
+				imagelist_writer_t::instance()->write_obj(outfp, node, keys);
 
-			keys.clear();
-			for (hang = 3; hang <= 12; hang += 3) {
-				char buf[40];
+				keys.clear();
+				for (hang = 3; hang <= 12; hang += 3) {
+					char buf[40];
 
-				sprintf(buf, "imageup[%d][%d]", hang, season);
-				string str = obj.get(buf);
-				keys.append(str);
-			}
-			imagelist_writer_t::instance()->write_obj(outfp, node, keys);
+					sprintf(buf, "%simageup[%d][%d]", image_type[backtofront], hang, season);
+					string str = obj.get(buf);
+					keys.append(str);
+				}
+				imagelist_writer_t::instance()->write_obj(outfp, node, keys);
 
-			keys.clear();
-			for (ribi = 3; ribi <= 12; ribi += 3) {
-				char buf[40];
+				keys.clear();
+				for (ribi = 3; ribi <= 12; ribi += 3) {
+					char buf[40];
 
-				sprintf(buf, "diagonal[%s][%d]", ribi_codes[ribi], season);
-				string str = obj.get(buf);
-				keys.append(str);
-			}
-			imagelist_writer_t::instance()->write_obj(outfp, node, keys);
+					sprintf(buf, "%sdiagonal[%s][%d]", image_type[backtofront], ribi_codes[ribi], season);
+					string str = obj.get(buf);
+					keys.append(str);
+				}
+				imagelist_writer_t::instance()->write_obj(outfp, node, keys);
 
-			keys.clear();
-			if(season == 0) {
-				slist_tpl<string> cursorkeys;
+				keys.clear();
+				if(season == 0  &&  backtofront == 0) {
+					slist_tpl<string> cursorkeys;
 
-				cursorkeys.append(string(obj.get("cursor")));
-				cursorkeys.append(string(obj.get("icon")));
+					cursorkeys.append(string(obj.get("cursor")));
+					cursorkeys.append(string(obj.get("icon")));
 
-				cursorskin_writer_t::instance()->write_obj(outfp, node, obj, cursorkeys);
+					cursorskin_writer_t::instance()->write_obj(outfp, node, obj, cursorkeys);
+				}
 			}
 		}
 	}

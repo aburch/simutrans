@@ -161,6 +161,7 @@ void weg_t::init()
 	alle_wege.insert(this);
 	flags = 0;
 	bild = IMG_LEER;
+	after_bild = IMG_LEER;
 }
 
 
@@ -313,6 +314,30 @@ void weg_t::count_sign()
 }
 
 
+void weg_t::set_images(image_type typ, uint8 ribi, bool snow, bool switch_nw)
+{
+	switch(typ) {
+		case image_flat:
+		default:
+			set_bild( besch->get_bild_nr( ribi, snow ) );
+			set_after_bild( besch->get_bild_nr( ribi, snow, true ) );
+			break;
+		case image_slope:
+			set_bild( besch->get_hang_bild_nr( (hang_t::typ)ribi, snow ) );
+			set_after_bild( besch->get_hang_bild_nr( (hang_t::typ)ribi, snow, true ) );
+			break;
+		case image_switch:
+			set_bild( besch->get_bild_nr_switch(ribi, snow, switch_nw) );
+			set_after_bild( besch->get_bild_nr_switch(ribi, snow, switch_nw, true) );
+			break;
+		case image_diagonal:
+			set_bild( besch->get_diagonal_bild_nr(ribi, snow) );
+			set_after_bild( besch->get_diagonal_bild_nr(ribi, snow, true) );
+			break;
+	}
+}
+
+
 // much faster recalculation of season image
 bool weg_t::check_season( const long )
 {
@@ -343,27 +368,27 @@ bool weg_t::check_season( const long )
 
 	hang_t::typ hang = from->get_weg_hang();
 	if(hang != hang_t::flach) {
-		set_bild( besch->get_hang_bild_nr( hang, snow ) );
+		set_images(image_slope, hang, snow);
 		return true;
 	}
 
 	if(  is_diagonal()  ) {
-		set_bild( besch->get_diagonal_bild_nr( ribi, snow ) );
+		set_images(image_diagonal, ribi, snow);
 	}
 	else if(  ribi_t::is_threeway(ribi)  &&  besch->has_switch_bild()  ) {
 		// there might be two states of the switch; remeber it when changing saesons
 		if(  bild==besch->get_bild_nr_switch(ribi, old_snow, false)  ) {
-			set_bild( besch->get_bild_nr_switch(ribi, snow, false) );
+			set_images(image_switch, ribi, snow, false);
 		}
 		else if(  bild==besch->get_bild_nr_switch(ribi, old_snow, true)  ) {
-			set_bild( besch->get_bild_nr_switch(ribi, snow, true) );
+			set_images(image_switch, ribi, snow, true);
 		}
 		else {
-			set_bild( besch->get_bild_nr( ribi, snow ) );
+			set_images(image_flat, ribi, snow);
 		}
 	}
 	else {
-		set_bild( besch->get_bild_nr( ribi, snow ) );
+		set_images(image_flat, ribi, snow);
 	}
 
 	return true;
@@ -379,10 +404,12 @@ void weg_t::calc_bild()
 	if(  from==NULL  ||  besch==NULL  ||  !from->is_visible()  ) {
 		// no ground, in tunnel
 		set_bild(IMG_LEER);
+		set_after_bild(IMG_LEER);
 	}
 	else if(  from->ist_tunnel() &&  from->ist_karten_boden()  &&  (grund_t::underground_mode==grund_t::ugm_none || (grund_t::underground_mode==grund_t::ugm_level && from->get_hoehe()<grund_t::underground_level))  ) {
 		// in tunnel mouth, no underground mode
 		set_bild(IMG_LEER);
+		set_after_bild(IMG_LEER);
 	}
 	else if(  from->ist_bruecke()  &&  from->obj_bei(0)==this  ) {
 		// first way on a bridge (bruecke_t will set the image)
@@ -399,11 +426,11 @@ void weg_t::calc_bild()
 		hang_t::typ hang = from->get_weg_hang();
 		if(hang != hang_t::flach) {
 			// on slope
-			set_bild(besch->get_hang_bild_nr(hang, snow));
+			set_images(image_slope, hang, snow);
 		}
 		else {
 			// flat way
-			set_bild(besch->get_bild_nr(ribi, snow));
+			set_images(image_flat, ribi, snow);
 
 			// try diagonal image
 			if(  besch->has_diagonal_bild()  ) {
@@ -428,9 +455,8 @@ void weg_t::calc_bild()
 
 					// now apply diagonal image
 					if(is_diagonal()) {
-						image_id diag_bild = besch->get_diagonal_bild_nr(ribi, snow);
-						if(diag_bild != IMG_LEER) {
-							set_bild(diag_bild);
+						if(besch->get_diagonal_bild_nr(ribi, snow) != IMG_LEER) {
+							set_images(image_diagonal, ribi, snow);
 						}
 					}
 				}
