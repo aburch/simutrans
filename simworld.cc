@@ -583,14 +583,14 @@ DBG_MESSAGE("karte_t::destroy()", "towns destroyed");
 
 	display_progress( old_progress, max_display_progress );
 	old_progress += cached_groesse_karte_x*cached_groesse_karte_y;
-#ifndef SYNC_VECTOR
 	while(!sync_list.empty()) {
+#ifndef SYNC_VECTOR
 		sync_steppable *ss = sync_list.remove_first();
 		delete ss;
-	}
 #else
-	clear_ptr_vector( sync_list );
+		delete sync_list.back();
 #endif
+	}
 	// entfernt alle synchronen objekte aus der liste
 	sync_list.clear();
 	display_progress( old_progress, max_display_progress );
