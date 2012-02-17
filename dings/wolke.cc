@@ -52,6 +52,7 @@ wolke_t::wolke_t(karte_t *welt, koord3d pos, sint8 x_off, sint8 y_off, const ski
 wolke_t::~wolke_t()
 {
 	mark_image_dirty( get_bild(), 0 );
+	welt->sync_remove(this);
 }
 
 
@@ -107,19 +108,6 @@ bool wolke_t::sync_step(long delta_t)
 	}
 	return true;
 }
-
-
-
-/**
- * Wird aufgerufen, wenn wolke entfernt wird. Entfernt wolke aus
- * der Verwaltung synchroner Objekte.
- * @author Hj. Malthaner
- */
-void wolke_t::entferne(spieler_t *)
-{
-	welt->sync_remove(this);
-}
-
 
 
 // called during map rotation
