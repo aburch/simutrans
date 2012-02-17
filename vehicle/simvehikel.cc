@@ -874,9 +874,40 @@ vehikel_t::unload_freight(halthandle_t halt)
 								if(tmp.get_origin().is_bound())
 								{
 									// Check required because Simutrans-Standard saved games
-									// do not have origins.
+									// do not have origins. Also, the start halt might not
+									// be in (or be fully in) a city.
 									tmp.get_origin()->add_pax_happy(menge);
-									stadt_t* origin_city = welt->get_city(tmp.get_origin()->get_basis_pos());
+									koord origin_pos = tmp.get_origin()->get_basis_pos();
+									stadt_t* origin_city = welt->get_city(origin_pos);
+									if(!origin_city)
+									{
+										// The origin stop is not within a city. 
+										// If the stop is located outside the city, but the passengers
+										// come from a city, they will not record as transported.
+										origin_pos = tmp.get_origin()->get_init_pos();
+										origin_city = welt->get_city(origin_pos);
+									}
+
+									if(!origin_city)
+									{
+										// Make several attempts at finding the origin city
+										origin_pos = tmp.get_origin()->get_next_pos(get_pos().get_2d());
+										origin_city = welt->get_city(origin_pos);
+									}
+									
+									if(!origin_city)
+									{
+										for(uint8 i = 0; i < 16; i ++)
+										{
+											koord pos(origin_pos + origin_pos.second_neighbours[i]);
+											origin_city = welt->get_city(pos);
+											if(origin_city)
+											{
+												break;
+											}
+										}
+									}
+								
 									if(origin_city)
 									{
 										origin_city->add_transported_passengers(menge);
@@ -888,8 +919,38 @@ vehikel_t::unload_freight(halthandle_t halt)
 								if(tmp.get_origin().is_bound())
 								{
 									// Check required because Simutrans-Standard saved games
-									// do not have origins.
-									stadt_t* origin_city = welt->get_city(tmp.get_origin()->get_basis_pos());
+									// do not have origins. Also, the start halt might not
+									// be in (or be fully in) a city.
+									koord origin_pos = tmp.get_origin()->get_basis_pos();
+									stadt_t* origin_city = welt->get_city(origin_pos);
+									if(!origin_city)
+									{
+										// The origin stop is not within a city. 
+										// If the stop is located outside the city, but the passengers
+										// come from a city, they will not record as transported.
+										origin_pos = tmp.get_origin()->get_init_pos();
+										origin_city = welt->get_city(origin_pos);
+									}
+
+									if(!origin_city)
+									{
+										// Make several attempts at finding the origin city
+										origin_pos = tmp.get_origin()->get_next_pos(get_pos().get_2d());
+										origin_city = welt->get_city(origin_pos);
+									}
+									
+									if(!origin_city)
+									{
+										for(uint8 i = 0; i < 16; i ++)
+										{
+											koord pos(origin_pos + origin_pos.second_neighbours[i]);
+											origin_city = welt->get_city(pos);
+											if(origin_city)
+											{
+												break;
+											}
+										}
+									}
 									if(origin_city)
 									{
 										origin_city->add_transported_mail(menge);
