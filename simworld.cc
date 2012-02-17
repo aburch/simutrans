@@ -1449,8 +1449,7 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 			for (sint16 iy = 0; iy<old_y; iy++) {
 				uint32 nr = ix+(iy*old_x);
 				uint32 nnr = ix+(iy*new_groesse_x);
-				new_plan[nnr] = plan[nr];
-				plan[nr] = planquadrat_t();
+				swap(new_plan[nnr], plan[nr]);
 			}
 		}
 		for (sint16 ix = 0; ix<=old_x; ix++) {
@@ -2481,8 +2480,7 @@ void karte_t::rotate90()
 		for( int y=0;  y<cached_groesse_gitter_y;  y++  ) {
 			int nr = x+(y*cached_groesse_gitter_x);
 			int new_nr = (cached_groesse_karte_y-y)+(x*cached_groesse_gitter_y);
-			new_plan[new_nr] = plan[nr];
-			plan[nr] = planquadrat_t();
+			swap(new_plan[new_nr], plan[nr]);
 
 			// now rotate everything on the ground(s)
 			for(  uint i=0;  i<new_plan[new_nr].get_boden_count();  i++  ) {

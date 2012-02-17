@@ -16,6 +16,9 @@ class karte_t;
 class grund_t;
 class ding_t;
 
+class planquadrat_t;
+void swap(planquadrat_t& a, planquadrat_t& b);
+
 
 /**
  * Die Karte ist aus Planquadraten zusammengesetzt.
@@ -47,6 +50,12 @@ public:
 
 	~planquadrat_t();
 
+private:
+	planquadrat_t(planquadrat_t const&);
+	planquadrat_t& operator=(planquadrat_t const&);
+	friend void swap(planquadrat_t& a, planquadrat_t& b);
+
+public:
 	/**
 	* Setzen des "normalen" Bodens auf Kartenniveau
 	* @author V. Meyer
