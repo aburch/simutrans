@@ -40,6 +40,9 @@ public:
 	static bool show_owner;
 
 private:
+	ding_t(ding_t const&);
+	ding_t& operator=(ding_t const&);
+
 	/**
 	 * Coordinate of position
 	 */
