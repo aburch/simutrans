@@ -2781,7 +2781,7 @@ bool haltestelle_t::add_grund(grund_t *gr)
 			if(  !cnv->get_line().is_bound()  &&  !registered_convoys.is_contained(cnv)  ) {
 				const schedule_t *const fpl = cnv->get_schedule();
 				if(  fpl  ) {
-					FOR(minivec_tpl<linieneintrag_t>, const k, fpl->eintrag) {
+					FOR(minivec_tpl<linieneintrag_t>, const& k, fpl->eintrag) {
 						if (get_halt(welt, k.pos, get_besitzer()) == self) {
 							registered_convoys.append(cnv);
 							break;
@@ -2796,7 +2796,7 @@ bool haltestelle_t::add_grund(grund_t *gr)
 		FOR(vector_tpl<linehandle_t>, const j, check_line) {
 			// only add unknown lines
 			if (!registered_lines.is_contained(j) && j->count_convoys() > 0) {
-					FOR(minivec_tpl<linieneintrag_t>, const k, j->get_schedule()->eintrag) {
+					FOR(minivec_tpl<linieneintrag_t>, const& k, j->get_schedule()->eintrag) {
 					if (get_halt(welt, k.pos, get_besitzer()) == self) {
 						registered_lines.append(j);
 						break;
@@ -2810,7 +2810,7 @@ bool haltestelle_t::add_grund(grund_t *gr)
 			if(  !cnv->get_line().is_bound()  &&  cnv->get_besitzer()==get_besitzer()  &&  !registered_convoys.is_contained(cnv)  ) {
 				const schedule_t *const fpl = cnv->get_schedule();
 				if(  fpl  ) {
-					FOR(minivec_tpl<linieneintrag_t>, const k, fpl->eintrag) {
+					FOR(minivec_tpl<linieneintrag_t>, const& k, fpl->eintrag) {
 						if (get_halt(welt, k.pos, get_besitzer()) == self) {
 							registered_convoys.append(cnv);
 							break;
@@ -2902,7 +2902,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 	// remove lines eventually
 	for(  int j=registered_lines.get_count()-1;  j>=0;  j--  ) {
 		bool ok=false;
-		FOR(minivec_tpl<linieneintrag_t>, const k, registered_lines[j]->get_schedule()->eintrag) {
+		FOR(minivec_tpl<linieneintrag_t>, const& k, registered_lines[j]->get_schedule()->eintrag) {
 			if (get_halt(welt, k.pos, registered_lines[j]->get_besitzer()) == self) {
 				ok = true;
 				break;
@@ -2917,7 +2917,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 	// Knightly : remove registered lineless convoys as well
 	for(  int j=registered_convoys.get_count()-1;  j>=0;  --j  ) {
 		bool ok = false;
-		FOR(minivec_tpl<linieneintrag_t>, const k, registered_convoys[j]->get_schedule()->eintrag) {
+		FOR(minivec_tpl<linieneintrag_t>, const& k, registered_convoys[j]->get_schedule()->eintrag) {
 			if (get_halt(welt, k.pos, registered_convoys[j]->get_besitzer()) == self) {
 				ok = true;
 				break;

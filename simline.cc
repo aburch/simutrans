@@ -270,7 +270,7 @@ void simline_t::laden_abschliessen()
 void simline_t::register_stops(schedule_t * fpl)
 {
 DBG_DEBUG("simline_t::register_stops()", "%d fpl entries in schedule %p", fpl->get_count(),fpl);
-	FOR(minivec_tpl<linieneintrag_t>, const i, fpl->eintrag) {
+	FOR(minivec_tpl<linieneintrag_t>, const& i, fpl->eintrag) {
 		halthandle_t const halt = haltestelle_t::get_halt(welt, i.pos, sp);
 		if(halt.is_bound()) {
 //DBG_DEBUG("simline_t::register_stops()", "halt not null");
@@ -292,7 +292,7 @@ void simline_t::unregister_stops()
 
 void simline_t::unregister_stops(schedule_t * fpl)
 {
-	FOR(minivec_tpl<linieneintrag_t>, const i, fpl->eintrag) {
+	FOR(minivec_tpl<linieneintrag_t>, const& i, fpl->eintrag) {
 		halthandle_t const halt = haltestelle_t::get_halt(welt, i.pos, sp);
 		if(halt.is_bound()) {
 			halt->remove_line(self);
