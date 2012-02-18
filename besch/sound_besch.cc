@@ -96,7 +96,7 @@ DBG_MESSAGE("sound_besch_t::init()","assigned system sound %d to sound %s (id=%i
 /* return sound id from index */
 sint16 sound_besch_t::get_sound_id(const char *name)
 {
-	if(!sound_on) {
+	if(!sound_on  ||  name==NULL  ||  *name==0) {
 		return NO_SOUND;
 	}
 	sound_ids *s = name_sound.get(name);
