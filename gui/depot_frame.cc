@@ -1194,9 +1194,9 @@ void depot_frame_t::zeichnen(koord pos, koord groesse)
 				}
 
 				const sint32 cnv_min_top_kmh = speed_to_kmh( cnv->get_min_top_speed() );
-				empty_kmh = total_power < total_empty_weight ? 1 : min( cnv_min_top_kmh, sqrt_i32(((total_power<<8)/total_empty_weight-(1<<8))<<8)*50 >>8 );
-				max_kmh = total_power < total_min_weight ? 1 : min( cnv_min_top_kmh, sqrt_i32(((total_power<<8)/total_min_weight-(1<<8))<<8)*50 >>8 );
-				min_kmh = total_power < total_max_weight ? 1 : min( cnv_min_top_kmh, sqrt_i32(((total_power<<8)/total_max_weight-(1<<8))<<8)*50 >>8 );
+				empty_kmh = total_power <= total_empty_weight ? 1 : min( cnv_min_top_kmh, sqrt_i32(((total_power<<8)/total_empty_weight-(1<<8))<<8)*50 >>8 );
+				max_kmh = total_power <= total_min_weight ? 1 : min( cnv_min_top_kmh, sqrt_i32(((total_power<<8)/total_min_weight-(1<<8))<<8)*50 >>8 );
+				min_kmh = total_power <= total_max_weight ? 1 : min( cnv_min_top_kmh, sqrt_i32(((total_power<<8)/total_max_weight-(1<<8))<<8)*50 >>8 );
 			}
 
 			sprintf(txt_convoi_count, "%s %d (%s %i)",
