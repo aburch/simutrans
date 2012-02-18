@@ -214,6 +214,9 @@ public:
 
 	image_id get_diagonal_bild_nr(ribi_t::ribi ribi, uint8 season, bool front = false) const
 	{
+		if (front  &&  !front_images) {
+			return IMG_LEER;
+		}
 		int const n = image_list_base_index(season, front) + 2;
 		return get_child<bildliste_besch_t>(n)->get_bild_nr(ribi / 3 - 1);
 	}
