@@ -36,7 +36,7 @@ private:
 	/* only one station per ground xy tile */
 	halthandle_t this_halt;
 
-	union {
+	union DATA {
 		grund_t ** some;    // valid if capacity > 1
 		grund_t * one;      // valid if capacity == 1
 	} data;
