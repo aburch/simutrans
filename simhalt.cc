@@ -1145,6 +1145,8 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 			}
 
 			// check if this good can still reach its destination
+
+			uint16 TEST_ROUTE = find_route(ware);
 			
 			if(find_route(ware) == 65535)
 			{
@@ -1154,7 +1156,9 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 
 			const char* TEST = get_name();
 			const char* TEST_2 = ware.get_zwischenziel()->get_name();
+			const char* TEST_3 = ware.get_ziel()->get_name();
 			const uint16 TEST_id = self.get_id();
+			const uint16 TEST_id_dest =	ware.get_ziel().get_id();
 
 			const uint32 TEST_WALKING = get_number_of_halts_within_walking_distance();
 

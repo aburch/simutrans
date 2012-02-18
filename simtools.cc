@@ -35,7 +35,7 @@ static void init_genrand(uint32 s)
 		mersenne_twister[mersenne_twister_index] = (1812433253UL * (mersenne_twister[mersenne_twister_index-1] ^ (mersenne_twister[mersenne_twister_index-1] >> 30)) + mersenne_twister_index);
 		/* See Knuth TAOCP Vol2. 3rd Ed. P.106 for multiplier. */
 		/* In the previous versions, MSBs of the seed affect   */
-		/* only MSBs of the array mersenne_twister[].                        */
+		/* only MSBs of the array mersenne_twister[].          */
 		/* 2002/01/09 modified by Makoto Matsumoto             */
 		mersenne_twister[mersenne_twister_index] &= 0xffffffffUL;
 		/* for >32 bit machines */
