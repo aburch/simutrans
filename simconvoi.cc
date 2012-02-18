@@ -4136,7 +4136,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 			const sint64 multiplier = (welt->get_settings().get_max_luxury_bonus_percent() * comfort_modifier) / 100ll;
 			if(differential >= max_differential)
 			{
-				final_revenue += (revenue * multiplier) / 10000ll;
+				final_revenue += (revenue * multiplier) / 100ll;
 			}
 			else
 			{
@@ -4153,7 +4153,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 			multiplier = multiplier < 95ll ? multiplier : 95ll;
 			if(differential >= max_differential)
 			{
-				final_revenue -= (revenue * multiplier) / 10000ll;
+				final_revenue -= (revenue * multiplier) / 100ll;
 			}
 			else
 			{
