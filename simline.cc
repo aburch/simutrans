@@ -393,10 +393,10 @@ void simline_t::recalc_catg_index()
 	// then recreate current
 	FOR(vector_tpl<convoihandle_t>, const i, line_managed_convoys) {
 		// what goods can this line transport?
-		const convoi_t *cnv = i.get_rep();
-		withdraw &= cnv->get_withdraw();
+		convoi_t const& cnv = *i;
+		withdraw &= cnv.get_withdraw();
 
-		FOR(minivec_tpl<uint8>, const catg_index, cnv->get_goods_catg_index()) {
+		FOR(minivec_tpl<uint8>, const catg_index, cnv.get_goods_catg_index()) {
 			goods_catg_index.append_unique( catg_index, 1 );
 		}
 	}
