@@ -3449,6 +3449,7 @@ void convoi_t::rdwr(loadsave_t *file)
 		{
 			uint32 count = 0;
 			file->rdwr_long(count);
+			average_journey_times->clear();
 			for(uint32 i = 0; i < count; i ++)
 			{
 				id_pair idp;
@@ -3506,11 +3507,6 @@ void convoi_t::rdwr(loadsave_t *file)
 
 	/*if(file->get_experimental_version() >= 10 && file->get_version() >= 111001)
 	{
-		// It is necessary to save the IDs for convoys, as these are
-		// used in the path explorer when the convoys run without
-		// lines. Network desyncs can result if these games are then
-		// played online.
-
 		uint16 id;
 		if (file->is_saving()) 
 		{
