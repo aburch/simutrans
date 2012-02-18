@@ -368,6 +368,7 @@ void simline_t::recalc_status()
 		bool has_obsolete = false;
 		FOR(vector_tpl<convoihandle_t>, const i, line_managed_convoys) {
 			has_obsolete = i->has_obsolete_vehicles();
+			if (has_obsolete) break;
 		}
 		// now we have to set it
 		state_color = has_obsolete ? COL_DARK_BLUE : COL_BLACK;
