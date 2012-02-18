@@ -181,14 +181,15 @@ int ai_goods_t::get_factory_tree_missing_count( fabrik_t *fab )
 {
 	int numbers=0;	// how many missing?
 
+	fabrik_besch_t const& d = *fab->get_besch();
 	// ok, this is a source ...
-	if(fab->get_besch()->get_lieferanten()==0) {
+	if (d.is_producer_only()) {
 		return 0;
 	}
 
 	// now check for all
-	for( int i=0;  i<fab->get_besch()->get_lieferanten();  i++  ) {
-		const ware_besch_t *ware = fab->get_besch()->get_lieferant(i)->get_ware();
+	for (int i = 0; i < d.get_lieferanten(); ++i) {
+		ware_besch_t const* const ware = d.get_lieferant(i)->get_ware();
 
 		bool complete = false;	// found at least one factory
 		FOR(vector_tpl<koord>, const& q, fab->get_suppliers()) {

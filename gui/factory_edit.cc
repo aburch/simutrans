@@ -150,8 +150,8 @@ void factory_edit_frame_t::fill_list( bool translate )
 	FOR(vector_tpl<fabrik_besch_t const*>, const i, fablist) {
 		COLOR_VAL const color =
 			i->is_consumer_only() ? COL_BLUE       :
-			!i->get_lieferant(0)  ? COL_DARK_GREEN : // source only
-			COL_BLACK;                              // normal
+			i->is_producer_only() ? COL_DARK_GREEN :
+			COL_BLACK;
 		char const* const name = translate ? translator::translate(i->get_name()) : i->get_name();
 		scl.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(name, color));
 		if (i == fab_besch) {
@@ -241,7 +241,7 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 			}
 
 			// show consumed goods
-			if(fab_besch->get_lieferanten()>0) {
+			if (!fab_besch->is_producer_only()) {
 				buf.append( translator::translate("Verbrauch") );
 				buf.append("\n");
 				for(  int i=0;  i<fab_besch->get_lieferanten();  i++  ) {
