@@ -678,7 +678,7 @@ int simu_main(int argc, char** argv)
 		}
 		if(  umgebung_t::objfilename.empty()  ) {
 			// nothing to be loaded => exit
-			dr_fatal_notify("*** No pak set found ***\n\nMost likely, you have no pak set installed.\nPlease download and install also graphcis (pak).\n");
+			dr_fatal_notify("*** No pak set found ***\n\nMost likely, you have no pak set installed.\nPlease download and install a pak set (graphics).\n");
 			simgraph_exit();
 			return 0;
 		}
