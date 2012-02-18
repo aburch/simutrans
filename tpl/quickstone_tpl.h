@@ -254,6 +254,8 @@ public:
 	 */
 	T* operator->() const { return data[entry]; }
 
+	T& operator *() const { return *data[entry]; }
+
 	bool operator== (const quickstone_tpl<T> &other) const { return entry == other.entry; }
 
 	bool operator!= (const quickstone_tpl<T> &other) const { return entry != other.entry; }
