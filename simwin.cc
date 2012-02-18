@@ -1332,13 +1332,13 @@ bool check_pos_win(event_t *ev)
 }
 
 
-void win_get_event(struct event_t *ev)
+void win_get_event(event_t* const ev)
 {
 	display_get_event(ev);
 }
 
 
-void win_poll_event(struct event_t *ev)
+void win_poll_event(event_t* const ev)
 {
 	display_poll_event(ev);
 	// main window resized

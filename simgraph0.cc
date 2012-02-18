@@ -130,9 +130,9 @@ int get_maus_y(void)
 	return sys_event.my;
 }
 
-struct clip_dimension display_get_clip_wh(void)
+clip_dimension display_get_clip_wh()
 {
-	struct clip_dimension clip_rect;
+	clip_dimension clip_rect;
 	return clip_rect;
 }
 

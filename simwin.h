@@ -107,7 +107,7 @@ void rdwr_all_win(loadsave_t *file);
 int create_win(gui_frame_t*, wintype, long magic);
 int create_win(int x, int y, gui_frame_t*, wintype, long magic);
 
-bool check_pos_win(struct event_t *ev);
+bool check_pos_win(event_t*);
 
 bool win_is_open(gui_frame_t *ig );
 int win_get_posx(gui_frame_t *ig);
@@ -144,8 +144,8 @@ void win_rotate90( sint16 new_size );
 void move_win(int win);
 
 void win_display_flush(double konto); // draw the frame and all windows
-void win_get_event(struct event_t *ev);
-void win_poll_event(struct event_t *ev);
+void win_get_event(event_t*);
+void win_poll_event(event_t*);
 
 void win_set_welt(karte_t *welt);
 

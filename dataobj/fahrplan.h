@@ -27,7 +27,7 @@ protected:
 	schedule_t() : abgeschlossen(false), aktuell(0) {}
 
 public:
-	minivec_tpl<struct linieneintrag_t> eintrag;
+	minivec_tpl<linieneintrag_t> eintrag;
 
 	/**
 	* sollte eine Fehlermeldung ausgeben, wenn halt nicht erlaubt ist
@@ -57,7 +57,7 @@ public:
 	uint8 get_aktuell() const { return aktuell; }
 
 	// always returns a valid entry to the current stop
-	const struct linieneintrag_t &get_current_eintrag() const { return aktuell>=eintrag.get_count() ? dummy_eintrag : eintrag[aktuell]; }
+	linieneintrag_t const& get_current_eintrag() const { return aktuell >= eintrag.get_count() ? dummy_eintrag : eintrag[aktuell]; }
 
 private:
 	/**
@@ -152,7 +152,7 @@ private:
 	bool  abgeschlossen;
 	uint8 aktuell;
 
-	static struct linieneintrag_t dummy_eintrag;
+	static linieneintrag_t dummy_eintrag;
 };
 
 

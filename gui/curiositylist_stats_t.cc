@@ -143,7 +143,7 @@ void curiositylist_stats_t::recalc_size()
  */
 void curiositylist_stats_t::zeichnen(koord offset)
 {
-	const struct clip_dimension cd = display_get_clip_wh();
+	clip_dimension const cd = display_get_clip_wh();
 	const int start = cd.y-LINESPACE+1;
 	const int end = cd.yy;
 

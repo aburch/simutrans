@@ -78,7 +78,7 @@ int old_my = -1;
 /*
  * Hajo: Current clipping rectangle
  */
-static struct clip_dimension clip_rect;
+static clip_dimension clip_rect;
 
 // and the variables for polygon clipping
 
@@ -637,7 +637,7 @@ static bool clip_lr(KOORD_VAL *x, KOORD_VAL *w, const KOORD_VAL left, const KOOR
  * Ermittelt Clipping Rechteck
  * @author Hj. Malthaner
  */
-struct clip_dimension display_get_clip_wh(void)
+clip_dimension display_get_clip_wh()
 {
 	return clip_rect;
 }

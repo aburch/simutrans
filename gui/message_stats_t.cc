@@ -196,7 +196,7 @@ void message_stats_t::zeichnen(koord offset)
 		}
 	}
 
-	struct clip_dimension cd = display_get_clip_wh();
+	clip_dimension const cd = display_get_clip_wh();
 	sint16 y = offset.y+2;
 
 	// changes to loop affecting x_size must be copied to ::recalc_size()

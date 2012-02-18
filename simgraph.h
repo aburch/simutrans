@@ -35,7 +35,7 @@ struct clip_dimension {
 // save the current clipping and set a new one
 #define PUSH_CLIP(x,y,w,h) \
 {\
-const struct clip_dimension p_cr = display_get_clip_wh(); \
+clip_dimension const p_cr = display_get_clip_wh(); \
 display_set_clip_wh(x, y, w, h);
 
 // restore a saved clipping rect
@@ -257,7 +257,7 @@ int display_multiline_text(KOORD_VAL x, KOORD_VAL y, const char *inbuf, PLAYER_C
 void display_direct_line(const KOORD_VAL x, const KOORD_VAL y, const KOORD_VAL xx, const KOORD_VAL yy, const PLAYER_COLOR_VAL color);
 
 void display_set_clip_wh(KOORD_VAL x, KOORD_VAL y, KOORD_VAL w, KOORD_VAL h);
-struct clip_dimension display_get_clip_wh(void);
+clip_dimension display_get_clip_wh();
 
 void display_snapshot(void);
 
