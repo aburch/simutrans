@@ -143,8 +143,8 @@ bool ai_goods_t::get_factory_tree_lowest_missing( fabrik_t *fab )
 			fabrik_t* const qfab = fabrik_t::get_fab(welt, q);
 			const fabrik_besch_t* const fb = qfab->get_besch();
 			for (uint qq = 0; qq < fb->get_produkte(); qq++) {
-				if (fb->get_produkt(qq)->get_ware() == ware              &&
-						!is_forbidden(fabrik_t::get_fab(welt, q), fab, ware) &&
+				if (fb->get_produkt(qq)->get_ware() == ware &&
+						!is_forbidden(qfab, fab, ware)          &&
 						!is_connected(q, fab->get_pos().get_2d(), ware)) {
 					// find out how much is there
 					const array_tpl<ware_production_t>& ausgang = qfab->get_ausgang();
