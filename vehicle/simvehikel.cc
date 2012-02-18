@@ -760,12 +760,11 @@ uint16 vehikel_t::unload_freight(halthandle_t halt)
 bool vehikel_t::load_freight(halthandle_t halt)
 {
 	const bool ok = halt->gibt_ab(besch->get_ware());
-	schedule_t *fpl = cnv->get_schedule();
 	if( ok   &&  total_freight < besch->get_zuladung()) {
 		const uint16 hinein = besch->get_zuladung() - total_freight;
 
 		slist_tpl<ware_t> zuladung;
-		halt->hole_ab(zuladung, besch->get_ware(), hinein, fpl, cnv->get_besitzer() );
+		halt->hole_ab(zuladung, besch->get_ware(), hinein, cnv->get_schedule(), cnv->get_besitzer());
 
 		if(zuladung.empty()) {
 			// now empty, but usually, we can get it here ...
