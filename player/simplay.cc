@@ -444,12 +444,7 @@ void spieler_t::buche(sint64 const betrag, koord const pos, player_cost const ty
 
 			// and same for sound too ...
 			if(  betrag>=10000  &&  !welt->is_fast_forward()  ) {
-				struct sound_info info;
-
-				info.index = SFX_CASH;
-				info.volume = 255;
-
-				welt->play_sound_area_clipped(pos, info);
+				welt->play_sound_area_clipped(pos, SFX_CASH);
 			}
 		}
 	}

@@ -1015,9 +1015,10 @@ public:
 	 * Spielt den Sound, wenn die Position im sichtbaren Bereich liegt.
 	 * Spielt weiter entfernte Sounds leiser ab.
 	 * @param pos Position an der das Ereignis stattfand
+	 * @param idx Index of the sound
 	 * @author Hj. Malthaner
 	 */
-	bool play_sound_area_clipped(koord pos, sound_info info) const;
+	bool play_sound_area_clipped(koord pos, uint16 idx) const;
 
 	void mute_sound( bool state ) { is_sound = !state; }
 

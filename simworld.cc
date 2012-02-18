@@ -3918,7 +3918,7 @@ DBG_DEBUG("karte_t::finde_plaetze()","for size (%i,%i) in map (%i,%i)",w,h,get_g
  *
  * @author Hj. Malthaner
  */
-bool karte_t::play_sound_area_clipped(koord pos, sound_info info) const
+bool karte_t::play_sound_area_clipped(koord const pos, uint16 const idx) const
 {
 	if(is_sound  &&  zeiger) {
 		const int dist = koord_distance( pos, zeiger->get_pos() );
@@ -3927,8 +3927,9 @@ bool karte_t::play_sound_area_clipped(koord pos, sound_info info) const
 			int xw = (2*display_get_width())/get_tile_raster_width();
 			int yw = (4*display_get_height())/get_tile_raster_width();
 
-			info.volume = (uint8)( (255l*(xw+yw))/(xw+yw+(64*dist)) );
-			if(  info.volume>8  ) {
+			uint8 const volume = (uint8)(255U * (xw + yw) / (xw + yw + 64 * dist));
+			if (volume > 8) {
+				sound_info const info = { idx, volume };
 				sound_play(info);
 			}
 		}
