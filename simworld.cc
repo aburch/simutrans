@@ -117,6 +117,7 @@
 
 #ifdef DEBUG_SIMRAND_CALLS
 bool karte_t::print_randoms = true;
+int karte_t::random_calls = 0;
 #endif
 
 
@@ -134,7 +135,6 @@ static bool is_dragging = false;
 static uint32 last_clients = -1;
 static uint8 last_active_player_nr = 0;
 static std::string last_network_game;
-
 
 void checklist_t::rdwr(memory_rw_t *buffer)
 {
@@ -3599,7 +3599,7 @@ void karte_t::step()
 		next_month_ticks += karte_t::ticks_per_world_month;
 
 		// avoid overflow here ...
-		// Should not overflow: now usint 64-bit values.
+		// Should not overflow: now using 64-bit values.
 		// @author: jamespetts
 /*
 		if(ticks>next_month_ticks) {
@@ -3690,7 +3690,6 @@ void karte_t::step()
 	// to make sure the tick counter will be updated
 	INT_CHECK("karte_t::step");
 
-
 	// Knightly : calling global path explorer
 	path_explorer_t::step();
 	INT_CHECK("karte_t::step");
@@ -3770,7 +3769,7 @@ void karte_t::step()
 		// since init always returns false, it is save to delete immediately
 		delete w;
 #ifdef DEBUG_SIMRAND_CALLS
-		if(last_clients == 0)
+		if(/*last_clients == 0*/ true)
 		{
 			ITERATE(karte_t::random_callers, n)
 			{

@@ -93,6 +93,7 @@ public:
 
 #ifdef DEBUG_SIMRAND_CALLS
 	static bool print_randoms;
+	static int random_calls;
 #endif
 	/**
 	* Hoehe eines Punktes der Karte mit "perlin noise"
@@ -1289,7 +1290,7 @@ public:
 
 
 #ifdef DEBUG_SIMRAND_CALLS
-	static fixed_list_tpl<const char*, 256> random_callers;
+	static fixed_list_tpl<const char*, 320> random_callers;
 #endif
 
 private:

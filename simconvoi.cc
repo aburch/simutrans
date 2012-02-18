@@ -3809,7 +3809,6 @@ void convoi_t::laden() //"load" (Babelfish)
 					average_tpl<uint16> average;
 					average.add(journey_time);
 					average_journey_times->put(idp, average);
-					/*average_journey_times->put(pair, average);*/
 				}
 				else
 				{
@@ -3822,7 +3821,6 @@ void convoi_t::laden() //"load" (Babelfish)
 						average_tpl<uint16> average;
 						average.add(journey_time);
 						line->average_journey_times->put(idp, average);
-						/*line->average_journey_times->put(pair, average);*/
 					}
 					else
 					{

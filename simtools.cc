@@ -106,7 +106,7 @@ uint32 simrand(const uint32 max, const char*)
 
 #ifdef DEBUG_SIMRAND_CALLS
 	char* buf = new char[256];
-	sprintf(buf, "%s (%i)", caller, get_random_seed());
+	sprintf(buf, "%s (%i); call: (%i)", caller, get_random_seed(), karte_t::random_calls);
 	dbg->warning("simrand", buf);
 	if(karte_t::print_randoms)
 	{
@@ -119,7 +119,16 @@ uint32 simrand(const uint32 max, const char*)
 	if(max<=1) {	// may rather assert this?
 		return 0;
 	}
+#ifdef DEBUG_SIMRAND_CALLS
+	// Run the random number generator to change the seed,
+	// but do not use the number to ensure a consistent 
+	// code path for debugging.
+	simrand_plain();
+	karte_t::random_calls ++;
+	return max;
+#else
 	return simrand_plain() % max;
+#endif
 }
 
 /* generates random number with gaussian distribution
