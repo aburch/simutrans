@@ -49,12 +49,12 @@ koord enlarge_map_frame_t::koord_from_rotation(settings_t const* const sets, sin
 {
 	koord offset( sets->get_origin_x(), sets->get_origin_y() );
 	switch( sets->get_rotation() ) {
+		default:
 		case 0: return offset+koord(x,y);
 		case 1: return offset+koord(y,w-x);
 		case 2: return offset+koord(w-x,h-y);
 		case 3: return offset+koord(h-y,x);
 	}
-	assert(sets->get_rotation()<3);
 }
 
 
