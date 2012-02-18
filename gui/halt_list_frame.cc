@@ -102,132 +102,135 @@ bool halt_list_frame_t::compare_halts(halthandle_t const halt1, halthandle_t con
 }
 
 
-bool halt_list_frame_t::passes_filter(halthandle_t halt)
+static bool passes_filter_name(haltestelle_t const& s)
 {
-	bool ok;
-	uint32 i;
+	if (!halt_list_frame_t::get_filter(halt_list_frame_t::name_filter)) return true;
 
-	if(!get_filter(any_filter)) {
-		return true;
-	}
-	if(get_filter(name_filter) && !strstr(halt->get_name(), name_filter_value)) {
-		return false;
-	}
-	if(get_filter(typ_filter)) {
-		haltestelle_t::stationtyp const t = halt->get_station_type();
+	return strstr(s.get_name(), halt_list_frame_t::access_name_filter());
+}
 
-		if(!(get_filter(frachthof_filter) && (t & haltestelle_t::loadingbay)) &&
-		   !(get_filter(bahnhof_filter) && (t & haltestelle_t::railstation)) &&
-		   !(get_filter(bushalt_filter) && (t & haltestelle_t::busstop)) &&
-		   !(get_filter(airport_filter) && (t & haltestelle_t::airstop)) &&
-		   !(get_filter(dock_filter) && (t & haltestelle_t::dock)) &&
-		   !(get_filter(monorailstop_filter) && (t & haltestelle_t::monorailstop)) &&
-		   !(get_filter(maglevstop_filter) && (t & haltestelle_t::maglevstop)) &&
-		   !(get_filter(narrowgaugestop_filter) && (t & haltestelle_t::narrowgaugestop)) &&
-		   !(get_filter(tramstop_filter) && (t & haltestelle_t::tramstop)))
-		{
-			return false;
+
+static bool passes_filter_type(haltestelle_t const& s)
+{
+	if (!halt_list_frame_t::get_filter(halt_list_frame_t::typ_filter)) return true;
+
+	haltestelle_t::stationtyp const t = s.get_station_type();
+	if (halt_list_frame_t::get_filter(halt_list_frame_t::frachthof_filter)       && t & haltestelle_t::loadingbay)      return true;
+	if (halt_list_frame_t::get_filter(halt_list_frame_t::bahnhof_filter)         && t & haltestelle_t::railstation)     return true;
+	if (halt_list_frame_t::get_filter(halt_list_frame_t::bushalt_filter)         && t & haltestelle_t::busstop)         return true;
+	if (halt_list_frame_t::get_filter(halt_list_frame_t::airport_filter)         && t & haltestelle_t::airstop)         return true;
+	if (halt_list_frame_t::get_filter(halt_list_frame_t::dock_filter)            && t & haltestelle_t::dock)            return true;
+	if (halt_list_frame_t::get_filter(halt_list_frame_t::monorailstop_filter)    && t & haltestelle_t::monorailstop)    return true;
+	if (halt_list_frame_t::get_filter(halt_list_frame_t::maglevstop_filter)      && t & haltestelle_t::maglevstop)      return true;
+	if (halt_list_frame_t::get_filter(halt_list_frame_t::narrowgaugestop_filter) && t & haltestelle_t::narrowgaugestop) return true;
+	if (halt_list_frame_t::get_filter(halt_list_frame_t::tramstop_filter)        && t & haltestelle_t::tramstop)        return true;
+	return false;
+}
+
+
+static bool passes_filter_special(haltestelle_t const& s)
+{
+	if (!halt_list_frame_t::get_filter(halt_list_frame_t::spezial_filter)) return true;
+
+	if (halt_list_frame_t::get_filter(halt_list_frame_t::ueberfuellt_filter)) {
+		COLOR_VAL const farbe = s.get_status_farbe();
+		if (farbe == COL_RED || farbe == COL_ORANGE) return true;
+	}
+
+	if (halt_list_frame_t::get_filter(halt_list_frame_t::ohneverb_filter)) {
+		for (uint8 i = 0; i < warenbauer_t::get_max_catg_index(); ++i){
+			if (s.get_connections(i)->empty()) return false; //only display stations with NO connection
 		}
 	}
-	if(get_filter(spezial_filter)) {
-		ok = false;
 
-		if(get_filter(ueberfuellt_filter)) {
-			const int farbe=halt->get_status_farbe();
-			ok = (farbe==COL_RED  ||  farbe==COL_ORANGE);
-		}
-		if(!ok && get_filter(ohneverb_filter)) {
-			ok = true;
-			for (uint8 i = 0; i<warenbauer_t::get_max_catg_index(); i++){
-				ok &= halt->get_connections(i)->empty(); //only display stations with NO connection
-			}
-		}
-		if(!ok) {
-			return false;
-		}
-	}
-	if(get_filter(ware_ab_filter)) {
-		/*
-		 * Die Unterkriterien werden gebildet aus:
-		 * - die Ware wird produziert (pax/post_enabled bzw. fabrik vorhanden)
-		 * - es existiert eine Zugverbindung mit dieser Ware (!ziele[...].empty())
-		 */
-		ok = false;
+	return true;
+}
 
-		// const slist_tpl<warenziel_t> *ziele = halt->get_warenziele();
-		// Hajo: todo: check if there is a destination for the good (?)
 
-		for(i = 0; !ok && i < warenbauer_t::get_waren_anzahl(); i++) {
-			const ware_besch_t *ware = warenbauer_t::get_info(i);
+static bool passes_filter_out(haltestelle_t const& s)
+{
+	if (!halt_list_frame_t::get_filter(halt_list_frame_t::ware_ab_filter)) return true;
 
-			if(get_ware_filter_ab(ware)) {
-				if(ware == warenbauer_t::passagiere) {
-					ok = halt->get_pax_enabled();
-				}
-				else if(ware == warenbauer_t::post) {
-					ok = halt->get_post_enabled();
-				}
-				else if(ware != warenbauer_t::nichts) {
+	/*
+	 * Die Unterkriterien werden gebildet aus:
+	 * - die Ware wird produziert (pax/post_enabled bzw. fabrik vorhanden)
+	 * - es existiert eine Zugverbindung mit dieser Ware (!ziele[...].empty())
+	 */
 
-				  // Oh Mann - eine doppelte Schleife und das noch pro Haltestelle
-				  // Zum Glück ist die Anzahl der Fabriken und die ihrer Ausgänge
-				  // begrenzt (Normal 1-2 Fabriken mit je 0-1 Ausgang) -  V. Meyer
-					FOR(slist_tpl<fabrik_t*>, const f, halt->get_fab_list()) {
-						FOR(array_tpl<ware_production_t>, const& j, f->get_ausgang()) {
-							ok = j.get_typ() == ware;
-							if (ok) goto found_out;
-						}
-					}
-found_out:;
+	// Hajo: todo: check if there is a destination for the good (?)
+
+	for (uint32 i = 0; i != warenbauer_t::get_waren_anzahl(); ++i) {
+		ware_besch_t const* const ware = warenbauer_t::get_info(i);
+		if (!halt_list_frame_t::get_ware_filter_ab(ware)) continue;
+
+		if (ware == warenbauer_t::passagiere) {
+			if (s.get_pax_enabled()) return true;
+		} else if (ware == warenbauer_t::post) {
+			if (s.get_post_enabled()) return true;
+		} else if (ware != warenbauer_t::nichts) {
+			// Oh Mann - eine doppelte Schleife und das noch pro Haltestelle
+			// Zum Glück ist die Anzahl der Fabriken und die ihrer Ausgänge
+			// begrenzt (Normal 1-2 Fabriken mit je 0-1 Ausgang) -  V. Meyer
+			FOR(slist_tpl<fabrik_t*>, const f, s.get_fab_list()) {
+				FOR(array_tpl<ware_production_t>, const& j, f->get_ausgang()) {
+					if (j.get_typ() == ware) return true;
 				}
 			}
 		}
-
-		if(!ok) {
-			return false;
-		}
 	}
 
-	if(get_filter(ware_an_filter)) {
-		/*
-		 * Die Unterkriterien werden gebildet aus:
-		 * - die Ware wird verbraucht (pax/post_enabled bzw. fabrik vorhanden)
-		 * - es existiert eine Zugverbindung mit dieser Ware (!ziele[...].empty())
-		 */
+	return false;
+}
 
-		ok = false;
-		// const slist_tpl<warenziel_t> *ziele = halt->get_warenziele();
-		// Hajo: todo: check if there is a destination for the good (?)
 
-		for(i = 0; !ok && i < warenbauer_t::get_waren_anzahl(); i++) {
-			const ware_besch_t *ware = warenbauer_t::get_info(i);
+static bool passes_filter_in(haltestelle_t const& s)
+{
+	if (!halt_list_frame_t::get_filter(halt_list_frame_t::ware_an_filter)) return true;
+	/*
+	 * Die Unterkriterien werden gebildet aus:
+	 * - die Ware wird verbraucht (pax/post_enabled bzw. fabrik vorhanden)
+	 * - es existiert eine Zugverbindung mit dieser Ware (!ziele[...].empty())
+	 */
 
-			if(get_ware_filter_an(ware)) {
-				if(ware == warenbauer_t::passagiere) {
-					ok = halt->get_pax_enabled();
-				}
-				else if(ware == warenbauer_t::post) {
-					ok = halt->get_post_enabled();
-				}
-				else if(ware != warenbauer_t::nichts) {
+	// Hajo: todo: check if there is a destination for the good (?)
 
-					// Oh Mann - eine doppelte Schleife und das noch pro Haltestelle
-					// Zum Glück ist die Anzahl der Fabriken und die ihrer Ausgänge
-					// begrenzt (Normal 1-2 Fabriken mit je 0-1 Ausgang) -  V. Meyer
-					FOR(slist_tpl<fabrik_t*>, const f, halt->get_fab_list()) {
-						FOR(array_tpl<ware_production_t>, const& j, f->get_eingang()) {
-							ok = j.get_typ() == ware;
-							if (ok) goto found_in;
-						}
-					}
-found_in:;
+	for (uint32 i = 0; i != warenbauer_t::get_waren_anzahl(); ++i) {
+		ware_besch_t const* const ware = warenbauer_t::get_info(i);
+		if (!halt_list_frame_t::get_ware_filter_an(ware)) continue;
+
+		if (ware == warenbauer_t::passagiere) {
+			if (s.get_pax_enabled()) return true;
+		} else if (ware == warenbauer_t::post) {
+			if (s.get_post_enabled()) return true;
+		} else if (ware != warenbauer_t::nichts) {
+			// Oh Mann - eine doppelte Schleife und das noch pro Haltestelle
+			// Zum Glück ist die Anzahl der Fabriken und die ihrer Ausgänge
+			// begrenzt (Normal 1-2 Fabriken mit je 0-1 Ausgang) -  V. Meyer
+			FOR(slist_tpl<fabrik_t*>, const f, s.get_fab_list()) {
+				FOR(array_tpl<ware_production_t>, const& j, f->get_eingang()) {
+					if (j.get_typ() == ware) return true;
 				}
 			}
 		}
+	}
 
-		if(!ok) {
-			return false;
-		}
+	return false;
+}
+
+
+/**
+ * Check all filters for one halt.
+ * returns true, if it is not filtered away.
+ * @author V. Meyer
+ */
+static bool passes_filter(haltestelle_t const& s)
+{
+	if (halt_list_frame_t::get_filter(halt_list_frame_t::any_filter)) {
+		if (!passes_filter_name(s))    return false;
+		if (!passes_filter_type(s))    return false;
+		if (!passes_filter_special(s)) return false;
+		if (!passes_filter_out(s))     return false;
+		if (!passes_filter_in(s))      return false;
 	}
 	return true;
 }
@@ -302,7 +305,7 @@ void halt_list_frame_t::display_list(void)
 	FOR(slist_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {
 		if(  halt->get_besitzer() == m_sp  ) {
 			a[n++] = halt;
-			if(  passes_filter(halt)  ) {
+			if (passes_filter(*halt)) {
 				num_filtered_stops++;
 			}
 		}
@@ -350,7 +353,7 @@ bool halt_list_frame_t::infowin_event(const event_t *ev)
 			// find the 'y'th filtered stop in the unfiltered stops list
 			uint32 i=0;
 			for(  int j=0;  i<stops.get_count()  &&  j<=y;  i++  ){
-				if(  passes_filter(stops[i].get_halt())  ) {
+				if (passes_filter(*stops[i].get_halt())) {
 					j++;
 				}
 			}
@@ -439,7 +442,7 @@ void halt_list_frame_t::zeichnen(koord pos, koord gr)
 
 	FOR(vector_tpl<halt_list_stats_t>, & i, stops) {
 		halthandle_t const halt = i.get_halt();
-		if(  halt.is_bound()  &&  passes_filter(halt)  ) {
+		if (halt.is_bound() && passes_filter(*halt)) {
 			num_filtered_stops++;
 			if(  num_filtered_stops>start  &&  yoffset<gr.y+47  ) {
 				i.zeichnen(pos + koord(0, yoffset));
