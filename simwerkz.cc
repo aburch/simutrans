@@ -812,7 +812,6 @@ const char *wkz_raise_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 
 			int n = 0;	// tiles changed
 			if(default_param  &&  strlen(default_param)>0) {
-				ok = true;
 				// called by dragging or by AI
 				sint16 height = atoi(default_param);
 				// dragging may be going up or down!
@@ -1003,10 +1002,9 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 		// slopes may affect the position and the total height!
 		koord3d new_pos = pos;
 
-		ribi_t::ribi ribis = new_slope<hang_t::erhoben ? ribi_t::rueckwaerts(ribi_typ(new_slope)) : (ribi_t::ribi)ribi_t::alle;
 		if(  gr1->hat_wege()  ) {
 			// check the resulting slope
-			ribis = gr1->get_weg_nr(0)->get_ribi_unmasked();
+			ribi_t::ribi ribis = gr1->get_weg_nr(0)->get_ribi_unmasked();
 			if(  gr1->get_weg_nr(1)  ) {
 				ribis |= gr1->get_weg_nr(1)->get_ribi_unmasked();
 			}
