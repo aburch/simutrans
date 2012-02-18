@@ -171,7 +171,6 @@ crossing_logic_t::set_state( crossing_state_t new_state )
 		struct sound_info info;
 		info.index = besch->get_sound();
 		info.volume = 255;
-		info.pri = 0;
 		welt->play_sound_area_clipped(crossings[0]->get_pos().get_2d(), info);
 	}
 

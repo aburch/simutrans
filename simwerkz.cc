@@ -1754,7 +1754,6 @@ const char *wkz_wegebau_t::do_work( karte_t *welt, spieler_t *sp, const koord3d 
 		struct sound_info info;
 		info.index = SFX_CASH;
 		info.volume = 255;
-		info.pri = 0;
 		sound_play(info);
 
 		return NULL;
@@ -1820,7 +1819,6 @@ const char *wkz_build_cityroad::do_work( karte_t *welt, spieler_t *sp, const koo
 		struct sound_info info;
 		info.index = SFX_CASH;
 		info.volume = 255;
-		info.pri = 0;
 		sound_play(info);
 
 		return NULL;
@@ -3902,7 +3900,6 @@ const char *wkz_depot_t::wkz_depot_aux(karte_t *welt, spieler_t *sp, koord3d pos
 			struct sound_info info;
 			info.index = ok_sound;
 			info.volume = 255;
-			info.pri = 0;
 			sound_play(info);
 
 			return NULL;

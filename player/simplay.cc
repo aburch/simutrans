@@ -448,7 +448,6 @@ void spieler_t::buche(sint64 const betrag, koord const pos, player_cost const ty
 
 				info.index = SFX_CASH;
 				info.volume = 255;
-				info.pri = 0;
 
 				welt->play_sound_area_clipped(pos, info);
 			}
@@ -1110,13 +1109,13 @@ void spieler_t::tell_tool_result(werkzeug_t *tool, koord3d, const char *err, boo
 	if (welt->get_active_player()==this  &&  local) {
 		if(err==NULL) {
 			if(tool->ok_sound!=NO_SOUND) {
-				struct sound_info info = {tool->ok_sound,255,0};
+				struct sound_info info = { tool->ok_sound, 255 };
 				sound_play(info);
 			}
 		}
 		else if(*err!=0) {
 			// something went really wrong
-			struct sound_info info = {SFX_FAILURE,255,0};
+			struct sound_info info = { SFX_FAILURE, 255 };
 			sound_play(info);
 			create_win( new news_img(err), w_time_delete, magic_none);
 		}

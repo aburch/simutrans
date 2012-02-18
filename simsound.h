@@ -28,14 +28,6 @@ struct sound_info
 	 * @author Hj. Malthaner
 	 */
 	uint8 volume;
-
-	/**
-	 * Prioritaet des sounds. Falls die Anzahl der abspielbaren Sounds
-	 * vom System begrenzt wird, werden nur die Sounds hoher Priorität
-	 * abgespielt
-	 * @author Hj. Malthaner
-	 */
-	uint8 pri;
 };
 
 

@@ -2410,7 +2410,6 @@ void karte_t::local_set_werkzeug( werkzeug_t *w, spieler_t * sp )
 			struct sound_info info;
 			info.index = SFX_SELECT;
 			info.volume = 255;
-			info.pri = 0;
 			sound_play(info);
 
 			// only exit, if it is not the same tool again ...
@@ -5343,7 +5342,6 @@ void karte_t::interactive_event(event_t &ev)
 	struct sound_info click_sound;
 	click_sound.index = SFX_SELECT;
 	click_sound.volume = 255;
-	click_sound.pri = 0;
 
 	if(ev.ev_class == EVENT_KEYBOARD) {
 		DBG_MESSAGE("karte_t::interactive_event()","Keyboard event with code %d '%c'", ev.ev_code, (ev.ev_code>=32  &&  ev.ev_code<=126) ? ev.ev_code : '?' );
@@ -5646,7 +5644,6 @@ bool karte_t::interactive(uint32 quit_month)
 						struct sound_info ambient_sound;
 						ambient_sound.index = id;
 						ambient_sound.volume = 255;
-						ambient_sound.pri = 0;
 						sound_play( ambient_sound );
 					}
 				}

@@ -861,7 +861,6 @@ void vehikel_t::play_sound() const
 		struct sound_info info;
 		info.index = besch->get_sound();
 		info.volume = 255;
-		info.pri = 0;
 		welt->play_sound_area_clipped(get_pos().get_2d(), info);
 	}
 }
