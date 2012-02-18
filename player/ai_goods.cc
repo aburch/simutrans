@@ -360,7 +360,9 @@ bool ai_goods_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 			if(ship_vehicle->get_nachfolger_count()>0  &&  ship_vehicle->get_nachfolger(0)!=NULL) {
 				v_second = ship_vehicle->get_nachfolger(0);
 			}
-			return false;
+			else {
+				return false;
+			}
 		}
 		else {
 			ship_vehicle = v_second->get_vorgaenger(0);
