@@ -22,8 +22,7 @@
 #include "../tpl/slist_tpl.h"
 
 
-struct linieneintrag_t schedule_t::dummy_eintrag = { koord3d::invalid, 0, 0 };
-
+linieneintrag_t schedule_t::dummy_eintrag(koord3d::invalid, 0, 0);
 
 
 schedule_t::schedule_t(loadsave_t* const file)
@@ -87,14 +86,6 @@ bool schedule_t::ist_halt_erlaubt(const grund_t *gr) const
 
 bool schedule_t::insert(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_shift )
 {
-#ifndef _MSC_VER
-	struct linieneintrag_t stop = { gr->get_pos(), ladegrad, waiting_time_shift };
-#else
-	struct linieneintrag_t stop;
-	stop.pos = gr->get_pos();
-	stop.ladegrad = ladegrad;
-	stop.waiting_time_shift = waiting_time_shift;
-#endif
 	// stored in minivec, so wie have to avoid adding too many
 	if(  eintrag.get_count()>=254  ) {
 		create_win( new news_img("Maximum 254 stops\nin a schedule!\n"), w_time_delete, magic_none);
@@ -102,7 +93,7 @@ bool schedule_t::insert(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_sh
 	}
 
 	if(  ist_halt_erlaubt(gr)  ) {
-		eintrag.insert_at(aktuell, stop);
+		eintrag.insert_at(aktuell, linieneintrag_t(gr->get_pos(), ladegrad, waiting_time_shift));
 		aktuell ++;
 		return true;
 	}
@@ -117,15 +108,6 @@ bool schedule_t::insert(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_sh
 
 bool schedule_t::append(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_shift)
 {
-#ifndef _MSC_VER
-	struct linieneintrag_t stop = { gr->get_pos(), ladegrad, waiting_time_shift };
-#else
-	struct linieneintrag_t stop;
-	stop.pos = gr->get_pos();
-	stop.ladegrad = ladegrad;
-	stop.waiting_time_shift = waiting_time_shift;
-#endif
-
 	// stored in minivec, so wie have to avoid adding too many
 	if(eintrag.get_count()>=254) {
 		create_win( new news_img("Maximum 254 stops\nin a schedule!\n"), w_time_delete, magic_none);
@@ -133,7 +115,7 @@ bool schedule_t::append(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_sh
 	}
 
 	if(ist_halt_erlaubt(gr)) {
-		eintrag.append(stop, 4);
+		eintrag.append(linieneintrag_t(gr->get_pos(), ladegrad, waiting_time_shift), 4);
 		return true;
 	}
 	else {
@@ -221,12 +203,7 @@ void schedule_t::rdwr(loadsave_t *file)
 			uint32 dummy;
 			pos.rdwr(file);
 			file->rdwr_long(dummy);
-
-			struct linieneintrag_t stop;
-			stop.pos = pos;
-			stop.ladegrad = (sint8)dummy;
-			stop.waiting_time_shift = 0;
-			eintrag.append(stop);
+			eintrag.append(linieneintrag_t(pos, (uint8)dummy, 0));
 		}
 	}
 	else {
@@ -395,15 +372,7 @@ bool schedule_t::sscanf_schedule( const char *ptr )
 			p++;
 		}
 		// ok, now we have a complete entry
-#ifndef _MSC_VER
-		struct linieneintrag_t stop = { koord3d(values[0],values[1],values[2]), values[3], values[4] };
-#else
-		struct linieneintrag_t stop;
-		stop.pos = koord3d(values[0], values[1], (sint8)values[2]);
-		stop.ladegrad = (uint8)values[3];
-		stop.waiting_time_shift = (sint8)values[4];
-#endif
-		eintrag.append( stop );
+		eintrag.append(linieneintrag_t(koord3d(values[0], values[1], values[2]), values[3], values[4]));
 	}
 	return true;
 }

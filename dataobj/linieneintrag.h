@@ -10,6 +10,14 @@
 struct linieneintrag_t
 {
 public:
+	linieneintrag_t() {}
+
+	linieneintrag_t(koord3d const& pos, uint const ladegrad, sint8 const waiting_time_shift) :
+		pos(pos),
+		ladegrad(ladegrad),
+		waiting_time_shift(waiting_time_shift)
+	{}
+
 	/**
 	 * target position
 	 * @author Hj. Malthaner
