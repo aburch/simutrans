@@ -573,6 +573,8 @@ fast_forward = 50
 # By default it will use all local IPv4 and IPv6 addresses
 # This setting has no effect if Simutrans has been compiled with the USE_IP4_ONLY flag set!
 # The addresses listed will be tried in the order specified
+# A DNS name may be specified, this will be resolved and Simutrans will attempt to listen
+# on all of the addresses returned.
 #listen = ::,0.0.0.0
 
 # How much delay before comands are executed on the clients.
