@@ -759,8 +759,10 @@ uint16 vehikel_t::unload_freight(halthandle_t halt)
  */
 bool vehikel_t::load_freight(halthandle_t halt)
 {
-	const bool ok = halt->gibt_ab(besch->get_ware());
-	if( ok   &&  total_freight < besch->get_zuladung()) {
+	if (!halt->gibt_ab(besch->get_ware()))
+		return false;
+
+	if (total_freight < besch->get_zuladung()) {
 		const uint16 hinein = besch->get_zuladung() - total_freight;
 
 		slist_tpl<ware_t> zuladung;
@@ -768,7 +770,7 @@ bool vehikel_t::load_freight(halthandle_t halt)
 
 		if(zuladung.empty()) {
 			// now empty, but usually, we can get it here ...
-			return ok;
+			return true;
 		}
 
 		for (slist_tpl<ware_t>::iterator iter_z = zuladung.begin(); iter_z != zuladung.end();) {
@@ -803,7 +805,7 @@ bool vehikel_t::load_freight(halthandle_t halt)
 
 		INT_CHECK("simvehikel 876");
 	}
-	return ok;
+	return true;
 }
 
 
