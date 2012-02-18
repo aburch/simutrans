@@ -32,11 +32,6 @@ public:
 
 	runway_t(karte_t *welt);
 
-	/**
-	 * Calculates the image of this pice of runway
-	 */
-	virtual void calc_bild(koord3d) { weg_t::calc_bild(); }
-
 	inline waytype_t get_waytype() const {return air_wt;}
 
 	void rdwr(loadsave_t *file);
