@@ -1152,6 +1152,12 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 				continue;
 			}
 
+			const char* TEST = get_name();
+			const char* TEST_2 = ware.get_zwischenziel()->get_name();
+			const uint16 TEST_id = self.get_id();
+
+			const uint32 TEST_WALKING = get_number_of_halts_within_walking_distance();
+
 			// If the passengers have re-routed so that they now
 			// walk to the next transfer, go there immediately.
 			if(ware.is_passenger() && is_within_walking_distance_of(ware.get_zwischenziel()) && !connexions[0]->get(ware.get_zwischenziel())->best_convoy.is_bound() && !connexions[0]->get(ware.get_zwischenziel())->best_line.is_bound())

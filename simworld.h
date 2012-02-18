@@ -1290,7 +1290,7 @@ public:
 
 
 #ifdef DEBUG_SIMRAND_CALLS
-	static fixed_list_tpl<const char*, 320> random_callers;
+	static vector_tpl<const char*> random_callers;
 #endif
 
 private:

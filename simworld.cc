@@ -1796,7 +1796,7 @@ karte_t::karte_t() :
 }
 
 #ifdef DEBUG_SIMRAND_CALLS
-	fixed_list_tpl<const char*, 320> karte_t::random_callers;
+	vector_tpl<const char*> karte_t::random_callers;
 #endif
 
 
@@ -4800,11 +4800,13 @@ void karte_t::laden(loadsave_t *file)
 	settings = umgebung_t::default_einstellungen;
 	settings.rdwr(file);
 
+#ifndef DEBUG_SIMRAND_CALLS
 	if(  umgebung_t::networkmode  ) {
 		// to have games synchronized, transfer random counter too
 		setsimrand(settings.get_random_counter(), 0xFFFFFFFFu );
 		translator::init_custom_names(settings.get_name_language_id());
 	}
+#endif
 
 	if(  !umgebung_t::networkmode  ||  (umgebung_t::server  &&  socket_list_t::get_playing_clients()==0)  ) {
 		if (settings.get_allow_player_change() && umgebung_t::default_einstellungen.get_use_timeline() < 2) {
@@ -5371,7 +5373,7 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 	path_explorer_t::full_instant_refresh();
 
 	clear_random_mode(LOAD_RANDOM);
-	
+
 	dbg->warning("karte_t::laden()","loaded savegame from %i/%i, next month=%i, ticks=%i (per month=1<<%i)",letzter_monat,letztes_jahr,next_month_ticks,ticks,karte_t::ticks_per_world_month_shift);
 }
 

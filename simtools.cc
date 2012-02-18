@@ -27,6 +27,9 @@ static uint8 random_origin = 0;
 /* initializes mersenne_twister[N] with a seed */
 static void init_genrand(uint32 s)
 {
+#ifdef DEBUG_SIMRAND_CALLS
+	karte_t::random_callers.append("*** GEN ***");
+#endif
 	mersenne_twister[0]= s & 0xffffffffUL;
 	for (mersenne_twister_index=1; mersenne_twister_index<MERSENNE_TWISTER_N; mersenne_twister_index++) {
 		mersenne_twister[mersenne_twister_index] = (1812433253UL * (mersenne_twister[mersenne_twister_index-1] ^ (mersenne_twister[mersenne_twister_index-1] >> 30)) + mersenne_twister_index);
@@ -39,10 +42,12 @@ static void init_genrand(uint32 s)
 	}
 }
 
-
 /* generate N words at one time */
 static void MTgenerate(void)
 {
+#ifdef DEBUG_SIMRAND_CALLS
+	karte_t::random_callers.append("*** REGEN ***");
+#endif
 	static uint32 mag01[2]={0x0UL, MATRIX_A};
 	uint32 y;
 	int kk;
@@ -113,7 +118,8 @@ uint32 simrand(const uint32 max, const char*)
 		printf("%s\n", buf);
 	}
 
-	karte_t::random_callers.add_to_head(buf);
+	karte_t::random_callers.append(buf);
+	karte_t::random_calls ++;
 #endif
 
 	if(max<=1) {	// may rather assert this?
@@ -124,8 +130,7 @@ uint32 simrand(const uint32 max, const char*)
 	// but do not use the number to ensure a consistent 
 	// code path for debugging.
 	simrand_plain();
-	karte_t::random_calls ++;
-	return max;
+	return max - 1;
 #else
 	return simrand_plain() % max;
 #endif
