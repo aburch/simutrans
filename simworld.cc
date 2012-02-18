@@ -1796,7 +1796,7 @@ karte_t::karte_t() :
 }
 
 #ifdef DEBUG_SIMRAND_CALLS
-	fixed_list_tpl<const char*, 256> karte_t::random_callers;
+	fixed_list_tpl<const char*, 320> karte_t::random_callers;
 #endif
 
 
