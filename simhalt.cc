@@ -1252,8 +1252,8 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 	}
 
 	// initialisations for end halts => save some checking inside search loop
-	for(  uint32 e=0;  e<end_halts.get_count();  ++e  ) {
-		const uint16 halt_id = end_halts[e].get_id();
+	FOR(vector_tpl<halthandle_t>, const e, end_halts) {
+		uint16 const halt_id = e.get_id();
 		halt_data[ halt_id ].best_weight = 65535u;
 		halt_data[ halt_id ].destination = 1u;
 		markers[ halt_id ] = current_marker;
