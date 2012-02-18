@@ -6077,8 +6077,7 @@ const vector_tpl<const ware_besch_t*> &karte_t::get_goods_list()
 			d->selected_filter = VEHICLE_FILTER_RELEVANT;
 		}
 
-		const slist_tpl<fabrik_t*> &factories_in_game = get_fab_list();
-		FOR(slist_tpl<fabrik_t*>, const factory, factories_in_game) {
+		FOR(slist_tpl<fabrik_t*>, const factory, get_fab_list()) {
 			slist_tpl<ware_besch_t const*>* const produced_goods = factory->get_produced_goods();
 			FOR(slist_tpl<ware_besch_t const*>, const good, *produced_goods) {
 				goods_in_game.insert_unique_ordered(good, sort_ware_by_name);

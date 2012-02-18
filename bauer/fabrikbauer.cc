@@ -867,8 +867,7 @@ int fabrikbauer_t::increase_industry_density( karte_t *welt, bool tell_me )
 			for(  int i=0;  i < last_built_consumer->get_besch()->get_lieferanten();  i++  ) {
 				ware_besch_t const* const w = last_built_consumer->get_besch()->get_lieferant(i)->get_ware();
 				FOR(vector_tpl<koord>, const& j, last_built_consumer->get_suppliers()) {
-					fabrik_t* const sup = fabrik_t::get_fab(welt, j);
-					const fabrik_besch_t* const fb = sup->get_besch();
+					fabrik_besch_t const* const fb = fabrik_t::get_fab(welt, j)->get_besch();
 					for (uint32 k = 0; k < fb->get_produkte(); k++) {
 						if (fb->get_produkt(k)->get_ware() == w) {
 							last_built_consumer_ware = i+1;
