@@ -615,7 +615,7 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 					int distance = koord_distance(f->get_pos().get_2d(), k);
 					if (distance < this_distance) {
 						fabs.insert(f);
-						distance = this_distance;
+						this_distance = distance;
 					}
 					else {
 						fabs.append(f);
