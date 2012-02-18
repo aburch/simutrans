@@ -128,12 +128,12 @@ void factory_edit_frame_t::fill_list( bool translate )
 				// timeline allows for this
 
 				if(city_chain) {
-					if(besch->get_platzierung()==fabrik_besch_t::Stadt  &&  besch->get_produkt(0)==NULL) {
+					if (besch->get_platzierung() == fabrik_besch_t::Stadt && besch->is_consumer_only()) {
 						fablist.insert_ordered( besch, compare_fabrik_besch );
 					}
 				}
 				if(land_chain) {
-					if(besch->get_platzierung()==fabrik_besch_t::Land  &&  besch->get_produkt(0)==NULL) {
+					if (besch->get_platzierung() == fabrik_besch_t::Land && besch->is_consumer_only()) {
 						fablist.insert_ordered( besch, compare_fabrik_besch );
 					}
 				}
@@ -149,8 +149,8 @@ void factory_edit_frame_t::fill_list( bool translate )
 	scl.set_selection(-1);
 	FOR(vector_tpl<fabrik_besch_t const*>, const i, fablist) {
 		COLOR_VAL const color =
-			!i->get_produkt(0)   ? COL_BLUE       : // consumer only
-			!i->get_lieferant(0) ? COL_DARK_GREEN : // source only
+			i->is_consumer_only() ? COL_BLUE       :
+			!i->get_lieferant(0)  ? COL_DARK_GREEN : // source only
 			COL_BLACK;                              // normal
 		char const* const name = translate ? translator::translate(i->get_name()) : i->get_name();
 		scl.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(name, color));
@@ -227,7 +227,7 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 			inp_production.set_value( production);
 			// show produced goods
 			buf.clear();
-			if(fab_besch->get_produkte()>0) {
+			if (!fab_besch->is_consumer_only()) {
 				buf.append( translator::translate("Produktion") );
 				buf.append("\n");
 				for (uint i = 0; i < fab_besch->get_produkte(); i++) {

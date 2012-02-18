@@ -257,6 +257,8 @@ public:
 		return get_child<field_group_besch_t>(2 + lieferanten + produkte);
 	}
 
+	bool is_consumer_only() const { return produkte == 0; }
+
 	int get_lieferanten() const { return lieferanten; }
 	uint get_produkte() const { return produkte; }
 

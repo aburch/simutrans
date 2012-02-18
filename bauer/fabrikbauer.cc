@@ -175,7 +175,8 @@ const fabrik_besch_t *fabrikbauer_t::get_random_consumer(bool electric, climate_
 	FOR(stringhashtable_tpl<fabrik_besch_t const*>, const& i, table) {
 		fabrik_besch_t const* const current = i.value;
 		// nur endverbraucher eintragen
-		if(current->get_produkt(0)==NULL  &&  current->get_haus()->is_allowed_climate_bits(cl)  &&
+		if (current->is_consumer_only()                    &&
+			current->get_haus()->is_allowed_climate_bits(cl) &&
 			(electric ^ !current->is_electricity_producer())  &&
 			(timeline==0  ||  (current->get_haus()->get_intro_year_month() <= timeline  &&  current->get_haus()->get_retire_year_month() > timeline))  ) {
 			consumer.insert_unique_ordered(current, current->get_gewichtung(), compare_fabrik_besch);
@@ -750,7 +751,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 			if(hersteller==NULL) {
 				if(welt->use_timeline()) {
 					// can happen with timeline
-					if(info->get_produkte()!=0) {
+					if (!info->is_consumer_only()) {
 						dbg->error( "fabrikbauer_t::baue_hierarchie()", "no produder for %s yet!", ware->get_name() );
 						return 0;
 					}
@@ -856,7 +857,7 @@ int fabrikbauer_t::increase_industry_density( karte_t *welt, bool tell_me )
 	// find last consumer
 	if(!welt->get_fab_list().empty()) {
 		FOR(slist_tpl<fabrik_t*>, const fab, welt->get_fab_list()) {
-			if(fab->get_besch()->get_produkte()==0) {
+			if (fab->get_besch()->is_consumer_only()) {
 				last_built_consumer = fab;
 				break;
 			}
