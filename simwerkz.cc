@@ -1751,10 +1751,7 @@ const char *wkz_wegebau_t::do_work( karte_t *welt, spieler_t *sp, const koord3d 
 		bauigel.baue();
 		welt->mute_sound(false);
 
-		struct sound_info info;
-		info.index = SFX_CASH;
-		info.volume = 255;
-		sound_play(info);
+		sound_play(SFX_CASH);
 
 		return NULL;
 	}
@@ -1816,10 +1813,7 @@ const char *wkz_build_cityroad::do_work( karte_t *welt, spieler_t *sp, const koo
 		bauigel.baue();
 		welt->mute_sound(false);
 
-		struct sound_info info;
-		info.index = SFX_CASH;
-		info.volume = 255;
-		sound_play(info);
+		sound_play(SFX_CASH);
 
 		return NULL;
 	}
@@ -3897,10 +3891,7 @@ const char *wkz_depot_t::wkz_depot_aux(karte_t *welt, spieler_t *sp, koord3d pos
 				welt->set_werkzeug( general_tool[WKZ_ABFRAGE], sp );
 			}
 
-			struct sound_info info;
-			info.index = ok_sound;
-			info.volume = 255;
-			sound_play(info);
+			sound_play(ok_sound);
 
 			return NULL;
 		}

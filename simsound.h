@@ -11,26 +11,6 @@
 #include "simtypes.h"
 
 
-/**
- * info zu einem abzuspielenden sound
- * @author Hj. Malthaner
- */
-struct sound_info
-{
-	/**
-	 * Index des beschriebenen sounds
-	 * @author Hj. Malthaner
-	 */
-	uint16 index;
-
-	/**
-	 * Lautstaerke des soundeffekts 0=stille, 255=maximum
-	 * @author Hj. Malthaner
-	 */
-	uint8 volume;
-};
-
-
 // when muted, sound is not played (and also volume is not touched)
 void sound_set_mute(bool on);
 bool sound_get_mute();
@@ -50,10 +30,12 @@ int sound_get_global_volume();
 
 
 /**
- * spielt sound ab
- * @author Hj. Malthaner
+ * Play a sound.
+ *
+ * @param idx    Index of the sound
+ * @param volume Volume of the sound, 0 = silence, 255 = max
  */
-void sound_play(const sound_info inf);
+void sound_play(uint16 idx, uint8 volume = 255);
 
 
 // shuffle enable/disable for midis

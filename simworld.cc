@@ -2407,10 +2407,7 @@ void karte_t::local_set_werkzeug( werkzeug_t *w, spieler_t * sp )
 		if(w != sp_wkz) {
 
 			// reinit same tool => do not play sound twice
-			struct sound_info info;
-			info.index = SFX_SELECT;
-			info.volume = 255;
-			sound_play(info);
+			sound_play(SFX_SELECT);
 
 			// only exit, if it is not the same tool again ...
 			sp_wkz->flags |= werkzeug_t::WFL_LOCAL;
@@ -3929,8 +3926,7 @@ bool karte_t::play_sound_area_clipped(koord const pos, uint16 const idx) const
 
 			uint8 const volume = (uint8)(255U * (xw + yw) / (xw + yw + 64 * dist));
 			if (volume > 8) {
-				sound_info const info = { idx, volume };
-				sound_play(info);
+				sound_play(idx, volume);
 			}
 		}
 		return dist < 25;
@@ -5340,10 +5336,6 @@ void karte_t::switch_active_player(uint8 new_player, bool silent)
 
 void karte_t::interactive_event(event_t &ev)
 {
-	struct sound_info click_sound;
-	click_sound.index = SFX_SELECT;
-	click_sound.volume = 255;
-
 	if(ev.ev_class == EVENT_KEYBOARD) {
 		DBG_MESSAGE("karte_t::interactive_event()","Keyboard event with code %d '%c'", ev.ev_code, (ev.ev_code>=32  &&  ev.ev_code<=126) ? ev.ev_code : '?' );
 
@@ -5415,7 +5407,7 @@ void karte_t::interactive_event(event_t &ev)
 					// Control is _not_ pressed => Backspace or Enter pressed.
 					if(  ev.ev_code == 8  ) {
 						// Backspace
-						sound_play(click_sound);
+						sound_play(SFX_SELECT);
 						destroy_all_win(false);
 					}
 					// Ignore Enter and Backspace but not Ctrl-H and Ctrl-M
@@ -5642,10 +5634,7 @@ bool karte_t::interactive(uint32 quit_month)
 						}
 					}
 					if(  id!=NO_SOUND  ) {
-						struct sound_info ambient_sound;
-						ambient_sound.index = id;
-						ambient_sound.volume = 255;
-						sound_play( ambient_sound );
+						sound_play(id);
 					}
 				}
 				sound_wait_time *= 2;
