@@ -3505,29 +3505,6 @@ void convoi_t::rdwr(loadsave_t *file)
 		arrival_time = welt->get_zeit_ms();
 	}
 
-	/*if(file->get_experimental_version() >= 10 && file->get_version() >= 111001)
-	{
-		uint16 id;
-		if (file->is_saving()) 
-		{
-			id = self.is_bound() ? self.get_id(): 0;
-		}
-		else 
-		{
-			// to avoid undefined errors during loading
-			id = 0;
-		}
-		file->rdwr_short(id);
-		if (file->is_loading()) 
-		{
-			self = convoihandle_t(this, id);
-		}
-	}
-	else
-	{
-		self = convoihandle_t(this);
-	}*/
-
 	// This must come *after* all the loading/saving.
 	if( file->is_loading() ) {
 		recalc_catg_index();

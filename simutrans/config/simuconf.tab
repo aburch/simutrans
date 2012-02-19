@@ -1154,7 +1154,7 @@ server_frames_per_step = 4
 # The server sends after a fixed number of steps some information to the clients.
 # Large values here means: reduced server communication (if that is of importance...)
 # Small values should improve the timing of the clients.
-server_frames_between_checks = 1
+server_frames_between_checks = 240
 
 # Automatically announce server on the central server directory (http://servers.experimental.simutrans.org/)
 # 0 (default) = off, 1 = on
