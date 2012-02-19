@@ -319,6 +319,12 @@ private:
 		tool_node_t() : wkz(NULL), client_id(0), player_id(255) {}
 		tool_node_t(werkzeug_t *_wkz, uint8 _player_id, uint32 _client_id) : wkz(_wkz), client_id(_client_id), player_id(_player_id) {}
 
+		// necessary to ensure that wkz->default_param
+		// always points to default_param
+		tool_node_t(const tool_node_t&);
+		tool_node_t& operator=(const tool_node_t&);
+		~tool_node_t();
+
 		const char* get_default_param() const { return default_param;}
 
 		werkzeug_t* get_tool() const { return wkz;}

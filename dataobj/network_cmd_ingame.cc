@@ -751,6 +751,34 @@ bool nwc_tool_t::cmp_default_param(const char *d1, const char *d2)
 }
 
 
+nwc_tool_t::tool_node_t::~tool_node_t()
+{
+	delete wkz;
+}
+
+
+nwc_tool_t::tool_node_t& nwc_tool_t::tool_node_t::operator=(const tool_node_t& other)
+{
+	set_default_param( other.get_default_param() );
+	if (other.wkz) {
+		wkz = create_tool(other.wkz->get_id());
+		wkz->set_default_param(default_param);
+	}
+	else {
+		wkz = NULL;
+	}
+	client_id = other.client_id;
+	player_id = other.player_id;
+	return *this;
+}
+
+
+nwc_tool_t::tool_node_t::tool_node_t(const tool_node_t& other)
+{
+	*this = other;
+}
+
+
 void nwc_tool_t::tool_node_t::set_tool(werkzeug_t *wkz_) {
 	if (wkz == wkz_) {
 		return;
