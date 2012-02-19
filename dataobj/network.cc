@@ -736,9 +736,7 @@ bool network_receive_data( SOCKET sender, void *dest, const uint16 len, uint16 &
 void network_close_socket( SOCKET sock )
 {
 	if(  sock != INVALID_SOCKET  ) {
-#if defined(__HAIKU__)
-		// no closesocket() ?!?
-#elif defined(_WIN32)  ||  defined(__BEOS__)
+#if defined _WIN32 || defined __BEOS__
 		closesocket( sock );
 #else
 		close( sock );
