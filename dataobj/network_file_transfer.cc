@@ -4,6 +4,7 @@
  */
 #include "network_file_transfer.h"
 #include "../simdebug.h"
+#include "../simversion.h"
 
 /*
  * Nettool only needs network_receive_file
