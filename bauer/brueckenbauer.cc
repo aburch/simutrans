@@ -174,8 +174,8 @@ void brueckenbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, s
 	}
 
 	// now sorted ...
-	for (vector_tpl<const bruecke_besch_t*>::const_iterator i = matching.begin(), end = matching.end(); i != end; ++i) {
-		wzw->add_werkzeug( (*i)->get_builder() );
+	FOR(vector_tpl<bruecke_besch_t const*>, const i, matching) {
+		wzw->add_werkzeug(i->get_builder());
 	}
 }
 
@@ -665,7 +665,12 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 		// can we delete everything there?
 		msg = from->kann_alle_obj_entfernen(sp);
 
-		if(msg != NULL  ||  (from->get_halt().is_bound()  &&  from->get_halt()->get_besitzer()!=sp)) {
+		if(msg != NULL)
+		{
+			return msg;
+		}
+		else if (from->get_halt().is_bound()  &&  from->get_halt()->get_besitzer()!=sp)
+		{
 			return "Die Bruecke ist nicht frei!\n";
 		}
 

@@ -457,15 +457,6 @@ settings_t::settings_t() :
 	spacing_shift_divisor = 24*60;
 }
 
-settings_t::~settings_t()
-{
-	/*ITERATE(livery_schemes, i)
-	{
-		delete livery_schemes[i];
-	}*/
-}
-
-
 void settings_t::set_default_climates()
 {
 	static sint16 borders[MAX_CLIMATES] = { 0, 0, 0, 3, 6, 8, 10, 10 };
@@ -1245,10 +1236,6 @@ void settings_t::rdwr(loadsave_t *file)
 			uint16 livery_schemes_count = 0;
 			if(file->is_loading())
 			{
-				/*ITERATE(livery_schemes, i)
-				{
-					delete livery_schemes[i];
-				}*/
 				livery_schemes.clear();
 			}
 			if(file->is_saving())
@@ -1290,6 +1277,20 @@ void settings_t::rdwr(loadsave_t *file)
 			}
 		}
 	}
+
+#ifdef DEBUG_SIMRAND_CALLS
+	karte_t::random_callers.clear();
+	karte_t::random_calls = 0;
+	char* buf = new char[256];
+	sprintf(buf,"Initial counter: %i; seed: %i", get_random_counter(), get_random_seed());
+	karte_t::random_callers.append(buf);
+
+	if(  umgebung_t::networkmode  ) {
+		// to have games synchronized, transfer random counter too
+		setsimrand(get_random_counter(), 0xFFFFFFFFu );
+		translator::init_custom_names(get_name_language_id());
+	}
+#endif
 }
 
 

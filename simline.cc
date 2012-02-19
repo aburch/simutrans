@@ -311,7 +311,7 @@ void simline_t::rdwr(loadsave_t *file)
 
 	if(file->get_experimental_version() >= 9) 
 	{
-		file->rdwr_bool( start_reversed);
+		file->rdwr_bool(start_reversed);
 	}
 
 	// otherwise inintialized to zero if loading ...
@@ -357,6 +357,7 @@ void simline_t::rdwr(loadsave_t *file)
 		{
 			uint32 count = 0;
 			file->rdwr_long(count);
+			average_journey_times->clear();
 			for(uint32 i = 0; i < count; i ++)
 			{
 				id_pair idp;

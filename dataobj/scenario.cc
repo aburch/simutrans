@@ -62,7 +62,7 @@ void scenario_t::init( const char *filename, karte_t *w )
 	city = NULL;
 	if(*cityname) {
 		// find a city with this name ...
-		const weighted_vector_tpl<stadt_t*> staedte = welt->get_staedte();
+		const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
 		for(  int i=0;  staedte.get_count();  i++  ) {
 			if(  strcmp( staedte[i]->get_name(), cityname )==0  ) {
 				city = staedte[i];
@@ -189,8 +189,8 @@ int scenario_t::completed(int player_nr)
 		{
 			spieler_t *sp = welt->get_spieler(player_nr);
 			int pts = 0;
-			for (vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end(); pts < factor  &&  i != end; ++i) {
-				convoihandle_t cnv = *i;
+			FOR(vector_tpl<convoihandle_t>, const cnv, welt->convoys()) {
+				if (pts >= factor) break;
 				if (cnv->get_besitzer()         == sp                &&
 						cnv->get_jahresgewinn()     >  0                 &&
 						cnv->get_state()            != convoi_t::INITIAL &&

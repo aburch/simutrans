@@ -12,6 +12,9 @@
 template<class T> class array_tpl
 {
 	public:
+		typedef const T* const_iterator;
+		typedef       T* iterator;
+
 		typedef uint32 index;
 
 		explicit array_tpl() : data(NULL), size(0) {}
@@ -84,8 +87,15 @@ template<class T> class array_tpl
 			return data[i];
 		}
 
+		iterator begin() { return data; }
+		iterator end()   { return data + size; }
+
+		const_iterator begin() const { return data; }
+		const_iterator end()   const { return data + size; }
+
 	private:
 		array_tpl(const array_tpl&);
+		array_tpl& operator=( array_tpl const& other );
 
 		T* data;
 		index size;

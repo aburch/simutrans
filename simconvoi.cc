@@ -212,11 +212,13 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 
 convoi_t::convoi_t(karte_t* wl, loadsave_t* file) : fahr(max_vehicle, NULL)
 {
-	self = convoihandle_t(this);
 	init(wl, 0);
 	replace = NULL;
 	delete average_journey_times;
 	delete departures;
+
+	self = convoihandle_t(this);
+
 	average_journey_times = new koordhashtable_tpl<id_pair, average_tpl<uint16> >;
 	departures = new inthashtable_tpl<uint16, departure_data_t>;
 	no_route_retry_count = 0;
@@ -467,8 +469,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 				vector_tpl<linehandle_t> lines;
 				get_besitzer()->simlinemgmt.get_lines(fpl->get_type(), &lines);
 				new_line = linehandle_t();
-				for (vector_tpl<linehandle_t>::const_iterator i = lines.begin(), end = lines.end(); i != end; i++) {
-					linehandle_t l = *i;
+				FOR(vector_tpl<linehandle_t>, const l, lines) {
 					if(  fpl->matches( welt, l->get_schedule() )  ) {
 						// if a line is assigned, set line!
 						new_line = l;
@@ -3448,6 +3449,7 @@ void convoi_t::rdwr(loadsave_t *file)
 		{
 			uint32 count = 0;
 			file->rdwr_long(count);
+			average_journey_times->clear();
 			for(uint32 i = 0; i < count; i ++)
 			{
 				id_pair idp;
@@ -3724,8 +3726,8 @@ void convoi_t::laden() //"load" (Babelfish)
 	// @author: jamespetts
 	
 	// This is necessary in order always to return the same pairs of co-ordinates for comparison.
-	const halthandle_t last_halt = welt->get_halt_koord_index(fahr[0]->last_stop_pos);
-	const halthandle_t this_halt = welt->get_halt_koord_index(fahr[0]->get_pos().get_2d());
+	const halthandle_t last_halt = welt->lookup(fahr[0]->last_stop_pos)->get_halt();
+	const halthandle_t this_halt = welt->lookup(fahr[0]->get_pos().get_2d())->get_halt();
 	id_pair pair(last_halt.get_id(), this_halt.get_id());
 	
 	// The calculation of the journey distance does not need to use normalised halt locations for comparison, so
@@ -3784,7 +3786,6 @@ void convoi_t::laden() //"load" (Babelfish)
 					average_tpl<uint16> average;
 					average.add(journey_time);
 					average_journey_times->put(idp, average);
-					/*average_journey_times->put(pair, average);*/
 				}
 				else
 				{
@@ -3797,7 +3798,6 @@ void convoi_t::laden() //"load" (Babelfish)
 						average_tpl<uint16> average;
 						average.add(journey_time);
 						line->average_journey_times->put(idp, average);
-						/*line->average_journey_times->put(pair, average);*/
 					}
 					else
 					{
@@ -4004,11 +4004,11 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	{
 		if(line.is_bound())
 		{
-			journey_minutes = (line->average_journey_times->get(id_pair(ware.get_last_transfer().get_id(), welt->get_halt_koord_index(fahr[0]->get_pos().get_2d()).get_id())).get_average()) / 10;
+			journey_minutes = (line->average_journey_times->get(id_pair(ware.get_last_transfer().get_id(), welt->lookup(fahr[0]->get_pos().get_2d())->get_halt().get_id())).get_average()) / 10;
 		}
 		else
 		{
-			journey_minutes = (average_journey_times->get(id_pair(ware.get_last_transfer().get_id(), welt->get_halt_koord_index(fahr[0]->get_pos().get_2d()).get_id())).get_average()) / 10;
+			journey_minutes = (average_journey_times->get(id_pair(ware.get_last_transfer().get_id(), welt->lookup(fahr[0]->get_pos().get_2d())->get_halt().get_id())).get_average()) / 10;
 		}
 	}
 
@@ -4107,7 +4107,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 			const sint64 multiplier = (welt->get_settings().get_max_luxury_bonus_percent() * comfort_modifier) / 100ll;
 			if(differential >= max_differential)
 			{
-				final_revenue += (revenue * multiplier) / 10000ll;
+				final_revenue += (revenue * multiplier) / 100ll;
 			}
 			else
 			{
@@ -4124,7 +4124,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 			multiplier = multiplier < 95ll ? multiplier : 95ll;
 			if(differential >= max_differential)
 			{
-				final_revenue -= (revenue * multiplier) / 10000ll;
+				final_revenue -= (revenue * multiplier) / 100ll;
 			}
 			else
 			{
@@ -4428,7 +4428,15 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 		// we need not to call this on the same position		if(  v->last_stop_pos != v->get_pos().get_2d()  ) {		// calc_revenue
 		if(!second_run)
 		{
-			v->last_stop_pos = v->get_pos().get_2d();
+			koord3d pos = v->get_pos();
+			if(haltestelle_t::get_halt(welt, pos, v->get_besitzer()).is_bound())
+			{
+				v->last_stop_pos = pos.get_2d();
+			}
+			else
+			{
+				v->last_stop_pos = halt->get_basis_pos();
+			}
 			//Unload
 			v->current_revenue = 0;
 			changed_loading_level += v->entladen(halt);

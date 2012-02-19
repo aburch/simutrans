@@ -74,7 +74,8 @@ bool label_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 	if(komp == &input  &&  welt->get_active_player()==label->get_besitzer()) {
 		// check owner to change text
 		grund_t *gd = welt->lookup(label->get_pos());
-		if(  strcmp(gd->get_text(),edit_name)  ) {
+		if((gd->get_text() == NULL && edit_name) || strcmp(gd->get_text(), edit_name)) 
+		{
 			// text changed => call tool
 			cbuffer_t buf;
 			buf.printf( "m%s,%s", label->get_pos().get_str(), edit_name );

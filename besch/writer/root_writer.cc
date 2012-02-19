@@ -54,13 +54,13 @@ void root_writer_t::write(const char* filename, int argc, char* argv[])
 		const char* arg = (i < argc) ? argv[i] : "./";
 
 		find.search(arg, "dat");
-		for(  searchfolder_t::const_iterator i=find.begin(), end=find.end();  i!=end;  ++i  ) {
+		FOR(searchfolder_t, const& i, find) {
 			tabfile_t infile;
 
-			if(infile.open(*i)) {
+			if (infile.open(i)) {
 				tabfileobj_t obj;
 
-				printf("   reading file %s\n", *i);
+				printf("   reading file %s\n", i);
 
 				inpath = arg;
 				string::size_type n = inpath.rfind('/');
@@ -98,7 +98,7 @@ void root_writer_t::write(const char* filename, int argc, char* argv[])
 				}
 			}
 			else {
-				printf("WARNING: cannot read %s\n", *i);
+				printf("WARNING: cannot read %s\n", i);
 			}
 		}
 	}
@@ -162,8 +162,8 @@ void root_writer_t::dump(int argc, char* argv[])
 		} else {
 			searchfolder_t find;
 			find.search(argv[i], "pak");
-			for (searchfolder_t::const_iterator i = find.begin(), end = find.end(); i != end; ++i) {
-				any |= do_dump(*i);
+			FOR(searchfolder_t, const& i, find) {
+				any |= do_dump(i);
 			}
 		}
 
@@ -217,8 +217,8 @@ void root_writer_t::list(int argc, char* argv[])
 		else {
 			searchfolder_t find;
 			find.search(argv[i], "pak");
-			for (searchfolder_t::const_iterator i = find.begin(), end = find.end(); i != end; ++i) {
-				do_list(*i);
+			FOR(searchfolder_t, const& i, find) {
+				do_list(i);
 			}
 		}
 
@@ -299,9 +299,9 @@ void root_writer_t::copy(const char* name, int argc, char* argv[])
 			any = do_copy(outfp, root, argv[i]);
 		} else {
 			find.search(argv[i], "pak");
-			for (searchfolder_t::const_iterator i = find.begin(), end = find.end(); i != end; ++i) {
-				if (strcmp(*i, name) != 0) {
-					any |= do_copy(outfp, root, *i);
+			FOR(searchfolder_t, const& i, find) {
+				if (strcmp(i, name) != 0) {
+					any |= do_copy(outfp, root, i);
 				}
 				else {
 					printf("WARNING: skipping reading from output file\n");

@@ -12,15 +12,15 @@
 #define XML_SAVEGAME_PREFIX  "<?xml version=\"1.0\"?>"
 
 #define SAVEGAME_VER_NR  "0.111.0"
-#define SERVER_SAVEGAME_VER_NR  "0.111.0"
+#define SERVER_SAVEGAME_VER_NR  "0.111.1"
 
-#define EXPERIMENTAL_VERSION L"10.9"
-#define NARROW_EXPERIMENTAL_VERSION "10.9"
+#define EXPERIMENTAL_VERSION L"10.10"
+#define NARROW_EXPERIMENTAL_VERSION "10.10"
 #define EXPERIMENTAL_VER_NR ".10"
 #define EXPERIMENTAL_SAVEGAME_VERSION (SAVEGAME_PREFIX SAVEGAME_VER_NR EXPERIMENTAL_VER_NR)
-#define REVISION 109
+#define REVISION 1010
 
-#define RES_VERSION_NUMBER  111, 0, 10, 9
+#define RES_VERSION_NUMBER  111, 0, 10, 10
 
 
 /*********************** Settings related to network games ********************/

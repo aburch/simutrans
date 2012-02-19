@@ -1577,8 +1577,8 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 	name = NULL;
 	while(  !city_names.empty()  &&  name==NULL  ) {
 		uint32 idx = simrand(city_names.get_count(), "stadt_t::stadt_t");
-		for (weighted_vector_tpl<stadt_t*>::const_iterator i = staedte.begin(), end = staedte.end(); i != end; ++i) {
-			if(  strcmp( (*i)->get_name(), city_names[idx] )==0  ) {
+		FOR(weighted_vector_tpl<stadt_t*>, const i, staedte) {
+			if (strcmp(i->get_name(), city_names[idx]) == 0) {
 				city_names.remove_at( idx );
 				idx = city_names.get_count();
 				break;
@@ -2581,9 +2581,8 @@ void stadt_t::calc_growth()
 {
 	// now iterate over all factories to get the ratio of producing version nonproducing factories
 	// we use the incoming storage as a measure und we will only look for end consumers (power stations, markets)
-	for(  vector_tpl<factory_entry_t>::const_iterator iter = target_factories_pax.get_entries().begin(), end = target_factories_pax.get_entries().end();  iter!=end;  ++iter  )
-	{
-		fabrik_t *const fab = iter->factory;
+	FOR(vector_tpl<factory_entry_t>, const& i, target_factories_pax.get_entries()) {
+		fabrik_t *const fab = i.factory;
 		if(fab && fab->get_lieferziele().empty() && !fab->get_suppliers().empty()) 
 		{
 			// consumer => check for it storage
@@ -2982,7 +2981,7 @@ void stadt_t::step_passagiere()
 	// post oder pax erzeugen ?
 	// "post or generate pax"
 	const ware_besch_t *const wtyp = (simrand(400, "void stadt_t::step_passagiere() (mail or passengers?"))<300 ? warenbauer_t::passagiere : warenbauer_t::post;
-	const int history_type = (wtyp == warenbauer_t::passagiere) ? HIST_PAS_TRANSPORTED : HIST_MAIL_TRANSPORTED;
+	const city_cost history_type = (wtyp == warenbauer_t::passagiere) ? HIST_PAS_TRANSPORTED : HIST_MAIL_TRANSPORTED;
 	factory_set_t &target_factories = (  wtyp==warenbauer_t::passagiere ? target_factories_pax : target_factories_mail );
 
 	// restart at first buiulding?
@@ -3163,6 +3162,7 @@ void stadt_t::step_passagiere()
 								if(halt == start_halts[i])
 								{
 									route_good = can_walk;
+									// Passengers will always walk if they are close enough.
 									start_halt = start_halts[i];
 									// Mail does not walk, but people delivering it do.
 									break;
@@ -3191,7 +3191,7 @@ void stadt_t::step_passagiere()
 					
 					//start_halt->add_pax_happy(pax_left_to_do);
 
-					merke_passagier_ziel(destinations[0].location, COL_DARK_YELLOW);
+					merke_passagier_ziel(destinations[current_destination].location, COL_DARK_YELLOW);
 					if (s.get_random_pedestrians() && wtyp == warenbauer_t::passagiere) 
 					{
 						if(!start_halts.empty() && !start_halt.is_bound())
@@ -3411,6 +3411,19 @@ void stadt_t::step_passagiere()
 				// (Calculate a return journey)
 				if(will_return != no_return && (route_good == good || route_good == private_car_only))
 				{
+					// Because passengers/mail now register as transported on delivery, these are needed here
+					// to keep an accurate record of the proportion transported.
+					stadt_t* const destination_town = destinations[0].type == 1 ? destinations[0].object.town : NULL;
+					if(destination_town)
+					{
+						destination_town->set_generated_passengers(pax_left_to_do, history_type+1);
+					}
+					else
+					{
+						city_history_year[0][history_type+1] += pax_left_to_do;
+						city_history_month[0][history_type+1] += pax_left_to_do;
+					}
+
 					// this comes most of the times for free and balances also the amounts!
 					halthandle_t ret_halt = pax.get_ziel();
 					bool return_in_private_car = (route_good == private_car_only) || !ret_halt.is_bound();
@@ -3496,7 +3509,6 @@ void stadt_t::step_passagiere()
 						if(car_minutes < 65535)
 						{
 							// Do not check tolerance, as they must come back!
-							stadt_t* const destination_town = destinations[0].type == 1 ? destinations[0].object.town : NULL;
 							set_private_car_trip(num_pax, destination_town);
 							merke_passagier_ziel(destinations[current_destination].location, COL_TURQUOISE);
 
@@ -3670,6 +3682,7 @@ void stadt_t::set_private_car_trip(int passengers, stadt_t* destination_town)
 		//And mark the trip as outgoing for growth calculations
 		outgoing_private_cars += passengers;
 	}
+	welt->buche(passengers, karte_t::WORLD_CITYCARS);
 }
 
 
@@ -3937,8 +3950,8 @@ class bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t
 		{
 			const weighted_vector_tpl<gebaeude_t*>& attractions = welt->get_ausflugsziele();
 			int dist = welt->get_groesse_x() * welt->get_groesse_y();
-			for (weighted_vector_tpl<gebaeude_t*>::const_iterator i = attractions.begin(), end = attractions.end(); i != end; ++i) {
-				int d = koord_distance((*i)->get_pos(), pos);
+			FOR(weighted_vector_tpl<gebaeude_t*>, const i, attractions) {
+				int const d = koord_distance(i->get_pos(), pos);
 				if (d < dist) {
 					dist = d;
 				}
@@ -4582,7 +4595,7 @@ bool stadt_t::renoviere_gebaeude(gebaeude_t* gb)
 		}
 	}
 	// check for industry, also if we wanted com, but there was no com good enough ...
-	if ((sum_industrie > sum_industrie && sum_industrie > sum_wohnung) || (sum_gewerbe > sum_wohnung && will_haben == gebaeude_t::unbekannt)) {
+	if ((sum_industrie > sum_gewerbe && sum_industrie > sum_wohnung) || (sum_gewerbe > sum_wohnung && will_haben == gebaeude_t::unbekannt)) {
 		// we must check, if we can really update to higher level ...
 		const int try_level = (alt_typ == gebaeude_t::industrie ? level + 1 : level);
 		h = hausbauer_t::get_industrie(try_level , current_month, cl);
