@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <errno.h>
 
 #include <string>
 
@@ -248,10 +249,17 @@ SOCKET network_open_address(char const* cp, char const*& err)
 		struct addrinfo *walk_local;
 		for(  walk_local = local;  !connected  &&  walk_local != NULL;  walk_local = walk_local->ai_next  ) {
 			char ipstr_local[INET6_ADDRSTRLEN];
+			socklen_t socklen_local;
 
+			// Correct size for salen parameter of getnameinfo call depends on address family
+			if (  walk_local->ai_family == AF_INET6  ) {
+				socklen_local = sizeof(struct sockaddr_in6);
+			} else {
+				socklen_local = sizeof(struct sockaddr_in);
+			}
 			// Validate address + get string representation for logging
-			if(  getnameinfo( (walk_local->ai_addr), sizeof(struct sockaddr), ipstr_local, sizeof(ipstr_local), NULL, 0, NI_NUMERICHOST ) !=0  ) {
-				DBG_MESSAGE( "network_open_address()", "Invalid socket, skipping..." );
+			if (  (ret = getnameinfo( (walk_local->ai_addr), socklen_local, ipstr_local, sizeof(ipstr_local), NULL, 0, NI_NUMERICHOST )) !=0  ) {
+				dbg->error( "network_init_server()", "Call to getnameinfo() failed with error: \"%s\"", gai_strerror(ret) );
 				continue;
 			}
 
@@ -272,12 +280,20 @@ SOCKET network_open_address(char const* cp, char const*& err)
 
 			// For each address in remote, try and connect
 			struct addrinfo *walk_remote;
-			for(  walk_remote = remote;  !connected  &&  walk_remote != NULL;  walk_remote = walk_remote->ai_next  ) {
+			for (  walk_remote = remote;  !connected  &&  walk_remote != NULL;  walk_remote = walk_remote->ai_next  ) {
   				char ipstr_remote[INET6_ADDRSTRLEN];
+				socklen_t socklen_remote;
+
+				// Correct size for salen parameter of getnameinfo call depends on address family
+				if (  walk_remote->ai_family == AF_INET6  ) {
+					socklen_remote = sizeof(struct sockaddr_in6);
+				} else {
+					socklen_remote = sizeof(struct sockaddr_in);
+				}
 
 				// Validate remote address + get string representation for logging
-				if(  getnameinfo( walk_remote->ai_addr, sizeof(struct sockaddr), ipstr_remote, sizeof(ipstr_remote), NULL, 0, NI_NUMERICHOST ) !=0  ) {
-					DBG_MESSAGE( "network_open_address()", "Invalid socket, skipping..." );
+				if (  (ret = getnameinfo( walk_remote->ai_addr, socklen_remote, ipstr_remote, sizeof(ipstr_remote), NULL, 0, NI_NUMERICHOST )) !=0  ) {
+					dbg->error( "network_init_server()", "Call to getnameinfo() failed with error: \"%s\"", gai_strerror(ret) );
 					continue;
 				}
 
@@ -383,10 +399,18 @@ bool network_init_server( int port )
 		// Open a listen socket for each IP address specified by this entry in the listen list
 		for (  walk = server;  walk != NULL;  walk = walk->ai_next  ) {
 			char ipstr[INET6_ADDRSTRLEN];
+			socklen_t socklen;
+
+			// Correct size for salen parameter of getnameinfo call depends on address family
+			if (  walk->ai_family == AF_INET6  ) {
+				socklen = sizeof(struct sockaddr_in6);
+			} else {
+				socklen = sizeof(struct sockaddr_in);
+			}
 
 			// Validate address + get string representation for logging
-			if (  getnameinfo( (walk->ai_addr), sizeof(struct sockaddr), ipstr, sizeof(ipstr), NULL, 0, NI_NUMERICHOST ) !=0  ) {
-				DBG_MESSAGE("network_init_server()", "Invalid address or name, skipping...");
+			if (  (ret = getnameinfo( (walk->ai_addr), socklen, ipstr, sizeof(ipstr), NULL, 0, NI_NUMERICHOST )) != 0  ) {
+				dbg->error( "network_init_server()", "Call to getnameinfo() failed with error: \"%s\"", gai_strerror(ret) );
 				continue;
 			}
 
@@ -399,11 +423,12 @@ bool network_init_server( int port )
 				continue;
 			}
 
+			/* Disable IPv4-mapped IPv6 addresses for this IPv6 listen socket
+			   This ensures that we are using separate sockets for dual-stack, one for v4, one for v6 */
 			if (  walk->ai_family == AF_INET6  ) {
 				int on = 1;
-				if (  setsockopt(server_socket, IPPROTO_IPV6, IPV6_V6ONLY, (char*)&on, sizeof(on)) == -1  ) {
-					// only use real IPv6 sockets for IPv6
-					DBG_MESSAGE( "network_init_server()", "Not a real IPv6 socket, skipping..." );
+				if (  setsockopt(server_socket, IPPROTO_IPV6, IPV6_V6ONLY, (char*)&on, sizeof(on)) != 0  ) {
+					dbg->error( "network_init_server()", "Call to setsockopt() failed for: \"%s\", error was: \"%s\"", ip.c_str(), std::strerror(errno) );
 					continue;
 				}
 			}
