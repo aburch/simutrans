@@ -555,13 +555,12 @@ int fabrikbauer_t::baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, 
 
 	// intown needs different place search
 	if (info->get_platzierung() == fabrik_besch_t::Stadt) {
-		stadt_fabrik_t sf;
 		koord k=pos->get_2d();
 
 		koord size=info->get_haus()->get_groesse(0);
 
 		// built consumer (factory) intown
-		sf.stadt = welt->suche_naechste_stadt(k);
+		stadt_t *city = welt->suche_naechste_stadt(k);
 
 		/* Three variants:
 		 * A:
@@ -571,7 +570,7 @@ int fabrikbauer_t::baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, 
 		 * Otherwise seems to me the most realistic.
 		 */
 		bool	is_rotate=info->get_haus()->get_all_layouts()>1;
-		k = factory_bauplatz_mit_strasse_sucher_t(welt).suche_platz(sf.stadt->get_pos(), size.x, size.y, info->get_haus()->get_allowed_climate_bits(), &is_rotate);
+		k = factory_bauplatz_mit_strasse_sucher_t(welt).suche_platz(city->get_pos(), size.x, size.y, info->get_haus()->get_allowed_climate_bits(), &is_rotate);
 		rotate = is_rotate?1:0;
 
 		INT_CHECK( "fabrikbauer 588" );
@@ -581,7 +580,7 @@ int fabrikbauer_t::baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, 
 		 * (does not obey climates though!)
 		 */
 #if 0
-		k = finde_zufallsbauplatz(welt, welt->lookup(sf.stadt->get_pos())->get_boden()->get_pos(), 3, land_bau.dim).get_2d();
+		k = finde_zufallsbauplatz(welt, welt->lookup(city->get_pos())->get_boden()->get_pos(), 3, land_bau.dim).get_2d();
 #endif /* 0 */
 
 		/* C:
@@ -590,7 +589,7 @@ int fabrikbauer_t::baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, 
 		 * often hidden behind a row of houses, cut off from roads.
 		 */
 #if 0
-		k = bauplatz_sucher_t(welt).suche_platz(sf.stadt->get_pos(), land_bau.dim.x, land_bau.dim.y, info->get_haus()->get_allowed_climate_bits(), &is_rotate);
+		k = bauplatz_sucher_t(welt).suche_platz(city->get_pos(), land_bau.dim.x, land_bau.dim.y, info->get_haus()->get_allowed_climate_bits(), &is_rotate);
 #endif /* 0 */
 
 		if(k != koord::invalid) {
