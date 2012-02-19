@@ -1390,6 +1390,9 @@ uint16 haltestelle_t::find_route(minivec_tpl<halthandle_t> *ziel_list, ware_t &w
 
 	const uint8 ware_catg = ware.get_besch()->get_catg_index();
 
+	const uint16 TEST_id = self.get_id();
+	const uint16 TEST_id_dest = ware.get_ziel().get_id();
+
 	for (uint8 i = 0; i < ziel_list->get_count(); i++)
 	{
 		path_explorer_t::get_catg_path_between(ware_catg, self, (*ziel_list)[i], test_time, test_transfer);
@@ -2672,7 +2675,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 					
 					uint8 waiting_time_count = iter.get_current_value().times.get_count();
 					file->rdwr_byte(waiting_time_count);
-					ITERATE(iter.get_current_value().times,i)
+					ITERATE(iter.get_current_value().times, i)
 					{
 						// Store each waiting time
 						uint16 current_time = iter.access_current_value().times.get_element(i);
@@ -2690,68 +2693,50 @@ void haltestelle_t::rdwr(loadsave_t *file)
 
 			else
 			{
+				waiting_times[i].clear();
 				uint16 halts_count;
 				file->rdwr_short(halts_count);
-				halthandle_t halt;
+				uint16 id = 0;
 				for(uint16 k = 0; k < halts_count; k ++)
 				{
 					if(file->get_experimental_version() >= 10)
 					{
-						uint16 id;
 						file->rdwr_short(id);
-						halt.set_id(id);
 					}
 					else
 					{
 						koord halt_position;
 						halt_position.rdwr(file);
-						halt = welt->get_halt_koord_index(halt_position);
+						const planquadrat_t* plan = welt->lookup(halt_position);
+						if(plan)
+						{
+							id = plan->get_halt().get_id();
+						}
 					}	
 
-					if(halt.is_bound())
+					fixed_list_tpl<uint16, 16> list;
+					uint8 month;
+					waiting_time_set set;
+					uint8 waiting_time_count;
+					file->rdwr_byte(waiting_time_count);
+					for(uint8 j = 0; j < waiting_time_count; j ++)
 					{
-						fixed_list_tpl<uint16, 16> list;
-						uint8 month;
-						waiting_time_set set;
-						uint8 waiting_time_count;
-						file->rdwr_byte(waiting_time_count);
-						for(uint8 j = 0; j < waiting_time_count; j ++)
-						{
-							uint16 current_time;
-							file->rdwr_short(current_time);
-							list.add_to_tail(current_time);
-						}
-						if(file->get_experimental_version() >= 9)
-						{
-							file->rdwr_byte(month);
-						}
-						else
-						{
-							month = 0;
-						}
-						set.month = month;
-						set.times = list;
-						waiting_times[i].put(halt.get_id(), set);
+						uint16 current_time;
+						file->rdwr_short(current_time);
+						list.add_to_tail(current_time);
+					}
+					if(file->get_experimental_version() >= 9)
+					{
+						file->rdwr_byte(month);
 					}
 					else
 					{
-						// The list was not properly saved.
-						uint8 waiting_time_count;
-						file->rdwr_byte(waiting_time_count);
-						for(uint8 j = 0; j < waiting_time_count; j ++)
-						{
-							uint16 current_time;
-							file->rdwr_short(current_time);
-						}
-						
-						if(file->get_experimental_version() >= 9)
-						{
-							uint8 month;
-							file->rdwr_byte(month);
-						}
+						month = 0;
 					}
+					set.month = month;
+					set.times = list;
+					waiting_times[i].put(id, set);
 				}
-				halt.set_id(0);
 			}
 		}
 
