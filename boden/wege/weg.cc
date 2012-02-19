@@ -44,6 +44,8 @@
 
 #include "../../tpl/slist_tpl.h"
 
+#include "../../dings/wayobj.h"
+
 /**
  * Alle instantiierten Wege
  * @author Hj. Malthaner
@@ -148,6 +150,16 @@ void weg_t::set_besch(const weg_besch_t *b)
 
 	max_weight = besch->get_max_weight();
 	way_constraints = besch->get_way_constraints();
+	const grund_t* gr =  welt->lookup(get_pos());
+	if(gr)
+	{
+		const wayobj_t* wayobj = gr->get_wayobj(get_waytype());
+		if(wayobj)
+		{
+			add_way_constraints(wayobj->get_besch()->get_way_constraints());
+		}
+	}
+
 }
 
 
