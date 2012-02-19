@@ -148,8 +148,8 @@ void log_t::error(const char *who, const char *format, ...)
 				fflush(log);
 			}
 
-			fprintf(log ,"Please report all errors to\n");
-			fprintf(log ,"team@64.simutrans.com\n");
+			fprintf(log ,"For help with this error or to file a bug report please see the Simutrans forum:\n");
+			fprintf(log ,"http://forum.simutrans.com\n");
 		}
 		va_end(argptr);
 
@@ -159,8 +159,8 @@ void log_t::error(const char *who, const char *format, ...)
 			vfprintf(tee, format, argptr);
 			fprintf(tee,"\n");
 
-			fprintf(tee ,"Please report all errors to\n");
-			fprintf(tee ,"team@64.simutrans.com\n");
+			fprintf(tee ,"For help with this error or to file a bug report please see the Simutrans forum:\n");
+			fprintf(tee ,"http://forum.simutrans.com\n");
 		}
 		va_end(argptr);
 	}
@@ -185,8 +185,8 @@ void log_t::fatal(const char *who, const char *format, ...)
 	if( log ) {
 		fputs( buffer, log );
 		fputs( "Aborting program execution ...\n\n", log );
-		fputs( "Please report all fatal errors to\n", log );
-		fputs( "team@64.simutrans.com\n", log );
+		fputs( "For help with this error or to file a bug report please see the Simutrans forum:\n", log );
+		fputs( "http://forum.simutrans.com\n", log );
 		if( force_flush ) {
 			fflush(log);
 		}
@@ -195,8 +195,8 @@ void log_t::fatal(const char *who, const char *format, ...)
 	if( tee ) {
 		fputs( buffer, tee );
 		fputs( "Aborting program execution ...\n\n", tee );
-		fputs( "Please report all fatal errors to\n", tee );
-		fputs( "team@64.simutrans.com\n", tee );
+		fputs( "For help with this error or to file a bug report please see the Simutrans forum:\n", tee );
+		fputs( "http://forum.simutrans.com\n", tee );
 	}
 
 	if(tee==NULL  &&  log==NULL) {
