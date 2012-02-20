@@ -50,8 +50,8 @@ endif
 
 ifeq ($(OSTYPE),cygwin)
   SOURCES += simsys_w32_png.cc
-  CFLAGS += -I/usr/include/mingw -mwin32
-  CCFLAGS += -I/usr/include/mingw -mwin32
+  CFLAGS += -I/usr/include/mingw -mwin32 -DNOMINMAX=1
+  CCFLAGS += -I/usr/include/mingw -mwin32 -DNOMINMAX=1
   LDFLAGS += -mno-cygwin
   LIBS   += -lgdi32 -lwinmm -lwsock32 -lz -lbz2
 endif

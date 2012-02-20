@@ -1864,7 +1864,7 @@ void display_get_image_offset(unsigned bild, KOORD_VAL *xoff, KOORD_VAL *yoff, K
 }
 
 
-// prissi: query unzoiomed offsets
+// prissi: query unzoomed offsets
 void display_get_base_image_offset(unsigned bild, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw)
 {
 	if (bild < anz_images) {

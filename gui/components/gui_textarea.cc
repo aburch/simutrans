@@ -67,7 +67,7 @@ void gui_textarea_t::zeichnen(koord offset)
 		const char *buf=text;
 		const char *next;
 		const sint16 x = pos.x+offset.x;
-		sint16 y = pos.y+offset.y+LINESPACE;
+		sint16 y = pos.y+offset.y;
 
 		do {
 			next = strchr(buf, '\n');

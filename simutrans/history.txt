@@ -9,6 +9,8 @@
 	ADD: city, industry and attraction numbers scale with map size
 	ADD: front images for ways
 	ADD: goto-button to chat messages, coordinate taken from @x,y or (x,y)
+	CHG: overhauled color choose dialog with ideas from Hajo
+
 
 Release of 111.1 (r5115 on 23-Jan-2012):
 	FIX: owner of way gates were accidently rotated

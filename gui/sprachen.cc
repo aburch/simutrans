@@ -26,7 +26,7 @@
 #include "../simsys.h"
 #include "../utils/simstring.h"
 
-
+#define DIALOG_WIDTH (220)
 
 int sprachengui_t::cmp_language_button(sprachengui_t::language_button_t a, sprachengui_t::language_button_t b)
 {
@@ -91,14 +91,14 @@ sprachengui_t::sprachengui_t() :
 {
 	buf.clear();
 	buf.append(translator::translate("LANG_CHOOSE\n"));
-	text_label.set_pos( koord(10,-1) );
+	text_label.set_pos( koord(DIALOG_LEFT,DIALOG_TOP) );
 	add_komponente( &text_label );
 
-	flags.set_pos( koord(220-60,-2) );
+	flags.set_pos( koord(DIALOG_WIDTH-DIALOG_RIGHT-flags.get_groesse().x,-3) );
 	add_komponente( &flags);
 
-	seperator.set_pos( koord(10, 37) );
-	seperator.set_groesse( koord(155,0) );
+	seperator.set_pos( koord(DIALOG_LEFT, 37) );
+	seperator.set_groesse( koord(DIALOG_WIDTH-DIALOG_RIGHT-flags.get_groesse().x-DIALOG_LEFT-DIALOG_SPACER,0) );
 	add_komponente( &seperator );
 
 	const translator::lang_info* lang = translator::get_langs();
@@ -155,15 +155,15 @@ sprachengui_t::sprachengui_t() :
 	for(uint32 i=0; i<count; i++)
 	{
 		const bool right = 2*i >= count;
-		const sint16 x = 10 + (right  ? 100 : 0);
-		const sint16 y = 44 + 14 * (right ? i - (count+1)/2: i);
+		const sint16 x = DIALOG_LEFT + (right  ? DIALOG_WIDTH/2 : 0);
+		const sint16 y = 44 + BUTTON_HEIGHT * (right ? i - (count+1)/2: i);
 		buttons[i].button->set_pos(koord(x,y));
 		add_komponente( buttons[i].button );
 	}
 
 	chdir(umgebung_t::user_dir);
 
-	set_fenstergroesse( koord(220, 74+(translator::get_language_count()/2)*14) );
+	set_fenstergroesse( koord(DIALOG_WIDTH, DIALOG_BOTTOM+44+(translator::get_language_count()/2 + 1)*BUTTON_HEIGHT) );
 }
 
 
