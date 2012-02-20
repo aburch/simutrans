@@ -694,7 +694,7 @@ fabrik_t::~fabrik_t()
 				continue;
 			}
 		}
-		fields.remove_at(fields.get_count()-1);
+		fields.pop_back();
 	}
 	// destroy chart window, if present
 	destroy_win( (long)this );

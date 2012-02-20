@@ -173,7 +173,7 @@ vector_tpl<uint32> nwc_ready_t::all_map_counters(MAX_MAP_COUNTERS);
 void nwc_ready_t::append_map_counter(uint32 map_counter_)
 {
 	if (all_map_counters.get_count() == MAX_MAP_COUNTERS) {
-		all_map_counters.remove_at( all_map_counters.get_count()-1 );
+		all_map_counters.pop_back();
 	}
 	all_map_counters.insert_at(0, map_counter_);
 }

@@ -62,7 +62,7 @@ void route_t::append(const route_t *r)
 
 	while (!route.empty() && back() == r->front()) {
 		// skip identical end tiles
-		route.remove_at(get_count()-1);
+		route.pop_back();
 	}
 	// then append
 	for( unsigned int i=0;  i<=hops;  i++ ) {
@@ -79,7 +79,7 @@ void route_t::insert(koord3d k)
 
 void route_t::remove_koord_from(uint32 i) {
 	while(  i+1 < get_count()  ) {
-		route.remove_at(get_count()-1);
+		route.pop_back();
 	}
 }
 

@@ -36,7 +36,7 @@ simlinemgmt_t::~simlinemgmt_t()
 	// and delete all lines ...
 	while (!all_managed_lines.empty()) {
 		linehandle_t line = all_managed_lines.back();
-		all_managed_lines.remove_at( all_managed_lines.get_count()-1 );
+		all_managed_lines.pop_back();
 		delete line.get_rep();	// detaching handled by line itself
 	}
 }
