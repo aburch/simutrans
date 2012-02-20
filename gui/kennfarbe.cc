@@ -27,7 +27,7 @@ farbengui_t::farbengui_t(spieler_t *sp) :
 	buf.clear();
 	buf.append(translator::translate("COLOR_CHOOSE\n"));
 
-	txt.set_pos( koord(DIALOG_LEFT,DIALOG_TOP-LINESPACE) );
+	txt.set_pos( koord(DIALOG_LEFT,DIALOG_TOP) );
 	txt.recalc_size();
 	add_komponente( &txt );
 
