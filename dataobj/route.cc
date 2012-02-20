@@ -120,6 +120,17 @@ DBG_MESSAGE("route_t::append_straight_route()","start from (%i,%i) to (%i,%i)",p
 }
 
 
+static bool is_in_list(vector_tpl<route_t::ANode*> const& list, grund_t const* const to)
+{
+	FOR(vector_tpl<route_t::ANode*>, const i, list) {
+		if (i->gr == to) {
+			return true;
+		}
+	}
+	return false;
+}
+
+
 // node arrays
 route_t::ANode* route_t::nodes=NULL;
 uint32 route_t::MAX_STEP=0;
@@ -208,30 +219,10 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 				&& gr->get_neighbour(to, wegtyp, ribi_t::nsow[r])  // is connected
 				&& fahr->ist_befahrbar(to)	// can be driven on
 			) {
-				unsigned index;
-
 				// already in open list?
-				for(  index=0;  index<open.get_count();  index++  ) {
-					if (open[index]->gr == to) {
-						break;
-					}
-				}
-				// in open list => ignore this
-				if(index<open.get_count()) {
-					continue;
-				}
-
-
+				if (is_in_list(open,  to)) continue;
 				// already in closed list (i.e. all processed nodes)
-				for( index=0;  index<close.get_count();  index++  ) {
-					if (close[index]->gr == to) {
-						break;
-					}
-				}
-				// in close list => ignore this
-				if(index<close.get_count()) {
-					continue;
-				}
+				if (is_in_list(close, to)) continue;
 
 				// not in there or taken out => add new
 				ANode* k = &nodes[step++];
