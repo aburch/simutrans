@@ -2969,8 +2969,9 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl,
 	weighted_vector_tpl<koord> index_to_places(xmax*ymax);
 	for(uint32 i=0; i<xmax; i++) {
 		for(uint32 j=0; j<ymax; j++) {
-			if (!places.at(i,j).empty()) {
-				index_to_places.append( koord(i,j), places.at(i,j).get_count());
+			vector_tpl<koord> const& p = places.at(i, j);
+			if (!p.empty()) {
+				index_to_places.append(koord(i,j), p.get_count());
 			}
 		}
 	}
@@ -2988,10 +2989,11 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl,
 			koord const ip = pick_any_weighted(index_to_places);
 			// remove this cell from index list
 			index_to_places.remove(ip);
+			vector_tpl<koord>& p = places.at(ip);
 			// get random place in the cell
-			if (places.at(ip).empty()) continue;
-			const uint32 j = simrand(places.at(ip).get_count());
-			const koord k = places.at(ip)[j];
+			if (p.empty()) continue;
+			uint32 const j = simrand(p.get_count());
+			koord  const k = p[j];
 
 			// check minimum distance
 			bool ok = true;
@@ -3017,10 +3019,10 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl,
 			}
 			else {
 				// remove the place from the list
-				places.at(ip).remove_at(j);
+				p.remove_at(j);
 				// re-insert in index list with new weight
-				if (!places.at(ip).empty()) {
-					index_to_places.append( ip, places.at(ip).get_count());
+				if (!p.empty()) {
+					index_to_places.append(ip, p.get_count());
 				}
 			}
 			// if we reached here, the city was not far enough => try again
