@@ -13,6 +13,7 @@
 #include "components/gui_button.h"
 #include "components/gui_image.h"
 #include "components/gui_textarea.h"
+#include "components/gui_label.h"
 #include "../utils/cbuffer_t.h"
 
 /**
@@ -26,6 +27,7 @@ private:
 	spieler_t *sp;
 	cbuffer_t buf;
 	gui_textarea_t txt;
+	gui_label_t c1, c2;
 	gui_image_t bild;
 
 	button_t player_color_1[28];
