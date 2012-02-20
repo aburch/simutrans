@@ -17,9 +17,7 @@
 #include "gui_container.h"
 #include "../simcolor.h"
 #include "../dataobj/koord3d.h"
-
-// height of titlebar
-#define TITLEBAR_HEIGHT (16)
+#include "components/list_button.h"
 
 class loadsave_t;
 class spieler_t;
