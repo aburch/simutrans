@@ -210,6 +210,11 @@ template<class T> class vector_tpl
 			count--;
 		}
 
+		void pop_back()
+		{
+			--count;
+		}
+
 		T& operator [](uint i)
 		{
 			if (i >= count) {
