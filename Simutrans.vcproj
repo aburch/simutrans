@@ -43,7 +43,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;G:\Projects\SDL-1.2.10\include&quot;;&quot;G:\Program Files\PlatformSDK\Include&quot;;G:\Projects\zlib\include"
-				PreprocessorDefinitions="ZLIB_WINAPI;LITTLE_ENDIAN;DEBUG=3;COLOUR_DEPTH=16"
+				PreprocessorDefinitions="NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;DEBUG=3;COLOUR_DEPTH=16"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -127,7 +127,7 @@
 				Optimization="3"
 				InlineFunctionExpansion="0"
 				AdditionalIncludeDirectories="&quot;G:\Projects\SDL-1.2.10\include&quot;;&quot;G:\Program Files\PlatformSDK\Include&quot;;G:\Projects\zlib\include"
-				PreprocessorDefinitions="ZLIB_WINAPI;LITTLE_ENDIAN;NDEBUG;COLOUR_DEPTH=16"
+				PreprocessorDefinitions="NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;NDEBUG;COLOUR_DEPTH=16"
 				StringPooling="true"
 				ExceptionHandling="1"
 				BasicRuntimeChecks="0"
@@ -777,10 +777,10 @@
 				RelativePath=".\gui\privatesign_info.cc"
 				>
 			</File>
-                        <File
-                                RelativePath=".\dataobj\pwd_hash.cc"
-                                >
-                        </File>
+			<File
+				RelativePath=".\dataobj\pwd_hash.cc"
+				>
+			</File>
 			<File
 				RelativePath=".\dataobj\ribi.cc"
 				>
