@@ -83,10 +83,7 @@ DBG_DEBUG4("werkzeug_waehler_t::add_tool()", "at position %i (width %i)", tools.
 void werkzeug_waehler_t::reset_tools()
 {
 	welt->set_dirty();
-	for(  int i=tools.get_count();  i>0;  ) {
-		i--;
-		tools.remove_at(i);
-	}
+	tools.clear();
 	gui_frame_t::set_fenstergroesse( koord(max(icon.x,MIN_WIDTH), TITLEBAR_HEIGHT) );
 	tool_icon_width = 0;
 	tool_icon_disp_start = 0;
