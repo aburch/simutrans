@@ -10,9 +10,6 @@
 #include <windows.h>
 #include <mmsystem.h>
 
-#undef max
-#undef min
-
 #include "../utils/plainstring.h"
 #include "music.h"
 #include "../simsound.h"

@@ -29,9 +29,6 @@
 #		define IPV6_V6ONLY (27)
 #	endif
 
-#	undef min
-#	undef max
-
 #	define GET_LAST_ERROR() WSAGetLastError()
 #	include <errno.h>
 #	undef  EWOULDBLOCK
