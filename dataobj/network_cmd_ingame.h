@@ -312,6 +312,11 @@ private:
 		void set_default_param(char const* param) { default_param = param; }
 
 		void set_tool(werkzeug_t *wkz_);
+
+		// we do not want to copy wkz
+		tool_node_t(const tool_node_t&);
+		tool_node_t& operator=(const tool_node_t&);
+
 	public:
 		uint32 client_id;
 		uint8 player_id;
@@ -321,9 +326,6 @@ private:
 
 		// necessary to ensure that wkz->default_param
 		// always points to default_param
-		tool_node_t(const tool_node_t&);
-		tool_node_t& operator=(const tool_node_t&);
-		~tool_node_t();
 
 		const char* get_default_param() const { return default_param;}
 
@@ -342,7 +344,7 @@ private:
 	};
 
 	// static list of active tools for each pair (client_id, player_id)
-	static vector_tpl<tool_node_t> tool_list;
+	static vector_tpl<tool_node_t*> tool_list;
 };
 
 #endif

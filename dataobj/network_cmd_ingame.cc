@@ -751,34 +751,6 @@ bool nwc_tool_t::cmp_default_param(const char *d1, const char *d2)
 }
 
 
-nwc_tool_t::tool_node_t::~tool_node_t()
-{
-	delete wkz;
-}
-
-
-nwc_tool_t::tool_node_t& nwc_tool_t::tool_node_t::operator=(const tool_node_t& other)
-{
-	set_default_param( other.get_default_param() );
-	if (other.wkz) {
-		wkz = create_tool(other.wkz->get_id());
-		wkz->set_default_param(default_param);
-	}
-	else {
-		wkz = NULL;
-	}
-	client_id = other.client_id;
-	player_id = other.player_id;
-	return *this;
-}
-
-
-nwc_tool_t::tool_node_t::tool_node_t(const tool_node_t& other)
-{
-	*this = other;
-}
-
-
 void nwc_tool_t::tool_node_t::set_tool(werkzeug_t *wkz_) {
 	if (wkz == wkz_) {
 		return;
@@ -813,7 +785,7 @@ void nwc_tool_t::tool_node_t::client_set_werkzeug(werkzeug_t* &wkz_new, const ch
 }
 
 
-vector_tpl<nwc_tool_t::tool_node_t> nwc_tool_t::tool_list;
+vector_tpl<nwc_tool_t::tool_node_t*> nwc_tool_t::tool_list;
 
 
 void nwc_tool_t::do_command(karte_t *welt)
@@ -828,20 +800,20 @@ void nwc_tool_t::do_command(karte_t *welt)
 		// pointer, where the active tool from a remote client is stored
 		tool_node_t *tool_node = NULL;
 
-		spieler_t *sp = player_nr < PLAYER_UNOWNED ? welt->get_spieler(player_nr) : NULL;
-
 		// do we have a tool for this client already?
-		tool_node_t new_tool_node(NULL, player_nr, tool_client_id);
-		uint32 index;
-		if (tool_list.is_contained(new_tool_node)) {
-			index = tool_list.index_of(new_tool_node);
-		}
-		else {
-			tool_list.append(new_tool_node);
-			index = tool_list.get_count()-1;
+		FOR(vector_tpl<nwc_tool_t::tool_node_t*>, i, tool_list) {
+			if (i->player_id == player_nr  &&  i->client_id  == tool_client_id) {
+				tool_node = i;
+				break;
+			}
 		}
 		// this node stores the tool and its default_param
-		tool_node = &(tool_list[index]);
+		if (tool_node == NULL) {
+			tool_node = new tool_node_t(NULL, player_nr, tool_client_id);
+			tool_list.append(tool_node);
+		}
+
+		spieler_t *sp = player_nr < PLAYER_UNOWNED ? welt->get_spieler(player_nr) : NULL;
 
 		wkz = tool_node->get_tool();
 		// create a new tool if necessary
