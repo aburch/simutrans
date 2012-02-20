@@ -696,8 +696,9 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 				if(  !all_names.get(buf).is_bound()  ) {
 					return strdup(buf);
 				}
-				// esle: remove this entry ...
-				street_names.remove_at(idx);
+				// else remove this entry
+				street_names[idx] = street_names.back();
+				street_names.pop_back();
 			}
 			buf.clear();
 		}

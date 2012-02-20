@@ -1045,7 +1045,8 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 		size_t      const idx  = simrand(city_names.get_count());
 		char const* const cand = city_names[idx];
 		if (name_used(staedte, cand)) {
-			city_names.remove_at(idx);
+			city_names[idx] = city_names.back();
+			city_names.pop_back();
 		} else {
 			n = cand;
 			break;
