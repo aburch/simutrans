@@ -232,12 +232,10 @@ void stadt_info_t::zeichnen(koord pos, koord gr)
 	buf.append( ": " );
 
 	const uint32 power_demand = (c->get_power_demand())>>POWER_TO_MW;
-	const uint32 TEST_POWER = c->get_power_demand();
-	const uint32 TEST_POWER_KW = c->get_power_demand()>>POWER_TO_KW;
 
 	if(power_demand == 0)
 	{
-		buf.append(c->get_power_demand()>>POWER_TO_KW);
+		buf.append((c->get_power_demand() * 1000)>>POWER_TO_MW);
 		buf.append(" KW");
 	}
 	if(power_demand < 1000)
