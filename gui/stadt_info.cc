@@ -238,7 +238,7 @@ void stadt_info_t::zeichnen(koord pos, koord gr)
 		buf.append((c->get_power_demand() * 1000)>>POWER_TO_MW);
 		buf.append(" KW");
 	}
-	if(power_demand < 1000)
+	else if(power_demand < 1000)
 	{
 		buf.append(power_demand);
 		buf.append(" MW");
