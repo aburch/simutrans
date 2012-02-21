@@ -488,7 +488,6 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 			// Prohibitive way constraints
 			// (If way has, vehicle must have)
 			// @author: jamespetts
-			//for(uint8 i = 0; i < 8; i++)
 			for(uint8 i = 0; i < way_constraints.get_count(); i++)
 			{
 				if(way_constraints.get_prohibitive(i))

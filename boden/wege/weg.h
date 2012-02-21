@@ -153,9 +153,6 @@ public:
 
 	void set_max_weight(uint32 w);
 
-	////Adds the way constraints to the way. Note: does *not* replace them - they are added together.
-	//void add_way_constraints(const uint8 permissive, const uint8 prohibitive);
-	//
 	//Resets constraints to their base values. Used when removing way objects.
 	void reset_way_constraints() { way_constraints = besch->get_way_constraints(); }
 
@@ -167,20 +164,7 @@ public:
 	 * @author: jamespetts
 	 * */
 	
-	//const bool permissive_way_constraint_set(uint8 i)
-	//{
-	//	return ((way_constraints_permissive & 1)<<i != 0);
-	//}
-
-	//const bool prohibitive_way_constraint_set(uint8 i)
-	//{
-	//	return ((way_constraints_prohibitive & 1)<<i != 0);
-	//}
-
-	//uint8 get_way_constraints_permissive() const { return way_constraints_permissive; }
-	//uint8 get_way_constraints_prohibitive() const { return way_constraints_prohibitive; }
 	const way_constraints_of_way_t& get_way_constraints() const { return way_constraints; }
-	//void set_way_constraints(const way_constraints_of_way_t& value) { way_constraints = value; }
 	void add_way_constraints(const way_constraints_of_way_t& value) { way_constraints.add(value); }
 
 	/**

@@ -290,10 +290,17 @@ void weg_t::info(cbuffer_t & buf) const
 			buf.append("\n");
 		}
 	}
+	bool any_prohibitive = false;
 	for(sint8 i = 0; i < way_constraints.get_count(); i ++)
 	{
 		if(way_constraints.get_prohibitive(i))
 		{
+			if(!any_prohibitive)
+			{
+				buf.append("\n");
+				buf.append("Restrictions:");
+			}
+			any_prohibitive = true;
 			buf.append("\n");
 			char tmpbuf[30];
 			sprintf(tmpbuf, "Prohibitive %i", i);
