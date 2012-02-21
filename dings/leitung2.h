@@ -17,6 +17,7 @@
 #include "../tpl/slist_tpl.h"
 
 #define POWER_TO_MW (12)  // bitshift for converting internal power values to MW for display
+#define POWER_TO_KW (6)  // bitshift for converting internal power values to KW for display
 
 class powernet_t;
 class spieler_t;
