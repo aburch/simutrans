@@ -1868,6 +1868,9 @@
     <None Include="base_texts_experimental_10.11.dat">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="simutrans\text\en.tab">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="simres.rc">
