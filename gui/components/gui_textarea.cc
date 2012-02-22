@@ -80,7 +80,7 @@ void gui_textarea_t::zeichnen(koord offset)
 			}
 			buf = next + 1;
 			new_lines += LINESPACE;
-		} while (next != NULL);
+		} while(  next != NULL  &&  *buf!=0  );
 	}
 	koord gr(max(x_size+10,get_groesse().x),new_lines);
 	if(gr!=get_groesse()) {

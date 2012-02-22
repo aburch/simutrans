@@ -153,7 +153,7 @@ public:
 	 * @author Markus Weber
 	 * @date   11-May-2002
 	*/
-	koord get_client_windowsize() const {return groesse-koord(0,16); }
+	koord get_client_windowsize() const {return groesse-koord(0,TITLEBAR_HEIGHT); }
 
 	/**
 	 * Manche Fenster haben einen Hilfetext assoziiert.

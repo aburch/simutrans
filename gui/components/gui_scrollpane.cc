@@ -178,7 +178,7 @@ void gui_scrollpane_t::zeichnen(koord pos)
 	pos += this->pos;
 
 	PUSH_CLIP(pos.x, pos.y, groesse.x-scrollbar_t::BAR_SIZE*b_show_scroll_y, groesse.y-scrollbar_t::BAR_SIZE*b_show_scroll_x );
-	komp->zeichnen(pos - koord(scroll_x.get_knob_offset(), scroll_y.get_knob_offset()));
+	komp->zeichnen(pos - koord(scroll_x.get_knob_offset(), scroll_y.get_knob_offset()) + komp->get_pos() );
 	POP_CLIP();
 
 	// check, if we need to recalc slider size
