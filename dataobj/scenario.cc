@@ -186,8 +186,8 @@ int scenario_t::completed(int player_nr)
 		{
 			spieler_t *sp = welt->get_spieler(player_nr);
 			int pts = 0;
-			for (vector_tpl<convoihandle_t>::const_iterator i = welt->convoys().begin(), end = welt->convoys().end(); pts < factor && i != end; ++i) {
-				convoihandle_t cnv = *i;
+			FOR(vector_tpl<convoihandle_t>, const cnv, welt->convoys()) {
+				if (pts >= factor) break;
 				if (cnv->get_besitzer()         == sp                &&
 						cnv->get_jahresgewinn()     >  0                 &&
 						cnv->get_state()            != convoi_t::INITIAL &&

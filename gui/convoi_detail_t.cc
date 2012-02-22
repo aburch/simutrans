@@ -273,9 +273,9 @@ void convoi_detail_t::rdwr(loadsave_t *file)
 		}
 		// we might be unlucky, then search all convois for a convoi with this name
 		if(  !cnv.is_bound()  ) {
-			for (vector_tpl<convoihandle_t>::const_iterator i = welt->convoys().begin(), end = welt->convoys().end(); i != end; ++i) {
-				if(  strcmp( (*i)->get_name(),name)==0  ) {
-					cnv = *i;
+			FOR(vector_tpl<convoihandle_t>, const i, welt->convoys()) {
+				if(  strcmp(i->get_name(), name) == 0) {
+					cnv = i;
 					break;
 				}
 			}
@@ -490,7 +490,6 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 			// Prohibitive way constraints
 			// (If way has, vehicle must have)
 			// @author: jamespetts
-			//for(uint8 i = 0; i < 8; i++)
 			for(uint8 i = 0; i < way_constraints.get_count(); i++)
 			{
 				if(way_constraints.get_prohibitive(i))

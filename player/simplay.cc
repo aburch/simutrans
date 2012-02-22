@@ -738,8 +738,8 @@ void spieler_t::ai_bankrupt()
 		halthandle_t halt = iter.get_current();
 		if(  halt->get_besitzer()==welt->get_spieler(1)  ) {
 			// only concerns public stops tiles
-			for(  slist_tpl<haltestelle_t::tile_t>::const_iterator iter_tiles = halt->get_tiles().begin(), end = halt->get_tiles().end();  iter_tiles != end;  ++iter_tiles  ) {
-				const grund_t *gr = iter_tiles->grund;
+			FOR(slist_tpl<haltestelle_t::tile_t>, const& i, halt->get_tiles()) {
+				grund_t const* const gr = i.grund;
 				for(  uint8 wnr=0;  wnr<2;  wnr++  ) {
 					weg_t *w = gr->get_weg_nr(wnr);
 					if(  w  &&  w->get_besitzer()==this  ) {

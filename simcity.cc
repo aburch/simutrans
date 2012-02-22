@@ -2642,9 +2642,8 @@ void stadt_t::calc_growth()
 {
 	// now iterate over all factories to get the ratio of producing version nonproducing factories
 	// we use the incoming storage as a measure und we will only look for end consumers (power stations, markets)
-	for(  vector_tpl<factory_entry_t>::const_iterator iter = target_factories_pax.get_entries().begin(), end = target_factories_pax.get_entries().end();  iter!=end;  ++iter  )
-	{
-		fabrik_t *const fab = iter->factory;
+	FOR(vector_tpl<factory_entry_t>, const& i, target_factories_pax.get_entries()) {
+		fabrik_t *const fab = i.factory;
 		if(fab && fab->get_lieferziele().empty() && !fab->get_suppliers().empty()) 
 		{
 			// consumer => check for it storage
@@ -4005,8 +4004,8 @@ class bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t
 		{
 			const weighted_vector_tpl<gebaeude_t*>& attractions = welt->get_ausflugsziele();
 			int dist = welt->get_groesse_x() * welt->get_groesse_y();
-			for (weighted_vector_tpl<gebaeude_t*>::const_iterator i = attractions.begin(), end = attractions.end(); i != end; ++i) {
-				int d = koord_distance((*i)->get_pos(), pos);
+			FOR(weighted_vector_tpl<gebaeude_t*>, const i, attractions) {
+				int const d = koord_distance(i->get_pos(), pos);
 				if (d < dist) {
 					dist = d;
 				}
@@ -4650,7 +4649,7 @@ bool stadt_t::renoviere_gebaeude(gebaeude_t* gb)
 		}
 	}
 	// check for industry, also if we wanted com, but there was no com good enough ...
-	if ((sum_industrie > sum_industrie && sum_industrie > sum_wohnung) || (sum_gewerbe > sum_wohnung && will_haben == gebaeude_t::unbekannt)) {
+	if ((sum_industrie > sum_gewerbe && sum_industrie > sum_wohnung) || (sum_gewerbe > sum_wohnung && will_haben == gebaeude_t::unbekannt)) {
 		// we must check, if we can really update to higher level ...
 		const int try_level = (alt_typ == gebaeude_t::industrie ? level + 1 : level);
 		h = hausbauer_t::get_industrie(try_level , current_month, cl);
@@ -5330,10 +5329,10 @@ uint32 stadt_t::get_power_demand() const
 {
 	// The 'magic number' in here is the actual amount of electricity consumed per citizen per month at '100%' in electricity.tab
 	//uint16 electricity_per_citizen = 0.02F * get_electricity_consumption(welt->get_timeline_year_month(); 
-	uint16 electricity_per_citizen = (get_electricity_consumption(welt->get_timeline_year_month()) * 100) / 5; 
+	const uint16 electricity_per_citizen = (get_electricity_consumption(welt->get_timeline_year_month()) * 100) / 5; 
 	// The weird order of operations is designed for greater precision.
 	// Really, POWER_TO_MW should come last.
-
+	
 	return ((city_history_month[0][HIST_CITICENS] << POWER_TO_MW) * electricity_per_citizen) / 100000;
 }
 

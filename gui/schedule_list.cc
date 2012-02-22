@@ -634,18 +634,15 @@ void schedule_list_gui_t::build_line_list(int filter)
 	sp->simlinemgmt.get_lines(tabs_to_lineindex[filter], &lines);
 	vector_tpl<line_scrollitem_t *>selected_lines;
 
-	for (vector_tpl<linehandle_t>::const_iterator i = lines.begin(), end = lines.end(); i != end; i++) {
-		linehandle_t l = *i;
-		// search name
-		if (strstr(l->get_name(), schedule_filter))
-			selected_lines.append(new line_scrollitem_t(l));
+	FOR(vector_tpl<linehandle_t>, const l, lines) {
+		selected_lines.append( new line_scrollitem_t(l) );
 	}
 
 	std::sort(selected_lines.begin(),selected_lines.end(),compare_lines);
 
-	for (vector_tpl<line_scrollitem_t *>::const_iterator i = selected_lines.begin(), end = selected_lines.end(); i != end; i++) {
-		scl.append_element( *i );
-		if(line == (*i)->get_line()  ) {
+	FOR(vector_tpl<line_scrollitem_t*>, const i, selected_lines) {
+		scl.append_element(i);
+		if (line == i->get_line()) {
 			sel = scl.get_count() - 1;
 		}
 	}

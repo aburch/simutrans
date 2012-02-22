@@ -403,7 +403,7 @@ bool translator::load(const string &path_to_pakset)
 
 	//read now the basic language infos
 	for (searchfolder_t::const_iterator i = folder.begin(), end = folder.end(); i != end; ++i) {
-		const string fileName(*i);
+		string const fileName(*i);
 		size_t pstart = fileName.rfind('/') + 1;
 		const string iso = fileName.substr(pstart, fileName.size() - pstart - 4);
 

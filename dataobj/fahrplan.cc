@@ -228,7 +228,7 @@ void schedule_t::rdwr(loadsave_t *file)
 	else {
 		file->rdwr_byte(aktuell);
 		file->rdwr_byte(size);
-		if( file->get_version()>=102003 && file->get_experimental_version() >= 9)
+		if(file->get_version()>=102003 && file->get_experimental_version() >= 9)
 		{
 			file->rdwr_bool(bidirectional);
 			file->rdwr_bool(mirrored);
@@ -266,7 +266,7 @@ void schedule_t::rdwr(loadsave_t *file)
 			if(file->get_version()>=99018) {
 				file->rdwr_byte(eintrag[i].waiting_time_shift);
 
-				if (file->get_experimental_version() >= 9 && file->get_version() >= 110006) 
+				if(file->get_experimental_version() >= 9 && file->get_version() >= 110006) 
 				{
 					file->rdwr_short(eintrag[i].spacing_shift);
 				}

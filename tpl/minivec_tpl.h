@@ -136,7 +136,6 @@ public:
 		return false;
 	}
 
-
 	T& operator [](uint8 i)
 	{
 		if (i >= count) dbg->fatal("minivec_tpl<T>::[]", "index out of bounds: %i not in 0..%d", i, count - 1);

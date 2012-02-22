@@ -12,8 +12,8 @@
 #include "simworld.h"
 #include "simhalt.h"
 #include "player/simplay.h"
-#include "simdebug.h"
 #include "simconst.h"
+#include "macros.h"
 #include "besch/grund_besch.h"
 #include "boden/grund.h"
 #include "boden/boden.h"
@@ -30,6 +30,15 @@
 
 #include "gui/karte.h"
 
+
+void swap(planquadrat_t& a, planquadrat_t& b)
+{
+	sim::swap(a.this_halt, b.this_halt);
+	sim::swap(a.halt_list, b.halt_list);
+	sim::swap(a.ground_size, b.ground_size);
+	sim::swap(a.halt_list_count, b.halt_list_count);
+	sim::swap(a.data, b.data);
+}
 
 // deletes also all grounds in this array!
 planquadrat_t::~planquadrat_t()

@@ -489,8 +489,6 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	{
 		// Default values for items not in the standard vehicle format.
 		besch->is_tilting = false;
-		//besch->way_constraints_permissive = 0;
-		//besch->way_constraints_prohibitive = 0;
 		besch->catering_level = 0;
 		besch->bidirectional = false;
 		besch->can_lead_from_rear = false;

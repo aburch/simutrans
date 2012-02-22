@@ -347,8 +347,8 @@ void wegbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const 
 	std::sort(matching.begin(), matching.end(), compare_ways);
 
 	// now add sorted ways ...
-	for (vector_tpl<weg_besch_t*>::const_iterator i = matching.begin(), end = matching.end(); i != end; ++i) {
-		wzw->add_werkzeug( (*i)->get_builder() );
+	FOR(vector_tpl<weg_besch_t*>, const i, matching) {
+		wzw->add_werkzeug(i->get_builder());
 	}
 }
 
@@ -2055,7 +2055,6 @@ bool wegbauer_t::baue_tunnelboden()
 			tunnel->obj_add(new tunnel_t(welt, route[i], sp, tunnel_besch));
 			weg->set_max_speed(tunnel_besch->get_topspeed());
 			weg->set_max_weight(tunnel_besch->get_max_weight());
-			//weg->add_way_constraints(besch->get_way_constraints_permissive(), besch->get_way_constraints_prohibitive());
 			weg->add_way_constraints(besch->get_way_constraints());
 			tunnel->calc_bild();
 			cost -= tunnel_besch->get_preis();
@@ -2266,7 +2265,6 @@ void wegbauer_t::baue_schiene()
 					const wayobj_t* wayobj = gr->get_wayobj(weg->get_waytype());
 					if(wayobj != NULL)
 					{
-						//weg->add_way_constraints(wayobj->get_besch()->get_way_constraints_permissive(), wayobj->get_besch()->get_way_constraints_prohibitive());
 						weg->add_way_constraints(wayobj->get_besch()->get_way_constraints());
 					}					
 					spieler_t::add_maintenance( sp, weg->get_besch()->get_wartung());

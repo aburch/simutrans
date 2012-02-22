@@ -202,7 +202,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>F:\My Documents\Development\Zlib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>ZLIB_WINAPI;LITTLE_ENDIAN;WIN32;DEBUG=5;%(PreprocessorDefinitions);COLOUR_DEPTH=16</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ZLIB_WINAPI;LITTLE_ENDIAN;WIN32;DEBUG=5;%(PreprocessorDefinitions);COLOUR_DEPTH=16;DEBUG_SIMRAND_CALLS</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -271,7 +271,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <OmitFramePointers>true</OmitFramePointers>
       <AdditionalIncludeDirectories>F:\My Documents\Development\Zlib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_INDEPENDENT_PATH_POOL;ZLIB_WINAPI;LITTLE_ENDIAN;WIN32;NDEBUG;%(PreprocessorDefinitions);COLOUR_DEPTH=16</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ZLIB_WINAPI;LITTLE_ENDIAN;WIN32;NDEBUG;%(PreprocessorDefinitions);COLOUR_DEPTH=16</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FloatingPointModel>Fast</FloatingPointModel>
       <PrecompiledHeader>
@@ -882,6 +882,7 @@
     <ClInclude Include="dataobj\loadsave.h" />
     <ClInclude Include="gui\loadsave_frame.h" />
     <ClInclude Include="utils\float32e8_t.h" />
+    <ClInclude Include="utils\for.h" />
     <ClInclude Include="utils\log.h" />
     <ClInclude Include="macros.h" />
     <ClInclude Include="boden\wege\maglev.h" />
@@ -1051,6 +1052,7 @@
     <None Include="base_texts_experimental.dat" />
     <None Include="base_texts_experimental_10.0.dat" />
     <None Include="base_texts_experimental_10.1.dat" />
+    <None Include="base_texts_experimental_10.11.dat" />
     <None Include="base_texts_experimental_10.2.dat" />
     <None Include="base_texts_experimental_10.8.dat" />
     <None Include="base_texts_experimental_10.9.dat" />
@@ -1075,6 +1077,7 @@
     <None Include="simutrans\config\electricity.tab" />
     <None Include="simutrans\config\privatecar.tab" />
     <None Include="simutrans\config\simuconf.tab" />
+    <None Include="simutrans\text\en.tab" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="simres.rc" />

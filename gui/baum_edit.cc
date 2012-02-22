@@ -78,12 +78,10 @@ void baum_edit_frame_t::fill_list( bool translate )
 	// now buil scrolled list
 	scl.clear_elements();
 	scl.set_selection(-1);
-	for (vector_tpl<const baum_besch_t *>::const_iterator i = baumlist.begin(), end = baumlist.end(); i != end; ++i) {
-		scl.append_element( new gui_scrolled_list_t::const_text_scrollitem_t(
-			translate ? translator::translate( (*i)->get_name() ):(*i)->get_name(),
-			COL_BLACK )
-		);
-		if(  (*i) == besch  ) {
+	FOR(vector_tpl<baum_besch_t const*>, const i, baumlist) {
+		char const* const name = translate ? translator::translate( i->get_name() ) : i->get_name();
+		scl.append_element( new gui_scrolled_list_t::const_text_scrollitem_t(name, COL_BLACK));
+		if (i == besch) {
 			scl.set_selection(scl.get_count()-1);
 		}
 	}

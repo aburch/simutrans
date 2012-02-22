@@ -181,10 +181,10 @@ koord gui_flowtext_t::output(koord offset, bool doit, bool return_max_width)
 	int max_width    = width;
 	int text_width   = width;
 
-	for (slist_tpl<node_t>::const_iterator node = nodes.begin(), end = nodes.end(); node != end; ++node) {
-		switch (node->att) {
+	FOR(slist_tpl<node_t>, const& i, nodes) {
+		switch (i.att) {
 			case ATT_NONE: {
-				int nxpos = xpos + proportional_string_width(node->text.c_str()) + 4;
+				int nxpos = xpos + proportional_string_width(i.text.c_str()) + 4;
 
 				if (nxpos >= width) {
 					if (nxpos - xpos > max_width) {
@@ -201,9 +201,9 @@ koord gui_flowtext_t::output(koord offset, bool doit, bool return_max_width)
 
 				if (doit) {
 					if (double_it) {
-						display_proportional_clip(offset.x + xpos + 1, offset.y + ypos + 1, node->text.c_str(), 0, double_color, false);
+						display_proportional_clip(offset.x + xpos + 1, offset.y + ypos + 1, i.text.c_str(), 0, double_color, false);
 					}
-					display_proportional_clip(offset.x + xpos, offset.y + ypos, node->text.c_str(), 0, color, false);
+					display_proportional_clip(offset.x + xpos, offset.y + ypos, i.text.c_str(), 0, color, false);
 				}
 
 				xpos = nxpos;
@@ -303,10 +303,10 @@ bool gui_flowtext_t::infowin_event(const event_t* ev)
 {
 	if (IS_LEFTCLICK(ev)) {
 		// scan links for hit
-		for (slist_tpl<hyperlink_t>::const_iterator i = links.begin(), end = links.end(); i != end; ++i) {
-			if (i->tl.x <= ev->cx && ev->cx < i->br.x &&
-					i->tl.y <= ev->cy && ev->cy < i->br.y) {
-				call_listeners((const void*)i->param.c_str());
+		FOR(slist_tpl<hyperlink_t>, const& i, links) {
+			if (i.tl.x <= ev->cx && ev->cx < i.br.x &&
+					i.tl.y <= ev->cy && ev->cy < i.br.y) {
+				call_listeners((void const*)i.param.c_str());
 			}
 		}
 	}

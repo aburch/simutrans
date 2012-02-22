@@ -1284,6 +1284,20 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_long(dummy);
 		}
 	}
+
+#ifdef DEBUG_SIMRAND_CALLS
+	karte_t::random_callers.clear();
+	karte_t::random_calls = 0;
+	char* buf = new char[256];
+	sprintf(buf,"Initial counter: %i; seed: %i", get_random_counter(), get_random_seed());
+	karte_t::random_callers.append(buf);
+
+	if(  umgebung_t::networkmode  ) {
+		// to have games synchronized, transfer random counter too
+		setsimrand(get_random_counter(), 0xFFFFFFFFu );
+		translator::init_custom_names(get_name_language_id());
+	}
+#endif
 }
 
 

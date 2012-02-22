@@ -217,6 +217,8 @@ convoi_t::convoi_t(karte_t* wl, loadsave_t* file) : fahr(max_vehicle, NULL)
 	delete average_journey_times;
 	delete departures;
 
+	self = convoihandle_t(this);
+
 	average_journey_times = new koordhashtable_tpl<id_pair, average_tpl<uint16> >;
 	departures = new inthashtable_tpl<uint16, departure_data_t>;
 	no_route_retry_count = 0;
@@ -467,8 +469,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 				vector_tpl<linehandle_t> lines;
 				get_besitzer()->simlinemgmt.get_lines(fpl->get_type(), &lines);
 				new_line = linehandle_t();
-				for (vector_tpl<linehandle_t>::const_iterator i = lines.begin(), end = lines.end(); i != end; i++) {
-					linehandle_t l = *i;
+				FOR(vector_tpl<linehandle_t>, const l, lines) {
 					if(  fpl->matches( welt, l->get_schedule() )  ) {
 						// if a line is assigned, set line!
 						new_line = l;
@@ -3456,6 +3457,7 @@ void convoi_t::rdwr(loadsave_t *file)
 		{
 			uint32 count = 0;
 			file->rdwr_long(count);
+			average_journey_times->clear();
 			for(uint32 i = 0; i < count; i ++)
 			{
 				id_pair idp;
@@ -3524,34 +3526,6 @@ void convoi_t::rdwr(loadsave_t *file)
 		// Was maxspeed_average_count
 		uint32 dummy = 0;
 		file->rdwr_long(dummy);
-	}
-
-	if(file->get_experimental_version() >= 10 && file->get_version() >= 111001)
-	{
-		// It is necessary to save the IDs for convoys, as these are
-		// used in the path explorer when the convoys run without
-		// lines. Network desyncs can result if these games are then
-		// played online.
-
-		uint16 id;
-		if (file->is_saving()) 
-		{
-			id = self.is_bound() ? self.get_id(): 0;
-		}
-		else 
-		{
-			// to avoid undefined errors during loading
-			id = 0;
-		}
-		file->rdwr_short(id);
-		if (file->is_loading()) 
-		{
-			self = convoihandle_t(this, id);
-		}
-	}
-	else
-	{
-		self = convoihandle_t(this);
 	}
 
 	// This must come *after* all the loading/saving.
@@ -3831,7 +3805,6 @@ void convoi_t::laden() //"load" (Babelfish)
 					average_tpl<uint16> average;
 					average.add(journey_time);
 					average_journey_times->put(idp, average);
-					/*average_journey_times->put(pair, average);*/
 				}
 				else
 				{
@@ -3844,7 +3817,6 @@ void convoi_t::laden() //"load" (Babelfish)
 						average_tpl<uint16> average;
 						average.add(journey_time);
 						line->average_journey_times->put(idp, average);
-						/*line->average_journey_times->put(pair, average);*/
 					}
 					else
 					{
@@ -4149,7 +4121,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 			const sint64 multiplier = (welt->get_settings().get_max_luxury_bonus_percent() * comfort_modifier) / 100ll;
 			if(differential >= max_differential)
 			{
-				final_revenue += (revenue * multiplier) / 10000ll;
+				final_revenue += (revenue * multiplier) / 100ll;
 			}
 			else
 			{
@@ -4166,7 +4138,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 			multiplier = multiplier < 95ll ? multiplier : 95ll;
 			if(differential >= max_differential)
 			{
-				final_revenue -= (revenue * multiplier) / 10000ll;
+				final_revenue -= (revenue * multiplier) / 100ll;
 			}
 			else
 			{

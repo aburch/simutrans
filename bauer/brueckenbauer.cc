@@ -174,8 +174,8 @@ void brueckenbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, s
 	}
 
 	// now sorted ...
-	for (vector_tpl<const bruecke_besch_t*>::const_iterator i = matching.begin(), end = matching.end(); i != end; ++i) {
-		wzw->add_werkzeug( (*i)->get_builder() );
+	FOR(vector_tpl<bruecke_besch_t const*>, const i, matching) {
+		wzw->add_werkzeug(i->get_builder());
 	}
 }
 
@@ -604,7 +604,6 @@ void brueckenbauer_t::baue_auffahrt(karte_t* welt, spieler_t* sp, koord3d end, k
 		}
 		weg->set_max_speed( besch->get_topspeed() );
 		weg->set_max_weight( besch->get_max_weight() );
-		//weg->add_way_constraints(besch->get_way_constraints_permissive(), besch->get_way_constraints_prohibitive());
 		weg->add_way_constraints(besch->get_way_constraints());
 	} else {
 

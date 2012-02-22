@@ -113,8 +113,8 @@ bool obj_reader_t::load(const char *liste, const char *message)
 				}
 
 				find.search(buf, "pak");
-				for (searchfolder_t::const_iterator i = find.begin(), end = find.end(); i != end; ++i) {
-					read_file(*i);
+				FOR(searchfolder_t, const& i, find) {
+					read_file(i);
 				}
 			}
 			fclose(listfp);
@@ -172,8 +172,8 @@ DBG_MESSAGE("obj_reader_t::load()","big logo %p", skinverwaltung_t::biglogosymbo
 
 DBG_MESSAGE("obj_reader_t::load()", "reading from '%s'", name.c_str());
 		uint n = 0;
-		for (searchfolder_t::const_iterator i = find.begin(), end = find.end(); i != end; ++i, n++) {
-			read_file(*i);
+		FORX(searchfolder_t, const& i, find, ++n) {
+			read_file(i);
 			if ((n & teilung) == 0 && drawing) {
 				display_progress(n, max);
 				// name of the pak

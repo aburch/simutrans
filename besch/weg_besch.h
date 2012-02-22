@@ -96,8 +96,6 @@ private:
 
 	/*Way constraints for, e.g., loading gauges, types of electrification, etc.
 	* @author: jamespetts*/
-	//uint8 way_constraints_permissive;
-	//uint8 way_constraints_prohibitive;
 	way_constraints_of_way_t way_constraints;
 	// this is the defualt tools for building this way ...
 	werkzeug_t *builder;
@@ -233,8 +231,6 @@ public:
 		return get_child<skin_besch_t>(5);
 	}
 
-	//uint8 get_way_constraints_permissive() const { return way_constraints_permissive; }
-	//uint8 get_way_constraints_prohibitive() const { return way_constraints_prohibitive; }
 	const way_constraints_of_way_t& get_way_constraints() const { return way_constraints; }
 	void set_way_constraints(const way_constraints_of_way_t& value) { way_constraints = value; }
 

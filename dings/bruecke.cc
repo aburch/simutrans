@@ -118,7 +118,6 @@ void bruecke_t::laden_abschliessen()
 			}
 			weg->set_max_speed(besch->get_topspeed());
 			weg->set_max_weight(besch->get_max_weight());
-			//weg->add_way_constraints(besch->get_way_constraints_permissive(), besch->get_way_constraints_prohibitive());
 			weg->add_way_constraints(besch->get_way_constraints());
 			if(weg->get_besitzer())
 			{

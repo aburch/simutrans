@@ -36,8 +36,8 @@ int searchfolder_t::search(const std::string &filepath, const std::string &exten
 	std::string lookfor;
 	std::string ext;
 
-	for(  vector_tpl<char *>::const_iterator i = files.begin(), end = files.end();  i != end;  ++i  ) {
-		guarded_free(*i);
+	FOR(vector_tpl<char*>, const i, files) {
+		guarded_free(i);
 	}
 	files.clear();
 
@@ -120,7 +120,7 @@ std::string searchfolder_t::complete(const std::string &filepath, const std::str
  */
 searchfolder_t::~searchfolder_t()
 {
-	for (vector_tpl<char*>::const_iterator i = files.begin(), end = files.end(); i != end; ++i) {
-		guarded_free(*i);
+	FOR(vector_tpl<char*>, const i, files) {
+		guarded_free(i);
 	}
 }
