@@ -53,7 +53,7 @@ void gui_scrollpane_t::recalc_sliders(koord groesse)
 		scroll_y.set_groesse(groesse);
 		scroll_y.set_knob(groesse.y, komp->get_groesse().y + komp->get_pos().y);
 	}
-	old_komp_groesse = komp->get_groesse();
+	old_komp_groesse = komp->get_groesse()+komp->get_pos();
 }
 
 

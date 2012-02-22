@@ -159,6 +159,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	details_button.add_listener(this);
 	add_komponente(&details_button);
 
+	text.set_pos( koord(DIALOG_LEFT,DIALOG_TOP) );
 	scrolly.set_pos(koord(0, offset_below_viewport+50));
 	scrolly.set_show_scroll_x(true);
 	add_komponente(&scrolly);

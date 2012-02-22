@@ -144,11 +144,12 @@ void fabrik_info_t::zeichnen(koord pos, koord gr)
 {
 	fab->info_prod( prod_buf );
 	fab->info_conn( info_buf );
-	txt.recalc_size();
+
+	gui_frame_t::zeichnen(pos,gr);
+
 	if(  fab_info.get_groesse().y!=txt.get_groesse().y-LINESPACE  ) {
 		update_info();
 	}
-	gui_frame_t::zeichnen(pos,gr);
 
 	prod_buf.clear();
 	prod_buf.append( translator::translate("Durchsatz") );
