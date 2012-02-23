@@ -507,6 +507,7 @@ void convoi_t::rotate90( const sint16 y_size )
 	for(  int i=0;  i<anz_vehikel;  i++  ) {
 		fahr[i]->remove_stale_freight();
 	}
+	freight_info_resort = true;
 }
 
 
@@ -1591,6 +1592,7 @@ bool convoi_t::set_schedule(schedule_t * f)
 	for(unsigned i=0; i<anz_vehikel; i++) {
 		fahr[i]->remove_stale_freight();
 	}
+	freight_info_resort = true;
 
 	// ok, now we have a schedule
 	if(old_state!=INITIAL) {
@@ -3055,6 +3057,7 @@ void convoi_t::check_pending_updates()
 				for(uint8 i=0; i<anz_vehikel; i++) {
 					fahr[i]->remove_stale_freight();
 				}
+				freight_info_resort = true;
 			}
 			else {
 				// need re-routing
