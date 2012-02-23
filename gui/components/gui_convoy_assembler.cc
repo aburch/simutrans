@@ -706,7 +706,7 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 						{
 							for(uint16 c = 0; c < vehicle_list[i]->get_upgrades_count(); c++)
 							{
-								if(info->get_name() == vehicle_list[i]->get_upgrades(c)->get_name())
+								if(vehicle_list[i]->get_upgrades(c) && (info->get_name() == vehicle_list[i]->get_upgrades(c)->get_name()))
 								{
 									upgradeable = true;
 								}
@@ -1221,7 +1221,7 @@ void gui_convoy_assembler_t::update_data()
 			{
 				for(uint16 c = 0; c < vehicle_list[i]->get_upgrades_count(); c++)
 				{
-					if(info->get_name() == vehicle_list[i]->get_upgrades(c)->get_name())
+					if(vehicle_list[i]->get_upgrades(c) && (info->get_name() == vehicle_list[i]->get_upgrades(c)->get_name()))
 					{
 						iter1.get_current_value()->lcolor = COL_DARK_GREEN;
 						iter1.get_current_value()->rcolor = COL_DARK_GREEN;
@@ -1244,7 +1244,7 @@ void gui_convoy_assembler_t::update_data()
 							{
 								for(uint16 k = 0; k < vehicle_list[j]->get_upgrades_count(); k++)
 								{
-									if(vehicle_list[j]->get_upgrades(k)->get_name() == info->get_name())
+									if(vehicle_list[j]->get_upgrades(k) && (vehicle_list[j]->get_upgrades(k)->get_name() == info->get_name()))
 									{
 										// Counts the number of vehicles currently marked to be upgraded
 										// to the selected vehicle.
