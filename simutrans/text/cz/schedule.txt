@@ -20,6 +20,7 @@ Postup operací je stejný, jako v pøedchozích pøípadech.
 
 <p>
 Nastavení <strong>èekat na x%</strong> urèuje, na kolik procent musí být vozidlo plné, aby mohlo vyjet. Tímto zabráníte zbyteènému je¾dìní poloprázdných èi úplnì prázdných vozidel.
+</p>
 <p>
 
 <p>

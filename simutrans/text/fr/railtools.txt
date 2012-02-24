@@ -32,7 +32,7 @@ Pour placer un signal, cliquez ensuite sur la protion de rail où vous voulez le
 placer. Les signaux sont placés au bord des carrés, mais comptent pour un seul
 carré. Il ne peut y avoir qu'un seul signal par carré.
 Pour suprimmer un signal, utilisez l'outil de destruction, et cliquez sur le
-carré où vous avez placé le signal. Ceci supprimera le signal en laissant intac
+carré où vous avez placé le signal. Ceci supprimera le signal en laissant intact
 le rail.
 </p>
 <p>
@@ -66,7 +66,7 @@ usines produisent lorsque moins de 1000 unités(tonnes, palettes, m3) attendent.
 Les gares sont construites à partir de segments individuels.
 Pour positionner un segment, cliquez sur le carré où vous souhaitez le placer.
 Les gares doivent être construites sur des rails existant, mais ne peuvent pas
-être placées dans des montées, descentes et intersections. Chaque segmen
+être placées dans des montées, descentes et intersections. Chaque segment
 adjacent avec une gare devient une partie de celle-ci, même si elle est située
 sur une autre section de rail. A chaque segment correspondent 2 wagons ou
 motrices. Assurez-vous de la longueur des gares pour vos trains les plus longs.

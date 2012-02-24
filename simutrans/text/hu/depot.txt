@@ -6,13 +6,13 @@ A kocsiszinben lehetõség van különbözõ típusú jármûvek vásárlására
 eladására,menetrendek összeállítására.
 </p>
 <p>
-A kocsiszin ablak megmutatja a vásárolt jármûveket, illetve, hogy mike
-lehet még vásárolni. A jármûvek különbözõ kategoriákban vannak osztva. Ez
+A kocsiszin ablak megmutatja a vásárolt jármûveket, illetve, hogy miket
+lehet még vásárolni. A jármûvek különbözõ kategoriákban vannak osztva. Ezt
 a különbözõ füleken olvashatód le. Tulajdonképpen ez a depó lelke. Itt található az
 összes jármû. A felsõ részen ellenben a már kész összeállított konvojok között tudsz
-navigálni. Illetve ugyancsak a fenti legördülõ menük egyikében az útvonalak közö
+navigálni. Illetve ugyancsak a fenti legördülõ menük egyikében az útvonalak között
 barangolhatsz. A felsõ részen látható a már összeállított szerelvény. Több típus is
-összekapcsolható ha ez megengedett. Ha nem kapcsolható össze akkor az
+összekapcsolható ha ez megengedett. Ha nem kapcsolható össze akkor azt
 egy vörös vonal jelzi a jármû alatt. A jobb alsó gomb segítségével
 állítható be a konvojok össszeállítási módja: <strong>"Hozzáad", "Elé rak", "Eladási mód"</strong>
 <br>
@@ -20,7 +20,7 @@ egy vörös vonal jelzi a jármû alatt. A jobb alsó gomb segítségével
 <br>
 <em>Elé rak</em> - az új jármû a régi elejébe kerül
 <br>
-<em>Eladási mód</em> - a depóban lévõ jármûveket így lehet eladni, tehát nem a konvojokat hanem a már szétbonto
+<em>Eladási mód</em> - a depóban lévõ jármûveket így lehet eladni, tehát nem a konvojokat hanem a már szétbontott
 és depóban lévõ külön jármûveket. Az, hogy a depóban van-e jármû a bal alsó részen látható.
 </p>
 <p>
@@ -30,7 +30,7 @@ A felsõ részen 8 menûgomb található.
 </p>
 <p>
 A <strong>Start</strong> gombbal lehet a készen összeállított konvojt elindítani,
-de csak akkor ha a <a href="schedule.txt">"Menetrend"</a> vagy <strong>"Új vonal"</strong> menûgomb ala
+de csak akkor ha a <a href="schedule.txt">"Menetrend"</a> vagy <strong>"Új vonal"</strong> menûgomb alatt
 már készítettél  egy menetrendet vagy új vonalat. Az új vonalat <strong>"Útvonalat alkalmaz"</strong> gombal
 társítod a konvojhoz. A Menetrend és Vonal között az a különbség, hogy míg a Menetrend csak az adott jármûre érvényes,
 addig a Vonalat más jármû is használhatja párhuzamosan. Vagyis ugyanazt a vonalat nagyon sok jármû is használhatja

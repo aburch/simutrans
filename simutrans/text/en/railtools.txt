@@ -1,9 +1,9 @@
-<title>?Railroad Tools Help</title>
+<title>Railroad Tools Help</title>
 
-<h1><strong>>?Railroad/Train/Rail Tools</strong></h1>
+<h1><strong>>Railroad/Train/Rail Tools</strong></h1>
 
 <p>
-<strong>?Railroad Tools</strong> construct a train transport network. Tools may build: railtrack (and electrify or remove it); bridges; tunnels; signals; depots; station platforms; & extensions. If playing with <a href="new_world.txt">timeline</a>, then as time passes in Simutrans more tool-options may appear.
+<strong>Railroad Tools</strong> construct a train transport network. Tools may build: railtrack (and electrify or remove it); bridges; tunnels; signals; depots; station platforms; & extensions. If playing with <a href="new_world.txt">timeline</a>, then as time passes in Simutrans more tool-options may appear.
 </p>
 <p>
 Click train-icon at top of game-view to open toolbar. Hover mouse-cursor over tool-option (after opening or clicking on toolbar) to see name & where appropriate: construction <a href="finances.txt">cost</a>, maintenance cost in brackets, maximum speed limit & maximum length.
@@ -46,6 +46,8 @@ If a tunnel cannot find a suitable exit (a slope free from obstructions), it wil
 <em>Rail Signals:</em> tools build signals for rail vehicles on a Track in game-view. Signals direct & regulate flow of vehicles on Tracks & bridges, junctions & <a href="station.txt">Stops</a>.<br>
 Two-way & one-way versions of signals can be built. To build a two-way signal on Track: click on tool to select signal (changes cursor to signals); then click on Track. To build a one-way signal: click again at same point, with signals-cursor, to cycle through one-way signals, back to a two-way signal.<br>
 IMPORTANT: Take care not to place one-way signals that prevent vehicles reaching their destination, by default vehicles drive on the right (can be changed in simuconf.tab).<br>
+If you hold the control key when clicking on a signal, the <a href="signal_spacing.txt">multiple signal builder</a> is activated.
+<br>
 - <em>Signals:</em> vehicles proceed only if Track ahead up to next signal or destination in <a href="schedule.txt">Schedule</a> (a <a href="station.txt">Stop</a> or waypoint) is not occupied by another vehicle. In one-way mode vehicles pass in one direction only.<br>
 - <em>RailClose:</em> vehicles do not proceed beyond signal (available in one-way mode only).<br>
 - <em>PreSignals:</em> vehicles proceed if area of Track ahead (either between three consecutive signals or to next destination in <a href="schedule.txt">Schedule</a>) is not occupied by another vehicle. In one-way mode they let vehicles pass in one direction only.<br>
