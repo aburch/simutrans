@@ -634,6 +634,11 @@ senke_t::~senke_t()
 		if(city)
 		{
 			city->remove_substation(this);
+			const vector_tpl<fabrik_t*>& city_factories = city->get_city_factories();
+			ITERATE(city_factories, i)
+			{
+				city_factories[i]->set_transformer_connected( NULL );
+			}
 		}
 	}
 	spieler_t::add_maintenance(get_besitzer(), welt->get_settings().cst_maintain_transformer);

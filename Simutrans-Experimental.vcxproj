@@ -1066,7 +1066,6 @@
     <None Include="base_texts_experimental_forgotten_items_2.dat" />
     <None Include="config.default" />
     <None Include="config.template" />
-    <None Include="..\simutrans-experimental-binaries\text\en.tab" />
     <None Include="Makefile" />
     <None Include="makeobj\Makefile" />
     <None Include="simutrans\config\electricity.tab" />
