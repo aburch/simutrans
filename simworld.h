@@ -560,6 +560,7 @@ public:
 	void store_player_password_hash( uint8 player_nr, const pwd_hash_t& hash );
 	const pwd_hash_t& get_player_password_hash( uint8 player_nr ) const { return player_password_hash[player_nr]; }
 	void clear_player_password_hashes();
+	void rdwr_player_password_hashes(loadsave_t *file);
 
 	/**
 	 * network safe initiation of new players

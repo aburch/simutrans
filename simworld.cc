@@ -2307,6 +2307,18 @@ void karte_t::clear_player_password_hashes()
 }
 
 
+void karte_t::rdwr_player_password_hashes(loadsave_t *file)
+{
+	pwd_hash_t dummy;
+	for(  int i=0;  i<PLAYER_UNOWNED; i++  ) {
+		pwd_hash_t *p = spieler[i] ? &spieler[i]->access_password_hash() : &dummy;
+		for(  uint8 j=0; j<20; j++) {
+			file->rdwr_byte( (*p)[j] );
+		}
+	}
+}
+
+
 /**
  * network safe method to init new players, change freeplay
  * @param param player type (human / ai) of new players
@@ -4180,6 +4192,7 @@ bool karte_t::laden(const char *filename)
 	cbuffer_t name;
 	bool ok = false;
 	bool restore_player_nr = false;
+	bool server_reload_pwd_hashes = false;
 	mute_sound(true);
 	display_show_load_pointer(true);
 	loadsave_t file;
@@ -4221,6 +4234,11 @@ bool karte_t::laden(const char *filename)
 					// stay in networkmode, but disconnect clients
 					dbg->warning("karte_t::laden","disconnecting all clients");
 					network_reset_server();
+				}
+				else {
+					// read password hashes from separate file
+					// as they are not in the savegame to avoid sending them over network
+					server_reload_pwd_hashes = true;
 				}
 			}
 			else {
@@ -4267,6 +4285,19 @@ DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 				settings.set_allow_player_change(true);
 				// language of map becomes server language
 				settings.set_name_language_iso(translator::get_lang()->iso_base);
+			}
+
+			if(  server_reload_pwd_hashes  ) {
+				char fn[256];
+				sprintf( fn, "server%d-pwdhash.sve", umgebung_t::server );
+				loadsave_t pwdfile;
+				if (pwdfile.rd_open(fn)) {
+					rdwr_player_password_hashes( &pwdfile );
+					// correct locking info
+					nwc_auth_player_t::init_player_lock_server(this);
+					pwdfile.close();
+				}
+				server_reload_pwd_hashes = false;
 			}
 		}
 		else if(  umgebung_t::networkmode  ) {
