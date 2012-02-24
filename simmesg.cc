@@ -209,8 +209,8 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 	}
 
 	// restore focus
-	if (old_top  &&  focus) {
-		top_win(old_top);
+	if(  old_top  &&  focus  ) {
+		top_win( old_top, true );
 	}
 }
 

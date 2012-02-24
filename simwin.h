@@ -136,9 +136,7 @@ void destroy_win(const gui_frame_t *ig);
 void destroy_win(const long magic);
 void destroy_all_win(bool destroy_sticky);
 
-bool top_win(const gui_frame_t *ig);
-int top_win(int win);
-void display_win(int win);
+bool top_win(const gui_frame_t *ig, bool keep_rollup=false  );
 void display_all_win();
 void win_rotate90( sint16 new_size );
 void move_win(int win);
