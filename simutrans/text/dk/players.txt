@@ -22,6 +22,6 @@ får blot vedkommende "til at sove".
 </p>
 
 <p>
-Dialogen giver ligeledes et overblik over kassebeholdningen for hver enkel
+Dialogen giver ligeledes et overblik over kassebeholdningen for hver enkelt
 konkurrent.
 </p>

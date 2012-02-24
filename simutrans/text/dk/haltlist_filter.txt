@@ -58,6 +58,6 @@ rutemål, der ikke er forbundne.
 <p>
 De to lister giver mulighed for at udvælge rutemål udfra de varer, der
 forbruges eller produceres på rutemålet. De tre knapper under overskriften
-anvendes til at vælge henholdsvis alle eller ingen af de mulige varetyper sam
+anvendes til at vælge henholdsvis alle eller ingen af de mulige varetyper samt
 til at foretage den "inverse" trykknap udvælgelse.
 </p>

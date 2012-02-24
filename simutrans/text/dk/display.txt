@@ -28,7 +28,7 @@ Gør kortet lysere eller mørkere.
 
 <p>
 <em>Farver:</em><br>
-Ingen effek
+Ingen effekt
 </p>
 
 <p>

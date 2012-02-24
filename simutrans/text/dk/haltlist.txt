@@ -12,7 +12,7 @@ filtrere disse efter parametre såsom type, varer og varelager.
 <p>
 <em>Udseende:</em><br>
 Øverst i dialogen er overskrifterne: 'Sorteret efter:' og 'Filter:'.<br>
-Til 'Sorteret efter:' er knyttet to "tilstands-knapper", der som defaul
+Til 'Sorteret efter:' er knyttet to "tilstands-knapper", der som default
 indstilling henholdsvis har tilstandende 'navn' samt 'stigende'.<br>
 Til 'Filter:' er der knyttet en "tilstands-knap" med default tilstanden
 'inaktiv' samt en knap med titlen 'indstil filter'. <br>

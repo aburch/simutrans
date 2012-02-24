@@ -4,7 +4,7 @@
 
 <p>
 <em>Beskrivelse:</em><br>
-Simutrans er et multilingualt spil, der tillader spilleren at vælge si
+Simutrans er et multilingualt spil, der tillader spilleren at vælge sit
 foretrukne sprog for alle viste tekster. (forudsat en oversættelse
 eksisterer)
 </p>
