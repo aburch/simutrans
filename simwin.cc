@@ -1159,11 +1159,13 @@ bool check_pos_win(event_t *ev)
 		return true;
 	}
 
-	// cursor event only go to top window
+	// cursor event only go to top window (but not if rolled up)
 	if(  ev->ev_class == EVENT_KEYBOARD  &&  !wins.empty()  ) {
 		simwin_t&               win  = wins.back();
-		inside_event_handling = win.gui;
-		swallowed = win.gui->infowin_event(ev);
+		if(  !win.rollup  )  {
+			inside_event_handling = win.gui;
+			swallowed = win.gui->infowin_event(ev);
+		}
 		inside_event_handling = NULL;
 		process_kill_list();
 		return swallowed;
