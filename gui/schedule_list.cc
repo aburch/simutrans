@@ -270,7 +270,7 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t *sp_) :
 	add_komponente(&bt_change_line);
 
 	bt_delete_line.init(button_t::roundbox, "Delete Line", koord(11+2*BUTTON_WIDTH, 8+SCL_HEIGHT+BUTTON_HEIGHT ), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
-	bt_change_line.set_tooltip("Delete the selected line (if without associated convois).");
+	bt_delete_line.set_tooltip("Delete the selected line (if without associated convois).");
 	bt_delete_line.add_listener(this);
 	bt_delete_line.disable();
 	add_komponente(&bt_delete_line);

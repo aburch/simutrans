@@ -100,7 +100,7 @@ map_frame_t::map_frame_t(karte_t *welt) :
 {
 	// show the various objects
 	b_show_legend.init(button_t::roundbox_state, "Show legend", koord(BUTTON1_X,0), koord(BUTTON_WIDTH-1,BUTTON_HEIGHT));
-	b_show_scale.set_tooltip("Shows buttons on special topics.");
+	b_show_legend.set_tooltip("Shows buttons on special topics.");
 	b_show_legend.add_listener(this);
 	add_komponente(&b_show_legend);
 
