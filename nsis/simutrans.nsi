@@ -90,8 +90,8 @@ finishGDIexe:
 FunctionEnd
 
 Section "Executable (GDI, Unicode)" GDIexe
-  AddSize 8588
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/111-1/simuwin-111-1.zip"
+  AddSize 9411
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/111-2/simuwin-111-2.zip"
   StrCpy $archievename "simuwin-111-1.zip"
   StrCpy $downloadname "Simutrans Executable (GDI)"
   Call DownloadInstallZip
@@ -100,8 +100,8 @@ SectionEnd
 
 
 Section /o "Executable (SDL, better sound)" SDLexe
-  AddSize 9277
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/111-1/simuwin-sdl-111-1.zip"
+  AddSize 10100
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/111-2/simuwin-sdl-111-2.zip"
   StrCpy $archievename "simuwin-sdl-111-1.zip"
   StrCpy $downloadname "Simutrans Executable (SDL)"
   Call DownloadInstallZip
@@ -123,8 +123,8 @@ SectionGroupEnd
 SectionGroup "Pak64: main and addons" pak64group
 
 Section "!pak64 (standard)" pak64
-  AddSize 10683
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/111-1/simupak64-111-1.zip"
+  AddSize 10704
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/111-2/simupak64-111-2.zip"
   StrCpy $archievename "simupak64-111-0.zip"
   StrCpy $downloadname "pak64"
   Call DownloadInstallZip
@@ -266,9 +266,9 @@ SectionEnd
 
 
 
-Section /o "pak128 2.00" pak128
-  AddSize 73136
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128/pak128%20for%20111-0/pak128-2.0.0--111.0.zip"
+Section /o "pak128 2.1.0" pak128
+  AddSize 340600
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128/pak128%20for%20111-2/pak128-2.1.0--111.2.zip"
   StrCpy $archievename "pak128-2.0.0--111.0.zip"
   StrCpy $downloadname "pak128"
   Call DownloadInstallZip
@@ -335,9 +335,9 @@ SectionEnd
 
 
 
-Section /o "pak48 excentrique 0.15" pak48excentrique
-  AddSize 1448
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak48.Excentrique/v0.15-for-Simutrans-111.0/pak48_excentrique-v0_15.zip"
+Section /o "pak48 excentrique 0.16" pak48excentrique
+  AddSize 1544
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak48.Excentrique/v0.16-for-Simutrans-111.1/pak48_excentrique-v0_16.zip"
   StrCpy $archievename "pak48_excentrique-v0_15.zip"
   StrCpy $downloadname "pak48.Excentrique"
   Call DownloadInstallZip
