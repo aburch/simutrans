@@ -1826,9 +1826,6 @@
     <None Include="config.template">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="..\simutrans-experimental-binaries\text\en.tab">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="Makefile">
       <Filter>Resource Files</Filter>
     </None>
