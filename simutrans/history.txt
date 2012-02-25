@@ -1,3 +1,4 @@
+Release of 111.2 (r5423 on 27-Feb-2012):
 	ADD: more info on bare ground
 	ADD: show ownership in minimap
 	ADD: bonus_basefactor = 125 incorporated, determines minimum income for slow vehicles in case of speedbonus
@@ -10,6 +11,7 @@
 	ADD: front images for ways
 	ADD: goto-button to chat messages, coordinate taken from @x,y or (x,y)
 	CHG: overhauled color choose dialog with ideas from Hajo
+	FIX: lots of double free errors (mostly in network code)
 
 
 Release of 111.1 (r5115 on 23-Jan-2012):
