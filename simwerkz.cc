@@ -1679,12 +1679,23 @@ uint8 wkz_wegebau_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord3d &
 		if(  gr->get_typ() == grund_t::tunnelboden  &&  !gr->ist_karten_boden()  && !(besch->get_wtyp()==track_wt  &&  besch->get_styp()==7  && gr->hat_weg(road_wt)) ) {
 			return 0;
 		}
+		bool const elevated = besch->get_styp() == 1  &&  besch->get_wtyp() != air_wt;
 		// ignore water
 		if(  besch->get_wtyp() != water_wt  &&  gr->get_typ() == grund_t::wasser  ) {
-			if(  besch->get_styp() != 1  ||  besch->get_wtyp() == air_wt  ||   welt->lookup_hgt(gr->get_pos().get_2d()) < welt->get_grundwasser()  ) {
+			if(  !elevated  ||  welt->lookup_hgt(gr->get_pos().get_2d()) < welt->get_grundwasser()  ) {
 				return 0;
 			}
 			// here either channel or elevated way over not too deep water
+		}
+		// elevated ways have to check tile above
+		if (elevated) {
+			gr=welt->lookup(pos + koord3d(0,0,1));
+			if (gr == NULL) {
+				return 2;
+			}
+			if (gr->get_typ() != grund_t::monorailboden) {
+				return 0;
+			}
 		}
 		// test if way already exists on the way and if we are allowed to connect
 		weg_t *way = gr->get_weg(besch->get_wtyp());
