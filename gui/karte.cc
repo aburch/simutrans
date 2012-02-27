@@ -920,44 +920,29 @@ void reliefkarte_t::zeichnen(koord pos)
 			k[2] = stadt->get_rechtsunten(); // bottom right
 
 			// calculate and draw the rotated coordinates
-			if(isometric|1) {
 
-				k[1] =  koord(k[0].x, k[2].y); // bottom left
-				k[3] =  koord(k[2].x, k[0].y); // top right
+			k[1] =  koord(k[0].x, k[2].y); // bottom left
+			k[3] =  koord(k[2].x, k[0].y); // top right
 
-				k[0] += koord(0, -1); // top left
-				karte_to_screen(k[0]);
-				k[0] = k[0] + pos;
+			k[0] += koord(0, -1); // top left
+			karte_to_screen(k[0]);
+			k[0] = k[0] + pos;
 
-				karte_to_screen(k[1]); // bottom left
-				k[1] = k[1] + pos;
+			karte_to_screen(k[1]); // bottom left
+			k[1] = k[1] + pos;
 
-				k[2] += koord(1, 0); // bottom right
-				karte_to_screen(k[2]);
-				k[2] += pos;
+			k[2] += koord(1, 0); // bottom right
+			karte_to_screen(k[2]);
+			k[2] += pos;
 
-				k[3] += koord(1, -1); // top right
-				karte_to_screen(k[3]);
-				k[3] += pos;
+			k[3] += koord(1, -1); // top right
+			karte_to_screen(k[3]);
+			k[3] += pos;
 
-				display_direct_line(k[0].x, k[0].y, k[1].x, k[1].y, color);
-				display_direct_line(k[1].x, k[1].y, k[2].x, k[2].y, color);
-				display_direct_line(k[2].x, k[2].y, k[3].x, k[3].y, color);
-				display_direct_line(k[3].x, k[3].y, k[0].x, k[0].y, color);
-			}
-			else {
-				karte_to_screen(k[0]);
-				k[0] = k[0] + pos + koord(-1, -1);
-
-				k[2] += koord(1, 1);
-				karte_to_screen(k[2]);
-				k[2] += pos;
-
-				display_direct_line(k[0].x, k[0].y, k[0].x, k[2].y, color);
-				display_direct_line(k[2].x, k[0].y, k[2].x, k[2].y, color);
-				display_direct_line(k[0].x, k[0].y, k[2].x, k[0].y, color);
-				display_direct_line(k[0].x, k[2].y, k[2].x, k[2].y, color);
-			}
+			display_direct_line(k[0].x, k[0].y, k[1].x, k[1].y, color);
+			display_direct_line(k[1].x, k[1].y, k[2].x, k[2].y, color);
+			display_direct_line(k[2].x, k[2].y, k[3].x, k[3].y, color);
+			display_direct_line(k[3].x, k[3].y, k[0].x, k[0].y, color);
 		}
 	}
 
