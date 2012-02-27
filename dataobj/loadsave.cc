@@ -192,7 +192,8 @@ bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extensi
 		fd->fp = fopen(filename, "wb");
 	}
 
-	if(!fd->fp) {
+	// check whether we could open the file
+	if(  is_zipped()  ?  fd->gzfp == NULL  :  fd->fp == NULL  ) {
 		return false;
 	}
 	saving = true;
