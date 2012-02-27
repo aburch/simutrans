@@ -732,7 +732,6 @@ void reliefkarte_t::set_welt(karte_t *welt)
 		delete relief;
 		relief = NULL;
 	}
-	isometric = false;
 	needs_redraw = true;
 	is_visible = false;
 
