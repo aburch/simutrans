@@ -244,44 +244,46 @@ bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extensi
 const char *loadsave_t::close()
 {
 	const char *success = NULL;
-	if(fd->fp != NULL) {
-		if(  is_xml()  &&  saving  &&  (!is_bzip2()  ||  fd->bse==BZ_OK)  ) {
-			// only write when close and no error occurred
-			const char *end = "\n</Simutrans>\n";
-			write( end, strlen(end) );
+
+	if(  is_xml()  &&  saving  &&  (!is_bzip2()  ||  fd->bse==BZ_OK)
+	     &&  (is_zipped()  ?  fd->gzfp  :  fd->fp) ) {
+		// only write when close and no error occurred
+		const char *end = "\n</Simutrans>\n";
+		write( end, strlen(end) );
+	}
+	if(  is_zipped()  &&  fd->gzfp) {
+		int err_no;
+		const char *err_str = gzerror( fd->gzfp, &err_no );
+		if(err_no!=Z_OK  &&  err_no!=Z_STREAM_END) {
+			success =  err_no==Z_ERRNO ? strerror(errno) : err_str;
 		}
-		if(is_zipped()) {
-			int err_no;
-			const char *err_str = gzerror( fd->gzfp, &err_no );
-			if(err_no!=Z_OK  &&  err_no!=Z_STREAM_END) {
-				success =  err_no==Z_ERRNO ? strerror(errno) : err_str;
-			}
-			gzclose(fd->gzfp);
-		}
-		else if(  is_bzip2()  ) {
-			if(   saving  ) {
-				/* BZLIB seems to eat the last byte, if it is at odd position
-				 * => we just write a dummy zero padding byte
-				 */
-				write( "", 1 );
-				BZ2_bzWriteClose( &fd->bse, fd->bzfp, 0, NULL, NULL );
-			}
-			else {
-				BZ2_bzReadClose( &fd->bse, fd->bzfp );
-			}
-			fclose( fd->fp );
-			fd->bzfp = fd->fp = NULL;
-			fd->bse = BZ_STREAM_END;
+		gzclose(fd->gzfp);
+		fd->gzfp = NULL;
+	}
+	if(  is_bzip2()  &&  fd->fp ) {
+		if(   saving  ) {
+			/* BZLIB seems to eat the last byte, if it is at odd position
+				* => we just write a dummy zero padding byte
+				*/
+			write( "", 1 );
+			BZ2_bzWriteClose( &fd->bse, fd->bzfp, 0, NULL, NULL );
 		}
 		else {
-			int err_no = ferror(fd->fp);
-			fclose(fd->fp);
-			if(err_no!=0) {
-				success = strerror(err_no);
-			}
+			BZ2_bzReadClose( &fd->bse, fd->bzfp );
 		}
-		fd->fp = NULL;
+		fclose( fd->fp );
+		fd->bzfp = fd->fp = NULL;
+		fd->bse = BZ_STREAM_END;
 	}
+	if(  !is_bzip2()  &&  !is_zipped()  &&  fd->fp  ) {
+		int err_no = ferror(fd->fp);
+		fclose(fd->fp);
+		if(err_no!=0) {
+			success = strerror(err_no);
+		}
+	}
+	fd->fp = NULL;
+
 	return success;
 }
 

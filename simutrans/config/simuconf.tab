@@ -522,8 +522,10 @@ bits_per_month = 20
 
 # compress savegames?
 # "binary" means uncompressed, "zipped" means compressed
-# other options are "xml" and "xml_zipped"
-# xml detecht more errors of broken savegames but are much larger
+# "bzip2" uses another compression algorithm
+# other options are "xml", "xml_zipped" and "xml_bzip2"
+# xml detects more errors of broken savegames but files are much larger
+# bzip2 savegames are smaller than zipped but saving/loading takes longer
 saveformat = bzip2
 
 # autosave every x months (0=off)
