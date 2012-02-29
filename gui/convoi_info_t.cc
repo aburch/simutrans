@@ -91,10 +91,10 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	this->mean_convoi_speed = speed_to_kmh(cnv->get_akt_speed()*4);
 	this->max_convoi_speed = speed_to_kmh(cnv->get_min_top_speed()*4);
 
-	const sint16 offset_below_viewport = 21 + view.get_groesse().y;
-	const sint16 total_width = 3*(D_BUTTON_WIDTH + D_H_SPACE) + max(D_BUTTON_WIDTH + 2*D_H_SPACE, view.get_groesse().x + 32);
+	const sint16 offset_below_viewport = D_MARGIN_TOP + D_BUTTON_HEIGHT + D_V_SPACE + view.get_groesse().y;
+	const sint16 total_width = D_MARGIN_LEFT + 3*(D_BUTTON_WIDTH + D_H_SPACE) + max( D_BUTTON_WIDTH, view.get_groesse().x ) + D_MARGIN_RIGHT;
 
-	input.set_pos(koord(10,4));
+	input.set_pos( koord(D_MARGIN_LEFT,D_MARGIN_TOP) );
 	reset_cnv_name();
 	input.add_listener(this);
 	add_komponente(&input);
@@ -123,7 +123,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	add_komponente(&follow_button);
 
 	chart.set_pos(koord(88,offset_below_viewport+D_BUTTON_HEIGHT+11));
-	chart.set_groesse(koord(total_width-88-10, 100));
+	chart.set_groesse(koord(total_width-88-10, 88));
 	chart.set_dimension(12, 10000);
 	chart.set_visible(false);
 	chart.set_background(MN_GREY1);
@@ -159,8 +159,8 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	details_button.add_listener(this);
 	add_komponente(&details_button);
 
-	text.set_pos( koord(D_MARGIN_LEFT,D_MARGIN_TOP) );
-	scrolly.set_pos(koord(0, offset_below_viewport+50));
+	text.set_pos( koord(0,D_V_SPACE) );
+	scrolly.set_pos(koord(0, yoff+D_BUTTON_HEIGHT));
 	scrolly.set_show_scroll_x(true);
 	add_komponente(&scrolly);
 
@@ -178,7 +178,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	add_komponente(&route_bar);
 
 	// goto line button
-	line_button.init( button_t::posbutton, NULL, koord(10, 64) );
+	line_button.init( button_t::posbutton, NULL, koord(D_MARGIN_LEFT, D_MARGIN_TOP + D_BUTTON_HEIGHT + D_V_SPACE + LINESPACE*4 ) );
 	line_button.set_targetpos( koord(0,0) );
 	line_button.add_listener( this );
 	line_bound = false;
@@ -266,27 +266,32 @@ enable_home:
 		// all gui stuff set => display it
 		gui_frame_t::zeichnen(pos, gr);
 
-		PUSH_CLIP(pos.x+1,pos.y+16,gr.x-2,gr.y-16);
+		PUSH_CLIP(pos.x+1,pos.y+D_TITLEBAR_HEIGHT,gr.x-2,gr.y-D_TITLEBAR_HEIGHT);
 
 		// convoi information
 		char tmp[256];
 		cbuffer_t buf;
 		static cbuffer_t info_buf;
 
+		KOORD_VAL xpos = pos.x+D_MARGIN_LEFT;
+		KOORD_VAL ypos = pos.y+D_TITLEBAR_HEIGHT+D_MARGIN_TOP+D_BUTTON_HEIGHT+D_V_SPACE;
+
 		// use median speed to avoid flickering
 		mean_convoi_speed += speed_to_kmh(cnv->get_akt_speed()*4);
 		mean_convoi_speed /= 2;
 		buf.printf( translator::translate("%i km/h (max. %ikm/h)"), (mean_convoi_speed+3)/4, speed_to_kmh(cnv->get_min_top_speed()) );
-		display_proportional( pos.x+10, pos.y+16+20, buf, ALIGN_LEFT, COL_BLACK, true );
+		display_proportional( xpos, ypos, buf, ALIGN_LEFT, COL_BLACK, true );
+		ypos += LINESPACE;
 
 		// next important: income stuff
-		int len = display_proportional(pos.x + 10, pos.y + 16 + 20 + 1 * LINESPACE, translator::translate("Gewinn"), ALIGN_LEFT, COL_BLACK, true ) + 5;
+		int len = display_proportional( xpos, ypos, translator::translate("Gewinn"), ALIGN_LEFT, COL_BLACK, true ) + 5;
 		money_to_string( tmp, cnv->get_jahresgewinn()/100.0 );
-		len += display_proportional( pos.x+10+len, pos.y+16+20+1*LINESPACE, tmp, ALIGN_LEFT, cnv->get_jahresgewinn()>0?MONEY_PLUS:MONEY_MINUS, true )+5;
+		len += display_proportional( xpos+len, ypos, tmp, ALIGN_LEFT, cnv->get_jahresgewinn()>0?MONEY_PLUS:MONEY_MINUS, true )+5;
 		money_to_string( tmp+1, cnv->get_running_cost()/100.0 );
 		strcat( tmp, "/km)" );
 		tmp[0] = '(';
-		display_proportional( pos.x+10+len, pos.y+16+20+1*LINESPACE, tmp, ALIGN_LEFT, COL_BLACK, true );
+		display_proportional( xpos+len, ypos, tmp, ALIGN_LEFT, COL_BLACK, true );
+		ypos += LINESPACE;
 
 		// the weight entry
 		info_buf.clear();
@@ -296,28 +301,29 @@ enable_home:
 		info_buf.append( "t (" );
 		info_buf.append( cnv->get_sum_gesamtgewicht()-cnv->get_sum_gewicht(), 0 );
 		info_buf.append( "t)" );
-		display_proportional( pos.x+10, pos.y+16+20+2*LINESPACE, info_buf, ALIGN_LEFT, COL_BLACK, true );
+		display_proportional( xpos, ypos, info_buf, ALIGN_LEFT, COL_BLACK, true );
+		ypos += LINESPACE;
 
 		// next stop
 		const schedule_t * fpl = cnv->get_schedule();
 		info_buf.clear();
 		info_buf.append(translator::translate("Fahrtziel"));
 		fahrplan_gui_t::gimme_short_stop_name(info_buf, cnv->get_welt(), cnv->get_besitzer(), fpl, fpl->get_aktuell(), 34);
-		len = display_proportional_clip( pos.x+10, pos.y+16+20+3*LINESPACE, info_buf, ALIGN_LEFT, COL_BLACK, true );
+		len = display_proportional_clip( xpos, ypos, info_buf, ALIGN_LEFT, COL_BLACK, true );
 
 		// convoi load indicator
-		const int offset = max( len+10, 167)+3;
-		route_bar.set_pos(koord(offset,22+3*LINESPACE));
-		route_bar.set_groesse(koord(view.get_pos().x-offset-5, 4));
+		const KOORD_VAL offset = max( len+D_MARGIN_LEFT, 167)+3;
+		route_bar.set_pos( koord( offset,ypos-pos.y-D_TITLEBAR_HEIGHT+(LINESPACE-D_INDICATOR_HEIGHT)/2) );
+		route_bar.set_groesse( koord(view.get_pos().x-offset-D_H_SPACE, D_INDICATOR_HEIGHT) );
+		ypos += LINESPACE;
 
 		/*
 		 * only show assigned line, if there is one!
 		 * @author hsiegeln
 		 */
 		if(  cnv->get_line().is_bound()  ) {
-			sint16 add_off = line_bound*12;
-			sint16 w = display_proportional( pos.x+10+add_off, pos.y+16+20+4*LINESPACE, translator::translate("Serves Line:"), ALIGN_LEFT, COL_BLACK, true );
-			display_proportional_clip( pos.x+10+w+5+add_off, pos.y+16+20+4*LINESPACE, cnv->get_line()->get_name(), ALIGN_LEFT, cnv->get_line()->get_state_color(), true );
+			len = display_proportional( xpos+D_BUTTON_HEIGHT, ypos, translator::translate("Serves Line:"), ALIGN_LEFT, COL_BLACK, true );
+			display_proportional_clip( xpos+D_BUTTON_HEIGHT+D_H_SPACE+len, ypos, cnv->get_line()->get_name(), ALIGN_LEFT, cnv->get_line()->get_state_color(), true );
 		}
 		POP_CLIP();
 	}
@@ -513,12 +519,12 @@ void convoi_info_t::set_fenstergroesse(koord groesse)
 {
 	gui_frame_t::set_fenstergroesse(groesse);
 
-	input.set_groesse(koord(get_fenstergroesse().x - 20, 13));
+	input.set_groesse(koord(get_fenstergroesse().x - D_MARGIN_LEFT-D_MARGIN_RIGHT, D_BUTTON_HEIGHT));
 
-	view.set_pos(koord(get_fenstergroesse().x - view.get_groesse().x - 10 , 21));
-	follow_button.set_pos(koord(view.get_pos().x, view.get_groesse().y + 21));
+	view.set_pos( koord(get_fenstergroesse().x - view.get_groesse().x - D_MARGIN_LEFT, D_MARGIN_TOP+D_BUTTON_HEIGHT+D_V_SPACE ));
+	follow_button.set_pos( view.get_pos() + koord( 0, view.get_groesse().y ) );
 
-	scrolly.set_groesse(get_client_windowsize()-scrolly.get_pos());
+	scrolly.set_groesse( get_client_windowsize()-scrolly.get_pos() );
 
 	const sint16 yoff = scrolly.get_pos().y-D_BUTTON_HEIGHT-3;
 	sort_button.set_pos(koord(BUTTON1_X,yoff));
@@ -527,12 +533,12 @@ void convoi_info_t::set_fenstergroesse(koord groesse)
 	sort_label.set_pos(koord(2,yoff-LINESPACE-1));
 
 	// convoi speed indicator
-	speed_bar.set_pos(koord(170,22+0*LINESPACE));
-	speed_bar.set_groesse(koord(view.get_pos().x - 175, 4));
+	speed_bar.set_pos( koord(170,view.get_pos().y+0*LINESPACE+(LINESPACE-D_INDICATOR_HEIGHT)/2 ));
+	speed_bar.set_groesse(koord(view.get_pos().x - 175, D_INDICATOR_HEIGHT));
 
 	// convoi load indicator
-	filled_bar.set_pos(koord(170,22+2*LINESPACE));
-	filled_bar.set_groesse(koord(view.get_pos().x - 175, 4));
+	filled_bar.set_pos(koord(170,view.get_pos().y+2*LINESPACE+(LINESPACE-D_INDICATOR_HEIGHT)/2 ));
+	filled_bar.set_groesse(koord(view.get_pos().x - 175, D_INDICATOR_HEIGHT));
 }
 
 

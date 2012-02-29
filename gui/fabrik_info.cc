@@ -53,7 +53,7 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	prod.recalc_size();
 	add_komponente( &prod );
 
-	const sint16 offset_below_viewport = D_MARGIN_TOP+D_BUTTON_HEIGHT+D_V_SPACE+ max( prod.get_groesse().y, view.get_groesse().y + 8 );
+	const sint16 offset_below_viewport = D_MARGIN_TOP+D_BUTTON_HEIGHT+D_V_SPACE+ max( prod.get_groesse().y, view.get_groesse().y + 8 + D_V_SPACE );
 
 	chart_button.init(button_t::roundbox_state, "Chart", koord(BUTTON3_X,offset_below_viewport), koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	chart_button.set_tooltip("Show/hide statistics");
@@ -277,15 +277,15 @@ void fabrik_info_t::update_info()
 
 	// needs to update all text
 	fab_info.set_pos( koord(0,0) );
-	txt.set_pos( koord(D_MARGIN_LEFT,D_MARGIN_TOP) );
+	txt.set_pos( koord(D_MARGIN_LEFT,D_V_SPACE) );
 	fab_info.add_komponente(&txt);
 
-	int y_off = LINESPACE+D_MARGIN_TOP;
+	int y_off = LINESPACE+D_V_SPACE;
 	make_buttons(lieferbuttons,   fab->get_lieferziele(),   y_off, fab_info, this);
 	make_buttons(supplierbuttons, fab->get_suppliers(),     y_off, fab_info, this);
 	make_buttons(stadtbuttons,    fab->get_target_cities(), y_off, fab_info, this);
 
-	fab_info.set_groesse( koord( fab_info.get_groesse().x, txt.get_groesse().y+D_MARGIN_TOP+D_MARGIN_BOTTOM ) );
+	fab_info.set_groesse( koord( fab_info.get_groesse().x, txt.get_groesse().y+D_V_SPACE+D_MARGIN_BOTTOM ) );
 }
 
 
@@ -299,7 +299,7 @@ gui_fabrik_info_t::gui_fabrik_info_t(const fabrik_t* fab)
 void gui_fabrik_info_t::zeichnen(koord offset)
 {
 	int xoff = pos.x+offset.x+D_MARGIN_LEFT+16;
-	int yoff = pos.y+offset.y+D_MARGIN_TOP;
+	int yoff = pos.y+offset.y+D_V_SPACE;
 
 	gui_container_t::zeichnen( offset );
 
