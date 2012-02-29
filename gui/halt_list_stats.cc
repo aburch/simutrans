@@ -22,7 +22,8 @@
 #include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"
 
-#include "components/list_button.h"
+#include "gui_frame.h"
+
 
 /**
  * Events werden hiermit an die GUI-Komponenten
@@ -57,7 +58,7 @@ void halt_list_stats_t::zeichnen(koord offset)
 
 	if(  !( (pos.y+offset.y)>clip.yy  ||  (pos.y+offset.y)<clip.y-32 )  &&  halt.is_bound()) {
 		// status now in front
-		display_fillbox_wh_clip(pos.x+offset.x+4, pos.y+offset.y+6, 26, INDICATOR_HEIGHT, halt->get_status_farbe(), true);
+		display_fillbox_wh_clip(pos.x+offset.x+4, pos.y+offset.y+6, 26, D_INDICATOR_HEIGHT, halt->get_status_farbe(), true);
 
 		// name
 		int left = pos.x + offset.x + 32+2 + display_proportional_clip(pos.x + offset.x + 32+2, pos.y + offset.y + 2, translator::translate(halt->get_name()), ALIGN_LEFT, COL_BLACK, true);

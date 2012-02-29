@@ -12,7 +12,7 @@
 #include "../utils/simstring.h"
 #include "../simversion.h"
 
-#include "components/list_button.h"
+
 #include "../dataobj/translator.h"
 #include "../dataobj/network.h"
 #include "../dataobj/network_file_transfer.h"
@@ -38,23 +38,23 @@ server_frame_t::server_frame_t(karte_t* w) :
 	// only show serverlist, when not already in network mode
 	if(  !umgebung_t::networkmode  ) {
 		serverlist.set_pos( koord(2,pos_y) );
-		serverlist.set_groesse( koord(236,BUTTON_HEIGHT) );
+		serverlist.set_groesse( koord(236,D_BUTTON_HEIGHT) );
 		serverlist.add_listener(this);
 		serverlist.set_selection( 0 );
 		add_komponente( &serverlist );
-		pos_y += 6+BUTTON_HEIGHT;
+		pos_y += 6+D_BUTTON_HEIGHT;
 
-		add.init( button_t::box, "add server", koord( 4, pos_y ), koord( 112, BUTTON_HEIGHT) );
+		add.init( button_t::box, "add server", koord( 4, pos_y ), koord( 112, D_BUTTON_HEIGHT) );
 		add.add_listener(this);
 		add_komponente( &add );
 
 		if(  !show_all_rev.pressed  ) {
-			show_all_rev.init( button_t::square_state, "Show all", koord( 124, pos_y+2 ), koord( 112, BUTTON_HEIGHT) );
+			show_all_rev.init( button_t::square_state, "Show all", koord( 124, pos_y+2 ), koord( 112, D_BUTTON_HEIGHT) );
 			show_all_rev.set_tooltip( "Show even servers with wrong version or pakset" );
 			show_all_rev.add_listener(this);
 			add_komponente( &show_all_rev );
 		}
-		pos_y += BUTTON_HEIGHT+8;
+		pos_y += D_BUTTON_HEIGHT+8;
 	}
 
 	revision.set_pos( koord( 4, pos_y ) );
@@ -79,11 +79,11 @@ server_frame_t::server_frame_t(karte_t* w) :
 	pos_y += LINESPACE*8+8;
 
 	if(  !umgebung_t::networkmode  ) {
-		find_mismatch.init( button_t::box, "find mismatch", koord( 4, pos_y ), koord( 112, BUTTON_HEIGHT) );
+		find_mismatch.init( button_t::box, "find mismatch", koord( 4, pos_y ), koord( 112, D_BUTTON_HEIGHT) );
 		find_mismatch.add_listener(this);
 		add_komponente( &find_mismatch );
 
-		join.init( button_t::box, "join game", koord( 124, pos_y ), koord( 112, BUTTON_HEIGHT) );
+		join.init( button_t::box, "join game", koord( 124, pos_y ), koord( 112, D_BUTTON_HEIGHT) );
 		join.add_listener(this);
 		add_komponente( &join );
 
@@ -96,7 +96,7 @@ server_frame_t::server_frame_t(karte_t* w) :
 			update_serverlist( gi.get_game_engine_revision(), gi.get_pak_name() );
 		}
 
-		pos_y += 6+BUTTON_HEIGHT;
+		pos_y += 6+D_BUTTON_HEIGHT;
 	}
 	pos_y += 16;
 
@@ -431,7 +431,7 @@ void server_frame_t::zeichnen(koord pos, koord gr)
 
 	sint16 pos_y = pos.y+16;
 	if(  !umgebung_t::networkmode  ) {
-		pos_y += 10+BUTTON_HEIGHT*2+4;
+		pos_y += 10+D_BUTTON_HEIGHT*2+4;
 		display_ddd_box_clip( pos.x+4, pos_y, 240-8, 0, MN_GREY0, MN_GREY4);
 	}
 

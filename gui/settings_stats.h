@@ -18,7 +18,7 @@
 #include "components/gui_komponente.h"
 #include "components/gui_numberinput.h"
 #include "components/gui_label.h"
-#include "components/list_button.h"
+
 #include "components/action_listener.h"
 #include "components/gui_combobox.h"
 
@@ -44,7 +44,7 @@ class settings_t;
 	gui_numberinput_t *ni = new gui_numberinput_t();\
 	ni->init( (sint32)(a), (b), (c), (d), (e) );\
 	ni->set_pos( koord( 2, ypos ) );\
-	ni->set_groesse( koord( 37+7*max(1,(sint16)(log10((double)(c)+1.0)+0.5)), BUTTON_HEIGHT ) );\
+	ni->set_groesse( koord( 37+7*max(1,(sint16)(log10((double)(c)+1.0)+0.5)), D_BUTTON_HEIGHT ) );\
 	numinp.append( ni );\
 	add_komponente( ni );\
 	gui_label_t *lb = new gui_label_t();\
@@ -52,7 +52,7 @@ class settings_t;
 	lb->set_pos( koord( ni->get_groesse().x+6, ypos ) );\
 	label.append( lb );\
 	add_komponente( lb );\
-	ypos += BUTTON_HEIGHT;\
+	ypos += D_BUTTON_HEIGHT;\
 }\
 
 #define INIT_NUM_NEW(t,a,b,c,d,e) if(  new_world  ) INIT_NUM( (t), (a), (b), (c), (d) , (e) )
@@ -63,7 +63,7 @@ class settings_t;
 	gui_numberinput_t *ni = new gui_numberinput_t();\
 	ni->init( (sint32)( (a)/(sint64)100 ), (b), (c), (d), (e) );\
 	ni->set_pos( koord( 2, ypos ) );\
-	ni->set_groesse( koord( 37+7*max(1,(sint16)(log10((double)(c)+1.0)+0.5)), BUTTON_HEIGHT ) );\
+	ni->set_groesse( koord( 37+7*max(1,(sint16)(log10((double)(c)+1.0)+0.5)), D_BUTTON_HEIGHT ) );\
 	numinp.append( ni );\
 	add_komponente( ni );\
 	gui_label_t *lb = new gui_label_t();\
@@ -71,7 +71,7 @@ class settings_t;
 	lb->set_pos( koord( ni->get_groesse().x+6, ypos ) );\
 	label.append( lb );\
 	add_komponente( lb );\
-	ypos += BUTTON_HEIGHT;\
+	ypos += D_BUTTON_HEIGHT;\
 }\
 
 #define INIT_COST_NEW(t,a,b,c,d,e) if(  new_world  ) INIT_COST( (t), (a), (b), (c), (d) , (e) )
@@ -84,7 +84,7 @@ class settings_t;
 	lb->set_pos( koord( 4, ypos ) );\
 	label.append( lb );\
 	add_komponente( lb );\
-	ypos += BUTTON_HEIGHT;\
+	ypos += D_BUTTON_HEIGHT;\
 }\
 
 #define INIT_LB_NEW(t) if(  new_world  ) INIT_LB( (t) )
@@ -97,7 +97,7 @@ class settings_t;
 	bt->pressed = (a);\
 	button.append( bt );\
 	add_komponente( bt );\
-	ypos += BUTTON_HEIGHT;\
+	ypos += D_BUTTON_HEIGHT;\
 }\
 
 #define INIT_BOOL_NEW(t,a) if(  new_world  ) INIT_BOOL( (t), (a) )
@@ -161,7 +161,7 @@ public:
 	void read(settings_t const*);
 
 	koord get_groesse() const {
-		return koord(width,(button.get_count()+label.get_count())*BUTTON_HEIGHT+seperator*7+6);
+		return koord(width,(button.get_count()+label.get_count())*D_BUTTON_HEIGHT+seperator*7+6);
 	}
 };
 

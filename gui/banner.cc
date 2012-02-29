@@ -20,7 +20,7 @@
 #include "../besch/skin_besch.h"
 #include "../dataobj/umgebung.h"
 
-#include "components/list_button.h"
+
 #include "banner.h"
 #include "loadsave_frame.h"
 #include "server_frame.h"
@@ -34,18 +34,18 @@ banner_t::banner_t( karte_t *w) : gui_frame_t(""),
 	line = 0;
 	logo.set_pos( koord( 238, 40 ) );
 	add_komponente( &logo );
-	const koord size( BUTTON_WIDTH*3+40, 16+113+12*LINESPACE+2*BUTTON_HEIGHT+12 );
+	const koord size( D_BUTTON_WIDTH*3+40, 16+113+12*LINESPACE+2*D_BUTTON_HEIGHT+12 );
 	set_fenstergroesse( size );
-	new_map.init( button_t::roundbox, "Neue Karte", koord( 10, size.y-16-2*BUTTON_HEIGHT-12 ), koord( BUTTON_WIDTH, BUTTON_HEIGHT ) );
+	new_map.init( button_t::roundbox, "Neue Karte", koord( 10, size.y-16-2*D_BUTTON_HEIGHT-12 ), koord( D_BUTTON_WIDTH, D_BUTTON_HEIGHT ) );
 	new_map.add_listener( this );
 	add_komponente( &new_map );
-	load_map.init( button_t::roundbox, "Load game", koord( 10+BUTTON_WIDTH+10, size.y-16-2*BUTTON_HEIGHT-12 ), koord( BUTTON_WIDTH, BUTTON_HEIGHT ) );
+	load_map.init( button_t::roundbox, "Load game", koord( 10+D_BUTTON_WIDTH+10, size.y-16-2*D_BUTTON_HEIGHT-12 ), koord( D_BUTTON_WIDTH, D_BUTTON_HEIGHT ) );
 	load_map.add_listener( this );
 	add_komponente( &load_map );
-	join_map.init( button_t::roundbox, "join game", koord( 10+2*BUTTON_WIDTH+20, size.y-16-2*BUTTON_HEIGHT-12 ), koord( BUTTON_WIDTH, BUTTON_HEIGHT ) );
+	join_map.init( button_t::roundbox, "join game", koord( 10+2*D_BUTTON_WIDTH+20, size.y-16-2*D_BUTTON_HEIGHT-12 ), koord( D_BUTTON_WIDTH, D_BUTTON_HEIGHT ) );
 	join_map.add_listener( this );
 	add_komponente( &join_map );
-	quit.init( button_t::roundbox, "Beenden", koord( 10+2*BUTTON_WIDTH+20, size.y-16-BUTTON_HEIGHT-7 ), koord( BUTTON_WIDTH, BUTTON_HEIGHT ) );
+	quit.init( button_t::roundbox, "Beenden", koord( 10+2*D_BUTTON_WIDTH+20, size.y-16-D_BUTTON_HEIGHT-7 ), koord( D_BUTTON_WIDTH, D_BUTTON_HEIGHT ) );
 	quit.add_listener( this );
 	add_komponente( &quit );
 }

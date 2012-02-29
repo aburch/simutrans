@@ -44,7 +44,7 @@
 #include "../boden/wege/schiene.h"
 #include "../boden/wege/strasse.h"
 
-#include "components/list_button.h"
+
 #include "halt_list_stats.h"
 #include "karte.h"
 
@@ -87,7 +87,7 @@ static uint8 statistic_type[MAX_LINE_COST]={
 enum sort_modes_t { SORT_BY_NAME=0, SORT_BY_ID, SORT_BY_PROFIT, SORT_BY_TRANSPORTED, SORT_BY_CONVOIS, SORT_BY_DISTANCE, MAX_SORT_MODES };
 static uint8 current_sort_mode = 0;
 
-#define LINE_NAME_COLUMN_WIDTH ((BUTTON_WIDTH*3)+11+4)
+#define LINE_NAME_COLUMN_WIDTH ((D_BUTTON_WIDTH*3)+11+4)
 #define SCL_HEIGHT (15*LINESPACE-1)
 
 
@@ -232,7 +232,7 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t *sp_) :
 
 	// convoi list
 	cont.set_groesse(koord(200, 40));
-	scrolly_convois.set_pos(koord(LINE_NAME_COLUMN_WIDTH, 14 + SCL_HEIGHT+BUTTON_HEIGHT*2+4+2*LINESPACE+2));
+	scrolly_convois.set_pos(koord(LINE_NAME_COLUMN_WIDTH, 14 + SCL_HEIGHT+D_BUTTON_HEIGHT*2+4+2*LINESPACE+2));
 	scrolly_convois.set_show_scroll_x(true);
 	scrolly_convois.set_scroll_amount_y(40);
 	scrolly_convois.set_visible(false);
@@ -240,7 +240,7 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t *sp_) :
 
 	// halt list
 	cont_haltestellen.set_groesse(koord(LINE_NAME_COLUMN_WIDTH, 28));
-	scrolly_haltestellen.set_pos(koord(0, 7 + SCL_HEIGHT+2*BUTTON_HEIGHT+2));
+	scrolly_haltestellen.set_pos(koord(0, 7 + SCL_HEIGHT+2*D_BUTTON_HEIGHT+2));
 	scrolly_haltestellen.set_show_scroll_x(true);
 	scrolly_haltestellen.set_scroll_amount_y(28);
 	scrolly_haltestellen.set_visible(false);
@@ -250,32 +250,32 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t *sp_) :
 	lbl_filter.set_pos( koord( 11, 7+SCL_HEIGHT+2 ) );
 	add_komponente(&lbl_filter);
 
-	inp_filter.set_pos( koord( 11+BUTTON_WIDTH, 7+SCL_HEIGHT ) );
-	inp_filter.set_groesse( koord( BUTTON_WIDTH*2, BUTTON_HEIGHT ) );
+	inp_filter.set_pos( koord( 11+D_BUTTON_WIDTH, 7+SCL_HEIGHT ) );
+	inp_filter.set_groesse( koord( D_BUTTON_WIDTH*2, D_BUTTON_HEIGHT ) );
 	inp_filter.set_text( schedule_filter, lengthof(schedule_filter) );
 //	inp_filter.set_tooltip("Only show lines containing");
 	inp_filter.add_listener(this);
 	add_komponente(&inp_filter);
 
 	// normal buttons edit new remove
-	bt_new_line.init(button_t::roundbox, "New Line", koord(11, 8+SCL_HEIGHT+BUTTON_HEIGHT ), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	bt_new_line.init(button_t::roundbox, "New Line", koord(11, 8+SCL_HEIGHT+D_BUTTON_HEIGHT ), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	bt_new_line.add_listener(this);
 	bt_new_line.disable();
 	add_komponente(&bt_new_line);
 
-	bt_change_line.init(button_t::roundbox, "Update Line", koord(11+BUTTON_WIDTH, 8+SCL_HEIGHT+BUTTON_HEIGHT ), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	bt_change_line.init(button_t::roundbox, "Update Line", koord(11+D_BUTTON_WIDTH, 8+SCL_HEIGHT+D_BUTTON_HEIGHT ), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	bt_change_line.set_tooltip("Modify the selected line");
 	bt_change_line.add_listener(this);
 	bt_change_line.disable();
 	add_komponente(&bt_change_line);
 
-	bt_delete_line.init(button_t::roundbox, "Delete Line", koord(11+2*BUTTON_WIDTH, 8+SCL_HEIGHT+BUTTON_HEIGHT ), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	bt_delete_line.init(button_t::roundbox, "Delete Line", koord(11+2*D_BUTTON_WIDTH, 8+SCL_HEIGHT+D_BUTTON_HEIGHT ), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	bt_delete_line.set_tooltip("Delete the selected line (if without associated convois).");
 	bt_delete_line.add_listener(this);
 	bt_delete_line.disable();
 	add_komponente(&bt_delete_line);
 
-	bt_withdraw_line.init(button_t::roundbox_state, "Withdraw All", koord(LINE_NAME_COLUMN_WIDTH, 14+SCL_HEIGHT+BUTTON_HEIGHT+2), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	bt_withdraw_line.init(button_t::roundbox_state, "Withdraw All", koord(LINE_NAME_COLUMN_WIDTH, 14+SCL_HEIGHT+D_BUTTON_HEIGHT+2), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	bt_withdraw_line.set_tooltip("Convoi is sold when all wagons are empty.");
 	bt_withdraw_line.set_visible(false);
 	bt_withdraw_line.add_listener(this);
@@ -290,7 +290,7 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t *sp_) :
 
 	// add filter buttons
 	for (int i=0; i<MAX_LINE_COST; i++) {
-		filterButtons[i].init(button_t::box_state,cost_type[i],koord(0,0), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+		filterButtons[i].init(button_t::box_state,cost_type[i],koord(0,0), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 		filterButtons[i].add_listener(this);
 		filterButtons[i].background = cost_type_color[i];
 		add_komponente(filterButtons + i);
@@ -541,17 +541,17 @@ void schedule_list_gui_t::display(koord pos)
 			break;
 		}
 	}
-	int len=display_proportional(pos.x+LINE_NAME_COLUMN_WIDTH, pos.y+16+14+SCL_HEIGHT+BUTTON_HEIGHT*2+4, buf, ALIGN_LEFT, COL_BLACK, true );
+	int len=display_proportional(pos.x+LINE_NAME_COLUMN_WIDTH, pos.y+16+14+SCL_HEIGHT+D_BUTTON_HEIGHT*2+4, buf, ALIGN_LEFT, COL_BLACK, true );
 
-	int len2 = display_proportional(pos.x+LINE_NAME_COLUMN_WIDTH, pos.y+16+14+SCL_HEIGHT+BUTTON_HEIGHT*2+4+LINESPACE, translator::translate("Gewinn"), ALIGN_LEFT, COL_BLACK, true );
+	int len2 = display_proportional(pos.x+LINE_NAME_COLUMN_WIDTH, pos.y+16+14+SCL_HEIGHT+D_BUTTON_HEIGHT*2+4+LINESPACE, translator::translate("Gewinn"), ALIGN_LEFT, COL_BLACK, true );
 	money_to_string(ctmp, profit/100.0);
-	len2 += display_proportional(pos.x+LINE_NAME_COLUMN_WIDTH+len2, pos.y+16+14+SCL_HEIGHT+BUTTON_HEIGHT*2+4+LINESPACE, ctmp, ALIGN_LEFT, profit>=0?MONEY_PLUS:MONEY_MINUS, true );
+	len2 += display_proportional(pos.x+LINE_NAME_COLUMN_WIDTH+len2, pos.y+16+14+SCL_HEIGHT+D_BUTTON_HEIGHT*2+4+LINESPACE, ctmp, ALIGN_LEFT, profit>=0?MONEY_PLUS:MONEY_MINUS, true );
 
 	int rest_width = max( (get_fenstergroesse().x-LINE_NAME_COLUMN_WIDTH)/2, max(len2,len) );
 	number_to_string(ctmp, capacity, 2);
 	buf.clear();
 	buf.printf( translator::translate("Capacity: %s\nLoad: %d (%d%%)"), ctmp, load, loadfactor );
-	display_multiline_text(pos.x + LINE_NAME_COLUMN_WIDTH + rest_width, pos.y+16 + 14 + SCL_HEIGHT + BUTTON_HEIGHT*2 +4 , buf, COL_BLACK);
+	display_multiline_text(pos.x + LINE_NAME_COLUMN_WIDTH + rest_width, pos.y+16 + 14 + SCL_HEIGHT + D_BUTTON_HEIGHT*2 +4 , buf, COL_BLACK);
 }
 
 
@@ -560,19 +560,19 @@ void schedule_list_gui_t::set_fenstergroesse(koord groesse)
 	gui_frame_t::set_fenstergroesse(groesse);
 
 	int rest_width = get_fenstergroesse().x-LINE_NAME_COLUMN_WIDTH;
-	int button_per_row=max(1,rest_width/(BUTTON_WIDTH+BUTTON_SPACER));
+	int button_per_row=max(1,rest_width/(D_BUTTON_WIDTH+D_H_SPACE));
 	int button_rows= MAX_LINE_COST/button_per_row + ((MAX_LINE_COST%button_per_row)!=0);
 
 	scrolly_convois.set_groesse( koord(rest_width, get_client_windowsize().y-scrolly_convois.get_pos().y) );
 	scrolly_haltestellen.set_groesse( koord(LINE_NAME_COLUMN_WIDTH-4, get_client_windowsize().y-scrolly_haltestellen.get_pos().y) );
 
-	chart.set_groesse(koord(rest_width-58, SCL_HEIGHT-11-14-(button_rows*(BUTTON_HEIGHT+BUTTON_SPACER))));
+	chart.set_groesse(koord(rest_width-58, SCL_HEIGHT-11-14-(button_rows*(D_BUTTON_HEIGHT+D_H_SPACE))));
 	inp_name.set_groesse(koord(rest_width-8, 14));
 	filled_bar.set_groesse(koord(rest_width-8, 4));
 
-	int y=SCL_HEIGHT-11-(button_rows*(BUTTON_HEIGHT+BUTTON_SPACER))+14;
+	int y=SCL_HEIGHT-11-(button_rows*(D_BUTTON_HEIGHT+D_H_SPACE))+14;
 	for (int i=0; i<MAX_LINE_COST; i++) {
-		filterButtons[i].set_pos( koord(LINE_NAME_COLUMN_WIDTH+(i%button_per_row)*(BUTTON_WIDTH+BUTTON_SPACER),y+(i/button_per_row)*(BUTTON_HEIGHT+BUTTON_SPACER))  );
+		filterButtons[i].set_pos( koord(LINE_NAME_COLUMN_WIDTH+(i%button_per_row)*(D_BUTTON_WIDTH+D_H_SPACE),y+(i/button_per_row)*(D_BUTTON_HEIGHT+D_H_SPACE))  );
 	}
 }
 

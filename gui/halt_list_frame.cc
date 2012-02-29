@@ -27,7 +27,7 @@
 
 #include "../utils/cbuffer_t.h"
 
-#include "components/list_button.h"
+
 
 /**
  * All filter and sort settings are static, so the old settings are
@@ -247,29 +247,29 @@ halt_list_frame_t::halt_list_frame_t(spieler_t *sp) :
 
 	sort_label.set_pos(koord(BUTTON1_X, 2));
 	add_komponente(&sort_label);
-	sortedby.init(button_t::roundbox, "", koord(BUTTON1_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	sortedby.init(button_t::roundbox, "", koord(BUTTON1_X, 14), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	sortedby.add_listener(this);
 	add_komponente(&sortedby);
 
-	sorteddir.init(button_t::roundbox, "", koord(BUTTON2_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	sorteddir.init(button_t::roundbox, "", koord(BUTTON2_X, 14), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	sorteddir.add_listener(this);
 	add_komponente(&sorteddir);
 
 	filter_label.set_pos(koord(BUTTON3_X, 2));
 	add_komponente(&filter_label);
 
-	filter_on.init(button_t::roundbox, translator::translate(get_filter(any_filter) ? "hl_btn_filter_enable" : "hl_btn_filter_disable"), koord(BUTTON3_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	filter_on.init(button_t::roundbox, translator::translate(get_filter(any_filter) ? "hl_btn_filter_enable" : "hl_btn_filter_disable"), koord(BUTTON3_X, 14), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	filter_on.add_listener(this);
 	add_komponente(&filter_on);
 
-	filter_details.init(button_t::roundbox, translator::translate("hl_btn_filter_settings"), koord(BUTTON4_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	filter_details.init(button_t::roundbox, translator::translate("hl_btn_filter_settings"), koord(BUTTON4_X, 14), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	filter_details.add_listener(this);
 	add_komponente(&filter_details);
 
 	display_list();
 
-	set_fenstergroesse(koord(TOTAL_WIDTH, TITLEBAR_HEIGHT+7*(28)+31+1));
-	set_min_windowsize(koord(TOTAL_WIDTH, TITLEBAR_HEIGHT+3*(28)+31+1));
+	set_fenstergroesse(koord(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+7*(28)+31+1));
+	set_min_windowsize(koord(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+3*(28)+31+1));
 
 	set_resizemode(diagonal_resize);
 	resize (koord(0,0));
@@ -414,7 +414,7 @@ void halt_list_frame_t::resize(const koord size_change)
 	else {
 		add_komponente(&vscroll);
 		vscroll.set_visible(true);
-		vscroll.set_pos(koord(groesse.x-scrollbar_t::BAR_SIZE, 47-TITLEBAR_HEIGHT-1));
+		vscroll.set_pos(koord(groesse.x-scrollbar_t::BAR_SIZE, 47-D_TITLEBAR_HEIGHT-1));
 		vscroll.set_groesse(groesse-koord(scrollbar_t::BAR_SIZE,scrollbar_t::BAR_SIZE));
 		vscroll.set_scroll_amount( 1 );
 	}

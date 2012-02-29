@@ -15,7 +15,7 @@
 #include "../simmesg.h"
 #include "message_option_t.h"
 
-#include "components/list_button.h"
+
 #include "components/action_listener.h"
 
 
@@ -59,7 +59,7 @@ message_frame_t::message_frame_t(karte_t *welt) :
 	scrolly.set_scroll_amount_y(LINESPACE+1);
 
 	// Knightly : add tabs for classifying messages
-	tabs.set_pos( koord(0, BUTTON_HEIGHT) );
+	tabs.set_pos( koord(0, D_BUTTON_HEIGHT) );
 	tabs.add_tab( &scrolly, translator::translate("All") );
 	for(  int i=umgebung_t::networkmode ? 0 : 1;  i<MAX_MESG_TABS;  ++i  ) {
 		tabs.add_tab( &scrolly, translator::translate(tab_strings[i]) );
@@ -67,7 +67,7 @@ message_frame_t::message_frame_t(karte_t *welt) :
 	tabs.add_listener(this);
 	add_komponente(&tabs);
 
-	option_bt.init(button_t::roundbox, translator::translate("Optionen"), koord(BUTTON1_X,0), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	option_bt.init(button_t::roundbox, translator::translate("Optionen"), koord(BUTTON1_X,0), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	option_bt.add_listener(this);
 	add_komponente(&option_bt);
 
@@ -80,8 +80,8 @@ message_frame_t::message_frame_t(karte_t *welt) :
 		set_focus( &input );
 	}
 
-	set_fenstergroesse(koord(TOTAL_WIDTH, TITLEBAR_HEIGHT+BUTTON_HEIGHT+gui_tab_panel_t::HEADER_VSIZE+2+16*(LINESPACE+1)+scrollbar_t::BAR_SIZE));
-	set_min_windowsize(koord(BUTTON3_X, TITLEBAR_HEIGHT+BUTTON_HEIGHT+gui_tab_panel_t::HEADER_VSIZE+2+3*(LINESPACE+1)+scrollbar_t::BAR_SIZE));
+	set_fenstergroesse(koord(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT+gui_tab_panel_t::HEADER_VSIZE+2+16*(LINESPACE+1)+scrollbar_t::BAR_SIZE));
+	set_min_windowsize(koord(BUTTON3_X, D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT+gui_tab_panel_t::HEADER_VSIZE+2+3*(LINESPACE+1)+scrollbar_t::BAR_SIZE));
 
 	set_resizemode(diagonal_resize);
 	resize(koord(0,0));
@@ -97,10 +97,10 @@ message_frame_t::message_frame_t(karte_t *welt) :
 void message_frame_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta);
-	koord groesse = get_fenstergroesse()-koord(0,TITLEBAR_HEIGHT+BUTTON_HEIGHT);
-	input.set_groesse(koord(groesse.x-scrollbar_t::BAR_SIZE-BUTTON2_X, BUTTON_HEIGHT));
+	koord groesse = get_fenstergroesse()-koord(0,D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT);
+	input.set_groesse(koord(groesse.x-scrollbar_t::BAR_SIZE-BUTTON2_X, D_BUTTON_HEIGHT));
 	tabs.set_groesse(groesse);
-	scrolly.set_groesse(groesse-koord(0,BUTTON_HEIGHT+4+1));
+	scrolly.set_groesse(groesse-koord(0,D_BUTTON_HEIGHT+4+1));
 }
 
 

@@ -24,7 +24,7 @@
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
 
-#include "components/list_button.h"
+#include "gui_frame.h"
 
 
 curiositylist_stats_t::curiositylist_stats_t(karte_t* w, curiositylist::sort_mode_t sortby, bool sortreverse) :
@@ -212,7 +212,7 @@ void curiositylist_stats_t::zeichnen(koord offset)
 			indicatorfarbe = post ? COL_BLUE : COL_YELLOW;
 		}
 
-		display_fillbox_wh_clip(xoff+7, yoff+2, INDICATOR_WIDTH, INDICATOR_HEIGHT, indicatorfarbe, true);
+		display_fillbox_wh_clip(xoff+7, yoff+2, D_INDICATOR_WIDTH, D_INDICATOR_HEIGHT, indicatorfarbe, true);
 
 		// the other infos
 		const unsigned char *name = (const unsigned char *)ltrim( translator::translate(geb->get_tile()->get_besch()->get_name()) );
@@ -237,10 +237,10 @@ void curiositylist_stats_t::zeichnen(koord offset)
 		// now we have a short name ...
 		buf.printf("%s (%d)", short_name, geb->get_passagier_level());
 
-		display_proportional_clip(xoff+INDICATOR_WIDTH+10+9,yoff,buf,ALIGN_LEFT,COL_BLACK,true);
+		display_proportional_clip(xoff+D_INDICATOR_WIDTH+10+9,yoff,buf,ALIGN_LEFT,COL_BLACK,true);
 
 		if (geb->get_tile()->get_besch()->get_extra() != 0) {
-		    display_color_img(skinverwaltung_t::intown->get_bild_nr(0), xoff+INDICATOR_WIDTH+9, yoff, 0, false, false);
+		    display_color_img(skinverwaltung_t::intown->get_bild_nr(0), xoff+D_INDICATOR_WIDTH+9, yoff, 0, false, false);
 		}
 
 		yoff +=LINESPACE+1;

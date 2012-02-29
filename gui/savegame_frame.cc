@@ -25,7 +25,7 @@
 #include "../dataobj/translator.h"
 #include "../utils/simstring.h"
 
-#include "components/list_button.h"
+
 #include "savegame_frame.h"
 
 #define DIALOG_WIDTH (488)
@@ -52,24 +52,24 @@ gui_frame_t( translator::translate("Load/Save") ),
 	tstrncpy(ibuf, "", lengthof(ibuf));
 	input.set_text(ibuf, 128);
 	input.set_pos(koord(75,2));
-	input.set_groesse(koord(DIALOG_WIDTH-75-scrollbar_t::BAR_SIZE-1, BUTTON_HEIGHT));
+	input.set_groesse(koord(DIALOG_WIDTH-75-scrollbar_t::BAR_SIZE-1, D_BUTTON_HEIGHT));
 	add_komponente(&input);
 
 	// needs to be scrollable
 	scrolly.set_pos( koord(0,20) );
-	scrolly.set_scroll_amount_y(BUTTON_HEIGHT);
+	scrolly.set_scroll_amount_y(D_BUTTON_HEIGHT);
 	scrolly.set_size_corner(false);
 	add_komponente(&scrolly);
 
 	add_komponente(&divider1);
 
-	savebutton.set_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
+	savebutton.set_groesse(koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	savebutton.set_text("Ok");
 	savebutton.set_typ(button_t::roundbox);
 	savebutton.add_listener(this);
 	add_komponente(&savebutton);
 
-	cancelbutton.set_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
+	cancelbutton.set_groesse(koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	cancelbutton.set_text("Cancel");
 	cancelbutton.set_typ(button_t::roundbox);
 	cancelbutton.add_listener(this);
@@ -77,8 +77,8 @@ gui_frame_t( translator::translate("Load/Save") ),
 
 	set_focus( &input );
 
-	set_min_windowsize(koord(2*(BUTTON_WIDTH+scrollbar_t::BAR_SIZE)+BUTTON_SPACER, get_fenstergroesse().y+1));
-	set_fenstergroesse(koord(DIALOG_WIDTH, TITLEBAR_HEIGHT+20+3*BUTTON_HEIGHT+30+1));
+	set_min_windowsize(koord(2*(D_BUTTON_WIDTH+scrollbar_t::BAR_SIZE)+D_H_SPACE, get_fenstergroesse().y+1));
+	set_fenstergroesse(koord(DIALOG_WIDTH, D_TITLEBAR_HEIGHT+20+3*D_BUTTON_HEIGHT+30+1));
 
 	set_resizemode(diagonal_resize);
 	resize(koord(0,0));
@@ -163,13 +163,13 @@ void savegame_frame_t::fill_list()
 		button_t*    const button2 = i.button;
 		gui_label_t* const label   = i.label;
 
-		button1->set_groesse(koord(14, BUTTON_HEIGHT));
+		button1->set_groesse(koord(14, D_BUTTON_HEIGHT));
 		button1->set_text("X");
 		button1->set_pos(koord(5, y));
 		button1->set_tooltip("Delete this file.");
 
 		button2->set_pos(koord(25, y));
-		button2->set_groesse(koord(140, BUTTON_HEIGHT));
+		button2->set_groesse(koord(140, D_BUTTON_HEIGHT));
 
 		label->set_pos(koord(170, y+2));
 
@@ -180,11 +180,11 @@ void savegame_frame_t::fill_list()
 		button_frame.add_komponente(button2);
 		button_frame.add_komponente(label);
 
-		y += BUTTON_HEIGHT;
+		y += D_BUTTON_HEIGHT;
 	}
 	// since width was maybe increased, we only set the heigth.
 	button_frame.set_groesse( koord( get_fenstergroesse().x-1, y ) );
-	set_fenstergroesse(koord(get_fenstergroesse().x, TITLEBAR_HEIGHT+12+y+30+1));
+	set_fenstergroesse(koord(get_fenstergroesse().x, D_TITLEBAR_HEIGHT+12+y+30+1));
 }
 
 
@@ -374,13 +374,13 @@ void savegame_frame_t::set_fenstergroesse(koord groesse)
 {
 	if(groesse.y>display_get_height()-70) {
 		// too large ...
-		groesse.y = ((display_get_height()-TITLEBAR_HEIGHT-12-30-1)/BUTTON_HEIGHT)*BUTTON_HEIGHT+TITLEBAR_HEIGHT+12+30+1-70;
+		groesse.y = ((display_get_height()-D_TITLEBAR_HEIGHT-12-30-1)/D_BUTTON_HEIGHT)*D_BUTTON_HEIGHT+D_TITLEBAR_HEIGHT+12+30+1-70;
 		// position adjustment will be done automatically ... nice!
 	}
 	gui_frame_t::set_fenstergroesse(groesse);
 	groesse = get_fenstergroesse();
 
-	input.set_groesse(koord(groesse.x-75-scrollbar_t::BAR_SIZE-1, BUTTON_HEIGHT));
+	input.set_groesse(koord(groesse.x-75-scrollbar_t::BAR_SIZE-1, D_BUTTON_HEIGHT));
 
 	sint16 y = 0;
 	FOR(slist_tpl<entry>, const& i, entries) {
@@ -390,20 +390,20 @@ void savegame_frame_t::set_fenstergroesse(koord groesse)
 			button1->set_pos( koord( button1->get_pos().x, y ) );
 			button_t* const button2 = i.button;
 			button2->set_pos( koord( button2->get_pos().x, y ) );
-			button2->set_groesse(koord( groesse.x/2-40, BUTTON_HEIGHT));
+			button2->set_groesse(koord( groesse.x/2-40, D_BUTTON_HEIGHT));
 			i.label->set_pos(koord(groesse.x / 2 - 40 + 30, y + 2));
-			y += BUTTON_HEIGHT;
+			y += D_BUTTON_HEIGHT;
 		}
 	}
 
 	button_frame.set_groesse(koord(groesse.x,y));
-	scrolly.set_groesse(koord(groesse.x,groesse.y-TITLEBAR_HEIGHT-12-30-1));
+	scrolly.set_groesse(koord(groesse.x,groesse.y-D_TITLEBAR_HEIGHT-12-30-1));
 
 	divider1.set_pos(koord(4,groesse.y-36));
 	divider1.set_groesse(koord(groesse.x-8-1,0));
 
-	savebutton.set_pos(koord(scrollbar_t::BAR_SIZE,groesse.y-BUTTON_HEIGHT-2-16-1));
-	cancelbutton.set_pos(koord(groesse.x-BUTTON_WIDTH-scrollbar_t::BAR_SIZE,groesse.y-BUTTON_HEIGHT-2-16-1));
+	savebutton.set_pos(koord(scrollbar_t::BAR_SIZE,groesse.y-D_BUTTON_HEIGHT-2-16-1));
+	cancelbutton.set_pos(koord(groesse.x-D_BUTTON_WIDTH-scrollbar_t::BAR_SIZE,groesse.y-D_BUTTON_HEIGHT-2-16-1));
 }
 
 

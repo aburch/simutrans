@@ -14,8 +14,8 @@
 #include "../simworld.h"
 #include "../simskin.h"
 
+#include "gui_frame.h"
 #include "components/gui_button.h"
-#include "components/list_button.h"
 
 #include "../bauer/warenbauer.h"
 #include "../besch/skin_besch.h"
@@ -208,20 +208,20 @@ void factorylist_stats_t::zeichnen(koord offset)
 
 
 			//display_ddd_box_clip(xoff+7, yoff+2, 8, 8, MN_GREY0, MN_GREY4);
-			display_fillbox_wh_clip(xoff+2, yoff+2, INDICATOR_WIDTH, INDICATOR_HEIGHT, indikatorfarbe, true);
+			display_fillbox_wh_clip(xoff+2, yoff+2, D_INDICATOR_WIDTH, D_INDICATOR_HEIGHT, indikatorfarbe, true);
 
 			if(  fab->get_prodfactor_electric()>0  ) {
-				display_color_img(skinverwaltung_t::electricity->get_bild_nr(0), xoff+4+INDICATOR_WIDTH, yoff, 0, false, true);
+				display_color_img(skinverwaltung_t::electricity->get_bild_nr(0), xoff+4+D_INDICATOR_WIDTH, yoff, 0, false, true);
 			}
 			if(  fab->get_prodfactor_pax()>0  ) {
-				display_color_img(skinverwaltung_t::passagiere->get_bild_nr(0), xoff+4+8+INDICATOR_WIDTH, yoff, 0, false, true);
+				display_color_img(skinverwaltung_t::passagiere->get_bild_nr(0), xoff+4+8+D_INDICATOR_WIDTH, yoff, 0, false, true);
 			}
 			if(  fab->get_prodfactor_mail()>0  ) {
-				display_color_img(skinverwaltung_t::post->get_bild_nr(0), xoff+4+18+INDICATOR_WIDTH, yoff, 0, false, true);
+				display_color_img(skinverwaltung_t::post->get_bild_nr(0), xoff+4+18+D_INDICATOR_WIDTH, yoff, 0, false, true);
 			}
 
 			// show text
-			display_proportional_clip(xoff+INDICATOR_WIDTH+6+28,yoff,buf,ALIGN_LEFT,COL_BLACK,true);
+			display_proportional_clip(xoff+D_INDICATOR_WIDTH+6+28,yoff,buf,ALIGN_LEFT,COL_BLACK,true);
 
 			// goto button
 			display_color_img( i!=line_selected ? button_t::arrow_right_normal : button_t::arrow_right_pushed, xoff-14, yoff, 0, false, true);

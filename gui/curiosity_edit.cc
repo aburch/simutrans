@@ -16,7 +16,7 @@
 #include "../simskin.h"
 #include "../simwerkz.h"
 
-#include "components/list_button.h"
+
 
 #include "../bauer/hausbauer.h"
 
@@ -62,18 +62,18 @@ curiosity_edit_frame_t::curiosity_edit_frame_t(spieler_t* sp_, karte_t* welt) :
 	bt_city_attraction.add_listener(this);
 	bt_city_attraction.pressed = true;
 	add_komponente(&bt_city_attraction);
-	offset_of_comp += BUTTON_HEIGHT;
+	offset_of_comp += D_BUTTON_HEIGHT;
 
 	bt_land_attraction.init( button_t::square_state, "Land attraction", koord(get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
 	bt_land_attraction.add_listener(this);
 	bt_land_attraction.pressed = true;
 	add_komponente(&bt_land_attraction);
-	offset_of_comp += BUTTON_HEIGHT;
+	offset_of_comp += D_BUTTON_HEIGHT;
 
 	bt_monuments.init( button_t::square_state, "Monument", koord(get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
 	bt_monuments.add_listener(this);
 	add_komponente(&bt_monuments);
-	offset_of_comp += BUTTON_HEIGHT;
+	offset_of_comp += D_BUTTON_HEIGHT;
 
 	lb_rotation_info.set_pos( koord( get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
 	add_komponente(&lb_rotation_info);
@@ -88,7 +88,7 @@ curiosity_edit_frame_t::curiosity_edit_frame_t(spieler_t* sp_, karte_t* welt) :
 
 	lb_rotation.set_pos( koord( get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2+44, offset_of_comp-4 ) );
 	add_komponente(&lb_rotation);
-	offset_of_comp += BUTTON_HEIGHT;
+	offset_of_comp += D_BUTTON_HEIGHT;
 
 	fill_list( is_show_trans_name );
 

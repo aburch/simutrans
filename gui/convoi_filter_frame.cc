@@ -6,7 +6,7 @@
  * (see licence.txt)
  */
 
-#include "components/list_button.h"
+
 #include "gui_convoiinfo.h"
 #include "convoi_filter_frame.h"
 #include "../simcolor.h"
@@ -18,23 +18,23 @@
 koord convoi_filter_frame_t::filter_buttons_pos[FILTER_BUTTONS] = {
 	koord(4, 2),
 	koord(125, 2),
-	koord(4, 2*BUTTON_HEIGHT+4),
-	koord(9, 3*BUTTON_HEIGHT+4),
-	koord(9, 4*BUTTON_HEIGHT+4),
-	koord(9, 5*BUTTON_HEIGHT+4),
-	koord(9, 6*BUTTON_HEIGHT+4),
-	koord(9, 7*BUTTON_HEIGHT+4),
-	koord(9, 8*BUTTON_HEIGHT+4),
-	koord(9, 9*BUTTON_HEIGHT+4),
-	koord(9, 10*BUTTON_HEIGHT+4),
-	koord(4, 11*BUTTON_HEIGHT+8),
-	koord(9, 12*BUTTON_HEIGHT+8),
-	koord(9, 13*BUTTON_HEIGHT+8),
-	koord(9, 14*BUTTON_HEIGHT+8),
-	koord(9, 15*BUTTON_HEIGHT+8),
-	koord(9, 16*BUTTON_HEIGHT+8),
-	koord(9, 17*BUTTON_HEIGHT+8),
-	koord(9, 18*BUTTON_HEIGHT+8)
+	koord(4, 2*D_BUTTON_HEIGHT+4),
+	koord(9, 3*D_BUTTON_HEIGHT+4),
+	koord(9, 4*D_BUTTON_HEIGHT+4),
+	koord(9, 5*D_BUTTON_HEIGHT+4),
+	koord(9, 6*D_BUTTON_HEIGHT+4),
+	koord(9, 7*D_BUTTON_HEIGHT+4),
+	koord(9, 8*D_BUTTON_HEIGHT+4),
+	koord(9, 9*D_BUTTON_HEIGHT+4),
+	koord(9, 10*D_BUTTON_HEIGHT+4),
+	koord(4, 11*D_BUTTON_HEIGHT+8),
+	koord(9, 12*D_BUTTON_HEIGHT+8),
+	koord(9, 13*D_BUTTON_HEIGHT+8),
+	koord(9, 14*D_BUTTON_HEIGHT+8),
+	koord(9, 15*D_BUTTON_HEIGHT+8),
+	koord(9, 16*D_BUTTON_HEIGHT+8),
+	koord(9, 17*D_BUTTON_HEIGHT+8),
+	koord(9, 18*D_BUTTON_HEIGHT+8)
 };
 
 const char *convoi_filter_frame_t::filter_buttons_text[FILTER_BUTTONS] = {
@@ -97,23 +97,23 @@ convoi_filter_frame_t::convoi_filter_frame_t(spieler_t *sp, convoi_frame_t *main
 		}
 	}
 	name_filter_input.set_text(main_frame->access_name_filter(), 30);
-	name_filter_input.set_groesse(koord(100, BUTTON_HEIGHT));
-	name_filter_input.set_pos(koord(5, BUTTON_HEIGHT));
+	name_filter_input.set_groesse(koord(100, D_BUTTON_HEIGHT));
+	name_filter_input.set_pos(koord(5, D_BUTTON_HEIGHT));
 	name_filter_input.add_listener(this);
 	add_komponente(&name_filter_input);
 
-	ware_alle.init(button_t::roundbox, "clf_btn_alle", koord(125, BUTTON_HEIGHT), koord(41, BUTTON_HEIGHT));
+	ware_alle.init(button_t::roundbox, "clf_btn_alle", koord(125, D_BUTTON_HEIGHT), koord(41, D_BUTTON_HEIGHT));
 	ware_alle.add_listener(this);
 	add_komponente(&ware_alle);
-	ware_keine.init(button_t::roundbox, "clf_btn_keine", koord(167, BUTTON_HEIGHT), koord(41, BUTTON_HEIGHT));
+	ware_keine.init(button_t::roundbox, "clf_btn_keine", koord(167, D_BUTTON_HEIGHT), koord(41, D_BUTTON_HEIGHT));
 	ware_keine.add_listener(this);
 	add_komponente(&ware_keine);
-	ware_invers.init(button_t::roundbox, "clf_btn_invers", koord(209, BUTTON_HEIGHT), koord(41, BUTTON_HEIGHT));
+	ware_invers.init(button_t::roundbox, "clf_btn_invers", koord(209, D_BUTTON_HEIGHT), koord(41, D_BUTTON_HEIGHT));
 	ware_invers.add_listener(this);
 	add_komponente(&ware_invers);
 
-	ware_scrolly.set_pos(koord(125, 2*BUTTON_HEIGHT+4));
-	ware_scrolly.set_scroll_amount_y(BUTTON_HEIGHT);
+	ware_scrolly.set_pos(koord(125, 2*D_BUTTON_HEIGHT+4));
+	ware_scrolly.set_scroll_amount_y(D_BUTTON_HEIGHT);
 	add_komponente(&ware_scrolly);
 
 	int n=0;
@@ -125,7 +125,7 @@ convoi_filter_frame_t::convoi_filter_frame_t(spieler_t *sp, convoi_frame_t *main
 		if(ware->get_catg()==0) {
 			// Sonderfracht: Each good is special
 			ware_item_t *item = new ware_item_t(this, ware);
-			item->init(button_t::square, translator::translate(ware->get_name()), koord(5, BUTTON_HEIGHT*n++));
+			item->init(button_t::square, translator::translate(ware->get_name()), koord(5, D_BUTTON_HEIGHT*n++));
 			ware_cont.add_komponente(item);
 		}
 	}
@@ -133,15 +133,15 @@ convoi_filter_frame_t::convoi_filter_frame_t(spieler_t *sp, convoi_frame_t *main
 	for(  int i=1; i<warenbauer_t::get_max_catg_index(); i++  ) {
 		if(warenbauer_t::get_info_catg(i)->get_catg()!=0) {
 			ware_item_t *item = new ware_item_t(this, warenbauer_t::get_info_catg(i));
-			item->init(button_t::square, translator::translate(warenbauer_t::get_info_catg(i)->get_catg_name()), koord(5, BUTTON_HEIGHT*n++));
+			item->init(button_t::square, translator::translate(warenbauer_t::get_info_catg(i)->get_catg_name()), koord(5, D_BUTTON_HEIGHT*n++));
 			ware_cont.add_komponente(item);
 		}
 	}
-	ware_cont.set_groesse(koord(100, n*BUTTON_HEIGHT));
-	ware_scrolly.set_groesse(koord(125, 13*BUTTON_HEIGHT));
+	ware_cont.set_groesse(koord(100, n*D_BUTTON_HEIGHT));
+	ware_scrolly.set_groesse(koord(125, 13*D_BUTTON_HEIGHT));
 
-	set_fenstergroesse(koord(317, TITLEBAR_HEIGHT+(FILTER_BUTTONS)*BUTTON_HEIGHT+8+10));
-	set_min_windowsize(koord(255, TITLEBAR_HEIGHT+(FILTER_BUTTONS)*BUTTON_HEIGHT+8-2));
+	set_fenstergroesse(koord(317, D_TITLEBAR_HEIGHT+(FILTER_BUTTONS)*D_BUTTON_HEIGHT+8+10));
+	set_min_windowsize(koord(255, D_TITLEBAR_HEIGHT+(FILTER_BUTTONS)*D_BUTTON_HEIGHT+8-2));
 
 	set_resizemode(diagonal_resize);
 	resize(koord(0,0));
@@ -222,24 +222,24 @@ void convoi_filter_frame_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta);
 
-	const koord gr = get_fenstergroesse()-koord(0, TITLEBAR_HEIGHT);
+	const koord gr = get_fenstergroesse()-koord(0, D_TITLEBAR_HEIGHT);
 
 	const KOORD_VAL w1 = gr.x/2-4;
 	const KOORD_VAL w2 = (gr.x+1)/2;
 	const KOORD_VAL pos2 = gr.x-w2;
-	const KOORD_VAL h = (gr.y-2-2*BUTTON_HEIGHT-4);
+	const KOORD_VAL h = (gr.y-2-2*D_BUTTON_HEIGHT-4);
 
-	name_filter_input.set_groesse(koord(min(w1-14,142), BUTTON_HEIGHT));
+	name_filter_input.set_groesse(koord(min(w1-14,142), D_BUTTON_HEIGHT));
 
 	// column 2
 	filter_buttons_pos[1] = koord(pos2, 2);
 	filter_buttons[1].set_pos(filter_buttons_pos[1]);
-	ware_alle.set_pos(koord(pos2, BUTTON_HEIGHT));
-	ware_alle.set_groesse(koord(w2/3-BUTTON_SPACER, BUTTON_HEIGHT));
-	ware_keine.set_pos(koord(pos2+(w2+0)/3, BUTTON_HEIGHT));
-	ware_keine.set_groesse(koord((w2+1)/3-BUTTON_SPACER, BUTTON_HEIGHT));
-	ware_invers.set_pos(koord(pos2+(w2+0)/3+(w2+1)/3, BUTTON_HEIGHT));
-	ware_invers.set_groesse(koord((w2+2)/3-BUTTON_SPACER, BUTTON_HEIGHT));
-	ware_scrolly.set_pos(koord(pos2, 2*BUTTON_HEIGHT+4));
+	ware_alle.set_pos(koord(pos2, D_BUTTON_HEIGHT));
+	ware_alle.set_groesse(koord(w2/3-D_H_SPACE, D_BUTTON_HEIGHT));
+	ware_keine.set_pos(koord(pos2+(w2+0)/3, D_BUTTON_HEIGHT));
+	ware_keine.set_groesse(koord((w2+1)/3-D_H_SPACE, D_BUTTON_HEIGHT));
+	ware_invers.set_pos(koord(pos2+(w2+0)/3+(w2+1)/3, D_BUTTON_HEIGHT));
+	ware_invers.set_groesse(koord((w2+2)/3-D_H_SPACE, D_BUTTON_HEIGHT));
+	ware_scrolly.set_pos(koord(pos2, 2*D_BUTTON_HEIGHT+4));
 	ware_scrolly.set_groesse(koord(w2, h));
 }

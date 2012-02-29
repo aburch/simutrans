@@ -32,7 +32,7 @@
 
 #include "../utils/simstring.h"
 
-#include "components/list_button.h"
+
 
 #include "convoi_detail_t.h"
 
@@ -92,7 +92,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	this->max_convoi_speed = speed_to_kmh(cnv->get_min_top_speed()*4);
 
 	const sint16 offset_below_viewport = 21 + view.get_groesse().y;
-	const sint16 total_width = 3*(BUTTON_WIDTH + BUTTON_SPACER) + max(BUTTON_WIDTH + 2*BUTTON_SPACER, view.get_groesse().x + 32);
+	const sint16 total_width = 3*(D_BUTTON_WIDTH + D_H_SPACE) + max(D_BUTTON_WIDTH + 2*D_H_SPACE, view.get_groesse().x + 32);
 
 	input.set_pos(koord(10,4));
 	reset_cnv_name();
@@ -102,27 +102,27 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	add_komponente(&view);
 
 	// this convoi doesn't belong to an AI
-	button.init(button_t::roundbox, "Fahrplan", koord(BUTTON1_X,offset_below_viewport), koord(BUTTON_WIDTH, BUTTON_HEIGHT));
+	button.init(button_t::roundbox, "Fahrplan", koord(BUTTON1_X,offset_below_viewport), koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	button.set_tooltip("Alters a schedule.");
 	button.add_listener(this);
 	add_komponente(&button);
 
-	go_home_button.init(button_t::roundbox, "go home", koord(BUTTON2_X,offset_below_viewport), koord(BUTTON_WIDTH, BUTTON_HEIGHT));
+	go_home_button.init(button_t::roundbox, "go home", koord(BUTTON2_X,offset_below_viewport), koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	go_home_button.set_tooltip("Sends the convoi to the last depot it departed from!");
 	go_home_button.add_listener(this);
 	add_komponente(&go_home_button);
 
-	no_load_button.init(button_t::roundbox, "no load", koord(BUTTON3_X,offset_below_viewport), koord(BUTTON_WIDTH, BUTTON_HEIGHT));
+	no_load_button.init(button_t::roundbox, "no load", koord(BUTTON3_X,offset_below_viewport), koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	no_load_button.set_tooltip("No goods are loaded onto this convoi.");
 	no_load_button.add_listener(this);
 	add_komponente(&no_load_button);
 
-	follow_button.init(button_t::roundbox_state, "follow me", koord(view.get_pos().x, view.get_groesse().y + 21), koord(view.get_groesse().x, BUTTON_HEIGHT));
+	follow_button.init(button_t::roundbox_state, "follow me", koord(view.get_pos().x, view.get_groesse().y + 21), koord(view.get_groesse().x, D_BUTTON_HEIGHT));
 	follow_button.set_tooltip("Follow the convoi on the map.");
 	follow_button.add_listener(this);
 	add_komponente(&follow_button);
 
-	chart.set_pos(koord(88,offset_below_viewport+BUTTON_HEIGHT+11));
+	chart.set_pos(koord(88,offset_below_viewport+D_BUTTON_HEIGHT+11));
 	chart.set_groesse(koord(total_width-88-10, 100));
 	chart.set_dimension(12, 10000);
 	chart.set_visible(false);
@@ -130,8 +130,8 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	for (int cost = 0; cost<convoi_t::MAX_CONVOI_COST; cost++) {
 		chart.add_curve( cost_type_color[cost], cnv->get_finance_history(), convoi_t::MAX_CONVOI_COST, cost, MAX_MONTHS, cost_type_money[cost], false, true, cost_type_money[cost]*2 );
 		filterButtons[cost].init(button_t::box_state, cost_type[cost],
-			koord(BUTTON1_X+(BUTTON_WIDTH+BUTTON_SPACER)*(cost%4), view.get_groesse().y+164+(BUTTON_HEIGHT+2)*(cost/4)),
-			koord(BUTTON_WIDTH, BUTTON_HEIGHT));
+			koord(BUTTON1_X+(D_BUTTON_WIDTH+D_H_SPACE)*(cost%4), view.get_groesse().y+164+(D_BUTTON_HEIGHT+2)*(cost/4)),
+			koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 		filterButtons[cost].add_listener(this);
 		filterButtons[cost].background = cost_type_color[cost];
 		filterButtons[cost].set_visible(false);
@@ -142,24 +142,24 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 
 	add_komponente(&sort_label);
 
-	const sint16 yoff = offset_below_viewport+46-BUTTON_HEIGHT-2;
+	const sint16 yoff = offset_below_viewport+46-D_BUTTON_HEIGHT-2;
 
-	sort_button.init(button_t::roundbox, sort_text[umgebung_t::default_sortmode], koord(BUTTON1_X,yoff), koord(BUTTON_WIDTH, BUTTON_HEIGHT));
+	sort_button.init(button_t::roundbox, sort_text[umgebung_t::default_sortmode], koord(BUTTON1_X,yoff), koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	sort_button.set_tooltip("Sort by");
 	sort_button.add_listener(this);
 	add_komponente(&sort_button);
 
-	toggler.init(button_t::roundbox_state, "Chart", koord(BUTTON3_X,yoff), koord(BUTTON_WIDTH, BUTTON_HEIGHT));
+	toggler.init(button_t::roundbox_state, "Chart", koord(BUTTON3_X,yoff), koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	toggler.set_tooltip("Show/hide statistics");
 	toggler.add_listener(this);
 	add_komponente(&toggler);
 
-	details_button.init(button_t::roundbox, "Details", koord(BUTTON4_X,yoff), koord(BUTTON_WIDTH, BUTTON_HEIGHT));
+	details_button.init(button_t::roundbox, "Details", koord(BUTTON4_X,yoff), koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	details_button.set_tooltip("Vehicle details");
 	details_button.add_listener(this);
 	add_komponente(&details_button);
 
-	text.set_pos( koord(DIALOG_LEFT,DIALOG_TOP) );
+	text.set_pos( koord(D_MARGIN_LEFT,D_MARGIN_TOP) );
 	scrolly.set_pos(koord(0, offset_below_viewport+50));
 	scrolly.set_show_scroll_x(true);
 	add_komponente(&scrolly);
@@ -520,7 +520,7 @@ void convoi_info_t::set_fenstergroesse(koord groesse)
 
 	scrolly.set_groesse(get_client_windowsize()-scrolly.get_pos());
 
-	const sint16 yoff = scrolly.get_pos().y-BUTTON_HEIGHT-3;
+	const sint16 yoff = scrolly.get_pos().y-D_BUTTON_HEIGHT-3;
 	sort_button.set_pos(koord(BUTTON1_X,yoff));
 	toggler.set_pos(koord(BUTTON3_X,yoff));
 	details_button.set_pos(koord(BUTTON4_X,yoff));

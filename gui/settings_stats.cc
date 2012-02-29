@@ -113,7 +113,7 @@ void settings_general_stats_t::init(settings_t const* const sets)
 	SEPERATOR
 	// combobox for savegame version
 	savegame.set_pos( koord(2,ypos-2) );
-	savegame.set_groesse( koord(70,BUTTON_HEIGHT) );
+	savegame.set_groesse( koord(70,D_BUTTON_HEIGHT) );
 	for(  uint32 i=0;  i<lengthof(version);  i++  ) {
 		savegame.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( version[i]+2, COL_BLACK ) );
 		if(  strcmp(version[i],umgebung_t::savegame_version_str)==0  ) {

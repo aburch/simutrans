@@ -9,7 +9,7 @@
 
 #include "goods_frame_t.h"
 #include "components/gui_scrollpane.h"
-#include "components/list_button.h"
+
 
 #include "../bauer/warenbauer.h"
 #include "../besch/ware_besch.h"
@@ -64,21 +64,21 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	scrolly(&goods_stats)
 {
 	this->welt = wl;
-	int y=BUTTON_HEIGHT+4-TITLEBAR_HEIGHT;
+	int y=D_BUTTON_HEIGHT+4-D_TITLEBAR_HEIGHT;
 
 	speed_bonus[0] = 0;
 	change_speed_label.set_pos(koord(BUTTON4_X+5, y));
 	add_komponente(&change_speed_label);
 
-	speed_down.init(button_t::repeatarrowleft, "", koord(BUTTON4_X-20, y), koord(10,BUTTON_HEIGHT));
+	speed_down.init(button_t::repeatarrowleft, "", koord(BUTTON4_X-20, y), koord(10,D_BUTTON_HEIGHT));
 	speed_down.add_listener(this);
 	add_komponente(&speed_down);
 
-	speed_up.init(button_t::repeatarrowright, "", koord(BUTTON4_X+10, y), koord(10,BUTTON_HEIGHT));
+	speed_up.init(button_t::repeatarrowright, "", koord(BUTTON4_X+10, y), koord(10,D_BUTTON_HEIGHT));
 	speed_up.add_listener(this);
 	add_komponente(&speed_up);
 
-	y=BUTTON_HEIGHT+4+5*LINESPACE;
+	y=D_BUTTON_HEIGHT+4+5*LINESPACE;
 
 	filter_goods_toggle.init(button_t::square_state, "Show only used", koord(BUTTON1_X, y));
 	filter_goods_toggle.set_tooltip(translator::translate("Only show goods which are currently handled by factories"));
@@ -92,15 +92,15 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 
 	y += LINESPACE+1;
 
-	sortedby.init(button_t::roundbox, "", koord(BUTTON1_X, y), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	sortedby.init(button_t::roundbox, "", koord(BUTTON1_X, y), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	sortedby.add_listener(this);
 	add_komponente(&sortedby);
 
-	sorteddir.init(button_t::roundbox, "", koord(BUTTON2_X, y), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	sorteddir.init(button_t::roundbox, "", koord(BUTTON2_X, y), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	sorteddir.add_listener(this);
 	add_komponente(&sorteddir);
 
-	y += BUTTON_HEIGHT+2;
+	y += D_BUTTON_HEIGHT+2;
 
 	scrolly.set_pos(koord(1, y));
 	scrolly.set_scroll_amount_y(LINESPACE+1);
@@ -110,10 +110,10 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 
 	int h = (warenbauer_t::get_waren_anzahl()+1)*(LINESPACE+1)+y;
 	if(h>450) {
-		h = y+27*(LINESPACE+1)+TITLEBAR_HEIGHT+1;
+		h = y+27*(LINESPACE+1)+D_TITLEBAR_HEIGHT+1;
 	}
-	set_fenstergroesse(koord(TOTAL_WIDTH, h));
-	set_min_windowsize(koord(TOTAL_WIDTH,3*(LINESPACE+1)+TITLEBAR_HEIGHT+y+1));
+	set_fenstergroesse(koord(D_DEFAULT_WIDTH, h));
+	set_min_windowsize(koord(D_DEFAULT_WIDTH,3*(LINESPACE+1)+D_TITLEBAR_HEIGHT+y+1));
 
 	set_resizemode(vertical_resize);
 	resize (koord(0,0));
@@ -192,7 +192,7 @@ void goods_frame_t::sort_list()
 void goods_frame_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta);
-	koord groesse = get_fenstergroesse()-scrolly.get_pos()-koord(0,TITLEBAR_HEIGHT);
+	koord groesse = get_fenstergroesse()-scrolly.get_pos()-koord(0,D_TITLEBAR_HEIGHT);
 	scrolly.set_groesse(groesse);
 }
 
@@ -250,7 +250,7 @@ void goods_frame_t::zeichnen(koord pos, koord gr)
 		(welt->get_average_speed(water_wt)*relative_speed_change)/100,
 		(welt->get_average_speed(air_wt)*relative_speed_change)/100
 	);
-	display_multiline_text(pos.x+11, pos.y+BUTTON_HEIGHT+4, speed_message, COL_WHITE);
+	display_multiline_text(pos.x+11, pos.y+D_BUTTON_HEIGHT+4, speed_message, COL_WHITE);
 
 	speed_message.clear();
 	speed_message.printf(translator::translate("tram %i km/h, monorail %i km/h\nmaglev %i km/h, narrowgauge %i km/h."),
@@ -259,11 +259,11 @@ void goods_frame_t::zeichnen(koord pos, koord gr)
 		(welt->get_average_speed(maglev_wt)*relative_speed_change)/100,
 		(welt->get_average_speed(narrowgauge_wt)*relative_speed_change)/100
 	);
-	display_multiline_text(pos.x+11, pos.y+BUTTON_HEIGHT+4+3*LINESPACE, speed_message, COL_WHITE);
+	display_multiline_text(pos.x+11, pos.y+D_BUTTON_HEIGHT+4+3*LINESPACE, speed_message, COL_WHITE);
 
 	speed_message.clear();
 	speed_message.printf(translator::translate("100 km/h = %i tiles/month"),
 		welt->speed_to_tiles_per_month(kmh_to_speed(100))
 	);
-	display_multiline_text(pos.x+11, pos.y+BUTTON_HEIGHT+4+5*LINESPACE, speed_message, COL_WHITE);
+	display_multiline_text(pos.x+11, pos.y+D_BUTTON_HEIGHT+4+5*LINESPACE, speed_message, COL_WHITE);
 }

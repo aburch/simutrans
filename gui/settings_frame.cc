@@ -16,7 +16,7 @@
 #include "../dataobj/tabfile.h"
 #include "settings_frame.h"
 
-#include "components/list_button.h"
+
 #include "components/action_listener.h"
 
 using std::string;
@@ -30,10 +30,10 @@ settings_frame_t::settings_frame_t(settings_t* const s) :
 	scrolly_costs(&costs),
 	scrolly_climates(&climates)
 {
-	revert_to_default.init( button_t::roundbox, "Simuconf.tab", koord( BUTTON1_X, 0), koord( BUTTON_WIDTH, BUTTON_HEIGHT ) );
+	revert_to_default.init( button_t::roundbox, "Simuconf.tab", koord( BUTTON1_X, 0), koord( D_BUTTON_WIDTH, D_BUTTON_HEIGHT ) );
 	revert_to_default.add_listener( this );
 	add_komponente( &revert_to_default );
-	revert_to_last_save.init( button_t::roundbox, "Default.sve", koord( BUTTON2_X, 0), koord( BUTTON_WIDTH, BUTTON_HEIGHT ) );
+	revert_to_last_save.init( button_t::roundbox, "Default.sve", koord( BUTTON2_X, 0), koord( D_BUTTON_WIDTH, D_BUTTON_HEIGHT ) );
 	revert_to_last_save.add_listener( this );
 	add_komponente( &revert_to_last_save );
 
@@ -43,13 +43,13 @@ settings_frame_t::settings_frame_t(settings_t* const s) :
 	costs.init( sets );
 	climates.init( sets );
 
-	scrolly_general.set_scroll_amount_y(BUTTON_HEIGHT/2);
-	scrolly_economy.set_scroll_amount_y(BUTTON_HEIGHT/2);
-	scrolly_routing.set_scroll_amount_y(BUTTON_HEIGHT/2);
-	scrolly_costs.set_scroll_amount_y(BUTTON_HEIGHT/2);
-	scrolly_climates.set_scroll_amount_y(BUTTON_HEIGHT/2);
+	scrolly_general.set_scroll_amount_y(D_BUTTON_HEIGHT/2);
+	scrolly_economy.set_scroll_amount_y(D_BUTTON_HEIGHT/2);
+	scrolly_routing.set_scroll_amount_y(D_BUTTON_HEIGHT/2);
+	scrolly_costs.set_scroll_amount_y(D_BUTTON_HEIGHT/2);
+	scrolly_climates.set_scroll_amount_y(D_BUTTON_HEIGHT/2);
 
-	tabs.set_pos(koord(0,BUTTON_HEIGHT));
+	tabs.set_pos(koord(0,D_BUTTON_HEIGHT));
 	tabs.add_tab(&scrolly_general, translator::translate("General"));
 	tabs.add_tab(&scrolly_economy, translator::translate("Economy"));
 	tabs.add_tab(&scrolly_routing, translator::translate("Routing"));
@@ -57,8 +57,8 @@ settings_frame_t::settings_frame_t(settings_t* const s) :
 	tabs.add_tab(&scrolly_climates, translator::translate("Climate Control"));
 	add_komponente(&tabs);
 
-	set_fenstergroesse(koord(TOTAL_WIDTH, TITLEBAR_HEIGHT+BUTTON_HEIGHT+gui_tab_panel_t::HEADER_VSIZE+18*(BUTTON_HEIGHT/2)+2+1));
-	set_min_windowsize(koord(BUTTON3_X, TITLEBAR_HEIGHT+BUTTON_HEIGHT+gui_tab_panel_t::HEADER_VSIZE+6*(BUTTON_HEIGHT/2)+2+1));
+	set_fenstergroesse(koord(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT+gui_tab_panel_t::HEADER_VSIZE+18*(D_BUTTON_HEIGHT/2)+2+1));
+	set_min_windowsize(koord(BUTTON3_X, D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT+gui_tab_panel_t::HEADER_VSIZE+6*(D_BUTTON_HEIGHT/2)+2+1));
 
 	set_resizemode(diagonal_resize);
 	resize(koord(0,0));
@@ -74,7 +74,7 @@ settings_frame_t::settings_frame_t(settings_t* const s) :
 void settings_frame_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta);
-	koord groesse = get_fenstergroesse()-koord(0,TITLEBAR_HEIGHT+BUTTON_HEIGHT);
+	koord groesse = get_fenstergroesse()-koord(0,D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT);
 	tabs.set_groesse(groesse);
 }
 

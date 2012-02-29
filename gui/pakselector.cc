@@ -5,7 +5,7 @@
 #include "pakselector.h"
 #include "../dataobj/umgebung.h"
 #include "../simsys.h"
-#include "components/list_button.h"
+
 
 
 /**
@@ -111,12 +111,12 @@ void pakselector_t::fill_list()
 				umgebung_t::objfilename = (std::string)i.button->get_text() + "/";
 			}
 		}
-		y += BUTTON_HEIGHT;
+		y += D_BUTTON_HEIGHT;
 	}
 	chdir( umgebung_t::program_dir );
 
 	button_frame.set_groesse( koord( get_fenstergroesse().x-1, y ) );
-	set_fenstergroesse(koord(get_fenstergroesse().x, TITLEBAR_HEIGHT+30+y+3*LINESPACE+4+1));
+	set_fenstergroesse(koord(get_fenstergroesse().x, D_TITLEBAR_HEIGHT+30+y+3*LINESPACE+4+1));
 }
 
 
@@ -124,7 +124,7 @@ void pakselector_t::set_fenstergroesse(koord groesse)
 {
 	if(groesse.y>display_get_height()-70) {
 		// too large ...
-		groesse.y = ((display_get_height()-TITLEBAR_HEIGHT-30-3*LINESPACE-4-1)/BUTTON_HEIGHT)*BUTTON_HEIGHT+TITLEBAR_HEIGHT+30+3*LINESPACE+4+1-70;
+		groesse.y = ((display_get_height()-D_TITLEBAR_HEIGHT-30-3*LINESPACE-4-1)/D_BUTTON_HEIGHT)*D_BUTTON_HEIGHT+D_TITLEBAR_HEIGHT+30+3*LINESPACE+4+1-70;
 		// position adjustment will be done automatically ... nice!
 	}
 	gui_frame_t::set_fenstergroesse(groesse);
@@ -138,12 +138,12 @@ void pakselector_t::set_fenstergroesse(koord groesse)
 			button1->set_pos( koord( button1->get_pos().x, y ) );
 			button_t* const button2 = i.button;
 			button2->set_pos( koord( button2->get_pos().x, y ) );
-			button2->set_groesse(koord( groesse.x/2-40, BUTTON_HEIGHT));
+			button2->set_groesse(koord( groesse.x/2-40, D_BUTTON_HEIGHT));
 			i.label->set_pos(koord(groesse.x / 2 - 40 + 30, y + 2));
-			y += BUTTON_HEIGHT;
+			y += D_BUTTON_HEIGHT;
 		}
 	}
 
 	button_frame.set_groesse(koord(groesse.x,y));
-	scrolly.set_groesse(koord(groesse.x,groesse.y-TITLEBAR_HEIGHT-30-3*LINESPACE-4-1));
+	scrolly.set_groesse(koord(groesse.x,groesse.y-D_TITLEBAR_HEIGHT-30-3*LINESPACE-4-1));
 }

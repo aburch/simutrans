@@ -17,10 +17,50 @@
 #include "gui_container.h"
 #include "../simcolor.h"
 #include "../dataobj/koord3d.h"
-#include "components/list_button.h"
+
 
 class loadsave_t;
 class spieler_t;
+
+
+/*
+ * The following gives positioning aids for elements in dialoges
+ * Only those, LINESPACE, and dimensions of elements itself must be
+ * exclusively used to calculate positions in dialogues to have a
+ * scaleable interface
+ */
+
+// default button width (may change with langugae and font)
+#define D_BUTTON_WIDTH (gui_frame_t::gui_button_width)
+#define D_BUTTON_HEIGHT (gui_frame_t::gui_button_height)
+
+// titlebar height
+#define D_TITLEBAR_HEIGHT (gui_frame_t::gui_titlebar_height)
+
+// dialog borders
+#define D_MARGIN_LEFT (gui_frame_t::gui_frame_left)
+#define D_MARGIN_TOP (gui_frame_t::gui_frame_top)
+#define D_MARGIN_RIGHT (gui_frame_t::gui_frame_right)
+#define D_MARGIN_BOTTOM (gui_frame_t::gui_frame_bottom)
+
+// space between two elements
+#define D_H_SPACE (gui_frame_t::gui_hspace)
+#define D_V_SPACE (gui_frame_t::gui_vspace)
+
+#define BUTTON1_X (D_MARGIN_LEFT)
+#define BUTTON2_X (D_MARGIN_LEFT+1*(D_BUTTON_WIDTH+D_H_SPACE))
+#define BUTTON3_X (D_MARGIN_LEFT+2*(D_BUTTON_WIDTH+D_H_SPACE))
+#define BUTTON4_X (D_MARGIN_LEFT+3*(D_BUTTON_WIDTH+D_H_SPACE))
+
+// The width of a typical dialoge (either list/covoi/factory) and intial width when it makes sense
+#define D_DEFAULT_WIDTH (D_MARGIN_LEFT+4*D_BUTTON_WIDTH+3*D_H_SPACE+D_MARGIN_RIGHT)
+
+// dimensions of indicator bars (not yet a gui element ...)
+#define D_INDICATOR_WIDTH (gui_frame_t::gui_indicator_width)
+#define D_INDICATOR_HEIGHT (gui_frame_t::gui_indicator_height)
+
+
+
 
 /**
  * Eine Klasse für Fenster mit Komponenten.
@@ -41,6 +81,27 @@ public:
 	enum resize_modes {
 		no_resize = 0, vertical_resize = 1, horizonal_resize = 2, diagonal_resize = 3
 	};
+
+	// default button sizes
+	static KOORD_VAL gui_button_width;
+	static KOORD_VAL gui_button_height;
+
+	// titlebar height
+	static KOORD_VAL gui_titlebar_height;
+
+	// dialog borders
+	static KOORD_VAL gui_frame_left;
+	static KOORD_VAL gui_frame_top;
+	static KOORD_VAL gui_frame_right;
+	static KOORD_VAL gui_frame_bottom;
+
+	// space between two elements
+	static KOORD_VAL gui_hspace;
+	static KOORD_VAL gui_vspace;
+
+	// and the indicator box dimension
+	static KOORD_VAL gui_indicator_width;
+	static KOORD_VAL gui_indicator_height;
 
 private:
 	gui_container_t container;
@@ -153,7 +214,7 @@ public:
 	 * @author Markus Weber
 	 * @date   11-May-2002
 	*/
-	koord get_client_windowsize() const {return groesse-koord(0,TITLEBAR_HEIGHT); }
+	koord get_client_windowsize() const {return groesse-koord(0,D_TITLEBAR_HEIGHT); }
 
 	/**
 	 * Manche Fenster haben einen Hilfetext assoziiert.

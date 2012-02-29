@@ -27,44 +27,44 @@ farbengui_t::farbengui_t(spieler_t *sp) :
 	buf.clear();
 	buf.append(translator::translate("COLOR_CHOOSE\n"));
 
-	txt.set_pos( koord(DIALOG_LEFT,DIALOG_TOP) );
+	txt.set_pos( koord(D_MARGIN_LEFT,D_MARGIN_TOP) );
 	txt.recalc_size();
 	add_komponente( &txt );
 
-	bild.set_pos( koord( (DIALOG_LEFT + 14*BUTTON_HEIGHT + 13*BUTTON_SPACER)-bild.get_groesse().x, DIALOG_TOP ) );
+	bild.set_pos( koord( (D_MARGIN_LEFT + 14*D_BUTTON_HEIGHT + 13*D_H_SPACE)-bild.get_groesse().x, D_MARGIN_TOP ) );
 	add_komponente( &bild );
 
-	KOORD_VAL y = DIALOG_TOP+DIALOG_SPACER + max( txt.get_groesse().y, bild.get_groesse().y )-LINESPACE;
+	KOORD_VAL y = D_MARGIN_TOP+D_V_SPACE + max( txt.get_groesse().y, bild.get_groesse().y )-LINESPACE;
 
 	// player color 1
-	c1.set_pos( koord(DIALOG_LEFT,y) );
+	c1.set_pos( koord(D_MARGIN_LEFT,y) );
 	add_komponente( &c1 );
-	y += LINESPACE+DIALOG_SPACER;
+	y += LINESPACE+D_V_SPACE;
 	// color buttons
 	for(unsigned i=0;  i<28;  i++) {
-		player_color_1[i].init( button_t::box_state, "", koord( DIALOG_LEFT+(i%14)*(BUTTON_HEIGHT+BUTTON_SPACER), y+(i/14)*(BUTTON_HEIGHT+BUTTON_SPACER) ), koord(BUTTON_HEIGHT,BUTTON_HEIGHT) );
+		player_color_1[i].init( button_t::box_state, "", koord( D_MARGIN_LEFT+(i%14)*(D_BUTTON_HEIGHT+D_H_SPACE), y+(i/14)*(D_BUTTON_HEIGHT+D_H_SPACE) ), koord(D_BUTTON_HEIGHT,D_BUTTON_HEIGHT) );
 		player_color_1[i].background = i*8+4;
 		player_color_1[i].add_listener(this);
 		add_komponente( player_color_1+i );
 	}
 	player_color_1[sp->get_player_color1()/8].pressed = true;
-	y += 2*BUTTON_HEIGHT+BUTTON_SPACER+DIALOG_SPACER+LINESPACE;
+	y += 2*D_BUTTON_HEIGHT+D_H_SPACE+D_V_SPACE+LINESPACE;
 
 	// player color 2
-	c2.set_pos( koord(DIALOG_LEFT,y) );
+	c2.set_pos( koord(D_MARGIN_LEFT,y) );
 	add_komponente( &c2 );
-	y += LINESPACE+DIALOG_SPACER;
+	y += LINESPACE+D_V_SPACE;
 	// second color buttons
 	for(unsigned i=0;  i<28;  i++) {
-		player_color_2[i].init( button_t::box_state, "", koord( DIALOG_LEFT+(i%14)*(BUTTON_HEIGHT+BUTTON_SPACER), y+(i/14)*(BUTTON_HEIGHT+BUTTON_SPACER) ), koord(BUTTON_HEIGHT,BUTTON_HEIGHT) );
+		player_color_2[i].init( button_t::box_state, "", koord( D_MARGIN_LEFT+(i%14)*(D_BUTTON_HEIGHT+D_H_SPACE), y+(i/14)*(D_BUTTON_HEIGHT+D_H_SPACE) ), koord(D_BUTTON_HEIGHT,D_BUTTON_HEIGHT) );
 		player_color_2[i].background = i*8+4;
 		player_color_2[i].add_listener(this);
 		add_komponente( player_color_2+i );
 	}
 	player_color_2[sp->get_player_color2()/8].pressed = true;
-	y += 2*BUTTON_HEIGHT+BUTTON_SPACER+DIALOG_BOTTOM;
+	y += 2*D_BUTTON_HEIGHT+D_H_SPACE+D_MARGIN_BOTTOM;
 
-	set_fenstergroesse( koord( DIALOG_LEFT + 14*BUTTON_HEIGHT + 13*BUTTON_SPACER + DIALOG_RIGHT, y+TITLEBAR_HEIGHT ) );
+	set_fenstergroesse( koord( D_MARGIN_LEFT + 14*D_BUTTON_HEIGHT + 13*D_H_SPACE + D_MARGIN_RIGHT, y+D_TITLEBAR_HEIGHT ) );
 }
 
 

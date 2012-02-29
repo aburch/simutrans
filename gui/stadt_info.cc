@@ -14,7 +14,7 @@
 #include "../dataobj/umgebung.h"
 #include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"
-#include "components/list_button.h"
+
 
 #include "stadt_info.h"
 #include "karte.h"
@@ -61,7 +61,7 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 
 	add_komponente(&name_input);
 
-	allow_growth.init( button_t::square_state, "Allow city growth", koord(8, 4 + (BUTTON_HEIGHT+2) + 8*LINESPACE) );
+	allow_growth.init( button_t::square_state, "Allow city growth", koord(8, 4 + (D_BUTTON_HEIGHT+2) + 8*LINESPACE) );
 	allow_growth.pressed = stadt->get_citygrowth();
 	allow_growth.add_listener( this );
 	add_komponente(&allow_growth);
@@ -94,7 +94,7 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 
 	// add filter buttons          skip electricity
 	for(  int hist=0;  hist<MAX_CITY_HISTORY-1;  hist++  ) {
-		filterButtons[hist].init(button_t::box_state, hist_type[hist], koord(0,0), koord(BUTTON_WIDTH, BUTTON_HEIGHT));
+		filterButtons[hist].init(button_t::box_state, hist_type[hist], koord(0,0), koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 		filterButtons[hist].background = hist_type_color[hist];
 		filterButtons[hist].pressed = (stadt->stadtinfo_options & (1<<hist))!=0;
 		filterButtons[hist].add_listener(this);
@@ -104,7 +104,7 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 	pax_destinations_last_change = stadt->get_pax_destinations_new_change();
 
 	set_fenstergroesse(koord(PAX_DEST_X + PAX_DESTINATIONS_SIZE + PAX_DEST_MARGIN*2 + 1, 342));
-	set_min_windowsize(koord(TOTAL_WIDTH, 256));
+	set_min_windowsize(koord(D_DEFAULT_WIDTH, 256));
 
 	set_resizemode(diagonal_resize);
 	resize(koord(0,0));
@@ -116,14 +116,14 @@ void stadt_info_t::resize(const koord delta)
 	gui_frame_t::resize(delta);
 
 	// calculate layout of filter buttons
-	const int col = max( 1, min( (get_fenstergroesse().x-2)/(BUTTON_WIDTH+BUTTON_SPACER), MAX_CITY_HISTORY-1 ) );
+	const int col = max( 1, min( (get_fenstergroesse().x-2)/(D_BUTTON_WIDTH+D_H_SPACE), MAX_CITY_HISTORY-1 ) );
 	const int row = ((MAX_CITY_HISTORY-2)/col)+1;
 
 	// calculate new minimaps size : expand horizontally or vertically ?
 	const karte_t* const welt = stadt_t::get_welt();
 	const float world_aspect = (float)welt->get_groesse_x() / (float)welt->get_groesse_y();
 
-	const koord space = koord(get_fenstergroesse().x - PAX_DEST_X - PAX_DEST_MARGIN - 1, max( allow_growth.get_pos().y + LINESPACE+1 - 5, get_fenstergroesse().y - 166 - (BUTTON_HEIGHT+2)*row ));
+	const koord space = koord(get_fenstergroesse().x - PAX_DEST_X - PAX_DEST_MARGIN - 1, max( allow_growth.get_pos().y + LINESPACE+1 - 5, get_fenstergroesse().y - 166 - (D_BUTTON_HEIGHT+2)*row ));
 	const float space_aspect = (float)space.x / (float)space.y;
 
 	if(  world_aspect / space_aspect > PAX_DEST_VERTICAL  ) { // world wider than space, use vertical minimap layout
@@ -157,11 +157,11 @@ void stadt_info_t::resize(const koord delta)
 
 	// move and resize charts
 	year_month_tabs.set_pos(koord(60, max( allow_growth.get_pos().y + LINESPACE, (world_aspect / space_aspect > PAX_DEST_VERTICAL ? minimaps_size.y*2 + PAX_DEST_MARGIN : minimaps_size.y) + PAX_DEST_MARGIN )) );
-	year_month_tabs.set_groesse(koord(get_fenstergroesse().x - 80, get_fenstergroesse().y - TITLEBAR_HEIGHT - year_month_tabs.get_pos().y - 4 - (BUTTON_HEIGHT+2)*(row+1) - 1 ));
+	year_month_tabs.set_groesse(koord(get_fenstergroesse().x - 80, get_fenstergroesse().y - D_TITLEBAR_HEIGHT - year_month_tabs.get_pos().y - 4 - (D_BUTTON_HEIGHT+2)*(row+1) - 1 ));
 
 	// move and resize filter buttons
 	for(  int hist=0;  hist<MAX_CITY_HISTORY-1;  hist++  ) {
-		const koord pos = koord(2 + (BUTTON_WIDTH+BUTTON_SPACER)*(hist%col), get_fenstergroesse().y - (BUTTON_HEIGHT+2)*(row+1) - 1 + (BUTTON_HEIGHT+2)*((int)hist/col) );
+		const koord pos = koord(2 + (D_BUTTON_WIDTH+D_H_SPACE)*(hist%col), get_fenstergroesse().y - (D_BUTTON_HEIGHT+2)*(row+1) - 1 + (D_BUTTON_HEIGHT+2)*((int)hist/col) );
 		filterButtons[hist].set_pos( pos );
 	}
 }
@@ -288,7 +288,7 @@ void stadt_info_t::zeichnen(koord pos, koord gr)
 	buf.append( ": " );
 	buf.append( c->get_homeless(), 0 );
 
-	display_multiline_text(pos.x + 8, pos.y + TITLEBAR_HEIGHT + 4 + (BUTTON_HEIGHT+2), buf, COL_BLACK);
+	display_multiline_text(pos.x + 8, pos.y + D_TITLEBAR_HEIGHT + 4 + (D_BUTTON_HEIGHT+2), buf, COL_BLACK);
 
 	const unsigned long current_pax_destinations = c->get_pax_destinations_new_change();
 	if(  pax_destinations_last_change > current_pax_destinations  ) {

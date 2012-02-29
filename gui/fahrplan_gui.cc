@@ -33,7 +33,7 @@
 
 #include "fahrplan_gui.h"
 #include "line_item.h"
-#include "components/list_button.h"
+
 #include "components/gui_button.h"
 #include "karte.h"
 
@@ -280,16 +280,16 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 		lb_line.set_pos(koord(10, ypos+2));
 		add_komponente(&lb_line);
 
-		bt_promote_to_line.init(button_t::roundbox, "promote to line", koord( BUTTON3_X, ypos ), koord(BUTTON_WIDTH,BUTTON_HEIGHT) );
+		bt_promote_to_line.init(button_t::roundbox, "promote to line", koord( BUTTON3_X, ypos ), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT) );
 		bt_promote_to_line.set_tooltip("Create a new line based on this schedule");
 		bt_promote_to_line.add_listener(this);
 		add_komponente(&bt_promote_to_line);
 
-		ypos += BUTTON_HEIGHT+1;
+		ypos += D_BUTTON_HEIGHT+1;
 
 		line_selector.set_pos(koord(2, ypos));
-		line_selector.set_groesse(koord(BUTTON4_X-2, BUTTON_HEIGHT));
-		line_selector.set_max_size(koord(BUTTON4_X-2, 13*LINESPACE+TITLEBAR_HEIGHT-1));
+		line_selector.set_groesse(koord(BUTTON4_X-2, D_BUTTON_HEIGHT));
+		line_selector.set_max_size(koord(BUTTON4_X-2, 13*LINESPACE+D_TITLEBAR_HEIGHT-1));
 		line_selector.set_highlight_color(sp->get_player_color1() + 1);
 		line_selector.clear_elements();
 
@@ -298,28 +298,28 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 		line_selector.add_listener(this);
 		add_komponente(&line_selector);
 
-		ypos += BUTTON_HEIGHT+3;
+		ypos += D_BUTTON_HEIGHT+3;
 	}
 
 	// loading level and return tickets
 	lb_load.set_pos( koord( 10, ypos+2 ) );
 	add_komponente(&lb_load);
 
-	numimp_load.set_pos( koord( BUTTON_WIDTH*2-65, ypos+2 ) );
-	numimp_load.set_groesse( koord( 60, BUTTON_HEIGHT ) );
+	numimp_load.set_pos( koord( D_BUTTON_WIDTH*2-65, ypos+2 ) );
+	numimp_load.set_groesse( koord( 60, D_BUTTON_HEIGHT ) );
 	numimp_load.set_value( fpl->get_current_eintrag().ladegrad );
 	numimp_load.set_limits( 0, 100 );
 	numimp_load.set_increment_mode( gui_numberinput_t::PROGRESS );
 	numimp_load.add_listener(this);
 	add_komponente(&numimp_load);
 
-	ypos += BUTTON_HEIGHT;
+	ypos += D_BUTTON_HEIGHT;
 
 	// waiting in parts per month
 	lb_wait.set_pos( koord( 10, ypos+2 ) );
 	add_komponente(&lb_wait);
 
-	bt_wait_prev.set_pos( koord( BUTTON_WIDTH*2-65, ypos+2 ) );
+	bt_wait_prev.set_pos( koord( D_BUTTON_WIDTH*2-65, ypos+2 ) );
 	bt_wait_prev.set_typ(button_t::arrowleft);
 	bt_wait_prev.add_listener(this);
 	add_komponente(&bt_wait_prev);
@@ -331,40 +331,40 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 		sprintf( str_parts_month, "1/%d",  1<<(16-fpl->get_current_eintrag().waiting_time_shift) );
 	}
 	lb_waitlevel.set_text_pointer( str_parts_month );
-	lb_waitlevel.set_pos( koord( BUTTON_WIDTH*2-20, ypos+2 ) );
+	lb_waitlevel.set_pos( koord( D_BUTTON_WIDTH*2-20, ypos+2 ) );
 	add_komponente(&lb_waitlevel);
 
-	bt_wait_next.set_pos( koord( BUTTON_WIDTH*2-15, ypos+2 ) );
+	bt_wait_next.set_pos( koord( D_BUTTON_WIDTH*2-15, ypos+2 ) );
 	bt_wait_next.set_typ(button_t::arrowright);
 	bt_wait_next.add_listener(this);
 	add_komponente(&bt_wait_next);
 
-	bt_return.init(button_t::roundbox, "return ticket", koord(BUTTON3_X, ypos ), koord(BUTTON_WIDTH,BUTTON_HEIGHT) );
+	bt_return.init(button_t::roundbox, "return ticket", koord(BUTTON3_X, ypos ), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT) );
 	bt_return.set_tooltip("Add stops for backward travel");
 	bt_return.add_listener(this);
 	add_komponente(&bt_return);
 
-	ypos += BUTTON_HEIGHT;
+	ypos += D_BUTTON_HEIGHT;
 
-	bt_add.init(button_t::roundbox_state, "Add Stop", koord(BUTTON1_X, ypos ), koord(BUTTON_WIDTH,BUTTON_HEIGHT) );
+	bt_add.init(button_t::roundbox_state, "Add Stop", koord(BUTTON1_X, ypos ), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT) );
 	bt_add.set_tooltip("Appends stops at the end of the schedule");
 	bt_add.add_listener(this);
 	bt_add.pressed = true;
 	add_komponente(&bt_add);
 
-	bt_insert.init(button_t::roundbox_state, "Ins Stop", koord(BUTTON2_X, ypos ), koord(BUTTON_WIDTH,BUTTON_HEIGHT) );
+	bt_insert.init(button_t::roundbox_state, "Ins Stop", koord(BUTTON2_X, ypos ), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT) );
 	bt_insert.set_tooltip("Insert stop before the current stop");
 	bt_insert.add_listener(this);
 	bt_insert.pressed = false;
 	add_komponente(&bt_insert);
 
-	bt_remove.init(button_t::roundbox_state, "Del Stop", koord(BUTTON3_X, ypos ), koord(BUTTON_WIDTH,BUTTON_HEIGHT) );
+	bt_remove.init(button_t::roundbox_state, "Del Stop", koord(BUTTON3_X, ypos ), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT) );
 	bt_remove.set_tooltip("Delete the current stop");
 	bt_remove.add_listener(this);
 	bt_remove.pressed = false;
 	add_komponente(&bt_remove);
 
-	ypos += BUTTON_HEIGHT+2;
+	ypos += D_BUTTON_HEIGHT+2;
 
 	scrolly.set_pos( koord( 0, ypos ) );
 	scrolly.set_show_scroll_x(true);
@@ -374,8 +374,8 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	mode = adding;
 	update_selection();
 
-	set_fenstergroesse( koord(BUTTON4_X, ypos+BUTTON_HEIGHT+(fpl->get_count()>0 ? min(15,fpl->get_count()) : 15)*(LINESPACE+1)+TITLEBAR_HEIGHT) );
-	set_min_windowsize( koord(BUTTON4_X, ypos+BUTTON_HEIGHT+3*(LINESPACE+1)+TITLEBAR_HEIGHT) );
+	set_fenstergroesse( koord(BUTTON4_X, ypos+D_BUTTON_HEIGHT+(fpl->get_count()>0 ? min(15,fpl->get_count()) : 15)*(LINESPACE+1)+D_TITLEBAR_HEIGHT) );
+	set_min_windowsize( koord(BUTTON4_X, ypos+D_BUTTON_HEIGHT+3*(LINESPACE+1)+D_TITLEBAR_HEIGHT) );
 
 	set_resizemode(diagonal_resize);
 	resize( koord(0,0) );

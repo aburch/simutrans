@@ -21,6 +21,28 @@
 #include "../simskin.h"
 #include "../besch/skin_besch.h"
 
+// default button sizes
+KOORD_VAL gui_frame_t::gui_button_width = 92;
+KOORD_VAL gui_frame_t::gui_button_height = 14;
+
+// default titlebar height
+KOORD_VAL gui_frame_t::gui_titlebar_height = 16;
+
+// dialog borders
+KOORD_VAL gui_frame_t::gui_frame_left = 10;
+KOORD_VAL gui_frame_t::gui_frame_top = 10;
+KOORD_VAL gui_frame_t::gui_frame_right = 10;
+KOORD_VAL gui_frame_t::gui_frame_bottom = 10;
+
+// space between two elements
+KOORD_VAL gui_frame_t::gui_hspace = 4;
+KOORD_VAL gui_frame_t::gui_vspace = 4;
+
+// size of staus indicator elements (colored boxes)
+KOORD_VAL gui_frame_t::gui_indicator_width = 20;
+KOORD_VAL gui_frame_t::gui_indicator_height = 4;
+
+
 
 gui_frame_t::gui_frame_t(char const* const name, spieler_t const* const sp)
 {
@@ -28,7 +50,7 @@ gui_frame_t::gui_frame_t(char const* const name, spieler_t const* const sp)
 	groesse = koord(200, 100);
 	min_windowsize = koord(0,0);
 	owner = sp;
-	container.set_pos(koord(0,TITLEBAR_HEIGHT));
+	container.set_pos(koord(0,D_TITLEBAR_HEIGHT));
 	set_resizemode(no_resize); //25-may-02	markus weber	added
 	dirty = true;
 }
@@ -96,7 +118,7 @@ bool gui_frame_t::infowin_event(const event_t *ev)
 		container.clear_dirty();
 	}
 	event_t ev2 = *ev;
-	translate_event(&ev2, 0, -TITLEBAR_HEIGHT);
+	translate_event(&ev2, 0, -D_TITLEBAR_HEIGHT);
 	return container.infowin_event(&ev2);
 }
 

@@ -8,7 +8,7 @@
 #include "citylist_frame_t.h"
 #include "citylist_stats_t.h"
 
-#include "components/list_button.h"
+
 #include "../dataobj/translator.h"
 #include "../simcolor.h"
 #include "../dataobj/umgebung.h"
@@ -88,7 +88,7 @@ const uint8 citylist_frame_t::hist_type_type[karte_t::MAX_WORLD_COST] =
 };
 
 #define CHART_HEIGHT (168)
-#define TOTAL_HEIGHT (TITLEBAR_HEIGHT+3*(LINESPACE+1)+42+1)
+#define TOTAL_HEIGHT (D_TITLEBAR_HEIGHT+3*(LINESPACE+1)+42+1)
 
 citylist_frame_t::citylist_frame_t(karte_t * welt) :
 	gui_frame_t(translator::translate("City list")),
@@ -98,18 +98,18 @@ citylist_frame_t::citylist_frame_t(karte_t * welt) :
 {
 	this->welt = welt;
 
-	sort_label.set_pos(koord(BUTTON1_X, 40-BUTTON_HEIGHT-(LINESPACE+1)));
+	sort_label.set_pos(koord(BUTTON1_X, 40-D_BUTTON_HEIGHT-(LINESPACE+1)));
 	add_komponente(&sort_label);
 
-	sortedby.init(button_t::roundbox, "", koord(BUTTON1_X, 40-BUTTON_HEIGHT), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	sortedby.init(button_t::roundbox, "", koord(BUTTON1_X, 40-D_BUTTON_HEIGHT), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	sortedby.add_listener(this);
 	add_komponente(&sortedby);
 
-	sorteddir.init(button_t::roundbox, "", koord(BUTTON2_X, 40-BUTTON_HEIGHT), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	sorteddir.init(button_t::roundbox, "", koord(BUTTON2_X, 40-D_BUTTON_HEIGHT), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	sorteddir.add_listener(this);
 	add_komponente(&sorteddir);
 
-	show_stats.init(button_t::roundbox_state, "Chart", koord(BUTTON4_X, 40-BUTTON_HEIGHT), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	show_stats.init(button_t::roundbox_state, "Chart", koord(BUTTON4_X, 40-D_BUTTON_HEIGHT), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	show_stats.set_tooltip("Show/hide statistics");
 	show_stats.add_listener(this);
 	add_komponente(&show_stats);
@@ -121,14 +121,14 @@ citylist_frame_t::citylist_frame_t(karte_t * welt) :
 	year_month_tabs.add_tab(&chart, translator::translate("Years"));
 	year_month_tabs.add_tab(&mchart, translator::translate("Months"));
 	year_month_tabs.set_pos(koord(0,42));
-	year_month_tabs.set_groesse(koord(TOTAL_WIDTH, CHART_HEIGHT-BUTTON_HEIGHT*3-TITLEBAR_HEIGHT));
+	year_month_tabs.set_groesse(koord(D_DEFAULT_WIDTH, CHART_HEIGHT-D_BUTTON_HEIGHT*3-D_TITLEBAR_HEIGHT));
 //	year_month_tabs.add_listener(this);
 	year_month_tabs.set_visible(false);
 	add_komponente(&year_month_tabs);
 
-	const sint16 yb = 42+CHART_HEIGHT-BUTTON_HEIGHT*3-8;
+	const sint16 yb = 42+CHART_HEIGHT-D_BUTTON_HEIGHT*3-8;
 	chart.set_pos(koord(60,8+gui_tab_panel_t::HEADER_VSIZE));
-	chart.set_groesse(koord(TOTAL_WIDTH-60-8,yb-16-42-10-gui_tab_panel_t::HEADER_VSIZE));
+	chart.set_groesse(koord(D_DEFAULT_WIDTH-60-8,yb-16-42-10-gui_tab_panel_t::HEADER_VSIZE));
 	chart.set_dimension(12, karte_t::MAX_WORLD_COST*MAX_WORLD_HISTORY_YEARS);
 	chart.set_visible(false);
 	chart.set_background(MN_GREY1);
@@ -137,7 +137,7 @@ citylist_frame_t::citylist_frame_t(karte_t * welt) :
 	}
 
 	mchart.set_pos(koord(60,8+gui_tab_panel_t::HEADER_VSIZE));
-	mchart.set_groesse(koord(TOTAL_WIDTH-60-8,yb-16-42-10-gui_tab_panel_t::HEADER_VSIZE));
+	mchart.set_groesse(koord(D_DEFAULT_WIDTH-60-8,yb-16-42-10-gui_tab_panel_t::HEADER_VSIZE));
 	mchart.set_dimension(12, karte_t::MAX_WORLD_COST*MAX_WORLD_HISTORY_MONTHS);
 	mchart.set_visible(false);
 	mchart.set_background(MN_GREY1);
@@ -146,7 +146,7 @@ citylist_frame_t::citylist_frame_t(karte_t * welt) :
 	}
 
 	for (int cost = 0; cost<karte_t::MAX_WORLD_COST; cost++) {
-		filterButtons[cost].init(button_t::box_state, hist_type[cost], koord(BUTTON1_X+(BUTTON_WIDTH+BUTTON_SPACER)*(cost%4), yb+(BUTTON_HEIGHT+2)*(cost/4)), koord(BUTTON_WIDTH, BUTTON_HEIGHT));
+		filterButtons[cost].init(button_t::box_state, hist_type[cost], koord(BUTTON1_X+(D_BUTTON_WIDTH+D_H_SPACE)*(cost%4), yb+(D_BUTTON_HEIGHT+2)*(cost/4)), koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 		filterButtons[cost].add_listener(this);
 		filterButtons[cost].background = hist_type_color[cost];
 		filterButtons[cost].set_visible(false);
@@ -158,8 +158,8 @@ citylist_frame_t::citylist_frame_t(karte_t * welt) :
 	scrolly.set_scroll_amount_y(LINESPACE+1);
 	add_komponente(&scrolly);
 
-	set_fenstergroesse(koord(TOTAL_WIDTH, TOTAL_HEIGHT+CHART_HEIGHT));
-	set_min_windowsize(koord(TOTAL_WIDTH, TOTAL_HEIGHT));
+	set_fenstergroesse(koord(D_DEFAULT_WIDTH, TOTAL_HEIGHT+CHART_HEIGHT));
+	set_min_windowsize(koord(D_DEFAULT_WIDTH, TOTAL_HEIGHT));
 
 	set_resizemode(diagonal_resize);
 	resize(koord(0,0));
@@ -184,7 +184,7 @@ bool citylist_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* *
 		show_stats.pressed = !show_stats.pressed;
 		chart.set_visible( show_stats.pressed );
 		year_month_tabs.set_visible( show_stats.pressed );
-		set_min_windowsize( koord(TOTAL_WIDTH, show_stats.pressed ? TOTAL_HEIGHT+CHART_HEIGHT : TOTAL_HEIGHT));
+		set_min_windowsize( koord(D_DEFAULT_WIDTH, show_stats.pressed ? TOTAL_HEIGHT+CHART_HEIGHT : TOTAL_HEIGHT));
 		for(  int i=0;  i<karte_t::MAX_WORLD_COST;  i++ ) {
 			filterButtons[i].set_visible(show_stats.pressed);
 		}
@@ -213,7 +213,7 @@ void citylist_frame_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta);
 
-	koord groesse = get_fenstergroesse()-koord(0,TITLEBAR_HEIGHT+42+1);	// fensterhoehe - 16(title) -42 (header)
+	koord groesse = get_fenstergroesse()-koord(0,D_TITLEBAR_HEIGHT+42+1);	// fensterhoehe - 16(title) -42 (header)
 	if(show_stats.pressed) {
 		// addition space for statistics
 		groesse += koord(0,-CHART_HEIGHT);

@@ -17,7 +17,7 @@
 #include "../simskin.h"
 #include "../simwerkz.h"
 
-#include "components/list_button.h"
+
 
 #include "../bauer/hausbauer.h"
 
@@ -67,19 +67,19 @@ citybuilding_edit_frame_t::citybuilding_edit_frame_t(spieler_t* sp_, karte_t* we
 	bt_res.add_listener(this);
 	bt_res.pressed = true;
 	add_komponente(&bt_res);
-	offset_of_comp += BUTTON_HEIGHT;
+	offset_of_comp += D_BUTTON_HEIGHT;
 
 	bt_com.init( button_t::square_state, "shops and stores", koord(get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
 	bt_com.add_listener(this);
 	bt_com.pressed = true;
 	add_komponente(&bt_com);
-	offset_of_comp += BUTTON_HEIGHT;
+	offset_of_comp += D_BUTTON_HEIGHT;
 
 	bt_ind.init( button_t::square_state, "industrial building", koord(get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
 	bt_ind.add_listener(this);
 	add_komponente(&bt_ind);
 	bt_com.pressed = true;
-	offset_of_comp += BUTTON_HEIGHT;
+	offset_of_comp += D_BUTTON_HEIGHT;
 
 	lb_rotation_info.set_pos( koord( get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
 	add_komponente(&lb_rotation_info);
@@ -94,7 +94,7 @@ citybuilding_edit_frame_t::citybuilding_edit_frame_t(spieler_t* sp_, karte_t* we
 
 	lb_rotation.set_pos( koord( get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2+44, offset_of_comp-4 ) );
 	add_komponente(&lb_rotation);
-	offset_of_comp += BUTTON_HEIGHT;
+	offset_of_comp += D_BUTTON_HEIGHT;
 
 	fill_list( is_show_trans_name );
 

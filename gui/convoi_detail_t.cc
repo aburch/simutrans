@@ -30,7 +30,7 @@
 #include "../utils/cbuffer_t.h"
 
 #include "components/gui_chart.h"
-#include "components/list_button.h"
+
 
 
 karte_t *convoi_detail_t::welt = NULL;
@@ -45,12 +45,12 @@ convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
 	this->cnv = cnv;
 	welt = cnv->get_welt();
 
-	sale_button.init(button_t::roundbox, "verkaufen", koord(BUTTON4_X, 0), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	sale_button.init(button_t::roundbox, "verkaufen", koord(BUTTON4_X, 0), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	sale_button.set_tooltip("Remove vehicle from map. Use with care!");
 	sale_button.add_listener(this);
 	add_komponente(&sale_button);
 
-	withdraw_button.init(button_t::roundbox, "withdraw", koord(BUTTON3_X, 0), koord(BUTTON_WIDTH, BUTTON_HEIGHT));
+	withdraw_button.init(button_t::roundbox, "withdraw", koord(BUTTON3_X, 0), koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	withdraw_button.set_tooltip("Convoi is sold when all wagons are empty.");
 	withdraw_button.add_listener(this);
 	add_komponente(&withdraw_button);
@@ -59,8 +59,8 @@ convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
 	scrolly.set_show_scroll_x(true);
 	add_komponente(&scrolly);
 
-	set_fenstergroesse(koord(TOTAL_WIDTH, TITLEBAR_HEIGHT+50+17*(LINESPACE+1)+scrollbar_t::BAR_SIZE-6));
-	set_min_windowsize(koord(TOTAL_WIDTH, TITLEBAR_HEIGHT+50+3*(LINESPACE+1)+scrollbar_t::BAR_SIZE-3));
+	set_fenstergroesse(koord(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+50+17*(LINESPACE+1)+scrollbar_t::BAR_SIZE-6));
+	set_min_windowsize(koord(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+50+3*(LINESPACE+1)+scrollbar_t::BAR_SIZE-3));
 
 	set_resizemode(diagonal_resize);
 	resize(koord(0,0));

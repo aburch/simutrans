@@ -10,7 +10,7 @@
 #include <algorithm>
 
 #include "gui_convoiinfo.h"
-#include "components/list_button.h"
+
 
 #include "convoi_frame.h"
 #include "convoi_filter_frame.h"
@@ -201,29 +201,29 @@ convoi_frame_t::convoi_frame_t(spieler_t* sp) :
 
 	sort_label.set_pos(koord(BUTTON1_X, 2));
 	add_komponente(&sort_label);
-	sortedby.init(button_t::roundbox, "", koord(BUTTON1_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	sortedby.init(button_t::roundbox, "", koord(BUTTON1_X, 14), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	sortedby.add_listener(this);
 	add_komponente(&sortedby);
 
-	sorteddir.init(button_t::roundbox, "", koord(BUTTON2_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	sorteddir.init(button_t::roundbox, "", koord(BUTTON2_X, 14), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	sorteddir.add_listener(this);
 	add_komponente(&sorteddir);
 
 	filter_label.set_pos(koord(BUTTON3_X, 2));
 	add_komponente(&filter_label);
 
-	filter_on.init(button_t::roundbox, get_filter(any_filter) ? "cl_btn_filter_enable" : "cl_btn_filter_disable", koord(BUTTON3_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	filter_on.init(button_t::roundbox, get_filter(any_filter) ? "cl_btn_filter_enable" : "cl_btn_filter_disable", koord(BUTTON3_X, 14), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	filter_on.add_listener(this);
 	add_komponente(&filter_on);
 
-	filter_details.init(button_t::roundbox, "cl_btn_filter_settings", koord(BUTTON4_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	filter_details.init(button_t::roundbox, "cl_btn_filter_settings", koord(BUTTON4_X, 14), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	filter_details.add_listener(this);
 	add_komponente(&filter_details);
 
 	sort_list();
 
-	set_fenstergroesse(koord(TOTAL_WIDTH, TITLEBAR_HEIGHT+5*(40)+31+1));
-	set_min_windowsize(koord(TOTAL_WIDTH, TITLEBAR_HEIGHT+2*(40)+31+1));
+	set_fenstergroesse(koord(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+5*(40)+31+1));
+	set_min_windowsize(koord(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+2*(40)+31+1));
 
 	set_resizemode(diagonal_resize);
 	resize(koord(0,0));

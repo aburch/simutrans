@@ -13,7 +13,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "components/list_button.h"
+
 
 #include "../simcolor.h"
 #include "../simworld.h"
@@ -41,7 +41,7 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 	for(int i=0; i<MAX_PLAYER_COUNT-1; i++) {
 		const spieler_t *const sp = welt->get_spieler(i);
 
-		player_change_to[i].init(button_t::arrowright_state, " ", koord(16+4,6+i*2*LINESPACE), koord(10,BUTTON_HEIGHT));
+		player_change_to[i].init(button_t::arrowright_state, " ", koord(16+4,6+i*2*LINESPACE), koord(10,D_BUTTON_HEIGHT));
 		player_change_to[i].add_listener(this);
 
 		if(i>=2) {
@@ -58,12 +58,12 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 		}
 
 		// finances button
-		player_get_finances[i].init(button_t::box, "", koord(34,4+i*2*LINESPACE), koord(120,BUTTON_HEIGHT));
+		player_get_finances[i].init(button_t::box, "", koord(34,4+i*2*LINESPACE), koord(120,D_BUTTON_HEIGHT));
 		player_get_finances[i].background = PLAYER_FLAG|((sp ? sp->get_player_color1():i*8)+4);
 		player_get_finances[i].add_listener(this);
 
 		player_select[i].set_pos( koord(34,4+i*2*LINESPACE) );
-		player_select[i].set_groesse( koord(120,BUTTON_HEIGHT) );
+		player_select[i].set_groesse( koord(120,D_BUTTON_HEIGHT) );
 		player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("slot empty"), COL_BLACK ) );
 		player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Manual (Human)"), COL_BLACK ) );
 		if(  !welt->get_spieler(1)->is_locked()  ||  !umgebung_t::networkmode  ) {
@@ -87,7 +87,7 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 		}
 
 		// password/locked button
-		player_lock[i].init(button_t::box, "", koord(160+1,4+i*2*LINESPACE+1), koord(BUTTON_HEIGHT-2,BUTTON_HEIGHT-2));
+		player_lock[i].init(button_t::box, "", koord(160+1,4+i*2*LINESPACE+1), koord(D_BUTTON_HEIGHT-2,D_BUTTON_HEIGHT-2));
 		player_lock[i].background = sp  &&  sp->is_locked() ? (sp->is_unlock_pending() ? COL_YELLOW : COL_RED) : COL_GREEN;
 		player_lock[i].add_listener(this);
 		add_komponente( player_lock+i );

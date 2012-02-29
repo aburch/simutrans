@@ -23,7 +23,7 @@
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
 
-#include "components/list_button.h"
+
 
 
 labellist_stats_t::labellist_stats_t(karte_t* w, labellist::sort_mode_t sortby, bool sortreverse, bool filter) :
