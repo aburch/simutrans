@@ -3407,7 +3407,8 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 		}
 
 		default:
-			dbg->fatal("wkz_station_t::work()","tool called for illegal besch \"%\"", default_param );
+			dbg->warning("wkz_station_t::work()","tool called for illegal besch \"%\"", default_param );
+			msg = "Illegal station tool";
 	}
 	return msg;
 }
@@ -3990,8 +3991,8 @@ const char *wkz_depot_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 		case narrowgauge_wt:
 			return wkz_depot_t::wkz_depot_aux(welt, sp, k, besch, narrowgauge_wt, s.cst_depot_rail);
 		default:
-			dbg->fatal("wkz_depot()","called with unknown besch %s",besch->get_name() );
-			return "";
+			dbg->warning("wkz_depot()","called with unknown besch %s",besch->get_name() );
+			return "Unknown depot object";
 	}
 	return NULL;
 }
@@ -5103,6 +5104,7 @@ bool wkz_show_underground_t::init( karte_t *welt, spieler_t * )
 			break;
 
 		default:
+			ok = false;
 			dbg->error( "wkz_show_underground_t::init()", "Unknown command string \"%s\"", default_param );
 
 	}
@@ -5306,7 +5308,7 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 			create_win( new news_img("Convoy already deleted!"), w_time_delete, magic_none);
 		}
 #endif
-		dbg->error("wkz_change_convoi_t::init", "no convoy with id=%d found", convoi_id);
+		dbg->warning("wkz_change_convoi_t::init", "no convoy with id=%d found", convoi_id);
 		return false;
 	}
 
@@ -5431,7 +5433,8 @@ bool wkz_change_line_t::init( karte_t *, spieler_t *sp )
 	while(  *p  &&  *p++!=','  ) {
 	}
 	if(  *p==0  ) {
-		dbg->error( "wkz_change_line_t::init()", "too short command \"%s\"", default_param );
+		dbg->warning( "wkz_change_line_t::init()", "too short command \"%s\"", default_param );
+		return false;
 	}
 
 	line_id = atoi(p);
@@ -5716,7 +5719,7 @@ bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 bool wkz_change_player_t::init( karte_t *welt, spieler_t * )
 {
 	if(  default_param==NULL  ) {
-		dbg->error( "wkz_change_player_t::init()", "nothing to do!" );
+		dbg->warning( "wkz_change_player_t::init()", "nothing to do!" );
 		return false;
 	}
 

@@ -165,7 +165,7 @@ DBG_MESSAGE("obj_reader_t::load()","big logo %p", skinverwaltung_t::biglogosymbo
 			// defining the pak tile witdh ....
 			read_file((name+"ground.Outside.pak").c_str());
 			if(grund_besch_t::ausserhalb==NULL) {
-				dbg->error("obj_reader_t::load()","ground.Outside.pak not found, cannot guess tile size! (driving on left will not work!)");
+				dbg->warning("obj_reader_t::load()","ground.Outside.pak not found, cannot guess tile size! (driving on left will not work!)");
 			}
 		}
 

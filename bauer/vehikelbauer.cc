@@ -71,7 +71,7 @@ bool vehikelbauer_t::speedbonus_init(const std::string &objfilename)
 	tabfile_t bonusconf;
 	// first take user data, then user global data
 	if (!bonusconf.open((objfilename+"config/speedbonus.tab").c_str())) {
-		dbg->error("vehikelbauer_t::speedbonus_init()", "Can't read speedbonus.tab" );
+		dbg->warning("vehikelbauer_t::speedbonus_init()", "Can't read speedbonus.tab" );
 		return false;
 	}
 
@@ -84,7 +84,8 @@ bool vehikelbauer_t::speedbonus_init(const std::string &objfilename)
 	for(  int j=0;  j<8;  j++  ) {
 		int *tracks = contents.get_ints(weg_t::waytype_to_string(j==3?air_wt:(waytype_t)(j+1)));
 		if((tracks[0]&1)==1) {
-			dbg->fatal( "vehikelbauer_t::speedbonus_init()", "Ill formed line in speedbonus.tab\nFormat is year,speed[year,speed]!" );
+			dbg->warning( "vehikelbauer_t::speedbonus_init()", "Ill formed line in speedbonus.tab\nFormat is year,speed[,year,speed]!" );
+			tracks[0]--;
 		}
 		speedbonus[j].resize( tracks[0]/2 );
 		for(  int i=1;  i<tracks[0];  i+=2  ) {

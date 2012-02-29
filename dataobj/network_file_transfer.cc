@@ -45,7 +45,7 @@ char const* network_receive_file(SOCKET const s, char const* const save_as, long
 			}
 			else {
 				if (i < 0) {
-					dbg->error("network_receive_file", "recv failed with %i", i);
+					dbg->warning("network_receive_file", "recv failed with %i", i);
 				}
 				break;
 			}
@@ -214,7 +214,7 @@ const char *network_send_file( uint32 client_id, const char *filename )
 {
 	FILE *fp = fopen(filename,"rb");
 	if (fp == NULL) {
-		dbg->error("network_send_file", "could not open file %s", filename);
+		dbg->warning("network_send_file", "could not open file %s", filename);
 		return "Could not open file";
 	}
 	char buffer[1024];

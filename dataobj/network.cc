@@ -84,7 +84,7 @@ static bool network_initialize()
 		/* Let's load the network in windows */
 		WSADATA wsa;
 		if(int err = WSAStartup( MAKEWORD(2, 2), &wsa)) {
-			dbg->error("NetworkInitialize()","failed loading windows socket library with %i", err);
+			dbg->warning("NetworkInitialize()","failed loading windows socket library with %i", err);
 			return false;
 		}
 #endif /* _WIN32 */
@@ -237,7 +237,7 @@ SOCKET network_open_address(char const* cp, char const*& err)
 		DBG_MESSAGE( "network_open_address()", "Preparing to bind address: %s", ip.c_str() );
 		local_hints.ai_family = PF_UNSPEC;
 		if (  (ret = getaddrinfo( ip.c_str(), 0, &local_hints, &local )) != 0  ) {
-			dbg->error( "network_open_address()", "Failed to getaddrinfo for %s, error was: %s", ip.c_str(), gai_strerror(ret) );
+			dbg->warning( "network_open_address()", "Failed to getaddrinfo for %s, error was: %s", ip.c_str(), gai_strerror(ret) );
 #ifndef NETTOOL
 			umgebung_t::listen.remove_at( i );
 #endif
@@ -259,7 +259,7 @@ SOCKET network_open_address(char const* cp, char const*& err)
 			}
 			// Validate address + get string representation for logging
 			if (  (ret = getnameinfo( (walk_local->ai_addr), socklen_local, ipstr_local, sizeof(ipstr_local), NULL, 0, NI_NUMERICHOST )) !=0  ) {
-				dbg->error( "network_init_server()", "Call to getnameinfo() failed with error: \"%s\"", gai_strerror(ret) );
+				dbg->warning( "network_init_server()", "Call to getnameinfo() failed with error: \"%s\"", gai_strerror(ret) );
 				continue;
 			}
 
@@ -293,7 +293,7 @@ SOCKET network_open_address(char const* cp, char const*& err)
 
 				// Validate remote address + get string representation for logging
 				if (  (ret = getnameinfo( walk_remote->ai_addr, socklen_remote, ipstr_remote, sizeof(ipstr_remote), NULL, 0, NI_NUMERICHOST )) !=0  ) {
-					dbg->error( "network_init_server()", "Call to getnameinfo() failed with error: \"%s\"", gai_strerror(ret) );
+					dbg->warning( "network_init_server()", "Call to getnameinfo() failed with error: \"%s\"", gai_strerror(ret) );
 					continue;
 				}
 
@@ -410,7 +410,7 @@ bool network_init_server( int port )
 
 			// Validate address + get string representation for logging
 			if (  (ret = getnameinfo( (walk->ai_addr), socklen, ipstr, sizeof(ipstr), NULL, 0, NI_NUMERICHOST )) != 0  ) {
-				dbg->error( "network_init_server()", "Call to getnameinfo() failed with error: \"%s\"", gai_strerror(ret) );
+				dbg->warning( "network_init_server()", "Call to getnameinfo() failed with error: \"%s\"", gai_strerror(ret) );
 				continue;
 			}
 
@@ -428,7 +428,7 @@ bool network_init_server( int port )
 			if (  walk->ai_family == AF_INET6  ) {
 				int on = 1;
 				if (  setsockopt(server_socket, IPPROTO_IPV6, IPV6_V6ONLY, (char*)&on, sizeof(on)) != 0  ) {
-					dbg->error( "network_init_server()", "Call to setsockopt() failed for: \"%s\", error was: \"%s\"", ip.c_str(), std::strerror(errno) );
+					dbg->warning( "network_init_server()", "Call to setsockopt() failed for: \"%s\", error was: \"%s\"", ip.c_str(), std::strerror(errno) );
 					continue;
 				}
 			}
@@ -701,7 +701,7 @@ bool network_send_data( SOCKET dest, const char *buf, const uint16 size, uint16 
 		}
 		if (sent == 0) {
 			// connection closed
-			dbg->error("network_send_data", "connection [%d] already closed (sent %d of &d)", dest, count, size );
+			dbg->warning("network_send_data", "connection [%d] already closed (sent %d of &d)", dest, count, size );
 			return false;
 		}
 		count += sent;
@@ -748,7 +748,7 @@ bool network_receive_data( SOCKET sender, void *dest, const uint16 len, uint16 &
 		}
 		if (res == 0) {
 			// connection closed
-			dbg->error("network_receive_data", "connection [%d] already closed", sender);
+			dbg->warning("network_receive_data", "connection [%d] already closed", sender);
 			return false;
 		}
 		received += res;

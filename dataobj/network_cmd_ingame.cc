@@ -688,7 +688,7 @@ network_broadcast_world_command_t* nwc_tool_t::clone(karte_t *welt)
 		if (map_counter != welt->get_map_counter()) {
 			// command from another world
 			// maybe sent before sync happened -> ignore
-			dbg->error("nwc_tool_t::clone", "wanted to execute(%d) from another world", get_id());
+			dbg->warning("nwc_tool_t::clone", "wanted to execute(%d) from another world", get_id());
 			return NULL; // indicate failure
 		}
 		if ( player_nr < PLAYER_UNOWNED  &&  !socket_list_t::get_client(our_client_id).is_player_unlocked(player_nr) ) {

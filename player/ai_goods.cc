@@ -1294,7 +1294,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 		break;
 
 		default:
-			dbg->fatal("ai_goods_t::step()","Illegal state!", state );
+			dbg->warning("ai_goods_t::step()","Illegal state!", state );
 			state = NR_INIT;
 	}
 }
