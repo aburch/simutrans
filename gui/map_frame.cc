@@ -209,6 +209,8 @@ map_frame_t::map_frame_t(karte_t *welt) :
 	zoomed = false;
 
 	karte->set_mode( (reliefkarte_t::MAP_MODES)umgebung_t::default_mapmode );
+
+	b_rotate45.pressed = karte->isometric;
 }
 
 
