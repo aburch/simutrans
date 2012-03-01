@@ -490,7 +490,7 @@ void schedule_list_gui_t::zeichnen(koord pos, koord gr)
 	gui_frame_t::zeichnen(pos, gr);
 
 	if(  line.is_bound()  ) {
-		if(  last_schedule_count!=line->get_schedule()->get_count()  ||  last_vehicle_count!=line->count_convoys()  ) {
+		if(  !line->get_schedule()->matches(sp->get_welt(), last_schedule)  ||  last_vehicle_count!=line->count_convoys()  ) {
 			update_lineinfo(line);
 		}
 		display(pos);
@@ -683,7 +683,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		// set this schedule as current to show on minimap if possible
 		reliefkarte_t::get_karte()->set_current_fpl(new_line->get_schedule(), sp->get_player_nr()); // (*fpl,player_nr)
 
-		last_schedule_count = new_line->get_schedule()->get_count();
+		last_schedule = new_line->get_schedule();
 		last_vehicle_count = new_line->count_convoys();
 	}
 	else if(  inp_name.is_visible()  ) {
@@ -707,7 +707,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		// hide schedule on minimap (may not current, but for safe)
 		reliefkarte_t::get_karte()->set_current_fpl(NULL, 0); // (*fpl,player_nr)
 
-		last_schedule_count = -1;
+		last_schedule = NULL;
 		last_vehicle_count = 0;
 	}
 	line = new_line;

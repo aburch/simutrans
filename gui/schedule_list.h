@@ -42,7 +42,7 @@ private:
 	sint32 selection, capacity, load, loadfactor;
 
 	uint32 old_line_count;
-	sint32 last_schedule_count;
+	schedule_t *last_schedule;
 	uint32 last_vehicle_count;
 
 	// only show schedules containing ...
