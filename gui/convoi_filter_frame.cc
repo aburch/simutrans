@@ -140,8 +140,8 @@ convoi_filter_frame_t::convoi_filter_frame_t(spieler_t *sp, convoi_frame_t *main
 	ware_cont.set_groesse(koord(100, n*D_BUTTON_HEIGHT));
 	ware_scrolly.set_groesse(koord(125, 13*D_BUTTON_HEIGHT));
 
-	set_fenstergroesse(koord(317, D_TITLEBAR_HEIGHT+(FILTER_BUTTONS)*D_BUTTON_HEIGHT+8+10));
-	set_min_windowsize(koord(255, D_TITLEBAR_HEIGHT+(FILTER_BUTTONS)*D_BUTTON_HEIGHT+8-2));
+	set_fenstergroesse(koord(317, D_TITLEBAR_HEIGHT+((KOORD_VAL)FILTER_BUTTONS)*D_BUTTON_HEIGHT+8+10));
+	set_min_windowsize(koord(255, D_TITLEBAR_HEIGHT+((KOORD_VAL)FILTER_BUTTONS)*D_BUTTON_HEIGHT+8-2));
 
 	set_resizemode(diagonal_resize);
 	resize(koord(0,0));
