@@ -1,3 +1,6 @@
+	CHG: Simutrans help will now always display left the "general.txt" and right the actual help => easier navigation and only one window always
+
+
 Release of 111.2.1 (r5434 on 28-Feb-2012): (111.2 had a severe bug with zipped games)
 	ADD: more info on bare ground
 	ADD: show ownership in minimap

@@ -63,18 +63,18 @@ gui_frame_t::gui_frame_t(char const* const name, spieler_t const* const sp)
  */
 void gui_frame_t::set_fenstergroesse(koord groesse)
 {
-	if(groesse!=this->groesse) {
+	if(  groesse != this->groesse  ) {
 		// mark old size dirty
 		const koord pos = koord( win_get_posx(this), win_get_posy(this) );
-		mark_rect_dirty_wc(pos.x,pos.y,pos.x+this->groesse.x,pos.y+this->groesse.y);
+		mark_rect_dirty_wc( pos.x, pos.y, pos.x+this->groesse.x, pos.y+this->groesse.y );
 
 		// minimal width //25-may-02	markus weber	added
-		if (groesse.x < min_windowsize.x) {
+		if(  groesse.x < min_windowsize.x  ) {
 			groesse.x = min_windowsize.x;
 		}
 
 		// minimal heigth //25-may-02	markus weber	added
-		if (groesse.y < min_windowsize.y) {
+		if(  groesse.y < min_windowsize.y  ) {
 			groesse.y = min_windowsize.y;
 		}
 

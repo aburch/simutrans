@@ -16,8 +16,13 @@
 class help_frame_t : public gui_frame_t, action_listener_t
 {
 private:
-	gui_scrollpane_t scrolly;
-	gui_flowtext_t flow;
+	gui_scrollpane_t scrolly_generaltext;
+	gui_flowtext_t generaltext;
+
+	gui_scrollpane_t scrolly_helptext;
+	gui_flowtext_t helptext;
+
+	const char *load_text( const char *filename );
 
 public:
 	help_frame_t();

@@ -242,7 +242,7 @@ koord gui_flowtext_t::output(koord offset, bool doit, bool return_max_width)
 				break;
 
 			case ATT_H1_START:
-				color        = COL_ORANGE;
+				color        = COL_WHITE;
 				double_color = COL_BLACK;
 				double_it    = true;
 				break;
@@ -303,9 +303,10 @@ bool gui_flowtext_t::infowin_event(const event_t* ev)
 {
 	if (IS_LEFTCLICK(ev)) {
 		// scan links for hit
+		koord evpos = koord( ev->cx, ev->cy ) - get_pos();
 		FOR(slist_tpl<hyperlink_t>, const& i, links) {
-			if (i.tl.x <= ev->cx && ev->cx < i.br.x &&
-					i.tl.y <= ev->cy && ev->cy < i.br.y) {
+			if(  i.tl.x <= evpos.x  &&  evpos.x < i.br.x  &&
+					i.tl.y <= evpos.y  &&  evpos.y < i.br.y  ) {
 				call_listeners((void const*)i.param.c_str());
 			}
 		}
