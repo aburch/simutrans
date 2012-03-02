@@ -116,8 +116,8 @@ void help_frame_t::set_text(const char * buf)
 
 help_frame_t::help_frame_t() :
 	gui_frame_t( translator::translate("Help") ),
-	scrolly_helptext(&helptext),
-	scrolly_generaltext(&generaltext)
+	scrolly_generaltext(&generaltext),
+	scrolly_helptext(&helptext)
 {
 	set_text("<title>Unnamed</title><p>No text set</p>");
 	helptext.add_listener(this);
@@ -132,8 +132,8 @@ help_frame_t::help_frame_t() :
 
 help_frame_t::help_frame_t(char const* const filename) :
 	gui_frame_t( translator::translate("Help") ),
-	scrolly_helptext(&helptext),
-	scrolly_generaltext(&generaltext)
+	scrolly_generaltext(&generaltext),
+	scrolly_helptext(&helptext)
 {
 	// load the content list
 	if(  const char *buf = load_text( "general.txt" )  ) {
