@@ -41,7 +41,6 @@ const char *help_frame_t::load_text(char const* const filename )
 	// go back to load/save dir
 	chdir( umgebung_t::user_dir );
 
-	bool success=false;
 	if(file) {
 		fseek(file,0,SEEK_END);
 		long len = ftell(file);
