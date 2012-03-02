@@ -166,7 +166,7 @@ public:
 	 * Station destruction method.
 	 * @author Hj. Malthaner
 	 */
-	static void destroy(halthandle_t &halt);
+	static void destroy(halthandle_t);
 
 	/**
 	 * destroys all stations

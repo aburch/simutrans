@@ -269,7 +269,7 @@ halthandle_t haltestelle_t::create(karte_t *welt, loadsave_t *file)
  * Station destruction method.
  * @author Hj. Malthaner
  */
-void haltestelle_t::destroy(halthandle_t &halt)
+void haltestelle_t::destroy(halthandle_t const halt)
 {
 	delete halt.get_rep();
 }

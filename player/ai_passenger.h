@@ -66,7 +66,7 @@ private:
 	bool create_air_transport_vehikel(const stadt_t *start_stadt, const stadt_t *end_stadt);
 
 	// helper function for bus stops intown
-	void walk_city( linehandle_t &line, grund_t *&start, const int limit );
+	void walk_city(linehandle_t line, grund_t* start, int limit);
 
 	// tries to cover a city with bus stops that does not overlap much and cover as much as possible
 	void cover_city_with_bus_route(koord start_pos, int number_of_stops);

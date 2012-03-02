@@ -155,7 +155,7 @@ DBG_MESSAGE("simlinemgmt_t::rdwr()","number of lines=%i",totalLines);
 }
 
 
-static bool compare_lines(const linehandle_t& a, const linehandle_t& b)
+static bool compare_lines(linehandle_t const a, linehandle_t const b)
 {
 	int diff = 0;
 	if(  a->get_name()[0]=='('  &&  b->get_name()[0]=='('  ) {

@@ -908,8 +908,8 @@ public:
 	bool ebne_planquadrat(spieler_t *sp, koord pos, sint8 hgt, bool keep_water=false, bool make_underwater_hill=false);
 
 	// the convois are also handled each step => thus we keep track of them too
-	void add_convoi(convoihandle_t &cnv);
-	void rem_convoi(convoihandle_t& cnv);
+	void add_convoi(convoihandle_t);
+	void rem_convoi(convoihandle_t);
 	vector_tpl<convoihandle_t> const& convoys() const { return convoi_array; }
 
 	/**

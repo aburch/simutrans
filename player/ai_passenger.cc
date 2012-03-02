@@ -790,7 +790,7 @@ DBG_MESSAGE("ai_passenger_t::create_bus_transport_vehikel()","bus at (%i,%i)",st
 /* now we follow all adjacent streets recursively and mark them
  * if they below to this stop, then we continue
  */
-void ai_passenger_t::walk_city( linehandle_t &line, grund_t *&start, const int limit )
+void ai_passenger_t::walk_city(linehandle_t const line, grund_t* const start, int const limit)
 {
 	//maximum number of stops reached?
 	if(line->get_schedule()->get_count()>=limit)  {

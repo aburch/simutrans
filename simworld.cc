@@ -646,16 +646,14 @@ DBG_MESSAGE("karte_t::destroy()", "world destroyed");
 }
 
 
-
-void karte_t::add_convoi(convoihandle_t &cnv)
+void karte_t::add_convoi(convoihandle_t const cnv)
 {
 	assert(cnv.is_bound());
 	convoi_array.append_unique(cnv);
 }
 
 
-
-void karte_t::rem_convoi(convoihandle_t& cnv)
+void karte_t::rem_convoi(convoihandle_t const cnv)
 {
 	convoi_array.remove(cnv);
 }
