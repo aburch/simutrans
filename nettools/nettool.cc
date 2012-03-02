@@ -362,8 +362,9 @@ int main(int argc, char* argv[]) {
 					// Password will be asked for later
 				} else if (FILE* const fd = fopen(fetchopt.get_optarg(), "r")) {
 					// malloc ok here as utility is short-lived so no need to free()
-					password = MALLOCN(char, 256);
-					fgets(password, 255, fd);
+					size_t const size = 256;
+					password = MALLOCN(char, size);
+					fgets(password, size, fd);
 					password[strcspn(password, "\n")] = '\0';
 					fclose(fd);
 				} else {
