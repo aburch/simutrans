@@ -205,7 +205,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 			start_connect_hub = start_hub;
 			start_hub = halthandle_t();
 			// is there already one harbour next to this one?
-			FOR(vector_tpl<haltestelle_t::connection_t>, const& i, start_connect_hub->get_connections(0)) {
+			FOR(vector_tpl<haltestelle_t::connection_t>, const& i, start_connect_hub->get_pax_connections()) {
 				halthandle_t const h = i.halt;
 				if( h->get_station_type()&haltestelle_t::dock  ) {
 					start_hub = h;
@@ -234,7 +234,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 			end_connect_hub = end_hub;
 			end_hub = halthandle_t();
 			// is there already one harbour next to this one?
-			FOR(vector_tpl<haltestelle_t::connection_t>, const& i, end_connect_hub->get_connections(0)) {
+			FOR(vector_tpl<haltestelle_t::connection_t>, const& i, end_connect_hub->get_pax_connections()) {
 				halthandle_t const h = i.halt;
 				if( h->get_station_type()&haltestelle_t::dock  ) {
 					start_hub = h;
@@ -616,7 +616,7 @@ bool ai_passenger_t::create_air_transport_vehikel(const stadt_t *start_stadt, co
 			start_connect_hub = start_hub;
 			start_hub = halthandle_t();
 			// is there already one airport next to this town?
-			FOR(vector_tpl<haltestelle_t::connection_t>, const& i, start_connect_hub->get_connections(0)) {
+			FOR(vector_tpl<haltestelle_t::connection_t>, const& i, start_connect_hub->get_pax_connections()) {
 				halthandle_t const h = i.halt;
 				if( h->get_station_type()&haltestelle_t::airstop  ) {
 					start_hub = h;
@@ -645,7 +645,7 @@ bool ai_passenger_t::create_air_transport_vehikel(const stadt_t *start_stadt, co
 			end_connect_hub = end_hub;
 			end_hub = halthandle_t();
 			// is there already one airport next to this town?
-			FOR(vector_tpl<haltestelle_t::connection_t>, const& i, end_connect_hub->get_connections(0)) {
+			FOR(vector_tpl<haltestelle_t::connection_t>, const& i, end_connect_hub->get_pax_connections()) {
 				halthandle_t const h = i.halt;
 				if( h->get_station_type()&haltestelle_t::airstop  ) {
 					start_hub = h;
