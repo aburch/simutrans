@@ -91,7 +91,7 @@ bool obj_reader_t::load(const char *liste, const char *message)
 	if(name.at(name.size() - 1) != '/') {
 		// very old style ... (I think unused by now)
 
-		FILE *listfp = fopen(name.c_str(), "rt");
+		FILE *listfp = fopen(name.c_str(), "r");
 		if(listfp) {
 			while(!feof(listfp)) {
 				char buf[256];
