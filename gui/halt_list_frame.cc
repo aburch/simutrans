@@ -139,7 +139,7 @@ static bool passes_filter_special(haltestelle_t const& s)
 
 	if (halt_list_frame_t::get_filter(halt_list_frame_t::ohneverb_filter)) {
 		for (uint8 i = 0; i < warenbauer_t::get_max_catg_index(); ++i){
-			if (s.get_connections(i)->empty()) return false; //only display stations with NO connection
+			if (s.get_connections(i).empty()) return false; // only display stations with NO connection
 		}
 	}
 

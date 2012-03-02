@@ -269,7 +269,7 @@ void halt_detail_t::halt_detail_info()
 	bool has_stops = false;
 
 	for (uint i=0; i<warenbauer_t::get_max_catg_index(); i++){
-		const vector_tpl<haltestelle_t::connection_t> &connections = *(halt->get_connections(i));
+		vector_tpl<haltestelle_t::connection_t> const& connections = halt->get_connections(i);
 		if(  !connections.empty()  ) {
 			buf.append("\n");
 			offset_y += LINESPACE;

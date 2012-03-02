@@ -356,11 +356,11 @@ public:
 
 	void make_public_and_join( spieler_t *sp );
 
-	const vector_tpl<connection_t> *get_pax_connections() const { return connections; }
-	const vector_tpl<connection_t> *get_mail_connections() const { return connections+1; }
+	vector_tpl<connection_t> const& get_pax_connections()  const { return connections[warenbauer_t::INDEX_PAS];  }
+	vector_tpl<connection_t> const& get_mail_connections() const { return connections[warenbauer_t::INDEX_MAIL]; }
 
 	// returns the matchin warenziele
-	const vector_tpl<connection_t> *get_connections(uint8 catg_index) const { return connections+catg_index; }
+	vector_tpl<connection_t> const& get_connections(uint8 const catg_index) const { return connections[catg_index]; }
 
 	const slist_tpl<fabrik_t*>& get_fab_list() const { return fab_list; }
 
