@@ -4779,14 +4779,11 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 
 	// ... before removing dummy stops
 	for(  slist_tpl<halthandle_t>::const_iterator i=haltestelle_t::get_alle_haltestellen().begin(); i!=haltestelle_t::get_alle_haltestellen().end();  ) {
-		if(  (*i)->get_besitzer()==NULL  ||  !(*i)->existiert_in_welt()  ) {
+		halthandle_t const h = *i;
+		++i;
+		if (!h->get_besitzer() || !h->existiert_in_welt()) {
 			// this stop was only needed for loading goods ...
-			halthandle_t h = (*i);
-			++i;	// goto next
 			haltestelle_t::destroy(h);	// remove from list
-		}
-		else {
-			++i;
 		}
 	}
 

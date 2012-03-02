@@ -454,9 +454,9 @@ void haltestelle_t::rotate90( const sint16 y_size )
 	// iterate over all different categories
 	for(unsigned i=0; i<warenbauer_t::get_max_catg_index(); i++) {
 		if(waren[i]) {
-			vector_tpl<ware_t> * warray = waren[i];
-			for(int j=warray->get_count()-1;  j>=0;  j--  ) {
-				ware_t & ware = (*warray)[j];
+			vector_tpl<ware_t>& warray = *waren[i];
+			for (size_t j = warray.get_count(); j-- != 0;) {
+				ware_t& ware = warray[j];
 				if(ware.menge>0) {
 					koord k = ware.get_zielpos();
 					k.rotate90( y_size );
@@ -466,7 +466,7 @@ void haltestelle_t::rotate90( const sint16 y_size )
 				}
 				else {
 					// empty => remove
-					(*warray).remove_at( j );
+					warray.remove_at(j);
 				}
 			}
 		}
@@ -825,11 +825,12 @@ void haltestelle_t::request_loading( convoihandle_t cnv )
 		last_loading_step = welt->get_steps();
 		// now iterate over all convois
 		for(  slist_tpl<convoihandle_t>::iterator i = loading_here.begin(), end = loading_here.end();  i != end;  ) {
-			if(  (*i).is_bound()  &&  (*i)->get_state()==convoi_t::LOADING  ) {
+			convoihandle_t const c = *i;
+			if (c.is_bound() && c->get_state() == convoi_t::LOADING) {
 				// now we load into convoi
-				(*i)->hat_gehalten( self );
+				c->hat_gehalten(self);
 			}
-			if(  (*i).is_bound()  &&  (*i)->get_state()==convoi_t::LOADING  ) {
+			if (c.is_bound() && c->get_state() == convoi_t::LOADING) {
 				++i;
 			}
 			else {
@@ -2848,7 +2849,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 	// first tile => remove name from this tile ...
 	char buf[256];
 	const char* station_name_to_transfer = NULL;
-	if (i == tiles.begin()  &&  (*i).grund->get_name()) {
+	if (i == tiles.begin() && i->grund->get_name()) {
 		tstrncpy(buf, get_name(), lengthof(buf));
 		station_name_to_transfer = buf;
 		set_name(NULL);

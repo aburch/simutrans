@@ -824,7 +824,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","failed to built lieferant %s aroun
 		for (slist_tpl<fabs_to_crossconnect_t>::iterator i = factories_to_correct.begin(), end = factories_to_correct.end(); i != end;) {
 			i->demand -= 1;
 			fab->add_lieferziel(i->fab->get_pos().get_2d());
-			(*i).fab->add_supplier(fab->get_pos().get_2d());
+			i->fab->add_supplier(fab->get_pos().get_2d());
 			if (i->demand < 0) {
 				i = factories_to_correct.erase(i);
 			}
