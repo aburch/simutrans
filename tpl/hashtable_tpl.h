@@ -197,13 +197,13 @@ public:
 	//
 	bool put(const key_t key, value_t object)
 	{
-		const STHT_BAG_COUNTER_T code = get_hash(key);
+		slist_tpl<node_t>& bag = bags[get_hash(key)];
 
 		//
 		// Duplicate values are hard to debug, so better check here.
 		// ->exception? V.Meyer
 		//
-		FORT(slist_tpl<node_t>, const& node, bags[code]) {
+		FORT(slist_tpl<node_t>, const& node, bag) {
 			if (hash_t::comp(node.key, key) == 0) {
 				// duplicate
 				return false;
@@ -213,7 +213,7 @@ public:
 
 		node.key   = key;
 		node.value = object;
-		bags[code].insert(node);
+		bag.insert(node);
 		return true;
 	}
 
@@ -223,20 +223,20 @@ public:
 	//
 	bool put(const key_t key)
 	{
-		const STHT_BAG_COUNTER_T code = get_hash(key);
+		slist_tpl<node_t>& bag = bags[get_hash(key)];
 
 		//
 		// Duplicate values are hard to debug, so better check here.
 		// ->exception? V.Meyer
 		//
-		FORT(slist_tpl<node_t>, const& node, bags[code]) {
+		FORT(slist_tpl<node_t>, const& node, bag) {
 			if (hash_t::comp(node.key, key) == 0) {
 				// duplicate
 				return false;
 			}
 		}
-		bags[code].insert();
-		bags[code].front().key = key;
+		bag.insert();
+		bag.front().key = key;
 		return true;
 	}
 
@@ -248,8 +248,8 @@ public:
 	//
 	value_t set(const key_t key, value_t object)
 	{
-		const STHT_BAG_COUNTER_T code = get_hash(key);
-		FORT(slist_tpl<node_t>, & node, bags[code]) {
+		slist_tpl<node_t>& bag = bags[get_hash(key)];
+		FORT(slist_tpl<node_t>, & node, bag) {
 			if (hash_t::comp(node.key, key) == 0) {
 				value_t value = node.value;
 				node.value = object;
@@ -260,7 +260,7 @@ public:
 
 		node.key   = key;
 		node.value = object;
-		bags[code].insert(node);
+		bag.insert(node);
 
 		return value_t();
 	}
