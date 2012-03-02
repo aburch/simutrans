@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "../simdebug.h"
+#include "../simmem.h"
 
 
 memory_rw_t::memory_rw_t( void *ptr, uint32 max, bool saving )
@@ -139,7 +140,7 @@ void memory_rw_t::rdwr_str(char *&s)
 		free( (void *)s );
 		s = 0;
 		if(len>0  &&  !overflow) {
-			s = (char *)malloc( len+1 );
+			s = MALLOCN(char, len + 1);
 			rdwr(s, len);
 			s[len] = '\0';
 		}

@@ -20,6 +20,7 @@
 #include "../dataobj/network_cmd.h"
 #include "../dataobj/network_packet.h"
 #include "../dataobj/network_socket_list.h"
+#include "../simmem.h"
 #include "../simtypes.h"
 #include "../simversion.h"
 #include "../utils/simstring.h"
@@ -361,7 +362,7 @@ int main(int argc, char* argv[]) {
 					// Password will be asked for later
 				} else if (FILE* const fd = fopen(fetchopt.get_optarg(), "r")) {
 					// malloc ok here as utility is short-lived so no need to free()
-					password = (char *)malloc(256);
+					password = MALLOCN(char, 256);
 					fgets(password, 255, fd);
 					password[strcspn(password, "\n")] = '\0';
 					fclose(fd);
@@ -440,7 +441,7 @@ int main(int argc, char* argv[]) {
 	if (commands[cmdindex].needs_auth && password == NULL) {
 		// Read password from stdin
 		// malloc ok here as utility is short-lived so no need to free()
-		password = (char *)malloc(256);
+		password = MALLOCN(char, 256);
 		fprintf(stderr, "Password: ");
 		echo(false);
 		scanf("%255s", password);
