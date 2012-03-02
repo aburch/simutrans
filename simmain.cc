@@ -861,8 +861,7 @@ int simu_main(int argc, char** argv)
 		char buffer[256];
 		sprintf(buffer, "%s%sdemo.sve", (const char*)umgebung_t::program_dir, umgebung_t::objfilename.c_str());
 		// access did not work!
-		FILE *f=fopen(buffer,"rb");
-		if(f) {
+		if (FILE* const f = fopen(buffer, "rb")) {
 			// there is a demo game to load
 			loadgame = buffer;
 			fclose(f);

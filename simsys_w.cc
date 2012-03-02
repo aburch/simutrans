@@ -335,8 +335,7 @@ int dr_screenshot(const char *filename)
 #endif
 	if (!dr_screenshot_png(filename, display_get_width() - 1, WindowSize.bottom + 1, AllDib->bmiHeader.biWidth, (unsigned short*)AllDibData, bpp)) {
 		// not successful => save as BMP
-		FILE *fBmp = fopen(filename, "wb");
-		if (fBmp) {
+		if (FILE* const fBmp = fopen(filename, "wb")) {
 			BITMAPFILEHEADER bf;
 
 			// since the number of drawn pixel can be smaller than the actual width => only use the drawn pixel for bitmap

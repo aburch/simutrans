@@ -91,8 +91,7 @@ bool obj_reader_t::load(const char *liste, const char *message)
 	if(name.at(name.size() - 1) != '/') {
 		// very old style ... (I think unused by now)
 
-		FILE *listfp = fopen(name.c_str(), "r");
-		if(listfp) {
+		if (FILE* const listfp = fopen(name.c_str(), "r")) {
 			while(!feof(listfp)) {
 				char buf[256];
 
@@ -193,9 +192,7 @@ void obj_reader_t::read_file(const char *name)
 	// Hajo: added trace
 	DBG_DEBUG("obj_reader_t::read_file()", "filename='%s'", name);
 
-	FILE *fp = fopen(name, "rb");
-
-	if(fp) {
+	if (FILE* const fp = fopen(name, "rb")) {
 		sint32 n = 0;
 
 		// This is the normal header reading code

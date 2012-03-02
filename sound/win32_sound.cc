@@ -46,8 +46,7 @@ bool dr_init_sound()
 int dr_load_sample(char const* filename)
 {
 	if(use_sound  &&  sample_number>=0  &&  sample_number<64) {
-		FILE *fIn=fopen(filename,"rb");
-		if(fIn) {
+		if (FILE* const fIn = fopen(filename, "rb")) {
 			long len;
 			fseek( fIn, 0, SEEK_END );
 			len = ftell( fIn );

@@ -131,8 +131,7 @@ void root_writer_t::write_obj_node_info_t(FILE* outfp, const obj_node_info_t &ro
 
 bool root_writer_t::do_dump(const char* open_file_name)
 {
-	FILE* infp = fopen(open_file_name, "rb");
-	if (infp) {
+	if (FILE* const infp = fopen(open_file_name, "rb")) {
 		int c;
 		do {
 			c = fgetc(infp);
@@ -176,8 +175,7 @@ void root_writer_t::dump(int argc, char* argv[])
 
 bool root_writer_t::do_list(const char* open_file_name)
 {
-	FILE* infp = fopen(open_file_name, "rb");
-	if (infp) {
+	if (FILE* const infp = fopen(open_file_name, "rb")) {
 		int c;
 		do {
 			c = fgetc(infp);
@@ -232,8 +230,7 @@ void root_writer_t::list(int argc, char* argv[])
 bool root_writer_t::do_copy(FILE* outfp, obj_node_info_t& root, const char* open_file_name)
 {
 	bool any = false;
-	FILE* infp = fopen(open_file_name, "rb");
-	if (infp) {
+	if (FILE* const infp = fopen(open_file_name, "rb")) {
 		int c;
 		do {
 			c = fgetc(infp);

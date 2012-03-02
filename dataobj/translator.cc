@@ -372,8 +372,7 @@ void translator::load_files_from_folder(const char* folder_name, const char* wha
 		lang_info* lang = get_lang_by_iso(iso.c_str());
 		if (lang != NULL) {
 			DBG_MESSAGE("translator::load_files_from_folder()", "loading %s translations from %s for language %s", what, fileName.c_str(), lang->iso_base);
-			FILE* file = fopen(fileName.c_str(), "rb");
-			if (file != NULL) {
+			if (FILE* const file = fopen(fileName.c_str(), "rb")) {
 				bool file_is_utf = is_unicode_file(file);
 				load_language_file_body(file, &lang->texts, lang->utf_encoded, file_is_utf);
 				fclose(file);
@@ -406,9 +405,7 @@ bool translator::load(const string &path_to_pakset)
 		size_t pstart = fileName.rfind('/') + 1;
 		const string iso = fileName.substr(pstart, fileName.size() - pstart - 4);
 
-		FILE* file = NULL;
-		file = fopen(fileName.c_str(), "rb");
-		if (file != NULL) {
+		if (FILE* const file = fopen(fileName.c_str(), "rb")) {
 			DBG_MESSAGE("translator::load()", "base file \"%s\" - iso: \"%s\"", fileName.c_str(), iso.c_str());
 			load_language_iso(iso);
 			load_language_file(file);
@@ -447,8 +444,7 @@ bool translator::load(const string &path_to_pakset)
 	}
 
 	// now we try to read the compatibility stuff
-	FILE* file = fopen((path_to_pakset + "compat.tab").c_str(), "rb");
-	if (file != NULL) {
+	if (FILE* const file = fopen((path_to_pakset + "compat.tab").c_str(), "rb")) {
 		load_language_file_body(file, &compatibility, false, false);
 		DBG_MESSAGE("translator::load()", "pakset compatibilty texts loaded.");
 		fclose(file);
@@ -460,8 +456,7 @@ bool translator::load(const string &path_to_pakset)
 	// also addon compatibility ...
 	if(  umgebung_t::default_einstellungen.get_with_private_paks()  ) {
 		chdir( umgebung_t::user_dir );
-		FILE* file = fopen(string("addons/"+path_to_pakset + "compat.tab").c_str(), "rb");
-		if (file != NULL) {
+		if (FILE* const file = fopen(string("addons/"+path_to_pakset + "compat.tab").c_str(), "rb")) {
 			load_language_file_body(file, &compatibility, false, false);
 			DBG_MESSAGE("translator::load()", "pakset addon compatibility texts loaded.");
 			fclose(file);

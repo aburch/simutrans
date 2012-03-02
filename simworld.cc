@@ -161,8 +161,7 @@ bool karte_t::recalc_snowline()
 // read height data from bmp or ppm files
 bool karte_t::get_height_data_from_file( const char *filename, sint8 grundwasser, sint8 *&hfield, sint16 &ww, sint16 &hh, bool update_only_values )
 {
-	FILE *file = fopen(filename, "rb");
-	if(file) {
+	if (FILE* const file = fopen(filename, "rb")) {
 		char id[3];
 		// parsing the header of this mixed file format is nottrivial ...
 		id[0] = fgetc(file);

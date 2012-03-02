@@ -271,8 +271,7 @@ bool server_frame_t::update_serverlist( uint revision, const char *pakset )
 	// read the list
 	// CSV format
 	// name of server,dnsname.com:12345,4567,pak128 blah blah
-	FILE *fh = fopen( SERVER_LIST_FILE, "r" );
-	if (  fh  ) {
+	if (FILE* const fh = fopen(SERVER_LIST_FILE, "r")) {
 		serverlist.clear_elements();
 		while (  !feof( fh )  ) {
 			char line[4096];

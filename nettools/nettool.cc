@@ -348,7 +348,6 @@ int main(int argc, char* argv[]) {
 	char *password = NULL;
 
 	int ch;
-	FILE *fd;
 	while ((ch = fetchopt.next()) != -1) {
 		switch (ch) {
 			case 'p':
@@ -359,18 +358,16 @@ int main(int argc, char* argv[]) {
 				// Read password in from file specified
 				// if filename is '-', read in from stdin
 				if (!strcmp(fetchopt.get_optarg(), "-")) {
-					// Passwort will be asked for later
-				}
-				else if ((fd = fopen(fetchopt.get_optarg(), "r")) == NULL) {
-					// Failure, file empty
-					fprintf(stderr, "Unable to open file \"%s\" to read password\n", fetchopt.get_optarg());
-				}
-				else {
+					// Password will be asked for later
+				} else if (FILE* const fd = fopen(fetchopt.get_optarg(), "r")) {
 					// malloc ok here as utility is short-lived so no need to free()
 					password = (char *)malloc(256);
 					fgets(password, 255, fd);
 					password[strcspn(password, "\n")] = '\0';
 					fclose(fd);
+				} else {
+					// Failure, file empty
+					fprintf(stderr, "Unable to open file \"%s\" to read password\n", fetchopt.get_optarg());
 				}
 				break;
 			case 'q':

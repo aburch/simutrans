@@ -162,8 +162,7 @@ int midi_init(const char *directory)
 	// read a list of soundfiles
 	char full_path[1024];
 	sprintf( full_path, "%smusic/music.tab", directory );
-	FILE * file = fopen( full_path, "rb");
-	if(file) {
+	if (FILE* const file = fopen(full_path, "rb")) {
 		while(!feof(file)) {
 			char buf[256];
 			char title[256];
