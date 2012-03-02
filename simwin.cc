@@ -1249,8 +1249,7 @@ bool check_pos_win(event_t *ev)
 						break;
 					case GADGET_HELP :
 						if (IS_LEFTCLICK(ev)) {
-//							create_win(new help_frame_t(wins[i].gui->get_hilfe_datei()), w_info, (long)(wins[i].gui->get_hilfe_datei()) );
-							create_win(new help_frame_t(wins[i].gui->get_hilfe_datei()), w_info, magic_mainhelp );
+							help_frame_t::open_help_on( wins[i].gui->get_hilfe_datei() );
 							inside_event_handling = 0;
 						}
 						break;

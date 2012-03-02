@@ -57,7 +57,7 @@ public:
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("Help"); }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_mainhelp); }
 	bool init(karte_t*, spieler_t*) OVERRIDE {
-		create_win(new help_frame_t("general.txt"), w_info, magic_mainhelp);
+		help_frame_t::open_help_on( "general.txt" );
 		return false;
 	}
 	bool exit(karte_t*, spieler_t*) OVERRIDE { destroy_win(magic_mainhelp); return false; }

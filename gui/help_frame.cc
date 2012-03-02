@@ -6,7 +6,6 @@
  */
 
 #include <stdio.h>
-#include <string>
 
 #include "../simmem.h"
 #include "../simwin.h"
@@ -15,12 +14,26 @@
 #include "../simworld.h"
 
 #include "../utils/cbuffer_t.h"
-#include "../utils/simstring.h"
 #include "../dataobj/umgebung.h"
 #include "../dataobj/translator.h"
 #include "../player/simplay.h"
 
 #include "help_frame.h"
+
+
+// opens or tops main helpfile
+void help_frame_t::open_help_on( const char *helpfilename )
+{
+	if(  help_frame_t *gui = (help_frame_t *)win_get_magic( magic_mainhelp )  ) {
+		top_win( gui );
+		gui->set_helpfile( helpfilename, false );
+	}
+	else {
+		create_win( new help_frame_t( helpfilename ), w_info, magic_mainhelp );
+	}
+}
+
+
 
 // just loads a whole help file as one chunk
 const char *help_frame_t::load_text(char const* const filename )
@@ -58,89 +71,76 @@ const char *help_frame_t::load_text(char const* const filename )
 }
 
 
-void help_frame_t::set_text(const char * buf)
+void help_frame_t::set_text(const char * buf, bool resize_frame )
 {
-	if(  scrolly_generaltext.is_visible()  ) {
-		generaltext.set_pos( koord(D_MARGIN_LEFT, D_MARGIN_TOP) );
-		int generalwidth = generaltext.get_preferred_size().x;
-		if(  generalwidth > display_get_width()/3  ) {
-			generalwidth = display_get_width()/3;
-		}
-		generaltext.set_groesse( koord( generalwidth, 0 ) );
-		generaltext.set_groesse( generaltext.get_text_size() );
-	}
-	else {
-		generaltext.set_groesse( koord( 0, 0 ) );
-	}
-
 	helptext.set_text(buf);
 	helptext.set_pos( koord(D_MARGIN_LEFT, D_MARGIN_TOP) );
-	helptext.set_groesse(koord(220, 0));
 
-	// try to get the following sizes
-	// y<400 or, if not possible, x<620
-	int last_y = 0;
-	koord curr=helptext.get_preferred_size();
-	for( int i=0;  i<10  &&  curr.y>400  &&  curr.y!=last_y;  i++  ) {
-		helptext.set_groesse(koord(260+i*40, 0));
-		last_y = curr.y;
-		curr = helptext.get_preferred_size();
+	if(  resize_frame  ) {
+		if(  scrolly_generaltext.is_visible()  ) {
+			generaltext.set_pos( koord(D_MARGIN_LEFT, D_MARGIN_TOP) );
+			int generalwidth = generaltext.get_preferred_size().x;
+			if(  generalwidth > display_get_width()/3  ) {
+				generalwidth = display_get_width()/3;
+			}
+			generaltext.set_groesse( koord( generalwidth, 0 ) );
+			generaltext.set_groesse( generaltext.get_text_size() );
+		}
+		else {
+			generaltext.set_groesse( koord( 0, 0 ) );
+		}
+
+		helptext.set_groesse(koord(220, 0));
+
+		// try to get the following sizes
+		// y<400 or, if not possible, x<620
+		int last_y = 0;
+		koord curr=helptext.get_preferred_size();
+		for( int i=0;  i<10  &&  curr.y>400  &&  curr.y!=last_y;  i++  ) {
+			helptext.set_groesse(koord(260+i*40, 0));
+			last_y = curr.y;
+			curr = helptext.get_preferred_size();
+		}
+
+		// the second line isn't redundant!!!
+		helptext.set_groesse(helptext.get_preferred_size());
+		helptext.set_groesse(helptext.get_preferred_size());
+
+		// calculate sizes (might not a help but info window, which do not have general text)
+		KOORD_VAL size_x = helptext.get_groesse().x + D_MARGIN_LEFT + D_MARGIN_RIGHT + scrollbar_t::BAR_SIZE;
+//		KOORD_VAL size_y = min( helptext.get_groesse().y, generaltext.get_groesse().y );
+		KOORD_VAL size_y = helptext.get_groesse().y;
+		if(  scrolly_generaltext.is_visible()  ) {
+			size_x += generaltext.get_groesse().x + D_MARGIN_LEFT + D_MARGIN_RIGHT + scrollbar_t::BAR_SIZE;
+		}
+		// set window size
+		if(  size_x > display_get_width()-32  ) {
+			size_x = display_get_width()-32;
+		}
+
+		if(  size_y>display_get_height()-64) {
+			size_y = display_get_height()-64;
+		}
+		set_fenstergroesse( koord( size_x, size_y ) );
 	}
 
-	// the second line isn't redundant!!!
-	helptext.set_groesse(helptext.get_preferred_size());
-	helptext.set_groesse(helptext.get_preferred_size());
-
-	set_name(helptext.get_title());
-
-	// calculate sizes (might not a help but info window, which do not have general text)
-	KOORD_VAL size_x = helptext.get_groesse().x + D_MARGIN_LEFT + D_MARGIN_RIGHT + scrollbar_t::BAR_SIZE;
-	KOORD_VAL size_y = max( helptext.get_groesse().y, generaltext.get_groesse().y );
+	// generate title
+	title = "";
 	if(  scrolly_generaltext.is_visible()  ) {
-		size_x += generaltext.get_groesse().x + D_MARGIN_LEFT + D_MARGIN_RIGHT + scrollbar_t::BAR_SIZE;
+		title = translator::translate( "Help" );
+		title += " - ";
 	}
-	// set window size
-	if(  size_x > display_get_width()-32  ) {
-		size_x = display_get_width()-32;
-	}
-
-	if(  size_y>display_get_height()-64) {
-		size_y = display_get_height()-64;
-	}
-	set_fenstergroesse( koord( size_x, size_y ) );
+	title += helptext.get_title();
+	set_name( title.c_str() );
 
 	resize( koord(0,0) );
 	set_dirty();
 }
 
 
-help_frame_t::help_frame_t() :
-	gui_frame_t( translator::translate("Help") ),
-	scrolly_generaltext(&generaltext),
-	scrolly_helptext(&helptext)
+// show the help to one topic
+void help_frame_t::set_helpfile(const char *filename, bool resize_frame )
 {
-	set_text("<title>Unnamed</title><p>No text set</p>");
-	helptext.add_listener(this);
-	set_resizemode(diagonal_resize);
-	scrolly_helptext.set_show_scroll_x(true);
-	add_komponente(&scrolly_helptext);
-	// info windows do not show general text
-	scrolly_generaltext.set_visible( false );
-	set_min_windowsize(koord(70, 30));
-}
-
-
-help_frame_t::help_frame_t(char const* const filename) :
-	gui_frame_t( translator::translate("Help") ),
-	scrolly_generaltext(&generaltext),
-	scrolly_helptext(&helptext)
-{
-	// load the content list
-	if(  const char *buf = load_text( "general.txt" )  ) {
-		generaltext.set_text( buf );
-		guarded_free( (void *)buf );
-	}
-
 	// the key help texts are built automagically
 	if (strcmp(filename, "keys.txt") == 0) {
 		cbuffer_t buf;
@@ -173,21 +173,63 @@ help_frame_t::help_frame_t(char const* const filename) :
 			}
 			buf.printf(trad_str, c, i->get_tooltip(sp));
 		}
-		set_text(buf);
+		set_text( buf, resize_frame );
 	}
 	else if(  strcmp( filename, "general.txt" )!=0  ) {
 		// and the actual help text (if not identical)
 		if(  const char *buf = load_text( filename )  ) {
-			set_text( buf );
+			set_text( buf, resize_frame );
 			guarded_free( (void *)buf );
 		}
 		else {
-			set_text("<title>Error</title>Help text not found");
+			set_text( "<title>Error</title>Help text not found", resize_frame );
 		}
 	}
 	else {
-		set_text( "" );
+		// default text when opening general help
+		if(  const char *buf = load_text( "about.txt" )  ) {
+			set_text( buf, resize_frame );
+			guarded_free( (void *)buf );
+		}
+		else if(  const char *buf = load_text( "simutrans.txt" )  ) {
+			set_text( buf, resize_frame );
+			guarded_free( (void *)buf );
+		}
+		else {
+			set_text( "", resize_frame );
+		}
 	}
+}
+
+
+help_frame_t::help_frame_t() :
+	gui_frame_t( translator::translate("Help") ),
+	scrolly_generaltext(&generaltext),
+	scrolly_helptext(&helptext)
+{
+	set_text("<title>Unnamed</title><p>No text set</p>");
+	helptext.add_listener(this);
+	set_resizemode(diagonal_resize);
+	scrolly_helptext.set_show_scroll_x(true);
+	add_komponente(&scrolly_helptext);
+	// info windows do not show general text
+	scrolly_generaltext.set_visible( false );
+	set_min_windowsize(koord(70, 30));
+}
+
+
+help_frame_t::help_frame_t(char const* const filename) :
+	gui_frame_t( translator::translate("Help") ),
+	scrolly_generaltext(&generaltext),
+	scrolly_helptext(&helptext)
+{
+	// load the content list
+	if(  const char *buf = load_text( "general.txt" )  ) {
+		generaltext.set_text( buf );
+		guarded_free( (void *)buf );
+	}
+
+	set_helpfile( filename, true );
 
 	set_resizemode(diagonal_resize);
 	scrolly_helptext.set_show_scroll_x(true);
@@ -208,29 +250,8 @@ help_frame_t::help_frame_t(char const* const filename) :
  */
 bool help_frame_t::action_triggered( gui_action_creator_t *, value_t extra)
 {
-	const char *filename = (const char *)(extra.p);
-	if(  gui_frame_t *gui = win_get_magic( magic_mainhelp )  ) {
-		top_win( gui );
-		if(  strcmp( filename, "general.txt" )!=0  ) {
-			// and the actual help text (if not identical)
-			if(  const char *buf = load_text( filename )  ) {
-				((help_frame_t *)gui)->set_text( buf );
-				guarded_free( (void *)buf );
-			}
-			else {
-				((help_frame_t *)gui)->set_text("<title>Error</title>Help text not found");
-			}
-		}
-		else {
-			((help_frame_t *)gui)->set_text( "" );
-		}
-
-	}
-	else {
-		assert( false );
-		// should actually not happen
-		create_win(new help_frame_t((const char *)(extra.p)), w_info, magic_mainhelp );
-	}
+	top_win( this );
+	set_helpfile( (const char *)(extra.p), false );
 	return true;
 }
 

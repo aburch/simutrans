@@ -5413,8 +5413,8 @@ void karte_t::interactive_event(event_t &ev)
 
 			case SIM_KEY_F1:
 				if(  gui_frame_t *win = win_get_top()  ) {
-					if(  win->get_hilfe_datei()!=NULL  ) {
-						create_win(new help_frame_t(win->get_hilfe_datei()), w_info, (long)(win->get_hilfe_datei()) );
+					if(  const char *helpfile = win->get_hilfe_datei()  ) {
+						help_frame_t::open_help_on( helpfile );
 						break;
 					}
 				}
@@ -5450,8 +5450,7 @@ void karte_t::interactive_event(event_t &ev)
 						}
 					}
 					if(!ok) {
-						// key help dialoge
-						create_win(new help_frame_t("keys.txt"), w_info, magic_keyhelp);
+						help_frame_t::open_help_on( "keys.txt" );
 					}
 				}
 				break;

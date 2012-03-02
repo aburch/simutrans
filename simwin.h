@@ -81,7 +81,6 @@ enum magic_numbers {
 	magic_bigger_map,
 	magic_labellist,
 	magic_station_building_select,
-	magic_keyhelp,
 	magic_server_frame_t,
 	magic_pakset_info_t,
 	magic_schedule_rdwr_dummy,	// only used to save/load schedules
