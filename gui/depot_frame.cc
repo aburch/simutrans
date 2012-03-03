@@ -1115,12 +1115,11 @@ bool depot_frame_t::infowin_event(const event_t *ev)
 			 * Replace our depot_frame_t with a new at the same position.
 			 * Volker Meyer
 			 */
-			int x = win_get_posx(this);
-			int y = win_get_posy(this);
+			koord const pos = win_get_pos(this);
 			destroy_win( this );
 
 			next_dep->zeige_info();
-			win_set_pos( win_get_magic((long)next_dep), x, y );
+			win_set_pos(win_get_magic((long)next_dep), pos.x, pos.y);
 			get_welt()->change_world_position(next_dep->get_pos());
 		}
 		else {

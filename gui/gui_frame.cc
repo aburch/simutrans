@@ -65,7 +65,7 @@ void gui_frame_t::set_fenstergroesse(koord groesse)
 {
 	if(  groesse != this->groesse  ) {
 		// mark old size dirty
-		const koord pos = koord( win_get_posx(this), win_get_posy(this) );
+		koord const& pos = win_get_pos(this);
 		mark_rect_dirty_wc( pos.x, pos.y, pos.x+this->groesse.x, pos.y+this->groesse.y );
 
 		// minimal width //25-may-02	markus weber	added

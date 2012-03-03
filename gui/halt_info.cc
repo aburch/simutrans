@@ -412,10 +412,9 @@ void halt_info_t::rdwr(loadsave_t *file)
 	if(  file->is_loading()  ) {
 		halt = welt->lookup( halt_pos )->get_halt();
 		// now we can open the window ...
-		KOORD_VAL xpos = win_get_posx( this );
-		KOORD_VAL ypos = win_get_posy( this );
+		koord const& pos = win_get_pos(this);
 		halt_info_t *w = new halt_info_t(welt,halt);
-		create_win( xpos, ypos, w, w_info, magic_halt_info+halt.get_id() );
+		create_win(pos.x, pos.y, w, w_info, magic_halt_info + halt.get_id());
 		if(  stats  ) {
 			gr.y -= 170;
 		}

@@ -238,7 +238,7 @@ void modal_dialogue( gui_frame_t *gui, long magic, karte_t *welt, bool (*quit)()
 		while(  win_is_open(gui)  &&  !umgebung_t::quit_simutrans  &&  !quit()  ) {
 			// do not move, do not close it!
 			dr_prepare_flush();
-			gui->zeichnen( koord(win_get_posx(gui),win_get_posy(gui)), gui->get_fenstergroesse() );
+			gui->zeichnen(win_get_pos(gui), gui->get_fenstergroesse());
 			dr_flush();
 
 			display_poll_event(&ev);

@@ -1073,25 +1073,15 @@ bool win_is_open(gui_frame_t *gui)
 
 
 
-int win_get_posx(gui_frame_t *gui)
+koord const& win_get_pos(gui_frame_t const* const gui)
 {
 	for (size_t i = wins.get_count(); i-- != 0;) {
 		if(wins[i].gui == gui) {
-			return wins[i].pos.x;
+			return wins[i].pos;
 		}
 	}
-	return -1;
-}
-
-
-int win_get_posy(gui_frame_t *gui)
-{
-	for (size_t i = wins.get_count(); i-- != 0;) {
-		if(wins[i].gui == gui) {
-			return wins[i].pos.y;
-		}
-	}
-	return -1;
+	static koord const bad(-1, -1);
+	return bad;
 }
 
 

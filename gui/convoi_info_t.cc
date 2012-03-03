@@ -612,10 +612,9 @@ void convoi_info_t::rdwr(loadsave_t *file)
 			return;
 		}
 		// now we can open the window ...
-		KOORD_VAL xpos = win_get_posx( this );
-		KOORD_VAL ypos = win_get_posy( this );
+		koord const& pos = win_get_pos(this);
 		convoi_info_t *w = new convoi_info_t(cnv);
-		create_win( xpos, ypos, w, w_info, magic_convoi_info+cnv.get_id() );
+		create_win(pos.x, pos.y, w, w_info, magic_convoi_info + cnv.get_id());
 		if(  stats  ) {
 			gr.y -= 170;
 		}

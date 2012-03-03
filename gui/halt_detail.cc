@@ -403,10 +403,9 @@ void halt_detail_t::rdwr(loadsave_t *file)
 	if(  file->is_loading()  ) {
 		halt = haltestelle_t::get_welt()->lookup( halt_pos )->get_halt();
 		// now we can open the window ...
-		KOORD_VAL xpos = win_get_posx( this );
-		KOORD_VAL ypos = win_get_posy( this );
+		koord const& pos = win_get_pos(this);
 		halt_detail_t *w = new halt_detail_t(halt);
-		create_win( xpos, ypos, w, w_info, magic_halt_detail+halt.get_id() );
+		create_win(pos.x, pos.y, w, w_info, magic_halt_detail + halt.get_id());
 		w->set_fenstergroesse( gr );
 		w->scrolly.set_scroll_position( xoff, yoff );
 		destroy_win( this );

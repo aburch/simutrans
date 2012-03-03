@@ -97,10 +97,9 @@ void line_management_gui_t::rdwr(loadsave_t *file)
 
 		if(  line.is_bound()  &&  old_fpl->matches( welt, line->get_schedule() )  ) {
 			// now we can open the window ...
-			KOORD_VAL xpos = win_get_posx( this );
-			KOORD_VAL ypos = win_get_posy( this );
+			koord const& pos = win_get_pos(this);
 			line_management_gui_t *w = new line_management_gui_t( line, sp );
-			create_win( xpos, ypos, w, w_info, (long)line.get_rep() );
+			create_win(pos.x, pos.y, w, w_info, (long)line.get_rep());
 			w->set_fenstergroesse( gr );
 			w->fpl->copy_from( fpl );
 		}
