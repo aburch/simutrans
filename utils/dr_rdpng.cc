@@ -8,7 +8,7 @@
 #include "dr_rdpng.h"
 
 
-static int bit_depth, interlace_type;
+static int bit_depth;
 
 
 static void read_png(unsigned char** block, unsigned* width, unsigned* height, FILE* file, const int base_img_size)
@@ -53,11 +53,7 @@ static void read_png(unsigned char** block, unsigned* width, unsigned* height, F
 	 */
 	png_read_info(png_ptr, info_ptr);
 
-	png_get_IHDR(
-		png_ptr, info_ptr,
-		&widthpu32, &heightpu32, &bit_depth, &color_type,
-		&interlace_type, NULL, NULL
-	);
+	png_get_IHDR(png_ptr, info_ptr, &widthpu32, &heightpu32, &bit_depth, &color_type, 0, 0, 0);
 	*width = widthpu32;
 	*height = heightpu32;
 
@@ -65,8 +61,6 @@ static void read_png(unsigned char** block, unsigned* width, unsigned* height, F
 		printf("read_png: Invalid image size.\n");
 		exit(1);
 	}
-	// printf("read_png: width=%d, height=%d, bit_depth=%d\n", width, height, bit_depth);
-	// printf("read_png: color_type=%d, interlace_type=%d\n", color_type, interlace_type);
 
 	/* tell libpng to strip 16 bit/color files down to 8 bits/color */
 	png_set_strip_16(png_ptr);
