@@ -8,9 +8,6 @@
 #include "dr_rdpng.h"
 
 
-static int bit_depth;
-
-
 static void read_png(unsigned char** block, unsigned* width, unsigned* height, FILE* file, const int base_img_size)
 {
 	png_structp png_ptr;
@@ -53,6 +50,7 @@ static void read_png(unsigned char** block, unsigned* width, unsigned* height, F
 	 */
 	png_read_info(png_ptr, info_ptr);
 
+	int bit_depth;
 	png_get_IHDR(png_ptr, info_ptr, &widthpu32, &heightpu32, &bit_depth, &color_type, 0, 0, 0);
 	*width = widthpu32;
 	*height = heightpu32;
