@@ -129,15 +129,11 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 			number_seasons = -1;
 		}
 	} else {
-		while(number_seasons < 2) {
-			sprintf(buf, "image[%s][%d]", ribi_codes[0], number_seasons+1);
-			string str = obj.get(buf);
-			if (!str.empty()) {
-				number_seasons++;
-			} else {
-				break;
-			}
+		sprintf(buf, "image[%s][%d]", ribi_codes[0], number_seasons+1);
+		if (strlen(obj.get(buf)) > 0) {
+			number_seasons++;
 		}
+
 		node.write_data_at(outfp, &number_seasons, 25, 1);
 		write_head(outfp, node, obj);
 
