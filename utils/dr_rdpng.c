@@ -7,7 +7,7 @@
 #include "dr_rdpng.h"
 
 
-static int bit_depth, color_type, interlace_type;
+static int bit_depth, interlace_type;
 
 
 static void read_png(unsigned char** block, unsigned* width, unsigned* height, FILE* file, const int base_img_size)
