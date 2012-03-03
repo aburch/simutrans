@@ -108,24 +108,25 @@ sint32 vehikelbauer_t::get_speedbonus( sint32 monthyear, waytype_t wt )
 	}
 
 	// ok, now lets see if we have data for this
-	if(speedbonus[typ].get_count()) {
+	vector_tpl<bonus_record_t> const& b = speedbonus[typ];
+	if (!b.empty()) {
 		uint i=0;
-		while(  i<speedbonus[typ].get_count()  &&  monthyear>=speedbonus[typ][i].year  ) {
+		while (i < b.get_count() && monthyear >= b[i].year) {
 			i++;
 		}
-		if(  i==speedbonus[typ].get_count()  ) {
+		if (i == b.get_count()) {
 			// maxspeed already?
-			return speedbonus[typ][i-1].speed;
+			return b[i - 1].speed;
 		}
 		else if(i==0) {
 			// minspeed below
-			return speedbonus[typ][0].speed;
+			return b[0].speed;
 		}
 		else {
 			// interpolate linear
-			const sint32 delta_speed = speedbonus[typ][i].speed - speedbonus[typ][i-1].speed;
-			const sint32 delta_years = speedbonus[typ][i].year - speedbonus[typ][i-1].year;
-			return ( (delta_speed*(monthyear-speedbonus[typ][i-1].year)) / delta_years ) + speedbonus[typ][i-1].speed;
+			sint32 const delta_speed = b[i].speed - b[i - 1].speed;
+			sint32 const delta_years = b[i].year  - b[i - 1].year;
+			return delta_speed * (monthyear - b[i - 1].year) / delta_years + b[i - 1].speed;
 		}
 	}
 	else {
