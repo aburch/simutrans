@@ -175,8 +175,8 @@ int write_png( const char *file_name, unsigned char *data, int width, int height
 
 #ifdef PNG_SETJMP_SUPPORTED
 	if(  setjmp( png_jmpbuf(png_ptr) )  ) {
-		printf("read_png: fatal error.\n");
-		png_destroy_read_struct(&png_ptr, &info_ptr, (png_info**)0);
+		printf("write_png: fatal error.\n");
+		png_destroy_write_struct(&png_ptr, &info_ptr);
 		/* free pointers before returning, if necessary */
 		free(png_ptr);
 		free(info_ptr);
