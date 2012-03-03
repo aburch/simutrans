@@ -246,7 +246,7 @@ const char *loadsave_t::close()
 	const char *success = NULL;
 
 	if(  is_xml()  &&  saving  &&  (!is_bzip2()  ||  fd->bse==BZ_OK)
-	     &&  (is_zipped()  ?  fd->gzfp  :  fd->fp) ) {
+	     &&  (is_zipped()  ?  fd->gzfp != NULL :  fd->fp != NULL) ) {
 		// only write when close and no error occurred
 		const char *end = "\n</Simutrans>\n";
 		write( end, strlen(end) );
