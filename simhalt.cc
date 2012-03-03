@@ -432,10 +432,8 @@ haltestelle_t::~haltestelle_t()
 	self.detach();
 
 	for(unsigned i=0; i<warenbauer_t::get_max_catg_index(); i++) {
-		if(waren[i]) {
-			delete waren[i];
-			waren[i] = NULL;
-		}
+		delete waren[i];
+		waren[i] = NULL;
 	}
 	free( waren );
 	delete[] connections;
