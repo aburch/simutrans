@@ -63,7 +63,7 @@ void boden_t::rdwr(loadsave_t *file)
 				if(  d->get_typ()==ding_t::baum  ) {
 					baum_t *tree = (baum_t *)d;
 					file->wr_obj_id( tree->get_besch_id() );
-					sint32 age = tree->get_age();
+					uint32 age = tree->get_age();
 					file->rdwr_long( age );
 				}
 			}
