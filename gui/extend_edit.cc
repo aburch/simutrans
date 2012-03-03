@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997 - 2004 Hansjörg Malthaner
  *
- * Line management
+ * Base class for the map editing windows (in files *_edit.cc)
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)

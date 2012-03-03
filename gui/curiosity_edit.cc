@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997 - 2004 Hansjörg Malthaner
  *
- * Line management
+ * Tool to place curiosity buildings
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
