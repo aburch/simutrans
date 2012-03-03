@@ -103,7 +103,7 @@ freight_list_sorter_t::add_ware_heading( cbuffer_t &buf, uint32 sum, uint32 max,
 }
 
 
-void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuffer_t& buf, sort_mode_t sort_mode, const slist_tpl<ware_t>* full_list, const char* what_doing, karte_t *world)
+void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuffer_t& buf, sort_mode_t sort_mode, const slist_tpl<ware_t>* full_list, const char* what_doing, karte_t *world)
 {
 	welt = world;
 	sortby = sort_mode;
@@ -111,9 +111,9 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 	// hsiegeln
 	// added sorting to ware's destination list
 	int pos = 0;
-	ALLOCA(ware_t, wlist, warray->get_count());
+	ALLOCA(ware_t, wlist, warray.get_count());
 
-	FOR(vector_tpl<ware_t>, const& ware, *warray) {
+	FOR(vector_tpl<ware_t>, const& ware, warray) {
 		if(ware.get_besch()==warenbauer_t::nichts  ||  ware.menge==0) {
 			continue;
 		}
