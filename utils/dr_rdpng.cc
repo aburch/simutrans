@@ -137,7 +137,7 @@ static void read_png(unsigned char** block, unsigned* width, unsigned* height, F
 }
 
 
-int load_block(unsigned char** block, unsigned* width, unsigned* height, const char* fname, const int base_img_size)
+bool load_block(unsigned char** block, unsigned* width, unsigned* height, const char* fname, const int base_img_size)
 {
 	FILE* file = NULL;
 	if (file = fopen(fname, "rb")) {
