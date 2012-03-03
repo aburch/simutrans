@@ -143,11 +143,11 @@ bool load_block(unsigned char** block, unsigned* width, unsigned* height, const 
 	if (file = fopen(fname, "rb")) {
 		read_png(block, width, height, file, base_img_size);
 		fclose(file);
+		return true;
 	} else {
 		perror("Error:");
+		return false;
 	}
-
-	return file != NULL;
 }
 
 
