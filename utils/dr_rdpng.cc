@@ -2,8 +2,9 @@
 
 #include <png.h>
 #include <setjmp.h>
-
 #include <stdlib.h>
+
+#include "../simmem.h"
 #include "dr_rdpng.h"
 
 
@@ -98,9 +99,9 @@ static void read_png(unsigned char** block, unsigned* width, unsigned* height, F
 	/* The easiest way to read the image: */
 
 	rowbytes = png_get_rowbytes(png_ptr, info_ptr) * 3;
-	row_pointers = malloc(*height * sizeof(*row_pointers));
+	row_pointers = MALLOCN(png_byte*, *height);
 
-	row_pointers[0] = malloc(rowbytes * *height * 2);
+	row_pointers[0] = MALLOCN(png_byte, rowbytes * *height * 2);
 
 	for (row = 1; row < *height; row++) {
 		row_pointers[row] = row_pointers[row - 1] + rowbytes * 2;
@@ -111,7 +112,7 @@ static void read_png(unsigned char** block, unsigned* width, unsigned* height, F
 	// we use fixed height here because block is of limited, fixed size
 	// not fixed any more
 
-	*block = realloc(*block, *height * *width * 6);
+	*block = REALLOC(*block, unsigned char, *height * *width * 6);
 
 	// *block = malloc(*height * *width * 6);
 
