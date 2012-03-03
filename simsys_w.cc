@@ -73,6 +73,9 @@ HANDLE	hFlushThread=0;
 #endif
 
 
+// retrieve preferred language information
+#include "getlocale.h"
+
 
 /*
  * Hier sind die Basisfunktionen zur Initialisierung der

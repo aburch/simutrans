@@ -30,7 +30,7 @@ ifeq ($(OSTYPE),beos)
 endif
 
 ifeq ($(OSTYPE),haiku)
-  LIBS += -lz -lnetwork -lbz2
+  LIBS += -lz -lnetwork -lbz2 -lbe -llocale
 endif
 
 ifeq ($(OSTYPE),freebsd)

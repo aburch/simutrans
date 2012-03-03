@@ -72,6 +72,9 @@ resolution dr_query_screen_resolution();
 int dr_os_open(int w, int h, int fullscreen);
 void dr_os_close();
 
+// returns the locale; NULL if unknown
+const char *dr_get_locale_string();
+
 void dr_mkdir(char const* path);
 
 /* query home directory */
