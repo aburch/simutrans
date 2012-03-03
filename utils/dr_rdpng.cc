@@ -88,7 +88,6 @@ static void read_png(unsigned char** block, unsigned* width, unsigned* height, F
 
 	png_get_IHDR( png_ptr, info_ptr, &png32_dummy, &png32_dummy, &dummy, &color_type, &dummy, &dummy, &dummy );
 	if(  (color_type & PNG_COLOR_MASK_ALPHA) == PNG_COLOR_MASK_ALPHA  ) {
-	//if(  (info_ptr->color_type & PNG_COLOR_MASK_ALPHA) == PNG_COLOR_MASK_ALPHA  ) {
 		printf("WARNING: ignoring alpha channel\n");
 		// author note: It might be that this won't catch files with format
 		// palette + transparency, which is a really rare but possible combination.
