@@ -155,9 +155,7 @@ void ding_t::info(cbuffer_t & buf) const
 		get_besitzer()->get_name();
 	tstrncpy(translation, owner, lengthof(translation));
 	// remove trailing linebreaks etc.
-	for(  int i=strlen(translation);  i>0  &&  ' '>(uint8)translation[i-1];  i--  ) {
-		translation[i-1] = 0;
-	}
+	rtrim(translation);
 	buf.append( translation );
 	// only append linebreaks if not empty
 	if(  buf.len()>0  ) {
