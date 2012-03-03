@@ -585,7 +585,7 @@ void spieler_t::ai_bankrupt()
 	for( int y=0;  y<welt->get_groesse_y();  y++  ) {
 		for( int x=0;  x<welt->get_groesse_x();  x++  ) {
 			planquadrat_t *plan = welt->access(x,y);
-			for(  int b=plan->get_boden_count()-1;  b>=0;  b--  ) {
+			for (size_t b = plan->get_boden_count(); b-- != 0;) {
 				grund_t *gr = plan->get_boden_bei(b);
 				// remove tunnel and bridges first
 				if(  gr->get_top()>0  &&  gr->obj_bei(0)->get_besitzer()==this   &&  (gr->ist_bruecke()  ||  gr->ist_tunnel())  ) {
@@ -606,7 +606,7 @@ void spieler_t::ai_bankrupt()
 					}
 				}
 				bool count_signs = false;
-				for(  int i=gr->get_top()-1;  i>=0;  i--  ) {
+				for (size_t i = gr->get_top(); i-- != 0;) {
 					ding_t *dt = gr->obj_bei(i);
 					if(dt->get_besitzer()==this) {
 						switch(dt->get_typ()) {

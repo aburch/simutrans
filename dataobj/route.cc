@@ -524,8 +524,7 @@ DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x
 
 			// first: find out how many tiles I am already in the station
 			max_len--;
-			for(  sint32 i=route.get_count()-1;  i>=0  &&  max_len>0  &&  halt == haltestelle_t::get_halt( welt, route[i], NULL );  i--, max_len--  ) {
-			}
+			for (size_t i = route.get_count(); i-- != 0 && max_len != 0 && halt == haltestelle_t::get_halt(welt, route[i], NULL); --max_len) {}
 
 			// and now go forward, if possible
 			if(  max_len>0  ) {

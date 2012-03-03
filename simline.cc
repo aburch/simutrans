@@ -214,28 +214,28 @@ void simline_t::rdwr(loadsave_t *file)
 	//financial history
 	if(  file->get_version()<=102002  ) {
 		for (int j = 0; j<6; j++) {
-			for (int k = MAX_MONTHS-1; k>=0; k--) {
+			for (size_t k = MAX_MONTHS; k-- != 0;) {
 				file->rdwr_longlong(financial_history[k][j]);
 			}
 		}
-		for (int k = MAX_MONTHS-1; k>=0; k--) {
+		for (size_t k = MAX_MONTHS; k-- != 0;) {
 			financial_history[k][LINE_DISTANCE] = 0;
 			financial_history[k][LINE_MAXSPEED] = 0;
 		}
 	}
 	else if(  file->get_version()<111001  ) {
 		for (int j = 0; j<7; j++) {
-			for (int k = MAX_MONTHS-1; k>=0; k--) {
+			for (size_t k = MAX_MONTHS; k-- != 0;) {
 				file->rdwr_longlong(financial_history[k][j]);
 			}
 		}
-		for (int k = MAX_MONTHS-1; k>=0; k--) {
+		for (size_t k = MAX_MONTHS; k-- != 0;) {
 			financial_history[k][LINE_MAXSPEED] = 0;
 		}
 	}
 	else {
 		for (int j = 0; j<MAX_LINE_COST; j++) {
-			for (int k = MAX_MONTHS-1; k>=0; k--) {
+			for (size_t k = MAX_MONTHS; k-- != 0;) {
 				file->rdwr_longlong(financial_history[k][j]);
 			}
 		}
@@ -424,7 +424,7 @@ void simline_t::set_withdraw( bool yes_no )
 {
 	withdraw = yes_no && !line_managed_convoys.empty();
 	// convois in depots will be immeadiately destroyed, thus we go backwards
-	for( sint32 i=line_managed_convoys.get_count()-1;  i>=0;  i--  ) {
+	for (size_t i = line_managed_convoys.get_count(); i-- != 0;) {
 		line_managed_convoys[i]->set_no_load(yes_no);	// must be first, since set withdraw might destroy convoi if in depot!
 		line_managed_convoys[i]->set_withdraw(yes_no);
 	}

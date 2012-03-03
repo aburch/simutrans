@@ -377,10 +377,10 @@ const char *wkz_abfrage_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 					}
 				}
 
-				for(int n=gr->get_top()-1;  n>=0;  n--  ) {
+				for (size_t n = gr->get_top(); n-- != 0;) {
 					ding_t *dt = gr->obj_bei(n);
 					if(dt  &&  dt->get_typ()!=ding_t::wayobj  &&  dt->get_typ()!=ding_t::pillar  &&  dt->get_typ()!=ding_t::label) {
-						DBG_MESSAGE("wkz_abfrage()", "index %d", n);
+						DBG_MESSAGE("wkz_abfrage()", "index %u", (unsigned)n);
 						dt->zeige_info();
 						// did some new window open?
 						if(old_count!=win_get_open_count()) {

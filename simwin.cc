@@ -829,7 +829,7 @@ void display_all_win()
 	const sint16 x = get_maus_x();
 	const sint16 y = get_maus_y();
 	tooltip_element = NULL;
-	for(  int i=wins.get_count()-1;  i>=0;  i--  ) {
+	for (size_t i = wins.get_count(); i-- != 0;) {
 		if(  (!wins[i].rollup  &&  wins[i].gui->getroffen(x-wins[i].pos.x,y-wins[i].pos.y))  ||
 		     (wins[i].rollup  &&  x>=wins[i].pos.x  &&  x<wins[i].pos.x+wins[i].gui->get_fenstergroesse().x  &&  y>=wins[i].pos.y  &&  y<wins[i].pos.y+16)
 		) {
@@ -1075,7 +1075,7 @@ bool win_is_open(gui_frame_t *gui)
 
 int win_get_posx(gui_frame_t *gui)
 {
-	for(  int i=wins.get_count()-1;  i>=0;  i--  ) {
+	for (size_t i = wins.get_count(); i-- != 0;) {
 		if(wins[i].gui == gui) {
 			return wins[i].pos.x;
 		}
@@ -1086,7 +1086,7 @@ int win_get_posx(gui_frame_t *gui)
 
 int win_get_posy(gui_frame_t *gui)
 {
-	for(  int i=wins.get_count()-1;  i>=0;  i--  ) {
+	for (size_t i = wins.get_count(); i-- != 0;) {
 		if(wins[i].gui == gui) {
 			return wins[i].pos.y;
 		}
@@ -1097,7 +1097,7 @@ int win_get_posy(gui_frame_t *gui)
 
 void win_set_pos(gui_frame_t *gui, int x, int y)
 {
-	for(  int i=wins.get_count()-1;  i>=0;  i--  ) {
+	for (size_t i = wins.get_count(); i-- != 0;) {
 		if(wins[i].gui == gui) {
 			wins[i].pos.x = x;
 			wins[i].pos.y = y;

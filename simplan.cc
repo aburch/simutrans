@@ -487,7 +487,7 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos, const 
 			const bool kartenboden_dirty = gr->get_flag(grund_t::dirty);
 			const sint16 off = (raster_tile_width>>5);
 			// suitable start search
-			for(sint16 h=halt_list_count-1;  h>=0;  h--  ) {
+			for (size_t h = halt_list_count; h-- != 0;) {
 				display_fillbox_wh_clip(x - h * off, y + h * off, r, r, PLAYER_FLAG | (halt_list[h]->get_besitzer()->get_player_color1() + 4), kartenboden_dirty);
 			}
 		}

@@ -2136,16 +2136,16 @@ void convoi_t::rdwr(loadsave_t *file)
 		// load statistics
 		int j;
 		for (j = 0; j<3; j++) {
-			for (int k = MAX_MONTHS-1; k>=0; k--) {
+			for (size_t k = MAX_MONTHS; k-- != 0;) {
 				file->rdwr_longlong(financial_history[k][j]);
 			}
 		}
 		for (j = 2; j<5; j++) {
-			for (int k = MAX_MONTHS-1; k>=0; k--) {
+			for (size_t k = MAX_MONTHS; k-- != 0;) {
 				file->rdwr_longlong(financial_history[k][j]);
 			}
 		}
-		for (int k = MAX_MONTHS-1; k>=0; k--) {
+		for (size_t k = MAX_MONTHS; k-- != 0;) {
 			financial_history[k][CONVOI_DISTANCE] = 0;
 			financial_history[k][CONVOI_MAXSPEED] = 0;
 		}
@@ -2153,11 +2153,11 @@ void convoi_t::rdwr(loadsave_t *file)
 	else if(  file->get_version()<=102002  ){
 		// load statistics
 		for (int j = 0; j<5; j++) {
-			for (int k = MAX_MONTHS-1; k>=0; k--) {
+			for (size_t k = MAX_MONTHS; k-- != 0;) {
 				file->rdwr_longlong(financial_history[k][j]);
 			}
 		}
-		for (int k = MAX_MONTHS-1; k>=0; k--) {
+		for (size_t k = MAX_MONTHS; k-- != 0;) {
 			financial_history[k][CONVOI_DISTANCE] = 0;
 			financial_history[k][CONVOI_MAXSPEED] = 0;
 		}
@@ -2165,18 +2165,18 @@ void convoi_t::rdwr(loadsave_t *file)
 	else if(  file->get_version()<111001  ){
 		// load statistics
 		for (int j = 0; j<6; j++) {
-			for (int k = MAX_MONTHS-1; k>=0; k--) {
+			for (size_t k = MAX_MONTHS; k-- != 0;) {
 				file->rdwr_longlong(financial_history[k][j]);
 			}
 		}
-		for (int k = MAX_MONTHS-1; k>=0; k--) {
+		for (size_t k = MAX_MONTHS; k-- != 0;) {
 			financial_history[k][CONVOI_MAXSPEED] = 0;
 		}
 	}
 	else {
 		// load statistics
 		for (int j = 0; j<MAX_CONVOI_COST; j++) {
-			for (int k = MAX_MONTHS-1; k>=0; k--) {
+			for (size_t k = MAX_MONTHS; k-- != 0;) {
 				file->rdwr_longlong(financial_history[k][j]);
 			}
 		}
@@ -2774,7 +2774,7 @@ void convoi_t::destroy()
 
 	if(  state == INITIAL  ) {
 		// in depot => not on map
-		for(int i=anz_vehikel-1;  i>=0; i--) {
+		for (size_t i = anz_vehikel; i-- != 0;) {
 			fahr[i]->set_flag( ding_t::not_on_map );
 		}
 	}
@@ -2795,7 +2795,7 @@ void convoi_t::destroy()
 	besitzer_p->buche( calc_restwert(), get_pos().get_2d(), COST_NEW_VEHICLE );
 	besitzer_p->buche( -calc_restwert(), COST_ASSETS );
 
-	for(int i=anz_vehikel-1;  i>=0; i--) {
+	for (size_t i = anz_vehikel; i-- != 0;) {
 		if(  !fahr[i]->get_flag( ding_t::not_on_map )  ) {
 			// remove from rails/roads/crossings
 			grund_t *gr = welt->lookup(fahr[i]->get_pos());
@@ -2870,7 +2870,7 @@ void convoi_t::book(sint64 amount, int cost_type)
 void convoi_t::init_financial_history()
 {
 	for (int j = 0; j<MAX_CONVOI_COST; j++) {
-		for (int k = MAX_MONTHS-1; k>=0; k--) {
+		for (size_t k = MAX_MONTHS; k-- != 0;) {
 			financial_history[k][j] = 0;
 		}
 	}

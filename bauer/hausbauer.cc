@@ -283,7 +283,7 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb )
 						if(gb_part->get_tile()->get_besch()==hb) {
 							gb_part->set_fab( NULL );
 							planquadrat_t *plan = welt->access( k+pos.get_2d() );
-							for( int i=plan->get_haltlist_count()-1;  i>=0;  i--  ) {
+							for (size_t i = plan->get_haltlist_count(); i-- != 0;) {
 								halthandle_t halt = plan->get_haltlist()[i];
 								halt->remove_fabriken( fab );
 								plan->remove_from_haltlist( welt, halt );

@@ -1122,7 +1122,7 @@ void dingliste_t::display_dinge_quick_and_dirty( const sint16 xpos, const sint16
 		obj.some[n]->display(xpos, ypos );
 	}
 	// foreground (needs to be done backwards!
-	for(int n=top-1; n>=0;  n--) {
+	for (size_t n = top; n-- != 0;) {
 		obj.some[n]->display_after(xpos, ypos, is_global);
 		if(is_global) {
 			obj.some[n]->clear_flag(ding_t::dirty);
@@ -1259,7 +1259,7 @@ void dingliste_t::display_dinge_fg( const sint16 xpos, const sint16 ypos, const 
 		obj.some[n]->display(xpos, ypos);
 	}
 	// foreground (needs to be done backwards!
-	for(int n=top-1; n>=0;  n--) {
+	for (size_t n = top; n-- != 0;) {
 		obj.some[n]->display_after(xpos, ypos, is_global);
 		if(is_global) {
 			obj.some[n]->clear_flag(ding_t::dirty);
