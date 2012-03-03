@@ -42,9 +42,6 @@ static void read_png(unsigned char** block, unsigned* width, unsigned* height, F
 	if(  setjmp(png_jmpbuf(png_ptr)  )) {
 		printf("read_png: fatal error.\n");
 		png_destroy_read_struct(&png_ptr, &info_ptr, (png_info**)0);
-		/* free pointers before returning, if necessary */
-		free(png_ptr);
-		free(info_ptr);
 		exit(1);
 	}
 #endif
@@ -177,9 +174,6 @@ int write_png( const char *file_name, unsigned char *data, int width, int height
 	if(  setjmp( png_jmpbuf(png_ptr) )  ) {
 		printf("write_png: fatal error.\n");
 		png_destroy_write_struct(&png_ptr, &info_ptr);
-		/* free pointers before returning, if necessary */
-		free(png_ptr);
-		free(info_ptr);
 		exit(1);
 	}
 #endif
