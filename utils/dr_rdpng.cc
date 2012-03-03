@@ -19,8 +19,7 @@ static void read_png(unsigned char** block, unsigned* width, unsigned* height, F
 	unsigned row, x, y;
 	int rowbytes;
 	unsigned char* dst;
-	png_uint_32 png32_dummy;
-	int dummy, color_type;
+	int color_type;
 
 	//png_uint_32 is 64 bit on some architectures!
 	png_uint_32 widthpu32,heightpu32;
@@ -83,7 +82,6 @@ static void read_png(unsigned char** block, unsigned* width, unsigned* height, F
 	/* Don't output alpha channel */
 	png_set_strip_alpha(png_ptr);
 
-	png_get_IHDR( png_ptr, info_ptr, &png32_dummy, &png32_dummy, &dummy, &color_type, &dummy, &dummy, &dummy );
 	if(  (color_type & PNG_COLOR_MASK_ALPHA) == PNG_COLOR_MASK_ALPHA  ) {
 		printf("WARNING: ignoring alpha channel\n");
 		// author note: It might be that this won't catch files with format
