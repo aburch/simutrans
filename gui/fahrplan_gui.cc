@@ -120,13 +120,8 @@ static void gimme_stop_name(cbuffer_t& buf, karte_t* const welt, spieler_t const
 }
 
 
-void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t &buf, karte_t *welt, const spieler_t *sp, const schedule_t *fpl, int i, int max_chars)
+void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t& buf, karte_t* const welt, spieler_t const* const sp, linieneintrag_t const& entry, int const max_chars)
 {
-	if(i<0  ||  fpl==NULL  ||  i>=fpl->get_count()) {
-		dbg->warning("void fahrplan_gui_t::gimme_short_stop_name()","tried to receive unused entry %i in schedule %p.",i,fpl);
-		return;
-	}
-	const linieneintrag_t& entry = fpl->eintrag[i];
 	const char *p;
 	halthandle_t halt = haltestelle_t::get_halt(welt, entry.pos, sp);
 	if(halt.is_bound()) {
