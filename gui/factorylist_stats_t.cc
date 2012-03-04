@@ -169,14 +169,11 @@ void factorylist_stats_t::zeichnen(koord offset)
 	}
 
 	uint32 sel = line_selected;
-	FOR(vector_tpl<fabrik_t*>, const fab, fab_list) {
+	FORX(vector_tpl<fabrik_t*>, const fab, fab_list, yoff += LINESPACE + 1) {
 		if (yoff >= end) break;
 
 		// skip invisible lines
-		if(yoff<start) {
-			yoff += LINESPACE+1;
-			continue;
-		}
+		if (yoff < start) continue;
 
 		if(fab) {
 			unsigned indikatorfarbe = fabrik_t::status_to_color[fab->get_status()];
@@ -225,6 +222,5 @@ void factorylist_stats_t::zeichnen(koord offset)
 			image_id const img = sel-- != 0 ? button_t::arrow_right_normal : button_t::arrow_right_pushed;
 			display_color_img(img, xoff-14, yoff, 0, false, true);
 		}
-		yoff += LINESPACE+1;
 	}
 }

@@ -211,14 +211,11 @@ void labellist_stats_t::zeichnen(koord offset)
 
 	// changes to loop affecting x_size must be copied to ::recalc_size()
 	uint32 sel = line_selected;
-	FOR(vector_tpl<koord>, const& pos, labels) {
+	FORX(vector_tpl<koord>, const& pos, labels, yoff += LINESPACE + 1) {
 		if (yoff >= end) break;
 
 		// skip invisible lines
-		if(yoff<start) {
-			yoff += LINESPACE+1;
-			continue;
-		}
+		if (yoff < start) continue;
 
 		// goto button
 		image_id const img = sel-- != 0 ? button_t::arrow_right_normal : button_t::arrow_right_pushed;
@@ -242,8 +239,6 @@ void labellist_stats_t::zeichnen(koord offset)
 		if(  px_len>x_size  ) {
 			x_size = px_len;
 		}
-
-		yoff +=LINESPACE+1;
 	}
 
 	const koord gr(max(x_size+10+4,get_groesse().x),labels.get_count()*(LINESPACE+1));

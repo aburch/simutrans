@@ -157,16 +157,13 @@ void curiositylist_stats_t::zeichnen(koord offset)
 	}
 
 	uint32 sel = line_selected;
-	FOR(vector_tpl<gebaeude_t*>, const geb, attractions) {
+	FORX(vector_tpl<gebaeude_t*>, const geb, attractions, yoff += LINESPACE + 1) {
 		if (yoff >= end) break;
 
 		int xoff = offset.x+10;
 
 		// skip invisible lines
-		if(yoff<start) {
-			yoff += LINESPACE+1;
-			continue;
-		}
+		if (yoff < start) continue;
 
 		// goto button
 		image_id const img = sel-- != 0 ? button_t::arrow_right_normal : button_t::arrow_right_pushed;
@@ -244,7 +241,5 @@ void curiositylist_stats_t::zeichnen(koord offset)
 		if (geb->get_tile()->get_besch()->get_extra() != 0) {
 		    display_color_img(skinverwaltung_t::intown->get_bild_nr(0), xoff+D_INDICATOR_WIDTH+9, yoff, 0, false, false);
 		}
-
-		yoff +=LINESPACE+1;
 	}
 }
