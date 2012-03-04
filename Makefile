@@ -355,6 +355,7 @@ SOURCES += sucher/platzsucher.cc
 SOURCES += unicode.cc
 SOURCES += utils/cbuffer_t.cc
 SOURCES += utils/checksum.cc
+SOURCES += utils/csv.cc
 SOURCES += utils/log.cc
 SOURCES += utils/memory_rw.cc
 SOURCES += utils/searchfolder.cc

@@ -28,11 +28,14 @@ private:
 	gui_label_t pakset_checksum;
 #endif
 
-	int parse_csv_field( char **c, char *field, size_t maxlen);
-
 	void update_info();
 
-	// pass 0 for mismatched revisions and NULL for pakset to see all
+	/*
+	 * Update server listing (retrieve from listings server)
+	 * Only displays entries which match the revision and pakset provided
+	 * Pass revision=0, pakset=NULL to see all entries
+	 * @author Timothy Baldock <tb@entropy.me.uk>
+	 */
 	bool update_serverlist( uint32 revision, const char *pakset );
 
 public:

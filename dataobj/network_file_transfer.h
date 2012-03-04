@@ -8,6 +8,7 @@
 
 #include "network.h"
 
+class cbuffer_t;
 class karte_t;
 class gameinfo_t;
 
@@ -20,14 +21,21 @@ const char* network_connect(const char *cp, karte_t *world);
 // sending file over network
 const char *network_send_file( uint32 client_id, const char *filename );
 
-// receive file
+// receive file (directly to disk)
 char const* network_receive_file(SOCKET const s, char const* const save_as, long const length);
 
-// POST message data in poststr to an HTTP server and then receive the response
-// The response is saved to file given by localname, closes the connection afterwards
-const char *network_http_post( const char *address, const char *name, const char *poststr, const char *localname );
+/*
+ * Use HTTP POST request to submit poststr to an HTTP server
+ * Any response is saved to the file given by localname (pass NULL to ignore response)
+ * Connection is closed after request is completed
+ * @author Timothy Baldock <tb@entropy.me.uk>
+ */
+const char *network_http_post ( const char *address, const char *name, const char *poststr, const char *localname );
 
-// connect to address with path name, receive to localname, close
-const char *network_download_http( const char *address, const char *name, const char *localname );
+/*
+ * Use HTTP to retrieve a file into the cbuffer_t object provided
+ * @author Timothy Baldock <tb@entropy.me.uk>
+ */
+const char *network_http_get ( const char *address, const char *name, cbuffer_t& local );
 
 #endif

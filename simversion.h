@@ -70,7 +70,4 @@
 /* Relative URL of the list function on server */
 #define ANNOUNCE_LIST_URL "/list?format=csv"
 
-/* Name of file to save server listing to temporarily while downloading list */
-#define SERVER_LIST_FILE "serverlist.csv"
-
 #endif
