@@ -496,8 +496,7 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 	koord size( contents.get_int("icon_width",32), contents.get_int("icon_height",32) );
 	// first: add main menu
 	toolbar_tool.resize( skinverwaltung_t::werkzeuge_toolbars->get_bild_anzahl() );
-	toolbar_tool.append(new toolbar_t("", "", size));
-	toolbar_tool[0]->id = TOOLBAR_TOOL;
+	toolbar_tool.append(new toolbar_t(TOOLBAR_TOOL, "", "", size));
 	// now for the rest
 	for(  uint16 i=0;  i<toolbar_tool.get_count();  i++  ) {
 		char id[256];
@@ -678,7 +677,7 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 					const char *title = c;
 					c += strcspn(c, ",");
 					if (*c != '\0') *c++ = '\0';
-					toolbar_t *tb = new toolbar_t( title, c, size );
+					toolbar_t* const tb = new toolbar_t(toolbar_tool.get_count() | TOOLBAR_TOOL, title, c, size);
 					if(icon!=IMG_LEER) {
 						tb->icon = icon;
 					}
@@ -686,14 +685,13 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 						tb->command_key = str_to_key(key_str);
 						char_to_tool.append(tb);
 					}
-					tb->id = toolbar_tool.get_count() | TOOLBAR_TOOL;
 					toolbar_tool.append(tb);
 					addtool = tb;
 				}
 			}
 			else {
 				// make a default tool to add the parameter here
-				addtool = new werkzeug_t();
+				addtool = new werkzeug_t(werkzeug_t::dummy_id);
 				addtool->default_param = strdup(toolname);
 				addtool->command_key = 1;
 			}
@@ -744,6 +742,9 @@ const char *kartenboden_werkzeug_t::check_pos( karte_t *welt, spieler_t *, koord
 
 // seperator in toolbars
 class wkz_dummy_t : public werkzeug_t {
+public:
+	wkz_dummy_t() : werkzeug_t(dummy_id) {}
+
 	bool init(karte_t*, spieler_t*) OVERRIDE { return false; }
 	bool is_init_network_save() const OVERRIDE { return true; }
 	bool is_work_network_save() const OVERRIDE { return true; }
@@ -886,7 +887,7 @@ bool toolbar_t::init(karte_t *welt, spieler_t *sp)
 	else if(!close  &&  this!=werkzeug_t::toolbar_tool[0]) {
 		// not open and not main menu
 		create_win( wzw, w_info|w_do_not_delete|w_no_overlap, magic_toolbar+toolbar_tool.index_of(this) );
-		DBG_MESSAGE("toolbar_t::init()", "ID=%id", id);
+		DBG_MESSAGE("toolbar_t::init()", "ID=%id", get_id());
 	}
 	return false;
 }

@@ -155,15 +155,14 @@ enum {
 class werkzeug_t {
 protected:
 	image_id icon;
-	/*
-	 * value to trigger this command (see documentation)
-	 * must be initialized in constructor
-	 */
+private:
+	/* value to trigger this command (see documentation) */
 	uint16 id;
 
+protected:
 	const char *default_param;
 public:
-	uint16 get_id() { return id; }
+	uint16 get_id() const { return id; }
 
 	static werkzeug_t *dummy;
 
@@ -202,7 +201,9 @@ public:
 
 	static void read_menu(const std::string &objfilename);
 
-	werkzeug_t() : id(0xFFFFu) { cursor = icon = IMG_LEER; ok_sound = NO_SOUND; offset = Z_PLAN; default_param = NULL; command_key = 0; }
+	static uint16 const dummy_id = 0xFFFFU;
+
+	werkzeug_t(uint16 const id) : id(id) { cursor = icon = IMG_LEER; ok_sound = NO_SOUND; offset = Z_PLAN; default_param = NULL; command_key = 0; }
 	virtual ~werkzeug_t() {}
 
 	virtual image_id get_icon(spieler_t *) const { return icon; }
@@ -256,6 +257,8 @@ public:
  */
 class kartenboden_werkzeug_t : public werkzeug_t {
 public:
+	kartenboden_werkzeug_t(uint16 const id) : werkzeug_t(id) {}
+
 	char const* check_pos(karte_t*, spieler_t*, koord3d) OVERRIDE;
 };
 
@@ -266,7 +269,7 @@ public:
  */
 class two_click_werkzeug_t : public werkzeug_t {
 public:
-	two_click_werkzeug_t() : werkzeug_t() {
+	two_click_werkzeug_t(uint16 const id) : werkzeug_t(id) {
 		MEMZERO(start_marker);
 	}
 
@@ -329,7 +332,7 @@ private:
 	werkzeug_waehler_t *wzw;
 	slist_tpl<werkzeug_t *>tools;
 public:
-	toolbar_t( const char *t, const char *h, koord size ) : werkzeug_t()
+	toolbar_t(uint16 const id, char const* const t, char const* const h, koord const size) : werkzeug_t(id)
 	{
 		default_param = t;
 		helpfile = h;

@@ -53,7 +53,7 @@ class spieler_t;
 // general help
 class wkz_help_t : public werkzeug_t {
 public:
-	wkz_help_t() : werkzeug_t() { id = WKZ_HELP | DIALOGE_TOOL; }
+	wkz_help_t() : werkzeug_t(WKZ_HELP | DIALOGE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("Help"); }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_mainhelp); }
 	bool init(karte_t*, spieler_t*) OVERRIDE {
@@ -68,7 +68,7 @@ public:
 // open info/quit dialoge
 class wkz_optionen_t : public werkzeug_t {
 public:
-	wkz_optionen_t() : werkzeug_t() { id = WKZ_OPTIONEN | DIALOGE_TOOL; }
+	wkz_optionen_t() : werkzeug_t(WKZ_OPTIONEN | DIALOGE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("Einstellungsfenster"); }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_optionen_gui_t); }
 	bool init(karte_t* welt, spieler_t*) OVERRIDE {
@@ -83,7 +83,7 @@ public:
 // open minimap
 class wkz_minimap_t : public werkzeug_t {
 public:
-	wkz_minimap_t() : werkzeug_t() { id = WKZ_MINIMAP | DIALOGE_TOOL; }
+	wkz_minimap_t() : werkzeug_t(WKZ_MINIMAP | DIALOGE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("Reliefkarte"); }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_reliefmap); }
 	bool init(karte_t* welt, spieler_t*) OVERRIDE {
@@ -98,7 +98,7 @@ public:
 // open line management
 class wkz_lines_t : public werkzeug_t {
 public:
-	wkz_lines_t() : werkzeug_t() { id = WKZ_LINEOVERVIEW | DIALOGE_TOOL; }
+	wkz_lines_t() : werkzeug_t(WKZ_LINEOVERVIEW | DIALOGE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("Line Management"); }
 	image_id get_icon(spieler_t* sp) const OVERRIDE { return sp->get_player_nr() == 1 ? IMG_LEER : icon; }
 	bool is_selected(karte_t const* welt) const OVERRIDE { return win_get_magic(magic_line_management_t + welt->get_active_player_nr()); }
@@ -116,7 +116,7 @@ public:
 // open messages
 class wkz_messages_t : public werkzeug_t {
 public:
-	wkz_messages_t() : werkzeug_t() { id = WKZ_MESSAGES | DIALOGE_TOOL; }
+	wkz_messages_t() : werkzeug_t(WKZ_MESSAGES | DIALOGE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("Mailbox"); }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_messageframe); }
 	bool init(karte_t* welt, spieler_t*) OVERRIDE {
@@ -131,7 +131,7 @@ public:
 // open finance window
 class wkz_finances_t : public werkzeug_t {
 public:
-	wkz_finances_t() : werkzeug_t() { id = WKZ_FINANCES | DIALOGE_TOOL; }
+	wkz_finances_t() : werkzeug_t(WKZ_FINANCES | DIALOGE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("Finanzen"); }
 	bool is_selected(karte_t const* welt) const OVERRIDE { return win_get_magic(magic_finances_t+welt->get_active_player_nr()); }
 	bool init(karte_t*, spieler_t* sp) OVERRIDE {
@@ -146,7 +146,7 @@ public:
 // open player dialoge
 class wkz_players_t : public werkzeug_t {
 public:
-	wkz_players_t() : werkzeug_t() { id = WKZ_PLAYERS | DIALOGE_TOOL; }
+	wkz_players_t() : werkzeug_t(WKZ_PLAYERS | DIALOGE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("Spielerliste"); }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_ki_kontroll_t); }
 	bool init(karte_t* welt, spieler_t*) OVERRIDE {
@@ -161,7 +161,7 @@ public:
 // open display options
 class wkz_displayoptions_t : public werkzeug_t {
 public:
-	wkz_displayoptions_t() : werkzeug_t() { id = WKZ_DISPLAYOPTIONS | DIALOGE_TOOL; }
+	wkz_displayoptions_t() : werkzeug_t(WKZ_DISPLAYOPTIONS | DIALOGE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("Helligk."); }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_color_gui_t); }
 	bool init(karte_t* welt, spieler_t*) OVERRIDE {
@@ -176,7 +176,7 @@ public:
 // open sound dialoge
 class wkz_sound_t : public werkzeug_t {
 public:
-	wkz_sound_t() : werkzeug_t() { id = WKZ_SOUND | DIALOGE_TOOL; }
+	wkz_sound_t() : werkzeug_t(WKZ_SOUND | DIALOGE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("Sound"); }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_sound_kontroll_t); }
 	bool init(karte_t*, spieler_t*) OVERRIDE {
@@ -191,7 +191,7 @@ public:
 // open language dialoge
 class wkz_language_t : public werkzeug_t {
 public:
-	wkz_language_t() : werkzeug_t() { id = WKZ_LANGUAGE | DIALOGE_TOOL; }
+	wkz_language_t() : werkzeug_t(WKZ_LANGUAGE | DIALOGE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("Sprache"); }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_sprachengui_t); }
 	bool init(karte_t*, spieler_t*) OVERRIDE {
@@ -206,7 +206,7 @@ public:
 // open player color dialoge
 class wkz_playercolor_t : public werkzeug_t {
 public:
-	wkz_playercolor_t() : werkzeug_t() { id = WKZ_PLAYERCOLOR | DIALOGE_TOOL; }
+	wkz_playercolor_t() : werkzeug_t(WKZ_PLAYERCOLOR | DIALOGE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("Farbe"); }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_farbengui_t); }
 	bool init(karte_t*, spieler_t* sp) OVERRIDE {
@@ -221,7 +221,7 @@ public:
 // jump to position dialoge
 class wkz_jump_t : public werkzeug_t {
 public:
-	wkz_jump_t() : werkzeug_t() { id = WKZ_JUMP | DIALOGE_TOOL; }
+	wkz_jump_t() : werkzeug_t(WKZ_JUMP | DIALOGE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("Jump to"); }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_jump); }
 	bool init(karte_t* welt, spieler_t*) OVERRIDE {
@@ -236,7 +236,7 @@ public:
 // load game dialoge
 class wkz_load_t : public werkzeug_t {
 public:
-	wkz_load_t() : werkzeug_t() { id = WKZ_LOAD | DIALOGE_TOOL; }
+	wkz_load_t() : werkzeug_t(WKZ_LOAD | DIALOGE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("Laden"); }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_load_t); }
 	bool init(karte_t* welt, spieler_t*) OVERRIDE {
@@ -251,7 +251,7 @@ public:
 // save game dialoge
 class wkz_save_t : public werkzeug_t {
 public:
-	wkz_save_t() : werkzeug_t() { id = WKZ_SAVE | DIALOGE_TOOL; }
+	wkz_save_t() : werkzeug_t(WKZ_SAVE | DIALOGE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("Speichern"); }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_save_t); }
 	bool init(karte_t* welt, spieler_t*) OVERRIDE {
@@ -265,7 +265,7 @@ public:
 /* open the list of halt */
 class wkz_list_halt_t : public werkzeug_t {
 public:
-	wkz_list_halt_t() : werkzeug_t() { id = WKZ_LIST_HALT | DIALOGE_TOOL; }
+	wkz_list_halt_t() : werkzeug_t(WKZ_LIST_HALT | DIALOGE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("hl_title"); }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_halt_list_t); }
 	bool init(karte_t*, spieler_t* sp) OVERRIDE {
@@ -280,7 +280,7 @@ public:
 /* open the list of vehicle */
 class wkz_list_convoi_t : public werkzeug_t {
 public:
-	wkz_list_convoi_t() : werkzeug_t() { id = WKZ_LIST_CONVOI | DIALOGE_TOOL; }
+	wkz_list_convoi_t() : werkzeug_t(WKZ_LIST_CONVOI | DIALOGE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("cl_title"); }
 	bool is_selected(karte_t const* const welt) const OVERRIDE { return win_get_magic(magic_convoi_list + welt->get_active_player_nr()); }
 	bool init(karte_t*, spieler_t* sp) OVERRIDE {
@@ -295,7 +295,7 @@ public:
 /* open the list of towns */
 class wkz_list_town_t : public werkzeug_t {
 public:
-	wkz_list_town_t() : werkzeug_t() { id = WKZ_LIST_TOWN | DIALOGE_TOOL; }
+	wkz_list_town_t() : werkzeug_t(WKZ_LIST_TOWN | DIALOGE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("tl_title"); }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_citylist_frame_t); }
 	bool init(karte_t* welt, spieler_t*) OVERRIDE {
@@ -310,7 +310,7 @@ public:
 /* open the list of goods */
 class wkz_list_goods_t : public werkzeug_t {
 public:
-	wkz_list_goods_t() : werkzeug_t() { id = WKZ_LIST_GOODS | DIALOGE_TOOL; }
+	wkz_list_goods_t() : werkzeug_t(WKZ_LIST_GOODS | DIALOGE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("gl_title"); }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_goodslist); }
 	bool init(karte_t* welt, spieler_t*) OVERRIDE {
@@ -325,7 +325,7 @@ public:
 /* open the list of factories */
 class wkz_list_factory_t : public werkzeug_t {
 public:
-	wkz_list_factory_t() : werkzeug_t() { id = WKZ_LIST_FACTORY | DIALOGE_TOOL; }
+	wkz_list_factory_t() : werkzeug_t(WKZ_LIST_FACTORY | DIALOGE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("fl_title"); }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_factorylist); }
 	bool init(karte_t* welt, spieler_t*) OVERRIDE {
@@ -340,7 +340,7 @@ public:
 /* open the list of attraction */
 class wkz_list_curiosity_t : public werkzeug_t {
 public:
-	wkz_list_curiosity_t() : werkzeug_t() { id = WKZ_LIST_CURIOSITY | DIALOGE_TOOL; }
+	wkz_list_curiosity_t() : werkzeug_t(WKZ_LIST_CURIOSITY | DIALOGE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("curlist_title"); }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_curiositylist); }
 	bool init(karte_t* welt, spieler_t*) OVERRIDE {
@@ -355,7 +355,7 @@ public:
 /* factory building dialog */
 class wkz_factorybuilder_t : public werkzeug_t {
 public:
-	wkz_factorybuilder_t() : werkzeug_t() { id = WKZ_EDIT_FACTORY | DIALOGE_TOOL; }
+	wkz_factorybuilder_t() : werkzeug_t(WKZ_EDIT_FACTORY | DIALOGE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("factorybuilder"); }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_edit_factory); }
 	bool init(karte_t* welt, spieler_t* sp) OVERRIDE {
@@ -372,7 +372,7 @@ public:
 /* attraction building dialog */
 class wkz_attractionbuilder_t : public werkzeug_t {
 public:
-	wkz_attractionbuilder_t() : werkzeug_t() { id = WKZ_EDIT_ATTRACTION | DIALOGE_TOOL; }
+	wkz_attractionbuilder_t() : werkzeug_t(WKZ_EDIT_ATTRACTION | DIALOGE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("curiosity builder"); }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_edit_attraction); }
 	bool init(karte_t* welt, spieler_t* sp) OVERRIDE {
@@ -389,7 +389,7 @@ public:
 /* house building dialog */
 class wkz_housebuilder_t : public werkzeug_t {
 public:
-	wkz_housebuilder_t() : werkzeug_t() { id = WKZ_EDIT_HOUSE | DIALOGE_TOOL; }
+	wkz_housebuilder_t() : werkzeug_t(WKZ_EDIT_HOUSE | DIALOGE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("citybuilding builder"); }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_edit_house); }
 	bool init(karte_t* welt, spieler_t* sp) OVERRIDE {
@@ -406,7 +406,7 @@ public:
 /* house building dialog */
 class wkz_treebuilder_t : public werkzeug_t {
 public:
-	wkz_treebuilder_t() : werkzeug_t() { id = WKZ_EDIT_TREE | DIALOGE_TOOL; }
+	wkz_treebuilder_t() : werkzeug_t(WKZ_EDIT_TREE | DIALOGE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("baum builder"); }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_edit_tree); }
 	bool init(karte_t* welt, spieler_t* sp) OVERRIDE {
@@ -423,7 +423,7 @@ public:
 // to increase map-size
 class wkz_enlarge_map_t : public werkzeug_t{
 public:
-	wkz_enlarge_map_t() : werkzeug_t() { id = WKZ_ENLARGE_MAP | DIALOGE_TOOL; }
+	wkz_enlarge_map_t() : werkzeug_t(WKZ_ENLARGE_MAP | DIALOGE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return umgebung_t::networkmode ? translator::translate("deactivated in online mode") : translator::translate("enlarge map"); }
 	image_id get_icon(spieler_t *) const { return umgebung_t::networkmode ? IMG_LEER : icon; }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_bigger_map); }
@@ -440,7 +440,7 @@ public:
 /* open the list of label */
 class wkz_list_label_t : public werkzeug_t {
 public:
-	wkz_list_label_t() : werkzeug_t() { id = WKZ_LIST_LABEL | DIALOGE_TOOL; }
+	wkz_list_label_t() : werkzeug_t(WKZ_LIST_LABEL | DIALOGE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("labellist_title"); }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_labellist); }
 	bool init(karte_t* welt, spieler_t*) OVERRIDE {
@@ -455,7 +455,7 @@ public:
 /* open climate settings */
 class wkz_climates_t : public werkzeug_t {
 public:
-	wkz_climates_t() : werkzeug_t() { id = WKZ_CLIMATES | DIALOGE_TOOL; }
+	wkz_climates_t() : werkzeug_t(WKZ_CLIMATES | DIALOGE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return (!umgebung_t::networkmode  ||  umgebung_t::server) ? translator::translate("Climate Control") : translator::translate("deactivated in online mode"); }
 	image_id get_icon(spieler_t *) const { return (!umgebung_t::networkmode  ||  umgebung_t::server) ? icon : IMG_LEER; }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_climate); }
@@ -471,7 +471,7 @@ public:
 /* open all game settings */
 class wkz_settings_t : public werkzeug_t {
 public:
-	wkz_settings_t() : werkzeug_t() { id = WKZ_SETTINGS | DIALOGE_TOOL; }
+	wkz_settings_t() : werkzeug_t(WKZ_SETTINGS | DIALOGE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return (!umgebung_t::networkmode  ||  umgebung_t::server) ? translator::translate("Setting") : translator::translate("deactivated in online mode"); }
 	image_id get_icon(spieler_t *) const { return (!umgebung_t::networkmode  ||  umgebung_t::server) ? icon : IMG_LEER; }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_settings_frame_t); }
@@ -487,7 +487,7 @@ public:
 /* server info and join dialoge */
 class wkz_server_t : public werkzeug_t {
 public:
-	wkz_server_t() : werkzeug_t() { id = WKZ_GAMEINFO | DIALOGE_TOOL; }
+	wkz_server_t() : werkzeug_t(WKZ_GAMEINFO | DIALOGE_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("Game info"); }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_server_frame_t); }
 	bool init(karte_t* welt, spieler_t*) OVERRIDE {

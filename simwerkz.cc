@@ -1644,7 +1644,7 @@ const char* wkz_wegebau_t::get_default_param(spieler_t *sp) const
 
 bool wkz_wegebau_t::is_selected( const karte_t *welt ) const
 {
-	if (welt->get_werkzeug(welt->get_active_player_nr())->get_id()!=id) {
+	if (welt->get_werkzeug(welt->get_active_player_nr())->get_id() != get_id()) {
 		return false;
 	}
 	const wkz_wegebau_t *selected = dynamic_cast<const wkz_wegebau_t *>(welt->get_werkzeug(welt->get_active_player_nr()));
@@ -3411,14 +3411,6 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 			msg = "Illegal station tool";
 	}
 	return msg;
-}
-
-
-// builds roadsigns and signals
-wkz_roadsign_t::wkz_roadsign_t() : two_click_werkzeug_t()
-{
-	id = WKZ_ROADSIGN | GENERAL_TOOL;
-	besch = NULL;
 }
 
 
