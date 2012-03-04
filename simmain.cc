@@ -584,10 +584,10 @@ int simu_main(int argc, char** argv)
 	}
 
 	DBG_MESSAGE( "simmain::main()", "Version: " VERSION_NUMBER "  Date: " VERSION_DATE);
-	DBG_MESSAGE( "Debuglevel","%i", umgebung_t::verbose_debug );
-	DBG_MESSAGE( "program_dir", umgebung_t::program_dir );
-	DBG_MESSAGE( "home_dir", umgebung_t::user_dir );
-	DBG_MESSAGE( "locale", dr_get_locale_string() );
+	DBG_MESSAGE("Debuglevel",  "%i", umgebung_t::verbose_debug);
+	DBG_MESSAGE("program_dir", "%s", umgebung_t::program_dir);
+	DBG_MESSAGE("home_dir",    "%s", umgebung_t::user_dir);
+	DBG_MESSAGE("locale",      "%s", dr_get_locale_string());
 #ifdef DEBUG
 	if (gimme_arg(argc, argv, "-sizes", 0) != NULL) {
 		// show the size of some structures ...

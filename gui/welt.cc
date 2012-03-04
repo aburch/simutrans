@@ -276,7 +276,7 @@ welt_gui_t::welt_gui_t(karte_t* const welt, settings_t* const sets) :
  */
 bool welt_gui_t::update_from_heightfield(const char *filename)
 {
-	DBG_MESSAGE("welt_gui_t::update_from_heightfield()",filename);
+	DBG_MESSAGE("welt_gui_t::update_from_heightfield()", "%s", filename);
 
 	sint16 w, h;
 	sint8 *h_field=NULL;
