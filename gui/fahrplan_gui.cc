@@ -91,40 +91,32 @@ void fahrplan_gui_stats_t::highlight_schedule( schedule_t *markfpl, bool marking
 }
 
 
-
 /**
- * Fills buf with description of schedule's i'th entry.
- *
- * @author Hj. Malthaner
+ * Append description of entry to buf.
  */
 static void gimme_stop_name(cbuffer_t& buf, karte_t* const welt, spieler_t const* const sp, linieneintrag_t const& entry)
 {
-	halthandle_t halt = haltestelle_t::get_halt(welt, entry.pos, sp);
-	if(halt.is_bound()) {
+	char const* what;
+	halthandle_t const halt = haltestelle_t::get_halt(welt, entry.pos, sp);
+	if (halt.is_bound()) {
 		if (entry.ladegrad != 0) {
-			buf.printf("%d%% %s (%s)", entry.ladegrad, halt->get_name(), entry.pos.get_str() );
+			buf.printf("%d%% ", entry.ladegrad);
 		}
-		else {
-			buf.printf("%s (%s)",
-				halt->get_name(),
-				entry.pos.get_str() );
-		}
-	}
-	else {
-		const grund_t* gr = welt->lookup(entry.pos);
-		if(  gr==NULL  ) {
-			buf.printf("%s (%s)", translator::translate("Invalid coordinate"), entry.pos.get_str() );
-		}
-		else if(  gr->get_depot() != NULL  ) {
-			buf.printf("%s (%s)", translator::translate("Depot"), entry.pos.get_str() );
-		}
-		else if(  const char *label_text = gr->get_text()  ){
-			buf.printf("%s %s (%s)", translator::translate("Wegpunkt"), label_text, entry.pos.get_str() );
-		}
-		else {
-			buf.printf("%s (%s)", translator::translate("Wegpunkt"), entry.pos.get_str() );
+		what = halt->get_name();
+	} else {
+		grund_t const* const gr = welt->lookup(entry.pos);
+		if (!gr) {
+			what = translator::translate("Invalid coordinate");
+		} else if (gr->get_depot()) {
+			what = translator::translate("Depot");
+		} else if (char const* const label_text = gr->get_text()) {
+			buf.printf("%s ", translator::translate("Wegpunkt"));
+			what = label_text;
+		} else {
+			what = translator::translate("Wegpunkt");
 		}
 	}
+	buf.printf("%s (%s)", what, entry.pos.get_str());
 }
 
 
