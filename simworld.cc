@@ -683,7 +683,7 @@ bool karte_t::rem_stadt(stadt_t *s)
 
 	// reduce number of towns
 	if(s->get_name()) {
-		DBG_MESSAGE("karte_t::rem_stadt()", s->get_name() );
+		DBG_MESSAGE("karte_t::rem_stadt()", "%s", s->get_name());
 	}
 	stadt.remove(s);
 	DBG_DEBUG4("karte_t::rem_stadt()", "reduce city to %i", settings.get_anzahl_staedte() - 1);
