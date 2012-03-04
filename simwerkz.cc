@@ -3418,11 +3418,6 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 wkz_roadsign_t::wkz_roadsign_t() : two_click_werkzeug_t()
 {
 	id = WKZ_ROADSIGN | GENERAL_TOOL;
-	for (uint8 i=0; i<MAX_PLAYER_COUNT; i++) {
-		signal_spacing[i] = 2;
-		remove_intermediate_signals[i] = true;
-		replace_other_signals[i] = true;
-	}
 	besch = NULL;
 }
 
@@ -3441,7 +3436,7 @@ void wkz_roadsign_t::draw_after( karte_t *welt, koord pos ) const
 	if(  icon!=IMG_LEER  &&  is_selected(welt)  ) {
 		display_img_blend( icon, pos.x, pos.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|COL_BLACK, false, true );
 		char level_str[16];
-		sprintf( level_str, "%i", signal_spacing[welt->get_active_player_nr()] );
+		sprintf(level_str, "%i", signal[welt->get_active_player_nr()].spacing);
 		display_proportional( pos.x+4, pos.y+4, level_str, ALIGN_LEFT, COL_YELLOW, true );
 	}
 }
@@ -3516,7 +3511,8 @@ char wkz_roadsign_t::toolstring[256];
 const char* wkz_roadsign_t::get_default_param(spieler_t *sp) const
 {
 	if (besch  &&  sp) {
-		sprintf(toolstring, "%s,%d,%d,%d", besch->get_name(), signal_spacing[sp->get_player_nr()], remove_intermediate_signals[sp->get_player_nr()], replace_other_signals[sp->get_player_nr()]);
+		signal_info const& s = signal[sp->get_player_nr()];
+		sprintf(toolstring, "%s,%d,%d,%d", besch->get_name(), s.spacing, s.remove_intermediate, s.replace_other);
 		return toolstring;
 	}
 	else {
@@ -3538,13 +3534,14 @@ void wkz_roadsign_t::read_default_param(spieler_t * sp)
 	besch = roadsign_t::find_besch(name);
 
 	if (default_param[i]) {
-		int i_signal_spacing = signal_spacing[sp->get_player_nr()];
-		int i_remove_intermediate_signals = remove_intermediate_signals[sp->get_player_nr()];
-		int i_replace_other_signals = replace_other_signals[sp->get_player_nr()];
+		signal_info& s = signal[sp->get_player_nr()];
+		int i_signal_spacing              = s.spacing;
+		int i_remove_intermediate_signals = s.remove_intermediate;
+		int i_replace_other_signals       = s.replace_other;
 		sscanf(default_param+i, ",%d,%d,%d", &i_signal_spacing, &i_remove_intermediate_signals, &i_replace_other_signals);
-		signal_spacing[sp->get_player_nr()] = (uint8)i_signal_spacing;
-		remove_intermediate_signals[sp->get_player_nr()] = i_remove_intermediate_signals!=0;
-		replace_other_signals[sp->get_player_nr()] = i_replace_other_signals!=0;
+		s.spacing             = (uint8)i_signal_spacing;
+		s.remove_intermediate = i_remove_intermediate_signals != 0;
+		s.replace_other       = i_replace_other_signals       != 0;
 	}
 	if (default_param==toolstring) {
 		default_param = besch->get_name();
@@ -3615,9 +3612,10 @@ void wkz_roadsign_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &st
 	if (!calc_route(route, sp, start, ziel)) {
 		return;
 	}
-	const uint8 signal_density = 2*signal_spacing[sp->get_player_nr()]; // measured in half tiles (straight track count as 2, diagonal as 1, since sqrt(1/2) = 1/2 ;)
-	uint8 next_signal = signal_density+1; // to place a sign asap
-	sint32 cost = 0;
+	signal_info const& s              = signal[sp->get_player_nr()];
+	uint8       const  signal_density = 2 * s.spacing;      // measured in half tiles (straight track count as 2, diagonal as 1, since sqrt(1/2) = 1/2 ;)
+	uint8              next_signal    = signal_density + 1; // to place a sign asap
+	sint32             cost           = 0;
 	// dummy roadsign to get images for preview
 	roadsign_t *dummy_rs;
 	if (besch->is_signal_type()) {
@@ -3650,7 +3648,7 @@ void wkz_roadsign_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &st
 		if(  next_signal >= signal_density  /*&&  !ribi_t::ist_einfach(ribi)*/  ) {
 			// can we place signal here?
 			if (check_pos_intern(welt, sp, route.position_bei(i))==NULL  ||
-				(replace_other_signals[sp->get_player_nr()]  &&  rs != NULL  &&  rs->ist_entfernbar(sp) == NULL) ) {
+					(s.replace_other && rs && !rs->ist_entfernbar(sp))) {
 				zeiger_t* zeiger = new zeiger_t(welt, gr->get_pos(), sp );
 				marked[sp->get_player_nr()].append(zeiger);
 				zeiger->set_bild( skinverwaltung_t::bauigelsymbol->get_bild_nr(0) );
@@ -3665,8 +3663,7 @@ void wkz_roadsign_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &st
 				dummy_rs->set_dir(rs ? rs->get_dir() : (ribi_t::ribi)ribi_t::keine);
 				cost += rs ? (rs->get_besch()==besch ? 0  : besch->get_preis()+rs->get_besch()->get_preis()) : besch->get_preis();
 			}
-		}
-		else if (remove_intermediate_signals[sp->get_player_nr()]  &&  rs  &&  rs->ist_entfernbar(sp)==NULL) {
+		} else if (s.remove_intermediate && rs && !rs->ist_entfernbar(sp)) {
 				zeiger_t* zeiger = new zeiger_t(welt, gr->get_pos(), sp );
 				marked[sp->get_player_nr()].append(zeiger);
 				zeiger->set_bild( werkzeug_t::general_tool[WKZ_REMOVER]->cursor );
@@ -3698,7 +3695,7 @@ const char *wkz_roadsign_t::do_work( karte_t *welt, spieler_t *sp, const koord3d
 			// try to place signal
 			const char* error_text =  place_sign_intern( welt, sp, gr );
 			if(  error_text  ) {
-				if(  replace_other_signals[sp->get_player_nr()]  ) {
+				if (signal[sp->get_player_nr()].replace_other) {
 					roadsign_t* rs = gr->find<signal_t>();
 					if(rs == NULL) rs = gr->find<roadsign_t>();
 					if(  rs != NULL  &&  rs->ist_entfernbar(sp) == NULL  ) {
@@ -3737,16 +3734,21 @@ const char *wkz_roadsign_t::do_work( karte_t *welt, spieler_t *sp, const koord3d
  */
 void wkz_roadsign_t::set_values( spieler_t *sp, uint8 spacing, bool remove, bool replace )
 {
-	signal_spacing[sp->get_player_nr()] = spacing;
-	remove_intermediate_signals[sp->get_player_nr()] = remove;
-	replace_other_signals[sp->get_player_nr()] = replace;
+	signal_info& s = signal[sp->get_player_nr()];
+	s.spacing             = spacing;
+	s.remove_intermediate = remove;
+	s.replace_other       = replace;
 }
+
+
 void wkz_roadsign_t::get_values( spieler_t *sp, uint8 &spacing, bool &remove, bool &replace )
 {
-	spacing = signal_spacing[sp->get_player_nr()];
-	remove = remove_intermediate_signals[sp->get_player_nr()];
-	replace = replace_other_signals[sp->get_player_nr()];
+	signal_info const& s = signal[sp->get_player_nr()];
+	spacing = s.spacing;
+	remove  = s.remove_intermediate;
+	replace = s.replace_other;
 }
+
 
 const char *wkz_roadsign_t::place_sign_intern( karte_t *welt, spieler_t *sp, grund_t* gr, const roadsign_besch_t*)
 {

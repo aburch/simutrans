@@ -333,10 +333,15 @@ class wkz_roadsign_t : public two_click_werkzeug_t {
 private:
 	const roadsign_besch_t* besch;
 	const char *place_sign_intern( karte_t *, spieler_t *, grund_t*, const roadsign_besch_t* b = NULL);
-	// place signals every n tiles:
-	uint8 signal_spacing[MAX_PLAYER_COUNT];
-	bool remove_intermediate_signals[MAX_PLAYER_COUNT];
-	bool replace_other_signals[MAX_PLAYER_COUNT];
+
+	struct signal_info {
+		signal_info() : spacing(2), remove_intermediate(true), replace_other(true) {}
+
+		uint8 spacing; // place signals every n tiles
+		bool  remove_intermediate;
+		bool  replace_other;
+	} signal[MAX_PLAYER_COUNT];
+
 	static char toolstring[256];
 	// read the variables from the default_param
 	void read_default_param(spieler_t *sp);
