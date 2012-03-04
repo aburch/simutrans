@@ -5,11 +5,11 @@
  * by Timothy Baldock <tb@entropy.me.uk>
  */
 
-#include "csv.h"
 
-#include <cstring>
 #include <stdio.h>
+#include <assert.h>
 
+#include "csv.h"
 #include "simstring.h"
 #include "../macros.h"
 #include "../simtypes.h"
@@ -23,39 +23,35 @@ CSV_t::CSV_t (const char *csvdata) :
 	const char* pos = csvdata;
 	cbuffer_t tmp;
 	int ret;
-	bool done = false;
 
-	while ( !done ) {
+	do {
 		// Puts the field pointed to by pos into the cbuffer_t tmp
 		// (While ret is not failure case or end of file - check these!)
 		tmp.clear();
-		ret = decode( pos, tmp );
+		ret = (int)decode( pos, tmp );
 
 		switch ( ret ) {
-			case -1: {
+			case -1:
 				new_line();
 				pos++;
 				break;
-			}
-			case -2: {
-				done = true;
+
+			case -2: // finished
 				break;
-			}
+
 			case -4:
 			case -5:
-			case -9: {
-				// Encountered invalid data, stop parsing
-				done = true;
+			case -9: // Encountered invalid data, stop parsing
 				break;
-			}
-			default: {
+
+			default:
 				// Encode contents of tmp and add them to our contents
 				pos += ret;
 				add_field( tmp.get_str() );
-			}
 		}
-	}
+	} while(  ret > -2  );
 }
+
 
 int CSV_t::get_next_field (cbuffer_t& buf)
 {
@@ -66,11 +62,9 @@ int CSV_t::get_next_field (cbuffer_t& buf)
 
 	// Start at contents + offset (position of next field)
 	const char *pos = contents.get_str() + offset;
-	int ret;
 
 	// Decode into cbuffer_t
-	ret = decode( pos, buf );
-
+	int ret = (int)decode( pos, buf );
 	if (  ret >= 0  ) {
 		// Return value is amount to increase offset by
 		// (Number of characters consumed)
@@ -146,25 +140,24 @@ void CSV_t::new_line ()
 	first_field = true;
 }
 
-int CSV_t::encode (const char *text, cbuffer_t& output)
+
+int CSV_t::encode( const char *text, cbuffer_t& output )
 {
 	char *n;
 	bool wrap = false;
 
-	// If text contains a comma, needs to be wrapped in quote marks
-	if (  strchr( text, ',' ) != NULL  ) { wrap = true; }
+	// not empty?
+	if(  *text  ) {
+		// If text contains a comma, quote, or a linebrak, needs to be wrapped in quote marks
+		wrap = strpbrk( text, ",\"\r\n" )!=0;
 
-	// If text contains a quote, needs to be doubled and wrapped in quotes
-	if (  strchr( text, '"' ) != NULL  ) { wrap = true; }
+		// If text has leading or trailing spaces, must be wrapped in quotes
+		if(  *text == ' '  ||  text[strlen( text )-1] == ' '  ) {
+			wrap = true;
+		}
+	}
 
-	// If text contains a line-break, must be wrapped in quotes
-	if (  strchr( text, '\r' ) != NULL  ) { wrap = true; }
-	if (  strchr( text, '\n' ) != NULL  ) { wrap = true; }
-
-	// If text has leading or trailing spaces, must be wrapped in quotes
-	if (  *text == ' '  ||  *(text + strlen( text ) - 1) == ' '  ) { wrap = true; }
-
-	if (  wrap  ) {
+	if(  wrap  ) {
 		char* cpy = new char[strlen( text )];
 		char* tmp = cpy;
 		int len = output.len();
@@ -183,95 +176,96 @@ int CSV_t::encode (const char *text, cbuffer_t& output)
 		output.append( tmp );
 		output.append( "\"" );
 		tmp = NULL;
-		delete[] cpy;
+		delete [] cpy;
 		return output.len() - len;
-	} else {
+	}
+	else {
 		output.append( text );
-		return strlen( text );
+		return (int)strlen( text );
 	}
 }
+
 
 int CSV_t::decode (const char *start, cbuffer_t& output)
 {
 	const char *s = start;
 
 	switch ( *s ) {
+
 		case '"': {
 			const char *c = s + 1;
 			const char *n;
 
 			// Start of quoted field, may contain commas and newlines
-			while ( 1 ) {
+			while( 1 ) {
 				n = strchr( c, '"' );
-				if (  n == NULL  ||  *n == '\0'  ) {
+				if(  n == NULL  ||  *n == '\0'  ) {
 					// No matching '"' - malformed field
 					return -9;
 				}
-				switch ( *(n + 1) ) {
+				switch( *(n + 1) ) {
 					case '"':
 						// Copy everything up to and including the first quote
 						output.append( c, (n - c) + 1 );
 						c = n + 2;
 						break;
+
 					case ',':
 						// Copy everything up to the quotes before the comma
 						// Needs to be +1 since output.append puts a '\0' on the last position copied
 						output.append( c, (n - c) );
 						// Move offset to character after ','
-						return (n - s) + 2;
-						break;
+						return (int)((n - s) + 2);
+
 					case '\0':
 					case '\n':
 					case '\r':
 						// Copy everything up to the quotes before the newline/null
 						output.append( c, (n - c) );
 						// Move offset to last character
-						return (n - s) + 1;
-						break;
+						return (int)((n - s) + 1);
+
 					default:
 						// Single '"' in the middle of a field - malformed field
 						return -9;
-						break;
 				}
 			}
-			break;
+			// one will never reach here ...
+			assert(0);
 		}
 
 		case '\r':
 		case '\n':
 			return -1;
-			break;
 
 		case '\0':
 			return -2;
-			break;
 
 		default: {
 			const char *newline = strchr( s, '\n' );
 			const char *comma = strchr( s, ',' );
 
-			if (  newline == NULL  &&  comma == NULL  ) {
+			if(  newline == NULL  &&  comma == NULL  ) {
 				// Copy to '\0' + leave offset on '\0' char
 				// Copy all to '\0' into buffer
 				output.append( s, strlen( s ) );
 				// Offset to point at '\0'
-				return strlen( s );
+				return (int)strlen( s );
 			}
 
-			if (  newline != NULL  &&  (comma == NULL  ||  newline < comma)  ) {
+			if(  newline != NULL  &&  (comma == NULL  ||  newline < comma)  ) {
 				// Copy up to newline + leave offset on newline char
 				output.append( s, (newline - s) );
-				return newline - s;
+				return (int)(newline - s);
 			}
 
-			if (  comma != NULL  &&  (newline == NULL  ||  comma < newline)  ) {
+			if(  comma != NULL  &&  (newline == NULL  ||  comma < newline)  ) {
 				// Copy up to comma + leave offset at next char after
 				output.append( s, (comma - s) );
-				return (comma - s) + 1;
+				return (int)((comma - s) + 1);
 			}
 			return -9;
-			break;
 		}
+
 	}
 }
-

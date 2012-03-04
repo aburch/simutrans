@@ -61,30 +61,27 @@ field1 data,"field2, data"
 #ifndef CSV_H
 #define CSV_H
 
-#include <cstring>
-
 #include "cbuffer_t.h"
 
 class CSV_t {
 	// The raw data itself (stored encoded)
 	cbuffer_t contents;
+
 	// Count of number of lines of CSV data
 	// Note: This is not the same as the number of newlines in the file
 	//       since CSV fields can contain encoded newlines
 	int lines;
+
 	// Offset into cbuffer for current item
 	size_t offset;
 	bool first_field;
-
-
-	/* Utility functions */
 
 	/*
 	 * Escape the input text so it is appropriate to make up a single CSV field
 	 * Writes output into the supplied cbuffer_t (appending to the end)
 	 * Return length of output string
 	 */
-	int encode (const char *, cbuffer_t&);
+	int encode( const char *, cbuffer_t& );
 
 	/*
 	 * Parse the next field from the CSV formatted data pointed to by field
@@ -95,11 +92,12 @@ class CSV_t {
 	 * Returns -2 for end of data
 	 * Returns -9 for corrupt input data (unable to parse any further)
 	 */
-	int decode (const char *, cbuffer_t&);
+	int decode( const char *, cbuffer_t& );
+
 public:
 	/* Constructors */
-	CSV_t () : lines(1), offset(0), first_field(true) {};
-	CSV_t (const char *);
+	CSV_t() : lines(1), offset(0), first_field(true) {};
+	CSV_t( const char * );
 
 
 	/* Methods for reading */
@@ -112,28 +110,28 @@ public:
 	 * or the length of the data consumed from the input string
 	 * Field is appended to the cbuffer_t supplied
 	 */
-	int get_next_field (cbuffer_t&);
+	int get_next_field( cbuffer_t& );
 
 	/*
 	 * Move onto the next line
 	 * Return true on success, false if there are no more lines
 	 */
-	bool next_line ();
+	bool next_line();
 
 	/*
 	 * Reset parse position to start of data
 	 */
-	void reset ();
+	void reset();
 
 	/*
 	 * Return CSV formatted contents
 	 */
-	const char *get_str () const;
+	const char *get_str() const;
 
 	/*
 	 * Return number of lines of CSV data
 	 */
-	int get_lines () const;
+	int get_lines() const;
 
 
 	/* Methods for writing */
@@ -141,12 +139,12 @@ public:
 	/*
 	 * Add a field to the current line
 	 */
-	void add_field (const char *);
+	void add_field(const char *);
 
 	/*
 	 * Terminate a line of CSV data, and move to the next line
 	 */
-	void new_line ();
+	void new_line();
 };
 
 #endif

@@ -314,6 +314,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\utils\csv.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\gui\curiosity_edit.cc"
 				>
 			</File>
