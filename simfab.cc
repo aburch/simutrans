@@ -1686,7 +1686,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 			ware_t most_waiting(ausgang[produkt].get_typ());
 			most_waiting.menge = 0;
 			FOR(vector_tpl<koord>, const& n, lieferziele) {
-				uint32 const amount = (sint32)best_halt->get_ware_fuer_zielpos(ausgang[produkt].get_typ(), n);
+				uint32 const amount = best_halt->get_ware_fuer_zielpos(ausgang[produkt].get_typ(), n);
 				if(  amount > most_waiting.menge  ) {
 					most_waiting.set_zielpos(n);
 					most_waiting.menge = amount;
