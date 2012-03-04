@@ -822,8 +822,9 @@ void reliefkarte_t::draw_schedule(const koord pos) const
 	koord last_koord = fpl->eintrag.back().pos.get_2d();
 	karte_to_screen(last_koord);
 	last_koord += pos;
-	for( int i=0;  i<fpl->get_count();  i++  ) {
-		koord new_koord = fpl->eintrag[i].pos.get_2d();
+	unsigned i = 1;
+	FORX(minivec_tpl<linieneintrag_t>, const& e, fpl->eintrag, ++i) {
+		koord new_koord = e.pos.get_2d();
 		karte_to_screen( new_koord );
 		new_koord += pos;
 
@@ -831,11 +832,11 @@ void reliefkarte_t::draw_schedule(const koord pos) const
 		display_direct_line(last_koord.x, last_koord.y, new_koord.x, new_koord.y, 127);
 
 		//check, if mouse is near coordinate
-		if(koord_distance(last_world_pos,fpl->eintrag[i].pos.get_2d())<=2) {
+		if (koord_distance(last_world_pos, e.pos.get_2d()) <= 2) {
 			// draw stop name with an index
 			cbuffer_t buf;
-			buf.printf( translator::translate("(%i)-"), i+1 );
-			fahrplan_gui_t::gimme_short_stop_name(buf, welt, welt->get_spieler(fpl_player_nr), fpl->eintrag[i], 240);
+			buf.printf(translator::translate("(%u)-"), i);
+			fahrplan_gui_t::gimme_short_stop_name(buf, welt, welt->get_spieler(fpl_player_nr), e, 240);
 			display_ddd_proportional_clip(new_koord.x+10, new_koord.y+7, proportional_string_width(buf)+8, 0, color, COL_WHITE, buf, true);
 		}
 		// box at station
