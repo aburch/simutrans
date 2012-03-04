@@ -166,38 +166,36 @@ cbuffer_t fahrplan_gui_stats_t::buf;
 
 void fahrplan_gui_stats_t::zeichnen(koord offset)
 {
-	if(fpl) {
-		sint16 width = get_groesse().x-16;
+	if (!fpl) return;
 
-		if(  fpl->get_count()==0  ) {
-			buf.clear();
-			buf.append( translator::translate( "Please click on the map to add\nwaypoints or stops to this\nschedule." ) );
-			width = display_multiline_text( offset.x+4, offset.y, buf, COL_WHITE );
-			set_groesse( koord(width+4+16,3*LINESPACE ) );
-		}
-		else {
-			for (int i = 0; i < fpl->get_count(); i++) {
-
-				if(  i==fpl->get_aktuell()  ) {
-					// highlight current entry (width is just wide enough, scrolly will do clipping)
-					display_fillbox_wh_clip( offset.x, offset.y + i*(LINESPACE+1)-1, 2048, LINESPACE+1, sp->get_player_color1()+1, false );
-				}
-
-				buf.clear();
-				buf.printf( "%i) ", i+1 );
-				gimme_stop_name(buf, welt, sp, fpl->eintrag[i]);
-				sint16 w = display_proportional_clip(offset.x + 4 + 10, offset.y + i * (LINESPACE + 1), buf, ALIGN_LEFT, i!=fpl->get_aktuell() ? COL_BLACK : COL_WHITE, true);
-				if(  w>width  ) {
-					width = w;
-				}
-
-				// the goto button (right arrow)
-				display_color_img( i!=fpl->get_aktuell() ? button_t::arrow_right_normal : button_t::arrow_right_pushed, offset.x + 2, offset.y + i * (LINESPACE + 1), 0, false, true);
-
+	if (fpl->empty()) {
+		buf.clear();
+		buf.append(translator::translate("Please click on the map to add\nwaypoints or stops to this\nschedule."));
+		sint16 const width = display_multiline_text(offset.x + 4, offset.y, buf, COL_WHITE);
+		set_groesse(koord(width + 4 + 16, 3 * LINESPACE));
+	} else {
+		int    i     = 0;
+		size_t sel   = fpl->get_aktuell();
+		sint16 width = get_groesse().x - 16;
+		FORX(minivec_tpl<linieneintrag_t>, const& e, fpl->eintrag, (--sel, offset.y += LINESPACE + 1)) {
+			if (sel == 0) {
+				// highlight current entry (width is just wide enough, scrolly will do clipping)
+				display_fillbox_wh_clip(offset.x, offset.y - 1, 2048, LINESPACE + 1, sp->get_player_color1() + 1, false);
 			}
-			set_groesse( koord(width+16, fpl->get_count() * (LINESPACE + 1) ) );
-			highlight_schedule( fpl, true );
+
+			buf.clear();
+			buf.printf("%i) ", ++i);
+			gimme_stop_name(buf, welt, sp, e);
+			PLAYER_COLOR_VAL const c = sel == 0 ? COL_BLACK : COL_WHITE;
+			sint16           const w = display_proportional_clip(offset.x + 4 + 10, offset.y, buf, ALIGN_LEFT, c, true);
+			if (width < w) width = w;
+
+			// the goto button (right arrow)
+			image_id const img = sel == 0 ? button_t::arrow_right_normal : button_t::arrow_right_pushed;
+			display_color_img(img, offset.x + 2, offset.y, 0, false, true);
 		}
+		set_groesse(koord(width + 16, fpl->get_count() * (LINESPACE + 1)));
+		highlight_schedule(fpl, true);
 	}
 }
 
