@@ -816,23 +816,20 @@ void reliefkarte_t::draw_schedule(const koord pos) const
 {
 	assert(fpl && !fpl->empty());
 
-	koord first_koord;
-	koord last_koord;
 	const uint8 color = welt->get_spieler(fpl_player_nr)->get_player_color1()+1;
 
 	// get stop list from schedule
+	koord last_koord = fpl->eintrag.back().pos.get_2d();
+	karte_to_screen(last_koord);
+	last_koord += pos;
 	for( int i=0;  i<fpl->get_count();  i++  ) {
 		koord new_koord = fpl->eintrag[i].pos.get_2d();
 		karte_to_screen( new_koord );
 		new_koord += pos;
 
-		if(i>0) {
-			// draw line from stop to stop
-			display_direct_line(last_koord.x, last_koord.y, new_koord.x, new_koord.y, 127);
-		}
-		else {
-			first_koord = new_koord;
-		}
+		// draw line from stop to stop
+		display_direct_line(last_koord.x, last_koord.y, new_koord.x, new_koord.y, 127);
+
 		//check, if mouse is near coordinate
 		if(koord_distance(last_world_pos,fpl->eintrag[i].pos.get_2d())<=2) {
 			// draw stop name with an index
@@ -845,8 +842,6 @@ void reliefkarte_t::draw_schedule(const koord pos) const
 		display_fillbox_wh_clip(new_koord.x, new_koord.y, 4, 4, color, true);
 		last_koord = new_koord;
 	}
-	// draw line back to first stop
-	display_direct_line(last_koord.x, last_koord.y, first_koord.x, first_koord.y, 127);
 }
 
 
