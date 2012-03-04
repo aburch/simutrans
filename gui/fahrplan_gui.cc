@@ -120,11 +120,6 @@ static void gimme_stop_name(cbuffer_t& buf, karte_t* const welt, spieler_t const
 }
 
 
-/**
- * Fills buf with description of schedule's i'th entry.
- * short version, without loading level and position ...
- * @author Hj. Malthaner
- */
 void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t &buf, karte_t *welt, const spieler_t *sp, const schedule_t *fpl, int i, int max_chars)
 {
 	if(i<0  ||  fpl==NULL  ||  i>=fpl->get_count()) {

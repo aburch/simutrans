@@ -68,11 +68,10 @@ public:
 class fahrplan_gui_t :	public gui_frame_t,
 						public action_listener_t
 {
- public:
+public:
 	/**
-         * Fills buf with description of schedule's i'th entry.
+	 * Fills buf with description of schedule's i'th entry.
 	 * short version, without loading level and position ...
-	 * @author Hj. Malthaner
 	 */
 	static void gimme_short_stop_name(cbuffer_t & buf, karte_t *welt, const spieler_t *sp, const schedule_t *fpl, int i, int max_chars);
 
