@@ -168,7 +168,9 @@ void factorylist_stats_t::zeichnen(koord offset)
 		recalc_size();
 	}
 
-	for (uint32 i=0; i<fab_list.get_count()  &&  yoff<end; i++) {
+	uint32 sel = line_selected;
+	FOR(vector_tpl<fabrik_t*>, const fab, fab_list) {
+		if (yoff >= end) break;
 
 		// skip invisible lines
 		if(yoff<start) {
@@ -176,15 +178,11 @@ void factorylist_stats_t::zeichnen(koord offset)
 			continue;
 		}
 
-		const fabrik_t* fab = fab_list[i];
 		if(fab) {
-			//DBG_DEBUG("factorylist_stats_t()","zeichnen() factory %i",i);
 			unsigned indikatorfarbe = fabrik_t::status_to_color[fab->get_status()];
 
 			buf.clear();
-			//		buf.append(i+1);
-			//		buf.append(".) ");
-			buf.append(fab_list[i]->get_name());
+			buf.append(fab->get_name());
 			buf.append(" (");
 
 			if (!fab->get_eingang().empty()) {
@@ -224,8 +222,8 @@ void factorylist_stats_t::zeichnen(koord offset)
 			display_proportional_clip(xoff+D_INDICATOR_WIDTH+6+28,yoff,buf,ALIGN_LEFT,COL_BLACK,true);
 
 			// goto button
-			display_color_img( i!=line_selected ? button_t::arrow_right_normal : button_t::arrow_right_pushed, xoff-14, yoff, 0, false, true);
-
+			image_id const img = sel-- != 0 ? button_t::arrow_right_normal : button_t::arrow_right_pushed;
+			display_color_img(img, xoff-14, yoff, 0, false, true);
 		}
 		yoff += LINESPACE+1;
 	}

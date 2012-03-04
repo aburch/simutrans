@@ -156,8 +156,9 @@ void curiositylist_stats_t::zeichnen(koord offset)
 		recalc_size();
 	}
 
-	for (uint32 i=0; i<attractions.get_count()  &&  yoff<end; i++) {
-		const gebaeude_t* geb = attractions[i];
+	uint32 sel = line_selected;
+	FOR(vector_tpl<gebaeude_t*>, const geb, attractions) {
+		if (yoff >= end) break;
 
 		int xoff = offset.x+10;
 
@@ -168,7 +169,8 @@ void curiositylist_stats_t::zeichnen(koord offset)
 		}
 
 		// goto button
-		display_color_img( i!=line_selected ? button_t::arrow_right_normal : button_t::arrow_right_pushed, xoff-8, yoff, 0, false, true);
+		image_id const img = sel-- != 0 ? button_t::arrow_right_normal : button_t::arrow_right_pushed;
+		display_color_img(img, xoff - 8, yoff, 0, false, true);
 
 		buf.clear();
 

@@ -210,8 +210,9 @@ void labellist_stats_t::zeichnen(koord offset)
 
 
 	// changes to loop affecting x_size must be copied to ::recalc_size()
-	for (uint32 i=0; i<labels.get_count()  &&  yoff<end; i++) {
-		const koord pos = labels[i];
+	uint32 sel = line_selected;
+	FOR(vector_tpl<koord>, const& pos, labels) {
+		if (yoff >= end) break;
 
 		// skip invisible lines
 		if(yoff<start) {
@@ -220,8 +221,8 @@ void labellist_stats_t::zeichnen(koord offset)
 		}
 
 		// goto button
-		display_color_img( i!=line_selected ? button_t::arrow_right_normal : button_t::arrow_right_pushed,
-				offset.x+2, yoff, 0, false, true);
+		image_id const img = sel-- != 0 ? button_t::arrow_right_normal : button_t::arrow_right_pushed;
+		display_color_img(img, offset.x + 2, yoff, 0, false, true);
 
 		buf.clear();
 
