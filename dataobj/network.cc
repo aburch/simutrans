@@ -268,13 +268,15 @@ SOCKET network_open_address(char const* cp, char const*& err)
 			my_client_socket = socket( walk_local->ai_family, walk_local->ai_socktype, walk_local->ai_protocol );
 
 			if (  my_client_socket == INVALID_SOCKET  ) {
-				DBG_MESSAGE( "network_open_address()", "Invalid socket, skipping..." );
+				DBG_MESSAGE( "network_open_address()", "Could not create socket! Error: \"%s\"", strerror(GET_LAST_ERROR()) );
 				continue;
 			}
 
 			// Bind socket to local IP
 			if (  bind( my_client_socket, local->ai_addr, local->ai_addrlen )  ) {
-				DBG_MESSAGE( "network_open_address()", "Unable to bind socket to local IP address!" );
+				DBG_MESSAGE( "network_open_address()", "Unable to bind socket to local IP address! Error: \"%s\"", strerror(GET_LAST_ERROR()) );
+				network_close_socket( my_client_socket );
+				my_client_socket = INVALID_SOCKET;
 				continue;
 			}
 
@@ -300,7 +302,7 @@ SOCKET network_open_address(char const* cp, char const*& err)
 				DBG_MESSAGE( "network_open_address()", "Potential remote address: %s", ipstr_remote );
 
 				if (  connect( my_client_socket, walk_remote->ai_addr, walk_remote->ai_addrlen ) != 0  ) {
-					DBG_MESSAGE( "network_open_address()", "Could not connect using this socket." );
+					DBG_MESSAGE( "network_open_address()", "Could not connect using this socket. Error: \"%s\"", strerror(GET_LAST_ERROR()) );
 					continue;
 				}
 				connected = true;
@@ -419,7 +421,7 @@ bool network_init_server( int port )
 			server_socket = socket( walk->ai_family, walk->ai_socktype, walk->ai_protocol );
 
 			if (  server_socket == INVALID_SOCKET  ) {
-				DBG_MESSAGE( "network_init_server()", "Invalid socket, skipping..." );
+				DBG_MESSAGE( "network_init_server()", "Could not create socket! Error: \"%s\"", strerror(GET_LAST_ERROR()) );
 				continue;
 			}
 
@@ -428,7 +430,9 @@ bool network_init_server( int port )
 			if (  walk->ai_family == AF_INET6  ) {
 				int on = 1;
 				if (  setsockopt(server_socket, IPPROTO_IPV6, IPV6_V6ONLY, (char*)&on, sizeof(on)) != 0  ) {
-					dbg->warning( "network_init_server()", "Call to setsockopt() failed for: \"%s\", error was: \"%s\"", ip.c_str(), std::strerror(errno) );
+					dbg->warning( "network_init_server()", "Call to setsockopt() failed for: \"%s\", error was: \"%s\"", ip.c_str(), strerror(GET_LAST_ERROR()) );
+					network_close_socket( server_socket );
+					server_socket = INVALID_SOCKET;
 					continue;
 				}
 			}
@@ -672,11 +676,11 @@ bool network_send_data( SOCKET dest, const char *buf, const uint16 size, uint16 
 {
 	count = 0;
 	while (count < size) {
-		int sent = ::send(dest, buf+count, size-count, 0);
+		int sent = send(dest, buf+count, size-count, 0);
 		if (sent == -1) {
 			int err = GET_LAST_ERROR();
 			if (err != EWOULDBLOCK) {
-				dbg->warning("network_send_data", "error %d while sending to [%d]", err, dest);
+				dbg->warning("network_send_data", "error \"%s\" while sending to [%d]", strerror(err), dest);
 				return false;
 			}
 			if (timeout_ms <= 0) {
