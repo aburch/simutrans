@@ -82,6 +82,9 @@ public:
 	// pause server if no client connected
 	static bool pause_server_no_clients;
 
+	// nickname of player
+	static std::string nickname;
+
 	// scrollrichtung
 	static sint16 scroll_multi;
 

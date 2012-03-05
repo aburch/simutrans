@@ -132,3 +132,9 @@ void packet_t::send(SOCKET s, bool complete)
 		dbg->message("packet_t::send", "sent %d bytes to socket[%d]; id=%d, size=%d, left=%d", count, s, id, size, size-count);
 	}
 }
+
+
+void packet_t::sent_by_server()
+{
+	sock = socket_list_t::get_socket(0);
+}

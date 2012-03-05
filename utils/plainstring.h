@@ -23,6 +23,14 @@ class plainstring
 			return *this;
 		}
 
+		plainstring& operator =(plainstring const& o)
+		{
+			char* const s = copy_string(o.str_);
+			delete [] str_;
+			str_ = s;
+			return *this;
+		}
+
 		char const* c_str() const { return str_; }
 
 		operator char const*() const { return str_; }

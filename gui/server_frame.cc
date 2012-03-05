@@ -18,6 +18,7 @@
 #include "../dataobj/translator.h"
 #include "../dataobj/network.h"
 #include "../dataobj/network_file_transfer.h"
+#include "../dataobj/network_cmd_ingame.h"
 #include "../dataobj/network_cmp_pakset.h"
 #include "../dataobj/umgebung.h"
 #include "../dataobj/pakset_info.h"
@@ -26,7 +27,7 @@
 #include "messagebox.h"
 #include "help_frame.h"
 
-
+static char nick_buf[256];
 
 server_frame_t::server_frame_t(karte_t* w) :
 	gui_frame_t( translator::translate("Game info") ),
@@ -79,6 +80,19 @@ server_frame_t::server_frame_t(karte_t* w) :
 	add_komponente( &date );
 
 	pos_y += LINESPACE*8+8;
+
+	nick_label.set_pos( koord( 4, pos_y+3 ) );
+	add_komponente(&nick_label);
+	nick_label.set_text("Nickname: ");
+
+	add_komponente(&nick);
+	nick.set_pos( koord( 80, pos_y ) );
+	nick.add_listener(this);
+	nick.set_text(nick_buf, lengthof(nick_buf));
+	nick.set_groesse(koord(240-80-4, D_BUTTON_HEIGHT) );
+	tstrncpy( nick_buf, umgebung_t::nickname.c_str(), min( lengthof(nick_buf), umgebung_t::nickname.length()+1 ) );
+
+	pos_y += 8+D_BUTTON_HEIGHT;
 
 	if(  !umgebung_t::networkmode  ) {
 		find_mismatch.init( button_t::box, "find mismatch", koord( 4, pos_y ), koord( 112, D_BUTTON_HEIGHT) );
@@ -335,12 +349,25 @@ bool server_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 			update_serverlist( gi.get_game_engine_revision(), gi.get_pak_name() );
 		}
 	}
+	else if(  &nick == komp  ) {
+		char* nickname = nick.get_text();
+		if (umgebung_t::nickname != nickname) {
+			nwc_nick_t* nwc = new nwc_nick_t(nickname);
+			network_send_server(nwc);
+		}
+	}
 	else if(  &join == komp  ) {
 		if(  serverlist.get_selection()==-1  ) {
 			dbg->error( "server_frame_t::action_triggered()", "join pressed without valid selection" );
 			join.disable();
 		}
 		else {
+			char* nickname = nick.get_text();
+			if (strlen(nickname) == 0) {
+				// forbid joining?
+			}
+			umgebung_t::nickname = nickname;
+
 			std::string filename = "net:";
 			filename += serverlist.get_element(serverlist.get_selection())->get_text();
 			destroy_win(this);
@@ -367,6 +394,11 @@ bool server_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 
 void server_frame_t::zeichnen(koord pos, koord gr)
 {
+	// update nickname if necessary
+	if (get_focus() != &nick  &&  umgebung_t::nickname!=nick_buf) {
+		tstrncpy( nick_buf, umgebung_t::nickname.c_str(), min( lengthof(nick_buf), umgebung_t::nickname.length()+1 ) );
+	}
+
 	gui_frame_t::zeichnen( pos, gr );
 
 	sint16 pos_y = pos.y+16;
@@ -389,11 +421,14 @@ void server_frame_t::zeichnen(koord pos, koord gr)
 	display_ddd_box_clip( pos.x+240-7-mapsize.x, pos_y-mapsize.y-3, mapsize.x+2, mapsize.y+2, MN_GREY0,MN_GREY4);
 	display_array_wh( pos.x+240-6-mapsize.x, pos_y-mapsize.y-2, mapsize.x, mapsize.y, gi.get_map()->to_array() );
 
-	if(  !umgebung_t::networkmode  ) {
-		pos_y += 4;
-		display_ddd_box_clip( pos.x+4, pos_y, 240-8, 0, MN_GREY0, MN_GREY4);
+	pos_y += 4;
+	display_ddd_box_clip( pos.x+4, pos_y, 240-8, 0, MN_GREY0, MN_GREY4);
 
+	if(  !umgebung_t::networkmode  ) {
 		// drawing twice, but otherwise it will not overlay image
 		serverlist.zeichnen( pos+koord(0,16) );
 	}
+
+	pos_y += D_BUTTON_HEIGHT + 8;
+	display_ddd_box_clip( pos.x+4, pos_y, 240-8, 0, MN_GREY0, MN_GREY4);
 }

@@ -10,13 +10,12 @@ class address_list_t;
 class karte_t;
 class packet_t;
 class socket_info_t;
-class spieler_t;
-class werkzeug_t;
 
 // actual commands
 enum {
 	NWC_INVALID   = 0,
 	NWC_GAMEINFO,
+	NWC_NICK,
 	NWC_JOIN,
 	NWC_SYNC,
 	NWC_GAME,

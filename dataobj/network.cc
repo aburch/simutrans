@@ -14,6 +14,7 @@
 
 #include "network.h"
 #include "network_address.h"
+#include "network_packet.h"
 #include "network_socket_list.h"
 #include "network_cmd.h"
 #include "network_cmd_ingame.h"
@@ -660,6 +661,7 @@ void network_send_server(network_command_t* nwc )
 		}
 		else {
 			// I am the server
+			nwc->get_packet()->sent_by_server();
 			received_command_queue.append(nwc);
 		}
 	}

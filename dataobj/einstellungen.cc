@@ -814,6 +814,9 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	if(  *contents.get("server_admin_pw")  ) {
 		umgebung_t::server_admin_pw = ltrim(contents.get("server_admin_pw"));
 	}
+	if(  *contents.get("nickname")  ) {
+		umgebung_t::nickname = ltrim(contents.get("nickname"));
+	}
 
 	// listen directive is a comma seperated list of IP addresses to listen on
 	if(  *contents.get("listen")  ) {

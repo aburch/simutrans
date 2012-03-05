@@ -2382,7 +2382,7 @@ void karte_t::set_werkzeug( werkzeug_t *w, spieler_t *sp )
 	}
 
 	if(  (!w->is_init_network_save()  ||  !w->is_work_network_save())  &&
-		 !(w->get_id()==(WKZ_SET_PLAYER_TOOL|SIMPLE_TOOL))  &&
+		 !(w->get_id()==(WKZ_SET_PLAYER_TOOL|SIMPLE_TOOL)  ||  w->get_id()==(WKZ_ADD_MESSAGE_TOOL|SIMPLE_TOOL))  &&
 		 sp  &&  sp->is_locked()  ) {
 		// player is currently password protected => request unlock first
 		create_win( -1, -1, new password_frame_t(sp), w_info, magic_pwd_t + sp->get_player_nr() );
@@ -3401,6 +3401,15 @@ void karte_t::step()
 		if(  umgebung_t::server_announce  ) {
 			// inform the master server
 			announce_server( 1 );
+		}
+
+		// check if player has left and send message
+		for(uint32 i=0; i < socket_list_t::get_count(); i++) {
+			socket_info_t& info = socket_list_t::get_client(i);
+			if (info.state == socket_info_t::has_left) {
+				nwc_nick_t::server_tools(this, i, nwc_nick_t::FAREWELL, NULL);
+				info.state = socket_info_t::inactive;
+			}
 		}
 		last_clients = socket_list_t::get_playing_clients();
 		// add message via tool

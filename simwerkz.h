@@ -957,6 +957,7 @@ public:
 	wkz_add_message_t() : werkzeug_t(WKZ_ADD_MESSAGE_TOOL | SIMPLE_TOOL) {}
 	bool init(karte_t*, spieler_t*) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return false; }
+	char const* get_default_param(spieler_t*) const OVERRIDE;
 };
 
 

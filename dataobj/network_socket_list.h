@@ -22,13 +22,16 @@ public:
 		server		= 1, // server socket
 		connected	= 2, // connection established but client does not participate in the game yet
 		playing		= 3, // client actively plays
-		admin       = 4  // admin connection
+		has_left	= 4, // was playing but left
+		admin    	= 5  // admin connection
 	};
 	uint8 state;
 
 	SOCKET socket;
 
 	net_address_t address;
+
+	std::string nickname;
 
 	socket_info_t() : packet(0), send_queue(), state(inactive), socket(INVALID_SOCKET), address(), player_unlocked(0) {}
 
@@ -128,6 +131,8 @@ public:
 	static bool is_valid_client_id( uint32 client_id ) {
 		return client_id < list.get_count();
 	}
+
+	uint32 static get_count() { return list.get_count(); }
 
 	static SOCKET get_socket( uint32 client_id ) {
 		return client_id < list.get_count()  &&  list[client_id]->state != socket_info_t::inactive

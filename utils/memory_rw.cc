@@ -2,6 +2,7 @@
 #include "memory_rw.h"
 #include <string.h>
 #include <stdlib.h>
+#include "plainstring.h"
 #include "../simdebug.h"
 #include "../simmem.h"
 
@@ -144,6 +145,19 @@ void memory_rw_t::rdwr_str(char *&s)
 			rdwr(s, len);
 			s[len] = '\0';
 		}
+	}
+}
+
+
+void memory_rw_t::rdwr_str(plainstring& s)
+{
+	if (is_loading()) {
+		char *buf = NULL;
+		rdwr_str(buf);
+		s = buf;
+		free(buf);
+	} else {
+		rdwr_str((char*&)s);
 	}
 }
 

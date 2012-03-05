@@ -70,6 +70,7 @@ char const* network_receive_file(SOCKET const s, char const* const save_as, long
 
 #include "loadsave.h"
 #include "gameinfo.h"
+#include "umgebung.h"
 #include "../simworld.h"
 #include "../utils/simstring.h"
 
@@ -140,7 +141,7 @@ const char *network_connect(const char *cp, karte_t *world)
 	if(  err==NULL  ) {
 		// want to join
 		{
-			nwc_join_t nwc_join;
+			nwc_join_t nwc_join( umgebung_t::nickname.c_str() );
 			nwc_join.rdwr();
 			if (!nwc_join.send(my_client_socket)) {
 				err = "send of NWC_JOIN failed";
@@ -168,6 +169,9 @@ const char *network_connect(const char *cp, karte_t *world)
 			err = "Server busy";
 			goto end;
 		}
+		// set nickname
+		umgebung_t::nickname = nwj->nickname.c_str();
+
 		network_set_client_id(nwj->client_id);
 		// update map counter
 		// wait for sync command (tolerate some wrong commands)

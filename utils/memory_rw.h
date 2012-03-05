@@ -8,6 +8,8 @@
 
 #include "../simtypes.h"
 
+class plainstring;
+
 class memory_rw_t {
 private:
 	// pointer to the buffer
@@ -46,6 +48,8 @@ public:
 	void rdwr_double(double &dbl);
 	// s: pointer to a string allocated with malloc!
 	void rdwr_str(char *&s);
+
+	void rdwr_str(plainstring& s);
 
 	/**
 	 * appends the contents of the other buffer from [0 .. index-1]

@@ -37,6 +37,8 @@ long umgebung_t::network_frames_per_step = 4;
 uint32 umgebung_t::server_sync_steps_between_checks = 256;
 bool umgebung_t::pause_server_no_clients = false;
 
+std::string umgebung_t::nickname = "";
+
 // this is explicitely and interactively set by user => we do not touch it in init
 const char *umgebung_t::language_iso = "en";
 sint16 umgebung_t::scroll_multi = 1;
@@ -321,6 +323,13 @@ void umgebung_t::rdwr(loadsave_t *file)
 
 	if(  file->get_version()>=111002  ) {
 		file->rdwr_bool( visualize_schedule );
+	}
+	if (  file->get_version()>=111003 ) {
+		plainstring str = nickname.c_str();
+		file->rdwr_str(str);
+		if (file->is_loading()) {
+			nickname = str.c_str();
+		}
 	}
 	// server settings are not saved, since the are server specific and could be different on different servers on the save computers
 }

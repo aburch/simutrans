@@ -629,3 +629,6 @@ fast_forward = 50
 
 # Pause server when no clients are connected
 #pause_server_no_clients = 1
+
+# Nickname when joining network games
+#nickname = John Doe

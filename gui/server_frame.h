@@ -6,6 +6,7 @@
 #include "components/gui_combobox.h"
 #include "components/gui_label.h"
 #include "components/action_listener.h"
+#include "components/gui_textinput.h"
 #include "../dataobj/gameinfo.h"
 #include "../utils/cbuffer_t.h"
 
@@ -23,7 +24,8 @@ private:
 	button_t add, join, find_mismatch;
 	button_t show_all_rev;
 	gui_combobox_t serverlist;
-	gui_label_t revision, pak_version, date;
+	gui_label_t revision, pak_version, date, nick_label;
+	gui_textinput_t nick;
 #if DEBUG>=4
 	gui_label_t pakset_checksum;
 #endif

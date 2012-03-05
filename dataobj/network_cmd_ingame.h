@@ -32,6 +32,38 @@ public:
 };
 
 /**
+ * nwc_nick_t
+ * @from-client: client sends new nickname,
+ *               server checks if nickname is already taken,
+ *               and generates a default one if this is the case
+ * @from-server: server sends the checked nickname back to the client
+ */
+class nwc_nick_t : public network_command_t {
+public:
+	nwc_nick_t(const char* nick=NULL)
+	: network_command_t(NWC_NICK), nickname(nick) {  }
+
+	virtual bool execute(karte_t *);
+	virtual void rdwr();
+	virtual const char* get_name() { return "nwc_nick_t";}
+	plainstring nickname;
+
+	enum { WELCOME, CHANGE_NICK, FAREWELL};
+	/**
+	 * Server-side nickname related stuff:
+	 * what = WELCOME     .. new player joined: send welcome message
+	 * what = CHANGE_NICK .. change nickname: in socket_list per client, send new nick back to client, tell others as well
+	 * what = FAREWELL    .. player has left: send message
+	 */
+	static void server_tools(karte_t *welt, uint32 client_id, uint8 what, const char* nick);
+
+private:
+	nwc_nick_t(const nwc_nick_t&);
+	nwc_nick_t& operator=(const nwc_nick_t&);
+};
+
+
+/**
  * nwc_join_t
  * @from-client: client wants to join the server
  *		server sends nwc_join_t to sender, nwc_sync_t to all clients
@@ -40,9 +72,11 @@ public:
  *		@data client_id
  *		client ignores the following nwc_sync_t, waits for nwc_ready_t
  */
-class nwc_join_t : public network_command_t {
+class nwc_join_t : public nwc_nick_t {
 public:
-	nwc_join_t() : network_command_t(NWC_JOIN), client_id(0), answer(0) {}
+	nwc_join_t(const char* nick=NULL)
+	: nwc_nick_t(nick), client_id(0), answer(0) { id = NWC_JOIN; }
+
 	virtual bool execute(karte_t *);
 	virtual void rdwr();
 	virtual const char* get_name() { return "nwc_join_t";}
@@ -55,7 +89,11 @@ public:
 	static SOCKET pending_join_client;
 
 	static bool is_pending() { return pending_join_client != INVALID_SOCKET; }
+private:
+	nwc_join_t(const nwc_join_t&);
+	nwc_join_t& operator=(const nwc_join_t&);
 };
+
 
 /**
  * nwc_ready_t
@@ -220,11 +258,12 @@ private:
 };
 
 /**
- * nwc_chg_player_t (commands that require special authentication checks)
+ * nwc_chg_player_t
+ * 		commands that require special authentication checks: toggle freeplay, start AI player
  * @from-server:
- *		@data checklist random seed and quickstone next check entries at previous sync_step
- *		clients: check random seed, if check fails disconnect.
- *      the check is done in karte_t::interactive
+ * 		@data cmd command to perform (see karte_t::change_player_tool)
+ * 		@data player_nr affected player
+ * 		@data param
  */
 class nwc_chg_player_t : public network_broadcast_world_command_t {
 public:
@@ -240,7 +279,6 @@ public:
 	uint8 cmd;
 	uint8 player_nr;
 	uint16 param;
-	uint32 tool_client_id;
 };
 
 /**

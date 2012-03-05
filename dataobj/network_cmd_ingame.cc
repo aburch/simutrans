@@ -29,6 +29,7 @@ network_command_t* network_command_t::read_from_packet(packet_t *p)
 	network_command_t* nwc = NULL;
 	switch (p->get_id()) {
 		case NWC_GAMEINFO:    nwc = new nwc_gameinfo_t(); break;
+		case NWC_NICK:	      nwc = new nwc_nick_t(); break;
 		case NWC_JOIN:	      nwc = new nwc_join_t(); break;
 		case NWC_SYNC:        nwc = new nwc_sync_t(); break;
 		case NWC_GAME:        nwc = new nwc_game_t(); break;
@@ -109,12 +110,113 @@ bool nwc_gameinfo_t::execute(karte_t *welt)
 }
 
 
-SOCKET nwc_join_t::pending_join_client = INVALID_SOCKET;
+void nwc_nick_t::rdwr()
+{
+	network_command_t::rdwr();
+	packet->rdwr_str(nickname);
+}
 
+
+/**
+ * if server: checks whether nickname is taken and generates default nick
+ */
+bool nwc_nick_t::execute(karte_t *welt)
+{
+	if(umgebung_t::server) {
+		uint32 client_id = socket_list_t::get_client_id(packet->get_sender());
+
+		if(nickname==NULL) {
+			goto generate_default_nick;
+		}
+
+		// check for same nick
+		for(uint32 i = 0; i<socket_list_t::get_count(); i++) {
+			socket_info_t& info = socket_list_t::get_client(i);
+			if ( (info.state == socket_info_t::playing  ||  i==0)
+				&&  i != client_id
+				&&  nickname == info.nickname.c_str())
+			{
+				goto generate_default_nick;
+			}
+		}
+		if (id == NWC_NICK) {
+			// do not call this tool if called by nwc_join_t::execute
+			nwc_nick_t::server_tools(welt, client_id, CHANGE_NICK, nickname);
+		}
+		return true;
+
+generate_default_nick:
+		// nick exists already
+		// generate default nick
+		cbuffer_t buf;
+		buf.printf("Client#%d", client_id);
+		nickname = (const char*)buf;
+		return true;
+	}
+	else {
+		umgebung_t::nickname = nickname!=NULL ? nickname.c_str() : "(null)";
+	}
+	return true;
+}
+
+
+void nwc_nick_t::server_tools(karte_t *welt, uint32 client_id, uint8 what, const char* nick)
+{
+	if (!socket_list_t::is_valid_client_id(client_id)) {
+		return;
+	}
+	socket_info_t &info = socket_list_t::get_client(client_id);
+
+	cbuffer_t buf;
+	switch(what) {
+		case WELCOME: {
+			// welcome message
+			buf.printf(translator::translate("Welcome, %s!", welt->get_settings().get_name_language_id()),
+				   info.nickname.c_str());
+			break;
+		}
+		case CHANGE_NICK: {
+			if (nick==NULL  ||  info.nickname == nick) {
+				return;
+			}
+			// change nickname
+			buf.printf(translator::translate("%s now known as %s.", welt->get_settings().get_name_language_id()),
+				   info.nickname.c_str(), nick);
+			info.nickname = nick;
+
+			if (client_id > 0) {
+				// send new nickname back to client
+				nwc_nick_t nwc(nick);
+				nwc.send(info.socket);
+			}
+			else {
+				// human at server
+				umgebung_t::nickname = nick;
+			}
+			break;
+		}
+		case FAREWELL: {
+			buf.printf(translator::translate("%s has left.", welt->get_settings().get_name_language_id()),
+				   info.nickname.c_str());
+			break;
+		}
+		default: return;
+	}
+	werkzeug_t *w = create_tool( WKZ_ADD_MESSAGE_TOOL | SIMPLE_TOOL );
+	w->set_default_param( buf );
+	// queue tool for network
+	nwc_tool_t *nwc = new nwc_tool_t(NULL, w, koord3d::invalid, 0, welt->get_map_counter(), true);
+	network_send_server(nwc);
+	// since init always returns false, it is save to delete immediately
+	delete w;
+}
+
+
+SOCKET nwc_join_t::pending_join_client = INVALID_SOCKET;
 
 void nwc_join_t::rdwr()
 {
-	network_command_t::rdwr();
+	nwc_nick_t::rdwr();
 	packet->rdwr_long(client_id);
 	packet->rdwr_byte(answer);
 }
@@ -127,6 +229,14 @@ bool nwc_join_t::execute(karte_t *welt)
 		// TODO: check whether we can send a file
 		nwc_join_t nwj;
 		nwj.client_id = socket_list_t::get_client_id(packet->get_sender());
+		//save nickname
+		if (socket_list_t::is_valid_client_id(nwj.client_id)) {
+			// check nickname
+			nwc_nick_t::execute(welt);
+			nwj.nickname = nickname;
+			socket_list_t::get_client(nwj.client_id).nickname = nickname;
+		}
+
 		// no other joining process active?
 		nwj.answer = socket_list_t::get_client(nwj.client_id).is_active()  &&  pending_join_client == INVALID_SOCKET ? 1 : 0;
 		DBG_MESSAGE( "nwc_join_t::execute", "client_id=%i active=%i pending_join_client=%i active=%d", socket_list_t::get_client_id(packet->get_sender()), socket_list_t::get_client(nwj.client_id).is_active(), pending_join_client, nwj.answer );
@@ -481,6 +591,9 @@ void nwc_sync_t::do_command(karte_t *welt)
 					nwc_auth_player_t nwc;
 					nwc.player_unlocked = unlocked_players;
 					nwc.send(sock);
+
+					// welcome message
+					nwc_nick_t::server_tools(welt, client_id, nwc_nick_t::WELCOME, NULL);
 				}
 			}
 			else {
@@ -558,7 +671,6 @@ void nwc_chg_player_t::rdwr()
 	packet->rdwr_byte(cmd);
 	packet->rdwr_byte(player_nr);
 	packet->rdwr_short(param);
-	packet->rdwr_long(tool_client_id);
 }
 
 
@@ -692,8 +804,13 @@ network_broadcast_world_command_t* nwc_tool_t::clone(karte_t *welt)
 			return NULL; // indicate failure
 		}
 		if ( player_nr < PLAYER_UNOWNED  &&  !socket_list_t::get_client(our_client_id).is_player_unlocked(player_nr) ) {
-			dbg->warning("nwc_tool_t::clone", "client %d not allowed to act as player %d", our_client_id, player_nr);
-			return NULL; // indicate failure
+			if (wkz_id == (WKZ_ADD_MESSAGE_TOOL|SIMPLE_TOOL)) {
+				player_nr = PLAYER_UNOWNED;
+			}
+			else {
+				dbg->warning("nwc_tool_t::clone", "client %d not allowed to act as player %d", our_client_id, player_nr);
+				return NULL; // indicate failure
+			}
 		}
 #if 0
 #error "Pause does not reset nwc_join_t::pending_join_client properly. Disabled for now here and in simwerkz.h (wkz_pause_t)"
