@@ -245,15 +245,15 @@ static uint16 str_to_key( const char *str )
 			}
 		}
 		// COMMA
-		if(strncmp("COMMA",str,5)==0) {
+		if (strstart(str, "COMMA")) {
 			return ',';
 		}
 		// HOME
-		if(strncmp("HOME",str,4)==0) {
+		if (strstart(str, "HOME")) {
 			return SIM_KEY_HOME;
 		}
 		// END
-		if(strncmp("END",str,3)==0) {
+		if (strstart(str, "END")) {
 			return SIM_KEY_END;
 		}
 	}

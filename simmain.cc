@@ -847,7 +847,7 @@ int simu_main(int argc, char** argv)
 		// try recover with the latest savegame
 		if(  file.rd_open(servername)  ) {
 			// compare pakset (objfilename has trailing path separator, pak_extension not)
-			if(  strncmp( file.get_pak_extension(), umgebung_t::objfilename.c_str(), strlen(file.get_pak_extension() ) )==0  ) {
+			if (strstart(umgebung_t::objfilename.c_str(), file.get_pak_extension())) {
 				// same pak directory - load this
 				loadgame = servername;
 				new_world = false;

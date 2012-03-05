@@ -260,7 +260,7 @@ bool server_frame_t::update_serverlist ( uint revision, const char *pakset )
 		if (  ret <= 0  ) { continue; }
 		// now check pakset match
 		if (  pakset != NULL  ) {
-			if (  strncmp( pakset, serverpakset.get_str(), strlen( pakset ) )  ) {
+			if (!strstart(serverpakset.get_str(), pakset)) {
 				dbg->warning( "server_frame_t::update_serverlist", "pakset '%s' does not match our pakset ('%s'), skipping", serverpakset.get_str(), pakset );
 				continue;
 			}

@@ -5,6 +5,7 @@
 #include "simmem.h"
 #include "macros.h"
 #include "font.h"
+#include "utils/simstring.h"
 
 
 /* if defined, for the old .fnt files a .bdf core will be generated */
@@ -66,7 +67,7 @@ static int dsp_read_bdf_glyph(FILE *fin, uint8 *data, uint8 *screen_w, int char_
 		fgets(str, sizeof(str), fin);
 
 		// endcoding (sint8 number) in decimal
-		if (strncmp(str, "ENCODING", 8) == 0) {
+		if (strstart(str, "ENCODING")) {
 			char_nr = atoi(str + 8);
 			if (char_nr == 0 || (sint32)char_nr >= char_limit) {
 				fprintf(stderr, "Unexpected character (%i) for %i character font!\n", char_nr, char_limit);
@@ -77,19 +78,19 @@ static int dsp_read_bdf_glyph(FILE *fin, uint8 *data, uint8 *screen_w, int char_
 		}
 
 		// information over size and coding
-		if (strncmp(str, "BBX", 3) == 0) {
+		if (strstart(str, "BBX")) {
 			sscanf(str + 3, "%d %d %d %d", &g_width, &h, &xoff, &g_desc);
 			continue;
 		}
 
 		// information over size and coding
-		if (strncmp(str, "DWIDTH", 6) == 0) {
+		if (strstart(str, "DWIDTH")) {
 			d_width = atoi(str + 6);
 			continue;
 		}
 
 		// start if bitmap data
-		if (strncmp(str, "BITMAP", 6) == 0) {
+		if (strstart(str, "BITMAP")) {
 			const int top = f_height + f_desc - h - g_desc;
 			int y;
 
@@ -110,7 +111,7 @@ static int dsp_read_bdf_glyph(FILE *fin, uint8 *data, uint8 *screen_w, int char_
 		}
 
 		// finally add width information (width = 0: not there!)
-		if (strncmp(str, "ENDCHAR", 7) == 0) {
+		if (strstart(str, "ENDCHAR")) {
 			uint8 start_h=0, i;
 
 			// find the start offset
@@ -165,12 +166,12 @@ static bool dsp_read_bdf_font(FILE* fin, font_type* font)
 
 		fgets(str, sizeof(str), fin);
 
-		if (strncmp(str, "FONTBOUNDINGBOX", 15) == 0) {
+		if (strstart(str, "FONTBOUNDINGBOX")) {
 			sscanf(str + 15, "%*d %d %*d %d", &f_height, &f_desc);
 			continue;
 		}
 
-		if (strncmp(str, "CHARS", 5) == 0  &&  str[5]<=' ') {
+		if (strstart(str, "CHARS") && str[5] <= ' ') {
 			// the characters 0xFFFF and 0xFFFE are guranteed to be non-unicode characters
 			f_chars = atoi(str + 5) <= 256 ? 256 : 65534;
 
@@ -192,7 +193,7 @@ static bool dsp_read_bdf_font(FILE* fin, font_type* font)
 			continue;
 		}
 
-		if (strncmp(str, "STARTCHAR", 9) == 0 && f_chars > 0) {
+		if (strstart(str, "STARTCHAR") && f_chars > 0) {
 			dsp_read_bdf_glyph(fin, data, screen_widths, f_chars, f_height, f_desc);
 			continue;
 		}

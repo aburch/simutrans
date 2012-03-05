@@ -205,7 +205,7 @@ void savegame_frame_t::set_filename(const char *fn)
 {
 	size_t len = strlen(fn);
 	if(len>=4  &&  len-SAVE_PATH_X_LEN-3<128) {
-		if(strncmp(fn,SAVE_PATH_X,SAVE_PATH_X_LEN)==0) {
+		if (strstart(fn, SAVE_PATH_X)) {
 			tstrncpy(ibuf, fn+SAVE_PATH_X_LEN, len-SAVE_PATH_X_LEN-3 );
 		}
 		else {
@@ -234,11 +234,11 @@ void savegame_frame_t::add_file(const char *filename, const char *pak, const boo
 	// sort by date descending:
 	slist_tpl<entry>::iterator i = entries.begin();
 	slist_tpl<entry>::iterator end = entries.end();
-	if(  strncmp( compare_to.c_str(), pak, compare_to.size() )!=0  ) {
+	if (!strstart(pak, compare_to.c_str())) {
 		// skip current ones
 		while(  i != end  ) {
 			// extract palname in same format than in savegames ...
-			if(  strncmp( compare_to.c_str(), i->label->get_text_pointer(), compare_to.size() ) !=0  ) {
+			if (!strstart(i->label->get_text_pointer(), compare_to.c_str())) {
 				break;
 			}
 			++i;
@@ -258,7 +258,7 @@ void savegame_frame_t::add_file(const char *filename, const char *pak, const boo
 				break;
 			}
 			// not our savegame any more => insert
-			if(  strncmp( compare_to.c_str(), i->label->get_text_pointer(), compare_to.size() ) !=0  ) {
+			if (!strstart(i->label->get_text_pointer(), compare_to.c_str())) {
 				break;
 			}
 			++i;
