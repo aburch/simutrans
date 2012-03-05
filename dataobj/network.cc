@@ -259,7 +259,7 @@ SOCKET network_open_address(char const* cp, char const*& err)
 			}
 			// Validate address + get string representation for logging
 			if (  (ret = getnameinfo( (walk_local->ai_addr), socklen_local, ipstr_local, sizeof(ipstr_local), NULL, 0, NI_NUMERICHOST )) !=0  ) {
-				dbg->warning( "network_init_server()", "Call to getnameinfo() failed with error: \"%s\"", gai_strerror(ret) );
+				dbg->warning( "network_open_address()", "Call to getnameinfo() failed with error: \"%s\"", gai_strerror(ret) );
 				continue;
 			}
 
@@ -295,7 +295,7 @@ SOCKET network_open_address(char const* cp, char const*& err)
 
 				// Validate remote address + get string representation for logging
 				if (  (ret = getnameinfo( walk_remote->ai_addr, socklen_remote, ipstr_remote, sizeof(ipstr_remote), NULL, 0, NI_NUMERICHOST )) !=0  ) {
-					dbg->warning( "network_init_server()", "Call to getnameinfo() failed with error: \"%s\"", gai_strerror(ret) );
+					dbg->warning( "network_open_address()", "Call to getnameinfo() failed with error: \"%s\"", gai_strerror(ret) );
 					continue;
 				}
 
