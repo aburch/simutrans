@@ -19,7 +19,6 @@
 
 #define STATE_MASK (127)
 #define AUTOMATIC_MASK (255)
-static const char *empty="";
 
 // default button codes
 #define SQUARE_BUTTON 0
@@ -277,7 +276,7 @@ button_t::button_t() :
 	gui_komponente_t(true)
 {
 	b_no_translate = false;
-	translated_text = text = empty;
+	translated_text = text = "";
 	pressed = false;
 	type = box;
 	foreground = COL_BLACK;
