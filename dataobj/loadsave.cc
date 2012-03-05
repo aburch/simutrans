@@ -98,52 +98,48 @@ bool loadsave_t::rd_open(const char *filename)
 	}
 	saving = false;
 
-	if(strncmp(buf, SAVEGAME_PREFIX, sizeof(SAVEGAME_PREFIX) - 1)) {
-		if(strncmp(buf, XML_SAVEGAME_PREFIX, sizeof(XML_SAVEGAME_PREFIX)-1)!=0) {
+	if (strncmp(buf, SAVEGAME_PREFIX, sizeof(SAVEGAME_PREFIX) - 1) == 0) {
+		version = int_version(buf + sizeof(SAVEGAME_PREFIX) - 1, &mode, pak_extension);
+	} else if (strncmp(buf, XML_SAVEGAME_PREFIX, sizeof(XML_SAVEGAME_PREFIX) - 1) == 0) {
+		mode |= xml;
+		while (lsgetc() != '<') { /* nothing */ }
+		read(buf, sizeof(SAVEGAME_PREFIX) - 1);
+		if (strncmp(buf, SAVEGAME_PREFIX, sizeof(SAVEGAME_PREFIX) - 1)) {
 			close();
+			// not a simutrans XML file ...
 			return false;
 		}
-		else {
-			mode |= xml;
-			while(  lsgetc()!='<'  ) { /* nothing */ }
-			read( buf, sizeof(SAVEGAME_PREFIX) - 1 );
-			if(  strncmp(buf, SAVEGAME_PREFIX, sizeof(SAVEGAME_PREFIX) - 1)  ) {
-				close();
-				// not a simutrans XML file ...
-				return false;
-			}
 
-			read( buf, sizeof("version=\"")-1 );
-			char str[256];
-			char *s = str;
-			for(  int i=0;  i<255;  i++ ) {
+		read(buf, sizeof("version=\"") - 1);
+		char str[256];
+		char *s = str;
+		for (int i = 0; i < 255; i++) {
+			char c = lsgetc();
+			if (c=='\"') {
+				break;
+			}
+			*s++ = c;
+		}
+		*s = 0;
+		int dummy;
+		version = int_version(str, &dummy, pak_extension);
+
+		read(buf, sizeof(" pak=\"") - 1);
+		if (version > 0) {
+			s = pak_extension;
+			for (int i = 0; i < 63; i++) {
 				char c = lsgetc();
-				if(c=='\"') {
+				if (c=='\"') {
 					break;
 				}
 				*s++ = c;
 			}
 			*s = 0;
-			int dummy;
-			version = int_version(str, &dummy, pak_extension);
-
-			read( buf, sizeof(" pak=\"")-1 );
-			if (version>0) {
-				s = pak_extension;
-				for(  int i=0;  i<63;  i++ ) {
-					char c = lsgetc();
-					if(c=='\"') {
-						break;
-					}
-					*s++ = c;
-				}
-				*s = 0;
-				while(  lsgetc()!='>'  )  ;
-			}
+			while (lsgetc() != '>');
 		}
-	}
-	else {
-		version = int_version(buf + sizeof(SAVEGAME_PREFIX) - 1, &mode, pak_extension);
+	} else {
+		close();
+		return false;
 	}
 	if(mode==text) {
 		close();
