@@ -104,7 +104,7 @@ loadsave_frame_t::loadsave_frame_t(karte_t *welt, bool do_load) : savegame_frame
 				xml_tag_t t(&file, "save_game_info");
 				// first filename
 				file.rdwr_str(text);
-				if (text  &&  strlen(text)>0) {
+				if (text && !strempty(text)) {
 					sve_info_t *svei = new sve_info_t();
 					svei->rdwr(&file);
 					cached_info.put(text, svei);

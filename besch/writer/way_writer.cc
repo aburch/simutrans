@@ -1,5 +1,6 @@
 #include <string>
 #include "../../dataobj/tabfile.h"
+#include "../../utils/simstring.h"
 #include "obj_node.h"
 #include "obj_pak_exception.h"
 #include "../weg_besch.h"
@@ -130,7 +131,7 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 		}
 	} else {
 		sprintf(buf, "image[%s][%d]", ribi_codes[0], number_seasons+1);
-		if (strlen(obj.get(buf)) > 0) {
+		if (!strempty(obj.get(buf))) {
 			number_seasons++;
 		}
 

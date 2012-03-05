@@ -103,4 +103,9 @@ const char * ltrim(const char *);
  */
 char const* strstart(char const* str, char const* start);
 
+/**
+ * Returns whether s is the empty string.
+ */
+static inline bool strempty(char const* const s) { return s[0] == '\0'; }
+
 #endif

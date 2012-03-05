@@ -20,6 +20,7 @@
 #include "../../dataobj/umgebung.h"
 
 #include "../../utils/searchfolder.h"
+#include "../../utils/simstring.h"
 
 #include "../../tpl/inthashtable_tpl.h"
 #include "../../tpl/ptrhashtable_tpl.h"
@@ -348,7 +349,7 @@ void obj_reader_t::resolve_xrefs()
 		FOR(stringhashtable_tpl<slist_tpl<obj_besch_t**> >, const& i, u.value) {
 			obj_besch_t *obj_loaded = NULL;
 
-			if (strlen(i.key) > 0) {
+			if (!strempty(i.key)) {
 				if (stringhashtable_tpl<obj_besch_t*>* const objtype_loaded = loaded.access(u.key)) {
 					obj_loaded = objtype_loaded->get(i.key);
 				}

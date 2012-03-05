@@ -16,6 +16,7 @@
 
 #include "../../simskin.h"
 #include "../../besch/skin_besch.h"
+#include "../../utils/simstring.h"
 
 #define STATE_MASK (127)
 #define AUTOMATIC_MASK (255)
@@ -305,7 +306,7 @@ void button_t::set_typ(enum type t)
 	type = t;
 	switch (type&STATE_MASK) {
 		case square:
-			if(  translated_text  &&  strlen(translated_text)>0  ) {
+			if (translated_text && !strempty(translated_text)) {
 				groesse.x = 16 + proportional_string_width( translated_text );
 			}
 			else {
@@ -342,7 +343,7 @@ void button_t::set_text(const char * text)
 	this->text = text;
 	translated_text = b_no_translate ? text : translator::translate(text);
 
-	if(  (type&STATE_MASK)==square  &&  translated_text  &&  strlen(translated_text)>0  ) {
+	if ((type & STATE_MASK) == square && translated_text && !strempty(translated_text)) {
 		groesse.x = 16 + proportional_string_width( translated_text );
 	}
 }
