@@ -811,7 +811,7 @@ const char *wkz_raise_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 		if(hgt < 14*Z_TILE_STEP) {
 
 			int n = 0;	// tiles changed
-			if (default_param && !strempty(default_param)) {
+			if (!strempty(default_param)) {
 				// called by dragging or by AI
 				sint16 height = atoi(default_param);
 				// dragging may be going up or down!
@@ -899,7 +899,7 @@ const char *wkz_lower_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 		if(hgt > welt->get_grundwasser()) {
 
 			int n = 0;	// tiles changed
-			if (default_param && !strempty(default_param)) {
+			if (!strempty(default_param)) {
 				// called by dragging or by AI
 				sint16 height = atoi(default_param);
 				// dragging may be going up or down!
@@ -4003,7 +4003,7 @@ const char *wkz_depot_t::work( karte_t *welt, spieler_t *sp, koord3d k )
  */
 bool wkz_build_haus_t::init( karte_t *welt, spieler_t * )
 {
-	if (is_local_execution() && default_param && !strempty(default_param)) {
+	if (is_local_execution() && !strempty(default_param)) {
 		const char *c = default_param+2;
 		const haus_tile_besch_t *tile = hausbauer_t::find_tile(c,0);
 		if(tile!=NULL) {
@@ -4023,7 +4023,7 @@ const char *wkz_build_haus_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 
 	// Parsing parameter (if there)
 	const haus_besch_t *besch = NULL;
-	if (default_param && !strempty(default_param)) {
+	if (!strempty(default_param)) {
 		const char *c = default_param+2;
 		const haus_tile_besch_t *tile = hausbauer_t::find_tile(c,0);
 		if(tile) {
@@ -4074,7 +4074,7 @@ const char *wkz_build_haus_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 // show industry size in cursor (in known)
 bool wkz_build_industries_land_t::init( karte_t *welt, spieler_t * )
 {
-	if (is_local_execution() && default_param && !strempty(default_param)) {
+	if (is_local_execution() && !strempty(default_param)) {
 		const char *c = default_param+2;
 		while(*c  &&  *c++!=',') { /* do nothing */ }
 		const fabrik_besch_t *fab = fabrikbauer_t::get_fabesch(c);
@@ -4104,7 +4104,7 @@ const char *wkz_build_industries_land_t::work( karte_t *welt, spieler_t *sp, koo
 	}
 
 	const fabrik_besch_t *fab = NULL;
-	if (default_param && !strempty(default_param)) {
+	if (!strempty(default_param)) {
 		const char *c = default_param+2;
 		while(*c  &&  *c++!=',') { /* do nothing */ }
 		fab = fabrikbauer_t::get_fabesch(c);
@@ -4154,7 +4154,7 @@ const char *wkz_build_industries_land_t::work( karte_t *welt, spieler_t *sp, koo
 			spieler_t::accounting(sp, anzahl * welt->get_settings().cst_multiply_found_industry, k.get_2d(), COST_CONSTRUCTION);
 
 			// eventually adjust production
-			if (default_param && !strempty(default_param)) {
+			if (!strempty(default_param)) {
 				fabrik_t::get_fab(welt,k.get_2d())->set_base_production( atol(default_param+2)>>(welt->ticks_per_world_month_shift-18) );
 			}
 
@@ -4174,7 +4174,7 @@ const char *wkz_build_industries_land_t::work( karte_t *welt, spieler_t *sp, koo
 // show industry size in cursor (in known)
 bool wkz_build_industries_city_t::init( karte_t *welt, spieler_t * )
 {
-	if (is_local_execution() && default_param && !strempty(default_param)) {
+	if (is_local_execution() && !strempty(default_param)) {
 		const char *c = default_param+2;
 		while(*c  &&  *c++!=',') { /* do nothing */ }
 		const fabrik_besch_t *fab = fabrikbauer_t::get_fabesch(c);
@@ -4199,7 +4199,7 @@ const char *wkz_build_industries_city_t::work( karte_t *welt, spieler_t *sp, koo
 	}
 
 	const fabrik_besch_t *fab = NULL;
-	if (default_param && !strempty(default_param)) {
+	if (!strempty(default_param)) {
 		const char *c = default_param+2;
 		while(*c  &&  *c++!=',') { /* do nothing */ }
 		fab = fabrikbauer_t::get_fabesch(c);
@@ -4222,7 +4222,7 @@ const char *wkz_build_industries_city_t::work( karte_t *welt, spieler_t *sp, koo
 		welt->change_world_position( k.get_2d(), 0, 0 );
 
 		// eventually adjust production
-		if (default_param && !strempty(default_param)) {
+		if (!strempty(default_param)) {
 			fabrik_t::get_fab(welt,k.get_2d())->set_base_production( atol(default_param+2)>>(welt->ticks_per_world_month_shift-18) );
 		}
 
@@ -4244,7 +4244,7 @@ const char *wkz_build_industries_city_t::work( karte_t *welt, spieler_t *sp, koo
 // show industry size in cursor (must be known!)
 bool wkz_build_factory_t::init( karte_t *welt, spieler_t * )
 {
-	if (is_local_execution() && default_param && !strempty(default_param)) {
+	if (is_local_execution() && !strempty(default_param)) {
 		const char *c = default_param+2;
 		while(*c  &&  *c++!=',') { /* do nothing */ }
 		const fabrik_besch_t *fab = fabrikbauer_t::get_fabesch(c);
@@ -4268,7 +4268,7 @@ const char *wkz_build_factory_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 	}
 
 	const fabrik_besch_t *fab = NULL;
-	if (default_param && !strempty(default_param)) {
+	if (!strempty(default_param)) {
 		const char *c = default_param+2;
 		while(*c  &&  *c++!=',') { /* do nothing */ }
 		fab = fabrikbauer_t::get_fabesch(c);
@@ -4316,7 +4316,7 @@ const char *wkz_build_factory_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 			spieler_t::accounting(sp, welt->get_settings().cst_multiply_found_industry, k.get_2d(), COST_CONSTRUCTION);
 
 			// eventually adjust production
-			if (default_param && !strempty(default_param)) {
+			if (!strempty(default_param)) {
 				f->set_base_production( max(1,atol(default_param+2)>>(welt->ticks_per_world_month_shift-18)) );
 			}
 
@@ -4822,7 +4822,7 @@ const char *wkz_stop_moving_t::do_work( karte_t *welt, spieler_t *sp, const koor
 
 char const* wkz_daynight_level_t::get_tooltip(spieler_t const*) const
 {
-	if (default_param && !strempty(default_param)) {
+	if (!strempty(default_param)) {
 		if(default_param[0]=='+'  ||  default_param[0]=='-') {
 			sprintf(toolstr, "%s %s",
 			translator::translate("1LIGHT_CHOOSE"),
@@ -4842,7 +4842,7 @@ bool wkz_daynight_level_t::init( karte_t *, spieler_t * ) {
 	if(grund_t::underground_mode==grund_t::ugm_all  ||  umgebung_t::night_shift) {
 		return false;
 	}
-	if (default_param && !strempty(default_param)) {
+	if (!strempty(default_param)) {
 		if(default_param[0]=='+'  &&  umgebung_t::daynight_level > 0) {
 			// '+': fade in one level
 			umgebung_t::daynight_level = umgebung_t::daynight_level-1;

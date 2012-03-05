@@ -306,7 +306,7 @@ void button_t::set_typ(enum type t)
 	type = t;
 	switch (type&STATE_MASK) {
 		case square:
-			if (translated_text && !strempty(translated_text)) {
+			if (!strempty(translated_text)) {
 				groesse.x = 16 + proportional_string_width( translated_text );
 			}
 			else {
@@ -343,7 +343,7 @@ void button_t::set_text(const char * text)
 	this->text = text;
 	translated_text = b_no_translate ? text : translator::translate(text);
 
-	if ((type & STATE_MASK) == square && translated_text && !strempty(translated_text)) {
+	if ((type & STATE_MASK) == square && !strempty(translated_text)) {
 		groesse.x = 16 + proportional_string_width( translated_text );
 	}
 }
