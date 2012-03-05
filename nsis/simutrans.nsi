@@ -735,4 +735,3 @@ Function DownloadInstallTgzWithoutSimutrans
 
   Delete "$Temp\$archievename"
 FunctionEnd
-

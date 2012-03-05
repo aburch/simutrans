@@ -114,4 +114,3 @@ void line_management_gui_t::rdwr(loadsave_t *file)
 		destroy_win( this );
 	}
 }
-

@@ -155,4 +155,3 @@ void bild_besch_t::decode_img(sint16 xoff, sint16 yoff, uint32 *target, uint32 t
 		}
 	}
 }
-

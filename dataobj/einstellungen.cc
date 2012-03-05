@@ -1444,4 +1444,3 @@ void settings_t::set_default_player_color(spieler_t* const sp) const
 
 	sp->set_player_color( color1*8, color2*8 );
 }
-

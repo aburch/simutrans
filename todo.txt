@@ -21,4 +21,3 @@ CHECK:
 resize greater than 2400*1536 crashes simutrans
 Toolwindow with 10 last used tools (in fixed order)
 bahnhofsdetaildialog (on the station buildings)
-

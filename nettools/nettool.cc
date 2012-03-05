@@ -497,5 +497,3 @@ int main(int argc, char* argv[]) {
 	}
 	return commands[cmdindex].func(socket, commands[cmdindex].command_id, argc_in, argv_in);
 }
-
-

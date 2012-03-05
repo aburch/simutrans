@@ -340,7 +340,3 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 		set_groesse(gr);
 	}
 }
-
-
-
-

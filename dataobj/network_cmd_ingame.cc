@@ -990,4 +990,3 @@ bool nwc_service_t::execute(karte_t *welt)
 	}
 	return true; // to delete
 }
-

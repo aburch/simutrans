@@ -322,4 +322,3 @@ uint32 sqrt_i32(uint32 num)
     }
     return res;
 }
-
