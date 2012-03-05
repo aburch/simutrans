@@ -5,7 +5,7 @@
  * by Timothy Baldock <tb@entropy.me.uk>
  */
 
-
+#include <cstring>
 #include <stdio.h>
 #include <assert.h>
 
