@@ -1644,10 +1644,11 @@ const char* wkz_wegebau_t::get_default_param(spieler_t *sp) const
 
 bool wkz_wegebau_t::is_selected( const karte_t *welt ) const
 {
-	if (welt->get_werkzeug(welt->get_active_player_nr())->get_id() != get_id()) {
+	werkzeug_t const* const tool = welt->get_werkzeug(welt->get_active_player_nr());
+	if (tool->get_id() != get_id()) {
 		return false;
 	}
-	const wkz_wegebau_t *selected = dynamic_cast<const wkz_wegebau_t *>(welt->get_werkzeug(welt->get_active_player_nr()));
+	wkz_wegebau_t const* const selected = dynamic_cast<wkz_wegebau_t const*>(tool);
 	return (selected  &&  selected->get_besch(welt->get_timeline_year_month(),false) == get_besch(welt->get_timeline_year_month(),false));
 }
 
