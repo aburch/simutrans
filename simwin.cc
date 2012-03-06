@@ -325,9 +325,9 @@ static void win_draw_window_title(const koord pos, const koord gr,
 	// Draw the gadgets and then move left and draw text.
 	flags.gotopos = (welt_pos != koord3d::invalid);
 	int width = display_gadget_boxes( &flags, pos.x+(REVERSE_GADGETS?0:gr.x-20), pos.y, titel_farbe, closing, sticky );
-	int titlewidth = display_proportional_clip( pos.x + (REVERSE_GADGETS?width+4:4), pos.y+(16-large_font_height)/2, text, ALIGN_LEFT, text_farbe, false );
+	int titlewidth = display_proportional_clip( pos.x + (REVERSE_GADGETS?width+4:4), pos.y+(16-LINEASCENT)/2, text, ALIGN_LEFT, text_farbe, false );
 	if(  flags.gotopos  ) {
-		display_proportional_clip( pos.x + (REVERSE_GADGETS?width+4:4)+titlewidth+8, pos.y+(16-large_font_height)/2, welt_pos.get_2d().get_fullstr(), ALIGN_LEFT, text_farbe, false );
+		display_proportional_clip( pos.x + (REVERSE_GADGETS?width+4:4)+titlewidth+8, pos.y+(16-LINEASCENT)/2, welt_pos.get_2d().get_fullstr(), ALIGN_LEFT, text_farbe, false );
 	}
 	POP_CLIP();
 }
@@ -829,7 +829,7 @@ void display_all_win()
 	const sint16 x = get_maus_x();
 	const sint16 y = get_maus_y();
 	tooltip_element = NULL;
-	for (size_t i = wins.get_count(); i-- != 0;) {
+	for(  uint32 i = wins.get_count(); i-- != 0;  ) {
 		if(  (!wins[i].rollup  &&  wins[i].gui->getroffen(x-wins[i].pos.x,y-wins[i].pos.y))  ||
 		     (wins[i].rollup  &&  x>=wins[i].pos.x  &&  x<wins[i].pos.x+wins[i].gui->get_fenstergroesse().x  &&  y>=wins[i].pos.y  &&  y<wins[i].pos.y+16)
 		) {
@@ -1075,8 +1075,8 @@ bool win_is_open(gui_frame_t *gui)
 
 koord const& win_get_pos(gui_frame_t const* const gui)
 {
-	for (size_t i = wins.get_count(); i-- != 0;) {
-		if(wins[i].gui == gui) {
+	for(  uint32 i = wins.get_count(); i-- != 0;  ) {
+		if(  wins[i].gui == gui  ) {
 			return wins[i].pos;
 		}
 	}
@@ -1087,8 +1087,8 @@ koord const& win_get_pos(gui_frame_t const* const gui)
 
 void win_set_pos(gui_frame_t *gui, int x, int y)
 {
-	for (size_t i = wins.get_count(); i-- != 0;) {
-		if(wins[i].gui == gui) {
+	for(  uint32 i = wins.get_count(); i-- != 0;  ) {
+		if(  wins[i].gui == gui  ) {
 			wins[i].pos.x = x;
 			wins[i].pos.y = y;
 			const koord gr = wins[i].gui->get_fenstergroesse();

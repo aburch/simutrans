@@ -2774,7 +2774,7 @@ void convoi_t::destroy()
 
 	if(  state == INITIAL  ) {
 		// in depot => not on map
-		for (size_t i = anz_vehikel; i-- != 0;) {
+		for(  uint8 i = anz_vehikel;  i-- != 0;  ) {
 			fahr[i]->set_flag( ding_t::not_on_map );
 		}
 	}
@@ -2795,13 +2795,13 @@ void convoi_t::destroy()
 	besitzer_p->buche( calc_restwert(), get_pos().get_2d(), COST_NEW_VEHICLE );
 	besitzer_p->buche( -calc_restwert(), COST_ASSETS );
 
-	for (size_t i = anz_vehikel; i-- != 0;) {
+	for(  uint8 i = anz_vehikel;  i-- != 0;  ) {
 		if(  !fahr[i]->get_flag( ding_t::not_on_map )  ) {
 			// remove from rails/roads/crossings
 			grund_t *gr = welt->lookup(fahr[i]->get_pos());
 			fahr[i]->set_letztes( true );
 			fahr[i]->verlasse_feld();
-			if(gr  &&  gr->ist_uebergang()) {
+			if(  gr  &&  gr->ist_uebergang()  ) {
 				gr->find<crossing_t>()->release_crossing(fahr[i]);
 			}
 			fahr[i]->set_flag( ding_t::not_on_map );
