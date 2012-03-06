@@ -54,7 +54,7 @@ static void dsp_decode_bdf_data_row(uint8 *target, int y, int xoff, int g_width,
 /**
  * Reads a single character
  */
-static int dsp_read_bdf_glyph(FILE *fin, uint8 *data, uint8 *screen_w, int char_limit, int f_height, int f_desc)
+static void dsp_read_bdf_glyph(FILE *fin, uint8 *data, uint8 *screen_w, int char_limit, int f_height, int f_desc)
 {
 	uint32	char_nr = 0;
 	int g_width, h, g_desc;
@@ -143,10 +143,9 @@ static int dsp_read_bdf_glyph(FILE *fin, uint8 *data, uint8 *screen_w, int char_
 			}
 			screen_w[char_nr] = d_width;
 			// finished
-			return char_nr;
+			return;
 		}
 	}
-	return 0;
 }
 
 
