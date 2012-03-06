@@ -94,7 +94,7 @@ static void dsp_read_bdf_glyph(FILE *fin, uint8 *data, uint8 *screen_w, int char
 			const int top = f_height + f_desc - h - g_desc;
 			int y;
 
-			// maximum size 10 pixels
+			// maximum size 12 pixels
 			h += top;
 			if (h > 12) {
 				h = 12;
@@ -220,7 +220,7 @@ static bool dsp_read_bdf_font(FILE* fin, font_type* font)
 		font->screen_width = screen_widths;
 		font->char_data    = data;
 		font->height       = f_height;
-		font->descent      = f_height + f_desc;
+		font->descent      = f_desc;
 		font->num_chars    = f_chars;
 		return true;
 	}
@@ -268,8 +268,8 @@ bool load_font(font_type* fnt, const char* fname)
 		fnt->screen_width = MALLOCN(uint8, 256);
 		fnt->char_data    = MALLOCN(uint8, CHARACTER_LEN * 256);
 		fnt->num_chars    = 256;
-		fnt->height       = 10;
-		fnt->descent      = -1;
+		fnt->height       = 11;
+		fnt->descent      = -2;
 
 		for (i = 0; i < 256; i++) {
 			int j;

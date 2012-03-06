@@ -435,7 +435,7 @@ void gui_textinput_t::display_with_cursor(koord offset, bool cursor_active, bool
 		display_set_clip_wh( clip_x, clip_y, min(old_clip.xx, text_clip_x+text_clip_w)-clip_x, min(old_clip.yy, text_clip_y+text_clip_h)-clip_y );
 
 		// display text
-		display_proportional_clip(pos.x+offset.x+2-scroll_offset, pos.y+offset.y+1+(groesse.y-large_font_height)/2, text, ALIGN_LEFT, textcol, true);
+		display_proportional_clip(pos.x+offset.x+2-scroll_offset, pos.y+offset.y+1+(groesse.y-LINESPACE)/2, text, ALIGN_LEFT, textcol, true);
 
 		if(  cursor_active  ) {
 			// Knightly : display selected text block with light grey text on charcoal bounding box
@@ -445,7 +445,7 @@ void gui_textinput_t::display_with_cursor(koord offset, bool cursor_active, bool
 				const KOORD_VAL start_offset = proportional_string_len_width(text, start_pos);
 				const KOORD_VAL highlight_width = proportional_string_len_width(text+start_pos, end_pos-start_pos);
 				display_fillbox_wh_clip(pos.x+offset.x+2-scroll_offset+start_offset, pos.y+offset.y+1, highlight_width, 11, COL_GREY2, true);
-				display_text_proportional_len_clip(pos.x+offset.x+2-scroll_offset+start_offset, pos.y+offset.y+1+(groesse.y-large_font_height)/2, text+start_pos, ALIGN_LEFT|DT_DIRTY|DT_CLIP, COL_GREY5, end_pos-start_pos);
+				display_text_proportional_len_clip(pos.x+offset.x+2-scroll_offset+start_offset, pos.y+offset.y+1+(groesse.y-LINESPACE)/2, text+start_pos, ALIGN_LEFT|DT_DIRTY|DT_CLIP, COL_GREY5, end_pos-start_pos);
 			}
 
 			// display blinking cursor
@@ -523,7 +523,7 @@ void gui_hidden_textinput_t::display_with_cursor(koord const offset, bool, bool 
 			}
 			c = utf8_to_utf16((utf8 const*)text + text_pos, &text_pos);
 			if(c) {
-				xpos += display_proportional_clip( xpos, pos.y+offset.y+1+(groesse.y-large_font_height)/2, "*", ALIGN_LEFT, textcol, true);
+				xpos += display_proportional_clip( xpos, pos.y+offset.y+1+(groesse.y-LINESPACE)/2, "*", ALIGN_LEFT, textcol, true);
 			}
 		}
 		while(  text_pos<max  &&  c  );

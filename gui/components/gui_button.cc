@@ -18,6 +18,8 @@
 #include "../../besch/skin_besch.h"
 #include "../../utils/simstring.h"
 
+#include "../gui_frame.h"
+
 #define STATE_MASK (127)
 #define AUTOMATIC_MASK (255)
 
@@ -457,11 +459,13 @@ void button_t::zeichnen(koord offset)
 		return;
 	}
 
-	const int bx = offset.x + pos.x;
-	const int by = offset.y + pos.y;
+	const KOORD_VAL bx = offset.x + pos.x;
+	const KOORD_VAL by = offset.y + pos.y;
 
-	const int bw = groesse.x;
-	const int bh = groesse.y;
+	const KOORD_VAL bw = groesse.x;
+	const KOORD_VAL bh = groesse.y;
+	// mean offset to center zero line relative to the button
+	const KOORD_VAL y_text_offset = (D_BUTTON_HEIGHT-LINESPACE)/2;
 
 	switch (type&STATE_MASK) {
 
@@ -475,7 +479,7 @@ void button_t::zeichnen(koord offset)
 				}
 				display_fillbox_wh_clip(bx+1, by+1, bw-2, bh-2, background, false);
 				int len = proportional_string_width(translated_text);
-				display_proportional_clip(bx+max((bw-len)/2,0),by+(bh-large_font_height)/2, translated_text, ALIGN_LEFT, b_enabled ? foreground : COL_GREY4, true);
+				display_proportional_clip(bx+max((bw-len)/2,0),by+y_text_offset, translated_text, ALIGN_LEFT, b_enabled ? foreground : COL_GREY4, true);
 				if(  win_get_focus()==this  ) {
 					// white box around
 					display_fillbox_wh_clip(bx, by, bw, 1, COL_WHITE, false);
@@ -489,7 +493,7 @@ void button_t::zeichnen(koord offset)
 		case roundbox: // new box with round corners
 			{
 				draw_roundbutton( bx, by, bw, bh, pressed );
-				display_proportional_clip(bx+(bw>>1),by+(bh-large_font_height)/2, translated_text, ALIGN_MIDDLE, b_enabled ? foreground : COL_GREY4, true);
+				display_proportional_clip(bx+(bw>>1),by+y_text_offset, translated_text, ALIGN_MIDDLE, b_enabled ? foreground : COL_GREY4, true);
 				if(  win_get_focus()==this  ) {
 					// white box around
 					const int rh = ( b_cap_left!=IMG_LEER && bh==14 ) ? skinverwaltung_t::window_skin->get_bild(13)->get_pic()->h : bh;
@@ -511,7 +515,7 @@ void button_t::zeichnen(koord offset)
 					display_fillbox_wh_clip( bx+1, by+1, 9, 9, pressed ? MN_GREY3 : MN_GREY1, true );
 				}
 				if(  text  ) {
-					display_proportional_clip(bx+16,by+(12-large_font_height)/2, translated_text, ALIGN_LEFT, b_enabled ? foreground : COL_GREY4, true);
+					display_proportional_clip(bx+16,by+y_text_offset, translated_text, ALIGN_LEFT, b_enabled ? foreground : COL_GREY4, true);
 				}
 				if(  win_get_focus()==this  ) {
 					// white box around

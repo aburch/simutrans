@@ -2027,7 +2027,15 @@ haltestelle_t::quote_bezeichnung(int quote, convoihandle_t cnv) const
 
 void haltestelle_t::info(cbuffer_t & buf) const
 {
-	buf.printf(translator::translate("Passengers %d %c, %d %c, %d no route"), get_pax_happy(), 30, get_pax_unhappy(), 31, get_pax_no_route());
+	if(  translator::get_lang()->utf_encoded  ) {
+		utf8 happy[4], unhappy[4];
+		happy[ utf16_to_utf8( 0x263A, happy ) ] = 0;
+		unhappy[ utf16_to_utf8( 0x2639, unhappy ) ] = 0;
+		buf.printf(translator::translate("Passengers %d %s, %d %s, %d no route"), get_pax_happy(), happy, get_pax_unhappy(), unhappy, get_pax_no_route());
+	}
+	else {
+		buf.printf(translator::translate("Passengers %d %c, %d %c, %d no route"), get_pax_happy(), 30, get_pax_unhappy(), 31, get_pax_no_route());
+	}
 	buf.append("\n\n");
 }
 
