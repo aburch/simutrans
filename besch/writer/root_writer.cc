@@ -129,20 +129,32 @@ void root_writer_t::write_obj_node_info_t(FILE* outfp, const obj_node_info_t &ro
 }
 
 
+static bool skip_header(FILE* const f)
+{
+	for (;;) {
+		int const c = fgetc(f);
+
+		if (c == EOF) {
+			fprintf(stderr, "ERROR: reached end of file while skipping header\n");
+			return false;
+		}
+
+		if (c == '\x1A') return true;
+	}
+}
+
+
 bool root_writer_t::do_dump(const char* open_file_name)
 {
 	if (FILE* const infp = fopen(open_file_name, "rb")) {
-		int c;
-		do {
-			c = fgetc(infp);
-		} while(  !feof(infp)  &&  c!='\x1a'  );
+		if (skip_header(infp)) {
+			// Compiled Version
+			uint32 version;
+			fread(&version, sizeof(version), 1, infp);
+			printf("File %s (version %d):\n", open_file_name, endian(version));
 
-		// Compiled Verison
-		uint32 version;
-		fread(&version, sizeof(version), 1, infp);
-		printf("File %s (version %d):\n", open_file_name, endian(version));
-
-		dump_nodes(infp, 1);
+			dump_nodes(infp, 1);
+		}
 		fclose(infp);
 	}
 	return true;
@@ -176,25 +188,22 @@ void root_writer_t::dump(int argc, char* argv[])
 bool root_writer_t::do_list(const char* open_file_name)
 {
 	if (FILE* const infp = fopen(open_file_name, "rb")) {
-		int c;
-		do {
-			c = fgetc(infp);
-		} while (!feof(infp) && c != '\x1a');
+		if (skip_header(infp)) {
+			// Compiled Version
+			uint32 version;
 
-		// Compiled Verison
-		uint32 version;
+			fread(&version, sizeof(version), 1, infp);
+			printf("Contents of file %s (pak version %d):\n", open_file_name, endian(version));
+			printf("type             name\n"
+					"---------------- ------------------------------\n");
 
-		fread(&version, sizeof(version), 1, infp);
-		printf("Contents of file %s (pak version %d):\n", open_file_name, endian(version));
-		printf("type             name\n"
-		"---------------- ------------------------------\n");
+			obj_node_info_t node;
+			obj_node_t::read_node( infp, node );
+			fseek(infp, node.size, SEEK_CUR);
 
-		obj_node_info_t node;
-		obj_node_t::read_node( infp, node );
-		fseek(infp, node.size, SEEK_CUR);
-
-		for(  int i=0;  i<node.children;  i++  ) {
-			list_nodes(infp);
+			for (int i = 0; i < node.children; i++) {
+				list_nodes(infp);
+			}
 		}
 		fclose(infp);
 	}
@@ -231,26 +240,23 @@ bool root_writer_t::do_copy(FILE* outfp, obj_node_info_t& root, const char* open
 {
 	bool any = false;
 	if (FILE* const infp = fopen(open_file_name, "rb")) {
-		int c;
-		do {
-			c = fgetc(infp);
-		} while (!feof(infp) && c != '\x1a');
+		if (skip_header(infp)) {
+			// Compiled Version check (since the ancient ending was also pak)
+			uint32 version;
+			fread(&version, sizeof(version), 1, infp);
+			if (endian(version) <= COMPILER_VERSION_CODE) {
+				printf("   copying file %s\n", open_file_name);
 
-		// Compiled Version check (since the ancient ending was also pak)
-		uint32 version;
-		fread(&version, sizeof(version), 1, infp);
-		if (endian(version) <= COMPILER_VERSION_CODE) {
-			printf("   copying file %s\n", open_file_name);
+				obj_node_info_t info;
+				obj_node_t::read_node( infp, info );
 
-			obj_node_info_t info;
-			obj_node_t::read_node( infp, info );
-
-			root.children += info.children;
-			copy_nodes(outfp, infp, info);
-			any = true;
-		}
-		else {
-			fprintf(stderr, "   WARNING: skipping file %s - version mismatch\n", open_file_name);
+				root.children += info.children;
+				copy_nodes(outfp, infp, info);
+				any = true;
+			}
+			else {
+				fprintf(stderr, "   WARNING: skipping file %s - version mismatch\n", open_file_name);
+			}
 		}
 		fclose(infp);
 	}
@@ -337,99 +343,95 @@ void root_writer_t::uncopy(const char* name)
 		exit(3);
 	}
 
-	// read header
-	int c;
-	do {
-		c = fgetc(infp);
-	} while(  !feof(infp)  &&  c!='\x1a'  );
-
-	// check version of pak format
-	uint32 version;
-	fread(&version, sizeof(version), 1, infp);
-	if (endian(version) <= COMPILER_VERSION_CODE) {
-		// read root node
-		obj_node_info_t root;
-		obj_node_t::read_node( infp, root );
-		if (root.children == 1) {
-			printf("  ERROR: %s is not an archieve (aborting)\n", name);
-			fclose(infp);
-			exit(3);
-		}
-
-		printf("  found %d files to extract\n\n", root.children);
-
-		// now itereate over the archieve
-		for (  int number=0;  number<root.children;  number++  ) {
-			// read the info node ...
-			long start_pos=ftell(infp);
-
-			// now make a name
-			string writer = node_writer_name(infp);
-			string node_name;
-			if(  writer=="factory"  ) {
-				// we need to take name from following building node ...
-				obj_node_info_t node;
-				size_t pos = ftell(infp);
-				obj_node_t::read_node( infp, node );
-				fseek(infp, node.size, SEEK_CUR );
-				node_name = name_from_next_node(infp);
-				fseek( infp, pos, SEEK_SET );
-			}
-			else if(  writer=="bridge"  ) {
-				size_t pos=ftell(infp);
-				node_name = name_from_next_node(infp);
-				if (node_name.empty()) {
-					fseek( infp, pos, SEEK_SET );
-					// we need to take name from thrid children, the cursor node ...
-					obj_node_info_t node;
-					// quick and dirty: since there are a variable number, we just skip all image nodes
-					do {
-						obj_node_t::read_node( infp, node );
-						fseek(infp, node.size, SEEK_CUR );
-					} while(  (node.type==obj_imagelist  ||  node.type==obj_image)  &&  !feof(infp)  );
-					// then we try the next node (shoudl be cursor node then!
-					if(  node.type==obj_cursor  ) {
-						node_name = name_from_next_node(infp);
-					}
-					fseek( infp, pos, SEEK_SET );
-				}
-			}
-			else {
-				node_name = name_from_next_node(infp);
-			}
-			// use a clever default name, if no name there
-			// note: this doesn't work because node_name.size() is not 0 even if invalid file characters are contained. (z9999)
-			if (node_name.empty()) {
-				char random_name[16];
-				// we use the file position as unique name
-				sprintf( random_name, "p%li", ftell(infp) );
-				printf("  ERROR: %s has no name! (using %s) as default\n", writer.c_str(), (const char *)random_name );
-				node_name = random_name;
-			}
-			string outfile = writer + "." + node_name + ".pak";
-			FILE* outfp = fopen(outfile.c_str(), "wb");
-			if (!outfp) {
-				printf("  ERROR: could not open %s for writing (aborting)\n", outfile.c_str());
+	if (skip_header(infp)) {
+		// check version of pak format
+		uint32 version;
+		fread(&version, sizeof(version), 1, infp);
+		if (endian(version) <= COMPILER_VERSION_CODE) {
+			// read root node
+			obj_node_info_t root;
+			obj_node_t::read_node( infp, root );
+			if (root.children == 1) {
+				printf("  ERROR: %s is not an archieve (aborting)\n", name);
 				fclose(infp);
 				exit(3);
 			}
-			printf("  writing '%s' ... \n", outfile.c_str());
 
-			// now copy the nodes
-			fseek(infp, start_pos, SEEK_SET);
-			write_header(outfp);
+			printf("  found %d files to extract\n\n", root.children);
 
-			// write the root for the new pak file
-			obj_node_info_t root;
-			root.children = 1;
-			root.size = 0;
-			root.type = obj_root;
-			write_obj_node_info_t( outfp, root );
-			copy_nodes(outfp, infp, root); // this advances also the input to the next position
-			fclose(outfp);
+			// now itereate over the archieve
+			for (  int number=0;  number<root.children;  number++  ) {
+				// read the info node ...
+				long start_pos=ftell(infp);
+
+				// now make a name
+				string writer = node_writer_name(infp);
+				string node_name;
+				if(  writer=="factory"  ) {
+					// we need to take name from following building node ...
+					obj_node_info_t node;
+					size_t pos = ftell(infp);
+					obj_node_t::read_node( infp, node );
+					fseek(infp, node.size, SEEK_CUR );
+					node_name = name_from_next_node(infp);
+					fseek( infp, pos, SEEK_SET );
+				}
+				else if(  writer=="bridge"  ) {
+					size_t pos=ftell(infp);
+					node_name = name_from_next_node(infp);
+					if (node_name.empty()) {
+						fseek( infp, pos, SEEK_SET );
+						// we need to take name from thrid children, the cursor node ...
+						obj_node_info_t node;
+						// quick and dirty: since there are a variable number, we just skip all image nodes
+						do {
+							obj_node_t::read_node( infp, node );
+							fseek(infp, node.size, SEEK_CUR );
+						} while(  (node.type==obj_imagelist  ||  node.type==obj_image)  &&  !feof(infp)  );
+						// then we try the next node (shoudl be cursor node then!
+						if(  node.type==obj_cursor  ) {
+							node_name = name_from_next_node(infp);
+						}
+						fseek( infp, pos, SEEK_SET );
+					}
+				}
+				else {
+					node_name = name_from_next_node(infp);
+				}
+				// use a clever default name, if no name there
+				// note: this doesn't work because node_name.size() is not 0 even if invalid file characters are contained. (z9999)
+				if (node_name.empty()) {
+					char random_name[16];
+					// we use the file position as unique name
+					sprintf( random_name, "p%li", ftell(infp) );
+					printf("  ERROR: %s has no name! (using %s) as default\n", writer.c_str(), (const char *)random_name );
+					node_name = random_name;
+				}
+				string outfile = writer + "." + node_name + ".pak";
+				FILE* outfp = fopen(outfile.c_str(), "wb");
+				if (!outfp) {
+					printf("  ERROR: could not open %s for writing (aborting)\n", outfile.c_str());
+					fclose(infp);
+					exit(3);
+				}
+				printf("  writing '%s' ... \n", outfile.c_str());
+
+				// now copy the nodes
+				fseek(infp, start_pos, SEEK_SET);
+				write_header(outfp);
+
+				// write the root for the new pak file
+				obj_node_info_t root;
+				root.children = 1;
+				root.size = 0;
+				root.type = obj_root;
+				write_obj_node_info_t( outfp, root );
+				copy_nodes(outfp, infp, root); // this advances also the input to the next position
+				fclose(outfp);
+			}
+		} else {
+			printf("   WARNING: skipping file %s - version mismatch\n", name);
 		}
-	} else {
-		printf("   WARNING: skipping file %s - version mismatch\n", name);
 	}
 	fclose(infp);
 }
