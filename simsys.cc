@@ -74,9 +74,12 @@ char const* dr_query_homedir()
  * I hope AmigaOS uses something like Linux for this ...
  */
 #ifdef _WIN32
+
+struct id2str_t { uint16 id; const char *name; };
+
 const char *dr_get_locale_string()
 {
-	static struct { uint16 id; const char *name; } id2str[443] =
+	static id2str_t id2str[] =
 	{
 		{ 0x0001,	"ar" },
 		{ 0x0002,	"bg" },
