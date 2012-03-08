@@ -36,6 +36,7 @@
 #include "../simsound.h"
 
 #include "../simimg.h"
+#include "../simmesg.h"
 #include "../simcolor.h"
 #include "../simgraph.h"
 
@@ -1951,10 +1952,27 @@ bool automobil_t::ist_weg_frei(int &restart_speed, bool second_check)
 					// is our target occupied?
 					target_halt = haltestelle_t::get_halt( welt, rt->back(), get_besitzer() );
 					if(  target_halt.is_bound()  ) {
+/*********** BEWARE: An similar choosing is done down below => this should clearly go into a subroutine!!! *****************/
+
 						// since convois can long than one tile, check is more difficult
+						// but we will always go to the stop in the schedule!
 						bool can_go_there = true;
+						bool original_route = (rt->back() == cnv->get_schedule()->get_current_eintrag().pos);
 						for(  uint32 length=0;  can_go_there  &&  length<cnv->get_tile_length()  &&  length+1<rt->get_count();  length++  ) {
-							can_go_there &= target_halt->is_reservable( welt->lookup( rt->position_bei( rt->get_count()-length-1) ), cnv->self );
+							if(  grund_t *gr = welt->lookup( rt->position_bei( rt->get_count()-length-1) )  ) {
+								if(  gr  &&  gr->get_halt().is_bound()  ) {
+									can_go_there &= target_halt->is_reservable( gr, cnv->self );
+								}
+								else {
+									// if this is the original stop, it is too short!
+									if(  original_route  ) {
+										cbuffer_t buf;
+										buf.printf( translator::translate("Vehicle %s cannot choose because stop too short!"), cnv->get_name());
+										welt->get_message()->add_message( (const char *)buf, cnv->get_pos().get_2d(), message_t::warnings, PLAYER_FLAG | cnv->get_besitzer()->get_player_nr(), cnv->front()->get_basis_bild() );
+									}
+									can_go_there |= original_route;
+								}
+							}
 						}
 						if(  can_go_there  ) {
 							// then reserve it ...
@@ -2085,10 +2103,26 @@ bool automobil_t::ist_weg_frei(int &restart_speed, bool second_check)
 							// is our target occupied?
 							target_halt = haltestelle_t::get_halt( welt, rt->back(), get_besitzer() );
 							if(  target_halt.is_bound()  ) {
+/**************** BEWARE: choosing without crossings is done further above! *********************/
+
 								// since convois can long than one tile, check is more difficult
 								bool can_go_there = true;
+								bool original_route = (rt->back() == cnv->get_schedule()->get_current_eintrag().pos);
 								for(  uint32 length=0;  can_go_there  &&  length<cnv->get_tile_length()  &&  length+1<rt->get_count();  length++  ) {
-									can_go_there &= target_halt->is_reservable( welt->lookup( rt->position_bei( rt->get_count()-length-1) ), cnv->self );
+									if(  grund_t *gr = welt->lookup( rt->position_bei( rt->get_count()-length-1) )  ) {
+										if(  gr  &&  gr->get_halt().is_bound()  ) {
+											can_go_there &= target_halt->is_reservable( gr, cnv->self );
+										}
+										else {
+											// if this is the original stop, it is too short!
+											if(  original_route  ) {
+												cbuffer_t buf;
+												buf.printf( translator::translate("Vehicle %s cannot choose because stop too short!"), cnv->get_name());
+												welt->get_message()->add_message( (const char *)buf, cnv->get_pos().get_2d(), message_t::warnings, PLAYER_FLAG | cnv->get_besitzer()->get_player_nr(), cnv->front()->get_basis_bild() );
+											}
+											can_go_there |= original_route;
+										}
+									}
 								}
 								if(  can_go_there  ) {
 									// then reserve it ...
