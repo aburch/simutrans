@@ -1903,6 +1903,79 @@ void automobil_t::get_screen_offset( int &xoff, int &yoff, const sint16 raster_w
 }
 
 
+// chooses a route at a choose sign; returns true on success
+bool automobil_t::choose_route( int &restart_speed, ribi_t::dir richtung, uint16 index )
+{
+	route_t *rt = cnv->access_route();
+	// is our target occupied?
+	target_halt = haltestelle_t::get_halt( welt, rt->back(), get_besitzer() );
+	if(  target_halt.is_bound()  ) {
+
+		// since convois can long than one tile, check is more difficult
+		bool can_go_there = true;
+		bool original_route = (rt->back() == cnv->get_schedule()->get_current_eintrag().pos);
+		for(  uint32 length=0;  can_go_there  &&  length<cnv->get_tile_length()  &&  length+1<rt->get_count();  length++  ) {
+			if(  grund_t *gr = welt->lookup( rt->position_bei( rt->get_count()-length-1) )  ) {
+				if(  gr  &&  gr->get_halt().is_bound()  ) {
+					can_go_there &= target_halt->is_reservable( gr, cnv->self );
+				}
+				else {
+					// if this is the original stop, it is too short!
+					if(  original_route  &&  can_go_there  ) {
+						cbuffer_t buf;
+						buf.printf( translator::translate("Vehicle %s cannot choose because stop too short!"), cnv->get_name());
+						welt->get_message()->add_message( (const char *)buf, cnv->get_pos().get_2d(), message_t::warnings, PLAYER_FLAG | cnv->get_besitzer()->get_player_nr(), cnv->front()->get_basis_bild() );
+					}
+					can_go_there |= original_route;
+				}
+			}
+		}
+		if(  can_go_there  ) {
+			// then reserve it ...
+			for(  uint32 length=0;  length<cnv->get_tile_length()  &&  length+1<rt->get_count();  length++  ) {
+				target_halt->reserve_position( welt->lookup( rt->position_bei( rt->get_count()-length-1) ), cnv->self );
+			}
+		}
+		else {
+			// cannot go there => need slot search
+
+			// if we fail, we will wait in a step, much more simulation friendly
+			if(!cnv->is_waiting()) {
+				restart_speed = -1;
+				target_halt = halthandle_t();
+				return false;
+			}
+
+			// check if there is a free position
+			// this is much faster than waysearch
+			if(  !target_halt->find_free_position(road_wt,cnv->self,ding_t::automobil  )) {
+				restart_speed = 0;
+				target_halt = halthandle_t();
+				return false;
+			}
+
+			// now it make sense to search a route
+			route_t target_rt;
+			koord3d next3d = rt->position_bei(index);
+			if(  !target_rt.find_route( welt, next3d, this, speed_to_kmh(cnv->get_min_top_speed()), richtung, 33 )  ) {
+				// nothing empty or not route with less than 33 tiles
+				target_halt = halthandle_t();
+				restart_speed = 0;
+				return false;
+			}
+
+			// now reserve our choice (beware: might be longer than one tile!)
+			for(  uint32 length=0;  length<cnv->get_tile_length()  &&  length+1<target_rt.get_count();  length++  ) {
+				target_halt->reserve_position( welt->lookup( target_rt.position_bei( target_rt.get_count()-length-1) ), cnv->self );
+			}
+			rt->remove_koord_from( index );
+			rt->append( &target_rt );
+		}
+	}
+	return true;
+}
+
+
 bool automobil_t::ist_weg_frei(int &restart_speed, bool second_check)
 {
 	// check for traffic lights (only relevant for the first car in a convoi)
@@ -1947,74 +2020,8 @@ bool automobil_t::ist_weg_frei(int &restart_speed, bool second_check)
 					if(  second_check  ) {
 						return false;
 					}
-
-					route_t *rt = cnv->access_route();
-					// is our target occupied?
-					target_halt = haltestelle_t::get_halt( welt, rt->back(), get_besitzer() );
-					if(  target_halt.is_bound()  ) {
-/*********** BEWARE: An similar choosing is done down below => this should clearly go into a subroutine!!! *****************/
-
-						// since convois can long than one tile, check is more difficult
-						// but we will always go to the stop in the schedule!
-						bool can_go_there = true;
-						bool original_route = (rt->back() == cnv->get_schedule()->get_current_eintrag().pos);
-						for(  uint32 length=0;  can_go_there  &&  length<cnv->get_tile_length()  &&  length+1<rt->get_count();  length++  ) {
-							if(  grund_t *gr = welt->lookup( rt->position_bei( rt->get_count()-length-1) )  ) {
-								if(  gr  &&  gr->get_halt().is_bound()  ) {
-									can_go_there &= target_halt->is_reservable( gr, cnv->self );
-								}
-								else {
-									// if this is the original stop, it is too short!
-									if(  original_route  ) {
-										cbuffer_t buf;
-										buf.printf( translator::translate("Vehicle %s cannot choose because stop too short!"), cnv->get_name());
-										welt->get_message()->add_message( (const char *)buf, cnv->get_pos().get_2d(), message_t::warnings, PLAYER_FLAG | cnv->get_besitzer()->get_player_nr(), cnv->front()->get_basis_bild() );
-									}
-									can_go_there |= original_route;
-								}
-							}
-						}
-						if(  can_go_there  ) {
-							// then reserve it ...
-							for(  uint32 length=0;  length<cnv->get_tile_length()  &&  length+1<rt->get_count();  length++  ) {
-								target_halt->reserve_position( welt->lookup( rt->position_bei( rt->get_count()-length-1) ), cnv->self );
-							}
-						}
-						else {
-							// cannot go there => need slot search
-
-							// if we fail, we will wait in a step, much more simulation friendly
-							if(!cnv->is_waiting()) {
-								restart_speed = -1;
-								target_halt = halthandle_t();
-								return false;
-							}
-
-							// check if there is a free position
-							// this is much faster than waysearch
-							if(!target_halt->find_free_position(road_wt,cnv->self,ding_t::automobil)) {
-								restart_speed = 0;
-								target_halt = halthandle_t();
-								//DBG_MESSAGE("automobil_t::ist_weg_frei()","cnv=%d nothing free found!",cnv->self.get_id());
-								return false;
-							}
-
-							// now it make sense to search a route
-							route_t target_rt;
-							if(  !target_rt.find_route( welt, pos_next, this, speed_to_kmh(cnv->get_min_top_speed()), richtung, 33 )  ) {
-								// nothing empty or not route with less than 33 tiles
-								target_halt = halthandle_t();
-								restart_speed = 0;
-								return false;
-							}
-
-							// now reserve our choice (beware: might be longer than one tile!)
-							for(  uint32 length=0;  length<cnv->get_tile_length()  &&  length+1<target_rt.get_count();  length++  ) {
-								target_halt->reserve_position( welt->lookup( target_rt.position_bei( target_rt.get_count()-length-1) ), cnv->self );
-							}
-							rt->remove_koord_from( route_index );
-							rt->append( &target_rt );
-						}
+					if(  !choose_route( restart_speed, richtung, route_index )  ) {
+						return false;
 					}
 				}
 			}
@@ -2098,74 +2105,8 @@ bool automobil_t::ist_weg_frei(int &restart_speed, bool second_check)
 							if(  second_check  ) {
 								return false;
 							}
-
-							route_t *rt = cnv->access_route();
-							// is our target occupied?
-							target_halt = haltestelle_t::get_halt( welt, rt->back(), get_besitzer() );
-							if(  target_halt.is_bound()  ) {
-/**************** BEWARE: choosing without crossings is done further above! *********************/
-
-								// since convois can long than one tile, check is more difficult
-								bool can_go_there = true;
-								bool original_route = (rt->back() == cnv->get_schedule()->get_current_eintrag().pos);
-								for(  uint32 length=0;  can_go_there  &&  length<cnv->get_tile_length()  &&  length+1<rt->get_count();  length++  ) {
-									if(  grund_t *gr = welt->lookup( rt->position_bei( rt->get_count()-length-1) )  ) {
-										if(  gr  &&  gr->get_halt().is_bound()  ) {
-											can_go_there &= target_halt->is_reservable( gr, cnv->self );
-										}
-										else {
-											// if this is the original stop, it is too short!
-											if(  original_route  ) {
-												cbuffer_t buf;
-												buf.printf( translator::translate("Vehicle %s cannot choose because stop too short!"), cnv->get_name());
-												welt->get_message()->add_message( (const char *)buf, cnv->get_pos().get_2d(), message_t::warnings, PLAYER_FLAG | cnv->get_besitzer()->get_player_nr(), cnv->front()->get_basis_bild() );
-											}
-											can_go_there |= original_route;
-										}
-									}
-								}
-								if(  can_go_there  ) {
-									// then reserve it ...
-									for(  uint32 length=0;  length<cnv->get_tile_length()  &&  length+1<rt->get_count();  length++  ) {
-										target_halt->reserve_position( welt->lookup( rt->position_bei( rt->get_count()-length-1) ), cnv->self );
-									}
-								}
-								else {
-									// cannot go there => need slot search
-
-									// if we fail, we will wait in a step, much more simulation friendly
-									if(!cnv->is_waiting()) {
-										restart_speed = -1;
-										target_halt = halthandle_t();
-										return false;
-									}
-
-									// check if there is a free position
-									// this is much faster than waysearch
-									if(!target_halt->find_free_position(road_wt,cnv->self,ding_t::automobil)) {
-										restart_speed = 0;
-										target_halt = halthandle_t();
-										//DBG_MESSAGE("automobil_t::ist_weg_frei()","cnv=%d nothing free found!",cnv->self.get_id());
-										return false;
-									}
-
-									// now it make sense to search a route
-									route_t target_rt;
-									koord3d next3d = r.position_bei(test_index);
-									if(  !target_rt.find_route( welt, next3d, this, speed_to_kmh(cnv->get_min_top_speed()), curr_90fahrtrichtung, 33 )  ) {
-										// nothing empty or not route with less than 33 tiles
-										target_halt = halthandle_t();
-										restart_speed = 0;
-										return false;
-									}
-
-									// now reserve our choice (beware: might be longer than one tile!)
-									for(  uint32 length=0;  length<cnv->get_tile_length()  &&  length+1<target_rt.get_count();  length++  ) {
-										target_halt->reserve_position( welt->lookup( target_rt.position_bei( target_rt.get_count()-length-1) ), cnv->self );
-									}
-									rt->remove_koord_from( test_index );
-									rt->append( &target_rt );
-								}
+							if(  !choose_route( restart_speed, curr_90fahrtrichtung, test_index )  ) {
+								return false;
 							}
 						}
 					}
