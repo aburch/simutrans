@@ -76,7 +76,7 @@ server_frame_t::server_frame_t(karte_t* w) :
 		// Show offline checkbox
 		if (  !show_offline.pressed  ) {
 			show_offline.init( button_t::square_state, "Show offline", koord( D_MARGIN_LEFT + (ww - D_MARGIN_LEFT - D_H_SPACE - D_MARGIN_RIGHT) / 2 + D_H_SPACE, pos_y ), koord( (ww - D_MARGIN_LEFT - D_H_SPACE - D_MARGIN_RIGHT) / 2, D_BUTTON_HEIGHT) );
-			show_offline.set_tooltip( "Show servers where game version or pakset does not match your client" );
+			show_offline.set_tooltip( "Show servers that are offline" );
 			show_offline.add_listener( this );
 			add_komponente( &show_offline );
 		}
