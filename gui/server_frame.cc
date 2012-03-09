@@ -98,7 +98,7 @@ server_frame_t::server_frame_t(karte_t* w) :
 		addinput.add_listener( this );
 		add_komponente( &addinput );
 
-		add.init( button_t::box, "Connect", koord( ww - D_BUTTON_WIDTH - D_MARGIN_RIGHT, pos_y ), koord( D_BUTTON_WIDTH, D_BUTTON_HEIGHT) );
+		add.init( button_t::box, "Query server", koord( ww - D_BUTTON_WIDTH - D_MARGIN_RIGHT, pos_y ), koord( D_BUTTON_WIDTH, D_BUTTON_HEIGHT) );
 		add.add_listener( this );
 
 		pos_y += D_BUTTON_HEIGHT;
