@@ -48,6 +48,7 @@ private:
 	enum attributes
 	{
 		ATT_NONE,
+		ATT_CJK,	// same as none, but CJK break with no trailing space
 		ATT_NEWLINE,
 		ATT_A_START,      ATT_A_END,
 		ATT_H1_START,     ATT_H1_END,

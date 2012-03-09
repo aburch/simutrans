@@ -3,8 +3,9 @@
 #include "../../simcolor.h"
 #include "../../simevent.h"
 #include "../../simgraph.h"
-#include "gui_flowtext.h"
+#include "../../dataobj/translator.h"
 
+#include "gui_flowtext.h"
 
 gui_flowtext_t::gui_flowtext_t()
 {
@@ -51,7 +52,8 @@ void gui_flowtext_t::set_text(const char *text)
 
 			if (word[0] == 'p' || (word[0] == 'b' && word[1] == 'r')) {
 				att = ATT_NEWLINE;
-			} else if (word[0] == 'a') {
+			}
+			else if (word[0] == 'a') {
 				if (!endtag) {
 					att = ATT_A_START;
 					param = word;
@@ -60,15 +62,20 @@ void gui_flowtext_t::set_text(const char *text)
 					att = ATT_A_END;
 					links.append(hyperlink_t(param.substr(8, param.size() - 9)));
 				}
-			} else if (word[0] == 'h' && word[1] == '1') {
+			}
+			else if (word[0] == 'h' && word[1] == '1') {
 				att = endtag ? ATT_H1_END : ATT_H1_START;
-			} else if (word[0] == 'i') {
+			}
+			else if (word[0] == 'i') {
 				att = endtag ? ATT_IT_END : ATT_IT_START;
-			} else if (word[0] == 'e' && word[1] == 'm') {
+			}
+			else if (word[0] == 'e' && word[1] == 'm') {
 				att = endtag ? ATT_EM_END : ATT_EM_START;
-			} else if (word[0] == 's' && word[1] == 't') {
+			}
+			else if (word[0] == 's' && word[1] == 't') {
 				att = endtag ? ATT_STRONG_END : ATT_STRONG_START;
-			} else if (!endtag && strcmp(word, "title") == 0) {
+			}
+			else if (!endtag && strcmp(word, "title") == 0) {
 				// title tag
 				const unsigned char* title_start = lead;
 
@@ -118,12 +125,34 @@ void gui_flowtext_t::set_text(const char *text)
 		else {
 
 			// parse a word (and obey limits)
-			for (int i = 0;  *lead != '<'  &&  *lead > 32  &&  i < 511  &&  *lead != '&'; i++) {
-				lead++;
+			att = ATT_NONE;
+			for(  int i = 0;  *lead != '<'  &&  *lead > 32  &&  i < 511  &&  *lead != '&'; i++) {
+				if(  *lead>128  &&  translator::get_lang()->utf_encoded  ) {
+					size_t skip = 0;
+					utf16 symbol = utf8_to_utf16( lead, &skip );
+					if(  symbol == 0x3000  ) {
+						// space ...
+						break;
+					}
+					lead += skip;
+					i += skip;
+					if(  symbol == 0x3001  ||  symbol == 0x3002  ) {
+						att = ATT_CJK;
+						// CJK full stop, komma, space
+						break;
+					}
+					// every CJK symbol could be used to break, so break after 10 characters
+					if(  symbol >= 0x2E80  &&  symbol <= 0xFE4F  &&  i>6  ) {
+						att = ATT_CJK;
+						break;
+					}
+				}
+				else {
+					lead++;
+				}
 			}
 			strncpy(word, (const char*)tail, lead - tail);
 			word[lead - tail] = '\0';
-			att = ATT_NONE;
 		}
 
 		if (att != ATT_UNKNOWN) { // only add know commands
@@ -133,6 +162,14 @@ void gui_flowtext_t::set_text(const char *text)
 		// skip white spaces
 		while (*lead <= 32 && *lead > 0) {
 			lead++;
+		}
+		// skip wide spaces
+		if(  translator::get_lang()->utf_encoded  ) {
+			size_t skip = 0;
+			while(  utf8_to_utf16( lead, &skip )==0x3000  ) {
+				lead += skip;
+				skip = 0;
+			}
 		}
 		tail = lead;
 	}
@@ -180,13 +217,20 @@ koord gui_flowtext_t::output(koord offset, bool doit, bool return_max_width)
 	bool double_it   = false;
 	int max_width    = width;
 	int text_width   = width;
+	const int space_width = proportional_string_width(" ");
 
 	FOR(slist_tpl<node_t>, const& i, nodes) {
 		switch (i.att) {
-			case ATT_NONE: {
-				int nxpos = xpos + proportional_string_width(i.text.c_str()) + 4;
+			case ATT_NONE:
+			case ATT_CJK: {
+				int nxpos = xpos + proportional_string_width(i.text.c_str());
+				if(  i.att ==  ATT_NONE  ) {
+					// add trailing space
+					nxpos += space_width;
+				}
 
-				if (nxpos >= width) {
+				// too wide, but only single character at left border ...
+				if(  nxpos >= width  &&  xpos>LINESPACE  ) {
 					if (nxpos - xpos > max_width) {
 						// word too long
 						max_width = nxpos;
@@ -225,7 +269,7 @@ koord gui_flowtext_t::output(koord offset, bool doit, bool return_max_width)
 				break;
 
 			case ATT_A_END:
-				link->br.x = xpos - 4;
+				link->br.x = xpos - space_width;
 				link->br.y = ypos + LINESPACE;
 
 				if (link->br.x < link->tl.x) {
