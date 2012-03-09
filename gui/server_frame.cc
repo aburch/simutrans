@@ -134,7 +134,7 @@ server_frame_t::server_frame_t(karte_t* w) :
 
 	const int nick_width = 80;
 	nick_label.set_pos( koord( D_MARGIN_LEFT, pos_y ) );
-	nick_label.set_text( "Nickname: " );
+	nick_label.set_text( "Nickname:" );
 	add_komponente( &nick_label );
 
 	nick.set_pos( koord( D_MARGIN_LEFT + D_H_SPACE + nick_width, pos_y ) );
