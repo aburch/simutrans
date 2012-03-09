@@ -3113,6 +3113,9 @@ void karte_t::recalc_average_speed()
 				case narrowgauge_wt:
 					vehicle_type = "narrowgauge vehicle";
 					break;
+				default:
+					// this is not a valid waytype
+					continue;
 			}
 			vehicle_type = translator::translate( vehicle_type );
 
