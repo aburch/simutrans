@@ -351,8 +351,8 @@ void spieler_t::neuer_monat()
 		// Monthly rate
 		if(welt->get_settings().get_interest_rate_percent() > 0)
 		{
-			const sint16 interest_rate = ((welt->get_settings().get_interest_rate_percent() * 1000) / 1200); 
-			const sint32 monthly_interest = (interest_rate * konto) / 1000;
+			const sint64 interest_rate = (((sint64)welt->get_settings().get_interest_rate_percent() * 1000ll) / 1200ll); 
+			const sint64 monthly_interest = (interest_rate * konto) / 1000ll;
 			buche(monthly_interest, COST_INTEREST);
 		}
 
@@ -360,7 +360,7 @@ void spieler_t::neuer_monat()
 		// Substract 1/5th of credit limit for each month overdrawn after three months
 		if(konto_ueberzogen > 3)
 		{
-			const sint64 adjusted_credit_limit = get_base_credit_limit() - (get_base_credit_limit() / 5) * (konto_ueberzogen - 3);
+			const sint64 adjusted_credit_limit = get_base_credit_limit() - (get_base_credit_limit() / 5ll) * (sint64)(konto_ueberzogen - 3);
 			base_credit_limit = adjusted_credit_limit > 0 ? adjusted_credit_limit : 0;
 		}
 
@@ -425,8 +425,8 @@ void spieler_t::neuer_monat()
 		if(welt->get_settings().get_interest_rate_percent() > 0)
 		{
 			// Credit interest rate is 1/4 debit interest rate, so /4800 and not /1200.
-			const sint16 interest_rate = ((welt->get_settings().get_interest_rate_percent() * 1000) / 4800); 
-			const sint32 monthly_interest = (interest_rate * konto) / 1000;
+			const sint64 interest_rate = (sint64)((welt->get_settings().get_interest_rate_percent() * 1000) / 4800); 
+			const sint64 monthly_interest = (interest_rate * konto) / 1000ll;
 			buche(monthly_interest, COST_INTEREST);
 		}
 		
@@ -435,7 +435,7 @@ void spieler_t::neuer_monat()
 		{
 			// Restore credit rating slowly 
 			// after a period of debt
-			base_credit_limit += (get_base_credit_limit() / 10);
+			base_credit_limit += (get_base_credit_limit() / 10ll);
 		}
 		if(base_credit_limit > get_base_credit_limit())
 		{
@@ -527,9 +527,9 @@ void spieler_t::calc_finance_history()
 
 sint64 spieler_t::calc_credit_limit()
 {
-	if(base_credit_limit == 0)
+	if(base_credit_limit == 0ll)
 	{
-		return 0;
+		return 0ll;
 	}
 
 	sint64 profit = 0;
@@ -543,16 +543,16 @@ sint64 spieler_t::calc_credit_limit()
 	// plus 40% of the net assets for the past year,
 	// or 0, whichever is lower.
 
-	profit = ((profit * 100) / 12) / 400;
-	assets = ((assets * 100) / 12) / 400;
+	profit = ((profit * 100ll) / 12ll) / 400ll;
+	assets = ((assets * 100ll) / 12ll) / 400ll;
 
 	sint64 new_limit = ((profit + assets) > base_credit_limit) ? profit + assets : base_credit_limit;
 
 	if(base_credit_limit < get_base_credit_limit())
 	{
 		// Credit rating adversely affected.
-		const uint32 proportion = (base_credit_limit * 100) / get_base_credit_limit();
-		new_limit *= (proportion / 100);
+		const sint64 proportion = (base_credit_limit * 100ll) / get_base_credit_limit();
+		new_limit *= (proportion / 100ll);
 	}
 
 	return new_limit;
@@ -560,7 +560,7 @@ sint64 spieler_t::calc_credit_limit()
 
 sint64 spieler_t::get_base_credit_limit()
 {
-	return welt->get_settings().get_starting_money(welt->get_current_month() / 12) / 10;
+	return welt->get_settings().get_starting_money(welt->get_current_month() / 12) / 10ll;
 }
 
 // add and amount, including the display of the message and some other things ...
