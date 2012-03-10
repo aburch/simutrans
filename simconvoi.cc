@@ -153,7 +153,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	besitzer_p = sp;
 
 	average_journey_times = new koordhashtable_tpl<id_pair, average_tpl<uint16> >;
-	departures = *new inthashtable_tpl<uint16, departure_data_t>;
+	departures = new inthashtable_tpl<uint16, departure_data_t>;
 
 	reset();
 	is_electric = false;
