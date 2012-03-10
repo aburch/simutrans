@@ -122,7 +122,7 @@ bool crossing_logic_t::request_crossing( const vehikel_basis_t *v )
 // request permission to pass crossing
 void crossing_logic_t::add_to_crossing( const vehikel_basis_t *v )
 {
-	if(v->get_waytype()==besch->get_waytype(0)) {
+	if(v->get_waytype()==besch->get_waytype(0) && on_way1.get_count() < 255 ) {
 		on_way1.append_unique(v);
 	}
 	else if (v->get_waytype() == besch->get_waytype(1)) {
