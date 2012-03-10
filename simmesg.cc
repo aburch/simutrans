@@ -140,6 +140,24 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 		}
 	}
 
+	// if no coordinate is provided, there is maybe one in the text message?
+	// syntax: either @x,y or (x,y)
+	if (pos == koord::invalid) {
+		const char *str = text;
+		// scan until either @ or ( are found
+		while( *(str += strcspn(str, "@(")) ) {
+			str += 1;
+			int x=-1, y=-1;
+			if (sscanf(str, "%d,%d", &x, &y) == 2) {
+				if (welt->ist_in_kartengrenzen(x,y)) {
+					pos.x = x;
+					pos.y = y;
+					break; // success
+				}
+			}
+		}
+	}
+
 	// we do not allow messages larger than 256 bytes
 	node *const n = new node();
 

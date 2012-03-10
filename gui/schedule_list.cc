@@ -165,6 +165,7 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t *sp_) :
 	selection = -1;
 	loadfactor = 0;
 	schedule_filter[0] = 0;
+	old_schedule_filter[0] = 0;
 
 	// init scrolled list
 	scl.set_pos(koord(0,1));
@@ -635,7 +636,9 @@ void schedule_list_gui_t::build_line_list(int filter)
 	vector_tpl<line_scrollitem_t *>selected_lines;
 
 	FOR(vector_tpl<linehandle_t>, const l, lines) {
-		selected_lines.append( new line_scrollitem_t(l) );
+		// search name
+		if (strstr(l->get_name(), schedule_filter))
+			selected_lines.append(new line_scrollitem_t(l));
 	}
 
 	std::sort(selected_lines.begin(),selected_lines.end(),compare_lines);
@@ -719,9 +722,8 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		// fill haltestellen container with info of line's haltestellen
 		cont_haltestellen.remove_all();
 		ypos = 0;
-		for(i=0; i<new_line->get_schedule()->get_count(); i++) {
-			const koord3d fahrplan_koord = new_line->get_schedule()->eintrag[i].pos;
-			halthandle_t halt = haltestelle_t::get_halt(sp->get_welt(),fahrplan_koord, sp);
+		FOR(minivec_tpl<linieneintrag_t>, const& i, new_line->get_schedule()->eintrag) {
+			halthandle_t const halt = haltestelle_t::get_halt(sp->get_welt(), i.pos, sp);
 			if (halt.is_bound()) {
 				halt_list_stats_t* cinfo = new halt_list_stats_t(halt);
 				cinfo->set_pos(koord(0, ypos));

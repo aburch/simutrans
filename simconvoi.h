@@ -544,7 +544,8 @@ private:
 	 * "last_departure_time" member.
 	 * Modified October 2011 to include accumulated distance.
 	 */
-	inthashtable_tpl<uint16, departure_data_t> *departures;
+	typedef inthashtable_tpl<uint16, departure_data_t>& departure_map;
+	departure_map departures;
 
 	// When we arrived at current stop
 	// @author Inkelyad

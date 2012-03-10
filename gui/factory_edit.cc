@@ -118,10 +118,8 @@ void factory_edit_frame_t::fill_list( bool translate )
 	fablist.clear();
 
 	// timeline will be obeyed; however, we may show obsolete ones ...
-	stringhashtable_iterator_tpl<const fabrik_besch_t *> iter(fabrikbauer_t::get_fabesch());
-	while(iter.next()) {
-
-		const fabrik_besch_t *besch = iter.get_current_value();
+	FOR(stringhashtable_tpl<fabrik_besch_t const*>, const& i, fabrikbauer_t::get_fabesch()) {
+		fabrik_besch_t const* const besch = i.value;
 		if(besch->get_gewichtung()>0) {
 			// DistributionWeight=0 is obsoluted item, only for backward compatibility
 
@@ -129,12 +127,12 @@ void factory_edit_frame_t::fill_list( bool translate )
 				// timeline allows for this
 
 				if(city_chain) {
-					if(besch->get_platzierung()==fabrik_besch_t::Stadt  &&  besch->get_produkt(0)==NULL) {
+					if (besch->get_platzierung() == fabrik_besch_t::Stadt && besch->is_consumer_only()) {
 						fablist.insert_ordered( besch, compare_fabrik_besch );
 					}
 				}
 				if(land_chain) {
-					if(besch->get_platzierung()==fabrik_besch_t::Land  &&  besch->get_produkt(0)==NULL) {
+					if (besch->get_platzierung() == fabrik_besch_t::Land && besch->is_consumer_only()) {
 						fablist.insert_ordered( besch, compare_fabrik_besch );
 					}
 				}
@@ -148,20 +146,14 @@ void factory_edit_frame_t::fill_list( bool translate )
 	// now buil scrolled list
 	scl.clear_elements();
 	scl.set_selection(-1);
-	for(  uint i=0;  i<fablist.get_count();  i++  ) {
-		// color code for objects: BLACK: normal, YELLOW: consumer only, GREEN: source only
-		COLOR_VAL color=COL_BLACK;
-		if(fablist[i]->get_produkt(0)==NULL) {
-			color = COL_BLUE;
-		}
-		else if(fablist[i]->get_lieferant(0)==NULL) {
-			color = COL_DARK_GREEN;
-		}
-		scl.append_element( new gui_scrolled_list_t::const_text_scrollitem_t(
-			translate ? translator::translate( fablist[i]->get_name() ):fablist[i]->get_name(),
-			color )
-		);
-		if(fablist[i]==fab_besch) {
+	FOR(vector_tpl<fabrik_besch_t const*>, const i, fablist) {
+		COLOR_VAL const color =
+			i->is_consumer_only() ? COL_BLUE       :
+			i->is_producer_only() ? COL_DARK_GREEN :
+			COL_BLACK;
+		char const* const name = translate ? translator::translate(i->get_name()) : i->get_name();
+		scl.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(name, color));
+		if (i == fab_besch) {
 			scl.set_selection(scl.get_count()-1);
 		}
 	}
@@ -234,7 +226,7 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 			inp_production.set_value( production);
 			// show produced goods
 			buf.clear();
-			if(fab_besch->get_produkte()>0) {
+			if (!fab_besch->is_consumer_only()) {
 				buf.append( translator::translate("Produktion") );
 				buf.append("\n");
 				for (uint i = 0; i < fab_besch->get_produkte(); i++) {
@@ -248,7 +240,7 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 			}
 
 			// show consumed goods
-			if(fab_besch->get_lieferanten()>0) {
+			if (!fab_besch->is_producer_only()) {
 				buf.append( translator::translate("Verbrauch") );
 				buf.append("\n");
 				for(  int i=0;  i<fab_besch->get_lieferanten();  i++  ) {

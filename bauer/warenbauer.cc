@@ -62,21 +62,21 @@ bool warenbauer_t::alles_geladen()
 	// now assign unique category indexes for unique categories
 	max_catg_index = 0;
 	// first assign special freight (which always needs an own category)
-	for( unsigned i=0;  i<waren.get_count();  i++  ) {
-		if(waren[i]->get_catg()==0) {
-			waren[i]->catg_index = max_catg_index++;
+	FOR(vector_tpl<ware_besch_t*>, const i, waren) {
+		if (i->get_catg() == 0) {
+			i->catg_index = max_catg_index++;
 		}
 	}
 	// mapping of waren_t::catg to catg_index, map[catg] = catg_index
 	uint8 map[255] = {0};
 
-	for(  uint8 i=0;  i<waren.get_count();  i++  ) {
-		const uint8 catg = waren[i]->get_catg();
+	FOR(vector_tpl<ware_besch_t*>, const i, waren) {
+		uint8 const catg = i->get_catg();
 		if(  catg > 0  ) {
 			if(  map[catg] == 0  ) { // We didn't found this category yet -> just create new index.
 				map[catg] = max_catg_index++;
 			}
-			waren[i]->catg_index = map[catg];
+			i->catg_index = map[catg];
 		}
 	}
 

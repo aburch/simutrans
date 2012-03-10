@@ -53,7 +53,7 @@ simline_t::simline_t(karte_t* welt, spieler_t* sp, linetype type)
 
 	create_schedule();
 
-	average_journey_times = new koordhashtable_tpl<id_pair, average_tpl<uint16> >;
+	average_journey_times = *new koordhashtable_tpl<id_pair, average_tpl<uint16> >;
 }
 
 
@@ -66,7 +66,7 @@ simline_t::simline_t(karte_t* welt, spieler_t* sp, linetype type, loadsave_t *fi
 	this->fpl = NULL;
 	this->sp = sp;
 	create_schedule();
-	average_journey_times = new koordhashtable_tpl<id_pair, average_tpl<uint16> >;
+	average_journey_times = *new koordhashtable_tpl<id_pair, average_tpl<uint16> >;
 	rdwr(file);
 	// now self has the right id but the this-pointer is not assigned to the quickstone handle yet
 	// do this explicitly
@@ -88,7 +88,7 @@ simline_t::~simline_t()
 	self.detach();
 	DBG_MESSAGE("simline_t::~simline_t()", "line %d (%p) destroyed", self.get_id(), this);
 
-	delete average_journey_times;
+	delete &average_journey_times;
 }
 
 void simline_t::create_schedule()
@@ -339,13 +339,12 @@ void simline_t::rdwr(loadsave_t *file)
 	{
 		if(file->is_saving())
 		{
-			uint32 count = average_journey_times->get_count();
+			uint32 count = average_journey_times.get_count();
 			file->rdwr_long(count);
 
-			koordhashtable_iterator_tpl<id_pair, average_tpl<uint16> > iter(average_journey_times);
-			while(iter.next())
+			FOR(journey_times_map, const& iter, average_journey_times)
 			{
-				id_pair idp = iter.get_current_key();
+				id_pair idp = iter.key;
 				file->rdwr_short(idp.x);
 				file->rdwr_short(idp.y);
 				file->rdwr_short(iter.access_current_value().count);
@@ -356,7 +355,7 @@ void simline_t::rdwr(loadsave_t *file)
 		{
 			uint32 count = 0;
 			file->rdwr_long(count);
-			average_journey_times->clear();
+			average_journey_times.clear();
 			for(uint32 i = 0; i < count; i ++)
 			{
 				id_pair idp;
@@ -372,7 +371,7 @@ void simline_t::rdwr(loadsave_t *file)
 				average.count = count;
 				average.total = total;
 
-				average_journey_times->put(idp, average);
+				average_journey_times.put(idp, average);
 			}
 		}
 	}
@@ -399,8 +398,8 @@ void simline_t::laden_abschliessen()
 void simline_t::register_stops(schedule_t * fpl)
 {
 DBG_DEBUG("simline_t::register_stops()", "%d fpl entries in schedule %p", fpl->get_count(),fpl);
-	for (int i = 0; i<fpl->get_count(); i++) {
-		const halthandle_t halt = haltestelle_t::get_halt( welt, fpl->eintrag[i].pos, sp );
+	FOR(minivec_tpl<linieneintrag_t>, const& i, fpl->eintrag) {
+		halthandle_t const halt = haltestelle_t::get_halt(welt, i.pos, sp);
 		if(halt.is_bound()) {
 //DBG_DEBUG("simline_t::register_stops()", "halt not null");
 			halt->add_line(self);
@@ -429,8 +428,8 @@ void simline_t::unregister_stops()
 
 void simline_t::unregister_stops(schedule_t * fpl)
 {
-	for (int i = 0; i<fpl->get_count(); i++) {
-		halthandle_t halt = haltestelle_t::get_halt( welt, fpl->eintrag[i].pos, sp );
+	FOR(minivec_tpl<linieneintrag_t>, const& i, fpl->eintrag) {
+		halthandle_t const halt = haltestelle_t::get_halt(welt, i.pos, sp);
 		if(halt.is_bound()) {
 			halt->remove_line(self);
 		}
@@ -537,9 +536,9 @@ void simline_t::recalc_status()
 	{
 		// Has obsolete vehicles.
 		bool has_obsolete = false;
-		for(unsigned i=0;  !has_obsolete  &&  i<line_managed_convoys.get_count();  i++ ) 
-		{
-			has_obsolete = line_managed_convoys[i]->has_obsolete_vehicles();
+		FOR(vector_tpl<convoihandle_t>, const i, line_managed_convoys) {
+			has_obsolete = i->has_obsolete_vehicles();
+			if (has_obsolete) break;
 		}
 		// now we have to set it
 		state_color = has_obsolete ? COL_DARK_BLUE : COL_BLACK;
@@ -564,21 +563,18 @@ void simline_t::recalc_catg_index()
 {
 	// first copy old
 	minivec_tpl<uint8> old_goods_catg_index(goods_catg_index.get_count());
-	for(  uint i=0;  i<goods_catg_index.get_count();  i++  ) {
-		old_goods_catg_index.append( goods_catg_index[i] );
+	FOR(minivec_tpl<uint8>, const i, goods_catg_index) {
+		old_goods_catg_index.append(i);
 	}
 	goods_catg_index.clear();
 	withdraw = !line_managed_convoys.empty();
 	// then recreate current
-	for(unsigned i=0;  i<line_managed_convoys.get_count();  i++ ) {
+	FOR(vector_tpl<convoihandle_t>, const i, line_managed_convoys) {
 		// what goods can this line transport?
-		// const convoihandle_t cnv = line_managed_convoys[i];
-		const convoi_t *cnv = line_managed_convoys[i].get_rep();
-		withdraw &= cnv->get_withdraw();
+		convoi_t const& cnv = *i;
+		withdraw &= cnv.get_withdraw();
 
-		const minivec_tpl<uint8> &convoys_goods = cnv->get_goods_catg_index();
-		for(  uint8 i = 0;  i < convoys_goods.get_count();  i++  ) {
-			const uint8 catg_index = convoys_goods[i];
+		FOR(minivec_tpl<uint8>, const catg_index, cnv.get_goods_catg_index()) {
 			goods_catg_index.append_unique( catg_index, 1 );
 		}
 	}
@@ -598,11 +594,11 @@ void simline_t::recalc_catg_index()
 	}
 
 	// added categories : present in new category list but not in old category list
-	for (uint8 i = 0; i < goods_catg_index.get_count(); i++)
+	FOR(minivec_tpl<uint8>, const i, goods_catg_index) 
 	{
-		if ( ! old_goods_catg_index.is_contained( goods_catg_index[i] ) )
-		{
-			differences.append( goods_catg_index[i] );
+		if (!old_goods_catg_index.is_contained(i)) 
+			{
+			differences.append(i);
 		}
 	}
 

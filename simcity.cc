@@ -647,8 +647,7 @@ bool stadt_t::bewerte_loc(const koord pos, const rule_t &regel, int rotation)
 	//printf("Test for (%s) in rotation %d\n", pos.get_str(), rotation);
 	koord k;
 
-	for(uint32 i=0; i<regel.rule.get_count(); i++){
-		const rule_entry_t &r = regel.rule[i];
+	FOR(vector_tpl<rule_entry_t>, const& r, regel.rule) {
 		uint8 x,y;
 		switch (rotation) {
 			default:
@@ -1196,9 +1195,9 @@ void stadt_t::recalc_city_size()
 {
 	lo = pos;
 	ur = pos;
-	for(  uint32 i=0;  i<buildings.get_count();  i++  ) {
-		if(buildings[i]->get_tile()->get_besch()->get_utyp()!=haus_besch_t::firmensitz) {
-			const koord gb_pos = buildings[i]->get_pos().get_2d();
+	FOR(weighted_vector_tpl<gebaeude_t*>, const i, buildings) {
+		if (i->get_tile()->get_besch()->get_utyp() != haus_besch_t::firmensitz) {
+			koord const& gb_pos = i->get_pos().get_2d();
 			if (lo.x > gb_pos.x) {
 				lo.x = gb_pos.x;
 			}
@@ -1275,9 +1274,9 @@ void stadt_t::factory_entry_t::resolve_factory()
 
 const stadt_t::factory_entry_t* stadt_t::factory_set_t::get_entry(const fabrik_t *const factory) const
 {
-	for(  uint32 e=0;  e<entries.get_count();  ++e  ) {
-		if(  entries[e].factory==factory  ) {
-			return &entries[e];
+	FOR(vector_tpl<factory_entry_t>, const& e, entries) {
+		if (e.factory == factory) {
+			return &e;
 		}
 	}
 	return NULL;	// not found
@@ -1288,8 +1287,7 @@ stadt_t::factory_entry_t* stadt_t::factory_set_t::get_random_entry()
 {
 	if(  total_remaining>0  ) {
 		sint32 weight = simrand(total_remaining, "stadt_t::factory_set_t::get_random_entry()");
-		for(  uint32 e=0;  e<entries.get_count();  ++e  ) {
-			factory_entry_t &entry = entries[e];
+		FOR(vector_tpl<factory_entry_t>, & entry, entries) {
 			if(  entry.remaining>0  ) {
 				if(  weight<entry.remaining  ) {
 					return &entry;
@@ -1372,8 +1370,7 @@ void stadt_t::factory_set_t::recalc_generation_ratio(const sint32 default_percen
 		const sint64 supply_promille = ( ( (average_generated << 10) * (sint64)default_percent ) / 100 ) / (sint64)target_supply;
 		if(  supply_promille<1024  ) {
 			// expected supply is really smaller than target supply
-			for(  uint32 e=0;  e<entries.get_count();  ++e  ) {
-				factory_entry_t &entry = entries[e];
+			FOR(vector_tpl<factory_entry_t>, & entry, entries) {
 				const sint32 new_supply = (sint32)( ( (sint64)entry.demand * SUPPLY_FACTOR * supply_promille + ((1<<(DEMAND_BITS+SUPPLY_BITS+10))-1) ) >> (DEMAND_BITS+SUPPLY_BITS+10) );
 				const sint32 delta_supply = new_supply - entry.supply;
 				if(  delta_supply==0  ) {
@@ -1395,8 +1392,7 @@ void stadt_t::factory_set_t::recalc_generation_ratio(const sint32 default_percen
 		}
 	}
 	// expected supply is unknown or sufficient to meet target supply
-	for(  uint32 e=0;  e<entries.get_count();  ++e  ) {
-		factory_entry_t &entry = entries[e];
+	FOR(vector_tpl<factory_entry_t>, & entry, entries) {
 		const sint32 new_supply = ( entry.demand * SUPPLY_FACTOR + ((1<<(DEMAND_BITS+SUPPLY_BITS))-1) ) >> (DEMAND_BITS+SUPPLY_BITS);
 		const sint32 delta_supply = new_supply - entry.supply;
 		if(  delta_supply==0  ) {
@@ -1419,8 +1415,8 @@ void stadt_t::factory_set_t::recalc_generation_ratio(const sint32 default_percen
 
 void stadt_t::factory_set_t::new_month()
 {
-	for(  uint32 e=0;  e<entries.get_count();  ++e  ) {
-		entries[e].new_month();
+	FOR(vector_tpl<factory_entry_t>, & e, entries) {
+		e.new_month();
 	}
 	total_remaining = 0;
 	total_generated = 0;
@@ -1456,9 +1452,9 @@ void stadt_t::factory_set_t::rdwr(loadsave_t *file)
 void stadt_t::factory_set_t::resolve_factories()
 {
 	uint32 remove_count = 0;
-	for(  uint32 e=0;  e<entries.get_count();  ++e  ) {
-		entries[e].resolve_factory();
-		if(  entries[e].factory == NULL  ) {
+	FOR(vector_tpl<factory_entry_t>, & e, entries) {
+		e.resolve_factory();
+		if (!e.factory) {
 			remove_count ++;
 		}
 	}
@@ -1541,8 +1537,8 @@ stadt_t::~stadt_t()
 
 static bool name_used(weighted_vector_tpl<stadt_t*> const& cities, char const* const name)
 {
-	for (weighted_vector_tpl<stadt_t*>::const_iterator i = cities.begin(), end = cities.end(); i != end; ++i) {
-		if (strcmp((*i)->get_name(), name) == 0) {
+	FOR(weighted_vector_tpl<stadt_t*>, const i, cities) {
+		if (strcmp(i->get_name(), name) == 0) {
 			return true;
 		}
 	}
@@ -1593,7 +1589,8 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 		size_t      const idx  = simrand(city_names.get_count(), "stadt_t::stadt_t()");
 		char const* const cand = city_names[idx];
 		if (name_used(staedte, cand)) {
-			city_names.remove_at(idx);
+			city_names[idx] = city_names.back();
+			city_names.pop_back();
 		} else {
 			n = cand;
 			break;
@@ -3805,9 +3802,8 @@ void stadt_t::update_target_cities()
 void stadt_t::recalc_target_cities()
 {
 	target_cities.clear();
-	const weighted_vector_tpl<stadt_t *> &cities = welt->get_staedte();
-	for(  uint32 c=0;  c<cities.get_count();  ++c  ) {
-		add_target_city( cities[c] );
+	FOR(weighted_vector_tpl<stadt_t*>, const c, welt->get_staedte()) {
+		add_target_city(c);
 	}
 }
 
@@ -3826,9 +3822,8 @@ void stadt_t::add_target_attraction(gebaeude_t *const attraction)
 void stadt_t::recalc_target_attractions()
 {
 	target_attractions.clear();
-	const weighted_vector_tpl<gebaeude_t *> &attractions = welt->get_ausflugsziele();
-	for(  uint32 a=0;  a<attractions.get_count();  ++a  ) {
-		add_target_attraction( attractions[a] );
+	FOR(weighted_vector_tpl<gebaeude_t*>, const a, welt->get_ausflugsziele()) {
+		add_target_attraction(a);
 	}
 }
 
@@ -4649,7 +4644,7 @@ bool stadt_t::renoviere_gebaeude(gebaeude_t* gb)
 		}
 	}
 	// check for industry, also if we wanted com, but there was no com good enough ...
-	if ((sum_industrie > sum_gewerbe && sum_industrie > sum_wohnung) || (sum_gewerbe > sum_wohnung && will_haben == gebaeude_t::unbekannt)) {
+	if(  (sum_industrie > sum_gewerbe  &&  sum_industrie > sum_wohnung) || (sum_gewerbe > sum_wohnung  &&  will_haben == gebaeude_t::unbekannt)  ) {
 		// we must check, if we can really update to higher level ...
 		const int try_level = (alt_typ == gebaeude_t::industrie ? level + 1 : level);
 		h = hausbauer_t::get_industrie(try_level , current_month, cl);

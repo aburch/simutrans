@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
@@ -73,6 +73,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="gui\climates.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\colors.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="gui\convoi_detail_t.cc">
@@ -771,18 +774,6 @@
     <ClCompile Include="gui\privatesign_info.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="gui\components\gui_ding_view_t.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gui\display_settings.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gui\ai_option_t.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="dataobj\pwd_hash.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gui\components\action_listener.h">
@@ -876,6 +867,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gui\climates.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\colors.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gui\convoi_detail_t.h">
@@ -1784,10 +1778,6 @@
     <ClInclude Include="gui\privatesign_info.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="gui\components\gui_ding_view_t.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gui\ai_option_t.h">
     <ClInclude Include="utils\for.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1871,9 +1861,6 @@
     </None>
     <None Include="base_texts_experimental_10.8.dat">
       <Filter>Resource Files</Filter>
-    </None>
-    <None Include="base_texts_experimental_10.9.dat">
-<Filter>Resource Files</Filter>
     </None>
     <None Include="base_texts_experimental_10.11.dat">
       <Filter>Resource Files</Filter>

@@ -764,8 +764,8 @@ image_id toolbar_t::get_icon(spieler_t *sp) const
 		return IMG_LEER;
 	}
 	// now have we a least one visible tool?
-	for(  slist_tpl<werkzeug_t *>::const_iterator iter = tools.begin(), end = tools.end();  iter != end;  ++iter  ) {
-		if(  (*iter)->get_icon(sp)!=IMG_LEER  ) {
+	FOR(slist_tpl<werkzeug_t*>, const i, tools) {
+		if (i->get_icon(sp) != IMG_LEER) {
 			return icon;
 		}
 	}
@@ -857,6 +857,7 @@ void toolbar_t::update(karte_t *welt, spieler_t *sp)
 		else if(w->get_icon(welt->get_active_player())!=IMG_LEER) {
 			// get the right city_road
 			if(w->get_id() == (WKZ_CITYROAD | GENERAL_TOOL)) {
+				w->flags = 0;
 				w->init(welt,sp);
 			}
 			if(  create  ) {

@@ -91,13 +91,6 @@ private:
 
     static bool compare_halts(halthandle_t, halthandle_t);
 
-    /**
-     * Check all filters for one halt.
-     * returns true, if it is not filtered away.
-     * @author V. Meyer
-     */
-    static bool passes_filter(halthandle_t halt);
-
 public:
     halt_list_frame_t(spieler_t *sp);
 

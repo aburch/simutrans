@@ -191,10 +191,7 @@ void spieler_t::display_messages()
 	const sint16 raster = get_tile_raster_width();
 	const sint16 yoffset = welt->get_y_off()+((display_get_width()/raster)&1)*(raster/4);
 
-	slist_iterator_tpl<income_message_t *>iter(messages);
-	while(iter.next()) {
-		income_message_t *m = iter.get_current();
-
+	FOR(slist_tpl<income_message_t*>, const m, messages) {
 		const koord ij = m->pos - welt->get_world_position()-welt->get_ansicht_ij_offset();
 		const sint16 x = (ij.x-ij.y)*(raster/2) + welt->get_x_off();
 		const sint16 y = (ij.x+ij.y)*(raster/4) + (m->alter >> 4) - tile_raster_scale_y( welt->lookup_hgt(m->pos)*TILE_HEIGHT_STEP, raster) + yoffset;
@@ -546,21 +543,16 @@ void spieler_t::calc_assets()
 {
 	sint64 assets = 0;
 	// all convois
-	for (vector_tpl<convoihandle_t>::const_iterator i = welt->convoys().begin(), end = welt->convoys().end(); i != end; ++i) {
-		convoihandle_t cnv = *i;
+	FOR(vector_tpl<convoihandle_t>, const cnv, welt->convoys()) {
 		if(  cnv->get_besitzer() == this  ) {
 			assets += cnv->calc_restwert();
 		}
 	}
 
 	// all vehikels stored in depot not part of a convoi
-	slist_iterator_tpl<depot_t *> depot_iter(depot_t::get_depot_list());
-	while(  depot_iter.next()  ) {
-		depot_t* const depot = depot_iter.get_current();
+	FOR(slist_tpl<depot_t*>, const depot, depot_t::get_depot_list()) {
 		if(  depot->get_player_nr() == player_nr  ) {
-			slist_iterator_tpl<vehikel_t *> veh_iter(depot->get_vehicle_list());
-			while(  veh_iter.next()  ) {
-				const vehikel_t* const veh = veh_iter.get_current();
+			FOR(slist_tpl<vehikel_t*>, const veh, depot->get_vehicle_list()) {
 				assets += veh->calc_restwert();
 			}
 		}
@@ -593,13 +585,7 @@ void spieler_t::buche(sint64 const betrag, koord const pos, player_cost const ty
 
 			// and same for sound too ...
 			if(  betrag>=10000  &&  !welt->is_fast_forward()  ) {
-				struct sound_info info;
-
-				info.index = SFX_CASH;
-				info.volume = 255;
-				info.pri = 0;
-
-				welt->play_sound_area_clipped(pos, info);
+				welt->play_sound_area_clipped(pos, SFX_CASH);
 			}
 		}
 	}
@@ -733,9 +719,7 @@ void spieler_t::ai_bankrupt()
 	}
 
 	// transfer all ways in public stops belonging to me to no one
-	slist_iterator_tpl<halthandle_t>iter(haltestelle_t::get_alle_haltestellen());
-	while(  iter.next()  ) {
-		halthandle_t halt = iter.get_current();
+	FOR(slist_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {
 		if(  halt->get_besitzer()==welt->get_spieler(1)  ) {
 			// only concerns public stops tiles
 			FOR(slist_tpl<haltestelle_t::tile_t>, const& i, halt->get_tiles()) {
@@ -1347,9 +1331,8 @@ sint64 spieler_t::undo()
 		return false;
 	}
 	// check, if we can still do undo
-	ITERATE(last_built,i)
-	{
-		grund_t* gr = welt->lookup(last_built[i]);
+	FOR(vector_tpl<koord3d>, const& i, last_built) {
+		grund_t* const gr = welt->lookup(i);
 		if(gr==NULL  ||  gr->get_typ()!=grund_t::boden) {
 			// well, something was built here ... so no undo
 			last_built.clear();
@@ -1395,8 +1378,8 @@ sint64 spieler_t::undo()
 
 	// ok, now remove everything last built
 	sint64 cost=0;
-	for(  uint32 i=0;  i<last_built.get_count();  i++  ) {
-		grund_t* gr = welt->lookup(last_built[i]);
+	FOR(vector_tpl<koord3d>, const& i, last_built) {
+		grund_t* const gr = welt->lookup(i);
 		if(  undo_type != powerline_wt  ) {
 			cost += gr->weg_entfernen(undo_type,true);
 		}
@@ -1425,14 +1408,12 @@ void spieler_t::tell_tool_result(werkzeug_t *tool, koord3d, const char *err, boo
 	if (welt->get_active_player()==this  &&  local) {
 		if(err==NULL) {
 			if(tool->ok_sound!=NO_SOUND) {
-				struct sound_info info = {tool->ok_sound,255,0};
-				sound_play(info);
+				sound_play(tool->ok_sound);
 			}
 		}
 		else if(*err!=0) {
 			// something went really wrong
-			struct sound_info info = {SFX_FAILURE,255,0};
-			sound_play(info);
+			sound_play(SFX_FAILURE);
 			create_win( new news_img(err), w_time_delete, magic_none);
 		}
 	}

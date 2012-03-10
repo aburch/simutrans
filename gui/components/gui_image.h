@@ -22,9 +22,19 @@ private:
 	uint16 player_nr;
 
 public:
-	gui_image_t( const image_id i=IMG_LEER, const uint8 p=0 ) : id(i), player_nr(p) { }
+	gui_image_t( const image_id i=IMG_LEER, const uint8 p=0 ) : player_nr(p) { set_image(i); }
 
-    void set_image( const image_id i ) { id = i; }
+    void set_image( const image_id i ) {
+		id = i;
+		if(  id!=IMG_LEER  ) {
+			KOORD_VAL x,y,w,h;
+			display_get_base_image_offset( id, &x, &y, &w, &h );
+			set_groesse( koord( x+w, y+h ) );
+		}
+		else {
+			set_groesse( koord(0,0) );
+		}
+	}
 
     /**
      * Zeichnet die Komponente

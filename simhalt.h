@@ -46,10 +46,6 @@
 #define HALT_TOO_SLOW		        7 // The number of passengers whose estimated journey time exceeds their tolerance.
 /* NOTE - Standard has HALT_WALKED here as no. 7. In Experimental, this is in cities, not stops.*/
 
-// Query whether the below are redundant in Experimental.
-#define RECONNECTING (1)
-#define REROUTING (2)
-
 class cbuffer_t;
 class grund_t;
 class fabrik_t;
@@ -249,6 +245,7 @@ private:
 	// Array: one entry per goods type.
 	// Knightly : Change into an array of pointers to connexion hash tables
 	quickstone_hashtable_tpl<haltestelle_t, connexion*> **connexions;
+	typedef quickstone_hashtable_tpl<haltestelle_t, connexion*> connexions_map;
 
 	// loest warte_menge ab
 	// "solves wait mixes off" (Babelfish); "solves warte volume from" (Google)
@@ -279,6 +276,12 @@ private:
 	 * @author prissi
 	 */
 	stationtyp station_type;
+
+	/**
+	 * Reconnect and reroute if counter different from welt->get_schedule_counter()
+	 */
+	static uint8 reconnect_counter;
+	// since we do partial routing, we remember the last offset
 
 	// since we do partial routing, we remeber the last offset
 	uint8 last_catg_index;
@@ -336,7 +339,8 @@ private:
 	// Record of waiting times. Takes a list of the last 16 waiting times per type of goods.
 	// Getter method will need to average the waiting times. 
 	// @author: jamespetts
-	inthashtable_tpl<uint16, waiting_time_set >* waiting_times;
+	inthashtable_tpl<uint16, waiting_time_set > * waiting_times;
+	typedef inthashtable_tpl<uint16, waiting_time_set >& waiting_time_map;
 
 	uint8 check_waiting;
 
@@ -722,10 +726,10 @@ public:
 				waiting_times[category].access(halt.get_id())->month = 0;
 			}
 		}
-	
 	}
 
-	quickstone_hashtable_tpl<haltestelle_t, connexion*>* get_connexions(uint8 c) { return connexions[c]; }
+	typedef quickstone_hashtable_tpl<haltestelle_t, connexion*>* connexions_map;
+	connexions_map get_connexions(uint8 c) { return connexions[c]; }
 
 	linehandle_t get_preferred_line(halthandle_t transfer, uint8 category) const;
 	convoihandle_t get_preferred_convoy(halthandle_t transfer, uint8 category) const;

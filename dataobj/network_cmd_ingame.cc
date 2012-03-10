@@ -174,7 +174,7 @@ vector_tpl<uint32> nwc_ready_t::all_map_counters(MAX_MAP_COUNTERS);
 void nwc_ready_t::append_map_counter(uint32 map_counter_)
 {
 	if (all_map_counters.get_count() == MAX_MAP_COUNTERS) {
-		all_map_counters.remove_at( all_map_counters.get_count()-1 );
+		all_map_counters.pop_back();
 	}
 	all_map_counters.insert_at(0, map_counter_);
 }
@@ -200,8 +200,8 @@ bool nwc_ready_t::execute(karte_t *welt)
 			return true;
 		}
 		// check the validity of the map counter
-		for(  uint32 i=0;  i<all_map_counters.get_count();  ++i  ) {
-			if(  all_map_counters[i]==map_counter  ) {
+		FOR(vector_tpl<uint32>, const i, all_map_counters) {
+			if (i == map_counter) {
 				// unpause the sender by sending nwc_ready_t back
 				nwc_ready_t nwc(sync_step, map_counter, checklist);
 				if(  !nwc.send( get_sender())  ) {
@@ -949,7 +949,7 @@ void nwc_tool_t::tool_node_t::client_set_werkzeug(werkzeug_t* &wkz_new, const ch
 }
 
 
-vector_tpl<nwc_tool_t::tool_node_t> nwc_tool_t::tool_list;
+vector_tpl<nwc_tool_t::tool_node_t*> nwc_tool_t::tool_list;
 
 
 void nwc_tool_t::do_command(karte_t *welt)
@@ -964,20 +964,20 @@ void nwc_tool_t::do_command(karte_t *welt)
 		// pointer, where the active tool from a remote client is stored
 		tool_node_t *tool_node = NULL;
 
-		spieler_t *sp = player_nr < PLAYER_UNOWNED ? welt->get_spieler(player_nr) : NULL;
-
 		// do we have a tool for this client already?
-		tool_node_t new_tool_node(NULL, player_nr, tool_client_id);
-		uint32 index;
-		if (tool_list.is_contained(new_tool_node)) {
-			index = tool_list.index_of(new_tool_node);
-		}
-		else {
-			tool_list.append(new_tool_node);
-			index = tool_list.get_count()-1;
+		FOR(vector_tpl<nwc_tool_t::tool_node_t*>, i, tool_list) {
+			if (i->player_id == player_nr  &&  i->client_id  == tool_client_id) {
+				tool_node = i;
+				break;
+			}
 		}
 		// this node stores the tool and its default_param
-		tool_node = &(tool_list[index]);
+		if (tool_node == NULL) {
+			tool_node = new tool_node_t(NULL, player_nr, tool_client_id);
+			tool_list.append(tool_node);
+		}
+
+		spieler_t *sp = player_nr < PLAYER_UNOWNED ? welt->get_spieler(player_nr) : NULL;
 
 		wkz = tool_node->get_tool();
 		// create a new tool if necessary

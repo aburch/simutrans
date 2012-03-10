@@ -70,9 +70,7 @@ depot_t *depot_t::find_depot( koord3d start, const ding_t::typ depot_type, const
 	koord3d found_pos = forward ? koord3d(welt->get_groesse_x()+1,welt->get_groesse_y()+1,welt->get_grundwasser()) : koord3d(-1,-1,-1);
 	long found_hash = forward ? 0x7FFFFFF : -1;
 	long start_hash = start.x + (8192*start.y);
-	slist_iterator_tpl<depot_t *> iter(all_depots);
-	while(iter.next()) {
-		depot_t *d = iter.access_current();
+	FOR(slist_tpl<depot_t*>, const d, all_depots) {
 		if(d->get_typ()==depot_type  &&  d->get_besitzer()==sp) {
 			// ok, the right type of depot
 			const koord3d pos = d->get_pos();
@@ -554,10 +552,9 @@ void depot_t::rdwr_vehikel(slist_tpl<vehikel_t *> &list, loadsave_t *file)
 		}
 	}
 	else {
-		slist_iterator_tpl<vehikel_t *> l_iter ( list);
-		while(l_iter.next()) {
-			file->wr_obj_id( l_iter.get_current()->get_typ() );
-			l_iter.get_current()->rdwr_from_convoi( file );
+		FOR(slist_tpl<vehikel_t*>, const v, list) {
+			file->wr_obj_id(v->get_typ());
+			v->rdwr_from_convoi(file);
 		}
 	}
 }
@@ -574,10 +571,9 @@ const char * depot_t::ist_entfernbar(const spieler_t *sp)
 	if (!vehicles.empty()) {
 		return "There are still vehicles\nstored in this depot!\n";
 	}
-	slist_iterator_tpl<convoihandle_t> iter(convois);
 
-	while(iter.next()) {
-		if(iter.get_current()->get_vehikel_anzahl() > 0) {
+	FOR(slist_tpl<convoihandle_t>, const c, convois) {
+		if (c->get_vehikel_anzahl() > 0) {
 			return "There are still vehicles\nstored in this depot!\n";
 		}
 	}
@@ -589,14 +585,12 @@ const char * depot_t::ist_entfernbar(const spieler_t *sp)
 vehikel_t* depot_t::find_oldest_newest(const vehikel_besch_t* besch, bool old, vector_tpl<vehikel_t*> *avoid)
 {
 	vehikel_t* found_veh = NULL;
-	slist_iterator_tpl<vehikel_t*> iter(get_vehicle_list());
-	while (iter.next()) 
+	FOR(slist_tpl<vehikel_t*>, const veh, vehicles)
 	{
-		vehikel_t* veh = iter.get_current();
-		if (veh != NULL && veh->get_besch() == besch) 
+		if(veh != NULL && veh->get_besch() == besch) 
 		{
 			// joy of XOR, finally a line where I could use it!
-			if (avoid == NULL || (!avoid->is_contained(veh) && (found_veh == NULL ||
+			if(avoid == NULL || (!avoid->is_contained(veh) && (found_veh == NULL ||
 					old ^ (found_veh->get_insta_zeit() > veh->get_insta_zeit())))) // Used when replacing to avoid specifying the same vehicle twice
 			{
 				found_veh = veh;
@@ -616,9 +610,7 @@ slist_tpl<vehikel_besch_t*> & depot_t::get_vehicle_type()
 vehikel_t* depot_t::get_oldest_vehicle(const vehikel_besch_t* besch)
 {
 	vehikel_t* oldest_veh = NULL;
-	slist_iterator_tpl<vehikel_t*> iter(get_vehicle_list());
-	while (iter.next()) {
-		vehikel_t* veh = iter.get_current();
+	FOR(slist_tpl<vehikel_t*>, const veh, get_vehicle_list()) {
 		if (veh->get_besch() == besch) {
 			if (oldest_veh == NULL ||
 					oldest_veh->get_insta_zeit() > veh->get_insta_zeit()) {
@@ -654,10 +646,10 @@ sint32 depot_t::calc_restwert(const vehikel_besch_t *veh_type)
 {
 	sint32 wert = 0;
 
-	slist_iterator_tpl<vehikel_t *> iter(get_vehicle_list());
-	while(iter.next()) {
-		if(iter.get_current()->get_besch() == veh_type) {
-			wert += iter.get_current()->calc_restwert();
+	FOR(slist_tpl<vehikel_t*>, const v, get_vehicle_list()) {
+		if(v->get_besch() == veh_type) 
+		{
+			wert += v->calc_restwert();
 		}
 	}
 	return wert;
@@ -667,12 +659,9 @@ sint32 depot_t::calc_restwert(const vehikel_besch_t *veh_type)
 // true if already stored here
 bool depot_t::is_contained(const vehikel_besch_t *info)
 {
-	if(vehicle_count()>0) {
-		slist_iterator_tpl<vehikel_t *> iter(get_vehicle_list());
-		while(iter.next()) {
-			if(iter.get_current()->get_besch()==info) {
-				return true;
-			}
+	FOR(slist_tpl<vehikel_t*>, const v, get_vehicle_list()) {
+		if (v->get_besch() == info) {
+			return true;
 		}
 	}
 	return false;
@@ -690,9 +679,9 @@ void depot_t::neuer_monat()
 	if (vehicle_count() > 0) 
 	{
 		karte_t *world = get_welt();
-		slist_iterator_tpl<vehikel_t *> vehicle_iter(vehicles);
-		while (vehicle_iter.next()) {
-			fixed_cost_costs += vehicle_iter.get_current()->get_besch()->get_fixed_cost(world);
+		FOR(slist_tpl<vehikel_t*>, const v, get_vehicle_list()) 
+		{
+			fixed_cost_costs += v->get_besch()->get_fixed_cost(world);
 		}
 	}
 	if (fixed_cost_costs)
@@ -714,9 +703,8 @@ void depot_t::update_win()
 
 void depot_t::update_all_win()
 {
-	slist_iterator_tpl<depot_t *> iter(all_depots);
-	while(iter.next()) {
-		iter.access_current()->update_win();
+	FOR(slist_tpl<depot_t*>, const d, all_depots) {
+		d->update_win();
 	}
 }
 

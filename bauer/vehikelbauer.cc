@@ -131,9 +131,8 @@ sint32 vehikelbauer_t::get_speedbonus( sint32 monthyear, waytype_t wt )
 		// needs to do it the old way => iterate over all vehicles with this type ...
 		const int wtidx = GET_WAYTYPE_INDEX(wt);
 		if(  !typ_fahrzeuge[wtidx].empty()  ) {
-			slist_iterator_tpl<vehikel_besch_t*> vehinfo(typ_fahrzeuge[wtidx]);
-			while (vehinfo.next()) {
-				const vehikel_besch_t* info = vehinfo.get_current();
+			FOR(slist_tpl<vehikel_besch_t *>, info, typ_fahrzeuge[GET_WAYTYPE_INDEX(wt)]) 
+			{
 				if(info->get_leistung()>0  &&  !info->is_future(monthyear)  &&  !info->is_retired(monthyear)) {
 					speed_sum += info->get_geschw();
 					num_averages ++;
@@ -370,11 +369,8 @@ const vehikel_besch_t *vehikelbauer_t::vehikel_search( waytype_t wt, const uint1
 
 	if(  !typ_fahrzeuge[GET_WAYTYPE_INDEX(wt)].empty()  ) 
 	{
-		slist_iterator_tpl<vehikel_besch_t*> vehinfo(typ_fahrzeuge[GET_WAYTYPE_INDEX(wt)]);
-		while (vehinfo.next()) 
+		FOR(slist_tpl<vehikel_besch_t *>, const test_besch, typ_fahrzeuge[GET_WAYTYPE_INDEX(wt)]) 
 		{
-			const vehikel_besch_t* test_besch = vehinfo.get_current();
-
 			// no constricts allow for rail vehicles concerning following engines
 			if(wt==track_wt  &&  !test_besch->can_follow_any()  ) 
 			{
@@ -494,12 +490,10 @@ const vehikel_besch_t *vehikelbauer_t::get_best_matching( waytype_t wt, const ui
 
 	if(  !typ_fahrzeuge[GET_WAYTYPE_INDEX(wt)].empty()  ) 
 	{
-		slist_iterator_tpl<vehikel_besch_t*> vehinfo(typ_fahrzeuge[GET_WAYTYPE_INDEX(wt)]);
-		while (vehinfo.next()) 
+		FOR(slist_tpl<vehikel_besch_t *>, const test_besch, typ_fahrzeuge[GET_WAYTYPE_INDEX(wt)])
 		{
-			const vehikel_besch_t* test_besch = vehinfo.get_current();
-
-		if(target_power>0  &&  test_besch->get_leistung()==0) {
+		if(target_power>0  &&  test_besch->get_leistung()==0) 
+		{
 			continue;
 		}
 

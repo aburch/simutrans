@@ -22,8 +22,7 @@
 
 #include "../tpl/slist_tpl.h"
 
-
-struct linieneintrag_t schedule_t::dummy_eintrag = { koord3d::invalid, 0, 0, 0, false };
+linieneintrag_t schedule_t::dummy_eintrag(koord3d::invalid, 0, 0, 0, false);
 
 schedule_t::schedule_t(loadsave_t* const file)
 {
@@ -44,8 +43,8 @@ void schedule_t::copy_from(const schedule_t *src)
 		return;
 	}
 	eintrag.clear();
-	for(  uint8 i=0;  i<src->eintrag.get_count();  i++  ) {
-		eintrag.append(src->eintrag[i]);
+	FOR(minivec_tpl<linieneintrag_t>, const& i, src->eintrag) {
+		eintrag.append(i);
 	}
 	set_aktuell( src->get_aktuell() );
 
@@ -91,17 +90,7 @@ bool schedule_t::ist_halt_erlaubt(const grund_t *gr) const
 
 bool schedule_t::insert(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_shift, sint16 spacing_shift, bool show_failure )
 {
-#ifndef _MSC_VER
-	struct linieneintrag_t stop = { gr->get_pos(), ladegrad, waiting_time_shift, spacing_shift };
-#else
-	struct linieneintrag_t stop;
-	stop.pos = gr->get_pos();
-	stop.ladegrad = ladegrad;
-	stop.waiting_time_shift = waiting_time_shift;
-	stop.spacing_shift = spacing_shift;
-#endif
-	stop.reverse = false;
-	// stored in minivec, so wie have to avoid adding too many
+	// stored in minivec, so we have to avoid adding too many
 	if(  eintrag.get_count()>=254  ) 
 	{
 		if(show_failure)
@@ -112,7 +101,7 @@ bool schedule_t::insert(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_sh
 	}
 
 	if(  ist_halt_erlaubt(gr)  ) {
-		eintrag.insert_at(aktuell, stop);
+		eintrag.insert_at(aktuell, linieneintrag_t(gr->get_pos(), ladegrad, waiting_time_shift, spacing_shift, false));
 		aktuell ++;
 		return true;
 	}
@@ -130,18 +119,6 @@ bool schedule_t::insert(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_sh
 
 bool schedule_t::append(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_shift, sint16 spacing_shift)
 {
-#ifndef _MSC_VER
-	struct linieneintrag_t stop = { gr->get_pos(), ladegrad, waiting_time_shift, spacing_shift };
-#else
-	struct linieneintrag_t stop;
-	stop.pos = gr->get_pos();
-	stop.ladegrad = ladegrad;
-	stop.waiting_time_shift = waiting_time_shift;
-	stop.spacing_shift = spacing_shift;
-#endif
-	
-	stop.reverse = false;
-
 	// stored in minivec, so wie have to avoid adding too many
 	if(eintrag.get_count()>=254) {
 		create_win( new news_img("Maximum 254 stops\nin a schedule!\n"), w_time_delete, magic_none);
@@ -149,7 +126,7 @@ bool schedule_t::append(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_sh
 	}
 
 	if(ist_halt_erlaubt(gr)) {
-		eintrag.append(stop, 4);
+		eintrag.append(linieneintrag_t(gr->get_pos(), ladegrad, waiting_time_shift, spacing_shift, false), 4);
 		return true;
 	}
 	else {
@@ -242,14 +219,7 @@ void schedule_t::rdwr(loadsave_t *file)
 			uint32 dummy;
 			pos.rdwr(file);
 			file->rdwr_long(dummy);
-
-			struct linieneintrag_t stop;
-			stop.pos = pos;
-			stop.ladegrad = (sint8)dummy;
-			stop.waiting_time_shift = 0;
-			stop.spacing_shift = 0;
-			stop.reverse = false;
-			eintrag.append(stop);
+			eintrag.append(linieneintrag_t(pos, (uint8)dummy, 0, 0, false));
 		}
 	}
 	else {
@@ -308,8 +278,8 @@ void schedule_t::rdwr(loadsave_t *file)
 void schedule_t::rotate90( sint16 y_size )
 {
 	// now we have to rotate all entries ...
-	for(  uint8 i = 0;  i<eintrag.get_count();  i++  ) {
-		eintrag[i].pos.rotate90(y_size);
+	FOR(minivec_tpl<linieneintrag_t>, & i, eintrag) {
+		i.pos.rotate90(y_size);
 	}
 }
 
@@ -440,7 +410,7 @@ void schedule_t::sprintf_schedule( cbuffer_t &buf ) const
 	buf.append( "|" );
 	buf.append( (int)get_type() );
 	buf.append( "|" );
-	for(  uint8 i = 0;  i<eintrag.get_count();  i++  ) {
+	FOR(minivec_tpl<linieneintrag_t>, const& i, eintrag) {
 		buf.printf( "%s,%i,%i,%i,%i|", eintrag[i].pos.get_str(), (int)eintrag[i].ladegrad, (int)eintrag[i].waiting_time_shift, (int)eintrag[i].spacing_shift, (int)eintrag[i].reverse );
 	}
 }
@@ -513,17 +483,7 @@ bool schedule_t::sscanf_schedule( const char *ptr )
 			p++;
 		}
 		// ok, now we have a complete entry
-#ifndef _MSC_VER
-		struct linieneintrag_t stop = { koord3d(values[0],values[1],values[2]), values[3], values[4], values[5], values[6] };
-#else
-		struct linieneintrag_t stop;
-		stop.pos = koord3d(values[0], values[1], (sint8)values[2]);
-		stop.ladegrad = (uint8)values[3];
-		stop.waiting_time_shift = (sint8)values[4];
-		stop.spacing_shift = values[5];
-		stop.reverse = (bool)values[6];
-#endif
-		eintrag.append( stop );
+		eintrag.append(linieneintrag_t(koord3d(values[0], values[1], values[2]), values[3], values[4], values[5], (bool)values[6]));
 	}
 	return true;
 }

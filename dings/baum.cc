@@ -259,9 +259,8 @@ bool baum_t::alles_geladen()
 		baum_typen.append( NULL );
 	}
 	else {
-		stringhashtable_iterator_tpl<const baum_besch_t*> iter(besch_names);
-		while(  iter.next()  ) {
-			baum_typen.insert_ordered( iter.get_current_value(), compare_baum_besch );
+		FOR(stringhashtable_tpl<baum_besch_t const*>, const& i, besch_names) {
+			baum_typen.insert_ordered(i.value, compare_baum_besch);
 			if(  baum_typen.get_count()==254  ) {
 				dbg->error( "baum_t::alles_geladen()", "Maximum tree count exceeded! (max 254 instead of %i)", besch_names.get_count() );
 				break;

@@ -394,7 +394,7 @@ void planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const si
 	}
 
 	// clip everything at the next tile above
-	struct clip_dimension p_cr;
+	clip_dimension p_cr;
 	if(  i < ground_size  ) {
 		p_cr = display_get_clip_wh();
 		for(uint8 j=i; j<ground_size; j++) {

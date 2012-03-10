@@ -139,14 +139,13 @@ bool ai_goods_t::get_factory_tree_lowest_missing( fabrik_t *fab )
 			continue;
 		}
 
-		const vector_tpl <koord> & sources = fab->get_suppliers();
-		for( unsigned q=0;  q<sources.get_count();  q++  ) {
-			fabrik_t *qfab = fabrik_t::get_fab(welt,sources[q]);
+		FOR(vector_tpl<koord>, const& q, fab->get_suppliers()) {
+			fabrik_t* const qfab = fabrik_t::get_fab(welt, q);
 			const fabrik_besch_t* const fb = qfab->get_besch();
 			for (uint qq = 0; qq < fb->get_produkte(); qq++) {
-				if (fb->get_produkt(qq)->get_ware() == ware
-					  &&  !is_forbidden( fabrik_t::get_fab(welt,sources[q]), fab, ware )
-					  &&  !is_connected( sources[q], fab->get_pos().get_2d(), ware )  ) {
+				if (fb->get_produkt(qq)->get_ware() == ware &&
+						!is_forbidden(qfab, fab, ware)          &&
+						!is_connected(q, fab->get_pos().get_2d(), ware)) {
 					// find out how much is there
 					const array_tpl<ware_production_t>& ausgang = qfab->get_ausgang();
 					uint ware_nr;
@@ -182,21 +181,21 @@ int ai_goods_t::get_factory_tree_missing_count( fabrik_t *fab )
 {
 	int numbers=0;	// how many missing?
 
+	fabrik_besch_t const& d = *fab->get_besch();
 	// ok, this is a source ...
-	if(fab->get_besch()->get_lieferanten()==0) {
+	if (d.is_producer_only()) {
 		return 0;
 	}
 
 	// now check for all
-	for( int i=0;  i<fab->get_besch()->get_lieferanten();  i++  ) {
-		const ware_besch_t *ware = fab->get_besch()->get_lieferant(i)->get_ware();
+	for (int i = 0; i < d.get_lieferanten(); ++i) {
+		ware_besch_t const* const ware = d.get_lieferant(i)->get_ware();
 
 		bool complete = false;	// found at least one factory
-		const vector_tpl <koord> & sources = fab->get_suppliers();
-		for( unsigned q=0;  q<sources.get_count();  q++  ) {
-			fabrik_t *qfab = fabrik_t::get_fab(welt,sources[q]);
+		FOR(vector_tpl<koord>, const& q, fab->get_suppliers()) {
+			fabrik_t* const qfab = fabrik_t::get_fab(welt, q);
 			if(!qfab) {
-				dbg->error( "fabrik_t::get_fab()","fab %s at %s does not find supplier at %s.", fab->get_name(), fab->get_pos().get_str(), sources[q].get_str() );
+				dbg->error("fabrik_t::get_fab()","fab %s at %s does not find supplier at %s.", fab->get_name(), fab->get_pos().get_str(), q.get_str());
 				continue;
 			}
 			if( !is_forbidden( qfab, fab, ware ) ) {
@@ -206,7 +205,7 @@ int ai_goods_t::get_factory_tree_missing_count( fabrik_t *fab )
 						int n = get_factory_tree_missing_count( qfab );
 						if(n>=0) {
 							complete = true;
-							if(  !is_connected( sources[q], fab->get_pos().get_2d(), ware )  ) {
+							if (!is_connected(q, fab->get_pos().get_2d(), ware)) {
 								numbers += 1;
 							}
 							numbers += n;
@@ -263,8 +262,8 @@ bool ai_goods_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length 
 				add_neighbourhood( one_more, 1 );
 				// Any halts here?
 				vector_tpl<koord> halts;
-				for( uint32 j = 0; j < one_more.get_count(); j++ ) {
-					halthandle_t halt = haltestelle_t::get_halt( welt, one_more[j], this );
+				FOR(vector_tpl<koord>, const& j, one_more) {
+					halthandle_t const halt = haltestelle_t::get_halt(welt, j, this);
 					if( halt.is_bound() && !halts.is_contained(halt->get_basis_pos()) ) {
 						bool halt_connected = halt->get_fab_list().is_contained( fab );
 						FOR(slist_tpl<haltestelle_t::tile_t>, const& i, halt->get_tiles()) {
@@ -279,8 +278,8 @@ bool ai_goods_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length 
 				vector_tpl<koord> *next = &halts;
 				for( uint8 k = 0; k < 2; k++ ) {
 					// On which tiles we can start?
-					for( uint32 j = 0; j < next->get_count(); j++ ) {
-						const grund_t* gr = welt->lookup_kartenboden( next->operator[](j) );
+					FOR(vector_tpl<koord>, const& j, *next) {
+						grund_t const* const gr = welt->lookup_kartenboden(j);
 						if(  gr  &&  gr->get_grund_hang() == hang_t::flach  &&  !gr->hat_wege()  &&  !gr->get_leitung()  ) {
 							tile_list[i].append_unique( gr->get_pos() );
 						}
@@ -362,7 +361,9 @@ bool ai_goods_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 			if(ship_vehicle->get_nachfolger_count()>0  &&  ship_vehicle->get_nachfolger(0)!=NULL) {
 				v_second = ship_vehicle->get_nachfolger(0);
 			}
-			return false;
+			else {
+				return false;
+			}
 		}
 		else {
 			ship_vehicle = v_second->get_vorgaenger(0);
@@ -769,16 +770,9 @@ void ai_goods_t::step()
 			if(root==NULL) {
 				// find a tree root to complete
 				weighted_vector_tpl<fabrik_t *> start_fabs(20);
-				//slist_iterator_tpl<fabrik_t *> fabiter( welt->get_fab_list() );
-				//while(fabiter.next()) {
-				//vector_tpl<fabrik_t*> factories = welt->get_fab_list();
-				sint16 number_of_factories = welt->get_fab_list().get_count();
-				for(sint16 i = number_of_factories - 1; i >= 0; i --)
-				{
-					fabrik_t *fab = welt->get_fab_list()[i];
-					//fabrik_t *fab = fabiter.get_current();
+				FOR(vector_tpl<fabrik_t*>, const fab, welt->get_fab_list()) {
 					// consumer and not completely overcrowded
-					if(fab->get_besch()->get_produkte()==0  &&  fab->get_status()!=fabrik_t::bad) {
+					if (!fab->get_besch()->is_consumer_only() && fab->get_status() != fabrik_t::bad) {
 						int missing = get_factory_tree_missing_count( fab );
 						if(missing>0) {
 							start_fabs.append( fab, 100/(missing+1)+1, 20 );
@@ -1449,9 +1443,7 @@ void ai_goods_t::rdwr(loadsave_t *file)
 	sint32 cnt = forbidden_connections.get_count();
 	file->rdwr_long(cnt);
 	if(file->is_saving()) {
-		slist_iterator_tpl<fabconnection_t*> iter(forbidden_connections);
-		while(  iter.next()  ) {
-			fabconnection_t *fc = iter.get_current();
+		FOR(slist_tpl<fabconnection_t*>, const fc, forbidden_connections) {
 			fc->rdwr(file);
 		}
 	}
@@ -1480,9 +1472,7 @@ void ai_goods_t::rdwr(loadsave_t *file)
 bool ai_goods_t::is_forbidden( fabrik_t *fab1, fabrik_t *fab2, const ware_besch_t *w ) const
 {
 	fabconnection_t fc(fab1, fab2, w);
-	slist_iterator_tpl<fabconnection_t*> iter(forbidden_connections);
-	while(  iter.next()  ) {
-		fabconnection_t *test_fc = iter.get_current();
+	FOR(slist_tpl<fabconnection_t*>, const test_fc, forbidden_connections) {
 		if (fc == (*test_fc)) {
 			return true;
 		}

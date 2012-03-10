@@ -38,9 +38,9 @@ halt_detail_t::halt_detail_t(halthandle_t halt_) :
 
 	// fill buffer with halt detail
 	halt_detail_info();
-	txt_info.set_pos(koord(10,0));
+	txt_info.set_pos(koord(DIALOG_LEFT,DIALOG_TOP));
 
-	scrolly.set_pos(koord(0, 6));
+	scrolly.set_pos(koord(0, 0));
 	scrolly.set_show_scroll_x(true);
 	add_komponente(&scrolly);
 
@@ -131,19 +131,15 @@ void halt_detail_t::halt_detail_info()
 	sint16 offset_y = LINESPACE;
 	buf.append(translator::translate("Fabrikanschluss"));
 	buf.append("\n");
-	offset_y += LINESPACE;
+	offset_y += DIALOG_TOP;
 
 	if (!fab_list.empty()) {
-
-		slist_iterator_tpl<fabrik_t *> fab_iter(fab_list);
-
-		while(fab_iter.next()) {
-			const fabrik_t * fab = fab_iter.get_current();
+		FOR(slist_tpl<fabrik_t*>, const fab, fab_list) {
 			const koord pos = fab->get_pos().get_2d();
 
 			// target button ...
 			button_t *pb = new button_t();
-			pb->init( button_t::posbutton, NULL, koord(10, offset_y) );
+			pb->init( button_t::posbutton, NULL, koord(DIALOG_LEFT, offset_y) );
 			pb->set_targetpos( pos );
 			pb->add_listener( this );
 			posbuttons.append( pb );
@@ -152,10 +148,8 @@ void halt_detail_t::halt_detail_info()
 			buf.printf("   %s (%d, %d)\n", translator::translate(fab->get_name()), pos.x, pos.y);
 			offset_y += LINESPACE;
 
-			const array_tpl<ware_production_t>& eingang = fab->get_eingang();
-			for (uint32 i = 0; i < eingang.get_count(); i++) {
-				const ware_besch_t* ware = eingang[i].get_typ();
-
+			FOR(array_tpl<ware_production_t>, const& i, fab->get_eingang()) {
+				ware_besch_t const* const ware = i.get_typ();
 				if(!nimmt_an.is_contained(ware)) {
 					nimmt_an.append(ware);
 				}
@@ -208,7 +202,7 @@ void halt_detail_t::halt_detail_info()
 			// Line buttons only if owner ...
 			if (halt->get_welt()->get_active_player()==halt->registered_lines[i]->get_besitzer()) {
 				button_t *b = new button_t();
-				b->init( button_t::posbutton, NULL, koord(10, offset_y) );
+				b->init( button_t::posbutton, NULL, koord(DIALOG_LEFT, offset_y) );
 				b->set_targetpos( koord(-1,i) );
 				b->add_listener( this );
 				linebuttons.append( b );
@@ -218,7 +212,7 @@ void halt_detail_t::halt_detail_info()
 			// Line labels with color of player
 			label_names.append( strdup(halt->registered_lines[i]->get_name()) );
 			gui_label_t *l = new gui_label_t( label_names.back(), PLAYER_FLAG|(halt->registered_lines[i]->get_besitzer()->get_player_color1()+0) );
-			l->set_pos( koord(26, offset_y) );
+			l->set_pos( koord(DIALOG_LEFT+BUTTON_HEIGHT+BUTTON_SPACER, offset_y) );
 			linelabels.append( l );
 			cont.add_komponente( l );
 			buf.append("\n");
@@ -244,7 +238,7 @@ void halt_detail_t::halt_detail_info()
 		for(  uint32 i=0;  i<halt->registered_convoys.get_count();  ++i  ) {
 			// Convoy buttons
 			button_t *b = new button_t();
-			b->init( button_t::posbutton, NULL, koord(10, offset_y) );
+			b->init( button_t::posbutton, NULL, koord(DIALOG_LEFT, offset_y) );
 			b->set_targetpos( koord(-2, i) );
 			b->add_listener( this );
 			convoybuttons.append( b );
@@ -253,7 +247,7 @@ void halt_detail_t::halt_detail_info()
 			// Line labels with color of player
 			label_names.append( strdup(halt->registered_convoys[i]->get_name()) );
 			gui_label_t *l = new gui_label_t( label_names.back(), PLAYER_FLAG|(halt->registered_convoys[i]->get_besitzer()->get_player_color1()+0) );
-			l->set_pos( koord(26, offset_y) );
+			l->set_pos( koord(DIALOG_LEFT+BUTTON_HEIGHT+BUTTON_SPACER, offset_y) );
 			convoylabels.append( l );
 			cont.add_komponente( l );
 			buf.append("\n");
@@ -290,8 +284,8 @@ void halt_detail_t::halt_detail_info()
 			buf.append(translator::translate(info->get_catg()==0?info->get_name():info->get_catg_name()));
 			buf.append(":\n");
 			offset_y += LINESPACE;
-			quickstone_hashtable_iterator_tpl<haltestelle_t, haltestelle_t::connexion*> iter(*connexions);
-			while(iter.next())
+
+			FOR(quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>, & iter, *connexions) 
 			{
 				halthandle_t a_halt = iter.get_current_key();
 				haltestelle_t::connexion* cnx = iter.get_current_value();
@@ -315,7 +309,7 @@ void halt_detail_t::halt_detail_info()
 
 					// target button ...
 					button_t *pb = new button_t();
-					pb->init( button_t::posbutton, NULL, koord(10, offset_y) );
+					pb->init( button_t::posbutton, NULL, koord(DIALOG_LEFT, offset_y) );
 					pb->set_targetpos( a_halt->get_basis_pos() );
 					pb->add_listener( this );
 					posbuttons.append( pb );

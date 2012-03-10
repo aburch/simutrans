@@ -240,6 +240,11 @@ template<class T> class vector_tpl
 			return (*this)[e];
 		}
 		
+		void pop_back()
+		{
+			--count;
+		}
+
 		T& operator [](uint i)
 		{
 			if (i >= count) {
@@ -296,8 +301,8 @@ template<class T> void swap(vector_tpl<T>& a, vector_tpl<T>& b)
  */
 template<class T> void clear_ptr_vector(vector_tpl<T*>& v)
 {
-	for(uint32 i=0; i<v.get_count(); i++) {
-		delete v[i];
+	FORT(vector_tpl<T*>, const i, v) {
+		delete i;
 	}
 	v.clear();
 }

@@ -608,33 +608,32 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 
 	if(electrics_vec.empty()  &&  pas_vec.empty()  &&  loks_vec.empty()  &&  waggons_vec.empty()) 
 	{
-		uint16 loks = 0, waggons = 0, pax=0, electrics = 0;
-		slist_iterator_tpl<vehikel_besch_t*> vehinfo(vehikelbauer_t::get_info(way_type));
-		while (vehinfo.next()) 
-		{
-			const vehikel_besch_t* info = vehinfo.get_current();
-			if(  info->get_engine_type() == vehikel_besch_t::electric  &&  (info->get_ware()==warenbauer_t::passagiere  ||  info->get_ware()==warenbauer_t::post)) 
-			{
-				electrics++;
+		/*
+		 * The next block calculates upper bounds for the sizes of the vectors.
+		 * If the vectors get resized, the vehicle_map becomes invalid, therefore
+		 * we need to resize them before filling them.
+		 */
+		if(electrics_vec.empty()  &&  pas_vec.empty()  &&  loks_vec.empty()  &&  waggons_vec.empty()) {
+			int loks = 0, waggons = 0, pax=0, electrics = 0;
+			FOR(slist_tpl<vehikel_besch_t const*>, const info, depot->get_vehicle_type()) {
+				if(  info->get_engine_type() == vehikel_besch_t::electric  &&  (info->get_ware()==warenbauer_t::passagiere  ||  info->get_ware()==warenbauer_t::post)) {
+					electrics++;
+				}
+				else if(info->get_ware()==warenbauer_t::passagiere  ||  info->get_ware()==warenbauer_t::post) {
+					pax++;
+				}
+				else if(info->get_leistung() > 0  ||  info->get_zuladung()==0) {
+					loks++;
+				}
+				else {
+					waggons++;
+				}
 			}
-			else if(info->get_ware()==warenbauer_t::passagiere  ||  info->get_ware()==warenbauer_t::post) 
-			{
-				pax++;
-			}
-			else if(info->get_leistung() > 0  ||  (info->get_zuladung() == 0 && (info->get_vorgaenger_count() > 0 || info->get_nachfolger_count() > 0))) 
-			{
-				loks++;
-			}
-			else 
-			{
-				waggons++;
-			}
+			pas_vec.resize(pax);
+			electrics_vec.resize(electrics);
+			loks_vec.resize(loks);
+			waggons_vec.resize(waggons);
 		}
-		pas_vec.resize(pax);
-		electrics_vec.resize(electrics);
-		loks_vec.resize(loks);
-		waggons_vec.resize(waggons);
-	}
 	pas_vec.clear();
 	electrics_vec.clear();
 	loks_vec.clear();
@@ -645,14 +644,12 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 	// we do not allow to built electric vehicle in a depot without electrification (way_electrified)
 
 	// use this to show only sellable vehicles
-	if(!show_all  &&  veh_action==va_sell && depot_frame) {
+	if(!show_all  &&  veh_action==va_sell) {
 		// just list the one to sell
-		slist_iterator_tpl<vehikel_t *> iter2(depot_frame->get_depot()->get_vehicle_list());
-		while(iter2.next()) {
-			if(vehicle_map.get(iter2.get_current()->get_besch())) {
-				continue;
-			}
-			add_to_vehicle_list( iter2.get_current()->get_besch() );
+		FOR(slist_tpl<vehikel_t*>, const v, depot->get_vehicle_list()) {
+			vehikel_besch_t const* const d = v->get_besch();
+			if (vehicle_map.get(d)) continue;
+			add_to_vehicle_list(d);
 		}
 	}
 	else {
@@ -664,9 +661,8 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 		  depot_frame->update_data();
 		}
 
-		slist_iterator_tpl<vehikel_besch_t*> vehinfo(vehikelbauer_t::get_info(way_type));
-		while (vehinfo.next()) {
-			const vehikel_besch_t* info = vehinfo.get_current();
+		FOR(slist_tpl<vehikel_besch_t const*>, const info, depot->get_vehicle_type()) 
+		{
 			const vehikel_besch_t *veh = NULL;
 			if(vehicles.get_count()>0) {
 				veh = (veh_action == va_insert) ? vehicles[0] : vehicles[vehicles.get_count() - 1];
@@ -804,11 +800,10 @@ void gui_convoy_assembler_t::add_to_vehicle_list(const vehikel_besch_t *info)
 		{
 			if(freight->get_catg_index() >= 3) 
 			{
-				const vector_tpl<const ware_besch_t*> &goods = get_welt()->get_goods_list();
 				bool found = false;
-				for(uint32 i = 0; i<goods.get_count(); i++) 
+				FOR(vector_tpl<ware_besch_t const*>, const i, get_welt()->get_goods_list()) 
 				{
-					if (freight->get_catg_index() == goods[i]->get_catg_index()) 
+					if (freight->get_catg_index() == i->get_catg_index())
 					{
 						found = true;
 						break;
@@ -1055,8 +1050,7 @@ void gui_convoy_assembler_t::update_data()
 			bool vehicle_available = false;
 			if(depot_frame)
 			{
-				slist_iterator_tpl<vehikel_t *> iter(depot_frame->get_depot()->get_vehicle_list());
-				while(iter.next()) 
+				FOR(slist_tpl<vehikel_t *>, const& iter, depot_frame->get_depot()->get_vehicle_list())
 				{
 					if(iter.get_current()->get_besch() == info)
 					{
@@ -1165,19 +1159,19 @@ void gui_convoy_assembler_t::update_data()
 			veh = vehicles[vehicles.get_count() - 1];
 		}
 	}
-
-	ptrhashtable_iterator_tpl<const vehikel_besch_t *, gui_image_list_t::image_data_t *> iter1(vehicle_map);
 	
 	const spieler_t *sp = welt->get_active_player();
 	
-	while(iter1.next()) 
+	FOR(vehicle_image_map, const& i, vehicle_map) 
 	{
-		const vehikel_besch_t *info = iter1.get_current_key();
+		vehikel_besch_t const* const    info = i.key;
+		gui_image_list_t::image_data_t& img  = *i.value;
+
 		const uint8 ok_color = info->is_future(month_now) || info->is_retired(month_now) ? COL_DARK_BLUE: COL_DARK_GREEN;
 
-		iter1.get_current_value()->count = 0;
-		iter1.get_current_value()->lcolor = ok_color;
-		iter1.get_current_value()->rcolor = ok_color;
+		img.count = 0;
+		img.lcolor = ok_color;
+		img.rcolor = ok_color;
 
 		/*
 		* color bars for current convoi:
@@ -1192,51 +1186,51 @@ void gui_convoy_assembler_t::update_data()
 
 		if(veh_action == va_insert) {
 			if(!info->can_lead(veh)  ||  (veh  &&  !veh->can_follow(info))) {
-				iter1.get_current_value()->lcolor = COL_RED;
-				iter1.get_current_value()->rcolor = COL_RED;
+				img.lcolor = COL_RED;
+				img.rcolor = COL_RED;
 			} else if(!info->can_follow(NULL)) {
-				iter1.get_current_value()->lcolor = COL_YELLOW;
+				img.lcolor = COL_YELLOW;
 			}
 		} else if(veh_action == va_append) {
 			if(!info->can_follow(veh)  ||  (veh  &&  !veh->can_lead(info))) {
-				iter1.get_current_value()->lcolor = COL_RED;
-				iter1.get_current_value()->rcolor = COL_RED;
+				img.lcolor = COL_RED;
+				img.rcolor = COL_RED;
 			} else if(!info->can_lead(NULL)) {
-				iter1.get_current_value()->rcolor = COL_YELLOW;
+				img.rcolor = COL_YELLOW;
 			}
 		}
 		if (veh_action != va_sell)
 		{
 			//Check whether too expensive
 			//@author: jamespetts
-			if(iter1.get_current_value()->lcolor == ok_color || iter1.get_current_value()->lcolor == COL_YELLOW)
+			if(img.lcolor == ok_color || img.lcolor == COL_YELLOW)
 			{
 				//Only flag as too expensive that which could be purchased anyway.
 				if(upgrade == u_buy)
 				{
 					if(!sp->can_afford(info->get_preis()))
 					{
-						iter1.get_current_value()->lcolor = COL_DARK_ORANGE;
-						iter1.get_current_value()->rcolor = COL_DARK_ORANGE;
+						img.lcolor = COL_DARK_ORANGE;
+						img.rcolor = COL_DARK_ORANGE;
 					}
 				}
 				else
 				{
 					if(!sp->can_afford(info->get_upgrade_price()))
 					{
-						iter1.get_current_value()->lcolor = COL_DARK_ORANGE;
-						iter1.get_current_value()->rcolor = COL_DARK_ORANGE;
+						img.lcolor = COL_DARK_ORANGE;
+						img.rcolor = COL_DARK_ORANGE;
 					}
 				}
-				if(depot_frame && iter1.get_current_key()->get_leistung() > 0)
+				if(depot_frame && i.key->get_leistung() > 0)
 				{
-					const uint8 traction_type = iter1.get_current_key()->get_engine_type();
+					const uint8 traction_type =i.key->get_engine_type();
 					const uint8 shifter = 1 << traction_type;
 					if(!(shifter & depot_frame->get_depot()->get_tile()->get_besch()->get_enabled()))
 					{
 						// Do not allow purchasing of vehicle if depot is of the wrong type.
-						iter1.get_current_value()->lcolor = COL_RED;
-						iter1.get_current_value()->rcolor = COL_RED;
+						img.lcolor = COL_RED;
+						img.rcolor = COL_RED;
 					}
 				}
 			}
@@ -1244,15 +1238,15 @@ void gui_convoy_assembler_t::update_data()
 		else
 		{
 			// If selling, one cannot buy - mark all purchasable vehicles red.
-			iter1.get_current_value()->lcolor = COL_RED;
-			iter1.get_current_value()->rcolor = COL_RED;
+			img.lcolor = COL_RED;
+			img.rcolor = COL_RED;
 		}
 
 		if(upgrade == u_upgrade)
 		{
 			//Check whether there are any vehicles to upgrade
-			iter1.get_current_value()->lcolor = COL_DARK_PURPLE;
-			iter1.get_current_value()->rcolor = COL_DARK_PURPLE;
+			img.lcolor = COL_DARK_PURPLE;
+			img.rcolor = COL_DARK_PURPLE;
 			vector_tpl<const vehikel_besch_t*> vehicle_list;
 
 			//if(replace_frame == NULL)
@@ -1278,8 +1272,8 @@ void gui_convoy_assembler_t::update_data()
 				{
 					if(vehicle_list[i]->get_upgrades(c) && (info->get_name() == vehicle_list[i]->get_upgrades(c)->get_name()))
 					{
-						iter1.get_current_value()->lcolor = COL_DARK_GREEN;
-						iter1.get_current_value()->rcolor = COL_DARK_GREEN;
+						img.lcolor = COL_DARK_GREEN;
+						img.rcolor = COL_DARK_GREEN;
 						if(replace_frame != NULL)
 						{
 							// If we are using the replacing window,
@@ -1311,8 +1305,8 @@ void gui_convoy_assembler_t::update_data()
 							if(upgradeable_count < 1)
 							{
 								//There are not enough vehicles left to upgrade.
-								iter1.get_current_value()->lcolor = COL_DARK_PURPLE;
-								iter1.get_current_value()->rcolor = COL_DARK_PURPLE;
+								img.lcolor = COL_DARK_PURPLE;
+								img.rcolor = COL_DARK_PURPLE;
 							}
 
 						}
@@ -1320,23 +1314,23 @@ void gui_convoy_assembler_t::update_data()
 						{
 							if (!veh->can_lead(info) || (veh && !info->can_follow(veh)))
 							{
-								iter1.get_current_value()->lcolor = COL_RED;
-								iter1.get_current_value()->rcolor = COL_RED;
+								img.lcolor = COL_RED;
+								img.rcolor = COL_RED;
 							} 
 							else if(!info->can_follow(NULL)) 
 							{
-								iter1.get_current_value()->lcolor = COL_YELLOW;
+								img.lcolor = COL_YELLOW;
 							}
 						} 
 						else if(veh_action == va_append) 
 						{
 							if(!veh->can_lead(info) || (veh  &&  !veh->can_lead(info))) {
-								iter1.get_current_value()->lcolor = COL_RED;
-								iter1.get_current_value()->rcolor = COL_RED;
+								img.lcolor = COL_RED;
+								img.rcolor = COL_RED;
 							} 
 							else if(!info->can_lead(NULL))
 							{
-								iter1.get_current_value()->rcolor = COL_YELLOW;
+								img.rcolor = COL_YELLOW;
 							}
 						}
 					}
@@ -1368,21 +1362,20 @@ void gui_convoy_assembler_t::update_data()
 				}
 				if(purple)
 				{
-					iter1.get_current_value()->lcolor = COL_PURPLE;
-					iter1.get_current_value()->rcolor = COL_PURPLE;
+					img.lcolor = COL_PURPLE;
+					img.rcolor = COL_PURPLE;
 				}
 			}
 		}
 
-DBG_DEBUG("gui_convoy_assembler_t::update_data()","current %s with colors %i,%i",info->get_name(),iter1.get_current_value()->lcolor,iter1.get_current_value()->rcolor);
+DBG_DEBUG("gui_convoy_assembler_t::update_data()","current %s with colors %i,%i",info->get_name(),img.lcolor,img.rcolor);
 	}
 
 	if (depot_frame) 
 	{
-		slist_iterator_tpl<vehikel_t *> iter2(depot_frame->get_depot()->get_vehicle_list());
-		while(iter2.next()) 
+		FOR(slist_tpl<vehikel_t *>, const& iter2, depot_frame->get_depot()->get_vehicle_list())
 		{
-			gui_image_list_t::image_data_t *imgdat=vehicle_map.get(iter2.get_current()->get_besch());
+			gui_image_list_t::image_data_t *imgdat=vehicle_map.get(iter2->get_besch());
 			// can fail, if currently not visible
 			if(imgdat) 
 			{
@@ -1481,9 +1474,8 @@ void gui_convoy_assembler_t::update_tabs()
 	vehicle_filter.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("All"), COL_BLACK));
 	vehicle_filter.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("Relevant"), COL_BLACK));
 
-	const vector_tpl<const ware_besch_t*> &goods = get_welt()->get_goods_list();
-	for(uint32 i = 0; i<goods.get_count(); i++) {
-		vehicle_filter.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(goods[i]->get_name()), COL_BLACK));
+	FOR(vector_tpl<ware_besch_t const*>, const i, get_welt()->get_goods_list()) {
+		vehicle_filter.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(i->get_name()), COL_BLACK));
 	}
 
 	if (selected_filter > vehicle_filter.count_elements()) {

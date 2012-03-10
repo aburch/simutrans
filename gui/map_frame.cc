@@ -223,26 +223,25 @@ void map_frame_t::update_factory_legend(karte_t *welt /*= NULL*/)
 	if (welt != NULL) 
 	{
 		factory_list.clear();
-		const vector_tpl<fabrik_t*> &factories_in_game = welt->get_fab_list();
-		ITERATE(factories_in_game, n)
-		{
-			const fabrik_besch_t *factory_description = factories_in_game[n]->get_besch();
+		FOR(vector_tpl<fabrik_t*>, const f, welt->get_fab_list()) {
+			fabrik_besch_t const* const factory_description = f->get_besch();
 			factory_list.put(factory_description->get_name(), factory_description);
 		}
 	}
 
 	// Build factory legend
 	const stringhashtable_tpl<const fabrik_besch_t *> & fabesch = (filter_factory_list) ? factory_list : fabrikbauer_t::get_fabesch();
-	stringhashtable_iterator_tpl<const fabrik_besch_t *> iter (fabesch);
-	while(  iter.next()  ) {
-		if(  iter.get_current_value()->get_gewichtung()>0  ) 
+	FOR(stringhashtable_tpl<fabrik_besch_t const*>, const& i, fabesch)
+	{
+		fabrik_besch_t const& d = *i.value;
+		if (d.get_gewichtung() > 0)
 		{
-			std::string label( translator::translate(iter.get_current_value()->get_name()) );
+			std::string label( translator::translate(d.get_name()) );
 			// Do not show multiple factories with the same colour.
 			// @author: jamespetts, July 2009
-			if(colours.append_unique(iter.get_current_value()->get_kennfarbe()))
+			if(colours.append_unique(d.get_kennfarbe()))
 			{
-				legend.append_unique( legend_entry_t(label, iter.get_current_value()->get_kennfarbe()) );
+				legend.append_unique( legend_entry_t(label, d.get_kennfarbe()) );
 			}
 		}
 	}
@@ -253,14 +252,14 @@ void map_frame_t::update_factory_legend(karte_t *welt /*= NULL*/)
 		const int dot_len = proportional_string_width("..");
 		const int fac_cols = clamp(fabesch.get_count(), 1, get_fenstergroesse().x / (TOTAL_WIDTH/3));
 
-		for(  size_t l = 0;  l < legend.get_count();  l++  ) {
-			std::string label = legend[l].text;
+		FOR(vector_tpl<legend_entry_t>, & l, legend) {
+			std::string label = l.text;
 			size_t i;
 			for(  i=12;  i < label.size()  &&  display_calc_proportional_string_len_width(label.c_str(), i) < get_fenstergroesse().x / fac_cols - dot_len - 13;  i++  ) {}
 			if(  i < label.size()  ) {
 				label = label.substr(0, i);
 				label.append("..");
-				legend[l].text = label;
+				l.text = label;
 			}
 		}
 	}

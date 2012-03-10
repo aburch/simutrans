@@ -744,7 +744,7 @@ void convoi_info_t::rdwr(loadsave_t *file)
 		// we might be unlucky, then search all convois for a convoi with this name
 		if(  !cnv.is_bound()  ) {
 			FOR(vector_tpl<convoihandle_t>, const i, welt->convoys()) {
-				if (strcmp(i->get_name(),name) == 0) {
+				if (strcmp(i->get_name(), name) == 0) {
 					cnv = i;
 					break;
 				}
