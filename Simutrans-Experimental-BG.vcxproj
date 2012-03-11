@@ -292,6 +292,10 @@
     <ClCompile Include="dataobj\network_file_transfer.cc" />
     <ClCompile Include="dataobj\network_socket_list.cc" />
     <ClCompile Include="dataobj\pakset_info.cc" />
+    <ClCompile Include="dataobj\pwd_hash.cc" />
+    <ClCompile Include="gui\ai_option_t.cc" />
+    <ClCompile Include="gui\components\gui_ding_view_t.cc" />
+    <ClCompile Include="gui\display_settings.cc" />
     <ClCompile Include="gui\factory_chart.cc" />
     <ClCompile Include="gui\line_item.cc" />
     <ClCompile Include="gui\privatesign_info.cc" />
@@ -319,7 +323,6 @@
     <ClCompile Include="gui\citylist_frame_t.cc" />
     <ClCompile Include="gui\citylist_stats_t.cc" />
     <ClCompile Include="gui\climates.cc" />
-    <ClCompile Include="gui\colors.cc" />
     <ClCompile Include="gui\convoi_detail_t.cc" />
     <ClCompile Include="gui\convoi_filter_frame.cc" />
     <ClCompile Include="gui\convoi_frame.cc" />
@@ -553,8 +556,11 @@
     <ClInclude Include="dataobj\network_socket_list.h" />
     <ClInclude Include="dataobj\pakset_info.h" />
     <ClInclude Include="dataobj\pwd_hash.h" />
+    <ClInclude Include="gui\ai_option_t.h" />
     <ClInclude Include="gui\components\action_listener.h" />
+    <ClInclude Include="gui\components\gui_ding_view_t.h" />
     <ClInclude Include="gui\components\gui_fixedwidth_textarea.h" />
+    <ClInclude Include="gui\display_settings.h" />
     <ClInclude Include="gui\factory_chart.h" />
     <ClInclude Include="gui\privatesign_info.h" />
     <ClInclude Include="gui\server_frame.h" />
