@@ -14,9 +14,11 @@
 #include "../simworld.h"
 
 #include "../utils/cbuffer_t.h"
+#include "../utils/simstring.h"
 #include "../dataobj/umgebung.h"
 #include "../dataobj/translator.h"
 #include "../player/simplay.h"
+#include "werkzeug_waehler.h"
 
 #include "help_frame.h"
 
@@ -32,7 +34,6 @@ void help_frame_t::open_help_on( const char *helpfilename )
 		create_win( new help_frame_t( helpfilename ), w_info, magic_mainhelp );
 	}
 }
-
 
 
 // just loads a whole help file as one chunk
@@ -160,9 +161,11 @@ void help_frame_t::set_helpfile(const char *filename, bool resize_frame )
 				default:
 					if (key < 32) {
 						sprintf(str, "%s + %c", translator::translate("[CTRL]"), '@' + key);
-					} else if (key < 256) {
+					}
+					else if (key < 256) {
 						sprintf(str, "%c", key);
-					} else if (key < SIM_KEY_F15) {
+					}
+					else if (key < SIM_KEY_F15) {
 						sprintf(str, "F%i", key - SIM_KEY_F1 + 1);
 					}
 					else {
@@ -219,15 +222,225 @@ help_frame_t::help_frame_t() :
 }
 
 
+
+enum { missing, native, english };
+
+static FILE *has_helpfile( char const* const filename, int &mode )
+{
+	mode = native;
+	std::string file_prefix("text/");
+	std::string fullname = file_prefix + translator::get_lang()->iso + "/" + filename;
+	chdir(umgebung_t::program_dir);
+
+	FILE* file = fopen(fullname.c_str(), "rb");
+	if(  !file  &&  strcmp(translator::get_lang()->iso,translator::get_lang()->iso_base)  ) {
+		//Check for the 'base' language(ie en from en_gb)
+		file = fopen(  (file_prefix + translator::get_lang()->iso_base + "/" + filename).c_str(), "rb"  );
+	}
+	if(  !file  ) {
+		// Hajo: check fallback english
+		file = fopen((file_prefix + "en/" + filename).c_str(), "rb");
+		mode = english;
+	}
+	// go back to load/save dir
+	chdir( umgebung_t::user_dir );
+	// success?
+	if(  !file  ) {
+		mode = missing;
+	}
+	return file;
+}
+
+
+// extracts the title and ASCII from a string
+static std::string extract_title( const char *htmllines )
+{
+	const uint8 *start = (const uint8 *)strstr( htmllines, "<title>" );
+	const uint8 *end = (const uint8 *)strstr( htmllines, "</title>" );
+	uint8 title_form_html[1024];
+	if(  start  &&  end  &&  (size_t)(end-start)<lengthof(title_form_html)  ) {
+		uint8 *dest = title_form_html;
+		const uint8 *c = start;
+		while(  c < end  ) {
+			if(  *c == '<'  ) {
+				while(  *c  &&  *c++!='>'  ) {
+				}
+				continue;
+			}
+			// skip tabs and newlines
+			if(  *c>=32  ) {
+				*dest++ = *c++;
+			}
+			else {
+				// avoid double spaces
+				if(  dest!=title_form_html  &&  dest[-1]!=' '  ) {
+					*dest++ = ' ';
+				}
+				c++;
+			}
+		}
+		*dest = 0;
+		return (const char *)title_form_html;
+	}
+	return "";
+}
+
+
+static void add_helpfile( cbuffer_t &section, const char *titlename, const char *filename, bool only_native, int indent_level )
+{
+	if(  strempty(filename)  ) {
+		return;
+	}
+	int mode;
+	FILE *file = has_helpfile( filename, mode );
+	if(  only_native  &&  mode!=native  ||  mode==missing  ) {
+		return;
+	}
+	std::string filetitle;	// just in case as temporary storage ...
+	if(  titlename == NULL  &&  file  ) {
+		// get the title from the helpfile
+		char htmlline[1024];
+		size_t len = fread( htmlline, lengthof(htmlline)-1, 1, file );
+		filetitle = extract_title( htmlline );
+		if(  filetitle.empty()  ) {
+			// no idea how to generate the right name ...
+			titlename = filename;
+		}
+		else {
+			titlename = filetitle.c_str();
+		}
+	}
+	else {
+		titlename = translator::translate( titlename );
+	}
+	// now build the entry
+	if(  mode != missing  ) {
+		while(  indent_level-- > 0  ) {
+			section.append( "+" );
+		}
+		if(  mode == native  ) {
+			section.printf( "<a href=\"%s\">%s</a><br>\n", filename, titlename );
+		}
+		else if(  mode == english  ) {
+			section.printf( "<a href=\"%s\">%s%s</a><br>\n", filename, "*", titlename );
+		}
+		fclose( file );
+	}
+}
+
+
 help_frame_t::help_frame_t(char const* const filename) :
 	gui_frame_t( translator::translate("Help") ),
 	scrolly_generaltext(&generaltext),
 	scrolly_helptext(&helptext)
 {
+#if 0
 	// load the content list
 	if(  const char *buf = load_text( "general.txt" )  ) {
 		generaltext.set_text( buf );
 		guarded_free( (void *)buf );
+	}
+	else
+#endif
+	{
+		// we now exclusive build out index on the fly
+		slist_tpl<plainstring> already_there;
+		cbuffer_t index_txt;
+
+		cbuffer_t introduction;
+		cbuffer_t usage;
+		cbuffer_t toolbars;
+		cbuffer_t game_start;
+		cbuffer_t how_to_play;
+		cbuffer_t others;
+
+		add_helpfile( introduction, NULL, "simutrans.txt", true, 0 );
+
+		// main usage section
+		{
+			// get title of keyboard help ...
+			std::string kbtitle = extract_title( translator::translate( "<title>Keyboard Help</title>\n<h1><strong>Keyboard Help</strong></h1><p>\n" ) );
+			assert( !kbtitle.empty() );
+			usage.printf( "<a href=\"keys.txt\">%s</a><br>\n", kbtitle.c_str() );
+		}
+		add_helpfile( usage, NULL, "mouse.txt", true, 0 );
+		add_helpfile( usage, NULL, "window.txt", true, 0 );
+
+		// enumerate toolbars
+		bool special = false;
+		add_helpfile( toolbars, NULL, "mainmenu.txt", false, 0 );
+		FOR( vector_tpl<toolbar_t *>, iter, werkzeug_t::toolbar_tool ) {
+			if(  strstart(iter->get_werkzeug_waehler()->get_hilfe_datei(),"list.txt" )  ) {
+				continue;
+			}
+			add_helpfile( toolbars, iter->get_werkzeug_waehler()->get_name(), iter->get_werkzeug_waehler()->get_hilfe_datei(), false, 0 );
+			if(  strstart(iter->get_werkzeug_waehler()->get_hilfe_datei(),"railtools.txt" )  ) {
+				add_helpfile( toolbars, NULL, "bridges.txt", true, 1 );
+				add_helpfile( toolbars, NULL, "signals.txt", true, 1 );
+				add_helpfile( toolbars, "set signal spacing", "signal_spacing.txt", false, 1 );
+			}
+			if(  strstart(iter->get_werkzeug_waehler()->get_hilfe_datei(),"roadtools.txt" )  ) {
+				add_helpfile( toolbars, NULL, "privatesign_info.txt", false, 1 );
+				add_helpfile( toolbars, NULL, "trafficlight_info.txt", false, 1 );
+			}
+			if(  !special  &&  (  strstart(iter->get_werkzeug_waehler()->get_hilfe_datei(),"special.txt" )
+								||  strstart(iter->get_werkzeug_waehler()->get_hilfe_datei(),"edittools.txt" )  )
+				) {
+				special = true;
+				add_helpfile( toolbars, "baum builder", "baum_build.txt", false, 1 );
+				add_helpfile( toolbars, "citybuilding builder", "citybuilding_build.txt", false, 1 );
+				add_helpfile( toolbars, "curiosity builder", "curiosity_build.txt", false, 1 );
+				add_helpfile( toolbars, "factorybuilder", "factory_build.txt", false, 1 );
+			}
+		}
+		add_helpfile( toolbars, NULL, "inspection_tool.txt", true, 0 );
+		add_helpfile( toolbars, NULL, "removal_tool.txt", true, 0 );
+		add_helpfile( toolbars, "LISTTOOLS", "list.txt", false, 0 );
+		add_helpfile( toolbars, NULL, "citylist_filter.txt", false, 1 );
+		add_helpfile( toolbars, NULL, "convoi.txt", false, 1 );
+		add_helpfile( toolbars, NULL, "convoi_filter.txt", false, 2 );
+		add_helpfile( toolbars, NULL, "curiositylist_filter.txt", false, 1 );
+		add_helpfile( toolbars, NULL, "factorylist_filter.txt", false, 1 );
+		add_helpfile( toolbars, NULL, "goods_filter.txt", false, 1 );
+		add_helpfile( toolbars, NULL, "haltlist.txt", false, 1 );
+		add_helpfile( toolbars, NULL, "haltlist_filter.txt", false, 2 );
+		add_helpfile( toolbars, NULL, "labellist_filter.txt", false, 1 );
+
+		add_helpfile( game_start, "Neue Welt", "new_world.txt", false, 0 );
+		add_helpfile( game_start, "Lade Relief", "load_relief.txt", false, 1 );
+		add_helpfile( game_start, "Climate Control", "climates.txt", false, 1 );
+		add_helpfile( game_start, "Setting", "settings.txt", false, 1 );
+		add_helpfile( game_start, "Load game", "load.txt", false, 0 );
+		add_helpfile( game_start, "Load scenario", "scenario.txt", false, 0 );
+		add_helpfile( game_start, "join game", "server.txt", false, 0 );
+		add_helpfile( game_start, "Speichern", "save.txt", false, 0 );
+
+		add_helpfile( how_to_play, "Reliefkarte", "map.txt", false, 0 );
+		add_helpfile( how_to_play, "enlarge map", "enlarge_map.txt", false, 1 );
+		add_helpfile( how_to_play, NULL, "underground.txt", true, 0 );
+		add_helpfile( how_to_play, NULL, "citywindow.txt", true, 0 );
+		add_helpfile( how_to_play, NULL, "depot.txt", false, 0 );
+		add_helpfile( how_to_play, NULL, "convoiinfo.txt", false, 0 );
+		add_helpfile( how_to_play, NULL, "convoidetail.txt", false, 1 );
+		add_helpfile( how_to_play, "Line Management", "linemanagement.txt", false, 0 );
+		add_helpfile( how_to_play, "Fahrplan", "schedule.txt", false, 1 );
+		add_helpfile( how_to_play, NULL, "station.txt", false, 0 );
+		add_helpfile( how_to_play, NULL, "station_details.txt", false, 1 );
+		add_helpfile( how_to_play, NULL, "industry_info.txt", false, 0 );
+		add_helpfile( how_to_play, "Spielerliste", "players.txt", false, 0 );
+		add_helpfile( how_to_play, "Finanzen", "finances.txt", false, 1 );
+		add_helpfile( how_to_play, "Meldung", "color.txt", false, 1 );
+		add_helpfile( how_to_play, "Enter Password", "password.txt", false, 1 );
+
+		add_helpfile( others, "Einstellungen", "options.txt", false, 0 );
+		add_helpfile( others, "Helligk. u. Farben", "display.txt", false, 0 );
+		add_helpfile( others, "Mailbox", "mailbox.txt", false, 0 );
+		add_helpfile( others, "Sound settings", "sound.txt", false, 0 );
+		add_helpfile( others, "Sprachen", "language.txt", false, 0 );
+
+		index_txt.printf( translator::translate("<h1>Index</h1><p>*: only english</p><p>General</p>%s<p>Usage</p>%s<p>Tools</p>%s<p>Start</p>%s<p>How to play</p>%s<p>Others:</p>%s"),
+			(const char *)introduction, (const char *)usage, (const char *)toolbars, (const char *)game_start, (const char *)how_to_play, (const char *)others );
+		generaltext.set_text( index_txt );
 	}
 
 	set_helpfile( filename, true );
