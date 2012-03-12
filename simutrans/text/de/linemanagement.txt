@@ -1,4 +1,4 @@
-<title>Linienverwaltung Hilfe</title>
+<title>Linienverwaltung</title>
 
 <h1><strong>Linienverwaltung</strong></h1>
 
@@ -40,7 +40,7 @@ Darunter können <em>Linienaktionen</em> ausgeführt werden:<br/>
 · <em>Einnahmen:</em> Die Erlöse aller Fahrzeugverbände dieser Linie.<br/>
 · <em>Betriebskosten:</em> Die anfallenden Kosten für den Betrieb aller Fahrzeugverbände der Linie.<br/>
 · <em>Profit:</em> Der Profit ergibt sich aus Einnahmen minus Betriebskosten.
-· <em>Fahrezuge:</em> Die Anzahl der Fahrzeugverbände, welche die Linie befahren.<br/>
+· <em>Fahrzeuge:</em> Die Anzahl der Fahrzeugverbände, welche die Linie befahren.<br/>
 </p>
 <p>
 · <em>Liniennamen ändern:</em> Der Name der Linie wird angezeigt. Klicke zum Editieren des Namens ins Namensfeld und bestätige die Änderung mit <em>RETURN</em>.

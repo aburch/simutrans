@@ -1,6 +1,6 @@
-<title>Aiuto Elenco delle stazioni/fermate</title>
+<title>Elenco stazioni/fermate</title>
 
-<h1><strong>Elenco stazioni/fermate</strong></h1>
+<h1><strong>Elenco delle stazioni/fermate</strong></h1>
 
 <p>
 <strong>Elenco stazioni/fermate</strong> visualizza le informazioni relative alle <a href="station.txt">stazioni/fermate</a> dove è possibile caricare e scaricare

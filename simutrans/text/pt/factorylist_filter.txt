@@ -1,4 +1,4 @@
-<title>Ajuda - Lista das fábridas</title>
+<title>Lista das fábridas</title>
 
 <h1><strong>Lista das fábricas</strong></h1>
 

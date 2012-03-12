@@ -1,4 +1,4 @@
-<title>Ajuda - Ferrovias</title>
+<title>Ferrovias</title>
 
 <h1><strong>Ferrovias</strong></h1>
 

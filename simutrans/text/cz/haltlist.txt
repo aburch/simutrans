@@ -1,4 +1,4 @@
-<title>Nápovìda - seznam stanic</title>
+<title>seznam stanic</title>
 <h1>Seznam stanic</h1>
 
 <p>

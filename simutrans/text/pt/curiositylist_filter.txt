@@ -1,4 +1,4 @@
-<title>Ajuda - Lista de Atrações</title>
+<title>Lista de Atrações</title>
 
 <h1><strong>Lista de Atrações</strong></h1>
 

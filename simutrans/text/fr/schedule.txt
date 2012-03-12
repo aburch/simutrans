@@ -1,6 +1,6 @@
-<title>Aide sur la programmation des itinéraires</title>
+<title>Itinéraires</title>
 
-<h1>Programation</h1>
+<h1>Programmation des itinéraires</h1>
 
 <p>
 Il a deux manières de programmer ses véhicules : <br>

@@ -1,4 +1,4 @@
-<title>町一覧のヘルプ</title>
+<title>町一覧</title>
 
 <h1>町一覧</h1>
 

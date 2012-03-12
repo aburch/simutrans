@@ -1,4 +1,4 @@
-<title>Depot Controls Help</title>
+<title>Depots</title>
 
 <h1><strong>Depot Controls</strong></h1>
 

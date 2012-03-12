@@ -1,4 +1,4 @@
-<title>Markerliste Hilfe</title>
+<title>Markerliste</title>
 
 <h1><strong>Markerliste</strong></h1>
 

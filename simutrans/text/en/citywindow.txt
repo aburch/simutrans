@@ -1,4 +1,4 @@
-<title>City Statistics Help</title>
+<title>City Statistics</title>
 
 <h1><strong>City Statistics</strong></h1>
 

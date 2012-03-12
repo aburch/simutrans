@@ -1,4 +1,4 @@
-<title>Ayuda de Lista de Vehiculos</title>
+<title>Lista de Vehiculos</title>
 
 <h1><strong>Lista de Vehiculos</strong></h1>
 

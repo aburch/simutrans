@@ -1,0 +1,39 @@
+<title>Seznam nápisù</title>
+
+<!-- znakù -> nápisù? -->
+
+<h1><strong>Seznam nápisù</strong></h1>
+
+
+
+<p>
+
+Zde jsou vypsány v¹echny nápisy vyskytující se na mapì.
+
+</p>
+
+<p>
+
+Seznam nápisù otevøete z menu <a href="list.txt">seznamy</a>.
+
+</p>
+
+<p>{Tip: Nápisy lze pou¾ít napøíklad pro pojmenování øek nebo místo nástìnky v høe po síti. }</p>
+
+<p> Dialogu umo¾òuje nápisy <em>øadit podle</em>:<br/>
+
+- <em>hráè</em>: Øadí podle hráèe.<br/>
+
+- <em>jméno</em>: Øadí nápisy podle textu.<br/>
+
+- <em>souøadnice</em>: Nápisy jsou øazeny podle souøadnic.
+
+</p>
+
+<p>Druhé tlaèítko pøepíná mezi <em>vzestupným</em> a <em>sestupným</em> zpùsobem øazení.</p>
+
+<p>Tlaèítko oznaèené <em>pouze aktivní hráè</em> umo¾òuje zobrazit nápisy pouze od právì aktivního hráèe.</p>
+
+<p>Kliknutí na <em>¹ipku</em> na zaèátku øádku vás pøemístí k nápisu.</p>
+
+<p>Kliknutí na <em>text nápisu</em>  zobrazí okno s obrázkem místa, kde se nápis nachází.</p>

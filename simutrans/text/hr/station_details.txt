@@ -1,4 +1,4 @@
-<title>Pomoc Detaljnih Informacija Stajalista</title>
+<title>Detaljnih Informacija Stajalista</title>
 
 <h1><strong>Pomoc Detaljnih Informacija Stajalista</strong></h1>
 

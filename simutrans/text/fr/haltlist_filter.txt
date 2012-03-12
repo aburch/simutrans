@@ -1,4 +1,4 @@
-<title>Aide sur les filtres des arrêts</title>
+<title>Filtrage des arrêts</title>
 
 <h1>Filtrage des arrêts, gares et quais de chargement</h1>
 

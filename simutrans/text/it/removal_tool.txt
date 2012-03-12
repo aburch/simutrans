@@ -1,4 +1,4 @@
-<title>Aiuto distruggi/rimuovi</title>
+<title>Strumento rimozione</title>
 
 <h1><strong>Strumento rimozione</strong></h1>
 

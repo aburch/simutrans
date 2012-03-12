@@ -1,4 +1,4 @@
-<title>Voertuig Informatie Help (Nederlands)</title>
+<title>Voertuig Informatie</title>
 
 <h1><strong>Voertuig Informatie</strong></h1>
 

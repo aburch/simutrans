@@ -1,4 +1,4 @@
-<title>Touristenzielliste Hilfe</title>
+<title>Touristenzielliste</title>
 
 <h1><strong>Touristenzielliste</strong></h1>
 <p>

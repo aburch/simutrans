@@ -1,4 +1,4 @@
-<title>Ajuda - Semáforo</title>
+<title>Semáforo</title>
 
 <h1><strong>Semáforo</strong></h1>
 

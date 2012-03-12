@@ -1,4 +1,4 @@
-<title>Fahrzeugliste Hilfe</title>
+<title>Fahrzeugliste</title>
 
 <h1><strong>Fahrzeugliste</strong></h1>
 

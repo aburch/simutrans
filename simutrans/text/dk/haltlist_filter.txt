@@ -1,4 +1,4 @@
-<title>Rutemålsliste filter dialog hjælp</title>
+<title>Rutemålsliste filter dialog</title>
 
 <h1>Rutemålsliste filter dialog</h1>
 
@@ -58,6 +58,6 @@ rutemål, der ikke er forbundne.
 <p>
 De to lister giver mulighed for at udvælge rutemål udfra de varer, der
 forbruges eller produceres på rutemålet. De tre knapper under overskriften
-anvendes til at vælge henholdsvis alle eller ingen af de mulige varetyper samt
+anvendes til at vælge henholdsvis alle eller ingen af de mulige varetyper sam
 til at foretage den "inverse" trykknap udvælgelse.
 </p>

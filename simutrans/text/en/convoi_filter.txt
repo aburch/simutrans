@@ -1,4 +1,4 @@
-<title>Vehicle List Filter Help</title>
+<title>Vehicle List Filter</title>
 
 <h1><strong>Vehicle List Filter</strong></h1>
 

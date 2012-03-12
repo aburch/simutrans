@@ -1,4 +1,4 @@
-<title>Inspection Tool Help</title>
+<title>Inspection Tool</title>
 
 <h1><strong>Inspection Tool</strong></h1>
 

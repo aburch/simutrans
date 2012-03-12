@@ -1,4 +1,4 @@
-<title>Ajuda - Informações do Comboio</title>
+<title>Informações do Comboio</title>
 
 <h1><strong>Informações do Comboio</strong></h1>
 

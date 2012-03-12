@@ -1,0 +1,179 @@
+<title>Informace o továrnì</title>
+
+
+
+<h1><strong>Informace o továrnì</strong></h1>
+
+
+
+<p>Dialog <em>informace o továrnì</em> zobrazuje detaily o vybrané továrnì, jejích dodavatelích a odbìratelích a umo¾òuje pøemístit se na pozice s továrnou.</p>
+
+<p>Dialog vyvoláte kliknutím <a href="inspection_tool.txt">inspekèní lupou</a> na továrnu nebo na název v <a href="factorylist_filter.txt">seznamu továren</a>.
+
+</p>
+
+<p>
+
+Továrny mohou fungovat osamocenì (napø. vìtrná elektrárna) nebo být souèástí rozsáhlého prùmyslového øetìzu. Mohou výt èistì producenty primárních surovin (uhlí, ¾elezná ruda, ...), zpracovatelé (ocelárna, pila) nebo koncoví spotøebitelé.
+
+<br/>
+
+Továrny jsou také cílem cesty pro cestující a po¹tu.
+
+</p>
+
+<p>
+
+{Tip: Staèí, aby ve spádové oblasti stanice/zastávky bylo jen jedno pole továrny.}
+
+</p>
+
+<p>
+
+Poèáteèní mno¾ství øetìzù prùmyslu lze zadat pøi vytváøení <a href="new_world.txt">nové mapy</a>. Jak mìsta rostou, objevují se dal¹í továrny. O kolik musí vzrùst poèet obyvatel, aby se na mapì objevila dal¹í továrna závisí na <a href="settings.txt">nastavení</a>.
+
+</p>
+
+
+
+<p>
+
+V <em>titulku</em> je název vybrané továrny. </p>
+
+<p>V <em>poli na prvním øádku</em> lze mìnit název továrny, napø. Uhelný dùl Adéla.</p>
+
+<p>Za textem <em>Max.</em> se nachází maximální produkce továrny za jeden mìsíc. (Nebo den, zále¾í na nastavení zobrazení èasu.) Mno¾ství vyprodukovaných výrobkù mù¾ete zvý¹it dodáním elektrické energie cestujících a po¹ty. Zda-li ke zvý¹ení produkce (a o kolik) dojde zále¾í na konkrétní továrnì. Tyto informace zjistíte po kliknutí na tlaèítko <em>graf</em> v zálo¾ce <em>výroba/zvý¹eno</em>
+
+<br/>
+
+</p>
+
+
+
+<p>
+
+<em>Výroba</em>: Informace o typech výrobkù a jejich mno¾ství. <br/>
+
+Informace obsahují název výrobku, mno¾ství výrobku na skladì, kapacitu skladu pro daný výrobek, kategorii (v èem se dá zbo¾í pøepravovat) a procentuelní pomìr v jakém je vyrábìn.
+
+</p>
+
+<p>
+
+<em>spotøeba</em>: Informace o vstupních surovinách a jejich mno¾ství.<br/>
+
+Informace obsahují název suroviny, mno¾ství na skladu, kapacitu skladu pro danou surovinu, <a href="goods_filter.txt">kategorii zbo¾í</a> a procentuelní pomìr vstupních surovin.
+
+</p>
+
+
+
+<p>
+
+Kliknutí na <em>Obrázek továrny</em> vás pøemístí se na pozici s továrnou.
+
+</p>
+
+<p>
+
+<em>barevný indikátor stavu</em> pod obrázkem továrny má stejný význam jako v <a href="factorylist_filter.txt">seznamu továren</a>:<br/>
+
+- <em>bílá barva</em>: Továrna nic nespotøebovává nebo nemá uzavøen kontrakt s ¾ádným dodavatelem.<br/>
+
+- <em>¾lutá barva</em>: Továrna má uzavøeny kontrakty, ale není u ní ¾ádná stanice nebo zastávka. <br/>
+
+- <em>zelená barva</em>: Optimální stav, továrna vyrábí.<br/>
+
+- <em>oran¾ová barva</em>: V provozu, sklad s aspoò jedním výrobkem je plný, ale zatím je pro koho vyrábìt nebo je dost místa ve skladu na hotové výrobky.<br/>
+
+- <em>èervená barva</em>: U továrny jsou zastávky ale zbo¾í se z nich nedopravuje nebo odbìratelé mají plné sklady surovin nebo v provozu ale sklady surovin jsou pøeplnìné.
+
+</p>
+
+
+
+<p>Tlaèítko <em>graf</em> zobrazí nebo skryje panely s grafy k pøíslu¹né továrnì.</p>
+
+<p>Tlaèítko <em>detaily</em> otevøe okno s podrobnostmi o daném typu továrny; pokud typ továrny nemá nápovìdu, tlaèítko není zobrazeno.</p>
+
+
+
+
+
+<p>
+
+<em>Odbìratelé</em>: Seznam odbìratelù zbo¾í z dané továrny. V závorkách za názvem továrny jsou její souøadnice.<br/>
+
+Kliknutím na ¹ipku na zaèátku øádku vás pøemístí k zvolenému odbìrateli.
+
+</p>
+
+<p>
+
+<em>Dodavatelé</em>: Seznam dodavatelù surovin pro danou továrnu. V závorkách za názvem továrny jsou uvedeny její souøadnice.<br/>
+
+Kliknutím na ¹ipku na zaèáku øádku se pøemístíte k pøíslu¹nému dodavateli.
+
+</p>
+
+<p>
+
+<em>Zamìstnanci bydlí v</em>: Ukazuje ve kterých okolních <a href="citywindow.txt">mìstech</a> ¾ijí zamìstnanci. Z tìchto mìst mù¾ete k továrnì dopravovat cestující a po¹tu.<br/>
+
+©ipky pøed názvy mìst slu¾í k pøemístìní do pøíslu¹ného mìsta.
+
+</p>
+
+
+
+<p>
+
+<em>Zastávky v dosahu objektu</em>: Zastávky, v jejich¾ spádovém území se továrna nachází. Na nì lze dopravovat cestující, po¹tu a suroviny pro továrnu.<br/>
+
+</p>
+
+
+
+<h1>graf - zbo¾í</h1>
+
+<p>
+
+Pod grafem je tabulka, v vprním sloupci je název vyrobeného zbo¾í nebo spotøebované suroviny. V dal¹ích sloupcích jsou tlaèítka slou¾ící k zobrazení/skrytí hodnot v grafu.<br/>
+
+- <em>zásoby</em>: mno¾ství suroviny/výrobku na skladu<br/>
+
+- <em>do¹lá po¹ta !?(pøijato)</em>: mno¾ství suroviny pøivezené v daném mìsíci<br/>
+
+- <em>spotøebováno</em>: mno¾ství spotøebované suroviny v daném mìsíci<br/>
+
+- <em>doruèeno</em>: mno¾ství zbo¾í vyexpedovaného na okolní zastávky<br/>
+
+- <em>vyrobeno</em>: mno¾ství vyrobeného zbo¾í<br/>
+
+</p>
+
+
+
+<h1>graf - výrobky/zvý¹eno</h1>
+
+<p>Zálo¾ka <em>spotøeba/zvý¹eno</em> obsahuje tato tlaèítka:<br/>
+
+- <em>výroba</em>: Kolik výrobkù je továrna schopna mìsíènì vyrobit<br/>
+
+- <em>vyu¾ito/výkon</em>: Kolik bylo vyu¾ito elektrické energie.<br/>
+
+
+
+- <em>zvý¹ení produkce</em>: Jak moc (o kolik procent) byl výkon továrny zvý¹en dodáním elektrické energie, cestujících a po¹ty <br/>
+
+- <em>Max.zvý¹ení produkce</em>: O kolik procent lze nejvíce ovlivnit výkon továrny dodáním elektrické energie, cestujících, po¹ty. <br/>
+
+- <em>poptávka</em>: Kolik MW pøikonu elektrické energie, cestujících a po¹ty elektrárna potøebuje pro optimální výkon. <br/>
+
+
+
+- <em>cestující</em>: Mno¾ství vyprodukovaných, odbavených a pøijatých cestující.<br/>
+
+- <em>po¹ta</em>: Mno¾ství vyprodukované, odbavené a pøijaté po¹ty. <br/>
+
+</p>

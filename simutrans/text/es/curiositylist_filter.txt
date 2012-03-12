@@ -1,4 +1,4 @@
-<title>Ayuda de Informacion del Convoy</title>
+<title>Informacion del Convoy</title>
 
 <h1><strong>Informacion del Convoy</strong></h1>
 

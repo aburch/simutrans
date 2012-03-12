@@ -1,4 +1,4 @@
-<title>Depot (garage, hangar, remise) Opties Help (Nederlands)</title>
+<title>Depot (garage, hangar, remise)</title>
 
 <h1><strong>Depot (garage, hangar, remise) Opties</strong></h1>
 

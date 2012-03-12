@@ -1,9 +1,9 @@
-<title>Line Management Help</title>
+<title>Line Management</title>
 
 <h1><strong>Line Management</strong></h1>
 
 <p>
-<strong>Line Management</strong>provides information and controls to manage Lines (routes and minimum quantity of goods & passengers required by a <a href="convoiinfo.txt">Convoy</a> to proceed) for a Convoy or multiple Convoys with the same route.
+<strong>Line Management</strong> provides information and controls to manage Lines (routes and minimum quantity of goods & passengers required by a <a href="convoiinfo.txt">Convoy</a> to proceed) for a Convoy or multiple Convoys with the same route.
 </p>
 <p>
 Lines consist of <a href="station.txt">Stops</a> where vehicles pick-up and drop-off goods & passengers (water-transport vehicles may use any square of water in the catchment area of a dock) and waypoints (used to direct vehicles if more than one option is possible or provide interim destination points).

@@ -1,4 +1,4 @@
-<title>Aide sur les gares</title>
+<title>Les gares</title>
 <h1>L'écran de gestion des gares</h1>
 
 <p>

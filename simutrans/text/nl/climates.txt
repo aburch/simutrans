@@ -38,7 +38,7 @@ Pijltjes knoppen veranderen de instellingen:
 <em>Sneeuwgrens(w):</em> bepaalt de hoogte van de sneeuwgrens in de winter.<br>
 </p>
 <p>
-?<it>Klimaat opties:</it>
+<it>Klimaat opties:</it>
 </p>
 <p>
 

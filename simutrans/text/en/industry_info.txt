@@ -1,4 +1,4 @@
-<title>Industry Information Help</title>
+<title>Industry Information</title>
 
 <h1><strong>Industry Information</strong></h1>
 

@@ -1,4 +1,4 @@
-<title>Ayuda de Informacion de Industrias</title>
+<title>Informacion de Industrias</title>
 
 <h1><strong>Informacion de Industrias</strong></h1>
 

@@ -1,4 +1,4 @@
-<title>Javak listája Sugó</title>
+<title>Javak listája</title>
 
 <h1>Javak listája</h1>
 

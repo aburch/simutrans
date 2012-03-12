@@ -1,4 +1,4 @@
-<title>Ajuda - Detalhes da Parada</title>
+<title>Detalhes da Parada</title>
 
 <h1><strong>Detalhes da Parada</strong></h1>
 

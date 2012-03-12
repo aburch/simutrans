@@ -1,6 +1,6 @@
-<title>Destroy/Remove Help</title>
+<title>Removal Tool</title>
 
-<h1><strong>Removal Tool</strong></h1>
+<h1><strong>Destroy/Removal Tool</strong></h1>
 
 <p>
 <strong>Removal Tool</strong> is used to destroy and remove unwanted items and obstructions to construction on a single game-tile in <a href="window.txt">game-view</a>.

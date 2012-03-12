@@ -1,4 +1,4 @@
-<title>POMOC: Rozklad jazdy</title>
+<title>Rozklad jazdy</title>
 
 <h1>Rozklad jazdy</h1>
 

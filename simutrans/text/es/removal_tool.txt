@@ -1,4 +1,4 @@
-<title>Ayuda de la Herramienta Eliminar</title>
+<title>Herramienta Eliminar</title>
 
 <h1><strong>Herramienta Eliminar</strong></h1>
 

@@ -1,4 +1,4 @@
-<title>Ayuda de Herramienta de Exploracion</title>
+<title>Herramienta de Exploracion</title>
 
 <h1><strong>Herramienta de Exploracion</strong></h1>
 

@@ -1,4 +1,4 @@
-<title>Ayuda de Controles de Enrutar</title>
+<title>Controles de Enrutar</title>
 
 <h1><strong>Controles de Enrutar</strong></h1>
 

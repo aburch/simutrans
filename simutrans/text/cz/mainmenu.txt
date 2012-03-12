@@ -1,0 +1,69 @@
+<title>Nápovìda - hlavní menu</title>
+
+<h1>Hlavní menu</h1>
+
+<p>
+Hlavní menu je li¹ta s nástroji nacházející se na horní stranì <a href="window.txt">okna</a>. Vzhled ikon v hlavním menu a jejich poøadí se li¹í v závislosti na grafické sadì. Nìkteré ikony nemusejí být dostupné v závislosti na na èase. Napøíklad v 19. století není zobrazena ikona s nástroji pro <a href="monorail_tools.txt">jednokolejku</a>.
+</p>
+<p>
+V hlavním menu naleznete ikony s tìmito nástroji:
+</p>
+<p>
+<em>nastavení hry</em>: Za disketou se nachází <a href="options.txt">nastavení</a> jazyka, barev, zpùsobù zobrazení, hráèù stejnì jako mo¾nost ulo¾ení, ulo¾ení nebo ukonèení hry.
+</p>
+<p>
+<em>mapa</em>: Zobrazí dialog s <a href="map.txt">mapou</a>. Obsahuje rozlièné volby pro rùzná zobrazení informací o objektech nacházejících se na povrchu i pod ním.
+</p>
+<p>
+<em>lupa</em>: <a href="inspection_tool.txt">Inspekèní lupu</a> vyu¾ijete pøi zji¹»ování informací o objektech. Mù¾ete s ní klikat na cokoliv, ani¾ by bylo nìco rozbito.
+</p>
+<p>
+<em>úprava terénu</em>: Nástroje pro <a href="slopetools.txt">úpravu terénu</a> slou¾í k urovnání terénu pro výstavbu ¾eleznièní sítì a také k výstavbì stoupajících a klesajících <a href="underground.txt">tunelù</a>.
+</p>
+<p>
+<em>menu s konstrukèními nástroji</em> je znaènì promìnlivé v závislosti na grafické sadì, ne v¹e je v¾dy dostupné. Naleznete v nìm nástroje pro výstavbu:
+<br/> - <a href="railtools.txt">¾eleznice</a>
+<br/> - <a href="monorailtools.txt">jednokolejky/visutá ¾eleznice</a>
+<br/> - <a href="tramtools.txt">tramvajové trati</a>
+<br/> - <a href="roadtools.txt">silnièní dopravy</a>
+<br/> - <a href="shiptools.txt">lodní dopravy</a>
+<br/> - <a href="airtools.txt">letecké dopravy</a>
+</p>
+<p>
+<em>speciální nástroje</em>:
+Nabízejí <a href="special.txt">nástroje</a>, které se jinam neve¹ly, napøíklad pro stavbu elektrické sítì.
+</p>
+<p>
+<em>odstranit</em>: Nástroj k <a href="removal_tool.txt">odstraòování</a> objektù ze hry.
+</p>
+<p>
+<em>editace mapy</em>: Nástoj slou¾í k <a href="edittools.txt">úpravì</a> stávající mapy. Nástroj je dostupný jen <a href="players.txt">hráèi</a> oznaèenému jako <em>Veøejné slu¾by</em>.
+</p>
+<p>
+<em>správa linek</em>: Obsahuje seznam <a href="linemanagement.txt">linek</a>, nástoje pro jejich správu a statistické údaje o nich.
+</p>
+<p>
+<em>seznamy</em> Menu je rozcestníkem k jednotlivým <a href="list.txt">seznamùm</a>:
+<br/> - <a href="haltlist.txt">seznam zastávek</a>
+<br/> - <a href="convoi.txt">seznam vozidel</a>
+<br/> - <a href="citylist_filter.txt">seznam mìst</a>
+<br/> - <a href="goods_filter.txt">seznam zbo¾í</a>
+<br/> - <a href="factorylist_filter.txt">seznam továren</a>
+<br/> - <a href="curiositylist_filter.txt">seznam turistických cílù</a>
+</p>
+<p>
+<em>po¹tovní schránka</em>: Hlá¹ení, zprávy, informace o novinkách a dopisy od spoluhráèù najdete ve své <a href="mailbox.txt">po¹tovní schránce</a>. Reklamních letákù netøeba se obávat.
+</p>
+<p>
+<em>finance</em>: Pøehled o <a href="finances.txt">hospodaøení</a> va¹í firmy.
+</p>
+<p>
+<em>screenshot</em>: Sejme snímek z obrazovky a ulo¾í jej do adresáøe screenshot.
+</p>
+<p>
+<em>Pauza</em>: Pozastaví bìh èasu ve høe. I pøi pauze mù¾ete stavìt a kupovat vozidla.
+</p>
+<p>
+<em>zrychlit</em>: Zrychlí øádovì bìh èasu. U¾iteèné, kdy¾ nechcete èekat. Vypnete opìtovným stisknutím.<br/>
+{Tip: Rychlost plynutí èasu zmìníte <a href="keys.txt">klávesami</a> èárka [,] a teèka [.].}
+</p>

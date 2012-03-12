@@ -1,4 +1,4 @@
-<title>車庫ダイアログ　ヘルプ</title>
+<title>車庫</title>
 
 <h1>車庫ダイアログ</h1>
 <p>

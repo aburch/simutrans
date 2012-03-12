@@ -1,4 +1,4 @@
-<title>Ajuda - Programação</title>
+<title>Programação</title>
 
 <h1><strong>Programação</strong></h1>
 

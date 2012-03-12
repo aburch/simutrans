@@ -1,4 +1,4 @@
-<title>Ayuda de Herramientas de Ferrocarriles</title>
+<title>Herramientas de Ferrocarriles</title>
 
 <h1><strong>Herramientas de Ferrocarriles</strong></h1>
 

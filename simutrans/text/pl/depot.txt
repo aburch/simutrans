@@ -1,4 +1,4 @@
-<title>POMOC: Zajezdnia i Lokomotywownia</title>
+<title>Zajezdnia i Lokomotywownia</title>
 
 <h1>Zajezdnia samochodowa & Lokomotywownia</h1>
 <p>

@@ -1,4 +1,4 @@
-<title>Fabrikliste Hilfe</title>
+<title>Fabrikliste</title>
 
 <h1><strong>Fabrikliste</strong></h1>
 

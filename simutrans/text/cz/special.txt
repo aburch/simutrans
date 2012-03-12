@@ -1,0 +1,85 @@
+<title>Nápovìda - speciální stavby</title>
+
+
+
+<h1>Speciální stavby</h1>
+
+
+
+<p>
+
+Panel s nástroji speciálních staveb obsahuje stavbu, které nejsou pøímo spojené s konkrétním zpùsobem pøepravy.
+
+</p>
+
+<p>
+
+Panel se speciálními stavbami otevøete z <a href="mainmenu.txt">hlavního menu</a>.
+
+</p>
+
+<p>
+
+<strong>Speciální stavby</strong> obsahují nástroje:
+
+</p>
+
+<p>
+
+<em>Po¹ta</em>: Nástrojem postavíte po¹tu. Po¹tu lze posstavit jen vedle ji¾ existující <a href="station.txt">stanice</a>.
+
+</p>
+
+<p>
+
+<em>Roz¹íøení stanice</em>: Ke stanici lze pøistavìt budovy roz¹iøující její kapacitu, jako napøíklad pøekladi¹tì automobilù, stáje pro dobytek, sklady, zásobník plynu, zásobník na kapaliny apod. Tyto budovy jsou v ka¾dé grafické sadì trochu jiné.
+
+</p>
+
+<p>
+
+<em>P+</em>: Zmìní hráèe. Stejného efektu dosáhnete klávesovou <a href="keys.txt">[P]</a>. Existuje-li více hráèù, zobrazte si klávesou <a href="keys.txt">[k]</a> <a href="players.txt">obchodní rejstøík</a> a v nìm vyberte po¾adovaného hráèe.
+
+</p>
+
+<p>
+
+<em>zalo¾it nové mìsto</em>: Nástrojem postavíte nové <a href="citywindow.txt">mìsto</a>.
+
+</p>
+
+<p>
+
+<em>Zasadit strom</em>: Nástrojem umístíte na mapu náhodný strom.
+
+</p>
+
+<p>
+
+<em>elektrické vedení</em>: Nástrojem postavíte vedení vysokého napìtí.
+
+</p>
+
+<p>
+
+<em>Transformátorová stanice</em>: Nástrojem postavíte trafostanici. Trafostanice postavená u továrny mù¾e zvý¹it produkci továrny.
+
+</p>
+
+<p>
+
+<em>Znaèka</em>: Nástroj umístí na herní ploch nápis. Mù¾e slou¾it napøíklad k pojmenování øeky nebo jako nástìnka pro ostatní hráèe v sí»ové høe.
+
+</p>
+
+<p>
+
+<em>prohodit zastávky</em>:Prohodí v jízních øádech dvì pole na mapì. Nesple»te si ji s následujícím nástrojem, mají podobné ikony.
+
+</p>
+
+<p>
+
+<em>Zveøejnit zastávku</em>: Pøevede zastávku na <a href="players.txt">hráèe</a> <em>Veøejné slu¾by</em>.
+
+</p>

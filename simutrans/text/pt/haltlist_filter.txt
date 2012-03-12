@@ -1,4 +1,4 @@
-<title>Ajuda - Filtro da Lista de Paradas</title>
+<title>Filtro da Lista de Paradas</title>
 
 <h1><strong>Filtro da Lista de Paradas</strong></h1>
 <p>

@@ -1,4 +1,4 @@
-<title>Ajuda - Gerenciador de Linhas</title>
+<title>Gerenciador de Linhas</title>
 
 <h1><strong>Gerenciador de Linhas</strong></h1>
 

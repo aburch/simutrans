@@ -1,4 +1,4 @@
-<title>Nápovìda - dialog stanice</title>
+<title>Stanice</title>
 <h1>Dialog stanice</h1>
 
 <p>

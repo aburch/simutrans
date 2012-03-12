@@ -1,4 +1,4 @@
-<title>Prehµad zastávok a staníc - pomoc</title>
+<title>Prehµad zastávok a staníc</title>
 <h1>Prehµad Tvojich zastávok, staníc a nakladacích rámp</h1>
 <p>
 <em>Prehµad ponúka nasledovné mo¾nosti:</em><br>

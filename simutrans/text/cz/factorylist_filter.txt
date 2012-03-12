@@ -1,0 +1,44 @@
+<title>Seznam továren</title>
+
+<h1><strong>Seznam továren</strong></h1>
+
+<p>Seznam továren obsahuje informace o v¹ech <a href="industry_info.txt">továrnách</a> umístìných na herní plo¹e. </p>
+<p>Seznam továren otevøete z menu <a href="list.txt">Seznamy</a>.</p>
+<p>
+<em>Øadit podle</em>: Volba ovlivòuje poøadí zobrazených továren.<br>
+Kliknutím na tlaèítko pøepínáte mezi následujícími mo¾nostmi:
+</p>
+<p>
+- <em>Název továrny</em> Øadí se abecednì podle názvu.<br>
+- <em>Pøíjem</em> Øadí podle mno¾ství pøijatého zbo¾í na skladì.<br>
+- <em>Odbìr</em> Øadí podle mno¾sví výrobkù èekajících na odvoz.<br>
+- <em>Výroba</em> Poøadí je podle aktuální výrobní kapacity. <br>
+- <em>Stav</em> Seøadí továrny podle barevného indikátoru stavu.<br>
+- <em>Výkon</em> Seøadí továrny podle zvý¹ení výkonu zpùsobeného dodáním elektrické energie.
+</p>
+<p>
+- <em>Vzestupnì</em> / <em>sestupnì</em>: Pøepíná mezi vzestupným a sestupným øazením seznamu.  </br></p>
+<h1>továrny</h1>
+<p> Kliknutím na polo¾ku v seznamu zobrazíte <a href="industry_info.txt">podrobnìj¹í informace</a> o dané továrnì.</p>
+<p>U ka¾dé továrny jsou zobrazeny následující polo¾ky:</p>
+<p>
+<em>barevný indikátor stavu</em>: Barvy vypovídají o výrobì v dané továrnì. Stejné barvy jsou u¾ity v <a href="industry_info.txt">informacích o továrnì</a>.<br>
+- <em>bílá barva</em>: Továrna nic nepo¾aduje nebo nemá kontrakt s ¾ádným dodavatelem.<br>
+- <em>¾lutá barva</em>: Továrna má odbìratele, ale nikdo od ní nedopravuje zbo¾í.<br>
+- <em>zelená barva</em>: Optimální stav, továrna vyrábí.<br>
+- <em>oran¾ová barva</em>: V provozu, sklad s aspoò jednou surovinou je plný, ale zatím je pro koho vyrábìt a ve skladu s výrobky je volné místo.<br>
+- <em>èervená barva</em>: Hodnì surovin na skladu a není kam dodávat výrobky (mají plno).
+</p>
+<p>
+<em>èervený blesk</em> je zobrazen u továren pøipojených k <a href="special.txt">elektrické síti</a>.
+</p>
+<p><em>symbol cestujících</em>: Továrna le¾í ve spádové oblasti aspoò jedné zastávky pro cestující.</p>
+<p><em>symbol po¹ty</em>: Továrna le¾í ve spádové oblasti aspoò jedné zastávky pro po¹tu.</p>
+<p><em>název továrny</em>:  Název továrny uvedený v pøekladu.
+</p>
+<p>
+Hodnoty uvedené v závorkách mají následující význam:<br>
+- <em>pøijaté zbo¾í</em>: Mno¾ství vstupních surovin èekajících na zpracování.<br>
+- <em>èeká na odvoz</em>: Mno¾ství hotových výrobkù èekajících na odvoz.<br>
+- <em>aktuální produkce</em>: aktuální míra produkce - kolik výrobkù pøi souèasném tempu výroby je továrna schopna vyrobit za mìsíc.
+</p>

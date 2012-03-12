@@ -1,9 +1,9 @@
-<title>Aide sur la liste des véhicules</title>
+<title>Liste des véhicules</title>
 
-<h1>Liste des véhicules<br> (raccourci: Shift+V)</h1>
+<h1>Liste des véhicules</h1>
 
 <p>
-Cette liste vous affiche la liste de tous vos véhicules.
+Cette liste vous affiche la liste de tous vos véhicules. (raccourci: Shift+V)
 </p>
 
 <p>
@@ -13,16 +13,11 @@ informations comme le coût, revenu, chargement de votre véhicule.
 </p>
 
 <p>
-Vous pouvez modifier les critère d'affichage des véhicules en appuyant sur le
-bouton à gauche : Nom, Revenu ou Type de véhicule. Le bouton juste à coté sert
-à afficher les véhicules selon l'ordre croissant ou décroissant.
+Vous pouvez modifier les critère d'affichage des véhicules en appuyant sur le bouton à gauche : Nom, Revenu ou Type de véhicule. Le bouton juste à coté sert à afficher les véhicules selon l'ordre croissant ou décroissant.
 </p>
 
 <p>
-Vous pouvez aussi filtrer la liste grâce aux boutons de droite. En cliquant sur
-le bouton de 'réglage' de filtrage, une fenêtre de sélection des critères de
-filtrage s'ouvrira. Puis vous pourrez activer le filtrage en appuyant sur le
-bouton 'activer'.
+Vous pouvez aussi filtrer la liste grâce aux boutons de droite. En cliquant sur le bouton de 'réglage' de filtrage, une fenêtre de sélection des critères de filtrage s'ouvrira. Puis vous pourrez activer le filtrage en appuyant sur le bouton 'activer'.
 </p>
 <p>
 Actualisé pour Simutrans 0.83.1.2<br>

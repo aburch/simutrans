@@ -1,4 +1,4 @@
-<title>Stadtinformation Hilfe</title>
+<title>Stadtinformation</title>
 
 <h1><strong>Stadtinformation</strong></h1>
 

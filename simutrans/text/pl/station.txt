@@ -1,4 +1,4 @@
-<title> POMOC: Infomacje o stacjach i przystankach</title>
+<title>Infomacje o stacjach i przystankach</title>
 <h1>Informacje o stacjach i przystankach</h1>
 
 <p>

@@ -1,4 +1,4 @@
-<title>Aiuto lista città</title>
+<title>lista città</title>
 
 <h1><strong>Lista città</strong></h1>
 

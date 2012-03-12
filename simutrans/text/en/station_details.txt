@@ -1,4 +1,4 @@
-<title>Stop Details Help</title>
+<title>Stop Details</title>
 
 <h1><strong>Stop Details</strong></h1>
 

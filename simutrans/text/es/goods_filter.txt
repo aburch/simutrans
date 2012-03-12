@@ -1,4 +1,4 @@
-<title>Ayuda de Lista de Mercancias</title>
+<title>Lista de Mercancias</title>
 
 <h1><strong>Lista de Mercancias</strong></h1>
 

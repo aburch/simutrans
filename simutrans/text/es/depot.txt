@@ -1,4 +1,4 @@
-<title>Ayuda de Controles de Cochera</title>
+<title>Cochera</title>
 
 <h1><strong>Controles de Cochera</strong></h1>
 

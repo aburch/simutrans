@@ -1,4 +1,4 @@
-<title> Stanica, zastávka - pomoc</title>
+<title> Stanica, zastávka</title>
 
 <h1>Stanica, zastávka a nákladná rampa</h1>
 

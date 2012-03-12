@@ -1,4 +1,4 @@
-<title>Haltestellenliste - Einstellungen Hilfe</title>
+<title>Haltestellenlistenfilter</title>
 
 <h1><strong>Filtereinstellungen zur Haltestellenliste</strong></h1>
 

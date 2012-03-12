@@ -1,4 +1,4 @@
-<title>Ajuda - Depósitos</title>
+<title>Depósitos</title>
 
 <h1><strong>Depósitos</strong></h1>
 

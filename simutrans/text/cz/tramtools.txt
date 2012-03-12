@@ -1,0 +1,71 @@
+<title>Nápovìda - tramvaje</title>
+
+
+
+<h1>tramvaje</h1>
+
+
+
+<p>
+
+Nabídka obsahuje nástroje ke stavbì tramvajové pøepravní sítì - kolejí, troleje, <a href="station.txt">zastávek</a> a <a href="depot.txt">depa</a>.
+
+</p>
+
+<p>
+
+Tramvaje mají ni¾¹í provozní náklady ne¾ autobusy co¾ je v¹ak vyvá¾eno vysokými náklady na údr¾bu tramvajových tratí. Provozovat tramvaje se vyplatí pøi pøepravì vy¹¹ího poètu cestujících nebo ve mìstech s velkým poètem aut.
+
+</p>
+
+<p>Nabídku s nástroji k výstavbì tramvajové tratì otevøete kliknutím na ikonu <em>tramvaje</em> v <a href="mainmenu.txt">hlavním menu</a>.
+
+</p>
+
+<p>
+
+Najedete-li kurzorem <a href="mouse.txt">my¹i</a> nad ikonu s naástrojem, zobrazí se popisek obsahující <em>oznaèení nástroje</em>, <em>náklady na výstavbu</em>, <em>(náklady za údr¾bu)</em> a <em>maximální rychlost</em>. Menu obsahuje tyto nástroje:
+
+</p>
+
+<p>
+
+<em>tramvajová tra»</em>: Nástroj slou¾í k výstavbì tramvajové trati. Tramvajovou tra» je mo¾né umístit i na existující silnice. Vìt¹ina tramvají jezdí na elektrickou energii, tra» bude potøeba je¹tì elektrifikovat. </p>
+
+<p>
+
+<em>mosty</em>: Tramvajový <a href="bridges.txt">most</a> obvykle moc nevyu¾ijete. Tramvajovou tra» postavíte i na silnièním mostu.</p>
+
+<p><em>tunel</em>: Nástroj pou¾ijete pro výstovbu <a href="underground.txt">tunelu</a>, trati pro podzemní ¹alinu.</p>
+
+<p>
+
+<em>
+
+trolej</em>: Nástrojem elektrifikujete tramvajovou tra». Bez elektrifikace byste mohli pou¾ívat jen koòmi tak¾ené tramvaje.
+
+</p>
+
+<p>
+
+<em>odstranit tra»</em>: Nástroj odstraòuje tra» vèetnì elektrifikace. Pøi odstraòování dejte pozor na jednosmìrné semafory, a» odstraníte jen to, co chcete.
+
+</p>
+
+<p>
+
+<em>semafory</em>: Nástroj slou¾í k <a href="signals.txt">umístìní semaforù</a> na tra».
+
+</p>
+
+<p>
+
+<em>tramvajové depo</em>: V <a href="depot.txt">depu</a> koupíte tramvaje. Nezapomeòte jej elektrifikovat, jinak elektrické tramvaje nebudou dostupné.
+
+</p>
+
+<p>
+
+<em>tramvajová zastávka</em>: Nástrojem postavíte tramvajovou zastávku. Tramvaje mohou zastavovat i na autobusových zastávkách.
+
+</p>

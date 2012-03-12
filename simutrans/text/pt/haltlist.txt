@@ -1,4 +1,4 @@
-<title>Ajuda - Lista de paradas</title>
+<title>Lista de paradas</title>
 
 <h1><strong>Lista de paradas</strong></h1>
 

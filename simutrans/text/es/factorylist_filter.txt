@@ -1,4 +1,4 @@
-<title>Ayuda de Lista de Fabricas/Industrias</title>
+<title>Lista de Fabricas/Industrias</title>
 
 <h1><strong>Lista de Fabricas/Industrias</strong></h1>
 

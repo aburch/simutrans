@@ -1,4 +1,4 @@
-<title>Haltestellen Detailinformation Hilfe</title>
+<title>Haltestellendetails</title>
 
 <h1><strong>Haltestellen Detailinformation</strong></h1>
 

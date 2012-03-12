@@ -1,4 +1,4 @@
-<title>Traffic light control help</title>
+<title>Traffic light control</title>
 
 <h1><strong>Traffic light control</strong></h1>
 

@@ -1,4 +1,4 @@
-<title>Voertuigen Lijst Help (Nederlands)</title>
+<title>Voertuigen Lijst</title>
 
 <h1><strong>Voertuigen Lijst</strong></h1>
 

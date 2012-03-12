@@ -1,4 +1,4 @@
-<title>Aide sur la liste des arrêts</title>
+<title>Liste des arrêts</title>
 
 <h1>Liste des arrêts et gares</h1>
 

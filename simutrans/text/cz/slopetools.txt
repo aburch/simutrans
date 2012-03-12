@@ -1,0 +1,31 @@
+<title>Nápovìda - úprava terénu</title>
+
+<h1>úprava terénu</h1>
+
+<p>
+Nástroje pro úpravu terénu umo¾òují zvý¹it nebo sní¾it terén, tytvoøit za pomoci opìrných zdí rovinu nebo jen udìlat svah ¹ikný v po¾adovaném smìru. Slou¾í také k tvorbì stoupajících a klesajících <a href="underground.txt">tunelù</a>.
+</p>
+<p>
+Menu s nástroji otevøete kliknutím na ikonu <em>úprava terénu</em> v <a href="mainmenu.txt"> hlavním menu</a>.
+</p>
+<p>Nástroj mù¾ete pou¾ít na polích bez silnic, ¾eleznic, budov apod. Výjimku tvoøí nástroj <em> upravit svah</em> pou¾itý na koncích komunikací.
+</p>
+<p>
+Nástroj vyberete kliknutím n pøíslu¹nou ikonu.
+</p>
+<p>
+<em>zvý¹it zemi</em>/<em>sní¾it zemi:</em> zvý¹í/sní¾í terén<br/>
+Kursor se zmìní na ¹ipku nahoru nebo dolu.<br/>
+Ke zvý¹ení resp. sní¾ení lze té¾ pou¾ít klávesové zkratky <a href="keys.txt">[u]</a> resp. [d].<br/>
+{Tip: Pokud místo klikání budete dr¾et levé tlaèítko <a href="mouse.txt">my¹i</a>, mù¾ete snadno vytvoøit velkou plochu terénu o stejné nadmoøské vý¹ce.
+</p>
+<p>
+<em>upravit svah:</em> upraví svah do po¾adovaného tvaru za pomoci opìrných zdí. Maximální rozdíl mezi sousedními poli je omezený na rozdíl 2 vý¹kových stupnù.<br/>
+Pozn: pomocí tohoto nástroje se dá vytvoøit stoupání a klesání v <a href="underground.txt">tunelu</a>.
+</p>
+<p>
+<em>obnovit pøírodní terén</em>: Obnoví na daném políèku pøirozený snah, odstraní opìrné zdi.<br/>
+</p>
+<p>
+{Tip: Úprava terénu se provádí snáze se zapnutou møí¾kou, zapnete ji klávesou [#] }
+</p>

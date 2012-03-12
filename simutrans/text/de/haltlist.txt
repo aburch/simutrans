@@ -1,4 +1,4 @@
-<title>Haltestellenliste Hilfe</title>
+<title>Haltestellenliste</title>
 
 <h1><strong>Haltestellenliste</strong></h1>
 

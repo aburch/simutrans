@@ -1,4 +1,4 @@
-<title>Konvoifenster Hilfe</title>
+<title>Konvoifenster</title>
 
 <h1><strong>Fahrzeugfenster</strong></h1>
 

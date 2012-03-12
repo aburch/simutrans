@@ -1,4 +1,6 @@
-<title>bauen im Untergrund</title>
+<title>Bauen im Untergrund</title>
+
+<h1><strong>Bauen im Untergrund</strong></h1>
 
 <p>
 Es gibt 2 mögliche Untergrundansichten.<br/>

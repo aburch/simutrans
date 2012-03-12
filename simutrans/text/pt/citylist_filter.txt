@@ -1,4 +1,4 @@
-<title> Ajuda - Lista das Cidades</title>
+<title>Lista das Cidades</title>
 
 <h1><strong>Lista das Cidades</strong></h1>
 

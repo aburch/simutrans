@@ -1,4 +1,4 @@
-<title>Ajuda - Consultar</title>
+<title>Consultar</title>
 
 <h1><strong>Consultar</strong></h1>
 

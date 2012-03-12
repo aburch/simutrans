@@ -2,7 +2,7 @@
 
 <h1>Réglages sons et musiques</h1>
 <p>
-Dans cet écran vous pourrez ajuster les niveaux sonores de la musique et
+Dans cet écran vous pourrez ajuster les niveaux sonores de la musique e
 des sons joués dans Simutrans.
 </p>
 

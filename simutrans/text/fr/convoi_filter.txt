@@ -1,4 +1,4 @@
-<title>Aide sur les filtres de véhicules</title>
+<title>Filtres de véhicules</title>
 
 <h1>Filtrage de la liste des véhicules</h1>
 

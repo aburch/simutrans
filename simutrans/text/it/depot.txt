@@ -1,4 +1,4 @@
-<title>Aiuto - Deposito</title>
+<title>Deposito</title>
 
 <h1>Finestra di dialogo Deposito</h1>
 <p>

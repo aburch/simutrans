@@ -1,4 +1,4 @@
-<title>Help Detalii staþii</title>
+<title>Detalii staþii</title>
 
 <h1>Detalii staþii</h1>
 

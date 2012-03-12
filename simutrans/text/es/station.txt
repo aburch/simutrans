@@ -1,4 +1,4 @@
-<title>Ayuda de Informacion de la Parada</title>
+<title>Informacion de la Parada</title>
 
 <h1><strong>Informacion de la Parada</strong></h1>
 

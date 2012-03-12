@@ -1,4 +1,4 @@
-<title>Ajuda - Lista das cargas</title>
+<title>Lista das cargas</title>
 
 <h1><strong>Lista das cargas</strong></h1>
 

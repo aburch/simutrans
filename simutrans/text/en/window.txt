@@ -1,4 +1,4 @@
-<title>Game Interface Usage Help</title>
+<title>Game Interface Usage</title>
 
 <h1><strong>Game Interface</strong></h1>
 

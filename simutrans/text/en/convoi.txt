@@ -1,4 +1,4 @@
-<title>Vehicle List Help</title>
+<title>Vehicle List</title>
 
 <h1><strong>Vehicle List</strong></h1>
 
@@ -17,7 +17,7 @@ Click on option-buttons to cycle through options (changes name of option-button)
 <em>Sorted by:</em> Two option buttons determine the order of <a href="convoiinfo.txt">Convoys</a> shown in list.
 </p>
 <p>
-- <em>Type</em> orders by type of transport (in ascending order of road vehicle , rail vehicle, boat and aircraft) <br>
+- <em>Type</em> orders by type of transport (in ascending order of road vehicle, rail vehicle, boat and aircraft) <br>
 - <em>Name</em> orders by assigned name, alphanumerically within ASCII-code order: capital letters before lower case letters (by default this is make of first vehicle unit <a href="depot.txt">purchased</a> or assembled for Convoy).<br>
 - <em>Income</em> orders by profit (income generated minus operating costs).<br>
 - <em>Internal ID</em> orders by unique ID number of convoy (assigned by default when Convoy is first purchased or assembled in a <a href=depot.txt">depot</a> and shown in titlebar of <a href="convoiinfo.txt">Convoy Information</a>).

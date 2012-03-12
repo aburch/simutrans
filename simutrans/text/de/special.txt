@@ -1,4 +1,4 @@
-<title>Spezialbauwerkzeuge Hilfe</title>
+<title>Spezialbauwerkzeuge</title>
 
 <h1><strong>Spezialbauwerkzeuge</strong></h1>
 

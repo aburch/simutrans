@@ -1,4 +1,4 @@
-<title>Ajuda - Filtro da Lista de Veículos</title>
+<title>Filtro da Lista de Veículos</title>
 
 <h1><strong>Filtro da Lista de Veículos</strong></h1>
 

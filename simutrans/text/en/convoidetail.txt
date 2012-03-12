@@ -1,4 +1,4 @@
-<title>Convoy Details Help</title>
+<title>Convoy Details</title>
 
 <h1><strong>Convoy Details</strong></h1>
 

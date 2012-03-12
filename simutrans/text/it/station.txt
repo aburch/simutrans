@@ -1,4 +1,4 @@
-<title>Aiuto - Informazioni Fermata/Stazione</title>
+<title>Fermata/Stazione</title>
 
 <h1>Informazioni Fermata/Stazione</h1>
 

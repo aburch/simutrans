@@ -1,4 +1,4 @@
-<title>POMOC: Budowa kolei</title>
+<title>Budowa kolei</title>
 
 <h1>Budowa kolei</h1>
 

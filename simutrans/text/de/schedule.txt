@@ -1,4 +1,4 @@
-<title>Fahrplanfenster Hilfe</title>
+<title>Fahrplaneingabe</title>
 
 <h1><strong>Fahrplanfenster</strong></h1>
 

@@ -1,4 +1,4 @@
-<title>Depotfenster Hilfe</title>
+<title>Depots, Werften und Hangar</title>
 
 <h1><strong>Depotfenster</strong></h1>
 <p>

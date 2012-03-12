@@ -1,4 +1,4 @@
-<title>Ajuda - Ferramenta Remover</title>
+<title>Ferramenta Remover</title>
 
 <h1><strong>Ferramenta Remover</strong></h1>
 

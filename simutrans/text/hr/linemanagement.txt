@@ -1,4 +1,4 @@
-<title>Pomoc upravljanja linijama</title>
+<title>Upravljanja linijama</title>
 
 <h1><strong>Upravljanje linijom</strong></h1>
 

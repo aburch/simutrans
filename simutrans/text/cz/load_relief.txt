@@ -1,0 +1,27 @@
+<title>Nápovìda - naèíst terén</title>
+
+<h1>Naèíst terén</h1>
+
+<p>Dialog slou¾í k naètení vý¹kové mapy z obrázku. Mù¾e být také pou¾it k odstranìní ji¾ nepotøebných obrázkù.</p>
+<p>
+Dialog<em>naèíst terém</em> otevøete z dialogu <a href="new_world.txt">Vytvoøit novou mapu</a> tlaèítkem <em>naèíst terén</em>.
+</p>
+<p>
+Kliknutím na <em>jméno souboru</em> vyberete a otevøete soubor.
+</p>
+<p>
+Soubor mù¾ete vybrat také napsáním názvu do <em>pole nahoøe</em> a následovným kliknutím na tlaèítko <em> ano</em>.</p>
+<p>
+Kliknutím na tlaèítko <em>ne</em> dialog zavøete bez naètení èehokoliv.
+</p>
+<p>
+Znak <em>x</em> slou¾í ke okam¾itému smazání souboru s mapou. Pozor, na nic se neptá.
+</p>
+<p>
+Nìkteré pøedpøipravené terény jsou dostupné online na http://maps.simutrans.com.</p>
+<p>
+Nové soubory musí být ve formátu .ppm nebo .bmp (nejlépe 256 bareb RLE compressed) a musí mýt umístìny v adresáøi <strong>simutrans/maps/</strong>.
+</p>
+<p>
+{Tip: Ke tvorbì nových map mù¾ete pou¾ít napøíklad program gimp.}
+</p>

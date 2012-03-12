@@ -1,4 +1,4 @@
-<title>鉄道ツールヘルプ</title>
+<title>鉄道ツール</title>
 
 <h1>鉄道ツール</h1>
 

@@ -1,4 +1,4 @@
-<title>Attraction List Help</title>
+<title>Attraction List</title>
 
 <h1><strong>Attraction List</strong></h1>
 

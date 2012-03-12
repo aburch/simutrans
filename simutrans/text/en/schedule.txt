@@ -1,4 +1,4 @@
-<title>Schedule Controls Help</title>
+<title>Schedules</title>
 
 <h1><strong>Schedule Controls</strong></h1>
 

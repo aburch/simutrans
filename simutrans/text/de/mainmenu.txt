@@ -1,4 +1,4 @@
-<title>Hauptmenü Hilfe</title>
+<title>Hauptmenü</title>
 
 <h1><strong>Hauptmenü, die Buttonleiste</strong></h1>
 

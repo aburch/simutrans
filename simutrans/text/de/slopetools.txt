@@ -1,6 +1,6 @@
-<title>Geländewerkzeuge Hilfe</title>
+<title>Aufschüttungen und Böschungen</title>
 
-<h1><strong>Geländewerkzeuge Hilfe</strong></h1>
+<h1><strong>Gelände verändern</strong></h1>
 
 <p>
 Wenn eine Bahnlinie/Straße durch unwegsames Gelände geführt werden soll, empfehlen sich die Erdbewegungswerkzeuge. Sie können nur eingesetzt werden, wenn alle betroffenen Felder unbebaut sind.</p>

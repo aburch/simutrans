@@ -1,13 +1,17 @@
 <title>Speichern Menü Hilfe</title>
 
-<h1><strong>Speichern Menü</strong></h1>
+<h1><strong>Dialog Speichern</strong></h1>
 
 <p>
-Gib zum Speichern des Spielstandes einen Namen in das Textfeld ein und bestätige mit <em>ENTER</em>.
-<br/>
-Wählst Du einen bereits bestehenden Eintrag an, wird der vorhandene Spielstand ohne weitere Meldung überschrieben.
+Gib zum Speichern des Spielstandes einen Namen in das Textfeld <em>Dateiname</em> ein und bestätige mit <em>ENTER</em> oder drücke den <em>OK</em> Button.
+<br/><br/>
+<strong>Achtung:</strong> Wählst Du einen bereits bestehenden Eintrag an, wird der vorhandene Spielstand ohne weitere Meldung überschrieben.
 <br/> Autosave-Spielstände werden bei aktivierten Autosave automatisch überschrieben.
 </p>
 <p>
-<strong>Warnung!</strong> Ein Klick auf das mit X bezeichnete Feld vor dem Dateinamen führt zur umgehenden Löschung des Spielstands!
+<strong>Warnung!</strong> Ein Klick auf das mit <em>X</em> bezeichnete Feld vor dem Dateinamen führt zur umgehenden Löschung des Spielstands!<br/>
+ <em>Pak (Grafikset), Datum & Uhrzeit</em>: Geben an mit welchem pak (Grafikset) und an welchem Tag bzw. zu welcher Zeit ein Spielstand gespeichert wurde.
+</p>
+<p>
+<em>Abbrechen</em>: Schließt den Dialog ohne ein Spiel zu laden.
 </p>

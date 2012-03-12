@@ -1,4 +1,4 @@
-<title>Depo - pomoc</title>
+<title>Depo</title>
 
 <h1>Depo</h1>
 <p>

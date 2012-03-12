@@ -1,4 +1,4 @@
-<title>Nápovìda - depo</title>
+<title>Depo</title>
 <h1>Dialog depa</h1>
 
 <p>

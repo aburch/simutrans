@@ -1,0 +1,19 @@
+<title>Nápovìda - scénáø</title>
+
+
+
+<h1>Scénáø</h1>
+
+
+
+<p>
+
+Mù¾ete hrát se scénáøem - máte stanoveny cíle, je¾ musíte dosáhnout. Cílem mù¾e bıt dosáhnout urèitého poètu pøepravenıch cestující, pøipojit továrnu, mít na úètu nìjakı pøedem stanovenı finanèní obnos.
+
+</p>
+
+<p>Okno dialogu obsahuje seznam scénáøù sèetnì jejich popisu.</p>
+
+<p>Kliknutím na <em>název scénáøe</em> spustíte novou hru.</p>
+
+<p>Tlaèítkem <em>ne</em> zavøete dialog.</p>

@@ -1,4 +1,4 @@
-<title>Nápovìda - filtr seznamu stanic</title>
+<title>Filtr seznamu stanic</title>
 <h1>Filtr seznamu stanic</h1>
 
 <p>

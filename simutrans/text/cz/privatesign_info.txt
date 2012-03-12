@@ -1,0 +1,27 @@
+<title>Závora</title>
+
+
+
+<h1>závora</h1>
+
+
+
+<p>
+
+Závora umo¾òuje zakázat nebo povolit ostatním hráèùm vstup na silnici nebo ¾eleznièní tra».
+
+Je u¾iteèná k odfitrování aut veøejného hráèe, která by jinak bránila vjezdu nákladních vozidel k nákladové rampì.
+
+</p>
+
+<p>
+
+Závoru postavíte pomocí nástojù pro stavbu <a href="railtools.txt">¾eleznice</a> nebo <a href="roadtools.txt">silnice</a>.
+
+</p>
+
+<p>V levém horním rohu dialogu je napsáno, komu závora patøí.</p>
+
+<p>Zamáèklé tlaèítko pøed jménem hráèe znamená vstup povolen.</p>
+
+<p>Tip: Vozidel veøejné správy se lze zbavit kombinací závory a jednosmìrky (na výjezdu).</p>

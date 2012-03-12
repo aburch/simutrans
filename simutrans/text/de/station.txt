@@ -1,4 +1,4 @@
-<title>Haltestellenfenster Hilfe</title>
+<title>Haltestellen</title>
 
 <h1><strong>Haltestellenfenster</strong></h1>
 <p>

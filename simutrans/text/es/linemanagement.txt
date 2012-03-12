@@ -1,6 +1,6 @@
-<title>Ayuda de Administracion de Lineas</title>
+<title>Administracion de Lineas</title>
 
-<h1><strong>Ayuda de Administracion de Lineas</strong></h1>
+<h1><strong>Administracion de Lineas</strong></h1>
 
 <p>
 <strong>Administracion de Lineas</strong> muestra informacion y controles para gestionar Lineas (rutas y cantidad minima de mercancias y pasajeros que cargara el <a href="convoiinfo.txt">Convoy</a> en la parada) para uno o varios Convoys con la misma ruta.

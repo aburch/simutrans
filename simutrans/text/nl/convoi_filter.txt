@@ -1,4 +1,4 @@
-<title>Voertuigen Lijst Filter Help (Nederlands)</title>
+<title>Voertuigen Lijst Filter</title>
 
 <h1><strong>Voertuigen Lijst Filter</strong></h1>
 

@@ -1,4 +1,4 @@
-<title>Goods List Help</title>
+<title>Goods List</title>
 
 <h1><strong>Goods List</strong></h1>
 

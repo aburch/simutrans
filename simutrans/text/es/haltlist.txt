@@ -1,4 +1,4 @@
-<title>Ayuda de Lista de Estaciones</title>
+<title>Lista de Estaciones</title>
 
 <h1><strong>Lista de Estaciones</strong></h1>
 

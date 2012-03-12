@@ -1,4 +1,4 @@
-<title>Ayuda del Filtro de la Lista de Estaciones</title>
+<title>Filtro de la Lista de Estaciones</title>
 
 <h1><strong>Filtro de la Lista de Estaciones</strong></h1>
 

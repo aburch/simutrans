@@ -1,6 +1,6 @@
-<title>Fahrzeugdetailfenster Hilfe</title>
+<title>Erweiterte Fahrzeuginformationen</title>
 
-<h1><strong>Fahrzeugdetailfenster</strong></h1>
+<h1><strong>Erweiterte Fahrzeuginformationen</strong></h1>
 
 <p>
 Diese Fenster erreicht man durch Auswahl von <em>Details</em> im <a href="convoiinfo.txt">Konvoifenster</a>. Es werden weitere technische Daten angezeigt, wie z.B. der aktuelle Zeitwert.

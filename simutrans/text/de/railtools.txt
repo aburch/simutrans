@@ -1,4 +1,4 @@
-<title>Eisenbahnbau Hilfe</title>
+<title>Eisenbahnbau</title>
 
 <h1><strong>Eisenbahnbauwerkzeuge</strong></h1>
 

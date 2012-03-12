@@ -1,4 +1,4 @@
-<title>Aiuto - Ferrovie</title>
+<title>Ferrovie</title>
 
 <h1>Finestra Strumenti Ferrovie</h1>
 
