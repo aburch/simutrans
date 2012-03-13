@@ -120,13 +120,13 @@ void gui_flowtext_t::set_text(const char *text)
 				strcpy( word, "&" );
 				lead ++;
 			}
-			att = ATT_NONE;
+			att = *lead<=32 ? ATT_NONE : ATT_NO_SPACE;
 		}
 		else {
 
 			// parse a word (and obey limits)
 			att = ATT_NONE;
-			for(  int i = 0;  *lead != '<'  &&  *lead > 32  &&  i < 511  &&  *lead != '&'; i++) {
+			for(  int i = 0;  *lead != '<'  &&  (*lead > 32  ||  (i==0  &&  *lead==32))  &&  i < 511  &&  *lead != '&'; i++) {
 				if(  *lead>128  &&  translator::get_lang()->utf_encoded  ) {
 					size_t skip = 0;
 					utf16 symbol = utf8_to_utf16( lead, &skip );
@@ -137,13 +137,13 @@ void gui_flowtext_t::set_text(const char *text)
 					lead += skip;
 					i += skip;
 					if(  symbol == 0x3001  ||  symbol == 0x3002  ) {
-						att = ATT_CJK;
+						att = ATT_NO_SPACE;
 						// CJK full stop, komma, space
 						break;
 					}
 					// every CJK symbol could be used to break, so break after 10 characters
 					if(  symbol >= 0x2E80  &&  symbol <= 0xFE4F  &&  i>6  ) {
-						att = ATT_CJK;
+						att = ATT_NO_SPACE;
 						break;
 					}
 				}
@@ -152,23 +152,32 @@ void gui_flowtext_t::set_text(const char *text)
 				}
 			}
 			strncpy(word, (const char*)tail, lead - tail);
+			if(  *lead>32  &&  word[0]!=32  ) {
+				att = ATT_NO_SPACE;
+			}
 			word[lead - tail] = '\0';
+			if(  *word==0  ) {
+				// do not add empty strings
+				att = ATT_UNKNOWN;
+			}
 		}
 
-		if (att != ATT_UNKNOWN) { // only add know commands
+		if(  att != ATT_UNKNOWN  ) { // only add know commands
 			nodes.append(node_t(word, att));
 		}
 
-		// skip white spaces
-		while (*lead <= 32 && *lead > 0) {
-			lead++;
-		}
-		// skip wide spaces
-		if(  translator::get_lang()->utf_encoded  ) {
-			size_t skip = 0;
-			while(  utf8_to_utf16( lead, &skip )==0x3000  ) {
-				lead += skip;
-				skip = 0;
+		if(  att==ATT_UNKNOWN  ||  att==ATT_NONE  ||  att==ATT_NO_SPACE  ||  att==ATT_NEWLINE  ) {
+			// skip white spaces
+			while (*lead <= 32 && *lead > 0) {
+				lead++;
+			}
+			// skip wide spaces
+			if(  translator::get_lang()->utf_encoded  ) {
+				size_t skip = 0;
+				while(  utf8_to_utf16( lead, &skip )==0x3000  ) {
+					lead += skip;
+					skip = 0;
+				}
 			}
 		}
 		tail = lead;
@@ -222,7 +231,7 @@ koord gui_flowtext_t::output(koord offset, bool doit, bool return_max_width)
 	FOR(slist_tpl<node_t>, const& i, nodes) {
 		switch (i.att) {
 			case ATT_NONE:
-			case ATT_CJK: {
+			case ATT_NO_SPACE: {
 				int nxpos = xpos + proportional_string_width(i.text.c_str());
 				if(  i.att ==  ATT_NONE  ) {
 					// add trailing space
@@ -269,16 +278,21 @@ koord gui_flowtext_t::output(koord offset, bool doit, bool return_max_width)
 				break;
 
 			case ATT_A_END:
-				link->br.x = xpos - space_width;
+				link->br.x = xpos;
 				link->br.y = ypos + LINESPACE;
 
-				if (link->br.x < link->tl.x) {
-					link->tl.x = 0;
-					link->tl.y = ypos;
-				}
-
-				if (doit) {
-					display_fillbox_wh_clip(link->tl.x + offset.x, link->tl.y + offset.y + 10, link->br.x - link->tl.x, 1, color, false);
+				if(doit) {
+					if(  link->tl.y+LINESPACE==link->br.y  ) {
+						display_fillbox_wh_clip(link->tl.x + offset.x, link->tl.y + offset.y + LINESPACE-1, link->br.x - link->tl.x, 1, color, false);
+					}
+					else {
+						// more than one line
+						display_fillbox_wh_clip (link->tl.x + offset.x, link->tl.y + offset.y + LINESPACE-1, get_groesse().x - link->tl.x, 1, color, false);
+						display_fillbox_wh_clip( offset.x, link->br.y + offset.y - 1, link->br.x, 1, color, false);
+						for(  KOORD_VAL y = link->tl.y+LINESPACE;  y<link->br.y-LINESPACE;  y+=LINESPACE  ) {
+							display_fillbox_wh_clip( offset.x, y + offset.y + LINESPACE-1, get_groesse().x, 1, color, false);
+						}
+					}
 				}
 
 				++link;
@@ -294,9 +308,9 @@ koord gui_flowtext_t::output(koord offset, bool doit, bool return_max_width)
 			case ATT_H1_END:
 				color     = COL_BLACK;
 				double_it = false;
-				if (doit) {
-					display_fillbox_wh_clip(offset.x + 1, offset.y + ypos + 10 + 1, xpos - 4, 1, COL_WHITE, false);
-					display_fillbox_wh_clip(offset.x,     offset.y + ypos + 10,     xpos - 4, 1, color,     false);
+				if(doit) {
+					display_fillbox_wh_clip(offset.x + 1, offset.y + ypos + LINESPACE, xpos, 1, COL_WHITE, false);
+					display_fillbox_wh_clip(offset.x,     offset.y + ypos + LINESPACE-1,     xpos, 1, color, false);
 				}
 				xpos = 0;
 				ypos += LINESPACE;
@@ -348,10 +362,31 @@ bool gui_flowtext_t::infowin_event(const event_t* ev)
 	if (IS_LEFTCLICK(ev)) {
 		// scan links for hit
 		koord evpos = koord( ev->cx, ev->cy ) - get_pos();
-		FOR(slist_tpl<hyperlink_t>, const& i, links) {
-			if(  i.tl.x <= evpos.x  &&  evpos.x < i.br.x  &&
-					i.tl.y <= evpos.y  &&  evpos.y < i.br.y  ) {
-				call_listeners((void const*)i.param.c_str());
+		FOR(slist_tpl<hyperlink_t>, const& link, links) {
+			if(  link.tl.y+LINESPACE == link.br.y  ) {
+				if(  link.tl.x <= evpos.x  &&  evpos.x < link.br.x  &&  link.tl.y <= evpos.y  &&  evpos.y < link.br.y  ) {
+					call_listeners((void const*)link.param.c_str());
+					break;
+				}
+			}
+			else {
+				//  multi lined box => more difficult
+				if(  link.tl.x <= evpos.x  &&  evpos.x < get_groesse().x  &&  link.tl.y <= evpos.y  &&  evpos.y < link.tl.y+LINESPACE  ) {
+					// in top line
+					call_listeners((void const*)link.param.c_str());
+					break;
+				}
+				else if(  0 <= evpos.x  &&  evpos.x < link.br.x  &&  link.br.y-LINESPACE <= evpos.y  &&  evpos.y < link.br.y  ) {
+					// in last line
+					call_listeners((void const*)link.param.c_str());
+					break;
+				}
+				else if(  0 <= evpos.x  &&  evpos.x < get_groesse().x  &&  link.tl.y+LINESPACE <= evpos.y  &&  evpos.y < link.br.y-LINESPACE  ) {
+					// line in between
+					call_listeners((void const*)link.param.c_str());
+					break;
+				}
+
 			}
 		}
 	}

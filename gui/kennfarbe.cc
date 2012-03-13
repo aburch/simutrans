@@ -17,7 +17,7 @@
 
 
 farbengui_t::farbengui_t(spieler_t *sp) :
-	gui_frame_t( translator::translate("Meldung"), sp ),
+	gui_frame_t( translator::translate("Farbe"), sp ),
 	txt(&buf),
 	c1( "Your primary color:" ),
 	c2( "Your secondary color:" ),

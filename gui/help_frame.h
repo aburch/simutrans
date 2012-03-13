@@ -27,8 +27,6 @@ private:
 
 	std::string title;
 
-	const char *load_text( const char *filename );
-
 	// show the help to one topic
 	void set_helpfile(const char *filename, bool resize_frame );
 

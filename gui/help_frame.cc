@@ -37,7 +37,7 @@ void help_frame_t::open_help_on( const char *helpfilename )
 
 
 // just loads a whole help file as one chunk
-const char *help_frame_t::load_text(char const* const filename )
+static const char *load_text(char const* const filename )
 {
 	std::string file_prefix("text/");
 	std::string fullname = file_prefix + translator::get_lang()->iso + "/" + filename;
@@ -429,7 +429,7 @@ help_frame_t::help_frame_t(char const* const filename) :
 		add_helpfile( how_to_play, NULL, "industry_info.txt", false, 0 );
 		add_helpfile( how_to_play, "Spielerliste", "players.txt", false, 0 );
 		add_helpfile( how_to_play, "Finanzen", "finances.txt", false, 1 );
-		add_helpfile( how_to_play, "Meldung", "color.txt", false, 1 );
+		add_helpfile( how_to_play, "Farbe", "color.txt", false, 1 );
 		add_helpfile( how_to_play, "Enter Password", "password.txt", false, 1 );
 
 		add_helpfile( others, "Einstellungen", "options.txt", false, 0 );
