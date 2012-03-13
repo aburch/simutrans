@@ -27,6 +27,8 @@ sh ./get_lang_files.sh
 
 # now built the archive for distribution
 cd simutrans
+rm -rf text/xx
+rm text/xx.tab
 cp ../sim$simexe ./simutrans$simexe
 strip simutrans$simexe
 cd ..
