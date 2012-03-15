@@ -3558,7 +3558,7 @@ void display_set_progress_text(const char *t)
 // draws a progress bar and flushes the display
 void display_progress(int part, int total)
 {
-	const int width=disp_width/2;
+	const int width=disp_actual_width/2;
 	part = (part*width)/total;
 
 	dr_prepare_flush();
@@ -3883,6 +3883,8 @@ void simgraph_resize(KOORD_VAL w, KOORD_VAL h)
 
 			display_set_clip_wh(0, 0, disp_actual_width, disp_height);
 		}
+		memset(tile_dirty,     255, tile_buffer_length);
+		memset(tile_dirty_old, 255, tile_buffer_length);
 	}
 }
 

@@ -2,7 +2,7 @@ CFG ?= default
 -include config.$(CFG)
 
 
-BACKENDS      = allegro gdi sdl mixer_sdl posix
+BACKENDS      = allegro gdi opengl sdl mixer_sdl posix
 COLOUR_DEPTHS = 0 16
 OSTYPES       = amiga beos cygwin freebsd haiku linux mingw mac
 
@@ -426,7 +426,6 @@ ifeq ($(BACKEND),sdl)
       SDL_LDFLAGS += -mconsole
     endif
   endif
-
   CFLAGS += $(SDL_CFLAGS)
   LIBS   += $(SDL_LDFLAGS)
 endif
@@ -452,6 +451,44 @@ ifeq ($(BACKEND),mixer_sdl)
   endif
   CFLAGS += $(SDL_CFLAGS)
   LIBS   += $(SDL_LDFLAGS) -lSDL_mixer
+endif
+
+ifeq ($(BACKEND),opengl)
+  SOURCES += simsys_opengl.cc
+  CFLAGS  += -DUSE_16BIT_DIB
+  ifeq ($(OSTYPE),mac)
+    # Core Audio (Quicktime) base sound system routines
+    SOURCES += sound/core-audio_sound.mm
+    SOURCES += music/core-audio_midi.mm
+    LIBS    += -framework Foundation -framework QTKit
+  else
+    SOURCES  += sound/sdl_sound.cc
+    ifeq ($(findstring $(OSTYPE), cygwin mingw),)
+      SOURCES += music/no_midi.cc
+    else
+      SOURCES += music/w32_midi.cc
+    endif
+  endif
+  ifeq ($(SDL_CONFIG),)
+    SDL_CFLAGS  := -I$(MINGDIR)/include/SDL -Dmain=SDL_main
+    SDL_LDFLAGS := -lmingw32 -lSDLmain -lSDL
+    ifeq  ($(WIN32_CONSOLE),)
+      SDL_LDFLAGS += -mwindows
+    endif
+  else
+    SDL_CFLAGS  := $(shell $(SDL_CONFIG) --cflags)
+    SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
+    ifneq  ($(WIN32_CONSOLE),)
+      SDL_LDFLAGS += -mconsole
+    endif
+  endif
+  CFLAGS += $(SDL_CFLAGS)
+  LIBS   += $(SDL_LDFLAGS)
+  ifeq ($(OSTYPE),mingw)
+    LIBS += -lopengl32
+  else
+    LIBS += -lGL
+  endif
 endif
 
 ifeq ($(BACKEND),posix)
