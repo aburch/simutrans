@@ -265,14 +265,14 @@ int dr_os_open(int w, int const h, int const fullscreen)
 	height = h;
 
 	flags |= (fullscreen ? SDL_FULLSCREEN : SDL_RESIZABLE);
-    flags |= SDL_OPENGL;
+	flags |= SDL_OPENGL;
 
-    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
-    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 5);
-    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
+	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
+	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 5);
+	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
 
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
 	// open the window now
 	screen = SDL_SetVideoMode(w, h, COLOUR_DEPTH, flags);
@@ -315,24 +315,26 @@ void dr_os_close()
 	// SDL_FreeSurface(screen);
 }
 
+
 /**
  * Creates a OpenGL texture, referenced bt gl_texture, sized as tex_w x tex_h, using 16-bit depth.
  */
-static void create_gl_texture() {
+static void create_gl_texture()
+{
+	glGenTextures(1, &gl_texture);
 
-    glGenTextures(1, &gl_texture);
+	glBindTexture(GL_TEXTURE_2D, gl_texture);
 
-    glBindTexture(GL_TEXTURE_2D, gl_texture);
+	// No mipmapping
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    // No mipmapping
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, texture->pitch / texture->format->BytesPerPixel);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, texture->format->BytesPerPixel);
+	glPixelStorei(GL_UNPACK_ROW_LENGTH, texture->pitch / texture->format->BytesPerPixel);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, texture->format->BytesPerPixel);
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex_w, tex_h, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, texture->pixels);
 }
+
 
 /**
  * Re-inits our surfaces and textures.
@@ -373,8 +375,8 @@ int dr_textur_resize(unsigned short** const textur, int w, int const h)
 		}
 		fflush(NULL);
 
-		if (gl_texture != 0) {
-            glDeleteTextures(1, &gl_texture);
+		if (gl_texture != 0)  {
+			glDeleteTextures(1, &gl_texture);
 		}
 
 		glEnable(GL_TEXTURE_2D);
@@ -386,16 +388,16 @@ int dr_textur_resize(unsigned short** const textur, int w, int const h)
 	return tex_w;
 }
 
+
 /**
  * Allocates and creates the initial buffers (RGBSurface and OpenGL texture)
  * @return Pointer to the newly allocated buffer
  */
 unsigned short *dr_textur_init()
 {
-
 	texture = SDL_CreateRGBSurface(SDL_SWSURFACE, tex_w, tex_h, COLOUR_DEPTH, RMASK, GMASK, BMASK, AMASK);
 
-    create_gl_texture();
+	create_gl_texture();
 
 	return (unsigned short*)texture->pixels;
 }
@@ -421,9 +423,9 @@ void dr_prepare_flush()
 
 void dr_flush(void)
 {
-    glViewport(0, 0, screen->w, screen->h);
+	glViewport(0, 0, screen->w, screen->h);
 
-    glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT);
 
 	display_flush_buffer();
 
@@ -445,14 +447,14 @@ void dr_flush(void)
 	SDL_GL_SwapBuffers();
 
 #ifdef DEBUG
-    {
-      GLboolean residence;
-      glAreTexturesResident (1,&gl_texture,&residence);
+	{
+		GLboolean residence;
+		glAreTexturesResident (1,&gl_texture,&residence);
 
-      if (!residence){
-        fprintf(stderr,"Texture is not in the VRAM, expect poor performance!\n");
-      }
-    }
+		if (!residence){
+			fprintf(stderr,"Texture is not in the VRAM, expect poor performance!\n");
+		}
+	}
 #endif
 
 }
@@ -472,11 +474,11 @@ void dr_textur(int xp, int yp, int w, int h)
 	if(  w*h>0  )
 #endif
 	{
-	    // Get start of first row of pixels
-	    unsigned short *first_row = (unsigned short *)(((unsigned char *)texture->pixels) + yp * texture->pitch);
+		// Get start of first row of pixels
+		unsigned short *first_row = (unsigned short *)(((unsigned char *)texture->pixels) + yp * texture->pitch);
 
-	    glPixelStorei(GL_UNPACK_ROW_LENGTH, texture->pitch / texture->format->BytesPerPixel);
-        glPixelStorei(GL_UNPACK_ALIGNMENT, texture->format->BytesPerPixel);
+		glPixelStorei(GL_UNPACK_ROW_LENGTH, texture->pitch / texture->format->BytesPerPixel);
+		glPixelStorei(GL_UNPACK_ALIGNMENT, texture->format->BytesPerPixel);
 
 		glTexSubImage2D(GL_TEXTURE_2D, 0, xp, yp, w, h, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, first_row + xp);
 	}
