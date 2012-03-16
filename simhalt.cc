@@ -1342,8 +1342,11 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 		}
 
 		FOR(vector_tpl<connection_t>, const& current_conn, current_node.halt->connections[ware_catg_idx]) {
-			// since these are precalculated, they should be always pointing to a valid ground
-			// (if not, we were just under construction, and will be fine after 16 steps)
+
+			if(  !current_conn.halt.is_bound()  ) {
+				continue;
+			}
+
 			const uint16 reachable_halt_id = current_conn.halt.get_id();
 
 			const bool overcrowded_transfer = no_routing_over_overcrowding  &&  (current_halt_data.overcrowded  ||  current_conn.halt->is_overcrowded(ware_catg_idx) );
