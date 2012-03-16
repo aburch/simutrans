@@ -17,7 +17,7 @@ cbuffer_t grund_info_t::gr_info;
 
 
 grund_info_t::grund_info_t(const grund_t* gr_) :
-gui_frame_t( "", NULL),
+	gui_frame_t( translator::translate(gr_->get_name()), NULL),
 	gr(gr_),
 	view(gr_->get_welt(), gr_->get_pos(), koord( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width()*7)/8) )),
 	textarea(&gr_info, 170 + view.get_groesse().x, view.get_groesse() + koord(10, 10))
