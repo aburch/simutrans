@@ -680,12 +680,12 @@ void loadsave_t::rdwr_str(const char *&s)
 
 
 // read a string into a preallocated buffer
-void loadsave_t::rdwr_str(char* s, size_t const size)
+void loadsave_t::rdwr_str( char* result_buffer, size_t const size)
 {
 	if(!is_xml()) {
 		uint16 len;
 		if(saving) {
-			len = (uint16)min(32767,strlen(s));
+			len = (uint16)min(32767,strlen(result_buffer));
 #ifdef SIM_BIG_ENDIAN
 			{
 				sint16 ii = endian(len);
@@ -694,7 +694,7 @@ void loadsave_t::rdwr_str(char* s, size_t const size)
 #else
 			write(&len, sizeof(uint16));
 #endif
-			write(s, len);
+			write(result_buffer, len);
 		}
 		else {
 			read(&len, sizeof(uint16));
@@ -702,12 +702,13 @@ void loadsave_t::rdwr_str(char* s, size_t const size)
 			if(  len >= size) {
 				dbg->fatal( "loadsave_t::rdwr_str()","string longer (%i) than allowed size (%i)", len, size );
 			}
-			read(s, len);
-			s[len] = '\0';
+			read(result_buffer, len);
+			result_buffer[len] = '\0';
 		}
 	}
 	else {
 		// use CDATA tag: <![CDATA[%s]]>
+		char *s = result_buffer;
 		if(saving) {
 			write( "                                                                ", min(64,ident) );
 			write( "<![CDATA[", 9 );
@@ -754,32 +755,18 @@ void loadsave_t::rdwr_str(char* s, size_t const size)
 				}
 			}
 			else {
-				char last_three_chars[4];
-				sint8 len = 0;	// maximum is three
-				for(  size_t i=0;  i<size;  ) {
-					char c = lsgetc();
-					if(  c==']'  &&  (  len==0  ||  (len==1  &&  last_three_chars[0] == ']') )  ) {
-						last_three_chars[len++] = c;
-					}
-					else if(  c=='>'  &&  len==2  ) {
-						len ++;
-						break;
-					}
-					else {
-						// evt. add closing brackets
-						while(  len-->0  ) {
-							*s++ = ']';
-							i ++;
-						}
-						len = 0;
-						*s++ = c;
-						i++;
+				char temp[32767];
+				char *s = temp;
+				for(  size_t i=0;  i<size+3;  i++  ) {
+					*s++ = lsgetc();
+					if(  i>=2  &&  strstart(s-3,"]]>")  ) {
+						s[-3] = 0;
+						strcpy( result_buffer, temp );
+						return;
 					}
 				}
 				*s = 0;
-				if(  len!=3  ) {
-					dbg->fatal( "loadsave_t::rdwr_str()","string too long (exceeded %i characters)", size );
-				}
+				dbg->fatal( "loadsave_t::rdwr_str()","string too long (exceeded %i characters)", size );
 			}
 		}
 	}
