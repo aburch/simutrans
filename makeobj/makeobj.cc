@@ -20,10 +20,8 @@ int main(int argc, char* argv[])
 	if (argc && !STRICMP(argv[0], "quiet")) {
 		argv++, argc--;
 	} else {
-		puts(
-			"\nMakeobj version " MAKEOBJ_VERSION " for Simutrans " VERSION_NUMBER " and higher\n"
-			"(c) 2002-2006 V. Meyer, Hj. Malthaner, M. Pristovsek (markus@pristovsek.de)\n"
-		);
+		puts( "\nMakeobj version " MAKEOBJ_VERSION " for Simutrans " VERSION_NUMBER " and higher\n" );
+		puts( "(c) 2002-2012 V. Meyer, Hj. Malthaner, M. Pristovsek & Simutrans development team\n" );
 	}
 
 	if (argc && !STRICMP(argv[0], "capabilities")) {
