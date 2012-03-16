@@ -480,7 +480,10 @@ void pumpe_t::laden_abschliessen()
 
 	if(fab==NULL  &&  get_net()) {
 		fab = leitung_t::suche_fab_4(get_pos().get_2d());
-		fab->set_transformer_connected( true );
+		if(  fab  ) {
+			// only add when factory there
+			fab->set_transformer_connected( true );
+		}
 	}
 	pumpe_list.insert( this );
 

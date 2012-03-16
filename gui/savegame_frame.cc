@@ -31,8 +31,7 @@
 #define DIALOG_WIDTH (488)
 
 
-savegame_frame_t::savegame_frame_t(const char *suffix, const char *path, bool only_directories ) :
-gui_frame_t( translator::translate("Load/Save") ),
+savegame_frame_t::savegame_frame_t(const char *suffix, const char *path, bool only_directories ) : gui_frame_t( translator::translate("Load/Save") ),
 	input(),
 	fnlabel("Filename"),
 	scrolly(&button_frame)

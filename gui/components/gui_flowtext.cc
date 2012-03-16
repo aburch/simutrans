@@ -319,7 +319,7 @@ koord gui_flowtext_t::output(koord offset, bool doit, bool return_max_width)
 				color        = COL_WHITE;
 				double_color = COL_BLACK;
 				double_it    = true;
-				sbreak;
+				break;
 
 			case ATT_H1_END:
 				color     = COL_BLACK;
