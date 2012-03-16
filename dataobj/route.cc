@@ -491,7 +491,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
  * corrected 12/2005 for station search
  * @author Hansjörg Malthaner, prissi
  */
-bool route_t::calc_route(karte_t *welt, const koord3d ziel, const koord3d start, fahrer_t *fahr, const sint32 max_khm, sint32 max_len )
+route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d ziel, const koord3d start, fahrer_t *fahr, const sint32 max_khm, sint32 max_len )
 {
 	route.clear();
 
@@ -513,7 +513,7 @@ DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x
 		// no route found
 		route.resize(1);
 		route.append(start); // just to be safe
-		return false;
+		return no_route;
 	}
 	// advance so all convoi fits into a halt (only set for trains and cars)
 	else if(  max_len>1  ) {
@@ -523,8 +523,8 @@ DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x
 		if(  halt.is_bound()  ) {
 
 			// first: find out how many tiles I am already in the station
-			max_len--;
-			for (size_t i = route.get_count(); i-- != 0 && max_len != 0 && halt == haltestelle_t::get_halt(welt, route[i], NULL); --max_len) {}
+			for(  size_t i = route.get_count();  i-- != 0  &&  max_len != 0  &&  halt == haltestelle_t::get_halt(welt, route[i], NULL);  --max_len) {
+			}
 
 			// and now go forward, if possible
 			if(  max_len>0  ) {
@@ -546,10 +546,14 @@ DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x
 					route.append(gr->get_pos());
 					max_len--;
 				}
+				// station too short => warning!
+				if(  max_len>0  ) {
+					return valid_route_halt_too_short;
+				}
 			}
 		}
 	}
-	return true;
+	return valid_route;
 }
 
 

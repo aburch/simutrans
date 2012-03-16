@@ -36,6 +36,8 @@ private:
 	koord3d_vector_t route;           // Die Koordinaten fuer die Fahrtroute
 
 public:
+	typedef enum { no_route=0, valid_route=1, valid_route_halt_too_short=3 } route_result_t;
+
 	// this class save the nodes during route search
 	class ANode {
 	public:
@@ -79,7 +81,6 @@ public:
 
 	uint32 index_of(const koord3d k) const { return (uint32)(route.index_of(k)); }
 
-
 	/**
 	 * @return Koordinate an index n
 	 * @author Hj. Malthaner
@@ -116,12 +117,7 @@ public:
 	 * fügt k hinten in die route ein
 	 * @author prissi
 	 */
-	inline void append(koord3d k)
-	{
-		route.append(k);
-	}
-
-
+	inline void append(koord3d k) { route.append(k); }
 
 	/**
 	 * removes all tiles from the route
@@ -152,7 +148,7 @@ public:
 	 * berechnet eine route von start nach ziel.
 	 * @author Hj. Malthaner
 	 */
-	bool calc_route(karte_t *welt, koord3d start, koord3d ziel, fahrer_t *fahr, const sint32 max_speed_kmh, sint32 max_tile_len );
+	route_result_t calc_route(karte_t *welt, koord3d start, koord3d ziel, fahrer_t *fahr, const sint32 max_speed_kmh, sint32 max_tile_len );
 
 	/**
 	 * Lädt/speichert eine Route

@@ -1782,7 +1782,13 @@ bool automobil_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, rout
 		}
 	}
 	target_halt = halthandle_t();	// no block reserved
-	return route->calc_route(welt, start, ziel, this, max_speed, cnv->get_tile_length() );
+	route_t::route_result_t r = route->calc_route(welt, start, ziel, this, max_speed, cnv->get_tile_length() );
+	if(  r == route_t::valid_route_halt_too_short  ) {
+		cbuffer_t buf;
+		buf.printf( translator::translate("Vehicle %s cannot choose because stop too short!"), cnv->get_name());
+		welt->get_message()->add_message( (const char *)buf, ziel.get_2d(), message_t::traffic_jams, PLAYER_FLAG | cnv->get_besitzer()->get_player_nr(), cnv->front()->get_basis_bild() );
+	}
+	return r;
 }
 
 
@@ -1921,11 +1927,6 @@ bool automobil_t::choose_route( int &restart_speed, ribi_t::dir richtung, uint16
 				}
 				else {
 					// if this is the original stop, it is too short!
-					if(  original_route  &&  can_go_there  ) {
-						cbuffer_t buf;
-						buf.printf( translator::translate("Vehicle %s cannot choose because stop too short!"), cnv->get_name());
-						welt->get_message()->add_message( (const char *)buf, cnv->get_pos().get_2d(), message_t::warnings, PLAYER_FLAG | cnv->get_besitzer()->get_player_nr(), cnv->front()->get_basis_bild() );
-					}
 					can_go_there |= original_route;
 				}
 			}
