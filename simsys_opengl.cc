@@ -104,6 +104,7 @@ static int tex_w,tex_h;
 static float x_max_coord;
 static float y_max_coord;
 
+
 /**
  * Returns the lowest pot (power of two) number higher to the parameter passed
  * @param number the number to approx to
@@ -118,6 +119,7 @@ static int closest_pot(const int number){
 
 	return result;
 }
+
 
 /**
  * resizes texture size to the viewport one
@@ -137,6 +139,7 @@ static void update_tex_dims(){
 		y_max_coord= (float)screen->h/(float)tex_h;
 	}
 }
+
 
 /**
  * Checks if the GL_ARB_texture_non_power_of_two extension is present, and sets the global variable npot_able.
@@ -170,6 +173,7 @@ static void check_for_npot(){
 	}
 }
 
+
 /**
  * Detects the biggest texture the system supports, and sets tex_max_size
  */
@@ -190,10 +194,32 @@ static void check_max_texture_size(){
 	curr_width=curr_width>>1;
 	tex_max_size=curr_width;
 
-	fprintf(stderr, "Renderer supports textures up to %dx%d .\n",curr_width,curr_width);
-	DBG_MESSAGE("check_max_texture_size(OpenGL)", "Renderer supports textures up to %dx%d .\n",curr_width,curr_width);
-
+	fprintf(stderr, "Renderer supports textures up to %dx%d.\n",curr_width,curr_width);
+	DBG_MESSAGE("check_max_texture_size(OpenGL)", "Renderer supports textures up to %dx%d",curr_width,curr_width);
 }
+
+
+/**
+ * Detects if we have hardware acceleration available or not
+ */
+static bool check_hardware_accelerated(){
+
+	int result;
+	const GLubyte* vendor = glGetString(GL_VENDOR);
+
+	SDL_GL_GetAttribute(SDL_GL_ACCELERATED_VISUAL,&result);
+
+	if (result==1){
+		fprintf(stderr, "Hardware acceleration available, vendor: %s.\n",vendor);
+		DBG_MESSAGE("check_hardware_accelerated(OpenGL)", "Hardware acceleration available, vendor: %s",vendor);
+	}
+	else{
+		fprintf(stderr, "Hardware acceleration NOT available, vendor: %s.\n",vendor);
+		DBG_MESSAGE("check_hardware_accelerated(OpenGL)", "Hardware acceleration NOT available, vendor: %s",vendor);
+	}
+	return result==1;
+}
+
 
 /*
  * Hier sind die Basisfunktionen zur Initialisierung der
@@ -283,7 +309,7 @@ int dr_os_open(int w, int const h, int const fullscreen)
 	else {
 		fprintf(stderr, "Screen Flags: requested=%x, actual=%x\n", flags, screen->flags);
 	}
-	DBG_MESSAGE("dr_os_open(SDL)", "SDL realized screen size width=%d, height=%d (requested w=%d, h=%d)", screen->w, screen->h, w, h);
+	DBG_MESSAGE("dr_os_open(OpenGL)", "SDL realized screen size width=%d, height=%d (requested w=%d, h=%d)", screen->w, screen->h, w, h);
 
 	SDL_EnableUNICODE(true);
 	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
@@ -298,6 +324,11 @@ int dr_os_open(int w, int const h, int const fullscreen)
 
 	check_for_npot();
 	check_max_texture_size();
+	if (!check_hardware_accelerated()){
+		DBG_MESSAGE("dr_os_open(OpenGL)", "No hardware renderer available, exiting...");
+		fprintf(stderr, "No hardware renderer available, exiting...");
+		return 0;
+	}
 
 	update_tex_dims();
 
