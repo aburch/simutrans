@@ -41,6 +41,8 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	tstrncpy( fabname, fab->get_name(), lengthof(fabname) );
 	gui_frame_t::set_name( fabname );
 
+	const sint16 total_width = D_MARGIN_LEFT + 3*(D_BUTTON_WIDTH + D_H_SPACE) + max( D_BUTTON_WIDTH, view.get_groesse().x ) + D_MARGIN_RIGHT;
+
 	input.set_pos(koord(D_MARGIN_LEFT,D_MARGIN_TOP));
 	input.set_text( fabname, lengthof(fabname) );
 	input.add_listener(this);
@@ -83,7 +85,7 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	scrolly.set_show_scroll_x(false);
 	add_komponente(&scrolly);
 
-	set_min_windowsize(koord(D_DEFAULT_WIDTH, 16+offset_below_viewport+D_BUTTON_HEIGHT+D_MARGIN_TOP+LINESPACE*3+D_MARGIN_BOTTOM+D_TITLEBAR_HEIGHT));
+	set_min_windowsize(koord(total_width, 16+offset_below_viewport+D_BUTTON_HEIGHT+D_MARGIN_TOP+LINESPACE*3+D_MARGIN_BOTTOM+D_TITLEBAR_HEIGHT));
 	gui_frame_t::set_fenstergroesse(koord(D_DEFAULT_WIDTH, scrolly.get_pos().y+fab_info.get_pos().y+fab_info.get_groesse().y+D_TITLEBAR_HEIGHT ));
 
 	set_resizemode(diagonal_resize);

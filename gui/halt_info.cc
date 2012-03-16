@@ -90,7 +90,7 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt) :
 	halt->set_sortby( umgebung_t::default_sortmode );
 
 	const sint16 offset_below_viewport = 21 + view.get_groesse().y;
-	const sint16 total_width = 3*(D_BUTTON_WIDTH + D_H_SPACE) + max(D_BUTTON_WIDTH + 2*D_H_SPACE, view.get_groesse().x + 32);
+	const sint16 total_width = D_MARGIN_LEFT + 3*(D_BUTTON_WIDTH + D_H_SPACE) + max( D_BUTTON_WIDTH, view.get_groesse().x ) + D_MARGIN_RIGHT;
 
 	input.set_pos(koord(10,4));
 	tstrncpy(edit_name, halt->get_name(), lengthof(edit_name));
