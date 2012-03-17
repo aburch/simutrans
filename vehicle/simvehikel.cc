@@ -2348,6 +2348,7 @@ bool waggon_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t
 		uint16 dummy;
 		block_reserver(cnv->get_route(), cnv->back()->get_route_index(), dummy, dummy, target_halt.is_bound() ? 100000 : 1, false, true);
 	}
+	cnv->set_next_reservation_index( 0 );	// nothing to reserve
 	target_halt = halthandle_t();	// no block reserved
 	// use length 8888 tiles to advance to the end of all stations
 	return route->calc_route(welt, start, ziel, this, max_speed, 8888 /*cnv->get_tile_length()*/ );
@@ -2852,11 +2853,16 @@ bool waggon_t::block_reserver(const route_t *route, uint16 start_index, uint16 &
 	slist_tpl<grund_t *> signs;	// switch all signals on their way too ...
 
 	if(start_index>=route->get_count()) {
+		cnv->set_next_reservation_index( max(route->get_count(),1)-1 );
 		return 0;
 	}
 
 	if(route->position_bei(start_index)==get_pos()  &&  reserve) {
 		start_index++;
+	}
+
+	if(  !reserve  ) {
+		cnv->set_next_reservation_index( start_index );
 	}
 
 	// find next blocksegment enroute
