@@ -5959,39 +5959,14 @@ bool wkz_rename_t::init(karte_t* const welt, spieler_t *sp)
 }
 
 
-/* send message to the message queue
+/*
+ * Add a message to the message queue
  */
-bool wkz_add_message_t::init( karte_t *welt, spieler_t *sp )
+bool wkz_add_message_t::init (karte_t* welt, spieler_t*)
 {
-	if(  *default_param  ) {
-		if(  sp  ) {
-			/*if(  umgebung_t::add_player_name_to_message  ) { */
-			welt->get_message()->add_message( default_param, koord::invalid, message_t::chat, PLAYER_FLAG|sp->get_player_nr(), IMG_LEER );
-		}
-		else {
-			// chat message if first character is '[' otherwise
-			// system message (will not be save on server and will not appear on new clients)
-			uint16 what = default_param  &&  default_param[0]=='[' ? message_t::chat : message_t::general | message_t::local_flag;
-			welt->get_message()->add_message( default_param, koord::invalid, what, what != message_t::chat ? COL_BLACK : COL_WHITE, IMG_LEER );
-		}
+	if (  *default_param  ) {
+		// Local message, not stored by server
+		welt->get_message()->add_message( default_param, koord::invalid, message_t::general | message_t::local_flag, COL_BLACK, IMG_LEER );
 	}
 	return false;
-}
-
-char const* wkz_add_message_t::get_default_param(spieler_t *sp) const
-{
-	static cbuffer_t buf;
-	if (sp == NULL) {
-		// do not transmit leading ['s
-		const char *ptr = default_param;
-		while (*ptr == '[') ptr++;
-		return ptr;
-	}
-	buf.clear();
-	const char *nick = umgebung_t::nickname.c_str();
-	if (strlen(nick)==0) {
-		nick = sp->get_name();
-	}
-	buf.printf("[%s]\n%s", nick, default_param);
-	return buf;
 }

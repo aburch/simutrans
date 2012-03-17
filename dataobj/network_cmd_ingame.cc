@@ -12,10 +12,12 @@
 #include "../simsys.h"
 #include "../simversion.h"
 #include "../simwin.h"
+#include "../simmesg.h"
 #include "../dataobj/umgebung.h"
 #include "../player/simplay.h"
 #include "../gui/player_frame_t.h"
 #include "../utils/cbuffer_t.h"
+#include "../utils/csv.h"
 
 
 network_command_t* network_command_t::read_from_packet(packet_t *p)
@@ -30,6 +32,7 @@ network_command_t* network_command_t::read_from_packet(packet_t *p)
 	switch (p->get_id()) {
 		case NWC_GAMEINFO:    nwc = new nwc_gameinfo_t(); break;
 		case NWC_NICK:	      nwc = new nwc_nick_t(); break;
+		case NWC_CHAT:	      nwc = new nwc_chat_t(); break;
 		case NWC_JOIN:	      nwc = new nwc_join_t(); break;
 		case NWC_SYNC:        nwc = new nwc_sync_t(); break;
 		case NWC_GAME:        nwc = new nwc_game_t(); break;
@@ -134,7 +137,7 @@ bool nwc_nick_t::execute(karte_t *welt)
 			socket_info_t& info = socket_list_t::get_client(i);
 			if ( (info.state == socket_info_t::playing  ||  i==0)
 				&&  i != client_id
-				&&  nickname == info.nickname.c_str())
+				&&  (nickname == info.nickname.c_str()  ||  nickname == "Admin")  )
 			{
 				goto generate_default_nick;
 			}
@@ -173,6 +176,15 @@ void nwc_nick_t::server_tools(karte_t *welt, uint32 client_id, uint8 what, const
 			// welcome message
 			buf.printf(translator::translate("Welcome, %s!", welt->get_settings().get_name_language_id()),
 				   info.nickname.c_str());
+
+			// Log chat message - please don't change order of fields
+			CSV_t csv;
+			csv.add_field( "connect" );
+			csv.add_field( client_id );
+			csv.add_field( info.address.get_str() );
+			csv.add_field( info.nickname.c_str() );
+			dbg->warning( "__ChatLog__", "%s", csv.get_str() );
+
 			break;
 		}
 		case CHANGE_NICK: {
@@ -182,6 +194,16 @@ void nwc_nick_t::server_tools(karte_t *welt, uint32 client_id, uint8 what, const
 			// change nickname
 			buf.printf(translator::translate("%s now known as %s.", welt->get_settings().get_name_language_id()),
 				   info.nickname.c_str(), nick);
+
+			// Log chat message - please don't change order of fields
+			CSV_t csv;
+			csv.add_field( "namechange" );
+			csv.add_field( client_id );
+			csv.add_field( info.address.get_str() );
+			csv.add_field( info.nickname.c_str() );
+			csv.add_field( nick );
+			dbg->warning( "__ChatLog__", "%s", csv.get_str() );
+
 			info.nickname = nick;
 
 			if (client_id > 0) {
@@ -198,6 +220,15 @@ void nwc_nick_t::server_tools(karte_t *welt, uint32 client_id, uint8 what, const
 		case FAREWELL: {
 			buf.printf(translator::translate("%s has left.", welt->get_settings().get_name_language_id()),
 				   info.nickname.c_str());
+
+			// Log chat message - please don't change order of fields
+			CSV_t csv;
+			csv.add_field( "disconnect" );
+			csv.add_field( client_id );
+			csv.add_field( info.address.get_str() );
+			csv.add_field( info.nickname.c_str() );
+			dbg->warning( "__ChatLog__", "%s", csv.get_str() );
+
 			break;
 		}
 		default: return;
@@ -210,6 +241,135 @@ void nwc_nick_t::server_tools(karte_t *welt, uint32 client_id, uint8 what, const
 	// since init always returns false, it is save to delete immediately
 	delete w;
 }
+
+
+void nwc_chat_t::rdwr()
+{
+	network_command_t::rdwr();
+	packet->rdwr_str( message );
+	packet->rdwr_byte( player_nr );
+	packet->rdwr_str( clientname );
+	packet->rdwr_str( destination );
+
+	dbg->warning("nwc_chat_t::rdwr", "rdwr message=%s plnr=%d clientname=%s destination=%s", message.c_str(), player_nr, clientname.c_str(), destination.c_str());
+}
+
+
+void nwc_chat_t::add_message (karte_t* welt) const
+{
+	dbg->warning("nwc_chat_t::add_message", "");
+	cbuffer_t buf;  // Output which will be printed to chat window
+
+	PLAYER_COLOR_VAL color = player_nr < PLAYER_UNOWNED  ?  welt->get_spieler( player_nr )->get_player_color1()  :  COL_WHITE;
+	uint16 flag = message_t::chat;
+
+	if (  destination == NULL  ) {
+		if (  player_nr < PLAYER_UNOWNED  ) {
+			buf.printf( "%s <%s>: %s", clientname.c_str(), welt->get_spieler( player_nr )->get_name(), message.c_str() );
+		}
+		else {
+			buf.printf( "%s: %s", clientname.c_str(), message.c_str() );
+		}
+	}
+	else {
+		// Whisper, do not store message in savegame
+		flag |= message_t::local_flag;
+		if (  player_nr < PLAYER_UNOWNED  ) {
+			buf.printf( "%s <%s> --> %s: %s", clientname.c_str(), welt->get_spieler( player_nr )->get_name(), destination.c_str(), message.c_str() );
+		}
+		else {
+			buf.printf( "%s --> %s: %s", clientname.c_str(), destination.c_str(), message.c_str() );
+		}
+	}
+	welt->get_message()->add_message( buf.get_str(), koord::invalid, flag, color, IMG_LEER );
+}
+
+
+bool nwc_chat_t::execute (karte_t* welt)
+{
+	if (  message == NULL  ) {
+		dbg->warning("nwc_chat_t::execute", "null message");
+		return true;
+	}
+
+
+	// Relay message to all listening clients
+	if (  umgebung_t::server  ) {
+		uint32 client_id = socket_list_t::get_client_id( packet->get_sender() );
+
+		dbg->warning("nwc_chat_t::execute", "server, client id: %d", client_id);
+
+		// Invalid client_id means this is a message from the server to itself
+		if (  !socket_list_t::is_valid_client_id( client_id )  ) {
+			// Act on message as if we are a client
+			add_message(welt);
+			return true;
+		}
+
+		// Clients can only send messages as companies they have unlocked
+		if (  player_nr < PLAYER_UNOWNED  &&  !socket_list_t::get_client( client_id ).is_player_unlocked( player_nr )  ) {
+			dbg->warning("nwc_chat_t::execute", "attempt to send message as locked company by client %d, redirecting to PLAYER_UNOWNED", client_id);
+			player_nr = PLAYER_UNOWNED;
+		}
+
+		// Otherwise forward message as appropriate
+		socket_info_t &info = socket_list_t::get_client( client_id );
+
+		nwc_chat_t* nwchat = new nwc_chat_t( message, player_nr, info.nickname.c_str(), destination );
+
+		if (  destination == NULL  ) {
+			network_send_all( nwchat, false );
+
+			// Log chat message - please don't change order of fields
+			CSV_t csv;
+			csv.add_field( "chat" );
+			csv.add_field( client_id );
+			csv.add_field( info.address.get_str() );
+			csv.add_field( info.nickname.c_str() );
+			csv.add_field( player_nr );
+			csv.add_field( player_nr < PLAYER_UNOWNED ? welt->get_spieler( player_nr )->get_name() : "" );
+			csv.add_field( message.c_str() );
+			dbg->warning( "__ChatLog__", "%s", csv.get_str() );
+		}
+		else {
+			// Send to a specific client
+			// Look up a client with a matching name, if none matches
+			// send a message back saying that client doesn't exist
+
+			// Check if destination nick exists
+			for (  uint32 i = 0;  i < socket_list_t::get_count();  i++  ) {
+				socket_info_t& dest_info = socket_list_t::get_client(i);
+				if (  (dest_info.state == socket_info_t::playing  ||  i == 0  )
+					&&  i != client_id
+					&&  destination == dest_info.nickname.c_str()  )
+				{
+					nwchat->send( dest_info.socket );
+				}
+			}
+
+			// TODO also send a copy back to sending client for logging
+
+			delete nwchat;
+
+			// Log chat message - please don't change order of fields
+			CSV_t csv;
+			csv.add_field( "private" );
+			csv.add_field( client_id );
+			csv.add_field( info.address.get_str() );
+			csv.add_field( info.nickname.c_str() );
+			csv.add_field( player_nr );
+			csv.add_field( player_nr < PLAYER_UNOWNED ? welt->get_spieler( player_nr )->get_name() : "" );
+			csv.add_field( destination.c_str() );
+			csv.add_field( message.c_str() );
+			dbg->warning( "__ChatLog__", "%s", csv.get_str() );
+		}
+	}
+	else {
+		add_message(welt);
+	}
+	return true;
+}
+
 
 
 SOCKET nwc_join_t::pending_join_client = INVALID_SOCKET;
@@ -1079,14 +1239,16 @@ bool nwc_service_t::execute(karte_t *welt)
 
 		case SRVC_ADMIN_MSG:
 			if (text) {
-				// add message via tool
-				cbuffer_t buf;
-				buf.printf(translator::translate("[Admin] %s", welt->get_settings().get_name_language_id()), text);
-				werkzeug_t *w = create_tool( WKZ_ADD_MESSAGE_TOOL | SIMPLE_TOOL );
-				w->set_default_param( buf );
-				welt->set_werkzeug( w, NULL );
-				// since init always returns false, it is save to delete immediately
-				delete w;
+				// Send message to all clients as Public Service
+				// with reserved username Admin
+				nwc_chat_t* nwchat = new nwc_chat_t( text, 1, "Admin" );
+				network_send_all( nwchat, false );
+
+				// Log chat message - please don't change order of fields
+				CSV_t csv;
+				csv.add_field( "adminmsg" );
+				csv.add_field( text );
+				dbg->warning( "__ChatLog__", "%s", csv.get_str() );
 			}
 			break;
 

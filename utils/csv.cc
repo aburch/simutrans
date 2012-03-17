@@ -105,6 +105,13 @@ int CSV_t::get_lines () const
 	return lines;
 }
 
+void CSV_t::add_field (int newfield)
+{
+	char tmp[32];
+	sprintf( tmp, "%i", newfield );
+	add_field( tmp );
+}
+
 void CSV_t::add_field (const char *newfield)
 {
 	// Add comma if this isn't the first field on a line

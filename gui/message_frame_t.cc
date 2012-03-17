@@ -14,6 +14,8 @@
 #include "message_frame_t.h"
 #include "../simmesg.h"
 #include "message_option_t.h"
+#include "../dataobj/network_cmd_ingame.h"
+#include "../player/simplay.h"
 
 
 #include "components/action_listener.h"
@@ -111,12 +113,10 @@ bool message_frame_t::action_triggered( gui_action_creator_t *komp, value_t v )
 		create_win(320, 200, new message_option_t(welt), w_info, magic_message_options );
 	}
 	else if(  komp==&input  &&  ibuf[0]!=0  ) {
-		// add message via tool!
-		werkzeug_t *w = create_tool( WKZ_ADD_MESSAGE_TOOL | SIMPLE_TOOL );
-		w->set_default_param( ibuf );
-		welt->set_werkzeug( w, welt->get_active_player() );
-		// since init always returns false, it is save to delete immediately
-		delete w;
+		// Send chat message to server for distribution
+		nwc_chat_t* nwchat = new nwc_chat_t( ibuf, welt->get_active_player()->get_player_nr() );
+		network_send_server( nwchat );
+
 		ibuf[0] = 0;
 		set_focus(&input);
 	}

@@ -142,6 +142,11 @@ public:
 	void add_field(const char *);
 
 	/*
+	 * Add a field to the current line (number)
+	 */
+	void add_field(int);
+
+	/*
 	 * Terminate a line of CSV data, and move to the next line
 	 */
 	void new_line();

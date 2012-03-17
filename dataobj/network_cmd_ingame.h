@@ -62,6 +62,32 @@ private:
 	nwc_nick_t& operator=(const nwc_nick_t&);
 };
 
+/**
+ * nwc_chat_t
+ * @from-client: client sends chat message to server
+ *               server logs message and sends it to all clients
+ * @from-server: server sends a chat message for display on the client
+ * @author Timothy Baldock <tb@entropy.me.uk>
+ */
+class nwc_chat_t : public network_command_t {
+public:
+	nwc_chat_t (const char* msg = NULL, sint8 pn = -1, const char* cn = NULL, const char* dn = NULL)
+	: network_command_t(NWC_CHAT), message(msg), player_nr(pn), clientname(cn), destination(dn) {}
+
+	virtual bool execute (karte_t *);
+	virtual void rdwr ();
+	virtual const char* get_name() { return "nwc_chat_t";}
+	void add_message (karte_t*) const;
+
+	plainstring message;            // Message text
+	sint8 player_nr;                // Company number message was sent as
+	plainstring clientname;	        // Name of client message is from
+	plainstring destination;        // Client to send message to (NULL for all)
+
+private:
+	nwc_chat_t(const nwc_chat_t&);
+	nwc_chat_t& operator=(const nwc_chat_t&);
+};
 
 /**
  * nwc_join_t
