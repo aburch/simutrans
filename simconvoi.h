@@ -237,18 +237,26 @@ private:
 	sint32 min_top_speed;
 
 	/**
-	* this give the index of the next signal or the end of the route
-	* convois will slow down before it, if this is not a waypoint or the cannot pass
-	* The slowdown ist done by the vehicle routines
-	* @author prissi
-	*/
+	 * this give the index of the next signal or the end of the route
+	 * convois will slow down before it, if this is not a waypoint or the cannot pass
+	 * The slowdown ist done by the vehicle routines
+	 * @author prissi
+	 */
 	uint16 next_stop_index;
 
 	/**
-	* manchmal muss eine bestimmte Zeit gewartet werden.
-	* wait_lock bestimmt wie lange gewartet wird (in ms).
-	* @author Hanjsörg Malthaner
-	*/
+	 * this give the index until which the route has been reserved. It is used for
+	 * restoring reservations after loading a game.
+	 * @author prissi
+	 */
+	uint16 next_reservation_index;
+
+	/**
+	 * The coinvoi is not processed every sync step for various actions
+	 * (like waiting before signals, loading etc.) Such action will only
+	 * continue after a waiting time larger than wait_lock
+	 * @author Hanjsörg Malthaner
+	 */
 	sint32 wait_lock;
 
 	/**
@@ -320,6 +328,9 @@ private:
 	 * remove all track reservations (trains only)
 	 */
 	void unreserve_route();
+
+	// reseverse route until next_reservation_index
+	void reserve_route();
 
 	/**
 	* Mark first and last vehicle.
@@ -804,13 +815,19 @@ public:
 	koord3d get_home_depot() { return home_depot; }
 
 	/**
-	* this give the index of the next signal or the end of the route
-	* convois will slow down before it, if this is not a waypoint or the cannot pass
-	* The slowdown ist done by the vehicle routines
-	* @author prissi
-	*/
+	 * this give the index of the next signal or the end of the route
+	 * convois will slow down before it, if this is not a waypoint or the cannot pass
+	 * The slowdown ist done by the vehicle routines
+	 * @author prissi
+	 */
 	uint16 get_next_stop_index() const {return next_stop_index;}
 	void set_next_stop_index(uint16 n);
+
+	/* including this route_index, the route was reserved the laste time
+	 * currently only used for tracks
+	 */
+	uint16 get_next_reservation_index() const {return next_reservation_index;}
+	void set_next_reservation_index(uint16 n);
 
 	/* the current state of the convoi */
 	uint8 get_status_color() const;

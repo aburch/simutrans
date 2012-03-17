@@ -2314,7 +2314,7 @@ void waggon_t::set_convoi(convoi_t *c)
 					target_halt = halthandle_t();
 				}
 			}
-			else {
+			else if(  c->get_next_reservation_index()==0  ) {
 				assert(c!=NULL);
 				// eventually search new route
 				route_t const& r = *c->get_route();
@@ -2936,6 +2936,7 @@ bool waggon_t::block_reserver(const route_t *route, uint16 start_index, uint16 &
 				sch1->unreserve(cnv->self);
 			}
 		}
+		cnv->set_next_reservation_index( start_index );
 		return false;
 	}
 
@@ -2945,6 +2946,7 @@ bool waggon_t::block_reserver(const route_t *route, uint16 start_index, uint16 &
 			signal->set_zustand(roadsign_t::gruen);
 		}
 	}
+	cnv->set_next_reservation_index( i );
 
 	return true;
 }

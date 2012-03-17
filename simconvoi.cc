@@ -138,6 +138,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	distance_since_last_stop = 0;
 	sum_speed_limit = 0;
 	maxspeed_average_count = 0;
+	next_reservation_index = 0;
 
 	alte_richtung = ribi_t::keine;
 	next_wolke = 0;
@@ -239,12 +240,29 @@ void convoi_t::unreserve_route()
 {
 	// need a route, vehicles, and vehicles must belong to this convoi
 	// (otherwise crash during loading when fahr[0]->convoi is not initialized yet
-	if(  !route.empty()  &&  anz_vehikel>0  &&  fahr[0]->get_convoi() == this) {
+	if(  !route.empty()  &&  anz_vehikel>0  &&  fahr[0]->get_convoi() == this  ) {
 		waggon_t* lok = dynamic_cast<waggon_t*>(fahr[0]);
 		if (lok) {
 			// free all reserved blocks
 			uint16 dummy;
 			lok->block_reserver(get_route(), back()->get_route_index(), dummy, dummy,  100000, false, true);
+		}
+	}
+}
+
+
+/**
+ * unreserves the whole remaining route
+ */
+void convoi_t::reserve_route()
+{
+	if(  !route.empty()  &&  anz_vehikel>0  ) {
+		for(  int idx = back()->get_route_index();  idx < next_reservation_index;  idx++  ) {
+			if(  grund_t *gr = welt->lookup( route.position_bei(idx) )  ) {
+				if(  schiene_t *sch = (schiene_t *)gr->get_weg( front()->get_waytype() )  ) {
+					sch->reserve( self, ribi_typ( route.position_bei(max(1u,idx)-1u), route.position_bei(min(route.get_count()-1u,idx+1u)) ) );
+				}
+			}
 		}
 	}
 }
@@ -2279,7 +2297,13 @@ void convoi_t::rdwr(loadsave_t *file)
 		file->rdwr_long( maxspeed_average_count );
 	}
 
-	if( file->is_loading() ) {
+	if(  file->get_version()>=111003  ) {
+		file->rdwr_short( next_stop_index );
+		file->rdwr_short( next_reservation_index );
+	}
+
+	if(  file->is_loading()  ) {
+		reserve_route();
 		recalc_catg_index();
 	}
 }
@@ -3116,6 +3140,20 @@ void convoi_t::set_next_stop_index(uint16 n)
 		}
 	}
 	next_stop_index = n+1;
+}
+
+
+
+/* including this route_index, the route was reserved the laste time
+ * currently only used for tracks
+ */
+void convoi_t::set_next_reservation_index(uint16 n)
+{
+	// stop at station or signals, not at waypoints
+	if(  n==INVALID_INDEX  ) {
+		n = route.get_count()-1;
+	}
+	next_reservation_index = n;
 }
 
 
