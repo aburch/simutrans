@@ -54,11 +54,10 @@ int leitung_t::gimme_neighbours(leitung_t **conn)
 		conn[i] = NULL;
 		if(  gr_base->get_neighbour( gr, invalid_wt, koord::nsow[i] ) ) {
 			leitung_t *lt = gr->get_leitung();
-			if(  lt  ) {
-				const spieler_t *owner = get_besitzer();
-				const spieler_t *other = lt->get_besitzer();
-				const spieler_t *super = welt->get_spieler(1);
-				if (owner==other  ||  owner==super  ||  other==super) {
+			if(  lt  ) 
+			{
+				if(lt->get_besitzer()->allows_access_to(get_besitzer()->get_player_nr()))
+				{
 					conn[i] = lt;
 					count++;
 				}

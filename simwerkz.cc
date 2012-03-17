@@ -1850,6 +1850,14 @@ uint8 wkz_wegebau_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord3d &
 			error = way->ist_entfernbar(sp);
 			return error==NULL ? 2 : 0;
 		}
+		leitung_t* lt = gr->get_leitung();
+		if(lt)
+		{
+			if(lt->get_besitzer()->allows_access_to(sp->get_player_nr()))
+			{
+				return 2;
+			}
+		}
 		// check for ownership but ignore moving things
 		if(sp!=NULL) {
 			for(uint8 i=0; i<gr->obj_count(); i++) {
