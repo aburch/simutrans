@@ -353,7 +353,7 @@ void baum_t::recalc_off()
 	const sint8 yoff = 2*(get_yoff() + zoff); // = y-x
 	sint8 x = (xoff - yoff) / 2;
 	sint8 y = (xoff + yoff) / 2;
-	calc_off(x, y);
+	calc_off(welt->lookup( get_pos())->get_grund_hang(), x, y);
 }
 
 
