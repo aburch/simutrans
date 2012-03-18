@@ -430,16 +430,20 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 
 	// warning/success messages
 	if(sp->get_player_nr()==0  &&  sp->get_welt()->get_scenario()->active()) {
+		warn.set_color( COL_BLACK );
 		sprintf( str_buf[15], translator::translate("Scenario complete: %i%%"), sp->get_welt()->get_scenario()->completed(0) );
 	}
-	else if(sp->get_konto_ueberzogen()) {
-		warn.set_color( COL_RED );
-		if(sp->get_finance_history_year(0, COST_NETWEALTH)<0) {
-			tstrncpy(str_buf[15], translator::translate("Company bankrupt"), lengthof(str_buf[15]) );
-		}
-		else {
-			sprintf(str_buf[15], translator::translate("On loan since %i month(s)"), sp->get_konto_ueberzogen() );
-		}
+	else if(sp->get_finance_history_year(0, COST_NETWEALTH)<0) {
+		warn.set_color( MONEY_MINUS );
+		tstrncpy(str_buf[15], translator::translate("Company bankrupt"), lengthof(str_buf[15]) );
+	}
+	else if(  sp->get_finance_history_year(0, COST_NETWEALTH)*10 < sp->get_welt()->get_settings().get_starting_money(sp->get_welt()->get_current_month()/12)  ){
+		warn.set_color( MONEY_MINUS );
+		sprintf(str_buf[15], translator::translate("Net wealth near zero"), sp->get_konto_ueberzogen() );
+	}
+	else if(  sp->get_konto_ueberzogen()  ) {
+		warn.set_color( COL_YELLOW );
+		sprintf( str_buf[15], translator::translate("On loan since %i month(s)"), sp->get_konto_ueberzogen() );
 	}
 	else {
 		str_buf[15][0] = '\0';
