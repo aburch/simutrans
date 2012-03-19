@@ -116,7 +116,7 @@ struct tiled_texture{
 };
 
 static bool tiling_in_use=false;
-static std::vector<std::vector<tiled_texture>> tiled_textures;
+static std::vector<std::vector<tiled_texture> > tiled_textures;
 
 /**
  * Returns the lowest pot (power of two) number higher to the parameter passed
@@ -216,7 +216,7 @@ static void check_max_texture_size(){
 		glTexImage2D(GL_PROXY_TEXTURE_2D, 0, GL_RGB, curr_width, curr_width, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, NULL);
 		glGetTexLevelParameteriv(GL_PROXY_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width);
 	}
-	while (width!=0);
+	while (width!=0 && width==curr_width);
 
 	curr_width=curr_width>>1;
 	tex_max_size=curr_width;
@@ -392,7 +392,7 @@ static void create_gl_texture()
 		glPixelStorei(GL_UNPACK_ROW_LENGTH, texture->pitch / texture->format->BytesPerPixel);
 		glPixelStorei(GL_UNPACK_ALIGNMENT, texture->format->BytesPerPixel);
 
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex_w, tex_h, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, texture->pixels);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex_w, tex_h, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, NULL);
 	}
 	else{
 		if (tiled_textures.size()==0){
