@@ -23,6 +23,8 @@
 
 #include <stdio.h>
 
+#include <vector>
+
 #include "macros.h"
 #include "simsys_w32_png.h"
 #include "simversion.h"
@@ -101,9 +103,20 @@ static GLuint gl_texture = 0;
 static bool npot_able;
 static int tex_max_size;
 static int tex_w,tex_h;
+static int n_tex_w,n_tex_h;
 static float x_max_coord;
 static float y_max_coord;
 
+struct tiled_texture{
+	GLuint gl_texture;
+	float left;
+	float right;
+	float top;
+	float bottom;
+};
+
+static bool tiling_in_use=false;
+static std::vector<std::vector<tiled_texture>> tiled_textures;
 
 /**
  * Returns the lowest pot (power of two) number higher to the parameter passed
@@ -138,6 +151,20 @@ static void update_tex_dims(){
 		x_max_coord= (float)screen->w/(float)tex_w;
 		y_max_coord= (float)screen->h/(float)tex_h;
 	}
+
+	if (max(tex_w,tex_h)>tex_max_size){
+
+		tiling_in_use=true;
+
+		n_tex_w = (screen->w + (tex_max_size-1))/tex_max_size;
+		n_tex_h = (screen->h + (tex_max_size-1))/tex_max_size;
+
+		x_max_coord = (float)(screen->w%tex_max_size)/(float)tex_max_size;
+		y_max_coord = (float)(screen->w%tex_max_size)/(float)tex_max_size;
+
+	}
+	else
+		tiling_in_use=false;
 }
 
 
@@ -352,18 +379,78 @@ void dr_os_close()
  */
 static void create_gl_texture()
 {
-	glGenTextures(1, &gl_texture);
+	if (!tiling_in_use){
 
-	glBindTexture(GL_TEXTURE_2D, gl_texture);
+		glGenTextures(1, &gl_texture);
 
-	// No mipmapping
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glBindTexture(GL_TEXTURE_2D, gl_texture);
 
-	glPixelStorei(GL_UNPACK_ROW_LENGTH, texture->pitch / texture->format->BytesPerPixel);
-	glPixelStorei(GL_UNPACK_ALIGNMENT, texture->format->BytesPerPixel);
+		// No mipmapping
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex_w, tex_h, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, texture->pixels);
+		glPixelStorei(GL_UNPACK_ROW_LENGTH, texture->pitch / texture->format->BytesPerPixel);
+		glPixelStorei(GL_UNPACK_ALIGNMENT, texture->format->BytesPerPixel);
+
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex_w, tex_h, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, texture->pixels);
+	}
+	else{
+		if (tiled_textures.size()==0){
+
+			// Initial call
+
+			tiled_textures.resize(n_tex_w);
+
+			for (int x=0;x<n_tex_w;x++){
+
+				tiled_textures[x].resize(n_tex_h);
+
+				for (int y=0;y<n_tex_h;y++){
+					glGenTextures(1, &tiled_textures[x][y].gl_texture);
+
+					glBindTexture(GL_TEXTURE_2D, tiled_textures[x][y].gl_texture);
+
+					// No mipmapping
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+					glPixelStorei(GL_UNPACK_ROW_LENGTH, tex_max_size);
+					glPixelStorei(GL_UNPACK_ALIGNMENT, 2);
+
+					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex_max_size, tex_max_size, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, NULL);
+
+
+					// set the cordinates of this texture in the -1 .. +1 space
+					// +1 is top, so we need to flip the vertical coordinate
+
+					tiled_textures[x][y].left=(float)(x*tex_max_size*2)/(float)(screen->w)-1;
+					tiled_textures[x][y].right=(float)((x+1)*tex_max_size*2)/(float)(screen->w)-1;
+					tiled_textures[x][y].top=-((float)(y*tex_max_size*2)/(float)(screen->h)-1);
+					tiled_textures[x][y].bottom=-((float)((y+1)*tex_max_size*2)/(float)(screen->h)-1);
+				}
+			}
+		}
+	}
+}
+
+/**
+ * Deletes the textures
+ */
+void delete_textures(){
+	if (!tiling_in_use){
+		if (gl_texture != 0){
+			glDeleteTextures(1, &gl_texture);
+		}
+	}
+	else{
+		for (size_t x=0;x<tiled_textures.size();x++){
+			for (size_t y=0;y<tiled_textures[x].size();y++){
+				glDeleteTextures(1, &tiled_textures[x][y].gl_texture);
+			}
+			tiled_textures[x].resize(0);
+		}
+		tiled_textures.resize(0);
+	}
 }
 
 
@@ -392,6 +479,7 @@ int dr_textur_resize(unsigned short** const textur, int w, int const h)
 
 		screen = SDL_SetVideoMode(w, h, COLOUR_DEPTH, flags);
 
+		delete_textures();
 		update_tex_dims();
 		texture = SDL_CreateRGBSurface(SDL_SWSURFACE, tex_w, tex_h, COLOUR_DEPTH, RMASK, GMASK, BMASK, AMASK);
 
@@ -405,10 +493,6 @@ int dr_textur_resize(unsigned short** const textur, int w, int const h)
 			}
 		}
 		fflush(NULL);
-
-		if (gl_texture != 0)  {
-			glDeleteTextures(1, &gl_texture);
-		}
 
 		glEnable(GL_TEXTURE_2D);
 
@@ -455,29 +539,58 @@ void dr_prepare_flush()
 void dr_flush(void)
 {
 	glViewport(0, 0, screen->w, screen->h);
-
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	display_flush_buffer();
 
-	glBindTexture(GL_TEXTURE_2D, gl_texture);
+	if (!tiling_in_use){
 
-	glColor3f(1.0f, 1.0f, 1.0f);
+		glBindTexture(GL_TEXTURE_2D, gl_texture);
 
-	glBegin(GL_QUADS);
-	glTexCoord2f(0.0f, 0.0f);
-	glVertex2f(-1.0f, 1.0f);
-	glTexCoord2f(x_max_coord, 0.0f);
-	glVertex2f(1.0f, 1.0f);
-	glTexCoord2f(x_max_coord, y_max_coord);
-	glVertex2f(1.0f, -1.0f);
-	glTexCoord2f(0.0f, y_max_coord);
-	glVertex2f(-1.0f, -1.0f);
-	glEnd();
+		glColor3f(1.0f, 1.0f, 1.0f);
+
+		glBegin(GL_QUADS);
+		glTexCoord2f(0.0f, 0.0f);
+		glVertex2f(-1.0f, 1.0f);
+		glTexCoord2f(x_max_coord, 0.0f);
+		glVertex2f(1.0f, 1.0f);
+		glTexCoord2f(x_max_coord, y_max_coord);
+		glVertex2f(1.0f, -1.0f);
+		glTexCoord2f(0.0f, y_max_coord);
+		glVertex2f(-1.0f, -1.0f);
+		glEnd();
+	}
+	else{
+		glColor3f(1.0f, 1.0f, 1.0f);
+		for (int x=0;x<n_tex_w;x++){
+			for (int y=0;y<n_tex_h;y++){
+
+				glBindTexture(GL_TEXTURE_2D, tiled_textures[x][y].gl_texture);
+
+				const float left=tiled_textures[x][y].left;
+				const float right=tiled_textures[x][y].right;
+				const float top=tiled_textures[x][y].top;
+				const float bottom=tiled_textures[x][y].bottom;
+
+				glBegin(GL_QUADS);
+				glTexCoord2f(0.0f, 0.0f);
+				glVertex2f(left, top);
+				glTexCoord2f(1.0f, 0.0f);
+				glVertex2f(right, top);
+				glTexCoord2f(1.0f, 1.0f);
+				glVertex2f(right, bottom);
+				glTexCoord2f(0.0f, 1.0f);
+				glVertex2f(left, bottom);
+				glEnd();
+			}
+		}
+	}
 
 	SDL_GL_SwapBuffers();
 
 #ifdef DEBUG
+/*
+ * Disabled until I find a better way of handling this
 	{
 		GLboolean residence;
 		glAreTexturesResident (1,&gl_texture,&residence);
@@ -485,7 +598,10 @@ void dr_flush(void)
 		if (!residence){
 			fprintf(stderr,"Texture is not in the VRAM, expect poor performance!\n");
 		}
+		if (int err = glGetError())
+			printf("Error %d",err);
 	}
+ */
 #endif
 
 }
@@ -505,13 +621,74 @@ void dr_textur(int xp, int yp, int w, int h)
 	if(  w*h>0  )
 #endif
 	{
-		// Get start of first row of pixels
-		unsigned short *first_row = (unsigned short *)(((unsigned char *)texture->pixels) + yp * texture->pitch);
+		if (!tiling_in_use){
+			glPixelStorei(GL_UNPACK_ROW_LENGTH, texture->pitch / texture->format->BytesPerPixel);
+			glPixelStorei(GL_UNPACK_ALIGNMENT, texture->format->BytesPerPixel);
+			glPixelStorei(GL_UNPACK_SKIP_PIXELS, xp);
+			glPixelStorei(GL_UNPACK_SKIP_ROWS, yp);
 
-		glPixelStorei(GL_UNPACK_ROW_LENGTH, texture->pitch / texture->format->BytesPerPixel);
-		glPixelStorei(GL_UNPACK_ALIGNMENT, texture->format->BytesPerPixel);
+			glTexSubImage2D(GL_TEXTURE_2D, 0, xp, yp, w, h, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, texture->pixels );
+		}
+		else{
 
-		glTexSubImage2D(GL_TEXTURE_2D, 0, xp, yp, w, h, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, first_row + xp);
+			// divide this into smaller dr_textur, on tex_max_size x tex_max_size chunks
+
+			int x_tile_start=xp/tex_max_size;
+			int x_tile_end=(xp+w-1)/tex_max_size;
+
+			int y_tile_start=yp/tex_max_size;
+			int y_tile_end=(yp+h-1)/tex_max_size;
+
+
+			if ((x_tile_start==x_tile_end) && (y_tile_start == y_tile_end)){
+				// base case, just one texture, we just update it
+
+				glBindTexture(GL_TEXTURE_2D, tiled_textures[x_tile_start][y_tile_start].gl_texture);
+
+				glPixelStorei(GL_UNPACK_ROW_LENGTH, texture->pitch / texture->format->BytesPerPixel);
+				glPixelStorei(GL_UNPACK_ALIGNMENT, texture->format->BytesPerPixel);
+				glPixelStorei(GL_UNPACK_SKIP_PIXELS, xp);
+				glPixelStorei(GL_UNPACK_SKIP_ROWS, yp);
+
+				glTexSubImage2D(GL_TEXTURE_2D, 0, xp%tex_max_size, yp%tex_max_size, w, h, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, texture->pixels);
+
+			}
+			else{
+
+				int n_x_tiles = x_tile_end - x_tile_start;
+				int n_y_tiles = y_tile_end - y_tile_start;
+
+				if (n_y_tiles==0){
+					// horizontal strip
+
+					const int first_tile_w = tex_max_size - xp%tex_max_size;
+					const int last_tile_w = (xp+w)%tex_max_size;
+
+					dr_textur(xp,yp,first_tile_w,h);
+
+					for (int i=(x_tile_start+1);i<(x_tile_end);i++){
+						dr_textur(i*tex_max_size,yp,tex_max_size,h);
+					}
+
+					dr_textur(x_tile_end*tex_max_size,yp,last_tile_w,h);
+
+				}
+				else{
+					// spans y, split it in horizontal strips
+
+					const int first_tile_h = tex_max_size - yp%tex_max_size;
+					const int last_tile_h = (yp+h)%tex_max_size;
+
+					dr_textur(xp,yp,w,first_tile_h);
+
+					for (int i=(y_tile_start+1);i<(y_tile_end);i++){
+						dr_textur(xp,i*tex_max_size,w,tex_max_size);
+					}
+
+					dr_textur(xp,y_tile_end*tex_max_size,w,last_tile_h);
+				}
+			}
+		}
 	}
 }
 
