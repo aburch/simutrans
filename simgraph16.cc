@@ -3839,6 +3839,8 @@ int is_display_init(void)
  */
 void simgraph_exit()
 {
+	dr_os_close();
+
 	guarded_free(tile_dirty);
 	guarded_free(tile_dirty_old);
 	display_free_all_images_above(0);
@@ -3846,8 +3848,6 @@ void simgraph_exit()
 
 	tile_dirty = tile_dirty_old = NULL;
 	images = NULL;
-
-	dr_os_close();
 }
 
 

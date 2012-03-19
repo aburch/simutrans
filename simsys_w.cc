@@ -34,8 +34,8 @@
 // 16 Bit may be much slower than 15 unfourtunately on some hardware
 #define USE_16BIT_DIB
 
-// for redraws in another thread
-//#define MULTI_THREAD
+// for redraws in another thread (gives some accelleration on larger screens)
+#define MULTI_THREAD
 
 #include "simmem.h"
 #include "simsys_w32_png.h"
@@ -62,9 +62,10 @@ volatile HDC hdc = NULL;
 
 #ifdef MULTI_THREAD
 
-
 HANDLE	hFlushThread=0;
-#define WAIT_FOR_SCREEN() {while(hdc) Sleep(5);}
+static volatile int flushcount = 0;
+
+#define WAIT_FOR_SCREEN() {while(flushcount) Sleep(5);}
 
 #else
 
@@ -175,6 +176,12 @@ int dr_os_open(int const w, int const h, int fullscreen)
 
 void dr_os_close()
 {
+#ifdef MULTI_THREAD
+	WAIT_FOR_SCREEN();
+	if(  hFlushThread  ) {
+		TerminateThread( hFlushThread, 0 );
+	}
+#endif
 	if (hwnd != NULL) {
 		DestroyWindow(hwnd);
 	}
@@ -252,6 +259,7 @@ DWORD WINAPI dr_flush_screen(LPVOID lpParam)
 		display_flush_buffer();
 		ReleaseDC(hwnd, hdc);
 		hdc = NULL;
+		flushcount --;
 		// suspend myself after one update
 		SuspendThread( hFlushThread );
 	}
@@ -275,6 +283,7 @@ void dr_flush()
 {
 #ifdef MULTI_THREAD
 	// just let the thread do its work
+	flushcount ++;
 	ResumeThread( hFlushThread );
 #else
 	assert(hdc==NULL);
