@@ -1,8 +1,9 @@
-	CHG: Simutrans help will now always display left the "general.txt" and right the actual help => easier navigation and only one window always
+Release of 111.2.2 (r5583 on 20-Mar-2012):
+	CHG: Simutrans help will now always display left the help index and right the actual help => easier navigation and only one window always
 	ADD: nickname for players, enable chat for observers, add messages when players join / change nick / leave
 	FIX: deletion of stops on bridgehead with trams
 	FIX: extended setting of bool was broken
-	FIX: reservation now saved with game
+	FIX: track reservation now saved with game (less deadlocks on load)
 
 
 Release of 111.2.1 (r5434 on 28-Feb-2012): (111.2 had a severe bug with zipped games)

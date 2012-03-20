@@ -21,7 +21,10 @@ unzip -tv "language_pack-Base+texts.zip" || {
    exit 5
 }
 unzip "language_pack-Base+texts.zip"
-#rm language_pack-Base+texts.zip
+rm language_pack-Base+texts.zip
 # remove Chris English (may become british ... )
 rm ce.tab
+# Remove check test
+rm xx.tab
+rm -rf xx
 cd ../..

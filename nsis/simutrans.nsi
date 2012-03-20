@@ -91,8 +91,8 @@ FunctionEnd
 
 Section "Executable (GDI, Unicode)" GDIexe
   AddSize 9411
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/111-2-1/simuwin-111-2-1.zip"
-  StrCpy $archievename "simuwin-111-2-1.zip"
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/111-2-2/simuwin-111-2-2.zip"
+  StrCpy $archievename "simuwin-111-2-2.zip"
   StrCpy $downloadname "Simutrans Executable (GDI)"
   Call DownloadInstallZip
   Call PostExeInstall
@@ -101,8 +101,8 @@ SectionEnd
 
 Section /o "Executable (SDL, better sound)" SDLexe
   AddSize 10100
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/111-2-1/simuwin-sdl-111-2-1.zip"
-  StrCpy $archievename "simuwin-sdl-111-2-1.zip"
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/111-2-2/simuwin-sdl-111-2-2.zip"
+  StrCpy $archievename "simuwin-sdl-111-2-2.zip"
   StrCpy $downloadname "Simutrans Executable (SDL)"
   Call DownloadInstallZip
   Call PostExeInstall
@@ -286,33 +286,12 @@ SectionEnd
 
 
 
-Section /o "pak128 German V0.2.1" pak128german
-  AddSize 47307
-  StrCpy $downloadlink "http://www.simutrans-germany.com/~pak128german/files/PAK128.german_0.2.1.zip"
-  StrCpy $archievename "PAK128.german_0.2.1.zip"
+Section /o "pak128 German (0.3) 111.2" pak128german
+  AddSize 53397
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/PAK128.german/PAK128.german_111.2/PAK128.german_0.3_111.2.zip"
+  StrCpy $archievename "PAK128.german_0.3_111.2.zip"
   StrCpy $downloadname "pak128.German"
-# since download works different, we have to do it by hand
-  RMdir /r "$TEMP\simutrans"
-  CreateDirectory "$TEMP\simutrans"
-  NSISdl::download $downloadlink "$Temp\$archievename"
-  Pop $R0 ;Get the return value
-  StrCmp $R0 "success" +3
-     MessageBox MB_OK "Download of $archievename failed: $R0"
-     Quit
-
-  nsisunz::Unzip "$TEMP\$archievename" "$TEMP\Simutrans"
-  Pop $0
-  StrCmp $0 "success" +4
-    DetailPrint "$0" ;print error message to log
-    RMdir /r "$TEMP\Simutrans"
-    Quit
-
-  CreateDirectory "$INSTDIR"
-  Delete "$Temp\$archievename"
-  RMdir /r "$TEMP\Simutrans\PAK128.german_0.2.1\de.tab_fuer_programmordner"
-  RMdir "$TEMP\Simutrans\PAK128.german_0.2.1\*.txt"
-  CopyFiles "$TEMP\Simutrans\PAK128.german_0.1.2\*.*" "$INSTDIR"
-  RMdir /r "$TEMP\Simutrans"
+  Call DownloadInstallZip
 SectionEnd
 
 
