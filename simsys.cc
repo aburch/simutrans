@@ -1,11 +1,19 @@
-#include "macros.h"
-#include "simmain.h"
-#include "simsys.h"
-
+#include <ctype.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
+
+#ifdef __HAIKU__
+#include <Message.h>
+#include <LocaleRoster.h>
+#define NO_UINT32_TYPES
+#endif
+
+#include "macros.h"
+#include "simmain.h"
+#include "simsys.h"
+
 
 #ifdef _WIN32
 #	define WIN32_LEAN_AND_MEAN
