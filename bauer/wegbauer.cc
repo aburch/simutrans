@@ -1669,7 +1669,7 @@ void wegbauer_t::calc_straight_route(koord3d start, const koord3d ziel)
 	}
 	else {
 		intern_calc_straight_route(start,ziel);
-		if( get_count() == 0 ) {
+		if (route.empty()) {
 			intern_calc_straight_route(ziel,start);
 		}
 	}

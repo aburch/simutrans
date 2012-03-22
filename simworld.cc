@@ -6105,7 +6105,7 @@ static bool sort_ware_by_name(const ware_besch_t* a, const ware_besch_t* b)
 // Returns a list of goods produced by factories that exist in current game
 const vector_tpl<const ware_besch_t*> &karte_t::get_goods_list()
 {
-	if (goods_in_game.get_count() == 0) {
+	if (goods_in_game.empty()) {
 		// Goods list needs to be rebuilt
 
 		// Reset last vehicle filter in all depots, in case goods list has changed
