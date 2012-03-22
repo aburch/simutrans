@@ -7,14 +7,14 @@
 #ifndef simsys_h
 #define simsys_h
 
-//#include <stddef.h>
+#include <stddef.h>
 #include "simtypes.h"
 
 // Provide chdir().
 #ifdef _WIN32
 #	include <direct.h>
 #else
-//#	include <unistd.h>
+#	include <unistd.h>
 #endif
 
 
