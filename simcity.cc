@@ -2422,9 +2422,14 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 
 	// Clearing these will force recalculation as necessary.
 	// Cannot do this too often, as it severely impacts on performance.
-	check_road_connexions = check;
+	if(check)
+	{
+		check_road_connexions = true;
+	}
 
-	if(check_road_connexions && private_car_update_month == welt->get_current_month())
+	const uint8 current_month = (uint8)(welt->get_current_month() % 12);
+
+	if(check_road_connexions && private_car_update_month == current_month)
 	{
 		connected_cities.clear();
 		connected_industries.clear();
