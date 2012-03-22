@@ -1922,7 +1922,7 @@ bool automobil_t::choose_route( int &restart_speed, ribi_t::dir richtung, uint16
 		bool original_route = (rt->back() == cnv->get_schedule()->get_current_eintrag().pos);
 		for(  uint32 length=0;  can_go_there  &&  length<cnv->get_tile_length()  &&  length+1<rt->get_count();  length++  ) {
 			if(  grund_t *gr = welt->lookup( rt->position_bei( rt->get_count()-length-1) )  ) {
-				if(  gr  &&  gr->get_halt().is_bound()  ) {
+				if (gr->get_halt().is_bound()) {
 					can_go_there &= target_halt->is_reservable( gr, cnv->self );
 				}
 				else {
