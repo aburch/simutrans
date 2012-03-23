@@ -5435,7 +5435,8 @@ const char *wkz_make_stop_public_t::move( karte_t *welt, spieler_t *sp, uint16, 
 const char *wkz_make_stop_public_t::work( karte_t *welt, spieler_t *sp, koord3d p )
 {
 	const planquadrat_t *pl = welt->lookup(p.get_2d());
-	if(  !pl  ||  !pl->get_halt().is_bound()  ||  pl->get_halt()->get_besitzer()==welt->get_spieler(1)  ) {
+	spieler_t* public_player = welt->get_spieler(1);
+	if(  !pl  ||  !pl->get_halt().is_bound()  ||  pl->get_halt()->get_besitzer()==public_player  ) {
 		weg_t *w = NULL;
 		//convert a way here, if there is no halt or already public halt
 		if(  const grund_t *gr = welt->lookup(p)  ) {
@@ -5444,10 +5445,9 @@ const char *wkz_make_stop_public_t::work( karte_t *welt, spieler_t *sp, koord3d 
 				return "No suitable ground!";
 			}
 			w = gr->get_weg_nr(0);
-			// no need for action if already player(1) => XOR ...
-			if(  !(w  &&  (  (w->get_besitzer()==sp)  ^  (sp==welt->get_spieler(1))  ))  ) {
+			if(  !(w  &&  (  (w->get_besitzer()==sp)  |  (sp==public_player) )) ) {
 				w = gr->get_weg_nr(1);
-				if(  !(w  &&  (  (w->get_besitzer()==sp)  ^  (sp==welt->get_spieler(1))  ))  ) {
+				if(  !(w  &&  (  (w->get_besitzer()==sp)  |  (sp==public_player) )) ) {
 					w = NULL;
 				}
 			}
@@ -5458,16 +5458,33 @@ const char *wkz_make_stop_public_t::work( karte_t *welt, spieler_t *sp, koord3d 
 				}
 				// change maintenance and ownership
 				sint64 costs = w->get_besch()->get_wartung();
-				if(  gr->ist_im_tunnel()  ) {
+
+				if(  gr->ist_im_tunnel()  ) 
+				{
 					tunnel_t *t = gr->find<tunnel_t>();
 					costs = t->get_besch()->get_wartung();
-					t->set_besitzer( welt->get_spieler(1) );
+					if(t->get_besitzer() == public_player)
+					{
+						t->set_besitzer(NULL);
+					}
+					else
+					{
+						t->set_besitzer(public_player);
+					}
 				}
-				spieler_t::add_maintenance( w->get_besitzer(), -costs );
-				spieler_t::accounting( w->get_besitzer(), -costs*60, gr->get_pos().get_2d(), COST_CONSTRUCTION);
-				w->set_besitzer( welt->get_spieler(1) );
+				
+				if(w->get_besitzer() == public_player)
+				{
+					w->set_besitzer(NULL);
+				}
+				else
+				{
+					spieler_t::add_maintenance( w->get_besitzer(), -costs );
+					spieler_t::accounting( w->get_besitzer(), -costs*60, gr->get_pos().get_2d(), COST_CONSTRUCTION);
+					w->set_besitzer(public_player);
+					spieler_t::add_maintenance(public_player, costs );
+				}
 				w->set_flag(ding_t::dirty);
-				spieler_t::add_maintenance( welt->get_spieler(1), costs );
 				// now search for wayobjects
 				for(  uint8 i=1;  i<gr->get_top();  i++  ) {
 					if(  wayobj_t *wo = ding_cast<wayobj_t>(gr->obj_bei(i))  ) {
@@ -5494,7 +5511,7 @@ const char *wkz_make_stop_public_t::work( karte_t *welt, spieler_t *sp, koord3d 
 	else 
 	{
 		halthandle_t halt = pl->get_halt();
-		if(  !(spieler_t::check_owner(halt->get_besitzer(),sp)  ||  halt->get_besitzer()==welt->get_spieler(1))  )
+		if(  !(spieler_t::check_owner(halt->get_besitzer(),sp)  ||  halt->get_besitzer() == public_player)  )
 		{
 			return "Das Feld gehoert\neinem anderen Spieler\n";
 		}
