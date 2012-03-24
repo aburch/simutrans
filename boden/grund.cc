@@ -86,26 +86,22 @@ uint8 grund_t::underground_mode = ugm_none;
  */
 static inthashtable_tpl<uint32, char*> ground_texts;
 
-static inline uint32 get_ground_text_key(const koord3d& k)
-{
-	// text for all common heights
-	return (k.x << 19) + (k.y << 6) + ((48-(k.z/Z_TILE_STEP))&0x3F);
-// only kartenboden can have text!
-//		(k.x << 19) + (k.y <<  6) + ((k.z - welt->get_grundwasser()) / Z_TILE_STEP);
-}
+// since size_x*size_y < 0x1000000, we have just to shift the high bits
+#define get_ground_text_key(k) ( ((k).x*welt->get_groesse_y()+(k).y) + ((k).z << 25) )
 
 
 void grund_t::set_text(const char *text)
 {
 	const uint32 n = get_ground_text_key(pos);
-	if(text) {
+	if(  text  ) {
 		char *new_text = strdup(text);
 		free(ground_texts.remove(n));
 		ground_texts.put(n, new_text);
 		set_flag(has_text);
 		set_flag(dirty);
 		welt->set_dirty();
-	} else if(get_flag(has_text)) {
+	}
+	else if(  get_flag(has_text)  ) {
 		char *txt=ground_texts.remove(n);
 		free(txt);
 		clear_flag(has_text);
@@ -118,7 +114,7 @@ void grund_t::set_text(const char *text)
 const char *grund_t::get_text() const
 {
 	const char *result = 0;
-	if(flags&has_text) {
+	if(  get_flag(has_text)  ) {
 		result = ground_texts.get( get_ground_text_key(pos) );
 		if(result==NULL) {
 			return "undef";
