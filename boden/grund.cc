@@ -87,12 +87,13 @@ uint8 grund_t::underground_mode = ugm_none;
 static inthashtable_tpl<uint32, char*> ground_texts;
 
 // since size_x*size_y < 0x1000000, we have just to shift the high bits
-#define get_ground_text_key(k) ( ((k).x*welt->get_groesse_y()+(k).y) + ((k).z << 25) )
+#define get_ground_text_key(k,width) ( ((k).x*(width)+(k).y) + ((k).z << 25) )
 
+#define get_ground_koord3d_key(key,width) koord3d( (key)/(width), (key)%(width), ((key)>>25) | ( (key&0x80000000ul) ? 0x80 : 0x00 ) )
 
 void grund_t::set_text(const char *text)
 {
-	const uint32 n = get_ground_text_key(pos);
+	const uint32 n = get_ground_text_key(pos,welt->get_groesse_y());
 	if(  text  ) {
 		char *new_text = strdup(text);
 		free(ground_texts.remove(n));
@@ -115,7 +116,7 @@ const char *grund_t::get_text() const
 {
 	const char *result = 0;
 	if(  get_flag(has_text)  ) {
-		result = ground_texts.get( get_ground_text_key(pos) );
+		result = ground_texts.get( get_ground_text_key(pos,welt->get_groesse_y()) );
 		if(result==NULL) {
 			return "undef";
 		}
@@ -421,11 +422,6 @@ void grund_t::sort_trees()
 void grund_t::rotate90()
 {
 	const bool finish_rotate90 = (pos.x==welt->get_groesse_x()-1)  &&  (pos.y==welt->get_groesse_y()-1);
-	typedef inthashtable_tpl<uint32, char*> text_map;
-	static text_map ground_texts_rotating;
-	const uint32 old_n = get_ground_text_key(pos);
-	// first internal corrections
-	// since the hash changes, we must put the text to the new position
 	pos.rotate90( welt->get_groesse_y()-1 );
 	slope = hang_t::rotate90( slope );
 	// then rotate the things on this tile
@@ -441,23 +437,41 @@ void grund_t::rotate90()
 	if(trees > 1) {
 		dinge.sort_trees(offset-trees+1u, trees);
 	}
-	// then the text ...
-	if(flags&has_text) {
-		const uint32 n = get_ground_text_key(pos);
-		char *txt = ground_texts.get( old_n );
-		ground_texts.put( old_n, NULL );
-		ground_texts_rotating.put( n, txt );
-	}
-	// after processing the last tile, we have to transfer the entries into the original hashtable
+	// after processing the last tile, we recalculate the hashes of the ground texts
 	if(finish_rotate90) {
-		// first of course remove the old positions
+		typedef inthashtable_tpl<uint32, char*> text_map;
+		text_map ground_texts_rotating;
+		// first get the old hashes
+		FOR(text_map, iter, ground_texts) {
+			koord3d k = get_ground_koord3d_key( iter.key, welt->get_groesse_x() );
+			k.rotate90( welt->get_groesse_y()-1 );
+			ground_texts_rotating.put( get_ground_text_key(k,welt->get_groesse_y()), iter.value );
+		}
 		ground_texts.clear();
 		// then transfer all rotated texts
-		FOR(text_map, const& i, ground_texts_rotating) {
-			ground_texts.put(i.key, i.value);
+		FOR(text_map, const& iter, ground_texts_rotating) {
+			ground_texts.put(iter.key, iter.value);
 		}
 		ground_texts_rotating.clear();
 	}
+}
+
+
+void grund_t::enlarge_map( sint16 new_size_x, sint16 new_size_y )
+{
+	typedef inthashtable_tpl<uint32, char*> text_map;
+	text_map ground_texts_enlarged;
+	// we have recalculate the keys
+	FOR(text_map, iter, ground_texts) {
+		koord3d k = get_ground_koord3d_key( iter.key, welt->get_groesse_y() );
+		ground_texts_enlarged.put( get_ground_text_key(k,new_size_y), iter.value );
+	}
+	ground_texts.clear();
+	// then transfer all texts back
+	FOR(text_map, const& iter, ground_texts_enlarged) {
+		ground_texts.put(iter.key, iter.value);
+	}
+	ground_texts_enlarged.clear();
 }
 
 

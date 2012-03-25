@@ -348,6 +348,9 @@ public:
 	// map rotation
 	virtual void rotate90();
 
+	// since enlargement will require new hases
+	static void enlarge_map( sint16 new_size_x, sint16 new_size_y );
+
 	void sort_trees();
 
 	/**

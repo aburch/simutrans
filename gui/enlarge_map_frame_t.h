@@ -42,7 +42,8 @@ private:
 public:
 	static inline koord koord_from_rotation(settings_t const*, sint16 y, sint16 x, sint16 w, sint16 h);
 
-	enlarge_map_frame_t(spieler_t *spieler,karte_t *welt);
+	enlarge_map_frame_t( spieler_t *spieler, karte_t *welt );
+	~enlarge_map_frame_t();
 
 	/**
 	* Berechnet Preview-Karte neu. Inititialisiert RNG neu!

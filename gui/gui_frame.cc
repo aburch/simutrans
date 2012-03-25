@@ -108,7 +108,8 @@ bool gui_frame_t::infowin_event(const event_t *ev)
 		               resize_mode & vertical_resize  ? ev->my - ev->cy : 0);
 		resize(delta);
 		return true;	// not pass to childs!
-	} else if(IS_WINDOW_MAKE_MIN_SIZE(ev)) {
+	}
+	else if(IS_WINDOW_MAKE_MIN_SIZE(ev)) {
 		set_fenstergroesse( get_min_windowsize() ) ;
 		resize( koord(0,0) ) ;
 		return true;	// not pass to childs!
