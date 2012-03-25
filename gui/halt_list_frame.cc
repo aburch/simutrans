@@ -223,7 +223,7 @@ static bool passes_filter_in(haltestelle_t const& s)
  * returns true, if it is not filtered away.
  * @author V. Meyer
  */
-static bool passes_filter(haltestelle_t const& s)
+static bool passes_filter(haltestelle_t & s)
 {
 	if (halt_list_frame_t::get_filter(halt_list_frame_t::any_filter)) {
 		if (!passes_filter_name(s))    return false;

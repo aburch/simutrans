@@ -1642,7 +1642,7 @@ void haltestelle_t::update_alternative_seats(convoihandle_t cnv)
 	int catg_index =  warenbauer_t::passagiere->get_catg_index();
 	FOR(connexions_map, const& iter, *(connexions[catg_index]))
 	{
-		iter.value.alternative_seats = 0;
+		iter.value->alternative_seats = 0;
 	}
 
 	if (loading_here.get_count() < 2 ) { // Alternatives don't exist, only one convoy here
@@ -2624,12 +2624,12 @@ void haltestelle_t::rdwr(loadsave_t *file)
 						save_koord.rdwr(file);
 					}
 					
-					uint8 waiting_time_count = iter.value.times.get_count();
+					uint8 waiting_time_count = iter.value->times.get_count();
 					file->rdwr_byte(waiting_time_count);
 					ITERATE(iter.value.times, i)
 					{
 						// Store each waiting time
-						uint16 current_time = iter.value.times.get_element(i);
+						uint16 current_time = iter.value->times.get_element(i);
 						file->rdwr_short(current_time);
 					}
 
@@ -3363,7 +3363,7 @@ void haltestelle_t::connexion::operator delete(void *p)
 */
 void haltestelle_t::release_factory_links()
 {
-	FOR(vector_tpl<fabrik_t*>, const f, fab_list) {
+	FOR(slist_tpl<fabrik_t*>, const f, fab_list) {
 		f->unlink_halt(self);
 	}
 	fab_list.clear();
