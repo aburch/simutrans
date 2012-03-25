@@ -2876,6 +2876,7 @@ uint16 stadt_t::check_road_connexion_to(const gebaeude_t* attraction)
 	}
 	const koord3d destination = road->get_pos();
 	const uint16 journey_time_per_tile = check_road_connexion(destination);
+
 	connected_attractions.put(attraction->get_pos().get_2d(), journey_time_per_tile);
 	if(journey_time_per_tile == 65535)
 	{
