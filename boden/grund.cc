@@ -443,9 +443,9 @@ void grund_t::rotate90()
 		text_map ground_texts_rotating;
 		// first get the old hashes
 		FOR(text_map, iter, ground_texts) {
-			koord3d k = get_ground_koord3d_key( iter.key, welt->get_groesse_x() );
+			koord3d k = get_ground_koord3d_key( iter.key, welt->get_groesse_y() );
 			k.rotate90( welt->get_groesse_y()-1 );
-			ground_texts_rotating.put( get_ground_text_key(k,welt->get_groesse_y()), iter.value );
+			ground_texts_rotating.put( get_ground_text_key(k,welt->get_groesse_x()), iter.value );
 		}
 		ground_texts.clear();
 		// then transfer all rotated texts
@@ -457,7 +457,7 @@ void grund_t::rotate90()
 }
 
 
-void grund_t::enlarge_map( sint16 new_size_x, sint16 new_size_y )
+void grund_t::enlarge_map( sint16, sint16 new_size_y )
 {
 	typedef inthashtable_tpl<uint32, char*> text_map;
 	text_map ground_texts_enlarged;
