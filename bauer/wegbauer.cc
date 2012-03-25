@@ -754,7 +754,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 			// do not connect to other powerlines
 			{
 				leitung_t *lt = to->get_leitung();
-				ok &= (lt==NULL)  ||  check_owner(sp, lt->get_besitzer());
+				ok &= (lt==NULL)  || lt->get_besitzer()->allows_access_to(sp->get_player_nr()) || check_owner(sp, lt->get_besitzer());
 			}
 			// only fields are allowed
 			if(to->get_typ()!=grund_t::boden) {
@@ -2035,7 +2035,6 @@ bool wegbauer_t::baue_tunnelboden()
 			tunnel->obj_add(new tunnel_t(welt, route[i], sp, tunnel_besch));
 			weg->set_max_speed(tunnel_besch->get_topspeed());
 			weg->set_max_weight(tunnel_besch->get_max_weight());
-			//weg->add_way_constraints(besch->get_way_constraints_permissive(), besch->get_way_constraints_prohibitive());
 			weg->add_way_constraints(besch->get_way_constraints());
 			tunnel->calc_bild();
 			cost -= tunnel_besch->get_preis();
@@ -2246,7 +2245,6 @@ void wegbauer_t::baue_schiene()
 					const wayobj_t* wayobj = gr->get_wayobj(weg->get_waytype());
 					if(wayobj != NULL)
 					{
-						//weg->add_way_constraints(wayobj->get_besch()->get_way_constraints_permissive(), wayobj->get_besch()->get_way_constraints_prohibitive());
 						weg->add_way_constraints(wayobj->get_besch()->get_way_constraints());
 					}					
 					spieler_t::add_maintenance( sp, weg->get_besch()->get_wartung());

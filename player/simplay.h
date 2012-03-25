@@ -413,7 +413,7 @@ private:
 
 	// The maximum amount overdrawn that a player can be
 	// before no more purchases can be made.
-	sint32 base_credit_limit;
+	sint64 base_credit_limit;
 
 protected:
 	sint64 calc_credit_limit();

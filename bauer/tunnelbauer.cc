@@ -342,7 +342,6 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 		weg->set_max_speed(besch->get_topspeed());
 		welt->access(pos.get_2d())->boden_hinzufuegen(tunnel);
 		weg->set_max_weight(besch->get_max_weight());
-		//weg->add_way_constraints(besch->get_way_constraints_permissive(), besch->get_way_constraints_prohibitive());
 		weg->add_way_constraints(besch->get_way_constraints());
 		
 		tunnel->neuen_weg_bauen(weg, ribi_t::doppelt(ribi), sp);
@@ -373,7 +372,6 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 		welt->access(pos.get_2d())->boden_hinzufuegen(tunnel);
 		weg->set_max_weight(besch->get_max_weight());
 		tunnel->neuen_weg_bauen(weg, ribi, sp);
-		//weg->add_way_constraints(besch->get_way_constraints_permissive(), besch->get_way_constraints_prohibitive());
 		weg->add_way_constraints(besch->get_way_constraints());
 		tunnel->obj_add(new tunnel_t(welt, pos, sp, besch));
 		tunnel->calc_bild();
@@ -415,7 +413,6 @@ const weg_besch_t *tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, ko
 	}
 	weg->set_max_speed( besch->get_topspeed() );
 	weg->set_max_weight( besch->get_max_weight() );
-	//weg->add_way_constraints(besch->get_way_constraints_permissive(), besch->get_way_constraints_prohibitive());
 	weg->add_way_constraints(besch->get_way_constraints());
 	tunnel->calc_bild();
 	tunnel->set_flag(grund_t::dirty);

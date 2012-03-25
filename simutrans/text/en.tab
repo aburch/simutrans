@@ -422,7 +422,53 @@ Lin
 %A5_CITY_SYLL
 Win
 %A6_CITY_SYLL
-Wer
+Swan
+%A7_CITY_SYLL
+Swains
+%A8_CITY_SYLL
+Swin
+%A9_CITY_SYLL
+Swaf
+%AA_CITY_SYLL
+Ayl
+%AB_CITY_SYLL
+Ayls
+%AC_CITY_SYLL
+Arl
+%AD_CITY_SYLL
+Arls
+%AE_CITY_SYLL
+Cro
+%AF_CITY_SYLL
+Ron
+%B0_CITY_SYLL
+Isl
+%B1_CITY_SYLL
+Warren
+%B2_CITY_SYLL
+Els
+%B3_CITY_SYLL
+Em
+%B4_CITY_SYLL
+En
+%B5_CITY_SYLL
+Elm
+%B6_CITY_SYLL
+Ed
+%B7_CITY_SYLL
+Temple
+%B8_CITY_SYLL
+Nun
+%B9_CITY_SYLL
+Monk
+%BA_CITY_SYLL
+Dean
+%BB_CITY_SYLL
+Chisel
+%BC_CITY_SYLL
+Wal
+%BD_CITY_SYLL
+Stan
 %d buildings\n
 %d buildings
 %d convois
@@ -581,6 +627,10 @@ hampton
 ish
 &3B_CITY_SYLL
 mere
+&3C_CITY_SYLL
+wich
+&3D_CITY_SYLL
+head
 (%i)-
 (%i) 
 (in depot)
@@ -752,7 +802,11 @@ Land
 Wasser
 Water
 Bridge is too long for this type!\n
-Bridge span is too\nlong for this type of\nbridge.\nBuild a different sort of bridge,\nor make it shorter.
+Bridge span is too\nlong for this type of\nbridge.\n
+bridge is too high for its type!
+Bridge span is too\nhigh for this type of\bridge.\n
+Bridge cannot be built over deep water\n
+Bridge cannot be built over deep water.\nBuild a length restricted\nbridge instead.
 Bruecke
 Bridge
 Bruecke muss an\neinfachem\nHang beginnen!\n
@@ -803,6 +857,8 @@ cancel
 Cancel
 Cannot built depot here!
 Cannot build a depot here.
+No suitable ground!
+This cannot be built here.
 Cannot create generic line!\nSelect line type by\nusing filter tabs.
 Cannot create a generic line.\nSelect line type\nusing filter tabs.
 Capacity: %s\nLoad: %d (%d%%)
@@ -940,7 +996,7 @@ Attraction list
 Currently playing:
 Playing:
 Das Feld gehoert\neinem anderen Spieler\n
-This piece of\nland is owned by\nanother player!\n
+This piece of\nland is owned by\nanother player.\n
 December
 December
 Deccelerate time
@@ -960,7 +1016,7 @@ Depots
 Der Besitzer erlaubt das Entfernen nicht
 \nYou do not have\npermission to\nremove this.\n
 Der Tunnel ist nicht frei!\n
-Tunnel is not empty.\n
+The tunnel is occupied.\n
 desert
 Desert climate
 Destination
@@ -1204,7 +1260,7 @@ Sorted by:
 Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
 Depot cannot be found.\nYou must send the\nvehicle there manually.
 Homeless
-Homeless
+Res. demand
 hydrogene
 Hydrogen
 Idle:
@@ -1848,13 +1904,13 @@ Underground view
 UNDO failed!
 Undo is no longer possible.\nYou can undo a route\nconstruction only as long as\nno signals/stations/stops or\nanything else has been built on\nthe way.
 Unemployed
-Unemployed
+Com./Ind. demand
 Unhappy
 Unhappy
 units/day
  units per month
 Update Line
-Update line
+Edit line
 upgrade HQ
 Upgrade HQ
 Upgrade to %s now available:\n%s\n
@@ -2004,11 +2060,11 @@ Marker list
 koord
 Map co-ordinate
 Terraforming not possible\nhere in underground view
-Terraforming not possible\nhere in underground view
+Terraforming is not possible\nhere in underground view.
 Cannot built this station/building\nin underground mode here.
 Cannot built this station/building\nin underground mode here.
 sliced underground mode
-Sliced underground\nmode (CTRL + U)
+Sliced underground
 decrease underground view level
 Decrease underground view level
 increase underground view level
@@ -2163,3 +2219,9 @@ cost for removal
 Removal cost: 
 Connected with server
 Connected to a server
+Selling this software is forbidden.
+Selling this software is prohibited.
+Similar view as the main window
+Show the map in the same isometric orientation as the main game window
+find mismatch
+Find mismatch

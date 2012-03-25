@@ -156,18 +156,10 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 			for(int i = 0; i < pos; i++) 
 			{
 				if(wlist[i].get_index() == wlist[pos].get_index() && 
-					wlist[i].get_zwischenziel() == wlist[pos].get_zwischenziel()  &&  
-					wlist[i].get_ziel() != wlist[pos].get_ziel())
+					wlist[i].get_zwischenziel() == wlist[pos].get_zwischenziel() &&
+					( wlist[i].get_ziel() == wlist[i].get_zwischenziel() ) == ( wlist[pos].get_ziel() == wlist[pos].get_zwischenziel() )  )
 				{
 					wlist[i].menge += wlist[pos--].menge;
-					break;
-				}
-				else if(wlist[i].get_index() == wlist[pos].get_index() && 
-					wlist[i].get_ziel() == wlist[pos].get_ziel() &&  
-					wlist[i].get_ziel() == wlist[i].get_zwischenziel()) 
-				{
-					wlist[i].menge += wlist[pos--].menge;
-					break;
 				}
 			}
 		}
@@ -175,7 +167,7 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 		{
 			for(int i = 0; i < pos; i++) 
 			{
-				if(wlist[i].get_index() == wlist[pos].get_index() && wlist[i].get_origin() == wlist[pos].get_origin()) 
+				if((sort_mode == by_name || sort_mode == by_via || sort_mode == by_amount || sort_mode == by_origin) && pos > 0) 
 				{
 					wlist[i].menge += wlist[pos--].menge;
 					break;

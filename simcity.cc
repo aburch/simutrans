@@ -2422,9 +2422,14 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 
 	// Clearing these will force recalculation as necessary.
 	// Cannot do this too often, as it severely impacts on performance.
-	check_road_connexions = check;
+	if(check)
+	{
+		check_road_connexions = true;
+	}
 
-	if(check_road_connexions && private_car_update_month == welt->get_current_month())
+	const uint8 current_month = (uint8)(welt->get_current_month() % 12);
+
+	if(check_road_connexions && private_car_update_month == current_month)
 	{
 		connected_cities.clear();
 		connected_industries.clear();
@@ -2871,6 +2876,7 @@ uint16 stadt_t::check_road_connexion_to(const gebaeude_t* attraction)
 	}
 	const koord3d destination = road->get_pos();
 	const uint16 journey_time_per_tile = check_road_connexion(destination);
+
 	connected_attractions.put(attraction->get_pos().get_2d(), journey_time_per_tile);
 	if(journey_time_per_tile == 65535)
 	{
@@ -5240,10 +5246,10 @@ uint32 stadt_t::get_power_demand() const
 {
 	// The 'magic number' in here is the actual amount of electricity consumed per citizen per month at '100%' in electricity.tab
 	//uint16 electricity_per_citizen = 0.02F * get_electricity_consumption(welt->get_timeline_year_month(); 
-	uint16 electricity_per_citizen = (get_electricity_consumption(welt->get_timeline_year_month()) * 100) / 5; 
+	const uint16 electricity_per_citizen = (get_electricity_consumption(welt->get_timeline_year_month()) * 100) / 5; 
 	// The weird order of operations is designed for greater precision.
 	// Really, POWER_TO_MW should come last.
-
+	
 	return ((city_history_month[0][HIST_CITICENS] << POWER_TO_MW) * electricity_per_citizen) / 100000;
 }
 

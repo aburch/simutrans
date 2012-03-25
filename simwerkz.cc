@@ -125,8 +125,6 @@ char *tooltip_with_price_maintenance(karte_t *welt, const char *tip, sint64 pric
 	return werkzeug_t::toolstr;
 }
 
-
-
 /**
  * Creates a tooltip from tip text and money value
  */
@@ -1751,11 +1749,33 @@ image_id wkz_wegebau_t::get_icon(spieler_t *) const
 const char* wkz_wegebau_t::get_tooltip(const spieler_t *sp) const
 {
 	const weg_besch_t *besch = get_besch(sp->get_welt()->get_timeline_year_month(),false);
-	tooltip_with_price_maintenance( sp->get_welt(), besch->get_name(), -besch->get_base_price(), besch->get_base_maintenance() );
+	tooltip_with_price_maintenance(sp->get_welt(), besch->get_name(), -besch->get_base_price(), besch->get_base_maintenance());
 	size_t n= strlen(toolstr);
 	sprintf(toolstr+n, " / km, %dkm/h, %dt",
 		besch->get_topspeed(),
 		besch->get_max_weight());
+	bool any_prohibitive = false;
+	for(sint8 i = 0; i < besch->get_way_constraints().get_count(); i ++)
+	{
+		if(besch->get_way_constraints().get_prohibitive(i))
+		{
+			if(!any_prohibitive)
+			{
+				n += sprintf(toolstr + n, " (" );
+				n += sprintf(toolstr + n, translator::translate("Restrictions:"));
+			}
+			any_prohibitive = true;
+			char tmpbuf[30];
+			sprintf(tmpbuf, "Prohibitive %i", i);
+			n += sprintf(toolstr + n, " ");
+			n += sprintf(toolstr + n, translator::translate(tmpbuf));
+		}
+	}
+	n = strlen(toolstr);
+	if(any_prohibitive)
+	{
+		strcat(toolstr, ")");
+	}
 	return toolstr;
 }
 
@@ -1829,6 +1849,14 @@ uint8 wkz_wegebau_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord3d &
 			}
 			error = way->ist_entfernbar(sp);
 			return error==NULL ? 2 : 0;
+		}
+		leitung_t* lt = gr->get_leitung();
+		if(lt)
+		{
+			if(lt->get_besitzer()->allows_access_to(sp->get_player_nr()))
+			{
+				return 2;
+			}
 		}
 		// check for ownership but ignore moving things
 		if(sp!=NULL) {
@@ -1969,7 +1997,7 @@ const char *wkz_build_cityroad::do_work( karte_t *welt, spieler_t *sp, const koo
 const char* wkz_brueckenbau_t::get_tooltip(const spieler_t *sp) const
 {
 	const bruecke_besch_t * besch = brueckenbauer_t::get_besch(default_param);
-	tooltip_with_price_maintenance( sp->get_welt(), besch->get_name(), -besch->get_preis(), besch->get_wartung() );
+	tooltip_with_price_maintenance( sp->get_welt(), besch->get_name(), -besch->get_preis(), besch->get_wartung());
 	size_t n= strlen(toolstr);
 	if(besch->get_waytype()!=powerline_wt) {
 		n += sprintf(toolstr+n, ", %dkm/h, %dt", 
@@ -1978,6 +2006,28 @@ const char* wkz_brueckenbau_t::get_tooltip(const spieler_t *sp) const
 	}
 	if(besch->get_max_length()>0) {
 		n += sprintf(toolstr+n, ", %d %s", besch->get_max_length(), translator::translate("tiles"));
+	}
+	bool any_prohibitive = false;
+	for(sint8 i = 0; i < besch->get_way_constraints().get_count(); i ++)
+	{
+		if(besch->get_way_constraints().get_prohibitive(i))
+		{
+			if(!any_prohibitive)
+			{
+				n += sprintf(toolstr + n, " (" );
+				n += sprintf(toolstr + n, translator::translate("Restrictions:"));
+			}
+			any_prohibitive = true;
+			char tmpbuf[30];
+			sprintf(tmpbuf, "Prohibitive %i", i);
+			n += sprintf(toolstr + n, " ");
+			n += sprintf(toolstr + n, translator::translate(tmpbuf));
+		}
+	}
+	n = strlen(toolstr);
+	if(any_prohibitive)
+	{
+		strcat(toolstr, ")");
 	}
 	return toolstr;
 }
@@ -2173,7 +2223,7 @@ uint8 wkz_brueckenbau_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord
 const char* wkz_tunnelbau_t::get_tooltip(const spieler_t *sp) const
 {
 	const tunnel_besch_t * besch = tunnelbauer_t::get_besch(default_param);
-	tooltip_with_price_maintenance( sp->get_welt(), besch->get_name(), -besch->get_base_price(), besch->get_base_maintenance() );
+	tooltip_with_price_maintenance( sp->get_welt(), besch->get_name(), -besch->get_base_price(), besch->get_base_maintenance());
 	strcat(toolstr, " / km");
 	size_t n= strlen(toolstr);
 
@@ -2181,6 +2231,29 @@ const char* wkz_tunnelbau_t::get_tooltip(const spieler_t *sp) const
 				n += sprintf(toolstr+n, ", %dkm/h, %dt", 
 			besch->get_topspeed(),
 			besch->get_max_weight());
+	}
+
+	bool any_prohibitive = false;
+	for(sint8 i = 0; i < besch->get_way_constraints().get_count(); i ++)
+	{
+		if(besch->get_way_constraints().get_prohibitive(i))
+		{
+			if(!any_prohibitive)
+			{
+				n += sprintf(toolstr + n, " (" );
+				n += sprintf(toolstr + n, translator::translate("Restrictions:"));
+			}
+			any_prohibitive = true;
+			char tmpbuf[30];
+			sprintf(tmpbuf, "Prohibitive %i", i);
+			n += sprintf(toolstr + n, " ");
+			n += sprintf(toolstr + n, translator::translate(tmpbuf));
+		}
+	}
+	n = strlen(toolstr);
+	if(any_prohibitive)
+	{
+		strcat(toolstr, ")");
 	}
 	return toolstr;
 }
@@ -2566,12 +2639,34 @@ const char* wkz_wayobj_t::get_tooltip(const spieler_t *sp) const
 	if(  build  ) {
 		const way_obj_besch_t *besch = get_besch(sp->get_welt());
 		if(besch) {
-			tooltip_with_price_maintenance( sp->get_welt(), besch->get_name(), -besch->get_base_price(),  besch->get_base_maintenance() );
+			tooltip_with_price_maintenance( sp->get_welt(), besch->get_name(), -besch->get_base_price(),  besch->get_base_maintenance());
 			strcat(toolstr, " / km");
 			size_t n = strlen(toolstr);
 			int topspeed = besch->get_topspeed();
 			if (topspeed > 0) {
 				sprintf(toolstr+n, ", %dkm/h", topspeed);
+			}
+			bool any_prohibitive = false;
+			for(sint8 i = 0; i < besch->get_way_constraints().get_count(); i ++)
+			{
+				if(besch->get_way_constraints().get_prohibitive(i))
+				{
+					if(!any_prohibitive)
+					{
+						n += sprintf(toolstr + n, " (" );
+						n += sprintf(toolstr + n, translator::translate("Restrictions:"));
+					}
+					any_prohibitive = true;
+					char tmpbuf[30];
+					sprintf(tmpbuf, "Prohibitive %i", i);
+					n += sprintf(toolstr + n, " ");
+					n += sprintf(toolstr + n, translator::translate(tmpbuf));
+				}
+			}
+			n = strlen(toolstr);
+			if(any_prohibitive)
+			{
+				strcat(toolstr, ")");
 			}
 			return toolstr;
 		}
@@ -5340,7 +5435,8 @@ const char *wkz_make_stop_public_t::move( karte_t *welt, spieler_t *sp, uint16, 
 const char *wkz_make_stop_public_t::work( karte_t *welt, spieler_t *sp, koord3d p )
 {
 	const planquadrat_t *pl = welt->lookup(p.get_2d());
-	if(  !pl  ||  !pl->get_halt().is_bound()  ||  pl->get_halt()->get_besitzer()==welt->get_spieler(1)  ) {
+	spieler_t* public_player = welt->get_spieler(1);
+	if(  !pl  ||  !pl->get_halt().is_bound()  ||  pl->get_halt()->get_besitzer()==public_player  ) {
 		weg_t *w = NULL;
 		//convert a way here, if there is no halt or already public halt
 		if(  const grund_t *gr = welt->lookup(p)  ) {
@@ -5349,10 +5445,9 @@ const char *wkz_make_stop_public_t::work( karte_t *welt, spieler_t *sp, koord3d 
 				return "No suitable ground!";
 			}
 			w = gr->get_weg_nr(0);
-			// no need for action if already player(1) => XOR ...
-			if(  !(w  &&  (  (w->get_besitzer()==sp)  ^  (sp==welt->get_spieler(1))  ))  ) {
+			if(  !(w  &&  (  (w->get_besitzer()==sp)  |  (sp==public_player) )) ) {
 				w = gr->get_weg_nr(1);
-				if(  !(w  &&  (  (w->get_besitzer()==sp)  ^  (sp==welt->get_spieler(1))  ))  ) {
+				if(  !(w  &&  (  (w->get_besitzer()==sp)  |  (sp==public_player) )) ) {
 					w = NULL;
 				}
 			}
@@ -5363,16 +5458,33 @@ const char *wkz_make_stop_public_t::work( karte_t *welt, spieler_t *sp, koord3d 
 				}
 				// change maintenance and ownership
 				sint64 costs = w->get_besch()->get_wartung();
-				if(  gr->ist_im_tunnel()  ) {
+
+				if(  gr->ist_im_tunnel()  ) 
+				{
 					tunnel_t *t = gr->find<tunnel_t>();
 					costs = t->get_besch()->get_wartung();
-					t->set_besitzer( welt->get_spieler(1) );
+					if(t->get_besitzer() == public_player)
+					{
+						t->set_besitzer(NULL);
+					}
+					else
+					{
+						t->set_besitzer(public_player);
+					}
 				}
-				spieler_t::add_maintenance( w->get_besitzer(), -costs );
-				spieler_t::accounting( w->get_besitzer(), -costs*60, gr->get_pos().get_2d(), COST_CONSTRUCTION);
-				w->set_besitzer( welt->get_spieler(1) );
+				
+				if(w->get_besitzer() == public_player)
+				{
+					w->set_besitzer(NULL);
+				}
+				else
+				{
+					spieler_t::add_maintenance( w->get_besitzer(), -costs );
+					spieler_t::accounting( w->get_besitzer(), -costs*60, gr->get_pos().get_2d(), COST_CONSTRUCTION);
+					w->set_besitzer(public_player);
+					spieler_t::add_maintenance(public_player, costs );
+				}
 				w->set_flag(ding_t::dirty);
-				spieler_t::add_maintenance( welt->get_spieler(1), costs );
 				// now search for wayobjects
 				for(  uint8 i=1;  i<gr->get_top();  i++  ) {
 					if(  wayobj_t *wo = ding_cast<wayobj_t>(gr->obj_bei(i))  ) {
@@ -5399,7 +5511,7 @@ const char *wkz_make_stop_public_t::work( karte_t *welt, spieler_t *sp, koord3d 
 	else 
 	{
 		halthandle_t halt = pl->get_halt();
-		if(  !(spieler_t::check_owner(halt->get_besitzer(),sp)  ||  halt->get_besitzer()==welt->get_spieler(1))  )
+		if(  !(spieler_t::check_owner(halt->get_besitzer(),sp)  ||  halt->get_besitzer() == public_player)  )
 		{
 			return "Das Feld gehoert\neinem anderen Spieler\n";
 		}

@@ -54,11 +54,10 @@ int leitung_t::gimme_neighbours(leitung_t **conn)
 		conn[i] = NULL;
 		if(  gr_base->get_neighbour( gr, invalid_wt, koord::nsow[i] ) ) {
 			leitung_t *lt = gr->get_leitung();
-			if(  lt  ) {
-				const spieler_t *owner = get_besitzer();
-				const spieler_t *other = lt->get_besitzer();
-				const spieler_t *super = welt->get_spieler(1);
-				if (owner==other  ||  owner==super  ||  other==super) {
+			if(  lt  ) 
+			{
+				if(lt->get_besitzer()->allows_access_to(get_besitzer()->get_player_nr()))
+				{
 					conn[i] = lt;
 					count++;
 				}
@@ -318,10 +317,38 @@ void leitung_t::info(cbuffer_t & buf) const
 	uint32 load = demand>supply ? supply:demand;
 
 	buf.printf( translator::translate("Net ID: %u\n"), (unsigned long)get_net() );
-	buf.printf( translator::translate("Capacity: %u MW\n"), get_net()->get_max_capacity()>>POWER_TO_MW );
-	buf.printf( translator::translate("Demand: %u MW\n"), demand>>POWER_TO_MW );
-	buf.printf( translator::translate("Generation: %u MW\n"), supply>>POWER_TO_MW );
-	buf.printf( translator::translate("Act. load: %u MW\n"), load>>POWER_TO_MW );
+	if(get_net()->get_max_capacity()>>POWER_TO_MW)
+	{
+		buf.printf( translator::translate("Capacity: %u MW\n"), get_net()->get_max_capacity()>>POWER_TO_MW );
+	}
+	else
+	{
+		buf.printf( translator::translate("Capacity: %u KW\n"), (get_net()->get_max_capacity() * 1000)>>POWER_TO_MW );
+	}
+	if(demand>>POWER_TO_MW)
+	{
+		buf.printf( translator::translate("Demand: %u MW\n"), demand>>POWER_TO_MW );
+	}
+	else
+	{
+		buf.printf( translator::translate("Demand: %u KW\n"), (demand * 1000)>>POWER_TO_MW );
+	}
+	if(supply>>POWER_TO_MW)
+	{
+		buf.printf( translator::translate("Generation: %u MW\n"), supply>>POWER_TO_MW );
+	}
+	else
+	{
+		buf.printf( translator::translate("Generation: %u KW\n"), (supply * 1000)>>POWER_TO_MW );
+	}
+	if(load>>POWER_TO_MW)
+	{
+		buf.printf( translator::translate("Act. load: %u MW\n"), load>>POWER_TO_MW );
+	}
+	else
+	{
+		buf.printf( translator::translate("Act. load: %u KW\n"), (load * 1000)>>POWER_TO_MW );
+	}
 	buf.printf( translator::translate("Usage: %u %%"), (100*load)/(supply>0?supply:1) );
 }
 
@@ -606,6 +633,11 @@ senke_t::~senke_t()
 		if(city)
 		{
 			city->remove_substation(this);
+			const vector_tpl<fabrik_t*>& city_factories = city->get_city_factories();
+			ITERATE(city_factories, i)
+			{
+				city_factories[i]->set_transformer_connected( NULL );
+			}
 		}
 	}
 	spieler_t::add_maintenance(get_besitzer(), welt->get_settings().cst_maintain_transformer);
@@ -914,8 +946,22 @@ void senke_t::info(cbuffer_t & buf) const
 	ding_t::info( buf );
 
 	buf.printf( translator::translate("Net ID: %u\n"), (unsigned long)get_net() );
-	buf.printf( translator::translate("Demand: %u MW\n"), last_power_demand>>POWER_TO_MW );
-	buf.printf( translator::translate("Act. load: %u MW\n"), power_load>>POWER_TO_MW );
+	if(last_power_demand>>POWER_TO_MW)
+	{
+		buf.printf( translator::translate("Demand: %u MW\n"), last_power_demand>>POWER_TO_MW );
+	}
+	else
+	{
+		buf.printf( translator::translate("Demand: %u KW\n"), (last_power_demand * 1000)>>POWER_TO_MW );
+	}
+	if(power_load>>POWER_TO_MW)
+	{
+		buf.printf( translator::translate("Act. load: %u MW\n"), power_load>>POWER_TO_MW );
+	}
+	else
+	{
+		buf.printf( translator::translate("Act. load: %u KW\n"), (power_load * 1000)>>POWER_TO_MW );
+	}
 	buf.printf( translator::translate("Usage: %u %%"), (100*power_load)/(last_power_demand>0?last_power_demand:1) );
 	if(city)
 	{
@@ -923,3 +969,4 @@ void senke_t::info(cbuffer_t & buf) const
 		buf.append(city->get_name());
 	}
 }
+
