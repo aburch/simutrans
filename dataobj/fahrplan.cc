@@ -410,8 +410,9 @@ void schedule_t::sprintf_schedule( cbuffer_t &buf ) const
 	buf.append( "|" );
 	buf.append( (int)get_type() );
 	buf.append( "|" );
-	FOR(minivec_tpl<linieneintrag_t>, const& i, eintrag) {
-		buf.printf( "%s,%i,%i,%i,%i|", eintrag[i].pos.get_str(), (int)eintrag[i].ladegrad, (int)eintrag[i].waiting_time_shift, (int)eintrag[i].spacing_shift, (int)eintrag[i].reverse );
+	FOR(minivec_tpl<linieneintrag_t>, const& i, eintrag) 
+	{
+		buf.printf( "%s,%i,%i,%i,%i|", i.pos.get_str(), i.ladegrad, (int)i.waiting_time_shift, (int)i.spacing_shift, (int)i.reverse );
 	}
 }
 

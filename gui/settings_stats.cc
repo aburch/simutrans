@@ -243,8 +243,7 @@ void settings_experimental_general_stats_t::read(settings_t *sets)
 		case tram_wt:
 		case narrowgauge_wt:
 		case air_wt:
-			numiter.next();
-			READ_NUM_ARRAY(sets->set_default_increase_maintenance_after_years, (waytype_t)i);
+			sets->set_default_increase_maintenance_after_years((waytype_t)i, (*numiter++)->get_value());
 			break;
 		default:
 			sets->set_default_increase_maintenance_after_years((waytype_t)i, default_increase_maintenance_after_years_other);

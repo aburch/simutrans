@@ -53,7 +53,7 @@ simline_t::simline_t(karte_t* welt, spieler_t* sp, linetype type)
 
 	create_schedule();
 
-	average_journey_times = *new koordhashtable_tpl<id_pair, average_tpl<uint16> >;
+	average_journey_times = new koordhashtable_tpl<id_pair, average_tpl<uint16> >;
 }
 
 
@@ -66,7 +66,7 @@ simline_t::simline_t(karte_t* welt, spieler_t* sp, linetype type, loadsave_t *fi
 	this->fpl = NULL;
 	this->sp = sp;
 	create_schedule();
-	average_journey_times = *new koordhashtable_tpl<id_pair, average_tpl<uint16> >;
+	average_journey_times = new koordhashtable_tpl<id_pair, average_tpl<uint16> >;
 	rdwr(file);
 	// now self has the right id but the this-pointer is not assigned to the quickstone handle yet
 	// do this explicitly
@@ -88,7 +88,7 @@ simline_t::~simline_t()
 	self.detach();
 	DBG_MESSAGE("simline_t::~simline_t()", "line %d (%p) destroyed", self.get_id(), this);
 
-	delete &average_journey_times;
+	delete average_journey_times;
 }
 
 void simline_t::create_schedule()
@@ -339,23 +339,25 @@ void simline_t::rdwr(loadsave_t *file)
 	{
 		if(file->is_saving())
 		{
-			uint32 count = average_journey_times.get_count();
+			uint32 count = average_journey_times->get_count();
 			file->rdwr_long(count);
 
-			FOR(journey_times_map, const& iter, average_journey_times)
+			FOR(journey_times_map, const& iter, *average_journey_times)
 			{
 				id_pair idp = iter.key;
 				file->rdwr_short(idp.x);
 				file->rdwr_short(idp.y);
-				file->rdwr_short(iter.access_current_value().count);
-				file->rdwr_short(iter.access_current_value().total);
+				sint16 value = iter.value.count;
+				file->rdwr_short(value);
+				value = iter.value.total;
+				file->rdwr_short(value);
 			}
 		}
 		else
 		{
 			uint32 count = 0;
 			file->rdwr_long(count);
-			average_journey_times.clear();
+			average_journey_times->clear();
 			for(uint32 i = 0; i < count; i ++)
 			{
 				id_pair idp;
@@ -371,7 +373,7 @@ void simline_t::rdwr(loadsave_t *file)
 				average.count = count;
 				average.total = total;
 
-				average_journey_times.put(idp, average);
+				average_journey_times->put(idp, average);
 			}
 		}
 	}

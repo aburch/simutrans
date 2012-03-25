@@ -473,7 +473,6 @@
     <ClCompile Include="gui\citylist_frame_t.cc" />
     <ClCompile Include="gui\citylist_stats_t.cc" />
     <ClCompile Include="gui\climates.cc" />
-    <ClCompile Include="gui\colors.cc" />
     <ClCompile Include="gui\convoi_detail_t.cc" />
     <ClCompile Include="gui\convoi_filter_frame.cc" />
     <ClCompile Include="gui\convoi_frame.cc" />

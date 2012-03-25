@@ -189,9 +189,9 @@ const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const sint32 spe
 const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const sint32 speed_limit, const uint32 weight_limit, const uint16 time, const weg_t::system_type system_type)
 {
 	const weg_besch_t* best = NULL;
-	for(  stringhashtable_iterator_tpl<weg_besch_t*> iter(alle_wegtypen); iter.next();  ) 
+	FOR(stringhashtable_tpl<weg_besch_t*>, const& iter, alle_wegtypen)
 	{
-		const weg_besch_t* const test = iter.get_current_value();
+		const weg_besch_t* const test = iter.value;
 		bool best_allowed = false; // Does the best way fulfill the timeline?
 		if(  ((test->get_wtyp()==wtyp  &&
 			     (test->get_styp()==system_type  ||  system_type==weg_t::type_all))  ||  (test->get_wtyp()==track_wt  &&  test->get_styp()==weg_t::type_tram  &&  wtyp==tram_wt))

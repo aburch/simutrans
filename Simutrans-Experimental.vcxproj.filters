@@ -75,9 +75,6 @@
     <ClCompile Include="gui\climates.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="gui\colors.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="gui\convoi_detail_t.cc">
       <Filter>Source Files</Filter>
     </ClCompile>

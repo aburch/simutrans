@@ -88,7 +88,7 @@ bool brueckenbauer_t::laden_erfolgreich()
 	bool strasse_da = false;
 	bool schiene_da = false;
 
-	FOR(stringhashtable_tpl<bruecke_besch_t const*>, const& i, bruecken_by_name) {
+	FOR(stringhashtable_tpl<bruecke_besch_t*>, const& i, bruecken_by_name) {
 		bruecke_besch_t const* const besch = i.value;
 
 		if(besch && besch->get_waytype() == track_wt) {

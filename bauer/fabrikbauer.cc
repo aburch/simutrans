@@ -670,7 +670,7 @@ int fabrikbauer_t::baue_link_hierarchie(const fabrik_t* our_fab, const fabrik_be
 DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i of %s)",info->get_lieferanten(),lcount,verbrauch,ware->get_name());
 
 	// Hajo: search if there already is one or two (crossconnect everything if possible)
-	FOR(slist_tpl<fabrik_t*>, const fab, welt->get_fab_list()) {
+	FOR(vector_tpl<fabrik_t*>, const fab, welt->get_fab_list()) {
 		// Try to find matching factories for this consumption, but don't find more than two times number of factories requested.
 		//if ((lcount != 0 || verbrauch <= 0) && lcount < lfound + 1) break;
 
@@ -1019,7 +1019,7 @@ next_ware_check:
 	uint32 total_electric_demand = 1;
 	uint32 electric_productivity = 0;
 
-	FOR(slist_tpl<fabrik_t*>, const fab, welt->get_fab_list()) 
+	FOR(vector_tpl<fabrik_t*>, const fab, welt->get_fab_list()) 
 	{
 		if(fab->get_besch()->is_electricity_producer()) 
 		{
@@ -1103,12 +1103,11 @@ next_ware_check:
 
 bool fabrikbauer_t::power_stations_available(karte_t* welt)
 {
-	stringhashtable_iterator_tpl<const fabrik_besch_t *> iter(table);
 	weighted_vector_tpl<const fabrik_besch_t*> power_stations;
 
-	while(iter.next()) 
+	FOR(stringhashtable_tpl<const fabrik_besch_t *>, const& iter, table)
 	{
-		const fabrik_besch_t* current = iter.get_current_value();
+		const fabrik_besch_t* current = iter.value;
 		if(!current->is_electricity_producer()
 			|| (welt->use_timeline() 
 				&& (current->get_haus()->get_intro_year_month() > welt->get_timeline_year_month()

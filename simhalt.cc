@@ -1168,7 +1168,7 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 void haltestelle_t::verbinde_fabriken()
 {
 	// unlink all
-	FOR(vector_tpl<fabrik_t*>, const f, fab_list) {
+	FOR(slist_tpl<fabrik_t*>, const f, fab_list) {
 		f->unlink_halt(self);
 	}
 	fab_list.clear();
@@ -1251,9 +1251,9 @@ void haltestelle_t::reset_connexions(uint8 category)
 		return;
 	}
 
-	FOR(quickstone_hashtable_tpl<haltestelle_t, connexion*>, & iter, *connexions[category] ) 
+	FOR(connexions_map, & iter, *connexions[category] ) 
 	{
-        delete = iter.get_current_value();
+        delete iter.value;
 	}
 }
 
@@ -1640,9 +1640,6 @@ void haltestelle_t::update_alternative_seats(convoihandle_t cnv)
 	}
 
 	int catg_index =  warenbauer_t::passagiere->get_catg_index();
-	/*quickstone_hashtable_iterator_tpl<haltestelle_t, connexion*> iter(*(connexions[catg_index]));
-	while(iter.next())
-	{*/
 	FOR(connexions_map, const& iter, *(connexions[catg_index]))
 	{
 		iter.value.alternative_seats = 0;
@@ -3366,7 +3363,7 @@ void haltestelle_t::connexion::operator delete(void *p)
 */
 void haltestelle_t::release_factory_links()
 {
-	FOR(slist_tpl<fabrik_t*>, const f, fab_list) {
+	FOR(vector_tpl<fabrik_t*>, const f, fab_list) {
 		f->unlink_halt(self);
 	}
 	fab_list.clear();

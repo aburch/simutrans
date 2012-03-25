@@ -139,7 +139,7 @@ void convoi_t::reset()
 	longest_min_loading_time = 0;
 	longest_max_loading_time = 0;
 	current_loading_time = 0;
-	departures.clear();
+	departures->clear();
 	for(uint8 i = 0; i < MAX_CONVOI_COST; i ++)
 	{	
 		rolling_average[i] = 0;
@@ -214,13 +214,9 @@ convoi_t::convoi_t(karte_t* wl, loadsave_t* file) : fahr(max_vehicle, NULL)
 {
 	init(wl, 0);
 	replace = NULL;
-	delete average_journey_times;
-	delete departures;
 
 	self = convoihandle_t(this);
 
-	average_journey_times = new koordhashtable_tpl<id_pair, average_tpl<uint16> >;
-	departures = new inthashtable_tpl<uint16, departure_data_t>;
 	no_route_retry_count = 0;
 	rdwr(file);
 	current_stop = fpl == NULL ? 255 : fpl->get_aktuell() - 1;
@@ -249,9 +245,6 @@ convoi_t::convoi_t(spieler_t* sp) : fahr(max_vehicle, NULL)
 	livery_scheme_index = 0;
 
 	no_route_retry_count = 0;
-
-	average_journey_times = new koordhashtable_tpl<id_pair, average_tpl<uint16> >;
-	departures = new inthashtable_tpl<uint16, departure_data_t>;
 }
 
 
@@ -742,7 +735,7 @@ void convoi_t::increment_odometer(uint32 steps)
 		player = besitzer_p->get_player_nr();
 	}
 
-	FOR(inthashtable_tpl<uint16, departure_data_t>, const& i, departures)
+	FOR(departure_map, & i, *departures)
 	{
 		i.value.increment_way_distance(player, steps);
 	}
@@ -3368,10 +3361,10 @@ void convoi_t::rdwr(loadsave_t *file)
 			{
 				uint32 count = departures->get_count();
 				file->rdwr_long(count);
-				FOR(inthashtable_tpl<uint16, departure_data_t>, const& iter, departures)
+				FOR(departure_map, const& iter, *departures)
 				{
 					id = iter.key;
-					departure_time = iter.get_current_value().departure_time;
+					departure_time = iter.value.departure_time;
 					file->rdwr_short(id);
 					file->rdwr_longlong(departure_time);
 					if(file->get_version() >= 110007)
@@ -3380,7 +3373,7 @@ void convoi_t::rdwr(loadsave_t *file)
 						file->rdwr_byte(player_count);
 						for(int i = 0; i < player_count; i ++)
 						{
-							accumulated_distance = iter.get_current_value().get_way_distance(i);
+							accumulated_distance = iter.value.get_way_distance(i);
 							file->rdwr_long(accumulated_distance);
 						}
 					}
@@ -3441,15 +3434,17 @@ void convoi_t::rdwr(loadsave_t *file)
 			uint32 count = average_journey_times->get_count();
 			file->rdwr_long(count);
 
-			koordhashtable_iterator_tpl<id_pair, average_tpl<uint16> > iter(average_journey_times);
-			while(iter.next())
+			FOR(journey_times_map, const& iter, *average_journey_times)
 			{
-				id_pair idp = iter.get_current_key();
+				id_pair idp = iter.key;
 				file->rdwr_short(idp.x);
 				file->rdwr_short(idp.y);
-				file->rdwr_short(iter.access_current_value().count);
-				file->rdwr_short(iter.access_current_value().total);
+				sint16 value = iter.value.count;
+				file->rdwr_short(value);
+				value = iter.value.total;
+				file->rdwr_short(value);
 			}
+			
 		}
 		else
 		{
@@ -3885,7 +3880,7 @@ void convoi_t::laden() //"load" (Babelfish)
 		book(get_comfort(), CONVOI_COMFORT);
 	}
 
-	FOR(departure_map, & iter, departures)
+	FOR(departure_map, & iter, *departures)
 	{
 		// Accumulate distance 
 		if(is_circular_route() && iter.key == welt->lookup(fpl->get_current_eintrag().pos)->get_halt().get_id())
@@ -3939,7 +3934,7 @@ void convoi_t::laden() //"load" (Babelfish)
 		// so as to avoid over-writing good journey time data with data comprising 
 		// the time between the last departure on the previous run to the current
 		// stop, which will give excessively long times.
-		departures.clear();
+		departures->clear();
 	}
 	else
 	{
@@ -3949,7 +3944,7 @@ void convoi_t::laden() //"load" (Babelfish)
 
 		ITERATE(departure_entries_to_remove, i)
 		{
-			departures.remove(departure_entries_to_remove[i]);
+			departures->remove(departure_entries_to_remove[i]);
 		}
 	}
 
@@ -4000,7 +3995,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	const uint32 max_distance = ware.get_last_transfer().is_bound() ? 
 		shortest_distance(ware.get_last_transfer()->get_basis_pos(), fahr[0]->get_pos().get_2d()) * 2 :
 		3 * shortest_distance(last_stop_pos.get_2d(), fahr[0]->get_pos().get_2d());
-	const departure_data_t dep = departures.get(ware.get_last_transfer().get_id());
+	const departure_data_t dep = departures->get(ware.get_last_transfer().get_id());
 	const uint32 distance = dep.get_overall_distance() > 0 ? dep.get_overall_distance() : max_distance / 2;
 	const uint32 revenue_distance = distance < max_distance ? distance : max_distance;
 	
@@ -4009,7 +4004,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	{
 		if(line.is_bound())
 		{
-			journey_minutes = (line->average_journey_times.get(id_pair(ware.get_last_transfer().get_id(), welt->lookup(fahr[0]->get_pos().get_2d())->get_halt().get_id())).get_average()) / 10;
+			journey_minutes = (line->average_journey_times->get(id_pair(ware.get_last_transfer().get_id(), welt->lookup(fahr[0]->get_pos().get_2d())->get_halt().get_id())).get_average()) / 10;
 		}
 		else
 		{
@@ -5742,7 +5737,7 @@ void convoi_t::snprintf_remaining_loading_time(char *p, size_t size) const
  */
 void convoi_t::snprintf_remaining_reversing_time(char *p, size_t size) const
 {
-	const sint32 remaining_ticks = (int)(departures.get(welt->lookup(fahr[0]->last_stop_pos)->get_halt().get_id()).departure_time - welt->get_zeit_ms());
+	const sint32 remaining_ticks = (int)(departures->get(welt->lookup(fahr[0]->last_stop_pos)->get_halt().get_id()).departure_time - welt->get_zeit_ms());
 	uint32 ticks_left = 0;
 	if(remaining_ticks >= 0)
 	{
@@ -5922,7 +5917,7 @@ void convoi_t::clear_replace()
 		// Only book a departure time if this convoy is at a station/stop.
 		departure_data_t dep;
 		dep.departure_time = time;
-		departures.set(halt.get_id(), dep);
+		departures->set(halt.get_id(), dep);
 	}
 	else
 	{
@@ -5977,7 +5972,7 @@ void convoi_t::clear_replace()
  bool convoi_t::is_circular_route() const
  {
 	// Three lines used here to aid debugging.
-	const uint32 departures_count = departures.get_count();
+	const uint32 departures_count = departures->get_count();
 	const uint8 schedule_count = fpl->get_count();
 	return departures_count == schedule_count;
  }

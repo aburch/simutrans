@@ -527,7 +527,6 @@ void path_explorer_t::compartment_t::step()
 			start = dr_time();	// start timing
 #endif
 
-			slist_iterator_tpl<halthandle_t> halt_iter(haltestelle_t::get_alle_haltestellen());
 			all_halts_count = (uint16) haltestelle_t::get_alle_haltestellen().get_count();
 			
 			// create all halts list
@@ -540,10 +539,14 @@ void path_explorer_t::compartment_t::step()
 			const uint32 journey_time_adjustment = (world->get_settings().get_meters_per_tile() * 6u) / 10u;
 
 			// Save the halt list in an array first to prevent the list from being modified across steps, causing bugs
-			for (uint16 i = 0; i < all_halts_count; ++i)
+			uint16 i = 0;
+			FOR(slist_tpl<halthandle_t>, const& halt_iter, haltestelle_t::get_alle_haltestellen())
 			{
-				halt_iter.next();
-				all_halts_list[i] = halt_iter.get_current();
+				if(++i >= all_halts_count)
+				{
+					break;
+				}
+				all_halts_list[i] = halt_iter;
 
 				// create an empty connexion hash table if the current halt does not already have one
 				if ( connexion_list[ all_halts_list[i].get_id() ].connexion_table == NULL )
@@ -1193,12 +1196,11 @@ void path_explorer_t::compartment_t::step()
 					++transfer_count;
 				}
 
-				quickstone_hashtable_iterator_tpl<haltestelle_t, haltestelle_t::connexion*> connexions_iter( *(current_halt->get_connexions(catg)) );
 
 				// iterate over the connexions of the current halt
-				while (connexions_iter.next())
+				FOR(connexions_map_single, const& connexions_iter, *(current_halt->get_connexions(catg)))
 				{
-					reachable_halt = connexions_iter.get_current_key();
+					reachable_halt = connexions_iter.key;
 
 					// halts may be removed during the process of refresh
 					if (!reachable_halt.is_bound())
@@ -1206,7 +1208,7 @@ void path_explorer_t::compartment_t::step()
 						continue;
 					}
 
-					current_connexion = connexions_iter.get_current_value();
+					current_connexion = connexions_iter.value;
 
 					// validate transport and determine transport index
 					uint16 transport_idx;
@@ -1783,11 +1785,9 @@ void path_explorer_t::compartment_t::reset_connexion_entry(const uint16 halt_id)
 {
 	if ( connexion_list[halt_id].connexion_table && !connexion_list[halt_id].connexion_table->empty() )
 	{
-		quickstone_hashtable_iterator_tpl<haltestelle_t, haltestelle_t::connexion*> iter(*(connexion_list[halt_id].connexion_table));
-
-		while(iter.next())
+		FOR(connexions_map, const& iter, (*(connexion_list[halt_id].connexion_table)))
 		{
-			delete iter.get_current_value();
+			delete iter.value;
 		}
 		
 		connexion_list[halt_id].connexion_table->clear();

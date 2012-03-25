@@ -728,8 +728,8 @@ public:
 		}
 	}
 
-	typedef quickstone_hashtable_tpl<haltestelle_t, connexion*>* connexions_map;
-	connexions_map get_connexions(uint8 c) { return connexions[c]; }
+	typedef quickstone_hashtable_tpl<haltestelle_t, connexion*>* connexions_map_single;
+	connexions_map_single get_connexions(uint8 c) { return connexions[c]; }
 
 	linehandle_t get_preferred_line(halthandle_t transfer, uint8 category) const;
 	convoihandle_t get_preferred_convoy(halthandle_t transfer, uint8 category) const;

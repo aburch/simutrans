@@ -3245,8 +3245,13 @@ void karte_t::neuer_monat()
 	uint32 total_electric_demand = 1;
 	uint32 electric_productivity = 0;
 	sint16 difference = 0;
+	sint16 i = number_of_factories;
 	FOR(vector_tpl<fabrik_t*>, const fab, fab_list)
 	{
+		if(++i >= difference)
+		{
+			break;
+		}
 		fab->neuer_monat();
 		// The number of factories might have diminished,
 		// so must adjust i to prevent out of bounds errors.
@@ -3264,7 +3269,7 @@ void karte_t::neuer_monat()
 			}
 			number_of_factories = fab_list.get_count();
 		}
-		i -= difference;
+		i += difference;
 		number_of_factories -= difference;
 	}
 
@@ -4531,14 +4536,6 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved tiles");
 	}
 DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved fabs");
 
-	/*slist_iterator_tpl<halthandle_t> iter (haltestelle_t::get_alle_haltestellen());
-	while(iter.next())
-	{
-		if(!iter.get_current().is_bound())
-		{
-			haltestelle_t::get_alle_haltestellen().remove(iter.access_current());
-		}
-	}*/
 	sint32 haltcount=haltestelle_t::get_alle_haltestellen().get_count();
 	file->rdwr_long(haltcount);
 	FOR(slist_tpl<halthandle_t>, const s, haltestelle_t::get_alle_haltestellen()) {
@@ -6686,14 +6683,13 @@ void karte_t::set_citycar_speed_average()
 		citycar_speed_average = 50;
 		return;
 	}
-	stringhashtable_iterator_tpl<const stadtauto_besch_t*> iter(&stadtauto_t::table);
 	sint32 vehicle_speed_sum = 0;
 	sint32 count = 0;
-	while(iter.next())
+	FOR(stringhashtable_tpl<const stadtauto_besch_t *>, const& iter, stadtauto_t::table)
 	{
 		// Take into account the *chance* of vehicles, too: fewer people have sports cars than Minis. 
-		vehicle_speed_sum += (speed_to_kmh(iter.get_current_value()->get_geschw())) * iter.get_current_value()->get_gewichtung();
-		count += iter.get_current_value()->get_gewichtung();
+		vehicle_speed_sum += (speed_to_kmh(iter.value->get_geschw())) * iter.value->get_gewichtung();
+		count += iter.value->get_gewichtung();
 	}
 	citycar_speed_average = vehicle_speed_sum / count;
 }
@@ -6748,16 +6744,15 @@ void karte_t::calc_max_road_check_depth()
 
 	if(ways != NULL)
 	{
-		stringhashtable_iterator_tpl <weg_besch_t *> iter(ways);
-		while(iter.next())
+		FOR(stringhashtable_tpl <weg_besch_t *>, const& iter, *ways)
 		{
-			if(iter.get_current_value()->get_wtyp() != road_wt || iter.get_current_value()->get_intro_year_month() > current_month || iter.get_current_value()->get_retire_year_month() > current_month)
+			if(iter.value->get_wtyp() != road_wt || iter.value->get_intro_year_month() > current_month || iter.value->get_retire_year_month() > current_month)
 			{
 				continue;
 			}
-			if(iter.get_current_value()->get_topspeed() > max_road_speed)
+			if(iter.value->get_topspeed() > max_road_speed)
 			{
-				max_road_speed = iter.get_current_value()->get_topspeed();
+				max_road_speed = iter.value->get_topspeed();
 			}
 		}
 		if(max_road_speed == 0)

@@ -285,7 +285,7 @@ void halt_detail_t::halt_detail_info()
 			buf.append(":\n");
 			offset_y += LINESPACE;
 
-			FOR(quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>, & iter, *connexions) 
+			FOR(connexions_map_single, & iter, *connexions) 
 			{
 				halthandle_t a_halt = iter.get_current_key();
 				haltestelle_t::connexion* cnx = iter.get_current_value();

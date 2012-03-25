@@ -613,19 +613,25 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 		 * If the vectors get resized, the vehicle_map becomes invalid, therefore
 		 * we need to resize them before filling them.
 		 */
-		if(electrics_vec.empty()  &&  pas_vec.empty()  &&  loks_vec.empty()  &&  waggons_vec.empty()) {
+		if(electrics_vec.empty()  &&  pas_vec.empty()  &&  loks_vec.empty()  &&  waggons_vec.empty())
+		{
 			int loks = 0, waggons = 0, pax=0, electrics = 0;
-			FOR(slist_tpl<vehikel_besch_t const*>, const info, depot->get_vehicle_type()) {
-				if(  info->get_engine_type() == vehikel_besch_t::electric  &&  (info->get_ware()==warenbauer_t::passagiere  ||  info->get_ware()==warenbauer_t::post)) {
+			FOR(slist_tpl<vehikel_besch_t *>, const info, vehikelbauer_t::get_info(way_type)) 
+			{
+				if(  info->get_engine_type() == vehikel_besch_t::electric  &&  (info->get_ware()==warenbauer_t::passagiere  ||  info->get_ware()==warenbauer_t::post)) 
+				{
 					electrics++;
 				}
-				else if(info->get_ware()==warenbauer_t::passagiere  ||  info->get_ware()==warenbauer_t::post) {
+				else if(info->get_ware()==warenbauer_t::passagiere  ||  info->get_ware()==warenbauer_t::post) 
+				{
 					pax++;
 				}
-				else if(info->get_leistung() > 0  ||  info->get_zuladung()==0) {
+				else if(info->get_leistung() > 0  ||  info->get_zuladung()==0) 
+				{
 					loks++;
 				}
-				else {
+				else 
+				{
 					waggons++;
 				}
 			}
@@ -634,6 +640,7 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 			loks_vec.resize(loks);
 			waggons_vec.resize(waggons);
 		}
+	}
 	pas_vec.clear();
 	electrics_vec.clear();
 	loks_vec.clear();
@@ -644,9 +651,9 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 	// we do not allow to built electric vehicle in a depot without electrification (way_electrified)
 
 	// use this to show only sellable vehicles
-	if(!show_all  &&  veh_action==va_sell) {
+	if(!show_all  &&  veh_action==va_sell && depot_frame) {
 		// just list the one to sell
-		FOR(slist_tpl<vehikel_t*>, const v, depot->get_vehicle_list()) {
+		FOR(slist_tpl<vehikel_t*>, const v, depot_frame->get_depot()->get_vehicle_list()) {
 			vehikel_besch_t const* const d = v->get_besch();
 			if (vehicle_map.get(d)) continue;
 			add_to_vehicle_list(d);
@@ -661,7 +668,7 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 		  depot_frame->update_data();
 		}
 
-		FOR(slist_tpl<vehikel_besch_t const*>, const info, depot->get_vehicle_type()) 
+		FOR(slist_tpl<vehikel_besch_t *>, const info, vehikelbauer_t::get_info(way_type)) 
 		{
 			const vehikel_besch_t *veh = NULL;
 			if(vehicles.get_count()>0) {
@@ -1052,10 +1059,10 @@ void gui_convoy_assembler_t::update_data()
 			{
 				FOR(slist_tpl<vehikel_t *>, const& iter, depot_frame->get_depot()->get_vehicle_list())
 				{
-					if(iter.get_current()->get_besch() == info)
+					if(iter->get_besch() == info)
 					{
 						vehicle_available = true;
-						img_data.image = info->get_basis_bild(iter.get_current()->get_current_livery());
+						img_data.image = info->get_basis_bild(iter->get_current_livery());
 						break;
 					}
 				}

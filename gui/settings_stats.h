@@ -120,7 +120,7 @@ class settings_t;
 #define READ_COST(t)           (t)((sint64)((*numiter++)->get_value()) * 100)
 #define READ_NUM_ARRAY(t, i)   (t)((i), numiter.get_current()->get_value() )
 #define READ_NUM_VALUE(t)      (t) = (*numiter++)->get_value()
-#define READ_NUM_VALUE_TENTHS(t) numiter.next(); (t) = (numiter.get_current()->get_value() * 10)
+#define READ_NUM_VALUE_TENTHS(t) (t) = (*numiter++)->get_value() * 10
 #define READ_NUM_VALUE_NEW(t)  if(new_world) { READ_NUM_VALUE(t); }
 #define READ_COST_VALUE(t)     (t) = (sint64)((*numiter++)->get_value()) * 100
 #define READ_COST_VALUE_NEW(t) if(new_world) { READ_COST_VALUE(t); }

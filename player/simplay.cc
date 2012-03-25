@@ -251,6 +251,7 @@ void spieler_t::set_player_color(uint8 col1, uint8 col2)
 void spieler_t::step()
 {
 	/*
+	NOTE: This would need updating to the new FOR iterators to work now.
 	// die haltestellen müssen die Fahrpläne rgelmaessig pruefen
 	uint8 i = (uint8)(welt->get_steps()+player_nr);
 	//slist_iterator_tpl <halthandle_t> iter( halt_list );

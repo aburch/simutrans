@@ -1521,14 +1521,13 @@ stadt_t::~stadt_t()
 		
 		if(!welt->get_is_shutting_down())
 		{
-			koordhashtable_iterator_tpl<koord, uint16> iter(connected_cities);
-			while(iter.next())
+			FOR(connexion_map, const& iter, connected_cities)
 			{
-				if(iter.get_current_key() == pos)
+				if(iter.key == pos)
 				{
 					continue;
 				}
-				remove_connected_city(welt->get_city(iter.get_current_key()));
+				remove_connected_city(welt->get_city(iter.key));
 			}
 		}
 	}
@@ -1969,34 +1968,31 @@ void stadt_t::rdwr(loadsave_t* file)
 
 		count = connected_cities.get_count();
 		file->rdwr_long(count);
-		koordhashtable_iterator_tpl<koord, uint16> city_iter(connected_cities);
-		while(city_iter.next())
+		FOR(connexion_map, const& city_iter, connected_cities)
 		{
-			time = city_iter.get_current_value();
+			time = city_iter.value;
 			file->rdwr_short(time);
-			k = city_iter.get_current_key();
+			k = city_iter.key;
 			k.rdwr(file);
 		}
 
 		count = connected_industries.get_count();
 		file->rdwr_long(count);
-		koordhashtable_iterator_tpl<koord, uint16> industry_iter(connected_industries);
-		while(industry_iter.next())
+		FOR(connexion_map, const& industry_iter, connected_industries)
 		{
-			time = industry_iter.get_current_value();
+			time = industry_iter.value;
 			file->rdwr_short(time);
-			k = industry_iter.get_current_key();
+			k = industry_iter.key;
 			k.rdwr(file);
 		}
 
 		count = connected_attractions.get_count();
 		file->rdwr_long(count);
-		koordhashtable_iterator_tpl<koord, uint16> attraction_iter(connected_attractions);
-		while(attraction_iter.next())
+		FOR(connexion_map, const& attraction_iter, connected_attractions);
 		{
-			time = attraction_iter.get_current_value();
+			time = attraction_iter.value;
 			file->rdwr_short(time);
-			k = attraction_iter.get_current_key();
+			k = attraction_iter.key;
 			k.rdwr(file);
 		}
 
@@ -2164,10 +2160,10 @@ void stadt_t::rotate90( const sint16 y_size )
 
 	vector_tpl<koord> k_list(connected_cities.get_count());
 	vector_tpl<uint16> f_list(connected_cities.get_count());
-	koordhashtable_iterator_tpl<koord, uint16> iter1(connected_cities);
-	while(iter1.next())
+	
+	FOR(connexion_map, const& iter1, connected_cities)
 	{
-		koord k = iter1.get_current_key();
+		koord k = iter1.key;
 		uint16 f  = connected_cities.remove(k);
 		k.rotate90(y_size);
 		if(connected_cities.is_contained(k))
@@ -2192,10 +2188,9 @@ void stadt_t::rotate90( const sint16 y_size )
 
 	k_list.clear();
 	f_list.clear();
-	koordhashtable_iterator_tpl<koord, uint16> iter2(connected_industries);
-	while(iter2.next())
+	FOR(connexion_map, const& iter2, connected_industries)
 	{
-		koord k = iter2.get_current_key();
+		koord k = iter2.key;
 		uint16 f  = connected_industries.remove(k);
 		k.rotate90(y_size);
 		if(connected_industries.is_contained(k))
@@ -2220,10 +2215,9 @@ void stadt_t::rotate90( const sint16 y_size )
 
 	k_list.clear();
 	f_list.clear();
-	koordhashtable_iterator_tpl<koord, uint16> iter3(connected_attractions);
-	while(iter3.next())
+	FOR(connexion_map, const& iter3, connected_attractions)
 	{
-		koord k = iter3.get_current_key();
+		koord k = iter3.key;
 		uint16 f  = connected_attractions.remove(k);
 		k.rotate90(y_size);
 		if(connected_attractions.is_contained(k))
@@ -2246,7 +2240,6 @@ void stadt_t::rotate90( const sint16 y_size )
 		connected_attractions.put(k_list[n], f_list[n]);
 	}
 }
-
 
 
 void stadt_t::set_name(const char *new_name)
@@ -2794,10 +2787,9 @@ recalc:
 			// We know that, if this city is not connected to any given city, then every city
 			// to which this city is connected must likewise not be connected. So, avoid
 			// unnecessary recalculation by propogating this now.
-			koordhashtable_iterator_tpl<koord, uint16> iter(connected_cities);
-			while(iter.next())
+			FOR(connexion_map, const& iter, connected_cities)
 			{
-				welt->get_city(iter.get_current_key())->add_road_connexion(65535, city);
+				welt->get_city(iter.key)->add_road_connexion(65535, city);
 			}
 		}
 		return journey_time_per_tile;
@@ -2857,10 +2849,9 @@ uint16 stadt_t::check_road_connexion_to(const fabrik_t* industry)
 					// We know that, if this city is not connected to any given industry, then every city
 					// to which this city is connected must likewise not be connected. So, avoid
 					// unnecessary recalculation by propogating this now.
-					koordhashtable_iterator_tpl<koord, uint16> iter(connected_cities);
-					while(iter.next())
+					FOR(connexion_map, const& iter, connected_cities)
 					{
-						welt->get_city(iter.get_current_key())->set_no_connexion_to_industry(industry);
+						welt->get_city(iter.key)->set_no_connexion_to_industry(industry);
 					}
 				}
 				return journey_time_per_tile;
@@ -2935,10 +2926,9 @@ uint16 stadt_t::check_road_connexion_to(const gebaeude_t* attraction)
 		// We know that, if this city is not connected to any given industry, then every city
 		// to which this city is connected must likewise not be connected. So, avoid
 		// unnecessary recalculation by propogating this now.
-		koordhashtable_iterator_tpl<koord, uint16> iter(connected_cities);
-		while(iter.next())
+		FOR(connexion_map, const& iter, connected_cities)
 		{
-			welt->get_city(iter.get_current_key())->set_no_connexion_to_attraction(attraction);
+			welt->get_city(iter.key)->set_no_connexion_to_attraction(attraction);
 		}
 	}
 	return journey_time_per_tile;

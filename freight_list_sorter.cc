@@ -190,7 +190,6 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 		// print the ware's list to buffer - it should be in sortorder by now!
 		int last_ware_index = -1;
 		int last_ware_catg = -1;
-		count = full_list->get_count();
 
 		for (int j = 0; j < pos; j++)
 		{
@@ -324,9 +323,5 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 	for (; full_i != full_end; ++full_i) {
 		ware_t const& g = *full_i;
 		add_ware_heading(buf, 0, g.menge, &g, what_doing);
-	}
-	if(delete_check)
-	{
-		delete full_list;
 	}
 }

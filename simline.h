@@ -235,8 +235,8 @@ public:
 	* The table of point-to-point average speeds.
 	* @author jamespetts
 	*/
-	typedef koordhashtable_tpl<id_pair, average_tpl<uint16> >& journey_times_map;
-	journey_times_map average_journey_times;
+	typedef koordhashtable_tpl<id_pair, average_tpl<uint16> > journey_times_map;
+	journey_times_map *average_journey_times;
 	
 
 };

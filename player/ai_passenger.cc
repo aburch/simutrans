@@ -206,7 +206,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 			start_connect_hub = start_hub;
 			start_hub = halthandle_t();
 			// is there already one harbour next to this one?
-			FOR(quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>, & iter, *start_connect_hub->get_connexions(0) )
+			FOR(connexions_map_single, & iter, *start_connect_hub->get_connexions(0) )
 			{
 				halthandle_t h = iter.get_current_key();
 				if( h.is_bound() && h->get_station_type()&haltestelle_t::dock  ) 
@@ -237,7 +237,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 			end_connect_hub = end_hub;
 			end_hub = halthandle_t();
 			// is there already one harbour next to this one?
-			FOR(quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>, & iter, *end_connect_hub->get_connexions(0) ) 
+			FOR(connexions_map_single, & iter, *end_connect_hub->get_connexions(0) ) 
 			{
 				halthandle_t h = iter.get_current_key();
 				if( h.is_bound() && h->get_station_type()&haltestelle_t::dock  ) 
@@ -621,7 +621,7 @@ bool ai_passenger_t::create_air_transport_vehikel(const stadt_t *start_stadt, co
 			start_connect_hub = start_hub;
 			start_hub = halthandle_t();
 			// is there already one airport next to this town?
-			FOR(quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>, & iter, *start_connect_hub->get_connexions(0) ) 
+			FOR(connexions_map_single, & iter, *start_connect_hub->get_connexions(0) ) 
 			{
 				halthandle_t h = iter.get_current_key();
 				if( h.is_bound() && h->get_station_type()&haltestelle_t::airstop  )
@@ -652,7 +652,7 @@ bool ai_passenger_t::create_air_transport_vehikel(const stadt_t *start_stadt, co
 			end_connect_hub = end_hub;
 			end_hub = halthandle_t();
 			// is there already one airport next to this town?
-			FOR(quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>, & iter, *end_connect_hub->get_connexions(0) ) 
+			FOR(connexions_map_single, & iter, *end_connect_hub->get_connexions(0) ) 
 			{
 				halthandle_t h = iter.get_current_key();
 				if( h.is_bound() && h->get_station_type()&haltestelle_t::airstop  ) 
