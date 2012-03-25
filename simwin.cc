@@ -1240,7 +1240,6 @@ bool check_pos_win(event_t *ev)
 					case GADGET_HELP :
 						if (IS_LEFTCLICK(ev)) {
 							help_frame_t::open_help_on( wins[i].gui->get_hilfe_datei() );
-							inside_event_handling = 0;
 						}
 						break;
 					case GADGET_PREV:
@@ -1360,9 +1359,10 @@ void win_display_flush(double konto)
 	display_fillbox_wh(0, 0, disp_width, menu_height, MN_GREY2, false);
 	// .. extra logic to enable tooltips
 	tooltip_element = menu_height > get_maus_y() ? main_menu : NULL;
+	void *old_inside_event_handling = inside_event_handling;
 	inside_event_handling = main_menu;
 	main_menu->zeichnen(koord(0,-16), koord(disp_width,menu_height) );
-	inside_event_handling = NULL;
+	inside_event_handling = old_inside_event_handling;
 
 	// redraw all?
 	if(windows_dirty) {
