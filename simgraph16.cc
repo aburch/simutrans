@@ -1,9 +1,6 @@
 /*
- * Copyright 1997, 2001 Hj. Malthaner
- * hansjoerg.malthaner@gmx.de
  * Copyright 2010 Simutrans contributors
  * Available under the Artistic License (see license.txt)
- *
  */
 
 #include <stdlib.h>
