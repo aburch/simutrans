@@ -378,7 +378,6 @@ int simu_main(int argc, char** argv)
 			"\n"
 			"  Based on Simutrans 0.84.21.2\n"
 			"  by Hansjörg Malthaner et. al.\n"
-			"  <hansjoerg.malthaner@gmx.de>\n"
 			"---------------------------------------\n"
 			"command line parameters available: \n"
 			" -addons             loads also addons (with -objects)\n"

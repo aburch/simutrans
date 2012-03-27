@@ -6355,8 +6355,7 @@ You can use this version with the 0.81.35exp base package.
 06/01/01 - CHANGE: Changed a lot of printf calls to calls to the new
                    debug/logging class, rated as "Message", "Warning",
                    "Error" and "Fatal error". Fatal error quit the program
-                   immediately. Please report all "Error" and "Fatal error"
-                   messages to me <hansjoerg.malthaner@gmx.de>
+                   immediately.
 
 05/27/01 - NEW: Added more error detections to the id_handle template
                 (tombstone id checks). This checks should catch about 50% of

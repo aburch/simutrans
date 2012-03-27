@@ -1,11 +1,6 @@
 /*
- * Copyright (c) 2001 Hansjörg Malthaner
- * hansjoerg.malthaner@gmx.de
- *
- * This file is part of the Simugraph engine and may not be used
- * in other projects without written permission of the author.
- *
- * Usage for Iso-Angband is granted.
+ * Copyright 2010 Simutrans contributors
+ * Available under the Artistic License (see license.txt)
  */
 
 #include "simconst.h"
