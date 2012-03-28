@@ -20,7 +20,7 @@ endif
 
 
 ifeq ($(OSTYPE),amiga)
-  STD_LIBS ?= -lz -lbz2 -lunix -lpthread -lSDL_mixer -lsmpeg -lvorbisfile -lvorbis -logg
+  STD_LIBS ?= -lz -lbz2 -lunix -lSDL_mixer -lsmpeg -lvorbisfile -lvorbis -logg
   CFLAGS += -mcrt=newlib -DUSE_C -DBIG_ENDIAN -gstabs+
   LDFLAGS += -Bstatic -non_shared
 endif
@@ -116,6 +116,17 @@ ifneq ($(PROFILE),)
     CFLAGS  += -fno-inline -fno-schedule-insns
   endif
   LDFLAGS += -pg
+endif
+
+ifneq  ($(MULTI_THREAD),)
+  CFLAGS += -DMULTI_THREAD=$(MULTI_THREAD)
+  ifneq  ($(MULTI_THREAD),1)
+    ifeq ($(OSTYPE),mingw)
+      LDFLAGS += -lpthreadGC2
+    else
+      LDFLAGS += -lpthread
+    endif
+  endif
 endif
 
 ifneq ($(WITH_REVISION),)

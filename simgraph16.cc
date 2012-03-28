@@ -46,6 +46,13 @@
 # endif
 #endif
 
+#if MULTI_THREAD>1
+#include <pthread.h>
+
+// currently just redrawing/rezooming
+static pthread_mutex_t rezoom_recode_img_mutex;
+#endif
+
 #include "simgraph.h"
 
 // undefine for debugging the update routines
@@ -1113,12 +1120,16 @@ static void recode_img_src_target(KOORD_VAL h, PIXVAL *src, PIXVAL *target)
 }
 
 
+
 /**
  * Handles the conversion of an image to the output color
  * @author prissi
  */
 static void recode_normal_img(const unsigned int n)
 {
+#if MULTI_THREAD>1
+	pthread_mutex_lock( &rezoom_recode_img_mutex );
+#endif
 	PIXVAL *src = images[n].zoom_data != NULL ? images[n].zoom_data : images[n].base_data;
 
 	if (images[n].data == NULL) {
@@ -1128,6 +1139,9 @@ static void recode_normal_img(const unsigned int n)
 	activate_player_color( 0, true );
 	recode_img_src_target(images[n].h, src, images[n].data);
 	images[n].recode_flags &= ~FLAG_NORMAL_RECODE;
+#if MULTI_THREAD>1
+	pthread_mutex_unlock( &rezoom_recode_img_mutex );
+#endif
 }
 
 
@@ -1165,15 +1179,22 @@ static void recode_img_src_target_color(KOORD_VAL h, PIXVAL *src, PIXVAL *target
  */
 static void recode_color_img(const unsigned int n, const unsigned char player_nr)
 {
+	// Hajo: may this image be zoomed
+#if MULTI_THREAD>1
+	pthread_mutex_lock( &rezoom_recode_img_mutex );
+#endif
 	PIXVAL *src = images[n].zoom_data != NULL ? images[n].zoom_data : images[n].base_data;
 
 	images[n].player_flags = player_nr;
-	if (images[n].player_data == NULL) {
+	if(  images[n].player_data == NULL  ) {
 		images[n].player_data = MALLOCN(PIXVAL, images[n].len);
 	}
 	// contains now the player color ...
 	activate_player_color( player_nr, true );
 	recode_img_src_target_color(images[n].h, src, images[n].player_data );
+#if MULTI_THREAD>1
+	pthread_mutex_unlock( &rezoom_recode_img_mutex );
+#endif
 }
 
 #endif
@@ -1198,6 +1219,14 @@ static void rezoom_img(const image_id n)
 {
 	// Hajo: may this image be zoomed
 	if (n < anz_images && images[n].base_h > 0) {
+#if MULTI_THREAD>1
+		pthread_mutex_lock( &rezoom_recode_img_mutex );
+		if(  (images[n].recode_flags & FLAG_REZOOM) == 0  ) {
+			// other routine did already the rezooming ...
+			pthread_mutex_unlock( &rezoom_recode_img_mutex );
+			return;
+		}
+#endif
 		// we may need night conversion afterwards
 		images[n].recode_flags &= ~FLAG_REZOOM;
 		images[n].recode_flags |= FLAG_NORMAL_RECODE;
@@ -1241,6 +1270,9 @@ static void rezoom_img(const image_id n)
 				}
 				images[n].len = (uint32)(size_t)(sp-images[n].base_data);
 			}
+#if MULTI_THREAD>1
+			pthread_mutex_unlock( &rezoom_recode_img_mutex );
+#endif
 			return;
 		}
 
@@ -1608,13 +1640,17 @@ static void rezoom_img(const image_id n)
 				assert( images[n].zoom_data  );
 				memcpy( images[n].zoom_data, baseimage, zoom_len );
 			}
-		} else {
+		}
+		else {
 			if (images[n].w <= 0) {
 				// h=0 will be ignored, with w=0 there was an error!
 				printf("WARNING: image%d w=0!\n", n);
 			}
 			images[n].h = 0;
 		}
+#if MULTI_THREAD>1
+		pthread_mutex_unlock( &rezoom_recode_img_mutex );
+#endif
 	}
 }
 
@@ -3743,10 +3779,12 @@ void simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 	disp_actual_width = width;
 	disp_height = height;
 
+#if MULTI_THREAD>1
+	pthread_mutex_init( &rezoom_recode_img_mutex, NULL );
+#endif
 	// get real width from os-dependent routines
 	disp_width = dr_os_open(width, height, full_screen);
 	if(  disp_width>0  ) {
-
 
 		textur = dr_textur_init();
 
@@ -3845,6 +3883,9 @@ void simgraph_exit()
 
 	tile_dirty = tile_dirty_old = NULL;
 	images = NULL;
+#if MULTI_THREAD>1
+	pthread_mutex_destroy( &rezoom_recode_img_mutex );
+#endif
 }
 
 

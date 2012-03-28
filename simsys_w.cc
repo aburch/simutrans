@@ -34,9 +34,6 @@
 // 16 Bit may be much slower than 15 unfourtunately on some hardware
 #define USE_16BIT_DIB
 
-// for redraws in another thread (gives some accelleration on larger screens)
-#define MULTI_THREAD
-
 #include "simmem.h"
 #include "simsys_w32_png.h"
 #include "simversion.h"
@@ -59,6 +56,7 @@ static BITMAPINFO* AllDib;
 static PIXVAL*     AllDibData;
 
 volatile HDC hdc = NULL;
+
 
 #ifdef MULTI_THREAD
 

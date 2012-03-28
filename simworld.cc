@@ -5827,7 +5827,7 @@ bool karte_t::interactive(uint32 quit_month)
 				else {
 					dr_sleep( 9 );
 				}
-					INT_CHECK( "karte_t::interactive()" );
+				INT_CHECK( "karte_t::interactive()" );
 			}
 			DBG_DEBUG4("karte_t::interactive", "end of sleep");
 		}

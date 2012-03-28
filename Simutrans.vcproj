@@ -43,7 +43,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories=""
-				PreprocessorDefinitions="NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;DEBUG=3;COLOUR_DEPTH=16"
+				PreprocessorDefinitions="NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;DEBUG=3;COLOUR_DEPTH=16;MULTI_THREAD=1"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -66,7 +66,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winmm.lib zlibstat.lib advapi32.lib ws2_32.lib libbz2.lib $(NOINHERIT)"
+				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winmm.lib zlibstat.lib advapi32.lib ws2_32.lib libbz2.lib pthreadVC2.lib $(NOINHERIT)"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories=""
 				IgnoreAllDefaultLibraries="false"
@@ -127,7 +127,7 @@
 				Optimization="3"
 				InlineFunctionExpansion="0"
 				AdditionalIncludeDirectories=""
-				PreprocessorDefinitions="NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;NDEBUG;COLOUR_DEPTH=16"
+				PreprocessorDefinitions="NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;NDEBUG;COLOUR_DEPTH=16;MULTI_THREAD=4"
 				StringPooling="true"
 				ExceptionHandling="1"
 				BasicRuntimeChecks="0"
@@ -150,7 +150,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winmm.lib zlibstat.lib advapi32.lib ws2_32.lib libbz2.lib $(NOINHERIT)"
+				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winmm.lib zlibstat.lib advapi32.lib ws2_32.lib libbz2.lib pthreadVC2.lib $(NOINHERIT)"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
 				IgnoreDefaultLibraryNames="libcmt.lib"

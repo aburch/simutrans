@@ -379,7 +379,9 @@ void planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const si
 			const grund_t* gr=data.some[i];
 			const sint8 h = gr->get_hoehe();
 			// above ground
-			if (h > h0) break;
+			if (h > h0) {
+				break;
+			}
 			// not too low?
 			if (h >= hmin) {
 				const sint16 yypos = ypos - tile_raster_scale_y( (h-h0)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width);
@@ -393,32 +395,37 @@ void planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const si
 		gr0->display_boden(xpos, ypos, raster_tile_width);
 	}
 
-	// clip everything at the next tile above
-	clip_dimension p_cr;
-	if(  i < ground_size  ) {
-		p_cr = display_get_clip_wh();
-		for(uint8 j=i; j<ground_size; j++) {
-			const sint8 h = data.some[j]->get_hoehe();
-			// too high?
-			if(  h > hmax  ) {
-				break;
-			}
-			// not too low?
-			if(  h >= hmin  ) {
-				// something on top: clip horizontally to prevent trees etc shining trough bridges
-				const sint16 yh = ypos - tile_raster_scale_y( (h-h0)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width) + ((3*raster_tile_width)>>2);
-				if(  yh >= p_cr.y   &&  yh < p_cr.y+p_cr.h  ) {
-					display_set_clip_wh(p_cr.x, yh, p_cr.w, p_cr.h+p_cr.y-yh);
+	if(  raster_tile_width <= umgebung_t::simple_drawing_tile_size  ) {
+		// ignore trees going though bridges
+		gr0->display_dinge_all_quick_and_dirty(xpos, ypos, raster_tile_width, is_global);
+	}
+	else {
+		// clip everything at the next tile above
+		clip_dimension p_cr;
+		if(  i < ground_size  ) {
+			p_cr = display_get_clip_wh();
+			for(uint8 j=i; j<ground_size; j++) {
+				const sint8 h = data.some[j]->get_hoehe();
+				// too high?
+				if(  h > hmax  ) {
+					break;
 				}
-				break;
+				// not too low?
+				if(  h >= hmin  ) {
+					// something on top: clip horizontally to prevent trees etc shining trough bridges
+					const sint16 yh = ypos - tile_raster_scale_y( (h-h0)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width) + ((3*raster_tile_width)>>2);
+					if(  yh >= p_cr.y   &&  yh < p_cr.y+p_cr.h  ) {
+						display_set_clip_wh(p_cr.x, yh, p_cr.w, p_cr.h+p_cr.y-yh);
+					}
+					break;
+				}
 			}
 		}
-
-	}
-	gr0->display_dinge_all(xpos, ypos, raster_tile_width, is_global);
-	// restore clipping
-	if(  i<ground_size  ) {
-		display_set_clip_wh(p_cr.x, p_cr.y, p_cr.w, p_cr.h);
+		gr0->display_dinge_all(xpos, ypos, raster_tile_width, is_global);
+		// restore clipping
+		if(  i<ground_size  ) {
+			display_set_clip_wh(p_cr.x, p_cr.y, p_cr.w, p_cr.h);
+		}
 	}
 	// above ground
 	for(  ;  i<ground_size;  i++  ) {
