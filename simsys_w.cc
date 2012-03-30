@@ -257,7 +257,7 @@ DWORD WINAPI dr_flush_screen(LPVOID lpParam)
 		display_flush_buffer();
 		ReleaseDC(hwnd, hdc);
 		hdc = NULL;
-		flushcount --;
+		flushcount = 0;
 		// suspend myself after one update
 		SuspendThread( hFlushThread );
 	}
@@ -281,7 +281,7 @@ void dr_flush()
 {
 #ifdef MULTI_THREAD
 	// just let the thread do its work
-	flushcount ++;
+	flushcount = 1;
 	ResumeThread( hFlushThread );
 #else
 	assert(hdc==NULL);
