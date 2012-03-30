@@ -299,13 +299,6 @@ bool nwc_chat_t::execute (karte_t* welt)
 
 		dbg->warning("nwc_chat_t::execute", "server, client id: %d", client_id);
 
-		// Invalid client_id means this is a message from the server to itself
-		if (  !socket_list_t::is_valid_client_id( client_id )  ) {
-			// Act on message as if we are a client
-			add_message(welt);
-			return true;
-		}
-
 		// Clients can only send messages as companies they have unlocked
 		if (  player_nr < PLAYER_UNOWNED  &&  !socket_list_t::get_client( client_id ).is_player_unlocked( player_nr )  ) {
 			dbg->warning("nwc_chat_t::execute", "attempt to send message as locked company by client %d, redirecting to PLAYER_UNOWNED", client_id);
@@ -318,7 +311,11 @@ bool nwc_chat_t::execute (karte_t* welt)
 		nwc_chat_t* nwchat = new nwc_chat_t( message, player_nr, info.nickname.c_str(), destination );
 
 		if (  destination == NULL  ) {
-			network_send_all( nwchat, false );
+			// Do not send messages to ourself (server)
+			network_send_all( nwchat, true );
+
+			// Act on message (for display of messages on server, and to keep record of messages for new clients joining)
+			add_message(welt);
 
 			// Log chat message - please don't change order of fields
 			CSV_t csv;
