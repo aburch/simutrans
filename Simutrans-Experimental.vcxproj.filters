@@ -771,6 +771,18 @@
     <ClCompile Include="gui\privatesign_info.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="gui\components\gui_ding_view_t.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\display_settings.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\ai_option_t.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dataobj\pwd_hash.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gui\components\action_listener.h">
@@ -1776,6 +1788,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="utils\for.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\components\gui_ding_view_t.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

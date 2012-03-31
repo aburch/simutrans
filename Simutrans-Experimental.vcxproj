@@ -445,6 +445,10 @@
     <ClCompile Include="dataobj\network_file_transfer.cc" />
     <ClCompile Include="dataobj\network_socket_list.cc" />
     <ClCompile Include="dataobj\pakset_info.cc" />
+    <ClCompile Include="dataobj\pwd_hash.cc" />
+    <ClCompile Include="gui\ai_option_t.cc" />
+    <ClCompile Include="gui\components\gui_ding_view_t.cc" />
+    <ClCompile Include="gui\display_settings.cc" />
     <ClCompile Include="gui\factory_chart.cc" />
     <ClCompile Include="gui\line_item.cc" />
     <ClCompile Include="gui\privatesign_info.cc" />
@@ -715,6 +719,7 @@
     <ClInclude Include="dataobj\network_packet.h" />
     <ClInclude Include="dataobj\pakset_info.h" />
     <ClInclude Include="gui\components\action_listener.h" />
+    <ClInclude Include="gui\components\gui_ding_view_t.h" />
     <ClInclude Include="gui\password_frame.h" />
     <ClInclude Include="gui\privatesign_info.h" />
     <ClInclude Include="gui\send_message_frame.h" />

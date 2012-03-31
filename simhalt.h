@@ -236,6 +236,16 @@ public:
 
 	bool is_within_walking_distance_of(halthandle_t halt) const;
 
+	typedef quickstone_hashtable_tpl<haltestelle_t, connexion*> connexions_map;
+
+	struct waiting_time_set
+	{
+		fixed_list_tpl<uint16, 16> times;
+		uint8 month;
+	};
+
+	typedef inthashtable_tpl<uint16, waiting_time_set > waiting_time_map;
+
 private:
 	slist_tpl<tile_t> tiles;
 
@@ -244,8 +254,7 @@ private:
 	// Table of all direct connexions to this halt, with routing information.
 	// Array: one entry per goods type.
 	// Knightly : Change into an array of pointers to connexion hash tables
-	quickstone_hashtable_tpl<haltestelle_t, connexion*> **connexions;
-	typedef quickstone_hashtable_tpl<haltestelle_t, connexion*> connexions_map;
+	connexions_map **connexions;
 
 	// loest warte_menge ab
 	// "solves wait mixes off" (Babelfish); "solves warte volume from" (Google)
@@ -329,18 +338,13 @@ private:
 	haltestelle_t(karte_t *welt, loadsave_t *file);
 	haltestelle_t(karte_t *welt, koord pos, spieler_t *sp);
 	~haltestelle_t();
-
-	struct waiting_time_set
-	{
-		fixed_list_tpl<uint16, 16> times;
-		uint8 month;
-	};
 		
 	// Record of waiting times. Takes a list of the last 16 waiting times per type of goods.
 	// Getter method will need to average the waiting times. 
 	// @author: jamespetts
-	inthashtable_tpl<uint16, waiting_time_set > * waiting_times;
-	typedef inthashtable_tpl<uint16, waiting_time_set >& waiting_time_map;
+
+	waiting_time_map * waiting_times;
+	
 
 	uint8 check_waiting;
 
@@ -710,9 +714,9 @@ public:
 	{
 		if(halt.is_bound())
 		{
-			
+			const waiting_time_map const *wt = &waiting_times[category];
 			fixed_list_tpl<uint16, 16> *tmp;
-			if(waiting_times[category].access(halt.get_id()) == NULL)
+			if(!wt->is_contained(halt.get_id()))
 			{
 				tmp = new fixed_list_tpl<uint16, 16>;
 				waiting_time_set *set = new waiting_time_set;

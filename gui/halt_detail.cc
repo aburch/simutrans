@@ -272,7 +272,8 @@ void halt_detail_t::halt_detail_info()
 
 	for (uint i=0; i<warenbauer_t::get_max_catg_index(); i++)
 	{
-		const quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> *connexions = halt->get_connexions(i);
+		typedef quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> connexions_map_single_remote;
+		connexions_map_single_remote *connexions = halt->get_connexions(i);
 
 		if(!connexions->empty())
 		{
@@ -285,10 +286,10 @@ void halt_detail_t::halt_detail_info()
 			buf.append(":\n");
 			offset_y += LINESPACE;
 
-			FOR(connexions_map_single, & iter, *connexions) 
+			FOR(connexions_map_single_remote, & iter, *connexions) 
 			{
-				halthandle_t a_halt = iter.get_current_key();
-				haltestelle_t::connexion* cnx = iter.get_current_value();
+				halthandle_t a_halt = iter.key;
+				haltestelle_t::connexion* cnx = iter.value;
 				if(a_halt.is_bound()) 
 				{
 

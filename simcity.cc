@@ -1988,7 +1988,7 @@ void stadt_t::rdwr(loadsave_t* file)
 
 		count = connected_attractions.get_count();
 		file->rdwr_long(count);
-		FOR(connexion_map, const& attraction_iter, connected_attractions);
+		FOR(connexion_map, const& attraction_iter, connected_attractions)
 		{
 			time = attraction_iter.value;
 			file->rdwr_short(time);

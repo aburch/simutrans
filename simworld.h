@@ -55,7 +55,6 @@ class network_world_command_t;
 class ware_besch_t;
 class memory_rw_t;
 
-
 struct checklist_t
 {
 	uint32 random_seed;

@@ -1053,7 +1053,7 @@ void haltestelle_t::neuer_monat()
 	// If the waiting times have not been updated for too long, gradually re-set them; also increment the timing records.
 	for ( int category = 0; category < warenbauer_t::get_max_catg_index(); category++ )
 	{
-		FOR(waiting_time_map, const& iter, waiting_times[category])
+		FOR(waiting_time_map, & iter, waiting_times[category])
 		{
 			// If the waiting time data are stale (more than two months old), gradually flush them.
 			if(iter.value.month > 2)
@@ -1199,7 +1199,8 @@ void haltestelle_t::remove_fabriken(fabrik_t *fab)
 
 uint16 haltestelle_t::get_average_waiting_time(halthandle_t halt, uint8 category) const
 {
-	if(waiting_times[category].is_contained((halt.get_id())))
+	inthashtable_tpl<uint16, haltestelle_t::waiting_time_set> * const wt = &waiting_times[category];
+	if(wt->is_contained((halt.get_id())))
 	{
 		fixed_list_tpl<uint16, 16> times = waiting_times[category].get(halt.get_id()).times;
 		const uint16 count = times.get_count();
@@ -2605,7 +2606,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				file->rdwr_short(halts_count);
 				halthandle_t halt;
 
-				FOR(waiting_time_map, const& iter, waiting_times[i])
+				FOR(waiting_time_map, & iter, waiting_times[i])
 				{
 					uint16 id = iter.key;
 
@@ -2624,12 +2625,12 @@ void haltestelle_t::rdwr(loadsave_t *file)
 						save_koord.rdwr(file);
 					}
 					
-					uint8 waiting_time_count = iter.value->times.get_count();
+					uint8 waiting_time_count = iter.value.times.get_count();
 					file->rdwr_byte(waiting_time_count);
 					ITERATE(iter.value.times, i)
 					{
 						// Store each waiting time
-						uint16 current_time = iter.value->times.get_element(i);
+						uint16 current_time = iter.value.times.get_element(i);
 						file->rdwr_short(current_time);
 					}
 

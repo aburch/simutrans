@@ -222,14 +222,14 @@ public:
 	// contained in the hashtable.
 	// @author: jamespetts
 	//
-	bool is_contained(const key_t key)
+	bool is_contained(const key_t key) const
 	{
 	// Code taken from the "put" method.
 
 		const STHT_BAG_COUNTER_T code = get_hash(key);
 		FOR(slist_tpl<node_t>, const& iter, bags[code])
 		{
-			node_t &node = iter;
+			const node_t const &node = iter;
 
 			if (hash_t::comp(node.key, key) == 0) 
 			{

@@ -18,6 +18,8 @@
 #include "dataobj/fahrplan.h"
 #include "simconvoi.h"
 
+typedef quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> connexions_map_single_remote;
+
 
 // #define DEBUG_EXPLORER_SPEED
 // #define DEBUG_COMPARTMENT_STEP
@@ -833,6 +835,10 @@ void path_explorer_t::compartment_t::step()
 
 					// use hash tables in connexion list, but not hash tables stored in the halt
 					catg_connexions = connexion_list[ halt_list[h].get_id() ].connexion_table;
+					if(!catg_connexions)
+					{
+						break;
+					}
 					// any serving line/lineless convoy increments serving transport count
 					++connexion_list[ halt_list[h].get_id() ].serving_transport;
 
@@ -1196,9 +1202,8 @@ void path_explorer_t::compartment_t::step()
 					++transfer_count;
 				}
 
-
 				// iterate over the connexions of the current halt
-				FOR(connexions_map_single, const& connexions_iter, *(current_halt->get_connexions(catg)))
+				FOR(connexions_map_single_remote, const& connexions_iter, *(current_halt->get_connexions(catg)))
 				{
 					reachable_halt = connexions_iter.key;
 
@@ -1785,7 +1790,7 @@ void path_explorer_t::compartment_t::reset_connexion_entry(const uint16 halt_id)
 {
 	if ( connexion_list[halt_id].connexion_table && !connexion_list[halt_id].connexion_table->empty() )
 	{
-		FOR(connexions_map, const& iter, (*(connexion_list[halt_id].connexion_table)))
+		FOR(haltestelle_t::connexions_map, const& iter, (*(connexion_list[halt_id].connexion_table)))
 		{
 			delete iter.value;
 		}
