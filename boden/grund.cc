@@ -89,7 +89,8 @@ static inthashtable_tpl<uint32, char*> ground_texts;
 // since size_x*size_y < 0x1000000, we have just to shift the high bits
 #define get_ground_text_key(k,width) ( ((k).x*(width)+(k).y) + ((k).z << 25) )
 
-#define get_ground_koord3d_key(key,width) koord3d( (key)/(width), (key)%(width), ((key)>>25) | ( (key&0x80000000ul) ? 0x80 : 0x00 ) )
+// and the reverse operation
+#define get_ground_koord3d_key(key,width) koord3d( ((key&0x01ffffff))/(width), ((key)&0x01ffffff)%(width), ((key)>>25) | ( (key&0x80000000ul) ? 0x80 : 0x00 ) )
 
 void grund_t::set_text(const char *text)
 {
