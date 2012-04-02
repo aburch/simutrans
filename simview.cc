@@ -206,7 +206,7 @@ void karte_ansicht_t::display(bool force_dirty)
 
 		const sint16 ypos = y*(IMG_SIZE/4) + const_y_off;
 
-		for(sint16 x=-2-((y+dpy_height) & 1); (x*(IMG_SIZE/2) + const_x_off)<disp_width; x+=2) {
+		for(sint16 x=-2-((y+dpy_width) & 1); (x*(IMG_SIZE/2) + const_x_off)<disp_width; x+=2) {
 
 			const int i = ((y+x) >> 1) + i_off;
 			const int j = ((y-x) >> 1) + j_off;
