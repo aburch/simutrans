@@ -423,10 +423,32 @@ public:
 		node_t* tmp = new node_t(x, pos.ptr);
 		if (pos.pred == NULL) {
 			head = tmp;
-		} else {
+		}
+		else {
 			pos.pred->next = tmp;
 		}
-		if (pos.ptr == NULL) tail = tmp;
+		if (pos.ptr == NULL) {
+			tail = tmp;
+		}
+		++node_count;
+		return iterator(tmp, pos.pred);
+	}
+
+	/* Add an empty node
+	 * pos is invalid after this method
+	 * An iterator pointing to the new element is returned */
+	iterator insert(iterator pos)
+	{
+		node_t* tmp = new node_t(pos.ptr);
+		if (pos.pred == NULL) {
+			head = tmp;
+		}
+		else {
+			pos.pred->next = tmp;
+		}
+		if (pos.ptr == NULL) {
+			tail = tmp;
+		}
 		++node_count;
 		return iterator(tmp, pos.pred);
 	}
