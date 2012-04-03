@@ -61,14 +61,10 @@ volatile HDC hdc = NULL;
 #ifdef MULTI_THREAD
 
 HANDLE	hFlushThread=0;
-static volatile int flushcount = 0;
+CRITICAL_SECTION redraw_underway;
 
-#define WAIT_FOR_SCREEN() {while(flushcount) Sleep(5);}
-
-#else
-
-// nothing to de done
-#define WAIT_FOR_SCREEN()
+// forward decleration
+DWORD WINAPI dr_flush_screen(LPVOID lpParam);
 #endif
 
 
@@ -111,6 +107,11 @@ int dr_os_open(int const w, int const h, int fullscreen)
 	MaxSize.right = (w+15)&0x7FF0;
 	MaxSize.bottom = h+1;
 
+#ifdef MULTI_THREAD
+	InitializeCriticalSection( &redraw_underway );
+	hFlushThread = CreateThread( NULL, 0, dr_flush_screen, 0, CREATE_SUSPENDED, NULL );
+#endif
+
 	// fake fullscreen
 	if (fullscreen) {
 		// try to force display mode and size
@@ -136,7 +137,8 @@ int dr_os_open(int const w, int const h, int fullscreen)
 	}
 	if(  fullscreen  ) {
 		create_window(WS_EX_TOPMOST, WS_POPUP, 0, 0, w, h);
-	} else {
+	}
+	else {
 		create_window(0, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, w, h);
 	}
 
@@ -175,9 +177,10 @@ int dr_os_open(int const w, int const h, int fullscreen)
 void dr_os_close()
 {
 #ifdef MULTI_THREAD
-	WAIT_FOR_SCREEN();
 	if(  hFlushThread  ) {
 		TerminateThread( hFlushThread, 0 );
+		LeaveCriticalSection( &redraw_underway );
+		DeleteCriticalSection( &redraw_underway );
 	}
 #endif
 	if (hwnd != NULL) {
@@ -196,7 +199,10 @@ void dr_os_close()
 // reiszes screen
 int dr_textur_resize(unsigned short** const textur, int w, int const h)
 {
-	WAIT_FOR_SCREEN();
+#ifdef MULTI_THREAD
+	EnterCriticalSection( &redraw_underway );
+	LeaveCriticalSection( &redraw_underway );
+#endif
 
 	// some cards need those alignments
 	w = (w + 15) & 0x7FF0;
@@ -253,11 +259,12 @@ DWORD WINAPI dr_flush_screen(LPVOID lpParam)
 {
 	while(1) {
 		// wait for finish of thread
+		EnterCriticalSection( &redraw_underway );
 		hdc = GetDC(hwnd);
 		display_flush_buffer();
 		ReleaseDC(hwnd, hdc);
 		hdc = NULL;
-		flushcount = 0;
+		LeaveCriticalSection( &redraw_underway );
 		// suspend myself after one update
 		SuspendThread( hFlushThread );
 	}
@@ -268,12 +275,8 @@ DWORD WINAPI dr_flush_screen(LPVOID lpParam)
 void dr_prepare_flush()
 {
 #ifdef MULTI_THREAD
-	// thread there?
-	if(hFlushThread==0) {
-		DWORD id=22;
-		hFlushThread = CreateThread( NULL, 0, dr_flush_screen, 0, CREATE_SUSPENDED, &id );
-	}
-	WAIT_FOR_SCREEN();
+	// now the thread is finished ...
+	EnterCriticalSection( &redraw_underway );
 #endif
 }
 
@@ -281,7 +284,7 @@ void dr_flush()
 {
 #ifdef MULTI_THREAD
 	// just let the thread do its work
-	flushcount = 1;
+	LeaveCriticalSection( &redraw_underway );
 	ResumeThread( hFlushThread );
 #else
 	assert(hdc==NULL);
@@ -521,8 +524,6 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 		case WM_PAINT: {
 			PAINTSTRUCT ps;
 			HDC hdcp;
-
-			WAIT_FOR_SCREEN();
 
 			hdcp = BeginPaint(hwnd, &ps);
 			AllDib->bmiHeader.biHeight = WindowSize.bottom;
