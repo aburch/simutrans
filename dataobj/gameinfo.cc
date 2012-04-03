@@ -23,6 +23,7 @@
 #include "../utils/simstring.h"
 #include "loadsave.h"
 #include "pakset_info.h"
+#include "../simversion.h"
 
 
 #define MINIMAP_SIZE (64)

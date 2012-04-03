@@ -9,6 +9,7 @@
 #include "../simgraph.h"
 #include "../dataobj/translator.h"
 #endif
+#include "../simversion.h"
 
 /*
  * Functions required by both Simutrans and Nettool

@@ -1,0 +1,7 @@
+var fso   = new ActiveXObject("Scripting.FileSystemObject");
+var shell = new ActiveXObject("WScript.Shell");
+var outFile = fso.CreateTextFile("revision.h", true);
+var svnRevNum               = shell.Exec("svnversion");
+var rev                    = svnRevNum.StdOut.ReadAll();
+outFile.WriteLine( "#define REVISION   " + String(rev) );
+outFile.Close();

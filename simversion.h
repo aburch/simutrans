@@ -1,6 +1,11 @@
 #ifndef simversion_h
 #define simversion_h
 
+#if defined(REVISION_FROM_FILE)  &&  !defined(REVISION)
+// include external generated revision file
+#include "revision.h"
+#endif
+
 #define SIM_BUILD_NIGHTLY           0
 #define SIM_BUILD_RELEASE_CANDIDATE 1
 #define SIM_BUILD_RELEASE           2
