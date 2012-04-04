@@ -190,6 +190,9 @@ void karte_ansicht_t::display(bool force_dirty)
 		for(int t=1; t<MULTI_THREAD; t++) {
 			KOORD_VAL start_x = (t*disp_width)/MULTI_THREAD-IMG_SIZE;
 			display_set_clip_wh( start_x, menu_height, IMG_SIZE, disp_height-menu_height );
+			if(grund_t::underground_mode) {
+				display_fillbox_wh(start_x, menu_height, IMG_SIZE, disp_height-menu_height, COL_BLACK, force_dirty);
+			}
 			display_region( koord( start_x,menu_height), koord(IMG_SIZE,disp_height-menu_height), y_min, dpy_height+4*4, force_dirty );
 		}
 		display_set_clip_wh( 0, menu_height, disp_width, disp_height-menu_height );
