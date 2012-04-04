@@ -178,13 +178,11 @@ koord3d tunnelbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, waytype_
 			return koord3d::invalid;
 		}
 
-#ifdef ONLY_TUNNELS_BELOW_GROUND
 		// check if ground is below tunnel level
 		gr = welt->lookup_kartenboden(pos.get_2d());
 		if(  gr->get_hoehe() < pos.z  ){
 			return koord3d::invalid;
 		}
-#endif
 
 		gr = welt->lookup(pos);
 		if(gr) {
