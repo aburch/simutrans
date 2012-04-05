@@ -288,10 +288,6 @@ bool dingliste_t::intern_add_moving(ding_t* ding)
 	while(start<top  &&  !obj.some[start]->is_moving()  ) {
 		start ++;
 	}
-/*	uint8 end=start;
-	while(end<top  && obj.some[end]->is_moving()) {
-		end ++;
-	}*/
 	uint8 end = top;
 	while(  end>start  &&  !obj.some[end-1]->is_moving()  ) {
 		end--;
@@ -532,10 +528,11 @@ ding_t *dingliste_t::remove_last()
 
 bool dingliste_t::remove(const ding_t* ding)
 {
-	if(capacity==0) {
+	if(  capacity == 0  ) {
 		return false;
-	} else if(capacity==1) {
-		if(obj.one==ding) {
+	}
+	else if(  capacity == 1  ) {
+		if(  obj.one == ding  ) {
 			obj.one = NULL;
 			capacity = 0;
 			top = 0;
@@ -545,19 +542,17 @@ bool dingliste_t::remove(const ding_t* ding)
 	}
 
 	// we keep the array dense!
-	for(uint8 i=0; i<top; i++) {
-
-		if(obj.some[i]==ding) {
+	for(  uint8 i=0;  i<top;  i++  ) {
+		if(  obj.some[i] == ding  ) {
 			// found it!
 			top--;
-			while(i<top) {
+			while(  i < top  ) {
 				obj.some[i] = obj.some[i+1];
 				i++;
 			}
 			obj.some[top] = NULL;
 			return true;
 		}
-
 	}
 
 	return false;
