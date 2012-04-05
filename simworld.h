@@ -21,6 +21,7 @@
 #include "halthandle_t.h"
 
 #include "tpl/weighted_vector_tpl.h"
+#include "tpl/ptrhashtable_tpl.h"
 #include "tpl/vector_tpl.h"
 #include "tpl/slist_tpl.h"
 
@@ -209,12 +210,20 @@ private:
 	zeiger_t *zeiger;
 
 	slist_tpl<sync_steppable *> sync_add_list;	// these objects are move to the sync_list (but before next sync step, so they do not interfere!)
+	slist_tpl<sync_steppable *> sync_remove_list;
 #ifndef SYNC_VECTOR
 	slist_tpl<sync_steppable *> sync_list;
 #else
 	vector_tpl<sync_steppable *> sync_list;
 #endif
-	slist_tpl<sync_steppable *> sync_remove_list;
+
+	slist_tpl<sync_steppable *> sync_eyecandy_add_list;	// these objects are move to the sync_list (but before next sync step, so they do not interfere!)
+	slist_tpl<sync_steppable *> sync_eyecandy_remove_list;
+	ptrhashtable_tpl<sync_steppable *,sync_steppable *> sync_eyecandy_list;
+
+	slist_tpl<sync_steppable *> sync_way_eyecandy_add_list;	// these objects are move to the sync_list (but before next sync step, so they do not interfere!)
+	slist_tpl<sync_steppable *> sync_way_eyecandy_remove_list;
+	ptrhashtable_tpl<sync_steppable *,sync_steppable *> sync_way_eyecandy_list;
 
 	vector_tpl<convoihandle_t> convoi_array;
 
@@ -953,9 +962,18 @@ public:
 
 	bool sync_add(sync_steppable *obj);
 	bool sync_remove(sync_steppable *obj);
-
 	void sync_step(long delta_t, bool sync, bool display );	// advance also the timer
 
+	bool sync_eyecandy_add(sync_steppable *obj);
+	bool sync_eyecandy_remove(sync_steppable *obj);
+	void sync_eyecandy_step(long delta_t);	// all stuff, which does not need explicit order (factory smoke, buildings)
+
+	bool sync_way_eyecandy_add(sync_steppable *obj);
+	bool sync_way_eyecandy_remove(sync_steppable *obj);
+	void sync_way_eyecandy_step(long delta_t);	// currently one smoke from vehicles on ways
+
+
+	// for all stuff, that needs long and can be done less frequently
 	void step();
 
 	inline planquadrat_t *access(int i, int j) const {

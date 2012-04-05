@@ -191,23 +191,25 @@ template<class T> class vector_tpl
 		}
 
 		/** removes element, if contained */
-		void remove(const T& elem)
+		bool remove(const T& elem)
 		{
 			for (uint32 i = 0; i < count; i++) {
 				if (data[i] == elem) {
 					return remove_at(i);
 				}
 			}
+			return false;
 		}
 
 		/** removes element at position */
-		void remove_at(const uint32 pos)
+		bool remove_at(const uint32 pos)
 		{
 			assert(pos<count);
 			for (uint i = pos; i < count - 1; i++) {
 				data[i] = data[i + 1];
 			}
 			count--;
+			return true;
 		}
 
 		void pop_back()

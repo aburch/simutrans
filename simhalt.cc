@@ -1959,7 +1959,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 		}
 		else if(  ware.get_besch() == warenbauer_t::passagiere  ) {
 			// arriving passenger may create pedestrians
-			if(  umgebung_t::has_pedestrians_at_stops  ) {
+			if(  welt->get_settings().get_show_pax()  ) {
 				int menge = ware.menge;
 				FOR( slist_tpl<tile_t>, const& i, tiles ) {
 					if (menge <= 0) {

@@ -42,10 +42,9 @@ protected:
 	virtual waytype_t get_waytype() const { return road_wt; }
 
 	virtual bool hop_check() {return true;}
-	virtual void hop();
 
 	verkehrsteilnehmer_t(karte_t *welt);
-	verkehrsteilnehmer_t(karte_t *welt, koord3d pos);
+	verkehrsteilnehmer_t(karte_t *welt, koord3d pos, uint16 random);
 
 public:
 	virtual ~verkehrsteilnehmer_t();

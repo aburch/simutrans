@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <math.h>
 #include "simtools.h"
+#include "simsys.h"
 
 /* This is the mersenne random generator: More random and faster! */
 
@@ -119,7 +120,7 @@ uint16 get_random_mode()
 }
 
 
-static uint32 rand_seed = 12345678;
+static uint32 async_rand_seed = 12345678+dr_time();
 
 // simpler simrand for anything not game critical (like UI)
 uint32 sim_async_rand( uint32 max )
@@ -127,10 +128,10 @@ uint32 sim_async_rand( uint32 max )
 	if(  max==0  ) {
 		return 0;
 	}
-	rand_seed *= 3141592621u;
-	rand_seed ++;
+	async_rand_seed *= 3141592621u;
+	async_rand_seed ++;
 
-	return (rand_seed >> 8) % max;
+	return (async_rand_seed >> 8) % max;
 }
 
 
@@ -143,7 +144,7 @@ uint32 setsimrand(uint32 seed,uint32 ns)
 
 	if(seed!=0xFFFFFFFF) {
 		init_genrand( seed );
-		rand_seed = seed;
+		async_rand_seed = seed+dr_time();
 		random_origin = 0;
 	}
 	if(noise_seed!=0xFFFFFFFF) {

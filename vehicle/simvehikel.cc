@@ -71,6 +71,8 @@
 #include "simvehikel.h"
 #include "simverkehr.h"
 
+
+
 /* get dx and dy from dir (just to remind you)
  * any vehikel (including city cars and pedestrians)
  * will go this distance per sync step.
@@ -559,13 +561,15 @@ sint8 vehikel_basis_t::calc_height()
 vehikel_basis_t *vehikel_basis_t::no_cars_blocking( const grund_t *gr, const convoi_t *cnv, const uint8 current_fahrtrichtung, const uint8 next_fahrtrichtung, const uint8 next_90fahrtrichtung )
 {
 	// suche vehikel
-	const uint8 top = gr->get_top();
-	for(  uint8 pos=1;  pos<top;  pos++ ) {
+	for(  uint8 pos=1;  pos<(volatile uint8)gr->get_top();  pos++ ) {
 		if (vehikel_basis_t* const v = ding_cast<vehikel_basis_t>(gr->obj_bei(pos))) {
-			uint8 other_fahrtrichtung=255;
-			bool other_moving = false;
+			if(  v->get_typ()==ding_t::fussgaenger  ) {
+				continue;
+			}
 
 			// check for car
+			uint8 other_fahrtrichtung=255;
+			bool other_moving = false;
 			if (automobil_t const* const at = ding_cast<automobil_t>(v)) {
 				// ignore ourself
 				if(cnv==at->get_convoi()) {
@@ -575,7 +579,7 @@ vehikel_basis_t *vehikel_basis_t::no_cars_blocking( const grund_t *gr, const con
 				other_moving = at->get_convoi()->get_akt_speed() > kmh_to_speed(1);
 			}
 			// check for city car
-			else if(v->get_waytype()==road_wt  &&  v->get_typ()!=ding_t::fussgaenger) {
+			else if(  v->get_waytype()==road_wt  ) {
 				other_fahrtrichtung = v->get_fahrtrichtung();
 				if(stadtauto_t const* const sa = ding_cast<stadtauto_t>(v)){
 					other_moving = sa->get_current_speed() > 1;
@@ -602,7 +606,7 @@ vehikel_basis_t *vehikel_basis_t::no_cars_blocking( const grund_t *gr, const con
 				const bool other_straight = other_fahrtrichtung == other_90fahrtrichtung; // other is driving straight
 				const bool other_exit_same_side = current_90fahrtrichtung == other_90fahrtrichtung; // other is exiting same side as we're entering
 				const bool other_exit_opposite_side = ribi_t::rueckwaerts(current_90fahrtrichtung) == other_90fahrtrichtung; // other is exiting side across from where we're entering
-				if( across && ((ribi_t::ist_orthogonal(current_90fahrtrichtung,other_fahrtrichtung) && other_moving) || (other_across && other_exit_opposite_side) || ((other_across||other_straight) && other_exit_same_side && other_moving) ) )  {
+				if(  across  &&  ((ribi_t::ist_orthogonal(current_90fahrtrichtung,other_fahrtrichtung) && other_moving) || (other_across && other_exit_opposite_side) || ((other_across||other_straight) && other_exit_same_side && other_moving) ) )  {
 					// other turning across in front of us from orth entry dir'n   ~4%
 					return v;
 				}
@@ -612,7 +616,8 @@ vehikel_basis_t *vehikel_basis_t::no_cars_blocking( const grund_t *gr, const con
 				if( straight && (ribi_t::ist_orthogonal(current_90fahrtrichtung,other_fahrtrichtung) || (other_across && other_moving && (other_exit_across || (other_exit_same_side && !headon))) ) ) {
 					// other turning across in front of us, but allow if other is stopped - duplicating historic behaviour   ~2%
 					return v;
-				} else if(  other_fahrtrichtung==current_fahrtrichtung && current_90fahrtrichtung==ribi_t::keine  ) {
+				}
+				else if(  other_fahrtrichtung==current_fahrtrichtung && current_90fahrtrichtung==ribi_t::keine  ) {
 					// entering same diagonal waypoint as other   ~1%
 					return v;
 				}
@@ -1167,7 +1172,7 @@ void vehikel_t::rauche() const
 					delete abgas;
 				}
 				else {
-					welt->sync_add( abgas );
+					welt->sync_way_eyecandy_add( abgas );
 				}
 			}
 		}

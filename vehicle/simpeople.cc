@@ -73,13 +73,20 @@ fussgaenger_t::fussgaenger_t(karte_t *welt, loadsave_t *file)
 
 
 fussgaenger_t::fussgaenger_t(karte_t* const welt, koord3d const pos) :
-	verkehrsteilnehmer_t(welt, pos),
+	verkehrsteilnehmer_t(welt, pos, simrand(65535)),
 	besch(pick_any_weighted(liste))
 {
 	time_to_life = pick_any(strecke);
 	calc_bild();
 }
 
+
+fussgaenger_t::~fussgaenger_t()
+{
+	if(  time_to_life>0  ) {
+		welt->sync_remove( this );
+	}
+}
 
 
 void fussgaenger_t::calc_bild()
@@ -140,7 +147,8 @@ void fussgaenger_t::erzeuge_fussgaenger_an(karte_t *welt, const koord3d k, int &
 					}
 					welt->sync_add(fg);
 					anzahl--;
-				} else {
+				}
+				else {
 					// delete it, if we could not put it on the map
 					fg->set_flag(ding_t::not_on_map);
 					delete fg;
@@ -159,4 +167,68 @@ bool fussgaenger_t::sync_step(long delta_t)
 	weg_next += 128*delta_t;
 	weg_next -= fahre_basis( weg_next );
 	return time_to_life>0;
+}
+
+
+void fussgaenger_t::hop()
+{
+	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
+	grund_t *from = welt->lookup(pos_next);
+	grund_t *to;
+
+	if(!from) {
+		time_to_life = 0;
+		return;
+	}
+
+	grund_t *liste[4];
+	int count = 0;
+
+	// 1) find the allowed directions
+	const weg_t *weg = from->get_weg(road_wt);
+	if(weg==NULL) {
+		// no gound here any more?
+		pos_next = get_pos();
+		from = welt->lookup(pos_next);
+		if(!from  ||  !from->hat_weg(road_wt)) {
+			// destroy it
+			time_to_life = 0;
+		}
+		return;
+	}
+
+	// add all good ribis here
+	ribi_t::ribi gegenrichtung = ribi_t::rueckwaerts( get_fahrtrichtung() );
+	int ribi = weg->get_ribi_unmasked();
+	for(int r = 0; r < 4; r++) {
+		if(  (ribi & ribi_t::nsow[r])!=0  &&  (ribi_t::nsow[r]&gegenrichtung)==0 &&
+			from->get_neighbour(to, road_wt, ribi_t::nsow[r])
+		) {
+			// check, if this is just a single tile deep
+			int next_ribi =  to->get_weg(road_wt)->get_ribi_unmasked();
+			if((ribi&next_ribi)!=0  ||  !ribi_t::ist_einfach(next_ribi)) {
+				liste[count++] = to;
+			}
+		}
+	}
+
+	if(count > 1) {
+		pos_next = liste[simrand(count)]->get_pos();
+		fahrtrichtung = calc_set_richtung(get_pos().get_2d(), pos_next.get_2d());
+	}
+	else if(count==1) {
+		pos_next = liste[0]->get_pos();
+		fahrtrichtung = calc_set_richtung(get_pos().get_2d(), pos_next.get_2d());
+	}
+	else {
+		fahrtrichtung = gegenrichtung;
+		dx = -dx;
+		dy = -dy;
+		pos_next = get_pos();
+	}
+
+	verlasse_feld();
+	set_pos(from->get_pos());
+	calc_bild();
+	betrete_feld();
 }

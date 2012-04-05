@@ -34,8 +34,6 @@ bool wolke_t::register_besch(const skin_besch_t* besch)
 
 
 
-
-
 wolke_t::wolke_t(karte_t *welt, koord3d pos, sint8 x_off, sint8 y_off, const skin_besch_t* besch ) :
 	ding_no_info_t(welt, pos)
 {
@@ -52,7 +50,9 @@ wolke_t::wolke_t(karte_t *welt, koord3d pos, sint8 x_off, sint8 y_off, const ski
 wolke_t::~wolke_t()
 {
 	mark_image_dirty( get_bild(), 0 );
-	welt->sync_remove(this);
+	if(  !welt->sync_way_eyecandy_remove( this )  ) {
+		welt->sync_eyecandy_remove( this );
+	}
 }
 
 

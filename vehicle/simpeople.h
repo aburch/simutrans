@@ -24,9 +24,12 @@ protected:
 
 	void calc_bild();
 
+	fussgaenger_t(karte_t *welt, koord3d pos);
+
 public:
 	fussgaenger_t(karte_t *welt, loadsave_t *file);
-	fussgaenger_t(karte_t *welt, koord3d pos);
+
+	virtual ~fussgaenger_t();
 
 	const fussgaenger_besch_t *get_besch() const { return besch; }
 
@@ -36,8 +39,9 @@ public:
 	bool sync_step(long delta_t);
 
 	// prissi: always free
-	virtual bool ist_weg_frei() { return 1; }
-	virtual bool hop_check() { return 1; }
+	virtual bool ist_weg_frei() { return true; }
+	virtual bool hop_check() { return true; }
+	virtual void hop();
 
 	// class register functions
 	static bool register_besch(const fussgaenger_besch_t *besch);

@@ -76,7 +76,7 @@ gebaeude_t::gebaeude_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 		set_yoff(0);
 	}
 	if(tile  &&  tile->get_phasen()>1) {
-		welt->sync_add( this );
+		welt->sync_eyecandy_add( this );
 		sync = true;
 	}
 }
@@ -115,7 +115,7 @@ gebaeude_t::~gebaeude_t()
 
 	if(sync) {
 		sync = false;
-		welt->sync_remove(this);
+		welt->sync_eyecandy_remove(this);
 	}
 
 	// tiles might be invalid, if no description is found during loading
@@ -260,24 +260,22 @@ void gebaeude_t::set_tile(const haus_tile_besch_t *new_tile)
 	if(sync) {
 		if(new_tile->get_phasen()<=1  &&  !zeige_baugrube) {
 			// need to stop animation
-			welt->sync_remove(this);
+			welt->sync_eyecandy_remove(this);
 			sync = false;
 			count = 0;
 		}
 	}
 	else if(new_tile->get_phasen()>1  ||  zeige_baugrube) {
 		// needs now animation
-		count = simrand(new_tile->get_phasen());
+		count = sim_async_rand(new_tile->get_phasen());
 		anim_time = 0;
-		welt->sync_add(this);
+		welt->sync_eyecandy_add(this);
 		sync = true;
 	}
 	tile = new_tile;
 	remove_ground = tile->has_image()  &&  !tile->get_besch()->ist_mit_boden();
 	set_flag(ding_t::dirty);
 }
-
-
 
 
 /**
@@ -295,7 +293,7 @@ bool gebaeude_t::sync_step(long delta_t)
 			mark_image_dirty(get_bild(),0);
 			zeige_baugrube = false;
 			if(tile->get_phasen()<=1) {
-				welt->sync_remove( this );
+				welt->sync_eyecandy_remove( this );
 				sync = false;
 			}
 		}
@@ -339,7 +337,6 @@ bool gebaeude_t::sync_step(long delta_t)
 	}
 	return true;
 }
-
 
 
 void gebaeude_t::calc_bild()
@@ -587,7 +584,6 @@ DBG_MESSAGE("gebaeude_t::zeige_info()", "at %d,%d - name is '%s'", get_pos().x, 
 		}
 	}
 }
-
 
 
 void gebaeude_t::info(cbuffer_t & buf) const
@@ -857,7 +853,6 @@ void gebaeude_t::rdwr(loadsave_t *file)
 }
 
 
-
 /**
  * Wird nach dem Laden der Welt aufgerufen - üblicherweise benutzt
  * um das Aussehen des Dings an Boden und Umgebung anzupassen
@@ -885,15 +880,15 @@ void gebaeude_t::laden_abschliessen()
 }
 
 
-
 void gebaeude_t::entferne(spieler_t *sp)
 {
 //	DBG_MESSAGE("gebaeude_t::entferne()","gb %i");
 	// remove costs
 	sint64 cost = welt->get_settings().cst_multiply_remove_haus;
 	// tearing down halts is always single costs only
-	if (tile->get_besch()->get_utyp() < haus_besch_t::bahnhof)
+	if (tile->get_besch()->get_utyp() < haus_besch_t::bahnhof) {
 		cost *= tile->get_besch()->get_level() + 1;
+	}
 	spieler_t::accounting(sp, cost, get_pos().get_2d(), COST_CONSTRUCTION);
 
 	// may need to update next buildings, in the case of start, middle, end buildings
@@ -951,6 +946,7 @@ void gebaeude_t::entferne(spieler_t *sp)
 	mark_images_dirty();
 }
 
+
 void gebaeude_t::mark_images_dirty() const
 {
 	// remove all traces from the screen
@@ -964,6 +960,6 @@ void gebaeude_t::mark_images_dirty() const
 		img = tile->get_hintergrund(count, 0, snow) ;
 	}
 	for(  int i=0;  img!=IMG_LEER;  img=get_bild(++i)  ) {
-		mark_image_dirty( img, -(i<<6) );
+		mark_image_dirty( img, -(i*get_tile_raster_width()) );
 	}
 }
