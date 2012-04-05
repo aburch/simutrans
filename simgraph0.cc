@@ -308,6 +308,10 @@ void simgraph_resize(KOORD_VAL, KOORD_VAL)
 {
 }
 
+void reset_textur(void *new_textur)
+{
+}
+
 void display_snapshot()
 {
 }

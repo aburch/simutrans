@@ -249,7 +249,9 @@ void modal_dialogue( gui_frame_t *gui, long magic, karte_t *welt, bool (*quit)()
 				if (ev.ev_code==SYSTEM_RESIZE) {
 					// main window resized
 					simgraph_resize( ev.mx, ev.my );
+					dr_prepare_flush();
 					display_fillbox_wh( 0, 0, ev.mx, ev.my, COL_BLACK, true );
+					dr_flush();
 				}
 				else if (ev.ev_code == SYSTEM_QUIT) {
 					umgebung_t::quit_simutrans = true;
@@ -262,7 +264,9 @@ void modal_dialogue( gui_frame_t *gui, long magic, karte_t *welt, bool (*quit)()
 			}
 		}
 		set_pointer(1);
+		dr_prepare_flush();
 		display_fillbox_wh( 0, 0, display_get_width(), display_get_height(), COL_BLACK, true );
+		dr_flush();
 	}
 
 	// just trigger not another following window => wait for button release

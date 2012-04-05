@@ -2,15 +2,11 @@
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner
  *
  * This file is part of the Simutrans project under the artistic license.
- */
-
-/*
+ *
  * simsys_opengl.cc
  * OpenGL backend
  * Copyright (c) 2012 Ters, Markohs
  */
-
-#include <SDL.h>
 
 #ifdef _WIN32
 // windows.h defines min and max macros which we don't want
@@ -18,11 +14,12 @@
 #include <windows.h>
 #endif
 
+#include <SDL.h>
+
+#include <GL/glew.h>
 #include <GL/gl.h>
-#include <GL/glext.h>
 
 #include <stdio.h>
-
 #include <vector>
 
 #include "macros.h"
@@ -99,14 +96,19 @@ static int sync_blit = 0;
 static SDL_Cursor* arrow;
 static SDL_Cursor* hourglass;
 
+static int pbo_index = 0;
+static GLuint pbo_ids[2];
+static GLuint pbo_textures[2];
 static GLuint gl_texture = 0;
-static bool npot_able;
+static bool npot_able,pbo_able;
 static int tex_max_size;
 static int tex_w,tex_h;
 static int n_tex_w,n_tex_h;
 static float x_max_coord;
 static float y_max_coord;
+static void* pixels;
 
+static bool tiling_in_use=false;
 struct tiled_texture{
 	GLuint gl_texture;
 	float left;
@@ -114,9 +116,43 @@ struct tiled_texture{
 	float top;
 	float bottom;
 };
-
-static bool tiling_in_use=false;
 static std::vector<std::vector<tiled_texture> > tiled_textures;
+
+#ifdef DEBUG
+static inline void opengl_error(){
+	int error = glGetError();
+
+	switch (error){
+	case GL_NO_ERROR:
+		break;
+	case GL_INVALID_ENUM:
+		DBG_MESSAGE("opengl_error()","GL_INVALID_ENUM");
+		break;
+	case GL_INVALID_VALUE:
+		DBG_MESSAGE("opengl_error()","GL_INVALID_VALUE");
+		break;
+	case GL_INVALID_OPERATION:
+		DBG_MESSAGE("opengl_error()","GL_INVALID_OPERATION");
+		break;
+	case GL_STACK_OVERFLOW:
+		DBG_MESSAGE("opengl_error()","GL_STACK_OVERFLOW");
+		break;
+	case GL_STACK_UNDERFLOW:
+		DBG_MESSAGE("opengl_error()","GL_STACK_UNDERFLOW");
+		break;
+	case GL_OUT_OF_MEMORY:
+		DBG_MESSAGE("opengl_error()","GL_OUT_OF_MEMORY");
+		break;
+	case GL_TABLE_TOO_LARGE:
+		DBG_MESSAGE("opengl_error()","GL_TABLE_TOO_LARGE");
+		break;
+
+	}
+}
+#else
+static inline void opengl_error(){
+}
+#endif
 
 /**
  * Returns the lowest pot (power of two) number higher to the parameter passed
@@ -152,6 +188,8 @@ static void update_tex_dims(){
 		y_max_coord= (float)screen->h/(float)tex_h;
 	}
 
+	// check if we exceded maximum texture size
+
 	if (max(tex_w,tex_h)>tex_max_size){
 
 		tiling_in_use=true;
@@ -162,6 +200,10 @@ static void update_tex_dims(){
 		x_max_coord = (float)(screen->w%tex_max_size)/(float)tex_max_size;
 		y_max_coord = (float)(screen->w%tex_max_size)/(float)tex_max_size;
 
+		// Disable Pixel Buffer Objects
+
+		pbo_able = false;
+
 	}
 	else
 		tiling_in_use=false;
@@ -169,34 +211,39 @@ static void update_tex_dims(){
 
 
 /**
- * Checks if the GL_ARB_texture_non_power_of_two extension is present, and sets the global variable npot_able.
+ * Checks for the extensions this backends can use, GL_ARB_pixel_buffer_object and
+ * GL_ARB_texture_non_power_of_two, and sets the global variables npot_able and pbo_able
  */
-static void check_for_npot(){
+static void check_for_extensions(){
 
-	// get the Extensions
-
-	const GLubyte* extensions=glGetString(GL_EXTENSIONS);
-
-	if (!extensions){
+	// Initialize GLEW
+	GLenum err = glewInit();
+	if (GLEW_OK != err){
 		return;
 	}
 
-	// Search for OES_texture_npot or GL_ARB_texture_non_power_of_two
+	npot_able=GLEW_ARB_texture_non_power_of_two;
 
-	const char* npotstr = (strstr((const char *)extensions, "GL_ARB_texture_non_power_of_two"));
-
-	if (!npotstr){
-		npotstr = (strstr((const char *)extensions, "OES_texture_npot"));
-	}
-	if (npotstr){
-		npot_able=true;
+	if (npot_able){
 		fprintf(stderr, "Renderer is NPOT able.\n");
-		DBG_MESSAGE("check_for_npot(OpenGL)", "Renderer does support NPOT extension");
+		DBG_MESSAGE("check_for_extensions(OpenGL)", "Renderer does support NPOT extension");
 	}
 	else{
-		npot_able = false;
 		fprintf(stderr, "Renderer is not NPOT able.\n");
-		DBG_MESSAGE("check_for_npot(OpenGL)", "Renderer does NOT support NPOT extension");
+		DBG_MESSAGE("check_for_extensions(OpenGL)", "Renderer does NOT support NPOT extension");
+	}
+
+	// Now, GL_ARB_pixel_buffer_object
+
+	pbo_able = GLEW_ARB_pixel_buffer_object;
+
+	if (pbo_able){
+		fprintf(stderr, "Renderer is PBO able.\n");
+		DBG_MESSAGE("check_for_extensions(OpenGL)", "Renderer does support PBO extension");
+	}
+	else{
+		fprintf(stderr, "Renderer is not PBO able.\n");
+		DBG_MESSAGE("check_for_extensions(OpenGL)", "Renderer does NOT support PBO extension");
 	}
 }
 
@@ -245,6 +292,49 @@ static bool check_hardware_accelerated(){
 		DBG_MESSAGE("check_hardware_accelerated(OpenGL)", "Hardware acceleration NOT available, vendor: %s",vendor);
 	}
 	return result==1;
+}
+
+/**
+ * Queue a texture update with the PBO from the old frame, and unlock the new one.
+ */
+void inline pbo_map(){
+
+	// Update the texture with the old PBO
+
+	GLuint pbo_oldindex=pbo_index;
+
+	pbo_index = (pbo_index + 1) % 2;
+
+	glPixelStorei(GL_UNPACK_ROW_LENGTH, tex_w);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 2);
+	//glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
+	//glPixelStorei(GL_UNPACK_SKIP_ROWS, 0);
+
+	glBindTexture(GL_TEXTURE_2D, pbo_textures[pbo_oldindex]);
+	glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, pbo_ids[pbo_oldindex]);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex_w, tex_h, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, 0);
+
+	// Unlock the new PBO for writing
+
+	glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, pbo_ids[pbo_index]);
+	pixels = (GLubyte*)glMapBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB,GL_READ_WRITE_ARB);
+
+	reset_textur(pixels);
+
+	opengl_error();
+}
+
+/**
+ * Releases the lock on the PBO
+ */
+void inline pbo_unmap(){
+	glUnmapBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB);
+	glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, 0);
+
+	opengl_error();
+
+	pixels=NULL;
+	reset_textur(pixels);
 }
 
 
@@ -349,7 +439,7 @@ int dr_os_open(int w, int const h, int const fullscreen)
 
 	glEnable(GL_TEXTURE_2D);
 
-	check_for_npot();
+	check_for_extensions();
 	check_max_texture_size();
 	if (!check_hardware_accelerated()){
 		DBG_MESSAGE("dr_os_open(OpenGL)", "No hardware renderer available, exiting...");
@@ -375,24 +465,61 @@ void dr_os_close()
 
 
 /**
- * Creates a OpenGL texture, referenced bt gl_texture, sized as tex_w x tex_h, using 16-bit depth.
+ * Creates a OpenGL texture, sized as tex_w x tex_h, using 16-bit depth.
+ * On tiling we'll create enough textures to represent the screen,
+ * on non-pbo, we'll create a single texture, and on pbo, we'll create two
  */
 static void create_gl_texture()
 {
 	if (!tiling_in_use){
 
-		glGenTextures(1, &gl_texture);
+		if(!pbo_able){
+			opengl_error();
+			glGenTextures(1, &gl_texture);
+			opengl_error();
 
-		glBindTexture(GL_TEXTURE_2D, gl_texture);
+			glBindTexture(GL_TEXTURE_2D, gl_texture);
+			opengl_error();
+			// No mipmapping
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			opengl_error();
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			opengl_error();
+			glPixelStorei(GL_UNPACK_ROW_LENGTH, tex_w);
+			opengl_error();
+			glPixelStorei(GL_UNPACK_ALIGNMENT, 2);
+			opengl_error();
 
-		// No mipmapping
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex_w, tex_h, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, NULL);
+		}
+		else{
 
-		glPixelStorei(GL_UNPACK_ROW_LENGTH, texture->pitch / texture->format->BytesPerPixel);
-		glPixelStorei(GL_UNPACK_ALIGNMENT, texture->format->BytesPerPixel);
+			glGenTextures(2, &pbo_textures[0]);
 
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex_w, tex_h, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, NULL);
+			glBindTexture(GL_TEXTURE_2D, pbo_textures[0]);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glPixelStorei(GL_UNPACK_ROW_LENGTH, tex_w);
+			glPixelStorei(GL_UNPACK_ALIGNMENT, 2);
+
+			glBindTexture(GL_TEXTURE_2D, pbo_textures[1]);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glPixelStorei(GL_UNPACK_ROW_LENGTH, tex_w);
+			glPixelStorei(GL_UNPACK_ALIGNMENT, 2);
+
+			const bool was_mapped = pixels;
+
+			if(was_mapped)
+				pbo_unmap();
+
+			glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, pbo_ids[pbo_index]);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex_w, tex_h, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, NULL);
+
+			if(was_mapped)
+				pbo_map();
+		}
+		opengl_error();
 	}
 	else{
 		if (tiled_textures.size()==0){
@@ -438,7 +565,10 @@ static void create_gl_texture()
  */
 void delete_textures(){
 	if (!tiling_in_use){
-		if (gl_texture != 0){
+		if (pbo_able){
+			glDeleteTextures(2, &pbo_textures[0]);
+		}
+		else if (gl_texture != 0){
 			glDeleteTextures(1, &gl_texture);
 		}
 	}
@@ -453,6 +583,36 @@ void delete_textures(){
 	}
 }
 
+
+/**
+ * Resizes the current buffers to new dimensions
+ */
+unsigned short *dr_textur_reset()
+{
+	if(!pbo_able){
+		SDL_FreeSurface(texture);
+		texture = SDL_CreateRGBSurface(SDL_SWSURFACE, tex_w, tex_h, COLOUR_DEPTH, RMASK, GMASK, BMASK,  AMASK);
+		pixels=texture->pixels;
+	}
+	else{
+
+		if (pixels)
+			pbo_unmap();
+
+		glDeleteBuffersARB(2, &pbo_ids[0]);
+		glGenBuffersARB(2,&pbo_ids[0]);
+		glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB,pbo_ids[0]);
+		glBufferDataARB(GL_PIXEL_UNPACK_BUFFER_ARB,tex_w*tex_h*2,0,GL_DYNAMIC_DRAW_ARB);
+		glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB,pbo_ids[1]);
+		glBufferDataARB(GL_PIXEL_UNPACK_BUFFER_ARB,tex_w*tex_h*2,0,GL_DYNAMIC_DRAW_ARB);
+		glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, 0);
+
+	}
+
+	opengl_error();
+
+	return (unsigned short*)pixels;
+}
 
 /**
  * Re-inits our surfaces and textures.
@@ -481,7 +641,7 @@ int dr_textur_resize(unsigned short** const textur, int w, int const h)
 
 		delete_textures();
 		update_tex_dims();
-		texture = SDL_CreateRGBSurface(SDL_SWSURFACE, tex_w, tex_h, COLOUR_DEPTH, RMASK, GMASK, BMASK, AMASK);
+		dr_textur_reset();
 
 		printf("textur_resize()::screen=%p\n", screen);
 		if (screen && texture) {
@@ -497,55 +657,89 @@ int dr_textur_resize(unsigned short** const textur, int w, int const h)
 		glEnable(GL_TEXTURE_2D);
 
 		create_gl_texture();
+		if (pbo_able)
+			pbo_map();
 	}
-	*textur = (unsigned short*)texture->pixels;
+	*textur = (unsigned short*)pixels;
 
 	return tex_w;
 }
 
 
 /**
- * Allocates and creates the initial buffers (RGBSurface and OpenGL texture)
+ * Allocates and creates the initial buffers (RGBSurface/PBOs and OpenGL texture)
  * @return Pointer to the newly allocated buffer
  */
 unsigned short *dr_textur_init()
 {
-	texture = SDL_CreateRGBSurface(SDL_SWSURFACE, tex_w, tex_h, COLOUR_DEPTH, RMASK, GMASK, BMASK, AMASK);
+	// discard last error
+	glGetError();
 
 	create_gl_texture();
 
-	return (unsigned short*)texture->pixels;
+	if(!pbo_able){
+		texture = SDL_CreateRGBSurface(SDL_SWSURFACE, tex_w, tex_h, COLOUR_DEPTH, RMASK, GMASK, BMASK,  AMASK);
+		pixels=texture->pixels;
+	}
+	else{
+		glGenBuffersARB(2,&pbo_ids[0]);
+
+		glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB,pbo_ids[0]);
+		glBufferDataARB(GL_PIXEL_UNPACK_BUFFER_ARB,tex_w*tex_h*2,0,GL_DYNAMIC_DRAW_ARB);
+
+		glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB,pbo_ids[1]);
+		glBufferDataARB(GL_PIXEL_UNPACK_BUFFER_ARB,tex_w*tex_h*2,0,GL_DYNAMIC_DRAW_ARB);
+
+		//clear the binding
+		glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, 0);
+
+		pbo_map();
+	}
+
+	opengl_error();
+
+	return (unsigned short*)pixels;
 }
 
 
 /**
- * Transform a 24 bit RGB color into the system format.
+ * Transform a 24 bit RGB color into 16-bit R5G6B5.
  * @return converted color value
- * @author Hj. Malthaner
  */
 unsigned int get_system_color(unsigned int r, unsigned int g, unsigned int b)
 {
 	return ((Uint8)r>>3)<<11 | ((Uint8)g>>2)<<5 | (Uint8)b>>3;
 }
 
-
+/**
+ * Unlocks the PBO.
+ */
 void dr_prepare_flush()
 {
+	if (pbo_able && !pixels)
+		pbo_map();
 	return;
 }
 
-
-
+/**
+ * Clears screen and queues a new render.
+ */
 void dr_flush(void)
 {
+	if (pbo_able)
+		pbo_unmap();
+	else
+		display_flush_buffer();
+
 	glViewport(0, 0, screen->w, screen->h);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	display_flush_buffer();
-
 	if (!tiling_in_use){
 
-		glBindTexture(GL_TEXTURE_2D, gl_texture);
+		if (pbo_able)
+			glBindTexture(GL_TEXTURE_2D, pbo_textures[pbo_index]);
+		else
+			glBindTexture(GL_TEXTURE_2D, gl_texture);
 
 		glColor3f(1.0f, 1.0f, 1.0f);
 
@@ -585,28 +779,12 @@ void dr_flush(void)
 			}
 		}
 	}
-
 	SDL_GL_SwapBuffers();
-
-#ifdef DEBUG
-/*
- * Disabled until I find a better way of handling this
-	{
-		GLboolean residence;
-		glAreTexturesResident (1,&gl_texture,&residence);
-
-		if (!residence){
-			fprintf(stderr,"Texture is not in the VRAM, expect poor performance!\n");
-		}
-		if (int err = glGetError())
-			printf("Error %d",err);
-	}
- */
-#endif
-
 }
 
-
+/**
+ * Copies from the buffer to the texture the desired zone. Not called in PBO-mode.
+ */
 void dr_textur(int xp, int yp, int w, int h)
 {
 	// make sure the given rectangle is completely on screen
@@ -622,12 +800,11 @@ void dr_textur(int xp, int yp, int w, int h)
 #endif
 	{
 		if (!tiling_in_use){
-			glPixelStorei(GL_UNPACK_ROW_LENGTH, texture->pitch / texture->format->BytesPerPixel);
-			glPixelStorei(GL_UNPACK_ALIGNMENT, texture->format->BytesPerPixel);
+			glPixelStorei(GL_UNPACK_ROW_LENGTH, tex_w);
+			glPixelStorei(GL_UNPACK_ALIGNMENT, 2);
 			glPixelStorei(GL_UNPACK_SKIP_PIXELS, xp);
 			glPixelStorei(GL_UNPACK_SKIP_ROWS, yp);
-
-			glTexSubImage2D(GL_TEXTURE_2D, 0, xp, yp, w, h, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, texture->pixels );
+			glTexSubImage2D(GL_TEXTURE_2D, 0, xp, yp, w, h, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, pixels );
 		}
 		else{
 
@@ -641,16 +818,16 @@ void dr_textur(int xp, int yp, int w, int h)
 
 
 			if ((x_tile_start==x_tile_end) && (y_tile_start == y_tile_end)){
-				// base case, just one texture, we just update it
+				// base case, just one texture involved, we just update it
 
 				glBindTexture(GL_TEXTURE_2D, tiled_textures[x_tile_start][y_tile_start].gl_texture);
 
-				glPixelStorei(GL_UNPACK_ROW_LENGTH, texture->pitch / texture->format->BytesPerPixel);
-				glPixelStorei(GL_UNPACK_ALIGNMENT, texture->format->BytesPerPixel);
+				glPixelStorei(GL_UNPACK_ROW_LENGTH, tex_w);
+				glPixelStorei(GL_UNPACK_ALIGNMENT, 2);
 				glPixelStorei(GL_UNPACK_SKIP_PIXELS, xp);
 				glPixelStorei(GL_UNPACK_SKIP_ROWS, yp);
 
-				glTexSubImage2D(GL_TEXTURE_2D, 0, xp%tex_max_size, yp%tex_max_size, w, h, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, texture->pixels);
+				glTexSubImage2D(GL_TEXTURE_2D, 0, xp%tex_max_size, yp%tex_max_size, w, h, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, pixels);
 
 			}
 			else{
