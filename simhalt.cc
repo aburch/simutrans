@@ -1952,17 +1952,19 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 	}
 
 	// did we arrived?
-	if(welt->lookup(ware.get_zielpos())->is_connected(self)) {
+	if(  welt->lookup(ware.get_zielpos())->is_connected(self)  ) {
 		if(  ware.to_factory  ) {
 			// muss an fabrik geliefert werden
 			liefere_an_fabrik(ware);
 		}
-		else if(ware.get_besch()==warenbauer_t::passagiere) {
+		else if(  ware.get_besch() == warenbauer_t::passagiere  ) {
 			// arriving passenger may create pedestrians
-			if (welt->get_settings().get_show_pax()) {
+			if(  umgebung_t::has_pedestrians_at_stops  ) {
 				int menge = ware.menge;
-				FOR(slist_tpl<tile_t>, const& i, tiles) {
-					if (menge <= 0) break;
+				FOR( slist_tpl<tile_t>, const& i, tiles ) {
+					if (menge <= 0) {
+						break;
+					}
 					menge = erzeuge_fussgaenger(welt, i.grund->get_pos(), menge);
 				}
 				INT_CHECK("simhalt 938");
