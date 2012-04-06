@@ -16,12 +16,12 @@ class checksum_t;
 
 struct fare_stage_t
 {
-	fare_stage_t::fare_stage_t(uint32 d, uint16 p)
+	fare_stage_t(uint32 d, uint16 p)
 	{
 		price = p;
 		to_distance = d;
 	}
-	fare_stage_t::fare_stage_t()
+	fare_stage_t()
 	{
 		price = 0;
 		to_distance = 0;

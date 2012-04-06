@@ -437,6 +437,8 @@ settings_t::settings_t() :
 
 	city_threshold_size = 1000;
 	capital_threshold_size = 10000;
+	max_small_city_size = 25000;
+	max_city_size = 250000;
 
 	allow_making_public = true;
 	
@@ -1283,6 +1285,12 @@ void settings_t::rdwr(loadsave_t *file)
 			uint32 dummy = 0;
 			file->rdwr_long(dummy);
 		}
+
+		if(file->get_experimental_version() >= 10) // XXX OR WHATEVER THE LATEST VERSION IS WHEN THIS IS INCORPORATED
+		{
+			file->rdwr_long(max_small_city_size);
+			file->rdwr_long(max_city_size);
+		}
 	}
 
 #ifdef DEBUG_SIMRAND_CALLS
@@ -1966,6 +1974,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	city_threshold_size  = contents.get_int("city_threshold_size", city_threshold_size);
 	capital_threshold_size  = contents.get_int("capital_threshold_size", capital_threshold_size);
+	max_small_city_size  = contents.get_int("max_small_city_size", max_small_city_size);
+	max_city_size  = contents.get_int("max_city_size", max_city_size);
 	spacing_shift_mode = contents.get_int("spacing_shift_mode", spacing_shift_mode);
 	spacing_shift_divisor = contents.get_int("spacing_shift_divisor", spacing_shift_divisor);
 

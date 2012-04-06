@@ -1037,6 +1037,8 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		new_world = true;
 		sint32 old_autosave = umgebung_t::autosave;
 		umgebung_t::autosave = false;
+		uint32 old_number_of_big_cities = umgebung_t::number_of_big_cities;
+		umgebung_t::number_of_big_cities = 0;
 		settings_t sets;
 		sets.copy_city_road( umgebung_t::default_einstellungen );
 		sets.set_default_climates();
@@ -1056,6 +1058,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		welt->step_month(5);
 		welt->step();
 		welt->step();
+		umgebung_t::number_of_big_cities = old_number_of_big_cities;
 		umgebung_t::autosave = old_autosave;
 	}
 	else {

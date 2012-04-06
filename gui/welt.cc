@@ -161,12 +161,7 @@ welt_gui_t::welt_gui_t(karte_t* const welt, settings_t* const sets) :
 	inp_number_of_big_cities.set_pos(koord(RIGHT_COLUMN,intTopOfButton) );
 	inp_number_of_big_cities.set_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
 	inp_number_of_big_cities.add_listener(this);
-	if (sets->get_anzahl_staedte() != 0 ) {
-		inp_number_of_big_cities.set_limits(1,sets->get_anzahl_staedte() );
-	}
-	else {
-		inp_number_of_big_cities.set_limits(0,0);
-	}
+	inp_number_of_big_cities.set_limits(0,sets->get_anzahl_staedte() );
 	inp_number_of_big_cities.set_value(umgebung_t::number_of_big_cities );
 	add_komponente( &inp_number_of_big_cities );
 	intTopOfButton += 12;

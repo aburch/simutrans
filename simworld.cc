@@ -12,6 +12,7 @@
 
 #include <algorithm>
 #include <limits>
+#include <functional>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -896,7 +897,10 @@ void karte_t::distribute_groundobjs_cities( settings_t const * const sets, sint1
 	DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing groundobjs");
 
 	double new_anzahl_staedte = sets->get_anzahl_staedte();
-	unsigned number_of_big_cities = umgebung_t::number_of_big_cities;
+	const uint32 number_of_big_cities = umgebung_t::number_of_big_cities;
+
+	const uint32 max_city_size = sets->get_max_city_size();
+	const uint32 max_small_city_size = sets->get_max_small_city_size();
 
 	if (umgebung_t::river_types > 0 && settings.get_river_number() > 0) {
 		create_rivers(settings.get_river_number());
@@ -904,62 +908,41 @@ void karte_t::distribute_groundobjs_cities( settings_t const * const sets, sint1
 
 printf("Creating cities ...\n");
 DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities sizes");
-	vector_tpl<sint32> *city_population = new vector_tpl<sint32>(new_anzahl_staedte);
-	//double rank1_population = (2.0 * settings.get_mittlere_einwohnerzahl() * new_anzahl_staedte)/(1.0+new_anzahl_staedte);
-	double rank1_population = sets->get_mittlere_einwohnerzahl();
+	vector_tpl<sint32> city_population(new_anzahl_staedte);
+	double median_population = sets->get_mittlere_einwohnerzahl();
 
-	double adjusted_counter = 1;
-	double population;
-	double adjusted_city_size = 2.0 * new_anzahl_staedte;
-	const unsigned division_1 = new_anzahl_staedte / 3.25;
-	const unsigned division_2 = new_anzahl_staedte / 2.5;
-	for(unsigned i = 0; i < new_anzahl_staedte; i++) 
-	{
-		do {	
-			if (i < number_of_big_cities) 
-			{
-				population = (3.25 * rank1_population * new_anzahl_staedte) / (1.0 + new_anzahl_staedte);
-			}
-			else
-			{
-				adjusted_counter = i - number_of_big_cities + 2;
-				population = rank1_population * ((new_anzahl_staedte - adjusted_counter) / adjusted_city_size);
-			}
-			/* now add some gaussian noise */
-			double sigma;
-			if(i < number_of_big_cities)
-			{
-				population /= 2.0;
-				sigma = population;
-			}
-			else
-			{
-				population /= 4.0;
-				sigma = population * 3.0;
-			}
-			population = simrand_gauss(population, sigma);
-			if(i == division_1)
-			{
-				adjusted_city_size = 2.7 * new_anzahl_staedte;
-			}
-			else if(i == division_2)
-			{
-				adjusted_city_size = 3.8 * new_anzahl_staedte;
-			}
-		} while ((population < 0) || (population > std::numeric_limits<uint32>::max() ));
-		city_population->append( uint32(population));
+	// Generate random sizes to fit a Pareto distribution: P(x) = x_m / x^2 dx.
+	// This ensures that Zipf's law is satisfied in a random fashion, and
+	// arises from the observation that city distribution is self-similar.
+	// The median of a Pareto distribution is twice the lower cut-off, x_m.
+	// We can generate a Pareto deviate from a uniform deviate on range [0,1)
+	// by taking m_x/u where u is the uniform deviate.
+
+	while (city_population.get_count() < new_anzahl_staedte) {
+		uint32 population;
+		do {
+			uint32 rand;
+			do {
+				rand = simrand_plain();
+			} while (rand == 0);
+
+			population = ((double)median_population / 2) / ((double)rand / 0xffffffff);
+		} while ( city_population.get_count() <  number_of_big_cities && (population <= max_small_city_size  || population > max_city_size) ||
+			  city_population.get_count() >= number_of_big_cities &&  population >  max_small_city_size );
+
+		city_population.insert_ordered( population, std::greater<sint32>() );
 	}
 
 #ifdef DEBUG
 	for (unsigned i =0; i< new_anzahl_staedte; i++) 
 	{
-		DBG_DEBUG("karte_t::distribute_groundobjs_cities()", "City rank %d -- %d", i, (*city_population)[i]);
+		DBG_DEBUG("karte_t::distribute_groundobjs_cities()", "City rank %d -- %d", i, city_population[i]);
 	}	
 
 DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 #endif 
 	display_set_progress_text(translator::translate("Placing cities ..."));
-	vector_tpl<koord> *pos = stadt_t::random_place(this, city_population, old_x, old_y);
+	vector_tpl<koord> *pos = stadt_t::random_place(this, &city_population, old_x, old_y);
 
 	if(  !pos->empty()  ) {
 		const sint32 old_anzahl_staedte = stadt.get_count();
@@ -995,7 +978,6 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 			}
 
 			delete pos;
-			delete city_population;
 			DBG_DEBUG("karte_t::distribute_groundobjs_cities()","took %lu ms for all towns", dr_time()-tbegin );
 
 			uint32 game_start = current_month;
@@ -1017,15 +999,11 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 				// Hajo: do final init after world was loaded/created
 				stadt[i]->laden_abschliessen();
 
-	//			int citizens=(int)(new_mittlere_einwohnerzahl*0.9);
-	//			citizens = citizens/10+simrand(2*citizens+1);
-	//			const sint32 citizens = (2500l * new_mittlere_einwohnerzahl) /(simrand(20000)+100);
-
-				const uint32 citizens = rank1_population;
+				const uint32 citizens = city_population[i];
 
 				sint32 diff = (original_start_year-game_start)/2;
 				sint32 growth = 32;
-				sint32 current_bev = 1;
+				sint32 current_bev = stadt[i]->get_einwohner();
 
 				/* grow gradually while aging
 				 * the difference to the current end year will be halved,
@@ -1035,7 +1013,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 				bool not_updated = false;
 				while(  current_bev < citizens  ) {
 					growth = min( citizens-current_bev, growth*2 );
-					current_bev += growth;
+					current_bev = stadt[i]->get_einwohner();
 					stadt[i]->change_size( growth );
 					if(  current_bev > citizens/2  &&  not_updated  ) {
 						if(is_display_init()) {
@@ -1065,6 +1043,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 			settings.set_industry_increase_every( original_industry_gorwth );
 			msg->clear();
 		}
+
 		finance_history_year[0][WORLD_TOWNS] = finance_history_month[0][WORLD_TOWNS] = stadt.get_count();
 		finance_history_year[0][WORLD_CITICENS] = finance_history_month[0][WORLD_CITICENS] = last_month_bev;
 
