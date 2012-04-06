@@ -1062,12 +1062,17 @@ void haltestelle_t::neuer_monat()
 		FOR(waiting_time_map, & iter, waiting_times[category])
 		{
 			// If the waiting time data are stale (more than two months old), gradually flush them.
-			if(iter.value.month > 4)
+			// After two months, values of 10 minutes are appended to the list of waiting times.
+			// This helps to gradually reduce times which were high as a result of a one-off problem,
+			// whilst still allowing rarely-travelled connections to have sensible waiting times.
+			if(iter.value.month > 2)
 			{
 				for(int i = 0; i < 8; i ++)
 				{
-					iter.value.times.add_to_tail(100);
+					iter.value.times.add_to_tail(19);
 				}
+				iter.value.times.clear();
+				iter.value.month = 0;
 			}
 			// Update the waiting time timing records.
 			iter.value.month ++;

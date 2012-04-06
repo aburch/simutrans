@@ -5986,7 +5986,9 @@ void convoi_t::clear_replace()
 			if(iter.get_last_transfer().get_id() == halt.get_id())
 			{
 				waiting_minutes = max(get_waiting_minutes(current_time - iter.arrival_time), airport_wait);
-				if(waiting_minutes > 9) 
+				// Only times of one minute or larger are registered, to avoid registering zero wait-time when a passenger
+				// alights a convoy and then immediately re-boards that same convoy.
+				if(waiting_minutes > 19) 
 				{
 					halt->add_waiting_time(waiting_minutes, iter.get_zwischenziel(), iter.get_besch()->get_catg_index());
 				}
@@ -6025,8 +6027,8 @@ void convoi_t::clear_replace()
 
 	//return (welt->get_settings().get_meters_per_tile() * waiting_ticks) / (409600L/2);
 
-	// We no longer reduce waiting times to simulate following timetables.
-	//@author: Carl Baker, February 2012
+	// Feb 2012: Waiting times no longer reduced by 1/3, since connections can now be optimised by players in ways not previously possible,
+	// and since many players run very high frequency networks so waiting times rarely need reducing. (Carl Baker)
 	return (welt->get_settings().get_meters_per_tile() * waiting_ticks) / (409600L/3);
 
 	//const uint32 value = (2 *welt->get_settings().get_distance_per_tile() * waiting_ticks) / 409.6F;
