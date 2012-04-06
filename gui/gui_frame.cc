@@ -13,7 +13,6 @@
 
 #include "gui_frame.h"
 #include "../simcolor.h"
-#include "../simintr.h"
 #include "../simgraph.h"
 #include "../simwin.h"
 #include "../player/simplay.h"

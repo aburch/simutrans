@@ -28,12 +28,6 @@ private:
 	*/
 	convoihandle_t cnv;
 
-	/**
-	* Nummer des anzuzeigenden Convois.
-	* @author Hj. Malthaner
-	*/
-	int nummer;
-
 	gui_speedbar_t filled_bar;
 
 public:
@@ -41,14 +35,9 @@ public:
 	* @param cnv das Handle für den anzuzeigenden Convoi.
 	* @author Hj. Malthaner
 	*/
-	gui_convoiinfo_t(convoihandle_t cnv, int n);
+	gui_convoiinfo_t(convoihandle_t cnv);
 
-	/**
-	* Events werden hiermit an die GUI-Komponenten
-	* gemeldet
-	* @author Hj. Malthaner
-	*/
-	bool infowin_event(const event_t *);
+	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**
 	* Zeichnet die Komponente

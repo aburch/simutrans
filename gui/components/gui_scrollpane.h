@@ -48,7 +48,7 @@ public:
 	 * benutzt werden.
 	 * @author Hj. Malthaner
 	 */
-	void set_groesse(koord groesse);
+	void set_groesse(koord groesse) OVERRIDE;
 
 	/**
 	 * Setzt Positionen der Scrollbars
@@ -65,12 +65,7 @@ public:
 	void set_scroll_discrete_x(const bool sd) { scroll_x.set_scroll_discrete(sd); }
 	void set_scroll_discrete_y(const bool sd) { scroll_y.set_scroll_discrete(sd); }
 
-	/**
-	 * Events werden hiermit an die GUI-Komponenten
-	 * gemeldet
-	 * @author Hj. Malthaner
-	 */
-	bool infowin_event(const event_t *ev);
+	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**
 	 * Zeichnet die Komponente

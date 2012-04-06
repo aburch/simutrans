@@ -88,9 +88,8 @@ bool brueckenbauer_t::laden_erfolgreich()
 	bool strasse_da = false;
 	bool schiene_da = false;
 
-	stringhashtable_iterator_tpl<bruecke_besch_t *>iter(bruecken_by_name);
-	while(  iter.next()  ) {
-		const bruecke_besch_t* besch = iter.get_current_value();
+	FOR(stringhashtable_tpl<bruecke_besch_t*>, const& i, bruecken_by_name) {
+		bruecke_besch_t const* const besch = i.value;
 
 		if(besch && besch->get_waytype() == track_wt) {
 			schiene_da = true;
@@ -125,9 +124,8 @@ const bruecke_besch_t *brueckenbauer_t::find_bridge(const waytype_t wtyp, const 
 {
 	const bruecke_besch_t *find_besch=NULL;
 
-	stringhashtable_iterator_tpl<bruecke_besch_t *>iter(bruecken_by_name);
-	while(  iter.next()  ) {
-		const bruecke_besch_t* besch = iter.get_current_value();
+	FOR(stringhashtable_tpl<bruecke_besch_t*>, const& i, bruecken_by_name) {
+		bruecke_besch_t const* const besch = i.value;
 		if(besch->get_waytype() == wtyp) {
 			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 				if(find_besch==NULL  ||
@@ -162,9 +160,8 @@ void brueckenbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, s
 	vector_tpl<const bruecke_besch_t*> matching(bruecken_by_name.get_count());
 
 	// list of matching types (sorted by speed)
-	stringhashtable_iterator_tpl<bruecke_besch_t *>iter(bruecken_by_name);
-	while(  iter.next()  ) {
-		const bruecke_besch_t* b = iter.get_current_value();
+	FOR(stringhashtable_tpl<bruecke_besch_t*>, const& i, bruecken_by_name) {
+		bruecke_besch_t const* const b = i.value;
 		if (b->get_waytype() == wtyp && (
 					time == 0 ||
 					(b->get_intro_year_month() <= time && time < b->get_retire_year_month())
@@ -174,8 +171,8 @@ void brueckenbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, s
 	}
 
 	// now sorted ...
-	for (vector_tpl<const bruecke_besch_t*>::const_iterator i = matching.begin(), end = matching.end(); i != end; ++i) {
-		wzw->add_werkzeug( (*i)->get_builder() );
+	FOR(vector_tpl<bruecke_besch_t const*>, const i, matching) {
+		wzw->add_werkzeug(i->get_builder());
 	}
 }
 
@@ -604,7 +601,6 @@ void brueckenbauer_t::baue_auffahrt(karte_t* welt, spieler_t* sp, koord3d end, k
 		}
 		weg->set_max_speed( besch->get_topspeed() );
 		weg->set_max_weight( besch->get_max_weight() );
-		//weg->add_way_constraints(besch->get_way_constraints_permissive(), besch->get_way_constraints_prohibitive());
 		weg->add_way_constraints(besch->get_way_constraints());
 	} else {
 
@@ -665,7 +661,12 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 		// can we delete everything there?
 		msg = from->kann_alle_obj_entfernen(sp);
 
-		if(msg != NULL  ||  (from->get_halt().is_bound()  &&  from->get_halt()->get_besitzer()!=sp)) {
+		if(msg != NULL)
+		{
+			return msg;
+		}
+		else if (from->get_halt().is_bound()  &&  from->get_halt()->get_besitzer()!=sp)
+		{
 			return "Die Bruecke ist nicht frei!\n";
 		}
 

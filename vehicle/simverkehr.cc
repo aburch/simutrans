@@ -353,9 +353,8 @@ void stadtauto_t::built_timeline_liste(karte_t *welt)
 //DBG_DEBUG("stadtauto_t::built_timeline_liste()","year=%i, month=%i", month_now/12, month_now%12+1);
 
 		// check for every citycar, if still ok ...
-		stringhashtable_iterator_tpl<const stadtauto_besch_t *> iter(table);
-		while(   iter.next()  ) {
-			const stadtauto_besch_t* info = iter.get_current_value();
+		FOR(stringhashtable_tpl<stadtauto_besch_t const*>, const& i, table) {
+			stadtauto_besch_t const* const info = i.value;
 			const int intro_month = info->get_intro_year_month();
 			const int retire_month = info->get_retire_year_month();
 
@@ -365,8 +364,8 @@ void stadtauto_t::built_timeline_liste(karte_t *welt)
 		}
 	}
 	liste_timeline.resize( temp_liste.get_count() );
-	for (vector_tpl<const stadtauto_besch_t*>::const_iterator i = temp_liste.begin(), end = temp_liste.end(); i != end; ++i) {
-		liste_timeline.append( (*i), (*i)->get_gewichtung() );
+	FOR(vector_tpl<stadtauto_besch_t const*>, const i, temp_liste) {
+		liste_timeline.append(i, i->get_gewichtung());
 	}
 }
 
@@ -405,7 +404,6 @@ stadtauto_t::~stadtauto_t()
 			DBG_MESSAGE("stadtauto_t", "Succeeded in removing city car from list.");
 		}
 	}
-	welt->buche( -1, karte_t::WORLD_CITYCARS );
 	//"Buche" = "Books" (Babelfish)
 }
 
@@ -418,7 +416,6 @@ stadtauto_t::stadtauto_t(karte_t *welt, loadsave_t *file) :
 	if(besch) {
 		welt->sync_add(this);
 	}
-	welt->buche( +1, karte_t::WORLD_CITYCARS );
 }
 
 
@@ -436,7 +433,6 @@ stadtauto_t::stadtauto_t(karte_t* const welt, koord3d const pos, koord const tar
 	(void)target;
 #endif
 	calc_bild();
-	welt->buche( +1, karte_t::WORLD_CITYCARS );
 	current_list = car_list;
 	origin = pos.get_2d();
 }

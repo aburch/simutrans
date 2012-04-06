@@ -99,8 +99,8 @@ void goods_stats_t::zeichnen(koord offset)
 			{
 				const uint8 differential = journey_minutes -welt->get_settings().get_tolerable_comfort_short_minutes();
 				const uint8 max_differential = welt->get_settings().get_tolerable_comfort_median_long_minutes() -welt->get_settings().get_tolerable_comfort_short_minutes();
-				const uint32 proportion = differential * 100ll / max_differential;
-				comfort_modifier = (80ll * proportion / 100ll) + 20ll;
+				const uint32 proportion = differential * 100 / max_differential;
+				comfort_modifier = (80ll * (sint64)proportion / 100ll) + 20ll;
 			}
 
 			if(comfort > tolerable_comfort)
@@ -108,14 +108,14 @@ void goods_stats_t::zeichnen(koord offset)
 				// Apply luxury bonus
 				const uint8 max_differential = welt->get_settings().get_max_luxury_bonus_differential();
 				const uint8 differential = comfort - tolerable_comfort;
-				const sint64 multiplier = (welt->get_settings().get_max_luxury_bonus_percent() * comfort_modifier) / 100ll;
+				const sint64 multiplier = ((sint64)welt->get_settings().get_max_luxury_bonus_percent() * comfort_modifier) / 100ll;
 				if(differential >= max_differential)
 				{
-					price += (revenue * multiplier) / 10000ll;
+					price += (revenue * (sint64)multiplier) / 100ll;
 				}
 				else
 				{
-					const sint64 proportion = (differential * 100) / max_differential;
+					const sint64 proportion = ((sint64)differential * 100ll) / (sint64)max_differential;
 					price += (revenue * (sint64)(multiplier * proportion)) / 10000ll;
 				}
 			}
@@ -124,15 +124,15 @@ void goods_stats_t::zeichnen(koord offset)
 				// Apply discomfort penalty
 				const uint8 max_differential = welt->get_settings().get_max_discomfort_penalty_differential();
 				const uint8 differential = tolerable_comfort - comfort;
-				sint64 multiplier = (welt->get_settings().get_max_discomfort_penalty_percent() * comfort_modifier) / 100ll;
-				multiplier = multiplier < 95 ? multiplier : 95;
+				sint64 multiplier = ((sint64)welt->get_settings().get_max_discomfort_penalty_percent() * comfort_modifier) / 100ll;
+				multiplier = multiplier < 95ll ? multiplier : 95ll;
 				if(differential >= max_differential)
 				{
-					price -= (revenue * multiplier) / 10000ll;
+					price -= (revenue * (sint64)multiplier) / 100ll;
 				}
 				else
 				{
-					const sint64 proportion = (differential * 100) / max_differential;
+					const sint64 proportion = ((sint64)differential * 100ll) / (sint64)max_differential;
 					price -= (revenue * (multiplier * proportion)) / 10000ll;
 				}
 			}

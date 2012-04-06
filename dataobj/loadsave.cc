@@ -17,6 +17,18 @@
 #include "../utils/simstring.h"
 
 #include <zlib.h>
+#include <bzlib.h>
+
+#define INVALID_RDWR_ID (-1)
+
+struct file_descriptors_t {
+	FILE *fp;
+	gzFile gzfp;
+	BZFILE *bzfp;
+	int bse;
+	file_descriptors_t() : fp(NULL), gzfp(NULL), bzfp(NULL), bse(BZ_OK+1) {}
+};
+
 
 loadsave_t::mode_t loadsave_t::save_mode = bzip2;	// default to use for saving
 
@@ -24,14 +36,13 @@ loadsave_t::loadsave_t() : filename()
 {
 	mode = 0;
 	saving = false;
-	fp = NULL;
-	bzfp = NULL;
-	bse = BZ_OK+1;
+	fd = new file_descriptors_t();
 }
 
 loadsave_t::~loadsave_t()
 {
 	close();
+	delete fd;
 }
 
 bool loadsave_t::rd_open(const char *filename)
@@ -41,34 +52,34 @@ bool loadsave_t::rd_open(const char *filename)
 	version = 0;
 	mode = zipped;
 	experimental_version = 0;
-	fp = fopen(filename, "rb");
-	if(  fp==NULL  ) {
+	fd->fp = fopen(filename, "rb");
+	if(  fd->fp==NULL  ) {
 		// most likely not existing
 		return false;
 	}
 	// now check for BZ2 format
 	char buf[80];
-	if(  fread( buf, 1, 80, fp )==80  ) {
+	if(  fread( buf, 1, 80, fd->fp )==80  ) {
 		if(  buf[0]=='B'  &&  buf[1]=='Z'  ) {
 			mode = bzip2;
 		}
-		fseek(fp,0,SEEK_SET);
+		fseek(fd->fp,0,SEEK_SET);
 	}
 
 	if(  mode==bzip2  ) {
-		bse = BZ_OK+1;
-		bzfp = NULL;
-		bzfp = BZ2_bzReadOpen( &bse, fp, 0, 0, NULL, 0 );
+		fd->bse = BZ_OK+1;
+		fd->bzfp = NULL;
+		fd->bzfp = BZ2_bzReadOpen( &fd->bse, fd->fp, 0, 0, NULL, 0 );
 		bool ok = false;
-		if(  bse==BZ_OK  ) {
+		if(  fd->bse==BZ_OK  ) {
 			// else: use zlib
 			MEMZERO(buf);
-			if(  BZ2_bzRead( &bse, bzfp, buf, sizeof(SAVEGAME_PREFIX) )==sizeof(SAVEGAME_PREFIX)  &&  bse==BZ_OK  ) {
+			if(  BZ2_bzRead( &fd->bse, fd->bzfp, buf, sizeof(SAVEGAME_PREFIX) )==sizeof(SAVEGAME_PREFIX)  &&  fd->bse==BZ_OK  ) {
 				// get the rest of the string
 				for(  int i=sizeof(SAVEGAME_PREFIX);  buf[i-1]>=32  &&  i<79;  i++  ) {
 					buf[i] = lsgetc();
 				}
-				ok = bse==BZ_OK;
+				ok = fd->bse==BZ_OK;
 			}
 		}
 		// BZ-Header but wrong data ...
@@ -79,13 +90,13 @@ bool loadsave_t::rd_open(const char *filename)
 	}
 
 	if(  mode!=bzip2  ) {
-		fclose(fp);
+		fclose(fd->fp);
 		// and now with zlib ...
-		fp = (FILE *)gzopen(filename, "rb");
-		if(fp==NULL) {
+		fd->gzfp = gzopen(filename, "rb");
+		if(fd->gzfp==NULL) {
 			return false;
 		}
-		gzgets(fp, buf, 80);
+		gzgets(fd->gzfp, buf, 80);
 	}
 	saving = false;
 
@@ -172,32 +183,21 @@ bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extensi
 
 	if(  is_zipped()  ) {
 		// using zlib
-		fp = (FILE *)gzopen(filename, "wb");
+		fd->gzfp = gzopen(filename, "wb");
 	}
 	else if(  mode==binary  ) {
 		// no compression
-		fp = fopen(filename, "wb");
-		if(  is_bzip2()  ) {
-			// the additional magic for bzip2
-			bse = BZ_OK+1;
-			bzfp = NULL;
-			if(  fp  ) {
-				bzfp = BZ2_bzWriteOpen( &bse, fp, 9, 0, 30 /* default is 30 */ );
-				if(  bse!=BZ_OK  ) {
-					return false;
-				}
-			}
-		}
+		fd->fp = fopen(filename, "wb");
 	}
 	else if(  is_bzip2()  ) {
 		// XML or bzip ...
-		fp = fopen(filename, "wb");
+		fd->fp = fopen(filename, "wb");
 		// the additional magic for bzip2
-		bse = BZ_OK+1;
-		bzfp = NULL;
-		if(  fp  ) {
-			bzfp = BZ2_bzWriteOpen( &bse, fp, 9, 0, 30 /* default is 30 */ );
-			if(  bse!=BZ_OK  ) {
+		fd->bse = BZ_OK+1;
+		fd->bzfp = NULL;
+		if(  fd->fp  ) {
+			fd->bzfp = BZ2_bzWriteOpen( &fd->bse, fd->fp, 9, 0, 30 /* default is 30 */ );
+			if(  fd->bse!=BZ_OK  ) {
 				return false;
 			}
 		}
@@ -205,10 +205,11 @@ bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extensi
 	else {
 		// uncompressed xml should be here ...
 		assert(  mode==xml  );
-		fp = fopen(filename, "wb");
+		fd->fp = fopen(filename, "wb");
 	}
 
-	if(!fp) {
+	// check whether we could open the file
+	if(  is_zipped()  ?  fd->gzfp == NULL  :  fd->fp == NULL  ) {
 		return false;
 	}
 	saving = true;
@@ -272,44 +273,46 @@ bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extensi
 const char *loadsave_t::close()
 {
 	const char *success = NULL;
-	if(fp != NULL) {
-		if(  is_xml()  &&  saving  &&  fp!=NULL  &&  (!is_bzip2()  ||  bse==BZ_OK)  ) {
-			// only write when close and no error occurred
-			const char *end = "\n</Simutrans>\n";
-			write( end, strlen(end) );
+
+	if(  is_xml()  &&  saving  &&  (!is_bzip2()  ||  fd->bse==BZ_OK)
+	     &&  (is_zipped()  ?  fd->gzfp  :  fd->fp) ) {
+		// only write when close and no error occurred
+		const char *end = "\n</Simutrans>\n";
+		write( end, strlen(end) );
+	}
+	if(  is_zipped()  &&  fd->gzfp) {
+		int err_no;
+		const char *err_str = gzerror( fd->gzfp, &err_no );
+		if(err_no!=Z_OK  &&  err_no!=Z_STREAM_END) {
+			success =  err_no==Z_ERRNO ? strerror(errno) : err_str;
 		}
-		if(is_zipped()) {
-			int err_no;
-			const char *err_str = gzerror( fp, &err_no );
-			if(err_no!=Z_OK  &&  err_no!=Z_STREAM_END) {
-				success =  err_no==Z_ERRNO ? strerror(errno) : err_str;
-			}
-			gzclose(fp);
-		}
-		else if(  is_bzip2()  ) {
-			if(   saving  ) {
-				/* BZLIB seems to eat the last byte, if it is at odd position
-				 * => we just write a dummy zero padding byte
-				 */
-				write( "", 1 );
-				BZ2_bzWriteClose( &bse, bzfp, 0, NULL, NULL );
-			}
-			else {
-				BZ2_bzReadClose( &bse, bzfp );
-			}
-			fclose( fp );
-			bzfp = fp = NULL;
-			bse = BZ_STREAM_END;
+		gzclose(fd->gzfp);
+		fd->gzfp = NULL;
+	}
+	if(  is_bzip2()  &&  fd->fp ) {
+		if(   saving  ) {
+			/* BZLIB seems to eat the last byte, if it is at odd position
+				* => we just write a dummy zero padding byte
+				*/
+			write( "", 1 );
+			BZ2_bzWriteClose( &fd->bse, fd->bzfp, 0, NULL, NULL );
 		}
 		else {
-			int err_no = ferror(fp);
-			fclose(fp);
-			if(err_no!=0) {
-				success = strerror(err_no);
-			}
+			BZ2_bzReadClose( &fd->bse, fd->bzfp );
 		}
-		fp = NULL;
+		fclose( fd->fp );
+		fd->bzfp = fd->fp = NULL;
+		fd->bse = BZ_STREAM_END;
 	}
+	if(  !is_bzip2()  &&  !is_zipped()  &&  fd->fp  ) {
+		int err_no = ferror(fd->fp);
+		fclose(fd->fp);
+		if(err_no!=0) {
+			success = strerror(err_no);
+		}
+	}
+	fd->fp = NULL;
+
 	return success;
 }
 
@@ -324,10 +327,10 @@ bool loadsave_t::is_eof()
 {
 	if(is_bzip2()) {
 		// any error is EOF ...
-		return bse!=BZ_OK;
+		return fd->bse!=BZ_OK;
 	}
 	else {
-		return gzeof(fp) != 0;
+		return gzeof(fd->gzfp) != 0;
 	}
 }
 
@@ -335,14 +338,14 @@ bool loadsave_t::is_eof()
 void loadsave_t::lsputc(int c)
 {
 	if(is_zipped()) {
-		gzputc(fp, c);
+		gzputc(fd->gzfp, c);
 	}
 	else if(is_bzip2()) {
 		uint8 ch = c;
 		write( &ch, 1 );
 	}
 	else {
-		fputc(c, fp);
+		fputc(c, fd->fp);
 	}
 }
 
@@ -350,41 +353,41 @@ int loadsave_t::lsgetc()
 {
 	if(is_bzip2()) {
 		uint8 c[2];
-		if(  bse==BZ_OK  ) {
-			BZ2_bzRead( &bse, bzfp, c, 1);
+		if(  fd->bse==BZ_OK  ) {
+			BZ2_bzRead( &fd->bse, fd->bzfp, c, 1);
 		}
-		return bse==BZ_OK ? c[0] : -1;
+		return fd->bse==BZ_OK ? c[0] : -1;
 	}
 	else {
-		return gzgetc(fp);
+		return gzgetc(fd->gzfp);
 	}
 }
 
 size_t loadsave_t::write(const void *buf, size_t len)
 {
 	if(is_zipped()) {
-		return gzwrite(fp, const_cast<void *>(buf), len);
+		return gzwrite(fd->gzfp, const_cast<void *>(buf), len);
 	}
 	else if(is_bzip2()) {
-		BZ2_bzWrite( &bse, bzfp, const_cast<void *>(buf), len);
-		assert(bse==BZ_OK);
+		BZ2_bzWrite( &fd->bse, fd->bzfp, const_cast<void *>(buf), len);
+		assert(fd->bse==BZ_OK);
 		return len;
 	}
 	else {
-		return fwrite(buf, 1, len, fp);
+		return fwrite(buf, 1, len, fd->fp);
 	}
 }
 
 size_t loadsave_t::read(void *buf, size_t len)
 {
 	if(is_bzip2()) {
-		if(  bse==BZ_OK  ) {
-			BZ2_bzRead( &bse, bzfp, const_cast<void *>(buf), len);
+		if(  fd->bse==BZ_OK  ) {
+			BZ2_bzRead( &fd->bse, fd->bzfp, buf, len);
 		}
-		return bse==BZ_OK ? len : 0;
+		return fd->bse==BZ_OK ? len : 0;
 	}
 	else {
-		return gzread(fp, buf, len);
+		return gzread(fd->gzfp, buf, len);
 	}
 }
 
@@ -878,7 +881,7 @@ void loadsave_t::end_tag(const char *tag)
 void loadsave_t::wr_obj_id(sint16 id)
 {
 	if(!saving) {
-		dbg->fatal( "loadsave_t::rd_obj_id()", "must be only called during saving!" );
+		dbg->fatal( "loadsave_t::wr_obj_id()", "must be only called during saving!" );
 	}
 	if(!is_xml()) {
 		lsputc( id );

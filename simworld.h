@@ -36,7 +36,6 @@
 #include "tpl/fixed_list_tpl.h"
 #endif
 
-
 struct event_t;
 struct sound_info;
 class stadt_t;
@@ -56,7 +55,6 @@ class network_world_command_t;
 class ware_besch_t;
 class memory_rw_t;
 
-
 struct checklist_t
 {
 	uint32 random_seed;
@@ -64,13 +62,17 @@ struct checklist_t
 	uint16 line_entry;
 	uint16 convoy_entry;
 
-	checklist_t() : random_seed(0), halt_entry(0), line_entry(0), convoy_entry(0) { }
-	checklist_t(uint32 _random_seed, uint16 _halt_entry, uint16 _line_entry, uint16 _convoy_entry)
-		: random_seed(_random_seed), halt_entry(_halt_entry), line_entry(_line_entry), convoy_entry(_convoy_entry) { }
+	uint32 industry_density_proportion;
+	uint32 actual_industry_density;
+	uint32 traffic;
+
+	checklist_t() : random_seed(0), halt_entry(0), line_entry(0), convoy_entry(0), industry_density_proportion(0), actual_industry_density(0), traffic(0) { }
+	checklist_t(uint32 _random_seed, uint16 _halt_entry, uint16 _line_entry, uint16 _convoy_entry, uint32 _industry_denisty_proportion, uint32 _actual_industry_density, uint32 _traffic)
+		: random_seed(_random_seed), halt_entry(_halt_entry), line_entry(_line_entry), convoy_entry(_convoy_entry), industry_density_proportion(_industry_denisty_proportion), actual_industry_density(_actual_industry_density), traffic(_traffic) { }
 
 	bool operator == (const checklist_t &other) const
 	{
-		return ( random_seed==other.random_seed && halt_entry==other.halt_entry && line_entry==other.line_entry && convoy_entry==other.convoy_entry );
+		return ( random_seed==other.random_seed && halt_entry==other.halt_entry && line_entry==other.line_entry && convoy_entry==other.convoy_entry && industry_density_proportion == other.industry_density_proportion && actual_industry_density == other.actual_industry_density);
 	}
 	bool operator != (const checklist_t &other) const { return !( (*this)==other ); }
 
@@ -91,6 +93,7 @@ public:
 
 #ifdef DEBUG_SIMRAND_CALLS
 	static bool print_randoms;
+	static int random_calls;
 #endif
 	/**
 	* Hoehe eines Punktes der Karte mit "perlin noise"
@@ -108,7 +111,7 @@ public:
 		WORLD_TOWNS,	// number of all cities
 		WORLD_FACTORIES,	// number of all consuming only factories
 		WORLD_CONVOIS,	// total number of convois
-		WORLD_CITYCARS,	// number of citycars generated
+		WORLD_CITYCARS,	// Number of private car trips
 		WORLD_PAS_RATIO,	// percentage of passengers that started successful
 		WORLD_PAS_GENERATED,	// total number generated
 		WORLD_MAIL_RATIO,	// percentage of mail that started successful
@@ -622,6 +625,7 @@ public:
 	void store_player_password_hash( uint8 player_nr, const pwd_hash_t& hash );
 	const pwd_hash_t& get_player_password_hash( uint8 player_nr ) const { return player_password_hash[player_nr]; }
 	void clear_player_password_hashes();
+	void rdwr_player_password_hashes(loadsave_t *file);
 
 	/**
 	 * network safe initiation of new players
@@ -1093,10 +1097,7 @@ public:
 	// the convois are also handled each step => thus we keep track of them too
 	void add_convoi(convoihandle_t &cnv);
 	void rem_convoi(convoihandle_t& cnv);
-	uint32 get_convoi_count() const {return convoi_array.get_count();}
-	const convoihandle_t get_convoi(sint32 i) const {return convoi_array[(uint32)i];}
-	vector_tpl<convoihandle_t>::const_iterator convois_begin() const { return convoi_array.begin(); }
-	vector_tpl<convoihandle_t>::const_iterator convois_end()   const { return convoi_array.end();   }
+	vector_tpl<convoihandle_t> & convoys() { return convoi_array; }
 
 	/**
 	 * Zugriff auf das Staedte Array.
@@ -1212,9 +1213,10 @@ public:
 	 * Spielt den Sound, wenn die Position im sichtbaren Bereich liegt.
 	 * Spielt weiter entfernte Sounds leiser ab.
 	 * @param pos Position an der das Ereignis stattfand
+	 * @param idx Index of the sound
 	 * @author Hj. Malthaner
 	 */
-	bool play_sound_area_clipped(koord pos, sound_info info) const;
+	bool play_sound_area_clipped(koord pos, uint16 idx) const;
 
 	void mute_sound( bool state ) { is_sound = !state; }
 
@@ -1314,7 +1316,7 @@ public:
 
 
 #ifdef DEBUG_SIMRAND_CALLS
-	static fixed_list_tpl<const char*, 256> random_callers;
+	static vector_tpl<const char*> random_callers;
 #endif
 
 private:

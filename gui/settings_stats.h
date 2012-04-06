@@ -111,36 +111,23 @@ class settings_t;
 
 // call this before and READ_...
 #define READ_INIT \
-	slist_iterator_tpl<gui_numberinput_t *>numiter(numinp);\
-	slist_iterator_tpl<button_t *>booliter(button);
+	slist_tpl<gui_numberinput_t*>::const_iterator numiter  = numinp.begin(); \
+	slist_tpl<button_t*>::const_iterator          booliter = button.begin();
 
-#define READ_NUM(t) numiter.next(); (t)( numiter.get_current()->get_value() )
-#define READ_NUM2(t,expr) (t)( numiter.get_current()->get_value() expr)
-#define READ_NUM_NEW(t) if(new_world) { READ_NUM(t); }
-#define READ_COST(t) numiter.next(); (t)( (sint64)(numiter.get_current()->get_value())*100 )
-#define READ_NUM_ARRAY(t, i) (t)((i), numiter.get_current()->get_value() )
-#define READ_NUM_VALUE(t) numiter.next(); (t) = numiter.get_current()->get_value()
-#define READ_NUM_VALUE_TENTHS(t) numiter.next(); (t) = (numiter.get_current()->get_value() * 10)
-#define READ_NUM_VALUE_NEW(t) if(new_world) { READ_NUM_VALUE(t); }
-#define READ_COST_VALUE(t) numiter.next(); (t) = (sint64)(numiter.get_current()->get_value())*100
+#define READ_NUM(t)            (t)((*numiter++)->get_value())
+#define READ_NUM2(t,expr)	   (t)( numiter.get_current()->get_value() expr)
+#define READ_NUM_NEW(t)        if(new_world) { READ_NUM(t); }
+#define READ_COST(t)           (t)((sint64)((*numiter++)->get_value()) * 100)
+#define READ_NUM_ARRAY(t, i)   (t)((i), numiter.get_current()->get_value() )
+#define READ_NUM_VALUE(t)      (t) = (*numiter++)->get_value()
+#define READ_NUM_VALUE_TENTHS(t) (t) = (*numiter++)->get_value() * 10
+#define READ_NUM_VALUE_NEW(t)  if(new_world) { READ_NUM_VALUE(t); }
+#define READ_COST_VALUE(t)     (t) = (sint64)((*numiter++)->get_value()) * 100
 #define READ_COST_VALUE_NEW(t) if(new_world) { READ_COST_VALUE(t); }
-#define READ_BOOL(t) booliter.next(); (t)( booliter.get_current()->pressed )
-#define READ_BOOL_NEW(t) if(new_world) { READ_BOOL(t); }
-#define READ_BOOL_VALUE(t) booliter.next(); (t) = booliter.get_current()->pressed
+#define READ_BOOL(t)           (t)((*booliter)->pressed)
+#define READ_BOOL_NEW(t)       if(new_world) { READ_BOOL(t); }
+#define READ_BOOL_VALUE(t)     (t) = (*booliter)->pressed
 #define READ_BOOL_VALUE_NEW(t) if(new_world) { READ_BOOL_VALUE(t); }
-
-/*
-	uint32 read_numinp = 0;\
-	uint32 read_button = 0;\
-
-#define READ_NUM(t) (t)( numinp.at(read_numinp++)->get_value() )
-#define READ_COST(t) (t)( (sint64)(numinp.at(read_numinp++)->get_value())*100 )
-#define READ_NUM_VALUE(t) (t) = numinp.at(read_numinp++)->get_value()
-#define READ_COST_VALUE(t) (t) = (sint64)(numinp.at(read_numinp++)->get_value())*100
-#define READ_BOOL(t) (t)( button.at(read_button++)->pressed )
-#define READ_BOOL_VALUE(t) (t) = button.at(read_button++)->pressed
-*/
-
 
 
 /**
@@ -188,7 +175,7 @@ class settings_general_stats_t : public settings_stats_t, public action_listener
 	gui_combobox_t savegame_ex;
 public:
 	// needed for savegame combobox
-	bool action_triggered(gui_action_creator_t *komp, value_t extra);
+	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 	void init(settings_t const*);
 	void read(settings_t*);
 };
@@ -222,7 +209,7 @@ private:
 public:
 	void init(settings_t*);
 	void read(settings_t*);
-	bool action_triggered(gui_action_creator_t *komp, value_t extra);
+	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };
 
 class settings_experimental_general_stats_t : public settings_stats_t

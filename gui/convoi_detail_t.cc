@@ -22,7 +22,6 @@
 #include "../dataobj/loadsave.h"
 // @author hsiegeln
 #include "../simline.h"
-#include "../boden/grund.h"
 #include "messagebox.h"
 
 #include "../player/simplay.h"
@@ -274,9 +273,9 @@ void convoi_detail_t::rdwr(loadsave_t *file)
 		}
 		// we might be unlucky, then search all convois for a convoi with this name
 		if(  !cnv.is_bound()  ) {
-			for(  vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end();  i != end;  ++i  ) {
-				if(  strcmp( (*i)->get_name(),name)==0  ) {
-					cnv = *i;
+			FOR(vector_tpl<convoihandle_t>, const i, welt->convoys()) {
+				if (strcmp(i->get_name(), name) == 0) {
+					cnv = i;
 					break;
 				}
 			}
@@ -318,7 +317,7 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 	// keep previous maximum width
 	int x_size = get_groesse().x-51-pos.x;
 
-	int total_height = LINESPACE;
+	int total_height = 0;
 	if(cnv.is_bound()) {
 		char number[64];
 		cbuffer_t buf;
@@ -338,7 +337,7 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 			KOORD_VAL x, y, w, h;
 			const image_id bild=v->get_basis_bild();
 			display_get_base_image_offset(bild, &x, &y, &w, &h );
-			display_base_img(bild,11-x+pos.x+offset.x,pos.y+offset.y+total_height-y-LINESPACE+2,cnv->get_besitzer()->get_player_nr(),false,true);
+			display_base_img(bild,11-x+pos.x+offset.x,pos.y+offset.y+total_height-y+2,cnv->get_besitzer()->get_player_nr(),false,true);
 			w = max(40,w+4)+11;
 
 			// now add the other info
@@ -491,7 +490,6 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 			// Prohibitive way constraints
 			// (If way has, vehicle must have)
 			// @author: jamespetts
-			//for(uint8 i = 0; i < 8; i++)
 			for(uint8 i = 0; i < way_constraints.get_count(); i++)
 			{
 				if(way_constraints.get_prohibitive(i))

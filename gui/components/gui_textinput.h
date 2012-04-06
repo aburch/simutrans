@@ -111,12 +111,7 @@ public:
 	 */
 	char *get_text() const { return text; }
 
-	/**
-	 * Events werden hiermit an die GUI-Komponenten
-	 * gemeldet
-	 * @author Hj. Malthaner
-	 */
-	virtual bool infowin_event(const event_t *);
+	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**
 	 * Zeichnet die Komponente
@@ -145,7 +140,7 @@ public:
 class gui_hidden_textinput_t : public gui_textinput_t
 {
 	// and set the cursor right when clicking with the mouse
-	virtual bool infowin_event(const event_t *);
+	bool infowin_event(event_t const*) OVERRIDE;
 
 	// function that performs the actual display; just draw with stars ...
 	virtual void display_with_cursor(koord offset, bool cursor_active, bool cursor_visible);

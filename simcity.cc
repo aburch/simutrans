@@ -647,8 +647,7 @@ bool stadt_t::bewerte_loc(const koord pos, const rule_t &regel, int rotation)
 	//printf("Test for (%s) in rotation %d\n", pos.get_str(), rotation);
 	koord k;
 
-	for(uint32 i=0; i<regel.rule.get_count(); i++){
-		const rule_entry_t &r = regel.rule[i];
+	FOR(vector_tpl<rule_entry_t>, const& r, regel.rule) {
 		uint8 x,y;
 		switch (rotation) {
 			default:
@@ -1196,9 +1195,9 @@ void stadt_t::recalc_city_size()
 {
 	lo = pos;
 	ur = pos;
-	for(  uint32 i=0;  i<buildings.get_count();  i++  ) {
-		if(buildings[i]->get_tile()->get_besch()->get_utyp()!=haus_besch_t::firmensitz) {
-			const koord gb_pos = buildings[i]->get_pos().get_2d();
+	FOR(weighted_vector_tpl<gebaeude_t*>, const i, buildings) {
+		if (i->get_tile()->get_besch()->get_utyp() != haus_besch_t::firmensitz) {
+			koord const& gb_pos = i->get_pos().get_2d();
 			if (lo.x > gb_pos.x) {
 				lo.x = gb_pos.x;
 			}
@@ -1275,9 +1274,9 @@ void stadt_t::factory_entry_t::resolve_factory()
 
 const stadt_t::factory_entry_t* stadt_t::factory_set_t::get_entry(const fabrik_t *const factory) const
 {
-	for(  uint32 e=0;  e<entries.get_count();  ++e  ) {
-		if(  entries[e].factory==factory  ) {
-			return &entries[e];
+	FOR(vector_tpl<factory_entry_t>, const& e, entries) {
+		if (e.factory == factory) {
+			return &e;
 		}
 	}
 	return NULL;	// not found
@@ -1288,8 +1287,7 @@ stadt_t::factory_entry_t* stadt_t::factory_set_t::get_random_entry()
 {
 	if(  total_remaining>0  ) {
 		sint32 weight = simrand(total_remaining, "stadt_t::factory_set_t::get_random_entry()");
-		for(  uint32 e=0;  e<entries.get_count();  ++e  ) {
-			factory_entry_t &entry = entries[e];
+		FOR(vector_tpl<factory_entry_t>, & entry, entries) {
 			if(  entry.remaining>0  ) {
 				if(  weight<entry.remaining  ) {
 					return &entry;
@@ -1372,8 +1370,7 @@ void stadt_t::factory_set_t::recalc_generation_ratio(const sint32 default_percen
 		const sint64 supply_promille = ( ( (average_generated << 10) * (sint64)default_percent ) / 100 ) / (sint64)target_supply;
 		if(  supply_promille<1024  ) {
 			// expected supply is really smaller than target supply
-			for(  uint32 e=0;  e<entries.get_count();  ++e  ) {
-				factory_entry_t &entry = entries[e];
+			FOR(vector_tpl<factory_entry_t>, & entry, entries) {
 				const sint32 new_supply = (sint32)( ( (sint64)entry.demand * SUPPLY_FACTOR * supply_promille + ((1<<(DEMAND_BITS+SUPPLY_BITS+10))-1) ) >> (DEMAND_BITS+SUPPLY_BITS+10) );
 				const sint32 delta_supply = new_supply - entry.supply;
 				if(  delta_supply==0  ) {
@@ -1395,8 +1392,7 @@ void stadt_t::factory_set_t::recalc_generation_ratio(const sint32 default_percen
 		}
 	}
 	// expected supply is unknown or sufficient to meet target supply
-	for(  uint32 e=0;  e<entries.get_count();  ++e  ) {
-		factory_entry_t &entry = entries[e];
+	FOR(vector_tpl<factory_entry_t>, & entry, entries) {
 		const sint32 new_supply = ( entry.demand * SUPPLY_FACTOR + ((1<<(DEMAND_BITS+SUPPLY_BITS))-1) ) >> (DEMAND_BITS+SUPPLY_BITS);
 		const sint32 delta_supply = new_supply - entry.supply;
 		if(  delta_supply==0  ) {
@@ -1419,8 +1415,8 @@ void stadt_t::factory_set_t::recalc_generation_ratio(const sint32 default_percen
 
 void stadt_t::factory_set_t::new_month()
 {
-	for(  uint32 e=0;  e<entries.get_count();  ++e  ) {
-		entries[e].new_month();
+	FOR(vector_tpl<factory_entry_t>, & e, entries) {
+		e.new_month();
 	}
 	total_remaining = 0;
 	total_generated = 0;
@@ -1456,9 +1452,9 @@ void stadt_t::factory_set_t::rdwr(loadsave_t *file)
 void stadt_t::factory_set_t::resolve_factories()
 {
 	uint32 remove_count = 0;
-	for(  uint32 e=0;  e<entries.get_count();  ++e  ) {
-		entries[e].resolve_factory();
-		if(  entries[e].factory == NULL  ) {
+	FOR(vector_tpl<factory_entry_t>, & e, entries) {
+		e.resolve_factory();
+		if (!e.factory) {
 			remove_count ++;
 		}
 	}
@@ -1525,14 +1521,13 @@ stadt_t::~stadt_t()
 		
 		if(!welt->get_is_shutting_down())
 		{
-			koordhashtable_iterator_tpl<koord, uint16> iter(connected_cities);
-			while(iter.next())
+			FOR(connexion_map, const& iter, connected_cities)
 			{
-				if(iter.get_current_key() == pos)
+				if(iter.key == pos)
 				{
 					continue;
 				}
-				remove_connected_city(welt->get_city(iter.get_current_key()));
+				remove_connected_city(welt->get_city(iter.key));
 			}
 		}
 	}
@@ -1541,8 +1536,8 @@ stadt_t::~stadt_t()
 
 static bool name_used(weighted_vector_tpl<stadt_t*> const& cities, char const* const name)
 {
-	for (weighted_vector_tpl<stadt_t*>::const_iterator i = cities.begin(), end = cities.end(); i != end; ++i) {
-		if (strcmp((*i)->get_name(), name) == 0) {
+	FOR(weighted_vector_tpl<stadt_t*>, const i, cities) {
+		if (strcmp(i->get_name(), name) == 0) {
 			return true;
 		}
 	}
@@ -1593,7 +1588,8 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 		size_t      const idx  = simrand(city_names.get_count(), "stadt_t::stadt_t()");
 		char const* const cand = city_names[idx];
 		if (name_used(staedte, cand)) {
-			city_names.remove_at(idx);
+			city_names[idx] = city_names.back();
+			city_names.pop_back();
 		} else {
 			n = cand;
 			break;
@@ -1972,34 +1968,31 @@ void stadt_t::rdwr(loadsave_t* file)
 
 		count = connected_cities.get_count();
 		file->rdwr_long(count);
-		koordhashtable_iterator_tpl<koord, uint16> city_iter(connected_cities);
-		while(city_iter.next())
+		FOR(connexion_map, const& city_iter, connected_cities)
 		{
-			time = city_iter.get_current_value();
+			time = city_iter.value;
 			file->rdwr_short(time);
-			k = city_iter.get_current_key();
+			k = city_iter.key;
 			k.rdwr(file);
 		}
 
 		count = connected_industries.get_count();
 		file->rdwr_long(count);
-		koordhashtable_iterator_tpl<koord, uint16> industry_iter(connected_industries);
-		while(industry_iter.next())
+		FOR(connexion_map, const& industry_iter, connected_industries)
 		{
-			time = industry_iter.get_current_value();
+			time = industry_iter.value;
 			file->rdwr_short(time);
-			k = industry_iter.get_current_key();
+			k = industry_iter.key;
 			k.rdwr(file);
 		}
 
 		count = connected_attractions.get_count();
 		file->rdwr_long(count);
-		koordhashtable_iterator_tpl<koord, uint16> attraction_iter(connected_attractions);
-		while(attraction_iter.next())
+		FOR(connexion_map, const& attraction_iter, connected_attractions)
 		{
-			time = attraction_iter.get_current_value();
+			time = attraction_iter.value;
 			file->rdwr_short(time);
-			k = attraction_iter.get_current_key();
+			k = attraction_iter.key;
 			k.rdwr(file);
 		}
 
@@ -2167,10 +2160,10 @@ void stadt_t::rotate90( const sint16 y_size )
 
 	vector_tpl<koord> k_list(connected_cities.get_count());
 	vector_tpl<uint16> f_list(connected_cities.get_count());
-	koordhashtable_iterator_tpl<koord, uint16> iter1(connected_cities);
-	while(iter1.next())
+	
+	FOR(connexion_map, const& iter1, connected_cities)
 	{
-		koord k = iter1.get_current_key();
+		koord k = iter1.key;
 		uint16 f  = connected_cities.remove(k);
 		k.rotate90(y_size);
 		if(connected_cities.is_contained(k))
@@ -2195,10 +2188,9 @@ void stadt_t::rotate90( const sint16 y_size )
 
 	k_list.clear();
 	f_list.clear();
-	koordhashtable_iterator_tpl<koord, uint16> iter2(connected_industries);
-	while(iter2.next())
+	FOR(connexion_map, const& iter2, connected_industries)
 	{
-		koord k = iter2.get_current_key();
+		koord k = iter2.key;
 		uint16 f  = connected_industries.remove(k);
 		k.rotate90(y_size);
 		if(connected_industries.is_contained(k))
@@ -2223,10 +2215,9 @@ void stadt_t::rotate90( const sint16 y_size )
 
 	k_list.clear();
 	f_list.clear();
-	koordhashtable_iterator_tpl<koord, uint16> iter3(connected_attractions);
-	while(iter3.next())
+	FOR(connexion_map, const& iter3, connected_attractions)
 	{
-		koord k = iter3.get_current_key();
+		koord k = iter3.key;
 		uint16 f  = connected_attractions.remove(k);
 		k.rotate90(y_size);
 		if(connected_attractions.is_contained(k))
@@ -2249,7 +2240,6 @@ void stadt_t::rotate90( const sint16 y_size )
 		connected_attractions.put(k_list[n], f_list[n]);
 	}
 }
-
 
 
 void stadt_t::set_name(const char *new_name)
@@ -2483,9 +2473,14 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 
 	// Clearing these will force recalculation as necessary.
 	// Cannot do this too often, as it severely impacts on performance.
-	check_road_connexions = check;
+	if(check)
+	{
+		check_road_connexions = true;
+	}
 
-	if(check_road_connexions && private_car_update_month == welt->get_current_month())
+	const uint8 current_month = (uint8)(welt->get_current_month() % 12);
+
+	if(check_road_connexions && private_car_update_month == current_month)
 	{
 		connected_cities.clear();
 		connected_industries.clear();
@@ -2642,9 +2637,8 @@ void stadt_t::calc_growth()
 {
 	// now iterate over all factories to get the ratio of producing version nonproducing factories
 	// we use the incoming storage as a measure und we will only look for end consumers (power stations, markets)
-	for(  vector_tpl<factory_entry_t>::const_iterator iter = target_factories_pax.get_entries().begin(), end = target_factories_pax.get_entries().end();  iter!=end;  ++iter  )
-	{
-		fabrik_t *const fab = iter->factory;
+	FOR(vector_tpl<factory_entry_t>, const& i, target_factories_pax.get_entries()) {
+		fabrik_t *const fab = i.factory;
 		if(fab && fab->get_lieferziele().empty() && !fab->get_suppliers().empty()) 
 		{
 			// consumer => check for it storage
@@ -2798,10 +2792,9 @@ recalc:
 			// We know that, if this city is not connected to any given city, then every city
 			// to which this city is connected must likewise not be connected. So, avoid
 			// unnecessary recalculation by propogating this now.
-			koordhashtable_iterator_tpl<koord, uint16> iter(connected_cities);
-			while(iter.next())
+			FOR(connexion_map, const& iter, connected_cities)
 			{
-				welt->get_city(iter.get_current_key())->add_road_connexion(65535, city);
+				welt->get_city(iter.key)->add_road_connexion(65535, city);
 			}
 		}
 		return journey_time_per_tile;
@@ -2861,10 +2854,9 @@ uint16 stadt_t::check_road_connexion_to(const fabrik_t* industry)
 					// We know that, if this city is not connected to any given industry, then every city
 					// to which this city is connected must likewise not be connected. So, avoid
 					// unnecessary recalculation by propogating this now.
-					koordhashtable_iterator_tpl<koord, uint16> iter(connected_cities);
-					while(iter.next())
+					FOR(connexion_map, const& iter, connected_cities)
 					{
-						welt->get_city(iter.get_current_key())->set_no_connexion_to_industry(industry);
+						welt->get_city(iter.key)->set_no_connexion_to_industry(industry);
 					}
 				}
 				return journey_time_per_tile;
@@ -2933,16 +2925,16 @@ uint16 stadt_t::check_road_connexion_to(const gebaeude_t* attraction)
 	}
 	const koord3d destination = road->get_pos();
 	const uint16 journey_time_per_tile = check_road_connexion(destination);
+
 	connected_attractions.put(attraction->get_pos().get_2d(), journey_time_per_tile);
 	if(journey_time_per_tile == 65535)
 	{
 		// We know that, if this city is not connected to any given industry, then every city
 		// to which this city is connected must likewise not be connected. So, avoid
 		// unnecessary recalculation by propogating this now.
-		koordhashtable_iterator_tpl<koord, uint16> iter(connected_cities);
-		while(iter.next())
+		FOR(connexion_map, const& iter, connected_cities)
 		{
-			welt->get_city(iter.get_current_key())->set_no_connexion_to_attraction(attraction);
+			welt->get_city(iter.key)->set_no_connexion_to_attraction(attraction);
 		}
 	}
 	return journey_time_per_tile;
@@ -3737,6 +3729,7 @@ void stadt_t::set_private_car_trip(int passengers, stadt_t* destination_town)
 		//And mark the trip as outgoing for growth calculations
 		outgoing_private_cars += passengers;
 	}
+	welt->buche(passengers, karte_t::WORLD_CITYCARS);
 }
 
 
@@ -3805,9 +3798,8 @@ void stadt_t::update_target_cities()
 void stadt_t::recalc_target_cities()
 {
 	target_cities.clear();
-	const weighted_vector_tpl<stadt_t *> &cities = welt->get_staedte();
-	for(  uint32 c=0;  c<cities.get_count();  ++c  ) {
-		add_target_city( cities[c] );
+	FOR(weighted_vector_tpl<stadt_t*>, const c, welt->get_staedte()) {
+		add_target_city(c);
 	}
 }
 
@@ -3826,9 +3818,8 @@ void stadt_t::add_target_attraction(gebaeude_t *const attraction)
 void stadt_t::recalc_target_attractions()
 {
 	target_attractions.clear();
-	const weighted_vector_tpl<gebaeude_t *> &attractions = welt->get_ausflugsziele();
-	for(  uint32 a=0;  a<attractions.get_count();  ++a  ) {
-		add_target_attraction( attractions[a] );
+	FOR(weighted_vector_tpl<gebaeude_t*>, const a, welt->get_ausflugsziele()) {
+		add_target_attraction(a);
 	}
 }
 
@@ -4004,8 +3995,8 @@ class bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t
 		{
 			const weighted_vector_tpl<gebaeude_t*>& attractions = welt->get_ausflugsziele();
 			int dist = welt->get_groesse_x() * welt->get_groesse_y();
-			for (weighted_vector_tpl<gebaeude_t*>::const_iterator i = attractions.begin(), end = attractions.end(); i != end; ++i) {
-				int d = koord_distance((*i)->get_pos(), pos);
+			FOR(weighted_vector_tpl<gebaeude_t*>, const i, attractions) {
+				int const d = koord_distance(i->get_pos(), pos);
 				if (d < dist) {
 					dist = d;
 				}
@@ -4649,7 +4640,7 @@ bool stadt_t::renoviere_gebaeude(gebaeude_t* gb)
 		}
 	}
 	// check for industry, also if we wanted com, but there was no com good enough ...
-	if ((sum_industrie > sum_industrie && sum_industrie > sum_wohnung) || (sum_gewerbe > sum_wohnung && will_haben == gebaeude_t::unbekannt)) {
+	if(  (sum_industrie > sum_gewerbe  &&  sum_industrie > sum_wohnung) || (sum_gewerbe > sum_wohnung  &&  will_haben == gebaeude_t::unbekannt)  ) {
 		// we must check, if we can really update to higher level ...
 		const int try_level = (alt_typ == gebaeude_t::industrie ? level + 1 : level);
 		h = hausbauer_t::get_industrie(try_level , current_month, cl);
@@ -5329,10 +5320,10 @@ uint32 stadt_t::get_power_demand() const
 {
 	// The 'magic number' in here is the actual amount of electricity consumed per citizen per month at '100%' in electricity.tab
 	//uint16 electricity_per_citizen = 0.02F * get_electricity_consumption(welt->get_timeline_year_month(); 
-	uint16 electricity_per_citizen = (get_electricity_consumption(welt->get_timeline_year_month()) * 100) / 5; 
+	const uint16 electricity_per_citizen = (get_electricity_consumption(welt->get_timeline_year_month()) * 100) / 5; 
 	// The weird order of operations is designed for greater precision.
 	// Really, POWER_TO_MW should come last.
-
+	
 	return ((city_history_month[0][HIST_CITICENS] << POWER_TO_MW) * electricity_per_citizen) / 100000;
 }
 

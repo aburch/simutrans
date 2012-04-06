@@ -535,7 +535,8 @@ private:
 	 * "last_departure_time" member.
 	 * Modified October 2011 to include accumulated distance.
 	 */
-	inthashtable_tpl<uint16, departure_data_t> *departures;
+	typedef inthashtable_tpl<uint16, departure_data_t> departure_map;
+	departure_map *departures;
 
 	// When we arrived at current stop
 	// @author Inkelyad
@@ -649,12 +650,6 @@ public:
 	route_t* access_route() { return &route; }
 	bool calc_route(koord3d start, koord3d ziel, sint32 max_speed);
 	void update_route(uint32 index, const route_t &replacement); // replace route with replacement starting at index.
-
-	/**
-	* Checks if this convoi has a driveable route
-	* @author Hanjsörg Malthaner
-	*/
-	bool hat_keine_route() const { return (state==NO_ROUTE); }
 
 	/**
 	* get line
@@ -966,7 +961,8 @@ public:
 	* The table of point-to-point average journey times.
 	* @author jamespetts
 	*/
-	koordhashtable_tpl<id_pair, average_tpl<uint16> > * average_journey_times;
+	typedef koordhashtable_tpl<id_pair, average_tpl<uint16> > journey_times_map;
+	journey_times_map *average_journey_times;
 
 #if 0
 private:

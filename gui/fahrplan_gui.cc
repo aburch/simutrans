@@ -6,17 +6,13 @@
  * Juli 2000
  */
 
-#include "../simconvoi.h"
 #include "../simline.h"
-#include "../simlinemgmt.h"
 #include "../simcolor.h"
-#include "../simwin.h"
 #include "../simhalt.h"
 #include "../simskin.h"
 #include "../simworld.h"
 #include "../simmenu.h"
 #include "../simgraph.h"
-#include "../simtools.h"
 
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
@@ -48,20 +44,20 @@ karte_t *fahrplan_gui_t::welt = NULL;
 
 
 // shows/deletes highliting of tiles
-void fahrplan_gui_stats_t::highlite_schedule( schedule_t *markfpl, bool marking )
+void fahrplan_gui_stats_t::highlight_schedule( schedule_t *markfpl, bool marking )
 {
 	marking &= umgebung_t::visualize_schedule;
-	for(  int i=0;  i<markfpl->get_count();  i++  ) {
-		if(  grund_t *gr = welt->lookup(markfpl->eintrag[i].pos)  ) {
+	FOR(minivec_tpl<linieneintrag_t>, const& i, markfpl->eintrag) {
+		if (grund_t* const gr = welt->lookup(i.pos)) {
 			for(  uint idx=0;  idx<gr->get_top();  idx++  ) {
 				ding_t *d = gr->obj_bei(idx);
 				if(  marking  ) {
 					if(  !d->is_moving()  ) {
-						d->set_flag( ding_t::highlite );
+						d->set_flag( ding_t::highlight );
 					}
 				}
 				else {
-					d->clear_flag( ding_t::highlite );
+					d->clear_flag( ding_t::highlight );
 				}
 			}
 			gr->set_flag( grund_t::dirty );
@@ -93,7 +89,7 @@ void fahrplan_gui_stats_t::highlite_schedule( schedule_t *markfpl, bool marking 
 			gr->set_flag( grund_t::dirty );
 		}
 	}
-	aktuell_mark->clear_flag( ding_t::highlite );
+	aktuell_mark->clear_flag( ding_t::highlight );
 }
 
 
@@ -208,7 +204,7 @@ void fahrplan_gui_stats_t::zeichnen(koord offset)
 			for (int i = 0; i < fpl->get_count(); i++) {
 
 				if(  i==fpl->get_aktuell()  ) {
-					// highlite current entry (width is just wide enough, scrolly will do clipping)
+					// highlight current entry (width is just wide enough, scrolly will do clipping)
 					display_fillbox_wh_clip( offset.x, offset.y + i*(LINESPACE+1)-1, 2048, LINESPACE+1, sp->get_player_color1()+1, false );
 				}
 
@@ -225,7 +221,7 @@ void fahrplan_gui_stats_t::zeichnen(koord offset)
 
 			}
 			set_groesse( koord(width+16, fpl->get_count() * (LINESPACE + 1) ) );
-			highlite_schedule( fpl, true );
+			highlight_schedule( fpl, true );
 		}
 	}
 }
@@ -466,8 +462,8 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	mode = adding;
 	update_selection();
 
-	set_fenstergroesse( koord(BUTTON4_X + 35, ypos+BUTTON_HEIGHT+min(15,fpl->get_count())*(LINESPACE + 1)+TITLEBAR_HEIGHT) );
-	set_min_windowsize( koord(BUTTON4_X + 35, ypos+BUTTON_HEIGHT+3*(LINESPACE + 1)+TITLEBAR_HEIGHT) );
+	set_fenstergroesse( koord(BUTTON4_X + 35, ypos+BUTTON_HEIGHT+(fpl->get_count()>0 ? min(15,fpl->get_count()) : 15)*(LINESPACE+1)+TITLEBAR_HEIGHT) );
+	set_min_windowsize( koord(BUTTON4_X + 35, ypos+BUTTON_HEIGHT+3*(LINESPACE+1)+TITLEBAR_HEIGHT) );
 
 	set_resizemode(diagonal_resize);
 	resize( koord(0,0) );
@@ -579,7 +575,7 @@ bool fahrplan_gui_t::infowin_event(const event_t *ev)
 				else if(ev->mx<scrolly.get_groesse().x-11) {
 					fpl->set_aktuell( line );
 					if(mode == removing) {
-						stats.highlite_schedule( fpl, false );
+						stats.highlight_schedule( fpl, false );
 						fpl->remove();
 						action_triggered( &bt_add, value_t() );
 					}
@@ -591,7 +587,7 @@ bool fahrplan_gui_t::infowin_event(const event_t *ev)
 	else if(ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE  &&  fpl!=NULL  ) {
 
 		for(  int i=0;  i<fpl->get_count();  i++  ) {
-			stats.highlite_schedule( fpl, false );
+			stats.highlight_schedule( fpl, false );
 		}
 
 		update_werkzeug( false );
@@ -730,7 +726,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 //DBG_MESSAGE("fahrplan_gui_t::action_triggered()","line selection=%i",selection);
 		if(  (uint32)(selection-1)<(uint32)line_selector.count_elements()  ) {
 			new_line = lines[selection - 1];
-			stats.highlite_schedule( fpl, false );
+			stats.highlight_schedule( fpl, false );
 			fpl->copy_from( new_line->get_schedule() );
 			fpl->eingabe_beginnen();
 		}
@@ -786,8 +782,7 @@ void fahrplan_gui_t::init_line_selector()
 		}
 	}
 
-	for (vector_tpl<linehandle_t>::const_iterator i = lines.begin(), end = lines.end(); i != end; i++) {
-		linehandle_t line = *i;
+	FOR(vector_tpl<linehandle_t>, const line, lines) {
 		line_selector.append_element( new line_scrollitem_t(line) );
 		if(  !new_line.is_bound()  ) {
 			if(  fpl->matches( sp->get_welt(), line->get_schedule() )  ) {
@@ -907,10 +902,12 @@ void fahrplan_gui_t::rdwr(loadsave_t *file)
 		}
 		if(  !cnv.is_bound() ) {
 			// not found (most likely convoi in depot ... )
-			for(  vector_tpl<convoihandle_t>::const_iterator i=welt->convois_begin(); i!=welt->convois_end();  ++i  ) {
-				if(  (*i)->get_besitzer()->get_player_nr()==player_nr  &&  strncmp( (*i)->get_name(), cnv_name, 256 )==0  &&  old_fpl->matches( welt, (*i)->get_schedule() )  ) {
+			FOR(vector_tpl<convoihandle_t>, const i, welt->convoys()) {
+				if (i->get_besitzer()->get_player_nr()    == player_nr &&
+						strncmp(i->get_name(), cnv_name, 256) == 0         &&
+						old_fpl->matches(welt, i->get_schedule())) {
 					// valid convoi found
-					cnv = *i;
+					cnv = i;
 					break;
 				}
 			}

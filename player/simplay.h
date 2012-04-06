@@ -126,7 +126,7 @@ protected:
 		koord pos;
 		sint32 amount;
 		sint8 alter;
-		income_message_t() { str[0]=0; alter=127; pos==koord::invalid; amount=0; }
+		income_message_t() { str[0]=0; alter=127; pos=koord::invalid; amount=0; }
 		income_message_t( sint32 betrag, koord pos );
 		void * operator new(size_t s);
 		void operator delete(void *p);
@@ -429,7 +429,7 @@ private:
 
 	// The maximum amount overdrawn that a player can be
 	// before no more purchases can be made.
-	sint32 base_credit_limit;
+	sint64 base_credit_limit;
 
 protected:
 	sint64 calc_credit_limit();

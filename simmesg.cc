@@ -127,8 +127,8 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 	if(  what == traffic_jams  ) {
 		sint32 now = welt->get_current_month()-2;
 		uint32 i = 0;
-		for(  slist_tpl<node *>::const_iterator iter = list.begin(), end = list.end();  iter!=end  &&  i<20; ++iter  ) {
-			const node& n = *(*iter);
+		FOR(slist_tpl<node*>, const iter, list) {
+			node const& n = *iter;
 			if (n.time >= now &&
 					strcmp(n.msg, text) == 0 &&
 					(n.pos.x & 0xFFF0) == (pos.x & 0xFFF0) && // positions need not 100% match ...
@@ -136,7 +136,25 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 				// we had exactly this message already
 				return;
 			}
-			i++;
+			if (++i == 20) break;
+		}
+	}
+
+	// if no coordinate is provided, there is maybe one in the text message?
+	// syntax: either @x,y or (x,y)
+	if (pos == koord::invalid) {
+		const char *str = text;
+		// scan until either @ or ( are found
+		while( *(str += strcspn(str, "@(")) ) {
+			str += 1;
+			int x=-1, y=-1;
+			if (sscanf(str, "%d,%d", &x, &y) == 2) {
+				if (welt->ist_in_kartengrenzen(x,y)) {
+					pos.x = x;
+					pos.y = y;
+					break; // success
+				}
+			}
 		}
 	}
 
@@ -161,7 +179,7 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 	char* p = list.front()->msg;
 
 	// if local flag is set and we are not current player, do not open windows
-	if(  (color & PLAYER_FLAG) != 0  &&  welt->get_active_player_nr() != (color&(~PLAYER_FLAG))  ) {
+	if(  (art&(1<<ai))==0  &&   (color & PLAYER_FLAG) != 0  &&  welt->get_active_player_nr() != (color&(~PLAYER_FLAG))  ) {
 		return;
 	}
 	// check if some window has focus
@@ -191,18 +209,17 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 	}
 
 	// restore focus
-	if (old_top  &&  focus) {
-		top_win(old_top);
+	if(  old_top  &&  focus  ) {
+		top_win( old_top, true );
 	}
 }
 
 
 void message_t::rotate90( sint16 size_w )
 {
-	for(  slist_tpl<message_t::node *>::iterator iter = list.begin(), end = list.end();  iter!=end; ++iter  ) {
-		(*iter)->pos.rotate90( size_w );
+	FOR(slist_tpl<node*>, const i, list) {
+		i->pos.rotate90(size_w);
 	}
-
 }
 
 
@@ -213,15 +230,16 @@ void message_t::rdwr( loadsave_t *file )
 		if(  umgebung_t::server  ) {
 			// on server: do not save local messages
 			msg_count = 0;
-			for(  slist_tpl<node *>::const_iterator iter=list.begin(), end=list.end();  iter!=end  &&  msg_count<2000;  ++iter  ) {
-				if(  ((*iter)->type & local_flag) == 0  ) {
-					msg_count ++;
+			FOR(slist_tpl<node*>, const i, list) {
+				if (!(i->type & local_flag)) {
+					if (++msg_count == 2000) break;
 				}
 			}
 			file->rdwr_short( msg_count );
-			for(  slist_tpl<node *>::const_iterator iter=list.begin(), end=list.end();  iter!=end  &&  msg_count>0;  ++iter  ) {
-				if(  ((*iter)->type & local_flag) == 0  ) {
-					(*iter)->rdwr(file);
+			FOR(slist_tpl<node*>, const i, list) {
+				if (msg_count == 0) break;
+				if (!(i->type & local_flag)) {
+					i->rdwr(file);
 					msg_count --;
 				}
 			}
@@ -230,8 +248,9 @@ void message_t::rdwr( loadsave_t *file )
 		else {
 			msg_count = min( 2000u, list.get_count() );
 			file->rdwr_short( msg_count );
-			for(  slist_tpl<node *>::const_iterator iter=list.begin(), end=list.end();  iter!=end  &&  msg_count>0;  ++iter, --msg_count  ) {
-				(*iter)->rdwr(file);
+			FOR(slist_tpl<node*>, const i, list) {
+				i->rdwr(file);
+				if (--msg_count == 0) break;
 			}
 		}
 	}

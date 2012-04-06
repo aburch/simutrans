@@ -56,15 +56,15 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	lb_sell.set_text_pointer(translator::translate("rpl_cnv_sell"));
 	lb_skip.set_text_pointer(translator::translate("rpl_cnv_skip"));
 	numinp[state_replace].set_value( 1 );
-	numinp[state_replace].set_limits( 0, 99 );
+	numinp[state_replace].set_limits( 0, 999 );
 	numinp[state_replace].set_increment_mode( 1 );
 	numinp[state_replace].add_listener(this);
 	numinp[state_sell].set_value( 0 );
-	numinp[state_sell].set_limits( 0, 99 );
+	numinp[state_sell].set_limits( 0, 999 );
 	numinp[state_sell].set_increment_mode( 1 );
 	numinp[state_sell].add_listener(this);
 	numinp[state_skip].set_value( 0 );
-	numinp[state_skip].set_limits( 0, 99 );
+	numinp[state_skip].set_limits( 0, 999 );
 	numinp[state_skip].set_increment_mode( 1 );
 	numinp[state_skip].add_listener(this);
 	lb_n_replace.set_text_pointer(txt_n_replace);
@@ -346,8 +346,8 @@ void replace_frame_t::update_data()
 		}
 	} else if (replace_all) {
 		karte_t *welt=cnv->get_welt();
-		for (uint32 i=0; i<welt->get_convoi_count(); i++) {
-			convoihandle_t cnv_aux=welt->get_convoi(i);
+		for (uint32 i=0; i<welt->convoys().get_count(); i++) {
+			convoihandle_t cnv_aux=welt->convoys()[i];
 			if (cnv_aux.is_bound() && cnv_aux->get_besitzer()==cnv->get_besitzer() && cnv->has_same_vehicles(cnv_aux)) 
 			{
 				uint8 present_state=get_present_state();
@@ -527,9 +527,9 @@ bool replace_frame_t::action_triggered( gui_action_creator_t *komp,value_t /*p*/
 			else if (replace_all) 
 			{
 				karte_t *welt=cnv->get_welt();
-				for (uint32 i=0; i<welt->get_convoi_count(); i++) 
+				for (uint32 i=0; i<welt->convoys().get_count(); i++) 
 				{
-					convoihandle_t cnv_aux=welt->get_convoi(i);
+					convoihandle_t cnv_aux=welt->convoys()[i];
 					if (cnv_aux.is_bound() && cnv_aux->get_besitzer()==cnv->get_besitzer() && cnv->has_same_vehicles(cnv_aux)) 
 					{
 						replace_convoy(cnv_aux, komp == &bt_mark);

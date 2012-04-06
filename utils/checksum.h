@@ -11,6 +11,7 @@ private:
 	SHA1 *sha;
 public:
 	checksum_t();
+	checksum_t& operator=(const checksum_t&);
 	checksum_t(const checksum_t&);
 	~checksum_t();
 	/**

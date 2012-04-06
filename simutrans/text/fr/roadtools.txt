@@ -44,7 +44,7 @@ d'une portion de route à l'endroit voulu.
 </p>
 <p>
 Le dernier symbole représente les quais de chargement/déchargement.
-Cliquez sur ce symbole et le curseur prendra sa forme. Les quais de chargemen
+Cliquez sur ce symbole et le curseur prendra sa forme. Les quais de chargement
 servent aux camions pour prendre et déposer des marchandises. Deux véhicules
 seulement peuvent emprunter un quai simultanément.
 Pour placer un quai de chargement, utilisez le même principe que pour les

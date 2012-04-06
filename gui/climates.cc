@@ -20,7 +20,6 @@
 #include "../dataobj/umgebung.h"
 #include "../dataobj/translator.h"
 
-// just for their structure size ...
 #include "../simgraph.h"
 
 #include "../utils/simstring.h"

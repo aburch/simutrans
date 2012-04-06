@@ -6,12 +6,11 @@
 #include "../simmem.h"
 #include "freelist.h"
 
-
-#ifdef DEBUG
-#define DEBUG_MEM
+// define USE_VALGRIND_MEMCHECK to make
+// valgrind aware of the freelist memory pool
+#ifdef USE_VALGRIND_MEMCHECK
+#include <valgrind/memcheck.h>
 #endif
-
-#undef DEBUG_MEM // XXX deactivate because it is broken
 
 
 struct nodelist_node_t
@@ -93,14 +92,35 @@ void *freelist_t::gimme_node(size_t size)
 	if(*list==NULL) {
 		int num_elements = 32764/(int)size;
 		char* p = (char*)xmalloc(num_elements * size + sizeof(p));
+
+#ifdef USE_VALGRIND_MEMCHECK
+		// tell valgrind that we still cannot access the pool p
+		VALGRIND_MAKE_MEM_NOACCESS(p, num_elements * size + sizeof(p));
+#endif // valgrind
+
 		// put the memory into the chunklist for free it
 		nodelist_node_t *chunk = (nodelist_node_t *)p;
+
+#ifdef USE_VALGRIND_MEMCHECK
+		// tell valgrind that we reserved space for one nodelist_node_t
+		VALGRIND_CREATE_MEMPOOL(chunk, 0, false);
+		VALGRIND_MEMPOOL_ALLOC(chunk, chunk, sizeof(*chunk));
+		VALGRIND_MAKE_MEM_UNDEFINED(chunk, sizeof(*chunk));
+#endif // valgrind
+
 		chunk->next = chunk_list;
 		chunk_list = chunk;
 		p += sizeof(p);
 		// then enter nodes into nodelist
 		for( int i=0;  i<num_elements;  i++ ) {
 			nodelist_node_t *tmp = (nodelist_node_t *)(p+i*size);
+
+#ifdef USE_VALGRIND_MEMCHECK
+			// tell valgrind that we reserved space for one nodelist_node_t
+			VALGRIND_CREATE_MEMPOOL(tmp, 0, false);
+			VALGRIND_MEMPOOL_ALLOC(tmp, tmp, sizeof(*tmp));
+			VALGRIND_MAKE_MEM_UNDEFINED(tmp, sizeof(*tmp));
+#endif // valgrind
 			tmp->next = *list;
 			*list = tmp;
 		}
@@ -108,34 +128,15 @@ void *freelist_t::gimme_node(size_t size)
 	// return first node
 	tmp = *list;
 	*list = tmp->next;
+
+#ifdef USE_VALGRIND_MEMCHECK
+	// tell valgrind that we now have access to a chunk of size bytes
+	VALGRIND_MEMPOOL_CHANGE(tmp, tmp, tmp, size);
+	VALGRIND_MAKE_MEM_UNDEFINED(tmp, size);
+#endif // valgrind
+
 	return (void *)tmp;
 }
-
-
-#ifdef DEBUG_MEM
-// put back a node and check for consistency
-static void putback_check_node(nodelist_node_t** list, nodelist_node_t* p)
-{
-	if(*list<p) {
-		if(p==*list) {
-			dbg->fatal("freelist_t::putback_check_node()","node %p already freeded!",p);
-		}
-		p->next = *list;
-		*list = p;
-	}
-	else {
-		nodelist_node_t *tmp = *list;
-		while(tmp->next>p) {
-			tmp = tmp->next;
-		}
-		if(p==tmp->next) {
-			dbg->fatal("freelist_t::putback_check_node()","node %p already freeded!",p);
-		}
-		p->next = tmp->next;
-		tmp->next = p;
-	}
-}
-#endif
 
 
 void freelist_t::putback_node( size_t size, void *p )
@@ -169,14 +170,18 @@ void freelist_t::putback_node( size_t size, void *p )
 	else {
 		list = &(all_lists[size/4]);
 	}
-#ifdef DEBUG_MEM
-	putback_check_node(list,(nodelist_node_t *)p);
-#else
+
+#ifdef USE_VALGRIND_MEMCHECK
+	// tell valgrind that we keep access to a nodelist_node_t within the memory chunk
+	VALGRIND_MEMPOOL_CHANGE(p, p, p, sizeof(nodelist_node_t));
+	VALGRIND_MAKE_MEM_NOACCESS(p, size);
+	VALGRIND_MAKE_MEM_UNDEFINED(p, sizeof(nodelist_node_t));
+#endif // valgrind
+
 	// putback to first node
 	nodelist_node_t *tmp = (nodelist_node_t *)p;
 	tmp->next = *list;
 	*list = tmp;
-#endif
 }
 
 
@@ -188,6 +193,11 @@ void freelist_t::free_all_nodes()
 		nodelist_node_t *p = chunk_list;
 		printf("freelist_t::free_all_nodes(): free node %p (next %p)\n",p,chunk_list->next);
 		chunk_list = chunk_list->next;
+
+		// now release memory
+#ifdef USE_VALGRIND_MEMCHECK
+		VALGRIND_DESTROY_MEMPOOL( p );
+#endif // valgrind
 		guarded_free( p );
 	}
 	printf("freelist_t::free_all_nodes(): zeroing\n");

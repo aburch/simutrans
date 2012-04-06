@@ -41,6 +41,9 @@ public:
 	// setters
 	void set_permissive(const way_constraints_mask permissive) { this->permissive = permissive; }
 	void set_prohibitive(const way_constraints_mask prohibitive) { this->prohibitive = prohibitive; }
+	/**
+	* Note: this adds new constraints - it does not replace existing ones or reset the constraints.
+	*/
 	void add(const way_constraints_t& add) { permissive |= add.permissive; 	prohibitive |= add.prohibitive;	}
 };
 

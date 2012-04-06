@@ -10,6 +10,17 @@ checksum_t::checksum_t()
 	reset();
 }
 
+checksum_t& checksum_t::operator=(const checksum_t& other)
+{
+	assert(other.valid);
+	valid = true;
+	delete sha;
+	sha = NULL;
+	for(uint8 i=0; i<20; i++) {
+		message_digest[i] = other.message_digest[i];
+	}
+	return *this;
+}
 
 checksum_t::checksum_t(const checksum_t &other)
 {
@@ -24,10 +35,7 @@ checksum_t::checksum_t(const checksum_t &other)
 
 checksum_t::~checksum_t()
 {
-	if (sha) {
-		delete sha;
-		sha = NULL;
-	}
+	delete sha;
 }
 
 void checksum_t::reset()

@@ -52,7 +52,7 @@ public:
 
 	void set_fahrplan( schedule_t* f ) { fpl = f; }
 
-	void highlite_schedule( schedule_t *markfpl, bool marking );
+	void highlight_schedule( schedule_t *markfpl, bool marking );
 
 	/** Zeichnet die Komponente */
 	void zeichnen(koord offset);
@@ -151,11 +151,7 @@ public:
 	// for updating info ...
 	void init_line_selector();
 
-	/**
-	 * Mausklicks werden hiermit an die GUI-Komponenten
-	 * gemeldet
-	 */
-	bool infowin_event(const event_t *ev);
+	bool infowin_event(event_t const*) OVERRIDE;
 
 	const char *get_hilfe_datei() const {return "schedule.txt";}
 
@@ -180,15 +176,7 @@ public:
 		lb_line.set_visible(yesno);
 	}
 
-	/**
-	 * This method is called if an action is triggered
-	 * @author Hj. Malthaner
-	 *
-	 * Returns true, if action is done and no more
-	 * components should be triggered.
-	 * V.Meyer
-	 */
-	bool action_triggered( gui_action_creator_t *komp, value_t extra);
+	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	/**
 	 * Map rotated, rotate schedules too

@@ -83,10 +83,7 @@ DBG_DEBUG4("werkzeug_waehler_t::add_tool()", "at position %i (width %i)", tools.
 void werkzeug_waehler_t::reset_tools()
 {
 	welt->set_dirty();
-	for(  int i=tools.get_count();  i>0;  ) {
-		i--;
-		tools.remove_at(i);
-	}
+	tools.clear();
 	gui_frame_t::set_fenstergroesse( koord(max(icon.x,MIN_WIDTH), TITLEBAR_HEIGHT) );
 	tool_icon_width = 0;
 	tool_icon_disp_start = 0;
@@ -138,8 +135,8 @@ bool werkzeug_waehler_t::infowin_event(const event_t *ev)
 	}
 	// this resets to query-tool, when closing toolsbar - but only for selected general tools in the closing toolbar
 	else if(ev->ev_class==INFOWIN &&  ev->ev_code==WIN_CLOSE) {
-		for(  int i=0;  i<(int)tools.get_count();  i++) {
-			if(  tools[i]->is_selected(welt)   &&  (tools[i]->get_id()&GENERAL_TOOL)  ) {
+		FOR(vector_tpl<werkzeug_t*>, const i, tools) {
+			if (i->is_selected(welt) && i->get_id() & GENERAL_TOOL) {
 				welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], welt->get_active_player() );
 				break;
 			}

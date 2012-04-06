@@ -162,8 +162,6 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		if(!experimental)
 		{
 			besch->max_weight = 999;
-			//besch->way_constraints_permissive = 0;
-			//besch->way_constraints_prohibitive = 0;
 		}
 		besch->set_way_constraints(way_constraints);
 		DBG_DEBUG("tunnel_reader_t::read_node()",

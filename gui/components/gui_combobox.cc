@@ -9,7 +9,6 @@
 
 #include "../../macros.h"
 #include "../../simdebug.h"
-#include "../gui_frame.h"
 #include "gui_combobox.h"
 #include "../../simevent.h"
 #include "../../simgraph.h"

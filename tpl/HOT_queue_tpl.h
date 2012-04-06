@@ -92,31 +92,6 @@ public:
 	}
 
 
-
-	// brute force search (not used in simutrans)
-	bool contains(const T data) const
-	{
-		assert(0);
-		uint32 d=data->get_distance();
-		if(d<node_top) {
-			return false;
-		}
-		else if(d==node_top) {
-			heap.constains(data);
-		}
-		else {
-			slist_iterator_tpl<T *>iter(nodes[d]);
-			while(iter.next()) {
-				if(iter.get_current()->is_matching(*data)) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
-
-
 	/**
 	* Retrieves the first element from the list. This element is
 	* deleted from the list.
@@ -167,6 +142,9 @@ public:
 	// the HOTqueue is empty, if the last pocket is empty
 	// this is always the heap ...
 	bool empty() const { return  node_top == node_size; }
+private:
+	HOT_queue_tpl(const HOT_queue_tpl& other);
+	HOT_queue_tpl& operator=( HOT_queue_tpl const& other );
 };
 
 #endif

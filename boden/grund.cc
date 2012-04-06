@@ -288,7 +288,6 @@ void grund_t::rdwr(loadsave_t *file)
 							w->set_max_speed(sch->get_max_speed());
 							w->set_ribi(sch->get_ribi_unmasked());
 							weg->set_max_weight(sch->get_max_weight()); 
-							//weg->add_way_constraints(sch->get_way_constraints_permissive(), sch->get_way_constraints_prohibitive());
 							weg->add_way_constraints(sch->get_way_constraints());
 							delete sch;
 							weg = w;
@@ -428,7 +427,8 @@ void grund_t::sort_trees()
 void grund_t::rotate90()
 {
 	const bool finish_rotate90 = (pos.x==welt->get_groesse_x()-1)  &&  (pos.y==welt->get_groesse_y()-1);
-	static inthashtable_tpl<uint32, char*> ground_texts_rotating;
+	typedef inthashtable_tpl<uint32, char*> text_map;
+	static text_map ground_texts_rotating;
 	const uint32 old_n = get_ground_text_key(pos);
 	// first internal corrections
 	// since the hash changes, we must put the text to the new position
@@ -459,10 +459,8 @@ void grund_t::rotate90()
 		// first of course remove the old positions
 		ground_texts.clear();
 		// then transfer all rotated texts
-		inthashtable_iterator_tpl<uint32, char*> iter(ground_texts_rotating);
-		while(iter.next()) {
-			char *txt = iter.get_current_value();
-			ground_texts.put( iter.get_current_key(), txt );
+		FOR(text_map, const& i, ground_texts_rotating) {
+			ground_texts.put(i.key, i.value);
 		}
 		ground_texts_rotating.clear();
 	}

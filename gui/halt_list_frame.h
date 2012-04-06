@@ -91,13 +91,6 @@ private:
 
     static bool compare_halts(halthandle_t, halthandle_t);
 
-    /**
-     * Check all filters for one halt.
-     * returns true, if it is not filtered away.
-     * @author V. Meyer
-     */
-    static bool passes_filter(halthandle_t halt);
-
 public:
     halt_list_frame_t(spieler_t *sp);
 
@@ -110,7 +103,7 @@ public:
     void filter_frame_closed() { filter_frame = NULL; }
 
 	// must be handled, because we could not use scrollpane
-	bool infowin_event(const event_t*);
+	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**
      * This method is called if the size of the window should be changed
@@ -158,16 +151,7 @@ public:
     static void set_ware_filter_an(const ware_besch_t *ware, int mode);
     static void set_alle_ware_filter_an(int mode);
 
-    /**
-     * This method is called if an action is triggered
-     * @author Hj. Malthaner
-     *
-     * Returns true, if action is done and no more
-     * components should be triggered.
-     * V.Meyer
-     */
-    bool action_triggered( gui_action_creator_t *komp, value_t extra);
-
+	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };
 
 #endif

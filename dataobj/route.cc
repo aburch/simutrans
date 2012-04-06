@@ -67,7 +67,7 @@ void route_t::append(const route_t *r)
 
 	while (!route.empty() && back() == r->front()) {
 		// skip identical end tiles
-		route.remove_at(get_count()-1);
+		route.pop_back();
 	}
 	// then append
 	for( unsigned int i=0;  i<=hops;  i++ ) {
@@ -84,7 +84,7 @@ void route_t::insert(koord3d k)
 
 void route_t::remove_koord_from(uint32 i) {
 	while(  i+1 < get_count()  ) {
-		route.remove_at(get_count()-1);
+		route.pop_back();
 	}
 }
 
@@ -129,6 +129,17 @@ DBG_MESSAGE("route_t::append_straight_route()","start from (%i,%i) to (%i,%i)",p
 	DBG_MESSAGE("route_t::append_straight_route()","to (%i,%i) found.",ziel.x,ziel.y);
 
 	return pos==ziel;
+}
+
+
+static bool is_in_list(vector_tpl<route_t::ANode*> const& list, grund_t const* const to)
+{
+	FOR(vector_tpl<route_t::ANode*>, const i, list) {
+		if (i->gr == to) {
+			return true;
+		}
+	}
+	return false;
 }
 
 
@@ -222,30 +233,10 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 				&& gr->get_neighbour(to, wegtyp, ribi_t::nsow[r])  // is connected
 				&& fahr->ist_befahrbar(to)	// can be driven on
 			) {
-				unsigned index;
-
 				// already in open list?
-				for(  index=0;  index<open.get_count();  index++  ) {
-					if (open[index]->gr == to) {
-						break;
-					}
-				}
-				// in open list => ignore this
-				if(index<open.get_count()) {
-					continue;
-				}
-
-
+				if (is_in_list(open,  to)) continue;
 				// already in closed list (i.e. all processed nodes)
-				for( index=0;  index<close.get_count();  index++  ) {
-					if (close[index]->gr == to) {
-						break;
-					}
-				}
-				// in close list => ignore this
-				if(index<close.get_count()) {
-					continue;
-				}
+				if (is_in_list(close, to)) continue;
 
 				weg_t* w = to->get_weg(fahr->get_waytype());
 				

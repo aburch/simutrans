@@ -1,0 +1,13 @@
+# Simutranslator settings for Simutrans-Experimental texts
+# Addendum for version 10.8
+#
+# Author: jamespetts
+# Created: January 2012
+#
+obj=program_text
+name=Walked
+note=The item in the city information window for the graph of the number of passengers who have walked to their destination.
+-
+
+
+

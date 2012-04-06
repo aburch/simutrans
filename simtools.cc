@@ -27,22 +27,27 @@ static uint8 random_origin = 0;
 /* initializes mersenne_twister[N] with a seed */
 static void init_genrand(uint32 s)
 {
+#ifdef DEBUG_SIMRAND_CALLS
+	karte_t::random_callers.append("*** GEN ***");
+#endif
 	mersenne_twister[0]= s & 0xffffffffUL;
 	for (mersenne_twister_index=1; mersenne_twister_index<MERSENNE_TWISTER_N; mersenne_twister_index++) {
 		mersenne_twister[mersenne_twister_index] = (1812433253UL * (mersenne_twister[mersenne_twister_index-1] ^ (mersenne_twister[mersenne_twister_index-1] >> 30)) + mersenne_twister_index);
 		/* See Knuth TAOCP Vol2. 3rd Ed. P.106 for multiplier. */
 		/* In the previous versions, MSBs of the seed affect   */
-		/* only MSBs of the array mersenne_twister[].                        */
+		/* only MSBs of the array mersenne_twister[].          */
 		/* 2002/01/09 modified by Makoto Matsumoto             */
 		mersenne_twister[mersenne_twister_index] &= 0xffffffffUL;
 		/* for >32 bit machines */
 	}
 }
 
-
 /* generate N words at one time */
 static void MTgenerate(void)
 {
+#ifdef DEBUG_SIMRAND_CALLS
+	karte_t::random_callers.append("*** REGEN ***");
+#endif
 	static uint32 mag01[2]={0x0UL, MATRIX_A};
 	uint32 y;
 	int kk;
@@ -106,20 +111,29 @@ uint32 simrand(const uint32 max, const char*)
 
 #ifdef DEBUG_SIMRAND_CALLS
 	char* buf = new char[256];
-	sprintf(buf, "%s (%i)", caller, get_random_seed());
+	sprintf(buf, "%s (%i); call: (%i)", caller, get_random_seed(), karte_t::random_calls);
 	dbg->warning("simrand", buf);
 	if(karte_t::print_randoms)
 	{
 		printf("%s\n", buf);
 	}
 
-	karte_t::random_callers.add_to_head(buf);
+	karte_t::random_callers.append(buf);
+	karte_t::random_calls ++;
 #endif
 
 	if(max<=1) {	// may rather assert this?
 		return 0;
 	}
+#ifdef DEBUG_SIMRAND_CALLS
+	// Run the random number generator to change the seed,
+	// but do not use the number to ensure a consistent 
+	// code path for debugging.
+	simrand_plain();
+	return max - 1;
+#else
 	return simrand_plain() % max;
+#endif
 }
 
 /* generates random number with gaussian distribution
@@ -385,19 +399,17 @@ uint32 log10(uint32 v)
 {
 	// taken from http://graphics.stanford.edu/~seander/bithacks.html
 	// compute log2 first
-	const uint32 b[] = {0x2, 0xC, 0xF0, 0xFF00, 0xFFFF0000};
-	const uint32 S[] = {1, 2, 4, 8, 16};
+	const uint32 b[] = { 0x2, 0xC, 0xF0, 0xFF00, 0xFFFF0000 };
+	const uint32 S[] = { 1, 2, 4, 8, 16 };
 
 	uint32 r = 0; // result of log2(v) will go here
-	for (int i = 4; i >= 0; i--)
-	{
-	  if (v & b[i])
-	  {
-		v >>= S[i];
-		r |= S[i];
-	  }
+	for(  int i = 4;  i >= 0;  i--  ) {
+		if(  v & b[i]  ) {
+			v >>= S[i];
+			r |= S[i];
+		}
 	}
-	uint32 t = (r + 1) * 1233 >> 12; // 1 / log_2(10) ~~ 1233 / 4096
+	uint32 t = ((r + 1) * 1233) >> 12; // 1 / log_2(10) ~~ 1233 / 4096
 	return t;
 }
 

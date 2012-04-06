@@ -31,6 +31,8 @@ private:
 	// this will automatically give the right order for citycars and the like ...
 	bool intern_add_moving(ding_t* ding);
 
+	dingliste_t(dingliste_t const&);
+	dingliste_t& operator=(dingliste_t const&);
 public:
 	dingliste_t();
 	~dingliste_t();

@@ -1115,8 +1115,10 @@ bits_per_month = 20
 
 # compress savegames?
 # "binary" means uncompressed, "zipped" means compressed
-# other options are "xml" and "xml_zipped"
-# xml detecht more errors of broken savegames but are much larger
+# "bzip2" uses another compression algorithm
+# other options are "xml", "xml_zipped" and "xml_bzip2"
+# xml detects more errors of broken savegames but files are much larger
+# bzip2 savegames are smaller than zipped but saving/loading takes longer
 saveformat = bzip2
 
 # autosave every x months (0=off)
@@ -1144,7 +1146,8 @@ fast_forward = 100
 #
 
 # Sets the local addresses Simutrans should listen on and use for making outgoing connections
-# By default it will use all local IPv4 and IPv6 addresses
+# A DNS name may be specified, this will be resolved and Simutrans will attempt to listen
+# on all of the addresses returned.
 # This setting has no effect if Simutrans has been compiled with the USE_IP4_ONLY flag set!
 # The addresses listed will be tried in the order specified
 #listen = 127.0.0.1
@@ -1166,7 +1169,7 @@ server_frames_per_step = 4
 # The server sends after a fixed number of steps some information to the clients.
 # Large values here means: reduced server communication (if that is of importance...)
 # Small values should improve the timing of the clients.
-server_frames_between_checks = 320
+server_frames_between_checks = 240
 
 
 # Automatically announce server on the central server directory (http://servers.experimental.simutrans.org/)

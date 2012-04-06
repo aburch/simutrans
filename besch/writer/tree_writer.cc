@@ -33,7 +33,7 @@ void tree_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 
 	slist_tpl<slist_tpl<string> > keys;
 	for (unsigned int age = 0; age < 5; age++) {
-		keys.append(slist_tpl<string>());
+		keys.append();
 
 		for (int seasons = 0; seasons < number_of_seasons; seasons++) {
 			char buf[40];

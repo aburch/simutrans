@@ -1,21 +1,24 @@
 <title>Signalabstand festlegen</title>
 
 <h1>Hinweise zur Benutzung:</h1><br>
+
 <p>
--- Strg+Klick auf ein Signalicon öffnet dieses Fenster.<br>
+Strg+Mausklick auf ein <a href="signale.txt">Signal</a>werkzeug öffnet dieses Fenster.</p>
 
--- Klick-und-Ziehen auf Schienen/Wege zeigt eine Vorschau der Signale, die gebaut werden. Zum Bauen der Signale Maustaste loslassen. Signale werden so gebaut, dass Züge in die Richtung durchfahren können, in der die Maus gezogen wurde.<br>
+<p>Ähnlich wie beim Bauen von <a href="railtools.txt">Schienen</a> oder <a href="roadtoools.txt">Straßen</a> wird mit Klick-und-Ziehen auf der Strecke eine Vorschau der Signale gezeigt, ung gebaut, sobald die Maustaste losgelassen wird.</p>
 
--- In Netzwerk-Spielen: Erst Strg+Klick auf die Schiene und Maustaste loslassen. Maustaste drücken und Maus bewegen. Eine Vorschau wird gezeigt. Gebaut wird, sobald die Maustaste losgelassen wird.<br>
-</p>
-<h1>Einstellungen in diesem Fenster:</h1>
-<p>
--- <em>Signalabstand:</em> Abstand in Kacheln, der zwischen den Signalen eingehalten wird. Diagonalen zählen als eine halbe Kachel.
-Dieser Wert wird auf dem Signal-Icon gezeigt, falls das entsprechende Werkzeug aktiv ist.<br>
+<p>Die Durchfahrtsrichtung der Signale wird durch die Richtung vorgegeben, in die die Maus gezogen wurde. Stehen schon Signale in entgegengesetzter Richtung, dann wird gar kein Signal gebaut.</p>
 
--- <em>Signale an Zwischenstellen entfernen:</em> Falls aktiviert, werden andere Signale, die auf dem Weg stehen, entfernt.<br>
-
--- <em>Andere Signale ersetzen:</em> Falls aktiviert, werden andere Signale entfernt, die auf Stellen stehen, wo mit diesem Werkzeug ein Signal gesetzt werden würde.<br>
 <br>
-Diese Einstellungen können für jedes Signal und Verkehrszeichen unabhängig gesetzt werden.
+
+<h1>Einstellungen in diesem Fenster:</h1>
+
+<p><em>Signalabstand:</em> Abstand in Kacheln, der zwischen den Signalen eingehalten wird. Diagonalen zählen als eine halbe Kachel.
+Dieser Wert wird auf dem Signal-Icon gezeigt, falls das entsprechende Werkzeug aktiv ist.</p>
+
+<p><em>Signale an Zwischenstellen entfernen:</em> Falls aktiviert, werden andere Signale, die auf dem Weg stehen, entfernt.</p>
+
+<p><em>Andere Signale ersetzen:</em> Falls aktiviert, werden andere Signale entfernt, die auf Stellen stehen, wo mit diesem Werkzeug ein Signal gesetzt werden würde.</p>
+
+<p>Diese Einstellungen können für jedes Signal und Verkehrszeichen unabhängig gesetzt werden.
 </p>

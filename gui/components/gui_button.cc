@@ -6,15 +6,11 @@
  */
 
 #include "gui_button.h"
-#include "../gui_frame.h"
 
-#include "../../simdebug.h"
 #include "../../simcolor.h"
 #include "../../simgraph.h"
 #include "../../simevent.h"
 #include "../../simwin.h"
-
-#include "../../besch/reader/obj_reader.h"
 
 #include "../../dataobj/translator.h"
 
@@ -180,7 +176,7 @@ void button_t::draw_roundbutton(sint16 x, sint16 y, sint16 w, sint16 h, bool pre
 		const sint16 rw = skinverwaltung_t::window_skin->get_bild(13)->get_pic()->w;
 		// first the center (may need extra clipping)
 		if(w-lw-rw<64) {
-			struct clip_dimension cl=display_get_clip_wh();
+			clip_dimension const cl = display_get_clip_wh();
 			display_set_clip_wh(cl.x, cl.y, max(0,min(x+w-rw,cl.xx)-cl.x), cl.h );
 			display_button_image(x+lw, y, RB_BODY_BUTTON, pressed);
 			display_set_clip_wh(cl.x, cl.y, cl.w, cl.h );
@@ -235,7 +231,7 @@ void button_t::draw_scrollbar(sint16 x, sint16 y, sint16 w, sint16 h, bool horiz
 			const sint16 rw = skinverwaltung_t::window_skin->get_bild(image_offset+1)->get_pic()->w;
 			// first the center (may need extra clipping)
 			if(w-lw-rw<64) {
-				struct clip_dimension cl=display_get_clip_wh();
+				clip_dimension const cl = display_get_clip_wh();
 				display_set_clip_wh(cl.x, cl.y, max(0,min(x+w-rw,cl.xx)-cl.x), cl.h );
 				display_color_img(skinverwaltung_t::window_skin->get_bild_nr(image_offset+2), x+lw, y, 0, false, true);
 				display_set_clip_wh(cl.x, cl.y, cl.w, cl.h );
@@ -258,7 +254,7 @@ void button_t::draw_scrollbar(sint16 x, sint16 y, sint16 w, sint16 h, bool horiz
 			const sint16 rh = skinverwaltung_t::window_skin->get_bild(image_offset+1)->get_pic()->h;
 			// first the center (may need extra clipping)
 			if(h-lh-rh<64) {
-				struct clip_dimension cl=display_get_clip_wh();
+				clip_dimension const cl = display_get_clip_wh();
 				display_set_clip_wh(cl.x, cl.y, cl.w, max(0,min(y+h-rh,cl.yy)-cl.y) );
 				display_color_img(skinverwaltung_t::window_skin->get_bild_nr(image_offset+2), x, y+lh, 0, false, true);
 				display_set_clip_wh(cl.x, cl.y, cl.w, cl.h );

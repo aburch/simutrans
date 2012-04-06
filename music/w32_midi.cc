@@ -3,20 +3,12 @@
  *
  * author: Owen Rudge, Hj. Malthaner
  */
-#ifdef _MSC_VER
-#include <direct.h>
-#else
-#include <dir.h>
-#endif
 
 #include <stdio.h>
 // windows.h includes min and max macros which we don't want
 #define NOMINMAX 1
 #include <windows.h>
 #include <mmsystem.h>
-
-#undef max
-#undef min
 
 #include "../utils/plainstring.h"
 #include "music.h"

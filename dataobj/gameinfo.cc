@@ -23,6 +23,7 @@
 #include "../utils/simstring.h"
 #include "loadsave.h"
 #include "pakset_info.h"
+#include "../simversion.h"
 
 
 #define MINIMAP_SIZE (64)
@@ -44,8 +45,8 @@ gameinfo_t::gameinfo_t(karte_t *welt) :
 	tourist_attractions = welt->get_ausflugsziele().get_count();
 	anzahl_staedte = welt->get_staedte().get_count();
 	einwohnerzahl = 0;
-	for(  weighted_vector_tpl<stadt_t*>::const_iterator i = welt->get_staedte().begin(), end = welt->get_staedte().end();  i != end;  ++i  ) {
-		einwohnerzahl += (*i)->get_einwohner();
+	FOR(weighted_vector_tpl<stadt_t*>, const i, welt->get_staedte()) {
+		einwohnerzahl += i->get_einwohner();
 	}
 
 	const int gr_x = welt->get_groesse_x();
@@ -61,7 +62,7 @@ gameinfo_t::gameinfo_t(karte_t *welt) :
 	total_pass_transported = welt->get_finance_history_month(1,karte_t::WORLD_PAS_RATIO);
 	total_mail_transported = welt->get_finance_history_month(1,karte_t::WORLD_MAIL_RATIO);
 	total_goods_transported = welt->get_finance_history_month(1,karte_t::WORLD_GOODS_RATIO);
-	convoi_count = welt->get_convoi_count();
+	convoi_count = welt->convoys().get_count();
 
 	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++ ) {
 		spieler_type[i] = spieler_t::EMPTY;

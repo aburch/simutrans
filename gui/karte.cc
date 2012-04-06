@@ -653,15 +653,14 @@ void reliefkarte_t::calc_map()
 		const weighted_vector_tpl<gebaeude_t *> &ausflugsziele = welt->get_ausflugsziele();
 		// find the current maximum
 		max_tourist_ziele = 1;
-		for (weighted_vector_tpl<gebaeude_t*>::const_iterator i = ausflugsziele.begin(), end = ausflugsziele.end(); i != end; ++i) {
-			int pax = (*i)->get_passagier_level();
+		FOR(weighted_vector_tpl<gebaeude_t*>, const i, ausflugsziele) {
+			int const pax = i->get_passagier_level();
 			if (max_tourist_ziele < pax) {
 				max_tourist_ziele = pax;
 			}
 		}
 		// draw them
-		for (weighted_vector_tpl<gebaeude_t*>::const_iterator i = ausflugsziele.begin(), end = ausflugsziele.end(); i != end; ++i) {
-			const gebaeude_t* g = *i;
+		FOR(weighted_vector_tpl<gebaeude_t*>, const g, ausflugsziele) {
 			koord pos = g->get_pos().get_2d();
 			set_relief_farbe_area( pos, 7, calc_severity_color(g->get_passagier_level(), max_tourist_ziele));
 		}
@@ -669,28 +668,23 @@ void reliefkarte_t::calc_map()
 	}
 
 	// since we do iterate the factory info list, this must be done here
-	if(mode==MAP_FACTORIES) {
-		//slist_iterator_tpl <fabrik_t *> iter (welt->get_fab_list());
-		//vector_tpl <fabrik_t*> factories = welt->get_fab_list();
-		for(sint16 i = welt->get_fab_list().get_count() - 1; i >= 0; i --)
-		{
-		//while(iter.next()) {
-			//koord pos = iter.get_current()->get_pos().get_2d();
-			koord pos = welt->get_fab_list()[i]->get_pos().get_2d();
+	if(mode==MAP_FACTORIES) 
+	{
+		FOR(vector_tpl<fabrik_t*>, const f, welt->get_fab_list()) {
+			koord const pos = f->get_pos().get_2d();
 			set_relief_farbe_area( pos, 9, COL_BLACK );
-			set_relief_farbe_area( pos, 7, welt->get_fab_list()[i]->get_kennfarbe() );
+			set_relief_farbe_area(pos, 7, f->get_kennfarbe());
 		}
 		return;
 	}
 
 	if(mode==MAP_DEPOT) {
-		slist_iterator_tpl <depot_t *> iter (depot_t::get_depot_list());
-		while(iter.next()) {
-			if(iter.get_current()->get_besitzer()==welt->get_active_player()) {
-				koord pos = iter.get_current()->get_pos().get_2d();
+		FOR(slist_tpl<depot_t*>, const d, depot_t::get_depot_list()) {
+			if (d->get_besitzer() == welt->get_active_player()) {
+				koord const pos = d->get_pos().get_2d();
 				// offset of one to avoid
 				static uint8 depot_typ_to_color[19]={ COL_ORANGE, COL_YELLOW, COL_RED, 0, 0, 0, 0, 0, 0, COL_PURPLE, COL_DARK_RED, COL_DARK_ORANGE, 0, 0, 0, 0, 0, 0, COL_LIGHT_RED };
-				set_relief_farbe_area(pos, 7, depot_typ_to_color[iter.get_current()->get_typ()-ding_t::bahndepot] );
+				set_relief_farbe_area(pos, 7, depot_typ_to_color[d->get_typ() - ding_t::bahndepot]);
 			}
 		}
 		return;
@@ -739,7 +733,6 @@ void reliefkarte_t::set_welt(karte_t *welt)
 		delete relief;
 		relief = NULL;
 	}
-	isometric = false;
 	needs_redraw = true;
 	is_visible = false;
 
@@ -799,8 +792,7 @@ const fabrik_t* reliefkarte_t::draw_fab_connections(const uint8 colour, const ko
 		karte_to_screen( fabpos );
 		fabpos += pos;
 		const vector_tpl<koord>& lieferziele = event_get_last_control_shift() & 1 ? fab->get_suppliers() : fab->get_lieferziele();
-		for (vector_tpl<koord>::const_iterator i = lieferziele.begin(), end = lieferziele.end(); i != end; ++i) {
-			koord lieferziel = *i;
+		FOR(vector_tpl<koord>, lieferziel, lieferziele) {
 			const fabrik_t * fab2 = fabrik_t::get_fab(welt, lieferziel);
 			if (fab2) {
 				karte_to_screen( lieferziel );
@@ -925,51 +917,35 @@ void reliefkarte_t::zeichnen(koord pos)
 		// get city list
 		const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
 		// for all cities
-		for(  weighted_vector_tpl<stadt_t*>::const_iterator i = staedte.begin(), end = staedte.end();  i != end;  ++i  ) {
-			const stadt_t* stadt = *i;
+		FOR(weighted_vector_tpl<stadt_t*>, const stadt, staedte) {
 			koord k[4];
 			k[0] = stadt->get_linksoben(); // top left
 			k[2] = stadt->get_rechtsunten(); // bottom right
 
 			// calculate and draw the rotated coordinates
-			if(isometric|1) {
 
-				k[1] =  koord(k[0].x, k[2].y); // bottom left
-				k[3] =  koord(k[2].x, k[0].y); // top right
+			k[1] =  koord(k[0].x, k[2].y); // bottom left
+			k[3] =  koord(k[2].x, k[0].y); // top right
 
-				k[0] += koord(0, -1); // top left
-				karte_to_screen(k[0]);
-				k[0] = k[0] + pos;
+			k[0] += koord(0, -1); // top left
+			karte_to_screen(k[0]);
+			k[0] = k[0] + pos;
 
-				karte_to_screen(k[1]); // bottom left
-				k[1] = k[1] + pos;
+			karte_to_screen(k[1]); // bottom left
+			k[1] = k[1] + pos;
 
-				k[2] += koord(1, 0); // bottom right
-				karte_to_screen(k[2]);
-				k[2] += pos;
+			k[2] += koord(1, 0); // bottom right
+			karte_to_screen(k[2]);
+			k[2] += pos;
 
-				k[3] += koord(1, -1); // top right
-				karte_to_screen(k[3]);
-				k[3] += pos;
+			k[3] += koord(1, -1); // top right
+			karte_to_screen(k[3]);
+			k[3] += pos;
 
-				display_direct_line(k[0].x, k[0].y, k[1].x, k[1].y, color);
-				display_direct_line(k[1].x, k[1].y, k[2].x, k[2].y, color);
-				display_direct_line(k[2].x, k[2].y, k[3].x, k[3].y, color);
-				display_direct_line(k[3].x, k[3].y, k[0].x, k[0].y, color);
-			}
-			else {
-				karte_to_screen(k[0]);
-				k[0] = k[0] + pos + koord(-1, -1);
-
-				k[2] += koord(1, 1);
-				karte_to_screen(k[2]);
-				k[2] += pos;
-
-				display_direct_line(k[0].x, k[0].y, k[0].x, k[2].y, color);
-				display_direct_line(k[2].x, k[0].y, k[2].x, k[2].y, color);
-				display_direct_line(k[0].x, k[0].y, k[2].x, k[0].y, color);
-				display_direct_line(k[0].x, k[2].y, k[2].x, k[2].y, color);
-			}
+			display_direct_line(k[0].x, k[0].y, k[1].x, k[1].y, color);
+			display_direct_line(k[1].x, k[1].y, k[2].x, k[2].y, color);
+			display_direct_line(k[2].x, k[2].y, k[3].x, k[3].y, color);
+			display_direct_line(k[3].x, k[3].y, k[0].x, k[0].y, color);
 		}
 	}
 
@@ -977,8 +953,7 @@ void reliefkarte_t::zeichnen(koord pos)
 	// ADD: if CRTL key is pressed, temporary show the name
 	if(  mode==MAP_TOWN  ||  event_get_last_control_shift()==2  ) {
 		const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
-		for (weighted_vector_tpl<stadt_t*>::const_iterator i = staedte.begin(), end = staedte.end(); i != end; ++i) {
-			const stadt_t* stadt = *i;
+		FOR(weighted_vector_tpl<stadt_t*>, const stadt, staedte) {
 			koord p = stadt->get_pos();
 			const char * name = stadt->get_name();
 

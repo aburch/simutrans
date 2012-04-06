@@ -189,6 +189,7 @@ vehikel_basis_t::vehikel_basis_t(karte_t *welt):
 	drives_on_left = false;
 	dx = 0;
 	dy = 0;
+	hoff = 0;
 }
 
 
@@ -205,6 +206,7 @@ vehikel_basis_t::vehikel_basis_t(karte_t *welt, koord3d pos):
 	drives_on_left = false;
 	dx = 0;
 	dy = 0;
+	hoff = 0;
 }
 
 
@@ -702,9 +704,7 @@ void vehikel_t::rotate90()
 	pos_prev.rotate90( welt->get_groesse_y()-1 );
 	last_stop_pos.rotate90( welt->get_groesse_y()-1 );
 	// now rotate the freight
-	slist_iterator_tpl<ware_t> iter (fracht);
-	while(iter.next()) {
-		ware_t& tmp = iter.access_current();
+	FOR(slist_tpl<ware_t>, & tmp, fracht) {
 		koord k = tmp.get_zielpos();
 		k.rotate90( welt->get_groesse_y()-1 );
 		tmp.set_zielpos( k );
@@ -756,9 +756,8 @@ void vehikel_t::set_convoi(convoi_t *c)
 			}
 		}
 		// just correct freight deistinations
-		slist_iterator_tpl <ware_t> iter (fracht);
-		while(iter.next()) {
-			iter.access_current().laden_abschliessen(welt,get_besitzer());
+		FOR(slist_tpl<ware_t>, & c, fracht) {
+			c.laden_abschliessen(welt, get_besitzer());
 		}
 	}
 }
@@ -781,10 +780,8 @@ vehikel_t::unload_freight(halthandle_t halt)
 	{
 		if (!fracht.empty())
 		{
-			slist_iterator_tpl<ware_t> iter (fracht);
-			while(iter.next()) 
+			FOR(slist_tpl<ware_t>, & tmp, fracht) 
 			{
-				const ware_t& tmp = iter.get_current();
 				if(&tmp == NULL)
 				{
 					continue;
@@ -799,7 +796,6 @@ vehikel_t::unload_freight(halthandle_t halt)
 				if(!end_halt.is_bound() || !via_halt.is_bound()) 
 				{
 					DBG_MESSAGE("vehikel_t::entladen()", "destination of %d %s is no longer reachable",tmp.menge,translator::translate(tmp.get_name()));
-					//kill_queue.insert(tmp);
 					kill_queue.append(tmp);
 				} 
 
@@ -855,7 +851,7 @@ vehikel_t::unload_freight(halthandle_t halt)
 
 						// Calculates the revenue for each packet. 
 						// @author: jamespetts
-						current_revenue += cnv->calc_revenue(iter.access_current());
+						current_revenue += cnv->calc_revenue(tmp);
 
 						// book delivered goods to destination
 						if(end_halt == halt) 
@@ -872,9 +868,33 @@ vehikel_t::unload_freight(halthandle_t halt)
 								if(tmp.get_origin().is_bound())
 								{
 									// Check required because Simutrans-Standard saved games
-									// do not have origins.
+									// do not have origins. Also, the start halt might not
+									// be in (or be fully in) a city.
 									tmp.get_origin()->add_pax_happy(menge);
-									stadt_t* origin_city = welt->get_city(tmp.get_origin()->get_basis_pos());
+									koord origin_pos = tmp.get_origin()->get_basis_pos();
+									stadt_t* origin_city = welt->get_city(origin_pos);
+									if(!origin_city)
+									{
+										// The origin stop is not within a city. 
+										// If the stop is located outside the city, but the passengers
+										// come from a city, they will not record as transported.
+										origin_pos = tmp.get_origin()->get_init_pos();
+										origin_city = welt->get_city(origin_pos);
+									}
+									
+									if(!origin_city)
+									{
+										for(uint8 i = 0; i < 16; i ++)
+										{
+											koord pos(origin_pos + origin_pos.second_neighbours[i]);
+											origin_city = welt->get_city(pos);
+											if(origin_city)
+											{
+												break;
+											}
+										}
+									}
+								
 									if(origin_city)
 									{
 										origin_city->add_transported_passengers(menge);
@@ -886,8 +906,31 @@ vehikel_t::unload_freight(halthandle_t halt)
 								if(tmp.get_origin().is_bound())
 								{
 									// Check required because Simutrans-Standard saved games
-									// do not have origins.
-									stadt_t* origin_city = welt->get_city(tmp.get_origin()->get_basis_pos());
+									// do not have origins. Also, the start halt might not
+									// be in (or be fully in) a city.
+									koord origin_pos = tmp.get_origin()->get_basis_pos();
+									stadt_t* origin_city = welt->get_city(origin_pos);
+									if(!origin_city)
+									{
+										// The origin stop is not within a city. 
+										// If the stop is located outside the city, but the passengers
+										// come from a city, they will not record as transported.
+										origin_pos = tmp.get_origin()->get_init_pos();
+										origin_city = welt->get_city(origin_pos);
+									}
+									
+									if(!origin_city)
+									{
+										for(uint8 i = 0; i < 16; i ++)
+										{
+											koord pos(origin_pos + origin_pos.second_neighbours[i]);
+											origin_city = welt->get_city(pos);
+											if(origin_city)
+											{
+												break;
+											}
+										}
+									}
 									if(origin_city)
 									{
 										origin_city->add_transported_mail(menge);
@@ -940,17 +983,16 @@ bool vehikel_t::load_freight(halthandle_t halt, bool overcrowd)
 				// now empty, but usually, we can get it here ...
 				return ok;
 			}
-			slist_iterator_tpl<ware_t> iter (fracht);
+
 			uint16 count = 0;
 
-			// could this be joined with existing freight?
-			while(iter.next() && count <= fracht.get_count()) 
+			for (slist_tpl<ware_t>::iterator iter_z = fracht.begin(); iter_z != fracht.end();) 
 			{
-				// For some reason, the iter.next() method can in some
-				// cases produce an infinite loop, so we must count
-				// to make sure that this cannot happen.
-				count ++;
-				ware_t &tmp = iter.access_current();
+				if(count++ > fracht.get_count())
+				{
+					break;
+				}
+				ware_t &tmp = *iter_z;
 				
 				// New system: only merges if origins are alike.
 				// @author: jamespetts
@@ -974,7 +1016,7 @@ bool vehikel_t::load_freight(halthandle_t halt, bool overcrowd)
 			INT_CHECK("simvehikel 876");
 		}
 	}
-	return ok;
+	return true;
 }
 
 
@@ -995,15 +1037,12 @@ void vehikel_t::remove_stale_freight()
 	total_freight = 0;
 
 	if (!fracht.empty()) {
-		slist_iterator_tpl<ware_t> iter (fracht);
-		while(iter.next()) {
-			ware_t& tmp = iter.access_current();
+		FOR(slist_tpl<ware_t>, & tmp, fracht) {
 
-			schedule_t *fpl = cnv->get_schedule();
 			bool found = false;
 
-			for (int i = 0; i < fpl->get_count(); i++) {
-				if (haltestelle_t::get_halt( welt, fpl->eintrag[i].pos, cnv->get_besitzer() ) == tmp.get_zwischenziel()) {
+			FOR(minivec_tpl<linieneintrag_t>, const& i, cnv->get_schedule()->eintrag) {
+				if (haltestelle_t::get_halt( welt, i.pos, cnv->get_besitzer()) == tmp.get_zwischenziel()) {
 					found = true;
 					break;
 				}
@@ -1011,7 +1050,6 @@ void vehikel_t::remove_stale_freight()
 
 			if (!found) 
 			{
-				//kill_queue.insert(tmp);
 				kill_queue.append(tmp);
 			}
 			else {
@@ -1024,13 +1062,8 @@ void vehikel_t::remove_stale_freight()
 			}
 		}
 
-		/*slist_iterator_tpl<ware_t> killer (kill_queue);
-		while(killer.next()) {
-			fracht.remove(killer.get_current());
-		}*/
-		ITERATE(kill_queue,d)
-		{
-			fracht.remove(kill_queue[d]);
+		FOR(vector_tpl<ware_t>, const& c, kill_queue) {
+			fracht.remove(c);
 		}
 	}
 }
@@ -1041,14 +1074,10 @@ vehikel_t::play_sound() const
 {
 	if(  besch->get_sound() >= 0  &&  !welt->is_fast_forward() && sound_ticks < welt->get_zeit_ms() ) 
 	{
-		struct sound_info info;
-		info.index = besch->get_sound();
-		info.volume = 255;
-		info.pri = 0;
-		if(welt->play_sound_area_clipped(get_pos().get_2d(), info))
+		if(welt->play_sound_area_clipped(get_pos().get_2d(), besch->get_sound()))
 		{
 			// Only reset the counter if the sound can be heard.
-			sint64 sound_offset = sim_async_rand(30000) + 5000;
+			const sint64 sound_offset = sim_async_rand(30000) + 5000;
 			sound_ticks = welt->get_zeit_ms() + sound_offset;
 		}
 	}
@@ -1777,14 +1806,8 @@ const char *vehikel_t::get_fracht_mass() const
 uint32 vehikel_t::get_fracht_gewicht() const
 {
 	uint32 weight = 0;
-	slist_iterator_tpl<ware_t> iter(fracht);
-	uint16 count = 0;
-	while(iter.next() && count < fracht.get_count()) 
-	{
-		weight +=
-			iter.get_current().menge *
-			iter.get_current().get_besch()->get_weight_per_unit();
-		count ++;
+	FOR(slist_tpl<ware_t>, const& c, fracht) {
+		weight += c.menge * c.get_besch()->get_weight_per_unit();
 	}
 	return weight;
 }
@@ -1803,10 +1826,7 @@ void vehikel_t::get_fracht_info(cbuffer_t & buf) const
 		buf.append(translator::translate("leer"));
 		buf.append("\n");
 	} else {
-		slist_iterator_tpl<ware_t> iter (fracht);
-
-		while(iter.next()) {
-			const ware_t& ware = iter.get_current();
+		FOR(slist_tpl<ware_t>, const& ware, fracht) {
 			const char * name = "Error in Routing";
 
 			halthandle_t halt = ware.get_ziel();
@@ -1971,11 +1991,8 @@ uint8 vehikel_t::get_comfort() const
 	// are very uncomfortable (no more than 10).
 	const uint8 standing_comfort = (base_comfort < 20) ? (base_comfort / 2) : 10;
 	uint16 passenger_count = 0;
-	slist_iterator_tpl<ware_t> iter(fracht);
-	while(iter.next()) 
+	FOR(slist_tpl<ware_t>, const& ware, fracht) 
 	{
-		ware_t ware = iter.get_current();
-
 		if(ware.is_passenger())
 		{
 			passenger_count += ware.menge;
@@ -2153,9 +2170,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 			ware.rdwr(welt,file);
 		}
 		else {
-			slist_iterator_tpl<ware_t> iter(fracht);
-			while(iter.next()) {
-				ware_t ware = iter.get_current();
+			FOR(slist_tpl<ware_t>, ware, fracht) {
 				ware.rdwr(welt,file);
 			}
 		}
@@ -2193,9 +2208,8 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 		}
 		// recalc total freight
 		total_freight = 0;
-		slist_iterator_tpl<ware_t> iter(fracht);
-		while(iter.next()) {
-			total_freight += iter.get_current().menge;
+		FOR(slist_tpl<ware_t>, const& c, fracht) {
+			total_freight += c.menge;
 		}
 	}
 
@@ -2294,8 +2308,7 @@ void vehikel_t::info(cbuffer_t & buf) const
 }
 #endif
 
-const char *
-vehikel_t::ist_entfernbar(const spieler_t *)
+const char *vehikel_t::ist_entfernbar(const spieler_t *)
 {
 	return "Vehicles cannot be removed";
 }
@@ -3877,10 +3890,8 @@ bool waggon_t::block_reserver(route_t *route, uint16 start_index, uint16 &next_s
 	}
 
 	// ok, switch everything green ...
-	slist_iterator_tpl<grund_t *> iter(signs);
-	while(iter.next()) {
-		signal_t* signal = iter.get_current()->find<signal_t>();
-		if(signal) {
+	FOR(slist_tpl<grund_t*>, const g, signs) {
+		if (signal_t* const signal = g->find<signal_t>()) {
 			signal->set_zustand(roadsign_t::gruen);
 		}
 	}

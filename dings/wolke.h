@@ -39,8 +39,6 @@ public:
 
 	void rdwr(loadsave_t *file);
 
-	virtual void entferne(spieler_t *sp);
-
 	virtual void rotate90();
 };
 

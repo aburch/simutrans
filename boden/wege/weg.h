@@ -116,6 +116,7 @@ private:
 	uint32 max_weight;
 
 	image_id bild;
+	image_id after_bild;
 
 	/**
 	* Initializes all member variables
@@ -132,6 +133,17 @@ private:
 	/*Way constraints for, e.g., loading gauges, types of electrification, etc.
 	* @author: jamespetts*/
 	way_constraints_of_way_t way_constraints;
+
+	inline void set_after_bild( image_id b ) { after_bild = b; }
+	image_id get_after_bild() const {return after_bild;}
+
+
+	enum image_type { image_flat, image_slope, image_diagonal, image_switch };
+
+	/**
+	 * initializes both front and back images
+	 */
+	void set_images(image_type typ, uint8 ribi, bool snow, bool switch_nw=false);
 
 public:
 	weg_t(karte_t* const welt, loadsave_t*) : ding_no_info_t(welt) { init(); }
@@ -153,9 +165,6 @@ public:
 
 	void set_max_weight(uint32 w);
 
-	////Adds the way constraints to the way. Note: does *not* replace them - they are added together.
-	//void add_way_constraints(const uint8 permissive, const uint8 prohibitive);
-	//
 	//Resets constraints to their base values. Used when removing way objects.
 	void reset_way_constraints() { way_constraints = besch->get_way_constraints(); }
 
@@ -167,20 +176,7 @@ public:
 	 * @author: jamespetts
 	 * */
 	
-	//const bool permissive_way_constraint_set(uint8 i)
-	//{
-	//	return ((way_constraints_permissive & 1)<<i != 0);
-	//}
-
-	//const bool prohibitive_way_constraint_set(uint8 i)
-	//{
-	//	return ((way_constraints_prohibitive & 1)<<i != 0);
-	//}
-
-	//uint8 get_way_constraints_permissive() const { return way_constraints_permissive; }
-	//uint8 get_way_constraints_prohibitive() const { return way_constraints_prohibitive; }
 	const way_constraints_of_way_t& get_way_constraints() const { return way_constraints; }
-	//void set_way_constraints(const way_constraints_of_way_t& value) { way_constraints = value; }
 	void add_way_constraints(const way_constraints_of_way_t& value) { way_constraints.add(value); }
 
 	/**

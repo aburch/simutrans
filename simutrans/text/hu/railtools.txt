@@ -3,7 +3,7 @@
 <h1>Vasúti eszközök</h1>
 
 <p>
-Itt tudsz vasútat, mozdonyokat, jelzõlámpákat, alagútaka
+Itt tudsz vasútat, mozdonyokat, jelzõlámpákat, alagútakat
 megállókat, depókat, felüljárókat építeni.
 </p>
 <p>
@@ -21,6 +21,6 @@ a síneket kell felépítsd és csak erre majd az alagútat. De erre a játék
 idejében figyelmeztet.
 </p>
 <p>
-A Depóban tudod összeállítani a megfelelõ vasúti szerelvény
+A Depóban tudod összeállítani a megfelelõ vasúti szerelvényt
 (mozdonyokat, vagonokat).
 </p>

@@ -67,7 +67,7 @@ void gui_textarea_t::recalc_size()
 			}
 			buf = next + 1;
 			new_lines += LINESPACE;
-		} while (next != NULL);
+		} while(  next != NULL  &&  *buf!=0  );
 	}
 DBG_MESSAGE("gui_textarea_t::recalc_size()","reset size to %i,%i",x_size+10,new_lines);
 	set_groesse(koord(x_size+10,new_lines+10));
@@ -91,7 +91,7 @@ void gui_textarea_t::zeichnen(koord offset)
 		const char *buf=text;
 		const char *next;
 		const sint16 x = pos.x+offset.x;
-		sint16 y = pos.y+offset.y+LINESPACE;
+		sint16 y = pos.y+offset.y;
 
 		do {
 			next = strchr(buf, '\n');
@@ -104,7 +104,7 @@ void gui_textarea_t::zeichnen(koord offset)
 			}
 			buf = next + 1;
 			new_lines += LINESPACE;
-		} while (next != NULL);
+		} while(  next != NULL  &&  *buf!=0  );
 	}
 	koord gr(max(x_size+10,get_groesse().x),new_lines);
 	if(gr!=get_groesse()) {

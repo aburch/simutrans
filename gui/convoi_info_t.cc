@@ -28,7 +28,6 @@
 // @author hsiegeln
 #include "../simlinemgmt.h"
 #include "../simline.h"
-#include "../boden/grund.h"
 #include "messagebox.h"
 
 #include "../player/simplay.h"
@@ -215,6 +214,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	reverse_button.pressed = cnv->get_reverse_schedule();
 	add_komponente(&reverse_button);
 
+	text.set_pos( koord(DIALOG_LEFT,DIALOG_TOP) );
 	scrolly.set_pos(koord(0, offset_below_viewport+50));
 	scrolly.set_show_scroll_x(true);
 	add_komponente(&scrolly);
@@ -380,7 +380,7 @@ enable_home:
 				break;
 				
 			default:
-				if (cnv->hat_keine_route()) 
+				if (cnv->get_state() != convoi_t::NO_ROUTE) 
 					color = COL_ORANGE;
 			}
 			display_ddd_box_clip(pos_x, pos_y, 64, 8, MN_GREY0, MN_GREY4);
@@ -760,9 +760,9 @@ void convoi_info_t::rdwr(loadsave_t *file)
 		}
 		// we might be unlucky, then search all convois for a convoi with this name
 		if(  !cnv.is_bound()  ) {
-			for(  vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end();  i != end;  ++i  ) {
-				if(  strcmp( (*i)->get_name(),name)==0  ) {
-					cnv = *i;
+			FOR(vector_tpl<convoihandle_t>, const i, welt->convoys()) {
+				if (strcmp(i->get_name(), name) == 0) {
+					cnv = i;
 					break;
 				}
 			}

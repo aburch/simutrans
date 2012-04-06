@@ -15,8 +15,8 @@ dets forbindelser og dets aktuelle lastgrad.
 køretøjet. Under disse oplysninger er en knap med teksten 'Statistik'. Herefter
 er et visningsareal, hvor oplysninger om den aktuelle last såsom mængde og
 destination fremgår.<br>
-Øverst til højre i dialogen er en knap med teksten 'Ruteplan' og herunder e
-billedudsnit med køretøjet. Ved at klikke på dette billedudsnit, vil køretøje
+Øverst til højre i dialogen er en knap med teksten 'Ruteplan' og herunder et
+billedudsnit med køretøjet. Ved at klikke på dette billedudsnit, vil køretøjet
 blive centreret på kortet. Sluttelig er der en slet-knap, der vil fjerne
 køretøjet <strong>uden</strong> at spørge først.
 </p>

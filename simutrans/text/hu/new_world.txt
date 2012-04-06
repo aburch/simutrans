@@ -7,7 +7,7 @@ Mindegyik mellet egy rövid leírás található.
 </p>
 
 <p>
-<em>Térképszám</em> - Itt határozod meg a térkép típusát. Egy kis elõnézeti térképe
+<em>Térképszám</em> - Itt határozod meg a térkép típusát. Egy kis elõnézeti térképet
 is láthatsz melyen a paraméterek változtatásának hatását lehet ellenõrizni.
 <br>
 <em>Méret</em> - A térkép MB vett méretét lehet meghatározni. Az alap a 20 MB.

@@ -18,6 +18,8 @@
 #include "dataobj/fahrplan.h"
 #include "simconvoi.h"
 
+typedef quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> connexions_map_single_remote;
+
 
 // #define DEBUG_EXPLORER_SPEED
 // #define DEBUG_COMPARTMENT_STEP
@@ -527,13 +529,13 @@ void path_explorer_t::compartment_t::step()
 			start = dr_time();	// start timing
 #endif
 
-			slist_iterator_tpl<halthandle_t> halt_iter(haltestelle_t::get_alle_haltestellen());
+			slist_tpl<halthandle_t>::iterator halt_iter = haltestelle_t::get_alle_haltestellen().begin();
 			all_halts_count = (uint16) haltestelle_t::get_alle_haltestellen().get_count();
-			
+
 			// create all halts list
 			if (all_halts_count > 0)
 			{
-				all_halts_list = new halthandle_t[all_halts_count];
+			all_halts_list = new halthandle_t[all_halts_count];
 			}
 
 			const bool no_walking_connexions = !world->get_settings().get_allow_routing_on_foot() || catg!=warenbauer_t::passagiere->get_catg_index();
@@ -542,8 +544,8 @@ void path_explorer_t::compartment_t::step()
 			// Save the halt list in an array first to prevent the list from being modified across steps, causing bugs
 			for (uint16 i = 0; i < all_halts_count; ++i)
 			{
-				halt_iter.next();
-				all_halts_list[i] = halt_iter.get_current();
+			all_halts_list[i] = *halt_iter;
+			++halt_iter;
 
 				// create an empty connexion hash table if the current halt does not already have one
 				if ( connexion_list[ all_halts_list[i].get_id() ].connexion_table == NULL )
@@ -614,7 +616,7 @@ void path_explorer_t::compartment_t::step()
 
 
 			// loop through all convoys
-			for (vector_tpl<convoihandle_t>::const_iterator i = world->convois_begin(), end = world->convois_end(); i != end; i++) 
+			for (vector_tpl<convoihandle_t>::const_iterator i = world->convoys().begin(), end = world->convoys().end(); i != end; i++) 
 			{
 				current_convoy = *i;
 				// only consider lineless convoys which support this compartment's goods catetory
@@ -1193,12 +1195,10 @@ void path_explorer_t::compartment_t::step()
 					++transfer_count;
 				}
 
-				quickstone_hashtable_iterator_tpl<haltestelle_t, haltestelle_t::connexion*> connexions_iter( *(current_halt->get_connexions(catg)) );
-
 				// iterate over the connexions of the current halt
-				while (connexions_iter.next())
+				FOR(connexions_map_single_remote, const& connexions_iter, *(current_halt->get_connexions(catg)))
 				{
-					reachable_halt = connexions_iter.get_current_key();
+					reachable_halt = connexions_iter.key;
 
 					// halts may be removed during the process of refresh
 					if (!reachable_halt.is_bound())
@@ -1206,7 +1206,7 @@ void path_explorer_t::compartment_t::step()
 						continue;
 					}
 
-					current_connexion = connexions_iter.get_current_value();
+					current_connexion = connexions_iter.value;
 
 					// validate transport and determine transport index
 					uint16 transport_idx;
@@ -1783,11 +1783,9 @@ void path_explorer_t::compartment_t::reset_connexion_entry(const uint16 halt_id)
 {
 	if ( connexion_list[halt_id].connexion_table && !connexion_list[halt_id].connexion_table->empty() )
 	{
-		quickstone_hashtable_iterator_tpl<haltestelle_t, haltestelle_t::connexion*> iter(*(connexion_list[halt_id].connexion_table));
-
-		while(iter.next())
+		FOR(haltestelle_t::connexions_map, const& iter, (*(connexion_list[halt_id].connexion_table)))
 		{
-			delete iter.get_current_value();
+			delete iter.value;
 		}
 		
 		connexion_list[halt_id].connexion_table->clear();

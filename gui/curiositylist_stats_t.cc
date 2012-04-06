@@ -81,8 +81,7 @@ void curiositylist_stats_t::get_unique_attractions(curiositylist::sort_mode_t sb
 	last_world_curiosities = ausflugsziele.get_count();
 	attractions.resize(last_world_curiosities);
 
-	for (weighted_vector_tpl<gebaeude_t*>::const_iterator i = ausflugsziele.begin(), end = ausflugsziele.end(); i != end; ++i) {
-		gebaeude_t* geb = *i;
+	FOR(weighted_vector_tpl<gebaeude_t*>, const geb, ausflugsziele) {
 		if (geb != NULL &&
 				geb->get_tile()->get_offset() == koord(0, 0) &&
 				geb->get_passagier_level() != 0) {
@@ -144,7 +143,7 @@ void curiositylist_stats_t::recalc_size()
  */
 void curiositylist_stats_t::zeichnen(koord offset)
 {
-	const struct clip_dimension cd = display_get_clip_wh();
+	clip_dimension const cd = display_get_clip_wh();
 	const int start = cd.y-LINESPACE+1;
 	const int end = cd.yy;
 

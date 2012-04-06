@@ -41,9 +41,9 @@ på en vej, hvor du vil have stoppestedet placeret.
 
 <p>
 <em>Byg tunneller:</em><br>
-Dette værktøj benyttes til at bygge tuneller. Ved venstreklik på symbole
+Dette værktøj benyttes til at bygge tuneller. Ved venstreklik på symbolet
 ændres cursoren til et tunnelsymbol. Tunneller benyttes til at lave
-<strong>lige</strong> vejstrækninger igennem et bjerg. Benyt tunneller til a
+<strong>lige</strong> vejstrækninger igennem et bjerg. Benyt tunneller til at
 undgå at skulle bygge udenom eller over bjerget.<br>
 For at bygge en tunnel skal vejene, der skal forbindes, bygges først. Byg de
 to veje så de ender overfor hinanden og opad en skråning på det bjerg,
@@ -56,7 +56,7 @@ forbundet med en tunnel.
 <p>
 <em>Byg lasteplads:</em><br>
 Dette værktøj benyttes til at bygge lastepladser. Lastepladser benyttes af
-dine lastbiler til at laste eller aflevere varer. En lasteplads bygges ved a
+dine lastbiler til at laste eller aflevere varer. En lasteplads bygges ved at
 venstreklikke på symbolet, hvorved cursoren forandres til et lastepladssymbol,
 og derefter venstreklikke på en <strong>vejafslutning</strong>, hvor du vil
 have lastepladsen placeret. <strong>Bemærk at der højest kan være to køretøjer
@@ -75,10 +75,10 @@ placeres,
 
 <p>
 <em>Byg jernbaneovergang:</em><br>
-Dette værktøj benyttes til at bygge en jernbaneovergang over e
-jernbanespor. Ved venstreklik på symbolet ændres cursoren til e
+Dette værktøj benyttes til at bygge en jernbaneovergang over et
+jernbanespor. Ved venstreklik på symbolet ændres cursoren til et
 jernbaneovergangssymbol. Jernbaneovergange benyttes til at krydse
-jernbanespor. For at bygge en jernbaneovergang venstreklikkes på e
+jernbanespor. For at bygge en jernbaneovergang venstreklikkes på et
 <strong>lige</strong> sporstykke, hvorefter veje via jernbaneovergangen kan
 krydse jernbanesporet.
 </p>

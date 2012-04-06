@@ -878,6 +878,9 @@
     <ClInclude Include="gui\climates.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="gui\colors.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="gui\convoi_detail_t.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1784,10 +1787,10 @@
     <ClInclude Include="gui\privatesign_info.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="gui\components\gui_ding_view_t.h">
+    <ClInclude Include="utils\for.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="gui\ai_option_t.h">
+    <ClInclude Include="gui\components\gui_ding_view_t.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1823,9 +1826,6 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="config.template">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\simutrans-experimental-binaries\text\en.tab">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="Makefile">
@@ -1874,7 +1874,10 @@
     <None Include="base_texts_experimental_10.8.dat">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="base_texts_experimental_10.9.dat">
+    <None Include="base_texts_experimental_10.11.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="simutrans\text\en.tab">
       <Filter>Resource Files</Filter>
     </None>
     <None Include=".gitignore">

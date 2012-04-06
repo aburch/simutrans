@@ -114,6 +114,8 @@ static vector_tpl<simwin_t> kill_list(MAX_WIN);
 
 static karte_t* wl = NULL; // Zeiger auf aktuelle Welt, wird in win_set_welt gesetzt
 
+static int top_win(int win, bool keep_state );
+static void display_win(int win);
 
 
 // Hajo: tooltip data
@@ -361,10 +363,10 @@ gui_frame_t *win_get_magic(long magic)
 {
 	if(magic!=-1  &&  magic!=0) {
 		// es kann nur ein fenster fuer jede pos. magic number geben
-		for(  uint i=0;  i<wins.get_count();  i++  ) {
-			if(wins[i].magic_number == magic) {
+		FOR(vector_tpl<simwin_t>, const& i, wins) {
+			if (i.magic_number == magic) {
 				// if 'special' magic number, return it
-				return wins[i].gui;
+				return i.gui;
 			}
 		}
 	}
@@ -400,11 +402,11 @@ int win_get_open_count()
 
 
 // brings a window to front, if open
-bool top_win(const gui_frame_t *gui)
+bool top_win( const gui_frame_t *gui, bool keep_rollup )
 {
 	for(  uint i=0;  i<wins.get_count()-1;  i++  ) {
 		if(wins[i].gui==gui) {
-			top_win(i);
+			top_win(i,keep_rollup);
 			return true;
 		}
 	}
@@ -433,15 +435,15 @@ void rdwr_all_win(loadsave_t *file)
 
 	if(  file->get_version()>102003  ) {
 		if(  file->is_saving()  ) {
-			for ( uint32 i=0;  i < wins.get_count();  i++ ) {
-				uint32 id = wins[i].gui->get_rdwr_id();
+			FOR(vector_tpl<simwin_t>, & i, wins) {
+				uint32 id = i.gui->get_rdwr_id();
 				if(  id!=magic_reserved  ) {
 					file->rdwr_long( id );
-					wins[i].pos.rdwr( file );
-					file->rdwr_byte( wins[i].wt );
-					file->rdwr_bool( wins[i].sticky );
-					file->rdwr_bool( wins[i].rollup );
-					wins[i].gui->rdwr( file );
+					i.pos.rdwr(file);
+					file->rdwr_byte(i.wt);
+					file->rdwr_bool(i.sticky);
+					file->rdwr_bool(i.rollup);
+					i.gui->rdwr(file);
 				}
 			}
 			uint32 end = magic_none;
@@ -634,9 +636,9 @@ int create_win(int x, int y, gui_frame_t* const gui, wintype const wt, long cons
  */
 static void process_kill_list()
 {
-	for(uint i = 0; i < kill_list.get_count(); i++) {
-		wins.remove(kill_list[i]);
-		destroy_framed_win(&kill_list[i]);
+	FOR(vector_tpl<simwin_t>, & i, kill_list) {
+		wins.remove(i);
+		destroy_framed_win(&i);
 	}
 	kill_list.clear();
 }
@@ -733,7 +735,7 @@ void destroy_all_win(bool destroy_sticky)
 }
 
 
-int top_win(int win)
+int top_win(int win, bool keep_state )
 {
 	if(  (uint32)win==wins.get_count()-1  ) {
 		return win;
@@ -744,7 +746,9 @@ int top_win(int win)
 
 	simwin_t tmp = wins[win];
 	wins.remove_at(win);
-	tmp.rollup = false;	// make visible when topping
+	if(  !keep_state  ) {
+		tmp.rollup = false;	// make visible when topping
+	}
 	wins.append(tmp);
 
 	 // mark new dirty
@@ -851,8 +855,8 @@ void display_all_win()
 
 void win_rotate90( sint16 new_ysize )
 {
-	for(  uint i=0;  i<wins.get_count();  i++  ) {
-		wins[i].gui->map_rotate90( new_ysize );
+	FOR(vector_tpl<simwin_t>, const& i, wins) {
+		i.gui->map_rotate90(new_ysize);
 	}
 }
 
@@ -1057,10 +1061,10 @@ void resize_win(int win, event_t *ev)
 // returns true, if gui is a open window handle
 bool win_is_open(gui_frame_t *gui)
 {
-	for(  uint i=0;  i<wins.get_count();  i++  ) {
-		if(  wins[i].gui == gui  ) {
-			for(  uint j = 0;  j < kill_list.get_count();  j++  ) {
-				if(  kill_list[j].gui == gui  ) {
+	FOR(vector_tpl<simwin_t>, const& i, wins) {
+		if (i.gui == gui) {
+			FOR(vector_tpl<simwin_t>, const& j, kill_list) {
+				if (j.gui == gui) {
 					return false;
 				}
 			}
@@ -1158,11 +1162,13 @@ bool check_pos_win(event_t *ev)
 		return true;
 	}
 
-	// cursor event only go to top window
+	// cursor event only go to top window (but not if rolled up)
 	if(  ev->ev_class == EVENT_KEYBOARD  &&  !wins.empty()  ) {
 		simwin_t&               win  = wins.back();
-		inside_event_handling = win.gui;
-		swallowed = win.gui->infowin_event(ev);
+		if(  !win.rollup  )  {
+			inside_event_handling = win.gui;
+			swallowed = win.gui->infowin_event(ev);
+		}
 		inside_event_handling = NULL;
 		process_kill_list();
 		return swallowed;
@@ -1211,7 +1217,7 @@ bool check_pos_win(event_t *ev)
 
 			// Top window first
 			if(  (int)wins.get_count()-1>i  &&  IS_LEFTCLICK(ev)  &&  (!wins[i].rollup  ||  ev->cy<wins[i].pos.y+16)  ) {
-				i = top_win(i);
+				i = top_win(i,false);
 			}
 
 			// Hajo: if within title bar && window needs decoration
@@ -1279,7 +1285,7 @@ bool check_pos_win(event_t *ev)
 						break;
 					default : // Title
 						if (IS_LEFTDRAG(ev)) {
-							i = top_win(i);
+							i = top_win(i,false);
 							move_win(i, ev);
 							is_moving = i;
 						}
@@ -1335,13 +1341,13 @@ bool check_pos_win(event_t *ev)
 }
 
 
-void win_get_event(struct event_t *ev)
+void win_get_event(event_t* const ev)
 {
 	display_get_event(ev);
 }
 
 
-void win_poll_event(struct event_t *ev)
+void win_poll_event(event_t* const ev)
 {
 	display_poll_event(ev);
 	// main window resized

@@ -46,7 +46,6 @@
 #include "../dings/tunnel.h"
 
 #include "../gui/messagebox.h"
-#include "../gui/money_frame.h"
 
 #include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"
@@ -192,10 +191,7 @@ void spieler_t::display_messages()
 	const sint16 raster = get_tile_raster_width();
 	const sint16 yoffset = welt->get_y_off()+((display_get_width()/raster)&1)*(raster/4);
 
-	slist_iterator_tpl<income_message_t *>iter(messages);
-	while(iter.next()) {
-		income_message_t *m = iter.get_current();
-
+	FOR(slist_tpl<income_message_t*>, const m, messages) {
 		const koord ij = m->pos - welt->get_world_position()-welt->get_ansicht_ij_offset();
 		const sint16 x = (ij.x-ij.y)*(raster/2) + welt->get_x_off();
 		const sint16 y = (ij.x+ij.y)*(raster/4) + (m->alter >> 4) - tile_raster_scale_y( welt->lookup_hgt(m->pos)*TILE_HEIGHT_STEP, raster) + yoffset;
@@ -255,6 +251,7 @@ void spieler_t::set_player_color(uint8 col1, uint8 col2)
 void spieler_t::step()
 {
 	/*
+	NOTE: This would need updating to the new FOR iterators to work now.
 	// die haltestellen müssen die Fahrpläne rgelmaessig pruefen
 	uint8 i = (uint8)(welt->get_steps()+player_nr);
 	//slist_iterator_tpl <halthandle_t> iter( halt_list );
@@ -326,8 +323,8 @@ void spieler_t::neuer_monat()
 		// Monthly rate
 		if(welt->get_settings().get_interest_rate_percent() > 0)
 		{
-			const sint16 interest_rate = ((welt->get_settings().get_interest_rate_percent() * 1000) / 1200); 
-			const sint32 monthly_interest = (interest_rate * konto) / 1000;
+			const sint64 interest_rate = (((sint64)welt->get_settings().get_interest_rate_percent() * 1000ll) / 1200ll); 
+			const sint64 monthly_interest = (interest_rate * konto) / 1000ll;
 			buche(monthly_interest, COST_INTEREST);
 		}
 
@@ -335,7 +332,7 @@ void spieler_t::neuer_monat()
 		// Substract 1/5th of credit limit for each month overdrawn after three months
 		if(konto_ueberzogen > 3)
 		{
-			const sint64 adjusted_credit_limit = get_base_credit_limit() - (get_base_credit_limit() / 5) * (konto_ueberzogen - 3);
+			const sint64 adjusted_credit_limit = get_base_credit_limit() - (get_base_credit_limit() / 5ll) * (sint64)(konto_ueberzogen - 3);
 			base_credit_limit = adjusted_credit_limit > 0 ? adjusted_credit_limit : 0;
 		}
 
@@ -399,8 +396,8 @@ void spieler_t::neuer_monat()
 		if(welt->get_settings().get_interest_rate_percent() > 0)
 		{
 			// Credit interest rate is 1/4 debit interest rate, so /4800 and not /1200.
-			const sint16 interest_rate = ((welt->get_settings().get_interest_rate_percent() * 1000) / 4800); 
-			const sint32 monthly_interest = (interest_rate * konto) / 1000;
+			const sint64 interest_rate = (sint64)((welt->get_settings().get_interest_rate_percent() * 1000) / 4800); 
+			const sint64 monthly_interest = (interest_rate * konto) / 1000ll;
 			buche(monthly_interest, COST_INTEREST);
 		}
 		
@@ -409,7 +406,7 @@ void spieler_t::neuer_monat()
 		{
 			// Restore credit rating slowly 
 			// after a period of debt
-			base_credit_limit += (get_base_credit_limit() / 10);
+			base_credit_limit += (get_base_credit_limit() / 10ll);
 		}
 		if(base_credit_limit > get_base_credit_limit())
 		{
@@ -506,9 +503,9 @@ void spieler_t::calc_finance_history()
 
 sint64 spieler_t::calc_credit_limit()
 {
-	if(base_credit_limit == 0)
+	if(base_credit_limit == 0ll)
 	{
-		return 0;
+		return 0ll;
 	}
 
 	sint64 profit = 0;
@@ -522,16 +519,16 @@ sint64 spieler_t::calc_credit_limit()
 	// plus 40% of the net assets for the past year,
 	// or 0, whichever is lower.
 
-	profit = ((profit * 100) / 12) / 400;
-	assets = ((assets * 100) / 12) / 400;
+	profit = ((profit * 100ll) / 12ll) / 400ll;
+	assets = ((assets * 100ll) / 12ll) / 400ll;
 
 	sint64 new_limit = ((profit + assets) > base_credit_limit) ? profit + assets : base_credit_limit;
 
 	if(base_credit_limit < get_base_credit_limit())
 	{
 		// Credit rating adversely affected.
-		const uint32 proportion = (base_credit_limit * 100) / get_base_credit_limit();
-		new_limit *= (proportion / 100);
+		const sint64 proportion = (base_credit_limit * 100ll) / get_base_credit_limit();
+		new_limit *= (proportion / 100ll);
 	}
 
 	return new_limit;
@@ -539,28 +536,23 @@ sint64 spieler_t::calc_credit_limit()
 
 sint64 spieler_t::get_base_credit_limit()
 {
-	return welt->get_settings().get_starting_money(welt->get_current_month() / 12) / 10;
+	return welt->get_settings().get_starting_money(welt->get_current_month() / 12) / 10ll;
 }
 
 void spieler_t::calc_assets()
 {
 	sint64 assets = 0;
 	// all convois
-	for(  vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end();  i != end;  ++i  ) {
-		convoihandle_t cnv = *i;
+	FOR(vector_tpl<convoihandle_t>, const cnv, welt->convoys()) {
 		if(  cnv->get_besitzer() == this  ) {
 			assets += cnv->calc_restwert();
 		}
 	}
 
 	// all vehikels stored in depot not part of a convoi
-	slist_iterator_tpl<depot_t *> depot_iter(depot_t::get_depot_list());
-	while(  depot_iter.next()  ) {
-		depot_t* const depot = depot_iter.get_current();
+	FOR(slist_tpl<depot_t*>, const depot, depot_t::get_depot_list()) {
 		if(  depot->get_player_nr() == player_nr  ) {
-			slist_iterator_tpl<vehikel_t *> veh_iter(depot->get_vehicle_list());
-			while(  veh_iter.next()  ) {
-				const vehikel_t* const veh = veh_iter.get_current();
+			FOR(slist_tpl<vehikel_t*>, const veh, depot->get_vehicle_list()) {
 				assets += veh->calc_restwert();
 			}
 		}
@@ -593,13 +585,7 @@ void spieler_t::buche(sint64 const betrag, koord const pos, player_cost const ty
 
 			// and same for sound too ...
 			if(  betrag>=10000  &&  !welt->is_fast_forward()  ) {
-				struct sound_info info;
-
-				info.index = SFX_CASH;
-				info.volume = 255;
-				info.pri = 0;
-
-				welt->play_sound_area_clipped(pos, info);
+				welt->play_sound_area_clipped(pos, SFX_CASH);
 			}
 		}
 	}
@@ -698,8 +684,8 @@ void spieler_t::ai_bankrupt()
 {
 	DBG_MESSAGE("spieler_t::ai_bankrupt()","Removing convois");
 
-	for( int i = welt->get_convoi_count()-1;  i>=0;  i--  ) {
-		const convoihandle_t cnv = welt->get_convoi(i);
+	for (size_t i = welt->convoys().get_count(); i-- != 0;) {
+		convoihandle_t const cnv = welt->convoys()[i];
 		if(cnv->get_besitzer()!=this) {
 			continue;
 		}
@@ -733,13 +719,11 @@ void spieler_t::ai_bankrupt()
 	}
 
 	// transfer all ways in public stops belonging to me to no one
-	slist_iterator_tpl<halthandle_t>iter(haltestelle_t::get_alle_haltestellen());
-	while(  iter.next()  ) {
-		halthandle_t halt = iter.get_current();
+	FOR(slist_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {
 		if(  halt->get_besitzer()==welt->get_spieler(1)  ) {
 			// only concerns public stops tiles
-			for(  slist_tpl<haltestelle_t::tile_t>::const_iterator iter_tiles = halt->get_tiles().begin(), end = halt->get_tiles().end();  iter_tiles != end;  ++iter_tiles  ) {
-				const grund_t *gr = iter_tiles->grund;
+			FOR(slist_tpl<haltestelle_t::tile_t>, const& i, halt->get_tiles()) {
+				grund_t const* const gr = i.grund;
 				for(  uint8 wnr=0;  wnr<2;  wnr++  ) {
 					weg_t *w = gr->get_weg_nr(wnr);
 					if(  w  &&  w->get_besitzer()==this  ) {
@@ -1347,9 +1331,8 @@ sint64 spieler_t::undo()
 		return false;
 	}
 	// check, if we can still do undo
-	ITERATE(last_built,i)
-	{
-		grund_t* gr = welt->lookup(last_built[i]);
+	FOR(vector_tpl<koord3d>, const& i, last_built) {
+		grund_t* const gr = welt->lookup(i);
 		if(gr==NULL  ||  gr->get_typ()!=grund_t::boden) {
 			// well, something was built here ... so no undo
 			last_built.clear();
@@ -1395,8 +1378,8 @@ sint64 spieler_t::undo()
 
 	// ok, now remove everything last built
 	sint64 cost=0;
-	for(  uint32 i=0;  i<last_built.get_count();  i++  ) {
-		grund_t* gr = welt->lookup(last_built[i]);
+	FOR(vector_tpl<koord3d>, const& i, last_built) {
+		grund_t* const gr = welt->lookup(i);
 		if(  undo_type != powerline_wt  ) {
 			cost += gr->weg_entfernen(undo_type,true);
 		}
@@ -1425,14 +1408,12 @@ void spieler_t::tell_tool_result(werkzeug_t *tool, koord3d, const char *err, boo
 	if (welt->get_active_player()==this  &&  local) {
 		if(err==NULL) {
 			if(tool->ok_sound!=NO_SOUND) {
-				struct sound_info info = {tool->ok_sound,255,0};
-				sound_play(info);
+				sound_play(tool->ok_sound);
 			}
 		}
 		else if(*err!=0) {
 			// something went really wrong
-			struct sound_info info = {SFX_FAILURE,255,0};
-			sound_play(info);
+			sound_play(SFX_FAILURE);
 			create_win( new news_img(err), w_time_delete, magic_none);
 		}
 	}

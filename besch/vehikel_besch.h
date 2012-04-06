@@ -132,8 +132,6 @@ private:
 
 	bool is_tilting; //Whether it is a tilting train (can take corners at higher speeds). 0 for no, 1 for yes. Anything other than 1 is assumed to be no.
 	
-	//uint8 way_constraints_permissive; //Way constraints. Actually, 8 boolean values. Bitwise operations necessary
-	//uint8 way_constraints_prohibitive; //to uncompress this (but if value is 0, are no constraints).
 	way_constraints_of_vehicle_t way_constraints;
 
 	uint8 catering_level; //The level of catering. 0 for no catering. Higher numbers for better catering.
