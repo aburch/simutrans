@@ -1584,43 +1584,71 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 								
 								bool much_faster = true;
 								bool waiting_too_long = false;
-								float how_much_slower = (((static_cast<float>(journey_time)) / preferred_travelling_minutes) * 100);
-							
-							// Passengers will always board slower convoy if its journey time is within an acceptable
-							// tolerance of the fastest journey time. 
-							// The acceptable tolerance is scaled depending on journey time of faster convoy.
-							if (preferred_travelling_minutes <= 100 && how_much_slower < 160)
-							{much_faster = false;}
-							else if ((preferred_travelling_minutes > 100 && preferred_travelling_minutes <= 300) && (how_much_slower < 150))
-							{much_faster = false;}
-							else if ((preferred_travelling_minutes > 300 && preferred_travelling_minutes <= 600) && (how_much_slower < 140))
-							{much_faster = false;}
-							else if ((preferred_travelling_minutes > 600 && preferred_travelling_minutes <= 900) && (how_much_slower < 133))
-							{much_faster = false;}
-							else if ((preferred_travelling_minutes > 900 && preferred_travelling_minutes <= 1200) && (how_much_slower < 125))
-							{much_faster = false;}
-							else if ((preferred_travelling_minutes > 1200 && preferred_travelling_minutes <= 1800) && (how_much_slower < 122))
-							{much_faster = false;}
-							else if ((preferred_travelling_minutes > 1800) && (how_much_slower < 118))
-							{much_faster = false;} 
-							
-							// If passengers have been waiting a long time, they are more likely to board a slower convoy.
-							// But this is scaled so that a much slower convoy requires a much longer-than-expected wait.
-							if (much_faster == true)
-							{if ((how_much_slower <= 125) && ( waiting_minutes >= (average_waiting_minutes * 2)))
-							{waiting_too_long = true;}
-							else if ((how_much_slower > 125 && how_much_slower <= 150) && ( waiting_minutes >= (average_waiting_minutes * 3)))
-							{waiting_too_long = true;}
-							else if ((how_much_slower > 150 && how_much_slower <= 200) && ( waiting_minutes >= (average_waiting_minutes * 4)))
-							{waiting_too_long = true;}
-							else if (how_much_slower > 200 && ( waiting_minutes >= (average_waiting_minutes * 5)))
-							{waiting_too_long = true;}
-							else {waiting_too_long = false;}}
-							
-							// Passengers continue to wait for faster convoy if...
-							if ((much_faster == true) && (waiting_too_long == false))
-							{continue;} 
-							}	
+								int how_much_slower = (((journey_time) * 100) / preferred_travelling_minutes);
+                     
+							 // Passengers will always board slower convoy if its journey time is within an acceptable
+							 // tolerance of the fastest journey time. 
+							 // The acceptable tolerance is scaled depending on journey time of faster convoy.
+							 if (preferred_travelling_minutes <= 100 && how_much_slower < 160)
+							 {
+							  much_faster = false;
+							 }
+							 else if ((preferred_travelling_minutes > 100 && preferred_travelling_minutes <= 300) && (how_much_slower < 150))
+							 {
+								 much_faster = false;
+							 }
+							 else if ((preferred_travelling_minutes > 300 && preferred_travelling_minutes <= 600) && (how_much_slower < 140))
+							 {
+								 much_faster = false;
+							 }
+							 else if ((preferred_travelling_minutes > 600 && preferred_travelling_minutes <= 900) && (how_much_slower < 133))
+							 {
+								 much_faster = false;
+							 }
+							 else if ((preferred_travelling_minutes > 900 && preferred_travelling_minutes <= 1200) && (how_much_slower < 125))
+							 {
+								 much_faster = false;
+							 }
+							 else if ((preferred_travelling_minutes > 1200 && preferred_travelling_minutes <= 1800) && (how_much_slower < 122))
+							 {
+								 much_faster = false;
+							 }
+							 else if ((preferred_travelling_minutes > 1800) && (how_much_slower < 118))
+							 {
+								 much_faster = false;
+							 } 
+                     
+							 // If passengers have been waiting a long time, they are more likely to board a slower convoy.
+							 // But this is scaled so that a much slower convoy requires a much longer-than-expected wait.
+							 if (much_faster == true)
+							 {
+								if ((how_much_slower <= 125) && ( waiting_minutes >= (average_waiting_minutes * 3)))
+								{
+									waiting_too_long = true;
+								}
+								else if ((how_much_slower > 125 && how_much_slower <= 150) && ( waiting_minutes >= (average_waiting_minutes * 4)))
+								{
+									waiting_too_long = true;
+								}
+								else if ((how_much_slower > 150 && how_much_slower <= 200) && ( waiting_minutes >= (average_waiting_minutes * 5)))
+								{
+								 waiting_too_long = true;
+								}
+								else if (how_much_slower > 200 && ( waiting_minutes >= (average_waiting_minutes * 6)))
+								{
+								 waiting_too_long = true;
+								}
+								else 
+								{
+									waiting_too_long = false;
+								}
+							 }
+                     
+							 // Passengers continue to wait for faster convoy if...
+							 if ((much_faster == true) && (waiting_too_long == false))
+							 {
+								 continue;
+							 } 
 						}
 
 						const uint32 time_till_departure = (cnv->go_on_ticks - welt->get_zeit_ms());
