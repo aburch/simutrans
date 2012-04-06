@@ -1,18 +1,18 @@
-<title>Menetrend SugÛ</title>
+<title>Menetrend Sug√≥</title>
 
 <h1>Menetrend ablak</h1>
 
 <p>
-Itt hat·rozod meg. hogy konvojod milyen pontok kˆzˆtt kˆzlekedjen.
-Hat gombot tal·lhatsz az ablak alsÛ rÈszÈn:"Hozz·ad·s", "Besz˙r·s"
-"TˆrlÈs", "KÈsz","⁄j vonal", "Vissza˙t". A "Hozz·ad" gombbal meg·llokat adsz hozz· a menetrendhez.
-A "Besz˙r·s" gombbal az aktu·lis meg·llÛ elÈ sz˙rsz be egy ˙jabb meg·llÛt.
-Az aktu·lis meg·llÛ egy dupla ">>" jelezve van. A "Tˆrˆl" gombbal tudsz
-meg·llÛkat tˆrˆlni, mÈgpedig ˙gy, hogy ha benyomod a "Tˆrˆl" gombot Ès
-ut·na a megfelelı meg·llÛra kattintasz a bal egÈrgombbal akkor az tˆrlˆdik.
-Minden egyes meg·llÛban meg tudod hat·rozni, hogy a j·rm˚ kapacit·s·nak,
-h·ny sz·zalÈka teljen fel mielıtt az elindulna. Tudni kell, hogy ha magasabb
-sz·zalÈkra rakod Ès a termelıegysÈg nem tudja egybıl megtˆlteni a j·rm˚vet,
-akkor az addig marad a meg·llÛban mÌg a megfelelı sz·zalÈkban fel nem telik.
-Az "⁄j vonal" ˙j vonal tervezÈsÈt teszi lehetıvÈ. A "Vissza˙t" pedig Èrtelemszer˚.
+Itt hat√°rozod meg. hogy konvojod milyen pontok k√∂z√∂tt k√∂zlekedjen.
+Hat gombot tal√°lhatsz az ablak als√≥ r√©sz√©n:"Hozz√°ad√°s", "Besz√∫r√°s"
+"T√∂rl√©s", "K√©sz","√öj vonal", "Vissza√∫t". A "Hozz√°ad" gombbal meg√°llokat adsz hozz√° a menetrendhez.
+A "Besz√∫r√°s" gombbal az aktu√°lis meg√°ll√≥ el√© sz√∫rsz be egy √∫jabb meg√°ll√≥t.
+Az aktu√°lis meg√°ll√≥ egy dupla ">>" jelezve van. A "T√∂r√∂l" gombbal tudsz
+meg√°ll√≥kat t√∂r√∂lni, m√©gpedig √∫gy, hogy ha benyomod a "T√∂r√∂l" gombot √©s
+ut√°na a megfelel√µ meg√°ll√≥ra kattintasz a bal eg√©rgombbal akkor az t√∂rl√∂dik.
+Minden egyes meg√°ll√≥ban meg tudod hat√°rozni, hogy a j√°rm√ª kapacit√°s√°nak,
+h√°ny sz√°zal√©ka teljen fel miel√µtt az elindulna. Tudni kell, hogy ha magasabb
+sz√°zal√©kra rakod √©s a termel√µegys√©g nem tudja egyb√µl megt√∂lteni a j√°rm√ªvet,
+akkor az addig marad a meg√°ll√≥ban m√≠g a megfelel√µ sz√°zal√©kban fel nem telik.
+Az "√öj vonal" √∫j vonal tervez√©s√©t teszi lehet√µv√©. A "Vissza√∫t" pedig √©rtelemszer√ª.
 </p>

@@ -67,7 +67,7 @@ void gui_textarea_t::recalc_size()
 			}
 			buf = next + 1;
 			new_lines += LINESPACE;
-		} while (next != NULL);
+		} while(  next != NULL  &&  *buf!=0  );
 	}
 DBG_MESSAGE("gui_textarea_t::recalc_size()","reset size to %i,%i",x_size+10,new_lines);
 	set_groesse(koord(x_size+10,new_lines+10));
@@ -104,7 +104,7 @@ void gui_textarea_t::zeichnen(koord offset)
 			}
 			buf = next + 1;
 			new_lines += LINESPACE;
-		} while (next != NULL);
+		} while(  next != NULL  &&  *buf!=0  );
 	}
 	koord gr(max(x_size+10,get_groesse().x),new_lines);
 	if(gr!=get_groesse()) {

@@ -2,7 +2,7 @@
 
 <h1>Ecran des joueurs</h1>
 
-<p>Cet écran vous permet de choisir votre (vos) adversaire(s) dans le jeu. Ils son
+<p>Cet écran vous permet de choisir votre (vos) adversaire(s) dans le jeu. Ils sont
 gérés par le moteur d'Intelligence Artificielle du jeu.</p>
 
 <p>Pour activer/désactiver un adversaire, cliquez simplement sur le bouton correspondant.

@@ -5,7 +5,7 @@
 <p>
 Par ce menu, vous pouvez choisir la couleur de
 tous vos véhicules, gares etc...
-Pour sélectionner une couleur, cliquez simplemen
+Pour sélectionner une couleur, cliquez simplement
 sur la couleur désirée.
 La couleur par défaut est le bleu clair.
 Tous les objets n'ont pas forcément votre couleur,

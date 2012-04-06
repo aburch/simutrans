@@ -5,8 +5,8 @@
 <p>
 <em>Beskrivelse:</em><br>
 Ruteplan dialogen benyttes til at definere ruter imellem bustoppesteder,
-lastepladser, jernbanestationer, havne eller olieplatforme. Til en rute kan e
-eller flere køretøjer tilknyttes og startes, hvorefter de vil blive med a
+lastepladser, jernbanestationer, havne eller olieplatforme. Til en rute kan et
+eller flere køretøjer tilknyttes og startes, hvorefter de vil blive med at
 gennemkøre ruten, indtil de sendes tilbage i depot.
 </p>
 
@@ -33,7 +33,7 @@ fyldt på køretøjet, før det fortsætter til næste rutemål. For at foretage
 denne indstilling klikkes til venstre for rutemålet i visningsarealet. Herved
 bliver rutemålet markeret som det aktuelle rutemål. Den ønskede minimums
 lastgrad indstilles derefter ved at bruge listens
-scroll-knapper. <strong>Bemærk at et køretøj, der endnu ikke har fået påfyld
+scroll-knapper. <strong>Bemærk at et køretøj, der endnu ikke har fået påfyldt
 den ønskede minimums lastgrad, vil vente til dette er tilfældet og kan derved
 spærre rutemålet for andre køretøjer.</strong> Tilsidst trykkes på 'Færdig'
 knappen, hvorved ruten er defineret og dialogen lukkes.

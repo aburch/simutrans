@@ -28,7 +28,7 @@ tam je lep¹ie nastavit' minimálne vyt'a¾enie na 100% (=plne nalo¾it') ;-).
 </p>
 <p>
 <em>Vlo¾it'</em> - zapnutím tohto tlaèidla mô¾e¹ vlo¾it' pred oznaèenú zastávku alebo stanicu
-ïal¹iu (napr. po roz¹írení siete zastávok alebo staníc). Opät' pozor na maximálny poèe
+ïal¹iu (napr. po roz¹írení siete zastávok alebo staníc). Opät' pozor na maximálny poèet
 zastávok alebo staníc.
 </p>
 <p>

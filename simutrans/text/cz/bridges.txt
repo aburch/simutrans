@@ -1,23 +1,25 @@
 <title>Nápovìda - stavba mostù</title>
-<h1>Stavba mostù</h1>
 
-<p>
-Nejprve vyberte typ mosty, který chcete stavìt (viz ní¾e). Po kliknutí na ni se vám kurzor my¹i zmìní na obrázek mostu. Pro úspì¹nou stavbu je nutné mít na místì po¾adovaného zaèátku mostu postavený konec silnice nebo ¾eleznice (dle typu mostu). Kliknutím kurzoru na tento konec, se postaví most. Pro jistotu, ¾e se vám postaví tak jak chcete, na místì kde chcete most ukonèit postavte silnici èi koleje také. <br>
-</p>
+<h1><strong>Stavba mostù</strong></h1>
 
+<p> Mostem lze pøeklenout údolí nebo jiná pøeká¾ka. </p>
+<p> Ka¾dý most má urèenu maximální mo¾nou délku. Pro pøemostìní del¹ích úsekù nezbyde ne¾ v nabídce hledat jiný, nebo si pomoci ostrùvky a celkovou vzdálenost rozdìlit na více èástí. Mosty lze stavìt i pøes hluboká údolí s nerovným terénem, omezení je kladeno jen na poèáteèní a koncové pole. Most musí zaèínat a konèit na vodorovné plo¹e, svahu ¹ikmém ve smìru mostu nebo na umìlé vyvý¹eninì. Zaèátek a konec mostu nemusí být ve stejné vý¹ce, mù¾e mezi nimi být rozdíl jedné úrovnì. Mosty lze stavìt jen ve smìru hranic políèek, tj. nelze je (zatím) stavìt diagonálnì. Existuje v¹ak druh ¾eleznièní trati, který pøipomíná most, nebo» je nad terénem. Tuto tra» lze stavìt i diagonálnì.</p>
+<p>V¹echny mosty, a» ¾eleznièní, silnièní, pro lodní dopravu, nebo pro dráty vysokého napìtí se staví stejným zpùsobem. Silnièní most má jednu výjimku: lze na nìj navíc pøidat i koleje pro tramvaj.<br></p>
 
-<p>
-Typy mostù:<br>
-<em>Betonový ¾eleznièní most</em> - cena: 240$, max. rychlost na mostì: 100 km/h. Základní ¾eleznièní most, je levný, ale vlaky po nìm musí pomalu.<br>
-<em>Nosníkový ¾eleznièní most</em> - cena: 950$, max. rychlost: 450 km/h. Velmi drahý most, ov¹em díky jeho kvalitì na nìm nemusejí zpomalovat ani ty nejrychlej¹í vlaky.<br>
-<em>Betonový silnièní most</em> - cena: 200$, max. rychlost: 80 km/h. Zákl. silnièní most. Levný, ale s nízkou maximální rychlostí.<br>
-<em>Nosníkový silnièní most</em> - cena: 400$, max. rychlost: 100 km/h. Kvalitnìj¹í ne¾ silnièní most, max. rychlost na mostì je o 20 km/h vy¹¹í.<br>
-<em>Nosníkový silnièní most 2</em> - cena: 750$, max. rychlost: 130 km/h. Obdoba minulého mostu, pouze dra¾¹í a s vy¹¹í max. rychlostí.<br>
-</p>
+<h1>Stavíme most</h1>
+<p>Následující postup lze uplatnit pro v¹echny typy mostù, pokud je zde psáno silnice, mù¾ete si místo ní dosadit ¾eleznici, nebo jiný druh dopravy mající mosty:<br>
+(i) Postavte silnici k obìma pøedpokládaným koncùm mostu, pøièem¾ silnice bude i a prvním a posledním políèku budoucího mostu. <br>
+(ii) Kliknìte na symbol mostu. Zvolte si ten který vám bude svými parametry nejvíce vyhovovat. <br>
+(iii) Kliknìte na pole se zamý¹leným poèátkem mostu a tlaèítko dr¾te stisknuté.<br>
+(iv) Najeïte kurzorem my¹i nad políèko, kde má most konèit, a pus»te tlaèítko. Most je hotov.</p>
+<p>Existuje také alternativní postup. Musíte v¹ak mít pøedem správnì pøichystané oba konce silnice, jinak se mù¾e stát, ¾e utratíte peníze za dlouhý most, který nechcete. Místo krokù (iii) a (iv) kliknìte na zaèátek zamý¹leného mostu a pus»te tlaèítko. Most se vystaví sám a¾ ke kusu silnice na druhé stranì.</p>
 
-<p>
-<b>Pozor:</b>Most mù¾e konèit maximálnì o jednu úroveò vý¹e, nebo naopak ní¾e, ne¾ zaèíná.
-</p>
+<p>Èastu chybou pøi stavbì mostu je, ¾e není na koncích pøipojen k silnici (nebo ¾eleznici). Pøetáhnìte silnici (¾eleznici) i na poèáteèní a koncové pole mostovky, jinak pøes nìj auta (vlaky) nebudou jezdit.</p>
+
+<p>Tip: Nìkdy se most nevyplatí stavìt. Mosty mají obecnì vy¹¹í náklady na údr¾bu ne¾ je u bì¾né silnice (trati, elektrického vedení, ..). Podívejte, jestli se u men¹ích terénních nerovností nevyplatí prohlubeò zasypat.<br></p>
+
+<h1>Odstranìní mostu</h1>
+<p>Kliknìte na tlaèítko <em>Odstranit</em> a pak kliknìte na zaèátek nebo na konec mostovky.</p>
 
 <p>
 -><a href="roadtools.txt">Nápovìda pro stavbu silnic</a><br>

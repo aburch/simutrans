@@ -6,7 +6,7 @@ Cet écran vous donne accès aux outils de construction de quais et gares
 maritime.
 </p>
 <p>
-Dans le coin supérieur gauche se trouve le symbole du quai de chargemen
+Dans le coin supérieur gauche se trouve le symbole du quai de chargement
 maritime. Cliquez dessus et votre curseur prendra la forme de ce symbole.
 Les quais permettent aux bateaux de charger et décharger leurs marchandises
 et passagers. Pour positionner un quai maritime cliquez sur la terre qui se

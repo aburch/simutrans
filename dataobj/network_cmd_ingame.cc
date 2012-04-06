@@ -318,9 +318,13 @@ void nwc_auth_player_t::init_player_lock_server(karte_t *welt)
 {
 	uint16 player_unlocked = 0;
 	for(uint8 i=0; i<PLAYER_UNOWNED; i++) {
-		// player not activated or password matches stores password
-		if (welt->get_spieler(i) == NULL  ||  welt->get_spieler(i)->access_password_hash() == welt->get_player_password_hash(i) ) {
+		// player not activated or password matches stored password
+		spieler_t *sp = welt->get_spieler(i);
+		if (sp == NULL  ||  sp->access_password_hash() == welt->get_player_password_hash(i) ) {
 			player_unlocked |= 1<<i;
+		}
+		if (sp) {
+			sp->unlock( player_unlocked & (1<<i), false);
 		}
 	}
 	// get the local server socket
@@ -421,10 +425,17 @@ void nwc_sync_t::do_command(karte_t *welt)
 	}
 	else {
 		char fn[256];
-		sprintf( fn, "server%d-network.sve", umgebung_t::server );
+		// first save password hashes
+		sprintf( fn, "server%d-pwdhash.sve", umgebung_t::server );
+		loadsave_t file;
+		if(file.wr_open(fn, loadsave_t::save_mode, "hashes", SAVEGAME_VER_NR, EXPERIMENTAL_VER_NR)) 
+		{
+			welt->rdwr_player_password_hashes( &file );
+			file.close();
+		}
 
 		// remove passwords before transfer on the server and set default client mask
-		pwd_hash_t player_hashes[PLAYER_UNOWNED];
+		// they will be restored in karte_t::laden
 		uint16 unlocked_players = 0;
 		for(  int i=0;  i<PLAYER_UNOWNED; i++  ) {
 			spieler_t *sp = welt->get_spieler(i);
@@ -432,12 +443,12 @@ void nwc_sync_t::do_command(karte_t *welt)
 				unlocked_players |= (1<<i);
 			}
 			else {
-				// player has password set: store and clear it
-				pwd_hash_t& p = sp->access_password_hash();
-				player_hashes[i] = p;
-				p.clear();
+				sp->access_password_hash().clear();
 			}
 		}
+
+		// save game
+		sprintf( fn, "server%d-network.sve", umgebung_t::server );
 		bool old_restore_UI = umgebung_t::restore_UI;
 		umgebung_t::restore_UI = true;
 		welt->speichern(fn, SERVER_SAVEGAME_VER_NR, EXPERIMENTAL_VER_NR, false );
@@ -448,6 +459,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 		if (err) {
 			dbg->warning("nwc_sync_t::do_command","send game failed with: %s", err);
 		}
+
 		else {
 			// Knightly : synchronise the iteration limits
 			SOCKET sock = socket_list_t::get_socket(client_id);
@@ -455,23 +467,10 @@ void nwc_sync_t::do_command(karte_t *welt)
 				dbg->warning("nwc_sync_t::do_command", "send of NWC_ROUTESEARCH failed");
 			}
 		}
-		// TODO: send command queue to client
 
 		uint32 old_sync_steps = welt->get_sync_steps();
 		welt->laden( fn );
 		umgebung_t::restore_UI = old_restore_UI;
-
-		// restore password info
-		for(  int i=0;  i<PLAYER_UNOWNED; i++  ) {
-			spieler_t *sp = welt->get_spieler(i);
-			if(  sp  ) {
-				sp->access_password_hash() = player_hashes[i];
-			}
-		}
-
-		// initialize lock info for local server player
-		// we have to do it again here
-		nwc_auth_player_t::init_player_lock_server(welt);
 
 		// restore steps
 		welt->network_game_set_pause( false, old_sync_steps);

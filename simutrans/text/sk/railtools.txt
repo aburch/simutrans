@@ -43,7 +43,7 @@ toho mô¾e¹ odniest' alebo priniest' ;-) ). Jeden takýto segment doká¾e obslú¾it'
 (pozn. prekladateµa : prvý segment obslú¾i 1 vagón - s lokomotívou a ïal¹ie v¾dy po 2 vagónoch).
 Ak je då¾ka vlaku väè¹ia, presahujúce vagóny nebudú obslú¾ené. Ak z nejakých dôvodov nebude¹
 mat' dostatok miesta pre dlh¹iu stanicu, má¹ mo¾nost' postavit' ,,rohovú'' stanicu. Najprv
-vybuduj úsek, pokiaµ sa dá. Potom pripoj koµajnice zboku klinutím na posledný segmen
+vybuduj úsek, pokiaµ sa dá. Potom pripoj koµajnice zboku klinutím na posledný segment
 a pokraèuj potom pripájaním ïal¹ích segmentov.<br>
 <em>Depo</em> - nástrojom mô¾e¹ postavit' depo na konci koµajníc, príp. urobit' odboèku
 a umiestnit' ho na jej koniec. My¹ou klikni na nástroj depa a klinutím ho umiestni
