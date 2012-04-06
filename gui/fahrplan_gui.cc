@@ -329,7 +329,7 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	numimp_load.set_pos( koord( BUTTON_WIDTH*2-65, ypos+2 ) );
 	numimp_load.set_groesse( koord( 60, BUTTON_HEIGHT ) );
 	numimp_load.set_value( fpl->get_current_eintrag().ladegrad );
-	numimp_load.set_limits( 0, 100 );
+	numimp_load.set_limits( 0, 150 );
 	numimp_load.set_increment_mode( gui_numberinput_t::PROGRESS );
 	numimp_load.add_listener(this);
 	add_komponente(&numimp_load);
