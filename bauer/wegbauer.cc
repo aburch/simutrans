@@ -769,7 +769,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 			// do not connect to other powerlines
 			{
 				leitung_t *lt = to->get_leitung();
-				ok &= (lt==NULL)  ||  check_owner(sp, lt->get_besitzer());
+				ok &= (lt==NULL)  || lt->get_besitzer()->allows_access_to(sp->get_player_nr()) || check_owner(sp, lt->get_besitzer());
 			}
 			// only fields are allowed
 			if(to->get_typ()!=grund_t::boden) {
