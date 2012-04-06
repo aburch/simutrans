@@ -159,6 +159,7 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t *sp_) :
 	loadfactor = 0;
 	schedule_filter[0] = 0;
 	old_schedule_filter[0] = 0;
+	last_schedule = NULL;
 
 	// init scrolled list
 	scl.set_pos(koord(0,1));
@@ -321,6 +322,7 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t *sp_) :
 
 schedule_list_gui_t::~schedule_list_gui_t()
 {
+	delete last_schedule;
 	// change line name if necessary
 	rename_line();
 }
@@ -683,7 +685,8 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		// set this schedule as current to show on minimap if possible
 		reliefkarte_t::get_karte()->set_current_fpl(new_line->get_schedule(), sp->get_player_nr()); // (*fpl,player_nr)
 
-		last_schedule = new_line->get_schedule();
+		delete last_schedule;
+		last_schedule = new_line->get_schedule()->copy();
 		last_vehicle_count = new_line->count_convoys();
 	}
 	else if(  inp_name.is_visible()  ) {
@@ -707,6 +710,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		// hide schedule on minimap (may not current, but for safe)
 		reliefkarte_t::get_karte()->set_current_fpl(NULL, 0); // (*fpl,player_nr)
 
+		delete last_schedule;
 		last_schedule = NULL;
 		last_vehicle_count = 0;
 	}
