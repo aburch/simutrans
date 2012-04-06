@@ -94,6 +94,12 @@ public:
 		MAX_STATES
 	};
 
+	/**
+	* time, when a convoi waiting for full load will drive on
+	* @author prissi
+	*/
+	sint64 go_on_ticks;
+
 	struct departure_data_t
 	{
 	public:
@@ -383,12 +389,6 @@ private:
 	* @author Hanjsörg Malthaner
 	*/
 	sint32 wait_lock;
-
-	/**
-	* time, when a convoi waiting for full load will drive on
-	* @author prissi
-	*/
-	sint64 go_on_ticks;
 
 	/**
 	* akkumulierter gewinn über ein jahr hinweg

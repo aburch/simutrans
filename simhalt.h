@@ -242,7 +242,7 @@ public:
 
 	struct waiting_time_set
 	{
-		fixed_list_tpl<uint16, 16> times;
+		fixed_list_tpl<uint16, 32> times;
 		uint8 month;
 	};
 
@@ -717,10 +717,10 @@ public:
 		if(halt.is_bound())
 		{
 			const waiting_time_map const *wt = &waiting_times[category];
-			fixed_list_tpl<uint16, 16> *tmp;
+			fixed_list_tpl<uint16, 32> *tmp;
 			if(!wt->is_contained(halt.get_id()))
 			{
-				tmp = new fixed_list_tpl<uint16, 16>;
+				tmp = new fixed_list_tpl<uint16, 32>;
 				waiting_time_set *set = new waiting_time_set;
 				set->times = *tmp;
 				set->month = 0;

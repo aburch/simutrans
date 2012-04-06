@@ -5986,7 +5986,10 @@ void convoi_t::clear_replace()
 			if(iter.get_last_transfer().get_id() == halt.get_id())
 			{
 				waiting_minutes = max(get_waiting_minutes(current_time - iter.arrival_time), airport_wait);
-				halt->add_waiting_time(waiting_minutes, iter.get_zwischenziel(), iter.get_besch()->get_catg_index());
+				if(waiting_minutes > 9) 
+				{
+					halt->add_waiting_time(waiting_minutes, iter.get_zwischenziel(), iter.get_besch()->get_catg_index());
+				}
 			}
 		}
 	}	
@@ -6020,7 +6023,11 @@ void convoi_t::clear_replace()
 	//uint16 test_minutes_1 = ((float)1 / (1 / (waiting_ticks / 4096.0) * 20) *welt->get_settings().get_distance_per_tile() * 600.0F);
 	//uint16 test_minutes_2 = (2 *welt->get_settings().get_distance_per_tile() * waiting_ticks) / 409.6;
 
-	return (welt->get_settings().get_meters_per_tile() * waiting_ticks) / (409600L/2);
+	//return (welt->get_settings().get_meters_per_tile() * waiting_ticks) / (409600L/2);
+
+	// We no longer reduce waiting times to simulate following timetables.
+	//@author: Carl Baker, February 2012
+	return (welt->get_settings().get_meters_per_tile() * waiting_ticks) / (409600L/3);
 
 	//const uint32 value = (2 *welt->get_settings().get_distance_per_tile() * waiting_ticks) / 409.6F;
 	//return value <= 65535 ? value : 65535;

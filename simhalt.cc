@@ -1062,11 +1062,11 @@ void haltestelle_t::neuer_monat()
 		FOR(waiting_time_map, & iter, waiting_times[category])
 		{
 			// If the waiting time data are stale (more than two months old), gradually flush them.
-			if(iter.value.month > 2)
+			if(iter.value.month > 4)
 			{
-				for(int i = 0; i < 4; i ++)
+				for(int i = 0; i < 8; i ++)
 				{
-					iter.value.times.add_to_tail(19);
+					iter.value.times.add_to_tail(100);
 				}
 			}
 			// Update the waiting time timing records.
@@ -1208,7 +1208,7 @@ uint16 haltestelle_t::get_average_waiting_time(halthandle_t halt, uint8 category
 	inthashtable_tpl<uint16, haltestelle_t::waiting_time_set> * const wt = &waiting_times[category];
 	if(wt->is_contained((halt.get_id())))
 	{
-		fixed_list_tpl<uint16, 16> times = waiting_times[category].get(halt.get_id()).times;
+		fixed_list_tpl<uint16, 32> times = waiting_times[category].get(halt.get_id()).times;
 		const uint16 count = times.get_count();
 		if(count > 0 && halt.is_bound())
 		{
@@ -1575,17 +1575,58 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 								const uint16 max_minutes = base_max_minutes > preferred_travelling_minutes ? preferred_travelling_minutes : base_max_minutes;
 								const sint16 preferred_advantage_minutes = accumulated_journey_time - preferred_travelling_minutes;
 
-								if(max_minutes > waiting_minutes && preferred_advantage_minutes > ((average_waiting_minutes * 2) / 3))
-								{
-									// Realistic human behaviour: in the absence of information about the waiting time to the preferred convoy,
-									// take a slightly optimistic assumption about that waiting time based on 2/3rds of the average waiting times
-									// for convoys generally and an attempt to calculate a cost/benefit analysis of waiting for the best convoy
-									// or taking the present one, taking into account the time saved by taking the best convoy.	But, if the wait
-									// so far has been too long, take the next convoy that will take one to the next destination in any event,
-									// out of some measure of frustration. 
-									continue;
-								}
+								// New formula: Carl Baker, Feb 2012
+								
+								bool much_faster = true;
+								bool waiting_too_long = false;
+								float how_much_slower = (((static_cast<float>(journey_time)) / preferred_travelling_minutes) * 100);
+							
+							// Passengers will always board slower convoy if its journey time is within an acceptable
+							// tolerance of the fastest journey time. 
+							// The acceptable tolerance is scaled depending on journey time of faster convoy.
+							if (preferred_travelling_minutes <= 100 && how_much_slower < 160)
+							{much_faster = false;}
+							else if ((preferred_travelling_minutes > 100 && preferred_travelling_minutes <= 300) && (how_much_slower < 150))
+							{much_faster = false;}
+							else if ((preferred_travelling_minutes > 300 && preferred_travelling_minutes <= 600) && (how_much_slower < 140))
+							{much_faster = false;}
+							else if ((preferred_travelling_minutes > 600 && preferred_travelling_minutes <= 900) && (how_much_slower < 133))
+							{much_faster = false;}
+							else if ((preferred_travelling_minutes > 900 && preferred_travelling_minutes <= 1200) && (how_much_slower < 125))
+							{much_faster = false;}
+							else if ((preferred_travelling_minutes > 1200 && preferred_travelling_minutes <= 1800) && (how_much_slower < 122))
+							{much_faster = false;}
+							else if ((preferred_travelling_minutes > 1800) && (how_much_slower < 118))
+							{much_faster = false;} 
+							
+							// If passengers have been waiting a long time, they are more likely to board a slower convoy.
+							// But this is scaled so that a much slower convoy requires a much longer-than-expected wait.
+							if (much_faster == true)
+							{if ((how_much_slower <= 125) && ( waiting_minutes >= (average_waiting_minutes * 2)))
+							{waiting_too_long = true;}
+							else if ((how_much_slower > 125 && how_much_slower <= 150) && ( waiting_minutes >= (average_waiting_minutes * 3)))
+							{waiting_too_long = true;}
+							else if ((how_much_slower > 150 && how_much_slower <= 200) && ( waiting_minutes >= (average_waiting_minutes * 4)))
+							{waiting_too_long = true;}
+							else if (how_much_slower > 200 && ( waiting_minutes >= (average_waiting_minutes * 5)))
+							{waiting_too_long = true;}
+							else {waiting_too_long = false;}}
+							
+							// Passengers continue to wait for faster convoy if...
+							if ((much_faster == true) && (waiting_too_long == false))
+							{continue;} 
 							}	
+						}
+
+						const uint32 time_till_departure = (cnv->go_on_ticks - welt->get_zeit_ms());
+						// Don't board a vehicle which is waiting for spacing until near its departure time
+						// Assures that passengers will board the first train to leave, not the first train to arrive
+						if ((fpl->get_current_eintrag().ladegrad > 0) && (fpl->get_spacing() > 0))
+						{
+							if ((welt->ticks_to_tenths_of_minutes(time_till_departure)) > 100)
+							{
+								continue;
+							}
 						}
 	
 						// Refuse to be overcrowded if alternative exists
@@ -1594,6 +1635,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 						{
 							continue;
 						}
+
 						// not too much?
 						ware_t neu(tmp);
 						if(  tmp.menge > maxi  ) 
@@ -2677,7 +2719,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 						}
 					}	
 
-					fixed_list_tpl<uint16, 16> list;
+					fixed_list_tpl<uint16, 32> list;
 					uint8 month;
 					waiting_time_set set;
 					uint8 waiting_time_count;
