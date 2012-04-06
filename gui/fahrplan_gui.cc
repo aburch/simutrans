@@ -176,12 +176,12 @@ void fahrplan_gui_stats_t::zeichnen(koord offset)
 			buf.clear();
 			buf.printf("%i) ", ++i);
 			gimme_stop_name(buf, welt, sp, e);
-			PLAYER_COLOR_VAL const c = sel == 0 ? COL_BLACK : COL_WHITE;
+			PLAYER_COLOR_VAL const c = sel == 0 ? COL_WHITE : COL_BLACK;
 			sint16           const w = display_proportional_clip(offset.x + 4 + 10, offset.y, buf, ALIGN_LEFT, c, true);
 			if (width < w) width = w;
 
 			// the goto button (right arrow)
-			image_id const img = sel == 0 ? button_t::arrow_right_normal : button_t::arrow_right_pushed;
+			image_id const img = sel == 0 ? button_t::arrow_right_pushed : button_t::arrow_right_normal;
 			display_color_img(img, offset.x + 2, offset.y, 0, false, true);
 		}
 		set_groesse(koord(width + 16, fpl->get_count() * (LINESPACE + 1)));
