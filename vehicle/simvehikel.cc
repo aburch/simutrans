@@ -983,8 +983,15 @@ bool vehikel_t::load_freight(halthandle_t halt, bool overcrowd)
 				// now empty, but usually, we can get it here ...
 				return ok;
 			}
+
+			uint16 count = 0;
+
 			for (slist_tpl<ware_t>::iterator iter_z = fracht.begin(); iter_z != fracht.end();) 
 			{
+				if(count++ > fracht.get_count())
+				{
+					break;
+				}
 				ware_t &tmp = *iter_z;
 				
 				// New system: only merges if origins are alike.

@@ -529,26 +529,23 @@ void path_explorer_t::compartment_t::step()
 			start = dr_time();	// start timing
 #endif
 
+			slist_tpl<halthandle_t>::iterator halt_iter = haltestelle_t::get_alle_haltestellen().begin();
 			all_halts_count = (uint16) haltestelle_t::get_alle_haltestellen().get_count();
-			
+
 			// create all halts list
 			if (all_halts_count > 0)
 			{
-				all_halts_list = new halthandle_t[all_halts_count];
+			all_halts_list = new halthandle_t[all_halts_count];
 			}
 
 			const bool no_walking_connexions = !world->get_settings().get_allow_routing_on_foot() || catg!=warenbauer_t::passagiere->get_catg_index();
 			const uint32 journey_time_adjustment = (world->get_settings().get_meters_per_tile() * 6u) / 10u;
 
 			// Save the halt list in an array first to prevent the list from being modified across steps, causing bugs
-			uint16 i = 0;
-			FOR(slist_tpl<halthandle_t>, const& halt_iter, haltestelle_t::get_alle_haltestellen())
+			for (uint16 i = 0; i < all_halts_count; ++i)
 			{
-				if(++i >= all_halts_count)
-				{
-					break;
-				}
-				all_halts_list[i] = halt_iter;
+			all_halts_list[i] = *halt_iter;
+			++halt_iter;
 
 				// create an empty connexion hash table if the current halt does not already have one
 				if ( connexion_list[ all_halts_list[i].get_id() ].connexion_table == NULL )
@@ -835,10 +832,6 @@ void path_explorer_t::compartment_t::step()
 
 					// use hash tables in connexion list, but not hash tables stored in the halt
 					catg_connexions = connexion_list[ halt_list[h].get_id() ].connexion_table;
-					if(!catg_connexions)
-					{
-						break;
-					}
 					// any serving line/lineless convoy increments serving transport count
 					++connexion_list[ halt_list[h].get_id() ].serving_transport;
 

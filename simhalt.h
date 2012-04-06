@@ -149,7 +149,7 @@ public:
 	 */
 	static halthandle_t get_halt(const karte_t *welt, const koord3d pos, const spieler_t *sp );
 
-	static const slist_tpl<halthandle_t>& get_alle_haltestellen() { return alle_haltestellen; }
+	static slist_tpl<halthandle_t>& get_alle_haltestellen() { return alle_haltestellen; }
 
 	/**
 	 * Station factory method. Returns handles instead of pointers.
