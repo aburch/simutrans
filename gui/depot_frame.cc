@@ -746,12 +746,12 @@ bool depot_frame_t::check_way_electrified(bool init)
 	}
 	if( way_electrified ) 
 	{
-		img_bolt.set_image(skinverwaltung_t::electricity->get_bild_nr(0));
+		//img_bolt.set_image(skinverwaltung_t::electricity->get_bild_nr(0));
 	}
 
 	else
 	{
-		img_bolt.set_image(IMG_LEER);
+		//img_bolt.set_image(IMG_LEER);
  	}
 
 	return way_electrified;
