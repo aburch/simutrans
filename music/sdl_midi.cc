@@ -10,6 +10,7 @@
 #include <SDL.h>
 #include <SDL_mixer.h>
 
+#include "../simdebug.h"
 #include "../utils/plainstring.h"
 #include "music.h"
 
