@@ -800,7 +800,12 @@ const char *wkz_raise_t::check_pos( karte_t *welt, spieler_t *, koord3d k )
 
 const char *wkz_raise_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 {
-//DBG_MESSAGE("wkz_raise()","raising square (%d,%d) to %d",pos.x, pos.y, welt->lookup_hgt(pos)+Z_TILE_STEP);
+	// reset dragging
+	if(  is_dragging  &&  strempty(default_param)  ) {
+		is_dragging = false;
+		return NULL;
+	}
+
 	bool ok = false;
 	koord pos = k.get_2d();
 
@@ -828,10 +833,6 @@ const char *wkz_raise_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 				ok = height==welt->lookup_hgt(pos);
 			}
 			else {
-				if(  is_dragging  ) {
-					is_dragging = false;
-					return NULL;
-				}
 				n = welt->raise(pos);
 				ok = (n!=0);
 			}
@@ -888,7 +889,12 @@ const char *wkz_lower_t::check_pos( karte_t *welt, spieler_t *, koord3d k )
 
 const char *wkz_lower_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 {
-// DBG_MESSAGE("wkz_lower()","lowering square %d,%d to %d", pos.x, pos.y, welt->lookup_hgt(pos)-Z_TILE_STEP);
+	// reset dragging
+	if(  is_dragging  &&  strempty(default_param)  ) {
+		is_dragging = false;
+		return NULL;
+	}
+
 	bool ok = false;
 	koord pos = k.get_2d();
 
@@ -916,10 +922,6 @@ const char *wkz_lower_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 				ok = height==welt->lookup_hgt(pos);
 			}
 			else {
-				if(  is_dragging  ) {
-					is_dragging = false;
-					return NULL;
-				}
 				n = welt->lower(pos);
 				ok = (n!=0);
 			}
