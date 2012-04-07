@@ -17,6 +17,11 @@ partially done:
 - merge identical images in makeobj: done, merged them on loadtime
 - scripting for AI: AIs are now seperate files and can be added: on the way
 
+reconsider:
+- leave stop if other convoi has arrived there patch
+- viewports (even if they are perfomance killers ... )
+- routing penalty sign (but a proper one)
+
 CHECK:
 resize greater than 2400*1536 crashes simutrans
 Toolwindow with 10 last used tools (in fixed order)

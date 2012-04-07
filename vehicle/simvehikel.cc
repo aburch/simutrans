@@ -1844,8 +1844,8 @@ int automobil_t::get_kosten(const grund_t *gr, const sint32 max_speed, koord fro
 	// add cost for going (with maximum speed, cost is 1)
 	int costs = (max_speed<=max_tile_speed) ? 1 :  (max_speed*4)/(max_tile_speed*4);
 
-	// assume all traffic (and even road signs etc.) is not good ...
-	costs += gr->get_top();
+	// assume all traffic is not good ... (otherwise even smoke counts ... )
+	costs += (w->get_statistics(WAY_STAT_CONVOIS)  >  ( 2 << (welt->get_settings().get_bits_per_month()-16) )  );
 
 	// effect of slope
 	if(  gr->get_weg_hang()!=0  ) {
@@ -2424,8 +2424,8 @@ int waggon_t::get_kosten(const grund_t *gr, const sint32 max_speed, koord from_p
 		return 999;
 	}
 
-	sint32 max_tile_speed = w->get_max_speed();
 	// add cost for going (with maximum speed, cost is 1)
+	const sint32 max_tile_speed = w->get_max_speed();
 	int costs = (max_speed<=max_tile_speed) ? 1 :  (max_speed*4)/(max_tile_speed*4);
 
 	// effect of slope
