@@ -50,11 +50,16 @@ wolke_t::wolke_t(karte_t *welt, koord3d pos, sint8 x_off, sint8 y_off, const ski
 wolke_t::~wolke_t()
 {
 	mark_image_dirty( get_bild(), 0 );
-	if(  vehicle_smoke  ) {
-		welt->sync_way_eyecandy_remove( this );
-	}
-	else {
-		welt->sync_eyecandy_remove( this );
+	if(  insta_zeit != 2499  ) {
+		if(  vehicle_smoke  ) {
+			welt->sync_way_eyecandy_remove( this );
+		}
+		else if(  welt->sync_eyecandy_remove( this )  ) {
+		}
+		else {
+			welt->sync_way_eyecandy_remove( this );
+			dbg->error( "wolke_t::~wolke_t()", "wolke not in bthe correct sync list" );
+		}
 	}
 }
 
@@ -100,7 +105,7 @@ void wolke_t::rdwr(loadsave_t *file)
 bool wolke_t::sync_step(long delta_t)
 {
 	insta_zeit += (uint16)delta_t;
-	if(insta_zeit>2500) {
+	if(insta_zeit>=2499) {
 		// delete wolke ...
 		insta_zeit = 2499;
 		return false;
