@@ -15,6 +15,7 @@
 #include "../besch/skin_besch.h"
 #include "../besch/sound_besch.h"
 #include "../dataobj/umgebung.h"
+#include "../utils/for.h"
 #include "werkzeug_waehler.h"
 
 #define MIN_WIDTH (80)
@@ -208,4 +209,16 @@ void werkzeug_waehler_t::zeichnen(koord pos, koord)
 	}
 
 	dirty = false;
+}
+
+
+
+bool werkzeug_waehler_t::empty(spieler_t *sp) const
+{
+	FOR(vector_tpl<werkzeug_t *>, w, tools) {
+		if (w->get_icon(sp) != IMG_LEER) {
+			return false;
+		}
+	}
+	return true;
 }

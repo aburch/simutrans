@@ -106,6 +106,9 @@ public:
 
 	// since no information are needed to be saved to restore this, returning magic is enough
 	virtual uint32 get_rdwr_id() { return magic_toolbar+toolbar_id; }
+
+
+	bool empty(spieler_t *sp) const;
 };
 
 #endif

@@ -762,10 +762,8 @@ image_id toolbar_t::get_icon(spieler_t *sp) const
 		return IMG_LEER;
 	}
 	// now have we a least one visible tool?
-	FOR(slist_tpl<werkzeug_t*>, const i, tools) {
-		if (i->get_icon(sp) != IMG_LEER) {
-			return icon;
-		}
+	if (wzw  &&  !wzw->empty(sp)) {
+		return icon;
 	}
 	return IMG_LEER;
 }
@@ -803,11 +801,6 @@ void toolbar_t::update(karte_t *welt, spieler_t *sp)
 	}
 	else {
 		DBG_MESSAGE("toolbar_t::update()","update toolbar %s",default_param);
-	}
-
-	if(  (strcmp(this->default_param,"EDITTOOLS")==0  &&  sp!=welt->get_spieler(1))  ) {
-		destroy_win(wzw);
-		return;
 	}
 
 	wzw->reset_tools();
@@ -863,6 +856,11 @@ void toolbar_t::update(karte_t *welt, spieler_t *sp)
 			// now add it to the toolbar gui
 			wzw->add_werkzeug( w );
 		}
+	}
+
+	if(  (strcmp(this->default_param,"EDITTOOLS")==0  &&  sp!=welt->get_spieler(1))  ) {
+		destroy_win(wzw);
+		return;
 	}
 }
 
