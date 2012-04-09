@@ -20,7 +20,7 @@ class sve_info_t {
 public:
 	std::string pak;
 	sint64 mod_time;
-	uint32 file_size;
+	sint32 file_size;
 	bool file_exists;
 	sve_info_t() : pak(""), mod_time(0), file_size(0), file_exists(false) {}
 	sve_info_t(const char *pak_, time_t mod_, long fs);

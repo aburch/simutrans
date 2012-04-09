@@ -572,7 +572,7 @@ const char *dr_get_locale_string()
 	setlocale( LC_ALL, "" );
 	ptr = setlocale( LC_ALL, NULL );
 	code[0] = 0;
-	for(  int i=0;  i<lengthof(code)-1  &&  isalpha(ptr[i]);  i++  ) {
+	for(  int i=0;  i<(int)lengthof(code)-1  &&  isalpha(ptr[i]);  i++  ) {
 		code[i] = tolower(ptr[i]);
 		code[i+1] = 0;
 	}

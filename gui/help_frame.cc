@@ -293,14 +293,14 @@ static void add_helpfile( cbuffer_t &section, const char *titlename, const char 
 	}
 	int mode;
 	FILE *file = has_helpfile( filename, mode );
-	if(  only_native  &&  mode!=native  ||  mode==missing  ) {
+	if(  (  only_native  &&  mode!=native  )  ||  mode==missing  ) {
 		return;
 	}
 	std::string filetitle;	// just in case as temporary storage ...
 	if(  titlename == NULL  &&  file  ) {
 		// get the title from the helpfile
 		char htmlline[1024];
-		size_t len = fread( htmlline, lengthof(htmlline)-1, 1, file );
+		fread( htmlline, lengthof(htmlline)-1, 1, file );
 		filetitle = extract_title( htmlline );
 		if(  filetitle.empty()  ) {
 			// no idea how to generate the right name ...
