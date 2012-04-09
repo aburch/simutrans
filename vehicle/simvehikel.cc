@@ -1166,7 +1166,7 @@ void vehikel_t::rauche() const
 		if(smoke) {
 			grund_t * gr = welt->lookup( get_pos() );
 			if(gr) {
-				wolke_t *abgas =  new wolke_t(welt, get_pos(), get_xoff()+((dx*(sint16)((uint16)steps*OBJECT_OFFSET_STEPS))>>8), get_yoff()+((dy*(sint16)((uint16)steps*OBJECT_OFFSET_STEPS))>>8)+hoff, besch->get_rauch(), true );
+				wolke_t *abgas =  new wolke_t(welt, get_pos(), get_xoff()+((dx*(sint16)((uint16)steps*OBJECT_OFFSET_STEPS))>>8), get_yoff()+((dy*(sint16)((uint16)steps*OBJECT_OFFSET_STEPS))>>8)+hoff, besch->get_rauch() );
 				if(  !gr->obj_add(abgas)  ) {
 					abgas->set_flag(ding_t::not_on_map);
 					delete abgas;

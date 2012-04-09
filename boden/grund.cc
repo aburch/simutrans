@@ -69,7 +69,7 @@
  * @author Hj. Malthaner
  */
 karte_t * grund_t::welt = NULL;
-bool grund_t::show_grid = false;
+volatile bool grund_t::show_grid = false;
 
 uint8 grund_t::offsets[4]={0,1,2/*illegal!*/,2};
 

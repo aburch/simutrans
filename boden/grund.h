@@ -117,7 +117,7 @@ public:
 	/** true, when showing a grid
 	 * @author prissi
 	 */
-	static bool show_grid;
+	static volatile bool show_grid;
 
 	/* underground modes */
 	/* @author Dwachs    */

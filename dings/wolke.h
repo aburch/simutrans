@@ -20,13 +20,12 @@ private:
 	uint16 insta_zeit;	// clouds vanish when insta_zeit>2500 => maximum 5 images ...
 	sint8 base_y_off;
 	sint8 cloud_nr;
-	bool  vehicle_smoke;
 
 public:
 	static bool register_besch(const skin_besch_t *besch);
 
 	wolke_t(karte_t *welt, loadsave_t *file);
-	wolke_t(karte_t *welt, koord3d pos, sint8 xoff, sint8 yoff, const skin_besch_t *cloud, bool vehicle_smoke );
+	wolke_t(karte_t *welt, koord3d pos, sint8 xoff, sint8 yoff, const skin_besch_t *cloud );
 	~wolke_t();
 
 	bool sync_step(long delta_t);

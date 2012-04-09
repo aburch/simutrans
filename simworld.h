@@ -223,7 +223,11 @@ private:
 
 	slist_tpl<sync_steppable *> sync_way_eyecandy_add_list;	// these objects are move to the sync_list (but before next sync step, so they do not interfere!)
 	slist_tpl<sync_steppable *> sync_way_eyecandy_remove_list;
-	ptrhashtable_tpl<sync_steppable *,sync_steppable *> sync_way_eyecandy_list;
+#ifndef SYNC_VECTOR
+	slist_tpl<sync_steppable *> sync_way_eyecandy_list;
+#else
+	vector_tpl<sync_steppable *> sync_way_eyecandy_list;
+#endif
 
 	vector_tpl<convoihandle_t> convoi_array;
 

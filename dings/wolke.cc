@@ -34,7 +34,7 @@ bool wolke_t::register_besch(const skin_besch_t* besch)
 
 
 
-wolke_t::wolke_t(karte_t *welt, koord3d pos, sint8 x_off, sint8 y_off, const skin_besch_t* besch, bool vehicle ) :
+wolke_t::wolke_t(karte_t *welt, koord3d pos, sint8 x_off, sint8 y_off, const skin_besch_t* besch ) :
 	ding_no_info_t(welt, pos)
 {
 	cloud_nr = all_clouds.index_of(besch);
@@ -42,7 +42,6 @@ wolke_t::wolke_t(karte_t *welt, koord3d pos, sint8 x_off, sint8 y_off, const ski
 	set_xoff( (x_off*OBJECT_OFFSET_STEPS)/16 );
 	set_yoff( base_y_off );
 	insta_zeit = 0;
-	vehicle_smoke = vehicle;
 }
 
 
@@ -50,14 +49,8 @@ wolke_t::wolke_t(karte_t *welt, koord3d pos, sint8 x_off, sint8 y_off, const ski
 wolke_t::~wolke_t()
 {
 	mark_image_dirty( get_bild(), 0 );
-	if(  insta_zeit != 2499  ) {
-		if(  vehicle_smoke  ) {
-			welt->sync_way_eyecandy_remove( this );
-		}
-		else if(  welt->sync_eyecandy_remove( this )  ) {
-		}
-		else {
-			welt->sync_way_eyecandy_remove( this );
+	if(  insta_zeit < 2500  ) {
+		if(  !welt->sync_way_eyecandy_remove( this )  ) {
 			dbg->error( "wolke_t::~wolke_t()", "wolke not in bthe correct sync list" );
 		}
 	}
@@ -105,9 +98,9 @@ void wolke_t::rdwr(loadsave_t *file)
 bool wolke_t::sync_step(long delta_t)
 {
 	insta_zeit += (uint16)delta_t;
-	if(insta_zeit>=2499) {
+	if(insta_zeit>=2500) {
 		// delete wolke ...
-		insta_zeit = 2499;
+		insta_zeit = 2500;
 		return false;
 	}
 	// move cloud up

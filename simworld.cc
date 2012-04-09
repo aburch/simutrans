@@ -602,8 +602,12 @@ DBG_MESSAGE("karte_t::destroy()", "towns destroyed");
 	}
 
 	while(!sync_way_eyecandy_list.empty()) {
+#ifndef SYNC_VECTOR
 		sync_steppable *ss = sync_way_eyecandy_list.remove_first();
 		delete ss;
+#else
+		delete sync_way_eyecandy_list.back();
+#endif
 	}
 
 	display_progress( old_progress, max_display_progress );
@@ -2777,7 +2781,7 @@ bool karte_t::sync_way_eyecandy_add(sync_steppable *obj)
 		sync_way_eyecandy_add_list.insert( obj );
 	}
 	else {
-		sync_way_eyecandy_list.put( obj, obj );
+		sync_way_eyecandy_list.append( obj );
 	}
 	return true;
 }
@@ -2785,7 +2789,7 @@ bool karte_t::sync_way_eyecandy_add(sync_steppable *obj)
 
 bool karte_t::sync_way_eyecandy_remove(sync_steppable *obj)	// entfernt alle dinge == obj aus der Liste
 {
-	if(  sync_way_eyecandy_add_list.remove(obj  )) {
+	if(  sync_way_eyecandy_add_list.remove(obj)  ) {
 		return true;
 	}
 	if(  sync_way_eyecandy_running  ) {
@@ -2804,24 +2808,39 @@ void karte_t::sync_way_eyecandy_step(long delta_t)
 	// first add everything
 	while(  !sync_way_eyecandy_add_list.empty()  ) {
 		sync_steppable *obj = sync_way_eyecandy_add_list.remove_first();
-		sync_way_eyecandy_list.put( obj, obj );
+		sync_way_eyecandy_list.append( obj );
 	}
 	// now remove everything from last time
 	while(  !sync_way_eyecandy_remove_list.empty()  ) {
 		sync_way_eyecandy_list.remove( sync_way_eyecandy_remove_list.remove_first() );
 	}
-	// now step ...
-	for(  ptrhashtable_tpl<sync_steppable*,sync_steppable*>::iterator iter = sync_way_eyecandy_list.begin();  iter != sync_way_eyecandy_list.end();  ) {
-		// if false, then remove
-		sync_steppable *ss = iter->key;
-		if(!ss->sync_step(delta_t)) {
-			iter = sync_way_eyecandy_list.erase(iter);
-			delete ss;
+#ifndef SYNC_VECTOR
+		for(  slist_tpl<sync_steppable*>::iterator i=sync_way_eyecandy_list.begin();  !i.end();  ) {
+			// if false, then remove
+			sync_steppable *ss = *i;
+			if(!ss->sync_step(delta_t)) {
+				i = sync_list.erase(i);
+				delete ss;
+			}
+			else {
+				++i;
+			}
 		}
-		else {
-			++iter;
+#else
+		static vector_tpl<sync_steppable *> sync_way_eyecandy_list_copy;
+		sync_way_eyecandy_list_copy.resize( sync_way_eyecandy_list.get_count()*1.1 );
+		FOR(vector_tpl<sync_steppable*>, const ss, sync_way_eyecandy_list) {
+			// if false, then remove
+			if(!ss->sync_step(delta_t)) {
+				delete ss;
+			}
+			else {
+				sync_way_eyecandy_list_copy.append( ss );
+			}
 		}
-	}
+		swap( sync_way_eyecandy_list_copy, sync_way_eyecandy_list );
+		sync_way_eyecandy_list_copy.clear();
+#endif
 	// now remove everything from last time
 	while(  !sync_way_eyecandy_remove_list.empty()  ) {
 		sync_way_eyecandy_list.remove( sync_way_eyecandy_remove_list.remove_first() );
