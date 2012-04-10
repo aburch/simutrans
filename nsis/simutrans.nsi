@@ -4,6 +4,12 @@
 !include "Sections.nsh"
 #!include "zipdll.nsh"
 
+; needs the following plugins:
+; nsisunz
+; inetc
+; CabDll
+; untgz
+
 
 ; Parameter for functions
 var downloadlink
@@ -355,22 +361,23 @@ PageExEnd
 
 ; If not installed to program dir, ask for a portable installation
 Function CheckForPortableInstall
+  ; defaults in progdir, and ending with simutrans
+  StrCpy $installinsimutransfolder "1"
   StrCpy $multiuserinstall "1"
+  StrCmp $INSTDIR $PROGRAMFILES\Simutrans AllSetPortable
+  StrCpy $multiuserinstall "0"
   StrLen $1 $PROGRAMFILES
   StrCpy $0 $INSTDIR $1
-  StrCmp $0 $PROGRAMFILES +4
-  Goto NonPortable
+  StrCmp $0 $PROGRAMFILES +1 NonPortable
   ; ask whether this is a protable installation
-  StrCmp $INSTDIR $PROGRAMFILES\Simutrans NonPortable
-  MessageBox MB_YESNO|MB_ICONINFORMATION "Should this be a portable installation?" IDYES Portable IDNO NonPortable
-Portable:
-  StrCpy $multiuserinstall "0"
+  MessageBox MB_YESNO|MB_ICONINFORMATION "Should this be a portable installation?" IDNO NonPortable
+  StrCpy $multiuserinstall "1"
 NonPortable:
   ; now check, whether the path ends with "simutrans"
-  StrCpy $installinsimutransfolder "1"
   StrCpy $0 $INSTDIR 9 -9
   StrCmp $0 simutrans +2
   StrCpy $installinsimutransfolder "0"
+AllSetPortable:
 FunctionEnd
 
 PageEx directory
@@ -681,7 +688,6 @@ Function DownloadInstallCabWithoutSimutrans
   CabDLL::CabView "$TEMP\$archievename"
   MessageBox MB_OK "Download of $archievename to $TEMP"
   CabDLL::CabExtractAll "$TEMP\$archievename" "$TEMP\Simutrans"
-  DumpState::debug
   StrCmp $R0 "success" +4
     DetailPrint "$0" ;print error message to log
     RMdir /r "$TEMP\simutrans"
