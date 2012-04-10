@@ -40,7 +40,14 @@ static const sint8 hours2night[] =
 };
 
 #if MULTI_THREAD>1
+// enable barriers by this
+#define _XOPEN_SOURCE 600
 #include <pthread.h>
+
+bool spawned_threads=false; // global job indicator array
+static volatile int jobs[MULTI_THREAD];
+static pthread_barrier_t display_barrier_start;
+static pthread_barrier_t display_barrier_end;
 
 // to start a thread
 typedef struct{
@@ -49,20 +56,29 @@ typedef struct{
 	koord	wh;
 	sint16	y_min;
 	sint16	y_max;
-	bool	force_dirty;
 } display_region_param_t;
 
+// now the paramters
+static display_region_param_t ka[MULTI_THREAD];
 
 void *display_region_thread( void *ptr )
 {
 	display_region_param_t *view = reinterpret_cast<display_region_param_t *>(ptr);
-	view->show_routine->display_region( view->lt, view->wh, view->y_min, view->y_max, view->force_dirty );
+	while(true) {
+		pthread_barrier_wait( &display_barrier_start );	// wait for all to start
+		view->show_routine->display_region( view->lt, view->wh, view->y_min, view->y_max, false );
+		pthread_barrier_wait( &display_barrier_end );	// wait for all to finish
+	}
 	return ptr;
 }
 
+/* The following mutexes are only needed for smart cursor */
+// mutex for accessing grund_t::show_grid
+static pthread_mutex_t grid_mutex;
+// mutex for changing settings on hiding buildings/trees
 static pthread_mutex_t hide_mutex;
+
 static bool can_multithreading = true;
-static bool thread_init = false;
 #endif
 
 
@@ -143,51 +159,52 @@ void karte_ansicht_t::display(bool force_dirty)
 
 #if MULTI_THREAD>1
 	if(  IMG_SIZE <= umgebung_t::simple_drawing_tile_size  &&  can_multithreading  ) {
-		// we can do the parallel display using posix threads ...
-		pthread_t thread[MULTI_THREAD];
-		/* Initialize and set thread detached attribute */
-		pthread_attr_t attr;
-		pthread_attr_init(&attr);
-		pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
-		// init mutexes
-		if(  !thread_init  ) {
-			thread_init = false;
+
+		if(!spawned_threads) {
+			// we can do the parallel display using posix threads ...
+			pthread_t thread[MULTI_THREAD];
+			/* Initialize and set thread detached attribute */
+			pthread_attr_t attr;
+			pthread_attr_init(&attr);
+			pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+			// init barrier
+			pthread_barrier_init( &display_barrier_start, NULL, MULTI_THREAD );
+			pthread_barrier_init( &display_barrier_end, NULL, MULTI_THREAD );
+			// init mutexes
+			pthread_mutex_init( &grid_mutex, NULL );
 			pthread_mutex_init( &hide_mutex, NULL );
+
+			for(  int t=0;  t<MULTI_THREAD-1;  t++  ) {
+				if(  pthread_create(&thread[t], &attr, display_region_thread, (void *)&ka[t])  ) {
+					can_multithreading = false;
+					dbg->error( "karte_ansicht_t::display()", "cannot multithread, error at thread #%i", t+1 );
+					return;
+				}
+			}
+
+			spawned_threads = true;
+			pthread_attr_destroy(&attr);
 		}
 
-		// now the paramters
-		display_region_param_t ka[MULTI_THREAD];
-		for(int t=0; t<MULTI_THREAD-1; t++) {
+		// set parameter for each thread
+		for(  int t=0;  t<MULTI_THREAD-1;  t++  ) {
 			// equals to: display_region( koord(t*(disp_width/NUM_THREADS),menu_height), koord(disp_width/NUM_THREADS,disp_height-menu_height), y_min, dpy_height+4*4, force_dirty );
-	   		ka[t].show_routine = this;
+		   	ka[t].show_routine = this;
 			ka[t].lt = koord((t*disp_width)/MULTI_THREAD,menu_height);
-			ka[t].wh = koord((disp_width/MULTI_THREAD)-IMG_SIZE,disp_height-menu_height);
+			ka[t].wh = koord((disp_width/MULTI_THREAD)-((t==MULTI_THREAD-1)?0:IMG_SIZE),disp_height-menu_height);
 			ka[t].y_min = y_min;
 			ka[t].y_max = dpy_height+4*4;
-			ka[t].force_dirty = force_dirty;
-			if(  pthread_create(&thread[t], &attr, display_region_thread, (void *)&ka[t])  ) {
-				can_multithreading = false;
-				dbg->error( "karte_ansicht_t::display()", "cannot multithread, error at thread #%i", t+1 );
-				return;
-			}
 		}
+		// and start drawing
+		pthread_barrier_wait( &display_barrier_start );
 
 		// the last we can run ourselves
 		display_region( koord( ((MULTI_THREAD-1)*disp_width)/MULTI_THREAD,menu_height), koord(disp_width/MULTI_THREAD,disp_height-menu_height), y_min, dpy_height+4*4, force_dirty );
 
-		// wait for the other threads
-		for(int t=0; t<MULTI_THREAD-1; t++) {
-			void *status;
-			if(  pthread_join(thread[t], &status)  ) {
-				can_multithreading = false;
-				dbg->error( "karte_ansicht_t::display()", "cannot join thread, error at thread #%i", t+1 );
-				return;
-			}
-		}
-		pthread_attr_destroy(&attr);
+		pthread_barrier_wait( &display_barrier_end );
 
 		// and now draw the overlapping region single threaded with clipping
-		for(int t=1; t<MULTI_THREAD; t++) {
+		for(  int t=1;  t<MULTI_THREAD;  t++  ) {
 			KOORD_VAL start_x = (t*disp_width)/MULTI_THREAD-IMG_SIZE;
 			display_set_clip_wh( start_x, menu_height, IMG_SIZE, disp_height-menu_height );
 			if(grund_t::underground_mode) {
@@ -301,9 +318,24 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 
 	// prepare for selectively display
 	const koord cursor_pos = welt->get_zeiger() ? welt->get_zeiger()->get_pos().get_2d() : koord(-1000,-1000);
+#if MULTI_THREAD>1
+	if(  IMG_SIZE <= umgebung_t::simple_drawing_tile_size  ) {
+		pthread_mutex_lock( &grid_mutex  );
+		pthread_mutex_lock( &hide_mutex  );
+	}
+#endif
 	const bool saved_grid = grund_t::show_grid;
 	const bool saved_hide_trees = umgebung_t::hide_trees;
 	const uint8 saved_hide_buildings = umgebung_t::hide_buildings;
+#if MULTI_THREAD>1
+	if(  IMG_SIZE <= umgebung_t::simple_drawing_tile_size  ) {
+		pthread_mutex_unlock( &grid_mutex  );
+		pthread_mutex_unlock( &hide_mutex  );
+	}
+#endif
+	bool lock_restore_grid = false;	// true while showing grid
+	bool lock_restore_hiding = false; // true while hiding buildings/trees around cursor
+	const bool needs_hiding = !umgebung_t::hide_trees  |  (umgebung_t::hide_buildings != umgebung_t::ALL_HIDDEN_BUIDLING);
 
 	for( int y=y_min;  y<y_max;  y++  ) {
 
@@ -322,13 +354,42 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 				if(  grund_t* const kb = welt->lookup_kartenboden(pos)  ) {
 					const sint16 yypos = ypos - tile_raster_scale_y(min(kb->get_hoehe(), hmax_ground) * TILE_HEIGHT_STEP / Z_TILE_STEP, IMG_SIZE);
 					if(yypos-IMG_SIZE<lt.y+wh.y  &&  yypos+IMG_SIZE>lt.y) {
-						if(  !saved_grid  &&  umgebung_t::hide_under_cursor  &&  koord_distance(pos,cursor_pos)<=umgebung_t::cursor_hide_range  ) {
-							grund_t::show_grid = true;
-							kb->set_flag(grund_t::dirty);
+
+						if(  !saved_grid  &&  umgebung_t::hide_under_cursor  ) {
+							// If the corresponding setting is on, then hide trees and buildings under mouse cursor
+							if(  koord_distance(pos,cursor_pos) < umgebung_t::cursor_hide_range  ) {
+								if(  !lock_restore_grid  ) {
+									lock_restore_grid = true;
+#if MULTI_THREAD>1
+									if(  lock_restore_grid  &&  IMG_SIZE <= umgebung_t::simple_drawing_tile_size  ) {
+										pthread_mutex_lock( &grid_mutex  );
+									}
+#endif
+								}
+								grund_t::show_grid = true;
+								kb->set_flag(grund_t::dirty);
+							}
+							else if(  lock_restore_grid  ) {
+								kb->set_flag(grund_t::dirty);
+								grund_t::show_grid = false;
+								lock_restore_grid = false;
+#if MULTI_THREAD>1
+								if(  IMG_SIZE <= umgebung_t::simple_drawing_tile_size  ) {
+									pthread_mutex_unlock( &grid_mutex  );
+								}
+#endif
+							}
 						}
+#if MULTI_THREAD>1
+						if(  !lock_restore_grid  &&  grund_t::show_grid != saved_grid  &&  IMG_SIZE <= umgebung_t::simple_drawing_tile_size  ) {
+							pthread_mutex_lock( &grid_mutex  );
+							kb->display_if_visible(xpos, yypos, IMG_SIZE);
+							pthread_mutex_unlock( &grid_mutex  );
+						}
+						else
+#endif
 						kb->display_if_visible(xpos, yypos, IMG_SIZE);
 						plotted = true;
-						grund_t::show_grid = saved_grid;
 					}
 				}
 				else {
@@ -344,6 +405,16 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 		if (!plotted) {
 			y_min++;
 		}
+	}
+
+	if(  lock_restore_grid  ) {
+		grund_t::show_grid = saved_grid;
+		lock_restore_grid = false;
+#if MULTI_THREAD>1
+		if(  IMG_SIZE <= umgebung_t::simple_drawing_tile_size  ) {
+			pthread_mutex_unlock( &grid_mutex  );
+		}
+#endif
 	}
 
 	// and then things (and other ground)
@@ -390,34 +461,55 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 					sint16 yypos = ypos - tile_raster_scale_y( min(gr->get_hoehe(),hmax_ground)*TILE_HEIGHT_STEP/Z_TILE_STEP, IMG_SIZE);
 					if(yypos-IMG_SIZE*3<wh.y+lt.y  &&  yypos+IMG_SIZE>lt.y) {
 
+						if(  umgebung_t::hide_under_cursor  &&  needs_hiding  ) {
+							if(  koord_distance(pos,cursor_pos) < umgebung_t::cursor_hide_range  ) {
+								// If the corresponding setting is on, then hide trees and buildings under mouse cursor
+								if(  !lock_restore_hiding  ) {
+									lock_restore_hiding = true;
 #if MULTI_THREAD>1
-						bool lock_restore_hiding = false;
+									if(  IMG_SIZE <= umgebung_t::simple_drawing_tile_size  ) {
+										pthread_mutex_lock( &hide_mutex  );
+									}
 #endif
-
-						if(  umgebung_t::hide_under_cursor  &&  koord_distance(pos,cursor_pos)<=umgebung_t::cursor_hide_range  ) {
-							// If the corresponding setting is on, then hide trees and buildings under mouse cursor
-#if MULTI_THREAD>1
-							lock_restore_hiding = (  umgebung_t::hide_trees  |  (umgebung_t::hide_buildings == umgebung_t::ALL_HIDDEN_BUIDLING)  )  &  (IMG_SIZE <= umgebung_t::simple_drawing_tile_size);
-							if(  lock_restore_hiding  ) {
-								pthread_mutex_lock( &hide_mutex  );
+								}
+								umgebung_t::hide_trees = true;
+								umgebung_t::hide_buildings = umgebung_t::ALL_HIDDEN_BUIDLING;
 							}
-#endif
-							umgebung_t::hide_trees = true;
-							umgebung_t::hide_buildings = umgebung_t::ALL_HIDDEN_BUIDLING;
-						}
-
-						plan->display_dinge(xpos, yypos, IMG_SIZE, true, hmin, hmax);
-
-						umgebung_t::hide_trees = saved_hide_trees;
-						umgebung_t::hide_buildings = saved_hide_buildings;
+							else if(  lock_restore_hiding  ) {
+								lock_restore_hiding = false;
+								umgebung_t::hide_trees = saved_hide_trees;
+								umgebung_t::hide_buildings = saved_hide_buildings;
 #if MULTI_THREAD>1
-						if(  lock_restore_hiding  ) {
-								pthread_mutex_unlock( &hide_mutex  );
-						}
+								if(  IMG_SIZE <= umgebung_t::simple_drawing_tile_size  ) {
+									pthread_mutex_unlock( &hide_mutex  );
+								}
 #endif
+							}
+						}
+
+#if MULTI_THREAD>1
+						if(  !lock_restore_hiding  &&  needs_hiding  &&  (umgebung_t::hide_trees != saved_hide_trees  ||  umgebung_t::hide_buildings != saved_hide_buildings  )  ) {
+							pthread_mutex_lock( &hide_mutex  );
+							plan->display_dinge(xpos, yypos, IMG_SIZE, true, hmin, hmax);
+							pthread_mutex_unlock( &hide_mutex  );
+						}
+						else
+#endif
+						plan->display_dinge(xpos, yypos, IMG_SIZE, true, hmin, hmax);
 					}
 				}
 			}
 		}
+	}
+	// relese lock if still set
+	if(  lock_restore_hiding  ) {
+		lock_restore_hiding = false;
+		umgebung_t::hide_trees = saved_hide_trees;
+		umgebung_t::hide_buildings = saved_hide_buildings;
+#if MULTI_THREAD>1
+		if(  IMG_SIZE <= umgebung_t::simple_drawing_tile_size  ) {
+			pthread_mutex_unlock( &hide_mutex  );
+		}
+#endif
 	}
 }
