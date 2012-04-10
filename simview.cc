@@ -66,7 +66,7 @@ void *display_region_thread( void *ptr )
 	display_region_param_t *view = reinterpret_cast<display_region_param_t *>(ptr);
 	while(true) {
 		pthread_barrier_wait( &display_barrier_start );	// wait for all to start
-		view->show_routine->display_region( view->lt, view->wh, view->y_min, view->y_max, false );
+		view->show_routine->display_region( view->lt, view->wh, view->y_min, view->y_max, false, true );
 		pthread_barrier_wait( &display_barrier_end );	// wait for all to finish
 	}
 	return ptr;
@@ -199,7 +199,7 @@ void karte_ansicht_t::display(bool force_dirty)
 		pthread_barrier_wait( &display_barrier_start );
 
 		// the last we can run ourselves
-		display_region( koord( ((MULTI_THREAD-1)*disp_width)/MULTI_THREAD,menu_height), koord(disp_width/MULTI_THREAD,disp_height-menu_height), y_min, dpy_height+4*4, force_dirty );
+		display_region( koord( ((MULTI_THREAD-1)*disp_width)/MULTI_THREAD,menu_height), koord(disp_width/MULTI_THREAD,disp_height-menu_height), y_min, dpy_height+4*4, false, true );
 
 		pthread_barrier_wait( &display_barrier_end );
 
@@ -210,7 +210,7 @@ void karte_ansicht_t::display(bool force_dirty)
 			if(grund_t::underground_mode) {
 				display_fillbox_wh(start_x, menu_height, IMG_SIZE, disp_height-menu_height, COL_BLACK, force_dirty);
 			}
-			display_region( koord( start_x,menu_height), koord(IMG_SIZE,disp_height-menu_height), y_min, dpy_height+4*4, force_dirty );
+			display_region( koord( start_x,menu_height), koord(IMG_SIZE,disp_height-menu_height), y_min, dpy_height+4*4, false, false );
 		}
 		display_set_clip_wh( 0, menu_height, disp_width, disp_height-menu_height );
 	}
@@ -218,7 +218,7 @@ void karte_ansicht_t::display(bool force_dirty)
 #endif
 	{
 		// slow serial way of display
-		display_region( koord(0,menu_height), koord(disp_width,disp_height-menu_height), y_min, dpy_height+4*4, force_dirty );
+		display_region( koord(0,menu_height), koord(disp_width,disp_height-menu_height), y_min, dpy_height+4*4, false, false );
 	}
 
 	// and finally overlays (station coverage and signs)
@@ -302,7 +302,7 @@ void karte_ansicht_t::display(bool force_dirty)
 
 
 
-void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const sint16 y_max, bool force_dirty )
+void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const sint16 y_max, bool force_dirty, bool threaded )
 {
 	const sint16 IMG_SIZE = get_tile_raster_width();
 
@@ -319,7 +319,7 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 	// prepare for selectively display
 	const koord cursor_pos = welt->get_zeiger() ? welt->get_zeiger()->get_pos().get_2d() : koord(-1000,-1000);
 #if MULTI_THREAD>1
-	if(  IMG_SIZE <= umgebung_t::simple_drawing_tile_size  ) {
+	if(  threaded  ) {
 		pthread_mutex_lock( &grid_mutex  );
 		pthread_mutex_lock( &hide_mutex  );
 	}
@@ -328,7 +328,7 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 	const bool saved_hide_trees = umgebung_t::hide_trees;
 	const uint8 saved_hide_buildings = umgebung_t::hide_buildings;
 #if MULTI_THREAD>1
-	if(  IMG_SIZE <= umgebung_t::simple_drawing_tile_size  ) {
+	if(  threaded  ) {
 		pthread_mutex_unlock( &grid_mutex  );
 		pthread_mutex_unlock( &hide_mutex  );
 	}
@@ -361,7 +361,7 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 								if(  !lock_restore_grid  ) {
 									lock_restore_grid = true;
 #if MULTI_THREAD>1
-									if(  lock_restore_grid  &&  IMG_SIZE <= umgebung_t::simple_drawing_tile_size  ) {
+									if(  lock_restore_grid  &&  threaded  ) {
 										pthread_mutex_lock( &grid_mutex  );
 									}
 #endif
@@ -374,14 +374,14 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 								grund_t::show_grid = false;
 								lock_restore_grid = false;
 #if MULTI_THREAD>1
-								if(  IMG_SIZE <= umgebung_t::simple_drawing_tile_size  ) {
+								if(  threaded  ) {
 									pthread_mutex_unlock( &grid_mutex  );
 								}
 #endif
 							}
 						}
 #if MULTI_THREAD>1
-						if(  !lock_restore_grid  &&  grund_t::show_grid != saved_grid  &&  IMG_SIZE <= umgebung_t::simple_drawing_tile_size  ) {
+						if(  !lock_restore_grid  &&  grund_t::show_grid != saved_grid  &&  threaded  ) {
 							pthread_mutex_lock( &grid_mutex  );
 							kb->display_if_visible(xpos, yypos, IMG_SIZE);
 							pthread_mutex_unlock( &grid_mutex  );
@@ -411,7 +411,7 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 		grund_t::show_grid = saved_grid;
 		lock_restore_grid = false;
 #if MULTI_THREAD>1
-		if(  IMG_SIZE <= umgebung_t::simple_drawing_tile_size  ) {
+		if(  threaded  ) {
 			pthread_mutex_unlock( &grid_mutex  );
 		}
 #endif
@@ -467,7 +467,7 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 								if(  !lock_restore_hiding  ) {
 									lock_restore_hiding = true;
 #if MULTI_THREAD>1
-									if(  IMG_SIZE <= umgebung_t::simple_drawing_tile_size  ) {
+									if(  threaded  ) {
 										pthread_mutex_lock( &hide_mutex  );
 									}
 #endif
@@ -480,7 +480,7 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 								umgebung_t::hide_trees = saved_hide_trees;
 								umgebung_t::hide_buildings = saved_hide_buildings;
 #if MULTI_THREAD>1
-								if(  IMG_SIZE <= umgebung_t::simple_drawing_tile_size  ) {
+								if(  threaded  ) {
 									pthread_mutex_unlock( &hide_mutex  );
 								}
 #endif
@@ -488,7 +488,7 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 						}
 
 #if MULTI_THREAD>1
-						if(  !lock_restore_hiding  &&  needs_hiding  &&  (umgebung_t::hide_trees != saved_hide_trees  ||  umgebung_t::hide_buildings != saved_hide_buildings  )  ) {
+						if(  !lock_restore_hiding  &&  needs_hiding  &&  threaded  &&  (umgebung_t::hide_trees != saved_hide_trees  ||  umgebung_t::hide_buildings != saved_hide_buildings  )  ) {
 							pthread_mutex_lock( &hide_mutex  );
 							plan->display_dinge(xpos, yypos, IMG_SIZE, true, hmin, hmax);
 							pthread_mutex_unlock( &hide_mutex  );
@@ -507,7 +507,7 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 		umgebung_t::hide_trees = saved_hide_trees;
 		umgebung_t::hide_buildings = saved_hide_buildings;
 #if MULTI_THREAD>1
-		if(  IMG_SIZE <= umgebung_t::simple_drawing_tile_size  ) {
+		if(  threaded  ) {
 			pthread_mutex_unlock( &hide_mutex  );
 		}
 #endif
