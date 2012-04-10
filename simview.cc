@@ -45,7 +45,6 @@ static const sint8 hours2night[] =
 #include <pthread.h>
 
 bool spawned_threads=false; // global job indicator array
-static volatile int jobs[MULTI_THREAD];
 static pthread_barrier_t display_barrier_start;
 static pthread_barrier_t display_barrier_end;
 
