@@ -3846,7 +3846,15 @@ void convoi_t::laden() //"load" (Babelfish)
 			uint8 current_stop = fpl->get_aktuell();
 
 			fpl->increment_index(&current_stop, &reverse);
-			pair.x = welt->lookup(fpl->eintrag[current_stop].pos)->get_halt().get_id();
+			grund_t* gr = welt->lookup(fpl->eintrag[current_stop].pos);
+			if(gr)
+			{
+				pair.x = gr->get_halt().get_id();
+			}
+			else
+			{
+				pair.x = 0;
+			}
 
 			const uint8 starting_stop = current_stop;
 
