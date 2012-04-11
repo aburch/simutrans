@@ -77,7 +77,8 @@ void goods_stats_t::zeichnen(koord offset)
 		sint64 price = revenue;
 
 		//const uint16 journey_minutes = ((float)distance / (((float)welt->get_average_speed(way_type) * bonus) / 100)) *welt->get_settings().get_meters_per_tile() * 6;
-		const uint16 journey_minutes = (((distance * 100) / ((welt->get_average_speed(way_type) * bonus) / 100)) * welt->get_settings().get_meters_per_tile()) / 1667;
+		const uint16 divider = (welt->get_average_speed(way_type) * bonus) / 100;
+		const uint16 journey_minutes = (((distance * 100) / (divider > 0 ? divider : 1)) * welt->get_settings().get_meters_per_tile()) / 1667;
 
 		if(wtyp->get_catg_index() < 1)
 		{
