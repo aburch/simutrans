@@ -250,6 +250,7 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				besch->upgrades = decode_uint8(p);
 				besch->upgrade_price = decode_uint32(p);
 				besch->available_only_as_upgrade = decode_uint8(p);
+				besch->brake_force = BRAKE_FORCE_UNKNOWN;
 				if(experimental_version == 1)
 				{
 					besch->fixed_cost = decode_uint16(p);
@@ -383,7 +384,6 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				besch->upgrades = decode_uint8(p);
 				besch->upgrade_price = decode_uint32(p);
 				besch->available_only_as_upgrade = decode_uint8(p);
-				besch->brake_force = BRAKE_FORCE_UNKNOWN;
 				if(experimental_version == 1)
 				{
 					besch->fixed_cost = decode_uint16(p);
@@ -449,6 +449,7 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				else
 				{
 					besch->rolling_resistance = float32e8_t((uint32) rolling_default, (uint32)10000);
+					besch->brake_force = BRAKE_FORCE_UNKNOWN;
 				}
 			}
 			else
