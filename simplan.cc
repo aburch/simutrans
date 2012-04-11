@@ -37,7 +37,7 @@ void swap(planquadrat_t& a, planquadrat_t& b)
 	sim::swap(a.halt_list, b.halt_list);
 	sim::swap(a.ground_size, b.ground_size);
 	sim::swap(a.halt_list_count, b.halt_list_count);
-	sim::swap(a.data, b.data);
+	sim::swap(a.data.one, b.data.one);
 }
 
 // deletes also all grounds in this array!
