@@ -1286,7 +1286,7 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_long(dummy);
 		}
 
-		if(file->get_experimental_version() >= 10) // XXX OR WHATEVER THE LATEST VERSION IS WHEN THIS IS INCORPORATED
+		if(file->get_experimental_version() >= 10 && file->get_version() >= 111002)
 		{
 			file->rdwr_long(max_small_city_size);
 			file->rdwr_long(max_city_size);
