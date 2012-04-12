@@ -918,6 +918,8 @@ public:
 	bool get_toll_free_public_roads() const { return toll_free_public_roads; }
 
 	bool get_allow_making_public() const { return allow_making_public; }
+
+	float32e8_t get_simtime_factor() const { return simtime_factor; }
 };
 
 #endif 
