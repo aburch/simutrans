@@ -73,11 +73,7 @@ void adverse_summary_t::add_vehicle(const vehikel_t &v)
 			weg_t *way = gr->get_weg(waytype);
 			if (way)
 			{
-				sint32 limit = way->get_max_speed();
-				if (max_speed > limit)
-				{
-					max_speed = limit;
-				}
+				max_speed = min(max_speed, way->get_max_speed());
 			}
 		}
 	}
@@ -88,11 +84,7 @@ void adverse_summary_t::add_vehicle(const vehikel_t &v)
 	// These are carried in vehikel_t unlike other speed limits 
 	if (v.get_speed_limit() != vehikel_t::speed_unlimited()) 
 	{
-		sint32 limit = speed_to_kmh(v.get_speed_limit());
-		if (max_speed > limit)
-		{
-			max_speed = limit;
-		}
+		max_speed = min(max_speed, speed_to_kmh(v.get_speed_limit()));
 	}
 }
 
@@ -104,30 +96,30 @@ void adverse_summary_t::add_vehicle(const vehikel_besch_t &b, bool is_first)
 		switch (b.get_waytype())
 		{
 			case air_wt:
-				br = float32e8_t(2, 1);
+				br = BR_AIR;
 				break;
 
 			case water_wt:
-				br = float32e8_t(1, 10);
+				br = BR_WATER;
 				break;
 		
 			case track_wt:
 			case narrowgauge_wt:
 			case overheadlines_wt: 
-				br = float32e8_t(1, 2);
+				br = BR_TRACK;
 				break;
 
 			case tram_wt:
 			case monorail_wt:      
-				br = float32e8_t(1, 1);
+				br = BR_TRAM;
 				break;
 			
 			case maglev_wt:
-				br = float32e8_t(12, 10);
+				br = BR_MAGLEV;
 				break;
 
 			default:
-				br = float32e8_t(1, 1);
+				br = BR_DEFAULT;
 				break;
 		}
 	}

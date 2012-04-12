@@ -93,6 +93,13 @@ a = (Fm - Frs - cf * v^2) / m
 //static const float32e8_t FR_WATER = float32e8_t((uint32) 1, (uint32) 1000);
 //static const float32e8_t FR_AIR = float32e8_t((uint32) 1, (uint32) 1000);
 
+static const float32e8_t BR_AIR = float32e8_t(2, 1);
+static const float32e8_t BR_WATER = float32e8_t(1, 10);
+static const float32e8_t BR_TRACK = float32e8_t(1, 2);
+static const float32e8_t BR_TRAM = float32e8_t(1, 1);
+static const float32e8_t BR_MAGLEV = float32e8_t(12, 10);
+static const float32e8_t BR_DEFAULT = float32e8_t(1, 1);
+
 /******************************************************************************/
 
 struct vehicle_summary_t
