@@ -441,6 +441,8 @@ private:
 	// Whether non-public players are allowed to make stops and ways public.
 	bool allow_making_public;
 
+	float32e8_t simtime_factor;
+
 public:
 	/* the big cost section */
 	sint32 maint_building;	// normal building
@@ -510,7 +512,6 @@ public:
 	uint8 spacing_shift_mode;
 	sint16 spacing_shift_divisor;
 
-public:
 	/**
 	 * If map is read from a heightfield, this is the name of the heightfield.
 	 * Set to empty string in order to avoid loading.

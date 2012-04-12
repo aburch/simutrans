@@ -247,9 +247,9 @@ sint32 convoy_t::calc_max_starting_weight(sint32 sin_alpha)
 // The timeslice to calculate acceleration, speed and covered distance in reasonable small chuncks. 
 #define DT_SLICE_SECONDS 2
 #define DT_SLICE (DT_TIME_FACTOR * DT_SLICE_SECONDS)
-const float32e8_t fl_time_factor = float32e8_t(DT_TIME_FACTOR, 1); 
-const float32e8_t fl_time_divisor = float32e8_t(1, DT_TIME_FACTOR); 
-const float32e8_t fl_slice_seconds = float32e8_t(DT_SLICE_SECONDS, 1);
+static const float32e8_t fl_time_factor = float32e8_t(DT_TIME_FACTOR, 1); 
+static const float32e8_t fl_time_divisor = float32e8_t(1, DT_TIME_FACTOR); 
+static const float32e8_t fl_slice_seconds = float32e8_t(DT_SLICE_SECONDS, 1);
 
 sint32 convoy_t::calc_min_braking_distance(const weight_summary_t &weight, const float32e8_t &v)
 {
@@ -620,10 +620,6 @@ sint32 existing_convoy_t::get_brake_summary(const sint32 speed /* in m/s */)
 		{
 			// Usual brake deceleration is about -0.5 .. -1.5 m/s² depending on vehicle and ground. 
 			// With F=ma, a = F/m follows that brake force in N is ~= 1/2 weight in kg
-			const sint32 TEST_FORCE = get_adverse_summary().br * float32e8_t(v.get_gesamtgewicht(), 1000);
-			const float32e8_t TEST_BR = get_adverse_summary().br;
-			const int TEST_WEIGHT = v.get_gesamtgewicht();
-			const sint32 TEST_FIXED_FORCE = get_adverse_summary().br * float32e8_t(100, 1);
 			force += get_adverse_summary().br * float32e8_t(v.get_gesamtgewicht(), 1000);
 		}
 	}

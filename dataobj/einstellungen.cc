@@ -2029,6 +2029,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 		}
 	}
 
+	simtime_factor = float32e8_t(get_meters_per_tile(), 1000);
+
 	/*
 	 * Selection of savegame format through inifile
 	 */
