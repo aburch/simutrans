@@ -653,7 +653,7 @@ public:
 	void   set_max_bonus_multiplier_percent(uint16 value) { max_bonus_multiplier_percent = value; }
 
 	uint16 get_meters_per_tile() const { return meters_per_tile; }
-	void   set_meters_per_tile(uint16 value) { meters_per_tile = value; steps_per_km = (1000 * VEHICLE_STEPS_PER_TILE) / meters_per_tile; }
+	void   set_meters_per_tile(uint16 value);
 	uint32 get_steps_per_km() const { return steps_per_km; }
 //	void   set_distance_per_tile_percent(uint16 value) { meters_per_tile = value * 10; }
 

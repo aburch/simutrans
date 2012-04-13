@@ -310,8 +310,7 @@ settings_t::settings_t() :
 	max_bonus_min_distance = 256;
 	median_bonus_distance = 0;
 	max_bonus_multiplier_percent = 300;
-	meters_per_tile = 250;
-	steps_per_km = (1000 * VEHICLE_STEPS_PER_TILE) / meters_per_tile;
+	set_meters_per_tile(250);
 	tolerable_comfort_short = 15;
 	tolerable_comfort_median_short = 60;
 	tolerable_comfort_median_median = 100;
@@ -1322,8 +1321,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	// @author: jamespetts
 	uint16 distance_per_tile_integer = meters_per_tile / 10;
 	meters_per_tile = contents.get_int("distance_per_tile", distance_per_tile_integer) * 10;
-	meters_per_tile = contents.get_int("meters_per_tile", meters_per_tile);
-	steps_per_km = (1000 * VEHICLE_STEPS_PER_TILE) / meters_per_tile;
+	set_meters_per_tile(contents.get_int("meters_per_tile", meters_per_tile));
 	float32e8_t distance_per_tile(meters_per_tile, 1000);
 
 		// special day/night colors
@@ -2029,8 +2027,6 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 		}
 	}
 
-	simtime_factor = float32e8_t(get_meters_per_tile(), 1000);
-
 	/*
 	 * Selection of savegame format through inifile
 	 */
@@ -2256,4 +2252,11 @@ void settings_t::set_allow_routing_on_foot(bool value)
 { 
 	allow_routing_on_foot = value; 
 	path_explorer_t::refresh_category(0);
+}
+
+void settings_t::set_meters_per_tile(uint16 value) 
+{ 
+	meters_per_tile = value; 
+	steps_per_km = (1000 * VEHICLE_STEPS_PER_TILE) / meters_per_tile; 
+	simtime_factor = float32e8_t(meters_per_tile, 1000);
 }
