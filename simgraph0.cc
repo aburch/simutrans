@@ -175,6 +175,10 @@ display_image_proc display_color = display_base_img;
 display_blend_proc display_blend = display_base_img_blend;
 signed short current_tile_raster_width = 0;
 
+void display_blend_wh(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, int, int )
+{
+}
+
 void display_mark_img_dirty(unsigned, KOORD_VAL, KOORD_VAL)
 {
 }
@@ -317,6 +321,22 @@ void display_snapshot()
 }
 
 void display_direct_line(const KOORD_VAL, const KOORD_VAL, const KOORD_VAL, const KOORD_VAL, const PLAYER_COLOR_VAL)
+{
+}
+
+void display_direct_line(const KOORD_VAL, const KOORD_VAL, const KOORD_VAL, const KOORD_VAL, const KOORD_VAL, const KOORD_VAL, const PLAYER_COLOR_VAL)
+{
+}
+
+void display_circle( KOORD_VAL, KOORD_VAL, int, const color );
+{
+}
+
+void display_filled_circle( KOORD_VAL, KOORD_VAL, int, const color );
+{
+}
+
+void draw_bezier(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, const PLAYER_COLOR_VAL, KOORD_VAL, KOORD_VAL );
 {
 }
 

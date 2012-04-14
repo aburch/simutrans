@@ -2657,6 +2657,30 @@ static blend_proc blend[3];
 static blend_proc blend_recode[3];
 static blend_proc outline[3];
 
+
+// blends a rectangular region
+void display_blend_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, int color, int percent_blend )
+{
+	if(  clip_lr(&xp, &w, clip_rect.x, clip_rect.xx)  &&  clip_lr(&yp, &h, clip_rect.y, clip_rect.yy)  ) {
+
+		const PIXVAL colval = specialcolormap_all_day[color & 0xFF];
+
+		if(  percent_blend>12  &&  percent_blend<88  ) {
+			// actually something to blend
+			blend_proc blend = outline[ ((percent_blend+12)/25) - 1 ];
+
+			for(  KOORD_VAL y=0;  y<h;  y++  ) {
+				blend( textur + xp + (yp+y) * disp_width, NULL, colval, w );
+			}
+		}
+		else if(  percent_blend>=88  ) {
+			// opaque ...
+			display_fillbox_wh( xp, yp, w, h, color, false );
+		}
+	}
+}
+
+
 static void display_img_blend_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp, int colour, blend_proc p )
 {
 	if (h > 0) {
@@ -2856,7 +2880,6 @@ void display_base_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const 
 		}
 	} // number ok
 }
-
 
 
 // ----------------- basic painting procedures ----------------
@@ -3559,7 +3582,9 @@ void display_direct_line(const KOORD_VAL x, const KOORD_VAL y, const KOORD_VAL x
 	const PIXVAL colval = specialcolormap_all_day[color & 0xFF];
 
 	steps = (abs(dx) > abs(dy) ? abs(dx) : abs(dy));
-	if (steps == 0) steps = 1;
+	if (steps == 0) {
+		steps = 1;
+	}
 
 	xs = (dx << 16) / steps;
 	ys = (dy << 16) / steps;
@@ -3571,6 +3596,199 @@ void display_direct_line(const KOORD_VAL x, const KOORD_VAL y, const KOORD_VAL x
 		display_pixel(xp >> 16, yp >> 16, colval);
 		xp += xs;
 		yp += ys;
+	}
+}
+
+
+//taken from function display_direct_line() above, to draw a dotted line: draw=pixels drawn, dontDraw=pixels skipped
+void display_direct_line_dotted(const KOORD_VAL x, const KOORD_VAL y, const KOORD_VAL xx, const KOORD_VAL yy, const KOORD_VAL draw, const KOORD_VAL dontDraw, const PLAYER_COLOR_VAL color)
+{
+	int i, steps;
+	int xp, yp;
+	int xs, ys;
+	int counter=0;
+	bool mustDraw=true;
+
+	const int dx = xx - x;
+	const int dy = yy - y;
+	const PIXVAL colval = specialcolormap_all_day[color & 0xFF];
+
+	steps = (abs(dx) > abs(dy) ? abs(dx) : abs(dy));
+	if (steps == 0) {
+		steps = 1;
+	}
+
+	xs = (dx << 16) / steps;
+	ys = (dy << 16) / steps;
+
+	xp = x << 16;
+	yp = y << 16;
+
+	for(  i = 0;  i <= steps;  i++  ) {
+		counter ++;
+		if(  mustDraw  ) {
+			if(  counter == draw  ) {
+				mustDraw = !mustDraw;
+				counter = 0;
+			}
+		}
+		if(  !mustDraw  ) {
+			if(  counter == dontDraw  ) {
+				mustDraw=!mustDraw;
+				counter=0;
+			}
+		}
+
+		if(  mustDraw  ) {
+			display_pixel( xp >> 16, yp >> 16, colval );
+		}
+		xp += xs;
+		yp += ys;
+	}
+}
+
+
+// bresenham circle (from wikipedia ...)
+void display_circle( KOORD_VAL x0, KOORD_VAL  y0, int radius, const PLAYER_COLOR_VAL color )
+{
+	const PIXVAL colval = specialcolormap_all_day[color & 0xFF];
+	int f = 1 - radius;
+	int ddF_x = 1;
+	int ddF_y = -2 * radius;
+	int x = 0;
+	int y = radius;
+
+	display_pixel( x0, y0 + radius, colval );
+	display_pixel( x0, y0 - radius, colval );
+	display_pixel( x0 + radius, y0, colval );
+	display_pixel( x0 - radius, y0, colval);
+
+	while(x < y) {
+		// ddF_x == 2 * x + 1;
+		// ddF_y == -2 * y;
+		// f == x*x + y*y - radius*radius + 2*x - y + 1;
+		if(f >= 0) {
+			y--;
+			ddF_y += 2;
+			f += ddF_y;
+		}
+
+		x++;
+		ddF_x += 2;
+		f += ddF_x;
+
+		display_pixel( x0 + x, y0 + y, colval );
+		display_pixel( x0 - x, y0 + y, colval );
+		display_pixel( x0 + x, y0 - y, colval );
+		display_pixel( x0 - x, y0 - y, colval );
+		display_pixel( x0 + y, y0 + x, colval );
+		display_pixel( x0 - y, y0 + x, colval );
+		display_pixel( x0 + y, y0 - x, colval );
+		display_pixel( x0 - y, y0 - x, colval );
+	}
+}
+
+
+// bresenham circle (from wikipedia ...)
+void display_filled_circle( KOORD_VAL x0, KOORD_VAL  y0, int radius, const PLAYER_COLOR_VAL color )
+{
+	const PIXVAL colval = specialcolormap_all_day[color & 0xFF];
+	int f = 1 - radius;
+	int ddF_x = 1;
+	int ddF_y = -2 * radius;
+	int x = 0;
+	int y = radius;
+
+	display_fb_internal( x0-radius, y0, radius+radius+1, 1, color, false, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy);
+	display_pixel( x0, y0 + radius, colval );
+	display_pixel( x0, y0 - radius, colval );
+	display_pixel( x0 + radius, y0, colval );
+	display_pixel( x0 - radius, y0, colval);
+
+	while(x < y) {
+		// ddF_x == 2 * x + 1;
+		// ddF_y == -2 * y;
+		// f == x*x + y*y - radius*radius + 2*x - y + 1;
+		if(f >= 0) {
+			y--;
+			ddF_y += 2;
+			f += ddF_y;
+		}
+
+		x++;
+		ddF_x += 2;
+		f += ddF_x;
+
+		display_fb_internal( x0-x, y0+y, x+x, 1, color, false, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy);
+		display_fb_internal( x0-x, y0-y, x+x, 1, color, false, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy);
+
+		display_fb_internal( x0-y, y0+x, y+y, 1, color, false, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy);
+		display_fb_internal( x0-y, y0-x, y+y, 1, color, false, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy);
+	}
+	mark_rect_dirty_wc( x0-radius, y0-radius, x0+radius+1, y0+radius+1 );
+}
+
+
+/**
+ * Print a bezier curve between points A and B
+ * @author yorkeiser
+ * @date  08.04.2012
+ * @Ax,Ay=start coordinate of Bezier curve
+ * @Bx,By=end coordinate of Bezier curve
+ * @ADx,ADy=vector for start direction of curve
+ * @BDx,BDy=vector for end direction of Bezier curve
+ * @colore=color for curve to be drawn
+ * @draw=for dotted lines, how many pixels to be drawn (leave 0 for solid line)
+ * @dontDraw=for dotted lines, how many pixels to not be drawn (leave 0 for solid line)
+ */
+void draw_bezier(KOORD_VAL Ax, KOORD_VAL Ay, KOORD_VAL Bx, KOORD_VAL By, KOORD_VAL ADx, KOORD_VAL ADy, KOORD_VAL BDx, KOORD_VAL BDy, const PLAYER_COLOR_VAL colore, KOORD_VAL draw, KOORD_VAL dontDraw)
+{
+	KOORD_VAL Cx,Cy,Dx,Dy;
+	Cx = Ax + ADx;
+	Cy = Ay + ADy;
+	Dx = Bx + BDx;
+	Dy = By + BDy;
+
+	/*	float a,b,rx,ry,oldx,oldy;
+    for (float t=0.0;t<=1;t+=0.05)
+	{
+		a = t;
+        b = 1.0 - t;
+		if (t>0.0)
+		{
+			oldx=rx;
+			oldy=ry;
+		}
+        rx = Ax*b*b*b + 3*Cx*b*b*a + 3*Dx*b*a*a + Bx*a*a*a;
+        ry = Ay*b*b*b + 3*Cy*b*b*a + 3*Dy*b*a*a + By*a*a*a;
+		if (t>0.0)
+			if (!draw && !dontDraw)
+				display_direct_line(rx,ry,oldx,oldy,colore);
+			else
+				display_direct_line_dotted(rx,ry,oldx,oldy,draw,dontDraw,colore);
+	  }
+*/
+
+	sint32 a, b, rx, ry, oldx, oldy;
+	// fixed point: we cycle between 0 and 32, rather than 0 and 1
+    for(  sint32 t=0;  t<=32;  t++  ) {
+		a = t;
+        b = 32 - t;
+		if(  t > 0  ) {
+			oldx = rx;
+			oldy = ry;
+		}
+        rx = Ax*b*b*b + 3*Cx*b*b*a + 3*Dx*b*a*a + Bx*a*a*a;
+        ry = Ay*b*b*b + 3*Cy*b*b*a + 3*Dy*b*a*a + By*a*a*a;
+		//fixed point: due to cycling between 0 and 32 (2<<5), we divide by 32^3=2>>15 because of cubic interpolation
+		if( t > 0  ) {
+			if(  !draw  &&  !dontDraw  ) {
+				display_direct_line( rx>>15, ry>>15, oldx>>15, oldy>>15, colore );
+			}
+			else {
+				display_direct_line_dotted( rx>>15, ry>>15, oldx>>15, oldy>>15, draw, dontDraw, colore );
+			}
+		}
 	}
 }
 
