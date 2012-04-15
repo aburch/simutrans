@@ -1,26 +1,9 @@
-Simutrans is copyright (C) 1997-2004 by Hansjoerg Malthaner.
-(c) 2004-2007 Simutrans Team
+Simutrans-Experimental is a fork of Simutrans, which is released under the Artistic Licence (both the original and this fork). Note, however, that individual pak sets may come with their own license.
 
 >>>>>>>>>>> NO WARRANTIES, EXPRESS OR IMPLIED. <<<<<<<<<<<
 
-Simutrans may not be sold or modified in any way without
-written  permission by the author.
+Download the sources from https://github.com/jamespetts/simutrans-experimental
 
-The original author:
-   Hansjoerg Malthaner
-   D 70563 Stuttgart (Germany)
-   Fuggerstr. 1
+Find out more about Simutrans-Experimental on the forum:
 
-Have lots of fun playing Simutrans!
-
-The version is built by Markus Pristovsek. All complains, or any other
-comments please send to:
-	team@64.simutrans.com
-
-The source code from the program is available under the Artistic Licence.
-This is a written permission as demanded for above for every right granted
-by the Artistic License.  Note, however, that individual pak sets may come
-with their own license.
-
-Download the source from https://sourceforge.net/projects/simutrans or
-find out about our svn in the forum.
+http://http://forum.simutrans.com
