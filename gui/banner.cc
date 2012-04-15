@@ -97,27 +97,25 @@ void banner_t::zeichnen(koord pos, koord gr )
 #endif
 	yp += LINESPACE+7;
 
-	display_shadow_proportional( pos.x+10, yp, COL_PT, COL_BLACK,  "This version is modified by", true );
+	display_shadow_proportional( pos.x+8, yp, COL_PT, COL_BLACK,  "This version is modified by", true );
 	yp += LINESPACE+5;
-	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "James E. Petts, from Simutrans", true );
+	display_shadow_proportional( pos.x+8+24, yp, COL_WHITE, COL_BLACK, "James E. Petts, from Simutrans", true );
 	yp += LINESPACE+2;
-	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "created and maintained by", true );
+	display_shadow_proportional( pos.x+8+24, yp, COL_WHITE, COL_BLACK, "maintained by the Simutrans", true );
 	yp += LINESPACE+2;
-	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "by Hansj\366rg Malthaner et. al.", true );
+	display_shadow_proportional( pos.x+8+24, yp, COL_WHITE, COL_BLACK, "community, created by Hajo and", true );
 	yp += LINESPACE+2;
-	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "and the Simutrans community", true );
-	yp += LINESPACE+2;
-	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "and released under the Artistic Licence.", true );
+	display_shadow_proportional( pos.x+8+24, yp, COL_WHITE, COL_BLACK, "released under the Artistic Licence.", true );
 	yp += LINESPACE+7;
 
-	display_shadow_proportional( pos.x+10, yp, COL_LIGHT_ORANGE, COL_BLACK, "Selling this software is forbidden.", true );
+	display_shadow_proportional( pos.x+8+24, yp, COL_LIGHT_ORANGE, COL_BLACK, "Selling this software is forbidden.", true );
 	yp += LINESPACE+5;
 
-	display_shadow_proportional( pos.x+10, yp, COL_PT, COL_BLACK, "For more information, see the website and forum::", true );
+	display_shadow_proportional( pos.x+8, yp, COL_PT, COL_BLACK, "For more information, see the website and forum:", true );
 	yp += LINESPACE+2;
-	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "http://www.simutrans.com", true );
+	display_shadow_proportional( pos.x+8+24, yp, COL_WHITE, COL_BLACK, "http://www.simutrans.com", true );
 	yp += LINESPACE+2;
-	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "http://forum.simutrans.com", true );
+	display_shadow_proportional( pos.x+8+24, yp, COL_WHITE, COL_BLACK, "http://forum.simutrans.com", true );
 	yp += LINESPACE+7;
 
 	// now the scrolling

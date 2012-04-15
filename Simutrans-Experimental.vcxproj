@@ -1077,6 +1077,7 @@
     <None Include="simutrans\config\electricity.tab" />
     <None Include="simutrans\config\privatecar.tab" />
     <None Include="simutrans\config\simuconf.tab" />
+    <None Include="simutrans\copyright.txt" />
     <None Include="simutrans\text\en.tab" />
   </ItemGroup>
   <ItemGroup>
