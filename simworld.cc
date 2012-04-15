@@ -3084,6 +3084,11 @@ void karte_t::buche(sint64 const betrag, player_cost const type)
 }
 
 
+inline sint32 get_population(stadt_t const* const c)
+{
+	return c->get_einwohner();
+}
+
 
 void karte_t::neuer_monat()
 {
@@ -3138,9 +3143,7 @@ void karte_t::neuer_monat()
 
 
 //	DBG_MESSAGE("karte_t::neuer_monat()","cities");
-	FOR(weighted_vector_tpl<stadt_t*>, const i, stadt) {
-		stadt.update(i, i->get_einwohner());
-	}
+	stadt.update_weights(get_population);
 	FOR(weighted_vector_tpl<stadt_t*>, const i, stadt) {
 		i->neuer_monat(need_locality_update);
 	}

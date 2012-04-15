@@ -276,44 +276,17 @@ template<class T> class weighted_vector_tpl
 		}
 
 		/**
-		 * Update the weight of the element, if contained
-		 * @author Knightly
+		 * Update the weights of all elements.  The new weight of each element is
+		 * retrieved from get_weight().
 		 */
-		bool update(T elem, unsigned long weight)
+		template<typename U> void update_weights(U& get_weight)
 		{
-			for(  uint32 i=0;  i<count;  ++i  ) {
-				if(  nodes[i].data==elem  ) {
-					return update_at(i, weight);
-				}
+			unsigned long sum = 0;
+			for (nodestruct* i = nodes, * const end = i + count; i != end; ++i) {
+				i->weight = sum;
+				sum      += get_weight(i->data);
 			}
-			return false;
-		}
-
-		/**
-		 * Update the weight of the element at the specified position
-		 * @author Knightly
-		 */
-		bool update_at(uint32 pos, unsigned long weight)
-		{
-			if(  pos>=count  ) {
-				return false;
-			}
-			const unsigned long elem_weight = ( pos + 1 < count ? nodes[pos + 1].weight : total_weight ) - nodes[pos].weight;
-			if(  weight>elem_weight  ) {
-				const unsigned long delta_weight = weight - elem_weight;
-				while(  ++pos<count  ) {
-					nodes[pos].weight += delta_weight;
-				}
-				total_weight += delta_weight;
-			}
-			else if(  weight<elem_weight  ) {
-				const unsigned long delta_weight = elem_weight - weight;
-				while(  ++pos<count  ) {
-					nodes[pos].weight -= delta_weight;
-				}
-				total_weight -= delta_weight;
-			}
-			return true;
+			total_weight = sum;
 		}
 
 		/** removes element, if contained */
