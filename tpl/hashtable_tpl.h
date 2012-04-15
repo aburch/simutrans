@@ -229,7 +229,7 @@ public:
 		const STHT_BAG_COUNTER_T code = get_hash(key);
 		FORT(slist_tpl<node_t>, const& iter, bags[code])
 		{
-			const node_t const &node = iter;
+			const node_t &node = iter;
 
 			if (hash_t::comp(node.key, key) == 0) 
 			{

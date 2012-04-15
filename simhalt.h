@@ -716,7 +716,7 @@ public:
 	{
 		if(halt.is_bound())
 		{
-			const waiting_time_map const *wt = &waiting_times[category];
+			const waiting_time_map *wt = &waiting_times[category];
 			fixed_list_tpl<uint16, 32> *tmp;
 			if(!wt->is_contained(halt.get_id()))
 			{

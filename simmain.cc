@@ -74,7 +74,7 @@
 
 using std::string;
 
-#ifdef DEBUG
+#if defined DEBUG || defined PROFILE
 /* diagnostic routine:
  * show the size of several internal structures
  */
