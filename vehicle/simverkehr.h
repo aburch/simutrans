@@ -165,6 +165,9 @@ public:
 	// Sets the list in which the vehicle is referenced, so that
 	// it can be removed from the list when it is deleted. 
 	void set_list(slist_tpl<stadtauto_t*> *this_list) { current_list = this_list; }
+
+	void * operator new(size_t s);
+	void operator delete(void *p);
 };
 
 #endif

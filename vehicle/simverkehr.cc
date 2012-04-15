@@ -1285,3 +1285,14 @@ bool stadtauto_t::can_overtake( overtaker_t *other_overtaker, sint32 other_speed
 
 	return true;
 }
+
+void *stadtauto_t::operator new(size_t /*s*/)
+{
+	return freelist_t::gimme_node(sizeof(stadtauto_t));
+}
+
+
+void stadtauto_t::operator delete(void *p)
+{
+	freelist_t::putback_node(sizeof(stadtauto_t),p);
+}
