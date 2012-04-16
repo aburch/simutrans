@@ -69,6 +69,12 @@
 #include "utils/float32e8_t.h"
 
 /*
+ * Distance units: number of meters per tile.
+ * In Simutrans Standard this is always:
+ */
+#define STANDARD_METERS_PER_TILE (1000)
+
+/*
  * Distance units: conversion between "vehicle steps" and "yards"
  * In bitshift form
  */
@@ -89,7 +95,7 @@
  * vehikel_t.
  */
 #define VEHICLE_STEPS_PER_TILE (256)
-#define VEHICLE_STEPS_PER_TILE_SHIFT 8
+#define VEHICLE_STEPS_PER_TILE_SHIFT (8)
 
 /*
  * Shift from yards to tiles, derived quantity
@@ -132,7 +138,7 @@
  * @author Hj. Matthaner
  * this is speed * 2^10 /  VEHICLE_SPEED_FACTOR
  */
-#define kmh_to_speed(speed) (((speed) << 10) / VEHICLE_SPEED_FACTOR)
+#define kmh_to_speed(kmh) (((kmh) << 10) / VEHICLE_SPEED_FACTOR)
 
 
 // GEAR_FACTOR: a gear of 1.0 is stored as 64
@@ -174,32 +180,20 @@ inline sint32 v_to_speed(const float32e8_t &v)
 /**
  * Conversion between simutrans steps and meters
  */
-
-// scale to convert between simutrans speed and m/s
-const float32e8_t yards2m((uint32) 10 * VEHICLE_SPEED_FACTOR, (uint32) 36 * 1024 * DT_TIME_FACTOR);
-const float32e8_t m2yards((uint32) 36 * 1024 * DT_TIME_FACTOR, (uint32) 10 * VEHICLE_SPEED_FACTOR);
+// scale to convert between simutrans steps and meters
+//const float32e8_t yards2m((uint32) 10 * VEHICLE_SPEED_FACTOR, (uint32) 36 * 1024 * DT_TIME_FACTOR);
+//const float32e8_t m2yards((uint32) 36 * 1024 * DT_TIME_FACTOR, (uint32) 10 * VEHICLE_SPEED_FACTOR);
 const float32e8_t steps2yards((uint32)1 << YARDS_PER_VEHICLE_STEP_SHIFT);
-
-inline float32e8_t yards_to_x(const sint32 yards)
-{
-	return yards2m * yards;
-}
-
-inline sint32 x_to_yards(const float32e8_t &x)
-{
-	return (sint32)(m2yards * x + float32e8_t::half);
-}
-
-inline float32e8_t steps_to_x(const float32e8_t &simtime_factor, const sint32 steps)
-{
-	return steps2yards * yards2m * float32e8_t(steps) * simtime_factor;
-}
-
-inline sint32 x_to_steps(const float32e8_t &simtime_factor, const float32e8_t x)
-{
-	return x_to_yards(x / simtime_factor) >> YARDS_PER_VEHICLE_STEP_SHIFT;
-}
-
+//
+//inline float32e8_t yards_to_x(const sint32 yards)
+//{
+//	return yards2m * yards;
+//}
+//
+//inline sint32 x_to_yards(const float32e8_t &x)
+//{
+//	return (sint32)(m2yards * x + float32e8_t::half);
+//}
 
 #define KMH_MIN 4
 static const sint32 SPEED_MIN = kmh_to_speed(KMH_MIN);

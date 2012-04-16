@@ -2259,4 +2259,6 @@ void settings_t::set_meters_per_tile(uint16 value)
 	meters_per_tile = value; 
 	steps_per_km = (1000 * VEHICLE_STEPS_PER_TILE) / meters_per_tile; 
 	simtime_factor = float32e8_t(meters_per_tile, 1000);
+	steps_per_meter = float32e8_t(VEHICLE_STEPS_PER_TILE, meters_per_tile);
+	meters_per_step = float32e8_t(meters_per_tile, VEHICLE_STEPS_PER_TILE);
 }

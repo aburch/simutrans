@@ -442,7 +442,8 @@ private:
 	bool allow_making_public;
 
 	float32e8_t simtime_factor;
-
+	float32e8_t meters_per_step;
+	float32e8_t steps_per_meter;
 public:
 	/* the big cost section */
 	sint32 maint_building;	// normal building
@@ -920,6 +921,8 @@ public:
 	bool get_allow_making_public() const { return allow_making_public; }
 
 	float32e8_t get_simtime_factor() const { return simtime_factor; }
+	float32e8_t meters_to_steps(const float32e8_t &meters) const { return steps_per_meter * meters; }
+	float32e8_t steps_to_meters(const float32e8_t &steps) const { return meters_per_step * steps; }
 };
 
 #endif 

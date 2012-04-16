@@ -849,7 +849,7 @@ void convoi_t::calc_acceleration(long delta_t)
 	sint32 steps_til_limit;
 	sint32 steps_til_brake;
 	const float32e8_t simtime_factor = welt->get_settings().get_simtime_factor();
-	const sint32 brake_steps = convoy.calc_min_braking_distance(simtime_factor, convoy.get_weight_summary(), akt_speed);
+	const sint32 brake_steps = convoy.calc_min_braking_distance(welt->get_settings(), convoy.get_weight_summary(), akt_speed);
 	if (route_infos.get_count() >= next_stop_index && next_stop_index > current_route_index)
 	{
 		uint32 i = current_route_index - 1;
@@ -884,7 +884,7 @@ void convoi_t::calc_acceleration(long delta_t)
 			if (limit_info.speed_limit < min_limit)
 			{
 				min_limit = limit_info.speed_limit;
-				const sint32 limit_steps = brake_steps - convoy.calc_min_braking_distance(simtime_factor, convoy.get_weight_summary(), limit_info.speed_limit);
+				const sint32 limit_steps = brake_steps - convoy.calc_min_braking_distance(welt->get_settings(), convoy.get_weight_summary(), limit_info.speed_limit);
 				const sint32 route_steps = limit_info.steps_from_start - current_info.steps_from_start;
 				const sint32 st = route_steps - limit_steps;
 
@@ -910,7 +910,7 @@ void convoi_t::calc_acceleration(long delta_t)
 	 * calculate movement in the next delta_t ticks.
 	 */
 	akt_speed_soll = min_top_speed;
-	convoy.calc_move(delta_t, simtime_factor, akt_speed_soll, next_speed_limit, steps_til_limit, steps_til_brake, akt_speed, sp_soll, v);
+	convoy.calc_move(welt->get_settings(), delta_t, akt_speed_soll, next_speed_limit, steps_til_limit, steps_til_brake, akt_speed, sp_soll, v);
 }
 
 
