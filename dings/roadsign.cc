@@ -440,6 +440,8 @@ bool roadsign_t::sync_step(long /*delta_t*/)
 		if(  (1<<welt->get_active_player_nr()) & get_player_mask()  ) {
 			// gate open
 			image += 2;
+			// force redraw
+			mark_image_dirty(get_bild(),0);
 		}
 		set_bild( besch->get_bild_nr(image) );
 	}
