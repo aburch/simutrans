@@ -2,7 +2,12 @@
 #define gui_karte_h
 
 #include "components/gui_komponente.h"
+#include "../halthandle_t.h"
+#include "../convoihandle_t.h"
 #include "../tpl/array2d_tpl.h"
+#include "../tpl/vector_tpl.h"
+
+
 
 class karte_t;
 class fabrik_t;
@@ -50,39 +55,67 @@ public:
 		MAP_CITYLIMIT,
 		MAP_PAX_DEST,
 		MAP_OWNER,
+		MAP_LINES,
 		MAX_MAP_BUTTON
 	};
 
 private:
 	static karte_t *welt;
-	array2d_tpl<uint8> *relief;
 
 	reliefkarte_t();
 
 	static reliefkarte_t *single_instance;
 
-	/**
-	* map mode: -1) normal; everything else: special map
-	* @author hsiegeln
-	*/
-	static MAP_MODES mode;
-
-	static const uint8 severity_color[MAX_SEVERITY_COLORS];
-
-	static const uint8 map_type_color[MAX_MAP_TYPE_LAND+MAX_MAP_TYPE_WATER];
-
-	inline void screen_to_karte(koord &) const;
+	// the terrain map
+	array2d_tpl<uint8> *relief;
 
 	void set_relief_color_clip( sint16 x, sint16 y, uint8 color );
 
 	void set_relief_farbe_area(koord k, int areasize, uint8 color);
 
+	// all stuff connected with schedule display
+	class line_segment_t
+	{
+	public:
+		koord start, end;
+		convoihandle_t cnv;
+		line_segment_t() {}
+		line_segment_t( koord s, koord e, convoihandle_t c ) {
+			cnv = c;
+			if(  s.x<e.x  ||  (s.x==e.x  &&  s.y<e.y)  ) {
+				start = s;
+				end = e;
+			}
+			else {
+				start = e;
+				end = s;
+			}
+		}
+		bool operator == (const line_segment_t & k);
+	};
+	vector_tpl<line_segment_t> schedule_cache;
+	convoihandle_t current_cnv;
+	uint8 fpl_player_nr;
+	uint8 last_schedule_counter;
+	vector_tpl<halthandle_t> stop_cache;
+
+	// adds a schedule to cache
+	void add_to_schedule_cache( convoihandle_t cnv, bool with_waypoints );
+
+	/**
+	 * map mode: -1) normal; everything else: special map
+	 * @author hsiegeln
+	 */
+	static MAP_MODES mode;
+	static MAP_MODES last_mode;
+	static const uint8 severity_color[MAX_SEVERITY_COLORS];
+	static const uint8 map_type_color[MAX_MAP_TYPE_LAND+MAX_MAP_TYPE_WATER];
+
+	inline void screen_to_karte(koord &) const;
+
 	// for passenger destination display
 	const stadt_t *city;
 	unsigned long pax_destinations_last_change;
-
-	const schedule_t *fpl;
-	uint8 fpl_player_nr;
 
 	koord last_world_pos;
 
@@ -95,14 +128,13 @@ private:
 
 	const fabrik_t* draw_fab_connections(uint8 colour, koord pos) const;
 
-	void draw_schedule(const koord pos) const;
-
 	static sint32 max_departed;
 	static sint32 max_arrived;
 	static sint32 max_cargo;
 	static sint32 max_convoi_arrived;
 	static sint32 max_passed;
 	static sint32 max_tourist_ziele;
+
 
 public:
 	void karte_to_screen(koord &) const;
@@ -176,7 +208,7 @@ public:
 
 	void zeichnen(koord pos);
 
-	void set_current_fpl(const schedule_t *current_fpl, uint8 player_nr) {fpl = current_fpl; fpl_player_nr = player_nr;};
+	void set_current_cnv( convoihandle_t c );
 
 	void set_city( const stadt_t* _city );
 

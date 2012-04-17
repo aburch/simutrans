@@ -220,7 +220,7 @@ fahrplan_gui_t::~fahrplan_gui_t()
 	if(  sp  ) {
 		update_werkzeug( false );
 		// hide schedule on minimap (may not current, but for safe)
-		reliefkarte_t::get_karte()->set_current_fpl(NULL, 0); // (*fpl,player_nr)
+		reliefkarte_t::get_karte()->set_current_cnv( convoihandle_t() );
 	}
 	delete fpl;
 
@@ -249,6 +249,8 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 		show_line_selector(false);
 	}
 	else {
+		// set this schedule as current to show on minimap if possible
+		reliefkarte_t::get_karte()->set_current_cnv( cnv );
 		old_line = new_line = cnv_->get_line();
 	}
 	old_line_count = 0;
@@ -359,9 +361,6 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 
 	set_resizemode(diagonal_resize);
 	resize( koord(0,0) );
-
-	// set this schedule as current to show on minimap if possible
-	reliefkarte_t::get_karte()->set_current_fpl(fpl, sp->get_player_nr()); // (*fpl,player_nr)
 }
 
 

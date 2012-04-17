@@ -84,12 +84,13 @@ const char map_frame_t::map_type[reliefkarte_t::MAX_MAP_BUTTON][64] =
 	"Forest",
 	"CityLimit",
 	"PaxDest",
-	"Ownership"
+	"Ownership",
+	"Line net"
 };
 
 const uint8 map_frame_t::map_type_color[reliefkarte_t::MAX_MAP_BUTTON] =
 {
-	215, 23, 31, 157, 46, 55, 63, 133, 79, 191, 207, 11, 123, 221, 71, 135, 127, 198, 23, COL_BLUE
+	215, 23, 31, 157, 46, 55, 63, 133, 79, 191, 207, 11, 123, 221, 71, 135, 127, 198, 23, COL_BLUE, 215
 };
 
 

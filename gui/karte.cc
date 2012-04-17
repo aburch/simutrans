@@ -1,5 +1,6 @@
 #include "../simevent.h"
 #include "../simcolor.h"
+#include "../simconvoi.h"
 #include "../simworld.h"
 #include "../simdepot.h"
 #include "../simhalt.h"
@@ -12,10 +13,11 @@
 #include "../dataobj/translator.h"
 #include "../dataobj/einstellungen.h"
 #include "../dataobj/fahrplan.h"
+#include "../dataobj/powernet.h"
+#include "../dataobj/ribi.h"
 
 #include "../boden/wege/schiene.h"
 #include "../dings/leitung2.h"
-#include "../dataobj/powernet.h"
 #include "../utils/cbuffer_t.h"
 #include "../simgraph.h"
 #include "../player/simplay.h"
@@ -31,6 +33,7 @@ sint32 reliefkarte_t::max_tourist_ziele=0;
 reliefkarte_t * reliefkarte_t::single_instance = NULL;
 karte_t * reliefkarte_t::welt = NULL;
 reliefkarte_t::MAP_MODES reliefkarte_t::mode = MAP_TOWN;
+reliefkarte_t::MAP_MODES reliefkarte_t::last_mode = MAP_TOWN;
 bool reliefkarte_t::is_visible = false;
 
 // color for the land
@@ -54,6 +57,218 @@ const uint8 reliefkarte_t::severity_color[MAX_SEVERITY_COLORS] =
 #define POWERLINE_KENN      (55)
 #define HALT_KENN         COL_RED
 #define BUILDING_KENN      COL_GREY3
+
+
+// helper function for line segment_t
+bool reliefkarte_t::line_segment_t::operator == (const line_segment_t & k) { return (start == k.start && end == k.end)  &&  cnv->get_besitzer() == k.cnv->get_besitzer()  &&  cnv->get_schedule()->get_waytype() == k.cnv->get_schedule()->get_waytype(); }
+
+
+// add the schedule to the map (if there is a valid one)
+void reliefkarte_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoints )
+{
+	// make sure this is valid!
+	if(  !cnv.is_bound()  ) {
+		return;
+	}
+
+	// ok, add this schedule to map
+	// from here on we have a valid convoi
+	int stops = 0;
+	koord old_stop, first_stop, temp_stop;
+	FOR(  minivec_tpl<linieneintrag_t>, cur, cnv->get_schedule()->eintrag  ) {
+
+		//cycle on stops
+		//try to read station's coordinates if there's a station at this schedule stop
+		halthandle_t station = haltestelle_t::get_halt( welt, cur.pos, cnv->get_besitzer() );
+		if( station.is_bound() ) {
+			stop_cache.append_unique( station );
+			temp_stop = station->get_basis_pos();
+			stops ++;
+		}
+		else if(  with_waypoints  ) {
+			temp_stop = cur.pos.get_2d();
+			stops ++;
+		}
+
+		if(  stops>1  ) {
+			schedule_cache.append_unique( line_segment_t( temp_stop, old_stop, cnv ) );
+			old_stop = temp_stop;
+		}
+		else {
+			first_stop = temp_stop;
+			old_stop = temp_stop;
+		}
+	}
+
+	// connect to start
+	if(  stops > 2  ) {
+		schedule_cache.append_unique( line_segment_t( first_stop, old_stop, cnv ) );
+	}
+}
+
+
+
+// some rountes for the relief map with schedules
+static void display_airport ( const KOORD_VAL xx, const KOORD_VAL yy, const PLAYER_COLOR_VAL color )
+{
+	int x = xx + 5;
+	int y = yy - 11;
+
+	if ( y < 0 ) {
+		y = 0;
+	}
+
+	const char symbol[] = {
+		'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X',
+		'X', '.', '.', '.', '.', 'X', '.', '.', '.', '.', 'X',
+		'X', '.', '.', '.', '.', 'X', '.', '.', '.', '.', 'X',
+		'X', '.', '.', '.', '.', 'X', '.', '.', '.', '.', 'X',
+		'X', '.', '.', '.', 'X', 'X', 'X', '.', '.', '.', 'X',
+		'X', '.', 'X', 'X', 'X', 'X', 'X', 'X', 'X', '.', 'X',
+		'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X',
+		'X', 'X', '.', '.', '.', 'X', '.', '.', '.', 'X', 'X',
+		'X', '.', '.', '.', '.', 'X', '.', '.', '.', '.', 'X',
+		'X', '.', '.', '.', 'X', 'X', 'X', '.', '.', '.', 'X',
+		'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'
+	};
+
+	for ( int i = 0; i < 11; i++ ) {
+		for ( int j = 0; j < 11; j++ ) {
+			if ( symbol[i + j * 11] == 'X' ) {
+				display_vline_wh_clip( x + i, y + j, 1,  color, true );
+			}
+		}
+	}
+}
+
+static void display_harbor ( const KOORD_VAL xx, const KOORD_VAL yy, const PLAYER_COLOR_VAL color )
+{
+	int x = xx + 5;
+	int y = yy - 11 + 13;	//to not overwrite airline symbol
+
+	if ( y < 0 ) {
+		y = 0;
+	}
+
+	const char symbol[] = {
+		'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X',
+		'X', '.', '.', '.', 'X', 'X', 'X', '.', '.', '.', 'X',
+		'X', '.', '.', '.', '.', 'X', '.', '.', '.', '.', 'X',
+		'X', '.', 'X', 'X', 'X', 'X', 'X', 'X', 'X', '.', 'X',
+		'X', '.', '.', '.', 'X', 'X', 'X', '.', '.', '.', 'X',
+		'X', '.', '.', '.', '.', 'X', '.', '.', '.', '.', 'X',
+		'X', 'X', 'X', '.', '.', 'X', '.', '.', 'X', 'X', 'X',
+		'X', 'X', 'X', 'X', '.', 'X', '.', 'X', 'X', 'X', 'X',
+		'X', '.', 'X', 'X', 'X', 'X', 'X', 'X', 'X', '.', 'X',
+		'X', '.', '.', 'X', 'X', 'X', 'X', 'X', '.', '.', 'X',
+		'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'
+	};
+
+	for ( int i = 0; i < 11; i++ ) {
+		for ( int j = 0; j < 11; j++ ) {
+			if ( symbol[i + j * 11] == 'X' ) {
+				display_vline_wh_clip( x + i, y + j, 1,  color, true );
+			}
+		}
+	}
+}
+// those will be replaced by pak images later ...!
+
+
+static void display_thick_line ( short x1, short y1, short x2, short y2, short col, bool dotting, short dot_full, short dot_empty, short thickness )
+{
+	if ( abs ( x1 - x2 ) > abs ( y1 - y2 ) ) {
+		//more horizontal than vertical -> more lines in vertical
+		for ( int i = 0; i < thickness - 1; i++ ) {
+			if ( !dotting ) {
+				display_direct_line ( x1, y1 + i, x2, y2 + i, col );
+			}
+			else {
+				display_direct_line_dotted ( x1, y1 + i, x2, y2 + i, dot_full, dot_empty, col );
+			}
+		}
+	}
+	else {
+		for ( int i = 0; i < thickness - 1; i++ ) {
+			if ( !dotting ) {
+				display_direct_line ( x1 + i, y1, x2 + i, y2, col );
+			}
+			else {
+				display_direct_line_dotted ( x1 + i, y1, x2 + i, y2, dot_full, dot_empty, col );
+			}
+		}
+	}
+}
+
+
+static void line_segment_draw( waytype_t type, koord start, koord end, bool &diagonal, COLOR_VAL colore )
+{
+	if(  type ==  air_wt  ) {
+		draw_bezier( start.x, start.y, end.x, end.y, 50, 50, 50, 50, colore, 5, 5 );
+		draw_bezier( start.x + 1, start.y + 1, end.x + 1, end.y + 1, 50, 50, 50, 50, colore, 5, 5 );
+	}
+	else {
+		uint8 thickness = 3;
+		bool dotted = false;
+		switch(  type  ) {
+			case track_wt:
+			case monorail_wt:
+			case maglev_wt:
+				thickness = 5;
+				break;
+			case road_wt:
+				thickness = 2;
+				break;
+			case tram_wt:
+				thickness = 3;
+				break;
+			default:
+				thickness = 3;
+				dotted = true;
+		}
+		// start.x is always <= end.x ...
+		const int delta_y = end.y-start.y;
+		if(  (start.x-end.x)*delta_y == 0  ) {
+			// horizontal/vertical line
+			display_thick_line( start.x, start.y, end.x, end.y, colore, dotted, 5, 3, thickness );
+			diagonal = false;
+		}
+		else {
+			// two segment
+			koord mid;
+			int signum_y = delta_y/abs(delta_y);
+			if(  diagonal  ) {
+				// start with diagonal
+				if(  abs(delta_y) > end.x-start.x  ) {
+					mid.x = end.x;
+					mid.y = start.y + (end.x-start.x)*signum_y;
+				}
+				else {
+					mid.x = start.x + abs(delta_y);
+					mid.y = end.y;
+				}
+				diagonal = false;
+				display_thick_line( start.x, start.y, mid.x, mid.y, colore, dotted, 5, 3, thickness );
+				display_thick_line( mid.x, mid.y, end.x, end.y, colore, dotted, 5, 3, thickness );
+			}
+			else {
+				// end with diagonal
+				const int delta_y = end.y-start.y;
+				if(  abs(delta_y) > end.x-start.x  ) {
+					mid.x = start.x;
+					mid.y = end.y - (end.x-start.x)*signum_y;
+				}
+				else {
+					mid.x = end.x - abs(delta_y);
+					mid.y = start.y;
+				}
+				diagonal = true;
+				display_thick_line( start.x, start.y, mid.x, mid.y, colore, dotted, 5, 3, thickness );
+				display_thick_line( mid.x, mid.y, end.x, end.y, colore, dotted, 5, 3, thickness );
+			}
+		}
+	}
+}
 
 
 // converts karte koordinates to screen corrdinates
@@ -698,8 +913,6 @@ reliefkarte_t::reliefkarte_t()
 	zoom_in = 1;
 	isometric = false;
 	mode = MAP_TOWN;
-	fpl = NULL;
-	fpl_player_nr = 0;
 	city = NULL;
 	is_show_schedule = false;
 	is_show_fab = false;
@@ -738,6 +951,7 @@ void reliefkarte_t::set_welt(karte_t *welt)
 	if(welt) {
 		calc_map_groesse();
 		max_departed = max_arrived = max_cargo = max_convoi_arrived = max_passed = max_tourist_ziele = 0;
+		last_schedule_counter = welt->get_schedule_counter()-1;
 	}
 }
 
@@ -811,38 +1025,14 @@ const fabrik_t* reliefkarte_t::draw_fab_connections(const uint8 colour, const ko
 }
 
 
-// draw current schedule
-void reliefkarte_t::draw_schedule(const koord pos) const
+// show the schedule on the minimap
+void reliefkarte_t::set_current_cnv( convoihandle_t c )
 {
-	assert(fpl && !fpl->empty());
-
-	const uint8 color = welt->get_spieler(fpl_player_nr)->get_player_color1()+1;
-
-	// get stop list from schedule
-	koord last_koord = fpl->eintrag.back().pos.get_2d();
-	karte_to_screen(last_koord);
-	last_koord += pos;
-	unsigned i = 1;
-	FORX(minivec_tpl<linieneintrag_t>, const& e, fpl->eintrag, ++i) {
-		koord new_koord = e.pos.get_2d();
-		karte_to_screen( new_koord );
-		new_koord += pos;
-
-		// draw line from stop to stop
-		display_direct_line(last_koord.x, last_koord.y, new_koord.x, new_koord.y, 127);
-
-		//check, if mouse is near coordinate
-		if (koord_distance(last_world_pos, e.pos.get_2d()) <= 2) {
-			// draw stop name with an index
-			cbuffer_t buf;
-			buf.printf(translator::translate("(%u)-"), i);
-			fahrplan_gui_t::gimme_short_stop_name(buf, welt, welt->get_spieler(fpl_player_nr), e, 240);
-			display_ddd_proportional_clip(new_koord.x+10, new_koord.y+7, proportional_string_width(buf)+8, 0, color, COL_WHITE, buf, true);
-		}
-		// box at station
-		display_fillbox_wh_clip(new_koord.x, new_koord.y, 4, 4, color, true);
-		last_koord = new_koord;
-	}
+	current_cnv = c;
+	schedule_cache.clear();
+	stop_cache.clear();
+	add_to_schedule_cache( current_cnv, true );
+	last_schedule_counter = welt->get_schedule_counter()-1;
 }
 
 
@@ -855,6 +1045,12 @@ void reliefkarte_t::zeichnen(koord pos)
 	}
 	if(  (new_size.x|new_size.y)<0  ) {
 		new_size = cur_size;
+	}
+
+	if(  last_mode != mode  ) {
+		needs_redraw = true;
+		last_schedule_counter = welt->get_schedule_counter()-1;
+		last_mode = mode;
 	}
 
 	if(  needs_redraw  ||  cur_off!=new_off  ||  cur_size!=new_size  ) {
@@ -901,8 +1097,131 @@ void reliefkarte_t::zeichnen(koord pos)
 	}
 	display_array_wh( cur_off.x+pos.x, new_off.y+pos.y, relief->get_width(), relief->get_height(), relief->to_array());
 
+	if(  !current_cnv.is_bound()  &&  (
+		mode == MAP_LINES  ||  (is_show_schedule  &&  (mode == MAP_PASSENGER  ||  mode == MAP_MAIL  ||  mode == MAP_FREIGHT)  )
+		)  ) {
+		vector_tpl<linehandle_t> linee;
+
+		if(  last_schedule_counter != welt->get_schedule_counter()  ) {
+			// rebuilt cache
+			last_schedule_counter = welt->get_schedule_counter();
+			schedule_cache.clear();
+			stop_cache.clear();
+
+			for(  int np = 0;  np < MAX_PLAYER_COUNT;  np++  ) {
+				//cycle on players
+				if(  welt->get_spieler( np )  &&  welt->get_spieler( np )->simlinemgmt.get_line_count() > 0   ) {
+
+					welt->get_spieler( np )->simlinemgmt.get_lines( simline_t::line, &linee );
+					for(  uint32 j = 0;  j < linee.get_count();  j++  ) {
+						//cycle on lines
+
+						if(  mode!=MAP_LINES  ) {
+							// does this line has a matching freight
+							if(  mode==MAP_PASSENGER  ) {
+								if(  !linee[j]->get_goods_catg_index().is_contained( warenbauer_t::INDEX_PAS )  ) {
+									// no pasengers
+									continue;
+								}
+							}
+							else if(  mode==MAP_MAIL  ) {
+								if(  !linee[j]->get_goods_catg_index().is_contained( warenbauer_t::INDEX_MAIL )  ) {
+									// no pasengers
+									continue;
+								}
+							}
+							else {
+								uint8 i=0;
+								for(  ;  i < linee[j]->get_goods_catg_index().get_count();  i++  ) {
+									if(  linee[j]->get_goods_catg_index()[i] > warenbauer_t::INDEX_NONE  ) {
+										break;
+									}
+								}
+								if(  i >= linee[j]->get_goods_catg_index().get_count()  ) {
+									// not any freight here ...
+									continue;
+								}
+							}
+						}
+
+						// ware matches; now find at least a running convoi on this line ...
+						convoihandle_t cnv;
+						for(  int k = 0;  k < linee[j]->count_convoys();  k++  ) {
+							convoihandle_t test_cnv = linee[j]->get_convoy(k);
+							if(  test_cnv.is_bound()  ) {
+								int state = test_cnv->get_state();
+								if( state != convoi_t::INITIAL  &&  state != convoi_t::ENTERING_DEPOT  &&  state != convoi_t::SELF_DESTRUCT  ) {
+									cnv = test_cnv;
+									break;
+								}
+							}
+						}
+						if(  !cnv.is_bound()  ) {
+							continue;
+						}
+						int state = cnv->get_state();
+						if( state != convoi_t::INITIAL  &&  state != convoi_t::ENTERING_DEPOT  &&  state != convoi_t::SELF_DESTRUCT  ) {
+							add_to_schedule_cache( cnv, false );
+						}
+					}
+				}
+			}
+
+			// now add all unboad convois
+			FOR( vector_tpl<convoihandle_t>, cnv, welt->convoys() ) {
+				if(  !cnv.is_bound()  ||  cnv->get_line().is_bound()  ) {
+					// not there or already part of a line
+					continue;
+				}
+				int state = cnv->get_state();
+				if( state != convoi_t::INITIAL  &&  state != convoi_t::ENTERING_DEPOT  &&  state != convoi_t::SELF_DESTRUCT  ) {
+					if(  mode!=MAP_LINES  ) {
+						// does this line has a matching freight
+						if(  mode==MAP_PASSENGER  ) {
+							if(  !cnv->get_goods_catg_index().is_contained( warenbauer_t::INDEX_PAS )  ) {
+								// no pasengers
+								continue;
+							}
+						}
+						else if(  mode==MAP_MAIL  ) {
+							if(  !cnv->get_goods_catg_index().is_contained( warenbauer_t::INDEX_MAIL )  ) {
+								// no pasengers
+								continue;
+							}
+						}
+						else {
+							uint8 i=0;
+							for(  ;  i < cnv->get_goods_catg_index().get_count();  i++  ) {
+								if(  cnv->get_goods_catg_index()[i] > warenbauer_t::INDEX_NONE  ) {
+									break;
+								}
+							}
+							if(  i >= cnv->get_goods_catg_index().get_count()  ) {
+								// not any freight here ...
+								continue;
+							}
+						}
+					}
+					add_to_schedule_cache( cnv, false );
+				}
+			}
+		}
+
+	}
+	//end MAP_LINES
+
+	bool showing_schedule = false;
+	if(  is_show_schedule  ) {
+		showing_schedule = !schedule_cache.empty();
+	}
+	else {
+		schedule_cache.clear();
+		stop_cache.clear();
+		last_schedule_counter = welt->get_schedule_counter()-1;
+	}
+
 	// draw city limit
-	if(mode==MAP_CITYLIMIT) {
+	if(  mode==MAP_CITYLIMIT  ) {
 
 		const PLAYER_COLOR_VAL color = 127;
 
@@ -941,11 +1260,103 @@ void reliefkarte_t::zeichnen(koord pos)
 		}
 	}
 
+	if(  showing_schedule  ) {
+		// white background
+		display_blend_wh( cur_off.x+pos.x, new_off.y+pos.y, relief->get_width(), relief->get_height(), COL_WHITE, 75 );
+
+		// DISPLAY STATIONS AND AIRPORTS: moved here so station spots are not overwritten by lines drawn
+		convoihandle_t old_cnv;
+		COLOR_VAL colore = 0;
+		sint16 counter_rail = 0;
+		bool last_diagonal;
+		FOR(  vector_tpl<line_segment_t>, seg, schedule_cache  ) {
+
+			static COLOR_VAL rail_colors[] = {2, 6, 10, 14, 18, 22, 26, 30, 34, 38, 42, 46, 50, 54, 58, 62, 66, 70, 74, 78, 82, 86, 90, 94, 98, 102,
+								   106, 110, 114, 118, 122, 126, 130, 134, 138, 142, 146, 150, 154, 158, 162, 166, 170, 174, 178, 182, 186, 190,
+								   194, 198, 202, 206, 210, 214, 218, 222, 226, 230, 234
+								  };
+
+			if(  old_cnv != seg.cnv  ) {
+				// step color
+				last_diagonal = ribi_t::ist_gerade( ribi_t::get_dir( ribi_typ( seg.start, seg.end ) ) );
+				if(  event_get_last_control_shift()==2  ) {
+					// on control use only player colors
+					counter_rail = (counter_rail>6 ? 1 : counter_rail+1);
+					colore = seg.cnv->get_besitzer()->get_player_color1()+counter_rail;
+				}
+				else {
+					// otherwise normal color scheme
+					if(  seg.cnv->get_schedule()->get_waytype() == track_wt  ||  seg.cnv->get_schedule()->get_waytype() == maglev_wt  ||  seg.cnv->get_schedule()->get_waytype() == monorail_wt  ) {
+						colore = rail_colors[counter_rail] + 1;
+
+						if( ++counter_rail > 57 ) {
+							counter_rail = 0;
+						}
+					}
+					else {
+						colore = (colore >= 208 ? 0 : colore+1);
+					}
+				}
+				old_cnv = seg.cnv;
+			}
+			koord k1(seg.start);
+			karte_to_screen( k1 );
+			k1 += pos;
+			koord k2(seg.end);
+			karte_to_screen( k2 );
+			k2 += pos;
+			line_segment_draw( seg.cnv->get_schedule()->get_waytype(), k1, k2, last_diagonal, colore );
+		}
+
+		//DISPLAY STATIONS AND AIRPORTS: moved here so station spots are not overwritten by lines drawn
+		FOR(  vector_tpl<halthandle_t>, station, stop_cache  ) {
+
+			const int stype = station->get_station_type();
+			const COLOR_VAL color = station->get_besitzer()->get_player_color1()+1;
+
+			koord temp_stop = station->get_basis_pos();
+			karte_to_screen( temp_stop );
+			temp_stop = temp_stop + pos;
+
+			// invalid=0, loadingbay=1, railstation = 2, dock = 4, busstop = 8, airstop = 16, monorailstop = 32, tramstop = 64, maglevstop=128, narrowgaugestop=256
+			if(  stype > 0  ) {
+				if(  stype & ~(haltestelle_t::loadingbay | haltestelle_t::busstop | haltestelle_t::tramstop)  ) {
+					// pax or mail exchange => larger
+					if(  station->is_transfer( 0 )  ||  station->is_transfer( 1 )  ) {
+						display_filled_circle( temp_stop.x, temp_stop.y, 5, color+3 );
+					}
+					else {
+						display_filled_circle( temp_stop.x, temp_stop.y, 3, color+3 );
+					}
+				}
+				else {
+					display_fillbox_wh_clip ( temp_stop.x - 1, temp_stop.y - 1, 3, 3, color+3, false );
+				}
+
+				if(  stype & haltestelle_t::airstop  ) {
+					display_airport( temp_stop.x, temp_stop.y, color+3 );
+				}
+
+				if(  stype & haltestelle_t::dock  ) {
+					display_harbor( temp_stop.x, temp_stop.y, color+3 );
+				}
+			}
+
+			if(  koord_distance( last_world_pos, station->get_basis_pos() ) <= 2  ) {
+				// draw stop name with an index if close to mouse
+				display_ddd_proportional_clip( temp_stop.x + 10, temp_stop.y + 7, proportional_string_width( station->get_name() ) + 8, 0, color+1, COL_WHITE, station->get_name(), true );
+			}
+		}
+
+	}
+
 	// if we do not do this here, vehicles would erase the town names
 	// ADD: if CRTL key is pressed, temporary show the name
 	if(  mode==MAP_TOWN  ||  event_get_last_control_shift()==2  ) {
 		const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
-		FOR(weighted_vector_tpl<stadt_t*>, const stadt, staedte) {
+		const COLOR_VAL col = showing_schedule ? COL_BLACK : COL_WHITE;
+
+		FOR( weighted_vector_tpl<stadt_t*>, const stadt, staedte ) {
 			koord p = stadt->get_pos();
 			const char * name = stadt->get_name();
 
@@ -953,7 +1364,7 @@ void reliefkarte_t::zeichnen(koord pos)
 			karte_to_screen( p );
 			p.x = clamp( p.x, 0, get_groesse().x-w );
 			p += pos;
-			display_proportional_clip( p.x, p.y, name, ALIGN_LEFT, COL_WHITE, true);
+			display_proportional_clip( p.x, p.y, name, ALIGN_LEFT, col, true );
 		}
 	}
 
@@ -978,16 +1389,7 @@ void reliefkarte_t::zeichnen(koord pos)
 		display_direct_line( view[i].x, view[i].y, view[(i+1)%4].x, view[(i+1)%4].y, COL_YELLOW);
 	}
 
-	// draw a halt name, if it is under the cursor of a schedule
-	if(is_show_schedule  &&  fpl) {
-		if (fpl->empty()) {
-			fpl = NULL;
-		}
-		else {
-			draw_schedule(pos);
-		}
-	}
-	else {
+	if(  !showing_schedule  ) {
 		// Add factory name tooltips and draw factory connections, if on a factory
 		const fabrik_t* const fab = (is_show_fab) ?
 			draw_fab_connections(event_get_last_control_shift() & 1 ? COL_RED : COL_WHITE, pos)
