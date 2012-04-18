@@ -8,6 +8,7 @@
 
 class cbuffer_t;
 class grund_t;
+class spieler_t;
 class karte_t;
 
 
@@ -129,6 +130,12 @@ public:
 	 * @author hsiegeln
 	 */
 	bool matches(karte_t *welt, const schedule_t *fpl);
+
+	/*
+	 * compare this fahrplan with another, ignoring order and exact positions and waypoints
+	 * @author prissi
+	 */
+	bool similar( karte_t *welt, const schedule_t *fpl, const spieler_t *sp );
 
 	/**
 	 * calculates a return way for this schedule

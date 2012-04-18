@@ -1,7 +1,7 @@
 	CHG: savegames will be saved as "_temp.sve" and only renamed after after success to the final name
 	ADD: screen redraw will be now up to 50% faster when needed thanks to multi-threading
 	ADD: hashtables for animations and smoke => much faster adding/removing
-	ADD: line display in minimap (toggle with show schedule together with pax, mail, freight button) CONTRL will use player colors
+	ADD: (from yorkeiser/prissi) line display in minimap (toggle with show schedule together with pax, mail, freight button) CONTRL will use player colors
 
 
 Release of 111.2.2 (r5583 on 20-Mar-2012):

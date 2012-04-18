@@ -13,6 +13,7 @@ class karte_t;
 class fabrik_t;
 class grund_t;
 class stadt_t;
+class spieler_t;
 class schedule_t;
 
 
@@ -78,10 +79,16 @@ private:
 	{
 	public:
 		koord start, end;
-		convoihandle_t cnv;
+		schedule_t *fpl;
+		spieler_t *sp;
+		uint8 colorcount;
+		bool start_diagonal;
 		line_segment_t() {}
-		line_segment_t( koord s, koord e, convoihandle_t c ) {
-			cnv = c;
+		line_segment_t( koord s, koord e, schedule_t *f, spieler_t *p, uint8 cc, bool diagonal ) {
+			fpl = f;
+			sp = p;
+			colorcount = cc;
+			start_diagonal = diagonal;
 			if(  s.x<e.x  ||  (s.x==e.x  &&  s.y<e.y)  ) {
 				start = s;
 				end = e;
@@ -91,7 +98,13 @@ private:
 				end = s;
 			}
 		}
-		bool operator == (const line_segment_t & k);
+		bool operator == (const line_segment_t & k) const;
+	};
+	// Ordering based on first start then end coordinate
+	class LineSegmentOrdering
+	{
+	public:
+		bool operator()(const reliefkarte_t::line_segment_t& a, const reliefkarte_t::line_segment_t& b) const;
 	};
 	vector_tpl<line_segment_t> schedule_cache;
 	convoihandle_t current_cnv;

@@ -60,7 +60,24 @@ const uint8 reliefkarte_t::severity_color[MAX_SEVERITY_COLORS] =
 
 
 // helper function for line segment_t
-bool reliefkarte_t::line_segment_t::operator == (const line_segment_t & k) { return (start == k.start && end == k.end)  &&  cnv->get_besitzer() == k.cnv->get_besitzer()  &&  cnv->get_schedule()->get_waytype() == k.cnv->get_schedule()->get_waytype(); }
+bool reliefkarte_t::line_segment_t::operator == (const line_segment_t & k) const
+{
+	return start == k.start  &&  end == k.end  &&  sp == k.sp  &&  fpl->similar( sp->get_welt(), k.fpl, sp );
+}
+
+// Ordering based on first start then end coordinate
+bool reliefkarte_t::LineSegmentOrdering::operator()(const reliefkarte_t::line_segment_t& a, const reliefkarte_t::line_segment_t& b) const
+{
+	if(  a.start.x == b.start.x  ) {
+		// same start ...
+		return a.end.x < b.end.x;
+	}
+	return a.start.x < b.start.x;
+}
+
+
+static COLOR_VAL colore = 0;
+static uint8 counter_rail = 0;
 
 
 // add the schedule to the map (if there is a valid one)
@@ -71,10 +88,29 @@ void reliefkarte_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoin
 		return;
 	}
 
+	static COLOR_VAL rail_colors[] = {2, 6, 10, 14, 18, 22, 26, 30, 34, 38, 42, 46, 50, 54, 58, 62, 66, 70, 74, 78, 82, 86, 90, 94, 98, 102,
+						   106, 110, 114, 118, 122, 126, 130, 134, 138, 142, 146, 150, 154, 158, 162, 166, 170, 174, 178, 182, 186, 190,
+						   194, 198, 202, 206, 210, 214, 218, 222, 226, 230, 234
+						  };
+
+	// otherwise normal color scheme
+	if(  cnv->get_schedule()->get_waytype() == track_wt  ||  cnv->get_schedule()->get_waytype() == maglev_wt  ||  cnv->get_schedule()->get_waytype() == monorail_wt  ) {
+		colore = rail_colors[counter_rail] + 1;
+
+		if( ++counter_rail > 57 ) {
+			counter_rail = 0;
+		}
+	}
+	else {
+		colore = (colore >= 208 ? 0 : colore+1);
+	}
+
 	// ok, add this schedule to map
 	// from here on we have a valid convoi
 	int stops = 0;
 	koord old_stop, first_stop, temp_stop;
+	bool last_diagonal = false;
+
 	FOR(  minivec_tpl<linieneintrag_t>, cur, cnv->get_schedule()->eintrag  ) {
 
 		//cycle on stops
@@ -91,7 +127,11 @@ void reliefkarte_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoin
 		}
 
 		if(  stops>1  ) {
-			schedule_cache.append_unique( line_segment_t( temp_stop, old_stop, cnv ) );
+			last_diagonal ^= true;
+			if(  (temp_stop.x-old_stop.x)*(temp_stop.y-old_stop.y) == 0  ) {
+				last_diagonal = false;
+			}
+			schedule_cache.insert_unique_ordered( line_segment_t( temp_stop, old_stop, cnv->get_schedule(), cnv->get_besitzer(), colore, last_diagonal ), LineSegmentOrdering() );
 			old_stop = temp_stop;
 		}
 		else {
@@ -102,7 +142,8 @@ void reliefkarte_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoin
 
 	// connect to start
 	if(  stops > 2  ) {
-		schedule_cache.append_unique( line_segment_t( first_stop, old_stop, cnv ) );
+		last_diagonal ^= true;
+		schedule_cache.insert_unique_ordered( line_segment_t( first_stop, old_stop, cnv->get_schedule(), cnv->get_besitzer(), colore, last_diagonal ), LineSegmentOrdering() );
 	}
 }
 
@@ -201,7 +242,7 @@ static void display_thick_line ( short x1, short y1, short x2, short y2, short c
 }
 
 
-static void line_segment_draw( waytype_t type, koord start, koord end, bool &diagonal, COLOR_VAL colore )
+static void line_segment_draw( waytype_t type, koord start, koord end, bool diagonal, COLOR_VAL colore )
 {
 	if(  type ==  air_wt  ) {
 		draw_bezier( start.x, start.y, end.x, end.y, 50, 50, 50, 50, colore, 5, 5 );
@@ -231,7 +272,6 @@ static void line_segment_draw( waytype_t type, koord start, koord end, bool &dia
 		if(  (start.x-end.x)*delta_y == 0  ) {
 			// horizontal/vertical line
 			display_thick_line( start.x, start.y, end.x, end.y, colore, dotted, 5, 3, thickness );
-			diagonal = false;
 		}
 		else {
 			// two segment
@@ -247,7 +287,6 @@ static void line_segment_draw( waytype_t type, koord start, koord end, bool &dia
 					mid.x = start.x + abs(delta_y);
 					mid.y = end.y;
 				}
-				diagonal = false;
 				display_thick_line( start.x, start.y, mid.x, mid.y, colore, dotted, 5, 3, thickness );
 				display_thick_line( mid.x, mid.y, end.x, end.y, colore, dotted, 5, 3, thickness );
 			}
@@ -262,7 +301,6 @@ static void line_segment_draw( waytype_t type, koord start, koord end, bool &dia
 					mid.x = end.x - abs(delta_y);
 					mid.y = start.y;
 				}
-				diagonal = true;
 				display_thick_line( start.x, start.y, mid.x, mid.y, colore, dotted, 5, 3, thickness );
 				display_thick_line( mid.x, mid.y, end.x, end.y, colore, dotted, 5, 3, thickness );
 			}
@@ -1031,6 +1069,8 @@ void reliefkarte_t::set_current_cnv( convoihandle_t c )
 	current_cnv = c;
 	schedule_cache.clear();
 	stop_cache.clear();
+	colore = 0;
+	counter_rail = 0;
 	add_to_schedule_cache( current_cnv, true );
 	last_schedule_counter = welt->get_schedule_counter()-1;
 }
@@ -1107,6 +1147,8 @@ void reliefkarte_t::zeichnen(koord pos)
 			last_schedule_counter = welt->get_schedule_counter();
 			schedule_cache.clear();
 			stop_cache.clear();
+			colore = 0;
+			counter_rail = 0;
 
 			for(  int np = 0;  np < MAX_PLAYER_COUNT;  np++  ) {
 				//cycle on players
@@ -1211,12 +1253,14 @@ void reliefkarte_t::zeichnen(koord pos)
 	//end MAP_LINES
 
 	bool showing_schedule = false;
-	if(  is_show_schedule  ) {
+	if(  is_show_schedule  ||  mode==MAP_LINES  ) {
 		showing_schedule = !schedule_cache.empty();
 	}
 	else {
 		schedule_cache.clear();
 		stop_cache.clear();
+		colore = 0;
+		counter_rail = 0;
 		last_schedule_counter = welt->get_schedule_counter()-1;
 	}
 
@@ -1260,44 +1304,19 @@ void reliefkarte_t::zeichnen(koord pos)
 		}
 	}
 
+	int offset = 0;
+	koord last_start(0,0), last_end(0,0);
 	if(  showing_schedule  ) {
 		// white background
 		display_blend_wh( cur_off.x+pos.x, new_off.y+pos.y, relief->get_width(), relief->get_height(), COL_WHITE, 75 );
 
 		// DISPLAY STATIONS AND AIRPORTS: moved here so station spots are not overwritten by lines drawn
-		convoihandle_t old_cnv;
-		COLOR_VAL colore = 0;
-		sint16 counter_rail = 0;
-		bool last_diagonal;
 		FOR(  vector_tpl<line_segment_t>, seg, schedule_cache  ) {
 
-			static COLOR_VAL rail_colors[] = {2, 6, 10, 14, 18, 22, 26, 30, 34, 38, 42, 46, 50, 54, 58, 62, 66, 70, 74, 78, 82, 86, 90, 94, 98, 102,
-								   106, 110, 114, 118, 122, 126, 130, 134, 138, 142, 146, 150, 154, 158, 162, 166, 170, 174, 178, 182, 186, 190,
-								   194, 198, 202, 206, 210, 214, 218, 222, 226, 230, 234
-								  };
-
-			if(  old_cnv != seg.cnv  ) {
-				// step color
-				last_diagonal = ribi_t::ist_gerade( ribi_t::get_dir( ribi_typ( seg.start, seg.end ) ) );
-				if(  event_get_last_control_shift()==2  ) {
-					// on control use only player colors
-					counter_rail = (counter_rail>6 ? 1 : counter_rail+1);
-					colore = seg.cnv->get_besitzer()->get_player_color1()+counter_rail;
-				}
-				else {
-					// otherwise normal color scheme
-					if(  seg.cnv->get_schedule()->get_waytype() == track_wt  ||  seg.cnv->get_schedule()->get_waytype() == maglev_wt  ||  seg.cnv->get_schedule()->get_waytype() == monorail_wt  ) {
-						colore = rail_colors[counter_rail] + 1;
-
-						if( ++counter_rail > 57 ) {
-							counter_rail = 0;
-						}
-					}
-					else {
-						colore = (colore >= 208 ? 0 : colore+1);
-					}
-				}
-				old_cnv = seg.cnv;
+			COLOR_VAL color = seg.colorcount;
+			if(  event_get_last_control_shift()==2  ) {
+				// on control use only player colors
+				color = seg.sp->get_player_color1()+1;
 			}
 			koord k1(seg.start);
 			karte_to_screen( k1 );
@@ -1305,7 +1324,37 @@ void reliefkarte_t::zeichnen(koord pos)
 			koord k2(seg.end);
 			karte_to_screen( k2 );
 			k2 += pos;
-			line_segment_draw( seg.cnv->get_schedule()->get_waytype(), k1, k2, last_diagonal, colore );
+			if(  last_start==k1  &&  last_end==k2  ) {
+				offset += 4;
+			}
+			else {
+				offset = 0;
+			}
+			last_start = k1;
+			last_end = k2;
+			// may be other order, when isometric ...
+			bool diagonal = seg.start_diagonal;
+			if(  k1.x>k2.x  ) {
+				koord temp = k1;
+				k1 = k2;
+				k2 = temp;
+				diagonal ^= 1;
+			}
+			// shift start and end offset correctly
+			if(  offset  ) {
+				koord dir1 = koord( ribi_t::rotate90l( ribi_typ( k1, k2 ) ) );
+				koord dir2 = k1.x!=k2.x ? koord( 1, 0 ) : koord( 0, 1 );
+				if(  diagonal  ) {
+					k1 += dir2*offset;
+					k2 += dir1*offset;
+				}
+				else {
+					k1 += dir1*offset;
+					k2 += dir2*offset;
+				}
+			}
+			// and finally draw ...
+			line_segment_draw( seg.fpl->get_waytype(), k1, k2, diagonal, color );
 		}
 
 		//DISPLAY STATIONS AND AIRPORTS: moved here so station spots are not overwritten by lines drawn
