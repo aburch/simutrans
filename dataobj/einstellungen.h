@@ -444,6 +444,7 @@ private:
 	float32e8_t simtime_factor;
 	float32e8_t meters_per_step;
 	float32e8_t steps_per_meter;
+	float32e8_t seconds_per_tick;
 public:
 	/* the big cost section */
 	sint32 maint_building;	// normal building
@@ -923,6 +924,7 @@ public:
 	float32e8_t get_simtime_factor() const { return simtime_factor; }
 	float32e8_t meters_to_steps(const float32e8_t &meters) const { return steps_per_meter * meters; }
 	float32e8_t steps_to_meters(const float32e8_t &steps) const { return meters_per_step * steps; }
+	float32e8_t ticks_to_seconds(sint32 delta_t) const { return seconds_per_tick * delta_t; }
 };
 
 #endif 

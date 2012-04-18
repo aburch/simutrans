@@ -280,9 +280,9 @@ inline float32e8_t _calc_move(const float32e8_t &a, const float32e8_t &t, const 
 	return (float32e8_t::half * a * t + v0) * t;
 }
 
-void convoy_t::calc_move(const settings_t &settings, long delta_tt, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 next_speed_limit, sint32 steps_til_limit, sint32 steps_til_brake, sint32 &akt_speed, sint32 &sp_soll, float32e8_t &akt_v)
+void convoy_t::calc_move(const settings_t &settings, long delta_t, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 next_speed_limit, sint32 steps_til_limit, sint32 steps_til_brake, sint32 &akt_speed, sint32 &sp_soll, float32e8_t &akt_v)
 {
-	float32e8_t delta_s((uint32)delta_tt, (uint32)DT_TIME_FACTOR);
+	float32e8_t delta_s = settings.ticks_to_seconds(delta_t);
 	if (delta_s >= fl_max_seconds_til_vsoll)
 	{
 		// After fl_max_seconds_til_vsoll any vehicle has reached its akt_speed_soll. 

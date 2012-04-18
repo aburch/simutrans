@@ -848,7 +848,7 @@ void convoi_t::calc_acceleration(long delta_t)
 	}
 	sint32 steps_til_limit;
 	sint32 steps_til_brake;
-	const float32e8_t simtime_factor = welt->get_settings().get_simtime_factor();
+	//const float32e8_t simtime_factor = welt->get_settings().get_simtime_factor();
 	const sint32 brake_steps = convoy.calc_min_braking_distance(welt->get_settings(), convoy.get_weight_summary(), akt_speed);
 	if (route_infos.get_count() >= next_stop_index && next_stop_index > current_route_index)
 	{
