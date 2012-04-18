@@ -122,9 +122,6 @@ public:
 	void hop();
 	bool ist_weg_frei(grund_t *gr);
 
-	//Gets rid of the car by setting its life to 0.
-	void kill(); 
-
 	void betrete_feld();
 
 	void calc_current_speed();

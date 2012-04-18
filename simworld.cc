@@ -3350,10 +3350,9 @@ void karte_t::neuer_monat()
 	{
 		//Make sure that there are not too many cars on the roads. 
 		car = unassigned_cars.remove_first();
-		if(car != NULL)
-		{
-			car->kill();
-		}
+		car->set_list(NULL);
+		sync_remove(car);
+		delete car;
 	}
 	car = NULL;
 

@@ -380,7 +380,7 @@ bool stadtauto_t::list_empty()
 
 stadtauto_t::~stadtauto_t()
 {
-	if(!welt->get_is_shutting_down() && current_list != NULL  && current_list->get_count() > 0)
+	if(current_list != NULL && !welt->get_is_shutting_down() && current_list->get_count() > 0)
 	{
 		stadtauto_t *tmp = this;
 		if(!current_list->remove(tmp))
@@ -765,13 +765,6 @@ void stadtauto_t::betrete_feld()
 #endif /* DESTINATION_CITYCARS */
 	vehikel_basis_t::betrete_feld();
 	welt->lookup( get_pos() )->get_weg(road_wt)->book(1, WAY_STAT_CONVOIS);
-}
-
-
-void
-stadtauto_t::kill()
-{
-	time_to_life = 0;
 }
 
 
