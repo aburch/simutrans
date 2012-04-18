@@ -548,7 +548,7 @@ void stadtauto_t::rdwr(loadsave_t *file)
 		set_tiles_overtaking( tiles_overtaking );
 	}
 
-	if(file->get_experimental_version() >= 9 && file->get_version() >= 1100000)
+	if(file->get_experimental_version() >= 10 && file->get_version() >= 111002)
 	{
 		file->rdwr_long(ms_traffic_jam);
 #ifdef DESTINATION_CITYCARS
