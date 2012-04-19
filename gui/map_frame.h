@@ -69,9 +69,6 @@ private:
 
 	gui_scrollpane_t scrolly;
 
-	// buttons
-	static const char map_type[reliefkarte_t::MAX_MAP_BUTTON][64];
-	static const uint8 map_type_color[reliefkarte_t::MAX_MAP_BUTTON];
 	button_t filter_buttons[reliefkarte_t::MAX_MAP_BUTTON];
 
 	void zoom(bool zoom_out);
