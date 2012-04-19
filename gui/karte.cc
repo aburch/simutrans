@@ -308,7 +308,7 @@ static void line_segment_draw( waytype_t type, koord start, koord end, bool diag
 		const int delta_y = end.y-start.y;
 		if(  (start.x-end.x)*delta_y == 0  ) {
 			// horizontal/vertical line
-			display_thick_line( start.x, start.y, end.x, end.y, colore, dotted, 5, 3, thickness );
+			display_thick_line( start.x, start.y+offset, end.x, end.y+offset, colore, dotted, 5, 3, thickness );
 		}
 		else {
 			// two segment
@@ -319,10 +319,18 @@ static void line_segment_draw( waytype_t type, koord start, koord end, bool diag
 				if(  abs(delta_y) > end.x-start.x  ) {
 					mid.x = end.x;
 					mid.y = start.y + (end.x-start.x)*signum_y;
+					// and offsets for vertical continue
+					start.x += offset;
+					mid.x += offset;
+					end.x += offset;
 				}
 				else {
 					mid.x = start.x + abs(delta_y);
 					mid.y = end.y;
+					// and offsets for horizontal continue
+					start.y += offset;
+					mid.y += offset;
+					end.y += offset;
 				}
 				display_thick_line( start.x, start.y, mid.x, mid.y, colore, dotted, 5, 3, thickness );
 				display_thick_line( mid.x, mid.y, end.x, end.y, colore, dotted, 5, 3, thickness );
@@ -333,10 +341,18 @@ static void line_segment_draw( waytype_t type, koord start, koord end, bool diag
 				if(  abs(delta_y) > end.x-start.x  ) {
 					mid.x = start.x;
 					mid.y = end.y - (end.x-start.x)*signum_y;
+					// first vertical
+					start.x += offset;
+					mid.x += offset;
+					end.x += offset;
 				}
 				else {
 					mid.x = end.x - abs(delta_y);
 					mid.y = start.y;
+					// first horizontal
+					start.y += offset;
+					mid.y += offset;
+					end.y += offset;
 				}
 				display_thick_line( start.x, start.y, mid.x, mid.y, colore, dotted, 5, 3, thickness );
 				display_thick_line( mid.x, mid.y, end.x, end.y, colore, dotted, 5, 3, thickness );
@@ -1344,6 +1360,7 @@ void reliefkarte_t::zeichnen(koord pos)
 
 	int offset = 0;
 	koord last_start(0,0), last_end(0,0), k1, k2;
+	bool diagonal;
 	if(  showing_schedule  ) {
 		// white background
 		display_blend_wh( cur_off.x+pos.x, new_off.y+pos.y, relief->get_width(), relief->get_height(), COL_WHITE, 75 );
@@ -1364,9 +1381,11 @@ void reliefkarte_t::zeichnen(koord pos)
 				karte_to_screen( k2 );
 				k2 += pos;
 				offset = 0;
+				// use same diagonal for all parallel segments
+				diagonal = seg.start_diagonal;
 			}
 			// and finally draw ...
-			line_segment_draw( seg.fpl->get_waytype(), k1, k2, seg.start_diagonal, offset, color );
+			line_segment_draw( seg.fpl->get_waytype(), k1, k2, diagonal, offset, color );
 		}
 
 		//DISPLAY STATIONS AND AIRPORTS: moved here so station spots are not overwritten by lines drawn
