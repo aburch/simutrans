@@ -216,35 +216,72 @@ static void display_harbor ( const KOORD_VAL xx, const KOORD_VAL yy, const PLAYE
 // those will be replaced by pak images later ...!
 
 
-static void display_thick_line ( short x1, short y1, short x2, short y2, short col, bool dotting, short dot_full, short dot_empty, short thickness )
+static void display_thick_line( KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2, COLOR_VAL col, bool dotting, short dot_full, short dot_empty, short thickness )
 {
-	if ( abs ( x1 - x2 ) > abs ( y1 - y2 ) ) {
-		//more horizontal than vertical -> more lines in vertical
-		for ( int i = 0; i < thickness - 1; i++ ) {
+	double delta_x = abs( x1 - x2 );
+	double delta_y = abs( y1 - y2 );
+
+	if(  delta_x == 0.0  ||  delta_y/delta_x > 2.0  ) {
+		// mostly vertical
+		x1 -= thickness/2;
+		x2 -= thickness/2;
+		for(  int i = 0;  i < thickness;  i++  ) {
 			if ( !dotting ) {
-				display_direct_line ( x1, y1 + i, x2, y2 + i, col );
+				display_direct_line( x1 + i, y1, x2 + i, y2, col );
 			}
 			else {
-				display_direct_line_dotted ( x1, y1 + i, x2, y2 + i, dot_full, dot_empty, col );
+				display_direct_line_dotted( x1 + i, y1, x2 + i, y2, dot_full, dot_empty, col );
+			}
+		}
+	}
+	else if(  delta_y == 0.0  ||  delta_x/delta_y > 2.0  ) {
+		// mostly horizontal
+		y1 -= thickness/2;
+		y2 -= thickness/2;
+		for(  int i = 0;  i < thickness;  i++  ) {
+			if ( !dotting ) {
+				display_direct_line( x1, y1 + i, x2, y2 + i, col );
+			}
+			else {
+				display_direct_line_dotted( x1, y1 + i, x2, y2 + i, dot_full, dot_empty, col );
 			}
 		}
 	}
 	else {
-		for ( int i = 0; i < thickness - 1; i++ ) {
+		// diagonal
+		int y_multiplier = (x1-x2)/(y1-y2) < 0 ? +1 : -1;
+		thickness = (thickness*7)/8;
+		x1 -= thickness/2;
+		x2 -= thickness/2;
+		y1 -= thickness*y_multiplier/2;
+		y2 -= thickness*y_multiplier/2;
+		for(  int i = 0;  i < thickness;  i++  ) {
 			if ( !dotting ) {
-				display_direct_line ( x1 + i, y1, x2 + i, y2, col );
+				display_direct_line( x1+i, y1+i*y_multiplier, x2+i, y2+i*y_multiplier, col );
+				display_direct_line( x1+i+1, y1+i*y_multiplier, x2+i+1, y2+i*y_multiplier, col );
 			}
 			else {
-				display_direct_line_dotted ( x1 + i, y1, x2 + i, y2, dot_full, dot_empty, col );
+				display_direct_line_dotted ( x1 + i, y1 + i*y_multiplier, x2 + i, y2 + i*y_multiplier, dot_full, dot_empty, col );
+				display_direct_line_dotted ( x1 + i + 1, y1 + i*y_multiplier, x2 + i + 1, y2 + i*y_multiplier, dot_full, dot_empty, col );
 			}
 		}
 	}
 }
 
 
-static void line_segment_draw( waytype_t type, koord start, koord end, bool diagonal, COLOR_VAL colore )
+static void line_segment_draw( waytype_t type, koord start, koord end, bool diagonal, int &offset, COLOR_VAL colore )
 {
+	// due to isometric drawing, order may be swapped
+	if(  start.x > end.x  ) {
+		// but we need start.x <= end.x!
+		koord temp = start;
+		start = end;
+		end = temp;
+		diagonal ^= 1;
+	}
+	// airplanes are different, so we must check for them first
 	if(  type ==  air_wt  ) {
+		// ignore offset for airplanes
 		draw_bezier( start.x, start.y, end.x, end.y, 50, 50, 50, 50, colore, 5, 5 );
 		draw_bezier( start.x + 1, start.y + 1, end.x + 1, end.y + 1, 50, 50, 50, 50, colore, 5, 5 );
 	}
@@ -305,6 +342,7 @@ static void line_segment_draw( waytype_t type, koord start, koord end, bool diag
 				display_thick_line( mid.x, mid.y, end.x, end.y, colore, dotted, 5, 3, thickness );
 			}
 		}
+		offset += thickness;
 	}
 }
 
@@ -1305,7 +1343,7 @@ void reliefkarte_t::zeichnen(koord pos)
 	}
 
 	int offset = 0;
-	koord last_start(0,0), last_end(0,0);
+	koord last_start(0,0), last_end(0,0), k1, k2;
 	if(  showing_schedule  ) {
 		// white background
 		display_blend_wh( cur_off.x+pos.x, new_off.y+pos.y, relief->get_width(), relief->get_height(), COL_WHITE, 75 );
@@ -1318,43 +1356,17 @@ void reliefkarte_t::zeichnen(koord pos)
 				// on control use only player colors
 				color = seg.sp->get_player_color1()+1;
 			}
-			koord k1(seg.start);
-			karte_to_screen( k1 );
-			k1 += pos;
-			koord k2(seg.end);
-			karte_to_screen( k2 );
-			k2 += pos;
-			if(  last_start==k1  &&  last_end==k2  ) {
-				offset += 4;
-			}
-			else {
+			if(  seg.start != last_start  ||  seg.end != last_end  ) {
+				last_start = k1 = seg.start;
+				karte_to_screen( k1 );
+				k1 += pos;
+				last_end = k2 = seg.end;
+				karte_to_screen( k2 );
+				k2 += pos;
 				offset = 0;
 			}
-			last_start = k1;
-			last_end = k2;
-			// may be other order, when isometric ...
-			bool diagonal = seg.start_diagonal;
-			if(  k1.x>k2.x  ) {
-				koord temp = k1;
-				k1 = k2;
-				k2 = temp;
-				diagonal ^= 1;
-			}
-			// shift start and end offset correctly
-			if(  offset  ) {
-				koord dir1 = koord( ribi_t::rotate90l( ribi_typ( k1, k2 ) ) );
-				koord dir2 = k1.x!=k2.x ? koord( 1, 0 ) : koord( 0, 1 );
-				if(  diagonal  ) {
-					k1 += dir2*offset;
-					k2 += dir1*offset;
-				}
-				else {
-					k1 += dir1*offset;
-					k2 += dir2*offset;
-				}
-			}
 			// and finally draw ...
-			line_segment_draw( seg.fpl->get_waytype(), k1, k2, diagonal, color );
+			line_segment_draw( seg.fpl->get_waytype(), k1, k2, seg.start_diagonal, offset, color );
 		}
 
 		//DISPLAY STATIONS AND AIRPORTS: moved here so station spots are not overwritten by lines drawn
