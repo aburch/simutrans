@@ -64,8 +64,8 @@ static vector_tpl<legend_entry_t> legend(16);
 
 typedef struct {
 	COLOR_VAL color;
-	char *button_text;
-	char *tooltip_text;
+	const char *button_text;
+	const char *tooltip_text;
 	reliefkarte_t::MAP_MODES mode;
 } map_button_t;
 
