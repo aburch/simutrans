@@ -324,7 +324,7 @@ public:
 	/**
 	 * Get the minimum braking distance in steps for the convoy with given weight summary at given simutrans speed.
 	 */
-	sint32 calc_min_braking_distance(const float32e8_t &simtime_factor, const weight_summary_t &weight, sint32 speed);
+	sint32 calc_min_braking_distance(const settings_t &settings, const weight_summary_t &weight, sint32 speed);
 
 	/** 
 	 * Calculate the movement within delta_t
@@ -338,7 +338,7 @@ public:
 	 * @param akt_speed the current speed and returns the new speed after delta_t has gone in simutrans speed.
 	 * @param sp_soll the number of simutrans yards still to go and returns the new number of simutrans yards to go.
 	 */
-	void calc_move(long delta_t, const float32e8_t &simtime_factor, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 next_speed_limit, sint32 steps_til_limit, sint32 steps_til_brake, sint32 &akt_speed, sint32 &sp_soll, float32e8_t &akt_v);
+	void calc_move(const settings_t &settings, long delta_t, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 next_speed_limit, sint32 steps_til_limit, sint32 steps_til_brake, sint32 &akt_speed, sint32 &sp_soll, float32e8_t &akt_v);
 	virtual ~convoy_t(){}
 };
 
@@ -505,11 +505,11 @@ public:
 		return convoy_t::calc_max_starting_weight(sin_alpha);
 	}
 
-	void calc_move(long delta_t, const float32e8_t &simtime_factor, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 next_speed_limit, sint32 steps_til_limit, sint32 steps_til_break, sint32 &akt_speed, sint32 &sp_soll, float32e8_t &akt_v)
+	void calc_move(const settings_t &settings, long delta_t, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 next_speed_limit, sint32 steps_til_limit, sint32 steps_til_break, sint32 &akt_speed, sint32 &sp_soll, float32e8_t &akt_v)
 	{
 		validate_vehicle_summary();
 		validate_adverse_summary();
-		convoy_t::calc_move(delta_t, simtime_factor, weight, akt_speed_soll, next_speed_limit, steps_til_limit, steps_til_break, akt_speed, sp_soll, akt_v);
+		convoy_t::calc_move(settings, delta_t, weight, akt_speed_soll, next_speed_limit, steps_til_limit, steps_til_break, akt_speed, sp_soll, akt_v);
 	}
 	virtual ~lazy_convoy_t(){}
 };
@@ -598,10 +598,10 @@ public:
 		return weight;
 	}
 
-	inline void calc_move(long delta_t, const float32e8_t &simtime_factor, sint32 akt_speed_soll, sint32 next_speed_limit, sint32 steps_til_limit, sint32 steps_til_brake, sint32 &akt_speed, sint32 &sp_soll, float32e8_t &akt_v)
+	inline void calc_move(const settings_t &settings, long delta_t, sint32 akt_speed_soll, sint32 next_speed_limit, sint32 steps_til_limit, sint32 steps_til_brake, sint32 &akt_speed, sint32 &sp_soll, float32e8_t &akt_v)
 	{
 		validate_weight_summary();
-		convoy_t::calc_move(delta_t, simtime_factor, weight, akt_speed_soll, next_speed_limit, steps_til_limit, steps_til_brake, akt_speed, sp_soll, akt_v);
+		convoy_t::calc_move(settings, delta_t, weight, akt_speed_soll, next_speed_limit, steps_til_limit, steps_til_brake, akt_speed, sp_soll, akt_v);
 	}
 
 };
