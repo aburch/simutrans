@@ -380,8 +380,8 @@ enable_home:
 				break;
 				
 			default:
-				if (cnv->get_state() != convoi_t::NO_ROUTE) 
-					color = COL_ORANGE;
+				if (cnv->get_state() == convoi_t::NO_ROUTE) 
+					color = COL_RED;
 			}
 			display_ddd_box_clip(pos_x, pos_y, 64, 8, MN_GREY0, MN_GREY4);
 			display_fillbox_wh_clip(pos_x + 1, pos_y + 1, 126, 6, color, true);

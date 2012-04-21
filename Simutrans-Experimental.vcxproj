@@ -119,10 +119,10 @@
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug (network)|Win32'">true</LinkIncremental>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug (command-line server)|Win32'">true</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\simutrans</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\simutrans\</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release (IP v. 4 only)|Win32'">.\simutrans</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|Win32'">.\simutrans</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\intermediates\release</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\intermediates\release\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release (IP v. 4 only)|Win32'">.\intermediates\release</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|Win32'">.\intermediates\release-command-line-server</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
@@ -709,25 +709,40 @@
     <ClCompile Include="dings\zeiger.cc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="besch\bildliste3d_besch.h" />
     <ClInclude Include="besch\reader\imagelist3d_reader.h" />
     <ClInclude Include="dataobj\gameinfo.h" />
     <ClInclude Include="dataobj\livery_scheme.h" />
     <ClInclude Include="dataobj\network_address.h" />
     <ClInclude Include="dataobj\network_cmd.h" />
     <ClInclude Include="dataobj\network_cmd_ingame.h" />
+    <ClInclude Include="dataobj\network_cmp_pakset.h" />
     <ClInclude Include="dataobj\network_file_transfer.h" />
     <ClInclude Include="dataobj\network_packet.h" />
+    <ClInclude Include="dataobj\network_socket_list.h" />
     <ClInclude Include="dataobj\pakset_info.h" />
+    <ClInclude Include="dataobj\pwd_hash.h" />
+    <ClInclude Include="gui\ai_option_t.h" />
     <ClInclude Include="gui\components\action_listener.h" />
+    <ClInclude Include="gui\components\gui_action_creator.h" />
     <ClInclude Include="gui\components\gui_ding_view_t.h" />
+    <ClInclude Include="gui\components\gui_fixedwidth_textarea.h" />
+    <ClInclude Include="gui\components\gui_komponente.h" />
+    <ClInclude Include="gui\components\gui_location_view_t.h" />
+    <ClInclude Include="gui\display_settings.h" />
+    <ClInclude Include="gui\factory_chart.h" />
     <ClInclude Include="gui\password_frame.h" />
     <ClInclude Include="gui\privatesign_info.h" />
-    <ClInclude Include="gui\send_message_frame.h" />
+    <ClInclude Include="gui\replace_frame.h" />
     <ClInclude Include="gui\server_frame.h" />
+    <ClInclude Include="gui\station_building_select.h" />
+    <ClInclude Include="gui\trafficlight_info.h" />
     <ClInclude Include="player\ai.h" />
     <ClInclude Include="player\ai_goods.h" />
     <ClInclude Include="player\ai_passenger.h" />
+    <ClInclude Include="simsys_w32_png.h" />
     <ClInclude Include="simunits.h" />
+    <ClInclude Include="simwerkz-dialogs.h" />
     <ClInclude Include="tpl\array2d_tpl.h" />
     <ClInclude Include="tpl\array_tpl.h" />
     <ClInclude Include="gui\banner.h" />
@@ -748,6 +763,7 @@
     <ClInclude Include="boden\brueckenboden.h" />
     <ClInclude Include="besch\reader\building_reader.h" />
     <ClInclude Include="besch\writer\building_writer.h" />
+    <ClInclude Include="tpl\list_tpl.h" />
     <ClInclude Include="utils\cbuffer_t.h" />
     <ClInclude Include="gui\citybuilding_edit.h" />
     <ClInclude Include="besch\reader\citycar_reader.h" />
@@ -755,7 +771,6 @@
     <ClInclude Include="gui\citylist_frame_t.h" />
     <ClInclude Include="gui\citylist_stats_t.h" />
     <ClInclude Include="gui\climates.h" />
-    <ClInclude Include="gui\colors.h" />
     <ClInclude Include="gui\convoi_detail_t.h" />
     <ClInclude Include="gui\convoi_filter_frame.h" />
     <ClInclude Include="gui\convoi_frame.h" />
@@ -767,7 +782,6 @@
     <ClInclude Include="besch\reader\crossing_reader.h" />
     <ClInclude Include="besch\writer\crossing_writer.h" />
     <ClInclude Include="utils\checksum.h" />
-    <ClInclude Include="utils\cstring_t.h" />
     <ClInclude Include="gui\curiosity_edit.h" />
     <ClInclude Include="gui\curiositylist_frame_t.h" />
     <ClInclude Include="gui\curiositylist_stats_t.h" />
@@ -813,7 +827,6 @@
     <ClInclude Include="besch\writer\groundobj_writer.h" />
     <ClInclude Include="boden\grund.h" />
     <ClInclude Include="besch\grund_besch.h" />
-    <ClInclude Include="ifc\gui_action_creator.h" />
     <ClInclude Include="gui\components\gui_button.h" />
     <ClInclude Include="gui\components\gui_chart.h" />
     <ClInclude Include="gui\components\gui_combobox.h" />
@@ -823,12 +836,10 @@
     <ClInclude Include="gui\components\gui_convoy_assembler.h" />
     <ClInclude Include="gui\components\gui_convoy_label.h" />
     <ClInclude Include="gui\components\gui_divider.h" />
-    <ClInclude Include="ifc\gui_fenster.h" />
     <ClInclude Include="gui\components\gui_flowtext.h" />
     <ClInclude Include="gui\gui_frame.h" />
     <ClInclude Include="gui\components\gui_image.h" />
     <ClInclude Include="gui\components\gui_image_list.h" />
-    <ClInclude Include="ifc\gui_komponente.h" />
     <ClInclude Include="gui\components\gui_label.h" />
     <ClInclude Include="gui\components\gui_numberinput.h" />
     <ClInclude Include="gui\components\gui_scrollbar.h" />
@@ -896,6 +907,8 @@
     <ClInclude Include="gui\money_frame.h" />
     <ClInclude Include="boden\wege\monorail.h" />
     <ClInclude Include="boden\monorailboden.h" />
+    <ClInclude Include="utils\memory_rw.h" />
+    <ClInclude Include="utils\plainstring.h" />
     <ClInclude Include="vehicle\movingobj.h" />
     <ClInclude Include="music\music.h" />
     <ClInclude Include="boden\wege\narrowgauge.h" />

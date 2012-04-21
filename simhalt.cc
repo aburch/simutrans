@@ -1500,7 +1500,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 				// Calculate the journey time for *this* convoy from here (if not already calculated)
 				uint16 journey_time = 0;
 
-				journey_time = cnv->average_journey_times->get(id_pair(plan_halt.get_id(), previous_halt.get_id())).get_average();
+				journey_time = cnv->get_average_journey_times_this_convoy_only()->get(id_pair(plan_halt.get_id(), previous_halt.get_id())).get_average();
 
 				if(journey_time == 0)
 				{
