@@ -4189,8 +4189,8 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 		}
 		else
 		{
-			const uint8 differential = journey_minutes -welt->get_settings().get_tolerable_comfort_short_minutes();
-			const uint8 max_differential =welt->get_settings().get_tolerable_comfort_median_long_minutes() -welt->get_settings().get_tolerable_comfort_short_minutes();
+			const uint16 differential = journey_minutes - welt->get_settings().get_tolerable_comfort_short_minutes();
+			const uint16 max_differential =welt->get_settings().get_tolerable_comfort_median_long_minutes() -welt->get_settings().get_tolerable_comfort_short_minutes();
 			const sint64 proportion = differential * 100 / max_differential;
 			comfort_modifier = (80ll * proportion / 100ll) + 20ll;
 		}
