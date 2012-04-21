@@ -44,7 +44,7 @@ public:
 		MAP_SERVICE = 32,
 		MAP_TRAFFIC = 64,
 		MAP_ORIGIN = 128,
-		MAP_DESTINATION = 256,
+		MAP_TRANSFER = 256,
 		MAP_WAITING = 512,
 		MAP_TRACKS = 1024,
 		MAX_SPEEDLIMIT = 2048,
@@ -56,7 +56,6 @@ public:
 		MAP_CITYLIMIT = 131072,
 		MAP_PAX_DEST = 262144,
 		MAP_OWNER = 524288,
-		MAP_LINES = 1048576
 	};
 
 private:
@@ -140,10 +139,7 @@ private:
 
 	const fabrik_t* draw_fab_connections(uint8 colour, koord pos) const;
 
-	static sint32 max_departed;
-	static sint32 max_arrived;
 	static sint32 max_cargo;
-	static sint32 max_convoi_arrived;
 	static sint32 max_passed;
 	static sint32 max_tourist_ziele;
 
@@ -166,10 +162,17 @@ public:
 	bool is_show_fab;
 
 	/**
-	* returns a color based on an amount (high amount/scale -> color shifts from green to red)
-	* @author hsiegeln
-	*/
+	 * returns a color based on an amount (high amount/scale -> color shifts from green to red)
+	 * @author hsiegeln
+	 */
 	static uint8 calc_severity_color(sint32 amount, sint32 scale);
+
+	/**
+	 * returns a color based on an amount (high amount/scale -> color shifts from green to red)
+	 * but using log scale
+	 * @author prissi
+	 */
+	static uint8 calc_severity_color_log(sint32 amount, sint32 scale);
 
 	/**
 	* returns a color based on the current high

@@ -170,7 +170,7 @@ public:
 
 	sint64* get_finance_history() { return *financial_history; }
 
-	sint64 get_finance_history(int month, int cost_type) { return financial_history[month][cost_type]; }
+	sint64 get_finance_history(int month, int cost_type) const { return financial_history[month][cost_type]; }
 
 	void book(sint64 amount, int cost_type) { financial_history[0][cost_type] += amount; }
 
