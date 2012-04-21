@@ -99,6 +99,15 @@ private:
 
 	uint16 livery_scheme_index;
 
+	/**
+	* The table of point-to-point average speeds.
+	* @author jamespetts
+	*/
+	koordhashtable_tpl<id_pair, average_tpl<uint16> > * average_journey_times;
+	koordhashtable_tpl<id_pair, average_tpl<uint16> > * average_journey_times_reverse_circular;
+
+	bool is_alternating_circle_route;
+
 public:
 	simline_t(karte_t* welt, spieler_t *sp, linetype type);
 	simline_t(karte_t* welt, spieler_t *sp, linetype type, loadsave_t *file);
@@ -232,12 +241,11 @@ public:
 	uint16 get_livery_scheme_index() const { return livery_scheme_index; }
 	void propogate_livery_scheme();
 
-	/**
-	* The table of point-to-point average speeds.
-	* @author jamespetts
-	*/
-	koordhashtable_tpl<id_pair, average_tpl<uint16> > * average_journey_times;
+	koordhashtable_tpl<id_pair, average_tpl<uint16> > * get_average_journey_times() { return average_journey_times; }
+	koordhashtable_tpl<id_pair, average_tpl<uint16> > * get_average_journey_times_reverse_circular() { return average_journey_times_reverse_circular; }
 
+	void calc_is_alternating_circular_route();
 };
+
 
 #endif

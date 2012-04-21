@@ -773,16 +773,16 @@ void path_explorer_t::compartment_t::step()
 					journey_time = 0;
 					const id_pair pair(halt_list[i].get_id(), halt_list[(i+1)%entry_count].get_id());
 					
-					if ( current_linkage.line.is_bound() && current_linkage.line->average_journey_times->is_contained(pair) )
+					if ( current_linkage.line.is_bound() && current_linkage.line->get_average_journey_times()->is_contained(pair) )
 					{
 						if(!halt_list[i].is_bound() || ! halt_list[(i+1)%entry_count].is_bound())
 						{
-							current_linkage.line->average_journey_times->remove(pair);
+							current_linkage.line->get_average_journey_times()->remove(pair);
 							continue;
 						}
 						else
 						{
-							journey_time = current_linkage.line->average_journey_times->get(pair).get_average();
+							journey_time = current_linkage.line->get_average_journey_times()->get(pair).get_average();
 						}
 					}
 					else if ( current_linkage.convoy.is_bound() && current_linkage.convoy->average_journey_times->is_contained(pair) )
@@ -857,7 +857,7 @@ void path_explorer_t::compartment_t::step()
 						new_connexion->waiting_time = halt_list[h]->get_average_waiting_time(halt_list[t], catg);
 						if(current_linkage.line.is_bound())
 						{
-							average_tpl<uint16>* ave = current_linkage.line->average_journey_times->access(id_pair(halt_list[h].get_id(), halt_list[t].get_id()));
+							average_tpl<uint16>* ave = current_linkage.line->get_average_journey_times()->access(id_pair(halt_list[h].get_id(), halt_list[t].get_id()));
 							if(ave && ave->count > 0)
 							{
 								new_connexion->journey_time = ave->get_average();
@@ -988,7 +988,7 @@ void path_explorer_t::compartment_t::step()
 			{
 				if(lines_to_reset[n].is_bound())
 				{
-					lines_to_reset[n]->average_journey_times->clear();
+					lines_to_reset[n]->get_average_journey_times()->clear();
 				}
 			}
 
