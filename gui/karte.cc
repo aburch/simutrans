@@ -1085,7 +1085,7 @@ void reliefkarte_t::zeichnen(koord pos)
 
 	if(  last_mode != mode  ) {
 		// only needing update, if last mode was also not about halts ...
-		needs_redraw = (mode^last_mode) & ~(MAP_STATUS|MAP_SERVICE|MAP_WAITING|MAP_TRANSFER) ;
+		needs_redraw = (mode^last_mode) & ~(MAP_TOWN|MAP_CITYLIMIT|MAP_STATUS|MAP_SERVICE|MAP_WAITING|MAP_TRANSFER) ;
 		last_schedule_counter = welt->get_schedule_counter()-1;
 		last_mode = mode;
 
