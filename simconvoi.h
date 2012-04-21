@@ -962,7 +962,9 @@ public:
 	* @author jamespetts
 	*/
 	typedef koordhashtable_tpl<id_pair, average_tpl<uint16> > journey_times_map;
-	journey_times_map *average_journey_times;
+private:
+		journey_times_map *average_journey_times;
+public:
 
 #if 0
 private:
@@ -1250,6 +1252,9 @@ public:
 	 *  when stuck - will teleport if necessary.
 	 */
 	void emergency_go_to_depot();
+
+	inline koordhashtable_tpl<id_pair, average_tpl<uint16> > * const get_average_journey_times();
+	inline koordhashtable_tpl<id_pair, average_tpl<uint16> > * const get_average_journey_times_this_convoy_only() { return average_journey_times; }
 };
 
 #endif

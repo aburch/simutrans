@@ -360,6 +360,10 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv)
 			}
 		}
 
+		if(new_cnv->get_line().is_bound())
+		{
+			new_cnv->get_line()->calc_is_alternating_circular_route();
+		}
 		return new_cnv;
 	}
 	return convoihandle_t();
@@ -459,6 +463,10 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 				}
 			}
 
+			if(cnv->get_line().is_bound())
+			{
+				cnv->get_line()->calc_is_alternating_circular_route();
+			}
 			return true;
 		}
 	}

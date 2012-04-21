@@ -40,6 +40,8 @@ class simline_t {
 public:
 	enum linetype { line = 0, truckline = 1, trainline = 2, shipline = 3, airline = 4, monorailline=5, tramline=6, maglevline=7, narrowgaugeline=8, MAX_LINE_TYPE};
 
+	typedef koordhashtable_tpl<id_pair, average_tpl<uint16> > journey_times_map;
+
 protected:
 	schedule_t * fpl;
 	spieler_t *sp;
@@ -102,7 +104,6 @@ private:
 	* The table of point-to-point average speeds.
 	* @author jamespetts
 	*/
-	typedef koordhashtable_tpl<id_pair, average_tpl<uint16> > journey_times_map;
 	journey_times_map *average_journey_times;
 	journey_times_map * average_journey_times_reverse_circular;
 
@@ -241,10 +242,12 @@ public:
 	uint16 get_livery_scheme_index() const { return livery_scheme_index; }
 	void propogate_livery_scheme();
 
-	journey_times_map * get_average_journey_times() { return average_journey_times; }
-	journey_times_map * get_average_journey_times_reverse_circular() { return average_journey_times_reverse_circular; }
+	inline journey_times_map * get_average_journey_times() { return average_journey_times; }
+	inline journey_times_map * get_average_journey_times_reverse_circular() { return average_journey_times_reverse_circular; }
 
 	void calc_is_alternating_circular_route();
+
+	bool get_is_alternating_circle_route() const { return is_alternating_circle_route; }
 };
 
 

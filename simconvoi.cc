@@ -3888,15 +3888,15 @@ void convoi_t::laden() //"load" (Babelfish)
 				}
 				if(line.is_bound())
 				{
-					if(!line->get_average_journey_times()->is_contained(idp))
+					if(!get_average_journey_times()->is_contained(idp))
 					{
 						average_tpl<uint16> average;
 						average.add(journey_time);
-						line->get_average_journey_times()->put(idp, average);
+						get_average_journey_times()->put(idp, average);
 					}
 					else
 					{
-						line->get_average_journey_times()->access(idp)->add_check_overflow_16(journey_time);
+						get_average_journey_times()->access(idp)->add_check_overflow_16(journey_time);
 					}
 				}
 
@@ -4048,6 +4048,11 @@ void convoi_t::laden() //"load" (Babelfish)
 	if (wait_lock == 0 ) {
 		wait_lock = WTT_LOADING;
 	}
+
+	if(line.is_bound())
+	{
+		line->calc_is_alternating_circular_route();
+	}
 }
 
 sint64 convoi_t::calc_revenue(ware_t& ware)
@@ -4099,14 +4104,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	uint16 journey_minutes = 0;
 	if(ware.get_last_transfer().is_bound())
 	{
-		if(line.is_bound())
-		{
-			journey_minutes = (line->get_average_journey_times()->get(id_pair(ware.get_last_transfer().get_id(), welt->lookup(fahr[0]->get_pos().get_2d())->get_halt().get_id())).get_average()) / 10;
-		}
-		else
-		{
-			journey_minutes = (average_journey_times->get(id_pair(ware.get_last_transfer().get_id(), welt->lookup(fahr[0]->get_pos().get_2d())->get_halt().get_id())).get_average()) / 10;
-		}
+		journey_minutes = (get_average_journey_times()->get(id_pair(ware.get_last_transfer().get_id(), welt->lookup(fahr[0]->get_pos().get_2d())->get_halt().get_id())).get_average()) / 10;
 	}
 
 	sint64 average_speed;
@@ -6134,5 +6132,24 @@ void convoi_t::emergency_go_to_depot()
 		{
 			dbg->error("void convoi_t::emergency_go_to_depot()", "Could not find a depot to which to send the convoy");
 		}
+	}
+}
+
+koordhashtable_tpl<id_pair, average_tpl<uint16> > * const convoi_t::get_average_journey_times()
+{
+	if(line.is_bound())
+	{
+		if(line->get_is_alternating_circle_route() && reverse_schedule)
+		{
+			return line->get_average_journey_times_reverse_circular();
+		}
+		else
+		{
+			return line->get_average_journey_times();
+		}
+	}
+	else
+	{
+		return average_journey_times;
 	}
 }
