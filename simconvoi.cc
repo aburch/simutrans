@@ -3888,15 +3888,15 @@ void convoi_t::laden() //"load" (Babelfish)
 				}
 				if(line.is_bound())
 				{
-					if(!line->average_journey_times->is_contained(idp))
+					if(!line->get_average_journey_times()->is_contained(idp))
 					{
 						average_tpl<uint16> average;
 						average.add(journey_time);
-						line->average_journey_times->put(idp, average);
+						line->get_average_journey_times()->put(idp, average);
 					}
 					else
 					{
-						line->average_journey_times->access(idp)->add_check_overflow_16(journey_time);
+						line->get_average_journey_times()->access(idp)->add_check_overflow_16(journey_time);
 					}
 				}
 
@@ -4101,7 +4101,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	{
 		if(line.is_bound())
 		{
-			journey_minutes = (line->average_journey_times->get(id_pair(ware.get_last_transfer().get_id(), welt->lookup(fahr[0]->get_pos().get_2d())->get_halt().get_id())).get_average()) / 10;
+			journey_minutes = (line->get_average_journey_times()->get(id_pair(ware.get_last_transfer().get_id(), welt->lookup(fahr[0]->get_pos().get_2d())->get_halt().get_id())).get_average()) / 10;
 		}
 		else
 		{

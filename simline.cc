@@ -53,7 +53,10 @@ simline_t::simline_t(karte_t* welt, spieler_t* sp, linetype type)
 
 	create_schedule();
 
+	is_alternating_circle_route = false;
+
 	average_journey_times = new koordhashtable_tpl<id_pair, average_tpl<uint16> >;
+	average_journey_times_reverse_circular = NULL;
 }
 
 
@@ -67,7 +70,9 @@ simline_t::simline_t(karte_t* welt, spieler_t* sp, linetype type, loadsave_t *fi
 	this->sp = sp;
 	create_schedule();
 	average_journey_times = new koordhashtable_tpl<id_pair, average_tpl<uint16> >;
+	average_journey_times_reverse_circular = NULL;
 	rdwr(file);
+
 	// now self has the right id but the this-pointer is not assigned to the quickstone handle yet
 	// do this explicitly
 	// some savegames have line_id=0, resolve that in laden_abschliessen
@@ -626,5 +631,23 @@ void simline_t::propogate_livery_scheme()
 	{
 		line_managed_convoys[i]->set_livery_scheme_index(livery_scheme_index);
 		line_managed_convoys[i]->apply_livery_scheme();
+	}
+}
+
+
+void simline_t::calc_is_alternating_circular_route()
+{
+	is_alternating_circle_route = false;
+	bool first_reverse_schedule = get_convoy(0)->get_reverse_schedule();
+	if(get_convoy(0)->is_circular_route() && count_convoys() > 1)
+	{
+		for(int i = 1; i < count_convoys(); i ++)
+		{
+			if(get_convoy(i)->get_reverse_schedule() != first_reverse_schedule)
+			{
+				is_alternating_circle_route = true;
+				break;
+			}
+		}
 	}
 }
