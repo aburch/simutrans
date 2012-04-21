@@ -217,7 +217,7 @@ public:
 	static uint8 default_sortmode;
 
 	// what is selected for maps
-	static sint8 default_mapmode;
+	static uint32 default_mapmode;
 
 	/**
 	* Max. Länge für initiale Stadtverbindungen

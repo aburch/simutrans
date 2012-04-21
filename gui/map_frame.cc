@@ -28,6 +28,7 @@
 #include "../dataobj/loadsave.h"
 #include "../besch/fabrik_besch.h"
 #include "../simfab.h"
+#include "../simtools.h"
 
 
 static koord old_ij=koord::invalid;
@@ -69,7 +70,7 @@ typedef struct {
 	reliefkarte_t::MAP_MODES mode;
 } map_button_t;
 
-map_button_t button_init[reliefkarte_t::MAX_MAP_BUTTON] = {
+map_button_t button_init[MAP_MAX_BUTTONS] = {
 	{ 215, "Towns", "Show town names", reliefkarte_t::MAP_TOWN },
 	{ 95, "Network", "Show all connections", reliefkarte_t::MAP_LINES },
 	{ 23, "Passagiere", "Show passenger coverage/passenger network", reliefkarte_t::MAP_PASSENGER },
@@ -162,7 +163,7 @@ map_frame_t::map_frame_t(karte_t *welt) :
 	add_komponente(&scrolly);
 
 	// and now the buttons
-	for (int type=0; type<reliefkarte_t::MAX_MAP_BUTTON; type++) {
+	for (int type=0; type<MAP_MAX_BUTTONS; type++) {
 		filter_buttons[type].init( button_t::box_state, button_init[type].button_text, koord(0,0), koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 		filter_buttons[type].set_tooltip( button_init[type].tooltip_text );
 		filter_buttons[type].background = button_init[type].color;
@@ -264,12 +265,12 @@ void map_frame_t::show_hide_legend(const bool show)
 	b_show_legend.pressed = show;
 	legend_visible = show;
 
-	const int col = max( 1, min( (get_fenstergroesse().x-2)/(D_BUTTON_WIDTH+D_H_SPACE), reliefkarte_t::MAX_MAP_BUTTON ) );
-	const int row = ((reliefkarte_t::MAX_MAP_BUTTON-1)/col)+1;
+	const int col = max( 1, min( (get_fenstergroesse().x-2)/(D_BUTTON_WIDTH+D_H_SPACE), MAP_MAX_BUTTONS ) );
+	const int row = ((MAP_MAX_BUTTONS-1)/col)+1;
 	const int offset_y = (D_BUTTON_HEIGHT+2)*row;
 	const koord offset = show ? koord(0, offset_y) : koord(0, -offset_y);
 
-	for(  int type=0;  type<reliefkarte_t::MAX_MAP_BUTTON;  type++  ) {
+	for(  int type=0;  type<MAP_MAX_BUTTONS;  type++  ) {
 		filter_buttons[type].set_visible(show);
 	}
 	scrolly.set_pos(scrolly.get_pos() + offset);
@@ -363,7 +364,7 @@ bool map_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 		b_show_fab_connections.pressed = reliefkarte_t::get_karte()->is_show_fab;
 	}
 	else {
-		for(  int i=0;  i<reliefkarte_t::MAX_MAP_BUTTON;  i++  ) {
+		for(  int i=0;  i<MAP_MAX_BUTTONS;  i++  ) {
 			if(  komp == &filter_buttons[i]  ) {
 				if(  filter_buttons[i].pressed  ) {
 					umgebung_t::default_mapmode = -1;
@@ -374,7 +375,7 @@ bool map_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 			}
 		}
 		reliefkarte_t::get_karte()->set_mode(  (reliefkarte_t::MAP_MODES)umgebung_t::default_mapmode  );
-		for(  int i=0;  i<reliefkarte_t::MAX_MAP_BUTTON;  i++  ) {
+		for(  int i=0;  i<MAP_MAX_BUTTONS;  i++  ) {
 			filter_buttons[i].pressed = button_init[i].mode==umgebung_t::default_mapmode;
 		}
 	}
@@ -544,11 +545,11 @@ void map_frame_t::resize(const koord delta)
 
 	if(legend_visible) {
 		// calculate space with legend
-		const int col = max( 1, min( (get_fenstergroesse().x-2)/(D_BUTTON_WIDTH+D_H_SPACE), reliefkarte_t::MAX_MAP_BUTTON ) );
-		const int row = ((reliefkarte_t::MAX_MAP_BUTTON-1)/col)+1;
+		const int col = max( 1, min( (get_fenstergroesse().x-2)/(D_BUTTON_WIDTH+D_H_SPACE), MAP_MAX_BUTTONS ) );
+		const int row = ((MAP_MAX_BUTTONS-1)/col)+1;
 
 		// set button pos
-		for (int type=0; type<reliefkarte_t::MAX_MAP_BUTTON; type++) {
+		for (int type=0; type<MAP_MAX_BUTTONS; type++) {
 			koord pos = koord( 2+(D_BUTTON_WIDTH+D_H_SPACE)*(type%col), offset_y+(D_BUTTON_HEIGHT+2)*((int)type/col) );
 			filter_buttons[type].set_pos( pos );
 		}
@@ -618,7 +619,7 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 
 	int offset_y = D_BUTTON_HEIGHT*4 + 2 + D_TITLEBAR_HEIGHT;
 	if(legend_visible) {
-		offset_y = 16+filter_buttons[reliefkarte_t::MAX_MAP_BUTTON-1].get_pos().y+D_BUTTON_HEIGHT+2;
+		offset_y = 16+filter_buttons[MAP_MAX_BUTTONS-1].get_pos().y+D_BUTTON_HEIGHT+2;
 	}
 
 	// draw scale
@@ -662,7 +663,15 @@ void map_frame_t::rdwr( loadsave_t *file )
 	file->rdwr_bool( show_legend_state );
 	file->rdwr_bool( scale_visible );
 	file->rdwr_bool( directory_visible );
-	file->rdwr_byte( umgebung_t::default_mapmode );
+	if(  file->get_version()<111004  ) {
+		sint8 mode = log2(umgebung_t::default_mapmode);
+		file->rdwr_byte( mode );
+		umgebung_t::default_mapmode = 1 << mode;
+		umgebung_t::default_mapmode = mode>=0 ? 1 << mode : 0;
+	}
+	else {
+		file->rdwr_long( umgebung_t::default_mapmode );
+	}
 
 	if(  file->is_loading()  ) {
 		koord savesize;
@@ -680,7 +689,7 @@ void map_frame_t::rdwr( loadsave_t *file )
 		scrolly.set_scroll_position( xoff, yoff );
 
 		reliefkarte_t::get_karte()->set_mode((reliefkarte_t::MAP_MODES)umgebung_t::default_mapmode);
-		for (int i=0;i<reliefkarte_t::MAX_MAP_BUTTON;i++) {
+		for (int i=0;i<MAP_MAX_BUTTONS;i++) {
 			filter_buttons[i].pressed = i==umgebung_t::default_mapmode;
 		}
 		if(  legend_visible!=show_legend_state  ) {

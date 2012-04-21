@@ -82,7 +82,10 @@ template<typename T, typename U> T const& pick_any_weighted_subset_async(U const
 }
 
 // compute integer log10
-uint32 log10(uint32 v);
+uint32 log10( uint32 v );
+
+uint32 log2( uint32 i );
+
 
 // compute integer sqrt
 uint32 sqrt_i32(uint32 num);

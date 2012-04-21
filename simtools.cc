@@ -299,6 +299,25 @@ uint32 log10(uint32 v)
 }
 
 
+uint32 log2(uint32 n)
+{
+	int i = (n & 0xffff0000) ? 16 : 0;
+	if(  (n >>= i) & 0xff00  ) {
+		i |= 8;
+		n >>= 8;
+	}
+	if(  n & 0xf0  ) {
+		i |= 4;
+		n >>= 4;
+	}
+	if(  n & 0xC  ) {
+		i |= 2;
+		n >>= 2;
+	}
+	return (uint32)(i | (n >> 1));
+}
+
+
 // compute integer sqrt
 uint32 sqrt_i32(uint32 num)
 {

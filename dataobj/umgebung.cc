@@ -4,6 +4,7 @@
 #include "../simversion.h"
 #include "../simconst.h"
 #include "../simtypes.h"
+#include "../simtools.h"
 #include "../simcolor.h"
 #include "../simmesg.h"
 
@@ -80,7 +81,7 @@ bool umgebung_t::window_buttons_right;
 bool umgebung_t::window_frame_active;
 uint8 umgebung_t::verbose_debug;
 uint8 umgebung_t::default_sortmode;
-sint8 umgebung_t::default_mapmode;
+uint32 umgebung_t::default_mapmode;
 uint8 umgebung_t::show_month;
 sint32 umgebung_t::intercity_road_length;
 plainstring umgebung_t::river_type[10];
@@ -258,7 +259,14 @@ void umgebung_t::rdwr(loadsave_t *file)
 	file->rdwr_bool( single_info );
 
 	file->rdwr_byte( default_sortmode );
-	file->rdwr_byte( default_mapmode );
+	if(  file->get_version()<111004  ) {
+		sint8 mode = log2(umgebung_t::default_mapmode)-1;
+		file->rdwr_byte( mode );
+		umgebung_t::default_mapmode = mode>=0 ? 1 << mode : 0;
+	}
+	else {
+		file->rdwr_long( umgebung_t::default_mapmode );
+	}
 
 	file->rdwr_bool( window_buttons_right );
 	file->rdwr_bool( window_frame_active );
