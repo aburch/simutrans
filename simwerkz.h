@@ -192,10 +192,10 @@ class wkz_plant_tree_t : public kartenboden_werkzeug_t {
 public:
 	wkz_plant_tree_t() : kartenboden_werkzeug_t(WKZ_PLANT_TREE | GENERAL_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate( "Plant tree" ); }
-	// TODO this routine is not network safe...
-	char const* move(karte_t* const welt, spieler_t* const sp, uint16 const b, koord3d const k) OVERRIDE { return b == 1 ? work(welt, sp, k) : 0; }
+	char const* move(karte_t* const welt, spieler_t* const sp, uint16 const b, koord3d const k) OVERRIDE;
 	char const* work(karte_t*, spieler_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
+	bool is_move_network_save(spieler_t*) const OVERRIDE { return true; }
 };
 
 /* only called directly from schedule => no tooltip!

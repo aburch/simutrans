@@ -1496,6 +1496,22 @@ const char *wkz_change_city_size_t::work( karte_t *welt, spieler_t *, koord3d po
 }
 
 
+char const* wkz_plant_tree_t::move(karte_t* const welt, spieler_t* const sp, uint16 const b, koord3d const pos)
+{
+	if (b==0) {
+		return NULL;
+	}
+	if (umgebung_t::networkmode) {
+		// queue tool for network
+		nwc_tool_t *nwc = new nwc_tool_t(sp, this, pos, welt->get_steps(), welt->get_map_counter(), false);
+		network_send_server(nwc);
+		return NULL;
+	}
+	else {
+		return work( welt, sp, pos );
+	}
+}
+
 
 const char *wkz_plant_tree_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 {
