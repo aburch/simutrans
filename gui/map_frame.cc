@@ -65,32 +65,34 @@ static vector_tpl<legend_entry_t> legend(16);
 
 typedef struct {
 	COLOR_VAL color;
+	COLOR_VAL select_color;
 	const char *button_text;
 	const char *tooltip_text;
 	reliefkarte_t::MAP_MODES mode;
 } map_button_t;
 
 map_button_t button_init[MAP_MAX_BUTTONS] = {
-	{ 215, "Towns", "Show town names", reliefkarte_t::MAP_TOWN },
-	{ 198, "CityLimit", "Mark city limits", reliefkarte_t::MAP_CITYLIMIT },
-	{ 221, "Tourists", "Highlite tourist attraction", reliefkarte_t::MAP_TOURIST },
-	{ 71, "Factories", "Highlite factories", reliefkarte_t::MAP_FACTORIES },
-	{ 23, "Passagiere", "Show passenger coverage/passenger network", reliefkarte_t::MAP_PASSENGER },
-	{ 31, "Post", "Show mail service coverage/mail network", reliefkarte_t::MAP_MAIL },
-	{ 157, "Fracht", "Show transported freight/freight network", reliefkarte_t::MAP_FREIGHT },
-	{ 63, "Traffic", "Show way usage", reliefkarte_t::MAP_TRAFFIC },
-	{ 46, "Status", "Show capacity and if halt is overcrowded", reliefkarte_t::MAP_STATUS },
-	{ 191, "hl_btn_sort_waiting", "Show how many people/much is waiting at halts", reliefkarte_t::MAP_WAITING },
-	{ 55, "Service", "Show how many convoi reach a station", reliefkarte_t::MAP_SERVICE },
-	{ 79, "Transfers", "Sum of departure/arrivals at halts", reliefkarte_t::MAP_TRANSFER },
-	{ 133, "Origin", "Show passenger origins", reliefkarte_t::MAP_ORIGIN },
-	{ 23, "PaxDest", "Overlay passenger destinations when a town window is open", reliefkarte_t::MAP_PAX_DEST },
-	{ 47, "Speedlimit", "Show speedlimti of ways", reliefkarte_t::MAX_SPEEDLIMIT },
-	{ 207, "Tracks", "Highlight railroad tracks", reliefkarte_t::MAP_TRACKS },
-	{ 123, "Powerlines", "Highlite electrical transmission lines", reliefkarte_t::MAP_POWERLINES },
-	{ 135, "Depots", "Highlite depots", reliefkarte_t::MAP_DEPOT },
-	{ 127, "Forest", "Highlite forests", reliefkarte_t::MAP_FOREST },
-	{ 11, "Ownership", "Show the owenership of infrastructure", reliefkarte_t::MAP_OWNER }
+	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "Towns", "Show town names", reliefkarte_t::MAP_TOWN },
+	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "CityLimit", "Mark city limits", reliefkarte_t::MAP_CITYLIMIT },
+	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "PaxDest", "Overlay passenger destinations when a town window is open", reliefkarte_t::MAP_PAX_DEST },
+	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "Tourists", "Highlite tourist attraction", reliefkarte_t::MAP_TOURIST },
+	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "Factories", "Highlite factories", reliefkarte_t::MAP_FACTORIES },
+	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "Networks", "Overlay schedules/network", reliefkarte_t::MAP_LINES },
+	{ COL_LIGHT_YELLOW, COL_BLACK,        "Passagiere", "Show passenger coverage/passenger network", reliefkarte_t::MAP_PASSENGER },
+	{ COL_LIGHT_YELLOW, COL_BLACK,        "Post", "Show mail service coverage/mail network", reliefkarte_t::MAP_MAIL },
+	{ COL_LIGHT_YELLOW, COL_BLACK,        "Fracht", "Show transported freight/freight network", reliefkarte_t::MAP_FREIGHT },
+	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE,  "Status", "Show capacity and if halt is overcrowded", reliefkarte_t::MAP_STATUS },
+	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE,  "hl_btn_sort_waiting", "Show how many people/much is waiting at halts", reliefkarte_t::MAP_WAITING },
+	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE,  "Service", "Show how many convoi reach a station", reliefkarte_t::MAP_SERVICE },
+	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE,  "Transfers", "Sum of departure/arrivals at halts", reliefkarte_t::MAP_TRANSFER },
+	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE,  "Origin", "Show initial passenger departure", reliefkarte_t::MAP_ORIGIN },
+	{ COL_WHITE,        COL_BLACK,        "Traffic", "Show usage of network", reliefkarte_t::MAP_TRAFFIC },
+	{ COL_WHITE,        COL_BLACK,        "Speedlimit", "Show speedlimit of ways", reliefkarte_t::MAX_SPEEDLIMIT },
+	{ COL_WHITE,        COL_BLACK,        "Tracks", "Highlight railroad tracks", reliefkarte_t::MAP_TRACKS },
+	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,   "Depots", "Highlite depots", reliefkarte_t::MAP_DEPOT },
+	{ COL_WHITE,        COL_BLACK,        "Powerlines", "Highlite electrical transmission lines", reliefkarte_t::MAP_POWERLINES },
+	{ COL_WHITE,        COL_BLACK,        "Forest", "Highlite forests", reliefkarte_t::MAP_FOREST },
+	{ COL_WHITE,        COL_BLACK,        "Ownership", "Show the owenership of infrastructure", reliefkarte_t::MAP_OWNER }
 };
 
 
@@ -116,42 +118,29 @@ map_frame_t::map_frame_t(karte_t *welt) :
 	add_komponente(&b_show_directory);
 
 	// zoom levels
-	zoom_buttons[0].init(button_t::repeatarrowleft, NULL, koord(2,D_BUTTON_HEIGHT+4));
+	zoom_buttons[0].init(button_t::repeatarrowleft, NULL, koord(BUTTON1_X,D_BUTTON_HEIGHT+4));
 	zoom_buttons[0].add_listener( this );
 	add_komponente( zoom_buttons+0 );
 
-	zoom_buttons[1].init(button_t::repeatarrowright, NULL, koord(40,D_BUTTON_HEIGHT+4));
+	zoom_buttons[1].init(button_t::repeatarrowright, NULL, koord(BUTTON1_X+38,D_BUTTON_HEIGHT+4));
 	zoom_buttons[1].add_listener( this );
 	add_komponente( zoom_buttons+1 );
 
-	zoom_label.set_pos( koord(54,D_BUTTON_HEIGHT+4) );
+	zoom_label.set_pos( koord(BUTTON1_X+54,D_BUTTON_HEIGHT+4) );
 	add_komponente( &zoom_label );
 
 	// rotate map 45°
-	b_rotate45.init(button_t::square_state, "isometric map", koord(D_BUTTON_WIDTH+40,D_BUTTON_HEIGHT+4));
+	b_rotate45.init(button_t::square_state, "isometric map", koord(BUTTON1_X,D_BUTTON_HEIGHT*2+4));
 	b_rotate45.set_tooltip("Similar view as the main window");
 	b_rotate45.add_listener(this);
 	add_komponente(&b_rotate45);
 
-	// show/hide factory links
-	b_show_fab_connections.init(button_t::square_state, "factory details", koord(2,D_BUTTON_HEIGHT*2+4)); // right align
-	b_show_fab_connections.set_tooltip("Shows consumer/suppliers for factories");
-	b_show_fab_connections.add_listener(this);
-	add_komponente( &b_show_fab_connections );
-
 	// filter factory list
-	b_filter_factory_list.init(button_t::square_state, "Show only used", koord(D_BUTTON_WIDTH+40,D_BUTTON_HEIGHT*2+4));
+	b_filter_factory_list.init(button_t::square_state, "Show only used", koord(BUTTON1_X,D_BUTTON_HEIGHT*3+4));
 	b_filter_factory_list.set_tooltip("In the industry legend show only currently existing factories");
 	b_filter_factory_list.add_listener(this);
 	b_filter_factory_list.disable();
 	add_komponente( &b_filter_factory_list );
-
-	// show/hide schedule
-	b_show_schedule.init(button_t::square_state, "Show schedules", koord(2,D_BUTTON_HEIGHT*3+4)); // right align
-	b_show_schedule.set_tooltip("Shows the currently selected schedule");
-	b_show_schedule.add_listener(this);
-	b_show_schedule.pressed = reliefkarte_t::get_karte()->is_show_schedule;
-	add_komponente( &b_show_schedule );
 
 	// init factory name legend
 	update_factory_legend(welt);
@@ -166,9 +155,10 @@ map_frame_t::map_frame_t(karte_t *welt) :
 	for (int type=0; type<MAP_MAX_BUTTONS; type++) {
 		filter_buttons[type].init( button_t::box_state, button_init[type].button_text, koord(0,0), koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 		filter_buttons[type].set_tooltip( button_init[type].tooltip_text );
-		filter_buttons[type].background = button_init[type].color;
 		filter_buttons[type].set_visible(false);
-		filter_buttons[type].pressed = button_init[type].mode==umgebung_t::default_mapmode;
+		filter_buttons[type].pressed = button_init[type].mode&umgebung_t::default_mapmode;
+		filter_buttons[type].background = filter_buttons[type].pressed ? button_init[type].select_color : button_init[type].color;
+		filter_buttons[type].foreground = filter_buttons[type].pressed ? COL_WHITE : COL_BLACK;
 		filter_buttons[type].add_listener(this);
 		add_komponente(filter_buttons + type);
 	}
@@ -323,7 +313,7 @@ void map_frame_t::show_hide_directory(const bool show)
 }
 
 
-bool map_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
+bool map_frame_t::action_triggered( gui_action_creator_t *komp, value_t )
 {
 	if(komp==&b_show_legend) {
 		show_hide_legend( !b_show_legend.pressed );
@@ -353,30 +343,32 @@ bool map_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 		reliefkarte_t::get_karte()->calc_map_groesse();
 		scrolly.set_groesse( scrolly.get_groesse() );
 	}
-	else if(komp==&b_show_schedule) {
-		//	show/hide schedule of convoi
-		reliefkarte_t::get_karte()->is_show_schedule = !reliefkarte_t::get_karte()->is_show_schedule;
-		b_show_schedule.pressed = reliefkarte_t::get_karte()->is_show_schedule;
-		}
-	else if(komp==&b_show_fab_connections) {
-		//	show/hide factory connections
-		reliefkarte_t::get_karte()->is_show_fab = !reliefkarte_t::get_karte()->is_show_fab;
-		b_show_fab_connections.pressed = reliefkarte_t::get_karte()->is_show_fab;
-	}
 	else {
 		for(  int i=0;  i<MAP_MAX_BUTTONS;  i++  ) {
-			if(  komp == &filter_buttons[i]  ) {
+			if(  komp == filter_buttons+i  ) {
 				if(  filter_buttons[i].pressed  ) {
-					umgebung_t::default_mapmode = -1;
+					umgebung_t::default_mapmode &= ~button_init[i].mode;
 				}
 				else {
-					umgebung_t::default_mapmode = button_init[i].mode;
+					if(  (button_init[i].mode & reliefkarte_t::MAP_MODE_FLAGS) == 0  ) {
+						// clear all persistent states
+						umgebung_t::default_mapmode &= reliefkarte_t::MAP_MODE_FLAGS;
+					}
+					else if(  button_init[i].mode & reliefkarte_t::MAP_MODE_HALT_FLAGS  ) {
+						// clear all other halt states
+						umgebung_t::default_mapmode &= ~reliefkarte_t::MAP_MODE_HALT_FLAGS;
+					}
+					umgebung_t::default_mapmode |= button_init[i].mode;
 				}
+				filter_buttons[i].pressed ^= 1;
+				break;
 			}
 		}
 		reliefkarte_t::get_karte()->set_mode(  (reliefkarte_t::MAP_MODES)umgebung_t::default_mapmode  );
 		for(  int i=0;  i<MAP_MAX_BUTTONS;  i++  ) {
-			filter_buttons[i].pressed = button_init[i].mode==umgebung_t::default_mapmode;
+			filter_buttons[i].pressed = (button_init[i].mode&umgebung_t::default_mapmode)!=0;
+			filter_buttons[i].background = filter_buttons[i].pressed ? button_init[i].select_color : button_init[i].color;
+			filter_buttons[i].foreground = filter_buttons[i].pressed ? COL_WHITE : COL_BLACK;
 		}
 	}
 	return true;
@@ -545,12 +537,12 @@ void map_frame_t::resize(const koord delta)
 
 	if(legend_visible) {
 		// calculate space with legend
-		const int col = max( 1, min( (get_fenstergroesse().x-2)/(D_BUTTON_WIDTH+D_H_SPACE), MAP_MAX_BUTTONS ) );
+		const int col = max( 1, min( (get_fenstergroesse().x-D_MARGIN_LEFT-D_MARGIN_RIGHT+D_H_SPACE)/(D_BUTTON_WIDTH+D_H_SPACE), MAP_MAX_BUTTONS ) );
 		const int row = ((MAP_MAX_BUTTONS-1)/col)+1;
 
 		// set button pos
 		for (int type=0; type<MAP_MAX_BUTTONS; type++) {
-			koord pos = koord( 2+(D_BUTTON_WIDTH+D_H_SPACE)*(type%col), offset_y+(D_BUTTON_HEIGHT+2)*((int)type/col) );
+			koord pos = koord( D_MARGIN_LEFT+(D_BUTTON_WIDTH+D_H_SPACE)*(type%col), offset_y+(D_BUTTON_HEIGHT+2)*((int)type/col) );
 			filter_buttons[type].set_pos( pos );
 		}
 		offset_y += (D_BUTTON_HEIGHT+2)*row;
@@ -615,7 +607,7 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 
 	char buf[16];
 	sprintf( buf, "%i:%i", reliefkarte_t::get_karte()->zoom_in, reliefkarte_t::get_karte()-> zoom_out );
-	display_proportional( pos.x+18, pos.y+D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT+5, buf, ALIGN_LEFT, COL_WHITE, true);
+	display_proportional( pos.x+D_MARGIN_LEFT+16, pos.y+D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT+3, buf, ALIGN_LEFT, COL_WHITE, true);
 
 	int offset_y = D_BUTTON_HEIGHT*4 + 2 + D_TITLEBAR_HEIGHT;
 	if(legend_visible) {
@@ -654,9 +646,14 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 
 void map_frame_t::rdwr( loadsave_t *file )
 {
+	bool is_show_schedule = (umgebung_t::default_mapmode & reliefkarte_t::MAP_LINES);
+	bool is_show_fab = (umgebung_t::default_mapmode & reliefkarte_t::MAP_FACTORIES);
+
 	file->rdwr_bool( reliefkarte_t::get_karte()->isometric );
-	file->rdwr_bool( reliefkarte_t::get_karte()->is_show_schedule );
-	file->rdwr_bool( reliefkarte_t::get_karte()->is_show_fab );
+	if(  file->get_version()<111004  ) {
+		file->rdwr_bool( is_show_schedule );
+		file->rdwr_bool( is_show_fab );
+	}
 	file->rdwr_short( reliefkarte_t::get_karte()->zoom_in );
 	file->rdwr_short( reliefkarte_t::get_karte()->zoom_out );
 	bool show_legend_state = legend_visible;
@@ -664,10 +661,12 @@ void map_frame_t::rdwr( loadsave_t *file )
 	file->rdwr_bool( scale_visible );
 	file->rdwr_bool( directory_visible );
 	if(  file->get_version()<111004  ) {
-		sint8 mode = log2(umgebung_t::default_mapmode);
+		sint8 mode = log2(umgebung_t::default_mapmode & ~reliefkarte_t::MAP_MODE_FLAGS);
 		file->rdwr_byte( mode );
 		umgebung_t::default_mapmode = 1 << mode;
 		umgebung_t::default_mapmode = mode>=0 ? 1 << mode : 0;
+		umgebung_t::default_mapmode |= is_show_schedule * reliefkarte_t::MAP_LINES;
+		umgebung_t::default_mapmode |= is_show_fab * reliefkarte_t::MAP_FACTORIES;
 	}
 	else {
 		file->rdwr_long( umgebung_t::default_mapmode );

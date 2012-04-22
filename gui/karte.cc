@@ -27,8 +27,8 @@
 
 sint32 reliefkarte_t::max_cargo=0;
 sint32 reliefkarte_t::max_passed=0;
-sint32 reliefkarte_t::max_tourist_ziele=0;
 
+static sint32 max_tourist_ziele = 1;
 static sint32 max_waiting = 1;
 static sint32 max_origin = 1;
 static sint32 max_transfer = 1;
@@ -40,6 +40,7 @@ karte_t * reliefkarte_t::welt = NULL;
 reliefkarte_t::MAP_MODES reliefkarte_t::mode = MAP_TOWN;
 reliefkarte_t::MAP_MODES reliefkarte_t::last_mode = MAP_TOWN;
 bool reliefkarte_t::is_visible = false;
+
 
 // color for the land
 const uint8 reliefkarte_t::map_type_color[MAX_MAP_TYPE_WATER+MAX_MAP_TYPE_LAND] =
@@ -158,36 +159,6 @@ void reliefkarte_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoin
 static uint32 number_to_radius( uint32 n )
 {
 	return log2( n>>5 );
-/*
-	if(  n<=32  ) {
-		return 0;
-	}
-	if(  n<=64  ) {
-		return 1;
-	}
-	if(  n<=128  ) {
-		return 2;
-	}
-	if(  n<=256  ) {
-		return 3;
-	}
-	if(  n<=512  ) {
-		return 4;
-	}
-	if(  n<=1024  ) {
-		return 5;
-	}
-	if(  n<=2048  ) {
-		return 6;
-	}
-	if(  n<=4096  ) {
-		return 7;
-	}
-	if(  n<=8192  ) {
-		return 8;
-	}
-	return 9;
-*/
 }
 
 
@@ -687,7 +658,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 	// first use ground color
 	set_relief_farbe( k, calc_relief_farbe(gr) );
 
-	switch(mode) {
+	switch(mode&~MAP_MODE_FLAGS) {
 		// show passenger coverage
 		// display coverage
 		case MAP_PASSENGER:
@@ -807,18 +778,6 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 			}
 			break;
 
-		case MAP_PAX_DEST:
-			if(  city  ) {
-				const koord p = koord(
-					((k.x * PAX_DESTINATIONS_SIZE) / welt->get_groesse_x()),
-					((k.y * PAX_DESTINATIONS_SIZE) / welt->get_groesse_y())
-				);
-				const uint8 color = city->get_pax_destinations_new()->get(p);
-				if( color != 0 ) {
-				}
-			}
-			break;
-
 		case MAP_OWNER:
 			// show ownership
 			{
@@ -894,48 +853,6 @@ void reliefkarte_t::calc_map()
 			}
 		}
 	}
-
-	// since we do iterate the tourist info list, this must be done here
-	// find tourist spots
-	if(mode==MAP_TOURIST) {
-		const weighted_vector_tpl<gebaeude_t *> &ausflugsziele = welt->get_ausflugsziele();
-		// find the current maximum
-		max_tourist_ziele = 1;
-		FOR(weighted_vector_tpl<gebaeude_t*>, const i, ausflugsziele) {
-			int const pax = i->get_passagier_level();
-			if (max_tourist_ziele < pax) {
-				max_tourist_ziele = pax;
-			}
-		}
-		// draw them
-		FOR(weighted_vector_tpl<gebaeude_t*>, const g, ausflugsziele) {
-			koord pos = g->get_pos().get_2d();
-			set_relief_farbe_area( pos, 7, calc_severity_color(g->get_passagier_level(), max_tourist_ziele));
-		}
-		return;
-	}
-
-	// since we do iterate the factory info list, this must be done here
-	if(mode==MAP_FACTORIES) {
-		FOR(slist_tpl<fabrik_t*>, const f, welt->get_fab_list()) {
-			koord const pos = f->get_pos().get_2d();
-			set_relief_farbe_area( pos, 9, COL_BLACK );
-			set_relief_farbe_area(pos, 7, f->get_kennfarbe());
-		}
-		return;
-	}
-
-	if(mode==MAP_DEPOT) {
-		FOR(slist_tpl<depot_t*>, const d, depot_t::get_depot_list()) {
-			if (d->get_besitzer() == welt->get_active_player()) {
-				koord const pos = d->get_pos().get_2d();
-				// offset of one to avoid
-				static uint8 depot_typ_to_color[19]={ COL_ORANGE, COL_YELLOW, COL_RED, 0, 0, 0, 0, 0, 0, COL_PURPLE, COL_DARK_RED, COL_DARK_ORANGE, 0, 0, 0, 0, 0, 0, COL_LIGHT_RED };
-				set_relief_farbe_area(pos, 7, depot_typ_to_color[d->get_typ() - ding_t::bahndepot]);
-			}
-		}
-		return;
-	}
 }
 
 
@@ -947,8 +864,6 @@ reliefkarte_t::reliefkarte_t()
 	isometric = false;
 	mode = MAP_TOWN;
 	city = NULL;
-	is_show_schedule = false;
-	is_show_fab = false;
 	cur_off = new_off = cur_size = new_size = koord(0,0);
 	needs_redraw = true;
 }
@@ -983,8 +898,8 @@ void reliefkarte_t::set_welt(karte_t *welt)
 
 	if(welt) {
 		calc_map_groesse();
-		max_cargo = max_passed = max_tourist_ziele = 0;
-		max_waiting = max_origin = max_transfer = max_service = 1;
+		max_cargo = max_passed = 0;
+		max_tourist_ziele = max_waiting = max_origin = max_transfer = max_service = 1;
 		last_schedule_counter = welt->get_schedule_counter()-1;
 		set_current_cnv(convoihandle_t());
 	}
@@ -1073,7 +988,7 @@ void reliefkarte_t::set_current_cnv( convoihandle_t c )
 }
 
 
-// draw the map
+// draw the map (and the overlays!)
 void reliefkarte_t::zeichnen(koord pos)
 {
 	// sanity check, needed for overlarge maps
@@ -1086,7 +1001,7 @@ void reliefkarte_t::zeichnen(koord pos)
 
 	if(  last_mode != mode  ) {
 		// only needing update, if last mode was also not about halts ...
-		needs_redraw = (mode^last_mode) & ~(MAP_TOWN|MAP_CITYLIMIT|MAP_STATUS|MAP_SERVICE|MAP_WAITING|MAP_TRANSFER) ;
+		needs_redraw = (mode^last_mode) & ~MAP_MODE_FLAGS;
 		last_schedule_counter = welt->get_schedule_counter()-1;
 		last_mode = mode;
 
@@ -1115,7 +1030,7 @@ void reliefkarte_t::zeichnen(koord pos)
 		return;
 	}
 
-	if(  mode==MAP_PAX_DEST  &&  city!=NULL  ) {
+	if(  mode & MAP_PAX_DEST  &&  city!=NULL  ) {
 		const unsigned long current_pax_destinations = city->get_pax_destinations_new_change();
 		if(  pax_destinations_last_change > current_pax_destinations  ) {
 			// new month started.
@@ -1150,7 +1065,7 @@ void reliefkarte_t::zeichnen(koord pos)
 	}
 	display_array_wh( cur_off.x+pos.x, new_off.y+pos.y, relief->get_width(), relief->get_height(), relief->to_array());
 
-	if(  !current_cnv.is_bound()  &&  (is_show_schedule  &&  (mode == MAP_PASSENGER  ||  mode == MAP_MAIL  ||  mode == MAP_FREIGHT  ||  mode == MAP_TRAFFIC) )  ) {
+	if(  !current_cnv.is_bound()  &&  mode & MAP_LINES    ) {
 		vector_tpl<linehandle_t> linee;
 
 		if(  last_schedule_counter != welt->get_schedule_counter()  ) {
@@ -1169,31 +1084,29 @@ void reliefkarte_t::zeichnen(koord pos)
 					for(  uint32 j = 0;  j < linee.get_count();  j++  ) {
 						//cycle on lines
 
-						if(  mode!=MAP_TRAFFIC  ) {
-							// does this line has a matching freight
-							if(  mode==MAP_PASSENGER  ) {
-								if(  !linee[j]->get_goods_catg_index().is_contained( warenbauer_t::INDEX_PAS )  ) {
-									// no pasengers
-									continue;
+						// does this line has a matching freight
+						if(  mode & MAP_PASSENGER  ) {
+							if(  !linee[j]->get_goods_catg_index().is_contained( warenbauer_t::INDEX_PAS )  ) {
+								// no pasengers
+								continue;
+							}
+						}
+						else if(  mode & MAP_MAIL  ) {
+							if(  !linee[j]->get_goods_catg_index().is_contained( warenbauer_t::INDEX_MAIL )  ) {
+								// no mail
+								continue;
+							}
+						}
+						else if(  mode & MAP_FREIGHT  ) {
+							uint8 i=0;
+							for(  ;  i < linee[j]->get_goods_catg_index().get_count();  i++  ) {
+								if(  linee[j]->get_goods_catg_index()[i] > warenbauer_t::INDEX_NONE  ) {
+									break;
 								}
 							}
-							else if(  mode==MAP_MAIL  ) {
-								if(  !linee[j]->get_goods_catg_index().is_contained( warenbauer_t::INDEX_MAIL )  ) {
-									// no pasengers
-									continue;
-								}
-							}
-							else {
-								uint8 i=0;
-								for(  ;  i < linee[j]->get_goods_catg_index().get_count();  i++  ) {
-									if(  linee[j]->get_goods_catg_index()[i] > warenbauer_t::INDEX_NONE  ) {
-										break;
-									}
-								}
-								if(  i >= linee[j]->get_goods_catg_index().get_count()  ) {
-									// not any freight here ...
-									continue;
-								}
+							if(  i >= linee[j]->get_goods_catg_index().get_count()  ) {
+								// not any freight here ...
+								continue;
 							}
 						}
 
@@ -1228,31 +1141,29 @@ void reliefkarte_t::zeichnen(koord pos)
 				}
 				int state = cnv->get_state();
 				if( state != convoi_t::INITIAL  &&  state != convoi_t::ENTERING_DEPOT  &&  state != convoi_t::SELF_DESTRUCT  ) {
-					if(  mode!=MAP_TRAFFIC  ) {
-						// does this line has a matching freight
-						if(  mode==MAP_PASSENGER  ) {
-							if(  !cnv->get_goods_catg_index().is_contained( warenbauer_t::INDEX_PAS )  ) {
-								// no pasengers
-								continue;
+					// does this line has a matching freight
+					if(  mode & MAP_PASSENGER  ) {
+						if(  !cnv->get_goods_catg_index().is_contained( warenbauer_t::INDEX_PAS )  ) {
+							// no pasengers
+							continue;
+						}
+					}
+					else if(  mode & MAP_MAIL  ) {
+						if(  !cnv->get_goods_catg_index().is_contained( warenbauer_t::INDEX_MAIL )  ) {
+							// no mail
+							continue;
+						}
+					}
+					else if(  mode & MAP_FREIGHT  ) {
+						uint8 i=0;
+						for(  ;  i < cnv->get_goods_catg_index().get_count();  i++  ) {
+							if(  cnv->get_goods_catg_index()[i] > warenbauer_t::INDEX_NONE  ) {
+								break;
 							}
 						}
-						else if(  mode==MAP_MAIL  ) {
-							if(  !cnv->get_goods_catg_index().is_contained( warenbauer_t::INDEX_MAIL )  ) {
-								// no pasengers
-								continue;
-							}
-						}
-						else {
-							uint8 i=0;
-							for(  ;  i < cnv->get_goods_catg_index().get_count();  i++  ) {
-								if(  cnv->get_goods_catg_index()[i] > warenbauer_t::INDEX_NONE  ) {
-									break;
-								}
-							}
-							if(  i >= cnv->get_goods_catg_index().get_count()  ) {
-								// not any freight here ...
-								continue;
-							}
+						if(  i >= cnv->get_goods_catg_index().get_count()  ) {
+							// not any freight here ...
+							continue;
 						}
 					}
 					add_to_schedule_cache( cnv, false );
@@ -1264,7 +1175,7 @@ void reliefkarte_t::zeichnen(koord pos)
 	//end MAP_LINES
 
 	bool showing_schedule = false;
-	if(  is_show_schedule  ) {
+	if(  mode & MAP_LINES  ) {
 		showing_schedule = !schedule_cache.empty()  &&  !stop_cache.empty();
 	}
 	else {
@@ -1274,46 +1185,7 @@ void reliefkarte_t::zeichnen(koord pos)
 		last_schedule_counter = welt->get_schedule_counter()-1;
 	}
 
-	// draw city limit
-	if(  mode==MAP_CITYLIMIT  ) {
-
-		const PLAYER_COLOR_VAL color = 127;
-
-		// get city list
-		const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
-		// for all cities
-		FOR(weighted_vector_tpl<stadt_t*>, const stadt, staedte) {
-			koord k[4];
-			k[0] = stadt->get_linksoben(); // top left
-			k[2] = stadt->get_rechtsunten(); // bottom right
-
-			// calculate and draw the rotated coordinates
-
-			k[1] =  koord(k[0].x, k[2].y); // bottom left
-			k[3] =  koord(k[2].x, k[0].y); // top right
-
-			k[0] += koord(0, -1); // top left
-			karte_to_screen(k[0]);
-			k[0] = k[0] + pos;
-
-			karte_to_screen(k[1]); // bottom left
-			k[1] = k[1] + pos;
-
-			k[2] += koord(1, 0); // bottom right
-			karte_to_screen(k[2]);
-			k[2] += pos;
-
-			k[3] += koord(1, -1); // top right
-			karte_to_screen(k[3]);
-			k[3] += pos;
-
-			display_direct_line(k[0].x, k[0].y, k[1].x, k[1].y, color);
-			display_direct_line(k[1].x, k[1].y, k[2].x, k[2].y, color);
-			display_direct_line(k[2].x, k[2].y, k[3].x, k[3].y, color);
-			display_direct_line(k[3].x, k[3].y, k[0].x, k[0].y, color);
-		}
-	}
-
+	// since the schedule whitens out the background, we have to draw it first
 	int offset = 0;
 	koord last_start(0,0), last_end(0,0), k1, k2;
 	bool diagonal;
@@ -1346,6 +1218,7 @@ void reliefkarte_t::zeichnen(koord pos)
 	}
 
 	// display station information here (even without overlay)
+	halthandle_t display_station;
 	FOR(  vector_tpl<halthandle_t>, station, stop_cache  ) {
 
 		int radius = 0;
@@ -1354,103 +1227,92 @@ void reliefkarte_t::zeichnen(koord pos)
 		karte_to_screen( temp_stop );
 		temp_stop = temp_stop + pos;
 
-		switch(  mode  ) {
-			case MAP_TRAFFIC:
-			case MAP_PASSENGER:
-			case MAP_MAIL:
-			case MAP_FREIGHT:
-			{
-				const int stype = station->get_station_type();
-				color = station->get_besitzer()->get_player_color1()+3;
-
-				// invalid=0, loadingbay=1, railstation = 2, dock = 4, busstop = 8, airstop = 16, monorailstop = 32, tramstop = 64, maglevstop=128, narrowgaugestop=256
-				if(  stype > 0  ) {
-					if(  stype & ~(haltestelle_t::loadingbay | haltestelle_t::busstop | haltestelle_t::tramstop)  ) {
-						// pax or mail exchange => larger
-						if(  station->is_transfer( 0 )  ||  station->is_transfer( 1 )  ) {
-							radius = 5;
-						}
-						else {
-							radius = 3;
-						}
-					}
-					else {
-						radius = 1;
-					}
-
-					if(  stype & haltestelle_t::airstop  ) {
-						display_airport( temp_stop.x, temp_stop.y, color );
-					}
-
-					if(  stype & haltestelle_t::dock  ) {
-						display_harbor( temp_stop.x, temp_stop.y, color );
-					}
-				}
+		if(  mode & MAP_STATUS  ) {
+			color = station->get_status_farbe();
+			radius = number_to_radius( station->get_capacity(0) );
+		}
+		else if( mode & MAP_SERVICE  ) {
+			const sint32 service = station->get_finance_history( 1, HALT_CONVOIS_ARRIVED );
+			if(  service > max_service  ) {
+				max_service = service;
 			}
-			break;
-
-			case MAP_STATUS:
-				color = station->get_status_farbe();
-				radius = number_to_radius( station->get_capacity(0) );
-				break;
-
-			case MAP_SERVICE:
-			{
-				const sint32 service = station->get_finance_history( 1, HALT_CONVOIS_ARRIVED );
-				if(  service > max_service  ) {
-					max_service = service;
-				}
-				color = calc_severity_color_log( service, max_service );
-				radius = log2( (uint32)( (service << 7) / max_service ) );
+			color = calc_severity_color_log( service, max_service );
+			radius = log2( (uint32)( (service << 7) / max_service ) );
+		}
+		else if( mode & MAP_WAITING  ) {
+			const sint32 waiting = station->get_finance_history( 0, HALT_WAITING );
+			if(  waiting > max_waiting  ) {
+				max_waiting = waiting;
 			}
-			break;
-
-			case MAP_WAITING:
-			{
-				const sint32 waiting = station->get_finance_history( 0, HALT_WAITING );
-				if(  waiting > max_waiting  ) {
-					max_waiting = waiting;
-				}
-				color = calc_severity_color_log( waiting, max_waiting );
-				radius = number_to_radius( waiting );
+			color = calc_severity_color_log( waiting, max_waiting );
+			radius = number_to_radius( waiting );
+		}
+		else if( mode & MAP_ORIGIN  ) {
+			const sint32 pax_origin = station->get_finance_history( 1, HALT_HAPPY ) + station->get_finance_history( 1, HALT_UNHAPPY ) + station->get_finance_history( 1, HALT_NOROUTE );
+			if(  pax_origin > max_origin  ) {
+				max_origin = pax_origin;
 			}
-			break;
-
-			case MAP_ORIGIN:
-			{
-				const sint32 pax_origin = station->get_finance_history( 1, HALT_HAPPY ) + station->get_finance_history( 1, HALT_UNHAPPY ) + station->get_finance_history( 1, HALT_NOROUTE );
-				if(  pax_origin > max_origin  ) {
-					max_origin = pax_origin;
-				}
-				color = calc_severity_color_log( pax_origin, max_origin );
-				radius = number_to_radius( pax_origin );
-			}
-
-			case MAP_TRANSFER:
-			{
+			color = calc_severity_color_log( pax_origin, max_origin );
+			radius = number_to_radius( pax_origin );
+		}
+		else if( mode & MAP_TRANSFER  ) {
 				const sint32 transfer = station->get_finance_history( 1, HALT_ARRIVED ) + station->get_finance_history( 1, HALT_DEPARTED );
 				if(  transfer > max_transfer  ) {
 					max_transfer = transfer;
 				}
 				color = calc_severity_color_log( transfer, max_transfer );
 				radius = number_to_radius( transfer );
-			}
+		}
+		else {
+			const int stype = station->get_station_type();
+			color = station->get_besitzer()->get_player_color1()+3;
 
-			default: ;
+			// invalid=0, loadingbay=1, railstation = 2, dock = 4, busstop = 8, airstop = 16, monorailstop = 32, tramstop = 64, maglevstop=128, narrowgaugestop=256
+			if(  stype > 0  ) {
+				if(  stype & ~(haltestelle_t::loadingbay | haltestelle_t::busstop | haltestelle_t::tramstop)  ) {
+					// pax or mail exchange => larger
+					if(  station->is_transfer( 0 )  ||  station->is_transfer( 1 )  ) {
+						radius = 5;
+					}
+					else {
+						radius = 3;
+					}
+				}
+				else {
+					radius = 1;
+				}
+
+				if(  stype & haltestelle_t::airstop  ) {
+					display_airport( temp_stop.x, temp_stop.y, color );
+				}
+
+				if(  stype & haltestelle_t::dock  ) {
+					display_harbor( temp_stop.x, temp_stop.y, color );
+				}
+			}
 		}
 
-		display_filled_circle( temp_stop.x, temp_stop.y, radius+1, COL_BLACK );
 		display_filled_circle( temp_stop.x, temp_stop.y, radius, color );
+		if(  radius == 0  ) {
+			radius ++;
+		}
+		display_circle( temp_stop.x, temp_stop.y, radius, COL_BLACK );
 
 		if(  koord_distance( last_world_pos, station->get_basis_pos() ) <= 2  ) {
 			// draw stop name with an index if close to mouse
-			display_ddd_proportional_clip( temp_stop.x + 10, temp_stop.y + 7, proportional_string_width( station->get_name() ) + 8, 0, color+1, COL_WHITE, station->get_name(), true );
+			display_station = station;
 		}
+	}
+	if(  display_station.is_bound()  ) {
+		koord temp_stop = display_station->get_basis_pos();
+		karte_to_screen( temp_stop );
+		temp_stop = temp_stop + pos;
+		display_ddd_proportional_clip( temp_stop.x + 10, temp_stop.y + 7, proportional_string_width( display_station->get_name() ) + 8, 0, display_station->get_besitzer()->get_player_color1()+3, COL_WHITE, display_station->get_name(), false );
 	}
 
 	// if we do not do this here, vehicles would erase the town names
 	// ADD: if CRTL key is pressed, temporary show the name
-	if(  mode==MAP_TOWN  ||  event_get_last_control_shift()==2  ) {
+	if(  mode & MAP_TOWN  ) {
 		const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
 		const COLOR_VAL col = showing_schedule ? COL_BLACK : COL_WHITE;
 
@@ -1463,6 +1325,88 @@ void reliefkarte_t::zeichnen(koord pos)
 			p.x = clamp( p.x, 0, get_groesse().x-w );
 			p += pos;
 			display_proportional_clip( p.x, p.y, name, ALIGN_LEFT, col, true );
+		}
+	}
+
+	// draw city limit
+	if(  mode & MAP_CITYLIMIT  ) {
+
+		// for all cities
+		FOR(  weighted_vector_tpl<stadt_t*>,  const stadt,  welt->get_staedte()  ) {
+			koord k[4];
+			k[0] = stadt->get_linksoben(); // top left
+			k[2] = stadt->get_rechtsunten(); // bottom right
+
+			// calculate and draw the rotated coordinates
+
+			k[1] =  koord(k[0].x, k[2].y); // bottom left
+			k[3] =  koord(k[2].x, k[0].y); // top right
+
+			k[0] += koord(0, -1); // top left
+			karte_to_screen(k[0]);
+			k[0] = k[0] + pos;
+
+			karte_to_screen(k[1]); // bottom left
+			k[1] = k[1] + pos;
+
+			k[2] += koord(1, 0); // bottom right
+			karte_to_screen(k[2]);
+			k[2] += pos;
+
+			k[3] += koord(1, -1); // top right
+			karte_to_screen(k[3]);
+			k[3] += pos;
+
+			display_direct_line_dotted( k[0].x, k[0].y, k[1].x, k[1].y, 3, 3, COL_ORANGE );
+			display_direct_line_dotted( k[1].x, k[1].y, k[2].x, k[2].y, 3, 3, COL_ORANGE );
+			display_direct_line_dotted( k[2].x, k[2].y, k[3].x, k[3].y, 3, 3, COL_ORANGE );
+			display_direct_line_dotted( k[3].x, k[3].y, k[0].x, k[0].y, 3, 3, COL_ORANGE );
+		}
+	}
+
+	// since we do iterate the tourist info list, this must be done here
+	// find tourist spots
+	if(  mode & MAP_TOURIST  ) {
+		FOR(  weighted_vector_tpl<gebaeude_t*>, const gb, welt->get_ausflugsziele()  ) {
+			if(  gb->get_tile()->get_offset()==koord(0,0)  ) {
+				koord gb_pos = gb->get_pos().get_2d();
+				karte_to_screen( gb_pos );
+				gb_pos = gb_pos + pos;
+				int const pax = gb->get_passagier_level();
+				if(  max_tourist_ziele < pax  ) {
+					max_tourist_ziele = pax;
+				}
+				COLOR_VAL color = calc_severity_color_log(gb->get_passagier_level(), max_tourist_ziele);
+				int radius = number_to_radius( pax*4 );
+				display_filled_circle( gb_pos.x, gb_pos.y, radius, color );
+				display_circle( gb_pos.x, gb_pos.y, radius, COL_BLACK );
+			}
+			// otherwise larger attraction will be shown more often ...
+		}
+	}
+
+	if(  mode & MAP_FACTORIES) {
+		FOR(  slist_tpl<fabrik_t*>,  const f,  welt->get_fab_list()  ) {
+			koord fab_pos = f->get_pos().get_2d();
+			karte_to_screen( fab_pos );
+			fab_pos = fab_pos + pos;
+//			koord size = f->get_besch()->get_haus()->get_groesse();
+			display_fillbox_wh_clip( fab_pos.x-4, fab_pos.y-4, 9, 9, COL_BLACK, false );
+			display_fillbox_wh_clip( fab_pos.x-3, fab_pos.y-3, 7, 7, f->get_kennfarbe(), false );
+		}
+	}
+
+	if(  mode & MAP_DEPOT  ) {
+		FOR(  slist_tpl<depot_t*>,  const d,  depot_t::get_depot_list()  ) {
+			if(  d->get_besitzer() == welt->get_active_player()  ) {
+				koord depot_pos = d->get_pos().get_2d();
+				karte_to_screen( depot_pos );
+				depot_pos = depot_pos + pos;
+				// offset of one to avoid
+				static COLOR_VAL depot_typ_to_color[19]={ COL_ORANGE, COL_YELLOW, COL_RED, 0, 0, 0, 0, 0, 0, COL_PURPLE, COL_DARK_RED, COL_DARK_ORANGE, 0, 0, 0, 0, 0, 0, COL_LIGHT_RED };
+				display_filled_circle( depot_pos.x, depot_pos.y, 4, depot_typ_to_color[d->get_typ() - ding_t::bahndepot] );
+				display_circle( depot_pos.x, depot_pos.y, 4, COL_BLACK );
+			}
 		}
 	}
 
@@ -1489,7 +1433,7 @@ void reliefkarte_t::zeichnen(koord pos)
 
 	if(  !showing_schedule  ) {
 		// Add factory name tooltips and draw factory connections, if on a factory
-		const fabrik_t* const fab = (is_show_fab) ?
+		const fabrik_t* const fab = (mode & MAP_FACTORIES) ?
 			draw_fab_connections(event_get_last_control_shift() & 1 ? COL_RED : COL_WHITE, pos)
 			:
 			fabrik_t::get_fab(welt, last_world_pos);

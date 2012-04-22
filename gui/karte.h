@@ -56,6 +56,9 @@ public:
 		MAP_CITYLIMIT = 131072,
 		MAP_PAX_DEST = 262144,
 		MAP_OWNER = 524288,
+		MAP_LINES = 1048576,
+		MAP_MODE_HALT_FLAGS = (MAP_STATUS|MAP_SERVICE|MAP_ORIGIN|MAP_TRANSFER|MAP_WAITING),
+		MAP_MODE_FLAGS = (MAP_TOWN|MAP_CITYLIMIT|MAP_STATUS|MAP_SERVICE|MAP_WAITING|MAP_TRANSFER|MAP_LINES|MAP_FACTORIES|MAP_ORIGIN|MAP_DEPOT|MAP_TOURIST|MAP_PAX_DEST)
 	};
 
 private:
@@ -141,7 +144,6 @@ private:
 
 	static sint32 max_cargo;
 	static sint32 max_passed;
-	static sint32 max_tourist_ziele;
 
 
 public:
@@ -154,12 +156,6 @@ public:
 
 	// 45 rotated map
 	bool isometric;
-
-	// show/hide schedule of convoi
-	bool is_show_schedule;
-
-	// show/hide factory connections
-	bool is_show_fab;
 
 	/**
 	 * returns a color based on an amount (high amount/scale -> color shifts from green to red)
