@@ -282,26 +282,13 @@ double perlin_noise_2D(const double x, const double y, const double p)
 // compute integer log10
 uint32 log10(uint32 v)
 {
-	// taken from http://graphics.stanford.edu/~seander/bithacks.html
-	// compute log2 first
-	const uint32 b[] = { 0x2, 0xC, 0xF0, 0xFF00, 0xFFFF0000 };
-	const uint32 S[] = { 1, 2, 4, 8, 16 };
-
-	uint32 r = 0; // result of log2(v) will go here
-	for(  int i = 4;  i >= 0;  i--  ) {
-		if(  v & b[i]  ) {
-			v >>= S[i];
-			r |= S[i];
-		}
-	}
-	uint32 t = ((r + 1) * 1233) >> 12; // 1 / log_2(10) ~~ 1233 / 4096
-	return t;
+	return ( (log2(v) + 1) * 1233) >> 12; // 1 / log_2(10) ~~ 1233 / 4096
 }
 
 
 uint32 log2(uint32 n)
 {
-	int i = (n & 0xffff0000) ? 16 : 0;
+	uint32 i = (n & 0xffff0000) ? 16 : 0;
 	if(  (n >>= i) & 0xff00  ) {
 		i |= 8;
 		n >>= 8;
@@ -314,7 +301,7 @@ uint32 log2(uint32 n)
 		i |= 2;
 		n >>= 2;
 	}
-	return (uint32)(i | (n >> 1));
+	return i | (n >> 1);
 }
 
 
