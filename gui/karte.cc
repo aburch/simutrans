@@ -986,6 +986,7 @@ void reliefkarte_t::set_welt(karte_t *welt)
 		max_cargo = max_passed = max_tourist_ziele = 0;
 		max_waiting = max_origin = max_transfer = max_service = 1;
 		last_schedule_counter = welt->get_schedule_counter()-1;
+		set_current_cnv(convoihandle_t());
 	}
 }
 
