@@ -74,6 +74,7 @@
 #include "dataobj/umgebung.h"
 #include "dataobj/fahrplan.h"
 #include "dataobj/route.h"
+#include "dataobj/network_cmd_ingame.h" // for dragging raise / lower tools
 
 #include "bauer/tunnelbauer.h"
 #include "bauer/brueckenbauer.h"
@@ -763,6 +764,7 @@ const char *wkz_remover_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 
 const char *wkz_raise_lower_base_t::move( karte_t *welt, spieler_t *sp, uint16 buttonstate, koord3d pos )
 {
+	const char *result = NULL;
 	if(  buttonstate==1  ) {
 		char buf[16];
 		if(!is_dragging) {
@@ -772,11 +774,17 @@ const char *wkz_raise_lower_base_t::move( karte_t *welt, spieler_t *sp, uint16 b
 		is_dragging = true;
 		sprintf( buf, "%i", drag_height );
 		default_param = buf;
-		const char *result = work( welt, sp, pos );
+		if (umgebung_t::networkmode) {
+			// queue tool for network
+			nwc_tool_t *nwc = new nwc_tool_t(sp, this, pos, welt->get_steps(), welt->get_map_counter(), false);
+			network_send_server(nwc);
+		}
+		else {
+			result = work( welt, sp, pos );
+		}
 		default_param = NULL;
-		return result;
 	}
-	return NULL;
+	return result;
 }
 
 
@@ -794,6 +802,17 @@ bool wkz_raise_lower_base_t::drag(karte_t *welt, koord pos, sint16 height, int &
 		n += diff;
 	}
 	return height==welt->lookup_hgt(pos);
+}
+
+
+bool wkz_raise_lower_base_t::check_dragging()
+{
+	// reset dragging
+	if(  is_dragging  &&  strempty(default_param)  ) {
+		is_dragging = false;
+		return false;
+	}
+	return true;
 }
 
 
@@ -824,9 +843,7 @@ const char *wkz_raise_t::check_pos( karte_t *welt, spieler_t *, koord3d k )
 
 const char *wkz_raise_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 {
-	// reset dragging
-	if(  is_dragging  &&  strempty(default_param)  ) {
-		is_dragging = false;
+	if (!check_dragging()) {
 		return NULL;
 	}
 
@@ -889,9 +906,7 @@ const char *wkz_lower_t::check_pos( karte_t *welt, spieler_t *, koord3d k )
 
 const char *wkz_lower_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 {
-	// reset dragging
-	if(  is_dragging  &&  strempty(default_param)  ) {
-		is_dragging = false;
+	if (!check_dragging()) {
 		return NULL;
 	}
 

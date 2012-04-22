@@ -70,6 +70,7 @@ protected:
 
 	bool drag(karte_t *welt, koord pos, sint16 h, int &n);
 	virtual sint16 get_drag_height(grund_t *gr) = 0;
+	bool check_dragging();
 public:
 	wkz_raise_lower_base_t(uint16 id) : werkzeug_t(id | GENERAL_TOOL) { offset = Z_GRID; }
 	image_id get_icon(spieler_t*) const OVERRIDE { return grund_t::underground_mode==grund_t::ugm_all ? IMG_LEER : icon; }
@@ -77,6 +78,18 @@ public:
 	bool exit(karte_t*, spieler_t*) OVERRIDE { is_dragging = false; return true; }
 	char const* move(karte_t*, spieler_t*, uint16 /* buttonstate */, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
+
+	/**
+	 * technically move is not network safe, however its implementation is:
+	 * it sends work commands over network itself
+	 */
+	bool is_move_network_save(spieler_t*) const OVERRIDE { return true;}
+
+	/**
+	 * work() is only called when not dragging
+	 * if work() is called with is_dragging==true then is_dragging is reseted
+	 */
+	bool is_work_network_save() const OVERRIDE { return is_dragging;}
 };
 
 class wkz_raise_t : public wkz_raise_lower_base_t {
