@@ -3181,7 +3181,10 @@ void karte_t::buche(sint64 const betrag, player_cost const type)
 	// to do: check for dependecies
 }
 
-
+inline sint32 get_population(stadt_t const* const c)
+{
+	return c->get_einwohner();
+}
 
 void karte_t::neuer_monat()
 {
@@ -3289,19 +3292,16 @@ void karte_t::neuer_monat()
 	INT_CHECK("simworld 3105");
 
 	//	DBG_MESSAGE("karte_t::neuer_monat()","cities");
-	// roll city history and copy the new citicens (i.e. the new weight) into the stadt array
-	// no INT_CHECK() here, or dialoges will go crazy!!!
-	weighted_vector_tpl<stadt_t*> new_weighted_stadt(stadt.get_count() + 1);
+	stadt.update_weights(get_population);
 	sint32 outstanding_cars = 0;
 	FOR(weighted_vector_tpl<stadt_t*>, const s, stadt) {
+		const char* TEST_name = s->get_name();
 		s->neuer_monat(recheck_road_connexions);
 		outstanding_cars += s->get_outstanding_cars();
-		new_weighted_stadt.append(s, s->get_einwohner(), 64);
-		INT_CHECK("simworld 3117");
+		//INT_CHECK("simworld 3117");
 		total_electric_demand += s->get_power_demand();
 	}
 	recheck_road_connexions = false;
-	swap(stadt, new_weighted_stadt);
 
 	if(fabrikbauer_t::power_stations_available(this) && (((sint64)electric_productivity * 4000l) / total_electric_demand) < (sint64)get_settings().get_electric_promille())
 	{
