@@ -283,8 +283,8 @@ public:
 	bool is_move_network_save(spieler_t*) const OVERRIDE { return true; }
 	bool is_work_here_network_save(karte_t*, spieler_t *, koord3d) OVERRIDE;
 
-	bool is_first_click(spieler_t *sp) const;
-	void cleanup( spieler_t *, bool delete_start_marker );
+	bool is_first_click() const;
+	void cleanup(bool delete_start_marker );
 
 private:
 
@@ -312,14 +312,14 @@ private:
 
 	virtual image_id get_marker_image();
 
-	bool first_click_var[MAX_PLAYER_COUNT];
-	koord3d start[MAX_PLAYER_COUNT];
-	void start_at( karte_t *, spieler_t *, koord3d &new_start );
+	bool first_click_var;
+	koord3d start;
+	void start_at( karte_t *, koord3d &new_start );
 
-	zeiger_t *start_marker[MAX_PLAYER_COUNT];
+	zeiger_t *start_marker;
 
 protected:
-	slist_tpl< zeiger_t* > marked[MAX_PLAYER_COUNT];
+	slist_tpl< zeiger_t* > marked;
 };
 
 /* toolbar are a new overclass */

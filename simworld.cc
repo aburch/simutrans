@@ -4207,7 +4207,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 	 */
 	for(  uint8 sp_nr=0;  sp_nr<MAX_PLAYER_COUNT;  sp_nr++  ) {
 		if(  two_click_werkzeug_t* tool = dynamic_cast<two_click_werkzeug_t*>(werkzeug[sp_nr]) ) {
-			tool->cleanup( spieler[sp_nr], false );
+			tool->cleanup( false );
 		}
 	}
 

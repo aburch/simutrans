@@ -1807,7 +1807,7 @@ void wkz_wegebau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &sta
 				way->set_bild( besch->get_bild_nr(zeige,0) );
 			}
 			gr->obj_add( way );
-			marked[sp->get_player_nr()].insert( way );
+			marked.insert( way );
 			way->mark_image_dirty( way->get_bild(), 0 );
 		}
 	}
@@ -1897,7 +1897,7 @@ void wkz_brueckenbau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d 
 			}
 		}
 	}
-	marked[sp->get_player_nr()].insert( way );
+	marked.insert( way );
 	way->mark_image_dirty( way->get_bild(), 0 );
 	// loop
 	koord3d pos(start + zv + koord3d(0,0,1));
@@ -1912,7 +1912,7 @@ void wkz_brueckenbau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d 
 		gr->obj_add( way );
 		way->set_bild(besch->get_hintergrund(besch->get_simple(ribi_mark),0));
 		way->set_after_bild(besch->get_vordergrund(besch->get_simple(ribi_mark), 0));
-		marked[sp->get_player_nr()].insert( way );
+		marked.insert( way );
 		way->mark_image_dirty( way->get_bild(), 0 );
 		pos = pos + zv;
 	}
@@ -1928,7 +1928,7 @@ void wkz_brueckenbau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d 
 		if (gr->get_grund_hang()!=0) {
 			way->set_yoff(-TILE_HEIGHT_STEP);
 		}
-		marked[sp->get_player_nr()].insert( way );
+		marked.insert( way );
 		way->mark_image_dirty( way->get_bild(), 0 );
 		costs += besch->get_preis();
 	}
@@ -1969,7 +1969,7 @@ uint8 wkz_brueckenbau_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord
 	if (welt->lookup(pos + koord3d(0,0,1))) {
 		return 0;
 	}
-	if (is_first_click(sp)) {
+	if (is_first_click()) {
 		// first click
 		if (!gr->ist_karten_boden()) {
 			return 0;
@@ -2099,7 +2099,7 @@ const char *wkz_tunnelbau_t::do_work( karte_t *welt, spieler_t *sp, const koord3
 
 uint8 wkz_tunnelbau_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord3d &pos, const char *&error, const koord3d & )
 {
-	if(  !is_first_click(sp)  ) {
+	if(  !is_first_click()  ) {
 		error = NULL;
 		// All pos are valid for the second click!
 		return 2;
@@ -2179,7 +2179,7 @@ void wkz_tunnelbau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &s
 				way->set_bild( wb->get_bild_nr(zeige,0) );
 			}
 			gr->obj_add( way );
-			marked[sp->get_player_nr()].insert( way );
+			marked.insert( way );
 			way->mark_image_dirty( way->get_bild(), 0 );
 		}
 		welt->lookup(end)->set_flag(grund_t::marked);
@@ -2229,7 +2229,7 @@ void wkz_wayremover_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &
 			zeiger_t *marker = new zeiger_t( welt, pos, NULL );
 			marker->set_bild( cursor );
 			marker->mark_image_dirty( marker->get_bild(), 0 );
-			marked[sp->get_player_nr()].insert( marker );
+			marked.insert( marker );
 			welt->lookup(pos)->obj_add( marker );
 		}
 	}
@@ -2581,7 +2581,7 @@ void wkz_wayobj_t::mark_tiles( karte_t * welt, spieler_t * sp, const koord3d &st
 			if( way_obj ) {
 				way_obj->mark_image_dirty( way_obj->get_bild(), 0 );
 				gr->obj_add( way_obj );
-				marked[sp->get_player_nr()].insert( way_obj );
+				marked.insert( way_obj );
 			}
 		}
 		win_set_static_tooltip( tooltip_with_price("Building costs estimates", -cost_estimate ) );
@@ -3648,7 +3648,7 @@ void wkz_roadsign_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &st
 			if (check_pos_intern(welt, sp, route.position_bei(i))==NULL  ||
 					(s.replace_other && rs && !rs->ist_entfernbar(sp))) {
 				zeiger_t* zeiger = new zeiger_t(welt, gr->get_pos(), sp );
-				marked[sp->get_player_nr()].append(zeiger);
+				marked.append(zeiger);
 				zeiger->set_bild( skinverwaltung_t::bauigelsymbol->get_bild_nr(0) );
 				gr->obj_add( zeiger );
 				zeiger->set_richtung(ribi /* !=0 -> place sign*/);
@@ -3663,7 +3663,7 @@ void wkz_roadsign_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &st
 			}
 		} else if (s.remove_intermediate && rs && !rs->ist_entfernbar(sp)) {
 				zeiger_t* zeiger = new zeiger_t(welt, gr->get_pos(), sp );
-				marked[sp->get_player_nr()].append(zeiger);
+				marked.append(zeiger);
 				zeiger->set_bild( werkzeug_t::general_tool[WKZ_REMOVER]->cursor );
 				gr->obj_add( zeiger );
 				zeiger->set_richtung(ribi_t::keine /*remove sign*/);
@@ -3686,7 +3686,7 @@ const char *wkz_roadsign_t::do_work( karte_t *welt, spieler_t *sp, const koord3d
 	// mark tiles to calculate positions of signals
 	mark_tiles(welt, sp, start, end);
 	// only search the marked tiles
-	FOR(slist_tpl<zeiger_t*>, const i, marked[sp->get_player_nr()]) {
+	FOR(slist_tpl<zeiger_t*>, const i, marked) {
 		grund_t* const gr = welt->lookup(i->get_pos());
 		weg_t *weg = gr->get_weg(besch->get_wtyp());
 		if (i->get_richtung()) {
@@ -3723,7 +3723,7 @@ const char *wkz_roadsign_t::do_work( karte_t *welt, spieler_t *sp, const koord3d
 		weg->count_sign();
 		gr->calc_bild();
 	}
-	cleanup(sp, true);
+	cleanup(true);
 	return NULL;
 }
 
@@ -4575,7 +4575,7 @@ uint8 wkz_forest_t::is_valid_pos( karte_t *, spieler_t *, const koord3d &, const
 	return 2;
 }
 
-void wkz_forest_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &start, const koord3d &end )
+void wkz_forest_t::mark_tiles( karte_t *welt, spieler_t *, const koord3d &start, const koord3d &end )
 {
 	koord min, max;
 	min.x = start.x < end.x ? start.x : end.x;
@@ -4595,7 +4595,7 @@ void wkz_forest_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &star
 			marker->set_bild( grund_besch_t::marker->get_bild( back_hang ) );
 			marker->mark_image_dirty( marker->get_bild(), 0 );
 			gr->obj_add( marker );
-			marked[sp->get_player_nr()].insert( marker );
+			marked.insert( marker );
 		}
 	}
 }
