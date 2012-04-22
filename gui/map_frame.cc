@@ -150,6 +150,7 @@ map_frame_t::map_frame_t(karte_t *welt) :
 	b_show_schedule.init(button_t::square_state, "Show schedules", koord(2,D_BUTTON_HEIGHT*3+4)); // right align
 	b_show_schedule.set_tooltip("Shows the currently selected schedule");
 	b_show_schedule.add_listener(this);
+	b_show_schedule.pressed = reliefkarte_t::get_karte()->is_show_schedule;
 	add_komponente( &b_show_schedule );
 
 	// init factory name legend
