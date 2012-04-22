@@ -283,6 +283,12 @@ public:
 	bool is_move_network_save(spieler_t*) const OVERRIDE { return true; }
 	bool is_work_here_network_save(karte_t*, spieler_t *, koord3d) OVERRIDE;
 
+	/**
+	 * @returns true if cleanup() needs to be called before another tool can be executed
+	 * necessary for all tools that create dummy tiles for preview
+	 */
+	virtual bool remove_preview_necessary() const { return false; }
+
 	bool is_first_click() const;
 	void cleanup(bool delete_start_marker );
 

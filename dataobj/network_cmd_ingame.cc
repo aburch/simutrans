@@ -1118,6 +1118,11 @@ void nwc_tool_t::do_command(karte_t *welt)
 			}
 			// call WORK
 			else {
+				// remove preview tiles of active tool
+				two_click_werkzeug_t *active_wkz = dynamic_cast<two_click_werkzeug_t*>(welt->get_werkzeug(welt->get_active_player_nr()));
+				if(active_wkz  &&  active_wkz->remove_preview_necessary()) {
+					active_wkz->cleanup(true);
+				}
 				const char *err = wkz->work( welt, sp, pos );
 				// only local players or AIs get the callback
 				if (local  ||  sp->get_ai_id()!=spieler_t::HUMAN) {

@@ -192,6 +192,7 @@ class wkz_plant_tree_t : public kartenboden_werkzeug_t {
 public:
 	wkz_plant_tree_t() : kartenboden_werkzeug_t(WKZ_PLANT_TREE | GENERAL_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate( "Plant tree" ); }
+	// TODO this routine is not network safe...
 	char const* move(karte_t* const welt, spieler_t* const sp, uint16 const b, koord3d const k) OVERRIDE { return b == 1 ? work(welt, sp, k) : 0; }
 	char const* work(karte_t*, spieler_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
@@ -238,8 +239,9 @@ public:
 	char const* get_default_param(spieler_t*) const OVERRIDE;
 	bool is_selected(karte_t const*) const OVERRIDE;
 	bool init(karte_t*, spieler_t*) OVERRIDE;
-	bool is_move_network_save(spieler_t* const sp) const OVERRIDE { return two_click_werkzeug_t::is_move_network_save(sp) && (besch && (besch->get_styp() != 1 || besch->get_wtyp() == air_wt)); }
 	bool is_init_network_save() const OVERRIDE { return true; }
+	// remove preview necessary while building elevated ways
+	bool remove_preview_necessary() const OVERRIDE { return !is_first_click()  &&  (besch  &&  (besch->get_styp() == 1  &&  besch->get_wtyp() != air_wt)); }
 };
 
 class wkz_build_cityroad : public wkz_wegebau_t {
@@ -264,8 +266,9 @@ public:
 	wkz_brueckenbau_t() : two_click_werkzeug_t(WKZ_BRUECKENBAU | GENERAL_TOOL) {}
 	image_id get_icon(spieler_t*) const OVERRIDE { return grund_t::underground_mode==grund_t::ugm_all ? IMG_LEER : icon; }
 	char const* get_tooltip(spieler_t const*) const OVERRIDE;
-	bool is_move_network_save(spieler_t*) const OVERRIDE { return false;}
 	bool is_init_network_save() const OVERRIDE { return true; }
+	bool remove_preview_necessary() const OVERRIDE { return !is_first_click(); }
+	void rdwr_custom_data(uint8 player_nr, memory_rw_t*) OVERRIDE;
 };
 
 class wkz_tunnelbau_t : public two_click_werkzeug_t {
@@ -277,9 +280,9 @@ private:
 public:
 	wkz_tunnelbau_t() : two_click_werkzeug_t(WKZ_TUNNELBAU | GENERAL_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE;
-	bool is_move_network_save(spieler_t*) const OVERRIDE { return false;}
 	char const* check_pos(karte_t*, spieler_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
+	bool remove_preview_necessary() const OVERRIDE { return !is_first_click(); }
 };
 
 class wkz_wayremover_t : public two_click_werkzeug_t {
@@ -535,6 +538,7 @@ public:
 	char const* move(karte_t*, spieler_t*, uint16 /* buttonstate */, koord3d) OVERRIDE;
 	char const* work(karte_t*, spieler_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
+	bool is_move_network_save(spieler_t*) const OVERRIDE { return true; }
 };
 
 /********************* one click tools ****************************/

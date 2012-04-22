@@ -88,6 +88,7 @@
 
 #include "tpl/vector_tpl.h"
 
+#include "utils/memory_rw.h"
 #include "utils/simstring.h"
 
 #include "simwerkz.h"
@@ -1864,6 +1865,14 @@ const char *wkz_brueckenbau_t::do_work( karte_t *welt, spieler_t *sp, const koor
 		brueckenbauer_t::baue_bruecke( welt, sp, start, end, zv, besch, wegbauer_t::weg_search(besch->get_waytype(), besch->get_topspeed(), welt->get_timeline_year_month(), weg_t::type_flat));
 		return NULL; // all checks are performed before building.
 	}
+}
+
+void wkz_brueckenbau_t::rdwr_custom_data(uint8 player_nr, memory_rw_t *packet)
+{
+	two_click_werkzeug_t::rdwr_custom_data(player_nr, packet);
+	uint8 i = ribi;
+	packet->rdwr_byte(i);
+	ribi = (ribi_t::ribi)i;
 }
 
 void wkz_brueckenbau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &start, const koord3d &end )
