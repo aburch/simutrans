@@ -76,15 +76,13 @@ public:
 	image_id get_icon(spieler_t*) const OVERRIDE { return grund_t::underground_mode==grund_t::ugm_all ? IMG_LEER : icon; }
 	bool init(karte_t*, spieler_t*) OVERRIDE { is_dragging = false; return true; }
 	bool exit(karte_t*, spieler_t*) OVERRIDE { is_dragging = false; return true; }
-	char const* move(karte_t*, spieler_t*, uint16 /* buttonstate */, koord3d) OVERRIDE;
-	bool is_init_network_save() const OVERRIDE { return true; }
-
 	/**
 	 * technically move is not network safe, however its implementation is:
 	 * it sends work commands over network itself
 	 */
-	bool is_move_network_save(spieler_t*) const OVERRIDE { return true;}
+	char const* move(karte_t*, spieler_t*, uint16 /* buttonstate */, koord3d) OVERRIDE;
 
+	bool is_init_network_save() const OVERRIDE { return true; }
 	/**
 	 * work() is only called when not dragging
 	 * if work() is called with is_dragging==true then is_dragging is reseted
@@ -195,7 +193,6 @@ public:
 	char const* move(karte_t* const welt, spieler_t* const sp, uint16 const b, koord3d const k) OVERRIDE;
 	char const* work(karte_t*, spieler_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
-	bool is_move_network_save(spieler_t*) const OVERRIDE { return true; }
 };
 
 /* only called directly from schedule => no tooltip!
@@ -538,7 +535,6 @@ public:
 	char const* move(karte_t*, spieler_t*, uint16 /* buttonstate */, koord3d) OVERRIDE;
 	char const* work(karte_t*, spieler_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
-	bool is_move_network_save(spieler_t*) const OVERRIDE { return true; }
 };
 
 /********************* one click tools ****************************/
