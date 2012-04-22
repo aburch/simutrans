@@ -12,6 +12,7 @@
 #include "components/gui_button.h"
 #include "components/gui_scrollpane.h"
 #include "components/gui_label.h"
+#include "components/gui_numberinput.h"
 #include "components/action_listener.h"
 #include "components/gui_combobox.h"
 #include "goods_stats_t.h"
@@ -58,6 +59,8 @@ private:
 	gui_label_t		change_distance_label;
 	gui_label_t		change_comfort_label;
 	gui_label_t		change_catering_label;
+
+	/*
 	button_t		speed_up;
 	button_t		speed_down;
 	button_t		distance_up;
@@ -66,6 +69,13 @@ private:
 	button_t		comfort_down;
 	button_t		catering_up;
 	button_t		catering_down;
+	*/
+	
+	// replace button list with numberinput components for faster navigation
+	// @author: HeinBloed, April 2012
+	gui_numberinput_t distance_input, comfort_input, catering_input, speed_input;
+
+
 	gui_combobox_t	way_type;
 	button_t		filter_goods_toggle;
 
