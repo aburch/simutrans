@@ -155,7 +155,7 @@ void reliefkarte_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoin
 
 
 // some rountes for the relief map with schedules
-static uint32 number_to_radius( int n )
+static uint32 number_to_radius( uint32 n )
 {
 	return log2( n>>5 );
 /*
@@ -453,7 +453,7 @@ uint8 reliefkarte_t::calc_severity_color_log(sint32 amount, sint32 max_value)
 	if(  max_value>1  ) {
 		sint32 severity;
 		if(  amount <= 0x003FFFFFu  ) {
-			severity = log2( (amount << MAX_SEVERITY_COLORS) / max_value );
+			severity = log2( (uint32)( (amount << MAX_SEVERITY_COLORS) / max_value ) );
 		}
 		else {
 			severity = (uint32)( log( (double)amount*(double)(1<<MAX_SEVERITY_COLORS)/(double)max_value) + 0.5 );
@@ -1400,7 +1400,7 @@ void reliefkarte_t::zeichnen(koord pos)
 					max_service = service;
 				}
 				color = calc_severity_color_log( service, max_service );
-				radius = log2( (service << 7) / max_service );
+				radius = log2( (uint32)( (service << 7) / max_service ) );
 			}
 			break;
 
@@ -1435,6 +1435,7 @@ void reliefkarte_t::zeichnen(koord pos)
 				radius = number_to_radius( transfer );
 			}
 
+			default: ;
 		}
 
 		display_filled_circle( temp_stop.x, temp_stop.y, radius+1, COL_BLACK );
