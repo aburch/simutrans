@@ -761,13 +761,13 @@ const char *wkz_remover_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 
 
 
-const char *wkz_raise_t::move( karte_t *welt, spieler_t *sp, uint16 buttonstate, koord3d pos )
+const char *wkz_raise_lower_base_t::move( karte_t *welt, spieler_t *sp, uint16 buttonstate, koord3d pos )
 {
 	if(  buttonstate==1  ) {
 		char buf[16];
 		if(!is_dragging) {
 			grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
-			drag_height = gr->get_hoehe() + corner4(gr->get_grund_hang()) +1;
+			drag_height = get_drag_height(gr);
 		}
 		is_dragging = true;
 		sprintf( buf, "%i", drag_height );
@@ -777,6 +777,29 @@ const char *wkz_raise_t::move( karte_t *welt, spieler_t *sp, uint16 buttonstate,
 		return result;
 	}
 	return NULL;
+}
+
+
+bool wkz_raise_lower_base_t::drag(karte_t *welt, koord pos, sint16 height, int &n)
+{
+	// dragging may be going up or down!
+	while(welt->lookup_hgt(pos)<height) {
+		int diff = welt->raise(pos);
+		if(diff==0) break;
+		n += diff;
+	}
+	while(welt->lookup_hgt(pos)>height) {
+		int diff = welt->lower(pos);
+		if(diff==0) break;
+		n += diff;
+	}
+	return height==welt->lookup_hgt(pos);
+}
+
+
+sint16 wkz_raise_t::get_drag_height(grund_t *gr)
+{
+	return  gr->get_hoehe() + corner4(gr->get_grund_hang()) + 1;
 }
 
 
@@ -798,6 +821,7 @@ const char *wkz_raise_t::check_pos( karte_t *welt, spieler_t *, koord3d k )
 	return NULL;
 }
 
+
 const char *wkz_raise_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 {
 	// reset dragging
@@ -818,19 +842,7 @@ const char *wkz_raise_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 			int n = 0;	// tiles changed
 			if (!strempty(default_param)) {
 				// called by dragging or by AI
-				sint16 height = atoi(default_param);
-				// dragging may be going up or down!
-				while(welt->lookup_hgt(pos)<height) {
-					int diff = welt->raise(pos);
-					if(diff==0) break;
-					n += diff;
-				}
-				while(welt->lookup_hgt(pos)>height) {
-					int diff = welt->lower(pos);
-					if(diff==0) break;
-					n += diff;
-				}
-				ok = height==welt->lookup_hgt(pos);
+				ok = drag(welt, pos, atoi(default_param), n);
 			}
 			else {
 				n = welt->raise(pos);
@@ -850,22 +862,9 @@ const char *wkz_raise_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 }
 
 
-
-const char *wkz_lower_t::move( karte_t *welt, spieler_t *sp, uint16 buttonstate, koord3d pos )
+sint16 wkz_lower_t::get_drag_height(grund_t *gr)
 {
-	if(  buttonstate==1  ) {
-		char buf[16];
-		if(!is_dragging) {
-			drag_height = welt->lookup_hgt(pos.get_2d())-Z_TILE_STEP;
-		}
-		is_dragging = true;
-		sprintf( buf, "%i", drag_height );
-		default_param = buf;
-		const char *result = work( welt, sp, pos );
-		default_param = NULL;
-		return result;
-	}
-	return NULL;
+	return  gr->get_hoehe() + corner4(gr->get_grund_hang()) - 1;
 }
 
 
@@ -887,6 +886,7 @@ const char *wkz_lower_t::check_pos( karte_t *welt, spieler_t *, koord3d k )
 	return NULL;
 }
 
+
 const char *wkz_lower_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 {
 	// reset dragging
@@ -907,19 +907,7 @@ const char *wkz_lower_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 			int n = 0;	// tiles changed
 			if (!strempty(default_param)) {
 				// called by dragging or by AI
-				sint16 height = atoi(default_param);
-				// dragging may be going up or down!
-				while(welt->lookup_hgt(pos)<height) {
-					int diff = welt->raise(pos);
-					if(diff==0) break;
-					n += diff;
-				}
-				while(welt->lookup_hgt(pos)>height) {
-					int diff = welt->lower(pos);
-					if(diff==0) break;
-					n += diff;
-				}
-				ok = height==welt->lookup_hgt(pos);
+				ok = drag(welt, pos, atoi(default_param), n);
 			}
 			else {
 				n = welt->lower(pos);
