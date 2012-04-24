@@ -1002,23 +1002,18 @@ void reliefkarte_t::zeichnen(koord pos)
 	if(  last_mode != mode  ) {
 		// only needing update, if last mode was also not about halts ...
 		needs_redraw = (mode^last_mode) & ~MAP_MODE_FLAGS;
-		last_schedule_counter = welt->get_schedule_counter()-1;
-		last_mode = mode;
 
-		// update halts here
-		stop_cache.clear();
-		if(  mode&MAP_STATUS  ||  mode&MAP_SERVICE  ||  mode&MAP_WAITING  ||  mode&MAP_TRANSFER  ) {
-			FOR( const slist_tpl<halthandle_t>, halt, haltestelle_t::get_alle_haltestellen() ) {
-				stop_cache.append( halt );
-			}
+		if(  (mode & MAP_LINES) == 0  ||  (mode^last_mode) & MAP_MODE_HALT_FLAGS  ) {
+			// rebuilt stop_cache needed
+			stop_cache.clear();
 		}
-		else if(  mode&MAP_ORIGIN  ) {
-			FOR( const slist_tpl<halthandle_t>, halt, haltestelle_t::get_alle_haltestellen() ) {
-				if(  halt->get_pax_enabled()  ||  halt->get_post_enabled()  ) {
-					stop_cache.append( halt );
-				}
-			}
+
+		if(  (mode^last_mode) & (MAP_PASSENGER|MAP_MAIL|MAP_FREIGHT|MAP_LINES)  ||  (mode&MAP_LINES  &&  stop_cache.empty())  ) {
+			// rebuilt line display
+			last_schedule_counter = welt->get_schedule_counter()-1;
 		}
+
+		last_mode = mode;
 	}
 
 	if(  needs_redraw  ||  cur_off!=new_off  ||  cur_size!=new_size  ) {
@@ -1176,7 +1171,7 @@ void reliefkarte_t::zeichnen(koord pos)
 
 	bool showing_schedule = false;
 	if(  mode & MAP_LINES  ) {
-		showing_schedule = !schedule_cache.empty()  &&  !stop_cache.empty();
+		showing_schedule = !schedule_cache.empty();
 	}
 	else {
 		schedule_cache.clear();
@@ -1199,7 +1194,13 @@ void reliefkarte_t::zeichnen(koord pos)
 			COLOR_VAL color = seg.colorcount;
 			if(  event_get_last_control_shift()==2  ) {
 				// on control use only player colors
+				static COLOR_VAL last_color = color;
 				color = seg.sp->get_player_color1()+1;
+				// all lines same thickness if same color
+				if(  color == last_color  ) {
+					offset = 0;
+				}
+				last_color = color;
 			}
 			if(  seg.start != last_start  ||  seg.end != last_end  ) {
 				last_start = k1 = seg.start;
@@ -1219,6 +1220,39 @@ void reliefkarte_t::zeichnen(koord pos)
 
 	// display station information here (even without overlay)
 	halthandle_t display_station;
+	// only fille cache if needed
+	if(  mode & MAP_MODE_HALT_FLAGS  &&  stop_cache.empty()  ) {
+		if(  mode&MAP_ORIGIN  ) {
+			FOR( const slist_tpl<halthandle_t>, halt, haltestelle_t::get_alle_haltestellen() ) {
+				if(  halt->get_pax_enabled()  ||  halt->get_post_enabled()  ) {
+					stop_cache.append( halt );
+				}
+			}
+		}
+		else if(  mode&MAP_TRANSFER  ) {
+			FOR( const slist_tpl<halthandle_t>, halt, haltestelle_t::get_alle_haltestellen() ) {
+				if(  halt->is_transfer(warenbauer_t::INDEX_PAS)  ||  halt->is_transfer(warenbauer_t::INDEX_MAIL)  ) {
+					stop_cache.append( halt );
+				}
+				else {
+					// good transfer?
+					bool transfer = false;
+					for(  int i=warenbauer_t::INDEX_NONE+1  &&  !transfer;  i<=warenbauer_t::get_max_catg_index();  i ++  ) {
+						transfer = halt->is_transfer( i );
+					}
+					if(  transfer  ) {
+						stop_cache.append( halt );
+					}
+				}
+			}
+		}
+		else if(  mode&MAP_STATUS  ||  mode&MAP_SERVICE  ||  mode&MAP_WAITING  ) {
+			FOR( const slist_tpl<halthandle_t>, halt, haltestelle_t::get_alle_haltestellen() ) {
+				stop_cache.append( halt );
+			}
+		}
+	}
+	// now draw stop cache
 	FOR(  vector_tpl<halthandle_t>, station, stop_cache  ) {
 
 		int radius = 0;
@@ -1248,6 +1282,9 @@ void reliefkarte_t::zeichnen(koord pos)
 			radius = number_to_radius( waiting );
 		}
 		else if( mode & MAP_ORIGIN  ) {
+			if(  !station->get_pax_enabled()  &&  !station->get_post_enabled()  ) {
+				continue;
+			}
 			const sint32 pax_origin = station->get_finance_history( 1, HALT_HAPPY ) + station->get_finance_history( 1, HALT_UNHAPPY ) + station->get_finance_history( 1, HALT_NOROUTE );
 			if(  pax_origin > max_origin  ) {
 				max_origin = pax_origin;
@@ -1256,12 +1293,12 @@ void reliefkarte_t::zeichnen(koord pos)
 			radius = number_to_radius( pax_origin );
 		}
 		else if( mode & MAP_TRANSFER  ) {
-				const sint32 transfer = station->get_finance_history( 1, HALT_ARRIVED ) + station->get_finance_history( 1, HALT_DEPARTED );
-				if(  transfer > max_transfer  ) {
-					max_transfer = transfer;
-				}
-				color = calc_severity_color_log( transfer, max_transfer );
-				radius = number_to_radius( transfer );
+			const sint32 transfer = station->get_finance_history( 1, HALT_ARRIVED ) + station->get_finance_history( 1, HALT_DEPARTED );
+			if(  transfer > max_transfer  ) {
+				max_transfer = transfer;
+			}
+			color = calc_severity_color_log( transfer, max_transfer );
+			radius = number_to_radius( transfer );
 		}
 		else {
 			const int stype = station->get_station_type();
