@@ -23,6 +23,9 @@
 #include "../simtools.h"
 #include "../player/simplay.h"
 
+#include "../tpl/inthashtable_tpl.h"
+#include "../tpl/slist_tpl.h"
+
 #include <math.h>
 
 sint32 reliefkarte_t::max_cargo=0;
@@ -83,6 +86,8 @@ bool reliefkarte_t::LineSegmentOrdering::operator()(const reliefkarte_t::line_se
 
 
 static COLOR_VAL colore = 0;
+static inthashtable_tpl<int,slist_tpl<schedule_t *>> waypoint_hash;
+
 
 
 // add the schedule to the map (if there is a valid one)
@@ -92,6 +97,7 @@ void reliefkarte_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoin
 	if(  !cnv.is_bound()  ) {
 		return;
 	}
+	schedule_t *fpl = cnv->get_schedule();
 
 	colore += 8;
 	if(  colore >= 208  ) {
@@ -104,15 +110,16 @@ void reliefkarte_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoin
 	// ok, add this schedule to map
 	// from here on we have a valid convoi
 	int stops = 0;
+	uint8 old_offset, first_offset, temp_offset = 0;
 	koord old_stop, first_stop, temp_stop;
 	bool last_diagonal = false;
 
-	FOR(  minivec_tpl<linieneintrag_t>, cur, cnv->get_schedule()->eintrag  ) {
+	FOR(  minivec_tpl<linieneintrag_t>, cur, fpl->eintrag  ) {
 
 		//cycle on stops
 		//try to read station's coordinates if there's a station at this schedule stop
 		halthandle_t station = haltestelle_t::get_halt( welt, cur.pos, cnv->get_besitzer() );
-		if( station.is_bound() ) {
+		if(  station.is_bound()  ) {
 			stop_cache.append_unique( station );
 			temp_stop = station->get_basis_pos();
 			stops ++;
@@ -121,25 +128,58 @@ void reliefkarte_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoin
 			temp_stop = cur.pos.get_2d();
 			stops ++;
 		}
+		else {
+			continue;
+		}
+
+		// init key
+		const int key = temp_stop.x + temp_stop.y*welt->get_groesse_x();
+		waypoint_hash.put( key );
+		// now get the offset
+		slist_tpl<schedule_t *>*pt_list = waypoint_hash.access(key);
+		if(  !pt_list->is_contained( fpl )  ) {
+			// not known => append
+			temp_offset = pt_list->get_count();
+		}
+		else {
+			// how many times we reached here?
+			temp_offset = pt_list->index_of( fpl );
+		}
 
 		if(  stops>1  ) {
 			last_diagonal ^= true;
 			if(  (temp_stop.x-old_stop.x)*(temp_stop.y-old_stop.y) == 0  ) {
 				last_diagonal = false;
 			}
-			schedule_cache.insert_unique_ordered( line_segment_t( temp_stop, old_stop, cnv->get_schedule(), cnv->get_besitzer(), colore, last_diagonal ), LineSegmentOrdering() );
+			if(  !schedule_cache.insert_unique_ordered( line_segment_t( temp_stop, temp_offset, old_stop, old_offset, fpl, cnv->get_besitzer(), colore, last_diagonal ), LineSegmentOrdering() )  ) {
+				// append if added and not yet there
+				if(  pt_list->get_count() == temp_offset  ) {
+					pt_list->append( fpl );
+				}
+			}
 			old_stop = temp_stop;
+			old_offset = temp_offset;
 		}
 		else {
 			first_stop = temp_stop;
+			first_offset = temp_offset;
 			old_stop = temp_stop;
+			old_offset = temp_offset;
 		}
 	}
 
 	// connect to start
 	if(  stops > 2  ) {
 		last_diagonal ^= true;
-		schedule_cache.insert_unique_ordered( line_segment_t( first_stop, old_stop, cnv->get_schedule(), cnv->get_besitzer(), colore, last_diagonal ), LineSegmentOrdering() );
+		if(  !schedule_cache.insert_unique_ordered( line_segment_t( first_stop, first_offset, old_stop, old_offset, fpl, cnv->get_besitzer(), colore, last_diagonal ), LineSegmentOrdering() )  ) {
+			const int key = first_stop.x + first_stop.y*welt->get_groesse_x();
+			waypoint_hash.put( key );
+			// append if added and not yet there
+			slist_tpl<schedule_t *>*pt_list = waypoint_hash.access(key);
+			if(  !pt_list->is_contained( fpl )  ) {
+				pt_list->append( fpl );
+			}
+		}
 	}
 }
 
@@ -152,7 +192,7 @@ static uint32 number_to_radius( uint32 n )
 }
 
 
-static void display_airport ( const KOORD_VAL xx, const KOORD_VAL yy, const PLAYER_COLOR_VAL color )
+static void display_airport( const KOORD_VAL xx, const KOORD_VAL yy, const PLAYER_COLOR_VAL color )
 {
 	int x = xx + 5;
 	int y = yy - 11;
@@ -184,7 +224,7 @@ static void display_airport ( const KOORD_VAL xx, const KOORD_VAL yy, const PLAY
 	}
 }
 
-static void display_harbor ( const KOORD_VAL xx, const KOORD_VAL yy, const PLAYER_COLOR_VAL color )
+static void display_harbor( const KOORD_VAL xx, const KOORD_VAL yy, const PLAYER_COLOR_VAL color )
 {
 	int x = xx + 5;
 	int y = yy - 11 + 13;	//to not overwrite airline symbol
@@ -271,7 +311,7 @@ static void display_thick_line( KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_
 }
 
 
-static void line_segment_draw( waytype_t type, koord start, koord end, bool diagonal, int &offset, COLOR_VAL colore )
+static void line_segment_draw( waytype_t type, koord start, uint8 start_offset, koord end, uint8 end_offset, bool diagonal, int &offset, COLOR_VAL colore )
 {
 	// due to isometric drawing, order may be swapped
 	if(  start.x > end.x  ) {
@@ -279,6 +319,9 @@ static void line_segment_draw( waytype_t type, koord start, koord end, bool diag
 		koord temp = start;
 		start = end;
 		end = temp;
+		uint8 temp_offset = start_offset;
+		start_offset = end_offset;
+		end_offset = temp_offset;
 		diagonal ^= 1;
 	}
 	// airplanes are different, so we must check for them first
@@ -306,6 +349,11 @@ static void line_segment_draw( waytype_t type, koord start, koord end, bool diag
 				thickness = 3;
 				dotted = true;
 		}
+		// add offsets
+		start.x += start_offset*3;
+		end.x += end_offset*3;
+		start.y += start_offset*3;
+		end.y += end_offset*3;
 		// start.x is always <= end.x ...
 		const int delta_y = end.y-start.y;
 		if(  (start.x-end.x)*delta_y == 0  ) {
@@ -321,19 +369,19 @@ static void line_segment_draw( waytype_t type, koord start, koord end, bool diag
 				if(  abs(delta_y) > end.x-start.x  ) {
 					mid.x = end.x;
 					mid.y = start.y + (end.x-start.x)*signum_y;
-					// and offsets for vertical continue
+/*					// and offsets for vertical continue
 					start.x += offset;
 					mid.x += offset;
 					end.x += offset;
-				}
+*/				}
 				else {
 					mid.x = start.x + abs(delta_y);
 					mid.y = end.y;
-					// and offsets for horizontal continue
+/*					// and offsets for horizontal continue
 					start.y += offset;
 					mid.y += offset;
 					end.y += offset;
-				}
+*/				}
 				display_thick_line( start.x, start.y, mid.x, mid.y, colore, dotted, 5, 3, thickness );
 				display_thick_line( mid.x, mid.y, end.x, end.y, colore, dotted, 5, 3, thickness );
 			}
@@ -343,19 +391,19 @@ static void line_segment_draw( waytype_t type, koord start, koord end, bool diag
 				if(  abs(delta_y) > end.x-start.x  ) {
 					mid.x = start.x;
 					mid.y = end.y - (end.x-start.x)*signum_y;
-					// first vertical
+/*					// first vertical
 					start.x += offset;
 					mid.x += offset;
 					end.x += offset;
-				}
+*/				}
 				else {
 					mid.x = end.x - abs(delta_y);
 					mid.y = start.y;
-					// first horizontal
+/*					// first horizontal
 					start.y += offset;
 					mid.y += offset;
 					end.y += offset;
-				}
+*/				}
 				display_thick_line( start.x, start.y, mid.x, mid.y, colore, dotted, 5, 3, thickness );
 				display_thick_line( mid.x, mid.y, end.x, end.y, colore, dotted, 5, 3, thickness );
 			}
@@ -1057,6 +1105,7 @@ void reliefkarte_t::zeichnen(koord pos)
 			last_schedule_counter = welt->get_schedule_counter();
 			schedule_cache.clear();
 			stop_cache.clear();
+			waypoint_hash.clear();
 			colore = 0;
 
 			for(  int np = 0;  np < MAX_PLAYER_COUNT;  np++  ) {
@@ -1152,6 +1201,7 @@ void reliefkarte_t::zeichnen(koord pos)
 					add_to_schedule_cache( cnv, false );
 				}
 			}
+			waypoint_hash.clear();
 		}
 		/************ ATTENTION: The schedule pointers fpl in the line segments ******************
 		 ************            are invalid after this point!                  ******************/
@@ -1202,7 +1252,7 @@ void reliefkarte_t::zeichnen(koord pos)
 				diagonal = seg.start_diagonal;
 			}
 			// and finally draw ...
-			line_segment_draw( seg.waytype, k1, k2, diagonal, offset, color );
+			line_segment_draw( seg.waytype, k1, seg.start_offset, k2, seg.end_offset, diagonal, offset, color );
 		}
 	}
 

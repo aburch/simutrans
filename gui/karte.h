@@ -85,9 +85,11 @@ private:
 		spieler_t *sp;
 		waytype_t waytype;
 		uint8 colorcount;
+		uint8 start_offset;
+		uint8 end_offset;
 		bool start_diagonal;
 		line_segment_t() {}
-		line_segment_t( koord s, koord e, schedule_t *f, spieler_t *p, uint8 cc, bool diagonal ) {
+		line_segment_t( koord s, uint8 so, koord e, uint8 eo, schedule_t *f, spieler_t *p, uint8 cc, bool diagonal ) {
 			fpl = f;
 			waytype = f->get_waytype();
 			sp = p;
@@ -96,10 +98,14 @@ private:
 			if(  s.x<e.x  ||  (s.x==e.x  &&  s.y<e.y)  ) {
 				start = s;
 				end = e;
+				start_offset = so;
+				end_offset = eo;
 			}
 			else {
 				start = e;
 				end = s;
+				start_offset = eo;
+				end_offset = so;
 			}
 		}
 		bool operator == (const line_segment_t & k) const;
