@@ -203,8 +203,9 @@ public:
 
 	// the elements are inserted with increasing key
 	// => faster retrivial (we only have to check half of the lists)
-	const value_t get(const key_t key) const
+	const value_t &get(const key_t key) const
 	{
+		static value_t nix;
 		FORT(slist_tpl<node_t>, const& node, bags[get_hash(key)]) {
 			const int diff = hash_t::comp(node.key, key);
 			if(  diff == 0  ) {
@@ -215,7 +216,7 @@ public:
 				break;
 			}
 		}
-		return value_t();
+		return nix;
 	}
 
 	// the elements are inserted with increasing key
@@ -291,7 +292,7 @@ public:
 				return true;
 			}
 			if(  diff == 0  ) {
-				dbg->error( "hashtable_tpl::put", "Duplicate hash!" );
+				// already initialized
 				return false;
 			}
 		}
