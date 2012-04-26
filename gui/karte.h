@@ -4,6 +4,7 @@
 #include "components/gui_komponente.h"
 #include "../halthandle_t.h"
 #include "../convoihandle_t.h"
+#include "../dataobj/fahrplan.h"
 #include "../tpl/array2d_tpl.h"
 #include "../tpl/vector_tpl.h"
 
@@ -82,11 +83,13 @@ private:
 		koord start, end;
 		schedule_t *fpl;
 		spieler_t *sp;
+		waytype_t waytype;
 		uint8 colorcount;
 		bool start_diagonal;
 		line_segment_t() {}
 		line_segment_t( koord s, koord e, schedule_t *f, spieler_t *p, uint8 cc, bool diagonal ) {
 			fpl = f;
+			waytype = f->get_waytype();
 			sp = p;
 			colorcount = cc;
 			start_diagonal = diagonal;

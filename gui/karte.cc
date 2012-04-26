@@ -94,21 +94,12 @@ void reliefkarte_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoin
 		return;
 	}
 
-	static COLOR_VAL rail_colors[] = {2, 6, 10, 14, 18, 22, 26, 30, 34, 38, 42, 46, 50, 54, 58, 62, 66, 70, 74, 78, 82, 86, 90, 94, 98, 102,
-						   106, 110, 114, 118, 122, 126, 130, 134, 138, 142, 146, 150, 154, 158, 162, 166, 170, 174, 178, 182, 186, 190,
-						   194, 198, 202, 206, 210, 214, 218, 222, 226, 230, 234
-						  };
-
-	// otherwise normal color scheme
-	if(  cnv->get_schedule()->get_waytype() == track_wt  ||  cnv->get_schedule()->get_waytype() == maglev_wt  ||  cnv->get_schedule()->get_waytype() == monorail_wt  ) {
-		colore = rail_colors[counter_rail] + 1;
-
-		if( ++counter_rail > 57 ) {
-			counter_rail = 0;
+	colore += 8;
+	if(  colore >= 208  ) {
+		colore = (colore % 8) + 1;
+		if(  colore == 7  ) {
+			colore = 0;
 		}
-	}
-	else {
-		colore = (colore >= 208 ? 0 : colore+1);
 	}
 
 	// ok, add this schedule to map
@@ -1165,7 +1156,8 @@ void reliefkarte_t::zeichnen(koord pos)
 				}
 			}
 		}
-
+		/************ ATTENTION: The schedule pointers fpl in the line segments ******************
+		 ************            are invalid after this point!                  ******************/
 	}
 	//end MAP_LINES
 
@@ -1214,7 +1206,7 @@ void reliefkarte_t::zeichnen(koord pos)
 				diagonal = seg.start_diagonal;
 			}
 			// and finally draw ...
-			line_segment_draw( seg.fpl->get_waytype(), k1, k2, diagonal, offset, color );
+			line_segment_draw( seg.waytype, k1, k2, diagonal, offset, color );
 		}
 	}
 
