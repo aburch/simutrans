@@ -86,7 +86,7 @@ bool reliefkarte_t::LineSegmentOrdering::operator()(const reliefkarte_t::line_se
 
 
 static COLOR_VAL colore = 0;
-static inthashtable_tpl<int,slist_tpl<schedule_t *>> waypoint_hash;
+static inthashtable_tpl< int, slist_tpl<schedule_t *> > waypoint_hash;
 
 
 
