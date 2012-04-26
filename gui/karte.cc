@@ -1211,8 +1211,41 @@ void reliefkarte_t::zeichnen(koord pos)
 	koord last_start(0,0), last_end(0,0), k1, k2;
 	bool diagonal;
 	if(  showing_schedule  ) {
-		// white background
-		display_blend_wh( cur_off.x+pos.x, new_off.y+pos.y, relief->get_width(), relief->get_height(), COL_WHITE, 75 );
+		// lighten background
+		if(  isometric  ) {
+			// isometric => lighten in three parts
+
+			koord p1( 0, 0 );
+			karte_to_screen( p1 );
+			koord p2( welt->get_groesse_x(), 0 );
+			karte_to_screen( p2 );
+			koord p3( welt->get_groesse_x(), welt->get_groesse_y() );
+			karte_to_screen( p3 );
+			koord p4( 0, welt->get_groesse_y() );
+			karte_to_screen( p4 );
+
+			// top and bottom part
+			const int toplines = min( p4.y, p2.y );
+			for( KOORD_VAL y = 0;  y < toplines;  y++  ) {
+				display_blend_wh( pos.x+p1.x-2*y, pos.y+y, 4*y+4, 1, COL_WHITE, 75 );
+				display_blend_wh( pos.x+p3.x-2*y, pos.y+p3.y-y-1, 4*y+4, 1, COL_WHITE, 75 );
+			}
+			// center area
+			if(  p1.x < p3.x  ) {
+				for( KOORD_VAL y = toplines;  y < p3.y-toplines;  y++  ) {
+					display_blend_wh( pos.x+(y-toplines)*2, pos.y+y, 4*toplines+4, 1, COL_WHITE, 75 );
+				}
+			}
+			else {
+				for( KOORD_VAL y = toplines;  y < p3.y-toplines;  y++  ) {
+					display_blend_wh( pos.x+(y-toplines)*2, pos.y+p3.y-y-1, 4*toplines+4, 1, COL_WHITE, 75 );
+				}
+			}
+		}
+		else {
+			// easier with rectagular maps ...
+			display_blend_wh( cur_off.x+pos.x, cur_off.y+pos.y, relief->get_width(), relief->get_height(), COL_WHITE, 75 );
+		}
 
 		// DISPLAY STATIONS AND AIRPORTS: moved here so station spots are not overwritten by lines drawn
 		FOR(  vector_tpl<line_segment_t>, seg, schedule_cache  ) {
