@@ -83,7 +83,6 @@ bool reliefkarte_t::LineSegmentOrdering::operator()(const reliefkarte_t::line_se
 
 
 static COLOR_VAL colore = 0;
-static uint8 counter_rail = 0;
 
 
 // add the schedule to the map (if there is a valid one)
@@ -973,7 +972,6 @@ void reliefkarte_t::set_current_cnv( convoihandle_t c )
 	schedule_cache.clear();
 	stop_cache.clear();
 	colore = 0;
-	counter_rail = 0;
 	add_to_schedule_cache( current_cnv, true );
 	last_schedule_counter = welt->get_schedule_counter()-1;
 }
@@ -1060,7 +1058,6 @@ void reliefkarte_t::zeichnen(koord pos)
 			schedule_cache.clear();
 			stop_cache.clear();
 			colore = 0;
-			counter_rail = 0;
 
 			for(  int np = 0;  np < MAX_PLAYER_COUNT;  np++  ) {
 				//cycle on players
@@ -1168,7 +1165,6 @@ void reliefkarte_t::zeichnen(koord pos)
 	else {
 		schedule_cache.clear();
 		colore = 0;
-		counter_rail = 0;
 		last_schedule_counter = welt->get_schedule_counter()-1;
 	}
 
