@@ -1251,8 +1251,8 @@ void reliefkarte_t::zeichnen(koord pos)
 		FOR(  vector_tpl<line_segment_t>, seg, schedule_cache  ) {
 
 			COLOR_VAL color = seg.colorcount;
-			if(  event_get_last_control_shift()==2  ) {
-				// on control use only player colors
+			if(  event_get_last_control_shift()==2  ||  current_cnv.is_bound()  ) {
+				// on control / single convoi use only player colors
 				static COLOR_VAL last_color = color;
 				color = seg.sp->get_player_color1()+1;
 				// all lines same thickness if same color
@@ -1379,8 +1379,6 @@ void reliefkarte_t::zeichnen(koord pos)
 					diagonal_dist--;
 				}
 				diagonal_dist = (diagonal_dist*3)-radius-1;
-				temp_stop.x += radius/2;
-				temp_stop.y += radius/2;
 			}
 
 			if(  stype & haltestelle_t::airstop  ) {
