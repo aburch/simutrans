@@ -1246,14 +1246,14 @@ public:
 
 	void set_akt_speed(sint32 akt_speed) { this->akt_speed = akt_speed; v = speed_to_v(akt_speed); }
 
-	inline bool is_circular_route() const;
+	bool is_circular_route() const;
 	
 	/** For going to a depot automatically
 	 *  when stuck - will teleport if necessary.
 	 */
 	void emergency_go_to_depot();
 
-	inline koordhashtable_tpl<id_pair, average_tpl<uint16> > * const get_average_journey_times();
+	koordhashtable_tpl<id_pair, average_tpl<uint16> > * const get_average_journey_times();
 	inline koordhashtable_tpl<id_pair, average_tpl<uint16> > * const get_average_journey_times_this_convoy_only() { return average_journey_times; }
 };
 

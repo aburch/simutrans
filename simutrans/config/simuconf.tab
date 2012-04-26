@@ -975,8 +975,8 @@ curve_friction_factor_tram=0
 
 max_corner_limit_monorail=425
 min_corner_limit_monorail=75
-max_corner_adjustment_factor_monorail=50
-min_corner_adjustment_factor_monorail=85
+max_corner_adjustment_factor_monorail=62
+min_corner_adjustment_factor_monorail=90
 min_direction_steps_monorail=5
 max_direction_steps_monorail=16
 curve_friction_factor_monorail=0
