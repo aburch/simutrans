@@ -37,6 +37,7 @@ static sint32 max_origin = 1;
 static sint32 max_transfer = 1;
 static sint32 max_service = 1;
 
+static sint32 max_building_level = 0;
 
 reliefkarte_t * reliefkarte_t::single_instance = NULL;
 karte_t * reliefkarte_t::welt = NULL;
@@ -439,7 +440,7 @@ uint8 reliefkarte_t::calc_severity_color(sint32 amount, sint32 max_value)
 {
 	if(max_value!=0) {
 		// color array goes from light blue to red
-		sint32 severity = amount * MAX_SEVERITY_COLORS / max_value;
+		sint32 severity = amount * MAX_SEVERITY_COLORS / (max_value+1);
 		return reliefkarte_t::severity_color[ clamp( severity, 0, MAX_SEVERITY_COLORS ) ];
 	}
 	return reliefkarte_t::severity_color[0];
@@ -451,7 +452,7 @@ uint8 reliefkarte_t::calc_severity_color_log(sint32 amount, sint32 max_value)
 	if(  max_value>1  ) {
 		sint32 severity;
 		if(  amount <= 0x003FFFFFu  ) {
-			severity = log2( (uint32)( (amount << MAX_SEVERITY_COLORS) / max_value ) );
+			severity = log2( (uint32)( (amount << MAX_SEVERITY_COLORS) / (max_value+1) ) );
 		}
 		else {
 			severity = (uint32)( log( (double)amount*(double)(1<<MAX_SEVERITY_COLORS)/(double)max_value) + 0.5 );
@@ -822,6 +823,25 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 				break;
 			}
 
+		case MAP_LEVEL:
+			if(  max_building_level == 0  ) {
+				// init maximum
+				max_building_level = 1;
+				calc_map();
+			}
+			else if(  gr->get_typ() == grund_t::fundament  ) {
+				if(  gebaeude_t *gb = gr->find<gebaeude_t>()  ) {
+					if(  gb->get_haustyp() != gebaeude_t::unbekannt  ) {
+						sint32 level = gb->get_tile()->get_besch()->get_level();
+						if(  level > max_building_level  ) {
+							max_building_level = level;
+						}
+						set_relief_farbe_area(k, 1, calc_severity_color( level, max_building_level ) );
+					}
+				}
+			}
+			break;
+
 		default:
 			break;
 	}
@@ -925,7 +945,7 @@ void reliefkarte_t::set_welt(karte_t *welt)
 
 	if(welt) {
 		calc_map_groesse();
-		max_cargo = max_passed = 0;
+		max_building_level = max_cargo = max_passed = 0;
 		max_tourist_ziele = max_waiting = max_origin = max_transfer = max_service = 1;
 		last_schedule_counter = welt->get_schedule_counter()-1;
 		set_current_cnv(convoihandle_t());

@@ -24,7 +24,7 @@
 
 class karte_t;
 
-#define MAP_MAX_BUTTONS (21)
+#define MAP_MAX_BUTTONS (22)
 
 /**
  * Reliefkartenfenster für Simutrans.
