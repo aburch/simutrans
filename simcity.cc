@@ -2439,7 +2439,7 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 	target_factories_pax.new_month();
 	target_factories_mail.new_month();
 	settings_t const& s = welt->get_settings();
-	target_factories_pax.recalc_generation_ratio( s.get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_PAS_GENERATED);
+	target_factories_pax.recalc_generation_ratio(s.get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_PAS_GENERATED);
 	target_factories_mail.recalc_generation_ratio(s.get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_MAIL_GENERATED);
 	update_target_cities();
 
