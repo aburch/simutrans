@@ -385,7 +385,7 @@ void map_frame_t::zoom(bool zoom_out)
 			reliefkarte_t::get_karte()->zoom_in--;
 			zoomed = true;
 		}
-		else if(  reliefkarte_t::get_karte()->zoom_out<4  ) {
+		else if(  reliefkarte_t::get_karte()->zoom_out<8  ) {
 			reliefkarte_t::get_karte()->zoom_out++;
 			zoomed = true;
 		}
