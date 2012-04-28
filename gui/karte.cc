@@ -373,6 +373,12 @@ static void line_segment_draw( waytype_t type, koord start, uint8 start_offset, 
 			// two segment
 			koord mid;
 			int signum_y = delta_y/abs(delta_y);
+			// will end with diagonal right down
+			if(  end_offset  &&  !diagonal  &&  start.y < end.y  ) {
+				// start with diagonal to avoid parallel lines
+				diagonal = true;
+			}
+			// now draw a two segment line
 			if(  diagonal  ) {
 				// start with diagonal
 				if(  abs(delta_y) > end.x-start.x  ) {
