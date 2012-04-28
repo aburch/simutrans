@@ -1,0 +1,11 @@
+# Simutranslator settings for Simutrans-Experimental texts
+# Addendum for version 10.12
+#
+# Author: jamespetts
+# Created: April 2012
+#
+obj=program_text
+name=Highlight the locations of stops on the current schedule
+note=Tooltip for "Highlight schedule" in the display settings window.
+-
+
