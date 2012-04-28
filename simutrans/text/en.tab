@@ -489,7 +489,7 @@ Stan
 %s now\noffers bus services\nbetween %s\nand industry\n%s\nat (%i,%i).\n
 %s s\nheadquarter now\nat (%i,%i).
 %s's has built new headquarters.
-%s wasted\nyour money with a\nnew town hall\nwhen it reached\n%i inhabitants.
+%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
 %s \nbuilt a\nnew town hall\nwhen it reached\n%i inhabitants.
 %s's\nheadquarter now\nat (%i,%i).
 %s's\nheadquarters now\nat (%i,%i).
@@ -1850,7 +1850,7 @@ Timeline enabled
 tl_title
 City list
 To attract more tourists\n%s built\na %s\nwith the aid of\n%i tax payers.
-To attract more tourists,\n%s built\na %s\nwith the aid of\n%i tax payers.
+In %s, a new %s has been \n built, with the aid of\n%i tax payers.
 To heavy traffic\nresults in traffic jam.\n
 Traffic congestion\ndetected.\n
 tonnen
