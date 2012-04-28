@@ -2588,8 +2588,9 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 			//Make sure that there are not too many cars on the roads. 
 			stadtauto_t* car = current_cars.remove_first();
 			car->set_list(NULL);
-			welt->sync_remove(car);
-			delete car;
+			// Deleting here, for some reason, caused untraceable crashes.
+			// So, instead, delete on the next sync_step in which the car's 
+			// list is NULL.
 			number_of_cars++;
 		}
 		koord k;

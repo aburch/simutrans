@@ -410,7 +410,14 @@ void simline_t::rdwr(loadsave_t *file)
 			{
 				uint32 count = 0;
 				file->rdwr_long(count);
-				average_journey_times_reverse_circular->clear();
+				if(average_journey_times_reverse_circular)
+				{
+					average_journey_times_reverse_circular->clear();
+				}
+				else
+				{
+					average_journey_times_reverse_circular = new journey_times_map();
+				}
 				for(uint32 i = 0; i < count; i ++)
 				{
 					id_pair idp;
