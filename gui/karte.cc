@@ -497,43 +497,26 @@ void reliefkarte_t::set_relief_farbe(koord k, const int color)
 	karte_to_screen(k);
 	k -= cur_off;
 
-	if(isometric) {
+	if(  isometric  ) {
 		// since isometric is distorted
 		const sint32 xw = zoom_in>=2 ? 1 : 2*zoom_out;
-		switch(  xw  ) {
-			case 1:
-				set_relief_color_clip( k.x, k.y, color );
-				break;
-			case 2:
-				set_relief_color_clip( k.x, k.y, color );
-				set_relief_color_clip( k.x+1, k.y, color );
-				break;
-			case 4:
-				for(  int x=1;  x<3; x++  ) {
-					set_relief_color_clip( k.x+x, k.y, color );
+		// increase size at zoom_out 2, 5, 9, 11
+		const KOORD_VAL mid_y = ((xw+1) / 5) + (xw / 18);
+		// center line
+		for(  int x=0;  x<xw;  x++  ) {
+			set_relief_color_clip( k.x+x, k.y+mid_y, color );
+		}
+		// lines above and below
+		if(  mid_y > 0  ) {
+			KOORD_VAL left = 2, right = xw-2 + ((xw>>1)&1);
+			for(  KOORD_VAL y_offset = 1;  y_offset <= mid_y;  y_offset++  ) {
+				for(  int x=left;  x<right;  x++  ) {
+					set_relief_color_clip( k.x+x, k.y+mid_y+y_offset, color );
+					set_relief_color_clip( k.x+x, k.y+mid_y-y_offset, color );
 				}
-				for(  int x=0;  x<4;  x++  ) {
-					set_relief_color_clip( k.x+x, k.y+1, color );
-				}
-				break;
-			case 6:
-				for(  int x=2;  x<5; x++  ) {
-					set_relief_color_clip( k.x+x, k.y, color );
-					set_relief_color_clip( k.x+x, k.y+2, color );
-				}
-				for(  int x=0;  x<6;  x++  ) {
-					set_relief_color_clip( k.x+x, k.y+1, color );
-				}
-				break;
-			case 8:
-				for(  int x=2;  x<6; x++  ) {
-					set_relief_color_clip( k.x+x, k.y+0, color );
-					set_relief_color_clip( k.x+x, k.y+2, color );
-				}
-				for(  int x=0;  x<8;  x++  ) {
-					set_relief_color_clip( k.x+x, k.y+1, color );
-				}
-				break;
+				left += 2;
+				right -= 2;
+			}
 		}
 	}
 	else {

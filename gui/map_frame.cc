@@ -123,7 +123,7 @@ map_frame_t::map_frame_t(karte_t *welt) :
 	zoom_buttons[0].add_listener( this );
 	add_komponente( zoom_buttons+0 );
 
-	zoom_buttons[1].init(button_t::repeatarrowright, NULL, koord(BUTTON1_X+38,D_BUTTON_HEIGHT+4));
+	zoom_buttons[1].init(button_t::repeatarrowright, NULL, koord(BUTTON1_X+40,D_BUTTON_HEIGHT+4));
 	zoom_buttons[1].add_listener( this );
 	add_komponente( zoom_buttons+1 );
 
@@ -381,22 +381,22 @@ void map_frame_t::zoom(bool zoom_out)
 	zoomed = false;
 	if(  zoom_out  ) {
 		// zoom out
-		if(  reliefkarte_t::get_karte()->zoom_in>1  ) {
+		if(  reliefkarte_t::get_karte()->zoom_in > 1  ) {
 			reliefkarte_t::get_karte()->zoom_in--;
 			zoomed = true;
 		}
-		else if(  reliefkarte_t::get_karte()->zoom_out<8  ) {
+		else if(  reliefkarte_t::get_karte()->zoom_out < 16  ) {
 			reliefkarte_t::get_karte()->zoom_out++;
 			zoomed = true;
 		}
 	}
 	else {
 		// zoom in
-		if(  reliefkarte_t::get_karte()->zoom_out>1  ) {
+		if(  reliefkarte_t::get_karte()->zoom_out > 1  ) {
 			reliefkarte_t::get_karte()->zoom_out--;
 			zoomed = true;
 		}
-		else if(  reliefkarte_t::get_karte()->zoom_in<8  ) {
+		else if(  reliefkarte_t::get_karte()->zoom_in < 16  ) {
 			reliefkarte_t::get_karte()->zoom_in++;
 			zoomed = true;
 		}
@@ -608,7 +608,10 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 
 	char buf[16];
 	sprintf( buf, "%i:%i", reliefkarte_t::get_karte()->zoom_in, reliefkarte_t::get_karte()-> zoom_out );
-	display_proportional( pos.x+D_MARGIN_LEFT+16, pos.y+D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT+3, buf, ALIGN_LEFT, COL_WHITE, true);
+	int zoomextwidth = display_proportional( pos.x+BUTTON1_X+D_BUTTON_HEIGHT+D_H_SPACE, pos.y+D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT+3, buf, ALIGN_LEFT, COL_WHITE, true);
+	// move zoom arrow position and label accordingly
+	zoom_buttons[1].set_pos( koord( BUTTON1_X+D_BUTTON_HEIGHT+2*D_H_SPACE+zoomextwidth, zoom_buttons[1].get_pos().y ) );
+	zoom_label.set_pos( koord( BUTTON1_X+2*D_BUTTON_HEIGHT+3*D_H_SPACE+zoomextwidth, zoom_label.get_pos().y ) );
 
 	int offset_y = D_BUTTON_HEIGHT*4 + 2 + D_TITLEBAR_HEIGHT;
 	if(legend_visible) {
