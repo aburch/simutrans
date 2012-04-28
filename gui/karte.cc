@@ -163,6 +163,15 @@ void reliefkarte_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoin
 				if(  !pt_list->is_contained( fpl )  ) {
 					pt_list->append( fpl );
 				}
+				if(  stops == 2  ) {
+					// append first stop too, when this is called for the first time
+					const int key = first_stop.x + first_stop.y*welt->get_groesse_x();
+					waypoint_hash.put( key );
+					slist_tpl<schedule_t *>*pt_list = waypoint_hash.access(key);
+					if(  !pt_list->is_contained( fpl )  ) {
+						pt_list->append( fpl );
+					}
+				}
 			}
 			old_stop = temp_stop;
 			old_offset = temp_offset;
@@ -175,18 +184,10 @@ void reliefkarte_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoin
 		}
 	}
 
-	// connect to start
 	if(  stops > 2  ) {
+		// connect to start
 		last_diagonal ^= true;
-		if(  !schedule_cache.insert_unique_ordered( line_segment_t( first_stop, first_offset, old_stop, old_offset, fpl, cnv->get_besitzer(), colore, last_diagonal ), LineSegmentOrdering() )  &&  add_schedule  ) {
-			const int key = first_stop.x + first_stop.y*welt->get_groesse_x();
-			waypoint_hash.put( key );
-			// append if added and not yet there
-			slist_tpl<schedule_t *>*pt_list = waypoint_hash.access(key);
-			if(  !pt_list->is_contained( fpl )  ) {
-				pt_list->append( fpl );
-			}
-		}
+		schedule_cache.insert_unique_ordered( line_segment_t( first_stop, first_offset, old_stop, old_offset, fpl, cnv->get_besitzer(), colore, last_diagonal ), LineSegmentOrdering() );
 	}
 }
 
@@ -320,17 +321,6 @@ static void display_thick_line( KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_
 
 static void line_segment_draw( waytype_t type, koord start, uint8 start_offset, koord end, uint8 end_offset, bool diagonal, COLOR_VAL colore )
 {
-	// due to isometric drawing, order may be swapped
-	if(  start.x > end.x  ) {
-		// but we need start.x <= end.x!
-		koord temp = start;
-		start = end;
-		end = temp;
-		uint8 temp_offset = start_offset;
-		start_offset = end_offset;
-		end_offset = temp_offset;
-		diagonal ^= 1;
-	}
 	// airplanes are different, so we must check for them first
 	if(  type ==  air_wt  ) {
 		// ignore offset for airplanes
@@ -338,6 +328,23 @@ static void line_segment_draw( waytype_t type, koord start, uint8 start_offset, 
 		draw_bezier( start.x + 1, start.y + 1, end.x + 1, end.y + 1, 50, 50, 50, 50, colore, 5, 5 );
 	}
 	else {
+		// add offsets
+		start.x += start_offset*3;
+		end.x += end_offset*3;
+		start.y += start_offset*3;
+		end.y += end_offset*3;
+		// due to isometric drawing, order may be swapped
+		if(  start.x > end.x  ) {
+			// but we need start.x <= end.x!
+			koord temp = start;
+			start = end;
+			end = temp;
+			uint8 temp_offset = start_offset;
+			start_offset = end_offset;
+			end_offset = temp_offset;
+			diagonal ^= 1;
+		}
+		// now determine line style
 		uint8 thickness = 3;
 		bool dotted = false;
 		switch(  type  ) {
@@ -356,11 +363,6 @@ static void line_segment_draw( waytype_t type, koord start, uint8 start_offset, 
 				thickness = 3;
 				dotted = true;
 		}
-		// add offsets
-		start.x += start_offset*3;
-		end.x += end_offset*3;
-		start.y += start_offset*3;
-		end.y += end_offset*3;
 		// start.x is always <= end.x ...
 		const int delta_y = end.y-start.y;
 		if(  (start.x-end.x)*delta_y == 0  ) {
@@ -1398,7 +1400,7 @@ void reliefkarte_t::zeichnen(koord pos)
 				if(  diagonal_dist  ) {
 					diagonal_dist--;
 				}
-				diagonal_dist = (diagonal_dist*3)-radius-1;
+				diagonal_dist = (diagonal_dist*3)-1;
 			}
 
 			if(  stype & haltestelle_t::airstop  ) {
