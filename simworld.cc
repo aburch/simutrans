@@ -3295,7 +3295,6 @@ void karte_t::neuer_monat()
 	stadt.update_weights(get_population);
 	sint32 outstanding_cars = 0;
 	FOR(weighted_vector_tpl<stadt_t*>, const s, stadt) {
-		const char* TEST_name = s->get_name();
 		s->neuer_monat(recheck_road_connexions);
 		outstanding_cars += s->get_outstanding_cars();
 		//INT_CHECK("simworld 3117");
