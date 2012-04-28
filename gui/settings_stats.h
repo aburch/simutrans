@@ -126,7 +126,7 @@ class settings_t;
 #define READ_COST_VALUE_NEW(t) if(new_world) { READ_COST_VALUE(t); }
 #define READ_BOOL(t)           (t)((*booliter)->pressed)
 #define READ_BOOL_NEW(t)       if(new_world) { READ_BOOL(t); }
-#define READ_BOOL_VALUE(t)     (t) = (*booliter)->pressed
+#define READ_BOOL_VALUE(t)     (t) = (*booliter++)->pressed
 #define READ_BOOL_VALUE_NEW(t) if(new_world) { READ_BOOL_VALUE(t); }
 
 
