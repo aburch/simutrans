@@ -4262,7 +4262,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 					}
 					
 					proportion = (sint64)((journey_minutes - welt->get_settings().get_catering_level4_minutes()) * 1000) / (welt->get_settings().get_catering_level5_minutes() -welt->get_settings().get_catering_level4_minutes());
-					final_revenue += (proportion * (sint64)(welt->get_settings().get_catering_level5_max_revenue()) * ware.menge);
+					final_revenue += (max(proportion * (sint64)(welt->get_settings().get_catering_level5_max_revenue()), ((sint64)(welt->get_settings().get_catering_level4_max_revenue() * 1000) + 4000)) * ware.menge);
 					break;
 				}
 
@@ -4276,7 +4276,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 					}
 					
 					proportion = ((journey_minutes -welt->get_settings().get_catering_level3_minutes()) * 1000) / (welt->get_settings().get_catering_level4_minutes() - welt->get_settings().get_catering_level3_minutes());
-					final_revenue += (sint64)(proportion * (welt->get_settings().get_catering_level4_max_revenue()) * ware.menge);
+					final_revenue += (max(proportion * (sint64)(welt->get_settings().get_catering_level4_max_revenue()), ((sint64)(welt->get_settings().get_catering_level3_max_revenue() * 1000) + 4000)) * ware.menge);
 					break;
 				}
 
@@ -4290,7 +4290,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 					}
 					
 					proportion = ((journey_minutes - welt->get_settings().get_catering_level2_minutes()) * 1000) / (welt->get_settings().get_catering_level3_minutes() - welt->get_settings().get_catering_level2_minutes());
-					final_revenue += (sint64)((proportion * welt->get_settings().get_catering_level3_max_revenue()) * ware.menge);
+					final_revenue += (max(proportion * (sint64)(welt->get_settings().get_catering_level3_max_revenue()), ((sint64)(welt->get_settings().get_catering_level2_max_revenue() * 1000) + 4000)) * ware.menge);
 					break;
 				}
 
@@ -4304,7 +4304,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 					}
 					
 					proportion = ((journey_minutes - welt->get_settings().get_catering_level1_minutes()) * 1000) / (welt->get_settings().get_catering_level2_minutes() - welt->get_settings().get_catering_level1_minutes());
-					final_revenue += (sint64)(proportion * (welt->get_settings().get_catering_level2_max_revenue()) * ware.menge);
+					final_revenue += (max(proportion * (sint64)(welt->get_settings().get_catering_level2_max_revenue()), ((sint64)(welt->get_settings().get_catering_level1_max_revenue() * 1000) + 4000)) * ware.menge);
 					break;
 				}
 

@@ -171,7 +171,7 @@ void goods_stats_t::zeichnen(koord offset)
 						}
 					
 						proportion = (sint64)((journey_minutes - welt->get_settings().get_catering_level4_minutes()) * 1000) / (welt->get_settings().get_catering_level5_minutes() -welt->get_settings().get_catering_level4_minutes());
-						price += (proportion * (sint64)(welt->get_settings().get_catering_level5_max_revenue()));
+						price += max((sint64)(proportion * (welt->get_settings().get_catering_level5_max_revenue())), ((sint64)(welt->get_settings().get_catering_level4_max_revenue() * 1000) + 4000));
 						break;
 					}
 
@@ -185,7 +185,7 @@ void goods_stats_t::zeichnen(koord offset)
 						}
 					
 						proportion = ((journey_minutes -welt->get_settings().get_catering_level3_minutes()) * 1000) / (welt->get_settings().get_catering_level4_minutes() - welt->get_settings().get_catering_level3_minutes());
-						price += (sint64)(proportion * (welt->get_settings().get_catering_level4_max_revenue()));
+						price += max((sint64)(proportion * (welt->get_settings().get_catering_level4_max_revenue())), ((sint64)(welt->get_settings().get_catering_level3_max_revenue() * 1000) + 4000));
 						break;
 					}
 
@@ -199,7 +199,7 @@ void goods_stats_t::zeichnen(koord offset)
 						}
 					
 						proportion = ((journey_minutes - welt->get_settings().get_catering_level2_minutes()) * 1000) / (welt->get_settings().get_catering_level3_minutes() - welt->get_settings().get_catering_level2_minutes());
-						price += (sint64)((proportion * welt->get_settings().get_catering_level3_max_revenue()));
+						price += max((sint64)((proportion * welt->get_settings().get_catering_level3_max_revenue())), ((sint64)(welt->get_settings().get_catering_level2_max_revenue() * 1000) + 4000));
 						break;
 					}
 
@@ -213,7 +213,7 @@ void goods_stats_t::zeichnen(koord offset)
 						}
 					
 						proportion = ((journey_minutes - welt->get_settings().get_catering_level1_minutes()) * 1000) / (welt->get_settings().get_catering_level2_minutes() - welt->get_settings().get_catering_level1_minutes());
-						price += (sint64)(proportion * (welt->get_settings().get_catering_level2_max_revenue()));
+						price +=  max((sint64)(proportion * (welt->get_settings().get_catering_level2_max_revenue())), ((sint64)(welt->get_settings().get_catering_level1_max_revenue() * 1000) + 4000));
 						break;
 					}
 
