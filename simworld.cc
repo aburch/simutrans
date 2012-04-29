@@ -3240,13 +3240,8 @@ void karte_t::neuer_monat()
 	uint32 total_electric_demand = 1;
 	uint32 electric_productivity = 0;
 	sint16 difference = 0;
-	sint16 i = number_of_factories;
 	FOR(vector_tpl<fabrik_t*>, const fab, fab_list)
 	{
-		if(++i >= difference)
-		{
-			break;
-		}
 		fab->neuer_monat();
 		// The number of factories might have diminished,
 		// so must adjust i to prevent out of bounds errors.
@@ -3264,7 +3259,6 @@ void karte_t::neuer_monat()
 			}
 			number_of_factories = fab_list.get_count();
 		}
-		i += difference;
 		number_of_factories -= difference;
 	}
 
