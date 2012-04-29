@@ -33,7 +33,6 @@
 template<class T>
 class slist_tpl
 {
-private:
 	struct node_t
 	{
 		node_t(const T& data_, node_t* next_) : next(next_), data(data_) {}
@@ -46,6 +45,7 @@ private:
 		T data;
 	};
 
+private:
 	node_t *head;
 	node_t *tail;
 	uint32 node_count;
@@ -443,7 +443,6 @@ public:
 		return t ? index : -1;
 	}
 
-private:
 	slist_tpl(const slist_tpl& slist_tpl);
 	slist_tpl& operator=( slist_tpl const& other );
 
