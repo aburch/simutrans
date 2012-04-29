@@ -683,10 +683,21 @@ int simu_main(int argc, char** argv)
 			return 0;
 		}
 		if(  umgebung_t::objfilename.empty()  ) {
-			// nothing to be loaded => exit
-			dr_fatal_notify("*** No pak set found ***\n\nMost likely, you have no pak set installed.\nPlease download and install a pak set (graphics).\n");
-			simgraph_exit();
-			return 0;
+			// try to download missing paks
+			if(  dr_download_pakset( umgebung_t::program_dir )  ) {
+				ask_objfilename();
+				if(  umgebung_t::quit_simutrans  ) {
+					simgraph_exit();
+					return 0;
+				}
+			}
+			// still nothing?
+			if(  umgebung_t::objfilename.empty()  ) {
+				// nothing to be loaded => exit
+				dr_fatal_notify("*** No pak set found ***\n\nMost likely, you have no pak set installed.\nPlease download and install a pak set (graphics).\n");
+				simgraph_exit();
+				return 0;
+			}
 		}
 		show_pointer(0);
 	}

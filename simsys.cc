@@ -19,6 +19,7 @@
 #	define WIN32_LEAN_AND_MEAN
 #	include <direct.h>
 #	include <windows.h>
+#	include <shellapi.h>
 #	define PATH_MAX MAX_PATH
 #else
 #	include <limits.h>
@@ -590,6 +591,42 @@ void dr_fatal_notify(char const* const msg)
 #else
 	fputs(msg, stderr);
 #endif
+}
+
+/**
+ * Open a program/starts a script to download pak sets from sourceforge
+ * @param path_to_program : actual simutrans pakfile directory
+ * @return false, if nothing was downloaded
+ */
+bool dr_download_pakset( const char *path_to_program )
+{
+#ifdef _WIN32
+	char param[2048];
+	sprintf( param, "/D=%s", path_to_program );
+
+	SHELLEXECUTEINFOA shExInfo;
+	shExInfo.cbSize = sizeof(shExInfo);
+	shExInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
+	shExInfo.hwnd = 0;
+	/* since the installer will run again a child process
+	 * using "runas" will make sure it is alrady privelegded.
+	 * Otherwise the waiting for installation will fail!
+	 * (no idea how this works on XP though)
+	 */
+	shExInfo.lpVerb = "runas";
+	shExInfo.lpFile = "download-paksets.exe";
+	shExInfo.lpParameters = param;
+	shExInfo.lpDirectory = path_to_program;
+	shExInfo.nShow = SW_SHOW;
+	shExInfo.hInstApp = 0;
+
+	if(  ShellExecuteExA(&shExInfo)  ) {
+		WaitForSingleObject( shExInfo.hProcess, INFINITE );
+		CloseHandle( shExInfo.hProcess );
+    }
+	return true;
+#endif
+	return false;
 }
 
 

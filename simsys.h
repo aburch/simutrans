@@ -141,6 +141,13 @@ void dr_copy(const char *source, size_t length);
  */
 size_t dr_paste(char *target, size_t max_length);
 
+/**
+ * Open a program/starts a script to download pak sets from sourceforge
+ * @param path_to_program : actual simutrans pakfile directory
+ * @return false, if nothing was downloaded
+ */
+bool dr_download_pakset( const char *path_to_program );
+
 int sysmain(int argc, char** argv);
 
 #endif

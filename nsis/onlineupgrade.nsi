@@ -2,52 +2,13 @@
 
 !include "preparation-functions.nsh"
 
-var group1
-Name "Simutrans Transport Simulator"
-OutFile "simutrans-online-install.exe"
+Name "Simutrans Pakset Installer"
+OutFile "download-paksets.exe"
 
+; The default installation directory
 InstallDir $PROGRAMFILES\Simutrans
 
-
-SectionGroup !Simutrans
-
-Function PostExeInstall
-  StrCmp $multiuserinstall "1" NotPortable
-
-  ; just change to simuconf.tab "singleuser_install = 1"
-  FileOpen $0 "$INSTDIR\config\simuconf.tab" a
-  FileSeek $0 866
-  FileWrite $0 "singleuser_install = 1 "
-  FileClose $0
-  goto finishGDIexe
-
-NotPortable:
-  ; make start menu entries
-  CreateDirectory "$SMPROGRAMS\Simutrans"
-  CreateShortCut "$SMPROGRAMS\Simutrans\Simutrans.lnk" "$INSTDIR\Simutrans.exe" "-log 1 -debug 3"
-finishGDIexe:
-  ; uninstaller not working yet
-  ;WriteUninstaller $INSTDIR\uninstaller.exe
-FunctionEnd
-
-Section "Executable (GDI, Unicode)" GDIexe
-  AddSize 9239
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/111-2-2/simuwin-111-2-2.zip"
-  StrCpy $archievename "simuwin-111-2-2.zip"
-  StrCpy $downloadname "Simutrans Executable (GDI)"
-  Call DownloadInstallZip
-  Call PostExeInstall
-SectionEnd
-
-
-Section /o "Executable (SDL, better sound)" SDLexe
-  AddSize 9971
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/111-2-2/simuwin-sdl-111-2-2.zip"
-  StrCpy $archievename "simuwin-sdl-111-2-2.zip"
-  StrCpy $downloadname "Simutrans Executable (SDL)"
-  Call DownloadInstallZip
-  Call PostExeInstall
-SectionEnd
+SectionGroup Simutrans
 
 Section /o "Chinese Font" wenquanyi_font
   AddSize 3245
@@ -70,30 +31,8 @@ SectionGroupEnd
 
 ;********************* from here on special own helper funtions ************
 
-
 ; make sure, at least one executable is installed
 Function .onSelChange
-
-  !insertmacro StartRadioButtons $group1
-    !insertmacro RadioButton ${GDIexe}
-    !insertmacro RadioButton ${SDLexe}
-  !insertmacro EndRadioButtons
-
-  ; make sure GDI is installed when chinese is selected
-  SectionGetFlags ${wenquanyi_font} $R0
-  IntOp $R0 $R0 & ${SF_SELECTED}
-  IntCmp $R0 ${SF_SELECTED} +1 test_for_pak
-
-  ; force selection of GDI exe
-  SectionGetFlags ${GDIexe} $R0
-  IntOp $R0 $R0 | ${SF_SELECTED}
-
-  SectionSetFlags ${GDIexe} $R0
-  SectionGetFlags ${SDLexe} $R0
-  IntOp $R0 $R0 & ${SECTION_OFF}
-  SectionSetFlags ${SDLexe} $R0
-
-test_for_pak:
   ; Make sure at least some pak is selected
   SectionGetFlags ${pak64} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
@@ -143,6 +82,3 @@ test_for_pak:
   MessageBox MB_OK|MB_ICONSTOP "At least on pak set must be selected!"
 show_not:
 FunctionEnd
-
-
-
