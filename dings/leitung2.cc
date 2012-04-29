@@ -817,7 +817,7 @@ void senke_t::step(long delta_t)
 		max_einkommen += last_power_demand * delta_t / PRODUCTION_DELTA_T;
 		einkommen += power_load  * delta_t / PRODUCTION_DELTA_T;
 	}
-	else if(welt->ticks_per_world_month_shift >= 18)
+	else if(welt->ticks_per_world_month_shift >= 18ll)
 	{
 		max_einkommen += (last_power_demand * delta_t / PRODUCTION_DELTA_T) >> (welt->ticks_per_world_month_shift-18);
 		einkommen += (power_load  * delta_t / PRODUCTION_DELTA_T) >> (welt->ticks_per_world_month_shift-18);
