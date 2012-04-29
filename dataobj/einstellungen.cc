@@ -434,6 +434,8 @@ settings_t::settings_t() :
 
 	toll_free_public_roads = false;
 
+	max_elevated_way_building_level = 2;
+
 	city_threshold_size = 1000;
 	capital_threshold_size = 10000;
 	max_small_city_size = 25000;
@@ -1289,6 +1291,7 @@ void settings_t::rdwr(loadsave_t *file)
 		{
 			file->rdwr_long(max_small_city_size);
 			file->rdwr_long(max_city_size);
+			file->rdwr_byte(max_elevated_way_building_level);
 		}
 	}
 
@@ -1930,6 +1933,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	min_wait_airport = contents.get_int("min_wait_airport", min_wait_airport) * 10; // Stored as 10ths of minutes
 
 	toll_free_public_roads = (bool)contents.get_int("toll_free_public_roads", toll_free_public_roads);
+
+	max_elevated_way_building_level = (uint8)contents.get_int("max_elevated_way_building_level", max_elevated_way_building_level);
 
 	assume_everywhere_connected_by_road = (bool)(contents.get_int("assume_everywhere_connected_by_road", assume_everywhere_connected_by_road));
 

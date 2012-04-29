@@ -4630,6 +4630,19 @@ bool stadt_t::renoviere_gebaeude(gebaeude_t* gb)
 	gebaeude_t::typ will_haben = gebaeude_t::unbekannt;
 	int sum = 0;
 
+	uint8 max_level = 0; // Unlimited.
+	weg_t* way;
+	for(int i = 1; i <= narrowgauge_wt; i++)
+	{
+		way = welt->lookup(gb->get_pos())->get_weg((waytype_t)i);
+		if(way && (wegbauer_t::bautyp_t)way->get_besch()->get_wtyp() & wegbauer_t::elevated_flag)
+		{ 
+			// Limit this if any elevated way is found.
+			max_level = welt->get_settings().get_max_elevated_way_building_level();
+			break;
+		}
+	}
+
 	// try to built
 	const haus_besch_t* h = NULL;
 	bool return_value = false;
@@ -4637,7 +4650,7 @@ bool stadt_t::renoviere_gebaeude(gebaeude_t* gb)
 		// we must check, if we can really update to higher level ...
 		const int try_level = (alt_typ == gebaeude_t::gewerbe ? level + 1 : level);
 		h = hausbauer_t::get_gewerbe(try_level, current_month, cl);
-		if (h != NULL && h->get_level() >= try_level) {
+		if (h != NULL && h->get_level() >= try_level && (max_level == 0 || h->get_level() <= max_level)) {
 			will_haben = gebaeude_t::gewerbe;
 			sum = sum_gewerbe;
 		}
@@ -4647,7 +4660,7 @@ bool stadt_t::renoviere_gebaeude(gebaeude_t* gb)
 		// we must check, if we can really update to higher level ...
 		const int try_level = (alt_typ == gebaeude_t::industrie ? level + 1 : level);
 		h = hausbauer_t::get_industrie(try_level , current_month, cl);
-		if (h != NULL && h->get_level() >= try_level) {
+		if (h != NULL && h->get_level() >= try_level && (max_level == 0 || h->get_level() <= max_level)) {
 			will_haben = gebaeude_t::industrie;
 			sum = sum_industrie;
 		}
@@ -4658,7 +4671,7 @@ bool stadt_t::renoviere_gebaeude(gebaeude_t* gb)
 		// we must check, if we can really update to higher level ...
 		const int try_level = (alt_typ == gebaeude_t::wohnung ? level + 1 : level);
 		h = hausbauer_t::get_wohnhaus(try_level, current_month, cl);
-		if (h != NULL && h->get_level() >= try_level) {
+		if (h != NULL && h->get_level() >= try_level && (max_level == 0 || h->get_level() <= max_level)) {
 			will_haben = gebaeude_t::wohnung;
 			sum = sum_wohnung;
 		} else {

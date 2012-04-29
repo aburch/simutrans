@@ -565,12 +565,22 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 	bool ok = true;
 
 	// universal check for elevated things ...
-	if(bautyp&elevated_flag) {
-		if(to->hat_weg(air_wt)  ||  welt->lookup_hgt(to->get_pos().get_2d())<welt->get_grundwasser()  ||  !check_for_leitung(zv,to)  || (!to->ist_karten_boden() && to->get_typ()!=grund_t::monorailboden) ||  to->get_typ()==grund_t::brueckenboden  ||  to->get_typ()==grund_t::tunnelboden) {
+	if(bautyp&elevated_flag) 
+	{
+		gebaeude_t *gb = to->find<gebaeude_t>();
+		if(to->hat_weg(air_wt)  ||  
+			welt->lookup_hgt(to->get_pos().get_2d())<welt->get_grundwasser()  ||  
+			!check_for_leitung(zv,to)  || 
+			(!to->ist_karten_boden() && to->get_typ()!=grund_t::monorailboden) ||  
+			to->get_typ()==grund_t::brueckenboden  ||  
+			to->get_typ()==grund_t::tunnelboden ||
+			(gb && gb->get_tile()->get_besch()->get_level() > welt->get_settings().get_max_elevated_way_building_level())
+			)
+		{
 			// no suitable ground below!
 			return false;
 		}
-		gebaeude_t *gb = to->find<gebaeude_t>();
+		//max_elevated_way_building_level
 		if(gb==NULL) {
 			// but depots might be overlooked ...
 			gb = to->get_depot();

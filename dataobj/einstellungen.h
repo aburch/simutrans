@@ -270,6 +270,8 @@ private:
 	 */
 	bool toll_free_public_roads;
 
+	uint8 max_elevated_way_building_level;
+
 
 public:
 	//Cornering settings
@@ -925,6 +927,9 @@ public:
 	float32e8_t meters_to_steps(const float32e8_t &meters) const { return steps_per_meter * meters; }
 	float32e8_t steps_to_meters(const float32e8_t &steps) const { return meters_per_step * steps; }
 	float32e8_t ticks_to_seconds(sint32 delta_t) const { return seconds_per_tick * delta_t; }
+
+	uint8 get_max_elevated_way_building_level() const { return max_elevated_way_building_level; }
+	void set_max_elevated_way_building_level(uint8 value) { max_elevated_way_building_level = value; }
 };
 
 #endif 
