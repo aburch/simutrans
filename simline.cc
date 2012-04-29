@@ -708,14 +708,15 @@ void simline_t::calc_is_alternating_circular_route()
 {
 	const bool old_is_alternating_circle_route = is_alternating_circle_route;
 	is_alternating_circle_route = false;
-	if(count_convoys() == 0)
+	const uint32 count = count_convoys();
+	if(count == 0)
 	{
 		return;
 	}
 	bool first_reverse_schedule = get_convoy(0)->get_reverse_schedule();
-	if(get_convoy(0)->is_circular_route() && count_convoys() > 1)
+	if((get_convoy(0)->is_circular_route() || get_convoy(count - 1)->is_circular_route()) && count > 1)
 	{
-		for(int i = 1; i < count_convoys(); i ++)
+		for(int i = 1; i < count; i ++)
 		{
 			if(get_convoy(i)->get_reverse_schedule() != first_reverse_schedule)
 			{

@@ -2275,6 +2275,9 @@ bool convoi_t::set_schedule(schedule_t * f)
 			// Knightly : if line is unset or schedule is changed
 			//				-> register stops from new schedule
 			register_stops();
+			// Also, clear the departures table, which may now
+			// be out of date.
+			departures->clear();
 		}
 	}
 
