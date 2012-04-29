@@ -176,8 +176,8 @@ void simline_t::add_convoy(convoihandle_t cnv, bool from_loading)
 	recalc_status();
 
 	// do we need to tell the world about our new schedule?
-	if(  update_schedules  ) {
-
+	if(  update_schedules  ) 
+	{
 		// Added by : Knightly
 		haltestelle_t::refresh_routing(fpl, goods_catg_index, sp);
 	}
@@ -496,6 +496,13 @@ int simline_t::get_replacing_convoys_count() const {
 void simline_t::unregister_stops()
 {
 	unregister_stops(fpl);
+
+	// It is necessary to clear all departure data,
+	// which might be out of date on a change of schedule.
+	FOR(vector_tpl<convoihandle_t>, & i, line_managed_convoys)
+	{
+		i->clear_departures();
+	}
 }
 
 

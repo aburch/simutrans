@@ -6156,3 +6156,8 @@ inline koordhashtable_tpl<id_pair, average_tpl<uint16> > * const convoi_t::get_a
 		return average_journey_times;
 	}
 }
+
+void convoi_t::clear_departures()
+{
+	departures->clear();
+}

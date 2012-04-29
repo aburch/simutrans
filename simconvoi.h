@@ -1255,6 +1255,13 @@ public:
 
 	koordhashtable_tpl<id_pair, average_tpl<uint16> > * const get_average_journey_times();
 	inline koordhashtable_tpl<id_pair, average_tpl<uint16> > * const get_average_journey_times_this_convoy_only() { return average_journey_times; }
+
+	/**
+	 * Clears the departure data.
+	 * Used when the line changes
+	 * its shcedule.
+	 */
+	void clear_departures();
 };
 
 #endif
