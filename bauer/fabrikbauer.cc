@@ -556,12 +556,11 @@ int fabrikbauer_t::baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, 
 
 	// intown needs different place search
 	if (info->get_platzierung() == fabrik_besch_t::Stadt) {
-		koord k=pos->get_2d();
 
 		koord size=info->get_haus()->get_groesse(0);
 
 		// built consumer (factory) intown
-		stadt_t *city = welt->suche_naechste_stadt(k);
+		stadt_t *city = welt->suche_naechste_stadt(pos->get_2d());
 
 		/* Three variants:
 		 * A:
@@ -570,9 +569,29 @@ int fabrikbauer_t::baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, 
 		 * continues to the next city.
 		 * Otherwise seems to me the most realistic.
 		 */
-		bool	is_rotate=info->get_haus()->get_all_layouts()>1;
-		k = factory_bauplatz_mit_strasse_sucher_t(welt).suche_platz(city->get_pos(), size.x, size.y, info->get_haus()->get_allowed_climate_bits(), &is_rotate);
-		rotate = is_rotate?1:0;
+		bool is_rotate=info->get_haus()->get_all_layouts()>1  &&  size.x!=size.y  &&  info->get_haus()->can_rotate();
+		// first try with standard orientation
+		koord k = factory_bauplatz_mit_strasse_sucher_t(welt).suche_platz(city->get_pos(), size.x, size.y, info->get_haus()->get_allowed_climate_bits());
+
+		// second try: rotated
+		koord k1 = koord::invalid;
+		if (is_rotate  &&  (k == koord::invalid  ||  simrand(256)<128)) {
+			k1 = factory_bauplatz_mit_strasse_sucher_t(welt).suche_platz(city->get_pos(), size.y, size.x, info->get_haus()->get_allowed_climate_bits());
+		}
+
+		rotate = simrand( info->get_haus()->get_all_layouts() );
+		if (k1 == koord::invalid) {
+			if (size.x != size.y) {
+				rotate &= 2; // rotation must be even number
+			}
+		}
+		else {
+			k = k1;
+			rotate |= 1; // rotation must be odd number
+		}
+		if (!info->get_haus()->can_rotate()) {
+			rotate = 0;
+		}
 
 		INT_CHECK( "fabrikbauer 588" );
 
