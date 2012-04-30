@@ -309,7 +309,8 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t *sp_) :
 	tabs.set_active_tab_index(index);
 	if (index>0) {
 		bt_new_line.enable();
-	} else {
+	}
+	else {
 		bt_new_line.disable();
 	}
 	update_lineinfo( line );

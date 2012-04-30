@@ -244,9 +244,7 @@ ribi_t::ribi wayobj_t::find_next_ribi(const grund_t *start, const koord dir, con
 }
 
 
-
-void
-wayobj_t::calc_bild()
+void wayobj_t::calc_bild()
 {
 	grund_t *gr = welt->lookup(get_pos());
 	diagonal = false;
@@ -357,7 +355,7 @@ void wayobj_t::extend_wayobj_t(karte_t *welt, koord3d pos, spieler_t *besitzer, 
 	if(gr) {
 		wayobj_t *existing_wayobj = gr->get_wayobj( besch->get_wtyp() );
 		if( existing_wayobj ) {
-			if(existing_wayobj->get_besch()->get_topspeed()<besch->get_topspeed()  &&  spieler_t::check_owner(besitzer, existing_wayobj->get_besitzer())) {
+			if(  existing_wayobj->get_besch()->get_topspeed() < besch->get_topspeed()  &&  spieler_t::check_owner(besitzer, existing_wayobj->get_besitzer())  ) {
 				// replace slower by faster
 				dir = dir | existing_wayobj->get_dir();
 				gr->set_flag(grund_t::dirty);
