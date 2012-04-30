@@ -257,7 +257,6 @@ wayobj_t::calc_bild()
 		if(!w) {
 			dbg->error("wayobj_t::calc_bild()","without way at (%s)", get_pos().get_str() );
 			// well, we are not on a way anymore? => delete us
-			gr->obj_remove(this);
 			entferne(get_besitzer());
 			delete this;
 			gr->set_flag(grund_t::dirty);
@@ -361,7 +360,6 @@ void wayobj_t::extend_wayobj_t(karte_t *welt, koord3d pos, spieler_t *besitzer, 
 			if(existing_wayobj->get_besch()->get_topspeed()<besch->get_topspeed()  &&  spieler_t::check_owner(besitzer, existing_wayobj->get_besitzer())) {
 				// replace slower by faster
 				dir = dir | existing_wayobj->get_dir();
-				gr->obj_remove(existing_wayobj);
 				gr->set_flag(grund_t::dirty);
 				delete existing_wayobj;
 			}
