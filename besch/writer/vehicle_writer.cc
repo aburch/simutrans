@@ -358,7 +358,7 @@ end:
 		else
 		{
 			// Empty images with multiple liveries
-			liverykeys_empty.append(slist_tpl<string>());
+			liverykeys_empty.append();
 			for(int livery = 0; livery < livery_max; livery++)
 			{
 				sprintf(buf, "emptyimage[%s][%d]", dir_codes[i], livery);
