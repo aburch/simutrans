@@ -618,6 +618,7 @@ hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int built
 	zeiger_t* zeiger = gr->find<zeiger_t>();
 	if (zeiger) {
 		gr->obj_remove(zeiger);
+		zeiger->set_flag(ding_t::not_on_map);
 	}
 
 	gr->obj_add(gb);
