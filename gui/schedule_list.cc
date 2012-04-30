@@ -261,7 +261,6 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t *sp_) :
 	// normal buttons edit new remove
 	bt_new_line.init(button_t::roundbox, "New Line", koord(11, 8+SCL_HEIGHT+D_BUTTON_HEIGHT ), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	bt_new_line.add_listener(this);
-	bt_new_line.disable();
 	add_komponente(&bt_new_line);
 
 	bt_change_line.init(button_t::roundbox, "Update Line", koord(11+D_BUTTON_WIDTH, 8+SCL_HEIGHT+D_BUTTON_HEIGHT ), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
@@ -308,6 +307,11 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t *sp_) :
 	}
 	selected_tab = tabs_to_lineindex[index]; // reset if previous selected tab is not there anymore
 	tabs.set_active_tab_index(index);
+	if (index>0) {
+		bt_new_line.enable();
+	} else {
+		bt_new_line.disable();
+	}
 	update_lineinfo( line );
 
 	// resize button
