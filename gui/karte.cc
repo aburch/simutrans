@@ -1407,6 +1407,11 @@ void reliefkarte_t::zeichnen(koord pos)
 			}
 		}
 
+		// avoid too small circles when zoomed out
+		if(  zoom_out > 1  ) {
+			radius ++;
+		}
+
 		int out_radius = (radius == 0) ? 1 : radius;
 		display_filled_circle( temp_stop.x, temp_stop.y, radius, color );
 		display_circle( temp_stop.x, temp_stop.y, out_radius, COL_BLACK );
