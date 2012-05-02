@@ -36,7 +36,7 @@ template<class T> class slist_iterator_tpl;
 template<class T>
 class slist_tpl
 {
-public:
+private:
 	struct node_t
 	{
 		node_t(const T& data_, node_t* next_) : next(next_), data(data_) {}
@@ -48,7 +48,6 @@ public:
 		node_t* next;
 		T data;
 	};
-private:
 
 	node_t *head;
 	node_t *tail;
@@ -432,7 +431,8 @@ public:
 		}
 		return t ? index : -1;
 	}
-
+	
+private:
 	slist_tpl(const slist_tpl& slist_tpl);
 	slist_tpl& operator=( slist_tpl const& other );
 
