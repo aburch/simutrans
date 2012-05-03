@@ -1085,11 +1085,14 @@ void reliefkarte_t::zeichnen(koord pos)
 				            (pos.y*welt->get_groesse_y())/PAX_DESTINATIONS_SIZE);
 				max = koord(((pos.x+1)*welt->get_groesse_x())/PAX_DESTINATIONS_SIZE,
 				            ((pos.y+1)*welt->get_groesse_y())/PAX_DESTINATIONS_SIZE);
-				for( pos.x = min.x;  pos.x < max.x;  pos.x++  ) {
-					for( pos.y = min.y;  pos.y < max.y;  pos.y++  ) {
+				pos = min;
+				do {
+					do {
 						set_relief_farbe(pos, color);
-					}
-				}
+						pos.y++;
+					} while(pos.y < max.y);
+					pos.x++;
+				} while (pos.x < max.x);
 			}
 		}
 		pax_destinations_last_change = city->get_pax_destinations_new_change();
