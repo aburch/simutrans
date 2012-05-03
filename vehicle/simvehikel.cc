@@ -1203,7 +1203,7 @@ sint64 vehikel_t::calc_gewinn(koord start, koord end) const
 
 	sint64 value = 0;
 
-	if (welt->get_settings().get_pay_for_total_distance_mode() == settings_t::TO_DESTINATION) {
+	if(  welt->get_settings().get_pay_for_total_distance_mode() == settings_t::TO_DESTINATION  ) {
 		// pay only the distance, we get closer to our destination
 		FOR(slist_tpl<ware_t>, const& ware, fracht) {
 			if(  ware.menge==0  ) {
@@ -1234,7 +1234,7 @@ sint64 vehikel_t::calc_gewinn(koord start, koord end) const
 			// cast of koord_distance to sint32 is necessary otherwise the r-value would be interpreted as unsigned, leading to overflows
 			const sint32 dist = (sint32)koord_distance( zwpos, start ) - (sint32)koord_distance( end, zwpos );
 
-			const sint32 grundwert128 = ware.get_besch()->get_preis()<<7;	// bonus price will be always at least 0.128 of the real price
+			const sint32 grundwert128 = (ware.get_besch()->get_preis()*1000)/welt->get_settings().get_bonus_basefactor();	// bonus price will be always at least 0.128 of the real price
 			const sint32 grundwert_bonus = (ware.get_besch()->get_preis()*(1000+kmh_base*ware.get_besch()->get_speed_bonus()));
 			const sint64 price = (sint64)(grundwert128>grundwert_bonus ? grundwert128 : grundwert_bonus) * (sint64)dist * (sint64)ware.menge;
 
@@ -1251,7 +1251,7 @@ sint64 vehikel_t::calc_gewinn(koord start, koord end) const
 			}
 
 			// now only use the real gain in difference for the revenue (may as well be negative!)
-			const sint32 grundwert128 = ware.get_besch()->get_preis()<<7;	// bonus price will be always at least 0.128 of the real price
+			const sint32 grundwert128 = (ware.get_besch()->get_preis()*1000)/welt->get_settings().get_bonus_basefactor();	// bonus price will be always at least 0.128 of the real price
 			const sint32 grundwert_bonus = (ware.get_besch()->get_preis()*(1000+kmh_base*ware.get_besch()->get_speed_bonus()));
 			const sint64 price = (sint64)(grundwert128>grundwert_bonus ? grundwert128 : grundwert_bonus) * (sint64)dist * (sint64)ware.menge;
 

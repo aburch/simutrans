@@ -12,6 +12,9 @@
 #include "components/gui_komponente.h"
 
 
+class karte_t;
+
+
 /**
  * Display information about each configured good
  * as a list like display
@@ -20,6 +23,7 @@
 class goods_stats_t : public gui_komponente_t
 {
 private:
+	static karte_t *welt;
 	uint16 *goodslist;
 	int bonus;
 
@@ -28,7 +32,7 @@ private:
 	int listed_goods;
 
 public:
-	goods_stats_t();
+	goods_stats_t( karte_t *welt );
 
 	// update list and resize
 	void update_goodslist( uint16 *g, int bonus, int listcount );
