@@ -342,7 +342,6 @@ stadtauto_t::stadtauto_t(karte_t* const welt, koord3d const pos, koord const tar
 
 bool stadtauto_t::sync_step(long delta_t)
 {
-return false;
 	time_to_life -= delta_t;
 	if(  time_to_life<=0  ) {
 		return false;
