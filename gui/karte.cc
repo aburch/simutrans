@@ -455,7 +455,7 @@ uint8 reliefkarte_t::calc_severity_color(sint32 amount, sint32 max_value)
 	if(max_value!=0) {
 		// color array goes from light blue to red
 		sint32 severity = amount * MAX_SEVERITY_COLORS / (max_value+1);
-		return reliefkarte_t::severity_color[ clamp( severity, 0, MAX_SEVERITY_COLORS ) ];
+		return reliefkarte_t::severity_color[ clamp( severity, 0, MAX_SEVERITY_COLORS-1 ) ];
 	}
 	return reliefkarte_t::severity_color[0];
 }
