@@ -114,7 +114,7 @@ bool message_frame_t::action_triggered( gui_action_creator_t *komp, value_t v )
 	}
 	else if(  komp==&input  &&  ibuf[0]!=0  ) {
 		// Send chat message to server for distribution
-		nwc_chat_t* nwchat = new nwc_chat_t( ibuf, welt->get_active_player()->get_player_nr() );
+		nwc_chat_t* nwchat = new nwc_chat_t( ibuf, welt->get_active_player()->get_player_nr(), umgebung_t::nickname.c_str() );
 		network_send_server( nwchat );
 
 		ibuf[0] = 0;
