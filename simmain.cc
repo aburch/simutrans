@@ -684,7 +684,7 @@ int simu_main(int argc, char** argv)
 		}
 		if(  umgebung_t::objfilename.empty()  ) {
 			// try to download missing paks
-			if(  dr_download_pakset( umgebung_t::program_dir )  ) {
+			if(  dr_download_pakset( umgebung_t::program_dir, umgebung_t::program_dir == umgebung_t::user_dir )  ) {
 				ask_objfilename();
 				if(  umgebung_t::quit_simutrans  ) {
 					simgraph_exit();

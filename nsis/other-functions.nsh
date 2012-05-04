@@ -1,5 +1,6 @@
 ;***************************************************** from here on come licence *****************************************
 
+!include "TextFunc.nsh"
 
 
 ; we just ask for Artistic licences, the other re only asked for certain paks
@@ -13,11 +14,18 @@ Function CheckForPortableInstall
   ; defaults in progdir, and ending with simutrans
   StrCpy $installinsimutransfolder "1"
   StrCpy $multiuserinstall "1"
+  ; if the destination directory is the program dir, we must use use own documents directory for data
   StrCmp $INSTDIR $PROGRAMFILES\Simutrans AllSetPortable
   StrCpy $multiuserinstall "0"
   StrLen $1 $PROGRAMFILES
   StrCpy $0 $INSTDIR $1
-  StrCmp $0 $PROGRAMFILES +1 NonPortable
+  StrCmp $0 $PROGRAMFILES NonPortable +1
+  ; check whether we already have a simuconf.tab, to get state from file
+  ${ConfigRead} "$INSTDIR\config\simuconf.tab" "singleuser_install = " $R0
+  IfErrors PortableUnknown
+  StrCpy $multiuserinstall $R0
+  Goto AllSetPortable
+PortableUnknown:
   ; ask whether this is a protable installation
   MessageBox MB_YESNO|MB_ICONINFORMATION "Should this be a portable installation?" IDNO NonPortable
   StrCpy $multiuserinstall "1"
@@ -27,6 +35,7 @@ NonPortable:
   StrCmp $0 simutrans +2
   StrCpy $installinsimutransfolder "0"
 AllSetPortable:
+  ; here everything is ok
 FunctionEnd
 
 PageEx directory
@@ -113,7 +122,6 @@ PageExEnd
 
 
 ; ******************************** From here on Functions ***************************
-
 
 Function .oninit
   InitPluginsDir

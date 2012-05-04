@@ -598,11 +598,16 @@ void dr_fatal_notify(char const* const msg)
  * @param path_to_program : actual simutrans pakfile directory
  * @return false, if nothing was downloaded
  */
-bool dr_download_pakset( const char *path_to_program )
+bool dr_download_pakset( const char *path_to_program, bool portable )
 {
 #ifdef _WIN32
 	char param[2048];
-	sprintf( param, "/D=%s", path_to_program );
+	if(  portable  ) {
+		sprintf( param, "/P /D=%s", path_to_program );
+	}
+	else {
+		sprintf( param, "/D=%s", path_to_program );
+	}
 
 	SHELLEXECUTEINFOA shExInfo;
 	shExInfo.cbSize = sizeof(shExInfo);

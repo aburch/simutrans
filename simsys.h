@@ -144,9 +144,10 @@ size_t dr_paste(char *target, size_t max_length);
 /**
  * Open a program/starts a script to download pak sets from sourceforge
  * @param path_to_program : actual simutrans pakfile directory
+ * @param portabel : true if lokal files to be save in simutransdir
  * @return false, if nothing was downloaded
  */
-bool dr_download_pakset( const char *path_to_program );
+bool dr_download_pakset( const char *path_to_program, bool portable );
 
 int sysmain(int argc, char** argv);
 
