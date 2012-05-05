@@ -203,6 +203,14 @@ class haus_besch_t : public obj_besch_std_name_t { // Daten für ein ganzes Gebäu
 	uint16 intro_date;
 	uint16 obsolete_date;
 
+	/**
+	 * Whether this building can or must be built underground.
+	 * 0 = cannot be built underground
+	 * 1 = can only be built underground
+	 * 2 = can be built either underground or above ground.
+	 */
+	uint8 allow_underground;
+
 	bool ist_utyp(utyp u) const {
 		return gtyp == gebaeude_t::unbekannt && utype == u;
 	}
@@ -349,6 +357,8 @@ public:
 	sint32 get_base_station_price() const { return  station_price; }
 
 	uint16 get_station_capacity() const { return station_capacity; }
+
+	uint8 get_allow_underground() const { return allow_underground; }
 	
 	void set_scale(uint16 scale_factor) 
 	{

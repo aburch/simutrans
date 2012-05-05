@@ -8,4 +8,18 @@ obj=program_text
 name=Highlight the locations of stops on the current schedule
 note=Tooltip for "Highlight schedule" in the display settings window.
 -
-
+obj=program_text
+name=Cities like water
+note=Option in the climates dialogue for cities' preference to being near bodies of water
+-
+obj=program_text
+name=Number of city clusters:
+note=Option in the new world dialogue for the number of city clusters
+-
+obj=program_text
+name=City cluster size:
+note=Option in the new world dialogue for the size of city clusters
+-
+obj=program_text
+name=This can only be built underground.
+note=Error message given when trying to build an underground only structure above ground.

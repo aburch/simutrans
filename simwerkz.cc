@@ -3656,13 +3656,21 @@ set_area_cov:
 
 image_id wkz_station_t::get_icon( spieler_t * ) const
 {
-	if(  grund_t::underground_mode==grund_t::ugm_all  ) {
+	
+	sint8 dummy;
+	const haus_besch_t *besch=get_besch(dummy);
+	if(  grund_t::underground_mode==grund_t::ugm_all  )
+	{
 		// in underground mode, buildings will be done invisible above ground => disallow such confusion
-		sint8 dummy;
-		const haus_besch_t *besch=get_besch(dummy);
-		if(  besch->get_utyp()!=haus_besch_t::generic_stop  ||  besch->get_extra()==air_wt) {
+		if(  besch->get_allow_underground() == 0 ||  besch->get_extra()==air_wt) 
+		{
 			return IMG_LEER;
 		}
+	}
+	else if(besch->get_allow_underground() == 1)
+	{
+		// Not allowed underground.
+		return IMG_LEER;
 	}
 	return icon;
 }
@@ -3765,11 +3773,17 @@ const char *wkz_station_t::check_pos( karte_t *welt, spieler_t *sp, koord3d pos 
 	if (msg==NULL) {
 		sint8 rotation;
 		const haus_besch_t *besch=get_besch(rotation);
-		if(  grund_t::underground_mode==grund_t::ugm_all || (grund_t::underground_mode==grund_t::ugm_level && welt->lookup_kartenboden(pos.get_2d())->get_hoehe() > grund_t::underground_level) ) {
+		if(  grund_t::underground_mode==grund_t::ugm_all || (grund_t::underground_mode==grund_t::ugm_level && welt->lookup_kartenboden(pos.get_2d())->get_hoehe() > grund_t::underground_level) ) 
+		{
 			// in underground mode, buildings will be done invisible above ground => disallow such confusion
-			if(  besch->get_utyp()!=haus_besch_t::generic_stop  ||  besch->get_extra()==air_wt) {
+			if(  besch->get_allow_underground() == 0 ||  besch->get_extra()==air_wt) 
+			{
 				msg = "Cannot built this station/building\nin underground mode here.";
 			}
+		}
+		else if(besch->get_allow_underground() == 1)
+		{
+			msg = "This can only be built underground.";
 		}
 	}
 	return msg;
@@ -3792,7 +3806,8 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 	const haus_besch_t *besch=get_besch(rotation);
 	const char *msg = NULL;
 	sint64 cost;
-	switch (besch->get_utyp()) {
+	switch (besch->get_utyp()) 
+	{
 		case haus_besch_t::hafen:
 			if(besch->get_base_station_price() == 2147483647)
 			{

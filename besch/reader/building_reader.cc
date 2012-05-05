@@ -194,7 +194,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	int version = (v & 0x8000)!=0 ? v&0x7FFF : 0;
 
 	// Whether the read file is from Simutrans-Experimental
-	//@author: jamespetts
+	// @author: jamespetts
 
 	uint16 experimental_version = 0;
 	const bool experimental = version > 0 ? v & EXP_VER : false;
@@ -242,12 +242,20 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		
 		// Set default levels for Experimental
 		besch->station_capacity = besch->level * 32;
+		besch->allow_underground = besch->utype == haus_besch_t::generic_stop ? 2 : 0; 
 
 		if(experimental)
 		{
-			if(experimental_version > 1)
+			if(experimental_version > 2)
 			{
 				dbg->fatal( "building_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version );
+			}
+			else if(experimental_version == 2)
+			{
+				besch->station_capacity = decode_uint16(p);
+				besch->station_maintenance = decode_sint32(p);
+				besch->station_price = decode_sint32(p);
+				besch->allow_underground = decode_uint8(p);
 			}
 			else
 			{
@@ -387,6 +395,8 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	{
 		// Set default levels for Experimental
 		besch->station_capacity = besch->level * 32;
+		// Old versions when read should allow underground stations, but not underground extension buildings.
+		besch->allow_underground = besch->utype == haus_besch_t::generic_stop ? 2 : 0; 
 	}
 
 	besch->scaled_station_maintenance = besch->station_maintenance;

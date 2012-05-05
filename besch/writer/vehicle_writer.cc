@@ -427,6 +427,7 @@ end:
 			liverykeys_freight.append();
 			for(int livery = 0; livery < livery_max; livery++)
 			{
+				liverykeys_freight.at(i).append(); // See http://forum.simutrans.com/index.php?topic=9841.0
 				for(int freight = 0; freight < freight_max; freight++)
 				{
 					sprintf(buf, "freightimage[%d][%s][%d]", freight, dir_codes[i], livery);
