@@ -42,7 +42,27 @@ obj_besch_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	char * p = besch_buf;
 
 	const uint16 v = decode_uint16(p);
-	const int version = v & 0x8000 ? v & 0x7FFF : 0;
+	int version = v & 0x8000 ? v & 0x7FFF : 0;
+
+	// Whether the read file is from Simutrans-Experimental
+	// @author: jamespetts
+
+	uint16 experimental_version = 0;
+	const bool experimental = version > 0 ? v & EXP_VER : false;
+	if(version > 0)
+	{
+		if(experimental)
+		{
+			// Experimental version to start at 0 and increment.
+			version = version & EXP_VER ? version & 0x3FFF : 0;
+			while(version > 0x100)
+			{
+				version -= 0x100;
+				experimental_version ++;
+			}
+			experimental_version -= 1;
+		}
+	}
 
 	if(version==3) {
 		// Versioned node, version 3
@@ -52,6 +72,14 @@ obj_besch_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->wtyp = decode_uint8(p);
 		besch->intro_date = decode_uint16(p);
 		besch->obsolete_date = decode_uint16(p);
+		if(experimental)
+		{
+			if(experimental_version > 1)
+			{
+				dbg->fatal( "roadsign_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version );
+			}
+			besch->allow_underground = decode_uint8(p);
+		}
 	}
 	else if(version==2) {
 		// Versioned node, version 2
@@ -74,6 +102,13 @@ obj_besch_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	else {
 		dbg->fatal("roadsign_reader_t::read_node()","version 0 not supported. File corrupt?");
 	}
+
+	if(!experimental)
+	{
+		// Standard roadsigns can be placed both underground and above ground.
+		besch->allow_underground = 2;
+	}
+
 	DBG_DEBUG("roadsign_reader_t::read_node()","min_speed=%i, cost=%i, flags=%x, wtyp=%i, intro=%i%i, retire=%i,%i",besch->min_speed,besch->cost/100,besch->flags,besch->wtyp,besch->intro_date%12+1,besch->intro_date/12,besch->obsolete_date%12+1,besch->obsolete_date/12 );
 	return besch;
 }

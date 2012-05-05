@@ -238,6 +238,12 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 
 	uint8 allow_underground = obj.get_int("allow_underground", 0);
 
+	if(allow_underground > 2)
+	{
+		// Prohibit illegal values here.
+		allow_underground = 2;
+	}
+
 	// Encode the depot traction types.
 	if(utype == haus_besch_t::depot)
 	{

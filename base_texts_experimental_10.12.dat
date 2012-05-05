@@ -23,3 +23,8 @@ note=Option in the new world dialogue for the size of city clusters
 obj=program_text
 name=This can only be built underground.
 note=Error message given when trying to build an underground only structure above ground.
+-
+obj=program_text
+name=Cannot build this signal underground.
+note=Error message given when trying to build a signal underground that does not allow underground construction.
+

@@ -3656,7 +3656,6 @@ set_area_cov:
 
 image_id wkz_station_t::get_icon( spieler_t * ) const
 {
-	
 	sint8 dummy;
 	const haus_besch_t *besch=get_besch(dummy);
 	if(  grund_t::underground_mode==grund_t::ugm_all  )
@@ -3951,6 +3950,21 @@ const char* wkz_roadsign_t::check_pos_intern(karte_t *welt, spieler_t *sp, koord
 	if (besch==NULL) {
 		return error;
 	}
+
+	if(grund_t::underground_mode==grund_t::ugm_all  )
+	{
+		// Do not build above ground only signals underground
+		if(besch->get_allow_underground() == 0)
+		{
+			return "Cannot build this signal underground.";
+		}
+	}
+	else if(besch->get_allow_underground() == 1)
+	{
+		// Do not build underground only signals above ground.
+		return "This can only be built underground.";
+	}
+
 	// search for starting ground
 	grund_t *gr = wkz_intern_koord_to_weg_grund(sp, welt, pos, besch->get_wtyp());
 	if(gr) {
