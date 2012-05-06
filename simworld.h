@@ -432,6 +432,13 @@ private:
 	 */
 	void laden(loadsave_t *file);
 
+	/**
+	 * entfernt alle objecte, loescht alle datenstrukturen
+	 * gibt allen erreichbaren speicher frei
+	 * @author Hj. Malthaner
+	 */
+	void destroy();
+
 	// restores history for older savegames
 	void restore_history();
 
@@ -1025,13 +1032,6 @@ public:
 	karte_t();
 
 	~karte_t();
-
-	/**
-	 * entfernt alle objecte, loescht alle datenstrukturen
-	 * gibt allen erreichbaren speicher frei
-	 * @author Hj. Malthaner
-	 */
-	void destroy();
 
 	// return an index to a halt (or creates a new one)
 	// only used during loading

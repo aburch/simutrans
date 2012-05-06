@@ -112,10 +112,10 @@ private:
 	// @author: jamespetts, July 2011
 	vector_tpl<halthandle_t> halts_within_walking_distance;
 
-	void check_nearby_halts();
-
 	void add_halt_within_walking_distance(halthandle_t halt);
 	void remove_halt_within_walking_distance(halthandle_t halt);
+
+	void check_nearby_halts();
 
 public:
 	// add convoi to loading queue
