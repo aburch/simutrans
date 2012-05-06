@@ -1079,7 +1079,6 @@ void haltestelle_t::neuer_monat()
 		}
 	}
 
-	halts_within_walking_distance.clear();
 	check_nearby_halts();
 
 	// hsiegeln: roll financial history
@@ -3275,7 +3274,6 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 		}
 	}
 
-	halts_within_walking_distance.clear();
 	check_nearby_halts();
 
 	return true;
@@ -3501,6 +3499,7 @@ void haltestelle_t::remove_halt_within_walking_distance(halthandle_t halt)
 
 void haltestelle_t::check_nearby_halts()
 {
+	halts_within_walking_distance.clear();
 	FOR(slist_tpl<tile_t>, const& iter, tiles)
 	{
 		planquadrat_t *plan = welt->access(iter.grund->get_pos().get_2d());

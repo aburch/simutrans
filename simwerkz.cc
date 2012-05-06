@@ -3811,7 +3811,7 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 		case haus_besch_t::hafen:
 			if(besch->get_base_station_price() == 2147483647)
 			{
-				cost =welt->get_settings().cst_multiply_dock * besch->get_level();
+				cost = welt->get_settings().cst_multiply_dock * besch->get_level();
 			}
 			else
 			{
@@ -3933,7 +3933,7 @@ char const* wkz_roadsign_t::get_tooltip(spieler_t const*) const
 
 void wkz_roadsign_t::draw_after( karte_t *welt, koord pos ) const
 {
-	if(  icon!=IMG_LEER  &&  is_selected(welt)  ) {
+	if(  icon!=IMG_LEER  &&  is_selected(welt) ) {
 		display_img_blend( icon, pos.x, pos.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|COL_BLACK, false, true );
 		char level_str[16];
 		sprintf( level_str, "%i", signal_spacing[welt->get_active_player_nr()] );
@@ -3952,7 +3952,7 @@ const char* wkz_roadsign_t::check_pos_intern(karte_t *welt, spieler_t *sp, koord
 		return error;
 	}
 
-	if(grund_t::underground_mode==grund_t::ugm_all  )
+	if(grund_t::underground_mode==grund_t::ugm_all)
 	{
 		// Do not build above ground only signals underground
 		if(besch->get_allow_underground() == 0)
