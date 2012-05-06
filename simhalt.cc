@@ -1079,6 +1079,9 @@ void haltestelle_t::neuer_monat()
 		}
 	}
 
+	halts_within_walking_distance.clear();
+	check_nearby_halts();
+
 	// hsiegeln: roll financial history
 	for (int j = 0; j<MAX_HALT_COST; j++) {
 		for (int k = MAX_MONTHS-1; k>0; k--) {
@@ -3272,6 +3275,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 		}
 	}
 
+	halts_within_walking_distance.clear();
 	check_nearby_halts();
 
 	return true;

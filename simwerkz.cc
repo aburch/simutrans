@@ -2910,7 +2910,8 @@ const char *wkz_wayobj_t::do_work( karte_t * welt, spieler_t * sp, const koord3d
 const char *wkz_station_t::wkz_station_building_aux(karte_t *welt, spieler_t *sp, bool extend_public_halt, koord3d k, const haus_besch_t *besch, sint8 rotation )
 {
 	// need kartenboden
-	if (welt->lookup_kartenboden(k.get_2d())->get_hoehe() != k.z) {
+	if((welt->lookup_kartenboden(k.get_2d())->get_hoehe() != k.z) && besch->get_allow_underground() == 0)
+	{
 		return "";
 	}
 	koord pos = k.get_2d();

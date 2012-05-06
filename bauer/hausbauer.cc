@@ -448,7 +448,7 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int org
 			if(gr->ist_wasser()) {
 				gr->obj_add(gb);
 			} else if (besch->get_utyp() == haus_besch_t::hafen) {
-				// its a dock!
+				// it's a dock!
 				gr->obj_add(gb);
 			}
 			else {
