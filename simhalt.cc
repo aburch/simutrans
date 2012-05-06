@@ -3519,6 +3519,8 @@ void haltestelle_t::check_nearby_halts()
 			}
 		}
 	}
+	// Must refresh here, but only passengers can walk, so only refresh passengers.
+	path_explorer_t::refresh_category(0);
 }
 
 bool haltestelle_t::is_within_walking_distance_of(halthandle_t halt) const
