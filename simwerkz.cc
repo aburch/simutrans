@@ -4718,7 +4718,7 @@ const char *wkz_build_industries_land_t::work( karte_t *welt, spieler_t *sp, koo
 			// eventually adjust production
 			if(default_param  &&  strlen(default_param)>0) {
 				const sint32 base_maintenance = atol(default_param + 2);
-				fabrik_t::get_fab(welt,k.get_2d())->set_base_production(welt->calc_adjusted_monthly_figure(base_maintenance));
+				fabrik_t::get_fab(welt,k.get_2d())->set_base_production(base_maintenance>>(welt->ticks_per_world_month_shift-18));
 			}
 
 			// crossconnect all?
@@ -4789,7 +4789,7 @@ const char *wkz_build_industries_city_t::work( karte_t *welt, spieler_t *sp, koo
 		// eventually adjust production
 		if(default_param  &&  strlen(default_param)>0) {
 			sint32 base_maintenance = atol(default_param+2);
-			fabrik_t::get_fab(welt,k.get_2d())->set_base_production(welt->calc_adjusted_monthly_figure(base_maintenance));
+			fabrik_t::get_fab(welt,k.get_2d())->set_base_production(base_maintenance>>(welt->ticks_per_world_month_shift-18));
 		}
 
 		// crossconnect all?
@@ -4896,7 +4896,7 @@ const char *wkz_build_factory_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 			if(default_param  &&  strlen(default_param)>0) 
 			{
 				sint32 base_maintenance = atol(default_param+2);
-				f->set_base_production(max(1,welt->calc_adjusted_monthly_figure(base_maintenance)));
+				f->set_base_production(max(1,base_maintenance>>(welt->ticks_per_world_month_shift-18)));
 			}
 
 			// crossconnect all?
