@@ -1972,7 +1972,7 @@ void fabrik_t::neuer_monat()
 	// since target cities' population may be increased -> re-apportion pax/mail demand
 	recalc_demands_at_target_cities();
 
-	// This needs to be re-checked regularly, as cities grow and can be deleted.
+	// This needs to be re-checked regularly, as cities grow, occasionally shrink and can be deleted.
 	stadt_t* c = welt->get_city(pos.get_2d());
 
 	if(c && !c->get_city_factories().is_contained(this))
@@ -1983,6 +1983,12 @@ void fabrik_t::neuer_monat()
 	if(c != city && city)
 	{
 		city->remove_city_factory(this);
+	}
+
+	if(!c)
+	{
+		// Factory no longer in city.
+		transformer_connected = NULL;
 	}
 
 	city = c;
