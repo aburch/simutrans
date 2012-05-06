@@ -880,6 +880,8 @@ void haltestelle_t::neuer_monat()
 		}
 		financial_history[0][j] = 0;
 	}
+	// number of waitung should be constant ...
+	financial_history[0][HALT_WAITING] = financial_history[1][HALT_WAITING];
 }
 
 
