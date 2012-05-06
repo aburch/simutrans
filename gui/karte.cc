@@ -31,6 +31,8 @@
 sint32 reliefkarte_t::max_cargo=0;
 sint32 reliefkarte_t::max_passed=0;
 
+static sint32 max_waiting_change = 1;
+
 static sint32 max_tourist_ziele = 1;
 static sint32 max_waiting = 1;
 static sint32 max_origin = 1;
@@ -1324,13 +1326,15 @@ void reliefkarte_t::zeichnen(koord pos)
 				}
 			}
 		}
-		else if(  mode&MAP_STATUS  ||  mode&MAP_SERVICE  ||  mode&MAP_WAITING  ) {
+		else if(  mode&MAP_STATUS  ||  mode&MAP_SERVICE  ||  mode&MAP_WAITING  ||  mode&MAP_WAITCHANGE  ) {
 			FOR( const slist_tpl<halthandle_t>, halt, haltestelle_t::get_alle_haltestellen() ) {
 				stop_cache.append( halt );
 			}
 		}
 	}
 	// now draw stop cache
+	// if needed to get new values
+	sint32 new_max_waiting_change = 1;
 	FOR(  vector_tpl<halthandle_t>, station, stop_cache  ) {
 
 		int radius = 0;
@@ -1359,6 +1363,19 @@ void reliefkarte_t::zeichnen(koord pos)
 			}
 			color = calc_severity_color_log( waiting, max_waiting );
 			radius = number_to_radius( waiting );
+		}
+		else if( mode & MAP_WAITCHANGE  ) {
+			const sint32 waiting_diff = station->get_finance_history( 0, HALT_WAITING ) - station->get_finance_history( 1, HALT_WAITING );
+			if(  waiting_diff > new_max_waiting_change  ) {
+				new_max_waiting_change = waiting_diff;
+			}
+			if(  waiting_diff < -new_max_waiting_change  ) {
+				new_max_waiting_change = -waiting_diff;
+			}
+			const sint32 span = max(new_max_waiting_change,max_waiting_change);
+			const sint32 diff = waiting_diff + span;
+			color = calc_severity_color( diff, span*2 ) ;
+			radius = number_to_radius( abs(waiting_diff) );
 		}
 		else if( mode & MAP_ORIGIN  ) {
 			if(  !station->get_pax_enabled()  &&  !station->get_post_enabled()  ) {
@@ -1440,6 +1457,7 @@ void reliefkarte_t::zeichnen(koord pos)
 		temp_stop = temp_stop + pos;
 		display_ddd_proportional_clip( temp_stop.x + 10, temp_stop.y + 7, proportional_string_width( display_station->get_name() ) + 8, 0, display_station->get_besitzer()->get_player_color1()+3, COL_WHITE, display_station->get_name(), false );
 	}
+	max_waiting_change = new_max_waiting_change;	// update waiting tendenies
 
 	// if we do not do this here, vehicles would erase the town names
 	// ADD: if CRTL key is pressed, temporary show the name
