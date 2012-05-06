@@ -110,7 +110,7 @@ depot_t *depot_t::find_depot( koord3d start, const ding_t::typ depot_type, const
 unsigned depot_t::get_max_convoy_length(waytype_t wt)
 {
 	if (wt==road_wt || wt==water_wt) {
-		return 4;
+		return convoi_t::max_vehicle;
 	}
 	if (wt==air_wt) {
 		return 1;

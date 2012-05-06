@@ -959,9 +959,18 @@ void gui_convoy_assembler_t::image_from_convoi_list(uint nr)
 
 void gui_convoy_assembler_t::image_from_storage_list(gui_image_list_t::image_data_t *bild_data)
 {
+	
 	const vehikel_besch_t *info = vehikelbauer_t::get_info(bild_data->text);
 
 	const convoihandle_t cnv = depot_frame ? depot_frame->get_depot()->get_convoi(depot_frame->get_icnv()) : replace_frame->get_convoy();
+	
+	const uint32 length = vehicles.get_count() + 1;
+	if(cnv.is_bound() && (length > max_convoy_length))
+	{
+		// Do not add vehicles over maximum length.
+		return;
+	}
+
 	if(depot_frame)
 	{
 		depot_t *depot = depot_frame->get_depot();
