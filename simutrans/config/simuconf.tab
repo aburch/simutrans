@@ -182,6 +182,14 @@ growthfactor_villages = 400
 growthfactor_cities = 200
 growthfactor_capitals = 100
 
+# These values are used in the city generation algorithm to determine the maximum size of cities.
+# max_city_size is the maximum size, in citizens, of any city at the point of generation.
+# max_small_city_size is the size, in citizens, of any city other than a "big city" at the point of generation. 
+# TIP: Set a lower number for these values the earlier that the game is started.
+
+max_city_size = 16000
+max_small_city_size = 3000
+
 # The higher this value, the more passengers generated. (Default: 16)
 passenger_factor=16
 
