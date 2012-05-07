@@ -9,7 +9,9 @@
 	ADD: Start paksetdownloaded, when started without paksets
 	FIX: (z9999+) Corrected speedbonus base faktor calculations
 	FIX: (z9999+) Nickname in chat also send to server for reloads
-	FIX: better finding out if portable installation is needed
+	FIX: (installer/pakset updater) better finding out if portable installation is needed
+	ADD: change of waiting at stops option in minimap
+	CHG: Withdraw all will not disassemble convois in depots for easier upgrading
 
 
 Release of 111.2.2 (r5583 on 20-Mar-2012):

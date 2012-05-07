@@ -3214,8 +3214,15 @@ void convoi_t::set_withdraw(bool new_withdraw)
 	if(  withdraw  &&  (loading_level==0  ||  goods_catg_index.empty())) {
 		// test if convoi in depot and not driving
 		grund_t *gr = welt->lookup( get_pos());
-		if (gr && gr->get_depot()  &&  state == INITIAL) {
+		if(  gr  &&  gr->get_depot()  &&  state == INITIAL  ) {
+#if 1
+			// do not touch line bound convois in depots
+			withdraw = false;
+			no_load = false;
+#else
+			// disassemble also line bound convois in depots
 			gr->get_depot()->disassemble_convoi(self, true);
+#endif
 		}
 		else {
 			self_destruct();
