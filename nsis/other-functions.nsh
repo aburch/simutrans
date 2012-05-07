@@ -16,20 +16,19 @@ Function CheckForPortableInstall
   StrCpy $multiuserinstall "1"
   ; if the destination directory is the program dir, we must use use own documents directory for data
   StrCmp $INSTDIR $PROGRAMFILES\Simutrans AllSetPortable
-  StrCpy $multiuserinstall "0"
   StrLen $1 $PROGRAMFILES
   StrCpy $0 $INSTDIR $1
-  StrCmp $0 $PROGRAMFILES NonPortable +1
-  ; check whether we already have a simuconf.tab, to get state from file
+  StrCmp $0 $PROGRAMFILES YesPortable +1
+  StrCpy $multiuserinstall "0"  ; check whether we already have a simuconf.tab, to get state from file
   ${ConfigRead} "$INSTDIR\config\simuconf.tab" "singleuser_install = " $R0
   IfErrors PortableUnknown
   StrCpy $multiuserinstall $R0
   Goto AllSetPortable
 PortableUnknown:
   ; ask whether this is a protable installation
-  MessageBox MB_YESNO|MB_ICONINFORMATION "Should this be a portable installation?" IDNO NonPortable
+  MessageBox MB_YESNO|MB_ICONINFORMATION "Should this be a portable installation?" IDYES YesPortable
   StrCpy $multiuserinstall "1"
-NonPortable:
+YesPortable:
   ; now check, whether the path ends with "simutrans"
   StrCpy $0 $INSTDIR 9 -9
   StrCmp $0 simutrans +2
