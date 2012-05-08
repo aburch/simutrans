@@ -60,7 +60,7 @@ void goods_stats_t::zeichnen(koord offset)
 		display_proportional_clip(offset.x + 14, yoff,	buf, ALIGN_LEFT, COL_BLACK, true);
 
 		// prissi
-		const sint32 grundwert128 = (wtyp->get_preis()*1000)/welt->get_settings().get_bonus_basefactor();	// bonus price will be always at least 0.128 of the real price
+		const sint32 grundwert128 = wtyp->get_preis() * welt->get_settings().get_bonus_basefactor();	// bonus price will be always at least this
 		const sint32 grundwert_bonus = wtyp->get_preis()*(1000l+(bonus-100l)*wtyp->get_speed_bonus());
 		const sint32 price = (grundwert128>grundwert_bonus ? grundwert128 : grundwert_bonus);
 		money_to_string( money_buf, price/300000.0 );

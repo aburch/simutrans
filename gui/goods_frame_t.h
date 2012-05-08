@@ -34,7 +34,7 @@ private:
 	static sort_mode_t sortby;
 	static bool filter_goods;
 
-	karte_t * welt;
+	static karte_t *welt;
 	char	speed_bonus[6];
 	cbuffer_t	speed_message;
 	uint16 good_list[256];

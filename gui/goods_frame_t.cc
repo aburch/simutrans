@@ -55,7 +55,7 @@ const char *goods_frame_t::sort_text[SORT_MODES] = {
  * @author falconne
  */
 bool goods_frame_t::filter_goods = false;
-
+karte_t *goods_frame_t::welt = NULL;
 
 goods_frame_t::goods_frame_t(karte_t *wl) :
 	gui_frame_t( translator::translate("gl_title") ),
@@ -134,10 +134,10 @@ bool goods_frame_t::compare_goods(uint16 const a, uint16 const b)
 			break;
 		case 2: // sort by revenue
 			{
-				const sint32 grundwert1281 = w1->get_preis()<<7;
+				const sint32 grundwert1281 = w1->get_preis() * goods_frame_t::welt->get_settings().get_bonus_basefactor();
 				const sint32 grundwert_bonus1 = w1->get_preis()*(1000l+(relative_speed_change-100l)*w1->get_speed_bonus());
 				const sint32 price1 = (grundwert1281>grundwert_bonus1 ? grundwert1281 : grundwert_bonus1);
-				const sint32 grundwert1282 = w2->get_preis()<<7;
+				const sint32 grundwert1282 = w2->get_preis() * goods_frame_t::welt->get_settings().get_bonus_basefactor();
 				const sint32 grundwert_bonus2 = w2->get_preis()*(1000l+(relative_speed_change-100l)*w2->get_speed_bonus());
 				const sint32 price2 = (grundwert1282>grundwert_bonus2 ? grundwert1282 : grundwert_bonus2);
 				order = price1-price2;
