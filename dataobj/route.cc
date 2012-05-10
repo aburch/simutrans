@@ -220,9 +220,14 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 				&& fahr->ist_befahrbar(to)	// can be driven on
 			) {
 				// already in open list?
-				if (is_in_list(open,  to)) continue;
+				if (is_in_list(open,  to)) {
+					continue;
+				}
+
 				// already in closed list (i.e. all processed nodes)
-				if (is_in_list(close, to)) continue;
+				if (is_in_list(close, to)) {
+					continue;
+				}
 
 				// not in there or taken out => add new
 				ANode* k = &nodes[step++];
