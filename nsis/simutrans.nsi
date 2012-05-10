@@ -54,7 +54,8 @@ Section /o "Chinese Font" wenquanyi_font
   StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/wenquanyi_9pt-font-bdf.zip"
   StrCpy $archievename "wenquanyi_9pt-font-bdf.zip"
   StrCpy $downloadname "wenquanyi_9pt"
-  Call DownloadInstallZip
+  Call DownloadInstallZipWithoutSimutrans
+  Rename $INSTDIR\wenquanyi_9pt.bdf $INSTDIR\font\wenquanyi_9pt.bdf
 SectionEnd
 
 SectionGroupEnd
@@ -74,26 +75,37 @@ SectionGroupEnd
 ; make sure, at least one executable is installed
 Function .onSelChange
 
-  !insertmacro StartRadioButtons $group1
-    !insertmacro RadioButton ${GDIexe}
-    !insertmacro RadioButton ${SDLexe}
-  !insertmacro EndRadioButtons
-
-  ; make sure GDI is installed when chinese is selected
-  SectionGetFlags ${wenquanyi_font} $R0
+  ; radio button macro does not work as intended now => do it yourself
+  SectionGetFlags ${SDLexe} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} +1 test_for_pak
 
-  ; force selection of GDI exe
+  ; SDL is selected
   SectionGetFlags ${GDIexe} $R0
-  IntOp $R0 $R0 | ${SF_SELECTED}
-
-  SectionSetFlags ${GDIexe} $R0
+  IntOp $R0 $R0 & ${SF_SELECTED}
+  IntCmp $R0 ${SF_SELECTED} +1 select_SDL
+  ; ok both selected
+  IntCmp $group1 0 select_SDL
+  ; But GDI was not previously selected => unselect SDL
   SectionGetFlags ${SDLexe} $R0
   IntOp $R0 $R0 & ${SECTION_OFF}
   SectionSetFlags ${SDLexe} $R0
+  Goto test_for_pak
+
+select_SDL:
+  ; ok SDL was selected => deselect chines font and GDI
+  SectionGetFlags ${GDIexe} $R0
+  IntOp $R0 $R0 & ${SECTION_OFF}
+  SectionSetFlags ${GDIexe} $R0
+  SectionGetFlags ${wenquanyi_font} $R0
+  IntOp $R0 $R0 & ${SECTION_OFF}
+  SectionSetFlags ${wenquanyi_font} $R0
 
 test_for_pak:
+  ; save last state of SDLexe selection
+  SectionGetFlags ${SDLexe} $R0
+  IntOp $group1 $R0 & ${SF_SELECTED}
+
   ; Make sure at least some pak is selected
   SectionGetFlags ${pak64} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
