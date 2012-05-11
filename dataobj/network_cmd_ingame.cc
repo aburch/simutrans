@@ -875,8 +875,8 @@ nwc_tool_t::nwc_tool_t(spieler_t *sp, werkzeug_t *wkz, koord3d pos_, uint32 sync
 	init = init_;
 	tool_client_id = 0;
 	flags = wkz->flags;
-	last_sync_step = sp->get_welt()->get_last_checklist_sync_step();
-	last_checklist = sp->get_welt()->get_last_checklist();
+	last_sync_step = spieler_t::get_welt()->get_last_checklist_sync_step();
+	last_checklist = spieler_t::get_welt()->get_last_checklist();
 	// write custom data of wkz to our internal buffer
 	custom_data = new memory_rw_t(custom_data_buf, lengthof(custom_data_buf), true);
 	if (sp) {
