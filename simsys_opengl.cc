@@ -522,7 +522,7 @@ static void create_gl_texture()
 		opengl_error();
 	}
 	else{
-		if (tiled_textures.size()==0){
+		if(  tiled_textures.empty()  ){
 
 			// Initial call
 
@@ -832,7 +832,7 @@ void dr_textur(int xp, int yp, int w, int h)
 			}
 			else{
 
-				int n_x_tiles = x_tile_end - x_tile_start;
+				//int n_x_tiles = x_tile_end - x_tile_start;
 				int n_y_tiles = y_tile_end - y_tile_start;
 
 				if (n_y_tiles==0){

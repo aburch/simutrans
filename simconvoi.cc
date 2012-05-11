@@ -2955,7 +2955,7 @@ DBG_DEBUG("convoi_t::unset_line()", "removing old destinations from line=%d, fpl
 }
 
 
-// matches two halts; if the pos is not identical, maybe the halt still is
+// matches two halts; if the pos is not identical, maybe the halt still is the same
 bool convoi_t::matches_halt( const koord3d pos1, const koord3d pos2 )
 {
 	halthandle_t halt1 = haltestelle_t::get_halt( welt, pos1, besitzer_p );

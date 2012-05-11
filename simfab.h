@@ -355,7 +355,7 @@ public:
 	sint64 get_stat(int month, int stat_type) const { assert(stat_type<MAX_FAB_STAT); return statistics[month][stat_type]; }
 	void book_stat(sint64 value, int stat_type) { assert(stat_type<MAX_FAB_STAT); statistics[0][stat_type] += value; }
 
-	static fabrik_t * get_fab(const karte_t *welt, const koord pos);
+	static fabrik_t * get_fab(const karte_t *welt, const koord &pos);
 
 	/**
 	 * @return vehicle description object

@@ -131,9 +131,8 @@ bool schedule_t::append(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_sh
 // cleanup a schedule
 void schedule_t::cleanup()
 {
-	if (eintrag.empty()) {
+	if(  eintrag.empty()  ) {
 		return; // nothing to check
-		aktuell = 0;
 	}
 
 	// first and last must not be the same!

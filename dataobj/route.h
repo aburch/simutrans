@@ -47,9 +47,9 @@ public:
 		uint8 dir;
 		uint16 count;
 
-		inline bool operator <= (const ANode k) const { return f==k.f ? g<=k.g : f<=k.f; }
+		inline bool operator <= (const ANode &k) const { return f==k.f ? g<=k.g : f<=k.f; }
 		// next one only needed for sorted_heap_tpl
-		inline bool operator == (const ANode k) const { return f==k.f  &&  g==k.g; }
+		inline bool operator == (const ANode &k) const { return f==k.f  &&  g==k.g; }
 		// next two only needed for HOT-queues
 		inline bool is_matching(const ANode &l) const { return gr==l.gr; }
 		inline uint32 get_distance() const { return f; }
@@ -67,7 +67,7 @@ public:
 	static void RELEASE_NODE() {}
 #endif
 
-	static inline uint32 calc_distance( const koord3d p1, const koord3d p2 )
+	static inline uint32 calc_distance( const koord3d &p1, const koord3d &p2 )
 	{
 		return (abs(p1.x-p2.x)+abs(p1.y-p2.y)+abs(p1.z-p2.z)/16);
 	}
@@ -77,9 +77,9 @@ public:
 	void rotate90( sint16 y_size ) { route.rotate90( y_size ); };
 
 
-	bool is_contained(const koord3d k) const { return route.is_contained(k); }
+	bool is_contained(const koord3d &k) const { return route.is_contained(k); }
 
-	uint32 index_of(const koord3d k) const { return (uint32)(route.index_of(k)); }
+	uint32 index_of(const koord3d &k) const { return (uint32)(route.index_of(k)); }
 
 	/**
 	 * @return Koordinate an index n

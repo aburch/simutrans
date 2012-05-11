@@ -755,7 +755,7 @@ public:
 //		return x>=0 &&  y>=0  &&  cached_groesse_karte_x>=x  &&  cached_groesse_karte_y>=y;
 	}
 
-	inline bool ist_in_gittergrenzen(koord k) const {
+	inline bool ist_in_gittergrenzen(const koord &k) const {
 	// prissi: since negative values will make the whole result negative, we can use bitwise or
 	// faster, since pentiums and other long pipeline processors do not like jumps
 		return (k.x|k.y|(cached_groesse_gitter_x-k.x)|(cached_groesse_gitter_y-k.y))>=0;
@@ -778,7 +778,7 @@ public:
 	* @return Planquadrat an koordinate pos
 	* @author Hj. Malthaner
 	*/
-	inline const planquadrat_t * lookup(const koord k) const
+	inline const planquadrat_t *lookup(const koord &k) const
 	{
 		return ist_in_kartengrenzen(k.x, k.y) ? &plan[k.x+k.y*cached_groesse_gitter_x] : 0;
 	}
@@ -788,7 +788,7 @@ public:
 	 * @return grund an pos/hoehe
 	 * @author Hj. Malthaner
 	 */
-	inline grund_t * lookup(const koord3d pos) const
+	inline grund_t *lookup(const koord3d &pos) const
 	{
 		const planquadrat_t *plan = lookup(pos.get_2d());
 		return plan ? plan->get_boden_in_hoehe(pos.z) : NULL;
@@ -799,7 +799,7 @@ public:
 	 * @return grund at the bottom (where house will be build)
 	 * @author Hj. Malthaner
 	 */
-	inline grund_t * lookup_kartenboden(const koord pos) const
+	inline grund_t *lookup_kartenboden(const koord &pos) const
 	{
 		const planquadrat_t *plan = lookup(pos);
 		return plan ? plan->get_kartenboden() : NULL;

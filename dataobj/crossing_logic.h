@@ -33,7 +33,6 @@ protected:
 	const vehikel_basis_t *request_close;
 
 	crossing_state_t zustand;
-	uint32 last_ticks_sound;
 	const kreuzung_besch_t *besch;
 	minivec_tpl<crossing_t *>crossings;
 

@@ -111,7 +111,7 @@ void haltestelle_t::step_all()
 halthandle_t haltestelle_t::get_halt(const karte_t *welt, const koord pos, const spieler_t *sp )
 {
 	const planquadrat_t *plan = welt->lookup(pos);
-	if(plan) {
+	if(  plan  ) {
 		if(plan->get_halt().is_bound()  &&  spieler_t::check_owner(sp,plan->get_halt()->get_besitzer())  ) {
 			return plan->get_halt();
 		}
@@ -611,7 +611,7 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 				int this_distance = 999;
 				FOR(slist_tpl<fabrik_t*>, const f, get_fab_list()) {
 					int distance = koord_distance(f->get_pos().get_2d(), k);
-					if (distance < this_distance) {
+					if(  distance < this_distance  ) {
 						fabs.insert(f);
 						this_distance = distance;
 					}

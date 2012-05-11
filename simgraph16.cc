@@ -3199,7 +3199,7 @@ unsigned short get_prev_char_with_metrics(const char* &text, const char *const t
 int display_calc_proportional_string_len_width(const char* text, size_t len)
 {
 	const font_type* const fnt = &large_font;
-	unsigned int c, width = 0;
+	unsigned int width = 0;
 	int w;
 
 #ifdef UNICODE_SUPPORT
@@ -3222,7 +3222,8 @@ int display_calc_proportional_string_len_width(const char* text, size_t len)
 	} else {
 #endif
 		uint8 char_width;
-		while (*text!=0  &&  len>0) {
+		unsigned int c;
+		while(  *text != 0  &&  len > 0  ) {
 			c = (unsigned char)*text;
 			if(  c>=fnt->num_chars  ||  (char_width=fnt->screen_width[c])==0  ) {
 				// default width for missing characters
