@@ -1652,6 +1652,9 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 		set_dirty();
 		reset_timer();
 	}
+
+	// update main menue
+	werkzeug_t::update_toolbars(this);
 }
 
 
@@ -2397,6 +2400,7 @@ bool karte_t::change_player_tool(uint8 cmd, uint8 player_nr, uint16 param, bool 
 	return false;
 }
 
+
 // new tool definition
 void karte_t::set_werkzeug( werkzeug_t *w, spieler_t *sp )
 {
@@ -2601,8 +2605,7 @@ void karte_t::rotate90()
 // -------- Verwaltung von Fabriken -----------------------------
 
 
-bool
-karte_t::add_fab(fabrik_t *fab)
+bool karte_t::add_fab(fabrik_t *fab)
 {
 //DBG_MESSAGE("karte_t::add_fab()","fab = %p",fab);
 	assert(fab != NULL);
@@ -2610,7 +2613,6 @@ karte_t::add_fab(fabrik_t *fab)
 	goods_in_game.clear(); // Force rebuild of goods list
 	return true;
 }
-
 
 
 // beware: must remove also links from stops and towns
@@ -3204,6 +3206,10 @@ void karte_t::neuer_monat()
 
 	recalc_average_speed();
 	INT_CHECK("simworld 1921");
+
+	// update toolbars (i.e. new waytypes
+	werkzeug_t::update_toolbars(this);
+
 
 	if(  !umgebung_t::networkmode  &&  umgebung_t::autosave>0  &&  letzter_monat%umgebung_t::autosave==0  ) {
 		char buf[128];

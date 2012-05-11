@@ -1356,12 +1356,12 @@ void win_display_flush(double konto)
 	// display main menu
 	werkzeug_waehler_t *main_menu = werkzeug_t::toolbar_tool[0]->get_werkzeug_waehler();
 	display_set_clip_wh( 0, 0, disp_width, menu_height+1 );
-	display_fillbox_wh(0, 0, disp_width, menu_height, MN_GREY2, false);
+	display_fillbox_wh( 0, 0, disp_width, menu_height, MN_GREY2, false );
 	// .. extra logic to enable tooltips
 	tooltip_element = menu_height > get_maus_y() ? main_menu : NULL;
 	void *old_inside_event_handling = inside_event_handling;
 	inside_event_handling = main_menu;
-	main_menu->zeichnen(koord(0,-16), koord(disp_width,menu_height) );
+	main_menu->zeichnen( koord(0,-16), koord(disp_width,menu_height) );
 	inside_event_handling = old_inside_event_handling;
 
 	// redraw all?
