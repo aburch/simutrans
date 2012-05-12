@@ -93,7 +93,7 @@ void dr_play_midi(int key)
 				printf("\nMessage: MIDI: Unable to load MIDI %d\n", key);
 			}
 			else {
-				if (mciSendStringA("play SimuMIDI", NULL, 0, NULL) != 0)
+				if (mciSendStringA("play SimuMIDI", retstr, 200, NULL) != 0)
 					printf("\nMessage: MIDI: Unable to play MIDI %d - %s\n", key, retstr);
 				}
 			}
