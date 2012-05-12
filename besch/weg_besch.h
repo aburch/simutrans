@@ -222,11 +222,13 @@ public:
 	}
 
 	bool has_diagonal_bild() const {
-		return get_child<bildliste_besch_t>(4)->get_bild_nr(0) != IMG_LEER;
+		return get_child<bildliste_besch_t>(4)->get_bild_nr(0) != IMG_LEER
+		||     get_child<bildliste_besch_t>(image_list_base_index(false, true)+2)->get_bild_nr(0) != IMG_LEER;
 	}
 
 	bool has_switch_bild() const {
-		return get_child<bildliste_besch_t>(2)->get_anzahl() > 16;
+		return get_child<bildliste_besch_t>(2)->get_anzahl() > 16
+		||     get_child<bildliste_besch_t>(image_list_base_index(false, true))->get_anzahl() > 16;
 	}
 
 	/**

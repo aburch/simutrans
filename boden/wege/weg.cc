@@ -455,7 +455,8 @@ void weg_t::calc_bild()
 
 					// now apply diagonal image
 					if(is_diagonal()) {
-						if(besch->get_diagonal_bild_nr(ribi, snow) != IMG_LEER) {
+						if( besch->get_diagonal_bild_nr(ribi, snow) != IMG_LEER  ||
+						    besch->get_diagonal_bild_nr(ribi, snow, true) != IMG_LEER) {
 							set_images(image_diagonal, ribi, snow);
 						}
 					}

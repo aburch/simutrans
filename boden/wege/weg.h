@@ -124,6 +124,7 @@ private:
 	*/
 	void init_statistics();
 
+protected:
 
 	inline void set_after_bild( image_id b ) { after_bild = b; }
 	image_id get_after_bild() const {return after_bild;}
@@ -133,6 +134,7 @@ private:
 
 	/**
 	 * initializes both front and back images
+	 * switch images are set in schiene_t::reserve
 	 */
 	void set_images(image_type typ, uint8 ribi, bool snow, bool switch_nw=false);
 

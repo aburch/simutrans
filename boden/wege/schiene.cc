@@ -76,9 +76,10 @@ bool schiene_t::reserve(convoihandle_t c, ribi_t::ribi dir  )
 		 * and there are switching graphics
 		 */
 		if(  ribi_t::is_threeway(get_ribi_unmasked())  &&  ribi_t::ist_kurve(dir)  &&  get_besch()->has_switch_bild()  ) {
-			image_id bild = get_besch()->get_bild_nr_switch( get_ribi_unmasked(), is_snow(), (dir==ribi_t::nordost  ||  dir==ribi_t::suedwest) );
-			set_bild( bild );
-			mark_image_dirty( bild, 0 );
+			mark_image_dirty( get_bild(), 0 );
+			mark_image_dirty( get_after_bild(), 0 );
+			set_images(image_switch, get_ribi_unmasked(), is_snow(), (dir==ribi_t::nordost  ||  dir==ribi_t::suedwest) );
+			set_flag( ding_t::dirty );
 		}
 		if(schiene_t::show_reservations) {
 			set_flag( ding_t::dirty );
