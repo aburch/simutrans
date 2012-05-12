@@ -119,15 +119,14 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 			keys.clear();
 
 
-			slist_tpl<string> cursorkeys;
+			if(backtofront == 0) {
+				slist_tpl<string> cursorkeys;
 
-			cursorkeys.append(string(obj.get("cursor")));
-			cursorkeys.append(string(obj.get("icon")));
+				cursorkeys.append(string(obj.get("cursor")));
+				cursorkeys.append(string(obj.get("icon")));
 
-			cursorskin_writer_t::instance()->write_obj(outfp, node, obj, cursorkeys);
-
-			// skip new write code
-			number_seasons = -1;
+				cursorskin_writer_t::instance()->write_obj(outfp, node, obj, cursorkeys);
+			}
 		}
 	} else {
 		sprintf(buf, "image[%s][%d]", ribi_codes[0], number_seasons+1);
