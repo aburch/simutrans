@@ -3129,44 +3129,79 @@ void convoi_t::rdwr(loadsave_t *file)
 		// load statistics
 		for (int j = 0; j < MAX_CONVOI_COST; j++) 
 		{
-			for (int k = MAX_MONTHS-1; k >= 0; k--) 
+			switch (j)
 			{
-				if(((j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT) && file->get_experimental_version() <= 1) || (j == CONVOI_REFUNDS && file->get_experimental_version() < 8))
+			case CONVOI_AVERAGE_SPEED:
+			case CONVOI_COMFORT:
+				if (file->get_experimental_version() < 2)
 				{
 					// Versions of Experimental saves with 1 and below
 					// did not have settings for average speed or comfort.
 					// Thus, this value must be skipped properly to
-					// assign the values. Likewise, versions of Experimental < 8
-					// did not store refund information.
-					if(file->is_loading())
+					// assign the values. 
+					if (file->is_loading())
 					{
-						financial_history[k][j] = 0;
+						for (int k = MAX_MONTHS-1; k >= 0; k--)
+						{
+							financial_history[k][j] = 0;
+						}
 					}
 					continue;
 				}
+				break;
 
-				else if(j == CONVOI_DISTANCE && file->get_experimental_version() < 7)
+			case CONVOI_DISTANCE:
+				if (file->get_experimental_version() < 7)
 				{
 					// Simutrans-Standard: distances in tiles, not km. Convert.
 					sint64 distance;
 					if(file->is_loading())
 					{
-						file->rdwr_longlong(distance);
-						financial_history[k][j] = (distance *welt->get_settings().get_meters_per_tile()) / 1000;
+						for (int k = MAX_MONTHS-1; k >= 0; k--)
+						{
+							file->rdwr_longlong(distance);
+							financial_history[k][j] = (distance *welt->get_settings().get_meters_per_tile()) / 1000;
+						}
 					}
 					else
 					{
-						distance = (financial_history[k][j] * 1000) /welt->get_settings().get_meters_per_tile();
-						file->rdwr_longlong(distance);
+						for (int k = MAX_MONTHS-1; k >= 0; k--)
+						{
+							distance = (financial_history[k][j] * 1000) /welt->get_settings().get_meters_per_tile();
+							file->rdwr_longlong(distance);
+						}
 					}
 					continue;
 				}
-				else if(j == 7 && file->get_version() >= 111001 && file->get_experimental_version() == 0)
+				break;
+
+			case CONVOI_REFUNDS:
+				if (file->get_experimental_version() < 8)
 				{
-					// Convoy maximum speed - not used in Experimental
-					sint64 dummy = 0;
-					file->rdwr_longlong(dummy);
+					// versions of Experimental < 8 did not store refund information.
+					if (file->is_loading())
+					{
+						for (int k = MAX_MONTHS-1; k >= 0; k--)
+						{
+							financial_history[k][j] = 0;
+						}
+						if (file->get_experimental_version() == 0 && file->get_version() >= 111001)
+						{
+							// Convoy maximum speed - not used in Experimental
+							sint64 dummy = 0;
+							for (int k = MAX_MONTHS-1; k >= 0; k--)
+							{
+								file->rdwr_longlong(dummy);
+							}
+						}
+					}
+					continue;
 				}
+				break;
+			}
+
+			for (int k = MAX_MONTHS-1; k >= 0; k--) 
+			{
 				file->rdwr_longlong(financial_history[k][j]);
 			}
 		}

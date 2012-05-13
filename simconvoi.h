@@ -63,7 +63,7 @@ public:
 		CONVOI_REVENUE =			4, // the income this CONVOI generated
 		CONVOI_OPERATIONS =			5, // the cost of operations this CONVOI generated
 		CONVOI_PROFIT =				6, // total profit of this convoi
-		CONVOI_DISTANCE =			7, // total distance traveld this month
+		CONVOI_DISTANCE =			7, // total distance traveled this month
 		CONVOI_REFUNDS =			8, // The refunds passengers waiting for this convoy (only when not attached to a line) have received.
 		MAX_CONVOI_COST =			9
 	};
