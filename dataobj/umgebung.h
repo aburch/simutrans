@@ -88,9 +88,6 @@ public:
 	// scrollrichtung
 	static sint16 scroll_multi;
 
-	// messages with player name
-	static bool add_player_name_to_message;
-
 	static sint16 window_snap_distance;
 
 	/**

@@ -102,8 +102,6 @@ bool umgebung_t::left_to_right_graphs;
 uint32 umgebung_t::tooltip_delay;
 uint32 umgebung_t::tooltip_duration;
 
-bool umgebung_t::add_player_name_to_message = true;
-
 uint8 umgebung_t::front_window_bar_color;
 uint8 umgebung_t::front_window_text_color;
 uint8 umgebung_t::bottom_window_bar_color;
@@ -312,7 +310,8 @@ void umgebung_t::rdwr(loadsave_t *file)
 	}
 
 	if(  file->get_version()>=110000  ) {
-		file->rdwr_bool( add_player_name_to_message );
+		bool dummy;
+		file->rdwr_bool(dummy); //was add_player_name_to_message
 		file->rdwr_short( window_snap_distance );
 	}
 	else if(  file->is_loading()  ) {

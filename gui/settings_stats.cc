@@ -77,7 +77,6 @@ void settings_general_stats_t::init(settings_t const* const sets)
 	INIT_BOOL( "numbered_stations", sets->get_numbered_stations() );
 	INIT_NUM( "show_names", umgebung_t::show_names, 0, 3, gui_numberinput_t::AUTOLINEAR, true );
 	INIT_NUM( "show_month", umgebung_t::show_month, 0, 7, gui_numberinput_t::AUTOLINEAR, true );
-	INIT_BOOL( "add_player_name_to_message", umgebung_t::add_player_name_to_message );
 	SEPERATOR
 	INIT_NUM( "bits_per_month", sets->get_bits_per_month(), 16, 24, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "use_timeline", sets->get_use_timeline(), 0, 3, gui_numberinput_t::AUTOLINEAR, false );
@@ -144,7 +143,6 @@ void settings_general_stats_t::read(settings_t* const sets)
 	READ_BOOL_VALUE( sets->numbered_stations );
 	READ_NUM_VALUE( umgebung_t::show_names );
 	READ_NUM_VALUE( umgebung_t::show_month );
-	READ_BOOL_VALUE( umgebung_t::add_player_name_to_message );
 
 	READ_NUM_VALUE( sets->bits_per_month );
 	READ_NUM_VALUE( sets->use_timeline );
