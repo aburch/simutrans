@@ -570,7 +570,7 @@ void path_explorer_t::compartment_t::step()
 				{
 					walking_distance_halt = all_halts_list[i]->get_halt_within_walking_distance(x);
 
-					if(!walking_distance_halt->is_enabled(warenbauer_t::passagiere))
+					if(!walking_distance_halt.is_bound() || !walking_distance_halt->is_enabled(warenbauer_t::passagiere))
 					{
 						continue;
 					}
