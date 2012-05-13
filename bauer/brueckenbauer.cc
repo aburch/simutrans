@@ -149,8 +149,6 @@ static bool compare_bridges(const bruecke_besch_t* a, const bruecke_besch_t* b)
 
 void brueckenbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, sint16 /*sound_ok*/, const karte_t *welt)
 {
-	static stringhashtable_tpl<wkz_brueckenbau_t *> bruecken_tool;
-
 	const uint16 time = welt->get_timeline_year_month();
 	vector_tpl<const bruecke_besch_t*> matching(bruecken_by_name.get_count());
 
