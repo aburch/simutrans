@@ -107,7 +107,7 @@ test_for_pak:
   IntOp $group1 $R0 & ${SF_SELECTED}
 
   ; Make sure at least some pak is selected
-  SectionGetFlags ${pak64} $R0
+  SectionGetFlags ${pak} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} show_not
   SectionGetFlags ${pak64german} $R0

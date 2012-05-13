@@ -14,6 +14,7 @@
 var downloadlink
 var downloadname
 var archievename
+var VersionString
 
 var multiuserinstall
 var installinsimutransfolder
@@ -24,6 +25,7 @@ XPStyle on
 RequestExecutionLevel highest
 
 
+!define MUI_ICON "..\stormoog.ico"
 !define MUI_HEADERIMAGE
 !define MUI_HEADERIMAGE_BITMAP "simutranssmall.bmp"
 !define MUI_BGCOLOR 000000

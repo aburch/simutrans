@@ -2,6 +2,46 @@
 
 !include "TextFunc.nsh"
 
+; Usage ...
+; Push "|" ;divider char
+; Push "string1|string2|string3|string4|string5" ;input string
+; Call SplitFirstStrPart
+; Pop $R0 ;1st part ["string1"]
+; Pop $R1 ;rest ["string2|string3|string4|string5"]
+Function SplitFirstStrPart
+  Exch $R0
+  Exch
+  Exch $R1
+  Push $R2
+  Push $R3
+  StrCpy $R3 $R1
+  StrLen $R1 $R0
+  IntOp $R1 $R1 + 1
+  loop:
+    IntOp $R1 $R1 - 1
+    StrCpy $R2 $R0 1 -$R1
+    StrCmp $R1 0 exit0
+    StrCmp $R2 $R3 exit1 loop
+  exit0:
+  StrCpy $R1 ""
+  Goto exit2
+  exit1:
+    IntOp $R1 $R1 - 1
+    StrCmp $R1 0 0 +3
+     StrCpy $R2 ""
+     Goto +2
+    StrCpy $R2 $R0 "" -$R1
+    IntOp $R1 $R1 + 1
+    StrCpy $R0 $R0 -$R1
+    StrCpy $R1 $R2
+  exit2:
+  Pop $R3
+  Pop $R2
+  Exch $R1 ;rest
+  Exch
+  Exch $R0 ;first
+FunctionEnd
+
 
 ; we just ask for Artistic licences, the other re only asked for certain paks
 PageEx license
@@ -44,8 +84,62 @@ PageExEnd
 
 
 PageEx components
+  PageCallbacks componentsPre
 PageExEnd
 
+
+; If for the pak in this section exists, it will be preselected
+Function EnableSectionIfThere
+  Exch $R0
+  Push $R1
+  SectionGetText $R0 $R1
+  ; now only use the part until the space ...
+  Push " "
+  Push $R1
+  Call SplitFirstStrPart
+  Pop $R1
+  IfFileExists "$INSTDIR\$R1\ground.Outside.pak" 0 NotExistingPakNotSelected
+  SectionGetFlags $R0 $R1
+  IntOp $R1 $R1 | ${SF_SELECTED}
+  SectionSetFlags $R0 $R1
+
+NotExistingPakNotSelected:
+  Pop $R1
+  Exch $R0
+FunctionEnd
+
+
+; set pak for update/skip if installed
+Function componentsPre
+  Push ${pak64german}
+  Call EnableSectionIfThere
+  Push ${pak64japan}
+  Call EnableSectionIfThere
+  Push ${pak64HO}
+  Call EnableSectionIfThere
+  Push ${pak64HAJO}
+  Call EnableSectionIfThere
+  Push ${pak64contrast}
+  Call EnableSectionIfThere
+  Push ${pak96comic}
+  Call EnableSectionIfThere
+  Push ${pak96HD}
+  Call EnableSectionIfThere
+  Push ${pak128}
+  Call EnableSectionIfThere
+  Push ${pak128britain}
+  Call EnableSectionIfThere
+  Push ${pak128german}
+  Call EnableSectionIfThere
+  Push ${pak128japan}
+  Call EnableSectionIfThere
+  Push ${pak192comic}
+  Call EnableSectionIfThere
+  Push ${pak48excentrique}
+  Call EnableSectionIfThere
+  Push ${pak32comic}
+  Call EnableSectionIfThere
+FunctionEnd
 
 
 ; Some packs have not opene source license, so we have to show additional licences
@@ -172,9 +266,38 @@ FunctionEnd
 
 
 
+Function IsPakInstalledAndCurrent
+  IntOp $R0 0 + 0
+  IfFileExists "$INSTDIR\$downloadname\ground.Outside.pak" +1 PakNotThere
+  IntOp $R0 1 | 1
+; now we have outside.pak and it should have a valid number
+  FileOpen $0 "$INSTDIR\$downloadname\ground.Outside.pak" r
+  FileSeek $0 101
+  FileRead $0 $R1
+  FileClose $0
+  StrCmp $VersionString $R1 0 PakThereButOld
+; now we are current
+  IntOp $R0 2 | 2
+  goto PakNotThere
+PakThereButOld:
+  MessageBox MB_OK "got:$R1 expected:$VersionString"
+PakNotThere:
+FunctionEnd
+
+
 ; $downloadlink is then name of the link, $downloadname the name of the pak for error messages
 Function DownloadInstallZip
-#  MessageBox MB_OK|MB_ICONINFORMATION "Download of $downloadname from\n$downloadlink to $archievename"
+  Call IsPakInstalledAndCurrent
+  IntCmp $R0 2 DownloadInstallZipSkipped
+  IntCmp $R0 0 DownloadInstallZipDo
+;    Rename "$INSTDIR\$downloadname.old" "$INSTDIR\$downloadname.old"
+  RMdir /r "$INSTDIR\$downloadname.old"
+  CreateDirectory "$INSTDIR\$downloadname.old"
+  CopyFiles /silent "$INSTDIR\$downloadname" "$INSTDIR\$downloadname.old"
+  RMdir /r "$INSTDIR\$downloadname"
+  MessageBox MB_OK "Old $downloadname renamed to $INSTDIR\$downloadname.old"
+DownloadInstallZipDo:
+  ; ok old directory rename
   Call ConnectInternet
   RMdir /r "$TEMP\simutrans"
   NSISdl::download $downloadlink "$Temp\$archievename"
@@ -183,6 +306,8 @@ Function DownloadInstallZip
      MessageBox MB_OK "Download of $archievename failed: $R0"
      Quit
 
+  ; remove all old files before!
+  RMdir /r "$INSTDIR\$downloadname"
   ; we need the magic with temporary copy only if the folder does not end with simutrans ...
   StrCmp $installinsimutransfolder "0" +4
     CreateDirectory "$INSTDIR"
@@ -198,8 +323,9 @@ Function DownloadInstallZip
   Delete "$Temp\$archievename"
   StrCmp $installinsimutransfolder "1" +3
   CreateDirectory "$INSTDIR"
-  CopyFiles "$TEMP\Simutrans\*.*" "$INSTDIR"
+  CopyFiles /silent "$TEMP\Simutrans\*.*" "$INSTDIR"
   RMdir /r "$TEMP\simutrans"
+DownloadInstallZipSkipped:
 FunctionEnd
 
 
@@ -231,6 +357,17 @@ FunctionEnd
 ; $downloadlink is then name of the link, $downloadname the name of the pak for error messages
 Function DownloadInstallZipWithoutSimutrans
 #  MessageBox MB_OK|MB_ICONINFORMATION "Download of $downloadname from\n$downloadlink to $archievename"
+  Call IsPakInstalledAndCurrent
+  IntCmp $R0 2 DownloadInstallZipWithoutSimutransSkip
+  IntCmp $R0 0 DownloadInstallZipWithoutSimutransDo
+  RMdir /r "$INSTDIR\$downloadname.old"
+  CreateDirectory "$INSTDIR\$downloadname.old"
+  CopyFiles /silent "$INSTDIR\$downloadname" "$INSTDIR\$downloadname.old"
+  RMdir /r "$INSTDIR\$downloadname"
+;  Rename "$INSTDIR\$downloadname.old" "$INSTDIR\$downloadname.old"
+  MessageBox MB_OK "Old $downloadname renamed to $downloadname.old"
+DownloadInstallZipWithoutSimutransDo:
+  ; ok, now install
   Call ConnectInternet
   RMdir /r "$TEMP\simutrans"
   CreateDirectory "$TEMP\simutrans"
@@ -241,6 +378,8 @@ Function DownloadInstallZipWithoutSimutrans
      MessageBox MB_OK "Download of $archievename failed: $R0"
      Quit
 
+  ; remove all old files before!
+  RMdir /r "$INSTDIR\$downloadname"
   CreateDirectory "$INSTDIR"
   nsisunz::Unzip "$TEMP\$archievename" "$INSTDIR"
   Pop $R0
@@ -250,6 +389,7 @@ Function DownloadInstallZipWithoutSimutrans
     Quit
 
   Delete "$Temp\$archievename"
+DownloadInstallZipWithoutSimutransSkip:
 FunctionEnd
 
 
@@ -273,7 +413,9 @@ Function DownloadInstallCabWithoutSimutrans
     Quit
 
   CreateDirectory "$INSTDIR"
-  CopyFiles "$TEMP\Simutrans\*.*" "$INSTDIR"
+  ; remove all old files before!
+  RMdir /r "$INSTDIR\$downloadname"
+  CopyFiles /silent "$TEMP\Simutrans\*.*" "$INSTDIR"
   RMdir /r "$TEMP\Simutrans"
   Delete "$Temp\$archievename"
 FunctionEnd
@@ -291,6 +433,8 @@ Function DownloadInstallTgzWithoutSimutrans
      Quit
 
   CreateDirectory "$INSTDIR"
+  ; remove all old files before!
+  RMdir /r "$INSTDIR\$downloadname"
   untgz::extract -d "$INSTDIR" "$TEMP\$archievename"
   StrCmp $R0 "success" +4
     Delete "$Temp\$archievename"
