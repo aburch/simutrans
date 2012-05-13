@@ -30,6 +30,47 @@ bool vehicle_reader_t::successfully_loaded() const
 }
 
 
+uint32 air_default(sint8 waytype)
+{
+	switch(waytype)
+	{
+		case track_wt:
+		case tram_wt:
+		case monorail_wt:
+		case narrowgauge_wt:	return 1300L; //13 when read
+
+		case water_wt:			return 2500L; //25 when read
+
+		case maglev_wt:			return 1000L; //10 when read
+
+		case air_wt:			return 100L; //1 when read
+
+		case road_wt:			
+		default:				return 252L; //2.52 when read
+	};
+}
+
+
+uint32 rolling_default(sint8 waytype)
+{
+	switch(waytype)
+	{			
+		case track_wt:
+		case tram_wt:
+		case monorail_wt:
+		case narrowgauge_wt:	return 51L; //0.0051 when read
+
+		case air_wt:
+		case water_wt:			return 10L; //0.001 when read
+			
+		case maglev_wt:			return 15L; //0.0015 when read
+
+		default:
+		case road_wt:			return 150L; //0.015 when read
+	};
+}
+
+
 obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	ALLOCA(char, besch_buf, node.size);
@@ -64,51 +105,6 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 
 	way_constraints_of_vehicle_t way_constraints;
-
-	uint16 air_default;
-	switch(besch->get_waytype())
-	{
-		default:
-		case road_wt:
-			air_default = 252; //2.52 when read
-			break;
-		case track_wt:
-		case tram_wt:
-		case monorail_wt:
-		case narrowgauge_wt:
-			air_default = 1300; //13 when read
-			break;
-		case water_wt:
-			air_default = 2500; //25 when read
-			break;
-		case maglev_wt:		
-			air_default = 1000; //10 when read
-			break;
-		case air_wt:
-		air_default = 100; //1 when read
-	};
-
-	uint16 rolling_default;
-	switch(besch->get_waytype())
-	{
-		default:
-		case road_wt:
-			rolling_default = 150; //0.015 when read
-			break;
-		case track_wt:
-		case tram_wt:
-		case monorail_wt:
-		case narrowgauge_wt:
-			rolling_default = 51; //0.0051 when read
-			break;
-		case air_wt:
-		case water_wt:
-			rolling_default = 10; //0.001 when read
-			break;
-		case maglev_wt:		
-			rolling_default = 15; //0.0015 when read
-			break;
-	};
 
 	if(version == 1) {
 		// Versioned node, version 1
@@ -283,29 +279,7 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				}
 				else
 				{
-					uint16 air_default;
-					switch(besch->get_waytype())
-					{
-						default:
-						case road_wt:
-							air_default = 252; //2.52 when read
-							break;
-						case track_wt:
-						case tram_wt:
-						case monorail_wt:
-						case narrowgauge_wt:
-							air_default = 1300; //13 when read
-							break;
-						case water_wt:
-							air_default = 2500; //25 when read
-							break;
-						case maglev_wt:		
-							air_default = 1000; //10 when read
-							break;
-						case air_wt:
-							air_default = 100; //1 when read
-					};
-					besch->air_resistance = float32e8_t((uint32) air_default, (uint32)100);
+					besch->air_resistance = float32e8_t((uint32) air_default(besch->typ), (uint32)100);
 					besch->can_be_at_rear = true;
 					besch->increase_maintenance_after_years = 0;
 					besch->increase_maintenance_by_percent = 0;
@@ -416,7 +390,7 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				}
 				else
 				{
-					besch->air_resistance = float32e8_t((uint32) air_default, (uint32)100);
+					besch->air_resistance = float32e8_t(air_default(besch->typ), 100UL);
 					besch->can_be_at_rear = true;
 					besch->increase_maintenance_after_years = 0;
 					besch->increase_maintenance_by_percent = 0;
@@ -448,7 +422,7 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				}
 				else
 				{
-					besch->rolling_resistance = float32e8_t((uint32) rolling_default, (uint32)10000);
+					besch->rolling_resistance = float32e8_t(rolling_default(besch->typ), 10000UL);
 					besch->brake_force = BRAKE_FORCE_UNKNOWN;
 				}
 			}
@@ -555,8 +529,8 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			break;
 		}
 
-		besch->air_resistance = float32e8_t((uint32) air_default, (uint32)100);
-		besch->rolling_resistance = float32e8_t((uint32) rolling_default, (uint32)10000);
+		besch->air_resistance = float32e8_t(air_default(besch->typ), 100UL);
+		besch->rolling_resistance = float32e8_t(rolling_default(besch->typ), 10000UL);
 		besch->upgrades = 0;
 		besch->upgrade_price = besch->preis;
 		besch->available_only_as_upgrade = false;
