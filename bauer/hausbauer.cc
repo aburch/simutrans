@@ -337,6 +337,17 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb )
 				if(pp) delete pp;
 			}
 		}
+		for(k.x = 0; k.x < size.x;  k.x ++) {
+			for(k.y = 0; k.y < size.y;  k.y ++) {
+				grund_t *gr = welt->lookup(koord3d(k,-1)+pos);
+				if(gr) {
+					senke_t *sk = gr->find<senke_t>();
+					if(sk) delete sk;
+					pumpe_t *pp = gr->find<pumpe_t>();
+					if(pp) delete pp;
+				}
+			}
+		}
 		// end clean up transformers
 		welt->rem_fab(fab);
 	}

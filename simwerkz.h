@@ -154,6 +154,7 @@ public:
 	char const* get_tooltip(spieler_t const*) const OVERRIDE;
 	image_id get_icon(spieler_t*) const OVERRIDE;
 	bool init(karte_t*, spieler_t*) OVERRIDE;
+	char const* check_pos(karte_t*, spieler_t*, koord3d) OVERRIDE;
 	char const* work(karte_t*, spieler_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
 };

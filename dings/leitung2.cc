@@ -28,7 +28,6 @@
 #include "../boden/grund.h"
 #include "../bauer/wegbauer.h"
 
-
 #define PROD 1000
 
 /*
@@ -52,7 +51,7 @@ int leitung_t::gimme_neighbours(leitung_t **conn)
 		conn[i] = NULL;
 		if(  gr_base->get_neighbour( gr, invalid_wt, ribi_t::nsow[i] ) ) {
 			leitung_t *lt = gr->get_leitung();
-			if(  lt  ) {
+			if(  lt  &&  (gr->ist_karten_boden()==gr_base->ist_karten_boden() || (gr->ist_tunnel()==gr_base->ist_tunnel() && gr->ist_bruecke()==gr_base->ist_bruecke()))  ) {
 				const spieler_t *owner = get_besitzer();
 				const spieler_t *other = lt->get_besitzer();
 				const spieler_t *super = welt->get_spieler(1);
@@ -132,14 +131,19 @@ leitung_t::~leitung_t()
 		if(neighbours==0) {
 			delete net;
 		}
-		spieler_t::add_maintenance(get_besitzer(), -besch->get_wartung());
+		if(!gr->ist_tunnel()) {
+			spieler_t::add_maintenance(get_besitzer(), -besch->get_wartung());
+		}
 	}
 }
 
 
 void leitung_t::entferne(spieler_t *sp)
 {
-	spieler_t::accounting(sp, -besch->get_preis()/2, get_pos().get_2d(), COST_CONSTRUCTION);
+	grund_t *gr = welt->lookup(get_pos());
+	if(gr && !gr->ist_tunnel()) {
+		spieler_t::accounting(sp, -besch->get_preis()/2, get_pos().get_2d(), COST_CONSTRUCTION);
+	}
 	mark_image_dirty( bild, 0 );
 }
 
@@ -236,8 +240,8 @@ void leitung_t::calc_bild()
 		// no valid ground; usually happens during building ...
 		return;
 	}
-	if(gr->ist_bruecke()) {
-		// don't display on a bridge)
+	if(gr->ist_bruecke() || (gr->get_typ()==grund_t::tunnelboden && gr->ist_karten_boden())) {
+		// don't display on a bridge or in a tunnel)
 		set_bild(IMG_LEER);
 		return;
 	}
@@ -334,7 +338,9 @@ void leitung_t::laden_abschliessen()
 	calc_neighbourhood();
 	grund_t *gr = welt->lookup(get_pos());
 	assert(gr);
-	spieler_t::add_maintenance(get_besitzer(), besch->get_wartung());
+	if(!gr->ist_tunnel()) {
+		spieler_t::add_maintenance(get_besitzer(), besch->get_wartung());
+	}
 }
 
 
@@ -435,9 +441,9 @@ pumpe_t::~pumpe_t()
 {
 	if(fab) {
 		fab->set_transformer_connected( false );
-		pumpe_list.remove( this );
 		fab = NULL;
 	}
+	pumpe_list.remove( this );
 	spieler_t::add_maintenance(get_besitzer(), (sint32)welt->get_settings().cst_maintain_transformer);
 }
 
@@ -563,7 +569,6 @@ void senke_t::step(long delta_t)
 	if(fab==NULL) {
 		return;
 	}
-
 	if(delta_t==0) {
 		return;
 	}
@@ -669,7 +674,14 @@ void senke_t::laden_abschliessen()
 	spieler_t::add_maintenance(get_besitzer(), (sint32)-welt->get_settings().cst_maintain_transformer);
 
 	if(fab==NULL  &&  get_net()) {
-		fab = leitung_t::suche_fab_4(get_pos().get_2d());
+		if(welt->lookup(get_pos())->ist_karten_boden()) {
+			// on surface, check around
+			fab = leitung_t::suche_fab_4(get_pos().get_2d());
+		}
+		else {
+			// underground, check directly above
+			fab = fabrik_t::get_fab(welt, get_pos().get_2d());
+		}
 		if(  fab  ) {
 			fab->set_transformer_connected( true );
 		}

@@ -7,8 +7,11 @@
 
 #include "simdebug.h"
 #include "simdings.h"
+#include "simfab.h"
 #include "simgraph.h"
+#include "simmenu.h"
 #include "simplan.h"
+#include "simwerkz.h"
 #include "simworld.h"
 #include "simhalt.h"
 #include "player/simplay.h"
@@ -443,9 +446,63 @@ void planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const si
 }
 
 
+image_id overlay_img(grund_t *gr)
+{
+	// only transparent outline
+	image_id img;
+	if(  gr->get_typ()==grund_t::wasser  ) {
+		// water is always flat and does not return proper image_id
+		img = grund_besch_t::ausserhalb->get_bild(0);
+	}
+	else {
+		img = gr->get_bild();
+		if(  img==IMG_LEER  ) {
+			// foundations or underground mode
+			img = grund_besch_t::get_ground_tile( gr->get_disp_slope(), gr->get_disp_height() );
+		}
+	}
+	return img;
+}
+
 void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos, const sint8 /*hmin*/, const sint8 /*hmax*/) const
 {
 	grund_t *gr=get_kartenboden();
+
+	// building transformers - show outlines of factories
+
+/*	alternative method of finding selected tool - may be more useful in future but use simpler method for now
+	karte_t *welt = gr->get_welt();
+	werkzeug_t *wkz = welt->get_werkzeug(welt->get_active_player_nr());
+	int tool_id = wkz->get_id();
+
+	if(tool_id==(WKZ_TRANSFORMER|GENERAL_TOOL)....	*/
+
+	if( (grund_t::underground_mode == grund_t::ugm_all  ||  (grund_t::underground_mode == grund_t::ugm_level  &&  gr->get_hoehe() == grund_t::underground_level+1) )
+		&&  gr->get_typ()==grund_t::fundament
+		&&  werkzeug_t::general_tool[WKZ_TRANSFORMER]->is_selected(gr->get_welt())) {
+		gebaeude_t *gb = gr->find<gebaeude_t>();
+		if(gb) {
+			fabrik_t* fab=gb->get_fabrik();
+			if(fab) {
+				PLAYER_COLOR_VAL status = COL_RED;
+				if(fab->get_besch()->is_electricity_producer()) {
+					status = COL_LIGHT_BLUE;
+					if(fab->is_transformer_connected()) {
+						status = COL_LIGHT_TURQUOISE;
+					}
+				}
+				else {
+					if(fab->is_transformer_connected()) {
+						status = COL_ORANGE;
+					}
+					if(fab->get_prodfactor_electric()>0) {
+						status = COL_GREEN;
+					}
+				}
+				display_img_blend( overlay_img(gr), xpos, ypos, status | OUTLINE_FLAG | TRANSPARENT50_FLAG, 0, true);
+			}
+		}
+	}
 
 	// display station owner boxes
 	if(umgebung_t::station_coverage_show  &&  halt_list_count>0) {
@@ -453,18 +510,7 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos, const 
 		if(umgebung_t::use_transparency_station_coverage) {
 
 			// only transparent outline
-			image_id img;
-			if(  gr->get_typ()==grund_t::wasser  ) {
-				// water is always flat and do not return proper imaga_id
-				img = grund_besch_t::ausserhalb->get_bild(0);
-			}
-			else {
-				img = gr->get_bild();
-				if(  img==IMG_LEER  ) {
-					// foundations or underground mode
-					img = grund_besch_t::get_ground_tile( gr->get_disp_slope(), gr->get_disp_height() );
-				}
-			}
+			image_id img = overlay_img(gr);
 
 			for(int halt_count = 0; halt_count < halt_list_count; halt_count++) {
 				const PLAYER_COLOR_VAL transparent = PLAYER_FLAG | OUTLINE_FLAG | (halt_list[halt_count]->get_besitzer()->get_player_color1() + 4);

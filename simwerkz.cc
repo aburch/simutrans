@@ -472,6 +472,7 @@ DBG_MESSAGE("wkz_remover_intern()","at (%s)", pos.get_str());
 	leitung_t* lt = gr->get_leitung();
 	if(lt!=NULL  &&  lt->ist_entfernbar(sp)==NULL) {
 		bool is_leitungsbruecke = false;
+		bool is_leitungstunnel = false;
 		if(gr->ist_bruecke()  &&  gr->ist_karten_boden()) {
 			bruecke_t* br = gr->find<bruecke_t>();
 			if (br == NULL) {
@@ -489,9 +490,28 @@ DBG_MESSAGE("wkz_remover_intern()","at (%s)", pos.get_str());
 			msg = brueckenbauer_t::remove(welt, sp, gr->get_pos(), powerline_wt );
 			return msg == NULL;
 		}
-		else if(  !gr->ist_bruecke()  ) {
+		if(gr->ist_tunnel()  &&  gr->ist_karten_boden()) {
+			tunnel_t* tunnel = gr->find<tunnel_t>();
+			is_leitungstunnel = tunnel->get_besch()->get_waytype()==powerline_wt;
+		}
+		if(is_leitungstunnel) {
+			msg = tunnelbauer_t::remove(welt, sp, gr->get_pos(), powerline_wt );
+			return msg == NULL;
+		}
+		if(gr->ist_tunnel()) {
+			gr->obj_loesche_alle(sp);
+			gr->mark_image_dirty();
+			welt->access(pos.get_2d())->boden_entfernen(gr);
+			delete gr;
+
+			reliefkarte_t::get_karte()->calc_map_pixel( pos.get_2d() );
+
+			return true;
+		}
+		if( !gr->ist_bruecke() ) {
 			lt->entferne(sp);
 			delete lt;
+
 			return true;
 		}
 	}
@@ -997,7 +1017,7 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 
 		// finally: empty enough
 		if(  gr1->get_grund_hang()!=gr1->get_weg_hang()  ||  gr1->get_halt().is_bound()  ||  gr1->kann_alle_obj_entfernen(sp)  ||
-				   gr1->find<gebaeude_t>()  ||  gr1->get_depot()  ||  gr1->get_leitung()  ||  gr1->get_weg(air_wt)  ||  gr1->find<label_t>()  ||  gr1->get_typ()==grund_t::brueckenboden) {
+				   gr1->find<gebaeude_t>()  ||  gr1->get_depot()  ||  (gr1->get_leitung() && gr1->hat_wege())  ||  gr1->get_weg(air_wt)  ||  gr1->find<label_t>()  ||  gr1->get_typ()==grund_t::brueckenboden) {
 			return "Tile not empty.";
 		}
 
@@ -1008,12 +1028,19 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 		// slopes may affect the position and the total height!
 		koord3d new_pos = pos;
 
-		if(  gr1->hat_wege()  ) {
+		if(  gr1->hat_wege() || gr1->get_leitung() ) {
 			// check the resulting slope
-			ribi_t::ribi ribis = gr1->get_weg_nr(0)->get_ribi_unmasked();
-			if(  gr1->get_weg_nr(1)  ) {
-				ribis |= gr1->get_weg_nr(1)->get_ribi_unmasked();
+			ribi_t::ribi ribis = 0;
+			if( gr1->hat_wege()) {
+				ribis |= gr1->get_weg_nr(0)->get_ribi_unmasked();
+				if(  gr1->get_weg_nr(1)  ) {
+					ribis |= gr1->get_weg_nr(1)->get_ribi_unmasked();
+				}
 			}
+			if( gr1->get_leitung()) {
+				ribis |= gr1->get_leitung()->get_ribi();
+			}
+
 			if(  new_slope==RESTORE_SLOPE  ||  !ribi_t::ist_einfach(ribis)  ||  (new_slope<hang_t::erhoben  &&  ribi_t::rueckwaerts(ribi_typ(new_slope))!=ribis)  ) {
 				// has the wrong tilt
 				return "Tile not empty.";
@@ -1339,41 +1366,104 @@ bool wkz_transformer_t::init( karte_t *welt, spieler_t *)
 	return wegbauer_t::waytype_available( powerline_wt, welt->get_timeline_year_month() );
 }
 
+const char *wkz_transformer_t::check_pos( karte_t *welt, spieler_t *, koord3d pos )
+{
+	if(grund_t::underground_mode != grund_t::ugm_level) {
+		return NULL;
+	}
+	else {
+		// only above or directly under surface
+		grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
+		return (gr->get_pos() == pos  ||  gr->get_hoehe() == grund_t::underground_level+1) ? NULL : "";
+	}
+}
+
 const char *wkz_transformer_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 {
 	DBG_MESSAGE("wkz_transformer_t()","called on %d,%d", k.x, k.y);
 
-	grund_t *gr=welt->lookup_kartenboden(k.get_2d());
-	if(gr  &&  gr->get_grund_hang()==0  &&  !gr->ist_wasser()  &&  gr->ist_natur()  &&  gr->kann_alle_obj_entfernen(sp)==NULL) {
-		fabrik_t *fab=leitung_t::suche_fab_4(k.get_2d());
-		if(fab==NULL) {
+	fabrik_t *fab = NULL;
+
+	grund_t *gr = welt->lookup_kartenboden(k.get_2d());
+
+	if(  !welt->get_settings().get_allow_undergroud_transformers()  &&  k.z!=gr->get_hoehe()  ) {
+		// no uderground transformers allowed
+		return "";
+	}
+
+	bool underground = false;
+	// first look for factory
+	switch(grund_t::underground_mode) {
+		case grund_t::ugm_all:
+			fab = fabrik_t::get_fab(welt, k.get_2d());
+			k = gr->get_pos() - koord3d(0,0,1);
+			underground = true;
+			break;
+		case grund_t::ugm_level:
+			if (k.z < gr->get_hoehe()) {
+				// below surface
+				if (k.z == gr->get_hoehe()-1) {
+					fab = fabrik_t::get_fab(welt, k.get_2d());
+					underground = true;
+				}
+				break;
+			}
+			/* fallthrough */
+		default:
+			fab=leitung_t::suche_fab_4(k.get_2d());
+	}
+	if( !fab  ) {
+		return "Transformer only next to factory!";
+	}
+	if(  fab->is_transformer_connected()  ) {
+		return "Only one transformer per factory!";
+	}
+
+	// underground: first build tunnel tile	at coordinate k
+	if(underground) {
+		if(gr->ist_wasser()) {
 			return "Transformer only next to factory!";
 		}
-		if(  fab->is_transformer_connected()  ) {
-			return "Only one transformer per factory!";
+
+		if(welt->lookup(k)) {
+			return "Tile not empty.";
 		}
 
+		const tunnel_besch_t *tunnel_besch = tunnelbauer_t::find_tunnel(powerline_wt, 0, 0);
+
+		tunnelboden_t* tunnel = new tunnelboden_t(welt, k, 0);
+		welt->access(k.get_2d())->boden_hinzufuegen(tunnel);
+		tunnel->obj_add(new tunnel_t(welt, k, sp, tunnel_besch));
+		spieler_t::add_maintenance( sp, tunnel_besch->get_wartung() );
+		gr = tunnel;
+	}
+	else {
+		// above ground: check for clear tile
+		if(gr->get_grund_hang()!=0  ||  !gr->ist_natur()) {
+			return "Transformer only on flat bare land!";
+		}
 		// remove everything on that spot
-		const char *fail = gr->kann_alle_obj_entfernen(sp);
-		if(fail) {
+		if(const char *fail = gr->kann_alle_obj_entfernen(sp)) {
 			return fail;
 		}
 		gr->obj_loesche_alle(sp);
-		// now decide from the string whether a source or drain is built
-		if(fab->get_besch()->is_electricity_producer()) {
-			pumpe_t *p = new pumpe_t(welt, gr->get_pos(), sp);
-			gr->obj_add( p );
-			p->laden_abschliessen();
-		}
-		else {
-			senke_t *s = new senke_t(welt, gr->get_pos(), sp);
-			gr->obj_add(s);
-			s->laden_abschliessen();
-		}
-		fab->set_transformer_connected( true );
-		return NULL;	// ok
 	}
-	return "Transformer only next to factory!";
+	// transformer will be build on tile pointed to by gr
+
+	// now decide from the string whether a source or drain is built
+	if(fab->get_besch()->is_electricity_producer()) {
+		pumpe_t *p = new pumpe_t(welt, gr->get_pos(), sp);
+		gr->obj_add( p );
+		p->laden_abschliessen();
+	}
+	else {
+		senke_t *s = new senke_t(welt, gr->get_pos(), sp);
+		gr->obj_add(s);
+		s->laden_abschliessen();
+	}
+	fab->set_transformer_connected( true );
+
+	return NULL;	// ok
 }
 
 
@@ -2092,6 +2182,7 @@ void wkz_tunnelbau_t::calc_route( wegbauer_t &bauigel, const koord3d &start, con
 	const tunnel_besch_t *besch = tunnelbauer_t::get_besch(default_param);
 	wegbauer_t::bautyp_t bt = (wegbauer_t::bautyp_t)(besch->get_waytype());
 	const weg_besch_t *wb = wegbauer_t::weg_search( besch->get_waytype(), besch->get_topspeed(), welt->get_timeline_year_month(), weg_t::type_flat );
+
 	bauigel.route_fuer(bt | wegbauer_t::tunnel_flag, wb, besch);
 	bauigel.set_keep_existing_faster_ways( !is_ctrl_pressed() );
 	// wegbauer tries to find route to 3d coordinate if no ground at end exists or is not kartenboden

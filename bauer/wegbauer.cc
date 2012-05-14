@@ -388,7 +388,8 @@ bool wegbauer_t::check_for_leitung(const koord zv, const grund_t *bd) const
 		  ribi_t::ist_gerade(lt_ribi)
 		  &&  !ribi_t::ist_einfach(lt_ribi)
 		  &&  ribi_t::ist_gerade(ribi_typ(zv))
-		  &&  (lt_ribi&ribi_typ(zv))==0;
+		  &&  (lt_ribi&ribi_typ(zv))==0
+		  &&  !bd->ist_tunnel();
 	}
 	// check for transformer
 	if (bd->find<pumpe_t>() != NULL || bd->find<senke_t>()  != NULL) {
@@ -710,6 +711,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 
 		case leitung:
 			ok = !to->ist_wasser()  &&  (to->get_weg(air_wt)==NULL);
+			ok &= !(to->ist_tunnel() && to->hat_wege());
 			if(to->get_weg_nr(0)!=NULL) {
 				// only 90 deg crossings, only a single way
 				ribi_t::ribi w_ribi= to->get_weg_nr(0)->get_ribi_unmasked();
@@ -725,12 +727,16 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 				leitung_t *lt = to->get_leitung();
 				ok &= (lt==NULL)  ||  check_owner(sp, lt->get_besitzer());
 			}
-			// only fields are allowed
-			if(to->get_typ()!=grund_t::boden) {
-				ok &= to->get_typ() == grund_t::fundament && to->find<field_t>();
+
+			if(to->get_typ()!=grund_t::tunnelboden) {
+				// only fields are allowed
+				if(to->get_typ()!=grund_t::boden) {
+					ok &= to->get_typ() == grund_t::fundament && to->find<field_t>();
+				}
+				// no bridges and monorails here in the air
+				ok &= (welt->lookup(to_pos)->get_boden_in_hoehe(to->get_pos().z+Z_TILE_STEP)==NULL);
 			}
-			// no bridges and monorails here in the air
-			ok &= (welt->lookup(to_pos)->get_boden_in_hoehe(to->get_pos().z+Z_TILE_STEP)==NULL);
+
 			// calculate costs
 			if(ok) {
 				*costs = s.way_count_straight;
@@ -1974,20 +1980,37 @@ bool wegbauer_t::baue_tunnelboden()
 		if(gr==NULL) {
 			// make new tunnelboden
 			tunnelboden_t* tunnel = new tunnelboden_t(welt, route[i], 0);
-			weg_t *weg = weg_t::alloc(tunnel_besch->get_waytype());
-			weg->set_besch( wb );
 			welt->access(route[i].get_2d())->boden_hinzufuegen(tunnel);
-			tunnel->neuen_weg_bauen(weg, route.get_ribi(i), sp);
-			tunnel->obj_add(new tunnel_t(welt, route[i], sp, tunnel_besch));
-			weg->set_max_speed(tunnel_besch->get_topspeed());
+			if(tunnel_besch->get_waytype()!=powerline_wt) {
+				weg_t *weg = weg_t::alloc(tunnel_besch->get_waytype());
+				weg->set_besch( wb );
+				tunnel->neuen_weg_bauen(weg, route.get_ribi(i), sp);
+				tunnel->obj_add(new tunnel_t(welt, route[i], sp, tunnel_besch));
+				weg->set_max_speed(tunnel_besch->get_topspeed());
+				spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung());
+			} else {
+				tunnel->obj_add(new tunnel_t(welt, route[i], sp, tunnel_besch));
+				leitung_t *lt = new leitung_t(welt, tunnel->get_pos(), sp);
+				tunnel->obj_add( lt );
+				lt->laden_abschliessen();
+			}
 			tunnel->calc_bild();
 			cost -= tunnel_besch->get_preis();
-			spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung());
 			spieler_t::add_maintenance( sp,  tunnel_besch->get_wartung() );
 		}
 		else if(gr->get_typ()==grund_t::tunnelboden) {
 			// check for extension only ...
-			gr->weg_erweitern( tunnel_besch->get_waytype(), route.get_ribi(i) );
+			if(tunnel_besch->get_waytype()!=powerline_wt) {
+				gr->weg_erweitern( tunnel_besch->get_waytype(), route.get_ribi(i) );
+			} else {
+				leitung_t *lt = gr->get_leitung();
+				if(!lt) {
+					lt = new leitung_t(welt, gr->get_pos(), sp);
+					gr->obj_add( lt );
+				} else {
+					lt->leitung_t::laden_abschliessen();	// only change powerline aspect
+				}
+			}
 			tunnel_t *tunnel = gr->find<tunnel_t>();
 			assert( tunnel );
 			// take the faster way
