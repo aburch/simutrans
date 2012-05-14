@@ -250,7 +250,9 @@ void settings_economy_stats_t::init(settings_t const* const sets)
 	INIT_NUM( "industry_increase_every", sets->get_industry_increase_every(), 0, 100000, 100, false );
 	INIT_NUM( "factory_spacing", sets->get_factory_spacing(), 1, 32767, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "electric_promille", sets->get_electric_promille(), 0, 1000, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_BOOL( "allow_undergroud_transformers", sets->get_allow_undergroud_transformers() );
 	SEPERATOR
+
 	INIT_NUM( "passenger_factor",  sets->get_passenger_factor(), 0, 16, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "minimum_city_distance", sets->get_minimum_city_distance(), 1, 20000, 10, false );
 	INIT_NUM( "factory_worker_radius", sets->get_factory_worker_radius(), 0, 32767, gui_numberinput_t::AUTOLINEAR, false );
@@ -324,6 +326,8 @@ void settings_economy_stats_t::read(settings_t* const sets)
 	READ_NUM_VALUE( sets->industry_increase );
 	READ_NUM_VALUE( sets->factory_spacing );
 	READ_NUM_VALUE( sets->electric_promille );
+	READ_BOOL_VALUE( sets->allow_undergroud_transformers );
+
 	READ_NUM_VALUE( sets->passenger_factor );
 	READ_NUM_VALUE( sets->minimum_city_distance );
 	READ_NUM_VALUE( sets->factory_worker_radius );
