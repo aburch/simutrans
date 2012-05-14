@@ -251,9 +251,6 @@ public:
 	/* prissi: do autosave every month? */
 	static sint32 autosave;
 
-	/* prissi: drive on the left side of the road */
-	static bool drive_on_left;
-
 	// set the frame rate for the display
 	static uint32 fps;
 
