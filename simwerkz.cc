@@ -1766,7 +1766,7 @@ void wkz_wegebau_t::calc_route( wegbauer_t &bauigel, const koord3d &start, const
 	else {
 		bauigel.set_keep_existing_faster_ways( true );
 	}
-	if(  umgebung_t::straight_way_without_control  ||  is_ctrl_pressed()  ) {
+	if(  is_ctrl_pressed()  ||  (umgebung_t::straight_way_without_control  &&  !umgebung_t::networkmode)  ) {
 		DBG_MESSAGE("wkz_wegebau()", "try straight route");
 		bauigel.calc_straight_route(start,end);
 	}
