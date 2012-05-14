@@ -14,6 +14,7 @@
 	CHG: Withdraw all will not disassemble convois in depots for easier upgrading
 	FIX: route search for runways with oneway signs was broken
 	FIX: main menu was not updated when new modes of transport became available
+	ADD: (kierongreen) powerline tunnels: allow_undergroud_transformers=1 (default) will allow transformers below ground
 
 
 Release of 111.2.2 (r5583 on 20-Mar-2012):
