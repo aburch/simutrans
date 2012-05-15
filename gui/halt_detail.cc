@@ -277,11 +277,13 @@ void halt_detail_t::halt_detail_info()
 			buf.append(" ·");
 			const ware_besch_t* info = warenbauer_t::get_info_catg_index(i);
 			// If it is a special freight, we display the name of the good, otherwise the name of the category.
-			buf.append(translator::translate(info->get_catg()==0?info->get_name():info->get_catg_name()));
+			buf.append( translator::translate(info->get_catg()==0?info->get_name():info->get_catg_name()) );
+#if DEBUG>=4
 			if(  halt->is_transfer(i)  ) {
 				buf.append("*");
 			}
-			buf.append(" :\n");
+#endif
+			buf.append(":\n");
 			offset_y += LINESPACE;
 
 			FOR(vector_tpl<haltestelle_t::connection_t>, const& conn, connections) {
