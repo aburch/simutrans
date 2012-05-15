@@ -11,7 +11,7 @@
 
 #include "factory_chart.h"
 
-#define CHART_WIDTH (D_DEFAULT_WIDTH-110)
+#define CHART_WIDTH (D_DEFAULT_WIDTH-104)
 #define CHART_HEIGHT (70)
 
 static sint64 convert_goods(sint64 value) { return ( (value + (1<<(fabrik_t::precision_bits-1))) >> fabrik_t::precision_bits ); }
@@ -111,8 +111,8 @@ static const char *const label_text[MAX_PROD_LABEL] =
 
 static const koord label_pos[MAX_PROD_LABEL] =
 {
-	/*koord( 4, 0),*/ koord(BUTTON4_X-4, 0), koord(4, (D_H_SPACE+D_BUTTON_HEIGHT)), koord(4, (D_H_SPACE+D_BUTTON_HEIGHT)*2),
-	koord( 4, (D_H_SPACE+D_BUTTON_HEIGHT)*3), koord(4, (D_H_SPACE+D_BUTTON_HEIGHT)*4), koord(4, (D_H_SPACE+D_BUTTON_HEIGHT)*5)
+	/*koord( 4, 0),*/ koord(BUTTON3_X, 0), koord(BUTTON1_X, (D_H_SPACE+D_BUTTON_HEIGHT)), koord(BUTTON1_X, (D_H_SPACE+D_BUTTON_HEIGHT)*2),
+	koord( BUTTON1_X, (D_H_SPACE+D_BUTTON_HEIGHT)*3), koord(BUTTON1_X, (D_H_SPACE+D_BUTTON_HEIGHT)*4), koord(BUTTON1_X, (D_H_SPACE+D_BUTTON_HEIGHT)*5)
 };
 
 
@@ -149,7 +149,7 @@ factory_chart_t::factory_chart_t(const fabrik_t *_factory) :
 			goods_cont.add_komponente( goods_labels + goods_label_count );
 			for(  int s=0;  s<MAX_FAB_GOODS_STAT;  ++s  ) {
 				goods_chart.add_curve( goods_color[goods_label_count%MAX_GOODS_COLOR][s], input[g].get_stats(), MAX_FAB_GOODS_STAT, s, MAX_MONTH, false, false, true, 0, goods_convert[s] );
-				goods_buttons[goods_button_count].init(button_t::box_state, input_type[s], koord( (D_H_SPACE+D_BUTTON_WIDTH)*(s+1), offset_below_chart+(D_H_SPACE+D_BUTTON_HEIGHT)*goods_label_count), koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+				goods_buttons[goods_button_count].init(button_t::box_state, input_type[s], koord( D_MARGIN_LEFT+(D_H_SPACE+D_BUTTON_WIDTH)*(s+1), offset_below_chart+(D_H_SPACE+D_BUTTON_HEIGHT)*goods_label_count), koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 				goods_buttons[goods_button_count].background = goods_color[goods_label_count%MAX_GOODS_COLOR][s];
 				goods_buttons[goods_button_count].pressed = false;
 				goods_buttons[goods_button_count].add_listener(this);
@@ -171,7 +171,7 @@ factory_chart_t::factory_chart_t(const fabrik_t *_factory) :
 			goods_cont.add_komponente( goods_labels + goods_label_count );
 			for(  int s=0;  s<MAX_FAB_GOODS_STAT;  ++s  ) {
 				goods_chart.add_curve( goods_color[goods_label_count%MAX_GOODS_COLOR][s], output[g].get_stats(), MAX_FAB_GOODS_STAT, s, MAX_MONTH, false, false, true, 0, goods_convert[s] );
-				goods_buttons[goods_button_count].init(button_t::box_state, output_type[s], koord( (D_H_SPACE+D_BUTTON_WIDTH)*(s+1), offset_below_chart+(D_H_SPACE+D_BUTTON_HEIGHT)*goods_label_count), koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+				goods_buttons[goods_button_count].init(button_t::box_state, output_type[s], koord( D_MARGIN_LEFT+(D_H_SPACE+D_BUTTON_WIDTH)*(s+1), offset_below_chart+(D_H_SPACE+D_BUTTON_HEIGHT)*goods_label_count), koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 				goods_buttons[goods_button_count].background = goods_color[goods_label_count%MAX_GOODS_COLOR][s];
 				goods_buttons[goods_button_count].pressed = false;
 				goods_buttons[goods_button_count].add_listener(this);
@@ -191,7 +191,7 @@ factory_chart_t::factory_chart_t(const fabrik_t *_factory) :
 	prod_chart.set_background(MN_GREY1);
 	for(  int s=0;  s<MAX_FAB_STAT;  ++s  ) {
 		prod_chart.add_curve( prod_color[s], factory->get_stats(), MAX_FAB_STAT, s, MAX_MONTH, false, false, true, 0, prod_convert[s] );
-		prod_buttons[s].init(button_t::box_state, prod_type[s], koord( (D_H_SPACE+D_BUTTON_WIDTH)*button_pos[s].x, offset_below_chart+(D_H_SPACE+D_BUTTON_HEIGHT)*button_pos[s].y), koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+		prod_buttons[s].init(button_t::box_state, prod_type[s], koord( D_MARGIN_LEFT+(D_H_SPACE+D_BUTTON_WIDTH)*button_pos[s].x, offset_below_chart+(D_H_SPACE+D_BUTTON_HEIGHT)*button_pos[s].y), koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 		prod_buttons[s].background = prod_color[s];
 		prod_buttons[s].pressed = false;
 		// only show buttons, if the is something to do ...
@@ -210,7 +210,7 @@ factory_chart_t::factory_chart_t(const fabrik_t *_factory) :
 			// insert the reference line buttons here to ensure correct tab order
 			for(  int r=0;  r<MAX_FAB_REF_LINE;  ++r  ) {
 				prod_chart.add_line( ref_color[r], prod_ref_line_data + r, MAX_MONTH, false, true, 0, ref_convert[r] );
-				prod_ref_line_buttons[r].init(button_t::box_state, prod_type[2+(r%3)], koord( (D_H_SPACE+D_BUTTON_WIDTH)*(1+r%3), offset_below_chart+(D_H_SPACE+D_BUTTON_HEIGHT)*(2+(r/3))), koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+				prod_ref_line_buttons[r].init(button_t::box_state, prod_type[2+(r%3)], koord( D_MARGIN_LEFT+(D_H_SPACE+D_BUTTON_WIDTH)*(1+r%3), offset_below_chart+(D_H_SPACE+D_BUTTON_HEIGHT)*(2+(r/3))), koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 				prod_ref_line_buttons[r].background = ref_color[r];
 				prod_ref_line_buttons[r].pressed = false;
 				if(
@@ -233,9 +233,6 @@ factory_chart_t::factory_chart_t(const fabrik_t *_factory) :
 	for(  int i=0;  i<MAX_PROD_LABEL;  ++i  ) {
 		prod_labels[i].set_text( label_text[i] );
 		prod_labels[i].set_pos( koord( label_pos[i].x, offset_below_chart+3+label_pos[i].y ) );
-		if(  i==ALIGN_RIGHT_PRD_LABEL  ) {
-			prod_labels[i].set_align(gui_label_t::right);	// right alignment for Power label
-		}
 		prod_cont.add_komponente( prod_labels + i );
 	}
 	prod_cont.add_komponente( &prod_chart );
