@@ -170,7 +170,7 @@ void gui_frame_t::zeichnen(koord pos, koord gr)
 	}
 
 	// draw background
-	PUSH_CLIP(pos.x+1,pos.y+16,gr.x-2,gr.y-16);
+	PUSH_CLIP(pos.x+1,pos.y+D_TITLEBAR_HEIGHT,gr.x-2,gr.y-D_TITLEBAR_HEIGHT);
 
 	// Hajo: skinned windows code
 	if(skinverwaltung_t::window_skin!=NULL) {
@@ -179,23 +179,29 @@ void gui_frame_t::zeichnen(koord pos, koord gr)
 		for(int j=0; j<gr.y; j+=64) {
 			for(int i=0; i<gr.x; i+=64) {
 				// the background will not trigger a redraw!
-				display_color_img(img, pos.x+1 + i, pos.y+16 + j, 0, false, false);
+				display_color_img( img, pos.x+1 + i, pos.y+D_TITLEBAR_HEIGHT + j, 0, false, false );
 			}
 		}
 	}
 	else {
 		// empty box
-		display_fillbox_wh(pos.x+1, pos.y+16, gr.x-2, gr.y-16, MN_GREY1, false);
+		display_fillbox_wh( pos.x+1, pos.y+D_TITLEBAR_HEIGHT, gr.x-2, gr.y-D_TITLEBAR_HEIGHT, MN_GREY1, false );
 	}
 
 	// Hajo: left, right
-	display_vline_wh(pos.x, pos.y+16, gr.y-16, MN_GREY4, false);
-	display_vline_wh(pos.x+gr.x-1, pos.y+16, gr.y-16, MN_GREY0, false);
+	display_vline_wh( pos.x, pos.y+D_TITLEBAR_HEIGHT, gr.y-D_TITLEBAR_HEIGHT, MN_GREY4, false );
+	display_vline_wh( pos.x+gr.x-1, pos.y+D_TITLEBAR_HEIGHT, gr.y-D_TITLEBAR_HEIGHT, MN_GREY0, false );
 
 	// Hajo: bottom line
-	display_fillbox_wh(pos.x, pos.y+gr.y-1, gr.x, 1, MN_GREY0, false);
+	display_fillbox_wh( pos.x, pos.y+gr.y-1, gr.x, 1, MN_GREY0, false );
+
+	// shadows
 
 	container.zeichnen(pos);
 
 	POP_CLIP();
+
+// for shadows
+//	display_blend_wh( pos.x+gr.x, pos.y+1, 2, gr.y, COL_BLACK, 50 );
+//	display_blend_wh( pos.x+1, pos.y+gr.y, gr.x, 2, COL_BLACK, 50 );
 }

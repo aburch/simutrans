@@ -350,15 +350,18 @@ static void line_segment_draw( waytype_t type, koord start, uint8 start_offset, 
 		uint8 thickness = 3;
 		bool dotted = false;
 		switch(  type  ) {
-			case track_wt:
 			case monorail_wt:
 			case maglev_wt:
 				thickness = 5;
+				break;
+			case track_wt:
+				thickness = 4;
 				break;
 			case road_wt:
 				thickness = 2;
 				break;
 			case tram_wt:
+			case narrowgauge_wt:
 				thickness = 3;
 				break;
 			default:
