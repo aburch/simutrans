@@ -498,7 +498,7 @@ enable_home:
 			display_proportional_clip(line_x + len, pos_y, cnv->get_line()->get_name(), ALIGN_LEFT, cnv->get_line()->get_state_color(), true );
 		}
 
-#ifdef DEBUG
+#ifdef DEBUG_PHYSICS
 		/*
 		 * Show braking distance
 		 */
@@ -506,10 +506,32 @@ enable_home:
 			const int pos_y = pos_y0 + 6 * LINESPACE; // line 7
 			const sint32 brk_meters = convoy.calc_min_braking_distance(convoy.get_weight_summary(), speed_to_v(cnv->get_akt_speed()));
 			char tmp[256];
-			sprintf(tmp, translator::translate("minimum brake distance"), brk_meters);
+			sprintf(tmp, translator::translate("minimum brake distance"));
 			const int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, COL_BLACK, true );
 			sprintf(tmp, translator::translate(": %im"), brk_meters);
 			display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, cnv->get_akt_speed() <= cnv->get_akt_speed_soll() ? COL_BLACK : COL_RED, true );
+		}
+		{
+			const int pos_y = pos_y0 + 7 * LINESPACE; // line 8
+			char tmp[256];
+			const settings_t &settings = welt->get_settings();
+			const sint32 kmh = speed_to_kmh(cnv->next_speed_limit);
+			const sint32 m_til_limit = settings.steps_to_meters(cnv->steps_til_limit).to_sint32();
+			const sint32 m_til_brake = settings.steps_to_meters(cnv->steps_til_brake).to_sint32();
+			if (kmh)
+				sprintf(tmp, translator::translate("max %ikm/h in %im, brake in %im "), kmh, m_til_limit, m_til_brake);
+			else
+				sprintf(tmp, translator::translate("stop in %im, brake in %im "), m_til_limit, m_til_brake);
+			const int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, COL_BLACK, true );
+		}
+		{
+			const int pos_y = pos_y0 + 8 * LINESPACE; // line 9
+			const sint32 current_friction = cnv->front()->get_frictionfactor();
+			char tmp[256];
+			sprintf(tmp, translator::translate("current friction factor"));
+			const int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, COL_BLACK, true );
+			sprintf(tmp, translator::translate(": %i"), current_friction);
+			display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, current_friction <= 20 ? COL_BLACK : COL_RED, true );
 		}
 #endif
 		POP_CLIP();

@@ -840,14 +840,19 @@ void convoi_t::calc_acceleration(long delta_t)
 	/*
 	 * get next speed limit of my route.
 	 */
-	sint32 next_speed_limit = 0; // 'limit' for next stop is 0, of course.
+#ifndef DEBUG_PHYSICS
+	sint32 
+#endif
+	next_speed_limit = 0; // 'limit' for next stop is 0, of course.
 	uint32 next_stop_index = get_next_stop_index(); // actually this is next stop index + 1!!!
 	if (next_stop_index == 65535u) // BG, 07.10.2011: currently only waggon_t sets next_stop_index
 	{
 		next_stop_index = route_count;
 	}
+#ifndef DEBUG_PHYSICS
 	sint32 steps_til_limit;
 	sint32 steps_til_brake;
+#endif
 	//const float32e8_t simtime_factor = welt->get_settings().get_simtime_factor();
 	const sint32 brake_steps = convoy.calc_min_braking_distance(welt->get_settings(), convoy.get_weight_summary(), akt_speed);
 	if (route_infos.get_count() >= next_stop_index && next_stop_index > current_route_index)

@@ -626,6 +626,11 @@ public:
 		uint32 steps_from_start; // steps including this tile's length, which is VEHICLE_STEPS_PER_TILE for a straight and diagonal_vehicle_steps_per_tile for a diagonal way.
 		ribi_t::ribi direction;
 	};
+#ifdef DEBUG_PHYSICS
+	sint32 next_speed_limit; 
+	sint32 steps_til_limit;
+	sint32 steps_til_brake;
+#endif
 
 private:
 	/** 
