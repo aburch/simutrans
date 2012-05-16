@@ -129,7 +129,7 @@ void umgebung_t::init()
 
 	/* station stuff */
 	use_transparency_station_coverage = true;
-	station_coverage_show = NOT_SHOWN_COVERAGE;
+	station_coverage_show = 0;
 
 	show_names = 3;
 
@@ -154,16 +154,8 @@ void umgebung_t::init()
 
 	savegame_version_str = SAVEGAME_VER_NR;
 
-	/**
-	 * show month in date?
-	 * @author hsiegeln
-	 */
 	show_month = DATE_FMT_US;
 
-	/**
-	 * Max. Länge für initiale Stadtverbindungen
-	 * @author Hj. Malthaner
-	 */
 	intercity_road_length = 200;
 
 	river_types = 0;

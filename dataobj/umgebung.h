@@ -1,18 +1,9 @@
-/*
- * Hier werden die Kommandozeilenparametr in für das Spiel
- * nutzbarer Form gespeichert.
- *
- * von Hansjörg Malthaner, November 2000
- */
-
 #ifndef dataobj_umgebung_h
 #define dataobj_umgebung_h
 
 #include <string>
-#include <vector>
 #include "../simtypes.h"
 #include "../simconst.h"
-#include "../simcolor.h"
 #include "einstellungen.h"
 
 #include "../tpl/vector_tpl.h"
@@ -22,96 +13,210 @@
 
 
 /**
- * Diese Klasse bildet eine Abstraktion der Kommandozeilenparameter.
- * Alle Attribute sind statisch, damit sie überall zugänglich sind.
- * Das ist kein Problem, denn sie existieren garantiert nur einmal!
- *
- * The game specific stuff is in default_einstellungen, to keep them centralized ...
+ * Class to save all environment parameters, ie everything that changes
+ * the look and feel of the game. Most of them can be changed by command-line
+ * parameters or simuconf.tab files.
  *
  * @author Hj. Malthaner
  */
 class umgebung_t
 {
 public:
-	// points to the current simutrans data directory
+	/// points to the current simutrans data directory
 	static char program_dir[1024];
 
-	//points to the current directory user for loading and saving
+	/// points to the current user directory for loading and saving
 	static const char *user_dir;
 
-	// version for which the savegames should be created
+	/// version for which the savegames should be created
 	static const char *savegame_version_str;
 
+	/// name of the directory to the pak-set
 	static std::string objfilename;
 
-	// true, if we are in networkmode
-	static bool networkmode;
-	static long server_frames_ahead;
-	static long additional_client_frames_behind;
-	static long network_frames_per_step;
-	// how often to synchronize
-	static uint32 server_sync_steps_between_checks;
-	static bool restore_UI;	// when true, restore the windows from a savegame
 
-	// if we are the server, we are at this port ...
+	/**
+	 * @name Network-related settings
+	 */
+	/// @{
+	/// true, if we are in networkmode
+	static bool networkmode;
+
+	/// number of simulation frames server runs ahead of clients
+	static long server_frames_ahead;
+
+	/// additional number of frames client is behind server
+	static long additional_client_frames_behind;
+
+	/// number of sync_steps before one step
+	/// @see karte_t::interactive()
+	static long network_frames_per_step;
+
+	/// server sends information to clients for checking synchronization
+	/// after this number of sync_steps
+	/// @see karte_t::interactive()
+	static uint32 server_sync_steps_between_checks;
+
+	/// when true, restore the windows from a savegame
+	static bool restore_UI;
+
+	/// if we are the server, we are at this port
+	/// @see network_init_server()
 	static const uint16 &server;
 
-	// Enable/disable server announcement
+	/// enable/disable server announcement
 	static uint32 server_announce;
-	// Number of seconds between announcements
+
+	/// number of seconds between announcements
 	static sint32 server_announce_interval;
 
-	// DNS name or IP address clients should use to connect to server
+	/// @} end of Network-related settings
+
+
+	/**
+	 * @name Information about server which is send to list-server
+	 */
+	/// @{
+	/// DNS name or IP address clients should use to connect to server
 	static std::string server_dns;
-	// Name of server for display on list server
+	/// Name of server for display on list server
 	static std::string server_name;
-	// Comments about server for display on list server
+	/// Comments about server for display on list server
 	static std::string server_comments;
-	// Email address of server maintainer
+	/// Email address of server maintainer
 	static std::string server_email;
-	// Download location for pakset needed to play on server
+	/// Download location for pakset needed to play on server
 	static std::string server_pakurl;
-	// Link to further information about server
+	/// Link to further information about server
 	static std::string server_infurl;
-	// Server admin password (for use with nettool)
+
+	/// @} end of Information about server
+
+
+	/**
+	 * @name Network-related settings
+	 */
+	/// @{
+	/// Server admin password (for use with nettool)
 	static std::string server_admin_pw;
 
-	// IP addresses to listen on/send announcements on
+	/// IP addresses to listen on/send announcements on
 	static vector_tpl<std::string> listen;
 
-	// pause server if no client connected
+	/// pause server if no client connected
 	static bool pause_server_no_clients;
 
-	// nickname of player
+	/// nickname of player
 	static std::string nickname;
 
-	// scrollrichtung
+	/// @} end of Network-related settings
+
+
+	/**
+	 * @name GUI settings and windows behavior
+	 */
+	/// @{
+
+	/// current language
+	static const char *language_iso;
+
+	/// controls scrolling speed and scrolling direction
 	static sint16 scroll_multi;
+
+	/// open info windows for pedestrian and private cars
+	static bool verkehrsteilnehmer_info;
+
+	/// open info windows for trees
+	static bool tree_info;
+
+	/// open info windows for ground tiles
+	static bool ground_info;
+
+	/// open info windows for townhalls
+	static bool townhall_info;
+
+	/// open only one info window per click on a map-square
+	static bool single_info;
+
+	/// how to sort destination of goods
+	/// @see freight_list_sorter_t::sort_mode_t
+	static uint8 default_sortmode;
+
+	/// default behavior of the map-window
+	static uint32 default_mapmode;
+
+	///which messages to display where?
+	/**
+	 * message_flags[i] is bitfield, where bit is set if message should be show at location i,
+	 * where 0 = show message in ticker, 1 = open auto-close window, 2 = open persistent window, 3 = ignore message
+	 * @see message_option_t
+	 * @author prissi
+	 */
+	static sint32 message_flags[4];
+
+	static bool left_to_right_graphs;
+
+	/**
+	 * window button at right corner (like Windows)
+	 * @author prissi
+	 */
+	static bool window_buttons_right;
 
 	static sint16 window_snap_distance;
 
+
+	/// customize your tooltips
+	static bool show_tooltips;
+	static uint8 tooltip_color;
+	static uint8 tooltip_textcolor;
+	static uint32 tooltip_delay;
+	static uint32 tooltip_duration;
+
+	/// limit width and height of menu toolbars
+	static uint8 toolbar_max_width;
+	static uint8 toolbar_max_height;
+
+	// how to highlight topped (untopped windows)
+	static bool window_frame_active;
+	static uint8 front_window_bar_color;
+	static uint8 front_window_text_color;
+	static uint8 bottom_window_bar_color;
+	static uint8 bottom_window_text_color;
+
+	/// @} end of GUI settings
+
 	/**
-	* tag-nacht wechsel zeigen ?
-	*
-	* @author Hj. Malthaner
-	*/
+	 * @name Settings to control display of game world
+	 */
+	/// @{
+
+	/// show day-night cycle
 	static bool night_shift;
 
-	/**
-	* Stationsabdeckung zeigen
-	* @author prissi
-	*/
-	static bool use_transparency_station_coverage;
-	static uint8 station_coverage_show;
-	enum { NOT_SHOWN_COVERAGE=0, SHOW_MY_COVERAGE, SHOW_ALL_COVERAGE };
+	/// fixed day/night view level
+	static sint8 daynight_level;
 
-	// use transparency to hide buildings and trees
+	/// show error/info tooltips over the vehicles
+	static uint8 show_vehicle_states;
+
+	/// show station coverage indicators
+	static uint8 station_coverage_show;
+
+	/// display station coverage by transparent overlay
+	/// (otherwise by colored squares)
+	static bool use_transparency_station_coverage;
+
+	/// use transparency to hide buildings and trees
 	static bool hide_with_transparency;
 
-	/**
-	 * three states:
-	 */
-	enum { NOT_HIDE=0, SOME_HIDDEN_BUIDLING, ALL_HIDDEN_BUIDLING };
+	/// Three states to control hiding of building
+	enum hide_buildings_states {
+		NOT_HIDE=0,           ///< show all buildings
+		SOME_HIDDEN_BUIDLING, ///< hide buildings near cursor
+		ALL_HIDDEN_BUIDLING   ///< hide all buildings
+	};
+
+	/// hide buildings if this is not NOT_HIDE
 	static uint8 hide_buildings;
 
 	/**
@@ -122,114 +227,40 @@ public:
 	 */
 	static bool hide_trees;
 
-	/**
-	 * When set, buildings and trees under mouse cursor will be hidden
-	 */
+	/// If hide_under_cursor is true then
+	/// buildings and trees near mouse cursor will be hidden.
 	static bool hide_under_cursor;
 
-	/**
-	 * Range of tiles from current cursor position to hide
-	 */
+
+	/// Hide buildings and trees within range of mouse cursor
 	static uint16 cursor_hide_range;
 
+
+	/// color used for cursor overlay blending
+	static uint8 cursor_overlay_color;
+
 	/**
-	* Namen (Städte, Haltestellen) anzeigen? (0 .. 3)
-	* lable type 4..7
-	*
-	* @author Hj. Malthaner
-	*/
+	 * Show labels (city and station names, ...)
+	 * and waiting indicator bar for stations
+	 * @see grund_t::display_overlay
+	 */
 	static sint32 show_names;
 
-	// if a schedule is open, show tiles which are used by it
+	/// if a schedule is open, show tiles which are used by it
 	static bool visualize_schedule;
 
-	/**
-	* which messages to display where?
-	*
-	* @author prissi
-	*/
-	static sint32 message_flags[4];
-
-	/* time per water animation fram (0=off)
-	 * @author prissi
-	 */
+	/// time per water animation frame (0=off)
 	static uint32 water_animation;
 
-	/* probability for ground objects (if exists)
-	 * @author prissi
-	 */
-	static uint32 ground_object_probability;
 
-	/* probability for moving objects (if there)
-	 * @author prissi
-	 */
-	static uint32 moving_object_probability;
+	/// how many internal pixel per height step (default 16)
+	static sint8 pak_tile_height_step;
 
-	/**
-	* Info-Fenster für Fussgänger und Privatfahrzeuge
-	*
-	* @author Hj. Malthaner
-	*/
-	static bool verkehrsteilnehmer_info;
+	/// use the faster drawing routine (and allow for clipping errors)
+	/// if tile-size is less than this value
+	static sint16 simple_drawing_tile_size;
 
-	/**
-	* Info-Fenster für Bäume
-	* @author prissi
-	*/
-	static bool tree_info;
-
-	/**
-	* Info-Fenster for all grounds
-	* @author prissi
-	*/
-	static bool ground_info;
-
-	/**
-	* Info-Fenster für Townhall
-	* @author prissi
-	*/
-	static bool townhall_info;
-
-	/**
-	* Only one info window
-	* @author prissi
-	*/
-	static bool single_info;
-
-	/**
-	* window button at right corner (like Windows)
-	* @author prissi
-	*/
-	static bool window_buttons_right;
-
-
-	/**
-	* Produce more debug info ?
-	*
-	* @author Hj. Malthaner
-	*/
-	static uint8 verbose_debug;
-
-	// how to sort stations/convois
-	static uint8 default_sortmode;
-
-	// what is selected for maps
-	static uint32 default_mapmode;
-
-	/**
-	* Max. Länge für initiale Stadtverbindungen
-	*
-	* @author Hj. Malthaner
-	*/
-	static sint32 intercity_road_length;
-
-	/**
-	 * Name of rivers; first the river with the lowest number
-	 * @author prissi
-	 */
-	static plainstring river_type[10];
-	static uint8 river_types;
-
+	/// format in which date is shown
 	enum date_fmt {
 		DATE_FMT_SEASON   = 0,
 		DATE_FMT_MONTH    = 1,
@@ -242,74 +273,98 @@ public:
 	};
 
 	/**
-	* show month in date?
-	*
-	* @author hsiegeln
-	*/
+	 * show month in date?
+	 *
+	 * @author hsiegeln
+	 */
 	static uint8 show_month;
 
-	/* prissi: do autosave every month? */
-	static sint32 autosave;
+	/// @} end of Settings to control display of game world
 
-	// set the frame rate for the display
+
+	/**
+	 * @name Settings to control the simulation (to some extent)
+	 */
+	/// @{
+
+	/// set the frame rate for the display
 	static uint32 fps;
 
-	// maximum acceleration with fast forward
+	/// maximum acceleration with fast forward
 	static sint16 max_acceleration;
 
-	// false to quit the programs
+	/// false to quit the programs
 	static bool quit_simutrans;
 
-	// customize your tooltips
-	static bool show_tooltips;
-	static uint8 tooltip_color;
-	static uint8 tooltip_textcolor;
-	static uint32 tooltip_delay;
-	static uint32 tooltip_duration;
+	/// @} end of Settings to control the simulation
 
-	// limit width and height of menu toolbars
-	static uint8 toolbar_max_width;
-	static uint8 toolbar_max_height;
 
-	// color used for cursor overlay blending
-	static uint8 cursor_overlay_color;
+	/**
+	 * @name Settings used at world creation
+	 */
+	/// @{
 
-	// show error/info tooltips over the vehicles
-	static uint8 show_vehicle_states;
+	/// probability for ground objects (if exists)
+	static uint32 ground_object_probability;
 
-	// fixed day/night view level
-	static sint8 daynight_level;
+	/// probability for moving objects (if there)
+	static uint32 moving_object_probability;
 
-	// current language
-	static const char *language_iso;
+	/// maximum length of city connections
+	static sint32 intercity_road_length;
 
-	// midi/sound option
+	/**
+	 * Name of rivers; first the river with the lowest number
+	 * @author prissi
+	 */
+	static plainstring river_type[10];
+
+	/// number of different river types
+	static uint8 river_types;
+	/// @}
+
+
+	/**
+	* Produce more debug info:
+	* can be set by command-line switch '-debug'
+	* @author Hj. Malthaner
+	*/
+	static uint8 verbose_debug;
+
+
+	/// do autosave every month?
+	/// @author prissi
+	static sint32 autosave;
+
+
+	/**
+	 * @name Midi/sound options
+	 */
+	/// @{
+
 	static sint16 global_volume, midi_volume;
 	static bool mute_sound, mute_midi, shuffle_midi;
 
-	static bool left_to_right_graphs;
+	/// @}
 
-	// how to highlight topped (untopped windows)
-	static bool window_frame_active;
-	static uint8 front_window_bar_color;
-	static uint8 front_window_text_color;
-	static uint8 bottom_window_bar_color;
-	static uint8 bottom_window_text_color;
 
-	// how many internal pixel per hieght step (default 16)
-	static sint8 pak_tile_height_step;
-
-	// use the faster drwing routine (and allow for clipping errors)
-	static sint16 simple_drawing_tile_size;
-
+	/// default settings
+	/// read in simmain.cc from various tab files
+	/// @see simmain.cc
 	static settings_t default_einstellungen;
 
+	/// construct always straight ways
+	/// as if ctrl-key permanently pressed
+	/// cannot be used in network mode
 	static bool straight_way_without_control;
 
-	// init with default values
+	/// initialize with default values
 	static void init();
 
-	// load/saving settings from file
+	/**
+	 * load/saving these from file (settings.xml)
+	 * @see simmain.cc
+	 */
 	static void rdwr(loadsave_t *file);
 };
 
