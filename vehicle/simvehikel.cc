@@ -1353,15 +1353,12 @@ void vehikel_t::hop()
 	calc_bild(); //Calculate image
 
 	betrete_feld(); //"Enter field" (Google)
-	grund_t *gr;
-	gr = welt->lookup(pos_next);
 
-	const weg_t * weg = gr != NULL ? gr->get_weg(get_waytype()) : NULL;
+	const grund_t *gr_prev = welt->lookup(pos_prev);
+	const weg_t * weg_prev = gr_prev != NULL ? gr_prev->get_weg(get_waytype()) : NULL;
 
-	gr = welt->lookup(pos_prev);
-
-	const weg_t * weg_prev = gr != NULL ? gr->get_weg(get_waytype()) : NULL;
-
+	const grund_t *gr = welt->lookup(get_pos());
+	const weg_t *weg = gr != NULL ? gr->get_weg(get_waytype()) : NULL;
 	if(weg)
 	{
 		speed_limit = calc_speed_limit(weg, weg_prev, &pre_corner_direction, fahrtrichtung, alte_fahrtrichtung);
@@ -1694,7 +1691,7 @@ void vehikel_t::calc_drag_coefficient(const grund_t *gr) //,const int h_alt, con
 
 	const waytype_t waytype = get_waytype();
 	const sint16 base_friction = get_friction_of_waytype(waytype);
-
+	current_friction = base_friction;
 	
 	// Old method - not realistic. Now uses modified speed limit. Preserved optionally.
 	// curve: higher friction
