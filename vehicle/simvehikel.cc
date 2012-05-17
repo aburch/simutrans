@@ -3669,22 +3669,10 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 		return ok;
 	}
 
-	// Braking rate assumed at 63, as only rail vehicles use the block reserver.
-	// TODO: Set this from .dat files (or even physics computations)
-	//const sint32 braking_rate = 63;
-	const sint32 meters_per_tile = welt->get_settings().get_meters_per_tile();
-	//const sint32 speed = speed_to_kmh(cnv->get_akt_speed());
-
 	existing_convoy_t convoy(*cnv);
-	// BG, 25.09.2011: brake_distance is in real world meters. To compare with tiles of game the brake distance has to be divided by the 
-	// simtime_factor = meters_per_tile / 1000; as passed to convoy.calc_move() to reduce the force:
-	uint16 meters_check_for_signal = (convoy.calc_min_braking_distance(convoy.get_weight_summary(), speed_to_v(cnv->get_akt_speed())));
-	meters_check_for_signal += (meters_check_for_signal / 10);
-	// const uint16 tiles_check_for_signal = (1000 * speed) / (braking_rate * meters_per_tile);
-	// Necessary to round up here.
-	const uint16 tiles_check_for_signal = (meters_check_for_signal + (meters_per_tile / 2)) / meters_per_tile;
-	
-	if(next_block <= route_index + tiles_check_for_signal) 
+	const sint32 brake_steps = convoy.calc_min_braking_distance(welt->get_settings(), convoy.get_weight_summary(), cnv->get_akt_speed());
+	const sint32 route_steps = cnv->get_route_infos().get_element(next_block-1).steps_from_start - cnv->get_route_infos().get_element(route_index).steps_from_start;
+	if (route_steps <= brake_steps) 
 	{ 	
 		koord3d block_pos=cnv->get_route()->position_bei(next_block);
 

@@ -804,40 +804,6 @@ void convoi_t::calc_acceleration(long delta_t)
 	const uint16 current_route_index = front.get_route_index(); // actually this is current route index + 1!!!
 
 	/*
-	 * calculate route infos, if not yet done.
-	 */
-	if (route_infos.get_count() == 0)
-	{
-		fixed_list_tpl<sint16, 16> corner_data;
-		const waytype_t waytype = front.get_waytype();
-
-		// calc route infos
-		route_infos.set_count(route_count);
-		uint16 i = max(0, current_route_index - 2);
-
-		koord3d current_tile = route.position_bei(i);
-		convoi_t::route_info_t &start_info = route_infos.get_element(i);
-		start_info.direction = front.get_fahrtrichtung();
-		start_info.steps_from_start = 0;
-		const weg_t *current_weg = get_weg_on_grund(welt->lookup(current_tile), waytype);
-		start_info.speed_limit = front.calc_speed_limit(current_weg, NULL, &corner_data, start_info.direction, start_info.direction);
-
-		for (i++; i < route_count; i++)
-		{
-			convoi_t::route_info_t &current_info = route_infos.get_element(i - 1);
-			convoi_t::route_info_t &this_info = route_infos.get_element(i);
-			const koord3d this_tile = route.position_bei(i);
-			const koord3d next_tile = route.position_bei(min(i + 1, route_count - 1));
-			this_info.steps_from_start = current_info.steps_from_start + front.get_tile_steps(current_tile.get_2d(), next_tile.get_2d(), this_info.direction);
-			const weg_t *this_weg = get_weg_on_grund(welt->lookup(this_tile), waytype);
-			this_info.speed_limit = this_weg ? front.calc_speed_limit(this_weg, current_weg, &corner_data, this_info.direction, current_info.direction) : SPEED_UNLIMITED;
-
-			current_tile = this_tile;
-			current_weg = this_weg;
-		}
-	}
-
-	/*
 	 * get next speed limit of my route.
 	 */
 #ifndef DEBUG_PHYSICS
@@ -853,9 +819,9 @@ void convoi_t::calc_acceleration(long delta_t)
 	sint32 steps_til_limit;
 	sint32 steps_til_brake;
 #endif
-	//const float32e8_t simtime_factor = welt->get_settings().get_simtime_factor();
 	const sint32 brake_steps = convoy.calc_min_braking_distance(welt->get_settings(), convoy.get_weight_summary(), akt_speed);
-	if (route_infos.get_count() >= next_stop_index && next_stop_index > current_route_index)
+	// use get_route_infos() for the first time accessing route_infos to eventually initialize them.
+	if (get_route_infos().get_count() >= next_stop_index && next_stop_index > current_route_index)
 	{
 		uint32 i = current_route_index - 1;
 		const convoi_t::route_info_t &current_info = route_infos.get_element(i);
@@ -918,6 +884,45 @@ void convoi_t::calc_acceleration(long delta_t)
 	convoy.calc_move(welt->get_settings(), delta_t, akt_speed_soll, next_speed_limit, steps_til_limit, steps_til_brake, akt_speed, sp_soll, v);
 }
 
+
+// extracted from convoi_t::calc_acceleration()
+convoi_t::route_infos_t& convoi_t::get_route_infos() 
+{
+	if (route_infos.get_count() == 0)
+	{
+		vehikel_t &front = *this->front();
+		const uint32 route_count = route.get_count(); // at least ziel will be there, even if calculating a route failed.
+		const uint16 current_route_index = front.get_route_index(); // actually this is current route index + 1!!!
+		fixed_list_tpl<sint16, 16> corner_data;
+		const waytype_t waytype = front.get_waytype();
+
+		// calc route infos
+		route_infos.set_count(route_count);
+		uint16 i = max(0, current_route_index - 2);
+
+		koord3d current_tile = route.position_bei(i);
+		convoi_t::route_info_t &start_info = route_infos.get_element(i);
+		start_info.direction = front.get_fahrtrichtung();
+		start_info.steps_from_start = 0;
+		const weg_t *current_weg = get_weg_on_grund(welt->lookup(current_tile), waytype);
+		start_info.speed_limit = front.calc_speed_limit(current_weg, NULL, &corner_data, start_info.direction, start_info.direction);
+
+		for (i++; i < route_count; i++)
+		{
+			convoi_t::route_info_t &current_info = route_infos.get_element(i - 1);
+			convoi_t::route_info_t &this_info = route_infos.get_element(i);
+			const koord3d this_tile = route.position_bei(i);
+			const koord3d next_tile = route.position_bei(min(i + 1, route_count - 1));
+			this_info.steps_from_start = current_info.steps_from_start + front.get_tile_steps(current_tile.get_2d(), next_tile.get_2d(), this_info.direction);
+			const weg_t *this_weg = get_weg_on_grund(welt->lookup(this_tile), waytype);
+			this_info.speed_limit = this_weg ? front.calc_speed_limit(this_weg, current_weg, &corner_data, this_info.direction, current_info.direction) : SPEED_UNLIMITED;
+
+			current_tile = this_tile;
+			current_weg = this_weg;
+		}
+	}
+	return route_infos; 
+}
 
 
 int convoi_t::get_vehicle_at_length(uint16 length)

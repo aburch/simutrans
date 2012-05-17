@@ -626,6 +626,10 @@ public:
 		uint32 steps_from_start; // steps including this tile's length, which is VEHICLE_STEPS_PER_TILE for a straight and diagonal_vehicle_steps_per_tile for a diagonal way.
 		ribi_t::ribi direction;
 	};
+
+	class route_infos_t : public vector_tpl<route_info_t>
+	{
+	};
 #ifdef DEBUG_PHYSICS
 	sint32 next_speed_limit; 
 	sint32 steps_til_limit;
@@ -637,7 +641,7 @@ private:
 	  * List of upcoming speed limits; for braking purposes.
 	  * @author: jamespetts, September 2011
 	  */
-	vector_tpl<route_info_t> route_infos;
+	route_infos_t route_infos;
 
 public:
 	ding_t::typ get_depot_type() const;
@@ -1247,7 +1251,7 @@ public:
 	
 	bool is_wait_infinite() const { return go_on_ticks == WAIT_INFINITE; }
 
-	vector_tpl<route_info_t>& get_route_infos() { return route_infos; }
+	route_infos_t& get_route_infos();
 
 	void set_akt_speed(sint32 akt_speed) { this->akt_speed = akt_speed; v = speed_to_v(akt_speed); }
 
