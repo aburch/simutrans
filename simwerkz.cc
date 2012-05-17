@@ -475,7 +475,7 @@ DBG_MESSAGE("wkz_remover_intern()","at (%s)", pos.get_str());
 		bool is_leitungstunnel = false;
 		if(gr->ist_bruecke()  &&  gr->ist_karten_boden()) {
 			bruecke_t* br = gr->find<bruecke_t>();
-			if (br == NULL) {
+			if(  br == NULL  ) {
 				// no bridge? most likely transformer on a former bridge tile...
 				grund_t *gr_new = new boden_t(welt, pos, gr->get_grund_hang());
 				gr_new->take_obj_from( gr );
@@ -498,22 +498,29 @@ DBG_MESSAGE("wkz_remover_intern()","at (%s)", pos.get_str());
 			msg = tunnelbauer_t::remove(welt, sp, gr->get_pos(), powerline_wt );
 			return msg == NULL;
 		}
-		if(gr->ist_tunnel()) {
-			gr->obj_loesche_alle(sp);
-			gr->mark_image_dirty();
+		if(  gr->ist_im_tunnel()  ) {
+			sint64 cost_sum = -lt->get_besch()->get_preis()/2;
+			//lt->entferne(NULL); // not needed, will book twice
+			delete lt;
+			// now everything gone?
+			if(  gr->get_top() == 1  ) {
+				// delete tunnel too
+				tunnel_t *t = gr->find<tunnel_t>();
+				cost_sum += -t->get_besch()->get_preis();
+				t->entferne( NULL );
+			}
+			spieler_t::accounting( sp, cost_sum, pos.get_2d(), COST_CONSTRUCTION);
+			// unmark kartenboden (is marked during underground mode deletion)
+			welt->lookup_kartenboden(pos.get_2d())->clear_flag(grund_t::marked);
+			// remove upper or lower ground
 			welt->access(pos.get_2d())->boden_entfernen(gr);
 			delete gr;
-
-			reliefkarte_t::get_karte()->calc_map_pixel( pos.get_2d() );
-
-			return true;
 		}
-		if( !gr->ist_bruecke() ) {
+		else {
 			lt->entferne(sp);
 			delete lt;
-
-			return true;
 		}
+		return true;
 	}
 
 	// check for signal
@@ -721,15 +728,16 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 	}
 	else {
 		// remove upper ways ...
-		if(gr->get_weg_nr(1)) {
+		if(  gr->get_weg_nr(1)  ) {
 			cost_sum = gr->weg_entfernen(gr->get_weg_nr(1)->get_waytype(), true);
 		}
-		else {
+		else if(  gr->get_top()<=2  ) {
 			// delete tunnel here ...
-			const tunnel_besch_t* besch = gr->find<tunnel_t>()->get_besch();
-			gr->obj_loesche_alle(sp);
-			cost_sum += gr->weg_entfernen(besch->get_waytype(), true);
-			cost_sum += besch->get_preis();
+			tunnel_t *t = gr->find<tunnel_t>();
+			cost_sum += gr->weg_entfernen(t->get_besch()->get_waytype(), true);
+			cost_sum += t->get_besch()->get_preis();
+			t->entferne( NULL );
+			delete t;
 		}
 	}
 
