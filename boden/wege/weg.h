@@ -126,10 +126,6 @@ private:
 
 protected:
 
-	inline void set_after_bild( image_id b ) { after_bild = b; }
-	image_id get_after_bild() const {return after_bild;}
-
-
 	enum image_type { image_flat, image_slope, image_diagonal, image_switch };
 
 	/**
@@ -304,6 +300,10 @@ public:
 
 	inline void set_bild( image_id b ) { bild = b; }
 	image_id get_bild() const {return bild;}
+
+	inline void set_after_bild( image_id b ) { after_bild = b; }
+	image_id get_after_bild() const {return after_bild;}
+
 
 	// correct maintainace
 	void laden_abschliessen();

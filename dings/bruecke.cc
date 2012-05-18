@@ -40,15 +40,19 @@ void bruecke_t::calc_bild()
 	grund_t *gr=welt->lookup(get_pos());
 	if(gr) {
 		// if we are on the bridge, put the image into the ground, so we can have two ways ...
-		if(gr->get_weg_nr(0)) {
+		if(weg_t *weg0 = gr->get_weg_nr(0)) {
 			if(img>=bruecke_besch_t::N_Start  &&  img<=bruecke_besch_t::W_Start) {
 				// must take the upper value for the start of the bridge
-				gr->get_weg_nr(0)->set_bild(besch->get_hintergrund(img, get_pos().z+Z_TILE_STEP >= welt->get_snowline()));
+				weg0->set_bild(besch->get_hintergrund(img, get_pos().z+Z_TILE_STEP >= welt->get_snowline()));
 			}
 			else {
-				gr->get_weg_nr(0)->set_bild(besch->get_hintergrund(img, get_pos().z >= welt->get_snowline()));
+				weg0->set_bild(besch->get_hintergrund(img, get_pos().z >= welt->get_snowline()));
 			}
-			gr->get_weg_nr(0)->set_yoff(-gr->get_weg_yoff() );
+			weg0->set_yoff(-gr->get_weg_yoff() );
+
+			weg0->set_after_bild(IMG_LEER);
+			weg0->set_flag(ding_t::dirty);
+
 			if (gr->get_weg_nr(1)) {
 				gr->get_weg_nr(1)->set_yoff(-gr->get_weg_yoff() );
 			}
