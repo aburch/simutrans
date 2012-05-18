@@ -1691,7 +1691,7 @@ void vehikel_t::calc_drag_coefficient(const grund_t *gr) //,const int h_alt, con
 
 	const waytype_t waytype = get_waytype();
 	const sint16 base_friction = get_friction_of_waytype(waytype);
-	current_friction = base_friction;
+	//current_friction = base_friction;
 	
 	// Old method - not realistic. Now uses modified speed limit. Preserved optionally.
 	// curve: higher friction
