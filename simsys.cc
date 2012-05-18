@@ -614,7 +614,7 @@ bool dr_download_pakset( const char *path_to_program, bool portable )
 	shExInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
 	shExInfo.hwnd = 0;
 	/* since the installer will run again a child process
-	 * using "runas" will make sure it is alrady privelegded.
+	 * using "runas" will make sure it is already privileged.
 	 * Otherwise the waiting for installation will fail!
 	 * (no idea how this works on XP though)
 	 */
@@ -628,9 +628,11 @@ bool dr_download_pakset( const char *path_to_program, bool portable )
 	if(  ShellExecuteExA(&shExInfo)  ) {
 		WaitForSingleObject( shExInfo.hProcess, INFINITE );
 		CloseHandle( shExInfo.hProcess );
-    }
+	}
 	return true;
 #endif
+	(void) path_to_program;
+	(void) portable;
 	return false;
 }
 
