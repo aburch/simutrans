@@ -633,6 +633,20 @@ fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
 
 	rdwr(file);
 
+	city = welt->get_city(pos.get_2d());
+	if(city != NULL)
+	{
+		city->add_city_factory(this);
+	}
+
+	delta_sum = 0;
+	delta_menge = 0;
+	index_offset = 0;
+	total_input = total_output = 0;
+	status = nothing;
+	currently_producing = false;
+	transformer_connected = NULL;
+
 	if(  besch == NULL  ) {
 		dbg->warning( "fabrik_t::fabrik_t()", "No pak-file for factory at (%s) - will not be built!", pos.get_str() );
 		return;
@@ -653,20 +667,6 @@ fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
 			}
 		}
 	}
-
-	city = welt->get_city(pos.get_2d());
-	if(city != NULL)
-	{
-		city->add_city_factory(this);
-	}
-
-	delta_sum = 0;
-	delta_menge = 0;
-	index_offset = 0;
-	total_input = total_output = 0;
-	status = nothing;
-	currently_producing = false;
-	transformer_connected = NULL;
 }
 
 
@@ -824,15 +824,19 @@ fabrik_t::~fabrik_t()
 		city->remove_city_factory(this);
 	}
 
-	welt->decrease_actual_industry_density(100 / get_besch()->get_gewichtung());
-
-	//Disconnect this factory from all chains.
-	//@author: jamespetts
-	uint32 number_of_customers = lieferziele.get_count();
-	uint32 number_of_suppliers = suppliers.get_count();
-
 	if (!welt->get_is_shutting_down())
 	{
+		uint16 jobs = 0;
+		if (besch != NULL)
+		{
+			welt->decrease_actual_industry_density(100 / besch->get_gewichtung());
+			jobs = besch->get_pax_level();
+		}
+
+		//Disconnect this factory from all chains.
+		//@author: jamespetts
+		uint32 number_of_customers = lieferziele.get_count();
+		uint32 number_of_suppliers = suppliers.get_count();
 		const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
 		for(weighted_vector_tpl<stadt_t*>::const_iterator j = staedte.begin(), end = staedte.end(); j != end; ++j) 
 		{
@@ -840,7 +844,6 @@ fabrik_t::~fabrik_t()
 		}
 		
 		char buf[192];
-		uint16 jobs =  besch->get_pax_level();
 		sprintf(buf, translator::translate("Industry:\n%s\nhas closed,\nwith the loss\nof %d jobs.\n%d upstream\nsuppliers and\n%d downstream\ncustomers\nare affected."), translator::translate(get_name()), jobs, number_of_suppliers, number_of_customers);
 		welt->get_message()->add_message(buf, pos.get_2d(), message_t::industry, COL_DARK_RED, skinverwaltung_t::neujahrsymbol->get_bild_nr(0));
 		for(sint32 i = number_of_customers - 1; i >= 0; i --)

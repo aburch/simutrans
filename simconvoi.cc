@@ -1038,7 +1038,10 @@ bool convoi_t::sync_step(long delta_t)
 				//moved to inside calc_acceleration(): 
 				//sp_soll += (akt_speed*delta_t);
 
-				uint32 sp_hat = fahr[0]->fahre_basis(sp_soll);
+				// While sp_soll is a signed integer fahre_basis() accepts an unsigned integer. 
+				// Thus running backwards is impossible.  Instead sp_soll < 0 is converted to very large 
+				// distances and results in "teleporting" the convoy to the end of its pre-caclulated route.
+				uint32 sp_hat = fahr[0]->fahre_basis(sp_soll < 0 ? 0 : sp_soll);
 				// stop when depot reached ...
 				if(state==INITIAL) {
 					break;
