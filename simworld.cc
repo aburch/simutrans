@@ -1332,7 +1332,7 @@ void karte_t::init(settings_t* const sets, sint8 const* const h_field)
 
 	if(sets->get_beginner_mode()) {
 		warenbauer_t::set_multiplier(settings.get_beginner_price_factor());
-		sets->set_just_in_time( 0 );
+		settings.set_just_in_time( 0 );
 	}
 	else {
 		warenbauer_t::set_multiplier( 1000 );
