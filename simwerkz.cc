@@ -506,7 +506,7 @@ DBG_MESSAGE("wkz_remover_intern()","at (%s)", pos.get_str());
 			if(  gr->get_top() == 1  ) {
 				// delete tunnel too
 				tunnel_t *t = gr->find<tunnel_t>();
-				cost_sum += -t->get_besch()->get_preis();
+				cost_sum = -t->get_besch()->get_preis();
 				t->entferne( NULL );
 			}
 			spieler_t::accounting( sp, cost_sum, pos.get_2d(), COST_CONSTRUCTION);
@@ -708,7 +708,7 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 	*/
 	long cost_sum = 0;
 	if(gr->get_typ()!=grund_t::tunnelboden  ||  gr->has_two_ways()) {
-		weg_t *w=gr->get_weg_nr(1);
+		weg_t *w = gr->get_weg_nr(1);
 		if(gr->get_typ()==grund_t::brueckenboden  &&  w==NULL) {
 			// do not delete the middle of a bridge
 			return false;
@@ -729,27 +729,29 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 	else {
 		// remove upper ways ...
 		if(  gr->get_weg_nr(1)  ) {
-			cost_sum = gr->weg_entfernen(gr->get_weg_nr(1)->get_waytype(), true);
+			cost_sum = gr->weg_entfernen( gr->get_weg_nr(1)->get_waytype(), true );
 		}
-		else if(  gr->get_top()<=2  ) {
+		else {
+			cost_sum = gr->weg_entfernen( gr->get_weg_nr(0)->get_waytype(), true );
 			// delete tunnel here ...
-			tunnel_t *t = gr->find<tunnel_t>();
-			cost_sum += gr->weg_entfernen(t->get_besch()->get_waytype(), true);
-			cost_sum += t->get_besch()->get_preis();
-			t->entferne( NULL );
-			delete t;
+			if(  gr->get_top()==1  ) {
+				tunnel_t *t = gr->find<tunnel_t>();
+				cost_sum = t->get_besch()->get_preis();
+				t->entferne( NULL );
+				delete t;
+			}
 		}
 	}
 
-	if(cost_sum > 0) {
+	if(  cost_sum > 0  ) {
 		sp->buche(-cost_sum, pos.get_2d(), COST_CONSTRUCTION);
-		if(gr->hat_wege()) {
+		if(  gr->get_top()>0  ) {
 			return true;
 		}
 	}
 DBG_MESSAGE("wkz_remover()", "check ground");
 
-	if(!gr->ist_karten_boden()  &&  gr->get_top()==0) {
+	if(  !gr->ist_karten_boden()  &&  gr->get_top()==0  ) {
 DBG_MESSAGE("wkz_remover()", "removing ground");
 		// unmark kartenboden (is marked during underground mode deletion)
 		welt->lookup_kartenboden(pos.get_2d())->clear_flag(grund_t::marked);
