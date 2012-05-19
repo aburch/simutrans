@@ -3671,7 +3671,7 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 
 	existing_convoy_t convoy(*cnv);
 	const sint32 brake_steps = convoy.calc_min_braking_distance(welt->get_settings(), convoy.get_weight_summary(), cnv->get_akt_speed());
-	const sint32 route_steps = cnv->get_route_infos().get_element(next_block-1).steps_from_start - cnv->get_route_infos().get_element(route_index).steps_from_start;
+	const sint32 route_steps = cnv->get_route_infos().get_element((next_block > 0 ? next_block - 1 : 0)).steps_from_start - cnv->get_route_infos().get_element(route_index).steps_from_start;
 	if (route_steps <= brake_steps) 
 	{ 	
 		koord3d block_pos=cnv->get_route()->position_bei(next_block);
