@@ -16,6 +16,7 @@
 #include "../boden/fundament.h"
 
 #include "../dings/leitung2.h"
+#include "../dings/tunnel.h"
 #include "../dings/zeiger.h"
 
 #include "../gui/karte.h"
@@ -342,9 +343,23 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb )
 				grund_t *gr = welt->lookup(koord3d(k,-1)+pos);
 				if(gr) {
 					senke_t *sk = gr->find<senke_t>();
-					if(sk) delete sk;
+					if(sk) {
+						delete sk;
+					}
 					pumpe_t *pp = gr->find<pumpe_t>();
-					if(pp) delete pp;
+					if(pp) {
+						delete pp;
+					}
+					// remove tunnelboden
+					if(  gr->ist_im_tunnel()  &&  gr->get_top()<=1  ) {
+						tunnel_t *t = gr->find<tunnel_t>();
+						t->entferne( t->get_besitzer() );
+						delete t;
+						welt->lookup_kartenboden(pos.get_2d())->clear_flag(grund_t::marked);
+						// remove ground
+						welt->access(pos.get_2d())->boden_entfernen(gr);
+						delete gr;
+					}
 				}
 			}
 		}
