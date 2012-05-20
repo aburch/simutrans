@@ -3751,17 +3751,17 @@ void draw_bezier(KOORD_VAL Ax, KOORD_VAL Ay, KOORD_VAL Bx, KOORD_VAL By, KOORD_V
 	Dy = By + BDy;
 
 	/*	float a,b,rx,ry,oldx,oldy;
-    for (float t=0.0;t<=1;t+=0.05)
+	for (float t=0.0;t<=1;t+=0.05)
 	{
 		a = t;
-        b = 1.0 - t;
+		b = 1.0 - t;
 		if (t>0.0)
 		{
 			oldx=rx;
 			oldy=ry;
 		}
-        rx = Ax*b*b*b + 3*Cx*b*b*a + 3*Dx*b*a*a + Bx*a*a*a;
-        ry = Ay*b*b*b + 3*Cy*b*b*a + 3*Dy*b*a*a + By*a*a*a;
+		rx = Ax*b*b*b + 3*Cx*b*b*a + 3*Dx*b*a*a + Bx*a*a*a;
+		ry = Ay*b*b*b + 3*Cy*b*b*a + 3*Dy*b*a*a + By*a*a*a;
 		if (t>0.0)
 			if (!draw && !dontDraw)
 				display_direct_line(rx,ry,oldx,oldy,colore);
@@ -3772,15 +3772,15 @@ void draw_bezier(KOORD_VAL Ax, KOORD_VAL Ay, KOORD_VAL Bx, KOORD_VAL By, KOORD_V
 
 	sint32 a, b, rx, ry, oldx, oldy;
 	// fixed point: we cycle between 0 and 32, rather than 0 and 1
-    for(  sint32 t=0;  t<=32;  t++  ) {
+	for(  sint32 t=0;  t<=32;  t++  ) {
 		a = t;
-        b = 32 - t;
+		b = 32 - t;
 		if(  t > 0  ) {
 			oldx = rx;
 			oldy = ry;
 		}
-        rx = Ax*b*b*b + 3*Cx*b*b*a + 3*Dx*b*a*a + Bx*a*a*a;
-        ry = Ay*b*b*b + 3*Cy*b*b*a + 3*Dy*b*a*a + By*a*a*a;
+		rx = Ax*b*b*b + 3*Cx*b*b*a + 3*Dx*b*a*a + Bx*a*a*a;
+		ry = Ay*b*b*b + 3*Cy*b*b*a + 3*Dy*b*a*a + By*a*a*a;
 		//fixed point: due to cycling between 0 and 32 (2<<5), we divide by 32^3=2>>15 because of cubic interpolation
 		if( t > 0  ) {
 			if(  !draw  &&  !dontDraw  ) {
