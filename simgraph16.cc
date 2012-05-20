@@ -2652,30 +2652,86 @@ static void pix_outline25_16(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, 
 	}
 }
 
+
 // will kept the actual values
 static blend_proc blend[3];
 static blend_proc blend_recode[3];
 static blend_proc outline[3];
 
 
-// blends a rectangular region
+/**
+ * blends a rectangular region with a color
+ */
 void display_blend_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, int color, int percent_blend )
 {
 	if(  clip_lr(&xp, &w, clip_rect.x, clip_rect.xx)  &&  clip_lr(&yp, &h, clip_rect.y, clip_rect.yy)  ) {
 
 		const PIXVAL colval = specialcolormap_all_day[color & 0xFF];
+		const PIXVAL alpha = (percent_blend*64)/100;
 
-		if(  percent_blend>12  &&  percent_blend<88  ) {
-			// actually something to blend
-			blend_proc blend = outline[ ((percent_blend+12)/25) - 1 ];
+		switch( alpha ) {
+			case 0:	// nothing to do ...
+				break;
 
-			for(  KOORD_VAL y=0;  y<h;  y++  ) {
-				blend( textur + xp + (yp+y) * disp_width, NULL, colval, w );
+			case 16:
+			case 32:
+			case 48:
+			{
+				// fast blending with 1/4 | 1/2 | 3/4 percentage
+				blend_proc blend = outline[ (alpha>>4) - 1 ];
+
+				for(  KOORD_VAL y=0;  y<h;  y++  ) {
+					blend( textur + xp + (yp+y) * disp_width, NULL, colval, w );
+				}
 			}
-		}
-		else if(  percent_blend>=88  ) {
-			// opaque ...
-			display_fillbox_wh( xp, yp, w, h, color, false );
+			break;
+
+			case 64:
+				// opaque ...
+				display_fillbox_wh( xp, yp, w, h, color, false );
+				break;
+
+			default:
+				// any percentage blending: SLOW!
+				if(  blend[0] == pix_blend25_15  ) {
+					// 555 BITMAPS
+					const PIXVAL r_src = (colval >> 10) & 0x1F;
+					const PIXVAL g_src = (colval >> 5) & 0x1F;
+					const PIXVAL b_src = colval & 0x1F;
+					for(  ;  h>0;  yp++, h--  ) {
+						PIXVAL *dest = textur + yp*disp_width + xp;
+						const PIXVAL *const end = dest + w;
+						while (dest < end) {
+							const PIXVAL r_dest = (*dest >> 10) & 0x1F;
+							const PIXVAL g_dest = (*dest >> 5) & 0x1F;
+							const PIXVAL b_dest = (*dest & 0x1F);
+							const PIXVAL r = r_dest + ( ( (r_src - r_dest) * alpha ) >> 6 );
+							const PIXVAL g = g_dest + ( ( (g_src - g_dest) * alpha ) >> 6 );
+							const PIXVAL b = b_dest + ( ( (b_src - b_dest) * alpha ) >> 6 );
+							*dest++ = (r << 10) | (g << 5) | b;
+						}
+					}
+				}
+				else {
+					// 565 BITMAPS
+					const PIXVAL r_src = (colval >> 11);
+					const PIXVAL g_src = (colval >> 5) & 0x3F;
+					const PIXVAL b_src = colval & 0x1F;
+					for(  ;  h>0;  yp++, h--  ) {
+						PIXVAL *dest = textur + yp*disp_width + xp;
+						const PIXVAL *const end = dest + w;
+						while (dest < end) {
+							const PIXVAL r_dest = (*dest >> 11);
+							const PIXVAL g_dest = (*dest >> 5) & 0x3F;
+							const PIXVAL b_dest = (*dest & 0x1F);
+							const PIXVAL r = r_dest + ( ( (r_src - r_dest) * alpha ) >> 6 );
+							const PIXVAL g = g_dest + ( ( (g_src - g_dest) * alpha ) >> 6 );
+							const PIXVAL b = b_dest + ( ( (b_src - b_dest) * alpha ) >> 6 );
+							*dest++ = (r << 11) | (g << 5) | b;
+						}
+					}
+				}
+				break;
 		}
 	}
 }
