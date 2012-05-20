@@ -361,6 +361,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 		}
 		else {
 			lt = new leitung_t(welt, tunnel->get_pos(), sp);
+			lt->set_besch(weg_besch);
 			tunnel->obj_add( lt );
 			lt->laden_abschliessen();
 		}

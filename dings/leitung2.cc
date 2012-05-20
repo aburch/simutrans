@@ -386,7 +386,7 @@ void leitung_t::rdwr(loadsave_t *file)
 						welt->add_missing_paks( bname, karte_t::MISSING_WAY );
 						besch = wegbauer_t::leitung_besch;
 					}
-					dbg->warning("strasse_t::rdwr()", "Unknown powerline %s replaced by %s", bname, besch->get_name() );
+					dbg->warning("leitung_t::rdwr()", "Unknown powerline %s replaced by %s", bname, besch->get_name() );
 				}
 				set_besch(besch);
 			}

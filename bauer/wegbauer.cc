@@ -1991,6 +1991,7 @@ bool wegbauer_t::baue_tunnelboden()
 			} else {
 				tunnel->obj_add(new tunnel_t(welt, route[i], sp, tunnel_besch));
 				leitung_t *lt = new leitung_t(welt, tunnel->get_pos(), sp);
+				lt->set_besch( wb );
 				tunnel->obj_add( lt );
 				lt->laden_abschliessen();
 			}

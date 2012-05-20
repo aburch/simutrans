@@ -2191,7 +2191,12 @@ void wkz_tunnelbau_t::calc_route( wegbauer_t &bauigel, const koord3d &start, con
 {
 	const tunnel_besch_t *besch = tunnelbauer_t::get_besch(default_param);
 	wegbauer_t::bautyp_t bt = (wegbauer_t::bautyp_t)(besch->get_waytype());
-	const weg_besch_t *wb = wegbauer_t::weg_search( besch->get_waytype(), besch->get_topspeed(), welt->get_timeline_year_month(), weg_t::type_flat );
+
+	const weg_besch_t *wb = besch->get_weg_besch();
+	if(wb==NULL) {
+		// ignore timeline to get consistent results
+		wb = wegbauer_t::weg_search( besch->get_waytype(), besch->get_topspeed(), 0, weg_t::type_flat );
+	}
 
 	bauigel.route_fuer(bt | wegbauer_t::tunnel_flag, wb, besch);
 	bauigel.set_keep_existing_faster_ways( !is_ctrl_pressed() );
