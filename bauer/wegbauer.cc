@@ -2007,6 +2007,7 @@ bool wegbauer_t::baue_tunnelboden()
 				leitung_t *lt = gr->get_leitung();
 				if(!lt) {
 					lt = new leitung_t(welt, gr->get_pos(), sp);
+					lt->set_besch( wb );
 					gr->obj_add( lt );
 				} else {
 					lt->leitung_t::laden_abschliessen();	// only change powerline aspect
