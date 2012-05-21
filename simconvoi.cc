@@ -202,6 +202,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 
 	home_depot = koord3d::invalid;
 	last_stop_pos = koord3d::invalid;
+	last_stop_id = 0;
 
 	reversable = false;
 	reversed = false;
@@ -985,6 +986,7 @@ bool convoi_t::sync_step(long delta_t)
 				// from depots.
 				// @author: jamespetts
 				fahr[0]->last_stop_pos = fahr[0]->get_pos().get_2d();
+				last_stop_id = 0;
 
 				// now actually move the units
 				while(sp_soll>>12) {
@@ -2534,8 +2536,8 @@ void convoi_t::vorfahren()
 				{
 					case road_wt:
 					case air_wt:
-						// Road vehicles and aircraft do not need to change direction
-						// Canal barges *may* change direction, so water is omitted.
+					case water_wt:
+						// Road vehicles, boats and aircraft do not need to change direction
 						book_departure_time(welt->get_zeit_ms());
 						book_waiting_times();
 						break;
@@ -3652,6 +3654,11 @@ void convoi_t::rdwr(loadsave_t *file)
 		uint32 dummy = 0;
 		file->rdwr_long(dummy);
 	}
+	
+	if(file->get_version() >= 111002 && file->get_experimental_version() >= 10)
+	{
+		file->rdwr_short(last_stop_id);
+	}
 
 	// This must come *after* all the loading/saving.
 	if( file->is_loading() ) {
@@ -3863,10 +3870,8 @@ void convoi_t::laden() //"load" (Babelfish)
 	// Calculate average speed and journey time
 	// @author: jamespetts
 	
-	// This is necessary in order always to return the same pairs of co-ordinates for comparison.
-	const halthandle_t last_halt = welt->lookup(fahr[0]->last_stop_pos)->get_halt();
-	const halthandle_t this_halt = welt->lookup(fahr[0]->get_pos().get_2d())->get_halt();
-	id_pair pair(last_halt.get_id(), this_halt.get_id());
+	halthandle_t halt = haltestelle_t::get_halt(welt, fpl->get_current_eintrag().pos,besitzer_p);
+	id_pair pair(last_stop_id, halt.get_id());
 	
 	// The calculation of the journey distance does not need to use normalised halt locations for comparison, so
 	// a more accurate distance can be used. Query whether the formula from halt_detail.cc should be used here instead
@@ -3878,7 +3883,7 @@ void convoi_t::laden() //"load" (Babelfish)
 	if(journey_distance > 0)
 	{
 		arrival_time = welt->get_zeit_ms();
-		sint64 journey_time = welt->ticks_to_tenths_of_minutes(arrival_time - departures->get(last_halt.get_id()).departure_time);
+		sint64 journey_time = welt->ticks_to_tenths_of_minutes(arrival_time - departures->get(last_stop_id).departure_time);
 		if(journey_time <= 0)
 		{
 			// Necessary to prevent divisions by zero.
@@ -4050,9 +4055,6 @@ void convoi_t::laden() //"load" (Babelfish)
 		return;
 	}
 
-	halthandle_t halt = haltestelle_t::get_halt(welt, fpl->get_current_eintrag().pos,besitzer_p);
-	// eigene haltestelle ?
-	// "own stop?" (Babelfish)
 	if (halt.is_bound()) 
 	{
 		const koord k = fpl->get_current_eintrag().pos.get_2d(); //"eintrag" = "entry" (Google)
@@ -4555,6 +4557,8 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 			}
 		}
 	}
+
+	last_stop_id = halt.get_id();
 
 	halt->update_alternative_seats(self);
 	// only load vehicles in station
@@ -5885,7 +5889,7 @@ void convoi_t::snprintf_remaining_loading_time(char *p, size_t size) const
  */
 void convoi_t::snprintf_remaining_reversing_time(char *p, size_t size) const
 {
-	const sint32 remaining_ticks = (int)(departures->get(welt->lookup(fahr[0]->last_stop_pos)->get_halt().get_id()).departure_time - welt->get_zeit_ms());
+	const sint32 remaining_ticks = (int)(departures->get(last_stop_id).departure_time - welt->get_zeit_ms());
 	uint32 ticks_left = 0;
 	if(remaining_ticks >= 0)
 	{
@@ -6036,7 +6040,8 @@ void convoi_t::clear_replace()
 
  void convoi_t::book_waiting_times()
  {
-	 halthandle_t halt = welt->lookup(fahr[0]->last_stop_pos)->get_halt();
+	 halthandle_t halt;
+	 halt.set_id(last_stop_id);
 	 if(!halt.is_bound())
 	 {
 		 return;
@@ -6064,13 +6069,14 @@ void convoi_t::clear_replace()
 
  void convoi_t::book_departure_time(sint64 time)
  {
-	halthandle_t halt = welt->lookup(fahr[0]->last_stop_pos)->get_halt();
+	halthandle_t halt;
+	halt.set_id(last_stop_id);
 	if(halt.is_bound())
 	{
 		// Only book a departure time if this convoy is at a station/stop.
 		departure_data_t dep;
 		dep.departure_time = time;
-		departures->set(halt.get_id(), dep);
+		departures->set(last_stop_id, dep);
 	}
 	else
 	{

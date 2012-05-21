@@ -413,6 +413,13 @@ private:
 	*/
 	koord3d last_stop_pos;
 
+	/**
+	* Necessary for registering departure and waiting times.
+	* last_stop_pos cannot be used because sea-going ships do not
+	* stop on a halt tile.
+	*/
+	uint16 last_stop_id;
+
 	// things for the world record
 	sint32 max_record_speed; // current convois fastest speed ever
 	koord record_pos;

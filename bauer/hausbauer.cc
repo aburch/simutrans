@@ -445,14 +445,16 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int org
 				gb->add_alter(10000);
 			}
 			grund_t *gr;
-			if(besch->get_allow_underground() == 1) // TEST - this is temporary: check for actual underground here if this works.
+			/*if(besch->get_allow_underground() == 1) 
 			{
+				// TODO: Make this work properly. Currently, underground buildings do not work correctly.
+				// The below line of code is necessary but not sufficient for allowing underground buildings.
 				gr = welt->lookup(pos);
 			}
 			else
-			{
+			{*/
 				gr = welt->lookup_kartenboden(pos.get_2d() + k);
-			}
+			//}
 			if(gr->ist_wasser()) {
 				gr->obj_add(gb);
 			} else if (besch->get_utyp() == haus_besch_t::hafen) {

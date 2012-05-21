@@ -523,6 +523,7 @@ const float32e8_t float32e8_t::operator / (const float32e8_t & x) const
 	if (x.m == 0)
 	{
 		dbg->error("float32e8_t::operator / (const float32e8_t & x) const", "Division by zero in: %.9G / %.9G", this->to_double(), x.to_double());
+		return *this; // Catch the error
 	}
 
 	uint64 rm = ((uint64)m << 32) / x.m;
