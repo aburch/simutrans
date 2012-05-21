@@ -312,7 +312,7 @@ void simgraph_resize(KOORD_VAL, KOORD_VAL)
 {
 }
 
-void reset_textur(void *new_textur)
+void reset_textur(void *)
 {
 }
 
@@ -328,15 +328,19 @@ void display_direct_line(const KOORD_VAL, const KOORD_VAL, const KOORD_VAL, cons
 {
 }
 
-void display_circle( KOORD_VAL, KOORD_VAL, int, const color );
+void display_direct_line_dotted(const KOORD_VAL, const KOORD_VAL, const KOORD_VAL, const KOORD_VAL, const KOORD_VAL, const KOORD_VAL, const PLAYER_COLOR_VAL)
 {
 }
 
-void display_filled_circle( KOORD_VAL, KOORD_VAL, int, const color );
+void display_circle( KOORD_VAL, KOORD_VAL, int, const PLAYER_COLOR_VAL )
 {
 }
 
-void draw_bezier(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, const PLAYER_COLOR_VAL, KOORD_VAL, KOORD_VAL );
+void display_filled_circle( KOORD_VAL, KOORD_VAL, int, const PLAYER_COLOR_VAL )
+{
+}
+
+void draw_bezier(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, const PLAYER_COLOR_VAL, KOORD_VAL, KOORD_VAL )
 {
 }
 
