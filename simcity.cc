@@ -2452,27 +2452,33 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 	const uint16 city_size = (ur.x - lo.x) * (ur.y - lo.y);
 	uint16 cars_per_tile_thousandths = (city_history_month[1][HIST_CITYCARS] * 1000) / city_size;
 	const uint16 population_density = (city_history_month[1][HIST_CITICENS] * 10) / city_size;
-	uint8 congestion_density_factor = welt->get_settings().get_congestion_density_factor();
+	uint16 congestion_density_factor = welt->get_settings().get_congestion_density_factor() * 100;
+	uint16 cars_per_tile_base = 800;
 
 	if(welt->ticks_per_world_month_shift >= 18ll)
 	{
 		cars_per_tile_thousandths >>= (welt->ticks_per_world_month_shift-18);
+		cars_per_tile_base >>= (welt->ticks_per_world_month_shift-18);
 		congestion_density_factor >>= (welt->ticks_per_world_month_shift-18);
 	}
 	else 
 	{
 		cars_per_tile_thousandths <<= (18-welt->ticks_per_world_month_shift);
+		cars_per_tile_base >>= (welt->ticks_per_world_month_shift-18);
 		congestion_density_factor <<= (18-welt->ticks_per_world_month_shift);
 	}
 
-	if(cars_per_tile_thousandths <= 400)
+	// Round up when over x.5.
+	congestion_density_factor += 50;
+	congestion_density_factor /= 100;
+	
+	if(cars_per_tile_thousandths <= cars_per_tile_base)
 	{
 		city_history_month[0][HIST_CONGESTION] = 0;
 	}
 	else
 	{
-		const uint16 percentage = congestion_density_factor > 0 ? ((((cars_per_tile_thousandths - 400) / 45) * population_density) / congestion_density_factor) / 10 : (cars_per_tile_thousandths - 400) / 30;
-		city_history_month[0][HIST_CONGESTION] = percentage;
+		city_history_month[0][HIST_CONGESTION] = congestion_density_factor > 0 ? ((((cars_per_tile_thousandths - cars_per_tile_base) / 45) * population_density) / congestion_density_factor) / 10 : (cars_per_tile_thousandths - cars_per_tile_base) / 30;
 	}
 
 	city_history_month[0][HIST_CAR_OWNERSHIP] = get_private_car_ownership(welt->get_timeline_year_month());
