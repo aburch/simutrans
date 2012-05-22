@@ -1397,8 +1397,8 @@ const char *wkz_transformer_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 	grund_t *gr = welt->lookup_kartenboden(k.get_2d());
 
 	if(  !welt->get_settings().get_allow_undergroud_transformers()  &&  k.z!=gr->get_hoehe()  ) {
-		// no uderground transformers allowed
-		return "";
+		// no underground transformers allowed
+		return "Cannot built this station/building\nin underground mode here.";
 	}
 
 	bool underground = false;
@@ -1440,6 +1440,9 @@ const char *wkz_transformer_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 		}
 
 		const tunnel_besch_t *tunnel_besch = tunnelbauer_t::find_tunnel(powerline_wt, 0, 0);
+		if(  tunnel_besch==NULL  ) {
+			return "Cannot built this station/building\nin underground mode here.";
+		}
 
 		tunnelboden_t* tunnel = new tunnelboden_t(welt, k, 0);
 		welt->access(k.get_2d())->boden_hinzufuegen(tunnel);
