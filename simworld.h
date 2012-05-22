@@ -436,6 +436,17 @@ private:
 	// The last time when a server announce was performed (in ms)
 	uint32 server_last_announce_time;
 
+	// threaded function caller
+	typedef void (karte_t::*y_loop_func)(sint16,sint16);
+	void world_y_loop(y_loop_func);
+	static void *world_y_loop_thread(void *);
+
+	// loops over plans after load
+	void plans_laden_abschliessen(sint16, sint16);
+
+	// updates all images
+	void update_map_intern(sint16, sint16);
+
 public:
 	// Announce server and current state to listserver
 	// Single argument specifies what information should be announced
@@ -960,6 +971,9 @@ public:
 	bool cannot_save() const { return nosave; }
 	void set_nosave() { nosave = true; }
 	void set_nosave_warning() { nosave_warning = true; }
+
+	// rotate plans by 90 degrees
+	void rotate90_plans(sint16 y_min, sint16 y_max);
 
 	// rotate map view by 90 degrees
 	void rotate90();

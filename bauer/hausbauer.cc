@@ -565,7 +565,7 @@ hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int built
 					uint8 layoutbase = gb->get_tile()->get_layout();
 					if((layoutbase & 1) == (layout & 1)) {
 						layoutbase &= 0xb; // clear near bit on neighbour
-						gb->set_tile(gb->get_tile()->get_besch()->get_tile(layoutbase, xy.x, xy.y));
+						gb->set_tile( gb->get_tile()->get_besch()->get_tile(layoutbase, xy.x, xy.y), false );
 					}
 				}
 			}
@@ -589,7 +589,7 @@ hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int built
 					uint8 layoutbase = gb->get_tile()->get_layout();
 					if((layoutbase & 1) == (layout & 1)) {
 						layoutbase &= 0xd; // clear far bit on neighbour
-						gb->set_tile(gb->get_tile()->get_besch()->get_tile(layoutbase, xy.x, xy.y));
+						gb->set_tile( gb->get_tile()->get_besch()->get_tile(layoutbase, xy.x, xy.y), false );
 					}
 				}
 			}

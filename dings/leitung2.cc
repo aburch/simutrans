@@ -6,6 +6,10 @@
  */
 
 #include <stdio.h>
+#if MULTI_THREAD>1
+#include <pthread.h>
+static pthread_mutex_t verbinde_mutex = PTHREAD_MUTEX_INITIALIZER;
+#endif
 
 #include "leitung2.h"
 #include "../simdebug.h"
@@ -332,6 +336,9 @@ void leitung_t::info(cbuffer_t & buf) const
  */
 void leitung_t::laden_abschliessen()
 {
+#if MULTI_THREAD>1
+	pthread_mutex_lock( &verbinde_mutex  );
+#endif
 	verbinde();
 	calc_neighbourhood();
 	grund_t *gr = welt->lookup(get_pos());
@@ -339,6 +346,9 @@ void leitung_t::laden_abschliessen()
 	if(!gr->ist_tunnel()) {
 		spieler_t::add_maintenance(get_besitzer(), besch->get_wartung());
 	}
+#if MULTI_THREAD>1
+	pthread_mutex_unlock( &verbinde_mutex  );
+#endif
 }
 
 

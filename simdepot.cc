@@ -439,7 +439,7 @@ void depot_t::rdwr_vehikel(slist_tpl<vehikel_t *> &list, loadsave_t *file)
 		// no house definition for this => use a normal hut ...
 		if(  this->get_tile()==NULL  ) {
 			dbg->error( "depot_t::rdwr()", "tile for depot not found!" );
-			set_tile( (*hausbauer_t::get_citybuilding_list( gebaeude_t::wohnung ))[0]->get_tile(0) );
+			set_tile( (*hausbauer_t::get_citybuilding_list( gebaeude_t::wohnung ))[0]->get_tile(0), true );
 		}
 
 		DBG_MESSAGE("depot_t::vehikel_laden()","loading %d vehicles",count);

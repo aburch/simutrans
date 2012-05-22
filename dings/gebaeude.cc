@@ -4,8 +4,15 @@
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
  */
+
 #include <string.h>
 #include <ctype.h>
+
+#if MULTI_THREAD>1
+#include <pthread.h>
+static pthread_mutex_t sync_mutex = PTHREAD_MUTEX_INITIALIZER;
+#endif
+
 #include "../bauer/hausbauer.h"
 #include "../gui/money_frame.h"
 #include "../simworld.h"
@@ -90,7 +97,7 @@ gebaeude_t::gebaeude_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_til
 
 	init();
 	if(t) {
-		set_tile(t);	// this will set init time etc.
+		set_tile(t,true);	// this will set init time etc.
 		spieler_t::add_maintenance(get_besitzer(), welt->get_settings().maint_building * tile->get_besch()->get_level());
 	}
 
@@ -172,7 +179,7 @@ void gebaeude_t::rotate90()
 			const haus_tile_besch_t* const new_tile = haus_besch->get_tile(layout, new_offset.x, new_offset.y);
 			// add new tile: but make them old (no construction)
 			uint32 old_insta_zeit = insta_zeit;
-			set_tile( new_tile );
+			set_tile( new_tile, false );
 			insta_zeit = old_insta_zeit;
 			if(  haus_besch->get_utyp() != haus_besch_t::hafen  &&  !tile->has_image()  ) {
 				// may have a rotation, that is not recoverable
@@ -239,7 +246,7 @@ void gebaeude_t::add_alter(uint32 a)
 
 
 
-void gebaeude_t::set_tile(const haus_tile_besch_t *new_tile)
+void gebaeude_t::set_tile( const haus_tile_besch_t *new_tile, bool start_with_construction )
 {
 	insta_zeit = welt->get_zeit_ms();
 
@@ -256,21 +263,33 @@ void gebaeude_t::set_tile(const haus_tile_besch_t *new_tile)
 		}
 	}
 
-	zeige_baugrube = !new_tile->get_besch()->ist_ohne_grube();
+	zeige_baugrube = !new_tile->get_besch()->ist_ohne_grube()  &&  start_with_construction;
 	if(sync) {
 		if(new_tile->get_phasen()<=1  &&  !zeige_baugrube) {
 			// need to stop animation
+#if MULTI_THREAD>1
+			pthread_mutex_lock( &sync_mutex  );
+#endif
 			welt->sync_eyecandy_remove(this);
 			sync = false;
 			count = 0;
+#if MULTI_THREAD>1
+			pthread_mutex_unlock( &sync_mutex  );
+#endif
 		}
 	}
 	else if(new_tile->get_phasen()>1  ||  zeige_baugrube) {
 		// needs now animation
+#if MULTI_THREAD>1
+		pthread_mutex_lock( &sync_mutex  );
+#endif
 		count = sim_async_rand(new_tile->get_phasen());
 		anim_time = 0;
 		welt->sync_eyecandy_add(this);
 		sync = true;
+#if MULTI_THREAD>1
+		pthread_mutex_unlock( &sync_mutex  );
+#endif
 	}
 	tile = new_tile;
 	remove_ground = tile->has_image()  &&  !tile->get_besch()->ist_mit_boden();
@@ -916,7 +935,7 @@ void gebaeude_t::entferne(spieler_t *sp)
 					uint8 layoutbase = gb->get_tile()->get_layout();
 					if((layoutbase & 1u) == (layout & 1u)) {
 						layoutbase |= 4u; // set far bit on neighbour
-						gb->set_tile(gb->get_tile()->get_besch()->get_tile(layoutbase, xy.x, xy.y));
+						gb->set_tile( gb->get_tile()->get_besch()->get_tile(layoutbase, xy.x, xy.y), false );
 					}
 				}
 			}
@@ -937,7 +956,7 @@ void gebaeude_t::entferne(spieler_t *sp)
 					uint8 layoutbase = gb->get_tile()->get_layout();
 					if((layoutbase & 1u) == (layout & 1u)) {
 						layoutbase |= 2u; // set near bit on neighbour
-						gb->set_tile(gb->get_tile()->get_besch()->get_tile(layoutbase, xy.x, xy.y));
+						gb->set_tile( gb->get_tile()->get_besch()->get_tile(layoutbase, xy.x, xy.y), false );
 					}
 				}
 			}

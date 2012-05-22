@@ -3115,7 +3115,7 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.
 			if(gb->get_tile()->get_besch()->get_all_layouts()==16) {
 				sint8 ly = gb->get_tile()->get_layout();
 				if(ly&0x02) {
-					gb->set_tile( gb->get_tile()->get_besch()->get_tile(ly&0xFD,0,0) );
+					gb->set_tile( gb->get_tile()->get_besch()->get_tile(ly&0xFD,0,0), false );
 				}
 			}
 		}
@@ -3131,7 +3131,7 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.
 			if(gb->get_tile()->get_besch()->get_all_layouts()==16) {
 				sint8 ly = gb->get_tile()->get_layout();
 				if(ly&0x04) {
-					gb->set_tile( gb->get_tile()->get_besch()->get_tile(ly&0xFB,0,0) );
+					gb->set_tile( gb->get_tile()->get_besch()->get_tile(ly&0xFB,0,0), false );
 				}
 			}
 		}
@@ -4599,7 +4599,7 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 									if (grund_t *gr = welt->lookup_kartenboden(pos_hq + koord(x,y))) {
 										if (gebaeude_t *gb = gr->find<gebaeude_t>()) {
 											if (gb  &&  gb->get_besitzer()==sp  &&  prev_besch==gb->get_tile()->get_besch()) {
-												gb->set_tile( tile );
+												gb->set_tile( tile, true );
 											}
 										}
 									}

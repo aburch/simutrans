@@ -17,6 +17,10 @@
 #include <string.h>
 #include <math.h>
 
+#if MULTI_THREAD>1
+#include <pthread.h>
+#endif
+
 #include "simcity.h"
 #include "simcolor.h"
 #include "simconvoi.h"
@@ -114,6 +118,62 @@ static uint8 last_active_player_nr = 0;
 static std::string last_network_game;
 
 stringhashtable_tpl<karte_t::missing_level_t>missing_pak_names;
+
+typedef void (karte_t::*y_loop_func)(sint16,sint16);
+
+
+// to start a thread
+typedef struct{
+	karte_t *welt;
+	sint16	y_min;
+	sint16	y_max;
+	y_loop_func function;
+} world_thread_param_t;
+
+
+void karte_t::world_y_loop(y_loop_func function)
+{
+#ifdef MULTI_THREAD>1
+	set_random_mode( INTERACTIVE_RANDOM ); // do not allow simrand() here!
+
+	pthread_t thread[MULTI_THREAD];
+	pthread_attr_t attr;
+	/* Initialize and set thread detached attribute */
+	pthread_attr_init(&attr);
+	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+	// now the paramters
+	world_thread_param_t ka[MULTI_THREAD];
+
+	for(int t=0; t<MULTI_THREAD; t++) {
+   		ka[t].welt = this;
+		ka[t].y_min = (t*cached_groesse_gitter_y)/MULTI_THREAD;
+		ka[t].y_max = ((t+1)*cached_groesse_gitter_y)/MULTI_THREAD;
+		ka[t].function = function;
+		if(  pthread_create(&thread[t], &attr, world_y_loop_thread, (void *)(ka+t))  ) {
+			// here some more sophicsticated error handling would be fine ...
+		}
+	}
+
+	//return from thread
+	for(int t=0; t<MULTI_THREAD; t++) {
+		void *status;
+		pthread_join(thread[t], &status);
+	}
+
+	clear_random_mode( INTERACTIVE_RANDOM ); // do not allow simrand() here!
+#else
+	// slow serial way of display
+	(this->*function)( 0, cached_groesse_gitter_y );
+#endif
+}
+
+
+void *karte_t::world_y_loop_thread( void *ptr )
+{
+	world_thread_param_t *param = reinterpret_cast<world_thread_param_t *>(ptr);
+	(param->welt->*(param->function))(param->y_min, param->y_max);
+	return NULL;
+}
 
 
 void checklist_t::rdwr(memory_rw_t *buffer)
@@ -2490,6 +2550,24 @@ sint8 karte_t::max_hgt(const koord pos) const
 	return max(max(h1,h2), max(h3,h4));
 }
 
+planquadrat_t *rotate90_new_plan;
+
+void karte_t::rotate90_plans(sint16 y_min, sint16 y_max)
+{
+	// first: rotate all things on the map
+	for( int y=y_min;  y<y_max;  y++  ) {
+		for( int x=0;  x<cached_groesse_gitter_x;  x++  ) {
+			int nr = x+(y*cached_groesse_gitter_x);
+			int new_nr = (cached_groesse_karte_y-y)+(x*cached_groesse_gitter_y);
+			swap(rotate90_new_plan[new_nr], plan[nr]);
+
+			// now rotate everything on the ground(s)
+			for(  uint i=0;  i<rotate90_new_plan[new_nr].get_boden_count();  i++  ) {
+				rotate90_new_plan[new_nr].get_boden_bei(i)->rotate90();
+			}
+		}
+	}
+}
 
 void karte_t::rotate90()
 {
@@ -2507,22 +2585,13 @@ void karte_t::rotate90()
 		s->release_factory_links();
 	}
 
-	// first: rotate all things on the map
-	planquadrat_t *new_plan = new planquadrat_t[cached_groesse_gitter_y*cached_groesse_gitter_x];
-	for( int x=0;  x<cached_groesse_gitter_x;  x++  ) {
-		for( int y=0;  y<cached_groesse_gitter_y;  y++  ) {
-			int nr = x+(y*cached_groesse_gitter_x);
-			int new_nr = (cached_groesse_karte_y-y)+(x*cached_groesse_gitter_y);
-			swap(new_plan[new_nr], plan[nr]);
+	//rotate plans in parallel posix thread ...
+	rotate90_new_plan = new planquadrat_t[cached_groesse_gitter_y*cached_groesse_gitter_x];
 
-			// now rotate everything on the ground(s)
-			for(  uint i=0;  i<new_plan[new_nr].get_boden_count();  i++  ) {
-				new_plan[new_nr].get_boden_bei(i)->rotate90();
-			}
-		}
-	}
+	world_y_loop(&karte_t::rotate90_plans);
+
 	delete [] plan;
-	plan = new_plan;
+	plan = rotate90_new_plan;
 
 	// rotate heightmap
 	sint8 *new_hgts = new sint8[(cached_groesse_gitter_x+1)*(cached_groesse_gitter_y+1)];
@@ -2550,6 +2619,7 @@ void karte_t::rotate90()
 		i->rotate90(cached_groesse_karte_x);
 	}
 
+//fixed order fabrik, halts, convois
 	FOR(slist_tpl<fabrik_t*>, const f, fab_list) {
 		f->rotate90(cached_groesse_karte_x);
 	}
@@ -3522,6 +3592,7 @@ void karte_t::step()
 				INT_CHECK("karte_t::step");
 			}
 		}
+
 		if(  tile_counter >= (uint32)cached_groesse_gitter_x*(uint32)cached_groesse_gitter_y  ) {
 			pending_season_change --;
 			tile_counter = 0;
@@ -4573,6 +4644,33 @@ DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 	return ok;
 }
 
+uint32 file_version;
+
+void karte_t::plans_laden_abschliessen(sint16 y_min, sint16 y_max)
+{
+	for( int y=y_min;  y<y_max;  y++  ) {
+		for (int x = 0; x < get_groesse_x(); x++) {
+			const planquadrat_t *plan = lookup(koord(x,y));
+			const int boden_count = plan->get_boden_count();
+			for(int schicht=0; schicht<boden_count; schicht++) {
+				grund_t *gr = plan->get_boden_bei(schicht);
+				for(int n=0; n<gr->get_top(); n++) {
+					ding_t *d = gr->obj_bei(n);
+					if(d) {
+						d->laden_abschliessen();
+					}
+				}
+				if(file_version<=111000  &&  gr->ist_natur()) {
+					gr->sort_trees();
+				}
+				gr->calc_bild();
+			}
+		}
+#ifndef MULTI_THREAD
+		display_progress(get_groesse_y()+48+stadt.get_count()+(y*128)/get_groesse_y(), get_groesse_y()+256+stadt.get_count());
+#endif
+	}
+}
 
 // handles the actual loading
 void karte_t::laden(loadsave_t *file)
@@ -4922,26 +5020,8 @@ DBG_MESSAGE("karte_t::laden()", "messages loaded");
 	recalc_snowline();
 
 DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_count());
-	for (int y = 0; y < get_groesse_y(); y++) {
-		for (int x = 0; x < get_groesse_x(); x++) {
-			const planquadrat_t *plan = lookup(koord(x,y));
-			const int boden_count = plan->get_boden_count();
-			for(int schicht=0; schicht<boden_count; schicht++) {
-				grund_t *gr = plan->get_boden_bei(schicht);
-				for(int n=0; n<gr->get_top(); n++) {
-					ding_t *d = gr->obj_bei(n);
-					if(d) {
-						d->laden_abschliessen();
-					}
-				}
-				if(file->get_version()<=111000  &&  gr->ist_natur()) {
-					gr->sort_trees();
-				}
-				gr->calc_bild();
-			}
-		}
-		display_progress(get_groesse_y()+48+stadt.get_count()+(y*128)/get_groesse_y(), get_groesse_y()+256+stadt.get_count());
-	}
+
+	world_y_loop(&karte_t::plans_laden_abschliessen);
 
 	// must finish loading cities first before cleaning up factories
 	weighted_vector_tpl<stadt_t*> new_weighted_stadt(stadt.get_count() + 1);
@@ -5096,17 +5176,24 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 	dbg->warning("karte_t::laden()","loaded savegame from %i/%i, next month=%i, ticks=%i (per month=1<<%i)",letzter_monat,letztes_jahr,next_month_ticks,ticks,karte_t::ticks_per_world_month_shift);
 }
 
+// recalcs all ground tiles on the map
+void karte_t::update_map_intern(sint16 y_min, sint16 y_max)
+{
+	for( int y=y_min;  y<y_max;  y++  ) {
+		for( int x=0;  x<cached_groesse_gitter_x;  x++  ) {
+			const int boden_count = plan[y*cached_groesse_gitter_x+x].get_boden_count();
+			for(int schicht=0; schicht<boden_count; schicht++) {
+				grund_t *gr = plan[y*cached_groesse_gitter_x+x].get_boden_bei(schicht);
+				gr->calc_bild();
+			}
+		}
+	}
+}
 
 // recalcs all ground tiles on the map
 void karte_t::update_map()
 {
-	for(  int i=0;  i<cached_groesse_gitter_x*cached_groesse_gitter_y;  i++  ) {
-		const int boden_count = plan[i].get_boden_count();
-		for(int schicht=0; schicht<boden_count; schicht++) {
-			grund_t *gr = plan[i].get_boden_bei(schicht);
-			gr->calc_bild();
-		}
-	}
+	world_y_loop(&karte_t::update_map_intern);
 	set_dirty();
 }
 
