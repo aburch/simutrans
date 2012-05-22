@@ -2731,13 +2731,13 @@ bool karte_t::sync_eyecandy_add(sync_steppable *obj)
 
 bool karte_t::sync_eyecandy_remove(sync_steppable *obj)	// entfernt alle dinge == obj aus der Liste
 {
-	if(sync_eyecandy_add_list.remove(obj)) {
-		return true;
-	}
 	if(  sync_step_eyecandy_running  ) {
 		sync_eyecandy_remove_list.append(obj);
 	}
 	else {
+		if(  sync_eyecandy_add_list.remove(obj)  ) {
+			return true;
+		}
 		return sync_eyecandy_list.remove(obj)!=NULL;
 	}
 	return false;
@@ -2753,10 +2753,12 @@ void karte_t::sync_eyecandy_step(long delta_t)
 		sync_eyecandy_list.put( obj, obj );
 	}
 	// now remove everything from last time
+	sync_step_eyecandy_running = false;
 	while(  !sync_eyecandy_remove_list.empty()  ) {
 		sync_eyecandy_list.remove( sync_eyecandy_remove_list.remove_first() );
 	}
 	// now step ...
+	sync_step_eyecandy_running = true;
 	for(  ptrhashtable_tpl<sync_steppable*,sync_steppable*>::iterator iter = sync_eyecandy_list.begin();  iter != sync_eyecandy_list.end();  ) {
 		// if false, then remove
 		sync_steppable *ss = iter->key;
@@ -2769,6 +2771,7 @@ void karte_t::sync_eyecandy_step(long delta_t)
 		}
 	}
 	// now remove everything from last time
+	sync_step_eyecandy_running = false;
 	while(  !sync_eyecandy_remove_list.empty()  ) {
 		sync_eyecandy_list.remove( sync_eyecandy_remove_list.remove_first() );
 	}
@@ -2791,13 +2794,13 @@ bool karte_t::sync_way_eyecandy_add(sync_steppable *obj)
 
 bool karte_t::sync_way_eyecandy_remove(sync_steppable *obj)	// entfernt alle dinge == obj aus der Liste
 {
-	if(  sync_way_eyecandy_add_list.remove(obj)  ) {
-		return true;
-	}
 	if(  sync_way_eyecandy_running  ) {
 		sync_way_eyecandy_remove_list.append(obj);
 	}
 	else {
+		if(  sync_way_eyecandy_add_list.remove(obj)  ) {
+			return true;
+		}
 		return sync_way_eyecandy_list.remove(obj);
 	}
 	return false;
@@ -2813,41 +2816,44 @@ void karte_t::sync_way_eyecandy_step(long delta_t)
 		sync_way_eyecandy_list.append( obj );
 	}
 	// now remove everything from last time
+	sync_way_eyecandy_running = false;
 	while(  !sync_way_eyecandy_remove_list.empty()  ) {
 		sync_way_eyecandy_list.remove( sync_way_eyecandy_remove_list.remove_first() );
 	}
+	// now the actualy stepping
+	sync_way_eyecandy_running = true;
 #ifndef SYNC_VECTOR
-		for(  slist_tpl<sync_steppable*>::iterator i=sync_way_eyecandy_list.begin();  !i.end();  ) {
-			// if false, then remove
-			sync_steppable *ss = *i;
-			if(!ss->sync_step(delta_t)) {
-				i = sync_list.erase(i);
-				delete ss;
-			}
-			else {
-				++i;
-			}
+	for(  slist_tpl<sync_steppable*>::iterator i=sync_way_eyecandy_list.begin();  !i.end();  ) {
+		// if false, then remove
+		sync_steppable *ss = *i;
+		if(!ss->sync_step(delta_t)) {
+			i = sync_list.erase(i);
+			delete ss;
 		}
+		else {
+			++i;
+		}
+	}
 #else
-		static vector_tpl<sync_steppable *> sync_way_eyecandy_list_copy;
-		sync_way_eyecandy_list_copy.resize( sync_way_eyecandy_list.get_count()*1.1 );
-		FOR(vector_tpl<sync_steppable*>, const ss, sync_way_eyecandy_list) {
-			// if false, then remove
-			if(!ss->sync_step(delta_t)) {
-				delete ss;
-			}
-			else {
-				sync_way_eyecandy_list_copy.append( ss );
-			}
+	static vector_tpl<sync_steppable *> sync_way_eyecandy_list_copy;
+	sync_way_eyecandy_list_copy.resize( sync_way_eyecandy_list.get_count()*1.1 );
+	FOR(vector_tpl<sync_steppable*>, const ss, sync_way_eyecandy_list) {
+		// if false, then remove
+		if(!ss->sync_step(delta_t)) {
+			delete ss;
 		}
-		swap( sync_way_eyecandy_list_copy, sync_way_eyecandy_list );
-		sync_way_eyecandy_list_copy.clear();
+		else {
+			sync_way_eyecandy_list_copy.append( ss );
+		}
+	}
+	swap( sync_way_eyecandy_list_copy, sync_way_eyecandy_list );
+	sync_way_eyecandy_list_copy.clear();
 #endif
 	// now remove everything from last time
+	sync_way_eyecandy_running = false;
 	while(  !sync_way_eyecandy_remove_list.empty()  ) {
 		sync_way_eyecandy_list.remove( sync_way_eyecandy_remove_list.remove_first() );
 	}
-	sync_way_eyecandy_running = false;
 }
 
 
@@ -2867,13 +2873,13 @@ bool karte_t::sync_add(sync_steppable *obj)
 
 bool karte_t::sync_remove(sync_steppable *obj)	// entfernt alle dinge == obj aus der Liste
 {
-	if(sync_add_list.remove(obj)) {
-		return true;
-	}
 	if(  sync_step_running  ) {
 		sync_remove_list.append(obj);
 	}
 	else {
+		if(sync_add_list.remove(obj)) {
+			return true;
+		}
 		return sync_list.remove(obj);
 	}
 	return false;
@@ -2924,10 +2930,12 @@ void karte_t::sync_step(long delta_t, bool sync, bool display )
 #endif
 
 		// now remove everything from last time
+		sync_step_running = false;
 		while(!sync_remove_list.empty()) {
 			sync_list.remove( sync_remove_list.remove_first() );
 		}
 
+		sync_step_running = true;
 #ifndef SYNC_VECTOR
 		for(  slist_tpl<sync_steppable*>::iterator i=sync_list.begin();  !i.end();  ) {
 			// if false, then remove
@@ -2957,6 +2965,7 @@ void karte_t::sync_step(long delta_t, bool sync, bool display )
 #endif
 
 		// now remove everything from this time
+		sync_step_running = false;
 		while(!sync_remove_list.empty()) {
 			sync_list.remove( sync_remove_list.remove_first() );
 		}
