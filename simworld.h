@@ -731,7 +731,7 @@ public:
 	*/
 	climate get_climate(sint16 height) const
 	{
-		const sint16 h=(height-grundwasser)/Z_TILE_STEP;
+		const sint16 h=height-grundwasser;
 		if(h<0) {
 			return water_climate;
 		} else if(h>=32) {
@@ -1007,7 +1007,7 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	inline sint8 lookup_hgt(koord k) const {
-		return ist_in_gittergrenzen(k.x, k.y) ? grid_hgts[k.x + k.y*(cached_groesse_gitter_x+1)]*Z_TILE_STEP : grundwasser;
+		return ist_in_gittergrenzen(k.x, k.y) ? grid_hgts[k.x + k.y*(cached_groesse_gitter_x+1)] : grundwasser;
 	}
 
 	/**
@@ -1015,7 +1015,7 @@ public:
 	 * Never set grid_hgts manually, always use this method!
 	 * @author Hj. Malthaner
 	 */
-	void set_grid_hgt(koord k, sint16 hgt) { grid_hgts[k.x + k.y*(uint32)(cached_groesse_gitter_x+1)] = (hgt/Z_TILE_STEP); }
+	void set_grid_hgt(koord k, sint16 hgt) { grid_hgts[k.x + k.y*(uint32)(cached_groesse_gitter_x+1)] = hgt; }
 
 	/**
 	 * @return Minimale Hoehe des Planquadrates i,j

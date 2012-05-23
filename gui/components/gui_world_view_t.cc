@@ -79,7 +79,7 @@ void world_view_t::internal_draw(const koord offset, ding_t const* const ding)
 		return;
 	}
 
-	int hgt = tile_raster_scale_y(here3d.z * TILE_HEIGHT_STEP / Z_TILE_STEP, raster);
+	int hgt = tile_raster_scale_y(here3d.z * TILE_HEIGHT_STEP, raster);
 	if(ding) {
 		aircraft_t const* const plane = ding_cast<aircraft_t>(ding);
 		if(plane) {
@@ -132,7 +132,7 @@ void world_view_t::internal_draw(const koord offset, ding_t const* const ding)
 			continue;
 		}
 
-		const sint16 yypos = display_off.y + (off.y + off.x) * 16 * raster / 64 - tile_raster_scale_y(kb->get_hoehe() * TILE_HEIGHT_STEP / Z_TILE_STEP, raster);
+		const sint16 yypos = display_off.y + (off.y + off.x) * 16 * raster / 64 - tile_raster_scale_y(kb->get_hoehe() * TILE_HEIGHT_STEP, raster);
 		if(  gr.y < yypos  ) {
 			break; // enough with grounds
 		} else if (  0 <= yypos + raster  ) {
@@ -165,7 +165,7 @@ void world_view_t::internal_draw(const koord offset, ding_t const* const ding)
 		// maximum height: 127 for overground, undergroundlevel for sliced, ground height-1 for complete underground view
 		const sint8 hmax = grund_t::underground_mode == grund_t::ugm_all ? h - !kb->ist_tunnel() : grund_t::underground_level;
 
-		const sint16 yypos = display_off.y + (off.y + off.x) * 16 * raster / 64 - tile_raster_scale_y(h * TILE_HEIGHT_STEP / Z_TILE_STEP, raster);
+		const sint16 yypos = display_off.y + (off.y + off.x) * 16 * raster / 64 - tile_raster_scale_y(h * TILE_HEIGHT_STEP, raster);
 		if(  0 <= yypos + raster  &&  yypos - raster * 2 < gr.y  ) {
 			plan->display_dinge(pos.x + off_x, pos.y + yypos, raster, false, hmin, hmax);
 		} else if(  yypos > gr.y  ) {
@@ -176,7 +176,7 @@ void world_view_t::internal_draw(const koord offset, ding_t const* const ding)
 	// this should only happen for airplanes: out of image, so we need to extra display them
 	if(  y_offset != 0  ) {
 		const grund_t * const g     = welt->lookup(ding->get_pos());
-		const sint16          yypos = display_off.y - tile_raster_scale_y(2 * y_offset * 16, raster) - tile_raster_scale_y(g->get_hoehe() * TILE_HEIGHT_STEP / Z_TILE_STEP, raster);
+		const sint16          yypos = display_off.y - tile_raster_scale_y(2 * y_offset * 16, raster) - tile_raster_scale_y(g->get_hoehe() * TILE_HEIGHT_STEP, raster);
 		g->display_dinge_all(pos.x + display_off.x, pos.y + yypos, raster, false);
 	}
 

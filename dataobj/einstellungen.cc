@@ -58,7 +58,7 @@ settings_t::settings_t() :
 	// default climate zones
 	set_default_climates( );
 	winter_snowline = 7;	// not mediterran
-	grundwasser = -2*Z_TILE_STEP;            //25-Nov-01        Markus Weber    Added
+	grundwasser = -2;            //25-Nov-01        Markus Weber    Added
 
 	max_mountain_height = 160;                  //can be 0-160.0  01-Dec-01        Markus Weber    Added
 	map_roughness = 0.6;                        //can be 0-1      01-Dec-01        Markus Weber    Added
@@ -311,7 +311,7 @@ void settings_t::rdwr(loadsave_t *file)
 		file->rdwr_long(show_pax );
 		dummy = grundwasser;
 		file->rdwr_long(dummy );
-		grundwasser = (sint16)(dummy/16)*Z_TILE_STEP;
+		grundwasser = (sint16)(dummy/16);
 		file->rdwr_double(max_mountain_height );
 		file->rdwr_double(map_roughness );
 
@@ -346,13 +346,13 @@ void settings_t::rdwr(loadsave_t *file)
 		}
 		file->rdwr_long(verkehr_level );
 		file->rdwr_long(show_pax );
-		sint32 dummy = grundwasser/Z_TILE_STEP;
+		sint32 dummy = grundwasser;
 		file->rdwr_long(dummy );
 		if(file->get_version() < 99005) {
-			grundwasser = (sint16)(dummy/16)*Z_TILE_STEP;
+			grundwasser = (sint16)(dummy/16);
 		}
 		else {
-			grundwasser = (sint16)dummy*Z_TILE_STEP;
+			grundwasser = (sint16)dummy;
 		}
 		file->rdwr_double(max_mountain_height );
 		file->rdwr_double(map_roughness );

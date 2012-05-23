@@ -123,5 +123,5 @@ void boden_t::calc_bild_internal()
 			set_bild( grund_besch_t::get_ground_tile(slope_this,get_hoehe() ) );
 		}
 #endif
-		grund_t::calc_back_bild(get_disp_height()/Z_TILE_STEP,slope_this);
+		grund_t::calc_back_bild(get_disp_height(), slope_this);
 }

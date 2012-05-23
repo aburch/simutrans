@@ -336,7 +336,7 @@ void welt_gui_t::update_preview()
 		const int my = sets->get_groesse_y()/karte_size.y;
 		for(  int y=0;  y<karte_size.y;  y++  ) {
 			for(  int x=0;  x<karte_size.x;  x++  ) {
-				karte.at(x,y) = reliefkarte_t::calc_hoehe_farbe(karte_t::perlin_hoehe( sets, koord(x*mx,y*my), koord::invalid ), sets->get_grundwasser()/Z_TILE_STEP);
+				karte.at(x,y) = reliefkarte_t::calc_hoehe_farbe(karte_t::perlin_hoehe( sets, koord(x*mx,y*my), koord::invalid ), sets->get_grundwasser());
 			}
 		}
 		sets->heightfield = "";

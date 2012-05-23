@@ -955,7 +955,7 @@ bool stadtauto_t::can_overtake( overtaker_t *other_overtaker, sint32 other_speed
 
 		// start of bridge is one level deeper
 		if(gr->get_weg_yoff()>0)  {
-			check_pos.z += Z_TILE_STEP;
+			check_pos.z ++;
 		}
 
 		// special signs
@@ -1055,7 +1055,7 @@ bool stadtauto_t::can_overtake( overtaker_t *other_overtaker, sint32 other_speed
 
 		// start of bridge is one level deeper
 		if(gr->get_weg_yoff()>0)  {
-			check_pos.z += Z_TILE_STEP;
+			check_pos.z ++;
 		}
 
 		// much cheeper calculation: only go on in the direction of before ...

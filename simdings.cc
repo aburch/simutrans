@@ -326,7 +326,7 @@ void ding_t::mark_image_dirty(image_id bild,sint16 yoff) const
 		const sint16 rasterweite=get_tile_raster_width();
 		const koord diff = get_pos().get_2d()-welt->get_world_position()-welt->get_ansicht_ij_offset();
 		const sint16 x = (diff.x-diff.y)*(rasterweite/2) + tile_raster_scale_x(get_xoff(), rasterweite) + xpos;
-		const sint16 y = (diff.x+diff.y)*(rasterweite/4) + tile_raster_scale_y( yoff+get_yoff()-get_pos().z*TILE_HEIGHT_STEP/Z_TILE_STEP, rasterweite) + ((display_get_width()/rasterweite)&1)*(rasterweite/4) + ypos;
+		const sint16 y = (diff.x+diff.y)*(rasterweite/4) + tile_raster_scale_y( yoff+get_yoff()-get_pos().z*TILE_HEIGHT_STEP, rasterweite) + ((display_get_width()/rasterweite)&1)*(rasterweite/4) + ypos;
 		// mark the region after the image as dirty
 		display_mark_img_dirty( bild, x+welt->get_x_off(), y+welt->get_y_off() );
 	}

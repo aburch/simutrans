@@ -387,7 +387,7 @@ void planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const si
 			}
 			// not too low?
 			if (h >= hmin) {
-				const sint16 yypos = ypos - tile_raster_scale_y( (h-h0)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width);
+				const sint16 yypos = ypos - tile_raster_scale_y( (h-h0)*TILE_HEIGHT_STEP, raster_tile_width);
 				gr->display_boden(xpos, yypos, raster_tile_width);
 				gr->display_dinge_all(xpos, yypos, raster_tile_width, is_global);
 			}
@@ -416,7 +416,7 @@ void planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const si
 				// not too low?
 				if(  h >= hmin  ) {
 					// something on top: clip horizontally to prevent trees etc shining trough bridges
-					const sint16 yh = ypos - tile_raster_scale_y( (h-h0)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width) + ((3*raster_tile_width)>>2);
+					const sint16 yh = ypos - tile_raster_scale_y( (h-h0)*TILE_HEIGHT_STEP, raster_tile_width) + ((3*raster_tile_width)>>2);
 					if(  yh >= p_cr.y   &&  yh < p_cr.y+p_cr.h  ) {
 						display_set_clip_wh(p_cr.x, yh, p_cr.w, p_cr.h+p_cr.y-yh);
 					}
@@ -438,7 +438,7 @@ void planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const si
 		if (h > hmax) break;
 		// not too low?
 		if (h >= hmin) {
-			const sint16 yypos = ypos - tile_raster_scale_y( (h-h0)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width);
+			const sint16 yypos = ypos - tile_raster_scale_y( (h-h0)*TILE_HEIGHT_STEP, raster_tile_width);
 			gr->display_boden(xpos, yypos, raster_tile_width);
 			gr->display_dinge_all(xpos, yypos, raster_tile_width, is_global);
 		}
@@ -552,7 +552,7 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos, const 
 		for(uint8 i=1;  i<ground_size;  i++) {
 			grund_t* gr=data.some[i];
 			const sint8 h = gr->get_disp_height();
-			const sint16 yypos = ypos - (h-h0)*get_tile_raster_width()/(2*Z_TILE_STEP);
+			const sint16 yypos = ypos - (h-h0)*get_tile_raster_width()/2;
 			gr->display_overlay(xpos, yypos );
 		}
 	}

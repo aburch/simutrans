@@ -623,7 +623,7 @@ uint8 reliefkarte_t::calc_relief_farbe(const grund_t *gr)
 #else
 						sint16 height = (gr->get_grund_hang()%3);
 #endif
-						color = calc_hoehe_farbe((welt->lookup_hgt(gr->get_pos().get_2d())/Z_TILE_STEP)+height, welt->get_grundwasser()/Z_TILE_STEP);
+						color = calc_hoehe_farbe(welt->lookup_hgt(gr->get_pos().get_2d())+height, welt->get_grundwasser());
 						//color = COL_BLUE;	// water with boat?
 					}
 					else {
@@ -656,7 +656,7 @@ uint8 reliefkarte_t::calc_relief_farbe(const grund_t *gr)
 #else
 						sint16 height = (gr->get_grund_hang()%3);
 #endif
-						color = calc_hoehe_farbe((gr->get_hoehe()/Z_TILE_STEP)+height, welt->get_grundwasser()/Z_TILE_STEP);
+						color = calc_hoehe_farbe(gr->get_hoehe()+height, welt->get_grundwasser());
 					}
 				}
 				break;

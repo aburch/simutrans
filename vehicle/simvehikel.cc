@@ -3484,7 +3484,7 @@ bool aircraft_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route
 		}
 		state = taxiing;
 		flughoehe = 0;
-		target_height = ((sint16)get_pos().z*TILE_HEIGHT_STEP)/Z_TILE_STEP;
+		target_height = (sint16)get_pos().z*TILE_HEIGHT_STEP;
 	}
 	else {
 		// init with current pos (in air ... )
@@ -3495,7 +3495,7 @@ bool aircraft_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route
 			flughoehe = 3*TILE_HEIGHT_STEP;
 		}
 		takeoff = 0;
-		target_height = (((sint16)get_pos().z+3)*TILE_HEIGHT_STEP)/Z_TILE_STEP;
+		target_height = ((sint16)get_pos().z+3)*TILE_HEIGHT_STEP;
 	}
 
 //DBG_MESSAGE("aircraft_t::calc_route()","take off ok");
@@ -3955,8 +3955,8 @@ void aircraft_t::hop()
 	sint32 new_friction = 0;
 
 	// take care of inflight height ...
-	const sint16 h_cur = height_scaling((sint16)get_pos().z)*TILE_HEIGHT_STEP/Z_TILE_STEP;
-	const sint16 h_next = height_scaling((sint16)pos_next.z)*TILE_HEIGHT_STEP/Z_TILE_STEP;
+	const sint16 h_cur = height_scaling((sint16)get_pos().z)*TILE_HEIGHT_STEP;
+	const sint16 h_next = height_scaling((sint16)pos_next.z)*TILE_HEIGHT_STEP;
 
 	switch(state) {
 		case departing: {
@@ -4036,7 +4036,7 @@ void aircraft_t::hop()
 			else {
 				const sint16 landehoehe = height_scaling(cnv->get_route()->position_bei(touchdown).z) + (touchdown-route_index)*TILE_HEIGHT_STEP;
 				if(landehoehe<=flughoehe) {
-					target_height = height_scaling((sint16)cnv->get_route()->position_bei(touchdown).z)*TILE_HEIGHT_STEP/Z_TILE_STEP;
+					target_height = height_scaling((sint16)cnv->get_route()->position_bei(touchdown).z)*TILE_HEIGHT_STEP;
 				}
 				flughoehe -= h_next;
 			}
@@ -4070,7 +4070,7 @@ void aircraft_t::display_after(int xpos_org, int ypos_org, bool is_global) const
 		if (z + flughoehe/TILE_HEIGHT_STEP - 1 > grund_t::underground_level) {
 			return;
 		}
-		const sint16 target = target_height - ((sint16)z*TILE_HEIGHT_STEP)/Z_TILE_STEP;
+		const sint16 target = target_height - ((sint16)z*TILE_HEIGHT_STEP);
 		sint16 current_flughohe = flughoehe;
 		if(  current_flughohe < target  ) {
 			current_flughohe += (steps*TILE_HEIGHT_STEP) >> 8;

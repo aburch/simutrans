@@ -153,7 +153,7 @@ void karte_ansicht_t::display(bool force_dirty)
 	const sint8 hmax_ground = (grund_t::underground_mode==grund_t::ugm_level) ? grund_t::underground_level : 127;
 
 	// lower limit for y: display correctly water/outside graphics at upper border of screen
-	int y_min = (-const_y_off + 4*tile_raster_scale_y( min(hmax_ground,welt->get_grundwasser())*TILE_HEIGHT_STEP/Z_TILE_STEP, IMG_SIZE )
+	int y_min = (-const_y_off + 4*tile_raster_scale_y( min(hmax_ground,welt->get_grundwasser())*TILE_HEIGHT_STEP, IMG_SIZE )
 					+ 4*(menu_height-IMG_SIZE)-IMG_SIZE/2-1) / IMG_SIZE;
 
 #if MULTI_THREAD>1
@@ -242,7 +242,7 @@ void karte_ansicht_t::display(bool force_dirty)
 					// maximum height: 127 for overground, undergroundlevel for sliced, ground height-1 for complete underground view
 					const sint8 hmax = grund_t::underground_mode==grund_t::ugm_all ? gr->get_hoehe()-(!gr->ist_tunnel()) : grund_t::underground_level;
 
-					sint16 yypos = ypos - tile_raster_scale_y( min(gr->get_hoehe(),hmax_ground)*TILE_HEIGHT_STEP/Z_TILE_STEP, IMG_SIZE);
+					sint16 yypos = ypos - tile_raster_scale_y( min(gr->get_hoehe(),hmax_ground)*TILE_HEIGHT_STEP, IMG_SIZE);
 					if(  yypos-IMG_SIZE<disp_real_height  &&  yypos+IMG_SIZE>=menu_height  ) {
 						plan->display_overlay( xpos, yypos, hmin, hmax);
 					}
@@ -257,7 +257,7 @@ void karte_ansicht_t::display(bool force_dirty)
 		// better not try to twist your brain to follow the retransformation ...
 		const koord diff = zeiger->get_pos().get_2d()-welt->get_world_position()-welt->get_ansicht_ij_offset();
 		const sint16 x = (diff.x-diff.y)*(IMG_SIZE/2) + const_x_off;
-		const sint16 y = (diff.x+diff.y)*(IMG_SIZE/4) - tile_raster_scale_y( zeiger->get_pos().z*TILE_HEIGHT_STEP/Z_TILE_STEP, IMG_SIZE) + ((display_get_width()/IMG_SIZE)&1)*(IMG_SIZE/4) + const_y_off;
+		const sint16 y = (diff.x+diff.y)*(IMG_SIZE/4) - tile_raster_scale_y( zeiger->get_pos().z*TILE_HEIGHT_STEP, IMG_SIZE) + ((display_get_width()/IMG_SIZE)&1)*(IMG_SIZE/4) + const_y_off;
 		// mark the cursor position for all tools (except lower/raise)
 		if(zeiger->get_yoff()==Z_PLAN) {
 			grund_t *gr = welt->lookup( zeiger->get_pos() );
@@ -351,7 +351,7 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 			if(  xpos+IMG_SIZE>lt.x  ) {
 				const koord pos(i,j);
 				if(  grund_t* const kb = welt->lookup_kartenboden(pos)  ) {
-					const sint16 yypos = ypos - tile_raster_scale_y(min(kb->get_hoehe(), hmax_ground) * TILE_HEIGHT_STEP / Z_TILE_STEP, IMG_SIZE);
+					const sint16 yypos = ypos - tile_raster_scale_y(min(kb->get_hoehe(), hmax_ground) * TILE_HEIGHT_STEP, IMG_SIZE);
 					if(yypos-IMG_SIZE<lt.y+wh.y  &&  yypos+IMG_SIZE>lt.y) {
 
 						if(  !saved_grid  &&  umgebung_t::hide_under_cursor  ) {
@@ -393,7 +393,7 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 				}
 				else {
 					// outside ...
-					const sint16 yypos = ypos - tile_raster_scale_y( welt->get_grundwasser()*TILE_HEIGHT_STEP/Z_TILE_STEP, IMG_SIZE );
+					const sint16 yypos = ypos - tile_raster_scale_y( welt->get_grundwasser()*TILE_HEIGHT_STEP, IMG_SIZE );
 					if(yypos-IMG_SIZE<lt.y+wh.y  &&  yypos+IMG_SIZE>lt.y) {
 						display_img(grund_besch_t::ausserhalb->get_bild(hang_t::flach), xpos, yypos, force_dirty);
 					}
@@ -457,7 +457,7 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 							hmax = 127;
 							underground_level = 127;
 					} */
-					sint16 yypos = ypos - tile_raster_scale_y( min(gr->get_hoehe(),hmax_ground)*TILE_HEIGHT_STEP/Z_TILE_STEP, IMG_SIZE);
+					sint16 yypos = ypos - tile_raster_scale_y( min(gr->get_hoehe(),hmax_ground)*TILE_HEIGHT_STEP, IMG_SIZE);
 					if(yypos-IMG_SIZE*3<wh.y+lt.y  &&  yypos+IMG_SIZE>lt.y) {
 
 						if(  umgebung_t::hide_under_cursor  &&  needs_hiding  ) {

@@ -471,7 +471,7 @@ halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int r
 		return halthandle_t();
 	}
 	// ok, now we could built it => flatten the land
-	sint8 h = max( welt->get_grundwasser()+Z_TILE_STEP, welt->lookup_kartenboden(pos)->get_hoehe() );
+	sint8 h = max( welt->get_grundwasser()+1, welt->lookup_kartenboden(pos)->get_hoehe() );
 	const koord dx( size.x/2, size.y/2 );
 	for(  sint16 i=0;  i!=size.y+dx.y;  i+=dx.y  ) {
 		for( sint16 j=0;  j!=size.x+dx.x;  j+=dx.x  ) {

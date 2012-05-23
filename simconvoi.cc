@@ -2582,14 +2582,14 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 		const grund_t *grund = welt->lookup(pos);
 		if(  grund->get_weg_yoff()==TILE_HEIGHT_STEP  ) {
 			// start on bridge?
-			pos.z += Z_TILE_STEP;
+			pos.z ++;
 		}
 		while(  grund  &&  grund->get_halt() == halt  ) {
 			station_length += 16;
 			pos += zv;
 			grund = welt->lookup(pos);
 			if(  grund==NULL  ) {
-				grund = welt->lookup(pos-koord3d(0,0,Z_TILE_STEP));
+				grund = welt->lookup(pos-koord3d(0,0,1));
 				if(  grund &&  grund->get_weg_yoff()!=TILE_HEIGHT_STEP  ) {
 					// not end/start of bridge
 					break;

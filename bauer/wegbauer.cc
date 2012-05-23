@@ -542,7 +542,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		}
 		// up to now 'to' and 'from' refered to the ground one height step below the elevated way
 		// now get the grounds at the right height
-		koord3d pos = to->get_pos()+koord3d(0,0,Z_TILE_STEP);
+		koord3d pos = to->get_pos()+koord3d(0,0,1);
 		grund_t *to2 = welt->lookup(pos);
 		if(to2) {
 			if(to2->get_weg_nr(0)) {
@@ -565,7 +565,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 			to_dummy.set_grund_hang(to->get_grund_hang());
 			to = &to_dummy;
 		}
-		pos = from->get_pos()+koord3d(0,0,Z_TILE_STEP);
+		pos = from->get_pos()+koord3d(0,0,1);
 		grund_t *from2 = welt->lookup(pos);
 		if(from2) {
 			from = from2;
@@ -734,7 +734,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 					ok &= to->get_typ() == grund_t::fundament && to->find<field_t>();
 				}
 				// no bridges and monorails here in the air
-				ok &= (welt->lookup(to_pos)->get_boden_in_hoehe(to->get_pos().z+Z_TILE_STEP)==NULL);
+				ok &= (welt->lookup(to_pos)->get_boden_in_hoehe(to->get_pos().z+1)==NULL);
 			}
 
 			// calculate costs
@@ -1495,7 +1495,7 @@ void wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d z
 			grund_t *bd_nach = welt->lookup(pos + diff);
 			if(  !bd_nach  ) {
 				// check for slope down ...
-				bd_nach = welt->lookup(pos + diff + koord3d(0,0,-Z_TILE_STEP));
+				bd_nach = welt->lookup(pos + diff + koord3d(0,0,-1));
 				if(  bd_nach  &&  bd_nach->get_weg_hang() == hang_t::flach  ) {
 					// Don't care about _flat_ tunnels below.
 					bd_nach= NULL;
@@ -2047,7 +2047,7 @@ void wegbauer_t::baue_elevated()
 		planquadrat_t* const plan = welt->access(i.get_2d());
 
 		grund_t* const gr0 = plan->get_boden_in_hoehe(i.z);
-		i.z += Z_TILE_STEP;
+		i.z ++;
 		grund_t* const gr  = plan->get_boden_in_hoehe(i.z);
 
 		if(gr==NULL) {

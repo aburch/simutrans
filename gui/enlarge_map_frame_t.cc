@@ -224,14 +224,14 @@ void enlarge_map_frame_t::update_preview()
 					color = COL_WHITE;
 				}
 				else {
-					const sint16 height = welt->lookup_hgt( pos )*Z_TILE_STEP;
-					color = reliefkarte_t::calc_hoehe_farbe(height, sets->get_grundwasser()/Z_TILE_STEP);
+					const sint16 height = welt->lookup_hgt( pos );
+					color = reliefkarte_t::calc_hoehe_farbe(height, sets->get_grundwasser());
 				}
 			}
 			else {
 				// new part
 				const sint16 height = karte_t::perlin_hoehe(sets, pos, koord(old_x,old_y) );
-				color = reliefkarte_t::calc_hoehe_farbe(height*Z_TILE_STEP, sets->get_grundwasser()/Z_TILE_STEP);
+				color = reliefkarte_t::calc_hoehe_farbe(height, sets->get_grundwasser());
 			}
 			karte[j*preview_size+i] = color;
 		}

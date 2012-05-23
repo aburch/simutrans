@@ -396,7 +396,7 @@ void baum_t::calc_bild()
 					season = 2;
 				}
 			}
-			else if(welt->get_snowline()<=get_pos().z+Z_TILE_STEP  &&  season==0) {
+			else if(welt->get_snowline()<=get_pos().z+1  &&  season==0) {
 				// snowline crossing in summer
 				// so at least some weeks spring/autumn
 				season = welt->get_last_month() <=5 ? 3 : 1;

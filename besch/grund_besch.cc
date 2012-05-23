@@ -587,7 +587,7 @@ DBG_MESSAGE("grund_besch_t::calc_water_level()","height %i: list %i vs. %i", h, 
  */
 image_id grund_besch_t::get_ground_tile(hang_t::typ slope, sint16 height )
 {
-	const sint16 h = (height-welt->get_grundwasser())/Z_TILE_STEP;
+	const sint16 h = height-welt->get_grundwasser();
 #ifdef DOUBLE_GROUNDS
 	slope = get_double_hang(slope);
 	if((int)slope>78) {
@@ -601,7 +601,7 @@ image_id grund_besch_t::get_ground_tile(hang_t::typ slope, sint16 height )
 		return liste->get_bild(nr,0)->get_nummer();
 	}
 	else {
-		const bool snow_transition = (height+Z_TILE_STEP==welt->get_snowline());
+		const bool snow_transition = height+1==welt->get_snowline();
 		const bool snow = (height >= welt->get_snowline());
 		if(h==0) {
 			// water, coastal or winter slope?

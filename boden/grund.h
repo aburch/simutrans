@@ -738,10 +738,10 @@ public:
 		// only on slope height may changes
 		if(  way_slope  ) {
 			if(ribi & ribi_t::nordost) {
-				h += corner3(way_slope)*Z_TILE_STEP;
+				h += corner3(way_slope);
 			}
 			else {
-				h += corner1(way_slope)*Z_TILE_STEP;
+				h += corner1(way_slope);
 			}
 		}
 
@@ -751,7 +751,7 @@ public:
 		 */
 		if(  way_slope != slope  ) {
 			if(  ist_bruecke()  &&  slope  ) {
-				h += Z_TILE_STEP;	// end or start of a bridge
+				h ++;	// end or start of a bridge
 			}
 		}
 
