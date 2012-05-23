@@ -511,4 +511,5 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, const si
 		}
 #endif
 	}
+	(void) threaded;
 }
