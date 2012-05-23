@@ -144,7 +144,6 @@ leitung_t::~leitung_t()
 
 void leitung_t::entferne(spieler_t *sp)
 {
-	grund_t *gr = welt->lookup(get_pos());
 	spieler_t::accounting(sp, -besch->get_preis()/2, get_pos().get_2d(), COST_CONSTRUCTION);
 	mark_image_dirty( bild, 0 );
 }
