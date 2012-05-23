@@ -133,7 +133,7 @@ typedef struct{
 
 void karte_t::world_y_loop(y_loop_func function)
 {
-#ifdef MULTI_THREAD>1
+#if MULTI_THREAD>1
 	set_random_mode( INTERACTIVE_RANDOM ); // do not allow simrand() here!
 
 	pthread_t thread[MULTI_THREAD];
