@@ -144,18 +144,21 @@ void karte_t::world_y_loop(y_loop_func function)
 	// now the paramters
 	world_thread_param_t ka[MULTI_THREAD];
 
-	for(int t=0; t<MULTI_THREAD; t++) {
+	for(int t=0; t<MULTI_THREAD-1; t++) {
    		ka[t].welt = this;
 		ka[t].y_min = (t*cached_groesse_gitter_y)/MULTI_THREAD;
 		ka[t].y_max = ((t+1)*cached_groesse_gitter_y)/MULTI_THREAD;
 		ka[t].function = function;
-		if(  pthread_create(&thread[t], &attr, world_y_loop_thread, (void *)(ka+t))  ) {
+		if(  pthread_create( &thread[t], &attr, world_y_loop_thread, &ka[t] )  ) {
 			// here some more sophicsticated error handling would be fine ...
 		}
 	}
 
-	//return from thread
-	for(int t=0; t<MULTI_THREAD; t++) {
+	// the last we do alone ...
+	(this->*function)( ((MULTI_THREAD-1)*cached_groesse_gitter_y)/MULTI_THREAD, cached_groesse_gitter_y );
+
+	// return from thread
+	for(int t=0; t<MULTI_THREAD-1; t++) {
 		void *status;
 		pthread_join(thread[t], &status);
 	}
@@ -5022,6 +5025,7 @@ DBG_MESSAGE("karte_t::laden()", "messages loaded");
 DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_count());
 
 	world_y_loop(&karte_t::plans_laden_abschliessen);
+//	plans_laden_abschliessen( 0, cached_groesse_gitter_y ); // single thread variant
 
 	// must finish loading cities first before cleaning up factories
 	weighted_vector_tpl<stadt_t*> new_weighted_stadt(stadt.get_count() + 1);
