@@ -16,6 +16,7 @@
 #include "../simgraph.h"
 #include "../simwin.h"
 #include "../simhalt.h"
+#include "../simdepot.h"
 #include "../besch/sound_besch.h"
 #include "../player/simplay.h"
 #include "../simskin.h"
@@ -723,6 +724,12 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 			if (gr->is_halt()) {
 				const char *fail = NULL;
 				haltestelle_t::remove(welt, sp, gr->get_pos(), fail);
+			}
+
+			// depots at bridge ends needs to be deleted as well
+			if (depot_t *dep = gr->get_depot()) {
+				dep->entferne(sp);
+				delete dep;
 			}
 
 			// removes single signals, bridge head, pedestrians, stops, changes catenary etc
