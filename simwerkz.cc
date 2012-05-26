@@ -604,6 +604,18 @@ DBG_MESSAGE("wkz_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x, 
 		return msg == NULL;
 	}
 
+	// depots
+	depot_t* dep = gr->get_depot();
+	if (dep) {
+		msg = dep->ist_entfernbar(sp);
+		if(msg) {
+			return false;
+		}
+		dep->entferne(sp);
+		delete dep;
+		return true;
+	}
+
 	// since buildings can have more than one tile, we must handle them together
 	gebaeude_t* gb = gr->find<gebaeude_t>();
 	if(gb != NULL) {
