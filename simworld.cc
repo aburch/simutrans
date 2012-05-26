@@ -5024,8 +5024,8 @@ DBG_MESSAGE("karte_t::laden()", "messages loaded");
 
 DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_count());
 
-	world_y_loop(&karte_t::plans_laden_abschliessen);
-//	plans_laden_abschliessen( 0, cached_groesse_gitter_y ); // single thread variant
+//	world_y_loop(&karte_t::plans_laden_abschliessen);
+	plans_laden_abschliessen( 0, cached_groesse_gitter_y ); // single thread variant
 
 	// must finish loading cities first before cleaning up factories
 	weighted_vector_tpl<stadt_t*> new_weighted_stadt(stadt.get_count() + 1);
