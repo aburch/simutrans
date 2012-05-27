@@ -556,7 +556,7 @@ void gui_convoy_assembler_t::zeichnen(koord parent_pos)
 				min_weight = convoy.calc_max_weight(friction);
 			}
 		}
-		else if (min_speed < allowed_speed)
+		else if (min_speed < allowed_speed && min_weight < max_weight)
 		{
 			max_speed = convoy.calc_max_speed(weight_summary_t(min_weight, friction));
 			if (min_speed < max_speed)
