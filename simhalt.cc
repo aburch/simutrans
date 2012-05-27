@@ -1586,8 +1586,11 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 								
 								bool much_faster = true;
 								bool waiting_too_long = false;
-								int how_much_slower = (((journey_time) * 100) / preferred_travelling_minutes);
-                     
+								int how_much_slower = journey_time * 100;
+								if (preferred_travelling_minutes > 1)
+								{
+									how_much_slower /= preferred_travelling_minutes;
+								}
 								 // Passengers will always board slower convoy if its journey time is within an acceptable
 								 // tolerance of the fastest journey time. 
 								 // The acceptable tolerance is scaled depending on journey time of faster convoy.
