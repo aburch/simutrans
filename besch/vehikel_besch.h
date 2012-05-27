@@ -178,15 +178,17 @@ private:
 	float32e8_t rolling_resistance; // The "fr" value in physics calculations.
 
 	// these values are not stored and therefore calculated in loaded():
-	uint32 geared_power; // @author: Bernd Gabriel, Nov  4, 2009: == leistung * gear in kW
-	uint32 geared_force; // @author: Bernd Gabriel, Dec 12, 2009: == tractive_effort * gear in kN
+	// they are arrays having one element per speed in m/s:
+	uint32 max_speed;     // @author: Bernd Gabriel, May 27, 2012: length of the geared_* arrays (== maximum speed in m/s)
+	uint32 *geared_power; // @author: Bernd Gabriel, Nov  4, 2009: == leistung * gear in W
+	uint32 *geared_force; // @author: Bernd Gabriel, Dec 12, 2009: == tractive_effort * gear in N
 	/**
 	 * force threshold speed in km/h.
 	 * Below this threshold the engine works as constant force engine.
 	 * Above this threshold the engine works as constant power engine.
 	 * @author Bernd Gabriel, Nov 4, 2009
 	 */
-	uint16 force_threshold_speed; // @author: Bernd Gabriel, Nov 4, 2009: in m/s
+	uint32 force_threshold_speed; // @author: Bernd Gabriel, Nov 4, 2009: in m/s
 
 	// Obsolescence settings
 	// @author: jamespetts
@@ -201,16 +203,16 @@ private:
 
 public:
 	// since we have a second constructor
-	vehikel_besch_t() { }
+	vehikel_besch_t() : geared_power(0), geared_force(0) { }
 
 	// default vehicle (used for way seach and similar tasks)
 	// since it has no images and not even a name knot any calls to this will case a crash
-	vehikel_besch_t(uint8 wtyp, uint16 speed, engine_t engine) {
+	vehikel_besch_t(uint8 wtyp, uint16 speed, engine_t engine) : geared_power(0), geared_force(0) {
 		freight_image_type = livery_image_type = preis = upgrade_price = zuladung = overcrowded_capacity = running_cost = intro_date = vorgaenger = nachfolger = catering_level = upgrades = 0;
 		fixed_cost = DEFAULT_FIXED_VEHICLE_MAINTENANCE;
 		leistung = gewicht = comfort = 1;
 		gear = GEAR_FACTOR;
-		geared_power = GEAR_FACTOR;
+		//geared_power = GEAR_FACTOR;
 		len = 8;
 		sound = -1;
 		typ = wtyp;
@@ -224,6 +226,12 @@ public:
 		min_loading_time = max_loading_time = (uint32)seconds_to_ticks(30, 250); 
 		tractive_effort = 0;
 		brake_force = BRAKE_FORCE_UNKNOWN;
+	}
+
+	virtual ~vehikel_besch_t()
+	{
+		delete [] geared_power;
+		delete [] geared_force;
 	}
 
 	ware_besch_t const* get_ware() const { return get_child<ware_besch_t>(2); }
@@ -670,7 +678,7 @@ public:
 	/**
 	 * Get effective force index. 
 	 * Steam engine's force depend on its speed.
-	 * Effective force in kN: force_index *welt->get_settings().get_global_power_factor() / GEAR_FACTOR
+	 * Effective force in N: force_index *welt->get_settings().get_global_power_factor() / GEAR_FACTOR
 	 * @author Bernd Gabriel
 	 */
 	uint32 get_effective_force_index(sint32 speed /* in m/s */ ) const;
@@ -678,7 +686,7 @@ public:
 	/**
 	 * Get effective power index. 
 	 * Steam engine's power depend on its speed.
-	 * Effective power in kW: power_index *welt->get_settings().get_global_power_factor() / GEAR_FACTOR
+	 * Effective power in W: power_index *welt->get_settings().get_global_power_factor() / GEAR_FACTOR
 	 * @author Bernd Gabriel
 	 */
 	uint32 get_effective_power_index(sint32 speed /* in m/s */ ) const;

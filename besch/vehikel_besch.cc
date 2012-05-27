@@ -146,28 +146,53 @@ void vehikel_besch_t::loaded()
 	* Above this threshold the engine works as constant power engine.
 	*/
 
+	static const float32e8_t gear_factor((uint32)GEAR_FACTOR); 
 	float32e8_t power_force_ratio = get_power_force_ratio();
 	force_threshold_speed = (uint16)(power_force_ratio + float32e8_t::half);
-	geared_power = leistung * gear;
-	geared_force = (uint32)tractive_effort * gear;
-	if (geared_power != 0)
+	float32e8_t g_power = (uint32) 1000L * leistung * gear;
+	float32e8_t g_force = (uint32) 1000L * tractive_effort * gear;
+	if (g_power != 0)
 	{
-		if (geared_force == 0)
+		if (g_force == 0)
 		{
-			geared_force = max(GEAR_FACTOR, (uint32)(geared_power / power_force_ratio + float32e8_t::half));
+			g_force = max(gear_factor, g_power / power_force_ratio);
 		}
 	}
 	else
 	{
-		if (geared_force != 0)
+		if (g_force != 0)
 		{
-			geared_power = max(GEAR_FACTOR, (uint32)(geared_force * power_force_ratio + float32e8_t::half));
+			g_power = max(gear_factor, g_force * power_force_ratio);
+		}
+	}
+
+	/**
+	 * Speed up getting force or power at a given speed (in m/s).
+	 * Use arrays instead of repeatedly calculating the force ersp. power.
+	 * ToDo: Add effectiveness, which depends on speed and engine type.
+	 */
+	if (g_power != 0 || g_force != 0)
+	{
+		uint32 speed = (uint32)geschw * kmh2ms + float32e8_t::half;
+		max_speed = speed;
+		geared_power = new uint32[speed+1];
+		geared_force = new uint32[speed+1];
+
+		for (; speed > force_threshold_speed; --speed)
+		{
+			geared_force[speed] = g_power / speed + float32e8_t::half;
+			geared_power[speed] = g_power + float32e8_t::half;
+		}
+		for (; speed <= force_threshold_speed; --speed)
+		{
+			geared_force[speed] = g_force + float32e8_t::half;
+			geared_power[speed] = g_force * speed + float32e8_t::half;
 		}
 	}
 }
 
 /**
- * Get effective force in kN at given speed in m/s: effective_force_index *welt->get_settings().get_global_power_factor() / GEAR_FACTOR
+ * Get effective force in N at given speed in m/s: effective_force_index *welt->get_settings().get_global_power_factor() / GEAR_FACTOR
  * @author Bernd Gabriel, Dec 14, 2009
  */
 uint32 vehikel_besch_t::get_effective_force_index(sint32 speed /* in m/s */ ) const
@@ -177,11 +202,12 @@ uint32 vehikel_besch_t::get_effective_force_index(sint32 speed /* in m/s */ ) co
 		// no force at all
 		return 0;
 	}
-	return speed <= force_threshold_speed ? geared_force : geared_power / speed;
+	//return speed <= force_threshold_speed ? geared_force : geared_power / speed;
+	return geared_force[min(speed, max_speed)];
 }
 
 /**
- * Get effective power in kW at given speed in m/s: effective_power_index *welt->get_settings().get_global_power_factor() / GEAR_FACTOR
+ * Get effective power in W at given speed in m/s: effective_power_index *welt->get_settings().get_global_power_factor() / GEAR_FACTOR
  * @author Bernd Gabriel, Dec 14, 2009
  */
 uint32 vehikel_besch_t::get_effective_power_index(sint32 speed /* in m/s */ ) const
@@ -191,7 +217,8 @@ uint32 vehikel_besch_t::get_effective_power_index(sint32 speed /* in m/s */ ) co
 		// no power at all
 		return 0;
 	}
-	return speed <= force_threshold_speed ? geared_force * speed : geared_power;
+	///return speed <= force_threshold_speed ? geared_force * speed : geared_power;
+	return geared_power[min(speed, max_speed)];
 }
 
 uint16 vehikel_besch_t::get_obsolete_year_month(const karte_t *welt) const

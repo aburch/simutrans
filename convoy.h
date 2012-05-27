@@ -217,10 +217,9 @@ private:
 	/**
 	 * Get force in N according to current speed in m/s
 	 */
-	inline sint32 get_force(const float32e8_t &speed) 
+	inline float32e8_t get_force(const float32e8_t &speed) 
 	{
-		sint32 v = (sint32)abs(speed);
-		return (v == 0) ? get_starting_force() : get_force_summary(v) * 1000;
+		return get_force_summary(abs(speed));
 	}
 
 	/**
@@ -240,46 +239,52 @@ protected:
 	/**
 	 * get brake force in kN according to current speed in m/s
 	 */
-	virtual sint32 get_brake_summary(const sint32 speed) = 0;
+	virtual float32e8_t get_brake_summary(/*const float32e8_t &speed*/) = 0;
 
 	/**
 	 * get engine force in kN according to current speed in m/s
 	 */
-	virtual sint32 get_force_summary(const sint32 speed) = 0;
+	virtual float32e8_t get_force_summary(const float32e8_t &speed) = 0;
 
 	/**
 	 * get engine power in kW according to current speed in m/s
 	 */
-	virtual sint32 get_power_summary(const sint32 speed) = 0;
+	virtual float32e8_t get_power_summary(const float32e8_t &speed) = 0;
 
+	/**
+	 * get vehicle summary
+	 */
 	virtual const vehicle_summary_t &get_vehicle_summary() {
 		return vehicle;
 	}
 
+	/**
+	 * get adverse summary
+	 */
 	virtual const adverse_summary_t &get_adverse_summary() {
 		return adverse;
 	}
 
 	/**
-	 * get braking force in N according to current weight in kg
+	 * get braking force in N at given speed in m/s
 	 */
-	virtual sint32 get_braking_force(const sint32 speed) 
+	inline float32e8_t get_braking_force(/*const float32e8_t &speed*/) 
 	{
-		return get_brake_summary(speed) * 1000;
+		return get_brake_summary(/*speed*/);
 	}
 
 	/*
 	 * get starting force in N
 	 */
 	virtual sint32 get_starting_force() { 
-		return get_force_summary(0) * 1000; 
+		return get_force_summary(0); 
 	}
 
 	/*
 	 * get continuous power in W
 	 */
 	virtual sint32 get_continuous_power() { 
-		return get_power_summary(get_vehicle_summary().max_speed) * 1000; 
+		return get_power_summary(get_vehicle_summary().max_speed * kmh2ms); 
 	}
 
 	/**
@@ -287,7 +292,7 @@ protected:
 	 * power_index: a value gotten from vehicles (e.g. from get_effective_force_index()/get_effective_power_index()).
 	 * power_factor: the global power factor percentage. Must not be 0!.
 	 */
-	sint32 power_index_to_power(sint32 power_index, sint32 power_factor);
+	float32e8_t power_index_to_power(const float32e8_t &power_index, sint32 power_factor);
 public:
 	/**
 	 * Update adverse.max_speed. If given speed is less than current adverse.max_speed, then speed becomes the new adverse.max_speed.
@@ -525,9 +530,9 @@ protected:
 	virtual void update_vehicle_summary(vehicle_summary_t &vehicle);
 	virtual void update_adverse_summary(adverse_summary_t &adverse);
 	virtual void update_freight_summary(freight_summary_t &freight);
-	virtual sint32 get_brake_summary(const sint32 speed /* in m/s */); 
-	virtual sint32 get_force_summary(const sint32 speed /* in m/s */);
-	virtual sint32 get_power_summary(const sint32 speed /* in m/s */);
+	virtual float32e8_t get_brake_summary(/*const float32e8_t &speed /* in m/s */);
+	virtual float32e8_t get_force_summary(const float32e8_t &speed /* in m/s */);
+	virtual float32e8_t get_power_summary(const float32e8_t &speed /* in m/s */);
 public:
 	potential_convoy_t(karte_t &world, vector_tpl<const vehikel_besch_t *> &besch) : lazy_convoy_t(), vehicles(besch), world(world)
 	{
@@ -561,9 +566,9 @@ protected:
 	virtual void update_adverse_summary(adverse_summary_t &adverse);
 	virtual void update_freight_summary(freight_summary_t &freight);
 	virtual void update_weight_summary(weight_summary_t &weight);
-	virtual sint32 get_brake_summary(const sint32 speed /* in m/s */); 
-	virtual sint32 get_force_summary(const sint32 speed /* in m/s */);
-	virtual sint32 get_power_summary(const sint32 speed /* in m/s */);
+	virtual float32e8_t get_brake_summary(/*const float32e8_t &speed /* in m/s */);
+	virtual float32e8_t get_force_summary(const float32e8_t &speed /* in m/s */);
+	virtual float32e8_t get_power_summary(const float32e8_t &speed /* in m/s */);
 public:
 	existing_convoy_t(convoi_t &vehicles) : lazy_convoy_t(), convoy(vehicles)
 	{
