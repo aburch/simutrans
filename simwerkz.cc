@@ -739,19 +739,16 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 		cost_sum = gr->weg_entfernen(w->get_waytype(), true);
 	}
 	else {
-		// remove upper ways ...
-		if(  gr->get_weg_nr(1)  ) {
-			cost_sum = gr->weg_entfernen( gr->get_weg_nr(1)->get_waytype(), true );
-		}
-		else {
+		// remove ways
+		if(  gr->get_weg_nr(0)  ) {
 			cost_sum = gr->weg_entfernen( gr->get_weg_nr(0)->get_waytype(), true );
-			// delete tunnel here ...
-			if(  gr->get_top()==1  ) {
-				tunnel_t *t = gr->find<tunnel_t>();
-				cost_sum = t->get_besch()->get_preis();
-				t->entferne( NULL );
-				delete t;
-			}
+		}
+		// delete tunnel here ...
+		if(  gr->get_top()==1  ) {
+			tunnel_t *t = gr->find<tunnel_t>();
+			cost_sum = t->get_besch()->get_preis();
+			t->entferne( NULL );
+			delete t;
 		}
 	}
 
