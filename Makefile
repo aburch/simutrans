@@ -66,6 +66,7 @@ ifeq ($(OSTYPE),mingw)
       LDFLAGS += -mwindows
     endif
   endif
+  LDFLAGS += -static-libgcc -static-libstdc++
   LIBS += -lmingw32 -lgdi32 -lwinmm -lwsock32 -lz -lbz2
 endif
 

@@ -2574,6 +2574,7 @@ void karte_t::rotate90_plans(sint16 y_min, sint16 y_max)
 
 void karte_t::rotate90()
 {
+DBG_MESSAGE( "karte_t::rotate90()", "called" );
 	// asumme we can save this rotation
 	nosave_warning = nosave = false;
 
@@ -5024,8 +5025,14 @@ DBG_MESSAGE("karte_t::laden()", "messages loaded");
 
 DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_count());
 
-//	world_y_loop(&karte_t::plans_laden_abschliessen);
-	plans_laden_abschliessen( 0, cached_groesse_gitter_y ); // single thread variant
+	if(  umgebung_t::networkmode  ) {
+		plans_laden_abschliessen( 0, cached_groesse_gitter_y ); // single thread variant
+	}
+	else {
+		world_y_loop( &karte_t::plans_laden_abschliessen );
+	}
+
+DBG_MESSAGE("karte_t::laden()", "laden_abschliesen for tiles finished" );
 
 	// must finish loading cities first before cleaning up factories
 	weighted_vector_tpl<stadt_t*> new_weighted_stadt(stadt.get_count() + 1);
@@ -5197,6 +5204,7 @@ void karte_t::update_map_intern(sint16 y_min, sint16 y_max)
 // recalcs all ground tiles on the map
 void karte_t::update_map()
 {
+	DBG_MESSAGE( "karte_t::update_map()", called );
 	world_y_loop(&karte_t::update_map_intern);
 	set_dirty();
 }
