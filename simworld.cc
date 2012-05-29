@@ -2594,6 +2594,8 @@ DBG_MESSAGE( "karte_t::rotate90()", "called" );
 
 	world_y_loop(&karte_t::rotate90_plans);
 
+	grund_t::finish_rotate90();
+
 	delete [] plan;
 	plan = rotate90_new_plan;
 
@@ -5204,7 +5206,7 @@ void karte_t::update_map_intern(sint16 y_min, sint16 y_max)
 // recalcs all ground tiles on the map
 void karte_t::update_map()
 {
-	DBG_MESSAGE( "karte_t::update_map()", called );
+	DBG_MESSAGE( "karte_t::update_map()", "" );
 	world_y_loop(&karte_t::update_map_intern);
 	set_dirty();
 }

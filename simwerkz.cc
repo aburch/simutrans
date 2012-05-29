@@ -5362,6 +5362,16 @@ void wkz_show_underground_t::draw_after( karte_t *welt, koord pos ) const
 }
 
 
+bool wkz_rotate90_t::init( karte_t *welt, spieler_t * )
+{
+	if(  !umgebung_t::networkmode  ) {
+		welt->rotate90();
+		welt->update_map();
+	}
+	return false;
+}
+
+
 bool wkz_quit_t::init( karte_t *welt, spieler_t * )
 {
 	destroy_all_win( true );

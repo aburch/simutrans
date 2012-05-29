@@ -422,7 +422,6 @@ void grund_t::sort_trees()
 
 void grund_t::rotate90()
 {
-	const bool finish_rotate90 = (pos.x==welt->get_groesse_x()-1)  &&  (pos.y==welt->get_groesse_y()-1);
 	pos.rotate90( welt->get_groesse_y()-1 );
 	slope = hang_t::rotate90( slope );
 	// then rotate the things on this tile
@@ -438,23 +437,26 @@ void grund_t::rotate90()
 	if(trees > 1) {
 		dinge.sort_trees(offset-trees+1u, trees);
 	}
-	// after processing the last tile, we recalculate the hashes of the ground texts
-	if(finish_rotate90) {
-		typedef inthashtable_tpl<uint32, char*> text_map;
-		text_map ground_texts_rotating;
-		// first get the old hashes
-		FOR(text_map, iter, ground_texts) {
-			koord3d k = get_ground_koord3d_key( iter.key, welt->get_groesse_y() );
-			k.rotate90( welt->get_groesse_y()-1 );
-			ground_texts_rotating.put( get_ground_text_key(k,welt->get_groesse_x()), iter.value );
-		}
-		ground_texts.clear();
-		// then transfer all rotated texts
-		FOR(text_map, const& iter, ground_texts_rotating) {
-			ground_texts.put(iter.key, iter.value);
-		}
-		ground_texts_rotating.clear();
+}
+
+
+// after processing the last tile, we recalculate the hashes of the ground texts
+void grund_t::finish_rotate90()
+{
+	typedef inthashtable_tpl<uint32, char*> text_map;
+	text_map ground_texts_rotating;
+	// first get the old hashes
+	FOR(text_map, iter, ground_texts) {
+		koord3d k = get_ground_koord3d_key( iter.key, welt->get_groesse_y() );
+		k.rotate90( welt->get_groesse_y()-1 );
+		ground_texts_rotating.put( get_ground_text_key(k,welt->get_groesse_x()), iter.value );
 	}
+	ground_texts.clear();
+	// then transfer all rotated texts
+	FOR(text_map, const& iter, ground_texts_rotating) {
+		ground_texts.put(iter.key, iter.value);
+	}
+	ground_texts_rotating.clear();
 }
 
 

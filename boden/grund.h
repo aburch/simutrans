@@ -348,6 +348,9 @@ public:
 	// map rotation
 	virtual void rotate90();
 
+	// we must put the text back to thier proper location after roation ...
+	static void finish_rotate90();
+
 	// since enlargement will require new hases
 	static void enlarge_map( sint16 new_size_x, sint16 new_size_y );
 
