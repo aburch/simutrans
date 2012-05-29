@@ -773,7 +773,7 @@ public:
 	wkz_rotate90_t() : werkzeug_t(WKZ_ROTATE90 | SIMPLE_TOOL) {}
 	image_id get_icon(spieler_t*) const OVERRIDE { return umgebung_t::networkmode ? IMG_LEER : icon; }
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return umgebung_t::networkmode ? translator::translate("deactivated in online mode") : translator::translate("Rotate map"); }
-	bool init( karte_t *welt, spieler_t * );
+	bool init( karte_t *welt, spieler_t * ) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return !umgebung_t::networkmode; }
 	bool is_work_network_save() const OVERRIDE { return !umgebung_t::networkmode; }
 };
