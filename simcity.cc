@@ -3311,6 +3311,11 @@ void stadt_t::step_passagiere()
 						route_good = good;
 					}
 				}
+
+				if(best_journey_time == 0)
+				{
+					best_journey_time = 1;
+				}
 				
 				// Check first whether the best route is outside
 				// the passengers' tolerance.
