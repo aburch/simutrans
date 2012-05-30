@@ -1496,6 +1496,12 @@ const char *wkz_transformer_t::work( karte_t *welt, spieler_t *sp, koord3d k )
  */
 const char *wkz_add_city_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 {
+	// has enough money for this?
+	if(  sp!=welt->get_spieler(1)  &&  sp->get_konto_als_double()<0.0  ) {
+		// fail without enough funds
+		return "";
+	}
+
 	grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
 	if(gr) {
 		if(gr->ist_natur() &&
