@@ -49,7 +49,6 @@
 #
 # Changing appearance:
 # USE_SOFTPOINTER: emulate mouse pointer (set automatically in Makefile)
-# HALF_HEIGHT: Enables half height tiles (8 pixel instead 16)
 #
 # Useful for debugging:
 # DEBUG_ROUTES: show routing calculation information in minimap
