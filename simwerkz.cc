@@ -93,6 +93,14 @@
 
 #include "simwerkz.h"
 
+
+#define CHECK_FUNDS() \
+	/* do not allow, if out of money */ \
+	if(  !welt->get_settings().is_freeplay()  &&  sp->get_player_nr()!=1  &&  sp->get_finance_history_month(0,COST_CASH)+sp->get_finance_history_month(0,COST_ASSETS) < 0  ) {\
+		return "Out of funds";\
+	}\
+
+
 /****************************************** static helper functions **************************************/
 
 /**
@@ -804,6 +812,8 @@ const char *wkz_remover_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 
 const char *wkz_raise_lower_base_t::move( karte_t *welt, spieler_t *sp, uint16 buttonstate, koord3d pos )
 {
+	CHECK_FUNDS();
+
 	const char *result = NULL;
 	if(  buttonstate==1  ) {
 		char buf[16];
@@ -890,7 +900,10 @@ const char *wkz_raise_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 	bool ok = false;
 	koord pos = k.get_2d();
 
+	CHECK_FUNDS();
+
 	if(welt->ist_in_kartengrenzen(pos)  &&  pos.x>0  &&  pos.y>0) {
+
 		grund_t *gr = welt->lookup_kartenboden(pos);
 		const sint8 hgt = gr->get_hoehe() + corner4(gr->get_grund_hang());
 
@@ -952,6 +965,8 @@ const char *wkz_lower_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 
 	bool ok = false;
 	koord pos = k.get_2d();
+
+	CHECK_FUNDS();
 
 	if(welt->ist_in_kartengrenzen(pos)  &&  pos.x>0  &&  pos.y>0) {
 		grund_t *gr = welt->lookup_kartenboden(pos);
@@ -1023,7 +1038,6 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 
 	grund_t *gr1 = welt->lookup(pos);
 	if(gr1) {
-
 
 		// at least a pixel away from the border?
 		if(  pos.z<welt->get_grundwasser() &&  !gr1->ist_tunnel() ) {
@@ -1496,11 +1510,7 @@ const char *wkz_transformer_t::work( karte_t *welt, spieler_t *sp, koord3d k )
  */
 const char *wkz_add_city_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 {
-	// has enough money for this?
-	if(  sp!=welt->get_spieler(1)  &&  sp->get_konto_als_double()<0.0  ) {
-		// fail without enough funds
-		return "";
-	}
+	CHECK_FUNDS();
 
 	grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
 	if(gr) {
