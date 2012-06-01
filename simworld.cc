@@ -1386,6 +1386,9 @@ void karte_t::init(settings_t* const sets, sint8 const* const h_field)
 	season=(2+letzter_monat/3)&3; // summer always zero
 	is_dragging = false;
 	steps = 0;
+	network_frame_count = 0;
+	sync_steps = 0;
+	map_counter = 0;
 	recalc_average_speed();	// resets timeline
 	koord::locality_factor = settings.get_locality_factor( letztes_jahr );
 

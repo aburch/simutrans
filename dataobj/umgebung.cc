@@ -302,7 +302,7 @@ void umgebung_t::rdwr(loadsave_t *file)
 	}
 
 	if(  file->get_version()>=110000  ) {
-		bool dummy;
+		bool dummy = false;
 		file->rdwr_bool(dummy); //was add_player_name_to_message
 		file->rdwr_short( window_snap_distance );
 	}
