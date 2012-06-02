@@ -1994,6 +1994,7 @@ bool wegbauer_t::baue_tunnelboden()
 				lt->set_besch( wb );
 				tunnel->obj_add( lt );
 				lt->laden_abschliessen();
+				spieler_t::add_maintenance( sp, -lt->get_besch()->get_wartung());
 			}
 			tunnel->calc_bild();
 			cost -= tunnel_besch->get_preis();
@@ -2011,6 +2012,7 @@ bool wegbauer_t::baue_tunnelboden()
 					gr->obj_add( lt );
 				} else {
 					lt->leitung_t::laden_abschliessen();	// only change powerline aspect
+					spieler_t::add_maintenance( sp, -lt->get_besch()->get_wartung());
 				}
 			}
 			tunnel_t *tunnel = gr->find<tunnel_t>();
