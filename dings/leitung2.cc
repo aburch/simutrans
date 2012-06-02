@@ -44,18 +44,39 @@ static const char * measures[] =
 };
 */
 
+/**
+ * returns possible directions for powerline on this tile
+ */
+ribi_t::ribi get_powerline_ribi(grund_t *gr)
+{
+	hang_t::typ slope = gr->get_weg_hang();
+	ribi_t::ribi ribi = (ribi_t::ribi)ribi_t::alle;
+	if (slope == hang_t::flach) {
+		if (gr->ist_karten_boden()  &&  (gr->ist_tunnel()  ||  gr->ist_bruecke())) {
+			ribi = ribi_t::doppelt( ribi_typ( gr->get_grund_hang() ) );
+		}
+	}
+	else {
+		ribi = ribi_t::doppelt( ribi_typ(slope) );
+	}
+	return ribi;
+}
 
 int leitung_t::gimme_neighbours(leitung_t **conn)
 {
 	int count = 0;
 	grund_t *gr_base = welt->lookup(get_pos());
+	ribi_t::ribi ribi = get_powerline_ribi(gr_base);
 	for(int i=0; i<4; i++) {
 		// get next connected tile (if there)
 		grund_t *gr;
 		conn[i] = NULL;
-		if(  gr_base->get_neighbour( gr, invalid_wt, ribi_t::nsow[i] ) ) {
+		if(  (ribi & ribi_t::nsow[i])  &&  gr_base->get_neighbour( gr, invalid_wt, ribi_t::nsow[i] ) ) {
 			leitung_t *lt = gr->get_leitung();
-			if(  lt  &&  (gr->ist_karten_boden()==gr_base->ist_karten_boden() || (gr->ist_tunnel()==gr_base->ist_tunnel() && gr->ist_bruecke()==gr_base->ist_bruecke()))  ) {
+			// check that we can connect to the other tile: correct slope,
+			// both tunnel or not, both bridge or not, both on ground or not.
+			if(  lt  &&  (ribi_t::rueckwaerts(ribi_t::nsow[i]) & get_powerline_ribi(gr))
+				&&  (gr->ist_karten_boden()==gr_base->ist_karten_boden() || (gr->ist_tunnel()==gr_base->ist_tunnel() && gr->ist_bruecke()==gr_base->ist_bruecke())) ) {
 				const spieler_t *owner = get_besitzer();
 				const spieler_t *other = lt->get_besitzer();
 				const spieler_t *super = welt->get_spieler(1);
@@ -342,9 +363,9 @@ void leitung_t::laden_abschliessen()
 	calc_neighbourhood();
 	grund_t *gr = welt->lookup(get_pos());
 	assert(gr);
-	if(!gr->ist_tunnel()) {
-		spieler_t::add_maintenance(get_besitzer(), besch->get_wartung());
-	}
+
+	spieler_t::add_maintenance(get_besitzer(), besch->get_wartung());
+
 #if MULTI_THREAD>1
 	pthread_mutex_unlock( &verbinde_mutex  );
 #endif

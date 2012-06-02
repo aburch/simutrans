@@ -18,6 +18,7 @@
 	FIX: deleting tunnel ground was booked twice
 	FIX: deleting tunnel ground charged for way on tunnel, which is not charged when building
 	CHG: Only founding a city when account is positive
+	CHG: powerlines will connect in directions a powerline can be build on a tile
 
 
 Release of 111.2.2 (r5583 on 20-Mar-2012):
