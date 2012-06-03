@@ -778,7 +778,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	umgebung_t::show_month = contents.get_int("show_month", umgebung_t::show_month );
 	umgebung_t::max_acceleration = contents.get_int("fast_forward", umgebung_t::max_acceleration );
 	umgebung_t::fps = contents.get_int("frames_per_second",umgebung_t::fps );
-	umgebung_t::simple_drawing_tile_size = contents.get_int("simple_drawing_tile_size",umgebung_t::simple_drawing_tile_size );
+	umgebung_t::simple_drawing_default = contents.get_int("simple_drawing_tile_size",umgebung_t::simple_drawing_default );
+	umgebung_t::simple_drawing_fast_forward = contents.get_int("simple_drawing_fast_forward",umgebung_t::simple_drawing_fast_forward );
 	umgebung_t::visualize_schedule = contents.get_int("visualize_schedule",umgebung_t::visualize_schedule )!=0;
 	umgebung_t::show_vehicle_states = contents.get_int("show_vehicle_states",umgebung_t::show_vehicle_states );
 

@@ -398,7 +398,7 @@ void planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const si
 		gr0->display_boden(xpos, ypos, raster_tile_width);
 	}
 
-	if(  raster_tile_width <= umgebung_t::simple_drawing_tile_size  ) {
+	if(  umgebung_t::simple_drawing  ) {
 		// ignore trees going though bridges
 		gr0->display_dinge_all_quick_and_dirty(xpos, ypos, raster_tile_width, is_global);
 	}

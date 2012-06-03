@@ -431,6 +431,11 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 	}
 	len = 15+display_proportional_clip(x+10, y+FRAME_DATA, translator::translate("FPS:"), ALIGN_LEFT, COL_BLACK, true);
 	sprintf(buf,"%d fps", loops );
+#ifdef DEBUG
+	if(  umgebung_t::simple_drawing  ) {
+		strcat( buf, "*" );
+	}
+#endif
 	display_proportional_clip(x+len, y+FRAME_DATA, buf, ALIGN_LEFT, farbe, true);
 
 	loops=welt->get_simloops();

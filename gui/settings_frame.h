@@ -32,6 +32,8 @@ private:
 
 	settings_general_stats_t	general;
 	gui_scrollpane_t scrolly_general;
+	settings_display_stats_t	display;
+	gui_scrollpane_t scrolly_display;
 	settings_economy_stats_t	economy;
 	gui_scrollpane_t scrolly_economy;
 	settings_routing_stats_t	routing;

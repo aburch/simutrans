@@ -25,6 +25,7 @@ settings_frame_t::settings_frame_t(settings_t* const s) :
 	gui_frame_t( translator::translate("Setting") ),
 	sets(s),
 	scrolly_general(&general),
+	scrolly_display(&display),
 	scrolly_economy(&economy),
 	scrolly_routing(&routing),
 	scrolly_costs(&costs),
@@ -38,6 +39,7 @@ settings_frame_t::settings_frame_t(settings_t* const s) :
 	add_komponente( &revert_to_last_save );
 
 	general.init( sets );
+	display.init( sets );
 	economy.init( sets );
 	routing.init( sets );
 	costs.init( sets );
@@ -51,6 +53,7 @@ settings_frame_t::settings_frame_t(settings_t* const s) :
 
 	tabs.set_pos(koord(0,D_BUTTON_HEIGHT));
 	tabs.add_tab(&scrolly_general, translator::translate("General"));
+	tabs.add_tab(&scrolly_display, translator::translate("Helligk."));
 	tabs.add_tab(&scrolly_economy, translator::translate("Economy"));
 	tabs.add_tab(&scrolly_routing, translator::translate("Routing"));
 	tabs.add_tab(&scrolly_costs, translator::translate("Costs"));
@@ -112,6 +115,7 @@ bool settings_frame_t::action_triggered( gui_action_creator_t *komp, value_t )
 
 		// and update ...
 		general.init( sets );
+		display.init( sets );
 		economy.init( sets );
 		routing.init( sets );
 		costs.init( sets );
@@ -128,6 +132,7 @@ bool settings_frame_t::action_triggered( gui_action_creator_t *komp, value_t )
 
 		// and update ...
 		general.init( sets );
+		display.init( sets );
 		economy.init( sets );
 		routing.init( sets );
 		costs.init( sets );
@@ -142,6 +147,7 @@ bool settings_frame_t::infowin_event(const event_t *ev)
 {
 	if(  ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE  ) {
 		general.read( sets );
+		display.read( sets );
 		routing.read( sets );
 		economy.read( sets );
 		costs.read( sets );

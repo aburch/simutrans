@@ -157,7 +157,7 @@ void karte_ansicht_t::display(bool force_dirty)
 					+ 4*(menu_height-IMG_SIZE)-IMG_SIZE/2-1) / IMG_SIZE;
 
 #if MULTI_THREAD>1
-	if(  IMG_SIZE <= umgebung_t::simple_drawing_tile_size  &&  can_multithreading  ) {
+	if(  umgebung_t::simple_drawing  &&  can_multithreading  ) {
 
 		if(!spawned_threads) {
 			// we can do the parallel display using posix threads ...

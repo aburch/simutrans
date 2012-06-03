@@ -3114,6 +3114,34 @@ void karte_t::update_frame_sleep_time(long /*delta*/)
 		if(last_step_nr[last_step]>last_step_nr[steps%32]) {
 			simloops = (10000*32l)/(last_step_nr[last_step]-last_step_nr[steps%32]);
 		}
+		// (de-)activate faster redraw
+		umgebung_t::simple_drawing = (umgebung_t::simple_drawing_normal >= get_tile_raster_width());
+
+		// calaculate and activate fast redraw ..
+		if(  realFPS > (umgebung_t::fps*17/16)  ) {
+			// decrease fast tile zoom by one
+			if(  umgebung_t::simple_drawing_normal > umgebung_t::simple_drawing_default  ) {
+				umgebung_t::simple_drawing_normal --;
+			}
+		}
+		else if(  realFPS < umgebung_t::fps/2  ) {
+			// activate simple redraw
+			umgebung_t::simple_drawing_normal = max( umgebung_t::simple_drawing_normal, get_tile_raster_width()+1 );
+		}
+		else if(  realFPS < (umgebung_t::fps*15)/16  )  {
+			// increase fast tile redraw by one if below current tile size
+			if(  umgebung_t::simple_drawing_normal <= (get_tile_raster_width()*3)/2  ) {
+				umgebung_t::simple_drawing_normal ++;
+			}
+		}
+		else if(  idle_time > 0  ) {
+			// decrease fast tile zoom by one
+			if(  umgebung_t::simple_drawing_normal > umgebung_t::simple_drawing_default  ) {
+				umgebung_t::simple_drawing_normal --;
+			}
+		}
+		umgebung_t::simple_drawing = (umgebung_t::simple_drawing_normal >= get_tile_raster_width());
+
 		// way too slow => try to increase time ...
 		if(  last_ms-last_interaction > 100  ) {
 			if(  last_ms-last_interaction > 500  ) {
@@ -3149,7 +3177,7 @@ void karte_t::update_frame_sleep_time(long /*delta*/)
 			}
 		}
 	}
-	else {
+	else  { // here only with fyst forward ...
 		// try to get 10 fps or lower rate (if set)
 		sint32 frame_intervall = max( 100, 1000/umgebung_t::fps );
 		if(get_frame_time()>frame_intervall) {
@@ -3158,7 +3186,8 @@ void karte_t::update_frame_sleep_time(long /*delta*/)
 		else {
 			increase_frame_time();
 		}
-		// calculate current speed
+		// (de-)activate faster redraw
+		umgebung_t::simple_drawing = umgebung_t::simple_drawing_fast_forward  ||  (umgebung_t::simple_drawing_normal >= get_tile_raster_width());
 	}
 }
 

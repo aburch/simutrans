@@ -903,7 +903,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 	}
 	// display ways
 	if(visible  &&  (flags&has_way1)){
-		const bool clip = (  (flags&draw_as_ding)  ||  !ist_karten_boden()  )  &&  raster_tile_width>umgebung_t::simple_drawing_tile_size;
+		const bool clip = (  (flags&draw_as_ding)  ||  !ist_karten_boden()  )  &&  !umgebung_t::simple_drawing;
 		const int hgt_step = tile_raster_scale_y( TILE_HEIGHT_STEP, raster_tile_width);
 		for (uint8 i=0; i< offsets[flags/has_way1]; i++) {
 			ding_t* d = obj_bei(i);
@@ -1052,7 +1052,7 @@ Algorithm:
 */
 void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, const bool is_global) const
 {
-	if(  raster_tile_width <= umgebung_t::simple_drawing_tile_size  ) {
+	if(  umgebung_t::simple_drawing  ) {
 		display_dinge_all_quick_and_dirty( xpos, ypos, raster_tile_width, is_global );
 		return;
 	}

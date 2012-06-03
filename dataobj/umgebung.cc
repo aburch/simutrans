@@ -9,7 +9,12 @@
 #include "../simmesg.h"
 
 sint8 umgebung_t::pak_tile_height_step = 16;
-sint16 umgebung_t::simple_drawing_tile_size = 24;
+
+bool umgebung_t::simple_drawing = false;
+bool umgebung_t::simple_drawing_fast_forward = true;
+sint16 umgebung_t::simple_drawing_normal = 4;
+sint16 umgebung_t::simple_drawing_default = 24;
+
 char umgebung_t::program_dir[1024];
 const char *umgebung_t::user_dir = 0;
 const char *umgebung_t::savegame_version_str = SAVEGAME_VER_NR;

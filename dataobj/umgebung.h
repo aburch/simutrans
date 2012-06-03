@@ -257,8 +257,16 @@ public:
 	static sint8 pak_tile_height_step;
 
 	/// use the faster drawing routine (and allow for clipping errors)
-	/// if tile-size is less than this value
-	static sint16 simple_drawing_tile_size;
+	static bool simple_drawing;
+
+	/// if tile-size is less than this value (will be updated automatically)
+	static sint16 simple_drawing_normal;
+
+	/// if tile-size is less than this value (set by simuconf.tab)
+	static sint16 simple_drawing_default;
+
+	/// always use fast drwing in fast forward
+	static bool simple_drawing_fast_forward;
 
 	/// format in which date is shown
 	enum date_fmt {
