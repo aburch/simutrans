@@ -468,7 +468,7 @@ bool reliefkarte_t::change_zoom_factor(bool magnify)
 		else {
 			// check here for maximum zoom-out, otherwise there will be integer overflows
 			// with large maps as we calculate with sint16 coordinates ...
-			int max_zoom_in = min( 32767 / get_welt()->get_groesse_max(), 16);
+			int max_zoom_in = min( 32767 / (2*get_welt()->get_groesse_max()), 16);
 			if(  zoom_in < max_zoom_in  ) {
 				zoom_in++;
 				zoomed = true;
