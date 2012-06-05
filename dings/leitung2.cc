@@ -513,7 +513,14 @@ void pumpe_t::laden_abschliessen()
 	spieler_t::add_maintenance(get_besitzer(), (sint32)-welt->get_settings().cst_maintain_transformer);
 
 	if(fab==NULL  &&  get_net()) {
-		fab = leitung_t::suche_fab_4(get_pos().get_2d());
+		if(welt->lookup(get_pos())->ist_karten_boden()) {
+			// on surface, check around
+			fab = leitung_t::suche_fab_4(get_pos().get_2d());
+		}
+		else {
+			// underground, check directly above
+			fab = fabrik_t::get_fab(welt, get_pos().get_2d());
+		}
 		if(  fab  ) {
 			// only add when factory there
 			fab->set_transformer_connected( true );

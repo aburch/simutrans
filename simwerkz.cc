@@ -1497,7 +1497,6 @@ const char *wkz_transformer_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 		gr->obj_add(s);
 		s->laden_abschliessen();
 	}
-	fab->set_transformer_connected( true );
 
 	return NULL;	// ok
 }
