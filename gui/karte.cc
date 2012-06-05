@@ -15,6 +15,7 @@
 #include "../dataobj/fahrplan.h"
 #include "../dataobj/powernet.h"
 #include "../dataobj/ribi.h"
+#include "../dataobj/loadsave.h"
 
 #include "../boden/wege/schiene.h"
 #include "../dings/leitung2.h"
@@ -452,6 +453,45 @@ inline void reliefkarte_t::screen_to_karte( koord &k ) const
 		k.x = (sint16)(((sint32)k.x+(sint32)k.y-(sint32)welt->get_groesse_y())/2);
 		k.y = k.y - k.x;
 	}
+}
+
+
+bool reliefkarte_t::change_zoom_factor(bool magnify)
+{
+	bool zoomed = false;
+	if(  !magnify  ) {
+		// zoom out
+		if(  zoom_in > 1  ) {
+			zoom_in--;
+			zoomed = true;
+		}
+		else {
+			// check here for maximum zoom-out, otherwise there will be integer overflows
+			// with large maps as we calculate with sint16 coordinates ...
+			int max_zoom_out = min( 32767 / get_welt()->get_groesse_max(), 16);
+			if(  zoom_out < max_zoom_out  ) {
+				zoom_out++;
+				zoomed = true;
+			}
+		}
+	}
+	else {
+		// zoom in
+		if(  zoom_out > 1  ) {
+			zoom_out--;
+			zoomed = true;
+		}
+		else if(  zoom_in < 16  ) {
+			zoom_in++;
+			zoomed = true;
+		}
+	}
+
+	if(  zoomed  ){
+		// recalc map size
+		calc_map_groesse();
+	}
+	return zoomed;
 }
 
 
@@ -1613,4 +1653,11 @@ void reliefkarte_t::set_city( const stadt_t* _city )
 		}
 		calc_map();
 	}
+}
+
+
+void reliefkarte_t::rdwr(loadsave_t *file)
+{
+	file->rdwr_short(zoom_in);
+	file->rdwr_short(zoom_out);
 }

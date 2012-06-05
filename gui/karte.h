@@ -16,6 +16,7 @@ class grund_t;
 class stadt_t;
 class spieler_t;
 class schedule_t;
+class loadsave_t;
 
 
 #define MAX_MAP_TYPE_LAND 14
@@ -156,14 +157,13 @@ private:
 	static sint32 max_cargo;
 	static sint32 max_passed;
 
+	// the zoom factors
+	sint16 zoom_out, zoom_in;
 
 public:
 	void karte_to_screen(koord &) const;
 
 	static bool is_visible;
-
-	// the zoom factors
-	sint16 zoom_out, zoom_in;
 
 	// 45 rotated map
 	bool isometric;
@@ -235,6 +235,18 @@ public:
 	void set_city( const stadt_t* _city );
 
 	const stadt_t* get_city() const { return city; };
+
+	/**
+	 * @returns true if zoom factors changed
+	 */
+	bool change_zoom_factor(bool magnify);
+
+	void get_zoom_factors(sint16 &zoom_in_, sint16 &zoom_out_) const {
+		zoom_in_ = zoom_in;
+		zoom_out_ = zoom_out;
+	}
+
+	void rdwr(loadsave_t *file);
 };
 
 #endif

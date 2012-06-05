@@ -377,35 +377,9 @@ bool map_frame_t::action_triggered( gui_action_creator_t *komp, value_t )
 }
 
 
-void map_frame_t::zoom(bool zoom_out)
+void map_frame_t::zoom(bool magnify)
 {
-	zoomed = false;
-	if(  zoom_out  ) {
-		// zoom out
-		if(  reliefkarte_t::get_karte()->zoom_in > 1  ) {
-			reliefkarte_t::get_karte()->zoom_in--;
-			zoomed = true;
-		}
-		else if(  reliefkarte_t::get_karte()->zoom_out < 16  ) {
-			reliefkarte_t::get_karte()->zoom_out++;
-			zoomed = true;
-		}
-	}
-	else {
-		// zoom in
-		if(  reliefkarte_t::get_karte()->zoom_out > 1  ) {
-			reliefkarte_t::get_karte()->zoom_out--;
-			zoomed = true;
-		}
-		else if(  reliefkarte_t::get_karte()->zoom_in < 16  ) {
-			reliefkarte_t::get_karte()->zoom_in++;
-			zoomed = true;
-		}
-	}
-
-	if(  zoomed  ){
-		// recalc map size
-		reliefkarte_t::get_karte()->calc_map_groesse();
+	if (reliefkarte_t::get_karte()->change_zoom_factor(magnify)) {
 		// recalc all the other data incl scrollbars
 		resize(koord(0,0));
 	}
@@ -608,7 +582,9 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 	gui_frame_t::zeichnen(pos, gr);
 
 	char buf[16];
-	sprintf( buf, "%i:%i", reliefkarte_t::get_karte()->zoom_in, reliefkarte_t::get_karte()-> zoom_out );
+	sint16 zoom_in, zoom_out;
+	reliefkarte_t::get_karte()->get_zoom_factors(zoom_in, zoom_out);
+	sprintf( buf, "%i:%i", zoom_in, zoom_out );
 	int zoomextwidth = display_proportional( pos.x+BUTTON1_X+D_BUTTON_HEIGHT+D_H_SPACE, pos.y+D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT+3, buf, ALIGN_LEFT, COL_WHITE, true);
 	// move zoom arrow position and label accordingly
 	zoom_buttons[1].set_pos( koord( BUTTON1_X+D_BUTTON_HEIGHT+2*D_H_SPACE+zoomextwidth, zoom_buttons[1].get_pos().y ) );
@@ -659,8 +635,7 @@ void map_frame_t::rdwr( loadsave_t *file )
 		file->rdwr_bool( is_show_schedule );
 		file->rdwr_bool( is_show_fab );
 	}
-	file->rdwr_short( reliefkarte_t::get_karte()->zoom_in );
-	file->rdwr_short( reliefkarte_t::get_karte()->zoom_out );
+	reliefkarte_t::get_karte()->rdwr(file);
 	bool show_legend_state = legend_visible;
 	file->rdwr_bool( show_legend_state );
 	file->rdwr_bool( scale_visible );
