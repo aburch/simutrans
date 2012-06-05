@@ -427,19 +427,19 @@ static void line_segment_draw( waytype_t type, koord start, uint8 start_offset, 
 void reliefkarte_t::karte_to_screen( koord &k ) const
 {
 	// must be down before/after, of one would loose bits ...
-	if(  zoom_in==1  ) {
-		k.x = k.x*zoom_out;
-		k.y = k.y*zoom_out;
+	if(  zoom_out==1  ) {
+		k.x = k.x*zoom_in;
+		k.y = k.y*zoom_in;
 	}
 	if(isometric) {
 		// 45 rotate view
-		sint32 x = welt->get_groesse_y()*zoom_out + (sint32)(k.x-k.y) - 1;
+		sint32 x = welt->get_groesse_y()*zoom_in + (sint32)(k.x-k.y) - 1;
 		k.y = k.x/2+k.y/2;
 		k.x = x;
 	}
-	if(  zoom_out==1  ) {
-		k.x = k.x/zoom_in;
-		k.y = k.y/zoom_in;
+	if(  zoom_in==1  ) {
+		k.x = k.x/zoom_out;
+		k.y = k.y/zoom_out;
 	}
 }
 
@@ -447,7 +447,7 @@ void reliefkarte_t::karte_to_screen( koord &k ) const
 // and retransform
 inline void reliefkarte_t::screen_to_karte( koord &k ) const
 {
-	k = koord( (k.x*zoom_in)/zoom_out, (k.y*zoom_in)/zoom_out );
+	k = koord( (k.x*zoom_out)/zoom_in, (k.y*zoom_out)/zoom_in );
 	if(isometric) {
 		k.y *= 2;
 		k.x = (sint16)(((sint32)k.x+(sint32)k.y-(sint32)welt->get_groesse_y())/2);
@@ -459,30 +459,30 @@ inline void reliefkarte_t::screen_to_karte( koord &k ) const
 bool reliefkarte_t::change_zoom_factor(bool magnify)
 {
 	bool zoomed = false;
-	if(  !magnify  ) {
-		// zoom out
-		if(  zoom_in > 1  ) {
-			zoom_in--;
-			zoomed = true;
-		}
-		else {
-			// check here for maximum zoom-out, otherwise there will be integer overflows
-			// with large maps as we calculate with sint16 coordinates ...
-			int max_zoom_out = min( 32767 / get_welt()->get_groesse_max(), 16);
-			if(  zoom_out < max_zoom_out  ) {
-				zoom_out++;
-				zoomed = true;
-			}
-		}
-	}
-	else {
+	if(  magnify  ) {
 		// zoom in
 		if(  zoom_out > 1  ) {
 			zoom_out--;
 			zoomed = true;
 		}
-		else if(  zoom_in < 16  ) {
-			zoom_in++;
+		else {
+			// check here for maximum zoom-out, otherwise there will be integer overflows
+			// with large maps as we calculate with sint16 coordinates ...
+			int max_zoom_in = min( 32767 / get_welt()->get_groesse_max(), 16);
+			if(  zoom_in < max_zoom_in  ) {
+				zoom_in++;
+				zoomed = true;
+			}
+		}
+	}
+	else {
+		// zoom out
+		if(  zoom_in > 1  ) {
+			zoom_in--;
+			zoomed = true;
+		}
+		else if(  zoom_out < 16  ) {
+			zoom_out++;
 			zoomed = true;
 		}
 	}
@@ -544,8 +544,8 @@ void reliefkarte_t::set_relief_farbe(koord k, const int color)
 
 	if(  isometric  ) {
 		// since isometric is distorted
-		const sint32 xw = zoom_in>=2 ? 1 : 2*zoom_out;
-		// increase size at zoom_out 2, 5, 9, 11
+		const sint32 xw = zoom_out>=2 ? 1 : 2*zoom_in;
+		// increase size at zoom_in 2, 5, 9, 11
 		const KOORD_VAL mid_y = ((xw+1) / 5) + (xw / 18);
 		// center line
 		for(  int x=0;  x<xw;  x++  ) {
@@ -565,8 +565,8 @@ void reliefkarte_t::set_relief_farbe(koord k, const int color)
 		}
 	}
 	else {
-		for(  sint32 x = max(0,k.x);  x < zoom_out+k.x  &&  (uint32)x < relief->get_width();  x++  ) {
-			for(  sint32 y = max(0,k.y);  y < zoom_out+k.y  &&  (uint32)y < relief->get_height();  y++  ) {
+		for(  sint32 x = max(0,k.x);  x < zoom_in+k.x  &&  (uint32)x < relief->get_width();  x++  ) {
+			for(  sint32 y = max(0,k.y);  y < zoom_in+k.y  &&  (uint32)y < relief->get_height();  y++  ) {
 				relief->at(x, y) = color;
 			}
 		}
@@ -587,7 +587,7 @@ void reliefkarte_t::set_relief_farbe_area(koord k, int areasize, uint8 color)
 	}
 	else {
 		karte_to_screen(k);
-		areasize *= zoom_out;
+		areasize *= zoom_in;
 		k -= koord( areasize/2, areasize/2 );
 		k.x = clamp( k.x, 0, get_groesse().x-areasize-1 );
 		k.y = clamp( k.y, 0, get_groesse().y-areasize-1 );
@@ -898,7 +898,7 @@ void reliefkarte_t::calc_map_groesse()
 	karte_to_screen( down );
 	size.y = down.y;
 	if(  isometric  ) {
-		size.x += zoom_out*2;
+		size.x += zoom_in*2;
 	}
 	set_groesse( size ); // of the gui_komponete to adjust scroll bars
 	needs_redraw = true;
@@ -922,10 +922,10 @@ void reliefkarte_t::calc_map()
 	// redraw the map
 	if(  !isometric  ) {
 		koord k;
-		koord start_off = koord( (cur_off.x*zoom_in)/zoom_out, (cur_off.y*zoom_in)/zoom_out );
-		koord end_off = start_off+koord( (relief->get_width()*zoom_in)/zoom_out+1, (relief->get_height()*zoom_in)/zoom_out+1 );
-		for(  k.y=start_off.y;  k.y<end_off.y;  k.y+=zoom_in  ) {
-			for(  k.x=start_off.x;  k.x<end_off.x;  k.x+=zoom_in  ) {
+		koord start_off = koord( (cur_off.x*zoom_out)/zoom_in, (cur_off.y*zoom_out)/zoom_in );
+		koord end_off = start_off+koord( (relief->get_width()*zoom_out)/zoom_in+1, (relief->get_height()*zoom_out)/zoom_in+1 );
+		for(  k.y=start_off.y;  k.y<end_off.y;  k.y+=zoom_out  ) {
+			for(  k.x=start_off.x;  k.x<end_off.x;  k.x+=zoom_out  ) {
 				calc_map_pixel(k);
 			}
 		}
@@ -948,8 +948,8 @@ void reliefkarte_t::calc_map()
 reliefkarte_t::reliefkarte_t()
 {
 	relief = NULL;
-	zoom_out = 1;
 	zoom_in = 1;
+	zoom_out = 1;
 	isometric = false;
 	mode = MAP_TOWN;
 	city = NULL;
@@ -1471,7 +1471,7 @@ void reliefkarte_t::zeichnen(koord pos)
 		}
 
 		// avoid too small circles when zoomed out
-		if(  zoom_out > 1  ) {
+		if(  zoom_in > 1  ) {
 			radius ++;
 		}
 
@@ -1658,6 +1658,6 @@ void reliefkarte_t::set_city( const stadt_t* _city )
 
 void reliefkarte_t::rdwr(loadsave_t *file)
 {
-	file->rdwr_short(zoom_in);
 	file->rdwr_short(zoom_out);
+	file->rdwr_short(zoom_in);
 }

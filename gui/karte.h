@@ -241,7 +241,7 @@ public:
 	 */
 	bool change_zoom_factor(bool magnify);
 
-	void get_zoom_factors(sint16 &zoom_in_, sint16 &zoom_out_) const {
+	void get_zoom_factors(sint16 &zoom_out_, sint16 &zoom_in_) const {
 		zoom_in_ = zoom_in;
 		zoom_out_ = zoom_out;
 	}
