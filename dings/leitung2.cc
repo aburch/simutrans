@@ -52,6 +52,7 @@ ribi_t::ribi get_powerline_ribi(grund_t *gr)
 	hang_t::typ slope = gr->get_weg_hang();
 	ribi_t::ribi ribi = (ribi_t::ribi)ribi_t::alle;
 	if (slope == hang_t::flach) {
+		// respect possible directions for bridge and tunnel starts
 		if (gr->ist_karten_boden()  &&  (gr->ist_tunnel()  ||  gr->ist_bruecke())) {
 			ribi = ribi_t::doppelt( ribi_typ( gr->get_grund_hang() ) );
 		}
@@ -74,9 +75,9 @@ int leitung_t::gimme_neighbours(leitung_t **conn)
 		if(  (ribi & ribi_t::nsow[i])  &&  gr_base->get_neighbour( gr, invalid_wt, ribi_t::nsow[i] ) ) {
 			leitung_t *lt = gr->get_leitung();
 			// check that we can connect to the other tile: correct slope,
-			// both tunnel or not, both bridge or not, both on ground or not.
-			if(  lt  &&  (ribi_t::rueckwaerts(ribi_t::nsow[i]) & get_powerline_ribi(gr))
-				&&  (gr->ist_karten_boden()==gr_base->ist_karten_boden() || (gr->ist_tunnel()==gr_base->ist_tunnel() && gr->ist_bruecke()==gr_base->ist_bruecke())) ) {
+			// both ground or both tunnel or both not tunnel
+			bool const ok = (gr->ist_karten_boden()  &&  gr_base->ist_karten_boden())  ||  (gr->ist_tunnel()==gr_base->ist_tunnel());
+			if(  lt  &&  (ribi_t::rueckwaerts(ribi_t::nsow[i]) & get_powerline_ribi(gr))  &&  ok  ) {
 				const spieler_t *owner = get_besitzer();
 				const spieler_t *other = lt->get_besitzer();
 				const spieler_t *super = welt->get_spieler(1);
