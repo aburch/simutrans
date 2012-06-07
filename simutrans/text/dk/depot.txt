@@ -19,24 +19,24 @@ samt de køretøjer, som du allerede har købt, men endnu ikke har startet.
 <p>
 <em>Udseende:</em><br>
 Øverst er en liste, der indeholder alle de købte køretøjer, som endnu ikke er
-blevet sendt ud af depotet (har fået tildelt ruteplan og er bleve
-startet). Det aktuelle køretøj er vist og de andre køretøjer fås frem ved a
+blevet sendt ud af depotet (har fået tildelt ruteplan og er blevet
+startet). Det aktuelle køretøj er vist og de andre køretøjer fås frem ved at
 benytte scroll-knapperne ved siden af listen<br>
 Herunder er en analog liste, der indeholder alle de ruter, der er defineret.
 Den aktuelle rute er vist og de øvrige ruter fås ved at benytte
 scroll-knapperne<br>
 Dernæst følger et areal, hvor et billede af det aktuelle køretøj er vist.<br>
 Herunder er fire knapper, der er tilknyttet køretøjslisten: 'Start'
-'Ruteplan', 'Adskil' og 'Sælg'. Disse knapper giver mulighed for at starte, a
+'Ruteplan', 'Adskil' og 'Sælg'. Disse knapper giver mulighed for at starte, at
 lave ruteplan til, at adskille samt at sælge det aktuelle køretøj.<br>
-Derunder er fire knapper, der er tilknyttet rutelisten: 'Ny rute' 'Tilny
-rute', 'Opdater rute' og 'Slet rute'. Disse knapper giver mulighed for a
+Derunder er fire knapper, der er tilknyttet rutelisten: 'Ny rute' 'Tilnyt
+rute', 'Opdater rute' og 'Slet rute'. Disse knapper giver mulighed for at
 oprette en ny rute, at tilknytte den aktuelle rute til det aktuelle køretøj,
 at opdatere samt at slette den aktuelle rute. Derunder er to faneblade der
 indeholder de køretøjer og anhængere (Lokomotiver/togvogne, skibe), der kan
 købes<br>
 Herunder er et areal, der bruges til visning af oplysninger for køretøjerne på
-fanebladene. For at se oplysningerne om et køretøj, skal musen holdes over de
+fanebladene. For at se oplysningerne om et køretøj, skal musen holdes over det
 pågældende køretøj på fanebladet.<br>
 Til højre på visningsarealet er en tilstands-knap, der ved tryk skifter
 imellem tre tilstande, henholdsvis: 'koble på', 'sætte foran' og 'sælge'.
@@ -73,7 +73,7 @@ ved, at køretøjet er det eneste, der vil benytte denne rute. Ifald du vil
 indsætte flere køretøjer på den samme rute, er det bedre først at definere
 ruten ved et trykke på 'Ny rute' og udfylde den fremkomne
 <a href='schedule.txt'>ruteplansdialog</a>. Derefter figurerer ruten, som den
-aktuelle rute i rutelisten og kan tilknyttes det aktuelle køretøj ved a
+aktuelle rute i rutelisten og kan tilknyttes det aktuelle køretøj ved at
 trykke på 'Tilknyt rute' knappen.
 </p>
 
@@ -116,7 +116,7 @@ knappen, hvorefter ruten slettes fra rutelisten.
 
 <p>
 For senere at sende et køretøj tilbage i depotet, skal du indføje depotet i
-køretøjets ruteplan - f.eks som næste rutemål. Efter køretøjet er komme
+køretøjets ruteplan - f.eks som næste rutemål. Efter køretøjet er kommet
 tilbage i depotet figurerer det i køretøjslisten og kan efter behag udbygges,
 adskilles, tildeles rute eller sælges.
 </p>

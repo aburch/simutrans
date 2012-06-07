@@ -35,10 +35,10 @@ Die Positionen und Schaltflächen der linken Hälfte sind wie folgt:
 Die Positionen und Schaltflächen der rechten Hälfte sind wie folgt:
 </p>
 <p>
-<em>Kontostand</em> - Der aktuelle Kontostand. Dieses Geld steht zur Verfügung, um zu bauen oder Fahrzeuge und Züge zu kaufen. Der Kontostand steht auch in der Statusleiste unten in der Mitte. Ist er negativ erschein monatlich ein Warnung.<br>
+<em>Kontostand</em> - Der aktuelle Kontostand. Dieses Geld steht zur Verfügung, um zu bauen oder Fahrzeuge und Züge zu kaufen. Der Kontostand steht auch in der Statusleiste unten in der Mitte. Ist der Kontostand negativ erscheint monatlich eine Warnung.<br>
 <em>Fahrzeugwert</em> - Der Wert Deiner Fahrzeugflotte per Ende des letzten Monats.<br>
-<em>Marge</em> - Die erzielte Nettomarge (Betriebsgewinn/Kosten). Je höher diese ist, desto mehr wird aus den angefallenen Kosten herausgeholt. Die Werte werden laufend aktualisiert, sind aber unter dem Monat wegen fehlender Unterhaltskosten zu hoch. Aussagekräftiger sind Zahlen des Vormonats oder Vorjahres. Achtung: Im Netzwerk kann die Aufgabe von Linien mit geringer Marge insgesamt einen ungünstigen Effekt auf die Marge selbst wie auch auf andere Grössen haben, z.B. auf das Stadtwachstum.<br>
-<em>Gesamtvermögen</em> - Die Summe von Kontostand und Fahrzeugwert, also der Firmenwert. Ist das Gesamtvermögen am Ende eines Monats negativ, ist die Firma pleite und das Spiel verloren.
+<em>Marge</em> - Die erzielte Nettomarge (Betriebsgewinn/Kosten). Je höher diese ist, desto mehr wird aus den angefallenen Kosten herausgeholt. Die Werte werden laufend aktualisiert, sind aber unter dem Monat wegen fehlender Unterhaltskosten zu hoch. Aussagekräftiger sind Zahlen des Vormonats oder Vorjahres. Achtung: Es kann durchaus sinnvoll sein, Linien mit geringer Marge zu betreiben, z.B. um eine Industrie zu versorgen.<br>
+<em>Gesamtvermögen</em> - Die Summe von Kontostand und Fahrzeugwert, also der Firmenwert. Ist das Gesamtvermögen am Ende eines Monats negativ, ist die Firma pleite und das Spiel verloren. Sinkt das Gesamtvermögen unter 10% des Startkapitals, erscheint am Monatsersten einen Warnung.
 </p>
 <p>
 </p>

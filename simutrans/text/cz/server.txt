@@ -1,0 +1,25 @@
+<title>Hra po síti </title>
+
+<h1><strong>Hra po síti </strong></h1>
+
+
+
+<p> Okno <strong>Informace o høe</strong> poskytuje údaje o herních serverech dostupných pro hru po síti, souèasném stavu hry na nich, a to vèetnì detailù jako je datum, poèet hráèù, souprav apod.</p>
+
+
+
+<p> V horní èásti okna je zobrazen <em>seznam herních serverù</em>. Server vyberete kliknutím na text.</p>
+
+
+
+<p> Po ním jsou tlaèítka omezující výbìr na servery se stejnou verzí programu a servery se stejným pakem.</p>
+
+
+
+<p>Pokud po¾adovaný server není v seznamu, zadejte jeho ip adresu do políèka.</p>
+
+<p>Tlaèítkem <em>dotázet se serveru</em> se serveru zeptáte na informace o právì probíhající høe.</p>
+
+
+
+<p> Pomocí tlaèítka <em>hrát online</em> se pøipojíte k vámi zvolenému serveru. Poèkáte si, a¾ se naète mapa a mù¾ete hrát. </p>

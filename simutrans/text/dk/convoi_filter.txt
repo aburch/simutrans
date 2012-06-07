@@ -61,7 +61,7 @@ Her er der mulighed for at udvælge køretøjer, der opfylder følgende:<br>
 
 <p>
 Listen til højre giver mulighed for at udvælge køretøjer udfra de varer, der
-transporteres på køretøjet. <strong>Bemærk at dette filter ikke er hel
+transporteres på køretøjet. <strong>Bemærk at dette filter ikke er helt
 up-to-date, idet der for bulkgods og stykgodsvarer filtreres efter
 køretøjsbetegnelsen fremfor varetypen. Dvs. hvis der transporteres kul i en
 stenvogn, vil køretøjet fremgå under varetypen "sten" i stedet for

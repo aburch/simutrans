@@ -74,7 +74,7 @@ Game Options</a><br>
 </p>
 <p>
 <a href="window.txt"><strong>Other Options</strong></a><br>
-- <a href="window.txt">Save Screensho
+- <a href="window.txt">Save Screenshot
 </a><br>
 - <a href="window.txt">Pause</a>
 <br>

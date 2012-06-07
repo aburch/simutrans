@@ -1,4 +1,4 @@
-<title>Prologo</title>
+<title>Simutrans</title>
 
 <h1><strong>Bienvenido a Simutrans...</strong></h1>
 

@@ -15,11 +15,11 @@ Au milieu à gauche, se sont les locomotives et camions que vous avez achetés.
 En bas à gauche, les wagons et remorques qui vous appartiennent.
 </p>
 <p>
-Dans la partie basse, vous trouverez les informations concernant le véhicule actuellemen
+Dans la partie basse, vous trouverez les informations concernant le véhicule actuellement
 sélectionné, et en dessous, il y a trois boutons.
 </p>
 <p>
-Le plus à gauche est le bouton 'Départ', qui vous permet lancer le véhicule sur le traje
+Le plus à gauche est le bouton 'Départ', qui vous permet lancer le véhicule sur le trajet
 préalablement définit.
 Celui du milieu est le bouton <a href="schedule.txt">'Trajet'</a>, qui vous permet de définir un
 trajet pour le convoi en cours d'assemblage.
@@ -52,7 +52,7 @@ Pour définir le trajet d'un convoi cliquez sur le bouton
 Une fois le trajet définit, vous ordonnez le départ du convoi en appuyant sur le bouton 'Départ'.
 </p>
 <p>
-Pour renvoyer un convoi vers un dépôt, modifiez le trajet du convoi en lui indiquan
+Pour renvoyer un convoi vers un dépôt, modifiez le trajet du convoi en lui indiquant
 le dépôt comme unique destination. Une fois arrivé dans le dépôt, le convoi sera désassemblé et chaque
 véhicule sera de nouveau disponible pour être réarrangé ou vendu.
 </p>

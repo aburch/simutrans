@@ -1,4 +1,4 @@
-<title>Airport Tools Help</title>
+<title>Airport Tools</title>
 
 <h1><strong>Airport Tools</strong></h1>
 

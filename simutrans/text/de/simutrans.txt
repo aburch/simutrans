@@ -1,4 +1,4 @@
-<title>Prolog</title>
+<title>Über Simutrans</title>
 
 <h1><strong>Simutrans</strong></h1>
 

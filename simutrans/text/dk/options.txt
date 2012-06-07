@@ -59,7 +59,7 @@ Start et nyt spil.
 
 <p>
 <em>Afslut</em><br>
-Afslut spillet. Bemærk at der <strong>ikke</strong> først bliver spurgt om de
+Afslut spillet. Bemærk at der <strong>ikke</strong> først bliver spurgt om det
 aktuelle spil skal gemmes.
 </p>
 

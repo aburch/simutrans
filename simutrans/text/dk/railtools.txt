@@ -20,12 +20,12 @@ Gående fra venstre mod højre samt oppefra og ned er de forskellige symboler:
 <p>
 <em>Byg jernbaneanlæg:</em><br>
 Dette værktøj vil bygge et jernbanespor imellem to kort-kvadrater. Ved
-venstreklik på symbolet forandres cursoren til et jernbanekryds-symbol. For a
+venstreklik på symbolet forandres cursoren til et jernbanekryds-symbol. For at
 bygge et jernbanespor venstreklikkes på start-kvadratet. Cursoren forandres
 derved til en bulldozer. Venstreklik derefter på slut-kvadratet. Simutrans vil
 nu bygge et jernbanespor imellem de to kvadrater.<br>
 Der bliver kun bygget på frie kvadrater. Veje og andre spilleres jernbanespor
-vil ikke blive krydset. Benyt jernbaneovergange, broer eller tunneller til a
+vil ikke blive krydset. Benyt jernbaneovergange, broer eller tunneller til at
 krydse disse "forhindringer".<br>
 Hvis der ikke kan findes en forbindelse imellem de to kvadrater vil der ikke
 blive bygget noget overhovedet.
@@ -47,7 +47,7 @@ Et ensrettet signal fås ved at placere et normalt signal og derefter
 venstreklikke på signalet igen. Ved et yderligere venstreklik bliver retningen
 for det ensrettede signal ændret og endnu et venstreklik får signalet tilbage
 til et normalt "tovejs-signal"<br>
-Check omhyggelig om et ensrettet signal vender rigtigt, da togene i modsa
+Check omhyggelig om et ensrettet signal vender rigtigt, da togene i modsat
 fald ikke vil kunne finde en rute.
 </p>
 
@@ -59,10 +59,10 @@ Tunneller benyttes til at lave <strong>lige</strong> jernbanestrækninger
 igennem et bjerg. Benyt tunneller til at undgå at skulle bygge udenom eller
 over bjerget.<br>
 For at bygge en tunnel skal jernbanesporene, der skal forbindes, bygges først.
-Byg de to jernbanespor så de ender overfor hinanden og opad en skråning på de
+Byg de to jernbanespor så de ender overfor hinanden og opad en skråning på det
 bjerg, tunnellen skal gå igennnem. Det er vigtigt, at sporene er på samme
 niveau på hver side af bjerget.<br>
-Venstreklik derefter på en af spor-enderne, hvorefter de vil blive forbunde
+Venstreklik derefter på en af spor-enderne, hvorefter de vil blive forbundet
 med en tunnel.
 </p>
 
@@ -70,7 +70,7 @@ med en tunnel.
 <em>Byg el-master:</em><br>
 Dette værktøj benyttes til at bygge el-master på en jernbanestrækning.
 Ved venstreklik på symbolet ændres cursoren til et el-mastsymbol.<br>
-For at elektrificere en jernbanestrækning venstreklikkes på et vilkårlig
+For at elektrificere en jernbanestrækning venstreklikkes på et vilkårligt
 jernbanespor på strækningen.<br>
 El-master er nødvendige for at kunne benytte toge, der har el som
 drivmiddel. Hvis der mangler el-master, vil et sådant tog ikke kunne finde en
@@ -80,7 +80,7 @@ rute.
 <p>
 <em>Byg jernbanestation:</em><br>
 Dette værktøj benyttes til at bygge en jernbanestation på en
-jernbanestrækning. Ved venstreklik på symbolet ændres cursoren til e
+jernbanestrækning. Ved venstreklik på symbolet ændres cursoren til et
 stationssymbol.<br>
 Stationer benyttes af toge til at hente eller aflevere varer. Stationer bygges
 af stationselementer og kan være af vilkårlig størrelse.<br>
@@ -97,7 +97,7 @@ Togvogne, der ikke er inde i stationer vil ikke blive lastet eller losset.
 <p>
 <em>Byg togdepot:</em><br>
 Dette værktøj benyttes til at bygge et <a href="depot.txt">togdepot</a> på en
-jernbanestrækning. Ved venstreklik på symbolet ændres cursoren til e
+jernbanestrækning. Ved venstreklik på symbolet ændres cursoren til et
 depotsymbol.<br>
 Depoter benyttes til at købe, sælge og opdatere toge og togvogne.<br>
 For at bygge et depot venstreklikkes på et eksisterende
