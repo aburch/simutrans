@@ -393,7 +393,6 @@ void leitung_t::rdwr(loadsave_t *file)
 	}
 	else {
 		file->rdwr_long(value);
-		//      net = powernet_t::load_net((powernet_t *) value);
 		set_net(NULL);
 	}
 
