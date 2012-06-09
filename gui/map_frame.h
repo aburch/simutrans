@@ -24,7 +24,7 @@
 
 class karte_t;
 
-#define MAP_MAX_BUTTONS (23)
+#define MAP_MAX_BUTTONS (22)
 
 /**
  * Reliefkartenfenster für Simutrans.
@@ -37,6 +37,7 @@ class map_frame_t :
 	public action_listener_t
 {
 private:
+	static karte_t *welt;
 
 	/**
 	 * This is kind of hack: we know there can only be one map frame
@@ -81,9 +82,10 @@ private:
 	button_t b_show_legend;
 	button_t b_show_scale;
 	button_t b_show_directory;
+	button_t b_overlay_networks;
 	button_t b_filter_factory_list;
 
-	void update_factory_legend(karte_t *welt = NULL);
+	void update_factory_legend();
 	void show_hide_legend(const bool show);
 	void show_hide_scale(const bool show);
 	void show_hide_directory(const bool show);
@@ -108,7 +110,7 @@ public:
 	 * Konstruktor. Erzeugt alle notwendigen Subkomponenten.
 	 * @author Hj. Malthaner
 	 */
-	map_frame_t(karte_t *welt);
+	map_frame_t( karte_t *welt );
 
 	void rdwr( loadsave_t *file );
 

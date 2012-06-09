@@ -33,6 +33,8 @@
 
 static koord old_ij=koord::invalid;
 
+karte_t *map_frame_t::welt;
+
 koord map_frame_t::size=koord(0,0);
 bool map_frame_t::legend_visible=false;
 bool map_frame_t::scale_visible=false;
@@ -78,7 +80,6 @@ map_button_t button_init[MAP_MAX_BUTTONS] = {
 	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "PaxDest", "Overlay passenger destinations when a town window is open", reliefkarte_t::MAP_PAX_DEST },
 	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "Tourists", "Highlite tourist attraction", reliefkarte_t::MAP_TOURIST },
 	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "Factories", "Highlite factories", reliefkarte_t::MAP_FACTORIES },
-	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "Networks", "Overlay schedules/network", reliefkarte_t::MAP_LINES },
 	{ COL_LIGHT_YELLOW, COL_BLACK,        "Passagiere", "Show passenger coverage/passenger network", reliefkarte_t::MAP_PASSENGER },
 	{ COL_LIGHT_YELLOW, COL_BLACK,        "Post", "Show mail service coverage/mail network", reliefkarte_t::MAP_MAIL },
 	{ COL_LIGHT_YELLOW, COL_BLACK,        "Fracht", "Show transported freight/freight network", reliefkarte_t::MAP_FREIGHT },
@@ -98,11 +99,13 @@ map_button_t button_init[MAP_MAX_BUTTONS] = {
 };
 
 
-map_frame_t::map_frame_t(karte_t *welt) :
+map_frame_t::map_frame_t(karte_t *w) :
 	gui_frame_t( translator::translate("Reliefkarte") ),
 	scrolly(reliefkarte_t::get_karte()),
 	zoom_label("map zoom")
 {
+	welt = w;
+
 	// show the various objects
 	b_show_legend.init(button_t::roundbox_state, "Show legend", koord(BUTTON1_X,0), koord(D_BUTTON_WIDTH-1,D_BUTTON_HEIGHT));
 	b_show_legend.set_tooltip("Shows buttons on special topics.");
@@ -120,32 +123,39 @@ map_frame_t::map_frame_t(karte_t *welt) :
 	add_komponente(&b_show_directory);
 
 	// zoom levels
-	zoom_buttons[0].init(button_t::repeatarrowleft, NULL, koord(BUTTON1_X,D_BUTTON_HEIGHT+4));
+	zoom_buttons[0].init(button_t::repeatarrowleft, NULL, koord(BUTTON1_X,D_BUTTON_HEIGHT+D_V_SPACE));
 	zoom_buttons[0].add_listener( this );
 	add_komponente( zoom_buttons+0 );
 
-	zoom_buttons[1].init(button_t::repeatarrowright, NULL, koord(BUTTON1_X+40,D_BUTTON_HEIGHT+4));
+	zoom_buttons[1].init(button_t::repeatarrowright, NULL, koord(BUTTON1_X+40,D_BUTTON_HEIGHT+D_V_SPACE));
 	zoom_buttons[1].add_listener( this );
 	add_komponente( zoom_buttons+1 );
 
-	zoom_label.set_pos( koord(BUTTON1_X+54,D_BUTTON_HEIGHT+4) );
+	zoom_label.set_pos( koord(BUTTON1_X+54,D_BUTTON_HEIGHT+D_V_SPACE) );
 	add_komponente( &zoom_label );
 
 	// rotate map 45°
-	b_rotate45.init(button_t::square_state, "isometric map", koord(BUTTON1_X,D_BUTTON_HEIGHT*2+4));
+	b_rotate45.init( button_t::square_state, "isometric map", koord(BUTTON1_X+54+proportional_string_width(zoom_label.get_text_pointer())+D_H_SPACE+10,D_BUTTON_HEIGHT+D_V_SPACE));
 	b_rotate45.set_tooltip("Similar view as the main window");
 	b_rotate45.add_listener(this);
 	add_komponente(&b_rotate45);
+
+	b_overlay_networks.init(button_t::square_state, "Networks", koord(BUTTON1_X,D_BUTTON_HEIGHT*2+2*D_V_SPACE));
+	b_overlay_networks.set_tooltip("Overlay schedules/network");
+	b_overlay_networks.add_listener(this);
+	b_overlay_networks.set_visible( legend_visible );
+	b_overlay_networks.pressed = (umgebung_t::default_mapmode & reliefkarte_t::MAP_LINES)!=0;
+	add_komponente( &b_overlay_networks );
 
 	// filter factory list
 	b_filter_factory_list.init(button_t::square_state, "Show only used", koord(BUTTON1_X,D_BUTTON_HEIGHT*3+4));
 	b_filter_factory_list.set_tooltip("In the industry legend show only currently existing factories");
 	b_filter_factory_list.add_listener(this);
-	b_filter_factory_list.disable();
+	b_filter_factory_list.set_visible( directory_visible );
 	add_komponente( &b_filter_factory_list );
 
 	// init factory name legend
-	update_factory_legend(welt);
+	update_factory_legend();
 
 	// init the rest
 	scrolly.set_pos( koord(0, D_BUTTON_HEIGHT*4 + 2) );
@@ -209,34 +219,33 @@ map_frame_t::map_frame_t(karte_t *welt) :
 }
 
 
-void map_frame_t::update_factory_legend(karte_t *welt /*= NULL*/)
+void map_frame_t::update_factory_legend()
 {
-	legend.clear();
-
 	// When dialog is opened, update the list of industries currently in the world
-	if (welt != NULL) {
-		factory_list.clear();
-		FOR(slist_tpl<fabrik_t*>, const f, welt->get_fab_list()) {
-			fabrik_besch_t const* const factory_description = f->get_besch();
-			factory_list.put(factory_description->get_name(), factory_description);
-		}
-	}
-
-	// Build factory legend
-	const stringhashtable_tpl<const fabrik_besch_t *> & fabesch = (filter_factory_list) ? factory_list : fabrikbauer_t::get_fabesch();
-	FOR(stringhashtable_tpl<fabrik_besch_t const*>, const& i, fabesch) {
-		fabrik_besch_t const& d = *i.value;
-		if (d.get_gewichtung() > 0) {
-			std::string const label(translator::translate(d.get_name()));
-			legend.append_unique(legend_entry_t(label, d.get_kennfarbe()));
-		}
-	}
-
-	// If any names are too long for current windows size, shorten them. Can't be done in above loop in case shortening some names cause
-	// then to become non unique and thus get clumped together
+	legend.clear();
 	if(  directory_visible  ) {
+		if(  filter_factory_list  ) {
+			FOR(slist_tpl<fabrik_t*>, const f, welt->get_fab_list()) {
+				if(  f->get_besch()->get_gewichtung() > 0  ) {
+					std::string const label( translator::translate(f->get_besch()->get_name()) );
+					legend.append_unique( legend_entry_t(label, f->get_besch()->get_kennfarbe()) );
+				}
+			}
+		}
+		else {
+			FOR(stringhashtable_tpl<fabrik_besch_t const*>, const& i, fabrikbauer_t::get_fabesch()) {
+				fabrik_besch_t const& d = *i.value;
+				if (d.get_gewichtung() > 0) {
+					std::string const label(translator::translate(d.get_name()));
+					legend.append_unique(legend_entry_t(label, d.get_kennfarbe()));
+				}
+			}
+		}
+
+		// If any names are too long for current windows size, shorten them. Can't be done in above loop in case shortening some names cause
+		// then to become non unique and thus get clumped together
 		const int dot_len = proportional_string_width("..");
-		const int fac_cols = clamp(fabesch.get_count(), 1, get_fenstergroesse().x / (D_DEFAULT_WIDTH/3));
+		const int fac_cols = clamp(legend.get_count(), 1, get_fenstergroesse().x / (D_DEFAULT_WIDTH/3));
 
 		FOR(vector_tpl<legend_entry_t>, & l, legend) {
 			std::string label = l.text;
@@ -256,6 +265,8 @@ void map_frame_t::show_hide_legend(const bool show)
 {
 	b_show_legend.pressed = show;
 	legend_visible = show;
+
+	b_overlay_networks.set_visible( show );
 
 	const int col = max( 1, min( (get_fenstergroesse().x-2)/(D_BUTTON_WIDTH+D_H_SPACE), MAP_MAX_BUTTONS ) );
 	const int row = ((MAP_MAX_BUTTONS-1)/col)+1;
@@ -295,17 +306,12 @@ void map_frame_t::show_hide_directory(const bool show)
 	b_filter_factory_list.pressed = filter_factory_list;
 	directory_visible = show;
 
-	if (directory_visible) {
-		b_filter_factory_list.enable();
-	}
-	else {
-		b_filter_factory_list.disable();
-	}
+	b_filter_factory_list.set_visible( directory_visible );
 
-	const int fac_cols = clamp(legend.get_count(), 1, get_fenstergroesse().x / (D_DEFAULT_WIDTH/3));
-	const int fac_rows = (legend.get_count() - 1) / fac_cols + 1;
+	const int fac_cols = clamp( legend.get_count(), 1, get_fenstergroesse().x / (D_DEFAULT_WIDTH/3) );
+	const int fac_rows = (legend.get_count() - 1) / fac_cols + 1 + D_V_SPACE*2 + D_BUTTON_HEIGHT;
 	//No need to resize when only factory filter button state changes
-	const koord offset = directory_view_toggeled ? (show ? koord(0, (fac_rows*14)) : koord(0, -(fac_rows*14))) : koord(0, 0);
+	const koord offset = directory_view_toggeled ? (show ? koord(0, (fac_rows*LINESPACE)) : koord(0, -(fac_rows*LINESPACE))) : koord(0, 0);
 
 	scrolly.set_pos(scrolly.get_pos() + offset);
 
@@ -315,7 +321,7 @@ void map_frame_t::show_hide_directory(const bool show)
 }
 
 
-bool map_frame_t::action_triggered( gui_action_creator_t *komp, value_t )
+bool map_frame_t::action_triggered( gui_action_creator_t *komp, value_t v )
 {
 	if(komp==&b_show_legend) {
 		show_hide_legend( !b_show_legend.pressed );
@@ -344,6 +350,16 @@ bool map_frame_t::action_triggered( gui_action_creator_t *komp, value_t )
 		b_rotate45.pressed = reliefkarte_t::get_karte()->isometric;
 		reliefkarte_t::get_karte()->calc_map_groesse();
 		scrolly.set_groesse( scrolly.get_groesse() );
+	}
+	else if(komp==&b_overlay_networks) {
+		b_overlay_networks.pressed ^= 1;
+		if(  b_overlay_networks.pressed  ) {
+			umgebung_t::default_mapmode |= reliefkarte_t::MAP_LINES;
+		}
+		else {
+			umgebung_t::default_mapmode &= ~reliefkarte_t::MAP_LINES;
+		}
+		reliefkarte_t::get_karte()->set_mode(  (reliefkarte_t::MAP_MODES)umgebung_t::default_mapmode  );
 	}
 	else {
 		for(  int i=0;  i<MAP_MAX_BUTTONS;  i++  ) {
@@ -509,9 +525,13 @@ void map_frame_t::resize(const koord delta)
 	gui_frame_t::resize(delta);
 
 	const KOORD_VAL old_offset_y = scrolly.get_pos().y;
-	int offset_y = D_BUTTON_HEIGHT*4 + 2;
+	int offset_y = D_BUTTON_HEIGHT*2 + D_V_SPACE*2;
 
 	if(legend_visible) {
+		// MOVE NETWORK OVERLAY BUTTON
+		b_overlay_networks.set_pos( koord( D_MARGIN_LEFT, offset_y ) );
+		offset_y += D_BUTTON_HEIGHT;
+
 		// calculate space with legend
 		const int col = max( 1, min( (get_fenstergroesse().x-D_MARGIN_LEFT-D_MARGIN_RIGHT+D_H_SPACE)/(D_BUTTON_WIDTH+D_H_SPACE), MAP_MAX_BUTTONS ) );
 		const int row = ((MAP_MAX_BUTTONS-1)/col)+1;
@@ -522,19 +542,24 @@ void map_frame_t::resize(const koord delta)
 			filter_buttons[type].set_pos( pos );
 		}
 		offset_y += (D_BUTTON_HEIGHT+2)*row;
+		offset_y += D_V_SPACE;
 	}
 
 	if(scale_visible) {
 		// plus scale bar
-		offset_y += LINESPACE+4;
+		offset_y += LINESPACE;
+		offset_y += D_V_SPACE;
 	}
 
 	if(directory_visible) {
+		b_filter_factory_list.set_pos( koord( D_MARGIN_LEFT, offset_y ) );
+		offset_y += D_BUTTON_HEIGHT;
 		// full program including factory texts
 		update_factory_legend();
-		const int fac_cols = clamp(legend.get_count(), 1, get_fenstergroesse().x / (D_DEFAULT_WIDTH/3));
+		const int fac_cols = clamp( legend.get_count(), 1, get_fenstergroesse().x / (D_DEFAULT_WIDTH/3));
 		const int fac_rows = (legend.get_count() - 1) / fac_cols + 1;
-		offset_y += fac_rows*14;
+		offset_y += fac_rows*LINESPACE;
+		offset_y += D_V_SPACE;
 	}
 
 	// offset of map
@@ -585,14 +610,15 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 	sint16 zoom_in, zoom_out;
 	reliefkarte_t::get_karte()->get_zoom_factors(zoom_out, zoom_in);
 	sprintf( buf, "%i:%i", zoom_out, zoom_in );
-	int zoomextwidth = display_proportional( pos.x+BUTTON1_X+D_BUTTON_HEIGHT+D_H_SPACE, pos.y+D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT+3, buf, ALIGN_LEFT, COL_WHITE, true);
+	int zoomextwidth = display_proportional( pos.x+BUTTON1_X+D_BUTTON_HEIGHT+D_H_SPACE, pos.y+D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT+D_V_SPACE, buf, ALIGN_LEFT, COL_WHITE, true);
 	// move zoom arrow position and label accordingly
 	zoom_buttons[1].set_pos( koord( BUTTON1_X+D_BUTTON_HEIGHT+2*D_H_SPACE+zoomextwidth, zoom_buttons[1].get_pos().y ) );
 	zoom_label.set_pos( koord( BUTTON1_X+2*D_BUTTON_HEIGHT+3*D_H_SPACE+zoomextwidth, zoom_label.get_pos().y ) );
+	b_rotate45.set_pos( koord( zoom_label.get_pos().x+proportional_string_width(zoom_label.get_text_pointer())+D_H_SPACE+10, b_rotate45.get_pos().y ) );
 
-	int offset_y = D_BUTTON_HEIGHT*4 + 2 + D_TITLEBAR_HEIGHT;
+	int offset_y = D_BUTTON_HEIGHT*2 + D_V_SPACE*2 + D_TITLEBAR_HEIGHT;
 	if(legend_visible) {
-		offset_y = 16+filter_buttons[MAP_MAX_BUTTONS-1].get_pos().y+D_BUTTON_HEIGHT+2;
+		offset_y = D_TITLEBAR_HEIGHT+filter_buttons[MAP_MAX_BUTTONS-1].get_pos().y+D_BUTTON_HEIGHT+2+D_V_SPACE;
 	}
 
 	// draw scale
@@ -604,16 +630,19 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 		}
 		display_proportional(bar_pos.x + 26, bar_pos.y, translator::translate("min"), ALIGN_RIGHT, COL_BLACK, false);
 		display_proportional(bar_pos.x + size.x - 26, bar_pos.y, translator::translate("max"), ALIGN_LEFT, COL_BLACK, false);
-		offset_y += LINESPACE+4;
+		offset_y += LINESPACE;
+		offset_y += D_V_SPACE;
 	}
 
 	// draw factory descriptions
 	if(directory_visible) {
+		offset_y += D_BUTTON_HEIGHT;
+
 		const int fac_cols = clamp(legend.get_count(), 1, gr.x / (D_DEFAULT_WIDTH/3));
 		uint u = 0;
 		FORX(vector_tpl<legend_entry_t>, const& i, legend, ++u) {
 			const int xpos = pos.x + (u % fac_cols) * (gr.x-fac_cols/2-1)/fac_cols + 3;
-			const int ypos = pos.y + (u / fac_cols) * 14 + offset_y+2;
+			const int ypos = pos.y + (u / fac_cols) * LINESPACE + offset_y+2;
 
 			if(  ypos+LINESPACE > pos.y+gr.y  ) {
 				break;
@@ -674,6 +703,9 @@ void map_frame_t::rdwr( loadsave_t *file )
 		if(  legend_visible!=show_legend_state  ) {
 			action_triggered( &b_show_legend, (long)0 );
 		}
+		b_filter_factory_list.set_visible( directory_visible );
+
+		b_overlay_networks.pressed = (umgebung_t::default_mapmode & reliefkarte_t::MAP_LINES)!=0;
 	}
 	else {
 		koord gr = get_fenstergroesse();
