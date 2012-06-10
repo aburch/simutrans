@@ -1615,23 +1615,7 @@ void win_set_welt(karte_t *welt)
 
 bool win_change_zoom_factor(bool magnify)
 {
-	bool ok = magnify ? zoom_factor_up() : zoom_factor_down();
-	if(ok) {
-		event_t ev;
-
-		ev.ev_class = WINDOW_REZOOM;
-		ev.ev_code = get_tile_raster_width();
-		ev.mx = 0;
-		ev.my = 0;
-		ev.cx = 0;
-		ev.cy = 0;
-		ev.button_state = 0;
-
-		for(  sint32 i=wins.get_count()-1;  i>=0;  i=min(i,(int)wins.get_count())-1  ) {
-			wins[i].gui->infowin_event(&ev);
-		}
-	}
-	return ok;
+	return magnify ? zoom_factor_up() : zoom_factor_down();
 }
 
 

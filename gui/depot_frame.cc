@@ -1128,10 +1128,6 @@ bool depot_frame_t::infowin_event(const event_t *ev)
 		}
 
 		return true;
-
-	} else if(IS_WINDOW_REZOOM(ev)) {
-		koord gr = get_fenstergroesse();
-		set_fenstergroesse(gr);
 	}
 	else {
 		if(IS_LEFTCLICK(ev) &&  !line_selector.getroffen(ev->cx, ev->cy-16)) {
