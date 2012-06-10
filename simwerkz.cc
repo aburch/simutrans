@@ -1399,52 +1399,49 @@ bool wkz_transformer_t::init( karte_t *welt, spieler_t *)
 	return wegbauer_t::waytype_available( powerline_wt, welt->get_timeline_year_month() );
 }
 
+
 const char *wkz_transformer_t::check_pos( karte_t *welt, spieler_t *, koord3d pos )
 {
-	if(grund_t::underground_mode != grund_t::ugm_level) {
-		return NULL;
+	if(grund_t::underground_mode == grund_t::ugm_all  &&  umgebung_t::networkmode) {
+		// clients cannot guess at which height transformer should be build
+		return "Cannot built this station/building\nin underground mode here.";
 	}
-	else {
+	if(grund_t::underground_mode == grund_t::ugm_level) {
 		// only above or directly under surface
 		grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
 		return (gr->get_pos() == pos  ||  gr->get_hoehe() == grund_t::underground_level+1) ? NULL : "";
 	}
+	return NULL;
 }
+
 
 const char *wkz_transformer_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 {
 	DBG_MESSAGE("wkz_transformer_t()","called on %d,%d", k.x, k.y);
 
-	fabrik_t *fab = NULL;
-
 	grund_t *gr = welt->lookup_kartenboden(k.get_2d());
-
 	if(  !welt->get_settings().get_allow_underground_transformers()  &&  k.z!=gr->get_hoehe()  ) {
 		// no underground transformers allowed
 		return "Cannot built this station/building\nin underground mode here.";
 	}
 
 	bool underground = false;
-	// first look for factory
-	switch(grund_t::underground_mode) {
-		case grund_t::ugm_all:
-			fab = fabrik_t::get_fab(welt, k.get_2d());
-			k = gr->get_pos() - koord3d(0,0,1);
-			underground = true;
-			break;
-		case grund_t::ugm_level:
-			if (k.z < gr->get_hoehe()) {
-				// below surface
-				if (k.z == gr->get_hoehe()-1) {
-					fab = fabrik_t::get_fab(welt, k.get_2d());
-					underground = true;
-				}
-				break;
-			}
-			/* fallthrough */
-		default:
-			fab=leitung_t::suche_fab_4(k.get_2d());
+	fabrik_t *fab = NULL;
+	// full underground mode: coordinate is on ground, adjust it to one level below ground
+	// not possible in network mode!
+	if (!umgebung_t::networkmode  &&  grund_t::underground_mode == grund_t::ugm_all) {
+		k = gr->get_pos() - koord3d(0,0,1);
 	}
+	// search for factory
+	// must be independent of network mode
+	if (gr->get_pos().z <= k.z) {
+		fab = leitung_t::suche_fab_4(k.get_2d());
+	}
+	else if (gr->get_pos().z == k.z+1) {
+		fab = fabrik_t::get_fab(welt, k.get_2d());
+		underground = true;
+	}
+
 	if( !fab  ) {
 		return "Transformer only next to factory!";
 	}
@@ -1486,7 +1483,7 @@ const char *wkz_transformer_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 	}
 	// transformer will be build on tile pointed to by gr
 
-	// now decide from the string whether a source or drain is built
+	// build source or drain depending on factory type
 	if(fab->get_besch()->is_electricity_producer()) {
 		pumpe_t *p = new pumpe_t(welt, gr->get_pos(), sp);
 		gr->obj_add( p );
