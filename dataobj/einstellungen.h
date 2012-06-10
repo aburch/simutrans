@@ -19,17 +19,6 @@ class loadsave_t;
 class tabfile_t;
 class weg_besch_t;
 
-// these are the only classes, that are allowed to modfy elements from settings_t
-// for all remaing special cases there are the set_...() routines
-class settings_general_stats_t;
-class settings_routing_stats_t;
-class settings_economy_stats_t;
-class settings_costs_stats_t;
-class settings_climates_stats_t;
-class climate_gui_t;
-class welt_gui_t;
-
-
 struct road_timeline_t
 {
 	char name[64];
@@ -40,13 +29,15 @@ struct road_timeline_t
 
 class settings_t
 {
-friend class settings_general_stats_t;
-friend class settings_routing_stats_t;
-friend class settings_economy_stats_t;
-friend class settings_costs_stats_t;
-friend class settings_climates_stats_t;
-friend class climate_gui_t;
-friend class welt_gui_t;
+	// these are the only classes, that are allowed to modfy elements from settings_t
+	// for all remaing special cases there are the set_...() routines
+	friend class settings_general_stats_t;
+	friend class settings_routing_stats_t;
+	friend class settings_economy_stats_t;
+	friend class settings_costs_stats_t;
+	friend class settings_climates_stats_t;
+	friend class climate_gui_t;
+	friend class welt_gui_t;
 
 private:
 	sint32 groesse_x, groesse_y;
@@ -261,7 +252,7 @@ private:
 	sint32 way_toll_waycost_percentage;
 
 	// true if transformers are allowed to built underground
-	bool allow_undergroud_transformers;
+	bool allow_underground_transformers;
 
 public:
 	/* the big cost section */
@@ -530,7 +521,7 @@ public:
 
 	sint32 get_bonus_basefactor() const { return bonus_basefactor; }
 
-	bool get_allow_undergroud_transformers() const { return allow_undergroud_transformers; }
+	bool get_allow_underground_transformers() const { return allow_underground_transformers; }
 };
 
 #endif

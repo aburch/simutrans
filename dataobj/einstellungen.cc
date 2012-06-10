@@ -209,7 +209,7 @@ settings_t::settings_t() :
 	way_toll_runningcost_percentage = 0;
 	way_toll_waycost_percentage = 0;
 
-	allow_undergroud_transformers = true;
+	allow_underground_transformers = true;
 
 	// stop buildings
 	cst_multiply_dock=-50000;
@@ -709,7 +709,7 @@ void settings_t::rdwr(loadsave_t *file)
 		}
 
 		if(  file->get_version()>=111004  ) {
-			file->rdwr_bool( allow_undergroud_transformers );
+			file->rdwr_bool( allow_underground_transformers );
 		}
 
 		// otherwise the default values of the last one will be used
@@ -847,7 +847,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	drive_on_left = contents.get_int("drive_left", drive_on_left );
 	signals_on_left = contents.get_int("signals_on_left", signals_on_left );
-	allow_undergroud_transformers = contents.get_int( "allow_undergroud_transformers", allow_undergroud_transformers )!=0;
+	allow_underground_transformers = contents.get_int( "allow_underground_transformers", allow_underground_transformers )!=0;
 
 	// up to ten rivers are possible
 	for(  int i = 0;  i<10;  i++  ) {

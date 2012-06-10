@@ -144,7 +144,7 @@ void settings_general_stats_t::read(settings_t* const sets)
 	}
 }
 
-void settings_display_stats_t::init(settings_t const* const sets)
+void settings_display_stats_t::init(settings_t const* const)
 {
 	INIT_INIT
 	INIT_NUM( "frames_per_second",umgebung_t::fps, 10, 25, gui_numberinput_t::AUTOLINEAR, false );
@@ -172,7 +172,7 @@ void settings_display_stats_t::init(settings_t const* const sets)
 	set_groesse( settings_stats_t::get_groesse() );
 }
 
-void settings_display_stats_t::read(settings_t* const sets)
+void settings_display_stats_t::read(settings_t* const)
 {
 	READ_INIT
 	// all visual stuff
@@ -266,7 +266,7 @@ void settings_economy_stats_t::init(settings_t const* const sets)
 	INIT_NUM( "industry_increase_every", sets->get_industry_increase_every(), 0, 100000, 100, false );
 	INIT_NUM( "factory_spacing", sets->get_factory_spacing(), 1, 32767, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "electric_promille", sets->get_electric_promille(), 0, 1000, gui_numberinput_t::AUTOLINEAR, false );
-	INIT_BOOL( "allow_undergroud_transformers", sets->get_allow_undergroud_transformers() );
+	INIT_BOOL( "allow_underground_transformers", sets->get_allow_underground_transformers() );
 	SEPERATOR
 
 	INIT_NUM( "passenger_factor",  sets->get_passenger_factor(), 0, 16, gui_numberinput_t::AUTOLINEAR, false );
@@ -342,7 +342,7 @@ void settings_economy_stats_t::read(settings_t* const sets)
 	READ_NUM_VALUE( sets->industry_increase );
 	READ_NUM_VALUE( sets->factory_spacing );
 	READ_NUM_VALUE( sets->electric_promille );
-	READ_BOOL_VALUE( sets->allow_undergroud_transformers );
+	READ_BOOL_VALUE( sets->allow_underground_transformers );
 
 	READ_NUM_VALUE( sets->passenger_factor );
 	READ_NUM_VALUE( sets->minimum_city_distance );

@@ -1419,7 +1419,7 @@ const char *wkz_transformer_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 
 	grund_t *gr = welt->lookup_kartenboden(k.get_2d());
 
-	if(  !welt->get_settings().get_allow_undergroud_transformers()  &&  k.z!=gr->get_hoehe()  ) {
+	if(  !welt->get_settings().get_allow_underground_transformers()  &&  k.z!=gr->get_hoehe()  ) {
 		// no underground transformers allowed
 		return "Cannot built this station/building\nin underground mode here.";
 	}
