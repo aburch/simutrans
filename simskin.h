@@ -48,6 +48,7 @@ public:
 	static const skin_besch_t *passagiere;
 	static const skin_besch_t *post;
 	static const skin_besch_t *waren;
+	static const skin_besch_t *station_type;
 
 	// for the attraction/factory
 	static const skin_besch_t *electricity;

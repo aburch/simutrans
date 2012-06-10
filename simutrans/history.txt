@@ -1,3 +1,5 @@
+Release of 111.3 (r5772 on 10-Jun-2012):
+	FIX: race condition with multithreads on GDI
 	CHG: savegames will be saved as "_temp.sve" and only renamed after after success to the final name
 	ADD: screen redraw will be now up to 50% faster when needed thanks to multi-threading
 	ADD: hashtables for animations and smoke => much faster adding/removing

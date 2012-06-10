@@ -11,14 +11,14 @@
 #define SIM_BUILD_RELEASE           2
 
 #define SIM_VERSION_MAJOR 111
-#define SIM_VERSION_MINOR   2
-#define SIM_VERSION_PATCH   3
-#define SIM_VERSION_BUILD SIM_BUILD_NIGHTLY
+#define SIM_VERSION_MINOR   3
+#define SIM_VERSION_PATCH   0
+#define SIM_VERSION_BUILD SIM_BUILD_RELEASE
 
 // Beware: SAVEGAME minor is often ahead of version minor when there were patches.
 // ==> These have no direct connection at all!
-#define SIM_SAVE_MINOR      3
-#define SIM_SERVER_MINOR    3
+#define SIM_SAVE_MINOR      4
+#define SIM_SERVER_MINOR    4
 
 #define MAKEOBJ_VERSION "53"
 

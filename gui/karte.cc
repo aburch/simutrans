@@ -4,6 +4,7 @@
 #include "../simworld.h"
 #include "../simdepot.h"
 #include "../simhalt.h"
+#include "../simskin.h"
 #include "../boden/grund.h"
 #include "../simfab.h"
 #include "../simcity.h"
@@ -1461,12 +1462,27 @@ void reliefkarte_t::zeichnen(koord pos)
 				diagonal_dist = (diagonal_dist*3)-1;
 			}
 
-			if(  stype & haltestelle_t::airstop  ) {
-				display_airport( temp_stop.x+diagonal_dist, temp_stop.y+diagonal_dist, color );
+			// show the mode of transport of the station
+			if(  skinverwaltung_t::station_type  ) {
+				int icon = 0;
+				for(  int type=0;  type<9;  type++  ) {
+					if(  (stype>>type)&1  ) {
+						image_id img = skinverwaltung_t::station_type->get_bild_nr(type);
+						if(  img!=IMG_LEER  ) {
+							display_color_img( img, temp_stop.x+diagonal_dist+4+(icon/2)*12, temp_stop.y+diagonal_dist+4+(icon&1)*12, station->get_besitzer()->get_player_nr(), false, false );
+							icon++;
+						}
+					}
+				}
 			}
+			else {
+				if(  stype & haltestelle_t::airstop  ) {
+					display_airport( temp_stop.x+diagonal_dist, temp_stop.y+diagonal_dist, color );
+				}
 
-			if(  stype & haltestelle_t::dock  ) {
-				display_harbor( temp_stop.x+diagonal_dist, temp_stop.y+diagonal_dist, color );
+				if(  stype & haltestelle_t::dock  ) {
+					display_harbor( temp_stop.x+diagonal_dist, temp_stop.y+diagonal_dist, color );
+				}
 			}
 		}
 
