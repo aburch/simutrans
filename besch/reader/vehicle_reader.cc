@@ -247,6 +247,7 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				besch->upgrade_price = decode_uint32(p);
 				besch->available_only_as_upgrade = decode_uint8(p);
 				besch->brake_force = BRAKE_FORCE_UNKNOWN;
+				besch->rolling_resistance = float32e8_t(rolling_default(besch->typ), 10000UL);
 				if(experimental_version == 1)
 				{
 					besch->fixed_cost = decode_uint16(p);
@@ -303,8 +304,6 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				{
 					besch->min_loading_time_seconds = besch->max_loading_time_seconds = 65535;
 				}
-				besch->rolling_resistance = float32e8_t(rolling_default(besch->typ), 10000UL);
-				besch->brake_force = BRAKE_FORCE_UNKNOWN;
 			}
 			else
 			{
