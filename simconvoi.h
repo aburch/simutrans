@@ -71,7 +71,7 @@ public:
 	/* Konstanten
 	* @author prissi
 	*/
-	enum { max_vehicle=4, max_rail_vehicle = 64 };
+	enum { max_vehicle=8, max_rail_vehicle = 64 };
 
 	enum states {INITIAL,
 		FAHRPLANEINGABE,
