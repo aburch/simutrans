@@ -66,7 +66,7 @@ const uint8 reliefkarte_t::severity_color[MAX_SEVERITY_COLORS] =
 #define STRASSE_KENN      (208)
 #define SCHIENE_KENN      (185)
 #define CHANNEL_KENN      (147)
-#define MONORAIL_KENN      (153)
+#define MONORAIL_KENN      (155)
 #define RUNWAY_KENN      (28)
 #define POWERLINE_KENN      (55)
 #define HALT_KENN         COL_RED
@@ -635,7 +635,7 @@ uint8 reliefkarte_t::calc_relief_farbe(const grund_t *gr)
 				color = MN_GREY3;
 				break;
 			case grund_t::tunnelboden:
-				color = MN_GREY0;
+				color = COL_BROWN;
 				break;
 			case grund_t::monorailboden:
 				color = MONORAIL_KENN;
@@ -679,10 +679,11 @@ uint8 reliefkarte_t::calc_relief_farbe(const grund_t *gr)
 						case road_wt: color = STRASSE_KENN; break;
 						case tram_wt:
 						case track_wt: color = SCHIENE_KENN; break;
-						case monorail_wt: color = MONORAIL_KENN; break;
 						case water_wt: color = CHANNEL_KENN; break;
 						case air_wt: color = RUNWAY_KENN; break;
-						default:	// silence compiler!
+						case monorail_wt:
+						default:	// all other ways light red ...
+							color = 135; break;
 							break;
 					}
 				}
@@ -1585,7 +1586,7 @@ void reliefkarte_t::zeichnen(koord pos)
 					max_tourist_ziele = pax;
 				}
 				COLOR_VAL color = calc_severity_color_log(gb->get_passagier_level(), max_tourist_ziele);
-				int radius = number_to_radius( pax*4 );
+				int radius = max( (number_to_radius( pax*4 )*zoom_in)/zoom_out, 1 );
 				display_filled_circle( gb_pos.x, gb_pos.y, radius, color );
 				display_circle( gb_pos.x, gb_pos.y, radius, COL_BLACK );
 			}
