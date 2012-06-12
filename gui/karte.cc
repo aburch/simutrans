@@ -1598,9 +1598,11 @@ void reliefkarte_t::zeichnen(koord pos)
 			koord fab_pos = f->get_pos().get_2d();
 			karte_to_screen( fab_pos );
 			fab_pos = fab_pos + pos;
-//			koord size = f->get_besch()->get_haus()->get_groesse();
-			display_fillbox_wh_clip( fab_pos.x-4, fab_pos.y-4, 9, 9, COL_BLACK, false );
-			display_fillbox_wh_clip( fab_pos.x-3, fab_pos.y-3, 7, 7, f->get_kennfarbe(), false );
+			koord size = f->get_besch()->get_haus()->get_groesse(f->get_rotate());
+			sint16 x_size = max( 5, size.x*zoom_in );
+			sint16 y_size = max( 5, size.y*zoom_in );
+			display_fillbox_wh_clip( fab_pos.x-1, fab_pos.y-1, x_size+2, y_size+2, COL_BLACK, false );
+			display_fillbox_wh_clip( fab_pos.x, fab_pos.y, x_size, y_size, f->get_kennfarbe(), false );
 		}
 	}
 
