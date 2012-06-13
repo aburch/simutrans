@@ -1,67 +1,67 @@
-<title>Map Help</title>
+<title>Map Window Help</title>
 
-<h1><strong>Map</strong></h1>
+<h1><strong>Map Window</strong></h1>
 
-<p>
-<strong>Map</strong> provides a map of the current world giving information on terrain, important locations, & transport networks. It also provides a way to move game-view around world.
+<p>The <strong>Map</strong> provides a map of the current world giving information on terrain, important locations, and transport networks. It also provides a way to move the view on the world.
 </p>
-<p>
-Click on map-icon at top of game-view or press <a href="keys.txt">[m]</a> to open <strong>Map</strong>, which can be <a href="mouse.txt">re-sized</a> or minimised. The left/right-arrows, on the titlebar, close/open in stages: map options, a min-max colour scale that shows activity level for some of the options, & a key to colours of <a href="industry_info.txt">industry</a> seen on the map.
+<p>Click on map-icon at the top menu or press <a href="keys.txt">[m]</a> to open <strong>Map</strong>, which can be <a href="mouse.txt">re-sized</a> or minimised. The three topmost buttons enable further options<br/>
+&nbsp;<em>Selections</em> show various buttons to overlay further information on the map<br/>
+&nbsp;<em>Color Codes</em> shows a min-max colour scale that shows activity level for some of the options.<br/>
+&nbsp;<em>Industry List</em> open s table with the colours of <a href="industry_info.txt">industries</a> seen on the map.<br/>
 </p>
-<p>
-The map has different zoom levels: use mouse-wheel, page up/down or the buttons to change them. You can also tilt the map to match the display using the <em>isometric map</em> button.
+<p>The map has different zoom levels: use mouse-wheel, page up/down or the buttons to change them. You can also tilt the map to match the display using the <em>isometric map</em> button.
 </p>
-<p>There are two additional buttons. <em>Factory links</em> show connections to consumers of (or with SHIFT to producers for) the factory under the mouse pointer when the left mouse button is pressed. <em>Show schedules</em> shows for the topmost schedule the connections on the map.
+<p>On the map, water is blue and lower land is darker than higher land. The currently visible part of the world on the screen is indicated by a yellow-square outline. To move this field of vision across the world, left-click on map at desired location or left-click-drag the yellow-square. With right-click drag you can move the area in the map window without using the scrollbars.
 </p>
-<p>On the map, water is blue & lower land is darker than higher land. Part of world in game-view, is shown by a white-square outline in <strong>Map</strong>: top of game-view corresponds to top-left-side of white-square (North is at top of map, North-West is at top of game-view). If the white-square falls off the map, water is seen in game-view for corresponding area.
+<p>On the default map (when not using the options) <a href="citywindow.txt">urban areas</a> and attraction are grey, powerlines turquoise, tunnels are brown, elevated ways light brown, and bridges light grey. On the ground ways have their distinct colors: Roads appear nearly black; rail and tram tracks are dark brown; canals are blue; and runways are dark yellow. All other ways (like narrow gauge, maglev, or monorail tracks) are light red. <a href="station.txt">Stops</a> are red. Vehicles on ways are yellow.
 </p>
-<p>
-To move game-view across large distances in world, left-click on map at required point or left-click-drag white-square.
+<p>The button <em>Networks</em> will overlay an abstract line network like a subway map over the map. Using the yellow button, you can restrict it to only show passenger, Mail or freight connections.
 </p>
-<p>
-Point mouse-cursor at an <a href="industry_info.txt">industry</a> on map, to see name & a white line linking customer(s) which flash; hold down [Shift] first to show a red line to supplier(s).
+<p>Using the selection button many additional informations can be overlaid. Those fall in three groups. White and yellow buttons are exclusive and will disable any other white option. Green buttons are for overlays that can be combined with any other. The third group are the red buttons for stops. From this stop group only one can be active at a time.
 </p>
-<p>
-On the map (when not using the options): <a href="citywindow.txt">urban areas</a>, attractions, tunnels, ?canals appear dark grey; roads, black; rail & tram tracks, medium grey; bridges, light grey; <a href="station.txt">Stops</a>,?red/yellow; ; monorail/maglev track, ?orange; airport areas, ?off-white; & vehicles, yellow.
+<p>The following options exist:
 </p>
-<p>
-Click option-buttons to show/hide details on map of:
-</p>
-<p>
-<em>Cities:</em> names of <a href="citywindow.txt">urban areas</a>.
-</p>
-<p>
-<em>passengers:</em> catchment area for passengers by <a href="station.txt">Stops</a>.
+<em>Cities</em> names of <a href="citywindow.txt">urban areas</a>.<br/>
+
+<em>City Limits</em> show the city limits; new houses and roads are only built inside the city limits.<br/>
+
+<em>No. of buildings</em> colors each city building according to its level. The level determines the probability to generate passengers or mail here.<br/>
+
+<em>Destinations</em> If a town selected, this option overlays the current passenger destinations (similar to the small map in the <a href="citywindow.txt">City Information</a>.)<br/>
+
+<em>Attractions</em> draws circles on the location of tourist attractions. The color and size will indicate the amount of traffic this tourist attractions generates (use min-max scale).<br/>
+
+<em>Factories:</em> highlights <a href="industry_info.txt">industry</a> (consumers and suppliers). If this overlay is active and the mouse pointer hovers over an <a href="industry_info.txt">industry</a> on map, it will show the name and white lines linking customers; hold down [Shift] to show red line to suppliers. The color is the color of the industry can be seen fro the <em>Industry List</em>.<br/>
+
+<em>Passengers</em> colors the catchment area for passengers by <a href="station.txt">Stops</a> with the color of the respective owner. If the network overlay is active, it will only show passenger connections.<br/>
+
+<em>Mail</em> colors catchment area for mail by <a href="station.txt">Stops</a> with the color of the respective owner. If the network overlay is active, it will only show passenger connections.<br/>
+
+<em>Freight</em>level of goods and passengers transported on alls ways (uses min-max scale). If the network overlay is active, it will only show freight connections.<br/>
+
+<em>Stop Status</em> (and all following red options) highlight the <a href="station.txt">stops</a> by circles. <em>Stop Status</em> color indicate how overcrowded a stop is. The same colour is shown in status-colour-bars in <a href="haltlist.txt">Station List</a>, in the <a href="station.txt">Stop Information</a>, <a href="linemanagement.txt">Line Management</a> and finally in the color-bar above the name of a stop. The size indicates the capacity of a stop for passengers.<br/>
+
+<em>Waiting</em> shows the amount of passengers, mail and goods waiting for transport at a <a href="station.txt">Stop</a>. Color as and size indicate the amount waiting (uses min-max scale).<br/>
+
+<em>Queing</em> shows how much the amount of passengers, mail and goods waiting has changed within this month. The size indicates the total change, while the colors are green for decreasing and red for increasing (uses min-max scale).<br/>
+
+<em>Service</em> color and size indicate how many <a href="convoiinfo.txt">vehicles</a> served a station in this months (uses min-max scale).<br/>
+
+<em>Transfers</em> size and color indicate how many arrived/departed at a station (uses min-max scale).<br/>
+
+<em>Origin</em> color and size show how many passengers and mail wanted to start their journey at a <a href="station.txt">Stop</a>, i.e. the sum of happy, unhappy and no route passengers (uses min-max scale).<br/>
+
+<em>Traffic</em> colors ways by the number of vehicles passed within a month (uses min-max scale).<br/>
+
+<em>Tracks</em> rail amd tram tracks, bridges, and tunnels are shown as white (red if electrified). Signals are shown as yellow.<br/>
+
+<em>Speed Limit</em> colors all ways with respect to their maximum speed allowed (uses min-max scale).<br/>
+
+<em>Depots</em> highlights <a href="depot.txt">depots</a>. Colors indicate transport types: ship, yellow; road, orange; rail, red; aircraft, green; trams, blue; and monorail, grey.
 <br/>
-<em>Mail:</em> catchment area for mail by <a href="station.txt">Stops</a>.
-<br/>
-<em>Freight:</em>level of goods & passengers on roads & track (use min-max scale).
-<br/>
-<a href="station.txt"><em>Stop</em></a> <em>status:</em> colours indicate operation of Stop with regards to how overcrowded it is. The same colour is shown in status-colour-bars in <a href="haltlist.txt">Station List</a> & <a href="station.txt">Stop Information</a> & <a href="linemanagement.txt">Line Management</a> and is the same colour displayed in the colour-bar above the name of a Stop in game-display).
-<br/>
-<em>Service:</em> level of goods & passengers using a <a href="station.txt">Stop</a>(use min-max scale).
-<br/>
-<em>Traffic:</em> level of <a href="convoiinfo.txt">vehicles</a> on roads & track (use min-max scale).
-<br/>
-<em>Origin:</em> level of goods & passengers that start journey at <a href="station.txt">Stop</a> (use min-max scale).
-<br/>
-<em>Arrivals:</em> level of goods & passengers terminating journey at a <a href="station.txt">Stop</a> (use min-max scale).
-<br/>
-<em>Waiting:</em> level of goods & passengers waiting for transport at a <a href="station.txt">Stop</a> (use min-max scale).
-<br/>
-<em>Tracks:</em> rail & tram tracks & signals; tracks, bridges & tunnels are shown as white (red if electric) & signals are shown as yellow.
-<br/>
-<em>Speed Limit:</em> road & track is shown by maximum speed allowed (use min-max scale).
-<br/>
-<em>Powerlines:</em> <a href="special.txt">power transmission lines</a> (use min-max scale to see supply level at time Map was opened).
-<br/>
-<em>Attractions:</em> level of passengers that tourist attractions generate (use min-max scale), option also emphasizes attraction on map.
-<br/>
-<em>Factories:</em> emphasized <a href="industry_info.txt">industry</a>; highlights consumers & suppliers on map.
-<br/>
-<em>Depots:</em> emphasized <a href="depot.txt">depots</a>. Colours indicate transport type: ship, yellow; road, orange; rail, red; aircraft, green; trams, blue; and monorail, grey.
-<br/>
-<em>City Limits:</em> Show the city limits; new houses and roads are only built inside the city limits.
-<br/>
-<em>Destination:</em> If a town selected, show the current passenger destinations (similar to the small map in the <a href="citywindow.txt">City Information</a>.
-</p>
+
+<em>Powerlines</em> show the load on <a href="special.txt">power transmission lines</a>.<br/>
+
+<em>Forest</em> shows forests in bright green.<br/>
+
+<em>Ownership</em> colors all things on the map with the a href="color.txt">color of their owner</a> (orange for unowned).<br/>

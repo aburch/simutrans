@@ -3,11 +3,11 @@
 SectionGroup "Pak64: main and addons" pak64group
 
 Section "!pak (64 size) (standard)" pak
-  AddSize 10704
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/111-2/simupak64-111-2.zip"
-  StrCpy $archievename "simupak64-111-2.zip"
+  AddSize 10723
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/111-3/simupak64-111-2.zip"
+  StrCpy $archievename "simupak64-111-3.zip"
   StrCpy $downloadname "pak"
-  StrCpy $VersionString "pak64 111.2 r810:811"
+  StrCpy $VersionString "pak64 111.3 r892"
   Call DownloadInstallZip
 SectionEnd
 
@@ -71,12 +71,12 @@ SectionGroupEnd
 
 
 
-Section /o "pak.japan (64 size) for 110.0.0" pak64japan
-  AddSize 6596
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak.japan/110-0/simupak64.japan-110-0.zip"
-  StrCpy $archievename "simupak64.japan-110-0.zip"
+Section /o "pak.japan (64 size) for 111.3" pak64japan
+  AddSize 6709
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak.japan/111-3/simupak64.japan-110-0.zip"
+  StrCpy $archievename "simupak64.japan-111-3.zip"
   StrCpy $downloadname "pak.japan"
-  StrCpy $VersionString "pak64.japan 110.0 r418:419"
+  StrCpy $VersionString "pak64.japan 111.3 r892"
   Call DownloadInstallZip
 SectionEnd
 

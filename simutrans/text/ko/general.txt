@@ -15,7 +15,7 @@
 <it>게임 옵션</it>: <a href="options.txt">※게임 옵션</a><br><br>
 <a href="language.txt">※언어</a>|　<a href="color.txt">※칼라 다이얼로그</a>|　<a href="display.txt">※표시 설정</a><br><br>
 <a href="sound.txt">※사운드 다이얼로그</a>|　<a href="players.txt">라이벌 회사 일람</a>|　<a href="load.txt">※게임의 재개</a><br><br>
-<a href="save.txt">※게임의 보존</a>|　<a href="new_world.txt">※새로운 맵의 작성</a>|
+<a href="save.txt">※게임의 보존</a>|　<a href="new_world.txt">※새로운 맵의 작성</a>|　
 <a href="climates.txt">Climate Control</a><br><br>
 <a href="load_relief.txt">Load Height Map</a>　|　<a href="settings.txt">고도의 설정</a>
 </p>
