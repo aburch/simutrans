@@ -4,7 +4,7 @@ SectionGroup "Pak64: main and addons" pak64group
 
 Section "!pak (64 size) (standard)" pak
   AddSize 10723
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/111-3/simupak64-111-2.zip"
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/111-3/simupak64-111-3.zip"
   StrCpy $archievename "simupak64-111-3.zip"
   StrCpy $downloadname "pak"
   StrCpy $VersionString "pak64 111.3 r892"
@@ -73,7 +73,7 @@ SectionGroupEnd
 
 Section /o "pak.japan (64 size) for 111.3" pak64japan
   AddSize 6709
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak.japan/111-3/simupak64.japan-110-0.zip"
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64.japan/111-3/simupak64.japan-111-3.zip"
   StrCpy $archievename "simupak64.japan-111-3.zip"
   StrCpy $downloadname "pak.japan"
   StrCpy $VersionString "pak64.japan 111.3 r892"
@@ -107,8 +107,8 @@ SectionEnd
 
 Section /o "pak64.contrast (GPL) for 102.2.2" pak64contrast
    AddSize 1367
-  StrCpy $downloadlink "http://addons.simutrans.com/get.php?type=addon&aid=166"
-  StrCpy $archievename "simuAddon_Contrast_910.zip"
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64.contrast/pak64.Contrast_910.zip"
+  StrCpy $archievename "pak64.Contrast_910.zip"
   StrCpy $downloadname "pak64.contrast"
   StrCpy $VersionString ""
   Call DownloadInstallZipWithoutSimutrans
@@ -215,12 +215,12 @@ SectionEnd
 
 
 
-Section /o "pak48.excentrique V0.16" pak48excentrique
-  AddSize 1544
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak48.Excentrique/v0.16-for-Simutrans-111.1/pak48_excentrique-v0_16.zip"
-  StrCpy $archievename "pak48_excentrique-v0_16.zip"
+Section /o "pak48.excentrique V0.17" pak48excentrique
+  AddSize 1385
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/ironsimu/pak48.Excentrique/pak48-excentrique_v017.zip"
+  StrCpy $archievename "pak48-excentrique-v017.zip"
   StrCpy $downloadname "pak48.Excentrique"
-  StrCpy $VersionString "pak48.Excentrique v0.16"
+  StrCpy $VersionString "pak48.Excentrique v0.17"
   Call DownloadInstallZipWithoutSimutrans
 SectionEnd
 

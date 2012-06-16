@@ -372,9 +372,12 @@ DownloadInstallZipWithoutSimutransDo:
   RMdir /r "$TEMP\simutrans"
   CreateDirectory "$TEMP\simutrans"
 # since we also want to download from addons ...
-  inetc::get $downloadlink "$Temp\$archievename"
+#  inetc::get $downloadlink "$Temp\$archievename"
+#  Pop $R0 ;Get the return value
+#  StrCmp $R0 "OK" +3
+  NSISdl::download $downloadlink "$Temp\$archievename"
   Pop $R0 ;Get the return value
-  StrCmp $R0 "OK" +3
+  StrCmp $R0 "success" +3
      MessageBox MB_OK "Download of $archievename failed: $R0"
      Quit
 
