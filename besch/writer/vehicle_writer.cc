@@ -86,7 +86,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// Hajo: version number
 	// Hajo: Version needs high bit set as trigger -> this is required
 	//       as marker because formerly nodes were unversionend
-	uint16 version = 0x8009;
+	uint16 version = 0x800A;
 	node.write_uint16(fp, version, pos);
 	pos += sizeof(uint16);
 
@@ -112,9 +112,10 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	pos += sizeof(payload);
 
 	// Hajodoc: Total weight of this vehicle in tons
-	uint16 weight = obj.get_int("weight", 0);
-	node.write_uint16(fp, weight, pos);
-	pos += sizeof(uint16);
+	const char *weight_str = obj.get("weight");
+	uint32 weight = (uint32)(atof( weight_str ) + 0.0009);
+	node.write_uint32(fp, weight, pos);
+	pos += sizeof(uint32);
 
 	// axle_load (determine ways usage)
 	uint16 axle_load = obj.get_int("axle_load", 0);

@@ -1184,9 +1184,12 @@ void depot_frame_t::zeichnen(koord pos, koord groesse)
 						}
 					}
 					total_empty_weight += besch->get_gewicht();
-					total_max_weight += besch->get_gewicht() + (max_weight*besch->get_zuladung()+499)/1000;
-					total_min_weight += besch->get_gewicht() + (min_weight*besch->get_zuladung()+499)/1000;
+					total_max_weight += besch->get_gewicht() + max_weight*besch->get_zuladung();
+					total_min_weight += besch->get_gewicht() + min_weight*besch->get_zuladung();
 				}
+				total_empty_weight /= 1000;
+				total_max_weight /= 1000;
+				total_min_weight /= 1000;
 
 				const sint32 cnv_min_top_kmh = speed_to_kmh( cnv->get_min_top_speed() );
 				empty_kmh = total_power <= total_empty_weight ? 1 : min( cnv_min_top_kmh, sqrt_i32(((total_power<<8)/total_empty_weight-(1<<8))<<8)*50 >>8 );
@@ -1359,7 +1362,7 @@ void depot_frame_t::draw_vehicle_info_text(koord pos)
 				veh_type->get_betriebskosten()/100.0,
 				veh_type->get_leistung(),
 				veh_type->get_geschw(),
-				veh_type->get_gewicht()
+				veh_type->get_gewicht()/1000
 				);
 
 			if(zuladung>0) {
@@ -1384,7 +1387,7 @@ void depot_frame_t::draw_vehicle_info_text(koord pos)
 				veh_type->get_ware()->get_catg() == 0 ?
 				translator::translate(veh_type->get_ware()->get_name()) :
 				translator::translate(veh_type->get_ware()->get_catg_name()),
-				veh_type->get_gewicht(),
+				veh_type->get_gewicht()/1000,
 				veh_type->get_geschw()
 				);
 		}

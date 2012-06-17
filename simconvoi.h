@@ -218,8 +218,8 @@ private:
 	* errechnet beim beladen/fahren.
 	* @author Hj. Malthaner, prissi
 	*/
-	sint32 sum_gewicht;
-	sint32 sum_gesamtgewicht;
+	sint64 sum_gewicht;
+	sint64 sum_gesamtgewicht;
 
 	// cached values
 	// will be recalculated if
@@ -560,8 +560,8 @@ public:
 	 */
 	const uint32 & get_sum_leistung() const {return sum_leistung;}
 	const sint32 & get_min_top_speed() const {return min_top_speed;}
-	const sint32 & get_sum_gewicht() const {return sum_gewicht;}
-	const sint32 & get_sum_gesamtgewicht() const {return sum_gesamtgewicht;}
+	const sint64 get_sum_gewicht() const {return sum_gewicht;}
+	const sint64 get_sum_gesamtgewicht() const {return sum_gesamtgewicht;}
 
 	uint32 get_length() const;
 

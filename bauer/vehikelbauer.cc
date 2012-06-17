@@ -378,14 +378,14 @@ const vehikel_besch_t *vehikelbauer_t::vehikel_search( waytype_t wt, const uint1
 			uint32 max_weight = power/( (speed*speed)/2500 + 1 );
 
 			// we found a useful engine
-			long current_index = (power*100)/(1+test_besch->get_betriebskosten()) + test_besch->get_geschw() - (sint16)test_besch->get_gewicht() - (sint32)(test_besch->get_preis()/25000);
+			long current_index = (power*100)/(1+test_besch->get_betriebskosten()) + test_besch->get_geschw() - test_besch->get_gewicht()/1000 - (sint32)(test_besch->get_preis()/25000);
 			// too slow?
 			if(speed < target_speed) {
 				current_index -= 250;
 			}
 			// too weak to to reach full speed?
-			if(  max_weight < target_weight+test_besch->get_gewicht()  ) {
-				current_index += max_weight - (sint32)(target_weight+test_besch->get_gewicht());
+			if(  max_weight < target_weight+test_besch->get_gewicht()/1000  ) {
+				current_index += max_weight - (sint32)(target_weight+test_besch->get_gewicht()/1000);
 			}
 			current_index += simrand(100);
 			if(  current_index > besch_index  ) {
@@ -495,14 +495,14 @@ const vehikel_besch_t *vehikelbauer_t::get_best_matching( waytype_t wt, const ui
 			uint32 max_weight = power/( (speed*speed)/2500 + 1 );
 
 			// we found a useful engine
-			long current_index = (power*100)/(1+test_besch->get_betriebskosten()) + test_besch->get_geschw() - (sint16)test_besch->get_gewicht() - (sint32)(test_besch->get_preis()/25000);
+			long current_index = (power*100)/(1+test_besch->get_betriebskosten()) + test_besch->get_geschw() - (sint16)test_besch->get_gewicht()/1000 - (sint32)(test_besch->get_preis()/25000);
 			// too slow?
 			if(speed < target_speed) {
 				current_index -= 250;
 			}
 			// too weak to to reach full speed?
-			if(  max_weight < target_weight+test_besch->get_gewicht()  ) {
-				current_index += max_weight - (sint32)(target_weight+test_besch->get_gewicht());
+			if(  max_weight < target_weight+test_besch->get_gewicht()/1000  ) {
+				current_index += max_weight - (sint32)(target_weight+test_besch->get_gewicht()/1000);
 			}
 			current_index += 50;
 			if(  current_index > besch_index  ) {

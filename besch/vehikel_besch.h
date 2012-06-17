@@ -245,7 +245,7 @@ public:
 	uint16 get_loading_time() const { return loading_time; } // ms per full loading/unloading
 	uint32 get_preis() const { return preis; }
 	sint32 get_geschw() const { return geschw; }
-	uint16 get_gewicht() const { return gewicht; }
+	uint32 get_gewicht() const { return gewicht; }
 	uint16 get_axle_load() const { return axle_load; }
 	uint32 get_leistung() const { return leistung; }
 	uint16 get_betriebskosten() const { return running_cost; }

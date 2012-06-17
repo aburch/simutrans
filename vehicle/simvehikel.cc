@@ -1326,7 +1326,7 @@ bool vehikel_t::beladen(halthandle_t halt)
 	if(halt.is_bound()) {
 		ok = load_freight(halt);
 	}
-	sum_weight =  (get_fracht_gewicht()+499)/1000 + besch->get_gewicht();
+	sum_weight =  get_fracht_gewicht() + besch->get_gewicht();
 	calc_bild();
 	return ok;
 }
@@ -1568,7 +1568,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 		if(besch) {
 			calc_bild();
 			// full weight after loading
-			sum_weight =  (get_fracht_gewicht()+499)/1000 + besch->get_gewicht();
+			sum_weight =  get_fracht_gewicht() + besch->get_gewicht();
 		}
 		// recalc total freight
 		total_freight = 0;

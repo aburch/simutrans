@@ -171,7 +171,7 @@ private:
 	* since the total weight is needed a lot of times, we save it
 	* @author prissi
 	*/
-	uint16 sum_weight;
+	uint32 sum_weight;
 
 	bool hop_check();
 
@@ -335,7 +335,7 @@ public:
 	*/
 	inline int get_frictionfactor() const { return current_friction; }
 
-	/* Return total weight including freight*
+	/* Return total weight including freight (in kg!)
 	* @author prissi
 	*/
 	inline int get_gesamtgewicht() const { return sum_weight; }

@@ -297,9 +297,9 @@ enable_home:
 		info_buf.clear();
 		info_buf.append( translator::translate("Gewicht") );
 		info_buf.append( ": " );
-		info_buf.append( cnv->get_sum_gesamtgewicht(), 0 );
+		info_buf.append( cnv->get_sum_gesamtgewicht()/1000.0, 1 );
 		info_buf.append( "t (" );
-		info_buf.append( cnv->get_sum_gesamtgewicht()-cnv->get_sum_gewicht(), 0 );
+		info_buf.append( (cnv->get_sum_gesamtgewicht()-cnv->get_sum_gewicht())/1000.0, 1 );
 		info_buf.append( "t)" );
 		display_proportional( xpos, ypos, info_buf, ALIGN_LEFT, COL_BLACK, true );
 		ypos += LINESPACE;
