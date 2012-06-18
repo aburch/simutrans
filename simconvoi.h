@@ -224,7 +224,8 @@ private:
 	// recalc_data is true
 	bool recalc_data_front; // true when front vehicle in convoi hops
 	bool recalc_data; // true when any vehicle in convoi hops
-	sint32 sum_friction_weight;
+
+	sint64 sum_friction_weight;
 	sint32 speed_limit;
 
 	/**
