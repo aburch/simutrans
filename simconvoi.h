@@ -1,6 +1,6 @@
 /**
- * Header Datei für dir convoi_t Klasse für Fahrzeugverbände
- * von Hansjörg Malthaner
+ * @file
+ * Contains definition of convoi_t class
  */
 
 #ifndef simconvoi_h
@@ -32,9 +32,7 @@ class schedule_t;
 class cbuffer_t;
 
 /**
- * Basisklasse für alle Fahrzeugverbände. Convois könnnen über Zeiger
- * oder Handles angesprochen werden. Zeiger sind viel schneller, dafür
- * können Handles geprüft werden, ob das Ziel noch vorhanden ist.
+ * Base class for all vehicle consists. Convoys can be referenced by handles, see halthandle_t.
  *
  * @author Hj. Malthaner
  */
@@ -560,8 +558,12 @@ public:
 	 */
 	const uint32 & get_sum_leistung() const {return sum_leistung;}
 	const sint32 & get_min_top_speed() const {return min_top_speed;}
-	const sint64 get_sum_gewicht() const {return sum_gewicht;}
-	const sint64 get_sum_gesamtgewicht() const {return sum_gesamtgewicht;}
+
+	/// @returns weight of the convoy's vehicles (excluding freight)
+	const sint64 & get_sum_gewicht() const {return sum_gewicht;}
+
+	/// @returns weight of convoy including freight
+	const sint64 & get_sum_gesamtgewicht() const {return sum_gesamtgewicht;}
 
 	uint32 get_length() const;
 
