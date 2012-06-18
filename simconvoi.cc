@@ -812,7 +812,8 @@ void convoi_t::calc_acceleration(long delta_t)
 #endif
 	next_speed_limit = 0; // 'limit' for next stop is 0, of course.
 	uint32 next_stop_index = get_next_stop_index(); // actually this is next stop index + 1!!!
-	if (next_stop_index == 65535u) // BG, 07.10.2011: currently only waggon_t sets next_stop_index
+	if (next_stop_index >= 65000u) // BG, 07.10.2011: currently only waggon_t sets next_stop_index. 
+	// BG, 19.06.2012: use ">= 65000u" as convoys starting from depot count down the next_stop_index before calculating acceleration.
 	{
 		next_stop_index = route_count;
 	}
