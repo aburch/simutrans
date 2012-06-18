@@ -734,6 +734,18 @@ const char *werkzeug_t::check_pos( karte_t *welt, spieler_t *, koord3d pos )
 	return (gr  &&  !gr->is_visible()) ? "" : NULL;
 }
 
+/**
+ * Initializes cursor object: image, y-offset, size of marked area,
+ * has to be called after init().
+ * @param zeiger cursor object
+ */
+void werkzeug_t::init_cursor( zeiger_t *zeiger) const
+{
+	zeiger->set_bild( cursor );
+	zeiger->set_yoff( offset );
+	zeiger->set_area( cursor_area, cursor_centered);
+}
+
 const char *kartenboden_werkzeug_t::check_pos( karte_t *welt, spieler_t *, koord3d pos )
 {
 	grund_t *gr = welt->lookup_kartenboden(pos.get_2d());

@@ -3433,7 +3433,8 @@ bool wkz_station_t::init( karte_t *welt, spieler_t * )
 		}
 		else if(  rotation>=0  ) {
 			// rotation is already fixed
-			welt->get_zeiger()->set_area( koord( hb->get_b(rotation), hb->get_h(rotation) ), false );
+			cursor_area = koord( hb->get_b(rotation), hb->get_h(rotation) );
+			cursor_centered = false;
 		}
 		else {
 			goto set_area_cov;
@@ -3442,7 +3443,8 @@ bool wkz_station_t::init( karte_t *welt, spieler_t * )
 	else {
 set_area_cov:
 		uint16 const cov = welt->get_settings().get_station_coverage() * 2 + 1;
-		welt->get_zeiger()->set_area(koord(cov, cov), true);
+		cursor_area = koord(cov, cov);
+		cursor_centered = true;
 	}
 	return true;
 }
@@ -3770,6 +3772,7 @@ void wkz_roadsign_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &st
 	uint8       const  signal_density = 2 * s.spacing;      // measured in half tiles (straight track count as 2, diagonal as 1, since sqrt(1/2) = 1/2 ;)
 	uint8              next_signal    = signal_density + 1; // to place a sign asap
 	sint32             cost           = 0;
+	directions.clear();
 	// dummy roadsign to get images for preview
 	roadsign_t *dummy_rs;
 	if (besch->is_signal_type()) {
@@ -3807,7 +3810,7 @@ void wkz_roadsign_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &st
 				marked.append(zeiger);
 				zeiger->set_bild( skinverwaltung_t::bauigelsymbol->get_bild_nr(0) );
 				gr->obj_add( zeiger );
-				zeiger->set_richtung(ribi /* !=0 -> place sign*/);
+				directions.append(ribi /* !=0 -> place sign*/);
 				next_signal = 0;
 				dummy_rs->set_pos(gr->get_pos());
 				dummy_rs->set_dir(ribi); // calls calc_bild()
@@ -3822,7 +3825,7 @@ void wkz_roadsign_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &st
 				marked.append(zeiger);
 				zeiger->set_bild( werkzeug_t::general_tool[WKZ_REMOVER]->cursor );
 				gr->obj_add( zeiger );
-				zeiger->set_richtung(ribi_t::keine /*remove sign*/);
+				directions.append(ribi_t::keine /*remove sign*/);
 				cost += rs->get_besch()->get_preis();
 		}
 	}
@@ -3842,10 +3845,12 @@ const char *wkz_roadsign_t::do_work( karte_t *welt, spieler_t *sp, const koord3d
 	// mark tiles to calculate positions of signals
 	mark_tiles(welt, sp, start, end);
 	// only search the marked tiles
+	uint32 j=0;
 	FOR(slist_tpl<zeiger_t*>, const i, marked) {
 		grund_t* const gr = welt->lookup(i->get_pos());
 		weg_t *weg = gr->get_weg(besch->get_wtyp());
-		if (i->get_richtung()) {
+		ribi_t::ribi dir = directions[j++];
+		if (dir) {
 			// try to place signal
 			const char* error_text =  place_sign_intern( welt, sp, gr );
 			if(  error_text  ) {
@@ -3865,7 +3870,7 @@ const char *wkz_roadsign_t::do_work( karte_t *welt, spieler_t *sp, const koord3d
 			roadsign_t* rs = gr->find<signal_t>();
 			if(rs == NULL) rs = gr->find<roadsign_t>();
 			assert(rs);
-			rs->set_dir(i->get_richtung());
+			rs->set_dir(dir);
 		}
 		else {
 			// Place no signal -> remove existing signal
@@ -3880,6 +3885,7 @@ const char *wkz_roadsign_t::do_work( karte_t *welt, spieler_t *sp, const koord3d
 		gr->calc_bild();
 	}
 	cleanup(true);
+	directions.clear();
 	return NULL;
 }
 
@@ -4163,14 +4169,14 @@ const char *wkz_depot_t::work( karte_t *welt, spieler_t *sp, koord3d k )
  * finally building name
  * @author prissi
  */
-bool wkz_build_haus_t::init( karte_t *welt, spieler_t * )
+bool wkz_build_haus_t::init( karte_t *, spieler_t * )
 {
 	if (is_local_execution() && !strempty(default_param)) {
 		const char *c = default_param+2;
 		const haus_tile_besch_t *tile = hausbauer_t::find_tile(c,0);
 		if(tile!=NULL) {
 			int rotation = (default_param[1]-'0') % tile->get_besch()->get_all_layouts();
-			welt->get_zeiger()->set_area( tile->get_besch()->get_groesse(rotation), false );
+			cursor_area = tile->get_besch()->get_groesse(rotation);
 		}
 	}
 	return true;
@@ -4234,7 +4240,7 @@ const char *wkz_build_haus_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 
 
 // show industry size in cursor (in known)
-bool wkz_build_industries_land_t::init( karte_t *welt, spieler_t * )
+bool wkz_build_industries_land_t::init( karte_t *, spieler_t * )
 {
 	if (is_local_execution() && !strempty(default_param)) {
 		const char *c = default_param+2;
@@ -4245,7 +4251,7 @@ bool wkz_build_industries_land_t::init( karte_t *welt, spieler_t * )
 			return false;
 		}
 		int rotation = (default_param[1]-'0') % fab->get_haus()->get_all_layouts();
-		welt->get_zeiger()->set_area( fab->get_haus()->get_groesse(rotation), false );
+		cursor_area = fab->get_haus()->get_groesse(rotation);
 	}
 	return true;
 }
@@ -4334,7 +4340,7 @@ const char *wkz_build_industries_land_t::work( karte_t *welt, spieler_t *sp, koo
 
 
 // show industry size in cursor (in known)
-bool wkz_build_industries_city_t::init( karte_t *welt, spieler_t * )
+bool wkz_build_industries_city_t::init( karte_t *, spieler_t * )
 {
 	if (is_local_execution() && !strempty(default_param)) {
 		const char *c = default_param+2;
@@ -4345,7 +4351,7 @@ bool wkz_build_industries_city_t::init( karte_t *welt, spieler_t * )
 			return false;
 		}
 		int rotation = (default_param[1]-'0') % fab->get_haus()->get_all_layouts();
-		welt->get_zeiger()->set_area( fab->get_haus()->get_groesse(rotation), false );
+		cursor_area = fab->get_haus()->get_groesse(rotation);
 	}
 	return true;
 }
@@ -4404,7 +4410,7 @@ const char *wkz_build_industries_city_t::work( karte_t *welt, spieler_t *sp, koo
 
 
 // show industry size in cursor (must be known!)
-bool wkz_build_factory_t::init( karte_t *welt, spieler_t * )
+bool wkz_build_factory_t::init( karte_t *, spieler_t * )
 {
 	if (is_local_execution() && !strempty(default_param)) {
 		const char *c = default_param+2;
@@ -4415,7 +4421,7 @@ bool wkz_build_factory_t::init( karte_t *welt, spieler_t * )
 			return false;
 		}
 		int rotation = (default_param[1]-'0') % fab->get_haus()->get_all_layouts();
-		welt->get_zeiger()->set_area( fab->get_haus()->get_groesse(rotation), false );
+		cursor_area = fab->get_haus()->get_groesse(rotation);
 		return true;
 	}
 	return false;
@@ -4550,13 +4556,13 @@ const char* wkz_headquarter_t::get_tooltip(const spieler_t *sp) const
 	return NULL;
 }
 
-bool wkz_headquarter_t::init( karte_t *welt, spieler_t *sp )
+bool wkz_headquarter_t::init( karte_t *, spieler_t *sp )
 {
 	// do no use this, if there is no next level to build ...
 	const haus_besch_t *besch = next_level(sp);
 	if (is_local_execution()  &&  besch) {
 		const int rotation = 0;
-		welt->get_zeiger()->set_area( besch->get_groesse(rotation), false );
+		cursor_area = besch->get_groesse(rotation);
 		return true;
 	}
 	return false;
@@ -4681,7 +4687,7 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 			// reset to query tool, since costly relocations should be avoided
 			if(is_local_execution()  &&  sp == welt->get_active_player()) {
 				welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], sp );
-				welt->get_zeiger()->set_area( koord(1,1), false );
+				cursor_area = koord(1,1);
 			}
 			return NULL;
 		}

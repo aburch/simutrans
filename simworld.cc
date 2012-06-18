@@ -2521,12 +2521,11 @@ void karte_t::local_set_werkzeug( werkzeug_t *w, spieler_t * sp )
 		if(  sp==active_player  ) {
 			// reset pointer
 			koord3d zpos = zeiger->get_pos();
-			zeiger->set_bild( w->cursor );
-			zeiger->set_yoff( w->offset );
-			if(!zeiger->area_changed()) {
-				// reset to default 1,1 size
-				zeiger->set_area( koord(1,1), false );
-			}
+			// remove marks
+			zeiger->change_pos( koord3d::invalid );
+			// set new cursor properties
+			w->init_cursor(zeiger);
+			// .. and mark again
 			zeiger->change_pos( zpos );
 		}
 		werkzeug[sp->get_player_nr()] = w;
@@ -5580,18 +5579,6 @@ void karte_t::bewege_zeiger(const event_t *ev)
 
 		// the new position - extra logic for raise / lower tool
 		const koord3d pos = koord3d(mi,mj, hgt + (zeiger->get_yoff()==Z_GRID ? groff : 0));
-
-		// rueckwaerttransformation um die zielkoordinaten
-		// mit den mauskoordinaten zu vergleichen
-		int neu_x = ((mi-i_off) - (mj-j_off))*rw2 + display_get_width()/2 + rw2;
-
-		// pruefe richtung d.h. welches nachbarfeld ist am naechsten
-		if(ev->mx-x_off < neu_x) {
-			zeiger->set_richtung(ribi_t::west);
-		}
-		else {
-			zeiger->set_richtung(ribi_t::nord);
-		}
 
 		// zeiger bewegen
 		const koord3d prev_pos = zeiger->get_pos();

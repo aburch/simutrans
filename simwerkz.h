@@ -370,6 +370,9 @@ private:
 	void mark_tiles(karte_t*, spieler_t*, koord3d const&, koord3d const&) OVERRIDE;
 	uint8 is_valid_pos(karte_t*, spieler_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE;
 
+	/// save direction of new signs
+	vector_tpl< ribi_t::ribi > directions;
+
 public:
 	wkz_roadsign_t() : two_click_werkzeug_t(WKZ_ROADSIGN | GENERAL_TOOL), besch() {}
 

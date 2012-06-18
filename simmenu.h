@@ -169,9 +169,19 @@ public:
 	// for key loockup
 	static vector_tpl<werkzeug_t *>char_to_tool;
 
+	/// cursor image
 	image_id cursor;
-	sint16 ok_sound;
+
+	/// cursor marks this area
+	koord cursor_area;
+
+	/// cursor centered at marked area? default: false
+	bool cursor_centered;
+
+	/// z-offset of cursor, possible values: Z_PLAN and Z_GRID
 	sint8 offset;
+
+	sint16 ok_sound;
 
 	enum {
 		WFL_SHIFT = 1,
@@ -203,7 +213,7 @@ public:
 
 	static uint16 const dummy_id = 0xFFFFU;
 
-	werkzeug_t(uint16 const id) : id(id) { cursor = icon = IMG_LEER; ok_sound = NO_SOUND; offset = Z_PLAN; default_param = NULL; command_key = 0; }
+	werkzeug_t(uint16 const id) : id(id), cursor_area(1,1) { cursor = icon = IMG_LEER; ok_sound = NO_SOUND; offset = Z_PLAN; default_param = NULL; command_key = 0; cursor_centered = false;}
 	virtual ~werkzeug_t() {}
 
 	virtual image_id get_icon(spieler_t *) const { return icon; }
@@ -237,6 +247,9 @@ public:
 
 	// returning false on init will automatically invoke previous tool
 	virtual bool init( karte_t *, spieler_t * ) { return true; }
+
+	/// initializes cursor (icon, marked area)
+	void init_cursor( zeiger_t * ) const;
 
 	// returning true on exit will have werkzeug_waehler resets to query-tool on right-click
 	virtual bool exit( karte_t *, spieler_t * ) { return true; }

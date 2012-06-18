@@ -5,6 +5,8 @@
  * (see licence.txt)
  */
 
+/** @file zeiger.cc object to mark tiles */
+
 #include <stdio.h>
 
 #include "../simworld.h"
@@ -16,12 +18,10 @@
 
 zeiger_t::zeiger_t(karte_t *welt, loadsave_t *file) : ding_no_info_t(welt)
 {
-	changed = false;
-	richtung = ribi_t::alle;
 	bild = IMG_LEER;
 	after_bild = IMG_LEER;
 	area = koord(0,0);
-	center = 0;
+	center = false;
 	rdwr(file);
 }
 
@@ -29,16 +29,20 @@ zeiger_t::zeiger_t(karte_t *welt, loadsave_t *file) : ding_no_info_t(welt)
 zeiger_t::zeiger_t(karte_t *welt, koord3d pos, spieler_t *sp) :
     ding_no_info_t(welt, pos)
 {
-	changed = false;
 	set_besitzer( sp );
-	richtung = ribi_t::alle;
 	bild = IMG_LEER;
 	after_bild = IMG_LEER;
 	area = koord(0,0);
-	center = 0;
+	center = false;
 }
 
 
+/**
+ * We want to be able to highlight the current tile.
+ * Unmarks area around old and marks area around new position.
+ * Use this routine to change position.
+ * @author Hj. Malthaner
+ */
 void zeiger_t::change_pos(koord3d k )
 {
 	if(k!=get_pos()) {
@@ -79,14 +83,6 @@ void zeiger_t::change_pos(koord3d k )
 }
 
 
-void zeiger_t::set_richtung(ribi_t::ribi r)
-{
-	if(richtung != r) {
-		richtung = r;
-	}
-}
-
-
 void zeiger_t::set_bild( image_id b )
 {
 	// mark dirty
@@ -96,10 +92,8 @@ void zeiger_t::set_bild( image_id b )
 	if(  (area.x|area.y)>1  ) {
 		welt->mark_area( get_pos()-(area*center)/2, area, false );
 	}
-	if(!changed) {
-		area = koord(0,0);
-		center = 0;
-	}
+	area = koord(0,0);
+	center = 0;
 }
 
 
@@ -112,31 +106,23 @@ void zeiger_t::set_after_bild( image_id b )
 	if(  (area.x|area.y)>1  ) {
 		welt->mark_area( get_pos()-(area*center)/2, area, false );
 	}
-	if(!changed) {
-		area = koord(0,0);
-		center = 0;
-	}
+	area = koord(0,0);
+	center = 0;
 }
 
 
-/* change the marked area around the cursor */
-void zeiger_t::set_area(koord new_area, uint8 new_center)
+/**
+ * Set area to be marked around cursor
+ * @param area size of marked area
+ * @param center true if cursor is centered within marked area
+ */
+void zeiger_t::set_area(koord new_area, bool new_center)
 {
-	changed = true;
-	if(new_area==area  &&  (new_center^center)) {
+	if(new_area==area  &&  new_center==center) {
 		return;
 	}
 	welt->mark_area( get_pos()-(area*center)/2, area, false );
 	area = new_area;
 	center = new_center;
 	welt->mark_area( get_pos()-(area*center)/2, area, true );
-}
-
-
-// returns true ONCE, if the areas was change before this call
-bool zeiger_t::area_changed()
-{
-	bool ch = changed;
-	changed = false;
-	return ch;
 }
