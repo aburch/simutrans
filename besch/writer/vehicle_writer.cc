@@ -113,7 +113,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 
 	// Hajodoc: Total weight of this vehicle in tons
 	const char *weight_str = obj.get("weight");
-	uint32 weight = (uint32)(atof( weight_str ) + 0.0009);
+	uint32 weight = (uint32)(atof( weight_str )*1000.0 + 0.5);
 	node.write_uint32(fp, weight, pos);
 	pos += sizeof(uint32);
 

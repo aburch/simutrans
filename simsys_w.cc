@@ -201,7 +201,6 @@ int dr_textur_resize(unsigned short** const textur, int w, int const h)
 {
 #ifdef MULTI_THREAD
 	EnterCriticalSection( &redraw_underway );
-	LeaveCriticalSection( &redraw_underway );
 #endif
 
 	// some cards need those alignments
@@ -224,6 +223,10 @@ int dr_textur_resize(unsigned short** const textur, int w, int const h)
 	AllDib->bmiHeader.biHeight = h;
 	WindowSize.right           = w;
 	WindowSize.bottom          = h;
+
+#ifdef MULTI_THREAD
+	LeaveCriticalSection( &redraw_underway );
+#endif
 	return w;
 }
 
