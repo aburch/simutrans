@@ -11,7 +11,6 @@
 #include "../simworld.h"
 #include "../simdings.h"
 #include "../simimg.h"
-#include "../simsound.h"
 
 #include "../besch/kreuzung_besch.h"
 
@@ -71,7 +70,7 @@ void crossing_t::rotate90()
 
 
 
-// change state; mark dirty and plays sound
+// changed state: mark dirty
 void crossing_t::state_changed()
 {
 	mark_image_dirty( bild, 0 );

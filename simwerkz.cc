@@ -4060,7 +4060,7 @@ const char *wkz_depot_t::wkz_depot_aux(karte_t *welt, spieler_t *sp, koord3d pos
 			}
 			hausbauer_t::neues_gebaeude( welt, sp, bd->get_pos(), layout, besch );
 			sp->buche(cost, pos.get_2d(), COST_CONSTRUCTION);
-			if(sp == welt->get_active_player()) {
+			if(is_local_execution()  &&  sp == welt->get_active_player()) {
 				welt->set_werkzeug( general_tool[WKZ_ABFRAGE], sp );
 			}
 
