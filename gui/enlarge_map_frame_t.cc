@@ -17,7 +17,6 @@
 #include "../simwin.h"
 #include "../simimg.h"
 #include "../simtools.h"
-#include "../simskin.h"
 #include "../simintr.h"
 
 #include "../dataobj/einstellungen.h"

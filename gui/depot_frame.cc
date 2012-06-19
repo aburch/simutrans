@@ -19,6 +19,7 @@
 #include "../simline.h"
 #include "../simlinemgmt.h"
 #include "../simmenu.h"
+#include "../simskin.h"
 #include "../simtools.h"
 
 #include "../tpl/slist_tpl.h"

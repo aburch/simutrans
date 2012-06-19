@@ -9,7 +9,6 @@
 #include "../simline.h"
 #include "../simcolor.h"
 #include "../simhalt.h"
-#include "../simskin.h"
 #include "../simworld.h"
 #include "../simmenu.h"
 #include "../simgraph.h"

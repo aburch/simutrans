@@ -16,7 +16,6 @@
 
 #include "simdebug.h"
 #include "simimg.h"
-#include "simmem.h"
 #include "simcolor.h"
 #include "boden/grund.h"
 #include "boden/boden.h"
@@ -24,14 +23,12 @@
 #include "simfab.h"
 #include "simcity.h"
 #include "simhalt.h"
-#include "simskin.h"
 #include "simtools.h"
 #include "simware.h"
 #include "simworld.h"
 #include "besch/haus_besch.h"
 #include "besch/ware_besch.h"
 #include "player/simplay.h"
-
 
 #include "simintr.h"
 
@@ -45,7 +42,6 @@
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
 
-#include "besch/skin_besch.h"
 #include "besch/fabrik_besch.h"
 #include "bauer/hausbauer.h"
 #include "bauer/warenbauer.h"

@@ -25,7 +25,6 @@
 #include "brueckenbauer.h"
 #include "tunnelbauer.h"
 
-#include "../besch/skin_besch.h"
 #include "../besch/weg_besch.h"
 #include "../besch/tunnel_besch.h"
 #include "../besch/haus_besch.h"

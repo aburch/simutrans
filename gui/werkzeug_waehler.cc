@@ -5,15 +5,11 @@
  * (see licence.txt)
  */
 
-#include "../simcolor.h"
 #include "../simimg.h"
 #include "../simworld.h"
-#include "../simskin.h"
 #include "../simwin.h"
 #include "../simgraph.h"
 #include "../simmenu.h"
-#include "../besch/skin_besch.h"
-#include "../besch/sound_besch.h"
 #include "../dataobj/umgebung.h"
 #include "../utils/for.h"
 #include "werkzeug_waehler.h"

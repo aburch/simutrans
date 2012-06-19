@@ -8,7 +8,6 @@
 #define simwerkz2_h
 
 #include "simtypes.h"
-#include "simskin.h"
 #include "simworld.h"
 #include "simmenu.h"
 #include "simdings.h"

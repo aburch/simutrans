@@ -15,22 +15,13 @@
 #include "../gui/karte.h"
 
 #include "../simworld.h"
-#include "../simwin.h"
 #include "../player/simplay.h"
-#include "../simskin.h"
 #include "../simwerkz.h"
-#include "../simevent.h"
 
 #include "../besch/tunnel_besch.h"
 
-#include "../boden/boden.h"
 #include "../boden/tunnelboden.h"
-#include "../boden/wege/schiene.h"
-#include "../boden/wege/monorail.h"
-#include "../boden/wege/kanal.h"
-#include "../boden/wege/strasse.h"
 #include "../dataobj/umgebung.h"
-#include "../dataobj/koord3d.h"
 
 #include "../dings/tunnel.h"
 #include "../dings/leitung2.h"

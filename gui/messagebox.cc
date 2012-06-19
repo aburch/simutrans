@@ -8,6 +8,9 @@
 #include "../simworld.h"
 #include "../simgraph.h"
 
+#include "../simskin.h"
+#include "../besch/skin_besch.h"
+
 #include "../dataobj/translator.h"
 #include "messagebox.h"
 
@@ -47,10 +50,30 @@ void news_window::extend_window_with_component(gui_komponente_t *const component
 }
 
 
+news_img::news_img(const char* text) :
+	news_window(text, WIN_TITEL),
+	bild()
+{
+	init(skinverwaltung_t::meldungsymbol->get_bild_nr(0));
+}
+
+
 news_img::news_img(const char* text, image_id id, PLAYER_COLOR_VAL color) :
 	news_window(text, color),
-	bild(id)
+	bild()
 {
+	init(id);
+}
+
+
+/**
+ * just puts the image in top-right corner
+ * only called from constructor
+ * @param id id of image
+ */
+void news_img::init(image_id id)
+{
+	bild.set_image(id);
 	if(  id!=IMG_LEER  ) {
 		KOORD_VAL xoff, yoff, xw, yw;
 		display_get_base_image_offset(id, &xoff, &yoff, &xw, &yw);

@@ -12,11 +12,9 @@
 #include "../simworld.h"
 #include "../simintr.h"
 #include "../simfab.h"
-#include "../simgraph.h"
 #include "../simmesg.h"
 #include "../simtools.h"
 #include "../simcity.h"
-#include "../simskin.h"
 #include "../simhalt.h"
 #include "../player/simplay.h"
 

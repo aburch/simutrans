@@ -13,12 +13,10 @@
 #include "halt_list_frame.h"
 #include "halt_list_filter_frame.h"
 
-#include "../simskin.h"
 #include "../simhalt.h"
 #include "../simware.h"
 #include "../simfab.h"
 #include "../simwin.h"
-#include "../simcolor.h"
 #include "../besch/skin_besch.h"
 
 #include "../bauer/warenbauer.h"

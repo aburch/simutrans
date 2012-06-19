@@ -14,6 +14,7 @@
 #include "../simwin.h"
 #include "../simimg.h"
 #include "../simmesg.h"
+#include "../simskin.h"
 #include "../simtools.h"
 #include "../simversion.h"
 

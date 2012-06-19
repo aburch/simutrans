@@ -25,7 +25,6 @@
 #include "../simdebug.h"
 #include "../simdepot.h"
 #include "../simhalt.h"
-#include "../simskin.h"
 #include "../simtools.h"
 #include "../simwerkz.h"
 #include "../simworld.h"

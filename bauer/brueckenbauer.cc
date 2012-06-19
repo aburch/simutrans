@@ -13,34 +13,25 @@
 #include "wegbauer.h"
 
 #include "../simworld.h"
-#include "../simgraph.h"
-#include "../simwin.h"
 #include "../simhalt.h"
 #include "../simdepot.h"
-#include "../besch/sound_besch.h"
 #include "../player/simplay.h"
-#include "../simskin.h"
 #include "../simtypes.h"
 
 #include "../boden/boden.h"
 #include "../boden/brueckenboden.h"
-#include "../boden/wege/monorail.h"
-#include "../boden/wege/schiene.h"
-#include "../boden/wege/strasse.h"
-#include "../boden/wege/kanal.h"
 
 #include "../gui/messagebox.h"
 #include "../gui/werkzeug_waehler.h"
 #include "../gui/karte.h"
 
 #include "../besch/bruecke_besch.h"
-#include "../besch/skin_besch.h"
 
 #include "../dings/bruecke.h"
-#include "../dings/crossing.h"
 #include "../dings/leitung2.h"
 #include "../dings/pillar.h"
 #include "../dings/signal.h"
+#include "../dataobj/crossing_logic.h"
 
 #include "../tpl/stringhashtable_tpl.h"
 #include "../tpl/vector_tpl.h"

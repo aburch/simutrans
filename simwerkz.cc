@@ -32,6 +32,7 @@
 #include "simimg.h"
 #include "simintr.h"
 #include "simhalt.h"
+#include "simskin.h"
 
 #include "besch/grund_besch.h"
 #include "besch/haus_besch.h"

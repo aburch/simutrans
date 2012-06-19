@@ -22,7 +22,6 @@
 #include "../dataobj/loadsave.h"
 
 // for headquarter construction only ...
-#include "../simskin.h"
 #include "../simmenu.h"
 #include "../bauer/hausbauer.h"
 
