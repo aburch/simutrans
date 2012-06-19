@@ -4064,8 +4064,6 @@ const char *wkz_depot_t::wkz_depot_aux(karte_t *welt, spieler_t *sp, koord3d pos
 				welt->set_werkzeug( general_tool[WKZ_ABFRAGE], sp );
 			}
 
-			sound_play(ok_sound);
-
 			return NULL;
 		}
 		return "Cannot built depot here!";
@@ -4687,7 +4685,6 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 			// reset to query tool, since costly relocations should be avoided
 			if(is_local_execution()  &&  sp == welt->get_active_player()) {
 				welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], sp );
-				cursor_area = koord(1,1);
 			}
 			return NULL;
 		}
