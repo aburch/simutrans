@@ -12,7 +12,6 @@
 #include <math.h>
 
 #include "simdebug.h"
-#include "simsound.h"
 #include "simevent.h"
 #include "simcity.h"
 #include "simtools.h"
@@ -1802,6 +1801,9 @@ bool wkz_wegebau_t::init( karte_t *welt, spieler_t *sp )
 {
 	this->welt = welt;
 	two_click_werkzeug_t::init( welt, sp );
+	if( ok_sound == NO_SOUND ) {
+		ok_sound = SFX_CASH;
+	}
 
 	// now get current besch
 	besch = get_besch( welt->get_timeline_year_month(), is_local_execution() );
@@ -1909,8 +1911,6 @@ const char *wkz_wegebau_t::do_work( karte_t *welt, spieler_t *sp, const koord3d 
 		bauigel.baue();
 		welt->mute_sound(false);
 
-		sound_play(SFX_CASH);
-
 		return NULL;
 	}
 	return "";
@@ -1970,8 +1970,6 @@ const char *wkz_build_cityroad::do_work( karte_t *welt, spieler_t *sp, const koo
 		welt->mute_sound(true);
 		bauigel.baue();
 		welt->mute_sound(false);
-
-		sound_play(SFX_CASH);
 
 		return NULL;
 	}
