@@ -2574,6 +2574,20 @@ const char *wkz_wayremover_t::do_work( karte_t *welt, spieler_t *sp, const koord
 					// remove only single connections
 					lt->entferne(sp);
 					delete lt;
+					// delete tunnel ground too, if empty
+					if (gr->get_typ()==grund_t::tunnelboden) {
+						gr->obj_loesche_alle(sp);
+						gr->mark_image_dirty();
+						if (!gr->get_flag(grund_t::is_kartenboden)) {
+							welt->access(gr->get_pos().get_2d())->boden_entfernen(gr);
+							delete gr;
+						}
+						else {
+							grund_t *gr_new = new boden_t(welt, gr->get_pos(), gr->get_grund_hang());
+							welt->access(gr->get_pos().get_2d())->boden_ersetzen(gr, gr_new);
+							gr_new->calc_bild();
+						}
+					}
 				}
 				// otherwise it is a crossing ...
 			}

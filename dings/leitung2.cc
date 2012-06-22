@@ -269,6 +269,7 @@ void leitung_t::calc_bild()
 		return;
 	}
 
+	image_id old_image = get_bild();
 	hang_t::typ hang = gr->get_weg_hang();
 	if(hang != hang_t::flach) {
 		set_bild( besch->get_hang_bild_nr(hang, snow));
@@ -299,6 +300,9 @@ void leitung_t::calc_bild()
 				set_bild( besch->get_bild_nr(ribi, snow));
 			}
 		}
+	}
+	if (old_image != get_bild()) {
+		mark_image_dirty(old_image,0);
 	}
 }
 
