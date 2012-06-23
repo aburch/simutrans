@@ -214,8 +214,8 @@ public:
 #else
 	friend ostream & operator << (ostream &out, const float32e8_t &x);
 #endif
-	double to_double() const;
 public:
+	double to_double() const;
 	sint32 to_sint32() const;
 	//const string to_string() const;
 

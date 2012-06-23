@@ -1578,6 +1578,44 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 
 	if(veh_type) {
 		sint32 k = 0;
+
+		uint16 brake_force = veh_type->get_brake_force();
+
+		if(brake_force == BRAKE_FORCE_UNKNOWN)
+		{
+			float32e8_t br;
+			switch(veh_type->get_waytype())
+			{
+				case air_wt:
+					br = BR_AIR;
+					break;
+
+					case water_wt:
+					br = BR_WATER;
+					break;
+	
+				case track_wt:
+				case narrowgauge_wt:
+				case overheadlines_wt: 
+					br = BR_TRACK;
+					break;
+					case tram_wt:
+
+				case monorail_wt:      
+					br = BR_TRAM;
+					break;
+		
+				case maglev_wt:
+					br = BR_MAGLEV;
+					break;
+
+					default:
+					br = BR_DEFAULT;
+					break;
+			}
+			brake_force = br * ((uint32) veh_type->get_gewicht());
+		}
+
 		// lok oder waggon ?
 		if(veh_type->get_leistung() > 0) { //"Leistung" = performance (Google)
 			//lok
@@ -1588,7 +1626,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 			sint32 n = sprintf(name, "%s (%s)",
 				translator::translate(veh_type->get_name()),
 				translator::translate(engine_type_names[veh_type->get_engine_type()+1]));
-
+			
 			vehicle_as_potential_convoy_t convoy(*get_welt(), *veh_type);
 			sint32 friction = convoy.get_current_friction();
 			sint32 max_weight = convoy.calc_max_starting_weight(friction);
@@ -1618,8 +1656,8 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 					veh_type->get_tractive_effort(),
 					veh_type->get_geschw(),
 					veh_type->get_gewicht(),
-					veh_type->get_brake_force(),
-					veh_type->get_rolling_resistance()
+					brake_force,
+					veh_type->get_rolling_resistance().to_double() * 1000
 					);
 			}
 			else
@@ -1635,8 +1673,8 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 					veh_type->get_tractive_effort(),
 					veh_type->get_geschw(),
 					veh_type->get_gewicht(),
-					veh_type->get_brake_force(),
-					veh_type->get_rolling_resistance()
+					brake_force,
+					veh_type->get_rolling_resistance().to_double() * 1000
 					);
 			}
 
@@ -1673,7 +1711,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 				{
 					n = sprintf(buf,
 						/*translator::translate("WAGGON_INFO"),*/
-						translator::translate("%s\nCost:     %d$\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d%s %s\nWeight: %dt\nTop speed: %dkm/h\nBrake force: %dkN\nRolling resistance: %dkN\n"),
+						translator::translate("%s\nCost:     %d$\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d%s %s\nWeight: %dt\nTop speed: %dkm/h\nMax. brake force: %dkN\nRolling resistance: %fN\n"),
 						translator::translate(veh_type->get_name()),
 						veh_type->get_preis()/100,
 						veh_type->get_running_cost()/100.0F,
@@ -1685,8 +1723,8 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 						translator::translate(veh_type->get_ware()->get_catg_name()),
 						veh_type->get_gewicht(),
 						veh_type->get_geschw(),
-						veh_type->get_brake_force(),
-						veh_type->get_rolling_resistance()
+						brake_force,
+						veh_type->get_rolling_resistance().to_double() * 1000
 						);
 				}
 				else
@@ -1694,7 +1732,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 					n = sprintf(buf,
 						//translator::translate("%s\nCost:     %d$ (%1.2f$/km)\nCapacity: %d (%d)%s %s\nWeight: %dt\nTop speed: %dkm/h\n"),
 						/*translator::translate("WAGGON_INFO_OVERCROWD"),*/
-						translator::translate("%s\nCost:     %d$\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d (%d)%s %s\nWeight: %dt\nTop speed: %dkm/h\nBrake force: %dkN\nRolling resistance: %dkN\n"),
+						translator::translate("%s\nCost:     %d$\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d (%d)%s %s\nWeight: %dt\nTop speed: %dkm/h\nMax. brake force: %dkN\nRolling resistance: %fN\n"),
 						translator::translate(veh_type->get_name()),
 						veh_type->get_preis()/100,
 						veh_type->get_running_cost()/100.0F,
@@ -1707,8 +1745,8 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 						translator::translate(veh_type->get_ware()->get_catg_name()),
 						veh_type->get_gewicht(),
 						veh_type->get_geschw(),
-						veh_type->get_brake_force(),
-						veh_type->get_rolling_resistance()
+						brake_force,
+						veh_type->get_rolling_resistance().to_double() * 1000
 						);
 				}
 			}
@@ -1719,7 +1757,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 
 					n = sprintf(buf,
 						/*translator::translate("WAGGON_INFO"),*/
-						translator::translate("%s\nCost:     %d$\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d%s %s\nWeight: %dt\nTop speed: %dkm/h\n"),
+						translator::translate("%s\nCost:     %d$\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d%s %s\nWeight: %dt\nTop speed: %dkm/h\n\nMax. brake force: %dkN\nRolling resistance: %fN\n"),
 						translator::translate(veh_type->get_name()),
 						veh_type->get_upgrade_price()/100,
 						veh_type->get_running_cost()/100.0F,
@@ -1730,14 +1768,16 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 						translator::translate(veh_type->get_ware()->get_name()) :
 						translator::translate(veh_type->get_ware()->get_catg_name()),
 						veh_type->get_gewicht(),
-						veh_type->get_geschw()
+						veh_type->get_geschw(),
+						brake_force,
+						veh_type->get_rolling_resistance().to_double() * 1000
 						);
 				}
 				else
 				{
 					n = sprintf(buf,
 						/*translator::translate("WAGGON_INFO"),*/
-						translator::translate("%s\nCost:     %d$\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d (%d)%s %s\nWeight: %dt\nTop speed: %dkm/h\n"),
+						translator::translate("%s\nCost:     %d$\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d (%d)%s %s\nWeight: %dt\nTop speed: %dkm/h\n\nMax. brake force: %dkN\nRolling resistance: %fN\n"),
 						translator::translate(veh_type->get_name()),
 						veh_type->get_upgrade_price()/100,
 						veh_type->get_running_cost()/100.0F,
@@ -1749,7 +1789,9 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 						translator::translate(veh_type->get_ware()->get_name()) :
 						translator::translate(veh_type->get_ware()->get_catg_name()),
 						veh_type->get_gewicht(),
-						veh_type->get_geschw()
+						veh_type->get_geschw(),
+						brake_force,
+						veh_type->get_rolling_resistance().to_double() * 1000
 						);
 				}
 			}
