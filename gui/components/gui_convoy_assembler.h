@@ -257,9 +257,9 @@ public:
 
 	inline sint16 get_min_panel_height() const {return grid.y + gui_tab_panel_t::HEADER_VSIZE + 2 * gui_image_list_t::BORDER;}
 
-	inline int get_height() const {return get_convoy_height() + convoy_tabs_skip + 8 + get_vinfo_height() + 17 + get_panel_height();}
+	inline int get_height() const {return get_convoy_height() + convoy_tabs_skip + 8 + get_vinfo_height() + 23 + get_panel_height();}
 
-	inline int get_min_height() const {return get_convoy_height() + convoy_tabs_skip + 8 + get_vinfo_height() + 17 + get_min_panel_height();}
+	inline int get_min_height() const {return get_convoy_height() + convoy_tabs_skip + 8 + get_vinfo_height() + 23 + get_min_panel_height();}
 
 	void set_electrified( bool ele );
 

@@ -1617,7 +1617,9 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 					veh_type->get_leistung(),
 					veh_type->get_tractive_effort(),
 					veh_type->get_geschw(),
-					veh_type->get_gewicht()
+					veh_type->get_gewicht(),
+					veh_type->get_brake_force(),
+					veh_type->get_rolling_resistance()
 					);
 			}
 			else
@@ -1632,7 +1634,9 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 					veh_type->get_leistung(),
 					veh_type->get_tractive_effort(),
 					veh_type->get_geschw(),
-					veh_type->get_gewicht()
+					veh_type->get_gewicht(),
+					veh_type->get_brake_force(),
+					veh_type->get_rolling_resistance()
 					);
 			}
 
@@ -1669,7 +1673,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 				{
 					n = sprintf(buf,
 						/*translator::translate("WAGGON_INFO"),*/
-						translator::translate("%s\nCost:     %d$\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d%s %s\nWeight: %dt\nTop speed: %dkm/h\n"),
+						translator::translate("%s\nCost:     %d$\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d%s %s\nWeight: %dt\nTop speed: %dkm/h\nBrake force: %dkN\nRolling resistance: %dkN\n"),
 						translator::translate(veh_type->get_name()),
 						veh_type->get_preis()/100,
 						veh_type->get_running_cost()/100.0F,
@@ -1680,7 +1684,9 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 						translator::translate(veh_type->get_ware()->get_name()) :
 						translator::translate(veh_type->get_ware()->get_catg_name()),
 						veh_type->get_gewicht(),
-						veh_type->get_geschw()
+						veh_type->get_geschw(),
+						veh_type->get_brake_force(),
+						veh_type->get_rolling_resistance()
 						);
 				}
 				else
@@ -1688,7 +1694,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 					n = sprintf(buf,
 						//translator::translate("%s\nCost:     %d$ (%1.2f$/km)\nCapacity: %d (%d)%s %s\nWeight: %dt\nTop speed: %dkm/h\n"),
 						/*translator::translate("WAGGON_INFO_OVERCROWD"),*/
-						translator::translate("%s\nCost:     %d$\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d (%d)%s %s\nWeight: %dt\nTop speed: %dkm/h\n"),
+						translator::translate("%s\nCost:     %d$\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d (%d)%s %s\nWeight: %dt\nTop speed: %dkm/h\nBrake force: %dkN\nRolling resistance: %dkN\n"),
 						translator::translate(veh_type->get_name()),
 						veh_type->get_preis()/100,
 						veh_type->get_running_cost()/100.0F,
@@ -1700,7 +1706,9 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 						translator::translate(veh_type->get_ware()->get_name()) :
 						translator::translate(veh_type->get_ware()->get_catg_name()),
 						veh_type->get_gewicht(),
-						veh_type->get_geschw()
+						veh_type->get_geschw(),
+						veh_type->get_brake_force(),
+						veh_type->get_rolling_resistance()
 						);
 				}
 			}
