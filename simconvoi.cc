@@ -851,6 +851,7 @@ void convoi_t::calc_acceleration(long delta_t)
 
 		// Brake for upcoming speed limit?
 		sint32 min_limit = akt_speed; // no need to check limits above min_limit, as it won't lead to further restrictions
+		sint32 steps_from_start = current_info.steps_from_start; // speed has to be reduced before entering the tile. Thus distance from start has to be taken from previous tile.
 		for (i++; i < next_stop_index; i++)
 		{
 			const convoi_t::route_info_t &limit_info = route_infos.get_element(i);
@@ -858,7 +859,7 @@ void convoi_t::calc_acceleration(long delta_t)
 			{
 				min_limit = limit_info.speed_limit;
 				const sint32 limit_steps = brake_steps - convoy.calc_min_braking_distance(welt->get_settings(), convoy.get_weight_summary(), limit_info.speed_limit);
-				const sint32 route_steps = limit_info.steps_from_start - current_info.steps_from_start;
+				const sint32 route_steps = steps_from_start - current_info.steps_from_start;
 				const sint32 st = route_steps - limit_steps;
 
 				if (steps_til_brake > st)
@@ -868,6 +869,7 @@ void convoi_t::calc_acceleration(long delta_t)
 					steps_til_brake = st;
 				}
 			}
+			steps_from_start = limit_info.steps_from_start;
 		}
 	}
 	else
@@ -917,7 +919,7 @@ convoi_t::route_infos_t& convoi_t::get_route_infos()
 			const koord3d next_tile = route.position_bei(min(i + 1, route_count - 1));
 			this_info.steps_from_start = current_info.steps_from_start + front.get_tile_steps(current_tile.get_2d(), next_tile.get_2d(), this_info.direction);
 			const weg_t *this_weg = get_weg_on_grund(welt->lookup(this_tile), waytype);
-			this_info.speed_limit = this_weg ? front.calc_speed_limit(this_weg, current_weg, &corner_data, this_info.direction, current_info.direction) : SPEED_UNLIMITED;
+			current_info.speed_limit = this_weg ? front.calc_speed_limit(this_weg, current_weg, &corner_data, this_info.direction, current_info.direction) : SPEED_UNLIMITED;
 
 			current_tile = this_tile;
 			current_weg = this_weg;
