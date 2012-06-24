@@ -851,7 +851,7 @@ void convoi_t::calc_acceleration(long delta_t)
 
 		// Brake for upcoming speed limit?
 		sint32 min_limit = akt_speed; // no need to check limits above min_limit, as it won't lead to further restrictions
-		sint32 steps_from_start = i >= 0 ? route_infos.get_element(i).steps_from_start : VEHICLE_STEPS_PER_TILE; // speed has to be reduced before entering the tile. Thus distance from start has to be taken from previous tile.
+		sint32 steps_from_start = current_info.steps_from_start; // speed has to be reduced before entering the tile. Thus distance from start has to be taken from previous tile.
 		for (i++; i < next_stop_index; i++)
 		{
 			const convoi_t::route_info_t &limit_info = route_infos.get_element(i);
