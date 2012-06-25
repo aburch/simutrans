@@ -1094,10 +1094,11 @@ sint64 spieler_t::undo()
 			cost += gr->weg_entfernen(undo_type,true);
 		}
 		else {
-			leitung_t* lt = gr->get_leitung();
-			cost += lt->get_besch()->get_preis();
-			lt->entferne(NULL);
-			delete lt;
+			if (leitung_t* lt = gr->get_leitung()) {
+				cost += lt->get_besch()->get_preis();
+				lt->entferne(NULL);
+				delete lt;
+			}
 		}
 	}
 	last_built.clear();
