@@ -165,7 +165,7 @@ static int display_gadget_box(simwin_gadget_et const  code,
 	display_vline_wh_clip(x+16, y+1, 14, color+1, false);
 
 	if(pushed) {
-		display_fillbox_wh_clip(x+1, y+1, 14, 14, color+1, false);
+		display_fillbox_wh_clip(x+1, y+1, 14, 14, (color & 0xF8) + max(7, (color&0x07)+2), false);
 	}
 
 	image_id img = IMG_LEER;
