@@ -2152,7 +2152,7 @@ bool automobil_t::ist_weg_frei(int &restart_speed, bool second_check)
 				if(  test_index == route_index + 1u  ) {
 					// no intersections or crossings, we might be able to overtake this one ...
 					overtaker_t *over = dt->get_overtaker();
-					if(over  &&  !over->is_overtaken()) {
+					if(  over  &&  !over->is_overtaken()  ) {
 						if(  over->is_overtaking()  ) {
 							// otherwise we would stop every time being overtaken
 							return true;
@@ -2163,7 +2163,8 @@ bool automobil_t::ist_weg_frei(int &restart_speed, bool second_check)
 							if(  cnv->can_overtake( ocnv, (ocnv->get_state()==convoi_t::LOADING ? 0 : over->get_max_power_speed()), ocnv->get_length_in_steps()+ocnv->get_vehikel(0)->get_steps())  ) {
 								return true;
 							}
-						} else if (stadtauto_t* const caut = ding_cast<stadtauto_t>(dt)) {
+						}
+						else if(  stadtauto_t* const caut = ding_cast<stadtauto_t>(dt)  ) {
 							if(  cnv->can_overtake(caut, caut->get_besch()->get_geschw(), VEHICLE_STEPS_PER_TILE)  ) {
 								return true;
 							}
