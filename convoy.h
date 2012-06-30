@@ -98,6 +98,7 @@ static const float32e8_t BR_WATER = float32e8_t(1, 10);
 static const float32e8_t BR_TRACK = float32e8_t(1, 2);
 static const float32e8_t BR_TRAM = float32e8_t(1, 1);
 static const float32e8_t BR_MAGLEV = float32e8_t(12, 10);
+static const float32e8_t BR_ROAD = float32e8_t(4, 1);
 static const float32e8_t BR_DEFAULT = float32e8_t(1, 1);
 
 /******************************************************************************/

@@ -118,6 +118,10 @@ void adverse_summary_t::add_vehicle(const vehikel_besch_t &b, bool is_first)
 				br = BR_MAGLEV;
 				break;
 
+			case road_wt:
+				br = BR_ROAD;
+				break;
+
 			default:
 				br = BR_DEFAULT;
 				break;

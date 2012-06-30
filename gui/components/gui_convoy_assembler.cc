@@ -1599,8 +1599,8 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 				case overheadlines_wt: 
 					br = BR_TRACK;
 					break;
-					case tram_wt:
 
+				case tram_wt:
 				case monorail_wt:      
 					br = BR_TRAM;
 					break;
@@ -1609,7 +1609,11 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 					br = BR_MAGLEV;
 					break;
 
-					default:
+				case road_wt:
+					br = BR_ROAD;
+					break;
+
+				default:
 					br = BR_DEFAULT;
 					break;
 			}
