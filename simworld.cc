@@ -3901,16 +3901,29 @@ void karte_t::set_scroll_lock(bool yesno)
 }
 
 
+koord karte_t::calculate_world_position( koord3d viewpos ) const
+{
+	// just calculate the offset from the z-position
+	const sint16 raster = get_tile_raster_width();
+	const sint16 new_yoff = tile_raster_scale_y(viewpos.z*TILE_HEIGHT_STEP,raster);
+	sint16 lines = 0;
+	if(new_yoff>0) {
+		lines = (new_yoff + (raster/4))/(raster/2);
+	}
+	else {
+		lines = (new_yoff - (raster/4))/(raster/2);
+	}
+	return viewpos.get_2d() - koord( lines, lines );
+}
+
 
 // change the center viewport position for a certain ground tile
 // any possible convoi to follow will be disabled
 void karte_t::change_world_position( koord3d new_ij )
 {
-	const sint16 rw = get_tile_raster_width();
-	change_world_position( new_ij.get_2d(), 0, tile_raster_scale_y(new_ij.z*TILE_HEIGHT_STEP,rw) );
 	follow_convoi = convoihandle_t();
+	change_world_position( calculate_world_position( new_ij ) );
 }
-
 
 
 // change the center viewport position

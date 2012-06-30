@@ -4329,7 +4329,7 @@ const char *wkz_build_industries_land_t::work( karte_t *welt, spieler_t *sp, koo
 
 		if(anzahl>0) {
 			// at least one factory has been built
-			welt->change_world_position( k.get_2d(), 0, 0 );
+			welt->change_world_position( k );
 			spieler_t::accounting(sp, anzahl * welt->get_settings().cst_multiply_found_industry, k.get_2d(), COST_CONSTRUCTION);
 
 			// eventually adjust production
@@ -4398,7 +4398,7 @@ const char *wkz_build_industries_city_t::work( karte_t *welt, spieler_t *sp, koo
 	int anzahl = fabrikbauer_t::baue_hierarchie(NULL, fab, false, &k, welt->get_spieler(1), 10000 );
 	if(anzahl>0) {
 		// at least one factory has been built
-		welt->change_world_position( k.get_2d(), 0, 0 );
+		welt->change_world_position( k );
 
 		// eventually adjust production
 		if (!strempty(default_param)) {
@@ -4491,7 +4491,7 @@ const char *wkz_build_factory_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 		fabrik_t *f = fabrikbauer_t::baue_fabrik(welt, NULL, fab, rotation, gr->get_pos(), welt->get_spieler(1));
 		if(f) {
 			// at least one factory has been built
-			welt->change_world_position( k.get_2d(), 0, 0 );
+			welt->change_world_position( k );
 			spieler_t::accounting(sp, welt->get_settings().cst_multiply_found_industry, k.get_2d(), COST_CONSTRUCTION);
 
 			// eventually adjust production

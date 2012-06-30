@@ -84,7 +84,9 @@ public:
 	 */
 	virtual void set_fenstergroesse(koord groesse);
 
-	virtual koord3d get_weltpos();
+	virtual koord3d get_weltpos(bool);
+
+	virtual bool is_weltpos();
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 

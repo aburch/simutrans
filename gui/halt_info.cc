@@ -165,9 +165,16 @@ halt_info_t::~halt_info_t()
 }
 
 
-koord3d halt_info_t::get_weltpos()
+koord3d halt_info_t::get_weltpos(bool)
 {
 	return halt->get_basis_pos3d();
+}
+
+
+bool halt_info_t::is_weltpos()
+{
+	return ( welt->get_x_off() | welt->get_y_off()) == 0  &&
+		welt->get_world_position() == welt->calculate_world_position( get_weltpos(false) );
 }
 
 

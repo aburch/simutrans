@@ -206,7 +206,8 @@ static int display_gadget_boxes(
 	int const x, int const y,
 	int const color,
 	bool const close_pushed,
-	bool const sticky_pushed
+	bool const sticky_pushed,
+	bool const goto_pushed
 ) {
     int width = 0;
     const int w=(REVERSE_GADGETS?16:-16);
@@ -233,7 +234,7 @@ static int display_gadget_boxes(
 	    width++;
 	}
 	if(  flags->gotopos  ) {
-	    display_gadget_box( GADGET_GOTOPOS, x + w*width, y, color, false );
+	    display_gadget_box( GADGET_GOTOPOS, x + w*width, y, color, goto_pushed );
 	    width++;
 	}
 	if(  flags->sticky  ) {
@@ -314,6 +315,7 @@ static void win_draw_window_title(const koord pos, const koord gr,
 		const koord3d welt_pos,
 		const bool closing,
 		const bool sticky,
+		const bool goto_pushed,
 		simwin_gadget_flags_t &flags )
 {
 	PUSH_CLIP(pos.x, pos.y, gr.x, gr.y);
@@ -324,7 +326,7 @@ static void win_draw_window_title(const koord pos, const koord gr,
 
 	// Draw the gadgets and then move left and draw text.
 	flags.gotopos = (welt_pos != koord3d::invalid);
-	int width = display_gadget_boxes( &flags, pos.x+(REVERSE_GADGETS?0:gr.x-20), pos.y, titel_farbe, closing, sticky );
+	int width = display_gadget_boxes( &flags, pos.x+(REVERSE_GADGETS?0:gr.x-20), pos.y, titel_farbe, closing, sticky, goto_pushed );
 	int titlewidth = display_proportional_clip( pos.x + (REVERSE_GADGETS?width+4:4), pos.y+(16-LINEASCENT)/2, text, ALIGN_LEFT, text_farbe, false );
 	if(  flags.gotopos  ) {
 		display_proportional_clip( pos.x + (REVERSE_GADGETS?width+4:4)+titlewidth+8, pos.y+(16-LINEASCENT)/2, welt_pos.get_2d().get_fullstr(), ALIGN_LEFT, text_farbe, false );
@@ -794,9 +796,10 @@ void display_win(int win)
 				title_color,
 				komp->get_name(),
 				text_color,
-				komp->get_weltpos(),
+				komp->get_weltpos(false),
 				wins[win].closing,
 				wins[win].sticky,
+				komp->is_weltpos(),
 				wins[win].flags );
 	}
 	// mark top window, if requested
@@ -1258,8 +1261,11 @@ bool check_pos_win(event_t *ev)
 						break;
 					case GADGET_GOTOPOS:
 						if (IS_LEFTCLICK(ev)) {
-							// change position on map
-							spieler_t::get_welt()->change_world_position( wins[i].gui->get_weltpos() );
+							// change position on map (or follow)
+							koord3d k = wins[i].gui->get_weltpos(true);
+							if(  k!=koord3d::invalid  ) {
+								spieler_t::get_welt()->change_world_position( k );
+							}
 						}
 						break;
 					case GADGET_STICKY:

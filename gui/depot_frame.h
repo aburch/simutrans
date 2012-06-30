@@ -260,7 +260,7 @@ public:
 	 */
 	bool has_next() const {return true;}
 
-	virtual koord3d get_weltpos();
+	virtual koord3d get_weltpos(bool);
 
 	/**
 	 * Open dialog for schedule entry.

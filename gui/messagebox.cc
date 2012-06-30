@@ -94,7 +94,7 @@ news_loc::news_loc(karte_t* welt, const char* text, koord k, PLAYER_COLOR_VAL co
 
 
 // returns position of the location shown in the subwindow
-koord3d news_loc::get_weltpos()
+koord3d news_loc::get_weltpos(bool)
 {
 	return view.get_location();
 }

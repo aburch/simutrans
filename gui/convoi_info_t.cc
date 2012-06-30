@@ -330,6 +330,29 @@ enable_home:
 }
 
 
+bool convoi_info_t::is_weltpos()
+{
+	return (cnv->get_welt()->get_follow_convoi()==cnv);
+}
+
+
+koord3d convoi_info_t::get_weltpos( bool set )
+{
+	if(  set  ) {
+		if(  !is_weltpos()  )  {
+			cnv->get_welt()->set_follow_convoi( cnv );
+		}
+		else {
+			cnv->get_welt()->set_follow_convoi( convoihandle_t() );
+		}
+		return koord3d::invalid;
+	}
+	else {
+		return cnv->get_pos();
+	}
+}
+
+
 // activate the statistic
 void convoi_info_t::show_hide_statistics( bool show )
 {

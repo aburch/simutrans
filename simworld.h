@@ -533,6 +533,9 @@ public:
 	// also take height into account
 	void change_world_position( koord3d ij );
 
+	// converts 3D coord to 2D actually used for main view
+	koord calculate_world_position( koord3d ) const;
+
 	// the koordinates between the screen and a tile may have several offset
 	// this routine caches them
 	void set_ansicht_ij_offset( koord k ) { ansicht_ij_off=k; }

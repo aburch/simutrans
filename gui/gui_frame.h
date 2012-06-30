@@ -250,7 +250,11 @@ public:
 	virtual bool has_title() const { return true; }
 
 	// position of a connected thing on the map
-	virtual koord3d get_weltpos() { return koord3d::invalid; }
+	// The calling parameter is only true when actually clicking the gadget
+	virtual koord3d get_weltpos( bool /*set*/ ) { return koord3d::invalid; }
+
+	// returns true, when the window show the current object already
+	virtual bool is_weltpos() { return false; }
 
 	/**
 	 * Set resize mode

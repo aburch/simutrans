@@ -197,6 +197,13 @@ void fabrik_info_t::zeichnen(koord pos, koord gr)
 }
 
 
+bool fabrik_info_t::is_weltpos()
+{
+	return ( welt->get_x_off() | welt->get_y_off()) == 0  &&
+		welt->get_world_position() == welt->calculate_world_position( get_weltpos(false) );
+}
+
+
 /**
  * This method is called if an action is triggered
  * @author Hj. Malthaner

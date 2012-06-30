@@ -44,7 +44,6 @@ grund_info_t::grund_info_t(const grund_t* gr_) :
 }
 
 
-
 /**
  * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
  * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
@@ -73,9 +72,17 @@ void grund_info_t::zeichnen(koord pos, koord groesse)
 }
 
 
-koord3d grund_info_t::get_weltpos()
+koord3d grund_info_t::get_weltpos(bool)
 {
 	return gr->get_pos();
+}
+
+
+bool grund_info_t::is_weltpos()
+{
+	karte_t *welt = gr->get_welt();
+	return ( welt->get_x_off() | welt->get_y_off()) == 0  &&
+		welt->get_world_position() == welt->calculate_world_position( gr->get_pos() );
 }
 
 

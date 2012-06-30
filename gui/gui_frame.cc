@@ -15,6 +15,7 @@
 #include "../simcolor.h"
 #include "../simgraph.h"
 #include "../simwin.h"
+#include "../simworld.h"
 #include "../player/simplay.h"
 
 #include "../besch/reader/obj_reader.h"
