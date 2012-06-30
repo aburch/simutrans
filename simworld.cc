@@ -4624,6 +4624,7 @@ DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 		if(  !umgebung_t::networkmode  ||  !umgebung_t::restore_UI  ) {
 			// warning message about missing paks
 			if(  !missing_pak_names.empty()  ) {
+
 				cbuffer_t msg;
 				msg.append("<title>");
 				msg.append(translator::translate("Missing pakfiles"));
@@ -4631,10 +4632,15 @@ DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 
 				cbuffer_t error_paks;
 				cbuffer_t warning_paks;
+
+				cbuffer_t paklog;
+				paklog.append( "\n" );
 				FOR(stringhashtable_tpl<missing_level_t>, const& i, missing_pak_names) {
 					if (i.value <= MISSING_ERROR) {
 						error_paks.append(translator::translate(i.key));
 						error_paks.append("<br>\n");
+						paklog.append( i.key );
+						paklog.append("\n" );
 					}
 					else {
 						warning_paks.append(translator::translate(i.key));
@@ -4649,6 +4655,7 @@ DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 					msg.append("<br>\n");
 					msg.append( error_paks );
 					msg.append("<br>\n");
+					dbg->warning( "The following paks are missing an may course errors", paklog );
 				}
 
 				if(  warning_paks.len()>0  ) {

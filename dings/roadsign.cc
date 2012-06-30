@@ -544,16 +544,16 @@ void roadsign_t::rdwr(loadsave_t *file)
 		besch = roadsign_t::table.get(bname);
 		if(besch==NULL) {
 			besch = roadsign_t::table.get(translator::compatibility_name(bname));
-			if(besch==NULL) {
+			if(  besch==NULL  ) {
 				dbg->warning("roadsign_t::rwdr", "description %s for roadsign/signal at %d,%d not found! (may be ignored)", bname, get_pos().x, get_pos().y);
 				welt->add_missing_paks( bname, karte_t::MISSING_SIGN );
 			}
 			else {
-				dbg->warning("roadsign_t::rwdr", "roadsign/signal %s at %d,%d rpleaced by %s", bname, get_pos().x, get_pos().y, besch->get_name() );
+				dbg->warning("roadsign_t::rwdr", "roadsign/signal %s at %d,%d replaced by %s", bname, get_pos().x, get_pos().y, besch->get_name() );
 			}
 		}
 		// init ownership of private ways signs
-		if(  file->get_version()<110007  &&  besch->is_private_way()  ) {
+		if(  file->get_version()<110007  &&  besch  &&  besch->is_private_way()  ) {
 			ticks_ns = 0xFD;
 			ticks_ow = 0xFF;
 		}
