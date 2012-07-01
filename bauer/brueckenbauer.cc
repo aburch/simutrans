@@ -292,6 +292,12 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const 
 				}
 			}
 		}
+
+		// no bridges crossing runways/taxiways
+		if(  gr2->hat_weg(air_wt)  ){
+			break;
+		}
+
 	} while(  !gr1  &&  // no bridge is crossing
 		(!gr2 || (gr2->get_grund_hang()==hang_t::flach  &&  gr2->get_weg_hang()==hang_t::flach)  ||  gr2->get_hoehe()<pos.z )  &&  // ground stays below bridge
 		(!ai_bridge || length <= welt->get_settings().way_max_bridge_len) // not too long in case of AI

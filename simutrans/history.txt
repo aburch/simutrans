@@ -1,4 +1,6 @@
 	ADD: weight in dat fields are in tons but kg can bei give like 1.350
+	CHG: goto / follow convoi functionality not via window gadget
+	CHG: no bridges over runways / taxiways
 
 
 Release of 111.3 (r5772 on 10-Jun-2012):
