@@ -293,9 +293,12 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const 
 			}
 		}
 
-		// no bridges crossing runways/taxiways
-		if(  gr2->hat_weg(air_wt)  ){
-			break;
+		// no bridges crossing runways
+		if(  grund_t *gr3 = welt->lookup_kartenboden( pos.get_2d() )  ) {
+			if(  gr3->hat_weg(air_wt)  &&  gr3->get_styp(air_wt)==1  ) {
+				// sytem_type==1 is runway
+				break;
+			}
 		}
 
 	} while(  !gr1  &&  // no bridge is crossing
