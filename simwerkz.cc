@@ -3218,19 +3218,21 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 
 	if(!bd  ||  bd->get_weg_hang()!=hang_t::flach) {
 		// only flat tiles, only one stop per map square
-		return "No suitable ground!";
+		return "No suitable way on the ground!";
 	}
 
-	if(bd->ist_tunnel()  &&  bd->ist_karten_boden()) {		// do not build on tunnel entries
-		return "No suitable ground!";
+	if(bd->ist_tunnel()  &&  bd->ist_karten_boden()) {
+		// do not build on tunnel entries
+		return "No suitable way on the ground!";
 	}
 
 	if(bd->get_depot()) {
+		// not on depots
 		return "No suitable ground!";
 	}
 
 	if(bd->hat_weg(air_wt)  &&  bd->get_weg(air_wt)->get_besch()->get_styp()!=0) {
-		return "No suitable ground!";
+		return "Flugzeughalt muss auf\nRunway liegen!\n";
 	}
 
 	// find out orientation ...
