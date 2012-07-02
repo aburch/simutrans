@@ -4668,7 +4668,7 @@ DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 					msg.append("<br>\n");
 					msg.append( error_paks );
 					msg.append("<br>\n");
-					dbg->warning( "The following paks are missing and may course errors", paklog );
+					dbg->warning( "The following paks are missing and may cause errors", paklog );
 				}
 
 				if(  warning_paks.len()>0  ) {
