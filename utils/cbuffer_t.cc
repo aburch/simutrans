@@ -186,7 +186,7 @@ err_mix_pos_nopos:
  * Check whether the format specifiers in @p translated match those in @p master.
  * Checks number of parameters as well as types as provided by format specifiers in @p master.
  * If @p master does not contain any format specifier then function returns true!
- * This is due to cryptic strings like WAGGON_INFO or 1extern.
+ * This is due to strings like 1extern that can have variable number of parameters.
  *
  * @param master the master string to compare against
  * @param translated the translated string taken from some tab file
@@ -218,7 +218,7 @@ bool cbuffer_t::check_format_strings(const char* master, const char* translated)
 	for(uint i=0; (translated_tm[i])  &&  (i<lengthof(translated_tm)); i++) {
 		if (master_tm[i]==0) {
 			// too much parameters requested...
-			// but some master strings like WAGGON_INFO have no format specifiers - ignore these
+			// but some master strings like 1extern have no format specifiers - ignore these
 			if (master_tm[0]) {
 				dbg->warning("check_vsnprintf", "Translation string '%s' has more parameters than master string '%s'", translated, master);
 				return false;

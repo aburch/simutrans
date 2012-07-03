@@ -690,11 +690,13 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 				const uint32 idx = simrand(street_names.get_count());
 
 				buf.clear();
-				buf.printf( street_names[idx], city_name, stop );
-				if(  !all_names.get(buf).is_bound()  ) {
-					return strdup(buf);
+				if (cbuffer_t::check_format_strings("%s %s", street_names[idx])) {
+					buf.printf( street_names[idx], city_name, stop );
+					if(  !all_names.get(buf).is_bound()  ) {
+						return strdup(buf);
+					}
 				}
-				// else remove this entry
+				// remove this entry
 				street_names[idx] = street_names.back();
 				street_names.pop_back();
 			}
@@ -761,14 +763,18 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 				// allow for names without direction
 				uint8 count_s = count_printf_param( base_name );
 				if(count_s==3) {
-					// ok, try this name, if free ...
-					buf.printf( base_name, city_name, dirname, stop );
+					if (cbuffer_t::check_format_strings("%s %s %s", base_name) ) {
+						// ok, try this name, if free ...
+						buf.printf( base_name, city_name, dirname, stop );
+					}
 				}
 				else {
-					// ok, try this name, if free ...
-					buf.printf( base_name, city_name, stop );
+					if (cbuffer_t::check_format_strings("%s %s", base_name) ) {
+						// ok, try this name, if free ...
+						buf.printf( base_name, city_name, stop );
+					}
 				}
-				if(  !all_names.get(buf).is_bound()  ) {
+				if(  buf.len()>0  &&  !all_names.get(buf).is_bound()  ) {
 					return strdup(buf);
 				}
 				buf.clear();
