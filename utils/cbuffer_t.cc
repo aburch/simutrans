@@ -5,6 +5,8 @@
 #include <string.h>
 #include "cbuffer_t.h"
 #include "simstring.h"
+#include "../macros.h"
+#include "../simdebug.h"
 #include "../simtypes.h"
 
 
@@ -93,6 +95,144 @@ void cbuffer_t::append(double n,int decimals)
 const char* cbuffer_t::get_str () const
 {
 	return buf;
+}
+
+
+/**
+ * Parses string @p format, and puts type identifiers into @p typemask.
+ * If an error occurs, an error message is printed into @p error.
+ * Checks for positional parameters: either all or no parameter have to be positional as eg %1$d.
+ * If positional parameter %[n]$ is specified then all up to n have to be present in the string as well.
+ * Treates all integer parameters %i %u %d etc the same.
+ * Ignores positional width parameters as *[n].
+ *
+ * @param format format string
+ * @param typemask pointer to array of length @p max_params
+ * @param max_params length of typemask
+ * @param error receives error message
+ */
+static void get_format_mask(const char* format, char *typemask, int max_params, cbuffer_t &error)
+{
+	MEMZERON(typemask, max_params);
+	uint16 found = 0;
+	bool positional = false;
+	while(format  &&  *format) {
+		uint16 pos = found;
+		// skip until percent sign
+		while(*format  &&  *format!='%') format++;
+		if (*format == 0) {
+			break;
+		}
+		format++;
+		// read out position
+		int i = atoi(format);
+		// skip numbers
+		while(*format  &&  ('0'<=*format  &&  *format<='9') ) format++;
+		// check for correct positional argument
+		if (i>0) {
+			if (format  &&  *format=='$')  {
+				format ++;
+				if (found > 0  &&  !positional) {
+					goto err_mix_pos_nopos;
+				}
+				positional = true;
+				pos = i-1;
+			}
+			else {
+				// width specified, eg %2i
+			}
+		}
+		else {
+			if (found>0  &&  positional) {
+				goto err_mix_pos_nopos;
+			}
+		}
+		// now skip until format specifier
+		static const char* all_types = "cCdDeEfFgGiIoOsSuUxXpPnN ";
+		static const char* all_masks = "cciiffffffiiiissiiiippnn ";
+		while(format  &&  *format) {
+			if (const char* type = strchr(all_types, *format)) {
+				if (*format == ' ') {
+					// broken format string
+				}
+				else {
+					// found valid format
+					typemask[pos] = *(all_masks + (type-all_types));
+					found++;
+				}
+				format++;
+				break;
+			}
+			format++;
+		}
+	}
+	// check whether positional parameters are continuous
+	if (positional) {
+		for(uint16 i=0; i<found; i++) {
+			if (typemask[i]==0) {
+				// unspecified
+				error.printf("Positional parameter %d not specified.", i+1);
+				return;
+			}
+		}
+	}
+	return;
+err_mix_pos_nopos:
+	error.append("Either all or no parameters have to be positional.");
+}
+
+/**
+ * Check whether the format specifiers in @p translated match those in @p master.
+ * Checks number of parameters as well as types as provided by format specifiers in @p master.
+ * If @p master does not contain any format specifier then function returns true!
+ * This is due to cryptic strings like WAGGON_INFO or 1extern.
+ *
+ * @param master the master string to compare against
+ * @param translated the translated string taken from some tab file
+ * @returns whether format in translated is ok
+ */
+bool cbuffer_t::check_format_strings(const char* master, const char* translated)
+{
+	if (master == NULL  ||  translated == NULL) {
+		return false;
+	}
+	static cbuffer_t buf;
+	buf.clear();
+	char master_tm[10], translated_tm[10];
+	// read out master string
+	get_format_mask(master, master_tm, lengthof(master_tm), buf);
+	if (buf.len() > 0) {
+		// broken master string ?!
+		dbg->warning("check_vsnprintf", "Broken master string '%s': %s", master, (const char*) buf);
+		return false;
+	}
+	// read out translated string
+	get_format_mask(translated, translated_tm, lengthof(translated_tm), buf);
+	if (buf.len() > 0) {
+		// broken translated string
+		dbg->warning("check_vsnprintf", "Broken translation string '%s': %s", translated, (const char*) buf);
+		return false;
+	}
+	// check for consistency
+	for(uint i=0; (translated_tm[i])  &&  (i<lengthof(translated_tm)); i++) {
+		if (master_tm[i]==0) {
+			// too much parameters requested...
+			// but some master strings like WAGGON_INFO have no format specifiers - ignore these
+			if (master_tm[0]) {
+				dbg->warning("check_vsnprintf", "Translation string '%s' has more parameters than master string '%s'", translated, master);
+				return false;
+			}
+			return true;
+		}
+		else if (master_tm[i]!=translated_tm[i]) {
+			// wrong type
+			dbg->warning("check_vsnprintf", "Parameter %d in translation string '%s' of '%s' has to be of type '%%%c' instead of '%%%c', Typemasks: Master = %s vs Translated = %s",
+			               i+1, translated, master, master_tm[i], translated_tm[i], master_tm,translated_tm);
+			return false;
+		}
+		i++;
+	}
+	return true;
 }
 
 
