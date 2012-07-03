@@ -148,16 +148,17 @@ static void get_format_mask(const char* format, char *typemask, int max_params, 
 			}
 		}
 		// now skip until format specifier
-		static const char* all_types = "cCdDeEfFgGiIoOsSuUxXpPnN ";
-		static const char* all_masks = "cciiffffffiiiissiiiippnn ";
+		static const char* all_types = "cCdDeEfFgGiIoOsSuUxXpPnN \t\n";
+		static const char* all_masks = "cciiffffffiiiissiiiippnn   ";
 		while(format  &&  *format) {
 			if (const char* type = strchr(all_types, *format)) {
-				if (*format == ' ') {
+				char mask = *(all_masks + (type-all_types));
+				if (mask == ' ') {
 					// broken format string
 				}
 				else {
 					// found valid format
-					typemask[pos] = *(all_masks + (type-all_types));
+					typemask[pos] = mask;
 					found++;
 				}
 				format++;
