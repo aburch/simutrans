@@ -1357,7 +1357,7 @@ void depot_frame_t::draw_vehicle_info_text(koord pos)
 			translator::translate(engine_type_names[veh_type->get_engine_type()+1]));
 
 			int n = sprintf(buf,
-				translator::translate("LOCO_INFO"),
+					translator::translate("%s\nCost: %d$ (%1.2f$/km)\nPower: %dkW\nTop speed: %dkm/h\nWeight: %dt\n"), // was LOCO_INFO
 				name,
 				veh_type->get_preis()/100,
 				veh_type->get_betriebskosten()/100.0,
@@ -1368,7 +1368,7 @@ void depot_frame_t::draw_vehicle_info_text(koord pos)
 
 			if(zuladung>0) {
 				sprintf(buf + n,
-					translator::translate("LOCO_CAP"),
+					translator::translate("Capacity: %d%s %s\n"), // was LOCO_CAP
 					zuladung,
 					translator::translate(veh_type->get_ware()->get_mass()),
 					veh_type->get_ware()->get_catg() == 0 ? translator::translate(veh_type->get_ware()->get_name()) : translator::translate(veh_type->get_ware()->get_catg_name())
@@ -1379,7 +1379,7 @@ void depot_frame_t::draw_vehicle_info_text(koord pos)
 		else {
 			// waggon
 			sprintf(buf,
-				translator::translate("WAGGON_INFO"),
+				translator::translate("%s\nCost:     %d$ (%1.2f$/km)\nCapacity: %d%s %s\nWeight: %dt\nTop speed: %dkm/h\n"),  // was WAGGON_INFO
 				translator::translate(veh_type->get_name(), depot->get_welt()->get_settings().get_name_language_id()),
 				veh_type->get_preis()/100,
 				veh_type->get_betriebskosten()/100.0,

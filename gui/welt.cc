@@ -599,7 +599,7 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 			sizeof(void*) * 4
 		) * sx * sy
 	) / (1024 * 1024);
-	buf.printf( translator::translate("3WORLD_CHOOSE"), memory );
+	buf.printf( translator::translate("Size (%d MB):"), memory );
 	display_proportional_clip(x, y, buf, ALIGN_LEFT, COL_BLACK, true);
 	y += 12;	// x size
 	y += 12+5;	// y size

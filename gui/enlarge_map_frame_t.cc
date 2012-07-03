@@ -266,6 +266,6 @@ void enlarge_map_frame_t::update_preview()
 			sizeof(void*) * 4
 		) * sx * sy
 	) / (1024 * 1024);
-	sprintf(memory_str, translator::translate("3WORLD_CHOOSE"), memory);
+	sprintf(memory_str, translator::translate("Size (%d MB):"), memory);
 
 }
