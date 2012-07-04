@@ -62,9 +62,6 @@ public:
 	static void register_besch(bruecke_besch_t *besch);
 
 
-	static bool laden_erfolgreich();
-
-
 	static const bruecke_besch_t *get_besch(const char *name);
 
 	// the main construction routine

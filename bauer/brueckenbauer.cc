@@ -73,36 +73,6 @@ const bruecke_besch_t *brueckenbauer_t::get_besch(const char *name)
 }
 
 
-
-bool brueckenbauer_t::laden_erfolgreich()
-{
-	bool strasse_da = false;
-	bool schiene_da = false;
-
-	FOR(stringhashtable_tpl<bruecke_besch_t const*>, const& i, bruecken_by_name) {
-		bruecke_besch_t const* const besch = i.value;
-
-		if(besch && besch->get_waytype() == track_wt) {
-			schiene_da = true;
-		}
-		if(besch && besch->get_waytype() == road_wt) {
-			strasse_da = true;
-		}
-	}
-
-	if(!schiene_da) {
-		DBG_MESSAGE("brueckenbauer_t", "No rail bridge found - feature disabled");
-	}
-
-	if(!strasse_da) {
-		DBG_MESSAGE("brueckenbauer_t", "No road bridge found - feature disabled");
-	}
-
-	return true;
-}
-
-
-
 /**
  * Find a matchin bridge
  * @author Hj. Malthaner
