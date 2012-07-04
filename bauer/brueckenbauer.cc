@@ -37,16 +37,13 @@
 #include "../tpl/vector_tpl.h"
 
 
+/// All bridges hashed by name
 static stringhashtable_tpl<const bruecke_besch_t *> bruecken_by_name;
 
 
-/**
- * Registers a new bridge type
- * @author V. Meyer, Hj. Malthaner
- */
 void brueckenbauer_t::register_besch(bruecke_besch_t *besch)
 {
-	// avoid duplicates with same name	// avoid duplicates with same name
+	// avoid duplicates with same name
 	if( const bruecke_besch_t *old_besch = bruecken_by_name.get(besch->get_name()) ) {
 		dbg->warning( "brueckenbauer_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
 		bruecken_by_name.remove(besch->get_name());
@@ -66,17 +63,12 @@ void brueckenbauer_t::register_besch(bruecke_besch_t *besch)
 }
 
 
-
 const bruecke_besch_t *brueckenbauer_t::get_besch(const char *name)
 {
 	return bruecken_by_name.get(name);
 }
 
 
-/**
- * Find a matchin bridge
- * @author Hj. Malthaner
- */
 const bruecke_besch_t *brueckenbauer_t::find_bridge(const waytype_t wtyp, const sint32 min_speed, const uint16 time)
 {
 	const bruecke_besch_t *find_besch=NULL;
@@ -98,16 +90,17 @@ const bruecke_besch_t *brueckenbauer_t::find_bridge(const waytype_t wtyp, const 
 }
 
 
+/**
+ * Compares the maximum speed of two bridges.
+ * @param a the first bridge.
+ * @param b the second bridge.
+ * @return true, if the speed of the second bridge is greater.
+ */
 static bool compare_bridges(const bruecke_besch_t* a, const bruecke_besch_t* b)
 {
 	return a->get_topspeed() < b->get_topspeed();
 }
 
-
-/**
- * Fill menu with icons of given waytype
- * @author Hj. Malthaner
- */
 
 void brueckenbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, sint16 /*sound_ok*/, const karte_t *welt)
 {
@@ -130,7 +123,6 @@ void brueckenbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, s
 		wzw->add_werkzeug(i->get_builder());
 	}
 }
-
 
 
 koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const bruecke_besch_t *besch, const char *&error_msg, bool ai_bridge, uint32 min_length )
@@ -281,7 +273,6 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const 
 }
 
 
-
 bool brueckenbauer_t::ist_ende_ok(spieler_t *sp, const grund_t *gr)
 {
 	if(gr->get_typ()!=grund_t::boden  &&  gr->get_typ()!=grund_t::monorailboden) {
@@ -406,7 +397,7 @@ DBG_MESSAGE("brueckenbauer_t::baue()", "end not ok");
 	}
 
 
-	// Anfang und ende sind geprueft, wir konnen endlich bauen
+	// Start and end have been checked, we can start to build eventually
 	if(besch->get_waytype()==powerline_wt) {
 		baue_bruecke(welt, sp, gr->get_pos(), end, zv, besch, lt->get_besch() );
 	}
@@ -507,6 +498,7 @@ void brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, ko
 	}
 }
 
+
 void brueckenbauer_t::baue_auffahrt(karte_t* welt, spieler_t* sp, koord3d end, koord zv, const bruecke_besch_t* besch)
 {
 	grund_t *alter_boden = welt->lookup(end);
@@ -563,8 +555,6 @@ void brueckenbauer_t::baue_auffahrt(karte_t* welt, spieler_t* sp, koord3d end, k
 	br->laden_abschliessen();
 	bruecke->calc_bild();
 }
-
-
 
 
 const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, waytype_t wegtyp)
