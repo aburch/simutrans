@@ -22,19 +22,8 @@
 // if defined, print some profiling informations into the file
 //#define DEBUG_ROUTES
 
-// this is WAY slower than the sorted_heap! (also not always finding best routes, but was the original algorithms)
-//#include "../tpl/prioqueue_tpl.h" // ~100-250% slower
-
-// HOT queue with the pocket size equal to the distance
-// still slower than a binary heap
-//#include "../tpl/HOT_queue_tpl.h"	// ~10% slower
-//#include "../tpl/HOT_queue2_tpl.h" // ~5% slower
-
-// sorted heap, since we only need insert and pop
-//#include "../tpl/sorted_heap_tpl.h" // ~10% slower
-
 // binary heap, the fastest
-#include "../tpl/binary_heap_tpl.h" // fastest
+#include "../tpl/binary_heap_tpl.h"
 
 
 #ifdef DEBUG_ROUTES
@@ -323,17 +312,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 
 	INT_CHECK("route 347");
 
-	// there are several variant for maintaining the open list
-	// however, only binary heap and HOT queue with binary heap are worth considering
-#if defined(tpl_HOT_queue_tpl_h)
-    static HOT_queue_tpl <ANode *> queue;
-#elif defined(tpl_binary_heap_tpl_h)
-    static binary_heap_tpl <ANode *> queue;
-#elif defined(tpl_sorted_heap_tpl_h)
-    static sorted_heap_tpl <ANode *> queue;
-#else
-    static prioqueue_tpl <ANode *> queue;
-#endif
+	static binary_heap_tpl <ANode *> queue;
 
 	GET_NODE();
 

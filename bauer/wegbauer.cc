@@ -46,7 +46,7 @@
 #include "../dataobj/route.h"
 #include "../dataobj/translator.h"
 
-// sorted heap, since we only need insert and pop
+// binary heap, since we only need insert and pop
 #include "../tpl/binary_heap_tpl.h" // fastest
 
 #include "../dings/field.h"
@@ -1157,21 +1157,7 @@ long wegbauer_t::intern_calc_route(const vector_tpl<koord3d> &start, const vecto
 		route_t::nodes = new route_t::ANode[route_t::MAX_STEP+4+1];
 	}
 
-	// there are several variant for mantaining the open list
-	// however, only binary heap and HOT queue with binary heap are worth considering
-#ifdef tpl_HOT_queue_tpl_h
-	//static HOT_queue_tpl <route_t::ANode *> queue;
-#else
-#ifdef tpl_binary_heap_tpl_h
 	static binary_heap_tpl <route_t::ANode *> queue;
-#else
-#ifdef tpl_sorted_heap_tpl_h
-	//static sorted_heap_tpl <route_t::ANode *> queue;
-#else
-	//static prioqueue_tpl <route_t::ANode *> queue;
-#endif
-#endif
-#endif
 
 	// nothing in lists
 	welt->unmarkiere_alle();
