@@ -10,7 +10,6 @@
 #include "../simdebug.h"
 
 #include "tunnelbauer.h"
-#include "../besch/intro_dates.h"
 
 #include "../gui/karte.h"
 
@@ -56,35 +55,6 @@ void tunnelbauer_t::register_besch(tunnel_besch_t *besch)
 	werkzeug_t::general_tool.append( wkz );
 	besch->set_builder( wkz );
 	tunnel_by_name.put(besch->get_name(), besch);
-}
-
-
-// now we have to convert old tunnel to new ones ...
-bool tunnelbauer_t::laden_erfolgreich()
-{
-	FOR(stringhashtable_tpl<tunnel_besch_t*>, const& i, tunnel_by_name) {
-		tunnel_besch_t* const besch = i.value;
-		if(besch->get_topspeed()==0) {
-			// old style, need to convert
-			if(strcmp(besch->get_name(),"RoadTunnel")==0) {
-				besch->wegtyp = (uint8)road_wt;
-				besch->topspeed = 120;
-				besch->maintenance = 500;
-				besch->preis = 200000;
-				besch->intro_date = DEFAULT_INTRO_DATE*12;
-				besch->obsolete_date = DEFAULT_RETIRE_DATE*12;
-			}
-			else {
-				besch->wegtyp = (uint8)track_wt;
-				besch->topspeed = 280;
-				besch->maintenance = 500;
-				besch->preis = 200000;
-				besch->intro_date = DEFAULT_INTRO_DATE*12;
-				besch->obsolete_date = DEFAULT_RETIRE_DATE*12;
-			}
-		}
-	}
-	return true;
 }
 
 

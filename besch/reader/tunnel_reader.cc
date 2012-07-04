@@ -4,6 +4,7 @@
 
 #include "../../dataobj/ribi.h"
 
+#include "../intro_dates.h"
 #include "../tunnel_besch.h"
 #include "../obj_besch.h"
 #include "../obj_node_info.h"
@@ -16,6 +17,9 @@
 void tunnel_reader_t::register_obj(obj_besch_t *&data)
 {
 	tunnel_besch_t *besch = static_cast<tunnel_besch_t *>(data);
+	if(besch->get_topspeed()==0) {
+		convert_old_tunnel(besch);
+	}
 	DBG_DEBUG("tunnel_reader_t::register_obj", "Loaded '%s'", besch->get_name());
 	tunnelbauer_t::register_besch(besch);
 
@@ -24,13 +28,25 @@ void tunnel_reader_t::register_obj(obj_besch_t *&data)
 	pakset_info_t::append(besch->get_name(), chk);
 }
 
-
-bool
-tunnel_reader_t::successfully_loaded() const
+/**
+ * Sets default data for ancient tunnel paks
+ */
+void tunnel_reader_t::convert_old_tunnel(tunnel_besch_t *besch)
 {
-	return tunnelbauer_t::laden_erfolgreich();
+	// old style, need to convert
+	if(strcmp(besch->get_name(),"RoadTunnel")==0) {
+		besch->wegtyp = (uint8)road_wt;
+		besch->topspeed = 120;
+	}
+	else {
+		besch->wegtyp = (uint8)track_wt;
+		besch->topspeed = 280;
+	}
+	besch->maintenance = 500;
+	besch->preis = 200000;
+	besch->intro_date = DEFAULT_INTRO_DATE*12;
+	besch->obsolete_date = DEFAULT_RETIRE_DATE*12;
 }
-
 
 
 obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)

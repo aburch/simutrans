@@ -37,7 +37,6 @@ public:
 	static koord3d finde_ende(karte_t *welt, koord3d pos, koord zv, waytype_t wegtyp);
 
 	static void register_besch(tunnel_besch_t *besch);
-	static bool laden_erfolgreich();
 
 	static const tunnel_besch_t *get_besch(const char *);
 
