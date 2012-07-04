@@ -5519,7 +5519,14 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 			{
 				if(  route->get_count()-1 < shortest_route->get_count()-1    ||    shortest_route->empty()  ) 
 				{
-					shortest_route->kopiere(route);
+					if(shortest_route->empty() && welt->lookup(get_pos())->get_depot())
+					{
+						route->append(pos);
+					}
+					else
+					{
+						shortest_route->kopiere(route);	
+					}
 					home = pos;
 				}
 			}
