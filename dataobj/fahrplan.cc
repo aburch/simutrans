@@ -88,7 +88,7 @@ bool schedule_t::ist_halt_erlaubt(const grund_t *gr) const
 
 
 
-bool schedule_t::insert(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_shift, sint16 spacing_shift, bool show_failure )
+bool schedule_t::insert(const grund_t* gr, uint16 ladegrad, uint8 waiting_time_shift, sint16 spacing_shift, bool show_failure )
 {
 	// stored in minivec, so we have to avoid adding too many
 	if(  eintrag.get_count()>=254  ) 
@@ -117,7 +117,7 @@ bool schedule_t::insert(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_sh
 
 
 
-bool schedule_t::append(const grund_t* gr, uint8 ladegrad, uint8 waiting_time_shift, sint16 spacing_shift)
+bool schedule_t::append(const grund_t* gr, uint16 ladegrad, uint8 waiting_time_shift, sint16 spacing_shift)
 {
 	// stored in minivec, so wie have to avoid adding too many
 	if(eintrag.get_count()>=254) {
@@ -232,7 +232,17 @@ void schedule_t::rdwr(loadsave_t *file)
 				eintrag[i].reverse = false;
 			}
 			eintrag[i].pos.rdwr(file);
-			file->rdwr_byte(eintrag[i].ladegrad);
+			if(file->get_experimental_version() >= 10 && file->get_version() >= 111002)
+			{
+				file->rdwr_short(eintrag[i].ladegrad);
+			}
+			else
+			{
+				// Previous versions had ladegrad as a uint8. 
+				uint8 old_ladegrad = (uint8)eintrag[i].ladegrad;
+				file->rdwr_byte(old_ladegrad);
+				eintrag[i].ladegrad = (uint16)old_ladegrad;
+			}
 			if(file->get_version()>=99018) {
 				file->rdwr_byte(eintrag[i].waiting_time_shift);
 
@@ -320,7 +330,7 @@ bool schedule_t::matches(karte_t *welt, const schedule_t *fpl)
 
 		if(		f1<eintrag.get_count()  &&  f2<fpl->eintrag.get_count()
 			&& fpl->eintrag[(uint8)f2].pos == eintrag[(uint8)f1].pos 
-			&& fpl->eintrag[(uint8)f2].ladegrad == eintrag[(uint8)f1].ladegrad 
+			&& fpl->eintrag[(uint16)f2].ladegrad == eintrag[(uint16)f1].ladegrad 
 			&& fpl->eintrag[(uint8)f2].waiting_time_shift == eintrag[(uint8)f1].waiting_time_shift 
 			&& fpl->eintrag[(uint8)f2].spacing_shift == eintrag[(uint8)f1].spacing_shift
 		  ) {

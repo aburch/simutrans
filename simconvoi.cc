@@ -4627,7 +4627,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 
 	// any loading went on?
 	calc_loading();
-	loading_limit = fpl->get_current_eintrag().ladegrad; //"charge degree" (??) (Babelfish)
+	loading_limit = fpl->get_current_eintrag().ladegrad; // ladegrad = max. load.
 	heaviest_vehicle = calc_heaviest_vehicle(); // Bernd Gabriel, Mar 10, 2010: was missing.
 	if(old_last_stop_pos != fahr[0]->get_pos().get_2d())
 	{
@@ -5517,7 +5517,7 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 			bool found = calc_route(get_pos(), pos, 50); // do not care about speed
 			if (found) 
 			{
-				if(  route->get_count()-1 < shortest_route->get_count()-1    ||    shortest_route->empty()  ) 
+				if(  route->get_count()-1 < shortest_route->get_count()-1 || shortest_route->empty()  ) 
 				{
 					if(shortest_route->empty() && welt->lookup(get_pos())->get_depot())
 					{

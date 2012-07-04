@@ -330,7 +330,7 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	numimp_load.set_groesse( koord( 60, BUTTON_HEIGHT ) );
 	numimp_load.set_value( fpl->get_current_eintrag().ladegrad );
 	numimp_load.set_limits( 0, 400 );
-	numimp_load.set_increment_mode( gui_numberinput_t::PROGRESS );
+	numimp_load.set_increment_mode(10);
 	numimp_load.add_listener(this);
 	add_komponente(&numimp_load);
 
@@ -655,7 +655,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 	}
 	else if(komp == &numimp_load) {
 		if (!fpl->empty()) {
-			fpl->eintrag[fpl->get_aktuell()].ladegrad = (uint8)p.i;
+			fpl->eintrag[fpl->get_aktuell()].ladegrad = (uint16)p.i;
 			update_selection();
 		}
 	}
