@@ -258,11 +258,9 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 	}
 	else {
 		// reached => construct route
-		route.clear();
-		route.resize(tmp->count+16);
+		route.store_at( tmp->count, tmp->gr->get_pos() );
 		while(tmp != NULL) {
-			route.store_at( tmp->count, tmp->gr->get_pos() );
-//DBG_DEBUG("add","%i,%i",tmp->pos.x,tmp->pos.y);
+			route[ tmp->count ] = tmp->gr->get_pos();
 			tmp = tmp->parent;
 		}
 		ok = !route.empty();
@@ -474,11 +472,9 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 	}
 	else {
 		// reached => construct route
-		route.clear();
-		route.resize(tmp->count+16);
+		route.store_at( tmp->count, tmp->gr->get_pos() );
 		while(tmp != NULL) {
-			route.store_at( tmp->count, tmp->gr->get_pos() );
-//DBG_DEBUG("add","%i,%i at pos %i",tmp->gr->get_pos().x,tmp->gr->get_pos().y,tmp->count);
+			route[ tmp->count ] = tmp->gr->get_pos();
 			tmp = tmp->parent;
 		}
 		ok = true;
