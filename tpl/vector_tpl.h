@@ -201,21 +201,26 @@ template<class T> class vector_tpl
 		}
 
 		/**
-
-		 * put the data at a certain position
-		 * BEWARE: using this function will create default objects, depending on
-		 * the type of the vector
+		 * Put the data at a certain position.
+		 * Possibly resizes vector (and hence creates default objects).
+		 * @param pos index
+		 * @param elem this element will be copied
 		 */
 		void store_at(const uint32 pos, const T& elem)
 		{
 			if (pos >= size) {
-				resize((pos & 0xFFFFFFF8) + 8);
+				uint32 new_size = size == 0 ? 1 : size * 2;
+				while (pos >= new_size) {
+					new_size *= 2;
+				}
+				resize(new_size);
 			}
 			data[pos] = elem;
 			if (pos >= count) {
 				count = pos + 1;
 			}
 		}
+
 
 		/** removes element, if contained */
 		void remove(const T& elem)
