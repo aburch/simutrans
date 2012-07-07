@@ -55,6 +55,8 @@
 " Richard Smith","patches",
 " HeinBloed","patches",
 " Omikron","patches",
+" Kieron Green","patches",
+" Darkbill","patches",
 " Markus Pristovsek","coding advice",
 " Daniel Wachsmuth","coding advice",
 " Giuseppe", "Italian translation",
