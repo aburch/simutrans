@@ -310,186 +310,106 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 	tabfileobj_t contents;
 	menuconf.read(contents);
 
-	// ok, first init all tools
+	// structure to hold information for iterating through different tool types
+	struct tool_class_info_t {
+		const char* type;
+		uint16 count;
+		vector_tpl<werkzeug_t *> &tools;
+		const skin_besch_t *icons;
+		const skin_besch_t *cursor;
+		bool with_sound;
+
+	};
+	tool_class_info_t info[] = {
+		{ "general_tool", GENERAL_TOOL_COUNT, general_tool, skinverwaltung_t::werkzeuge_general, skinverwaltung_t::cursor_general, true },
+		{ "simple_tool",  SIMPLE_TOOL_COUNT,  simple_tool,  skinverwaltung_t::werkzeuge_simple,  NULL, false},
+		{ "dialog_tool",  DIALOGE_TOOL_COUNT, dialog_tool,  skinverwaltung_t::werkzeuge_dialoge, NULL, false }
+	};
+
+	// first init all tools
 	DBG_MESSAGE( "werkzeug_t::init_menu()", "Reading general menu" );
-	for(  uint16 i=0;  i<GENERAL_TOOL_COUNT;  i++  ) {
-		char id[256];
-		sprintf( id, "general_tool[%i]", i );
-		const char *str = contents.get( id );
-		/* str should now contain something like 1,2,-1
-		 * first parameter is the image number in "GeneralTools"
-		 * next is the cursor in "GeneralTools"
-		 * final is the sound
-		 * -1 will disable any of them
-		 */
-		werkzeug_t *w = general_tool[i];
-		if(*str  &&  *str!=',') {
-			// ok, first comes icon
-			while(*str==' ') {
-				str++;
-			}
-			uint16 icon = (uint16)atoi(str);
-			if(  icon==0  &&  *str!='0'  ) {
-				// check, if file name ...
-				int i=0;
-				while(  str[i]!=0  &&  str[i]!=','  ) {
-					i++;
-				}
-				const skin_besch_t *s=skinverwaltung_t::get_extra(str,i-1);
-				w->icon = s ? s->get_bild_nr(0) : IMG_LEER;
-			}
-			else {
-				if(  icon>=skinverwaltung_t::werkzeuge_general->get_bild_anzahl()  ) {
-					dbg->fatal( "werkzeug_t::init_menu()", "wrong icon (%i) given for general_tool[%i]", icon, i );
-				}
-				w->icon = skinverwaltung_t::werkzeuge_general->get_bild_nr(icon);
-			}
-			do {
-				str++;
-			} while(*str  &&  *str!=',');
-		}
-		if(*str==',') {
-			// next comes cursor
-			str++;
-			if(*str!=',') {
-				uint16 cursor = (uint16)atoi(str);
-				if(  cursor>=skinverwaltung_t::cursor_general->get_bild_anzahl()  ) {
-					dbg->fatal( "werkzeug_t::init_menu()", "wrong cursor (%i) given for general_tool[%i]", cursor, i );
-				}
-				w->cursor = skinverwaltung_t::cursor_general->get_bild_nr(cursor);
-				do {
+	for(  uint16 t=0; t<3; t++) {
+		for(  uint16 i=0;  i<info[t].count;  i++  ) {
+			char id[256];
+			sprintf( id, "%s[%i]", info[t].type, i );
+			const char *str = contents.get( id );
+			/* Format of str:
+			 * for general tools: icon,cursor,sound,key
+			 *     icon is image number in menu.GeneralTools, cursor image number in cursor.GeneralTools
+			 * for simple and dialog tools: icon,key
+			 *     icon is image number in menu.SimpleTools and menu.DialogeTools
+			 * -1 will disable any of them
+			 */
+			werkzeug_t *w = info[t].tools[i];
+			if(*str  &&  *str!=',') {
+				// ok, first comes icon
+				while(*str==' ') {
 					str++;
-				} while(*str  &&  *str!=',');
-			}
-		}
-		if(*str==',') {
-			// ok_sound
-			str++;
-			if(*str!=',') {
-				int sound = atoi(str);
-				if(  sound>0  ) {
-					w->ok_sound = sound_besch_t::get_compatible_sound_id(sound);
+				}
+				uint16 icon = (uint16)atoi(str);
+				if(  icon==0  &&  *str!='0'  ) {
+					// check, if file name ...
+					int i=0;
+					while(  str[i]!=0  &&  str[i]!=','  ) {
+						i++;
+					}
+					const skin_besch_t *s=skinverwaltung_t::get_extra(str,i-1);
+					w->icon = s ? s->get_bild_nr(0) : IMG_LEER;
+				}
+				else {
+					if(  icon>=info[t].icons->get_bild_anzahl()  ) {
+						dbg->warning( "werkzeug_t::init_menu()", "wrong icon (%i) given for %s[%i]", icon, info[t].type, i );
+					}
+					w->icon = info[t].icons->get_bild_nr(icon);
 				}
 				do {
 					str++;
 				} while(*str  &&  *str!=',');
 			}
-		}
-		if(*str==',') {
-			// key
-			str++;
-			while(*str==' ') {
-				str++;
+			if(info[t].cursor) {
+				if(*str==',') {
+					// next comes cursor
+					str++;
+					if(*str!=',') {
+						uint16 cursor = (uint16)atoi(str);
+						if(  cursor>=info[t].cursor->get_bild_anzahl()  ) {
+							dbg->warning( "werkzeug_t::init_menu()", "wrong cursor (%i) given for %s[%i]", cursor, info[t].type, i );
+						}
+						w->cursor = info[t].cursor->get_bild_nr(cursor);
+						do {
+							str++;
+						} while(*str  &&  *str!=',');
+					}
+				}
 			}
-			if(*str>=' ') {
-				w->command_key = str_to_key(str);
-				char_to_tool.append(w);
+			if(info[t].with_sound) {
+				if(*str==',') {
+					// ok_sound
+					str++;
+					if(*str!=',') {
+						int sound = atoi(str);
+						if(  sound>0  ) {
+							w->ok_sound = sound_besch_t::get_compatible_sound_id(sound);
+						}
+						do {
+							str++;
+						} while(*str  &&  *str!=',');
+					}
+				}
+			}
+			if(*str==',') {
+				// key
+				str++;
+				while(*str==' ') {
+					str++;
+				}
+				if(*str>=' ') {
+					w->command_key = str_to_key(str);
+					char_to_tool.append(w);
+				}
 			}
 		}
 	}
-
-	// now the simple tools
-	DBG_MESSAGE( "werkzeug_t::init_menu()", "Reading simple menu" );
-	for(  uint16 i=0;  i<SIMPLE_TOOL_COUNT;  i++  ) {
-		char id[256];
-		sprintf( id, "simple_tool[%i]", i );
-		const char *str = contents.get( id );
-		werkzeug_t *w = simple_tool[i];
-		/* str should now contain something like 1,2,-1
-		 * first parameter is the image number in "GeneralTools"
-		 * next is the cursor in "GeneralTools"
-		 * final is the sound
-		 * -1 will disable any of them
-		 */
-		if(*str  &&  *str!=',') {
-			// ok, first come icon
-			while(*str==' ') {
-				str++;
-			}
-			uint16 icon = (uint16)atoi(str);
-			if(  icon==0  &&  *str!='0'  ) {
-				// check, if file name ...
-				int i=0;
-				while(  str[i]!=0  &&  str[i]!=','  ) {
-					i++;
-				}
-				const skin_besch_t *s=skinverwaltung_t::get_extra(str,i-1);
-				w->icon = s ? s->get_bild_nr(0) : IMG_LEER;
-			}
-			else {
-				if(  icon>=skinverwaltung_t::werkzeuge_simple->get_bild_anzahl()  ) {
-					dbg->fatal( "werkzeug_t::init_menu()", "wrong icon (%i) given for simple_tool[%i]", icon, i );
-				}
-				w->icon = skinverwaltung_t::werkzeuge_simple->get_bild_nr(icon);
-			}
-			do {
-				str++;
-			} while(*str  &&  *str!=',');
-		}
-		if(*str==',') {
-			// key
-			str++;
-			while(*str==' ') {
-				str++;
-			}
-			if(*str>=' ') {
-				w->command_key = str_to_key(str);
-				char_to_tool.append(w);
-			}
-		}
-	}
-
-	// now the dialoge tools
-	DBG_MESSAGE( "werkzeug_t::init_menu()", "Reading dialoge menu" );
-	for(  uint16 i=0;  i<DIALOGE_TOOL_COUNT;  i++  ) {
-		char id[256];
-		sprintf( id, "dialog_tool[%i]", i );
-		const char *str = contents.get( id );
-		werkzeug_t *w = dialog_tool[i];
-		/* str should now contain something like 1,2,-1
-		 * first parameter is the image number in "GeneralTools"
-		 * next is the cursor in "GeneralTools"
-		 * final is the sound
-		 * -1 will disable any of them
-		 */
-		if(*str  &&  *str!=',') {
-			// ok, first come icon
-			while(*str==' ') {
-				str++;
-			}
-			uint16 icon = (uint16)atoi(str);
-			if(  icon==0  &&  *str!='0'  ) {
-				// check, if file name ...
-				int i=0;
-				while(  str[i]!=0  &&  str[i]!=','  ) {
-					i++;
-				}
-				const skin_besch_t *s=skinverwaltung_t::get_extra(str,i-1);
-				w->icon = s ? s->get_bild_nr(0) : IMG_LEER;
-			}
-			else {
-				if(  icon>=skinverwaltung_t::werkzeuge_dialoge->get_bild_anzahl()  ) {
-					dbg->fatal( "werkzeug_t::init_menu()", "wrong icon (%i) given for dialoge_tool[%i]", icon, i );
-				}
-				w->icon = skinverwaltung_t::werkzeuge_dialoge->get_bild_nr(icon);
-			}
-			do {
-				str++;
-			} while(*str  &&  *str!=',');
-		}
-		if(*str==',') {
-			// key
-			str++;
-			while(*str==' ') {
-				str++;
-			}
-			if(*str>=' ') {
-				w->command_key = str_to_key(str);
-				char_to_tool.append(w);
-			}
-		}
-	}
-
 	// now the toolbar tools
 	DBG_MESSAGE( "werkzeug_t::read_menu()", "Reading toolbars" );
 	// default size
