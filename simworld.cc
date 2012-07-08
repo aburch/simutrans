@@ -1801,7 +1801,7 @@ bool karte_t::can_lower_plan_to(sint16 x, sint16 y, sint8 h) const
 	}
 
 	const sint8 hmax = plan->get_kartenboden()->get_hoehe();
-	if(  hmax==h  &&  (plan->get_kartenboden()->get_grund_hang()==0 ||  is_plan_height_changeable(x, y))) {
+	if(  hmax==h  &&  (plan->get_kartenboden()->get_grund_hang()==0  ||  is_plan_height_changeable(x, y))  ) {
 		return true;
 	}
 
@@ -1852,7 +1852,7 @@ bool karte_t::is_plan_height_changeable(sint16 x, sint16 y) const
 	if(plan != NULL) {
 		grund_t *gr = plan->get_kartenboden();
 
-		ok = (gr->ist_natur() || gr->ist_wasser())  &&  !gr->hat_wege();
+		ok = (gr->ist_natur() || gr->ist_wasser())  &&  !gr->hat_wege()  &&  !gr->is_halt();
 
 		for(  int i=0; ok  &&  i<gr->get_top(); i++  ) {
 			const ding_t *dt = gr->obj_bei(i);
@@ -2164,10 +2164,19 @@ bool karte_t::can_lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, 
 		}
 	}
 	else {
-		if (x<0) ok = hne >= grundwasser && hse >= grundwasser;
-		if (y<0) ok = hsw >= grundwasser && hse >= grundwasser;
-		if (x>=cached_groesse_karte_x) ok = hsw >= grundwasser && hnw >= grundwasser;
-		if (y>=cached_groesse_karte_y) ok = hnw >= grundwasser && hne >= grundwasser;
+		// border tile of map
+		if(x<0) {
+			ok = hne >= grundwasser && hse >= grundwasser;
+		}
+		if(y<0) {
+			ok = hsw >= grundwasser && hse >= grundwasser;
+		}
+		if(x>=cached_groesse_karte_x) {
+			ok = hsw >= grundwasser && hnw >= grundwasser;
+		}
+		if(y>=cached_groesse_karte_y) {
+			ok = hnw >= grundwasser && hne >= grundwasser;
+		}
 	}
 	return ok;
 }
@@ -2176,13 +2185,13 @@ bool karte_t::can_lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, 
 // nw-ecke corner4 absenken
 bool karte_t::can_lower(sint16 x, sint16 y) const
 {
-	if(ist_in_kartengrenzen(x, y)) {
-		grund_t *gr = lookup_kartenboden(koord(x,y));
-		const sint8 hnew = gr->get_hoehe() + corner4(gr->get_grund_hang());
-
+	if(  ist_in_kartengrenzen(x, y)  ) {
+		grund_t *gr = lookup_kartenboden( koord(x,y) );
+		const sint8 hnew = gr->get_hoehe() + corner4( gr->get_grund_hang() );
 		return can_lower_to(x, y, hnew, hnew, hnew, hnew-1, 15/*all corners*/ );
-	} else {
-		return true;
+	}
+	else {
+		return false;
 	}
 }
 

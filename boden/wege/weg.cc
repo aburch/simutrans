@@ -405,6 +405,10 @@ void weg_t::calc_bild()
 		// no ground, in tunnel
 		set_bild(IMG_LEER);
 		set_after_bild(IMG_LEER);
+		if(  from==NULL  ) {
+			dbg->error( "weg_t::calc_bild()", "Own way at %s not found!", get_pos().get_str() );
+		}
+		return;	// otherwise crashing during enlargement
 	}
 	else if(  from->ist_tunnel() &&  from->ist_karten_boden()  &&  (grund_t::underground_mode==grund_t::ugm_none || (grund_t::underground_mode==grund_t::ugm_level && from->get_hoehe()<grund_t::underground_level))  ) {
 		// in tunnel mouth, no underground mode
@@ -464,7 +468,7 @@ void weg_t::calc_bild()
 			}
 		}
 	}
-	if (bild!=old_bild) {
+	if(  bild!=old_bild  ) {
 		mark_image_dirty(old_bild, from->get_weg_yoff());
 		mark_image_dirty(bild, from->get_weg_yoff());
 	}
