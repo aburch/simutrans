@@ -2,6 +2,7 @@
 	CHG: goto / follow convoi functionality not via window gadget
 	CHG: no bridges over runways / taxiways
 	ADD: check whether format specifiers of translated strings match those of the master string, start with -debug 2 to get error messages
+	ADD: customize icon of toolbar separator (taken from menu.BarTools or extra menu object)
 
 
 Release of 111.3 (r5772 on 10-Jun-2012):

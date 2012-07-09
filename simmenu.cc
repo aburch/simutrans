@@ -433,12 +433,7 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 				// empty entry => toolbar finished ...
 				break;
 			}
-			/* str should now contain something like 1,2,-1
-			 * first parameter is the image number in "GeneralTools"
-			 * next is the cursor in "GeneralTools"
-			 * final is the sound
-			 * -1 will disable any of them
-			 */
+
 			werkzeug_t *addtool = NULL;
 
 			/* first, parse the string; we could have up to four parameters */
@@ -517,9 +512,6 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 						// copy defaults
 						*addtool = *(general_tool[toolnr]);
 						// add specials
-						if(icon!=IMG_LEER) {
-							addtool->icon = icon;
-						}
 						if(key_str!=NULL) {
 							addtool->command_key = str_to_key(key_str);
 							char_to_tool.append(addtool);
@@ -542,9 +534,6 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 					if(icon!=IMG_LEER  ||  key_str  ||  param_str) {
 						addtool = create_simple_tool( toolnr );
 						*addtool = *(simple_tool[toolnr]);
-						if(icon!=IMG_LEER) {
-							addtool->icon = icon;
-						}
 						if(key_str!=NULL) {
 							addtool->command_key = str_to_key(key_str);
 							char_to_tool.append(addtool);
@@ -567,9 +556,6 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 					if(icon!=IMG_LEER  ||  key_str  ||  param_str) {
 						addtool = create_dialog_tool( toolnr );
 						*addtool = *(dialog_tool[toolnr]);
-						if(icon!=IMG_LEER) {
-							addtool->icon = icon;
-						}
 						if(key_str!=NULL) {
 							addtool->command_key = str_to_key(key_str);
 							char_to_tool.append(addtool);
@@ -598,9 +584,6 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 					c += strcspn(c, ",");
 					if (*c != '\0') *c++ = '\0';
 					toolbar_t* const tb = new toolbar_t(toolbar_tool.get_count() | TOOLBAR_TOOL, title, c, size);
-					if(icon!=IMG_LEER) {
-						tb->icon = icon;
-					}
 					if(key_str!=NULL) {
 						tb->command_key = str_to_key(key_str);
 						char_to_tool.append(tb);
@@ -616,6 +599,9 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 				addtool->command_key = 1;
 			}
 			if(addtool) {
+				if(icon!=IMG_LEER) {
+					addtool->icon = icon;
+				}
 				toolbar_tool[i]->append(addtool);
 			}
 		}
