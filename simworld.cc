@@ -490,7 +490,7 @@ void karte_t::cleanup_karte( int xoff, int yoff )
 	sint32 i,j;
 	for(j=0; j<=get_groesse_y(); j++) {
 		for(i=j>=yoff?0:xoff; i<=get_groesse_x(); i++) {
-			raise_to(i,j, grid_hgts_cpy[i+j*(get_groesse_x()+1)] + 1, false );
+			raise_grid_to(i,j, grid_hgts_cpy[i+j*(get_groesse_x()+1)] + 1);
 		}
 	}
 	delete [] grid_hgts_cpy;
@@ -504,31 +504,31 @@ void karte_t::cleanup_karte( int xoff, int yoff )
 
 	// now lower the corners and edge between new/old part to ground level
 	for(i=0; i<get_groesse_x(); i++) {
-		lower_to(i, 0, grundwasser,false);
-		lower_to(i, get_groesse_y(), grundwasser,false);
+		lower_grid_to(i, 0, grundwasser);
+		lower_grid_to(i, get_groesse_y(), grundwasser);
 		if (i <= xoff) {
-			lower_to(i, yoff, grundwasser,false);
+			lower_grid_to(i, yoff, grundwasser);
 		}
 	}
 	for(i=0; i<=get_groesse_y(); i++) {
-		lower_to(0, i, grundwasser,false);
-		lower_to(get_groesse_x(), i, grundwasser,false);
+		lower_grid_to(0, i, grundwasser);
+		lower_grid_to(get_groesse_x(), i, grundwasser);
 		if (i < yoff) {
-			lower_to(xoff, i, grundwasser,false);
+			lower_grid_to(xoff, i, grundwasser);
 		}
 	}
 	for(i=0; i<=get_groesse_x(); i++) {
-		raise_to(i, 0, grundwasser,false);
-		raise_to(i, get_groesse_y(), grundwasser,false);
+		raise_grid_to(i, 0, grundwasser);
+		raise_grid_to(i, get_groesse_y(), grundwasser);
 		if (i <= xoff) {
-			raise_to(i, yoff, grundwasser,false);
+			raise_grid_to(i, yoff, grundwasser);
 		}
 	}
 	for(i=0; i<=get_groesse_y(); i++) {
-		raise_to(0, i, grundwasser,false);
-		raise_to(get_groesse_x(), i, grundwasser,false);
+		raise_grid_to(0, i, grundwasser);
+		raise_grid_to(get_groesse_x(), i, grundwasser);
 		if (i < yoff) {
-			raise_to(xoff, i, grundwasser,false);
+			raise_grid_to(xoff, i, grundwasser);
 		}
 	}
 
@@ -2038,45 +2038,29 @@ int karte_t::raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 }
 
 // raise height in the hgt-array
-int karte_t::raise_to(sint16 x, sint16 y, sint8 h, bool set_slopes /*always false*/)
+void karte_t::raise_grid_to(sint16 x, sint16 y, sint8 h)
 {
-	int n = 0;
 	if(ist_in_gittergrenzen(x,y)) {
 		const sint32 offset = x + y*(cached_groesse_gitter_x+1);
 
 		if(  grid_hgts[offset] < h  ) {
 			grid_hgts[offset] = h;
-			n = 1;
-
 #ifndef DOUBLE_GROUNDS
-			n += raise_to(x-1, y-1, h-1,set_slopes);
-			n += raise_to(x  , y-1, h-1,set_slopes);
-			n += raise_to(x+1, y-1, h-1,set_slopes);
-			n += raise_to(x-1, y  , h-1,set_slopes);
-
-			n += raise_to(x, y, h,set_slopes);
-
-			n += raise_to(x+1, y  , h-1,set_slopes);
-			n += raise_to(x-1, y+1, h-1,set_slopes);
-			n += raise_to(x  , y+1, h-1,set_slopes);
-			n += raise_to(x+1, y+1, h-1,set_slopes);
+			const sint8 hh = h-1;
 #else
-			n += raise_to(x-1, y-1, h-2,set_slopes);
-			n += raise_to(x  , y-1, h-2,set_slopes);
-			n += raise_to(x+1, y-1, h-2,set_slopes);
-			n += raise_to(x-1, y  , h-2,set_slopes);
-
-			n += raise_to(x, y, h,set_slopes);
-
-			n += raise_to(x+1, y  , h-2,set_slopes);
-			n += raise_to(x-1, y+1, h-2,set_slopes);
-			n += raise_to(x  , y+1, h-2,set_slopes);
-			n += raise_to(x+1, y+1, h-2,set_slopes);
+			const sint8 hh = h-2;
 #endif
+			// set new height of neighbor grid points
+			raise_grid_to(x-1, y-1, hh);
+			raise_grid_to(x  , y-1, hh);
+			raise_grid_to(x+1, y-1, hh);
+			raise_grid_to(x-1, y  , hh);
+			raise_grid_to(x+1, y  , hh);
+			raise_grid_to(x-1, y+1, hh);
+			raise_grid_to(x  , y+1, hh);
+			raise_grid_to(x+1, y+1, hh);
 		}
 	}
-
-	return n;
 }
 
 
@@ -2262,44 +2246,29 @@ int karte_t::lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 }
 
 
-int karte_t::lower_to(sint16 x, sint16 y, sint8 h, bool set_slopes /*always false*/)
+void karte_t::lower_grid_to(sint16 x, sint16 y, sint8 h)
 {
-	int n = 0;
 	if(ist_in_gittergrenzen(x,y)) {
 		const sint32 offset = x + y*(cached_groesse_gitter_x+1);
 
 		if(  grid_hgts[offset] > h  ) {
 			grid_hgts[offset] = h;
-			n = 1;
-
 #ifndef DOUBLE_GROUNDS
-			n += lower_to(x-1, y-1, h+1,set_slopes);
-			n += lower_to(x  , y-1, h+1,set_slopes);
-			n += lower_to(x+1, y-1, h+1,set_slopes);
-			n += lower_to(x-1, y  , h+1,set_slopes);
-
-			n += lower_to(x, y, h,set_slopes);
-
-			n += lower_to(x+1, y  , h+1,set_slopes);
-			n += lower_to(x-1, y+1, h+1,set_slopes);
-			n += lower_to(x  , y+1, h+1,set_slopes);
-			n += lower_to(x+1, y+1, h+1,set_slopes);
+			sint8 hh = h+1;
 #else
-			n += lower_to(x-1, y-1, h+2,set_slopes);
-			n += lower_to(x  , y-1, h+2,set_slopes);
-			n += lower_to(x+1, y-1, h+2,set_slopes);
-			n += lower_to(x-1, y  , h+2,set_slopes);
-
-			n += lower_to(x, y, h,set_slopes);
-
-			n += lower_to(x+1, y  , h+2,set_slopes);
-			n += lower_to(x-1, y+1, h+2,set_slopes);
-			n += lower_to(x  , y+1, h+2,set_slopes);
-			n += lower_to(x+1, y+1, h+2,set_slopes);
+			sint8 hh = h+2;
 #endif
+			// set new height of neighbor grid points
+			lower_grid_to(x-1, y-1, hh);
+			lower_grid_to(x  , y-1, hh);
+			lower_grid_to(x+1, y-1, hh);
+			lower_grid_to(x-1, y  , hh);
+			lower_grid_to(x+1, y  , hh);
+			lower_grid_to(x-1, y+1, hh);
+			lower_grid_to(x  , y+1, hh);
+			lower_grid_to(x+1, y+1, hh);
 		}
 	}
-  return n;
 }
 
 

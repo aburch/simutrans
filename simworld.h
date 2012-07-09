@@ -294,12 +294,6 @@ private:
 	int  raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw);
 
 	/**
-	 * Raise grid point (x,y), used during map creation/enlargement
-	 *
-	 */
-	int  raise_to(sint16 x, sint16 y, sint8 h, bool set_slopes);
-
-	/**
 	 * Checks whether the heights of the corners of the tile at (@p x, @p y) can be lowered.
 	 * If the desired height of a corner is higher than its current height, this corner is ignored.
 	 * @param x coordinate
@@ -322,9 +316,16 @@ private:
 	int  lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw);
 
 	/**
-	 * Lower grid point (x,y), used during map creation/enlargement
+	 * Raise grid point (@p x,@p y). Changes grid_hgts only, used during map creation/enlargement.
+	 * @see clean_up
 	 */
-	int  lower_to(sint16 x, sint16 y, sint8 h, bool set_slopes);
+	void raise_grid_to(sint16 x, sint16 y, sint8 h);
+
+	/**
+	 * Lower grid point (@p x,@p y). Changes grid_hgts only, used during map creation/enlargement.
+	 * @see clean_up
+	 */
+	void lower_grid_to(sint16 x, sint16 y, sint8 h);
 
 	/**
 	 * Die fraktale Erzeugung der Karte ist nicht perfekt.
