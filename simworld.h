@@ -271,20 +271,56 @@ private:
 	karte_ansicht_t *view;
 
 	/**
-	 * Raise tile (x,y): height of each corner is given
+	 * Checks whether the heights of the corners of the tile at (@p x, @p y) can be raised.
+	 * If the desired height of a corner is lower than its current height, this corner is ignored.
+	 * @param x coordinate
+	 * @param y coordinate
+	 * @param keep_water returns false if water tiles would be raised above water
+	 * @param hsw desired height of sw-corner
+	 * @param hse desired height of se-corner
+	 * @param hse desired height of ne-corner
+	 * @param hnw desired height of nw-corner
+	 * @param ctest which directions should be recursively checked (ribi_t style bitmap)
+	 * @returns whether raise_to operation can be performed
 	 */
 	bool can_raise_to(sint16 x, sint16 y, bool keep_water, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, uint8 ctest=15) const;
+
+	/**
+	 * Raises heights of the corners of the tile at (@p x, @p y).
+	 * @pre can_raise_to should be called before this method.
+	 * @see can_raise_to
+	 * @returns count of full raise operations (4 corners raised one level)
+	 */
 	int  raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw);
+
 	/**
 	 * Raise grid point (x,y), used during map creation/enlargement
+	 *
 	 */
 	int  raise_to(sint16 x, sint16 y, sint8 h, bool set_slopes);
 
 	/**
-	 * Lower tile (x,y): height of each corner is given
+	 * Checks whether the heights of the corners of the tile at (@p x, @p y) can be lowered.
+	 * If the desired height of a corner is higher than its current height, this corner is ignored.
+	 * @param x coordinate
+	 * @param y coordinate
+	 * @param hsw desired height of sw-corner
+	 * @param hse desired height of se-corner
+	 * @param hse desired height of ne-corner
+	 * @param hnw desired height of nw-corner
+	 * @param ctest which directions should be recursively checked (ribi_t style bitmap)
+	 * @returns whether lower_to operation can be performed
 	 */
 	bool can_lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, uint8 ctest=15) const;
+
+	/**
+	 * Lowers heights of the corners of the tile at (@p x, @p y).
+	 * @pre can_lower_to should be called before this method.
+	 * @see can_lower_to
+	 * @returns count of full lower operations (4 corners lowered one level)
+	 */
 	int  lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw);
+
 	/**
 	 * Lower grid point (x,y), used during map creation/enlargement
 	 */
