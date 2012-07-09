@@ -441,11 +441,18 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 			image_id icon = IMG_LEER;
 			const char *key_str = NULL;
 			const char *param_str = NULL;	// in case of toolbars, it will also contain the tooltip
-
-			while(*str!=']'  &&  *str) {
-				str ++;
-			}
-			while(*str==']'  ||  *str==' ') {
+			// parse until next zero-level comma
+			uint level = 0;
+			while(*str) {
+				if (*str == ')') {
+					level++;
+				}
+				else if (*str == '(') {
+					level--;
+				}
+				else if (*str == ','  &&  level == 0) {
+					break;
+				}
 				str++;
 			}
 			// icon
