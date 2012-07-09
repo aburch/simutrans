@@ -1951,22 +1951,6 @@ bool karte_t::can_raise_to(sint16 x, sint16 y, bool keep_water, sint8 hsw, sint8
 }
 
 
-// nw-ecke corner4 anheben
-bool karte_t::can_raise(sint16 x, sint16 y) const
-{
-	raise_frame_counter = 0;
-	if(ist_in_kartengrenzen(x, y)) {
-		grund_t *gr = lookup_kartenboden(koord(x,y));
-		const sint8 hnew = gr->get_hoehe() + corner4(gr->get_grund_hang());
-
-		return can_raise_to(x, y, false, hnew, hnew, hnew, hnew+1, 15/*all corners*/ );
-	}
-	else {
-		return true;
-	}
-}
-
-
 // raise plan
 // new heights for each corner given
 // clear tile, reset water/land type, calc reliefkarte pixel
@@ -2098,13 +2082,13 @@ int karte_t::raise_to(sint16 x, sint16 y, sint8 h, bool set_slopes /*always fals
 
 int karte_t::raise(koord pos)
 {
-	bool ok = can_raise(pos.x, pos.y);
 	int n = 0;
-	if(ok && ist_in_kartengrenzen(pos)) {
+	if(ist_in_kartengrenzen(pos)) {
 		grund_t *gr = lookup_kartenboden(pos);
 		const sint8 hnew = gr->get_hoehe() + corner4(gr->get_grund_hang());
-
-		n = raise_to(pos.x, pos.y, hnew, hnew, hnew, hnew+1);
+		if (can_raise_to(pos.x, pos.y, false, hnew, hnew, hnew, hnew+1)) {
+			n = raise_to(pos.x, pos.y, hnew, hnew, hnew, hnew+1);
+		}
 	}
 	return (n+3)>>2;
 }
@@ -2179,20 +2163,6 @@ bool karte_t::can_lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, 
 		}
 	}
 	return ok;
-}
-
-
-// nw-ecke corner4 absenken
-bool karte_t::can_lower(sint16 x, sint16 y) const
-{
-	if(  ist_in_kartengrenzen(x, y)  ) {
-		grund_t *gr = lookup_kartenboden( koord(x,y) );
-		const sint8 hnew = gr->get_hoehe() + corner4( gr->get_grund_hang() );
-		return can_lower_to(x, y, hnew, hnew, hnew, hnew-1, 15/*all corners*/ );
-	}
-	else {
-		return false;
-	}
 }
 
 
@@ -2336,12 +2306,13 @@ int karte_t::lower_to(sint16 x, sint16 y, sint8 h, bool set_slopes /*always fals
 
 int karte_t::lower(koord pos)
 {
-	bool ok = can_lower(pos.x, pos.y);
 	int n = 0;
-	if(ok && ist_in_kartengrenzen(pos)) {
+	if(ist_in_kartengrenzen(pos)) {
 		grund_t *gr = lookup_kartenboden(pos);
 		const sint8 hnew = gr->ist_wasser() ? lookup_hgt(pos) : gr->get_hoehe() + corner4(gr->get_grund_hang());
-		n = lower_to(pos.x, pos.y, hnew, hnew, hnew, hnew-1);
+		if (can_lower_to(pos.x, pos.y, hnew, hnew, hnew, hnew-1)) {
+			n = lower_to(pos.x, pos.y, hnew, hnew, hnew, hnew-1);
+		}
 	}
 	return (n+3)>>2;
 }

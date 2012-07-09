@@ -899,29 +899,11 @@ public:
 	bool is_plan_height_changeable(sint16 x, sint16 y) const;
 
 	/**
-	 * Prueft, ob die Hoehe an Gitterkoordinate (x,y)
-	 * erhoeht werden kann.
-	 * @param x x-Gitterkoordinate
-	 * @param y y-Gitterkoordinate
-	 * @author Hj. Malthaner
-	 */
-	bool can_raise(sint16 x,sint16 y) const;
-
-	/**
 	 * Erhoeht die Hoehe an Gitterkoordinate (x,y) um eins.
 	 * @param pos Gitterkoordinate
 	 * @author Hj. Malthaner
 	 */
 	int raise(koord pos);
-
-	/**
-	 * Prueft, ob die Hoehe an Gitterkoordinate (x,y)
-	 * erniedrigt werden kann.
-	 * @param x x-Gitterkoordinate
-	 * @param y y-Gitterkoordinate
-	 * @author Hj. Malthaner
-	 */
-	bool can_lower(sint16 x,sint16 y) const;
 
 	/**
 	 * Erniedrigt die Hoehe an Gitterkoordinate (x,y) um eins.
