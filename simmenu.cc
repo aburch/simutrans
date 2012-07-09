@@ -57,6 +57,19 @@ vector_tpl<toolbar_t *>werkzeug_t::toolbar_tool(0);
 
 char werkzeug_t::toolstr[1024];
 
+// separator in toolbars
+class wkz_dummy_t : public werkzeug_t {
+public:
+	wkz_dummy_t() : werkzeug_t(dummy_id) {}
+
+	bool init(karte_t*, spieler_t*) OVERRIDE { return false; }
+	bool is_init_network_save() const OVERRIDE { return true; }
+	bool is_work_network_save() const OVERRIDE { return true; }
+	bool is_move_network_save(spieler_t*) const OVERRIDE { return true; }
+};
+werkzeug_t *werkzeug_t::dummy = new wkz_dummy_t();
+
+
 
 
 werkzeug_t *create_general_tool(int toolnr)
@@ -504,11 +517,12 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 					param_str = str;
 				}
 			}
+			bool create_tool = icon!=IMG_LEER  ||  key_str  ||  param_str;
 
 			if (char const* const c = strstart(toolname, "general_tool[")) {
 				uint8 toolnr = atoi(c);
 				if(  toolnr<GENERAL_TOOL_COUNT  ) {
-					if(icon!=IMG_LEER  ||  key_str  ||  param_str) {
+					if(create_tool) {
 						// compatibility mode: wkz_cityroad is used for wkz_wegebau with defaultparam 'cityroad'
 						if(  toolnr==WKZ_WEGEBAU  &&  param_str  &&  strcmp(param_str,"city_road")==0) {
 							toolnr = WKZ_CITYROAD;
@@ -518,14 +532,7 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 						addtool = create_general_tool( toolnr );
 						// copy defaults
 						*addtool = *(general_tool[toolnr]);
-						// add specials
-						if(key_str!=NULL) {
-							addtool->command_key = str_to_key(key_str);
-							char_to_tool.append(addtool);
-						}
-						if(param_str!=NULL) {
-							addtool->default_param = strdup(param_str);
-						}
+
 						general_tool.append( addtool );
 					}
 					else {
@@ -538,16 +545,9 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 			} else if (char const* const c = strstart(toolname, "simple_tool[")) {
 				uint8 const toolnr = atoi(c);
 				if(  toolnr<SIMPLE_TOOL_COUNT  ) {
-					if(icon!=IMG_LEER  ||  key_str  ||  param_str) {
+					if(create_tool) {
 						addtool = create_simple_tool( toolnr );
 						*addtool = *(simple_tool[toolnr]);
-						if(key_str!=NULL) {
-							addtool->command_key = str_to_key(key_str);
-							char_to_tool.append(addtool);
-						}
-						if(param_str!=NULL) {
-							addtool->default_param = strdup(param_str);
-						}
 						simple_tool.append( addtool );
 					}
 					else {
@@ -560,16 +560,9 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 			} else if (char const* const c = strstart(toolname, "dialog_tool[")) {
 				uint8 const toolnr = atoi(c);
 				if(  toolnr<DIALOGE_TOOL_COUNT  ) {
-					if(icon!=IMG_LEER  ||  key_str  ||  param_str) {
+					if(create_tool) {
 						addtool = create_dialog_tool( toolnr );
 						*addtool = *(dialog_tool[toolnr]);
-						if(key_str!=NULL) {
-							addtool->command_key = str_to_key(key_str);
-							char_to_tool.append(addtool);
-						}
-						if(param_str!=NULL) {
-							addtool->default_param = strdup(param_str);
-						}
 						dialog_tool.append( addtool );
 					}
 					else {
@@ -591,23 +584,26 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 					c += strcspn(c, ",");
 					if (*c != '\0') *c++ = '\0';
 					toolbar_t* const tb = new toolbar_t(toolbar_tool.get_count() | TOOLBAR_TOOL, title, c, size);
-					if(key_str!=NULL) {
-						tb->command_key = str_to_key(key_str);
-						char_to_tool.append(tb);
-					}
 					toolbar_tool.append(tb);
 					addtool = tb;
 				}
 			}
 			else {
 				// make a default tool to add the parameter here
-				addtool = new werkzeug_t(werkzeug_t::dummy_id);
+				addtool = new wkz_dummy_t();
 				addtool->default_param = strdup(toolname);
 				addtool->command_key = 1;
 			}
 			if(addtool) {
 				if(icon!=IMG_LEER) {
 					addtool->icon = icon;
+				}
+				if(key_str!=NULL) {
+					addtool->command_key = str_to_key(key_str);
+					char_to_tool.append(addtool);
+				}
+				if(param_str!=NULL  &&  ((addtool->get_id() & TOOLBAR_TOOL) == 0)) {
+					addtool->default_param = strdup(param_str);
 				}
 				toolbar_tool[i]->append(addtool);
 			}
@@ -664,19 +660,6 @@ const char *kartenboden_werkzeug_t::check_pos( karte_t *welt, spieler_t *, koord
 	grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
 	return (gr  &&  !gr->is_visible()) ? "" : NULL;
 }
-
-// seperator in toolbars
-class wkz_dummy_t : public werkzeug_t {
-public:
-	wkz_dummy_t() : werkzeug_t(dummy_id) {}
-
-	bool init(karte_t*, spieler_t*) OVERRIDE { return false; }
-	bool is_init_network_save() const OVERRIDE { return true; }
-	bool is_work_network_save() const OVERRIDE { return true; }
-	bool is_move_network_save(spieler_t*) const OVERRIDE { return true; }
-};
-
-werkzeug_t *werkzeug_t::dummy = new wkz_dummy_t();
 
 
 
