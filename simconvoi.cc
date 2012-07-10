@@ -4466,6 +4466,74 @@ uint8 convoi_t::calc_tolerable_comfort(uint16 journey_minutes, karte_t* w)
 	return ((percentage * (comfort_long - comfort_median_long)) / 1000) + comfort_median_long;
 }
 
+uint16 convoi_t::calc_max_tolerable_journey_time(uint16 comfort, karte_t* w)
+{
+	const uint16 comfort_short_minutes = w->get_settings().get_tolerable_comfort_short_minutes();
+	const uint8 comfort_short = w->get_settings().get_tolerable_comfort_short();
+	if(comfort < comfort_short)
+	{
+		const uint16 percentage = (comfort_short * 100) / comfort;
+		return (comfort_short_minutes * 100) / percentage;
+	}
+	if(comfort == comfort_short)
+	{
+		return comfort_short_minutes;
+	}
+
+	const uint16 comfort_median_short_minutes = w->get_settings().get_tolerable_comfort_median_short_minutes();
+	const uint8 comfort_median_short = w->get_settings().get_tolerable_comfort_median_short();
+	if(comfort < comfort_median_short)
+	{
+		const uint16 percentage = (comfort_median_short * 100) / comfort;
+		return (comfort_median_short_minutes * 100) / percentage;
+	}
+	if(comfort == comfort_median_short)
+	{
+		return comfort_median_short_minutes;
+	}
+
+	const uint16 comfort_median_median_minutes = w->get_settings().get_tolerable_comfort_median_median_minutes();
+	const uint8 comfort_median_median = w->get_settings().get_tolerable_comfort_median_median();
+	if(comfort < comfort_median_median)
+	{
+		const uint16 percentage = (comfort_median_median * 100) / comfort;
+		return (comfort_median_median_minutes * 100) / percentage;
+	}
+	if(comfort == comfort_median_median)
+	{
+		return comfort_median_median_minutes;
+	}
+
+	const uint16 comfort_median_long_minutes = w->get_settings().get_tolerable_comfort_median_long_minutes();
+	const uint8 comfort_median_long = w->get_settings().get_tolerable_comfort_median_long();
+	if(comfort < comfort_median_long)
+	{
+		const uint16 percentage = (comfort_median_long * 100) / comfort;
+		return (comfort_median_long_minutes * 100) / percentage;
+	}
+	if(comfort == comfort_median_long)
+	{
+		return comfort_median_long_minutes;
+	}
+
+	const uint16 comfort_long_minutes = w->get_settings().get_tolerable_comfort_long_minutes();
+	const uint8 comfort_long = w->get_settings().get_tolerable_comfort_long();
+	if(comfort < comfort_long)
+	{
+		const uint16 percentage = (comfort_long * 100) / comfort;
+		return (comfort_long_minutes * 100) / percentage;
+	}
+	if(comfort == comfort_long)
+	{
+		return comfort_long_minutes;
+	}
+	else
+	{
+		const uint16 percentage =  (comfort * 100) / comfort_long;
+		return (comfort_long_minutes * percentage) / 100;
+	}
+}
+
 uint16 convoi_t::calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance, karte_t* w)
 {
 	const uint32 min_distance = w != NULL ? w->get_settings().get_min_bonus_max_distance() : 10;

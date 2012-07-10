@@ -1857,7 +1857,10 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 		if(veh_type->get_ware()->get_catg_index() == 0)
 		{
 			//Comfort only applies to passengers.
-			j += sprintf(buf + j, "%s %i \n", translator::translate("Comfort:"), veh_type->get_comfort());
+			j += sprintf(buf + j, "%s %i ", translator::translate("Comfort:"), veh_type->get_comfort());
+			char timebuf[32];
+			welt->sprintf_time(timebuf, sizeof(timebuf), (uint32)convoi_t::calc_max_tolerable_journey_time(veh_type->get_comfort(), welt));
+			j += sprintf(buf + j, "%s %s%s", translator::translate("(Max. tolerable journey time: "), timebuf, ")\n");
 		}
 		else {
 			j += sprintf(buf+j, "\n");
@@ -1994,3 +1997,4 @@ void gui_convoy_assembler_t::set_electrified( bool ele )
 		build_vehicle_lists();
 	}
 };
+

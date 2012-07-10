@@ -27,4 +27,9 @@ note=Error message given when trying to build an underground only structure abov
 obj=program_text
 name=Cannot build this signal underground.
 note=Error message given when trying to build a signal underground that does not allow underground construction.
+-
+obj=program_text
+name=(Max. tolerable journey time: 
+note=Description for the display of the maximum tolerable journey time for any given level of comfort in the depot/replace window. Note the absence of close bracket and trailing space.
+
 
