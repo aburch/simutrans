@@ -1860,7 +1860,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 			j += sprintf(buf + j, "%s %i ", translator::translate("Comfort:"), veh_type->get_comfort());
 			char timebuf[32];
 			welt->sprintf_time(timebuf, sizeof(timebuf), (uint32)convoi_t::calc_max_tolerable_journey_time(veh_type->get_comfort(), welt));
-			j += sprintf(buf + j, "%s %s%s", translator::translate("(Max. tolerable journey time: "), timebuf, ")\n");
+			j += sprintf(buf + j, "%s %s%s", translator::translate("(Max. comfortable journey time: "), timebuf, ")\n");
 		}
 		else {
 			j += sprintf(buf+j, "\n");
