@@ -5,22 +5,23 @@ To be done:
 - weight limit on ways by axle_load entry in vehicles (to avoid problem when going back and forth with diff. load)
 - busy platform images
 - Signals switching nearly like before (should be easy)
-- more financial history
 - detail on vehicles (like factory_details)
 - city wayobj instead just sidewalks
 - building/tree heights in dats
 - special colors from pakset
+- fog view to the top?
 
 partially done:
 - connection weighted by their intermediate stops => A* for goods routing [A* did not worked out, but intermediate stops may be considered]
-- tile 2x height: halfway-> need conversion for textures needed
 - merge identical images in makeobj: done, merged them on loadtime
-- scripting for AI: AIs are now seperate files and can be added: on the way
+- scripting: on the way
 
 reconsider:
 - leave stop if other convoi has arrived there patch
 - viewports (even if they are perfomance killers ... )
 - routing penalty sign (but a proper one)
+- extended statistics patch
+- tile 2x height: halfway-> need conversion for textures needed
 
 CHECK:
 resize greater than 2400*1536 crashes simutrans

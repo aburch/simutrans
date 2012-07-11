@@ -686,17 +686,17 @@ static void destroy_framed_win(simwin_t *wins)
 
 
 
-void destroy_win(const long magic)
+bool destroy_win(const long magic)
 {
 	const gui_frame_t *gui = win_get_magic(magic);
 	if(gui) {
-		destroy_win( gui );
+		return destroy_win( gui );
 	}
 }
 
 
 
-void destroy_win(const gui_frame_t *gui)
+bool destroy_win(const gui_frame_t *gui)
 {
 	for(  uint i=0;  i<wins.get_count();  i++  ) {
 		if(wins[i].gui == gui) {
@@ -708,9 +708,11 @@ void destroy_win(const gui_frame_t *gui)
 				wins.remove_at(i);
 				destroy_framed_win(&win);
 			}
+			return true;
 			break;
 		}
 	}
+	return false;
 }
 
 

@@ -32,12 +32,6 @@
 convoi_frame_t::sort_mode_t convoi_frame_t::sortby = convoi_frame_t::nach_name;
 bool convoi_frame_t::sortreverse = false;
 
-uint32 convoi_frame_t::filter_flags = 0;
-
-char convoi_frame_t::name_filter_value[64] = "";
-
-slist_tpl<const ware_besch_t *> convoi_frame_t::waren_filter;
-
 const char *convoi_frame_t::sort_text[SORT_MODES] = {
 	"cl_btn_sort_name",
 	"cl_btn_sort_income",
@@ -48,55 +42,57 @@ const char *convoi_frame_t::sort_text[SORT_MODES] = {
 
 bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 {
-	if(!get_filter(any_filter)) {
+	if(  !filter_is_on  ) {
+		// no filtering enabled
 		return true;
 	}
 
-	if(get_filter(name_filter) &&  !strstr(cnv->get_name(), name_filter_value)) {
+	if(  name_filter!=NULL  &&  !strstr(cnv->get_name(), name_filter)  ) {
+		// not the right name
 		return false;
 	}
 
 	vehikel_t const* const fahr = cnv->front();
-	if(get_filter(typ_filter)) {
+	if(  get_filter(convoi_filter_frame_t::typ_filter)  ) {
 		switch(fahr->get_typ()) {
 			case ding_t::automobil:
-				if(!get_filter(lkws_filter)) {
+				if(!get_filter(convoi_filter_frame_t::lkws_filter)) {
 					return false;
 				}
 				break;
 			case ding_t::waggon:
 				// filter trams: a convoi is considered tram if the first vehicle is a tram vehicle
 				if(fahr->get_besch()->get_waytype()==tram_wt) {
-					if (!get_filter(tram_filter)) {
+					if (!get_filter(convoi_filter_frame_t::tram_filter)) {
 						return false;
 					}
 				}
-				else if (!get_filter(zuege_filter)) {
+				else if (!get_filter(convoi_filter_frame_t::zuege_filter)) {
 					return false;
 				}
 				break;
 			case ding_t::schiff:
-				if(!get_filter(schiffe_filter)) {
+				if(!get_filter(convoi_filter_frame_t::schiffe_filter)) {
 					return false;
 				}
 				break;
 			case ding_t::aircraft:
-				if(!get_filter(aircraft_filter)) {
+				if(!get_filter(convoi_filter_frame_t::aircraft_filter)) {
 					return false;
 				}
 				break;
 			case ding_t::monorailwaggon:
-				if(!get_filter(monorail_filter)) {
+				if(!get_filter(convoi_filter_frame_t::monorail_filter)) {
 					return false;
 				}
 				break;
 			case ding_t::maglevwaggon:
-				if(!get_filter(maglev_filter)) {
+				if(!get_filter(convoi_filter_frame_t::maglev_filter)) {
 					return false;
 				}
 				break;
 			case ding_t::narrowgaugewaggon:
-				if(!get_filter(narrowgauge_filter)) {
+				if(!get_filter(convoi_filter_frame_t::narrowgauge_filter)) {
 					return false;
 				}
 				break;
@@ -105,27 +101,31 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 		}
 	}
 
-	if(get_filter(spezial_filter)) {
-		if ((!get_filter(noroute_filter)  || cnv->get_state() != convoi_t::NO_ROUTE) &&
-				(!get_filter(stucked_filter)  || (cnv->get_state() != convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS && cnv->get_state() != convoi_t::CAN_START_TWO_MONTHS)) &&
-				(!get_filter(indepot_filter)  || !cnv->in_depot()) &&
-				(!get_filter(noline_filter)   ||  cnv->get_line().is_bound()) &&
-				(!get_filter(nofpl_filter)    ||  cnv->get_schedule()) &&
-				(!get_filter(noincome_filter) ||  cnv->get_jahresgewinn() >= 100) &&
-				(!get_filter(obsolete_filter) || !cnv->has_obsolete_vehicles()))
+	if(  get_filter(convoi_filter_frame_t::spezial_filter)  ) {
+		if ((!get_filter(convoi_filter_frame_t::noroute_filter)  || cnv->get_state() != convoi_t::NO_ROUTE) &&
+				(!get_filter(convoi_filter_frame_t::stucked_filter)  || (cnv->get_state() != convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS && cnv->get_state() != convoi_t::CAN_START_TWO_MONTHS)) &&
+				(!get_filter(convoi_filter_frame_t::indepot_filter)  || !cnv->in_depot()) &&
+				(!get_filter(convoi_filter_frame_t::noline_filter)   ||  cnv->get_line().is_bound()) &&
+				(!get_filter(convoi_filter_frame_t::nofpl_filter)    ||  cnv->get_schedule()) &&
+				(!get_filter(convoi_filter_frame_t::noincome_filter) ||  cnv->get_jahresgewinn() >= 100) &&
+				(!get_filter(convoi_filter_frame_t::obsolete_filter) || !cnv->has_obsolete_vehicles()))
 		{
 			return false;
 		}
 	}
 
-	if(get_filter(ware_filter)) {
+	if(  get_filter(convoi_filter_frame_t::ware_filter)  ) {
 		unsigned i;
-		for( i = 0; i < cnv->get_vehikel_anzahl(); i++) {
-			if(get_ware_filter(cnv->get_vehikel(i)->get_fracht_typ())) {
-				break;
+		for(  i = 0; i < cnv->get_vehikel_anzahl(); i++) {
+			const ware_besch_t *wb = cnv->get_vehikel(i)->get_fracht_typ();
+			if(  wb->get_catg()!=0  ) {
+				wb = warenbauer_t::get_info_catg(wb->get_catg());
+			}
+			if(  waren_filter->is_contained(wb)  ) {
+				return true;
 			}
 		}
-		if(i == cnv->get_vehikel_anzahl()) {
+		if(  i == cnv->get_vehikel_anzahl()  ) {
 			return false;
 		}
 	}
@@ -176,7 +176,7 @@ void convoi_frame_t::sort_list()
 	convois.resize(last_world_convois);
 
 	FOR(vector_tpl<convoihandle_t>, const cnv, welt->convoys()) {
-		if(cnv->get_besitzer()==owner  &&   passes_filter(cnv)) {
+		if(cnv->get_besitzer()==owner  &&   passes_filter(cnv)  ) {
 			convois.append(cnv);
 		}
 	}
@@ -190,6 +190,17 @@ void convoi_frame_t::sort_list()
 }
 
 
+void convoi_frame_t::sort_list( char *name, uint16 filter, const slist_tpl<const ware_besch_t *> *wares )
+{
+	name_filter = name;
+	waren_filter = wares;
+	filter_flags = filter;
+	if(  filter_is_on  ) {
+		sort_list();
+	}
+}
+
+
 convoi_frame_t::convoi_frame_t(spieler_t* sp) :
 	gui_frame_t( translator::translate("cl_title"), sp),
 	owner(sp),
@@ -197,7 +208,8 @@ convoi_frame_t::convoi_frame_t(spieler_t* sp) :
 	sort_label("cl_txt_sort"),
 	filter_label("Filter:")
 {
-	filter_frame = NULL;
+	name_filter = NULL;
+	filter_flags = 0;
 
 	sort_label.set_pos(koord(BUTTON1_X, 2));
 	add_komponente(&sort_label);
@@ -212,7 +224,7 @@ convoi_frame_t::convoi_frame_t(spieler_t* sp) :
 	filter_label.set_pos(koord(BUTTON3_X, 2));
 	add_komponente(&filter_label);
 
-	filter_on.init(button_t::roundbox, get_filter(any_filter) ? "cl_btn_filter_enable" : "cl_btn_filter_disable", koord(BUTTON3_X, 14), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+	filter_on.init(button_t::roundbox, filter_is_on ? "cl_btn_filter_enable" : "cl_btn_filter_disable", koord(BUTTON3_X, 14), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	filter_on.add_listener(this);
 	add_komponente(&filter_on);
 
@@ -232,9 +244,7 @@ convoi_frame_t::convoi_frame_t(spieler_t* sp) :
 
 convoi_frame_t::~convoi_frame_t()
 {
-	if(filter_frame) {
-		destroy_win(filter_frame);
-	}
+	destroy_win( magic_convoi_list_filter+owner->get_player_nr() );
 }
 
 
@@ -243,9 +253,7 @@ bool convoi_frame_t::infowin_event(const event_t *ev)
 	const sint16 xr = vscroll.is_visible() ? scrollbar_t::BAR_SIZE : 1;
 
 	if(ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE) {
-		if(filter_frame) {
-			filter_frame->infowin_event(ev);
-		}
+		destroy_win( magic_convoi_list_filter+owner->get_player_nr() );
 	}
 	else if(IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev)) {
 		// otherwise these events are only registered where directly over the scroll region
@@ -268,29 +276,24 @@ bool convoi_frame_t::infowin_event(const event_t *ev)
  * This method is called if an action is triggered
  * @author Markus Weber
  */
-bool convoi_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)           // 28-Dec-01    Markus Weber    Added
+bool convoi_frame_t::action_triggered( gui_action_creator_t *komp, value_t /* */ )           // 28-Dec-01    Markus Weber    Added
 {
-	if(komp == &filter_on) {
-		DBG_MESSAGE("convoi_frame_t::action_triggered()","toggle %i",get_filter(any_filter));
-		set_filter(any_filter, !get_filter(any_filter));
-		filter_on.set_text(get_filter(any_filter) ? "cl_btn_filter_enable" : "cl_btn_filter_disable");
+	if(  komp == &filter_on  ) {
+		filter_is_on ^= true;
+		filter_on.set_text( filter_is_on ? "cl_btn_filter_enable" : "cl_btn_filter_disable");
 		sort_list();
 	}
-	else if(komp == &sortedby) {
-		set_sortierung((sort_mode_t)((get_sortierung() + 1) % SORT_MODES));
+	else if(  komp == &sortedby  ) {
+		set_sortierung( (sort_mode_t)((get_sortierung() + 1) % SORT_MODES) );
 		sort_list();
 	}
-	else if(komp == &sorteddir) {
-		set_reverse(!get_reverse());
+	else if(  komp == &sorteddir  ) {
+		set_reverse( !get_reverse() );
 		sort_list();
 	}
-	else if(komp == &filter_details) {
-		if(filter_frame) {
-			destroy_win(filter_frame);
-		}
-		else {
-			filter_frame = new convoi_filter_frame_t(owner, this);
-			create_win(filter_frame, w_info, (long)this);
+	else if(  komp == &filter_details  ) {
+		if(  !destroy_win( magic_convoi_list_filter+owner->get_player_nr() )  ) {
+			create_win( new convoi_filter_frame_t(owner, this), w_info, magic_convoi_list_filter+owner->get_player_nr() );
 		}
 	}
 	return true;
@@ -319,7 +322,7 @@ void convoi_frame_t::resize(const koord size_change)                          //
 
 void convoi_frame_t::zeichnen(koord pos, koord gr)
 {
-	filter_details.pressed = filter_frame != NULL;
+	filter_details.pressed = win_get_magic( magic_convoi_list_filter+owner->get_player_nr() );
 
 	gui_frame_t::zeichnen(pos, gr);
 
@@ -349,31 +352,3 @@ void convoi_frame_t::zeichnen(koord pos, koord gr)
 }
 
 
-void convoi_frame_t::set_ware_filter(const ware_besch_t *ware, int mode)
-{
-	if(ware!=warenbauer_t::nichts) {
-		if(get_ware_filter(ware)) {
-			if(mode != 1) {
-				waren_filter.remove(ware);
-			}
-		}
-		else {
-			if(mode != 0) {
-				waren_filter.append(ware);
-			}
-		}
-	}
-}
-
-
-void convoi_frame_t::set_alle_ware_filter(int mode)
-{
-	if(mode == 0) {
-		waren_filter.clear();
-	}
-	else {
-		for(unsigned int i = 0; i<warenbauer_t::get_waren_anzahl(); i++) {
-			set_ware_filter(warenbauer_t::get_info(i), mode);
-		}
-	}
-}

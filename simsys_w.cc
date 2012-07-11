@@ -678,6 +678,7 @@ void dr_sleep(uint32 millisec)
 int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR, int)
 {
 	WNDCLASSW wc;
+	bool timer_is_set = false;
 
 	wc.lpszClassName = L"Simu";
 	wc.style = CS_HREDRAW | CS_VREDRAW;
@@ -700,11 +701,14 @@ int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR, int)
 		osinfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 		if (GetVersionEx(&osinfo)  &&  osinfo.dwPlatformId==VER_PLATFORM_WIN32_NT) {
 			timeBeginPeriod(1);
+			timer_is_set = true;
 		}
 	}
 
 	int const res = sysmain(__argc, __argv);
-	timeEndPeriod(1);
+	if(  timer_is_set  ) {
+		timeEndPeriod(1);
+	}
 
 #ifdef MULTI_THREAD
 	if(	hFlushThread ) {

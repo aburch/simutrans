@@ -63,7 +63,8 @@ enum magic_numbers {
 	// player dependent stuff => 16 times present
 	magic_finances_t,
 	magic_convoi_list=magic_finances_t+MAX_PLAYER_COUNT,
-	magic_line_list=magic_convoi_list+MAX_PLAYER_COUNT,
+	magic_convoi_list_filter=magic_convoi_list+MAX_PLAYER_COUNT,
+	magic_line_list=magic_convoi_list_filter+MAX_PLAYER_COUNT,
 	magic_halt_list=magic_line_list+MAX_PLAYER_COUNT,
 	magic_line_management_t=magic_halt_list+MAX_PLAYER_COUNT,
 	magic_ai_options_t=magic_line_management_t+MAX_PLAYER_COUNT,
@@ -131,8 +132,10 @@ gui_frame_t *win_get_magic(long magic);
 bool win_is_top(const gui_frame_t *ig);
 
 
-void destroy_win(const gui_frame_t *ig);
-void destroy_win(const long magic);
+// return true if actually window was destroyed (or marked for destruction)
+bool destroy_win(const gui_frame_t *ig);
+bool destroy_win(const long magic);
+
 void destroy_all_win(bool destroy_sticky);
 
 bool top_win(const gui_frame_t *ig, bool keep_rollup=false  );
