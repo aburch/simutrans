@@ -158,7 +158,7 @@ void gui_tab_panel_t::zeichnen(koord parent_pos)
 		}
 		if(i>=offset_tab) {
 			// set clipping
-			PUSH_CLIP(xpos, ypos, xx, ypos+HEADER_VSIZE);
+			PUSH_CLIP(xpos, ypos, xx, HEADER_VSIZE);
 			// only start drwing here ...
 			char const* const text = iter.title;
 			const int width = text ? proportional_string_width( text ) : IMG_WIDTH;
