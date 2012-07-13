@@ -692,6 +692,7 @@ bool destroy_win(const long magic)
 	if(gui) {
 		return destroy_win( gui );
 	}
+	return false;
 }
 
 
