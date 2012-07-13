@@ -69,7 +69,7 @@ private:
 	uint16  zuladung;
 	uint16	loading_time;	// time per full loading/unloading
 	uint16  geschw;
-	uint16  gewicht;
+	uint32  gewicht;
 	uint16  axle_load;
 	uint32  leistung;
 	uint16  running_cost;
