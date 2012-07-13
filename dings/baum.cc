@@ -40,8 +40,10 @@ static const uint8 baum_bild_alter[12] =
 
 PLAYER_COLOR_VAL baum_t::outline_color = 0;
 
-// quick lookup of an image, assuming always five seaons and five ages
-// missing images hve just identical entires
+// quick lookup of an image, assuring always five seaons and five ages
+// missing images have just identical entires
+// seasons are: 0=autumn, 1=summer, 2=winter, 3=spring, 4=snow
+// snow image is used if tree is above snow line
 static image_id baumtype_to_bild[256][5*5];
 
 
@@ -291,13 +293,13 @@ bool baum_t::alles_geladen()
 						use_season = season;
 						// three possibilities
 						if(  seasons<4  ) {
-							// only summer and winter => seaons 2 and 5 with winter image
-							use_season = (season==2  ||  season==5);
+							// only summer and winter => season 4 with winter image
+							use_season = (season==4);
 						}
 						else if(  seasons==4  ) {
-							// all there, but the snowy special image
+							// all there, but the snowy special image missing
 							if(  season==4  ) {
-								// snowy winter graphics (3 or 5)
+								// take spring image (gave best results with pak64, pak.german)
 								use_season = 2;
 							}
 						}
@@ -373,35 +375,16 @@ void baum_t::rotate90()
 // actually calculates onyl the season
 void baum_t::calc_bild()
 {
-	const sint16 seasons = get_besch()->get_seasons();
-
-	season = 0;
-	if(seasons>1) {
-		// two possibilities
-		if(seasons<4) {
-			// only summer and winter
-			season = welt->get_snowline()<=get_pos().z;
-		}
-		else {
-			// summer autumn winter spring
-			season = welt->get_jahreszeit();
-			if(welt->get_snowline()<=get_pos().z) {
-				// change to winter
-				if(seasons==5) {
-					// snowy winter graphics (3 or 5)
-					season = 4;
-				}
-				else {
-					// no special winter graphics
-					season = 2;
-				}
-			}
-			else if(welt->get_snowline()<=get_pos().z+1  &&  season==0) {
-				// snowline crossing in summer
-				// so at least some weeks spring/autumn
-				season = welt->get_last_month() <=5 ? 3 : 1;
-			}
-		}
+	// summer autumn winter spring
+	season = welt->get_jahreszeit();
+	if(welt->get_snowline()<=get_pos().z) {
+		// snowy winter graphics
+		season = 4;
+	}
+	else if(welt->get_snowline()<=get_pos().z+1  &&  season==0) {
+		// snowline crossing in summer
+		// so at least some weeks spring/autumn
+		season = welt->get_last_month() <=5 ? 3 : 1;
 	}
 }
 
