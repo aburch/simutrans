@@ -252,7 +252,9 @@ convoihandle_t depot_t::add_convoi()
 
 convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv)
 {
-	if(  old_cnv.is_bound()  &&  !convoihandle_t::is_exhausted()  ) {
+	if(  old_cnv.is_bound()  &&  !convoihandle_t::is_exhausted()  &&
+		old_cnv->get_vehikel_anzahl() > 0  &&  get_wegtyp() == old_cnv->front()->get_besch()->get_waytype() ) {
+
 		convoihandle_t new_cnv = add_convoi();
 		new_cnv->set_name(old_cnv->get_internal_name());
 		int vehicle_count = old_cnv->get_vehikel_anzahl();
