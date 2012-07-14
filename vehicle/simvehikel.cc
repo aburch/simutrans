@@ -2377,7 +2377,7 @@ bool waggon_t::ist_befahrbar(const grund_t *bd) const
 	}
 
 	if (depot_t *depot = bd->get_depot()) {
-		if (depot->get_wegtyp() != besch->get_waytype()  ||  depot->get_besitzer() != get_besitzer()) {
+		if (depot->get_waytype() != besch->get_waytype()  ||  depot->get_besitzer() != get_besitzer()) {
 			return false;
 		}
 	}

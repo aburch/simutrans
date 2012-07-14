@@ -157,12 +157,6 @@ public:
 	slist_tpl<vehikel_besch_t const*> const& get_vehicle_type() const;
 
 	/**
-	 * Returns the waytype for a certain vehicle; only way to distinguish differnt depots ...
-	 * @author prissi
-	 */
-	virtual waytype_t get_wegtyp() const { return invalid_wt; }
-
-	/**
 	 * A convoi arrived at the depot and is added to the convoi list.
 	 * If fpl_adjust is true, the current depot is removed from schedule.
 	 * @author Volker Meyer
@@ -252,7 +246,6 @@ public:
 	int get_y_grid() const { return 24; }
 	unsigned get_max_convoi_length() const;
 
-	virtual waytype_t get_wegtyp() const {return track_wt;}
 	virtual ding_t::typ get_typ() const { return bahndepot; }
 	virtual const char *get_name() const {return "Bahndepot"; }
 };
@@ -266,7 +259,6 @@ public:
 
 	virtual simline_t::linetype get_line_type() const { return simline_t::tramline; }
 
-	virtual waytype_t get_wegtyp() const {return tram_wt;}
 	virtual ding_t::typ get_typ() const { return tramdepot; }
 	virtual const char *get_name() const {return "Tramdepot"; }
 };
@@ -279,7 +271,6 @@ public:
 
 	virtual simline_t::linetype get_line_type() const { return simline_t::monorailline; }
 
-	virtual waytype_t get_wegtyp() const {return monorail_wt;}
 	virtual ding_t::typ get_typ() const { return monoraildepot; }
 	virtual const char *get_name() const {return "Monoraildepot"; }
 };
@@ -292,7 +283,6 @@ public:
 
 	virtual simline_t::linetype get_line_type() const { return simline_t::maglevline; }
 
-	virtual waytype_t get_wegtyp() const {return maglev_wt;}
 	virtual ding_t::typ get_typ() const { return maglevdepot; }
 	virtual const char *get_name() const {return "Maglevdepot"; }
 };
@@ -305,7 +295,6 @@ public:
 
 	virtual simline_t::linetype get_line_type() const { return simline_t::narrowgaugeline; }
 
-	virtual waytype_t get_wegtyp() const {return narrowgauge_wt;}
 	virtual ding_t::typ get_typ() const { return narrowgaugedepot; }
 	virtual const char *get_name() const {return "Narrowgaugedepot"; }
 };
@@ -342,7 +331,6 @@ public:
 	int get_y_grid() const { return 24; }
 	unsigned get_max_convoi_length() const { return 4; }
 
-	virtual waytype_t get_wegtyp() const {return road_wt; }
 	ding_t::typ get_typ() const { return strassendepot; }
 	const char *get_name() const {return "Strassendepot";}
 };
@@ -379,7 +367,6 @@ public:
 	int get_y_grid() const { return 46; }
 
 	unsigned get_max_convoi_length() const { return 4; }
-	virtual waytype_t get_wegtyp() const {return water_wt; }
 	ding_t::typ get_typ() const { return schiffdepot; }
 	const char *get_name() const {return "Schiffdepot";}
 };
@@ -411,7 +398,6 @@ public:
 	int get_y_grid() const { return 36; }
 	unsigned get_max_convoi_length() const { return 1; }
 
-	virtual waytype_t get_wegtyp() const { return air_wt; }
 	ding_t::typ get_typ() const { return airdepot; }
 	const char *get_name() const {return "Hangar";}
 };

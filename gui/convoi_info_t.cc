@@ -439,7 +439,7 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot chang
 			koord3d home = koord3d(0,0,0);
 			FOR(slist_tpl<depot_t*>, const depot, depot_t::get_depot_list()) {
 				vehikel_t& v = *cnv->front();
-				if (depot->get_wegtyp()   != v.get_besch()->get_waytype() ||
+				if (depot->get_waytype() != v.get_besch()->get_waytype() ||
 						depot->get_besitzer() != cnv->get_besitzer()) {
 					continue;
 				}

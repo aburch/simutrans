@@ -672,7 +672,7 @@ void depot_frame_t::build_vehicle_lists()
 	vehicle_map.clear();
 
 	// we do not allow to built electric vehicle in a depot without electrification
-	const waytype_t wt = depot->get_wegtyp();
+	const waytype_t wt = depot->get_waytype();
 	const weg_t *w = get_welt()->lookup(depot->get_pos())->get_weg(wt!=tram_wt ? wt : track_wt);
 	const bool weg_electrified = w ? w->is_electrified() : false;
 

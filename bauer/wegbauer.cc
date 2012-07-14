@@ -451,7 +451,7 @@ bool wegbauer_t::check_building( const grund_t *to, const koord dir ) const
 		depot_t* depot = to->get_depot();
 		// no road to tram depot and vice-versa
 		if (depot) {
-			if ( (waytype_t)(bautyp&bautyp_mask) != depot->get_wegtyp() ) {
+			if ( (waytype_t)(bautyp&bautyp_mask) != depot->get_waytype() ) {
 				return false;
 			}
 		}
