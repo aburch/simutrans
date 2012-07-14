@@ -107,7 +107,7 @@ private:
 	uint16 zuladung; //Payload
 	uint16 overcrowded_capacity; // The capacity of a vehicle if overcrowded (usually expressed as the standing capacity).
 	uint16 geschw; //Speed in km/h
-	uint16 gewicht; //Weight in tons
+	uint32 gewicht; //Weight in tons
 	uint16  axle_load; // New for Standard, not used yet.
 	uint32 leistung; //Power in kW
 	uint16 running_cost;  //Running costs
