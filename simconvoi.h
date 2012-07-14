@@ -594,12 +594,6 @@ public:
 	void step();
 
 	/**
-	 * Calculates total weight of freight in KG
-	 * @author Hj. Malthaner
-	 */
-	int calc_freight_weight() const;
-
-	/**
 	* setzt einen neuen convoi in fahrt
 	* @author Hj. Malthaner
 	*/
