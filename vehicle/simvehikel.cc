@@ -3654,11 +3654,43 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 		return false;
 	}
 
+	existing_convoy_t convoy(*cnv);
+	sint32 brake_steps = convoy.calc_min_braking_distance(welt->get_settings(), convoy.get_weight_summary(), cnv->get_akt_speed());
+	route_t &route = *cnv->get_route();
+	convoi_t::route_infos_t &route_infos = cnv->get_route_infos();
+
 	// is there any signal/crossing to be resrved?
 	uint16 next_block = cnv->get_next_stop_index()-1;
-	if(  next_block >= cnv->get_route()->get_count()  ) {
+	uint16 last_index = route.get_count() - 1;
+	if(  next_block > last_index  ) 
+	{
+		const sint32 route_steps = route_infos.get_element(last_index).steps_from_start - route_infos.get_element(route_index).steps_from_start;
+		bool weg_frei = route_steps > brake_steps;
+		if (!weg_frei)
+		{ 	
+			// we need a longer route to decide, whether we will have to start braking:
+			route_t target_rt;
+			schedule_t *fpl = cnv->get_schedule();
+			const koord3d start_pos = route.position_bei(last_index);
+			uint8 index = fpl->get_aktuell();
+			bool reversed = cnv->get_reverse_schedule();
+			fpl->increment_index(&index, &reversed);
+			const koord3d next_ziel = fpl->eintrag[index].pos;
+
+			weg_frei = !target_rt.calc_route( welt, start_pos, next_ziel, this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_heaviest_vehicle(), welt->get_settings().get_max_route_steps());
+			if (!weg_frei)
+			{
+				fpl->advance();
+				cnv->update_route(last_index, target_rt);
+				weg_frei = block_reserver( &route, last_index, next_signal, next_crossing, 0, true, false );
+				last_index = route.get_count() - 1;
+				cnv->set_next_stop_index( min( next_crossing, next_signal ) );
+				next_block = cnv->get_next_stop_index() - 1;
+			}
+		}
 		// no obstacle in the way => drive on ...
-		return true;
+		if (weg_frei || next_block > last_index)
+			return true;
 	}
 
 	// it happened in the past that a convoi has a next signal stored way after the current position!
@@ -3669,8 +3701,6 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 		return ok;
 	}
 
-	existing_convoy_t convoy(*cnv);
-	const sint32 brake_steps = convoy.calc_min_braking_distance(welt->get_settings(), convoy.get_weight_summary(), cnv->get_akt_speed());
 	const sint32 route_steps = cnv->get_route_infos().get_element((next_block > 0 ? next_block - 1 : 0)).steps_from_start - cnv->get_route_infos().get_element(route_index).steps_from_start;
 	if (route_steps <= brake_steps) 
 	{ 	
