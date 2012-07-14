@@ -27,6 +27,7 @@
 
 #include "../simworld.h"
 #include "../simdebug.h"
+#include "../simdepot.h"
 #include "../simunits.h"
 
 #include "../player/simplay.h"
@@ -2375,6 +2376,11 @@ bool waggon_t::ist_befahrbar(const grund_t *bd) const
 		return false;
 	}
 
+	if (depot_t *depot = bd->get_depot()) {
+		if (depot->get_wegtyp() != besch->get_waytype()  ||  depot->get_besitzer() != get_besitzer()) {
+			return false;
+		}
+	}
 	// now check for special signs
 	if(sch->has_sign()) {
 		const roadsign_t* rs = bd->find<roadsign_t>();
