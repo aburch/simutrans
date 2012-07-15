@@ -3680,12 +3680,24 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 			weg_frei = !target_rt.calc_route( welt, start_pos, next_ziel, this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_heaviest_vehicle(), welt->get_settings().get_max_route_steps());
 			if (!weg_frei)
 			{
-				fpl->advance();
-				cnv->update_route(last_index, target_rt);
-				weg_frei = block_reserver( &route, last_index, next_signal, next_crossing, 0, true, false );
-				last_index = route.get_count() - 1;
-				cnv->set_next_stop_index( min( next_crossing, next_signal ) );
-				next_block = cnv->get_next_stop_index() - 1;
+				ribi_t::ribi old_dir = calc_richtung(route.position_bei(last_index - 1).get_2d(), route.position_bei(last_index).get_2d());
+				ribi_t::ribi new_dir = calc_richtung(target_rt.position_bei(0).get_2d(), target_rt.position_bei(1).get_2d());
+				if (old_dir & ribi_t::rueckwaerts(new_dir))
+				{
+					// convoy must revert and thus stop at the waypoint. No need to extend the route now.
+					// Extending the route now would confuse tile reservation.
+					fpl->eintrag[fpl->get_aktuell()].reverse = true;
+				}
+				else
+				{
+					// convoy can pass waypoint without reverting/stopping. Append route to next stop/waypoint
+					fpl->advance();
+					cnv->update_route(last_index, target_rt);
+					weg_frei = block_reserver( &route, last_index, next_signal, next_crossing, 0, true, false );
+					last_index = route.get_count() - 1;
+					cnv->set_next_stop_index( min( next_crossing, next_signal ) );
+					next_block = cnv->get_next_stop_index() - 1;
+				}
 			}
 		}
 		// no obstacle in the way => drive on ...
