@@ -222,7 +222,9 @@ void modal_dialogue( gui_frame_t *gui, long magic, karte_t *welt, bool (*quit)()
 				dr_sleep(5);
 			} while(  dr_time()<last_step  );
 			DBG_DEBUG4("zeige_banner", "calling welt->sync_step");
+			intr_disable();
 			welt->sync_step( ms_pause, true, true );
+			intr_enable();
 			DBG_DEBUG4("zeige_banner", "calling welt->step");
 			if(  step_count--==0  ) {
 				welt->step();
