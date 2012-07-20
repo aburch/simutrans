@@ -2472,6 +2472,8 @@ void haltestelle_t::rdwr(loadsave_t *file)
 	sint32 spieler_n;
 	koord3d k;
 
+	unload_repeat_counter = 0;
+
 	// will restore halthandle_t after loading
 	if(file->get_version() > 110005) 
 	{
