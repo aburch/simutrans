@@ -62,11 +62,13 @@ public:
 
 	/**
 	 * Appends the element at the end of the vector.
-	 * if out of space, extend with by add element(s)
+	 * if out of space, extend it
 	 */
 	void append(T elem, uint8 extend = 1)
 	{
-		if (count >= size) resize(count + extend);
+		if (count >= size) {
+			resize( count > 255-extend ? 255 : count+extend);
+		}
 		data[count++] = elem;
 	}
 
