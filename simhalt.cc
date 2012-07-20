@@ -504,7 +504,7 @@ void haltestelle_t::set_name(const char *new_name)
 		if(gr->get_flag(grund_t::has_text)) {
 			halthandle_t h = all_names.remove(gr->get_text());
 			if(h!=self) {
-				DBG_MESSAGE("haltestelle_t::set_name()","name %s already used!",gr->get_text());
+				DBG_MESSAGE("haltestelle_t::set_name()","removing name %s already used!",gr->get_text());
 			}
 		}
 		if(!gr->find<label_t>()) {
@@ -2587,9 +2587,27 @@ void haltestelle_t::laden_abschliessen()
 		}
 	}
 	else {
-		if(!all_names.put(bd->get_text(),self)) {
-			DBG_MESSAGE("haltestelle_t::set_name()","name %s already used!",bd->get_text());
+		const char *current_name = bd->get_text();
+		if(  all_names.get(current_name).is_bound()  ) {
+			// try to get a new name ...
+			const char *new_name;
+			if(  station_type & airstop  ) {
+				new_name = create_name( get_basis_pos(), "Airport" );
+			}
+			else if(  station_type & dock  ) {
+				new_name = create_name( get_basis_pos(), "Dock" );
+			}
+			else if(  station_type & (railstation|monorailstop|maglevstop|narrowgaugestop)  ) {
+				new_name = create_name( get_basis_pos(), "Bf" );
+			}
+			else {
+				new_name = create_name( get_basis_pos(), "H" );
+			}
+			dbg->warning("haltestelle_t::set_name()","name already used: \'%s\' -> \'%s\'", current_name, new_name );
+			bd->set_text( new_name );
+			current_name = new_name;
 		}
+		all_names.put( current_name, self );
 	}
 	recalc_status();
 	reconnect_counter = welt->get_schedule_counter()-1;
