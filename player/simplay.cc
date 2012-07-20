@@ -56,6 +56,10 @@
 
 karte_t *spieler_t::welt = NULL;
 
+#if MULTI_THREAD>1
+#include <pthread.h>
+static pthread_mutex_t laden_abschl_mutex = PTHREAD_MUTEX_INITIALIZER;
+#endif
 
 /**
  * Encapsulate margin calculation  (Operating_Profit / Income)
@@ -637,8 +641,8 @@ void spieler_t::ai_bankrupt()
 								delete dt;
 								break;
 							case ding_t::leitung:
-								if (gr->ist_bruecke()) {
-									add_maintenance( -((leitung_t*)dt)->get_besch()->get_wartung() );
+								if(gr->ist_bruecke()) {
+									maintenance -= ((leitung_t*)dt)->get_besch()->get_wartung();
 									// do not remove powerline from bridges
 									dt->set_besitzer( welt->get_spieler(1) );
 								}
@@ -657,7 +661,7 @@ void spieler_t::ai_bankrupt()
 									w->set_besitzer( NULL );
 								}
 								else if(w->get_waytype()==road_wt  ||  w->get_waytype()==water_wt) {
-									add_maintenance( -w->get_besch()->get_wartung() );
+									maintenance -= w->get_besch()->get_wartung();
 									w->set_besitzer( NULL );
 								}
 								else {
@@ -666,11 +670,11 @@ void spieler_t::ai_bankrupt()
 								break;
 							}
 							case ding_t::bruecke:
-								add_maintenance( -((bruecke_t*)dt)->get_besch()->get_wartung() );
+								maintenance -= ((bruecke_t*)dt)->get_besch()->get_wartung();
 								dt->set_besitzer( NULL );
 								break;
 							case ding_t::tunnel:
-								add_maintenance( -((tunnel_t*)dt)->get_besch()->get_wartung() );
+								maintenance -= ((tunnel_t*)dt)->get_besch()->get_wartung();
 								dt->set_besitzer( NULL );
 								break;
 
@@ -961,6 +965,20 @@ void spieler_t::laden_abschliessen()
 	display_set_player_color_scheme( player_nr, kennfarbe1, kennfarbe2 );
 	// recalculate vehicle value
 	calc_assets();
+}
+
+
+void spieler_t::add_maintenance(spieler_t *sp, sint32 change)
+{
+	if(sp) {
+#if MULTI_THREAD>1
+		pthread_mutex_lock( &laden_abschl_mutex  );
+#endif
+		sp->maintenance += change;
+#if MULTI_THREAD>1
+		pthread_mutex_unlock( &laden_abschl_mutex  );
+#endif
+	}
 }
 
 

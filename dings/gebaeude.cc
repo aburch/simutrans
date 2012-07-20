@@ -11,7 +11,6 @@
 #if MULTI_THREAD>1
 #include <pthread.h>
 static pthread_mutex_t sync_mutex = PTHREAD_MUTEX_INITIALIZER;
-static pthread_mutex_t laden_abschl_mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
 #include "../bauer/hausbauer.h"
@@ -883,9 +882,6 @@ void gebaeude_t::laden_abschliessen()
 {
 	calc_bild();
 
-#if MULTI_THREAD>1
-	pthread_mutex_lock( &laden_abschl_mutex  );
-#endif
 	spieler_t::add_maintenance(get_besitzer(), welt->get_settings().maint_building * tile->get_besch()->get_level());
 
 	// citybuilding, but no town?
@@ -900,9 +896,6 @@ void gebaeude_t::laden_abschliessen()
 			ptr.stadt = NULL;
 		}
 	}
-#if MULTI_THREAD>1
-	pthread_mutex_unlock( &laden_abschl_mutex  );
-#endif
 }
 
 

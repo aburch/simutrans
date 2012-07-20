@@ -83,7 +83,7 @@ protected:
 	 * Monthly maintenance cost
 	 * @author Hj. Malthaner
 	 */
-	sint32 maintenance;
+	sint64 maintenance;
 
 	/**
 	 * Die Welt in der gespielt wird.
@@ -138,18 +138,6 @@ protected:
 	 * @author Hj. Malthaner
 	 */
 	uint8 player_nr;
-
-	/**
-	 * Adds somme amount to the maintenance costs
-	 * @param change the change
-	 * @return the new maintenance costs
-	 * @author Hj. Malthaner
-	 */
-	sint32 add_maintenance(sint32 change)
-	{
-		maintenance += change;
-		return maintenance;
-	}
 
 	/**
 	 * Ist dieser Spieler ein automatischer Spieler?
@@ -227,15 +215,15 @@ public:
 
 	virtual ~spieler_t();
 
-	sint32 get_maintenance() const { return maintenance; }
+	sint64 get_maintenance() const { return maintenance; }
 
-	static sint32 add_maintenance(spieler_t *sp, sint32 change) {
-		if(sp) {
-			sp->maintenance += change;
-			return sp->maintenance;
-		}
-		return 0;
-	}
+	/**
+	 * Adds somme amount to the maintenance costs
+	 * @param player (could be zero too!)
+	 * @param change the change
+	 * @author Hj. Malthaner
+	 */
+	static void add_maintenance(spieler_t *sp, sint32 change);
 
 	// Owen Rudge, finances
 	void buche(sint64 betrag, koord k, player_cost type);
