@@ -69,7 +69,7 @@ public:
 	 */
 	crossing_state_t get_state() { return zustand; }
 
-	void append_crossing( crossing_t *cr ) { crossings.append_unique(cr,14); }
+	void append_crossing( crossing_t *cr ) { crossings.append_unique(cr); }
 
 	// static routines from here
 private:

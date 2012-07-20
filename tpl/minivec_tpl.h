@@ -80,17 +80,6 @@ public:
 		return true;
 	}
 
-	/**
-	 * Checks if element is contained. Appends only new elements.
-	 * extend vector if nessesary
-	 */
-	bool append_unique(T elem, uint8 extend)
-	{
-		if (is_contained(elem)) return false;
-		append(elem, extend);
-		return true;
-	}
-
 	/** Removes element, if contained */
 	void remove(T elem)
 	{

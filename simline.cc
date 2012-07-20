@@ -398,7 +398,7 @@ void simline_t::recalc_catg_index()
 		withdraw &= cnv.get_withdraw();
 
 		FOR(minivec_tpl<uint8>, const catg_index, cnv.get_goods_catg_index()) {
-			goods_catg_index.append_unique( catg_index, 1 );
+			goods_catg_index.append_unique( catg_index );
 		}
 	}
 	// if different => schedule need recalculation
