@@ -3463,6 +3463,7 @@ void stadt_t::step_passagiere()
 					pax.arrival_time = welt->get_zeit_ms();
 					pax.set_origin(start_halt);
 					start_halt->starte_mit_route(pax);
+					start_halt->unload_repeat_counter = 0;
 					merke_passagier_ziel(destinations[current_destination].location, COL_YELLOW);
 				}
 
@@ -3544,6 +3545,7 @@ void stadt_t::step_passagiere()
 								{
 									return_pax.arrival_time = welt->get_zeit_ms();
 									ret_halt->starte_mit_route(return_pax);
+									ret_halt->unload_repeat_counter = 0;
 									merke_passagier_ziel(destinations[current_destination].location, COL_YELLOW);
 									//ret_halt->add_pax_happy(pax_left_to_do); 
 									// Experimental 7.2 and onwards does this when passengers reach their destination

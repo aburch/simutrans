@@ -848,6 +848,7 @@ vehikel_t::unload_freight(halthandle_t halt)
 					{
 						const uint32 menge = halt->liefere_an(tmp); //"supply" (Babelfish)
 						sum_menge += menge;
+						halt->unload_repeat_counter = 0;
 
 						// Calculates the revenue for each packet. 
 						// @author: jamespetts

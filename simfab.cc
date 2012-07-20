@@ -1925,6 +1925,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 		}
 		ausgang[produkt].menge -= menge << precision_bits;
 		best_halt->starte_mit_route(best_ware);
+		best_halt->unload_repeat_counter = 0;
 		best_halt->recalc_status();
 		ausgang[produkt].book_stat(best_ware.menge, FAB_GOODS_DELIVERED);
 	}

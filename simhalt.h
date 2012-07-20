@@ -187,6 +187,9 @@ public:
 
 	static uint8 pedestrian_limit;
 
+	// To prevent infinite loops in obscure situations
+	uint8 unload_repeat_counter;
+
 private:
 	/**
 	 * Handle for ourselves. Can be used like the 'this' pointer

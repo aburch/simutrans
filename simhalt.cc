@@ -354,6 +354,8 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 
 	// Added by : Knightly
 	inauguration_time = 0;
+
+	unload_repeat_counter = 0;
 }
 
 
@@ -406,6 +408,8 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 
 	// Added by : Knightly
 	inauguration_time = dr_time();
+
+	unload_repeat_counter = 0;
 }
 
 
@@ -1930,10 +1934,11 @@ uint32 haltestelle_t::starte_mit_route(ware_t ware)
 		return ware.menge;
 	}
 
-	if(ware.is_passenger() && is_within_walking_distance_of(ware.get_zwischenziel()) && !connexions[0]->get(ware.get_zwischenziel())->best_convoy.is_bound() && !connexions[0]->get(ware.get_zwischenziel())->best_line.is_bound())
+	if(ware.is_passenger() && unload_repeat_counter < 3 && is_within_walking_distance_of(ware.get_zwischenziel()) && !connexions[0]->get(ware.get_zwischenziel())->best_convoy.is_bound() && !connexions[0]->get(ware.get_zwischenziel())->best_line.is_bound())
 	{
 		// If this is within walking distance of the next transfer, and there is not a faster way there, walk there.
 		erzeuge_fussgaenger(welt, get_basis_pos3d(), ware.menge);
+		unload_repeat_counter ++;
 		return ware.get_zwischenziel()->liefere_an(ware);
 	}
 	else
@@ -2007,11 +2012,12 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 	}
 #endif
 	
-	if(ware.is_passenger() && is_within_walking_distance_of(ware.get_zwischenziel()) && !connexions[0]->get(ware.get_zwischenziel())->best_convoy.is_bound() && !connexions[0]->get(ware.get_zwischenziel())->best_line.is_bound() && ware.get_last_transfer().is_bound() && ware.get_last_transfer()->get_basis_pos() != ware.get_zwischenziel()->get_basis_pos())
+	if(ware.is_passenger() && unload_repeat_counter < 3 && is_within_walking_distance_of(ware.get_zwischenziel()) && !connexions[0]->get(ware.get_zwischenziel())->best_convoy.is_bound() && !connexions[0]->get(ware.get_zwischenziel())->best_line.is_bound() && ware.get_last_transfer().is_bound() && ware.get_last_transfer()->get_basis_pos() != ware.get_zwischenziel()->get_basis_pos())
 	{
 		// If this is within walking distance of the next transfer, and there is not a faster way there, walk there.
 		erzeuge_fussgaenger(welt, get_basis_pos3d(), ware.menge);
 		ware.set_last_transfer(self);
+		unload_repeat_counter ++;
 		return ware.get_zwischenziel()->liefere_an(ware);
 	}
 	else
