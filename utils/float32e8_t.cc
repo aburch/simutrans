@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include "float32e8_t.h"
 #include "../simdebug.h"
+#include "../dataobj/loadsave.h"
 
 ostream & operator << (ostream &out, const float32e8_t &x)
 {
@@ -579,3 +580,13 @@ sint32 float32e8_t::to_sint32() const
 //	string result(buf);
 //	return result;
 //}
+
+void float32e8_t::rdwr(loadsave_t *file)
+{
+	xml_tag_t k( file, "float32e8" );
+	file->rdwr_long(m);
+	file->rdwr_short(e);
+	bool ms_bool = ms;
+	file->rdwr_bool(ms_bool);
+	ms = ms_bool;
+}

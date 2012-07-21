@@ -25,6 +25,8 @@ using namespace std;
 	typedef 			short		sint16;
 	typedef unsigned	char  		uint8;
 #endif
+	
+class loadsave_t;
 
 class float32e8_t
 {
@@ -207,6 +209,8 @@ public:
 	inline const int sgn(const float32e8_t &eps) const { return *this < -eps ? -1 : *this > eps ? 1 : 0; }
 	const float32e8_t log2() const;
 	const float32e8_t exp2() const;
+
+	void rdwr(loadsave_t *file);
 
 private:
 #ifdef USE_DOUBLE

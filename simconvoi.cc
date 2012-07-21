@@ -3661,6 +3661,7 @@ void convoi_t::rdwr(loadsave_t *file)
 	if(file->get_version() >= 111002 && file->get_experimental_version() >= 10)
 	{
 		file->rdwr_short(last_stop_id);
+		v.rdwr(file);
 	}
 
 	// This must come *after* all the loading/saving.
