@@ -488,7 +488,8 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 					}
 					else {
 						if(  icon>=skinverwaltung_t::werkzeuge_toolbars->get_bild_anzahl()  ) {
-							dbg->fatal( "werkzeug_t::read_menu()", "wrong icon (%i) given for toolbar_tool[%i][%i]", icon, i, j );
+							dbg->warning( "werkzeug_t::read_menu()", "wrong icon (%i) given for toolbar_tool[%i][%i]", icon, i, j );
+							icon = 0;
 						}
 						icon = skinverwaltung_t::werkzeuge_toolbars->get_bild_nr(icon);
 					}
@@ -577,7 +578,8 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 				assert(toolnr>0);
 				if(toolbar_tool.get_count()==toolnr) {
 					if(param_str==NULL) {
-						dbg->fatal( "werkzeug_t::read_menu()", "Missing parameter for toolbar" );
+						param_str = "Unnamed toolbar";
+						dbg->warning( "werkzeug_t::read_menu()", "Missing title for toolbar[%d]", toolnr);
 					}
 					char *c = strdup(param_str);
 					const char *title = c;
