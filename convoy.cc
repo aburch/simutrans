@@ -612,7 +612,7 @@ float32e8_t existing_convoy_t::get_brake_summary(/*const float32e8_t &speed /* i
 	}
 	return force;
 }
-
+ 
 
 float32e8_t existing_convoy_t::get_force_summary(const float32e8_t &speed /* in m/s */)
 {

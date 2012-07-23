@@ -3661,7 +3661,7 @@ void convoi_t::rdwr(loadsave_t *file)
 	if(file->get_version() >= 111002 && file->get_experimental_version() >= 10)
 	{
 		file->rdwr_short(last_stop_id);
-		v.rdwr(file);
+ 		v.rdwr(file);
 	}
 
 	// This must come *after* all the loading/saving.
@@ -3930,9 +3930,13 @@ void convoi_t::laden() //"load" (Babelfish)
 				if(!departures->is_contained(idp.x))
 				{
 					fpl->increment_index(&current_stop, &reverse);
-					pair.x = welt->lookup(fpl->eintrag[current_stop].pos)->get_halt().get_id();
-					idp.x = pair.x;
-					continue;
+					grund_t* gr = welt->lookup(fpl->eintrag[current_stop].pos);
+					if(gr)
+					{
+						pair.x = gr->get_halt().get_id();
+						idp.x = pair.x;
+						continue;
+					}
 				}
 
 				journey_time = welt->ticks_to_tenths_of_minutes(arrival_time - departures->get(pair.x).departure_time);

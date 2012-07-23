@@ -660,7 +660,8 @@ void weg_t::laden_abschliessen()
 		check_diagonal();
 		if(is_diagonal())
 		{
-			maint /= 1.4;
+			maint *= 10;
+			maint /= 14;
 		}
 		spieler_t::add_maintenance( sp,  maint );
 	}
