@@ -417,7 +417,7 @@ void convoy_t::calc_move(const settings_t &settings, long delta_t, const weight_
 				{
 					// don't run beyond xbrk, where we must start braking.
 					x = xbrk;
-					if (xbrk > dx)
+					if (xbrk > dx && abs(a))
 					{
 						// turn back time to when we reach xbrk:
 						dt_s = (sqrt(v0 * v0 + 2 * a * (xbrk - dx)) - v0) / a;
