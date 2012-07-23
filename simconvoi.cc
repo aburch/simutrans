@@ -6164,7 +6164,7 @@ void convoi_t::clear_replace()
 	}
 	else
 	{
-		dbg->error("void convoi_t::book_departure_time(sint64 time)", "Cannot find last halt to set departure time");
+		dbg->warning("void convoi_t::book_departure_time(sint64 time)", "Cannot find last halt to set departure time");
 	}
  }
 
