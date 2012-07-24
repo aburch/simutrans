@@ -560,7 +560,7 @@ double float32e8_t::to_double() const
 	return rm * re;
 }
 
-sint32 float32e8_t::to_sint32() const
+sint32 float32e8_t::to_sint32() const 
 {
 	// return trunc(*this):
 	if (e <= 0)
