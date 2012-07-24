@@ -10,8 +10,14 @@ To be done:
 - building/tree heights in dats
 - special colors from pakset
 - fog view to the top?
+- instant text updates
+- toolwindow with 10 last used tools (in fixed order)
+- bahnhofsdetaildialog (more text on the station buildings)
+- industry density => industry number
 
 partially done:
+- tile 2x height: halfway-> need conversion for textures needed
+- climate per tiles
 - connection weighted by their intermediate stops => A* for goods routing [A* did not worked out, but intermediate stops may be considered]
 - merge identical images in makeobj: done, merged them on loadtime
 - scripting: on the way
@@ -21,9 +27,6 @@ reconsider:
 - viewports (even if they are perfomance killers ... )
 - routing penalty sign (but a proper one)
 - extended statistics patch
-- tile 2x height: halfway-> need conversion for textures needed
 
 CHECK:
 resize greater than 2400*1536 crashes simutrans
-Toolwindow with 10 last used tools (in fixed order)
-bahnhofsdetaildialog (on the station buildings)

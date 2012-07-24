@@ -117,12 +117,12 @@ SectionEnd
 
 
 ; name does not match folder name (pak96.comic) but otherwise always selected for update
-Section /o "pak96 Comic (Freeware) V0.4.10" pak96comic
-  AddSize 29447
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak96.comic/pak96.comic%20for%20110-0-1/pak96.comic-0.4.10.zip"
-  StrCpy $archievename "pak96.comic-0.4.10.zip"
+Section /o "pak96 Comic (Freeware) V0.4.10 expansion" pak96comic
+  AddSize 32304
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak96.comic/pak96.comic%20for%20111-3/pak96.comic-0.4.10-plus.zip"
+  StrCpy $archievename "pak96.comic-0.4.10-plus.zip"
   StrCpy $downloadname "pak96.Comic"
-  StrCpy $VersionString ""
+  StrCpy $VersionString "pak96.comic V4.1 plus"
   Call DownloadInstallZip
 SectionEnd
 
