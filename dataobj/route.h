@@ -47,16 +47,20 @@ public:
 		uint8 dir;
 		uint16 count;
 
-		inline bool operator <= (const ANode k) const { return f==k.f ? g<=k.g : f<=k.f; }
+		inline bool operator <= (const ANode &k) const { return f==k.f ? g<=k.g : f<=k.f; }
 		// next one only needed for sorted_heap_tpl
-		inline bool operator == (const ANode k) const { return f==k.f  &&  g==k.g; }
+		inline bool operator == (const ANode &k) const { return f==k.f  &&  g==k.g; }
 		// next two only needed for HOT-queues
 		//inline bool is_matching(const ANode &l) const { return gr==l.gr; }
 		//inline uint32 get_distance() const { return f; }
 	};
 
+private:
+	friend class wegbauer_t;
 	static ANode *nodes;
+public:
 	static uint32 MAX_STEP;
+	static uint32 max_used_steps;
 #ifdef DEBUG
 	// a semaphore, since we only have a single version of the array in memory
 	static bool node_in_use;

@@ -146,6 +146,7 @@ static bool is_in_list(vector_tpl<route_t::ANode*> const& list, grund_t const* c
 // node arrays
 route_t::ANode* route_t::nodes=NULL;
 uint32 route_t::MAX_STEP=0;
+uint32 route_t::max_used_steps=0;
 #ifdef DEBUG
 bool route_t::node_in_use=false;
 #endif
@@ -195,6 +196,8 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 
 	uint32 step = 0;
 	ANode* tmp = &nodes[step++];
+	if (route_t::max_used_steps < step)
+		route_t::max_used_steps = step;
 	tmp->parent = NULL;
 	tmp->gr = g;
 	tmp->count = 0;
@@ -255,6 +258,8 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 
 				// not in there or taken out => add new
 				ANode* k = &nodes[step++];
+				if (route_t::max_used_steps < step)
+					route_t::max_used_steps = step;
 
 				k->parent = tmp;
 				k->gr = to;
@@ -290,7 +295,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 			tmp = tmp->parent;
 		}
 		ok = !route.empty();
-  }
+	}
 
 	RELEASE_NODE();
 	return ok;
@@ -353,13 +358,17 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 	// there are several variant for maintaining the open list
 	// however, only binary heap and HOT queue with binary heap are worth considering
 #if defined(tpl_HOT_queue_tpl_h)
-    static HOT_queue_tpl <ANode *> queue;
+    ///static 
+	HOT_queue_tpl <ANode *> queue;
 #elif defined(tpl_binary_heap_tpl_h)
-    static binary_heap_tpl <ANode *> queue;
+    //static 
+	binary_heap_tpl <ANode *> queue;
 #elif defined(tpl_sorted_heap_tpl_h)
-    static sorted_heap_tpl <ANode *> queue;
+    //static 
+	sorted_heap_tpl <ANode *> queue;
 #else
-    static prioqueue_tpl <ANode *> queue;
+    //static 
+	prioqueue_tpl <ANode *> queue;
 #endif
 
 	GET_NODE();
@@ -367,6 +376,8 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 	uint32 step = 0;
 	ANode* tmp = &nodes[step];
 	step ++;
+	if (route_t::max_used_steps < step)
+		route_t::max_used_steps = step;
 
 	tmp->parent = NULL;
 	tmp->gr = welt->lookup(start);
@@ -495,6 +506,8 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 				// add new
 				ANode* k = &nodes[step];
 				step ++;
+				if (route_t::max_used_steps < step)
+					route_t::max_used_steps = step;
 
 				k->parent = tmp;
 				k->gr = to;

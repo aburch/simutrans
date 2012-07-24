@@ -1248,6 +1248,8 @@ long wegbauer_t::intern_calc_route(const vector_tpl<koord3d> &start, const vecto
 		}
 		tmp = &(route_t::nodes[step]);
 		step ++;
+		if (route_t::max_used_steps < step)
+			route_t::max_used_steps = step;
 
 		tmp->parent = NULL;
 		tmp->gr = gr;
@@ -1433,6 +1435,8 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->get_pos().x,gr->get_pos().y,g
 			// not in there or taken out => add new
 			route_t::ANode *k=&(route_t::nodes[step]);
 			step++;
+			if (route_t::max_used_steps < step)
+				route_t::max_used_steps = step;
 
 			k->parent = tmp;
 			k->gr = to;
