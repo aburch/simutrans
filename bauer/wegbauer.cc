@@ -1203,9 +1203,9 @@ long wegbauer_t::intern_calc_route(const vector_tpl<koord3d> &start, const vecto
 	get_mini_maxi( ziel, mini, maxi );
 
 	// memory in static list ...
-	if(route_t::nodes==NULL) {
-		route_t::MAX_STEP = welt->get_settings().get_max_route_steps(); // may need very much memory => configurable
-		route_t::nodes = new route_t::ANode[route_t::MAX_STEP+4+1];
+	if(!route_t::MAX_STEP)
+	{
+		route_t::INIT_NODES(welt->get_settings().get_max_route_steps(), welt->get_groesse_x(), welt->get_groesse_y());
 	}
 
 	// there are several variant for mantaining the open list
@@ -1223,6 +1223,10 @@ long wegbauer_t::intern_calc_route(const vector_tpl<koord3d> &start, const vecto
 #endif
 #endif
 #endif
+
+	// get exclusively a tile list
+	route_t::ANode *nodes;
+	uint8 ni = route_t::GET_NODES(&nodes);
 
 	// nothing in lists
 	welt->unmarkiere_alle();
@@ -1246,7 +1250,7 @@ long wegbauer_t::intern_calc_route(const vector_tpl<koord3d> &start, const vecto
 			// DBG_MESSAGE("wegbauer_t::intern_calc_route()","cannot start on (%i,%i,%i)",start.x,start.y,start.z);
 			continue;
 		}
-		tmp = &(route_t::nodes[step]);
+		tmp = &(nodes[step]);
 		step ++;
 		if (route_t::max_used_steps < step)
 			route_t::max_used_steps = step;
@@ -1263,13 +1267,12 @@ long wegbauer_t::intern_calc_route(const vector_tpl<koord3d> &start, const vecto
 
 	if( queue.empty() ) {
 		// no valid ground to start.
+		// release nodes after last use of any node (like tmp in getting the cost)
+		route_t::RELEASE_NODES(ni);
 		return -1;
 	}
 
 	INT_CHECK("wegbauer 347");
-
-	// get exclusively the tile list
-	route_t::GET_NODE();
 
 	// to speed up search, but may not find all shortest ways
 	uint32 min_dist = 99999999;
@@ -1433,7 +1436,7 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->get_pos().x,gr->get_pos().y,g
 			}
 
 			// not in there or taken out => add new
-			route_t::ANode *k=&(route_t::nodes[step]);
+			route_t::ANode *k=&(nodes[step]);
 			step++;
 			if (route_t::max_used_steps < step)
 				route_t::max_used_steps = step;
@@ -1460,16 +1463,14 @@ DBG_DEBUG("wegbauer_t::intern_calc_route()","steps=%i  (max %i) in route, open %
 #endif
 	INT_CHECK("wegbauer 194");
 
-	route_t::RELEASE_NODE();
-
+	long cost = -1;
 //DBG_DEBUG("reached","%i,%i",tmp->pos.x,tmp->pos.y);
 	// target reached?
 	if( !ziel.is_contained(gr->get_pos())  ||  step>=route_t::MAX_STEP  ||  tmp->parent==NULL) {
 		dbg->warning("wegbauer_t::intern_calc_route()","Too many steps (%i>=max %i) in route (too long/complex)",step,route_t::MAX_STEP);
-		return -1;
 	}
 	else {
-		const long cost = tmp->g;
+		cost = tmp->g;
 		// reached => construct route
 		while(tmp != NULL) {
 			route.append(tmp->gr->get_pos());
@@ -1479,10 +1480,11 @@ DBG_DEBUG("wegbauer_t::intern_calc_route()","steps=%i  (max %i) in route, open %
 //DBG_DEBUG("add","%i,%i",tmp->pos.x,tmp->pos.y);
 			tmp = tmp->parent;
 		}
-		return cost;
 	}
 
-	return -1;
+	// release nodes after last use of any node (like tmp in getting the cost)
+	route_t::RELEASE_NODES(ni);
+	return cost;
 }
 
 

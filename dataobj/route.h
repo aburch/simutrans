@@ -56,20 +56,16 @@ public:
 	};
 
 private:
-	friend class wegbauer_t;
-	static ANode *nodes;
+	static const uint8 MAX_NODES_ARRAY = 2;
+	static ANode *_nodes[MAX_NODES_ARRAY];
+	static bool _nodes_in_use[MAX_NODES_ARRAY]; // semaphores, since we only have few nodes arrays in memory
 public:
 	static uint32 MAX_STEP;
 	static uint32 max_used_steps;
-#ifdef DEBUG
-	// a semaphore, since we only have a single version of the array in memory
-	static bool node_in_use;
-	static void GET_NODE() {if(node_in_use){ dbg->fatal("GET_NODE","called while list in use");} node_in_use =1; }
-	static void RELEASE_NODE() {if(!node_in_use){ dbg->fatal("RELEASE_NODE","called while list free");} node_in_use =0; }
-#else
-	static void GET_NODE() {}
-	static void RELEASE_NODE() {}
-#endif
+	static void INIT_NODES(uint32 max_route_steps, uint32 world_width, uint32 world_height);
+	static uint8 GET_NODES(ANode **nodes); 
+	static void RELEASE_NODES(uint8 nodes_index);
+	static void TERM_NODES();
 
 	static inline uint32 calc_distance( const koord3d p1, const koord3d p2 )
 	{

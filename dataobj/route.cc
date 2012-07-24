@@ -144,12 +144,61 @@ static bool is_in_list(vector_tpl<route_t::ANode*> const& list, grund_t const* c
 
 
 // node arrays
-route_t::ANode* route_t::nodes=NULL;
 uint32 route_t::MAX_STEP=0;
 uint32 route_t::max_used_steps=0;
-#ifdef DEBUG
-bool route_t::node_in_use=false;
-#endif
+route_t::ANode *route_t::_nodes[MAX_NODES_ARRAY];
+bool route_t::_nodes_in_use[MAX_NODES_ARRAY]; // semaphores, since we only have few nodes arrays in memory
+
+void route_t::INIT_NODES(uint32 max_route_steps, uint32 world_width, uint32 world_height)
+{
+	for (int i = 0; i < MAX_NODES_ARRAY; ++i)
+	{
+		_nodes[i] = NULL;
+		_nodes_in_use[i] = false;
+	}
+
+	// may need very much memory => configurable
+	MAX_STEP = min(max_route_steps, world_width * world_height); 
+	for (int i = 0; i < MAX_NODES_ARRAY; ++i)
+	{
+		_nodes[i] = new ANode[MAX_STEP + 4 + 2];
+	}
+}
+
+void route_t::TERM_NODES()
+{
+	if (MAX_STEP)
+	{
+		MAX_STEP = 0;
+		for (int i = 0; i < MAX_NODES_ARRAY; ++i)
+		{
+			delete [] _nodes[i];
+			_nodes[i] = NULL;
+			_nodes_in_use[i] = false;
+		}
+	}
+}
+
+uint8 route_t::GET_NODES(ANode **nodes) 
+{
+	for (int i = 0; i < MAX_NODES_ARRAY; ++i)
+		if (!_nodes_in_use[i])
+		{
+			_nodes_in_use[i] = true;
+			*nodes = _nodes[i];
+			return i;
+		}
+	dbg->fatal("GET_NODE","called while list in use");
+	return 0;
+}
+
+void route_t::RELEASE_NODES(uint8 nodes_index) 
+{
+	if (!_nodes_in_use[nodes_index])
+		dbg->fatal("RELEASE_NODE","called while list free"); 
+	_nodes_in_use[nodes_index] = false; 
+}
+
 
 /* find the route to an unknow location
  * @author prissi
@@ -170,15 +219,16 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 	const waytype_t wegtyp = fahr->get_waytype();
 
 	// memory in static list ...
-	if(nodes==NULL) {
-		MAX_STEP = welt->get_settings().get_max_route_steps();
-		nodes = new ANode[MAX_STEP];
+	if(!MAX_STEP)
+	{
+		INIT_NODES(welt->get_settings().get_max_route_steps(), welt->get_groesse_x(), welt->get_groesse_y());
 	}
 
 	INT_CHECK("route 347");
 
 	// arrays for A*
-	static vector_tpl<ANode*> open;
+	//static 
+	vector_tpl<ANode*> open;
 	vector_tpl<ANode*> close;
 
 	// nothing in lists
@@ -192,7 +242,8 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 		return false;
 	}
 
-	GET_NODE();
+	ANode *nodes;
+	uint8 ni = GET_NODES(&nodes);
 
 	uint32 step = 0;
 	ANode* tmp = &nodes[step++];
@@ -297,7 +348,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 		ok = !route.empty();
 	}
 
-	RELEASE_NODE();
+	RELEASE_NODES(ni);
 	return ok;
 }
 
@@ -348,9 +399,9 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 	bool ziel_erreicht=false;
 
 	// memory in static list ...
-	if(nodes==NULL) {
-		MAX_STEP = welt->get_settings().get_max_route_steps(); // may need very much memory => configurable
-		nodes = new ANode[MAX_STEP + 4 + 2];
+	if(!MAX_STEP)
+	{
+		INIT_NODES(welt->get_settings().get_max_route_steps(), welt->get_groesse_x(), welt->get_groesse_y());
 	}
 
 	INT_CHECK("route 347");
@@ -371,7 +422,8 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 	prioqueue_tpl <ANode *> queue;
 #endif
 
-	GET_NODE();
+	ANode *nodes;
+	uint8 ni = GET_NODES(&nodes);
 
 	uint32 step = 0;
 	ANode* tmp = &nodes[step];
@@ -547,8 +599,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 		ok = true;
 	}
 
-	RELEASE_NODE();
-
+	RELEASE_NODES(ni);
 	return ok;
 }
 
