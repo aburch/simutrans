@@ -157,7 +157,7 @@ bool werkzeug_waehler_t::infowin_event(const event_t *ev)
 			// Needs this to redraw empty space ?
 			welt->set_dirty();
 		}
-		groesse = koord( tool_icon_width*icon.x, min(tool_icon_height, ((tools.get_count()-1-tool_icon_disp_start)/tool_icon_width+1))*icon.y+16);
+		set_fenstergroesse( koord( tool_icon_width*icon.x, min(tool_icon_height, ((tools.get_count()-1)/tool_icon_width)+1)*icon.y+D_TITLEBAR_HEIGHT ) );
 		dirty = true;
 	}
 	return false;
