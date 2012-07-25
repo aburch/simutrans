@@ -550,6 +550,7 @@ int create_win(int x, int y, gui_frame_t* const gui, wintype const wt, long cons
 		wins.append( simwin_t() );
 		simwin_t& win = wins.back();
 
+		sint16 const menu_height = werkzeug_t::toolbar_tool[0]->iconsize.y;
 		// (Mathew Hounsell) Make Sure Closes Aren't Forgotten.
 		// Must Reset as the entries and thus flags are reused
 		win.flags.close = true;
@@ -590,7 +591,7 @@ int create_win(int x, int y, gui_frame_t* const gui, wintype const wt, long cons
 
 		if(x == -1) {
 			// try to keep the toolbar below all other toolbars
-			y = 32;
+			y = menu_height;
 			if(wt & w_no_overlap) {
 				for( uint32 i=0;  i<wins.get_count()-1;  i++  ) {
 					if(wins[i].wt & w_no_overlap) {
@@ -616,8 +617,8 @@ int create_win(int x, int y, gui_frame_t* const gui, wintype const wt, long cons
 		if(x<0) {
 			x = 0;
 		}
-		if(y<32) {
-			y = 32;
+		if(y<menu_height) {
+			y = menu_height;
 		}
 		win.pos = koord(x,y);
 		mark_rect_dirty_wc( x, y, x+gr.x, y+gr.y );
@@ -912,9 +913,9 @@ void snap_check_win( const int win, koord *r, const koord from_pos, const koord 
 		if(  i==wins_count  ) {
 			// Allow snap to screen edge
 			other_pos.x = 0;
-			other_pos.y = 32;
+			other_pos.y = werkzeug_t::toolbar_tool[0]->iconsize.y;
 			other_gr.x = display_get_width();
-			other_gr.y = display_get_height()-16-32;
+			other_gr.y = display_get_height()-16-other_pos.y;
 			if(  show_ticker  ) {
 				other_gr.y -= 16;
 			}
@@ -1015,7 +1016,7 @@ void move_win(int win, event_t *ev)
 
 	// CLIP(wert,min,max)
 	to_pos.x = CLIP( to_pos.x, 8-to_gr.x, display_get_width()-16 );
-	to_pos.y = CLIP( to_pos.y, 32, display_get_height()-24 );
+	to_pos.y = CLIP( to_pos.y, werkzeug_t::toolbar_tool[0]->iconsize.y, display_get_height()-24 );
 
 	// delta is actual window movement.
 	const koord delta = to_pos - from_pos;
