@@ -1112,6 +1112,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		file.close();
 	}
 
+	destroy_all_win( true );
 	werkzeug_t::exit_menu();
 
 	delete welt;
