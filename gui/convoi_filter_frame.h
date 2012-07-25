@@ -64,8 +64,6 @@ public:
 
 
 private:
-	void sort_list();
-
 	uint32 filter_flags;
 
 	bool get_filter(convoi_filter_frame_t::filter_flag_t filter) { return (filter_flags & filter) != 0; }
@@ -128,6 +126,8 @@ private:
 	gui_container_t ware_cont;
 
 public:
+	void sort_list();
+
 	/**
 	 * Konstruktor. Erzeugt alle notwendigen Subkomponenten.
 	 * @author V. Meyer
