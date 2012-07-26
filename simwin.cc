@@ -550,7 +550,8 @@ int create_win(int x, int y, gui_frame_t* const gui, wintype const wt, long cons
 		wins.append( simwin_t() );
 		simwin_t& win = wins.back();
 
-		sint16 const menu_height = werkzeug_t::toolbar_tool[0]->iconsize.y;
+		sint16 const menu_height = werkzeug_t::toolbar_tool.empty() ? 0: werkzeug_t::toolbar_tool[0]->iconsize.y;
+
 		// (Mathew Hounsell) Make Sure Closes Aren't Forgotten.
 		// Must Reset as the entries and thus flags are reused
 		win.flags.close = true;
