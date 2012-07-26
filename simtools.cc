@@ -28,7 +28,7 @@ static uint8 random_origin = 0;
 static void init_genrand(uint32 s)
 {
 #ifdef DEBUG_SIMRAND_CALLS
-	karte_t::random_callers.append("*** GEN ***");
+	karte_t::random_callers.append(strdup("*** GEN ***"));
 #endif
 	mersenne_twister[0]= s & 0xffffffffUL;
 	for (mersenne_twister_index=1; mersenne_twister_index<MERSENNE_TWISTER_N; mersenne_twister_index++) {
@@ -46,7 +46,7 @@ static void init_genrand(uint32 s)
 static void MTgenerate(void)
 {
 #ifdef DEBUG_SIMRAND_CALLS
-	karte_t::random_callers.append("*** REGEN ***");
+	karte_t::random_callers.append(strdup("*** REGEN ***"));
 #endif
 	static uint32 mag01[2]={0x0UL, MATRIX_A};
 	uint32 y;
@@ -110,7 +110,7 @@ uint32 simrand(const uint32 max, const char*)
 	assert( (random_origin&INTERACTIVE_RANDOM) == 0  );
 
 #ifdef DEBUG_SIMRAND_CALLS
-	char* buf = new char[256];
+	char buf[256];
 	sprintf(buf, "%s (%i); call: (%i)", caller, get_random_seed(), karte_t::random_calls);
 	dbg->warning("simrand", buf);
 	if(karte_t::print_randoms)
@@ -118,7 +118,7 @@ uint32 simrand(const uint32 max, const char*)
 		printf("%s\n", buf);
 	}
 
-	karte_t::random_callers.append(buf);
+	karte_t::random_callers.append(strdup(buf));
 	karte_t::random_calls ++;
 #endif
 
