@@ -108,24 +108,26 @@ uint32 simrand(const uint32 max, const char*)
 #endif
 {
 	assert( (random_origin&INTERACTIVE_RANDOM) == 0  );
+	if(max<=1) {	// may rather assert this?
+		return 0;
+	}
 
 #ifdef DEBUG_SIMRAND_CALLS
+	uint32 result = simrand_plain() % max;
 	char buf[256];
-	sprintf(buf, "%s (%i); call: (%i)", caller, get_random_seed(), karte_t::random_calls);
+	sprintf(buf, "%s (%i); call: (%i). rand %u, max %u", caller, get_random_seed(), karte_t::random_calls, result, max);
 	dbg->warning("simrand", buf);
 	if(karte_t::print_randoms)
 	{
 		printf("%s\n", buf);
 	}
 
-	karte_t::random_callers.append(strdup(buf));
+//	karte_t::random_callers.append(strdup(buf));
 	karte_t::random_calls ++;
+	return result;
 #endif
 
-	if(max<=1) {	// may rather assert this?
-		return 0;
-	}
-#ifdef DEBUG_SIMRAND_CALLS
+#ifdef DEBUG_SIMRAND_CALLS_1
 	// Run the random number generator to change the seed,
 	// but do not use the number to ensure a consistent 
 	// code path for debugging.

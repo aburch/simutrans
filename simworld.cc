@@ -3712,9 +3712,9 @@ void karte_t::step()
 
 	// check for pending seasons change
 	if(pending_season_change>0) {
-		DBG_DEBUG4("karte_t::step", "pending_season_change");
 		// process
 		const uint32 end_count = min( cached_groesse_gitter_x*cached_groesse_gitter_y,  tile_counter + max( 16384, cached_groesse_gitter_x*cached_groesse_gitter_y/16 ) );
+		DBG_DEBUG4("karte_t::step", "pending_season_change. %u tiles.", end_count);
 		while(  tile_counter < end_count  ) {
 			plan[tile_counter].check_season(current_month);
 			tile_counter ++;
@@ -3735,7 +3735,7 @@ void karte_t::step()
 	path_explorer_t::step();
 	INT_CHECK("karte_t::step");
 	
-	DBG_DEBUG4("karte_t::step", "step convois");
+	DBG_DEBUG4("karte_t::step", "step %d convois", convoi_array.get_count());
 	// since convois will be deleted during stepping, we need to step backwards
 	for(sint32 i=convoi_array.get_count()-1;  i>=0;  i--  ) {
 		convoihandle_t cnv = convoi_array[i];
@@ -6077,6 +6077,7 @@ void karte_t::interactive_event(event_t &ev)
 			y_off = (y_off * new_raster_width) / org_raster_width;
 		}
 	}
+
 	INT_CHECK("simworld 2117");
 }
 
@@ -6166,7 +6167,6 @@ bool karte_t::interactive(uint32 quit_month)
 {
 	event_t ev;
 	finish_loop = false;
-	bool swallowed = false;
 	bool cursor_hidden = false;
 	sync_steps = 0;
 
@@ -6243,6 +6243,7 @@ bool karte_t::interactive(uint32 quit_month)
 			break;
 		}
 
+		bool swallowed = false;
 		if(ev.ev_class!=EVENT_NONE &&  ev.ev_class!=IGNORE_EVENT) {
 
 			if(  umgebung_t::networkmode  ) {
@@ -6415,7 +6416,7 @@ bool karte_t::interactive(uint32 quit_month)
 					const int offset = server_checklist.print(buf, "server");
 					LCHKLST(server_sync_step).print(buf + offset, "client");
 					dbg->warning("karte_t::interactive", "sync_step=%u  %s", server_sync_step, buf);
-					if(  LCHKLST(server_sync_step)!=server_checklist  ) {
+					if( LCHKLST(server_sync_step)!=server_checklist  ) {
 						dbg->warning("karte_t::interactive", "disconnecting due to checklist mismatch" );
 						printf("Desync due to checklist mismatch\nsync_step=%u  %s", server_sync_step, buf);
 						network_disconnect();
@@ -6491,6 +6492,13 @@ bool karte_t::interactive(uint32 quit_month)
 					}
 					sync_steps = steps * settings.get_frames_per_step() + network_frame_count;
 					LCHKLST(sync_steps) = checklist_t(get_random_seed(), halthandle_t::get_next_check(), linehandle_t::get_next_check(), convoihandle_t::get_next_check(), industry_density_proportion, actual_industry_density,finance_history_year[0][WORLD_CITYCARS] );
+
+#ifdef DEBUG_SIMRAND_CALLS
+					char buf[256];
+					LCHKLST(sync_steps).print(buf, "chklist");
+					dbg->warning("karte_t::interactive", "sync_step=%u  %s", sync_steps, buf);
+#endif
+
 					// some serverside tasks
 					if(  umgebung_t::networkmode  &&  umgebung_t::server  ) {
 						// broadcast sync info

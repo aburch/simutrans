@@ -970,11 +970,13 @@ bool vehikel_t::load_freight(halthandle_t halt, bool overcrowd)
 	schedule_t *fpl = cnv->get_schedule();
 	if( ok ) 
 	{
-		while(total_freight < besch->get_zuladung() + (overcrowd ? besch->get_overcrowded_capacity() : 0)) //"Payload" (Google)
+		uint16 total_capacity = besch->get_zuladung() + (overcrowd ? besch->get_overcrowded_capacity() : 0);
+		DBG_DEBUG4("vehikel_t::load_freight", "total_freight %d < total_capacity %d", total_freight, total_capacity);
+		while(total_freight < total_capacity) //"Payload" (Google)
 		{
 			// Modified to allow overcrowding.
 			// @author: jamespetts
-			const uint16 hinein = (besch->get_zuladung() - total_freight) + (overcrowd ? besch->get_overcrowded_capacity() : 0); 
+			const uint16 hinein = total_capacity - total_freight; 
 			//hinein = inside (Google)
 
 			ware_t ware = halt->hole_ab(besch->get_ware(), hinein, fpl, cnv->get_besitzer(), cnv, overcrowd);
@@ -1016,6 +1018,7 @@ bool vehikel_t::load_freight(halthandle_t halt, bool overcrowd)
 
 			INT_CHECK("simvehikel 876");
 		}
+		DBG_DEBUG4("vehikel_t::load_freight", "total_freight %d of %d loaded.", total_freight, total_capacity);
 	}
 	return true;
 }
