@@ -54,14 +54,14 @@ static vector_tpl<bonus_record_t>speedbonus[8];
 
 static sint32 default_speedbonus[8] =
 {
-	60,	// road
+	80,	// road
 	80,	// track
 	35,	// water
-	350,	// air
+	80,	// air
 	80,	// monorail
-	200,	// maglev
-	60,	// tram
-	60	// narrowgauge
+	80,	// maglev
+	80,	// tram
+	80	// narrowgauge
 };
 
 bool vehikelbauer_t::speedbonus_init(const std::string &objfilename)
