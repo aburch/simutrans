@@ -394,6 +394,8 @@ public:
 	// speedbonus.tab files from Simutrans-Standard
 	// @author: jamespetts
 	uint16 speed_bonus_multiplier_percent;
+
+	bool allow_airports_without_control_towers;
 	
 private:
 
@@ -781,6 +783,8 @@ public:
 	uint8 get_enforce_weight_limits() const { return enforce_weight_limits; }
 
 	uint16 get_speed_bonus_multiplier_percent() const { return speed_bonus_multiplier_percent; }
+
+	bool get_allow_airports_without_control_towers() const { return allow_airports_without_control_towers; }
 
 	// allowed modes are 0,1,2
 	enum { TO_PREVIOUS=0, TO_TRANSFER, TO_DESTINATION };

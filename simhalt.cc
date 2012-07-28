@@ -246,8 +246,14 @@ DBG_MESSAGE("haltestelle_t::remove()","removing segment from %d,%d,%d", pos.x, p
 	if(  halt->rem_grund(bd)  ) {
 		// remove station building?
 		gebaeude_t* gb = bd->find<gebaeude_t>();
-		if(gb) {
+		if(gb) 
+		{
 			DBG_MESSAGE("haltestelle_t::remove()",  "removing building" );
+			if(gb->get_tile()->get_besch()->get_is_control_tower())
+			{
+				halt->remove_control_tower();
+				halt->recalc_status();
+			}
 			hausbauer_t::remove( welt, sp, gb );
 			bd = NULL;	// no need to recalc image
 		}
@@ -410,6 +416,8 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 	inauguration_time = dr_time();
 
 	unload_repeat_counter = 0;
+
+	control_towers = 0;
 }
 
 
@@ -2843,7 +2851,10 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				add_halt_within_walking_distance(halt);
 			}
 		}
-		
+		if(file->get_version() >= 110002)
+		{
+			file->rdwr_byte(control_towers);
+		}
 	}
 	else
 	{
@@ -3004,8 +3015,14 @@ void haltestelle_t::recalc_status()
 	if(  status_bits  ) {
 		status_color = status_bits&2 ? COL_RED : COL_ORANGE;
 	}
-	else {
+	else
+	{
 		status_color = (financial_history[0][HALT_WAITING]+financial_history[0][HALT_DEPARTED] == 0) ? COL_YELLOW : COL_GREEN;
+	}
+
+	if((station_type & airstop) && has_no_control_tower())
+	{
+		status_color = COL_PURPLE;
 	}
 
 	financial_history[0][HALT_WAITING] = total_sum;
@@ -3553,4 +3570,9 @@ uint32 haltestelle_t::get_number_of_halts_within_walking_distance() const
 bool haltestelle_t::check_access(const spieler_t* sp) const
 {
 	return !sp || sp == besitzer_p || besitzer_p == NULL || besitzer_p->allows_access_to(sp->get_player_nr());
+}
+
+bool haltestelle_t::has_no_control_tower() const
+{
+	return welt->get_settings().get_allow_airports_without_control_towers() ? false : control_towers == 0;
 }

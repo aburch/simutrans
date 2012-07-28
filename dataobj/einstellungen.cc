@@ -394,6 +394,8 @@ settings_t::settings_t() :
 
 	speed_bonus_multiplier_percent = 100;
 
+	allow_airports_without_control_towers = true;
+
 	allow_buying_obsolete_vehicles = true;
 
 	// default: load also private extensions of the pak file
@@ -1292,6 +1294,7 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_long(max_small_city_size);
 			file->rdwr_long(max_city_size);
 			file->rdwr_byte(max_elevated_way_building_level);
+			file->rdwr_bool(allow_airports_without_control_towers);
 		}
 	}
 
@@ -1911,6 +1914,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	enforce_weight_limits = contents.get_int("enforce_weight_limits", enforce_weight_limits);
 
 	speed_bonus_multiplier_percent = contents.get_int("speed_bonus_multiplier_percent", speed_bonus_multiplier_percent);
+
+	allow_airports_without_control_towers = contents.get_int("allow_airports_without_control_towers", allow_airports_without_control_towers);
 
 	// Multiply by 10 because journey times are measured in tenths of minutes.
 	//@author: jamespetts

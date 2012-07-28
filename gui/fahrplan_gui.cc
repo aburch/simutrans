@@ -99,16 +99,27 @@ void fahrplan_gui_stats_t::highlight_schedule( schedule_t *markfpl, bool marking
  *
  * @author Hj. Malthaner
  */
-void fahrplan_gui_t::gimme_stop_name(cbuffer_t & buf, karte_t *welt, const spieler_t *sp, const linieneintrag_t &entry )
+void fahrplan_gui_t::gimme_stop_name(cbuffer_t & buf, karte_t *welt, const spieler_t *sp, const linieneintrag_t &entry, bool no_control_tower )
 {
 	halthandle_t halt = haltestelle_t::get_halt(welt, entry.pos, sp);
-	if(halt.is_bound()) {
-		if (entry.ladegrad != 0) {
-			buf.printf("%d%% %s (%s)", entry.ladegrad, halt->get_name(), entry.pos.get_str() );
+	if(halt.is_bound()) 
+	{
+		char modified_name[320];
+		if(no_control_tower)
+		{
+			sprintf(modified_name, "%s [%s]", halt->get_name(), translator::translate("NO CONTROL TOWER"));
+		}
+		else
+		{
+			sprintf(modified_name, "%s", halt->get_name());
+		}
+		if (entry.ladegrad != 0)
+		{
+			buf.printf("%d%% %s (%s)", entry.ladegrad, modified_name, entry.pos.get_str() );
 		}
 		else {
 			buf.printf("%s (%s)",
-				halt->get_name(),
+				modified_name,
 				entry.pos.get_str() );
 		}
 	}
@@ -210,7 +221,8 @@ void fahrplan_gui_stats_t::zeichnen(koord offset)
 
 				buf.clear();
 				buf.printf( "%i) ", i+1 );
-				fahrplan_gui_t::gimme_stop_name( buf, welt, sp, fpl->eintrag[i] );
+				bool no_control_tower = fpl->get_waytype() == air_wt && welt->lookup(fpl->eintrag[i].pos)->get_halt().is_bound() && welt->lookup(fpl->eintrag[i].pos)->get_halt()->has_no_control_tower();
+				fahrplan_gui_t::gimme_stop_name(buf, welt, sp, fpl->eintrag[i], no_control_tower);
 				sint16 w = display_proportional_clip(offset.x + 4 + 10, offset.y + i * (LINESPACE + 1), buf, ALIGN_LEFT, i!=fpl->get_aktuell() ? COL_BLACK : COL_WHITE, true);
 				if(  w>width  ) {
 					width = w;

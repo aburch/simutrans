@@ -773,6 +773,10 @@ void convoi_t::increment_odometer(uint32 steps)
 bool convoi_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed)
 {
 	route_infos.clear();
+	if(fahr[0]->get_waytype() == air_wt && welt->lookup(ziel)->get_halt().is_bound() && welt->lookup(ziel)->get_halt()->has_no_control_tower())
+	{
+		return false;
+	}
 	return fahr[0]->calc_route(start, ziel, max_speed, &route);
 }
 
@@ -1101,7 +1105,8 @@ bool convoi_t::sync_step(long delta_t)
  */
 bool convoi_t::drive_to()
 {
-	if(  anz_vehikel>0  ) {
+	if(  anz_vehikel>0  ) 
+	{
 		koord3d start = fahr[0]->get_pos();
 		koord3d ziel = fpl->get_current_eintrag().pos;
 
@@ -5597,7 +5602,7 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 					{
 						route->append(pos);
 					}
-					else
+					else if(!route->empty())
 					{
 						shortest_route->kopiere(route);	
 					}

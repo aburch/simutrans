@@ -211,6 +211,14 @@ class haus_besch_t : public obj_besch_std_name_t { // Daten für ein ganzes Gebäu
 	 */
 	uint8 allow_underground;
 
+	/**
+	 * Whether this building is a control tower.
+	 * Aircraft cannot land/take off at airports
+	 * that do not have a control tower attached
+	 * to them.
+	 */
+	uint8 is_control_tower;
+
 	bool ist_utyp(utyp u) const {
 		return gtyp == gebaeude_t::unbekannt && utype == u;
 	}
@@ -359,6 +367,8 @@ public:
 	uint16 get_station_capacity() const { return station_capacity; }
 
 	uint8 get_allow_underground() const { return allow_underground; }
+
+	uint8 get_is_control_tower() const { return is_control_tower; }
 	
 	void set_scale(uint16 scale_factor) 
 	{
