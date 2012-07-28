@@ -247,6 +247,7 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				besch->upgrade_price = decode_uint32(p);
 				besch->available_only_as_upgrade = decode_uint8(p);
 				besch->brake_force = BRAKE_FORCE_UNKNOWN;
+				besch->minimum_runway_length = 0;
 				besch->rolling_resistance = float32e8_t(rolling_default(besch->typ), 10000UL);
 				if(experimental_version == 1)
 				{
@@ -419,11 +420,13 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 					uint16 rolling_resistance_tenths_thousands = decode_uint16(p);
 					besch->rolling_resistance = float32e8_t((uint32) rolling_resistance_tenths_thousands, (uint32)10000);
 					besch->brake_force = decode_uint16(p);
+					besch->minimum_runway_length = decode_uint16(p);
 				}
 				else
 				{
 					besch->rolling_resistance = float32e8_t(rolling_default(besch->typ), 10000UL);
 					besch->brake_force = BRAKE_FORCE_UNKNOWN;
+					besch->minimum_runway_length = 0;
 				}
 			}
 			else
@@ -543,6 +546,7 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->min_loading_time_seconds = 20;
 		besch->max_loading_time_seconds = 60;
 		besch->brake_force = BRAKE_FORCE_UNKNOWN;
+		besch->minimum_runway_length = 0;
 	}
 	besch->set_way_constraints(way_constraints);
 
