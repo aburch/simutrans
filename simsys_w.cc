@@ -21,6 +21,7 @@
 #include <mmsystem.h>
 
 #include "simgraph.h"
+#include "simdebug.h"
 
 
 // needed for wheel
@@ -44,7 +45,7 @@
 
 typedef unsigned short PIXVAL;
 
-static HWND hwnd;
+static volatile HWND hwnd;
 static bool is_fullscreen = false;
 static bool is_not_top = false;
 static MSG msg;
@@ -407,6 +408,10 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 				while_handling = true;
 
 				if(LOWORD(wParam)!=WA_INACTIVE  &&  is_not_top) {
+#ifdef MULTI_THREAD
+					// no updating while deleting a window please ...
+					EnterCriticalSection( &redraw_underway );
+#endif
 					// try to force display mode and size
 					DEVMODE settings;
 
@@ -426,11 +431,13 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 					ChangeDisplaySettings(&settings, CDS_FULLSCREEN);
 					is_not_top = false;
 
-					Beep( 110, 250 );
 					// must reshow window, otherwise startbar will be topmost ...
 					create_window(WS_EX_TOPMOST, WS_POPUP, 0, 0, MaxSize.right, MaxSize.bottom);
 					DestroyWindow( this_hwnd );
 					while_handling = false;
+#ifdef MULTI_THREAD
+					LeaveCriticalSection( &redraw_underway );
+#endif
 					return true;
 				}
 				else if(LOWORD(wParam)==WA_INACTIVE  &&  !is_not_top) {
@@ -438,7 +445,6 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 					CloseWindow( hwnd );
 					ChangeDisplaySettings( NULL, 0 );
 					is_not_top = true;
-					Beep( 440, 250 );
 				}
 
 				while_handling = false;
@@ -600,11 +606,13 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 			break;
 
 		case WM_DESTROY:
-			sys_event.type = SIM_SYSTEM;
-			sys_event.code = SIM_SYSTEM_QUIT;
-			if (AllDibData == NULL) {
-				PostQuitMessage(0);
-				hwnd = NULL;
+			if(  hwnd==this_hwnd  ||  AllDibData == NULL  ) {
+				sys_event.type = SIM_SYSTEM;
+				sys_event.code = SIM_SYSTEM_QUIT;
+				if(  AllDibData == NULL  ) {
+					PostQuitMessage(0);
+					hwnd = NULL;
+				}
 			}
 			break;
 
