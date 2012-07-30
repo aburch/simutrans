@@ -215,12 +215,12 @@ SectionEnd
 
 
 
-Section /o "pak48.excentrique V0.17" pak48excentrique
+Section /o "pak48.excentrique V0.18" pak48excentrique
   AddSize 1385
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/ironsimu/pak48.Excentrique/pak48-excentrique_v017.zip"
-  StrCpy $archievename "pak48-excentrique-v017.zip"
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/ironsimu/pak48.Excentrique/v018/pak48-excentrique_v018.zip"
+  StrCpy $archievename "pak48-excentrique_v018.zip"
   StrCpy $downloadname "pak48.Excentrique"
-  StrCpy $VersionString "pak48.Excentrique v0.17"
+  StrCpy $VersionString "pak48.Excentrique v0.18"
   Call DownloadInstallZipWithoutSimutrans
 SectionEnd
 
