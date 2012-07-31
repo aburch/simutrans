@@ -5,6 +5,7 @@
 #include "../simtypes.h"
 #include "../simconst.h"
 #include "einstellungen.h"
+#include "koord.h"
 
 #include "../tpl/vector_tpl.h"
 #include "../utils/plainstring.h"
@@ -164,6 +165,7 @@ public:
 
 	static sint16 window_snap_distance;
 
+	static koord iconsize;
 
 	/// customize your tooltips
 	static bool show_tooltips;

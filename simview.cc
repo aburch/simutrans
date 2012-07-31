@@ -91,7 +91,7 @@ void karte_ansicht_t::display(bool force_dirty)
 	uint32 rs = get_random_seed();
 	const sint16 disp_width = display_get_width();
 	const sint16 disp_real_height = display_get_height();
-	const sint16 menu_height = werkzeug_t::toolbar_tool[0]->iconsize.y;
+	const sint16 menu_height = umgebung_t::iconsize.y;
 	const sint16 IMG_SIZE = get_tile_raster_width();
 
 	const sint16 disp_height = display_get_height() - 16 - (!ticker::empty() ? 16 : 0);
