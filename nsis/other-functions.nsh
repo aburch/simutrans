@@ -280,7 +280,7 @@ Function IsPakInstalledAndCurrent
   IntOp $R0 2 | 2
   goto PakNotThere
 PakThereButOld:
-  MessageBox MB_OK "got:$R1 expected:$VersionString"
+  DetailPrint "Old pak has version $R1 but current is $VersionString"
 PakNotThere:
 FunctionEnd
 
@@ -295,7 +295,7 @@ Function DownloadInstallZip
   CreateDirectory "$INSTDIR\$downloadname.old"
   CopyFiles /silent "$INSTDIR\$downloadname" "$INSTDIR\$downloadname.old"
   RMdir /r "$INSTDIR\$downloadname"
-  MessageBox MB_OK "Old $downloadname renamed to $INSTDIR\$downloadname.old"
+  DetailPrint "Old $downloadname renamed to $INSTDIR\$downloadname.old"
 DownloadInstallZipDo:
   ; ok old directory rename
   Call ConnectInternet
@@ -333,7 +333,7 @@ FunctionEnd
 
 ; $downloadlink is then name of the link, $downloadname the name of the pak for error messages
 Function DownloadInstallAddonZip
-#  MessageBox MB_OK|MB_ICONINFORMATION "Download of $downloadname from\n$downloadlink to $archievename"
+#  DetailPrint "Download of $downloadname from\n$downloadlink to $archievename"
   Call ConnectInternet
   RMdir /r "$TEMP\simutrans"
   NSISdl::download $downloadlink "$Temp\$archievename"
@@ -356,7 +356,7 @@ FunctionEnd
 
 ; $downloadlink is then name of the link, $downloadname the name of the pak for error messages
 Function DownloadInstallZipWithoutSimutrans
-#  MessageBox MB_OK|MB_ICONINFORMATION "Download of $downloadname from\n$downloadlink to $archievename"
+#  DetailPrint "Download of $downloadname from\n$downloadlink to $archievename"
   Call IsPakInstalledAndCurrent
   IntCmp $R0 2 DownloadInstallZipWithoutSimutransSkip
   IntCmp $R0 0 DownloadInstallZipWithoutSimutransDo
@@ -365,7 +365,7 @@ Function DownloadInstallZipWithoutSimutrans
   CopyFiles /silent "$INSTDIR\$downloadname" "$INSTDIR\$downloadname.old"
   RMdir /r "$INSTDIR\$downloadname"
 ;  Rename "$INSTDIR\$downloadname.old" "$INSTDIR\$downloadname.old"
-  MessageBox MB_OK "Old $downloadname renamed to $downloadname.old"
+  DetailPrint "Old $downloadname renamed to $downloadname.old"
 DownloadInstallZipWithoutSimutransDo:
   ; ok, now install
   Call ConnectInternet
@@ -398,7 +398,7 @@ FunctionEnd
 
 
 Function DownloadInstallCabWithoutSimutrans
-  MessageBox MB_OK|MB_ICONINFORMATION "Download of $downloadname from\n$downloadlink to $archievename"
+  DetailPrint "Download of $downloadname from\n$downloadlink to $archievename"
   Call ConnectInternet
   RMdir /r "$TEMP\simutrans"
   NSISdl::download $downloadlink "$Temp\$archievename"
@@ -408,7 +408,7 @@ Function DownloadInstallCabWithoutSimutrans
      Quit
 
   CabDLL::CabView "$TEMP\$archievename"
-  MessageBox MB_OK "Download of $archievename to $TEMP"
+  DetailPrint "Download of $archievename to $TEMP"
   CabDLL::CabExtractAll "$TEMP\$archievename" "$TEMP\Simutrans"
   StrCmp $R0 "success" +4
     DetailPrint "$0" ;print error message to log
@@ -426,7 +426,7 @@ FunctionEnd
 
 
 Function DownloadInstallTgzWithoutSimutrans
-#  MessageBox MB_OK|MB_ICONINFORMATION "Download of $downloadname from\n$downloadlink to $archievename"
+#  DetailPrint "Download of $downloadname from\n$downloadlink to $archievename"
   Call ConnectInternet
   RMdir /r "$TEMP\simutrans"
   NSISdl::download $downloadlink "$Temp\$archievename"
