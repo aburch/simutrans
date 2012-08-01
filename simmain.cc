@@ -398,6 +398,7 @@ int simu_main(int argc, char** argv)
 			" -nomidi             turns off background music\n"
 			" -nosound            turns off ambient sounds\n"
 			" -objects DIR_NAME/  load the pakset in specified directory\n"
+			" -pause              starts game with paused after loading\n"
 			" -res N              starts in specified resolution: \n"
 			"                      1=640x480, 2=800x600, 3=1024x768, 4=1280x1024\n"
 			" -screensize WxH     set screensize to width W and height H\n"
@@ -836,6 +837,11 @@ int simu_main(int argc, char** argv)
 	bool new_world = true;
 	std::string loadgame;
 
+	bool pause_after_load = false;
+	if (gimme_arg(argc, argv, "-pause", 0)) {
+		pause_after_load = true;
+	}
+
 	if(  gimme_arg(argc, argv, "-load", 0) != NULL  ) {
 		cbuffer_t buf;
 		chdir( umgebung_t::user_dir );
@@ -1078,7 +1084,8 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		welt->get_message()->set_message_flags(umgebung_t::message_flags[0], umgebung_t::message_flags[1], umgebung_t::message_flags[2], umgebung_t::message_flags[3]);
 
 		if(  !umgebung_t::networkmode  &&  !umgebung_t::server  ) {
-			welt->set_pause( false );
+			welt->set_pause( pause_after_load );
+			pause_after_load = false;
 		}
 
 		if(  new_world  ) {
