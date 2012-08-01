@@ -3362,7 +3362,7 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 		gebaeude_t* gb = bd->find<gebaeude_t>();
 		const haus_besch_t *old_besch = gb->get_tile()->get_besch();
 		old_level = old_besch->get_level();
-		if( old_besch->get_level() >= besch->get_level() ) {
+		if(  old_besch->get_level() >= besch->get_level()  &&  !is_ctrl_pressed()  ) {
 			return "Upgrade must have\na higher level";
 		}
 		gb->entferne( NULL );
