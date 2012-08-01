@@ -173,6 +173,9 @@ protected:
 	bool access[MAX_PLAYER_COUNT];
 
 public:
+#ifdef DEBUG_SIMRAND_CALLS
+	halthandle_t get_halt(int index) { return halt_list[index]; }
+#endif
 	virtual bool set_active( bool b ) { return automat = b; }
 
 	bool is_active() const { return automat; }

@@ -71,36 +71,29 @@ slist_tpl<halthandle_t> haltestelle_t::alle_haltestellen;
 
 stringhashtable_tpl<halthandle_t> haltestelle_t::all_names;
 
-static uint32 halt_iterator_count = 0;
-
 uint8 haltestelle_t::pedestrian_limit = 0;
 
 static const uint8 pedestrian_generate_max = 16;
 
+// controls the halt iterator in step_all():
+static bool restart_halt_iterator = true;
+
 void haltestelle_t::step_all()
 {
-	if (alle_haltestellen.empty()) 
+	const uint32 count = alle_haltestellen.get_count();
+	if (count) 
 	{
-		return;
-	}
-
-	const uint32 count = halt_iterator_count;
-
-	static slist_tpl<halthandle_t>::iterator iter( alle_haltestellen.begin() );
-
-	for (; iter != alle_haltestellen.end(); ++iter) 
-	{
-		if(halt_iterator_count <= (count + 256))
+		const uint32 loops = min(count, 256);
+		static slist_tpl<halthandle_t>::iterator iter;
+		for (uint32 i = 0; i < loops; ++i) 
 		{
-			(*iter)->step();
+			if (restart_halt_iterator || iter == alle_haltestellen.end())
+			{
+				restart_halt_iterator = false;
+				iter = alle_haltestellen.begin();
+			}
+			(*iter++)->step();
 		}
-
-		halt_iterator_count++;
-	}
-
-	if(halt_iterator_count >= alle_haltestellen.get_count())
-	{
-		halt_iterator_count = 0;
 	}
 }
 
@@ -293,7 +286,7 @@ halthandle_t haltestelle_t::create(karte_t *welt, loadsave_t *file)
 void haltestelle_t::destroy(halthandle_t &halt)
 {
 	// just play safe: restart iterator at zero ...
-	halt_iterator_count = 0;
+	restart_halt_iterator = true;
 
 	delete halt.get_rep();
 }
@@ -932,6 +925,9 @@ void haltestelle_t::request_loading( convoihandle_t cnv )
 
 void haltestelle_t::step()
 {
+#ifdef DEBUG_SIMRAND_CALLS
+	bool talk = !strcmp(get_name(), "Newton Abbot Railway Station");
+#endif
 	// Knightly : update status
 	//   There is no idle state in Experimental
 	//   as rerouting request may be sent via
@@ -977,8 +973,19 @@ void haltestelle_t::step()
 					const uint16 min_minutes = base_max_minutes / 12;
 					const uint16 max_minutes = base_max_minutes < thrice_journey ? base_max_minutes : max(thrice_journey, min_minutes);
 					const uint16 waiting_minutes = convoi_t::get_waiting_minutes(welt->get_zeit_ms() - tmp.arrival_time);
+#ifdef DEBUG_SIMRAND_CALLS
+					if (talk && i == 2198)
+						dbg->message("haltestelle_t::step", "%u) check %u of %u minutes: %u %s to \"%s\"", 
+						i, waiting_minutes, max_minutes, tmp.menge, tmp.get_besch()->get_name(), tmp.get_ziel()->get_name());
+#endif
 					if(waiting_minutes > max_minutes)
 					{
+#ifdef DEBUG_SIMRAND_CALLS
+						if (talk)
+							dbg->message("haltestelle_t::step", "%u) discard after %u of %u minutes: %u %s to \"%s\"", 
+							i, waiting_minutes, max_minutes, tmp.menge, tmp.get_besch()->get_name(), tmp.get_ziel()->get_name());
+#endif
+
 						// Waiting too long: discard
 						if(tmp.is_passenger())
 						{
@@ -1106,6 +1113,13 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 		const uint32 packet_count = warray->get_count();
 		vector_tpl<ware_t> * new_warray = new vector_tpl<ware_t>(packet_count);
 
+#ifdef DEBUG_SIMRAND_CALLS
+		bool talk = catg == 0 && !strcmp(get_name(), "Newton Abbot Railway Station");
+
+		if (talk)
+			dbg->message("haltestelle_t::reroute_goods", "halt \"%s\", old packet count %u ", get_name(), packet_count);
+#endif
+
 		// Hajo:
 		// Step 1: re-route goods now and then to adapt to changes in
 		// world layout, remove all goods which destination was removed from the map
@@ -1151,6 +1165,11 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 			// add to new array
 			new_warray->append( ware );
 		}	
+
+#ifdef DEBUG_SIMRAND_CALLS
+		if (talk)
+			dbg->message("haltestelle_t::reroute_goods", "halt \"%s\", new packet count %u ", get_name(), new_warray->get_count());
+#endif
 
 		// delete, if nothing connects here
 		if (new_warray->empty()) 
@@ -1485,6 +1504,19 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 
 	if(warray != NULL) 
 	{
+#ifdef DEBUG_SIMRAND_CALLS_BG
+		//if (!strcmp(get_name(), "Newton Abbot Railway Station"))
+		//{
+		//	dbg->message("haltestelle_t::hole_ab", "halt \"%s\", ware \"%s\": max %u", get_name(), wtyp->get_name(), warray->get_count());
+		//	for (int i = 0; i < warray->get_count(); ++i)
+		//	{
+		//		char buf[16];
+		//		ware_t &ware = (*warray)[i];
+		//		sprintf(buf, "% 8u)", i);
+		//		dbg->message(buf, "%u to \"%s\"", ware.menge, ware.get_ziel()->get_name());
+		//	}
+		//}
+#endif
 		uint32 accumulated_journey_time = 0;
 		halthandle_t previous_halt = self;
 
@@ -1523,7 +1555,13 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 				}		
 								
 				// The random offset will ensure that all goods have an equal chance to be loaded.
-				sint32 offset = simrand(warray->get_count(), "ware_t haltestelle_t::hole_ab");
+#ifdef DEBUG_SIMRAND_CALLS
+				char buf[512];
+				sprintf(buf, "haltestelle_t::hole_ab halt \"%s\", ware \"%s\"", this->get_name(), wtyp->get_name());
+				sint32 offset = simrand(warray->get_count(), buf);
+#else
+				sint32 offset = simrand(warray->get_count(), "haltestelle_t::hole_ab");
+#endif
 
 				halthandle_t next_transfer;
 				uint8 catg_index;
@@ -1870,6 +1908,9 @@ bool haltestelle_t::vereinige_waren(const ware_t &ware) //"unite were" (Google)
 // take care of all allocation neccessary
 void haltestelle_t::add_ware_to_halt(ware_t ware, bool from_saved)
 {
+#ifdef DEBUG_SIMRAND_CALLS
+	bool talk = !strcmp(get_name(), "Newton Abbot Railway Station");
+#endif
 	//@author: jamespetts
 	if(!from_saved)
 	{
@@ -1888,13 +1929,58 @@ void haltestelle_t::add_ware_to_halt(ware_t ware, bool from_saved)
 	}
 	// the ware will be put into the first entry with menge==0
 	resort_freight_info = true;
+#ifdef DEBUG_SIMRAND_CALLS
+	int n = 0;
+#endif
 	FOR(vector_tpl<ware_t>, & i, *warray) {
+#ifdef DEBUG_SIMRAND_CALLS
+		if (talk)
+		{
+			if (!loading && n > 2900)
+			{
+				char buf[16];
+				sprintf(buf, "% 8u)", n);
+				dbg->message(buf, "%u to %s", i.menge, i.get_ziel()->get_name());
+			}
+			++n;
+		}
+#endif
 		if (i.menge == 0) {
+#ifdef DEBUG_SIMRAND_CALLS
+			if (talk && warray->get_count() >= 2923)
+			{
+				dbg->message("haltestelle_t::add_ware_to_halt", "*halt \"%s\", ware \"%s\": packets %u", get_name(), ware.get_besch()->get_name(), warray->get_count());
+				if (warray->get_count() == 2923)
+				{
+					int x = 0;
+				}
+			}
+#endif
 			i = ware;
 			return;
 		}
 	}
 	// here, if no free entries found
+#ifdef DEBUG_SIMRAND_CALLS
+	if (talk)
+	{
+		int n = warray->get_count();
+		if (n >= 2923)
+		{
+			dbg->message("haltestelle_t::add_ware_to_halt", "halt \"%s\", ware \"%s\": packets %u", get_name(), ware.get_besch()->get_name(), warray->get_count());
+			if (n == 2923)
+			{
+				int x = 0;
+			}
+		}
+		else if (n >= 2190 && n <= 2200)
+		{
+			char buf[16];
+			sprintf(buf, "% 8u)", n);
+			dbg->message(buf, "%u", ware.menge);
+		}
+	}
+#endif
 	warray->append(ware);
 }
 
@@ -1907,12 +1993,23 @@ void haltestelle_t::add_ware_to_halt(ware_t ware, bool from_saved)
  */
 uint32 haltestelle_t::starte_mit_route(ware_t ware)
 {
+#ifdef DEBUG_SIMRAND_CALLS
+	bool talk = !strcmp(get_name(), "Newton Abbot Railway Station");
+
+	if (talk)
+		dbg->message("haltestelle_t::starte_mit_route", "halt \"%s\", ware \"%s\": menge %u", get_name(), ware.get_besch()->get_name(), ware.menge);
+#endif
+
 	if(ware.get_ziel()==self) {
 		if(  ware.to_factory  ) {
 			// muss an fabrik geliefert werden
 			liefere_an_fabrik(ware);
 		}
 		// already there: finished (may be happen with overlapping areas and returning passengers)
+#ifdef DEBUG_SIMRAND_CALLS
+		if (talk)
+			dbg->message("\t", "already finished");
+#endif
 		return ware.menge;
 	}
 
@@ -1931,6 +2028,10 @@ uint32 haltestelle_t::starte_mit_route(ware_t ware)
 	// passt das zu bereits wartender ware ?
 	if(vereinige_waren(ware)) {
 		// dann sind wir schon fertig;
+#ifdef DEBUG_SIMRAND_CALLS
+		if (talk)
+			dbg->message("\t", "united with existing ware.");
+#endif
 		return ware.menge;
 	}
 
@@ -1939,12 +2040,23 @@ uint32 haltestelle_t::starte_mit_route(ware_t ware)
 		// If this is within walking distance of the next transfer, and there is not a faster way there, walk there.
 		erzeuge_fussgaenger(welt, get_basis_pos3d(), ware.menge);
 		unload_repeat_counter ++;
+#ifdef DEBUG_SIMRAND_CALLS
+		if (talk)
+			dbg->message("\t", "walking to %s", ware.get_zwischenziel()->get_name());
+#endif
 		return ware.get_zwischenziel()->liefere_an(ware);
 	}
 	else
 	{
 		// add to internal storage
 		add_ware_to_halt(ware);
+#ifdef DEBUG_SIMRAND_CALLS
+		if (talk)
+		{
+			const vector_tpl<ware_t> * warray = waren[ware.get_besch()->get_catg_index()];
+			dbg->message("\t", "warray count %d", (*warray).get_count());
+		}
+#endif
 		return ware.menge;
 	}
 }
@@ -1957,6 +2069,10 @@ uint32 haltestelle_t::starte_mit_route(ware_t ware)
  */
 uint32 haltestelle_t::liefere_an(ware_t ware)
 {
+#ifdef DEBUG_SIMRAND_CALLS
+	bool talk = !strcmp(get_name(), "Newton Abbot Railway Station");
+#endif
+
 	// no valid next stops?
 	if(!ware.get_ziel().is_bound()  ||  !ware.get_zwischenziel().is_bound()) 
 	{
@@ -1985,12 +2101,20 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 				INT_CHECK("simhalt 938");
 			}
 		}
+#ifdef DEBUG_SIMRAND_CALLS
+		if (talk)
+			dbg->message("haltestelle_t::liefere_an", "%d arrived at station \"%s\" waren[0].count %d", ware.menge, get_name(), get_warray(0)->get_count());
+#endif
 		return ware.menge;
 	}
 
 	// do we have already something going in this direction here?
 	if(  vereinige_waren(ware)  ) 
 	{
+#ifdef DEBUG_SIMRAND_CALLS
+	if (talk)
+		dbg->message("haltestelle_t::liefere_an", "%d merged in station \"%s\" waren[0].count %d", ware.menge, get_name(), get_warray(0)->get_count());
+#endif
 		return ware.menge;
 	}
 
@@ -2008,6 +2132,10 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 	if(vereinige_waren(ware)) 
 	{
 		// dann sind wir schon fertig;
+#ifdef DEBUG_SIMRAND_CALLS
+	if (talk)
+		dbg->message("haltestelle_t::liefere_an", "%d merged(2) in station \"%s\" waren[0].count %d", ware.menge, get_name(), get_warray(0)->get_count());
+#endif
 		return ware.menge;
 	}
 #endif
@@ -2018,6 +2146,10 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 		erzeuge_fussgaenger(welt, get_basis_pos3d(), ware.menge);
 		ware.set_last_transfer(self);
 		unload_repeat_counter ++;
+#ifdef DEBUG_SIMRAND_CALLS
+		if (talk)
+			dbg->message("haltestelle_t::liefere_an", "%d walk to station \"%s\" waren[0].count %d", ware.menge, ware.get_zwischenziel()->get_name(), get_warray(0)->get_count());
+#endif
 		return ware.get_zwischenziel()->liefere_an(ware);
 	}
 	else
@@ -2026,6 +2158,10 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 		add_ware_to_halt(ware);
 	}
 
+#ifdef DEBUG_SIMRAND_CALLS
+	if (talk)
+		dbg->message("haltestelle_t::liefere_an", "%d waiting for transfer to station \"%s\" waren[0].count %d", ware.menge, ware.get_zwischenziel()->get_name(), get_warray(0)->get_count());
+#endif
 	return ware.menge;
 }
 
@@ -2302,12 +2438,20 @@ void haltestelle_t::transfer_goods(halthandle_t halt)
 	if (!self.is_bound() || !halt.is_bound()) {
 		return;
 	}
+#ifdef DEBUG_SIMRAND_CALLS
+	bool talk = !strcmp(get_name(), "Newton Abbot Railway Station") || !strcmp(halt->get_name(), "Newton Abbot Railway Station");
+#endif
 	// transfer goods to halt
 	for(uint8 i=0; i<warenbauer_t::get_max_catg_index(); i++) {
 		const vector_tpl<ware_t> * warray = waren[i];
 		if (warray) {
 			FOR(vector_tpl<ware_t>, const& j, *warray) {
 				halt->add_ware_to_halt(j);
+#ifdef DEBUG_SIMRAND_CALLS
+				if (talk)
+					dbg->message("haltestelle_t::transfer_goods", "%d transfer from station \"%s\"(warr cnt %d) to \"%s\"(warr cnt %d)", 
+					    j.menge, get_name(), get_warray(i)->get_count(), halt->get_name(), halt->get_warray(i)->get_count());
+#endif
 			}
 			delete waren[i];
 			waren[i] = NULL;
@@ -2471,9 +2615,10 @@ void haltestelle_t::rdwr(loadsave_t *file)
 
 	sint32 spieler_n;
 	koord3d k;
-
 	unload_repeat_counter = 0;
-
+#ifdef DEBUG_SIMRAND_CALLS
+	loading = file->is_loading();
+#endif
 	// will restore halthandle_t after loading
 	if(file->get_version() > 110005) 
 	{
@@ -2597,6 +2742,23 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		s = "";
 		file->rdwr_str(s);
 
+#ifdef DEBUG_SIMRAND_CALLS
+		if (waren[0])
+		{
+			if (!strcmp(get_name(), "Newton Abbot Railway Station"))
+			{
+				dbg->message("haltestelle_t::rdwr", "at stop \"%s\" waren[0]->get_count() is %u ", get_name(), waren[0]->get_count());
+				//for (int i = 0; i < waren[0]->get_count(); ++i)
+				//{
+				//	char buf[16];
+				//	const ware_t &ware = (*waren[0])[i];
+				//	sprintf(buf, "% 8u)", i);
+				//	dbg->message(buf, "%u to %s", ware.menge, ware.get_ziel()->get_name());
+				//}
+				//int x = 0;
+			}
+		}
+#endif
 	}
 	else 
 	{
@@ -2648,6 +2810,24 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			
 		}
 
+
+#ifdef DEBUG_SIMRAND_CALLS
+		if (waren[0])
+		{
+			if (!strcmp(get_name(), "Newton Abbot Railway Station"))
+			{
+				dbg->message("haltestelle_t::rdwr", "at stop \"%s\" waren[0]->get_count() is %u ", get_name(), waren[0]->get_count());
+				//for (int i = 0; i < waren[0]->get_count(); ++i)
+				//{
+				//	char buf[16];
+				//	const ware_t &ware = (*waren[0])[i];
+				//	sprintf(buf, "% 8u)", i);
+				//	dbg->message(buf, "%u", ware.menge);
+				//}
+				//int x = 0;
+			}
+		}
+#endif
 	}
 
 	if(file->get_experimental_version() >= 5)
@@ -2854,6 +3034,9 @@ void haltestelle_t::rdwr(loadsave_t *file)
 	}
 
 	pedestrian_limit = 0;
+#ifdef DEBUG_SIMRAND_CALLS
+	loading = false;
+#endif
 }
 
 

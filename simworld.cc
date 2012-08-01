@@ -115,6 +115,34 @@
 bool karte_t::print_randoms = true;
 int karte_t::random_calls = 0;
 #endif
+#ifdef DEBUG_SIMRAND_CALLS
+static uint32 halt_index = 9999999;
+static const char *station_name = "Newton Abbot Railway Station";
+static uint32 old_menge = -1;
+void station_check(const char *who, karte_t *welt)
+{
+	spieler_t *player = welt->get_active_player();
+	if (halt_index >= (uint32)player->get_haltcount() || 
+		strcmp(player->get_halt(halt_index)->get_name(), station_name))
+	{
+		old_menge = -1;
+		for (halt_index = 0; halt_index < (uint32) player->get_haltcount(); ++halt_index)
+			if (!strcmp(player->get_halt(halt_index)->get_name(), station_name))
+				break;
+	}
+	if (halt_index < (uint32) player->get_haltcount())
+	{
+		const halthandle_t &station = player->get_halt(halt_index);
+		uint32 menge = station->get_warray(0)->get_element(2198).menge;
+		if (old_menge != menge)
+		{
+			dbg->warning(who, "station \"%s\" waren[0][2198].menge %u -> %u", station->get_name(), old_menge, menge);
+			old_menge = menge;
+		}
+	}
+}
+#endif
+
 
 
 // advance 201 ms per sync_step in fast forward mode
@@ -3729,24 +3757,24 @@ void karte_t::step()
 	}
 
 	// to make sure the tick counter will be updated
-	INT_CHECK("karte_t::step");
+	INT_CHECK("karte_t::step 1");
 
 	// Knightly : calling global path explorer
 	path_explorer_t::step();
-	INT_CHECK("karte_t::step");
+	INT_CHECK("karte_t::step 2");
 	
-	DBG_DEBUG4("karte_t::step", "step %d convois", convoi_array.get_count());
+	DBG_DEBUG4("karte_t::step 4", "step %d convois", convoi_array.get_count());
 	// since convois will be deleted during stepping, we need to step backwards
 	for(sint32 i=convoi_array.get_count()-1;  i>=0;  i--  ) {
 		convoihandle_t cnv = convoi_array[i];
 		cnv->step();
 		if((i&7)==0) {
-			INT_CHECK("simworld 1947");
+			INT_CHECK("karte_t::step 5");
 		}
 	}
 
 	// now step all towns (to generate passengers)
-	DBG_DEBUG4("karte_t::step", "step cities");
+	DBG_DEBUG4("karte_t::step 6", "step cities");
 	sint64 bev=0;
 	FOR(weighted_vector_tpl<stadt_t*>, const i, stadt) {
 		i->step(delta_t);
@@ -3781,7 +3809,7 @@ void karte_t::step()
 	haltestelle_t::step_all();
 
 	// ok, next step
-	INT_CHECK("simworld 1975");
+	INT_CHECK("karte_t::step 6");
 
 	if((steps%8)==0) {
 		DBG_DEBUG4("karte_t::step", "checkmidi");
@@ -6242,6 +6270,9 @@ bool karte_t::interactive(uint32 quit_month)
 			umgebung_t::quit_simutrans = true;
 			break;
 		}
+#ifdef DEBUG_SIMRAND_CALLS
+		station_check("karte_t::interactive after win_poll_event", this);
+#endif
 
 		bool swallowed = false;
 		if(ev.ev_class!=EVENT_NONE &&  ev.ev_class!=IGNORE_EVENT) {
@@ -6463,6 +6494,9 @@ bool karte_t::interactive(uint32 quit_month)
 			if(  step_mode&PAUSE_FLAG  ) {
 				// only update display
 				sync_step( 0, false, true );
+#ifdef DEBUG_SIMRAND_CALLS
+				station_check("karte_t::interactive PAUSE after sync_step", this);
+#endif
 				idle_time = 100;
 			}
 			else {
@@ -6471,6 +6505,9 @@ bool karte_t::interactive(uint32 quit_month)
 					set_random_mode( STEP_RANDOM );
 					step();
 					clear_random_mode( STEP_RANDOM );
+#ifdef DEBUG_SIMRAND_CALLS
+					station_check("karte_t::interactive FAST_FORWARD after step", this);
+#endif
 				}
 				else if(  step_mode==FIX_RATIO  ) {
 					next_step_time += fix_ratio_frame_time;
@@ -6483,10 +6520,16 @@ bool karte_t::interactive(uint32 quit_month)
 						ms_difference += 5;
 					}
 					sync_step( fix_ratio_frame_time, true, true );
+#ifdef DEBUG_SIMRAND_CALLS
+					station_check("karte_t::interactive FIX_RATIO after sync_step", this);
+#endif
 					if (++network_frame_count == settings.get_frames_per_step()) {
 						// ever fourth frame
 						set_random_mode( STEP_RANDOM );
 						step();
+#ifdef DEBUG_SIMRAND_CALLS
+					station_check("karte_t::interactive FIX_RATIO after step", this);
+#endif
 						clear_random_mode( STEP_RANDOM );
 						network_frame_count = 0;
 					}
@@ -6521,8 +6564,14 @@ bool karte_t::interactive(uint32 quit_month)
 				}
 				else {
 					INT_CHECK( "karte_t::interactive()" );
+#ifdef DEBUG_SIMRAND_CALLS
+					station_check("karte_t::interactive else after INT_CHECK 1", this);
+#endif
 					set_random_mode( STEP_RANDOM );
 					step();
+#ifdef DEBUG_SIMRAND_CALLS
+					station_check("karte_t::interactive else after step", this);
+#endif
 					clear_random_mode( STEP_RANDOM );
 					idle_time = ((idle_time*7) + next_step_time - dr_time())/8;
 					INT_CHECK( "karte_t::interactive()" );
@@ -6539,8 +6588,11 @@ bool karte_t::interactive(uint32 quit_month)
 		if (!swallowed) {
 			DBG_DEBUG4("karte_t::interactive", "calling interactive_event");
 			interactive_event(ev);
+#ifdef DEBUG_SIMRAND_CALLS
+			station_check("karte_t::interactive after iax event", this);
+#endif
 		}
-
+		
 		DBG_DEBUG4("karte_t::interactive", "point of loop return");
 	} while(!finish_loop  &&  get_current_month()<quit_month);
 

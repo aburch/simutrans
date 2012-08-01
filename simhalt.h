@@ -360,6 +360,10 @@ private:
 	unsigned long inauguration_time;
 
 public:
+#ifdef DEBUG_SIMRAND_CALLS
+	bool loading;
+	vector_tpl<ware_t> *get_warray(uint8 catg) { return waren[catg]; }
+#endif
 
 	// Added by : Knightly
 	void swap_connexions(const uint8 category, quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>* &cxns)

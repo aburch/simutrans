@@ -190,7 +190,13 @@ void verkehrsteilnehmer_t::hop()
 	}
 
 	if(count > 1) {
-		pos_next = liste[simrand(count, "void verkehrsteilnehmer_t::hop()")]->get_pos();
+#ifdef DEBUG_SIMRAND_CALLS
+		char buf[256];
+		sprintf(buf, "verkehrsteilnehmer_t::hop() %s", typeid(*this).name());
+		pos_next = liste[simrand(count, buf)]->get_pos();
+#else
+		pos_next = liste[simrand(count, "verkehrsteilnehmer_t::hop()")]->get_pos();
+#endif
 		fahrtrichtung = calc_set_richtung(get_pos().get_2d(), pos_next.get_2d());
 	} else if(count==1) {
 		pos_next = liste[0]->get_pos();
