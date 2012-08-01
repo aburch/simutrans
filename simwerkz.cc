@@ -5412,7 +5412,19 @@ bool wkz_quit_t::init( karte_t *welt, spieler_t * )
 
 bool wkz_screenshot_t::init( karte_t *, spieler_t * )
 {
-	display_snapshot();
+	if(  is_ctrl_pressed()  ) {
+		if(  const gui_frame_t * topwin = win_get_top()  ) {
+			const koord pos = win_get_pos(topwin);
+			const koord groesse = topwin->get_fenstergroesse();
+			display_snapshot( pos.x, pos.y, groesse.x, groesse.y );
+		}
+		else {
+			display_snapshot( 0, 0, display_get_width(), display_get_height() );
+		}
+	}
+	else {
+		display_snapshot( 0, 0, display_get_width(), display_get_height() );
+	}
 	create_win( new news_img("Screenshot\ngespeichert.\n"), w_time_delete, magic_none);
 	return false;
 }

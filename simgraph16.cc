@@ -4215,7 +4215,7 @@ void reset_textur(void *new_textur)
  * Speichert Screenshot
  * @author Hj. Malthaner
  */
-void display_snapshot()
+void display_snapshot( int x, int y, int w, int h )
 {
 	static int number = 0;
 
@@ -4233,5 +4233,5 @@ void display_snapshot()
 	} while (access(buf, W_OK) != -1);
 	sprintf(buf, SCRENSHOT_PATH_X "simscr%02d.bmp", number-1);
 
-	dr_screenshot(buf);
+	dr_screenshot(buf, x, y, w, h);
 }

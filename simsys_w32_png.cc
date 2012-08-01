@@ -103,7 +103,7 @@ template<typename T> static void GetProcAddress(T& dst, HMODULE const module, ch
  * Windows XP and newer
  * On Win98 and up, if .NET is installed
  */
-bool dr_screenshot_png(char const* filename,  int w, int h, int maxwidth, unsigned short* data, int bitdepth)
+bool dr_screenshot_png(char const* filename, int w, int h, int maxwidth, unsigned short* data, int bitdepth)
 {
 	// first we try as PNG
 	CLSID encoderClsid;

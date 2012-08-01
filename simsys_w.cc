@@ -339,15 +339,15 @@ void set_pointer(int loading)
  *         in case of error.
  * @author Hj. Malthaner
  */
-int dr_screenshot(const char *filename)
+int dr_screenshot(const char *filename, int x, int y, int w, int h)
 {
 #if defined USE_16BIT_DIB
 	int const bpp = COLOUR_DEPTH;
 #else
 	int const bpp = 15;
 #endif
-	if (!dr_screenshot_png(filename, display_get_width() - 1, WindowSize.bottom + 1, AllDib->bmiHeader.biWidth, (unsigned short*)AllDibData, bpp)) {
-		// not successful => save as BMP
+	if (!dr_screenshot_png(filename, w, h, AllDib->bmiHeader.biWidth, (unsigned short*)AllDibData+x+y*AllDib->bmiHeader.biWidth, bpp)) {
+		// not successful => save full screen as BMP
 		if (FILE* const fBmp = fopen(filename, "wb")) {
 			BITMAPFILEHEADER bf;
 

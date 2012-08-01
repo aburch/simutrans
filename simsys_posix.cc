@@ -82,7 +82,7 @@ void set_pointer(int)
 {
 }
 
-int dr_screenshot(const char *)
+int dr_screenshot(const char *,int,int,int,int)
 {
 	return -1;
 }

@@ -314,10 +314,10 @@ void set_pointer(int loading)
  *         in case of error.
  * @author Hj. Malthaner
  */
-int dr_screenshot(const char *filename)
+int dr_screenshot(const char *filename, int x, int y, int w, int h)
 {
 #ifdef WIN32
-	if(dr_screenshot_png(filename, display_get_width(), height, width, ( unsigned short *)(screen->pixels), screen->format->BitsPerPixel)) {
+	if(  dr_screenshot_png(filename, w, h, width, ((unsigned short *)(screen->pixels))+x+y*width, screen->format->BitsPerPixel )  ) {
 		return 1;
 	}
 #endif

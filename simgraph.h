@@ -268,7 +268,7 @@ void draw_bezier(KOORD_VAL Ax, KOORD_VAL Ay, KOORD_VAL Bx, KOORD_VAL By, KOORD_V
 void display_set_clip_wh(KOORD_VAL x, KOORD_VAL y, KOORD_VAL w, KOORD_VAL h);
 clip_dimension display_get_clip_wh();
 
-void display_snapshot(void);
+void display_snapshot( int x, int y, int w, int h );
 
 void display_set_progress_text(const char *text);
 void display_progress(int part, int total);
