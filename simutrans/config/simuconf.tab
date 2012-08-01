@@ -291,6 +291,13 @@ allow_making_public = 0
 
 max_elevated_way_building_level = 2
 
+# This setting determines whether aircraft can land and take off
+# at airports without control towers. 1 = yes; 0 = no.
+# Set to 1 for paksets that do not have control towers defined
+# as such.
+
+allow_airports_without_control_towers = 1
+
 
 #################################### Passenger settings ##################################
 #

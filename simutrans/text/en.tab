@@ -471,6 +471,10 @@ Wal
 Stan
 %BE_CITY_SYLL
 Clac
+%BF_CITY_SYLL
+Tump
+%C1_CITY_SYLL
+Trunk
 %d buildings\n
 %d buildings
 %d convois
@@ -910,23 +914,23 @@ Maglev trains
 clf_chk_narrowgauge
 N/gauge trains
 clf_chk_indepot
-in a depot
+In a depot
 clf_chk_name_filter
 Filter names:
 clf_chk_noincome
-no income
+No income
 clf_chk_noline
-no line
+No line
 clf_chk_noroute
-no route
+No route
 clf_chk_noschedule
-no schedule
+No schedule
 clf_chk_ships
 Ships
 clf_chk_spezial_filter
 Special filter:
 clf_chk_stucked
-stuck
+Stuck
 clf_chk_trains
 Trains
 clf_chk_type_filter
@@ -946,9 +950,9 @@ Enabled
 cl_btn_filter_settings
 Settings
 cl_btn_sort_asc
-ascending
+Ascending
 cl_btn_sort_desc
-descending
+Descending
 cl_btn_sort_id
 internal ID
 cl_btn_sort_income

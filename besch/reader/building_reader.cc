@@ -243,6 +243,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		// Set default levels for Experimental
 		besch->station_capacity = besch->level * 32;
 		besch->allow_underground = besch->utype == haus_besch_t::generic_stop ? 2 : 0; 
+		besch->is_control_tower = 0;
 
 		if(experimental)
 		{
@@ -256,6 +257,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				besch->station_maintenance = decode_sint32(p);
 				besch->station_price = decode_sint32(p);
 				besch->allow_underground = decode_uint8(p);
+				besch->is_control_tower = decode_uint8(p);
 			}
 			else
 			{
@@ -397,6 +399,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->station_capacity = besch->level * 32;
 		// Old versions when read should allow underground stations, but not underground extension buildings.
 		besch->allow_underground = besch->utype == haus_besch_t::generic_stop ? 2 : 0; 
+		besch->is_control_tower = 0;
 	}
 
 	besch->scaled_station_maintenance = besch->station_maintenance;

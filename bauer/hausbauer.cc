@@ -163,7 +163,7 @@ bool hausbauer_t::alles_geladen()
 						break;
 					}
 				default:
-					// obsolete object, usually such pak set will not load properly anyway (old objects should be catched before!)
+					// obsolete object, usually such pak set will not load properly anyway (old objects should be caught before!)
 					dbg->error("hausbauer_t::alles_geladen()","unknown subtype %i of \"%s\" ignored",besch->get_utyp(),besch->get_name());
 			}
 		}
@@ -362,10 +362,6 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb ) //gebae
 					// ok, now we can go on with deletion
 					gb_part->entferne( sp );
 					delete gb_part;
-					// if this was a station building: delete ground
-					if(gr->get_halt().is_bound()) {
-						gr->get_halt()->rem_grund(gr);
-					}
 					// and maybe restore land below
 					if(gr->get_typ()==grund_t::fundament) {
 						const koord newk = k+pos.get_2d();
@@ -491,7 +487,13 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int org
 				welt->add_ausflugsziel( gb );
 			}
 			if(besch->get_typ() == gebaeude_t::unbekannt) {
-				if(station_building.is_contained(besch)) {
+				if(station_building.is_contained(besch)) 
+				{
+					if(besch->get_is_control_tower())
+					{
+						(*static_cast<halthandle_t *>(param))->add_control_tower();
+						(*static_cast<halthandle_t *>(param))->recalc_status();
+					}
 					(*static_cast<halthandle_t *>(param))->add_grund(gr);
 				}
 				if (besch->get_utyp() == haus_besch_t::hafen) {

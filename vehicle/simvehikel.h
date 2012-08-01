@@ -818,7 +818,7 @@ protected:
 
 	void betrete_feld();
 
-	bool block_reserver( uint32 start, uint32 end, bool reserve ) const;
+	int block_reserver( uint32 start, uint32 end, bool reserve ) const;
 
 	// find a route and reserve the stop position
 	bool find_route_to_stop_position();
@@ -873,6 +873,9 @@ public:
 	bool is_on_ground() const { return flughoehe==0  &&  !(state==circling  ||  state==flying); }
 
 	const char * ist_entfernbar(const spieler_t *sp);
+
+	bool runway_too_short;
+
 };
 
 sint16 get_friction_of_waytype(waytype_t waytype);

@@ -196,6 +196,9 @@ private:
 	uint16 increase_maintenance_by_percent;
 	uint8 years_before_maintenance_max_reached;
 
+	//@author: jamespetts; 28th of July 2012
+	uint16 minimum_runway_length;
+
 	// @author: Bernd Gabriel, Dec 12, 2009: called as last action in read_node()
 	void loaded();
 
@@ -226,6 +229,7 @@ public:
 		min_loading_time = max_loading_time = (uint32)seconds_to_ticks(30, 250); 
 		tractive_effort = 0;
 		brake_force = BRAKE_FORCE_UNKNOWN;
+		minimum_runway_length = 0;
 	}
 
 	virtual ~vehikel_besch_t()
@@ -579,6 +583,8 @@ public:
 
 	uint16 get_brake_force() const { return brake_force; }
 
+	uint16 get_minimum_runway_length() const { return minimum_runway_length; }
+	
 	/**
 	* @return introduction year
 	* @author Hj. Malthaner

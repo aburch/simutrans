@@ -74,7 +74,7 @@ class fahrplan_gui_t :	public gui_frame_t,
 	 *
 	 * @author Hj. Malthaner
 	 */
-	static void gimme_stop_name(cbuffer_t & buf, karte_t *welt, const spieler_t *sp, const linieneintrag_t &entry );
+	static void gimme_stop_name(cbuffer_t & buf, karte_t *welt, const spieler_t *sp, const linieneintrag_t &entry, bool no_control_tower = false );
 
 	/**
          * Fills buf with description of schedule's i'th entry.

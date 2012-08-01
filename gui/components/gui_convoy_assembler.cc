@@ -1626,10 +1626,19 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 			const sint32 zuladung = veh_type->get_zuladung(); //"Zuladung" = payload (Google)
 
 			char name[512];
+			sint32 n;
 
-			sint32 n = sprintf(name, "%s (%s)",
+			if(veh_type->get_waytype() != air_wt)
+			{
+				n = sprintf(name, "%s (%s)",
 				translator::translate(veh_type->get_name()),
 				translator::translate(engine_type_names[veh_type->get_engine_type()+1]));
+			}
+			else
+			{
+				n = sprintf(name, "%s",
+				translator::translate(veh_type->get_name()));
+			}
 			
 			vehicle_as_potential_convoy_t convoy(*get_welt(), *veh_type);
 			sint32 friction = convoy.get_current_friction();
@@ -1841,6 +1850,11 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 	
 		sint32 j = 0;
 
+		if(veh_type->get_waytype() == air_wt)
+		{
+			j += sprintf(buf + j, "%s: %i m \n", translator::translate("Minimum runway length"), veh_type->get_minimum_runway_length());
+		}
+
 		if(veh_type->get_zuladung() > 0)
 		{
 			char min_loading_time_as_clock[32];
@@ -1848,9 +1862,10 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 			//Loading time is only relevant if there is something to load.
 			welt->sprintf_ticks(min_loading_time_as_clock, sizeof(min_loading_time_as_clock), veh_type->get_min_loading_time());
 			welt->sprintf_ticks(max_loading_time_as_clock, sizeof(max_loading_time_as_clock), veh_type->get_max_loading_time());
-			j += sprintf(buf, "%s %s - %s \n", translator::translate("Loading time:"), min_loading_time_as_clock, max_loading_time_as_clock);
+			j += sprintf(buf + j, "%s %s - %s \n", translator::translate("Loading time:"), min_loading_time_as_clock, max_loading_time_as_clock);
 		}
-		else {
+		else
+		{
 			j += sprintf(buf+j, "\n");
 		}
 

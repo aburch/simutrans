@@ -102,6 +102,12 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt) :
 	this->welt = welt;
 	halt->set_sortby( umgebung_t::default_sortmode );
 
+	if(halt->get_station_type() & haltestelle_t::airstop && halt->has_no_control_tower())
+	{
+		sprintf(modified_name, "%s [%s]", halt->get_name(), translator::translate("NO CONTROL TOWER"));
+		set_name(modified_name);
+	}
+
 	const sint16 offset_below_viewport = 21 + view.get_groesse().y;
 	const sint16 total_width = 3*(BUTTON_WIDTH + BUTTON_SPACER) + max(BUTTON_WIDTH + 2*BUTTON_SPACER, view.get_groesse().x + 32);
 

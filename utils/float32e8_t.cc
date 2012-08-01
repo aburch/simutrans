@@ -581,6 +581,7 @@ sint32 float32e8_t::to_sint32() const
 //	return result;
 //}
 
+#ifndef MAKEOBJ
 void float32e8_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t k( file, "float32e8" );
@@ -590,3 +591,4 @@ void float32e8_t::rdwr(loadsave_t *file)
 	file->rdwr_bool(ms_bool);
 	ms = ms_bool;
 }
+#endif

@@ -97,7 +97,7 @@ void tile_writer_t::write_obj(FILE* fp, obj_node_t& parent, int index, int seaso
 void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
 	// Hajo: take care, hardocded size of node on disc here!
-	obj_node_t node(this, 37, &parent);
+	obj_node_t node(this, 38, &parent);
 
 	write_head(fp, node, obj);
 
@@ -277,6 +277,8 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		} while (engine_type.length() > 0);			
 	}
 
+	uint8 is_control_tower = obj.get_int("is_control_tower", 0);
+
 	// scan for most number of seasons
 	int seasons = 1;
 	for (int l = 0; l < layouts; l++) { // each layout
@@ -394,6 +396,8 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	node.write_sint32(fp, station_maintenance,	28);
 	node.write_sint32(fp, station_price,		32);
 	node.write_uint8(fp, allow_underground,		36);
+	node.write_uint8(fp, is_control_tower,		37);
+	
 
 	// probably add some icons, if defined
 	slist_tpl<string> cursorkeys;

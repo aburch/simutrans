@@ -134,7 +134,7 @@ public:
 			menge == w.menge &&
 			to_factory == w.to_factory &&
 			ziel  == w.ziel  &&
-			// Only merge the destination *position* if the load is not freight
+			// Only merge the destination *position* if the load is freight
 			(index < 2 || zielpos == w.zielpos) &&
 			origin == w.origin &&
 			last_transfer == w.last_transfer;

@@ -31,5 +31,15 @@ note=Error message given when trying to build a signal underground that does not
 obj=program_text
 name=(Max. comfortable journey time: 
 note=Description for the display of the maximum comfortable journey time for any given level of comfort in the depot/replace window. Note the absence of close bracket and trailing space.
-
-
+-
+obj=program_text
+name=Runway too short
+note=Tooltip displayed above aircraft when trying to take off/land at a runway that is not long enough.
+-
+obj=program_text
+name=Minimum runway length
+note=Text in the depot/replacer window showing the minumum runway length in meters.
+-
+obj=program_text
+name=NO CONTROL TOWER
+note=This is appended to the name of an airport that has no control tower, and thus cannot be used.

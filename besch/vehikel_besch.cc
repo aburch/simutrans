@@ -276,6 +276,7 @@ void vehikel_besch_t::calc_checksum(checksum_t *chk) const
 	chk->input(min_loading_time);
 	chk->input(tractive_effort);
 	chk->input(brake_force);
+	chk->input(minimum_runway_length);
 	const uint16 ar = air_resistance * float32e8_t((uint32)100);
 	const uint16 rr = rolling_resistance * float32e8_t((uint32)100);
 	chk->input(ar);

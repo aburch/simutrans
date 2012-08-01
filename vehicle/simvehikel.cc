@@ -2456,6 +2456,13 @@ void vehikel_t::display_after(int xpos, int ypos, bool is_gobal) const
 			sprintf(tooltip_text, translator::translate("Too heavy"), cnv->get_name());
 			color = COL_ORANGE;
 		}
+
+		const aircraft_t* air = (const aircraft_t*)this;
+		if(get_waytype() == air_wt && air->runway_too_short)
+		{
+			sprintf(tooltip_text, translator::translate("Runway too short"), cnv->get_name());
+			color = COL_ORANGE;
+		}
 #ifdef debug_corners
 			sprintf(tooltip_text, translator::translate("CORNER: %i"), current_corner);
 			color = COL_GREEN;
@@ -4262,8 +4269,7 @@ aircraft_t::ist_befahrbar(const grund_t *bd) const
 /* finds a free stop, calculates a route and reserve the position
  * else return false
  */
-bool
-aircraft_t::find_route_to_stop_position()
+bool aircraft_t::find_route_to_stop_position()
 {
 	if(target_halt.is_bound()) {
 //DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","bound! (cnv %i)",cnv->self.get_id());
@@ -4331,17 +4337,24 @@ DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","found no route to free 
 
 /* reserves runways (reserve true) or removes the reservation
  * finishes when reaching end tile or leaving the ground (end of runway)
- * @return true if the reservation is successfull
+ * @return true if the reservation is successful
  */
-bool aircraft_t::block_reserver( uint32 start, uint32 end, bool reserve ) const
+int aircraft_t::block_reserver( uint32 start, uint32 end, bool reserve ) const
 {
 	bool start_now = false;
-	bool success = true;
 	uint32 i;
 
+	uint16 runway_tiles = end - start;
+	uint16 runway_meters = runway_tiles * welt->get_settings().get_meters_per_tile();
+	
+	const uint16 min_runway_length_meters = besch->get_minimum_runway_length();
+
+	int success = runway_meters >= min_runway_length_meters ? 1 : 2;
+
 	const route_t *route = cnv->get_route();
+
 	if(route->empty()) {
-		return false;
+		return 0;
 	}
 
 	for(  uint32 i=start;  success  &&  i<end  &&  i<route->get_count();  i++) {
@@ -4350,11 +4363,13 @@ bool aircraft_t::block_reserver( uint32 start, uint32 end, bool reserve ) const
 		runway_t * sch1 = gr ? (runway_t *)gr->get_weg(air_wt) : NULL;
 		if(sch1==NULL) {
 			if(reserve) {
-				if(!start_now) {
+				if(!start_now) 
+				{
 					// touched down here
 					start = i;
 				}
-				else {
+				else 
+				{
 					// most likely left the ground here ...
 					end = i;
 					break;
@@ -4367,24 +4382,28 @@ bool aircraft_t::block_reserver( uint32 start, uint32 end, bool reserve ) const
 				start_now = true;
 				if(!sch1->reserve(cnv->self,ribi_t::keine)) {
 					// unsuccessful => must unreserve all
-					success = false;
+					success = 0;
 					end = i;
 					break;
 				}
 				// end of runway?
-				if(i>start  &&  ribi_t::ist_einfach(sch1->get_ribi_unmasked())  ) {
-					return true;
+				if(i>start  &&  ribi_t::ist_einfach(sch1->get_ribi_unmasked())  ) 
+				{
+					runway_tiles = (i + 1) - start;
+					runway_meters = runway_tiles * welt->get_settings().get_meters_per_tile();
+					success = success == 0 ? 0 : runway_meters >= min_runway_length_meters ? 1 : 2;
+					return success;
 				}
 			}
 			else if(!sch1->unreserve(cnv->self)) {
 				if(start_now) {
 					// reached an reserved or free track => finished
-					return true;
+					return success;
 				}
 			}
 			else {
 				// unreserve from here (only used during sale, since there might be reserved tiles not freed)
-				start_now = true;
+				start_now = 1;
 			}
 		}
 	}
@@ -4406,7 +4425,7 @@ bool aircraft_t::block_reserver( uint32 start, uint32 end, bool reserve ) const
 
 
 
-// handles all the decisions on the ground an in the air
+// handles all the decisions on the ground and in the air
 bool aircraft_t::ist_weg_frei( int & restart_speed, bool )
 {
 	restart_speed = -1;
@@ -4443,12 +4462,27 @@ bool aircraft_t::ist_weg_frei( int & restart_speed, bool )
 		// next tile a runway => then reserve
 		if(rw->get_besch()->get_styp()==1) {
 			// try to reserve the runway
-			if(!block_reserver(takeoff,takeoff+100,true)) {
+			const uint16 runway_length_tiles = ((suchen+1) - touchdown) - takeoff;
+			const int runway_state = block_reserver(takeoff,takeoff+100,true);
+			if(runway_state != 1)
+			{
 				// runway already blocked ...
 				restart_speed = 0;
+
+				if(runway_state == 2)
+				{
+					// Runway too short - explain to player
+					runway_too_short = true;
+				}
+				else
+				{
+					runway_too_short = false;
+				}
+
 				return false;
 			}
 		}
+		runway_too_short = false;
 		return true;
 	}
 
@@ -4468,23 +4502,55 @@ bool aircraft_t::ist_weg_frei( int & restart_speed, bool )
 //DBG_MESSAGE("aircraft_t::ist_weg_frei()","index %i<>%i",route_index,touchdown);
 
 	// check for another circle ...
-	if(  route_index==(touchdown-3)  ) {
-		if(  !block_reserver( touchdown, suchen+1, true )  ) {
+	if(  route_index==(touchdown-3)  ) 
+	{
+		const int runway_state = block_reserver( touchdown, suchen+1, true );
+		if( runway_state != 1 ) 
+		{
+			
+			if(runway_state == 2)
+			{
+				// Runway too short - explain to player
+				runway_too_short = true;
+				// TODO: Find some way of recalculating the runway
+				// length here. Recalculating the route produces
+				// crashes.
+			}
+			else
+			{
+				runway_too_short = false;
+			}
+
 			route_index -= 16;
 			return true;
 		}
 		state = landing;
 		return true;
+		runway_too_short = false;
 	}
 
 	if(  route_index==touchdown-16-3  &&  state!=circling  ) {
-		// just check, if the end of runway ist free; we will wait there
-		if(  block_reserver( touchdown, suchen+1, true )  ) {
+		// just check, if the end of runway is free; we will wait there
+		const int runway_state = block_reserver( touchdown, suchen+1, true );
+		if(runway_state == 1) 
+		{
 			route_index += 16;
 			// can land => set landing height
 			state = landing;
+			runway_too_short = false;
 		}
-		else {
+		else 
+		{
+			if(runway_state == 2)
+			{
+				// Runway too short - explain to player
+				runway_too_short = true;
+			}
+			else
+			{
+				runway_too_short = false;
+			}
+			
 			// circle slowly next round
 			state = circling;
 			cnv->must_recalc_data();
@@ -4550,6 +4616,7 @@ aircraft_t::aircraft_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_l
 	rdwr_from_convoi(file);
 	old_x = old_y = -1;
 	old_bild = IMG_LEER;
+	runway_too_short = false;
 
 	if(  file->is_loading()  ) {
 		static const vehikel_besch_t *last_besch = NULL;
@@ -4582,6 +4649,7 @@ aircraft_t::aircraft_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp,
 	old_bild = IMG_LEER;
 	flughoehe = 0;
 	target_height = pos.z;
+	runway_too_short = false;
 }
 
 
@@ -4706,6 +4774,7 @@ bool aircraft_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route
 {
 //DBG_MESSAGE("aircraft_t::calc_route()","search route from %i,%i,%i to %i,%i,%i",start.x,start.y,start.z,ziel.x,ziel.y,ziel.z);
 
+	runway_too_short = false;
 	if(ist_erstes  &&  cnv) {
 		// free target reservation
 		if(  target_halt.is_bound() ) {
@@ -4933,8 +5002,7 @@ bool aircraft_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route
 
 
 
-void
-aircraft_t::hop()
+void aircraft_t::hop()
 {
 	if(  !get_flag(ding_t::dirty)  ) {
 		mark_image_dirty( bild, get_yoff()-flughoehe-hoff-2 );
@@ -5003,7 +5071,7 @@ aircraft_t::hop()
 			new_speed_limit = kmh_to_speed(besch->get_geschw())/3; // ==approach speed
 			new_friction = 8;
 			if(  flughoehe > target_height  ) {
-				// still decenting
+				// still descending
 				flughoehe = (flughoehe-TILE_HEIGHT_STEP) & ~(TILE_HEIGHT_STEP-1);
 				flughoehe -= h_next;
 			}

@@ -117,6 +117,8 @@ private:
 
 	void check_nearby_halts();
 
+	uint8 control_towers;
+
 public:
 	// add convoi to loading queue
 	void request_loading( convoihandle_t cnv );
@@ -250,6 +252,9 @@ public:
 	};
 
 	typedef inthashtable_tpl<uint16, waiting_time_set > waiting_time_map;
+
+	void add_control_tower() { control_towers ++; }
+	void remove_control_tower() { if(control_towers > 0) control_towers --; }
 
 private:
 	slist_tpl<tile_t> tiles;
@@ -782,6 +787,8 @@ public:
 	int get_queue_pos(convoihandle_t cnv) const;
 
 	bool check_access(const spieler_t* sp) const;
+
+	bool has_no_control_tower() const;
 };
 
 ENUM_BITSET(haltestelle_t::stationtyp)
