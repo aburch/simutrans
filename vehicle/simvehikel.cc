@@ -4269,8 +4269,7 @@ aircraft_t::ist_befahrbar(const grund_t *bd) const
 /* finds a free stop, calculates a route and reserve the position
  * else return false
  */
-bool
-aircraft_t::find_route_to_stop_position()
+bool aircraft_t::find_route_to_stop_position()
 {
 	if(target_halt.is_bound()) {
 //DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","bound! (cnv %i)",cnv->self.get_id());

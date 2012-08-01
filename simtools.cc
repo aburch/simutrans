@@ -350,6 +350,8 @@ double perlin_noise_2D(const double x, const double y, const double p, const sin
 	static const double amplitude_0[6] = {0,  1,  2,  3,  4,  5};
 	static const double frequency_1[8] = {0.25, 0.5,  1,  2,  4,  8, 16, 32};
 	static const double amplitude_1[8] = {-0.5,   0,  1,  2,  2,  3,  4,  7};
+	static const double frequency_2[16] = {0.0625, 0.125, 0.25, 0.5, 0.75,  1, 1.5,  2, 3, 4, 6, 8, 12, 16, 24, 32};
+	static const double amplitude_2[16] = {-0.5, -0.75, 0, 0.5, 1, 1.5, 2, 2.25, 2.5, 2.75, 3, 3.5, 4, 5, 7, 9};
 
 	if (m<768) {
 		for(i=0; i<6; i++) {
@@ -359,7 +361,7 @@ double perlin_noise_2D(const double x, const double y, const double p, const sin
 			                            (y * frequency) / 64.0) * amplitude;
 		}
 		return total;
-	} else {
+	} else if (m<2048) {
 		for(i=0; i<8; i++) {
 			const double frequency = frequency_1[i];
 			const double amplitude = pow(p, amplitude_1[i]);
@@ -367,6 +369,15 @@ double perlin_noise_2D(const double x, const double y, const double p, const sin
 										(y * frequency) / 64.0) * amplitude;
 		}
 		return total;
+	}
+	else
+	{
+		for(i=0; i<16; i++) {
+			const double frequency = frequency_2[i];
+			const double amplitude = pow(p, amplitude_2[i]);
+			total += interpolated_noise((x * frequency) / 64.0,
+										(y * frequency) / 64.0) * amplitude;
+		}
 	}
 
     return total;
@@ -387,8 +398,7 @@ uint32 log10(uint32 v)
 	for(  int i = 4;  i >= 0;  i--  ) {
 		if(  v & b[i]  ) {
 			v >>= S[i];
-			r |= S[i];
-		}
+			r |= S[i];		}
 	}
 	uint32 t = ((r + 1) * 1233) >> 12; // 1 / log_2(10) ~~ 1233 / 4096
 	return t;
