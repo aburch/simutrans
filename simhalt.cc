@@ -2851,7 +2851,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				add_halt_within_walking_distance(halt);
 			}
 		}
-		if(file->get_version() >= 110002)
+		if(file->get_version() >= 111002)
 		{
 			file->rdwr_byte(control_towers);
 		}
