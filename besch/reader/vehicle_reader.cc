@@ -318,7 +318,7 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->zuladung = decode_uint16(p);
 		if(experimental_version == 0)
 		{
-			// The new Standard data for loading times is read here.
+			// The new Standard datum for loading times is read here.
 			besch->min_loading_time = besch->max_loading_time = decode_uint16(p);
 		}
 		besch->geschw = decode_uint16(p);
@@ -340,8 +340,8 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->sound = decode_sint8(p);
 		besch->engine_type = decode_uint8(p);
 		besch->len = decode_uint8(p);
-		besch->vorgaenger = decode_uint8(p); //"Predecessors" (Google)
-		besch->nachfolger = decode_uint8(p); //"Successor" (Google)
+		besch->vorgaenger = decode_uint8(p);		//"Predecessors" (Google)
+		besch->nachfolger = decode_uint8(p);		//"Successor" (Google)
 		besch->freight_image_type = decode_uint8(p);
 		if(experimental)
 		{

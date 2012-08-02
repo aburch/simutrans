@@ -5022,12 +5022,16 @@ void aircraft_t::hop()
 			target_height = h_cur;
 			new_friction = max( 1, 28/(1+(route_index-takeoff)*2) ); // 9 5 4 3 2 2 1 1...
 
-			// take off, when a) end of runway or b) last tile of runway or c) fast enough
+			// take off, when a) end of runway or b) last tile of runway or c) has reached minimum runway length
 			weg_t *weg=welt->lookup(get_pos())->get_weg(air_wt);
+			const sint16 runway_tiles_so_far = route_index - takeoff;
+			const sint16 runway_meters_so_far = runway_tiles_so_far * welt->get_settings().get_meters_per_tile();
+			const uint16 min_runway_length_meters = besch->get_minimum_runway_length();
+
 			if(  (weg==NULL  ||  // end of runway (broken runway)
 				 weg->get_besch()->get_styp()!=1  ||  // end of runway (grass now ... )
 				 (route_index>takeoff+1  &&  ribi_t::ist_einfach(weg->get_ribi_unmasked())) )  ||  // single ribi at end of runway
-				 cnv->get_akt_speed()>kmh_to_speed(besch->get_geschw())/3 // fast enough
+				 runway_meters_so_far >= min_runway_length_meters   //  has reached minimum runway length
 			) {
 				state = flying;
 				new_friction = 1;
