@@ -109,7 +109,7 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	if(version == 1) {
 		// Versioned node, version 1
 
-		besch->preis = decode_uint32(p);
+		besch->base_price = decode_uint32(p);
 		besch->zuladung = decode_uint16(p);
 		besch->geschw = decode_uint16(p);
 		besch->gewicht = decode_uint16(p);
@@ -129,7 +129,7 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	else if(version == 2) {
 		// Versioned node, version 2
 
-		besch->preis = decode_uint32(p);
+		besch->base_price = decode_uint32(p);
 		besch->zuladung = decode_uint16(p);
 		besch->geschw = decode_uint16(p);
 		besch->gewicht = decode_uint16(p);
@@ -152,7 +152,7 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		// version 4 identical, just other values for the waytype
 		// version 5 just uses the new scheme for data calculation
 
-		besch->preis = decode_uint32(p);
+		besch->base_price = decode_uint32(p);
 		besch->zuladung = decode_uint16(p);
 		besch->geschw = decode_uint16(p);
 		besch->gewicht = decode_uint16(p);
@@ -172,7 +172,7 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	else if (version==6) {
 		// version 5 just 32 bit for power and 16 Bit for gear
 
-		besch->preis = decode_uint32(p);
+		besch->base_price = decode_uint32(p);
 		besch->zuladung = decode_uint16(p);
 		besch->geschw = decode_uint16(p);
 		besch->gewicht = decode_uint16(p);
@@ -192,7 +192,7 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	else if (version==7) {
 		// different length of cars ...
 
-		besch->preis = decode_uint32(p);
+		besch->base_price = decode_uint32(p);
 		besch->zuladung = decode_uint16(p);
 		besch->geschw = decode_uint16(p);
 		besch->gewicht = decode_uint16(p);
@@ -212,7 +212,7 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 	else if (version==8) {
 		// multiple freight images...
-		besch->preis = decode_uint32(p);
+		besch->base_price = decode_uint32(p);
 		besch->zuladung = decode_uint16(p);
 		besch->geschw = decode_uint16(p);
 		besch->gewicht = decode_uint16(p);
@@ -244,22 +244,22 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				besch->overcrowded_capacity = decode_uint16(p);
 				besch->min_loading_time = besch->max_loading_time = decode_uint16(p);
 				besch->upgrades = decode_uint8(p);
-				besch->upgrade_price = decode_uint32(p);
+				besch->base_upgrade_price = decode_uint32(p);
 				besch->available_only_as_upgrade = decode_uint8(p);
 				besch->brake_force = BRAKE_FORCE_UNKNOWN;
 				besch->minimum_runway_length = 0;
 				besch->rolling_resistance = float32e8_t(rolling_default(besch->typ), 10000UL);
 				if(experimental_version == 1)
 				{
-					besch->fixed_cost = decode_uint16(p);
+					besch->base_fixed_cost = decode_uint16(p);
 				}
 				else if(experimental_version >= 2)
 				{
-					besch->fixed_cost = decode_uint32(p);
+					besch->base_fixed_cost = decode_uint32(p);
 				}
 				else
 				{
-					besch->fixed_cost = DEFAULT_FIXED_VEHICLE_MAINTENANCE;
+					besch->base_fixed_cost = DEFAULT_FIXED_VEHICLE_MAINTENANCE;
 				}
 				if(experimental_version >= 3)
 				{
@@ -314,7 +314,7 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 	else if (version==9) {
 		// new: fixed_cost (previously Experimental only), loading_time, axle_load
-		besch->preis = decode_uint32(p);
+		besch->base_price = decode_uint32(p);
 		besch->zuladung = decode_uint16(p);
 		if(experimental_version == 0)
 		{
@@ -329,7 +329,7 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		if(experimental_version == 0)
 		{
 			// Experimental has this as a 32-bit integer, and reads it later.
-			besch->fixed_cost = decode_uint16(p);
+			besch->base_fixed_cost = decode_uint16(p);
 		}
 
 		besch->intro_date = decode_uint16(p);
@@ -357,19 +357,19 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				besch->overcrowded_capacity = decode_uint16(p);
 				besch->min_loading_time = besch->max_loading_time = decode_uint16(p);
 				besch->upgrades = decode_uint8(p);
-				besch->upgrade_price = decode_uint32(p);
+				besch->base_upgrade_price = decode_uint32(p);
 				besch->available_only_as_upgrade = decode_uint8(p);
 				if(experimental_version == 1)
 				{
-					besch->fixed_cost = decode_uint16(p);
+					besch->base_fixed_cost = decode_uint16(p);
 				}
 				else if(experimental_version >= 2)
 				{
-					besch->fixed_cost = decode_uint32(p);
+					besch->base_fixed_cost = decode_uint32(p);
 				}
 				else
 				{
-					besch->fixed_cost = DEFAULT_FIXED_VEHICLE_MAINTENANCE;
+					besch->base_fixed_cost = DEFAULT_FIXED_VEHICLE_MAINTENANCE;
 				}
 				if(experimental_version >= 3)
 				{
@@ -443,7 +443,7 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 		besch->typ = (sint8)v;
 		besch->zuladung = decode_uint16(p);
-		besch->preis = decode_uint32(p);
+		besch->base_price = decode_uint32(p);
 		besch->geschw = decode_uint16(p);
 		besch->gewicht = decode_uint16(p);
 		besch->leistung = decode_uint16(p);
@@ -535,9 +535,9 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->air_resistance = float32e8_t(air_default(besch->typ), 100UL);
 		besch->rolling_resistance = float32e8_t(rolling_default(besch->typ), 10000UL);
 		besch->upgrades = 0;
-		besch->upgrade_price = besch->preis;
+		besch->base_upgrade_price = besch->base_price;
 		besch->available_only_as_upgrade = false;
-		besch->fixed_cost = DEFAULT_FIXED_VEHICLE_MAINTENANCE;
+		besch->base_fixed_cost = DEFAULT_FIXED_VEHICLE_MAINTENANCE;
 		besch->can_be_at_rear = true;
 		besch->increase_maintenance_after_years = 0;
 		besch->increase_maintenance_by_percent = 0;
@@ -551,7 +551,7 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	besch->set_way_constraints(way_constraints);
 
 	if(version<9) {
-		besch->fixed_cost = 0;
+		besch->base_fixed_cost = 0;
 		besch->axle_load = 0;
 	}
 
@@ -581,7 +581,7 @@ DBG_MESSAGE("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,besch
 		version,
 		besch->typ,
 		besch->zuladung,
-		besch->preis,
+		besch->base_price,
 		besch->geschw,
 		besch->gewicht,
 		besch->axle_load,

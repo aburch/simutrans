@@ -102,45 +102,48 @@ public:
 
 
 private:
-	uint32 preis;  //Price
-	uint32 upgrade_price; //Price if this vehicle is bought as an upgrade, not a new vehicle.
-	uint16 zuladung; //Payload
+	uint32 preis;				// Price
+	uint32 base_price;			// Price (without scale factor)
+	uint32 upgrade_price;		// Price if this vehicle is bought as an upgrade, not a new vehicle.
+	uint32 base_upgrade_price;  // Upgrade price (without scale factor)
+	uint16 zuladung;			// Payload
 	uint16 overcrowded_capacity; // The capacity of a vehicle if overcrowded (usually expressed as the standing capacity).
-	uint16 geschw; //Speed in km/h
-	uint32 gewicht; //Weight in tonnes
-	uint16  axle_load; // New for Standard, not used yet.
-	uint32 leistung; //Power in kW
-	uint16 running_cost;  //Running costs
-	uint32 fixed_cost; //@author: jamespetts, April 2009
+	uint16 geschw;				// Speed in km/h
+	uint32 gewicht;				// Weight in tonnes
+	uint16  axle_load;			// New for Standard, not used yet.
+	uint32 leistung;			// Power in kW
+	uint16 running_cost;		// Per kilometre cost
+	uint32 fixed_cost;			// Monthly cost @author: jamespetts, April 2009
+	uint32 base_fixed_cost;		// Monthly cost (without scale factor)
 
-	uint16 intro_date; // introduction date
-	uint16 obsolete_date; //phase out at
-	uint16 gear;       // engine gear (power multiplier), 64=100
+	uint16 intro_date;			// introduction date
+	uint16 obsolete_date;		// phase out at
+	uint16 gear;				// engine gear (power multiplier), 64=100
 
-	sint8 typ;         	// see weg_t for allowed types
-	uint8 len;			// length (=8 is half a tile, the old default)
+	sint8 typ;         			// see weg_t for allowed types
+	uint8 len;					// length (=8 is half a tile, the old default)
 	sint8 sound;
 
-	uint8 vorgaenger;	// all defined leading vehicles
-	uint8 nachfolger;	// all defined trailer
-	uint8 upgrades;		// The vehicles types to which this type may be upgraded.
+	uint8 vorgaenger;			// all defined leading vehicles
+	uint8 nachfolger;			// all defined trailer
+	uint8 upgrades;				// The vehicles types to which this type may be upgraded.
 
-	uint8 engine_type; // diesel, steam, electric (requires electrified ways), fuel_cell, etc.
+	uint8 engine_type;			// diesel, steam, electric (requires electrified ways), fuel_cell, etc.
 
 	sint8 freight_image_type;	// number of freight images (displayed for different goods)
 	sint8 livery_image_type;	// Number of different liveries (@author: jamespetts, April 2011)
-
-	bool is_tilting; //Whether it is a tilting train (can take corners at higher speeds). 0 for no, 1 for yes. Anything other than 1 is assumed to be no.
+	
+	bool is_tilting;			 //Whether it is a tilting train (can take corners at higher speeds). 0 for no, 1 for yes. Anything other than 1 is assumed to be no.
 	
 	way_constraints_of_vehicle_t way_constraints;
 
-	uint8 catering_level; //The level of catering. 0 for no catering. Higher numbers for better catering.
+	uint8 catering_level;		 //The level of catering. 0 for no catering. Higher numbers for better catering.
 
-	bool bidirectional; //Whether must always travel in one direction
-	bool can_lead_from_rear; //Whether vehicle can lead a convoy when it is at the rear.
-	bool can_be_at_rear; //Whether the vehicle may be at the rear of a convoy (default = true).
+	bool bidirectional;			//Whether must always travel in one direction
+	bool can_lead_from_rear;	//Whether vehicle can lead a convoy when it is at the rear.
+	bool can_be_at_rear;		//Whether the vehicle may be at the rear of a convoy (default = true).
 
-	uint8 comfort; // How comfortable that a vehicle is for passengers.
+	uint8 comfort;				// How comfortable that a vehicle is for passengers.
 
 	/** The time that the vehicle takes to load
 	  * in ticks. Min: if no passengers/goods
@@ -666,11 +669,14 @@ public:
 
 	void set_scale(uint16 scale_factor)
 	{ 
-		const uint32 scaled_price = set_scale_generic<sint64>(preis, scale_factor);
-		const uint32 scaled_maintenance = set_scale_generic<uint32>(fixed_cost, scale_factor);
+		const uint32 scaled_price = set_scale_generic<sint64>(base_price, scale_factor);
+		const uint32 scaled_upgrade_price = set_scale_generic<sint64>(base_upgrade_price, scale_factor);
+		const uint32 scaled_maintenance = set_scale_generic<uint32>(base_fixed_cost, scale_factor);
 
-		preis = (preis == 0 ? 0 : (scaled_price >= 1 ? scaled_price : 1));
-		fixed_cost = (uint32)(fixed_cost == 0 ? 0 :(scaled_maintenance >= 1 ? scaled_maintenance : 1));
+		preis = (base_price == 0 ? 0 : (scaled_price >= 1 ? scaled_price : 1));
+		upgrade_price = (base_upgrade_price == 0 ? 0 : (scaled_upgrade_price >= 1 ? scaled_upgrade_price : 1));
+		fixed_cost = (uint32)(base_fixed_cost == 0 ? 0 :(scaled_maintenance >= 1 ? scaled_maintenance : 1));
+
 		if(max_loading_time_seconds != 65535)
 		{
 			max_loading_time = (uint32)seconds_to_ticks(max_loading_time_seconds, scale_factor);
