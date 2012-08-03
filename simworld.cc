@@ -916,24 +916,39 @@ void karte_t::create_rivers( sint16 number )
 
 	// now make rivers
 	uint8 retrys = 0;
-	while (number > 0 && !mountain_tiles.empty() && retrys++ < 100) {
+	while(  number > 0  &&  !mountain_tiles.empty()  &&  retrys<100  ) {
+
+		// start with random coordinates
 		koord const start = pick_any_weighted(mountain_tiles);
-		koord const end   = pick_any(water_tiles);
-		sint16 dist = koord_distance(start,end);
-		if (settings.get_min_river_length() < dist && dist < settings.get_max_river_length()) {
-			// should be at least of decent length
+		mountain_tiles.remove( start );
+
+		// build a list of matchin targets
+		vector_tpl<koord> valid_water_tiles;
+		for(  sint32 i=0;  i<water_tiles.get_count();  i++  ) {
+			sint16 dist = koord_distance(start,water_tiles[i]);
+			if(  settings.get_min_river_length() < dist  &&  dist < settings.get_max_river_length()  ) {
+				valid_water_tiles.append( water_tiles[i] );
+			}
+		}
+
+		// now try 256 random locations
+		for(  sint32 i=0;  i<256  &&  !valid_water_tiles.empty();  i++  ) {
+			koord const end = pick_any(valid_water_tiles);
+			valid_water_tiles.remove( end );
 			wegbauer_t riverbuilder(this, spieler[1]);
 			riverbuilder.route_fuer(wegbauer_t::river, river_besch);
+			sint16 dist = koord_distance(start,end);
 			riverbuilder.set_maximum( dist*50 );
 			riverbuilder.calc_route( lookup_kartenboden(end)->get_pos(), lookup_kartenboden(start)->get_pos() );
-			if (riverbuilder.get_count() >= (uint32)settings.get_min_river_length()) {
+			if(  riverbuilder.get_count() >= (uint32)settings.get_min_river_length()  ) {
 				// do not built too short rivers
 				riverbuilder.baue();
 				number --;
-				retrys = 0;
+				break;
 			}
-			mountain_tiles.remove( start );
 		}
+
+		retrys++;
 	}
 	// we gave up => tell te user
 	if(  number>0  ) {
