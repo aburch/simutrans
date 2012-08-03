@@ -3667,7 +3667,7 @@ void convoi_t::rdwr(loadsave_t *file)
 	if(file->get_version() >= 111002 && file->get_experimental_version() >= 10)
 	{
 		file->rdwr_short(last_stop_id);
- 		v.rdwr(file);
+		v.rdwr(file);
 	}
 
 	// This must come *after* all the loading/saving.
@@ -4193,8 +4193,8 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	}
 	
 	const ware_besch_t* goods = ware.get_besch();
-	const sint64 starting_distance = ware.get_origin().is_bound() ? shortest_distance(ware.get_origin()->get_basis_pos(), fahr[0]->get_pos().get_2d()) - revenue_distance : 0;
-	const sint64 base_fare = goods->get_fare(revenue_distance, starting_distance);
+	const sint64 starting_distance = ware.get_origin().is_bound() ? (sint64)shortest_distance(ware.get_origin()->get_basis_pos(), fahr[0]->get_pos().get_2d()) - (sint64)revenue_distance : 0ll;
+	const sint64 base_fare = goods->get_fare(revenue_distance, (starting_distance > 0 ? (uint32)starting_distance : 0));
 	const sint64 min_fare = base_fare / 10ll;
 	const uint16 speed_bonus_rating = calc_adjusted_speed_bonus(goods->get_speed_bonus(), distance);
 	const sint64 ref_speed = welt->get_average_speed( fahr[0]->get_besch()->get_waytype() );
