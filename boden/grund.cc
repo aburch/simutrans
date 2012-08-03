@@ -539,7 +539,7 @@ void grund_t::info(cbuffer_t& buf) const
 		}
 	}
 
-	buf.printf("%s\n%s", get_name(), translator::translate(grund_besch_t::get_climate_name_from_bit(welt->get_climate(get_hoehe()))) );
+	buf.printf("%s\n%s", translator::translate(get_name()), translator::translate(grund_besch_t::get_climate_name_from_bit(welt->get_climate(get_hoehe()))) );
 #if DEBUG >= 3
 	buf.printf("\n\npos: (%s)",pos.get_str());
 	buf.printf("\nslope: %i",get_grund_hang());
