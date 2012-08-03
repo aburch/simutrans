@@ -23,6 +23,7 @@
 
 #include "banner.h"
 #include "loadsave_frame.h"
+#include "scenario_frame.h"
 #include "server_frame.h"
 
 
@@ -42,6 +43,9 @@ banner_t::banner_t( karte_t *w) : gui_frame_t(""),
 	load_map.init( button_t::roundbox, "Load game", koord( 10+D_BUTTON_WIDTH+10, size.y-16-2*D_BUTTON_HEIGHT-12 ), koord( D_BUTTON_WIDTH, D_BUTTON_HEIGHT ) );
 	load_map.add_listener( this );
 	add_komponente( &load_map );
+	load_scenario.init( button_t::roundbox, "Load scenario", koord( 10+D_BUTTON_WIDTH+10, size.y-16-D_BUTTON_HEIGHT-7 ), koord( D_BUTTON_WIDTH, D_BUTTON_HEIGHT ) );
+	load_scenario.add_listener( this );
+	add_komponente( &load_scenario );
 	join_map.init( button_t::roundbox, "join game", koord( 10+2*D_BUTTON_WIDTH+20, size.y-16-2*D_BUTTON_HEIGHT-12 ), koord( D_BUTTON_WIDTH, D_BUTTON_HEIGHT ) );
 	join_map.add_listener( this );
 	add_komponente( &join_map );
@@ -74,6 +78,14 @@ bool banner_t::action_triggered( gui_action_creator_t *komp, value_t)
 	else if(  komp == &load_map  ) {
 		destroy_all_win(true);
 		create_win( new loadsave_frame_t(welt, true), w_info, magic_load_t);
+	}
+	else if(komp==&load_scenario) {
+		destroy_all_win(true);
+		char path[1024];
+		sprintf( path, "%s%sscenario/", umgebung_t::program_dir, umgebung_t::objfilename.c_str() );
+		chdir( path );
+		create_win( new scenario_frame_t(welt), w_info, magic_load_t );
+		chdir( umgebung_t::user_dir );
 	}
 	else if(  komp == &join_map  ) {
 		destroy_all_win(true);
