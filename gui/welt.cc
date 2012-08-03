@@ -153,7 +153,7 @@ welt_gui_t::welt_gui_t(karte_t* const welt, settings_t* const sets) :
 	inp_number_of_towns.set_pos(koord(RIGHT_COLUMN,intTopOfButton) );
 	inp_number_of_towns.set_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
 	inp_number_of_towns.add_listener(this);
-	inp_number_of_towns.set_limits(0,999);
+	inp_number_of_towns.set_limits(0,2048);
 	inp_number_of_towns.set_value(abs(sets->get_anzahl_staedte()) );
 	add_komponente( &inp_number_of_towns );
 	intTopOfButton += 12;
@@ -432,11 +432,7 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 			inp_number_of_big_cities.set_value(0);
 		}
 		else {
-			inp_number_of_big_cities.set_limits(1, v.i);
-			if ( umgebung_t::number_of_big_cities == 0) {
-				umgebung_t::number_of_big_cities =1;
-				inp_number_of_big_cities.set_value(1);
-			}
+			inp_number_of_big_cities.set_limits(0, v.i);
 		}
 
 		if (umgebung_t::number_of_big_cities > unsigned(v.i)) {

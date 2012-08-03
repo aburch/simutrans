@@ -4140,26 +4140,74 @@ schedule_t * schiff_t::erzeuge_neuen_fahrplan() const
 // this routine is called by find_route, to determined if we reached a destination
 bool aircraft_t::ist_ziel(const grund_t *gr,const grund_t *) const
 {
-	if(state!=looking_for_parking) {
+	if(state!=looking_for_parking) 
+	{
 		// search for the end of the runway
 		const weg_t *w=gr->get_weg(air_wt);
-		if(w  &&  w->get_besch()->get_styp()==1) {
+		if(w  &&  w->get_besch()->get_styp()==1) 
+		{
 			// ok here is a runway
 			ribi_t::ribi ribi= w->get_ribi_unmasked();
-			if(ribi_t::ist_einfach(ribi)  &&  (ribi&approach_dir)!=0) {
+			int success = 1;
+			if(ribi_t::ist_einfach(ribi)  &&  (ribi&approach_dir)!=0)
+			{
 				// pointing in our direction
-				// here we should check for length, but we assume everything is ok
 				return true;
+				/* BELOW CODE NOT WORKING
+				// Check for length
+				const uint16 min_runway_length_meters = besch->get_minimum_runway_length();
+				const uint16 min_runway_length_tiles = min_runway_length_meters / welt->get_settings().get_meters_per_tile();
+				for(uint16 i = 0; i <= min_runway_length_tiles; i ++) 
+				{
+					if (const ribi_t::ribi dir = ribi & approach_dir & ribi_t::nsow[i]) 
+					{
+						const grund_t* gr2 = welt->lookup_kartenboden(gr->get_pos().get_2d() + koord(dir));
+						if(gr2)
+						{
+							const weg_t* w2 = gr2->get_weg(air_wt);
+							if(
+								w2 && 
+								w2->get_besch()->get_styp() == 1 && 
+								ribi_t::ist_einfach(w2->get_ribi_unmasked()) &&
+								(w2->get_ribi_unmasked() & approach_dir) != 0
+								)
+							{
+								// All is well - there is runway here.
+								continue;
+							}
+							else
+							{
+								goto bad_runway;
+							}
+						}
+						else
+						{
+							goto bad_runway;
+						}
+					}
+					
+					else
+					{
+bad_runway:
+						// Reached end of runway before iteration for total number of minimum runway tiles exhausted:
+						// runway too short.
+						success = 0;
+						break;
+					}
+				}
+							
+				//return true;
+				return success;*/
 			}
 		}
 	}
 	else {
 		// otherwise we just check, if we reached a free stop position of this halt
 		if(gr->get_halt()==target_halt  &&  target_halt->is_reservable(gr,cnv->self)) {
-			return true;
+			return 1;
 		}
 	}
-	return false;
+	return 0;
 }
 
 
@@ -4346,9 +4394,7 @@ int aircraft_t::block_reserver( uint32 start, uint32 end, bool reserve ) const
 
 	uint16 runway_tiles = end - start;
 	uint16 runway_meters = runway_tiles * welt->get_settings().get_meters_per_tile();
-	
 	const uint16 min_runway_length_meters = besch->get_minimum_runway_length();
-
 	int success = runway_meters >= min_runway_length_meters ? 1 : 2;
 
 	const route_t *route = cnv->get_route();

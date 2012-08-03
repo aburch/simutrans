@@ -835,6 +835,8 @@ public:
 	// returns true for the way search to an unknown target.
 	virtual bool ist_ziel(const grund_t *,const grund_t *) const;
 
+	//bool can_takeoff_here(const grund_t *gr, ribi_t::ribi test_dir, uint8 len) const;
+
 	// return valid direction
 	virtual ribi_t::ribi get_ribi(const grund_t* ) const;
 
