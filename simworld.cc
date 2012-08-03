@@ -923,8 +923,8 @@ void karte_t::create_rivers( sint16 number )
 	}
 
 	// now make rivers
-	uint8 retrys = 0;
-	while(  number > 0  &&  !mountain_tiles.empty()  &&  retrys<100  ) {
+	sint16 retrys = number*2;
+	while(  number > 0  &&  !mountain_tiles.empty()  &&  retrys>0  ) {
 
 		// start with random coordinates
 		koord const start = pick_any_weighted(mountain_tiles);
@@ -952,11 +952,12 @@ void karte_t::create_rivers( sint16 number )
 				// do not built too short rivers
 				riverbuilder.baue();
 				number --;
+				retrys++;
 				break;
 			}
 		}
 
-		retrys++;
+		retrys--;
 	}
 	// we gave up => tell te user
 	if(  number>0  ) {
