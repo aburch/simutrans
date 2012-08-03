@@ -632,7 +632,7 @@ bool dr_download_pakset( const char *path_to_program, bool portable )
 	return true;
 #else
 	char command[2048];
-	sprintf( command, "sh %s/get_pak.sh %i", path_to_program, portable );
+	sprintf(command, "%s/get_pak.sh %i", path_to_program, portable);
 	system( command );
 	return true;
 #endif
