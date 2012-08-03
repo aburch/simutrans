@@ -362,6 +362,7 @@ public:
 	void set_starting_year( sint16 n ) { starting_year = n; }
 	sint16 get_starting_year() const {return starting_year;}
 
+	void set_starting_month( sint16 n ) { starting_month = n; }
 	sint16 get_starting_month() const {return starting_month;}
 
 	sint16 get_bits_per_month() const {return bits_per_month;}

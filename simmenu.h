@@ -65,6 +65,7 @@ enum {
 	WKZ_SLICED_AND_UNDERGROUND_VIEW,
 	WKZ_BUY_HOUSE,
 	WKZ_CITYROAD,
+	WKZ_ERR_MESSAGE_TOOL,
 	GENERAL_TOOL_COUNT,
 	GENERAL_TOOL = 0x1000
 };
@@ -264,6 +265,8 @@ public:
 	virtual const char *check_pos( karte_t *, spieler_t *, koord3d );
 	virtual const char *work( karte_t *, spieler_t *, koord3d ) { return NULL; }
 	virtual const char *move( karte_t *, spieler_t *, uint16 /* buttonstate */, koord3d ) { return ""; }
+
+	virtual waytype_t get_waytype() const { return invalid_wt; }
 };
 
 /*

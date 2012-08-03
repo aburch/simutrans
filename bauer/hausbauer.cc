@@ -15,6 +15,7 @@
 #include "../boden/wasser.h"
 #include "../boden/fundament.h"
 
+#include "../dataobj/scenario.h"
 #include "../dings/leitung2.h"
 #include "../dings/tunnel.h"
 #include "../dings/zeiger.h"
@@ -230,6 +231,23 @@ static stringhashtable_tpl<wkz_depot_t *> depot_tool;
 // all these menus will need a waytype ...
 void hausbauer_t::fill_menu(werkzeug_waehler_t* wzw, haus_besch_t::utyp utyp, waytype_t wt, sint16 /*sound_ok*/, const karte_t* welt)
 {
+	// check if scenario forbids this
+	uint16 toolnr = 0;
+	switch(utyp) {
+		case haus_besch_t::depot:
+			toolnr = WKZ_DEPOT | GENERAL_TOOL;
+			break;
+		case haus_besch_t::hafen:
+		case haus_besch_t::generic_stop:
+		case haus_besch_t::generic_extension:
+			toolnr = WKZ_STATION | GENERAL_TOOL;
+			break;
+		default: ;
+	}
+	if (toolnr > 0  &&  !welt->get_scenario()->is_tool_allowed(welt->get_active_player(), toolnr, wt)) {
+		return;
+	}
+
 	const uint16 time = welt->get_timeline_year_month();
 DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.get_count());
 	FOR(vector_tpl<haus_besch_t const*>, const besch, station_building) {

@@ -27,6 +27,7 @@
 
 #include "../besch/bruecke_besch.h"
 
+#include "../dataobj/scenario.h"
 #include "../dings/bruecke.h"
 #include "../dings/leitung2.h"
 #include "../dings/pillar.h"
@@ -104,6 +105,11 @@ static bool compare_bridges(const bruecke_besch_t* a, const bruecke_besch_t* b)
 
 void brueckenbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, sint16 /*sound_ok*/, const karte_t *welt)
 {
+	// check if scenario forbids this
+	if (!welt->get_scenario()->is_tool_allowed(welt->get_active_player(), WKZ_BRUECKENBAU | GENERAL_TOOL, wtyp)) {
+		return;
+	}
+
 	const uint16 time = welt->get_timeline_year_month();
 	vector_tpl<const bruecke_besch_t*> matching(bruecken_by_name.get_count());
 
@@ -125,16 +131,22 @@ void brueckenbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, s
 }
 
 
-koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const bruecke_besch_t *besch, const char *&error_msg, bool ai_bridge, uint32 min_length )
+koord3d brueckenbauer_t::finde_ende(karte_t *welt, spieler_t *sp, koord3d pos, koord zv, const bruecke_besch_t *besch, const char *&error_msg, bool ai_bridge, uint32 min_length )
 {
 	const grund_t *gr1; // on the level of the bridge
 	const grund_t *gr2; // the level under the bridge
+	scenario_t *scen = welt->get_scenario();
 	waytype_t wegtyp = besch->get_waytype();
 	error_msg = NULL;
 	uint16 length = 0;
 	do {
 		length ++;
 		pos = pos + zv;
+
+		// test scenario conditions
+		if ((error_msg = scen->is_work_allowed_here(sp, WKZ_BRUECKENBAU|GENERAL_TOOL, wegtyp, pos)) != NULL) {
+			return koord3d::invalid;
+		}
 
 		// test max length
 		if(besch->get_max_length()>0  &&  length > besch->get_max_length()) {
@@ -373,7 +385,7 @@ const char *brueckenbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, cons
 	zv = koord(ribi_t::rueckwaerts(ribi));
 	// search for suitable bridge end tile
 	const char *msg;
-	koord3d end = finde_ende(welt, gr->get_pos(), zv, besch, msg );
+	koord3d end = finde_ende(welt, sp, gr->get_pos(), zv, besch, msg );
 
 	// found something?
 	if(msg!=NULL) {

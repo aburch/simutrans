@@ -530,6 +530,7 @@ public:
 	void update_history();
 
 	scenario_t *get_scenario() const { return scenario; }
+	void set_scenario(scenario_t *s);
 
 	/**
 	* Returns the finance history for player

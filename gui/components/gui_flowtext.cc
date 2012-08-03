@@ -17,6 +17,9 @@ gui_flowtext_t::gui_flowtext_t()
 
 void gui_flowtext_t::set_text(const char *text)
 {
+	if (text == NULL) {
+		text = "(null)";
+	}
 	// purge all old texts
 	nodes.clear();
 	links.clear();

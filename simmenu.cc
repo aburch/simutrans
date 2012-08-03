@@ -33,6 +33,7 @@
 
 #include "dataobj/umgebung.h"
 #include "dataobj/tabfile.h"
+#include "dataobj/scenario.h"
 
 #include "dings/roadsign.h"
 #include "dings/wayobj.h"
@@ -113,6 +114,7 @@ werkzeug_t *create_general_tool(int toolnr)
 		case WKZ_SLICED_AND_UNDERGROUND_VIEW: tool = new wkz_show_underground_t(); break;
 		case WKZ_BUY_HOUSE:        tool = new wkz_buy_house_t(); break;
 		case WKZ_CITYROAD:         tool = new wkz_build_cityroad(); break;
+		case WKZ_ERR_MESSAGE_TOOL: tool = new wkz_error_message_t(); break;
 		default:                   dbg->error("create_general_tool()","cannot satisfy request for general_tool[%i]!",toolnr);
 		                           return NULL;
 	}
@@ -619,8 +621,18 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 void werkzeug_t::update_toolbars(karte_t *welt)
 {
 	// renew toolbar
-	FOR(vector_tpl<toolbar_t*>, const i, toolbar_tool) {
-		i->update(welt, welt->get_active_player());
+	// iterate twice, to get correct icons if a toolbar changes between empty and non-empty
+	for(uint j=0; j<2; j++) {
+		bool change = false;
+		FOR(vector_tpl<toolbar_t*>, const i, toolbar_tool) {
+			bool old_icon_empty = i->get_icon(welt->get_active_player()) == IMG_LEER;
+			i->update(welt, welt->get_active_player());
+			change |= old_icon_empty ^ (i->get_icon(welt->get_active_player()) == IMG_LEER);
+		}
+		if (!change) {
+			// no toolbar changes between empty and non-empty, no need to loop again
+			break;
+		}
 	}
 }
 
@@ -762,6 +774,10 @@ void toolbar_t::update(karte_t *welt, spieler_t *sp)
 			}
 			if(  create  ) {
 				DBG_DEBUG( "toolbar_t::update()", "add tool %i (param=%s)", w->get_id(), w->get_default_param() );
+			}
+			scenario_t *scen = welt->get_scenario();
+			if(  scen->is_scripted()  &&  !scen->is_tool_allowed(sp, w->get_id(), w->get_waytype())) {
+				continue;
 			}
 			// now add it to the toolbar gui
 			wzw->add_werkzeug( w );

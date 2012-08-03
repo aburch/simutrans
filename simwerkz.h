@@ -156,6 +156,7 @@ public:
 	char const* check_pos(karte_t*, spieler_t*, koord3d) OVERRIDE;
 	char const* work(karte_t*, spieler_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
+	waytype_t get_waytype() const OVERRIDE { return powerline_wt; }
 };
 
 class wkz_add_city_t : public kartenboden_werkzeug_t {
@@ -237,6 +238,7 @@ public:
 	bool is_selected(karte_t const*) const OVERRIDE;
 	bool init(karte_t*, spieler_t*) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
+	waytype_t get_waytype() const OVERRIDE;
 	// remove preview necessary while building elevated ways
 	bool remove_preview_necessary() const OVERRIDE { return !is_first_click()  &&  (besch  &&  (besch->get_styp() == 1  &&  besch->get_wtyp() != air_wt)); }
 };
@@ -250,6 +252,7 @@ public:
 	image_id get_icon(spieler_t* const sp) const OVERRIDE { return werkzeug_t::get_icon(sp); }
 	bool is_selected(karte_t const*) const OVERRIDE { return werkzeug_t::is_selected(welt); }
 	bool is_init_network_save() const OVERRIDE { return true; }
+	waytype_t get_waytype() const OVERRIDE { return road_wt; }
 };
 
 class wkz_brueckenbau_t : public two_click_werkzeug_t {
@@ -264,6 +267,7 @@ public:
 	image_id get_icon(spieler_t*) const OVERRIDE { return grund_t::underground_mode==grund_t::ugm_all ? IMG_LEER : icon; }
 	char const* get_tooltip(spieler_t const*) const OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
+	waytype_t get_waytype() const OVERRIDE;
 	bool remove_preview_necessary() const OVERRIDE { return !is_first_click(); }
 	void rdwr_custom_data(uint8 player_nr, memory_rw_t*) OVERRIDE;
 };
@@ -279,6 +283,7 @@ public:
 	char const* get_tooltip(spieler_t const*) const OVERRIDE;
 	char const* check_pos(karte_t*, spieler_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
+	waytype_t get_waytype() const OVERRIDE;
 	bool remove_preview_necessary() const OVERRIDE { return !is_first_click(); }
 };
 
@@ -295,6 +300,7 @@ public:
 	char const* get_tooltip(spieler_t const*) const OVERRIDE;
 	image_id get_icon(spieler_t*) const OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
+	waytype_t get_waytype() const OVERRIDE;
 };
 
 class wkz_wayobj_t : public two_click_werkzeug_t {
@@ -318,6 +324,7 @@ public:
 	bool is_selected(karte_t const*) const OVERRIDE;
 	bool init(karte_t*, spieler_t*) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
+	waytype_t get_waytype() const OVERRIDE;
 };
 
 class wkz_wayobj_remover_t : public wkz_wayobj_t {
@@ -342,6 +349,7 @@ public:
 	char const* check_pos(karte_t*, spieler_t*, koord3d) OVERRIDE;
 	char const* work(karte_t*, spieler_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
+	waytype_t get_waytype() const OVERRIDE;
 };
 
 // builds roadsigns and signals
@@ -384,6 +392,7 @@ public:
 	bool is_init_network_save() const OVERRIDE { return true; }
 	void draw_after(karte_t*, koord) const OVERRIDE;
 	char const* get_default_param(spieler_t*) const OVERRIDE;
+	waytype_t get_waytype() const OVERRIDE;
 };
 
 class wkz_depot_t : public werkzeug_t {
@@ -397,6 +406,7 @@ public:
 	bool init(karte_t*, spieler_t*) OVERRIDE;
 	char const* work(karte_t*, spieler_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
+	waytype_t get_waytype() const OVERRIDE;
 };
 
 /* builds (random) tourist attraction (default_param==NULL) and maybe adds it to the next city
@@ -538,6 +548,18 @@ public:
 	char const* move(karte_t*, spieler_t*, uint16 /* buttonstate */, koord3d) OVERRIDE;
 	char const* work(karte_t*, spieler_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
+};
+
+
+
+// internal tool: show error message at specific coordinate
+// used for scenario error messages send by server
+class wkz_error_message_t : public werkzeug_t {
+public:
+	wkz_error_message_t() : werkzeug_t(WKZ_ERR_MESSAGE_TOOL | GENERAL_TOOL) {}
+	bool init(karte_t*, spieler_t*) OVERRIDE { return true; }
+	bool is_init_network_save() const OVERRIDE { return true; }
+	char const* work(karte_t*, spieler_t*, koord3d) OVERRIDE { return default_param ? default_param : ""; }
 };
 
 /********************* one click tools ****************************/

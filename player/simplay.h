@@ -53,6 +53,11 @@ class koord3d;
 class werkzeug_t;
 
 /**
+ * convert to displayed value
+ */
+inline sint64 convert_money(sint64 value) { return (value + 50) / 100; }
+
+/**
  * play info for simutrans human and AI are derived from this class
  */
 class spieler_t
@@ -314,6 +319,7 @@ public:
 	*/
 	sint64 get_finance_history_year(int year, int type) { return finance_history_year[year][type]; }
 	sint64 get_finance_history_month(int month, int type) { return finance_history_month[month][type]; }
+	sint64 get_finance_history_month_converted(int month, int type);
 
 	/**
 	 * Returns pointer to finance history for player

@@ -59,6 +59,13 @@
 
 static const int FAB_MAX_INPUT = 15000;
 
+/**
+ * Convert internal values to displayed values
+ */
+sint64 convert_goods(sint64 value) { return ( (value + (1<<(fabrik_t::precision_bits-1))) >> fabrik_t::precision_bits ); }
+sint64 convert_power(sint64 value) { return ( value >> POWER_TO_MW ); }
+sint64 convert_boost(sint64 value) { return ( (value * 100 + (DEFAULT_PRODUCTION_FACTOR>>1)) >> DEFAULT_PRODUCTION_FACTOR_BITS ); }
+
 
 /**
  * Ordering based on relative distance to a fixed point `origin'.

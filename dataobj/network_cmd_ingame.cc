@@ -4,9 +4,11 @@
 #include "network_packet.h"
 #include "network_socket_list.h"
 #include "network_cmp_pakset.h"
+#include "network_cmd_scenario.h"
 
 #include "loadsave.h"
 #include "gameinfo.h"
+#include "scenario.h"
 #include "../simtools.h"
 #include "../simmenu.h"
 #include "../simsys.h"
@@ -43,6 +45,9 @@ network_command_t* network_command_t::read_from_packet(packet_t *p)
 		case NWC_SERVICE:     nwc = new nwc_service_t(); break;
 		case NWC_AUTH_PLAYER: nwc = new nwc_auth_player_t(); break;
 		case NWC_CHG_PLAYER:  nwc = new nwc_chg_player_t(); break;
+		case NWC_SCENARIO:    nwc = new nwc_scenario_t(); break;
+		case NWC_SCENARIO_RULES:
+		                      nwc = new nwc_scenario_rules_t(); break;
 		default:
 			dbg->warning("network_command_t::read_from_socket", "received unknown packet id %d", p->get_id());
 	}
@@ -870,6 +875,7 @@ nwc_tool_t::nwc_tool_t(spieler_t *sp, werkzeug_t *wkz, koord3d pos_, uint32 sync
 	pos = pos_;
 	player_nr = sp ? sp->get_player_nr() : -1;
 	wkz_id = wkz->get_id();
+	wt = wkz->get_waytype();
 	const char *dfp = wkz->get_default_param(sp);
 	default_param = dfp ? strdup(dfp) : NULL;
 	init = init_;
@@ -891,6 +897,7 @@ nwc_tool_t::nwc_tool_t(const nwc_tool_t &nwt)
 	pos = nwt.pos;
 	player_nr = nwt.player_nr;
 	wkz_id = nwt.wkz_id;
+	wt = nwt.wt;
 	default_param = nwt.default_param ? strdup(nwt.default_param) : NULL;
 	init = nwt.init;
 	tool_client_id = nwt.our_client_id;
@@ -920,6 +927,7 @@ void nwc_tool_t::rdwr()
 	sint16 posy = pos.y; packet->rdwr_short(posy); pos.y = posy;
 	sint8  posz = pos.z; packet->rdwr_byte(posz);  pos.z = posz;
 	packet->rdwr_short(wkz_id);
+	packet->rdwr_short(wt);
 	packet->rdwr_str(default_param);
 	packet->rdwr_bool(init);
 	packet->rdwr_long(tool_client_id);
@@ -969,6 +977,28 @@ network_broadcast_world_command_t* nwc_tool_t::clone(karte_t *welt)
 				return NULL; // indicate failure
 			}
 		}
+		// do scenario checks here, send error message back
+		scenario_t *scen = welt->get_scenario();
+		if ( scen->is_scripted() ) {
+			if (!scen->is_tool_allowed(welt->get_spieler(player_nr), wkz_id, wt)) {
+				dbg->warning("nwc_tool_t::clone", "wkz=%d  wt=%d tool not allowed", wkz_id, wt);
+				// TODO return error message ?
+				return NULL;
+			}
+			if (!init) {
+				if (const char *err = scen->is_work_allowed_here(welt->get_spieler(player_nr), wkz_id, wt, pos) ) {
+					nwc_tool_t *nwt = new nwc_tool_t(*this);
+					nwt->wkz_id = WKZ_ERR_MESSAGE_TOOL | GENERAL_TOOL;
+					free( nwt->default_param );
+					nwt->default_param = strdup(err);
+					nwt->last_sync_step = welt->get_last_checklist_sync_step();
+					nwt->last_checklist = welt->get_last_checklist();
+					dbg->warning("nwc_tool_t::clone", "send sync_steps=%d  wkz=%d  error=%s", nwt->get_sync_step(), wkz_id, err);
+					return nwt;
+				}
+			}
+		}
+
 #if 0
 #error "Pause does not reset nwc_join_t::pending_join_client properly. Disabled for now here and in simwerkz.h (wkz_pause_t)"
 		// special care for unpause command

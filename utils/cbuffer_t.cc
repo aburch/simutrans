@@ -335,14 +335,27 @@ static int my_vsnprintf(char *buf, size_t n, const char* fmt, va_list ap )
 
 void cbuffer_t::printf(const char* fmt, ...)
 {
+	va_list ap;
+	va_start(ap, fmt);
+	vprintf(fmt,  ap );
+	va_end(ap);
+}
+
+
+void cbuffer_t::vprintf(const char *fmt,  va_list ap )
+{
 	for (;;) {
 		size_t const n     = capacity - size;
 		size_t inc;
 
-		va_list ap;
-		va_start(ap, fmt);
-		int    const count = my_vsnprintf(buf + size, n, fmt, ap );
-		va_end(ap);
+		va_list args;
+#ifdef __va_copy
+		__va_copy(args, ap);
+#else
+		// HACK: this is undefined behavior but should work ... hopefully ...
+		args = ap;
+#endif
+		int    const count = my_vsnprintf(buf + size, n, fmt, args );
 		if (count < 0) {
 #ifdef _WIN32
 			inc = capacity;

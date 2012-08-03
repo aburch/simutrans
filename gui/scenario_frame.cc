@@ -8,7 +8,10 @@
 #include "../simdebug.h"
 
 #include "scenario_frame.h"
+#include "scenario_info.h"
+#include "messagebox.h"
 
+#include "../simwin.h"
 #include "../simworld.h"
 
 #include "../dataobj/umgebung.h"
@@ -22,20 +25,25 @@
  */
 void scenario_frame_t::action(const char *filename)
 {
-	scenario_t scn(welt);
-	char path[1024], path2[1024];
+	scenario_t *scn = new scenario_t(welt);
+	char path[1024];
 	sprintf( path, "%s%sscenario/%s", umgebung_t::program_dir, umgebung_t::objfilename.c_str(), filename );
-	scn.init( path, welt );
-	sprintf( path2, "%s%sscenario/%s", umgebung_t::program_dir, umgebung_t::objfilename.c_str(), scn.get_filename() );
-	welt->laden( path2 );
-	welt->get_scenario()->init( path, welt );
-	// finally set game name to scenario name ...
-	sprintf( path, "%s.sve", filename );
-	welt->get_settings().set_filename(path);
+	const char* err = scn->init( path, welt );
+	if (err == NULL) {
+		// start the game
+		welt->set_pause(false);
+		// open scenario info window
+		destroy_win(magic_scenario_info);
+		create_win(new scenario_info_t(welt), w_info, magic_scenario_info);
+	}
+	else {
+		create_win(new news_img(err), w_info, magic_none);
+		delete scn;
+	}
 }
 
 
-scenario_frame_t::scenario_frame_t(karte_t *welt) : savegame_frame_t(".tab","./")
+scenario_frame_t::scenario_frame_t(karte_t *welt) : savegame_frame_t(".nut","./")
 {
 	this->welt = welt;
 	set_name(translator::translate("Load scenario"));
@@ -45,9 +53,11 @@ scenario_frame_t::scenario_frame_t(karte_t *welt) : savegame_frame_t(".tab","./"
 
 const char *scenario_frame_t::get_info(const char *filename)
 {
+	return filename;
+	/*
 	scenario_t scn(NULL);
 	char path[1024];
 	sprintf( path, "%s%sscenario/%s", umgebung_t::program_dir, umgebung_t::objfilename.c_str(), filename );
 	scn.init( path, NULL );
-	return scn.get_description();
+	return scn.get_description();*/
 }

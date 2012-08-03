@@ -347,6 +347,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\script\dynamic_string.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\dataobj\einstellungen.cc"
 				>
 			</File>
@@ -1364,6 +1368,10 @@
 			</File>
 			<File
 				RelativePath=".\gui\display_settings.h"
+				>
+			</File>
+			<File
+				RelativePath=".\script\dynamic_string.h"
 				>
 			</File>
 			<File

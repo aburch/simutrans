@@ -74,6 +74,7 @@
 #include "dataobj/umgebung.h"
 #include "dataobj/fahrplan.h"
 #include "dataobj/route.h"
+#include "dataobj/scenario.h"
 #include "dataobj/network_cmd_ingame.h" // for dragging raise / lower tools
 
 #include "bauer/tunnelbauer.h"
@@ -93,6 +94,8 @@
 
 #include "simwerkz.h"
 
+
+#define is_scenario()  welt->get_scenario()->is_scripted()
 
 #define CHECK_FUNDS() \
 	/* do not allow, if out of money */ \
@@ -1813,11 +1816,21 @@ bool wkz_wegebau_t::init( karte_t *welt, spieler_t *sp )
 	}
 	if(  besch  &&  welt->get_timeline_year_month()  &&  sp!=NULL  &&  sp!=welt->get_spieler(1)  ) {
 		if(  welt->get_timeline_year_month() < besch->get_intro_year_month()  ||  welt->get_timeline_year_month() >= besch->get_retire_year_month()  ) {
-			// non avaialable way => fail
+			// non available way => fail
 			return false;
 		}
 	}
 	return besch!=NULL;
+}
+
+waytype_t wkz_wegebau_t::get_waytype() const
+{
+	const weg_besch_t *besch = get_besch( spieler_t::get_welt()->get_timeline_year_month(), false );
+	waytype_t wt = besch ? besch->get_wtyp() : invalid_wt;
+	if (wt == track_wt  &&  besch->get_styp()==7) {
+		wt = tram_wt;
+	}
+	return wt;
 }
 
 uint8 wkz_wegebau_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord3d &pos, const char *&error, const koord3d & )
@@ -1991,6 +2004,12 @@ const char* wkz_brueckenbau_t::get_tooltip(const spieler_t *sp) const
 		n += sprintf(toolstr+n, ", %dkm", besch->get_max_length());
 	}
 	return toolstr;
+}
+
+waytype_t wkz_brueckenbau_t::get_waytype() const
+{
+	const bruecke_besch_t * besch = brueckenbauer_t::get_besch(default_param);
+	return besch ? besch->get_waytype() : invalid_wt;
 }
 
 const char *wkz_brueckenbau_t::do_work( karte_t *welt, spieler_t *sp, const koord3d &start, const koord3d &end )
@@ -2179,7 +2198,7 @@ uint8 wkz_brueckenbau_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord
 		}
 		// check whether we can build a bridge here
 		const char *error = NULL;
-		koord3d end = brueckenbauer_t::finde_ende(welt, start, koord(test), besch, error, false, koord_distance(start, pos));
+		koord3d end = brueckenbauer_t::finde_ende(welt, sp, start, koord(test), besch, error, false, koord_distance(start, pos));
 		if (end!=pos) {
 			return 0;
 		}
@@ -2198,6 +2217,12 @@ const char* wkz_tunnelbau_t::get_tooltip(const spieler_t *sp) const
 		n += sprintf(toolstr+n, ", %dkm/h", besch->get_topspeed());
 	}
 	return toolstr;
+}
+
+waytype_t wkz_tunnelbau_t::get_waytype() const
+{
+	const tunnel_besch_t * besch = tunnelbauer_t::get_besch(default_param);
+	return besch ? besch->get_waytype() : invalid_wt;
 }
 
 const char *wkz_tunnelbau_t::check_pos( karte_t *welt, spieler_t *sp, koord3d pos)
@@ -2366,12 +2391,49 @@ image_id wkz_wayremover_t::get_icon(spieler_t *sp) const
 	return IMG_LEER;
 }
 
+waytype_t wkz_wayremover_t::get_waytype() const
+{
+	return default_param ? (waytype_t)atoi(default_param) : invalid_wt;
+}
+
 class electron_t : public fahrer_t {
 	bool ist_befahrbar(const grund_t* gr) const { return gr->get_leitung()!=NULL; }
 	virtual ribi_t::ribi get_ribi(const grund_t* gr) const { return gr->get_leitung()->get_ribi(); }
 	virtual waytype_t get_waytype() const { return invalid_wt; }
 	virtual int get_kosten(const grund_t *, const sint32, koord) const { return 1; }
 	virtual bool ist_ziel(const grund_t *,const grund_t *) const { return false; }
+};
+
+class scenario_checker_t : public fahrer_t {
+public:
+	fahrer_t *other;
+	scenario_t *scenario;
+	uint16 id;
+	spieler_t *sp;
+	~scenario_checker_t() { delete other; }
+
+	/**
+	 * checks for active scenario,
+	 * @returns scenario_checker_t if scenario active, the supplied test_driver otherwise
+	 */
+	static fahrer_t* apply(fahrer_t *test_driver, spieler_t *sp, werkzeug_t *wkz) {
+		karte_t *welt = sp->get_welt();
+		if (is_scenario()) {
+			scenario_checker_t *td2 = new scenario_checker_t();
+			td2->other = test_driver;
+			td2->scenario = welt->get_scenario();
+			td2->id = wkz->get_id();
+			td2->sp = sp;
+			return td2;
+		}
+		return test_driver;
+	}
+private:
+	bool ist_befahrbar(const grund_t* gr) const { return other->ist_befahrbar(gr)  &&  scenario->is_work_allowed_here(sp, id, other->get_waytype(), gr->get_pos())==NULL;}
+	virtual ribi_t::ribi get_ribi(const grund_t* gr) const { return other->get_ribi(gr); }
+	virtual waytype_t get_waytype() const { return other->get_waytype(); }
+	virtual int get_kosten(const grund_t *gr, const sint32 c, koord p) const { return other->get_kosten(gr,c,p); }
+	virtual bool ist_ziel(const grund_t *gr,const grund_t *gr2) const { return other->ist_ziel(gr,gr2); }
 };
 
 void wkz_wayremover_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &start, const koord3d &end )
@@ -2404,6 +2466,13 @@ uint8 wkz_wayremover_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord3
 		error = "No suitable ground!";
 		return 0;
 	}
+	if(is_scenario()) {
+		error = welt->get_scenario()->is_work_allowed_here(sp, get_id(), wt, pos);
+		if (error) {
+			printf(error);
+			return 0;
+		}
+	}
 	error = NULL;
 	return 2;
 }
@@ -2435,6 +2504,8 @@ bool wkz_wayremover_t::calc_route( route_t &verbindung, spieler_t *sp, const koo
 		else {
 			test_driver = new electron_t();
 		}
+		test_driver = scenario_checker_t::apply(test_driver, sp, this);
+
 		verbindung.calc_route(sp->get_welt(), start, end, test_driver, 0, 0);
 		delete test_driver;
 	}
@@ -2638,6 +2709,17 @@ const way_obj_besch_t *wkz_wayobj_t::get_besch( const karte_t* welt ) const
 	return besch;
 }
 
+waytype_t wkz_wayobj_t::get_waytype() const
+{
+	if(  build  ) {
+		const way_obj_besch_t *besch = get_besch(spieler_t::get_welt());
+		return besch ? besch->get_wtyp() : invalid_wt;
+	}
+	else {
+		return default_param ? (waytype_t)atoi( default_param ) : invalid_wt;
+	}
+}
+
 bool wkz_wayobj_t::is_selected( const karte_t *welt ) const
 {
 	const wkz_wayobj_t *selected = dynamic_cast<const wkz_wayobj_t *>(welt->get_werkzeug(welt->get_active_player_nr()));
@@ -2668,8 +2750,10 @@ bool wkz_wayobj_t::calc_route( route_t &verbindung, spieler_t *sp, const koord3d
 {
 	// get a default vehikel
 	vehikel_besch_t remover_besch( wt, 500, vehikel_besch_t::diesel );
-	vehikel_t* test_driver = vehikelbauer_t::baue(start, sp, NULL, &remover_besch);
-	test_driver->set_flag( ding_t::not_on_map );
+	vehikel_t* test_vehicle = vehikelbauer_t::baue(start, sp, NULL, &remover_besch);
+	test_vehicle->set_flag( ding_t::not_on_map );
+	fahrer_t* test_driver = scenario_checker_t::apply(test_vehicle, sp, this);
+
 	bool can_built;
 	if( start != to ) {
 		can_built = verbindung.calc_route(sp->get_welt(), start, to, test_driver, 0, 0);
@@ -3517,6 +3601,20 @@ invalid:
 	return tooltip_with_price_maintenance_level(&welt, besch.get_name(), price * level, settings.maint_building * level, level, besch.get_enabled());
 }
 
+waytype_t wkz_station_t::get_waytype() const
+{
+	sint8 dummy;
+	haus_besch_t const* besch = get_besch(dummy);
+	switch (besch->get_utyp()) {
+		case haus_besch_t::generic_stop:
+			return (waytype_t)besch->get_extra();
+		case haus_besch_t::hafen:
+			return water_wt;
+		case haus_besch_t::generic_extension:
+		default:
+			return invalid_wt;
+	}
+}
 
 const char *wkz_station_t::check_pos( karte_t *welt, spieler_t *sp, koord3d pos )
 {
@@ -3691,6 +3789,11 @@ const char* wkz_roadsign_t::get_default_param(spieler_t *sp) const
 	}
 }
 
+waytype_t wkz_roadsign_t::get_waytype() const
+{
+	return besch ? besch->get_wtyp() : invalid_wt;
+}
+
 // read variables from default_param if cmd comes from network
 // default_param: sign_name,signal_spacing,remove,replace
 // if the static variable toolstring is the default_param then reset default_param to name of signal
@@ -3755,7 +3858,9 @@ bool wkz_roadsign_t::calc_route( route_t &verbindung, spieler_t *sp, const koord
 {
 	// get a default vehikel
 	vehikel_besch_t rs_besch( besch->get_wtyp(), 500, vehikel_besch_t::diesel );
-	vehikel_t* test_driver = vehikelbauer_t::baue(start, sp, NULL, &rs_besch);
+	vehikel_t* test_vehicle = vehikelbauer_t::baue(start, sp, NULL, &rs_besch);
+	fahrer_t* test_driver = scenario_checker_t::apply(test_vehicle, sp, this);
+
 	bool can_built;
 	if( start != to ) {
 		can_built = verbindung.calc_route(sp->get_welt(), start, to, test_driver, 0, 0);
@@ -4100,9 +4205,10 @@ image_id wkz_depot_t::get_icon(spieler_t *sp) const
 
 bool wkz_depot_t::init( karte_t *welt, spieler_t *sp )
 {
+	haus_besch_t const& besch    = *hausbauer_t::find_tile(default_param, 0)->get_besch();
 	// no depots for player 1
 	if(sp!=welt->get_spieler(1)) {
-		cursor = hausbauer_t::find_tile(default_param,0)->get_besch()->get_cursor()->get_bild_nr(0);
+		cursor = besch.get_cursor()->get_bild_nr(0);
 		return true;
 	}
 	return false;
@@ -4127,6 +4233,12 @@ const char* wkz_depot_t::get_tooltip(const spieler_t *sp) const
 		default:             return 0;
 	}
 	return tooltip_with_price_maintenance(&welt, tip, price, settings.maint_building * besch.get_level());
+}
+
+waytype_t wkz_depot_t::get_waytype() const
+{
+	const haus_besch_t *besch = hausbauer_t::find_tile(default_param,0)->get_besch();
+	return (waytype_t)besch->get_extra();
 }
 
 const char *wkz_depot_t::work( karte_t *welt, spieler_t *sp, koord3d k )

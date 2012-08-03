@@ -209,9 +209,10 @@ money_frame_t::money_frame_t(spieler_t *sp)
 
 	// return money or else stuff ...
 	warn.set_pos(koord(left+335, top+9*BUTTONSPACE));
-	if(sp->get_player_nr()==0  &&  sp->get_welt()->get_scenario()->active()) {
+	if(sp->get_player_nr()!=1  &&  sp->get_welt()->get_scenario()->active()) {
 		scenario.set_pos( koord( 10,1 ) );
-		scenario.set_text( sp->get_welt()->get_scenario()->get_description() );
+		sp->get_welt()->get_scenario()->update_scenario_texts();
+		scenario.set_text( sp->get_welt()->get_scenario()->description_text );
 		add_komponente(&scenario);
 	}
 
@@ -428,9 +429,15 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	margin.set_color(get_money_colour(COST_MARGIN, 0));
 
 	// warning/success messages
-	if(sp->get_player_nr()==0  &&  sp->get_welt()->get_scenario()->active()) {
+	if(sp->get_player_nr()!=1  &&  sp->get_welt()->get_scenario()->active()) {
 		warn.set_color( COL_BLACK );
-		sprintf( str_buf[15], translator::translate("Scenario complete: %i%%"), sp->get_welt()->get_scenario()->completed(0) );
+		sint32 percent = sp->get_welt()->get_scenario()->completed( sp->get_player_nr() );
+		if (percent >= 0) {
+			sprintf( str_buf[15], translator::translate("Scenario complete: %i%%"), percent );
+		}
+		else {
+			sprintf( str_buf[15], translator::translate("Scenario lost!") );
+		}
 	}
 	else if(sp->get_finance_history_year(0, COST_NETWEALTH)<0) {
 		warn.set_color( MONEY_MINUS );
@@ -448,6 +455,15 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 		str_buf[15][0] = '\0';
 	}
 	warn.set_text(str_buf[15]);
+
+	// scenario description
+	if(sp->get_player_nr()!=1  &&  sp->get_welt()->get_scenario()->active()) {
+		dynamic_string& desc = sp->get_welt()->get_scenario()->description_text;
+		if (desc.has_changed()) {
+			scenario.set_text( desc );
+			desc.clear_changed();
+		}
+	}
 
 	headquarter.disable();
 	if(  sp->get_ai_id()!=spieler_t::HUMAN  ) {

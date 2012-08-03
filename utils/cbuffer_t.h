@@ -1,7 +1,7 @@
 #ifndef cbuffer_t_h
 #define cbuffer_t_h
 
-
+#include <stdarg.h>
 /**
  * A character buffer. Main operation is 'append'
  * @author Hj. Malthaner
@@ -91,7 +91,9 @@ public:
 	void append(double n, int precision);
 
 	/* Append formatted text to the buffer */
-	void printf(const char* fmt, ...);
+	void printf(const char *fmt, ...);
+
+	void vprintf(const char *fmt,  va_list args );
 
 	/* enlarge the buffer if needed (i.e. size+by_amount larger than capacity) */
 	void extend(unsigned int by_amount);

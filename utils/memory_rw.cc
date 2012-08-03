@@ -5,6 +5,7 @@
 #include "plainstring.h"
 #include "../simdebug.h"
 #include "../simmem.h"
+#include "plainstring.h"
 
 
 memory_rw_t::memory_rw_t( void *ptr, uint32 max, bool saving )
@@ -149,15 +150,17 @@ void memory_rw_t::rdwr_str(char *&s)
 }
 
 
-void memory_rw_t::rdwr_str(plainstring& s)
+void memory_rw_t::rdwr_str(plainstring &s)
 {
-	if (is_loading()) {
-		char *buf = NULL;
-		rdwr_str(buf);
-		s = buf;
-		free(buf);
-	} else {
-		rdwr_str((char*&)s);
+	if(is_loading()) {
+		char *t = NULL;
+		rdwr_str(t);
+		s = t;
+		free(t);
+	}
+	else {
+		char *t = s;
+		rdwr_str(t);
 	}
 }
 

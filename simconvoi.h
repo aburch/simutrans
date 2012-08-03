@@ -792,6 +792,7 @@ public:
 	* @author hsiegeln
 	*/
 	sint64 get_finance_history(int month, int cost_type) const { return financial_history[month][cost_type]; }
+	sint64 get_stat_converted(int month, int cost_type) const;
 
 	/**
 	* only purpose currently is to roll financial history

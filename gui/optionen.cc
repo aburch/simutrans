@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hj. Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -16,6 +16,7 @@
 #include "../simimg.h"
 #include "../simwin.h"
 #include "../simgraph.h"
+#include "../simsys.h"
 #include "optionen.h"
 #include "display_settings.h"
 #include "sprachen.h"
@@ -24,7 +25,15 @@
 #include "kennfarbe.h"
 #include "sound_frame.h"
 #include "loadsave_frame.h"
+#include "scenario_frame.h"
+#include "scenario_info.h"
+#include "../dataobj/scenario.h"
 #include "../dataobj/translator.h"
+#include "../dataobj/umgebung.h"
+
+#ifdef _MSC_VER
+#include <direct.h>
+#endif
 
 optionen_gui_t::optionen_gui_t(karte_t *welt) :
 	gui_frame_t( translator::translate("Einstellungen")),
@@ -89,6 +98,13 @@ optionen_gui_t::optionen_gui_t(karte_t *welt) :
 	bt_new.add_listener(this);
 	add_komponente( &bt_new );
 
+	bt_scenario.set_groesse( koord(90, 14) );
+	bt_scenario.set_typ(button_t::roundbox);
+	bt_scenario.set_pos( koord(112,81) );
+	bt_scenario.set_text("Scenario");
+	bt_scenario.add_listener(this);
+	add_komponente( &bt_scenario );
+
 	// 01-Nov-2001      Markus Weber    Added
 	bt_quit.set_groesse( koord(90, 14) );
 	bt_quit.set_typ(button_t::roundbox);
@@ -99,10 +115,6 @@ optionen_gui_t::optionen_gui_t(karte_t *welt) :
 
 	txt.set_pos( koord(10,10) );
 	add_komponente( &txt );
-
-	seperator.set_pos( koord(112, 81+6) );
-	seperator.set_groesse( koord(90,1) );
-	add_komponente( &seperator );
 
 	set_fenstergroesse( koord(213, 98+7+14+16) );
 }
@@ -141,6 +153,20 @@ bool optionen_gui_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 	else if(comp==&bt_new) {
 		destroy_all_win( true );
 		welt->beenden(false);
+	}
+	else if(comp==&bt_scenario) {
+		destroy_win(this);
+		if (welt->get_scenario()->active()) {
+			create_win(new scenario_info_t(welt), w_info, magic_scenario_info);
+		}
+		else {
+			char path[1024];
+			sprintf( path, "%s%sscenario/", umgebung_t::program_dir, umgebung_t::objfilename.c_str() );
+			destroy_all_win(true);
+			chdir( path );
+			create_win( new scenario_frame_t(welt), w_info, magic_scenario_frame );
+			chdir( umgebung_t::user_dir );
+		}
 	}
 	else if(comp==&bt_quit) {
 		welt->beenden(true);

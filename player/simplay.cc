@@ -277,18 +277,6 @@ void spieler_t::neuer_monat()
 		buche( -((sint64)maintenance) >> (18-welt->ticks_per_world_month_shift), COST_MAINTENANCE);
 	}
 
-	// enough money and scenario finished?
-	if(konto > 0  &&  welt->get_scenario()->active()  &&  finance_history_year[0][COST_SCENARIO_COMPLETED]>=100) {
-		destroy_all_win(true);
-		sint32 const time = welt->get_current_month() - welt->get_settings().get_starting_year() * 12;
-		buf.clear();
-		buf.printf( translator::translate("Congratulation\nScenario was complete in\n%i months %i years."), time%12, time/12 );
-		create_win(280, 40, new news_img(buf), w_info, magic_none);
-		// disable further messages
-		welt->get_scenario()->init("",welt);
-		return;
-	}
-
 	// Bankrott ?
 	if(  konto < 0  ) {
 		konto_ueberzogen++;
@@ -410,6 +398,16 @@ void spieler_t::calc_finance_history()
 	finance_history_month[0][COST_OPERATING_PROFIT] = finance_history_month[0][COST_INCOME] + finance_history_month[0][COST_POWERLINES] + finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE] + finance_history_month[0][COST_WAY_TOLLS];
 	finance_history_month[0][COST_MARGIN] = calc_margin(finance_history_month[0][COST_OPERATING_PROFIT], finance_history_month[0][COST_INCOME]);
 	finance_history_month[0][COST_SCENARIO_COMPLETED] = finance_history_year[0][COST_SCENARIO_COMPLETED] = welt->get_scenario()->completed(player_nr);
+}
+
+
+sint64 spieler_t::get_finance_history_month_converted(int month, int type)
+{
+	sint64 value = finance_history_month[month][type];
+	if ((COST_CONSTRUCTION <= type  &&  type <= COST_OPERATING_PROFIT)  ||  type == COST_WAY_TOLLS  ||  type ==  COST_POWERLINES) {
+		value = convert_money(value);
+	}
+	return value;
 }
 
 

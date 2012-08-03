@@ -25,6 +25,7 @@ private:
 	button_t bt_save;
 	button_t bt_new;
 	button_t bt_quit;
+	button_t bt_scenario;
 
 	gui_divider_t seperator;
 	gui_label_t txt;

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -38,14 +38,14 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\simutrans-prog\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">libs\inc;$(IncludePath)</IncludePath>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">simutrans-trunk</TargetName>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\Users\maria\Documents\simutrans-libs\inc;$(IncludePath)</IncludePath>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">simutrans-script</TargetName>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">libs;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -110,6 +110,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="gui\components\gui_ding_view_t.cc" />
+    <ClCompile Include="gui\display_settings.cc" />
+    <ClCompile Include="gui\scenario_info.cc" />
     <ClCompile Include="music\no_midi.cc" />
     <ClCompile Include="player\ai.cc" />
     <ClCompile Include="player\ai_goods.cc" />
@@ -126,7 +129,33 @@
     <ClCompile Include="bauer\brueckenbauer.cc" />
     <ClCompile Include="boden\brueckenboden.cc" />
     <ClCompile Include="besch\reader\building_reader.cc" />
+    <ClCompile Include="script\export_const.cc" />
+    <ClCompile Include="script\export_objs.cc" />
+    <ClCompile Include="script\export_tpl.cc" />
+    <ClCompile Include="script\script.cc" />
     <ClCompile Include="sound\no_sound.cc" />
+    <ClCompile Include="squirrel\sqstdlib\sqstdaux.cc" />
+    <ClCompile Include="squirrel\sqstdlib\sqstdblob.cc" />
+    <ClCompile Include="squirrel\sqstdlib\sqstdio.cc" />
+    <ClCompile Include="squirrel\sqstdlib\sqstdmath.cc" />
+    <ClCompile Include="squirrel\sqstdlib\sqstdrex.cc" />
+    <ClCompile Include="squirrel\sqstdlib\sqstdstream.cc" />
+    <ClCompile Include="squirrel\sqstdlib\sqstdstring.cc" />
+    <ClCompile Include="squirrel\sqstdlib\sqstdsystem.cc" />
+    <ClCompile Include="squirrel\squirrel\sqapi.cc" />
+    <ClCompile Include="squirrel\squirrel\sqbaselib.cc" />
+    <ClCompile Include="squirrel\squirrel\sqclass.cc" />
+    <ClCompile Include="squirrel\squirrel\sqcompiler.cc" />
+    <ClCompile Include="squirrel\squirrel\sqdebug.cc" />
+    <ClCompile Include="squirrel\squirrel\sqfuncstate.cc" />
+    <ClCompile Include="squirrel\squirrel\sqlexer.cc" />
+    <ClCompile Include="squirrel\squirrel\sqmem.cc" />
+    <ClCompile Include="squirrel\squirrel\sqobject.cc" />
+    <ClCompile Include="squirrel\squirrel\sqstate.cc" />
+    <ClCompile Include="squirrel\squirrel\sqtable.cc" />
+    <ClCompile Include="squirrel\squirrel\sqvm.cc" />
+    <ClCompile Include="squirrel\sq_extensions.cc" />
+    <ClCompile Include="squirrel\sq_types.cc" />
     <ClCompile Include="utils\cbuffer_t.cc" />
     <ClCompile Include="utils\checksum.cc" />
     <ClCompile Include="gui\citybuilding_edit.cc" />
@@ -147,7 +176,7 @@
     <ClCompile Include="gui\curiositylist_stats_t.cc" />
     <ClCompile Include="gui\depot_frame.cc" />
     <ClCompile Include="dataobj\dingliste.cc" />
-    <ClCompile Include="gui\display_settings.cc" />
+    <ClCompile Include="script\dynamic_string.cc" />
     <ClCompile Include="dataobj\einstellungen.cc" />
     <ClCompile Include="gui\enlarge_map_frame_t.cc" />
     <ClCompile Include="gui\extend_edit.cc" />
@@ -182,7 +211,6 @@
     <ClCompile Include="gui\components\gui_combobox.cc" />
     <ClCompile Include="gui\gui_container.cc" />
     <ClCompile Include="gui\gui_convoiinfo.cc" />
-    <ClCompile Include="gui\components\gui_ding_view_t.cc" />
     <ClCompile Include="gui\components\gui_fixedwidth_textarea.cc" />
     <ClCompile Include="gui\components\gui_flowtext.cc" />
     <ClCompile Include="gui\gui_frame.cc" />
@@ -360,10 +388,43 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gui\components\action_listener.h" />
+    <ClInclude Include="gui\scenario_info.h" />
     <ClInclude Include="player\ai.h" />
     <ClInclude Include="player\ai_goods.h" />
     <ClInclude Include="gui\ai_option_t.h" />
     <ClInclude Include="player\ai_passenger.h" />
+    <ClInclude Include="script\export_const.h" />
+    <ClInclude Include="script\export_objs.h" />
+    <ClInclude Include="script\export_tpl.h" />
+    <ClInclude Include="script\script.h" />
+    <ClInclude Include="script\dynamic_string.cc" />
+    <ClInclude Include="squirrel\sqstdaux.h" />
+    <ClInclude Include="squirrel\sqstdblob.h" />
+    <ClInclude Include="squirrel\sqstdio.h" />
+    <ClInclude Include="squirrel\sqstdlib\sqstdblobimpl.h" />
+    <ClInclude Include="squirrel\sqstdlib\sqstdstream.h" />
+    <ClInclude Include="squirrel\sqstdmath.h" />
+    <ClInclude Include="squirrel\sqstdstring.h" />
+    <ClInclude Include="squirrel\sqstdsystem.h" />
+    <ClInclude Include="squirrel\squirrel.h" />
+    <ClInclude Include="squirrel\squirrel\sqarray.h" />
+    <ClInclude Include="squirrel\squirrel\sqclass.h" />
+    <ClInclude Include="squirrel\squirrel\sqclosure.h" />
+    <ClInclude Include="squirrel\squirrel\sqcompiler.h" />
+    <ClInclude Include="squirrel\squirrel\sqfuncproto.h" />
+    <ClInclude Include="squirrel\squirrel\sqfuncstate.h" />
+    <ClInclude Include="squirrel\squirrel\sqlexer.h" />
+    <ClInclude Include="squirrel\squirrel\sqobject.h" />
+    <ClInclude Include="squirrel\squirrel\sqopcodes.h" />
+    <ClInclude Include="squirrel\squirrel\sqpcheader.h" />
+    <ClInclude Include="squirrel\squirrel\sqstate.h" />
+    <ClInclude Include="squirrel\squirrel\sqstring.h" />
+    <ClInclude Include="squirrel\squirrel\sqtable.h" />
+    <ClInclude Include="squirrel\squirrel\squserdata.h" />
+    <ClInclude Include="squirrel\squirrel\squtils.h" />
+    <ClInclude Include="squirrel\squirrel\sqvm.h" />
+    <ClInclude Include="squirrel\sq_extensions.h" />
+    <ClInclude Include="squirrel\sq_types.h" />
     <ClInclude Include="tpl\array2d_tpl.h" />
     <ClInclude Include="tpl\array_tpl.h" />
     <ClInclude Include="gui\banner.h" />

@@ -1389,7 +1389,7 @@ void stadt_t::verbinde_fabriken()
 
 /* change size of city
  * @author prissi */
-void stadt_t::change_size(long delta_citicens)
+void stadt_t::change_size(sint32 delta_citicens)
 {
 	DBG_MESSAGE("stadt_t::change_size()", "%i + %i", bev, delta_citicens);
 	if (delta_citicens > 0) {
@@ -2849,10 +2849,10 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 					return false;
 				}
 				const char *err = NULL;
-				koord3d end = brueckenbauer_t::finde_ende(welt, bd->get_pos(), zv, bridge, err, false);
+				koord3d end = brueckenbauer_t::finde_ende(welt, NULL, bd->get_pos(), zv, bridge, err, false);
 				if (err  ||   koord_distance( k, end.get_2d())>3) {
 					// try to find shortest possible
-					end = brueckenbauer_t::finde_ende(welt, bd->get_pos(), zv, bridge, err, true);
+					end = brueckenbauer_t::finde_ende(welt, NULL, bd->get_pos(), zv, bridge, err, true);
 				}
 				if (err==NULL  &&   koord_distance( k, end.get_2d())<=3) {
 					brueckenbauer_t::baue_bruecke(welt, welt->get_spieler(1), bd->get_pos(), end, zv, bridge, welt->get_city_road());

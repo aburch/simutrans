@@ -20,6 +20,7 @@
 
 #include "../dataobj/loadsave.h"
 #include "../dataobj/ribi.h"
+#include "../dataobj/scenario.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/umgebung.h"
 
@@ -475,6 +476,11 @@ DBG_DEBUG( "wayobj_t::register_besch()","%s", besch->get_name() );
  */
 void wayobj_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 /*sound_ok*/, const karte_t *welt)
 {
+	// check if scenario forbids this
+	if (!welt->get_scenario()->is_tool_allowed(welt->get_active_player(), WKZ_WAYOBJ | GENERAL_TOOL, wtyp)) {
+		return;
+	}
+
 	const uint16 time=welt->get_timeline_year_month();
 
 	vector_tpl<const way_obj_besch_t *>matching;

@@ -45,6 +45,7 @@
 #include "../dataobj/umgebung.h"
 #include "../dataobj/route.h"
 #include "../dataobj/translator.h"
+#include "../dataobj/scenario.h"
 
 // binary heap, since we only need insert and pop
 #include "../tpl/binary_heap_tpl.h" // fastest
@@ -280,6 +281,12 @@ static bool compare_ways(const weg_besch_t* a, const weg_besch_t* b)
  */
 void wegbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const weg_t::system_type styp, sint16 /*ok_sound*/, karte_t *welt)
 {
+	// check if scenario forbids this
+	const waytype_t rwtyp = wtyp!=track_wt  || styp!=weg_t::type_tram  ? wtyp : tram_wt;
+	if (!welt->get_scenario()->is_tool_allowed(welt->get_active_player(), WKZ_WEGEBAU | GENERAL_TOOL, rwtyp)) {
+		return;
+	}
+
 	const uint16 time = welt->get_timeline_year_month();
 
 	// list of matching types (sorted by speed)
@@ -487,7 +494,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 	const koord to_pos=to->get_pos().get_2d();
 	const koord zv=to_pos-from_pos;
 
-	if(bautyp==luft  &&  (from->get_grund_hang()+to->get_grund_hang()!=0  ||  (from->hat_wege()  &&  from->hat_weg(air_wt)==0))) {
+	if(bautyp==luft  &&  (from->get_grund_hang()+to->get_grund_hang()!=0  ||  (from->hat_wege()  &&  from->hat_weg(air_wt)==0)  ||  (to->hat_wege()  &&  to->hat_weg(air_wt)==0))) {
 		// absolutely no slopes for runways, neither other ways
 		return false;
 	}
@@ -518,6 +525,11 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 
 	// ok, slopes are ok
 	bool ok = true;
+
+	// check scenario conditions
+	if (welt->get_scenario()->is_work_allowed_here(sp, (bautyp&tunnel_flag ? WKZ_TUNNELBAU : WKZ_WEGEBAU)|GENERAL_TOOL, bautyp&bautyp_mask, to->get_pos()) != NULL) {
+		return false;
+	}
 
 	// universal check for elevated things ...
 	if(bautyp&elevated_flag) {
@@ -1002,7 +1014,7 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 		const grund_t* gr_end;
 		uint32 min_length = 1;
 		for (uint8 i = 0; i < 8 && min_length <= welt->get_settings().way_max_bridge_len; ++i) {
-			end = brueckenbauer_t::finde_ende( welt, from->get_pos(), zv, bruecke_besch, error, true, min_length );
+			end = brueckenbauer_t::finde_ende( welt, sp, from->get_pos(), zv, bruecke_besch, error, true, min_length );
 			gr_end = welt->lookup(end);
 			uint32 length = koord_distance(from->get_pos(), end);
 			if (gr_end && !error && !ziel.is_contained(end) && brueckenbauer_t::ist_ende_ok(sp, gr_end) && length <= welt->get_settings().way_max_bridge_len) {
@@ -1023,7 +1035,7 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 	if(  tunnel_besch  &&  ribi_typ(from->get_grund_hang()) == ribi_typ(zv)  ) {
 		// uphill hang ... may be tunnel?
 		const long cost_difference=besch->get_wartung()>0 ? (tunnel_besch->get_wartung()*4l+3l)/besch->get_wartung() : 16;
-		koord3d end = tunnelbauer_t::finde_ende( welt, from->get_pos(), zv, besch->get_wtyp());
+		koord3d end = tunnelbauer_t::finde_ende( welt, sp, from->get_pos(), zv, besch->get_wtyp());
 		if(  end != koord3d::invalid  &&  !ziel.is_contained(end)  ) {
 			uint32 length = koord_distance(from->get_pos(), end);
 			next_gr.append(next_gr_t(welt->lookup(end), length * cost_difference, build_straight ));

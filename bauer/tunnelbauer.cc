@@ -20,6 +20,8 @@
 #include "../besch/tunnel_besch.h"
 
 #include "../boden/tunnelboden.h"
+
+#include "../dataobj/scenario.h"
 #include "../dataobj/umgebung.h"
 
 #include "../dings/tunnel.h"
@@ -108,6 +110,11 @@ static bool compare_tunnels(const tunnel_besch_t* a, const tunnel_besch_t* b)
  */
 void tunnelbauer_t::fill_menu(werkzeug_waehler_t* wzw, const waytype_t wtyp, sint16 /*sound_ok*/, const karte_t* welt)
 {
+	// check if scenario forbids this
+	if (!welt->get_scenario()->is_tool_allowed(welt->get_active_player(), WKZ_TUNNELBAU | GENERAL_TOOL, wtyp)) {
+		return;
+	}
+
 	const uint16 time=welt->get_timeline_year_month();
 	vector_tpl<const tunnel_besch_t*> matching(tunnel_by_name.get_count());
 
@@ -130,7 +137,7 @@ void tunnelbauer_t::fill_menu(werkzeug_waehler_t* wzw, const waytype_t wtyp, sin
 /* now construction stuff */
 
 
-koord3d tunnelbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, waytype_t wegtyp)
+koord3d tunnelbauer_t::finde_ende(karte_t *welt, spieler_t *sp, koord3d pos, koord zv, waytype_t wegtyp, const char** msg)
 {
 	const grund_t *gr;
 	leitung_t *lt;
@@ -144,6 +151,13 @@ koord3d tunnelbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, waytype_
 		// check if ground is below tunnel level
 		gr = welt->lookup_kartenboden(pos.get_2d());
 		if(  gr->get_hoehe() < pos.z  ){
+			return koord3d::invalid;
+		}
+
+		if (const char* err = welt->get_scenario()->is_work_allowed_here(sp, WKZ_TUNNELBAU|GENERAL_TOOL, wegtyp, pos)) {
+			if (msg) {
+				*msg = err;
+			}
 			return koord3d::invalid;
 		}
 
@@ -245,7 +259,11 @@ const char *tunnelbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, const 
 	// Tunnelende suchen
 	koord3d end = koord3d::invalid;
 	if(full_tunnel) {
-		end = finde_ende(welt, gr->get_pos(), zv, wegtyp);
+		const char *err = NULL;
+		end = finde_ende(welt, sp, gr->get_pos(), zv, wegtyp, &err);
+		if (err) {
+			return err;
+		}
 	}
 	else {
 		end = gr->get_pos()+zv;

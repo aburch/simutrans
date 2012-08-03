@@ -34,7 +34,7 @@ private:
 	tunnelbauer_t() {} // private -> no instance please
 
 public:
-	static koord3d finde_ende(karte_t *welt, koord3d pos, koord zv, waytype_t wegtyp);
+	static koord3d finde_ende(karte_t *welt, spieler_t *sp, koord3d pos, koord zv, waytype_t wegtyp, const char** msg=NULL);
 
 	static void register_besch(tunnel_besch_t *besch);
 

@@ -22,6 +22,7 @@
 #include "../boden/wege/strasse.h"
 
 #include "../dataobj/loadsave.h"
+#include "../dataobj/scenario.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/umgebung.h"
 
@@ -663,6 +664,11 @@ bool roadsign_t::register_besch(roadsign_besch_t *besch)
  */
 void roadsign_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 /*sound_ok*/, const karte_t *welt)
 {
+	// check if scenario forbids this
+	if (!welt->get_scenario()->is_tool_allowed(welt->get_active_player(), WKZ_ROADSIGN | GENERAL_TOOL, wtyp)) {
+		return;
+	}
+
 	const uint16 time = welt->get_timeline_year_month();
 
 	vector_tpl<const roadsign_besch_t *>matching;

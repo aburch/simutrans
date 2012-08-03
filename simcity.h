@@ -470,7 +470,7 @@ public:
 
 	/* change size of city
 	* @author prissi */
-	void change_size( long delta_citicens );
+	void change_size( sint32 delta_citicens );
 
 	// when ng is false, no town growth any more
 	void set_citygrowth_yesno( bool ng ) { allow_citygrowth = ng; }

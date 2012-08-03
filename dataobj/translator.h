@@ -75,6 +75,7 @@ public:
 	 */
 	static void load_files_from_folder(const char* folder_name, const char* what);
 
+
 	/**
 	 * Get/Set the currently selected language, based on the
 	 * index number

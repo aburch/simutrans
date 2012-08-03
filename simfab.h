@@ -72,6 +72,13 @@ class stadt_t;
 #define DEMAND_BITS (4)
 
 
+/**
+ * Convert internal values to displayed values
+ */
+sint64 convert_goods(sint64 value);
+sint64 convert_power(sint64 value);
+sint64 convert_boost(sint64 value);
+
 // to prepare for 64 precision ...
 class ware_production_t
 {
@@ -92,6 +99,18 @@ public:
 	void book_stat(sint64 value, int stat_type) { assert(stat_type<MAX_FAB_GOODS_STAT); statistics[0][stat_type] += value; }
 	void set_stat(sint64 value, int stat_type) { assert(stat_type<MAX_FAB_GOODS_STAT); statistics[0][stat_type] = value; }
 	sint64 get_stat(int month, int stat_type) const { assert(stat_type<MAX_FAB_GOODS_STAT); return statistics[month][stat_type]; }
+
+	/**
+	 * convert internal units to displayed values
+	 */
+	sint64 get_stat_converted(int month, int stat_type) const {
+		assert(stat_type<MAX_FAB_GOODS_STAT);
+		sint64 value = statistics[month][stat_type];
+		if (stat_type==FAB_GOODS_STORAGE  ||  stat_type==FAB_GOODS_CONSUMED) {
+			value = convert_goods(value);
+		}
+		return value;
+	}
 	void book_weighted_sum_storage(sint64 delta_time);
 
 	sint32 menge;	// in internal untis shifted by precision_bits (see produktion)
@@ -354,6 +373,26 @@ public:
 	const sint64* get_stats() const { return *statistics; }
 	sint64 get_stat(int month, int stat_type) const { assert(stat_type<MAX_FAB_STAT); return statistics[month][stat_type]; }
 	void book_stat(sint64 value, int stat_type) { assert(stat_type<MAX_FAB_STAT); statistics[0][stat_type] += value; }
+
+	/**
+	 * convert internal units to displayed values
+	 */
+	sint64 get_stat_converted(int month, int stat_type) const {
+		assert(stat_type<MAX_FAB_STAT);
+		sint64 value = statistics[month][stat_type];
+		switch(stat_type) {
+			case FAB_POWER:
+				value = convert_power(value);
+				break;
+			case FAB_BOOST_ELECTRIC:
+			case FAB_BOOST_PAX:
+			case FAB_BOOST_MAIL:
+				value = convert_boost(value);
+				break;
+			default: ;
+		}
+		return value;
+	}
 
 	static fabrik_t * get_fab(const karte_t *welt, const koord &pos);
 
