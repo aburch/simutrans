@@ -4,15 +4,15 @@
 
 
 /**
- * This function is called when scenario starts. Do all the initializations here.
- * You cannot initialize global variables with non-built-in squirrel types.
+ * This function is called when the scenario starts. Do all the initializations here,
+ * as you cannot initialize global variables with non-built-in squirrel types.
  * @typemask void()
  */
 register_function("start");
 
 /**
- * This function is called when savegame with active scenario is loaded.
- * Do all the initializations here and post-processing here.
+ * This function is called when a savegame with active scenario is loaded.
+ * Do all the initializations and post-processing here.
  * @typemask void()
  */
 register_function("resume_game");

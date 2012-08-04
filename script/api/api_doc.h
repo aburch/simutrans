@@ -112,10 +112,10 @@
  * @until }
  * @until }
  * @until }
- * The method presenting the result text is a little bit more advances. If the
+ * The method presenting the result text is a little bit more advanced. If the
  * player has enough cash, he has won the scenario.
  * @until }
- * The get_cash method access the player's bank account via player_x.cash, which
+ * The get_cash() method accesses the player's bank account via player_x.cash, which
  * is equivalent to calling player_x.get_cash().
  * @until }
  * Last but not least, the function that computes the actual progress in the scenario.
