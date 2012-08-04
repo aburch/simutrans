@@ -1890,8 +1890,16 @@ void convoi_t::ziel_erreicht()
 		cbuffer_t buf;
 		if(reversed)
 		{
-			//Always enter a depot facing forward
-			reversable = fahr[anz_vehikel - 1]->get_besch()->get_can_lead_from_rear() || (anz_vehikel == 1 && fahr[0]->get_besch()->is_bidirectional());
+			// Always enter a depot facing forward
+			
+			if(reversed)
+			{
+				reversable = fahr[0]->get_besch()->get_can_lead_from_rear() || (anz_vehikel == 1 && fahr[0]->get_besch()->is_bidirectional());
+			}
+			else
+			{
+				reversable = fahr[anz_vehikel - 1]->get_besch()->get_can_lead_from_rear() || (anz_vehikel == 1 && fahr[0]->get_besch()->is_bidirectional());
+			}
 			reverse_order(reversable);
 		}
 

@@ -144,9 +144,9 @@ void depot_t::call_depot_tool( char tool, convoihandle_t cnv, const char *extra,
  */
 void depot_t::convoi_arrived(convoihandle_t acnv, bool fpl_adjust)
 {
-	if(fpl_adjust) {
+	if(fpl_adjust) 
+	{
 		// here a regular convoi arrived
-
 		for(unsigned i=0; i<acnv->get_vehikel_anzahl(); i++) {
 			vehikel_t *v = acnv->get_vehikel(i);
 			// Hajo: reset vehikel data
