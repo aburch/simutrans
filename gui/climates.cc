@@ -31,11 +31,11 @@
 #define RIGHT_ARROW (180)
 #define TEXT_RIGHT (165) // 10 are offset in routine ..
 
+
 /**
  * set the climate borders
  * @author prissi
  */
-
 climate_gui_t::climate_gui_t(settings_t* const sets) :
 	gui_frame_t( translator::translate("Climate Control") )
 {
@@ -45,34 +45,27 @@ climate_gui_t::climate_gui_t(settings_t* const sets) :
 	int intTopOfButton = 4;
 
 	// mountian/water stuff
-	water_level.set_pos(koord(LEFT_ARROW,intTopOfButton) );
-	water_level.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
-	water_level.set_limits( -10, 0 );
-	water_level.set_value( sets->get_grundwasser() );
-	water_level.wrap_mode( false );
+	water_level.init( sets->get_grundwasser(), -10, 0, gui_numberinput_t::AUTOLINEAR, false );
+	water_level.set_pos( koord(LEFT_ARROW,intTopOfButton) );
+	water_level.set_groesse( koord(RIGHT_ARROW-LEFT_ARROW+10, 12) );
 	water_level.add_listener( this );
 	add_komponente( &water_level );
 	intTopOfButton += 12;
 
-	mountain_height.set_pos(koord(LEFT_ARROW,intTopOfButton) );
-	mountain_height.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
-	mountain_height.set_limits( 0, 320 );
-	mountain_height.set_increment_mode( 10 );
-	mountain_height.set_value( (int)sets->get_max_mountain_height() );
-	mountain_height.wrap_mode( false );
+	mountain_height.init( (int)sets->get_max_mountain_height(), 0, 320, 10, false );
+	mountain_height.set_pos( koord(LEFT_ARROW,intTopOfButton) );
+	mountain_height.set_groesse( koord(RIGHT_ARROW-LEFT_ARROW+10, 12) );
 	mountain_height.add_listener( this );
 	add_komponente( &mountain_height );
 	intTopOfButton += 12;
 
-	mountain_roughness.set_pos(koord(LEFT_ARROW,intTopOfButton) );
-	mountain_roughness.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
 #ifndef DOUBLE_GROUNDS
-	mountain_roughness.set_limits( 0, 7 );
+	mountain_roughness.init( (int)(sets->get_map_roughness()*20.0 + 0.5)-8, 0, 7, gui_numberinput_t::AUTOLINEAR, false );
 #else
-	mountain_roughness.set_limits( 0, 10 );
+	mountain_roughness.init( (int)(sets->get_map_roughness()*20.0 + 0.5)-8, 0, 10, gui_numberinput_t::AUTOLINEAR, false );
 #endif
-	mountain_roughness.set_value( (int)(sets->get_map_roughness()*20.0 + 0.5)-8 );
-	mountain_roughness.wrap_mode( false );
+	mountain_roughness.set_pos( koord(LEFT_ARROW,intTopOfButton) );
+	mountain_roughness.set_groesse( koord(RIGHT_ARROW-LEFT_ARROW+10, 12) );
 	mountain_roughness.add_listener( this );
 	add_komponente( &mountain_roughness );
 	intTopOfButton += 12;
@@ -81,10 +74,9 @@ climate_gui_t::climate_gui_t(settings_t* const sets) :
 	intTopOfButton += 12+5;
 
 	// artic starts at maximum end of climate
-	snowline_winter.set_pos(koord(LEFT_ARROW,intTopOfButton) );
-	snowline_winter.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
-	snowline_winter.set_value( sets->get_winter_snowline() );
-	snowline_winter.wrap_mode( false );
+	snowline_winter.init( sets->get_winter_snowline(), 0, 24, gui_numberinput_t::AUTOLINEAR, false );
+	snowline_winter.set_pos( koord(LEFT_ARROW,intTopOfButton) );
+	snowline_winter.set_groesse( koord(RIGHT_ARROW-LEFT_ARROW+10, 12) );
 	snowline_winter.add_listener( this );
 	add_komponente( &snowline_winter );
 	intTopOfButton += 12+5;
@@ -93,11 +85,9 @@ climate_gui_t::climate_gui_t(settings_t* const sets) :
 	sint16 arctic = 0;
 	for(  int i=desert_climate-1;  i<=rocky_climate-1;  i++  ) {
 
-		climate_borders_ui[i].set_pos(koord(LEFT_ARROW,intTopOfButton) );
-		climate_borders_ui[i].set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
-		climate_borders_ui[i].set_limits( 0, 24 );
-		climate_borders_ui[i].set_value( sets->get_climate_borders()[i+1] );
-		climate_borders_ui[i].wrap_mode( false );
+		climate_borders_ui[i].init( sets->get_climate_borders()[i+1], 0, 24, gui_numberinput_t::AUTOLINEAR, false );
+		climate_borders_ui[i].set_pos( koord(LEFT_ARROW,intTopOfButton) );
+		climate_borders_ui[i].set_groesse( koord(RIGHT_ARROW-LEFT_ARROW+10, 12) );
 		climate_borders_ui[i].add_listener( this );
 		add_komponente( climate_borders_ui+i );
 		if(sets->get_climate_borders()[i]>arctic) {
@@ -114,38 +104,29 @@ climate_gui_t::climate_gui_t(settings_t* const sets) :
 	add_komponente( &no_tree );
 	intTopOfButton += 12+4;
 
-	river_n.set_pos(koord(LEFT_ARROW,intTopOfButton) );
-	river_n.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
+	river_n.init( sets->get_river_number(), 0, 1024, gui_numberinput_t::POWER2, false );
+	river_n.set_pos( koord(LEFT_ARROW,intTopOfButton) );
+	river_n.set_groesse( koord(RIGHT_ARROW-LEFT_ARROW+10, 12) );
 	river_n.add_listener(this);
-	river_n.set_limits(0,1024);
-	river_n.set_value( sets->get_river_number() );
-	river_n.wrap_mode( false );
 	add_komponente( &river_n );
 	intTopOfButton += 12;
 
-	river_min.set_pos(koord(LEFT_ARROW,intTopOfButton) );
-	river_min.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
-	river_min.set_limits(0,max(16,sets->get_max_river_length())-16);
-	river_min.set_value( sets->get_min_river_length() );
-	river_min.wrap_mode( false );
+	river_min.init( sets->get_min_river_length(), 0, max(16,sets->get_max_river_length())-16, gui_numberinput_t::AUTOLINEAR, false );
+	river_min.set_pos( koord(LEFT_ARROW,intTopOfButton) );
+	river_min.set_groesse( koord(RIGHT_ARROW-LEFT_ARROW+10, 12) );
 	river_min.add_listener(this);
 	add_komponente( &river_min );
 	intTopOfButton += 12;
 
-	river_max.set_pos(koord(LEFT_ARROW,intTopOfButton) );
-	river_max.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
-	river_max.set_limits(sets->get_min_river_length()+16,1024);
-	river_max.set_value( sets->get_max_river_length() );
-	river_max.wrap_mode( false );
+	river_max.init( sets->get_max_river_length(), sets->get_min_river_length()+16, 1024, gui_numberinput_t::AUTOLINEAR, false );
+	river_max.set_pos( koord(LEFT_ARROW,intTopOfButton) );
+	river_max.set_groesse( koord(RIGHT_ARROW-LEFT_ARROW+10, 12) );
 	river_max.add_listener(this);
 	add_komponente( &river_max );
 	intTopOfButton += 12;
 
 	set_fenstergroesse( koord(RIGHT_ARROW+16, intTopOfButton+4+16) );
 }
-
-
-
 
 
 /**
@@ -216,8 +197,6 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 }
 
 
-
-
 void climate_gui_t::zeichnen(koord pos, koord gr)
 {
 	gui_frame_t::zeichnen(pos, gr);
@@ -262,4 +241,10 @@ void climate_gui_t::zeichnen(koord pos, koord gr)
 	y += 12;
 	display_proportional_clip(x, y, translator::translate("maximum length of rivers"), ALIGN_LEFT, COL_BLACK, true);
 	y += 12;
+}
+
+
+void climate_gui_t::update_river_number( sint16 new_river_number )
+{
+	river_n.set_value( new_river_number );
 }

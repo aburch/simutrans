@@ -62,6 +62,9 @@ public:
 	void zeichnen(koord pos, koord gr);
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
+
+	// called when river number changed due to increasing map size
+	void update_river_number( sint16 new_river_number );
 };
 
 #endif

@@ -82,6 +82,7 @@ welt_gui_t::welt_gui_t(karte_t* const welt, settings_t* const sets) :
 	city_density = sets->get_anzahl_staedte() ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_anzahl_staedte() : 0.0;
 	industry_density = sets->get_land_industry_chains() ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_land_industry_chains() : 0.0;
 	attraction_density = sets->get_tourist_attractions() ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_tourist_attractions() : 0.0;
+	river_density = sets->get_river_number() ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_river_number() : 0.0;
 
 	karte_size = koord(PREVIEW_SIZE, PREVIEW_SIZE); // default preview minimap size
 
@@ -118,14 +119,14 @@ welt_gui_t::welt_gui_t(karte_t* const welt, settings_t* const sets) :
 	intTopOfButton += 12;
 	intTopOfButton += 12;
 
-	inp_x_size.init( sets->get_groesse_x(), 8, min(32000,4194304/sets->get_groesse_y()), sets->get_groesse_x()>=512 ? 128 : 64, false );
+	inp_x_size.init( sets->get_groesse_x(), 8, min(32000,min(32000,16777216/sets->get_groesse_y())), sets->get_groesse_x()>=512 ? 128 : 64, false );
 	inp_x_size.set_pos(koord(LEFT_ARROW,intTopOfButton) );
 	inp_x_size.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
 	inp_x_size.add_listener(this);
 	add_komponente( &inp_x_size );
 	intTopOfButton += 12;
 
-	inp_y_size.init( sets->get_groesse_y(), 8, min(32000,4194304/sets->get_groesse_x()), sets->get_groesse_y()>=512 ? 128 : 64, false );
+	inp_y_size.init( sets->get_groesse_y(), 8, min(32000,16777216/sets->get_groesse_x()), sets->get_groesse_y()>=512 ? 128 : 64, false );
 	inp_y_size.set_pos(koord(LEFT_ARROW,intTopOfButton) );
 	inp_y_size.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
 	inp_y_size.add_listener(this);
@@ -315,6 +316,12 @@ void welt_gui_t::update_densities()
 	}
 	if(  attraction_density!=0.0  ) {
 		inp_tourist_attractions.set_value( max( 1, (sint32)(0.5+sqrt((double)sets->get_groesse_x()*sets->get_groesse_y())/attraction_density) ) );
+	}
+	if(  river_density!=0.0  ) {
+		if(  climate_gui_t *climate_gui = (climate_gui_t *)win_get_magic( magic_climate )  ) {
+			sets->river_number = max( 1, (sint32)(0.5+sqrt((double)sets->get_groesse_x()*sets->get_groesse_y())/river_density) );
+			climate_gui->update_river_number( sets->get_river_number() );
+		}
 	}
 }
 
@@ -562,8 +569,16 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 		welt->set_dirty();
 	}
 
-	open_climate_gui.pressed = win_get_magic( magic_climate );
 	open_setting_gui.pressed = win_get_magic( magic_settings_frame_t );
+	open_climate_gui.pressed = false;
+	if(  climate_gui_t *climate_gui = (climate_gui_t *)win_get_magic( magic_climate )  ) {
+		open_climate_gui.pressed = true;
+		// check if number was directly changed
+		sint16 new_river_number = max( 1, (sint32)(0.5+sqrt((double)sets->get_groesse_x()*sets->get_groesse_y())/river_density) );
+		if(  sets->get_river_number() != new_river_number  ) {
+			river_density = sets->get_river_number() ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_river_number() : 0.0;
+		}
+	}
 
 	use_intro_dates.pressed = sets->get_use_timeline()&1;
 	use_beginner_mode.pressed = sets->get_beginner_mode();
