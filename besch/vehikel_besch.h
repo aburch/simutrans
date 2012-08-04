@@ -110,7 +110,7 @@ private:
 	uint16 overcrowded_capacity; // The capacity of a vehicle if overcrowded (usually expressed as the standing capacity).
 	uint16 geschw;				// Speed in km/h
 	uint32 gewicht;				// Weight in tonnes
-	uint16  axle_load;			// New for Standard, not used yet.
+	uint16 axle_load;			// New for Standard, not used yet.
 	uint32 leistung;			// Power in kW
 	uint16 running_cost;		// Per kilometre cost
 	uint32 fixed_cost;			// Monthly cost @author: jamespetts, April 2009

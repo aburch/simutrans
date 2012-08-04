@@ -235,14 +235,14 @@ uint16 vehikel_besch_t::get_obsolete_year_month(const karte_t *welt) const
 
 void vehikel_besch_t::calc_checksum(checksum_t *chk) const
 {
-	chk->input(preis);
+	chk->input(base_price);
 	chk->input(zuladung);
 	chk->input(geschw);
 	chk->input(gewicht);
 	chk->input(axle_load);
 	chk->input(leistung);
 	chk->input(running_cost);
-	chk->input(fixed_cost);
+	chk->input(base_fixed_cost);
 	chk->input(intro_date);
 	chk->input(obsolete_date);
 	chk->input(gear);
@@ -254,16 +254,19 @@ void vehikel_besch_t::calc_checksum(checksum_t *chk) const
 	// freight
 	const xref_besch_t *xref = get_child<xref_besch_t>(2);
 	chk->input(xref ? xref->get_name() : "NULL");
+
 	// vehicle constraints
-	for(uint8 i=0; i<vorgaenger+nachfolger; i++) {
+	// For some reason, this records false mismatches with a few
+	// vehicles when names are used. Use  numbers instead.
+	/*for(uint8 i=0; i<vorgaenger+nachfolger; i++) {
 		const xref_besch_t *xref = get_child<xref_besch_t>(6+i);
 		chk->input(xref ? xref->get_name() : "NULL");
-	}
+	}*/
 
 	// Experimental settings
-	chk->input(upgrade_price);
+	chk->input(base_upgrade_price);
 	chk->input(overcrowded_capacity);
-	chk->input(fixed_cost);
+	chk->input(base_fixed_cost);
 	chk->input(upgrades);
 	chk->input(is_tilting ? 1 : 0);
 	chk->input(way_constraints.get_permissive());
@@ -272,8 +275,8 @@ void vehikel_besch_t::calc_checksum(checksum_t *chk) const
 	chk->input(can_lead_from_rear ? 1 : 0);
 	chk->input(can_be_at_rear ? 1 : 0);
 	chk->input(comfort);
-	chk->input(max_loading_time);
-	chk->input(min_loading_time);
+	chk->input(max_loading_time_seconds);
+	chk->input(min_loading_time_seconds);
 	chk->input(tractive_effort);
 	chk->input(brake_force);
 	chk->input(minimum_runway_length);

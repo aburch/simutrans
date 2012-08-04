@@ -149,7 +149,7 @@ void network_compare_pakset_with_server(const char* cp, std::string &msg)
 			display_progress(progress, num_paks);
 		}
 		// communication loop
-#define MAX_WRONG_PAKS 10
+#define MAX_WRONG_PAKS 512
 		uint16 wrong_paks=0;
 		bool ready = false;
 		do {
