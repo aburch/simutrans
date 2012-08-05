@@ -160,7 +160,7 @@ public:
 	* removes a ground tile from a station, deletes the building and, if last tile, also the halthandle
 	* @author prissi
 	*/
-	static bool remove(karte_t *welt, spieler_t *sp, koord3d pos, const char *&msg);
+	static bool remove(karte_t *welt, spieler_t *sp, koord3d pos);
 
 	/**
 	 * Station destruction method.

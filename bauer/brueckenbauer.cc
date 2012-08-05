@@ -694,8 +694,7 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 			// stops on flag bridges ends with road + track on it
 			// are not correctly deleted if ways are kept
 			if (gr->is_halt()) {
-				const char *fail = NULL;
-				haltestelle_t::remove(welt, sp, gr->get_pos(), fail);
+				haltestelle_t::remove(welt, sp, gr->get_pos());
 			}
 
 			// depots at bridge ends needs to be deleted as well

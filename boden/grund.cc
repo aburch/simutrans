@@ -1608,8 +1608,7 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 #endif
 			}
 			if (remove_halt) {
-				const char *fail;
-				if (!haltestelle_t::remove(welt, sp, pos, fail)) {
+				if (!haltestelle_t::remove(welt, sp, pos)) {
 					return false;
 				}
 			}
