@@ -4567,7 +4567,7 @@ bool aircraft_t::ist_weg_frei( int & restart_speed, bool )
 				runway_too_short = false;
 			}
 
-			route_index -= 16;
+			route_index -= HOLDING_PATTERN_LENGTH;
 			return true;
 		}
 		state = landing;
@@ -4575,12 +4575,12 @@ bool aircraft_t::ist_weg_frei( int & restart_speed, bool )
 		runway_too_short = false;
 	}
 
-	if(  route_index==touchdown-16-3  &&  state!=circling  ) {
+	if(  route_index == touchdown - HOLDING_PATTERN_LENGTH - HOLDING_PATTERN_OFFSET  &&  state != circling  ) {
 		// just check, if the end of runway is free; we will wait there
 		const int runway_state = block_reserver( touchdown, suchen+1, true );
 		if(runway_state == 1) 
 		{
-			route_index += 16;
+			route_index += HOLDING_PATTERN_LENGTH;
 			// can land => set landing height
 			state = landing;
 			runway_too_short = false;
@@ -5013,11 +5013,11 @@ bool aircraft_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route
 
 		// now make a curve
 		koord circlepos=landing_start.get_2d();
-		static const koord circle_koord[16]={ koord(0,1), koord(0,1), koord(1,0), koord(0,1), koord(1,0), koord(1,0), koord(0,-1), koord(1,0), koord(0,-1), koord(0,-1), koord(-1,0), koord(0,-1), koord(-1,0), koord(-1,0), koord(0,1), koord(-1,0) };
+		static const koord circle_koord[HOLDING_PATTERN_LENGTH]={ koord(0,1), koord(0,1), koord(1,0), koord(0,1), koord(1,0), koord(1,0), koord(0,-1), koord(1,0), koord(0,-1), koord(0,-1), koord(-1,0), koord(0,-1), koord(-1,0), koord(-1,0), koord(0,1), koord(-1,0) };
 
 		// circle to the left
-		for(  int  i=0;  i<16;  i++  ) {
-			circlepos += circle_koord[(offset+i+16)%16];
+		for(  int  i=0;  i < HOLDING_PATTERN_LENGTH;  i++  ) {
+			circlepos += circle_koord[(offset + i + HOLDING_PATTERN_LENGTH) % HOLDING_PATTERN_LENGTH];
 			if(welt->ist_in_kartengrenzen(circlepos)) {
 				route->append( welt->lookup_kartenboden(circlepos)->get_pos() );
 			}
@@ -5077,7 +5077,7 @@ void aircraft_t::hop()
 			if(  (weg==NULL  ||  // end of runway (broken runway)
 				 weg->get_besch()->get_styp()!=1  ||  // end of runway (grass now ... )
 				 (route_index>takeoff+1  &&  ribi_t::ist_einfach(weg->get_ribi_unmasked())) )  ||  // single ribi at end of runway
-				 runway_meters_so_far >= min_runway_length_meters   //  has reached minimum runway length
+				 (min_runway_length_meters && runway_meters_so_far >= min_runway_length_meters)   //  has reached minimum runway length
 			) {
 				state = flying;
 				new_friction = 1;

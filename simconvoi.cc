@@ -836,7 +836,7 @@ void convoi_t::calc_acceleration(long delta_t)
 			convoy.update_max_speed(speed_to_kmh(current_info.speed_limit));
 		}
 		const convoi_t::route_info_t &limit_info = route_infos.get_element(next_stop_index - 1);
-		steps_til_limit = limit_info.steps_from_start - current_info.steps_from_start;
+		steps_til_limit = route_infos.calc_steps(current_info.steps_from_start, limit_info.steps_from_start);
 		steps_til_brake = steps_til_limit - brake_steps;
 		switch (limit_info.direction)
 		{
@@ -852,7 +852,10 @@ void convoi_t::calc_acceleration(long delta_t)
 				steps_til_brake -= delta_tile_len;
 				break;
 		}
-
+#ifdef DEBUG_ACCELERATION
+		static const char *debug_fmt1 = "%d) at tile% 4u next limit of% 4d km/h, current speed% 4d km/h,% 6d steps til brake,% 6d steps til stop";
+		dbg->warning("convoi_t::calc_acceleration 1", debug_fmt1, current_route_index - 1, next_stop_index, speed_to_kmh(next_speed_limit), speed_to_kmh(akt_speed), steps_til_brake, steps_til_limit);
+#endif
 		// Brake for upcoming speed limit?
 		sint32 min_limit = akt_speed; // no need to check limits above min_limit, as it won't lead to further restrictions
 		sint32 steps_from_start = current_info.steps_from_start; // speed has to be reduced before entering the tile. Thus distance from start has to be taken from previous tile.
@@ -863,7 +866,7 @@ void convoi_t::calc_acceleration(long delta_t)
 			{
 				min_limit = limit_info.speed_limit;
 				const sint32 limit_steps = brake_steps - convoy.calc_min_braking_distance(welt->get_settings(), convoy.get_weight_summary(), limit_info.speed_limit);
-				const sint32 route_steps = steps_from_start - current_info.steps_from_start;
+				const sint32 route_steps = route_infos.calc_steps(current_info.steps_from_start, steps_from_start);
 				const sint32 st = route_steps - limit_steps;
 
 				if (steps_til_brake > st)
@@ -871,6 +874,9 @@ void convoi_t::calc_acceleration(long delta_t)
 					next_speed_limit = limit_info.speed_limit;
 					steps_til_limit = route_steps;
 					steps_til_brake = st;
+#ifdef DEBUG_ACCELERATION
+					dbg->warning("convoi_t::calc_acceleration 2", debug_fmt1, current_route_index - 1, i, speed_to_kmh(next_speed_limit), speed_to_kmh(akt_speed), steps_til_brake, steps_til_limit);
+#endif
 				}
 			}
 			steps_from_start = limit_info.steps_from_start;
@@ -878,7 +884,7 @@ void convoi_t::calc_acceleration(long delta_t)
 	}
 	else
 	{
-		steps_til_limit = (sint32)(next_stop_index - current_route_index) * VEHICLE_STEPS_PER_TILE;
+		steps_til_limit = route_infos.calc_tiles((sint32) current_route_index, (sint32) next_stop_index) * VEHICLE_STEPS_PER_TILE;
 		steps_til_brake = steps_til_limit - brake_steps;
 	}
 	sint32 steps_left_on_current_tile = (sint32)front.get_steps_next() + 1 - (sint32)front.get_steps();
@@ -890,6 +896,25 @@ void convoi_t::calc_acceleration(long delta_t)
 	 */
 	akt_speed_soll = min_top_speed;
 	convoy.calc_move(welt->get_settings(), delta_t, akt_speed_soll, next_speed_limit, steps_til_limit, steps_til_brake, akt_speed, sp_soll, v);
+}
+
+void convoi_t::route_infos_t::set_holding_pattern_indexes(sint32 current_route_index, sint32 touchdown_route_index)
+{
+	if (touchdown_route_index >= 0 && current_route_index < touchdown_route_index - (HOLDING_PATTERN_LENGTH + HOLDING_PATTERN_OFFSET))
+	{
+		hp_start_index = touchdown_route_index - (HOLDING_PATTERN_LENGTH + HOLDING_PATTERN_OFFSET);
+		hp_end_index   = hp_start_index + HOLDING_PATTERN_LENGTH;
+		hp_start_step  = get_element(hp_start_index - 1).steps_from_start;
+		hp_end_step    = get_element(hp_end_index   - 1).steps_from_start;
+	}
+	else
+	{
+		// no holding pattern correction, if aircraft passed the start of it.
+		hp_start_index = -1;
+		hp_end_index = -1;
+		hp_start_step = -1;
+		hp_end_step = -1;
+	}
 }
 
 
@@ -915,6 +940,8 @@ convoi_t::route_infos_t& convoi_t::get_route_infos()
 		const weg_t *current_weg = get_weg_on_grund(welt->lookup(current_tile), waytype);
 		start_info.speed_limit = front.calc_speed_limit(current_weg, NULL, &corner_data, start_info.direction, start_info.direction);
 
+		sint32 takeoff_index = front.get_takeoff_route_index();
+		sint32 touchdown_index = (uint32) front.get_touchdown_route_index();
 		for (i++; i < route_count; i++)
 		{
 			convoi_t::route_info_t &current_info = route_infos.get_element(i - 1);
@@ -924,11 +951,16 @@ convoi_t::route_infos_t& convoi_t::get_route_infos()
 			this_info.speed_limit = SPEED_UNLIMITED;
 			this_info.steps_from_start = current_info.steps_from_start + front.get_tile_steps(current_tile.get_2d(), next_tile.get_2d(), this_info.direction);
 			const weg_t *this_weg = get_weg_on_grund(welt->lookup(this_tile), waytype);
-			current_info.speed_limit = this_weg ? front.calc_speed_limit(this_weg, current_weg, &corner_data, this_info.direction, current_info.direction) : SPEED_UNLIMITED;
-
+			if (i >= touchdown_index || i <= takeoff_index)
+			{
+				// not a flying aircraft: get speed limit
+				current_info.speed_limit = this_weg ? front.calc_speed_limit(this_weg, current_weg, &corner_data, this_info.direction, current_info.direction) : SPEED_UNLIMITED;
+			}
 			current_tile = this_tile;
 			current_weg = this_weg;
 		}
+		route_infos.set_holding_pattern_indexes(current_route_index, touchdown_index);
+
 	}
 	return route_infos; 
 }
@@ -1940,8 +1972,7 @@ void convoi_t::ziel_erreicht()
 }
 
 /**
- * Wartet bis Fahrzeug 0 freie Fahrt meldet
- * Wait until the vehicle returns 0 free ride (Google)
+ * Wait until vehicle 0 returns go-ahead
  * @author Hj. Malthaner
  */
 void convoi_t::warten_bis_weg_frei(int restart_speed)
