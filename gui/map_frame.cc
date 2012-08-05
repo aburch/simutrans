@@ -321,7 +321,7 @@ void map_frame_t::show_hide_directory(const bool show)
 }
 
 
-bool map_frame_t::action_triggered( gui_action_creator_t *komp, value_t v )
+bool map_frame_t::action_triggered( gui_action_creator_t *komp, value_t)
 {
 	if(komp==&b_show_legend) {
 		show_hide_legend( !b_show_legend.pressed );

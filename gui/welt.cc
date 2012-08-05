@@ -571,7 +571,7 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 
 	open_setting_gui.pressed = win_get_magic( magic_settings_frame_t );
 	open_climate_gui.pressed = false;
-	if(  climate_gui_t *climate_gui = (climate_gui_t *)win_get_magic( magic_climate )  ) {
+	if(  win_get_magic( magic_climate )  ) {
 		open_climate_gui.pressed = true;
 		// check if number was directly changed
 		sint16 new_river_number = max( 1, (sint32)(0.5+sqrt((double)sets->get_groesse_x()*sets->get_groesse_y())/river_density) );
