@@ -570,6 +570,9 @@ public:
 
 	void set_current_livery(const char* liv) { current_livery = liv; }
 	const char* get_current_livery() const { return current_livery.c_str(); }
+
+	virtual sint32 get_takeoff_route_index() { return -1; }
+	virtual sint32 get_touchdown_route_index() { return -1; }
 };
 
 
@@ -786,6 +789,10 @@ public:
  * @author hsiegeln
  * @see vehikel_t
  */
+// length of the holding pattern.
+#define HOLDING_PATTERN_LENGTH 16
+// offset of end tile of the holding pattern before touchdown tile.
+#define HOLDING_PATTERN_OFFSET 3
 class aircraft_t : public vehikel_t
 {
 private:
@@ -878,6 +885,8 @@ public:
 
 	bool runway_too_short;
 
+	virtual sint32 get_takeoff_route_index() { return (sint32) takeoff; }
+	virtual sint32 get_touchdown_route_index() { return (sint32) touchdown; }
 };
 
 sint16 get_friction_of_waytype(waytype_t waytype);

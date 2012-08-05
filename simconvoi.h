@@ -636,6 +636,44 @@ public:
 
 	class route_infos_t : public vector_tpl<route_info_t>
 	{
+		// BG, 05.08.2012: pay attention to the aircrafts' holding pattern!
+		// It starts at route_index = touchdown - HOLDING_PATTERN_LENGTH - HOLDING_PATTERN_OFFSET
+		// and has a length of HOLDING_PATTERN_LENGTH.
+		sint32 hp_start_index; // -1: not an aircraft or aircraft has passed the start of the holding pattern.
+		sint32 hp_end_index;   // -1: not an aircraft or aircraft has passed the start of the holding pattern.
+		sint32 hp_start_step;  // -1: not an aircraft or aircraft has passed the start of the holding pattern.
+		sint32 hp_end_step;   // -1: not an aircraft or aircraft has passed the start of the holding pattern.
+	public:
+		void set_holding_pattern_indexes(sint32 current_route_index, sint32 touchdown_route_index);
+
+		inline sint32 get_holding_pattern_start_index() const { return hp_start_index; }
+		inline sint32 get_holding_pattern_end_index()   const { return hp_end_index; }
+		inline sint32 get_holding_pattern_start_step()  const { return hp_start_step; }
+		inline sint32 get_holding_pattern_end_step()    const { return hp_end_step; }
+
+		// BG 05.08.2012: calc number of steps. Ignores the holding pattern, if start_step starts before it and end_step ends after it.
+		// In any other case the holding pattern is part off the route or is irrelevant.
+		inline sint32 calc_steps(sint32 start_step, sint32 end_step)
+		{
+			if (hp_start_step >= 0 && start_step < hp_start_step && hp_end_step <= end_step)
+			{
+				// assume they will not send us into the holding pattern: skip it.
+				return (end_step - start_step) - (hp_end_step - hp_start_step);
+			}
+			return end_step - start_step;
+		}
+
+		// BG 05.08.2012: calc number of tiles. Ignores the holding pattern, if start_index starts before it and end_index ends after it.
+		// In any other case the holding pattern is part off the route or is irrelevant.
+		inline sint32 calc_tiles(sint32 start_index, sint32 end_index)
+		{
+			if (hp_start_index >= 0 && start_index < hp_start_index && hp_end_index <= end_index)
+			{
+				// assume they will not send us into the holding pattern: skip it.
+				return (end_index - start_index) - (hp_end_index - hp_start_index);
+			}
+			return end_index - start_index;
+		}
 	};
 #ifdef DEBUG_PHYSICS
 	sint32 next_speed_limit; 
@@ -1262,7 +1300,13 @@ public:
 
 	route_infos_t& get_route_infos();
 
-	void set_akt_speed(sint32 akt_speed) { this->akt_speed = akt_speed; v = speed_to_v(akt_speed); }
+	void set_akt_speed(sint32 akt_speed) { 
+		this->akt_speed = akt_speed; 
+		if (akt_speed > 8)
+			v = speed_to_v(akt_speed/2); 
+		else
+			v = speed_to_v(akt_speed); 
+	}
 
 	bool is_circular_route() const;
 	
