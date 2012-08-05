@@ -397,7 +397,7 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb )
 					delete gb_part;
 					// if this was a station building: delete ground
 					if(gr->get_halt().is_bound()) {
-						gr->get_halt()->rem_grund(gr);
+						haltestelle_t::remove(welt, sp, gr->get_pos());
 					}
 					// and maybe restore land below
 					if(gr->get_typ()==grund_t::fundament) {
