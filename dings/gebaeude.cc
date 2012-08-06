@@ -466,7 +466,7 @@ int gebaeude_t::get_passagier_level() const
 {
 	koord dim = tile->get_besch()->get_groesse();
 	long pax = tile->get_besch()->get_level();
-	if (!is_factory && ptr.stadt != NULL) {
+	if(  !is_factory  &&  ptr.stadt != NULL  ) {
 		// belongs to a city ...
 		return ((pax + 6) >> 2) * welt->get_settings().get_passenger_factor() / 16;
 	}
@@ -478,7 +478,7 @@ int gebaeude_t::get_post_level() const
 {
 	koord dim = tile->get_besch()->get_groesse();
 	long post = tile->get_besch()->get_post_level();
-	if (!is_factory && ptr.stadt != NULL) {
+	if(  !is_factory  &&  ptr.stadt != NULL  ) {
 		return ((post + 5) >> 2) * welt->get_settings().get_passenger_factor() / 16;
 	}
 	return post*dim.x*dim.y;
@@ -671,11 +671,11 @@ void gebaeude_t::info(cbuffer_t & buf) const
 		buf.append( "\n\n" );
 
 		// belongs to which city?
-		if (!is_factory && ptr.stadt != NULL) {
+		if(  !is_factory  &&  ptr.stadt != NULL  ) {
 			buf.printf(translator::translate("Town: %s\n"), ptr.stadt->get_name());
 		}
 
-		if( get_tile()->get_besch()->get_utyp() < haus_besch_t::bahnhof ) {
+		if(  get_tile()->get_besch()->get_utyp() < haus_besch_t::bahnhof  ) {
 			buf.printf("%s: %d\n", translator::translate("Passagierrate"), get_passagier_level());
 			buf.printf("%s: %d\n", translator::translate("Postrate"),      get_post_level());
 		}

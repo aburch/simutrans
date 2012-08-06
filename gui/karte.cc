@@ -1037,10 +1037,26 @@ bool reliefkarte_t::infowin_event(const event_t *ev)
 }
 
 
+// helper function for finding nearby factory
+const fabrik_t* reliefkarte_t::get_fab( const koord pos, bool enlarge ) const
+{
+	const fabrik_t *fab = fabrik_t::get_fab(welt, last_world_pos);
+	for(  int i=0;  i<4  && fab==NULL;  i++  ) {
+		fab = fabrik_t::get_fab( welt, last_world_pos+koord::nsow[i] );
+	}
+	if(  enlarge  ) {
+		for(  int i=0;  i<4  && fab==NULL;  i++  ) {
+			fab = fabrik_t::get_fab( welt, last_world_pos+koord::nsow[i]*2 );
+		}
+	}
+	return fab;
+}
+
+
 // helper function for redraw: factory connections
 const fabrik_t* reliefkarte_t::draw_fab_connections(const uint8 colour, const koord pos) const
 {
-	const fabrik_t* const fab = fabrik_t::get_fab(welt, last_world_pos);
+	const fabrik_t* const fab = get_fab( last_world_pos, true );
 	if(fab) {
 		koord fabpos = fab->get_pos().get_2d();
 		karte_to_screen( fabpos );
@@ -1647,7 +1663,7 @@ void reliefkarte_t::zeichnen(koord pos)
 		const fabrik_t* const fab = (mode & MAP_FACTORIES) ?
 			draw_fab_connections(event_get_last_control_shift() & 1 ? COL_RED : COL_WHITE, pos)
 			:
-			fabrik_t::get_fab(welt, last_world_pos);
+			get_fab( last_world_pos, false );
 
 		if(fab) {
 			koord fabpos = fab->get_pos().get_2d();
