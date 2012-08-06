@@ -900,7 +900,7 @@ void convoi_t::calc_acceleration(long delta_t)
 
 void convoi_t::route_infos_t::set_holding_pattern_indexes(sint32 current_route_index, sint32 touchdown_route_index)
 {
-	if (touchdown_route_index >= 0 && current_route_index < touchdown_route_index - (HOLDING_PATTERN_LENGTH + HOLDING_PATTERN_OFFSET))
+	if (touchdown_route_index != NO_TOUCHDOWN && current_route_index < touchdown_route_index - (HOLDING_PATTERN_LENGTH + HOLDING_PATTERN_OFFSET))
 	{
 		hp_start_index = touchdown_route_index - (HOLDING_PATTERN_LENGTH + HOLDING_PATTERN_OFFSET);
 		hp_end_index   = hp_start_index + HOLDING_PATTERN_LENGTH;
@@ -941,7 +941,7 @@ convoi_t::route_infos_t& convoi_t::get_route_infos()
 		start_info.speed_limit = front.calc_speed_limit(current_weg, NULL, &corner_data, start_info.direction, start_info.direction);
 
 		sint32 takeoff_index = front.get_takeoff_route_index();
-		sint32 touchdown_index = (uint32) front.get_touchdown_route_index();
+		sint32 touchdown_index = front.get_touchdown_route_index();
 		for (i++; i < route_count; i++)
 		{
 			convoi_t::route_info_t &current_info = route_infos.get_element(i - 1);

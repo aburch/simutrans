@@ -4842,7 +4842,7 @@ bool aircraft_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route
 	bool start_in_the_air = (w==NULL);
 	bool end_in_air=false;
 
-	suchen = takeoff = touchdown = 0x7ffffffful;
+	suchen = takeoff = touchdown = NO_TOUCHDOWN;
 	if(!start_in_the_air) {
 
 		// see, if we find a direct route: We are finished
@@ -4990,7 +4990,7 @@ bool aircraft_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route
 		}
 	}
 	else {
-		suchen = touchdown = 0x7FFFFFFFul;
+		suchen = touchdown = NO_TOUCHDOWN;
 	}
 
 	// just some straight routes ...
