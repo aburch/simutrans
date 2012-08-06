@@ -252,16 +252,6 @@ private:
 	bool allow_routing_on_foot;
 
 	/**
-	 * The shortest time that passengers/goods can
-	 * wait at an airport before boarding an aircraft.
-	 * Waiting times are higher at airports because of
-	 * the need to check-in, undergo security checks,
-	 * etc.
-	 * @author: jamespetts, August 2011
-	 */
-	uint16 min_wait_airport;
-
-	/**
 	 * If true, players will not be charged
 	 * for using roads owned by the public
 	 * service player. Other way types are
@@ -396,6 +386,16 @@ public:
 	uint16 speed_bonus_multiplier_percent;
 
 	bool allow_airports_without_control_towers;
+
+	/**
+	 * The shortest time that passengers/goods can
+	 * wait at an airport before boarding an aircraft.
+	 * Waiting times are higher at airports because of
+	 * the need to check-in, undergo security checks,
+	 * etc.
+	 * @author: jamespetts, August 2011
+	 */
+	uint16 min_wait_airport;
 	
 private:
 
@@ -779,12 +779,14 @@ public:
 	uint16 get_turntable_reverse_time() const { return turntable_reverse_time; }
 
 	uint16 get_global_power_factor_percent() const { return global_power_factor_percent; }
+	void set_global_power_factor_percent(uint16 value) { global_power_factor_percent = value; }
 
 	uint8 get_enforce_weight_limits() const { return enforce_weight_limits; }
 
 	uint16 get_speed_bonus_multiplier_percent() const { return speed_bonus_multiplier_percent; }
 
 	bool get_allow_airports_without_control_towers() const { return allow_airports_without_control_towers; }
+	void set_allow_airports_without_control_towers(bool value) { allow_airports_without_control_towers = value; }
 
 	// allowed modes are 0,1,2
 	enum { TO_PREVIOUS=0, TO_TRANSFER, TO_DESTINATION };
