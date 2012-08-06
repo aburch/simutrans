@@ -28,12 +28,18 @@ class climate_gui_t  : public gui_frame_t, private action_listener_t
 private:
 	settings_t* sets;
 
+	enum { MAX_CLIMATE_LABEL=14 };
+
 	// since decrease/increase buttons always pair these ...
 	gui_numberinput_t water_level, mountain_height, mountain_roughness;
 
 	gui_numberinput_t snowline_winter;
 
 	gui_numberinput_t climate_borders_ui[rocky_climate];
+
+	gui_label_t numberinput_lbl[MAX_CLIMATE_LABEL], summer_snowline;
+
+	char snowline_txt[16];
 
 	button_t no_tree; // without tree
 
@@ -51,15 +57,6 @@ public:
 
 	// does not work during new world dialoge
 	virtual bool has_sticky() const { return false; }
-
-	/**
-	 * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
-	 * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
-	 * in dem die Komponente dargestellt wird.
-	 *
-	 * @author Hj. Malthaner
-	 */
-	void zeichnen(koord pos, koord gr);
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
