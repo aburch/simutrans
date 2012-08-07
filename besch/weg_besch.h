@@ -42,7 +42,8 @@ class weg_besch_t : public obj_besch_std_name_t {
 	friend class way_reader_t;
 
 public:
-	enum { elevated=1, joined=7 /* only tram */, special=255 };
+	// see also: weg_t::system_type
+	// unused: enum { elevated=1, joined=7 /* only tram */, special=255 };
 
 private:
 	/**

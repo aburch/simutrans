@@ -526,7 +526,7 @@ void brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, ko
 	bool need_auffahrt = pos.z == welt->lookup(end)->get_vmove(ribi_typ(-zv));
 	if(need_auffahrt) {  //"Need ramp" (Google)
 		if (weg_t const* const w = welt->lookup(end)->get_weg(weg_besch->get_wtyp())) {
-			need_auffahrt &= w->get_besch()->get_styp()!=weg_besch_t::elevated;
+			need_auffahrt &= w->get_besch()->get_styp()!=weg_t::type_elevated;
 		}
 	}
 

@@ -67,6 +67,7 @@ public:
 		IS_SNOW = 0x80	// marker, if above snowline currently
 	};
 
+	// see also unused: weg_besch_t::<anonym> enum { elevated=1, joined=7 /* only tram */, special=255 };
 	enum system_type { type_flat=0, type_elevated=1, type_tram=7, type_underground=64, type_all=255 };
 
 private:
