@@ -809,9 +809,9 @@ private:
 #ifdef USE_DIFFERENT_WIND
 	static uint8 get_approach_ribi( koord3d start, koord3d ziel );
 #endif
-	// only used for route search and approach vectors of get_ribi() (do not need saving)
-	koord3d search_start;
-	koord3d search_end;
+	//// only used for route search and approach vectors of get_ribi() (do not need saving)
+	//koord3d search_start;
+	//koord3d search_end;
 
 	enum flight_state { taxiing=0, departing=1, flying=2, landing=3, looking_for_parking=4, circling=5, taxiing_to_halt=6  };
 
@@ -821,6 +821,17 @@ private:
 	sint16 target_height;
 	uint32 suchen, touchdown, takeoff;
 
+	// BG, 07.08.2012: extracted from calc_route()
+	bool calc_route_internal(
+		karte_t *welt, 
+		const koord3d &start, const koord3d &ziel, 
+		sint32 max_speed, uint32 heaviest_vehicle, 
+		bool &runway_too_short,
+		uint32 &suchen, uint32 &takeoff, uint32 &touchdown,
+		aircraft_t::flight_state &state,
+		ribi_t::ribi &approach_dir,
+		sint16 &flughoehe, sint16 &target_height,
+		route_t &route);
 protected:
 	// jumps to next tile and correct the height ...
 	void hop();
