@@ -1,6 +1,7 @@
 #include "api_param.h"
 #include "api_class.h"
 
+#include "../simcity.h"
 #include "../simfab.h"
 #include "../bauer/warenbauer.h"
 #include "../dataobj/scenario.h"
@@ -411,6 +412,22 @@ namespace script_api {
 	{
 		koord pos = param<koord>::get(vm, index);
 		return welt->suche_naechste_stadt(pos);
+	}
+
+	SQInteger param<stadt_t*>::push(HSQUIRRELVM vm, stadt_t* const& v)
+	{
+		if (v) {
+			koord k = v->get_pos();
+			return push_instance(vm, "city_x", k.x, k.y);
+		}
+		else {
+			sq_pushnull(vm); return 1;
+		}
+	}
+
+	karte_t* param<karte_t*>::get(HSQUIRRELVM, SQInteger)
+	{
+		return welt;
 	}
 
 };

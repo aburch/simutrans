@@ -351,6 +351,7 @@ SOURCES += script/api/api_player.cc
 SOURCES += script/api/api_scenario.cc
 SOURCES += script/api/api_settings.cc
 SOURCES += script/api/api_tiles.cc
+SOURCES += script/api/api_world.cc
 SOURCES += script/api/get_next.cc
 SOURCES += script/dynamic_string.cc
 SOURCES += script/export_besch.cc

@@ -206,6 +206,7 @@ function split_params(string)
 	param_count = 0
 	delete params
 	delete ptypes
+	mask = ""
 	returns = "void"
 }
 

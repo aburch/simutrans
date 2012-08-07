@@ -16,6 +16,7 @@ INPUT                  = api_factory.cc \
 			 api_player.cc \
 			 api_settings.cc \
 			 api_scenario.cc \
+			 api_world.cc \
 			 api_tiles.cc
 
 INPUT_FILTER           = ./filter_cpp.sh

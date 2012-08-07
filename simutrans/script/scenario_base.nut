@@ -446,3 +446,30 @@ class city_x extends extend_get {
  */
 class settings {
 }
+
+/**
+ * The same metamethod magic as in the class extend_get.
+ * Seems to be impossible to achieve for both tables and classes without code duplication.
+ */
+table_with_extend_get <- {
+	function _get(index) {
+		if (index == "rawin"  ||  index == "rawget") {
+			throw null // invoke default delegate
+			return
+		}
+		local fname = "get_" + index
+		if (rawin(fname)) {
+			local func = rawget(fname)
+			if (typeof(func)=="function") {
+				return func.call(this)
+			}
+		}
+		throw null // invoke default delegate
+	}
+}
+
+/**
+ * table to hold routines to access the world
+ */
+world <- {}
+world.setdelegate(table_with_extend_get)
