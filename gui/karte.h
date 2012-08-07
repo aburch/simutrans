@@ -152,7 +152,7 @@ private:
 	// true, if full redraw is needed
 	bool needs_redraw;
 
-	const fabrik_t *reliefkarte_t::get_fab( koord pos, bool large_area ) const;
+	const fabrik_t* get_fab(koord pos, bool large_area) const;
 
 	const fabrik_t* draw_fab_connections(uint8 colour, koord pos) const;
 
