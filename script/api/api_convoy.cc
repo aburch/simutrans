@@ -54,7 +54,7 @@ SQInteger world_get_convoy_by_index(HSQUIRRELVM vm)
 void export_convoy(HSQUIRRELVM vm)
 {
 	/**
-	 * Implements iterator to iterate through the list of all convoy on the map.
+	 * Implements iterator to iterate through the list of all convoys on the map.
 	 *
 	 * Usage:
 	 * @code
@@ -77,7 +77,7 @@ void export_convoy(HSQUIRRELVM vm)
 	end_class();
 
 	/**
-	 * Class to access convoy.
+	 * Class to access a convoy.
 	 * Player vehicles are convoys, which themselves consist of individual vehicles (trucks, trailers, ...).
 	 */
 	begin_class("convoy_x", "extend_get");

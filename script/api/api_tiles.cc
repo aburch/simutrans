@@ -39,7 +39,7 @@ void export_tiles(HSQUIRRELVM vm)
 	end_class();
 
 	/**
-	 * Class to map squares, which hold all the tiles on one particular coordinate.
+	 * Class to map squares, which holds all the tiles on one particular coordinate.
 	 */
 	begin_class("square_x", "extend_get,coord");
 

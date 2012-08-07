@@ -49,7 +49,7 @@
  * everything that is print-ed by the script, goes into this file.
  *
  * In case of error, an error window pops up showing the call stack and the values of local variables.
- * You can then repair your script, and the restart the sceanario via New Game - Scenario. You do not need to restart
+ * You can then repair your script, and the restart the scenario via New Game - Scenario. You do not need to restart
  * simutrans to reload your script.
  *
  * @section sec_rdwr Load-Save support
@@ -135,7 +135,7 @@
  * Let us inspect another scenario script file. We will have a look into the pak64 Pharmacy-max scenario.
  * The objective is to get the pharmacy selling as much medicine as possible.
  *
- * We will learn how to make translation of script output possible.
+ * We will learn how to make the translation of the script's output possible.
  *
  * @dontinclude pharmacy-max.nut
  * We do not care about the meta information, and jump right into the @ref get_rule_text method.
@@ -173,7 +173,7 @@
  * When this text is transfered to simutrans (or when <tt>text.to_string()</tt> is called) the following happens:
  * -# First the translation of the string is searched, which can contain this <tt>{med}</tt> as well.
  * -# Then the occurrences of <tt>{med}</tt> are replaced by the concrete number.
- * The user will the hear '<em>The pharmacy sold 11 units of medicine per month.</em>'.
+ * The user will then hear '<em>The pharmacy sold 11 units of medicine per month.</em>'.
  *
  * Now a second string is created, which features some html-like tags.
  * @until }

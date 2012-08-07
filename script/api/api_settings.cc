@@ -29,6 +29,7 @@ void export_settings(HSQUIRRELVM vm)
 	 * New industries will be spawned if cities grow to over 2^n times @p count.
 	 * Set to zero to prevent new industries to be spawned.
 	 * @param count
+	 * @warning cannot be used in network games.
 	 */
 	register_method(vm, &settings_t::set_industry_increase_every, "set_industry_increase_every");
 

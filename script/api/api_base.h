@@ -5,7 +5,7 @@
 /**
  * Table that holds 2d coordinates.
  *
- * Coordinates always refer to the original rotation in map.file.
+ * Coordinates always refer to the original rotation in @ref map.file.
  * They will be rotated if transfered between the game engine and squirrel.
  */
 // never declared, only implicitly through script_api::param<koord>
@@ -21,7 +21,7 @@ class coord { // begin_class("coord", 0)
 /**
  * Table that holds 3d coordinates.
  *
- * Coordinates always refer to the original rotation in map.file.
+ * Coordinates always refer to the original rotation in @ref map.file.
  * They will be rotated if transfered between the game engine and squirrel.
  */
 // never declared, only implicitly through script_api::param<koord>
