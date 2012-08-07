@@ -1265,7 +1265,14 @@ void depot_frame_t::apply_line()
 		else {
 			// sometimes the user might wish to remove convoy from line
 			// => we clear the schedule completely
-			cnv->call_convoi_tool( 'g', "0|" );
+			schedule_t *dummy = cnv->create_schedule();
+			dummy->eintrag.clear();
+
+			cbuffer_t buf;
+			dummy->sprintf_schedule(buf);
+			cnv->call_convoi_tool( 'g', (const char*)buf );
+
+			delete dummy;
 		}
 	}
 }
