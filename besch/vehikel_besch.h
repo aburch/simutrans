@@ -538,7 +538,7 @@ public:
 		{
 			return NULL;
 		}
-		return get_child<vehikel_besch_t>(get_add_to_node() + nachfolger + i);
+		return get_child<vehikel_besch_t>(get_add_to_node() + nachfolger + vorgaenger + i);
 	}
 
 	int get_upgrades_count() const { return upgrades; }

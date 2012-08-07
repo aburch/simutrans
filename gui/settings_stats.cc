@@ -174,6 +174,8 @@ void settings_experimental_general_stats_t::init( settings_t *sets )
 	INIT_NUM( "spacing_shift_mode", sets->get_spacing_shift_mode(), 0, 2 , gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "spacing_shift_divisor", sets->get_spacing_shift_divisor(), 1, 32767 , gui_numberinput_t::AUTOLINEAR, false );
 	INIT_BOOL( "allow_routing_on_foot", sets->get_allow_routing_on_foot());
+	INIT_BOOL("allow_airports_without_control_towers", sets->get_allow_airports_without_control_towers());
+	INIT_NUM("global_power_factor_percent", sets->get_global_power_factor_percent(), 0, 1000, gui_numberinput_t::AUTOLINEAR, false );
 
 	SEPERATOR;
 	{
@@ -233,6 +235,8 @@ void settings_experimental_general_stats_t::read(settings_t *sets)
 	READ_NUM( sets->set_spacing_shift_mode );
 	READ_NUM( sets->set_spacing_shift_divisor);
 	READ_BOOL( sets->set_allow_routing_on_foot);
+	READ_BOOL( sets->set_allow_airports_without_control_towers );
+	READ_NUM( sets->set_global_power_factor_percent );
 
 	uint16 default_increase_maintenance_after_years_other;
 	READ_NUM_VALUE( default_increase_maintenance_after_years_other );
@@ -254,6 +258,9 @@ void settings_experimental_general_stats_t::read(settings_t *sets)
 			sets->set_default_increase_maintenance_after_years((waytype_t)i, default_increase_maintenance_after_years_other);
 		}
 	}
+
+
+
 }
 
 
@@ -263,6 +270,7 @@ void settings_experimental_revenue_stats_t::init( settings_t *sets )
 	INIT_NUM( "passenger_routing_packet_size", sets->get_passenger_routing_packet_size(), 1, 64, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "max_alternative_destinations", sets->get_max_alternative_destinations(), 0, 15, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM("passenger_max_wait", sets->get_passenger_max_wait(), 0, 311040, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM("min_wait_airport", sets->get_min_wait_airport(), 0, 311040, gui_numberinput_t::AUTOLINEAR, false );
 	{
 		gui_component_table_t &tbl = new_table(koord(0, ypos), 6, 4);
 		int row = 0;
@@ -378,6 +386,7 @@ void settings_experimental_revenue_stats_t::read(settings_t *sets)
 	READ_NUM_VALUE( sets->passenger_routing_packet_size );
 	READ_NUM_VALUE( sets->max_alternative_destinations );
 	READ_NUM_VALUE( sets->passenger_max_wait );
+	READ_NUM_VALUE( sets->min_wait_airport );
 
 	READ_NUM_VALUE( sets->local_passengers_max_distance );
 	READ_NUM_VALUE( sets->passenger_routing_local_chance );
