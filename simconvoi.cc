@@ -900,7 +900,7 @@ void convoi_t::calc_acceleration(long delta_t)
 
 void convoi_t::route_infos_t::set_holding_pattern_indexes(sint32 current_route_index, sint32 touchdown_route_index)
 {
-	if (touchdown_route_index != NO_TOUCHDOWN && current_route_index < touchdown_route_index - (HOLDING_PATTERN_LENGTH + HOLDING_PATTERN_OFFSET))
+	if (touchdown_route_index != NO_ROUTE_INDEX && current_route_index < touchdown_route_index - (HOLDING_PATTERN_LENGTH + HOLDING_PATTERN_OFFSET))
 	{
 		hp_start_index = touchdown_route_index - (HOLDING_PATTERN_LENGTH + HOLDING_PATTERN_OFFSET);
 		hp_end_index   = hp_start_index + HOLDING_PATTERN_LENGTH;

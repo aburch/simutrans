@@ -4850,33 +4850,59 @@ aircraft_t::get_approach_ribi( koord3d start, koord3d ziel )
 
 
 // BG, 07.08.2012: calculates a potential route without modifying any aircraft data.
-// TODO: allow partial routing for route extending or re-routing e.g. if runway not available.
+/* 
+Allows partial routing for route extending or re-routing e.g. if runway not available 
+as well as calculating a complete route from gate to gate.
+
+There are several flight phases in a "normal" complete route: 
+1) taxiing from start gate to runway
+2) starting on the runway
+3) flying to the destination runway
+4) circling in the holding pattern
+5) landing on destination runway
+6) taxiing to destination gate
+Both start and end point might be somewhere in one of these states. 
+Start state <= end state, of course.
+
+As coordinates are koord3d, we are able to detect being in the air or on ground, aren't we?.
+Try to handle the transition tiles like (virtual) waypoints and the partial (ground) routes as blocks: 
+- start of departure runway, 
+- takeoff, 
+- holding "switch", 
+- touchdown, 
+- end of required length of arrival runway
+*/
 bool aircraft_t::calc_route_internal(
 	karte_t *welt, 
-	const koord3d &start, const koord3d &ziel, 
-	sint32 max_speed, uint32 heaviest_vehicle, 
-	bool &runway_too_short,
-	uint32 &suchen, uint32 &takeoff, uint32 &touchdown,
-	aircraft_t::flight_state &state,
-	ribi_t::ribi &approach_dir,
-	sint16 &flughoehe, sint16 &target_height,
-	route_t &route)
+	const koord3d &start,            // input: start of (partial) route to calculate
+	const koord3d &ziel,             // input: end of (partial) route to calculate
+	sint32 max_speed,                // input: in the air 
+	uint32 weight,                   // input: gross weight of aircraft in kg (typical aircrafts don't have trailers)
+	aircraft_t::flight_state &state, // input/output: at start
+	sint16 &flughoehe,               // input/output: at start
+	sint16 &target_height,           // output: at end of takeoff
+	bool &runway_too_short,          // output: either departure or arrival runway
+	uint32 &takeoff,                 // output: route index to takeoff tile at departure airport
+	uint32 &touchdown,               // output: scheduled route index to touchdown tile at arrival airport
+	uint32 &suchen,                  // output: scheduled route index to end of (required length of) arrival runway. 
+	route_t &route)                  // output: scheduled route from start to ziel
 {
-
-//DBG_MESSAGE("aircraft_t::calc_route_internal()","search route from %i,%i,%i to %i,%i,%i",start.x,start.y,start.z,ziel.x,ziel.y,ziel.z);
+	//DBG_MESSAGE("aircraft_t::calc_route_internal()","search route from %i,%i,%i to %i,%i,%i",start.x,start.y,start.z,ziel.x,ziel.y,ziel.z);
 
 	runway_too_short = false;
+	suchen = takeoff = touchdown = NO_ROUTE_INDEX;
 
-	const weg_t *w=welt->lookup(start)->get_weg(air_wt);
-	bool start_in_the_air = (w==NULL);
-	bool end_in_air = false;
+	const weg_t *w_start = welt->lookup(start)->get_weg(air_wt);
+	bool start_in_air = w_start == NULL;
 
-	suchen = takeoff = touchdown = NO_TOUCHDOWN;
-	if(!start_in_the_air) {
+	const weg_t *w_ziel = welt->lookup(ziel)->get_weg(air_wt);
+	bool end_in_air = w_ziel == NULL;
 
+	if(!start_in_air) 
+	{
 		// see, if we find a direct route: We are finished
 		state = aircraft_t::taxiing;
-		if(route.calc_route( welt, start, ziel, this, max_speed, 600, heaviest_vehicle, 0)) 
+		if(route.calc_route( welt, start, ziel, this, max_speed, weight, 0)) 
 		{
 			// ok, we can taxi to our location
 			return true;
@@ -4884,12 +4910,12 @@ bool aircraft_t::calc_route_internal(
 	}
 
 	koord3d search_start, search_end;
-	if(start_in_the_air  ||  (w->get_besch()->get_styp()==1  &&  ribi_t::ist_einfach(w->get_ribi())) ) {
+	if(start_in_air  ||  (w_start->get_besch()->get_styp()==1  &&  ribi_t::ist_einfach(w_start->get_ribi())) ) {
 		// we start here, if we are in the air or at the end of a runway
 		search_start = start;
-		start_in_the_air = true;
+		start_in_air = true;
 		route.clear();
-//DBG_MESSAGE("aircraft_t::calc_route()","start in air at %i,%i,%i",search_start.x,search_start.y,search_start.z);
+		//DBG_MESSAGE("aircraft_t::calc_route()","start in air at %i,%i,%i",search_start.x,search_start.y,search_start.z);
 	}
 	else {
 		// not found and we are not on the takeoff tile (where the route search will fail too) => we try to calculate a complete route, starting with the way to the runway
@@ -4898,12 +4924,12 @@ bool aircraft_t::calc_route_internal(
 		state = taxiing;
 #ifdef USE_DIFFERENT_WIND
 		approach_dir = get_approach_ribi( ziel, start );	// reverse
-//DBG_MESSAGE("aircraft_t::calc_route()","search runway start near %i,%i,%i with corner in %x",start.x,start.y,start.z, approach_dir);
+		//DBG_MESSAGE("aircraft_t::calc_route()","search runway start near %i,%i,%i with corner in %x",start.x,start.y,start.z, approach_dir);
 #else
 		approach_dir = ribi_t::nordost;	// reverse
 		DBG_MESSAGE("aircraft_t::calc_route()","search runway start near (%s)",start.get_str());
 #endif
-		if(!route.find_route( welt, start, this, max_speed, ribi_t::alle, heaviest_vehicle, 100 )) {
+		if(!route.find_route( welt, start, this, max_speed, ribi_t::alle, weight, 100 )) {
 			DBG_MESSAGE("aircraft_t::calc_route()","failed");
 			return false;
 		}
@@ -4923,7 +4949,7 @@ bool aircraft_t::calc_route_internal(
 #endif
 	route_t end_route;
 
-	if(!end_route.find_route( welt, ziel, this, max_speed, ribi_t::alle, heaviest_vehicle, 100 )) {
+	if(!end_route.find_route( welt, ziel, this, max_speed, ribi_t::alle, weight, 100 )) {
 		// well, probably this is a waypoint
 		end_in_air = true;
 		search_end = ziel;
@@ -4935,7 +4961,8 @@ bool aircraft_t::calc_route_internal(
 	//DBG_MESSAGE("aircraft_t::calc_route()","end at ground (%s)",search_end.get_str());
 
 	// create target route
-	if(!start_in_the_air) {
+	if(!start_in_air) 
+	{
 		takeoff = route.get_count()-1;
 		koord start_dir(welt->lookup(search_start)->get_weg_ribi(air_wt));
 		if(start_dir!=koord(0,0)) {
@@ -4980,7 +5007,8 @@ bool aircraft_t::calc_route_internal(
 		flughoehe = 0;
 		target_height = ((sint16)start.z*TILE_HEIGHT_STEP)/Z_TILE_STEP;
 	}
-	else {
+	else 
+	{
 		// init with current pos (in air ... )
 		route.clear();
 		route.append( start );
@@ -5020,7 +5048,7 @@ bool aircraft_t::calc_route_internal(
 		}
 	}
 	else {
-		suchen = touchdown = NO_TOUCHDOWN;
+		suchen = touchdown = NO_ROUTE_INDEX;
 	}
 
 	// just some straight routes ...
@@ -5063,7 +5091,7 @@ bool aircraft_t::calc_route_internal(
 		touchdown = route.get_count()+2;
 		route.append_straight_route(welt,search_end);
 
-		// now the route rearch point (+1, since it will check before entering the tile ...)
+		// now the route to ziel search point (+1, since it will check before entering the tile ...)
 		suchen = route.get_count()-1;
 
 		// now we just append the rest
@@ -5072,7 +5100,7 @@ bool aircraft_t::calc_route_internal(
 		}
 	}
 
-//DBG_MESSAGE("aircraft_t::calc_route_internal()","departing=%i  touchdown=%i   suchen=%i   total=%i  state=%i",takeoff, touchdown, suchen, route.get_count()-1, state );
+	//DBG_MESSAGE("aircraft_t::calc_route_internal()","departing=%i  touchdown=%i   suchen=%i   total=%i  state=%i",takeoff, touchdown, suchen, route.get_count()-1, state );
 	return true;
 }
 
@@ -5099,7 +5127,8 @@ bool aircraft_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route
 	}
 	target_halt = halthandle_t();	// no block reserved
 
-	return calc_route_internal(welt, start, ziel, max_speed, cnv->get_heaviest_vehicle(), runway_too_short, suchen, takeoff, touchdown, state, approach_dir, flughoehe, target_height, *route);
+	takeoff = touchdown = suchen = NO_ROUTE_INDEX;
+	return calc_route_internal(welt, start, ziel, max_speed, cnv->get_heaviest_vehicle(), state, flughoehe, target_height, runway_too_short, takeoff, touchdown, suchen, *route);
 }
 
 

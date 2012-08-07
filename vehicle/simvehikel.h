@@ -39,8 +39,8 @@ class route_t;
 #define HOLDING_PATTERN_LENGTH 16
 // offset of end tile of the holding pattern before touchdown tile.
 #define HOLDING_PATTERN_OFFSET 3
-// aircraft_t::touchdown: no touchdown cause there is no takeoff or route is not calculated completely due to waypoint.
-#define NO_TOUCHDOWN 0x7FFFFFFFul
+// aircraft_t::touchdown: no route to touchdown cause there is no takeoff or route is not calculated completely due to waypoint.
+#define NO_ROUTE_INDEX 0x7FFFFFFFul
 
 /*----------------------- Fahrdings ------------------------------------*/
 
@@ -580,7 +580,7 @@ public:
 	const char* get_current_livery() const { return current_livery.c_str(); }
 
 	virtual sint32 get_takeoff_route_index() const { return -1; }
-	virtual sint32 get_touchdown_route_index() const { return NO_TOUCHDOWN; }
+	virtual sint32 get_touchdown_route_index() const { return NO_ROUTE_INDEX; }
 };
 
 
@@ -824,13 +824,17 @@ private:
 	// BG, 07.08.2012: extracted from calc_route()
 	bool calc_route_internal(
 		karte_t *welt, 
-		const koord3d &start, const koord3d &ziel, 
-		sint32 max_speed, uint32 heaviest_vehicle, 
-		bool &runway_too_short,
-		uint32 &suchen, uint32 &takeoff, uint32 &touchdown,
+		const koord3d &start, 
+		const koord3d &ziel, 
+		sint32 max_speed, 
+		uint32 weight, 
 		aircraft_t::flight_state &state,
-		ribi_t::ribi &approach_dir,
-		sint16 &flughoehe, sint16 &target_height,
+		sint16 &flughoehe, 
+		sint16 &target_height,
+		bool &runway_too_short,
+		uint32 &takeoff, 
+		uint32 &touchdown,
+		uint32 &suchen, 
 		route_t &route);
 protected:
 	// jumps to next tile and correct the height ...
