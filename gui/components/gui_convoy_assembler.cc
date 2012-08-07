@@ -492,33 +492,50 @@ bool gui_convoy_assembler_t::action_triggered( gui_action_creator_t *komp,value_
 				build_vehicle_lists();
 				update_data();
 				}
-		} else if(komp == &vehicle_filter) {
+		} 
+		
+		else if(komp == &vehicle_filter) 
+		{
 			selected_filter = vehicle_filter.get_selection();
-		} else if(komp == &livery_selector) {
+		} 
+		
+		else if(komp == &livery_selector)
+		{
 			sint32 livery_selection = p.i;
-			if(livery_selection < 0) {
+			if(livery_selection < 0) 
+			{
 				livery_selector.set_selection(0);
 				livery_selection = 0;
 			}
 			livery_scheme_index = livery_scheme_indices.empty() ? 0 : livery_scheme_indices[livery_selection];
-		} else if(komp == &upgrade_selector) {
+		} 
+
+		else if(komp == &upgrade_selector) 
+		{
 			sint32 upgrade_selection = p.i;
-			if ( upgrade_selection < 0 ) {
+			if ( upgrade_selection < 0 ) 
+			{
 				upgrade_selector.set_selection(0);
 				upgrade_selection=0;
 			}
-			if(  (unsigned)(upgrade_selection)<=u_upgrade  ) {
+			if(  (unsigned)(upgrade_selection)<=u_upgrade  ) 
+			{
 				upgrade=(unsigned)(upgrade_selection);
 				build_vehicle_lists();
 				update_data();
 			}
 
-		} else {
+		} 
+		else 
+		{
 			return false;
 		}
+		
 		build_vehicle_lists();
 	}
-	else {
+
+	else
+	{
 		update_data();
 		update_tabs();
 
@@ -686,7 +703,7 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 				((way_electrified  ||  info->get_engine_type()!=vehikel_besch_t::electric)  &&
 					 ((!info->is_future(month_now))  &&  (show_retired_vehicles  ||  (!info->is_retired(month_now)) )  ) )) 
 			{
-				// check, if allowed
+				// check if allowed
 				bool append = true;
 				bool upgradeable = true;
 				if(!show_all) 
@@ -730,7 +747,7 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 						{
 							for(uint16 c = 0; c < vehicle_list[i]->get_upgrades_count(); c++)
 							{
-								if(vehicle_list[i]->get_upgrades(c) && (info->get_name() == vehicle_list[i]->get_upgrades(c)->get_name()))
+								if(vehicle_list[i]->get_upgrades(c) && (info == vehicle_list[i]->get_upgrades(c)))
 								{
 									upgradeable = true;
 								}
@@ -768,7 +785,7 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 						append = false;
 					}
 				}
-				if(append && (upgrade == u_buy || upgradeable)) 
+				if((append && upgrade == u_buy) || (upgradeable &&  upgrade == u_upgrade))
 				{
 					add_to_vehicle_list( info );
 				}
@@ -1189,7 +1206,7 @@ void gui_convoy_assembler_t::update_data()
 		vehikel_besch_t const* const    info = i.key;
 		gui_image_list_t::image_data_t& img  = *i.value;
 
-		const uint8 ok_color = info->is_future(month_now) || info->is_retired(month_now) ? COL_DARK_BLUE: COL_DARK_GREEN;
+		const uint8 ok_color = info->is_future(month_now) || info->is_retired(month_now) ? COL_DARK_BLUE : COL_DARK_GREEN;
 
 		img.count = 0;
 		img.lcolor = ok_color;
@@ -1292,10 +1309,18 @@ void gui_convoy_assembler_t::update_data()
 			{
 				for(uint16 c = 0; c < vehicle_list[i]->get_upgrades_count(); c++)
 				{
-					if(vehicle_list[i]->get_upgrades(c) && (info->get_name() == vehicle_list[i]->get_upgrades(c)->get_name()))
+					if(vehicle_list[i]->get_upgrades(c) && (info == vehicle_list[i]->get_upgrades(c)))
 					{
-						img.lcolor = COL_DARK_GREEN;
-						img.rcolor = COL_DARK_GREEN;
+						if(!sp->can_afford(info->get_upgrade_price()))
+						{
+							img.lcolor = COL_DARK_ORANGE;
+							img.rcolor = COL_DARK_ORANGE;
+						}
+						else
+						{
+							img.lcolor = COL_DARK_GREEN;
+							img.rcolor = COL_DARK_GREEN;
+						}
 						if(replace_frame != NULL)
 						{
 							// If we are using the replacing window,
@@ -1304,7 +1329,7 @@ void gui_convoy_assembler_t::update_data()
 							sint8 upgradeable_count = 0;
 							ITERATE(vehicles,j)
 							{
-								if(vehicles[j]->get_name() == info->get_name())
+								if(vehicles[j] == info)
 								{
 									// Counts the number of vehicles in the current convoy that can
 									// upgrade to the currently selected vehicle.
@@ -1315,7 +1340,7 @@ void gui_convoy_assembler_t::update_data()
 							{
 								for(uint16 k = 0; k < vehicle_list[j]->get_upgrades_count(); k++)
 								{
-									if(vehicle_list[j]->get_upgrades(k) && (vehicle_list[j]->get_upgrades(k)->get_name() == info->get_name()))
+									if(vehicle_list[j]->get_upgrades(k) && (vehicle_list[j]->get_upgrades(k) == info))
 									{
 										// Counts the number of vehicles currently marked to be upgraded
 										// to the selected vehicle.
@@ -1332,7 +1357,7 @@ void gui_convoy_assembler_t::update_data()
 							}
 
 						}
-						if(veh_action == va_insert) 
+						/*if(veh_action == va_insert) 
 						{
 							if (!veh->can_lead(info) || (veh && !info->can_follow(veh)))
 							{
@@ -1354,13 +1379,13 @@ void gui_convoy_assembler_t::update_data()
 							{
 								img.rcolor = COL_YELLOW;
 							}
-						}
+						}*/
 					}
 				}
 			}
 		}
 		else
-		{
+		{	
 			if(info->is_available_only_as_upgrade())
 			{
 				bool purple = false;
