@@ -7,6 +7,7 @@
 #include "../api_function.h"
 #include "../../simcity.h"
 #include "../../simworld.h"
+#include "../../dataobj/scenario.h"
 
 using namespace script_api;
 
@@ -39,7 +40,9 @@ SQInteger world_get_next_city(HSQUIRRELVM vm)
 SQInteger world_get_city_by_index(HSQUIRRELVM vm)
 {
 	sint32 index = param<sint32>::get(vm, -1);
-	const koord pos = (0<=index  &&  (uint32)index<welt->get_staedte().get_count()) ?  welt->get_staedte()[index]->get_pos() : koord::invalid;
+	koord pos = (0<=index  &&  (uint32)index<welt->get_staedte().get_count()) ?  welt->get_staedte()[index]->get_pos() : koord::invalid;
+	// transform coordinates
+	welt->get_scenario()->koord_w2sq(pos);
 	return push_instance(vm, "city_x",  pos.x, pos.y);
 }
 

@@ -379,8 +379,10 @@ namespace script_api {
 	SQInteger param<grund_t*>::push(HSQUIRRELVM vm, grund_t* const& v)
 	{
 		if (v) {
-			koord3d k = v->get_pos();
-			return push_instance(vm, "tile_x", k.x, k.y, k.z);
+			koord k = v->get_pos().get_2d();
+			// transform coordinates
+			welt->get_scenario()->koord_w2sq(k);
+			return push_instance(vm, "tile_x", k.x, k.y, v->get_pos().z);
 		}
 		else {
 			sq_pushnull(vm); return 1;
@@ -418,6 +420,8 @@ namespace script_api {
 	{
 		if (v) {
 			koord k = v->get_pos();
+			// transform coordinates
+			welt->get_scenario()->koord_w2sq(k);
 			return push_instance(vm, "city_x", k.x, k.y);
 		}
 		else {
