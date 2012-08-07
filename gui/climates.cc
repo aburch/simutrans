@@ -87,7 +87,7 @@ climate_gui_t::climate_gui_t(settings_t* const sets) :
 	add_komponente( numberinput_lbl+labelnr );
 	labelnr++;
 
-	itoa( sets->get_climate_borders()[arctic_climate], snowline_txt, 10 );
+	sprintf( snowline_txt ,"%d", sets->get_climate_borders()[arctic_climate] );
 	summer_snowline.init( NULL, koord( TEXT_RIGHT, y ), COL_WHITE, gui_label_t::right );
 	summer_snowline.set_text_pointer( snowline_txt );
 	add_komponente( &summer_snowline );
@@ -234,7 +234,7 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		}
 		snowline_winter.set_limits( 0, arctic );
 	}
-	itoa( sets->get_climate_borders()[arctic_climate], snowline_txt, 10 );
+	sprintf( snowline_txt ,"%d", sets->get_climate_borders()[arctic_climate] );
 	return true;
 }
 
