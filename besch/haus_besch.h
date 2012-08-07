@@ -373,8 +373,8 @@ public:
 	void set_scale(uint16 scale_factor) 
 	{
 		// BG: 29.08.2009: explicit typecasts avoid warnings
-		const sint32 scaled_price = station_price == 2147483647 ? station_price : set_scale_generic<sint64>((sint64)station_price, scale_factor);
-		const sint32 scaled_maintenance = station_maintenance == 2147483647 ? station_maintenance : set_scale_generic<sint64>((sint64)station_maintenance, scale_factor);
+		const sint32 scaled_price = station_price == 2147483647 ? station_price : (sint32) set_scale_generic<sint64>((sint64)station_price, scale_factor);
+		const sint32 scaled_maintenance = station_maintenance == 2147483647 ? station_maintenance : (sint32) set_scale_generic<sint64>((sint64)station_maintenance, scale_factor);
 		scaled_station_price = (scaled_price < (station_price > 0 ? 1 : 0) ? 1: scaled_price);
 		scaled_station_maintenance = (scaled_maintenance < (station_maintenance > 0 ? 1 : 0) ? 1: scaled_maintenance);
 	}

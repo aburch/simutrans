@@ -669,8 +669,8 @@ public:
 
 	void set_scale(uint16 scale_factor)
 	{ 
-		const uint32 scaled_price = set_scale_generic<sint64>(base_price, scale_factor);
-		const uint32 scaled_upgrade_price = set_scale_generic<sint64>(base_upgrade_price, scale_factor);
+		const uint32 scaled_price = (uint32) set_scale_generic<sint64>(base_price, scale_factor);
+		const uint32 scaled_upgrade_price = (uint32) set_scale_generic<sint64>(base_upgrade_price, scale_factor);
 		const uint32 scaled_maintenance = set_scale_generic<uint32>(base_fixed_cost, scale_factor);
 
 		preis = (base_price == 0 ? 0 : (scaled_price >= 1 ? scaled_price : 1));
