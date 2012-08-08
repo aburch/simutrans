@@ -96,12 +96,12 @@ private:
 		/// constructor: forbid tool/etc for a certain player
 		forbidden_t(forbid_type type_=forbid_tool, uint8 player_nr_=255, uint16 toolnr_=0, sint16 waytype_=invalid_wt) :
 			type(type_), player_nr(player_nr_), toolnr(toolnr_), waytype(waytype_),
-			pos_nw(koord::invalid), pos_se(koord::invalid), hmin(-128), hmax(128), error() {};
+			pos_nw(koord::invalid), pos_se(koord::invalid), hmin(-128), hmax(127), error() {};
 
 		/// constructor: forbid tool for a certain player at certain location
 		forbidden_t(uint8 player_nr_, uint16 toolnr_, sint16 waytype_, koord nw, koord se) :
 			type(forbid_tool_rect), player_nr(player_nr_), toolnr(toolnr_), waytype(waytype_),
-			pos_nw(nw), pos_se(se), hmin(-128), hmax(128), error() {};
+			pos_nw(nw), pos_se(se), hmin(-128), hmax(127), error() {};
 
 		// copy constructor
 		forbidden_t(const forbidden_t&);
