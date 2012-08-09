@@ -60,10 +60,22 @@ Function CheckForPortableInstall
   StrCpy $0 $INSTDIR $1
   StrCmp $0 $PROGRAMFILES YesPortable +1
   StrCpy $multiuserinstall "0"  ; check whether we already have a simuconf.tab, to get state from file
-  ${ConfigRead} "$INSTDIR\config\simuconf.tab" "singleuser_install = " $R0
-  IfErrors PortableUnknown
-  StrCpy $multiuserinstall $R0
+  IfFileExists "$INSTDIR\config\simuconf.tab" 0 PortableUnknown
+  ; now we have a config. Without single_user install, it will be multiuser
+  StrCpy $multiuserinstall "1"
+  ${ConfigRead} "$INSTDIR\config\simuconf.tab" "singleuser_install" $R0
+  IfErrors YesPortable
+  ; skip a leading space
+PortableSpaceSkip:
+  StrCpy $1 $R0 1
+  StrCmp " " $1 0 +3
+  StrCpy $R0 $R0 100 1
+  Goto PortableSpaceSkip
+  ; skip the equal char
+  StrCpy $R0 $R0 10 1
+  IntOp $multiuserinstall $R0 ^ 1
   Goto AllSetPortable
+
 PortableUnknown:
   ; ask whether this is a protable installation
   MessageBox MB_YESNO|MB_ICONINFORMATION "Should this be a portable installation?" IDYES YesPortable
@@ -226,6 +238,15 @@ Function .oninit
    MessageBox MB_OK|MB_ICONEXCLAMATION "The installer is already running."
    Abort
 
+  ; now find out, whether there is an old installation
+  IfFileExists "$SMPROGRAMS\Simutrans\Simutrans.lnk" 0 no_previous_menu
+  ShellLink::GetShortCutTarget "$SMPROGRAMS\Simutrans\Simutrans.lnk"
+  Pop $0
+  StrCpy $INSTDIR $0 -14
+  ; now check for portable or not
+  goto init_path_ok
+
+no_previous_menu:
   ;# call userInfo plugin to get user info.  The plugin puts the result in the stack
   userInfo::getAccountType
   pop $0
@@ -235,6 +256,8 @@ Function .oninit
   ; we are not admin: default install in a different dir
   StrCpy $INSTDIR "C:\simutrans"
   ; ok, we are admin
+
+init_path_ok:
 FunctionEnd
 
 
