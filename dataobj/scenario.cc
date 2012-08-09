@@ -689,20 +689,20 @@ void scenario_t::rdwr(loadsave_t *file)
 			dbg->warning("scenario_t::rdwr", "write persistent scenario data: %s", str.c_str());
 			file->rdwr_str(str);
 		}
+	}
 
-		// load forbidden tools
+	// load forbidden tools
+	if (file->is_loading()) {
+		clear_ptr_vector(forbidden_tools);
+	}
+	uint32 count = forbidden_tools.get_count();
+	file->rdwr_long(count);
+
+	for(uint32 i=0; i<count; i++) {
 		if (file->is_loading()) {
-			clear_ptr_vector(forbidden_tools);
+			forbidden_tools.append(new forbidden_t());
 		}
-		uint32 count = forbidden_tools.get_count();
-		file->rdwr_long(count);
-
-		for(uint32 i=0; i<count; i++) {
-			if (file->is_loading()) {
-				forbidden_tools.append(new forbidden_t());
-			}
-			forbidden_tools[i]->rdwr(file);
-		}
+		forbidden_tools[i]->rdwr(file);
 	}
 }
 
