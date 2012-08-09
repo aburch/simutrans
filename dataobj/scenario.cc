@@ -622,7 +622,7 @@ bool scenario_t::open_info_win() const
 void scenario_t::rdwr(loadsave_t *file)
 {
 	file->rdwr_short(what_scenario);
-	if (file->get_version() <= 123456) {
+	if (file->get_version() <= 111004) {
 		uint32 city_nr = 0;
 		file->rdwr_long(city_nr);
 		sint64 factor = 0;
