@@ -6,6 +6,8 @@
 #include "../squirrel/squirrel.h"
 #include "../simtypes.h"
 #include "../halthandle_t.h"
+#include "../utils/cbuffer_t.h"
+
 class convoi_t;
 class fabrik_t;
 class grund_t;
@@ -188,7 +190,10 @@ namespace script_api {
 		/// squirrel_type corresponding to the c++ type/class
 		static const char* squirrel_type()
 		{
-			return "array";
+			static cbuffer_t buf;
+			buf.clear();
+			buf.printf("array<%s>", param<T>::squirrel_type() );
+			return buf;
 		}
 	};
 
