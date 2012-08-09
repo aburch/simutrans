@@ -20,6 +20,10 @@
 # ATTENTION!
 # will be only used if this file is located in the program directory at config/simuconf.tab!
 #singleuser_install = 0
+#
+#
+#
+# Do not delete these comment line! (Needed for installer)
 
 # Default pak file path
 # which graphics you want to play?

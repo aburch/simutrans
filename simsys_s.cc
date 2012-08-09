@@ -76,6 +76,10 @@ static Uint8 hourglass_cursor_mask[] = {
 	0x3F, 0xFE  //   *************
 };
 
+static Uint8 blank_cursor[] = {
+	0x0,
+	0x0,
+};
 
 static SDL_Surface *screen;
 static int width = 16;
@@ -86,6 +90,7 @@ static int sync_blit = 0;
 
 static SDL_Cursor* arrow;
 static SDL_Cursor* hourglass;
+static SDL_Cursor* blank;
 
 
 /*
@@ -180,6 +185,9 @@ int dr_os_open(int w, int const h, int const fullscreen)
 	SDL_ShowCursor(0);
 	arrow = SDL_GetCursor();
 	hourglass = SDL_CreateCursor(hourglass_cursor, hourglass_cursor_mask, 16, 22, 8, 11);
+	blank = SDL_CreateCursor(blank_cursor, blank_cursor, 8, 2, 0, 0);
+
+	SDL_ShowCursor(1);
 
 	display_set_actual_width( w );
 	return w;
@@ -190,6 +198,7 @@ int dr_os_open(int w, int const h, int const fullscreen)
 void dr_os_close()
 {
 	SDL_FreeCursor(hourglass);
+	SDL_FreeCursor(blank);
 	// Hajo: SDL doc says, screen is free'd by SDL_Quit and should not be
 	// free'd by the user
 	// SDL_FreeSurface(screen);
@@ -558,7 +567,8 @@ void GetEventsNoWait(void)
 
 void show_pointer(int yesno)
 {
-	SDL_ShowCursor(yesno != 0);
+	SDL_SetCursor((yesno != 0) ? arrow : blank);
+//	SDL_ShowCursor(yesno != 0);
 }
 
 
