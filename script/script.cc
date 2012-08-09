@@ -133,7 +133,7 @@ const char* script_vm_t::eval_string(const char* squirrel_string)
 {
 	// compile string
 	if (!SQ_SUCCEEDED(sq_compilebuffer(vm, squirrel_string, strlen(squirrel_string), "userdefinedstringmethod", true))) {
-		set_error("Scriptfile not found");
+		set_error("Error compiling string buffer");
 		return get_error();
 	}
 	// execute
