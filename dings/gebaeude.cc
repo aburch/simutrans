@@ -558,48 +558,28 @@ gebaeude_t::typ gebaeude_t::get_haustyp() const
 
 void gebaeude_t::zeige_info()
 {
-	// Für die Anzeige ist bei mehrteiliggen Gebäuden immer
-	// das erste laut Layoutreihenfolge zuständig.
-	// Sonst gibt es für eine 2x2-Fabrik bis zu 4 Infofenster.
-	koord k = tile->get_offset();
-	if(k != koord(0, 0)) {
-		grund_t *gr = welt->lookup(get_pos() - k);
-		if(!gr) {
-			gr = welt->lookup_kartenboden(get_pos().get_2d() - k);
-		}
-		gebaeude_t* gb = gr->find<gebaeude_t>();
-		// is the info of the (0,0) tile on multi tile buildings
-		if(gb) {
-			// some version made buildings, that had not tile (0,0)!
-			gb->zeige_info();
+	if(get_fabrik()) {
+		ptr.fab->zeige_info();
+	}
+	else if(ist_firmensitz()) {
+		int old_count = win_get_open_count();
+		create_win( new money_frame_t(get_besitzer()), w_info, magic_finances_t+get_besitzer()->get_player_nr() );
+		// already open?
+		if(umgebung_t::townhall_info  &&  old_count==win_get_open_count()) {
+			create_win( new ding_infowin_t(this), w_info, (long)this);
 		}
 	}
-	else {
-DBG_MESSAGE("gebaeude_t::zeige_info()", "at %d,%d - name is '%s'", get_pos().x, get_pos().y, get_name());
-
-		if(get_fabrik()) {
-			ptr.fab->zeige_info();
-		}
-		else if(ist_firmensitz()) {
+	else if(!tile->get_besch()->ist_ohne_info()) {
+		if(ist_rathaus()) {
 			int old_count = win_get_open_count();
-			create_win( new money_frame_t(get_besitzer()), w_info, magic_finances_t+get_besitzer()->get_player_nr() );
+			welt->suche_naechste_stadt(get_pos().get_2d())->zeige_info();
 			// already open?
 			if(umgebung_t::townhall_info  &&  old_count==win_get_open_count()) {
 				create_win( new ding_infowin_t(this), w_info, (long)this);
 			}
 		}
-		else if(!tile->get_besch()->ist_ohne_info()) {
-			if(ist_rathaus()) {
-				int old_count = win_get_open_count();
-				welt->suche_naechste_stadt(get_pos().get_2d())->zeige_info();
-				// already open?
-				if(umgebung_t::townhall_info  &&  old_count==win_get_open_count()) {
-					create_win( new ding_infowin_t(this), w_info, (long)this);
-				}
-			}
-			else {
-				create_win( new ding_infowin_t(this), w_info, (long)this);
-			}
+		else {
+			create_win( new ding_infowin_t(this), w_info, (long)this);
 		}
 	}
 }

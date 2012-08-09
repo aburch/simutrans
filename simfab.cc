@@ -1912,7 +1912,7 @@ void fabrik_t::recalc_factory_status()
 void fabrik_t::zeige_info()
 {
 	gebaeude_t *gb = welt->lookup(pos)->find<gebaeude_t>();
-	create_win(new fabrik_info_t(this, gb), w_info, (long)gb );
+	create_win(new fabrik_info_t(this, gb), w_info, (long)this );
 }
 
 
@@ -2059,7 +2059,7 @@ void fabrik_t::rotate90( const sint16 y_size )
 	if(  this!=get_fab( welt, pos.get_2d() )  ){
 		// was not rotated, because tile (0,0) is missing
 		pos.rotate90( y_size );
-		dbg->warning( "fabrik_t::rotate90()","no tile zero form %s at (%s)", get_name(), pos.get_str() );
+		dbg->warning( "fabrik_t::rotate90()","no tile zero for %s at (%s)", get_name(), pos.get_str() );
 	}
 	rotate = (rotate+3)%besch->get_haus()->get_all_layouts();
 
