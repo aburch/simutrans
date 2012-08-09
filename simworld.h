@@ -992,7 +992,7 @@ public:
 	stadt_t *suche_naechste_stadt(koord pos) const;
 
 	bool cannot_save() const { return nosave; }
-	void set_nosave() { nosave = true; }
+	void set_nosave() { nosave = true; nosave_warning = true; }
 	void set_nosave_warning() { nosave_warning = true; }
 
 	// rotate plans by 90 degrees

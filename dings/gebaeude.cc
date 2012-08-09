@@ -186,7 +186,7 @@ void gebaeude_t::rotate90()
 				if(  !is_factory  &&  new_offset!=koord(0,0)  ) {
 					welt->set_nosave_warning();
 				}
-				if(  is_factory  &&  (new_offset!=koord(0,0)  ||  ptr.fab->get_besch()->get_haus()->get_tile(0,0,0)==NULL)  ) {
+				if(  is_factory  &&  (new_offset!=koord(0,0)  ||  ptr.fab->get_besch()->get_haus()->get_tile(layout,0,0)==NULL)  ) {
 					// there are factories without a valid zero tile
 					// => this map rotation cannot be reloaded!
 					welt->set_nosave();
