@@ -492,10 +492,6 @@ void scenario_t::step()
 	if (!script) {
 		return;
 	}
-	if (script->has_failed()) {
-		stop();
-		return;
-	}
 
 	uint16 new_won = 0;
 	uint16 new_lost = 0;

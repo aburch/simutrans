@@ -116,7 +116,7 @@ const char* script_vm_t::call_script(const char* filename)
 	}
 	// call it
 	sq_pushroottable(vm);
-	if (!SQ_SUCCEEDED(sq_call_restricted(vm, 1, SQFalse, SQTrue, true))) {
+	if (!SQ_SUCCEEDED(sq_call_restricted(vm, 1, SQFalse, SQTrue))) {
 		sq_pop(vm, 1); // pop script
 		return "Call script failed";
 	}
@@ -146,9 +146,6 @@ const char* script_vm_t::eval_string(const char* squirrel_string)
 
 const char* script_vm_t::intern_start_function(const char* function)
 {
-	if (failed) {
-		return "VM in failed state";
-	}
 	const char* err = NULL;
 	sq_pushroottable(vm);
 	sq_pushstring(vm, function, -1);
@@ -168,7 +165,7 @@ const char* script_vm_t::intern_call_function(int nparams, bool retvalue)
 {
 	const char* err = NULL;
 	// call the script
-	if (!SQ_SUCCEEDED(sq_call_restricted(vm, nparams, retvalue, SQTrue, true))) {
+	if (!SQ_SUCCEEDED(sq_call_restricted(vm, nparams, retvalue, SQTrue))) {
 		err = "Call function failed";
 		retvalue = false;
 	}
