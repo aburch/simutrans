@@ -435,7 +435,7 @@ void convoy_t::calc_move(const settings_t &settings, long delta_t, const weight_
 
 float32e8_t convoy_t::power_index_to_power(const float32e8_t &power_index, sint32 power_factor)
 {
-	return power_index * float32e8_t(power_factor, 100 * GEAR_FACTOR);
+	return power_index * float32e8_t(power_factor * 10, GEAR_FACTOR);
 }
 
 /******************************************************************************/

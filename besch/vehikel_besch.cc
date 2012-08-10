@@ -149,8 +149,8 @@ void vehikel_besch_t::loaded()
 	static const float32e8_t gear_factor((uint32)GEAR_FACTOR); 
 	float32e8_t power_force_ratio = get_power_force_ratio();
 	force_threshold_speed = (uint16)(power_force_ratio + float32e8_t::half);
-	float32e8_t g_power = (uint32) 1000L * leistung * gear;
-	float32e8_t g_force = (uint32) 1000L * tractive_effort * gear;
+	float32e8_t g_power = float32e8_t(leistung) * (/*(uint32) 1000L * */ (uint32)gear);
+	float32e8_t g_force = float32e8_t(tractive_effort) * (/*(uint32) 1000L * */ (uint32)gear);
 	if (g_power != 0)
 	{
 		if (g_force == 0)
