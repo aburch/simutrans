@@ -572,14 +572,17 @@ void gebaeude_t::zeige_info()
 	else if(!tile->get_besch()->ist_ohne_info()) {
 		if(ist_rathaus()) {
 			int old_count = win_get_open_count();
-			welt->suche_naechste_stadt(get_pos().get_2d())->zeige_info();
+			stadt_t *city = welt->suche_naechste_stadt(get_pos().get_2d());
+			city->zeige_info();
 			// already open?
 			if(umgebung_t::townhall_info  &&  old_count==win_get_open_count()) {
-				create_win( new ding_infowin_t(this), w_info, (long)this);
+				create_win( new ding_infowin_t(this), w_info, (long)city + 1);
 			}
 		}
 		else {
-			create_win( new ding_infowin_t(this), w_info, (long)this);
+			koord const k = get_pos().get_2d() - tile->get_offset();
+			long magic = (long)tile->get_besch() + k.x + welt->get_groesse_x()*k.y;
+			create_win( new ding_infowin_t(this), w_info, magic);
 		}
 	}
 }
