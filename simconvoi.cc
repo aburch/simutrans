@@ -196,7 +196,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	set_akt_speed(0);                 // momentane Geschwindigkeit
 	sp_soll = 0;
 
-	next_stop_index = 65535;
+	next_stop_index = INVALID_INDEX;
 
 	line_update_pending = linehandle_t();
 
@@ -817,7 +817,7 @@ void convoi_t::calc_acceleration(long delta_t)
 	next_speed_limit = 0; // 'limit' for next stop is 0, of course.
 	uint32 next_stop_index = get_next_stop_index(); // actually this is next stop index + 1!!!
 	if (next_stop_index >= 65000u) // BG, 07.10.2011: currently only waggon_t sets next_stop_index. 
-	// BG, 19.06.2012: use ">= 65000u" as convoys starting from depot count down the next_stop_index before calculating acceleration.
+	// BG, 09.08.2012: use ">= 65000u" as INVALID_INDEX (65530u) sometimes is incermented or decremented.
 	{
 		next_stop_index = route_count;
 	}
@@ -900,7 +900,7 @@ void convoi_t::calc_acceleration(long delta_t)
 
 void convoi_t::route_infos_t::set_holding_pattern_indexes(sint32 current_route_index, sint32 touchdown_route_index)
 {
-	if (touchdown_route_index != NO_ROUTE_INDEX && current_route_index < touchdown_route_index - (HOLDING_PATTERN_LENGTH + HOLDING_PATTERN_OFFSET))
+	if (touchdown_route_index != INVALID_INDEX && current_route_index < touchdown_route_index - (HOLDING_PATTERN_LENGTH + HOLDING_PATTERN_OFFSET))
 	{
 		hp_start_index = touchdown_route_index - (HOLDING_PATTERN_LENGTH + HOLDING_PATTERN_OFFSET);
 		hp_end_index   = hp_start_index + HOLDING_PATTERN_LENGTH;
@@ -5367,19 +5367,20 @@ void convoi_t::set_next_stop_index(uint16 n)
    if(  n==INVALID_INDEX  ) 
    {
 	   // find out if stop or waypoint, waypoint: do not brake at waypoints
-	   const koord3d route_end = route.back();
-	   grund_t const* const gr = welt->lookup(route_end);
+	   const koord3d &route_end = route.back();
 	   const int count = fpl->get_count();
 	   bool reverse_waypoint = false;
 	   for(int i = 0; i < count; i ++)
 	   {
-		   const koord3d pos = fpl->eintrag[i].pos;
-		   if(pos == route.back())
+		   const linieneintrag_t &eintrag = fpl->eintrag[i];
+		   if(eintrag.pos == route_end)
 		   {
-				reverse_waypoint = fpl->eintrag[i].reverse;
+				reverse_waypoint = eintrag.reverse;
 				break;
 		   }
 	   }
+
+	   grund_t const* const gr = welt->lookup(route_end);
 	   if(  gr  &&  (gr->is_halt() || reverse_waypoint)  ) 
 	   {
 		   n = route.get_count()-1;

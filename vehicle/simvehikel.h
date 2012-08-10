@@ -39,8 +39,6 @@ class route_t;
 #define HOLDING_PATTERN_LENGTH 16
 // offset of end tile of the holding pattern before touchdown tile.
 #define HOLDING_PATTERN_OFFSET 3
-// aircraft_t::touchdown: no route to touchdown cause there is no takeoff or route is not calculated completely due to waypoint.
-#define NO_ROUTE_INDEX 0x7FFFFFFFul
 
 /*----------------------- Fahrdings ------------------------------------*/
 
@@ -580,7 +578,7 @@ public:
 	const char* get_current_livery() const { return current_livery.c_str(); }
 
 	virtual sint32 get_takeoff_route_index() const { return -1; }
-	virtual sint32 get_touchdown_route_index() const { return NO_ROUTE_INDEX; }
+	virtual sint32 get_touchdown_route_index() const { return INVALID_INDEX; }
 };
 
 
@@ -836,6 +834,10 @@ private:
 		uint32 &touchdown,
 		uint32 &suchen, 
 		route_t &route);
+
+	// BG, 08.08.2012: extracted from ist_weg_frei()
+    bool reroute(const uint16 route_index, const koord3d &ziel);
+
 protected:
 	// jumps to next tile and correct the height ...
 	void hop();
