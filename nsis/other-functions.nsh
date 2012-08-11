@@ -313,12 +313,11 @@ Function DownloadInstallZip
   Call IsPakInstalledAndCurrent
   IntCmp $R0 2 DownloadInstallZipSkipped
   IntCmp $R0 0 DownloadInstallZipDo
-;    Rename "$INSTDIR\$downloadname.old" "$INSTDIR\$downloadname.old"
-  RMdir /r "$INSTDIR\$downloadname.old"
-  CreateDirectory "$INSTDIR\$downloadname.old"
-  CopyFiles /silent "$INSTDIR\$downloadname" "$INSTDIR\$downloadname.old"
-  RMdir /r "$INSTDIR\$downloadname"
-  DetailPrint "Old $downloadname renamed to $INSTDIR\$downloadname.old"
+  SetOutPath $INSTDIR
+  RMdir /r "$downloadname.old"
+  Rename "$downloadname" "$downloadname.old"
+  DetailPrint "Old $downloadname renamed to $downloadname.old"
+
 DownloadInstallZipDo:
   ; ok old directory rename
   Call ConnectInternet
@@ -383,11 +382,9 @@ Function DownloadInstallZipWithoutSimutrans
   Call IsPakInstalledAndCurrent
   IntCmp $R0 2 DownloadInstallZipWithoutSimutransSkip
   IntCmp $R0 0 DownloadInstallZipWithoutSimutransDo
-  RMdir /r "$INSTDIR\$downloadname.old"
-  CreateDirectory "$INSTDIR\$downloadname.old"
-  CopyFiles /silent "$INSTDIR\$downloadname" "$INSTDIR\$downloadname.old"
-  RMdir /r "$INSTDIR\$downloadname"
-;  Rename "$INSTDIR\$downloadname.old" "$INSTDIR\$downloadname.old"
+  SetOutPath $INSTDIR
+  RMdir /r "$downloadname.old"
+  Rename "$downloadname" "$downloadname.old"
   DetailPrint "Old $downloadname renamed to $downloadname.old"
 DownloadInstallZipWithoutSimutransDo:
   ; ok, now install
