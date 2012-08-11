@@ -389,7 +389,6 @@ namespace script_api {
 		}
 	}
 
-
 	const ware_besch_t* param<const ware_besch_t*>::get(HSQUIRRELVM vm, SQInteger index)
 	{
 		void* besch = NULL;

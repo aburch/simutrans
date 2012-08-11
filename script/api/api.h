@@ -8,6 +8,7 @@
 void export_city(HSQUIRRELVM vm);
 void export_convoy(HSQUIRRELVM vm);
 void export_factory(HSQUIRRELVM vm);
+void export_goods_desc(HSQUIRRELVM vm);
 void export_halt(HSQUIRRELVM vm);
 void export_player(HSQUIRRELVM vm);
 void export_scenario(HSQUIRRELVM vm);

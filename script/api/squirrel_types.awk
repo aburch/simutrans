@@ -56,6 +56,8 @@ BEGIN {
 	export_types["factory_production_x::get_consumed"] = "array<integer>()"
 	export_types["factory_production_x::get_delivered"] = "array<integer>()"
 	export_types["factory_production_x::get_produced"] = "array<integer>()"
+	export_types["good_desc_x::get_catg_index"] = "integer()"
+	export_types["obj_desc_x::get_name"] = "string()"
 	export_types["halt_x::get_arrived"] = "array<integer>()"
 	export_types["halt_x::get_departed"] = "array<integer>()"
 	export_types["halt_x::get_waiting"] = "array<integer>()"
@@ -126,5 +128,4 @@ BEGIN {
 	export_types["world::get_year_generated_mail"] = "array<integer>()"
 	export_types["world::get_year_ratio_goods"] = "array<integer>()"
 	export_types["world::get_year_transported_goods"] = "array<integer>()"
-	export_types["good_desc_x::get_catg_index"] = "integer()"
 }

@@ -12,6 +12,7 @@ INPUT                  = api_factory.cc \
 			 api_city.cc \
 			 api_convoy.cc \
 			 api_const.cc \
+			 api_goods_desc.cc \
 			 api_halt.cc \
 			 api_player.cc \
 			 api_settings.cc \

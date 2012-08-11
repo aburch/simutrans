@@ -6,7 +6,6 @@
 
 #include "api_function.h"
 #include "api_class.h"
-#include "export_besch.h"
 
 #include "api/api.h"
 
@@ -30,6 +29,7 @@ void register_export_function(HSQUIRRELVM vm, karte_t *welt_)
 	export_city(vm);
 	export_convoy(vm);
 	export_factory(vm);
+	export_goods_desc(vm);
 	export_halt(vm);
 	export_player(vm);
 	export_scenario(vm);
@@ -38,8 +38,6 @@ void register_export_function(HSQUIRRELVM vm, karte_t *welt_)
 	export_world(vm);
 
 	sq_pop(vm, 1); // root table
-
-	register_besch_classes(vm);
 
 	script_api::end_squirrel_type_logging();
 }

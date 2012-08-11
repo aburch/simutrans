@@ -238,6 +238,10 @@
 				RelativePath=".\script\api_function.cc"
 				>
 			</File>
+                        <File
+                                RelativePath=".\script\api_goods_desc.cc"
+                                >
+                        </File>
 			<File
 				RelativePath=".\script\api\api_halt.cc"
 				>
@@ -411,7 +415,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\script\export_besch.cc"
+				RelativePath=".\script\api\export_besch.cc"
 				>
 			</File>
 			<File
