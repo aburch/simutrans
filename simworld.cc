@@ -1423,7 +1423,7 @@ void karte_t::init(settings_t* const sets, sint8 const* const h_field)
 	settings = *sets;
 	// names during creation time
 	settings.set_name_language_iso(umgebung_t::language_iso);
-	settings.set_use_timeline(settings.get_use_timeline() & 1);
+	settings.set_use_timeline(settings.get_use_timeline()&1);
 
 	x_off = y_off = 0;
 
@@ -4945,7 +4945,7 @@ void karte_t::laden(loadsave_t *file)
 #endif
 
 	if(  !umgebung_t::networkmode  ||  (umgebung_t::server  &&  socket_list_t::get_playing_clients()==0)  ) {
-		if (settings.get_allow_player_change() && umgebung_t::default_einstellungen.get_use_timeline() < 2) {
+		if (settings.get_allow_player_change() && umgebung_t::default_einstellungen.get_use_timeline()) {
 			// not locked => eventually switch off timeline settings, if explicitly stated
 			settings.set_use_timeline(umgebung_t::default_einstellungen.get_use_timeline());
 			DBG_DEBUG("karte_t::laden", "timeline: reset to %i", umgebung_t::default_einstellungen.get_use_timeline() );

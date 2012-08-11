@@ -1099,7 +1099,7 @@ no_tree_climates = 130
 
 ################################### Time settings ###################################
 
-# Enforce vehicle introduction dates?
+# Enforce vehicle (and other item) introduction dates?
 # 0 = all vehicles available from start of the game
 # 1 = use introduction dates
 # 2 = (default) use settings during game creation, new games off
