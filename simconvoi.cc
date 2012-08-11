@@ -953,7 +953,8 @@ convoi_t::route_infos_t& convoi_t::get_route_infos()
 			const weg_t *this_weg = get_weg_on_grund(welt->lookup(this_tile), waytype);
 			if (i >= touchdown_index || i <= takeoff_index)
 			{
-				// not a flying aircraft: get speed limit
+				// not an aircraft (i <= takeoff_index == INVALID_INDEX == 65530u) or
+				// aircraft on ground (not between takeoff_index and touchdown_index): get speed limit
 				current_info.speed_limit = this_weg ? front.calc_speed_limit(this_weg, current_weg, &corner_data, this_info.direction, current_info.direction) : SPEED_UNLIMITED;
 			}
 			current_tile = this_tile;

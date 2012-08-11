@@ -577,7 +577,7 @@ public:
 	void set_current_livery(const char* liv) { current_livery = liv; }
 	const char* get_current_livery() const { return current_livery.c_str(); }
 
-	virtual sint32 get_takeoff_route_index() const { return -1; }
+	virtual sint32 get_takeoff_route_index() const { return INVALID_INDEX; }
 	virtual sint32 get_touchdown_route_index() const { return INVALID_INDEX; }
 };
 
