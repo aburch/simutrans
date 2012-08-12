@@ -336,13 +336,13 @@ void gui_fabrik_info_t::zeichnen(koord offset)
 			buf.printf("%i", pax_entry->supply);
 			w = proportional_string_width( buf );
 			display_proportional_clip( xoff+18+(w>21?w-21:0), yoff, buf, ALIGN_RIGHT, COL_BLACK, true );
-			display_color_img(skinverwaltung_t::passagiere->get_bild_nr(0), xoff+20+1+(w>21?w-21:0), yoff, 0, false, false);
+			display_color_img(skinverwaltung_t::passagiere->get_bild_nr(0), xoff+20+1+(w>21?w-21:0), yoff, 0, false, true);
 
 			buf.clear();
 			buf.printf("%i", mail_entry->supply);
 			w = proportional_string_width( buf );
 			display_proportional_clip( xoff+62+(w>21?w-21:0), yoff, buf, ALIGN_RIGHT, COL_BLACK, true );
-			display_color_img(skinverwaltung_t::post->get_bild_nr(0), xoff+64+1+(w>21?w-21:0), yoff, 0, false, false);
+			display_color_img(skinverwaltung_t::post->get_bild_nr(0), xoff+64+1+(w>21?w-21:0), yoff, 0, false, true);
 
 			display_proportional_clip(xoff + 90, yoff, c->get_name(), ALIGN_LEFT, COL_BLACK, true);
 			yoff += LINESPACE;
