@@ -4945,7 +4945,7 @@ void karte_t::laden(loadsave_t *file)
 #endif
 
 	if(  !umgebung_t::networkmode  ||  (umgebung_t::server  &&  socket_list_t::get_playing_clients()==0)  ) {
-		if (settings.get_allow_player_change() && umgebung_t::default_einstellungen.get_use_timeline()) {
+		if (settings.get_allow_player_change() && umgebung_t::default_einstellungen.get_use_timeline() < 2) {
 			// not locked => eventually switch off timeline settings, if explicitly stated
 			settings.set_use_timeline(umgebung_t::default_einstellungen.get_use_timeline());
 			DBG_DEBUG("karte_t::laden", "timeline: reset to %i", umgebung_t::default_einstellungen.get_use_timeline() );
