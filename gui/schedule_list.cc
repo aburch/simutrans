@@ -506,7 +506,9 @@ void schedule_list_gui_t::zeichnen(koord pos, koord gr)
 		if(  !line->get_schedule()->matches(sp->get_welt(), last_schedule)  ||  last_vehicle_count!=line->count_convoys()  ) {
 			update_lineinfo(line);
 		}
+		PUSH_CLIP(pos.x+1,pos.y+D_TITLEBAR_HEIGHT,gr.x-2,gr.y-D_TITLEBAR_HEIGHT);
 		display(pos);
+		POP_CLIP();
 	}
 }
 
@@ -554,17 +556,19 @@ void schedule_list_gui_t::display(koord pos)
 			break;
 		}
 	}
-	int len=display_proportional(pos.x+LINE_NAME_COLUMN_WIDTH, pos.y+16+14+SCL_HEIGHT+D_BUTTON_HEIGHT*2+4, buf, ALIGN_LEFT, COL_BLACK, true );
+	int len=display_proportional_clip(pos.x+LINE_NAME_COLUMN_WIDTH, pos.y+16+14+SCL_HEIGHT+D_BUTTON_HEIGHT*2+4, buf, ALIGN_LEFT, COL_BLACK, true );
 
-	int len2 = display_proportional(pos.x+LINE_NAME_COLUMN_WIDTH, pos.y+16+14+SCL_HEIGHT+D_BUTTON_HEIGHT*2+4+LINESPACE, translator::translate("Gewinn"), ALIGN_LEFT, COL_BLACK, true );
+	int len2 = display_proportional_clip(pos.x+LINE_NAME_COLUMN_WIDTH, pos.y+16+14+SCL_HEIGHT+D_BUTTON_HEIGHT*2+4+LINESPACE, translator::translate("Gewinn"), ALIGN_LEFT, COL_BLACK, true );
 	money_to_string(ctmp, profit/100.0);
-	len2 += display_proportional(pos.x+LINE_NAME_COLUMN_WIDTH+len2, pos.y+16+14+SCL_HEIGHT+D_BUTTON_HEIGHT*2+4+LINESPACE, ctmp, ALIGN_LEFT, profit>=0?MONEY_PLUS:MONEY_MINUS, true );
+	len2 += display_proportional_clip(pos.x+LINE_NAME_COLUMN_WIDTH+len2, pos.y+16+14+SCL_HEIGHT+D_BUTTON_HEIGHT*2+4+LINESPACE, ctmp, ALIGN_LEFT, profit>=0?MONEY_PLUS:MONEY_MINUS, true );
 
-	int rest_width = max( (get_fenstergroesse().x-LINE_NAME_COLUMN_WIDTH)/2, max(len2,len) );
-	number_to_string(ctmp, capacity, 2);
-	buf.clear();
-	buf.printf( translator::translate("Capacity: %s\nLoad: %d (%d%%)"), ctmp, load, loadfactor );
-	display_multiline_text(pos.x + LINE_NAME_COLUMN_WIDTH + rest_width, pos.y+16 + 14 + SCL_HEIGHT + D_BUTTON_HEIGHT*2 +4 , buf, COL_BLACK);
+	if (capacity > 0) {
+		int rest_width = max( (get_fenstergroesse().x-LINE_NAME_COLUMN_WIDTH)/2, max(len2,len) );
+		number_to_string(ctmp, capacity, 2);
+		buf.clear();
+		buf.printf( translator::translate("Capacity: %s\nLoad: %d (%d%%)"), ctmp, load, loadfactor );
+		display_multiline_text(pos.x + LINE_NAME_COLUMN_WIDTH + rest_width, pos.y+16 + 14 + SCL_HEIGHT + D_BUTTON_HEIGHT*2 +4 , buf, COL_BLACK);
+	}
 }
 
 
