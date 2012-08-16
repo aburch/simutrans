@@ -1492,9 +1492,12 @@ sint32 vehikel_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 		int steps_to_135 = 0;
 		int steps_to_180 = 0;
 		int smoothing_percentage = 0;
+		const uint16 meters_per_tile = welt->get_settings().get_meters_per_tile();
+		int meters = 0;
 		for(int i = cornering_data->get_count() - 1; i >= 0 && counter <= direction_steps; i --)
 		{
 			counter ++;
+			meters = meters_per_tile * counter;
 			tmp = vehikel_t::compare_directions(direction, cornering_data->get_element(i));
 			if(tmp > direction_difference)
 			{
@@ -1503,21 +1506,21 @@ sint32 vehikel_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 				{
 					case 90:
 						steps_to_90 = counter;
-						if(counter > 2)
+						if(meters > 500)
 						{
 							smoothing_percentage = 100;
 						}
 						break;
 					case 135:
 						steps_to_135 = counter;
-						if(counter > 3)
+						if(meters > 750)
 						{
 							smoothing_percentage = 100;
 						}
 						break;
 					case 180:
 						steps_to_180 = counter;
-						if(counter > 4)
+						if(meters > 1000)
 						{
 							smoothing_percentage = 100;
 						}
