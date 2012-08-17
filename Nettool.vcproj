@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="9,00"
 	Name="Nettool"
 	ProjectGUID="{F6C54DC9-69F2-4897-87E9-2A4A9FB9F643}"
 	RootNamespace="Simutrans"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -62,6 +63,8 @@
 				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winmm.lib Ws2_32.lib advapi32.lib wsock32.lib $(NOINHERIT)"
 				AdditionalLibraryDirectories=""
 				GenerateDebugInformation="true"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -133,6 +136,8 @@
 				AdditionalLibraryDirectories="&quot;"
 				GenerateDebugInformation="true"
 				OptimizeReferences="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -167,11 +172,11 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\dataobj\freelist.cc"
+				RelativePath=".\utils\fetchopt.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\utils\fetchopt.cc"
+				RelativePath=".\dataobj\freelist.cc"
 				>
 			</File>
 			<File
@@ -229,11 +234,11 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\dataobj\freelist.h"
+				RelativePath=".\utils\fetchopt.h"
 				>
 			</File>
 			<File
-				RelativePath=".\utils\fetchopt.h"
+				RelativePath=".\dataobj\freelist.h"
 				>
 			</File>
 			<File
