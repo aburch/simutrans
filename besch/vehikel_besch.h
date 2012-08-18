@@ -130,8 +130,8 @@ private:
 
 	uint8 engine_type;			// diesel, steam, electric (requires electrified ways), fuel_cell, etc.
 
-	sint8 freight_image_type;	// number of freight images (displayed for different goods)
-	sint8 livery_image_type;	// Number of different liveries (@author: jamespetts, April 2011)
+	uint8 freight_image_type;	// number of freight images (displayed for different goods)
+	uint8 livery_image_type;	// Number of different liveries (@author: jamespetts, April 2011)
 	
 	bool is_tilting;			 //Whether it is a tilting train (can take corners at higher speeds). 0 for no, 1 for yes. Anything other than 1 is assumed to be no.
 	
@@ -205,7 +205,10 @@ private:
 	// @author: Bernd Gabriel, Dec 12, 2009: called as last action in read_node()
 	void loaded();
 
-	int get_add_to_node() const { return livery_image_type > 0 ? 5 : 6; }
+	int get_add_to_node() const 
+	{ 
+		return livery_image_type > 0 ? 5 : 6;
+	}
 
 public:
 	// since we have a second constructor
@@ -268,12 +271,13 @@ public:
 		if(livery_image_type > 0 && (ware == NULL || freight_image_type == 0))
 		{
 			// Multiple liveries, empty images
-			sint8 livery_index = 0;
+			uint8 livery_index = 0;
 			if(strcmp(livery_type, "default"))
 			{
-				for(sint8 i = 0; i < livery_image_type; i++) 
+				const uint8 freight_images = freight_image_type == 255 ? 1 : freight_image_type;
+				for(uint8 i = 0; i < livery_image_type; i++) 
 				{
-					if(!strcmp(livery_type, get_child<text_besch_t>(5 + nachfolger + vorgaenger + upgrades + i)->get_text()))
+					if(!strcmp(livery_type, get_child<text_besch_t>(5 + nachfolger + vorgaenger + upgrades + freight_images + i)->get_text()))
 					{
 						livery_index = i;
 						break;
@@ -294,14 +298,15 @@ public:
 			if (bild != NULL) return bild->get_nummer();
 		}
 
-		if(livery_image_type > 0 && freight_image_type == 1 && ware != NULL)
+		if(livery_image_type > 0 && freight_image_type == 255 && ware != NULL)
 		{
 			// Multiple liveries, single freight image
-			sint8 livery_index = 0;
+			// freight_image_type == 255 means that there is a single freight image and multiple liveries.
+			uint8 livery_index = 0;
 			if(strcmp(livery_type, "default"))
 			{
 				// With the "default" livery, always select livery index 0
-				for(sint8 i = 0; i < livery_image_type; i++) 
+				for(uint8 i = 0; i < livery_image_type; i++) 
 				{
 					if(!strcmp(livery_type, get_child<text_besch_t>(6 + nachfolger + vorgaenger + upgrades + i)->get_text()))
 					{
@@ -324,14 +329,14 @@ public:
 			if (bild != NULL) return bild->get_nummer();
 		}
 
-		if(freight_image_type > 1 && ware!=NULL && livery_image_type == 0)
+		if(freight_image_type > 0 && freight_image_type < 255 && ware!=NULL && livery_image_type == 0)
 		{
 			// Multiple freight images, single livery
 			// more freight images and a freight: find the right one
 
 			sint8 ware_index = 0; // freight images: if not found use first freight
 			
-			for( sint8 i=0;  i<freight_image_type;  i++  ) 
+			for( uint8 i=0;  i<freight_image_type;  i++  ) 
 			{
 				
 				if (ware == get_child<ware_besch_t>(6 + nachfolger + vorgaenger + upgrades + i)) 
@@ -354,14 +359,14 @@ public:
 			if (bild != NULL) return bild->get_nummer();
 		}
 
-		if(freight_image_type > 1 && ware!=NULL && livery_image_type > 0)
+		if(freight_image_type > 0 && freight_image_type < 255 && ware != NULL && livery_image_type > 0)
 		{
 			// Multiple freight images, multiple liveries
 
 			sint8 ware_index = 0; // freight images: if not found use first freight
-			sint8 livery_index = 0;
+			uint8 livery_index = 0;
 
-			for( sint8 i=0;  i<freight_image_type;  i++  ) 
+			for( uint8 i=0;  i<freight_image_type;  i++  ) 
 			{
 				if (ware == get_child<ware_besch_t>(6 + nachfolger + vorgaenger + upgrades + i)) 
 				{
@@ -372,9 +377,9 @@ public:
 
 			if(strcmp(livery_type, "default"))
 			{
-				for(sint8 j = 0; j < livery_image_type; j++) 
+				for(uint8 j = 0; j < livery_image_type; j++) 
 				{
-					if(!strcmp(livery_type, get_child<text_besch_t>(6 + nachfolger + vorgaenger + upgrades + j)->get_text()))
+					if(!strcmp(livery_type, get_child<text_besch_t>(6 + nachfolger + vorgaenger + freight_image_type + upgrades + j)->get_text()))
 					{
 						livery_index = j;
 						break;
@@ -396,7 +401,7 @@ public:
 		}
 
 		// only try 1d freight image list for old style vehicles
-		if(freight_image_type == 0 && ware != NULL && livery_image_type == 0) 
+		if((freight_image_type == 0 || freight_image_type == 255) && ware != NULL && livery_image_type == 0) 
 		{
 			// Single freight image, single livery
 			liste = get_child<bildliste_besch_t>(5);
@@ -436,7 +441,9 @@ public:
 		{
 			for(sint8 i = 0; i < livery_image_type; i++) 
 			{
-				if(!strcmp(name, get_child<text_besch_t>(5 + nachfolger + vorgaenger + upgrades + i)->get_text()))
+				const uint8 freight_images = freight_image_type == 255 ? 1 : freight_image_type;
+				const char* livery_name = get_child<text_besch_t>(5 + nachfolger + vorgaenger + upgrades + freight_images + i)->get_text();
+				if(!strcmp(name, livery_name))
 				{
 					return true;
 				}
@@ -518,9 +525,11 @@ public:
 		if(  vorgaenger==0  ) {
 			return true;
 		}
-		for( int i=0;  i<vorgaenger;  i++  ) {
+		for( int i=0;  i<vorgaenger;  i++  ) 
+		{
 			vehikel_besch_t const* const veh = get_child<vehikel_besch_t>(get_add_to_node() + i);
-			if(veh==prev_veh) {
+			if(veh==prev_veh) 
+			{
 				return true;
 			}
 		}
