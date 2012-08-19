@@ -3560,7 +3560,7 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 		free(name);
 	}
 
-	sint64 old_cost = old_level * cost;
+	const sint64 old_cost = old_level * cost;
 	
 	// @author: jamespetts
 	// Now check for whether there is a Simutrans-Experimental individually set price
@@ -3570,7 +3570,7 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 	}
 	else
 	{
-		cost *= besch->get_level() * besch->get_b() * besch->get_h();
+		cost = welt->get_settings().cst_multiply_roadstop * besch->get_level() * besch->get_b() * besch->get_h();
 		cost -= old_cost / 2;
 	}
 
