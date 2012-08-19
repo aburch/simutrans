@@ -459,9 +459,6 @@ private:
 	// @author: jamespetts
 	uint16 base_pathing_counter;
 
-	// @author: jamespetts
-	void set_scale();
-
 	sint32 citycar_speed_average;
 
 	void set_citycar_speed_average();
@@ -1313,6 +1310,9 @@ public:
 	
 	void sprintf_ticks(char *p, size_t size, sint64 ticks) const;
 	void sprintf_time(char *p, size_t size, uint32 seconds) const;
+	
+	// @author: jamespetts
+	void set_scale();
 
 
 #ifdef DEBUG_SIMRAND_CALLS

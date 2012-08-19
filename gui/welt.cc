@@ -555,6 +555,7 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		if(file.wr_open("default.sve",loadsave_t::binary,"settings only",SAVEGAME_VER_NR, EXPERIMENTAL_VER_NR)) {
 			// save default setting
 			umgebung_t::default_einstellungen.rdwr(&file);
+			welt->set_scale();
 			file.close();
 		}
 	}
