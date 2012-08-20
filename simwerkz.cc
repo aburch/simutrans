@@ -3150,9 +3150,10 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 		cost = -besch->get_station_price() * besch->get_b() * besch->get_h();
 	}
 
-	if(sp!=halt->get_besitzer()  &&  halt->get_besitzer()==welt->get_spieler(1)) 
+	if(sp!=halt->get_besitzer()  &&  halt->get_besitzer()==welt->get_spieler(1) && sp != welt->get_spieler(1))
 	{
 		// public stops are expensive!
+		// (Except for the public player itself)
 		cost -= (s.maint_building * factor * 60);
 	}
 
@@ -3328,13 +3329,14 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.
 	}
 	hausbauer_t::baue(welt, halt->get_besitzer(), bau_pos, layout, besch, &halt);
 
-	if(sp!=halt->get_besitzer()) 
+	if(sp != halt->get_besitzer() && sp != welt->get_spieler(1)) 
 	{
 		// public stops are expensive!
+		// (Except for the public player itself)
 		sint64 maint;
 		if(besch->get_base_station_maintenance() == 2147483647)
 		{
-			maint =welt->get_settings().maint_building * besch->get_level();
+			maint = welt->get_settings().maint_building * besch->get_level();
 		}
 		else
 		{
@@ -3383,16 +3385,7 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 		return "No suitable ground!";
 	}
 
-	sint64 adjusted_cost;
-
-	if(besch->get_base_station_maintenance() == 2147483647 || besch->get_base_station_price() == 2147483647)
-	{
-		adjusted_cost = cost + welt->calc_adjusted_monthly_figure(welt->get_settings().maint_building * besch->get_level() * besch->get_b() * besch->get_h() * 60);
-	}
-	else
-	{
-		adjusted_cost = -besch->get_station_price() + welt->calc_adjusted_monthly_figure(besch->get_station_maintenance() * besch->get_b() * besch->get_h() * 60);
-	}
+	sint64 adjusted_cost = cost * besch->get_b() * besch->get_h();
 
 	if(!sp->can_afford(adjusted_cost))
 	{
@@ -3562,32 +3555,25 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 
 	const sint64 old_cost = old_level * cost;
 	
-	// @author: jamespetts
-	// Now check for whether there is a Simutrans-Experimental individually set price
-	if(besch->get_base_station_price() != 2147483647)
-	{
-		cost = -besch->get_station_price() * besch->get_b() * besch->get_h();
-	}
-	else
-	{
-		cost = welt->get_settings().cst_multiply_roadstop * besch->get_level() * besch->get_b() * besch->get_h();
-		cost -= old_cost / 2;
-	}
+	adjusted_cost -= old_cost / 2;
 
-	if(sp!=halt->get_besitzer()) 
+	if(sp != halt->get_besitzer() && sp != welt->get_spieler(1)) 
 	{
 		// public stops are expensive!
-		if(besch->get_base_station_price() != 2147483647)
+		// (Except for the public player itself, of course)
+		sint64 maint;
+		if(besch->get_base_station_maintenance() == 2147483647)
 		{
-			cost -= cost * 60;
+			maint = welt->get_settings().maint_building * besch->get_level();
 		}
 		else
 		{
-			cost -= welt->get_settings().maint_building * besch->get_level() * besch->get_b() * besch->get_h() * 60;
+			maint = besch->get_station_maintenance();
 		}
+		adjusted_cost -= welt->calc_adjusted_monthly_figure(maint * 60);
 	}
 
-	sp->buche( cost, pos, COST_CONSTRUCTION);
+	sp->buche(adjusted_cost, pos, COST_CONSTRUCTION);
 	if(umgebung_t::station_coverage_show  &&  welt->get_zeiger()->get_pos().get_2d()==pos) {
 		// since we are larger now ...
 		halt->mark_unmark_coverage( true );
