@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="Simutrans"
 	ProjectGUID="{0621B295-BEB7-4767-82F1-F27995610323}"
 	RootNamespace="Simutrans"
@@ -238,10 +238,10 @@
 				RelativePath=".\script\api_function.cc"
 				>
 			</File>
-                        <File
-                                RelativePath=".\script\api_goods_desc.cc"
-                                >
-                        </File>
+			<File
+				RelativePath=".\script\api\api_goods_desc.cc"
+				>
+			</File>
 			<File
 				RelativePath=".\script\api\api_halt.cc"
 				>

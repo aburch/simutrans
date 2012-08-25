@@ -310,7 +310,7 @@ DBG_MESSAGE("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,besch
 
 	DBG_DEBUG("vehicle_reader_t::read_node()",
 		"version=%d "
-		"way=%d zuladung=%d preis=%d geschw=%d gewicht=%d axle_load=%d leistung=%d "
+		"way=%d zuladung=%d preis=%d geschw=%d gewicht=%g axle_load=%d leistung=%d "
 		"betrieb=%d sound=%d vor=%d nach=%d "
 		"date=%d/%d gear=%d engine_type=%d len=%d",
 		version,
@@ -318,7 +318,7 @@ DBG_MESSAGE("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,besch
 		besch->zuladung,
 		besch->preis,
 		besch->geschw,
-		besch->gewicht,
+		besch->gewicht/1000.0,
 		besch->axle_load,
 		besch->leistung,
 		besch->running_cost,
