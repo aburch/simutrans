@@ -388,9 +388,6 @@ private:
 	// matches two halts; if the pos is not identical, maybe the halt still is
 	bool matches_halt( const koord3d pos1, const koord3d pos2 );
 
-	// updates a line schedule and tries to find the best next station to go
-	void check_pending_updates();
-
 	/**
 	 * Register the convoy with the stops in the schedule
 	 * @author Knightly
@@ -429,6 +426,9 @@ public:
 	* @author hsiegeln
 	*/
 	void set_line(linehandle_t );
+
+	// updates a line schedule and tries to find the best next station to go
+	void check_pending_updates();
 
 	/* changes the state of a convoi via werkzeug_t; mandatory for networkmode! *
 	 * for list of commands and parameter see werkzeug_t::wkz_change_convoi_t

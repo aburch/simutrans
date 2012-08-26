@@ -2950,10 +2950,11 @@ void convoi_t::set_line(linehandle_t org_line)
 */
 void convoi_t::unset_line()
 {
-	if(line.is_bound()) {
+	if(  line.is_bound()  ) {
 DBG_DEBUG("convoi_t::unset_line()", "removing old destinations from line=%d, fpl=%p",line.get_id(),fpl);
 		line->remove_convoy(self);
 		line = linehandle_t();
+		line_update_pending = linehandle_t();
 	}
 }
 
