@@ -848,22 +848,22 @@ end:
 	{
 		default:
 		case road_wt:
-			air_default = 252; //2.52 when read
+			air_default = 15;
 			break;
 		case track_wt:
 		case tram_wt:
 		case monorail_wt:
+		case maglev_wt:	
+			air_default = 400;
+			break;
 		case narrowgauge_wt:
-			air_default = 1300; //13 when read
+			air_default = 300;
 			break;
 		case water_wt:
-			air_default = 2500; //25 when read
-			break;
-		case maglev_wt:		
-			air_default = 1000; //10 when read
+			air_default = 2500;
 			break;
 		case air_wt:
-			air_default = 100; //1 when read
+			air_default = 100;
 	};
 
 	uint16 air_resistance_hundreds = obj.get_int("air_resistance", air_default);
@@ -915,20 +915,22 @@ end:
 	{
 		default:
 		case road_wt:
-			rolling_default = 150; //0.015 when read
+			rolling_default = 50;
 			break;
 		case track_wt:
 		case tram_wt:
 		case monorail_wt:
+			rolling_default = 15;
+			break;
 		case narrowgauge_wt:
-			rolling_default = 51; //0.0051 when read
+			rolling_default = 17;
 			break;
 		case air_wt:
 		case water_wt:
-			rolling_default = 10; //0.001 when read
+			rolling_default = 10;
 			break;
 		case maglev_wt:		
-			rolling_default = 15; //0.0015 when read
+			rolling_default = 13;
 			break;
 	};
 

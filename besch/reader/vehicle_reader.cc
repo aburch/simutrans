@@ -36,17 +36,18 @@ uint32 air_default(sint8 waytype)
 	{
 		case track_wt:
 		case tram_wt:
-		case monorail_wt:
-		case narrowgauge_wt:	return 1300L; //13 when read
+		case monorail_wt:		return 400L; //4 when read
+			
+		case narrowgauge_wt:	return 300L; //3 when read
 
 		case water_wt:			return 2500L; //25 when read
 
-		case maglev_wt:			return 1000L; //10 when read
+		case maglev_wt:			return 350L; //3.5 when read
 
 		case air_wt:			return 100L; //1 when read
 
 		case road_wt:			
-		default:				return 252L; //2.52 when read
+		default:				return 15L; //0.15 when read
 	};
 }
 
@@ -57,16 +58,17 @@ uint32 rolling_default(sint8 waytype)
 	{			
 		case track_wt:
 		case tram_wt:
-		case monorail_wt:
-		case narrowgauge_wt:	return 51L; //0.0051 when read
+		case monorail_wt:		return 15L; //0.0015 when read
+
+		case narrowgauge_wt:	return 17L; //0.0017 when read
 
 		case air_wt:
 		case water_wt:			return 10L; //0.001 when read
 			
-		case maglev_wt:			return 15L; //0.0015 when read
+		case maglev_wt:			return 13L; //0.0013 when read
 
 		default:
-		case road_wt:			return 150L; //0.015 when read
+		case road_wt:			return 50L; //0.005 when read
 	};
 }
 
