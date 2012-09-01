@@ -37,6 +37,7 @@ gui_numberinput_t::gui_numberinput_t() :
 	textinp.set_text(textbuffer, 20);
 	set_increment_mode( 1 );
 	wrap_mode( true );
+	b_enabled = true;
 }
 
 
@@ -68,7 +69,7 @@ void gui_numberinput_t::set_value(sint32 new_value)
 		sprintf(textbuffer, "%d", new_value);
 		textinp.set_text(textbuffer, 20);
 	}
-	textinp.set_color( value == new_value ? COL_WHITE : COL_RED );
+	textinp.set_color( value == new_value ? (b_enabled ? COL_WHITE : COL_GREY3) : COL_RED );
 	value = new_value;
 }
 

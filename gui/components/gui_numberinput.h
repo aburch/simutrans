@@ -51,7 +51,8 @@ private:
 
 	sint32 step_mode;
 
-	bool wrapping;
+	bool wrapping:1;
+	bool b_enabled:1;
 
 	// since only the last will prevail
 	static char tooltip[256];
@@ -103,6 +104,11 @@ public:
 	void zeichnen(koord offset);
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
+
+	void enable() { b_enabled = true; set_focusable(true); bt_left.enable(); bt_right.enable(); }
+	void disable() { b_enabled = false; set_focusable(false); bt_left.disable(); bt_right.disable(); }
+	bool enabled() const { return b_enabled; }
+	virtual bool is_focusable() { return b_enabled && gui_komponente_t::is_focusable(); }
 };
 
 #endif

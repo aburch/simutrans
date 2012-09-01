@@ -401,27 +401,29 @@ void fahrplan_gui_t::update_selection()
 {
 	// update load
 	lb_load.set_color( COL_GREY3 );
+	numimp_load.disable();
+	numimp_load.set_value( 0 );
+	bt_wait_prev.disable();
 	lb_wait.set_color( COL_GREY3 );
+	strcpy( str_parts_month, translator::translate("off") );
+	lb_waitlevel.set_color( COL_GREY3 );
+	bt_wait_next.disable();
 	if(  !fpl->empty()  ) {
 		fpl->set_aktuell( min(fpl->get_count()-1,fpl->get_aktuell()) );
 		const uint8 aktuell = fpl->get_aktuell();
 		if(  haltestelle_t::get_halt(sp->get_welt(), fpl->eintrag[aktuell].pos, sp).is_bound()  ) {
 			lb_load.set_color( COL_BLACK );
+			numimp_load.enable();
 			numimp_load.set_value( fpl->eintrag[aktuell].ladegrad );
 			if(  fpl->eintrag[aktuell].ladegrad>0  ) {
+				bt_wait_prev.enable();
 				lb_wait.set_color( COL_BLACK );
+				if(  fpl->eintrag[aktuell].waiting_time_shift>0  ) {
+					sprintf( str_parts_month, "1/%d",  1<<(16-fpl->eintrag[aktuell].waiting_time_shift) );
+				}
+				lb_waitlevel.set_color( COL_WHITE );
+				bt_wait_next.enable();
 			}
-			if(  fpl->eintrag[aktuell].ladegrad>0  &&  fpl->eintrag[aktuell].waiting_time_shift>0  ) {
-				sprintf( str_parts_month, "1/%d",  1<<(16-fpl->eintrag[aktuell].waiting_time_shift) );
-			}
-			else {
-				strcpy( str_parts_month, translator::translate("off") );
-			}
-		}
-		else {
-			numimp_load.set_value( 0 );
-			strcpy( str_ladegrad, "0%" );
-			strcpy( str_parts_month, translator::translate("off") );
 		}
 	}
 }
