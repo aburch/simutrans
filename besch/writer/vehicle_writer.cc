@@ -843,28 +843,7 @@ end:
 
 	// Air resistance
 	// @author: jamespetts & Bernd Gabriel
-	uint16 air_default;
-	switch(waytype)
-	{
-		default:
-		case road_wt:
-			air_default = 15;
-			break;
-		case track_wt:
-		case tram_wt:
-		case monorail_wt:
-		case maglev_wt:	
-			air_default = 400;
-			break;
-		case narrowgauge_wt:
-			air_default = 300;
-			break;
-		case water_wt:
-			air_default = 2500;
-			break;
-		case air_wt:
-			air_default = 100;
-	};
+	uint16 air_default = vehikel_besch_t::get_air_default(waytype);
 
 	uint16 air_resistance_hundreds = obj.get_int("air_resistance", air_default);
 	node.write_uint16(fp, air_resistance_hundreds, pos);
@@ -910,29 +889,7 @@ end:
 	node.write_uint16(fp, max_loading_time, pos);
 	pos += sizeof(uint16);
 
-	uint16 rolling_default;
-	switch(waytype)
-	{
-		default:
-		case road_wt:
-			rolling_default = 50;
-			break;
-		case track_wt:
-		case tram_wt:
-		case monorail_wt:
-			rolling_default = 15;
-			break;
-		case narrowgauge_wt:
-			rolling_default = 17;
-			break;
-		case air_wt:
-		case water_wt:
-			rolling_default = 10;
-			break;
-		case maglev_wt:		
-			rolling_default = 13;
-			break;
-	};
+	uint16 rolling_default = vehikel_besch_t::get_rolling_default(waytype);
 
 	uint16 rolling_resistance_tenths_thousands = obj.get_int("rolling_resistance", rolling_default);
 	node.write_uint16(fp, rolling_resistance_tenths_thousands, pos);

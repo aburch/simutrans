@@ -718,6 +718,47 @@ public:
 	{
 		return ((sint64)seconds * 22764L) / (sint64)(meters_per_tile);
 	}
+
+	static uint32 get_air_default(sint8 waytype)
+	{
+		switch(waytype)
+		{
+			case track_wt:
+			case tram_wt:
+			case monorail_wt:		return 160L; //1.6 when read
+			
+			case narrowgauge_wt:	return 120L; //1.2 when read
+
+			case water_wt:			return 2500L; //25 when read
+
+			case maglev_wt:			return 145L; //1.45 when read
+
+			case air_wt:			return 100L; //1 when read
+
+			case road_wt:			
+			default:				return 15L; //0.15 when read
+		};
+	}  
+
+	static uint32 get_rolling_default(sint8 waytype)
+	{
+		switch(waytype)
+		{			
+			case track_wt:
+			case tram_wt:
+			case monorail_wt:		return 15L; //0.0015 when read
+
+			case narrowgauge_wt:	return 17L; //0.0017 when read
+
+			case air_wt:
+			case water_wt:			return 10L; //0.001 when read
+			
+			case maglev_wt:			return 13L; //0.0013 when read
+
+			default:
+			case road_wt:			return 50L; //0.005 when read
+		};
+	}
 };
 
 #endif
