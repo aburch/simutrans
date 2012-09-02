@@ -1698,7 +1698,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 			//  we will reroute some goods
 			if(  best->amount_waiting==0  &&  most_waiting.menge>0  ) {
 				// remove something from the most waiting goods
-				if(  best_halt->recall_ware( most_waiting, min((sint32)(most_waiting.menge/2), 1 - best->space_left) )  ) {
+				if(  best_halt->recall_ware( most_waiting, min((sint32)(most_waiting.menge/2), 1 - space_left) )  ) {
 					best_ware.menge += most_waiting.menge;
 				}
 				else {
