@@ -282,12 +282,12 @@ namespace script_api {
 			i = param<sint16>::get(vm, -1);
 			sq_pop(vm, 1);
 			if (i>=0) {
-				if (i<fab->get_eingang().get_count()) {
+				if ( (uint32)i<fab->get_eingang().get_count()) {
 					return &fab->get_eingang()[i];
 				}
 				else {
 					i -= fab->get_eingang().get_count();
-					if (i<fab->get_ausgang().get_count()) {
+					if ( (uint32)i<fab->get_ausgang().get_count()) {
 						return &fab->get_ausgang()[i];
 					}
 				}
