@@ -46,7 +46,8 @@ void begin_besch_class(HSQUIRRELVM vm, const char* name, const void* (*func)(con
 	sq_pushstring(vm, name, -1);
 	// get extend_get class
 	sq_pushstring(vm, "extend_get", -1);
-	assert( SQ_SUCCEEDED(sq_get(vm, -3)) );
+	SQInteger res = sq_get(vm, -3);
+	assert( SQ_SUCCEEDED(res) );
 	// create class
 	sq_newclass(vm, true);
 	// store method to retrieve besch in typetag pointer
