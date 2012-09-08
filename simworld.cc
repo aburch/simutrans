@@ -221,7 +221,6 @@ bool karte_t::recalc_snowline()
 }
 
 
-
 // read height data from bmp or ppm files
 bool karte_t::get_height_data_from_file( const char *filename, sint8 grundwasser, sint8 *&hfield, sint16 &ww, sint16 &hh, bool update_only_values )
 {
@@ -448,8 +447,6 @@ bool karte_t::get_height_data_from_file( const char *filename, sint8 grundwasser
 }
 
 
-
-
 /**
  * Hoehe eines Punktes der Karte mit "perlin noise"
  *
@@ -478,6 +475,7 @@ sint32 karte_t::perlin_hoehe(settings_t const* const sets, koord k, koord const 
 	k = k + koord(sets->get_origin_x(), sets->get_origin_y());
 	return ((int)(perlin_noise_2D(k.x, k.y, sets->get_map_roughness())*(double)sets->get_max_mountain_height())) / 16;
 }
+
 
 void karte_t::cleanup_karte( int xoff, int yoff )
 {
@@ -567,7 +565,6 @@ void karte_t::cleanup_karte( int xoff, int yoff )
 		}
 	}
 }
-
 
 
 void karte_t::destroy()
@@ -738,6 +735,7 @@ void karte_t::rem_convoi(convoihandle_t const cnv)
 	convoi_array.remove(cnv);
 }
 
+
 void karte_t::add_stadt(stadt_t *s)
 {
 	settings.set_anzahl_staedte(settings.get_anzahl_staedte() + 1);
@@ -750,6 +748,7 @@ void karte_t::add_stadt(stadt_t *s)
 	s->recalc_target_cities();
 	s->recalc_target_attractions();
 }
+
 
 /**
  * Removes town from map, houses will be left overs
@@ -787,7 +786,6 @@ bool karte_t::rem_stadt(stadt_t *s)
 
 	return true;
 }
-
 
 
 // just allocates space;
@@ -964,7 +962,6 @@ void karte_t::create_rivers( sint16 number )
 		dbg->warning( "karte_t::create_rivers()","Too many rivers requested! (%i not constructed)", number );
 	}
 }
-
 
 
 void karte_t::distribute_groundobjs_cities(int new_anzahl_staedte, sint32 new_mittlere_einwohnerzahl, sint16 old_x, sint16 old_y)
@@ -1511,7 +1508,6 @@ DBG_DEBUG("karte_t::init()","built timeline");
 	}
 	mute_sound(false);
 }
-
 
 
 void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
@@ -2296,7 +2292,6 @@ void karte_t::lower_grid_to(sint16 x, sint16 y, sint8 h)
 }
 
 
-
 int karte_t::lower(koord pos)
 {
 	int n = 0;
@@ -2322,7 +2317,6 @@ bool karte_t::can_ebne_planquadrat(koord pos, sint8 hgt, bool keep_water, bool m
 		return can_raise_to(pos.x, pos.y, keep_water, hgt, hgt, hgt, hgt);
 	}
 }
-
 
 
 // make a flat leve at this position (only used for AI at the moment)
@@ -2541,20 +2535,54 @@ planquadrat_t *rotate90_new_plan;
 
 void karte_t::rotate90_plans(sint16 y_min, sint16 y_max)
 {
-	// first: rotate all things on the map
-	for( int y=y_min;  y<y_max;  y++  ) {
-		for( int x=0;  x<cached_groesse_gitter_x;  x++  ) {
-			int nr = x+(y*cached_groesse_gitter_x);
-			int new_nr = (cached_groesse_karte_y-y)+(x*cached_groesse_gitter_y);
-			swap(rotate90_new_plan[new_nr], plan[nr]);
-
-			// now rotate everything on the ground(s)
-			for(  uint i=0;  i<rotate90_new_plan[new_nr].get_boden_count();  i++  ) {
-				rotate90_new_plan[new_nr].get_boden_bei(i)->rotate90();
+	const int LOOP_BLOCK = 64;
+	if(  settings.get_rotation()==0  ||  settings.get_rotation()==2  ) {
+		// first: rotate all things on the map
+		for(  int xx=0;  xx<cached_groesse_gitter_x;  xx+=LOOP_BLOCK  ) {
+			for(  int yy=y_min;  yy<y_max;  yy+=LOOP_BLOCK  ) {
+				for(  int x=xx;  x<min(xx+LOOP_BLOCK,cached_groesse_gitter_x);  x++  ) {
+					for(  int y=yy;  y<min(yy+LOOP_BLOCK,y_max);  y++  ) {
+						const int nr = x+(y*cached_groesse_gitter_x);
+						const int new_nr = (cached_groesse_karte_y-y)+(x*cached_groesse_gitter_y);
+						swap(rotate90_new_plan[new_nr], plan[nr]);
+					}
+				}
+			}
+		}
+		// now rotate everything on the ground(s)
+		for(  int xx=0;  xx<cached_groesse_gitter_x;  xx+=LOOP_BLOCK  ) {
+			for(  int yy=y_min;  yy<y_max;  yy+=LOOP_BLOCK  ) {
+				for(  int x=xx;  x<min(xx+LOOP_BLOCK,cached_groesse_gitter_x);  x++  ) {
+					for(  int y=yy;  y<min(yy+LOOP_BLOCK,y_max);  y++  ) {
+						const int new_nr = (cached_groesse_karte_y-y)+(x*cached_groesse_gitter_y);
+						for(  uint i=0;  i<rotate90_new_plan[new_nr].get_boden_count();  i++  ) {
+							rotate90_new_plan[new_nr].get_boden_bei(i)->rotate90();
+						}
+					}
+				}
+			}
+		}
+	}
+	else {
+		for(  int yy=y_min;  yy<y_max;  yy+=LOOP_BLOCK  ) {
+			for(  int xx=0;  xx<cached_groesse_gitter_x;  xx+=LOOP_BLOCK  ) {
+				for(  int y=yy;  y<min(yy+LOOP_BLOCK,y_max);  y++  ) {
+					for(  int x=xx;  x<min(xx+LOOP_BLOCK,cached_groesse_gitter_x);  x++  ) {
+						const int nr = x+(y*cached_groesse_gitter_x);
+						const int new_nr = (cached_groesse_karte_y-y)+(x*cached_groesse_gitter_y);
+						// first rotate everything on the ground(s)
+						for(  uint i=0;  i<plan[nr].get_boden_count();  i++  ) {
+							plan[nr].get_boden_bei(i)->rotate90();
+						}
+						// now: rotate all things on the map
+						swap(rotate90_new_plan[new_nr], plan[nr]);
+					}
+				}
 			}
 		}
 	}
 }
+
 
 void karte_t::rotate90()
 {
@@ -2585,11 +2613,16 @@ DBG_MESSAGE( "karte_t::rotate90()", "called" );
 
 	// rotate heightmap
 	sint8 *new_hgts = new sint8[(cached_groesse_gitter_x+1)*(cached_groesse_gitter_y+1)];
-	for( int x=0;  x<=cached_groesse_gitter_x;  x++  ) {
-		for( int y=0;  y<=cached_groesse_gitter_y;  y++  ) {
-			int nr = x+(y*(cached_groesse_gitter_x+1));
-			int new_nr = (cached_groesse_gitter_y-y)+(x*(cached_groesse_gitter_y+1));
-			new_hgts[new_nr] = grid_hgts[nr];
+	const int LOOP_BLOCK = 64;
+	for(  int yy=0;  yy<=cached_groesse_gitter_y;  yy+=LOOP_BLOCK  ) {
+		for(  int xx=0;  xx<=cached_groesse_gitter_x;  xx+=LOOP_BLOCK  ) {
+			for(  int x=xx;  x<=min(xx+LOOP_BLOCK,cached_groesse_gitter_x);  x++  ) {
+				for(  int y=yy;  y<=min(yy+LOOP_BLOCK,cached_groesse_gitter_y);  y++  ) {
+					const int nr = x+(y*(cached_groesse_gitter_x+1));
+					const int new_nr = (cached_groesse_gitter_y-y)+(x*(cached_groesse_gitter_y+1));
+					new_hgts[new_nr] = grid_hgts[nr];
+				}
+			}
 		}
 	}
 	delete [] grid_hgts;
@@ -2609,7 +2642,7 @@ DBG_MESSAGE( "karte_t::rotate90()", "called" );
 		i->rotate90(cached_groesse_karte_x);
 	}
 
-//fixed order fabrik, halts, convois
+	// fixed order fabrik, halts, convois
 	FOR(slist_tpl<fabrik_t*>, const f, fab_list) {
 		f->rotate90(cached_groesse_karte_x);
 	}
@@ -5247,12 +5280,28 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 // recalcs all ground tiles on the map
 void karte_t::update_map_intern(sint16 y_min, sint16 y_max)
 {
-	for( int y=y_min;  y<y_max;  y++  ) {
-		for( int x=0;  x<cached_groesse_gitter_x;  x++  ) {
-			const int boden_count = plan[y*cached_groesse_gitter_x+x].get_boden_count();
-			for(int schicht=0; schicht<boden_count; schicht++) {
-				grund_t *gr = plan[y*cached_groesse_gitter_x+x].get_boden_bei(schicht);
-				gr->calc_bild();
+	if(  settings.get_rotation()==0  ||  settings.get_rotation()==2  ) {
+		for(  int y=y_min;  y<y_max;  y++  ) {
+			for(  int x=0;  x<cached_groesse_gitter_x;  x++  ) {
+				const int nr = y*cached_groesse_gitter_x+x;
+				for(  uint i=0;  i<plan[nr].get_boden_count();  i++  ) {
+					plan[nr].get_boden_bei(i)->calc_bild();
+				}
+			}
+		}
+	}
+	else { // ~14% faster loop blocking rotations 1 and 3
+		const int LOOP_BLOCK = 128;
+		for(  int xx=0;  xx<cached_groesse_gitter_x;  xx+=LOOP_BLOCK  ) {
+			for(  int yy=y_min;  yy<y_max;  yy+=LOOP_BLOCK  ) {
+				for(  int y=yy;  y<min(yy+LOOP_BLOCK,y_max);  y++  ) {
+					for(  int x=xx;  x<min(xx+LOOP_BLOCK,cached_groesse_gitter_x);  x++  ) {
+						const int nr = y*cached_groesse_gitter_x+x;
+						for(  uint i=0;  i<plan[nr].get_boden_count();  i++  ) {
+							plan[nr].get_boden_bei(i)->calc_bild();
+						}
+					}
+				}
 			}
 		}
 	}
@@ -5284,7 +5333,6 @@ halthandle_t karte_t::get_halt_koord_index(koord k)
 }
 
 
-
 uint8 karte_t::sp2num(spieler_t *sp)
 {
 	if(  sp==NULL  ) {
@@ -5297,8 +5345,6 @@ uint8 karte_t::sp2num(spieler_t *sp)
 	}
 	dbg->fatal( "karte_t::sp2num()", "called with an invalid player!" );
 }
-
-
 
 
 /**
@@ -5347,7 +5393,6 @@ void karte_t::mark_area( const koord3d pos, const koord size, const bool mark ) 
 		}
 	}
 }
-
 
 
 void karte_t::reset_timer()
@@ -5407,7 +5452,6 @@ void karte_t::reset_timer()
 }
 
 
-
 void karte_t::reset_interaction()
 {
 	last_interaction = dr_time();
@@ -5446,7 +5490,6 @@ void karte_t::step_year()
 }
 
 
-
 // jump one or more months ahead
 // (updating history!)
 void karte_t::step_month( sint16 months )
@@ -5456,7 +5499,6 @@ void karte_t::step_month( sint16 months )
 	}
 	reset_timer();
 }
-
 
 
 void karte_t::change_time_multiplier(sint32 delta)
@@ -5487,7 +5529,6 @@ void karte_t::set_pause(bool p)
 		}
 	}
 }
-
 
 
 void karte_t::set_fast_forward(bool ff)
