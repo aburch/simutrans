@@ -37,7 +37,7 @@ BEGIN {
 	export_types["convoy_x::get_revenue"] = "array<integer>()"
 	export_types["convoy_x::get_cost"] = "array<integer>()"
 	export_types["convoy_x::get_profit"] = "array<integer>()"
-	export_types["convoy_x::get_travelled_distance"] = "array<integer>()"
+	export_types["convoy_x::get_traveled_distance"] = "array<integer>()"
 	export_types["factory_x::get_consumers"] = "array<coord>()"
 	export_types["factory_x::get_suppliers"] = "array<coord>()"
 	export_types["factory_x::get_production"] = "array<integer>()"
