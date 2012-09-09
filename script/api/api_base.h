@@ -6,7 +6,7 @@
  * Table that holds 2d coordinates.
  *
  * Coordinates always refer to the original rotation in @ref map.file.
- * They will be rotated if transfered between the game engine and squirrel.
+ * They will be rotated if transferred between the game engine and squirrel.
  */
 // never declared, only implicitly through script_api::param<koord>
 class coord { // begin_class("coord", 0)
@@ -22,7 +22,7 @@ class coord { // begin_class("coord", 0)
  * Table that holds 3d coordinates.
  *
  * Coordinates always refer to the original rotation in @ref map.file.
- * They will be rotated if transfered between the game engine and squirrel.
+ * They will be rotated if transferred between the game engine and squirrel.
  */
 // never declared, only implicitly through script_api::param<koord>
 // begin_class("coord3d", 0)
@@ -43,7 +43,7 @@ public:
  *
  * Class takes raw string. It can do variable substitution.
  *
- * When transfered to simutrans:
+ * When transferred to simutrans:
  * -# the translation of the string will be fetched
  * -# variables will be substituted
  *

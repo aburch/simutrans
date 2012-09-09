@@ -41,7 +41,7 @@
  *
  * A lot of stuff is possible for network play. There are some limitations of course. These are due to the fact, that
  * the script is solely run on the server, the client does not need to have the script available at all.
- * This implies for instance that all scenarion texts are translated to the server's language.
+ * This implies for instance that all scenario texts are translated to the server's language.
  *
  * @section sec_err Logging and error handling
  * If simutrans is started with '-debug 2', all errors and warnings are logged to standard output (i.e. terminal).
@@ -130,7 +130,7 @@
  */
 
 /**
- * @page page_script_pharm A script showing translateable texts.
+ * @page page_script_pharm A script showing translatable texts.
  *
  * Let us inspect another scenario script file. We will have a look into the pak64 Pharmacy-max scenario.
  * The objective is to get the pharmacy selling as much medicine as possible.
@@ -170,7 +170,7 @@
  * @until text.med
  * That means the text now gets to know the precise value of <tt>{med}</tt>.
  *
- * When this text is transfered to simutrans (or when <tt>text.to_string()</tt> is called) the following happens:
+ * When this text is transferred to simutrans (or when <tt>text.to_string()</tt> is called) the following happens:
  * -# First the translation of the string is searched, which can contain this <tt>{med}</tt> as well.
  * -# Then the occurrences of <tt>{med}</tt> are replaced by the concrete number.
  * The user will then hear '<em>The pharmacy sold 11 units of medicine per month.</em>'.
@@ -179,5 +179,5 @@
  * @until }
  * Both of the strings are translated by means of calls to ttext::to_string and the result is returned.
  *
- * Thats it. The remainding parts of this script are plain routine.
+ * Thats it. The remaining parts of this script are plain routine.
  */

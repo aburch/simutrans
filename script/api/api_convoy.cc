@@ -138,10 +138,10 @@ void export_convoy(HSQUIRRELVM vm)
 	 */
 	register_method_fv(vm, &get_convoy_stat, "get_profit",            freevariable<sint32>(convoi_t::CONVOI_PROFIT), true );
 	/**
-	 * Get monthly statistics of travelled distance.
+	 * Get monthly statistics of traveled distance.
 	 * @returns array, index [0] corresponds to current month
 	 */
-	register_method_fv(vm, &get_convoy_stat, "get_travelled_distance",freevariable<sint32>(convoi_t::CONVOI_DISTANCE), true );
+	register_method_fv(vm, &get_convoy_stat, "get_traveled_distance",freevariable<sint32>(convoi_t::CONVOI_DISTANCE), true );
 
 	end_class();
 }
