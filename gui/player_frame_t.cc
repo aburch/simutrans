@@ -75,6 +75,7 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 
 		player_select[i].set_pos( koord(34,4+i*2*LINESPACE) );
 		player_select[i].set_groesse( koord(120,D_BUTTON_HEIGHT) );
+		player_select[i].set_focusable( false );
 		player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("slot empty"), COL_BLACK ) );
 		player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Manual (Human)"), COL_BLACK ) );
 		if(  !welt->get_spieler(1)->is_locked()  ||  !umgebung_t::networkmode  ) {
