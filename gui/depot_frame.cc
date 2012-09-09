@@ -515,6 +515,7 @@ void depot_frame_t::layout(koord *gr)
 	vehicle_filter.set_pos(koord(DEPOT_FRAME_WIDTH - (ABUTTON_WIDTH*5)/2 + 4, PANEL_VSTART + PANEL_HEIGHT + 16));
 	vehicle_filter.set_groesse(koord(ABUTTON_WIDTH + 30, 14));
 	vehicle_filter.set_max_size(koord(ABUTTON_WIDTH + 60, LINESPACE * 8));
+	vehicle_filter.set_focusable( false );
 
 	const uint8 margin = 4;
 	img_bolt.set_pos(koord(get_fenstergroesse().x-skinverwaltung_t::electricity->get_bild(0)->get_pic()->w-margin,margin));
