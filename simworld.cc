@@ -1781,6 +1781,7 @@ karte_t::karte_t() :
 	grid_hgts = 0;
 	schedule_counter = 0;
 	nosave_warning = nosave = false;
+	loaded_rotation = 0;
 	letztes_jahr = 1930;
 	letzter_monat = 0;
 
@@ -2536,7 +2537,25 @@ planquadrat_t *rotate90_new_plan;
 void karte_t::rotate90_plans(sint16 y_min, sint16 y_max)
 {
 	const int LOOP_BLOCK = 64;
-	if(  settings.get_rotation()==0  ||  settings.get_rotation()==2  ) {
+	if(  (loaded_rotation+settings.get_rotation())&1  ) {  // 1 || 3
+		for(  int yy=y_min;  yy<y_max;  yy+=LOOP_BLOCK  ) {
+			for(  int xx=0;  xx<cached_groesse_gitter_x;  xx+=LOOP_BLOCK  ) {
+				for(  int y=yy;  y<min(yy+LOOP_BLOCK,y_max);  y++  ) {
+					for(  int x=xx;  x<min(xx+LOOP_BLOCK,cached_groesse_gitter_x);  x++  ) {
+						const int nr = x+(y*cached_groesse_gitter_x);
+						const int new_nr = (cached_groesse_karte_y-y)+(x*cached_groesse_gitter_y);
+						// first rotate everything on the ground(s)
+						for(  uint i=0;  i<plan[nr].get_boden_count();  i++  ) {
+							plan[nr].get_boden_bei(i)->rotate90();
+						}
+						// now: rotate all things on the map
+						swap(rotate90_new_plan[new_nr], plan[nr]);
+					}
+				}
+			}
+		}
+	}
+	else {
 		// first: rotate all things on the map
 		for(  int xx=0;  xx<cached_groesse_gitter_x;  xx+=LOOP_BLOCK  ) {
 			for(  int yy=y_min;  yy<y_max;  yy+=LOOP_BLOCK  ) {
@@ -2558,24 +2577,6 @@ void karte_t::rotate90_plans(sint16 y_min, sint16 y_max)
 						for(  uint i=0;  i<rotate90_new_plan[new_nr].get_boden_count();  i++  ) {
 							rotate90_new_plan[new_nr].get_boden_bei(i)->rotate90();
 						}
-					}
-				}
-			}
-		}
-	}
-	else {
-		for(  int yy=y_min;  yy<y_max;  yy+=LOOP_BLOCK  ) {
-			for(  int xx=0;  xx<cached_groesse_gitter_x;  xx+=LOOP_BLOCK  ) {
-				for(  int y=yy;  y<min(yy+LOOP_BLOCK,y_max);  y++  ) {
-					for(  int x=xx;  x<min(xx+LOOP_BLOCK,cached_groesse_gitter_x);  x++  ) {
-						const int nr = x+(y*cached_groesse_gitter_x);
-						const int new_nr = (cached_groesse_karte_y-y)+(x*cached_groesse_gitter_y);
-						// first rotate everything on the ground(s)
-						for(  uint i=0;  i<plan[nr].get_boden_count();  i++  ) {
-							plan[nr].get_boden_bei(i)->rotate90();
-						}
-						// now: rotate all things on the map
-						swap(rotate90_new_plan[new_nr], plan[nr]);
 					}
 				}
 			}
@@ -4791,6 +4792,7 @@ void karte_t::laden(loadsave_t *file)
 	dbg->warning("karte_t::laden", "Fileversion: %d", file->get_version());
 	settings = umgebung_t::default_einstellungen;
 	settings.rdwr(file);
+	loaded_rotation = settings.get_rotation();
 
 	if(  umgebung_t::networkmode  ) {
 		// to have games synchronized, transfer random counter too
@@ -5280,17 +5282,7 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 // recalcs all ground tiles on the map
 void karte_t::update_map_intern(sint16 y_min, sint16 y_max)
 {
-	if(  settings.get_rotation()==0  ||  settings.get_rotation()==2  ) {
-		for(  int y=y_min;  y<y_max;  y++  ) {
-			for(  int x=0;  x<cached_groesse_gitter_x;  x++  ) {
-				const int nr = y*cached_groesse_gitter_x+x;
-				for(  uint i=0;  i<plan[nr].get_boden_count();  i++  ) {
-					plan[nr].get_boden_bei(i)->calc_bild();
-				}
-			}
-		}
-	}
-	else { // ~14% faster loop blocking rotations 1 and 3
+	if(  (loaded_rotation+settings.get_rotation())&1  ) {  // 1 || 3  // ~14% faster loop blocking rotations 1 and 3
 		const int LOOP_BLOCK = 128;
 		for(  int xx=0;  xx<cached_groesse_gitter_x;  xx+=LOOP_BLOCK  ) {
 			for(  int yy=y_min;  yy<y_max;  yy+=LOOP_BLOCK  ) {
@@ -5301,6 +5293,16 @@ void karte_t::update_map_intern(sint16 y_min, sint16 y_max)
 							plan[nr].get_boden_bei(i)->calc_bild();
 						}
 					}
+				}
+			}
+		}
+	}
+	else {
+		for(  int y=y_min;  y<y_max;  y++  ) {
+			for(  int x=0;  x<cached_groesse_gitter_x;  x++  ) {
+				const int nr = y*cached_groesse_gitter_x+x;
+				for(  uint i=0;  i<plan[nr].get_boden_count();  i++  ) {
+					plan[nr].get_boden_bei(i)->calc_bild();
 				}
 			}
 		}

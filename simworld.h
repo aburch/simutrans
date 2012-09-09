@@ -140,6 +140,9 @@ private:
 	 */
 	bool dirty;
 
+	// the rotation of the map when first loaded
+	uint8 loaded_rotation;
+
 	/**
 	 * fuer softes scrolling
 	 */
