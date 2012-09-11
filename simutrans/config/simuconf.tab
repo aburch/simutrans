@@ -1052,8 +1052,15 @@ turntable_reverse_time=4000
 # as if it had a total power of 4,800kw. 
 #
 # The default is 100.
+#
+# Note that, in Simutrans-Experimental version 10.12 and later, Standard paksets
+# should use a percentage of 50. This is because the physics have been recalibrated
+# to account for transmission losses (intended to be set using the "gear" setting
+# in each vehicle's .dat file), and the resistance values decreased accordingly.
+# Therefore, without this reduction in power, vehicles will be substantially over-
+# powered.
 
-global_power_factor_percent=100
+global_power_factor_percent=50
 
 # This setting allows the way in which weight limits are enforced to be customised.
 # If enforce_weight_limits is set to 0, weight limits are ignored entirely. If
