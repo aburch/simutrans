@@ -2652,7 +2652,6 @@ DBG_MESSAGE( "karte_t::rotate90()", "called" );
 		s->rotate90(cached_groesse_karte_x);
 	}
 
-	// rotate all other objects like factories and convois
 	FOR(vector_tpl<convoihandle_t>, const i, convoi_array) {
 		i->rotate90(cached_groesse_karte_x);
 	}

@@ -249,11 +249,11 @@ private:
 	uint32 total_input, total_output;
 	uint8 status;
 
-	/**
-	 * Die Koordinate (Position) der fabrik
-	 * @author Hj. Malthaner
-	 */
+	/// Position of a building of the factory.
 	koord3d pos;
+
+	/// Position of the nw-corner tile of the factory.
+	koord3d pos_origin;
 
 	/**
 	 * Number of times the factory has expanded so far
@@ -404,7 +404,8 @@ public:
 
 	void laden_abschliessen();
 
-	void set_pos( koord3d p ) { pos = p; }
+	/// gets position of a building belonging to factory
+	koord3d get_pos() const { return pos; }
 
 	void rotate90( const sint16 y_size );
 
@@ -496,8 +497,6 @@ public:
 	void info_conn(cbuffer_t& buf) const;
 
 	void rdwr(loadsave_t *file);
-
-	inline koord3d get_pos() const { return pos; }
 
 	/*
 	 * Fills the vector with the koords of the tiles.

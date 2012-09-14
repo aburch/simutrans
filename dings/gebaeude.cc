@@ -169,11 +169,6 @@ void gebaeude_t::rotate90()
 			new_offset = koord(haus_besch->get_h(tile->get_layout()) - 1 - new_offset.y, new_offset.x);
 		}
 
-		// correct factory zero pos
-		if(is_factory  &&  new_offset==koord(0,0)) {
-			ptr.fab->set_pos( get_pos() );
-		}
-
 		// suche a tile exist?
 		if(  haus_besch->get_b(layout) > new_offset.x  &&  haus_besch->get_h(layout) > new_offset.y  ) {
 			const haus_tile_besch_t* const new_tile = haus_besch->get_tile(layout, new_offset.x, new_offset.y);
@@ -186,8 +181,8 @@ void gebaeude_t::rotate90()
 				if(  !is_factory  &&  new_offset!=koord(0,0)  ) {
 					welt->set_nosave_warning();
 				}
-				if(  is_factory  &&  (new_offset!=koord(0,0)  ||  ptr.fab->get_besch()->get_haus()->get_tile(layout,0,0)==NULL)  ) {
-					// there are factories without a valid zero tile
+				if(  is_factory  ) {
+					// there are factories with a broken tile
 					// => this map rotation cannot be reloaded!
 					welt->set_nosave();
 				}

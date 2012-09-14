@@ -639,26 +639,18 @@ DBG_MESSAGE("wkz_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x, 
 			return false;
 		}
 		DBG_MESSAGE("wkz_remover()",  "removing building" );
-		const haus_tile_besch_t *tile  = gb->get_tile();
 
-		// get startpos
-		koord k=tile->get_offset();
-		if(k != koord(0,0)) {
-			return wkz_remover_intern(sp, welt, pos-k, msg);
+		// remove town? (when removing townhall)
+		if(gb->ist_rathaus()) {
+			stadt_t *stadt = welt->suche_naechste_stadt(pos.get_2d());
+			if(!welt->rem_stadt( stadt )) {
+				msg = "Das Feld gehoert\neinem anderen Spieler\n";
+				return false;
+			}
 		}
 		else {
-			// remove town? (when removing townhall)
-			if(gb->ist_rathaus()) {
-				stadt_t *stadt = welt->suche_naechste_stadt(pos.get_2d());
-				if(!welt->rem_stadt( stadt )) {
-					msg = "Das Feld gehoert\neinem anderen Spieler\n";
-					return false;
-				}
-			}
-			else {
-				// townhall is also removed during town removal
-				hausbauer_t::remove( welt, sp, gb );
-			}
+			// townhall is also removed during town removal
+			hausbauer_t::remove( welt, sp, gb );
 		}
 		return true;
 	}
