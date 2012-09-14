@@ -523,6 +523,9 @@ void convoi_t::rotate90( const sint16 y_size )
 	if(fpl) {
 		fpl->rotate90( y_size );
 	}
+	for(  int i=0;  i<anz_vehikel;  i++  ) {
+		fahr[i]->rotate90_freight_destinations();
+	}
 	// eventually correct freight destinations (and remove all stale freight)
 	for(  int i=0;  i<anz_vehikel;  i++  ) {
 		fahr[i]->remove_stale_freight();

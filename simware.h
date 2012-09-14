@@ -102,6 +102,12 @@ public:
 	inline bool same_destination(const ware_t &w) const {
 		return index==w.get_index()  &&  ziel==w.get_ziel()  &&  to_factory==w.to_factory  &&  (!to_factory  ||  zielpos==w.get_zielpos());
 	}
+
+	/**
+	 * Adjust target coordinates.
+	 * Must be called after factories have been rotated!
+	 */
+	void rotate90( karte_t *welt, sint16 y_size );
 };
 
 #endif

@@ -2647,7 +2647,7 @@ DBG_MESSAGE( "karte_t::rotate90()", "called" );
 	FOR(slist_tpl<fabrik_t*>, const f, fab_list) {
 		f->rotate90(cached_groesse_karte_x);
 	}
-
+	// after rotation of factories, rotate everything that holds freight: stations and convoys
 	FOR(slist_tpl<halthandle_t>, const s, haltestelle_t::get_alle_haltestellen()) {
 		s->rotate90(cached_groesse_karte_x);
 	}

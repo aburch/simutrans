@@ -153,3 +153,17 @@ void ware_t::laden_abschliessen(karte_t *welt,spieler_t * /*sp*/)
 		zwischenziel = welt->lookup(zwischenziel->get_init_pos())->get_halt();
 	}
 }
+
+
+void ware_t::rotate90( karte_t *welt, sint16 y_size )
+{
+	zielpos.rotate90( y_size );
+	if (to_factory) {
+		// assert that target coordinates are unique for cargo going to the same factory
+		// as new cargo will be generated with possibly new factory coordinates
+		fabrik_t *fab = fabrik_t::get_fab( welt, zielpos );
+		if (fab) {
+			zielpos = fab->get_pos().get_2d();
+		}
+	}
+}

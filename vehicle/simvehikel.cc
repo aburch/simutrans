@@ -639,11 +639,14 @@ void vehikel_t::rotate90()
 	alte_fahrtrichtung = ribi_t::rotate90( alte_fahrtrichtung );
 	pos_prev.rotate90( welt->get_groesse_y()-1 );
 	last_stop_pos.rotate90( welt->get_groesse_y()-1 );
+}
+
+
+void vehikel_t::rotate90_freight_destinations()
+{
 	// now rotate the freight
 	FOR(slist_tpl<ware_t>, & tmp, fracht) {
-		koord k = tmp.get_zielpos();
-		k.rotate90( welt->get_groesse_y()-1 );
-		tmp.set_zielpos( k );
+		tmp.rotate90(welt, welt->get_groesse_y()-1 );
 	}
 }
 

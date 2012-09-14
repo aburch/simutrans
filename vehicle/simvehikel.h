@@ -347,6 +347,11 @@ public:
 	const slist_tpl<ware_t> & get_fracht() const { return fracht;}   // liste der gerade transportierten güter
 
 	/**
+	 * Rotate freight target coordinates, has to be called after rotating factories.
+	 */
+	void rotate90_freight_destinations();
+
+	/**
 	* berechnet die gesamtmenge der beförderten waren
 	*/
 	uint16 get_fracht_menge() const { return total_freight; }

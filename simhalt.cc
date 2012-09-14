@@ -455,11 +455,7 @@ void haltestelle_t::rotate90( const sint16 y_size )
 			for (size_t j = warray.get_count(); j-- != 0;) {
 				ware_t& ware = warray[j];
 				if(ware.menge>0) {
-					koord k = ware.get_zielpos();
-					k.rotate90( y_size );
-					// since we need to point at factory (0,0)
-					fabrik_t *fab = fabrik_t::get_fab( welt, k );
-					ware.set_zielpos( fab ? fab->get_pos().get_2d() : k );
+					ware.rotate90(welt, y_size);
 				}
 				else {
 					// empty => remove
