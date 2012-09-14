@@ -59,7 +59,7 @@ endif
 ifeq ($(OSTYPE),mingw)
   CC ?= gcc
   SOURCES += simsys_w32_png.cc
-  CFLAGS  += -DPNG_STATIC -DZLIB_STATIC -march=pentium -DNOMINMAX=1
+  CFLAGS  += -DPNG_STATIC -DZLIB_STATIC -DNOMINMAX=1
   ifeq ($(BACKEND),gdi)
     LIBS += -lunicows
     ifeq  ($(WIN32_CONSOLE),)
@@ -81,7 +81,7 @@ SDL_CONFIG     ?= sdl-config
 
 
 ifneq ($(OPTIMISE),)
-    CFLAGS += -O3 -fno-schedule-insns
+    CFLAGS += -O3
   ifneq ($(OSTYPE),mac)
     ifneq ($(OSTYPE),haiku)
       ifneq ($(OSTYPE),amiga)

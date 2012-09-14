@@ -62,6 +62,7 @@
 
 #include "besch/reader/obj_reader.h"
 #include "besch/sound_besch.h"
+#include "besch/grund_besch.h"
 
 #include "music/music.h"
 #include "sound/sound.h"
@@ -69,6 +70,7 @@
 #include "utils/cbuffer_t.h"
 
 #include "bauer/vehikelbauer.h"
+
 #include "vehicle/simvehikel.h"
 #include "vehicle/simverkehr.h"
 
@@ -110,68 +112,76 @@ static void show_sizes()
 // render tests ...
 static void show_times(karte_t *welt, karte_ansicht_t *view)
 {
-	DBG_MESSAGE("test", "testing img ... ");
-	int i;
-
-	long ms = dr_time();
-	for (i = 0;  i < 300000;  i++)
-		display_img(10, 50, 50, 1);
-	DBG_MESSAGE("test", "display_img(): %i iterations took %i ms", i, dr_time() - ms);
-
-	ms = dr_time();
-	for (i = 0;  i < 300000;  i++)
-		display_color_img(2000, 120, 100, 0, 1, 1);
-	DBG_MESSAGE("test", "display_color_img(): %i iterations took %i ms", i, dr_time() - ms);
-
-	ms = dr_time();
-	for (i = 0;  i < 300000;  i++)
-		display_color_img(2000, 160, 150, 16, 1, 1);
-	DBG_MESSAGE("test", "display_color_img(): next AI: %i iterations took %i ms", i, dr_time() - ms);
-
-	ms = dr_time();
-	for (i = 0;  i < 300000;  i++)
-		display_color_img(2000, 220, 200, 20, 1, 1);
-	DBG_MESSAGE("test", "display_color_img(), other AI: %i iterations took %i ms", i, dr_time() - ms);
-
-	ms = dr_time();
-	for (i = 0;  i < 300;  i++) {
-		dr_prepare_flush();
-		dr_flush();
-	}
-	DBG_MESSAGE("test", "display_flush_buffer(): %i iterations took %i ms", i, dr_time() - ms);
-
-	ms = dr_time();
-	for (i = 0;  i < 300000;  i++)
-		display_text_proportional_len_clip(100, 120, "Dies ist ein kurzer Textetxt ...", 0, 0, -1);
-	DBG_MESSAGE("test", "display_text_proportional_len_clip(): %i iterations took %i ms", i, dr_time() - ms);
-
-	ms = dr_time();
-	for (i = 0;  i < 300000;  i++)
-		display_fillbox_wh(100, 120, 300, 50, 0, false);
-	DBG_MESSAGE("test", "display_fillbox_wh(): %i iterations took %i ms", i, dr_time() - ms);
-
-	ms = dr_time();
-	for (i = 0; i < 200; i++) {
-		view->display(true);
-	}
-	DBG_MESSAGE("test", "view->display(true): %i iterations took %i ms", i, dr_time() - ms);
-
-	ms = dr_time();
-	for (i = 0; i < 200; i++) {
-		view->display(true);
-		win_display_flush(0.0);
-	}
-	DBG_MESSAGE("test", "view->display(true) and flush: %i iterations took %i ms", i, dr_time() - ms);
-
-	ms = dr_time();
-	intr_set(welt, view);
+ 	intr_set(welt, view);
 	welt->set_fast_forward(true);
 	intr_disable();
-	for (i = 0; i < 200; i++) {
-		welt->sync_step(200,true,true);
-		welt->step();
+
+	dbg->message( "show_times()", "simple profiling of drawing routines" );
+ 	int i;
+
+	image_id img = grund_besch_t::ausserhalb->get_bild(0,0);
+
+ 	long ms = dr_time();
+	for (i = 0;  i < 6000000;  i++)
+ 		display_img( img, 50, 50, 1);
+	dbg->message( "display_img()", "%i iterations took %li ms", i, dr_time() - ms );
+
+	image_id player_img = skinverwaltung_t::color_options->get_bild_nr(0);
+ 	ms = dr_time();
+	for (i = 0;  i < 1000000;  i++)
+ 		display_color_img( player_img, 120, 100, i%15, 0, 1);
+	dbg->message( "display_color_img() with recolor", "%i iterations took %li ms", i, dr_time() - ms );
+
+ 	ms = dr_time();
+	for (i = 0;  i < 1000000;  i++) {
+		display_color_img( img, 120, 100, 0, 1, 1);
+ 		display_color_img( player_img, 160, 150, 16, 1, 1);
 	}
-	DBG_MESSAGE("test", "welt->sync_step/step(200,1,1): %i iterations took %i ms", i, dr_time() - ms);
+	dbg->message( "display_color_img()", "3x %i iterations took %li ms", i, dr_time() - ms );
+
+ 	ms = dr_time();
+	for (i = 0;  i < 600000;  i++)
+ 		dr_flush();
+	dbg->message( "display_flush_buffer()", "%i iterations took %li ms", i, dr_time() - ms );
+
+ 	ms = dr_time();
+	for (i = 0;  i < 300000;  i++)
+ 		display_text_proportional_len_clip(100, 120, "Dies ist ein kurzer Textetxt ...", 0, 0, -1);
+	dbg->message( "display_text_proportional_len_clip()", "%i iterations took %li ms", i, dr_time() - ms );
+
+ 	ms = dr_time();
+	for (i = 0;  i < 300000;  i++)
+ 		display_fillbox_wh(100, 120, 300, 50, 0, false);
+	dbg->message( "display_fillbox_wh()", "%i iterations took %li ms", i, dr_time() - ms );
+
+ 	ms = dr_time();
+ 	for (i = 0; i < 2000; i++) {
+ 		view->display(true);
+ 	}
+	dbg->message( "view->display(true)", "%i iterations took %li ms", i, dr_time() - ms );
+
+ 	ms = dr_time();
+ 	for (i = 0; i < 2000; i++) {
+ 		view->display(true);
+ 		win_display_flush(0.0);
+ 	}
+	dbg->message( "view->display(true) and flush", "%i iterations took %li ms", i, dr_time() - ms );
+
+ 	ms = dr_time();
+ 	for (i = 0; i < 40000000/weg_t::get_alle_wege().get_count(); i++) {
+		FOR( slist_tpl<weg_t *>, const w, weg_t::get_alle_wege() ) {
+			grund_t *dummy;
+			welt->lookup( w->get_pos() )->get_neighbour( dummy, invalid_wt, ribi_t::nord );
+		}
+	}
+	dbg->message( "grund_t::get_neighbour()", "%i iterations took %li ms", i*weg_t::get_alle_wege().get_count(), dr_time() - ms );
+
+ 	ms = dr_time();
+	for (i = 0; i < 2000; i++) {
+ 		welt->sync_step(200,true,true);
+ 		welt->step();
+ 	}
+	dbg->message( "welt->sync_step/step(200,1,1)", "%i iterations took %li ms", i, dr_time() - ms );
 }
 
 
@@ -594,12 +604,12 @@ int simu_main(int argc, char** argv)
 	DBG_MESSAGE("program_dir", "%s", umgebung_t::program_dir);
 	DBG_MESSAGE("home_dir",    "%s", umgebung_t::user_dir);
 	DBG_MESSAGE("locale",      "%s", dr_get_locale_string());
-#ifdef DEBUG
+//#ifdef DEBUG
 	if (gimme_arg(argc, argv, "-sizes", 0) != NULL) {
 		// show the size of some structures ...
 		show_sizes();
 	}
-#endif
+//#endif
 
 	// prepare skins first
 	obj_reader_t::init();
@@ -1018,7 +1028,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 	welt->set_fast_forward(false);
 	baum_t::recalc_outline_color();
-#if defined DEBUG || defined PROFILE
+//#if defined DEBUG || defined PROFILE
 	// do a render test?
 	if (gimme_arg(argc, argv, "-times", 0) != NULL) {
 		show_times(welt, view);
@@ -1029,7 +1039,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		quit_month = atoi( gimme_arg(argc, argv, "-until", 1) );
 		welt->set_fast_forward(true);
 	}
-#endif
+//#endif
 
 	welt->reset_timer();
 	if(  !umgebung_t::networkmode  &&  !umgebung_t::server  ) {
