@@ -635,6 +635,7 @@ void spieler_t::ai_bankrupt()
 							case ding_t::senke:
 							case ding_t::pumpe:
 							case ding_t::wayobj:
+							case ding_t::label:
 								dt->entferne(this);
 								delete dt;
 								break;
