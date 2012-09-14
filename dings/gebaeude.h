@@ -184,6 +184,11 @@ public:
 	void entferne(spieler_t *sp);
 
 	void laden_abschliessen();
+
+	/**
+	 * @returns pointer to first tile of a multi-tile building.
+	 */
+	gebaeude_t* get_first_tile() const;
 };
 
 

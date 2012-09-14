@@ -147,7 +147,7 @@ void haus_besch_t::calc_checksum(checksum_t *chk) const
 		for(sint16 x=0; x<b; x++) {
 			sint16 h=get_h(i);
 			for(sint16 y=0; y<h; y++) {
-				if (get_tile(i,x,y)) {
+				if (get_tile(i,x,y)  &&  get_tile(i,x,y)->has_image()) {
 					chk->input((sint16)(x+y+i));
 				}
 			}

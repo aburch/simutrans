@@ -569,25 +569,32 @@ void gebaeude_t::zeige_info()
 
 	if(!special  ||  (umgebung_t::townhall_info  &&  old_count==win_get_open_count()) ) {
 		// open info window for the first tile of our building (not relying on presence of (0,0) tile)
-		const haus_besch_t* const haus_besch = tile->get_besch();
-		const uint8 layout = tile->get_layout();
-		koord k;
-		for(k.x=0; k.x<haus_besch->get_b(layout); k.x++) {
-			for(k.y=0; k.y<haus_besch->get_h(layout); k.y++) {
-				const haus_tile_besch_t *tile = haus_besch->get_tile(layout, k.x, k.y);
-				if (tile==NULL  ||  !tile->has_image()) {
-					continue;
-				}
-				if (grund_t *gr = welt->lookup( get_pos() - get_tile()->get_offset() + k)) {
-					gebaeude_t *gb = gr->find<gebaeude_t>();
-					if (gb  &&  gb->get_tile() == tile) {
-						gb->ding_t::zeige_info();
-						return;
-					}
+		get_first_tile()->ding_t::zeige_info();
+	}
+}
+
+
+gebaeude_t* gebaeude_t::get_first_tile() const
+{
+	const haus_besch_t* const haus_besch = tile->get_besch();
+	const uint8 layout = tile->get_layout();
+	koord k;
+	for(k.x=0; k.x<haus_besch->get_b(layout); k.x++) {
+		for(k.y=0; k.y<haus_besch->get_h(layout); k.y++) {
+			const haus_tile_besch_t *tile = haus_besch->get_tile(layout, k.x, k.y);
+			if (tile==NULL  ||  !tile->has_image()) {
+				continue;
+			}
+			if (grund_t *gr = welt->lookup( get_pos() - get_tile()->get_offset() + k)) {
+				gebaeude_t *gb = gr->find<gebaeude_t>();
+				if (gb  &&  gb->get_tile() == tile) {
+					return gb;
 				}
 			}
 		}
 	}
+	assert(0);
+	return NULL;
 }
 
 

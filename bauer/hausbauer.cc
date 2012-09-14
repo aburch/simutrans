@@ -276,10 +276,11 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb )
 {
 	const haus_tile_besch_t *tile  = gb->get_tile();
 	const haus_besch_t *hb = tile->get_besch();
+	const uint8 layout = tile->get_layout();
 
 	// get startpos and size
 	const koord3d pos = gb->get_pos() - koord3d( tile->get_offset(), 0 );
-	koord size = tile->get_besch()->get_groesse( tile->get_layout() );
+	koord size = tile->get_besch()->get_groesse( layout );
 	koord k;
 
 	if(tile->get_besch()->get_utyp()==haus_besch_t::firmensitz) {
@@ -298,7 +299,7 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb )
 					gebaeude_t *gb_part = gr->find<gebaeude_t>();
 					if(gb_part) {
 						// there may be buildings with holes, so we only remove our or the hole!
-						if(gb_part->get_tile()->get_besch()==hb) {
+						if(gb_part->get_tile()  ==  hb->get_tile(layout, k.x, k.y)) {
 							gb_part->set_fab( NULL );
 							planquadrat_t *plan = welt->access( k+pos.get_2d() );
 							for (size_t i = plan->get_haltlist_count(); i-- != 0;) {
@@ -391,7 +392,7 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb )
 			if(gr) {
 				gebaeude_t *gb_part = gr->find<gebaeude_t>();
 				// there may be buildings with holes, so we only remove our!
-				if(gb_part  &&  gb_part->get_tile()->get_besch()==hb) {
+				if(gb_part  &&  gb_part->get_tile() == hb->get_tile(layout, k.x, k.y)) {
 					// ok, now we can go on with deletion
 					gb_part->entferne( sp );
 					delete gb_part;

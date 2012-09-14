@@ -1593,7 +1593,7 @@ void reliefkarte_t::zeichnen(koord pos)
 	// find tourist spots
 	if(  mode & MAP_TOURIST  ) {
 		FOR(  weighted_vector_tpl<gebaeude_t*>, const gb, welt->get_ausflugsziele()  ) {
-			if(  gb->get_tile()->get_offset()==koord(0,0)  ) {
+			if(  gb->get_first_tile() == gb  ) {
 				koord gb_pos = gb->get_pos().get_2d();
 				karte_to_screen( gb_pos );
 				gb_pos = gb_pos + pos;
