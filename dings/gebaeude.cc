@@ -144,7 +144,7 @@ void gebaeude_t::rotate90()
 
 	// must or can rotate?
 	const haus_besch_t* const haus_besch = tile->get_besch();
-	if (is_factory || haus_besch->get_all_layouts() > 1 || haus_besch->get_b() * haus_besch->get_h() > 1) {
+	if (haus_besch->get_all_layouts() > 1  ||  haus_besch->get_b() * haus_besch->get_h() > 1) {
 		uint8 layout = tile->get_layout();
 		koord new_offset = tile->get_offset();
 
