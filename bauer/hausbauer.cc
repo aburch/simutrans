@@ -461,7 +461,6 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int org
 			const haus_tile_besch_t *tile = besch->get_tile(layout, k.x, k.y);
 			// here test for good tile
 			if (tile == NULL || (
-						(k != koord(0, 0) || besch->ist_fabrik()) &&
 						besch->get_utyp() != haus_besch_t::hafen &&
 						tile->get_hintergrund(0, 0, 0) == IMG_LEER &&
 						tile->get_vordergrund(0, 0)    == IMG_LEER
