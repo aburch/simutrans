@@ -737,7 +737,7 @@ public:
 	virtual image_id get_bild() const {return !is_on_ground() ? IMG_LEER : bild;}
 
 	// image: when flying the shadow, on ground empty
-	virtual PLAYER_COLOR_VAL get_outline_bild() const {return !is_on_ground() ? bild : IMG_LEER;}
+	virtual image_id get_outline_bild() const {return !is_on_ground() ? bild : IMG_LEER;}
 
 	// shadow has black color (when flying)
 	virtual PLAYER_COLOR_VAL get_outline_colour() const {return !is_on_ground() ? TRANSPARENT75_FLAG | OUTLINE_FLAG | COL_BLACK : 0;}
