@@ -138,7 +138,6 @@ gebaeude_t::~gebaeude_t()
 }
 
 
-
 void gebaeude_t::rotate90()
 {
 	ding_t::rotate90();
@@ -574,7 +573,7 @@ void gebaeude_t::zeige_info()
 }
 
 
-gebaeude_t* gebaeude_t::get_first_tile() const
+gebaeude_t* gebaeude_t::get_first_tile()
 {
 	const haus_besch_t* const haus_besch = tile->get_besch();
 	const uint8 layout = tile->get_layout();
@@ -593,8 +592,7 @@ gebaeude_t* gebaeude_t::get_first_tile() const
 			}
 		}
 	}
-	assert(0);
-	return NULL;
+	return this;
 }
 
 

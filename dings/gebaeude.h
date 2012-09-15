@@ -188,7 +188,7 @@ public:
 	/**
 	 * @returns pointer to first tile of a multi-tile building.
 	 */
-	gebaeude_t* get_first_tile() const;
+	gebaeude_t* get_first_tile();
 };
 
 
