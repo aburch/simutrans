@@ -20,6 +20,62 @@
 
 #define INVALID_RDWR_ID (-1)
 
+// buffer size for read/write - bzip2 gains upto 8M for non-threaded, 1M for threaded. binary, zipped ok with 256K or smaller.
+#define LS_BUF_SIZE (1024*1024)
+
+#if MULTI_THREAD>1
+// enable barriers by this
+#define _XOPEN_SOURCE 600
+#include <pthread.h>
+
+static pthread_t ls_thread;
+static pthread_barrier_t loadsave_barrier;
+static pthread_mutex_t loadsave_mutex;
+static pthread_mutex_t loadsave_cv_mutex;
+static pthread_cond_t loadsave_cv;
+
+// parameters passed starting a thread
+typedef struct{
+	loadsave_t *loadsave_routine;
+} loadsave_param_t;
+static loadsave_param_t ls;
+
+
+void *loadsave_thread( void *ptr )
+{
+	loadsave_param_t *lsp = reinterpret_cast<loadsave_param_t *>(ptr);
+	int buf = 1;
+
+	pthread_mutex_lock(&loadsave_cv_mutex);
+	pthread_barrier_wait(&loadsave_barrier); // ensures main thread waits until cv_mutex is locked.
+
+	while(true) {
+		if(  lsp->loadsave_routine->is_saving()  ) {
+			// wait for signal from main thread to flush the buffer
+			pthread_cond_wait(&loadsave_cv, &loadsave_cv_mutex);
+			buf = (buf+1)&1;
+			if(  lsp->loadsave_routine->get_buf_pos(buf)==0  ) {
+				// signal received with empty buffer - exit
+				break;
+			}
+			lsp->loadsave_routine->flush_buffer(buf);
+		}
+		else {
+			if(  !lsp->loadsave_routine->fill_buffer(buf)>0  ) {
+				// nothing read into buffer - exit
+				break;
+			}
+			// wait for signal from main thread to fill the next buffer
+			pthread_cond_wait(&loadsave_cv, &loadsave_cv_mutex);
+			buf = (buf+1)&1;
+		}
+	}
+	pthread_mutex_unlock(&loadsave_cv_mutex);
+	return ptr;
+}
+#endif
+
+
 struct file_descriptors_t {
 	FILE *fp;
 	gzFile gzfp;
@@ -35,14 +91,77 @@ loadsave_t::loadsave_t() : filename()
 {
 	mode = 0;
 	saving = false;
+	buffered = false;
 	fd = new file_descriptors_t();
 }
 
 loadsave_t::~loadsave_t()
 {
+	set_buffered(false);
 	close();
 	delete fd;
 }
+
+
+void loadsave_t::set_buffered(bool enable)
+{
+	if(  enable  ) {
+		if(  !buffered  ) {
+			buffered = true;
+			curr_buff = 0;
+			buf_pos[0] = buf_pos[1] = 0;
+			buf_len[0] = buf_len[1] = 0;
+			ls_buf[0] = new char[LS_BUF_SIZE];
+#if MULTI_THREAD>1
+			ls_buf[1] = new char[LS_BUF_SIZE]; // second buffer only when multithreaded
+
+			pthread_attr_t attr;
+			pthread_attr_init(&attr);
+			pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+
+			pthread_barrier_init(&loadsave_barrier, NULL, 2);
+			pthread_mutex_init(&loadsave_mutex, NULL);
+			pthread_mutex_init(&loadsave_cv_mutex, NULL);
+			pthread_cond_init(&loadsave_cv, NULL);
+
+			ls.loadsave_routine = this;
+
+			pthread_create(&ls_thread, &attr, loadsave_thread, (void *)&ls);
+
+			pthread_attr_destroy(&attr);
+
+			pthread_barrier_wait( &loadsave_barrier );
+#endif
+		}
+	}
+	else {
+		if(  buffered  ) {
+			if(  saving  &&  buf_pos[curr_buff]>0  ) {
+#if MULTI_THREAD>1
+				pthread_mutex_lock(&loadsave_cv_mutex);
+#endif
+				flush_buffer(curr_buff);
+#if MULTI_THREAD>1
+				pthread_cond_signal(&loadsave_cv);
+				pthread_mutex_unlock(&loadsave_cv_mutex);
+#endif
+			}
+#if MULTI_THREAD>1
+			pthread_join(ls_thread,NULL);
+
+			pthread_cond_destroy(&loadsave_cv);
+			pthread_mutex_destroy(&loadsave_mutex);
+			pthread_mutex_destroy(&loadsave_cv_mutex);
+			pthread_barrier_destroy(&loadsave_barrier);
+
+			delete [] ls_buf[1]; // second buffer only when multithreaded
+#endif
+			delete [] ls_buf[0];
+			buffered = false;
+		}
+	}
+}
+
 
 bool loadsave_t::rd_open(const char *filename)
 {
@@ -153,7 +272,6 @@ bool loadsave_t::rd_open(const char *filename)
 	this->filename = filename;
 	return true;
 }
-
 
 
 bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extension, const char *savegame_version)
@@ -292,77 +410,233 @@ const char *loadsave_t::close()
  */
 bool loadsave_t::is_eof()
 {
-	if(is_bzip2()) {
-		// any error is EOF ...
-		return fd->bse!=BZ_OK;
+	if(  is_bzip2()  ) {
+		if(  buffered  ) {
+			bool r;
+#if MULTI_THREAD>1
+			pthread_mutex_lock(&loadsave_mutex);
+#endif
+			r = buf_pos[0]>=buf_len[0]  &&  buf_pos[1]>=buf_len[1]  &&  fd->bse!=BZ_OK;
+#if MULTI_THREAD>1
+			pthread_mutex_unlock(&loadsave_mutex);
+#endif
+			return r;
+		}
+		else {
+			// any error is EOF ...
+			return fd->bse!=BZ_OK;
+		}
 	}
 	else {
-		return gzeof(fd->gzfp) != 0;
+		if(  buffered  ) {
+			bool r;
+#if MULTI_THREAD>1
+			pthread_mutex_lock(&loadsave_mutex);
+#endif
+			r = buf_pos[0]>=buf_len[0]  &&  buf_pos[1]>=buf_len[1]  &&  gzeof(fd->gzfp)!=0;
+#if MULTI_THREAD>1
+			pthread_mutex_unlock(&loadsave_mutex);
+#endif
+			return r;
+		}
+		else {
+			return gzeof(fd->gzfp)!=0;
+		}
 	}
 }
 
 
 void loadsave_t::lsputc(int c)
 {
-	if(is_zipped()) {
-		gzputc(fd->gzfp, c);
-	}
-	else if(is_bzip2()) {
-		uint8 ch = c;
-		write( &ch, 1 );
-	}
-	else {
-		fputc(c, fd->fp);
-	}
+	uint8 ch = c;
+	write( &ch, 1 );
 }
+
 
 int loadsave_t::lsgetc()
 {
-	if(is_bzip2()) {
-		uint8 c[2];
-		if(  fd->bse==BZ_OK  ) {
-			BZ2_bzRead( &fd->bse, fd->bzfp, c, 1);
-		}
-		return fd->bse==BZ_OK ? c[0] : -1;
+	uint8 c[2];
+	if(  read(c,1)  ) {
+		return c[0];
 	}
-	else {
-		return gzgetc(fd->gzfp);
-	}
+	return -1;
 }
+
 
 size_t loadsave_t::write(const void *buf, size_t len)
 {
-	if(is_zipped()) {
-		return gzwrite(fd->gzfp, const_cast<void *>(buf), len);
-	}
-	else if(is_bzip2()) {
-		BZ2_bzWrite( &fd->bse, fd->bzfp, const_cast<void *>(buf), len);
-		assert(fd->bse==BZ_OK);
-		return len;
+	if(  buffered  ) {
+		if(  buf_pos[curr_buff]+len<=LS_BUF_SIZE  ) {
+			// room in the buffer, copy it all
+			for(  unsigned i=0;  i<len;  i++  ) {
+				ls_buf[curr_buff][buf_pos[curr_buff]++] = ((const char*)buf)[i];
+			}
+			return len;
+		}
+		else {
+			// copy up to full buffer
+			unsigned i = 0;
+			const unsigned left = LS_BUF_SIZE-buf_pos[curr_buff];
+			while(  i<left  ) {
+				ls_buf[curr_buff][buf_pos[curr_buff]++] = ((const char*)buf)[i++];
+			}
+
+#if MULTI_THREAD>1
+			// signal thread to flush the buffer
+			pthread_mutex_lock(&loadsave_cv_mutex);
+			pthread_cond_signal(&loadsave_cv);
+			pthread_mutex_unlock(&loadsave_cv_mutex);
+
+			// switch buffers
+			curr_buff = (curr_buff+1)&1;
+#else
+			// not threaded, flush ourselves
+			flush_buffer(curr_buff);
+#endif
+			// copy the rest
+			while(  i<len  ) {
+				ls_buf[curr_buff][buf_pos[curr_buff]++] = ((const char*)buf)[i++];
+			}
+			return len;
+		}
 	}
 	else {
-		return fwrite(buf, 1, len, fd->fp);
+		if(  is_zipped()  ) {
+			return gzwrite(fd->gzfp, const_cast<void *>(buf), len);
+		}
+		else if(  is_bzip2()  ) {
+			BZ2_bzWrite( &fd->bse, fd->bzfp, const_cast<void *>(buf), len);
+			assert(fd->bse==BZ_OK);
+			return len;
+		}
+		else {
+			return fwrite(buf, 1, len, fd->fp);
+		}
 	}
 }
 
-size_t loadsave_t::read(void *buf, size_t len)
+
+void loadsave_t::flush_buffer(int buf_num)
 {
-	if(is_bzip2()) {
-		if(  fd->bse==BZ_OK  ) {
-			BZ2_bzRead( &fd->bse, fd->bzfp, buf, len);
-		}
-		return fd->bse==BZ_OK ? len : 0;
+	int bse = fd->bse;
+	if(  is_zipped()  ) {
+		gzwrite(fd->gzfp, ls_buf[buf_num], buf_pos[buf_num]);
+	}
+	else if(  is_bzip2()  ) {
+		BZ2_bzWrite( &bse, fd->bzfp, ls_buf[buf_num], buf_pos[buf_num]);
+		assert(bse==BZ_OK);
 	}
 	else {
-		return gzread(fd->gzfp, buf, len);
+		fwrite(ls_buf[buf_num], 1, buf_pos[buf_num], fd->fp);
 	}
+#if MULTI_THREAD>1
+	pthread_mutex_lock(&loadsave_mutex);
+#endif
+	if(  is_bzip2()  ) {
+		fd->bse = bse;
+	}
+	buf_pos[buf_num] = 0;
+#if MULTI_THREAD>1
+	pthread_mutex_unlock(&loadsave_mutex);
+#endif
+}
+
+
+size_t loadsave_t::read(void *buf, size_t len)
+{
+	if(  buffered  ) {
+		if(  len>=LS_BUF_SIZE*2  ) {
+			dbg->fatal("loadsave_t::read()","Request for %d too long", len);
+			return 0;
+		}
+		if(  buf_pos[curr_buff]+len<=buf_len[curr_buff]  ) {
+			// room in the buffer, copy it all
+			for(  unsigned i=0;  i<len;  i++  ) {
+				((char*)buf)[i] = ls_buf[curr_buff][buf_pos[curr_buff]++];
+			}
+ 			return len;
+		}
+		else {
+			// copy up to full buffer
+			unsigned i = 0;
+			if(  buf_len[curr_buff]>0  ) {
+				const unsigned left = buf_len[curr_buff]-buf_pos[curr_buff];
+				while(  i<left  ) {
+					((char*)buf)[i++] = ls_buf[curr_buff][buf_pos[curr_buff]++];
+				}
+			}
+#if MULTI_THREAD>1
+			// switch buffers
+			curr_buff = (curr_buff+1)&1;
+
+			// signal other thread to read more
+			pthread_mutex_lock(&loadsave_cv_mutex);
+			pthread_cond_signal(&loadsave_cv);
+			pthread_mutex_unlock(&loadsave_cv_mutex);
+#else
+			// not threaded, read ourselves
+			fill_buffer(curr_buff);
+#endif
+			// check if enough read
+			if(  len-i>buf_len[curr_buff]  ) {
+				return 0;
+			}
+
+			// copy the rest
+			while(  i<len  ) {
+				((char*)buf)[i++] = ls_buf[curr_buff][buf_pos[curr_buff]++];
+			}
+			return len;
+		}
+	}
+	else {
+		if(  is_bzip2()  ) {
+			if(  fd->bse==BZ_OK  ) {
+				BZ2_bzRead( &fd->bse, fd->bzfp, buf, len);
+			}
+			return fd->bse==BZ_OK ? len : 0;
+		}
+		else {
+			return gzread(fd->gzfp, buf, len);
+		}
+	}
+}
+
+
+int loadsave_t::fill_buffer(int buf_num)
+{
+	int r;
+	int bse = fd->bse;
+
+	if(  is_bzip2()  ) {
+		if(  bse==BZ_OK  ) {
+			r = BZ2_bzRead( &bse, fd->bzfp, ls_buf[buf_num], LS_BUF_SIZE);
+		}
+		else {
+			r = 0;
+		}
+	}
+	else {
+		r = gzread(fd->gzfp, ls_buf[buf_num], LS_BUF_SIZE);
+	}
+#if MULTI_THREAD>1
+	pthread_mutex_lock(&loadsave_mutex);
+#endif
+	if(  is_bzip2()  ) {
+		fd->bse = bse;
+	}
+	buf_pos[buf_num] = 0;
+	buf_len[buf_num] = r;
+#if MULTI_THREAD>1
+	pthread_mutex_unlock(&loadsave_mutex);
+#endif
+	return r;
 }
 
 
 /*************** High level routines to read/write data types *************
  * (check also for Intel/Motorola) etc
  */
-
 
 
 void loadsave_t::rdwr_byte(sint8 &c)
@@ -381,6 +655,7 @@ void loadsave_t::rdwr_byte(sint8 &c)
 		c = (sint8)ll;
 	}
 }
+
 
 void loadsave_t::rdwr_byte(uint8 &c)
 {
@@ -417,6 +692,7 @@ void loadsave_t::rdwr_short(sint16 &i)
 	}
 }
 
+
 void loadsave_t::rdwr_short(uint16 &i)
 {
 	sint16 ii=i;
@@ -452,6 +728,7 @@ void loadsave_t::rdwr_long(sint32 &l)
 	}
 }
 
+
 void loadsave_t::rdwr_long(uint32 &l)
 {
 	sint32 ll=l;
@@ -484,6 +761,7 @@ void loadsave_t::rdwr_longlong(sint64 &ll)
 		rdwr_xml_number( ll, "i64" );
 	}
 }
+
 
 void loadsave_t::rdwr_double(double &dbl)
 {

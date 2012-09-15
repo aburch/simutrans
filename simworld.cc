@@ -4367,6 +4367,8 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 		}
 	}
 
+	file->set_buffered(true);
+
 	// do not set value for empyt player
 	uint8 old_sp[MAX_PLAYER_COUNT];
 	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
@@ -4514,6 +4516,8 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved messages");
 	// save all open windows (upon request)
 	file->rdwr_byte( active_player_nr );
 	rdwr_all_win(file);
+
+	file->set_buffered(false);
 
 	if(needs_redraw) {
 		update_map();
@@ -4787,6 +4791,8 @@ void karte_t::laden(loadsave_t *file)
 	pumpe_t::neue_karte();
 	senke_t::neue_karte();
 
+	file->set_buffered(true);
+
 	// jetzt geht das laden los
 	dbg->warning("karte_t::laden", "Fileversion: %d", file->get_version());
 	settings = umgebung_t::default_einstellungen;
@@ -4919,10 +4925,10 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 	DBG_MESSAGE("karte_t::laden()","loading tiles");
 	for (int y = 0; y < get_groesse_y(); y++) {
 		for (int x = 0; x < get_groesse_x(); x++) {
-			if(file->is_eof()) {
-				dbg->fatal("karte_t::laden()","Savegame file mangled (too short)!");
-			}
 			plan[x+y*cached_groesse_gitter_x].rdwr(this, file, koord(x,y) );
+		}
+		if(file->is_eof()) {
+			dbg->fatal("karte_t::laden()","Savegame file mangled (too short)!");
 		}
 		display_progress(y, get_groesse_y()+stadt.get_count()+256);
 	}
@@ -5274,6 +5280,7 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 		}
 	}
 
+	file->set_buffered(false);
 	clear_random_mode(LOAD_RANDOM);
 	dbg->warning("karte_t::laden()","loaded savegame from %i/%i, next month=%i, ticks=%i (per month=1<<%i)",letzter_monat,letztes_jahr,next_month_ticks,ticks,karte_t::ticks_per_world_month_shift);
 }
