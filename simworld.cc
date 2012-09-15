@@ -5201,7 +5201,7 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 	long dt = dr_time();
 #endif
 	// recalculate halt connections
-	set_schedule_counter();
+	haltestelle_t::reset_routing();
 	do {
 		haltestelle_t::step_all();
 	} while (  haltestelle_t::get_rerouting_status()==RECONNECTING  );

@@ -116,11 +116,17 @@ public:
 	void recalc_status();
 
 	/**
-	 * Handles changes of schedules and the resulting rerouting
+	 * Handles changes of schedules and the resulting rerouting.
 	 */
 	static void step_all();
 
 	static uint8 get_rerouting_status() { return status_step; }
+
+	/**
+	 * Resets reconnect_counter.
+	 * The next call to step_all() will start complete reconnecting.
+	 */
+	static void reset_routing();
 
 	/**
 	 * Tries to generate some pedestrians on the sqaure and the

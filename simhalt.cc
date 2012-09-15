@@ -71,6 +71,13 @@ stringhashtable_tpl<halthandle_t> haltestelle_t::all_names;
 uint8 haltestelle_t::status_step = 0;
 uint8 haltestelle_t::reconnect_counter = 0;
 
+
+void haltestelle_t::reset_routing()
+{
+	reconnect_counter = welt->get_schedule_counter()-1;
+}
+
+
 void haltestelle_t::step_all()
 {
 	static slist_tpl<halthandle_t>::iterator iter( alle_haltestellen.begin() );
