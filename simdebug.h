@@ -13,7 +13,7 @@
 
 
 // check assertions
-#undef NDEBUG
+//#undef NDEBUG
 //#define NDEBUG
 
 

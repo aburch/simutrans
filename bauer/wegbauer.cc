@@ -760,12 +760,12 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 
 		case wasser:
 		{
-			const weg_t *sch=to->get_weg(water_wt);
+			const weg_t *canal = to->get_weg(water_wt);
 			// if no way there: check for right ground type, otherwise check owner
-			ok = sch==NULL  ?  !fundament  :  check_owner(sch->get_besitzer(),sp);
+			ok = canal  ||  !fundament;
 			// calculate costs
 			if(ok) {
-				*costs = to->ist_wasser() || to->hat_weg(water_wt) ? s.way_count_straight : s.way_count_leaving_road; // prefer water very much
+				*costs = to->ist_wasser() ||  canal  ? s.way_count_straight : s.way_count_leaving_road; // prefer water very much
 				if(to->get_weg_hang()!=0  &&  !to_flat) {
 					*costs += s.way_count_slope * 2;
 				}

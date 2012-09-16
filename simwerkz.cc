@@ -1843,20 +1843,20 @@ uint8 wkz_wegebau_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord3d &
 			// here either channel or elevated way over not too deep water
 		}
 		// elevated ways have to check tile above
-		if (elevated) {
-			gr=welt->lookup(pos + koord3d(0,0,1));
-			if (gr == NULL) {
+		if(  elevated  ) {
+			gr = welt->lookup(pos + koord3d(0,0,1));
+			if(  gr == NULL  ) {
 				return 2;
 			}
-			if (gr->get_typ() != grund_t::monorailboden) {
+			if(  gr->get_typ() != grund_t::monorailboden  ) {
 				return 0;
 			}
 		}
 		// test if way already exists on the way and if we are allowed to connect
 		weg_t *way = gr->get_weg(besch->get_wtyp());
-		if(way) {
+		if(  way  ) {
 			// allow to connect to any road
-			if (besch->get_wtyp() == road_wt) {
+			if(  besch->get_wtyp() == road_wt  ||  besch->get_wtyp() == water_wt  ) {
 				return 2;
 			}
 			error = way->ist_entfernbar(sp);
