@@ -115,7 +115,7 @@ void reliefkarte_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoin
 	// ok, add this schedule to map
 	// from here on we have a valid convoi
 	int stops = 0;
-	uint8 old_offset, first_offset, temp_offset = 0;
+	uint8 old_offset = 0, first_offset = 0, temp_offset = 0;
 	koord old_stop, first_stop, temp_stop;
 	bool last_diagonal = false;
 	const bool add_schedule = fpl->get_waytype() != air_wt;
@@ -511,7 +511,7 @@ uint8 reliefkarte_t::calc_severity_color_log(sint32 amount, sint32 max_value)
 {
 	if(  max_value>1  ) {
 		sint32 severity;
-		if(  amount <= 0x003FFFFFu  ) {
+		if(  amount <= 0x003FFFFF  ) {
 			severity = log2( (uint32)( (amount << MAX_SEVERITY_COLORS) / (max_value+1) ) );
 		}
 		else {
@@ -1038,7 +1038,7 @@ bool reliefkarte_t::infowin_event(const event_t *ev)
 
 
 // helper function for finding nearby factory
-const fabrik_t* reliefkarte_t::get_fab( const koord pos, bool enlarge ) const
+const fabrik_t* reliefkarte_t::get_fab( const koord, bool enlarge ) const
 {
 	const fabrik_t *fab = fabrik_t::get_fab(welt, last_world_pos);
 	for(  int i=0;  i<4  && fab==NULL;  i++  ) {
@@ -1292,7 +1292,7 @@ void reliefkarte_t::zeichnen(koord pos)
 	// since the schedule whitens out the background, we have to draw it first
 	int offset = 1;
 	koord last_start(0,0), last_end(0,0), k1, k2;
-	bool diagonal;
+	bool diagonal = false;
 	if(  showing_schedule  ) {
 		// lighten background
 		if(  isometric  ) {
