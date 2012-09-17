@@ -5,7 +5,7 @@
 	ADD: river algorithm faster and river number automatically scaled with map size
 	CHG: proper support for non-rectangularly shaped factories, no dummy (0,0)-tiles
 	ADD: support for non-rectangular shaped station extensions, attractions, monuments
-	CHG: Allow to connect to channels built be anyone
+	CHG: Allow to connect to channels built by anyone
 
 
 Release of 111.3.1 (r5843 on 31-Jul-2012):

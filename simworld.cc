@@ -2994,6 +2994,10 @@ void karte_t::sync_step(long delta_t, bool sync, bool display )
 		// only omitted, when called to display a new frame during fast forward
 
 		// just for progress
+		if(  delta_t > 10000  ) {
+			dbg->error( "karte_t::sync_step()", "delta_t too large: %li", delta_t );
+			delta_t = 10000;
+		}
 		ticks += delta_t;
 
 		set_random_mode( INTERACTIVE_RANDOM );
@@ -3565,15 +3569,14 @@ void karte_t::step()
 	// first: check for new month
 	if(ticks > next_month_ticks) {
 
-		next_month_ticks += karte_t::ticks_per_world_month;
-
-		// avoid overflow here ...
-		if(ticks>next_month_ticks) {
+		if(  next_month_ticks > next_month_ticks+karte_t::ticks_per_world_month  ) {
+			// avoid overflow here ...
+			dbg->warning( "karte_t::step()", "Ticks were overflowing => resetted" );
 			ticks %= karte_t::ticks_per_world_month;
-			ticks += karte_t::ticks_per_world_month;
-			next_month_ticks = ticks+karte_t::ticks_per_world_month;
+			next_month_ticks %= karte_t::ticks_per_world_month;
 			last_step_ticks %= karte_t::ticks_per_world_month;
 		}
+		next_month_ticks += karte_t::ticks_per_world_month;
 
 		DBG_DEBUG4("karte_t::step", "calling neuer_monat");
 		neuer_monat();
@@ -3588,6 +3591,7 @@ void karte_t::step()
 
 		// needs plausibility check?!?
 		if(delta_t>10000  || delta_t<0) {
+			dbg->error( "karte_t::step()", "delta_t (%li) out of bounds!", delta_t );
 			last_step_ticks = ticks;
 			next_step_time = time+10;
 			return;
