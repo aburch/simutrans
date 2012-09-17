@@ -424,7 +424,7 @@ void depot_frame_t::layout(koord *gr)
 
 	bt_sell.set_pos(koord(DEPOT_FRAME_WIDTH*3/4+1, ACTIONS_VSTART));
 	bt_sell.set_groesse(koord(DEPOT_FRAME_WIDTH-DEPOT_FRAME_WIDTH*3/4-3, ABUTTON_HEIGHT));
-	bt_sell.set_text("Verkauf");
+	bt_sell.set_text("verkaufen");
 
 	/*
 	 * ACTIONS for new route management buttons
