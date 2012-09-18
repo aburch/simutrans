@@ -45,7 +45,7 @@ convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
 	this->cnv = cnv;
 	welt = cnv->get_welt();
 
-	sale_button.init(button_t::roundbox, "verkaufen", koord(BUTTON4_X, 0), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+	sale_button.init(button_t::roundbox, "Verkauf", koord(BUTTON4_X, 0), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	sale_button.set_tooltip("Remove vehicle from map. Use with care!");
 	sale_button.add_listener(this);
 	add_komponente(&sale_button);
