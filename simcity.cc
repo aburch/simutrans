@@ -1967,14 +1967,20 @@ class bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t
 	public:
 		bauplatz_mit_strasse_sucher_t(karte_t* welt) : bauplatz_sucher_t (welt) {}
 
-		// get distance to next factory
+		// get distance to next special building
 		int find_dist_next_special(koord pos) const
 		{
 			const weighted_vector_tpl<gebaeude_t*>& attractions = welt->get_ausflugsziele();
 			int dist = welt->get_groesse_x() * welt->get_groesse_y();
-			FOR(weighted_vector_tpl<gebaeude_t*>, const i, attractions) {
+			FOR(  weighted_vector_tpl<gebaeude_t*>, const i, attractions  ) {
 				int const d = koord_distance(i->get_pos(), pos);
-				if (d < dist) {
+				if(  d < dist  ) {
+					dist = d;
+				}
+			}
+			FOR(  weighted_vector_tpl<stadt_t *>, const city, welt->get_staedte() ) {
+				int const d = koord_distance(city->get_pos(), pos);
+				if(  d < dist  ) {
 					dist = d;
 				}
 			}
@@ -1989,19 +1995,52 @@ class bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t
 
 		virtual bool ist_platz_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const
 		{
-			if (bauplatz_sucher_t::ist_platz_ok(pos, b, h, cl)) {
+			if(  bauplatz_sucher_t::ist_platz_ok(pos, b, h, cl)  ) {
 				// nothing on top like elevated monorails?
 				for (sint16 y = pos.y;  y < pos.y + h; y++) {
 					for (sint16 x = pos.x; x < pos.x + b; x++) {
 						grund_t *gr = welt->lookup_kartenboden(koord(x,y));
-						if(gr->get_leitung()!=NULL  ||  welt->lookup(gr->get_pos()+koord3d(0,0,1))!=NULL) {
+						if(  gr->get_leitung()!=NULL  ||  welt->lookup(gr->get_pos()+koord3d(0,0,1)  )!=NULL) {
 							// something on top (monorail or powerlines)
 							return false;
 						}
 					}
 				}
+				// not direct next to factories or townhalls
+				for (sint16 y = pos.y-1;  y < pos.y + h+1; y++) {
+					if(  grund_t *gr = welt->lookup_kartenboden( koord(pos.x-1,y) )  ) {
+						if(  gebaeude_t *gb=gr->find<gebaeude_t>()  ) {
+							if(  gb->get_haustyp() > 0  &&  gb->get_haustyp() < 8  ) {
+								return false;
+							}
+						}
+					}
+					if(  grund_t *gr = welt->lookup_kartenboden( koord(pos.x+b,y) )  ) {
+						if(  gebaeude_t *gb=gr->find<gebaeude_t>()  ) {
+							if(  gb->get_haustyp() > 0  &&  gb->get_haustyp() < 8  ) {
+								return false;
+							}
+						}
+					}
+				}
+				for (sint16 x = pos.x; x < pos.x + b; x++) {
+					if(  grund_t *gr = welt->lookup_kartenboden( koord(x,pos.y-1) )  ) {
+						if(  gebaeude_t *gb=gr->find<gebaeude_t>()  ) {
+							if(  gb->get_haustyp() > 0  &&  gb->get_haustyp() < 8  ) {
+								return false;
+							}
+						}
+					}
+					if(  grund_t *gr = welt->lookup_kartenboden( koord(x,pos.y+h) )  ) {
+						if(  gebaeude_t *gb=gr->find<gebaeude_t>()  ) {
+							if(  gb->get_haustyp() > 0  &&  gb->get_haustyp() < 8  ) {
+								return false;
+							}
+						}
+					}
+				}
 				// try to built a little away from previous ones
-				if (find_dist_next_special(pos) < b + h + 1) {
+				if (find_dist_next_special(pos) < b + h + welt->get_settings().get_special_building_distance()  ) {
 					return false;
 				}
 				// now check for road connection

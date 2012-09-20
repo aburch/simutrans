@@ -65,6 +65,7 @@ private:
 	sint32 growthfactor_medium;
 	sint32 growthfactor_large;
 
+	sint16 special_building_distance;	// distance between attraction to factory or other special buildings
 	uint32 minimum_city_distance;
 	uint32 industry_increase;
 
@@ -402,6 +403,8 @@ public:
 
 	bool get_random_pedestrians() const { return fussgaenger; }
 	void set_random_pedestrians( bool f ) { fussgaenger = f; }
+
+	sint16 get_special_building_distance() const { return special_building_distance; }
 
 	sint16 get_factory_spacing() const { return factory_spacing; }
 	sint16 get_crossconnect_factor() const { return crossconnect_factor; }

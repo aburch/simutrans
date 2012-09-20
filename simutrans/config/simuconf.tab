@@ -418,6 +418,9 @@ toll_waycost_percentage = 0
 # minimum distance between two townhalls
 #minimum_city_distance = 16
 
+# Minimum distance of a city attraction to other special buildings
+#special_building_distance = 3
+
 # Max. length of initial intercity road connections
 # If you want to speed up map creation, lower this value.
 # If you want more initial intercity roads, raise this value.
