@@ -30,11 +30,11 @@ void factory_field_class_writer_t::write_obj(FILE* outfp, obj_node_t& parent, co
 
 void factory_field_group_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	obj_node_t node(this, 10, &parent);
+	obj_node_t node(this, 12, &parent);
 
 	uint16 field_classes;
 	if(  *obj.get("fields")  ) {
-		// old format with no square-bracketed subscripts
+		// format with no square-bracketed subscripts
 		field_classes = 1;
 		const char *field_name = obj.get("fields");
 		int snow_image = obj.get_int("has_snow", 1);
@@ -72,12 +72,14 @@ void factory_field_group_writer_t::write_obj(FILE* outfp, obj_node_t& parent, ta
 	uint16 const probability = obj.get_int("probability_to_spawn", 10); // 0,1 %
 	uint16 const max_fields  = obj.get_int("max_fields",           25);
 	uint16 const min_fields  = obj.get_int("min_fields",            5);
+	uint16 const start_fields  = obj.get_int("start_fields",            5);
 
-	node.write_uint16(outfp, 0x8002,        0); // version
+	node.write_uint16(outfp, 0x8003,        0); // version
 	node.write_uint16(outfp, probability,   2);
 	node.write_uint16(outfp, max_fields,    4);
 	node.write_uint16(outfp, min_fields,    6);
-	node.write_uint16(outfp, field_classes, 8);
+	node.write_uint16(outfp, start_fields,    8);
+	node.write_uint16(outfp, field_classes, 10);
 
 	node.write(outfp);
 }

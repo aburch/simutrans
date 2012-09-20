@@ -51,6 +51,7 @@ private:
 	uint16 probability;		// between 0 ...10000
 	uint16 max_fields;		// maximum number of fields around a single factory
 	uint16 min_fields;		// number of fields to start with
+	uint16 start_fields;	// spawn between min and start_fields fields
 	uint16 field_classes;	// number of field classes
 
 	weighted_vector_tpl<uint16> field_class_indices;
@@ -71,6 +72,7 @@ public:
 	uint16 get_probability() const { return probability; }
 	uint16 get_max_fields() const { return max_fields; }
 	uint16 get_min_fields() const { return min_fields; }
+	uint16 get_start_fields() const { return start_fields; }
 	uint16 get_field_class_count() const { return field_classes; }
 	field_class_besch_t const* get_field_class(uint16 const idx) const { return idx < field_classes ? get_child<field_class_besch_t>(idx) : 0; }
 	const weighted_vector_tpl<uint16> &get_field_class_indices() const { return field_class_indices; }

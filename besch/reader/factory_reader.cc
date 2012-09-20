@@ -68,14 +68,23 @@ obj_besch_t *factory_field_group_reader_t::read_node(FILE *fp, obj_node_info_t &
 	char * p = besch_buf;
 
 	uint16 v = decode_uint16(p);
-	if(  v==0x8002  ) {
+	if(  v==0x8003  ) {
+		besch->probability = rescale_probability( decode_uint16(p) );
+		besch->max_fields = decode_uint16(p);
+		besch->min_fields = decode_uint16(p);
+		besch->start_fields = decode_uint16(p);
+		besch->field_classes = decode_uint16(p);
+
+		DBG_DEBUG("factory_field_group_reader_t::read_node()", "probability %i, fields: max %i, min %i, field classes: %i", besch->probability, besch->max_fields, besch->min_fields, besch->field_classes);
+	}
+	else if(  v==0x8002  ) {
 		// Knightly : this version only store shared, common data
 		besch->probability = rescale_probability( decode_uint16(p) );
 		besch->max_fields = decode_uint16(p);
 		besch->min_fields = decode_uint16(p);
 		besch->field_classes = decode_uint16(p);
 
-		DBG_DEBUG("factory_field_group_reader_t::read_node()", "probability %i, fields: max %i, min %i, field classes: %i", besch->probability, besch->max_fields, besch->min_fields, besch->field_classes);
+		DBG_DEBUG("factory_field_group_reader_t::read_node()", "probability %i, fields: max %i, min %i, start %i, field classes: %i", besch->probability, besch->max_fields, besch->min_fields, besch->start_fields, besch->field_classes);
 	}
 	else if(  v==0x8001  ) {
 		/* Knightly :

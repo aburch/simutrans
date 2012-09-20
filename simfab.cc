@@ -715,8 +715,8 @@ void fabrik_t::baue(sint32 rotate, bool build_fields)
 
 	if(besch->get_field_group()) {
 		// if there are fields
-		if(!fields.empty()) {
-			for( uint16 i=0;  i<fields.get_count();  i++  ) {
+		if(  !fields.empty()  ) {
+			for(  uint16 i=0;  i<fields.get_count();  i++   ) {
 				const koord k = fields[i].location;
 				grund_t *gr=welt->lookup_kartenboden(k);
 				if(  gr->ist_natur()  ) {
@@ -732,11 +732,10 @@ void fabrik_t::baue(sint32 rotate, bool build_fields)
 				}
 			}
 		}
-		else {
-			if (build_fields) {
-				// we will start with a certain minimum number
-				while(fields.get_count()<besch->get_field_group()->get_min_fields()  &&  add_random_field(10000u))
-					;
+		else if(  build_fields  ) {
+			// we will start with a minimum number and try to get closer to start_fields
+			const uint16 spawn_fields = besch->get_field_group()->get_min_fields() + simrand( besch->get_field_group()->get_start_fields()-besch->get_field_group()->get_min_fields() );
+			while(  fields.get_count() < spawn_fields  &&  add_random_field(10000u)  ) {
 			}
 		}
 	}
