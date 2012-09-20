@@ -43,7 +43,7 @@ settings_t::settings_t() :
 	/* new setting since version 0.85.01
 	 * @author prissi
 	 */
-	land_industry_chains = 4;
+	factory_count = 12;
 	tourist_attractions = 16;
 
 	anzahl_staedte = 16;
@@ -292,7 +292,7 @@ void settings_t::rdwr(loadsave_t *file)
 		// to be compatible with previous savegames
 		dummy = 0;
 		file->rdwr_long(dummy );	//dummy!
-		land_industry_chains = 6;
+		factory_count = 12;
 		tourist_attractions = 12;
 
 		// now towns
@@ -325,7 +325,7 @@ void settings_t::rdwr(loadsave_t *file)
 		file->rdwr_long(nummer );
 
 		// industries
-		file->rdwr_long(land_industry_chains );
+		file->rdwr_long(factory_count );
 		if(file->get_version()<99018) {
 			uint32 dummy;	// was city chains
 			file->rdwr_long(dummy );

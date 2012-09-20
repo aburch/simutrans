@@ -47,7 +47,7 @@ private:
 	 * @author prissi
 	 * not used any more:    sint32 industrie_dichte;
 	 */
-	sint32 land_industry_chains;
+	sint32 factory_count;
 	sint32 electric_promille;
 	sint32 tourist_attractions;
 
@@ -325,8 +325,8 @@ public:
 
 	sint32 get_karte_nummer() const {return nummer;}
 
-	void set_land_industry_chains(sint32 d) {land_industry_chains=d;}
-	sint32 get_land_industry_chains() const {return land_industry_chains;}
+	void set_factory_count(sint32 d) { factory_count=d; }
+	sint32 get_factory_count() const {return factory_count;}
 
 	sint32 get_electric_promille() const {return electric_promille;}
 

@@ -80,7 +80,7 @@ welt_gui_t::welt_gui_t(karte_t* const welt, settings_t* const sets) :
 	this->sets->beginner_mode = umgebung_t::default_einstellungen.get_beginner_mode();
 
 	city_density = sets->get_anzahl_staedte() ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_anzahl_staedte() : 0.0;
-	industry_density = sets->get_land_industry_chains() ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_land_industry_chains() : 0.0;
+	industry_density = sets->get_factory_count() ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_factory_count() : 0.0;
 	attraction_density = sets->get_tourist_attractions() ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_tourist_attractions() : 0.0;
 	river_density = sets->get_river_number() ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_river_number() : 0.0;
 
@@ -181,7 +181,7 @@ welt_gui_t::welt_gui_t(karte_t* const welt, settings_t* const sets) :
 	inp_other_industries.set_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
 	inp_other_industries.add_listener(this);
 	inp_other_industries.set_limits(0,999);
-	inp_other_industries.set_value(abs(sets->get_land_industry_chains()) );
+	inp_other_industries.set_value(abs(sets->get_factory_count()) );
 	add_komponente( &inp_other_industries );
 	intTopOfButton += 12;
 
@@ -415,8 +415,8 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		inp_intercity_road_len.set_increment_mode( v.i>=1000 ? 100 : 20 );
 	}
 	else if(komp==&inp_other_industries) {
-		sets->set_land_industry_chains( v.i );
-		industry_density = sets->get_land_industry_chains() ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_land_industry_chains() : 0.0;
+		sets->set_factory_count( v.i );
+		industry_density = sets->get_factory_count() ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_factory_count() : 0.0;
 	}
 	else if(komp==&inp_tourist_attractions) {
 		sets->set_tourist_attractions( v.i );
@@ -626,7 +626,7 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 	y += 12;
 	display_proportional_clip(x, y, translator::translate("Intercity road len:"), ALIGN_LEFT, COL_BLACK, true);
 	y += 12;
-	display_proportional_clip(x, y, translator::translate("Land industries"), ALIGN_LEFT, COL_BLACK, true);
+	display_proportional_clip(x, y, translator::translate("No. of Factories"), ALIGN_LEFT, COL_BLACK, true);
 	y += 12;
 	display_proportional_clip(x, y, translator::translate("Tourist attractions"), ALIGN_LEFT, COL_BLACK, true);
 	y += 12+5;
