@@ -5672,7 +5672,6 @@ void karte_t::bewege_zeiger(const event_t *ev)
 						if(!is_dragging  &&  wkz->check_pos( this, get_active_player(), prev_pos )==NULL) {
 							const char* err = get_scenario()->is_work_allowed_here(get_active_player(), wkz->get_id(), wkz->get_waytype(), prev_pos);
 							if (err == NULL) {
-								wkz->move( this, get_active_player(), 1, prev_pos );
 								is_dragging = true;
 							}
 							else {

@@ -9,6 +9,7 @@
 	CHG: fieldd can now spawned in larger number than the initial min value
 	CHG: number of factories in new world dialog is now indeed the total number of factories (too many newbe mistakes here)
 	ADD: force a minimum distance between city attractions
+	ADD: Drag stops
 
 
 Release of 111.3.1 (r5843 on 31-Jul-2012):

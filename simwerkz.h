@@ -341,12 +341,14 @@ private:
 	const char *wkz_station_dock_aux( karte_t *, spieler_t *, koord3d, const haus_besch_t * );
 	const char *wkz_station_aux( karte_t *, spieler_t *, koord3d, const haus_besch_t *, waytype_t, sint64 cost, const char *halt_suffix );
 	const haus_besch_t *get_besch( sint8 &rotation ) const;
+
 public:
 	wkz_station_t() : werkzeug_t(WKZ_STATION | GENERAL_TOOL) {}
 	image_id get_icon(spieler_t*) const OVERRIDE;
 	char const* get_tooltip(spieler_t const*) const OVERRIDE;
 	bool init(karte_t*, spieler_t*) OVERRIDE;
 	char const* check_pos(karte_t*, spieler_t*, koord3d) OVERRIDE;
+	char const* move(karte_t*, spieler_t*, uint16 /* buttonstate */, koord3d) OVERRIDE;
 	char const* work(karte_t*, spieler_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
 	waytype_t get_waytype() const OVERRIDE;

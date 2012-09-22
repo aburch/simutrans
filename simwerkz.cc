@@ -3438,6 +3438,10 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 		gebaeude_t* gb = bd->find<gebaeude_t>();
 		const haus_besch_t *old_besch = gb->get_tile()->get_besch();
 		old_level = old_besch->get_level();
+		if(  old_besch == besch  ) {
+			// already has the same station
+			return NULL;
+		}
 		if(  old_besch->get_level() >= besch->get_level()  &&  !is_ctrl_pressed()  ) {
 			return "Upgrade must have\na higher level";
 		}
@@ -3555,7 +3559,6 @@ image_id wkz_station_t::get_icon( spieler_t * ) const
 }
 
 
-
 const char* wkz_station_t::get_tooltip(const spieler_t *sp) const
 {
 	sint8               dummy;
@@ -3608,6 +3611,7 @@ waytype_t wkz_station_t::get_waytype() const
 	}
 }
 
+
 const char *wkz_station_t::check_pos( karte_t *welt, spieler_t *sp, koord3d pos )
 {
 	const char *msg = werkzeug_t::check_pos(welt,sp, pos);
@@ -3623,6 +3627,37 @@ const char *wkz_station_t::check_pos( karte_t *welt, spieler_t *sp, koord3d pos 
 	}
 	return msg;
 }
+
+
+const char *wkz_station_t::move( karte_t *welt, spieler_t *sp, uint16 buttonstate, koord3d pos )
+{
+	CHECK_FUNDS();
+
+	const char *result = NULL;
+	if(  buttonstate==1  ) {
+		const planquadrat_t *plan = welt->lookup(pos.get_2d());
+		if(!plan) {
+			return "";
+		}
+
+		// ownership allowed?
+		halthandle_t halt = plan->get_halt();
+		if(halt.is_bound()  &&  !spieler_t::check_owner( sp, halt->get_besitzer())) {
+			return "";
+		}
+
+		if(  umgebung_t::networkmode  ) {
+			// queue tool for network
+			nwc_tool_t *nwc = new nwc_tool_t(sp, this, pos, welt->get_steps(), welt->get_map_counter(), false);
+			network_send_server(nwc);
+		}
+		else {
+			result = work( welt, sp, pos );
+		}
+	}
+	return result;
+}
+
 
 const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 {
