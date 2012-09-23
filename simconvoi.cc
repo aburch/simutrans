@@ -2748,7 +2748,7 @@ void convoi_t::calc_speedbonus_kmh()
 			total_weight = max( 1, total_weight/1000 );
 			total_max_weight = max( 1, total_max_weight/1000 );
 			// uses weight of full passenger, mail, and special goods cars and current weight of regular goods cars for convoi weight
-			speedbonus_kmh = total_power < total_max_weight ? 1 : min( cnv_min_top_kmh, sint32( sqrt_i32( ((1000l*total_power<<8)/total_max_weight-(1<<8))<<8)*50 >>8 ) );
+			speedbonus_kmh = total_power < total_max_weight ? 1 : min( cnv_min_top_kmh, sint32( sqrt_i32( ((total_power<<8)/total_max_weight-(1<<8))<<8)*50 >>8 ) );
 
 			// convoi overtakers use current actual weight for achievable speed
 			if(  front()->get_overtaker()  ) {
