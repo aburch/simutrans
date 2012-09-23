@@ -107,8 +107,8 @@ void init_map_win();
 // windows with a valid id can be saved and restored
 void rdwr_all_win(loadsave_t *file);
 
-int create_win(gui_frame_t*, wintype, long magic);
-int create_win(int x, int y, gui_frame_t*, wintype, long magic);
+int create_win(gui_frame_t*, wintype, size_t magic);
+int create_win(int x, int y, gui_frame_t*, wintype, size_t magic);
 
 bool check_pos_win(event_t*);
 
@@ -124,7 +124,7 @@ gui_komponente_t *win_get_focus();
 int win_get_open_count();
 
 // returns the window (if open) otherwise zero
-gui_frame_t *win_get_magic(long magic);
+gui_frame_t *win_get_magic(size_t magic);
 
 /**
  * Checks ifa window is a top level window
@@ -136,7 +136,7 @@ bool win_is_top(const gui_frame_t *ig);
 
 // return true if actually window was destroyed (or marked for destruction)
 bool destroy_win(const gui_frame_t *ig);
-bool destroy_win(const long magic);
+bool destroy_win(const size_t magic);
 
 void destroy_all_win(bool destroy_sticky);
 

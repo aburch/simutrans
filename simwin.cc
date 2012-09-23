@@ -90,7 +90,7 @@ public:
 	koord pos;         // Fensterposition
 	uint32 dauer;        // Wie lange soll das Fenster angezeigt werden ?
 	uint8 wt;	// the flags for the window type
-	long magic_number;	// either magic number or this pointer (which is unique too)
+	size_t magic_number;	// either magic number or this pointer (which is unique too)
 	gui_frame_t *gui;
 	bool closing;
 	bool sticky;	// true if window is sticky
@@ -361,7 +361,7 @@ static void win_draw_window_dragger(koord pos, koord gr)
 
 
 // returns the window (if open) otherwise zero
-gui_frame_t *win_get_magic(long magic)
+gui_frame_t *win_get_magic(size_t magic)
 {
 	if(magic!=-1  &&  magic!=0) {
 		// es kann nur ein fenster fuer jede pos. magic number geben
@@ -511,13 +511,13 @@ void rdwr_all_win(loadsave_t *file)
 
 
 
-int create_win(gui_frame_t* const gui, wintype const wt, long const magic)
+int create_win(gui_frame_t* const gui, wintype const wt, size_t const magic)
 {
 	return create_win( -1, -1, gui, wt, magic);
 }
 
 
-int create_win(int x, int y, gui_frame_t* const gui, wintype const wt, long const magic)
+int create_win(int x, int y, gui_frame_t* const gui, wintype const wt, size_t const magic)
 {
 	assert(gui!=NULL  &&  magic!=0);
 
@@ -688,7 +688,7 @@ static void destroy_framed_win(simwin_t *wins)
 
 
 
-bool destroy_win(const long magic)
+bool destroy_win(const size_t magic)
 {
 	const gui_frame_t *gui = win_get_magic(magic);
 	if(gui) {
