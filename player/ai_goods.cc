@@ -56,7 +56,7 @@ ai_goods_t::ai_goods_t(karte_t *wl, uint8 nr) : ai_t(wl,nr)
 
 	next_construction_steps = welt->get_steps()+ 50;
 
-	road_transport = nr!=6;
+	road_transport = nr!=7;
 	rail_transport = nr>2;
 	ship_transport = true;
 	air_transport = false;
@@ -127,14 +127,15 @@ bool ai_goods_t::set_active(bool new_state)
 bool ai_goods_t::get_factory_tree_lowest_missing( fabrik_t *fab )
 {
 	// now check for all products (should be changed later for the root)
-	for( int i=0;  i<fab->get_besch()->get_lieferanten();  i++  ) {
+	for(  int i=0;  i<fab->get_besch()->get_lieferanten();  i++  ) {
 		const ware_besch_t *ware = fab->get_besch()->get_lieferant(i)->get_ware();
 
 		// find out how much is there
 		const array_tpl<ware_production_t>& eingang = fab->get_eingang();
 		uint ware_nr;
-		for(  ware_nr=0;  ware_nr<eingang.get_count()  &&  eingang[ware_nr].get_typ()!=ware;  ware_nr++  ) ;
-		if(  eingang[ware_nr].menge > eingang[ware_nr].max/10  ) {
+		for(  ware_nr=0;  ware_nr<eingang.get_count()  &&  eingang[ware_nr].get_typ()!=ware;  ware_nr++  )
+			;
+		if(  eingang[ware_nr].menge > eingang[ware_nr].max/4  ) {
 			// already enough supplied to
 			continue;
 		}
@@ -142,32 +143,30 @@ bool ai_goods_t::get_factory_tree_lowest_missing( fabrik_t *fab )
 		FOR(vector_tpl<koord>, const& q, fab->get_suppliers()) {
 			fabrik_t* const qfab = fabrik_t::get_fab(welt, q);
 			const fabrik_besch_t* const fb = qfab->get_besch();
-			for (uint qq = 0; qq < fb->get_produkte(); qq++) {
-				if (fb->get_produkt(qq)->get_ware() == ware &&
-						!is_forbidden(qfab, fab, ware)          &&
-						!is_connected(q, fab->get_pos().get_2d(), ware)) {
+			for(  uint qq = 0;  qq < fb->get_produkte();  qq++  ) {
+				if(  fb->get_produkt(qq)->get_ware() == ware  &&
+					 !is_forbidden(qfab, fab, ware)  &&
+					 !is_connected(q, fab->get_pos().get_2d(), ware)  ) {
 					// find out how much is there
 					const array_tpl<ware_production_t>& ausgang = qfab->get_ausgang();
 					uint ware_nr;
 					for(ware_nr=0;  ware_nr<ausgang.get_count()  &&  ausgang[ware_nr].get_typ()!=ware;  ware_nr++  )
 						;
 					// ok, there is no connection and it is not banned, so we if there is enough for us
-					if(  ((ausgang[ware_nr].menge*4)/3) > ausgang[ware_nr].max  ) {
-						// bingo: soure
-						start = qfab;
-						ziel = fab;
-						freight = ware;
-						return true;
-					}
-					else {
-						// try something else ...
-						if(get_factory_tree_lowest_missing( qfab )) {
+					if(  ausgang[ware_nr].menge < 1+ausgang[ware_nr].max/8  ) {
+						// try better supplying this first
+						if(  qfab->get_suppliers().get_count()>0  &&  get_factory_tree_lowest_missing( qfab )) {
 							return true;
 						}
 					}
+					start = qfab;
+					ziel = fab;
+					freight = ware;
+					return true;
 				}
 			}
 		}
+		// completely supplied???
 	}
 	return false;
 }
@@ -304,7 +303,9 @@ bool ai_goods_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length 
 				koord3d_vector_t const& r = bauigel.get_route();
 				start = r.front().get_2d();
 				ziel  = r.back().get_2d();
-				if (!tile_list[0].is_contained(r.front())) sim::swap(start, ziel);
+				if(  !tile_list[0].is_contained(r.front())  ) {
+					sim::swap(start, ziel);
+				}
 				ok = true;
 				has_ziel = true;
 			}
@@ -635,6 +636,13 @@ bool ai_goods_t::create_simple_rail_transport()
 	wegbauer_t bauigel(welt, this);
 	bauigel.route_fuer( wegbauer_t::schiene|wegbauer_t::bot_flag, rail_weg, tunnelbauer_t::find_tunnel(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()) );
 	bauigel.set_keep_existing_ways(false);
+	// for stations
+	wegbauer_t bauigel1(welt, this);
+	bauigel1.route_fuer( wegbauer_t::schiene|wegbauer_t::bot_flag, rail_weg, tunnelbauer_t::find_tunnel(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()) );
+	bauigel1.set_keep_existing_ways(false);
+	wegbauer_t bauigel2(welt, this);
+	bauigel2.route_fuer( wegbauer_t::schiene|wegbauer_t::bot_flag, rail_weg, tunnelbauer_t::find_tunnel(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()) );
+	bauigel2.set_keep_existing_ways(false);
 
 	// first: make plain stations tiles as intended
 	sint8 z1 = max( welt->get_grundwasser()+1, welt->lookup_kartenboden(platz1)->get_hoehe() );
@@ -660,10 +668,8 @@ bool ai_goods_t::create_simple_rail_transport()
 		k += diff2;
 	}
 
-	bauigel.calc_route( koord3d(platz1,z1), koord3d(platz1+size1-diff1, z1));
-	bauigel.baue();
-	bauigel.calc_route( koord3d(platz2,z2), koord3d(platz2+size2-diff2, z2));
-	bauigel.baue();
+	bauigel1.calc_route( koord3d(platz1,z1), koord3d(platz1+size1-diff1, z1));
+	bauigel2.calc_route( koord3d(platz2,z2), koord3d(platz2+size2-diff2, z2));
 
 	vector_tpl<koord3d> starttiles, endtiles;
 	// now calc the route
@@ -674,16 +680,26 @@ bool ai_goods_t::create_simple_rail_transport()
 	bauigel.calc_route( starttiles, endtiles );
 	INT_CHECK("ai_goods 672");
 
+	if(  bauigel.calc_costs() > finance_history_month[0][COST_NETWEALTH]  ) {
+		// too expensive
+		return false;
+	}
+
 	// now try route with terraforming
 	wegbauer_t baumaulwurf(welt, this);
 	baumaulwurf.route_fuer( wegbauer_t::schiene|wegbauer_t::bot_flag|wegbauer_t::terraform_flag, rail_weg, tunnelbauer_t::find_tunnel(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()) );
 	baumaulwurf.set_keep_existing_ways(false);
 	baumaulwurf.calc_route( starttiles, endtiles );
 
+	// ok, costs seems ok => build
+	bauigel1.baue();
+	bauigel2.baue();
+
 	// build with terraforming if shorter and enough money is available
 	bool with_tf = (baumaulwurf.get_count() > 4)  &&  (10*baumaulwurf.get_count() < 9*bauigel.get_count()  ||  bauigel.get_count() <= 4);
-	if (with_tf) {
-		with_tf &= baumaulwurf.calc_costs() < konto;
+	if(  with_tf  &&  baumaulwurf.calc_costs() > finance_history_month[0][COST_NETWEALTH]  ) {
+		// too expensive
+		with_tf = false;
 	}
 
 	// now build with or without terraforming
@@ -695,7 +711,7 @@ bool ai_goods_t::create_simple_rail_transport()
 	}
 
 	// connect track to station
-	if(with_tf  ||  bauigel.get_count() > 4) {
+	if(  with_tf  ||  bauigel.get_count() > 4  ) {
 DBG_MESSAGE("ai_goods_t::create_simple_rail_transport()","building simple track from %d,%d to %d,%d",platz1.x, platz1.y, platz2.x, platz2.y);
 		// connect to track
 
@@ -721,13 +737,13 @@ DBG_MESSAGE("ai_goods_t::create_simple_rail_transport()","building simple track 
 	}
 	else {
 		// not ok: remove station ...
-		k=platz1;
+		k = platz1;
 		while(k!=size1+platz1) {
 			int cost = -welt->lookup_kartenboden(k)->weg_entfernen( track_wt, true );
 			buche(cost, k, COST_CONSTRUCTION);
 			k += diff1;
 		}
-		k=platz2;
+		k = platz2;
 		while(k!=size2+platz2) {
 			int cost = -welt->lookup_kartenboden(k)->weg_entfernen( track_wt, true );
 			buche(cost, k, COST_CONSTRUCTION);
@@ -755,7 +771,7 @@ void ai_goods_t::step()
 		return;
 	}
 
-	if(konto_ueberzogen>0) {
+	if( finance_history_month[0][COST_NETWEALTH] < starting_money/8  ) {
 		// nothing to do but to remove unneeded convois to gain some money
 		state = CHECK_CONVOI;
 	}
@@ -770,16 +786,16 @@ void ai_goods_t::step()
 			if(root==NULL) {
 				// find a tree root to complete
 				weighted_vector_tpl<fabrik_t *> start_fabs(20);
-				FOR(slist_tpl<fabrik_t*>, const fab, welt->get_fab_list()) {
+				FOR(  slist_tpl<fabrik_t*>, const fab, welt->get_fab_list()  ) {
 					// consumer and not completely overcrowded
-					if (!fab->get_besch()->is_consumer_only() && fab->get_status() != fabrik_t::bad) {
+					if(  fab->get_besch()->is_consumer_only()  &&  fab->get_status() != fabrik_t::bad  ) {
 						int missing = get_factory_tree_missing_count( fab );
-						if(missing>0) {
-							start_fabs.append( fab, 100/(missing+1)+1, 20 );
+						if(  missing>0  ) {
+							start_fabs.append( fab, 100/(missing+1)+1 );
 						}
 					}
 				}
-				if (!start_fabs.empty()) {
+				if(  !start_fabs.empty()  ) {
 					root = pick_any_weighted(start_fabs);
 				}
 			}
@@ -793,7 +809,7 @@ void ai_goods_t::step()
 		* last target also new target ...
 		*/
 		case NR_SAMMLE_ROUTEN:
-			if(get_factory_tree_lowest_missing(root)) {
+			if(  get_factory_tree_lowest_missing(root)  ) {
 				if(  start->get_besch()->get_platzierung()!=fabrik_besch_t::Wasser  ||  vehikelbauer_t::vehikel_search( water_wt, welt->get_timeline_year_month(), 0, 10, freight, false, false )!=NULL  ) {
 					DBG_MESSAGE("ai_goods_t::do_ki", "Consider route from %s (%i,%i) to %s (%i,%i)", start->get_name(), start->get_pos().x, start->get_pos().y, ziel->get_name(), ziel->get_pos().x, ziel->get_pos().y );
 					state = NR_BAUE_ROUTE1;
@@ -1175,7 +1191,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 		// remove stucked vehicles (only from roads!)
 		case CHECK_CONVOI:
 		{
-			next_construction_steps = welt->get_steps() + simrand( ai_t::construction_speed ) + 25;
+			next_construction_steps = welt->get_steps() + (1+konto_ueberzogen>0)*simrand( ai_t::construction_speed ) + 25;
 
 			for (size_t i = welt->convoys().get_count(); i-- != 0;) {
 				convoihandle_t const cnv = welt->convoys()[i];
@@ -1417,8 +1433,7 @@ void ai_goods_t::rdwr(loadsave_t *file)
 			fabconnection_t *fc = new fabconnection_t(0,0,0);
 			fc->rdwr(file);
 			// @author Bernd Gabriel, Jan 01, 2010: Don't add, if fab or ware no longer in the game.
-			if (fc->fab1  &&  fc->fab2  &&  fc->ware)
-			{
+			if(  fc->fab1  &&  fc->fab2  &&  fc->ware  ) {
 				forbidden_connections.append(fc);
 			}
 			else {
@@ -1427,7 +1442,7 @@ void ai_goods_t::rdwr(loadsave_t *file)
 		}
 	}
 	// save harbour position
-	if (file->get_version() > 110000) {
+	if(  file->get_version() > 110000  ) {
 		harbour.rdwr(file);
 	}
 }
