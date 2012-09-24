@@ -930,7 +930,7 @@ void karte_t::create_rivers( sint16 number )
 
 		// build a list of matchin targets
 		vector_tpl<koord> valid_water_tiles;
-		for(  sint32 i=0;  i<water_tiles.get_count();  i++  ) {
+		for(  uint32 i=0;  i<water_tiles.get_count();  i++  ) {
 			sint16 dist = koord_distance(start,water_tiles[i]);
 			if(  settings.get_min_river_length() < dist  &&  dist < settings.get_max_river_length()  ) {
 				valid_water_tiles.append( water_tiles[i] );
@@ -1457,7 +1457,7 @@ DBG_DEBUG("karte_t::init()","built timeline");
 	// new system ...
 	int const max_display_progress = 16 + settings.get_anzahl_staedte() * 4 + settings.get_factory_count();
 	int chains_retry = 1 + settings.get_factory_count()/4;
-	while(  fab_list.get_count() < settings.get_factory_count()  ) {
+	while(  fab_list.get_count() < (uint32)settings.get_factory_count()  ) {
 		if(  !fabrikbauer_t::increase_industry_density( this, false )  ) {
 			// building industry chain should fail max 10 times
 			if(  chains_retry-- > 0  ) {

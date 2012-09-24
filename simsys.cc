@@ -536,7 +536,7 @@ const char *dr_get_locale_string()
 	};
 	const uint16 current_id = (0x000000FFFFul & GetThreadLocale());
 
-	for(  int i=0;  i<lengthof(id2str)  &&  id2str[i].id<=current_id;  i++  ) {
+	for(  size_t i=0;  i<lengthof(id2str)  &&  id2str[i].id<=current_id;  i++  ) {
 		if(  id2str[i].id == current_id  ) {
 			return id2str[i].name;
 		}

@@ -104,7 +104,7 @@ void line_management_gui_t::rdwr(loadsave_t *file)
 			// now we can open the window ...
 			koord const& pos = win_get_pos(this);
 			line_management_gui_t *w = new line_management_gui_t( line, sp );
-			create_win(pos.x, pos.y, w, w_info, (long)line.get_rep());
+			create_win(pos.x, pos.y, w, w_info, (ptrdiff_t)line.get_rep());
 			w->set_fenstergroesse( gr );
 			w->fpl->copy_from( fpl );
 		}

@@ -183,7 +183,7 @@ void help_frame_t::set_helpfile(const char *filename, bool resize_frame )
 		// and the actual help text (if not identical)
 		if(  const char *buf = load_text( filename )  ) {
 			set_text( buf, resize_frame );
-			guarded_free( (void *)buf );
+			guarded_free(const_cast<char *>(buf));
 		}
 		else {
 			set_text( "<title>Error</title>Help text not found", resize_frame );
@@ -193,11 +193,11 @@ void help_frame_t::set_helpfile(const char *filename, bool resize_frame )
 		// default text when opening general help
 		if(  const char *buf = load_text( "about.txt" )  ) {
 			set_text( buf, resize_frame );
-			guarded_free( (void *)buf );
+			guarded_free(const_cast<char *>(buf));
 		}
 		else if(  const char *buf = load_text( "simutrans.txt" )  ) {
 			set_text( buf, resize_frame );
-			guarded_free( (void *)buf );
+			guarded_free(const_cast<char *>(buf));
 		}
 		else {
 			set_text( "", resize_frame );

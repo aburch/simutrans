@@ -239,7 +239,7 @@ bool fabrik_info_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		char key[256];
 		sprintf(key, "factory_%s_details", fab->get_besch()->get_name());
 		frame->set_text(translator::translate(key));
-		create_win(frame, w_info, (long)this);
+		create_win(frame, w_info, (ptrdiff_t)this);
 	}
 	else if(v.i&~1) {
 		koord k = *(const koord *)v.p;

@@ -130,7 +130,7 @@ spieler_t::~spieler_t()
 	while(  !messages.empty()  ) {
 		delete messages.remove_first();
 	}
-	destroy_win( (long)this );
+	destroy_win((ptrdiff_t)this);
 }
 
 

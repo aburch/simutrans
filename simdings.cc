@@ -83,7 +83,7 @@ ding_t::ding_t(karte_t *wl, koord3d pos)
 // removes an object and tries to delete it also from the corresponding dinglist
 ding_t::~ding_t()
 {
-	destroy_win((long)this);
+	destroy_win((ptrdiff_t)this);
 
 	if(flags&not_on_map  ||  !welt->ist_in_kartengrenzen(pos.get_2d())) {
 		return;
@@ -166,7 +166,7 @@ void ding_t::info(cbuffer_t & buf) const
 
 void ding_t::zeige_info()
 {
-	create_win( new ding_infowin_t(this), w_info, (long)this);
+	create_win( new ding_infowin_t(this), w_info, (ptrdiff_t)this);
 }
 
 

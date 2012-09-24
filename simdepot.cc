@@ -60,7 +60,7 @@ depot_t::depot_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_tile_besc
 
 depot_t::~depot_t()
 {
-	destroy_win((long)this);
+	destroy_win((ptrdiff_t)this);
 	all_depots.remove(this);
 }
 
@@ -161,7 +161,7 @@ void depot_t::convoi_arrived(convoihandle_t acnv, bool fpl_adjust)
 	}
 	// this part stores the convoi in the depot
 	convois.append(acnv);
-	depot_frame_t *depot_frame = dynamic_cast<depot_frame_t *>(win_get_magic( (long)this ));
+	depot_frame_t *depot_frame = dynamic_cast<depot_frame_t *>(win_get_magic( (ptrdiff_t)this ));
 	if(depot_frame) {
 		depot_frame->action_triggered(NULL,(long int)0);
 	}
@@ -172,7 +172,7 @@ void depot_t::convoi_arrived(convoihandle_t acnv, bool fpl_adjust)
 
 void depot_t::zeige_info()
 {
-	create_win( new depot_frame_t(this), w_info, (long)this );
+	create_win( new depot_frame_t(this), w_info, (ptrdiff_t)this );
 }
 
 
@@ -242,7 +242,7 @@ convoihandle_t depot_t::add_convoi()
 	convoi_t* new_cnv = new convoi_t(get_besitzer());
 	new_cnv->set_home_depot(get_pos());
 	convois.append(new_cnv->self);
-	depot_frame_t *win = dynamic_cast<depot_frame_t *>(win_get_magic( (long)this ));
+	depot_frame_t *win = dynamic_cast<depot_frame_t *>(win_get_magic( (ptrdiff_t)this ));
 	if(  win  ) {
 		win->activate_convoi( new_cnv->self );
 	}
@@ -286,7 +286,7 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv)
 		}
 
 		// make this the current selected convoi
-		depot_frame_t *win = dynamic_cast<depot_frame_t *>(win_get_magic( (long)this ));
+		depot_frame_t *win = dynamic_cast<depot_frame_t *>(win_get_magic( (ptrdiff_t)this ));
 		if(  win  ) {
 			win->activate_convoi( new_cnv );
 		}
@@ -317,7 +317,7 @@ bool depot_t::disassemble_convoi(convoihandle_t cnv, bool sell)
 		if (convois.remove(cnv)) {
 			// actually removed cnv from depot, here icnv>=0
 			// make another the current selected convoi
-			depot_frame_t *win = dynamic_cast<depot_frame_t *>(win_get_magic( (long)this ));
+			depot_frame_t *win = dynamic_cast<depot_frame_t *>(win_get_magic( (ptrdiff_t)this ));
 			if(  win  ) {
 				win->activate_convoi( !convois.empty() ? convois.at( min((uint32)icnv, convois.get_count()-1) ) : convoihandle_t() );
 			}
@@ -337,7 +337,7 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 	if(cnv.is_bound() &&  cnv->get_schedule()!=NULL) {
 		if(!cnv->get_schedule()->ist_abgeschlossen()) {
 			// close the schedule window
-			destroy_win((long)cnv->get_schedule());
+			destroy_win((ptrdiff_t)cnv->get_schedule());
 		}
 	}
 
@@ -378,7 +378,7 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 			if (convois.remove(cnv)) {
 				// actually removed cnv from depot, here icnv>=0
 				// make another convoi the current selected one
-				depot_frame_t *win = dynamic_cast<depot_frame_t *>(win_get_magic( (long)this ));
+				depot_frame_t *win = dynamic_cast<depot_frame_t *>(win_get_magic( (ptrdiff_t)this ));
 				if(  win  ) {
 					if (local_execution) {
 						// change state of depot window only for local execution
@@ -535,7 +535,7 @@ vehikel_t* depot_t::get_oldest_vehicle(const vehikel_besch_t* besch)
 void depot_t::set_selected_line(const linehandle_t sel_line)
 {
 	selected_line = sel_line;
-	depot_frame_t *win = dynamic_cast<depot_frame_t *>(win_get_magic( (long)this ));
+	depot_frame_t *win = dynamic_cast<depot_frame_t *>(win_get_magic( (ptrdiff_t)this ));
 	if(  win  ) {
 		win->layout(NULL);
 		win->update_data();
@@ -551,7 +551,7 @@ linehandle_t depot_t::get_selected_line()
 
 void depot_t::update_win()
 {
-	depot_frame_t *depot_frame = dynamic_cast<depot_frame_t *>(win_get_magic( (long)this ));
+	depot_frame_t *depot_frame = dynamic_cast<depot_frame_t *>(win_get_magic( (ptrdiff_t)this ));
 	if(depot_frame) {
 		depot_frame->build_vehicle_lists();
 	}

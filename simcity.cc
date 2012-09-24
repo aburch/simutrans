@@ -964,7 +964,7 @@ void stadt_t::factory_set_t::resolve_factories()
 stadt_t::~stadt_t()
 {
 	// close info win
-	destroy_win((long)this);
+	destroy_win((ptrdiff_t)this);
 
 	if(  reliefkarte_t::get_karte()->get_city() == this  ) {
 		reliefkarte_t::get_karte()->set_city(NULL);
@@ -1350,7 +1350,7 @@ void stadt_t::set_name(const char *new_name)
 	if(gr) {
 		gr->set_text( new_name );
 	}
-	stadt_info_t *win = dynamic_cast<stadt_info_t*>(win_get_magic((long)this));
+	stadt_info_t *win = dynamic_cast<stadt_info_t*>(win_get_magic((ptrdiff_t)this));
 	if (win) {
 		win->update_data();
 	}
@@ -1363,7 +1363,7 @@ void stadt_t::set_name(const char *new_name)
  */
 void stadt_t::zeige_info(void)
 {
-	create_win( new stadt_info_t(this), w_info, (long)this );
+	create_win( new stadt_info_t(this), w_info, (ptrdiff_t)this );
 }
 
 

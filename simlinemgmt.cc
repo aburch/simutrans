@@ -32,7 +32,7 @@ simlinemgmt_t::simlinemgmt_t(karte_t* welt)
 
 simlinemgmt_t::~simlinemgmt_t()
 {
-	destroy_win( (long)this );
+	destroy_win((ptrdiff_t)this);
 	// and delete all lines ...
 	while (!all_managed_lines.empty()) {
 		linehandle_t line = all_managed_lines.back();

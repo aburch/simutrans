@@ -701,7 +701,7 @@ fabrik_t::~fabrik_t()
 		fields.pop_back();
 	}
 	// destroy chart window, if present
-	destroy_win( (long)this );
+	destroy_win((ptrdiff_t)this);
 }
 
 
@@ -906,7 +906,7 @@ void fabrik_t::set_name(const char *new_name)
 		name = new_name;
 	}
 
-	fabrik_info_t *win = dynamic_cast<fabrik_info_t*>(win_get_magic((long)this));
+	fabrik_info_t *win = dynamic_cast<fabrik_info_t*>(win_get_magic((ptrdiff_t)this));
 	if (win) {
 		win->update_info();
 	}
@@ -1907,7 +1907,7 @@ void fabrik_t::recalc_factory_status()
 void fabrik_t::zeige_info()
 {
 	gebaeude_t *gb = welt->lookup(pos)->find<gebaeude_t>();
-	create_win(new fabrik_info_t(this, gb), w_info, (long)this );
+	create_win(new fabrik_info_t(this, gb), w_info, (ptrdiff_t)this );
 }
 
 

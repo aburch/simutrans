@@ -390,7 +390,7 @@ bool halt_list_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* 
 		}
 		else {
 			filter_frame = new halt_list_filter_frame_t(m_sp, this);
-			create_win(filter_frame, w_info, (long)this);
+			create_win(filter_frame, w_info, (ptrdiff_t)this);
 		}
 	}
 	return true;

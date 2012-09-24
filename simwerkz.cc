@@ -1706,12 +1706,12 @@ static const char *wkz_fahrplan_insert_aux(karte_t *welt, spieler_t *sp, koord3d
 
 const char *wkz_fahrplan_add_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 {
-	return wkz_fahrplan_insert_aux( welt, sp, k, (schedule_t *)default_param, true );
+	return wkz_fahrplan_insert_aux( welt, sp, k, (schedule_t*)const_cast<char *>(default_param), true );
 }
 
 const char *wkz_fahrplan_ins_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 {
-	return wkz_fahrplan_insert_aux( welt, sp, k, (schedule_t *)default_param, false );
+	return wkz_fahrplan_insert_aux( welt, sp, k, (schedule_t*)const_cast<char *>(default_param), false );
 }
 
 
@@ -3855,14 +3855,14 @@ bool wkz_roadsign_t::init( karte_t *welt, spieler_t * sp)
 	read_default_param(sp);
 
 	if (is_ctrl_pressed()  &&  is_local_execution()) {
-		create_win(new signal_spacing_frame_t(sp, this), w_info, (long)this);
+		create_win(new signal_spacing_frame_t(sp, this), w_info, (ptrdiff_t)this);
 	}
 	return two_click_werkzeug_t::init(welt, sp);
 }
 
 bool wkz_roadsign_t::exit( karte_t *welt, spieler_t *sp )
 {
-	destroy_win((long)this);
+	destroy_win((ptrdiff_t)this);
 	return two_click_werkzeug_t::exit(welt,sp);
 }
 
@@ -5792,7 +5792,7 @@ bool wkz_change_line_t::init( karte_t *, spieler_t *sp )
 				}
 				line->get_schedule()->sscanf_schedule( p );
 				if (is_local_execution()) {
-					fahrplan_gui_t *fg = dynamic_cast<fahrplan_gui_t *>(win_get_magic(t));
+					fahrplan_gui_t *fg = dynamic_cast<fahrplan_gui_t *>(win_get_magic((ptrdiff_t)t));
 					if(  fg  ) {
 						fg->init_line_selector();
 					}
@@ -5802,7 +5802,7 @@ bool wkz_change_line_t::init( karte_t *, spieler_t *sp )
 					}
 					// no schedule window open => then open one
 					if(  fg==NULL  ) {
-						create_win( new line_management_gui_t(line, sp), w_info, (long)line.get_rep() );
+						create_win( new line_management_gui_t(line, sp), w_info, (ptrdiff_t)line.get_rep() );
 					}
 				}
 			}
@@ -5812,7 +5812,7 @@ bool wkz_change_line_t::init( karte_t *, spieler_t *sp )
 			{
 				if (line.is_bound()  &&  line->count_convoys()==0) {
 					// close a schedule window, if still active
-					gui_frame_t *w = win_get_magic( (long)line.get_rep() );
+					gui_frame_t *w = win_get_magic( (ptrdiff_t)line.get_rep() );
 					if(w) {
 						destroy_win( w );
 					}
@@ -5910,9 +5910,9 @@ bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 				linehandle_t selected_line = depot->get_besitzer()->simlinemgmt.create_line(depot->get_line_type(),depot->get_besitzer());
 				if (is_local_execution()) {
 					depot->set_selected_line(selected_line);
-					depot_frame_t *depot_frame = dynamic_cast<depot_frame_t *>(win_get_magic( (long)depot ));
+					depot_frame_t *depot_frame = dynamic_cast<depot_frame_t *>(win_get_magic( (ptrdiff_t)depot ));
 					if(  welt->get_active_player()==sp  &&  depot_frame  ) {
-						create_win(new line_management_gui_t(selected_line, depot->get_besitzer()), w_info, (long)selected_line.get_rep() );
+						create_win(new line_management_gui_t(selected_line, depot->get_besitzer()), w_info, (ptrdiff_t)selected_line.get_rep() );
 					}
 				}
 				DBG_MESSAGE("depot_frame_t::new_line()","id=%d",selected_line.get_id() );
@@ -6127,13 +6127,13 @@ bool wkz_change_traffic_light_t::init( karte_t *welt, spieler_t *sp )
 				}
 				// update the window
 				if(  rs->get_besch()->is_traffic_light()  ) {
-					trafficlight_info_t* trafficlight_win = (trafficlight_info_t*)win_get_magic((long)rs);
+					trafficlight_info_t* trafficlight_win = (trafficlight_info_t*)win_get_magic((ptrdiff_t)rs);
 					if (trafficlight_win) {
 						trafficlight_win->update_data();
 					}
 				}
 				else {
-					privatesign_info_t* trafficlight_win = (privatesign_info_t*)win_get_magic((long)rs);
+					privatesign_info_t* trafficlight_win = (privatesign_info_t*)win_get_magic((ptrdiff_t)rs);
 					if (trafficlight_win) {
 						trafficlight_win->update_data();
 					}
@@ -6163,7 +6163,7 @@ bool wkz_change_city_t::init( karte_t *welt, spieler_t * )
 			stadt_t *st = gb->get_stadt();
 			if (st) {
 				st->set_citygrowth_yesno(allow_growth);
-				stadt_info_t *stinfo = dynamic_cast<stadt_info_t*>(win_get_magic((long)st));
+				stadt_info_t *stinfo = dynamic_cast<stadt_info_t*>(win_get_magic((ptrdiff_t)st));
 				if (stinfo) {
 					stinfo->update_data();
 				}

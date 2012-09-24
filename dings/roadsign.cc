@@ -149,10 +149,10 @@ DBG_MESSAGE("roadsign_t::set_dir()","ribi %i",dir);
 void roadsign_t::zeige_info()
 {
 	if(  besch->is_private_way()  ) {
-		create_win(new privatesign_info_t(this), w_info, (long)this );
+		create_win(new privatesign_info_t(this), w_info, (ptrdiff_t)this );
 	}
 	else if(  automatic  ) {
-		create_win(new trafficlight_info_t(this), w_info, (long)this );
+		create_win(new trafficlight_info_t(this), w_info, (ptrdiff_t)this );
 	}
 	else {
 		ding_t::zeige_info();

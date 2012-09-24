@@ -992,7 +992,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 		if(komp == &bt_start) {
 			if(  cnv.is_bound()  ) {
 				//first: close schedule (will update schedule on clients)
-				destroy_win( (long)cnv->get_schedule() );
+				destroy_win( (ptrdiff_t)cnv->get_schedule() );
 				// only then call the tool to start
 				depot->call_depot_tool( 'b', cnv, NULL );
 			}
@@ -1042,7 +1042,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 			return true;
 		} else if(komp == &bt_change_line) {
 			if(selected_line.is_bound()) {
-				create_win(new line_management_gui_t(selected_line, depot->get_besitzer()), w_info, (long)selected_line.get_rep() );
+				create_win(new line_management_gui_t(selected_line, depot->get_besitzer()), w_info, (ptrdiff_t)selected_line.get_rep() );
 			}
 			return true;
 		} else if(komp == &bt_copy_convoi) {
@@ -1121,7 +1121,7 @@ bool depot_frame_t::infowin_event(const event_t *ev)
 			destroy_win( this );
 
 			next_dep->zeige_info();
-			win_set_pos(win_get_magic((long)next_dep), pos.x, pos.y);
+			win_set_pos(win_get_magic((ptrdiff_t)next_dep), pos.x, pos.y);
 			get_welt()->change_world_position(next_dep->get_pos());
 		}
 		else {
@@ -1287,7 +1287,7 @@ void depot_frame_t::fahrplaneingabe()
 		// this can happen locally, since any update of the schedule is done during closing window
 		schedule_t *fpl = cnv->create_schedule();
 		assert(fpl!=NULL);
-		gui_frame_t *fplwin = win_get_magic((long)fpl);
+		gui_frame_t *fplwin = win_get_magic((ptrdiff_t)fpl);
 		if(   fplwin==NULL  ) {
 			cnv->open_schedule_window( get_welt()->get_active_player()==cnv->get_besitzer() );
 		}

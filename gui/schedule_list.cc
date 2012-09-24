@@ -363,7 +363,7 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t 
 {
 	if (komp == &bt_change_line) {
 		if (line.is_bound()) {
-			create_win( new line_management_gui_t(line, sp), w_info, (long)line.get_rep() );
+			create_win( new line_management_gui_t(line, sp), w_info, (ptrdiff_t)line.get_rep() );
 		}
 	}
 	else if (komp == &bt_new_line) {

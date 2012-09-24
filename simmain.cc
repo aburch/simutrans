@@ -168,7 +168,7 @@ static void show_times(karte_t *welt, karte_ansicht_t *view)
 	dbg->message( "view->display(true) and flush", "%i iterations took %li ms", i, dr_time() - ms );
 
  	ms = dr_time();
- 	for (i = 0; i < 40000000/weg_t::get_alle_wege().get_count(); i++) {
+ 	for (i = 0; i < 40000000/(int)weg_t::get_alle_wege().get_count(); i++) {
 		FOR( slist_tpl<weg_t *>, const w, weg_t::get_alle_wege() ) {
 			grund_t *dummy;
 			welt->lookup( w->get_pos() )->get_neighbour( dummy, invalid_wt, ribi_t::nord );
@@ -186,7 +186,7 @@ static void show_times(karte_t *welt, karte_ansicht_t *view)
 
 
 
-void modal_dialogue( gui_frame_t *gui, long magic, karte_t *welt, bool (*quit)() )
+void modal_dialogue( gui_frame_t *gui, size_t magic, karte_t *welt, bool (*quit)() )
 {
 	if(  display_get_width()==0  ) {
 		dbg->error( "modal_dialogue()", "called without a display driver => nothing will be shown!" );
