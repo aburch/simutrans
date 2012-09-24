@@ -8,6 +8,8 @@
 #ifndef simwin_h
 #define simwin_h
 
+#include <stddef.h> // for ptrdiff_t
+
 #include "simtypes.h"
 #include "simconst.h"
 
