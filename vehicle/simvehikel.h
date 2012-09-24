@@ -349,7 +349,7 @@ public:
 	/**
 	 * Rotate freight target coordinates, has to be called after rotating factories.
 	 */
-	void rotate90_freight_destinations();
+	void rotate90_freight_destinations(const sint16 y_size);
 
 	/**
 	* berechnet die gesamtmenge der beförderten waren

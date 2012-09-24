@@ -642,11 +642,11 @@ void vehikel_t::rotate90()
 }
 
 
-void vehikel_t::rotate90_freight_destinations()
+void vehikel_t::rotate90_freight_destinations(const sint16 y_size)
 {
 	// now rotate the freight
 	FOR(slist_tpl<ware_t>, & tmp, fracht) {
-		tmp.rotate90(welt, welt->get_groesse_y()-1 );
+		tmp.rotate90(welt, y_size );
 	}
 }
 
