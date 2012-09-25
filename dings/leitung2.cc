@@ -9,6 +9,8 @@
 #if MULTI_THREAD>1
 #include <pthread.h>
 static pthread_mutex_t verbinde_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t pumpe_list_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t senke_list_mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
 #include "leitung2.h"
@@ -369,18 +371,17 @@ void leitung_t::info(cbuffer_t & buf) const
 void leitung_t::laden_abschliessen()
 {
 #if MULTI_THREAD>1
-	pthread_mutex_lock( &verbinde_mutex  );
+	pthread_mutex_lock( &verbinde_mutex );
 #endif
 	verbinde();
 	calc_neighbourhood();
+#if MULTI_THREAD>1
+	pthread_mutex_unlock( &verbinde_mutex );
+#endif
 	grund_t *gr = welt->lookup(get_pos());
 	assert(gr);
 
 	spieler_t::add_maintenance(get_besitzer(), besch->get_wartung());
-
-#if MULTI_THREAD>1
-	pthread_mutex_unlock( &verbinde_mutex  );
-#endif
 }
 
 
@@ -537,7 +538,13 @@ void pumpe_t::laden_abschliessen()
 			fab->set_transformer_connected( true );
 		}
 	}
+#if MULTI_THREAD>1
+	pthread_mutex_lock( &pumpe_list_mutex );
+#endif
 	pumpe_list.insert( this );
+#if MULTI_THREAD>1
+	pthread_mutex_unlock( &pumpe_list_mutex );
+#endif
 
 	set_bild(skinverwaltung_t::pumpe->get_bild_nr(0));
 	is_crossing = false;
@@ -732,8 +739,14 @@ void senke_t::laden_abschliessen()
 			fab->set_transformer_connected( true );
 		}
 	}
+#if MULTI_THREAD>1
+	pthread_mutex_lock( &senke_list_mutex );
+#endif
 	senke_list.insert( this );
-	welt->sync_add(this);
+#if MULTI_THREAD>1
+	pthread_mutex_unlock( &senke_list_mutex );
+#endif
+	welt->sync_add_ts(this);
 
 	set_bild(skinverwaltung_t::senke->get_bild_nr(0));
 	is_crossing = false;

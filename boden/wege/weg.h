@@ -143,6 +143,11 @@ public:
 	/* seasonal image recalculation */
 	bool check_season(const long /*month*/);
 
+#if MULTI_THREAD>1
+	void lock_mutex();
+	void unlock_mutex();
+#endif
+
 	/* actual image recalculation */
 	void calc_bild();
 

@@ -31,7 +31,6 @@ pillar_t::pillar_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 }
 
 
-
 pillar_t::pillar_t(karte_t *welt, koord3d pos, spieler_t *sp, const bruecke_besch_t *besch, bruecke_besch_t::img_t img, int hoehe) : ding_t(welt, pos)
 {
 	this->besch = besch;
@@ -64,6 +63,7 @@ void pillar_t::calc_bild()
 	bild = hide ? IMG_LEER : besch->get_hintergrund((bruecke_besch_t::img_t)dir, get_pos().z >= welt->get_snowline());
 }
 
+
 /**
  * @return Einen Beschreibungsstring fuer das Objekt, der z.B. in einem
  * Beobachtungsfenster angezeigt wird.
@@ -82,7 +82,6 @@ void pillar_t::zeige_info()
 		}
 	}
 }
-
 
 
 void pillar_t::rdwr(loadsave_t *file)
@@ -115,7 +114,6 @@ void pillar_t::rdwr(loadsave_t *file)
 		asymmetric = besch && besch->has_pillar_asymmetric();
 	}
 }
-
 
 
 void pillar_t::rotate90()

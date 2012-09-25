@@ -530,7 +530,6 @@ bool baum_t::check_season(long month)
 }
 
 
-
 void baum_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t d( file, "baum_t" );
@@ -597,7 +596,6 @@ void baum_t::zeige_info()
 }
 
 
-
 /**
  * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
  * Beobachtungsfenster angezeigt wird.
@@ -614,7 +612,6 @@ void baum_t::info(cbuffer_t & buf) const
 }
 
 
-
 void baum_t::entferne(spieler_t *sp)
 {
 	spieler_t::accounting(sp, welt->get_settings().cst_remove_tree, get_pos().get_2d(), COST_CONSTRUCTION);
@@ -622,12 +619,10 @@ void baum_t::entferne(spieler_t *sp)
 }
 
 
-
 void *baum_t::operator new(size_t /*s*/)
 {
 	return freelist_t::gimme_node(sizeof(baum_t));
 }
-
 
 
 void baum_t::operator delete(void *p)

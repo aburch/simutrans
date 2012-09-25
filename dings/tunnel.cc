@@ -24,7 +24,10 @@
 
 #include "tunnel.h"
 
-
+#if MULTI_THREAD>1
+#include <pthread.h>
+static pthread_mutex_t tunnel_calc_bild_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER;
+#endif
 
 
 tunnel_t::tunnel_t(karte_t* const welt, loadsave_t* const file) : ding_no_info_t(welt)
@@ -55,6 +58,9 @@ waytype_t tunnel_t::get_waytype() const
 
 void tunnel_t::calc_bild()
 {
+#if MULTI_THREAD>1
+	pthread_mutex_lock( &tunnel_calc_bild_mutex );
+#endif
 	const grund_t *gr = welt->lookup(get_pos());
 	if(gr->ist_karten_boden()) {
 		hang_t::typ hang = gr->get_grund_hang();
@@ -87,6 +93,9 @@ void tunnel_t::calc_bild()
 		set_bild( IMG_LEER );
 		set_after_bild( IMG_LEER );
 	}
+#if MULTI_THREAD>1
+	pthread_mutex_unlock( &tunnel_calc_bild_mutex );
+#endif
 }
 
 
@@ -115,7 +124,6 @@ void tunnel_t::rdwr(loadsave_t *file)
 }
 
 
-
 void tunnel_t::laden_abschliessen()
 {
 	const grund_t *gr = welt->lookup(get_pos());
@@ -142,7 +150,6 @@ void tunnel_t::laden_abschliessen()
 }
 
 
-
 // correct speed and maintenance
 void tunnel_t::entferne( spieler_t *sp2 )
 {
@@ -166,6 +173,7 @@ void tunnel_t::entferne( spieler_t *sp2 )
 	spieler_t::accounting(sp2, -besch->get_preis(), get_pos().get_2d(), COST_CONSTRUCTION );
 }
 
+
 void tunnel_t::set_bild( image_id b )
 {
 	mark_image_dirty( bild, get_yoff() );
@@ -173,12 +181,14 @@ void tunnel_t::set_bild( image_id b )
 	bild = b;
 }
 
+
 void tunnel_t::set_after_bild( image_id b )
 {
 	mark_image_dirty( after_bild, get_yoff() );
 	mark_image_dirty( b, get_yoff() );
 	after_bild = b;
 }
+
 
 // returns NULL, if removal is allowed
 // players can remove public owned ways

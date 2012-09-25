@@ -63,8 +63,7 @@ roadsign_t::roadsign_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
 }
 
 
-
-roadsign_t::roadsign_t(karte_t *welt, spieler_t *sp, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t *besch) :  ding_t(welt, pos)
+roadsign_t::roadsign_t(karte_t *welt, spieler_t *sp, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t *besch) : ding_t(welt, pos)
 {
 	this->besch = besch;
 	this->dir = dir;
@@ -90,7 +89,6 @@ roadsign_t::roadsign_t(karte_t *welt, spieler_t *sp, koord3d pos, ribi_t::ribi d
 }
 
 
-
 roadsign_t::~roadsign_t()
 {
 	if(  besch  &&  (besch->is_single_way()  ||  besch->is_signal_type())  ) {
@@ -110,7 +108,6 @@ roadsign_t::~roadsign_t()
 		welt->sync_remove(this);
 	}
 }
-
 
 
 void roadsign_t::set_dir(ribi_t::ribi dir)
@@ -191,8 +188,7 @@ void roadsign_t::info(cbuffer_t & buf) const
 }
 
 
-
-// coulb be still better aligned for drive_left settings ...
+// could be still better aligned for drive_left settings ...
 void roadsign_t::calc_bild()
 {
 	set_flag(ding_t::dirty);
@@ -587,7 +583,7 @@ void roadsign_t::laden_abschliessen()
 	}
 	// only traffic light need switches
 	if(automatic) {
-		welt->sync_add( this );
+		welt->sync_add_ts( this );
 	}
 }
 

@@ -24,6 +24,10 @@
 
 #include "crossing.h"
 
+#if MULTI_THREAD>1
+#include <pthread.h>
+static pthread_mutex_t crossing_logic_mutex = PTHREAD_MUTEX_INITIALIZER;
+#endif
 
 
 crossing_t::crossing_t(karte_t* const welt, loadsave_t* const file) : ding_no_info_t(welt)
@@ -32,7 +36,6 @@ crossing_t::crossing_t(karte_t* const welt, loadsave_t* const file) : ding_no_in
 	logic = NULL;
 	rdwr(file);
 }
-
 
 
 crossing_t::crossing_t(karte_t* const welt, spieler_t* const sp, koord3d const pos, kreuzung_besch_t const* const besch, uint8 const ns) : ding_no_info_t(welt, pos)
@@ -69,7 +72,6 @@ void crossing_t::rotate90()
 }
 
 
-
 // changed state: mark dirty
 void crossing_t::state_changed()
 {
@@ -79,7 +81,6 @@ void crossing_t::state_changed()
 }
 
 
-
 /**
  * Dient zur Neuberechnung des Bildes
  * @author Hj. Malthaner
@@ -87,7 +88,13 @@ void crossing_t::state_changed()
 void crossing_t::calc_bild()
 {
 	if(logic) {
+#if MULTI_THREAD>1
+		pthread_mutex_lock( &crossing_logic_mutex );
+#endif
 		zustand = logic->get_state();
+#if MULTI_THREAD>1
+		pthread_mutex_unlock( &crossing_logic_mutex );
+#endif
 	}
 	const bool snow_image = get_pos().z >= welt->get_snowline();
 	// recalc bild each step ...
@@ -104,7 +111,6 @@ void crossing_t::calc_bild()
 	}
 	bild = b ? b->get_nummer() : IMG_LEER;
 }
-
 
 
 void crossing_t::rdwr(loadsave_t *file)
@@ -158,8 +164,6 @@ void crossing_t::rdwr(loadsave_t *file)
 }
 
 
-
-
 /**
  * Wird nach dem Laden der Welt aufgerufen - üblicherweise benutzt
  * um das Aussehen des Dings an Boden und Umgebung anzupassen
@@ -184,8 +188,14 @@ void crossing_t::laden_abschliessen()
 		w1->count_sign();
 		w2->count_sign();
 		ns = ribi_t::ist_gerade_ns(w2->get_ribi_unmasked());
+#if MULTI_THREAD>1
+		pthread_mutex_lock( &crossing_logic_mutex );
+#endif
 		crossing_logic_t::add( welt, this, static_cast<crossing_logic_t::crossing_state_t>(zustand) );
 		logic->recalc_state();
+#if MULTI_THREAD>1
+		pthread_mutex_unlock( &crossing_logic_mutex );
+#endif
 	}
 }
 

@@ -19,6 +19,7 @@
 
 #if MULTI_THREAD>1
 #include <pthread.h>
+static pthread_mutex_t sync_list_mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
 #include "simcity.h"
@@ -153,6 +154,7 @@ void karte_t::world_y_loop(y_loop_func function)
 			// here some more sophicsticated error handling would be fine ...
 		}
 	}
+	pthread_attr_destroy(&attr);
 
 	// the last we do alone ...
 	(this->*function)( ((MULTI_THREAD-1)*cached_groesse_gitter_y)/MULTI_THREAD, cached_groesse_gitter_y );
@@ -2959,6 +2961,24 @@ bool karte_t::sync_add(sync_steppable *obj)
 	else {
 		sync_list.append( obj );
 	}
+	return true;
+}
+
+
+bool karte_t::sync_add_ts(sync_steppable *obj)
+{
+#if MULTI_THREAD>1
+			pthread_mutex_lock( &sync_list_mutex );
+#endif
+	if(  sync_step_running  ) {
+		sync_add_list.insert( obj );
+	}
+	else {
+		sync_list.append( obj );
+	}
+#if MULTI_THREAD>1
+			pthread_mutex_unlock( &sync_list_mutex );
+#endif
 	return true;
 }
 

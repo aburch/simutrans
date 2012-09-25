@@ -40,7 +40,10 @@ void bruecke_t::calc_bild()
 	grund_t *gr=welt->lookup(get_pos());
 	if(gr) {
 		// if we are on the bridge, put the image into the ground, so we can have two ways ...
-		if(weg_t *weg0 = gr->get_weg_nr(0)) {
+		if(  weg_t *weg0 = gr->get_weg_nr(0)  ) {
+#if MULTI_THREAD>1
+			weg0->lock_mutex();
+#endif
 			if(img>=bruecke_besch_t::N_Start  &&  img<=bruecke_besch_t::W_Start) {
 				// must take the upper value for the start of the bridge
 				weg0->set_bild(besch->get_hintergrund(img, get_pos().z+1 >= welt->get_snowline()));
@@ -52,9 +55,18 @@ void bruecke_t::calc_bild()
 
 			weg0->set_after_bild(IMG_LEER);
 			weg0->set_flag(ding_t::dirty);
+#if MULTI_THREAD>1
+			weg0->unlock_mutex();
+#endif
 
-			if (gr->get_weg_nr(1)) {
-				gr->get_weg_nr(1)->set_yoff(-gr->get_weg_yoff() );
+			if(  weg_t *weg1 = gr->get_weg_nr(1)  ) {
+#if MULTI_THREAD>1
+				weg1->lock_mutex();
+#endif
+				weg1->set_yoff(-gr->get_weg_yoff() );
+#if MULTI_THREAD>1
+				weg1->unlock_mutex();
+#endif
 			}
 		}
 		set_yoff( -gr->get_weg_yoff() );
@@ -162,6 +174,7 @@ static bruecke_besch_t::img_t rotate90_img[12]= {
 	bruecke_besch_t::O_Rampe, bruecke_besch_t::W_Rampe, bruecke_besch_t::S_Rampe, bruecke_besch_t::N_Rampe,
 	bruecke_besch_t::OW_Pillar, bruecke_besch_t::NS_Pillar
 };
+
 
 void bruecke_t::rotate90()
 {

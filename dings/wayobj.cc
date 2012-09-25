@@ -41,6 +41,11 @@
 #include "tunnel.h"
 #include "wayobj.h"
 
+#if MULTI_THREAD>1
+#include <pthread.h>
+static pthread_mutex_t wayobj_calc_bild_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER;
+#endif
+
 // the descriptions ...
 const way_obj_besch_t *wayobj_t::default_oberleitung=NULL;
 stringhashtable_tpl<const way_obj_besch_t *> wayobj_t::table;
@@ -60,7 +65,6 @@ wayobj_t::wayobj_t(karte_t* const welt, koord3d const pos, spieler_t* const besi
 	dir = d;
 	set_besitzer(besitzer);
 }
-
 
 
 wayobj_t::~wayobj_t()
@@ -127,8 +131,6 @@ wayobj_t::~wayobj_t()
 }
 
 
-
-
 void wayobj_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t t( file, "wayobj_t" );
@@ -168,9 +170,7 @@ void wayobj_t::rdwr(loadsave_t *file)
 }
 
 
-
-void
-wayobj_t::entferne(spieler_t *sp)
+void wayobj_t::entferne(spieler_t *sp)
 {
 	if(besch) {
 		spieler_t::accounting(sp, -besch->get_preis(), get_pos().get_2d(), COST_CONSTRUCTION);
@@ -178,9 +178,7 @@ wayobj_t::entferne(spieler_t *sp)
 }
 
 
-
-void
-wayobj_t::laden_abschliessen()
+void wayobj_t::laden_abschliessen()
 {
 	// (re)set dir
 	if(dir==255) {
@@ -192,9 +190,6 @@ wayobj_t::laden_abschliessen()
 		else {
 			dir = ribi_t::alle;
 		}
-	}
-	else {
-		set_dir(dir);
 	}
 
 	// electrify a way if we are a catenary
@@ -216,10 +211,7 @@ wayobj_t::laden_abschliessen()
 	if(get_besitzer()) {
 		spieler_t::add_maintenance(get_besitzer(), besch->get_wartung());
 	}
-
-	calc_bild();
 }
-
 
 
 void wayobj_t::rotate90()
@@ -247,10 +239,12 @@ ribi_t::ribi wayobj_t::find_next_ribi(const grund_t *start, const koord dir, con
 
 void wayobj_t::calc_bild()
 {
+#if MULTI_THREAD>1
+	pthread_mutex_lock( &wayobj_calc_bild_mutex );
+#endif
 	grund_t *gr = welt->lookup(get_pos());
 	diagonal = false;
 	if(gr) {
-
 		const waytype_t wt = (besch->get_wtyp()==tram_wt) ? track_wt : besch->get_wtyp();
 		weg_t *w=gr->get_weg(wt);
 		if(!w) {
@@ -259,6 +253,9 @@ void wayobj_t::calc_bild()
 			entferne(get_besitzer());
 			delete this;
 			gr->set_flag(grund_t::dirty);
+#if MULTI_THREAD>1
+			pthread_mutex_unlock( &wayobj_calc_bild_mutex );
+#endif
 			return;
 		}
 
@@ -268,6 +265,9 @@ void wayobj_t::calc_bild()
 		// if there is a slope, we are finished, only four choices here (so far)
 		hang = gr->get_weg_hang();
 		if(hang!=hang_t::flach) {
+#if MULTI_THREAD>1
+			pthread_mutex_unlock( &wayobj_calc_bild_mutex );
+#endif
 			return;
 		}
 
@@ -341,6 +341,9 @@ void wayobj_t::calc_bild()
 			}
 		}
 	}
+#if MULTI_THREAD>1
+	pthread_mutex_unlock( &wayobj_calc_bild_mutex );
+#endif
 }
 
 
@@ -415,7 +418,6 @@ static bool compare_wayobj_besch(const way_obj_besch_t* a, const way_obj_besch_t
 }
 
 
-
 bool wayobj_t::alles_geladen()
 {
 	if(table.empty()) {
@@ -434,7 +436,6 @@ bool wayobj_t::alles_geladen()
 
 	return true;
 }
-
 
 
 bool wayobj_t::register_besch(way_obj_besch_t *besch)
@@ -466,8 +467,6 @@ bool wayobj_t::register_besch(way_obj_besch_t *besch)
 DBG_DEBUG( "wayobj_t::register_besch()","%s", besch->get_name() );
 	return true;
 }
-
-
 
 
 /**
@@ -502,7 +501,6 @@ void wayobj_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 /*sound
 		wzw->add_werkzeug(i->get_builder());
 	}
 }
-
 
 
 const way_obj_besch_t *wayobj_t::wayobj_search(waytype_t wt,waytype_t own,uint16 time)

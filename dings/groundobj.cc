@@ -50,6 +50,7 @@ bool compare_groundobj_besch(const groundobj_besch_t* a, const groundobj_besch_t
 	return strcmp(a->get_name(), b->get_name())<0;
 }
 
+
 bool groundobj_t::alles_geladen()
 {
 	groundobj_typen.resize(besch_names.get_count());
@@ -69,7 +70,6 @@ bool groundobj_t::alles_geladen()
 }
 
 
-
 bool groundobj_t::register_besch(groundobj_besch_t *besch)
 {
 	assert(besch->get_speed()==0);
@@ -80,8 +80,6 @@ bool groundobj_t::register_besch(groundobj_besch_t *besch)
 	besch_names.put(besch->get_name(), besch );
 	return true;
 }
-
-
 
 
 /* also checks for distribution values
@@ -162,12 +160,10 @@ void groundobj_t::calc_bild()
 }
 
 
-
 groundobj_t::groundobj_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 {
 	rdwr(file);
 }
-
 
 
 groundobj_t::groundobj_t(karte_t *welt, koord3d pos, const groundobj_besch_t *b ) : ding_t(welt, pos)
@@ -176,7 +172,6 @@ groundobj_t::groundobj_t(karte_t *welt, koord3d pos, const groundobj_besch_t *b 
 	groundobjtype = groundobj_typen.index_of(b);
 	calc_bild();
 }
-
 
 
 bool groundobj_t::check_season(long )
@@ -188,7 +183,6 @@ bool groundobj_t::check_season(long )
 	}
 	return true;
 }
-
 
 
 void groundobj_t::rdwr(loadsave_t *file)
@@ -216,7 +210,6 @@ void groundobj_t::rdwr(loadsave_t *file)
 }
 
 
-
 /**
  * Öffnet ein neues Beobachtungsfenster für das Objekt.
  * @author Hj. Malthaner
@@ -227,7 +220,6 @@ void groundobj_t::zeige_info()
 		ding_t::zeige_info();
 	}
 }
-
 
 
 /**
@@ -252,7 +244,6 @@ void groundobj_t::info(cbuffer_t & buf) const
 }
 
 
-
 void groundobj_t::entferne(spieler_t *sp)
 {
 	spieler_t::accounting(sp, -get_besch()->get_preis(), get_pos().get_2d(), COST_CONSTRUCTION);
@@ -260,12 +251,10 @@ void groundobj_t::entferne(spieler_t *sp)
 }
 
 
-
 void *groundobj_t::operator new(size_t /*s*/)
 {
 	return freelist_t::gimme_node(sizeof(groundobj_t));
 }
-
 
 
 void groundobj_t::operator delete(void *p)

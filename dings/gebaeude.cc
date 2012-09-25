@@ -11,7 +11,9 @@
 #if MULTI_THREAD>1
 #include <pthread.h>
 static pthread_mutex_t sync_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t add_to_city_mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
+
 
 #include "../bauer/hausbauer.h"
 #include "../gui/money_frame.h"
@@ -262,27 +264,27 @@ void gebaeude_t::set_tile( const haus_tile_besch_t *new_tile, bool start_with_co
 		if(new_tile->get_phasen()<=1  &&  !zeige_baugrube) {
 			// need to stop animation
 #if MULTI_THREAD>1
-			pthread_mutex_lock( &sync_mutex  );
+			pthread_mutex_lock( &sync_mutex );
 #endif
 			welt->sync_eyecandy_remove(this);
 			sync = false;
 			count = 0;
 #if MULTI_THREAD>1
-			pthread_mutex_unlock( &sync_mutex  );
+			pthread_mutex_unlock( &sync_mutex );
 #endif
 		}
 	}
 	else if(new_tile->get_phasen()>1  ||  zeige_baugrube) {
 		// needs now animation
 #if MULTI_THREAD>1
-		pthread_mutex_lock( &sync_mutex  );
+		pthread_mutex_lock( &sync_mutex );
 #endif
 		count = sim_async_rand(new_tile->get_phasen());
 		anim_time = 0;
 		welt->sync_eyecandy_add(this);
 		sync = true;
 #if MULTI_THREAD>1
-		pthread_mutex_unlock( &sync_mutex  );
+		pthread_mutex_unlock( &sync_mutex );
 #endif
 	}
 	tile = new_tile;
@@ -871,8 +873,6 @@ void gebaeude_t::rdwr(loadsave_t *file)
  */
 void gebaeude_t::laden_abschliessen()
 {
-	calc_bild();
-
 	spieler_t::add_maintenance(get_besitzer(), welt->get_settings().maint_building * tile->get_besch()->get_level());
 
 	// citybuilding, but no town?
@@ -880,7 +880,13 @@ void gebaeude_t::laden_abschliessen()
 		if(  tile->get_besch()->is_connected_with_town()  ) {
 			stadt_t *city = (ptr.stadt==NULL) ? welt->suche_naechste_stadt( get_pos().get_2d() ) : ptr.stadt;
 			if(city) {
+#if MULTI_THREAD>1
+				pthread_mutex_lock( &add_to_city_mutex );
+#endif
 				city->add_gebaeude_to_stadt(this);
+#if MULTI_THREAD>1
+				pthread_mutex_unlock( &add_to_city_mutex );
+#endif
 			}
 		}
 		else if(  !is_factory  ) {
