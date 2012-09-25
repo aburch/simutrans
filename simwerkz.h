@@ -167,7 +167,7 @@ public:
 	bool is_init_network_save() const OVERRIDE { return true; }
 };
 
-// buy a house to protext it from renovating
+// buy a house to protect it from renovating
 class wkz_buy_house_t : public kartenboden_werkzeug_t {
 public:
 	wkz_buy_house_t() : kartenboden_werkzeug_t(WKZ_BUY_HOUSE | GENERAL_TOOL) {}
@@ -662,7 +662,9 @@ public:
 		return faktor>0 ? translator::translate("Accelerate time") : translator::translate("Deccelerate time");
 	}
 	bool init( karte_t *welt, spieler_t * ) {
-		welt->change_time_multiplier( atoi(default_param) );
+		if(  !umgebung_t::networkmode  ) {
+			welt->change_time_multiplier( atoi(default_param) );
+		}
 		return false;
 	}
 };
@@ -855,8 +857,10 @@ public:
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("5LIGHT_CHOOSE"); }
 	bool is_selected(karte_t const* const welt) const OVERRIDE { return welt->get_settings().get_show_pax(); }
 	bool init( karte_t *welt, spieler_t * ) {
-		settings_t& s = welt->get_settings();
-		s.set_show_pax(!s.get_show_pax());
+		if( !umgebung_t::networkmode) {
+			settings_t& s = welt->get_settings();
+			s.set_show_pax(!s.get_show_pax());
+		}
 		return false;
 	}
 	bool exit( karte_t *w, spieler_t *s ) { return init(w,s); }
@@ -869,8 +873,10 @@ public:
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("6LIGHT_CHOOSE"); }
 	bool is_selected(karte_t const* const welt) const OVERRIDE { return welt->get_settings().get_random_pedestrians(); }
 	bool init( karte_t *welt, spieler_t * ) {
-		settings_t& s = welt->get_settings();
-		s.set_random_pedestrians(!s.get_random_pedestrians());
+		if( !umgebung_t::networkmode) {
+			settings_t& s = welt->get_settings();
+			s.set_random_pedestrians(!s.get_random_pedestrians());
+		}
 		return false;
 	}
 	bool exit( karte_t *w, spieler_t *s ) { return init(w,s); }
@@ -928,8 +934,10 @@ public:
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("6WORLD_CHOOSE"); }
 	bool is_selected(karte_t const*) const OVERRIDE { return false; }
 	bool init( karte_t *welt, spieler_t * ) {
-		assert(  default_param  );
-		welt->get_settings().set_verkehr_level(atoi(default_param));
+		if( !umgebung_t::networkmode) {
+			assert(  default_param  );
+			welt->get_settings().set_verkehr_level(atoi(default_param));
+		}
 		return false;
 	}
 	bool is_init_network_save() const OVERRIDE { return false; }

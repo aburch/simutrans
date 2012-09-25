@@ -4849,6 +4849,9 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 const char *wkz_lock_game_t::work( karte_t *welt, spieler_t *, koord3d )
 {
 	// tool can never be executed in network mode
+	if (umgebung_t::networkmode) {
+		return "";
+	}
 	// as the result depends on the local locked state of public player
 	if (welt->get_spieler(1)->is_locked() || !welt->get_settings().get_allow_player_change()) {
 		return "Only public player can lock games!";

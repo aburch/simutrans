@@ -968,6 +968,25 @@ network_broadcast_world_command_t* nwc_tool_t::clone(karte_t *welt)
 			dbg->warning("nwc_tool_t::clone", "wanted to execute(%d) from another world", get_id());
 			return NULL; // indicate failure
 		}
+		// do not open dialog windows across network
+		if (wkz_id & DIALOGE_TOOL) {
+			return NULL; // indicate failure
+		}
+		// check for map editor tools - they need unlocked public player
+		switch( wkz_id ) {
+			case WKZ_CHANGE_CITY_SIZE | GENERAL_TOOL:
+			case WKZ_BUILD_HAUS | GENERAL_TOOL:
+			case WKZ_LAND_CHAIN | GENERAL_TOOL:
+			case WKZ_CITY_CHAIN | GENERAL_TOOL:
+			case WKZ_BUILD_FACTORY | GENERAL_TOOL:
+			case WKZ_LINK_FACTORY | GENERAL_TOOL:
+			case WKZ_ADD_CITYCAR | GENERAL_TOOL:
+			case WKZ_INCREASE_INDUSTRY | SIMPLE_TOOL:
+			case WKZ_STEP_YEAR | SIMPLE_TOOL:
+			case WKZ_FILL_TREES | SIMPLE_TOOL:
+				player_nr = 1;
+			default: ;
+		}
 		if ( player_nr < PLAYER_UNOWNED  &&  !socket_list_t::get_client(our_client_id).is_player_unlocked(player_nr) ) {
 			if (wkz_id == (WKZ_ADD_MESSAGE_TOOL|SIMPLE_TOOL)) {
 				player_nr = PLAYER_UNOWNED;
