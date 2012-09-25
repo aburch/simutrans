@@ -246,7 +246,10 @@ public:
 
 	virtual const char *get_tooltip(const spieler_t *) const { return NULL; }
 
-	// returning false on init will automatically invoke previous tool
+	/**
+	 * Returning false on init will automatically invoke previous tool.
+	 * Returning true will select tool and will make it possible to call work.
+	 */
 	virtual bool init( karte_t *, spieler_t * ) { return true; }
 
 	/// initializes cursor (icon, marked area)

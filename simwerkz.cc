@@ -3516,7 +3516,7 @@ bool wkz_station_t::init( karte_t *welt, spieler_t * )
 	cursor = hb->get_cursor()->get_bild_nr(0);
 	if(  !is_local_execution()  ) {
 		// do not change cursor
-		return false;
+		return true;
 	}
 	if(  hb->get_utyp()==haus_besch_t::generic_extension  &&  hb->get_all_layouts()>1  ) {
 		if(  is_ctrl_pressed()  &&  rotation==-1  ) {
@@ -4867,6 +4867,7 @@ const char *wkz_lock_game_t::work( karte_t *welt, spieler_t *, koord3d )
 	return NULL;
 }
 
+
 const char *wkz_add_citycar_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 {
 	if( stadtauto_t::list_empty() ) {
@@ -4885,11 +4886,13 @@ const char *wkz_add_citycar_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 	return "";
 }
 
+
 uint8 wkz_forest_t::is_valid_pos( karte_t *, spieler_t *, const koord3d &, const char *&, const koord3d & )
 {
 	// do really nothing ...
 	return 2;
 }
+
 
 void wkz_forest_t::mark_tiles( karte_t *welt, spieler_t *, const koord3d &start, const koord3d &end )
 {

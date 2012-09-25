@@ -400,7 +400,7 @@ private:
 		 * mimics void karte_t::local_set_werkzeug(werkzeug_t *, spieler_t *)
 		 * deletes wkz_new if wkz_new->init() returns false and store is false
 		 */
-		void client_set_werkzeug(werkzeug_t * &wkz_new, const char* default_param_, bool store, karte_t*, spieler_t*);
+		void client_set_werkzeug(werkzeug_t * &wkz_new, const char* default_param_, karte_t*, spieler_t*);
 
 		/**
 		 * @return true if ids (player_id and client_id) of both tool_node_t's are equal
