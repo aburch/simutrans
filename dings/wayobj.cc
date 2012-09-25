@@ -43,7 +43,7 @@
 
 #if MULTI_THREAD>1
 #include <pthread.h>
-static pthread_mutex_t wayobj_calc_bild_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER;
+static pthread_mutex_t wayobj_calc_bild_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 #endif
 
 // the descriptions ...
@@ -51,12 +51,10 @@ const way_obj_besch_t *wayobj_t::default_oberleitung=NULL;
 stringhashtable_tpl<const way_obj_besch_t *> wayobj_t::table;
 
 
-
 wayobj_t::wayobj_t(karte_t* const welt, loadsave_t* const file) : ding_no_info_t(welt)
 {
 	rdwr(file);
 }
-
 
 
 wayobj_t::wayobj_t(karte_t* const welt, koord3d const pos, spieler_t* const besitzer, ribi_t::ribi const d, way_obj_besch_t const* const b) : ding_no_info_t(welt, pos)

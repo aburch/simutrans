@@ -8,6 +8,7 @@
 #include "../simdebug.h"
 #include "powernet.h"
 
+
 slist_tpl<powernet_t *> powernet_t::powernet_list;
 
 
@@ -24,14 +25,12 @@ void powernet_t::neue_karte()
 }
 
 
-
 void powernet_t::step_all(long delta_t)
 {
 	FOR(slist_tpl<powernet_t*>, const p, powernet_list) {
 		p->step(delta_t);
 	}
 }
-
 
 
 powernet_t::powernet_t()
@@ -45,12 +44,10 @@ powernet_t::powernet_t()
 }
 
 
-
 powernet_t::~powernet_t()
 {
 	powernet_list.remove( this );
 }
-
 
 
 void powernet_t::step(long delta_t)
