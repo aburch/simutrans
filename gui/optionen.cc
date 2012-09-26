@@ -139,11 +139,7 @@ bool optionen_gui_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 	else if(comp==&bt_load_scenario) {
 		destroy_win(this);
 		destroy_all_win(true);
-		char path[1024];
-		sprintf( path, "%s%sscenario/", umgebung_t::program_dir, umgebung_t::objfilename.c_str() );
-		chdir( path );
 		create_win( new scenario_frame_t(welt), w_info, magic_load_t );
-		chdir( umgebung_t::user_dir );
 	}
 	else if(comp==&bt_save) {
 		destroy_win(this);

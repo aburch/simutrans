@@ -26,8 +26,7 @@
 void scenario_frame_t::action(const char *filename)
 {
 	scenario_t *scn = new scenario_t(welt);
-	char path[1024];
-	sprintf( path, "%s%sscenario/%s", umgebung_t::program_dir, umgebung_t::objfilename.c_str(), filename );
+	path.append(filename);
 	const char* err = scn->init( path, welt );
 	if (err == NULL) {
 		// start the game
@@ -46,6 +45,9 @@ void scenario_frame_t::action(const char *filename)
 scenario_frame_t::scenario_frame_t(karte_t *welt) : savegame_frame_t(".nut","./")
 {
 	this->welt = welt;
+	path.printf("%s%sscenario/", umgebung_t::program_dir, umgebung_t::objfilename.c_str() );
+	// set search path
+	fullpath = path;
 	set_name(translator::translate("Load scenario"));
 	set_focus(NULL);
 }

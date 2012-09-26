@@ -480,13 +480,9 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		create_win( new loadsave_frame_t(welt, true), w_info, magic_load_t);
 	}
 	else if(komp==&load_scenario) {
-		char path[1024];
-		sprintf( path, "%s%sscenario/", umgebung_t::program_dir, umgebung_t::objfilename.c_str() );
-		chdir( path );
 		destroy_all_win(true);
 		welt->get_message()->clear();
 		create_win( new scenario_frame_t(welt), w_info, magic_load_t );
-		chdir( umgebung_t::user_dir );
 	}
 	else if(komp==&start_game) {
 		destroy_all_win(true);
