@@ -140,8 +140,10 @@ static void show_times(karte_t *welt, karte_ansicht_t *view)
 	dbg->message( "display_color_img()", "3x %i iterations took %li ms", i, dr_time() - ms );
 
  	ms = dr_time();
-	for (i = 0;  i < 600000;  i++)
+	for (i = 0;  i < 600000;  i++) {
+		dr_prepare_flush();
  		dr_flush();
+	}
 	dbg->message( "display_flush_buffer()", "%i iterations took %li ms", i, dr_time() - ms );
 
  	ms = dr_time();
