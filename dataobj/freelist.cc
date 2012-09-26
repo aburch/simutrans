@@ -70,17 +70,21 @@ void *freelist_t::gimme_node(size_t size)
 	size = (size+3)>>2;
 	size <<= 2;
 
-	// hold return value
-	nodelist_node_t *tmp;
-	if(  size > MAX_LIST_INDEX  ) {
-		// too large: just use malloc anyway (which must be threadsave)
-		void* tmp2 = xmalloc(size);
-		return tmp2;
-	}
-
 #if MULTI_THREAD>1
 	pthread_mutex_lock( &freelist_mutex );
 #endif
+
+	// hold return value
+	nodelist_node_t *tmp;
+	if(  size > MAX_LIST_INDEX  ) {
+		// too large: just use malloc anyway
+		void* tmp2 = xmalloc(size);
+#if MULTI_THREAD>1
+		pthread_mutex_unlock( &freelist_mutex );
+#endif
+		return tmp2;
+	}
+
 
 	list = &(all_lists[size/4]);
 	// need new memory?
@@ -150,15 +154,17 @@ void freelist_t::putback_node( size_t size, void *p )
 	size = ((size+3)>>2);
 	size <<= 2;
 
-	if(  size > MAX_LIST_INDEX  ) {
-		// malloc shoudl be threadsave anyway
-		free(p);
-		return;
-	}
-
 #if MULTI_THREAD>1
 	pthread_mutex_lock( &freelist_mutex );
 #endif
+
+	if(  size > MAX_LIST_INDEX  ) {
+		free(p);
+#if MULTI_THREAD>1
+		pthread_mutex_unlock( &freelist_mutex );
+#endif
+		return;
+	}
 
 	list = &(all_lists[size/4]);
 
