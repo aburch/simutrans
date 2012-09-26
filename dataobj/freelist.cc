@@ -18,6 +18,10 @@ struct nodelist_node_t
 	nodelist_node_t* next;
 };
 
+#if MULTI_THREAD>1
+#include <pthread.h>
+static pthread_mutex_t freelist_mutex = PTHREAD_MUTEX_INITIALIZER;
+#endif
 
 // list of all allocated memory
 static nodelist_node_t *chunk_list = NULL;
@@ -57,7 +61,7 @@ const size_t min_size = sizeof(void *);
 void *freelist_t::gimme_node(size_t size)
 {
 	nodelist_node_t ** list = NULL;
-	if(size==0) {
+	if(  size == 0  ) {
 		return NULL;
 	}
 
@@ -68,16 +72,19 @@ void *freelist_t::gimme_node(size_t size)
 
 	// hold return value
 	nodelist_node_t *tmp;
-	if(size>MAX_LIST_INDEX) {
+	if(  size > MAX_LIST_INDEX  ) {
+		// too large: just use malloc anyway (which must be threadsave)
 		void* tmp2 = xmalloc(size);
 		return tmp2;
 	}
-	else {
-		list = &(all_lists[size/4]);
-	}
 
+#if MULTI_THREAD>1
+	pthread_mutex_lock( &freelist_mutex );
+#endif
+
+	list = &(all_lists[size/4]);
 	// need new memory?
-	if(*list==NULL) {
+	if(  *list == NULL  ) {
 		int num_elements = 32764/(int)size;
 		char* p = (char*)xmalloc(num_elements * size + sizeof(p));
 
@@ -100,7 +107,7 @@ void *freelist_t::gimme_node(size_t size)
 		chunk_list = chunk;
 		p += sizeof(p);
 		// then enter nodes into nodelist
-		for( int i=0;  i<num_elements;  i++ ) {
+		for(  int i=0;  i<num_elements;  i++  ) {
 			nodelist_node_t *tmp = (nodelist_node_t *)(p+i*size);
 
 #ifdef USE_VALGRIND_MEMCHECK
@@ -123,6 +130,10 @@ void *freelist_t::gimme_node(size_t size)
 	VALGRIND_MAKE_MEM_UNDEFINED(tmp, size);
 #endif // valgrind
 
+#if MULTI_THREAD>1
+	pthread_mutex_unlock( &freelist_mutex );
+#endif
+
 	return (void *)tmp;
 }
 
@@ -130,7 +141,7 @@ void *freelist_t::gimme_node(size_t size)
 void freelist_t::putback_node( size_t size, void *p )
 {
 	nodelist_node_t ** list = NULL;
-	if(size==0  ||  p==NULL) {
+	if(  size==0  ||  p==NULL  ) {
 		return;
 	}
 
@@ -139,13 +150,17 @@ void freelist_t::putback_node( size_t size, void *p )
 	size = ((size+3)>>2);
 	size <<= 2;
 
-	if(size>MAX_LIST_INDEX) {
+	if(  size > MAX_LIST_INDEX  ) {
+		// malloc shoudl be threadsave anyway
 		free(p);
 		return;
 	}
-	else {
-		list = &(all_lists[size/4]);
-	}
+
+#if MULTI_THREAD>1
+	pthread_mutex_lock( &freelist_mutex );
+#endif
+
+	list = &(all_lists[size/4]);
 
 #ifdef USE_VALGRIND_MEMCHECK
 	// tell valgrind that we keep access to a nodelist_node_t within the memory chunk
@@ -158,6 +173,10 @@ void freelist_t::putback_node( size_t size, void *p )
 	nodelist_node_t *tmp = (nodelist_node_t *)p;
 	tmp->next = *list;
 	*list = tmp;
+
+#if MULTI_THREAD>1
+	pthread_mutex_unlock( &freelist_mutex );
+#endif
 }
 
 
