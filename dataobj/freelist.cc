@@ -12,11 +12,6 @@
 #include <valgrind/memcheck.h>
 #endif
 
-#if MULTI_THREAD>1
-#include <pthread.h>
-static pthread_mutex_t nodelist_mutex = PTHREAD_MUTEX_INITIALIZER;
-#endif
-
 
 struct nodelist_node_t
 {
@@ -71,16 +66,10 @@ void *freelist_t::gimme_node(size_t size)
 	size = (size+3)>>2;
 	size <<= 2;
 
-#if MULTI_THREAD>1
-	pthread_mutex_lock( &nodelist_mutex );
-#endif
 	// hold return value
 	nodelist_node_t *tmp;
 	if(size>MAX_LIST_INDEX) {
 		void* tmp2 = xmalloc(size);
-#if MULTI_THREAD>1
-		pthread_mutex_unlock( &nodelist_mutex );
-#endif
 		return tmp2;
 	}
 	else {
@@ -134,9 +123,6 @@ void *freelist_t::gimme_node(size_t size)
 	VALGRIND_MAKE_MEM_UNDEFINED(tmp, size);
 #endif // valgrind
 
-#if MULTI_THREAD>1
-	pthread_mutex_unlock( &nodelist_mutex );
-#endif
 	return (void *)tmp;
 }
 
@@ -153,14 +139,8 @@ void freelist_t::putback_node( size_t size, void *p )
 	size = ((size+3)>>2);
 	size <<= 2;
 
-#if MULTI_THREAD>1
-	pthread_mutex_lock( &nodelist_mutex );
-#endif
 	if(size>MAX_LIST_INDEX) {
 		free(p);
-#if MULTI_THREAD>1
-		pthread_mutex_unlock( &nodelist_mutex );
-#endif
 		return;
 	}
 	else {
@@ -178,9 +158,6 @@ void freelist_t::putback_node( size_t size, void *p )
 	nodelist_node_t *tmp = (nodelist_node_t *)p;
 	tmp->next = *list;
 	*list = tmp;
-#if MULTI_THREAD>1
-	pthread_mutex_unlock( &nodelist_mutex );
-#endif
 }
 
 

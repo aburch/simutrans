@@ -122,14 +122,16 @@ static void show_times(karte_t *welt, karte_ansicht_t *view)
 	image_id img = grund_besch_t::ausserhalb->get_bild(0,0);
 
  	long ms = dr_time();
-	for (i = 0;  i < 6000000;  i++)
+	for (i = 0;  i < 6000000;  i++) {
  		display_img( img, 50, 50, 1);
+	}
 	dbg->message( "display_img()", "%i iterations took %li ms", i, dr_time() - ms );
 
 	image_id player_img = skinverwaltung_t::color_options->get_bild_nr(0);
  	ms = dr_time();
-	for (i = 0;  i < 1000000;  i++)
+	for (i = 0;  i < 1000000;  i++) {
  		display_color_img( player_img, 120, 100, i%15, 0, 1);
+	}
 	dbg->message( "display_color_img() with recolor", "%i iterations took %li ms", i, dr_time() - ms );
 
  	ms = dr_time();
@@ -147,13 +149,15 @@ static void show_times(karte_t *welt, karte_ansicht_t *view)
 	dbg->message( "display_flush_buffer()", "%i iterations took %li ms", i, dr_time() - ms );
 
  	ms = dr_time();
-	for (i = 0;  i < 300000;  i++)
+	for (i = 0;  i < 300000;  i++) {
  		display_text_proportional_len_clip(100, 120, "Dies ist ein kurzer Textetxt ...", 0, 0, -1);
+	}
 	dbg->message( "display_text_proportional_len_clip()", "%i iterations took %li ms", i, dr_time() - ms );
 
  	ms = dr_time();
-	for (i = 0;  i < 300000;  i++)
+	for (i = 0;  i < 300000;  i++) {
  		display_fillbox_wh(100, 120, 300, 50, 0, false);
+	}
 	dbg->message( "display_fillbox_wh()", "%i iterations took %li ms", i, dr_time() - ms );
 
  	ms = dr_time();
