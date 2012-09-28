@@ -46,6 +46,6 @@ rm language_pack-Base+texts.zip
 # remove Chris English (may become british ... )
 rm ce.tab
 # Remove check test
-rm xx.tab
-rm -rf xx
+#rm xx.tab
+#rm -rf xx
 cd ../..
