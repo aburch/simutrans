@@ -27,14 +27,12 @@
 karte_t *crossing_logic_t::welt = NULL;
 
 
-
 crossing_logic_t::crossing_logic_t( const kreuzung_besch_t *besch )
 {
 	zustand = CROSSING_INVALID;
 	this->besch = besch;
 	request_close = NULL;
 }
-
 
 
 /**
@@ -51,7 +49,6 @@ void crossing_logic_t::info(cbuffer_t & buf) const
 		translator::translate("cars.\nstate"), translator::translate(state_str[zustand])
 	);
 }
-
 
 
 // after merging or splitting two crossings ...
@@ -82,7 +79,6 @@ void crossing_logic_t::recalc_state()
 		}
 	}
 }
-
 
 
 // request permission to pass crossing
@@ -117,7 +113,6 @@ bool crossing_logic_t::request_crossing( const vehikel_basis_t *v )
 }
 
 
-
 // request permission to pass crossing
 void crossing_logic_t::add_to_crossing( const vehikel_basis_t *v )
 {
@@ -135,7 +130,6 @@ void crossing_logic_t::add_to_crossing( const vehikel_basis_t *v )
 		}
 	}
 }
-
 
 
 // called after passing of the last vehicle (in a convoi)
@@ -160,7 +154,6 @@ void crossing_logic_t::release_crossing( const vehikel_basis_t *v )
 }
 
 
-
 // change state; mark dirty and plays sound
 void crossing_logic_t::set_state( crossing_state_t new_state )
 {
@@ -178,7 +171,6 @@ void crossing_logic_t::set_state( crossing_state_t new_state )
 }
 
 
-
 /* static stuff from here on ... */
 
 
@@ -192,6 +184,7 @@ void crossing_logic_t::set_state( crossing_state_t new_state )
  * ..          ...
  */
 minivec_tpl<const kreuzung_besch_t *> crossing_logic_t::can_cross_array[36];
+
 
 /**
  * compare crossings for the same waytype-combinations
@@ -208,6 +201,7 @@ int compare_crossing(const kreuzung_besch_t *c0, const kreuzung_besch_t *c1)
 	}
 	return diff;
 }
+
 
 void crossing_logic_t::register_besch(kreuzung_besch_t *besch)
 {
@@ -238,6 +232,7 @@ DBG_DEBUG( "crossing_logic_t::register_besch()","%s", besch->get_name() );
 	}
 }
 
+
 const kreuzung_besch_t *crossing_logic_t::get_crossing(const waytype_t ns, const waytype_t ow, sint32 way_0_speed, sint32 way_1_speed, uint16 timeline_year_month)
 {
 	// mark if crossing possible
@@ -267,6 +262,7 @@ const kreuzung_besch_t *crossing_logic_t::get_crossing(const waytype_t ns, const
 	return best;
 }
 
+
 /**
  * compare crossings for the same waytype-combinations
  */
@@ -274,6 +270,7 @@ bool have_crossings_same_wt(const kreuzung_besch_t *c0, const kreuzung_besch_t *
 {
 	return c0->get_waytype(0)==c1->get_waytype(0)  &&  c0->get_waytype(1)==c1->get_waytype(1);
 }
+
 
 // returns a new or an existing crossing_logic_t object
 // new, of no matching crossings are next to it
@@ -346,7 +343,6 @@ void crossing_logic_t::add( karte_t *w, crossing_t *start_cr, crossing_state_t z
 	found_logic->set_state( zustand );
 	found_logic->recalc_state();
 }
-
 
 
 // removes a crossing logic, if all crossings are removed

@@ -26,7 +26,7 @@
 
 #if MULTI_THREAD>1
 #include <pthread.h>
-static pthread_mutex_t crossing_logic_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t crossing_logic_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 #endif
 
 
@@ -87,15 +87,15 @@ void crossing_t::state_changed()
  */
 void crossing_t::calc_bild()
 {
-	if(logic) {
 #if MULTI_THREAD>1
-		pthread_mutex_lock( &crossing_logic_mutex );
+	pthread_mutex_lock( &crossing_logic_mutex );
 #endif
+	if(  logic  ) {
 		zustand = logic->get_state();
-#if MULTI_THREAD>1
-		pthread_mutex_unlock( &crossing_logic_mutex );
-#endif
 	}
+#if MULTI_THREAD>1
+	pthread_mutex_unlock( &crossing_logic_mutex );
+#endif
 	const bool snow_image = get_pos().z >= welt->get_snowline();
 	// recalc bild each step ...
 	const bild_besch_t *a = besch->get_bild_after( ns, zustand!=crossing_logic_t::CROSSING_CLOSED, snow_image );
