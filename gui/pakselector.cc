@@ -1,9 +1,8 @@
 #include <string>
-#include <stdio.h>
 
-#include "../simdebug.h"
 #include "pakselector.h"
 #include "../dataobj/umgebung.h"
+#include "../utils/cbuffer_t.h"
 #include "../simsys.h"
 
 
@@ -63,8 +62,8 @@ void pakselector_t::zeichnen(koord p, koord gr)
 
 bool pakselector_t::check_file( const char *filename, const char * )
 {
-	char buf[1024];
-	sprintf( buf, "%s/ground.Outside.pak", filename );
+	cbuffer_t buf;
+	buf.printf("%s/ground.Outside.pak", filename );
 	if (FILE* const f = fopen(buf, "r")) {
 		fclose(f);
 		return true;
@@ -96,8 +95,8 @@ void pakselector_t::fill_list()
 
 	int y = 0;
 	FOR(slist_tpl<entry>, const& i, entries) {
-		char path[1024];
-		sprintf(path,"%saddons/%s", umgebung_t::user_dir, i.button->get_text());
+		cbuffer_t path;
+		path.printf("%saddons/%s", umgebung_t::user_dir, i.button->get_text());
 		i.del->groesse.x += 150;
 		i.del->set_text("Load with addons");
 		i.button->set_pos(koord(150,0) + i.button->get_pos());
