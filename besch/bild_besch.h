@@ -20,13 +20,13 @@
 
 
 struct bild_t {
+	uint32 len;	// since the maximum size of a node is uint16!
 	sint16 x;
 	sint16 y;
 	sint16 w;
 	sint16 h;
-	uint8 zoomable; // some image may not be zoomed i.e. icons
-	uint32 len;	// since the maximum size of a node is uint16!
 	image_id bild_nr;	// Speichern wir erstmal als Dummy mit, wird von register_image() ersetzt
+	uint8 zoomable; // some image may not be zoomed i.e. icons
 	uint16 data[];
 };
 
