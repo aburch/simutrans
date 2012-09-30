@@ -173,8 +173,9 @@ bool baum_t::plant_tree_on_coordinate(karte_t * welt, koord pos, const baum_besc
 				}
 			}
 			baum_t *b = new baum_t(welt, gr->get_pos(), besch); //plants the tree
-			if(random_age) {
-				b->geburt = welt->get_current_month() - simrand(400);
+			if(  random_age  ) {
+				b->geburt = welt->get_current_month() - simrand(703);
+				b->calc_off( welt->lookup( b->get_pos() )->get_grund_hang() );
 			}
 			gr->obj_add( b );
 			return true; //tree was planted - currently unused value is not checked
