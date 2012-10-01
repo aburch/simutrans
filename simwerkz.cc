@@ -3801,7 +3801,7 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 			}
 			else
 			{
-				cost = besch->get_station_price();
+				cost = -besch->get_station_price();
 			}
 			if(!sp->can_afford(cost))
 			{
@@ -3827,7 +3827,7 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 					}
 					else
 					{
-						cost = besch->get_station_price();
+						cost = -besch->get_station_price();
 					}
 					if(!sp->can_afford(-cost))
 					{
@@ -3846,7 +3846,7 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 					}
 					else
 					{
-						cost = besch->get_station_price();
+						cost = -besch->get_station_price();
 					}
 					if(!sp->can_afford(-cost))
 					{
@@ -3861,7 +3861,7 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 					}
 					else
 					{
-						cost = besch->get_station_price();
+						cost = -besch->get_station_price();
 					}
 					if(!sp->can_afford(-cost))
 					{
@@ -3876,7 +3876,7 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 					}
 					else
 					{
-						cost = besch->get_station_price();
+						cost = -besch->get_station_price();
 					}
 					if(!sp->can_afford(-cost))
 					{
