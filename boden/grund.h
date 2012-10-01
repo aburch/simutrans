@@ -195,6 +195,11 @@ public:
 	grund_t(karte_t *welt, loadsave_t *file);
 	grund_t(karte_t *welt, koord3d pos);
 
+private:
+	grund_t(grund_t const&);
+	grund_t& operator=(grund_t const&);
+
+public:
 	virtual ~grund_t();
 
 	/**

@@ -12,7 +12,7 @@ Disse indstillinger kan være alt fra kortstørrelse til industritæthed.
 <p>
 <em>Udseende:</em><br>
 Øverst til venstre findes otte indstillingsmuligheder for det nye kort.<br>
-Til højre herfor er et "preview" areal, der viser, hvorledes det nye kor
+Til højre herfor er et "preview" areal, der viser, hvorledes det nye kort
 vil se ud.<br>
 Under disse indstillinger er en knap til valg af tilfældigt kortnummer.<br>
 Nederst i dialogen findes fire knapper til indlæsning af gemte spil eller
@@ -35,13 +35,13 @@ valgte indstillinger).
 Bestemmer hvor mange kvadrater kortet vil bestå af. Størrelsen varierer fra
 128*128 til 640*640 kvadrater. Default størrelsen er 256*256.<br>
 <strong>Vigtigt</strong> - Jo større et kort desto mere memory bliver
-benyttet. Vær opmærksom på om du har tilstrækkelig memory til at spille e
+benyttet. Vær opmærksom på om du har tilstrækkelig memory til at spille et
 spil med den valgte kortstørrelse.
 </p>
 
 <p>
 <em>Industritæthed:</em><br>
-Tætheden af industrier. Jo lavere tæthedesværdi desto sværere vil spille
+Tætheden af industrier. Jo lavere tæthedesværdi desto sværere vil spillet
 blive, da der bliver færre industrier at transportere imellem. Default værdien
 er 125.
 </p>
@@ -60,7 +60,7 @@ Tætheden af private biler i byerne. Default værdien er 8.
 <p>
 <em>Vand niveau:</em><br>
 Afspejler hvor højt grundvandsspejlet er (hvor mange vandfelter, der vil
-være). Jo lavere værdi desto flere landfelter vil kortet indeholde. Defaul
+være). Jo lavere værdi desto flere landfelter vil kortet indeholde. Default
 værdien er 4
 </p>
 
@@ -90,7 +90,7 @@ ved at benytte <a href="display.txt">Udseende dialogen.</a>
 
 <p>
 <em>Dag og nat indstilling</em><br>
-Bestemmer om der alt efter klokkeslet skal skiftes imellem dag og na
+Bestemmer om der alt efter klokkeslet skal skiftes imellem dag og nat
 belysning. Denne indstilling kan ligeledes ændres under spillet<br>
 ved at benytte <a href="display.txt">Udseende dialogen.</a>
 </p>

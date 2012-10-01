@@ -12,7 +12,7 @@ using std::string;
 
 void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	obj_node_t node(this, 14, &parent);
+	obj_node_t node(this, 15, &parent);
 
 	// Hajodoc: Preferred height of this tree type
 	// Hajoval: int (useful range: 0-14)
@@ -28,9 +28,28 @@ void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		(obj.get_int("is_longblocksignal", 0) > 0 ? roadsign_besch_t::SIGN_LONGBLOCK_SIGNAL : roadsign_besch_t::NONE) |
 		(obj.get_int("end_of_choose",      0) > 0 ? roadsign_besch_t::END_OF_CHOOSE_AREA    : roadsign_besch_t::NONE);
 	uint8                   const wtyp      = get_waytype(obj.get("waytype"));
+	
+	uint8 allow_underground = obj.get_int("allow_underground", 0);
 
+	if(allow_underground > 2)
+	{
+		// Prohibit illegal values here.
+		allow_underground = 2;
+	}
+
+	uint16 version = 0x8003;
+	
+	// This is the overlay flag for Simutrans-Experimental
+	// This sets the *second* highest bit to 1. 
+	version |= EXP_VER;
+
+	// Finally, this is the experimental version number. This is *added*
+	// to the standard version number, to be subtracted again when read.
+	// Start at 0x100 and increment in hundreds (hex).
+	version += 0x100;
+	
 	// Hajo: write version data
-	node.write_uint16(fp, 0x8003,    0);
+	node.write_uint16(fp, version,   0);
 	node.write_uint16(fp, min_speed, 2);
 	node.write_uint32(fp, cost,      4);
 	node.write_uint8 (fp, flags,     8);
@@ -43,6 +62,8 @@ void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	uint16 retire  = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12;
 	retire += obj.get_int("retire_month", 1) - 1;
 	node.write_uint16(fp,          retire,          12);
+
+	node.write_uint8(fp, allow_underground, 14);
 
 	write_head(fp, node, obj);
 

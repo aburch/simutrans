@@ -7,20 +7,20 @@
 For alle rutemål (busstoppesteder, lastepladser, jernbanestationer og havne)
 på kortet kan denne dialog åbnes ved at klikke på rutemålet. <strong>Bemærk,
 hvis der er køretøjer på rutemålet, vil en</strong>
-<a href="vehicle.txt">køretøjs dialog</a><strong>ligeledes blive åbnet for hver
+<a href="vehicle.txt">køretøjs dialog</a><strong>ligeledes blive åbnet for hvert
 køretøj.</strong> Dialogen giver nyttig information om rutemålet, dets
 forbindelser og den aktuelle varesituation.
 </p>
 
 <p>
 <em>Udseende:</em><br>
-Øverst i dialogen er rutemålets navn og nummer. Derefter følger en oversig
-over passagerer befordret fra rutemålet denne dag. Dernæst kommer en oversig
+Øverst i dialogen er rutemålets navn og nummer. Derefter følger en oversigt
+over passagerer befordret fra rutemålet denne dag. Dernæst kommer en oversigt
 over aktuelt ventende varer (og passagerer). Hertil er knyttet to knapper med
 teksten 'Statistik' og 'Destination' samt et visningsareal, der giver
-oplysninger om mængden af og destinationen for de ventende varer.<br> Øvers
-til højre i dialogen er en knap med teksten 'Detaljer' og herunder e
-billedudsnit af rutemålet. Ved at klikke på dette billedudsnit, vil rutemåle
+oplysninger om mængden af og destinationen for de ventende varer.<br> Øverst
+til højre i dialogen er en knap med teksten 'Detaljer' og herunder et
+billedudsnit af rutemålet. Ved at klikke på dette billedudsnit, vil rutemålet
 blive centreret på kortet.
 </p>
 
@@ -50,10 +50,10 @@ Denne knap åbner en ny dialog med følgende yderligere rutemålsoplysninger:
 
 <p>
 <em> - Forbundne industrier:</em><br>
-Angiver hvilke nærliggende industrier, der benytter dette rutemål til a
-modtage eller aflevere varer. Denne oplysning er et glimrende check for, om e
-rutemål "er placeret tæt nok" på en industri til at kunne betjene denne. E
-rutemål kan udmærket betjene flere industrier samtidig
+Angiver hvilke nærliggende industrier, der benytter dette rutemål til at
+modtage eller aflevere varer. Denne oplysning er et glimrende check for, om et
+rutemål "er placeret tæt nok" på en industri til at kunne betjene denne. Et
+rutemål kan udmærket betjene flere industrier samtidigt
 </p>
 
 <p>

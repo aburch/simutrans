@@ -203,6 +203,22 @@ class haus_besch_t : public obj_besch_std_name_t { // Daten für ein ganzes Gebäu
 	uint16 intro_date;
 	uint16 obsolete_date;
 
+	/**
+	 * Whether this building can or must be built underground.
+	 * 0 = cannot be built underground
+	 * 1 = can only be built underground
+	 * 2 = can be built either underground or above ground.
+	 */
+	uint8 allow_underground;
+
+	/**
+	 * Whether this building is a control tower.
+	 * Aircraft cannot land/take off at airports
+	 * that do not have a control tower attached
+	 * to them.
+	 */
+	uint8 is_control_tower;
+
 	bool ist_utyp(utyp u) const {
 		return gtyp == gebaeude_t::unbekannt && utype == u;
 	}
@@ -349,12 +365,16 @@ public:
 	sint32 get_base_station_price() const { return  station_price; }
 
 	uint16 get_station_capacity() const { return station_capacity; }
+
+	uint8 get_allow_underground() const { return allow_underground; }
+
+	uint8 get_is_control_tower() const { return is_control_tower; }
 	
 	void set_scale(uint16 scale_factor) 
 	{
 		// BG: 29.08.2009: explicit typecasts avoid warnings
-		const sint32 scaled_price = station_price == 2147483647 ? station_price : set_scale_generic<sint32>(station_price, scale_factor);
-		const sint32 scaled_maintenance = station_maintenance == 2147483647 ? station_maintenance : set_scale_generic<sint32>(station_maintenance, scale_factor);
+		const sint32 scaled_price = station_price == 2147483647 ? station_price : (sint32) set_scale_generic<sint64>((sint64)station_price, scale_factor);
+		const sint32 scaled_maintenance = station_maintenance == 2147483647 ? station_maintenance : (sint32) set_scale_generic<sint64>((sint64)station_maintenance, scale_factor);
 		scaled_station_price = (scaled_price < (station_price > 0 ? 1 : 0) ? 1: scaled_price);
 		scaled_station_maintenance = (scaled_maintenance < (station_maintenance > 0 ? 1 : 0) ? 1: scaled_maintenance);
 	}

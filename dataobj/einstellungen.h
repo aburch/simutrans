@@ -39,6 +39,34 @@ struct road_timeline_t
 	uint16 retire;
 };
 
+template <class T>
+class vector_with_ptr_ownership_tpl : public vector_tpl<T*> 
+{
+public:
+	vector_with_ptr_ownership_tpl(uint32 size = 0) : 
+		vector_tpl<T*>(size) {}
+
+	vector_with_ptr_ownership_tpl( vector_with_ptr_ownership_tpl const& src ) :
+		vector_tpl<T*>( src.get_count() ) {
+		ITERATE( src, i ) {
+			append( new T( *src[i] ) );
+		}
+	}
+
+	vector_with_ptr_ownership_tpl& operator=( vector_with_ptr_ownership_tpl const& other ) { 
+		vector_with_ptr_ownership_tpl tmp(other); 
+		swap( static_cast<vector_tpl<T*>&>(tmp), static_cast<vector_tpl<T*>&>(*this) ); 
+		return *this;
+	}
+
+	void clear() {
+		clear_ptr_vector(*this);
+	}
+
+	~vector_with_ptr_ownership_tpl() {
+		clear();
+	}
+};
 
 class settings_t
 {
@@ -217,21 +245,11 @@ private:
 	// true, if the different caacities (passengers/mail/freight) are counted seperately
 	bool seperate_halt_capacities;
 
-	vector_tpl<livery_scheme_t*> livery_schemes;
+	vector_with_ptr_ownership_tpl<livery_scheme_t> livery_schemes;
 
 	// Whether passengers might walk between stops en route.
 	// @author: jamespetts, August 2011
 	bool allow_routing_on_foot;
-
-	/**
-	 * The shortest time that passengers/goods can
-	 * wait at an airport before boarding an aircraft.
-	 * Waiting times are higher at airports because of
-	 * the need to check-in, undergo security checks,
-	 * etc.
-	 * @author: jamespetts, August 2011
-	 */
-	uint16 min_wait_airport;
 
 	/**
 	 * If true, players will not be charged
@@ -242,11 +260,10 @@ private:
 	 */
 	bool toll_free_public_roads;
 
+	uint8 max_elevated_way_building_level;
+
 
 public:
-
-	~settings_t();
-
 	//Cornering settings
 	//@author: jamespetts
 	
@@ -367,6 +384,18 @@ public:
 	// speedbonus.tab files from Simutrans-Standard
 	// @author: jamespetts
 	uint16 speed_bonus_multiplier_percent;
+
+	bool allow_airports_without_control_towers;
+
+	/**
+	 * The shortest time that passengers/goods can
+	 * wait at an airport before boarding an aircraft.
+	 * Waiting times are higher at airports because of
+	 * the need to check-in, undergo security checks,
+	 * etc.
+	 * @author: jamespetts, August 2011
+	 */
+	uint16 min_wait_airport;
 	
 private:
 
@@ -416,6 +445,10 @@ private:
 	// Whether non-public players are allowed to make stops and ways public.
 	bool allow_making_public;
 
+	float32e8_t simtime_factor;
+	float32e8_t meters_per_step;
+	float32e8_t steps_per_meter;
+	float32e8_t seconds_per_tick;
 public:
 	/* the big cost section */
 	sint32 maint_building;	// normal building
@@ -474,6 +507,8 @@ public:
 
 	uint32 city_threshold_size;
 	uint32 capital_threshold_size;
+	uint32 max_small_city_size;
+	uint32 max_city_size;
 
 	// player color suggestions for new games
 	bool default_player_color_random;
@@ -483,7 +518,6 @@ public:
 	uint8 spacing_shift_mode;
 	sint16 spacing_shift_divisor;
 
-public:
 	/**
 	 * If map is read from a heightfield, this is the name of the heightfield.
 	 * Set to empty string in order to avoid loading.
@@ -625,7 +659,7 @@ public:
 	void   set_max_bonus_multiplier_percent(uint16 value) { max_bonus_multiplier_percent = value; }
 
 	uint16 get_meters_per_tile() const { return meters_per_tile; }
-	void   set_meters_per_tile(uint16 value) { meters_per_tile = value; steps_per_km = (1000 * VEHICLE_STEPS_PER_TILE) / meters_per_tile; }
+	void   set_meters_per_tile(uint16 value);
 	uint32 get_steps_per_km() const { return steps_per_km; }
 //	void   set_distance_per_tile_percent(uint16 value) { meters_per_tile = value * 10; }
 
@@ -745,10 +779,14 @@ public:
 	uint16 get_turntable_reverse_time() const { return turntable_reverse_time; }
 
 	uint16 get_global_power_factor_percent() const { return global_power_factor_percent; }
+	void set_global_power_factor_percent(uint16 value) { global_power_factor_percent = value; }
 
 	uint8 get_enforce_weight_limits() const { return enforce_weight_limits; }
 
 	uint16 get_speed_bonus_multiplier_percent() const { return speed_bonus_multiplier_percent; }
+
+	bool get_allow_airports_without_control_towers() const { return allow_airports_without_control_towers; }
+	void set_allow_airports_without_control_towers(bool value) { allow_airports_without_control_towers = value; }
 
 	// allowed modes are 0,1,2
 	enum { TO_PREVIOUS=0, TO_TRANSFER, TO_DESTINATION };
@@ -853,6 +891,10 @@ public:
 	void set_city_threshold_size(uint32 value) { city_threshold_size = value; }
 	uint32 get_capital_threshold_size() const { return capital_threshold_size; }
 	void set_capital_threshold_size(uint32 value) { capital_threshold_size = value; }
+	uint32 get_max_small_city_size() const { return max_small_city_size; }
+	void set_max_small_city_size(uint32 value) { max_small_city_size = value; }
+	uint32 get_max_city_size() const { return max_city_size; }
+	void set_max_city_size(uint32 value) { max_city_size = value; }
 
 	uint16 get_default_increase_maintenance_after_years(waytype_t wtype) const { return default_increase_maintenance_after_years[wtype]; }
 	void set_default_increase_maintenance_after_years(waytype_t wtype, uint16 value) { default_increase_maintenance_after_years[wtype] = value; }
@@ -886,6 +928,14 @@ public:
 	bool get_toll_free_public_roads() const { return toll_free_public_roads; }
 
 	bool get_allow_making_public() const { return allow_making_public; }
+
+	float32e8_t get_simtime_factor() const { return simtime_factor; }
+	float32e8_t meters_to_steps(const float32e8_t &meters) const { return steps_per_meter * meters; }
+	float32e8_t steps_to_meters(const float32e8_t &steps) const { return meters_per_step * steps; }
+	float32e8_t ticks_to_seconds(sint32 delta_t) const { return seconds_per_tick * delta_t; }
+
+	uint8 get_max_elevated_way_building_level() const { return max_elevated_way_building_level; }
+	void set_max_elevated_way_building_level(uint8 value) { max_elevated_way_building_level = value; }
 };
 
 #endif 

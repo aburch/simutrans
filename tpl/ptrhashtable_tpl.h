@@ -38,20 +38,11 @@ public:
 template<class key_t, class value_t>
 class ptrhashtable_tpl : public hashtable_tpl<key_t, value_t, ptrhash_tpl<key_t> >
 {
-};
-
-
-template<class key_t, class value_t>
-class ptrhashtable_iterator_tpl : public hashtable_iterator_tpl<key_t, value_t, ptrhash_tpl<key_t> >
-{
 public:
-	ptrhashtable_iterator_tpl(const hashtable_tpl<key_t, value_t, ptrhash_tpl<key_t> > *hashtable) :
-	hashtable_iterator_tpl<key_t, value_t, ptrhash_tpl<key_t> >(hashtable)
-	{ }
-
-	ptrhashtable_iterator_tpl(const hashtable_tpl<key_t, value_t, ptrhash_tpl<key_t> > &hashtable) :
-	hashtable_iterator_tpl<key_t, value_t, ptrhash_tpl<key_t> >(hashtable)
-	{ }
+	ptrhashtable_tpl() : hashtable_tpl<key_t, value_t, ptrhash_tpl<key_t> >() {}
+private:
+	ptrhashtable_tpl(const ptrhashtable_tpl&);
+	ptrhashtable_tpl& operator=( ptrhashtable_tpl const&);
 };
 
 #endif

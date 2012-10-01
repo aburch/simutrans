@@ -126,7 +126,7 @@ protected:
 		koord pos;
 		sint32 amount;
 		sint8 alter;
-		income_message_t() { str[0]=0; alter=127; pos==koord::invalid; amount=0; }
+		income_message_t() { str[0]=0; alter=127; pos=koord::invalid; amount=0; }
 		income_message_t( sint32 betrag, koord pos );
 		void * operator new(size_t s);
 		void operator delete(void *p);
@@ -173,6 +173,9 @@ protected:
 	bool access[MAX_PLAYER_COUNT];
 
 public:
+#ifdef DEBUG_SIMRAND_CALLS
+	halthandle_t get_halt(int index) { return halt_list[index]; }
+#endif
 	virtual bool set_active( bool b ) { return automat = b; }
 
 	bool is_active() const { return automat; }
@@ -429,7 +432,7 @@ private:
 
 	// The maximum amount overdrawn that a player can be
 	// before no more purchases can be made.
-	sint32 base_credit_limit;
+	sint64 base_credit_limit;
 
 protected:
 	sint64 calc_credit_limit();

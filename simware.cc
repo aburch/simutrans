@@ -111,7 +111,7 @@ void ware_t::rdwr(karte_t *welt,loadsave_t *file)
 		}
 	}
 	// convert coordinate to halt indices
-	if(file->get_version() > 110005) 
+	if(file->get_version() > 110005 && (file->get_experimental_version() >= 10 || file->get_experimental_version() == 0))
 	{
 		// save halt id directly
 		if(file->is_saving()) 

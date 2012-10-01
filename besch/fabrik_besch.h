@@ -263,6 +263,9 @@ public:
 	int get_lieferanten() const { return lieferanten; } //"supplier" (Babelfish)
 	uint get_produkte() const { return produkte; } // "Products" (Google)
 
+	bool is_consumer_only() const { return produkte    == 0; }
+	bool is_producer_only() const { return lieferanten == 0; }
+
 	/* where to built */
 	site_t get_platzierung() const { return platzierung; }
 	int get_gewichtung() const { return gewichtung;     }

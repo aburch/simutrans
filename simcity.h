@@ -247,9 +247,10 @@ private:
 	// (in 10ths of minutes); 65535 = unreachable.
 	// @author: jamespetts, April 2010, modified December 2010 to koords rather than poiners
 	// so as to be network safe
-	koordhashtable_tpl<koord, uint16> connected_cities;
-	koordhashtable_tpl<koord, uint16> connected_industries;
-	koordhashtable_tpl<koord, uint16> connected_attractions;
+	typedef koordhashtable_tpl<koord, uint16> connexion_map;
+	connexion_map connected_cities;
+	connexion_map connected_industries;
+	connexion_map connected_attractions;
 
 	road_destination_finder_t *finder;
 	route_t *private_car_route;

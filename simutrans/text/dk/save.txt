@@ -14,7 +14,7 @@ aktuelle data i en fil, der kan indlæses på et senere tidspunkt.
 Øverst i dialogen er overskriften 'Filnavn:' med en tilhørende tekstboks. Denne
 tekstboks giver mulighed for at indtaste et navn, som spillet skal gemmes
 under. Derunder er en liste bestående af de spil, der befinder sig i
-simutrans/save mappen. For alle spil er vist en-slet knap, spillets navn sam
+simutrans/save mappen. For alle spil er vist en-slet knap, spillets navn samt
 "gem-tidspunktet".<br>
 Nederst er en 'OK' og en 'Fortryd' knap.
 </p>
@@ -28,7 +28,7 @@ overskrives.
 
 <p>
 Det er muligt at slette gemte spil ved at trykke på
-slet-knappen. <strong>Bemærk at dette sletter spillet uden mulighed for a
+slet-knappen. <strong>Bemærk at dette sletter spillet uden mulighed for at
 genskabe det !!</strong> Efter der er trykket på slet-knappen lukkes dialogen
 uden yderligere meddelelser.
 </p>

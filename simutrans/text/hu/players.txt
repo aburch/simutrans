@@ -3,7 +3,7 @@
 
 <p>Itt tudod a számítógép állatl vezérelt ellenfeleidet (AI - Artificial intelligence) ki, illetve bekapcsolni.</p>
 
-<p>A kikapcsolás a kis sima négyzet manipulálásával érhetõ el. Figyelem ha kikapcsolsz egy játékos
+<p>A kikapcsolás a kis sima négyzet manipulálásával érhetõ el. Figyelem ha kikapcsolsz egy játékost
 lényegében csak annyit csinálsz, hogy "elaltatod" vagyis több fejlesztés nem lesz de a már
 felépített termelõegységek mûködni fognak.
 </p>

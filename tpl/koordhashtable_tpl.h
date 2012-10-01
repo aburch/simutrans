@@ -49,18 +49,4 @@ class koordhashtable_tpl : public hashtable_tpl<key_t, value_t, koordhash_tpl<ke
 };
 
 
-template<class key_t, class value_t>
-class koordhashtable_iterator_tpl : public hashtable_iterator_tpl<key_t, value_t, koordhash_tpl<key_t> >
-{
-public:
-    koordhashtable_iterator_tpl(const hashtable_tpl<key_t, value_t, koordhash_tpl<key_t> > *hashtable) :
-	hashtable_iterator_tpl<key_t, value_t, koordhash_tpl<key_t> >(hashtable)
-    {
-    }
-    koordhashtable_iterator_tpl(const hashtable_tpl<key_t, value_t, koordhash_tpl<key_t> > &hashtable) :
-	hashtable_iterator_tpl<key_t, value_t, koordhash_tpl<key_t> >(hashtable)
-    {
-    }
-};
-
 #endif

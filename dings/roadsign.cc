@@ -52,6 +52,9 @@ roadsign_t::roadsign_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
 		 */
 		automatic = (besch->get_bild_anzahl()>4  &&  besch->get_wtyp()==road_wt)  ||  (besch->get_bild_anzahl()>2  &&  besch->is_private_way());
 	}
+	else {
+		automatic = false;
+	}
 	// some sve had rather strange entries in zustand
 	if(  !automatic  ||  besch==NULL  ) {
 		zustand = 0;
@@ -214,6 +217,8 @@ void roadsign_t::calc_bild()
 		if(  (1<<welt->get_active_player_nr()) & get_player_mask()  ) {
 			// gate open
 			image += 2;
+			// force redraw
+		    mark_image_dirty(get_bild(),0);
 		}
 		set_bild( besch->get_bild_nr(image) );
 		set_yoff( 0 );
@@ -664,11 +669,10 @@ void roadsign_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 /*sou
 {
 	const uint16 time = welt->get_timeline_year_month();
 
-	stringhashtable_iterator_tpl<const roadsign_besch_t *>iter(table);
 	vector_tpl<const roadsign_besch_t *>matching;
 
-	while(  iter.next()  ) {
-		const roadsign_besch_t* besch = iter.get_current_value();
+	FOR(stringhashtable_tpl<roadsign_besch_t const*>, const& i, table) {
+		roadsign_besch_t const* const besch = i.value;
 		if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 
 			if(besch->get_builder()  &&  wtyp==besch->get_wtyp()) {
@@ -677,8 +681,8 @@ void roadsign_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 /*sou
 			}
 		}
 	}
-	for (vector_tpl<const roadsign_besch_t*>::const_iterator i = matching.begin(), end = matching.end(); i != end; ++i) {
-		wzw->add_werkzeug( (*i)->get_builder() );
+	FOR(vector_tpl<roadsign_besch_t const*>, const i, matching) {
+		wzw->add_werkzeug(i->get_builder());
 	}
 }
 
@@ -689,9 +693,8 @@ void roadsign_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 /*sou
  */
 const roadsign_besch_t *roadsign_t::roadsign_search(roadsign_besch_t::types const flag, waytype_t const wt, uint16 const time)
 {
-	stringhashtable_iterator_tpl<const roadsign_besch_t *>iter(table);
-	while(  iter.next()  ) {
-		const roadsign_besch_t* besch = iter.get_current_value();
+	FOR(stringhashtable_tpl<roadsign_besch_t const*>, const& i, table) {
+		roadsign_besch_t const* const besch = i.value;
 		if((time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time))
 			&&  besch->get_wtyp()==wt  &&  besch->get_flags()==flag) {
 				return besch;

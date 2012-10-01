@@ -25,6 +25,8 @@ using namespace std;
 	typedef 			short		sint16;
 	typedef unsigned	char  		uint8;
 #endif
+	
+class loadsave_t;
 
 class float32e8_t
 {
@@ -208,14 +210,16 @@ public:
 	const float32e8_t log2() const;
 	const float32e8_t exp2() const;
 
+	void rdwr(loadsave_t *file);
+
 private:
 #ifdef USE_DOUBLE
 public:
 #else
 	friend ostream & operator << (ostream &out, const float32e8_t &x);
 #endif
-	double to_double() const;
 public:
+	double to_double() const;
 	sint32 to_sint32() const;
 	//const string to_string() const;
 

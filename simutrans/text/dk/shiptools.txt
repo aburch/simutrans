@@ -19,8 +19,8 @@ Gående fra venstre mod højre samt oppefra og ned er de forskellige symboler:
 
 <p>
 <em>Byg havn:</em><br>
-Dette værktøj benyttes til at bygge havne. Ved venstreklik på symbole
-forandres cursoren til et havnesymbol. Herefter kan der bygges en havn ved a
+Dette værktøj benyttes til at bygge havne. Ved venstreklik på symbolet
+forandres cursoren til et havnesymbol. Herefter kan der bygges en havn ved at
 venstreklikke på en <strong>lige</strong> kyststrækning. Havne benyttes af
 skibe til at laste eller losse varer.<br>
 <strong>Bemærk at havne pt. ikke kan fjernes direkte. Det kan gøres ved fjerne
@@ -31,8 +31,8 @@ havnen, hæve landniveauet og derefter sænke landniveauet.</strong>
 <em>Byg skibsdepot:</em><br>
 Et <a href="depot.txt">skibsdepot</a> benyttes til at bygge, sælge og
 tilknytte ruter til skibe. Der er to symboler til bygning af
-skibsdepoter. Disse er dog pånær udseendet fuldstændig ens. Et skibsdepo
-bygges ved at venstreklikke på symbolet, hvorved cursoren forandres til e
+skibsdepoter. Disse er dog pånær udseendet fuldstændig ens. Et skibsdepot
+bygges ved at venstreklikke på symbolet, hvorved cursoren forandres til et
 skibsdepot symbol, og derefter venstreklikke på et hvilket som helst vandfelt,
 hvor depotet ønskes placeret. Som regel er det en fordel at placere depotet i
 nærheden af et eller flere fremtidige rutemål.

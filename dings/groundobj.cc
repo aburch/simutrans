@@ -53,14 +53,12 @@ bool compare_groundobj_besch(const groundobj_besch_t* a, const groundobj_besch_t
 bool groundobj_t::alles_geladen()
 {
 	groundobj_typen.resize(besch_names.get_count());
-	stringhashtable_iterator_tpl<groundobj_besch_t *>iter(besch_names);
-	while(  iter.next()  ) {
-		groundobj_typen.insert_ordered( iter.get_current_value(), compare_groundobj_besch );
+	FOR(stringhashtable_tpl<groundobj_besch_t*>, const& i, besch_names) {
+		groundobj_typen.insert_ordered(i.value, compare_groundobj_besch);
 	}
 	// iterate again to assign the index
-	stringhashtable_iterator_tpl<groundobj_besch_t *>iter2(besch_names);
-	while(  iter2.next()  ) {
-		iter2.access_current_value()->index = groundobj_typen.index_of( iter2.get_current_value());
+	FOR(stringhashtable_tpl<groundobj_besch_t*>, const& i, besch_names) {
+		i.value->index = groundobj_typen.index_of(i.value);
 	}
 
 	if(besch_names.empty()) {
@@ -97,13 +95,9 @@ const groundobj_besch_t *groundobj_t::random_groundobj_for_climate(climate cl, h
 	}
 
 	int weight = 0;
-	for(  unsigned i=0;  i<groundobj_typen.get_count();  i++  ) {
-		if(groundobj_typen[i] == NULL)
-		{
-			break;
-		}
-		if(  groundobj_typen[i]->is_allowed_climate(cl)  &&  (slope==hang_t::flach  ||  groundobj_typen[i]->get_phases()==16)  ) {
-			weight += groundobj_typen[i]->get_distribution_weight();
+	FOR(vector_tpl<groundobj_besch_t const*>, const i, groundobj_typen) {
+		if (i && i->is_allowed_climate(cl) && (slope == hang_t::flach || i->get_phases() == 16)) {
+			weight += i->get_distribution_weight();
 		}
 	}
 
@@ -111,11 +105,11 @@ const groundobj_besch_t *groundobj_t::random_groundobj_for_climate(climate cl, h
 	if(  weight > 0  ) {
 		const int w=simrand(weight, "const groundobj_besch_t *groundobj_t::random_groundobj_for_climate(");
 		weight = 0;
-		for(  unsigned i=0;  i<groundobj_typen.get_count();  i++  ) {
-			if(  groundobj_typen[i]->is_allowed_climate(cl)  &&  (slope==hang_t::flach  ||  groundobj_typen[i]->get_phases()==16)  ) {
-				weight += groundobj_typen[i]->get_distribution_weight();
+		FOR(vector_tpl<groundobj_besch_t const*>, const i, groundobj_typen) {
+			if (i->is_allowed_climate(cl) && (slope == hang_t::flach || i->get_phases() == 16)) {
+				weight += i->get_distribution_weight();
 				if(weight>=w) {
-					return groundobj_typen[i];
+					return i;
 				}
 			}
 		}

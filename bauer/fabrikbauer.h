@@ -27,23 +27,6 @@ class fabrik_t;
 class fabrikbauer_t
 {
 private:
-	/**
-	* Diese Klasse wird in verteile_industrie benötigt.
-	* Sie dient dazu, daß  wir uns merken, bei welcher
-	* Stadt schon welche Endfabrike gebaut wurde.
-	* @author V. Meyer
-	*/
-	struct stadt_fabrik_t {
-		const stadt_t	    *stadt;
-		const fabrik_besch_t   *info;
-
-		int operator != (const stadt_fabrik_t &x) const {
-			return stadt != x.stadt || info != x.info;
-		}
-		int operator == (const stadt_fabrik_t &x) const {
-			return !(*this != x);
-		}
-	};
 
 	// nedded for crossconnections checks
 	class fabs_to_crossconnect_t {

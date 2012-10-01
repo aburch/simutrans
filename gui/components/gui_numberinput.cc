@@ -124,7 +124,7 @@ bool gui_numberinput_t::action_triggered( gui_action_creator_t *komp, value_t /*
 
 
 
-sint8 gui_numberinput_t::percent[7] = { 0, 1, 5, 10, 20, 50, 100 };
+sint8 gui_numberinput_t::percent[7] = { 0, 1, 7, 13, 33, 66, 100 };
 
 sint32 gui_numberinput_t::get_next_value()
 {
@@ -152,7 +152,7 @@ sint32 gui_numberinput_t::get_next_value()
 			}
 			return max_value;
 		}
-		// pregressive (used for loading bars
+		// pregressive (used for loading bars)
 		case PROGRESS:
 		{
 			sint64 diff = (sint64)max_value - (sint64)min_value;

@@ -15,8 +15,6 @@
 // #define PRIQ_STATS
 
 
-template<class T> class slist_iterator_tpl;
-
 /**
  * <p>A template class for a priority queue. The queue is built upon a
  * sorted linked list.
@@ -27,7 +25,6 @@ template<class T> class slist_iterator_tpl;
  *
  * <p>The insert() operation works in O(n), in average n/2 steps</p>
  * <p>The pop() operation works in O(1) steps</p>
- * <p>The contains() operation works in O(n), average n/2 steps</p>
  * <p>The remove() operation works in O(n), average n steps</p>
  * <p>The get_count() and empty() operation work in O(1) steps</p>
  *
@@ -159,23 +156,6 @@ class prioqueue_tpl
 
 
 		/**
-		 * Checks if the given element is already contained in the queue.
-		 *
-		 * @author Hj. Malthaner
-		 */
-		bool contains(const T data) const
-		{
-			node_t *p = head;
-
-			while (p != 0 && p->data != data) {
-				p = p->next;
-			}
-
-			return (p != 0);         // ist 0 wenn nicht gefunden
-		}
-
-
-		/**
 		 * Retrieves the first element from the list. This element is
 		 * deleted from the list. Useful for some queueing tasks.
 		 * @author Hj. Malthaner
@@ -227,6 +207,9 @@ class prioqueue_tpl
 
 
 		bool empty() const { return head == 0; }
+private:
+	prioqueue_tpl(const prioqueue_tpl& other);
+	prioqueue_tpl& operator=( prioqueue_tpl const& other );
 };
 
 #endif

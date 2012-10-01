@@ -73,10 +73,8 @@ stringhashtable_tpl <tunnel_besch_t *> * tunnelbauer_t::get_all_tunnels()
 // now we have to convert old tunnel to new ones ...
 bool tunnelbauer_t::laden_erfolgreich()
 {
-	stringhashtable_iterator_tpl<tunnel_besch_t *>iter(tunnel_by_name);
-	while(  iter.next()  ) {
-		tunnel_besch_t* besch = iter.get_current_value();
-
+	FOR(stringhashtable_tpl<tunnel_besch_t*>, const& i, tunnel_by_name) {
+		tunnel_besch_t* const besch = i.value;
 		if(besch->get_topspeed()==0) {
 			// old style, need to convert
 			if(strcmp(besch->get_name(),"RoadTunnel")==0) {
@@ -115,10 +113,8 @@ const tunnel_besch_t *tunnelbauer_t::find_tunnel(const waytype_t wtyp, const sin
 {
 	const tunnel_besch_t *find_besch=NULL;
 
-	stringhashtable_iterator_tpl<tunnel_besch_t *>iter(tunnel_by_name);
-	while(  iter.next()  ) {
-		tunnel_besch_t* besch = iter.get_current_value();
-
+	FOR(stringhashtable_tpl<tunnel_besch_t*>, const& i, tunnel_by_name) {
+		tunnel_besch_t* const besch = i.value;
 		if(besch->get_waytype() == wtyp) {
 			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 				if(find_besch==NULL  ||
@@ -156,9 +152,8 @@ void tunnelbauer_t::fill_menu(werkzeug_waehler_t* wzw, const waytype_t wtyp, sin
 	const uint16 time=welt->get_timeline_year_month();
 	vector_tpl<const tunnel_besch_t*> matching(tunnel_by_name.get_count());
 
-	stringhashtable_iterator_tpl<tunnel_besch_t *>iter(tunnel_by_name);
-	while(  iter.next()  ) {
-		tunnel_besch_t* besch = iter.get_current_value();
+	FOR(stringhashtable_tpl<tunnel_besch_t*>, const& i, tunnel_by_name) {
+		tunnel_besch_t* const besch = i.value;
 		if (besch->get_waytype() == wtyp && (
 					time == 0 ||
 					(besch->get_intro_year_month() <= time && time < besch->get_retire_year_month())
@@ -167,8 +162,8 @@ void tunnelbauer_t::fill_menu(werkzeug_waehler_t* wzw, const waytype_t wtyp, sin
 		}
 	}
 	// now sorted ...
-	for (vector_tpl<const tunnel_besch_t*>::const_iterator i = matching.begin(), end = matching.end(); i != end; ++i) {
-		wzw->add_werkzeug( (*i)->get_builder() );
+	FOR(vector_tpl<tunnel_besch_t const*>, const i, matching) {
+		wzw->add_werkzeug(i->get_builder());
 	}
 }
 
@@ -342,7 +337,6 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 		weg->set_max_speed(besch->get_topspeed());
 		welt->access(pos.get_2d())->boden_hinzufuegen(tunnel);
 		weg->set_max_weight(besch->get_max_weight());
-		//weg->add_way_constraints(besch->get_way_constraints_permissive(), besch->get_way_constraints_prohibitive());
 		weg->add_way_constraints(besch->get_way_constraints());
 		
 		tunnel->neuen_weg_bauen(weg, ribi_t::doppelt(ribi), sp);
@@ -373,7 +367,6 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 		welt->access(pos.get_2d())->boden_hinzufuegen(tunnel);
 		weg->set_max_weight(besch->get_max_weight());
 		tunnel->neuen_weg_bauen(weg, ribi, sp);
-		//weg->add_way_constraints(besch->get_way_constraints_permissive(), besch->get_way_constraints_prohibitive());
 		weg->add_way_constraints(besch->get_way_constraints());
 		tunnel->obj_add(new tunnel_t(welt, pos, sp, besch));
 		tunnel->calc_bild();
@@ -415,7 +408,6 @@ const weg_besch_t *tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, ko
 	}
 	weg->set_max_speed( besch->get_topspeed() );
 	weg->set_max_weight( besch->get_max_weight() );
-	//weg->add_way_constraints(besch->get_way_constraints_permissive(), besch->get_way_constraints_prohibitive());
 	weg->add_way_constraints(besch->get_way_constraints());
 	tunnel->calc_bild();
 	tunnel->set_flag(grund_t::dirty);

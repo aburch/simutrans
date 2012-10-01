@@ -9,12 +9,11 @@
 #include "../simworld.h"
 #include "../simcolor.h"
 #include "../simwin.h"
-#include "../simwerkz.h"
-#include "../simskin.h"
+#include "../simmenu.h"
 #include "../besch/skin_besch.h"
-#include "../dataobj/umgebung.h"
 #include "../dataobj/translator.h"
 #include "../dings/label.h"
+#include "../player/simplay.h"
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
 
@@ -74,7 +73,8 @@ bool label_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 	if(komp == &input  &&  welt->get_active_player()==label->get_besitzer()) {
 		// check owner to change text
 		grund_t *gd = welt->lookup(label->get_pos());
-		if(  strcmp(gd->get_text(),edit_name)  ) {
+		if((gd->get_text() == NULL && edit_name) || strcmp(gd->get_text(), edit_name)) 
+		{
 			// text changed => call tool
 			cbuffer_t buf;
 			buf.printf( "m%s,%s", label->get_pos().get_str(), edit_name );

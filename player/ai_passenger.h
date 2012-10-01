@@ -9,7 +9,6 @@
 
 #include "ai.h"
 
-
 class ai_passenger_t : public ai_t
 {
 private:

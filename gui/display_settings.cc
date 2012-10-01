@@ -242,9 +242,10 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[b].set_text( "Smart hide objects" );
 	buttons[b].set_tooltip( "hide objects under cursor" );
 
-	buttons[22].set_pos( koord(10,HIGHLITE_SCHEDULE) );
-	buttons[22].set_typ( button_t::square_state );
-	buttons[22].set_text( "Highlite schedule" );
+	buttons[++b].set_pos( koord(10,HIGHLITE_SCHEDULE) );
+	buttons[b].set_typ( button_t::square_state );
+	buttons[b].set_text( "Highlite schedule" );
+	buttons[b].set_tooltip( "Highlight the locations of stops on the current schedule" );
 
 	for(int i=0;  i<COLORS_MAX_BUTTONS;  i++ ) {
 		buttons[i].add_listener(this);
@@ -275,6 +276,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	add_komponente( buttons+0 );
 	add_komponente( buttons+1 );
 	add_komponente( buttons+22);
+	add_komponente( buttons+23);
 
 	// unused buttons
 	// add_komponente( buttons+2 );
@@ -387,15 +389,15 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		welt->update_map();
 		// renew toolbar
 		werkzeug_t::update_toolbars(welt);
-	} else if((buttons+21)==komp) {
+	} else if((buttons+22)==komp) {
 		// see simwerkz.cc::wkz_hide_under_cursor_t::init
 		umgebung_t::hide_under_cursor = !umgebung_t::hide_under_cursor  &&  umgebung_t::cursor_hide_range>0;
-		buttons[21].pressed = umgebung_t::hide_under_cursor;
+		buttons[22].pressed = umgebung_t::hide_under_cursor;
 		// renew toolbar
 		werkzeug_t::update_toolbars(welt);
-	} else if((buttons+22)==komp) {
+	} else if((buttons+23)==komp) {
 		umgebung_t::visualize_schedule = !umgebung_t::visualize_schedule;
-		buttons[22].pressed = umgebung_t::visualize_schedule;
+		buttons[23].pressed = umgebung_t::visualize_schedule;
 	} else if (komp == &inp_underground_level) {
 		if(grund_t::underground_mode==grund_t::ugm_level) {
 			grund_t::underground_level = inp_underground_level.get_value();

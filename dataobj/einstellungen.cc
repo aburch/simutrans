@@ -310,8 +310,7 @@ settings_t::settings_t() :
 	max_bonus_min_distance = 256;
 	median_bonus_distance = 0;
 	max_bonus_multiplier_percent = 300;
-	meters_per_tile = 250;
-	steps_per_km = (1000 * VEHICLE_STEPS_PER_TILE) / meters_per_tile;
+	set_meters_per_tile(250);
 	tolerable_comfort_short = 15;
 	tolerable_comfort_median_short = 60;
 	tolerable_comfort_median_median = 100;
@@ -395,6 +394,8 @@ settings_t::settings_t() :
 
 	speed_bonus_multiplier_percent = 100;
 
+	allow_airports_without_control_towers = true;
+
 	allow_buying_obsolete_vehicles = true;
 
 	// default: load also private extensions of the pak file
@@ -435,8 +436,12 @@ settings_t::settings_t() :
 
 	toll_free_public_roads = false;
 
+	max_elevated_way_building_level = 2;
+
 	city_threshold_size = 1000;
 	capital_threshold_size = 10000;
+	max_small_city_size = 25000;
+	max_city_size = 250000;
 
 	allow_making_public = true;
 	
@@ -456,15 +461,6 @@ settings_t::settings_t() :
 	spacing_shift_mode = SPACING_SHIFT_PER_STOP;
 	spacing_shift_divisor = 24*60;
 }
-
-settings_t::~settings_t()
-{
-	ITERATE(livery_schemes, i)
-	{
-		delete livery_schemes[i];
-	}
-}
-
 
 void settings_t::set_default_climates()
 {
@@ -1245,10 +1241,6 @@ void settings_t::rdwr(loadsave_t *file)
 			uint16 livery_schemes_count = 0;
 			if(file->is_loading())
 			{
-				ITERATE(livery_schemes, i)
-				{
-					delete livery_schemes[i];
-				}
 				livery_schemes.clear();
 			}
 			if(file->is_saving())
@@ -1296,7 +1288,39 @@ void settings_t::rdwr(loadsave_t *file)
 			uint32 dummy = 0;
 			file->rdwr_long(dummy);
 		}
+
+		if(file->get_experimental_version() >= 10 && file->get_version() >= 111002)
+		{
+			file->rdwr_long(max_small_city_size);
+			file->rdwr_long(max_city_size);
+			file->rdwr_byte(max_elevated_way_building_level);
+			file->rdwr_bool(allow_airports_without_control_towers);
+		}
 	}
+
+#ifdef DEBUG_SIMRAND_CALLS
+	for (vector_tpl<const char *>::iterator i = karte_t::random_callers.begin(); i < karte_t::random_callers.end(); ++i)
+	{
+		free((void*)(*i));
+	}
+	karte_t::random_callers.clear();
+	karte_t::random_calls = 0;
+	char buf[256];
+	sprintf(buf,"Initial counter: %i; seed: %i", get_random_counter(), get_random_seed());
+	dbg->message("settings_t::rdwr", buf);
+	karte_t::random_callers.append(strdup(buf));
+
+	if(  umgebung_t::networkmode  ) {
+		// to have games synchronized, transfer random counter too
+		setsimrand(get_random_counter(), 0xFFFFFFFFu );
+
+		sprintf(buf,"Initial counter: %i; seed: %i", get_random_counter(), get_random_seed());
+		dbg->message("settings_t::rdwr", buf);
+		karte_t::random_callers.append(strdup(buf));
+
+		translator::init_custom_names(get_name_language_id());
+	}
+#endif
 }
 
 
@@ -1313,8 +1337,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	// @author: jamespetts
 	uint16 distance_per_tile_integer = meters_per_tile / 10;
 	meters_per_tile = contents.get_int("distance_per_tile", distance_per_tile_integer) * 10;
-	meters_per_tile = contents.get_int("meters_per_tile", meters_per_tile);
-	steps_per_km = (1000 * VEHICLE_STEPS_PER_TILE) / meters_per_tile;
+	set_meters_per_tile(contents.get_int("meters_per_tile", meters_per_tile));
 	float32e8_t distance_per_tile(meters_per_tile, 1000);
 
 		// special day/night colors
@@ -1600,7 +1623,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	fussgaenger = contents.get_int("random_pedestrians", fussgaenger ) != 0;
 	show_pax = contents.get_int("stop_pedestrians", show_pax ) != 0;
-	verkehr_level = contents.get_int("citycar_level", verkehr_level );	// ten normal years
+	verkehr_level = contents.get_int("citycar_level", verkehr_level );
 	stadtauto_duration = contents.get_int("default_citycar_life", stadtauto_duration );	// ten normal years
 	allow_buying_obsolete_vehicles = contents.get_int("allow_buying_obsolete_vehicles", allow_buying_obsolete_vehicles );
 	used_vehicle_reduction  = clamp( contents.get_int("used_vehicle_reduction", used_vehicle_reduction ), 0, 1000 );
@@ -1898,6 +1921,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	speed_bonus_multiplier_percent = contents.get_int("speed_bonus_multiplier_percent", speed_bonus_multiplier_percent);
 
+	allow_airports_without_control_towers = contents.get_int("allow_airports_without_control_towers", allow_airports_without_control_towers);
+
 	// Multiply by 10 because journey times are measured in tenths of minutes.
 	//@author: jamespetts
 	const uint16 min_local_tolerance_minutes = contents.get_int("min_local_tolerance", (min_local_tolerance / 10));
@@ -1923,6 +1948,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	min_wait_airport = contents.get_int("min_wait_airport", min_wait_airport) * 10; // Stored as 10ths of minutes
 
 	toll_free_public_roads = (bool)contents.get_int("toll_free_public_roads", toll_free_public_roads);
+
+	max_elevated_way_building_level = (uint8)contents.get_int("max_elevated_way_building_level", max_elevated_way_building_level);
 
 	assume_everywhere_connected_by_road = (bool)(contents.get_int("assume_everywhere_connected_by_road", assume_everywhere_connected_by_road));
 
@@ -1965,6 +1992,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	city_threshold_size  = contents.get_int("city_threshold_size", city_threshold_size);
 	capital_threshold_size  = contents.get_int("capital_threshold_size", capital_threshold_size);
+	max_small_city_size  = contents.get_int("max_small_city_size", max_small_city_size);
+	max_city_size  = contents.get_int("max_city_size", max_city_size);
 	spacing_shift_mode = contents.get_int("spacing_shift_mode", spacing_shift_mode);
 	spacing_shift_divisor = contents.get_int("spacing_shift_divisor", spacing_shift_divisor);
 
@@ -2243,4 +2272,17 @@ void settings_t::set_allow_routing_on_foot(bool value)
 { 
 	allow_routing_on_foot = value; 
 	path_explorer_t::refresh_category(0);
+}
+
+void settings_t::set_meters_per_tile(uint16 value) 
+{ 
+	meters_per_tile = value; 
+	steps_per_km = (1000 * VEHICLE_STEPS_PER_TILE) / meters_per_tile; 
+	simtime_factor = float32e8_t(meters_per_tile, 1000);
+	steps_per_meter = float32e8_t(VEHICLE_STEPS_PER_TILE, meters_per_tile);
+	meters_per_step = float32e8_t(meters_per_tile, VEHICLE_STEPS_PER_TILE);
+
+	// As simspeed2ms = meters_per_yard / seconds_per_tick
+	// seconds_per_tick = meters_per_step / yards_per_step / simspeed2ms
+	seconds_per_tick = meters_per_step / ( (1<<YARDS_PER_VEHICLE_STEP_SHIFT) * simspeed2ms); 
 }

@@ -10,7 +10,7 @@ menûpont alatti gombokkal.</p>
 egyszerûen egy hibaüzenetet kapsz.</p>
 
 <p><em>Fontos!</em> Régebbi verzióban mentett játékok nem minden esetben
-kompatibilisek az új verziókkal. További információért kutakodj egy kicsi
-a neten. Például itt:<strong>http://forum.simutrans.com</strong>. Több mint valószínû a nagy verzióváltások lemente
+kompatibilisek az új verziókkal. További információért kutakodj egy kicsit
+a neten. Például itt:<strong>http://forum.simutrans.com</strong>. Több mint valószínû a nagy verzióváltások lementett
 játékai nem kompatibilisek egymással.
 </p>

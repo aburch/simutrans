@@ -10,6 +10,7 @@ Global
 		Debug (SDL)|Win32 = Debug (SDL)|Win32
 		Debug SDL|Win32 = Debug SDL|Win32
 		Debug|Win32 = Debug|Win32
+		Dr. Memory|Win32 = Dr. Memory|Win32
 		Release (command-line server)|Win32 = Release (command-line server)|Win32
 		Release (IP v. 4 only)|Win32 = Release (IP v. 4 only)|Win32
 		Release (SDL)|Win32 = Release (SDL)|Win32
@@ -27,6 +28,8 @@ Global
 		{0621B295-BEB7-4767-82F1-F27995610323}.Debug SDL|Win32.Build.0 = Debug (SDL)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Debug|Win32.ActiveCfg = Debug|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Debug|Win32.Build.0 = Debug|Win32
+		{0621B295-BEB7-4767-82F1-F27995610323}.Dr. Memory|Win32.ActiveCfg = Dr. Memory|Win32
+		{0621B295-BEB7-4767-82F1-F27995610323}.Dr. Memory|Win32.Build.0 = Dr. Memory|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Release (command-line server)|Win32.ActiveCfg = Release (command-line server)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Release (command-line server)|Win32.Build.0 = Release (command-line server)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Release (IP v. 4 only)|Win32.ActiveCfg = Release (IP v. 4 only)|Win32

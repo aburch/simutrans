@@ -41,7 +41,7 @@ public:
 	void clear() { name = NULL; chk = NULL; }
 
 	// for the communication of the server with the client
-	static stringhashtable_iterator_tpl<checksum_t*> server_iterator;
+	static stringhashtable_tpl<checksum_t*>::iterator server_iterator;
 	static SOCKET server_receiver;
 };
 

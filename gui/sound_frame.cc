@@ -9,7 +9,6 @@
 
 #include "sound_frame.h"
 #include "../simsound.h"
-#include "../simintr.h"
 #include "../dataobj/translator.h"
 
 

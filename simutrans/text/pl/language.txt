@@ -1,13 +1,22 @@
-<title>POMOC: wybór jezyka</title>
+<title>POMOC: Jêzyki</title>
 
-<h1>Wybor jezyka</h1>
+<h1><strong>Jêzyki</strong></h1>
 
 <p>
-Gra Simutrans obsluguje do kilkudziesieciu jezykow<br>
-Jesli przelaczysz gre na inny jezyk komunikaty i wszystkie teksty w grze beda wyswietlane w tym jezyku. Nowy jezyk w otwartych oknach pojawi sie po ich ponownym otwarciu<br>
-Nie przetlumaczone beda tylko nazwy miast wygenerowane na poczatku gry. Jesli wybierzesz odpowiedni jezyk przed utworzeniem mapy otrzymasz nazwy miast zgodne z danym jezykiem (Opcja ta dziala nie we wszystkich jezykach)
+Okno <strong>jêzyków</strong> pozwala zmieniæ jêzyk u¿ywany w grze.
+</p>
+<p>
+Mo¿na je otworzyæ za pomoc± <a href="options.txt">opcji gry</a>, wy¶wietla siê równie¿ przy <a href="new_world.txt">tworzeniu nowego ¶wiata</a>.
+</p>
+<p>
+Domy¶lnym jêzykiem gry jest jêzyk angielski. Je¶li chcesz graæ w innym jêzyku, zaznacz odpowiednie pole przy nazwie jêzyka.</p>
+<p>
+Jêzyk mo¿e byæ dowolnie zmieniany podczas gry. Aby go zmieniæ, wejd¼ w Opcje gry i kliknij Jêzyk.</p>
+<p>Zmiana nastêpuje natychmiastowo gdy tworzysz nowy ¶wiat lub przy zamykaniu okienka <strong>Jêzyki</strong> je¶li grasz na wcze¶niej stworzonej mapie.
+</p>
+<p>
+Je¿eli t³umaczenie zawiera b³êdy, niektóre teksty mog± wy¶wietlaæ siê w jêzyku angielskim. Je¶li tak jest, zg³o¶ to!
 </p>
 
 <p>
-Jesli brakuje twojego jezyka wejdz na strony http://www.simustation.de.vu lub http://www.simutrans.de - byc moze znajdziesz tam odpowiedni plik jezykowy.
-</p>
+Je¿eli chcesz pomóc w t³umaczeniu gry, odwied¼ stronê <strong>SimuTranslator</strong> - http://simutranslator.simutrans-germany.com <br/> Pamiêtaj, ka¿da pomoc siê przyda!</p>

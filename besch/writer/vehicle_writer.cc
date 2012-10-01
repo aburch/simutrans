@@ -78,7 +78,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	int i;
 	uint8  uv8;
 
-	int total_len = 73;
+	int total_len = 75;
 
 	// prissi: must be done here, since it may affect the len of the header!
 	string sound_str = ltrim( obj.get("sound") );
@@ -254,7 +254,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// first: find out how many freight and liveries
 	for (i = 0; i < 127; i++)
 	{
-		// Freight with multiple types without liveries
+		// Freight with multiple types and single liveries
 		char buf[40];
 		sprintf(buf, "freightimage[%d][%s]", i, dir_codes[0]);
 		printf("Reading freightimage[%d][%s]\n", i, dir_codes[0]);
@@ -268,7 +268,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	
 	for (i = 0; i < 127; i++)
 	{
-		// Freight with multiple types and liveries
+		// Freight with multiple types and multiple liveries
 		for (int j = 0; j < 127; j++)
 		{
 			char buf[40];
@@ -278,7 +278,9 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 			if(str.empty())
 			{
 				freight_max += i;
-				livery_max += j;
+				// Do not increment livery_max here, as this will double count:
+				// liveries for loaded vehicles should be the same as for unloaded vehicles,
+				// and the liveries will have been counted already in empty images.
 				goto end;
 			}
 		}
@@ -288,7 +290,7 @@ end:
 
 	for (i = 0; i < 127; i++)
 	{
-		// Liveries without fright / empty images
+		// Empty images with multiple liveries
 		char buf[40];
 		sprintf(buf, "emptyimage[%s][%d]", dir_codes[0], i);
 		printf("Reading emptyimage[%s][%d]\n", dir_codes[0], i);
@@ -300,32 +302,33 @@ end:
 		}
 	}
 
+	// Freight with a single type and multiple liveries
+	uint8 basic_freight_images = 0;
 	for (i = 0; i < 127; i++)
 	{
-		// Freight with a single type and liveries
 		char buf[40];
 		sprintf(buf, "freightimage[%s][%d]", dir_codes[0], i);
 		printf("Reading freightimage[%s][%d]\n", dir_codes[0], i);
 		str = obj.get(buf);
 		if(str.empty())
 		{
-			livery_max += i;
+			// Do not increment livery_max here, as this will double count:
+			// liveries for loaded vehicles should be the same as for unloaded vehicles,
+			// and the liveries will have been counted already in empty images.
+			basic_freight_images = i;
 			break;
 		}
 	}
 
 	// Freight with a single type and single liveries
-	uint8 basic_freight_images = 0;
 	for (i = 0; i < 127; i++)
 	{
-		// Freight with a single type and liveries
 		char buf[40];
 		sprintf(buf, "freightimage[%s]", dir_codes[0]);
 		printf("Reading freightimage[%s]\n", dir_codes[0]);
 		str = obj.get(buf);
 		if(str.empty())
 		{
-			basic_freight_images = i;
 			break;
 		}
 	}
@@ -358,19 +361,26 @@ end:
 		else
 		{
 			// Empty images with multiple liveries
-			liverykeys_empty.append(slist_tpl<string>());
+			liverykeys_empty.append();
 			for(int livery = 0; livery < livery_max; livery++)
 			{
 				sprintf(buf, "emptyimage[%s][%d]", dir_codes[i], livery);
 				str = obj.get(buf);
-				if(str.empty())
+				if(!str.empty())
 				{
-					printf("*** FATAL ***:\nMissing emptyimage[%s][%d]!\n", dir_codes[i], livery);
-					fflush(NULL);
-					exit(0);
+					printf("Appending emptyimage[%s][%d]\n", dir_codes[i], livery);
+					liverykeys_empty.at(i).append(str);
+					if (i >= 4) 
+					{
+						has_8_images = true;
+					}
 				}
-				printf("Appending emptyimage[%s][%d]\n", dir_codes[i], livery);
-				liverykeys_empty.at(i).append(str);
+				else
+				{
+					// stop when empty string is found
+					break;
+				}
+				
 			}
 		}
 
@@ -388,7 +398,7 @@ end:
 		} 
 		else if (freight_max > 0 && livery_max == 0)
 		{
-			freightkeys.append(slist_tpl<string>());
+			freightkeys.append();
 			for(int freight = 0; freight < freight_max; freight++)
 			{
 				sprintf(buf, "freightimage[%d][%s]", freight, dir_codes[i]);
@@ -408,7 +418,7 @@ end:
 			// a single freight image
 			// old style definition - just [direction]
 			// With liveries
-			liverykeys_freight_old.append(slist_tpl<string>());
+			liverykeys_freight_old.append();
 			for(int livery = 0; livery < livery_max; livery++)
 			{
 				sprintf(buf, "freightimage[%s][%d]", dir_codes[i], livery);
@@ -418,22 +428,26 @@ end:
 					break;
 				}
 				printf("Appending freightimage[%s][%d]", dir_codes[i], livery);
+				//fprintf(stderr, "Appending freightimage[%s][%d]\n", dir_codes[i], livery);
 				liverykeys_freight_old.at(i).append(str);
 			}
 		}
 		else if (freight_max > 0 && livery_max > 0)
 		{
 			// Liveries *and* freight
-			liverykeys_freight.append(slist_tpl<slist_tpl<string> >());
+			liverykeys_freight.append();
 			for(int livery = 0; livery < livery_max; livery++)
 			{
+				liverykeys_freight.at(i).append(); // See http://forum.simutrans.com/index.php?topic=9841.0
 				for(int freight = 0; freight < freight_max; freight++)
 				{
 					sprintf(buf, "freightimage[%d][%s][%d]", freight, dir_codes[i], livery);
 					str = obj.get(buf);
 					if(str.empty())
 					{
+						break;
 						printf("*** FATAL ***:\nMissing freightimage[%d][%s][%d]!\n", freight, dir_codes[i], livery);
+						//fprintf(stderr, "*** FATAL ***:\nMissing freightimage[%d][%s][%d]!\n", freight, dir_codes[i], livery);
 						fflush(NULL);
 						exit(0);
 					}
@@ -446,6 +460,7 @@ end:
 		{
 			// This should never be reached.
 			printf("*** FATAL ***: Error in code");
+			//fprintf(stderr, "*** FATAL ***: Error in code");
 			exit(0);
 		}
 	}
@@ -454,12 +469,14 @@ end:
 	if (has_8_images && emptykeys.get_count() < 8 && liverykeys_empty.get_count() < 8) 
 	{
 		printf("*** FATAL ***:\nMissing images (must be either 4 or 8 directions (but %i found)!)\n", emptykeys.get_count() + liverykeys_empty.get_count());
+		//fprintf(stderr, "*** FATAL ***:\nMissing images (must be either 4 or 8 directions (but %i found)!)\n", emptykeys.get_count() + liverykeys_empty.get_count());
 		exit(0);
 	}
 
 	if (!(freightkeys_old.empty() || liverykeys_freight_old.empty()) && (emptykeys.get_count() != freightkeys_old.get_count() || liverykeys_empty.get_count() != liverykeys_freight_old.get_count()))
 	{
 		printf("*** FATAL ***:\nMissing freigthimages (must be either 4 or 8 directions (but %i found)!)\n", freightkeys_old.get_count());
+		//fprintf(stderr, "*** FATAL ***:\nMissing freigthimages (must be either 4 or 8 directions (but %i found)!)\n", freightkeys_old.get_count());
 		exit(0);
 	}
 
@@ -485,16 +502,21 @@ end:
 	else if(freight_max > 0 && livery_max > 0)
 	{
 		// Multiple frieght images, multiple liveries
+		//fprintf(stderr, "Writing %d multiple livery multiple type freight images\n", (liverykeys_freight.get_count() * liverykeys_freight.front().get_count() * liverykeys_freight.front().front().get_count()));
 		imagelist3d_writer_t::instance()->write_obj(fp, node, liverykeys_freight);
 		printf("Writing %d multiple livery multiple type freight images\n", (liverykeys_freight.get_count() * liverykeys_freight.front().get_count() * liverykeys_freight.front().front().get_count()));
+		//fprintf(stderr, "Completed\n");
 	}
 	else if(freight_max == 0 && livery_max > 0 && basic_freight_images > 0)
 	{
 		// Single freight images, multiple liveries
+		//fprintf(stderr, "Writing %d single type multiple livery freight images\n", liverykeys_freight_old.get_count() * liverykeys_freight_old.front().get_count());
 		imagelist2d_writer_t::instance()->write_obj(fp, node, liverykeys_freight_old);
+		freight_max = 255; // To indicate that there are indeed single freight images and multiple liveries available. 
 		printf("Writing %d single type multiple livery freight images\n", liverykeys_freight_old.get_count() * liverykeys_freight_old.front().get_count());
+		//fprintf(stderr, "Completed\n");
 	}
-	else if(freight_max == 0 && livery_max == 0)
+	else if(freight_max == 0 && freight_max < 255 && livery_max == 0)
 	{
 		// Single freight images, no multiple liveries
 		if (freightkeys_old.get_count() == emptykeys.get_count()) 
@@ -592,27 +614,31 @@ end:
 
 	// multiple freight image types - define what good uses each index
 	// good without index will be an error
-	for (i = 0; i <= freight_max; i++)
+	if(freight_max < 255)
 	{
-		char buf[40];
-		sprintf(buf, "freightimagetype[%d]", i);
-		str = obj.get(buf);
-		if (i == freight_max) 
+		for (i = 0; i <= freight_max; i++)
 		{
-			// check for superflous definitions
-			if(!str.empty())
+			char buf[40];
+			sprintf(buf, "freightimagetype[%d]", i);
+			str = obj.get(buf);
+			if (i == freight_max) 
 			{
-				printf("WARNING: More freightimagetype (%i) than freight_images (%i)!\n", i, freight_max);
-				fflush(NULL);
+				// check for superflous definitions
+				if(!str.empty())
+				{
+					printf("WARNING: More freightimagetype (%i) than freight_images (%i)!\n", i, freight_max);
+					fflush(NULL);
+				}
+				break;
 			}
-			break;
+			if(str.empty())
+			{
+				printf("*** FATAL ***:\nMissing freightimagetype[%i] for %i freight_images!\n", i, freight_max + 1);
+				//fprintf(stderr, "*** FATAL ***:\nMissing freightimagetype[%i] for %i freight_images!\n", i, freight_max + 1);
+				exit(0);
+			}
+			xref_writer_t::instance()->write_obj(fp, node, obj_good, str.c_str(), false);
 		}
-		if(str.empty())
-		{
-			printf("*** FATAL ***:\nMissing freightimagetype[%i] for %i freight_images!\n", i, freight_max + 1);
-			exit(0);
-		}
-		xref_writer_t::instance()->write_obj(fp, node, obj_good, str.c_str(), false);
 	}
 
 	// multiple liveries - define what liveries use each index
@@ -635,6 +661,7 @@ end:
 		if(str.empty())
 		{
 			printf("*** FATAL ***:\nMissing liverytype[%i] for %i liveries!\n", i, livery_max + 1);
+			//fprintf(stderr, "*** FATAL ***:\nMissing liverytype[%i] for %i liveries!\n", i, livery_max + 1);
 			exit(0);
 		}
 		text_writer_t::instance()->write_obj(fp, node, str.c_str());
@@ -642,7 +669,7 @@ end:
 
 	// if no index defined then add default as vehicle good
 	// if not using freight images then store zero string
-	if (freight_max > 0) 
+	if (freight_max > 0 && freight_max < 255) 
 	{
 		xref_writer_t::instance()->write_obj(fp, node, obj_good, freight, false);
 	}
@@ -816,28 +843,7 @@ end:
 
 	// Air resistance
 	// @author: jamespetts & Bernd Gabriel
-	uint16 air_default;
-	switch(waytype)
-	{
-		default:
-		case road_wt:
-			air_default = 252; //2.52 when read
-			break;
-		case track_wt:
-		case tram_wt:
-		case monorail_wt:
-		case narrowgauge_wt:
-			air_default = 1300; //13 when read
-			break;
-		case water_wt:
-			air_default = 2500; //25 when read
-			break;
-		case maglev_wt:		
-			air_default = 1000; //10 when read
-			break;
-		case air_wt:
-			air_default = 100; //1 when read
-	};
+	uint16 air_default = vehikel_besch_t::get_air_default(waytype);
 
 	uint16 air_resistance_hundreds = obj.get_int("air_resistance", air_default);
 	node.write_uint16(fp, air_resistance_hundreds, pos);
@@ -883,27 +889,7 @@ end:
 	node.write_uint16(fp, max_loading_time, pos);
 	pos += sizeof(uint16);
 
-	uint16 rolling_default;
-	switch(waytype)
-	{
-		default:
-		case road_wt:
-			rolling_default = 150; //0.015 when read
-			break;
-		case track_wt:
-		case tram_wt:
-		case monorail_wt:
-		case narrowgauge_wt:
-			rolling_default = 51; //0.0051 when read
-			break;
-		case air_wt:
-		case water_wt:
-			rolling_default = 10; //0.001 when read
-			break;
-		case maglev_wt:		
-			rolling_default = 15; //0.0015 when read
-			break;
-	};
+	uint16 rolling_default = vehikel_besch_t::get_rolling_default(waytype);
 
 	uint16 rolling_resistance_tenths_thousands = obj.get_int("rolling_resistance", rolling_default);
 	node.write_uint16(fp, rolling_resistance_tenths_thousands, pos);
@@ -912,6 +898,10 @@ end:
 	uint16 brake_force = obj.get_int("brake_force", 65535);
 	node.write_uint16(fp, brake_force, pos);
 	pos += sizeof(brake_force);
+
+	uint16 minimum_runway_length = obj.get_int("minimum_runway_length", 0);
+	node.write_uint16(fp, minimum_runway_length, pos);
+	pos += sizeof(minimum_runway_length);
 
 	sint8 sound_str_len = sound_str.size();
 	if (sound_str_len > 0) {

@@ -40,6 +40,7 @@ void news_window::extend_window_with_component(gui_komponente_t *const component
 		add_komponente(component);
 	}
 	else {
+		textarea.set_width(textarea.get_groesse().x + 10 + size.x);
 		textarea.recalc_size();
 		set_fenstergroesse( koord(textarea.get_groesse().x + 20, textarea.get_groesse().y + 36) );
 	}

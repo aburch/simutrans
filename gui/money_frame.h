@@ -91,6 +91,11 @@ private:
 	const char *display_money(int, char * buf, int);
 
 	/**
+	 * fills buffer (char array) with number info (e.g. amount of transported items)
+	 */
+	const char *display_number(int, char * buf, int);
+
+	/**
 	 * Returns the appropriate colour for a certain finance type
 	 * @author Owen Rudge
 	 */
@@ -142,15 +147,7 @@ public:
 	 */
 	void zeichnen(koord pos, koord gr);
 
-	/**
-	 * This method is called if an action is triggered
-	 * @author Hj. Malthaner
-	 *
-	 * Returns true, if action is done and no more
-	 * components should be triggered.
-	 * V.Meyer
-	 */
-	bool action_triggered( gui_action_creator_t *komp, value_t extra);
+	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	// saving/restore stuff
 	uint32 get_rdwr_id();

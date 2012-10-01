@@ -74,7 +74,7 @@
 
 using std::string;
 
-#ifdef DEBUG
+#if defined DEBUG || defined PROFILE
 /* diagnostic routine:
  * show the size of several internal structures
  */
@@ -222,7 +222,9 @@ void modal_dialogue( gui_frame_t *gui, long magic, karte_t *welt, bool (*quit)()
 				dr_sleep(5);
 			} while(  dr_time()<last_step  );
 			DBG_DEBUG4("zeige_banner", "calling welt->sync_step");
+			intr_disable();
 			welt->sync_step( ms_pause, true, true );
+			intr_enable();
 			DBG_DEBUG4("zeige_banner", "calling welt->step");
 			if(  step_count--==0  ) {
 				welt->step();
@@ -476,7 +478,7 @@ int simu_main(int argc, char** argv)
 		// data files are in /usr/share/games/simutrans
         char backup_program_dir[1024];
 		strcpy(backup_program_dir, umgebung_t::program_dir);
-		strcpy( umgebung_t::program_dir, "/usr/share/games/simutrans/" );
+		strcpy( umgebung_t::program_dir, "/usr/share/games/simutrans-ex/" );
         chdir( umgebung_t::program_dir );
 		if(simuconf.open("config/simuconf.tab")) 
 		{
@@ -536,7 +538,7 @@ int simu_main(int argc, char** argv)
 		// Again, attempt to use the Debian directory.
 		char backup_program_dir[1024];
 		strcpy(backup_program_dir, umgebung_t::program_dir);
-		strcpy( umgebung_t::program_dir, "/usr/share/games/simutrans/" );
+		strcpy( umgebung_t::program_dir, "/usr/share/games/simutrans-ex/" );
         chdir( umgebung_t::program_dir );
 		xml_settings_found = file.rd_open(xml_filename);
 		if(!xml_settings_found)
@@ -747,7 +749,7 @@ int simu_main(int argc, char** argv)
 		}
 		if(  umgebung_t::objfilename.empty()  ) {
 			// nothing to be loaded => exit
-			dr_fatal_notify("*** No pak set found ***\n\nMost likely, you have no pak set installed.\nPlease download and install also graphcis (pak).\n");
+			dr_fatal_notify("*** No pak set found ***\n\nMost likely, you have no pak set installed.\nPlease download and install a pak set (graphics).\n");
 			simgraph_exit();
 			return 0;
 		}
@@ -1037,6 +1039,8 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		new_world = true;
 		sint32 old_autosave = umgebung_t::autosave;
 		umgebung_t::autosave = false;
+		uint32 old_number_of_big_cities = umgebung_t::number_of_big_cities;
+		umgebung_t::number_of_big_cities = 0;
 		settings_t sets;
 		sets.copy_city_road( umgebung_t::default_einstellungen );
 		sets.set_default_climates();
@@ -1056,6 +1060,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		welt->step_month(5);
 		welt->step();
 		welt->step();
+		umgebung_t::number_of_big_cities = old_number_of_big_cities;
 		umgebung_t::autosave = old_autosave;
 	}
 	else {
@@ -1176,7 +1181,6 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 	werkzeug_t::exit_menu();
 
-	welt->destroy();	// some compiler aparently do not like accessing welt during destroy
 	delete welt;
 	welt = NULL;
 

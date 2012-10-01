@@ -57,16 +57,7 @@ public:
 	*/
 	void update_preview();
 
-	/**
-	 * This method is called if an action is triggered
-	 * @author Hj. Malthaner
-	 *
-	 * Returns true, if action is done and no more
-	 * components should be triggered.
-	 * V.Meyer
-	 */
-	bool action_triggered( gui_action_creator_t *komp, value_t extra);
-
+	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	/**
 	 * Manche Fenster haben einen Hilfetext assoziiert.

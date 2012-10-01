@@ -158,5 +158,6 @@ void haus_besch_t::calc_checksum(checksum_t *chk) const
 	chk->input(station_maintenance);
 	chk->input(station_price);
 	chk->input(station_capacity);
-
+	chk->input(allow_underground ? 1 : 0);
+	chk->input(is_control_tower ? 1 : 0);
 }

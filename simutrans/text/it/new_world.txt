@@ -18,13 +18,13 @@ default è 33.
 </p>
 <p>
 Le dimensioni della mappa determinano quanto grande essa sarà. E' possibile
-impostare un valore compreso fra 128x128 e 576x576 quadrati. Il defaul
+impostare un valore compreso fra 128x128 e 576x576 quadrati. Il default
 è 256x256.
 </p>
 <p>
 La densità delle industrie determina quante fabbriche saranno inserite
 nella mappa. Più bassa è la densità e più difficile diveterà il gioco,
-poichè ci saranno meno possibilità di trasporto di beni. Il defaul
+poichè ci saranno meno possibilità di trasporto di beni. Il default
 è 125.
 </p>
 <p>

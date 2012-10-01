@@ -77,7 +77,7 @@ DBG_MESSAGE("verteile_baeume()","creating %i forest",c_forest_count);
 vector_tpl<const baum_besch_t *> baum_t::baum_typen(0);
 
 // index vector into baumtypen, accessible per climate
-vector_tpl<weighted_vector_tpl<uint32> > baum_t::baum_typen_per_climate(MAX_CLIMATES);
+weighted_vector_tpl<uint32>* baum_t::baum_typen_per_climate = NULL;
 
 /*
  * Diese Tabelle ermoeglicht das Auffinden einer Beschreibung durch ihren Namen
@@ -259,20 +259,19 @@ bool baum_t::alles_geladen()
 		baum_typen.append( NULL );
 	}
 	else {
-		stringhashtable_iterator_tpl<const baum_besch_t*> iter(besch_names);
-		while(  iter.next()  ) {
-			baum_typen.insert_ordered( iter.get_current_value(), compare_baum_besch );
+		FOR(stringhashtable_tpl<baum_besch_t const*>, const& i, besch_names) {
+			baum_typen.insert_ordered(i.value, compare_baum_besch);
 			if(  baum_typen.get_count()==254  ) {
 				dbg->error( "baum_t::alles_geladen()", "Maximum tree count exceeded! (max 254 instead of %i)", besch_names.get_count() );
 				break;
 			}
 		}
-		// fill the vector with zeros
-		for (uint8 j=0; j<MAX_CLIMATES; j++) {
-			baum_typen_per_climate.append( weighted_vector_tpl<uint32>() );
-		}
-		// clear cache
-		memset( baumtype_to_bild, -1, lengthof(baumtype_to_bild) );
+
+		if (baum_typen_per_climate) {
+			delete [] baum_typen_per_climate;
+ 		}
+		baum_typen_per_climate = new weighted_vector_tpl<uint32>[MAX_CLIMATES];
+
 		// now register all trees for all fitting climates
 		for(  uint32 typ=0;  typ<baum_typen.get_count();  typ++  ) {
 			// add this tree to climates

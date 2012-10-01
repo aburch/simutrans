@@ -19,8 +19,7 @@
 #include "../dataobj/koord3d.h"
 #include "../dataobj/translator.h"
 
-// height of titlebar
-#define TITLEBAR_HEIGHT (16)
+#include "components/list_button.h"
 
 class loadsave_t;
 class spieler_t;
@@ -156,7 +155,7 @@ public:
 	 * @author Markus Weber
 	 * @date   11-May-2002
 	*/
-	koord get_client_windowsize() const {return groesse-koord(0,16); }
+	koord get_client_windowsize() const {return groesse-koord(0,TITLEBAR_HEIGHT); }
 
 	/**
 	 * Manche Fenster haben einen Hilfetext assoziiert.
@@ -209,8 +208,7 @@ public:
 	resize_modes get_resizemode(void) { return resize_mode; }
 
 	/**
-	 * Prüft, ob eine Position innerhalb der Komponente liegt.
-	 * @author Hj. Malthaner
+	 * Returns true, if inside window area.
 	 */
 	virtual bool getroffen(int x, int y)
 	{

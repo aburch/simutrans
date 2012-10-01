@@ -63,7 +63,7 @@ public:
 		CONVOI_REVENUE =			4, // the income this CONVOI generated
 		CONVOI_OPERATIONS =			5, // the cost of operations this CONVOI generated
 		CONVOI_PROFIT =				6, // total profit of this convoi
-		CONVOI_DISTANCE =			7, // total distance traveld this month
+		CONVOI_DISTANCE =			7, // total distance traveled this month
 		CONVOI_REFUNDS =			8, // The refunds passengers waiting for this convoy (only when not attached to a line) have received.
 		MAX_CONVOI_COST =			9
 	};
@@ -71,7 +71,7 @@ public:
 	/* Konstanten
 	* @author prissi
 	*/
-	enum { max_vehicle=4, max_rail_vehicle = 64 };
+	enum { max_vehicle=8, max_rail_vehicle = 64 };
 
 	enum states {INITIAL,
 		FAHRPLANEINGABE,
@@ -93,6 +93,12 @@ public:
 		REVERSING,
 		MAX_STATES
 	};
+
+	/**
+	* time, when a convoi waiting for full load will drive on
+	* @author prissi
+	*/
+	sint64 go_on_ticks;
 
 	struct departure_data_t
 	{
@@ -385,12 +391,6 @@ private:
 	sint32 wait_lock;
 
 	/**
-	* time, when a convoi waiting for full load will drive on
-	* @author prissi
-	*/
-	sint64 go_on_ticks;
-
-	/**
 	* akkumulierter gewinn über ein jahr hinweg
 	* @author Hanjsörg Malthaner
 	*/
@@ -412,6 +412,13 @@ private:
 	* @author prissi
 	*/
 	koord3d last_stop_pos;
+
+	/**
+	* Necessary for registering departure and waiting times.
+	* last_stop_pos cannot be used because sea-going ships do not
+	* stop on a halt tile.
+	*/
+	uint16 last_stop_id;
 
 	// things for the world record
 	sint32 max_record_speed; // current convois fastest speed ever
@@ -535,7 +542,8 @@ private:
 	 * "last_departure_time" member.
 	 * Modified October 2011 to include accumulated distance.
 	 */
-	inthashtable_tpl<uint16, departure_data_t> *departures;
+	typedef inthashtable_tpl<uint16, departure_data_t> departure_map;
+	departure_map *departures;
 
 	// When we arrived at current stop
 	// @author Inkelyad
@@ -626,12 +634,59 @@ public:
 		ribi_t::ribi direction;
 	};
 
+	class route_infos_t : public vector_tpl<route_info_t>
+	{
+		// BG, 05.08.2012: pay attention to the aircrafts' holding pattern!
+		// It starts at route_index = touchdown - HOLDING_PATTERN_LENGTH - HOLDING_PATTERN_OFFSET
+		// and has a length of HOLDING_PATTERN_LENGTH.
+		sint32 hp_start_index; // -1: not an aircraft or aircraft has passed the start of the holding pattern.
+		sint32 hp_end_index;   // -1: not an aircraft or aircraft has passed the start of the holding pattern.
+		sint32 hp_start_step;  // -1: not an aircraft or aircraft has passed the start of the holding pattern.
+		sint32 hp_end_step;   // -1: not an aircraft or aircraft has passed the start of the holding pattern.
+	public:
+		void set_holding_pattern_indexes(sint32 current_route_index, sint32 touchdown_route_index);
+
+		inline sint32 get_holding_pattern_start_index() const { return hp_start_index; }
+		inline sint32 get_holding_pattern_end_index()   const { return hp_end_index; }
+		inline sint32 get_holding_pattern_start_step()  const { return hp_start_step; }
+		inline sint32 get_holding_pattern_end_step()    const { return hp_end_step; }
+
+		// BG 05.08.2012: calc number of steps. Ignores the holding pattern, if start_step starts before it and end_step ends after it.
+		// In any other case the holding pattern is part off the route or is irrelevant.
+		inline sint32 calc_steps(sint32 start_step, sint32 end_step)
+		{
+			if (hp_start_step >= 0 && start_step < hp_start_step && hp_end_step <= end_step)
+			{
+				// assume they will not send us into the holding pattern: skip it.
+				return (end_step - start_step) - (hp_end_step - hp_start_step);
+			}
+			return end_step - start_step;
+		}
+
+		// BG 05.08.2012: calc number of tiles. Ignores the holding pattern, if start_index starts before it and end_index ends after it.
+		// In any other case the holding pattern is part off the route or is irrelevant.
+		inline sint32 calc_tiles(sint32 start_index, sint32 end_index)
+		{
+			if (hp_start_index >= 0 && start_index < hp_start_index && hp_end_index <= end_index)
+			{
+				// assume they will not send us into the holding pattern: skip it.
+				return (end_index - start_index) - (hp_end_index - hp_start_index);
+			}
+			return end_index - start_index;
+		}
+	};
+#ifdef DEBUG_PHYSICS
+	sint32 next_speed_limit; 
+	sint32 steps_til_limit;
+	sint32 steps_til_brake;
+#endif
+
 private:
 	/** 
 	  * List of upcoming speed limits; for braking purposes.
 	  * @author: jamespetts, September 2011
 	  */
-	vector_tpl<route_info_t> route_infos;
+	route_infos_t route_infos;
 
 public:
 	ding_t::typ get_depot_type() const;
@@ -649,12 +704,6 @@ public:
 	route_t* access_route() { return &route; }
 	bool calc_route(koord3d start, koord3d ziel, sint32 max_speed);
 	void update_route(uint32 index, const route_t &replacement); // replace route with replacement starting at index.
-
-	/**
-	* Checks if this convoi has a driveable route
-	* @author Hanjsörg Malthaner
-	*/
-	bool hat_keine_route() const { return (state==NO_ROUTE); }
 
 	/**
 	* get line
@@ -966,7 +1015,10 @@ public:
 	* The table of point-to-point average journey times.
 	* @author jamespetts
 	*/
-	koordhashtable_tpl<id_pair, average_tpl<uint16> > * average_journey_times;
+	typedef koordhashtable_tpl<id_pair, average_tpl<uint16> > journey_times_map;
+private:
+		journey_times_map *average_journey_times;
+public:
 
 #if 0
 private:
@@ -1225,6 +1277,8 @@ public:
 	static uint8 calc_tolerable_comfort(uint16 journey_minutes, karte_t* w);
 	inline uint8 calc_tolerable_comfort(uint16 journey_minutes) { return calc_tolerable_comfort(journey_minutes, welt); }
 
+	static uint16 calc_max_tolerable_journey_time(uint16 comfort, karte_t* w);
+
 	uint16 get_livery_scheme_index() const;
 	void set_livery_scheme_index(uint16 value) { livery_scheme_index = value; }
 
@@ -1244,16 +1298,32 @@ public:
 	
 	bool is_wait_infinite() const { return go_on_ticks == WAIT_INFINITE; }
 
-	vector_tpl<route_info_t>& get_route_infos() { return route_infos; }
+	route_infos_t& get_route_infos();
 
-	void set_akt_speed(sint32 akt_speed) { this->akt_speed = akt_speed; v = speed_to_v(akt_speed); }
+	void set_akt_speed(sint32 akt_speed) { 
+		this->akt_speed = akt_speed; 
+		if (akt_speed > 8)
+			v = speed_to_v(akt_speed/2); 
+		else
+			v = speed_to_v(akt_speed); 
+	}
 
-	inline bool is_circular_route() const;
+	bool is_circular_route() const;
 	
 	/** For going to a depot automatically
 	 *  when stuck - will teleport if necessary.
 	 */
 	void emergency_go_to_depot();
+
+	koordhashtable_tpl<id_pair, average_tpl<uint16> > * const get_average_journey_times();
+	inline koordhashtable_tpl<id_pair, average_tpl<uint16> > * const get_average_journey_times_this_convoy_only() { return average_journey_times; }
+
+	/**
+	 * Clears the departure data.
+	 * Used when the line changes
+	 * its shcedule.
+	 */
+	void clear_departures();
 };
 
 #endif

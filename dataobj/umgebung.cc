@@ -40,11 +40,11 @@ bool umgebung_t::pause_server_no_clients = false;
 
 // this is explicitely and interactively set by user => we do not touch it in init
 const char *umgebung_t::language_iso = "en";
-sint16 umgebung_t::scroll_multi = 1;
+sint16 umgebung_t::scroll_multi = 2;
 sint16 umgebung_t::global_volume = 127;
 sint16 umgebung_t::midi_volume = 127;
 bool umgebung_t::mute_sound = false;
-bool umgebung_t::mute_midi = false;
+bool umgebung_t::mute_midi = true;
 bool umgebung_t::shuffle_midi = true;
 sint16 umgebung_t::window_snap_distance = 8;
 

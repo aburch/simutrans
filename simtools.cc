@@ -27,22 +27,27 @@ static uint8 random_origin = 0;
 /* initializes mersenne_twister[N] with a seed */
 static void init_genrand(uint32 s)
 {
+#ifdef DEBUG_SIMRAND_CALLS
+	karte_t::random_callers.append(strdup("*** GEN ***"));
+#endif
 	mersenne_twister[0]= s & 0xffffffffUL;
 	for (mersenne_twister_index=1; mersenne_twister_index<MERSENNE_TWISTER_N; mersenne_twister_index++) {
 		mersenne_twister[mersenne_twister_index] = (1812433253UL * (mersenne_twister[mersenne_twister_index-1] ^ (mersenne_twister[mersenne_twister_index-1] >> 30)) + mersenne_twister_index);
 		/* See Knuth TAOCP Vol2. 3rd Ed. P.106 for multiplier. */
 		/* In the previous versions, MSBs of the seed affect   */
-		/* only MSBs of the array mersenne_twister[].                        */
+		/* only MSBs of the array mersenne_twister[].          */
 		/* 2002/01/09 modified by Makoto Matsumoto             */
 		mersenne_twister[mersenne_twister_index] &= 0xffffffffUL;
 		/* for >32 bit machines */
 	}
 }
 
-
 /* generate N words at one time */
 static void MTgenerate(void)
 {
+#ifdef DEBUG_SIMRAND_CALLS
+	karte_t::random_callers.append(strdup("*** REGEN ***"));
+#endif
 	static uint32 mag01[2]={0x0UL, MATRIX_A};
 	uint32 y;
 	int kk;
@@ -103,43 +108,34 @@ uint32 simrand(const uint32 max, const char*)
 #endif
 {
 	assert( (random_origin&INTERACTIVE_RANDOM) == 0  );
+	if(max<=1) {	// may rather assert this?
+		return 0;
+	}
 
 #ifdef DEBUG_SIMRAND_CALLS
-	char* buf = new char[256];
-	sprintf(buf, "%s (%i)", caller, get_random_seed());
+	uint32 result = simrand_plain() % max;
+	char buf[256];
+	sprintf(buf, "%s (%i); call: (%i). rand %u, max %u", caller, get_random_seed(), karte_t::random_calls, result, max);
 	dbg->warning("simrand", buf);
 	if(karte_t::print_randoms)
 	{
 		printf("%s\n", buf);
 	}
 
-	karte_t::random_callers.add_to_head(buf);
+//	karte_t::random_callers.append(strdup(buf));
+	karte_t::random_calls ++;
+	return result;
 #endif
 
-	if(max<=1) {	// may rather assert this?
-		return 0;
-	}
+#ifdef DEBUG_SIMRAND_CALLS_1
+	// Run the random number generator to change the seed,
+	// but do not use the number to ensure a consistent 
+	// code path for debugging.
+	simrand_plain();
+	return max - 1;
+#else
 	return simrand_plain() % max;
-}
-
-/* generates random number with gaussian distribution
- * math taken from random.py in Python */
-double simrand_gauss(const double mean, const double sigma)
-{
-	assert( random_origin !=1);
-	static double gauss_next = 0.0; /* "impossible" value, random numbers can't be exactly 0.0 */
-	double z;
-	z = gauss_next;
-	gauss_next = 0.0;
-	if (z == 0.0) {
-		double x = rand()/(RAND_MAX + 1.0);
-		double y = rand()/(RAND_MAX + 1.0);
-		double x2pi = x * 2 * acos(-1.0); // acos(-1.0) == M_PI (it is removed from header files for some reasons)
-		double g2rad = sqrt(-2.0 * log ( 1.0 - y));
-		z = cos(x2pi) * g2rad;
-		gauss_next = sin(x2pi) * g2rad;
-	}
-	return(mean + z * sigma);
+#endif
 }
 
 void clear_random_mode( uint16 mode )
@@ -182,7 +178,6 @@ uint32 setsimrand(uint32 seed,uint32 ns)
 
 	if(seed!=0xFFFFFFFF) {
 		init_genrand( seed );
-		srand(seed);
 		rand_seed = seed;
 		random_origin = 0;
 	}
@@ -355,6 +350,8 @@ double perlin_noise_2D(const double x, const double y, const double p, const sin
 	static const double amplitude_0[6] = {0,  1,  2,  3,  4,  5};
 	static const double frequency_1[8] = {0.25, 0.5,  1,  2,  4,  8, 16, 32};
 	static const double amplitude_1[8] = {-0.5,   0,  1,  2,  2,  3,  4,  7};
+	static const double frequency_2[16] = {0.0625, 0.125, 0.25, 0.5, 0.75,  1, 1.5,  2, 3, 4, 6, 8, 12, 16, 24, 32};
+	static const double amplitude_2[16] = {-0.5, -0.75, 0, 0.5, 1, 1.5, 2, 2.25, 2.5, 2.75, 3, 3.5, 4, 5, 7, 9};
 
 	if (m<768) {
 		for(i=0; i<6; i++) {
@@ -364,7 +361,7 @@ double perlin_noise_2D(const double x, const double y, const double p, const sin
 			                            (y * frequency) / 64.0) * amplitude;
 		}
 		return total;
-	} else {
+	} else if (m<2048) {
 		for(i=0; i<8; i++) {
 			const double frequency = frequency_1[i];
 			const double amplitude = pow(p, amplitude_1[i]);
@@ -372,6 +369,15 @@ double perlin_noise_2D(const double x, const double y, const double p, const sin
 										(y * frequency) / 64.0) * amplitude;
 		}
 		return total;
+	}
+	else
+	{
+		for(i=0; i<16; i++) {
+			const double frequency = frequency_2[i];
+			const double amplitude = pow(p, amplitude_2[i]);
+			total += interpolated_noise((x * frequency) / 64.0,
+										(y * frequency) / 64.0) * amplitude;
+		}
 	}
 
     return total;
@@ -385,19 +391,16 @@ uint32 log10(uint32 v)
 {
 	// taken from http://graphics.stanford.edu/~seander/bithacks.html
 	// compute log2 first
-	const uint32 b[] = {0x2, 0xC, 0xF0, 0xFF00, 0xFFFF0000};
-	const uint32 S[] = {1, 2, 4, 8, 16};
+	const uint32 b[] = { 0x2, 0xC, 0xF0, 0xFF00, 0xFFFF0000 };
+	const uint32 S[] = { 1, 2, 4, 8, 16 };
 
 	uint32 r = 0; // result of log2(v) will go here
-	for (int i = 4; i >= 0; i--)
-	{
-	  if (v & b[i])
-	  {
-		v >>= S[i];
-		r |= S[i];
-	  }
+	for(  int i = 4;  i >= 0;  i--  ) {
+		if(  v & b[i]  ) {
+			v >>= S[i];
+			r |= S[i];		}
 	}
-	uint32 t = (r + 1) * 1233 >> 12; // 1 / log_2(10) ~~ 1233 / 4096
+	uint32 t = ((r + 1) * 1233) >> 12; // 1 / log_2(10) ~~ 1233 / 4096
 	return t;
 }
 

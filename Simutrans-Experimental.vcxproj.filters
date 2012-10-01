@@ -908,9 +908,6 @@
     <ClInclude Include="besch\writer\crossing_writer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="utils\cstring_t.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="gui\curiosity_edit.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1043,9 +1040,6 @@
     <ClInclude Include="besch\grund_besch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ifc\gui_action_creator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="gui\components\gui_button.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1073,9 +1067,6 @@
     <ClInclude Include="gui\components\gui_divider.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ifc\gui_fenster.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="gui\components\gui_flowtext.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1086,9 +1077,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gui\components\gui_image_list.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ifc\gui_komponente.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gui\components\gui_label.h">
@@ -1745,9 +1733,6 @@
     <ClInclude Include="dataobj\network_cmd.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="gui\send_message_frame.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="gui\server_frame.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1784,10 +1769,67 @@
     <ClInclude Include="gui\privatesign_info.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="utils\for.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="gui\components\gui_ding_view_t.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="gui\display_settings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="gui\ai_option_t.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\bildliste3d_besch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\factory_chart.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\components\gui_action_creator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\components\gui_fixedwidth_textarea.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\components\gui_komponente.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\components\gui_location_view_t.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tpl\list_tpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\memory_rw.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\network_cmp_pakset.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\network_socket_list.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\plainstring.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\pwd_hash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\replace_frame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simsys_w32_png.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simwerkz-dialogs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\station_building_select.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\trafficlight_info.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1823,9 +1865,6 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="config.template">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\simutrans-experimental-binaries\text\en.tab">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="Makefile">
@@ -1874,13 +1913,22 @@
     <None Include="base_texts_experimental_10.8.dat">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="base_texts_experimental_10.9.dat">
+    <None Include="base_texts_experimental_10.11.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="simutrans\text\en.tab">
       <Filter>Resource Files</Filter>
     </None>
     <None Include=".gitignore">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="base_texts_experimental_braking_branch.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="simutrans\copyright.txt">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="base_texts_experimental_10.12.dat">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

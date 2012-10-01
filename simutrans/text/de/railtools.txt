@@ -36,6 +36,8 @@ Willst du nur ein Tunnelportal bauen, dann kannst du einen Ctrl (Strg)+Mausklick
 <br> <br/>
 <em>Signalbau</em> Signale können nur auf Gleisen gebaut werden, aber nicht auf Kreuzungen. Beim Bau eines Signals wird auf jeder Gleisseite ein Signal aufgestellt. Die Strecke kann in beiden Richtungen befahren werden. Klickst Du die Platzierungsstelle erneut mit dem Signalwerkzeug an, wird ein Signal entfernt, die Strecke kann nur in Signalrichtung befahren werden.
 In der Regel befinden sich die Signale in Simutrans rechts vom Gleis. Beim nächsten Klick auf die Positionierungsstelle wird ein Signal auf der Gegenseite plaziert. Die Strecke kann nun nur in der Gegenrichtung befahren werden. Beim nächsten Klick erscheinen wieder beide Signale, die Strecke ist wieder in beide Richtungen befahrbar.
+<br/>
+Wird ein Signal mit Strg+Maustaste ausgewählt, kann mit dem <a href="signal_spacing.txt">Multisignalwerkzeug</a> eine ganze Reihe von Signalen auf einmal gebaut werden.
 <br/> <br/>
 <em>Wegfindung</em> Wurden auf einer Strecke Richtungssignale in der verkehrten Richtung aufgestellt, können die Züge der Linie keinen Weg finden und verlassen das Depot oder den Bahnhof nicht bzw. bleiben am letzten Linienpunkt vor dem nicht passierbaren Signal stehen. Es ist somit empfehlenswert, dem Verhalten der Züge auf neu eingerichteten Strecken anfänglich etwas erhöhte Aufmerksamkeit zu widmen.
 <br/> <br/>

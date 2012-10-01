@@ -45,6 +45,10 @@ private:
 	bool scenario;
 	bool quit;
 
+	double city_density;
+	double industry_density;
+	double attraction_density;
+
 	int old_lang;
 
 	gui_numberinput_t inp_map_number, inp_x_size, inp_y_size;
@@ -82,6 +86,8 @@ private:
 
 	void resize_preview();
 
+	void update_densities();
+
 public:
 	welt_gui_t(karte_t*, settings_t*);
 
@@ -106,12 +112,7 @@ public:
 	// does not work during new world dialoge
 	virtual bool has_sticky() const { return false; }
 
-	/**
-	 * Events werden hiermit an die GUI-Komponenten
-	 * gemeldet
-	 * @author Hj. Malthaner
-	 */
-	bool infowin_event(const event_t *ev);
+	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**
 	 * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
@@ -122,15 +123,7 @@ public:
 	 */
 	void zeichnen(koord pos, koord gr);
 
-	/**
-	 * This method is called if an action is triggered
-	 * @author Hj. Malthaner
-	 *
-	 * Returns true, if action is done and no more
-	 * components should be triggered.
-	 * V.Meyer
-	 */
-	bool action_triggered( gui_action_creator_t *komp, value_t extra);
+	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };
 
 #endif

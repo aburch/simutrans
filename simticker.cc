@@ -111,12 +111,11 @@ void ticker::zeichnen(void)
 			display_fillbox_wh(width-X_DIST, start_y+1, X_DIST, TICKER_HEIGHT, MN_GREY2, true);
 			// ok, ready for the text
 			PUSH_CLIP(width-X_DIST-1,start_y+1,X_DIST+1,TICKER_HEIGHT);
-			for (slist_iterator_tpl<node> i(list); i.next();) {
-				node* n = &i.access_current();
-				n->xpos -= X_DIST;
-				if(n->xpos<width) {
-					display_proportional_clip(n->xpos, start_y+4, n->msg,  ALIGN_LEFT, n->color, true);
-					default_pos = n->pos;
+			FOR(slist_tpl<node>, & n, list) {
+				n.xpos -= X_DIST;
+				if (n.xpos < width) {
+					display_proportional_clip(n.xpos, start_y + 4, n.msg, ALIGN_LEFT, n.color, true);
+					default_pos = n.pos;
 				}
 			}
 			POP_CLIP();
@@ -146,12 +145,11 @@ void ticker::redraw_ticker()
 		// just draw the ticker grey ... (to be sure ... )
 		display_fillbox_wh(0, start_y, width, 1, COL_BLACK, true);
 		display_fillbox_wh(0, start_y+1, width, TICKER_HEIGHT, MN_GREY2, true);
-		for (slist_iterator_tpl<node> i(list); i.next();) {
-			node* n = &i.access_current();
-			n->xpos -= X_DIST;
-			if(n->xpos<width) {
-				display_proportional_clip(n->xpos, start_y+4, n->msg,  ALIGN_LEFT, n->color, true);
-				default_pos = n->pos;
+		FOR(slist_tpl<node>, & n, list) {
+			n.xpos -= X_DIST;
+			if (n.xpos < width) {
+				display_proportional_clip(n.xpos, start_y + 4, n.msg, ALIGN_LEFT, n.color, true);
+				default_pos = n.pos;
 			}
 		}
 	}
