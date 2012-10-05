@@ -209,6 +209,8 @@ void wayobj_t::laden_abschliessen()
 	if(get_besitzer()) {
 		spieler_t::add_maintenance(get_besitzer(), besch->get_wartung());
 	}
+
+	calc_bild();
 }
 
 
