@@ -63,7 +63,7 @@ static PIXVAL mixed_color(PIXVAL map, PIXVAL src1, PIXVAL src2, PIXVAL src3)
 static bild_besch_t* create_textured_tile(const bild_besch_t* bild_lightmap, const bild_besch_t* bild_texture)
 {
 	bild_besch_t *bild_dest = bild_lightmap->copy_rotate(0);
-
+#if COLOUR_DEPTH != 0
 	PIXVAL* dest = bild_dest->get_daten();
 
 	PIXVAL const* const texture = bild_texture->get_daten();
@@ -97,7 +97,7 @@ static bild_besch_t* create_textured_tile(const bild_besch_t* bild_lightmap, con
 		} while(  (*dest++)!=0 );
 	}
 	assert(dest - bild_dest->get_daten() == (ptrdiff_t)bild_dest->get_pic()->len);
-
+#endif
 	bild_dest->register_image();
 	return bild_dest;
 }
@@ -112,7 +112,7 @@ static bild_besch_t* create_textured_tile(const bild_besch_t* bild_lightmap, con
 static bild_besch_t* create_textured_tile_mix(const bild_besch_t* bild_lightmap, ribi_t::ribi slope, const bild_besch_t* bild_mixmap,  const bild_besch_t* bild_src1, const bild_besch_t* bild_src2, const bild_besch_t* bild_src3)
 {
 	bild_besch_t *bild_dest = bild_lightmap->copy_rotate(0);
-
+#if COLOUR_DEPTH != 0
 	PIXVAL const* const mixmap  = bild_mixmap->get_daten();
 	PIXVAL const* const src1    = bild_src1->get_daten() - bild_src1->get_pic()->y * (bild_src1->get_pic()->w + 3L);
 	PIXVAL const* const src2    = bild_src2->get_daten() - bild_src2->get_pic()->y * (bild_src2->get_pic()->w + 3L);
@@ -250,7 +250,7 @@ static bild_besch_t* create_textured_tile_mix(const bild_besch_t* bild_lightmap,
 			tile_x += *dest;
 		} while(  *dest++!=0 );
 	}
-
+#endif
 	bild_dest->register_image();
 	return bild_dest;
 }
@@ -392,9 +392,11 @@ void grund_besch_t::calc_water_level(karte_t *w, uint8 *height_to_climate)
 	if(image_offset!=IMG_LEER) {
 		display_free_all_images_above( image_offset );
 	}
+#if COLOUR_DEPTH != 0
 	while (!ground_bild_list.empty()) {
 		delete ground_bild_list.remove_first();
 	}
+#endif
 
 	// create height table
 	sint16 climate_border[MAX_CLIMATES];
@@ -567,11 +569,14 @@ DBG_MESSAGE("grund_besch_t::calc_water_level()","height %i: list %i vs. %i", h, 
 		final_tile = create_textured_tile( light_map->get_bild_ptr(slope), boden_texture->get_bild_ptr(arctic_climate) );
 		ground_bild_list.append( final_tile );
 	}
+
+#if COLOUR_DEPTH != 0
 	// free the helper bitmap
 	for( int slope=1; slope<15;  slope++ ) {
 		delete all_rotations_beach[slope];
 		delete all_rotations_slope[slope];
 	}
+#endif
 	dbg->message("grund_besch_t::calc_water_level()", "Last image nr %u", final_tile->get_pic()->bild_nr);
 	printf("done\n");
 }

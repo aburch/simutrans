@@ -55,6 +55,9 @@ const uint32 bild_besch_t::rgbtab[SPECIAL] = {
 */
 bild_besch_t *bild_besch_t::copy_rotate(const sint16 angle) const
 {
+#if COLOUR_DEPTH == 0
+	return const_cast<bild_besch_t *>(this);
+#endif
 	assert(angle == 0 || (pic.w == pic.h && pic.x == 0 && pic.y == 0));
 
 	bild_besch_t* target_besch = new(pic.len * sizeof(PIXVAL)) bild_besch_t();
