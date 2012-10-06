@@ -4680,8 +4680,18 @@ const char *wkz_link_factory_t::do_work( karte_t *welt, spieler_t *, const koord
 
 	if(fab!=NULL  &&  last_fab!=NULL  &&  last_fab!=fab) {
 		// It's a factory
-		if(fab->add_supplier(last_fab) || last_fab->add_supplier(fab)) {
-			//ok! they are connected
+		if(!is_ctrl_pressed()) {
+			if(fab->add_supplier(last_fab) || last_fab->add_supplier(fab)) {
+				//ok! they are connected
+				return NULL;
+			}
+		}
+		else {
+			// remove connections
+			fab->rem_supplier(last_fab->get_pos().get_2d());
+			fab->rem_lieferziel(last_fab->get_pos().get_2d());
+			last_fab->rem_supplier(fab->get_pos().get_2d());
+			last_fab->rem_lieferziel(fab->get_pos().get_2d());
 			return NULL;
 		}
 	}
