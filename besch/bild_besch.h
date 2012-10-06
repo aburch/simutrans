@@ -20,7 +20,7 @@
 
 
 struct bild_t {
-	uint32 len;	// since the maximum size of a node is uint16!
+	uint32 len;
 	sint16 x;
 	sint16 y;
 	sint16 w;
