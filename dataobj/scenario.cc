@@ -716,11 +716,11 @@ void scenario_t::rotate90(const sint16 y_size)
 // return percentage completed
 int scenario_t::completed(int player_nr)
 {
-	if ( what_scenario == 0) {
+	if ( what_scenario == 0  ||  player_nr < 0  ||  player_nr >= PLAYER_UNOWNED) {
 		return 0;
 	}
 	// check if won / lost
-	uint32 pl = (0<=player_nr  &&  player_nr<PLAYER_UNOWNED) ? player_nr : PLAYER_UNOWNED;
+	uint32 pl = player_nr;
 	if (won & (1<<player_nr)) {
 		return 100;
 	}
