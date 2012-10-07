@@ -48,13 +48,6 @@ void script_vm_t::errorfunc(HSQUIRRELVM vm, const SQChar *s_, ...)
 	if (strcmp(s, "<error>")==0) {
 		buf.clear();
 		buf.printf("<st>Your script made an error!</st>\n");
-		// find failed script
-		for(uint32 i=0; i<all_scripts.get_count(); i++) {
-			if (all_scripts[i]->get_vm() == vm) {
-				all_scripts[i]->script_failed();
-				break;
-			}
-		}
 	}
 	if (strcmp(s, "</error>")==0) {
 		help_frame_t *win = new help_frame_t();
@@ -83,7 +76,6 @@ void script_vm_t::errorfunc(HSQUIRRELVM vm, const SQChar *s_, ...)
 script_vm_t::script_vm_t()
 {
 	vm = sq_open(1024);
-	failed = false;
 	sqstd_seterrorhandlers(vm);
 	sq_setprintfunc(vm, printfunc, errorfunc);
 	if (script_log == NULL) {

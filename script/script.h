@@ -34,10 +34,6 @@ public:
 
 	const HSQUIRRELVM& get_vm() const { return vm; }
 
-
-	/// @return if script has failed, i.e. runtime error in script
-	bool has_failed() const { return failed; }
-
 	const char* get_error() const { return error_msg.c_str(); }
 
 
@@ -116,7 +112,6 @@ public:
 private:
 	HSQUIRRELVM vm;
 
-	bool failed;
 	plainstring error_msg;
 
 	/// prepare function call, used in templated call_function()
@@ -127,9 +122,6 @@ private:
 
 	/// custom error handler for compile and runtime errors of squirrel scripts
 	static void errorfunc(HSQUIRRELVM vm, const SQChar *s_,...);
-
-	/// mark script as failed, used in errorhandlers
-	void script_failed() { failed = true; }
 
 	/// set error message, used in errorhandlers
 	void set_error(const char* error) { error_msg = error; }
