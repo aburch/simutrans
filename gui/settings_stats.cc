@@ -518,7 +518,7 @@ void settings_climates_stats_t::read(settings_t* const sets)
 	READ_NUM_VALUE_NEW( sets->forest_map_size_divisor );
 	READ_NUM_VALUE_NEW( sets->forest_count_divisor );
 	READ_NUM_VALUE_NEW( sets->forest_inverse_spare_tree_density );
-	READ_NUM_VALUE_NEW( sets->max_no_of_trees_on_square );
+	READ_NUM_VALUE( sets->max_no_of_trees_on_square );
 	READ_NUM_VALUE_NEW( sets->tree_climates );
 	READ_NUM_VALUE_NEW( sets->no_tree_climates );
 }
