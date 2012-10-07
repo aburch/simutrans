@@ -1760,6 +1760,8 @@ karte_t::karte_t() :
 	time_multiplier = 16;
 	next_step_time = last_step_time = 0;
 	fix_ratio_frame_time = 200;
+	network_frame_count = 0;
+	sync_steps = 0;
 
 	for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
 		werkzeug[i] = werkzeug_t::general_tool[WKZ_ABFRAGE];
@@ -4888,12 +4890,6 @@ DBG_DEBUG("karte_t::laden", "init felder ok");
 	last_step_ticks = ticks;
 	steps = 0;
 	step_mode = PAUSE_FLAG;
-
-	// initialize sync_step here for scripted scenario
-	if(  umgebung_t::server  ) {
-		network_frame_count = 0;
-		sync_steps = 0;
-	}
 
 DBG_MESSAGE("karte_t::laden()","savegame loading at tick count %i",ticks);
 	recalc_average_speed();	// resets timeline
