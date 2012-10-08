@@ -1009,8 +1009,6 @@ Lock game
 Запретить изменение игрока (нужно подтверждение)
 LOCO_CAP
 Вместимость: %d%s %s\n
-LOCO_INFO
-%s\nЦена: %d$ (%1.2f$/км)\nМощность: %dкВт, %dкм/ч\nВес: %dт\n
 Lokomotive_tab
 Локомотивы
 m3
@@ -1513,8 +1511,6 @@ via Menge
 через (кол-во)
 voranstellen
 Вывести
-WAGGON_INFO
-%s\nЦена : %d$ (%1.2f$/км)\nВместимость: %d%s %s\nВес: %dт\nМакс. скорость: %dкм/ч\n
 Waggon_tab
 Вагоны
 waiting
@@ -1595,12 +1591,10 @@ New world record for ship: %.1f km/h by %s.
 \nДолжен использоваться:
 \nNetwork ID:
 \nНомер ЛЭП:
-%s\nCost:     %d$\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d (%d)%s %s\nWeight: %dt\nTop speed: %dkm/h\n
-%s\nЦена: %d$\nЭкспл.: %1.2f$/км, %1.2f$/мес.\nВместимость: %d (%d)%s %s\nВес: %dт\nСкорость макс.: %dкм/ч\n
-%s\nCost:     %d$\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d%s %s\nWeight: %dt\nTop speed: %dkm/h\n
-%s\nЦена: %d$\nЭкспл.: %1.2f$/км, %1.2f$/мес.\nВместимость: %d%s %s\nВес: %dт\nСкорость макс.: %dкм/ч\n
-%s\nCost: %d$\nMaint.: %1.2f$/km, %1.2f$/month\nPower: %dkW, %dkm/h\nWeight: %dt\n
-%s\nЦена: %d$\nЭкспл.: %1.2f$/км, %1.2f$/мес.\nМощность: %dкВт, %dкм/ч\nВес: %dт\n
+%s\nCost:     %s\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d (%d)%s %s\nWeight: %dt\nTop speed: %dkm/h\n
+%s\nЦена: %s\nЭкспл.: %1.2f$/км, %1.2f$/мес.\nВместимость: %d (%d)%s %s\nВес: %dт\nСкорость макс.: %dкм/ч\n
+%s\nCost:     %s\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d%s %s\nWeight: %dt\nTop speed: %dkm/h\n
+%s\nЦена: %s\nЭкспл.: %1.2f$/км, %1.2f$/мес.\nВместимость: %d%s %s\nВес: %dт\nСкорость макс.: %dкм/ч\n
 Acceleration
 Ускорение
 All hidden items (such as trees and buildings) will appear as transparent.
@@ -1638,7 +1632,7 @@ Inverse graphs (other)
 Loading time:
 Время загрузки:
 LOCO_INFO_EXT
-%s\nЦена: %d$\nЭкспл.: %1.2f$/км, %1.2f$/мес.\nМощность: %dкВт, %dкм/ч\nВес: %dт\n
+%s\nЦена: %s\nЭкспл.: %1.2f$/км, %1.2f$/мес.\nМощность: %dкВт, %dкм/ч\nВес: %dт\n
 Mark for replacing
 Модель для замены
 Mark for replacing. The convoy will replace when manually sent to depot

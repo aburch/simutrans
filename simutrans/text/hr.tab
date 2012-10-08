@@ -993,8 +993,6 @@ Lock game
 Zabraniti promjene igraca (zahtijeva potvrdu).
 LOCO_CAP
 Kapacitet: %d %s %s
-LOCO_INFO
-%s\nCijena: %d$ (%1.2f$/km)\nSnaga: %dKW, %dkm/h\nTezina: %dt\n
 Lokomotive_tab
 Lokomotive
 maglev vehicle
@@ -1569,8 +1567,10 @@ via Menge
 preko (kolicina)
 voranstellen
 Postaviti naprijed
-WAGGON_INFO
-%s\nCijena: %d$ (%1.2f$/km)\nKapacitet: %d %s %s\nTezina: %dt\nMax. brzina: %dkm/h\n
+%s\nCost:     %s\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d%s %s\nWeight: %dt\nTop speed: %dkm/h\n
+%s\nCijena:   %s\nOdrz.: %1.2f$/km, %1.2f$/mjesec\nKapacitet: %d%s %s\nTezina: %dt\nMax. brzina: %dkm/h\n
+%s\nCost:     %s\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d (%d)%s %s\nWeight: %dt\nTop speed: %dkm/h\n
+%s\nCijena:   %s\nOdrz.: %1.2f$/km, %1.2f$/mjesec\nKapacitet: %d (%d)%s %s\nTezina: %dt\nMax. brzina: %dkm/h\n
 Waggon_tab
 vagoni
 waiting
@@ -1874,7 +1874,7 @@ Vrijeme ucitavanja:
 local
 lokalno
 LOCO_INFO_EXT
-%s\nCijena: %d$\nOdrz.: %1.2f$/km, %1.2f$/mjesec\nSnaga: %dkW, %dkm/h\nTezina: %dt\n
+%s\nCijena: %s\nOdrz.: %1.2f$/km, %1.2f$/mjesec\nSnaga: %dkW, %dkm/h\nTezina: %dt\n
 long dist.
 dugacki put
 long time

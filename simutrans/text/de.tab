@@ -1023,8 +1023,6 @@ Lock game
 Karte gegen weiteren Spielerwechsel schützen.
 LOCO_CAP
 Zuladung: %d%s %s\n
-LOCO_INFO
-%s\nPreis:    %d$ (%1.2f$/km)\nLeistung: %dkW\nHöchstgeschw: %dkm/h\nGewicht:  %dt\n
 Lokomotive_tab
 Loks
 m3
@@ -1561,8 +1559,10 @@ Verkehrsteilnehmer
 Stadtautos
 via %s\n
  über %s\n
-WAGGON_INFO
-%s\nPreis:    %d$ (%1.2f$/km)\nZuladung: %d%s %s\nGewicht:  %dt\nHöchstgeschw.: %dkm/h\n
+%s\nCost:     %s\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d%s %s\nWeight: %dt\nTop speed: %dkm/h\n
+%s\nPreis:    %s\nBetriebsk.: %1.2f$/km, %1.2f$/Monat\nZuladung: %d%s %s\nGewicht: %dt\nHöchstgeschw.: %dkm/h\n
+%s\nCost:     %s\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d (%d)%s %s\nWeight: %dt\nTop speed: %dkm/h\n
+%s\nPreis:    %s\nBetriebsk.: %1.2f$/km, %1.2f$/Monat\nZuladung: %d (%d)%s %s\nGewicht: %dt\nHöchstgeschw.: %dkm/h\n
 Waggon_tab
 Waggons
 waiting
@@ -1718,7 +1718,7 @@ Komfort:
 Loading time:
 Lade Zeit:
 LOCO_INFO_EXT
-%s\nPreis: %d$\nBetriebsk.: %1.2f$/km, %1.2f$/Monat\nLeistung: %dkW, %dkN\nHöchstgeschw.: %dkm/h\nGewicht: %dt\n
+%s\nPreis: %s\nBetriebsk.: %1.2f$/km, %1.2f$/Monat\nLeistung: %dkW, %dkN\nHöchstgeschw.: %dkm/h\nGewicht: %dt\n
 Replace
 Ersetzen
 replace all

@@ -1069,8 +1069,6 @@ Lock game
 Proibir mudança de jogador (Impossível desfazer)
 LOCO_CAP
 Capacidade: %d%s %s
-LOCO_INFO
-%s\nPreço:       %d$  (%1.2f$/km)\nPotência:    %d KW\nVel. Máxima: %d km/h\nPeso:        %dt\n
 Lokomotive_tab
 Locomotivas
 m3
@@ -1695,8 +1693,10 @@ via Menge
 Via (quant.)
 voranstellen
 À frente
-WAGGON_INFO
-%s\nPreço:        %d$ (%1.2f$/km)\nCapacidade: %d%s %s\nPeso:         %dt\nVel. máxima: %d km/h
+%s\nCost:     %s\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d%s %s\nWeight: %dt\nTop speed: %dkm/h\n
+%s\nPreço:    %s\nManutenção: %1.2f$/km, %1.2f$/mês\nCapacidade: %d%s %s\nPeso: %dt\nVel. máxima: %dkm/h\n
+%s\nCost:     %s\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d (%d)%s %s\nWeight: %dt\nTop speed: %dkm/h\n
+%s\nPreço:    %s\nManutenção: %1.2f$/km, %1.2f$/mês\nCapacidade: %d (%d)%s %s\nPeso: %dt\nVel. máxima: %dkm/h\n
 Waggon_tab
 Vagões
 waiting
@@ -1914,7 +1914,7 @@ Vel. média
 Constructed by %s\n
 Construído por %s\n
 LOCO_INFO_EXT
-%s\nPreço:         %d$\nManutenção: %1.2f$/km, %1.2f$/mês\nPotência:     %dkW, %dkN\nVel. Máxima:  %dkm/h\nPeso:         %dt\n
+%s\nPreço:         %s\nManutenção: %1.2f$/km, %1.2f$/mês\nPotência:     %dkW, %dkN\nVel. Máxima:  %dkm/h\nPeso:         %dt\n
 North To South
 Norte à Sul
 origin (amount)

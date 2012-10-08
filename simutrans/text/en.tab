@@ -1353,10 +1353,8 @@ Lock game
 Disallow player changes (requires confirmation).
 LOCO_CAP
 Capacity: %d%s %s\n
-LOCO_INFO
-%s\nCost: %d$ (%1.2f$/km)\nPower: %dkW, %dkN\nTop Speed: %dkm/h\nWeight: %dt\n
 LOCO_INFO_EXT
-%s\nCost: %d$\nMaint.: %1.2f$/km, %1.2f$/month\nPower: %dkW, %dkN\nTop Speed: %dkm/h\nWeight: %dt\nMax. brake force: %dkN\nRolling resistance: %fN\n
+%s\nCost: %s\nMaint.: %1.2f$/km, %1.2f$/month\nPower: %dkW, %dkN\nTop Speed: %dkm/h\nWeight: %dt\nMax. brake force: %dkN\nRolling resistance: %fN\n
 Lokomotive_tab
 Locomotives
 m3
@@ -1959,12 +1957,10 @@ voranstellen
 Put in front
 Wagen im Block
 waggons in block
-WAGGON_INFO
-%s\nCost:     %d$ (%1.2f$/km)\nCapacity: %d%s %s\nWeight: %dt\nTop speed: %dkm/h\n
-%s\nCost:     %d$\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d%s %s\nWeight: %dt\nTop speed: %dkm/h\n
-%s\nCost:     %d$\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d%s %s\nWeight: %dt\nTop speed: %dkm/h\n
-%s\nCost:     %d$\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d (%d)%s %s\nWeight: %dt\nTop speed: %dkm/h\n
-%s\nCost:     %d$\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d (%d)%s %s\nWeight: %dt\nTop speed: %dkm/h\n
+%s\nCost:     %s\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d%s %s\nWeight: %dt\nTop speed: %dkm/h\n
+%s\nCost:     %s\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d%s %s\nWeight: %dt\nTop speed: %dkm/h\n
+%s\nCost:     %s\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d (%d)%s %s\nWeight: %dt\nTop speed: %dkm/h\n
+%s\nCost:     %s\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d (%d)%s %s\nWeight: %dt\nTop speed: %dkm/h\n
 Waggon_tab
 Freight wagons
 waiting

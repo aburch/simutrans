@@ -1087,8 +1087,6 @@ Lock game
 Vieta cambio giocatore (richiede conferma).
 LOCO_CAP
 Capacità: %d %s %s\n
-LOCO_INFO
-%s\nCosti:         %d$ (%1.2f$/km)\nPotenza:     %dKW\nVelocita max.: %dkm/h\nPeso:          %dt\n
 Lokomotive_tab
 Motrici
 m3
@@ -1739,8 +1737,6 @@ via Menge
 via (ammontare)
 voranstellen
 Agg.in testa
-WAGGON_INFO
-%s\nPrezzo:       %d$ (%1.2f$/km)\nCapacità:    %d%s %s\nPeso:         %dt\nVelocità max.: %dkm/h\n
 Waggon_tab
 Vagoni
 waiting
@@ -1953,12 +1949,10 @@ via %s
 \nDevono utilizzare:
 \nOrigin: %s\nDestination: %s
 \nOrigine: %s\nDestinazione: %s
-%s\nCost:     %d$\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d (%d)%s %s\nWeight: %dt\nTop speed: %dkm/h\n
-%s\nCosto: %d$\nManut.: %1.2f$/km, %1.2f$/mese\nCapacità: %d (%d)%s %s\nPeso: %dt\nVel. Max.: %dkm/h\n
-%s\nCost:     %d$\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d%s %s\nWeight: %dt\nTop speed: %dkm/h\n
-%s\nCosto: %d$\nManut.: %1.2f$/km, %1.2f$/mese\nCapacità: %d%s %s\nPeso: %dt\nVel. Max.: %dkm/h\n
-%s\nCost: %d$\nMaint.: %1.2f$/km, %1.2f$/month\nPower: %dkW, %dkm/h\nWeight: %dt\n
-%s\nCosto: %d$\nManten.: %1.2f$/km, %1.2f$/mese\nPotenza: %dkW, %dkm/h\nPeso: %dt\n
+%s\nCost:     %s\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d (%d)%s %s\nWeight: %dt\nTop speed: %dkm/h\n
+%s\nCosto: %s\nManut.: %1.2f$/km, %1.2f$/mese\nCapacità: %d (%d)%s %s\nPeso: %dt\nVel. Max.: %dkm/h\n
+%s\nCost:     %s\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d%s %s\nWeight: %dt\nTop speed: %dkm/h\n
+%s\nCosto: %s\nManut.: %1.2f$/km, %1.2f$/mese\nCapacità: %d%s %s\nPeso: %dt\nVel. Max.: %dkm/h\n
 above\nminutes
 minuti\noltre
 Acceleration
@@ -2096,7 +2090,7 @@ Caricamento. %s da attendere
 local
 locale
 LOCO_INFO_EXT
-%s\nCosto: %d$\nManuten.: %1.2f$/km, %1.2f$/mese\nPotenza: %dkW, %dkN\nVel. Max.: %dkm/h\nPeso: %dt\n
+%s\nCosto: %s\nManuten.: %1.2f$/km, %1.2f$/mese\nPotenza: %dkW, %dkN\nVel. Max.: %dkm/h\nPeso: %dt\n
 long dist.
 Lunga distanza
 Mark for replacing

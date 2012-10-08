@@ -1073,8 +1073,6 @@ Lock game
 プレイヤー変更の禁止
 LOCO_CAP
 定員/積載量: %d%s %s\n 
-LOCO_INFO
-%s\n価格: %d$ (%1.2f$/km)\n出力: %dKW\n最高速度: %dkm/h\n重量: %dt\n
 Lokomotive_tab
 機関車
 m3
@@ -1725,8 +1723,10 @@ via Menge
 待機数/経由地
 voranstellen
 先頭へ
-WAGGON_INFO
-%s\n価格: %d$ (%1.2f$/km)\n定員/積載量: %d%s %s\n重量: %dt\n最高速度: %dkm/h\n
+%s\nCost:     %s\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d%s %s\nWeight: %dt\nTop speed: %dkm/h\n
+%s\n価格: %s\n運行経費: %1.2f$/km, %1.2f$/月\n定員/積載量: %d%s %s\n重量: %dt\n最高速度: %dkm/h\n
+%s\nCost:     %s\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d (%d)%s %s\nWeight: %dt\nTop speed: %dkm/h\n
+%s\n価格: %s\n運行経費: %1.2f$/km, %1.2f$/月\n定員/積載量: %d (%d)%s %s\n重量: %dt\n最高速度: %dkm/h\n
 Waggon_tab
 貨車
 waiting
@@ -1896,7 +1896,7 @@ Full replace
 Loading time:
 停車時間:
 LOCO_INFO_EXT
-%s\n価格: %d$\n運行経費: %1.2f$/km, %1.2f$/月\n出力: %dkW, %dkm/h\n重量: %dt\n
+%s\n価格: %s\n運行経費: %1.2f$/km, %1.2f$/月\n出力: %dkW, %dkm/h\n重量: %dt\n
 Mark for replacing
 手動交換
 Mark for replacing. The convoy will replace when manually sent to depot
