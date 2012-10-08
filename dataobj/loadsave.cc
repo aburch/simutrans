@@ -53,6 +53,7 @@ void *loadsave_thread( void *ptr )
 		if(  lsp->loadsave_routine->is_saving()  ) {
 			// wait for signal from main thread to flush the buffer
 			pthread_cond_wait(&loadsave_cv, &loadsave_cv_mutex);
+			pthread_barrier_wait(&loadsave_barrier);
 			buf = (buf+1)&1;
 			if(  lsp->loadsave_routine->get_buf_pos(buf)==0  ) {
 				// signal received with empty buffer - exit
@@ -67,6 +68,7 @@ void *loadsave_thread( void *ptr )
 			}
 			// wait for signal from main thread to fill the next buffer
 			pthread_cond_wait(&loadsave_cv, &loadsave_cv_mutex);
+			pthread_barrier_wait(&loadsave_barrier);
 			buf = (buf+1)&1;
 		}
 	}
@@ -130,7 +132,7 @@ void loadsave_t::set_buffered(bool enable)
 
 			pthread_attr_destroy(&attr);
 
-			pthread_barrier_wait( &loadsave_barrier );
+			pthread_barrier_wait(&loadsave_barrier);
 #endif
 		}
 	}
@@ -144,6 +146,7 @@ void loadsave_t::set_buffered(bool enable)
 #if MULTI_THREAD>1
 				pthread_cond_signal(&loadsave_cv);
 				pthread_mutex_unlock(&loadsave_cv_mutex);
+				pthread_barrier_wait(&loadsave_barrier);
 #endif
 			}
 #if MULTI_THREAD>1
@@ -486,6 +489,7 @@ size_t loadsave_t::write(const void *buf, size_t len)
 			pthread_mutex_lock(&loadsave_cv_mutex);
 			pthread_cond_signal(&loadsave_cv);
 			pthread_mutex_unlock(&loadsave_cv_mutex);
+			pthread_barrier_wait(&loadsave_barrier);
 
 			// switch buffers
 			curr_buff = (curr_buff+1)&1;
@@ -573,6 +577,7 @@ size_t loadsave_t::read(void *buf, size_t len)
 			pthread_mutex_lock(&loadsave_cv_mutex);
 			pthread_cond_signal(&loadsave_cv);
 			pthread_mutex_unlock(&loadsave_cv_mutex);
+			pthread_barrier_wait(&loadsave_barrier);
 #else
 			// not threaded, read ourselves
 			fill_buffer(curr_buff);
