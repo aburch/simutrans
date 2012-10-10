@@ -5140,12 +5140,7 @@ DBG_MESSAGE("karte_t::laden()", "messages loaded");
 
 DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_count());
 
-	if(  umgebung_t::networkmode  ) {
-		plans_laden_abschliessen( 0, cached_groesse_gitter_y ); // single thread variant
-	}
-	else {
-		world_y_loop( &karte_t::plans_laden_abschliessen );
-	}
+	world_y_loop( &karte_t::plans_laden_abschliessen );
 
 DBG_MESSAGE("karte_t::laden()", "laden_abschliesen for tiles finished" );
 
