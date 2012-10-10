@@ -420,6 +420,7 @@ bool karte_t::get_height_data_from_file( const char *filename, sint8 grundwasser
 
 			// report only values
 			if(update_only_values) {
+				fclose(file);
 				ww = w;
 				hh = h;
 				return true;
