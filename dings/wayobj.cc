@@ -209,8 +209,6 @@ void wayobj_t::laden_abschliessen()
 	if(get_besitzer()) {
 		spieler_t::add_maintenance(get_besitzer(), besch->get_wartung());
 	}
-
-	calc_bild();
 }
 
 
@@ -379,6 +377,7 @@ void wayobj_t::extend_wayobj_t(karte_t *welt, koord3d pos, spieler_t *besitzer, 
 		wayobj_t *wo = new wayobj_t(welt,pos,besitzer,dir,besch);
 		gr->obj_add(wo);
 		wo->laden_abschliessen();
+		wo->calc_bild();
 		wo->mark_image_dirty( wo->get_after_bild(), 0 );
 		wo->set_flag(ding_t::dirty);
 		spieler_t::accounting( besitzer,  -besch->get_preis(), pos.get_2d(), COST_CONSTRUCTION);
