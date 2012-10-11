@@ -194,23 +194,24 @@ loadsave_frame_t::~loadsave_frame_t()
 	// save hashtable
 	loadsave_t file;
 	const char *cache_file = SAVE_PATH_X "_cached.xml";
-	file.wr_open(cache_file, loadsave_t::xml, "cache", SAVEGAME_VER_NR);
-	const char *text="Automatically generated file. Do not edit. An invalid file may crash the game. Deleting is allowed though.";
-	file.rdwr_str(text);
-	FOR(stringhashtable_tpl<sve_info_t*>, const& i, cached_info) {
-		// save only existing files
-		if (i.value->file_exists) {
-			xml_tag_t t(&file, "save_game_info");
-			char const* filename = i.key;
-			file.rdwr_str(filename);
-			i.value->rdwr(&file);
-		}
-	}
-	// mark end with empty entry
-	{
-		xml_tag_t t(&file, "save_game_info");
-		text = "";
+	if(  file.wr_open(cache_file, loadsave_t::xml, "cache", SAVEGAME_VER_NR)  ) {
+		const char *text="Automatically generated file. Do not edit. An invalid file may crash the game. Deleting is allowed though.";
 		file.rdwr_str(text);
+		FOR(stringhashtable_tpl<sve_info_t*>, const& i, cached_info) {
+			// save only existing files
+			if (i.value->file_exists) {
+				xml_tag_t t(&file, "save_game_info");
+				char const* filename = i.key;
+				file.rdwr_str(filename);
+				i.value->rdwr(&file);
+			}
+		}
+		// mark end with empty entry
+		{
+			xml_tag_t t(&file, "save_game_info");
+			text = "";
+			file.rdwr_str(text);
+		}
+		file.close();
 	}
-	file.close();
 }
