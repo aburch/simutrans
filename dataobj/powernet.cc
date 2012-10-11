@@ -13,11 +13,12 @@
 static pthread_mutex_t netlist_mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
+// max capacity = (max<uint64> >> 5) -1, see senke_t::step in dings/leitung2.cc
+//uint64 powernet_t::max_capacity = (1<<44)-1; // max to allow display with uint32 after POWER_TO_MW shift
+const uint64 powernet_t::max_capacity = (1953125ull<<23); // nicer number for human display (corresponds to 4 TW)
+
+
 slist_tpl<powernet_t *> powernet_t::powernet_list;
-
-
-// max capacity = (max<uint32> >> 5) -1, see senke_t::step in dings/leitung2.cc
-uint32 powernet_t::max_capacity = 480000*256; // nicer number for human display (corresponds to 30.000 MW)
 
 
 void powernet_t::neue_karte()
@@ -76,4 +77,22 @@ void powernet_t::step(long delta_t)
 	next_supply = 0;
 	this_demand = next_demand;
 	next_demand = 0;
+}
+
+
+void powernet_t::add_supply(const uint32 p)
+{
+	next_supply += p;
+	if(  next_supply>max_capacity  ) {
+		next_supply = max_capacity;
+	}
+}
+
+
+void powernet_t::add_demand(const uint32 p)
+{
+	next_demand += p;
+	if(  next_demand>max_capacity  ) {
+		next_demand = max_capacity;
+	}
 }

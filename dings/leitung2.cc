@@ -332,23 +332,16 @@ void leitung_t::info(cbuffer_t & buf) const
 {
 	ding_t::info(buf);
 
-	uint32 supply = get_net()->get_supply();
-	uint32 demand = get_net()->get_demand();
-	uint32 load = demand>supply ? supply:demand;
-	uint32 usage;
-	if(  load > (1<<25)  ) {
-		usage = (100*(load>>2))/((supply>>2)>0?(supply>>2):1); // adjust with powernet_t::max_capacity to prevent overflow
-	}
-	else {
-		usage = (100*load)/(supply>0?supply:1);
-	}
+	const uint64 supply = get_net()->get_supply();
+	const uint64 demand = get_net()->get_demand();
+	const uint64 load = demand>supply ? supply:demand;
 
-	buf.printf( translator::translate("Net ID: %u\n"), (unsigned long)get_net() );
-	buf.printf( translator::translate("Capacity: %u MW\n"), get_net()->get_max_capacity()>>POWER_TO_MW );
-	buf.printf( translator::translate("Demand: %u MW\n"), demand>>POWER_TO_MW );
-	buf.printf( translator::translate("Generation: %u MW\n"), supply>>POWER_TO_MW );
-	buf.printf( translator::translate("Act. load: %u MW\n"), load>>POWER_TO_MW );
-	buf.printf( translator::translate("Usage: %u %%"), usage );
+	buf.printf( translator::translate("Net ID: %lu\n"), (unsigned long)get_net() );
+//	buf.printf( translator::translate("Capacity: %u MW\n"), (uint32)(get_net()->get_max_capacity()>>POWER_TO_MW) );
+	buf.printf( translator::translate("Demand: %u MW\n"), (uint32)(demand>>POWER_TO_MW) );
+	buf.printf( translator::translate("Generation: %u MW\n"), (uint32)(supply>>POWER_TO_MW) );
+	buf.printf( translator::translate("Act. load: %u MW\n"), (uint32)(load>>POWER_TO_MW) );
+	buf.printf( translator::translate("Usage: %u %%"), (uint32)((100ull*load)/(supply>0?supply:1ull)) );
 }
 
 
@@ -558,8 +551,9 @@ void pumpe_t::info(cbuffer_t & buf) const
 {
 	ding_t::info( buf );
 
-	buf.printf( translator::translate("Net ID: %u\n"), (unsigned long)get_net() );
+	buf.printf( translator::translate("Net ID: %lu\n"), (unsigned long)get_net() );
 	buf.printf( translator::translate("Generation: %u MW\n"), supply>>POWER_TO_MW );
+	buf.printf("\n\n"); // pad for consistent dialog size
 }
 
 
@@ -629,12 +623,12 @@ void senke_t::step(long delta_t)
 		return;
 	}
 
-	uint32 power_demand = fab->get_power_demand();
+	const uint32 power_demand = fab->get_power_demand();
 	get_net()->add_demand( power_demand );
 
-	uint32 net_demand = get_net()->get_demand();
+	const uint64 net_demand = get_net()->get_demand();
 	if(  net_demand > 0  ) {
-		power_load = (last_power_demand * ((get_net()->get_supply() << 5) / net_demand)) >>5 ; //  <<5 for max calculation precision fitting within uint32 with max supply capped in dataobj/powernet.cc max_capacity
+		power_load = (uint32)((((uint64)last_power_demand) * ((get_net()->get_supply() << 5) / net_demand)) >> 5);
 		if(  power_load > last_power_demand  ) {
 			power_load = last_power_demand;
 		}
@@ -768,8 +762,9 @@ void senke_t::info(cbuffer_t & buf) const
 {
 	ding_t::info( buf );
 
-	buf.printf( translator::translate("Net ID: %u\n"), (unsigned long)get_net() );
+	buf.printf( translator::translate("Net ID: %lu\n"), (unsigned long)get_net() );
 	buf.printf( translator::translate("Demand: %u MW\n"), last_power_demand>>POWER_TO_MW );
 	buf.printf( translator::translate("Act. load: %u MW\n"), power_load>>POWER_TO_MW );
 	buf.printf( translator::translate("Supplied: %u %%"), (100*power_load)/(last_power_demand>0?last_power_demand:1) );
+	buf.printf("\n\n"); // pad for consistent dialog size
 }
