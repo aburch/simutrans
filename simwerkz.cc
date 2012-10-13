@@ -4722,9 +4722,11 @@ bool wkz_headquarter_t::init( karte_t *, spieler_t *sp )
 {
 	// do no use this, if there is no next level to build ...
 	const haus_besch_t *besch = next_level(sp);
-	if (is_local_execution()  &&  besch) {
-		const int rotation = 0;
-		cursor_area = besch->get_groesse(rotation);
+	if (besch) {
+		if (is_local_execution()) {
+			const int rotation = 0;
+			cursor_area = besch->get_groesse(rotation);
+		}
 		return true;
 	}
 	return false;
