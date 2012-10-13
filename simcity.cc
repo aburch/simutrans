@@ -266,7 +266,6 @@ void stadt_t::bewerte_haus(koord k, sint32 rd, const rule_t &regel)
 }
 
 
-
 /**
  * Reads city configuration data
  * @author Hj. Malthaner
@@ -565,8 +564,16 @@ private:
 };
 
 
+static bool compare_gebaeude_pos(const gebaeude_t* a, const gebaeude_t* b)
+{
+	const uint32 pos_a = (a->get_pos().y<<16)+a->get_pos().x;
+	const uint32 pos_b = (b->get_pos().y<<16)+b->get_pos().x;
+	return pos_a<pos_b;
+}
+
+
 // this function adds houses to the city house list
-void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb)
+void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb, bool ordered)
 {
 	if (gb != NULL) {
 		const haus_tile_besch_t* tile  = gb->get_tile();
@@ -583,7 +590,12 @@ void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb)
 						buildings.remove(add_gb);
 					}
 					else {
-						buildings.append(add_gb, tile->get_besch()->get_level() + 1, 16);
+						if(  ordered  ) {
+							buildings.insert_ordered(add_gb, tile->get_besch()->get_level() + 1, compare_gebaeude_pos, 16);
+						}
+						else {
+							buildings.append(add_gb, tile->get_besch()->get_level() + 1, 16);
+						}
 					}
 					add_gb->set_stadt(this);
 				}
@@ -598,7 +610,6 @@ void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb)
 }
 
 
-
 // this function removes houses from the city house list
 void stadt_t::remove_gebaeude_from_stadt(gebaeude_t* gb)
 {
@@ -608,14 +619,12 @@ void stadt_t::remove_gebaeude_from_stadt(gebaeude_t* gb)
 }
 
 
-
 // just updates the weight count of this building (after a renovation)
 void stadt_t::update_gebaeude_from_stadt(gebaeude_t* gb)
 {
 	buildings.remove(gb);
 	buildings.append(gb, gb->get_tile()->get_besch()->get_level() + 1, 16);
 }
-
 
 
 void stadt_t::pruefe_grenzen(koord k)
@@ -685,7 +694,6 @@ void stadt_t::pruefe_grenzen(koord k)
 }
 
 
-
 // recalculate the spreading of a city
 // will be updated also after house deletion
 void stadt_t::recalc_city_size()
@@ -732,7 +740,6 @@ void stadt_t::recalc_city_size()
 		ur.y = welt->get_groesse_y()-1;
 	}
 }
-
 
 
 void stadt_t::init_pax_destinations()
@@ -1087,7 +1094,6 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 }
 
 
-
 stadt_t::stadt_t(karte_t* wl, loadsave_t* file) :
 	buildings(16),
 	pax_destinations_old(koord(PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE)),
@@ -1304,7 +1310,6 @@ void stadt_t::laden_abschliessen()
 }
 
 
-
 void stadt_t::rotate90( const sint16 y_size )
 {
 	// rotate town origin
@@ -1342,7 +1347,6 @@ void stadt_t::rotate90( const sint16 y_size )
 }
 
 
-
 void stadt_t::set_name(const char *new_name)
 {
 	name = new_name;
@@ -1355,7 +1359,6 @@ void stadt_t::set_name(const char *new_name)
 		win->update_data();
 	}
 }
-
 
 
 /* show city info dialoge
@@ -1386,7 +1389,6 @@ void stadt_t::verbinde_fabriken()
 }
 
 
-
 /* change size of city
  * @author prissi */
 void stadt_t::change_size(sint32 delta_citicens)
@@ -1410,7 +1412,6 @@ void stadt_t::change_size(sint32 delta_citicens)
 	wachstum = 0;
 	DBG_MESSAGE("stadt_t::change_size()", "%i+%i", bev, delta_citicens);
 }
-
 
 
 void stadt_t::step(long delta_t)
@@ -1460,7 +1461,6 @@ void stadt_t::step(long delta_t)
 	city_history_month[0][HIST_BUILDING] = buildings.get_count();
 	city_history_year[0][HIST_BUILDING] = buildings.get_count();
 }
-
 
 
 /* updates the city history

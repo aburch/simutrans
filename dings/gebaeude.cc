@@ -883,7 +883,7 @@ void gebaeude_t::laden_abschliessen()
 #if MULTI_THREAD>1
 				pthread_mutex_lock( &add_to_city_mutex );
 #endif
-				city->add_gebaeude_to_stadt(this);
+				city->add_gebaeude_to_stadt(this, true);
 #if MULTI_THREAD>1
 				pthread_mutex_unlock( &add_to_city_mutex );
 #endif

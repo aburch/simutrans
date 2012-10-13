@@ -586,6 +586,7 @@ senke_t::senke_t(karte_t *welt, loadsave_t *file) : leitung_t( welt, koord3d::in
 	last_power_demand = 0;
 	power_load = 0;
 	rdwr( file );
+	welt->sync_add(this);
 }
 
 
@@ -599,6 +600,7 @@ senke_t::senke_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , p
 	last_power_demand = 0;
 	power_load = 0;
 	sp->buche(welt->get_settings().cst_transformer, get_pos().get_2d(), COST_CONSTRUCTION);
+	welt->sync_add(this);
 }
 
 
@@ -744,10 +746,6 @@ void senke_t::laden_abschliessen()
 	senke_list.insert( this );
 #if MULTI_THREAD>1
 	pthread_mutex_unlock( &senke_list_mutex );
-#endif
-	welt->sync_add_ts(this);
-
-#if MULTI_THREAD>1
 	pthread_mutex_lock( &calc_bild_mutex );
 #endif
 	set_bild(skinverwaltung_t::senke->get_bild_nr(0));

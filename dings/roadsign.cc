@@ -60,6 +60,10 @@ roadsign_t::roadsign_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
 	if(  !automatic  ||  besch==NULL  ) {
 		zustand = 0;
 	}
+	// only traffic light need switches
+	if(  automatic  ) {
+		welt->sync_add(this);
+	}
 }
 
 
@@ -86,6 +90,10 @@ roadsign_t::roadsign_t(karte_t *welt, spieler_t *sp, koord3d pos, ribi_t::ribi d
 	 * however also gate signs need indications
 	 */
 	automatic = (besch->get_bild_anzahl()>4  &&  besch->get_wtyp()==road_wt)  ||  (besch->get_bild_anzahl()>2  &&  besch->is_private_way());
+	// only traffic light need switches
+	if(  automatic  ) {
+		welt->sync_add(this);
+	}
 }
 
 
@@ -580,10 +588,6 @@ void roadsign_t::laden_abschliessen()
 		// after loading restore directions
 		set_dir(dir);
 		gr->get_weg(besch->get_wtyp()!=tram_wt ? besch->get_wtyp() : track_wt)->count_sign();
-	}
-	// only traffic light need switches
-	if(automatic) {
-		welt->sync_add_ts( this );
 	}
 }
 

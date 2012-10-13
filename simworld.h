@@ -1005,7 +1005,6 @@ public:
 	void rotate90();
 
 	bool sync_add(sync_steppable *obj);
-	bool sync_add_ts(sync_steppable *obj); // thread-safe version
 	bool sync_remove(sync_steppable *obj);
 	void sync_step(long delta_t, bool sync, bool display );	// advance also the timer
 
