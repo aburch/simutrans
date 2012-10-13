@@ -53,8 +53,10 @@ private:
 	static const haus_besch_t* waehle_aus_liste(vector_tpl<const haus_besch_t*>& liste, uint16 time, bool ignore_retire, climate cl);
 
 public:
-	/* finds a station building, which enables pas/mail/goods for the AI
-	 * for time==0 the timeline will be ignored
+	/**
+	 * Finds a station building, which enables pas/mail/goods for the AI.
+	 * If time==0 the timeline will be ignored.
+	 * Returns station that can be built above ground.
 	 */
 	static const haus_besch_t* get_random_station(const haus_besch_t::utyp utype, const waytype_t wt, const uint16 time, const uint8 enables);
 

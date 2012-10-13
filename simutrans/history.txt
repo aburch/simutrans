@@ -12,6 +12,7 @@
 	ADD: Drag stops
 	CHG: reduced memory consumption when compiled with COLOUR_DEPTH=0, no copies of object images kept in memory
 	ADD: ctrl-click with link-factory tool actually removes links between factories
+	ADD: station buildings can be restricted to above/under ground (parameter allow_underground, =0 only above, =1 only under, =2 both/default)
 
 
 Release of 111.3.1 (r5843 on 31-Jul-2012):

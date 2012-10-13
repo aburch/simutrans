@@ -141,6 +141,7 @@ void haus_besch_t::calc_checksum(checksum_t *chk) const
 	chk->input((uint8)allowed_climates);
 	chk->input(intro_date);
 	chk->input(obsolete_date);
+	chk->input(allow_underground);
 	// now check the layout
 	for(uint8 i=0; i<layouts; i++) {
 		sint16 b=get_b(i);

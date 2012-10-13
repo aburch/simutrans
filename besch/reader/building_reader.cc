@@ -193,9 +193,9 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	const uint16 v = decode_uint16(p);
 	const int version = (v & 0x8000)!=0 ? v&0x7FFF : 0;
 
-	if(version == 5  ||  version == 6) {
-		// Versioned node, version 5
-		// animation intergvall in ms added
+	if(version >= 5) {
+		// Versioned node, version 5+
+		// animation intervall in ms added
 		besch->gtyp      = (gebaeude_t::typ)decode_uint8(p);
 		besch->utype     = (haus_besch_t::utyp)decode_uint8(p);
 		besch->level     = decode_uint16(p);
@@ -210,6 +210,13 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->intro_date    = decode_uint16(p);
 		besch->obsolete_date = decode_uint16(p);
 		besch->animation_time = decode_uint16(p);
+		if (version >= 7) {
+			// allow_underground added
+			besch->allow_underground = decode_uint8(p);
+		}
+		else {
+			besch->allow_underground = 2;
+		}
 	}
 	else if(version == 4) {
 		// Versioned node, version 4

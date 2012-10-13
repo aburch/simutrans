@@ -706,6 +706,9 @@ const haus_besch_t* hausbauer_t::get_random_station(const haus_besch_t::utyp uty
 
 	FOR(vector_tpl<haus_besch_t const*>, const besch, station_building) {
 		if(besch->get_utyp()==utype  &&  besch->get_extra()==wt  &&  (enables==0  ||  (besch->get_enabled()&enables)!=0)) {
+			if( !besch->can_be_built_aboveground()) {
+				continue;
+			}
 			// ok, now check timeline
 			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 				stops.append(besch,max(1,16-besch->get_level()*besch->get_b()*besch->get_h()),16);

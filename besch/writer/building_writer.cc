@@ -62,7 +62,7 @@ void tile_writer_t::write_obj(FILE* fp, obj_node_t& parent, int index, int seaso
 void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
 	// Hajo: take care, hardocded size of node on disc here!
-	obj_node_t node(this, 26, &parent);
+	obj_node_t node(this, 27, &parent);
 
 	write_head(fp, node, obj);
 
@@ -193,6 +193,14 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12 +
 		obj.get_int("retire_month", 1) - 1;
 
+	uint8 allow_underground = obj.get_int("allow_underground", 2);
+
+	if(allow_underground > 2)
+	{
+		// Prohibit illegal values here.
+		allow_underground = 2;
+	}
+
 	// scan for most number of seasons
 	int seasons = 1;
 	for (int l = 0; l < layouts; l++) { // each layout
@@ -275,7 +283,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	}
 
 	// Hajo: write version data
-	node.write_uint16(fp, 0x8006,            0);
+	node.write_uint16(fp, 0x8007,            0);
 
 	// Hajo: write besch data
 	node.write_uint8 (fp, gtyp,              2);
@@ -292,6 +300,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	node.write_uint16(fp, intro_date,       20);
 	node.write_uint16(fp, obsolete_date,    22);
 	node.write_uint16(fp, animation_time,   24);
+	node.write_uint8 (fp, allow_underground,26);
 
 	// probably add some icons, if defined
 	slist_tpl<string> cursorkeys;
