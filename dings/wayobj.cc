@@ -176,6 +176,17 @@ void wayobj_t::entferne(spieler_t *sp)
 }
 
 
+// returns NULL, if removal is allowed
+// players can remove public owned wayobjs
+const char *wayobj_t::ist_entfernbar(const spieler_t *sp)
+{
+	if(  get_player_nr()==1  ) {
+		return NULL;
+	}
+	return ding_t::ist_entfernbar(sp);
+}
+
+
 void wayobj_t::laden_abschliessen()
 {
 	// (re)set dir
