@@ -14,7 +14,7 @@ Ní¾e následuje krátký popis jednotlivých nastavení nové mapy:
 </p>
 
 <p>
-<em>Velikost mapy</em> - Urèuje, jak bude mapa velká, tzn. kolik bude mít ètvereèkù. Od 128x128, a¾ po 640x640. Standardnì je nastaveno 256x256.<br>
+<em>Velikost mapy</em> - Urèuje, jak bude mapa velká, tzn. kolik bude mít ètvereèkù. Od 8x8, a¾ po 4096x4096. Standardnì je nastaveno 256x256. Mapa mù¾e být i obdélníková, napøíklad 256x8064. Obdélníkové mapy mohou mít jeden rozmìr vìt¹í ne¾ 4096 polí.<br>
 <em>Dùle¾ité:</em> Velké mapy jsou hodnì nároèné na pamì», zva¾te proto, zda máte dostateènì velkou operaèní pamì», aby hra fungovala plynule.
 </p>
 
@@ -23,7 +23,7 @@ Ní¾e následuje krátký popis jednotlivých nastavení nové mapy:
 </p>
 
 <p>
-<em>Poèet mìst</em> - Urèuje poèet mìst na mapì. Dostupné nastavení je od 2 a¾ do 64 mìst. Standardnì je nastaveno 8.
+<em>Poèet mìst</em> - Urèuje poèet mìst na mapì. Dostupné nastavení je od 0 a¾ do 999 mìst. Standardnì je nastaveno 16.
 </p>
 
 <p>
