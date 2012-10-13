@@ -671,6 +671,10 @@ bool ai_goods_t::create_simple_rail_transport()
 	bauigel1.calc_route( koord3d(platz1,z1), koord3d(platz1+size1-diff1, z1));
 	bauigel2.calc_route( koord3d(platz2,z2), koord3d(platz2+size2-diff2, z2));
 
+	// build immediately, otherwise wegbauer could get confused and connect way to a tile in the middle of the station
+	bauigel1.baue();
+	bauigel2.baue();
+
 	vector_tpl<koord3d> starttiles, endtiles;
 	// now calc the route
 	starttiles.append(welt->lookup_kartenboden(platz1 + size1)->get_pos());
@@ -680,10 +684,8 @@ bool ai_goods_t::create_simple_rail_transport()
 	bauigel.calc_route( starttiles, endtiles );
 	INT_CHECK("ai_goods 672");
 
-	if(  bauigel.calc_costs() > finance_history_month[0][COST_NETWEALTH]  ) {
-		// too expensive
-		return false;
-	}
+	// build only if enough cash available
+	bool build_no_tf = (bauigel.get_count() > 4)  &&  (bauigel.calc_costs() <= finance_history_month[0][COST_NETWEALTH]);
 
 	// now try route with terraforming
 	wegbauer_t baumaulwurf(welt, this);
@@ -691,27 +693,22 @@ bool ai_goods_t::create_simple_rail_transport()
 	baumaulwurf.set_keep_existing_ways(false);
 	baumaulwurf.calc_route( starttiles, endtiles );
 
-	// ok, costs seems ok => build
-	bauigel1.baue();
-	bauigel2.baue();
-
 	// build with terraforming if shorter and enough money is available
 	bool with_tf = (baumaulwurf.get_count() > 4)  &&  (10*baumaulwurf.get_count() < 9*bauigel.get_count()  ||  bauigel.get_count() <= 4);
-	if(  with_tf  &&  baumaulwurf.calc_costs() > finance_history_month[0][COST_NETWEALTH]  ) {
-		// too expensive
-		with_tf = false;
-	}
+
+	// too expensive ?
+	with_tf = with_tf  &&  (baumaulwurf.calc_costs() <= finance_history_month[0][COST_NETWEALTH]);
 
 	// now build with or without terraforming
 	if (with_tf) {
 		baumaulwurf.baue();
 	}
-	else if (bauigel.get_count() > 4) {
+	else if (build_no_tf) {
 		bauigel.baue();
 	}
 
 	// connect track to station
-	if(  with_tf  ||  bauigel.get_count() > 4  ) {
+	if(  with_tf  ||  build_no_tf  ) {
 DBG_MESSAGE("ai_goods_t::create_simple_rail_transport()","building simple track from %d,%d to %d,%d",platz1.x, platz1.y, platz2.x, platz2.y);
 		// connect to track
 
