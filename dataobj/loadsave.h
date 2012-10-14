@@ -76,6 +76,7 @@ private:
 
 public:
 	static mode_t save_mode;	// default to use for saving
+	static mode_t autosave_mode; // default to use for autosaves and network mode client temp saves
 	static uint32 int_version(const char *version_text, int *mode, char *pak);
 
 	loadsave_t();
@@ -86,6 +87,8 @@ public:
 	const char *close();
 
 	static void set_savemode(mode_t mode) { save_mode = mode; }
+	static void set_autosavemode(mode_t mode) { autosave_mode = mode; }
+
 	/**
 	 * Checks end-of-file
 	 * @author Hj. Malthaner

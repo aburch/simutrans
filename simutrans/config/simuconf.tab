@@ -538,6 +538,9 @@ bits_per_month = 20
 # bzip2 savegames are smaller than zipped but saving/loading takes longer
 saveformat = bzip2
 
+# Alternate format for faster autosaves
+autosaveformat = zipped
+
 # autosave every x months (0=off)
 autosave = 0
 

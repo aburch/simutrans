@@ -28,6 +28,7 @@
 #include "dataobj/marker.h"
 #include "dataobj/einstellungen.h"
 #include "dataobj/pwd_hash.h"
+#include "dataobj/loadsave.h"
 
 #include "simplan.h"
 
@@ -1090,7 +1091,7 @@ public:
 	 * @param filename name of the file to write
 	 * @author Hj. Malthaner
 	 */
-	void speichern(const char *filename, const char *version, bool silent);
+	void speichern(const char *filename, const loadsave_t::mode_t savemode, const char *version, bool silent);
 
 	/**
 	 * Loads a map from a file

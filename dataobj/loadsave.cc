@@ -82,6 +82,7 @@ struct file_descriptors_t {
 
 
 loadsave_t::mode_t loadsave_t::save_mode = bzip2;	// default to use for saving
+loadsave_t::mode_t loadsave_t::autosave_mode = zipped;	// default to use for autosaving
 
 loadsave_t::loadsave_t() : filename()
 {

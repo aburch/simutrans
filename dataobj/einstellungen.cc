@@ -1225,6 +1225,22 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 		loadsave_t::set_savemode(loadsave_t::xml_bzip2 );
 	}
 
+	str = contents.get("autosaveformat" );
+	while (*str == ' ') str++;
+	if (strcmp(str, "binary") == 0) {
+		loadsave_t::set_autosavemode(loadsave_t::binary );
+	} else if(strcmp(str, "zipped") == 0) {
+		loadsave_t::set_autosavemode(loadsave_t::zipped );
+	} else if(strcmp(str, "xml") == 0) {
+		loadsave_t::set_autosavemode(loadsave_t::xml );
+	} else if(strcmp(str, "xml_zipped") == 0) {
+		loadsave_t::set_autosavemode(loadsave_t::xml_zipped );
+	} else if(strcmp(str, "bzip2") == 0) {
+		loadsave_t::set_autosavemode(loadsave_t::bzip2 );
+	} else if(strcmp(str, "xml_bzip2") == 0) {
+		loadsave_t::set_autosavemode(loadsave_t::xml_bzip2 );
+	}
+
 	/*
 	 * Default resolution
 	 */
