@@ -193,8 +193,27 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	const uint16 v = decode_uint16(p);
 	const int version = (v & 0x8000)!=0 ? v&0x7FFF : 0;
 
-	if(version >= 5) {
-		// Versioned node, version 5+
+	if(version == 7) {
+		// Versioned node, version 7
+		// underground mode added
+		besch->gtyp      = (gebaeude_t::typ)decode_uint8(p);
+		besch->utype     = (haus_besch_t::utyp)decode_uint8(p);
+		besch->level     = decode_uint16(p);
+		besch->extra_data= decode_uint32(p);
+		besch->groesse.x = decode_uint16(p);
+		besch->groesse.y = decode_uint16(p);
+		besch->layouts   = decode_uint8(p);
+		besch->allowed_climates = (climate_bits)decode_uint16(p);
+		besch->enables   = decode_uint8(p);
+		besch->flags     = (haus_besch_t::flag_t)decode_uint8(p);
+		besch->chance    = decode_uint8(p);
+		besch->intro_date    = decode_uint16(p);
+		besch->obsolete_date = decode_uint16(p);
+		besch->animation_time = decode_uint16(p);
+		besch->allow_underground = decode_uint8(p);
+	}
+	else if(version == 5  ||  version==6) {
+		// Versioned node, version 5 or 6  (only level logic is different)
 		// animation intervall in ms added
 		besch->gtyp      = (gebaeude_t::typ)decode_uint8(p);
 		besch->utype     = (haus_besch_t::utyp)decode_uint8(p);
@@ -210,13 +229,6 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->intro_date    = decode_uint16(p);
 		besch->obsolete_date = decode_uint16(p);
 		besch->animation_time = decode_uint16(p);
-		if (version >= 7) {
-			// allow_underground added
-			besch->allow_underground = decode_uint8(p);
-		}
-		else {
-			besch->allow_underground = 2;
-		}
 	}
 	else if(version == 4) {
 		// Versioned node, version 4
@@ -322,6 +334,10 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		DBG_DEBUG("building_reader_t::read_node()","old station building -> increment level by one to %i", besch->level );
 	}
 
+	if(  version<=6  ) {
+		// only stops were allowed underground
+		besch->allow_underground = (besch->utype==haus_besch_t::generic_stop);
+	}
 
 	if (besch->level == 65535) {
 		besch->level = 0;	// apparently wrong level
