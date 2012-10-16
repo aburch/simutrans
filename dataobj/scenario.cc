@@ -7,6 +7,7 @@
 #include "../simmesg.h"
 #include "../simmem.h"
 #include "../simmenu.h"
+#include "../simsys.h"
 
 #include "../dataobj/tabfile.h"
 #include "../dataobj/loadsave.h"
