@@ -26,8 +26,7 @@
 void scenario_frame_t::action(const char *filename)
 {
 	scenario_t *scn = new scenario_t(welt);
-	path.append(filename);
-	const char* err = scn->init( path, welt );
+	const char* err = scn->init( path, filename, welt );
 	if (err == NULL) {
 		// start the game
 		welt->set_pause(false);
@@ -42,7 +41,7 @@ void scenario_frame_t::action(const char *filename)
 }
 
 
-scenario_frame_t::scenario_frame_t(karte_t *welt) : savegame_frame_t(".nut","./")
+scenario_frame_t::scenario_frame_t(karte_t *welt) : savegame_frame_t("", "see below", true)
 {
 	this->welt = welt;
 	path.printf("%s%sscenario/", umgebung_t::program_dir, umgebung_t::objfilename.c_str() );
@@ -56,10 +55,16 @@ scenario_frame_t::scenario_frame_t(karte_t *welt) : savegame_frame_t(".nut","./"
 const char *scenario_frame_t::get_info(const char *filename)
 {
 	return filename;
-	/*
-	scenario_t scn(NULL);
-	char path[1024];
-	sprintf( path, "%s%sscenario/%s", umgebung_t::program_dir, umgebung_t::objfilename.c_str(), filename );
-	scn.init( path, NULL );
-	return scn.get_description();*/
+}
+
+
+bool scenario_frame_t::check_file( const char *filename, const char * )
+{
+	char buf[1024];
+	sprintf( buf, "%s%s/scenario.nut", (const char*)path, filename );
+	if (FILE* const f = fopen(buf, "r")) {
+		fclose(f);
+		return true;
+	}
+	return false;
 }

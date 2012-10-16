@@ -7,7 +7,6 @@
 #include "../simmesg.h"
 #include "../simmem.h"
 #include "../simmenu.h"
-#include "../simsys.h"
 
 #include "../dataobj/tabfile.h"
 #include "../dataobj/loadsave.h"
@@ -63,62 +62,48 @@ scenario_t::~scenario_t()
 }
 
 
-const char* scenario_t::init( const char *filename, karte_t *w )
+const char* scenario_t::init( const char *scenario_base, const char *scenario_name_, karte_t *welt )
 {
-	welt = w;
+	this->welt = welt;
+	scenario_name = scenario_name_;
 
-	if (!load_script(filename)) {
+	// path to scenario files
+	cbuffer_t buf;
+	buf.printf("%s%s/", scenario_base, scenario_name_);
+	scenario_path = buf;
+
+	// scenario script file
+	buf.append("scenario.nut");
+	if (!load_script( buf )) {
+		dbg->warning("scenario_t::init", "could not load script file %s", (const char*)buf);
 		return "Loading scenario script failed";
 	}
-
-	// find path name
-	char* path = strdup(filename);
-	char* sep  = strrchr(path,'/');
-	if (sep) *(sep+1)=0;
 
 	const char *err = NULL;
 	plainstring mapfile;
 
 	// load savegame
 	if ((err = script->call_function("get_map_file", mapfile))) {
-		dbg->warning("scenario_t::init", "error [%s] calling get_map_file", err, filename);
+		dbg->warning("scenario_t::init", "error [%s] calling get_map_file", err);
 		return "No scenario map specified";
 	}
 	else {
-		std::string savegame(path);
-		savegame.append(mapfile);
-
-		if (!welt->laden(savegame.c_str())) {
-			dbg->warning("scenario_t::init", "error loading savegame %s", err, savegame.c_str());
+		// savegame location
+		buf.clear();
+		buf.printf("%s%s/%s", scenario_base, scenario_name_, mapfile.c_str());
+		if (!welt->laden( buf )) {
+			dbg->warning("scenario_t::init", "error loading savegame %s", err, (const char*)buf);
 			return "Could not load scenario map!";
 		}
 	}
-	script_filename = filename;
-	script_path = path;
 
-	// set game name to scenario name
-	strcpy(path, filename);
-	// but first get rid of .nut suffix
-	char *suffix = strstr(path, ".nut");
-	if (suffix) {
-		*suffix = 0;
-	}
-	// extract scenario name
-	sep = strrchr(path,'/')+1;
-	scenario_name = sep;
 	// set savegame name
-	strcat(path, ".sve");
-	welt->get_settings().set_filename(sep);
-	free(path);
-
-	// path to supplementary files
-	std::string supp = script_path.c_str();
-	supp.append(scenario_name.c_str());
-	supp.append("/");
-	script_addon_path = supp.c_str();
+	buf.clear();
+	buf.printf("%s.sve", scenario_name.c_str());
+	welt->get_settings().set_filename( strdup(buf) );
 
 	// load translations
-	translator::load_files_from_folder( script_addon_path.c_str(), "scenario" );
+	translator::load_files_from_folder( scenario_path.c_str(), "scenario" );
 
 	what_scenario = SCRIPTED;
 	rotation = 0;
@@ -570,7 +555,7 @@ void scenario_t::update_scenario_texts()
 plainstring scenario_t::load_language_file(const char* filename)
 {
 	chdir(umgebung_t::program_dir);
-	std::string path = script_addon_path.c_str();
+	std::string path = scenario_path.c_str();
 	// try user language
 	FILE* file = fopen((path + translator::get_lang()->iso + "/" + filename).c_str(), "rb");
 	if (file == NULL) {
@@ -654,11 +639,11 @@ void scenario_t::rdwr(loadsave_t *file)
 			}
 			else {
 				// restore paths
-				script_path = (umgebung_t::objfilename + "scenario/").c_str();
-				script_addon_path = (umgebung_t::objfilename + "scenario/" + scenario_name.c_str() + "/").c_str();
-				script_filename = (umgebung_t::objfilename + "scenario/" + scenario_name.c_str() + ".nut").c_str();
+				scenario_path = (umgebung_t::program_dir + umgebung_t::objfilename + "scenario/" + scenario_name.c_str() + "/").c_str();
+
 				// load script
-				chdir(umgebung_t::program_dir);
+				cbuffer_t script_filename;
+				script_filename.printf("%s/scenario.nut", scenario_path.c_str());
 
 				rdwr_error = !load_script(script_filename);
 				if (!rdwr_error) {
@@ -674,9 +659,11 @@ void scenario_t::rdwr(loadsave_t *file)
 						rdwr_error = true;
 					}
 					// load translations
-					translator::load_files_from_folder( script_addon_path.c_str(), "scenario" );
+					translator::load_files_from_folder( scenario_path.c_str(), "scenario" );
 				}
-				chdir(umgebung_t::user_dir);
+				else {
+					dbg->warning("scenario_t::rdwr", "could not load script file %s", (const char*)script_filename);
+				}
 			}
 		}
 		else {

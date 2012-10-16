@@ -43,17 +43,9 @@ private:
 	/// e.g. my_scenario
 	plainstring scenario_name;
 
-	/// path to script file (relative to umgebung_t::program_dir)
-	/// e.g. pak/scenario/my_scenario.nut
-	plainstring script_filename;
-
 	/// path to scenario directory (relative to umgebung_t::program_dir)
-	/// e.g. pak/scenario/
-	plainstring script_path;
-
-	/// path to addon directory of the scenario (relative to umgebung_t::program_dir)
 	/// e.g. pak/scenario/my_scenario/
-	plainstring script_addon_path;
+	plainstring scenario_path;
 
 
 	/**
@@ -200,7 +192,7 @@ public:
 	/**
 	 * Initializes scripted scenario
 	 */
-	const char* init( const char *file, karte_t *welt );
+	const char* init( const char *scenario_base, const char *scenario_name, karte_t *welt );
 
 	/**
 	 * Load file with translations. Tries to load files in the following order

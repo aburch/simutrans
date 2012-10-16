@@ -69,10 +69,16 @@
  * Your scenario file goes into the folder
  *
  * <tt>
- * pak-something/scenario/myscenario.nut
+ * pak-something/scenario/myscenario/
  * </tt>
  *
- * Translation files go into a sub-directory with the same name as your file (just without extension)
+ * The scenario script must be in the file
+ *
+ * <tt>
+ * pak-something/scenario/myscenario/scenario.nut
+ * </tt>
+ *
+ * Translation files go into the scenario sub-directory with the same name as your file (just without extension)
  *
  * <tt>
  * pak-something/scenario/myscenario/
@@ -180,4 +186,36 @@
  * Both of the strings are translated by means of calls to ttext::to_string and the result is returned.
  *
  * Thats it. The remaining parts of this script are plain routine.
+ */
+
+/**
+ * @page deprecated_stuff Deprecated stuff
+ *
+ * @section sec_dir_112  Recommended directory structure (only simutrans nightly versions pre-r5989)
+ *
+ * The scenario plays in a savegame. This savegame is tied to the pak-set you are using (e.g. pak64, pak128.Britain).
+ * Hence, the scenario files have to go into a sub-folder of the pak-set.
+ * The pak-set is found in a directory named pak-something, which is in the same directory, where the program
+ * itself is located.
+ *
+ * Your scenario file goes into the folder
+ *
+ * <tt>
+ * pak-something/scenario/myscenario.nut
+ * </tt>
+ *
+ * Translation files go into a sub-directory with the same name as your file (just without extension)
+ *
+ * <tt>
+ * pak-something/scenario/myscenario/
+ * </tt>
+ *
+ * If need more complex texts, these go into sub-directories named after the language, in which they are written.
+ *
+ * <tt>
+ * pak-something/scenario/myscenario/en/ <- English files go here.
+ *
+ * pak-something/scenario/myscenario/de/ <- German files go here.
+ * </tt>
+ *
  */
