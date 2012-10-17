@@ -196,6 +196,7 @@ void modal_dialogue( gui_frame_t *gui, ptrdiff_t magic, karte_t *welt, bool (*qu
 {
 	if(  display_get_width()==0  ) {
 		dbg->error( "modal_dialogue()", "called without a display driver => nothing will be shown!" );
+		umgebung_t::quit_simutrans = true;
 		// cannot handle this!
 		return;
 	}
