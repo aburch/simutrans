@@ -991,8 +991,6 @@ Lock game
 Tillåt inte spelarbyte under spelets gång (kräver konfirmation).
 LOCO_CAP
 Kapacitet: %d%s %s\n
-LOCO_INFO
-%s\nPris: %d$ (%1.2f$/km)\nStyrka: %dkW, %dkm/t\nVikt: %dt\n
 Lokomotive_tab
 Lokomotiv 
 m3
@@ -1557,8 +1555,6 @@ via Menge
 via (antal)
 voranstellen
 Ställ först
-WAGGON_INFO
-%s\nPris: %d$ (%1.2f$/km)\nKapacitet: %d%s %s\nVikt: %dt\nMaxhast.: %dkm/h\n
 Waggon_tab
 Vagnar
 waiting
@@ -1737,12 +1733,10 @@ min. väntetid
 \nMÅSTE ANVÄNDA: 
 \nNetwork ID:
 \nNätverks-ID:
-%s\nCost:     %d$\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d (%d)%s %s\nWeight: %dt\nTop speed: %dkm/h\n
-%s\nKostnad: %d$\nUnderh.: %1.2f$/km, %1.2f$/månad\nKapacitet: %d (%d)%s %s\nVikt: %dt\nTopphastighet: %dkm/h\n
-%s\nCost:     %d$\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d%s %s\nWeight: %dt\nTop speed: %dkm/h\n
-%s\nKostnad: %d$\nUnderh.: %1.2f$/km, %1.2f$/månad\nKapacitet: %d%s %s\nVikt: %dt\nTopphast.: %dkm/h\n
-%s\nCost: %d$\nMaint.: %1.2f$/km, %1.2f$/month\nPower: %dkW, %dkm/h\nWeight: %dt\n
- %s\nKostn.: %d$\nUnderh.: %1.2f$/km, %1.2f$/månad\nStyrka: %dkW, %dkm/h\nVikt: %dt\n
+%s\nCost:     %s\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d (%d)%s %s\nWeight: %dt\nTop speed: %dkm/h\n
+%s\nKostnad: %s\nUnderh.: %1.2f$/km, %1.2f$/månad\nKapacitet: %d (%d)%s %s\nVikt: %dt\nTopphastighet: %dkm/h\n
+%s\nCost:     %s\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d%s %s\nWeight: %dt\nTop speed: %dkm/h\n
+%s\nKostnad: %s\nUnderh.: %1.2f$/km, %1.2f$/månad\nKapacitet: %d%s %s\nVikt: %dt\nTopphast.: %dkm/h\n
 above\nminutes
 mer än\nminuter
 All hidden items (such as trees and buildings) will appear as transparent.
@@ -1858,7 +1852,7 @@ Lasttid:
 local
 lokaltrafik
 LOCO_INFO_EXT
-%s\nPris: %d$\nUnderh.: %1.2f$/km, %1.2f$/månad\nKraft: %dkW, %dkm/h\nVikt: %dt\n
+%s\nPris: %s\nUnderh.: %1.2f$/km, %1.2f$/månad\nKraft: %dkW, %dkm/h\nVikt: %dt\n
 long dist.
 fjärrtrafik
 long time

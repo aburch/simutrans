@@ -1683,11 +1683,11 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 			
 			if(upgrade == u_buy)
 			{
+				char cost[64];
+				money_to_string( cost, veh_type->get_preis()/100.0 );
 				n = sprintf(buf,
 					translator::translate("LOCO_INFO_EXT"),
-					//translator::translate("%s\nCost: %d$\nMaint.: %1.2f$/km, %1.2f$/month\nPower: %dkW, %dkm/h\nWeight: %dt\n"),
-					name,
-					veh_type->get_preis()/100,
+					name, cost,
 					veh_type->get_running_cost()/100.0F,
 					veh_type->get_adjusted_monthly_fixed_cost(get_welt())/100.0F,
 					veh_type->get_leistung(),
@@ -1700,11 +1700,11 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 			}
 			else
 			{
+				char cost[64];
+				money_to_string( cost, veh_type->get_upgrade_price()/100.0 );
 				n = sprintf(buf,
 					translator::translate("LOCO_INFO_EXT"),
-					//translator::translate("%s\nCost: %d$\nMaint.: %1.2f$/km, %1.2f$/month\nPower: %dkW, %dkm/h\nWeight: %dt\n"),
-					name,
-					veh_type->get_upgrade_price()/100,
+					name, cost,
 					veh_type->get_running_cost()/100.0F,
 					veh_type->get_adjusted_monthly_fixed_cost(get_welt())/100.0F,
 					veh_type->get_leistung(),
@@ -1747,11 +1747,12 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 			{
 				if(veh_type->get_overcrowded_capacity() < 1)
 				{
+					char cost[64];
+					money_to_string( cost, veh_type->get_preis()/100.0 );
 					n = sprintf(buf,
-						/*translator::translate("WAGGON_INFO"),*/
-						translator::translate("%s\nCost:     %d$\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d%s %s\nWeight: %dt\nTop speed: %dkm/h\nMax. brake force: %dkN\nRolling resistance: %fN\n"),
+						translator::translate("%s\nCost:     %s\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d%s %s\nWeight: %dt\nTop speed: %dkm/h\nMax. brake force: %dkN\nRolling resistance: %fN\n"),
 						translator::translate(veh_type->get_name()),
-						veh_type->get_preis()/100,
+						cost,
 						veh_type->get_running_cost()/100.0F,
  						veh_type->get_adjusted_monthly_fixed_cost(get_welt())/100.0F,
 						veh_type->get_zuladung(),
@@ -1767,12 +1768,12 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 				}
 				else
 				{
+					char cost[64];
+					money_to_string( cost, veh_type->get_preis()/100.0 );
 					n = sprintf(buf,
-						//translator::translate("%s\nCost:     %d$ (%1.2f$/km)\nCapacity: %d (%d)%s %s\nWeight: %dt\nTop speed: %dkm/h\n"),
-						/*translator::translate("WAGGON_INFO_OVERCROWD"),*/
-						translator::translate("%s\nCost:     %d$\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d (%d)%s %s\nWeight: %dt\nTop speed: %dkm/h\nMax. brake force: %dkN\nRolling resistance: %fN\n"),
+						translator::translate("%s\nCost:     %s\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d (%d)%s %s\nWeight: %dt\nTop speed: %dkm/h\nMax. brake force: %dkN\nRolling resistance: %fN\n"),
 						translator::translate(veh_type->get_name()),
-						veh_type->get_preis()/100,
+						cost,
 						veh_type->get_running_cost()/100.0F,
  						veh_type->get_adjusted_monthly_fixed_cost(get_welt())/100.0F,
 						veh_type->get_zuladung(),
@@ -1792,12 +1793,12 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 			{
 				if(veh_type->get_overcrowded_capacity() < 1)
 				{
-
+					char cost[64];
+					money_to_string( cost, veh_type->get_preis()/100.0 );
 					n = sprintf(buf,
-						/*translator::translate("WAGGON_INFO"),*/
-						translator::translate("%s\nCost:     %d$\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d%s %s\nWeight: %dt\nTop speed: %dkm/h\n\nMax. brake force: %dkN\nRolling resistance: %fN\n"),
+						translator::translate("%s\nCost:     %s\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d%s %s\nWeight: %dt\nTop speed: %dkm/h\n\nMax. brake force: %dkN\nRolling resistance: %fN\n"),
 						translator::translate(veh_type->get_name()),
-						veh_type->get_upgrade_price()/100,
+						cost,
 						veh_type->get_running_cost()/100.0F,
 						veh_type->get_adjusted_monthly_fixed_cost(get_welt())/100.0F,
 						veh_type->get_zuladung(),
@@ -1813,11 +1814,12 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 				}
 				else
 				{
+					char cost[64];
+					money_to_string( cost, veh_type->get_preis()/100.0 );
 					n = sprintf(buf,
-						/*translator::translate("WAGGON_INFO"),*/
-						translator::translate("%s\nCost:     %d$\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d (%d)%s %s\nWeight: %dt\nTop speed: %dkm/h\n\nMax. brake force: %dkN\nRolling resistance: %fN\n"),
+						translator::translate("%s\nCost:     %s\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d (%d)%s %s\nWeight: %dt\nTop speed: %dkm/h\n\nMax. brake force: %dkN\nRolling resistance: %fN\n"),
 						translator::translate(veh_type->get_name()),
-						veh_type->get_upgrade_price()/100,
+						cost,
 						veh_type->get_running_cost()/100.0F,
 						veh_type->get_adjusted_monthly_fixed_cost(get_welt())/100.0F,
 						veh_type->get_zuladung(),

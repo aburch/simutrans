@@ -657,7 +657,9 @@ void depot_frame_t::zeichnen(koord pos, koord groesse)
 
 	if(cnv.is_bound()) {
 		if(cnv->get_vehikel_anzahl() > 0) {
-			sprintf(txt_convoi_value, "%s %lld$", translator::translate("Restwert:"), cnv->calc_restwert()/100);
+			char number[64];
+			money_to_string( number, cnv->calc_restwert()/100.0 );
+			sprintf(txt_convoi_value, "%s %s", translator::translate("Restwert:"), number);
 			// just recheck if schedules match
 			if(  cnv->get_line().is_bound()  &&  cnv->get_line()->get_schedule()->ist_abgeschlossen()  ) {
 				cnv->check_pending_updates();
