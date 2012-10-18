@@ -4597,7 +4597,7 @@ bool wkz_build_factory_t::init( karte_t *, spieler_t * )
 		cursor_area = fab->get_haus()->get_groesse(rotation);
 		return true;
 	}
-	return false;
+	return true;
 }
 
 /* builds an industry next to the cursor (default_param see above) */
