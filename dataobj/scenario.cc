@@ -7,7 +7,6 @@
 #include "../simmesg.h"
 #include "../simmem.h"
 #include "../simmenu.h"
-#include "../simsys.h"
 
 #include "../dataobj/tabfile.h"
 #include "../dataobj/loadsave.h"
@@ -555,7 +554,6 @@ void scenario_t::update_scenario_texts()
 
 plainstring scenario_t::load_language_file(const char* filename)
 {
-	chdir(umgebung_t::program_dir);
 	std::string path = scenario_path.c_str();
 	// try user language
 	FILE* file = fopen((path + translator::get_lang()->iso + "/" + filename).c_str(), "rb");
@@ -582,8 +580,6 @@ plainstring scenario_t::load_language_file(const char* filename)
 		}
 		fclose(file);
 	}
-	// go back to load/save dir
-	chdir( umgebung_t::user_dir );
 
 	return text;
 }
