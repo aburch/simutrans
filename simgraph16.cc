@@ -1200,6 +1200,8 @@ static void recode_color_img(const unsigned int n, const unsigned char player_nr
 #endif
 
 
+
+// for zoom out
 #define SumSubpixel(p) \
 	if(*(p)<255  &&  valid<255) { \
 	if(*(p)==1) { valid = 255; r = g = b = 0; } else { valid ++; } /* mark special colors */\
@@ -1207,6 +1209,50 @@ static void recode_color_img(const unsigned int n, const unsigned char player_nr
 		g += (p)[2]; \
 		b += (p)[3]; \
 	}
+
+
+// recode 4*bytes into PIXVAL
+PIXVAL inline compress_pixel(uint8* p)
+{
+	return (((p[0]==1 ? 0x8000 : 0 ) | p[1]) + (((uint16)p[2])<<5) + (((uint16)p[3])<<10));
+}
+
+// recode 4*bytes into PIXVAL, respect transparency
+PIXVAL inline compress_pixel_transparent(uint8 *p)
+{
+	return p[0]==255 ? 0x73FE : compress_pixel(p);
+}
+
+// zoomin pixel taking color of above/below and transparency of diagonal neighbor into account
+PIXVAL inline zoomin_pixel(uint8 *p, uint8* pab, uint8 *prl, uint8* pdia)
+{
+	if (p[0] == 255) {
+		if ( (pab[0] | prl[0] | pdia[0])==255) {
+			return 0x73FE; // pixel and one neighbor transparent -> return transparent
+		}
+		// pixel transparent but all three neightbors not -> interpolate
+		uint8 valid=0;
+		uint8 r=0, g=0, b=0;
+		SumSubpixel(pab);
+		SumSubpixel(prl);
+		if(valid==0) {
+			return 0x73FE;
+		}
+		else if(valid==255) {
+			return (0x8000 | r) + (((uint16)g)<<5) + (((uint16)b)<<10);
+		}
+		else {
+			return (r/valid) + (((uint16)(g/valid))<<5) + (((uint16)(b/valid))<<10);
+		}
+	}
+	else {
+		if ( (pab[0] & prl[0] & pdia[0])!=255) {
+			// pixel and one neighbor not transparent
+			return compress_pixel(p);
+		}
+		return 0x73FE;
+	}
+}
 
 
 /**
@@ -1357,45 +1403,63 @@ static void rezoom_img(const image_id n)
 			// now we have the image, we do a repack then
 			dest = baseimage2;
 			switch(zoom_den[zoom_factor]) {
-				case 1:
+				case 1: {
 					assert(zoom_num[zoom_factor]==2);
-					// we just filter (diagonal filter) together with the upscaling
-					for(  sint16 y=0;  y<orgzoomheight;  y++  ) {
+
+					// first half row - just copy values, do not fiddle with neighbor colors
+					uint8 *p1 = baseimage + baseoff;
+					for(  sint16 x=0;  x<orgzoomwidth;  x++  ) {
+						PIXVAL c1 = compress_pixel_transparent(p1 +(x*4) );
+						// now set the pixel ...
+						dest[x*2] = c1;
+						dest[x*2+1] = c1;
+					}
+					// skip one line
+					dest += newzoomwidth;
+
+					for(  sint16 y=0;  y<orgzoomheight-1;  y++  ) {
 						uint8 *p1 = baseimage + baseoff + y*(basewidth*4);
-						uint8 *p2 = p1 + ((y+1<orgzoomheight) ? basewidth*4 : 0);
-						for(  sint16 x=0;  x<orgzoomwidth;  x++  ) {
+						// copy leftmost pixels
+						dest[0] = compress_pixel_transparent(p1);
+						dest[newzoomwidth] = compress_pixel_transparent(p1+basewidth*4);
+						for(  sint16 x=0;  x<orgzoomwidth-1;  x++  ) {
 							uint8 *px1=p1+(x*4);
-							PIXVAL c1 = px1[0]==255 ? 0x73FE : (((px1[0]==1 ? 0x8000 : 0 ) | px1[1]) + (((uint16)px1[2])<<5) + (((uint16)px1[3])<<10));
-							// now set the pixel ...
-							dest[x*2] = c1;
-							dest[x*2+1] = c1;
-							dest[x*2+newzoomwidth] = c1;
-							dest[x*2+newzoomwidth+1] = c1;
-							if(  px1[0]<255  ) {
-								// diagonal filter only for non-transparent ones ...
-								if(  x>0  &&  *(uint32 *)(px1-4)==*(uint32 *)(p2+x*4)  ) {
-									// take this instead
-									px1=p1+(x*4)-4;
-									dest[x*2+newzoomwidth] = px1[0]==255 ? 0x73FE : (((px1[0]==1 ? 0x8000 : 0 ) | px1[1]) + (((uint16)px1[2])<<5) + (((uint16)px1[3])<<10));
-								}
-								else {
-									dest[x*2+newzoomwidth] = c1;
-								}
-								px1=p1+(x*4);
-								if(  x+1<orgzoomwidth  &&  *(uint32 *)(px1+4)==*(uint32 *)(p2+x*4)  ) {
-									// take this instead
-									px1=p1+(x*4)+4;
-									dest[x*2+newzoomwidth+1] = px1[0]==255 ? 0x73FE : (((px1[0]==1 ? 0x8000 : 0 ) | px1[1]) + (((uint16)px1[2])<<5) + (((uint16)px1[3])<<10));
-								}
-								else {
-									dest[x*2+newzoomwidth+1] = c1;
-								}
+							// pixel at 2,2 in 2x2 superpixel
+							dest[x*2+1] = zoomin_pixel(px1, px1+4, px1+basewidth*4, px1+basewidth*4+4);
+
+							// 2x2 superpixel is transparent but original pixel was not
+							// preserve one pixel
+							if( dest[x*2+1]==0x73FE  &&  px1[0]!=255  &&  dest[x*2]==0x73FE
+								&&  dest[x*2-newzoomwidth]==0x73FE  &&  dest[x*2-newzoomwidth-1]==0x73FE) {
+								// preserve one pixel
+								dest[x*2+1] = compress_pixel(px1);
 							}
+
+							// pixel at 2,1 in next 2x2 superpixel
+							dest[x*2+2] = zoomin_pixel(px1+4, px1, px1+basewidth*4+4, px1+basewidth*4);
+
+							// pixel at 1,2 in next row 2x2 superpixel
+							dest[x*2+newzoomwidth+1] = zoomin_pixel(px1+basewidth*4, px1+basewidth*4+4, px1, px1+4);
+
+							// pixel at 1,1 in next row next 2x2 superpixel
+							dest[x*2+newzoomwidth+2] = zoomin_pixel(px1+basewidth*4+4, px1+basewidth*4, px1+4, px1);
 						}
-						// skip one line
+						// copy rightmost pixels
+						dest[2*orgzoomwidth-1] = compress_pixel_transparent(p1+4*(orgzoomwidth-1));
+						dest[2*orgzoomwidth+newzoomwidth-1] = compress_pixel_transparent(p1+4*(orgzoomwidth-1)+basewidth*4);
+						// skip two lines
 						dest += 2*newzoomwidth;
 					}
+					// last half row - just copy values, do not fiddle with neighbor colors
+					p1 = baseimage + baseoff + (orgzoomheight-1)*(basewidth*4);
+					for(  sint16 x=0;  x<orgzoomwidth;  x++  ) {
+						PIXVAL c1 = compress_pixel_transparent(p1 +(x*4) );
+						// now set the pixel ...
+						dest[x*2]   = c1;
+						dest[x*2+1] = c1;
+					}
 					break;
+				}
 				case 2:
 					for(  sint16 y=0;  y<newzoomheight;  y++  ) {
 						uint8 *p1 = baseimage + baseoff + ((y*zoom_den[zoom_factor]+0-y_rem)/zoom_num[zoom_factor])*(basewidth*4);
