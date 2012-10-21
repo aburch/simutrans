@@ -284,65 +284,49 @@ const fabrik_besch_t *fabrikbauer_t::finde_hersteller(const ware_besch_t *ware, 
 }
 
 
-
-
 koord3d fabrikbauer_t::finde_zufallsbauplatz(karte_t *welt, const koord3d pos, const int radius, koord groesse, bool wasser, const haus_besch_t *besch, bool ignore_climates)
 {
-	static vector_tpl<koord3d> list(10000);
-	koord k;
 	bool is_fabrik = besch->get_utyp()==haus_besch_t::fabrik;
 
-	list.clear();
 	if(wasser) {
 		groesse += koord(6,6);
 	}
 
 	climate_bits climates = !ignore_climates ? besch->get_allowed_climate_bits() : ALL_CLIMATES;
 
-	// check no factory but otherwise good place
-	for(  k.y=pos.y-radius;  k.y <= pos.y+radius;  k.y++  ) {
-		if(  k.y < 0  ) {
+	uint32 diam   = 2*radius + 1;
+	uint32 size   = diam * diam;
+	uint32 offset = diam*groesse.x*groesse.y + 1;
+	uint32 index  = simrand(size);
+	koord k;
+	for(uint32 i = 0; i<size; i++, index+=offset) {
+		// as offset % size == 1, we are guaranteed that the iteration hits all tiles and does not repeat itself
+		k = koord( pos.x-radius + (index / diam), pos.y-radius + (index % diam));
+
+		if (!welt->ist_in_kartengrenzen(k)) {
 			continue;
 		}
-		if(  k.y >= welt->get_groesse_y()  ) {
-			break;
+		// to close to existing factory
+		if(  is_fabrik  &&  is_factory_at(k.x,k.y)  ) {
+			continue;
 		}
+		// climate check
+		if(  fabrik_t::ist_bauplatz(welt, k, groesse,wasser,climates)  ) {
+			// we accept first hit
+			goto finish;
+		}
+		// next search will be groesse.x rows down, groesse.y+1 columns left
+	}
+	// nothing found
+	return koord3d(-1, -1, -1);
 
-		for(  k.x=pos.x-radius;  k.x <= pos.x+radius;  k.x++  ) {
-			if(  k.x < 0  ) {
-				continue;
-			}
-			if(  k.x >= welt->get_groesse_x()  ) {
-				break;
-			}
-			// to close to existing factory
-			if(  is_fabrik  &&  is_factory_at(k.x,k.y)  ) {
-				continue;
-			}
-			// climate check
-			if(  fabrik_t::ist_bauplatz(welt, k, groesse,wasser,climates)  ) {
-				list.append( welt->lookup_kartenboden(k)->get_pos() );
-				// nicht gleich daneben nochmal suchen
-				k.x += 4;
-				if(  list.get_count() >= 10000  ) {
-					goto finish;
-				}
-			}
-		}
-	}
 finish:
-	// printf("Zufallsbauplatzindex %d\n", index);
-	if (list.empty()) {
-		return koord3d(-1, -1, -1);
+	koord3d p = welt->lookup_kartenboden(k)->get_pos();
+	if(wasser) {
+		// take care of offset
+		p += koord3d(3, 3, 0);
 	}
-	else {
-		koord3d k = pick_any(list);
-		if(wasser) {
-			// take care of offset
-			k += koord3d(3, 3, 0);
-		}
-		return k;
-	}
+	return p;
 }
 
 
