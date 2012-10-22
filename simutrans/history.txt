@@ -1,3 +1,4 @@
+Release of 112.0: (r6000 on 22-Oct-2012):
 	ADD: (wackdone) screenshots of topmost dialoge window only by CNTRL+screenshot tool click
 	ADD: (wackdone) -pause on command line pauses the loaded game
 	FIX: downgrading of stops using CONTRL works again
