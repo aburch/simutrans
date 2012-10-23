@@ -155,7 +155,7 @@ public:
 	* @return NULL wenn keine Haltestelle, sonst Zeiger auf Haltestelle
 	* @author Hj. Malthaner
 	*/
-	const halthandle_t get_halt() const {return this_halt;}
+	halthandle_t get_halt() const {return this_halt;}
 
 private:
 	// these functions are private helper functions for halt_list corrections

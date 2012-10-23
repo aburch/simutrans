@@ -392,7 +392,7 @@ namespace script_api {
 	const ware_besch_t* param<const ware_besch_t*>::get(HSQUIRRELVM vm, SQInteger index)
 	{
 		void* besch = NULL;
-		const ware_besch_t* (*F)(const char*) = warenbauer_t::get_info;
+		const ware_besch_t* (*F)(const char*) = &warenbauer_t::get_info;
 		if(!SQ_SUCCEEDED(sq_getinstanceup(vm, index, &besch, (void*)F))) {
 			return NULL;
 		}

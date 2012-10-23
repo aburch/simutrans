@@ -17,7 +17,7 @@ void export_goods_desc(HSQUIRRELVM vm)
 	/**
 	 * Descriptor of goods and freight types.
 	 */
-	const ware_besch_t* (*F)(const char*) = warenbauer_t::get_info;
+	const ware_besch_t* (*F)(const char*) = &warenbauer_t::get_info;
 	begin_class(vm, "good_desc_x", ( const void* (*)(const char*))F);
 	/**
 	 * Constructor.

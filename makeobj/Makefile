@@ -21,7 +21,7 @@ LDFLAGS += $(PNG_LDFLAGS)
 CFLAGS += -DMAKEOBJ
 CXXFLAGS += -DMAKEOBJ
 
-STD_LIBS += -lz -lbz2 -lpng -lm
+STD_LIBS += -lz -lbz2 -lpng
 
 ifeq ($(OSTYPE),cygwin)
   OS_INC   ?= -I/usr/include/mingw
