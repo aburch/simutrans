@@ -15,6 +15,7 @@ struct SQStream {
 	virtual SQInteger Seek(SQInteger offset, SQInteger origin) = 0;
 	virtual bool IsValid() = 0;
 	virtual bool EOS() = 0;
+	virtual ~SQStream() { /* happy compiler */ }
 };
 
 extern "C" {
