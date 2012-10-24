@@ -52,7 +52,8 @@ static SQInteger _system_time(HSQUIRRELVM v)
 {
 	time_t t;
 	time(&t);
-	sq_pushinteger(v,*((SQInteger *)&t));
+	SQInteger i = t;
+	sq_pushinteger(v, i);
 	return 1;
 }
 

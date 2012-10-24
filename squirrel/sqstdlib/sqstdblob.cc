@@ -177,22 +177,6 @@ static SQRegFunction _blob_methods[] = {
 
 //GLOBAL FUNCTIONS
 
-static SQInteger _g_blob_casti2f(HSQUIRRELVM v)
-{
-	SQInteger i;
-	sq_getinteger(v,2,&i);
-	sq_pushfloat(v,*((SQFloat *)&i));
-	return 1;
-}
-
-static SQInteger _g_blob_castf2i(HSQUIRRELVM v)
-{
-	SQFloat f;
-	sq_getfloat(v,2,&f);
-	sq_pushinteger(v,*((SQInteger *)&f));
-	return 1;
-}
-
 static SQInteger _g_blob_swap2(HSQUIRRELVM v)
 {
 	SQInteger i;
@@ -223,8 +207,6 @@ static SQInteger _g_blob_swapfloat(HSQUIRRELVM v)
 
 #define _DECL_GLOBALBLOB_FUNC(name,nparams,typecheck) {_SC(#name),_g_blob_##name,nparams,typecheck}
 static SQRegFunction bloblib_funcs[]={
-	_DECL_GLOBALBLOB_FUNC(casti2f,2,_SC(".n")),
-	_DECL_GLOBALBLOB_FUNC(castf2i,2,_SC(".n")),
 	_DECL_GLOBALBLOB_FUNC(swap2,2,_SC(".n")),
 	_DECL_GLOBALBLOB_FUNC(swap4,2,_SC(".n")),
 	_DECL_GLOBALBLOB_FUNC(swapfloat,2,_SC(".n")),
