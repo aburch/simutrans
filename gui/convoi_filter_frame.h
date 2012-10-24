@@ -15,17 +15,9 @@
 #include "components/gui_button.h"
 #include "components/gui_textinput.h"
 
+class convoi_frame_t;
 class spieler_t;
 class ware_besch_t;
-
-
-class sort_frame_t
-{
-public:
-	virtual void sort_list( char *, uint16, const slist_tpl<const ware_besch_t *> * ) = 0;
-};
-
-
 
 /**
  * Displays a filter settings for the convoi list
@@ -106,7 +98,7 @@ private:
 	/*
 	 * We are bound to this window. All filter states are stored in main_frame.
 	 */
-	sort_frame_t *main_frame;
+	convoi_frame_t *main_frame;
 
 	/*
 	 * All gui elements of this dialog:
@@ -132,7 +124,7 @@ public:
 	 * Konstruktor. Erzeugt alle notwendigen Subkomponenten.
 	 * @author V. Meyer
 	 */
-	convoi_filter_frame_t(spieler_t *sp, sort_frame_t *parent );
+	convoi_filter_frame_t(spieler_t *sp, convoi_frame_t *parent );
 
 	/**
 	 * Does this window need a min size button in the title bar?
@@ -140,9 +132,9 @@ public:
 	 */
 	bool has_min_sizer() const {return true;}
 
-    /**
-     * resize window in response to a resize event
-     */
+	/**
+	 * resize window in response to a resize event
+	 */
 	void resize(const koord delta);
 
 	/**

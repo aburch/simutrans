@@ -8,6 +8,7 @@
 
 
 #include "convoi_filter_frame.h"
+#include "convoi_frame.h"
 #include "gui_convoiinfo.h"
 #include "../simcolor.h"
 
@@ -83,7 +84,7 @@ convoi_filter_frame_t::filter_flag_t convoi_filter_frame_t::filter_buttons_types
 };
 
 
-convoi_filter_frame_t::convoi_filter_frame_t(spieler_t *sp, sort_frame_t *main_frame) :
+convoi_filter_frame_t::convoi_filter_frame_t(spieler_t *sp, convoi_frame_t *main_frame) :
 	gui_frame_t( translator::translate("clf_title"), sp),
 	ware_scrolly(&ware_cont)
 {

@@ -29,7 +29,6 @@ class ware_besch_t;
  */
 class convoi_frame_t :
 	public gui_frame_t,
-	private sort_frame_t,
 	private action_listener_t           //28-Dec-01     Markus Weber    Added , private action_listener_t
 {
 public:
