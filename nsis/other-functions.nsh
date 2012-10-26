@@ -354,6 +354,38 @@ FunctionEnd
 
 
 ; $downloadlink is then name of the link, $downloadname the name of the pak for error messages
+Function DownloadInstallNoRemoveZip
+  Call ConnectInternet
+  RMdir /r "$TEMP\simutrans"
+  NSISdl::download $downloadlink "$Temp\$archievename"
+  Pop $R0 ;Get the return value
+  StrCmp $R0 "success" +3
+     MessageBox MB_OK "Download of $archievename failed: $R0"
+     Quit
+
+  ; we need the magic with temporary copy only if the folder does not end with simutrans ...
+  StrCmp $installinsimutransfolder "0" +4
+    CreateDirectory "$INSTDIR"
+    nsisunz::Unzip "$TEMP\$archievename" "$INSTDIR\.."
+    goto +2
+    nsisunz::Unzip "$TEMP\$archievename" "$TEMP"
+  Pop $R0 ;Get the return value
+  StrCmp $R0 "success" +4
+    MessageBox MB_OK|MB_ICONINFORMATION "$R0"
+    RMdir /r "$TEMP\simutrans"
+    Quit
+
+  Delete "$Temp\$archievename"
+  StrCmp $installinsimutransfolder "1" +3
+  CreateDirectory "$INSTDIR"
+  CopyFiles /silent "$TEMP\Simutrans\*.*" "$INSTDIR"
+  RMdir /r "$TEMP\simutrans"
+FunctionEnd
+
+
+
+
+; $downloadlink is then name of the link, $downloadname the name of the pak for error messages
 Function DownloadInstallAddonZip
 #  DetailPrint "Download of $downloadname from\n$downloadlink to $archievename"
   Call ConnectInternet

@@ -76,7 +76,7 @@ Section /o "pak.japan (64 size) for 111.3" pak64japan
   StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64.japan/112-0/simupak64.japan-112-0.zip"
   StrCpy $archievename "simupak64.japan-112-0.zip"
   StrCpy $downloadname "pak.japan"
-  StrCpy $VersionString "pak64.japan 112.0 r986"
+  StrCpy $VersionString "pak64.japan 112.0 r986M"
   Call DownloadInstallZip
 SectionEnd
 
@@ -159,6 +159,7 @@ Section /o "pak96.HD (96 size) V0.4 for 102.2.2" pak96HD
 SectionEnd
 
 
+SectionGroup "Pak128: main and scenarios" pak128group
 
 Section /o "pak128 V2.1.0" pak128
   AddSize 340600
@@ -168,6 +169,35 @@ Section /o "pak128 V2.1.0" pak128
   StrCpy $VersionString "pak128 2.1.0"
   Call DownloadInstallZip
 SectionEnd
+
+Section /o "pak128 New York scenario"
+  AddSize 4700
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/112-0/simutrans-scenarios-pak128-ny-112.zip"
+  StrCpy $archievename "simutrans-scenarios-pak128-ny-112.zip"
+  StrCpy $downloadname "pak128"
+  StrCpy $VersionString ""
+  Call DownloadInstallNoRemoveZip
+SectionEnd
+
+Section /o "pak128 sell-clothing scenario"
+  AddSize 1300
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/112-0/simutrans-scenarios-pak128-sell_clothing-112.zip"
+  StrCpy $archievename "simutrans-scenarios-pak128-sell_clothing-112.zip"
+  StrCpy $downloadname "pak128"
+  StrCpy $VersionString ""
+  Call DownloadInstallNoRemoveZip
+SectionEnd
+
+Section /o "pak128 tram-madness scenario"
+  AddSize 214
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/112-0/simutrans-scenarios-pak128-tramadness-112.zip"
+  StrCpy $archievename "simutrans-scenarios-pak128-tramadness-112.zip"
+  StrCpy $downloadname "pak128"
+  StrCpy $VersionString ""
+  Call DownloadInstallNoRemoveZip
+SectionEnd
+
+SectionGroupEnd
 
 
 
