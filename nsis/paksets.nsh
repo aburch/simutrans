@@ -14,7 +14,7 @@ SectionEnd
 
 Section /o "pak64 Food addon"
   AddSize 280
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/112-0/simupak64-food-112-0.zip"
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/112-0/simupak64-addon-food-112-0.zip"
   StrCpy $archievename "simupak64-addon-food-112-0.zip"
   StrCpy $downloadname "pak"
   StrCpy $VersionString ""
