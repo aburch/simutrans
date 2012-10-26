@@ -1519,7 +1519,7 @@ bool SQVM::DeleteSlot(const SQObjectPtr &self,const SQObjectPtr &key,SQObjectPtr
 					_table(self)->Remove(key);
 				}
 				else {
-					Raise_IdxError((SQObject &)key);
+					Raise_IdxError(key);
 					return false;
 				}
 			}
