@@ -1,36 +1,18 @@
 /*
  * Bit depth independent backend using allgro (mainly for BeOS)
  *
- * This file is part of the Simutrans project under the artistic licence.
+ * This file is part of the Simutrans project under the artistic license.
  */
 
-#include <stddef.h>
-#include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 
-#include <sys/types.h>
-
-#include <math.h>
-
 #include "macros.h"
-#include "simmain.h"
 #include "simsys.h"
 #include "simevent.h"
 #include "simgraph.h"
 #include "simsys_w32_png.h"
-
-#ifdef _WIN32
-#define BITMAP winBITMAP
-#define WinMain winWinMain
-// windows.h defines min and max macros which we don't want
-#define NOMINMAX 1
-#include <windows.h>
-#undef BITMAP
-#undef WinMain
-#else
-#	include <limits.h>
-#endif
+#include "simversion.h"
 
 #include <allegro.h>
 
@@ -39,8 +21,6 @@ static void simtimer_init(void);
 
 static int width  = 800;
 static int height = 600;
-
-struct sys_event sys_event;
 
 
 /* event-handling */
@@ -200,9 +180,12 @@ END_OF_FUNCTION(my_close_button_callback)
  */
 
 
-int dr_os_init(const int* parameter)
+bool dr_os_init(int const* parameter)
 {
-	int ok = allegro_init();
+	if (allegro_init() != 0) {
+		dr_fatal_notify("Could not init Allegro.\n");
+		return false;
+	}
 
 	// prepare for next event
 	sys_event.type = SIM_NOEVENT;
@@ -216,27 +199,19 @@ int dr_os_init(const int* parameter)
 	LOCK_FUNCTION(my_close_button_callback);
 	set_close_button_callback(my_close_button_callback);
 
-	if (ok != 0) {
-		dr_fatal_notify("Could not init Allegro.\n",0);
-	}
 	simtimer_init();
 
-	return ok == 0;
+	return true;
 }
 
 
 resolution dr_query_screen_resolution()
 {
 	resolution res;
-#ifdef _WIN32
-	res.w = GetSystemMetrics(SM_CXSCREEN);
-	res.h = GetSystemMetrics(SM_CYSCREEN);
-#else
 	if (get_desktop_resolution(&res.w, &res.h) != 0) {
 		res.w = width;
 		res.h = height;
 	}
-#endif
 	return res;
 }
 
@@ -252,12 +227,12 @@ int dr_os_open(int const w, int const h, int const fullscreen)
 	set_color_depth(COLOUR_DEPTH);
 	if (set_gfx_mode(fullscreen? GFX_AUTODETECT : GFX_AUTODETECT_WINDOWED, w, h, 0, 0) != 0) {
 		fprintf(stderr, "Error: %s\n", allegro_error);
-		return FALSE;
+		return 0;
 	}
 
 	if (install_mouse() < 0) {
 		fprintf(stderr, "Cannot init. mouse: no driver ?");
-		return FALSE;
+		return 0;
 	}
 
 	set_mouse_speed(1, 1);
@@ -268,16 +243,15 @@ int dr_os_open(int const w, int const h, int const fullscreen)
 	sys_event.mx = mouse_x;
 	sys_event.my = mouse_y;
 
-	set_window_title("Simutrans");
+	set_window_title(SIM_TITLE);
 
 	return w;
 }
 
 
-int dr_os_close(void)
+void dr_os_close()
 {
 	allegro_exit();
-	return TRUE;
 }
 
 
@@ -299,7 +273,6 @@ unsigned short* dr_textur_init(void)
 	return (unsigned short *)(texture_map->line[0]);
 }
 
-extern void display_set_actual_width(KOORD_VAL w);
 
 // resizes screen (Not allowed)
 int dr_textur_resize(unsigned short**, int, int)
@@ -330,21 +303,6 @@ unsigned int get_system_color(unsigned int r, unsigned int g, unsigned int b)
 }
 
 
-void dr_setRGB8multi(int first, int count, unsigned char* data)
-{
-	PALETTE p;
-	int n;
-
-	for (n = 0; n < count; n++) {
-		p[n + first].r = data[n * 3 + 0] >> 2;
-		p[n + first].g = data[n * 3 + 1] >> 2;
-		p[n + first].b = data[n * 3 + 2] >> 2;
-	}
-
-	set_palette_range(p, first, first + count - 1, TRUE);
-}
-
-
 void dr_prepare_flush()
 {
 	return;
@@ -370,7 +328,9 @@ int dr_screenshot(const char *filename)
 		return 1;
 	}
 #endif
-	return 0;
+	PALETTE pal;
+	get_palette(pal);
+	return save_bitmap(filename, texture_map, pal) == 0 ? 1 : -1;
 }
 
 
@@ -425,13 +385,7 @@ void GetEvents(void)
 {
 	while (event_top_mark == event_bot_mark) {
 		// try to be nice where possible
-#if !defined(__MINGW32__)
-#if!defined(__BEOS__)
-		usleep(1000);
-#endif
-#else
-		Sleep(5);
-#endif
+		rest(1);
 	}
 
 	do {
@@ -494,7 +448,7 @@ static void simtimer_init(void)
 		printf("Timer installed.\n");
 	}
 	else {
-		dr_fatal_notify("Error: Timer not available, aborting.\n",0);
+		dr_fatal_notify("Error: Timer not available, aborting.\n");
 		exit(1);
 	}
 }
@@ -512,52 +466,8 @@ void dr_sleep(uint32 usec)
 }
 
 
-bool dr_fatal_notify(const char* msg, int choices)
-{
-#ifdef _WIN32
-	if(choices==0) {
-		MessageBox( NULL, msg, "Fatal Error", MB_ICONEXCLAMATION|MB_OK );
-		return 0;
-	}
-	else {
-		return MessageBox( NULL, msg, "Fatal Error", MB_ICONEXCLAMATION|MB_RETRYCANCEL	)==IDRETRY;
-	}
-#else
-//	beep();
-	return choices;
-#endif
-}
-
-
 int main(int argc, char **argv)
 {
-#ifdef _WIN32
-	char pathname[1024];
-
-	// prepare commandline
-	GetModuleFileNameA( GetModuleHandle(NULL), pathname, 1024 );
-	argv[0] = pathname;
-#else
-#ifndef __BEOS__
-#  if defined(__GLIBC__)  &&  !defined(__AMIGA__)
-	/* glibc has a non-standard extension */
-	char* buffer2 = NULL;
-#  else
-	char buffer2[PATH_MAX];
-#  endif
-#  ifndef __AMIGA__
-	char buffer[PATH_MAX];
-	int length = readlink("/proc/self/exe", buffer, lengthof(buffer) - 1);
-	if (length != -1) {
-		buffer[length] = '\0'; /* readlink() does not NUL-terminate */
-		argv[0] = buffer;
-	}
-#  endif
-	// no process file system => need to parse argv[0]
-	/* should work on most unix or gnu systems */
-	argv[0] = realpath (argv[0], buffer2);
-#endif
-#endif
-	return simu_main(argc, argv);
+	return sysmain(argc, argv);
 }
 END_OF_MAIN()

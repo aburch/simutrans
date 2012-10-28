@@ -65,18 +65,9 @@ private:
 public:
 	gui_combobox_t();
 
-	/**
-	 * Events werden hiermit an die GUI-Komponenten
-	 * gemeldet
-	 * @author Hj. Malthaner
-	 */
-	bool infowin_event(const event_t *);
+	bool infowin_event(event_t const*) OVERRIDE;
 
-	/**
-	 * This method is called if an action is triggered
-	 * @author Hj. Malthaner
-	 */
-	virtual bool action_triggered( gui_action_creator_t *komp,value_t /* */);
+	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	/**
 	 * Zeichnet die Komponente
@@ -132,12 +123,7 @@ public:
 	 */
 	void set_selection(int s);
 
-	/**
-	 * Vorzugsweise sollte diese Methode zum Setzen der Größe benutzt werden,
-	 * obwohl groesse public ist.
-	 * @author Hj. Malthaner
-	 */
-	void set_groesse(koord groesse);
+	void set_groesse(koord groesse) OVERRIDE;
 
 	/**
 	 * called when the focus should be released

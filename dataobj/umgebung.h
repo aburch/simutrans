@@ -15,6 +15,7 @@
 #include "einstellungen.h"
 
 #include "../tpl/vector_tpl.h"
+#include "../utils/plainstring.h"
 
 #define TILE_HEIGHT_STEP (umgebung_t::pak_tile_height_step)
 
@@ -124,12 +125,25 @@ public:
 	static bool hide_trees;
 
 	/**
+	 * When set, buildings and trees under mouse cursor will be hidden
+	 */
+	static bool hide_under_cursor;
+
+	/**
+	 * Range of tiles from current cursor position to hide
+	 */
+	static uint16 cursor_hide_range;
+
+	/**
 	* Namen (Städte, Haltestellen) anzeigen? (0 .. 3)
 	* lable type 4..7
 	*
 	* @author Hj. Malthaner
 	*/
 	static sint32 show_names;
+
+	// if a schedule is open, show tiles which are used by it
+	static bool visualize_schedule;
 
 	/**
 	* which messages to display where?
@@ -215,7 +229,7 @@ public:
 	 * Name of rivers; first the river with the lowest number
 	 * @author prissi
 	 */
-	static const char *river_type[10];
+	static plainstring river_type[10];
 	static uint8 river_types;
 
 	enum date_fmt {
@@ -300,6 +314,9 @@ public:
 
 	// how many internal pixel per hieght step (default 16)
 	static sint8 pak_tile_height_step;
+
+	// use the faster drwing routine (and allow for clipping errors)
+	static sint16 simple_drawing_tile_size;
 
 	static settings_t default_einstellungen;
 

@@ -1,8 +1,8 @@
 /*
  * Copyright (c) 1997 - 2001 Hansj. Malthaner
  *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans project under the artistic license.
+ * (see license.txt)
  */
 
 /*
@@ -63,51 +63,37 @@
 
 #include "vehicle/simpeople.h"
 
+#include "besch/ware_besch.h"
+
 karte_t *haltestelle_t::welt = NULL;
 
 slist_tpl<halthandle_t> haltestelle_t::alle_haltestellen;
 
 stringhashtable_tpl<halthandle_t> haltestelle_t::all_names;
 
-static uint32 halt_iterator_start = 0;
+uint8 haltestelle_t::pedestrian_limit = 0;
+
+static const uint8 pedestrian_generate_max = 16;
+
+// controls the halt iterator in step_all():
+static bool restart_halt_iterator = true;
 
 void haltestelle_t::step_all()
 {
-	if (!alle_haltestellen.empty())
+	const uint32 count = alle_haltestellen.get_count();
+	if (count) 
 	{
-		uint32 it = halt_iterator_start;
-		slist_iterator_tpl <halthandle_t> iter( alle_haltestellen );
-		while(it > 0 && iter.next()) 
+		const uint32 loops = min(count, 256);
+		static slist_tpl<halthandle_t>::iterator iter;
+		for (uint32 i = 0; i < loops; ++i) 
 		{
-			it--;
-		}
-
-		if(it > 0)
-		{
-			halt_iterator_start = 0;
-		}
-		else
-		{
-			sint16 count = 256;
-			while(count > 0) 
+			if (restart_halt_iterator || iter == alle_haltestellen.end())
 			{
-				if(!iter.next())
-				{
-					halt_iterator_start = 0;
-					break;
-				}
-				// iterate until the specified number of units were handled
-				iter.get_current()->step();
-
-				halt_iterator_start ++;
+				restart_halt_iterator = false;
+				iter = alle_haltestellen.begin();
 			}
+			(*iter++)->step();
 		}
-	}
-
-	else
-	{
-		// save reinit
-		halt_iterator_start = 0;
 	}
 }
 
@@ -253,8 +239,14 @@ DBG_MESSAGE("haltestelle_t::remove()","removing segment from %d,%d,%d", pos.x, p
 	if(  halt->rem_grund(bd)  ) {
 		// remove station building?
 		gebaeude_t* gb = bd->find<gebaeude_t>();
-		if(gb) {
+		if(gb) 
+		{
 			DBG_MESSAGE("haltestelle_t::remove()",  "removing building" );
+			if(gb->get_tile()->get_besch()->get_is_control_tower())
+			{
+				halt->remove_control_tower();
+				halt->recalc_status();
+			}
 			hausbauer_t::remove( welt, sp, gb );
 			bd = NULL;	// no need to recalc image
 		}
@@ -300,7 +292,7 @@ halthandle_t haltestelle_t::create(karte_t *welt, loadsave_t *file)
 void haltestelle_t::destroy(halthandle_t &halt)
 {
 	// just play safe: restart iterator at zero ...
-	halt_iterator_start = 0;
+	restart_halt_iterator = true;
 
 	delete halt.get_rep();
 }
@@ -326,11 +318,6 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 	last_loading_step = wl->get_steps();
 
 	welt = wl;
-
-	pax_happy = 0;
-	pax_unhappy = 0;
-	pax_no_route = 0;
-	pax_too_slow = 0;
 
 	const uint8 max_categories = warenbauer_t::get_max_catg_index();
 
@@ -366,6 +353,8 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 
 	// Added by : Knightly
 	inauguration_time = 0;
+
+	unload_repeat_counter = 0;
 }
 
 
@@ -403,10 +392,6 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 	}
 	do_alternative_seats_calculation = true;
 
-	pax_happy = 0;
-	pax_unhappy = 0;
-	pax_no_route = 0;
-	pax_too_slow = 0;
 	status_color = COL_YELLOW;
 
 	sortierung = freight_list_sorter_t::by_name;
@@ -422,6 +407,10 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 
 	// Added by : Knightly
 	inauguration_time = dr_time();
+
+	unload_repeat_counter = 0;
+
+	control_towers = 0;
 }
 
 
@@ -455,9 +444,8 @@ haltestelle_t::~haltestelle_t()
 
 	// clean waiting_times for each stop 
 	// Inkelyad, November 2010
-	slist_iterator_tpl <halthandle_t> halt_iter(alle_haltestellen);
-	while (halt_iter.next() ) {
-		halthandle_t current_halt = halt_iter.get_current();
+	FOR(slist_tpl<halthandle_t>, & current_halt, alle_haltestellen) 
+	{
 		for ( int category = 0; category < warenbauer_t::get_max_catg_index(); category++ )
 		{
 			waiting_times[category].remove(self.get_id());	
@@ -584,7 +572,8 @@ const char* haltestelle_t::get_name() const
 	const char *name = "Unknown";
 	if (tiles.empty()) {
 		name = "Unnamed";
-	} else {
+	}
+	else {
 		grund_t* bd = welt->lookup(get_basis_pos3d());
 		if(bd  &&  bd->get_flag(grund_t::has_text)) {
 			name = bd->get_text();
@@ -710,15 +699,14 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 			if (self.is_bound()) {
 				// first factories (so with same distance, they have priority)
 				int this_distance = 999;
-				slist_iterator_tpl<fabrik_t*> fab_iter(get_fab_list());
-				while (fab_iter.next()) {
-					int distance = koord_distance(fab_iter.get_current()->get_pos().get_2d(), k);
+				FOR(slist_tpl<fabrik_t*>, const f, get_fab_list()) {
+					int distance = koord_distance(f->get_pos().get_2d(), k);
 					if (distance < this_distance) {
-						fabs.insert(fab_iter.get_current());
-						distance = this_distance;
+						fabs.insert(f);
+						this_distance = distance;
 					}
 					else {
-						fabs.append(fab_iter.get_current());
+						fabs.append(f);
 					}
 				}
 			}
@@ -733,10 +721,9 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 			}
 
 			// are there fabs?
-			slist_iterator_tpl<fabrik_t*> fab_iter(fabs);
-			while (fab_iter.next()) {
+			FOR(slist_tpl<fabrik_t*>, const f, fabs) {
 				// with factories
-				buf.printf( fab_base, city_name, fab_iter.get_current()->get_name(), stop );
+				buf.printf(fab_base, city_name, f->get_name(), stop);
 				if(  !all_names.get(buf).is_bound()  ) {
 					return strdup(buf);
 				}
@@ -797,8 +784,9 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 				if(  !all_names.get(buf).is_bound()  ) {
 					return strdup(buf);
 				}
-				// esle: remove this entry ...
-				street_names.remove_at(idx);
+				// else remove this entry
+				street_names[idx] = street_names.back();
+				street_names.pop_back();
 			}
 			buf.clear();
 		}
@@ -945,6 +933,9 @@ void haltestelle_t::request_loading( convoihandle_t cnv )
 
 void haltestelle_t::step()
 {
+#ifdef DEBUG_SIMRAND_CALLS
+	bool talk = !strcmp(get_name(), "Newton Abbot Railway Station");
+#endif
 	// Knightly : update status
 	//   There is no idle state in Experimental
 	//   as rerouting request may be sent via
@@ -984,14 +975,25 @@ void haltestelle_t::step()
 					// Goods/passengers' maximum waiting times are proportionate to the length of the journey.
 					const uint16 base_max_minutes = (welt->get_settings().get_passenger_max_wait() / tmp.get_besch()->get_speed_bonus()) * 10;  // Minutes are recorded in tenths
 					halthandle_t h = haltestelle_t::get_halt(welt, tmp.get_zielpos(), besitzer_p);
-					uint16 journey_time = 655535;
+					uint16 journey_time = 65535;
 					path_explorer_t::get_catg_path_between(tmp.get_besch()->get_catg_index(), tmp.get_origin(), tmp.get_ziel(), journey_time, h);
 					const uint16 thrice_journey = journey_time * 3;
 					const uint16 min_minutes = base_max_minutes / 12;
 					const uint16 max_minutes = base_max_minutes < thrice_journey ? base_max_minutes : max(thrice_journey, min_minutes);
 					const uint16 waiting_minutes = convoi_t::get_waiting_minutes(welt->get_zeit_ms() - tmp.arrival_time);
+#ifdef DEBUG_SIMRAND_CALLS
+					if (talk && i == 2198)
+						dbg->message("haltestelle_t::step", "%u) check %u of %u minutes: %u %s to \"%s\"", 
+						i, waiting_minutes, max_minutes, tmp.menge, tmp.get_besch()->get_name(), tmp.get_ziel()->get_name());
+#endif
 					if(waiting_minutes > max_minutes)
 					{
+#ifdef DEBUG_SIMRAND_CALLS
+						if (talk)
+							dbg->message("haltestelle_t::step", "%u) discard after %u of %u minutes: %u %s to \"%s\"", 
+							i, waiting_minutes, max_minutes, tmp.menge, tmp.get_besch()->get_name(), tmp.get_ziel()->get_name());
+#endif
+
 						// Waiting too long: discard
 						if(tmp.is_passenger())
 						{
@@ -1008,7 +1010,7 @@ void haltestelle_t::step()
 							if(distance > 0) // No point in calculating refund if passengers/goods are discarded from their origin stop.
 							{
 								// Refund is approximation: 2x distance at standard rate with no adjustments. 
-								const sint64 refund_amount = ((tmp.menge * tmp.get_besch()->get_preis() * distance * 2000ll) + 1500ll) / 3000ll;
+								const sint64 refund_amount = ((tmp.menge * tmp.get_fare(distance) * 2000ll) + 1500ll) / 3000ll;
 								
 								besitzer_p->buche(-refund_amount, get_basis_pos(), COST_INCOME);
 								linehandle_t account_line = get_preferred_line(tmp.get_zwischenziel(), tmp.get_catg());
@@ -1023,8 +1025,8 @@ void haltestelle_t::step()
 									convoihandle_t account_convoy = get_preferred_convoy(tmp.get_zwischenziel(), tmp.get_catg());
 									if(account_convoy.is_bound())
 									{
-										account_convoy->book(-refund_amount, CONVOI_PROFIT);
-										account_convoy->book(-refund_amount, CONVOI_REFUNDS);
+										account_convoy->book(-refund_amount, convoi_t::CONVOI_PROFIT);
+										account_convoy->book(-refund_amount, convoi_t::CONVOI_REFUNDS);
 										get_besitzer()->buche(-refund_amount, COST_VEHICLE_RUN);
 									}
 								}
@@ -1073,30 +1075,30 @@ void haltestelle_t::neuer_monat()
 		enables &= (PAX|POST|WARE);
 	}
 
-	// Hajo: reset passenger statistics
-	pax_happy = 0;
-	pax_no_route = 0;
-	pax_unhappy = 0;
-	pax_too_slow = 0;
-
 	// If the waiting times have not been updated for too long, gradually re-set them; also increment the timing records.
 	for ( int category = 0; category < warenbauer_t::get_max_catg_index(); category++ )
 	{
-		inthashtable_iterator_tpl<uint16, waiting_time_set> iter(waiting_times[category]);
-		while (iter.next())
+		FOR(waiting_time_map, & iter, waiting_times[category])
 		{
 			// If the waiting time data are stale (more than two months old), gradually flush them.
-			if(iter.get_current_value().month > 2)
+			// After two months, values of 10 minutes are appended to the list of waiting times.
+			// This helps to gradually reduce times which were high as a result of a one-off problem,
+			// whilst still allowing rarely-travelled connections to have sensible waiting times.
+			if(iter.value.month > 2)
 			{
-				for(int i = 0; i < 4; i ++)
+				for(int i = 0; i < 8; i ++)
 				{
-					iter.access_current_value().times.add_to_tail(19);
+					iter.value.times.add_to_tail(19);
 				}
+				iter.value.times.clear();
+				iter.value.month = 0;
 			}
 			// Update the waiting time timing records.
-			iter.access_current_value().month ++;
+			iter.value.month ++;
 		}
 	}
+
+	check_nearby_halts();
 
 	// hsiegeln: roll financial history
 	for (int j = 0; j<MAX_HALT_COST; j++) {
@@ -1118,6 +1120,13 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 		vector_tpl<ware_t> * warray = waren[catg];
 		const uint32 packet_count = warray->get_count();
 		vector_tpl<ware_t> * new_warray = new vector_tpl<ware_t>(packet_count);
+
+#ifdef DEBUG_SIMRAND_CALLS
+		bool talk = catg == 0 && !strcmp(get_name(), "Newton Abbot Railway Station");
+
+		if (talk)
+			dbg->message("haltestelle_t::reroute_goods", "halt \"%s\", old packet count %u ", get_name(), packet_count);
+#endif
 
 		// Hajo:
 		// Step 1: re-route goods now and then to adapt to changes in
@@ -1165,6 +1174,11 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 			new_warray->append( ware );
 		}	
 
+#ifdef DEBUG_SIMRAND_CALLS
+		if (talk)
+			dbg->message("haltestelle_t::reroute_goods", "halt \"%s\", new packet count %u ", get_name(), new_warray->get_count());
+#endif
+
 		// delete, if nothing connects here
 		if (new_warray->empty()) 
 		{
@@ -1198,12 +1212,8 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 void haltestelle_t::verbinde_fabriken()
 {
 	// unlink all
-	slist_iterator_tpl <fabrik_t *> fab_iter(fab_list);
-	while( fab_iter.next() ) 
-	{
-		fabrik_t* current_factory = fab_iter.get_current();
-		assert(current_factory);
-		current_factory->unlink_halt(self);
+	FOR(slist_tpl<fabrik_t*>, const f, fab_list) {
+		f->unlink_halt(self);
 	}
 	fab_list.clear();
 
@@ -1212,9 +1222,7 @@ void haltestelle_t::verbinde_fabriken()
 		koord const p = i.grund->get_pos().get_2d();
 
 		int const cov = welt->get_settings().get_station_coverage();
-		vector_tpl<fabrik_t*>& fablist = fabrik_t::sind_da_welche(welt, p - koord(cov, cov), p + koord(cov, cov));
-		for(unsigned i=0; i<fablist.get_count(); i++) {
-			fabrik_t* fab = fablist[i];
+		FOR(vector_tpl<fabrik_t*>, const fab, fabrik_t::sind_da_welche(welt, p - koord(cov, cov), p + koord(cov, cov))) {
 			if(!fab_list.is_contained(fab)) {
 				fab_list.insert(fab);
 				fab->link_halt(self);
@@ -1235,9 +1243,10 @@ void haltestelle_t::remove_fabriken(fabrik_t *fab)
 
 uint16 haltestelle_t::get_average_waiting_time(halthandle_t halt, uint8 category) const
 {
-	if(waiting_times[category].is_contained((halt.get_id())))
+	inthashtable_tpl<uint16, haltestelle_t::waiting_time_set> * const wt = &waiting_times[category];
+	if(wt->is_contained((halt.get_id())))
 	{
-		fixed_list_tpl<uint16, 16> times = waiting_times[category].get(halt.get_id()).times;
+		fixed_list_tpl<uint16, 32> times = waiting_times[category].get(halt.get_id()).times;
 		const uint16 count = times.get_count();
 		if(count > 0 && halt.is_bound())
 		{
@@ -1286,13 +1295,10 @@ void haltestelle_t::reset_connexions(uint8 category)
 		// Nothing to do here
 		return;
 	}
-	
-	quickstone_hashtable_iterator_tpl<haltestelle_t, connexion*> iter(*(connexions[category]));
 
-	// Delete the connexions.
-	while(iter.next())
+	FOR(connexions_map, & iter, *connexions[category] ) 
 	{
-		delete iter.get_current_value();
+        delete iter.value;
 	}
 }
 
@@ -1419,11 +1425,9 @@ uint16 haltestelle_t::find_route (ware_t &ware, const uint16 previous_journey_ti
  */
 void haltestelle_t::add_pax_happy(int n)
 {
-	pax_happy += n;
 	book(n, HALT_HAPPY);
 	recalc_status();
 }
-
 
 /**
  * Station crowded
@@ -1431,7 +1435,6 @@ void haltestelle_t::add_pax_happy(int n)
  */
 void haltestelle_t::add_pax_unhappy(int n)
 {
-	pax_unhappy += n;
 	book(n, HALT_UNHAPPY);
 	recalc_status();
 }
@@ -1441,7 +1444,6 @@ void haltestelle_t::add_pax_unhappy(int n)
 
 void haltestelle_t::add_pax_too_slow(int n)
 {
-	pax_too_slow += n;
 	book(n, HALT_TOO_SLOW);
 }
 
@@ -1451,7 +1453,6 @@ void haltestelle_t::add_pax_too_slow(int n)
  */
 void haltestelle_t::add_pax_no_route(int n)
 {
-	pax_no_route += n;
 	book(n, HALT_NOROUTE);
 }
 
@@ -1473,10 +1474,7 @@ bool haltestelle_t::recall_ware( ware_t& w, uint32 menge )
 	w.menge = 0;
 	vector_tpl<ware_t> *warray = waren[w.get_besch()->get_catg_index()];
 	if(warray!=NULL) {
-
-		for(  uint32 i=0;  i<warray->get_count();  i++ ) {
-			ware_t &tmp = (*warray)[i];
-
+		FOR(vector_tpl<ware_t>, & tmp, *warray) {
 			// skip empty entries
 			if(tmp.menge==0  ||  w.get_index()!=tmp.get_index()  ||  w.get_zielpos()!=tmp.get_zielpos()) {
 				continue;
@@ -1514,6 +1512,19 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 
 	if(warray != NULL) 
 	{
+#ifdef DEBUG_SIMRAND_CALLS_BG
+		//if (!strcmp(get_name(), "Newton Abbot Railway Station"))
+		//{
+		//	dbg->message("haltestelle_t::hole_ab", "halt \"%s\", ware \"%s\": max %u", get_name(), wtyp->get_name(), warray->get_count());
+		//	for (int i = 0; i < warray->get_count(); ++i)
+		//	{
+		//		char buf[16];
+		//		ware_t &ware = (*warray)[i];
+		//		sprintf(buf, "% 8u)", i);
+		//		dbg->message(buf, "%u to \"%s\"", ware.menge, ware.get_ziel()->get_name());
+		//	}
+		//}
+#endif
 		uint32 accumulated_journey_time = 0;
 		halthandle_t previous_halt = self;
 
@@ -1535,11 +1546,11 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 				// Calculate the journey time for *this* convoy from here (if not already calculated)
 				uint16 journey_time = 0;
 
-				journey_time = cnv->average_journey_times->get(id_pair(plan_halt.get_id(), previous_halt.get_id())).get_average();
+				journey_time = cnv->get_average_journey_times_this_convoy_only()->get(id_pair(plan_halt.get_id(), previous_halt.get_id())).get_average();
 
 				if(journey_time == 0)
 				{
-					sint32 average_speed = cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) > 0 ? cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) * 100 : cnv->get_finance_history(0, CONVOI_AVERAGE_SPEED) * 100;
+					sint32 average_speed = cnv->get_finance_history(1, convoi_t::CONVOI_AVERAGE_SPEED) > 0 ? cnv->get_finance_history(1, convoi_t::CONVOI_AVERAGE_SPEED) * 100 : cnv->get_finance_history(0, convoi_t::CONVOI_AVERAGE_SPEED) * 100;
 					if(average_speed == 0)
 					{
 						// If the average speed is not initialised, take a guess to prevent perverse outcomes and possible deadlocks.
@@ -1552,7 +1563,13 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 				}		
 								
 				// The random offset will ensure that all goods have an equal chance to be loaded.
-				sint32 offset = simrand(warray->get_count(), "ware_t haltestelle_t::hole_ab");
+#ifdef DEBUG_SIMRAND_CALLS
+				char buf[512];
+				sprintf(buf, "haltestelle_t::hole_ab halt \"%s\", ware \"%s\"", this->get_name(), wtyp->get_name());
+				sint32 offset = simrand(warray->get_count(), buf);
+#else
+				sint32 offset = simrand(warray->get_count(), "haltestelle_t::hole_ab");
+#endif
 
 				halthandle_t next_transfer;
 				uint8 catg_index;
@@ -1615,17 +1632,90 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 								const uint16 max_minutes = base_max_minutes > preferred_travelling_minutes ? preferred_travelling_minutes : base_max_minutes;
 								const sint16 preferred_advantage_minutes = accumulated_journey_time - preferred_travelling_minutes;
 
-								if(max_minutes > waiting_minutes && preferred_advantage_minutes > ((average_waiting_minutes * 2) / 3))
+								// New formula: Carl Baker, Feb 2012
+								
+								bool much_faster = true;
+								bool waiting_too_long = false;
+								int how_much_slower = journey_time * 100;
+								if (preferred_travelling_minutes > 1)
 								{
-									// Realistic human behaviour: in the absence of information about the waiting time to the preferred convoy,
-									// take a slightly optimistic assumption about that waiting time based on 2/3rds of the average waiting times
-									// for convoys generally and an attempt to calculate a cost/benefit analysis of waiting for the best convoy
-									// or taking the present one, taking into account the time saved by taking the best convoy.	But, if the wait
-									// so far has been too long, take the next convoy that will take one to the next destination in any event,
-									// out of some measure of frustration. 
-									continue;
+									how_much_slower /= preferred_travelling_minutes;
 								}
-							}	
+								 // Passengers will always board slower convoy if its journey time is within an acceptable
+								 // tolerance of the fastest journey time. 
+								 // The acceptable tolerance is scaled depending on journey time of faster convoy.
+								 if (preferred_travelling_minutes <= 100 && how_much_slower < 160)
+								 {
+								  much_faster = false;
+								 }
+								 else if ((preferred_travelling_minutes > 100 && preferred_travelling_minutes <= 300) && (how_much_slower < 150))
+								 {
+									 much_faster = false;
+								 }
+								 else if ((preferred_travelling_minutes > 300 && preferred_travelling_minutes <= 600) && (how_much_slower < 140))
+								 {
+									 much_faster = false;
+								 }
+								 else if ((preferred_travelling_minutes > 600 && preferred_travelling_minutes <= 900) && (how_much_slower < 133))
+								 {
+									 much_faster = false;
+								 }
+								 else if ((preferred_travelling_minutes > 900 && preferred_travelling_minutes <= 1200) && (how_much_slower < 125))
+								 {
+									 much_faster = false;
+								 }
+								 else if ((preferred_travelling_minutes > 1200 && preferred_travelling_minutes <= 1800) && (how_much_slower < 122))
+								 {
+									 much_faster = false;
+								 }
+								 else if ((preferred_travelling_minutes > 1800) && (how_much_slower < 118))
+								 {
+									 much_faster = false;
+								 } 
+                     
+								 // If passengers have been waiting a long time, they are more likely to board a slower convoy.
+								 // But this is scaled so that a much slower convoy requires a much longer-than-expected wait.
+								 if (much_faster == true)
+								 {
+									if ((how_much_slower <= 125) && ( waiting_minutes >= (average_waiting_minutes * 3)))
+									{
+										waiting_too_long = true;
+									}
+									else if ((how_much_slower > 125 && how_much_slower <= 150) && ( waiting_minutes >= (average_waiting_minutes * 4)))
+									{
+										waiting_too_long = true;
+									}
+									else if ((how_much_slower > 150 && how_much_slower <= 200) && ( waiting_minutes >= (average_waiting_minutes * 5)))
+									{
+									 waiting_too_long = true;
+									}
+									else if (how_much_slower > 200 && ( waiting_minutes >= (average_waiting_minutes * 6)))
+									{
+									 waiting_too_long = true;
+									}
+									else 
+									{
+										waiting_too_long = false;
+									}
+								 }
+                     
+								 // Passengers continue to wait for faster convoy if...
+								 if ((much_faster == true) && (waiting_too_long == false))
+								 {
+									 continue;
+								 } 
+							}
+						}
+
+						const uint32 time_till_departure = (cnv->go_on_ticks - welt->get_zeit_ms());
+						// Don't board a vehicle which is waiting for spacing until near its departure time
+						// Assures that passengers will board the first train to leave, not the first train to arrive
+						if ((fpl->get_current_eintrag().ladegrad > 0) && (fpl->get_spacing() > 0))
+						{
+							if ((welt->ticks_to_tenths_of_minutes(time_till_departure)) > 100)
+							{
+								continue;
+							}
 						}
 	
 						// Refuse to be overcrowded if alternative exists
@@ -1634,6 +1724,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 						{
 							continue;
 						}
+
 						// not too much?
 						ware_t neu(tmp);
 						if(  tmp.menge > maxi  ) 
@@ -1660,7 +1751,8 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 
 			// if the schedule is mirrored and has reached its end, break
 			// as the convoi will be returning this way later.
-			if( fpl->is_mirrored() && (index==0 || index==(count-1)) ) {
+			if( fpl->is_mirrored() && (index==0 || index==(count-1)) )
+			{
 				break;
 			}
 
@@ -1687,10 +1779,9 @@ void haltestelle_t::update_alternative_seats(convoihandle_t cnv)
 	}
 
 	int catg_index =  warenbauer_t::passagiere->get_catg_index();
-	quickstone_hashtable_iterator_tpl<haltestelle_t, connexion*> iter(*(connexions[catg_index]));
-	while(iter.next())
+	FOR(connexions_map, const& iter, *(connexions[catg_index]))
 	{
-		iter.get_current_value()->alternative_seats = 0;
+		iter.value->alternative_seats = 0;
 	}
 
 	if (loading_here.get_count() < 2 ) { // Alternatives don't exist, only one convoy here
@@ -1743,9 +1834,9 @@ uint32 haltestelle_t::get_ware_summe(const ware_besch_t *wtyp) const
 	int sum = 0;
 	const vector_tpl<ware_t> * warray = waren[wtyp->get_catg_index()];
 	if(warray!=NULL) {
-		for(unsigned i=0;  i<warray->get_count();  i++ ) {
-			if(wtyp->get_index()==(*warray)[i].get_index()) {
-				sum += (*warray)[i].menge;
+		FOR(vector_tpl<ware_t>, const& i, *warray) {
+			if (wtyp->get_index() == i.get_index()) {
+				sum += i.menge;
 			}
 		}
 	}
@@ -1758,8 +1849,7 @@ uint32 haltestelle_t::get_ware_fuer_zielpos(const ware_besch_t *wtyp, const koor
 {
 	const vector_tpl<ware_t> * warray = waren[wtyp->get_catg_index()];
 	if(warray!=NULL) {
-		for(unsigned i=0;  i<warray->get_count();  i++ ) {
-			const ware_t &ware = (*warray)[i];
+		FOR(vector_tpl<ware_t>, const& ware, *warray) {
 			if(wtyp->get_index()==ware.get_index()  &&  ware.get_zielpos()==zielpos) {
 				return ware.menge;
 			}
@@ -1777,9 +1867,8 @@ bool haltestelle_t::vereinige_waren(const ware_t &ware) //"unite were" (Google)
 	vector_tpl<ware_t> * warray = waren[ware.get_besch()->get_catg_index()];
 	if(warray != NULL) 
 	{
-		for(uint32 i = 0; i < warray->get_count(); i++) 
+		FOR(vector_tpl<ware_t>, & tmp, *warray) 
 		{
-			ware_t &tmp = (*warray)[i];
 
 			/*
 			* OLD SYSTEM - did not take account of origins and timings when merging.
@@ -1827,6 +1916,9 @@ bool haltestelle_t::vereinige_waren(const ware_t &ware) //"unite were" (Google)
 // take care of all allocation neccessary
 void haltestelle_t::add_ware_to_halt(ware_t ware, bool from_saved)
 {
+#ifdef DEBUG_SIMRAND_CALLS
+	bool talk = !strcmp(get_name(), "Newton Abbot Railway Station");
+#endif
 	//@author: jamespetts
 	if(!from_saved)
 	{
@@ -1845,15 +1937,58 @@ void haltestelle_t::add_ware_to_halt(ware_t ware, bool from_saved)
 	}
 	// the ware will be put into the first entry with menge==0
 	resort_freight_info = true;
-	ITERATE_PTR(warray,i)
-	{
-		if((*warray)[i].menge==0) 
+#ifdef DEBUG_SIMRAND_CALLS
+	int n = 0;
+#endif
+	FOR(vector_tpl<ware_t>, & i, *warray) {
+#ifdef DEBUG_SIMRAND_CALLS
+		if (talk)
 		{
-			(*warray)[i] = ware;
+			if (!loading && n > 2900)
+			{
+				char buf[16];
+				sprintf(buf, "% 8u)", n);
+				dbg->message(buf, "%u to %s", i.menge, i.get_ziel()->get_name());
+			}
+			++n;
+		}
+#endif
+		if (i.menge == 0) {
+#ifdef DEBUG_SIMRAND_CALLS
+			if (talk && warray->get_count() >= 2923)
+			{
+				dbg->message("haltestelle_t::add_ware_to_halt", "*halt \"%s\", ware \"%s\": packets %u", get_name(), ware.get_besch()->get_name(), warray->get_count());
+				if (warray->get_count() == 2923)
+				{
+					int x = 0;
+				}
+			}
+#endif
+			i = ware;
 			return;
 		}
 	}
 	// here, if no free entries found
+#ifdef DEBUG_SIMRAND_CALLS
+	if (talk)
+	{
+		int n = warray->get_count();
+		if (n >= 2923)
+		{
+			dbg->message("haltestelle_t::add_ware_to_halt", "halt \"%s\", ware \"%s\": packets %u", get_name(), ware.get_besch()->get_name(), warray->get_count());
+			if (n == 2923)
+			{
+				int x = 0;
+			}
+		}
+		else if (n >= 2190 && n <= 2200)
+		{
+			char buf[16];
+			sprintf(buf, "% 8u)", n);
+			dbg->message(buf, "%u", ware.menge);
+		}
+	}
+#endif
 	warray->append(ware);
 }
 
@@ -1866,12 +2001,23 @@ void haltestelle_t::add_ware_to_halt(ware_t ware, bool from_saved)
  */
 uint32 haltestelle_t::starte_mit_route(ware_t ware)
 {
+#ifdef DEBUG_SIMRAND_CALLS
+	bool talk = !strcmp(get_name(), "Newton Abbot Railway Station");
+
+	if (talk)
+		dbg->message("haltestelle_t::starte_mit_route", "halt \"%s\", ware \"%s\": menge %u", get_name(), ware.get_besch()->get_name(), ware.menge);
+#endif
+
 	if(ware.get_ziel()==self) {
 		if(  ware.to_factory  ) {
 			// muss an fabrik geliefert werden
 			liefere_an_fabrik(ware);
 		}
 		// already there: finished (may be happen with overlapping areas and returning passengers)
+#ifdef DEBUG_SIMRAND_CALLS
+		if (talk)
+			dbg->message("\t", "already finished");
+#endif
 		return ware.menge;
 	}
 
@@ -1890,19 +2036,35 @@ uint32 haltestelle_t::starte_mit_route(ware_t ware)
 	// passt das zu bereits wartender ware ?
 	if(vereinige_waren(ware)) {
 		// dann sind wir schon fertig;
+#ifdef DEBUG_SIMRAND_CALLS
+		if (talk)
+			dbg->message("\t", "united with existing ware.");
+#endif
 		return ware.menge;
 	}
 
-	if(ware.is_passenger() && is_within_walking_distance_of(ware.get_zwischenziel()) && !connexions[0]->get(ware.get_zwischenziel())->best_convoy.is_bound() && !connexions[0]->get(ware.get_zwischenziel())->best_line.is_bound())
+	if(ware.is_passenger() && unload_repeat_counter < 3 && is_within_walking_distance_of(ware.get_zwischenziel()) && !connexions[0]->get(ware.get_zwischenziel())->best_convoy.is_bound() && !connexions[0]->get(ware.get_zwischenziel())->best_line.is_bound())
 	{
 		// If this is within walking distance of the next transfer, and there is not a faster way there, walk there.
 		erzeuge_fussgaenger(welt, get_basis_pos3d(), ware.menge);
+		unload_repeat_counter ++;
+#ifdef DEBUG_SIMRAND_CALLS
+		if (talk)
+			dbg->message("\t", "walking to %s", ware.get_zwischenziel()->get_name());
+#endif
 		return ware.get_zwischenziel()->liefere_an(ware);
 	}
 	else
 	{
 		// add to internal storage
 		add_ware_to_halt(ware);
+#ifdef DEBUG_SIMRAND_CALLS
+		if (talk)
+		{
+			const vector_tpl<ware_t> * warray = waren[ware.get_besch()->get_catg_index()];
+			dbg->message("\t", "warray count %d", (*warray).get_count());
+		}
+#endif
 		return ware.menge;
 	}
 }
@@ -1915,6 +2077,10 @@ uint32 haltestelle_t::starte_mit_route(ware_t ware)
  */
 uint32 haltestelle_t::liefere_an(ware_t ware)
 {
+#ifdef DEBUG_SIMRAND_CALLS
+	bool talk = !strcmp(get_name(), "Newton Abbot Railway Station");
+#endif
+
 	// no valid next stops?
 	if(!ware.get_ziel().is_bound()  ||  !ware.get_zwischenziel().is_bound()) 
 	{
@@ -1943,12 +2109,20 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 				INT_CHECK("simhalt 938");
 			}
 		}
+#ifdef DEBUG_SIMRAND_CALLS
+		if (talk)
+			dbg->message("haltestelle_t::liefere_an", "%d arrived at station \"%s\" waren[0].count %d", ware.menge, get_name(), get_warray(0)->get_count());
+#endif
 		return ware.menge;
 	}
 
 	// do we have already something going in this direction here?
 	if(  vereinige_waren(ware)  ) 
 	{
+#ifdef DEBUG_SIMRAND_CALLS
+	if (talk)
+		dbg->message("haltestelle_t::liefere_an", "%d merged in station \"%s\" waren[0].count %d", ware.menge, get_name(), get_warray(0)->get_count());
+#endif
 		return ware.menge;
 	}
 
@@ -1966,15 +2140,24 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 	if(vereinige_waren(ware)) 
 	{
 		// dann sind wir schon fertig;
+#ifdef DEBUG_SIMRAND_CALLS
+	if (talk)
+		dbg->message("haltestelle_t::liefere_an", "%d merged(2) in station \"%s\" waren[0].count %d", ware.menge, get_name(), get_warray(0)->get_count());
+#endif
 		return ware.menge;
 	}
 #endif
 	
-	if(ware.is_passenger() && is_within_walking_distance_of(ware.get_zwischenziel()) && !connexions[0]->get(ware.get_zwischenziel())->best_convoy.is_bound() && !connexions[0]->get(ware.get_zwischenziel())->best_line.is_bound() && ware.get_last_transfer().is_bound() && ware.get_last_transfer()->get_basis_pos() != ware.get_zwischenziel()->get_basis_pos())
+	if(ware.is_passenger() && unload_repeat_counter < 3 && is_within_walking_distance_of(ware.get_zwischenziel()) && !connexions[0]->get(ware.get_zwischenziel())->best_convoy.is_bound() && !connexions[0]->get(ware.get_zwischenziel())->best_line.is_bound() && ware.get_last_transfer().is_bound() && ware.get_last_transfer()->get_basis_pos() != ware.get_zwischenziel()->get_basis_pos())
 	{
 		// If this is within walking distance of the next transfer, and there is not a faster way there, walk there.
 		erzeuge_fussgaenger(welt, get_basis_pos3d(), ware.menge);
 		ware.set_last_transfer(self);
+		unload_repeat_counter ++;
+#ifdef DEBUG_SIMRAND_CALLS
+		if (talk)
+			dbg->message("haltestelle_t::liefere_an", "%d walk to station \"%s\" waren[0].count %d", ware.menge, ware.get_zwischenziel()->get_name(), get_warray(0)->get_count());
+#endif
 		return ware.get_zwischenziel()->liefere_an(ware);
 	}
 	else
@@ -1983,6 +2166,10 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 		add_ware_to_halt(ware);
 	}
 
+#ifdef DEBUG_SIMRAND_CALLS
+	if (talk)
+		dbg->message("haltestelle_t::liefere_an", "%d waiting for transfer to station \"%s\" waren[0].count %d", ware.menge, ware.get_zwischenziel()->get_name(), get_warray(0)->get_count());
+#endif
 	return ware.menge;
 }
 
@@ -2023,12 +2210,12 @@ void haltestelle_t::info(cbuffer_t & buf) const
 {
 	buf.printf(
 		translator::translate("Passengers %d %c, %d %c, %d no route, %d too slow"),
-		pax_happy,
+		get_pax_happy(),
 		30,
-		pax_unhappy,
+		get_pax_unhappy(),
 		31,
-		pax_no_route,
-		pax_too_slow
+		get_pax_no_route(),
+		get_pax_too_slow()
 		);
 	buf.append("\n\n");
 }
@@ -2102,8 +2289,10 @@ void haltestelle_t::zeige_info()
 sint64 haltestelle_t::calc_maintenance() const
 {
 	sint64 maintenance = 0;
-	FOR(slist_tpl<tile_t>, const& i, tiles) {
-		if (gebaeude_t* const gb = i.grund->find<gebaeude_t>()) {
+	FOR(slist_tpl<tile_t>, const& i, tiles) 
+	{
+		if (gebaeude_t* const gb = i.grund->find<gebaeude_t>()) 
+		{
 			const haus_besch_t* besch = gb->get_tile()->get_besch();
 			if(besch->get_base_station_maintenance() == 2147483647)
 			{
@@ -2115,7 +2304,6 @@ sint64 haltestelle_t::calc_maintenance() const
 				// New method - get the specified factor.
 				maintenance += besch->get_station_maintenance();
 			}
-
 		}
 	}
 	return maintenance;
@@ -2156,10 +2344,10 @@ bool haltestelle_t::make_public_and_join( spieler_t *sp )
 					// Bernd Gabriel: does anybody reassign the already disappropriated buildings?
 					return false;
 				}
-				spieler_t::add_maintenance( gb_sp, -costs );
+				spieler_t::add_maintenance( gb_sp, (sint32)-costs );
 				gb->set_besitzer(public_owner);
 				gb->set_flag(ding_t::dirty);
-				spieler_t::add_maintenance(public_owner, costs );
+				spieler_t::add_maintenance(public_owner, (sint32)costs );
 			}
 			// ok, valid start, now we can join them
 			for( uint8 i=0;  i<8;  i++  ) {
@@ -2221,10 +2409,11 @@ bool haltestelle_t::make_public_and_join( spieler_t *sp )
 					}
 					
 					spieler_t::add_maintenance( gb_sp, -costs );
+
 					spieler_t::accounting(gb_sp, costs*60, gr->get_pos().get_2d(), COST_CONSTRUCTION);
 					gb->set_besitzer(public_owner);
 					gb->set_flag(ding_t::dirty);
-					spieler_t::add_maintenance(public_owner, costs );
+					spieler_t::add_maintenance( public_owner, (sint32)costs );
 				}
 			}
 			// transfer tiles to us
@@ -2257,12 +2446,20 @@ void haltestelle_t::transfer_goods(halthandle_t halt)
 	if (!self.is_bound() || !halt.is_bound()) {
 		return;
 	}
+#ifdef DEBUG_SIMRAND_CALLS
+	bool talk = !strcmp(get_name(), "Newton Abbot Railway Station") || !strcmp(halt->get_name(), "Newton Abbot Railway Station");
+#endif
 	// transfer goods to halt
 	for(uint8 i=0; i<warenbauer_t::get_max_catg_index(); i++) {
 		const vector_tpl<ware_t> * warray = waren[i];
 		if (warray) {
-			for(uint32 j=0; j<warray->get_count(); j++) {
-				halt->add_ware_to_halt( (*warray)[j] );
+			FOR(vector_tpl<ware_t>, const& j, *warray) {
+				halt->add_ware_to_halt(j);
+#ifdef DEBUG_SIMRAND_CALLS
+				if (talk)
+					dbg->message("haltestelle_t::transfer_goods", "%d transfer from station \"%s\"(warr cnt %d) to \"%s\"(warr cnt %d)", 
+					    j.menge, get_name(), get_warray(i)->get_count(), halt->get_name(), halt->get_warray(i)->get_count());
+#endif
 			}
 			delete waren[i];
 			waren[i] = NULL;
@@ -2406,9 +2603,14 @@ void haltestelle_t::recalc_station_type()
 
 int haltestelle_t::erzeuge_fussgaenger(karte_t *welt, koord3d pos, int anzahl)
 {
-	fussgaenger_t::erzeuge_fussgaenger_an(welt, pos, anzahl);
-	for(int i=0; i<4 && anzahl>0; i++) {
-		fussgaenger_t::erzeuge_fussgaenger_an(welt, pos+koord::nsow[i], anzahl);
+	if(pedestrian_limit < pedestrian_generate_max)
+	{
+		pedestrian_limit ++;
+		fussgaenger_t::erzeuge_fussgaenger_an(welt, pos, anzahl);
+		for(int i=0; i<4 && anzahl>0; i++) 
+		{
+			fussgaenger_t::erzeuge_fussgaenger_an(welt, pos+koord::nsow[i], anzahl);
+		}
 	}
 	return anzahl;
 }
@@ -2421,7 +2623,10 @@ void haltestelle_t::rdwr(loadsave_t *file)
 
 	sint32 spieler_n;
 	koord3d k;
-
+	unload_repeat_counter = 0;
+#ifdef DEBUG_SIMRAND_CALLS
+	loading = file->is_loading();
+#endif
 	// will restore halthandle_t after loading
 	if(file->get_version() > 110005) 
 	{
@@ -2537,8 +2742,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				file->rdwr_str(s);
 				short count = warray->get_count();
 				file->rdwr_short(count);
-				for(unsigned i=0;  i<warray->get_count();  i++ ) {
-					ware_t &ware = (*warray)[i];
+				FOR(vector_tpl<ware_t>, & ware, *warray) {
 					ware.rdwr(welt,file);
 				}
 			}
@@ -2546,6 +2750,23 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		s = "";
 		file->rdwr_str(s);
 
+#ifdef DEBUG_SIMRAND_CALLS
+		if (waren[0])
+		{
+			if (!strcmp(get_name(), "Newton Abbot Railway Station"))
+			{
+				dbg->message("haltestelle_t::rdwr", "at stop \"%s\" waren[0]->get_count() is %u ", get_name(), waren[0]->get_count());
+				//for (int i = 0; i < waren[0]->get_count(); ++i)
+				//{
+				//	char buf[16];
+				//	const ware_t &ware = (*waren[0])[i];
+				//	sprintf(buf, "% 8u)", i);
+				//	dbg->message(buf, "%u to %s", ware.menge, ware.get_ziel()->get_name());
+				//}
+				//int x = 0;
+			}
+		}
+#endif
 	}
 	else 
 	{
@@ -2597,6 +2818,24 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			
 		}
 
+
+#ifdef DEBUG_SIMRAND_CALLS
+		if (waren[0])
+		{
+			if (!strcmp(get_name(), "Newton Abbot Railway Station"))
+			{
+				dbg->message("haltestelle_t::rdwr", "at stop \"%s\" waren[0]->get_count() is %u ", get_name(), waren[0]->get_count());
+				//for (int i = 0; i < waren[0]->get_count(); ++i)
+				//{
+				//	char buf[16];
+				//	const ware_t &ware = (*waren[0])[i];
+				//	sprintf(buf, "% 8u)", i);
+				//	dbg->message(buf, "%u", ware.menge);
+				//}
+				//int x = 0;
+			}
+		}
+#endif
 	}
 
 	if(file->get_experimental_version() >= 5)
@@ -2612,11 +2851,28 @@ void haltestelle_t::rdwr(loadsave_t *file)
 	else
 	{
 		// Earlier versions did not have pax_too_slow
-		for (int j = 0; j < 7 /*MAX_HALT_COST - 1*/; j++) 
+		for (int j = 0; j < 8 /*MAX_HALT_COST - 1*/; j++) 
 		{
 			for (int k = MAX_MONTHS - 1; k >= 0; k--) 
 			{
-				file->rdwr_longlong(financial_history[k][j]);
+				if(j == 7)
+				{
+					// Walked passengers in Standard
+					// (Experimental stores these in cities, not stops)
+					if(file->get_version() >= 111001)
+					{
+						sint64 dummy = 0;
+						file->rdwr_longlong(dummy);
+					}
+					else
+					{
+						continue;
+					}
+				}
+				else
+				{
+					file->rdwr_longlong(financial_history[k][j]);
+				}
 			}
 		}
 		for (int k = MAX_MONTHS - 1; k >= 0; k--) 
@@ -2637,13 +2893,11 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				uint16 halts_count;
 				halts_count = waiting_times[i].get_count();
 				file->rdwr_short(halts_count);
-			
-				inthashtable_iterator_tpl<uint16, waiting_time_set > iter(waiting_times[i]);
-
 				halthandle_t halt;
-				while(iter.next())
+
+				FOR(waiting_time_map, & iter, waiting_times[i])
 				{
-					uint16 id = iter.get_current_key();
+					uint16 id = iter.key;
 
 					if(file->get_experimental_version() >= 10)
 					{
@@ -2660,18 +2914,18 @@ void haltestelle_t::rdwr(loadsave_t *file)
 						save_koord.rdwr(file);
 					}
 					
-					uint8 waiting_time_count = iter.get_current_value().times.get_count();
+					uint8 waiting_time_count = iter.value.times.get_count();
 					file->rdwr_byte(waiting_time_count);
-					ITERATE(iter.get_current_value().times, i)
+					ITERATE(iter.value.times, i)
 					{
 						// Store each waiting time
-						uint16 current_time = iter.access_current_value().times.get_element(i);
+						uint16 current_time = iter.value.times.get_element(i);
 						file->rdwr_short(current_time);
 					}
 
 					if(file->get_experimental_version() >= 9)
 					{
-						waiting_time_set wt = iter.get_current_value();
+						waiting_time_set wt = iter.value;
 						file->rdwr_byte(wt.month);
 					}
 				}
@@ -2701,7 +2955,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 						}
 					}	
 
-					fixed_list_tpl<uint16, 16> list;
+					fixed_list_tpl<uint16, 32> list;
 					uint8 month;
 					waiting_time_set set;
 					uint8 waiting_time_count;
@@ -2777,7 +3031,10 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				add_halt_within_walking_distance(halt);
 			}
 		}
-		
+		if(file->get_version() >= 111002)
+		{
+			file->rdwr_byte(control_towers);
+		}
 	}
 	else
 	{
@@ -2787,10 +3044,10 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		}
 	}
 
-	pax_happy    = financial_history[0][HALT_HAPPY];
-	pax_unhappy  = financial_history[0][HALT_UNHAPPY];
-	pax_no_route = financial_history[0][HALT_NOROUTE];
-	pax_too_slow = financial_history[0][HALT_TOO_SLOW];
+	pedestrian_limit = 0;
+#ifdef DEBUG_SIMRAND_CALLS
+	loading = false;
+#endif
 }
 
 
@@ -2804,9 +3061,9 @@ void haltestelle_t::laden_abschliessen(bool need_recheck_for_walking_distance)
 		if(waren[i]) 
 		{
 			vector_tpl<ware_t> * warray = waren[i];
-			ITERATE_PTR(warray,j) 
+			FOR(vector_tpl<ware_t>, & j, *warray) 
 			{
-				(*warray)[j].laden_abschliessen(welt,besitzer_p);
+				j.laden_abschliessen(welt, besitzer_p);
 			}
 			// merge identical entries (should only happen with old games)
 			ITERATE_PTR(warray,j)
@@ -2880,10 +3137,6 @@ void haltestelle_t::init_financial_history()
 			financial_history[k][j] = 0;
 		}
 	}
-	financial_history[0][HALT_HAPPY] = pax_happy;
-	financial_history[0][HALT_UNHAPPY] = pax_unhappy;
-	financial_history[0][HALT_NOROUTE] = pax_no_route;
-	financial_history[0][HALT_TOO_SLOW] = pax_too_slow;
 }
 
 
@@ -2945,8 +3198,14 @@ void haltestelle_t::recalc_status()
 	if(  status_bits  ) {
 		status_color = status_bits&2 ? COL_RED : COL_ORANGE;
 	}
-	else {
+	else
+	{
 		status_color = (financial_history[0][HALT_WAITING]+financial_history[0][HALT_DEPARTED] == 0) ? COL_YELLOW : COL_GREEN;
+	}
+
+	if((station_type & airstop) && has_no_control_tower())
+	{
+		status_color = COL_PURPLE;
 	}
 
 	financial_history[0][HALT_WAITING] = total_sum;
@@ -3043,9 +3302,7 @@ bool haltestelle_t::add_grund(grund_t *gr)
 
 	//DBG_MESSAGE("haltestelle_t::add_grund()","pos %i,%i,%i to %s added.",pos.x,pos.y,pos.z,get_name());
 
-	vector_tpl<fabrik_t*>& fablist = fabrik_t::sind_da_welche(welt, pos - koord(cov, cov), pos + koord(cov, cov));
-	for(unsigned i=0; i<fablist.get_count(); i++) {
-		fabrik_t* fab = fablist[i];
+	FOR(vector_tpl<fabrik_t*>, const fab, fabrik_t::sind_da_welche(welt, pos - koord(cov, cov), pos + koord(cov, cov))) {
 		if(!fab_list.is_contained(fab)) {
 			fab_list.insert(fab);
 			fab->link_halt(self);
@@ -3059,13 +3316,12 @@ bool haltestelle_t::add_grund(grund_t *gr)
 		for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
 			if(welt->get_spieler(i)) {
 				welt->get_spieler(i)->simlinemgmt.get_lines(simline_t::line, &check_line);
-				for(  uint j=0;  j<check_line.get_count();  j++  ) {
+				FOR(vector_tpl<linehandle_t>, const j, check_line) {
 					// only add unknown lines
-					if(  !registered_lines.is_contained(check_line[j])  &&  check_line[j]->count_convoys()>0  ) {
-						const schedule_t *fpl = check_line[j]->get_schedule();
-						for(  int k=0;  k<fpl->get_count();  k++  ) {
-							if(get_halt(welt,fpl->eintrag[k].pos,check_line[j]->get_besitzer())==self) {
-								registered_lines.append(check_line[j]);
+					if (!registered_lines.is_contained(j) && j->count_convoys() > 0) {
+						FOR(minivec_tpl<linieneintrag_t>, const& k, j->get_schedule()->eintrag) {
+							if (get_halt(welt, k.pos, j->get_besitzer()) == self) {
+								registered_lines.append(j);
 								break;
 							}
 						}
@@ -3079,8 +3335,8 @@ bool haltestelle_t::add_grund(grund_t *gr)
 			if(  !cnv->get_line().is_bound()  &&  !registered_convoys.is_contained(cnv)  ) {
 				const schedule_t *const fpl = cnv->get_schedule();
 				if(  fpl  ) {
-					for(  int k=0;  k<fpl->get_count();  ++k  ) {
-						if(  get_halt(welt, fpl->eintrag[k].pos, get_besitzer())==self  ) {
+					FOR(minivec_tpl<linieneintrag_t>, const& k, fpl->eintrag) {
+						if (get_halt(welt, k.pos, get_besitzer()) == self) {
 							registered_convoys.append(cnv);
 							break;
 						}
@@ -3091,13 +3347,12 @@ bool haltestelle_t::add_grund(grund_t *gr)
 	}
 	else {
 		get_besitzer()->simlinemgmt.get_lines(simline_t::line, &check_line);
-		for(  uint32 j=0;  j<check_line.get_count();  j++  ) {
+		FOR(vector_tpl<linehandle_t>, const j, check_line) {
 			// only add unknown lines
-			if(  !registered_lines.is_contained(check_line[j])  &&  check_line[j]->count_convoys()>0  ) {
-				const schedule_t *fpl = check_line[j]->get_schedule();
-				for(  int k=0;  k<fpl->get_count();  k++  ) {
-					if(get_halt(welt,fpl->eintrag[k].pos,get_besitzer())==self) {
-						registered_lines.append(check_line[j]);
+			if (!registered_lines.is_contained(j) && j->count_convoys() > 0) {
+					FOR(minivec_tpl<linieneintrag_t>, const& k, j->get_schedule()->eintrag) {
+					if (get_halt(welt, k.pos, get_besitzer()) == self) {
+						registered_lines.append(j);
 						break;
 					}
 				}
@@ -3109,8 +3364,8 @@ bool haltestelle_t::add_grund(grund_t *gr)
 			if(  !cnv->get_line().is_bound()  &&  cnv->get_besitzer()==get_besitzer()  &&  !registered_convoys.is_contained(cnv)  ) {
 				const schedule_t *const fpl = cnv->get_schedule();
 				if(  fpl  ) {
-					for(  int k=0;  k<fpl->get_count();  ++k  ) {
-						if(  get_halt(welt, fpl->eintrag[k].pos, get_besitzer())==self  ) {
+					FOR(minivec_tpl<linieneintrag_t>, const& k, fpl->eintrag) {
+						if (get_halt(welt, k.pos, get_besitzer()) == self) {
 							registered_convoys.append(cnv);
 							break;
 						}
@@ -3202,10 +3457,9 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 
 	// remove lines eventually
 	for(  int j=registered_lines.get_count()-1;  j>=0;  j--  ) {
-		const schedule_t *fpl = registered_lines[j]->get_schedule();
 		bool ok=false;
-		for(  int k=0;  k<fpl->get_count();  k++  ) {
-			if(get_halt(welt,fpl->eintrag[k].pos,registered_lines[j]->get_besitzer())==self) {
+		FOR(minivec_tpl<linieneintrag_t>, const& k, registered_lines[j]->get_schedule()->eintrag) {
+			if (get_halt(welt, k.pos, registered_lines[j]->get_besitzer()) == self) {
 				ok = true;
 				break;
 			}
@@ -3218,10 +3472,9 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 
 	// Knightly : remove registered lineless convoys as well
 	for(  int j=registered_convoys.get_count()-1;  j>=0;  --j  ) {
-		const schedule_t *const fpl = registered_convoys[j]->get_schedule();
 		bool ok = false;
-		for(  uint8 k=0;  k<fpl->get_count();  ++k  ) {
-			if(  get_halt( welt, fpl->eintrag[k].pos, registered_convoys[j]->get_besitzer() )==self  ) {
+		FOR(minivec_tpl<linieneintrag_t>, const& k, registered_convoys[j]->get_schedule()->eintrag) {
+			if (get_halt(welt, k.pos, registered_convoys[j]->get_besitzer()) == self) {
 				ok = true;
 				break;
 			}
@@ -3414,9 +3667,8 @@ void haltestelle_t::connexion::operator delete(void *p)
 */
 void haltestelle_t::release_factory_links()
 {
-	slist_iterator_tpl <fabrik_t *> fab_iter(fab_list);
-	while( fab_iter.next() ) {
-		fab_iter.get_current()->unlink_halt(self);
+	FOR(slist_tpl<fabrik_t*>, const f, fab_list) {
+		f->unlink_halt(self);
 	}
 	fab_list.clear();
 }
@@ -3458,11 +3710,10 @@ void haltestelle_t::remove_halt_within_walking_distance(halthandle_t halt)
 
 void haltestelle_t::check_nearby_halts()
 {
-	slist_iterator_tpl<tile_t> iter(tiles);
-
-	while(iter.next())
+	halts_within_walking_distance.clear();
+	FOR(slist_tpl<tile_t>, const& iter, tiles)
 	{
-		planquadrat_t *plan = welt->access(iter.get_current().grund->get_pos().get_2d());
+		planquadrat_t *plan = welt->access(iter.grund->get_pos().get_2d());
 		if(plan) 
 		{
 			const halthandle_t *const halt_list = plan->get_haltlist();
@@ -3478,6 +3729,8 @@ void haltestelle_t::check_nearby_halts()
 			}
 		}
 	}
+	// Must refresh here, but only passengers can walk, so only refresh passengers.
+	path_explorer_t::refresh_category(0);
 }
 
 bool haltestelle_t::is_within_walking_distance_of(halthandle_t halt) const
@@ -3500,4 +3753,9 @@ uint32 haltestelle_t::get_number_of_halts_within_walking_distance() const
 bool haltestelle_t::check_access(const spieler_t* sp) const
 {
 	return !sp || sp == besitzer_p || besitzer_p == NULL || besitzer_p->allows_access_to(sp->get_player_nr());
+}
+
+bool haltestelle_t::has_no_control_tower() const
+{
+	return welt->get_settings().get_allow_airports_without_control_towers() ? false : control_towers == 0;
 }

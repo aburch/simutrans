@@ -10,13 +10,12 @@
 #include "../simworld.h"
 #include "../simdings.h"
 #include "../player/simplay.h"
-#include "../simwerkz.h"
 #include "../boden/grund.h"
-#include "../boden/tunnelboden.h"
 #include "../simimg.h"
 #include "../bauer/tunnelbauer.h"
 
 #include "../dataobj/loadsave.h"
+#include "../dataobj/translator.h"
 
 #include "../besch/tunnel_besch.h"
 
@@ -93,13 +92,16 @@ void tunnel_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t t( file, "tunnel_t" );
 	ding_t::rdwr(file);
-	if(file->get_version()>=99001) {
+	if(  file->get_version() >= 99001 ) {
 		char  buf[256];
-		if(file->is_loading()) {
+		if(  file->is_loading()  ) {
 			file->rdwr_str(buf, lengthof(buf));
 			besch = tunnelbauer_t::get_besch(buf);
-			if(besch==NULL) {
+			if(  besch==NULL  ) {
 				besch = tunnelbauer_t::get_besch(translator::compatibility_name(buf));
+			}
+			if(  besch==NULL  ) {
+				welt->add_missing_paks( buf, karte_t::MISSING_WAY );
 			}
 		}
 		else {

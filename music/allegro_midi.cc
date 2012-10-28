@@ -62,7 +62,7 @@ void dr_play_midi(int key)
 {
 	if (midi_number > 0) {
 		if (key >= 0 && key <= midi_number && midi_samples[key] != NULL) {
-			play_midi(midi_samples[key], FALSE); // loop
+			play_midi(midi_samples[key], false);
 		}
 		else {
 			printf("\nMessage: MIDI: Unable to play MIDI %d\n", key);

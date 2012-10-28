@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2001 Hansjörg Malthaner
  *
- * This file is part of the Simutrans project under the artistic licence.
+ * This file is part of the Simutrans project under the artistic license.
  */
 
 /*
@@ -35,7 +35,7 @@ struct clip_dimension {
 // save the current clipping and set a new one
 #define PUSH_CLIP(x,y,w,h) \
 {\
-const struct clip_dimension p_cr = display_get_clip_wh(); \
+clip_dimension const p_cr = display_get_clip_wh(); \
 display_set_clip_wh(x, y, w, h);
 
 // restore a saved clipping rect
@@ -73,9 +73,9 @@ int zoom_factor_down(void);
  * Initialises the graphics module
  * @author Hj. Malthaner
  */
-int simgraph_init(KOORD_VAL width, KOORD_VAL height, int fullscreen);
+void simgraph_init(KOORD_VAL width, KOORD_VAL height, int fullscreen);
 int is_display_init(void);
-int simgraph_exit(void);
+void simgraph_exit();
 void simgraph_resize(KOORD_VAL w, KOORD_VAL h);
 
 /*
@@ -176,10 +176,10 @@ extern signed short current_tile_raster_width;
 }
 
 
-void display_fillbox_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, int dirty);
-void display_fillbox_wh_clip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, int d);
-void display_vline_wh(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PLAYER_COLOR_VAL color, int dirty);
-void display_vline_wh_clip(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PLAYER_COLOR_VAL c, int d);
+void display_fillbox_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, bool dirty);
+void display_fillbox_wh_clip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, bool dirty);
+void display_vline_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, PLAYER_COLOR_VAL color, bool dirty);
+void display_vline_wh_clip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, PLAYER_COLOR_VAL c, bool dirty);
 void display_clear(void);
 
 void display_flush_buffer(void);
@@ -256,11 +256,16 @@ int display_multiline_text(KOORD_VAL x, KOORD_VAL y, const char *inbuf, PLAYER_C
 void display_direct_line(const KOORD_VAL x, const KOORD_VAL y, const KOORD_VAL xx, const KOORD_VAL yy, const PLAYER_COLOR_VAL color);
 
 void display_set_clip_wh(KOORD_VAL x, KOORD_VAL y, KOORD_VAL w, KOORD_VAL h);
-struct clip_dimension display_get_clip_wh(void);
+clip_dimension display_get_clip_wh();
 
 void display_snapshot(void);
 
 void display_set_progress_text(const char *text);
 void display_progress(int part, int total);
+
+#if COLOUR_DEPTH != 0
+extern COLOR_VAL display_day_lights[  LIGHT_COUNT * 3];
+extern COLOR_VAL display_night_lights[LIGHT_COUNT * 3];
+#endif
 
 #endif

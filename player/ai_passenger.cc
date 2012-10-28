@@ -32,6 +32,7 @@
 
 #include "ai_passenger.h"
 
+typedef quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> connexions_map_single_remote;
 
 ai_passenger_t::ai_passenger_t(karte_t *wl, uint8 nr) : ai_t( wl, nr )
 {
@@ -40,18 +41,17 @@ ai_passenger_t::ai_passenger_t(karte_t *wl, uint8 nr) : ai_t( wl, nr )
 	road_vehicle = NULL;
 	road_weg = NULL;
 
-	construction_speed = 8000;
-	next_contruction_steps = welt->get_steps() + 50;
+	next_construction_steps = welt->get_steps() + 50;
 
+	road_transport = true;
+	rail_transport = false;
 	air_transport = true;
-	ship_transport = false;
+	ship_transport = true;
 
 	start_stadt = end_stadt = NULL;
 	ziel = NULL;
 	end_ausflugsziel = NULL;
 }
-
-
 
 
 /* Activates/deactivates a player
@@ -67,32 +67,22 @@ bool ai_passenger_t::set_active(bool new_state)
 }
 
 
-
-
-
 /* return the hub of a city (always the very first stop) or zero
  * @author prissi
  */
 halthandle_t ai_passenger_t::get_our_hub( const stadt_t *s ) const
 {
-	//slist_iterator_tpl <halthandle_t> iter( halt_list );
-	//while(iter.next()) {
-	ITERATE(halt_list,i)
-	{
-		//halthandle_t halt = iter.get_current();
-		halthandle_t halt = halt_list[i];
+	FOR(vector_tpl<halthandle_t>, const halt, halt_list) {
 		if(  halt->get_pax_enabled()  &&  (halt->get_station_type()&haltestelle_t::busstop)!=0  ) {
 			koord h=halt->get_basis_pos();
 			if(h.x>=s->get_linksoben().x  &&  h.y>=s->get_linksoben().y  &&  h.x<=s->get_rechtsunten().x  &&  h.y<=s->get_rechtsunten().y  ) {
-DBG_MESSAGE("ai_passenger_t::get_our_hub()","found %s at (%i,%i)",s->get_name(),h.x,h.y);
-				//return iter.get_current();
-				return halt_list[i];
+				DBG_MESSAGE("ai_passenger_t::get_our_hub()","found %s at (%i,%i)",s->get_name(),h.x,h.y);
+				return halt;
 			}
 		}
 	}
 	return halthandle_t();
 }
-
 
 
 koord ai_passenger_t::find_area_for_hub( const koord lo, const koord ru, const koord basis ) const
@@ -137,7 +127,6 @@ DBG_MESSAGE("ai_passenger_t::find_area_for_hub()","suggest hub at (%i,%i)",best_
 }
 
 
-
 /* tries to built a hub near the koordinate
  * @author prissi
  */
@@ -149,7 +138,6 @@ koord ai_passenger_t::find_place_for_hub( const stadt_t *s ) const
 	}
 	return find_area_for_hub( s->get_linksoben(), s->get_rechtsunten(), s->get_pos() );
 }
-
 
 
 koord ai_passenger_t::find_harbour_pos(karte_t* welt, const stadt_t *s )
@@ -186,7 +174,6 @@ koord ai_passenger_t::find_harbour_pos(karte_t* welt, const stadt_t *s )
 }
 
 
-
 bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, const koord target_pos)
 {
 	const vehikel_besch_t *v_besch = vehikelbauer_t::vehikel_search(water_wt, welt->get_timeline_year_month(), 10, 40, warenbauer_t::passagiere, false, true );
@@ -212,17 +199,18 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 	}
 
 	halthandle_t start_hub = get_our_hub( start_stadt );
-	halthandle_t start_connect_hub = halthandle_t();
+	halthandle_t start_connect_hub;
 	koord start_harbour = koord::invalid;
 	if(start_hub.is_bound()) {
-		if(  (start_hub->get_station_type()&haltestelle_t::dock)==0  ) {
+		if(  (start_hub->get_station_type()&haltestelle_t::dock)==0  ) 
+		{
 			start_connect_hub = start_hub;
 			start_hub = halthandle_t();
+
 			// is there already one harbour next to this one?
-			quickstone_hashtable_iterator_tpl<haltestelle_t, haltestelle_t::connexion*> iter(*start_connect_hub->get_connexions(0));
-			while(iter.next())
+			FOR(connexions_map_single_remote, & iter, *start_connect_hub->get_connexions(0) )
 			{
-				halthandle_t h = iter.get_current_key();
+				halthandle_t h = iter.key;
 				if( h.is_bound() && h->get_station_type()&haltestelle_t::dock  ) 
 				{
 					start_hub = h;
@@ -244,17 +232,16 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 	}
 	// same for end
 	halthandle_t end_hub = end_stadt ? get_our_hub( end_stadt ) : ziel->get_halt();
-	halthandle_t end_connect_hub = halthandle_t();
+	halthandle_t end_connect_hub;
 	koord end_harbour = koord::invalid;
 	if(end_hub.is_bound()) {
 		if(  (end_hub->get_station_type()&haltestelle_t::dock)==0  ) {
 			end_connect_hub = end_hub;
 			end_hub = halthandle_t();
 			// is there already one harbour next to this one?
-			quickstone_hashtable_iterator_tpl<haltestelle_t, haltestelle_t::connexion*> iter(*end_connect_hub->get_connexions(0));
-			while(iter.next())
+			FOR(connexions_map_single_remote, & iter, *end_connect_hub->get_connexions(0) ) 
 			{
-				halthandle_t h = iter.get_current_key();
+				halthandle_t h = iter.key;
 				if( h.is_bound() && h->get_station_type()&haltestelle_t::dock  ) 
 				{
 					start_hub = h;
@@ -459,7 +446,6 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 }
 
 
-
 halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int rotation)
 {
 	// not too close to border?
@@ -588,7 +574,6 @@ halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int r
 }
 
 
-
 static koord find_airport_pos(karte_t* welt, const stadt_t *s )
 {
 	koord bestpos = koord::invalid, k;
@@ -614,7 +599,6 @@ static koord find_airport_pos(karte_t* welt, const stadt_t *s )
 }
 
 
-
 /* builts airports and planes
  * @author prissi
  */
@@ -632,17 +616,16 @@ bool ai_passenger_t::create_air_transport_vehikel(const stadt_t *start_stadt, co
 	}
 
 	halthandle_t start_hub = get_our_hub( start_stadt );
-	halthandle_t start_connect_hub = halthandle_t();
+	halthandle_t start_connect_hub;
 	koord start_airport;
 	if(start_hub.is_bound()) {
 		if(  (start_hub->get_station_type()&haltestelle_t::airstop)==0  ) {
 			start_connect_hub = start_hub;
 			start_hub = halthandle_t();
 			// is there already one airport next to this town?
-			quickstone_hashtable_iterator_tpl<haltestelle_t, haltestelle_t::connexion*> iter(*start_connect_hub->get_connexions(0));
-			while(iter.next())
+			FOR(connexions_map_single_remote, & iter, *start_connect_hub->get_connexions(0) ) 
 			{
-				halthandle_t h = iter.get_current_key();
+				halthandle_t h = iter.key;
 				if( h.is_bound() && h->get_station_type()&haltestelle_t::airstop  )
 				{
 					start_hub = h;
@@ -664,17 +647,16 @@ bool ai_passenger_t::create_air_transport_vehikel(const stadt_t *start_stadt, co
 	}
 	// same for end
 	halthandle_t end_hub = get_our_hub( end_stadt );
-	halthandle_t end_connect_hub = halthandle_t();
+	halthandle_t end_connect_hub;
 	koord end_airport;
 	if(end_hub.is_bound()) {
 		if(  (end_hub->get_station_type()&haltestelle_t::airstop)==0  ) {
 			end_connect_hub = end_hub;
 			end_hub = halthandle_t();
 			// is there already one airport next to this town?
-			quickstone_hashtable_iterator_tpl<haltestelle_t, haltestelle_t::connexion*> iter(*end_connect_hub->get_connexions(0));
-			while(iter.next())
+			FOR(connexions_map_single_remote, & iter, *end_connect_hub->get_connexions(0) ) 
 			{
-				halthandle_t h = iter.get_current_key();
+				halthandle_t h = iter.key;
 				if( h.is_bound() && h->get_station_type()&haltestelle_t::airstop  ) 
 				{
 					start_hub = h;
@@ -781,7 +763,6 @@ bool ai_passenger_t::create_air_transport_vehikel(const stadt_t *start_stadt, co
 }
 
 
-
 /* creates a more general road transport
  * @author prissi
  */
@@ -821,8 +802,9 @@ DBG_MESSAGE("ai_passenger_t::create_bus_transport_vehikel()","bus at (%i,%i)",st
 }
 
 
-// now we follow all adjacent streets recursively and mark them
-// if they below to this stop, then we continue
+/* now we follow all adjacent streets recursively and mark them
+ * if they below to this stop, then we continue
+ */
 void ai_passenger_t::walk_city( linehandle_t &line, grund_t *&start, const int limit )
 {
 	//maximum number of stops reached?
@@ -841,7 +823,7 @@ void ai_passenger_t::walk_city( linehandle_t &line, grund_t *&start, const int l
 
 		// ok, if connected, not marked, and not owner by somebody else
 		grund_t *to;
-		if(  start->get_neighbour(to, road_wt, koord::nsow[r] )  &&  !welt->ist_markiert(to)  &&  check_owner(to->obj_bei(0)->get_besitzer(),this)  ) {
+		if(  start->get_neighbour(to, road_wt, ribi_t::nsow[r] )  &&  !welt->ist_markiert(to)  &&  check_owner(to->obj_bei(0)->get_besitzer(),this)  ) {
 
 			// ok, here is a valid street tile
 			welt->markiere(to);
@@ -903,7 +885,6 @@ void ai_passenger_t::walk_city( linehandle_t &line, grund_t *&start, const int l
 }
 
 
-
 /* tries to cover a city with bus stops that does not overlap much and cover as much as possible
  * returns the line created, if sucessful
  */
@@ -945,7 +926,6 @@ void ai_passenger_t::cover_city_with_bus_route(koord start_pos, int number_of_st
 }
 
 
-// BUS AI
 void ai_passenger_t::step()
 {
 	// needed for schedule of stops ...
@@ -957,7 +937,7 @@ void ai_passenger_t::step()
 	}
 
 	// one route per month ...
-	if(  welt->get_steps() < next_contruction_steps  ) {
+	if(  welt->get_steps() < next_construction_steps  ) {
 		return;
 	}
 
@@ -1164,6 +1144,10 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 		case NR_BAUE_STRASSEN_ROUTE:
 		{
 			state = NR_BAUE_WATER_ROUTE;	// assume failure
+			if(  !ai_t::road_transport  ) {
+				// no overland bus lines
+				break;
+			}
 			const haus_besch_t* bs = hausbauer_t::get_random_station(haus_besch_t::generic_stop, road_wt, welt->get_timeline_year_month(), haltestelle_t::PAX);
 			if(bs  &&  create_simple_road_transport(platz1, koord(1,1),platz2,koord(1,1),road_weg)  ) {
 				// since the road my have led to a crossing at the indended stop position ...
@@ -1213,6 +1197,11 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 		break;
 
 		case NR_BAUE_WATER_ROUTE:
+			if(  !ai_t::ship_transport  ) {
+				// no overland bus lines
+				state = NR_BAUE_AIRPORT_ROUTE;
+				break;
+			}
 			if(  end_ausflugsziel == NULL  &&  ship_transport  &&
 					create_water_transport_vehikel(start_stadt, end_stadt ? end_stadt->get_pos() : ziel->get_pos().get_2d())) {
 				// add two intown routes
@@ -1242,7 +1231,8 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 		// despite its name: try airplane
 		case NR_BAUE_AIRPORT_ROUTE:
 			// try airline (if we are wealthy enough) ...
-			if(  !air_transport  ||  finance_history_month[1][COST_CASH]<starting_money  ||  !create_air_transport_vehikel( start_stadt, end_stadt )) {
+			if(  !air_transport  ||  finance_history_month[1][COST_CASH] < starting_money  ||
+	        !end_stadt  ||  !create_air_transport_vehikel( start_stadt, end_stadt )  ) {
 				state = NR_BAUE_CLEAN_UP;
 			}
 			else {
@@ -1266,7 +1256,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 		case NR_SUCCESS:
 		{
 			state = CHECK_CONVOI;
-			next_contruction_steps = welt->get_steps() + simrand( construction_speed/16, "ai_passenger_t::step()" );
+			next_construction_steps = welt->get_steps() + simrand( construction_speed/16, "ai_passenger_t::step()" );
 		}
 		break;
 
@@ -1276,7 +1266,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 		{
 			// next time: do something different
 			state = NR_INIT;
-			next_contruction_steps = welt->get_steps() + simrand( construction_speed, "ai_passenger_t::step()" ) + 25;
+			next_construction_steps = welt->get_steps() + simrand( ai_t::construction_speed, "ai_passenger_t::step()" ) + 25;
 
 			vector_tpl<linehandle_t> lines(0);
 			simlinemgmt.get_lines( simline_t::line, &lines);
@@ -1390,36 +1380,39 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 void ai_passenger_t::rdwr(loadsave_t *file)
 {
 	if(  file->get_version()<102002  ) {
-		// do to an error the player was never saved correctly
+		// due to an error the player was never saved correctly
 		spieler_t::rdwr(file);
 		return;
 	}
 
 	xml_tag_t t( file, "ai_passenger_t" );
 
-	// first: do all the administration
-	spieler_t::rdwr(file);
+	ai_t::rdwr(file);
 
 	// then check, if we have to do something or the game is too old ...
 	if(file->get_version()<101000) {
 		// ignore saving, reinit on loading
 		if(  file->is_loading()  ) {
-			next_contruction_steps = welt->get_steps()+simrand(construction_speed, "ai_passenger_t::rdwr()");
+			next_construction_steps = welt->get_steps()+simrand(ai_t::construction_speed, "ai_passenger_t::rdwr()");
 		}
 		return;
 	}
 
 	// now save current state ...
 	file->rdwr_enum(state);
-	file->rdwr_long(construction_speed);
-	file->rdwr_bool(air_transport);
-	file->rdwr_bool(ship_transport);
+	if(  file->get_version()<111001  ) {
+		file->rdwr_long(ai_t::construction_speed);
+		file->rdwr_bool(air_transport);
+		file->rdwr_bool(ship_transport);
+		road_transport = true;
+		rail_transport = false;
+	}
 	platz1.rdwr( file );
 	platz2.rdwr( file );
 
 	if(file->is_saving()) {
 		// save current pointers
-		sint32 delta_steps = next_contruction_steps-welt->get_steps();
+		sint32 delta_steps = next_construction_steps-welt->get_steps();
 		file->rdwr_long(delta_steps);
 		koord k = start_stadt ? start_stadt->get_pos() : koord::invalid;
 		k.rdwr(file);
@@ -1432,8 +1425,8 @@ void ai_passenger_t::rdwr(loadsave_t *file)
 	}
 	else {
 		// since steps in loaded game == 0
-		file->rdwr_long(next_contruction_steps);
-		next_contruction_steps += welt->get_steps();
+		file->rdwr_long(next_construction_steps);
+		next_construction_steps += welt->get_steps();
 		// reinit current pointers
 		koord k;
 		k.rdwr(file);

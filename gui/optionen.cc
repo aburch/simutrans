@@ -17,7 +17,7 @@
 #include "../simwin.h"
 #include "../simgraph.h"
 #include "optionen.h"
-#include "colors.h"
+#include "display_settings.h"
 #include "sprachen.h"
 #include "player_frame_t.h"
 #include "welt.h"

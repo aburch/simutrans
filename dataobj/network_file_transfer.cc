@@ -79,7 +79,7 @@ const char *network_gameinfo(const char *cp, gameinfo_t *gi)
 {
 	// open from network
 	const char *err = NULL;
-	SOCKET my_client_socket = network_open_address( cp, 5000, err );
+	SOCKET const my_client_socket = network_open_address(cp, err);
 	if(  err==NULL  ) {
 		{
 			nwc_gameinfo_t nwgi;
@@ -136,7 +136,7 @@ const char *network_connect(const char *cp, karte_t *world)
 {
 	// open from network
 	const char *err = NULL;
-	SOCKET my_client_socket = network_open_address( cp, 5000, err );
+	SOCKET const my_client_socket = network_open_address(cp, err);
 	if(  err==NULL  ) {
 		// want to join
 		{
@@ -281,7 +281,7 @@ const char *network_http_post( const char *address, const char *name, const char
 	DBG_MESSAGE("network_http_post", "");
 	// Open socket
 	const char *err = NULL;
-	SOCKET my_client_socket = network_open_address( address, 5000, err );
+	SOCKET const my_client_socket = network_open_address(address, err);
 	if (err==NULL) {
 #ifndef REVISION
 #	define REVISION 0
@@ -371,7 +371,7 @@ const char *network_download_http( const char *address, const char *name, const 
 {
 	// open from network
 	const char *err = NULL;
-	SOCKET my_client_socket = network_open_address( address, 5000, err );
+	SOCKET const my_client_socket = network_open_address(address, err);
 	if ( err==NULL ) {
 #ifndef REVISION
 #	define REVISION 0

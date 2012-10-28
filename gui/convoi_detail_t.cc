@@ -22,7 +22,6 @@
 #include "../dataobj/loadsave.h"
 // @author hsiegeln
 #include "../simline.h"
-#include "../boden/grund.h"
 #include "messagebox.h"
 
 #include "../player/simplay.h"
@@ -59,6 +58,8 @@ convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
 	add_komponente(&retire_button);
 	retire_button.add_listener(this);
 
+	// From new Standard (111.1) - probably associated with new features logged for convoys not used in Standard.
+	//scrolly.set_pos(koord(0, 2+16+5*LINESPACE));
 	scrolly.set_pos(koord(0, 50));
 	scrolly.set_show_scroll_x(true);
 	add_komponente(&scrolly);
@@ -100,18 +101,18 @@ void convoi_detail_t::zeichnen(koord pos, koord gr)
 
 		// current power
 		buf.printf( translator::translate("Leistung: %d kW"), cnv->get_sum_leistung() );
-		display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, MONEY_PLUS, true );
+		display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, COL_BLACK, true );
 		offset_y += LINESPACE;
 
-		number_to_string( number, cnv->get_total_distance_traveled(), 0 );
+		number_to_string( number, (double)cnv->get_total_distance_traveled(), 0 );
 		buf.clear();
 		buf.printf( translator::translate("Odometer: %s km"), number );
-		display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, MONEY_PLUS, true );
+		display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, COL_BLACK, true );
 		offset_y += LINESPACE;
 
 		buf.clear();
 		buf.printf("%s %i", translator::translate("Station tiles:"), cnv->get_tile_length() );
-		display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, MONEY_PLUS, true );
+		display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, COL_BLACK, true );
 		offset_y += LINESPACE;
 
 		// current resale value
@@ -155,10 +156,10 @@ void convoi_detail_t::zeichnen(koord pos, koord gr)
 			karte_t *welt = cnv->get_welt();
 			for (uint16 i = 0; i < count; i++) {
 				const vehikel_besch_t *besch = cnv->get_vehikel(i)->get_besch();
-				run_nominal += besch->get_betriebskosten();
-				run_actual  += besch->get_betriebskosten(welt);
-				mon_nominal += besch->get_fixed_maintenance();
-				mon_actual  += besch->get_fixed_maintenance(welt);
+				run_nominal += besch->get_running_cost();
+				run_actual  += besch->get_running_cost(welt);
+				mon_nominal += besch->get_fixed_cost();
+				mon_actual  += besch->get_fixed_cost(welt);
 			}
 			buf.clear();
 			if (run_nominal) run_percent = ((run_actual - run_nominal) * 100) / run_nominal;
@@ -273,7 +274,7 @@ void convoi_detail_t::rdwr(loadsave_t *file)
 		// we might be unlucky, then search all convois for a convoi with this name
 		if(  !cnv.is_bound()  ) {
 			FOR(vector_tpl<convoihandle_t>, const i, welt->convoys()) {
-				if(  strcmp(i->get_name(), name) == 0) {
+				if (strcmp(i->get_name(), name) == 0) {
 					cnv = i;
 					break;
 				}
@@ -316,14 +317,15 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 	// keep previous maximum width
 	int x_size = get_groesse().x-51-pos.x;
 
-	int total_height = LINESPACE;
+	int total_height = 0;
 	if(cnv.is_bound()) {
 		char number[64];
 		cbuffer_t buf;
 
 		// for bonus stuff
-		sint32 const ref_speed = cnv->get_welt()->get_average_speed(cnv->front()->get_waytype());
-		const sint32 speed_base = (100*speed_to_kmh(cnv->get_min_top_speed()))/ref_speed-100;
+		const sint32 ref_kmh = cnv->get_welt()->get_average_speed( cnv->front()->get_waytype() );
+		const sint32 cnv_kmh = cnv->get_line().is_bound() ? cnv->get_line()->get_finance_history(1, LINE_AVERAGE_SPEED): cnv->get_finance_history(1, convoi_t::CONVOI_AVERAGE_SPEED);
+		const sint32 kmh_base = (100 * cnv_kmh) / ref_kmh - 100;
 
 		static cbuffer_t freight_info;
 		for(unsigned veh=0;  veh<cnv->get_vehikel_anzahl(); veh++ ) {
@@ -335,7 +337,7 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 			KOORD_VAL x, y, w, h;
 			const image_id bild=v->get_basis_bild();
 			display_get_base_image_offset(bild, &x, &y, &w, &h );
-			display_base_img(bild,11-x+pos.x+offset.x,pos.y+offset.y+total_height-y-LINESPACE+2,cnv->get_besitzer()->get_player_nr(),false,true);
+			display_base_img(bild,11-x+pos.x+offset.x,pos.y+offset.y+total_height-y+2,cnv->get_besitzer()->get_player_nr(),false,true);
 			w = max(40,w+4)+11;
 
 			// now add the other info
@@ -437,9 +439,9 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 
 				// bonus stuff
 				int len = 5+display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, translator::translate("Max income:"), ALIGN_LEFT, COL_BLACK, true );
-				const sint32 grundwert128 = v->get_fracht_typ()->get_preis()<<7;
-				const sint32 grundwert_bonus = v->get_fracht_typ()->get_preis()*(1000l+speed_base*v->get_fracht_typ()->get_speed_bonus());
-				const sint32 price = (v->get_fracht_max()*(grundwert128>grundwert_bonus ? grundwert128 : grundwert_bonus))/30 - v->get_betriebskosten(cnv->get_welt());
+				const sint32 grundwert128 = v->get_fracht_typ()->get_fare(1)<<7;
+				const sint32 grundwert_bonus = v->get_fracht_typ()->get_fare(1)*(1000l+kmh_base*v->get_fracht_typ()->get_speed_bonus());
+				const sint32 price = (v->get_fracht_max()*(grundwert128>grundwert_bonus ? grundwert128 : grundwert_bonus))/30 - v->get_running_cost(cnv->get_welt());
 				money_to_string( number, price/100.0 );
 				display_proportional_clip( pos.x+w+offset.x+len, pos.y+offset.y+total_height+extra_y, number, ALIGN_LEFT, price>0?MONEY_PLUS:MONEY_MINUS, true );
 				extra_y += LINESPACE;

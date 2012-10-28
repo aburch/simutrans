@@ -29,23 +29,21 @@ public:
 
 	koord get_preferred_size();
 
+	koord get_text_size();
+
 	/**
 	 * Paints the component
 	 * @author Hj. Malthaner
 	 */
 	void zeichnen(koord offset);
 
-	/**
-	 * Events werden hiermit an die GUI-Komponenten gemeldet
-	 * @author Hj. Malthaner
-	 */
-	bool infowin_event(const event_t*);
+	bool infowin_event(event_t const*) OVERRIDE;
 
 	bool dirty;
 	koord last_offset;
 
 private:
-	koord output(koord pos, bool doit);
+	koord output(koord pos, bool doit, bool return_max_width=true);
 
 	enum attributes
 	{

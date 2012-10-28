@@ -1,0 +1,10 @@
+# Simutranslator settings for Simutrans-Experimental texts
+# Addendum for version 10.1
+#
+# Author: jamespetts
+# Created: September 2011
+#
+obj=program_text
+name=Open water
+note=Used in the ground information dialogue for water not within any city limits.
+-

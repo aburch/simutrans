@@ -238,11 +238,11 @@ void fabrik_t::book_weighted_sums(sint64 delta_time)
 	aggregate_weight += delta_time;
 
 	// storage level of input/output stores
-	for(  uint32 g=0;  g<eingang.get_count();  ++g  ) {
-		eingang[g].book_weighted_sum_storage( delta_time );
+	FOR(array_tpl<ware_production_t>, & g, eingang) {
+		g.book_weighted_sum_storage(delta_time);
 	}
-	for(  uint32 g=0;  g<ausgang.get_count();  ++g  ) {
-		ausgang[g].book_weighted_sum_storage( delta_time );
+	FOR(array_tpl<ware_production_t>, & g, ausgang) {
+		g.book_weighted_sum_storage(delta_time);
 	}
 
 	// production level
@@ -390,9 +390,9 @@ void fabrik_t::recalc_demands_at_target_cities()
 {
 	if (!welt->get_settings().get_factory_enforce_demand()) {
 		// demand not enforced -> no splitting of demands
-		for(  uint32 c=0;  c<target_cities.get_count();  ++c  ) {
-			target_cities[c]->access_target_factories_for_pax().update_factory(this, (scaled_pax_demand << DEMAND_BITS));
-			target_cities[c]->access_target_factories_for_mail().update_factory(this, (scaled_mail_demand << DEMAND_BITS));
+		FOR(vector_tpl<stadt_t*>, const c, target_cities) {
+			c->access_target_factories_for_pax().update_factory( this, scaled_pax_demand  << DEMAND_BITS);
+			c->access_target_factories_for_mail().update_factory(this, scaled_mail_demand << DEMAND_BITS);
 		}
 		return;
 	}
@@ -435,25 +435,25 @@ void fabrik_t::recalc_storage_capacities()
 			// calculate total storage capacity contributed by fields
 			const field_group_besch_t *const field_group = besch->get_field_group();
 			sint32 field_capacities = 0;
-			for(  uint32 f=0;  f<fields.get_count();  ++f  ) {
-				field_capacities += field_group->get_field_class( fields[f].field_class_index )->get_storage_capacity();
+			FOR(vector_tpl<field_data_t>, const& f, fields) {
+				field_capacities += field_group->get_field_class(f.field_class_index)->get_storage_capacity();
 			}
 			const sint32 share = (sint32)( ( (sint64)field_capacities << precision_bits ) / (sint64)ware_types );
 			// first, for input goods
-			for(  uint32 g=0;  g<eingang.get_count();  ++g  ) {
+			FOR(array_tpl<ware_production_t>, & g, eingang) {
 				for(  int b=0;  b<besch->get_lieferanten();  ++b  ) {
 					const fabrik_lieferant_besch_t *const input = besch->get_lieferant(b);
-					if(  eingang[g].get_typ()==input->get_ware()  ) {
-						eingang[g].max = (input->get_kapazitaet() << precision_bits) + share;
+					if (g.get_typ() == input->get_ware()) {
+						g.max = (input->get_kapazitaet() << precision_bits) + share;
 					}
 				}
 			}
 			// then, for output goods
-			for(  uint32 g=0;  g<ausgang.get_count();  ++g  ) {
+			FOR(array_tpl<ware_production_t>, & g, ausgang) {
 				for(  uint b=0;  b<besch->get_produkte();  ++b  ) {
 					const fabrik_produkt_besch_t *const output = besch->get_produkt(b);
-					if(  ausgang[g].get_typ()==output->get_ware()  ) {
-						ausgang[g].max = (output->get_kapazitaet() << precision_bits) + share;
+					if (g.get_typ() == output->get_ware()) {
+						g.max = (output->get_kapazitaet() << precision_bits) + share;
 					}
 				}
 			}
@@ -462,21 +462,20 @@ void fabrik_t::recalc_storage_capacities()
 	else {
 		// without fields -> scaling based on prodbase
 		// first, for input goods
-		for(  uint32 g=0;  g<eingang.get_count();  ++g  ) {
+		FOR(array_tpl<ware_production_t>, & g, eingang) {
 			for(  int b=0;  b<besch->get_lieferanten();  ++b  ) {
 				const fabrik_lieferant_besch_t *const input = besch->get_lieferant(b);
-				if(  eingang[g].get_typ()==input->get_ware()  ) {
-					eingang[g].max = (sint32)( ((sint64)(input->get_kapazitaet() << precision_bits) * (sint64)prodbase) / (sint64)besch->get_produktivitaet() );
-					
+				if (g.get_typ() == input->get_ware()) {
+					g.max = (sint32)((sint64)(input->get_kapazitaet() << precision_bits) * (sint64)prodbase / (sint64)besch->get_produktivitaet());
 				}
 			}
 		}
 		// then, for output goods
-		for(  uint32 g=0;  g<ausgang.get_count();  ++g  ) {
+		FOR(array_tpl<ware_production_t>, & g, ausgang) {
 			for(  uint b=0;  b<besch->get_produkte();  ++b  ) {
 				const fabrik_produkt_besch_t *const output = besch->get_produkt(b);
-				if(  ausgang[g].get_typ()==output->get_ware()  ) {
-					ausgang[g].max = (sint32)( ((sint64)(output->get_kapazitaet() << precision_bits) * (sint64)prodbase) / (sint64)besch->get_produktivitaet() );
+				if (g.get_typ() == output->get_ware()) {
+					g.max = (sint32)((sint64)(output->get_kapazitaet() << precision_bits) * (sint64)prodbase / (sint64)besch->get_produktivitaet());
 				}
 			}
 		}
@@ -505,9 +504,9 @@ void fabrik_t::remove_target_city(stadt_t *const city)
 
 void fabrik_t::clear_target_cities()
 {
-	for(  uint32 c=0;  c<target_cities.get_count();  ++c  ) {
-		target_cities[c]->access_target_factories_for_pax().remove_factory(this);
-		target_cities[c]->access_target_factories_for_mail().remove_factory(this);
+	FOR(vector_tpl<stadt_t*>, const c, target_cities) {
+		c->access_target_factories_for_pax().remove_factory(this);
+		c->access_target_factories_for_mail().remove_factory(this);
 	}
 	target_cities.clear();
 }
@@ -631,25 +630,8 @@ fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
 	power = 0;
 	power_demand = 0;
 	prodfactor_electric = 0;
-	name = NULL;
 
 	rdwr(file);
-
-	if(  !welt->ist_in_kartengrenzen(pos.get_2d())  ) {
-		dbg->error( "fabrik_t::baue()", "%s is not a valid position! (Will not be built!)", pos.get_str() );
-	}
-	else {
-		baue(rotate, false);
-		// now get rid of construction image
-		for(  sint16 y=0;  y<besch->get_haus()->get_h(rotate);  y++  ) {
-			for(  sint16 x=0;  x<besch->get_haus()->get_b(rotate);  x++  ) {
-				gebaeude_t *gb = welt->lookup_kartenboden( pos.get_2d()+koord(x,y) )->find<gebaeude_t>();
-				if(  gb  ) {
-					gb->add_alter(10000);
-				}
-			}
-		}
-	}
 
 	city = welt->get_city(pos.get_2d());
 	if(city != NULL)
@@ -664,6 +646,27 @@ fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
 	status = nothing;
 	currently_producing = false;
 	transformer_connected = NULL;
+
+	if(  besch == NULL  ) {
+		dbg->warning( "fabrik_t::fabrik_t()", "No pak-file for factory at (%s) - will not be built!", pos.get_str() );
+		return;
+	}
+	else if(  !welt->ist_in_kartengrenzen(pos.get_2d())  ) {
+		dbg->warning( "fabrik_t::fabrik_t()", "%s is not a valid position! (Will not be built!)", pos.get_str() );
+		besch = NULL; // to get rid of this broken factory later...
+	}
+	else {
+		baue(rotate, false);
+		// now get rid of construction image
+		for(  sint16 y=0;  y<besch->get_haus()->get_h(rotate);  y++  ) {
+			for(  sint16 x=0;  x<besch->get_haus()->get_b(rotate);  x++  ) {
+				gebaeude_t *gb = welt->lookup_kartenboden( pos.get_2d()+koord(x,y) )->find<gebaeude_t>();
+				if(  gb  ) {
+					gb->add_alter(10000);
+				}
+			}
+		}
+	}
 }
 
 
@@ -771,10 +774,10 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 
 	recalc_storage_capacities();
 	if (eingang.empty()) {
-		for(  uint32 g=0;  g<ausgang.get_count();  ++g  ) {
-			if(  ausgang[g].max>0  ) {
+		FOR(array_tpl<ware_production_t>, & g, ausgang) {
+			if (g.max > 0) {
 				// if source then start with full storage, so that AI will build line(s) immediately
-				ausgang[g].menge = ausgang[g].max - 1;
+				g.menge = g.max - 1;
 			}
 		}
 	}
@@ -789,9 +792,6 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 	update_scaled_electric_amount();
 	update_scaled_pax_demand();
 	update_scaled_mail_demand();
-
-	name = NULL;
-	set_name( translator::translate(besch->get_name()) );
 }
 
 void fabrik_t::delete_all_fields()
@@ -809,7 +809,7 @@ void fabrik_t::delete_all_fields()
 				continue;
 			}
 		}
-		fields.remove_at(fields.get_count()-1);
+		fields.pop_back();
 	}
 	// destroy chart window, if present
 	destroy_win( (long)this );
@@ -824,15 +824,19 @@ fabrik_t::~fabrik_t()
 		city->remove_city_factory(this);
 	}
 
-	welt->decrease_actual_industry_density(100 / get_besch()->get_gewichtung());
-
-	//Disconnect this factory from all chains.
-	//@author: jamespetts
-	uint32 number_of_customers = lieferziele.get_count();
-	uint32 number_of_suppliers = suppliers.get_count();
-
 	if (!welt->get_is_shutting_down())
 	{
+		uint16 jobs = 0;
+		if (besch != NULL)
+		{
+			welt->decrease_actual_industry_density(100 / besch->get_gewichtung());
+			jobs = besch->get_pax_level();
+		}
+
+		//Disconnect this factory from all chains.
+		//@author: jamespetts
+		uint32 number_of_customers = lieferziele.get_count();
+		uint32 number_of_suppliers = suppliers.get_count();
 		const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
 		for(weighted_vector_tpl<stadt_t*>::const_iterator j = staedte.begin(), end = staedte.end(); j != end; ++j) 
 		{
@@ -840,7 +844,6 @@ fabrik_t::~fabrik_t()
 		}
 		
 		char buf[192];
-		uint16 jobs =  besch->get_pax_level();
 		sprintf(buf, translator::translate("Industry:\n%s\nhas closed,\nwith the loss\nof %d jobs.\n%d upstream\nsuppliers and\n%d downstream\ncustomers\nare affected."), translator::translate(get_name()), jobs, number_of_suppliers, number_of_customers);
 		welt->get_message()->add_message(buf, pos.get_2d(), message_t::industry, COL_DARK_RED, skinverwaltung_t::neujahrsymbol->get_bild_nr(0));
 		for(sint32 i = number_of_customers - 1; i >= 0; i --)
@@ -1058,12 +1061,24 @@ bool fabrik_t::ist_da_eine(karte_t *welt, koord min_pos, koord max_pos )
 }
 
 
+/**
+ * if name==NULL translate besch factory name in game language
+ */
+char const* fabrik_t::get_name() const
+{
+	return name ? name.c_str() : translator::translate(besch->get_name(), welt->get_settings().get_name_language_id());
+}
+
+
 void fabrik_t::set_name(const char *new_name)
 {
-	if(name==NULL  ||  strcmp(name,new_name)) {
-		free( (void *)name );
-		name = strdup( new_name );
+	if(new_name==NULL  ||  strcmp(new_name, translator::translate(besch->get_name(), welt->get_settings().get_name_language_id()))==0) {
+		// new name is equal to name given by besch/translation -> set name to NULL
+		name = NULL;
+	} else {
+		name = new_name;
 	}
+
 	fabrik_info_t *win = dynamic_cast<fabrik_info_t*>(win_get_magic((long)this));
 	if (win) {
 		win->update_info();
@@ -1080,7 +1095,7 @@ void fabrik_t::rdwr(loadsave_t *file)
 	sint32 ausgang_count;
 	sint32 anz_lieferziele;
 
-	if(file->is_saving()) {
+	if(  file->is_saving()  ) {
 		eingang_count = eingang.get_count();
 		ausgang_count = ausgang.get_count();
 		anz_lieferziele = lieferziele.get_count();
@@ -1092,11 +1107,14 @@ void fabrik_t::rdwr(loadsave_t *file)
 		file->rdwr_str(s, lengthof(s));
 DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		besch = fabrikbauer_t::get_fabesch(s);
-		if(besch==NULL) {
+		if(  besch==NULL  ) {
+			//  maybe it was only renamed?
 			besch = fabrikbauer_t::get_fabesch(translator::compatibility_name(s));
-			if (!besch) {
-				dbg->fatal("fabrik_t::rdwr()", "no besch for %s", s);
-			}
+		}
+		if(  besch==NULL  ) {
+			dbg->warning( "fabrik_t::rdwr()", "Pak-file for factory '%s' missing!", s );
+			// we continue loading even if besch==NULL
+			welt->add_missing_paks( s, karte_t::MISSING_FACTORY );
 		}
 	}
 	pos.rdwr(file);
@@ -1177,16 +1195,15 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		file->rdwr_long(adjusted_value);
 	}
 
-	// information on fields ...
-	if(file->get_version()>99016) {
+	if(  file->get_version() > 99016  ) {
 		file->rdwr_long(power);
 	}
 
 	// owner stuff
-	if(file->is_loading()) {
+	if(  file->is_loading()  ) {
 		// take care of old files
-		if(file->get_version() < 86001) {
-			koord k=besch->get_haus()->get_groesse();
+		if(  file->get_version() < 86001  ) {
+			koord k = besch ? besch->get_haus()->get_groesse() : koord(1,1);
 			DBG_DEBUG("fabrik_t::rdwr()","correction of production by %i",k.x*k.y);
 			// since we step from 86.01 per factory, not per tile!
 			prodbase *= k.x*k.y*2;
@@ -1223,8 +1240,8 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 	}
 
 	// information on fields ...
-	if(file->get_version()>99009) {
-		if(file->is_saving()) {
+	if(  file->get_version() > 99009  ) {
+		if(  file->is_saving()  ) {
 			uint16 nr=fields.get_count();
 			file->rdwr_short(nr);
 			if(  file->get_version()>102002  && file->get_experimental_version() != 7 ) {
@@ -1255,7 +1272,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 				for(  uint16 i=0  ;  i<nr  ;  ++i  ) {
 					k.rdwr(file);
 					file->rdwr_short(idx);
-					if(  idx>=besch->get_field_group()->get_field_class_count()  ) {
+					if(  besch==NULL  ||  idx>=besch->get_field_group()->get_field_class_count()  ) {
 						// set class index to 0 if it is out of range
 						idx = 0;
 					}
@@ -1273,22 +1290,22 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 	}
 
 	// restore city pointer here
-	if(  file->get_version()>=99014  ) {
+	if(  file->get_version() >= 99014  ) {
 		sint32 nr = target_cities.get_count();
 		file->rdwr_long(nr);
-		for( int i=0;  i<nr;  i++  ) {
+		for(  int i=0;  i<nr;  i++  ) {
 			sint32 city_index = -1;
 			if(file->is_saving()) {
 				city_index = welt->get_staedte().index_of( target_cities[i] );
 			}
 			file->rdwr_long(city_index);
-			if(file->is_loading()) {
+			if(  file->is_loading()  ) {
 				// will also update factory information
 				target_cities.append( welt->get_staedte()[city_index] );
 			}
 		}
 	}
-	else if(file->is_loading()) {
+	else if(  file->is_loading()  ) {
 		// will be handled by the city after reloading
 		target_cities.clear();
 	}
@@ -1299,7 +1316,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		welt->increase_actual_industry_density(100 / besch->get_gewichtung());
 	}
 
-	if(  file->get_version()>=110005  ) {
+	if(  file->get_version() >= 110005  ) {
 		file->rdwr_short(times_expanded);
 		// statistics
 		for(  int s=0;  s<MAX_FAB_STAT;  ++s  ) {
@@ -1331,18 +1348,23 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 	}
 
 	// save name
-	if (file->get_version() >= 110007) {
-		file->rdwr_str(name);
-	}
-	else {
-		if (file->is_loading()) {
-			set_name( translator::translate(besch->get_name()) );
+	if(  file->get_version() >= 110007  ) {
+		if(  file->is_saving() &&  !name  ) {
+			char const* fullname = besch->get_name();
+			file->rdwr_str(fullname);
+		}
+		else {
+			file->rdwr_str(name);
+			if(  file->is_loading()  &&  besch != NULL  &&  name == besch->get_name()  ) {
+				// equal to besch name
+				name = 0;
+			}
 		}
 	}
 }
 
 
-/*
+/**
  * let the chimney smoke, if there is something to produce
  * @author Hj. Malthaner
  */
@@ -1364,34 +1386,35 @@ void fabrik_t::smoke() const
 }
 
 
-/*
+/**
  * calculates the produktion per delta_t; scaled to PRODUCTION_DELTA_T
  * @author Hj. Malthaner - original
  */
 uint32 fabrik_t::produktion(const uint32 produkt, const long delta_t) const
 {
-	// default prodfactor = 256 => shift 8, default time = 1024 => shift 10, rest precion
+	// default prodfactor = 256 => shift 8, default time = 1024 => shift 10, rest precision
 	const sint64 max = (sint64)prodbase * (sint64)(get_prodfactor());
 	uint32 menge = (uint32)((max >> (18-10+DEFAULT_PRODUCTION_FACTOR_BITS-fabrik_t::precision_bits)) * delta_t / PRODUCTION_DELTA_T);
-
-	if (ausgang.get_count() > produkt) {
-		// wenn das lager voller wird, produziert eine Fabrik weniger pro step
+	if(  ausgang.get_count() > produkt  ) {
+		// prorate production based upon amount of product in storage
+		// but allow full production rate for storage amounts less than the normal minimum distribution amount (10)
 
 		const uint32 maxi = ausgang[produkt].max;
 		const uint32 actu = ausgang[produkt].menge;
-
-		if(actu<maxi) {
-			if(menge>(0x7FFFFFFFu/maxi)) {
-				// avoid overflow
-				menge = (((maxi-actu)>>5)*(menge>>5))/(maxi>>10);
-			}
-			else {
-				// and that is the simple formula
-				menge = (menge*(maxi-actu)) / maxi;
+		if(  actu<maxi  ) {
+			if(  actu >= ((10+1)<<fabrik_t::precision_bits)-1  ) {
+				if(  menge>(0x7FFFFFFFu/maxi)  ) {
+					// avoid overflow
+					menge = (((maxi-actu)>>5)*(menge>>5))/(maxi>>10);
+				}
+				else {
+					// and that is the simple formula
+					menge = (menge*(maxi-actu)) / maxi;
+				}
 			}
 		}
 		else {
-			// overfull? Reduce to maximum
+			// overfull? No production
 			menge = 0;
 		}
 	}
@@ -1404,9 +1427,9 @@ sint32 fabrik_t::input_vorrat_an(const ware_besch_t *typ)
 {
 	sint32 menge = -1;
 
-	for (uint32 index = 0; index < eingang.get_count(); index++) {
-		if (typ == eingang[index].get_typ()) {
-			menge = eingang[index].menge >> precision_bits;
+	FOR(array_tpl<ware_production_t>, const& i, eingang) {
+		if (typ == i.get_typ()) {
+			menge = i.menge >> precision_bits;
 			break;
 		}
 	}
@@ -1419,9 +1442,9 @@ sint32 fabrik_t::vorrat_an(const ware_besch_t *typ)
 {
 	sint32 menge = -1;
 
-	for (uint32 index = 0; index < ausgang.get_count(); index++) {
-		if (typ == ausgang[index].get_typ()) {
-			menge = ausgang[index].menge >> precision_bits;
+	FOR(array_tpl<ware_production_t>, const& i, ausgang) {
+		if (typ == i.get_typ()) {
+			menge = i.menge >> precision_bits;
 			break;
 		}
 	}
@@ -1448,12 +1471,12 @@ sint32 fabrik_t::liefere_an(const ware_besch_t *typ, sint32 menge)
 	}
 	else {
 		// case : freight
-		for(  uint32 i=0;  i<eingang.get_count();  ++i  ) {
-			if(  eingang[i].get_typ()==typ  ) {
+		FOR(array_tpl<ware_production_t>, & i, eingang) {
+			if (i.get_typ() == typ) {
 				// Hajo: avoid overflow
-				if(  eingang[i].menge<((FAB_MAX_INPUT-menge)<<precision_bits)  ) {
-					eingang[i].menge += menge << precision_bits;
-					eingang[i].book_stat(menge, FAB_GOODS_RECEIVED);
+				if (i.menge < (FAB_MAX_INPUT - menge) << precision_bits) {
+					i.menge += menge << precision_bits;
+					i.book_stat(menge, FAB_GOODS_RECEIVED);
 				}
 				// sollte maximale lagerkapazitaet pruefen
 				return menge;
@@ -1467,10 +1490,10 @@ sint32 fabrik_t::liefere_an(const ware_besch_t *typ, sint32 menge)
 
 sint32 fabrik_t::verbraucht(const ware_besch_t *typ)
 {
-	for(uint32 index = 0; index < eingang.get_count(); index ++) {
-		if (eingang[index].get_typ() == typ) {
+	FOR(array_tpl<ware_production_t>, const& i, eingang) {
+		if (i.get_typ() == typ) {
 			// sollte maximale lagerkapazitaet pruefen
-			return eingang[index].menge > eingang[index].max;
+			return i.menge > i.max;
 		}
 	}
 	return -1;  // wird hier nicht verbraucht
@@ -1731,15 +1754,15 @@ public:
 		space_total = t;
 		amount_waiting = a;
 		ware = w;
-		// ensure overfull stations compare equal allowing tie breaker clause
-		ratio_free_space = ( max(space_left,0) << fabrik_t::precision_bits) / max(space_total,1);
+		// ensure overfull stations compare equal allowing tie breaker clause (amount waiting)
+		ratio_free_space = max(space_left,0) / max(space_total>>fabrik_t::precision_bits,1);
 	}
 	distribute_ware_t() {}
 
 	static bool compare(const distribute_ware_t &dw1, const distribute_ware_t &dw2)
 	{
 		return  (dw1.ratio_free_space > dw2.ratio_free_space)
-		        ||  (dw1.ratio_free_space == dw2.ratio_free_space  &&  dw1.amount_waiting <= dw2.amount_waiting);
+				||  (dw1.ratio_free_space == dw2.ratio_free_space  &&  dw1.amount_waiting <= dw2.amount_waiting);
 	}
 };
 
@@ -1821,7 +1844,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 
 				if(  !welt->get_settings().get_just_in_time()  ) {
 					// without production stop when target overflowing, distribute to least overflow target
-					dist_list.insert_ordered( distribute_ware_t( halt, ziel_fab->get_eingang()[w].menge + 2000*overflown, ziel_fab->get_eingang()[w].max, (sint32)halt->get_ware_fuer_zielpos(ausgang[produkt].get_typ(),ware.get_zielpos()), ware ), distribute_ware_t::compare );
+					dist_list.insert_ordered( distribute_ware_t( halt, ziel_fab->get_eingang()[w].max, ziel_fab->get_eingang()[w].menge, (sint32)halt->get_ware_fuer_zielpos(ausgang[produkt].get_typ(),ware.get_zielpos()), ware ), distribute_ware_t::compare );
 				}
 				else if(  !overflown  ) {
 					// Station can only store up to a maximum amount of goods per square
@@ -1837,13 +1860,12 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 	if(  !dist_list.empty()  ) {
 
 		distribute_ware_t *best = NULL;
-		for(  uint32 i=0;  i<dist_list.get_count();  i++  ) {
-			ware_t& ware = dist_list[i].ware;
+		FOR(vector_tpl<distribute_ware_t>, & i, dist_list) {
 			// now search route
-			const uint16 current_journey_time = dist_list[i].halt->find_route(ware);
+			const uint16 current_journey_time = i.halt->find_route(i.ware);
 			if (current_journey_time < 65535) 
 			{
-				best = &dist_list[i];
+				best = &i;
 				break;
 			}
 		}
@@ -1871,10 +1893,10 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 			// find, what is most waiting here from us
 			ware_t most_waiting(ausgang[produkt].get_typ());
 			most_waiting.menge = 0;
-			for(  uint32 n=0;  n<lieferziele.get_count();  n++  ) {
-				const uint32 amount = (sint32)best_halt->get_ware_fuer_zielpos( ausgang[produkt].get_typ(), lieferziele[n] );
+			FOR(vector_tpl<koord>, const& n, lieferziele) {
+				uint32 const amount = (sint32)best_halt->get_ware_fuer_zielpos(ausgang[produkt].get_typ(), n);
 				if(  amount > most_waiting.menge  ) {
-					most_waiting.set_zielpos( lieferziele[n] );
+					most_waiting.set_zielpos(n);
 					most_waiting.menge = amount;
 					most_waiting.arrival_time = welt->get_zeit_ms();
 				}
@@ -1884,7 +1906,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 			//  we will reroute some goods
 			if(  best->amount_waiting==0  &&  most_waiting.menge>0  ) {
 				// remove something from the most waiting goods
-				if(  best_halt->recall_ware( most_waiting, min(most_waiting.menge/2, 1 - best->space_left) )  ) {
+				if(  best_halt->recall_ware( most_waiting, min((sint32)(most_waiting.menge/2), 1 - best->space_left) )  ) {
 					best_ware.menge += most_waiting.menge;
 				}
 				else {
@@ -1903,6 +1925,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 		}
 		ausgang[produkt].menge -= menge << precision_bits;
 		best_halt->starte_mit_route(best_ware);
+		best_halt->unload_repeat_counter = 0;
 		best_halt->recalc_status();
 		ausgang[produkt].book_stat(best_ware.menge, FAB_GOODS_DELIVERED);
 	}
@@ -1922,11 +1945,11 @@ void fabrik_t::neuer_monat()
 	}
 
 	// update statistics for input and output goods
-	for(  uint32 g=0;  g<eingang.get_count();  ++g  ) {
-		eingang[g].roll_stats(aggregate_weight);
+	FOR(array_tpl<ware_production_t>, & g, eingang) {
+		g.roll_stats(aggregate_weight);
 	}
-	for(  uint32 g=0;  g<ausgang.get_count();  ++g  ) {
-		ausgang[g].roll_stats(aggregate_weight);
+	FOR(array_tpl<ware_production_t>, & g, ausgang) {
+		g.roll_stats(aggregate_weight);
 	}
 
 	// update statistics
@@ -1953,7 +1976,7 @@ void fabrik_t::neuer_monat()
 	// since target cities' population may be increased -> re-apportion pax/mail demand
 	recalc_demands_at_target_cities();
 
-	// This needs to be re-checked regularly, as cities grow and can be deleted.
+	// This needs to be re-checked regularly, as cities grow, occasionally shrink and can be deleted.
 	stadt_t* c = welt->get_city(pos.get_2d());
 
 	if(c && !c->get_city_factories().is_contained(this))
@@ -1964,6 +1987,12 @@ void fabrik_t::neuer_monat()
 	if(c != city && city)
 	{
 		city->remove_city_factory(this);
+	}
+
+	if(!c)
+	{
+		// Factory no longer in city.
+		transformer_connected = NULL;
 	}
 
 	city = c;
@@ -2110,15 +2139,15 @@ void fabrik_t::recalc_factory_status()
 	// set bits for input
 	warenlager = 0;
 	status_ein = FL_WARE_ALLELIMIT;
-	for (uint j = 0; j < eingang.get_count(); j++) {
-		if (eingang[j].menge >= eingang[j].max) {
+	FOR(array_tpl<ware_production_t>, const& j, eingang) {
+		if (j.menge >= j.max) {
 			status_ein |= FL_WARE_LIMIT;
 		}
 		else {
 			status_ein &= ~FL_WARE_ALLELIMIT;
 		}
-		warenlager += eingang[j].menge;
-		if(  (eingang[j].menge>>fabrik_t::precision_bits)==0  ) {
+		warenlager += j.menge;
+		if (j.menge >> fabrik_t::precision_bits == 0) {
 			status_ein |= FL_WARE_FEHLT_WAS;
 		}
 
@@ -2138,17 +2167,17 @@ void fabrik_t::recalc_factory_status()
 	// set bits for output
 	warenlager = 0;
 	status_aus = FL_WARE_ALLEUEBER75|FL_WARE_ALLENULL;
-	for (uint j = 0;j < ausgang.get_count(); j++) {
-		if (ausgang[j].menge > 0) {
+	FOR(array_tpl<ware_production_t>, const& j, ausgang) {
+		if (j.menge > 0) {
 
 			status_aus &= ~FL_WARE_ALLENULL;
-			if (ausgang[j].menge >= 0.75 * ausgang[j].max) {
+			if (j.menge >= 0.75 * j.max) {
 				status_aus |= FL_WARE_UEBER75;
 			}
 			else {
 				status_aus &= ~FL_WARE_ALLEUEBER75;
 			}
-			warenlager += ausgang[j].menge;
+			warenlager += j.menge;
 			status_aus &= ~FL_WARE_ALLENULL;
 		}
 		else {
@@ -2312,9 +2341,7 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 		has_previous = true;
 		buf.append(translator::translate("Abnehmer"));
 
-		for(uint32 i=0; i<lieferziele.get_count(); i++) {
-			const koord lieferziel = lieferziele[i];
-
+		FOR(vector_tpl<koord>, const& lieferziel, lieferziele) {
 			fabrik_t *fab = get_fab( welt, lieferziel );
 			if(fab) {
 				buf.printf("\n   %s (%d,%d)", translator::translate(fab->get_name()), lieferziel.x, lieferziel.y);
@@ -2329,9 +2356,7 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 		has_previous = true;
 		buf.append(translator::translate("Suppliers"));
 
-		for(uint32 i=0; i<suppliers.get_count(); i++) {
-			const koord supplier = suppliers[i];
-
+		FOR(vector_tpl<koord>, const& supplier, suppliers) {
 			fabrik_t *fab = get_fab( welt, supplier );
 			if(fab) {
 				buf.printf("\n   %s (%d,%d)", translator::translate(fab->get_name()), supplier.x, supplier.y);
@@ -2344,15 +2369,10 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 			buf.append("\n\n");
 		}
 		has_previous = true;
-		buf.append(ausgang.empty() && !besch->is_electricity_producer() ? translator::translate("Customers live in:") : translator::translate("Arbeiter aus:"));
+		buf.append( is_end_consumer() ? translator::translate("Customers live in:") : translator::translate("Arbeiter aus:") );
 
 		for(  uint32 c=0;  c<target_cities.get_count();  ++c  ) {
-			const stadt_t::factory_entry_t *const pax_entry = target_cities[c]->get_target_factories_for_pax().get_entry(this);
-			const stadt_t::factory_entry_t *const mail_entry = target_cities[c]->get_target_factories_for_mail().get_entry(this);
-			assert( pax_entry && mail_entry );
-
-			buf.printf("\n   %s     ", target_cities[c]->get_name() );
-			buf.printf( translator::translate("Pax <%i>  Mail <%i>"), pax_entry->supply, mail_entry->supply );
+			buf.append("\n");
 		}
 	}
 
@@ -2363,6 +2383,7 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 		}
 		has_previous = true;
 		buf.append(translator::translate("Connected stops"));
+
 		for(  uint i=0;  i<plan->get_haltlist_count();  i++  ) {
 			buf.printf("\n - %s", plan->get_haltlist()[i]->get_name() );
 		}
@@ -2409,23 +2430,21 @@ void fabrik_t::rotate90( const sint16 y_size )
 	}
 	rotate = (rotate+3)%besch->get_haus()->get_all_layouts();
 
-	for( uint32 i=0;  i<lieferziele.get_count();  i++  ) {
-		lieferziele[i].rotate90( y_size );
+	FOR(vector_tpl<koord>, & i, lieferziele) {
+		i.rotate90(y_size);
 		// on larger factories the target position changed too
-		fabrik_t *fab = get_fab( welt, lieferziele[i] );
-		if(  fab  ) {
-			lieferziele[i] = fab->get_pos().get_2d();
+		if (fabrik_t* const fab = get_fab(welt, i)) {
+			i = fab->get_pos().get_2d();
 		}
 	}
-	for( uint32 i=0;  i<suppliers.get_count();  i++  ) {
-		suppliers[i].rotate90( y_size );
-		fabrik_t *fab = get_fab( welt, suppliers[i] );
-		if(  fab  ) {
-			suppliers[i] = fab->get_pos().get_2d();
+	FOR(vector_tpl<koord>, & i, suppliers) {
+		i.rotate90(y_size);
+		if (fabrik_t* const fab = get_fab(welt, i)) {
+			i = fab->get_pos().get_2d();
 		}
 	}
-	for( uint32 i=0;  i<fields.get_count();  i++  ) {
-		fields[i].location.rotate90( y_size );
+	FOR(vector_tpl<field_data_t>, & i, fields) {
+		i.location.rotate90(y_size);
 	}
 }
 
@@ -2450,16 +2469,7 @@ void fabrik_t::add_all_suppliers()
 		const fabrik_lieferant_besch_t *lieferant = besch->get_lieferant(i);
 		const ware_besch_t *ware = lieferant->get_ware();
 
-		//const slist_tpl<fabrik_t *> & list = welt->get_fab_list();
-		const vector_tpl<fabrik_t*> & list = welt->get_fab_list();
-		//slist_iterator_tpl <fabrik_t *> iter (list);
-
-		//while( iter.next() ) {
-		for(sint16 i = list.get_count() - 1; i >= 0; i --)
-		{
-			//fabrik_t * fab = iter.get_current();
-			fabrik_t * fab = list[i];
-
+		FOR(vector_tpl<fabrik_t*>, const fab, welt->get_fab_list()) {
 			// connect to an existing one, if this is an producer
 			if(fab!=this  &&  fab->vorrat_an(ware) > -1) {
 				// add us to this factory
@@ -2526,4 +2536,17 @@ void fabrik_t::get_tile_list( vector_tpl<koord> &tile_list ) const
 			}
 		}
 	}
+}
+
+// Returns a list of goods produced by this factory. The caller must delete
+// the list when done
+slist_tpl<const ware_besch_t*> *fabrik_t::get_produced_goods() const
+{
+	slist_tpl<const ware_besch_t*> *goods = new slist_tpl<const ware_besch_t*>();
+
+	FOR(array_tpl<ware_production_t>, const& i, ausgang) {
+		goods->append(i.get_typ());
+	}
+
+	return goods;
 }

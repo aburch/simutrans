@@ -156,6 +156,7 @@ void wayobj_t::rdwr(loadsave_t *file)
 				}
 				if(besch==NULL) {
 					dbg->warning("wayobj_t::rwdr", "description %s for wayobj_t at %d,%d not found, will be removed!", bname, get_pos().x, get_pos().y );
+					welt->add_missing_paks( bname, karte_t::MISSING_WAYOBJ );
 				}
 				else {
 					dbg->warning("wayobj_t::rwdr", "wayobj %s at %d,%d replaced by %s", bname, get_pos().x, get_pos().y, besch->get_name() );
@@ -238,12 +239,11 @@ void wayobj_t::rotate90()
 
 
 // helper function: gets the ribi on next tile
-ribi_t::ribi
-wayobj_t::find_next_ribi(const grund_t *start, const koord dir, const waytype_t wt) const
+ribi_t::ribi wayobj_t::find_next_ribi(const grund_t *start, const koord dir, const waytype_t wt) const
 {
 	grund_t *to;
 	ribi_t::ribi r1 = ribi_t::keine;
-	if(start->get_neighbour(to,wt,dir)) {
+	if(start->get_neighbour(to,wt,ribi_typ(dir))) {
 		const wayobj_t* wo = to->get_wayobj( wt );
 		if(wo) {
 			r1 = wo->get_dir();
@@ -266,7 +266,6 @@ wayobj_t::calc_bild()
 		if(!w) {
 			dbg->error("wayobj_t::calc_bild()","without way at (%s)", get_pos().get_str() );
 			// well, we are not on a way anymore? => delete us
-			gr->obj_remove(this);
 			entferne(get_besitzer());
 			delete this;
 			gr->set_flag(grund_t::dirty);
@@ -333,7 +332,7 @@ wayobj_t::calc_bild()
 					grund_t *to;
 					rekursion++;
 					for(int r = 0; r < 4; r++) {
-						if(gr->get_neighbour(to, wt, koord::nsow[r])) {
+						if(gr->get_neighbour(to, wt, ribi_t::nsow[r])) {
 							wayobj_t* wo = to->get_wayobj( wt );
 							if(wo) {
 								wo->calc_bild();
@@ -371,7 +370,6 @@ void wayobj_t::extend_wayobj_t(karte_t *welt, koord3d pos, spieler_t *besitzer, 
 			if(existing_wayobj->get_besch()->get_topspeed()<besch->get_topspeed()  &&  spieler_t::check_owner(besitzer, existing_wayobj->get_besitzer())) {
 				// replace slower by faster
 				dir = dir | existing_wayobj->get_dir();
-				gr->obj_remove(existing_wayobj);
 				gr->set_flag(grund_t::dirty);
 				delete existing_wayobj;
 			}
@@ -436,9 +434,8 @@ bool wayobj_t::alles_geladen()
 	}
 
 	way_obj_besch_t const* def = 0;
-	stringhashtable_iterator_tpl<way_obj_besch_t*> i(table);
-	while (i.next()) {
-		way_obj_besch_t const& b = *i.get_current_value();
+	FOR(stringhashtable_tpl<way_obj_besch_t *>, const& i, table) {
+		way_obj_besch_t const& b = *i.value;
 		if (b.get_own_wtyp() != overheadlines_wt)           continue;
 		if (b.get_wtyp()     != track_wt)                   continue;
 		if (def && def->get_topspeed() >= b.get_topspeed()) continue;
@@ -492,11 +489,10 @@ void wayobj_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 /*sound
 {
 	const uint16 time=welt->get_timeline_year_month();
 
-	stringhashtable_iterator_tpl<way_obj_besch_t *> iter(table);
 	vector_tpl<const way_obj_besch_t *>matching;
 
-	while(  iter.next()  ) {
-		const way_obj_besch_t* besch = iter.get_current_value();
+	FOR(stringhashtable_tpl<way_obj_besch_t *>, const& i, table) {
+		way_obj_besch_t const* const besch = i.value;
 		if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 
 			DBG_DEBUG("wayobj_t::fill_menu()", "try to add %s(%p)", besch->get_name(), besch);
@@ -517,9 +513,8 @@ void wayobj_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 /*sound
 
 const way_obj_besch_t *wayobj_t::wayobj_search(waytype_t wt,waytype_t own,uint16 time)
 {
-	stringhashtable_iterator_tpl<way_obj_besch_t *> iter(table);
-	while(  iter.next()  ) {
-		const way_obj_besch_t* besch = iter.get_current_value();
+	FOR(stringhashtable_tpl<way_obj_besch_t *>, const& i, table) {
+		way_obj_besch_t const* const besch = i.value;
 		if((time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time))
 			&&  besch->get_wtyp()==wt  &&  besch->get_own_wtyp()==own) {
 				return besch;

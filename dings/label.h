@@ -9,7 +9,7 @@ class label_t : public ding_t
 public:
 	label_t(karte_t *welt, loadsave_t *file);
 	label_t(karte_t *welt, koord3d pos, spieler_t *sp, const char *text);
-	~label_t();
+	virtual ~label_t();
 
 	void laden_abschliessen();
 

@@ -22,6 +22,7 @@
 #include "simdebug.h"
 #include "besch/bild_besch.h"
 #include "unicode.h"
+#include "simticker.h"
 
 
 #ifdef _MSC_VER
@@ -42,7 +43,7 @@
 # if defined(USE_C)  ||  !defined(__i386__)
 #  undef USE_C
 #  define USE_C
-#  if (__GNUC__>=4  &&  __GNUC_MINOR__>=2)  ||  !defined(__i386__)
+#  if GCC_ATLEAST(4, 2) || !defined(__i386__)
 #   define ALIGN_COPY
 #   warning "Needs to use slower copy with GCC > 4.2.x"
 #  endif
@@ -78,7 +79,7 @@ int old_my = -1;
 /*
  * Hajo: Current clipping rectangle
  */
-static struct clip_dimension clip_rect;
+static clip_dimension clip_rect;
 
 // and the variables for polygon clipping
 
@@ -111,7 +112,6 @@ static font_type large_font = { 0, 0, 0, NULL, NULL };
 // needed for gui
 int large_font_height = 10;
 
-#define LIGHT_COUNT (15)
 #define MAX_PLAYER_COUNT (16)
 
 #define RGBMAPSIZE (0x8000+LIGHT_COUNT+16)
@@ -128,7 +128,7 @@ static PIXVAL rgbmap_day_night[RGBMAPSIZE];
 
 
 /*
- * Hajo: same as rgbmap_day_night, but allways daytime colors
+ * Hajo: same as rgbmap_day_night, but always daytime colors
  */
 static PIXVAL rgbmap_all_day[RGBMAPSIZE];
 
@@ -247,7 +247,7 @@ static int night_shift = -1;
 /*
  * Hajo: speical colors during daytime
  */
-static const uint8 day_lights[LIGHT_COUNT*3] = {
+COLOR_VAL display_day_lights[LIGHT_COUNT*3] = {
 	0x57,	0x65,	0x6F, // Dark windows, lit yellowish at night
 	0x7F,	0x9B,	0xF1, // Lighter windows, lit blueish at night
 	0xFF,	0xFF,	0x53, // Yellow light
@@ -269,7 +269,7 @@ static const uint8 day_lights[LIGHT_COUNT*3] = {
 /*
  * Hajo: speical colors during nighttime
  */
-static const uint8 night_lights[LIGHT_COUNT*3] = {
+COLOR_VAL display_night_lights[LIGHT_COUNT*3] = {
 	0xD3,	0xC3,	0x80, // Dark windows, lit yellowish at night
 	0x80,	0xC3,	0xD3, // Lighter windows, lit blueish at night
 	0xFF,	0xFF,	0x53, // Yellow light
@@ -290,7 +290,7 @@ static const uint8 night_lights[LIGHT_COUNT*3] = {
 
 // the players colors and colors for simple drawing operations
 // each eight colors are corresponding to a player color
-static const uint8 special_pal[224*3]=
+static const COLOR_VAL special_pal[224*3]=
 {
 	36, 75, 103,
 	57, 94, 124,
@@ -609,17 +609,17 @@ static int clip_wh(KOORD_VAL *x, KOORD_VAL *width, const KOORD_VAL min_width, co
 
 /**
  * places x and w within bounds left and right
- * if nothing to show, returns FALSE
+ * if nothing to show, returns false
  * @author Niels Roest
  */
-static int clip_lr(KOORD_VAL *x, KOORD_VAL *w, const KOORD_VAL left, const KOORD_VAL right)
+static bool clip_lr(KOORD_VAL *x, KOORD_VAL *w, const KOORD_VAL left, const KOORD_VAL right)
 {
 	const KOORD_VAL l = *x;      // leftmost pixel
 	const sint32 r = (sint32)*x + (sint32)*w; // rightmost pixel
 
 	if (*w <= 0 || l >= right || r <= left) {
 		*w = 0;
-		return FALSE;
+		return false;
 	}
 
 	// there is something to show.
@@ -638,7 +638,7 @@ static int clip_lr(KOORD_VAL *x, KOORD_VAL *w, const KOORD_VAL left, const KOORD
  * Ermittelt Clipping Rechteck
  * @author Hj. Malthaner
  */
-struct clip_dimension display_get_clip_wh(void)
+clip_dimension display_get_clip_wh()
 {
 	return clip_rect;
 }
@@ -1645,8 +1645,8 @@ static void calc_base_pal_from_night_shift(const int night)
 	//                     0,75 - quite bright                 80        17
 	//                     0,8    bright                      104        22
 
-	const double RG_nihgt_multiplier = pow(0.75, night) * ((light_level + 8.0) / 8.0);
-	const double B_nihgt_multiplier  = pow(0.83, night) * ((light_level + 8.0) / 8.0);
+	const double RG_night_multiplier = pow(0.75, night) * ((light_level + 8.0) / 8.0);
+	const double B_night_multiplier  = pow(0.83, night) * ((light_level + 8.0) / 8.0);
 
 	for (i = 0; i < 0x8000; i++) {
 		// (1<<15) this is total no of all possible colors in RGB555)
@@ -1657,24 +1657,24 @@ static void calc_base_pal_from_night_shift(const int night)
 		// lines generate all possible colors in 555RGB code - input
 		// however the result is in 888RGB - 8bit per channel
 
-		R = (int)(R * RG_nihgt_multiplier);
-		G = (int)(G * RG_nihgt_multiplier);
-		B = (int)(B * B_nihgt_multiplier);
+		R = (int)(R * RG_night_multiplier);
+		G = (int)(G * RG_night_multiplier);
+		B = (int)(B * B_night_multiplier);
 
 		rgbmap_day_night[i] = get_system_color(R, G, B);
 	}
 
 	// player color map (and used for map display etc.)
 	for (i = 0; i < 224; i++) {
-		const int R = (int)(special_pal[i*3 + 0] * RG_nihgt_multiplier);
-		const int G = (int)(special_pal[i*3 + 1] * RG_nihgt_multiplier);
-		const int B = (int)(special_pal[i*3 + 2] * B_nihgt_multiplier);
+		const int R = (int)(special_pal[i*3 + 0] * RG_night_multiplier);
+		const int G = (int)(special_pal[i*3 + 1] * RG_night_multiplier);
+		const int B = (int)(special_pal[i*3 + 2] * B_night_multiplier);
 
 		specialcolormap_day_night[i] = get_system_color(R, G, B);
 	}
 	// special light colors (actually, only non-darkening greys should be used
 	for(i=0;  i<LIGHT_COUNT;  i++  ) {
-		specialcolormap_day_night[i+224] = get_system_color( day_lights[i*3 + 0], day_lights[i*3 + 1], 	day_lights[i*3 + 2] );
+		specialcolormap_day_night[i+224] = get_system_color( display_day_lights[i*3 + 0], display_day_lights[i*3 + 1], 	display_day_lights[i*3 + 2] );
 	}
 	// init with black for forbidden colors
 	for(i=224+LIGHT_COUNT;  i<256;  i++  ) {
@@ -1689,13 +1689,13 @@ static void calc_base_pal_from_night_shift(const int night)
 
 	// Lights
 	for (i = 0; i < LIGHT_COUNT; i++) {
-		const int day_R = day_lights[i*3+0];
-		const int day_G = day_lights[i*3+1];
-		const int day_B = day_lights[i*3+2];
+		const int day_R = display_day_lights[i*3+0];
+		const int day_G = display_day_lights[i*3+1];
+		const int day_B = display_day_lights[i*3+2];
 
-		const int night_R = night_lights[i*3+0];
-		const int night_G = night_lights[i*3+1];
-		const int night_B = night_lights[i*3+2];
+		const int night_R = display_night_lights[i*3+0];
+		const int night_G = display_night_lights[i*3+1];
+		const int night_B = display_night_lights[i*3+2];
 
 		const int R = (day_R * day + night_R * night2) >> 2;
 		const int G = (day_G * day + night_G * night2) >> 2;
@@ -1747,7 +1747,8 @@ void display_set_player_color_scheme(const int player, const COLOR_VAL col1, con
 			if(night_shift!=0) {
 				calc_base_pal_from_night_shift(night_shift);
 			}
-			player_day = player_night = player;
+			// calc_base_pal_from_night_shift resets player_night to 0
+			player_day = player_night;
 		}
 		recode();
 		mark_rect_dirty_nc(0, 32, disp_width - 1, disp_height - 1);
@@ -1864,7 +1865,7 @@ void display_get_image_offset(unsigned bild, KOORD_VAL *xoff, KOORD_VAL *yoff, K
 }
 
 
-// prissi: query unzoiomed offsets
+// prissi: query unzoomed offsets
 void display_get_base_image_offset(unsigned bild, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw)
 {
 	if (bild < anz_images) {
@@ -2866,7 +2867,7 @@ static void display_pixel(KOORD_VAL x, KOORD_VAL y, PIXVAL color)
 /**
  * Zeichnet gefuelltes Rechteck
  */
-static void display_fb_internal(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, int color, int dirty, KOORD_VAL cL, KOORD_VAL cR, KOORD_VAL cT, KOORD_VAL cB)
+static void display_fb_internal(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, int color, bool dirty, KOORD_VAL cL, KOORD_VAL cR, KOORD_VAL cT, KOORD_VAL cB)
 {
 	if (clip_lr(&xp, &w, cL, cR) && clip_lr(&yp, &h, cT, cB)) {
 		PIXVAL *p = textur + xp + yp * disp_width;
@@ -2924,13 +2925,13 @@ static void display_fb_internal(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_V
 }
 
 
-void display_fillbox_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, int dirty)
+void display_fillbox_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, bool dirty)
 {
 	display_fb_internal(xp, yp, w, h, color, dirty, 0, disp_width, 0, disp_height);
 }
 
 
-void display_fillbox_wh_clip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, int dirty)
+void display_fillbox_wh_clip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, bool dirty)
 {
 	display_fb_internal(xp, yp, w, h, color, dirty, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy);
 }
@@ -2956,13 +2957,13 @@ static void display_vl_internal(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, c
 }
 
 
-void display_vline_wh(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PLAYER_COLOR_VAL color, int dirty)
+void display_vline_wh(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PLAYER_COLOR_VAL color, bool dirty)
 {
 	display_vl_internal(xp, yp, h, color, dirty, 0, disp_width, 0, disp_height);
 }
 
 
-void display_vline_wh_clip(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PLAYER_COLOR_VAL color, int dirty)
+void display_vline_wh_clip(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PLAYER_COLOR_VAL color, bool dirty)
 {
 	display_vl_internal(xp, yp, h, color, dirty, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy);
 }
@@ -3323,7 +3324,7 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
 		// do the display
 
 		if(  y_offset>char_yoffset  ) {
-			char_yoffset = y_offset;
+			char_yoffset = (uint8)y_offset;
 		}
 		screen_pos = (y+char_yoffset) * disp_width + x;
 
@@ -3399,13 +3400,13 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
  */
 void display_ddd_box(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL tl_color, PLAYER_COLOR_VAL rd_color)
 {
-	display_fillbox_wh(x1, y1,         w, 1, tl_color, TRUE);
-	display_fillbox_wh(x1, y1 + h - 1, w, 1, rd_color, TRUE);
+	display_fillbox_wh(x1, y1,         w, 1, tl_color, true);
+	display_fillbox_wh(x1, y1 + h - 1, w, 1, rd_color, true);
 
 	h -= 2;
 
-	display_vline_wh(x1,         y1 + 1, h, tl_color, TRUE);
-	display_vline_wh(x1 + w - 1, y1 + 1, h, rd_color, TRUE);
+	display_vline_wh(x1,         y1 + 1, h, tl_color, true);
+	display_vline_wh(x1 + w - 1, y1 + 1, h, rd_color, true);
 }
 
 
@@ -3432,13 +3433,13 @@ void display_shadow_proportional(KOORD_VAL xpos, KOORD_VAL ypos, PLAYER_COLOR_VA
  */
 void display_ddd_box_clip(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL tl_color, PLAYER_COLOR_VAL rd_color)
 {
-	display_fillbox_wh_clip(x1, y1,         w, 1, tl_color, TRUE);
-	display_fillbox_wh_clip(x1, y1 + h - 1, w, 1, rd_color, TRUE);
+	display_fillbox_wh_clip(x1, y1,         w, 1, tl_color, true);
+	display_fillbox_wh_clip(x1, y1 + h - 1, w, 1, rd_color, true);
 
 	h -= 2;
 
-	display_vline_wh_clip(x1,         y1 + 1, h, tl_color, TRUE);
-	display_vline_wh_clip(x1 + w - 1, y1 + 1, h, rd_color, TRUE);
+	display_vline_wh_clip(x1,         y1 + 1, h, tl_color, true);
+	display_vline_wh_clip(x1 + w - 1, y1 + 1, h, rd_color, true);
 }
 
 
@@ -3566,10 +3567,10 @@ void display_progress(int part, int total)
 	display_ddd_box(width/2-1, disp_height/2-8, width+2, 18, COL_GREY4, COL_GREY6);
 
 	// inner
-	display_fillbox_wh(width/2, disp_height/2-7, width, 16, COL_GREY5, TRUE);
+	display_fillbox_wh(width / 2, disp_height / 2 - 7, width, 16, COL_GREY5, true);
 
 	// progress
-	display_fillbox_wh(width/2, disp_height/2-5, part, 12, COL_NO_ROUTE, TRUE);
+	display_fillbox_wh(width / 2, disp_height / 2 - 5, part, 12, COL_NO_ROUTE, true);
 
 	if(progress_text) {
 		display_proportional(width,disp_height/2-4,progress_text,ALIGN_MIDDLE,COL_WHITE,0);
@@ -3591,16 +3592,30 @@ void display_flush_buffer(void)
 	unsigned char* tmp;
 
 #ifdef USE_SOFTPOINTER
-	if (softpointer != -1) {
-		ex_ord_update_mx_my();
+	ex_ord_update_mx_my();
+
+	// use mouse pointer image if available
+	if (softpointer != -1 && standard_pointer >= 0) {
 		display_color_img(standard_pointer, sys_event.mx, sys_event.my, 0, false, true);
+
+		// if software emulated mouse pointer is over the ticker, redraw it totally at next occurs
+		if (!ticker::empty() && sys_event.my+images[standard_pointer].h >= disp_height-TICKER_YPOS_BOTTOM &&
+		   sys_event.my <= disp_height-TICKER_YPOS_BOTTOM+TICKER_HEIGHT) {
+			ticker::set_redraw_all(true);
+		}
 	}
+	// no pointer image available, draw a crosshair
 	else {
-		// crosshair, if nowthing there ...
-		display_fb_internal( sys_event.mx-1, sys_event.my-3, 3, 7, COL_WHITE, 1, 0, disp_width, 0, disp_height);
-		display_fb_internal( sys_event.mx-3, sys_event.my-1, 7, 3, COL_WHITE, 1, 0, disp_width, 0, disp_height);
+		display_fb_internal(sys_event.mx - 1, sys_event.my - 3, 3, 7, COL_WHITE, true, 0, disp_width, 0, disp_height);
+		display_fb_internal(sys_event.mx - 3, sys_event.my - 1, 7, 3, COL_WHITE, true, 0, disp_width, 0, disp_height);
 		display_direct_line( sys_event.mx-2, sys_event.my, sys_event.mx+2, sys_event.my, COL_BLACK );
 		display_direct_line( sys_event.mx, sys_event.my-2, sys_event.mx, sys_event.my+2, COL_BLACK );
+
+		// if crosshair is over the ticker, redraw it totally at next occurs
+		if(!ticker::empty() && sys_event.my+2 >= disp_height-TICKER_YPOS_BOTTOM &&
+		   sys_event.my-2 <= disp_height-TICKER_YPOS_BOTTOM+TICKER_HEIGHT) {
+			ticker::set_redraw_all(true);
+		}
 	}
 	old_my = sys_event.my;
 #endif
@@ -3616,10 +3631,10 @@ void display_flush_buffer(void)
 					x++;
 				} while(x < tiles_per_line && is_tile_dirty(x, y));
 
-				display_vline_wh((xl << DIRTY_TILE_SHIFT) - 1, y << DIRTY_TILE_SHIFT, DIRTY_TILE_SIZE, 80, FALSE);
-				display_vline_wh(x << DIRTY_TILE_SHIFT, y << DIRTY_TILE_SHIFT, DIRTY_TILE_SIZE, 80, FALSE);
-				display_fillbox_wh(xl << DIRTY_TILE_SHIFT, y << DIRTY_TILE_SHIFT, (x - xl) << DIRTY_TILE_SHIFT, 1, 80, FALSE);
-				display_fillbox_wh(xl << DIRTY_TILE_SHIFT, (y << DIRTY_TILE_SHIFT) + DIRTY_TILE_SIZE - 1, (x - xl) << DIRTY_TILE_SHIFT, 1, 80, FALSE);
+				display_vline_wh((xl << DIRTY_TILE_SHIFT) - 1, y << DIRTY_TILE_SHIFT, DIRTY_TILE_SIZE, 80, false);
+				display_vline_wh( x  << DIRTY_TILE_SHIFT,      y << DIRTY_TILE_SHIFT, DIRTY_TILE_SIZE, 80, false);
+				display_fillbox_wh(xl << DIRTY_TILE_SHIFT,  y << DIRTY_TILE_SHIFT,                        (x - xl) << DIRTY_TILE_SHIFT, 1, 80, false);
+				display_fillbox_wh(xl << DIRTY_TILE_SHIFT, (y << DIRTY_TILE_SHIFT) + DIRTY_TILE_SIZE - 1, (x - xl) << DIRTY_TILE_SHIFT, 1, 80, false);
 			}
 			x++;
 		} while (x < tiles_per_line);
@@ -3723,7 +3738,7 @@ int get_maus_y(void)
  * Initialises the graphics module
  * @author Hj. Malthaner
  */
-int simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
+void simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 {
 	int i;
 
@@ -3804,8 +3819,6 @@ int simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 
 	printf("Init done.\n");
 	fflush(NULL);
-
-	return TRUE;
 }
 
 
@@ -3823,7 +3836,7 @@ int is_display_init(void)
  * Schliest das Grafikmodul
  * @author Hj. Malthaner
  */
-int simgraph_exit()
+void simgraph_exit()
 {
 	guarded_free(tile_dirty);
 	guarded_free(tile_dirty_old);
@@ -3833,7 +3846,7 @@ int simgraph_exit()
 	tile_dirty = tile_dirty_old = NULL;
 	images = NULL;
 
-	return dr_os_close();
+	dr_os_close();
 }
 
 

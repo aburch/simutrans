@@ -1,8 +1,8 @@
 /*
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner
  *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans project under the artistic license.
+ * (see license.txt)
  */
 
 #include <stdio.h>
@@ -150,11 +150,10 @@ old_blockmanager_t::laden_abschliessen(karte_t *welt)
 		grund_t *to=NULL;
 		uint8 directions=0;
 		waytype_t wt=gr->hat_weg(track_wt) ? track_wt : monorail_wt;
-		if(gr->get_neighbour(to,wt,koord((ribi_t::ribi)os1->get_dir()))) {
-			slist_iterator_tpl<oldsignal_t *> iter(signale);
-			while(iter.next()) {
-				if(iter.get_current()->get_pos()==to->get_pos()) {
-					os2 = iter.get_current();
+		if(  gr->get_neighbour(to,wt,os1->get_dir())  ) {
+			FOR(slist_tpl<oldsignal_t*>, const s, signale) {
+				if (s->get_pos() == to->get_pos()) {
+					os2 = s;
 					break;
 				}
 			}

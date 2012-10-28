@@ -182,6 +182,14 @@ growthfactor_villages = 400
 growthfactor_cities = 200
 growthfactor_capitals = 100
 
+# These values are used in the city generation algorithm to determine the maximum size of cities.
+# max_city_size is the maximum size, in citizens, of any city at the point of generation.
+# max_small_city_size is the size, in citizens, of any city other than a "big city" at the point of generation. 
+# TIP: Set a lower number for these values the earlier that the game is started.
+
+max_city_size = 16000
+max_small_city_size = 3000
+
 # The higher this value, the more passengers generated. (Default: 16)
 passenger_factor=16
 
@@ -276,6 +284,19 @@ toll_free_public_roads = 1
 # Default: 1 (which replicates the behaviour in Standard)
 
 allow_making_public = 0
+
+# This is the maximum level of building that can be constructed or upgraded
+# beneath an elevated way, or over which an elevated way can be built. 
+# 0 = no limit.
+
+max_elevated_way_building_level = 2
+
+# This setting determines whether aircraft can land and take off
+# at airports without control towers. 1 = yes; 0 = no.
+# Set to 1 for paksets that do not have control towers defined
+# as such.
+
+allow_airports_without_control_towers = 1
 
 
 #################################### Passenger settings ##################################
@@ -652,9 +673,6 @@ water_animation_ms = 250
 # (1=on, 0=off)
 pedes_and_car_info = 1
 
-# (=1) drive on the left side of the road
-drive_left = 0
-
 # Show infos on trees?
 # (1=on, 0=off)
 tree_info = 1
@@ -670,6 +688,15 @@ townhall_info = 0
 # always open only a single info window for the ground,
 # even if there are more objects on this tile
 #only_single_info = 1
+
+# show a tooltip on convois at several conditions
+# 0 no messages
+# 1 (default) only no_route and stuck
+# loading and waiting at signals too
+#show_vehicle_states = 1
+
+# show (default) tiles with a halt when editing a schedule
+#visualize_schedule = 1
 
 # Should stations get numbered names? (1=yes, 0=no)
 numbered_stations = 0
@@ -905,7 +932,7 @@ allow_buying_obsolete_vehicles = 0
 # This is not on by default, even in Experimental.
 # vehicle can loose a part of their value, when they are once used
 # the loss is given in 1/1000th, i.e 300 mean the value will be 70%
-used_vehicle_reduction = 0
+used_vehicle_reduction = 250
 
 ################################ Vehicle settings ##############################
 
@@ -969,8 +996,8 @@ curve_friction_factor_tram=0
 
 max_corner_limit_monorail=425
 min_corner_limit_monorail=75
-max_corner_adjustment_factor_monorail=50
-min_corner_adjustment_factor_monorail=85
+max_corner_adjustment_factor_monorail=62
+min_corner_adjustment_factor_monorail=90
 min_direction_steps_monorail=5
 max_direction_steps_monorail=16
 curve_friction_factor_monorail=0
@@ -1025,8 +1052,15 @@ turntable_reverse_time=4000
 # as if it had a total power of 4,800kw. 
 #
 # The default is 100.
+#
+# Note that, in Simutrans-Experimental version 10.12 and later, Standard paksets
+# should use a percentage of 50. This is because the physics have been recalibrated
+# to account for transmission losses (intended to be set using the "gear" setting
+# in each vehicle's .dat file), and the resistance values decreased accordingly.
+# Therefore, without this reduction in power, vehicles will be substantially over-
+# powered.
 
-global_power_factor_percent=100
+global_power_factor_percent=50
 
 # This setting allows the way in which weight limits are enforced to be customised.
 # If enforce_weight_limits is set to 0, weight limits are ignored entirely. If
@@ -1072,7 +1106,7 @@ no_tree_climates = 130
 
 ################################### Time settings ###################################
 
-# Enforce vehicle introduction dates?
+# Enforce vehicle (and other item) introduction dates?
 # 0 = all vehicles available from start of the game
 # 1 = use introduction dates
 # 2 = (default) use settings during game creation, new games off
@@ -1109,8 +1143,10 @@ bits_per_month = 20
 
 # compress savegames?
 # "binary" means uncompressed, "zipped" means compressed
-# other options are "xml" and "xml_zipped"
-# xml detecht more errors of broken savegames but are much larger
+# "bzip2" uses another compression algorithm
+# other options are "xml", "xml_zipped" and "xml_bzip2"
+# xml detects more errors of broken savegames but files are much larger
+# bzip2 savegames are smaller than zipped but saving/loading takes longer
 saveformat = bzip2
 
 # autosave every x months (0=off)
@@ -1120,8 +1156,14 @@ autosave = 12
 # (depends very much on computer, game complexity and graphics driver)
 frames_per_second = 30
 
-# How much faster should the game proceed with fast forward
-# (limited by your computer and the size of the map)
+# during zooming out simutrans may get slow due to the very high number
+# of tiles visible. If the tiles become equal or smaller than the tile size
+# below, a simpler clipping algorithm will be used, which will give some
+# clipping errors, but is faster.
+simple_drawing_tile_size = 24
+
+# How much faster should the game proceed with fast forward 
+# (limited by your computer and size of the map)
 fast_forward = 100
 
 ################################### Network settings ##############################
@@ -1132,7 +1174,8 @@ fast_forward = 100
 #
 
 # Sets the local addresses Simutrans should listen on and use for making outgoing connections
-# By default it will use all local IPv4 and IPv6 addresses
+# A DNS name may be specified, this will be resolved and Simutrans will attempt to listen
+# on all of the addresses returned.
 # This setting has no effect if Simutrans has been compiled with the USE_IP4_ONLY flag set!
 # The addresses listed will be tried in the order specified
 #listen = 127.0.0.1
@@ -1155,6 +1198,7 @@ server_frames_per_step = 4
 # Large values here means: reduced server communication (if that is of importance...)
 # Small values should improve the timing of the clients.
 server_frames_between_checks = 240
+
 
 # Automatically announce server on the central server directory (http://servers.experimental.simutrans.org/)
 # 0 (default) = off, 1 = on

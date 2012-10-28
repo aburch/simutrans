@@ -26,6 +26,7 @@
 #include "../tpl/vector_tpl.h"
 
 
+class zeiger_t;
 class schedule_t;
 struct linieneintrag_t;
 class spieler_t;
@@ -39,14 +40,19 @@ class fahrplan_gui_stats_t : public gui_komponente_t
 private:
 	static karte_t *welt;
 	static cbuffer_t buf;
+	static zeiger_t *aktuell_mark;
+
 
 	schedule_t* fpl;
 	spieler_t* sp;
 
 public:
-	fahrplan_gui_stats_t(karte_t* w, spieler_t *s) { welt = w; fpl = NULL; sp = s; }
+	fahrplan_gui_stats_t(karte_t* w, spieler_t *s);
+	~fahrplan_gui_stats_t();
 
 	void set_fahrplan( schedule_t* f ) { fpl = f; }
+
+	void highlight_schedule( schedule_t *markfpl, bool marking );
 
 	/** Zeichnet die Komponente */
 	void zeichnen(koord offset);
@@ -68,7 +74,7 @@ class fahrplan_gui_t :	public gui_frame_t,
 	 *
 	 * @author Hj. Malthaner
 	 */
-	static void gimme_stop_name(cbuffer_t & buf, karte_t *welt, const spieler_t *sp, const linieneintrag_t &entry );
+	static void gimme_stop_name(cbuffer_t & buf, karte_t *welt, const spieler_t *sp, const linieneintrag_t &entry, bool no_control_tower = false );
 
 	/**
          * Fills buf with description of schedule's i'th entry.
@@ -145,11 +151,7 @@ public:
 	// for updating info ...
 	void init_line_selector();
 
-	/**
-	 * Mausklicks werden hiermit an die GUI-Komponenten
-	 * gemeldet
-	 */
-	bool infowin_event(const event_t *ev);
+	bool infowin_event(event_t const*) OVERRIDE;
 
 	const char *get_hilfe_datei() const {return "schedule.txt";}
 
@@ -174,15 +176,7 @@ public:
 		lb_line.set_visible(yesno);
 	}
 
-	/**
-	 * This method is called if an action is triggered
-	 * @author Hj. Malthaner
-	 *
-	 * Returns true, if action is done and no more
-	 * components should be triggered.
-	 * V.Meyer
-	 */
-	bool action_triggered( gui_action_creator_t *komp, value_t extra);
+	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	/**
 	 * Map rotated, rotate schedules too

@@ -20,10 +20,25 @@
 #include "../utils/simstring.h"
 #include "components/list_button.h"
 
+#include "../besch/ware_besch.h"
 
 goods_stats_t::goods_stats_t()
 {
-	set_groesse(koord(BUTTON4_X+BUTTON_WIDTH+2,-10+(warenbauer_t::get_waren_anzahl()-1)*(LINESPACE+1)));
+	set_groesse(koord(BUTTON4_X+BUTTON_WIDTH+2,(warenbauer_t::get_waren_anzahl()-1)*(LINESPACE+1)));
+}
+
+
+void goods_stats_t::update_goodslist( uint16 *g, int b, int l, uint16 d, uint8 c, uint8 ct, karte_t* w, waytype_t wt)
+{
+	goodslist = g;
+	bonus = b;
+	distance = d;
+	comfort = c;
+	catering_level = ct;
+	welt = w;
+	way_type = wt;
+	listed_goods = l;
+	set_groesse(koord(BUTTON4_X+BUTTON_WIDTH+2,max(2,listed_goods-2)*(LINESPACE+1)));
 }
 
 
@@ -37,7 +52,10 @@ void goods_stats_t::zeichnen(koord offset)
 	char money_buf[256];
 	cbuffer_t buf;
 
-	for(  uint16 i=0;  i<warenbauer_t::get_waren_anzahl()-1u;  i++  ) 
+	// Pre-111.1 in case current does not work.
+	/*for(  uint16 i=0;  i<warenbauer_t::get_waren_anzahl()-1u;  i++  )*/
+
+	for(  uint16 i=0;  i<listed_goods;  i++  ) 
 	{
 		const ware_besch_t * wtyp = warenbauer_t::get_info(goodslist[i]);
 
@@ -51,15 +69,16 @@ void goods_stats_t::zeichnen(koord offset)
 		// prissi
 		// Modified by jamespetts 18 Apr. 2009
 
-		const sint64 base_price = (sint64)wtyp->get_preis();
-		const sint64 min_price = base_price / 10ll;
+		const sint64 base_fare = wtyp->get_fare(distance);
+		const sint64 min_fare = base_fare / 10ll;
 		const sint64 speed_bonus_rating = (sint64)convoi_t::calc_adjusted_speed_bonus(wtyp->get_speed_bonus(), distance, welt);
-		const sint64 base_bonus = base_price * (1000ll + ((sint64)bonus - 100ll) * speed_bonus_rating);
-		const sint64 revenue = (min_price > base_bonus ? min_price : base_bonus) * (sint64)distance;
+		const sint64 base_bonus = base_fare * (1000ll + ((sint64)bonus - 100ll) * speed_bonus_rating);
+		const sint64 revenue = max(min_fare, base_bonus);
 		sint64 price = revenue;
 
 		//const uint16 journey_minutes = ((float)distance / (((float)welt->get_average_speed(way_type) * bonus) / 100)) *welt->get_settings().get_meters_per_tile() * 6;
-		const uint16 journey_minutes = (((distance * 100) / ((welt->get_average_speed(way_type) * bonus) / 100)) * welt->get_settings().get_meters_per_tile()) / 1667;
+		const uint16 divider = (welt->get_average_speed(way_type) * bonus) / 100;
+		const uint16 journey_minutes = (((distance * 100) / (divider > 0 ? divider : 1)) * welt->get_settings().get_meters_per_tile()) / 1667;
 
 		if(wtyp->get_catg_index() < 1)
 		{
@@ -79,8 +98,8 @@ void goods_stats_t::zeichnen(koord offset)
 			}
 			else
 			{
-				const uint8 differential = journey_minutes -welt->get_settings().get_tolerable_comfort_short_minutes();
-				const uint8 max_differential = welt->get_settings().get_tolerable_comfort_median_long_minutes() -welt->get_settings().get_tolerable_comfort_short_minutes();
+				const uint16 differential = journey_minutes - welt->get_settings().get_tolerable_comfort_short_minutes();
+				const uint16 max_differential = welt->get_settings().get_tolerable_comfort_median_long_minutes() -welt->get_settings().get_tolerable_comfort_short_minutes();
 				const uint32 proportion = differential * 100 / max_differential;
 				comfort_modifier = (80ll * (sint64)proportion / 100ll) + 20ll;
 			}
@@ -152,7 +171,7 @@ void goods_stats_t::zeichnen(koord offset)
 						}
 					
 						proportion = (sint64)((journey_minutes - welt->get_settings().get_catering_level4_minutes()) * 1000) / (welt->get_settings().get_catering_level5_minutes() -welt->get_settings().get_catering_level4_minutes());
-						price += (proportion * (sint64)(welt->get_settings().get_catering_level5_max_revenue()));
+						price += max((sint64)(proportion * (welt->get_settings().get_catering_level5_max_revenue())), ((sint64)(welt->get_settings().get_catering_level4_max_revenue() * 1000) + 4000));
 						break;
 					}
 
@@ -166,7 +185,7 @@ void goods_stats_t::zeichnen(koord offset)
 						}
 					
 						proportion = ((journey_minutes -welt->get_settings().get_catering_level3_minutes()) * 1000) / (welt->get_settings().get_catering_level4_minutes() - welt->get_settings().get_catering_level3_minutes());
-						price += (sint64)(proportion * (welt->get_settings().get_catering_level4_max_revenue()));
+						price += max((sint64)(proportion * (welt->get_settings().get_catering_level4_max_revenue())), ((sint64)(welt->get_settings().get_catering_level3_max_revenue() * 1000) + 4000));
 						break;
 					}
 
@@ -180,7 +199,7 @@ void goods_stats_t::zeichnen(koord offset)
 						}
 					
 						proportion = ((journey_minutes - welt->get_settings().get_catering_level2_minutes()) * 1000) / (welt->get_settings().get_catering_level3_minutes() - welt->get_settings().get_catering_level2_minutes());
-						price += (sint64)((proportion * welt->get_settings().get_catering_level3_max_revenue()));
+						price += max((sint64)((proportion * welt->get_settings().get_catering_level3_max_revenue())), ((sint64)(welt->get_settings().get_catering_level2_max_revenue() * 1000) + 4000));
 						break;
 					}
 
@@ -194,7 +213,7 @@ void goods_stats_t::zeichnen(koord offset)
 						}
 					
 						proportion = ((journey_minutes - welt->get_settings().get_catering_level1_minutes()) * 1000) / (welt->get_settings().get_catering_level2_minutes() - welt->get_settings().get_catering_level1_minutes());
-						price += (sint64)(proportion * (welt->get_settings().get_catering_level2_max_revenue()));
+						price +=  max((sint64)(proportion * (welt->get_settings().get_catering_level2_max_revenue())), ((sint64)(welt->get_settings().get_catering_level1_max_revenue() * 1000) + 4000));
 						break;
 					}
 

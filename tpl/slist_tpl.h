@@ -1,8 +1,8 @@
 /*
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner
  *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans project under the artistic license.
+ * (see license.txt)
  */
 
 #ifndef tpl_slist_tpl_h
@@ -19,9 +19,6 @@
 #endif
 
 
-template<class T> class slist_iterator_tpl;
-
-
 /**
  * A template class for a single linked list. Insert() and append()
  * work in fixed time. Maintains a list of free nodes to reduce calls
@@ -36,7 +33,7 @@ template<class T> class slist_iterator_tpl;
 template<class T>
 class slist_tpl
 {
-private:
+private:	
 	struct node_t
 	{
 		node_t(const T& data_, node_t* next_) : next(next_), data(data_) {}
@@ -52,8 +49,6 @@ private:
 	node_t *head;
 	node_t *tail;
 	uint32 node_count;
-
-	friend class slist_iterator_tpl<T>;
 
 public:
 	class const_iterator;
@@ -71,6 +66,8 @@ public:
 			typedef value_type*               pointer;
 			typedef value_type&               reference;
 
+			iterator() : ptr(), pred() {}
+
 			pointer   operator ->() const { return &ptr->data; }
 			reference operator *()  const { return ptr->data;  }
 
@@ -81,9 +78,15 @@ public:
 				return *this;
 			}
 
-			bool operator ==(const iterator& o) { return ptr == o.ptr; }
-			bool operator !=(const iterator& o) { return ptr != o.ptr; }
-			bool end() const { return ptr==NULL; };
+			iterator operator ++(int)
+			{
+				iterator const old = *this;
+				++*this;
+				return old;
+			}
+
+			bool operator ==(iterator const& o) const { return ptr == o.ptr; }
+			bool operator !=(iterator const& o) const { return ptr != o.ptr; }
 
 		private:
 			iterator(node_t* ptr_, node_t* pred_) : ptr(ptr_), pred(pred_) {}
@@ -108,6 +111,8 @@ public:
 			typedef T const*                  pointer;
 			typedef T const&                  reference;
 
+			const_iterator() : ptr() {}
+
 			const_iterator(const iterator& o) : ptr(o.ptr) {}
 
 			pointer   operator ->() const { return &ptr->data; }
@@ -115,9 +120,15 @@ public:
 
 			const_iterator& operator ++() { ptr = ptr->next; return *this; }
 
-			bool operator ==(const const_iterator& o) { return ptr == o.ptr; }
-			bool operator !=(const const_iterator& o) { return ptr != o.ptr; }
-			bool end() const { return ptr==NULL; };
+			const_iterator operator ++(int)
+			{
+				const_iterator const old = *this;
+				++*this;
+				return old;
+			}
+
+			bool operator ==(const_iterator const& o) const { return ptr == o.ptr; }
+			bool operator !=(const_iterator const& o) const { return ptr != o.ptr; }
 
 		private:
 			explicit const_iterator(node_t* ptr_) : ptr(ptr_) {}
@@ -431,94 +442,10 @@ public:
 		}
 		return t ? index : -1;
 	}
-	
 private:
 	slist_tpl(const slist_tpl& slist_tpl);
 	slist_tpl& operator=( slist_tpl const& other );
 
-};
-
-
-
-/**
- * Iterator class for single linked lists.
- * Iterators may be invalid after any changing operation on the list!
- *
- * This iterator can modify nodes, but not the list
- * Usage:
- *
- * slist_iterator_tpl<T> iter(some_list);
- * while (iter.next()) {
- * 	T& current = iter.access_current();
- * }
- *
- * @author Hj. Malthaner
- */
-template<class T>
-class slist_iterator_tpl
-{
-private:
-	typename slist_tpl<T>::node_t *current_node;
-	typename slist_tpl<T>::node_t *next_node;
-
-public:
-	slist_iterator_tpl(const slist_tpl<T>* list) :
-		// we start with NULL
-		// after one call to next() current_node points to first node in list
-		current_node(NULL),
-		next_node(list->head)
-	{}
-
-	slist_iterator_tpl(const slist_tpl<T>& list) :
-		current_node(NULL),
-		next_node(list.head)
-	{}
-
-	slist_iterator_tpl<T> &operator = (const slist_iterator_tpl<T> &iter)
-	{
-		current_node = iter.current_node;
-		next_node    = iter.next_node;
-		return *this;
-	}
-
-	/**
-	 * iterate next element
-	 * @return false, if no more elements
-	 * @author Hj. Malthaner
-	 */
-	bool next()
-	{
-		current_node = next_node;
-		if (next_node) {
-			next_node = next_node->next;
-		}
-		return (current_node!= 0);
-	}
-
-	/**
-	 * @return the current element (as const reference)
-	 * @author Hj. Malthaner
-	 */
-	const T& get_current() const
-	{
-		if(current_node==NULL) {
-			dbg->fatal("class slist_iterator_tpl.get_current()", "Iteration: accessed NULL!");
-		}
-		return current_node->data;
-	}
-
-
-	/**
-	 * @return the current element (as reference)
-	 * @author Hj. Malthaner
-	 */
-	T& access_current()
-	{
-		if(current_node==NULL) {
-			dbg->fatal("class slist_iterator_tpl.access_current()", "Iteration: accessed NULL!");
-		}
-		return current_node->data;
-	}
 };
 
 #endif

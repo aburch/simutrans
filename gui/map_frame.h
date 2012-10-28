@@ -13,15 +13,16 @@
 #define gui_map_frame_h
 
 #include "gui_frame.h"
+#include "karte.h"
 #include "../simwin.h"
 #include "components/gui_scrollpane.h"
 #include "components/action_listener.h"
 #include "components/gui_button.h"
 #include "components/gui_label.h"
+#include "../besch/fabrik_besch.h"
+#include "../tpl/stringhashtable_tpl.h"
 
 class karte_t;
-
-#define MAX_BUTTON_TYPE (19)
 
 /**
  * Reliefkartenfenster für Simutrans.
@@ -48,8 +49,12 @@ private:
 	static bool legend_visible;
 	static bool scale_visible;
 	static bool directory_visible;
+	static bool filter_factory_list;
 
 	static bool is_cursor_hidden;
+
+	// Cache of factories in current game world
+	static stringhashtable_tpl<const fabrik_besch_t *> factory_list;
 
 	  /**
 	   * We need to keep track of trag/click events
@@ -66,9 +71,9 @@ private:
 	gui_scrollpane_t scrolly;
 
 	// buttons
-	static const char map_type[MAX_BUTTON_TYPE][64];
-	static const uint8 map_type_color[MAX_BUTTON_TYPE];
-	button_t filter_buttons[MAX_BUTTON_TYPE];
+	static const char map_type[reliefkarte_t::MAX_MAP_BUTTON][64];
+	static const uint8 map_type_color[reliefkarte_t::MAX_MAP_BUTTON];
+	button_t filter_buttons[reliefkarte_t::MAX_MAP_BUTTON];
 
 	void zoom(bool zoom_out);
 	button_t zoom_buttons[2];
@@ -81,7 +86,9 @@ private:
 	button_t b_show_legend;
 	button_t b_show_scale;
 	button_t b_show_directory;
+	button_t b_filter_factory_list;
 
+	void update_factory_legend(karte_t *welt = NULL);
 	void show_hide_legend(const bool show);
 	void show_hide_scale(const bool show);
 	void show_hide_directory(const bool show);
@@ -112,12 +119,7 @@ public:
 
 	virtual uint32 get_rdwr_id() { return magic_reliefmap; }
 
-	/**
-	 * Events werden hiermit an die GUI-Komponenten
-	 * gemeldet
-	 * @author Hj. Malthaner
-	 */
-	bool infowin_event(const event_t *ev);
+	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**
 	 * Setzt die Fenstergroesse
@@ -141,15 +143,7 @@ public:
 	 */
 	void zeichnen(koord pos, koord gr);
 
-	/**
-	 * This method is called if an action is triggered
-	 * @author Hj. Malthaner
-	 *
-	 * Returns true, if action is done and no more
-	 * components should be triggered.
-	 * V.Meyer
-	 */
-	bool action_triggered( gui_action_creator_t *komp, value_t extra);
+	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };
 
 #endif

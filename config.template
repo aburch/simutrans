@@ -7,11 +7,9 @@
 #BACKEND = gdi
 #BACKEND = sdl
 #BACKEND = mixer_sdl
-#BACKEND = x11
 #BACKEND = posix
 
 #COLOUR_DEPTH = 0
-#COLOUR_DEPTH = 8
 #COLOUR_DEPTH = 16
 
 #OSTYPE = amiga
@@ -30,6 +28,8 @@
 
 #WITH_REVISION = 1 # adds the revision from svn; required for networkgames
 # if you do not use SVN, add -DREVISION="1234" to the FLAGS below
+
+#WIN32_CONSOLE = 1 # adds a console for windows debugging
 
 # Define these as empty strings, if you don't have the respective config program
 #ALLEGRO_CONFIG = allegro-config
@@ -52,6 +52,7 @@
 # DEBUG_ROUTES: show routing calculation information in minimap
 # SHOW_FORE_GRUND: show which objects are drawn as foreground
 # DEBUG_FLUSH_BUFFER: show the dirty areas on the screen
+# USE_VALGRIND_MEMCHECK: make valgrind-memcheck aware of the memory allocation stuff in dataobj/freelist
 #
 # Following flags alter game engine (and are off for standard builds)
 # OTTD_LIKE: Enables half height tiles and crossconnects all industries
@@ -61,29 +62,24 @@
 #    target (undefined means no limit)
 # USE_DIFFERENT_WIND: different airplane approach directions over the map
 # DESTINATION_CITYCARS: Citycars can have a destination (not recommended)
+# COMMAND_LINE_SERVER: Necessary for compiling with simgraph0.cc for the 
+# command line only server.
 #
 # In order to use the flags, add a line like this: (-Dxxx)
 # FLAGS = -DUSE_C
 
 # Output directories:
-#    all paths are relative trunk/
 #
-# .. for object files
-#    (defaults to 'build/default')
-# BUILDDIR = build/default
-# .. for the executable
-#    (defaults to BUILDDIR)
-# PROGDIR  = build/default
-#
-# .. for the executables makeobj / nettool
-#    (both default to BUILDDIR)
-#
-# MAKEOBJ_PROGDIR
-# NETTOOL_PROGDIR
-#
-# use this to build into same directory, where the sources are:
+# use this put objects file in same directory, where the sources are (not recommended):
+# ... otherwise defaults to 'build/default')
 #
 # BUILDDIR = $(shell pwd)
+#
+# use this to specifiy the target directory for the executable:
+# .. otherwise defaults to BUILDDIR
+#
+# MAKEOBJ_PROGDIR = $(shell pwd)
+# NETTOOL_PROGDIR = $(shell pwd)
 # PROGDIR  = $(shell pwd)
 
 FLAGS = -DNDEBUG -fpermissive

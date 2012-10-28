@@ -1,8 +1,8 @@
 /*
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner
  *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans project under the artistic license.
+ * (see license.txt)
  *
  * Author: V. Meyer
  */
@@ -78,7 +78,6 @@ protected:
 	karte_t *welt;
 	sint16 b;
 	sint16 h;
-	climate_bits cl;
 
 	virtual bool ist_platz_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const;
 

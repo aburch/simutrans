@@ -1,4 +1,43 @@
+Release of 111.2.1 (r5434 on 28-Feb-2012): (111.2 had a severe bug with zipped games)
+	ADD: more info on bare ground
+	ADD: show ownership in minimap
+	ADD: bonus_basefactor = 125 incorporated, determines minimum income for slow vehicles in case of speedbonus
+	ADD: hint text in empty schedules
+	ADD: highlite (land)tiles, which are part of a schedule
+	ADD: F1 open dialog help in all dialogs with a help
+	ADD: only show line names which contains a pattern (optional) and other tuning of dialoges
+	ADD: server-side authentification of players
+	ADD: city, industry and attraction numbers scale with map size
+	ADD: front images for ways
+	ADD: goto-button to chat messages, coordinate taken from @x,y or (x,y)
+	CHG: overhauled color choose dialog with ideas from Hajo
+	FIX: lots of double free errors (mostly in network code)
+
+
+Release of 111.1 (r5115 on 23-Jan-2012):
 	FIX: owner of way gates were accidently rotated
+	ADD: speedbonus speed limited by way speedlimits and achievable convoi max speed
+	ADD: record also walked pax
+	FIX: CJK description of houses correctly breaking
+	ADD: configure modes of transport for AIs
+	FIX: better tree offsets on tiles, should give less errors with trees on roads, in water etc
+	ADD: read (when with addon loadin) also ~/Simutrans/pakxyz/config.simuconf.tab
+	ADD: (falconne) hide only objects around cursor
+	ADD: (falconne) hide factories and goods currently not on the map
+	FIX: several bugs with airplanes and reservation
+	ADD: cities build bridges over rivers
+	FIX: clip buildings to not shine through bridges
+	ADD: (falconne) filter vehicles in depots according to their freight
+	FIX: pedestrians on crossings were considered cars after leading
+	FIX: endless loop when fast forward and zooming out too much
+	CHG: using old display routines for zoom out to speed up display
+	CHG: cities will now grow gradually in time and size during creation, startinf with 32 citiciens in the first townhall year
+	CHG: minimap now really isometric
+	ADD: allow elevated ways over water with depth = 1
+	FIX: load savegames even if factory pak is missing
+	CHG: pak addons now in folder addons, to have same structure in protable and normal installation
+	ADD: warn about missing pak files after loading a game
+	ADD: logging of speedbonus speed in line window
 
 
 Release of 111.0 (r4911 on 1-Nov-2011):

@@ -1,8 +1,8 @@
 /*
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner
  *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans project under the artistic license.
+ * (see license.txt)
  */
 
 #ifndef tpl_prioqueue_tpl_h
@@ -14,8 +14,6 @@
 // collect statistics
 // #define PRIQ_STATS
 
-
-template<class T> class slist_iterator_tpl;
 
 /**
  * <p>A template class for a priority queue. The queue is built upon a
@@ -163,24 +161,24 @@ class prioqueue_tpl
 		 * @author Hj. Malthaner
 		 */
 		T& pop() {
-			if (head) {
-				T& tmp = head->data;
-				node_t *p = head;
-
-				head = head->next;
-				delete p;
-
-				node_count --;
-
-				// list got empty?
-				if (head == 0) {
-					tail = 0;
-				}
-
-				return tmp;
-			} else {
+			if (!head) {
 				dbg->fatal("prioqueue_tpl<T>::pop()","called on empty queue!");
 			}
+
+			T& tmp = head->data;
+			node_t *p = head;
+
+			head = head->next;
+			delete p;
+
+			node_count --;
+
+			// list got empty?
+			if (head == 0) {
+				tail = 0;
+			}
+
+			return tmp;
 		}
 
 

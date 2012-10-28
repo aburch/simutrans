@@ -1,8 +1,8 @@
 /*
  * Copyright (c) 1997 - 2003 Hansjörg Malthaner
  *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans project under the artistic license.
+ * (see license.txt)
  */
 
 #ifndef simwin_h
@@ -66,12 +66,15 @@ enum magic_numbers {
 	magic_line_list=magic_convoi_list+MAX_PLAYER_COUNT,
 	magic_halt_list=magic_line_list+MAX_PLAYER_COUNT,
 	magic_line_management_t=magic_halt_list+MAX_PLAYER_COUNT,
+	magic_ai_options_t=magic_line_management_t+MAX_PLAYER_COUNT,
+	magic_pwd_t=magic_ai_options_t+MAX_PLAYER_COUNT,
 	// normal stuff
-	magic_jump=magic_line_management_t+MAX_PLAYER_COUNT,
+	magic_jump=magic_pwd_t+MAX_PLAYER_COUNT,
 	magic_curiositylist,
 	magic_factorylist,
 	magic_goodslist,
 	magic_messageframe,
+	magic_message_options,
 	magic_edit_factory,
 	magic_edit_attraction,
 	magic_edit_house,
@@ -106,7 +109,7 @@ void rdwr_all_win(loadsave_t *file);
 int create_win(gui_frame_t*, wintype, long magic);
 int create_win(int x, int y, gui_frame_t*, wintype, long magic);
 
-bool check_pos_win(struct event_t *ev);
+bool check_pos_win(event_t*);
 
 bool win_is_open(gui_frame_t *ig );
 int win_get_posx(gui_frame_t *ig);
@@ -135,16 +138,14 @@ void destroy_win(const gui_frame_t *ig);
 void destroy_win(const long magic);
 void destroy_all_win(bool destroy_sticky);
 
-bool top_win(const gui_frame_t *ig);
-int top_win(int win);
-void display_win(int win);
+bool top_win(const gui_frame_t *ig, bool keep_rollup=false  );
 void display_all_win();
 void win_rotate90( sint16 new_size );
 void move_win(int win);
 
 void win_display_flush(double konto); // draw the frame and all windows
-void win_get_event(struct event_t *ev);
-void win_poll_event(struct event_t *ev);
+void win_get_event(event_t*);
+void win_poll_event(event_t*);
 
 void win_set_welt(karte_t *welt);
 

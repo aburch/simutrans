@@ -27,8 +27,6 @@ uint32 simrand(const uint32 max, const char*);
 /* generates a random number on [0,0xFFFFFFFFu]-interval */
 uint32 simrand_plain(void);
 
-/* generates random number with gaussian(normal) distribution */
-double simrand_gauss(const double mean, const double sigma);
 double perlin_noise_2D(const double x, const double y, const double persistence, const sint32 map_size = 512);
 
 // for netowrk debugging, i.e. finding hidden simrands in worng places
@@ -65,8 +63,10 @@ template<typename T, typename U> T const& pick_any_weighted_subset(U const& cont
 	return container.at_weight(simrand(container.get_sum_weight()));
 }
 
-
 // compute integer log10
 /*uint32 log10(uint32 v);*/
+
+// compute integer sqrt
+uint32 sqrt_i32(uint32 num);
 
 #endif

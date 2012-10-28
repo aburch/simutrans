@@ -122,9 +122,6 @@ public:
 	void hop();
 	bool ist_weg_frei(grund_t *gr);
 
-	//Gets rid of the car by setting its life to 0.
-	void kill(); 
-
 	void betrete_feld();
 
 	void calc_current_speed();
@@ -160,11 +157,14 @@ public:
 	virtual overtaker_t *get_overtaker() { return this; }
 
 	// Overtaking for city cars
-	virtual bool can_overtake(overtaker_t *other_overtaker, sint32 other_speed, int steps_other, int diagonal_vehicle_steps_per_tile);
+	virtual bool can_overtake(overtaker_t *other_overtaker, sint32 other_speed, sint16 steps_other);
 
 	// Sets the list in which the vehicle is referenced, so that
 	// it can be removed from the list when it is deleted. 
 	void set_list(slist_tpl<stadtauto_t*> *this_list) { current_list = this_list; }
+
+	void * operator new(size_t s);
+	void operator delete(void *p);
 };
 
 #endif

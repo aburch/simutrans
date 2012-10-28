@@ -143,7 +143,7 @@ void curiositylist_stats_t::recalc_size()
  */
 void curiositylist_stats_t::zeichnen(koord offset)
 {
-	const struct clip_dimension cd = display_get_clip_wh();
+	clip_dimension const cd = display_get_clip_wh();
 	const int start = cd.y-LINESPACE+1;
 	const int end = cd.yy;
 
@@ -219,9 +219,12 @@ void curiositylist_stats_t::zeichnen(koord offset)
 		char short_name[256];
 		char* dst = short_name;
 		int    cr = 0;
-		for( int j=0;  j<255  &&  name[j]>='\n'  &&  cr<2;  j++  ) {
+		for( int j=0;  j<255  &&  cr<10;  j++  ) {
 			if(name[j]>0  &&  name[j]<=' ') {
 				cr++;
+				if(  name[j]<32  ) {
+					break;
+				}
 				if (dst != short_name && dst[-1] != ' ') {
 					*dst++ = ' ';
 				}

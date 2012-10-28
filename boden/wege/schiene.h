@@ -46,13 +46,6 @@ public:
 	virtual waytype_t get_waytype() const {return track_wt;}
 
 	/**
-	* Calculates the image of this pice of railroad track.
-	*
-	* @author Hj. Malthaner
-	*/
-	void calc_bild(koord3d) { weg_t::calc_bild(); }
-
-	/**
 	* @return additional info is reservation!
 	* @author prissi
 	*/

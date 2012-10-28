@@ -1,20 +1,15 @@
 /*
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner
  *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans project under the artistic license.
+ * (see license.txt)
  */
 #ifndef SIMMEM_H
 #define SIMMEM_H
 
 #include <stddef.h>
 
-#ifdef _MSC_VER
-#	include <malloc.h>
-#	define guarded_free free
-#else
 void guarded_free(void* ptr);
-#endif
 
 void* xmalloc(size_t size);             // Throws std::bad_alloc on failure
 void* xrealloc(void * const ptr, size_t size); // Throws std::bad_alloc on failure

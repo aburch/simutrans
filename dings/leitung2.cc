@@ -52,7 +52,7 @@ int leitung_t::gimme_neighbours(leitung_t **conn)
 		// get next connected tile (if there)
 		grund_t *gr;
 		conn[i] = NULL;
-		if(  gr_base->get_neighbour( gr, invalid_wt, koord::nsow[i] ) ) {
+		if(  gr_base->get_neighbour( gr, invalid_wt, ribi_t::nsow[i] ) ) {
 			leitung_t *lt = gr->get_leitung();
 			if(  lt  ) 
 			{
@@ -438,6 +438,7 @@ void leitung_t::rdwr(loadsave_t *file)
 					besch = wegbauer_t::get_besch(translator::compatibility_name(bname));
 					if(besch==NULL) 
 					{
+						welt->add_missing_paks( bname, karte_t::MISSING_WAY );
 						besch = wegbauer_t::leitung_besch;
 					}
 					dbg->warning("strasse_t::rdwr()", "Unknown powerline %s replaced by %s", bname, besch->get_name() );
@@ -477,9 +478,8 @@ void pumpe_t::neue_karte()
 
 void pumpe_t::step_all(long delta_t)
 {
-	slist_iterator_tpl<pumpe_t *> pumpe_iter( pumpe_list );
-	while(  pumpe_iter.next()  ) {
-		pumpe_iter.get_current()->step( delta_t );
+	FOR(slist_tpl<pumpe_t*>, const p, pumpe_list) {
+		p->step(delta_t);
 	}
 }
 
@@ -508,7 +508,7 @@ pumpe_t::~pumpe_t()
 		
 		fab = NULL;
 	}
-	spieler_t::add_maintenance(get_besitzer(), welt->get_settings().cst_maintain_transformer);
+	spieler_t::add_maintenance(get_besitzer(), (sint32)welt->get_settings().cst_maintain_transformer);
 }
 
 
@@ -546,7 +546,7 @@ void pumpe_t::step(long delta_t)
 void pumpe_t::laden_abschliessen()
 {
 	leitung_t::laden_abschliessen();
-	spieler_t::add_maintenance(get_besitzer(), -welt->get_settings().cst_maintain_transformer);
+	spieler_t::add_maintenance(get_besitzer(), (sint32)-welt->get_settings().cst_maintain_transformer);
 
 	if(fab==NULL  &&  get_net()) {
 		fab = leitung_t::suche_fab_4(get_pos().get_2d());
@@ -581,11 +581,9 @@ void senke_t::neue_karte()
 
 void senke_t::step_all(long delta_t)
 {
-	slist_iterator_tpl<senke_t *> senke_iter( senke_list );
-	while(  senke_iter.next()  ) {
-		senke_iter.get_current()->step( delta_t );
+	FOR(slist_tpl<senke_t*>, const s, senke_list) {
+		s->step(delta_t);
 	}
-
 }
 
 
@@ -640,7 +638,7 @@ senke_t::~senke_t()
 			}
 		}
 	}
-	spieler_t::add_maintenance(get_besitzer(), welt->get_settings().cst_maintain_transformer);
+	spieler_t::add_maintenance(get_besitzer(), (sint32)welt->get_settings().cst_maintain_transformer);
 }
 
 
@@ -819,7 +817,7 @@ void senke_t::step(long delta_t)
 		max_einkommen += last_power_demand * delta_t / PRODUCTION_DELTA_T;
 		einkommen += power_load  * delta_t / PRODUCTION_DELTA_T;
 	}
-	else if(welt->ticks_per_world_month_shift >= 18)
+	else if(welt->ticks_per_world_month_shift >= 18ll)
 	{
 		max_einkommen += (last_power_demand * delta_t / PRODUCTION_DELTA_T) >> (welt->ticks_per_world_month_shift-18);
 		einkommen += (power_load  * delta_t / PRODUCTION_DELTA_T) >> (welt->ticks_per_world_month_shift-18);
@@ -917,7 +915,7 @@ bool senke_t::sync_step(long delta_t)
 void senke_t::laden_abschliessen()
 {
 	leitung_t::laden_abschliessen();
-	spieler_t::add_maintenance(get_besitzer(), -welt->get_settings().cst_maintain_transformer);
+	spieler_t::add_maintenance(get_besitzer(), (sint32)-welt->get_settings().cst_maintain_transformer);
 
 	check_industry_connexion();
 

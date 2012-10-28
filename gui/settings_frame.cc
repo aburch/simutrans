@@ -5,15 +5,9 @@
  * (see licence.txt)
  */
 
-#ifdef _MSC_VER
-#include <new.h> // for _set_new_handler
-#include <direct.h>
-#else
-#include <unistd.h>
-#endif
-
 #include <string>
 #include "../simcity.h"
+#include "../simsys.h"
 #include "../simwin.h"
 
 #include "../dataobj/umgebung.h"
@@ -34,9 +28,9 @@ settings_frame_t::settings_frame_t(settings_t* const s) :
 	scrolly_economy(&economy),
 	scrolly_routing(&routing),
 	scrolly_costs(&costs),
+	scrolly_climates(&climates),
 	scrolly_exp_general(&exp_general),
-	scrolly_exp_revenue(&exp_revenue),
-	scrolly_climates(&climates)
+	scrolly_exp_revenue(&exp_revenue)
 {
 	revert_to_default.init( button_t::roundbox, "Simuconf.tab", koord( BUTTON1_X, 0), koord( BUTTON_WIDTH, BUTTON_HEIGHT ) );
 	revert_to_default.disable();

@@ -89,7 +89,7 @@ public:
 	 */
 	const char *get_name() const { return get_besch()->get_name(); }
 	const char *get_mass() const { return get_besch()->get_mass(); }
-	uint16 get_preis() const { return get_besch()->get_preis(); }
+	uint16 get_fare(uint32 distance, uint32 starting_distance = 0) const { return (uint16) get_besch()->get_fare(distance, starting_distance); }
 	uint8 get_catg() const { return get_besch()->get_catg(); }
 	uint8 get_index() const { return index; }
 
@@ -134,7 +134,7 @@ public:
 			menge == w.menge &&
 			to_factory == w.to_factory &&
 			ziel  == w.ziel  &&
-			// Only merge the destination *position* if the load is not freight
+			// Only merge the destination *position* if the load is freight
 			(index < 2 || zielpos == w.zielpos) &&
 			origin == w.origin &&
 			last_transfer == w.last_transfer;

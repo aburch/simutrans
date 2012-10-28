@@ -39,16 +39,6 @@ public:
 	* @author Hj. Malthaner
 	*/
 	const char* get_hilfe_datei() const { return "baum_build.txt"; }
-
-	/**
-	* This method is called if an action is triggered
-	* @author Hj. Malthaner
-	*
-	* Returns true, if action is done and no more
-	* components should be triggered.
-	* V.Meyer
-	*/
-//	bool action_triggered( gui_action_creator_t *komp, value_t extra);
 };
 
 #endif

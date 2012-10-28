@@ -1,8 +1,8 @@
 /*
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner
  *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans project under the artistic license.
+ * (see license.txt)
  */
 
 /*
@@ -33,6 +33,12 @@ class schedule_t;
 class signal_t;
 class ware_t;
 class route_t;
+
+// for aircrafts:
+// length of the holding pattern.
+#define HOLDING_PATTERN_LENGTH 16
+// offset of end tile of the holding pattern before touchdown tile.
+#define HOLDING_PATTERN_OFFSET 3
 
 /*----------------------- Fahrdings ------------------------------------*/
 
@@ -125,16 +131,17 @@ public:
 	virtual image_id get_bild() const {return bild;}
 
 	sint8 get_hoff() const {return hoff;}
-	uint8 get_steps() const {return steps;}
+	uint8 get_steps() const {return steps;} // number of steps pass on the current tile. 
+	uint8 get_steps_next() const {return steps_next;} // total number of steps to pass on the current tile - 1. Mostly VEHICLE_STEPS_PER_TILE - 1 for straight route or diagonal_vehicle_steps_per_tile - 1 for a diagonal route.
 
 	// to make smaller steps than the tile granularity, we have to calculate our offsets ourselves!
 	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const;
 
 	virtual void rotate90();
 
-	ribi_t::ribi calc_richtung(koord start, koord ende) const;
+	static ribi_t::ribi calc_richtung(koord start, koord ende);
 	ribi_t::ribi calc_set_richtung(koord start, koord ende);
-	ribi_t::ribi calc_check_richtung(koord start, koord ende);
+	uint16 get_tile_steps(const koord &start, const koord &ende, /*out*/ ribi_t::ribi &richtung) const;
 
 	ribi_t::ribi get_fahrtrichtung() const {return fahrtrichtung;}
 
@@ -182,8 +189,9 @@ private:
 	* frictionforce = gamma*speed*weight
 	* since the total weight is needed a lot of times, we save it
 	* @author prissi
+	* BG, 18.10.2011: in tons in simutrans standard, in kg in simutrans experimental
 	*/
-	uint16 sum_weight;
+	uint32 sum_weight; 
 
 	bool hop_check();
 
@@ -302,6 +310,8 @@ protected:
 	bool check_access(const weg_t* way) const;
 
 public:
+	sint32 calc_speed_limit(const weg_t *weg, const weg_t *weg_previous, fixed_list_tpl<sint16, 16>* cornering_data, ribi_t::ribi current_direction, ribi_t::ribi previous_direction);
+
 	virtual bool ist_befahrbar(const grund_t* ) const {return false;}
 
 	inline bool check_way_constraints(const weg_t &way) const;
@@ -354,18 +364,18 @@ public:
 	void set_besch(const vehikel_besch_t* value) { besch = value; }
 
 	/**
-	* @return die Betriebskosten in Cr/100Km
+	* @return die running_cost in Cr/100Km
 	* @author Hj. Malthaner
 	*/
-	int get_betriebskosten() const { return besch->get_betriebskosten(); }
-	int get_betriebskosten(karte_t* welt) const { return besch->get_betriebskosten(welt); }
+	int get_running_cost() const { return besch->get_running_cost(); }
+	int get_running_cost(karte_t* welt) const { return besch->get_running_cost(welt); }
 
 	/**
 	* @return fixed maintenance costs in Cr/100months
 	* @author Bernd Gabriel
 	*/
-	uint32 get_fixed_maintenance() const { return besch->get_fixed_maintenance(); }
-	uint32 get_fixed_maintenance(karte_t* welt) const { return besch->get_fixed_maintenance(welt); }
+	uint32 get_fixed_cost() const { return besch->get_fixed_cost(); }
+	uint32 get_fixed_cost(karte_t* welt) const { return besch->get_fixed_cost(welt); }
 
 	/**
 	* spielt den Sound, wenn das Vehikel sichtbar ist
@@ -473,9 +483,9 @@ public:
 		Northwest = 315,
 	};
 
-	direction_degrees get_direction_degrees(ribi_t::ribi);
+	direction_degrees get_direction_degrees(ribi_t::ribi) const;
 
-	sint16 compare_directions(sint16 first_direction, sint16 second_direction);
+	sint16 compare_directions(sint16 first_direction, sint16 second_direction) const;
 
 	/**
 	* loescht alle fracht aus dem Fahrzeug
@@ -550,7 +560,7 @@ public:
 	// vehicles in reverse formation.
 	ribi_t::ribi get_direction_of_travel();
 
-	uint16 get_sum_weight() const { return sum_weight; }
+	uint16 get_sum_weight() const { return (sum_weight + 499) / 1000; }
 
 	// @author: jamespetts
 	uint16 get_overcrowding() const;
@@ -566,6 +576,9 @@ public:
 
 	void set_current_livery(const char* liv) { current_livery = liv; }
 	const char* get_current_livery() const { return current_livery.c_str(); }
+
+	virtual sint32 get_takeoff_route_index() const { return INVALID_INDEX; }
+	virtual sint32 get_touchdown_route_index() const { return INVALID_INDEX; }
 };
 
 
@@ -668,7 +681,7 @@ public:
 
 	waggon_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last);
 	waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t *cnv); // start und fahrplan
-	~waggon_t();
+	virtual ~waggon_t();
 
 	virtual void set_convoi(convoi_t *c);
 
@@ -755,8 +768,6 @@ protected:
 
 	void calc_drag_coefficient(const grund_t *gr);
 
-	//uint32 calc_modified_speed_limit(const weg_t *w, uint8 s, ribi_t::ribi current_direction) { return base_limit; }  //Ships do not modify speed limits.
-
 	bool ist_befahrbar(const grund_t *bd) const;
 
 public:
@@ -796,9 +807,9 @@ private:
 #ifdef USE_DIFFERENT_WIND
 	static uint8 get_approach_ribi( koord3d start, koord3d ziel );
 #endif
-	// only used for route search and approach vectors of get_ribi() (do not need saving)
-	koord3d search_start;
-	koord3d search_end;
+	//// only used for route search and approach vectors of get_ribi() (do not need saving)
+	//koord3d search_start;
+	//koord3d search_end;
 
 	enum flight_state { taxiing=0, departing=1, flying=2, landing=3, looking_for_parking=4, circling=5, taxiing_to_halt=6  };
 
@@ -808,6 +819,25 @@ private:
 	sint16 target_height;
 	uint32 suchen, touchdown, takeoff;
 
+	// BG, 07.08.2012: extracted from calc_route()
+	bool calc_route_internal(
+		karte_t *welt, 
+		const koord3d &start, 
+		const koord3d &ziel, 
+		sint32 max_speed, 
+		uint32 weight, 
+		aircraft_t::flight_state &state,
+		sint16 &flughoehe, 
+		sint16 &target_height,
+		bool &runway_too_short,
+		uint32 &takeoff, 
+		uint32 &touchdown,
+		uint32 &suchen, 
+		route_t &route);
+
+	// BG, 08.08.2012: extracted from ist_weg_frei()
+    bool reroute(const uint16 route_index, const koord3d &ziel);
+
 protected:
 	// jumps to next tile and correct the height ...
 	void hop();
@@ -816,7 +846,7 @@ protected:
 
 	void betrete_feld();
 
-	bool block_reserver( uint32 start, uint32 end, bool reserve ) const;
+	int block_reserver( uint32 start, uint32 end, bool reserve ) const;
 
 	// find a route and reserve the stop position
 	bool find_route_to_stop_position();
@@ -826,12 +856,14 @@ public:
 	aircraft_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv); // start und fahrplan
 
 	// since we are drawing ourselves, we must mark ourselves dirty during deletion
-	~aircraft_t();
+	virtual ~aircraft_t();
 
 	virtual waytype_t get_waytype() const { return air_wt; }
 
 	// returns true for the way search to an unknown target.
 	virtual bool ist_ziel(const grund_t *,const grund_t *) const;
+
+	//bool can_takeoff_here(const grund_t *gr, ribi_t::ribi test_dir, uint8 len) const;
 
 	// return valid direction
 	virtual ribi_t::ribi get_ribi(const grund_t* ) const;
@@ -868,11 +900,14 @@ public:
 	// the drag calculation happens it calc_height
 	void calc_drag_coefficient(const grund_t*) {}
 
-	//uint32 calc_modified_speed_limit(const weg_t *w, uint32 base_limit, uint8 s, ribi_t::ribi current_direction) { return base_limit; } 
-
 	bool is_on_ground() const { return flughoehe==0  &&  !(state==circling  ||  state==flying); }
 
 	const char * ist_entfernbar(const spieler_t *sp);
+
+	bool runway_too_short;
+
+	virtual sint32 get_takeoff_route_index() const { return (sint32) takeoff; }
+	virtual sint32 get_touchdown_route_index() const { return (sint32) touchdown; }
 };
 
 sint16 get_friction_of_waytype(waytype_t waytype);

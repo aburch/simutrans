@@ -1,15 +1,8 @@
 /*
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner
  *
- * This file is part of the Simutrans project under the artistic licence.
+ * This file is part of the Simutrans project under the artistic license.
  */
-
-#include <stdio.h>
-#include <dirent.h>
-#include <stddef.h>
-#include <string.h>
-#include <stdlib.h>
-#include <math.h>
 
 #ifndef _MSC_VER
 #include <unistd.h>
@@ -20,32 +13,18 @@
 // windows.h defines min and max macros which we don't want
 #define NOMINMAX 1
 #include <windows.h>
-#else
-#	include <limits.h>
-#ifndef  __HAIKU__
-#include <sys/errno.h>
-#else
-#include <posix/errno.h>
 #endif
-#endif
-
-#undef min
-#undef max
 
 #include "macros.h"
-#include "simmain.h"
 #include "simsys.h"
 
-#include <time.h>
 
-struct sys_event sys_event;
-
-int dr_os_init(const int*)
+bool dr_os_init(const int*)
 {
 	// prepare for next event
 	sys_event.type = SIM_NOEVENT;
 	sys_event.code = 0;
-	return TRUE;
+	return true;
 }
 
 resolution dr_query_screen_resolution()
@@ -57,13 +36,12 @@ resolution dr_query_screen_resolution()
 // open the window
 int dr_os_open(int, int, int)
 {
-	return TRUE;
+	return 1;
 }
 
-// shut down SDL
-int dr_os_close(void)
+
+void dr_os_close()
 {
-	return TRUE;
 }
 
 // reiszes screen
@@ -82,10 +60,6 @@ unsigned short *dr_textur_init()
 unsigned int get_system_color(unsigned int, unsigned int, unsigned int)
 {
 	return 1;
-}
-
-void dr_setRGB8multi(int, int, unsigned char*)
-{
 }
 
 void dr_prepare_flush()
@@ -166,39 +140,9 @@ void dr_sleep(uint32 msec)
 #endif
 }
 
-bool dr_fatal_notify(const char* msg, int choices)
-{
-	fputs(msg, stderr);
-	return choices;
-}
 
 int main(int argc, char **argv)
 {
-#ifdef _WIN32
-	char pathname[1024];
-
-	// prepare commandline
-	GetModuleFileNameA( GetModuleHandle(NULL), pathname, 1024 );
-	argv[0] = pathname;
-#else
-#ifndef __BEOS__
-#if defined __GLIBC__
-	/* glibc has a non-standard extension */
-	char* buffer2 = NULL;
-#else
-	char buffer2[PATH_MAX];
-#endif
-	char buffer[PATH_MAX];
-	int length = readlink("/proc/self/exe", buffer, lengthof(buffer) - 1);
-	if (length != -1) {
-		buffer[length] = '\0'; /* readlink() does not NUL-terminate */
-		argv[0] = buffer;
-	}
-	// no process file system => need to parse argv[0]
-	/* should work on most unix or gnu systems */
-	argv[0] = realpath(argv[0], buffer2);
-#endif
-#endif
 	gettimeofday(&first,NULL);
-	return simu_main(argc, argv);
+	return sysmain(argc, argv);
 }

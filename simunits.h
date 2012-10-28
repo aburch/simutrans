@@ -4,7 +4,7 @@
  * Copyright 2010 Nathanael C. Nerode
  * & Simutrans Contributors
  * This file is part of the Simutrans project and is available under the
- * Artistic License -- see licence.txt
+ * Artistic License -- see license.txt
  */
 
 /*
@@ -66,6 +66,14 @@
  * This conversion still lives in dings/leitung2.h, not here
  */
 
+#include "utils/float32e8_t.h"
+
+/*
+ * Distance units: number of meters per tile.
+ * In Simutrans Standard this is always:
+ */
+#define STANDARD_METERS_PER_TILE (1000)
+
 /*
  * Distance units: conversion between "vehicle steps" and "yards"
  * In bitshift form
@@ -87,7 +95,7 @@
  * vehikel_t.
  */
 #define VEHICLE_STEPS_PER_TILE (256)
-#define VEHICLE_STEPS_PER_TILE_SHIFT 8
+#define VEHICLE_STEPS_PER_TILE_SHIFT (8)
 
 /*
  * Shift from yards to tiles, derived quantity
@@ -130,7 +138,66 @@
  * @author Hj. Matthaner
  * this is speed * 2^10 /  VEHICLE_SPEED_FACTOR
  */
-#define kmh_to_speed(speed) (((speed) << 10) / VEHICLE_SPEED_FACTOR)
+#define kmh_to_speed(kmh) (((kmh) << 10) / VEHICLE_SPEED_FACTOR)
+
+
+// GEAR_FACTOR: a gear of 1.0 is stored as 64
+#define GEAR_FACTOR 64
+
+#define DT_TIME_FACTOR 64
+
+#define WEIGHT_UNLIMITED ((std::numeric_limits<sint32>::max)())
+
+// anything greater than 2097151 will give us overflow in kmh_to_speed. 
+#define KMH_SPEED_UNLIMITED (300000)
+
+/**
+ * Conversion between km/h and m/s
+ */
+
+// scale to convert between km/h and m/s
+static const float32e8_t kmh2ms((uint32) 10, (uint32) 36);
+static const float32e8_t ms2kmh((uint32) 36, (uint32) 10);
+
+/**
+ * Conversion between simutrans speed and m/s
+ */
+
+// scale to convert between simutrans speed and m/s
+const float32e8_t simspeed2ms((uint32) 10 * VEHICLE_SPEED_FACTOR, (uint32) 36 * 1024);
+const float32e8_t ms2simspeed((uint32) 36 * 1024, (uint32) 10 * VEHICLE_SPEED_FACTOR);
+
+inline float32e8_t speed_to_v(const sint32 speed)
+{
+	return simspeed2ms * speed;
+}
+
+inline sint32 v_to_speed(const float32e8_t &v)
+{
+	return (sint32)(ms2simspeed * v + float32e8_t::half);
+}
+
+/**
+ * Conversion between simutrans steps and meters
+ */
+// scale to convert between simutrans steps and meters
+//const float32e8_t yards2m((uint32) 10 * VEHICLE_SPEED_FACTOR, (uint32) 36 * 1024 * DT_TIME_FACTOR);
+//const float32e8_t m2yards((uint32) 36 * 1024 * DT_TIME_FACTOR, (uint32) 10 * VEHICLE_SPEED_FACTOR);
+const float32e8_t steps2yards((uint32)1 << YARDS_PER_VEHICLE_STEP_SHIFT);
+//
+//inline float32e8_t yards_to_x(const sint32 yards)
+//{
+//	return yards2m * yards;
+//}
+//
+//inline sint32 x_to_yards(const float32e8_t &x)
+//{
+//	return (sint32)(m2yards * x + float32e8_t::half);
+//}
+
+#define KMH_MIN 4
+static const sint32 SPEED_MIN = kmh_to_speed(KMH_MIN);
+static const float32e8_t V_MIN = kmh2ms * KMH_MIN;
 
 /*
  * Converts speed (yards per tick) into tiles per month

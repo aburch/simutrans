@@ -5,6 +5,7 @@
  * (see licence.txt)
  */
 
+#include "components/gui_button.h"
 #include "components/list_button.h"
 
 #include "message_stats_t.h"
@@ -13,14 +14,11 @@
 
 #include "../simgraph.h"
 #include "../simcolor.h"
-#include "../simcity.h"
 #include "../simwin.h"
 #include "../simworld.h"
 #include "../simskin.h"
 
 #include "../dataobj/umgebung.h"
-
-#include "../gui/stadt_info.h"
 
 
 message_stats_t::message_stats_t(karte_t *w) :
@@ -199,7 +197,7 @@ void message_stats_t::zeichnen(koord offset)
 		}
 	}
 
-	struct clip_dimension cd = display_get_clip_wh();
+	clip_dimension const cd = display_get_clip_wh();
 	sint16 y = offset.y+2;
 
 	// changes to loop affecting x_size must be copied to ::recalc_size()

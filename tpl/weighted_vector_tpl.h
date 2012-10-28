@@ -8,6 +8,8 @@
 #ifndef ITERATE_PTR
 #define ITERATE_PTR(collection,enumerator) for(uint32 enumerator = 0; enumerator < collection->get_count(); enumerator++)
 #endif 
+#include <cstddef>
+#include <iterator>
 
 #include <cstddef>
 #include <iterator>
@@ -322,6 +324,20 @@ template<class T> class weighted_vector_tpl
 				total_weight -= delta_weight;
 			}
 			return true;
+		}
+
+		/**
+		 * Update the weights of all elements.  The new weight of each element is
+		 * retrieved from get_weight().
+		 */
+		template<typename U> void update_weights(U& get_weight)
+		{
+			unsigned long sum = 0;
+			for (nodestruct* i = nodes, * const end = i + count; i != end; ++i) {
+				i->weight = sum;
+				sum      += get_weight(i->data);
+			}
+			total_weight = sum;
 		}
 
 		/** removes element, if contained */

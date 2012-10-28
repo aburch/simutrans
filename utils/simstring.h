@@ -98,4 +98,9 @@ void rtrim(char *);
  */
 const char * ltrim(const char *);
 
+/**
+ * Returns a pointer to the rest of str if str starts with start.
+ */
+char const* strstart(char const* str, char const* start);
+
 #endif

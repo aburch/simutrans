@@ -310,8 +310,7 @@ settings_t::settings_t() :
 	max_bonus_min_distance = 256;
 	median_bonus_distance = 0;
 	max_bonus_multiplier_percent = 300;
-	meters_per_tile = 250;
-	steps_per_km = (1000 * VEHICLE_STEPS_PER_TILE) / meters_per_tile;
+	set_meters_per_tile(250);
 	tolerable_comfort_short = 15;
 	tolerable_comfort_median_short = 60;
 	tolerable_comfort_median_median = 100;
@@ -395,6 +394,8 @@ settings_t::settings_t() :
 
 	speed_bonus_multiplier_percent = 100;
 
+	allow_airports_without_control_towers = true;
+
 	allow_buying_obsolete_vehicles = true;
 
 	// default: load also private extensions of the pak file
@@ -435,8 +436,12 @@ settings_t::settings_t() :
 
 	toll_free_public_roads = false;
 
+	max_elevated_way_building_level = 2;
+
 	city_threshold_size = 1000;
 	capital_threshold_size = 10000;
+	max_small_city_size = 25000;
+	max_city_size = 250000;
 
 	allow_making_public = true;
 	
@@ -1276,18 +1281,43 @@ void settings_t::rdwr(loadsave_t *file)
 				file->rdwr_bool(allow_making_public);
 			}
 		}
+
+		if(file->get_version()>=111002 && file->get_experimental_version() == 0) 
+		{
+			// Was bonus_basefactor
+			uint32 dummy = 0;
+			file->rdwr_long(dummy);
+		}
+
+		if(file->get_experimental_version() >= 10 && file->get_version() >= 111002)
+		{
+			file->rdwr_long(max_small_city_size);
+			file->rdwr_long(max_city_size);
+			file->rdwr_byte(max_elevated_way_building_level);
+			file->rdwr_bool(allow_airports_without_control_towers);
+		}
 	}
 
 #ifdef DEBUG_SIMRAND_CALLS
+	for (vector_tpl<const char *>::iterator i = karte_t::random_callers.begin(); i < karte_t::random_callers.end(); ++i)
+	{
+		free((void*)(*i));
+	}
 	karte_t::random_callers.clear();
 	karte_t::random_calls = 0;
-	char* buf = new char[256];
+	char buf[256];
 	sprintf(buf,"Initial counter: %i; seed: %i", get_random_counter(), get_random_seed());
-	karte_t::random_callers.append(buf);
+	dbg->message("settings_t::rdwr", buf);
+	karte_t::random_callers.append(strdup(buf));
 
 	if(  umgebung_t::networkmode  ) {
 		// to have games synchronized, transfer random counter too
 		setsimrand(get_random_counter(), 0xFFFFFFFFu );
+
+		sprintf(buf,"Initial counter: %i; seed: %i", get_random_counter(), get_random_seed());
+		dbg->message("settings_t::rdwr", buf);
+		karte_t::random_callers.append(strdup(buf));
+
 		translator::init_custom_names(get_name_language_id());
 	}
 #endif
@@ -1307,9 +1337,28 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	// @author: jamespetts
 	uint16 distance_per_tile_integer = meters_per_tile / 10;
 	meters_per_tile = contents.get_int("distance_per_tile", distance_per_tile_integer) * 10;
-	meters_per_tile = contents.get_int("meters_per_tile", meters_per_tile);
-	steps_per_km = (1000 * VEHICLE_STEPS_PER_TILE) / meters_per_tile;
+	set_meters_per_tile(contents.get_int("meters_per_tile", meters_per_tile));
 	float32e8_t distance_per_tile(meters_per_tile, 1000);
+
+		// special day/night colors
+#if COLOUR_DEPTH != 0
+	// special day/night colors
+	for(  int i=0;  i<LIGHT_COUNT;  i++  ) {
+		char str[256];
+		sprintf( str, "special_color[%i]", i );
+		int *c = contents.get_ints( str );
+		if(  c[0]>=6  ) {
+			// now update RGB values
+			for(  int j=0;  j<3;  j++  ) {
+				display_day_lights[i*3+j] = c[j+1];
+			}
+			for(  int j=0;  j<3;  j++  ) {
+				display_night_lights[i*3+j] = c[j+4];
+			}
+		}
+		delete [] c;
+	}
+#endif
 
 	umgebung_t::water_animation = contents.get_int("water_animation_ms", umgebung_t::water_animation);
 	umgebung_t::ground_object_probability = contents.get_int("random_grounds_probability", umgebung_t::ground_object_probability);
@@ -1346,6 +1395,10 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	umgebung_t::show_names = contents.get_int("show_names", umgebung_t::show_names );
 	umgebung_t::show_month = contents.get_int("show_month", umgebung_t::show_month );
 	umgebung_t::max_acceleration = contents.get_int("fast_forward", umgebung_t::max_acceleration );
+	umgebung_t::fps = contents.get_int("frames_per_second",umgebung_t::fps );
+	umgebung_t::simple_drawing_tile_size = contents.get_int("simple_drawing_tile_size",umgebung_t::simple_drawing_tile_size );
+	umgebung_t::visualize_schedule = contents.get_int("visualize_schedule",umgebung_t::visualize_schedule )!=0;
+	umgebung_t::show_vehicle_states = contents.get_int("show_vehicle_states",umgebung_t::show_vehicle_states );
 
 	// network stuff
 	umgebung_t::server_frames_ahead = contents.get_int("server_frames_ahead", umgebung_t::server_frames_ahead );
@@ -1416,9 +1469,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 		const char *test = ltrim(contents.get(name) );
 		if(*test) {
 			const int add_river = i<umgebung_t::river_types ? i : umgebung_t::river_types;
-			free( (void *)(umgebung_t::river_type[add_river]) );
-			umgebung_t::river_type[add_river] = NULL;
-			umgebung_t::river_type[add_river] = strdup( test );
+			umgebung_t::river_type[add_river] = test;
 			if(  add_river==umgebung_t::river_types  ) {
 				umgebung_t::river_types++;
 			}
@@ -1530,9 +1581,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 		num_intercity_roads = 1;
 	}
 
-
 	umgebung_t::autosave = (contents.get_int("autosave", umgebung_t::autosave) );
-	umgebung_t::fps = contents.get_int("frames_per_second",umgebung_t::fps );
 
 	// routing stuff
 	uint16 city_short_range_percentage = passenger_routing_local_chance;
@@ -1574,7 +1623,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	fussgaenger = contents.get_int("random_pedestrians", fussgaenger ) != 0;
 	show_pax = contents.get_int("stop_pedestrians", show_pax ) != 0;
-	verkehr_level = contents.get_int("citycar_level", verkehr_level );	// ten normal years
+	verkehr_level = contents.get_int("citycar_level", verkehr_level );
 	stadtauto_duration = contents.get_int("default_citycar_life", stadtauto_duration );	// ten normal years
 	allow_buying_obsolete_vehicles = contents.get_int("allow_buying_obsolete_vehicles", allow_buying_obsolete_vehicles );
 	used_vehicle_reduction  = clamp( contents.get_int("used_vehicle_reduction", used_vehicle_reduction ), 0, 1000 );
@@ -1872,6 +1921,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	speed_bonus_multiplier_percent = contents.get_int("speed_bonus_multiplier_percent", speed_bonus_multiplier_percent);
 
+	allow_airports_without_control_towers = contents.get_int("allow_airports_without_control_towers", allow_airports_without_control_towers);
+
 	// Multiply by 10 because journey times are measured in tenths of minutes.
 	//@author: jamespetts
 	const uint16 min_local_tolerance_minutes = contents.get_int("min_local_tolerance", (min_local_tolerance / 10));
@@ -1897,6 +1948,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	min_wait_airport = contents.get_int("min_wait_airport", min_wait_airport) * 10; // Stored as 10ths of minutes
 
 	toll_free_public_roads = (bool)contents.get_int("toll_free_public_roads", toll_free_public_roads);
+
+	max_elevated_way_building_level = (uint8)contents.get_int("max_elevated_way_building_level", max_elevated_way_building_level);
 
 	assume_everywhere_connected_by_road = (bool)(contents.get_int("assume_everywhere_connected_by_road", assume_everywhere_connected_by_road));
 
@@ -1939,6 +1992,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	city_threshold_size  = contents.get_int("city_threshold_size", city_threshold_size);
 	capital_threshold_size  = contents.get_int("capital_threshold_size", capital_threshold_size);
+	max_small_city_size  = contents.get_int("max_small_city_size", max_small_city_size);
+	max_city_size  = contents.get_int("max_city_size", max_city_size);
 	spacing_shift_mode = contents.get_int("spacing_shift_mode", spacing_shift_mode);
 	spacing_shift_divisor = contents.get_int("spacing_shift_divisor", spacing_shift_divisor);
 
@@ -2217,4 +2272,17 @@ void settings_t::set_allow_routing_on_foot(bool value)
 { 
 	allow_routing_on_foot = value; 
 	path_explorer_t::refresh_category(0);
+}
+
+void settings_t::set_meters_per_tile(uint16 value) 
+{ 
+	meters_per_tile = value; 
+	steps_per_km = (1000 * VEHICLE_STEPS_PER_TILE) / meters_per_tile; 
+	simtime_factor = float32e8_t(meters_per_tile, 1000);
+	steps_per_meter = float32e8_t(VEHICLE_STEPS_PER_TILE, meters_per_tile);
+	meters_per_step = float32e8_t(meters_per_tile, VEHICLE_STEPS_PER_TILE);
+
+	// As simspeed2ms = meters_per_yard / seconds_per_tick
+	// seconds_per_tick = meters_per_step / yards_per_step / simspeed2ms
+	seconds_per_tick = meters_per_step / ( (1<<YARDS_PER_VEHICLE_STEP_SHIFT) * simspeed2ms); 
 }

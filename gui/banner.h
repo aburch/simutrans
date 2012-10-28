@@ -52,16 +52,9 @@ public:
 	*/
 	PLAYER_COLOR_VAL get_titelcolor() const {return WIN_TITEL; }
 
-	/* returns true, if inside window area ...
-	* @author Hj. Malthaner
-	*/
-	bool getroffen(int , int ) { return true; }
+	bool getroffen(int, int) OVERRIDE { return true; }
 
-	/* Events werden hiermit an die GUI-Komponenten
-	* gemeldet
-	* @author Hj. Malthaner
-	*/
-	bool infowin_event(const event_t *ev);
+	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**
 	* komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
@@ -71,7 +64,7 @@ public:
 	*/
 	void zeichnen(koord pos, koord gr);
 
-	bool action_triggered( gui_action_creator_t *komp, value_t extra);
+	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };
 
 #endif

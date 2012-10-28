@@ -1,20 +1,10 @@
 #include <string>
 #include <stdio.h>
 
-#ifndef _MSC_VER
-#include <unistd.h>
-#include <dirent.h>
-#else
-#include <io.h>
-#include <direct.h>
-#endif
-#include <sys/stat.h>
-#include <string.h>
-#include <time.h>
-
 #include "../simdebug.h"
 #include "pakselector.h"
 #include "../dataobj/umgebung.h"
+#include "../simsys.h"
 #include "components/list_button.h"
 
 
@@ -131,7 +121,7 @@ void pakselector_t::fill_list()
 		int y = 0;
 		FOR(slist_tpl<entry>, const& i, entries) {
 			char path[1024];
-			sprintf(path,"%s%s", umgebung_t::user_dir, i.button->get_text() );
+			sprintf(path,"%saddons/%s", umgebung_t::user_dir, i.button->get_text() );
 			i.del->groesse.x += 150;
 			i.del->set_text("Load with addons");
 			i.button->set_pos(koord(150,0) + i.button->get_pos());

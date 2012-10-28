@@ -16,6 +16,8 @@
 #include "components/gui_textinput.h"
 #include "components/gui_numberinput.h"
 
+#include "../tpl/array2d_tpl.h"
+
 class settings_t;
 class karte_t;
 
@@ -29,13 +31,12 @@ class welt_gui_t  : public gui_frame_t, private action_listener_t
 private:
 	settings_t* sets;
 
-	enum { preview_size = 64 };
-
 	/**
 	* Mini Karten-Preview
 	* @author Hj. Malthaner
 	*/
-	unsigned char karte[preview_size*preview_size];
+	array2d_tpl<uint8> karte;
+	koord karte_size;
 
 	bool load_heightfield, loaded_heightfield;
 	bool load;
@@ -43,6 +44,10 @@ private:
 	bool close;
 	bool scenario;
 	bool quit;
+
+	double city_density;
+	double industry_density;
+	double attraction_density;
 
 	int old_lang;
 
@@ -79,6 +84,9 @@ private:
 	*/
 	bool update_from_heightfield(const char *filename);
 
+	void resize_preview();
+
+	void update_densities();
 
 public:
 	welt_gui_t(karte_t*, settings_t*);
@@ -104,12 +112,7 @@ public:
 	// does not work during new world dialoge
 	virtual bool has_sticky() const { return false; }
 
-	/**
-	 * Events werden hiermit an die GUI-Komponenten
-	 * gemeldet
-	 * @author Hj. Malthaner
-	 */
-	bool infowin_event(const event_t *ev);
+	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**
 	 * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
@@ -120,15 +123,7 @@ public:
 	 */
 	void zeichnen(koord pos, koord gr);
 
-	/**
-	 * This method is called if an action is triggered
-	 * @author Hj. Malthaner
-	 *
-	 * Returns true, if action is done and no more
-	 * components should be triggered.
-	 * V.Meyer
-	 */
-	bool action_triggered( gui_action_creator_t *komp, value_t extra);
+	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };
 
 #endif

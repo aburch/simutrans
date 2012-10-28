@@ -33,8 +33,6 @@
 //  Daher lieber alle Instanzen hier versammeln.
 /////////////////////////////////////////////////////////////////////////////
 
-inthashtable_tpl<obj_type, obj_reader_t *> *obj_reader_t::obj_reader = NULL;
-
 text_reader_t text_reader_t::the_instance;
 image_reader_t image_reader_t::the_instance;
 imagelist_reader_t imagelist_reader_t::the_instance;

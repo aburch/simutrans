@@ -5,7 +5,6 @@
  * (see licence.txt)
  */
 
-#include "../../simdebug.h"
 #include "gui_tab_panel.h"
 #include "../../simevent.h"
 #include "../../simgraph.h"
@@ -13,7 +12,6 @@
 #include "../../simwin.h"
 
 #include "../../besch/skin_besch.h"
-#include "../../besch/bild_besch.h"
 
 #define IMG_WIDTH 20
 
@@ -208,7 +206,7 @@ void gui_tab_panel_t::zeichnen(koord parent_pos)
 		int mx = get_maus_x()-parent_pos.x-pos.x-11;
 		int text_x = 4;
 		int i=0;
-		FOR(slist_tpl<tab>, const& iter, tabs) {
+		FORX(slist_tpl<tab>, const& iter, tabs, ++i) {
 			if(  i>=offset_tab  ) {
 				char const* const text = iter.title;
 				const int width = text ? proportional_string_width( text ) : IMG_WIDTH;

@@ -67,7 +67,7 @@ void route_t::append(const route_t *r)
 
 	while (!route.empty() && back() == r->front()) {
 		// skip identical end tiles
-		route.remove_at(get_count()-1);
+		route.pop_back();
 	}
 	// then append
 	for( unsigned int i=0;  i<=hops;  i++ ) {
@@ -84,7 +84,7 @@ void route_t::insert(koord3d k)
 
 void route_t::remove_koord_from(uint32 i) {
 	while(  i+1 < get_count()  ) {
-		route.remove_at(get_count()-1);
+		route.pop_back();
 	}
 }
 
@@ -132,12 +132,73 @@ DBG_MESSAGE("route_t::append_straight_route()","start from (%i,%i) to (%i,%i)",p
 }
 
 
+static bool is_in_list(vector_tpl<route_t::ANode*> const& list, grund_t const* const to)
+{
+	FOR(vector_tpl<route_t::ANode*>, const i, list) {
+		if (i->gr == to) {
+			return true;
+		}
+	}
+	return false;
+}
+
+
 // node arrays
-route_t::ANode* route_t::nodes=NULL;
 uint32 route_t::MAX_STEP=0;
-#ifdef DEBUG
-bool route_t::node_in_use=false;
-#endif
+uint32 route_t::max_used_steps=0;
+route_t::ANode *route_t::_nodes[MAX_NODES_ARRAY];
+bool route_t::_nodes_in_use[MAX_NODES_ARRAY]; // semaphores, since we only have few nodes arrays in memory
+
+void route_t::INIT_NODES(uint32 max_route_steps, uint32 world_width, uint32 world_height)
+{
+	for (int i = 0; i < MAX_NODES_ARRAY; ++i)
+	{
+		_nodes[i] = NULL;
+		_nodes_in_use[i] = false;
+	}
+
+	// may need very much memory => configurable
+	MAX_STEP = min(max_route_steps, world_width * world_height); 
+	for (int i = 0; i < MAX_NODES_ARRAY; ++i)
+	{
+		_nodes[i] = new ANode[MAX_STEP + 4 + 2];
+	}
+}
+
+void route_t::TERM_NODES()
+{
+	if (MAX_STEP)
+	{
+		MAX_STEP = 0;
+		for (int i = 0; i < MAX_NODES_ARRAY; ++i)
+		{
+			delete [] _nodes[i];
+			_nodes[i] = NULL;
+			_nodes_in_use[i] = false;
+		}
+	}
+}
+
+uint8 route_t::GET_NODES(ANode **nodes) 
+{
+	for (int i = 0; i < MAX_NODES_ARRAY; ++i)
+		if (!_nodes_in_use[i])
+		{
+			_nodes_in_use[i] = true;
+			*nodes = _nodes[i];
+			return i;
+		}
+	dbg->fatal("GET_NODE","called while list in use");
+	return 0;
+}
+
+void route_t::RELEASE_NODES(uint8 nodes_index) 
+{
+	if (!_nodes_in_use[nodes_index])
+		dbg->fatal("RELEASE_NODE","called while list free"); 
+	_nodes_in_use[nodes_index] = false; 
+}
+
 
 /* find the route to an unknow location
  * @author prissi
@@ -158,15 +219,16 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 	const waytype_t wegtyp = fahr->get_waytype();
 
 	// memory in static list ...
-	if(nodes==NULL) {
-		MAX_STEP = welt->get_settings().get_max_route_steps();
-		nodes = new ANode[MAX_STEP];
+	if(!MAX_STEP)
+	{
+		INIT_NODES(welt->get_settings().get_max_route_steps(), welt->get_groesse_x(), welt->get_groesse_y());
 	}
 
 	INT_CHECK("route 347");
 
 	// arrays for A*
-	static vector_tpl<ANode*> open;
+	//static 
+	vector_tpl<ANode*> open;
 	vector_tpl<ANode*> close;
 
 	// nothing in lists
@@ -180,10 +242,13 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 		return false;
 	}
 
-	GET_NODE();
+	ANode *nodes;
+	uint8 ni = GET_NODES(&nodes);
 
 	uint32 step = 0;
 	ANode* tmp = &nodes[step++];
+	if (route_t::max_used_steps < step)
+		route_t::max_used_steps = step;
 	tmp->parent = NULL;
 	tmp->gr = g;
 	tmp->count = 0;
@@ -219,33 +284,13 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 			grund_t* to;
 			if(  (ribi & ribi_t::nsow[r] & start_dir)!=0  // allowed dir (we can restrict the first step by start_dir)
 				&& koord_distance(start.get_2d(),gr->get_pos().get_2d()+koord::nsow[r])<max_depth	// not too far away
-				&& gr->get_neighbour(to, wegtyp, koord::nsow[r])  // is connected
+				&& gr->get_neighbour(to, wegtyp, ribi_t::nsow[r])  // is connected
 				&& fahr->ist_befahrbar(to)	// can be driven on
 			) {
-				unsigned index;
-
 				// already in open list?
-				for(  index=0;  index<open.get_count();  index++  ) {
-					if (open[index]->gr == to) {
-						break;
-					}
-				}
-				// in open list => ignore this
-				if(index<open.get_count()) {
-					continue;
-				}
-
-
+				if (is_in_list(open,  to)) continue;
 				// already in closed list (i.e. all processed nodes)
-				for( index=0;  index<close.get_count();  index++  ) {
-					if (close[index]->gr == to) {
-						break;
-					}
-				}
-				// in close list => ignore this
-				if(index<close.get_count()) {
-					continue;
-				}
+				if (is_in_list(close, to)) continue;
 
 				weg_t* w = to->get_weg(fahr->get_waytype());
 				
@@ -264,6 +309,8 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 
 				// not in there or taken out => add new
 				ANode* k = &nodes[step++];
+				if (route_t::max_used_steps < step)
+					route_t::max_used_steps = step;
 
 				k->parent = tmp;
 				k->gr = to;
@@ -299,9 +346,9 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 			tmp = tmp->parent;
 		}
 		ok = !route.empty();
-  }
+	}
 
-	RELEASE_NODE();
+	RELEASE_NODES(ni);
 	return ok;
 }
 
@@ -352,9 +399,9 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 	bool ziel_erreicht=false;
 
 	// memory in static list ...
-	if(nodes==NULL) {
-		MAX_STEP = welt->get_settings().get_max_route_steps(); // may need very much memory => configurable
-		nodes = new ANode[MAX_STEP + 4 + 2];
+	if(!MAX_STEP)
+	{
+		INIT_NODES(welt->get_settings().get_max_route_steps(), welt->get_groesse_x(), welt->get_groesse_y());
 	}
 
 	INT_CHECK("route 347");
@@ -362,20 +409,27 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 	// there are several variant for maintaining the open list
 	// however, only binary heap and HOT queue with binary heap are worth considering
 #if defined(tpl_HOT_queue_tpl_h)
-    static HOT_queue_tpl <ANode *> queue;
+    ///static 
+	HOT_queue_tpl <ANode *> queue;
 #elif defined(tpl_binary_heap_tpl_h)
-    static binary_heap_tpl <ANode *> queue;
+    //static 
+	binary_heap_tpl <ANode *> queue;
 #elif defined(tpl_sorted_heap_tpl_h)
-    static sorted_heap_tpl <ANode *> queue;
+    //static 
+	sorted_heap_tpl <ANode *> queue;
 #else
-    static prioqueue_tpl <ANode *> queue;
+    //static 
+	prioqueue_tpl <ANode *> queue;
 #endif
 
-	GET_NODE();
+	ANode *nodes;
+	uint8 ni = GET_NODES(&nodes);
 
 	uint32 step = 0;
 	ANode* tmp = &nodes[step];
 	step ++;
+	if (route_t::max_used_steps < step)
+		route_t::max_used_steps = step;
 
 	tmp->parent = NULL;
 	tmp->gr = welt->lookup(start);
@@ -445,7 +499,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 			}
 
 			// a way goes here, and it is not marked (i.e. in the closed list)
-			if((to  ||  gr->get_neighbour(to, wegtyp, koord(next_ribi[r]) ))  &&  fahr->ist_befahrbar(to)  &&  !welt->ist_markiert(to)) 
+			if((to  ||  gr->get_neighbour(to, wegtyp, next_ribi[r]))  &&  fahr->ist_befahrbar(to)  &&  !welt->ist_markiert(to)) 
 			{
 				// Do not go on a tile, where a oneway sign forbids going.
 				// This saves time and fixed the bug, that a oneway sign on the final tile was ignored.
@@ -504,6 +558,8 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 				// add new
 				ANode* k = &nodes[step];
 				step ++;
+				if (route_t::max_used_steps < step)
+					route_t::max_used_steps = step;
 
 				k->parent = tmp;
 				k->gr = to;
@@ -543,8 +599,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 		ok = true;
 	}
 
-	RELEASE_NODE();
-
+	RELEASE_NODES(ni);
 	return ok;
 }
 
@@ -601,7 +656,7 @@ DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x
 				grund_t *gr = welt->lookup(start);
 				const waytype_t wegtyp=fahr->get_waytype();
 
-				while(  max_len>0  &&  gr->get_neighbour(gr,wegtyp,zv)  &&  gr->get_halt()==halt  &&   fahr->ist_befahrbar(gr)   &&  (fahr->get_ribi(gr)&&ribi)!=0  ) {
+				while(  max_len>0  &&  gr->get_neighbour(gr,wegtyp,ribi)  &&  gr->get_halt()==halt  &&   fahr->ist_befahrbar(gr)   &&  (fahr->get_ribi(gr)&&ribi)!=0  ) {
 					// Do not go on a tile, where a oneway sign forbids going.
 					// This saves time and fixed the bug, that a oneway sign on the finaly tile was ignored.
 					ribi_t::ribi go_dir=gr->get_weg(wegtyp)->get_ribi_maske();

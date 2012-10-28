@@ -88,9 +88,8 @@ bool brueckenbauer_t::laden_erfolgreich()
 	bool strasse_da = false;
 	bool schiene_da = false;
 
-	stringhashtable_iterator_tpl<bruecke_besch_t *>iter(bruecken_by_name);
-	while(  iter.next()  ) {
-		const bruecke_besch_t* besch = iter.get_current_value();
+	FOR(stringhashtable_tpl<bruecke_besch_t*>, const& i, bruecken_by_name) {
+		bruecke_besch_t const* const besch = i.value;
 
 		if(besch && besch->get_waytype() == track_wt) {
 			schiene_da = true;
@@ -125,14 +124,14 @@ const bruecke_besch_t *brueckenbauer_t::find_bridge(const waytype_t wtyp, const 
 {
 	const bruecke_besch_t *find_besch=NULL;
 
-	stringhashtable_iterator_tpl<bruecke_besch_t *>iter(bruecken_by_name);
-	while(  iter.next()  ) {
-		const bruecke_besch_t* besch = iter.get_current_value();
+	FOR(stringhashtable_tpl<bruecke_besch_t*>, const& i, bruecken_by_name) {
+		bruecke_besch_t const* const besch = i.value;
 		if(besch->get_waytype() == wtyp) {
 			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 				if(find_besch==NULL  ||
 					(find_besch->get_topspeed()<min_speed  &&  find_besch->get_topspeed()<besch->get_topspeed())  ||
-					(besch->get_topspeed()>=min_speed  &&  besch->get_wartung()<find_besch->get_wartung())
+					(besch->get_topspeed()>=min_speed  &&  (besch->get_wartung()<find_besch->get_wartung() ||
+						(besch->get_wartung()==find_besch->get_wartung() &&  besch->get_preis()<find_besch->get_preis())))
 				) {
 					find_besch = besch;
 				}
@@ -162,9 +161,8 @@ void brueckenbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, s
 	vector_tpl<const bruecke_besch_t*> matching(bruecken_by_name.get_count());
 
 	// list of matching types (sorted by speed)
-	stringhashtable_iterator_tpl<bruecke_besch_t *>iter(bruecken_by_name);
-	while(  iter.next()  ) {
-		const bruecke_besch_t* b = iter.get_current_value();
+	FOR(stringhashtable_tpl<bruecke_besch_t*>, const& i, bruecken_by_name) {
+		bruecke_besch_t const* const b = i.value;
 		if (b->get_waytype() == wtyp && (
 					time == 0 ||
 					(b->get_intro_year_month() <= time && time < b->get_retire_year_month())
@@ -529,7 +527,7 @@ void brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, ko
 	bool need_auffahrt = pos.z == welt->lookup(end)->get_vmove(ribi_typ(-zv));
 	if(need_auffahrt) {  //"Need ramp" (Google)
 		if (weg_t const* const w = welt->lookup(end)->get_weg(weg_besch->get_wtyp())) {
-			need_auffahrt &= w->get_besch()->get_styp()!=weg_besch_t::elevated;
+			need_auffahrt &= w->get_besch()->get_styp()!=weg_t::type_elevated;
 		}
 	}
 
@@ -675,7 +673,7 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 
 		// search neighbors
 		for(int r = 0; r < 4; r++) {
-			if(  (zv == koord::invalid  ||  zv == koord::nsow[r])  &&  from->get_neighbour(to, delete_wegtyp, koord::nsow[r])  &&  !marker.ist_markiert(to)  &&  to->ist_bruecke()  ) {
+			if(  (zv == koord::invalid  ||  zv == koord::nsow[r])  &&  from->get_neighbour(to, delete_wegtyp, ribi_t::nsow[r])  &&  !marker.ist_markiert(to)  &&  to->ist_bruecke()  ) {
 				if(  wegtyp != powerline_wt  ||  (to->find<bruecke_t>()  &&  to->find<bruecke_t>()->get_besch()->get_waytype() == powerline_wt)  ) {
 					tmp_list.insert(to->get_pos());
 					marker.markiere(to);
@@ -710,8 +708,7 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 
 		// finally delete all pillars (if there)
 		gr = welt->lookup_kartenboden(pos.get_2d());
-		ding_t *p;
-		while ((p = gr->find<pillar_t>()) != 0) {
+		while (ding_t* const p = gr->find<pillar_t>()) {
 			p->entferne(p->get_besitzer());
 			delete p;
 		}
@@ -724,8 +721,7 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 
 		grund_t *gr = welt->lookup(pos);
 		if(wegtyp==powerline_wt) {
-			ding_t *br;
-			while ((br = gr->find<bruecke_t>()) != 0) {
+			while (ding_t* const br = gr->find<bruecke_t>()) {
 				br->entferne(sp);
 				delete br;
 			}

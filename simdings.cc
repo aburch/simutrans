@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hj. Malthaner
  *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans project under the artistic license.
+ * (see license.txt)
  */
 
 /*
@@ -47,7 +47,7 @@ bool ding_t::show_owner = false;
 void ding_t::init(karte_t *wl)
 {
 	welt = wl;
-	pos = koord3d::invalid;    // nicht in der karte enthalten!
+	pos = koord3d::invalid;
 
 	xoff = 0;
 	yoff = 0;
@@ -85,11 +85,10 @@ ding_t::~ding_t()
 	destroy_win((long)this);
 
 	if(flags&not_on_map  ||  !welt->ist_in_kartengrenzen(pos.get_2d())) {
-//		DBG_MESSAGE("ding_t::~ding_t()","deleted %p not on the map",this);
 		return;
 	}
 
-	// pruefe ob objekt auf karte und ggf. entfernen
+	// find object on the map and remove it
 	grund_t *gr = welt->lookup(pos);
 	if(!gr  ||  !gr->obj_remove(this)) {
 		// not found? => try harder at all map locations
@@ -122,15 +121,11 @@ ding_t::~ding_t()
 			}
 		}
 	}
-//DBG_MESSAGE("ding_t::~ding_t()","finished");
 }
 
 
 /**
- * setzt den Besitzer des dings
- * (public wegen Rathausumbau - V.Meyer)
- * "sets the owner of the thing" (Babelfish)
- * @author Hj. Malthaner
+ * sets owner of object
  */
 void ding_t::set_besitzer(spieler_t *sp)
 {
@@ -140,12 +135,6 @@ void ding_t::set_besitzer(spieler_t *sp)
 }
 
 
-/**
- * Ein Objekt kann einen Besitzer haben.
- * @return Einen Zeiger auf den Besitzer des Objekts oder NULL,
- * wenn das Objekt niemand gehört.
- * @author Hj. Malthaner
- */
 spieler_t *ding_t::get_besitzer() const
 {
 	return welt->get_spieler(besitzer_n);
@@ -217,16 +206,16 @@ void ding_t::rdwr(loadsave_t *file)
 
 
 /**
- * Ding zeichnen
- * (reset dirty will be done from dingliste! It is true only for drawing the main window.)
- * @author Hj. Malthaner
+ * draw the object
+ * the dirty-flag is resetted from dingliste_t::display_dinge_fg
  */
-void ding_t::display(int xpos, int ypos, bool /*reset_dirty*/) const
+void ding_t::display(int xpos, int ypos) const
 {
 	image_id bild = get_bild();
 	image_id const outline_bild = get_outline_bild();
 	if(  bild!=IMG_LEER  ||  outline_bild!=IMG_LEER  ) {
 		const int raster_width = get_current_tile_raster_width();
+		const bool is_dirty = get_flag(ding_t::dirty);
 
 		if (vehikel_basis_t const* const v = ding_cast<vehikel_basis_t>(this)) {
 			// vehicles need finer steps to appear smoother
@@ -240,14 +229,14 @@ void ding_t::display(int xpos, int ypos, bool /*reset_dirty*/) const
 
 			if(besitzer_n!=PLAYER_UNOWNED) {
 				if(  ding_t::show_owner  ) {
-					display_blend(bild, xpos, ypos, besitzer_n, (welt->get_spieler(besitzer_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, dirty);
+					display_blend(bild, xpos, ypos, besitzer_n, (welt->get_spieler(besitzer_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty);
 				}
 				else {
-					display_color(bild, xpos, ypos, besitzer_n, true, dirty);
+					display_color(bild, xpos, ypos, besitzer_n, true, is_dirty);
 				}
 			}
 			else {
-				display_normal(bild, xpos, ypos, 0, true, dirty);
+				display_normal(bild, xpos, ypos, 0, true, is_dirty);
 			}
 			// this ding has another image on top (e.g. skyscraper)
 			ypos -= raster_width;
@@ -257,11 +246,18 @@ void ding_t::display(int xpos, int ypos, bool /*reset_dirty*/) const
 		if(  outline_bild!=IMG_LEER  ) {
 			// transparency?
 			const PLAYER_COLOR_VAL transparent = get_outline_colour();
-			ypos = start_ypos;	// may be needed for transparency
 			if(TRANSPARENT_FLAGS&transparent) {
 				// only transparent outline
-				display_blend(get_outline_bild(), xpos, ypos, besitzer_n, transparent, 0, dirty);
+				display_blend(get_outline_bild(), xpos, start_ypos, besitzer_n, transparent, 0, is_dirty);
 			}
+			else if(  ding_t::get_flag( highlight )  ) {
+				// highlight this tile
+				display_blend(get_bild(), xpos, start_ypos, besitzer_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty);
+			}
+		}
+		else if(  ding_t::get_flag( highlight )  ) {
+			// highlight this tile
+			display_blend(get_bild(), xpos, start_ypos, besitzer_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty);
 		}
 	}
 }
@@ -281,26 +277,34 @@ void ding_t::rotate90()
 
 
 
-void ding_t::display_after(int xpos, int ypos, bool /*is_global*/ ) const
+void ding_t::display_after(int xpos, int ypos, bool) const
 {
 	image_id bild = get_after_bild();
 	if(bild != IMG_LEER) {
 		const int raster_width = get_current_tile_raster_width();
-		const bool dirty = get_flag(ding_t::dirty);
+		const bool is_dirty = get_flag(ding_t::dirty);
 
 		xpos += tile_raster_scale_x(get_xoff(), raster_width);
 		ypos += tile_raster_scale_y(get_yoff(), raster_width);
 
 		if(besitzer_n!=PLAYER_UNOWNED) {
 			if(  ding_t::show_owner  ) {
-				display_blend(bild, xpos, ypos, besitzer_n, (welt->get_spieler(besitzer_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, dirty);
+				display_blend(bild, xpos, ypos, besitzer_n, (welt->get_spieler(besitzer_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty);
+			}
+			else if(  ding_t::get_flag( highlight )  ) {
+				// highlight this tile
+				display_blend( bild, xpos, ypos, besitzer_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty);
 			}
 			else {
-				display_color(bild, xpos, ypos, besitzer_n, true, dirty);
+				display_color(bild, xpos, ypos, besitzer_n, true, is_dirty);
 			}
 		}
+		else if(  ding_t::get_flag( highlight )  ) {
+			// highlight this tile
+			display_blend( bild, xpos, ypos, besitzer_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty);
+		}
 		else {
-			display_normal(bild, xpos, ypos, 0, true, dirty );
+			display_normal(bild, xpos, ypos, 0, true, is_dirty );
 		}
 	}
 }

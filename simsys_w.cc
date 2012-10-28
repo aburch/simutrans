@@ -1,17 +1,12 @@
 /*
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner
  *
- * This file is part of the Simutrans project under the artistic licence.
+ * This file is part of the Simutrans project under the artistic license.
  */
 
 #ifndef SDL
 #ifndef _WIN32
 #error "Only Windows has GDI!"
-#endif
-
-#ifndef _MSC_VER
-#include <unistd.h>
-#include <sys/time.h>
 #endif
 
 #include <stdio.h>
@@ -44,7 +39,6 @@
 // for redraws in another thread
 //#define MULTI_THREAD
 
-#include "simmain.h"
 #include "simmem.h"
 #include "simsys_w32_png.h"
 #include "simversion.h"
@@ -54,13 +48,7 @@
 #include "./dataobj/umgebung.h"
 #include "macros.h"
 
-#if COLOUR_DEPTH == 8
-typedef unsigned char PIXVAL;
-#elif COLOUR_DEPTH == 16
 typedef unsigned short PIXVAL;
-#else
-#	error unknown COLOUR_DEPTH
-#endif
 
 static HWND hwnd;
 static bool is_fullscreen = false;
@@ -74,22 +62,6 @@ static BITMAPINFO* AllDib;
 static PIXVAL*     AllDibData;
 
 volatile HDC hdc = NULL;
-
-const wchar_t* const title =
-#ifdef _MSC_VER
-#define TOW_(x) L#x
-#define TOW(x) TOW_(x)
-			L"Simutrans " WIDE_VERSION_NUMBER EXPERIMENTAL_VERSION
-#ifdef REVISION
-			L" - r" TOW(REVISION)
-#endif
-#else
-			L"" SAVEGAME_PREFIX " " VERSION_NUMBER NARROW_EXPERIMENTAL_VERSION " - " VERSION_DATE
-#ifdef REVISION
-			" - r" QUOTEME(REVISION)
-#endif	
-#endif
-;
 
 #ifdef MULTI_THREAD
 
@@ -110,7 +82,7 @@ HANDLE	hFlushThread=0;
  * Schnittstelle untergebracht
  * -> init,open,close
  */
-int dr_os_init(const int* /*parameter*/)
+bool dr_os_init(int const* /*parameter*/)
 {
 	// prepare for next event
 	sys_event.type = SIM_NOEVENT;
@@ -118,7 +90,7 @@ int dr_os_init(const int* /*parameter*/)
 
 	timeBeginPeriod(1);
 
-	return TRUE;
+	return true;
 }
 
 
@@ -128,6 +100,15 @@ resolution dr_query_screen_resolution()
 	res.w = GetSystemMetrics(SM_CXSCREEN);
 	res.h = GetSystemMetrics(SM_CYSCREEN);
 	return res;
+}
+
+
+static void create_window(DWORD const ex_style, DWORD const style, int const x, int const y, int const w, int const h)
+{
+	RECT r = { 0, 0, w, h };
+	AdjustWindowRectEx(&r, style, false, ex_style);
+	hwnd = CreateWindowExA(ex_style, "Simu", SIM_TITLE, style, x, y, r.right - r.left, r.bottom - r.top, 0, 0, hInstance, 0);
+	ShowWindow(hwnd, SW_SHOW);
 }
 
 
@@ -145,11 +126,7 @@ int dr_os_open(int const w, int const h, int fullscreen)
 		MEMZERO(settings);
 		settings.dmSize = sizeof(settings);
 		settings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
-#if COLOUR_DEPTH != 16 || defined USE_16BIT_DIB
 		settings.dmBitsPerPel = COLOUR_DEPTH;
-#else
-		settings.dmBitsPerPel = 16;
-#endif
 		settings.dmPelsWidth  = w;
 		settings.dmPelsHeight = h;
 		settings.dmDisplayFrequency = 0;
@@ -165,36 +142,15 @@ int dr_os_open(int const w, int const h, int fullscreen)
 		is_fullscreen = fullscreen;
 	}
 	if(  fullscreen  ) {
-		hwnd = CreateWindowEx(
-			WS_EX_TOPMOST,
-			L"Simu", title,
-			WS_POPUP,
-			0, 0,
-			w, h,
-			NULL, NULL, hInstance, NULL
-		);
+		create_window(WS_EX_TOPMOST, WS_POPUP, 0, 0, w, h);
 	} else {
-		hwnd = CreateWindow(
-			L"Simu", title,
-			WS_OVERLAPPEDWINDOW,
-			CW_USEDEFAULT, CW_USEDEFAULT,
-			w + GetSystemMetrics(SM_CXFRAME),
-			h - 1 + 2 * GetSystemMetrics(SM_CYFRAME) + GetSystemMetrics(SM_CYCAPTION),
-			NULL, NULL, hInstance, NULL
-		);
+		create_window(0, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, w, h);
 	}
-	ShowWindow(hwnd, SW_SHOW);
 
 	WindowSize.right  = w;
 	WindowSize.bottom = h;
 
-#if COLOUR_DEPTH == 8
-	DWORD const clr = 224 + 15;
-	AllDib = MALLOCF(BITMAPINFO, bmiColors, 256);
-#else
-	DWORD const clr = 0;
 	AllDib = MALLOCF(BITMAPINFO, bmiColors, 3);
-#endif
 	BITMAPINFOHEADER& header = AllDib->bmiHeader;
 	header.biSize          = sizeof(BITMAPINFOHEADER);
 	header.biWidth         = w;
@@ -205,27 +161,25 @@ int dr_os_open(int const w, int const h, int fullscreen)
 	header.biSizeImage     = 0;
 	header.biXPelsPerMeter = 0;
 	header.biYPelsPerMeter = 0;
-	header.biClrUsed       = clr;
-	header.biClrImportant  = clr;
-#if COLOUR_DEPTH == 16
+	header.biClrUsed       = 0;
+	header.biClrImportant  = 0;
 	DWORD* const masks = (DWORD*)AllDib->bmiColors;
-#	ifdef USE_16BIT_DIB
+#ifdef USE_16BIT_DIB
 	header.biCompression   = BI_BITFIELDS;
 	masks[0]               = 0x0000F800;
 	masks[1]               = 0x000007E0;
 	masks[2]               = 0x0000001F;
-#	else
+#else
 	masks[0]               = 0x01;
 	masks[1]               = 0x02;
 	masks[2]               = 0x03;
-#	endif
 #endif
 
 	return MaxSize.right;
 }
 
 
-int dr_os_close(void)
+void dr_os_close()
 {
 	if (hwnd != NULL) {
 		DestroyWindow(hwnd);
@@ -234,11 +188,10 @@ int dr_os_close(void)
 	AllDibData = NULL;
 	free(AllDib);
 	AllDib = NULL;
-	ChangeDisplaySettings(NULL, 0);
-
+if(  is_fullscreen  ) {
+		ChangeDisplaySettings(NULL, 0);
+	}
 	timeEndPeriod(1);
-
-	return TRUE;
 }
 
 
@@ -293,18 +246,6 @@ unsigned int get_system_color(unsigned int r, unsigned int g, unsigned int b)
 #else
 	return ((r & 0x00F8) << 7) | ((g & 0x00F8) << 2) | (b >> 3); // 15 Bit
 #endif
-}
-
-
-void dr_setRGB8multi(int first, int count, unsigned char* data)
-{
-	// set color in DibHeader ...
-	RGBQUAD *pRGB = (RGBQUAD *)((char *)AllDib + sizeof(BITMAPINFOHEADER));
-	for(  int i=first;  i<first+count;  i++  ) {
-		pRGB[i].rgbRed = data[i*3];
-		pRGB[i].rgbGreen = data[i*3+1];
-		pRGB[i].rgbBlue = data[i*3+2];
-	}
 }
 
 
@@ -393,13 +334,12 @@ void set_pointer(int loading)
  */
 int dr_screenshot(const char *filename)
 {
-#if COLOUR_DEPTH != 16 || defined USE_16BIT_DIB
+#if defined USE_16BIT_DIB
 	int const bpp = COLOUR_DEPTH;
 #else
 	int const bpp = 15;
 #endif
 	if (!dr_screenshot_png(filename, display_get_width() - 1, WindowSize.bottom + 1, AllDib->bmiHeader.biWidth, (unsigned short*)AllDibData, bpp)) {
-#if COLOUR_DEPTH != 8
 		// not successful => save as BMP
 		FILE *fBmp = fopen(filename, "wb");
 		if (fBmp) {
@@ -429,7 +369,6 @@ int dr_screenshot(const char *filename)
 		else {
 			return -1;
 		}
-#endif
 	}
 	return 0;
 }
@@ -446,7 +385,6 @@ static inline unsigned int ModifierKeys()
 		(GetKeyState(VK_CONTROL) < 0  ? 2 : 0); // highest bit set or return value<0 -> key is pressed
 }
 
-struct sys_event sys_event;
 
 /* Windows eventhandler: does most of the work */
 LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -470,7 +408,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 					MEMZERO(settings);
 					settings.dmSize = sizeof(settings);
 					settings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
-#if COLOUR_DEPTH != 16 || defined USE_16BIT_DIB
+#if defined USE_16BIT_DIB
 					settings.dmBitsPerPel = COLOUR_DEPTH;
 #else
 					settings.dmBitsPerPel = 15;
@@ -485,15 +423,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 
 					Beep( 110, 250 );
 					// must reshow window, otherwise startbar will be topmost ...
-					hwnd = CreateWindowEx(
-						WS_EX_TOPMOST,
-						L"Simu", title,
-						WS_POPUP,
-						0, 0,
-						MaxSize.right, MaxSize.bottom,
-						NULL, NULL, hInstance, NULL
-					);
-					ShowWindow( hwnd, SW_SHOW );
+					create_window(WS_EX_TOPMOST, WS_POPUP, 0, 0, MaxSize.right, MaxSize.bottom);
 					DestroyWindow( this_hwnd );
 					while_handling = false;
 					return true;
@@ -663,7 +593,6 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 			if (AllDibData != NULL) {
 				sys_event.type = SIM_SYSTEM;
 				sys_event.code = SIM_SYSTEM_QUIT;
-				return FALSE;
 			}
 			break;
 
@@ -673,18 +602,17 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 			if (AllDibData == NULL) {
 				PostQuitMessage(0);
 				hwnd = NULL;
-				return TRUE;
 			}
-			return FALSE;
+			break;
 
 		default:
 			return DefWindowProc(this_hwnd, msg, wParam, lParam);
 	}
-	return FALSE;
+	return 0;
 }
 
 
-static void internal_GetEvents(int wait)
+static void internal_GetEvents(bool const wait)
 {
 	do {
 		// wait for keybord/mouse event
@@ -699,7 +627,7 @@ void GetEvents()
 {
 	// already even processed?
 	if(sys_event.type==SIM_NOEVENT) {
-		internal_GetEvents(TRUE);
+		internal_GetEvents(true);
 	}
 }
 
@@ -707,7 +635,7 @@ void GetEvents()
 void GetEventsNoWait()
 {
 	if (sys_event.type==SIM_NOEVENT  &&  PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE)) {
-		internal_GetEvents(FALSE);
+		internal_GetEvents(false);
 	}
 }
 
@@ -744,19 +672,6 @@ void dr_sleep(uint32 millisec)
 }
 
 
-
-bool dr_fatal_notify(const char* msg, int choices)
-{
-	if(choices==0) {
-		MessageBoxA( hwnd, msg, "Fatal Error", MB_ICONEXCLAMATION|MB_OK );
-		return 0;
-	}
-	else {
-		return MessageBoxA( hwnd, msg, "Fatal Error", MB_ICONEXCLAMATION|MB_RETRYCANCEL	)==IDRETRY;
-	}
-}
-
-
 int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR, int)
 {
 	WNDCLASSW wc;
@@ -774,12 +689,6 @@ int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR, int)
 
 	RegisterClass(&wc);
 
-	int    const argc = __argc;
-	char** const argv = __argv;
-	char         pathname[1024];
-	GetModuleFileNameA(hInstance, pathname, lengthof(pathname));
-	argv[0] = pathname;
-
 	GetWindowRect(GetDesktopWindow(), &MaxSize);
 
 	// maybe set timer to 1ms intervall on Win2k upwards ...
@@ -791,7 +700,7 @@ int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR, int)
 		}
 	}
 
-	simu_main(argc, argv);
+	int const res = sysmain(__argc, __argv);
 	timeEndPeriod(1);
 
 #ifdef MULTI_THREAD
@@ -799,6 +708,6 @@ int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR, int)
 		TerminateThread( hFlushThread, 0 );
 	}
 #endif
-	return 0;
+	return res;
 }
 #endif

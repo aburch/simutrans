@@ -1,7 +1,7 @@
 /*
  * sdl-sound without SDL_mixer.dll
  *
- * This file is part of the Simutrans project under the artistic licence.
+ * This file is part of the Simutrans project under the artistic license.
  */
 
 

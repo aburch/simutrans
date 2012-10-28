@@ -75,19 +75,19 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\simutrans-experimental-BG-binaries\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">binaries\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)$(ProjectName)\$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\simutrans-experimental-BG-binaries\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">binaries\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)$(ProjectName)\$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">..\simutrans-experimental-BG-binaries\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">binaries\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">$(OutDir)$(ProjectName)\$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">false</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">..\simutrans-experimental-BG-binaries\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">binaries\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">$(OutDir)$(ProjectName)\$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">true</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug Optimized|Win32'">..\simutrans-experimental-BG-binaries\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug Optimized|Win32'">binaries\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug Optimized|Win32'">$(OutDir)$(ProjectName)\$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug Optimized|Win32'">true</LinkIncremental>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">..\OpenTTD essentials\win32\include;..\bzip2-1.0.5;$(IncludePath)</IncludePath>
@@ -114,7 +114,7 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>false</OmitFramePointers>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>ZLIB_WINAPI;LITTLE_ENDIAN;STEPS16;USE_C;WIN32;COLOUR_DEPTH=16;DEBUG=3;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ZLIB_WINAPI;LITTLE_ENDIAN;STEPS16;USE_C;WIN32;COLOUR_DEPTH=16;DEBUG=3;nDEBUG_PHYSICS;nDEBUG_SIMRAND_CALLS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -292,8 +292,13 @@
     <ClCompile Include="dataobj\network_file_transfer.cc" />
     <ClCompile Include="dataobj\network_socket_list.cc" />
     <ClCompile Include="dataobj\pakset_info.cc" />
+    <ClCompile Include="dataobj\pwd_hash.cc" />
+    <ClCompile Include="gui\ai_option_t.cc" />
+    <ClCompile Include="gui\components\gui_ding_view_t.cc" />
+    <ClCompile Include="gui\display_settings.cc" />
     <ClCompile Include="gui\factory_chart.cc" />
     <ClCompile Include="gui\line_item.cc" />
+    <ClCompile Include="gui\privatesign_info.cc" />
     <ClCompile Include="gui\server_frame.cc" />
     <ClCompile Include="player\ai.cc" />
     <ClCompile Include="player\ai_goods.cc" />
@@ -318,7 +323,6 @@
     <ClCompile Include="gui\citylist_frame_t.cc" />
     <ClCompile Include="gui\citylist_stats_t.cc" />
     <ClCompile Include="gui\climates.cc" />
-    <ClCompile Include="gui\colors.cc" />
     <ClCompile Include="gui\convoi_detail_t.cc" />
     <ClCompile Include="gui\convoi_filter_frame.cc" />
     <ClCompile Include="gui\convoi_frame.cc" />
@@ -552,8 +556,14 @@
     <ClInclude Include="dataobj\network_socket_list.h" />
     <ClInclude Include="dataobj\pakset_info.h" />
     <ClInclude Include="dataobj\pwd_hash.h" />
+    <ClInclude Include="gui\ai_option_t.h" />
     <ClInclude Include="gui\components\action_listener.h" />
+    <ClInclude Include="gui\components\gui_ding_view_t.h" />
+    <ClInclude Include="gui\components\gui_fixedwidth_textarea.h" />
+    <ClInclude Include="gui\display_settings.h" />
     <ClInclude Include="gui\factory_chart.h" />
+    <ClInclude Include="gui\privatesign_info.h" />
+    <ClInclude Include="gui\server_frame.h" />
     <ClInclude Include="player\ai.h" />
     <ClInclude Include="player\ai_goods.h" />
     <ClInclude Include="player\ai_passenger.h" />

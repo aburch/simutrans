@@ -20,13 +20,6 @@ void dr_set_midi_volume(int vol);
 
 
 /**
- * gets midi title
- * @author Hj. Malthaner
- */
-const char* dr_get_midi_title(int index);
-
-
-/**
  * Loads a MIDI file
  * @author Owen Rudge
  */

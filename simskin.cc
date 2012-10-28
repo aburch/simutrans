@@ -181,10 +181,9 @@ bool skinverwaltung_t::register_besch(skintyp_t type, const skin_besch_t* besch)
 // return the extra_obj with this name
 const skin_besch_t *skinverwaltung_t::get_extra( const char *str, int len )
 {
-	slist_iterator_tpl<const skin_besch_t *> iter(skinverwaltung_t::extra_obj);
-	while(  iter.next()  ) {
-		if(  strncmp(str,iter.get_current()->get_name(),len)==0  ) {
-			return iter.get_current();
+	FOR(slist_tpl<skin_besch_t const*>, const s, skinverwaltung_t::extra_obj) {
+		if (strncmp(str, s->get_name(), len) == 0) {
+			return s;
 		}
 	}
 	return NULL;

@@ -1,4 +1,5 @@
 #include "../simdebug.h"
+#include "../simworld.h"
 
 #include "../dings/bruecke.h"
 #include "../bauer/brueckenbauer.h"

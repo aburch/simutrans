@@ -1,8 +1,8 @@
 /*
  * Copyright (c) 2006 prissi
  *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans project under the artistic license.
+ * (see license.txt)
  */
 
 #ifndef tpl_binary_heap_tpl_h

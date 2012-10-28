@@ -178,7 +178,7 @@ struct event_t {
  * Translate event origin. Useful when transferring events to sub-components.
  * @author Hj. Malthaner
  */
-static inline void translate_event(struct event_t *ev, int x, int y)
+static inline void translate_event(event_t* const ev, int x, int y)
 {
 	ev->mx += x;
 	ev->cx += x;
@@ -187,8 +187,8 @@ static inline void translate_event(struct event_t *ev, int x, int y)
 }
 #endif
 
-void display_poll_event(struct event_t *ev);
-void display_get_event(struct event_t *ev);
+void display_poll_event(event_t*);
+void display_get_event(event_t*);
 void change_drag_start(int x, int y);
 
 int event_get_last_control_shift(void);

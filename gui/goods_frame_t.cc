@@ -19,6 +19,8 @@
 #include "../simworld.h"
 #include "../simconvoi.h"
 
+#include "../besch/ware_besch.h"
+
 /**
  * This variable defines the current speed for bonus calculation
  * @author prissi
@@ -54,14 +56,23 @@ const char *goods_frame_t::sort_text[SORT_MODES] = {
 	"gl_btn_sort_catg"
 };
 
+/**
+ * This variable controls whether all goods are displayed, or
+ * just the ones relevant to the current game
+ * Values: false = all goods shown, true = relevant goods shown
+ * @author falconne
+ */
+bool goods_frame_t::filter_goods = false;
 
 goods_frame_t::goods_frame_t(karte_t *wl) :
 	gui_frame_t( translator::translate("gl_title") ),
 	sort_label(translator::translate("hl_txt_sort")),
+	/*
 	change_speed_label(speed_bonus,COL_WHITE,gui_label_t::right),
 	change_distance_label(distance_txt,COL_WHITE,gui_label_t::right),
 	change_comfort_label(comfort_txt,COL_WHITE,gui_label_t::right),
 	change_catering_label(catering_txt,COL_WHITE,gui_label_t::right),
+	*/
 	scrolly(&goods_stats)
 {
 	wtype = road_wt;
@@ -74,6 +85,8 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	comfort_txt[0] = 0;
 	catering_txt[0] = 0;
 	tile_distance = (1000 * distance) / goods_frame_t::welt->get_settings().get_meters_per_tile();
+
+	/*
 	change_speed_label.set_pos(koord(BUTTON4_X+5, y + 36));
 	add_komponente(&change_speed_label);
 
@@ -85,38 +98,71 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 
 	change_catering_label.set_pos(koord(BUTTON4_X+5, y + 24));
 	add_komponente(&change_catering_label);
+	*/
 
-	speed_down.init(button_t::repeatarrowleft, "", koord(BUTTON4_X-22, y + 36), koord(10,BUTTON_HEIGHT));
-	speed_down.add_listener(this);
-	add_komponente(&speed_down);
+	//speed_down.init(button_t::repeatarrowleft, "", koord(BUTTON4_X-22, y + 36), koord(10,BUTTON_HEIGHT));
+	//speed_down.add_listener(this);
+	//add_komponente(&distance_input);
 
-	speed_up.init(button_t::repeatarrowright, "", koord(BUTTON4_X+8, y + 36), koord(10,BUTTON_HEIGHT));
-	speed_up.add_listener(this);
-	add_komponente(&speed_up);
+	//speed_up.init(button_t::repeatarrowright, "", koord(BUTTON4_X+8, y + 36), koord(10,BUTTON_HEIGHT));
+	//speed_up.add_listener(this);
+	//add_komponente(&speed_up);
 
-	distance_down.init(button_t::repeatarrowleft, "", koord(BUTTON4_X-22, y), koord(10,BUTTON_HEIGHT));
-	distance_down.add_listener(this);
-	add_komponente(&distance_down);
+	//distance_down.init(button_t::repeatarrowleft, "", koord(BUTTON4_X-22, y), koord(10,BUTTON_HEIGHT));
+	//distance_down.add_listener(this);
+	//add_komponente(&distance_down);
 
-	distance_up.init(button_t::repeatarrowright, "", koord(BUTTON4_X+8, y), koord(10,BUTTON_HEIGHT));
-	distance_up.add_listener(this);
-	add_komponente(&distance_up);
+	//distance_up.init(button_t::repeatarrowright, "", koord(BUTTON4_X+8, y), koord(10,BUTTON_HEIGHT));
+	//distance_up.add_listener(this);
+	//add_komponente(&distance_up);
 
-	comfort_down.init(button_t::repeatarrowleft, "", koord(BUTTON4_X-22, y + 12), koord(10,BUTTON_HEIGHT));
-	comfort_down.add_listener(this);
-	add_komponente(&comfort_down);
+	//comfort_down.init(button_t::repeatarrowleft, "", koord(BUTTON4_X-22, y + 12), koord(10,BUTTON_HEIGHT));
+	//comfort_down.add_listener(this);
+	//add_komponente(&comfort_down);
 
-	comfort_up.init(button_t::repeatarrowright, "", koord(BUTTON4_X+8, y + 12), koord(10,BUTTON_HEIGHT));
-	comfort_up.add_listener(this);
-	add_komponente(&comfort_up);
+	//comfort_up.init(button_t::repeatarrowright, "", koord(BUTTON4_X+8, y + 12), koord(10,BUTTON_HEIGHT));
+	//comfort_up.add_listener(this);
+	//add_komponente(&comfort_up);
 
-	catering_down.init(button_t::repeatarrowleft, "", koord(BUTTON4_X-22, y + 24), koord(10,BUTTON_HEIGHT));
-	catering_down.add_listener(this);
-	add_komponente(&catering_down);
+	//catering_down.init(button_t::repeatarrowleft, "", koord(BUTTON4_X-22, y + 24), koord(10,BUTTON_HEIGHT));
+	//catering_down.add_listener(this);
+	//add_komponente(&catering_down);
 
-	catering_up.init(button_t::repeatarrowright, "", koord(BUTTON4_X+8, y + 24), koord(10,BUTTON_HEIGHT));
-	catering_up.add_listener(this);
-	add_komponente(&catering_up);
+	//catering_up.init(button_t::repeatarrowright, "", koord(BUTTON4_X+8, y + 24), koord(10,BUTTON_HEIGHT));
+	//catering_up.add_listener(this);
+	//add_komponente(&catering_up);
+
+	distance_input.set_pos(koord(BUTTON4_X-22, y) );
+	distance_input.set_groesse(koord(60, BUTTON_HEIGHT));
+	distance_input.set_limits( 1, 9999 );
+	distance_input.set_value( distance );
+	distance_input.wrap_mode( false );
+	distance_input.add_listener( this );
+	add_komponente(&distance_input);
+
+	comfort_input.set_pos(koord(BUTTON4_X-22, y + 12) );
+	comfort_input.set_groesse(koord(60, BUTTON_HEIGHT));
+	comfort_input.set_limits( 1, 255 );
+	comfort_input.set_value( comfort );
+	comfort_input.wrap_mode( false );
+	comfort_input.add_listener( this );
+	add_komponente(&comfort_input);
+
+	catering_input.set_pos(koord(BUTTON4_X-22, y + 24) );
+	catering_input.set_groesse(koord(60, BUTTON_HEIGHT));
+	catering_input.set_limits( 0, 5 );
+	catering_input.set_value( catering_level );
+	catering_input.wrap_mode( false );
+	catering_input.add_listener( this );
+	add_komponente(&catering_input);
+
+	speed_input.set_pos(koord(BUTTON4_X-22, y + 36) );
+	speed_input.set_groesse(koord(60, BUTTON_HEIGHT));
+	speed_input.set_limits( -99, 9999 );
+	speed_input.set_value( relative_speed_change - 100 );
+	speed_input.wrap_mode( false );
+	speed_input.add_listener( this );
+	add_komponente(&speed_input);
 
 	way_type.add_listener(this);
 	add_komponente(&way_type);
@@ -133,6 +179,13 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	way_type.set_highlight_color(1);
 	
 	y=BUTTON_HEIGHT+6+5*LINESPACE + 25;
+
+	filter_goods_toggle.init(button_t::square_state, "Show only used", koord(BUTTON1_X, y));
+	filter_goods_toggle.set_tooltip(translator::translate("Only show goods which are currently handled by factories"));
+	filter_goods_toggle.add_listener(this);
+	filter_goods_toggle.pressed = filter_goods;
+	add_komponente(&filter_goods_toggle);
+	y += LINESPACE+2;
 
 	sort_label.set_pos(koord(BUTTON1_X, y));
 	add_komponente(&sort_label);
@@ -183,7 +236,6 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 }
 
 
-
 bool goods_frame_t::compare_goods(uint16 const a, uint16 const b)
 {
 	const ware_besch_t* w[2];
@@ -202,11 +254,11 @@ bool goods_frame_t::compare_goods(uint16 const a, uint16 const b)
 				sint32 price[2];
 				for(uint8 i = 0; i < 2; i ++)
 				{
-					const uint16 base_price = w[i]->get_preis();
-					const sint32 min_price = base_price / 10;
+					const sint64 base_fare = w[i]->get_fare(tile_distance);
+					const sint64 min_fare = base_fare / 10ll;
 					const uint16 speed_bonus_rating = convoi_t::calc_adjusted_speed_bonus(w[i]->get_speed_bonus(), tile_distance, NULL);
-					const sint32 base_bonus = base_price * (1000l + (relative_speed_change - 100l) * speed_bonus_rating);
-					const sint32 revenue = (min_price > base_bonus ? min_price : base_bonus) * tile_distance;
+					const sint64 base_bonus = base_fare * (1000l + (relative_speed_change - 100l) * speed_bonus_rating);
+					const sint64 revenue = max(min_fare, base_bonus);
 					price[i] = revenue;
 
 					const uint16 journey_minutes = ((float)tile_distance / (float)((50 * relative_speed_change)/100)) * 0.3 * 60;
@@ -289,12 +341,14 @@ bool goods_frame_t::compare_goods(uint16 const a, uint16 const b)
 	return sortreverse ? order > 0 : order < 0;
 }
 
-
-// creates the list and pass it to the child finction good_stats, which does the display stuff...
+// creates the list and pass it to the child function good_stats, which does the display stuff ...
 void goods_frame_t::sort_list()
 {
 	sortedby.set_text(sort_text[sortby]);
 	sorteddir.set_text(sortreverse ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
+
+	// Fetch the list of goods produced by the factories that exist in the current game
+	const vector_tpl<const ware_besch_t*> &goods_in_game = welt->get_goods_list();
 
 	int n=0;
 	for(unsigned int i=0; i<warenbauer_t::get_waren_anzahl(); i++) {
@@ -302,16 +356,17 @@ void goods_frame_t::sort_list()
 
 		// Hajo: we skip goods that don't generate income
 		//       this should only be true for the special good 'None'
-		if(wtyp->get_preis()!=0) {
+		// Also skip goods not in the game (Standard 111.1 and later).
+		if(wtyp->get_fare(1) != 0 && (!filter_goods || goods_in_game.is_contained(wtyp))) 
+		{
 			good_list[n++] = i;
 		}
 	}
 
 	std::sort(good_list, good_list + n, compare_goods);
 
-	goods_stats.update_goodslist(good_list, relative_speed_change, goods_frame_t::tile_distance, goods_frame_t::comfort, goods_frame_t::catering_level, goods_frame_t::welt, wtype);
+	goods_stats.update_goodslist(good_list, relative_speed_change, n, goods_frame_t::tile_distance, goods_frame_t::comfort, goods_frame_t::catering_level, goods_frame_t::welt, wtype);
 }
-
 
 
 /**
@@ -322,17 +377,20 @@ void goods_frame_t::sort_list()
 void goods_frame_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta);
-	koord groesse = get_fenstergroesse()-koord(0,BUTTON_HEIGHT+4+5*LINESPACE+LINESPACE+1+BUTTON_HEIGHT+2+TITLEBAR_HEIGHT+1+25);
+
+	//Pre 111.1
+	/*koord groesse = get_fenstergroesse()-koord(0,BUTTON_HEIGHT+4+5*LINESPACE+LINESPACE+1+BUTTON_HEIGHT+2+TITLEBAR_HEIGHT+1+25);*/
+
+	koord groesse = get_fenstergroesse()-scrolly.get_pos()-koord(0,TITLEBAR_HEIGHT+25);
 	scrolly.set_groesse(groesse);
 }
-
 
 
 /**
  * This method is called if an action is triggered
  * @author Hj. Malthaner
  */
-bool goods_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
+bool goods_frame_t::action_triggered( gui_action_creator_t *komp,value_t v)
 {
 	if(komp == &sortedby) {
 		// sort by what
@@ -344,62 +402,80 @@ bool goods_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 		sortreverse ^= 1;
 		sort_list();
 	}
-	else if(komp == &speed_down) {
-		if(relative_speed_change>1) {
-			relative_speed_change --;
-			sort_list();
-		}
-	}
-	else if(komp == &speed_up) {
-		relative_speed_change ++;
+	//else if(komp == &speed_down) {
+	//	if(relative_speed_change>1) {
+	//		relative_speed_change --;
+	//		sort_list();
+	//	}
+	//}
+	//else if(komp == &speed_up) {
+	//	relative_speed_change ++;
+	//	sort_list();
+	//}
+
+	//else if(komp == &distance_down) 
+	//{
+	//	if(distance > 1) 
+	//	{
+	//		distance --;
+	//		tile_distance = (1000 * distance) / goods_frame_t::welt->get_settings().get_meters_per_tile();
+	//		sort_list();
+	//	}
+	//}
+	//else if(komp == &distance_up) 
+	//{
+	//	distance ++;
+	//	tile_distance = (1000 * distance) / goods_frame_t::welt->get_settings().get_meters_per_tile();
+	//	sort_list();
+	//}
+	//else if(komp == &comfort_down) 
+	//{
+	//	if(comfort > 1) 
+	//	{
+	//		comfort --;
+	//		sort_list();
+	//	}
+	//}
+	//else if(komp == &comfort_up) 
+	//{
+	//	if(comfort < 255) 
+	//	{
+	//		comfort ++;
+	//		sort_list();
+	//	}
+	//}
+	//else if(komp == &catering_down) 
+	//{
+	//	if(catering_level > 0) 
+	//	{
+	//		catering_level --;
+	//		sort_list();
+	//	}
+	//}
+	//else if(komp == &catering_up) 
+	//{
+	//	if(catering_level < 5) 
+	//	{
+	//		catering_level ++;
+	//		sort_list();
+	//	}
+	//}
+	else if (komp == &speed_input) {
+		relative_speed_change = v.i + 100;
 		sort_list();
 	}
-	else if(komp == &distance_down) 
-	{
-		if(distance > 1) 
-		{
-			distance --;
-			tile_distance = (1000 * distance) / goods_frame_t::welt->get_settings().get_meters_per_tile();
-			sort_list();
-		}
-	}
-	else if(komp == &distance_up) 
-	{
-		distance ++;
+	else if (komp == &distance_input) {
+		distance = v.i;
 		tile_distance = (1000 * distance) / goods_frame_t::welt->get_settings().get_meters_per_tile();
 		sort_list();
 	}
-	else if(komp == &comfort_down) 
-	{
-		if(comfort > 1) 
-		{
-			comfort --;
-			sort_list();
-		}
+	else if (komp == &comfort_input) {
+		comfort = v.i;
+		sort_list();
 	}
-	else if(komp == &comfort_up) 
-	{
-		if(comfort < 255) 
-		{
-			comfort ++;
-			sort_list();
-		}
-	}
-	else if(komp == &catering_down) 
-	{
-		if(catering_level > 0) 
-		{
-			catering_level --;
-			sort_list();
-		}
-	}
-	else if(komp == &catering_up) 
-	{
-		if(catering_level < 5) 
-		{
-			catering_level ++;
-			sort_list();
-		}
+	else if (komp == &catering_input) {
+		catering_level = v.i;
+		sort_list();
 	}
 	else if (komp == &way_type)
 	{
@@ -439,9 +515,14 @@ bool goods_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 		};
 		sort_list();
 	}
+	else if(komp == &filter_goods_toggle) {
+		filter_goods = !filter_goods;
+		filter_goods_toggle.pressed = filter_goods;
+		sort_list();
+	}
+
 	return true;
 }
-
 
 
 /**
@@ -452,10 +533,10 @@ void goods_frame_t::zeichnen(koord pos, koord gr)
 {
 	gui_frame_t::zeichnen(pos, gr);
 
-	sprintf(speed_bonus,"%i",relative_speed_change-100);
-	sprintf(distance_txt,"%i",distance);
-	sprintf(comfort_txt,"%i",comfort);
-	sprintf(catering_txt,"%i",catering_level);
+	//sprintf(speed_bonus,"%i",relative_speed_change-100);
+	//sprintf(distance_txt,"%i",distance);
+	//sprintf(comfort_txt,"%i",comfort);
+	//sprintf(catering_txt,"%i",catering_level);
 
 	speed_message.clear();
 	speed_message.printf(translator::translate("Distance\nComfort\nCatering level\nSpeedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h."),

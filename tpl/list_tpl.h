@@ -451,7 +451,7 @@ template<class item_t> void list_tpl<item_t>::set_capacity(uint32 value) {
 			count = value;
 		}
 		if (!capacity) {
-			delete [] data;
+			free(data);
 			data = NULL;
 		}
 	}

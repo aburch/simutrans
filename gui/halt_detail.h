@@ -47,7 +47,7 @@ private:
 	slist_tpl<button_t *>linebuttons;
 	slist_tpl<gui_label_t *> convoylabels;
 	slist_tpl<button_t *> convoybuttons;
-	slist_tpl<const char *> label_names;
+	slist_tpl<char*> label_names;
 
 public:
 	halt_detail_t(halthandle_t halt);
@@ -66,8 +66,7 @@ public:
     // Set window size and adjust component sizes and/or positions accordingly
     virtual void set_fenstergroesse(koord groesse);
 
-	// callback for posbuttons
-	bool action_triggered( gui_action_creator_t *komp, value_t extra);
+	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	// only defined to update schedule, if changed
 	void zeichnen( koord pos, koord gr );

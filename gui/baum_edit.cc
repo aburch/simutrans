@@ -12,19 +12,16 @@
 #include "../simcolor.h"
 #include "../simtools.h"
 #include "../simworld.h"
-#include "../simevent.h"
 #include "../simgraph.h"
 #include "../simskin.h"
 #include "../simwerkz.h"
 #include "../simmenu.h"
-#include "../simwin.h"
 
 #include "../dataobj/translator.h"
 #include "components/list_button.h"
 
 #include "../besch/bild_besch.h"
 #include "../besch/grund_besch.h"
-#include "../besch/intro_dates.h"
 
 #include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"
@@ -73,7 +70,7 @@ baum_edit_frame_t::baum_edit_frame_t(spieler_t* sp_, karte_t* welt) :
 void baum_edit_frame_t::fill_list( bool translate )
 {
 	baumlist.clear();
-	FOR(vector_tpl<baum_besch_t const*>, const i, *baum_t::get_all_besch()) {
+	FOR(vector_tpl<baum_besch_t const*>, const i, baum_t::get_all_besch()) {
 		baumlist.insert_ordered(i, compare_baum_besch);
 	}
 
@@ -81,8 +78,8 @@ void baum_edit_frame_t::fill_list( bool translate )
 	scl.clear_elements();
 	scl.set_selection(-1);
 	FOR(vector_tpl<baum_besch_t const*>, const i, baumlist) {
-		char const* const name = translate ? translator::translate( i->get_name() ) : i->get_name();
-		scl.append_element( new gui_scrolled_list_t::const_text_scrollitem_t(name, COL_BLACK));
+		char const* const name = translate ? translator::translate(i->get_name()): i->get_name();
+		scl.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(name, COL_BLACK));
 		if (i == besch) {
 			scl.set_selection(scl.get_count()-1);
 		}

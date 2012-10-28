@@ -6,11 +6,9 @@
  */
 
 #ifndef _MSC_VER
-#include <unistd.h>
 #include <dirent.h>
 #else
 #include <io.h>
-#include <direct.h>
 #endif
 
 #include <string>
@@ -23,7 +21,6 @@
 #include "../simdebug.h"
 #include "../simsys.h"
 #include "../simwin.h"
-#include "../simintr.h"
 
 #include "../dataobj/umgebung.h"
 #include "../dataobj/translator.h"
@@ -32,7 +29,7 @@
 #include "components/list_button.h"
 #include "savegame_frame.h"
 
-#define DIALOG_WIDTH (370)
+#define DIALOG_WIDTH (488)
 
 
 // we need this trick, with the function pointer.
@@ -346,7 +343,7 @@ bool savegame_frame_t::action_triggered( gui_action_creator_t *komp, value_t p)
 	if(komp == &input || komp == &savebutton) {
 		// Save/Load Button or Enter-Key pressed
 		//---------------------------------------
-		if (strstr(ibuf,"net:")==ibuf) {
+		if (strstart(ibuf, "net:")) {
 			tstrncpy(buf,ibuf,lengthof(buf));
 		}
 		else {

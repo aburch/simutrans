@@ -14,7 +14,6 @@
 // <windows.h> also needed, but this is included by networking code
 #ifndef _WIN32
 #include <termios.h>
-#include <unistd.h>
 #endif
 
 #include "../dataobj/network.h"
@@ -26,8 +25,6 @@
 #include "../utils/simstring.h"
 #include "../utils/fetchopt.h"
 
-// declaration of stuff from network.cc needed here.
-SOCKET network_open_address( const char *cp, long timeout_ms, const char * &err);
 
 // dummy implementation
 // only receive nwc_service_t here
@@ -252,7 +249,7 @@ int say(SOCKET socket, uint32 command_id, int argc, char **argv) {
 	int remaining = maxlen - 1;
 	char msg[maxlen];
 	int ind = 0;
-	strncpy(msg, argv[ind], remaining);
+	tstrncpy(msg, argv[ind], remaining);
 	remaining -= strlen(argv[ind]);
 	ind++;
 	while (ind < argc && remaining > 1) {
@@ -274,7 +271,7 @@ int say(SOCKET socket, uint32 command_id, int argc, char **argv) {
 void usage()
 {
 	fprintf(stderr,
-		"nettool for simutrans " VERSION_NUMBER NARROW_EXPERIMENTAL_VERSION " and higher\n"
+		"nettool for Simutrans " VERSION_NUMBER EXPERIMENTAL_VERSION " and higher\n"
 		"\n"
 		"  Usage:\n"
 		"\n"
@@ -437,7 +434,7 @@ int main(int argc, char* argv[]) {
 	// Print copyright notice unless quiet flag set
 	if (!opt_q) {
 		fprintf(stderr,
-			"nettool for simutrans " VERSION_NUMBER NARROW_EXPERIMENTAL_VERSION " and higher\n"
+			"nettool for Simutrans " VERSION_NUMBER EXPERIMENTAL_VERSION " and higher\n"
 		);
 	}
 
@@ -456,7 +453,7 @@ int main(int argc, char* argv[]) {
 
 	// This is done whether we're executing a password protected command or not...
 	const char *error = NULL;
-	SOCKET socket = network_open_address(server_address, 100, error);
+	SOCKET const socket = network_open_address(server_address, error);
 	if (error) {
 		fprintf(stderr, "Could not connect to server at %s: %s\n", server_address, error);
 		return 1;

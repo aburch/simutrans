@@ -20,7 +20,6 @@
 #include "../dataobj/umgebung.h"
 #include "../dataobj/translator.h"
 
-// just for their structure size ...
 #include "../simgraph.h"
 
 #include "../utils/simstring.h"
@@ -32,9 +31,6 @@
 #define RIGHT_ARROW (180)
 #define TEXT_RIGHT (165) // 10 are offset in routine ..
 
-#include <sys/stat.h>
-#include <time.h>
-
 /**
  * set the climate borders
  * @author prissi
@@ -43,7 +39,6 @@
 climate_gui_t::climate_gui_t(settings_t* const sets) :
 	gui_frame_t( translator::translate("Climate Control") )
 {
-DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struct tm) );
 	this->sets = sets;
 
 	// select map stuff ..
@@ -149,7 +144,7 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	river_n.set_pos(koord(LEFT_ARROW,intTopOfButton) );
 	river_n.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
 	river_n.add_listener(this);
-	river_n.set_limits(0,1024);
+	river_n.set_limits(0,32767);
 	river_n.set_value( sets->get_river_number() );
 	river_n.wrap_mode( false );
 	add_komponente( &river_n );
@@ -166,7 +161,7 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 
 	river_max.set_pos(koord(LEFT_ARROW,intTopOfButton) );
 	river_max.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
-	river_max.set_limits(sets->get_min_river_length()+16,4096);
+	river_max.set_limits(sets->get_min_river_length()+16,32767);
 	river_max.set_value( sets->get_max_river_length() );
 	river_max.wrap_mode( false );
 	river_max.add_listener(this);
@@ -217,11 +212,11 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	}
 	else if(komp==&river_min) {
 		sets->min_river_length = (sint16)v.i;
-		river_max.set_limits(v.i+16,1024);
+		river_max.set_limits(v.i+16,32767);
 	}
 	else if(komp==&river_max) {
 		sets->max_river_length = (sint16)v.i;
-		river_min.set_limits(0,max(16,v.i)-16);
+		river_min.set_limits(0,max(2,v.i)-2);
 	}
 	else if(komp==&snowline_winter) {
 		sets->winter_snowline = (sint16)v.i;
@@ -247,7 +242,7 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		sint16 arctic = 0;
 		for(  int i=desert_climate;  i<=rocky_climate;  i++  ) {
 			if(  komp==climate_borders_ui+i-1  ) {
-				sets->climate_borders[i] = v.i;
+				sets->climate_borders[i] = (sint16)v.i;
 			}
 			if(sets->climate_borders[i]>arctic) {
 				arctic = sets->climate_borders[i];

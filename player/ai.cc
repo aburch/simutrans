@@ -24,6 +24,8 @@
 
 #include "../besch/haus_besch.h"
 
+#include "../dataobj/loadsave.h"
+
 #include "../dings/zeiger.h"
 
 #include "../utils/cbuffer_t.h"
@@ -31,11 +33,12 @@
 #include "../vehicle/simvehikel.h"
 
 
-/* The flesh for the place with road for headqurter searcher ... */
+/* The flesh for the place with road for headquarter searcher ... */
 bool ai_bauplatz_mit_strasse_sucher_t::strasse_bei(sint16 x, sint16 y) const {
 	grund_t *bd = welt->lookup_kartenboden( koord(x,y) );
 	return bd && bd->hat_weg(road_wt);
 }
+
 
 bool ai_bauplatz_mit_strasse_sucher_t::ist_platz_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const {
 	if(bauplatz_sucher_t::ist_platz_ok(pos, b, h, cl)) {
@@ -539,4 +542,20 @@ void ai_t::tell_tool_result(werkzeug_t *tool, koord3d pos, const char *err, bool
 	spieler_t::tell_tool_result(tool, pos, err, local);
 
 	// TODO: process the result...
+}
+
+
+void ai_t::rdwr(loadsave_t *file)
+{
+	spieler_t::rdwr(file);
+
+	if(  file->get_version()<111001  ) {
+		// do not know about ai_t
+		return;
+	}
+	file->rdwr_long( construction_speed );
+	file->rdwr_bool( road_transport );
+	file->rdwr_bool( rail_transport );
+	file->rdwr_bool( air_transport );
+	file->rdwr_bool( ship_transport );
 }

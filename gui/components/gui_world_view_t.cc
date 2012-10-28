@@ -8,7 +8,6 @@
 #include <stdio.h>
 
 #include "gui_world_view_t.h"
-#include "../../simevent.h"
 #include "../../simworld.h"
 #include "../../simdings.h"
 #include "../../simgraph.h"
@@ -21,12 +20,21 @@
 #include "../../dataobj/koord3d.h"
 
 
+karte_t *world_view_t::welt = NULL;
 
-world_view_t::world_view_t(karte_t* const welt, koord const size) :
-	raster(get_base_tile_raster_width()),
-	welt(welt)
+
+world_view_t::world_view_t(karte_t* w, koord size ) :
+		raster(get_base_tile_raster_width())
 {
-	set_groesse(size);
+	welt = w;
+	set_groesse( size );
+}
+
+
+world_view_t::world_view_t(karte_t* w) :
+		raster(get_base_tile_raster_width())
+{
+	welt = w;
 }
 
 
@@ -56,7 +64,7 @@ void world_view_t::internal_draw(const koord offset, ding_t const* const ding)
 	koord         fine_here = koord(0, 0);
 	sint16        y_offset  = 0;
 	if(ding) { // offsets?
-		fine_here = koord(tile_raster_scale_x(-ding->get_xoff(), raster), tile_raster_scale_x(-ding->get_yoff() % (OBJECT_OFFSET_STEPS * 2), raster));
+		fine_here = koord(tile_raster_scale_x(-ding->get_xoff(), raster), tile_raster_scale_y(-ding->get_yoff() % (OBJECT_OFFSET_STEPS * 2), raster));
 		y_offset  = ding->get_yoff() / (OBJECT_OFFSET_STEPS * 2);
 		if(vehikel_basis_t const* const v = ding_cast<vehikel_basis_t>(ding)) {
 			int x = 0;
@@ -125,7 +133,7 @@ void world_view_t::internal_draw(const koord offset, ding_t const* const ding)
 		}
 
 		const sint16 yypos = display_off.y + (off.y + off.x) * 16 * raster / 64 - tile_raster_scale_y(kb->get_hoehe() * TILE_HEIGHT_STEP / Z_TILE_STEP, raster);
-		if(  gr.y < yypos + raster / 4  ) {
+		if(  gr.y < yypos  ) {
 			break; // enough with grounds
 		} else if (  0 <= yypos + raster  ) {
 			kb->display_if_visible(pos.x + off_x, pos.y + yypos, raster);
@@ -179,21 +187,28 @@ void world_view_t::internal_draw(const koord offset, ding_t const* const ding)
 
 /**
  * Resize the contents of the window
- * recalculates also the number of tiles needed
  * @author prissi
  */
 void world_view_t::set_groesse(koord size)
 {
 	gui_komponente_t::set_groesse(size);
+	calc_offsets(size, 5);
+}
 
+
+/**
+ * Recalculates the number of tiles needed
+ */
+void world_view_t::calc_offsets(koord size, sint16 dy_off)
+{
 	const sint16 max_dx = size.x/(raster/2) + 2;
-	const sint16 max_dy = (size.y/(raster/2) + 5)&0x0FFE;
+	const sint16 max_dy = (size.y/(raster/2) + dy_off)&0x0FFE;
 
 	offsets.clear();
-	for( sint16 dy =- max_dy;  dy <= 2;  ) {
+	for(  sint16 dy = -max_dy;  dy <= 5;  ) {
 		{
 			for(  sint16 dx =- 2;  dx < max_dx;  dx += 2  ) {
-				const koord check( (dy + dx)/2, (dy - dx) / 2);
+				const koord check( (dy + dx) / 2, (dy - dx) / 2);
 				offsets.append(check);
 			}
 		}

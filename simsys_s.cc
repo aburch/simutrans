@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner
  *
- * This file is part of the Simutrans project under the artistic licence.
+ * This file is part of the Simutrans project under the artistic license.
  */
 
 #ifndef WIN32
@@ -11,37 +11,15 @@
 #ifdef SDL
 #include <SDL.h>
 
-#ifndef _MSC_VER
-#include <unistd.h>
-#include <sys/time.h>
-#endif
-
 #ifdef _WIN32
-#include <SDL_syswm.h>
 // windows.h defines min and max macros which we don't want
 #define NOMINMAX 1
 #include <windows.h>
-#else
-#	include "limits.h"
-#ifndef __HAIKU__
-#include <sys/errno.h>
-#else
-#include <posix/errno.h>
-#endif
 #endif
 
-#include <dirent.h>
 #include <stdio.h>
-#include <stddef.h>
-#include <string.h>
-#include <stdlib.h>
-#include <math.h>
-
-#undef min
-#undef max
 
 #include "macros.h"
-#include "simmain.h"
 #include "simsys_w32_png.h"
 #include "simversion.h"
 #include "simsys.h"
@@ -112,8 +90,6 @@ static int height = 16;
 // switch off is a little faster (<3%)
 static int sync_blit = 0;
 
-struct sys_event sys_event;
-
 static SDL_Cursor* arrow;
 static SDL_Cursor* hourglass;
 
@@ -123,11 +99,11 @@ static SDL_Cursor* hourglass;
  * Schnittstelle untergebracht
  * -> init,open,close
  */
-int dr_os_init(const int* parameter)
+bool dr_os_init(const int* parameter)
 {
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) != 0) {
 		fprintf(stderr, "Couldn't initialize SDL: %s\n", SDL_GetError());
-		return FALSE;
+		return false;
 	}
 
 	sync_blit = parameter[1];
@@ -138,7 +114,7 @@ int dr_os_init(const int* parameter)
 
 	atexit(SDL_Quit); // clean up on exit
 
-	return TRUE;
+	return true;
 }
 
 
@@ -165,9 +141,6 @@ resolution dr_query_screen_resolution()
 #endif
 	return res;
 }
-
-
-extern void display_set_actual_width(KOORD_VAL w);
 
 
 // open the window
@@ -206,11 +179,11 @@ int dr_os_open(int w, int const h, int const fullscreen)
 	}
 	DBG_MESSAGE("dr_os_open(SDL)", "SDL realized screen size width=%d, height=%d (requested w=%d, h=%d)", screen->w, screen->h, w, h);
 
-	SDL_EnableUNICODE(TRUE);
+	SDL_EnableUNICODE(true);
 	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 
 	// set the caption for the window
-	SDL_WM_SetCaption("Simutrans " VERSION_NUMBER NARROW_EXPERIMENTAL_VERSION,NULL);
+	SDL_WM_SetCaption(SIM_TITLE, 0);
 	SDL_ShowCursor(0);
 	arrow = SDL_GetCursor();
 	hourglass = SDL_CreateCursor(hourglass_cursor, hourglass_cursor_mask, 16, 22, 8, 11);
@@ -221,14 +194,12 @@ int dr_os_open(int w, int const h, int const fullscreen)
 
 
 // shut down SDL
-int dr_os_close(void)
+void dr_os_close()
 {
 	SDL_FreeCursor(hourglass);
-	// Hajo: SDL doc says, screen is free'd by SDL_Quit and should not be
-	// free'd by the user
+	// Hajo: SDL doc says, screen is freed by SDL_Quit and should not be
+	// freed by the user
 	// SDL_FreeSurface(screen);
-
-	return TRUE;
 }
 
 
@@ -288,21 +259,6 @@ unsigned short *dr_textur_init()
 unsigned int get_system_color(unsigned int r, unsigned int g, unsigned int b)
 {
 	return SDL_MapRGB(screen->format, (Uint8)r, (Uint8)g, (Uint8)b);
-}
-
-
-void dr_setRGB8multi(int first, int count, unsigned char* data)
-{
-	ALLOCA(SDL_Color, rgb, count);
-	int n;
-
-	for (n = 0; n < count; n++) {
-		rgb[n].r = *data++;
-		rgb[n].g = *data++;
-		rgb[n].b = *data++;
-	}
-
-	SDL_SetColors(screen, rgb, first, count);
 }
 
 
@@ -400,7 +356,7 @@ static int conv_mouse_buttons(Uint8 const state)
 }
 
 
-static void internal_GetEvents(int wait)
+static void internal_GetEvents(bool const wait)
 {
 	SDL_Event event;
 	event.type = 1;
@@ -415,13 +371,13 @@ static void internal_GetEvents(int wait)
 	}
 	else {
 		int n;
-		int got_one = FALSE;
+		bool got_one = false;
 
 		do {
 			n = SDL_PollEvent(&event);
 
 			if (n != 0) {
-				got_one = TRUE;
+				got_one = true;
 
 				if (event.type == SDL_MOUSEMOTION) {
 					sys_event.type = SIM_MOUSE_MOVE;
@@ -594,7 +550,7 @@ static void internal_GetEvents(int wait)
 
 void GetEvents(void)
 {
-	internal_GetEvents(TRUE);
+	internal_GetEvents(true);
 }
 
 
@@ -603,7 +559,7 @@ void GetEventsNoWait(void)
 	sys_event.type = SIM_NOEVENT;
 	sys_event.code = 0;
 
-	internal_GetEvents(FALSE);
+	internal_GetEvents(false);
 }
 
 
@@ -631,25 +587,8 @@ void dr_sleep(uint32 usec)
 }
 
 
-bool dr_fatal_notify(const char* msg, int choices)
-{
 #ifdef _WIN32
-	if(choices==0) {
-		MessageBoxA( NULL, msg, "Fatal Error", MB_ICONEXCLAMATION|MB_OK );
-		return 0;
-	}
-	else {
-		return MessageBoxA( NULL, msg, "Fatal Error", MB_ICONEXCLAMATION|MB_RETRYCANCEL	)==IDRETRY;
-	}
-#else
-	fputs(msg, stderr);
-	return choices;
-#endif
-}
-
-
-#ifdef _WIN32
-int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR, int)
+int CALLBACK WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #else
 int main(int argc, char **argv)
 #endif
@@ -657,28 +596,7 @@ int main(int argc, char **argv)
 #ifdef _WIN32
 	int    const argc = __argc;
 	char** const argv = __argv;
-	char         pathname[1024];
-	GetModuleFileNameA(hInstance, pathname, lengthof(pathname));
-	argv[0] = pathname;
-#elif !defined __BEOS__
-#  if defined(__GLIBC__)  &&  !defined(__AMIGA__)
-	/* glibc has a non-standard extension */
-	char* buffer2 = NULL;
-#  else
-	char buffer2[PATH_MAX];
-#  endif
-#  ifndef __AMIGA__
-	char buffer[PATH_MAX];
-	int length = readlink("/proc/self/exe", buffer, lengthof(buffer) - 1);
-	if (length != -1) {
-		buffer[length] = '\0'; /* readlink() does not NUL-terminate */
-		argv[0] = buffer;
-	}
-#  endif
-	// no process file system => need to parse argv[0]
-	/* should work on most unix or gnu systems */
-	argv[0] = realpath(argv[0], buffer2);
 #endif
-	return simu_main(argc, argv);
+	return sysmain(argc, argv);
 }
 #endif

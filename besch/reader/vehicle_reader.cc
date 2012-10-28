@@ -12,8 +12,7 @@
 
 
 
-void
-vehicle_reader_t::register_obj(obj_besch_t *&data)
+void vehicle_reader_t::register_obj(obj_besch_t *&data)
 {
 	vehikel_besch_t *besch = static_cast<vehikel_besch_t *>(data);
 	vehikelbauer_t::register_besch(besch);
@@ -25,16 +24,13 @@ vehicle_reader_t::register_obj(obj_besch_t *&data)
 }
 
 
-
-bool
-vehicle_reader_t::successfully_loaded() const
+bool vehicle_reader_t::successfully_loaded() const
 {
 	return vehikelbauer_t::alles_geladen();
 }
 
 
-obj_besch_t *
-vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
+obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	ALLOCA(char, besch_buf, node.size);
 
@@ -53,7 +49,6 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	
 	// Whether the read file is from Simutrans-Experimental
 	//@author: jamespetts
-	way_constraints_of_vehicle_t way_constraints;
 	const bool experimental = version > 0 ? v & EXP_VER : false;
 	uint16 experimental_version = 0;
 	if(experimental)
@@ -65,18 +60,20 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			version -= 0x100;
 			experimental_version ++;
 		}
-		experimental_version -=1;
+		experimental_version -= 1;
 	}
+
+	way_constraints_of_vehicle_t way_constraints;
 
 	if(version == 1) {
 		// Versioned node, version 1
 
-		besch->preis = decode_uint32(p);
+		besch->base_price = decode_uint32(p);
 		besch->zuladung = decode_uint16(p);
 		besch->geschw = decode_uint16(p);
 		besch->gewicht = decode_uint16(p);
 		besch->leistung = decode_uint16(p);
-		besch->betriebskosten = decode_uint16(p);
+		besch->running_cost = decode_uint16(p);
 
 		besch->intro_date = decode_uint16(p);
 		besch->gear = decode_uint8(p);
@@ -87,15 +84,16 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->nachfolger = decode_uint8(p);
 
 		besch->obsolete_date = (DEFAULT_RETIRE_DATE*16);
-	} else if(version == 2) {
+	}
+	else if(version == 2) {
 		// Versioned node, version 2
 
-		besch->preis = decode_uint32(p);
+		besch->base_price = decode_uint32(p);
 		besch->zuladung = decode_uint16(p);
 		besch->geschw = decode_uint16(p);
 		besch->gewicht = decode_uint16(p);
 		besch->leistung = decode_uint16(p);
-		besch->betriebskosten = decode_uint16(p);
+		besch->running_cost = decode_uint16(p);
 
 		besch->intro_date = decode_uint16(p);
 		besch->gear = decode_uint8(p);
@@ -107,17 +105,18 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->engine_type = decode_uint8(p);
 
 		besch->obsolete_date = (DEFAULT_RETIRE_DATE*16);
-	} else if (version==3   ||  version==4  ||  version==5) {
+	}
+	else if (version==3   ||  version==4  ||  version==5) {
 		// Versioned node, version 3 with retire date
 		// version 4 identical, just other values for the waytype
 		// version 5 just uses the new scheme for data calculation
 
-		besch->preis = decode_uint32(p);
+		besch->base_price = decode_uint32(p);
 		besch->zuladung = decode_uint16(p);
 		besch->geschw = decode_uint16(p);
 		besch->gewicht = decode_uint16(p);
 		besch->leistung = decode_uint16(p);
-		besch->betriebskosten = decode_uint16(p);
+		besch->running_cost = decode_uint16(p);
 
 		besch->intro_date = decode_uint16(p);
 		besch->obsolete_date = decode_uint16(p);
@@ -128,15 +127,16 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->vorgaenger = decode_uint8(p);
 		besch->nachfolger = decode_uint8(p);
 		besch->engine_type = decode_uint8(p);
-	} else if (version==6) {
+	}
+	else if (version==6) {
 		// version 5 just 32 bit for power and 16 Bit for gear
 
-		besch->preis = decode_uint32(p);
+		besch->base_price = decode_uint32(p);
 		besch->zuladung = decode_uint16(p);
 		besch->geschw = decode_uint16(p);
 		besch->gewicht = decode_uint16(p);
 		besch->leistung = decode_uint32(p);
-		besch->betriebskosten = decode_uint16(p);
+		besch->running_cost = decode_uint16(p);
 
 		besch->intro_date = decode_uint16(p);
 		besch->obsolete_date = decode_uint16(p);
@@ -147,15 +147,16 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->engine_type = decode_uint8(p);
 		besch->vorgaenger = decode_uint8(p);
 		besch->nachfolger = decode_uint8(p);
-	} else if (version==7) {
+	}
+	else if (version==7) {
 		// different length of cars ...
 
-		besch->preis = decode_uint32(p);
+		besch->base_price = decode_uint32(p);
 		besch->zuladung = decode_uint16(p);
 		besch->geschw = decode_uint16(p);
 		besch->gewicht = decode_uint16(p);
 		besch->leistung = decode_uint32(p);
-		besch->betriebskosten = decode_uint16(p);
+		besch->running_cost = decode_uint16(p);
 
 		besch->intro_date = decode_uint16(p);
 		besch->obsolete_date = decode_uint16(p);
@@ -167,14 +168,15 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->len = decode_uint8(p);
 		besch->vorgaenger = decode_uint8(p);
 		besch->nachfolger = decode_uint8(p);
-	} else if (version==8) {
+	}
+	else if (version==8) {
 		// multiple freight images...
-		besch->preis = decode_uint32(p);
+		besch->base_price = decode_uint32(p);
 		besch->zuladung = decode_uint16(p);
 		besch->geschw = decode_uint16(p);
 		besch->gewicht = decode_uint16(p);
-		besch->leistung = decode_uint32(p); //"performance" (Google)
-		besch->betriebskosten = decode_uint16(p);
+		besch->leistung = decode_uint32(p);
+		besch->running_cost = decode_uint16(p);
 
 		besch->intro_date = decode_uint16(p);
 		besch->obsolete_date = decode_uint16(p);
@@ -184,8 +186,8 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->sound = decode_sint8(p);
 		besch->engine_type = decode_uint8(p);
 		besch->len = decode_uint8(p);
-		besch->vorgaenger = decode_uint8(p); //"Predecessors" (Google)
-		besch->nachfolger = decode_uint8(p); //"Successor" (Google)
+		besch->vorgaenger = decode_uint8(p);
+		besch->nachfolger = decode_uint8(p);
 		besch->freight_image_type = decode_uint8(p);
 		if(experimental)
 		{
@@ -201,19 +203,22 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				besch->overcrowded_capacity = decode_uint16(p);
 				besch->min_loading_time = besch->max_loading_time = decode_uint16(p);
 				besch->upgrades = decode_uint8(p);
-				besch->upgrade_price = decode_uint32(p);
+				besch->base_upgrade_price = decode_uint32(p);
 				besch->available_only_as_upgrade = decode_uint8(p);
+				besch->brake_force = BRAKE_FORCE_UNKNOWN;
+				besch->minimum_runway_length = 0;
+				besch->rolling_resistance = float32e8_t(vehikel_besch_t::get_rolling_default(besch->typ), 10000UL);
 				if(experimental_version == 1)
 				{
-					besch->fixed_maintenance = decode_uint16(p);
+					besch->base_fixed_cost = decode_uint16(p);
 				}
 				else if(experimental_version >= 2)
 				{
-					besch->fixed_maintenance = decode_uint32(p);
+					besch->base_fixed_cost = decode_uint32(p);
 				}
 				else
 				{
-					besch->fixed_maintenance = DEFAULT_FIXED_VEHICLE_MAINTENANCE;
+					besch->base_fixed_cost = DEFAULT_FIXED_VEHICLE_MAINTENANCE;
 				}
 				if(experimental_version >= 3)
 				{
@@ -235,29 +240,7 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				}
 				else
 				{
-					uint16 air_default;
-					switch(besch->get_waytype())
-					{
-						default:
-						case road_wt:
-							air_default = 252; //2.52 when read
-							break;
-						case track_wt:
-						case tram_wt:
-						case monorail_wt:
-						case narrowgauge_wt:
-							air_default = 1300; //13 when read
-							break;
-						case water_wt:
-							air_default = 2500; //25 when read
-							break;
-						case maglev_wt:		
-							air_default = 1000; //10 when read
-							break;
-						case air_wt:
-							air_default = 100; //1 when read
-					};
-					besch->air_resistance = float32e8_t((uint32) air_default, (uint32)100);
+					besch->air_resistance = float32e8_t((uint32) vehikel_besch_t::get_air_default(besch->typ), (uint32)100);
 					besch->can_be_at_rear = true;
 					besch->increase_maintenance_after_years = 0;
 					besch->increase_maintenance_by_percent = 0;
@@ -281,7 +264,129 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				{
 					besch->min_loading_time_seconds = besch->max_loading_time_seconds = 65535;
 				}
+			}
+			else
+			{
+				dbg->fatal( "vehicle_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version );
+			}
+		}
+	}
+	else if (version==9) {
+		// new: fixed_cost (previously Experimental only), loading_time, axle_load
+		besch->base_price = decode_uint32(p);
+		besch->zuladung = decode_uint16(p);
+		if(experimental_version == 0)
+		{
+			// The new Standard datum for loading times is read here.
+			besch->min_loading_time = besch->max_loading_time = decode_uint16(p);
+		}
+		besch->geschw = decode_uint16(p);
+		besch->gewicht = decode_uint16(p);
+		besch->axle_load = decode_uint16(p);
+		besch->leistung = decode_uint32(p);
+		besch->running_cost = decode_uint16(p);
+		if(experimental_version == 0)
+		{
+			// Experimental has this as a 32-bit integer, and reads it later.
+			besch->base_fixed_cost = decode_uint16(p);
+		}
 
+		besch->intro_date = decode_uint16(p);
+		besch->obsolete_date = decode_uint16(p);
+		besch->gear = decode_uint16(p);
+
+		besch->typ = decode_uint8(p);
+		besch->sound = decode_sint8(p);
+		besch->engine_type = decode_uint8(p);
+		besch->len = decode_uint8(p);
+		besch->vorgaenger = decode_uint8(p);		//"Predecessors" (Google)
+		besch->nachfolger = decode_uint8(p);		//"Successor" (Google)
+		besch->freight_image_type = decode_uint8(p);
+		if(experimental)
+		{
+			if(experimental_version <= 7)
+			{
+				besch->is_tilting = decode_uint8(p);
+				way_constraints.set_permissive(decode_uint8(p));
+				way_constraints.set_prohibitive(decode_uint8(p));
+				besch->catering_level = decode_uint8(p);
+				besch->bidirectional = decode_uint8(p);
+				besch->can_lead_from_rear = decode_uint8(p);
+				besch->comfort = decode_uint8(p);
+				besch->overcrowded_capacity = decode_uint16(p);
+				besch->min_loading_time = besch->max_loading_time = decode_uint16(p);
+				besch->upgrades = decode_uint8(p);
+				besch->base_upgrade_price = decode_uint32(p);
+				besch->available_only_as_upgrade = decode_uint8(p);
+				if(experimental_version == 1)
+				{
+					besch->base_fixed_cost = decode_uint16(p);
+				}
+				else if(experimental_version >= 2)
+				{
+					besch->base_fixed_cost = decode_uint32(p);
+				}
+				else
+				{
+					besch->base_fixed_cost = DEFAULT_FIXED_VEHICLE_MAINTENANCE;
+				}
+				if(experimental_version >= 3)
+				{
+					besch->tractive_effort = decode_uint16(p);
+				}
+				else
+				{
+					besch->tractive_effort = 0;
+				}
+
+				if(experimental_version >= 4)
+				{
+					uint16 air_resistance_hundreds = decode_uint16(p);
+					besch->air_resistance = float32e8_t((uint32) air_resistance_hundreds, (uint32)100);
+					besch->can_be_at_rear = (bool)decode_uint8(p);
+					besch->increase_maintenance_after_years = decode_uint16(p);
+					besch->increase_maintenance_by_percent = decode_uint16(p);
+					besch->years_before_maintenance_max_reached = decode_uint8(p);
+				}
+				else
+				{
+					besch->air_resistance = float32e8_t(vehikel_besch_t::get_air_default(besch->typ), 100UL);
+					besch->can_be_at_rear = true;
+					besch->increase_maintenance_after_years = 0;
+					besch->increase_maintenance_by_percent = 0;
+					besch->years_before_maintenance_max_reached = 0;
+				}
+				if(experimental_version >= 5)
+				{
+					besch->livery_image_type = decode_uint8(p);
+				}
+				else
+				{
+					besch->livery_image_type = 0;
+				}
+				if(experimental_version >= 6)
+				{
+					// With minimum and maximum loading times in seconds
+					besch->min_loading_time_seconds = decode_uint16(p);
+					besch->max_loading_time_seconds = decode_uint16(p);
+				}
+				else
+				{
+					besch->min_loading_time_seconds = besch->max_loading_time_seconds = 65535;
+				}
+				if(experimental_version >= 7)
+				{
+					uint16 rolling_resistance_tenths_thousands = decode_uint16(p);
+					besch->rolling_resistance = float32e8_t((uint32) rolling_resistance_tenths_thousands, (uint32)10000);
+					besch->brake_force = decode_uint16(p);
+					besch->minimum_runway_length = decode_uint16(p);
+				}
+				else
+				{
+					besch->rolling_resistance = float32e8_t(vehikel_besch_t::get_rolling_default(besch->typ), 10000UL);
+					besch->brake_force = BRAKE_FORCE_UNKNOWN;
+					besch->minimum_runway_length = 0;
+				}
 			}
 			else
 			{
@@ -297,11 +402,11 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 		besch->typ = (sint8)v;
 		besch->zuladung = decode_uint16(p);
-		besch->preis = decode_uint32(p);
+		besch->base_price = decode_uint32(p);
 		besch->geschw = decode_uint16(p);
 		besch->gewicht = decode_uint16(p);
 		besch->leistung = decode_uint16(p);
-		besch->betriebskosten = decode_uint16(p);
+		besch->running_cost = decode_uint16(p);
 		besch->sound = (sint8)decode_sint16(p);
 		besch->vorgaenger = (sint8)decode_uint16(p);
 		besch->nachfolger = (sint8)decode_uint16(p);
@@ -385,34 +490,13 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			besch->min_loading_time = besch->max_loading_time = 30000;
 			break;
 		}
-		uint16 air_default;
 
-		switch(besch->get_waytype())
-		{
-			default:
-			case road_wt:
-				air_default = 252; //2.52 when read
-				break;
-			case track_wt:
-			case tram_wt:
-			case monorail_wt:
-			case narrowgauge_wt:
-				air_default = 1300; //13 when read
-				break;
-			case water_wt:
-				air_default = 2500; //25 when read
-				break;
-			case maglev_wt:		
-				air_default = 1000; //10 when read
-				break;
-			case air_wt:
-				air_default = 100; //1 when read
-		};
-		besch->air_resistance = float32e8_t((uint32) air_default, (uint32)100);
+		besch->air_resistance = float32e8_t(vehikel_besch_t::get_air_default(besch->typ), 100UL);
+		besch->rolling_resistance = float32e8_t(vehikel_besch_t::get_rolling_default(besch->typ), 10000UL);
 		besch->upgrades = 0;
-		besch->upgrade_price = besch->preis;
+		besch->base_upgrade_price = besch->base_price;
 		besch->available_only_as_upgrade = false;
-		besch->fixed_maintenance = DEFAULT_FIXED_VEHICLE_MAINTENANCE;
+		besch->base_fixed_cost = DEFAULT_FIXED_VEHICLE_MAINTENANCE;
 		besch->can_be_at_rear = true;
 		besch->increase_maintenance_after_years = 0;
 		besch->increase_maintenance_by_percent = 0;
@@ -420,8 +504,15 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->livery_image_type = 0;
 		besch->min_loading_time_seconds = 20;
 		besch->max_loading_time_seconds = 60;
+		besch->brake_force = BRAKE_FORCE_UNKNOWN;
+		besch->minimum_runway_length = 0;
 	}
 	besch->set_way_constraints(way_constraints);
+
+	if(version<9) {
+		besch->base_fixed_cost = 0;
+		besch->axle_load = 0;
+	}
 
 	if(besch->sound==LOAD_SOUND) {
 		uint8 len=decode_sint8(p);
@@ -435,25 +526,26 @@ DBG_MESSAGE("vehicle_reader_t::register_obj()","sound %s to %i",wavname,besch->s
 	}
 	else if(besch->sound>=0  &&  besch->sound<=MAX_OLD_SOUNDS) {
 		sint16 old_id = besch->sound;
-		besch->sound = (sint8)sound_besch_t::get_compatible_sound_id(old_id);
+		besch->sound = (sint8)sound_besch_t::get_compatible_sound_id((sint8)old_id);
 DBG_MESSAGE("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,besch->sound);
 	}
 	besch->loaded();
 
 	DBG_DEBUG("vehicle_reader_t::read_node()",
 		"version=%d "
-		"way=%d zuladung=%d preis=%d geschw=%d gewicht=%d leistung=%d "
+		"way=%d zuladung=%d preis=%d geschw=%d gewicht=%d axle_load=%d leistung=%d "
 		"betrieb=%d sound=%d vor=%d nach=%d "
 		"date=%d/%d gear=%d engine_type=%d len=%d is_tilting=%d catering_level=%d "
 		"way_constraints_permissive=%d way_constraints_prohibitive%d bidirectional%d can_lead_from_rear%d",
 		version,
 		besch->typ,
 		besch->zuladung,
-		besch->preis,
+		besch->base_price,
 		besch->geschw,
 		besch->gewicht,
+		besch->axle_load,
 		besch->leistung,
-		besch->betriebskosten,
+		besch->running_cost,
 		besch->sound,
 		besch->vorgaenger,
 		besch->nachfolger,

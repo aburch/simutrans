@@ -2,6 +2,7 @@
 #define scenario_h
 
 #include "../simtypes.h"
+#include "../utils/plainstring.h"
 
 class loadsave_t;
 class stadt_t;
@@ -13,7 +14,7 @@ class scenario_t
 private:
 	enum { CONNECT_CITY_WORKER=1, CONNECT_FACTORY_PAX, CONNECT_FACTORY_GOODS, DOUBLE_INCOME, BUILT_HEADQUARTER_AND_10_TRAINS, TRANSPORT_1000_PAX };
 
-	char *scenario_name;
+	plainstring scenario_name;
 
 	// enum for what to check
 	uint16	what_scenario;

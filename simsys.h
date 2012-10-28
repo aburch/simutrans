@@ -1,7 +1,7 @@
 /*
  * definitions for the system dependent part of simutrans
  *
- * This file is part of the Simutrans project under the artistic licence.
+ * This file is part of the Simutrans project under the artistic license.
  */
 
 #ifndef simsys_h
@@ -10,10 +10,11 @@
 #include <stddef.h>
 #include "simtypes.h"
 
-
-#ifndef TRUE
-#define TRUE 1
-#define FALSE 0
+// Provide chdir().
+#ifdef _WIN32
+#	include <direct.h>
+#else
+#	include <unistd.h>
 #endif
 
 
@@ -58,7 +59,7 @@ struct sys_event
 extern struct sys_event sys_event;
 
 
-int dr_os_init(const int* parameter);
+bool dr_os_init(int const* parameter);
 
 /* maximum size possible (if there) */
 struct resolution
@@ -69,7 +70,7 @@ struct resolution
 resolution dr_query_screen_resolution();
 
 int dr_os_open(int w, int h, int fullscreen);
-int dr_os_close(void);
+void dr_os_close();
 
 void dr_mkdir(char const* path);
 
@@ -87,8 +88,6 @@ int dr_textur_resize(unsigned short** textur, int w, int h);
 // needed for screen update
 void dr_prepare_flush();	// waits, if previous update not yet finished
 void dr_flush(void);	// copy to screen (eventuall multithreaded)
-
-void dr_setRGB8multi(int first, int count, unsigned char * data);
 
 /**
  * Transform a 24 bit RGB color into the system format.
@@ -112,8 +111,7 @@ unsigned long dr_time(void);
 void dr_sleep(uint32 millisec);
 
 // error message in case of fatal events
-// if choice!=0 then there will be a scond button
-bool dr_fatal_notify(const char* msg, int choices);
+void dr_fatal_notify(char const* msg);
 
 /**
  * Some wrappers can save screenshots.
@@ -139,5 +137,7 @@ void dr_copy(const char *source, size_t length);
  * @author Knightly
  */
 size_t dr_paste(char *target, size_t max_length);
+
+int sysmain(int argc, char** argv);
 
 #endif

@@ -346,8 +346,8 @@ void replace_frame_t::update_data()
 		}
 	} else if (replace_all) {
 		karte_t *welt=cnv->get_welt();
-		for (uint32 i=0; i<welt->get_convoi_count(); i++) {
-			convoihandle_t cnv_aux=welt->get_convoi(i);
+		for (uint32 i=0; i<welt->convoys().get_count(); i++) {
+			convoihandle_t cnv_aux=welt->convoys()[i];
 			if (cnv_aux.is_bound() && cnv_aux->get_besitzer()==cnv->get_besitzer() && cnv->has_same_vehicles(cnv_aux)) 
 			{
 				uint8 present_state=get_present_state();
@@ -527,9 +527,9 @@ bool replace_frame_t::action_triggered( gui_action_creator_t *komp,value_t /*p*/
 			else if (replace_all) 
 			{
 				karte_t *welt=cnv->get_welt();
-				for (uint32 i=0; i<welt->get_convoi_count(); i++) 
+				for (uint32 i=0; i<welt->convoys().get_count(); i++) 
 				{
-					convoihandle_t cnv_aux=welt->get_convoi(i);
+					convoihandle_t cnv_aux=welt->convoys()[i];
 					if (cnv_aux.is_bound() && cnv_aux->get_besitzer()==cnv->get_besitzer() && cnv->has_same_vehicles(cnv_aux)) 
 					{
 						replace_convoy(cnv_aux, komp == &bt_mark);

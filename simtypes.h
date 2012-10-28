@@ -1,8 +1,8 @@
 /*
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner
  *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans project under the artistic license.
+ * (see license.txt)
  */
 
 #ifndef SIMTYPES_H
@@ -30,6 +30,26 @@
 #	define NOT_REACHED abort();
 #else
 #	define NOT_REACHED
+#endif
+
+#define GCC_ATLEAST(major, minor) (defined __GNUC__ && (__GNUC__ > (major) || (__GNUC__ == (major) && __GNUC_MINOR__ >= (minor))))
+
+#define CXX11(gcc_major, gcc_minor, msc_ver) ( \
+	__cplusplus >= 201103L || \
+	(defined __GXX_EXPERIMENTAL_CXX0X__ && GCC_ATLEAST((gcc_major), (gcc_minor))) || \
+	(defined _MSC_VER && (msc_ver) != 0 && _MSC_VER >= (msc_ver)) \
+)
+
+#if CXX11(4, 4, 0)
+#	define DELETED = delete
+#else
+#	define DELETED
+#endif
+
+#if CXX11(4, 7, 1400)
+#	define OVERRIDE override
+#else
+#	define OVERRIDE
 #endif
 
 #ifdef __cplusplus
@@ -107,23 +127,23 @@ typedef   signed short      sint16;
 typedef unsigned short      uint16;
 #ifndef __BEOS__
 typedef   signed int        sint32;
+#define SINT32_MAX_VALUE	INT_MAX
 typedef unsigned int        uint32;
 #define UINT32_MAX_VALUE	UINT_MAX
 #else
 // BeOS: int!=long (even though both 32 bit)
 typedef   signed long       sint32;
+#define SINT32_MAX_VALUE	LONG_MAX
 typedef unsigned long       uint32;
 #define UINT32_MAX_VALUE	ULONG_MAX	
 #endif
+typedef   signed long long  sint64;
+typedef unsigned long long  uint64;
 #ifdef _MSC_VER
-typedef   signed __int64	  sint64;
-typedef unsigned __int64    uint64;
 #	define GCC_PACKED
 #	define NORETURN __declspec(noreturn)
 #	pragma warning(disable: 4200 4311 4800 4996)
 #else
-typedef   signed long long  sint64;
-typedef unsigned long long  uint64;
 #	define GCC_PACKED __attribute__ ((__packed__))
 #	define NORETURN   __attribute__ ((noreturn))
 #endif

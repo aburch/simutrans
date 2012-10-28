@@ -55,6 +55,13 @@ private:
 	* @author prissi
 	*/
 	uint16 intro_date;
+
+	/**
+	 * Whether this signal/sign
+	 * can be built underground
+	 */
+	uint8 allow_underground;
+
 	uint16 obsolete_date;
 
 	werkzeug_t *builder;
@@ -132,6 +139,8 @@ public:
 	*/
 	uint16 get_retire_year_month() const { return obsolete_date; }
 
+	uint8 get_allow_underground() const { return allow_underground; }
+
 	// default tool for building
 	werkzeug_t *get_builder() const {
 		return builder;
@@ -148,6 +157,7 @@ public:
 		chk->input(cost);
 		chk->input(intro_date);
 		chk->input(obsolete_date);
+		chk->input(allow_underground);
 	}
 };
 

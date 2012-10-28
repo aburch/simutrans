@@ -6,6 +6,7 @@
 #include "imagelist3d_writer.h"
 #include "imagelist2d_writer.h"
 
+typedef slist_tpl<slist_tpl<slist_tpl<std::string> > > slist_3d;
 
 void imagelist3d_writer_t::write_obj(FILE* fp, obj_node_t& parent, const slist_tpl<slist_tpl<slist_tpl<std::string> > >& keys)
 {
@@ -13,13 +14,11 @@ void imagelist3d_writer_t::write_obj(FILE* fp, obj_node_t& parent, const slist_t
 
 	obj_node_t node(this, 4, &parent);
 
-	slist_iterator_tpl<slist_tpl<slist_tpl<std::string> > > iter(keys);
-
 	besch.anzahl = keys.get_count();
 
-	while (iter.next()) 
+	FOR(slist_3d, const& i, keys)
 	{
-		imagelist2d_writer_t::instance()->write_obj(fp, node, iter.get_current());
+		imagelist2d_writer_t::instance()->write_obj(fp, node, i);
 	}
 	node.write_uint16(fp, besch.anzahl, 0);
 	node.write_uint16(fp, 0,            2);

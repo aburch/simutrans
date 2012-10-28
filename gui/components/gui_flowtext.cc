@@ -10,6 +10,7 @@ gui_flowtext_t::gui_flowtext_t()
 {
 	title[0] = '\0';
 	last_offset = koord::invalid;
+	dirty = true;
 }
 
 
@@ -150,6 +151,10 @@ koord gui_flowtext_t::get_preferred_size()
 	return output(koord(0, 0), false);
 }
 
+koord gui_flowtext_t::get_text_size()
+{
+	return output(koord(0, 0), false, false);
+}
 
 void gui_flowtext_t::zeichnen(koord offset)
 {
@@ -162,7 +167,7 @@ void gui_flowtext_t::zeichnen(koord offset)
 }
 
 
-koord gui_flowtext_t::output(koord offset, bool doit)
+koord gui_flowtext_t::output(koord offset, bool doit, bool return_max_width)
 {
 	const int width = groesse.x;
 
@@ -174,6 +179,7 @@ koord gui_flowtext_t::output(koord offset, bool doit)
 	int double_color = COL_BLACK;
 	bool double_it   = false;
 	int max_width    = width;
+	int text_width   = width;
 
 	FOR(slist_tpl<node_t>, const& i, nodes) {
 		switch (i.att) {
@@ -188,6 +194,9 @@ koord gui_flowtext_t::output(koord offset, bool doit)
 					nxpos -= xpos;
 					xpos = 0;
 					ypos += LINESPACE;
+				}
+				if (nxpos >= text_width) {
+					text_width = nxpos;
 				}
 
 				if (doit) {
@@ -233,8 +242,8 @@ koord gui_flowtext_t::output(koord offset, bool doit)
 				break;
 
 			case ATT_H1_START:
-				color        = COL_BLACK;
-				double_color = COL_WHITE;
+				color        = COL_ORANGE;
+				double_color = COL_BLACK;
 				double_it    = true;
 				break;
 
@@ -268,11 +277,15 @@ koord gui_flowtext_t::output(koord offset, bool doit)
 				break;
 
 			case ATT_STRONG_START:
-				color = COL_RED;
+				if(  !double_it  ) {
+					color = COL_RED;
+				}
 				break;
 
 			case ATT_STRONG_END:
-				color = COL_BLACK;
+				if(  !double_it  ) {
+					color = COL_BLACK;
+				}
 				break;
 
 			default: break;
@@ -282,7 +295,7 @@ koord gui_flowtext_t::output(koord offset, bool doit)
 		mark_rect_dirty_wc( offset.x, offset.y, offset.x+max_width, offset.y+ypos+LINESPACE );
 		dirty = false;
 	}
-	return koord(max_width, ypos + LINESPACE);
+	return koord( return_max_width ? max_width : text_width, ypos + LINESPACE);
 }
 
 

@@ -32,7 +32,7 @@ private:
 
 public:
 	message_stats_t(karte_t *welt);
-	~message_stats_t() { filtered_messages.clear(); }
+	virtual ~message_stats_t() { filtered_messages.clear(); }
 
 	/**
 	 * Filter messages by type
@@ -41,12 +41,7 @@ public:
 	 */
 	bool filter_messages(const sint32 msg_type);
 
-	/**
-	 * Events werden hiermit an die GUI-Komponenten
-	 * gemeldet
-	 * @author Hj. Malthaner
-	 */
-	bool infowin_event(const event_t *);
+	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**
 	* Recalc the current size required to display everything, and set komponente groesse

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997 - 2001 Hansj�rg Malthaner
  *
- * This file is part of the Simutrans project under the artistic licence.
+ * This file is part of the Simutrans project under the artistic license.
  */
 
 #include <stdlib.h>
@@ -148,8 +148,8 @@ void log_t::error(const char *who, const char *format, ...)
 				fflush(log);
 			}
 
-			fprintf(log ,"Please report all errors to\n");
-			fprintf(log ,"http://forum.simutrans.com/\n");
+			fprintf(log ,"For help with this error or to file a bug report please see the Simutrans forum:\n");
+			fprintf(log ,"http://forum.simutrans.com\n");
 		}
 		va_end(argptr);
 
@@ -159,8 +159,8 @@ void log_t::error(const char *who, const char *format, ...)
 			vfprintf(tee, format, argptr);
 			fprintf(tee,"\n");
 
-			fprintf(tee ,"Please report all errors to\n");
-			fprintf(tee ,"http://forum.simutrans.com/\n");
+			fprintf(tee ,"For help with this error or to file a bug report please see the Simutrans forum:\n");
+			fprintf(tee ,"http://forum.simutrans.com\n");
 		}
 		va_end(argptr);
 	}
@@ -185,8 +185,8 @@ void log_t::fatal(const char *who, const char *format, ...)
 	if( log ) {
 		fputs( buffer, log );
 		fputs( "Aborting program execution ...\n\n", log );
-		fputs( "Please report all fatal errors to\n", log );
-		fputs( "http://forum.simutrans.com/\n", log );
+		fputs( "For help with this error or to file a bug report please see the Simutrans forum:\n", log );
+		fputs( "http://forum.simutrans.com\n", log );
 		if( force_flush ) {
 			fflush(log);
 		}
@@ -195,8 +195,8 @@ void log_t::fatal(const char *who, const char *format, ...)
 	if( tee ) {
 		fputs( buffer, tee );
 		fputs( "Aborting program execution ...\n\n", tee );
-		fputs( "Please report all fatal errors to\n", tee );
-		fputs( "http://forum.simutrans.com/\n", tee );
+		fputs( "For help with this error or to file a bug report please see the Simutrans forum:\n", tee );
+		fputs( "http://forum.simutrans.com\n", tee );
 	}
 
 	if(tee==NULL  &&  log==NULL) {
@@ -219,9 +219,9 @@ void log_t::fatal(const char *who, const char *format, ...)
 
 		strcpy( buffer+n+1, "PRESS ANY KEY\n" );
 		news_img* sel = new news_img(buffer,IMG_LEER);
-		sel->set_fenstergroesse( sel->get_fenstergroesse()+koord(150,0) );
+		sel->extend_window_with_component( NULL, koord(display_get_width()/2,120) );
 
-		koord xy( display_get_width()/2 - 180, display_get_height()/2 - sel->get_fenstergroesse().y/2 );
+		koord xy( display_get_width()/2 - sel->get_fenstergroesse().x/2, display_get_height()/2 - sel->get_fenstergroesse().y/2 );
 		event_t ev;
 
 		create_win( xy.x, xy.y, sel, w_info, magic_none );
@@ -242,7 +242,7 @@ void log_t::fatal(const char *who, const char *format, ...)
 	}
 	else {
 		// use OS means, if there
-		dr_fatal_notify( buffer, 0 );
+		dr_fatal_notify(buffer);
 	}
 
 #ifdef DEBUG

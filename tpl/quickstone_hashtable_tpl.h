@@ -47,18 +47,4 @@ class quickstone_hashtable_tpl : public hashtable_tpl<quickstone_tpl<key_t>, val
 {
 };
 
-
-template<class key_t, class value_t>
-class quickstone_hashtable_iterator_tpl : public hashtable_iterator_tpl<quickstone_tpl<key_t>, value_t, quickstone_hash_tpl<key_t> >
-{
-public:
-	quickstone_hashtable_iterator_tpl(const hashtable_tpl<quickstone_tpl<key_t>, value_t, quickstone_hash_tpl<key_t> > *hashtable) :
-	hashtable_iterator_tpl<quickstone_tpl<key_t>, value_t, inthash_tpl<quickstone_tpl<key_t> > >(hashtable)
-	{ }
-
-	quickstone_hashtable_iterator_tpl(const hashtable_tpl<quickstone_tpl<key_t>, value_t, quickstone_hash_tpl<key_t> > &hashtable) :
-	hashtable_iterator_tpl<quickstone_tpl<key_t>, value_t, quickstone_hash_tpl<key_t> >(hashtable)
-	{ }
-};
-
 #endif

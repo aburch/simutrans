@@ -12,6 +12,7 @@
 #include "components/gui_button.h"
 #include "components/gui_scrollpane.h"
 #include "components/gui_label.h"
+#include "components/gui_numberinput.h"
 #include "components/action_listener.h"
 #include "components/gui_combobox.h"
 #include "goods_stats_t.h"
@@ -39,6 +40,7 @@ private:
 	static uint8 catering_level;
 	static bool sortreverse;
 	static sort_mode_t sortby;
+	static bool filter_goods;
 	//static waytype_t wtype;
 	waytype_t wtype;
 
@@ -57,6 +59,8 @@ private:
 	gui_label_t		change_distance_label;
 	gui_label_t		change_comfort_label;
 	gui_label_t		change_catering_label;
+
+	/*
 	button_t		speed_up;
 	button_t		speed_down;
 	button_t		distance_up;
@@ -65,7 +69,15 @@ private:
 	button_t		comfort_down;
 	button_t		catering_up;
 	button_t		catering_down;
+	*/
+	
+	// replace button list with numberinput components for faster navigation
+	// @author: HeinBloed, April 2012
+	gui_numberinput_t distance_input, comfort_input, catering_input, speed_input;
+
+
 	gui_combobox_t	way_type;
+	button_t		filter_goods_toggle;
 
 	goods_stats_t goods_stats;
 	gui_scrollpane_t scrolly;
@@ -101,15 +113,7 @@ public:
      */
     void zeichnen(koord pos, koord gr);
 
-    /**
-     * This method is called if an action is triggered
-     * @author Hj. Malthaner
-     *
-     * Returns true, if action is done and no more
-     * components should be triggered.
-     * V.Meyer
-     */
-    bool action_triggered( gui_action_creator_t *komp, value_t extra);
+	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };
 
 #endif

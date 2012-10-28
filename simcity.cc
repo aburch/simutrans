@@ -1,8 +1,8 @@
 /*
  * Copyright (c) 1997 - 2001 Hj. Malthaner
  *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans project under the artistic license.
+ * (see license.txt)
  *
  * construction of cities, creation of passengers
  *
@@ -53,6 +53,7 @@
 
 #include "sucher/bauplatz_sucher.h"
 #include "bauer/wegbauer.h"
+#include "bauer/brueckenbauer.h"
 #include "bauer/hausbauer.h"
 #include "bauer/fabrikbauer.h"
 #include "utils/cbuffer_t.h"
@@ -646,8 +647,7 @@ bool stadt_t::bewerte_loc(const koord pos, const rule_t &regel, int rotation)
 	//printf("Test for (%s) in rotation %d\n", pos.get_str(), rotation);
 	koord k;
 
-	for(uint32 i=0; i<regel.rule.get_count(); i++){
-		const rule_entry_t &r = regel.rule[i];
+	FOR(vector_tpl<rule_entry_t>, const& r, regel.rule) {
 		uint8 x,y;
 		switch (rotation) {
 			default:
@@ -1195,9 +1195,9 @@ void stadt_t::recalc_city_size()
 {
 	lo = pos;
 	ur = pos;
-	for(  uint32 i=0;  i<buildings.get_count();  i++  ) {
-		if(buildings[i]->get_tile()->get_besch()->get_utyp()!=haus_besch_t::firmensitz) {
-			const koord gb_pos = buildings[i]->get_pos().get_2d();
+	FOR(weighted_vector_tpl<gebaeude_t*>, const i, buildings) {
+		if (i->get_tile()->get_besch()->get_utyp() != haus_besch_t::firmensitz) {
+			koord const& gb_pos = i->get_pos().get_2d();
 			if (lo.x > gb_pos.x) {
 				lo.x = gb_pos.x;
 			}
@@ -1269,15 +1269,14 @@ void stadt_t::factory_entry_t::rdwr(loadsave_t *file)
 void stadt_t::factory_entry_t::resolve_factory()
 {
 	factory = fabrik_t::get_fab( welt, koord(factory_pos_x, factory_pos_y) );
-	//assert( factory );
 }
 
 
 const stadt_t::factory_entry_t* stadt_t::factory_set_t::get_entry(const fabrik_t *const factory) const
 {
-	for(  uint32 e=0;  e<entries.get_count();  ++e  ) {
-		if(  entries[e].factory==factory  ) {
-			return &entries[e];
+	FOR(vector_tpl<factory_entry_t>, const& e, entries) {
+		if (e.factory == factory) {
+			return &e;
 		}
 	}
 	return NULL;	// not found
@@ -1288,8 +1287,7 @@ stadt_t::factory_entry_t* stadt_t::factory_set_t::get_random_entry()
 {
 	if(  total_remaining>0  ) {
 		sint32 weight = simrand(total_remaining, "stadt_t::factory_set_t::get_random_entry()");
-		for(  uint32 e=0;  e<entries.get_count();  ++e  ) {
-			factory_entry_t &entry = entries[e];
+		FOR(vector_tpl<factory_entry_t>, & entry, entries) {
 			if(  entry.remaining>0  ) {
 				if(  weight<entry.remaining  ) {
 					return &entry;
@@ -1372,8 +1370,7 @@ void stadt_t::factory_set_t::recalc_generation_ratio(const sint32 default_percen
 		const sint64 supply_promille = ( ( (average_generated << 10) * (sint64)default_percent ) / 100 ) / (sint64)target_supply;
 		if(  supply_promille<1024  ) {
 			// expected supply is really smaller than target supply
-			for(  uint32 e=0;  e<entries.get_count();  ++e  ) {
-				factory_entry_t &entry = entries[e];
+			FOR(vector_tpl<factory_entry_t>, & entry, entries) {
 				const sint32 new_supply = (sint32)( ( (sint64)entry.demand * SUPPLY_FACTOR * supply_promille + ((1<<(DEMAND_BITS+SUPPLY_BITS+10))-1) ) >> (DEMAND_BITS+SUPPLY_BITS+10) );
 				const sint32 delta_supply = new_supply - entry.supply;
 				if(  delta_supply==0  ) {
@@ -1395,8 +1392,7 @@ void stadt_t::factory_set_t::recalc_generation_ratio(const sint32 default_percen
 		}
 	}
 	// expected supply is unknown or sufficient to meet target supply
-	for(  uint32 e=0;  e<entries.get_count();  ++e  ) {
-		factory_entry_t &entry = entries[e];
+	FOR(vector_tpl<factory_entry_t>, & entry, entries) {
 		const sint32 new_supply = ( entry.demand * SUPPLY_FACTOR + ((1<<(DEMAND_BITS+SUPPLY_BITS))-1) ) >> (DEMAND_BITS+SUPPLY_BITS);
 		const sint32 delta_supply = new_supply - entry.supply;
 		if(  delta_supply==0  ) {
@@ -1419,8 +1415,8 @@ void stadt_t::factory_set_t::recalc_generation_ratio(const sint32 default_percen
 
 void stadt_t::factory_set_t::new_month()
 {
-	for(  uint32 e=0;  e<entries.get_count();  ++e  ) {
-		entries[e].new_month();
+	FOR(vector_tpl<factory_entry_t>, & e, entries) {
+		e.new_month();
 	}
 	total_remaining = 0;
 	total_generated = 0;
@@ -1455,8 +1451,15 @@ void stadt_t::factory_set_t::rdwr(loadsave_t *file)
 
 void stadt_t::factory_set_t::resolve_factories()
 {
-	for(  uint32 e=0;  e<entries.get_count();  ++e  ) {
-		entries[e].resolve_factory();
+	uint32 remove_count = 0;
+	FOR(vector_tpl<factory_entry_t>, & e, entries) {
+		e.resolve_factory();
+		if (!e.factory) {
+			remove_count ++;
+		}
+	}
+	for(  uint32 e=0;  e<remove_count;  ++e  ) {
+		this->remove_factory( NULL );
 	}
 }
 
@@ -1518,18 +1521,27 @@ stadt_t::~stadt_t()
 		
 		if(!welt->get_is_shutting_down())
 		{
-			koordhashtable_iterator_tpl<koord, uint16> iter(connected_cities);
-			while(iter.next())
+			FOR(connexion_map, const& iter, connected_cities)
 			{
-				if(iter.get_current_key() == pos)
+				if(iter.key == pos)
 				{
 					continue;
 				}
-				remove_connected_city(welt->get_city(iter.get_current_key()));
+				remove_connected_city(welt->get_city(iter.key));
 			}
 		}
 	}
-	free( (void *)name );
+}
+
+
+static bool name_used(weighted_vector_tpl<stadt_t*> const& cities, char const* const name)
+{
+	FOR(weighted_vector_tpl<stadt_t*>, const i, cities) {
+		if (strcmp(i->get_name(), name) == 0) {
+			return true;
+		}
+	}
+	return false;
 }
 
 
@@ -1570,28 +1582,21 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 	DBG_MESSAGE("stadt_t::stadt_t()", "Welt %p", welt);
 
 	/* get a unique cityname */
-	/* 9.1.2005, prissi */
-	const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
-	vector_tpl<char *> city_names( translator::get_city_name_list() );
-
-	name = NULL;
-	while(  !city_names.empty()  &&  name==NULL  ) {
-		uint32 idx = simrand(city_names.get_count(), "stadt_t::stadt_t");
-		FOR(weighted_vector_tpl<stadt_t*>, const i, staedte) {
-			if (strcmp(i->get_name(), city_names[idx]) == 0) {
-				city_names.remove_at( idx );
-				idx = city_names.get_count();
-				break;
-			}
-		}
-		if(  idx < city_names.get_count()  ) {
-			name = strdup( city_names[idx] );
+	char                          const* n       = "simcity";
+	weighted_vector_tpl<stadt_t*> const& staedte = welt->get_staedte();
+	for (vector_tpl<char*> city_names(translator::get_city_name_list()); !city_names.empty();) {
+		size_t      const idx  = simrand(city_names.get_count(), "stadt_t::stadt_t()");
+		char const* const cand = city_names[idx];
+		if (name_used(staedte, cand)) {
+			city_names[idx] = city_names.back();
+			city_names.pop_back();
+		} else {
+			n = cand;
+			break;
 		}
 	}
-	if(  name==NULL  ) {
-		name = strdup( "simcity" );
-	}
-	DBG_MESSAGE("stadt_t::stadt_t()", "founding new city named '%s'", name);
+	DBG_MESSAGE("stadt_t::stadt_t()", "founding new city named '%s'", n);
+	name = n;
 
 	// 1. Rathaus bei 0 Leuten bauen
 	check_bau_rathaus(true);
@@ -1691,7 +1696,6 @@ stadt_t::stadt_t(karte_t* wl, loadsave_t* file) :
 	has_low_density = false;
 
 	wachstum = 0;
-	name = NULL;
 	stadtinfo_options = 3;
 
 	// These things are not yet saved as part of the city's history,
@@ -1763,23 +1767,44 @@ void stadt_t::rdwr(loadsave_t* file)
 	}
 
 	// we probably need to load/save the city history
-	if (file->get_version() < 86000) {
+	if (file->get_version() < 86000) 
+	{
 		DBG_DEBUG("stadt_t::rdwr()", "is old version: No history!");
-	} else if(file->get_version()<99016) {
+	}
+	else if(file->get_version()<99016) 
+	{
 		// 86.00.0 introduced city history
-		for (uint year = 0; year < MAX_CITY_HISTORY_YEARS; year++) {
-			for (uint hist_type = 0; hist_type < 2; hist_type++) {
+		for (uint year = 0; year < MAX_CITY_HISTORY_YEARS; year++) 
+		{
+			for (uint hist_type = 0; hist_type < 2; hist_type++) 
+			{
 				file->rdwr_longlong(city_history_year[year][hist_type]);
 			}
-			for (uint hist_type = 4; hist_type < 6; hist_type++) {
+			for (uint hist_type = 4; hist_type < 7; hist_type++) 
+			{
+				if(hist_type == HIST_PAS_WALKED)
+				{
+					// Versions earlier than 111.1 Ex 10.8 did not record walking passengers.
+					city_history_year[year][hist_type] = 0;
+					continue;
+				}
 				file->rdwr_longlong(city_history_year[year][hist_type]);
 			}
 		}
-		for (uint month = 0; month < MAX_CITY_HISTORY_MONTHS; month++) {
-			for (uint hist_type = 0; hist_type < 2; hist_type++) {
+		for (uint month = 0; month < MAX_CITY_HISTORY_MONTHS; month++) 
+		{
+			for (uint hist_type = 0; hist_type < 2; hist_type++) 
+			{
 				file->rdwr_longlong(city_history_month[month][hist_type]);
 			}
-			for (uint hist_type = 4; hist_type < 6; hist_type++) {
+			for (uint hist_type = 4; hist_type < 7; hist_type++) 
+			{
+				if(hist_type == HIST_PAS_WALKED)
+				{
+					// Versions earlier than 111.1 Ex 10.8 did not record walking passengers.
+					city_history_month[month][hist_type] = 0;
+					continue;
+				}
 				file->rdwr_longlong(city_history_month[month][hist_type]);
 			}
 		}
@@ -1800,6 +1825,12 @@ void stadt_t::rdwr(loadsave_t* file)
 		{
 			for (uint hist_type = 0; hist_type < MAX_CITY_HISTORY - 3; hist_type++) 
 			{
+				if(hist_type == HIST_PAS_WALKED)
+				{
+					// Versions earlier than 111.1 Ex 10.8 did not record walking passengers.
+					city_history_year[year][hist_type] = 0;
+					continue;
+				}
 				file->rdwr_longlong(city_history_year[year][hist_type]);
 			}
 		}
@@ -1807,6 +1838,12 @@ void stadt_t::rdwr(loadsave_t* file)
 		{
 			for (uint hist_type = 0; hist_type < MAX_CITY_HISTORY - 3; hist_type++) 
 			{
+				if(hist_type == HIST_PAS_WALKED)
+				{
+					// Versions earlier than 111.1 Ex 10.8 did not record walking passengers.
+					city_history_month[month][hist_type] = 0;
+					continue;
+				}
 				file->rdwr_longlong(city_history_month[month][hist_type]);
 			}
 		}
@@ -1826,6 +1863,12 @@ void stadt_t::rdwr(loadsave_t* file)
 					city_history_year[year][HIST_POWER_RECIEVED] = 0;
 					hist_type = HIST_CONGESTION;
 				}
+				if(hist_type == HIST_PAS_WALKED)
+				{
+					// Versions earlier than 111.1 Ex 10.8 did not record walking passengers.
+					city_history_year[year][hist_type] = 0;
+					continue;
+				}
 				file->rdwr_longlong(city_history_year[year][hist_type]);
 			}
 		}
@@ -1837,6 +1880,12 @@ void stadt_t::rdwr(loadsave_t* file)
 				{
 					city_history_month[month][HIST_POWER_RECIEVED] = 0;
 					hist_type = HIST_CONGESTION;
+				}
+				if(hist_type == HIST_PAS_WALKED)
+				{
+					// Versions earlier than 111.1 Ex 10.8 did not record walking passengers.
+					city_history_month[month][hist_type] = 0;
+					continue;
 				}
 				file->rdwr_longlong(city_history_month[month][hist_type]);
 			}
@@ -1850,6 +1899,12 @@ void stadt_t::rdwr(loadsave_t* file)
 		{
 			for (uint hist_type = 0; hist_type < MAX_CITY_HISTORY; hist_type++) 
 			{
+				if(hist_type == HIST_PAS_WALKED && (file->get_experimental_version() < 10 || file->get_version() < 111001))
+				{
+					// Versions earlier than 111.1 Ex 10.8 did not record walking passengers.
+					city_history_year[year][hist_type] = 0;
+					continue;
+				}
 				file->rdwr_longlong(city_history_year[year][hist_type]);
 			}
 		}
@@ -1857,6 +1912,12 @@ void stadt_t::rdwr(loadsave_t* file)
 		{
 			for (uint hist_type = 0; hist_type < MAX_CITY_HISTORY; hist_type++) 
 			{
+				if(hist_type == HIST_PAS_WALKED && (file->get_experimental_version() < 10 || file->get_version() < 111001))
+				{
+					// Versions earlier than 111.1 Ex 10.8 did not record walking passengers.
+					city_history_month[month][hist_type] = 0;
+					continue;
+				}
 				file->rdwr_longlong(city_history_month[month][hist_type]);
 			}
 		}
@@ -1907,34 +1968,31 @@ void stadt_t::rdwr(loadsave_t* file)
 
 		count = connected_cities.get_count();
 		file->rdwr_long(count);
-		koordhashtable_iterator_tpl<koord, uint16> city_iter(connected_cities);
-		while(city_iter.next())
+		FOR(connexion_map, const& city_iter, connected_cities)
 		{
-			time = city_iter.get_current_value();
+			time = city_iter.value;
 			file->rdwr_short(time);
-			k = city_iter.get_current_key();
+			k = city_iter.key;
 			k.rdwr(file);
 		}
 
 		count = connected_industries.get_count();
 		file->rdwr_long(count);
-		koordhashtable_iterator_tpl<koord, uint16> industry_iter(connected_industries);
-		while(industry_iter.next())
+		FOR(connexion_map, const& industry_iter, connected_industries)
 		{
-			time = industry_iter.get_current_value();
+			time = industry_iter.value;
 			file->rdwr_short(time);
-			k = industry_iter.get_current_key();
+			k = industry_iter.key;
 			k.rdwr(file);
 		}
 
 		count = connected_attractions.get_count();
 		file->rdwr_long(count);
-		koordhashtable_iterator_tpl<koord, uint16> attraction_iter(connected_attractions);
-		while(attraction_iter.next())
+		FOR(connexion_map, const& attraction_iter, connected_attractions)
 		{
-			time = attraction_iter.get_current_value();
+			time = attraction_iter.value;
 			file->rdwr_short(time);
-			k = attraction_iter.get_current_key();
+			k = attraction_iter.key;
 			k.rdwr(file);
 		}
 
@@ -2001,7 +2059,6 @@ void stadt_t::rdwr(loadsave_t* file)
 }
 
 
-
 /**
  * Wird am Ende der Laderoutine aufgerufen, wenn die Welt geladen ist
  * und nur noch die Datenstrukturenneu verknuepft werden muessen.
@@ -2014,7 +2071,7 @@ void stadt_t::laden_abschliessen()
 	next_bau_step = 0;
 
 	// there might be broken savegames
-	if(name==NULL) {
+	if (!name) {
 		set_name( "simcity" );
 	}
 
@@ -2103,10 +2160,10 @@ void stadt_t::rotate90( const sint16 y_size )
 
 	vector_tpl<koord> k_list(connected_cities.get_count());
 	vector_tpl<uint16> f_list(connected_cities.get_count());
-	koordhashtable_iterator_tpl<koord, uint16> iter1(connected_cities);
-	while(iter1.next())
+	
+	FOR(connexion_map, const& iter1, connected_cities)
 	{
-		koord k = iter1.get_current_key();
+		koord k = iter1.key;
 		uint16 f  = connected_cities.remove(k);
 		k.rotate90(y_size);
 		if(connected_cities.is_contained(k))
@@ -2131,10 +2188,9 @@ void stadt_t::rotate90( const sint16 y_size )
 
 	k_list.clear();
 	f_list.clear();
-	koordhashtable_iterator_tpl<koord, uint16> iter2(connected_industries);
-	while(iter2.next())
+	FOR(connexion_map, const& iter2, connected_industries)
 	{
-		koord k = iter2.get_current_key();
+		koord k = iter2.key;
 		uint16 f  = connected_industries.remove(k);
 		k.rotate90(y_size);
 		if(connected_industries.is_contained(k))
@@ -2159,10 +2215,9 @@ void stadt_t::rotate90( const sint16 y_size )
 
 	k_list.clear();
 	f_list.clear();
-	koordhashtable_iterator_tpl<koord, uint16> iter3(connected_attractions);
-	while(iter3.next())
+	FOR(connexion_map, const& iter3, connected_attractions)
 	{
-		koord k = iter3.get_current_key();
+		koord k = iter3.key;
 		uint16 f  = connected_attractions.remove(k);
 		k.rotate90(y_size);
 		if(connected_attractions.is_contained(k))
@@ -2187,13 +2242,9 @@ void stadt_t::rotate90( const sint16 y_size )
 }
 
 
-
 void stadt_t::set_name(const char *new_name)
 {
-	if(name==NULL  ||  strcmp(name,new_name)) {
-		free( (void *)name );
-		name = strdup( new_name );
-	}
+	name = new_name;
 	grund_t *gr = welt->lookup_kartenboden(pos);
 	if(gr) {
 		gr->set_text( new_name );
@@ -2388,7 +2439,7 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 	target_factories_pax.new_month();
 	target_factories_mail.new_month();
 	settings_t const& s = welt->get_settings();
-	target_factories_pax.recalc_generation_ratio( s.get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_PAS_GENERATED);
+	target_factories_pax.recalc_generation_ratio(s.get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_PAS_GENERATED);
 	target_factories_mail.recalc_generation_ratio(s.get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_MAIL_GENERATED);
 	update_target_cities();
 
@@ -2399,17 +2450,35 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 	// @author: jamespetts
 	
 	const uint16 city_size = (ur.x - lo.x) * (ur.y - lo.y);
-	const uint16 cars_per_tile_thousandths = (city_history_month[1][HIST_CITYCARS] * 1000) / city_size;
+	uint16 cars_per_tile_thousandths = (city_history_month[1][HIST_CITYCARS] * 1000) / city_size;
 	const uint16 population_density = (city_history_month[1][HIST_CITICENS] * 10) / city_size;
-	if(cars_per_tile_thousandths <= 400)
+	uint16 congestion_density_factor = welt->get_settings().get_congestion_density_factor() * 100;
+	uint16 cars_per_tile_base = 800;
+
+	if(welt->ticks_per_world_month_shift >= 18ll)
+	{
+		cars_per_tile_thousandths >>= (welt->ticks_per_world_month_shift-18);
+		cars_per_tile_base >>= (welt->ticks_per_world_month_shift-18);
+		congestion_density_factor >>= (welt->ticks_per_world_month_shift-18);
+	}
+	else 
+	{
+		cars_per_tile_thousandths <<= (18-welt->ticks_per_world_month_shift);
+		cars_per_tile_base >>= (welt->ticks_per_world_month_shift-18);
+		congestion_density_factor <<= (18-welt->ticks_per_world_month_shift);
+	}
+
+	// Round up when over x.5.
+	congestion_density_factor += 50;
+	congestion_density_factor /= 100;
+	
+	if(cars_per_tile_thousandths <= cars_per_tile_base)
 	{
 		city_history_month[0][HIST_CONGESTION] = 0;
 	}
 	else
 	{
-		const uint8 congestion_density_factor = welt->get_settings().get_congestion_density_factor();
-		const uint16 percentage = congestion_density_factor > 0 ? ((((cars_per_tile_thousandths - 400) / 45) * population_density) / congestion_density_factor) / 10 : (cars_per_tile_thousandths - 400) / 30;
-		city_history_month[0][HIST_CONGESTION] = percentage;
+		city_history_month[0][HIST_CONGESTION] = congestion_density_factor > 0 ? ((((cars_per_tile_thousandths - cars_per_tile_base) / 45) * population_density) / congestion_density_factor) / 10 : (cars_per_tile_thousandths - cars_per_tile_base) / 30;
 	}
 
 	city_history_month[0][HIST_CAR_OWNERSHIP] = get_private_car_ownership(welt->get_timeline_year_month());
@@ -2536,7 +2605,10 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 		{
 			//Make sure that there are not too many cars on the roads. 
 			stadtauto_t* car = current_cars.remove_first();
-			car->kill();
+			car->set_list(NULL);
+			// Deleting here, for some reason, caused untraceable crashes.
+			// So, instead, delete on the next sync_step in which the car's 
+			// list is NULL.
 			number_of_cars++;
 		}
 		koord k;
@@ -2622,15 +2694,15 @@ void stadt_t::calc_growth()
 	sint64     const(& h)[MAX_CITY_HISTORY] = city_history_month[0];
 	settings_t const&  s           = welt->get_settings();
 
-	const uint8 electricity_multiplier = 20;
+	const int electricity_multiplier = 20;
 	// const uint8 electricity_multiplier =welt->get_settings().get_electricity_multiplier();
-	const uint8 electricity_proportion = (get_electricity_consumption(welt->get_timeline_year_month()) * electricity_multiplier / 100);
-	const uint8 mail_proportion = 100 - (s.get_passenger_multiplier() + electricity_proportion + s.get_goods_multiplier());
+	const int electricity_proportion = (get_electricity_consumption(welt->get_timeline_year_month()) * electricity_multiplier / 100);
+	const int mail_proportion = 100 - (s.get_passenger_multiplier() + electricity_proportion + s.get_goods_multiplier());
 
-	const sint32 pas = ((city_history_month[0][HIST_PAS_TRANSPORTED] + (city_history_month[0][HIST_CITYCARS] - outgoing_private_cars)) * (s.get_passenger_multiplier()<<6)) / (city_history_month[0][HIST_PAS_GENERATED] + 1);
-	const sint32 mail = (city_history_month[0][HIST_MAIL_TRANSPORTED] * (mail_proportion)<<6) / (city_history_month[0][HIST_MAIL_GENERATED] + 1);
-	const sint32 electricity = city_history_month[0][HIST_POWER_NEEDED] == 0 ? 0 : (city_history_month[0][HIST_POWER_RECIEVED] * (electricity_proportion<<6)) / (city_history_month[0][HIST_POWER_NEEDED]);
-	const sint32 goods = city_history_month[0][HIST_GOODS_NEEDED]==0 ? 0 : (city_history_month[0][HIST_GOODS_RECIEVED] * (s.get_goods_multiplier()<<6)) / (city_history_month[0][HIST_GOODS_NEEDED]);
+	const sint32 pas = (sint32) ((city_history_month[0][HIST_PAS_TRANSPORTED] + city_history_month[0][HIST_PAS_WALKED] + (city_history_month[0][HIST_CITYCARS] - outgoing_private_cars)) * (s.get_passenger_multiplier()<<6)) / (city_history_month[0][HIST_PAS_GENERATED] + 1);
+	const sint32 mail = (sint32) (city_history_month[0][HIST_MAIL_TRANSPORTED] * (mail_proportion)<<6) / (city_history_month[0][HIST_MAIL_GENERATED] + 1);
+	const sint32 electricity = (sint32) city_history_month[0][HIST_POWER_NEEDED] == 0 ? 0 : (city_history_month[0][HIST_POWER_RECIEVED] * (electricity_proportion<<6)) / (city_history_month[0][HIST_POWER_NEEDED]);
+	const sint32 goods = (sint32) city_history_month[0][HIST_GOODS_NEEDED]==0 ? 0 : (city_history_month[0][HIST_GOODS_RECIEVED] * (s.get_goods_multiplier()<<6)) / (city_history_month[0][HIST_GOODS_NEEDED]);
 
 	// smaller towns should growth slower to have villages for a longer time
 	sint32 weight_factor = s.get_growthfactor_large();
@@ -2741,10 +2813,9 @@ recalc:
 			// We know that, if this city is not connected to any given city, then every city
 			// to which this city is connected must likewise not be connected. So, avoid
 			// unnecessary recalculation by propogating this now.
-			koordhashtable_iterator_tpl<koord, uint16> iter(connected_cities);
-			while(iter.next())
+			FOR(connexion_map, const& iter, connected_cities)
 			{
-				welt->get_city(iter.get_current_key())->add_road_connexion(65535, city);
+				welt->get_city(iter.key)->add_road_connexion(65535, city);
 			}
 		}
 		return journey_time_per_tile;
@@ -2804,10 +2875,9 @@ uint16 stadt_t::check_road_connexion_to(const fabrik_t* industry)
 					// We know that, if this city is not connected to any given industry, then every city
 					// to which this city is connected must likewise not be connected. So, avoid
 					// unnecessary recalculation by propogating this now.
-					koordhashtable_iterator_tpl<koord, uint16> iter(connected_cities);
-					while(iter.next())
+					FOR(connexion_map, const& iter, connected_cities)
 					{
-						welt->get_city(iter.get_current_key())->set_no_connexion_to_industry(industry);
+						welt->get_city(iter.key)->set_no_connexion_to_industry(industry);
 					}
 				}
 				return journey_time_per_tile;
@@ -2883,10 +2953,9 @@ uint16 stadt_t::check_road_connexion_to(const gebaeude_t* attraction)
 		// We know that, if this city is not connected to any given industry, then every city
 		// to which this city is connected must likewise not be connected. So, avoid
 		// unnecessary recalculation by propogating this now.
-		koordhashtable_iterator_tpl<koord, uint16> iter(connected_cities);
-		while(iter.next())
+		FOR(connexion_map, const& iter, connected_cities)
 		{
-			welt->get_city(iter.get_current_key())->set_no_connexion_to_attraction(attraction);
+			welt->get_city(iter.key)->set_no_connexion_to_attraction(attraction);
 		}
 	}
 	return journey_time_per_tile;
@@ -3210,11 +3279,7 @@ void stadt_t::step_passagiere()
 						}
 					}
 					
-					// Passengers who walk to their destinations should not count as "passengers"
-					// at all, especially since the percentage of passengers transported is used
-					// in growth calculations.
-					city_history_year[0][history_type+1] -= pax_left_to_do;
-					city_history_month[0][history_type+1] -= pax_left_to_do;
+					add_walking_passengers(pax_left_to_do);
 					break;
 				}
 
@@ -3245,6 +3310,11 @@ void stadt_t::step_passagiere()
 					{
 						route_good = good;
 					}
+				}
+
+				if(best_journey_time == 0)
+				{
+					best_journey_time = 1;
 				}
 				
 				// Check first whether the best route is outside
@@ -3393,6 +3463,7 @@ void stadt_t::step_passagiere()
 					pax.arrival_time = welt->get_zeit_ms();
 					pax.set_origin(start_halt);
 					start_halt->starte_mit_route(pax);
+					start_halt->unload_repeat_counter = 0;
 					merke_passagier_ziel(destinations[current_destination].location, COL_YELLOW);
 				}
 
@@ -3474,6 +3545,7 @@ void stadt_t::step_passagiere()
 								{
 									return_pax.arrival_time = welt->get_zeit_ms();
 									ret_halt->starte_mit_route(return_pax);
+									ret_halt->unload_repeat_counter = 0;
 									merke_passagier_ziel(destinations[current_destination].location, COL_YELLOW);
 									//ret_halt->add_pax_happy(pax_left_to_do); 
 									// Experimental 7.2 and onwards does this when passengers reach their destination
@@ -3614,11 +3686,8 @@ void stadt_t::step_passagiere()
 				destination_now.factory_entry->factory->liefere_an(wtyp, amount);
 			}
 			merke_passagier_ziel(destination_now.location, COL_DARK_YELLOW);
-			// Passengers who walk to their destinations should not count as "passengers"
-			// at all, especially since the percentage of passengers transported is used
-			// in growth calculations.
-			city_history_year[0][history_type+1] -= num_pax;
-			city_history_month[0][history_type+1] -= num_pax;
+			
+			add_walking_passengers(amount);
 		}
 		else
 		{
@@ -3757,9 +3826,8 @@ void stadt_t::update_target_cities()
 void stadt_t::recalc_target_cities()
 {
 	target_cities.clear();
-	const weighted_vector_tpl<stadt_t *> &cities = welt->get_staedte();
-	for(  uint32 c=0;  c<cities.get_count();  ++c  ) {
-		add_target_city( cities[c] );
+	FOR(weighted_vector_tpl<stadt_t*>, const c, welt->get_staedte()) {
+		add_target_city(c);
 	}
 }
 
@@ -3778,9 +3846,8 @@ void stadt_t::add_target_attraction(gebaeude_t *const attraction)
 void stadt_t::recalc_target_attractions()
 {
 	target_attractions.clear();
-	const weighted_vector_tpl<gebaeude_t *> &attractions = welt->get_ausflugsziele();
-	for(  uint32 a=0;  a<attractions.get_count();  ++a  ) {
-		add_target_attraction( attractions[a] );
+	FOR(weighted_vector_tpl<gebaeude_t*>, const a, welt->get_ausflugsziele()) {
+		add_target_attraction(a);
 	}
 }
 
@@ -3824,15 +3891,15 @@ stadt_t::destination stadt_t::find_destination(factory_set_t &target_factories, 
 		return current_destination;
 	} 
 	
-	else if(rand <welt->get_settings().get_tourist_percentage() +welt->get_settings().get_factory_worker_percentage() && welt->get_ausflugsziele().get_sum_weight() > 0 ) 
+	else if(rand <welt->get_settings().get_tourist_percentage() + welt->get_settings().get_factory_worker_percentage() && welt->get_ausflugsziele().get_sum_weight() > 0 ) 
 	{ 		
 		*will_return = tourist_return;	// tourists will return
-		const gebaeude_t* gb = welt->get_random_ausflugsziel();
+		const gebaeude_t* gb = pick_any_weighted(target_attractions);
 		current_destination.type = TOURIST_PAX;
 		uint8 counter = 0;
 		while(counter ++ < 32 && (shortest_distance(origin, gb->get_pos().get_2d()) > max_distance || shortest_distance(origin, gb->get_pos().get_2d()) < min_distance))
 		{
-			gb =  welt->get_random_ausflugsziel();
+			gb =  pick_any_weighted(target_attractions);
 		}
 		current_destination.location = gb->get_pos().get_2d();
 		current_destination.object.attraction = gb;
@@ -4108,7 +4175,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 		koord k;
 		int old_layout(0);
 
-		DBG_MESSAGE("check_bau_rathaus()", "bev=%d, new=%d name=%s", bev, neugruendung, name);
+		DBG_MESSAGE("check_bau_rathaus()", "bev=%d, new=%d name=%s", bev, neugruendung, name.c_str());
 
 		if(  bev!=0  ) {
 
@@ -4262,7 +4329,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 		// if not during initialization
 		if (!new_town) {
 			cbuffer_t buf;
-			buf.printf( translator::translate("%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants."), name, get_einwohner() );
+			buf.printf(translator::translate("%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants."), name.c_str(), get_einwohner());
 			welt->get_message()->add_message(buf, best_pos, message_t::city, CITY_KI, besch->get_tile(layout, 0, 0)->get_hintergrund(0, 0, 0));
 		}
 		else {
@@ -4588,6 +4655,19 @@ bool stadt_t::renoviere_gebaeude(gebaeude_t* gb)
 	gebaeude_t::typ will_haben = gebaeude_t::unbekannt;
 	int sum = 0;
 
+	uint8 max_level = 0; // Unlimited.
+	weg_t* way;
+	for(int i = 1; i <= narrowgauge_wt; i++)
+	{
+		way = welt->lookup(gb->get_pos())->get_weg((waytype_t)i);
+		if(way && (wegbauer_t::bautyp_t)way->get_besch()->get_wtyp() & wegbauer_t::elevated_flag)
+		{ 
+			// Limit this if any elevated way is found.
+			max_level = welt->get_settings().get_max_elevated_way_building_level();
+			break;
+		}
+	}
+
 	// try to built
 	const haus_besch_t* h = NULL;
 	bool return_value = false;
@@ -4595,17 +4675,17 @@ bool stadt_t::renoviere_gebaeude(gebaeude_t* gb)
 		// we must check, if we can really update to higher level ...
 		const int try_level = (alt_typ == gebaeude_t::gewerbe ? level + 1 : level);
 		h = hausbauer_t::get_gewerbe(try_level, current_month, cl);
-		if (h != NULL && h->get_level() >= try_level) {
+		if (h != NULL && h->get_level() >= try_level && (max_level == 0 || h->get_level() <= max_level)) {
 			will_haben = gebaeude_t::gewerbe;
 			sum = sum_gewerbe;
 		}
 	}
 	// check for industry, also if we wanted com, but there was no com good enough ...
-	if ((sum_industrie > sum_gewerbe && sum_industrie > sum_wohnung) || (sum_gewerbe > sum_wohnung && will_haben == gebaeude_t::unbekannt)) {
+	if(  (sum_industrie > sum_gewerbe  &&  sum_industrie > sum_wohnung) || (sum_gewerbe > sum_wohnung  &&  will_haben == gebaeude_t::unbekannt)  ) {
 		// we must check, if we can really update to higher level ...
 		const int try_level = (alt_typ == gebaeude_t::industrie ? level + 1 : level);
 		h = hausbauer_t::get_industrie(try_level , current_month, cl);
-		if (h != NULL && h->get_level() >= try_level) {
+		if (h != NULL && h->get_level() >= try_level && (max_level == 0 || h->get_level() <= max_level)) {
 			will_haben = gebaeude_t::industrie;
 			sum = sum_industrie;
 		}
@@ -4616,7 +4696,7 @@ bool stadt_t::renoviere_gebaeude(gebaeude_t* gb)
 		// we must check, if we can really update to higher level ...
 		const int try_level = (alt_typ == gebaeude_t::wohnung ? level + 1 : level);
 		h = hausbauer_t::get_wohnhaus(try_level, current_month, cl);
-		if (h != NULL && h->get_level() >= try_level) {
+		if (h != NULL && h->get_level() >= try_level && (max_level == 0 || h->get_level() <= max_level)) {
 			will_haben = gebaeude_t::wohnung;
 			sum = sum_wohnung;
 		} else {
@@ -4774,11 +4854,17 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 		if (ribi_t::nsow[r] & allowed_dir) {
 			// now we have to check for several problems ...
 			grund_t* bd2;
-			if(bd->get_neighbour(bd2, invalid_wt, koord::nsow[r])) {
-				if(bd2->get_typ()==grund_t::fundament) {
+			if(bd->get_neighbour(bd2, invalid_wt, ribi_t::nsow[r])) {
+				if(bd2->get_typ()==grund_t::fundament  ||  bd2->get_typ()==grund_t::wasser) {
 					// not connecting to a building of course ...
-				} else if (bd2->get_typ()!=grund_t::boden  &&  ribi_t::nsow[r]!=ribi_typ(bd2->get_grund_hang())) {
-					// not the same slope => tunnel or bridge
+				} else if (!bd2->ist_karten_boden()) {
+					// do not connect to elevated ways / bridges
+				} else if (bd2->get_typ()==grund_t::tunnelboden  &&  ribi_t::nsow[r]!=ribi_typ(bd2->get_grund_hang())) {
+					// not the correct slope
+				} else if (bd2->get_typ()==grund_t::brueckenboden
+					&&  (bd2->get_grund_hang()==hang_t::flach  ?  ribi_t::nsow[r]!=ribi_typ(bd2->get_weg_hang())
+					                                           :  ribi_t::rueckwaerts(ribi_t::nsow[r])!=ribi_typ(bd2->get_grund_hang()))) {
+					// not the correct slope
 				} else if(bd2->hat_weg(road_wt)) {
 					const gebaeude_t* gb = bd2->find<gebaeude_t>();
 					if(gb) {
@@ -4837,6 +4923,35 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 			weg->set_gehweg(true);
 			bd->neuen_weg_bauen(weg, connection_roads, sp);
 			bd->calc_bild();	// otherwise the
+		}
+		// check to bridge a river
+		if (ribi_t::ist_einfach(connection_roads)) {
+			koord zv = koord(ribi_t::rueckwaerts(connection_roads));
+			grund_t *bd_next = welt->lookup_kartenboden( k + zv );
+			if (bd_next  &&  (bd_next->ist_wasser()  ||  (bd_next->hat_weg(water_wt)  &&  bd_next->get_weg(water_wt)->get_besch()->get_styp()==255))) {
+				// ok there is a river
+				const bruecke_besch_t *bridge = brueckenbauer_t::find_bridge(road_wt, 50, welt->get_timeline_year_month() );
+				if(  bridge==NULL  ) {
+					// does not have a bridge available ...
+					return false;
+				}
+				const char *err = NULL;
+				koord3d end = brueckenbauer_t::finde_ende(welt, bd->get_pos(), zv, bridge, err, false);
+				if (err  ||   koord_distance( k, end.get_2d())>3) {
+					// try to find shortest possible
+					end = brueckenbauer_t::finde_ende(welt, bd->get_pos(), zv, bridge, err, true);
+				}
+				if (err==NULL  &&   koord_distance( k, end.get_2d())<=3) {
+					brueckenbauer_t::baue_bruecke(welt, welt->get_spieler(1), bd->get_pos(), end, zv, bridge, welt->get_city_road());
+					// try to build one connecting piece of road
+					baue_strasse( (end+zv).get_2d(), NULL, false);
+					// try to build a house near the bridge end
+					uint32 old_count = buildings.get_count();
+					for(uint8 i=0; i<lengthof(koord::neighbours)  &&  buildings.get_count() == old_count; i++) {
+						baue_gebaeude(end.get_2d()+zv+koord::neighbours[i], true);
+					}
+				}
+			}
 		}
 		return true;
 	}

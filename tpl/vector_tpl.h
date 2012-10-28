@@ -8,16 +8,11 @@
 #ifndef ITERATE_PTR
 #define ITERATE_PTR(collection,enumerator) for(uint32 enumerator = 0; enumerator < (collection)->get_count(); enumerator++)
 #endif 
+#include <typeinfo>
 
 #include "../macros.h"
 #include "../simtypes.h"
 #include "../simdebug.h"
-
-#ifdef _MSC_VER
-#include <typeinfo.h>
-#else
-#include <typeinfo>
-#endif
 
 template<class T> class vector_tpl;
 template<class T> inline void swap(vector_tpl<T>& a, vector_tpl<T>& b);
@@ -193,20 +188,39 @@ template<class T> class vector_tpl
 		}
 
 		/**
-		 * put the data at a certain position
+		 * set length of vector.
 		 * BEWARE: using this function will create default objects, depending on
 		 * the type of the vector
+		 */
+		void set_count(const uint32 count)
+		{
+			if (count >= size) {
+				resize((count & 0xFFFFFFF8) + 8);
+			}
+			this->count = count;
+		}
+
+		/**
+		 * Put the data at a certain position.
+		 * Possibly resizes vector (and hence creates default objects).
+		 * @param pos index
+		 * @param elem this element will be copied
 		 */
 		void store_at(const uint32 pos, const T& elem)
 		{
 			if (pos >= size) {
-				resize((pos & 0xFFFFFFF7) + 8);
+				uint32 new_size = size == 0 ? 1 : size * 2;
+				while (pos >= new_size) {
+					new_size *= 2;
+				}
+				resize(new_size);
 			}
 			data[pos] = elem;
 			if (pos >= count) {
 				count = pos + 1;
 			}
 		}
+
 
 		/** removes element, if contained */
 		void remove(const T& elem)
@@ -235,7 +249,7 @@ template<class T> class vector_tpl
 			}
 		}
 
-		T& get_element(uint e)
+		T& get_element(uint32 e)
 		{
 			return (*this)[e];
 		}
@@ -245,18 +259,23 @@ template<class T> class vector_tpl
 			return (*this)[e];
 		}
 		
+		void pop_back()
+		{
+			--count;
+		}
+
 		T& operator [](uint i)
 		{
 			if (i >= count) {
-				dbg->fatal("vector_tpl<T>::[]", "%s: index out of bounds: %i not in 0..%d", typeid(T).name(), i, count - 1);
+				dbg->fatal("vector_tpl<T>::[]", "%s: index out of bounds: %lu not in 0..%lu", typeid(T).name(), i, count - 1);
 			}
 			return data[i];
 		}
 
-		const T& operator [](uint i) const
+		const T& operator [](uint32 i) const
 		{
 			if (i >= count) {
-				dbg->fatal("vector_tpl<T>::[]", "%s: index out of bounds: %i not in 0..%d", typeid(T).name(), i, count - 1);
+				dbg->fatal("vector_tpl<T>::[]", "%s: index out of bounds: %lu not in 0..%lu", typeid(T).name(), i, count - 1);
 			}
 			return data[i];
 		}
@@ -284,7 +303,6 @@ template<class T> class vector_tpl
 		uint32 size;  ///< Capacity
 		uint32 count; ///< Number of elements in vector
 
-
 	friend void swap<>(vector_tpl<T>& a, vector_tpl<T>& b);
 };
 
@@ -302,8 +320,8 @@ template<class T> void swap(vector_tpl<T>& a, vector_tpl<T>& b)
  */
 template<class T> void clear_ptr_vector(vector_tpl<T*>& v)
 {
-	for(uint32 i=0; i<v.get_count(); i++) {
-		delete v[i];
+	FORT(vector_tpl<T*>, const i, v) {
+		delete i;
 	}
 	v.clear();
 }

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2008 prissi
  *
- * This file is part of the Simutrans project under the artistic licence.
+ * This file is part of the Simutrans project under the artistic license.
  *
  * New configurable OOP tool system
  */
@@ -139,14 +139,16 @@ werkzeug_t *create_simple_tool(int toolnr)
 		case WKZ_CONVOI_TOOL:       tool = new wkz_change_convoi_t(); break;
 		case WKZ_LINE_TOOL:         tool = new wkz_change_line_t(); break;
 		case WKZ_DEPOT_TOOL:        tool = new wkz_change_depot_t(); break;
-		case WKZ_PWDHASH_TOOL:		tool = new wkz_change_password_hash_t(); break;
-		case WKZ_SET_PLAYER_TOOL:	tool = new wkz_change_player_t(); break;
+		case UNUSED_WKZ_PWDHASH_TOOL: dbg->warning("create_simple_tool()","deprecated tool [%i] requested", toolnr); return NULL;
+		case WKZ_SET_PLAYER_TOOL:   tool = new wkz_change_player_t(); break;
 		case WKZ_TRAFFIC_LIGHT_TOOL:tool = new wkz_change_traffic_light_t(); break;
 		case WKZ_CHANGE_CITY_TOOL:  tool = new wkz_change_city_t(); break;
 		case WKZ_RENAME_TOOL:       tool = new wkz_rename_t(); break;
 		case WKZ_ADD_MESSAGE_TOOL:  tool = new wkz_add_message_t(); break;
 		case WKZ_TOGGLE_RESERVATION:tool = new wkz_toggle_reservation_t(); break;
 		case WKZ_VIEW_OWNER:        tool = new wkz_view_owner_t(); break;
+		case WKZ_HIDE_UNDER_CURSOR: tool = new wkz_hide_under_cursor_t(); break;
+		// Experimental non-UI tools - should be at the end.
 		case WKZ_RECOLOUR_TOOL:		tool = new wkz_recolour_t(); break;
 		case WKZ_ACCESS_TOOL:		tool = new wkz_access_t(); break;
 		default:                    dbg->error("create_simple_tool()","cannot satisfy request for simple_tool[%i]!",toolnr);
@@ -585,8 +587,8 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 				}
 			}
 
-			if(strstr(toolname,"general_tool[")) {
-				uint8 toolnr = atoi(toolname+13);
+			if (char const* const c = strstart(toolname, "general_tool[")) {
+				uint8 toolnr = atoi(c);
 				if(  toolnr<GENERAL_TOOL_COUNT  ) {
 					if(icon!=IMG_LEER  ||  key_str  ||  param_str) {
 						// compatibility mode: wkz_cityroad is used for wkz_wegebau with defaultparam 'cityroad'
@@ -618,9 +620,8 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 				else {
 					dbg->error( "werkzeug_t::read_menu()", "When parsing menuconf.tab: No general tool %i defined (max %i)!", toolnr, GENERAL_TOOL_COUNT );
 				}
-			}
-			else if(strstr(toolname,"simple_tool[")) {
-				uint8 toolnr = atoi(toolname+12);
+			} else if (char const* const c = strstart(toolname, "simple_tool[")) {
+				uint8 const toolnr = atoi(c);
 				if(  toolnr<SIMPLE_TOOL_COUNT  ) {
 					if(icon!=IMG_LEER  ||  key_str  ||  param_str) {
 						addtool = create_simple_tool( toolnr );
@@ -644,9 +645,8 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 				else {
 					dbg->error( "werkzeug_t::read_menu()", "When parsing menuconf.tab: No simple tool %i defined (max %i)!", toolnr, SIMPLE_TOOL_COUNT );
 				}
-			}
-			else if(strstr(toolname,"dialog_tool[")) {
-				uint8 toolnr = atoi(toolname+12);
+			} else if (char const* const c = strstart(toolname, "dialog_tool[")) {
+				uint8 const toolnr = atoi(c);
 				if(  toolnr<DIALOGE_TOOL_COUNT  ) {
 					if(icon!=IMG_LEER  ||  key_str  ||  param_str) {
 						addtool = create_dialog_tool( toolnr );
@@ -670,9 +670,8 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 				else {
 					dbg->error( "werkzeug_t::read_menu()", "When parsing menuconf.tab: No dialog tool %i defined (max %i)!", toolnr, DIALOGE_TOOL_COUNT );
 				}
-			}
-			else if(strstr(toolname,"toolbar[")) {
-				uint8 toolnr = atoi(toolname+8);
+			} else if (char const* const c = strstart(toolname, "toolbar[")) {
+				uint8 const toolnr = atoi(c);
 				assert(toolnr>0);
 				if(toolbar_tool.get_count()==toolnr) {
 					if(param_str==NULL) {
@@ -734,13 +733,13 @@ bool werkzeug_t::is_selected(const karte_t *welt) const
 	return welt->get_werkzeug(welt->get_active_player_nr())==this;
 }
 
-const char *werkzeug_t::check( karte_t *welt, spieler_t *, koord3d pos)
+const char *werkzeug_t::check_pos( karte_t *welt, spieler_t *, koord3d pos )
 {
 	grund_t *gr = welt->lookup(pos);
 	return (gr  &&  !gr->is_visible()) ? "" : NULL;
 }
 
-const char *kartenboden_werkzeug_t::check( karte_t *welt, spieler_t *, koord3d pos)
+const char *kartenboden_werkzeug_t::check_pos( karte_t *welt, spieler_t *, koord3d pos )
 {
 	grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
 	return (gr  &&  !gr->is_visible()) ? "" : NULL;
@@ -748,10 +747,10 @@ const char *kartenboden_werkzeug_t::check( karte_t *welt, spieler_t *, koord3d p
 
 // seperator in toolbars
 class wkz_dummy_t : public werkzeug_t {
-	bool init( karte_t *, spieler_t * ) { return false; }
-	virtual bool is_init_network_save() const { return true; }
-	virtual bool is_work_network_save() const { return true; }
-	virtual bool is_move_network_save(spieler_t *) const { return true; }
+	bool init(karte_t*, spieler_t*) OVERRIDE { return false; }
+	bool is_init_network_save() const OVERRIDE { return true; }
+	bool is_work_network_save() const OVERRIDE { return true; }
+	bool is_move_network_save(spieler_t*) const OVERRIDE { return true; }
 };
 
 werkzeug_t *werkzeug_t::dummy = new wkz_dummy_t();
@@ -761,10 +760,14 @@ werkzeug_t *werkzeug_t::dummy = new wkz_dummy_t();
 image_id toolbar_t::get_icon(spieler_t *sp) const
 {
 	// no image for edit tools => do not open
-	if(sp!=NULL  &&  strcmp(default_param,"EDITTOOLS")==0  &&  sp!=sp->get_welt()->get_spieler(1)  ) {
+	if(  icon==IMG_LEER  ||  (sp!=NULL  &&  strcmp(default_param,"EDITTOOLS")==0  &&  sp->get_player_nr()!=1)  ) {
 		return IMG_LEER;
 	}
-	return icon;
+	// now have we a least one visible tool?
+	if (wzw  &&  !wzw->empty(sp)) {
+		return icon;
+	}
+	return IMG_LEER;
 }
 
 
@@ -802,55 +805,43 @@ void toolbar_t::update(karte_t *welt, spieler_t *sp)
 		DBG_MESSAGE("toolbar_t::update()","update toolbar %s",default_param);
 	}
 
-	if(  (strcmp(this->default_param,"EDITTOOLS")==0  &&  sp!=welt->get_spieler(1))  ) {
-		destroy_win(wzw);
-		return;
-	}
-
 	wzw->reset_tools();
 	// now (re)fill it
 	FOR(slist_tpl<werkzeug_t*>, const w, tools) {
 		// no way to call this tool? => then it is most likely a metatool
 		if(w->command_key==1  &&  w->get_icon(welt->get_active_player())==IMG_LEER) {
-			if(w->get_default_param(sp)!=NULL) {
+
+			if (char const* const param = w->get_default_param(sp)) {
 				if(  create  ) {
-					DBG_DEBUG( "toolbar_t::update()", "add metatool (param=%s)", w->get_default_param() );
+					DBG_DEBUG("toolbar_t::update()", "add metatool (param=%s)", param);
 				}
-				if(strstr(w->get_default_param(),"ways(")) {
-					const char *c = w->get_default_param()+5;
+				if (char const* c = strstart(param, "ways(")) {
 					waytype_t way = (waytype_t)atoi(c);
 					while(*c  &&  *c!=','  &&  *c!=')') {
 						c++;
 					}
 					weg_t::system_type subtype = (weg_t::system_type)(*c!=0 ? atoi(++c) : 0);
 					wegbauer_t::fill_menu( wzw, way, subtype, get_sound(c), welt );
-				}
-				else if(strstr(w->get_default_param(),"bridges(")) {
-					waytype_t way = (waytype_t)atoi(w->get_default_param()+8);
-					brueckenbauer_t::fill_menu( wzw, way, get_sound(w->get_default_param()+5), welt );
-				}
-				else if(strstr(w->get_default_param(),"tunnels(")) {
-					waytype_t way = (waytype_t)atoi(w->get_default_param()+8);
-					tunnelbauer_t::fill_menu( wzw, way, get_sound(w->get_default_param()+8), welt );
-				}
-				else if(strstr(w->get_default_param(),"signs(")) {
-					waytype_t way = (waytype_t)atoi(w->get_default_param()+6);
-					roadsign_t::fill_menu( wzw, way, get_sound(w->get_default_param()+6), welt );
-				}
-				else if(strstr(w->get_default_param(),"wayobjs(")) {
-					waytype_t way = (waytype_t)atoi(w->get_default_param()+8);
-					wayobj_t::fill_menu( wzw, way, get_sound(w->get_default_param()+8), welt );
-				}
-				else if(strstr(w->get_default_param(),"buildings(")) {
-					const char *c = w->get_default_param()+10;
-					haus_besch_t::utyp utype = (haus_besch_t::utyp)atoi(w->get_default_param()+10);
+				} else if (char const* const c = strstart(param, "bridges(")) {
+					waytype_t const way = (waytype_t)atoi(c);
+					brueckenbauer_t::fill_menu(wzw, way, get_sound(c), welt);
+				} else if (char const* const c = strstart(param, "tunnels(")) {
+					waytype_t const way = (waytype_t)atoi(c);
+					tunnelbauer_t::fill_menu(wzw, way, get_sound(c), welt);
+				} else if (char const* const c = strstart(param, "signs(")) {
+					waytype_t const way = (waytype_t)atoi(c);
+					roadsign_t::fill_menu(wzw, way, get_sound(c), welt);
+				} else if (char const* const c = strstart(param, "wayobjs(")) {
+					waytype_t const way = (waytype_t)atoi(c);
+					wayobj_t::fill_menu(wzw, way, get_sound(c), welt);
+				} else if (char const* c = strstart(param, "buildings(")) {
+					haus_besch_t::utyp const utype = (haus_besch_t::utyp)atoi(c);
 					while(*c  &&  *c!=','  &&  *c!=')') {
 						c++;
 					}
 					waytype_t way = (waytype_t)(*c!=0 ? atoi(++c) : 0);
 					hausbauer_t::fill_menu( wzw, utype, way, get_sound(c), welt );
-				}
-				else if(w->get_default_param()[0]=='-') {
+				} else if (param[0] == '-') {
 					// add dummy werkzeug as seperator
 					wzw->add_werkzeug( dummy );
 				}
@@ -859,6 +850,7 @@ void toolbar_t::update(karte_t *welt, spieler_t *sp)
 		else if(w->get_icon(welt->get_active_player())!=IMG_LEER) {
 			// get the right city_road
 			if(w->get_id() == (WKZ_CITYROAD | GENERAL_TOOL)) {
+				w->flags = 0;
 				w->init(welt,sp);
 			}
 			if(  create  ) {
@@ -867,6 +859,10 @@ void toolbar_t::update(karte_t *welt, spieler_t *sp)
 			// now add it to the toolbar gui
 			wzw->add_werkzeug( w );
 		}
+	}
+	if(  (strcmp(this->default_param,"EDITTOOLS")==0  &&  sp!=welt->get_spieler(1))  ) {
+		destroy_win(wzw);
+		return;
 	}
 }
 

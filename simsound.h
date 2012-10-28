@@ -1,46 +1,14 @@
 /*
  * Beschreibung der Schnittstelle zum Soundsystem.
  * von Hj. Malthaner, 1998, 2000
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans project under the artistic license.
+ * (see license.txt)
  */
 
 #ifndef simsound_h
 #define simsound_h
 
 #include "simtypes.h"
-
-
-/**
- * info zu einem abzuspielenden sound
- * @author Hj. Malthaner
- */
-struct sound_info
-{
-	/**
-	 * Index des beschriebenen sounds
-	 * @author Hj. Malthaner
-	 */
-	uint16 index;
-
-	/**
-	 * Lautstaerke des soundeffekts 0=stille, 255=maximum
-	 * @author Hj. Malthaner
-	 */
-	uint8 volume;
-
-	/**
-	 * Prioritaet des sounds. Falls die Anzahl der abspielbaren Sounds
-	 * vom System begrenzt wird, werden nur die Sounds hoher Priorität
-	 * abgespielt
-	 *
-	 * Priority of the sounds. If the number of playable sounds in the
-	 * system is limited, only the sounds played high priority (Google)
-	 * @author Hj. Malthaner
-	 */
-	uint8 pri;
-};
-
 
 // when muted, sound is not played (and also volume is not touched)
 void sound_set_mute(bool on);
@@ -61,10 +29,12 @@ int sound_get_global_volume();
 
 
 /**
- * spielt sound ab
- * @author Hj. Malthaner
+ * Play a sound.
+ *
+ * @param idx    Index of the sound
+ * @param volume Volume of the sound, 0 = silence, 255 = max
  */
-void sound_play(const sound_info inf);
+void sound_play(uint16 idx, uint8 volume = 255);
 
 
 // shuffle enable/disable for midis

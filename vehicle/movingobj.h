@@ -1,8 +1,8 @@
 /*
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner
  *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans project under the artistic license.
+ * (see license.txt)
  */
 
 #ifndef vehicle_movingobj_h
@@ -57,7 +57,7 @@ public:
 	// otherwise I suggest use the plant tree function (see below)
 	movingobj_t(karte_t *welt, loadsave_t *file);
 	movingobj_t(karte_t *welt, koord3d pos, const groundobj_besch_t *);
-	~movingobj_t();
+	virtual ~movingobj_t();
 
 	bool sync_step(long delta_t);
 

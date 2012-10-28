@@ -17,6 +17,7 @@
 #include "components/gui_label.h"
 #include "components/gui_button.h"
 #include "components/gui_tab_panel.h"
+#include "../tpl/array2d_tpl.h"
 
 class stadt_t;
 template <class T> class sparse_tpl;
@@ -34,6 +35,9 @@ private:
 
 	stadt_t *stadt;
 
+	koord minimaps_size; // size of minimaps
+	koord minimap2_offset; // position offset of second minimap
+
     button_t allow_growth;
 
 	gui_textinput_t name_input;
@@ -45,13 +49,12 @@ private:
 	button_t filterButtons[MAX_CITY_HISTORY];
 	bool bFilterIsActive[MAX_CITY_HISTORY];
 
-	uint8* pax_dest_old;
-	uint8* pax_dest_new;
+	array2d_tpl<uint8> pax_dest_old, pax_dest_new;
 
 	unsigned long pax_destinations_last_change;
 
-	void init_pax_dest( uint8* pax_dest );
-	void add_pax_dest( uint8* pax_dest, const sparse_tpl< uint8 >* city_pax_dest );
+	void init_pax_dest( array2d_tpl<uint8> &pax_dest );
+	void add_pax_dest( array2d_tpl<uint8> &pax_dest, const sparse_tpl< uint8 >* city_pax_dest );
 
 	void rename_city();
 
@@ -78,22 +81,26 @@ public:
 	*/
 	void zeichnen(koord pos, koord gr);
 
-	/**
-	 * This method is called if an action is triggered
-	 * @author Hj. Malthaner
-	 *
-	 * Returns true, if action is done and no more
-	 * components should be triggered.
-	 * V.Meyer
-	 */
-	bool action_triggered( gui_action_creator_t *komp, value_t extra);
+	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	void map_rotate90( sint16 );
 
 	// since we need to update the city pointer when topped
-	bool infowin_event(const event_t *ev);
+	bool infowin_event(event_t const*) OVERRIDE;
 
 	void update_data();
+
+	/**
+	 * Does this window need a min size button in the title bar?
+	 * @return true if such a button is needed
+	 * @author Hj. Malthaner
+	 */
+	virtual bool has_min_sizer() const {return true;}
+
+	/**
+	 * resize window in response to a resize event
+	 */
+	void resize(const koord delta);
 };
 
 #endif

@@ -22,6 +22,7 @@ void socket_info_t::reset()
 	}
 	state = inactive;
 	socket = INVALID_SOCKET;
+	player_unlocked = 0;
 }
 
 
@@ -132,14 +133,15 @@ void socket_list_t::change_state(uint32 id, uint8 new_state)
 {
 	book_state_change(list[id]->state, -1);
 	list[id]->state = new_state;
+	list[id]->player_unlocked = 0;
 	book_state_change(list[id]->state, +1);
 }
 
 
 void socket_list_t::reset()
 {
-	for(uint32 j=0; j<list.get_count(); j++) {
-		list[j]->reset();
+	FOR(vector_tpl<socket_info_t*>, const i, list) {
+		i->reset();
 	}
 	connected_clients = 0;
 	playing_clients = 0;
@@ -249,6 +251,42 @@ uint32 socket_list_t::get_client_id( SOCKET sock ){
 }
 
 
+void socket_list_t::unlock_player_all(uint8 player_nr, bool unlock, uint32 except_client)
+{
+// nettool does not know about nwc_auth_player_t
+#ifndef NETTOOL
+	for(uint32 i=0; i<list.get_count(); i++) {
+		if (i!=except_client  &&  (i==0  ||  list[i]->state == socket_info_t::playing) ) {
+			uint16 old_player_unlocked = list[i]->player_unlocked;
+			if (unlock) {
+				list[i]->unlock_player(player_nr);
+			}
+			else {
+				list[i]->lock_player(player_nr);
+			}
+			if (old_player_unlocked != list[i]->player_unlocked) {
+				dbg->warning("socket_list_t::unlock_player_all", "old = %d  new = %d  id = %d", old_player_unlocked, list[i]->player_unlocked, i);
+				// tell the player
+				nwc_auth_player_t *nwc = new nwc_auth_player_t();
+				nwc->player_unlocked = list[i]->player_unlocked;
+				if (i==0) {
+					network_send_server(nwc);
+				}
+				else {
+					nwc->send(list[i]->socket);
+					delete nwc;
+				}
+			}
+		}
+	}
+#else
+	(void) player_nr;
+	(void) unlock;
+	(void) except_client;
+#endif
+}
+
+
 void socket_list_t::send_all(network_command_t* nwc, bool only_playing_clients)
 {
 	if (nwc == NULL) {
@@ -268,9 +306,9 @@ void socket_list_t::send_all(network_command_t* nwc, bool only_playing_clients)
 SOCKET socket_list_t::fill_set(fd_set *fds)
 {
 	SOCKET s_max = 0;
-	for(uint32 i=0; i<list.get_count(); i++) {
-		if(  list[i]->state != socket_info_t::inactive  &&  list[i]->socket!=INVALID_SOCKET  ) {
-			SOCKET s = list[i]->socket;
+	FOR(vector_tpl<socket_info_t*>, const i, list) {
+		if (i->state != socket_info_t::inactive && i->socket != INVALID_SOCKET) {
+			SOCKET const s = i->socket;
 			s_max = max( s, s_max );
 			FD_SET( s, fds );
 		}

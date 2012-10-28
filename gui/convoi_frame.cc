@@ -9,7 +9,6 @@
 #include <string.h>
 #include <algorithm>
 
-#include "gui_container.h"
 #include "gui_convoiinfo.h"
 #include "components/list_button.h"
 
@@ -19,7 +18,6 @@
 #include "../simconvoi.h"
 #include "../simwin.h"
 #include "../simworld.h"
-#include "../simdepot.h"
 #include "../besch/ware_besch.h"
 #include "../bauer/warenbauer.h"
 #include "../dataobj/translator.h"
@@ -108,13 +106,13 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 	}
 
 	if(get_filter(spezial_filter)) {
-		if(!(get_filter(noroute_filter) && cnv->hat_keine_route()) &&
-			!(get_filter(stucked_filter) && (cnv->get_state()==convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS  ||  cnv->get_state()==convoi_t::CAN_START_TWO_MONTHS)) &&
-			!(get_filter(indepot_filter) && cnv->in_depot()) &&
-			!(get_filter(noline_filter) && !cnv->get_line().is_bound()) &&
-			!(get_filter(nofpl_filter) && cnv->get_schedule() == 0) &&
-			!(get_filter(obsolete_filter) && cnv->has_obsolete_vehicles()) &&
-			!(get_filter(noincome_filter) && cnv->get_jahresgewinn()/100 <= 0))
+		if ((!get_filter(noroute_filter)  || cnv->get_state() != convoi_t::NO_ROUTE) &&
+				(!get_filter(stucked_filter)  || (cnv->get_state() != convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS && cnv->get_state() != convoi_t::CAN_START_TWO_MONTHS)) &&
+				(!get_filter(indepot_filter)  || !cnv->in_depot()) &&
+				(!get_filter(noline_filter)   ||  cnv->get_line().is_bound()) &&
+				(!get_filter(nofpl_filter)    ||  cnv->get_schedule()) &&
+				(!get_filter(noincome_filter) ||  cnv->get_jahresgewinn() >= 100) &&
+				(!get_filter(obsolete_filter) || !cnv->has_obsolete_vehicles()))
 		{
 			return false;
 		}
@@ -133,7 +131,6 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 	}
 	return true;
 }
-
 
 
 bool convoi_frame_t::compare_convois(convoihandle_t const cnv1, convoihandle_t const cnv2)
@@ -170,14 +167,13 @@ bool convoi_frame_t::compare_convois(convoihandle_t const cnv1, convoihandle_t c
 }
 
 
-
 void convoi_frame_t::sort_list()
 {
-	const karte_t* welt = owner->get_welt();
-	last_world_convois = welt->get_convoi_count();
+	karte_t* welt = owner->get_welt();
+	last_world_convois = welt->convoys().get_count();
 
 	convois.clear();
-	convois.resize( welt->get_convoi_count() );
+	convois.resize(last_world_convois);
 
 	FOR(vector_tpl<convoihandle_t>, const cnv, welt->convoys()) {
 		if(cnv->get_besitzer()==owner  &&   passes_filter(cnv)) {
@@ -194,13 +190,12 @@ void convoi_frame_t::sort_list()
 }
 
 
-
 convoi_frame_t::convoi_frame_t(spieler_t* sp) :
 	gui_frame_t( translator::translate("cl_title"), sp),
 	owner(sp),
 	vscroll( scrollbar_t::vertical ),
 	sort_label("cl_txt_sort"),
-	filter_label("cl_txt_filter")
+	filter_label("Filter:")
 {
 	filter_frame = NULL;
 
@@ -235,7 +230,6 @@ convoi_frame_t::convoi_frame_t(spieler_t* sp) :
 }
 
 
-
 convoi_frame_t::~convoi_frame_t()
 {
 	if(filter_frame) {
@@ -244,9 +238,10 @@ convoi_frame_t::~convoi_frame_t()
 }
 
 
-
 bool convoi_frame_t::infowin_event(const event_t *ev)
 {
+	const sint16 xr = vscroll.is_visible() ? scrollbar_t::BAR_SIZE : 1;
+
 	if(ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE) {
 		if(filter_frame) {
 			filter_frame->infowin_event(ev);
@@ -257,17 +252,16 @@ bool convoi_frame_t::infowin_event(const event_t *ev)
 		// (and sometime even not then ... )
 		return vscroll.infowin_event(ev);
 	}
-	else if((IS_LEFTRELEASE(ev)  ||  IS_RIGHTRELEASE(ev))  &&  ev->my>47  &&  ev->mx+11<get_fenstergroesse().x) {
+	else if(  (IS_LEFTRELEASE(ev)  ||  IS_RIGHTRELEASE(ev))  &&  ev->my>47  &&  ev->mx<get_fenstergroesse().x-xr  ) {
 		int y = (ev->my-47)/40 + vscroll.get_knob_offset();
 		if(y<(sint32)convois.get_count()) {
 			// let gui_convoiinfo_t() handle this, since then it will be automatically consistent
-			gui_convoiinfo_t ci(convois[y], 0);
+			gui_convoiinfo_t ci(convois[y]);
 			return ci.infowin_event( ev );
 		}
 	}
 	return gui_frame_t::infowin_event(ev);
 }
-
 
 
 /**
@@ -303,11 +297,11 @@ bool convoi_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 }
 
 
-
 void convoi_frame_t::resize(const koord size_change)                          // 28-Dec-01    Markus Weber    Added
 {
 	gui_frame_t::resize(size_change);
 	koord groesse = get_fenstergroesse()-koord(0,47);
+	vscroll.set_visible(false);
 	remove_komponente(&vscroll);
 	vscroll.set_knob( groesse.y/40, convois.get_count() );
 	if(  (sint32)convois.get_count()<=groesse.y/40  ) {
@@ -315,12 +309,12 @@ void convoi_frame_t::resize(const koord size_change)                          //
 	}
 	else {
 		add_komponente(&vscroll);
+		vscroll.set_visible(true);
 		vscroll.set_pos(koord(groesse.x-scrollbar_t::BAR_SIZE, 47-16-1));
 		vscroll.set_groesse(groesse-koord(scrollbar_t::BAR_SIZE,scrollbar_t::BAR_SIZE));
 		vscroll.set_scroll_amount( 1 );
 	}
 }
-
 
 
 void convoi_frame_t::zeichnen(koord pos, koord gr)
@@ -329,12 +323,13 @@ void convoi_frame_t::zeichnen(koord pos, koord gr)
 
 	gui_frame_t::zeichnen(pos, gr);
 
-	PUSH_CLIP(pos.x, pos.y+47, gr.x-scrollbar_t::BAR_SIZE, gr.y-48 );
+	const sint16 xr = vscroll.is_visible() ? scrollbar_t::BAR_SIZE+4 : 6;
+	PUSH_CLIP(pos.x, pos.y+47, gr.x-xr, gr.y-48 );
 
 	uint32 start = vscroll.get_knob_offset();
 	sint16 yoffset = 47;
 
-	if(  last_world_convois != owner->get_welt()->get_convoi_count()  ) {
+	if (last_world_convois != owner->get_welt()->convoys().get_count()) {
 		// some deleted/ added => resort
 		sort_list();
 	}
@@ -343,8 +338,8 @@ void convoi_frame_t::zeichnen(koord pos, koord gr)
 		convoihandle_t cnv = convois[i];
 
 		if(cnv.is_bound()) {
-			gui_convoiinfo_t ci(cnv, 0);
-			ci.zeichnen( pos+koord(0,yoffset) );
+			gui_convoiinfo_t ci(cnv);
+			ci.zeichnen( pos+koord(4,yoffset) );
 		}
 		// full height of a convoi is 40 for all info
 		yoffset += 40;
@@ -352,7 +347,6 @@ void convoi_frame_t::zeichnen(koord pos, koord gr)
 
 	POP_CLIP();
 }
-
 
 
 void convoi_frame_t::set_ware_filter(const ware_besch_t *ware, int mode)
@@ -370,7 +364,6 @@ void convoi_frame_t::set_ware_filter(const ware_besch_t *ware, int mode)
 		}
 	}
 }
-
 
 
 void convoi_frame_t::set_alle_ware_filter(int mode)

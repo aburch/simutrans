@@ -3,8 +3,8 @@
  *
  * Copyright (c) 2005 Markus Pristovsek
  *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans project under the artistic license.
+ * (see license.txt)
  */
 
 #include "macros.h"
@@ -140,6 +140,24 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 		}
 	}
 
+	// if no coordinate is provided, there is maybe one in the text message?
+	// syntax: either @x,y or (x,y)
+	if (pos == koord::invalid) {
+		const char *str = text;
+		// scan until either @ or ( are found
+		while( *(str += strcspn(str, "@(")) ) {
+			str += 1;
+			int x=-1, y=-1;
+			if (sscanf(str, "%d,%d", &x, &y) == 2) {
+				if (welt->ist_in_kartengrenzen(x,y)) {
+					pos.x = x;
+					pos.y = y;
+					break; // success
+				}
+			}
+		}
+	}
+
 	// we do not allow messages larger than 256 bytes
 	node *const n = new node();
 
@@ -161,7 +179,7 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 	char* p = list.front()->msg;
 
 	// if local flag is set and we are not current player, do not open windows
-	if(  (color & PLAYER_FLAG) != 0  &&  welt->get_active_player_nr() != (color&(~PLAYER_FLAG))  ) {
+	if(  (art&(1<<ai))==0  &&   (color & PLAYER_FLAG) != 0  &&  welt->get_active_player_nr() != (color&(~PLAYER_FLAG))  ) {
 		return;
 	}
 	// check if some window has focus
@@ -191,8 +209,8 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 	}
 
 	// restore focus
-	if (old_top  &&  focus) {
-		top_win(old_top);
+	if(  old_top  &&  focus  ) {
+		top_win( old_top, true );
 	}
 }
 

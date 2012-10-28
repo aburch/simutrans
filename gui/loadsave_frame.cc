@@ -7,17 +7,9 @@
 
 #include "../simdebug.h"
 
-#ifndef _MSC_VER
-#include <unistd.h>
-#include <dirent.h>
-#include <string.h>
-#include <limits.h>
 // This gets us the max for a signed 32-bit int.  Hopefully.
 #define MAXINT INT_MAX
-#else
-#include <io.h>
-#include <direct.h>
-#endif
+
 #include <sys/stat.h>
 #include <time.h>
 #include <ctype.h>
@@ -368,14 +360,13 @@ loadsave_frame_t::~loadsave_frame_t()
 	file.wr_open(cache_file, loadsave_t::xml, "cache", SAVEGAME_VER_NR, EXPERIMENTAL_VER_NR);
 	const char *text="Automatically generated file. Do not edit. An invalid file may crash the game. Deleting is allowed though.";
 	file.rdwr_str(text);
-	stringhashtable_iterator_tpl<sve_info_t *> iterator(cached_info);
-	while(  iterator.next()  ) {
+	FOR(stringhashtable_tpl<sve_info_t*>, const& i, cached_info) {
 		// save only existing files
-		if (iterator.get_current_value()->file_exists) {
+		if (i.value->file_exists) {
 			xml_tag_t t(&file, "save_game_info");
-			const char *filename = iterator.get_current_key();
+			char const* filename = i.key;
 			file.rdwr_str(filename);
-			iterator.access_current_value()->rdwr(&file);
+			i.value->rdwr(&file);
 		}
 	}
 	// mark end with empty entry

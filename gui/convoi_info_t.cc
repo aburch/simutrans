@@ -28,7 +28,6 @@
 // @author hsiegeln
 #include "../simlinemgmt.h"
 #include "../simline.h"
-#include "../boden/grund.h"
 #include "messagebox.h"
 
 #include "../player/simplay.h"
@@ -153,14 +152,14 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	chart.set_background(MN_GREY1);
 	chart.set_ltr(umgebung_t::left_to_right_graphs);
 	int btn;
-	for (btn = 0; btn < MAX_CONVOI_COST; btn++) {
-		chart.add_curve( cost_type_color[btn], cnv->get_finance_history(), MAX_CONVOI_COST, btn, MAX_MONTHS, cost_type_money[btn], false, true, cost_type_money[btn]*2 );
+	for (btn = 0; btn < convoi_t::MAX_CONVOI_COST; btn++) {
+		chart.add_curve( cost_type_color[btn], cnv->get_finance_history(), convoi_t::MAX_CONVOI_COST, btn, MAX_MONTHS, cost_type_money[btn], false, true, cost_type_money[btn]*2 );
 		filterButtons[btn].init(button_t::box_state, cost_type[btn], koord(BUTTON1_X+(BUTTON_WIDTH+BUTTON_SPACER)*(btn%4), view.get_groesse().y+174+(BUTTON_HEIGHT+BUTTON_SPACER)*(btn/4)), koord(BUTTON_WIDTH, BUTTON_HEIGHT));
 		filterButtons[btn].add_listener(this);
 		filterButtons[btn].background = cost_type_color[btn];
 		filterButtons[btn].set_visible(false);
 		filterButtons[btn].pressed = false;
-		if((btn == MAX_CONVOI_COST - 1) && cnv->get_line().is_bound())
+		if((btn == convoi_t::MAX_CONVOI_COST - 1) && cnv->get_line().is_bound())
 		{
 			continue;
 		}
@@ -215,6 +214,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	reverse_button.pressed = cnv->get_reverse_schedule();
 	add_komponente(&reverse_button);
 
+	text.set_pos( koord(DIALOG_LEFT,DIALOG_TOP) );
 	scrolly.set_pos(koord(0, offset_below_viewport+50));
 	scrolly.set_show_scroll_x(true);
 	add_komponente(&scrolly);
@@ -282,13 +282,14 @@ void convoi_info_t::zeichnen(koord pos, koord gr)
 		if (filterButtons[ACCELERATION_BUTTON].is_visible() && filterButtons[ACCELERATION_BUTTON].pressed)
 		{
 			const int akt_speed_soll = kmh_to_speed(convoy.calc_max_speed(convoy.get_weight_summary()));
+			float32e8_t akt_v = 0;
 			sint32 akt_speed = 0;
 			sint32 sp_soll = 0;
 			int i = MAX_MONTHS;
 			physics_curves[--i][0] = akt_speed;
 			while (i > 0)
 			{
-				convoy.calc_move(15 * 64, float32e8_t::one, akt_speed_soll, akt_speed, sp_soll);
+				convoy.calc_move(welt->get_settings(), 15 * 64, akt_speed_soll, akt_speed_soll, SINT32_MAX_VALUE, SINT32_MAX_VALUE, akt_speed, sp_soll, akt_v);
 				physics_curves[--i][0] = speed_to_kmh(akt_speed);
 			}
 		}
@@ -379,8 +380,8 @@ enable_home:
 				break;
 				
 			default:
-				if (cnv->hat_keine_route()) 
-					color = COL_ORANGE;
+				if (cnv->get_state() == convoi_t::NO_ROUTE) 
+					color = COL_RED;
 			}
 			display_ddd_box_clip(pos_x, pos_y, 64, 8, MN_GREY0, MN_GREY4);
 			display_fillbox_wh_clip(pos_x + 1, pos_y + 1, 126, 6, color, true);
@@ -417,7 +418,7 @@ enable_home:
 			money_to_string(tmp, cnv->get_jahresgewinn()/100.0 );
 			len += display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, cnv->get_jahresgewinn() > 0 ? MONEY_PLUS : MONEY_MINUS, true ) + 5;
 			// Bernd Gabriel, 17.06.2009: add fixed maintenance info
-			uint32 fixed_monthly = cnv->get_fixed_maintenance();
+			uint32 fixed_monthly = cnv->get_fixed_cost();
 			if (fixed_monthly)
 			{
 				char tmp_2[64];
@@ -456,12 +457,12 @@ enable_home:
 			char tmp[256];
 			// Bernd Gabriel, 01.07.2009: inconsistent adding of ':'. Sometimes in code, sometimes in translation. Consistently moved to code.
 			sprintf(tmp, caption, translator::translate("Gewicht"));
-			int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, COL_BLACK, true ) + 5;
-			int freight_weight = gross_weight - empty_weight; // cnv->get_sum_gesamtgewicht() - cnv->get_sum_gewicht();
+			const int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, COL_BLACK, true ) + 5;
+			const int freight_weight = gross_weight - empty_weight; // cnv->get_sum_gesamtgewicht() - cnv->get_sum_gewicht();
 			sprintf(tmp, translator::translate(freight_weight ? "%g (%g) t" : "%g t"), gross_weight * 0.001f, freight_weight * 0.001f);
 			display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, 
 				cnv->get_overcrowded() > 0 ? COL_DARK_PURPLE : // overcrowded
-				!cnv->get_finance_history(0, CONVOI_TRANSPORTED_GOODS) && !cnv->get_finance_history(1, CONVOI_TRANSPORTED_GOODS) ? COL_YELLOW : // nothing moved in this and past month
+				!cnv->get_finance_history(0, convoi_t::CONVOI_TRANSPORTED_GOODS) && !cnv->get_finance_history(1, convoi_t::CONVOI_TRANSPORTED_GOODS) ? COL_YELLOW : // nothing moved in this and past month
 				COL_BLACK, true );
 		}
 
@@ -496,6 +497,43 @@ enable_home:
 			int len = display_proportional(line_x, pos_y, tmp, ALIGN_LEFT, COL_BLACK, true ) + 5;
 			display_proportional_clip(line_x + len, pos_y, cnv->get_line()->get_name(), ALIGN_LEFT, cnv->get_line()->get_state_color(), true );
 		}
+
+#ifdef DEBUG_PHYSICS
+		/*
+		 * Show braking distance
+		 */
+		{
+			const int pos_y = pos_y0 + 6 * LINESPACE; // line 7
+			const sint32 brk_meters = convoy.calc_min_braking_distance(convoy.get_weight_summary(), speed_to_v(cnv->get_akt_speed()));
+			char tmp[256];
+			sprintf(tmp, translator::translate("minimum brake distance"));
+			const int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, COL_BLACK, true );
+			sprintf(tmp, translator::translate(": %im"), brk_meters);
+			display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, cnv->get_akt_speed() <= cnv->get_akt_speed_soll() ? COL_BLACK : COL_RED, true );
+		}
+		{
+			const int pos_y = pos_y0 + 7 * LINESPACE; // line 8
+			char tmp[256];
+			const settings_t &settings = welt->get_settings();
+			const sint32 kmh = speed_to_kmh(cnv->next_speed_limit);
+			const sint32 m_til_limit = settings.steps_to_meters(cnv->steps_til_limit).to_sint32();
+			const sint32 m_til_brake = settings.steps_to_meters(cnv->steps_til_brake).to_sint32();
+			if (kmh)
+				sprintf(tmp, translator::translate("max %ikm/h in %im, brake in %im "), kmh, m_til_limit, m_til_brake);
+			else
+				sprintf(tmp, translator::translate("stop in %im, brake in %im "), m_til_limit, m_til_brake);
+			const int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, COL_BLACK, true );
+		}
+		{
+			const int pos_y = pos_y0 + 8 * LINESPACE; // line 9
+			const sint32 current_friction = cnv->front()->get_frictionfactor();
+			char tmp[256];
+			sprintf(tmp, translator::translate("current friction factor"));
+			const int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, COL_BLACK, true );
+			sprintf(tmp, translator::translate(": %i"), current_friction);
+			display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, current_friction <= 20 ? COL_BLACK : COL_RED, true );
+		}
+#endif
 		POP_CLIP();
 	}
 }
@@ -511,7 +549,7 @@ void convoi_info_t::show_hide_statistics( bool show )
 	chart.set_visible(show);
 	set_fenstergroesse(get_fenstergroesse() + offset + koord(0,show?LINESPACE:-LINESPACE));
 	resize(koord(0,0));
-	for (int i=0;i<MAX_CONVOI_COST;i++) {
+	for(  int i = 0;  i < convoi_t::MAX_CONVOI_COST;  i++  ) {
 		filterButtons[i].set_visible(toggler.pressed);
 	}
 }
@@ -712,7 +750,7 @@ void convoi_info_t::rdwr(loadsave_t *file)
 	sint32 yoff = scrolly.get_scroll_y();
 	if(  file->is_saving()  ) {
 		cnv_pos = cnv->front()->get_pos();
-		for( int i = 0; i<MAX_CONVOI_COST; i++) {
+		for(  int i = 0;  i < convoi_t::MAX_CONVOI_COST;  i++  ) {
 			if(  filterButtons[i].pressed  ) {
 				flags |= (1<<i);
 			}
@@ -745,7 +783,7 @@ void convoi_info_t::rdwr(loadsave_t *file)
 		// we might be unlucky, then search all convois for a convoi with this name
 		if(  !cnv.is_bound()  ) {
 			FOR(vector_tpl<convoihandle_t>, const i, welt->convoys()) {
-				if (strcmp(i->get_name(),name) == 0) {
+				if (strcmp(i->get_name(), name) == 0) {
 					cnv = i;
 					break;
 				}
@@ -766,10 +804,20 @@ void convoi_info_t::rdwr(loadsave_t *file)
 			gr.y -= 170;
 		}
 		w->set_fenstergroesse( gr );
-		for( int i = 0; i<MAX_CONVOI_COST; i++) {
-			w->filterButtons[i].pressed = (flags>>i)&1;
-			if(w->filterButtons[i].pressed) {
-				w->chart.show_curve(i);
+		if(  file->get_version()<111001  ) {
+			for(  int i = 0;  i < 6;  i++  ) {
+				w->filterButtons[i].pressed = (flags>>i)&1;
+				if(w->filterButtons[i].pressed) {
+					w->chart.show_curve(i);
+				}
+			}
+		}
+		else {
+			for(  int i = 0;  i < convoi_t::MAX_CONVOI_COST;  i++  ) {
+				w->filterButtons[i].pressed = (flags>>i)&1;
+				if(w->filterButtons[i].pressed) {
+					w->chart.show_curve(i);
+				}
 			}
 		}
 		if(  stats  ) {

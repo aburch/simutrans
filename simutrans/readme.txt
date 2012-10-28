@@ -12,7 +12,7 @@ Simutrans cannot start without the graphics in the pak set!
 The purpose of this document is to explain the configuration options of
 Simutrans. There are currently two styles of options:
 
-1) entries in the simuconf.tab and forrestconf.tab files
+1) entries in the simuconf.tab file
 2) command line options
 
 
@@ -32,18 +32,6 @@ a comment explaining what the entry is good for and what values are
 allowed for this entry.
 
 
-forrestconf.tab
----------------
-
-forrestconf.tab contains some settings that control the generation
-of forests during map creation.
-
-Forrestconf.tab is either located pak/config/forestconf.tab or in
-simutrans/forestconf.tab in your user directory. It is a textfile and
-can be edited with a text editor. Each entry has a comment explaining
-what the entry is good for and what values are allowed for this entry.
-
-
 cityrules.tab
 -------------
 
@@ -60,7 +48,7 @@ be founded during a game.
 
 The actual rules are of two types:
 house building rules and road building rules.
-Each rule has a probablility (house_xyz.chance) between -1 and -7 and
+Each rule has a probability (house_xyz.chance) between -1 and -7 and
 a square with describes allowed surroundings for this house rule. The
 square is composed by ASCII rows, with each symbol standing for:
 S = must not be road
@@ -70,6 +58,8 @@ H = must not be house
 h = must be house
 T = must not be a stop
 t = must be a stop
+U = way must not be buildable on slope
+u = way must be buildable on slope
 . = matches anything
 
 
@@ -96,7 +86,7 @@ Alphabetical list of options:
 -server
 -server_dns IP/name
 -server_name text
--server_comment text
+-server_admin_pw pwd
 -singleuser
 -timeline n=0|1
 -use_workdir
@@ -123,7 +113,7 @@ The switch -res chooses the resolution at program start:
 Resolution no. 5 runs Simutrans in a window instead of fullscreen mode
 (Windows version only)
 
-THIS SWITICH IS DEPRECATED AND ONLY KEPT FOR COMPATIBILITY!
+THIS SWITCH IS DEPRECATED AND ONLY KEPT FOR COMPATIBILITY!
 Please use -screensize WxH instead (see section 1b) !
 
 Use this switch at your own risk! Using a wrong resolution may damage your
@@ -174,11 +164,10 @@ simutrans -log 1
 
 This writes all messages which are output after the game switches to graphics
 mode to a file named "simu.log". This file might be helpful when reporting
-problems, you might consider to log a replay of the problem and send the log
-file together with a problem report to hansjoerg.malthaner@gmx.de. Please
-zip (compress) large log files before sending them. Don't forget your
-explantion of the problem is much more important than the log file when
-reporting problems.
+problems, you might consider to log a replay of the problem and attach the log file
+to your bug report at the simutrans forum. Pleasezip (compress) large log files before
+sending them. Don't forget your explanation of the problem is much more important
+than the log file when reporting problems.
 
 The -debug switch turns on additional debug messages. The recommended
 combination is "-log 1 -debug 3"
@@ -204,7 +193,7 @@ All print a quick help message, which basically says
 "Read the readme file"
 
 
-5.) starting a server (without portnumer, it will be on port 13353
+5.) starting a server (without port number, it will be on port 13353
 
 simutrans -server [portnr]
 
@@ -212,11 +201,12 @@ It is recommended to start server-games without addons with the pak
 set without modifications.
 
 If you want to announce your server, you need to supply a valid dns name
-or IPv4 or IPv6 [] number.
-commandline option "-server_dns mysever.homunix.org:13355"
+or IPv4 or IPv6 [] number via the commandline option liek
 
-Similary you can set server name and commetns via -server_name "Testserver"
-and -server_comment "professionals".
+"-server_dns mysever.homunix.org:13355"
+
+Similarly you can set server name via -server_name "Testserver". More server related
+settings can be specified in simuconf.tab.
 
 
 6.) Use alternative PAK files
@@ -234,7 +224,7 @@ you can have additional add-ons in your personal simutrans directory.
 That way those are kept, when updating the main pak sets.
 You can additionally specify "-addons" or "-noaddons" to force loading
 or prevent addons to be loaded with a pakset. This overrides the setting
-in simuconf.tab. "-noaddons" is defualt.
+in simuconf.tab. "-noaddons" is default.
 
 If you specify "-use_workdir" the simutrans environment from the current
 directory will be taken. Otherwise simutrans will take the environment from
@@ -318,11 +308,6 @@ feedback forum:
 http://forum.simutrans.com/
 
 
-If the forum entries and community can't help, you can contact one of
-the developer by email:
-
-team@64.simutrans.com
-
 
 Suggestions how to improve Simutrans are also always welcome.
 
@@ -339,4 +324,5 @@ The official Simutrans home page:
 http://www.simutrans.com
 
 This readme file was written by Hansjörg Malthaner, November 2000,
-Last update 8-Sep-2010 by Markus Pristovsek
+Updated 8-Sep-2010 by Markus Pristovsek
+Last update 16-Dec-2011 by Dwachs

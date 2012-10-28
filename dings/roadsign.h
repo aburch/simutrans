@@ -80,7 +80,7 @@ public:
 	 * signale muessen bei der destruktion von der
 	 * Blockstrecke abgemeldet werden
 	 */
-	~roadsign_t();
+	virtual ~roadsign_t();
 
 	// since traffic lights need their own window
 	void zeige_info();

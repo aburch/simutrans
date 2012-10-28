@@ -1,6 +1,5 @@
 
 #include <cmath>
-#include <string>
 #include "../../utils/simstring.h"
 #include "../../dataobj/tabfile.h"
 #include "../vehikel_besch.h"
@@ -79,7 +78,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	int i;
 	uint8  uv8;
 
-	int total_len = 67;
+	int total_len = 75;
 
 	// prissi: must be done here, since it may affect the len of the header!
 	string sound_str = ltrim( obj.get("sound") );
@@ -90,7 +89,8 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		if (sound_id == 0 && sound_str[0] == '0') {
 			sound_id = 0;
 			sound_str = "";
-		} else if (sound_id != 0) {
+		}
+		else if (sound_id != 0) {
 			// old style id
 			sound_str = "";
 		}
@@ -103,12 +103,15 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	obj_node_t	node(this, total_len, &parent);
 
 	write_head(fp, node, obj);
-
+	
+	// This variable counts the number of bytes written so far in the file semi-automatically.
+	// It is important that data are read back in exactly the same order as they were written.
+	uint16 pos = 0;
 
 	// Hajo: version number
 	// Hajo: Version needs high bit set as trigger -> this is required
 	//       as marker because formerly nodes were unversionend
-	uint16 version = 0x8008; 
+	uint16 version = 0x8009;
 	
 	// This is the overlay flag for Simutrans-Experimental
 	// This sets the *second* highest bit to 1. 
@@ -117,70 +120,110 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// Finally, this is the experimental version number. This is *added*
 	// to the standard version number, to be subtracted again when read.
 	// Start at 0x100 and increment in hundreds (hex).
-	version += 0x700;
+	version += 0x800;
 
-	node.write_uint16(fp, version, 0);
+	node.write_uint16(fp, version, pos);
 
+	pos += sizeof(uint16);
 
-	// Hajodoc: Price of this vehicle in cent
-	// Hajoval: int
+	// Hajodoc: Price of this vehicle in Simucents
 	uint32 cost = obj.get_int("cost", 0);
-	node.write_uint32(fp, cost, 2);
-
+	node.write_uint32(fp, cost, pos);
+	pos += sizeof(uint32);
 
 	// Hajodoc: Payload of this vehicle
-	// Hajoval: int
 	uint16 payload = obj.get_int("payload", 0);
-	node.write_uint16(fp, payload, 6);
+	node.write_uint16(fp, payload, pos);
+	pos += sizeof(uint16);
 
+	/*
+	* This duplicates a system used in Experimental for some time.
+	* The keyword is the same.
+	*
+	// ms per loading/unloading everything
+	uint16 loading_time = obj.get_int("loading_time", 1000 );
+	node.write_uint16(fp, loading_time, pos);
+	pos += sizeof(uint16);
+	*/
 
 	// Hajodoc: Top speed of this vehicle. Must be greater than 0
-	// Hajoval: int
 	uint16 top_speed = obj.get_int("speed", 0);
-	node.write_uint16(fp, top_speed, 8);
-
+	node.write_uint16(fp, top_speed, pos);
+	pos += sizeof(payload);
 
 	// Hajodoc: Total weight of this vehicle in tonnes
-	// Hajoval: int
 	uint16 weight = obj.get_int("weight", 0);
-	node.write_uint16(fp, weight, 10);
+	node.write_uint16(fp, weight, pos);
+	pos += sizeof(uint16);
 
+	// axle_load (determine ways usage)
+	uint16 axle_load = obj.get_int("axle_load", 0);
+	node.write_uint16(fp, axle_load, pos);
+	pos += sizeof(uint16);
 
 	// Hajodoc: Power of this vehicle in KW
-	// Hajoval: int
 	uint32 power = obj.get_int("power", 0);
-	node.write_uint32(fp, power, 12);
-
+	node.write_uint32(fp, power, pos);
+	pos += sizeof(uint32);
 
 	// Hajodoc: Running costs, given in cent per square
-	// Hajoval: int
 	uint16 runningcost = obj.get_int("runningcost", 0);
-	node.write_uint16(fp, runningcost, 16);
+	node.write_uint16(fp, runningcost, pos);
+	pos += sizeof(uint16);
 
+	/*
+	* uint16 size used in Standard. Stored in a different position
+	* in the file in Experimental, and is a uint32.
+	*
+	// monthly maintenance
+	uint16 fixcost = obj.get_int("fixed_cost", 0);
+	node.write_uint16(fp, fixcost, pos);
+	pos += sizeof(uint16);*/
 
 	// Hajodoc: Introduction date (year * 12 + month)
-	// Hajoval: int
 	uint16 intro  = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
 	intro += obj.get_int("intro_month", 1) - 1;
-	node.write_uint16(fp, intro, 18);
+	node.write_uint16(fp, intro, pos);
+	pos += sizeof(uint16);
 
 	// Hajodoc: retire date (year * 12 + month)
-	// Hajoval: int
 	uint16 retire = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12;
 	retire += obj.get_int("retire_month", 1) - 1;
-	node.write_uint16(fp, retire, 20);
+	node.write_uint16(fp, retire, pos);
+	pos += sizeof(uint16);
 
 	// Hajodoc: Engine gear (power multiplier)
-	// Hajoval: int
 	uint16 gear = (obj.get_int("gear", 100) * 64) / 100;
-	node.write_uint16(fp, gear, 22);
+	node.write_uint16(fp, gear, pos);
+	pos += sizeof(uint16);
 
 	// Hajodoc: Type of way this vehicle drives on
-	// Hajoval: road, track, electrified_track, monorail_track, maglev_track, water
 	char const* const waytype_name = obj.get("waytype");
 	waytype_t   const waytype      = get_waytype(waytype_name);
 	uv8 = waytype != overheadlines_wt ? waytype : track_wt;
-	node.write_uint8(fp, uv8, 24);
+	node.write_uint8(fp, uv8, pos);
+	pos += sizeof(uint8);
+
+	// sound id byte
+	node.write_sint8(fp, sound_id, pos);
+	pos += sizeof(uint8);
+
+	// engine
+	if (waytype == overheadlines_wt) {
+		// Hajo: compatibility for old style DAT files
+		uv8 = vehikel_besch_t::electric;
+	}
+	else {
+		const char* engine_type = obj.get("engine_type");
+		uv8 = get_engine_type(engine_type);
+	}
+	node.write_uint8(fp, uv8, pos);
+	pos += sizeof(uint8);
+
+	// the length (default 8)
+	uint8 length = obj.get_int("length", 8);
+	node.write_uint8(fp, length, pos);
+	pos += sizeof(uint8);
 
 	// Hajodoc: The freight type
 	// Hajoval: string
@@ -211,7 +254,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// first: find out how many freight and liveries
 	for (i = 0; i < 127; i++)
 	{
-		// Freight with multiple types without liveries
+		// Freight with multiple types and single liveries
 		char buf[40];
 		sprintf(buf, "freightimage[%d][%s]", i, dir_codes[0]);
 		printf("Reading freightimage[%d][%s]\n", i, dir_codes[0]);
@@ -225,7 +268,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	
 	for (i = 0; i < 127; i++)
 	{
-		// Freight with multiple types and liveries
+		// Freight with multiple types and multiple liveries
 		for (int j = 0; j < 127; j++)
 		{
 			char buf[40];
@@ -235,7 +278,9 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 			if(str.empty())
 			{
 				freight_max += i;
-				livery_max += j;
+				// Do not increment livery_max here, as this will double count:
+				// liveries for loaded vehicles should be the same as for unloaded vehicles,
+				// and the liveries will have been counted already in empty images.
 				goto end;
 			}
 		}
@@ -245,7 +290,7 @@ end:
 
 	for (i = 0; i < 127; i++)
 	{
-		// Liveries without fright / empty images
+		// Empty images with multiple liveries
 		char buf[40];
 		sprintf(buf, "emptyimage[%s][%d]", dir_codes[0], i);
 		printf("Reading emptyimage[%s][%d]\n", dir_codes[0], i);
@@ -257,32 +302,33 @@ end:
 		}
 	}
 
+	// Freight with a single type and multiple liveries
+	uint8 basic_freight_images = 0;
 	for (i = 0; i < 127; i++)
 	{
-		// Freight with a single type and liveries
 		char buf[40];
 		sprintf(buf, "freightimage[%s][%d]", dir_codes[0], i);
 		printf("Reading freightimage[%s][%d]\n", dir_codes[0], i);
 		str = obj.get(buf);
 		if(str.empty())
 		{
-			livery_max += i;
+			// Do not increment livery_max here, as this will double count:
+			// liveries for loaded vehicles should be the same as for unloaded vehicles,
+			// and the liveries will have been counted already in empty images.
+			basic_freight_images = i;
 			break;
 		}
 	}
 
 	// Freight with a single type and single liveries
-	uint8 basic_freight_images = 0;
 	for (i = 0; i < 127; i++)
 	{
-		// Freight with a single type and liveries
 		char buf[40];
 		sprintf(buf, "freightimage[%s]", dir_codes[0]);
 		printf("Reading freightimage[%s]\n", dir_codes[0]);
 		str = obj.get(buf);
 		if(str.empty())
 		{
-			basic_freight_images = i;
 			break;
 		}
 	}
@@ -320,14 +366,21 @@ end:
 			{
 				sprintf(buf, "emptyimage[%s][%d]", dir_codes[i], livery);
 				str = obj.get(buf);
-				if(str.empty())
+				if(!str.empty())
 				{
-					printf("*** FATAL ***:\nMissing emptyimage[%s][%d]!\n", dir_codes[i], livery);
-					fflush(NULL);
-					exit(0);
+					printf("Appending emptyimage[%s][%d]\n", dir_codes[i], livery);
+					liverykeys_empty.at(i).append(str);
+					if (i >= 4) 
+					{
+						has_8_images = true;
+					}
 				}
-				printf("Appending emptyimage[%s][%d]\n", dir_codes[i], livery);
-				liverykeys_empty.at(i).append(str);
+				else
+				{
+					// stop when empty string is found
+					break;
+				}
+				
 			}
 		}
 
@@ -375,6 +428,7 @@ end:
 					break;
 				}
 				printf("Appending freightimage[%s][%d]", dir_codes[i], livery);
+				//fprintf(stderr, "Appending freightimage[%s][%d]\n", dir_codes[i], livery);
 				liverykeys_freight_old.at(i).append(str);
 			}
 		}
@@ -384,13 +438,16 @@ end:
 			liverykeys_freight.append();
 			for(int livery = 0; livery < livery_max; livery++)
 			{
+				liverykeys_freight.at(i).append(); // See http://forum.simutrans.com/index.php?topic=9841.0
 				for(int freight = 0; freight < freight_max; freight++)
 				{
 					sprintf(buf, "freightimage[%d][%s][%d]", freight, dir_codes[i], livery);
 					str = obj.get(buf);
 					if(str.empty())
 					{
+						break;
 						printf("*** FATAL ***:\nMissing freightimage[%d][%s][%d]!\n", freight, dir_codes[i], livery);
+						//fprintf(stderr, "*** FATAL ***:\nMissing freightimage[%d][%s][%d]!\n", freight, dir_codes[i], livery);
 						fflush(NULL);
 						exit(0);
 					}
@@ -403,6 +460,7 @@ end:
 		{
 			// This should never be reached.
 			printf("*** FATAL ***: Error in code");
+			//fprintf(stderr, "*** FATAL ***: Error in code");
 			exit(0);
 		}
 	}
@@ -411,12 +469,14 @@ end:
 	if (has_8_images && emptykeys.get_count() < 8 && liverykeys_empty.get_count() < 8) 
 	{
 		printf("*** FATAL ***:\nMissing images (must be either 4 or 8 directions (but %i found)!)\n", emptykeys.get_count() + liverykeys_empty.get_count());
+		//fprintf(stderr, "*** FATAL ***:\nMissing images (must be either 4 or 8 directions (but %i found)!)\n", emptykeys.get_count() + liverykeys_empty.get_count());
 		exit(0);
 	}
 
 	if (!(freightkeys_old.empty() || liverykeys_freight_old.empty()) && (emptykeys.get_count() != freightkeys_old.get_count() || liverykeys_empty.get_count() != liverykeys_freight_old.get_count()))
 	{
 		printf("*** FATAL ***:\nMissing freigthimages (must be either 4 or 8 directions (but %i found)!)\n", freightkeys_old.get_count());
+		//fprintf(stderr, "*** FATAL ***:\nMissing freigthimages (must be either 4 or 8 directions (but %i found)!)\n", freightkeys_old.get_count());
 		exit(0);
 	}
 
@@ -442,16 +502,21 @@ end:
 	else if(freight_max > 0 && livery_max > 0)
 	{
 		// Multiple frieght images, multiple liveries
+		//fprintf(stderr, "Writing %d multiple livery multiple type freight images\n", (liverykeys_freight.get_count() * liverykeys_freight.front().get_count() * liverykeys_freight.front().front().get_count()));
 		imagelist3d_writer_t::instance()->write_obj(fp, node, liverykeys_freight);
 		printf("Writing %d multiple livery multiple type freight images\n", (liverykeys_freight.get_count() * liverykeys_freight.front().get_count() * liverykeys_freight.front().front().get_count()));
+		//fprintf(stderr, "Completed\n");
 	}
 	else if(freight_max == 0 && livery_max > 0 && basic_freight_images > 0)
 	{
 		// Single freight images, multiple liveries
+		//fprintf(stderr, "Writing %d single type multiple livery freight images\n", liverykeys_freight_old.get_count() * liverykeys_freight_old.front().get_count());
 		imagelist2d_writer_t::instance()->write_obj(fp, node, liverykeys_freight_old);
+		freight_max = 255; // To indicate that there are indeed single freight images and multiple liveries available. 
 		printf("Writing %d single type multiple livery freight images\n", liverykeys_freight_old.get_count() * liverykeys_freight_old.front().get_count());
+		//fprintf(stderr, "Completed\n");
 	}
-	else if(freight_max == 0 && livery_max == 0)
+	else if(freight_max == 0 && freight_max < 255 && livery_max == 0)
 	{
 		// Single freight images, no multiple liveries
 		if (freightkeys_old.get_count() == emptykeys.get_count()) 
@@ -549,27 +614,31 @@ end:
 
 	// multiple freight image types - define what good uses each index
 	// good without index will be an error
-	for (i = 0; i <= freight_max; i++)
+	if(freight_max < 255)
 	{
-		char buf[40];
-		sprintf(buf, "freightimagetype[%d]", i);
-		str = obj.get(buf);
-		if (i == freight_max) 
+		for (i = 0; i <= freight_max; i++)
 		{
-			// check for superflous definitions
-			if(!str.empty())
+			char buf[40];
+			sprintf(buf, "freightimagetype[%d]", i);
+			str = obj.get(buf);
+			if (i == freight_max) 
 			{
-				printf("WARNING: More freightimagetype (%i) than freight_images (%i)!\n", i, freight_max);
-				fflush(NULL);
+				// check for superflous definitions
+				if(!str.empty())
+				{
+					printf("WARNING: More freightimagetype (%i) than freight_images (%i)!\n", i, freight_max);
+					fflush(NULL);
+				}
+				break;
 			}
-			break;
+			if(str.empty())
+			{
+				printf("*** FATAL ***:\nMissing freightimagetype[%i] for %i freight_images!\n", i, freight_max + 1);
+				//fprintf(stderr, "*** FATAL ***:\nMissing freightimagetype[%i] for %i freight_images!\n", i, freight_max + 1);
+				exit(0);
+			}
+			xref_writer_t::instance()->write_obj(fp, node, obj_good, str.c_str(), false);
 		}
-		if(str.empty())
-		{
-			printf("*** FATAL ***:\nMissing freightimagetype[%i] for %i freight_images!\n", i, freight_max + 1);
-			exit(0);
-		}
-		xref_writer_t::instance()->write_obj(fp, node, obj_good, str.c_str(), false);
 	}
 
 	// multiple liveries - define what liveries use each index
@@ -592,6 +661,7 @@ end:
 		if(str.empty())
 		{
 			printf("*** FATAL ***:\nMissing liverytype[%i] for %i liveries!\n", i, livery_max + 1);
+			//fprintf(stderr, "*** FATAL ***:\nMissing liverytype[%i] for %i liveries!\n", i, livery_max + 1);
 			exit(0);
 		}
 		text_writer_t::instance()->write_obj(fp, node, str.c_str());
@@ -599,7 +669,7 @@ end:
 
 	// if no index defined then add default as vehicle good
 	// if not using freight images then store zero string
-	if (freight_max > 0) 
+	if (freight_max > 0 && freight_max < 255) 
 	{
 		xref_writer_t::instance()->write_obj(fp, node, obj_good, freight, false);
 	}
@@ -609,30 +679,19 @@ end:
 		text_writer_t::instance()->write_obj(fp, node, "default");
 	}
 
-	node.write_sint8(fp, sound_id, 25);
-
-	if (waytype == overheadlines_wt) {
-		// Hajo: compatibility for old style DAT files
-		uv8 = vehikel_besch_t::electric;
-	} else {
-		const char* engine_type = obj.get("engine_type");
-		uv8 = get_engine_type(engine_type);
-	}
-	node.write_uint8(fp, uv8, 26);
-
-	// the length (default 8)
-	uint8 length = obj.get_int("length", 8);
-	node.write_uint8(fp, length, 27);
-
-	node.write_sint8(fp, besch_vorgaenger, 28);
-	node.write_sint8(fp, besch_nachfolger, 29);
-	node.write_uint8(fp, (uint8) freight_max, 30);
+	node.write_sint8(fp, besch_vorgaenger, pos);
+	pos += sizeof(sint8);
+	node.write_sint8(fp, besch_nachfolger, pos);
+	pos += sizeof(sint8);
+	node.write_uint8(fp, (uint8) freight_max, pos);
+	pos += sizeof(uint8);
 
 	// Whether this is a tilting train
 	// int
 	//@author: jamespetts
 	uint8 tilting = (obj.get_int("is_tilting", 0));
-	node.write_uint8(fp, tilting, 31);
+	node.write_uint8(fp, tilting, pos);
+	pos += sizeof(uint8);
 
 	// Way constraints
 	// One byte for permissive, one byte for prohibitive.
@@ -666,15 +725,18 @@ end:
 			prohibitive_way_constraints = (tmp_prohibitive > 0) ? prohibitive_way_constraints | (uint8)pow(2, (double)tmp_prohibitive) : prohibitive_way_constraints | 1;
 		}
 	}
-	node.write_uint8(fp, permissive_way_constraints, 32);
-	node.write_uint8(fp, prohibitive_way_constraints, 33);
+	node.write_uint8(fp, permissive_way_constraints, pos);
+	pos += sizeof(uint8);
+	node.write_uint8(fp, prohibitive_way_constraints, pos);
+	pos += sizeof(uint8);
 
 	// Catering level. 0 = no catering. 
 	// Higher numbers, better catering.
 	// Catering boosts passenger revenue.
 	// @author: jamespetts
 	uint8 catering_level = (obj.get_int("catering_level", 0));
-	node.write_uint8(fp, catering_level, 34);		
+	node.write_uint8(fp, catering_level, pos);	
+	pos += sizeof(uint8);
 
 	//Reverseing settings.
 	//@author: jamespetts
@@ -682,22 +744,26 @@ end:
 	// Bidirectional: vehicle can travel backwards without turning around.
 	// Function is disabled for road and air vehicles.
 	uint8 bidirectional = (obj.get_int("bidirectional", 0));
-	node.write_uint8(fp, bidirectional, 35);
+	node.write_uint8(fp, bidirectional, pos);
+	pos += sizeof(uint8);
 
 	// Can lead from rear: train can run backwards without turning around.
 	uint8 can_lead_from_rear = (obj.get_int("can_lead_from_rear", 0));
-	node.write_uint8(fp, can_lead_from_rear, 36);
+	node.write_uint8(fp, can_lead_from_rear, pos);
+	pos += sizeof(uint8);
 
 	// Passenger comfort rating - affects revenue on longer journies.
 	//@author: jamespetts
 	uint8 comfort = (obj.get_int("comfort", 100));
-	node.write_uint8(fp, comfort, 37);
+	node.write_uint8(fp, comfort, pos);
+	pos += sizeof(uint8);
 
 	// Overcrowded capacity - can take this much *in addition to* normal capacity,
 	// but revenue will be lower and dwell times higher. Mainly for passengers.
 	//@author: jamespetts
 	uint16 overcrowded_capacity = (obj.get_int("overcrowded_capacity", 0));
-	node.write_uint8(fp, overcrowded_capacity, 38);
+	node.write_uint16(fp, overcrowded_capacity, pos);
+	pos += sizeof(uint16);
 
 	// The time in ms that it takes the vehicle to load and unload at stations (i.e.,  
 	// the dwell time). The default is 2,000 because that is the value used in 
@@ -739,75 +805,69 @@ end:
 	 * @author: jamespetts
 	 */
 	uint16 loading_time = (obj.get_int("loading_time", default_loading_time));
-	node.write_uint16(fp, loading_time, 40);
+	node.write_uint16(fp, loading_time, pos);
+	pos += sizeof(uint16);
 
 	// Upgrading settings
 	//@author: jamespetts
-
-	node.write_sint8(fp, upgrades, 42);
+	node.write_sint8(fp, upgrades, pos);
+	pos += sizeof(sint8);
 
 	// This is the cost of upgrading to this vehicle, rather than buying it new.
 	// By default, the cost is the same as a new purchase.
 	uint32 upgrade_price = (obj.get_int("upgrade_price", cost));
-	node.write_uint32(fp, upgrade_price, 43);
+	node.write_uint32(fp, upgrade_price, pos);
+	pos += sizeof(uint32);
 
 	// If this is set to true (is read as a bool), this will only be able to be purchased
 	// as an upgrade to another vehicle, not as a new vehicle.
 	uint8 available_only_as_upgrade = (obj.get_int("available_only_as_upgrade", 0));
-	node.write_uint8(fp, available_only_as_upgrade, 47);
+	node.write_uint8(fp, available_only_as_upgrade, pos);
+	pos += sizeof(uint8);
 
 	// Fixed monthly maintenance costs
 	// @author: jamespetts
-	uint32 fixed_maintenance = obj.get_int("fixed_maintenance", 0);
-	node.write_uint32(fp, fixed_maintenance, 48);
+	// (The original Experimental name was "fixed_maintenance".
+	// The new Standard name is "fixed_cost". It is necessary
+	// to accommodate both.)
+	uint32 fixed_cost = obj.get_int("fixed_maintenance", 0);
+	fixed_cost = obj.get_int("fixed_cost", fixed_cost);
+	node.write_uint32(fp, fixed_cost, pos);
+	pos += sizeof(uint32);
 
 	// Tractive effort
 	// @author: jamespetts
 	uint16 tractive_effort = obj.get_int("tractive_effort", 0);
-	node.write_uint16(fp, tractive_effort, 52);
+	node.write_uint16(fp, tractive_effort, pos);
+	pos += sizeof(uint16);
 
 	// Air resistance
 	// @author: jamespetts & Bernd Gabriel
-	uint16 air_default;
-	switch(waytype)
-	{
-		default:
-		case road_wt:
-			air_default = 252; //2.52 when read
-			break;
-		case track_wt:
-		case tram_wt:
-		case monorail_wt:
-		case narrowgauge_wt:
-			air_default = 1300; //13 when read
-			break;
-		case water_wt:
-			air_default = 2500; //25 when read
-			break;
-		case maglev_wt:		
-			air_default = 1000; //10 when read
-			break;
-		case air_wt:
-			air_default = 100; //1 when read
-	};
+	uint16 air_default = vehikel_besch_t::get_air_default(waytype);
 
 	uint16 air_resistance_hundreds = obj.get_int("air_resistance", air_default);
-	node.write_uint16(fp, air_resistance_hundreds, 54);
+	node.write_uint16(fp, air_resistance_hundreds, pos);
+	pos += sizeof(uint16);
 
-	node.write_uint8(fp, (uint8)can_be_at_rear, 56);
+	node.write_uint8(fp, (uint8)can_be_at_rear, pos);
+	pos += sizeof(uint8);
 
 	// Obsolescence. Zeros indicate that simuconf.tab values should be used.
 	// @author: jamespetts
 	uint16 increase_maintenance_after_years = obj.get_int("increase_maintenance_after_years", 0);
-	node.write_uint16(fp, increase_maintenance_after_years, 57);
+	node.write_uint16(fp, increase_maintenance_after_years, pos);
+	pos += sizeof(uint16);
 
 	uint16 increase_maintenance_by_percent = obj.get_int("increase_maintenance_by_percent", 0);
-	node.write_uint16(fp, increase_maintenance_by_percent, 59);
+	node.write_uint16(fp, increase_maintenance_by_percent, pos);
+	pos += sizeof(uint16);
 
 	uint8 years_before_maintenance_max_reached = obj.get_int("years_before_maintenance_max_reached", 0);
-	node.write_uint8(fp, years_before_maintenance_max_reached, 61);
+	node.write_uint8(fp, years_before_maintenance_max_reached, pos);
+	pos += sizeof(uint8);
 
-	node.write_uint8(fp, (uint8) livery_max, 62);
+	node.write_uint8(fp, (uint8) livery_max, pos);
+	pos += sizeof(uint8);
 
 	/**
 	 * The loading times (minimum and maximum) of this
@@ -823,14 +883,32 @@ end:
 	 * @author: jamespetts, August 2011
 	 */
 	uint16 min_loading_time = obj.get_int("min_loading_time", 65535);
-	node.write_uint16(fp, min_loading_time, 63);
+	node.write_uint16(fp, min_loading_time, pos);
+	pos += sizeof(uint16);
 	uint16 max_loading_time = obj.get_int("max_loading_time", 65535);
-	node.write_uint16(fp, max_loading_time, 65);
+	node.write_uint16(fp, max_loading_time, pos);
+	pos += sizeof(uint16);
+
+	uint16 rolling_default = vehikel_besch_t::get_rolling_default(waytype);
+
+	uint16 rolling_resistance_tenths_thousands = obj.get_int("rolling_resistance", rolling_default);
+	node.write_uint16(fp, rolling_resistance_tenths_thousands, pos);
+	pos += sizeof(rolling_resistance_tenths_thousands);
+
+	uint16 brake_force = obj.get_int("brake_force", 65535);
+	node.write_uint16(fp, brake_force, pos);
+	pos += sizeof(brake_force);
+
+	uint16 minimum_runway_length = obj.get_int("minimum_runway_length", 0);
+	node.write_uint16(fp, minimum_runway_length, pos);
+	pos += sizeof(minimum_runway_length);
 
 	sint8 sound_str_len = sound_str.size();
 	if (sound_str_len > 0) {
-		node.write_sint8  (fp, sound_str_len, 67);
-		node.write_data_at(fp, sound_str.c_str(),     68, sound_str_len);
+		node.write_sint8  (fp, sound_str_len, pos);
+		pos += sizeof(sint8);
+		node.write_data_at(fp, sound_str.c_str(), pos, sound_str_len);
+		pos += sound_str_len;
 	}
 
 	node.write(fp);

@@ -114,10 +114,8 @@ static bool compare_station_besch(const haus_besch_t* a, const haus_besch_t* b)
 
 bool hausbauer_t::alles_geladen()
 {
-	stringhashtable_iterator_tpl<const haus_besch_t *>iter(besch_names);
-	while(  iter.next()  ) {
-		const haus_besch_t* besch = iter.get_current_value();
-
+	FOR(stringhashtable_tpl<haus_besch_t const*>, const& i, besch_names) {
+		haus_besch_t const* const besch = i.value;
 		switch(besch->get_typ()) {
 			case gebaeude_t::wohnung:
 				wohnhaeuser.insert_ordered(besch,compare_haus_besch);
@@ -165,7 +163,7 @@ bool hausbauer_t::alles_geladen()
 						break;
 					}
 				default:
-					// obsolete object, usually such pak set will not load properly anyway (old objects should be catched before!)
+					// obsolete object, usually such pak set will not load properly anyway (old objects should be caught before!)
 					dbg->error("hausbauer_t::alles_geladen()","unknown subtype %i of \"%s\" ignored",besch->get_utyp(),besch->get_name());
 			}
 		}
@@ -257,8 +255,8 @@ DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.get_count());
 void hausbauer_t::neue_karte()
 {
 	ungebaute_denkmaeler.clear();
-	for(uint32 i=0; i<denkmaeler.get_count(); i++) {
-		ungebaute_denkmaeler.append(denkmaeler[i]);
+	FOR(vector_tpl<haus_besch_t const*>, const i, denkmaeler) {
+		ungebaute_denkmaeler.append(i);
 	}
 }
 
@@ -364,10 +362,6 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb ) //gebae
 					// ok, now we can go on with deletion
 					gb_part->entferne( sp );
 					delete gb_part;
-					// if this was a station building: delete ground
-					if(gr->get_halt().is_bound()) {
-						gr->get_halt()->rem_grund(gr);
-					}
 					// and maybe restore land below
 					if(gr->get_typ()==grund_t::fundament) {
 						const koord newk = k+pos.get_2d();
@@ -446,11 +440,21 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int org
 				// Hajo: after staring a new map, build fake old buildings
 				gb->add_alter(10000);
 			}
-			grund_t *gr = welt->lookup_kartenboden(pos.get_2d() + k);
+			grund_t *gr;
+			/*if(besch->get_allow_underground() == 1) 
+			{
+				// TODO: Make this work properly. Currently, underground buildings do not work correctly.
+				// The below line of code is necessary but not sufficient for allowing underground buildings.
+				gr = welt->lookup(pos);
+			}
+			else
+			{*/
+				gr = welt->lookup_kartenboden(pos.get_2d() + k);
+			//}
 			if(gr->ist_wasser()) {
 				gr->obj_add(gb);
 			} else if (besch->get_utyp() == haus_besch_t::hafen) {
-				// its a dock!
+				// it's a dock!
 				gr->obj_add(gb);
 			}
 			else {
@@ -483,7 +487,13 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int org
 				welt->add_ausflugsziel( gb );
 			}
 			if(besch->get_typ() == gebaeude_t::unbekannt) {
-				if(station_building.is_contained(besch)) {
+				if(station_building.is_contained(besch)) 
+				{
+					if(besch->get_is_control_tower())
+					{
+						(*static_cast<halthandle_t *>(param))->add_control_tower();
+						(*static_cast<halthandle_t *>(param))->recalc_status();
+					}
 					(*static_cast<halthandle_t *>(param))->add_grund(gr);
 				}
 				if (besch->get_utyp() == haus_besch_t::hafen) {
@@ -624,6 +634,7 @@ hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int built
 	zeiger_t* zeiger = gr->find<zeiger_t>();
 	if (zeiger) {
 		gr->obj_remove(zeiger);
+		zeiger->set_flag(ding_t::not_on_map);
 	}
 
 	gr->obj_add(gb);
@@ -687,8 +698,7 @@ const haus_besch_t* hausbauer_t::get_special(int bev, haus_besch_t::utyp utype, 
 	weighted_vector_tpl<const haus_besch_t *> auswahl(16);
 
 	vector_tpl<const haus_besch_t*> &list = utype == haus_besch_t::rathaus ? rathaeuser : (bev == -1 ? sehenswuerdigkeiten_land : sehenswuerdigkeiten_city);
-	for(uint32 i=0; i<list.get_count(); i++) {
-		const haus_besch_t *besch = list[i];
+	FOR(vector_tpl<haus_besch_t const*>, const besch, list) {
 		// extra data contains number of inhabitants for building
 		if(bev == -1 || besch->get_extra()==bev) {
 			if(cl==MAX_CLIMATES  ||  besch->is_allowed_climate(cl)) {
@@ -722,7 +732,8 @@ static const haus_besch_t* get_aus_liste(const vector_tpl<const haus_besch_t*>& 
 
 //	DBG_MESSAGE("hausbauer_t::get_aus_liste()","target level %i", level );
 	const haus_besch_t *besch_at_least=NULL;
-	FOR(vector_tpl<haus_besch_t const*>, const besch, liste) {
+	FOR(vector_tpl<haus_besch_t const*>, const besch, liste)
+	{
 		const uint16 random = simrand(100, "static const haus_besch_t* get_aus_liste");
 		if(	besch->is_allowed_climate(cl)  &&
 			besch->get_chance()>0  &&
@@ -799,8 +810,7 @@ const haus_besch_t *hausbauer_t::waehle_aus_liste(vector_tpl<const haus_besch_t 
 	if (!liste.empty()) {
 		// previously just returned a random object; however, now we do als look at the chance entry
 		weighted_vector_tpl<const haus_besch_t *> auswahl(16);
-		for(uint32 i=0; i<liste.get_count(); i++) {
-			const haus_besch_t *besch = liste[i];
+		FOR(vector_tpl<haus_besch_t const*>, const besch, liste) {
 			if((cl==MAX_CLIMATES  ||  besch->is_allowed_climate(cl))  &&  besch->get_chance()>0  &&  (time==0  ||  (besch->get_intro_year_month()<=time  &&  (ignore_retire  ||  besch->get_retire_year_month()>time)  )  )  ) {
 //				DBG_MESSAGE("hausbauer_t::get_aus_liste()","appended %s at %i", besch->get_name(), thislevel );
 				auswahl.append(besch,besch->get_chance(),4);

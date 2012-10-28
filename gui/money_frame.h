@@ -14,7 +14,7 @@
 #include "components/gui_label.h"
 #include "components/gui_tab_panel.h"
 #include "components/gui_chart.h"
-#include "components/location_view_t.h"
+#include "components/gui_location_view_t.h"
 
 #include "../player/simplay.h"
 
@@ -82,11 +82,18 @@ private:
 	gui_label_t warn;
 	gui_label_t scenario;
 
+	gui_container_t month_dummy, year_dummy;
+
 	/**
 	 * fills buffer (char array) with finance info
 	 * @author Owen Rudge, Hj. Malthaner
 	 */
 	const char *display_money(int, char * buf, int);
+
+	/**
+	 * fills buffer (char array) with number info (e.g. amount of transported items)
+	 */
+	const char *display_number(int, char * buf, int);
 
 	/**
 	 * Returns the appropriate colour for a certain finance type
@@ -140,15 +147,7 @@ public:
 	 */
 	void zeichnen(koord pos, koord gr);
 
-	/**
-	 * This method is called if an action is triggered
-	 * @author Hj. Malthaner
-	 *
-	 * Returns true, if action is done and no more
-	 * components should be triggered.
-	 * V.Meyer
-	 */
-	bool action_triggered( gui_action_creator_t *komp, value_t extra);
+	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	// saving/restore stuff
 	uint32 get_rdwr_id();

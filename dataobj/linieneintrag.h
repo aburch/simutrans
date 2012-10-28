@@ -10,6 +10,16 @@
 struct linieneintrag_t
 {
 public:
+	linieneintrag_t() {}
+
+	linieneintrag_t(koord3d const& pos, uint16 const ladegrad, sint8 const waiting_time_shift, sint16 spacing_shift, bool reverse) :
+		pos(pos),
+		ladegrad(ladegrad),
+		waiting_time_shift(waiting_time_shift),
+		spacing_shift(spacing_shift),
+		reverse(reverse)
+	{}
+
 	/**
 	 * target position
 	 * @author Hj. Malthaner
@@ -21,7 +31,7 @@ public:
 	 * (ignored on waypoints)
 	 * @author Hj. Malthaner
 	 */
-	uint8 ladegrad;
+	uint16 ladegrad;
 
 	/**
 	 * maximum waiting time in 1/2^(16-n) parts of a month

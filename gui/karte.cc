@@ -59,14 +59,21 @@ const uint8 reliefkarte_t::severity_color[MAX_SEVERITY_COLORS] =
 // converts karte koordinates to screen corrdinates
 void reliefkarte_t::karte_to_screen( koord &k ) const
 {
-	if(rotate45) {
+	// must be down before/after, of one would loose bits ...
+	if(  zoom_in==1  ) {
+		k.x = k.x*zoom_out;
+		k.y = k.y*zoom_out;
+	}
+	if(isometric) {
 		// 45 rotate view
-		sint32 x = welt->get_groesse_y() + (sint32)(k.x-k.y);
-		k.y = (k.x+k.y);
+		sint32 x = welt->get_groesse_y()*zoom_out + (sint32)(k.x-k.y) - 1;
+		k.y = k.x/2+k.y/2;
 		k.x = x;
 	}
-	k.x = (k.x*zoom_out)/zoom_in;
-	k.y = (k.y*zoom_out)/zoom_in;
+	if(  zoom_out==1  ) {
+		k.x = k.x/zoom_in;
+		k.y = k.y/zoom_in;
+	}
 }
 
 
@@ -74,7 +81,8 @@ void reliefkarte_t::karte_to_screen( koord &k ) const
 inline void reliefkarte_t::screen_to_karte( koord &k ) const
 {
 	k = koord( (k.x*zoom_in)/zoom_out, (k.y*zoom_in)/zoom_out );
-	if(rotate45) {
+	if(isometric) {
+		k.y *= 2;
 		k.x = (sint16)(((sint32)k.x+(sint32)k.y-(sint32)welt->get_groesse_y())/2);
 		k.y = k.y - k.x;
 	}
@@ -98,6 +106,14 @@ uint8 reliefkarte_t::calc_severity_color(sint32 amount, sint32 max_value)
 }
 
 
+void reliefkarte_t::set_relief_color_clip( sint16 x, sint16 y, uint8 color )
+{
+	if(  0<=x  &&  (uint16)x < relief->get_width()  &&  0<=y  &&  (uint16)y < relief->get_height()  ) {
+		relief->at( x, y ) = color;
+	}
+}
+
+
 void reliefkarte_t::set_relief_farbe(koord k, const int color)
 {
 	// if map is in normal mode, set new color for map
@@ -110,13 +126,43 @@ void reliefkarte_t::set_relief_farbe(koord k, const int color)
 	karte_to_screen(k);
 	k -= cur_off;
 
-	if(rotate45) {
+	if(isometric) {
 		// since isometric is distorted
 		const sint32 xw = zoom_in>=2 ? 1 : 2*zoom_out;
-		for(  sint32 x = max(0,k.x);  x < xw+k.x  &&  (uint32)x < relief->get_width();  x++  ) {
-			for(  sint32 y = max(0,k.y);  y < zoom_out+k.y  &&  (uint32)y<relief->get_height();  y++  ) {
-				relief->at(x, y) = color;
-			}
+		switch(  xw  ) {
+			case 1:
+				set_relief_color_clip( k.x, k.y, color );
+				break;
+			case 2:
+				set_relief_color_clip( k.x, k.y, color );
+				set_relief_color_clip( k.x+1, k.y, color );
+				break;
+			case 4:
+				for(  int x=1;  x<3; x++  ) {
+					set_relief_color_clip( k.x+x, k.y, color );
+				}
+				for(  int x=0;  x<4;  x++  ) {
+					set_relief_color_clip( k.x+x, k.y+1, color );
+				}
+				break;
+			case 6:
+				for(  int x=2;  x<5; x++  ) {
+					set_relief_color_clip( k.x+x, k.y, color );
+					set_relief_color_clip( k.x+x, k.y+2, color );
+				}
+				for(  int x=0;  x<6;  x++  ) {
+					set_relief_color_clip( k.x+x, k.y+1, color );
+				}
+				break;
+			case 8:
+				for(  int x=2;  x<6; x++  ) {
+					set_relief_color_clip( k.x+x, k.y+0, color );
+					set_relief_color_clip( k.x+x, k.y+2, color );
+				}
+				for(  int x=0;  x<8;  x++  ) {
+					set_relief_color_clip( k.x+x, k.y+1, color );
+				}
+				break;
 		}
 	}
 	else {
@@ -132,23 +178,17 @@ void reliefkarte_t::set_relief_farbe(koord k, const int color)
 void reliefkarte_t::set_relief_farbe_area(koord k, int areasize, uint8 color)
 {
 	koord p;
-	karte_to_screen(k);
-	areasize *= zoom_out;
-	if(rotate45) {
-		k -= koord( 0, areasize/2 );
-		k.x = clamp( k.x, areasize/2, get_groesse().x-areasize/2-1 );
-		k.y = clamp( k.y, 0, get_groesse().y-areasize-1 );
-		k -= cur_off;
+	if(isometric) {
+		k -= koord( areasize/2, areasize/2 );
 		for(  p.x = 0;  p.x<areasize;  p.x++  ) {
 			for(  p.y = 0;  p.y<areasize;  p.y++  ) {
-				koord pos = koord( k.x+(p.x-p.y)/2, k.y+(p.x+p.y)/2 );
-				if(  (pos.x|pos.y)>=0  &&  (uint16)pos.x<relief->get_width()  &&  (uint16)pos.y<relief->get_height()  ) {
-					relief->at(pos.x, pos.y) = color;
-				}
+				set_relief_farbe( k+p, color );
 			}
 		}
 	}
 	else {
+		karte_to_screen(k);
+		areasize *= zoom_out;
 		k -= koord( areasize/2, areasize/2 );
 		k.x = clamp( k.x, 0, get_groesse().x-areasize-1 );
 		k.y = clamp( k.y, 0, get_groesse().y-areasize-1 );
@@ -276,7 +316,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 
 	// always use to uppermost ground
 	const planquadrat_t *plan=welt->lookup(k);
-	if(plan==NULL) {
+	if(plan==NULL  ||  plan->get_boden_count()==0) {
 		return;
 	}
 	const grund_t *gr=plan->get_boden_bei(plan->get_boden_count()-1);
@@ -293,10 +333,10 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 		// show passenger coverage
 		// display coverage
 		case MAP_PASSENGER:
-			{
-				halthandle_t halt = gr->get_halt();
-				if (halt.is_bound()    &&  halt->get_pax_enabled()) {
-					set_relief_farbe_area(k, welt->get_settings().get_station_coverage() * 2 + 1, halt->get_besitzer()->get_player_color1() + 3);
+			if(  plan->get_haltlist_count()>0  ) {
+				halthandle_t halt = plan->get_haltlist()[0];
+				if(  halt->get_pax_enabled()  &&  !halt->get_connexions(0)->empty() ){
+					set_relief_farbe( k, halt->get_besitzer()->get_player_color1() + 3 );
 				}
 			}
 			break;
@@ -304,10 +344,10 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 		// show mail coverage
 		// display coverage
 		case MAP_MAIL:
-			{
-				halthandle_t halt = gr->get_halt();
-				if (halt.is_bound()  &&  halt->get_post_enabled()) {
-					set_relief_farbe_area(k, welt->get_settings().get_station_coverage() * 2 + 1, halt->get_besitzer()->get_player_color1() + 3);
+			if(  plan->get_haltlist_count()>0  ) {
+				halthandle_t halt = plan->get_haltlist()[0];
+				if(  halt->get_post_enabled()  &&  !halt->get_connexions(1)->empty()  ) {
+					set_relief_farbe( k, halt->get_besitzer()->get_player_color1() + 3 );
 				}
 			}
 			break;
@@ -345,9 +385,9 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 		case MAP_STATUS:
 			{
 				halthandle_t halt = gr->get_halt();
-				if (halt.is_bound()) {
+				if(  halt.is_bound()  ) {
 					const spieler_t* owner = halt->get_besitzer();
-					if (owner == welt->get_active_player() || owner == welt->get_spieler(1)) {
+					if(  owner == welt->get_active_player()  ||  owner == welt->get_spieler(1)  ) {
 						set_relief_farbe_area(k, 3, halt->get_status_farbe());
 					}
 				}
@@ -365,9 +405,9 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 				halthandle_t halt = gr->get_halt();
 				if (halt.is_bound()) {
 					const spieler_t* owner = halt->get_besitzer();
-					if (owner == welt->get_active_player() || owner == welt->get_spieler(1)) {
+					if(  owner == welt->get_active_player()  ||  owner == welt->get_spieler(1)  ) {
 						// get number of last month's arrived convois
-						sint32 arrived = halt->get_finance_history(1, HALT_CONVOIS_ARRIVED);
+						sint32 arrived = (sint32)halt->get_finance_history(1, HALT_CONVOIS_ARRIVED);
 						if(arrived>max_convoi_arrived) {
 							max_convoi_arrived = arrived;
 						}
@@ -426,7 +466,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 				// only show player's haltestellen
 				const spieler_t* owner = halt->get_besitzer();
 				if (owner == welt->get_active_player() || owner == welt->get_spieler(1)) {
-					 sint32 arrived=halt->get_finance_history(1, HALT_DEPARTED)-halt->get_finance_history(1, HALT_ARRIVED);
+					 sint32 arrived = (sint32)( halt->get_finance_history(1, HALT_DEPARTED) - halt->get_finance_history(1, HALT_ARRIVED) );
 					if(arrived>max_arrived) {
 						max_arrived = arrived;
 					}
@@ -448,7 +488,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 				if (halt.is_bound()) {
 					const spieler_t* owner = halt->get_besitzer();
 					if (owner == welt->get_active_player() || owner == welt->get_spieler(1)) {
-						sint32 departed=halt->get_finance_history(1, HALT_ARRIVED)-halt->get_finance_history(1, HALT_DEPARTED);
+						sint32 departed = (sint32)( halt->get_finance_history(1, HALT_ARRIVED) - halt->get_finance_history(1, HALT_DEPARTED) );
 						if(departed>max_departed) {
 							max_departed = departed;
 						}
@@ -465,10 +505,10 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 				halthandle_t halt = gr->get_halt();
 				if (halt.is_bound()) {
 					const spieler_t* owner = halt->get_besitzer();
-					if (owner == welt->get_active_player() || owner == welt->get_spieler(1)) {
+					if(  owner == welt->get_active_player()  ||  owner == welt->get_spieler(1)  ) {
 						// we need to sum up only for seperate capacities
 						sint32 const total_capacity = welt->get_settings().is_seperate_halt_capacities() ? halt->get_capacity(0) + halt->get_capacity(1) + halt->get_capacity(2) : halt->get_capacity(0);
-						const uint8 color = calc_severity_color(halt->get_finance_history(0, HALT_WAITING), total_capacity );
+						const uint8 color = calc_severity_color( (sint32)halt->get_finance_history(0, HALT_WAITING), total_capacity );
 						set_relief_farbe_area(k, 3, color );
 					}
 				}
@@ -514,7 +554,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 			break;
 
 		case MAP_FOREST:
-			if(gr->get_top()>1  &&  gr->obj_bei(gr->get_top()-1)->get_typ()==ding_t::baum) {
+			if(  gr->get_top()>1  &&  gr->obj_bei(gr->get_top()-1)->get_typ()==ding_t::baum  ) {
 				set_relief_farbe(k, COL_GREEN );
 			}
 			break;
@@ -527,11 +567,26 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 				);
 				const uint8 color = city->get_pax_destinations_new()->get(p);
 				if( color != 0 ) {
-					set_relief_farbe(k, color);
 				}
 			}
-
 			break;
+
+		case MAP_OWNER:
+			// show ownership
+			{
+				if(  gr->is_halt()  ) {
+					set_relief_farbe(k, gr->get_halt()->get_besitzer()->get_player_color1()+3);
+				}
+				else if(  weg_t *weg = gr->get_weg_nr(0)  ) {
+					set_relief_farbe(k, weg->get_besitzer()==NULL ? COL_ORANGE : weg->get_besitzer()->get_player_color1()+3 );
+				}
+				if(  gebaeude_t *gb = gr->find<gebaeude_t>()  ) {
+					if(  gb->get_besitzer()!=NULL  ) {
+						set_relief_farbe(k, gb->get_besitzer()->get_player_color1()+3 );
+					}
+				}
+				break;
+			}
 
 		default:
 			break;
@@ -541,33 +596,35 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 
 void reliefkarte_t::calc_map_groesse()
 {
-	const sint32 size_x = rotate45 ? ((welt->get_groesse_y()+zoom_in)*zoom_out)/zoom_in+((welt->get_groesse_x()+zoom_in)*zoom_out)/zoom_in+1 : ((welt->get_groesse_x()+zoom_in-1)*zoom_out)/zoom_in;
-	const sint32 size_y = rotate45 ? ((welt->get_groesse_y()+zoom_in-1)*zoom_out)/zoom_in+((welt->get_groesse_x()+zoom_in-1)*zoom_out)/zoom_in : ((welt->get_groesse_y()+zoom_in-1)*zoom_out)/zoom_in;
-	set_groesse( koord( min(32767,size_x), min(32767,size_y-1) ) ); // of the gui_komponete to adjust scroll bars
+	koord size( welt->get_groesse_x(), 0 );
+	koord down( welt->get_groesse_x(), welt->get_groesse_y() );
+	karte_to_screen( size );
+	karte_to_screen( down );
+	size.y = down.y;
+	if(  isometric  ) {
+		size.x += zoom_out*2;
+	}
+	set_groesse( size ); // of the gui_komponete to adjust scroll bars
 	needs_redraw = true;
 }
 
 
 void reliefkarte_t::calc_map()
 {
-	// size change due to zoom?
-	const sint32 size_x = rotate45 ? ((welt->get_groesse_y()+zoom_in)*zoom_out)/zoom_in+((welt->get_groesse_x()+zoom_in)*zoom_out)/zoom_in+1 : ((welt->get_groesse_x()+zoom_in-1)*zoom_out)/zoom_in;
-	const sint32 size_y = rotate45 ? ((welt->get_groesse_y()+zoom_in-1)*zoom_out)/zoom_in+((welt->get_groesse_x()+zoom_in-1)*zoom_out)/zoom_in : ((welt->get_groesse_y()+zoom_in-1)*zoom_out)/zoom_in;
-	koord relief_size = koord( min(size_x,new_size.x), min(size_y,new_size.y) );
+	// only use bitmap size like screen size
+	koord relief_size( min( get_groesse().x, new_size.x ), min( get_groesse().y, new_size.y ) );
 	// actually the following line should reduce new/deletes, but does not work properly
-	// if(  relief==NULL  ||  (sint16)relief->get_width()<relief_size.x  ||  relief->get_width()>size_x  ||  (sint16)relief->get_height()<relief_size.y  ||  relief->get_height()>size_y  ) {
 	if(  relief==NULL  ||  (sint16)relief->get_width()!=relief_size.x  ||  (sint16)relief->get_height()!=relief_size.y  ) {
 		delete relief;
 		relief = new array2d_tpl<unsigned char> (relief_size.x,relief_size.y);
 	}
-	set_groesse( koord( min(32767,size_x), min(32767,size_y-1) ) ); // of the gui_komponete to adjust scroll bars
 	cur_off = new_off;
 	cur_size = new_size;
 	needs_redraw = false;
 	is_visible = true;
 
 	// redraw the map
-	if(  !rotate45  ) {
+	if(  !isometric  ) {
 		koord k;
 		koord start_off = koord( (cur_off.x*zoom_in)/zoom_out, (cur_off.y*zoom_in)/zoom_out );
 		koord end_off = start_off+koord( (relief->get_width()*zoom_in)/zoom_out+1, (relief->get_height()*zoom_in)/zoom_out+1 );
@@ -579,7 +636,7 @@ void reliefkarte_t::calc_map()
 	}
 	else {
 		// always the whole map ...
-		if(rotate45) {
+		if(isometric) {
 			relief->init( COL_BLACK );
 		}
 		koord k;
@@ -611,28 +668,23 @@ void reliefkarte_t::calc_map()
 	}
 
 	// since we do iterate the factory info list, this must be done here
-	if(mode==MAP_FACTORIES) {
-		//slist_iterator_tpl <fabrik_t *> iter (welt->get_fab_list());
-		//vector_tpl <fabrik_t*> factories = welt->get_fab_list();
-		for(sint16 i = welt->get_fab_list().get_count() - 1; i >= 0; i --)
-		{
-		//while(iter.next()) {
-			//koord pos = iter.get_current()->get_pos().get_2d();
-			koord pos = welt->get_fab_list()[i]->get_pos().get_2d();
+	if(mode==MAP_FACTORIES) 
+	{
+		FOR(vector_tpl<fabrik_t*>, const f, welt->get_fab_list()) {
+			koord const pos = f->get_pos().get_2d();
 			set_relief_farbe_area( pos, 9, COL_BLACK );
-			set_relief_farbe_area( pos, 7, welt->get_fab_list()[i]->get_kennfarbe() );
+			set_relief_farbe_area(pos, 7, f->get_kennfarbe());
 		}
 		return;
 	}
 
 	if(mode==MAP_DEPOT) {
-		slist_iterator_tpl <depot_t *> iter (depot_t::get_depot_list());
-		while(iter.next()) {
-			if(iter.get_current()->get_besitzer()==welt->get_active_player()) {
-				koord pos = iter.get_current()->get_pos().get_2d();
+		FOR(slist_tpl<depot_t*>, const d, depot_t::get_depot_list()) {
+			if (d->get_besitzer() == welt->get_active_player()) {
+				koord const pos = d->get_pos().get_2d();
 				// offset of one to avoid
 				static uint8 depot_typ_to_color[19]={ COL_ORANGE, COL_YELLOW, COL_RED, 0, 0, 0, 0, 0, 0, COL_PURPLE, COL_DARK_RED, COL_DARK_ORANGE, 0, 0, 0, 0, 0, 0, COL_LIGHT_RED };
-				set_relief_farbe_area(pos, 7, depot_typ_to_color[iter.get_current()->get_typ()-ding_t::bahndepot] );
+				set_relief_farbe_area(pos, 7, depot_typ_to_color[d->get_typ() - ding_t::bahndepot]);
 			}
 		}
 		return;
@@ -645,7 +697,7 @@ reliefkarte_t::reliefkarte_t()
 	relief = NULL;
 	zoom_out = 1;
 	zoom_in = 1;
-	rotate45 = false;
+	isometric = false;
 	mode = MAP_TOWN;
 	fpl = NULL;
 	fpl_player_nr = 0;
@@ -681,7 +733,6 @@ void reliefkarte_t::set_welt(karte_t *welt)
 		delete relief;
 		relief = NULL;
 	}
-	rotate45 = false;
 	needs_redraw = true;
 	is_visible = false;
 
@@ -851,12 +902,12 @@ void reliefkarte_t::zeichnen(koord pos)
 	}
 
 	if(  (uint16)cur_size.x > relief->get_width()  ) {
-		display_fillbox_wh_clip( pos.x+cur_off.x+relief->get_width(), cur_off.y+pos.y, 32767, relief->get_height(), COL_BLACK, true);
+		display_fillbox_wh_clip( pos.x+new_off.x+relief->get_width(), new_off.y+pos.y, 32767, relief->get_height(), COL_BLACK, true);
 	}
 	if(  (uint16)cur_size.y > relief->get_height()  ) {
-		display_fillbox_wh_clip( pos.x+cur_off.x, pos.y+cur_off.y+relief->get_height(), 32767, 32767, COL_BLACK, true);
+		display_fillbox_wh_clip( pos.x+new_off.x, pos.y+new_off.y+relief->get_height(), 32767, 32767, COL_BLACK, true);
 	}
-	display_array_wh( cur_off.x+pos.x, cur_off.y+pos.y, relief->get_width(), relief->get_height(), relief->to_array());
+	display_array_wh( cur_off.x+pos.x, new_off.y+pos.y, relief->get_width(), relief->get_height(), relief->to_array());
 
 	// draw city limit
 	if(mode==MAP_CITYLIMIT) {
@@ -872,44 +923,29 @@ void reliefkarte_t::zeichnen(koord pos)
 			k[2] = stadt->get_rechtsunten(); // bottom right
 
 			// calculate and draw the rotated coordinates
-			if(rotate45) {
 
-				k[1] =  koord(k[0].x, k[2].y); // bottom left
-				k[3] =  koord(k[2].x, k[0].y); // top right
+			k[1] =  koord(k[0].x, k[2].y); // bottom left
+			k[3] =  koord(k[2].x, k[0].y); // top right
 
-				k[0] += koord(0, -1); // top left
-				karte_to_screen(k[0]);
-				k[0] = k[0] + pos;
+			k[0] += koord(0, -1); // top left
+			karte_to_screen(k[0]);
+			k[0] = k[0] + pos;
 
-				karte_to_screen(k[1]); // bottom left
-				k[1] = k[1] + pos;
+			karte_to_screen(k[1]); // bottom left
+			k[1] = k[1] + pos;
 
-				k[2] += koord(1, 0); // bottom right
-				karte_to_screen(k[2]);
-				k[2] += pos;
+			k[2] += koord(1, 0); // bottom right
+			karte_to_screen(k[2]);
+			k[2] += pos;
 
-				k[3] += koord(1, -1); // top right
-				karte_to_screen(k[3]);
-				k[3] += pos;
+			k[3] += koord(1, -1); // top right
+			karte_to_screen(k[3]);
+			k[3] += pos;
 
-				display_direct_line(k[0].x, k[0].y, k[1].x, k[1].y, color);
-				display_direct_line(k[1].x, k[1].y, k[2].x, k[2].y, color);
-				display_direct_line(k[2].x, k[2].y, k[3].x, k[3].y, color);
-				display_direct_line(k[3].x, k[3].y, k[0].x, k[0].y, color);
-			}
-			else {
-				karte_to_screen(k[0]);
-				k[0] = k[0] + pos + koord(-1, -1);
-
-				k[2] += koord(1, 1);
-				karte_to_screen(k[2]);
-				k[2] += pos;
-
-				display_direct_line(k[0].x, k[0].y, k[0].x, k[2].y, color);
-				display_direct_line(k[2].x, k[0].y, k[2].x, k[2].y, color);
-				display_direct_line(k[0].x, k[0].y, k[2].x, k[0].y, color);
-				display_direct_line(k[0].x, k[2].y, k[2].x, k[2].y, color);
-			}
+			display_direct_line(k[0].x, k[0].y, k[1].x, k[1].y, color);
+			display_direct_line(k[1].x, k[1].y, k[2].x, k[2].y, color);
+			display_direct_line(k[2].x, k[2].y, k[3].x, k[3].y, color);
+			display_direct_line(k[3].x, k[3].y, k[0].x, k[0].y, color);
 		}
 	}
 
@@ -934,31 +970,20 @@ void reliefkarte_t::zeichnen(koord pos)
 	const sint16 raster=get_tile_raster_width();
 
 	// calculate and draw the rotated coordinates
-	if(rotate45) {
-		// straight cursor
-		const koord diff = koord( ((display_get_width()/raster)*zoom_out)/zoom_in, (((display_get_height()*2)/(raster))*zoom_out)/zoom_in );
-		koord ij = welt->get_world_position();
-		karte_to_screen( ij );
-		ij += pos;
-		display_direct_line( ij.x-diff.x, ij.y-diff.y, ij.x+diff.x, ij.y-diff.y, COL_YELLOW);
-		display_direct_line( ij.x+diff.x, ij.y-diff.y, ij.x+diff.x, ij.y+diff.y, COL_YELLOW);
-		display_direct_line( ij.x+diff.x, ij.y+diff.y, ij.x-diff.x, ij.y+diff.y, COL_YELLOW);
-		display_direct_line( ij.x-diff.x, ij.y+diff.y, ij.x-diff.x, ij.y-diff.y, COL_YELLOW);
+	koord ij = welt->get_world_position();
+	const koord diff = koord( display_get_width()/(2*raster), display_get_height()/raster );
+
+	koord view[4];
+	view[0] = ij + koord( -diff.y+diff.x, -diff.y-diff.x );
+	view[1] = ij + koord( -diff.y-diff.x, -diff.y+diff.x );
+	view[2] = ij + koord( diff.y-diff.x, diff.y+diff.x );
+	view[3] = ij + koord( diff.y+diff.x, diff.y-diff.x );
+	for(  int i=0;  i<4;  i++  ) {
+		karte_to_screen( view[i] );
+		view[i] += pos;
 	}
-	else {
-		// rotate cursor
-		const koord diff = koord( (display_get_width()*zoom_out)/(raster*zoom_in*2), (display_get_height()*zoom_out)/(raster*zoom_in) );
-		koord ij = welt->get_world_position();
-		karte_to_screen( ij );
-		ij += pos;
-		koord view[4];
-		view[0] = ij + koord( -diff.y+diff.x, -diff.y-diff.x );
-		view[1] = ij + koord( -diff.y-diff.x, -diff.y+diff.x );
-		view[2] = ij + koord( diff.y-diff.x, diff.y+diff.x );
-		view[3] = ij + koord( diff.y+diff.x, diff.y-diff.x );
-		for(  int i=0;  i<4;  i++  ) {
-			display_direct_line( view[i].x, view[i].y, view[(i+1)%4].x, view[(i+1)%4].y, COL_YELLOW);
-		}
+	for(  int i=0;  i<4;  i++  ) {
+		display_direct_line( view[i].x, view[i].y, view[(i+1)%4].x, view[(i+1)%4].y, COL_YELLOW);
 	}
 
 	// draw a halt name, if it is under the cursor of a schedule
@@ -970,9 +995,13 @@ void reliefkarte_t::zeichnen(koord pos)
 			draw_schedule(pos);
 		}
 	}
-	else if(is_show_fab) {
-		// draw factory connections, if on a factory
-		const fabrik_t* const fab = draw_fab_connections(event_get_last_control_shift() & 1 ? COL_RED : COL_WHITE, pos);
+	else {
+		// Add factory name tooltips and draw factory connections, if on a factory
+		const fabrik_t* const fab = (is_show_fab) ?
+			draw_fab_connections(event_get_last_control_shift() & 1 ? COL_RED : COL_WHITE, pos)
+			:
+			fabrik_t::get_fab(welt, last_world_pos);
+
 		if(fab) {
 			koord fabpos = fab->get_pos().get_2d();
 			karte_to_screen( fabpos );

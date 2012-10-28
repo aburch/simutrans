@@ -134,6 +134,31 @@ public:
 		}
 	}
 
+	// connects with last handle
+	explicit quickstone_tpl(T* p, bool)
+	{
+		uint16 i;
+
+		// scan rest of array
+		for(  i=size-1;  i>0;  i++  ) {
+			if(  data[i] == 0  ) {
+				entry = i;
+				data[entry] = p;
+				return;
+			}
+		}
+		enlarge();
+		// repeat
+		for(  i=size-1;  i>0;  i++  ) {
+			if(  data[i] == 0  ) {
+				entry = i;
+				data[entry] = p;
+				return;
+			}
+		}
+		dbg->fatal( "quickstone_tpl(bool)", "No more handles!\nShould have already failed with enlarge!" );
+	}
+
 	// creates handle with id, fails if already taken
 	quickstone_tpl(T* p, uint16 id)
 	{
@@ -240,6 +265,8 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	T* operator->() const { return data[entry]; }
+
+	T& operator *() const { return *data[entry]; }
 
 	bool operator== (const quickstone_tpl<T> &other) const { return entry == other.entry; }
 

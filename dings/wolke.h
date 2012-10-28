@@ -28,7 +28,7 @@ public:
 
 	wolke_t(karte_t *welt, loadsave_t *file);
 	wolke_t(karte_t *welt, koord3d pos, sint8 xoff, sint8 yoff, const skin_besch_t *cloud );
-	~wolke_t();
+	virtual ~wolke_t();
 
 	bool sync_step(long delta_t);
 
@@ -38,8 +38,6 @@ public:
 	image_id get_bild() const { return all_clouds[cloud_nr]->get_bild_nr(insta_zeit/divisor); }
 
 	void rdwr(loadsave_t *file);
-
-	virtual void entferne(spieler_t *sp);
 
 	virtual void rotate90();
 };
