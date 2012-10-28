@@ -43,3 +43,7 @@ note=Text in the depot/replacer window showing the minumum runway length in mete
 obj=program_text
 name=NO CONTROL TOWER
 note=This is appended to the name of an airport that has no control tower, and thus cannot be used.
+-
+obj=program_text
+name=Pulls:
+note=Shown in the depot window to display the load that can be hauled by the currently selected powered vehicle
