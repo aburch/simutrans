@@ -159,6 +159,11 @@ void building_reader_t::register_obj(obj_besch_t *&data)
 		besch->layouts = l;
 	}
 
+	if(  besch->allow_underground == 255  ) {
+		// only old stops were allowed underground
+		besch->allow_underground = besch->utype==haus_besch_t::generic_stop ? 2 : 0;
+	}
+
 	hausbauer_t::register_besch(besch);
 	DBG_DEBUG("building_reader_t::register_obj", "Loaded '%s'", besch->get_name());
 
@@ -336,7 +341,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	if(  version<=6  ) {
 		// only stops were allowed underground
-		besch->allow_underground = besch->utype==haus_besch_t::generic_stop ? 2 : 0;
+		besch->allow_underground = 255;
 	}
 
 	if (besch->level == 65535) {

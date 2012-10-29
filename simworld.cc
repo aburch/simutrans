@@ -7,7 +7,7 @@
 
 /*
  * Hauptklasse fuer Simutrans, Datenstruktur die alles Zusammenhaelt
- * Hansjoerg Malthaner, 1997
+ * Hj. Malthaner, 1997
  */
 
 #include <algorithm>
