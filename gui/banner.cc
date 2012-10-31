@@ -1,6 +1,4 @@
 /*
- * Copyright (c) 1997 - 2004 Hj. Malthaner
- *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
  *
@@ -96,7 +94,7 @@ void banner_t::zeichnen(koord pos, koord gr )
 {
 	gui_frame_t::zeichnen( pos, gr );
 	KOORD_VAL yp = pos.y+22;
-	display_shadow_proportional( pos.x+10, yp, COL_PT, COL_BLACK, "This is a beta version of Simutrans:", true );
+	display_shadow_proportional( pos.x+10, yp, COL_PT, COL_BLACK, "This is Simutrans " SIM_VERSION_BUILD_STRING , true );
 	yp += LINESPACE+5;
 #ifdef REVISION
 	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "Version " VERSION_NUMBER " " VERSION_DATE " r" QUOTEME(REVISION), true );
@@ -109,9 +107,9 @@ void banner_t::zeichnen(koord pos, koord gr )
 	yp += LINESPACE+5;
 	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "the simutrans team, based on", true );
 	yp += LINESPACE+2;
-	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "Simutrans 0.84.21.2 by", true );
+	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "Simutrans 0.84.21.2 by Hj. Malthaner", true );
 	yp += LINESPACE+2;
-	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "Hansj\366rg Malthaner et al.", true );
+	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "", true );
 	yp += LINESPACE+2;
 	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "under Artistic Licence.", true );
 	yp += LINESPACE+7;
