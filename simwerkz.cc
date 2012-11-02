@@ -3622,26 +3622,28 @@ waytype_t wkz_station_t::get_waytype() const
 
 const char *wkz_station_t::check_pos( karte_t *welt, spieler_t *sp, koord3d pos )
 {
-	const char *msg = werkzeug_t::check_pos(welt,sp, pos);
-	if (msg==NULL) {
+	if(  grund_t *gr = welt->lookup( pos )  ) {
 		sint8 rotation;
-		const haus_besch_t *besch=get_besch(rotation);
-		if(  grund_t::underground_mode==grund_t::ugm_all || (grund_t::underground_mode==grund_t::ugm_level && welt->lookup_kartenboden(pos.get_2d())->get_hoehe() > grund_t::underground_level) ) {
-			// in underground mode, buildings will be done invisible above ground => disallow such confusion
-			if(  besch->get_utyp()!=haus_besch_t::generic_stop  ||  besch->get_extra()==air_wt) {
-				msg = "Cannot built this station/building\nin underground mode here.";
+		const haus_besch_t *besch = get_besch(rotation);
+		if(  grund_t *bd = welt->lookup_kartenboden( pos.gib_2d() )  ) {
+			const bool underground = bd->get_hoehe()>gr->get_hoehe();
+			if(  underground  ) {
+				// in underground mode, buildings will be done invisible above ground => disallow such confusion
+				if(  besch->get_utyp()!=haus_besch_t::generic_stop  ||  besch->get_extra()==air_wt) {
+					return "Cannot built this station/building\nin underground mode here.";
+				}
+				if(  besch->get_utyp()==haus_besch_t::generic_stop  &&  !besch->can_be_built_underground()) {
+					return "Cannot built this station/building\nin underground mode here.";
+				}
 			}
-			if(  besch->get_utyp()==haus_besch_t::generic_stop  &&  !besch->can_be_built_underground()) {
-				msg = "Cannot built this station/building\nin underground mode here.";
+			else if(  besch->get_utyp()==haus_besch_t::generic_stop  &&  !besch->can_be_built_aboveground()) {
+				return "This station/building\ncan only be built underground.";
 			}
-		}
-		if(  grund_t::underground_mode==grund_t::ugm_none  ) {
-			if(  besch->get_utyp()==haus_besch_t::generic_stop  &&  !besch->can_be_built_aboveground()) {
-				msg = "This station/building\ncan only be built underground.";
-			}
+			return NULL;
 		}
 	}
-	return msg;
+	// no ground here???
+	return "Missing ground (fatal!)";
 }
 
 
