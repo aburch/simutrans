@@ -33,7 +33,7 @@ banner_t::banner_t( karte_t *w) : gui_frame_t(""),
 	line = 0;
 	logo.set_pos( koord( 238, 40 ) );
 	add_komponente( &logo );
-	const koord size( D_BUTTON_WIDTH*3+40, 16+113+12*LINESPACE+2*D_BUTTON_HEIGHT+12 );
+	const koord size( D_BUTTON_WIDTH*3+40, 16+113+10*LINESPACE+2*D_BUTTON_HEIGHT+2 );
 	set_fenstergroesse( size );
 	new_map.init( button_t::roundbox, "Neue Karte", koord( 10, size.y-16-2*D_BUTTON_HEIGHT-12 ), koord( D_BUTTON_WIDTH, D_BUTTON_HEIGHT ) );
 	new_map.add_listener( this );
@@ -94,36 +94,33 @@ void banner_t::zeichnen(koord pos, koord gr )
 {
 	gui_frame_t::zeichnen( pos, gr );
 	KOORD_VAL yp = pos.y+22;
-	display_shadow_proportional( pos.x+10, yp, COL_PT, COL_BLACK, "This is Simutrans " SIM_VERSION_BUILD_STRING , true );
-	yp += LINESPACE+5;
+	pos.x += D_MARGIN_LEFT;
+	display_shadow_proportional( pos.x, yp, COL_WHITE, COL_BLACK, "This is Simutrans" SIM_VERSION_BUILD_STRING , true );
+	yp += LINESPACE+2;
 #ifdef REVISION
-	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "Version " VERSION_NUMBER " " VERSION_DATE " r" QUOTEME(REVISION), true );
+	display_shadow_proportional( pos.x, yp, COL_WHITE, COL_BLACK, "Version " VERSION_NUMBER " " VERSION_DATE " r" QUOTEME(REVISION), true );
 #else
-	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "Version " VERSION_NUMBER " " VERSION_DATE, true );
+	display_shadow_proportional( pos.x, yp, COL_WHITE, COL_BLACK, "Version " VERSION_NUMBER " " VERSION_DATE, true );
 #endif
 	yp += LINESPACE+7;
 
-	display_shadow_proportional( pos.x+10, yp, COL_PT, COL_BLACK, "This version is developed by", true );
-	yp += LINESPACE+5;
-	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "the simutrans team, based on", true );
+	display_shadow_proportional( pos.x, yp, COL_WHITE, COL_BLACK, "(c) '97-'04 Hj. Malthaner", true );
 	yp += LINESPACE+2;
-	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "Simutrans 0.84.21.2 by Hj. Malthaner", true );
+	display_shadow_proportional( pos.x, yp, COL_WHITE, COL_BLACK, "(c) since '05 by the Simutrans team", true );
 	yp += LINESPACE+2;
-	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "", true );
-	yp += LINESPACE+2;
-	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "under Artistic Licence.", true );
+	display_shadow_proportional( pos.x+24, yp, COL_WHITE, COL_BLACK, "under Artistic Licence.", true );
 	yp += LINESPACE+7;
 
-	display_shadow_proportional( pos.x+10, yp, COL_LIGHT_ORANGE, COL_BLACK, "Selling of the program is forbidden.", true );
+	display_shadow_proportional( pos.x, yp, COL_LIGHT_ORANGE, COL_BLACK, "Selling of the program is forbidden.", true );
 	yp += LINESPACE+5;
 
-	display_shadow_proportional( pos.x+10, yp, COL_PT, COL_BLACK, "For questions and support please visit:", true );
+	display_shadow_proportional( pos.x, yp, COL_PT, COL_BLACK, "For questions and support please visit:", true );
 	yp += LINESPACE+2;
-	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "http://www.simutrans.com", true );
+	display_shadow_proportional( pos.x+24, yp, COL_WHITE, COL_BLACK, "http://www.simutrans.com", true );
 	yp += LINESPACE+2;
-	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "http://forum.simutrans.com", true );
+	display_shadow_proportional( pos.x+24, yp, COL_WHITE, COL_BLACK, "http://forum.simutrans.com", true );
 	yp += LINESPACE+2;
-	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "http://wiki.simutrans-germany.com/", true );
+	display_shadow_proportional( pos.x+24, yp, COL_WHITE, COL_BLACK, "http://wiki.simutrans-germany.com/", true );
 	yp += LINESPACE+7;
 
 	// now the scrolling
@@ -136,8 +133,8 @@ void banner_t::zeichnen(koord pos, koord gr )
 
 	const KOORD_VAL text_line = (line / 9) * 2;
 	const KOORD_VAL text_offset = line % 9;
-	const KOORD_VAL left = pos.x+10;
-	const KOORD_VAL width = gr.x-20;
+	const KOORD_VAL left = pos.x;
+	const KOORD_VAL width = gr.x-D_MARGIN_LEFT-D_MARGIN_RIGHT;
 
 	display_fillbox_wh(left, yp, width, 52, COL_GREY1, true);
 	display_fillbox_wh(left, yp - 1, width, 1, COL_GREY3, false);
