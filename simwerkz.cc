@@ -3625,7 +3625,7 @@ const char *wkz_station_t::check_pos( karte_t *welt, spieler_t *sp, koord3d pos 
 	if(  grund_t *gr = welt->lookup( pos )  ) {
 		sint8 rotation;
 		const haus_besch_t *besch = get_besch(rotation);
-		if(  grund_t *bd = welt->lookup_kartenboden( pos.gib_2d() )  ) {
+		if(  grund_t *bd = welt->lookup_kartenboden( pos.get_2d() )  ) {
 			const bool underground = bd->get_hoehe()>gr->get_hoehe();
 			if(  underground  ) {
 				// in underground mode, buildings will be done invisible above ground => disallow such confusion
