@@ -253,30 +253,6 @@ void spieler_t::neuer_monat()
 	// since the messages must remain on the screen longer ...
 	static cbuffer_t buf;
 
-
-	// Wartungskosten abziehen
-	calc_finance_history();
-	roll_finance_history_month();
-
-	if(welt->get_last_month()==0) {
-		roll_finance_history_year();
-	}
-
-	// new month has started => recalculate vehicle value
-	calc_assets();
-
-	calc_finance_history();
-
-	simlinemgmt.new_month();
-
-	// subtract maintenance
-	if(  welt->ticks_per_world_month_shift>=18  ) {
-		buche( -((sint64)maintenance) << (welt->ticks_per_world_month_shift-18), COST_MAINTENANCE);
-	}
-	else {
-		buche( -((sint64)maintenance) >> (18-welt->ticks_per_world_month_shift), COST_MAINTENANCE);
-	}
-
 	// Bankrott ?
 	if(  konto < 0  ) {
 		konto_ueberzogen++;
@@ -324,6 +300,29 @@ void spieler_t::neuer_monat()
 	}
 	else {
 		konto_ueberzogen = 0;
+	}
+
+	// Wartungskosten abziehen
+	calc_finance_history();
+	roll_finance_history_month();
+
+	if(welt->get_last_month()==0) {
+		roll_finance_history_year();
+	}
+
+	// new month has started => recalculate vehicle value
+	calc_assets();
+
+	calc_finance_history();
+
+	simlinemgmt.new_month();
+
+	// subtract maintenance
+	if(  welt->ticks_per_world_month_shift>=18  ) {
+		buche( -((sint64)maintenance) << (welt->ticks_per_world_month_shift-18), COST_MAINTENANCE);
+	}
+	else {
+		buche( -((sint64)maintenance) >> (18-welt->ticks_per_world_month_shift), COST_MAINTENANCE);
 	}
 }
 
