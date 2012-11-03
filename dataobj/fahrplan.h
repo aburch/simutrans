@@ -105,8 +105,11 @@ public:
 	 */
 	void increment_index(uint8 *index, bool *reversed) const;
 
+	/***
+	 * "Completed"
+	 */
 	inline bool ist_abgeschlossen() const { return abgeschlossen; }
-	void eingabe_abschliessen() { abgeschlossen = true; }
+	void eingabe_abschliessen() { abgeschlossen = true; } // "Input completed"
 	void eingabe_beginnen() { abgeschlossen = false; }
 	inline int get_spacing() const { return spacing; }
 	inline void set_spacing( int s ) { spacing = s; }
