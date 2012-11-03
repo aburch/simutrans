@@ -3674,11 +3674,11 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 	convoi_t::route_infos_t &route_infos = cnv->get_route_infos();
 
 	// is there any signal/crossing to be reserved?
-	uint16 next_block = cnv->get_next_stop_index()-1;
+	uint16 next_block = cnv->get_next_stop_index() - 1;
 	uint16 last_index = route.get_count() - 1;
-	if(  next_block > last_index  ) 
+	if(next_block > last_index) 
 	{
-		const sint32 route_steps = route_infos.get_element(last_index).steps_from_start - route_infos.get_element(route_index).steps_from_start;
+		const sint32 route_steps = route_infos.get_element(last_index).steps_from_start - route_index <= route_infos.get_count() - 1 ? route_infos.get_element(route_index).steps_from_start : 0;
 		bool weg_frei = route_steps > brake_steps;
 		if (!weg_frei)
 		{ 	
