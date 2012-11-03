@@ -71,6 +71,8 @@ public:
 	/// number of seconds between announcements
 	static sint32 server_announce_interval;
 
+	static uint8 chat_window_transparency;
+
 	/// @} end of Network-related settings
 
 

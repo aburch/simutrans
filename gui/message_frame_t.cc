@@ -78,6 +78,7 @@ message_frame_t::message_frame_t(karte_t *welt) :
 	input.add_listener(this);
 	input.set_pos(koord(BUTTON2_X,0));
 	if(  umgebung_t::networkmode  ) {
+		set_transparent( umgebung_t::chat_window_transparency, COL_WHITE );
 		add_komponente(&input);
 		set_focus( &input );
 	}
