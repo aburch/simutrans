@@ -1126,6 +1126,7 @@
     <None Include="base_texts_experimental_10.11.dat" />
     <None Include="base_texts_experimental_10.12.dat" />
     <None Include="base_texts_experimental_10.12_erratum.dat" />
+    <None Include="base_texts_experimental_10.13.dat" />
     <None Include="base_texts_experimental_10.2.dat" />
     <None Include="base_texts_experimental_10.8.dat" />
     <None Include="base_texts_experimental_6_2.dat" />

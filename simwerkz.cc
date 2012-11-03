@@ -1403,7 +1403,9 @@ bool wkz_clear_reservation_t::exit( karte_t *welt, spieler_t *sp )
 const char *wkz_clear_reservation_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 {
 	grund_t *gr = welt->lookup(k);
+	const char* err = NULL;
 	if(gr) {
+		
 		for(unsigned wnr=0;  wnr<2;  wnr++  ) {
 
 			schiene_t const* const w = ding_cast<schiene_t>(gr->get_weg_nr(wnr));
@@ -1417,7 +1419,8 @@ const char *wkz_clear_reservation_t::work( karte_t *welt, spieler_t *sp, koord3d
 			// The public player can use it universally.
 			if(sp->get_player_nr() != 1 && w->get_player_nr() != sp->get_player_nr())
 			{
-				return "Cannot edit block reservations on another player's way.";
+				err = "Cannot edit block reservations on another player's way.";
+				continue;
 			}
 
 			// is this a reserved track?
@@ -1447,7 +1450,7 @@ const char *wkz_clear_reservation_t::work( karte_t *welt, spieler_t *sp, koord3d
 			}
 		}
 	}
-	return NULL;
+	return err;
 }
 
 
