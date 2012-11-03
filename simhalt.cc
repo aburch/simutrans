@@ -2600,7 +2600,7 @@ void haltestelle_t::laden_abschliessen()
 				new_name = create_name( get_basis_pos(), "Dock" );
 			}
 			else if(  station_type & (railstation|monorailstop|maglevstop|narrowgaugestop)  ) {
-				new_name = create_name( get_basis_pos(), "Bf" );
+				new_name = create_name( get_basis_pos(), "BF" );
 			}
 			else {
 				new_name = create_name( get_basis_pos(), "H" );
