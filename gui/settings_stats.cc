@@ -35,7 +35,8 @@ static char const* const version[] =
 	"0.110.6",
 	"0.110.7",
 	"0.111.0",
-	"0.111.1"
+	"0.111.1",
+	"0.111.2"
 };
 
 static const char *version_ex[] =
@@ -166,11 +167,15 @@ void settings_experimental_general_stats_t::init( settings_t *sets )
 	SEPERATOR;
 	INIT_NUM( "city_threshold_size", sets->get_city_threshold_size(), 1000, 100000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "capital_threshold_size", sets->get_capital_threshold_size(), 10000, 1000000, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "max_small_city_size", sets->get_max_small_city_size(), 1000, 100000, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "max_city_size", sets->get_max_city_size(), 10000, 1000000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_BOOL( "quick_city_growth", sets->get_quick_city_growth());
 	INIT_BOOL( "assume_everywhere_connected_by_road", sets->get_assume_everywhere_connected_by_road());
 	INIT_NUM( "spacing_shift_mode", sets->get_spacing_shift_mode(), 0, 2 , gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "spacing_shift_divisor", sets->get_spacing_shift_divisor(), 1, 32767 , gui_numberinput_t::AUTOLINEAR, false );
 	INIT_BOOL( "allow_routing_on_foot", sets->get_allow_routing_on_foot());
+	INIT_BOOL("allow_airports_without_control_towers", sets->get_allow_airports_without_control_towers());
+	INIT_NUM("global_power_factor_percent", sets->get_global_power_factor_percent(), 0, 1000, gui_numberinput_t::AUTOLINEAR, false );
 
 	SEPERATOR;
 	{
@@ -223,11 +228,15 @@ void settings_experimental_general_stats_t::read(settings_t *sets)
 
 	READ_NUM( sets->set_city_threshold_size );
 	READ_NUM( sets->set_capital_threshold_size );
+	READ_NUM( sets->set_max_small_city_size );
+	READ_NUM( sets->set_max_city_size );
 	READ_BOOL( sets->set_quick_city_growth );
 	READ_BOOL( sets->set_assume_everywhere_connected_by_road );
 	READ_NUM( sets->set_spacing_shift_mode );
 	READ_NUM( sets->set_spacing_shift_divisor);
 	READ_BOOL( sets->set_allow_routing_on_foot);
+	READ_BOOL( sets->set_allow_airports_without_control_towers );
+	READ_NUM( sets->set_global_power_factor_percent );
 
 	uint16 default_increase_maintenance_after_years_other;
 	READ_NUM_VALUE( default_increase_maintenance_after_years_other );
@@ -243,13 +252,15 @@ void settings_experimental_general_stats_t::read(settings_t *sets)
 		case tram_wt:
 		case narrowgauge_wt:
 		case air_wt:
-			numiter.next();
-			READ_NUM_ARRAY(sets->set_default_increase_maintenance_after_years, (waytype_t)i);
+			sets->set_default_increase_maintenance_after_years((waytype_t)i, (*numiter++)->get_value());
 			break;
 		default:
 			sets->set_default_increase_maintenance_after_years((waytype_t)i, default_increase_maintenance_after_years_other);
 		}
 	}
+
+
+
 }
 
 
@@ -259,6 +270,7 @@ void settings_experimental_revenue_stats_t::init( settings_t *sets )
 	INIT_NUM( "passenger_routing_packet_size", sets->get_passenger_routing_packet_size(), 1, 64, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "max_alternative_destinations", sets->get_max_alternative_destinations(), 0, 15, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM("passenger_max_wait", sets->get_passenger_max_wait(), 0, 311040, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM("min_wait_airport", sets->get_min_wait_airport(), 0, 311040, gui_numberinput_t::AUTOLINEAR, false );
 	{
 		gui_component_table_t &tbl = new_table(koord(0, ypos), 6, 4);
 		int row = 0;
@@ -270,20 +282,20 @@ void settings_experimental_revenue_stats_t::init( settings_t *sets )
 		set_cell_component(tbl, new_textarea(koord(2, 0), translator::translate("waiting\ntolerance\nmax. min")), 5, 0);
 		row++;
 		set_cell_component(tbl, new_label(koord(2, 3), "local"), 0, row);
-		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_local_passengers_max_distance(), 0, 1000, 1), 2, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_local_passengers_max_distance(), 0, 4096, 1), 2, row);
 		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_passenger_routing_local_chance(), 0, 100, 1), 3, row);
 		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_min_local_tolerance() / 10, 2, 4800, 1), 4, row);
 		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_max_local_tolerance() / 10, 2, 4800, 1), 5, row);
 		row++;
 		set_cell_component(tbl, new_label(koord(2, 0), "mid range"), 0, row);
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_midrange_passengers_min_distance(), 0, 1000, 1), 1, row);
+		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_midrange_passengers_min_distance(), 0, 4096, 1), 1, row);
 		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_midrange_passengers_max_distance(), 0, 10000, 1), 2, row);
 		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_passenger_routing_midrange_chance(), 0, 100, 1), 3, row);
 		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_min_midrange_tolerance() / 10, 2, 4800, 1), 4, row);
 		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_max_midrange_tolerance() / 10, 2, 4800, 1), 5, row);
 		row++;
 		set_cell_component(tbl, new_label(koord(2, 0), "long dist."), 0, row);
-		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_longdistance_passengers_min_distance(), 0, 1000, 1), 1, row);
+		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_longdistance_passengers_min_distance(), 0, 4096, 1), 1, row);
 		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_min_longdistance_tolerance() / 10, 2, 4800, 1), 4, row);
 		set_cell_component(tbl, new_numinp(koord(0, 0), sets->get_max_longdistance_tolerance() / 10, 2, 4800, 1), 5, row);
 		INIT_TABLE_END(tbl);
@@ -374,6 +386,7 @@ void settings_experimental_revenue_stats_t::read(settings_t *sets)
 	READ_NUM_VALUE( sets->passenger_routing_packet_size );
 	READ_NUM_VALUE( sets->max_alternative_destinations );
 	READ_NUM_VALUE( sets->passenger_max_wait );
+	READ_NUM_VALUE( sets->min_wait_airport );
 
 	READ_NUM_VALUE( sets->local_passengers_max_distance );
 	READ_NUM_VALUE( sets->passenger_routing_local_chance );
@@ -765,6 +778,7 @@ void settings_costs_stats_t::init(settings_t const* const sets)
 void settings_costs_stats_t::read(settings_t* const sets)
 {
 	READ_INIT
+	(void)booliter;
 	READ_NUM_VALUE( sets->maint_building );
 	READ_COST_VALUE( sets->cst_multiply_dock )*(-1);
 	READ_COST_VALUE( sets->cst_multiply_station )*(-1);
@@ -823,9 +837,8 @@ void settings_climates_stats_t::init(settings_t* const sets)
 	INIT_NUM_NEW( "minimum length of rivers", sets->get_min_river_length(), 0, max(16,sets->get_max_river_length())-16, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM_NEW( "maximum length of rivers", sets->get_max_river_length(), sets->get_min_river_length()+16, 8196, gui_numberinput_t::AUTOLINEAR, false );
 	// add listener to all of them
-	slist_iterator_tpl<gui_numberinput_t *>iter(numinp);
-	while(  iter.next()  ) {
-		iter.get_current()->add_listener( this );
+	FOR(slist_tpl<gui_numberinput_t*>, const n, numinp) {
+		n->add_listener(this);
 	}
 	// the following are independent and thus need no listener
 	SEPERATOR
@@ -886,9 +899,9 @@ bool settings_climates_stats_t::action_triggered(gui_action_creator_t *komp, val
 {
 	welt_gui_t *welt_gui = dynamic_cast<welt_gui_t *>(win_get_magic( magic_welt_gui_t ));
 	read( local_sets );
-	slist_iterator_tpl<gui_numberinput_t *>iter(numinp);
-	for(  uint i=0;  iter.next();  i++  ) {
-		if(  iter.get_current()==komp  &&  i<3  &&  welt_gui  ) {
+	uint i = 0;
+	FORX(slist_tpl<gui_numberinput_t*>, const n, numinp, ++i) {
+		if (n == komp && i < 3 && welt_gui) {
 			// update world preview
 			welt_gui->update_preview();
 		}

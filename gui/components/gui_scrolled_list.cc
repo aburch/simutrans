@@ -221,17 +221,10 @@ void gui_scrolled_list_t::zeichnen(koord pos)
 	PUSH_CLIP(x+1,y+1,w-2,h-2);
 	int ycum = y+2-offset; // y cumulative
 	int i=0;
-	slist_iterator_tpl<gui_scrolled_list_t::scrollitem_t *>iter( item_list );
-	bool ok = iter.next();
-	while(ok) {
-		gui_scrolled_list_t::scrollitem_t *item = iter.get_current();
-
-		// Hajo: advance iterator, so that we can remove the current object
-		// safely
-		ok = iter.next();
-
+	for (slist_tpl<scrollitem_t*>::iterator iter = item_list.begin(), end = item_list.end(); iter != end;) {
+		scrollitem_t* const item = *iter;
 		if(  !item->is_valid()  ) {
-			item_list.remove(item);
+			iter = item_list.erase(iter);
 			delete item;
 			if(i == selection) {
 				selection = -1;
@@ -251,6 +244,7 @@ void gui_scrolled_list_t::zeichnen(koord pos)
 				display_proportional_clip(x+7, ycum, item->get_text(), ALIGN_LEFT, item->get_color(), true);
 			}
 			ycum += LINESPACE;
+			++iter;
 			i++;
 		}
 	}

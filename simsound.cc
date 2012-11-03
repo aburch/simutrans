@@ -78,16 +78,10 @@ bool sound_get_mute()
 }
 
 
-
-/**
- * spielt sound ab
- * @author Hj. Malthaner
- */
-void sound_play(const struct sound_info info)
+void sound_play(uint16 const idx, uint8 const volume)
 {
-	if(info.index!=(uint16)NO_SOUND  &&  !umgebung_t::mute_sound) {
-//DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "play sound %i",info.index);
-		dr_play_sample(info.index, (info.volume*umgebung_t::global_volume)>>8);
+	if (idx != (uint16)NO_SOUND && !umgebung_t::mute_sound) {
+		dr_play_sample(idx, volume * umgebung_t::global_volume >> 8);
 	}
 }
 

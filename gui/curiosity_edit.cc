@@ -12,11 +12,9 @@
 #include "../simcolor.h"
 #include "../simtools.h"
 #include "../simworld.h"
-#include "../simevent.h"
 #include "../simgraph.h"
 #include "../simskin.h"
 #include "../simwerkz.h"
-#include "../simwin.h"
 
 #include "components/list_button.h"
 
@@ -110,10 +108,7 @@ void curiosity_edit_frame_t::fill_list( bool translate )
 	hauslist.clear();
 
 	if(bt_city_attraction.pressed) {
-		const vector_tpl<const haus_besch_t *> *s = hausbauer_t::get_list( haus_besch_t::attraction_city );
-		for (uint32 i = 0; i < s->get_count(); i++) {
-
-			const haus_besch_t *besch = (*s)[i];
+		FOR(vector_tpl<haus_besch_t const*>, const besch, *hausbauer_t::get_list(haus_besch_t::attraction_city)) {
 			if(!use_timeline  ||  (!besch->is_future(month_now)  &&  (!besch->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
 				hauslist.insert_ordered(besch,compare_haus_besch);
@@ -122,10 +117,7 @@ void curiosity_edit_frame_t::fill_list( bool translate )
 	}
 
 	if(bt_land_attraction.pressed) {
-		const vector_tpl<const haus_besch_t *> *s = hausbauer_t::get_list( haus_besch_t::attraction_land );
-		for (uint32 i = 0; i < s->get_count(); i++) {
-
-			const haus_besch_t *besch = (*s)[i];
+		FOR(vector_tpl<haus_besch_t const*>, const besch, *hausbauer_t::get_list(haus_besch_t::attraction_land)) {
 			if(!use_timeline  ||  (!besch->is_future(month_now)  &&  (!besch->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
 				hauslist.insert_ordered(besch,compare_haus_besch);
@@ -134,10 +126,7 @@ void curiosity_edit_frame_t::fill_list( bool translate )
 	}
 
 	if(bt_monuments.pressed) {
-		const vector_tpl<const haus_besch_t *> *s = hausbauer_t::get_list( haus_besch_t::denkmal );
-		for (uint32 i = 0; i < s->get_count(); i++) {
-
-			const haus_besch_t *besch = (*s)[i];
+		FOR(vector_tpl<haus_besch_t const*>, const besch, *hausbauer_t::get_list(haus_besch_t::denkmal)) {
 			if(!use_timeline  ||  (!besch->is_future(month_now)  &&  (!besch->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
 				hauslist.insert_ordered(besch,compare_haus_besch);
@@ -148,20 +137,17 @@ void curiosity_edit_frame_t::fill_list( bool translate )
 	// now buil scrolled list
 	scl.clear_elements();
 	scl.set_selection(-1);
-	for (vector_tpl<const haus_besch_t *>::const_iterator i = hauslist.begin(), end = hauslist.end(); i != end; ++i) {
+	FOR(vector_tpl<haus_besch_t const*>, const i, hauslist) {
 		// color code for objects: BLACK: normal, YELLOW: consumer only, GREEN: source only
-		COLOR_VAL color=COL_BLACK;
-		if(  (*i)->get_utyp()==haus_besch_t::attraction_city  ) {
-			color = COL_BLUE;
+		COLOR_VAL color;
+		switch (i->get_utyp()) {
+			case haus_besch_t::attraction_city: color = COL_BLUE;       break;
+			case haus_besch_t::attraction_land: color = COL_DARK_GREEN; break;
+			default:                            color = COL_BLACK;      break;
 		}
-		else if(  (*i)->get_utyp()==haus_besch_t::attraction_land  ) {
-			color = COL_DARK_GREEN;
-		}
-		scl.append_element( new gui_scrolled_list_t::const_text_scrollitem_t(
-			translate ? translator::translate( (*i)->get_name() ):(*i)->get_name(),
-			color )
-		);
-		if(  (*i) == besch  ) {
+		char const* const name = translate ? translator::translate(i->get_name()) : i->get_name();
+		scl.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(name, color));
+		if (i == besch) {
 			scl.set_selection(scl.get_count()-1);
 		}
 	}

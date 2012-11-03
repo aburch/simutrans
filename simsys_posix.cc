@@ -62,10 +62,6 @@ unsigned int get_system_color(unsigned int, unsigned int, unsigned int)
 	return 1;
 }
 
-void dr_setRGB8multi(int, int, unsigned char*)
-{
-}
-
 void dr_prepare_flush()
 {
 }

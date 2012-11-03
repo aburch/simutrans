@@ -8,15 +8,16 @@
 #ifndef loadsave_h
 #define loadsave_h
 
+// no windows macros please ...
+#define NOMINMAX 1
+
 #include <stdio.h>
-#include <bzlib.h>
 #include <string>
 
 #include "../simtypes.h"
 
-#define INVALID_RDWR_ID (-1)
-
 class plainstring;
+struct file_descriptors_t;
 
 /**
  * loadsave_t:
@@ -48,9 +49,7 @@ private:
 
 	std::string filename;	// the current name ...
 
-	FILE *fp;
-	BZFILE *bzfp;
-	int bse;
+	file_descriptors_t *fd;
 
 	// Hajo: putc got a name clash on my system
 	void lsputc(int c);
@@ -61,6 +60,10 @@ private:
 	size_t read(void *buf, size_t len);
 
 	void rdwr_xml_number(sint64 &s, const char *typ);
+
+
+	loadsave_t(const loadsave_t&);
+	loadsave_t& operator=(const loadsave_t&);
 
 public:
 	

@@ -190,7 +190,13 @@ void verkehrsteilnehmer_t::hop()
 	}
 
 	if(count > 1) {
-		pos_next = liste[simrand(count, "void verkehrsteilnehmer_t::hop()")]->get_pos();
+#ifdef DEBUG_SIMRAND_CALLS
+		char buf[256];
+		sprintf(buf, "verkehrsteilnehmer_t::hop() %s", typeid(*this).name());
+		pos_next = liste[simrand(count, buf)]->get_pos();
+#else
+		pos_next = liste[simrand(count, "verkehrsteilnehmer_t::hop()")]->get_pos();
+#endif
 		fahrtrichtung = calc_set_richtung(get_pos().get_2d(), pos_next.get_2d());
 	} else if(count==1) {
 		pos_next = liste[0]->get_pos();
@@ -353,9 +359,8 @@ void stadtauto_t::built_timeline_liste(karte_t *welt)
 //DBG_DEBUG("stadtauto_t::built_timeline_liste()","year=%i, month=%i", month_now/12, month_now%12+1);
 
 		// check for every citycar, if still ok ...
-		stringhashtable_iterator_tpl<const stadtauto_besch_t *> iter(table);
-		while(   iter.next()  ) {
-			const stadtauto_besch_t* info = iter.get_current_value();
+		FOR(stringhashtable_tpl<stadtauto_besch_t const*>, const& i, table) {
+			stadtauto_besch_t const* const info = i.value;
 			const int intro_month = info->get_intro_year_month();
 			const int retire_month = info->get_retire_year_month();
 
@@ -365,8 +370,8 @@ void stadtauto_t::built_timeline_liste(karte_t *welt)
 		}
 	}
 	liste_timeline.resize( temp_liste.get_count() );
-	for (vector_tpl<const stadtauto_besch_t*>::const_iterator i = temp_liste.begin(), end = temp_liste.end(); i != end; ++i) {
-		liste_timeline.append( (*i), (*i)->get_gewichtung() );
+	FOR(vector_tpl<stadtauto_besch_t const*>, const i, temp_liste) {
+		liste_timeline.append(i, i->get_gewichtung());
 	}
 }
 
@@ -381,7 +386,7 @@ bool stadtauto_t::list_empty()
 
 stadtauto_t::~stadtauto_t()
 {
-	if(!welt->get_is_shutting_down() && current_list != NULL  && current_list->get_count() > 0)
+	if(current_list != NULL && !welt->get_is_shutting_down() && current_list->get_count() > 0)
 	{
 		stadtauto_t *tmp = this;
 		if(!current_list->remove(tmp))
@@ -405,7 +410,6 @@ stadtauto_t::~stadtauto_t()
 			DBG_MESSAGE("stadtauto_t", "Succeeded in removing city car from list.");
 		}
 	}
-	welt->buche( -1, karte_t::WORLD_CITYCARS );
 	//"Buche" = "Books" (Babelfish)
 }
 
@@ -418,7 +422,6 @@ stadtauto_t::stadtauto_t(karte_t *welt, loadsave_t *file) :
 	if(besch) {
 		welt->sync_add(this);
 	}
-	welt->buche( +1, karte_t::WORLD_CITYCARS );
 }
 
 
@@ -436,7 +439,6 @@ stadtauto_t::stadtauto_t(karte_t* const welt, koord3d const pos, koord const tar
 	(void)target;
 #endif
 	calc_bild();
-	welt->buche( +1, karte_t::WORLD_CITYCARS );
 	current_list = car_list;
 	origin = pos.get_2d();
 }
@@ -447,7 +449,7 @@ stadtauto_t::stadtauto_t(karte_t* const welt, koord3d const pos, koord const tar
 bool stadtauto_t::sync_step(long delta_t)
 {
 	time_to_life -= delta_t;
-	if(  time_to_life<=0  ) {
+	if(  time_to_life<=0 || current_list == NULL ) {
 		return false;
 	}
 
@@ -552,7 +554,7 @@ void stadtauto_t::rdwr(loadsave_t *file)
 		set_tiles_overtaking( tiles_overtaking );
 	}
 
-	if(file->get_experimental_version() >= 9 && file->get_version() >= 1100000)
+	if(file->get_experimental_version() >= 10 && file->get_version() >= 111002)
 	{
 		file->rdwr_long(ms_traffic_jam);
 #ifdef DESTINATION_CITYCARS
@@ -769,13 +771,6 @@ void stadtauto_t::betrete_feld()
 #endif /* DESTINATION_CITYCARS */
 	vehikel_basis_t::betrete_feld();
 	welt->lookup( get_pos() )->get_weg(road_wt)->book(1, WAY_STAT_CONVOIS);
-}
-
-
-void
-stadtauto_t::kill()
-{
-	time_to_life = 0;
 }
 
 
@@ -1288,4 +1283,15 @@ bool stadtauto_t::can_overtake( overtaker_t *other_overtaker, sint32 other_speed
 	other_overtaker->set_tiles_overtaking( -1-(n_tiles/2) );
 
 	return true;
+}
+
+void *stadtauto_t::operator new(size_t /*s*/)
+{
+	return freelist_t::gimme_node(sizeof(stadtauto_t));
+}
+
+
+void stadtauto_t::operator delete(void *p)
+{
+	freelist_t::putback_node(sizeof(stadtauto_t),p);
 }

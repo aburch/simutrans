@@ -39,12 +39,7 @@ public:
 
 	void get_unique_attractions(curiositylist::sort_mode_t sortby, bool reverse);
 
-	/**
-	* Events werden hiermit an die GUI-Komponenten
-	* gemeldet
-	* @author Hj. Malthaner
-	*/
-	bool infowin_event(const event_t *);
+	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**
 	* Recalc the current size required to display everything, and set komponente groesse

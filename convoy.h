@@ -93,6 +93,14 @@ a = (Fm - Frs - cf * v^2) / m
 //static const float32e8_t FR_WATER = float32e8_t((uint32) 1, (uint32) 1000);
 //static const float32e8_t FR_AIR = float32e8_t((uint32) 1, (uint32) 1000);
 
+static const float32e8_t BR_AIR = float32e8_t(2, 1);
+static const float32e8_t BR_WATER = float32e8_t(1, 10);
+static const float32e8_t BR_TRACK = float32e8_t(1, 2);
+static const float32e8_t BR_TRAM = float32e8_t(1, 1);
+static const float32e8_t BR_MAGLEV = float32e8_t(12, 10);
+static const float32e8_t BR_ROAD = float32e8_t(4, 1);
+static const float32e8_t BR_DEFAULT = float32e8_t(1, 1);
+
 /******************************************************************************/
 
 struct vehicle_summary_t
@@ -210,10 +218,9 @@ private:
 	/**
 	 * Get force in N according to current speed in m/s
 	 */
-	inline sint32 get_force(const float32e8_t &speed) 
+	inline float32e8_t get_force(const float32e8_t &speed) 
 	{
-		sint32 v = (sint32)abs(speed);
-		return (v == 0) ? get_starting_force() : get_force_summary(v) * 1000;
+		return get_force_summary(abs(speed));
 	}
 
 	/**
@@ -233,46 +240,52 @@ protected:
 	/**
 	 * get brake force in kN according to current speed in m/s
 	 */
-	virtual sint32 get_brake_summary(const sint32 speed) = 0;
+	virtual float32e8_t get_brake_summary(/*const float32e8_t &speed*/) = 0;
 
 	/**
 	 * get engine force in kN according to current speed in m/s
 	 */
-	virtual sint32 get_force_summary(const sint32 speed) = 0;
+	virtual float32e8_t get_force_summary(const float32e8_t &speed) = 0;
 
 	/**
 	 * get engine power in kW according to current speed in m/s
 	 */
-	virtual sint32 get_power_summary(const sint32 speed) = 0;
+	virtual float32e8_t get_power_summary(const float32e8_t &speed) = 0;
 
+	/**
+	 * get vehicle summary
+	 */
 	virtual const vehicle_summary_t &get_vehicle_summary() {
 		return vehicle;
 	}
 
+	/**
+	 * get adverse summary
+	 */
 	virtual const adverse_summary_t &get_adverse_summary() {
 		return adverse;
 	}
 
 	/**
-	 * get braking force in N according to current weight in kg
+	 * get braking force in N at given speed in m/s
 	 */
-	virtual sint32 get_braking_force(const sint32 speed) 
+	inline float32e8_t get_braking_force(/*const float32e8_t &speed*/) 
 	{
-		return get_brake_summary(speed) * 1000;
+		return get_brake_summary(/*speed*/);
 	}
 
 	/*
 	 * get starting force in N
 	 */
 	virtual sint32 get_starting_force() { 
-		return get_force_summary(0) * 1000; 
+		return get_force_summary(0); 
 	}
 
 	/*
 	 * get continuous power in W
 	 */
 	virtual sint32 get_continuous_power() { 
-		return get_power_summary(get_vehicle_summary().max_speed) * 1000; 
+		return get_power_summary(get_vehicle_summary().max_speed * kmh2ms); 
 	}
 
 	/**
@@ -280,7 +293,7 @@ protected:
 	 * power_index: a value gotten from vehicles (e.g. from get_effective_force_index()/get_effective_power_index()).
 	 * power_factor: the global power factor percentage. Must not be 0!.
 	 */
-	sint32 power_index_to_power(sint32 power_index, sint32 power_factor);
+	float32e8_t power_index_to_power(const float32e8_t &power_index, sint32 power_factor);
 public:
 	/**
 	 * Update adverse.max_speed. If given speed is less than current adverse.max_speed, then speed becomes the new adverse.max_speed.
@@ -317,7 +330,7 @@ public:
 	/**
 	 * Get the minimum braking distance in steps for the convoy with given weight summary at given simutrans speed.
 	 */
-	sint32 calc_min_braking_distance(const float32e8_t &simtime_factor, const weight_summary_t &weight, sint32 speed);
+	sint32 calc_min_braking_distance(const settings_t &settings, const weight_summary_t &weight, sint32 speed);
 
 	/** 
 	 * Calculate the movement within delta_t
@@ -331,7 +344,7 @@ public:
 	 * @param akt_speed the current speed and returns the new speed after delta_t has gone in simutrans speed.
 	 * @param sp_soll the number of simutrans yards still to go and returns the new number of simutrans yards to go.
 	 */
-	void calc_move(long delta_t, const float32e8_t &simtime_factor, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 next_speed_limit, sint32 steps_til_limit, sint32 steps_til_brake, sint32 &akt_speed, sint32 &sp_soll, float32e8_t &akt_v);
+	void calc_move(const settings_t &settings, long delta_t, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 next_speed_limit, sint32 steps_til_limit, sint32 steps_til_brake, sint32 &akt_speed, sint32 &sp_soll, float32e8_t &akt_v);
 	virtual ~convoy_t(){}
 };
 
@@ -498,11 +511,11 @@ public:
 		return convoy_t::calc_max_starting_weight(sin_alpha);
 	}
 
-	void calc_move(long delta_t, const float32e8_t &simtime_factor, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 next_speed_limit, sint32 steps_til_limit, sint32 steps_til_break, sint32 &akt_speed, sint32 &sp_soll, float32e8_t &akt_v)
+	void calc_move(const settings_t &settings, long delta_t, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 next_speed_limit, sint32 steps_til_limit, sint32 steps_til_break, sint32 &akt_speed, sint32 &sp_soll, float32e8_t &akt_v)
 	{
 		validate_vehicle_summary();
 		validate_adverse_summary();
-		convoy_t::calc_move(delta_t, simtime_factor, weight, akt_speed_soll, next_speed_limit, steps_til_limit, steps_til_break, akt_speed, sp_soll, akt_v);
+		convoy_t::calc_move(settings, delta_t, weight, akt_speed_soll, next_speed_limit, steps_til_limit, steps_til_break, akt_speed, sp_soll, akt_v);
 	}
 	virtual ~lazy_convoy_t(){}
 };
@@ -518,9 +531,9 @@ protected:
 	virtual void update_vehicle_summary(vehicle_summary_t &vehicle);
 	virtual void update_adverse_summary(adverse_summary_t &adverse);
 	virtual void update_freight_summary(freight_summary_t &freight);
-	virtual sint32 get_brake_summary(const sint32 speed /* in m/s */); 
-	virtual sint32 get_force_summary(const sint32 speed /* in m/s */);
-	virtual sint32 get_power_summary(const sint32 speed /* in m/s */);
+	virtual float32e8_t get_brake_summary(/*const float32e8_t &speed /* in m/s */);
+	virtual float32e8_t get_force_summary(const float32e8_t &speed /* in m/s */);
+	virtual float32e8_t get_power_summary(const float32e8_t &speed /* in m/s */);
 public:
 	potential_convoy_t(karte_t &world, vector_tpl<const vehikel_besch_t *> &besch) : lazy_convoy_t(), vehicles(besch), world(world)
 	{
@@ -554,9 +567,9 @@ protected:
 	virtual void update_adverse_summary(adverse_summary_t &adverse);
 	virtual void update_freight_summary(freight_summary_t &freight);
 	virtual void update_weight_summary(weight_summary_t &weight);
-	virtual sint32 get_brake_summary(const sint32 speed /* in m/s */); 
-	virtual sint32 get_force_summary(const sint32 speed /* in m/s */);
-	virtual sint32 get_power_summary(const sint32 speed /* in m/s */);
+	virtual float32e8_t get_brake_summary(/*const float32e8_t &speed /* in m/s */);
+	virtual float32e8_t get_force_summary(const float32e8_t &speed /* in m/s */);
+	virtual float32e8_t get_power_summary(const float32e8_t &speed /* in m/s */);
 public:
 	existing_convoy_t(convoi_t &vehicles) : lazy_convoy_t(), convoy(vehicles)
 	{
@@ -591,10 +604,10 @@ public:
 		return weight;
 	}
 
-	inline void calc_move(long delta_t, const float32e8_t &simtime_factor, sint32 akt_speed_soll, sint32 next_speed_limit, sint32 steps_til_limit, sint32 steps_til_brake, sint32 &akt_speed, sint32 &sp_soll, float32e8_t &akt_v)
+	inline void calc_move(const settings_t &settings, long delta_t, sint32 akt_speed_soll, sint32 next_speed_limit, sint32 steps_til_limit, sint32 steps_til_brake, sint32 &akt_speed, sint32 &sp_soll, float32e8_t &akt_v)
 	{
 		validate_weight_summary();
-		convoy_t::calc_move(delta_t, simtime_factor, weight, akt_speed_soll, next_speed_limit, steps_til_limit, steps_til_brake, akt_speed, sp_soll, akt_v);
+		convoy_t::calc_move(settings, delta_t, weight, akt_speed_soll, next_speed_limit, steps_til_limit, steps_til_brake, akt_speed, sp_soll, akt_v);
 	}
 
 };

@@ -1,0 +1,21 @@
+# Simutranslator settings for Simutrans-Experimental texts
+# Erratum for version 10.12
+#
+# Author: jamespetts
+# Created: October 2012
+#
+obj=program_text
+name=LOCO_CAP
+note="Capacity" shown for powered vehicles in the depot window
+-
+obj=program_text
+name=%s\nCost:     %d$\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d (%d)%s %s\nWeight: %dt\nTop speed: %dkm/h\n
+note=Capacity (etc.) line for the depot window
+-
+obj=program_text
+name=%s\nCost:     %d$\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d%s %s\nWeight: %dt\nTop speed: %dkm/h\n
+note=Capacity (etc.) line for the depot window
+-
+obj=program_text
+name=%s\nCost: %d$\nMaint.: %1.2f$/km, %1.2f$/month\nPower: %dkW, %dkm/h\nWeight: %dt\n
+note=Capacity (etc.) line for the depot window

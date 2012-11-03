@@ -18,6 +18,8 @@
 #include "dataobj/fahrplan.h"
 #include "simconvoi.h"
 
+typedef quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> connexions_map_single_remote;
+
 
 // #define DEBUG_EXPLORER_SPEED
 // #define DEBUG_COMPARTMENT_STEP
@@ -527,13 +529,13 @@ void path_explorer_t::compartment_t::step()
 			start = dr_time();	// start timing
 #endif
 
-			slist_iterator_tpl<halthandle_t> halt_iter(haltestelle_t::get_alle_haltestellen());
+			slist_tpl<halthandle_t>::iterator halt_iter = haltestelle_t::get_alle_haltestellen().begin();
 			all_halts_count = (uint16) haltestelle_t::get_alle_haltestellen().get_count();
-			
+
 			// create all halts list
 			if (all_halts_count > 0)
 			{
-				all_halts_list = new halthandle_t[all_halts_count];
+			all_halts_list = new halthandle_t[all_halts_count];
 			}
 
 			const bool no_walking_connexions = !world->get_settings().get_allow_routing_on_foot() || catg!=warenbauer_t::passagiere->get_catg_index();
@@ -542,8 +544,8 @@ void path_explorer_t::compartment_t::step()
 			// Save the halt list in an array first to prevent the list from being modified across steps, causing bugs
 			for (uint16 i = 0; i < all_halts_count; ++i)
 			{
-				halt_iter.next();
-				all_halts_list[i] = halt_iter.get_current();
+			all_halts_list[i] = *halt_iter;
+			++halt_iter;
 
 				// create an empty connexion hash table if the current halt does not already have one
 				if ( connexion_list[ all_halts_list[i].get_id() ].connexion_table == NULL )
@@ -568,7 +570,7 @@ void path_explorer_t::compartment_t::step()
 				{
 					walking_distance_halt = all_halts_list[i]->get_halt_within_walking_distance(x);
 
-					if(!walking_distance_halt->is_enabled(warenbauer_t::passagiere))
+					if(!walking_distance_halt.is_bound() || !walking_distance_halt->is_enabled(warenbauer_t::passagiere))
 					{
 						continue;
 					}
@@ -614,7 +616,7 @@ void path_explorer_t::compartment_t::step()
 
 
 			// loop through all convoys
-			for (vector_tpl<convoihandle_t>::const_iterator i = world->convois_begin(), end = world->convois_end(); i != end; i++) 
+			for (vector_tpl<convoihandle_t>::const_iterator i = world->convoys().begin(), end = world->convoys().end(); i != end; i++) 
 			{
 				current_convoy = *i;
 				// only consider lineless convoys which support this compartment's goods catetory
@@ -773,28 +775,28 @@ void path_explorer_t::compartment_t::step()
 					journey_time = 0;
 					const id_pair pair(halt_list[i].get_id(), halt_list[(i+1)%entry_count].get_id());
 					
-					if ( current_linkage.line.is_bound() && current_linkage.line->average_journey_times->is_contained(pair) )
+					if ( current_linkage.line.is_bound() && current_linkage.line->get_average_journey_times()->is_contained(pair) )
 					{
 						if(!halt_list[i].is_bound() || ! halt_list[(i+1)%entry_count].is_bound())
 						{
-							current_linkage.line->average_journey_times->remove(pair);
+							current_linkage.line->get_average_journey_times()->remove(pair);
 							continue;
 						}
 						else
 						{
-							journey_time = current_linkage.line->average_journey_times->get(pair).get_average();
+							journey_time = current_linkage.line->get_average_journey_times()->get(pair).get_average();
 						}
 					}
-					else if ( current_linkage.convoy.is_bound() && current_linkage.convoy->average_journey_times->is_contained(pair) )
+					else if ( current_linkage.convoy.is_bound() && current_linkage.convoy->get_average_journey_times()->is_contained(pair) )
 					{
 						if(!halt_list[i].is_bound() || ! halt_list[(i+1)%entry_count].is_bound())
 						{
-							current_linkage.convoy->average_journey_times->remove(pair);
+							current_linkage.convoy->get_average_journey_times()->remove(pair);
 							continue;
 						}
 						else
 						{
-							journey_time = current_linkage.convoy->average_journey_times->get(pair).get_average();
+							journey_time = current_linkage.convoy->get_average_journey_times()->get(pair).get_average();
 						}
 					}
 
@@ -857,9 +859,23 @@ void path_explorer_t::compartment_t::step()
 						new_connexion->waiting_time = halt_list[h]->get_average_waiting_time(halt_list[t], catg);
 						if(current_linkage.line.is_bound())
 						{
-							average_tpl<uint16>* ave = current_linkage.line->average_journey_times->access(id_pair(halt_list[h].get_id(), halt_list[t].get_id()));
+							average_tpl<uint16>* ave = current_linkage.line->get_average_journey_times()->access(id_pair(halt_list[h].get_id(), halt_list[t].get_id()));
+							average_tpl<uint16>* ave_rc = NULL;
+							if(current_linkage.line->get_average_journey_times_reverse_circular())
+							{
+								ave_rc = current_linkage.line->get_average_journey_times_reverse_circular()->access(id_pair(halt_list[h].get_id(), halt_list[t].get_id()));
+							}
 							if(ave && ave->count > 0)
 							{
+								// Check whether this is a bidirectional circular route.
+								// If it is, check whether the reverse direction gives a shorter journey time.
+								if(ave_rc && ave_rc->count > 0)
+								{
+									if(ave_rc->get_average() < ave->get_average())
+									{
+										ave = ave_rc;
+									}
+								}
 								new_connexion->journey_time = ave->get_average();
 								// Reset the data once they have been read once.
 								lines_to_reset.append(new_connexion->best_line);
@@ -873,7 +889,7 @@ void path_explorer_t::compartment_t::step()
 						}
 						else if(current_linkage.convoy.is_bound())
 						{
-							average_tpl<uint16>* ave = current_linkage.convoy->average_journey_times->access(id_pair(halt_list[h].get_id(), halt_list[t].get_id()));
+							average_tpl<uint16>* ave = current_linkage.convoy->get_average_journey_times()->access(id_pair(halt_list[h].get_id(), halt_list[t].get_id()));
 							if(ave && ave->count > 0)
 							{
 								new_connexion->journey_time = ave->get_average();
@@ -988,7 +1004,7 @@ void path_explorer_t::compartment_t::step()
 			{
 				if(lines_to_reset[n].is_bound())
 				{
-					lines_to_reset[n]->average_journey_times->clear();
+					lines_to_reset[n]->get_average_journey_times()->clear();
 				}
 			}
 
@@ -998,7 +1014,7 @@ void path_explorer_t::compartment_t::step()
 			{
 				if(convoys_to_reset[m].is_bound())
 				{
-					convoys_to_reset[m]->average_journey_times->clear();
+					convoys_to_reset[m]->get_average_journey_times()->clear();
 				}
 			}
 			convoys_to_reset.clear();
@@ -1193,12 +1209,10 @@ void path_explorer_t::compartment_t::step()
 					++transfer_count;
 				}
 
-				quickstone_hashtable_iterator_tpl<haltestelle_t, haltestelle_t::connexion*> connexions_iter( *(current_halt->get_connexions(catg)) );
-
 				// iterate over the connexions of the current halt
-				while (connexions_iter.next())
+				FOR(connexions_map_single_remote, const& connexions_iter, *(current_halt->get_connexions(catg)))
 				{
-					reachable_halt = connexions_iter.get_current_key();
+					reachable_halt = connexions_iter.key;
 
 					// halts may be removed during the process of refresh
 					if (!reachable_halt.is_bound())
@@ -1206,7 +1220,7 @@ void path_explorer_t::compartment_t::step()
 						continue;
 					}
 
-					current_connexion = connexions_iter.get_current_value();
+					current_connexion = connexions_iter.value;
 
 					// validate transport and determine transport index
 					uint16 transport_idx;
@@ -1233,6 +1247,11 @@ void path_explorer_t::compartment_t::step()
 
 					// determine the matrix index of reachable halt in working halt index map
 					reachable_halt_index = working_halt_index_map[reachable_halt.get_id()];
+
+					if(reachable_halt_index == 65535)
+					{
+						continue;
+					}
 
 					// update corresponding matrix element
 					working_matrix[phase_counter][reachable_halt_index].next_transfer = reachable_halt;
@@ -1783,11 +1802,9 @@ void path_explorer_t::compartment_t::reset_connexion_entry(const uint16 halt_id)
 {
 	if ( connexion_list[halt_id].connexion_table && !connexion_list[halt_id].connexion_table->empty() )
 	{
-		quickstone_hashtable_iterator_tpl<haltestelle_t, haltestelle_t::connexion*> iter(*(connexion_list[halt_id].connexion_table));
-
-		while(iter.next())
+		FOR(haltestelle_t::connexions_map, const& iter, (*(connexion_list[halt_id].connexion_table)))
 		{
-			delete iter.get_current_value();
+			delete iter.value;
 		}
 		
 		connexion_list[halt_id].connexion_table->clear();

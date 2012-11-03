@@ -85,10 +85,7 @@ public:
 
 	PLAYER_COLOR_VAL get_titelcolor() const { return WIN_TITEL; }
 
-	/* returns true, if inside window area ...
-	 * @author Hj. Malthaner
-	 */
-	bool getroffen(int x, int y);
+	bool getroffen(int x, int y) OVERRIDE;
 
 	/**
 	 * Does this window need a next button in the title bar?
@@ -97,11 +94,7 @@ public:
 	 */
 	bool has_next() const {return has_prev_next;}
 
-	/* Events werden hiermit an die GUI-Komponenten
-	 * gemeldet
-	 * @author Hj. Malthaner
-	 */
-	bool infowin_event(const event_t *ev);
+	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**
 	 * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
@@ -113,6 +106,8 @@ public:
 
 	// since no information are needed to be saved to restore this, returning magic is enough
 	virtual uint32 get_rdwr_id() { return magic_toolbar+toolbar_id; }
+
+	bool empty(spieler_t *sp) const;
 };
 
 #endif

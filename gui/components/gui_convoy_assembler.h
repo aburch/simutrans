@@ -145,7 +145,8 @@ class gui_convoy_assembler_t :
 	 * @author Volker Meyer
 	 * @date  09.06.2003
 	 */
-	ptrhashtable_tpl<const vehikel_besch_t *, gui_image_list_t::image_data_t *> vehicle_map;
+	typedef ptrhashtable_tpl<vehikel_besch_t const*, gui_image_list_t::image_data_t*> vehicle_image_map;
+	vehicle_image_map vehicle_map;
 
 	/**
 	 * Draw the info text for the vehicle the mouse is over - if any.
@@ -256,9 +257,9 @@ public:
 
 	inline sint16 get_min_panel_height() const {return grid.y + gui_tab_panel_t::HEADER_VSIZE + 2 * gui_image_list_t::BORDER;}
 
-	inline int get_height() const {return get_convoy_height() + convoy_tabs_skip + 8 + get_vinfo_height() + 17 + get_panel_height();}
+	inline int get_height() const {return get_convoy_height() + convoy_tabs_skip + 8 + get_vinfo_height() + 23 + get_panel_height();}
 
-	inline int get_min_height() const {return get_convoy_height() + convoy_tabs_skip + 8 + get_vinfo_height() + 17 + get_min_panel_height();}
+	inline int get_min_height() const {return get_convoy_height() + convoy_tabs_skip + 8 + get_vinfo_height() + 23 + get_min_panel_height();}
 
 	void set_electrified( bool ele );
 

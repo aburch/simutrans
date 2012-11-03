@@ -1,18 +1,20 @@
+
+#include "simtypes.h"
+#include "simline.h"
+#include "simhalt.h"
+#include "simworld.h"
+
 #include "utils/simstring.h"
 #include "dataobj/fahrplan.h"
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
-#include "simtypes.h"
-#include "simline.h"
-#include "simhalt.h"
 #include "player/simplay.h"
 #include "vehicle/simvehikel.h"
 #include "simconvoi.h"
 #include "convoihandle_t.h"
-#include "simworld.h"
 #include "simlinemgmt.h"
 
-uint8 convoi_to_line_catgory_[convoi_t::MAX_CONVOI_COST]=
+uint8 convoi_to_line_catgory_[convoi_t::MAX_CONVOI_COST] =
 {
 	LINE_CAPACITY, LINE_TRANSPORTED_GOODS, LINE_AVERAGE_SPEED, LINE_COMFORT, LINE_REVENUE, LINE_OPERATIONS, LINE_PROFIT, LINE_DISTANCE, LINE_REFUNDS 
 };
@@ -51,7 +53,10 @@ simline_t::simline_t(karte_t* welt, spieler_t* sp, linetype type)
 
 	create_schedule();
 
+	is_alternating_circle_route = false;
+
 	average_journey_times = new koordhashtable_tpl<id_pair, average_tpl<uint16> >;
+	average_journey_times_reverse_circular = NULL;
 }
 
 
@@ -65,7 +70,9 @@ simline_t::simline_t(karte_t* welt, spieler_t* sp, linetype type, loadsave_t *fi
 	this->sp = sp;
 	create_schedule();
 	average_journey_times = new koordhashtable_tpl<id_pair, average_tpl<uint16> >;
+	average_journey_times_reverse_circular = NULL;
 	rdwr(file);
+
 	// now self has the right id but the this-pointer is not assigned to the quickstone handle yet
 	// do this explicitly
 	// some savegames have line_id=0, resolve that in laden_abschliessen
@@ -87,6 +94,7 @@ simline_t::~simline_t()
 	DBG_MESSAGE("simline_t::~simline_t()", "line %d (%p) destroyed", self.get_id(), this);
 
 	delete average_journey_times;
+	delete average_journey_times_reverse_circular;
 }
 
 void simline_t::create_schedule()
@@ -168,8 +176,8 @@ void simline_t::add_convoy(convoihandle_t cnv, bool from_loading)
 	recalc_status();
 
 	// do we need to tell the world about our new schedule?
-	if(  update_schedules  ) {
-
+	if(  update_schedules  ) 
+	{
 		// Added by : Knightly
 		haltestelle_t::refresh_routing(fpl, goods_catg_index, sp);
 	}
@@ -179,6 +187,7 @@ void simline_t::add_convoy(convoihandle_t cnv, bool from_loading)
 		cnv->set_reverse_schedule(start_reversed);
 		start_reversed = !start_reversed;
 	}
+	calc_is_alternating_circular_route();
 }
 
 
@@ -193,6 +202,7 @@ void simline_t::remove_convoy(convoihandle_t cnv)
 	if(line_managed_convoys.empty()) {
 		unregister_stops();
 	}
+	calc_is_alternating_circular_route();
 }
 
 
@@ -308,7 +318,7 @@ void simline_t::rdwr(loadsave_t *file)
 
 	if(file->get_experimental_version() >= 9) 
 	{
-		file->rdwr_bool( start_reversed);
+		file->rdwr_bool(start_reversed);
 	}
 
 	// otherwise inintialized to zero if loading ...
@@ -340,20 +350,22 @@ void simline_t::rdwr(loadsave_t *file)
 			uint32 count = average_journey_times->get_count();
 			file->rdwr_long(count);
 
-			koordhashtable_iterator_tpl<id_pair, average_tpl<uint16> > iter(average_journey_times);
-			while(iter.next())
+			FOR(journey_times_map, const& iter, *average_journey_times)
 			{
-				id_pair idp = iter.get_current_key();
+				id_pair idp = iter.key;
 				file->rdwr_short(idp.x);
 				file->rdwr_short(idp.y);
-				file->rdwr_short(iter.access_current_value().count);
-				file->rdwr_short(iter.access_current_value().total);
+				sint16 value = iter.value.count;
+				file->rdwr_short(value);
+				value = iter.value.total;
+				file->rdwr_short(value);
 			}
 		}
 		else
 		{
 			uint32 count = 0;
 			file->rdwr_long(count);
+			average_journey_times->clear();
 			for(uint32 i = 0; i < count; i ++)
 			{
 				id_pair idp;
@@ -372,6 +384,68 @@ void simline_t::rdwr(loadsave_t *file)
 				average_journey_times->put(idp, average);
 			}
 		}
+	}
+	if(file->get_version() >= 111002 && file->get_experimental_version() >= 10)
+	{
+		file->rdwr_bool(is_alternating_circle_route);
+		if(is_alternating_circle_route)
+		{
+			if(file->is_saving())
+			{
+				uint32 count = average_journey_times_reverse_circular->get_count();
+				file->rdwr_long(count);
+
+				FOR(journey_times_map, const& iter, *average_journey_times_reverse_circular)
+				{
+					id_pair idp = iter.key;
+					file->rdwr_short(idp.x);
+					file->rdwr_short(idp.y);
+					sint16 value = iter.value.count;
+					file->rdwr_short(value);
+					value = iter.value.total;
+					file->rdwr_short(value);
+				}
+			}
+			else
+			{
+				uint32 count = 0;
+				file->rdwr_long(count);
+				if(average_journey_times_reverse_circular)
+				{
+					average_journey_times_reverse_circular->clear();
+				}
+				else
+				{
+					average_journey_times_reverse_circular = new journey_times_map();
+				}
+				for(uint32 i = 0; i < count; i ++)
+				{
+					id_pair idp;
+					file->rdwr_short(idp.x);
+					file->rdwr_short(idp.y);
+				
+					uint16 count;
+					uint16 total;
+					file->rdwr_short(count);
+					file->rdwr_short(total);
+
+					average_tpl<uint16> average;
+					average.count = count;
+					average.total = total;
+
+					average_journey_times_reverse_circular->put(idp, average);
+				}
+			}
+		}
+		else
+		{
+			delete average_journey_times_reverse_circular;
+			average_journey_times_reverse_circular = NULL;
+		}
+	}
+	else
+	{
+		calc_is_alternating_circular_route();
 	}
 }
 
@@ -396,8 +470,8 @@ void simline_t::laden_abschliessen()
 void simline_t::register_stops(schedule_t * fpl)
 {
 DBG_DEBUG("simline_t::register_stops()", "%d fpl entries in schedule %p", fpl->get_count(),fpl);
-	for (uint8 i = 0; i<fpl->get_count(); i++) {
-		const halthandle_t halt = haltestelle_t::get_halt( welt, fpl->eintrag[i].pos, sp );
+	FOR(minivec_tpl<linieneintrag_t>, const& i, fpl->eintrag) {
+		halthandle_t const halt = haltestelle_t::get_halt(welt, i.pos, sp);
 		if(halt.is_bound()) {
 //DBG_DEBUG("simline_t::register_stops()", "halt not null");
 			halt->add_line(self);
@@ -406,6 +480,7 @@ DBG_DEBUG("simline_t::register_stops()", "%d fpl entries in schedule %p", fpl->g
 DBG_DEBUG("simline_t::register_stops()", "halt null");
 		}
 	}
+	calc_is_alternating_circular_route();
 }
 
 int simline_t::get_replacing_convoys_count() const {
@@ -421,17 +496,25 @@ int simline_t::get_replacing_convoys_count() const {
 void simline_t::unregister_stops()
 {
 	unregister_stops(fpl);
+
+	// It is necessary to clear all departure data,
+	// which might be out of date on a change of schedule.
+	FOR(vector_tpl<convoihandle_t>, & i, line_managed_convoys)
+	{
+		i->clear_departures();
+	}
 }
 
 
 void simline_t::unregister_stops(schedule_t * fpl)
 {
-	for (uint8 i = 0; i<fpl->get_count(); i++) {
-		halthandle_t halt = haltestelle_t::get_halt( welt, fpl->eintrag[i].pos, sp );
+	FOR(minivec_tpl<linieneintrag_t>, const& i, fpl->eintrag) {
+		halthandle_t const halt = haltestelle_t::get_halt(welt, i.pos, sp);
 		if(halt.is_bound()) {
 			halt->remove_line(self);
 		}
 	}
+	calc_is_alternating_circular_route();
 }
 
 
@@ -446,6 +529,7 @@ void simline_t::renew_stops()
 		
 		DBG_DEBUG("simline_t::renew_stops()", "Line id=%d, name='%s'", self.get_id(), name.c_str());
 	}
+	calc_is_alternating_circular_route();
 }
 
 void simline_t::set_schedule(schedule_t* fpl)
@@ -457,6 +541,7 @@ void simline_t::set_schedule(schedule_t* fpl)
 		delete this->fpl;
 	}
 	this->fpl = fpl;
+	calc_is_alternating_circular_route();
 }
 
 
@@ -534,9 +619,9 @@ void simline_t::recalc_status()
 	{
 		// Has obsolete vehicles.
 		bool has_obsolete = false;
-		for(unsigned i=0;  !has_obsolete  &&  i<line_managed_convoys.get_count();  i++ ) 
-		{
-			has_obsolete = line_managed_convoys[i]->has_obsolete_vehicles();
+		FOR(vector_tpl<convoihandle_t>, const i, line_managed_convoys) {
+			has_obsolete = i->has_obsolete_vehicles();
+			if (has_obsolete) break;
 		}
 		// now we have to set it
 		state_color = has_obsolete ? COL_DARK_BLUE : COL_BLACK;
@@ -561,21 +646,18 @@ void simline_t::recalc_catg_index()
 {
 	// first copy old
 	minivec_tpl<uint8> old_goods_catg_index(goods_catg_index.get_count());
-	for(  uint i=0;  i<goods_catg_index.get_count();  i++  ) {
-		old_goods_catg_index.append( goods_catg_index[i] );
+	FOR(minivec_tpl<uint8>, const i, goods_catg_index) {
+		old_goods_catg_index.append(i);
 	}
 	goods_catg_index.clear();
 	withdraw = !line_managed_convoys.empty();
 	// then recreate current
-	for(unsigned i=0;  i<line_managed_convoys.get_count();  i++ ) {
+	FOR(vector_tpl<convoihandle_t>, const i, line_managed_convoys) {
 		// what goods can this line transport?
-		// const convoihandle_t cnv = line_managed_convoys[i];
-		const convoi_t *cnv = line_managed_convoys[i].get_rep();
-		withdraw &= cnv->get_withdraw();
+		convoi_t const& cnv = *i;
+		withdraw &= cnv.get_withdraw();
 
-		const minivec_tpl<uint8> &convoys_goods = cnv->get_goods_catg_index();
-		for(  uint8 i = 0;  i < convoys_goods.get_count();  i++  ) {
-			const uint8 catg_index = convoys_goods[i];
+		FOR(minivec_tpl<uint8>, const catg_index, cnv.get_goods_catg_index()) {
 			goods_catg_index.append_unique( catg_index, 1 );
 		}
 	}
@@ -595,11 +677,11 @@ void simline_t::recalc_catg_index()
 	}
 
 	// added categories : present in new category list but not in old category list
-	for (uint8 i = 0; i < goods_catg_index.get_count(); i++)
+	FOR(minivec_tpl<uint8>, const i, goods_catg_index) 
 	{
-		if ( ! old_goods_catg_index.is_contained( goods_catg_index[i] ) )
-		{
-			differences.append( goods_catg_index[i] );
+		if (!old_goods_catg_index.is_contained(i)) 
+			{
+			differences.append(i);
 		}
 	}
 
@@ -625,5 +707,39 @@ void simline_t::propogate_livery_scheme()
 	{
 		line_managed_convoys[i]->set_livery_scheme_index(livery_scheme_index);
 		line_managed_convoys[i]->apply_livery_scheme();
+	}
+}
+
+
+void simline_t::calc_is_alternating_circular_route()
+{
+	const bool old_is_alternating_circle_route = is_alternating_circle_route;
+	is_alternating_circle_route = false;
+	const uint32 count = count_convoys();
+	if(count == 0)
+	{
+		return;
+	}
+	bool first_reverse_schedule = get_convoy(0)->get_reverse_schedule();
+	if((get_convoy(0)->is_circular_route() || get_convoy(count - 1)->is_circular_route()) && count > 1)
+	{
+		for(int i = 1; i < count; i ++)
+		{
+			if(get_convoy(i)->get_reverse_schedule() != first_reverse_schedule)
+			{
+				is_alternating_circle_route = true;
+				break;
+			}
+		}
+	}
+	
+	if(old_is_alternating_circle_route == false && is_alternating_circle_route == true)
+	{
+		average_journey_times_reverse_circular = new journey_times_map;
+	}
+	else if(is_alternating_circle_route == true && is_alternating_circle_route == false)
+	{
+		delete average_journey_times_reverse_circular;
+		average_journey_times_reverse_circular = NULL;
 	}
 }

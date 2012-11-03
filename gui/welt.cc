@@ -78,15 +78,17 @@ welt_gui_t::welt_gui_t(karte_t* const welt, settings_t* const sets) :
 	this->old_lang = -1;
 	this->sets->beginner_mode = umgebung_t::default_einstellungen.get_beginner_mode();
 
+	city_density = sets->get_anzahl_staedte() ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_anzahl_staedte() : 0.0;
+	industry_density = sets->get_land_industry_chains() ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_land_industry_chains() : 0.0;
+	attraction_density = sets->get_tourist_attractions() ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_tourist_attractions() : 0.0;
+
 	karte_size = koord(PREVIEW_SIZE, PREVIEW_SIZE); // default preview minimap size
 
 	// find earliest start and end date ...
 	uint16 game_start = 4999;
 	uint16 game_ends = 0;
 	// first townhalls
-	const vector_tpl<const haus_besch_t *> *s = hausbauer_t::get_list(haus_besch_t::rathaus);
-	for (uint32 i = 0; i<s->get_count(); i++) {
-		const haus_besch_t *besch = (*s)[i];
+	FOR(vector_tpl<haus_besch_t const*>, const besch, *hausbauer_t::get_list(haus_besch_t::rathaus)) {
 		uint16 intro_year = (besch->get_intro_year_month()+11)/12;
 		if(  intro_year<game_start  ) {
 			game_start = intro_year;
@@ -151,7 +153,7 @@ welt_gui_t::welt_gui_t(karte_t* const welt, settings_t* const sets) :
 	inp_number_of_towns.set_pos(koord(RIGHT_COLUMN,intTopOfButton) );
 	inp_number_of_towns.set_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
 	inp_number_of_towns.add_listener(this);
-	inp_number_of_towns.set_limits(0,999);
+	inp_number_of_towns.set_limits(0,2048);
 	inp_number_of_towns.set_value(abs(sets->get_anzahl_staedte()) );
 	add_komponente( &inp_number_of_towns );
 	intTopOfButton += 12;
@@ -159,12 +161,7 @@ welt_gui_t::welt_gui_t(karte_t* const welt, settings_t* const sets) :
 	inp_number_of_big_cities.set_pos(koord(RIGHT_COLUMN,intTopOfButton) );
 	inp_number_of_big_cities.set_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
 	inp_number_of_big_cities.add_listener(this);
-	if (sets->get_anzahl_staedte() != 0 ) {
-		inp_number_of_big_cities.set_limits(1,sets->get_anzahl_staedte() );
-	}
-	else {
-		inp_number_of_big_cities.set_limits(0,0);
-	}
+	inp_number_of_big_cities.set_limits(0,sets->get_anzahl_staedte() );
 	inp_number_of_big_cities.set_value(umgebung_t::number_of_big_cities );
 	add_komponente( &inp_number_of_big_cities );
 	intTopOfButton += 12;
@@ -312,6 +309,7 @@ bool welt_gui_t::update_from_heightfield(const char *filename)
 	if(karte_t::get_height_data_from_file(filename, (sint8)sets->get_grundwasser(), h_field, w, h, false )) {
 		sets->set_groesse_x(w);
 		sets->set_groesse_y(h);
+		update_densities();
 
 		inp_x_size.set_value(sets->get_groesse_x());
 		inp_y_size.set_value(sets->get_groesse_y());
@@ -328,6 +326,21 @@ bool welt_gui_t::update_from_heightfield(const char *filename)
 		return true;
 	}
 	return false;
+}
+
+
+// sets the new values for the numbinpu filed for the densities
+void welt_gui_t::update_densities()
+{
+	if(  city_density!=0.0  ) {
+		inp_number_of_towns.set_value( max( 1, (sint32)(0.5+sqrt((double)sets->get_groesse_x()*sets->get_groesse_y())/city_density) ) );
+	}
+	if(  industry_density!=0.0  ) {
+		inp_other_industries.set_value( max( 1, (sint32)(0.5+sqrt((double)sets->get_groesse_x()*sets->get_groesse_y())/industry_density) ) );
+	}
+	if(  attraction_density!=0.0  ) {
+		inp_tourist_attractions.set_value( max( 1, (sint32)(0.5+sqrt((double)sets->get_groesse_x()*sets->get_groesse_y())/attraction_density) ) );
+	}
 }
 
 
@@ -393,6 +406,7 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 			sets->set_groesse_x( v.i );
 			inp_x_size.set_increment_mode( v.i>=64 ? (v.i>=512 ? 128 : 64) : 8 );
 			inp_y_size.set_limits( 8, min(32000,16777216/sets->get_groesse_x()) );
+			update_densities();
 		}
 		else {
 			inp_x_size.set_value(sets->get_groesse_x()); // can't change size with heightfield loaded
@@ -403,6 +417,7 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 			sets->set_groesse_y( v.i );
 			inp_y_size.set_increment_mode( v.i>=64 ? (v.i>=512 ? 128 : 64) : 8 );
 			inp_x_size.set_limits( 8, min(32000,16777216/sets->get_groesse_y()) );
+			update_densities();
 		}
 		else {
 			inp_y_size.set_value(sets->get_groesse_y()); // can't change size with heightfield loaded
@@ -410,17 +425,14 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 	}
 	else if(komp==&inp_number_of_towns) {
 		sets->set_anzahl_staedte( v.i );
+		city_density = sets->get_anzahl_staedte() ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_anzahl_staedte() : 0.0;
 		if (v.i == 0) {
 			umgebung_t::number_of_big_cities = 0;
 			inp_number_of_big_cities.set_limits(0,0);
 			inp_number_of_big_cities.set_value(0);
 		}
 		else {
-			inp_number_of_big_cities.set_limits(1, v.i);
-			if ( umgebung_t::number_of_big_cities == 0) {
-				umgebung_t::number_of_big_cities =1;
-				inp_number_of_big_cities.set_value(1);
-			}
+			inp_number_of_big_cities.set_limits(0, v.i);
 		}
 
 		if (umgebung_t::number_of_big_cities > unsigned(v.i)) {
@@ -452,9 +464,11 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 	}
 	else if(komp==&inp_other_industries) {
 		sets->set_land_industry_chains( v.i );
+		industry_density = sets->get_land_industry_chains() ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_land_industry_chains() : 0.0;
 	}
 	else if(komp==&inp_tourist_attractions) {
 		sets->set_tourist_attractions( v.i );
+		attraction_density = sets->get_tourist_attractions() ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_tourist_attractions() : 0.0;
 	}
 	else if(komp==&inp_intro_date) {
 		sets->set_starting_year( (sint16)(v.i) );
@@ -541,6 +555,7 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		if(file.wr_open("default.sve",loadsave_t::binary,"settings only",SAVEGAME_VER_NR, EXPERIMENTAL_VER_NR)) {
 			// save default setting
 			umgebung_t::default_einstellungen.rdwr(&file);
+			welt->set_scale();
 			file.close();
 		}
 	}

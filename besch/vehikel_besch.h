@@ -102,47 +102,48 @@ public:
 
 
 private:
-	uint32 preis;  //Price
-	uint32 upgrade_price; //Price if this vehicle is bought as an upgrade, not a new vehicle.
-	uint16 zuladung; //Payload
+	uint32 preis;				// Price
+	uint32 base_price;			// Price (without scale factor)
+	uint32 upgrade_price;		// Price if this vehicle is bought as an upgrade, not a new vehicle.
+	uint32 base_upgrade_price;  // Upgrade price (without scale factor)
+	uint16 zuladung;			// Payload
 	uint16 overcrowded_capacity; // The capacity of a vehicle if overcrowded (usually expressed as the standing capacity).
-	uint16 geschw; //Speed in km/h
-	uint16 gewicht; //Weight in tons
-	uint16  axle_load; // New for Standard, not used yet.
-	uint32 leistung; //Power in kW
-	uint16 running_cost;  //Running costs
-	uint32 fixed_cost; //@author: jamespetts, April 2009
+	uint16 geschw;				// Speed in km/h
+	uint32 gewicht;				// Weight in tonnes
+	uint16 axle_load;			// New for Standard, not used yet.
+	uint32 leistung;			// Power in kW
+	uint16 running_cost;		// Per kilometre cost
+	uint32 fixed_cost;			// Monthly cost @author: jamespetts, April 2009
+	uint32 base_fixed_cost;		// Monthly cost (without scale factor)
 
-	uint16 intro_date; // introduction date
-	uint16 obsolete_date; //phase out at
-	uint16 gear;       // engine gear (power multiplier), 64=100
+	uint16 intro_date;			// introduction date
+	uint16 obsolete_date;		// phase out at
+	uint16 gear;				// engine gear (power multiplier), 64=100
 
-	sint8 typ;         	// see weg_t for allowed types
-	uint8 len;			// length (=8 is half a tile, the old default)
+	sint8 typ;         			// see weg_t for allowed types
+	uint8 len;					// length (=8 is half a tile, the old default)
 	sint8 sound;
 
-	uint8 vorgaenger;	// all defined leading vehicles
-	uint8 nachfolger;	// all defined trailer
-	uint8 upgrades;		// The vehicles types to which this type may be upgraded.
+	uint8 vorgaenger;			// all defined leading vehicles
+	uint8 nachfolger;			// all defined trailer
+	uint8 upgrades;				// The vehicles types to which this type may be upgraded.
 
-	uint8 engine_type; // diesel, steam, electric (requires electrified ways), fuel_cell, etc.
+	uint8 engine_type;			// diesel, steam, electric (requires electrified ways), fuel_cell, etc.
 
-	sint8 freight_image_type;	// number of freight images (displayed for different goods)
-	sint8 livery_image_type;	// Number of different liveries (@author: jamespetts, April 2011)
-
-	bool is_tilting; //Whether it is a tilting train (can take corners at higher speeds). 0 for no, 1 for yes. Anything other than 1 is assumed to be no.
+	uint8 freight_image_type;	// number of freight images (displayed for different goods)
+	uint8 livery_image_type;	// Number of different liveries (@author: jamespetts, April 2011)
 	
-	//uint8 way_constraints_permissive; //Way constraints. Actually, 8 boolean values. Bitwise operations necessary
-	//uint8 way_constraints_prohibitive; //to uncompress this (but if value is 0, are no constraints).
+	bool is_tilting;			 //Whether it is a tilting train (can take corners at higher speeds). 0 for no, 1 for yes. Anything other than 1 is assumed to be no.
+	
 	way_constraints_of_vehicle_t way_constraints;
 
-	uint8 catering_level; //The level of catering. 0 for no catering. Higher numbers for better catering.
+	uint8 catering_level;		 //The level of catering. 0 for no catering. Higher numbers for better catering.
 
-	bool bidirectional; //Whether must always travel in one direction
-	bool can_lead_from_rear; //Whether vehicle can lead a convoy when it is at the rear.
-	bool can_be_at_rear; //Whether the vehicle may be at the rear of a convoy (default = true).
+	bool bidirectional;			//Whether must always travel in one direction
+	bool can_lead_from_rear;	//Whether vehicle can lead a convoy when it is at the rear.
+	bool can_be_at_rear;		//Whether the vehicle may be at the rear of a convoy (default = true).
 
-	uint8 comfort; // How comfortable that a vehicle is for passengers.
+	uint8 comfort;				// How comfortable that a vehicle is for passengers.
 
 	/** The time that the vehicle takes to load
 	  * in ticks. Min: if no passengers/goods
@@ -180,15 +181,17 @@ private:
 	float32e8_t rolling_resistance; // The "fr" value in physics calculations.
 
 	// these values are not stored and therefore calculated in loaded():
-	uint32 geared_power; // @author: Bernd Gabriel, Nov  4, 2009: == leistung * gear in kW
-	uint32 geared_force; // @author: Bernd Gabriel, Dec 12, 2009: == tractive_effort * gear in kN
+	// they are arrays having one element per speed in m/s:
+	uint32 max_speed;     // @author: Bernd Gabriel, May 27, 2012: length of the geared_* arrays (== maximum speed in m/s)
+	uint32 *geared_power; // @author: Bernd Gabriel, Nov  4, 2009: == leistung * gear in W
+	uint32 *geared_force; // @author: Bernd Gabriel, Dec 12, 2009: == tractive_effort * gear in N
 	/**
 	 * force threshold speed in km/h.
 	 * Below this threshold the engine works as constant force engine.
 	 * Above this threshold the engine works as constant power engine.
 	 * @author Bernd Gabriel, Nov 4, 2009
 	 */
-	uint16 force_threshold_speed; // @author: Bernd Gabriel, Nov 4, 2009: in m/s
+	uint32 force_threshold_speed; // @author: Bernd Gabriel, Nov 4, 2009: in m/s
 
 	// Obsolescence settings
 	// @author: jamespetts
@@ -196,23 +199,29 @@ private:
 	uint16 increase_maintenance_by_percent;
 	uint8 years_before_maintenance_max_reached;
 
+	//@author: jamespetts; 28th of July 2012
+	uint16 minimum_runway_length;
+
 	// @author: Bernd Gabriel, Dec 12, 2009: called as last action in read_node()
 	void loaded();
 
-	int get_add_to_node() const { return livery_image_type > 0 ? 5 : 6; }
+	int get_add_to_node() const 
+	{ 
+		return livery_image_type > 0 ? 5 : 6;
+	}
 
 public:
 	// since we have a second constructor
-	vehikel_besch_t() { }
+	vehikel_besch_t() : geared_power(0), geared_force(0) { }
 
 	// default vehicle (used for way seach and similar tasks)
 	// since it has no images and not even a name knot any calls to this will case a crash
-	vehikel_besch_t(uint8 wtyp, uint16 speed, engine_t engine) {
+	vehikel_besch_t(uint8 wtyp, uint16 speed, engine_t engine) : geared_power(0), geared_force(0) {
 		freight_image_type = livery_image_type = preis = upgrade_price = zuladung = overcrowded_capacity = running_cost = intro_date = vorgaenger = nachfolger = catering_level = upgrades = 0;
 		fixed_cost = DEFAULT_FIXED_VEHICLE_MAINTENANCE;
 		leistung = gewicht = comfort = 1;
 		gear = GEAR_FACTOR;
-		geared_power = GEAR_FACTOR;
+		//geared_power = GEAR_FACTOR;
 		len = 8;
 		sound = -1;
 		typ = wtyp;
@@ -226,6 +235,13 @@ public:
 		min_loading_time = max_loading_time = (uint32)seconds_to_ticks(30, 250); 
 		tractive_effort = 0;
 		brake_force = BRAKE_FORCE_UNKNOWN;
+		minimum_runway_length = 0;
+	}
+
+	virtual ~vehikel_besch_t()
+	{
+		delete [] geared_power;
+		delete [] geared_force;
 	}
 
 	ware_besch_t const* get_ware() const { return get_child<ware_besch_t>(2); }
@@ -255,12 +271,13 @@ public:
 		if(livery_image_type > 0 && (ware == NULL || freight_image_type == 0))
 		{
 			// Multiple liveries, empty images
-			sint8 livery_index = 0;
+			uint8 livery_index = 0;
 			if(strcmp(livery_type, "default"))
 			{
-				for(sint8 i = 0; i < livery_image_type; i++) 
+				const uint8 freight_images = freight_image_type == 255 ? 1 : freight_image_type;
+				for(uint8 i = 0; i < livery_image_type; i++) 
 				{
-					if(!strcmp(livery_type, get_child<text_besch_t>(5 + nachfolger + vorgaenger + upgrades + i)->get_text()))
+					if(!strcmp(livery_type, get_child<text_besch_t>(5 + nachfolger + vorgaenger + upgrades + freight_images + i)->get_text()))
 					{
 						livery_index = i;
 						break;
@@ -281,14 +298,15 @@ public:
 			if (bild != NULL) return bild->get_nummer();
 		}
 
-		if(livery_image_type > 0 && freight_image_type == 1 && ware != NULL)
+		if(livery_image_type > 0 && freight_image_type == 255 && ware != NULL)
 		{
 			// Multiple liveries, single freight image
-			sint8 livery_index = 0;
+			// freight_image_type == 255 means that there is a single freight image and multiple liveries.
+			uint8 livery_index = 0;
 			if(strcmp(livery_type, "default"))
 			{
 				// With the "default" livery, always select livery index 0
-				for(sint8 i = 0; i < livery_image_type; i++) 
+				for(uint8 i = 0; i < livery_image_type; i++) 
 				{
 					if(!strcmp(livery_type, get_child<text_besch_t>(6 + nachfolger + vorgaenger + upgrades + i)->get_text()))
 					{
@@ -311,14 +329,14 @@ public:
 			if (bild != NULL) return bild->get_nummer();
 		}
 
-		if(freight_image_type > 1 && ware!=NULL && livery_image_type == 0)
+		if(freight_image_type > 0 && freight_image_type < 255 && ware!=NULL && livery_image_type == 0)
 		{
 			// Multiple freight images, single livery
 			// more freight images and a freight: find the right one
 
 			sint8 ware_index = 0; // freight images: if not found use first freight
 			
-			for( sint8 i=0;  i<freight_image_type;  i++  ) 
+			for( uint8 i=0;  i<freight_image_type;  i++  ) 
 			{
 				
 				if (ware == get_child<ware_besch_t>(6 + nachfolger + vorgaenger + upgrades + i)) 
@@ -341,14 +359,14 @@ public:
 			if (bild != NULL) return bild->get_nummer();
 		}
 
-		if(freight_image_type > 1 && ware!=NULL && livery_image_type > 0)
+		if(freight_image_type > 0 && freight_image_type < 255 && ware != NULL && livery_image_type > 0)
 		{
 			// Multiple freight images, multiple liveries
 
 			sint8 ware_index = 0; // freight images: if not found use first freight
-			sint8 livery_index = 0;
+			uint8 livery_index = 0;
 
-			for( sint8 i=0;  i<freight_image_type;  i++  ) 
+			for( uint8 i=0;  i<freight_image_type;  i++  ) 
 			{
 				if (ware == get_child<ware_besch_t>(6 + nachfolger + vorgaenger + upgrades + i)) 
 				{
@@ -359,9 +377,9 @@ public:
 
 			if(strcmp(livery_type, "default"))
 			{
-				for(sint8 j = 0; j < livery_image_type; j++) 
+				for(uint8 j = 0; j < livery_image_type; j++) 
 				{
-					if(!strcmp(livery_type, get_child<text_besch_t>(6 + nachfolger + vorgaenger + upgrades + j)->get_text()))
+					if(!strcmp(livery_type, get_child<text_besch_t>(6 + nachfolger + vorgaenger + freight_image_type + upgrades + j)->get_text()))
 					{
 						livery_index = j;
 						break;
@@ -383,7 +401,7 @@ public:
 		}
 
 		// only try 1d freight image list for old style vehicles
-		if(freight_image_type == 0 && ware != NULL && livery_image_type == 0) 
+		if((freight_image_type == 0 || freight_image_type == 255) && ware != NULL && livery_image_type == 0) 
 		{
 			// Single freight image, single livery
 			liste = get_child<bildliste_besch_t>(5);
@@ -423,7 +441,9 @@ public:
 		{
 			for(sint8 i = 0; i < livery_image_type; i++) 
 			{
-				if(!strcmp(name, get_child<text_besch_t>(5 + nachfolger + vorgaenger + upgrades + i)->get_text()))
+				const uint8 freight_images = freight_image_type == 255 ? 1 : freight_image_type;
+				const char* livery_name = get_child<text_besch_t>(5 + nachfolger + vorgaenger + upgrades + freight_images + i)->get_text();
+				if(!strcmp(name, livery_name))
 				{
 					return true;
 				}
@@ -505,9 +525,11 @@ public:
 		if(  vorgaenger==0  ) {
 			return true;
 		}
-		for( int i=0;  i<vorgaenger;  i++  ) {
+		for( int i=0;  i<vorgaenger;  i++  ) 
+		{
 			vehikel_besch_t const* const veh = get_child<vehikel_besch_t>(get_add_to_node() + i);
-			if(veh==prev_veh) {
+			if(veh==prev_veh) 
+			{
 				return true;
 			}
 		}
@@ -525,7 +547,7 @@ public:
 		{
 			return NULL;
 		}
-		return get_child<vehikel_besch_t>(get_add_to_node() + nachfolger + i);
+		return get_child<vehikel_besch_t>(get_add_to_node() + nachfolger + vorgaenger + i);
 	}
 
 	int get_upgrades_count() const { return upgrades; }
@@ -573,6 +595,8 @@ public:
 
 	uint16 get_brake_force() const { return brake_force; }
 
+	uint16 get_minimum_runway_length() const { return minimum_runway_length; }
+	
 	/**
 	* @return introduction year
 	* @author Hj. Malthaner
@@ -654,11 +678,14 @@ public:
 
 	void set_scale(uint16 scale_factor)
 	{ 
-		const uint32 scaled_price = set_scale_generic<sint64>(preis, scale_factor);
-		const uint32 scaled_maintenance = set_scale_generic<uint32>(fixed_cost, scale_factor);
+		const uint32 scaled_price = (uint32) set_scale_generic<sint64>(base_price, scale_factor);
+		const uint32 scaled_upgrade_price = (uint32) set_scale_generic<sint64>(base_upgrade_price, scale_factor);
+		const uint32 scaled_maintenance = set_scale_generic<uint32>(base_fixed_cost, scale_factor);
 
-		preis = (preis == 0 ? 0 : (scaled_price >= 1 ? scaled_price : 1));
-		fixed_cost = (uint32)(fixed_cost == 0 ? 0 :(scaled_maintenance >= 1 ? scaled_maintenance : 1));
+		preis = (base_price == 0 ? 0 : (scaled_price >= 1 ? scaled_price : 1));
+		upgrade_price = (base_upgrade_price == 0 ? 0 : (scaled_upgrade_price >= 1 ? scaled_upgrade_price : 1));
+		fixed_cost = (uint32)(base_fixed_cost == 0 ? 0 :(scaled_maintenance >= 1 ? scaled_maintenance : 1));
+
 		if(max_loading_time_seconds != 65535)
 		{
 			max_loading_time = (uint32)seconds_to_ticks(max_loading_time_seconds, scale_factor);
@@ -672,7 +699,7 @@ public:
 	/**
 	 * Get effective force index. 
 	 * Steam engine's force depend on its speed.
-	 * Effective force in kN: force_index *welt->get_settings().get_global_power_factor() / GEAR_FACTOR
+	 * Effective force in N: force_index *welt->get_settings().get_global_power_factor() / GEAR_FACTOR
 	 * @author Bernd Gabriel
 	 */
 	uint32 get_effective_force_index(sint32 speed /* in m/s */ ) const;
@@ -680,7 +707,7 @@ public:
 	/**
 	 * Get effective power index. 
 	 * Steam engine's power depend on its speed.
-	 * Effective power in kW: power_index *welt->get_settings().get_global_power_factor() / GEAR_FACTOR
+	 * Effective power in W: power_index *welt->get_settings().get_global_power_factor() / GEAR_FACTOR
 	 * @author Bernd Gabriel
 	 */
 	uint32 get_effective_power_index(sint32 speed /* in m/s */ ) const;
@@ -690,6 +717,47 @@ public:
 	sint64 seconds_to_ticks(uint32 seconds, uint16 meters_per_tile) const
 	{
 		return ((sint64)seconds * 22764L) / (sint64)(meters_per_tile);
+	}
+
+	static uint32 get_air_default(sint8 waytype)
+	{
+		switch(waytype)
+		{
+			case track_wt:
+			case tram_wt:
+			case monorail_wt:		return 160L; //1.6 when read
+			
+			case narrowgauge_wt:	return 120L; //1.2 when read
+
+			case water_wt:			return 2500L; //25 when read
+
+			case maglev_wt:			return 145L; //1.45 when read
+
+			case air_wt:			return 100L; //1 when read
+
+			case road_wt:			
+			default:				return 15L; //0.15 when read
+		};
+	}  
+
+	static uint32 get_rolling_default(sint8 waytype)
+	{
+		switch(waytype)
+		{			
+			case track_wt:
+			case tram_wt:
+			case monorail_wt:		return 15L; //0.0015 when read
+
+			case narrowgauge_wt:	return 17L; //0.0017 when read
+
+			case air_wt:
+			case water_wt:			return 10L; //0.001 when read
+			
+			case maglev_wt:			return 13L; //0.0013 when read
+
+			default:
+			case road_wt:			return 50L; //0.005 when read
+		};
 	}
 };
 

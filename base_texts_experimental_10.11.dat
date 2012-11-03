@@ -1,0 +1,25 @@
+# Simutranslator settings for Simutrans-Experimental texts
+# Addendum for version 10.11
+#
+# Author: jamespetts
+# Created: February 2012
+#
+obj=program_text
+name=Capacity: %u KW\n
+note=The KW version of the capacity display for substations
+-
+obj=program_text
+name=Demand: %u KW\n
+note=The KW version of the capacity display for substations
+-
+obj=program_text
+name=Generation: %u KW\n
+note=The KW version of the capacity display for substations
+-
+obj=program_text
+name=Act. load: %u KW\n
+note=The KW version of the capacity display for substations
+-
+obj=program_text
+name=Restrictions:
+note=Explanatory text for prohibitive way constraints in various parts of the UI

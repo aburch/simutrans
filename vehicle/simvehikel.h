@@ -34,6 +34,12 @@ class signal_t;
 class ware_t;
 class route_t;
 
+// for aircrafts:
+// length of the holding pattern.
+#define HOLDING_PATTERN_LENGTH 16
+// offset of end tile of the holding pattern before touchdown tile.
+#define HOLDING_PATTERN_OFFSET 3
+
 /*----------------------- Fahrdings ------------------------------------*/
 
 /**
@@ -570,6 +576,9 @@ public:
 
 	void set_current_livery(const char* liv) { current_livery = liv; }
 	const char* get_current_livery() const { return current_livery.c_str(); }
+
+	virtual sint32 get_takeoff_route_index() const { return INVALID_INDEX; }
+	virtual sint32 get_touchdown_route_index() const { return INVALID_INDEX; }
 };
 
 
@@ -798,9 +807,9 @@ private:
 #ifdef USE_DIFFERENT_WIND
 	static uint8 get_approach_ribi( koord3d start, koord3d ziel );
 #endif
-	// only used for route search and approach vectors of get_ribi() (do not need saving)
-	koord3d search_start;
-	koord3d search_end;
+	//// only used for route search and approach vectors of get_ribi() (do not need saving)
+	//koord3d search_start;
+	//koord3d search_end;
 
 	enum flight_state { taxiing=0, departing=1, flying=2, landing=3, looking_for_parking=4, circling=5, taxiing_to_halt=6  };
 
@@ -810,6 +819,25 @@ private:
 	sint16 target_height;
 	uint32 suchen, touchdown, takeoff;
 
+	// BG, 07.08.2012: extracted from calc_route()
+	bool calc_route_internal(
+		karte_t *welt, 
+		const koord3d &start, 
+		const koord3d &ziel, 
+		sint32 max_speed, 
+		uint32 weight, 
+		aircraft_t::flight_state &state,
+		sint16 &flughoehe, 
+		sint16 &target_height,
+		bool &runway_too_short,
+		uint32 &takeoff, 
+		uint32 &touchdown,
+		uint32 &suchen, 
+		route_t &route);
+
+	// BG, 08.08.2012: extracted from ist_weg_frei()
+    bool reroute(const uint16 route_index, const koord3d &ziel);
+
 protected:
 	// jumps to next tile and correct the height ...
 	void hop();
@@ -818,7 +846,7 @@ protected:
 
 	void betrete_feld();
 
-	bool block_reserver( uint32 start, uint32 end, bool reserve ) const;
+	int block_reserver( uint32 start, uint32 end, bool reserve ) const;
 
 	// find a route and reserve the stop position
 	bool find_route_to_stop_position();
@@ -834,6 +862,8 @@ public:
 
 	// returns true for the way search to an unknown target.
 	virtual bool ist_ziel(const grund_t *,const grund_t *) const;
+
+	//bool can_takeoff_here(const grund_t *gr, ribi_t::ribi test_dir, uint8 len) const;
 
 	// return valid direction
 	virtual ribi_t::ribi get_ribi(const grund_t* ) const;
@@ -873,6 +903,11 @@ public:
 	bool is_on_ground() const { return flughoehe==0  &&  !(state==circling  ||  state==flying); }
 
 	const char * ist_entfernbar(const spieler_t *sp);
+
+	bool runway_too_short;
+
+	virtual sint32 get_takeoff_route_index() const { return (sint32) takeoff; }
+	virtual sint32 get_touchdown_route_index() const { return (sint32) touchdown; }
 };
 
 sint16 get_friction_of_waytype(waytype_t waytype);

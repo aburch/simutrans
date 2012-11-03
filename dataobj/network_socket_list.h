@@ -32,6 +32,8 @@ public:
 
 	socket_info_t() : packet(0), send_queue(), state(inactive), socket(INVALID_SOCKET), address(), player_unlocked(0) {}
 
+	~socket_info_t();
+
 	/**
 	 * marks all information as invalid
 	 * closes socket, deletes packet
@@ -78,7 +80,7 @@ private:
 	/**
 	 * the list to hold'em'all
 	 */
-	static vector_tpl<socket_info_t>list;
+	static vector_tpl<socket_info_t*>list;
 
 	static uint32 connected_clients;
 	static uint32 playing_clients;
@@ -128,13 +130,13 @@ public:
 	}
 
 	static SOCKET get_socket( uint32 client_id ) {
-		return client_id < list.get_count()  &&  list[client_id].state != socket_info_t::inactive
-			? list[client_id].socket : INVALID_SOCKET;
+		return client_id < list.get_count()  &&  list[client_id]->state != socket_info_t::inactive
+			? list[client_id]->socket : INVALID_SOCKET;
 	}
 
 	static socket_info_t& get_client(uint32 client_id ) {
 		assert (client_id < list.get_count());
-		return list[client_id];
+		return *list[client_id];
 	}
 
 	/**
@@ -156,7 +158,7 @@ public:
 	/**
 	 * rdwr client-list information to packet
 	 */
-	static void rdwr(packet_t *p, vector_tpl<socket_info_t> *writeto=&list);
+	static void rdwr(packet_t *p, vector_tpl<socket_info_t*> *writeto=&list);
 
 private:
 	static void book_state_change(uint8 state, sint8 incr);

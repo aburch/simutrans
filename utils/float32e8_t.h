@@ -25,6 +25,8 @@ using namespace std;
 	typedef 			short		sint16;
 	typedef unsigned	char  		uint8;
 #endif
+	
+class loadsave_t;
 
 class float32e8_t
 {
@@ -203,10 +205,12 @@ public:
 	inline const float32e8_t & operator /= (const uint64 value) { set_value(*this / value); return *this; }
 
 	inline const float32e8_t abs() const { return ms ? float32e8_t(m, e, false) : *this; }
-	inline const int sgn() const { return ms ? -1 : m ? 1 : 0; }
-	inline const int sgn(const float32e8_t &eps) const { return *this < -eps ? -1 : *this > eps ? 1 : 0; }
+	inline int sgn() const { return ms ? -1 : m ? 1 : 0; }
+	inline int sgn(const float32e8_t &eps) const { return *this < -eps ? -1 : *this > eps ? 1 : 0; }
 	const float32e8_t log2() const;
 	const float32e8_t exp2() const;
+
+	void rdwr(loadsave_t *file);
 
 private:
 #ifdef USE_DOUBLE
@@ -214,8 +218,8 @@ public:
 #else
 	friend ostream & operator << (ostream &out, const float32e8_t &x);
 #endif
-	double to_double() const;
 public:
+	double to_double() const;
 	sint32 to_sint32() const;
 	//const string to_string() const;
 
@@ -249,8 +253,8 @@ inline const float32e8_t log2(const float32e8_t &x) { return x.log2(); }
 inline const float32e8_t exp2(const float32e8_t &x) { return x.exp2(); }
 inline const float32e8_t pow(const float32e8_t &base, const float32e8_t &expo) { return base.is_zero() ? float32e8_t::zero : exp2(expo * base.log2()); }
 inline const float32e8_t sqrt(const float32e8_t &x) { return pow(x, float32e8_t::half); }
-inline const int sgn(const float32e8_t &x) { return x.sgn(); }
-inline const int sgn(const float32e8_t &x, const float32e8_t &eps) { return x.sgn(eps); }
+inline int sgn(const float32e8_t &x) { return x.sgn(); }
+inline int sgn(const float32e8_t &x, const float32e8_t &eps) { return x.sgn(eps); }
 
 class float32e8_exception_t {
 private:

@@ -73,11 +73,7 @@ void adverse_summary_t::add_vehicle(const vehikel_t &v)
 			weg_t *way = gr->get_weg(waytype);
 			if (way)
 			{
-				sint32 limit = way->get_max_speed();
-				if (max_speed > limit)
-				{
-					max_speed = limit;
-				}
+				max_speed = min(max_speed, way->get_max_speed());
 			}
 		}
 	}
@@ -88,11 +84,7 @@ void adverse_summary_t::add_vehicle(const vehikel_t &v)
 	// These are carried in vehikel_t unlike other speed limits 
 	if (v.get_speed_limit() != vehikel_t::speed_unlimited()) 
 	{
-		sint32 limit = speed_to_kmh(v.get_speed_limit());
-		if (max_speed > limit)
-		{
-			max_speed = limit;
-		}
+		max_speed = min(max_speed, speed_to_kmh(v.get_speed_limit()));
 	}
 }
 
@@ -104,30 +96,34 @@ void adverse_summary_t::add_vehicle(const vehikel_besch_t &b, bool is_first)
 		switch (b.get_waytype())
 		{
 			case air_wt:
-				br = float32e8_t(2, 1);
+				br = BR_AIR;
 				break;
 
 			case water_wt:
-				br = float32e8_t(1, 10);
+				br = BR_WATER;
 				break;
 		
 			case track_wt:
 			case narrowgauge_wt:
 			case overheadlines_wt: 
-				br = float32e8_t(1, 2);
+				br = BR_TRACK;
 				break;
 
 			case tram_wt:
 			case monorail_wt:      
-				br = float32e8_t(1, 1);
+				br = BR_TRAM;
 				break;
 			
 			case maglev_wt:
-				br = float32e8_t(12, 10);
+				br = BR_MAGLEV;
+				break;
+
+			case road_wt:
+				br = BR_ROAD;
 				break;
 
 			default:
-				br = float32e8_t(1, 1);
+				br = BR_DEFAULT;
 				break;
 		}
 	}
@@ -135,7 +131,6 @@ void adverse_summary_t::add_vehicle(const vehikel_besch_t &b, bool is_first)
 	if (is_first) 
 	{
 		cf = b.get_air_resistance();
-		fr = 0;
 	}
 
 	fr += b.get_rolling_resistance();
@@ -255,9 +250,10 @@ sint32 convoy_t::calc_max_starting_weight(sint32 sin_alpha)
 // The timeslice to calculate acceleration, speed and covered distance in reasonable small chuncks. 
 #define DT_SLICE_SECONDS 2
 #define DT_SLICE (DT_TIME_FACTOR * DT_SLICE_SECONDS)
-const float32e8_t fl_time_factor = float32e8_t(DT_TIME_FACTOR, 1); 
-const float32e8_t fl_time_divisor = float32e8_t(1, DT_TIME_FACTOR); 
-const float32e8_t fl_slice_seconds = float32e8_t(DT_SLICE_SECONDS, 1);
+static const float32e8_t fl_time_factor(DT_TIME_FACTOR, 1); 
+static const float32e8_t fl_time_divisor(1, DT_TIME_FACTOR); 
+static const float32e8_t fl_slice_seconds(DT_SLICE_SECONDS, 1);
+static const float32e8_t fl_max_seconds_til_vsoll(1800);
 
 sint32 convoy_t::calc_min_braking_distance(const weight_summary_t &weight, const float32e8_t &v)
 {
@@ -272,55 +268,47 @@ sint32 convoy_t::calc_min_braking_distance(const weight_summary_t &weight, const
 	const float32e8_t vv = v * v; // v in m/s
 	const float32e8_t Frs = g_accel * (adverse.fr * weight.weight_cos + weight.weight_sin); // Frs in N
 	//const float32e8_t Ff = sgn(v) * adverse.cf * vv; // Frs in N
-	const float32e8_t F = get_braking_force(v.to_sint32()); // f in N
+	const float32e8_t F = get_braking_force(/*v*/); // f in N
 	return (weight.weight / 2) * (vv / (F + Frs /*+ Ff*/)); // min braking distance in m
 }
 
-sint32 convoy_t::calc_min_braking_distance(const float32e8_t &simtime_factor, const weight_summary_t &weight, sint32 speed)
+sint32 convoy_t::calc_min_braking_distance(const settings_t &settings, const weight_summary_t &weight, sint32 speed)
 {
 	const float32e8_t x = calc_min_braking_distance(weight, speed_to_v(speed)) * _110_percent;
-	const sint32 yards = v_to_speed(x / simtime_factor) * DT_TIME_FACTOR;
-	return yards >> YARDS_PER_VEHICLE_STEP_SHIFT;
+	return settings.meters_to_steps(x);
 }
 
-inline float32e8_t _calc_move(const float32e8_t &a, const float32e8_t &t, const float32e8_t &x0, const float32e8_t &v0)
+inline float32e8_t _calc_move(const float32e8_t &a, const float32e8_t &t, const float32e8_t &v0)
 {
-	return (float32e8_t::half * a * t + v0) * t + x0;
+	return (float32e8_t::half * a * t + v0) * t;
 }
 
-void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 next_speed_limit, sint32 steps_til_limit, sint32 steps_til_brake, sint32 &akt_speed, sint32 &sp_soll, float32e8_t &akt_v)
+void convoy_t::calc_move(const settings_t &settings, long delta_t, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 next_speed_limit, sint32 steps_til_limit, sint32 steps_til_brake, sint32 &akt_speed, sint32 &sp_soll, float32e8_t &akt_v)
 {
-	sint32 max_speed = min(adverse.max_speed, vehicle.max_speed);
-	max_speed = kmh_to_speed(max_speed);
-	if (akt_speed_soll > max_speed)
+	float32e8_t delta_s = settings.ticks_to_seconds(delta_t);
+	if (delta_s >= fl_max_seconds_til_vsoll)
 	{
-		akt_speed_soll = max_speed;
-	}
-
-	if (delta_t > 1800 * DT_TIME_FACTOR)
-	{
-		// After 30 minutes any vehicle has reached its akt_speed_soll. 
+		// After fl_max_seconds_til_vsoll any vehicle has reached its akt_speed_soll. 
 		// Shorten the process. 
-		sint32 max_speed = max(akt_speed_soll, akt_speed);
-		sint32 new_speed = min(max_speed, kmh_to_speed(calc_max_speed(weight)));
-		sp_soll += (sint32)delta_t * new_speed; 
-		akt_speed = new_speed;
+		akt_speed = min(max(akt_speed_soll, akt_speed), kmh_to_speed(calc_max_speed(weight)));
 		akt_v = speed_to_v(akt_speed);
+		sp_soll += (sint32)(settings.meters_to_steps(delta_s * akt_v) * steps2yards); // sp_soll in simutrans yards, dx in m
 	}
 	else
 	{
 		const float32e8_t fweight = weight.weight; // convoy's weight in kg
 		const float32e8_t Frs = g_accel * (adverse.fr * weight.weight_cos + weight.weight_sin); // Frs in N, weight.weight_cos and weight.weight_sin are calculated per vehicle due to vehicle specific slope angle.
 		const float32e8_t vlim = speed_to_v(next_speed_limit); // vlim in m/s, next_speed_limit in simutrans vehicle speed.
-		const float32e8_t xlim = steps_to_x(simtime_factor, steps_til_limit); // xbrk in m, steps_til_limit in simutrans steps
-		const float32e8_t xbrk = steps_to_x(simtime_factor, steps_til_brake); // xbrk in m, steps_til_brake in simutrans steps
-		float32e8_t vsoll = speed_to_v(akt_speed_soll); // vsoll in m/s, akt_speed_soll in simutrans vehicle speed.
+		const float32e8_t xlim = settings.steps_to_meters(steps_til_limit); // xbrk in m, steps_til_limit in simutrans steps
+		const float32e8_t xbrk = settings.steps_to_meters(steps_til_brake); // xbrk in m, steps_til_brake in simutrans steps
+		float32e8_t vsoll = min(speed_to_v(akt_speed_soll), kmh2ms * min(adverse.max_speed, vehicle.max_speed)); // vsoll in m/s, akt_speed_soll in simutrans vehicle speed.
 		float32e8_t fvsoll = 0; // force in N needed to hold vsoll. calculated when needed.
 		float32e8_t speed_ratio = 0; // requested speed / convoy's max speed. calculated when needed.
 		float32e8_t dx = 0; // covered distance in m
-		float32e8_t v = akt_v; //speed_to_v(akt_speed); // v in m/s, akt_speed in simutrans vehicle speed.
+		float32e8_t v = akt_v; // v and akt_v in m/s
+		float32e8_t bf = 0; // braking force in N
 		// iterate the passed time.
-		while (delta_t > 0)
+		while (delta_s > 0)
 		{
 			// 1) The driver's part: select the force:
 			bool is_braking = v >= _110_percent * vsoll;
@@ -335,7 +323,11 @@ void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const 
 			{
 				// running too fast, slam on the brakes! 
 				// hill-down Frs might become negative and works against the brake.
-				f = -get_braking_force(v.to_sint32());
+				if (bf == 0) // bf is a constant within this function. So calculate it once only.
+				{
+					bf = -get_braking_force(/*v*/);
+				}
+				f = bf;
 			}
 			else if (v < vsoll)
 			{
@@ -372,25 +364,21 @@ void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const 
 			}
 			const float32e8_t Ff = sgn(v) * adverse.cf * v * v;
 			f -= Ff + Frs;
-			f *= simtime_factor;
 
 			// 2) The "differential equation" part: calculate new speed:
-			uint32 dt;
 			float32e8_t dt_s;
-			if (delta_t >= DT_SLICE && abs(f.to_sint32()) > weight.weight / (10 * DT_SLICE_SECONDS))
+			if (delta_s >= fl_slice_seconds && abs(f.to_sint32()) > weight.weight / (10 * DT_SLICE_SECONDS))
 			{
 				// This part is important for acceleration/deceleration phases only. 
 				// If the force to weight ratio exceeds a certain level, then we must calculate speed iterative,
 				// as it depends on previous speed.
-				dt = DT_SLICE;
 				dt_s = fl_slice_seconds;
 			}
 			else
 			{
 				// If a small force produces a small speed change, we can add the difference at once in the 'else' section
 				// with a disregardable inaccuracy.
-				dt = delta_t;
-				dt_s = fl_time_divisor * dt;
+				dt_s = delta_s;
 			}
 			float32e8_t a = f / fweight;
 			float32e8_t v0 = v;
@@ -404,13 +392,13 @@ void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const 
 					v = vsoll;
 					a = v / dt_s;
 				}
-				x = _calc_move(a, dt_s, dx, v0);
+				x = dx + _calc_move(a, dt_s, v0);
 				if (x > xlim && v < V_MIN)
 				{
 					// don't stop before arrival.
 					v = V_MIN;
 					a = v / dt_s;
-					x = _calc_move(a, dt_s, dx, v0);
+					x = dx + _calc_move(a, dt_s, v0);
 				}
 			}
 			else 
@@ -424,35 +412,30 @@ void convoy_t::calc_move(long delta_t, const float32e8_t &simtime_factor, const 
 				{
 					v = V_MIN;
 				}
-				x = _calc_move(a, dt_s, dx, v0);
+				x = dx + _calc_move(a, dt_s, v0);
 				if (x > xbrk)
 				{
 					// don't run beyond xbrk, where we must start braking.
 					x = xbrk;
-					if (xbrk > dx)
+					if (xbrk > dx && abs(a))
 					{
+						// turn back time to when we reach xbrk:
 						dt_s = (sqrt(v0 * v0 + 2 * a * (xbrk - dx)) - v0) / a;
-						dt = fl_time_factor * dt_s;
 					}
 				}
 			}
 			dx = x;
-			delta_t -= dt; // another time slice passed
+			delta_s -= dt_s; // another time slice passed
 		}
 		akt_v = v;
 		akt_speed = v_to_speed(v); // akt_speed in simutrans vehicle speed, v in m/s
-		sp_soll += x_to_yards(dx); // sp_soll in simutrans yards, dx in m
+		sp_soll += (sint32)(settings.meters_to_steps(dx) * steps2yards); // sp_soll in simutrans yards, dx in m
 	}
 }
 
-sint32 convoy_t::power_index_to_power(sint32 power_index, sint32 power_factor)
+float32e8_t convoy_t::power_index_to_power(const float32e8_t &power_index, sint32 power_factor)
 {
-	// avoid integer overflow for large powers
-	if (power_index >= ((sint32)2147483647L) / power_factor)
-	{
-		return ((power_index / 100) * power_factor + GEAR_FACTOR / 2) / GEAR_FACTOR;
-	}
-	return (power_index * power_factor + 50 * GEAR_FACTOR) / (100 * GEAR_FACTOR);
+	return power_index * float32e8_t(power_factor * 10, GEAR_FACTOR);
 }
 
 /******************************************************************************/
@@ -497,46 +480,47 @@ void potential_convoy_t::update_freight_summary(freight_summary_t &freight)
 	}
 }
 
-sint32 potential_convoy_t::get_brake_summary(const sint32 speed /* in m/s */)
+float32e8_t potential_convoy_t::get_brake_summary(/*const float32e8_t &speed /* in m/s */)
 {
-	sint32 force = 0;
+	float32e8_t force = 0;
 	for (uint32 i = vehicles.get_count(); i-- > 0; )
 	{
 		const vehikel_besch_t &b = *vehicles[i];
 		uint16 bf = b.get_brake_force();
 		if (bf != BRAKE_FORCE_UNKNOWN)
 		{
-			force += bf;
+			force += bf * (uint32) 1000;
 		}
 		else
 		{
 			// Usual brake deceleration is about -0.5 .. -1.5 m/s² depending on vehicle and ground. 
 			// With F=ma, a = F/m follows that brake force in N is ~= 1/2 weight in kg
-			const uint32 TEST_FORCE = get_adverse_summary().br * (uint32) b.get_gewicht();
-			force += get_adverse_summary().br * (uint32) b.get_gewicht();
+			force += get_adverse_summary().br * ((uint32) b.get_gewicht() * (uint32) 1000);
 		}
 	}
 	return force;
 }
 
 
-sint32 potential_convoy_t::get_force_summary(sint32 speed /* in m/s */)
+float32e8_t potential_convoy_t::get_force_summary(const float32e8_t &speed /* in m/s */)
 {
-	sint32 force = 0;
+	sint64 force = 0;
+	sint32 v = speed;
 	for (uint32 i = vehicles.get_count(); i-- > 0; )
 	{
-		force += vehicles[i]->get_effective_force_index(speed);
+		force += vehicles[i]->get_effective_force_index(v);
 	}
 	return power_index_to_power(force, world.get_settings().get_global_power_factor_percent());
 }
 
 
-sint32 potential_convoy_t::get_power_summary(sint32 speed /* in m/s */)
+float32e8_t potential_convoy_t::get_power_summary(const float32e8_t &speed /* in m/s */)
 {
-	sint32 power = 0;
+	sint64 power = 0;
+	sint32 v = speed;
 	for (uint32 i = vehicles.get_count(); i-- > 0; )
 	{
-		power += vehicles[i]->get_effective_power_index(speed);
+		power += vehicles[i]->get_effective_power_index(v);
 	}
 	return power_index_to_power(power, world.get_settings().get_global_power_factor_percent());
 }
@@ -567,11 +551,6 @@ void existing_convoy_t::update_vehicle_summary(vehicle_summary_t &vehicle)
 	{
 		vehicle.update_summary(convoy.get_vehikel(count-1)->get_besch()->get_length());
 	}
-	//both get_length() and get_tile_length() iterate through the list of vehicles, thus most likely it's faster to iterate once as done above.
-	//vehicle.length = convoy.get_length();
-	//vehicle.tiles = convoy.get_tile_length();
-	//vehicle.max_speed = speed_to_kmh(convoy.get_min_top_speed());
-	//vehicle.weight = convoy.get_sum_gewicht() * 1000;
 }
 
 
@@ -613,49 +592,47 @@ void existing_convoy_t::update_weight_summary(weight_summary_t &weight)
 }
 
 
-sint32 existing_convoy_t::get_brake_summary(const sint32 speed /* in m/s */)
+float32e8_t existing_convoy_t::get_brake_summary(/*const float32e8_t &speed /* in m/s */)
 {
-	sint32 force = 0;
+	float32e8_t force = 0;
 	for (uint16 i = convoy.get_vehikel_anzahl(); i-- > 0; )
 	{
 		vehikel_t &v = *convoy.get_vehikel(i);
 		const uint16 bf = v.get_besch()->get_brake_force();
 		if (bf != BRAKE_FORCE_UNKNOWN)
 		{
-			force += bf;
+			force += bf * (uint32) 1000;
 		}
 		else
 		{
 			// Usual brake deceleration is about -0.5 .. -1.5 m/s² depending on vehicle and ground. 
 			// With F=ma, a = F/m follows that brake force in N is ~= 1/2 weight in kg
-			const sint32 TEST_FORCE = get_adverse_summary().br * float32e8_t(v.get_gesamtgewicht(), 1000);
-			const float32e8_t TEST_BR = get_adverse_summary().br;
-			const int TEST_WEIGHT = v.get_gesamtgewicht();
-			const sint32 TEST_FIXED_FORCE = get_adverse_summary().br * float32e8_t(100, 1);
-			force += get_adverse_summary().br * float32e8_t(v.get_gesamtgewicht(), 1000);
+			force += get_adverse_summary().br * v.get_gesamtgewicht();
 		}
 	}
 	return force;
 }
+ 
 
-
-sint32 existing_convoy_t::get_force_summary(sint32 speed /* in m/s */)
+float32e8_t existing_convoy_t::get_force_summary(const float32e8_t &speed /* in m/s */)
 {
-	sint32 force = 0;
+	sint64 force = 0;
+	sint32 v = speed;
 	for (uint16 i = convoy.get_vehikel_anzahl(); i-- > 0; )
 	{
-		force += convoy.get_vehikel(i)->get_besch()->get_effective_force_index(speed);
+		force += convoy.get_vehikel(i)->get_besch()->get_effective_force_index(v);
 	}
 	return power_index_to_power(force, convoy.get_welt()->get_settings().get_global_power_factor_percent());
 }
 
 
-sint32 existing_convoy_t::get_power_summary(sint32 speed /* in m/s */)
+float32e8_t existing_convoy_t::get_power_summary(const float32e8_t &speed /* in m/s */)
 {
-	sint32 power = 0;
+	sint64 power = 0;
+	sint32 v = speed;
 	for (uint16 i = convoy.get_vehikel_anzahl(); i-- > 0; )
 	{
-		power += convoy.get_vehikel(i)->get_besch()->get_effective_power_index(speed);
+		power += convoy.get_vehikel(i)->get_besch()->get_effective_power_index(v);
 	}
 	return power_index_to_power(power, convoy.get_welt()->get_settings().get_global_power_factor_percent());
 }

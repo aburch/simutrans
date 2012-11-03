@@ -42,6 +42,12 @@ template<class T> class vector_tpl
 				}
 			}
 
+		vector_tpl& operator=( vector_tpl const& other ) { 
+			vector_tpl tmp(other); 
+			swap(tmp, *this); 
+			return *this;
+		}
+
 		~vector_tpl() { delete [] data; }
 
 		/** sets the vector to empty */
@@ -182,30 +188,6 @@ template<class T> class vector_tpl
 		}
 
 		/**
-		 * Search for an element, assuming that the vector is sorted.
-		 * If the element is found, return its address; otherwise, return NULL
-		 */
-		template<class StrictWeakOrdering>
-		T* search_ordered(const T& elem, StrictWeakOrdering comp)
-		{
-			sint32 low = -1, high = count;
-			while(  high - low>1  ) {
-				const sint32 mid = ((uint32) (low + high)) >> 1;
-				T &mid_elem = data[mid];
-				if(  elem==mid_elem  ) {
-					return &mid_elem;
-				}
-				else if(  comp(elem, mid_elem)  ) {
-					high = mid;
-				}
-				else {
-					low = mid;
-				}
- 			}
-			return NULL;
- 		}
-
-		/**
 		 * set length of vector.
 		 * BEWARE: using this function will create default objects, depending on
 		 * the type of the vector
@@ -219,20 +201,26 @@ template<class T> class vector_tpl
 		}
 
 		/**
-		 * put the data at a certain position
-		 * BEWARE: using this function will create default objects, depending on
-		 * the type of the vector
+		 * Put the data at a certain position.
+		 * Possibly resizes vector (and hence creates default objects).
+		 * @param pos index
+		 * @param elem this element will be copied
 		 */
 		void store_at(const uint32 pos, const T& elem)
 		{
 			if (pos >= size) {
-				resize((pos & 0xFFFFFFF8) + 8);
+				uint32 new_size = size == 0 ? 1 : size * 2;
+				while (pos >= new_size) {
+					new_size *= 2;
+				}
+				resize(new_size);
 			}
 			data[pos] = elem;
 			if (pos >= count) {
 				count = pos + 1;
 			}
 		}
+
 
 		/** removes element, if contained */
 		void remove(const T& elem)
@@ -265,8 +253,18 @@ template<class T> class vector_tpl
 		{
 			return (*this)[e];
 		}
+
+		T const& get_element(uint e) const
+		{
+			return (*this)[e];
+		}
 		
-		T& operator [](uint32 i)
+		void pop_back()
+		{
+			--count;
+		}
+
+		T& operator [](uint i)
 		{
 			if (i >= count) {
 				dbg->fatal("vector_tpl<T>::[]", "%s: index out of bounds: %lu not in 0..%lu", typeid(T).name(), i, count - 1);
@@ -305,7 +303,6 @@ template<class T> class vector_tpl
 		uint32 size;  ///< Capacity
 		uint32 count; ///< Number of elements in vector
 
-
 	friend void swap<>(vector_tpl<T>& a, vector_tpl<T>& b);
 };
 
@@ -323,8 +320,8 @@ template<class T> void swap(vector_tpl<T>& a, vector_tpl<T>& b)
  */
 template<class T> void clear_ptr_vector(vector_tpl<T*>& v)
 {
-	for(uint32 i=0; i<v.get_count(); i++) {
-		delete v[i];
+	FORT(vector_tpl<T*>, const i, v) {
+		delete i;
 	}
 	v.clear();
 }

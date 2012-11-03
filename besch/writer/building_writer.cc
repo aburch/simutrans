@@ -55,16 +55,14 @@ void tile_writer_t::write_obj(FILE* fp, obj_node_t& parent, int index, int seaso
 
 	uint8 phasen = 0;
 	for (int i = 0; i < seasons; i++) {
-		slist_iterator_tpl<slist_tpl<string> > iter(backkeys.at(i));
-		while (iter.next()) {
-			if (iter.get_current().get_count() > phasen) {
-				phasen = iter.get_current().get_count();
+		FOR(slist_tpl<slist_tpl<string> >, const& s, backkeys.at(i)) {
+			if (phasen < s.get_count()) {
+				phasen = s.get_count();
 			}
 		}
-		iter = slist_iterator_tpl<slist_tpl<string> >(frontkeys.at(i));
-		while (iter.next()) {
-			if (iter.get_current().get_count() > phasen) {
-				phasen = iter.get_current().get_count();
+		FOR(slist_tpl<slist_tpl<string> >, const& s, frontkeys.at(i)) {
+			if (phasen < s.get_count()) {
+				phasen = s.get_count();
 			}
 		}
 	}
@@ -99,7 +97,7 @@ void tile_writer_t::write_obj(FILE* fp, obj_node_t& parent, int index, int seaso
 void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
 	// Hajo: take care, hardocded size of node on disc here!
-	obj_node_t node(this, 36, &parent);
+	obj_node_t node(this, 38, &parent);
 
 	write_head(fp, node, obj);
 
@@ -238,6 +236,14 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	sint32 station_maintenance = obj.get_int("station_maintenance", 2147483647); //NOTE: Default cannot be set because it depends on a world factor. Must detect this number and put in default if it is found.
 	sint32 station_price = obj.get_int("station_price", 2147483647);
 
+	uint8 allow_underground = obj.get_int("allow_underground", 0);
+
+	if(allow_underground > 2)
+	{
+		// Prohibit illegal values here.
+		allow_underground = 2;
+	}
+
 	// Encode the depot traction types.
 	if(utype == haus_besch_t::depot)
 	{
@@ -270,6 +276,8 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 			}
 		} while (engine_type.length() > 0);			
 	}
+
+	uint8 is_control_tower = obj.get_int("is_control_tower", 0);
 
 	// scan for most number of seasons
 	int seasons = 1;
@@ -304,8 +312,8 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 				slist_tpl<slist_tpl<slist_tpl<string> > > frontkeys;
 
 				for (int season = 0; season < seasons; season++) {
-					backkeys.append(slist_tpl<slist_tpl<string> >());
-					frontkeys.append(slist_tpl<slist_tpl<string> >());
+					backkeys.append();
+					frontkeys.append();
 
 					for (int pos = 0; pos < 2; pos++) {
 						slist_tpl<slist_tpl<slist_tpl<string> > >& keys = pos ? backkeys : frontkeys;
@@ -337,7 +345,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 									}
 								}
 								if (phase == 0) {
-									keys.at(season).append(slist_tpl<string>());
+									keys.at(season).append();
 								}
 								keys.at(season).at(h).append(str);
 							}
@@ -362,7 +370,8 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	// to the standard version number, to be subtracted again when read.
 	// Start at 0x100 and increment in hundreds (hex).
 	// 0x200 - Depot traction types.
-	version += 0x200;
+	// 0x300 - Allow underground
+	version += 0x300;
 	
 	// Hajo: write version data
 
@@ -386,6 +395,9 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	node.write_uint16(fp, station_capacity,		26);
 	node.write_sint32(fp, station_maintenance,	28);
 	node.write_sint32(fp, station_price,		32);
+	node.write_uint8(fp, allow_underground,		36);
+	node.write_uint8(fp, is_control_tower,		37);
+	
 
 	// probably add some icons, if defined
 	slist_tpl<string> cursorkeys;

@@ -1,5 +1,5 @@
 To be done:
-- fixed_maintenance_cost for vehicles (low for trailers/wagons, high for engines,trucksbus,planes)
+- fixed_maintenance_cost for vehicles (low for trailers/wagons, high for engines,trucksbus,planes): incorporated into besch
 - menu_position (left, top, right, bottom?)
 - loading times for convois (entry loading_time per unit and car; easy change and open more freedom for pak set design)
 - weight limit on ways by axle_load entry in vehicles (to avoid problem when going back and forth with diff. load)

@@ -28,7 +28,6 @@
 // @author hsiegeln
 #include "../simlinemgmt.h"
 #include "../simline.h"
-#include "../boden/grund.h"
 #include "messagebox.h"
 
 #include "../player/simplay.h"
@@ -215,6 +214,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	reverse_button.pressed = cnv->get_reverse_schedule();
 	add_komponente(&reverse_button);
 
+	text.set_pos( koord(DIALOG_LEFT,DIALOG_TOP) );
 	scrolly.set_pos(koord(0, offset_below_viewport+50));
 	scrolly.set_show_scroll_x(true);
 	add_komponente(&scrolly);
@@ -289,7 +289,7 @@ void convoi_info_t::zeichnen(koord pos, koord gr)
 			physics_curves[--i][0] = akt_speed;
 			while (i > 0)
 			{
-				convoy.calc_move(15 * 64, float32e8_t::one, akt_speed_soll, akt_speed_soll, SINT32_MAX_VALUE, SINT32_MAX_VALUE, akt_speed, sp_soll, akt_v);
+				convoy.calc_move(welt->get_settings(), 15 * 64, akt_speed_soll, akt_speed_soll, SINT32_MAX_VALUE, SINT32_MAX_VALUE, akt_speed, sp_soll, akt_v);
 				physics_curves[--i][0] = speed_to_kmh(akt_speed);
 			}
 		}
@@ -380,8 +380,8 @@ enable_home:
 				break;
 				
 			default:
-				if (cnv->hat_keine_route()) 
-					color = COL_ORANGE;
+				if (cnv->get_state() == convoi_t::NO_ROUTE) 
+					color = COL_RED;
 			}
 			display_ddd_box_clip(pos_x, pos_y, 64, 8, MN_GREY0, MN_GREY4);
 			display_fillbox_wh_clip(pos_x + 1, pos_y + 1, 126, 6, color, true);
@@ -498,7 +498,7 @@ enable_home:
 			display_proportional_clip(line_x + len, pos_y, cnv->get_line()->get_name(), ALIGN_LEFT, cnv->get_line()->get_state_color(), true );
 		}
 
-#ifdef DEBUG
+#ifdef DEBUG_PHYSICS
 		/*
 		 * Show braking distance
 		 */
@@ -506,10 +506,32 @@ enable_home:
 			const int pos_y = pos_y0 + 6 * LINESPACE; // line 7
 			const sint32 brk_meters = convoy.calc_min_braking_distance(convoy.get_weight_summary(), speed_to_v(cnv->get_akt_speed()));
 			char tmp[256];
-			sprintf(tmp, translator::translate("minimum brake distance"), brk_meters);
+			sprintf(tmp, translator::translate("minimum brake distance"));
 			const int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, COL_BLACK, true );
 			sprintf(tmp, translator::translate(": %im"), brk_meters);
 			display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, cnv->get_akt_speed() <= cnv->get_akt_speed_soll() ? COL_BLACK : COL_RED, true );
+		}
+		{
+			const int pos_y = pos_y0 + 7 * LINESPACE; // line 8
+			char tmp[256];
+			const settings_t &settings = welt->get_settings();
+			const sint32 kmh = speed_to_kmh(cnv->next_speed_limit);
+			const sint32 m_til_limit = settings.steps_to_meters(cnv->steps_til_limit).to_sint32();
+			const sint32 m_til_brake = settings.steps_to_meters(cnv->steps_til_brake).to_sint32();
+			if (kmh)
+				sprintf(tmp, translator::translate("max %ikm/h in %im, brake in %im "), kmh, m_til_limit, m_til_brake);
+			else
+				sprintf(tmp, translator::translate("stop in %im, brake in %im "), m_til_limit, m_til_brake);
+			const int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, COL_BLACK, true );
+		}
+		{
+			const int pos_y = pos_y0 + 8 * LINESPACE; // line 9
+			const sint32 current_friction = cnv->front()->get_frictionfactor();
+			char tmp[256];
+			sprintf(tmp, translator::translate("current friction factor"));
+			const int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, COL_BLACK, true );
+			sprintf(tmp, translator::translate(": %i"), current_friction);
+			display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, current_friction <= 20 ? COL_BLACK : COL_RED, true );
 		}
 #endif
 		POP_CLIP();
@@ -760,9 +782,9 @@ void convoi_info_t::rdwr(loadsave_t *file)
 		}
 		// we might be unlucky, then search all convois for a convoi with this name
 		if(  !cnv.is_bound()  ) {
-			for(  vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end();  i != end;  ++i  ) {
-				if(  strcmp( (*i)->get_name(),name)==0  ) {
-					cnv = *i;
+			FOR(vector_tpl<convoihandle_t>, const i, welt->convoys()) {
+				if (strcmp(i->get_name(), name) == 0) {
+					cnv = i;
 					break;
 				}
 			}

@@ -47,7 +47,7 @@ char const* dr_query_homedir()
 #elif defined __APPLE__
 	sprintf(buffer, "%s/Library/Simutrans", getenv("HOME"));
 #else
-	sprintf(buffer, "%s/simutrans", getenv("HOME"));
+	sprintf(buffer, "%s/.simutrans-ex", getenv("HOME"));
 #endif
 
 	dr_mkdir(buffer);

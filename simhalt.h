@@ -46,10 +46,6 @@
 #define HALT_TOO_SLOW		        7 // The number of passengers whose estimated journey time exceeds their tolerance.
 /* NOTE - Standard has HALT_WALKED here as no. 7. In Experimental, this is in cities, not stops.*/
 
-// Query whether the below are redundant in Experimental.
-#define RECONNECTING (1)
-#define REROUTING (2)
-
 class cbuffer_t;
 class grund_t;
 class fabrik_t;
@@ -116,10 +112,12 @@ private:
 	// @author: jamespetts, July 2011
 	vector_tpl<halthandle_t> halts_within_walking_distance;
 
-	void check_nearby_halts();
-
 	void add_halt_within_walking_distance(halthandle_t halt);
 	void remove_halt_within_walking_distance(halthandle_t halt);
+
+	void check_nearby_halts();
+
+	uint8 control_towers;
 
 public:
 	// add convoi to loading queue
@@ -153,7 +151,7 @@ public:
 	 */
 	static halthandle_t get_halt(const karte_t *welt, const koord3d pos, const spieler_t *sp );
 
-	static const slist_tpl<halthandle_t>& get_alle_haltestellen() { return alle_haltestellen; }
+	static slist_tpl<halthandle_t>& get_alle_haltestellen() { return alle_haltestellen; }
 
 	/**
 	 * Station factory method. Returns handles instead of pointers.
@@ -190,6 +188,9 @@ public:
 	halthandle_t get_halt_within_walking_distance(uint32 index) const { return halts_within_walking_distance[index]; }
 
 	static uint8 pedestrian_limit;
+
+	// To prevent infinite loops in obscure situations
+	uint8 unload_repeat_counter;
 
 private:
 	/**
@@ -242,6 +243,19 @@ public:
 
 	bool is_within_walking_distance_of(halthandle_t halt) const;
 
+	typedef quickstone_hashtable_tpl<haltestelle_t, connexion*> connexions_map;
+
+	struct waiting_time_set
+	{
+		fixed_list_tpl<uint16, 32> times;
+		uint8 month;
+	};
+
+	typedef inthashtable_tpl<uint16, waiting_time_set > waiting_time_map;
+
+	void add_control_tower() { control_towers ++; }
+	void remove_control_tower() { if(control_towers > 0) control_towers --; }
+
 private:
 	slist_tpl<tile_t> tiles;
 
@@ -250,7 +264,7 @@ private:
 	// Table of all direct connexions to this halt, with routing information.
 	// Array: one entry per goods type.
 	// Knightly : Change into an array of pointers to connexion hash tables
-	quickstone_hashtable_tpl<haltestelle_t, connexion*> **connexions;
+	connexions_map **connexions;
 
 	// loest warte_menge ab
 	// "solves wait mixes off" (Babelfish); "solves warte volume from" (Google)
@@ -281,6 +295,12 @@ private:
 	 * @author prissi
 	 */
 	stationtyp station_type;
+
+	/**
+	 * Reconnect and reroute if counter different from welt->get_schedule_counter()
+	 */
+	static uint8 reconnect_counter;
+	// since we do partial routing, we remember the last offset
 
 	// since we do partial routing, we remeber the last offset
 	uint8 last_catg_index;
@@ -328,17 +348,13 @@ private:
 	haltestelle_t(karte_t *welt, loadsave_t *file);
 	haltestelle_t(karte_t *welt, koord pos, spieler_t *sp);
 	~haltestelle_t();
-
-	struct waiting_time_set
-	{
-		fixed_list_tpl<uint16, 16> times;
-		uint8 month;
-	};
 		
 	// Record of waiting times. Takes a list of the last 16 waiting times per type of goods.
 	// Getter method will need to average the waiting times. 
 	// @author: jamespetts
-	inthashtable_tpl<uint16, waiting_time_set >* waiting_times;
+
+	waiting_time_map * waiting_times;
+	
 
 	uint8 check_waiting;
 
@@ -349,6 +365,10 @@ private:
 	unsigned long inauguration_time;
 
 public:
+#ifdef DEBUG_SIMRAND_CALLS
+	bool loading;
+	vector_tpl<ware_t> *get_warray(uint8 catg) { return waren[catg]; }
+#endif
 
 	// Added by : Knightly
 	void swap_connexions(const uint8 category, quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>* &cxns)
@@ -708,11 +728,11 @@ public:
 	{
 		if(halt.is_bound())
 		{
-			
-			fixed_list_tpl<uint16, 16> *tmp;
-			if(waiting_times[category].access(halt.get_id()) == NULL)
+			const waiting_time_map *wt = &waiting_times[category];
+			fixed_list_tpl<uint16, 32> *tmp;
+			if(!wt->is_contained(halt.get_id()))
 			{
-				tmp = new fixed_list_tpl<uint16, 16>;
+				tmp = new fixed_list_tpl<uint16, 32>;
 				waiting_time_set *set = new waiting_time_set;
 				set->times = *tmp;
 				set->month = 0;
@@ -724,10 +744,10 @@ public:
 				waiting_times[category].access(halt.get_id())->month = 0;
 			}
 		}
-	
 	}
 
-	quickstone_hashtable_tpl<haltestelle_t, connexion*>* get_connexions(uint8 c) { return connexions[c]; }
+	typedef quickstone_hashtable_tpl<haltestelle_t, connexion*>* connexions_map_single;
+	connexions_map_single get_connexions(uint8 c) { return connexions[c]; }
 
 	linehandle_t get_preferred_line(halthandle_t transfer, uint8 category) const;
 	convoihandle_t get_preferred_convoy(halthandle_t transfer, uint8 category) const;
@@ -767,6 +787,8 @@ public:
 	int get_queue_pos(convoihandle_t cnv) const;
 
 	bool check_access(const spieler_t* sp) const;
+
+	bool has_no_control_tower() const;
 };
 
 ENUM_BITSET(haltestelle_t::stationtyp)

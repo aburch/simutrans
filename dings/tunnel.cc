@@ -10,13 +10,12 @@
 #include "../simworld.h"
 #include "../simdings.h"
 #include "../player/simplay.h"
-#include "../simwerkz.h"
 #include "../boden/grund.h"
-#include "../boden/tunnelboden.h"
 #include "../simimg.h"
 #include "../bauer/tunnelbauer.h"
 
 #include "../dataobj/loadsave.h"
+#include "../dataobj/translator.h"
 
 #include "../besch/tunnel_besch.h"
 
@@ -153,7 +152,6 @@ void tunnel_t::entferne( spieler_t *sp2 )
 			weg_t *weg = gr->get_weg( besch->get_waytype() );
 			weg->set_max_speed( weg->get_besch()->get_topspeed() );
 			weg->set_max_weight( weg->get_besch()->get_max_weight() );
-			//weg->add_way_constraints(besch->get_way_constraints_permissive(), besch->get_way_constraints_prohibitive());
 			weg->add_way_constraints(besch->get_way_constraints());
 			sp->add_maintenance(weg->get_besch()->get_wartung());
 			sp->add_maintenance(-besch->get_wartung() );

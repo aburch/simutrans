@@ -19,9 +19,6 @@
 #endif
 
 
-template<class T> class slist_iterator_tpl;
-
-
 /**
  * A template class for a single linked list. Insert() and append()
  * work in fixed time. Maintains a list of free nodes to reduce calls
@@ -36,10 +33,11 @@ template<class T> class slist_iterator_tpl;
 template<class T>
 class slist_tpl
 {
-private:
+private:	
 	struct node_t
 	{
 		node_t(const T& data_, node_t* next_) : next(next_), data(data_) {}
+		node_t(node_t* next_) : next(next_), data() {}
 
 		void* operator new(size_t) { return freelist_t::gimme_node(sizeof(node_t)); }
 		void operator delete(void* p) { freelist_t::putback_node(sizeof(node_t), p); }
@@ -52,11 +50,13 @@ private:
 	node_t *tail;
 	uint32 node_count;
 
-	friend class slist_iterator_tpl<T>;
-
 public:
 	class const_iterator;
 
+	/**
+	 * Iterator class: can be used to erase nodes and to modify nodes
+	 * Usage: @see utils/for.h
+	 */
 	class iterator
 	{
 		public:
@@ -65,6 +65,8 @@ public:
 			typedef ptrdiff_t                 difference_type;
 			typedef value_type*               pointer;
 			typedef value_type&               reference;
+
+			iterator() : ptr(), pred() {}
 
 			pointer   operator ->() const { return &ptr->data; }
 			reference operator *()  const { return ptr->data;  }
@@ -76,9 +78,15 @@ public:
 				return *this;
 			}
 
-			bool operator ==(const iterator& o) { return ptr == o.ptr; }
-			bool operator !=(const iterator& o) { return ptr != o.ptr; }
-			bool end() const { return ptr==NULL; };
+			iterator operator ++(int)
+			{
+				iterator const old = *this;
+				++*this;
+				return old;
+			}
+
+			bool operator ==(iterator const& o) const { return ptr == o.ptr; }
+			bool operator !=(iterator const& o) const { return ptr != o.ptr; }
 
 		private:
 			iterator(node_t* ptr_, node_t* pred_) : ptr(ptr_), pred(pred_) {}
@@ -90,14 +98,20 @@ public:
 		friend class const_iterator;
 	};
 
+	/**
+	 * Iterator class: neither nodes nor the list can be modified
+	 * Usage: @see utils/for.h
+	 */
 	class const_iterator
 	{
 		public:
 			typedef std::forward_iterator_tag iterator_category;
-			typedef const T                   value_type;
+			typedef T                         value_type;
 			typedef ptrdiff_t                 difference_type;
-			typedef value_type*               pointer;
-			typedef value_type&               reference;
+			typedef T const*                  pointer;
+			typedef T const&                  reference;
+
+			const_iterator() : ptr() {}
 
 			const_iterator(const iterator& o) : ptr(o.ptr) {}
 
@@ -106,9 +120,15 @@ public:
 
 			const_iterator& operator ++() { ptr = ptr->next; return *this; }
 
-			bool operator ==(const const_iterator& o) { return ptr == o.ptr; }
-			bool operator !=(const const_iterator& o) { return ptr != o.ptr; }
-			bool end() const { return ptr==NULL; };
+			const_iterator operator ++(int)
+			{
+				const_iterator const old = *this;
+				++*this;
+				return old;
+			}
+
+			bool operator ==(const_iterator const& o) const { return ptr == o.ptr; }
+			bool operator !=(const_iterator const& o) const { return ptr != o.ptr; }
 
 		private:
 			explicit const_iterator(node_t* ptr_) : ptr(ptr_) {}
@@ -144,7 +164,24 @@ public:
 	{
 		node_t* tmp = new node_t(data, head);
 		head = tmp;
-		if (tail == NULL) tail = tmp;
+		if(  tail == NULL  ) {
+			tail = tmp;
+		}
+		node_count++;
+	}
+
+	/**
+	 * Inserts an element initialized by standard constructor
+	 * at the beginning of the lists
+	 * (avoid the use of copy constructor)
+	 */
+	void insert()
+	{
+		node_t* tmp = new node_t(head);
+		head = tmp;
+		if(  tail == NULL  ) {
+			tail = tmp;
+		}
 		node_count++;
 	}
 
@@ -160,6 +197,23 @@ public:
 		}
 		else {
 			node_t* tmp = new node_t(data, 0);
+			tail->next = tmp;
+			tail = tmp;
+			node_count++;
+		}
+	}
+
+	/**
+	 * Append an zero/empty element
+	 * mostly used for T=slist_tpl<...>
+	 */
+	void append()
+	{
+		if (tail == 0) {
+			insert();
+		}
+		else {
+			node_t* tmp = new node_t(0);
 			tail->next = tmp;
 			tail = tmp;
 			node_count++;
@@ -388,79 +442,10 @@ public:
 		}
 		return t ? index : -1;
 	}
-};
-
-
-
-/**
- * Iterator class for single linked lists.
- * Iterators may be invalid after any changing operation on the list!
- * @author Hj. Malthaner
- */
-template<class T>
-class slist_iterator_tpl
-{
 private:
-    typename slist_tpl<T>::node_t *current_node;
-    typename slist_tpl<T>::node_t lead;	// element zero
+	slist_tpl(const slist_tpl& slist_tpl);
+	slist_tpl& operator=( slist_tpl const& other );
 
-public:
-	slist_iterator_tpl(const slist_tpl<T>* list) :
-		current_node(&lead),
-		lead(T(), list->head)
-	{}
-
-	slist_iterator_tpl(const slist_tpl<T>& list) :
-		current_node(&lead),
-		lead(T(), list.head)
-	{}
-
-	slist_iterator_tpl<T> &operator = (const slist_iterator_tpl<T> &iter)
-	{
-		lead = iter.lead;
-		if(iter.current_node == &iter.lead) {
-			current_node = &lead;
-		} else {
-			current_node = iter.current_node;
-		}
-		return *this;
-	}
-
-	/**
-	 * iterate next element
-	 * @return false, if no more elements
-	 * @author Hj. Malthaner
-	 */
-	bool next()
-	{
-		current_node = current_node->next;
-		return (current_node!= 0);
-	}
-
-	/**
-	 * @return the current element (as const reference)
-	 * @author Hj. Malthaner
-	 */
-	const T& get_current() const
-	{
-		if(current_node==&lead) {
-			dbg->fatal("class slist_iterator_tpl.get_current()","Iteration: accesed lead!");
-		}
-		return current_node->data;
-	}
-
-
-	/**
-	 * @return the current element (as reference)
-	 * @author Hj. Malthaner
-	 */
-	T& access_current()
-	{
-		if(current_node==&lead) {
-			dbg->fatal("class slist_iterator_tpl.get_current()","Iteration: accesed lead!");
-		}
-		return current_node->data;
-	}
 };
 
 #endif

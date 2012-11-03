@@ -35,12 +35,7 @@ public:
 	 */
 	void zeichnen(koord offset);
 
-	/**
-	 * Events werden hiermit an die GUI-Komponenten
-	 * gemeldet
-	 * @author Hj. Malthaner
-	 */
-	bool infowin_event(const event_t *);
+	bool infowin_event(event_t const*) OVERRIDE;
 
 	/*
 	 * set dimension

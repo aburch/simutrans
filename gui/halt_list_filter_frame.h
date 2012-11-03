@@ -38,7 +38,9 @@ private:
 			this->ware_an = ware_an;
 			this->parent = parent;
 		}
-		virtual bool infowin_event(const event_t *ev) {
+
+		bool infowin_event(event_t const* const ev) OVERRIDE
+		{
 			if(IS_LEFTRELEASE(ev)) {
 				parent->ware_item_triggered(ware_ab, ware_an);
 			}
@@ -136,13 +138,5 @@ public:
 	 */
 	const char * get_hilfe_datei() const {return "haltlist_filter.txt"; }
 
-	/**
-	 * This method is called if an action is triggered
-	 * @author Hj. Malthaner
-	 *
-	 * Returns true, if action is done and no more
-	 * components should be triggered.
-	 * V.Meyer
-	 */
-	bool action_triggered( gui_action_creator_t *komp, value_t extra);
+	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };

@@ -118,9 +118,9 @@ public:
 	 */
 	koord request_groesse(koord request);
 
-	void set_groesse(koord groesse);
+	void set_groesse(koord groesse) OVERRIDE;
 
-	bool infowin_event(const event_t *ev);
+	bool infowin_event(event_t const*) OVERRIDE;
 
 	void zeichnen(koord pos);
 
@@ -132,7 +132,7 @@ public:
 	 * components should be triggered.
 	 * V.Meyer
 	 */
-	bool action_triggered(gui_action_creator_t *komp, value_t extra);
+	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	gui_komponente_t *get_focus() const { return (gui_komponente_t *)this; }
 };

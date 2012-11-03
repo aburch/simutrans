@@ -165,6 +165,7 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t *sp_) :
 	selection = -1;
 	loadfactor = 0;
 	schedule_filter[0] = 0;
+	old_schedule_filter[0] = 0;
 
 	// init scrolled list
 	scl.set_pos(koord(0,1));
@@ -205,7 +206,7 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t *sp_) :
 		tabs.add_tab(&scl, translator::translate("Narrowgauge"), skinverwaltung_t::narrowgaugehaltsymbol, translator::translate("Narrowgauge"));
 		tabs_to_lineindex[max_idx++] = simline_t::narrowgaugeline;
 	}
-	if(vehikelbauer_t::get_info(tram_wt)!=NULL) {
+	if (!vehikelbauer_t::get_info(tram_wt).empty()) {
 		tabs.add_tab(&scl, translator::translate("Tram"), skinverwaltung_t::tramhaltsymbol, translator::translate("Tram"));
 		tabs_to_lineindex[max_idx++] = simline_t::tramline;
 	}
@@ -213,7 +214,7 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t *sp_) :
 		tabs.add_tab(&scl, translator::translate("Truck"), skinverwaltung_t::autohaltsymbol, translator::translate("Truck"));
 		tabs_to_lineindex[max_idx++] = simline_t::truckline;
 	}
-	if(vehikelbauer_t::get_info(water_wt)!=NULL) {
+	if (!vehikelbauer_t::get_info(water_wt).empty()) {
 		tabs.add_tab(&scl, translator::translate("Ship"), skinverwaltung_t::schiffshaltsymbol, translator::translate("Ship"));
 		tabs_to_lineindex[max_idx++] = simline_t::shipline;
 	}
@@ -276,7 +277,7 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t *sp_) :
 	add_komponente(&bt_change_line);
 
 	bt_delete_line.init(button_t::roundbox, "Delete Line", koord(11+2*BUTTON_WIDTH, 8+SCL_HEIGHT+BUTTON_HEIGHT ), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
-	bt_change_line.set_tooltip("Delete the selected line (if without associated convois).");
+	bt_delete_line.set_tooltip("Delete the selected line (if without associated convois).");
 	bt_delete_line.add_listener(this);
 	bt_delete_line.disable();
 	add_komponente(&bt_delete_line);
@@ -634,8 +635,7 @@ void schedule_list_gui_t::build_line_list(int filter)
 	sp->simlinemgmt.get_lines(tabs_to_lineindex[filter], &lines);
 	vector_tpl<line_scrollitem_t *>selected_lines;
 
-	for (vector_tpl<linehandle_t>::const_iterator i = lines.begin(), end = lines.end(); i != end; i++) {
-		linehandle_t l = *i;
+	FOR(vector_tpl<linehandle_t>, const l, lines) {
 		// search name
 		if (strstr(l->get_name(), schedule_filter))
 			selected_lines.append(new line_scrollitem_t(l));
@@ -643,9 +643,9 @@ void schedule_list_gui_t::build_line_list(int filter)
 
 	std::sort(selected_lines.begin(),selected_lines.end(),compare_lines);
 
-	for (vector_tpl<line_scrollitem_t *>::const_iterator i = selected_lines.begin(), end = selected_lines.end(); i != end; i++) {
-		scl.append_element( *i );
-		if(line == (*i)->get_line()  ) {
+	FOR(vector_tpl<line_scrollitem_t*>, const i, selected_lines) {
+		scl.append_element(i);
+		if (line == i->get_line()) {
 			sel = scl.get_count() - 1;
 		}
 	}
@@ -683,7 +683,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		cont.remove_all();
 		int ypos = 0;
 		for(i = 0;  i<icnv;  i++  ) {
-			gui_convoiinfo_t* const cinfo = new gui_convoiinfo_t(new_line->get_convoy(i), i + 1);
+			gui_convoiinfo_t* const cinfo = new gui_convoiinfo_t(new_line->get_convoy(i));
 			cinfo->set_pos(koord(0, ypos));
 			cinfo->set_groesse(koord(400, 40));
 			cont.add_komponente(cinfo);
@@ -722,9 +722,8 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		// fill haltestellen container with info of line's haltestellen
 		cont_haltestellen.remove_all();
 		ypos = 0;
-		for(i=0; i<new_line->get_schedule()->get_count(); i++) {
-			const koord3d fahrplan_koord = new_line->get_schedule()->eintrag[i].pos;
-			halthandle_t halt = haltestelle_t::get_halt(sp->get_welt(),fahrplan_koord, sp);
+		FOR(minivec_tpl<linieneintrag_t>, const& i, new_line->get_schedule()->eintrag) {
+			halthandle_t const halt = haltestelle_t::get_halt(sp->get_welt(), i.pos, sp);
 			if (halt.is_bound()) {
 				halt_list_stats_t* cinfo = new halt_list_stats_t(halt);
 				cinfo->set_pos(koord(0, ypos));

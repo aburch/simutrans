@@ -50,7 +50,7 @@ void groundobj_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& o
 	if (speed == 0) {
 		// fixed stuff
 		for (unsigned int phase = 0; 1; phase++) {
-			keys.append(slist_tpl<string>());
+			keys.append();
 
 			for (int seasons = 0; seasons < number_of_seasons; seasons++) {
 				char buf[40];
@@ -77,7 +77,7 @@ void groundobj_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& o
 			"s", "w", "sw", "se", "n", "e", "ne", "nw"
 		};
 		for (unsigned int dir = 0; dir<8; dir++) {
-			keys.append(slist_tpl<string>());
+			keys.append();
 
 			for (int seasons = 0; seasons < number_of_seasons; seasons++) {
 				char buf[40];

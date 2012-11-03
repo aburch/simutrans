@@ -78,7 +78,6 @@ protected:
 	karte_t *welt;
 	sint16 b;
 	sint16 h;
-	climate_bits cl;
 
 	virtual bool ist_platz_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const;
 

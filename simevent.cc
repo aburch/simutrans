@@ -34,7 +34,7 @@ void change_drag_start(int x, int y)
 }
 
 
-static void fill_event(struct event_t *ev)
+static void fill_event(event_t* const ev)
 {
 	// Knightly : variables for detecting double-clicks and triple-clicks
 	const  unsigned long interval = 400;
@@ -218,7 +218,7 @@ static void fill_event(struct event_t *ev)
  * Holt ein Event ohne zu warten
  * @author Hj. Malthaner
  */
-void display_poll_event(struct event_t *ev)
+void display_poll_event(event_t* const ev)
 {
 	// Knightly : if there is any pending meta-event, consume it instead of fetching a new event from the system
 	if(  meta_event.ev_class!=EVENT_NONE  ) {
@@ -239,7 +239,7 @@ void display_poll_event(struct event_t *ev)
  * Holt ein Event mit warten
  * @author Hj. Malthaner
  */
-void display_get_event(struct event_t *ev)
+void display_get_event(event_t* const ev)
 {
 	// Knightly : if there is any pending meta-event, consume it instead of fetching a new event from the system
 	if(  meta_event.ev_class!=EVENT_NONE  ) {

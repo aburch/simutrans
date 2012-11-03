@@ -1,0 +1,49 @@
+# Simutranslator settings for Simutrans-Experimental texts
+# Addendum for version 10.12
+#
+# Author: jamespetts
+# Created: April 2012
+#
+obj=program_text
+name=Highlight the locations of stops on the current schedule
+note=Tooltip for "Highlight schedule" in the display settings window.
+-
+obj=program_text
+name=Cities like water
+note=Option in the climates dialogue for cities' preference to being near bodies of water
+-
+obj=program_text
+name=Number of city clusters:
+note=Option in the new world dialogue for the number of city clusters
+-
+obj=program_text
+name=City cluster size:
+note=Option in the new world dialogue for the size of city clusters
+-
+obj=program_text
+name=This can only be built underground.
+note=Error message given when trying to build an underground only structure above ground.
+-
+obj=program_text
+name=Cannot build this signal underground.
+note=Error message given when trying to build a signal underground that does not allow underground construction.
+-
+obj=program_text
+name=(Max. comfortable journey time: 
+note=Description for the display of the maximum comfortable journey time for any given level of comfort in the depot/replace window. Note the absence of close bracket and trailing space.
+-
+obj=program_text
+name=Runway too short
+note=Tooltip displayed above aircraft when trying to take off/land at a runway that is not long enough.
+-
+obj=program_text
+name=Minimum runway length
+note=Text in the depot/replacer window showing the minumum runway length in meters.
+-
+obj=program_text
+name=NO CONTROL TOWER
+note=This is appended to the name of an airport that has no control tower, and thus cannot be used.
+-
+obj=program_text
+name=Pulls:
+note=Shown in the depot window to display the load that can be hauled by the currently selected powered vehicle

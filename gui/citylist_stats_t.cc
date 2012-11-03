@@ -72,8 +72,8 @@ void citylist_stats_t::sort(citylist::sort_mode_t sb, bool sr)
 	city_list.clear();
 	city_list.resize(cities.get_count());
 
-	for (weighted_vector_tpl<stadt_t*>::const_iterator i = cities.begin(), end = cities.end(); i != end; ++i) {
-		city_list.insert_ordered(*i,compare_cities(sortby, sortreverse));
+	FOR(weighted_vector_tpl<stadt_t*>, const i, cities) {
+		city_list.insert_ordered(i, compare_cities(sortby, sortreverse));
 	}
 }
 
