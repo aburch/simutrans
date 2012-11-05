@@ -108,8 +108,8 @@ void pakselector_t::fill_list()
 			// no addons for this
 			i.del->set_visible(false);
 			i.del->disable();
-			if(entries.get_count()==1) {
-				// only single entry and no addons => no need to question further ...
+			if(entries.get_count()==2) {
+				// list contains only one header, one pakset entry without addons => no need to question further ...
 				umgebung_t::objfilename = (std::string)i.button->get_text() + "/";
 			}
 		}
