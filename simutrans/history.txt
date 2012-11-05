@@ -1,6 +1,7 @@
 	ADD: transparent chat window in networkmode
 	FIX: underground stations in networkmode
-
+	ADD: (Markohs) Scenario and heightmap dialogs now support multi-directory
+	ADD: (Markohs) File dialogs deletes now use the trash bin (by default) instead of a permanent delete in Windows platform. SHIFT overrides.
 
 Release of 112.0: (r6000 on 22-Oct-2012):
 	ADD: (wackdone) screenshots of topmost dialoge window only by CNTRL+screenshot tool click

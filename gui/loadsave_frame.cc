@@ -53,9 +53,9 @@ void sve_info_t::rdwr(loadsave_t *file)
 }
 
 
-/**
+/*!
  * Aktion, die nach Knopfdruck gestartet wird.
- * @author Hansjörg Malthaner
+ * \author Hansjörg Malthaner
  */
 void loadsave_frame_t::action(const char *filename)
 {
@@ -70,14 +70,7 @@ void loadsave_frame_t::action(const char *filename)
 }
 
 
-bool loadsave_frame_t::del_action(const char *filename)
-{
-	remove(filename);
-	return false;
-}
-
-
-loadsave_frame_t::loadsave_frame_t(karte_t *welt, bool do_load) : savegame_frame_t(".sve",NULL)
+loadsave_frame_t::loadsave_frame_t(karte_t *welt, bool do_load) : savegame_frame_t(".sve",false,"save/")
 {
 	this->welt = welt;
 	this->do_load = do_load;
@@ -123,12 +116,12 @@ loadsave_frame_t::loadsave_frame_t(karte_t *welt, bool do_load) : savegame_frame
 }
 
 
-/**
+/*!
  * Manche Fenster haben einen Hilfetext assoziiert.
- * @return den Dateinamen für die Hilfe, oder NULL
- * @author Hj. Malthaner
+ * \return den Dateinamen für die Hilfe, oder NULL
+ * \author Hj. Malthaner
  */
-const char * loadsave_frame_t::get_hilfe_datei() const
+const char *loadsave_frame_t::get_hilfe_datei() const
 {
 	return do_load ? "load.txt" : "save.txt";
 }
@@ -140,10 +133,8 @@ const char *loadsave_frame_t::get_info(const char *fname)
 	date[0] = 0;
 	const char *pak_extension = NULL;
 	// get file information
-	char path[1024];
-	sprintf( path, SAVE_PATH_X "%s", fname );
 	struct stat  sb;
-	if(stat(path, &sb)!=0) {
+	if(stat(fname, &sb)!=0) {
 		// file not found?
 		return date;
 	}
@@ -159,7 +150,7 @@ const char *loadsave_frame_t::get_info(const char *fname)
 	else {
 		// read pak_extension from file
 		loadsave_t test;
-		test.rd_open(path);
+		test.rd_open(fname);
 		// add pak extension
 		pak_extension = test.get_pak_extension();
 

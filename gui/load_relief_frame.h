@@ -20,23 +20,9 @@ private:
 	settings_t* sets;
 
 protected:
-	/**
-	* Aktion, die nach Knopfdruck gestartet wird.
-	* @author Hansjörg Malthaner
-	*/
-	virtual void action(const char *filename);
-
-	/**
-	* Aktion, die nach X-Knopfdruck gestartet wird.
-	* @author V. Meyer
-	*/
-	virtual bool del_action(const char *filename);
-
-	// returns extra file info
-	virtual const char *get_info(const char *fname);
-
-	// true, if valid
-	virtual bool check_file( const char *filename, const char *suffix );
+	virtual void action(const char *fullpath);
+	virtual const char *get_info(const char *fullpath);
+	virtual bool check_file(const char *fullpath, const char *suffix);
 
 public:
 	/**

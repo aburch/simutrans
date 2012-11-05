@@ -13,8 +13,6 @@
 #include "searchfolder.h"
 
 /*
- *  Author:
- *      Volker Meyer
  *
  *  Description:
  *      If filepath ends with a slash, search for all files in the
@@ -29,19 +27,51 @@
  *  Return type:
  *      int			number of matching files.
 */
-int searchfolder_t::search(const std::string &filepath, const std::string &extension)
+
+void searchfolder_t::add_entry(const std::string &path, const char *entry, const bool prepend)
+{
+	const size_t entry_len = strlen(entry);
+	char *c = MALLOCN(char, path.length() + entry_len + 1);
+
+	if(prepend) {
+		sprintf(c,"%s%s",path.c_str(),entry);
+	}
+	else{
+		sprintf(c,"%s",entry);
+	}
+	files.append(c);
+}
+
+
+void searchfolder_t::clear_list()
+{
+	FOR(vector_tpl<char*>, const i, files) {
+		guarded_free(i);
+	}
+	files.clear();
+}
+
+
+int searchfolder_t::search(const std::string &filepath, const std::string &extension, const bool only_directories, const bool prepend_path)
+{
+	clear_list();
+	return search_path(filepath, extension, only_directories, prepend_path);
+}
+
+
+int searchfolder_t::search_path(const std::string &filepath, const std::string &extension, const bool only_directories, const bool prepend_path)
 {
 	std::string path(filepath);
 	std::string name;
 	std::string lookfor;
 	std::string ext;
 
-	FOR(vector_tpl<char*>, const i, files) {
-		guarded_free(i);
+	if(extension.empty()) {
+		//path=name;
+		name = std::string("*");
+		ext = std::string("");
 	}
-	files.clear();
-
-	if(path[path.size() - 1] == '/') {
+	else if(path[path.size() - 1] == '/') {
 		// Look for a directory
 		name = "*";
 		ext = std::string(".") + extension;
@@ -72,10 +102,14 @@ int searchfolder_t::search(const std::string &filepath, const std::string &exten
 		lookfor = ext;
 		do {
 			size_t entry_len = strlen(entry.name);
+
 			if(  stricmp( entry.name + entry_len - lookfor.length(), lookfor.c_str() ) == 0  ) {
-				char* const c = MALLOCN(char, path.length() + entry_len + 1);
-				sprintf(c,"%s%s",path.c_str(),entry.name);
-				files.append(c);
+				if(only_directories) {
+					if ((entry.attrib & _A_SUBDIR)==0) {
+						continue;
+					}
+				}
+				add_entry(path,entry.name,prepend_path);
 			}
 		} while(_findnext(hfind, &entry) == 0 );
 	}
@@ -89,14 +123,13 @@ int searchfolder_t::search(const std::string &filepath, const std::string &exten
 			if(entry->d_name[0]!='.' || (entry->d_name[1]!='.' && entry->d_name[1]!=0)) {
 				int entry_len = strlen(entry->d_name);
 				if (strcasecmp(entry->d_name + entry_len - lookfor.size(), lookfor.c_str()) == 0) {
-					char* const c = MALLOCN(char, path.size() + entry_len + 1);
-					sprintf(c,"%s%s", path.c_str(), entry->d_name);
-					files.append(c);
+					add_entry(path,entry->d_name,prepend_path);
 				}
 			}
 		}
 		closedir(dir);
 	}
+	(void) only_directories;
 #endif
 	return files.get_count();
 }
@@ -116,11 +149,12 @@ std::string searchfolder_t::complete(const std::string &filepath, const std::str
 
 
 /*
- * since we explicitly alloc the char *'s we must free them here
+ * \note since we explicitly alloc the char *'s we must free them here
  */
 searchfolder_t::~searchfolder_t()
 {
 	FOR(vector_tpl<char*>, const i, files) {
 		guarded_free(i);
 	}
+	files.clear();
 }

@@ -27,7 +27,7 @@ protected:
 	 * Aktion, die nach Knopfdruck gestartet wird.
 	 * @author Hansjörg Malthaner
 	 */
-	virtual void action(const char *filename);
+	virtual void action(const char *fullpath);
 
 	/**
 	 * Aktion, die nach X-Knopfdruck gestartet wird.

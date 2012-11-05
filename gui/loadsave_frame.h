@@ -36,28 +36,22 @@ private:
 
 	static stringhashtable_tpl<sve_info_t *> cached_info;
 protected:
-	/**
+	/*!
 	 * Aktion, die nach Knopfdruck gestartet wird.
-	 * @author Hansjörg Malthaner
+	 * \author Hansjörg Malthaner
 	 */
 	virtual void action(const char *filename);
-
-	/**
-	 * Aktion, die nach X-Knopfdruck gestartet wird.
-	 * @author V. Meyer
-	 */
-	virtual bool del_action(const char *filename);
 
 	// returns extra file info
 	virtual const char *get_info(const char *fname);
 
 public:
-	/**
+	/*!
 	* Manche Fenster haben einen Hilfetext assoziiert.
-	* @return den Dateinamen für die Hilfe, oder NULL
-	* @author Hj. Malthaner
+	* \return den Dateinamen für die Hilfe, oder NULL
+	* \author Hj. Malthaner
 	*/
-	virtual const char * get_hilfe_datei() const;
+	virtual const char *get_hilfe_datei() const;
 
 	loadsave_frame_t(karte_t *welt, bool do_load);
 

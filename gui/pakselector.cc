@@ -5,22 +5,20 @@
 #include "../utils/cbuffer_t.h"
 #include "../simsys.h"
 
-
-
-/**
+/*!
  * what to do after loading
  */
-void pakselector_t::action(const char *filename)
+void pakselector_t::action(const char *fullpath)
 {
-	umgebung_t::objfilename = (std::string)filename + "/";
+	umgebung_t::objfilename = this->get_filename(fullpath)+"/";
 	umgebung_t::default_einstellungen.set_with_private_paks( false );
 }
 
 
-bool pakselector_t::del_action(const char *filename)
+bool pakselector_t::del_action(const char *fullpath)
 {
 	// cannot delete set => use this for selection
-	umgebung_t::objfilename = (std::string)filename + "/";
+	umgebung_t::objfilename = this->get_filename(fullpath)+"/";
 	umgebung_t::default_einstellungen.set_with_private_paks( true );
 	return true;
 }
@@ -32,18 +30,18 @@ const char *pakselector_t::get_info(const char *)
 }
 
 
-/**
+/*!
  * This method is called if an action is triggered
- * @author Hj. Malthaner
+ * \author Hj. Malthaner
  */
-bool pakselector_t::action_triggered( gui_action_creator_t *komp,value_t v)
+bool pakselector_t::action_triggered(gui_action_creator_t *komp, value_t v)
 {
 	if(komp == &savebutton) {
 		savebutton.pressed ^= 1;
 		return true;
 	}
 	else if(komp != &input) {
-		return savegame_frame_t::action_triggered( komp, v );
+		return savegame_frame_t::action_triggered(komp, v );
 	}
 	return false;
 }
@@ -51,7 +49,7 @@ bool pakselector_t::action_triggered( gui_action_creator_t *komp,value_t v)
 
 void pakselector_t::zeichnen(koord p, koord gr)
 {
-	gui_frame_t::zeichnen( p, gr );
+	gui_frame_t::zeichnen(p, gr );
 
 	display_multiline_text( p.x+10, p.y+gr.y-3*LINESPACE-4,
 		"To avoid seeing this dialogue define a path by:\n"
@@ -60,10 +58,10 @@ void pakselector_t::zeichnen(koord p, koord gr)
 }
 
 
-bool pakselector_t::check_file( const char *filename, const char * )
+bool pakselector_t::check_file(const char *filename, const char *)
 {
 	cbuffer_t buf;
-	buf.printf("%s/ground.Outside.pak", filename );
+	buf.printf("%s/ground.Outside.pak", filename);
 	if (FILE* const f = fopen(buf, "r")) {
 		fclose(f);
 		return true;
@@ -72,7 +70,7 @@ bool pakselector_t::check_file( const char *filename, const char * )
 }
 
 
-pakselector_t::pakselector_t() : savegame_frame_t( NULL, umgebung_t::program_dir, true )
+pakselector_t::pakselector_t() : savegame_frame_t( NULL, true, umgebung_t::program_dir)
 {
 	at_least_one_add = false;
 
@@ -95,6 +93,12 @@ void pakselector_t::fill_list()
 
 	int y = 0;
 	FOR(slist_tpl<entry>, const& i, entries) {
+
+		if (i.type == LI_HEADER ) {
+			y += D_BUTTON_HEIGHT;
+			continue;
+		}
+
 		cbuffer_t path;
 		path.printf("%saddons/%s", umgebung_t::user_dir, i.button->get_text());
 		i.del->groesse.x += 150;
@@ -113,7 +117,7 @@ void pakselector_t::fill_list()
 	}
 	chdir( umgebung_t::program_dir );
 
-	button_frame.set_groesse( koord( get_fenstergroesse().x-1, y ) );
+	button_frame.set_groesse(koord(get_fenstergroesse().x-1, y ));
 	set_fenstergroesse(koord(get_fenstergroesse().x, D_TITLEBAR_HEIGHT+30+y+3*LINESPACE+4+1));
 }
 
@@ -131,13 +135,19 @@ void pakselector_t::set_fenstergroesse(koord groesse)
 	sint16 y = 0;
 	FOR(slist_tpl<entry>, const& i, entries) {
 		// resize all but delete button
+
+		if (i.type == LI_HEADER) {
+			y += D_BUTTON_HEIGHT;
+			continue;
+		}
+
 		if (i.button->is_visible()) {
 			button_t* const button1 = i.del;
-			button1->set_pos( koord( button1->get_pos().x, y ) );
+			button1->set_pos(koord(button1->get_pos().x, y));
 			button_t* const button2 = i.button;
-			button2->set_pos( koord( button2->get_pos().x, y ) );
-			button2->set_groesse(koord( groesse.x/2-40, D_BUTTON_HEIGHT));
-			i.label->set_pos(koord(groesse.x / 2 - 40 + 30, y + 2));
+			button2->set_pos(koord(button2->get_pos().x, y));
+			button2->set_groesse(koord(groesse.x/2-40, D_BUTTON_HEIGHT));
+			i.label->set_pos(koord(groesse.x/2-40+30, y+2));
 			y += D_BUTTON_HEIGHT;
 		}
 	}
