@@ -134,7 +134,6 @@ void savegame_frame_t::list_filled()
 {
 	// The file entries
 	int y = 0;
-	int num = 0;
 	FOR(slist_tpl<entry>, const& i, entries) {
 		button_t*    const button1 = i.del;
 		button_t*    const button2 = i.button;
@@ -168,7 +167,6 @@ void savegame_frame_t::list_filled()
 		}
 
 		y += D_BUTTON_HEIGHT;
-		num++;
 	}
 	// since width was maybe increased, we only set the heigth.
 	button_frame.set_groesse(koord(get_fenstergroesse().x-1, y));
@@ -461,8 +459,8 @@ void savegame_frame_t::fill_list()
 				add_file(fullname, name, get_info(fullname), not_cutting_extension);
 			}
 			else{
-				// NOTE: we just free "fullname" memory when add_file is not called to its list.
-				// This way we save the cost of re-allocate/copy it inside there
+				// NOTE: we just free "fullname" memory when add_file is not called. That memory will be
+				// free'd in the class destructor. This way we save the cost of re-allocate/copy it inside there
 				delete fullname;
 			}
 		}
@@ -517,6 +515,8 @@ bool savegame_frame_t::del_action(const char * fullpath)
 	char * wfilename = new char [len+2];
 
 	strcpy(wfilename, fullpath);
+
+	// Double \0 terminated string as required by the function.
 
 	wfilename[len]='\0';
 	wfilename[len+1]='\0';
