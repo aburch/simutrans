@@ -9,9 +9,6 @@
 
 class pakselector_t : public savegame_frame_t
 {
-private:
-	button_t load_addons;
-	bool at_least_one_add;
 protected:
 	virtual void action(const char *fullpath);
 	virtual bool del_action(const char *fullpath);

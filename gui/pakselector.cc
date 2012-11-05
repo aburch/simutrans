@@ -72,8 +72,6 @@ bool pakselector_t::check_file(const char *filename, const char *)
 
 pakselector_t::pakselector_t() : savegame_frame_t( NULL, true, umgebung_t::program_dir)
 {
-	at_least_one_add = false;
-
 	// remove unneccessary buttons
 	remove_komponente( &input );
 	remove_komponente( &savebutton );
