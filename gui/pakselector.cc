@@ -90,7 +90,7 @@ void pakselector_t::fill_list()
 	savegame_frame_t::fill_list();
 
 	int y = 0;
-	FOR(slist_tpl<entry>, const& i, entries) {
+	FOR(slist_tpl<dir_entry_t>, const& i, entries) {
 
 		if (i.type == LI_HEADER ) {
 			y += D_BUTTON_HEIGHT;
@@ -131,7 +131,7 @@ void pakselector_t::set_fenstergroesse(koord groesse)
 	groesse = get_fenstergroesse();
 
 	sint16 y = 0;
-	FOR(slist_tpl<entry>, const& i, entries) {
+	FOR(slist_tpl<dir_entry_t>, const& i, entries) {
 		// resize all but delete button
 
 		if (i.type == LI_HEADER) {

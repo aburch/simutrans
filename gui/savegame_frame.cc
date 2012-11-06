@@ -93,7 +93,7 @@ savegame_frame_t::savegame_frame_t(const char *suffix, bool only_directories, co
 
 savegame_frame_t::~savegame_frame_t()
 {
-	FOR(slist_tpl<entry>, const& i, entries) {
+	FOR(slist_tpl<dir_entry_t>, const& i, entries) {
 		if(i.button) {
 			delete [] const_cast<char*>(i.button->get_text());
 			delete i.button;
@@ -134,7 +134,21 @@ void savegame_frame_t::list_filled()
 {
 	// The file entries
 	int y = 0;
-	FOR(slist_tpl<entry>, const& i, entries) {
+
+	int numheader = 0;
+	int lastheader = 0;
+	FOR(slist_tpl<dir_entry_t>, const& i, entries) {
+		if(  i.type == LI_HEADER  ) {
+			numheader++;
+			lastheader = y;
+		}
+		y ++;
+	}
+	if(  numheader==1  ) {
+		entries.remove_first();
+	}
+
+	FOR(slist_tpl<dir_entry_t>, const& i, entries) {
 		button_t*    const button1 = i.del;
 		button_t*    const button2 = i.button;
 		gui_label_t* const label   = i.label;
@@ -173,6 +187,7 @@ void savegame_frame_t::list_filled()
 	set_fenstergroesse(koord(get_fenstergroesse().x, D_TITLEBAR_HEIGHT+12+y+30+1));
 }
 
+
 void savegame_frame_t::add_file(const char *fullpath, const char *filename, const char *pak, const bool no_cutting_suffix)
 {
 	button_t *button = new button_t();
@@ -190,12 +205,12 @@ void savegame_frame_t::add_file(const char *fullpath, const char *filename, cons
 
 	std::string const compare_to = !umgebung_t::objfilename.empty() ? umgebung_t::objfilename.substr(0, umgebung_t::objfilename.size() - 1) + " -" : std::string();
 	// sort by date descending:
-	slist_tpl<entry>::iterator i = entries.begin();
-	slist_tpl<entry>::iterator end = entries.end();
+	slist_tpl<dir_entry_t>::iterator i = entries.begin();
+	slist_tpl<dir_entry_t>::iterator end = entries.end();
 
 	// This needs optimizing, advance to the last section, since inserts come allways to the last section, we could just update  last one on last_section
 
-	slist_tpl<entry>::iterator lastfound;
+	slist_tpl<dir_entry_t>::iterator lastfound;
 	while(i != end) {
 		if(i->type == LI_HEADER) {
 			lastfound = i;
@@ -245,7 +260,7 @@ void savegame_frame_t::add_file(const char *fullpath, const char *filename, cons
 	gui_label_t* l = new gui_label_t(NULL);
 	l->set_text_pointer(date);
 	button_t *del = new button_t();
-	entries.insert(i, entry(button, del, l, LI_ENTRY, fullpath));
+	entries.insert(i, dir_entry_t(button, del, l, LI_ENTRY, fullpath));
 }
 
 
@@ -297,7 +312,7 @@ bool savegame_frame_t::action_triggered(gui_action_creator_t *komp, value_t /* *
 	else {
 		// File in list selected
 		//--------------------------
-		FOR(slist_tpl<entry>, const& i, entries) {
+		FOR(slist_tpl<dir_entry_t>, const& i, entries) {
 			if(in_action){
 				break;
 			}
@@ -357,7 +372,7 @@ void savegame_frame_t::set_fenstergroesse(koord groesse)
 	sint16 y = 0;
 	sint16 num_sections = 0;
 
-	FOR(slist_tpl<entry>, const& i, entries) {
+	FOR(slist_tpl<dir_entry_t>, const& i, entries) {
 		// resize all but delete button
 
 		if(i.type == LI_HEADER) {
@@ -482,7 +497,7 @@ void savegame_frame_t::add_section(std::string &name){
 	gui_label_t* l = new gui_label_t(NULL, COL_WHITE);
 	l->set_text_pointer(label_text);
 
-	entries.append(entry(NULL, NULL, l, LI_HEADER, NULL));
+	entries.append(dir_entry_t(NULL, NULL, l, LI_HEADER, NULL));
 }
 
 void savegame_frame_t::add_path(const char * path){
