@@ -399,15 +399,12 @@ void fahrplan_gui_t::update_werkzeug(bool set)
 
 void fahrplan_gui_t::update_selection()
 {
-	// update load
-	lb_load.set_color( COL_GREY3 );
-	numimp_load.disable();
-	numimp_load.set_value( 0 );
 	bt_wait_prev.disable();
 	lb_wait.set_color( COL_GREY3 );
 	strcpy( str_parts_month, translator::translate("off") );
 	lb_waitlevel.set_color( COL_GREY3 );
 	bt_wait_next.disable();
+
 	if(  !fpl->empty()  ) {
 		fpl->set_aktuell( min(fpl->get_count()-1,fpl->get_aktuell()) );
 		const uint8 aktuell = fpl->get_aktuell();
@@ -424,6 +421,11 @@ void fahrplan_gui_t::update_selection()
 				lb_waitlevel.set_color( COL_WHITE );
 				bt_wait_next.enable();
 			}
+		}
+		else {
+			lb_load.set_color( COL_GREY3 );
+			numimp_load.disable();
+			numimp_load.set_value( 0 );
 		}
 	}
 }
