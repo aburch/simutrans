@@ -279,7 +279,7 @@ bool convoi_frame_t::infowin_event(const event_t *ev)
 bool convoi_frame_t::action_triggered( gui_action_creator_t *komp, value_t /* */ )           // 28-Dec-01    Markus Weber    Added
 {
 	if(  komp == &filter_on  ) {
-		filter_is_on ^= true;
+		filter_is_on = !filter_is_on; // why is ^= true not working???
 		filter_on.set_text( filter_is_on ? "cl_btn_filter_enable" : "cl_btn_filter_disable");
 		sort_list();
 	}
@@ -293,7 +293,7 @@ bool convoi_frame_t::action_triggered( gui_action_creator_t *komp, value_t /* */
 	}
 	else if(  komp == &filter_details  ) {
 		if(  !destroy_win( magic_convoi_list_filter+owner->get_player_nr() )  ) {
-			create_win( new convoi_filter_frame_t(owner, this), w_info, magic_convoi_list_filter+owner->get_player_nr() );
+			create_win( new convoi_filter_frame_t(owner, this, filter_flags), w_info, magic_convoi_list_filter+owner->get_player_nr() );
 		}
 	}
 	return true;

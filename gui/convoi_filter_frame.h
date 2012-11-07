@@ -59,7 +59,7 @@ private:
 	uint32 filter_flags;
 
 	bool get_filter(convoi_filter_frame_t::filter_flag_t filter) { return (filter_flags & filter) != 0; }
-	void set_filter(convoi_filter_frame_t::filter_flag_t filter, bool on) { filter_flags = on ? (filter_flags | filter) : (filter_flags & ~filter); }
+	void set_filter(convoi_filter_frame_t::filter_flag_t filter, bool on) { filter_flags = (on ? (filter_flags | filter) : (filter_flags & ~filter) ); }
 
 	/*
 	* Helper class for the entries of the srollable list of goods.
@@ -89,7 +89,7 @@ private:
 	};
 
 	slist_tpl<ware_item_t *>all_ware;
-	slist_tpl<const ware_besch_t *>active_ware;
+	static slist_tpl<const ware_besch_t *>active_ware;
 
 	static koord filter_buttons_pos[FILTER_BUTTONS];
 	static filter_flag_t filter_buttons_types[FILTER_BUTTONS];
@@ -105,7 +105,7 @@ private:
 	 */
 	button_t filter_buttons[FILTER_BUTTONS];
 
-	char name_filter_text[64];
+	static char name_filter_text[64];
 	gui_textinput_t name_filter_input;
 
 	button_t typ_filter_enable;
@@ -124,7 +124,7 @@ public:
 	 * Konstruktor. Erzeugt alle notwendigen Subkomponenten.
 	 * @author V. Meyer
 	 */
-	convoi_filter_frame_t(spieler_t *sp, convoi_frame_t *parent );
+	convoi_filter_frame_t(spieler_t *sp, convoi_frame_t *parent, uint32 initial_filters );
 
 	/**
 	 * Does this window need a min size button in the title bar?

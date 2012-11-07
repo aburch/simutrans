@@ -83,14 +83,16 @@ convoi_filter_frame_t::filter_flag_t convoi_filter_frame_t::filter_buttons_types
 	obsolete_filter
 };
 
+slist_tpl<const ware_besch_t *>convoi_filter_frame_t::active_ware;
+char convoi_filter_frame_t::name_filter_text[] = "";
 
-convoi_filter_frame_t::convoi_filter_frame_t(spieler_t *sp, convoi_frame_t *main_frame) :
+
+convoi_filter_frame_t::convoi_filter_frame_t(spieler_t *sp, convoi_frame_t *m, uint32 f ) :
 	gui_frame_t( translator::translate("clf_title"), sp),
-	ware_scrolly(&ware_cont)
+	ware_scrolly(&ware_cont),
+	filter_flags(f),
+	main_frame(m)
 {
-	this->main_frame = main_frame;
-	filter_flags = 0;
-
 	for(  int i=0; i < FILTER_BUTTONS; i++  ) {
 		filter_buttons[i].init(button_t::square_state, filter_buttons_text[i], filter_buttons_pos[i]);
 		filter_buttons[i].add_listener(this);
@@ -98,8 +100,8 @@ convoi_filter_frame_t::convoi_filter_frame_t(spieler_t *sp, convoi_frame_t *main
 		if(filter_buttons_types[i] < sub_filter) {
 			filter_buttons[i].foreground = COL_WHITE;
 		}
+		filter_buttons[i].pressed = get_filter(filter_buttons_types[i]);
 	}
-	name_filter_text[0] = 0;
 	name_filter_input.set_text( name_filter_text, lengthof(name_filter_text) );
 	name_filter_input.set_groesse(koord(100, D_BUTTON_HEIGHT));
 	name_filter_input.set_pos(koord(5, D_BUTTON_HEIGHT));
@@ -122,24 +124,26 @@ convoi_filter_frame_t::convoi_filter_frame_t(spieler_t *sp, convoi_frame_t *main
 
 	all_ware.clear();
 	int n=0;
-	for(  int i=0; i<warenbauer_t::get_waren_anzahl(); i++  ) {
+	for(  int i=0;  i < warenbauer_t::get_waren_anzahl();  i++  ) {
 		const ware_besch_t *ware = warenbauer_t::get_info(i);
-		if(ware == warenbauer_t::nichts) {
+		if(  ware == warenbauer_t::nichts  ) {
 			continue;
 		}
-		if(ware->get_catg()==0) {
+		if(  ware->get_catg() == 0  ) {
 			// Sonderfracht: Each good is special
 			ware_item_t *item = new ware_item_t(this, ware);
 			item->init(button_t::square_state, translator::translate(ware->get_name()), koord(5, D_BUTTON_HEIGHT*n++));
+			item->pressed = active_ware.is_contained(ware);
 			ware_cont.add_komponente(item);
 			all_ware.append(item);
 		}
 	}
 	// now add other good categories
-	for(  int i=1; i<warenbauer_t::get_max_catg_index(); i++  ) {
-		if(warenbauer_t::get_info_catg(i)->get_catg()!=0) {
+	for(  int i=1;  i < warenbauer_t::get_max_catg_index();  i++  ) {
+		if(  warenbauer_t::get_info_catg(i)->get_catg() != 0  ) {
 			ware_item_t *item = new ware_item_t(this, warenbauer_t::get_info_catg(i));
 			item->init(button_t::square_state, translator::translate(warenbauer_t::get_info_catg(i)->get_catg_name()), koord(5, D_BUTTON_HEIGHT*n++));
+			item->pressed = active_ware.is_contained(warenbauer_t::get_info_catg(i));
 			ware_cont.add_komponente(item);
 			all_ware.append(item);
 		}
