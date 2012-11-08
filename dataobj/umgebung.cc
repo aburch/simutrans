@@ -56,6 +56,7 @@ bool umgebung_t::shuffle_midi = true;
 sint16 umgebung_t::window_snap_distance = 8;
 koord umgebung_t::iconsize( 32, 32 );
 uint8 umgebung_t::chat_window_transparency = 75;
+bool umgebung_t::hide_rail_return_ticket = true;
 
 // only used internally => do not touch further
 bool umgebung_t::quit_simutrans = false;

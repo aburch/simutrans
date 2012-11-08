@@ -141,6 +141,9 @@ public:
 	/// open only one info window per click on a map-square
 	static bool single_info;
 
+	/// for schedules with rails hide the back ticket button
+	static bool hide_rail_return_ticket;
+
 	/// how to sort destination of goods
 	/// @see freight_list_sorter_t::sort_mode_t
 	static uint8 default_sortmode;

@@ -4,6 +4,7 @@
 	ADD: (Markohs) File dialogs deletes now use the trash bin (by default) instead of a permanent delete in Windows platform. SHIFT overrides.
 	FIX: waiting level in schedule dialog works with keys again
 	FIX: convoi list filtering again in working order
+	ADD: hide by default return ticket for rail based transport (enable by simuconf.tab)
 
 
 Release of 112.0: (r6000 on 22-Oct-2012):

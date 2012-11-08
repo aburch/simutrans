@@ -268,6 +268,10 @@ ground_info = 0
 # (1=on, 0=off)
 townhall_info = 0
 
+# do not show the button to add an inverted schedule for rail based convois
+# (1=hide, 0=show anyway)
+hide_rail_return_ticket = 1
+
 # always open only a single info window for the ground,
 # even if there are more objects on this tile
 #only_single_info = 1

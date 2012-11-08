@@ -102,16 +102,20 @@ static void gimme_stop_name(cbuffer_t& buf, karte_t* const welt, spieler_t const
 			buf.printf("%d%% ", entry.ladegrad);
 		}
 		what = halt->get_name();
-	} else {
+	}
+	else {
 		grund_t const* const gr = welt->lookup(entry.pos);
 		if (!gr) {
 			what = translator::translate("Invalid coordinate");
-		} else if (gr->get_depot()) {
+		}
+		else if (gr->get_depot()) {
 			what = translator::translate("Depot");
-		} else if (char const* const label_text = gr->get_text()) {
+		}
+		else if (char const* const label_text = gr->get_text()) {
 			buf.printf("%s ", translator::translate("Wegpunkt"));
 			what = label_text;
-		} else {
+		}
+		else {
 			what = translator::translate("Wegpunkt");
 		}
 	}
@@ -325,10 +329,13 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	bt_wait_next.add_listener(this);
 	add_komponente(&bt_wait_next);
 
-	bt_return.init(button_t::roundbox, "return ticket", koord(BUTTON3_X, ypos ), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT) );
-	bt_return.set_tooltip("Add stops for backward travel");
-	bt_return.add_listener(this);
-	add_komponente(&bt_return);
+	if(  !umgebung_t::hide_rail_return_ticket  ||  fpl->get_waytype()==road_wt  ||  fpl->get_waytype()==air_wt  ||  fpl->get_waytype()==water_wt  ) {
+		//  hide the return ticket on rail stuff, where it causes much trouble
+		bt_return.init(button_t::roundbox, "return ticket", koord(BUTTON3_X, ypos ), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT) );
+		bt_return.set_tooltip("Add stops for backward travel");
+		bt_return.add_listener(this);
+		add_komponente(&bt_return);
+	}
 
 	ypos += D_BUTTON_HEIGHT;
 
