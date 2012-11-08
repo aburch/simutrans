@@ -57,7 +57,7 @@ void *loadsave_thread( void *ptr )
 			lsp->loadsave_routine->flush_buffer(buf);
 		}
 		else {
-			if(  !lsp->loadsave_routine->fill_buffer(buf)>0  ) {
+			if(  lsp->loadsave_routine->fill_buffer(buf) <= 0  ) {
 				// nothing read into buffer - exit
 				break;
 			}
