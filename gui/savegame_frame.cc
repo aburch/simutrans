@@ -136,11 +136,9 @@ void savegame_frame_t::list_filled()
 	int y = 0;
 
 	int numheader = 0;
-	int lastheader = 0;
 	FOR(slist_tpl<dir_entry_t>, const& i, entries) {
 		if(  i.type == LI_HEADER  ) {
 			numheader++;
-			lastheader = y;
 		}
 		y ++;
 	}

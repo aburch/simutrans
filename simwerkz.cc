@@ -3620,7 +3620,7 @@ waytype_t wkz_station_t::get_waytype() const
 }
 
 
-const char *wkz_station_t::check_pos( karte_t *welt, spieler_t *sp, koord3d pos )
+const char *wkz_station_t::check_pos( karte_t *welt, spieler_t*,  koord3d pos )
 {
 	if(  grund_t *gr = welt->lookup( pos )  ) {
 		sint8 rotation;

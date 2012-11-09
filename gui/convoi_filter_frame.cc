@@ -89,9 +89,9 @@ char convoi_filter_frame_t::name_filter_text[] = "";
 
 convoi_filter_frame_t::convoi_filter_frame_t(spieler_t *sp, convoi_frame_t *m, uint32 f ) :
 	gui_frame_t( translator::translate("clf_title"), sp),
-	ware_scrolly(&ware_cont),
 	filter_flags(f),
-	main_frame(m)
+	main_frame(m),
+	ware_scrolly(&ware_cont)
 {
 	for(  int i=0; i < FILTER_BUTTONS; i++  ) {
 		filter_buttons[i].init(button_t::square_state, filter_buttons_text[i], filter_buttons_pos[i]);
