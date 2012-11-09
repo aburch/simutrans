@@ -89,10 +89,13 @@ void pakselector_t::fill_list()
 	// do the search ...
 	savegame_frame_t::fill_list();
 
+	uint32 num_headers = 0;
+
 	int y = 0;
 	FOR(slist_tpl<dir_entry_t>, const& i, entries) {
 
 		if (i.type == LI_HEADER ) {
+			num_headers++;
 			y += D_BUTTON_HEIGHT;
 			continue;
 		}
@@ -106,14 +109,20 @@ void pakselector_t::fill_list()
 			// no addons for this
 			i.del->set_visible(false);
 			i.del->disable();
-			if(entries.get_count()==2) {
-				// list contains only one header, one pakset entry without addons => no need to question further ...
-				umgebung_t::objfilename = (std::string)i.button->get_text() + "/";
-			}
+
+			// if list contains only one header, one pakset entry without addons
+			// store path to pakset temporary, reset later if more choices available
+			umgebung_t::objfilename = (std::string)i.button->get_text() + "/";
+			// if umgebung_t::objfilename is non-empty then simmain.cc will close the window immediately
 		}
 		y += D_BUTTON_HEIGHT;
 	}
 	chdir( umgebung_t::program_dir );
+
+	if(entries.get_count() > num_headers+1) {
+ 		// empty path as more than one pakset is present, user has to choose
+		umgebung_t::objfilename = "";
+	}
 
 	button_frame.set_groesse(koord(get_fenstergroesse().x-1, y ));
 	set_fenstergroesse(koord(get_fenstergroesse().x, D_TITLEBAR_HEIGHT+30+y+3*LINESPACE+4+1));
