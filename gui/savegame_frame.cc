@@ -506,8 +506,8 @@ void savegame_frame_t::add_path(const char * path){
 	}
 	this->paths.append(path);
 }
-/*!
- * \note On Windows Plattform, we use the trash bin.
+/**
+ * @note On Windows Plattform, we use the trash bin.
  */
 bool savegame_frame_t::del_action(const char * fullpath)
 {

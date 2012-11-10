@@ -5,7 +5,7 @@
 #include "../utils/cbuffer_t.h"
 #include "../simsys.h"
 
-/*!
+/**
  * what to do after loading
  */
 void pakselector_t::action(const char *fullpath)
@@ -30,9 +30,9 @@ const char *pakselector_t::get_info(const char *)
 }
 
 
-/*!
+/**
  * This method is called if an action is triggered
- * \author Hj. Malthaner
+ * @author Hj. Malthaner
  */
 bool pakselector_t::action_triggered(gui_action_creator_t *komp, value_t v)
 {
