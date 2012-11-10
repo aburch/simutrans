@@ -1,0 +1,35 @@
+<title>Stanice</title>
+<h1>Dialog stanice</h1>
+
+<p>
+Informaèní dialog lze zobrazit po kliknutí na libovolnou stanici. Poskytuje rùzné u¾iteèné informace o stanici, vèetnì mo¾nosti zobrazení grafù. Mù¾ete také u ka¾dé va¹í stanice kdykoliv zmìnit název.
+</p>
+
+<p>
+Dialog se skládá ze seznamu, nìkolika ovládacích tlaèítek nahoøe, a popøípadì také z èásti s grafy (viz ní¾e).<br>
+Vstupní pole nahoøe vám umo¾òuje zmìnit název. Tlaèítko <strong>detaily</strong> zobrazí detaily o stanici - jaké je odsud pøímé spojení, jaké linky obsluhují tuto stanici nebo tøeba jaké zbo¾í je napojeným prùmyslem produkováno a vy¾adováno.
+</p>
+
+<p>
+Hlavní informace jsou zobrazeny uprostøed a v dolní èásti dialogu. Na seznamu se ukazují komodity, které èekají na odvezení ze stanice. Komodity lze øadit pomocí tlaèítka <strong>pøes/poèet/cíl</strong>.
+</p>
+
+<p>
+Seznam zobrazuje komodity ji¾ tøídìné podle druhu, ka¾dý druh komodit je pohromadì v jedné èásti.
+</p>
+
+<p>
+Dále jsou komodity uvnitø ka¾dé èásti tøídìny podle toho, kam má být která odvezena, pøes jakou pøestupní stanici èi dle poètu (závisí na tlaèítku <strong>pøes/poèet/cíl</strong>).
+</p>
+
+<p>
+Tlaèítkem <strong>Chart</strong> lze zapnout zobrazení grafù. Zde si pomocí tlaèítek mù¾ete vybrat, jakou statistickou informaci o stanici chcete zobrazit.
+</p>
+
+<p>
+<em>Poznámka:</em> Dialog je neustále obnovován, proto vidíte v¾dy aktuální informace o stanici, bez potøeby dialog znovu zavírat a otevírat.
+</p>
+
+<p>
+-><a href="about.txt">Informace o pøekladu</a>
+</p>

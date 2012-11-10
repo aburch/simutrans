@@ -41,7 +41,6 @@ void gui_label_t::set_text(const char *text)
  */
 void gui_label_t::zeichnen(koord offset)
 {
-	offset.y += (9-large_font_height)/2;
 	if(align == money) {
 		if(text) {
 			const char *seperator = NULL;

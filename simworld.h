@@ -21,6 +21,7 @@
 #include "halthandle_t.h"
 
 #include "tpl/weighted_vector_tpl.h"
+#include "tpl/ptrhashtable_tpl.h"
 #include "tpl/vector_tpl.h"
 #include "tpl/slist_tpl.h"
 
@@ -238,12 +239,24 @@ private:
 	zeiger_t *zeiger;
 
 	slist_tpl<sync_steppable *> sync_add_list;	// these objects are move to the sync_list (but before next sync step, so they do not interfere!)
+	slist_tpl<sync_steppable *> sync_remove_list;
 #ifndef SYNC_VECTOR
 	slist_tpl<sync_steppable *> sync_list;
 #else
 	vector_tpl<sync_steppable *> sync_list;
 #endif
-	slist_tpl<sync_steppable *> sync_remove_list;
+
+	slist_tpl<sync_steppable *> sync_eyecandy_add_list;	// these objects are move to the sync_list (but before next sync step, so they do not interfere!)
+	slist_tpl<sync_steppable *> sync_eyecandy_remove_list;
+	ptrhashtable_tpl<sync_steppable *,sync_steppable *> sync_eyecandy_list;
+
+	slist_tpl<sync_steppable *> sync_way_eyecandy_add_list;	// these objects are move to the sync_list (but before next sync step, so they do not interfere!)
+	slist_tpl<sync_steppable *> sync_way_eyecandy_remove_list;
+#ifndef SYNC_VECTOR
+	slist_tpl<sync_steppable *> sync_way_eyecandy_list;
+#else
+	vector_tpl<sync_steppable *> sync_way_eyecandy_list;
+#endif
 
 	vector_tpl<convoihandle_t> convoi_array;
 
@@ -477,6 +490,17 @@ private:
 
 	// The last time when a server announce was performed (in ms)
 	uint32 server_last_announce_time;
+
+	// threaded function caller
+	typedef void (karte_t::*y_loop_func)(sint16,sint16);
+	void world_y_loop(y_loop_func);
+	static void *world_y_loop_thread(void *);
+
+	// loops over plans after load
+	void plans_laden_abschliessen(sint16, sint16);
+
+	// updates all images
+	void update_map_intern(sint16, sint16);
 
 public:
 	// Announce server and current state to listserver
@@ -881,7 +905,7 @@ public:
 	*/
 	climate get_climate(sint16 height) const
 	{
-		const sint16 h=(height-grundwasser)/Z_TILE_STEP;
+		const sint16 h=height-grundwasser;
 		if(h<0) {
 			return water_climate;
 		} else if(h>=32) {
@@ -916,7 +940,7 @@ public:
 //		return x>=0 &&  y>=0  &&  cached_groesse_karte_x>=x  &&  cached_groesse_karte_y>=y;
 	}
 
-	inline bool ist_in_gittergrenzen(koord k) const {
+	inline bool ist_in_gittergrenzen(const koord &k) const {
 	// prissi: since negative values will make the whole result negative, we can use bitwise or
 	// faster, since pentiums and other long pipeline processors do not like jumps
 		return (k.x|k.y|(cached_groesse_gitter_x-k.x)|(cached_groesse_gitter_y-k.y))>=0;
@@ -939,7 +963,7 @@ public:
 	* @return Planquadrat an koordinate pos
 	* @author Hj. Malthaner
 	*/
-	inline const planquadrat_t * lookup(const koord k) const //planquadrat = "grid square" (Babelfish)
+	inline const planquadrat_t * lookup(const koord &k) const //planquadrat = "grid square" (Babelfish)
 	{
 		return ist_in_kartengrenzen(k.x, k.y) ? &plan[k.x+k.y*cached_groesse_gitter_x] : 0;
 		//ist in kartengrenzen = "is in map-border". (Babelfish)
@@ -950,7 +974,7 @@ public:
 	 * @return grund an pos/hoehe
 	 * @author Hj. Malthaner
 	 */
-	inline grund_t * lookup(const koord3d pos) const
+	inline grund_t *lookup(const koord3d &pos) const
 	{
 		const planquadrat_t *plan = lookup(pos.get_2d());
 		return plan ? plan->get_boden_in_hoehe(pos.z) : NULL;
@@ -962,7 +986,7 @@ public:
 	 * @return grund at the bottom (where house will be build)
 	 * @author Hj. Malthaner
 	 */
-	inline grund_t * lookup_kartenboden(const koord pos) const
+	inline grund_t *lookup_kartenboden(const koord &pos) const
 	{
 		const planquadrat_t *plan = lookup(pos);
 		return plan ? plan->get_kartenboden() : NULL;
@@ -1092,9 +1116,9 @@ public:
 	bool ebne_planquadrat(spieler_t *sp, koord pos, sint8 hgt, bool keep_water=false, bool make_underwater_hill=false);
 
 	// the convois are also handled each step => thus we keep track of them too
-	void add_convoi(convoihandle_t &cnv);
-	void rem_convoi(convoihandle_t& cnv);
-	vector_tpl<convoihandle_t> & convoys() { return convoi_array; }
+	void add_convoi(convoihandle_t const &cnv);
+	void rem_convoi(convoihandle_t const &cnv);
+	vector_tpl<convoihandle_t> const& convoys() const { return convoi_array; }
 
 	/**
 	 * Zugriff auf das Staedte Array.
@@ -1141,14 +1165,26 @@ public:
 	void set_nosave() { nosave = true; }
 	void set_nosave_warning() { nosave_warning = true; }
 
+	// rotate plans by 90 degrees
+	void rotate90_plans(sint16 y_min, sint16 y_max);
+
 	// rotate map view by 90 degrees
 	void rotate90();
 
 	bool sync_add(sync_steppable *obj);
 	bool sync_remove(sync_steppable *obj);
-
 	void sync_step(long delta_t, bool sync, bool display );	// advance also the timer
 
+	bool sync_eyecandy_add(sync_steppable *obj);
+	bool sync_eyecandy_remove(sync_steppable *obj);
+	void sync_eyecandy_step(long delta_t);	// all stuff, which does not need explicit order (factory smoke, buildings)
+
+	bool sync_way_eyecandy_add(sync_steppable *obj);
+	bool sync_way_eyecandy_remove(sync_steppable *obj);
+	void sync_way_eyecandy_step(long delta_t);	// currently one smoke from vehicles on ways
+
+
+	// for all stuff, that needs long and can be done less frequently
 	void step();
 
 	inline planquadrat_t *access(int i, int j) const {
@@ -1165,7 +1201,7 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	inline sint8 lookup_hgt(koord k) const {
-		return ist_in_gittergrenzen(k.x, k.y) ? grid_hgts[k.x + k.y*(cached_groesse_gitter_x+1)]*Z_TILE_STEP : grundwasser;
+		return ist_in_gittergrenzen(k.x, k.y) ? grid_hgts[k.x + k.y*(cached_groesse_gitter_x+1)] : grundwasser;
 	}
 
 	/**
@@ -1173,7 +1209,7 @@ public:
 	 * Never set grid_hgts manually, always use this method!
 	 * @author Hj. Malthaner
 	 */
-	void set_grid_hgt(koord k, sint16 hgt) { grid_hgts[k.x + k.y*(uint32)(cached_groesse_gitter_x+1)] = (hgt/Z_TILE_STEP); }
+	void set_grid_hgt(koord k, sint8 hgt) { grid_hgts[k.x + k.y*(uint32)(cached_groesse_gitter_x+1)] = hgt; }
 
 	/**
 	 * @return Minimale Hoehe des Planquadrates i,j

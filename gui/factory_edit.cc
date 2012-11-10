@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997 - 2004 Hansjörg Malthaner
  *
- * Line management
+ * Tool to place factories
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -16,7 +16,7 @@
 #include "../simskin.h"
 #include "../simwerkz.h"
 
-#include "components/list_button.h"
+
 
 #include "../bauer/fabrikbauer.h"
 
@@ -66,12 +66,12 @@ factory_edit_frame_t::factory_edit_frame_t(spieler_t* sp_, karte_t* welt) :
 	bt_city_chain.init( button_t::square_state, "Only city chains", koord(get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
 	bt_city_chain.add_listener(this);
 	add_komponente(&bt_city_chain);
-	offset_of_comp += BUTTON_HEIGHT;
+	offset_of_comp += D_BUTTON_HEIGHT;
 
 	bt_land_chain.init( button_t::square_state, "Only land chains", koord(get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
 	bt_land_chain.add_listener(this);
 	add_komponente(&bt_land_chain);
-	offset_of_comp += BUTTON_HEIGHT;
+	offset_of_comp += D_BUTTON_HEIGHT;
 
 	lb_rotation_info.set_pos( koord( get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
 	add_komponente(&lb_rotation_info);
@@ -86,7 +86,7 @@ factory_edit_frame_t::factory_edit_frame_t(spieler_t* sp_, karte_t* welt) :
 
 	lb_rotation.set_pos( koord( get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2+44, offset_of_comp-4 ) );
 	add_komponente(&lb_rotation);
-	offset_of_comp += BUTTON_HEIGHT;
+	offset_of_comp += D_BUTTON_HEIGHT;
 
 	lb_production_info.set_pos( koord( get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
 	add_komponente(&lb_production_info);
@@ -97,7 +97,7 @@ factory_edit_frame_t::factory_edit_frame_t(spieler_t* sp_, karte_t* welt) :
 	inp_production.add_listener( this );
 	add_komponente(&inp_production);
 
-	offset_of_comp += BUTTON_HEIGHT;
+	offset_of_comp += D_BUTTON_HEIGHT;
 
 	fill_list( is_show_trans_name );
 

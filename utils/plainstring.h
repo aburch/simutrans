@@ -23,6 +23,8 @@ class plainstring
 			return *this;
 		}
 
+		plainstring& operator =(plainstring const& o) { return *this = o.str_; }
+
 		char const* c_str() const { return str_; }
 
 		operator char const*() const { return str_; }

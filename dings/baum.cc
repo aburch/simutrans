@@ -351,7 +351,7 @@ void baum_t::recalc_off()
 	const sint8 yoff = 2*(get_yoff() + zoff); // = y-x
 	sint8 x = (xoff - yoff) / 2;
 	sint8 y = (xoff + yoff) / 2;
-	calc_off(x, y);
+	calc_off(welt->lookup( get_pos())->get_grund_hang(), x, y);
 }
 
 
@@ -394,7 +394,7 @@ void baum_t::calc_bild()
 					season = 2;
 				}
 			}
-			else if(welt->get_snowline()<=get_pos().z+Z_TILE_STEP  &&  season==0) {
+			else if(welt->get_snowline()<=get_pos().z+1  &&  season==0) {
 				// snowline crossing in summer
 				// so at least some weeks spring/autumn
 				season = welt->get_last_month() <=5 ? 3 : 1;
@@ -432,7 +432,12 @@ image_id baum_t::get_outline_bild() const
 
 uint32 baum_t::get_age() const
 {
-	return  welt->get_current_month()-geburt;
+	sint32 age = welt->get_current_month() - geburt;
+	if (age<0) {
+		// correct underflow, geburt is 16bit
+		age += 1 << 16;
+	}
+	return age;
 }
 
 
@@ -458,7 +463,8 @@ baum_t::baum_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 
 baum_t::baum_t(karte_t *welt, koord3d pos) : ding_t(welt, pos)
 {
-	// Hajo: auch aeltere Baeume erzeugen
+	// generate aged trees
+	// might underflow
 	geburt = welt->get_current_month() - simrand(703, "baum_t::baum_t");
 	baumtype = (uint8)random_tree_for_climate_intern(welt->get_climate(pos.z));
 	season = 0;
@@ -469,7 +475,7 @@ baum_t::baum_t(karte_t *welt, koord3d pos) : ding_t(welt, pos)
 
 baum_t::baum_t(karte_t *welt, koord3d pos, uint8 type, sint32 age, uint8 slope ) : ding_t(welt, pos)
 {
-	geburt = welt->get_current_month()-age;
+	geburt = welt->get_current_month()-age; // might underflow
 	baumtype = type;
 	season = 0;
 	calc_off( slope );
@@ -509,7 +515,7 @@ bool baum_t::check_season(long month)
 
 	// attention: integer underflow (geburt is 16bit, month 32bit);
 	while (alter < 0) {
-		alter += 0x7fff;
+		alter += 1 << 16;
 	}
 
 	if(  alter>=512  &&  alter<=515  ) {
@@ -618,7 +624,7 @@ void baum_t::info(cbuffer_t & buf) const
 
 	buf.append( translator::translate(get_besch()->get_name()) );
 	buf.append( "\n" );
-	int age = welt->get_current_month() - geburt;
+	uint32 age = get_age();
 	buf.printf( translator::translate("%i years %i months old."), age/12, (age%12) );
 }
 

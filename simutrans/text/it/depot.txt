@@ -1,0 +1,64 @@
+<title>Deposito</title>
+
+<h1>Finestra di dialogo Deposito</h1>
+<p>
+Nel deposito si può comprare, vendere e definire il percorso di tutti
+i veicoli disponibili di un particolare tipo, ad es. autobus o camion
+se si è in un deposito di mezzi stradali.
+</p>
+<p>
+Questa finestra di dialogo contiene informazioni sui veicoli che si possono
+comprare e su quelli già acquistati.
+Nelle tab sulla destra sono mostrati i veicoli acquistabili.
+Nella zona in alto a sinistra è mostrato il convoglio attualmente
+assemblato (ad es. un treno con i suoi vagoni).
+Nella zona di mezzo, sempre a sinistra, sono invece mostrati motrici e
+camion, mentre in basso a sinistra vengono mostrati vagoni e rimorchi.
+</p>
+<p>
+Nella parte più in basso vengono visualizzate delle informazioni
+relative al veicolo selezionato.
+Al di sotto di questa zona, sono presenti tre bottoni.
+</p>
+<p>
+Il più a sinistra è il pulsante "Parti", che serve per far partire un veicolo
+di cui si è già specificato il percorso. Il pulsante <a href="schedule.txt">
+"Percorso"</a> serve quindi proprio a definire una serie di punti in cui
+si vuole far passare il veicolo.
+Infine, il bottone "Vendi" svolge la ovvia funzione di vendere i veicoli in proprio
+possesso (questa funzione è attiva finchè non la si disattiva).
+</p>
+<p>
+Per vedere le informazioni relative ad un particolare veicolo è sufficiente
+passare con il puntatore del mouse sopra uno di essi. Le informazioni compariranno
+nella parte bassa della finestra.
+Per comprare un veicolo basta selezionarlo con il tasto sinistro del mouse:
+comparirà nella parte sinistra della finestra.
+Il convoglio sul quale si sta lavorando apparirà nella zona superiore sinistra;
+ogni motrice/camion/nave addizionale viene visualizzata subito sotto, mentre ogni
+vagone/rimorchio addizionale ancora sotto, appena sopra le informazioni.
+</p>
+<p>
+E' possibile formare un convoglio in due modi.
+Si possono comprare tutti i veicoli necessari uno dopo l'altro, iniziando dalla
+motrice/camion e quindi comprando ogni altro vagone/rimorchio; oppure si possono
+selezionare uno ad uno i veicoli già acquistati in precedenza e formare un
+convoglio con quelli.<strong>E' possibile lavorare su un solo convoglio alla volta.</strong>
+Per vendere un qualunque veicolo in proprio possesso, si seleziona il pulsante "Vendi"
+e quindi si clicca sul veicolo. Il prezzo di vendita appare nella zona delle
+informazioni.
+</p>
+<p>
+Per definire il percorso di un veicolo, si preme il pulsante
+<a href="schedule.txt">"Percorso"</a> per far comparire la finestra
+di impostazione del percorso.
+Una volta definito il percorso, è possibile far partire il veicolo
+agendo sul bottone "Parti".
+</p>
+<p>
+Per far tornare un convoglio al deposito, è necessario rimuovere tutte le
+fermate dal suo percorso e impostare come sua unica destinazione il deposito
+stesso. Una volta che il convoglio ha raggiunto il deposito, viene disassemblato
+e i veicoli di cui era composto diventano nuovamente disponibili nel
+deposito, pronti per ripartire, formare un altro convoglio o essere venduti.
+</p>

@@ -34,8 +34,6 @@ bool wolke_t::register_besch(const skin_besch_t* besch)
 
 
 
-
-
 wolke_t::wolke_t(karte_t *welt, koord3d pos, sint8 x_off, sint8 y_off, const skin_besch_t* besch ) :
 	ding_no_info_t(welt, pos)
 {
@@ -44,7 +42,6 @@ wolke_t::wolke_t(karte_t *welt, koord3d pos, sint8 x_off, sint8 y_off, const ski
 	set_xoff( (x_off*OBJECT_OFFSET_STEPS)/16 );
 	set_yoff( base_y_off );
 	insta_zeit = 0;
-	divisor = 2500/besch->get_bild_anzahl();
 }
 
 
@@ -52,7 +49,11 @@ wolke_t::wolke_t(karte_t *welt, koord3d pos, sint8 x_off, sint8 y_off, const ski
 wolke_t::~wolke_t()
 {
 	mark_image_dirty( get_bild(), 0 );
-	welt->sync_remove(this);
+	if(  insta_zeit != 2499  ) {
+		if(  !welt->sync_way_eyecandy_remove( this )  ) {
+			dbg->error( "wolke_t::~wolke_t()", "wolke not in bthe correct sync list" );
+		}
+	}
 }
 
 
@@ -60,6 +61,13 @@ wolke_t::~wolke_t()
 wolke_t::wolke_t(karte_t* const welt, loadsave_t* const file) : ding_no_info_t(welt)
 {
 	rdwr(file);
+}
+
+
+image_id wolke_t::get_bild() const
+{
+	const skin_besch_t *besch = all_clouds[cloud_nr];
+	return besch->get_bild_nr( (insta_zeit*besch->get_bild_anzahl())/2500 );
 }
 
 
@@ -73,7 +81,6 @@ void wolke_t::rdwr(loadsave_t *file)
 
 	cloud_nr = 0;
 	insta_zeit = 0;
-	divisor = 10000;
 
 	uint32 ldummy = 0;
 	file->rdwr_long(ldummy);
@@ -91,7 +98,7 @@ void wolke_t::rdwr(loadsave_t *file)
 bool wolke_t::sync_step(long delta_t)
 {
 	insta_zeit += (uint16)delta_t;
-	if(insta_zeit>2500) {
+	if(insta_zeit>=2499) {
 		// delete wolke ...
 		insta_zeit = 2499;
 		return false;

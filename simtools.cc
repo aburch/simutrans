@@ -8,6 +8,7 @@
 #include "simworld.h"
 #include "utils/cbuffer_t.h"
 #endif
+#include "simsys.h"
 
 /* This is the mersenne random generator: More random and faster! */
 
@@ -156,7 +157,7 @@ uint16 get_random_mode()
 }
 
 
-static uint32 rand_seed = 12345678;
+static uint32 async_rand_seed = 12345678+dr_time();
 
 // simpler simrand for anything not game critical (like UI)
 uint32 sim_async_rand( uint32 max )
@@ -164,10 +165,10 @@ uint32 sim_async_rand( uint32 max )
 	if(  max==0  ) {
 		return 0;
 	}
-	rand_seed *= 3141592621u;
-	rand_seed ++;
+	async_rand_seed *= 3141592621u;
+	async_rand_seed ++;
 
-	return (rand_seed >> 8) % max;
+	return (async_rand_seed >> 8) % max;
 }
 
 static uint32 noise_seed = 0;
@@ -178,7 +179,7 @@ uint32 setsimrand(uint32 seed,uint32 ns)
 
 	if(seed!=0xFFFFFFFF) {
 		init_genrand( seed );
-		rand_seed = seed;
+		async_rand_seed = seed+dr_time();
 		random_origin = 0;
 	}
 	if(noise_seed!=0xFFFFFFFF) {
@@ -389,19 +390,26 @@ double perlin_noise_2D(const double x, const double y, const double p, const sin
 // compute integer log10
 uint32 log10(uint32 v)
 {
-	// taken from http://graphics.stanford.edu/~seander/bithacks.html
-	// compute log2 first
-	const uint32 b[] = { 0x2, 0xC, 0xF0, 0xFF00, 0xFFFF0000 };
-	const uint32 S[] = { 1, 2, 4, 8, 16 };
+	return ( (log2(v) + 1) * 1233) >> 12; // 1 / log_2(10) ~~ 1233 / 4096
+}
 
-	uint32 r = 0; // result of log2(v) will go here
-	for(  int i = 4;  i >= 0;  i--  ) {
-		if(  v & b[i]  ) {
-			v >>= S[i];
-			r |= S[i];		}
+
+uint32 log2(uint32 n)
+{
+	uint32 i = (n & 0xffff0000) ? 16 : 0;
+	if(  (n >>= i) & 0xff00  ) {
+		i |= 8;
+		n >>= 8;
 	}
-	uint32 t = ((r + 1) * 1233) >> 12; // 1 / log_2(10) ~~ 1233 / 4096
-	return t;
+	if(  n & 0xf0  ) {
+		i |= 4;
+		n >>= 4;
+	}
+	if(  n & 0xC  ) {
+		i |= 2;
+		n >>= 2;
+	}
+	return i | (n >> 1);
 }
 
 */

@@ -20,6 +20,7 @@
 #include "../../dataobj/umgebung.h"
 
 #include "../../utils/searchfolder.h"
+#include "../../utils/simstring.h"
 
 #include "../../tpl/inthashtable_tpl.h"
 #include "../../tpl/ptrhashtable_tpl.h"
@@ -91,8 +92,7 @@ bool obj_reader_t::load(const char *liste, const char *message)
 	if(name.at(name.size() - 1) != '/') {
 		// very old style ... (I think unused by now)
 
-		FILE *listfp = fopen(name.c_str(), "rt");
-		if(listfp) {
+		if (FILE* const listfp = fopen(name.c_str(), "r")) {
 			while(!feof(listfp)) {
 				char buf[256];
 
@@ -165,7 +165,7 @@ DBG_MESSAGE("obj_reader_t::load()","big logo %p", skinverwaltung_t::biglogosymbo
 			// defining the pak tile witdh ....
 			read_file((name+"ground.Outside.pak").c_str());
 			if(grund_besch_t::ausserhalb==NULL) {
-				dbg->error("obj_reader_t::load()","ground.Outside.pak not found, cannot guess tile size! (driving on left will not work!)");
+				dbg->warning("obj_reader_t::load()","ground.Outside.pak not found, cannot guess tile size! (driving on left will not work!)");
 			}
 		}
 
@@ -193,9 +193,7 @@ void obj_reader_t::read_file(const char *name)
 	// Hajo: added trace
 	DBG_DEBUG("obj_reader_t::read_file()", "filename='%s'", name);
 
-	FILE *fp = fopen(name, "rb");
-
-	if(fp) {
+	if (FILE* const fp = fopen(name, "rb")) {
 		sint32 n = 0;
 
 		// This is the normal header reading code
@@ -351,7 +349,7 @@ void obj_reader_t::resolve_xrefs()
 		FOR(stringhashtable_tpl<slist_tpl<obj_besch_t**> >, const& i, u.value) {
 			obj_besch_t *obj_loaded = NULL;
 
-			if (strlen(i.key) > 0) {
+			if (!strempty(i.key)) {
 				if (stringhashtable_tpl<obj_besch_t*>* const objtype_loaded = loaded.access(u.key)) {
 					obj_loaded = objtype_loaded->get(i.key);
 				}

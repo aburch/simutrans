@@ -15,11 +15,9 @@ class karte_t;
 class wolke_t : public ding_no_info_t, public sync_steppable
 {
 private:
-	// maximum 16 types of clouds for now ...
 	static vector_tpl<const skin_besch_t *>all_clouds;
 
 	uint16 insta_zeit;	// clouds vanish when insta_zeit>2500 => maximum 5 images ...
-	uint16 divisor;
 	sint8 base_y_off;
 	sint8 cloud_nr;
 
@@ -35,7 +33,7 @@ public:
 	const char* get_name() const { return "Wolke"; }
 	typ get_typ() const { return sync_wolke; }
 
-	image_id get_bild() const { return all_clouds[cloud_nr]->get_bild_nr(insta_zeit/divisor); }
+	image_id get_bild() const;
 
 	void rdwr(loadsave_t *file);
 

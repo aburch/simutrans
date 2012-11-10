@@ -1,0 +1,37 @@
+<title>Lijst met steden</title>
+
+<h1><strong>Lijst met steden</strong></h1>
+
+<p>
+<strong>Lijst met steden</strong> toont details over <a href="citywindow.txt">dorpen en steden</a> en inwoners.
+</p>
+<p>
+Hoe te openen: klik op het Lijst met steden icoon in <a href="list.txt">Lijstenbeheer</a> of druk op toets <a href="keys.txt">[T]</a>.<br>
+<strong>Lijst met steden</strong> heeft twee knoppen die de volgorde bepalen waarop de dorpen en steden (en de inwoners) worden getoond.<br>
+{TIP: Als de items in de lijst slechts gedeeltelijk zichtbaar zijn, dan kun je het scherm <a href="mouse.txt">vergroten</a> <strong>Lijst met steden</strong> of door de lijst "scrollen" door middel van de scroll-bar.}
+</p>
+<p>
+<em>Totaal inwoners:</em> is het totaal aantal bewoners in het spel (het totaal van de inwoners van alle dorpen en steden). De recente groei van de bevolking wordt getoond tussen haakjes.
+</p>
+<p>
+<em>Gesorteerd op:</em> bepaalt de sortering van de lijst.<br>
+Klik meerdere malen op de knop om door de beschikbare sorteringen te bladeren (naam van de knop wijzigt ook):
+</p>
+<p>
+- <em>Naam</em> toont de alfanumerieke lijst op de ASCII-code volgorde (hoofdletters gaan voor kleine letters) op de toegekende <a href="convoi_info.txt">namen</a>.<br>
+- <em>Inwoners</em> sorteert op het aantal inwoners.<br>
+- <em>Groei</em> sorteert op de mate van groei van een dorp of stad (welke afhankelijk is van de grootte van het dorp of stad het aantal reizigers).
+</p>
+<p>
+- <em>oplopend</em> / <em>aflopend</em> draait de volgorde van de lijst om.
+</p>
+<p>
+Klik op een dorp of stad in de <strong>Lijst met steden</strong>om meer <a href="citywindow.txt">stadsinformatie</a> over de beteffende plaats te zien.<br>
+Voor elke plaats wordt het volgende getoond:
+</p>
+<p>
+Toegewezen <em>naam</em> van het gebied (kan worden gewijzigd in stadsinformatie scherm)..
+</p>
+<p>
+<em>aantal inwoners</em> van het gebied, tussen haakjes staat de recente groei van de bevolking.
+</p>

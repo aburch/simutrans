@@ -16,6 +16,7 @@
 #include "../simgraph.h"
 #include "../simwin.h"
 #include "../simhalt.h"
+#include "../simdepot.h"
 #include "../besch/sound_besch.h"
 #include "../player/simplay.h"
 #include "../simskin.h"
@@ -155,8 +156,6 @@ static bool compare_bridges(const bruecke_besch_t* a, const bruecke_besch_t* b)
 
 void brueckenbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, sint16 /*sound_ok*/, const karte_t *welt)
 {
-	static stringhashtable_tpl<wkz_brueckenbau_t *> bruecken_tool;
-
 	const uint16 time = welt->get_timeline_year_month();
 	vector_tpl<const bruecke_besch_t*> matching(bruecken_by_name.get_count());
 
@@ -214,10 +213,10 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const 
 			return koord3d::invalid;
 		}
 		// and if ground is above bridge / double slopes
-		if (height < -Z_TILE_STEP) {
+		if (height < -1) {
 			break; // to trigger the right error message
 		}
-		gr1 = welt->lookup(pos + koord3d(0, 0, Z_TILE_STEP));
+		gr1 = welt->lookup(pos + koord3d(0, 0, 1));
 		if(  gr1  &&  gr1->get_weg_hang()==hang_t::flach  &&  length>=min_length) {
 			if(  gr1->get_typ()==grund_t::boden  ) {
 				// on slope ok, but not on other bridges
@@ -488,7 +487,7 @@ void brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, ko
 	pos = pos + zv;
 
 	while(pos.get_2d()!=end.get_2d()) {
-		brueckenboden_t *bruecke = new brueckenboden_t(welt, pos + koord3d(0, 0, Z_TILE_STEP), 0, 0);
+		brueckenboden_t *bruecke = new brueckenboden_t(welt, pos + koord3d(0, 0, 1), 0, 0);
 		welt->access(pos.get_2d())->boden_hinzufuegen(bruecke);
 		if(besch->get_waytype() != powerline_wt) {
 			weg = weg_t::alloc(besch->get_waytype());
@@ -510,7 +509,7 @@ void brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, ko
 			if(besch->get_pillar()==1  ||  (pos.x*zv.x+pos.y*zv.y)%besch->get_pillar()==0) {
 				grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
 //DBG_MESSAGE("bool brueckenbauer_t::baue_bruecke()","h1=%i, h2=%i",pos.z,gr->get_pos().z);
-				sint16 height = (pos.z - gr->get_pos().z)/Z_TILE_STEP+1;
+				sint16 height = pos.z - gr->get_pos().z+1;
 				while(height-->0) {
 					if(height_scaling(TILE_HEIGHT_STEP*height)<=127) {
 						// eventual more than one part needed, if it is too high ...
@@ -752,6 +751,19 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 			bruecke_t *br = gr->find<bruecke_t>();
 			br->entferne(sp);
 			delete br;
+
+			// stops on flag bridges ends with road + track on it
+			// are not correctly deleted if ways are kept
+			if (gr->is_halt()) {
+				const char *fail = NULL;
+				haltestelle_t::remove(welt, sp, gr->get_pos(), fail);
+			}
+
+			// depots at bridge ends needs to be deleted as well
+			if (depot_t *dep = gr->get_depot()) {
+				dep->entferne(sp);
+				delete dep;
+			}
 
 			// removes single signals, bridge head, pedestrians, stops, changes catenary etc
 			weg_t *weg=gr->get_weg_nr(1);

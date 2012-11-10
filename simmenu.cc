@@ -248,15 +248,15 @@ static uint16 str_to_key( const char *str )
 			}
 		}
 		// COMMA
-		if(strncmp("COMMA",str,5)==0) {
+		if (strstart(str, "COMMA")) {
 			return ',';
 		}
 		// HOME
-		if(strncmp("HOME",str,4)==0) {
+		if (strstart(str, "HOME")) {
 			return SIM_KEY_HOME;
 		}
 		// END
-		if(strncmp("END",str,3)==0) {
+		if (strstart(str, "END")) {
 			return SIM_KEY_END;
 		}
 	}
@@ -499,8 +499,7 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 	koord size( contents.get_int("icon_width",32), contents.get_int("icon_height",32) );
 	// first: add main menu
 	toolbar_tool.resize( skinverwaltung_t::werkzeuge_toolbars->get_bild_anzahl() );
-	toolbar_tool.append(new toolbar_t("", "", size));
-	toolbar_tool[0]->id = TOOLBAR_TOOL;
+	toolbar_tool.append(new toolbar_t(TOOLBAR_TOOL, "", "", size));
 	// now for the rest
 	for(  uint16 i=0;  i<toolbar_tool.get_count();  i++  ) {
 		char id[256];
@@ -681,7 +680,7 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 					const char *title = c;
 					c += strcspn(c, ",");
 					if (*c != '\0') *c++ = '\0';
-					toolbar_t *tb = new toolbar_t( title, c, size );
+					toolbar_t* const tb = new toolbar_t(toolbar_tool.get_count() | TOOLBAR_TOOL, title, c, size);
 					if(icon!=IMG_LEER) {
 						tb->icon = icon;
 					}
@@ -689,14 +688,13 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 						tb->command_key = str_to_key(key_str);
 						char_to_tool.append(tb);
 					}
-					tb->id = toolbar_tool.get_count() | TOOLBAR_TOOL;
 					toolbar_tool.append(tb);
 					addtool = tb;
 				}
 			}
 			else {
 				// make a default tool to add the parameter here
-				addtool = new werkzeug_t();
+				addtool = new werkzeug_t(werkzeug_t::dummy_id);
 				addtool->default_param = strdup(toolname);
 				addtool->command_key = 1;
 			}
@@ -747,6 +745,9 @@ const char *kartenboden_werkzeug_t::check_pos( karte_t *welt, spieler_t *, koord
 
 // seperator in toolbars
 class wkz_dummy_t : public werkzeug_t {
+public:
+	wkz_dummy_t() : werkzeug_t(dummy_id) {}
+
 	bool init(karte_t*, spieler_t*) OVERRIDE { return false; }
 	bool is_init_network_save() const OVERRIDE { return true; }
 	bool is_work_network_save() const OVERRIDE { return true; }
@@ -860,6 +861,7 @@ void toolbar_t::update(karte_t *welt, spieler_t *sp)
 			wzw->add_werkzeug( w );
 		}
 	}
+
 	if(  (strcmp(this->default_param,"EDITTOOLS")==0  &&  sp!=welt->get_spieler(1))  ) {
 		destroy_win(wzw);
 		return;
@@ -887,7 +889,7 @@ bool toolbar_t::init(karte_t *welt, spieler_t *sp)
 	else if(!close  &&  this!=werkzeug_t::toolbar_tool[0]) {
 		// not open and not main menu
 		create_win( wzw, w_info|w_do_not_delete|w_no_overlap, magic_toolbar+toolbar_tool.index_of(this) );
-		DBG_MESSAGE("toolbar_t::init()", "ID=%id", id);
+		DBG_MESSAGE("toolbar_t::init()", "ID=%id", get_id());
 	}
 	return false;
 }
@@ -902,43 +904,40 @@ bool toolbar_t::exit( karte_t *, spieler_t *)
 }
 
 
-bool two_click_werkzeug_t::init( karte_t *welt, spieler_t *sp )
+bool two_click_werkzeug_t::init( karte_t *welt, spieler_t *)
 {
-	dbg->warning("two_click_werkzeug_t::init", "" );
-	first_click_var[sp->get_player_nr()] = true;
-	start[sp->get_player_nr()] = koord3d::invalid;
+	first_click_var = true;
+	start = koord3d::invalid;
 	if (is_local_execution()) {
 		welt->show_distance = koord3d::invalid;
 	}
-	cleanup( sp, true );
+	cleanup( true );
 	return true;
 }
 
 
-void two_click_werkzeug_t::rdwr_custom_data(uint8 player_nr_, memory_rw_t *packet)
+void two_click_werkzeug_t::rdwr_custom_data(uint8, memory_rw_t *packet)
 {
-	uint8 player_nr = player_nr_ < MAX_PLAYER_COUNT ? player_nr_ : MAX_PLAYER_COUNT-1;
-	packet->rdwr_bool(first_click_var[player_nr]);
-	koord3d & pos = start[player_nr];
-	sint16 posx = pos.x; packet->rdwr_short(posx); pos.x = posx;
-	sint16 posy = pos.y; packet->rdwr_short(posy); pos.y = posy;
-	sint8  posz = pos.z; packet->rdwr_byte(posz);  pos.z = posz;
+	packet->rdwr_bool(first_click_var);
+	sint16 posx = start.x; packet->rdwr_short(posx); start.x = posx;
+	sint16 posy = start.y; packet->rdwr_short(posy); start.y = posy;
+	sint8  posz = start.z; packet->rdwr_byte(posz);  start.z = posz;
 }
 
 
-bool two_click_werkzeug_t::is_first_click( spieler_t *sp ) const
+bool two_click_werkzeug_t::is_first_click() const
 {
-	return first_click_var[sp->get_player_nr()];
+	return first_click_var;
 }
 
 
 bool two_click_werkzeug_t::is_work_here_network_save( karte_t *welt, spieler_t *sp, koord3d pos )
 {
-	if(  !is_first_click(sp)  ) {
+	if(  !is_first_click()  ) {
 		return false;
 	}
 	const char *error = "";	//default: nosound
-	uint8 value = is_valid_pos( welt, sp, pos, error, !is_first_click(sp) ? start[sp->get_player_nr()] : koord3d::invalid );
+	uint8 value = is_valid_pos( welt, sp, pos, error, koord3d::invalid );
 	DBG_MESSAGE("two_click_werkzeug_t::is_work_here_network_save", "Position %s valid=%d", pos.get_str(), value );
 	if(  value == 0  ) {
 		return false;
@@ -958,15 +957,15 @@ bool two_click_werkzeug_t::is_work_here_network_save( karte_t *welt, spieler_t *
 
 const char *two_click_werkzeug_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 {
-	if(  !is_first_click(sp)  &&  start_marker[sp->get_player_nr()]  ) {
-		start[sp->get_player_nr()]= start_marker[sp->get_player_nr()]->get_pos(); // if map was rotated.
+	if(  !is_first_click()  &&  start_marker  ) {
+		start = start_marker->get_pos(); // if map was rotated.
 	}
 
 	// remove marker
-	cleanup( sp, true );
+	cleanup( true );
 
 	const char *error = "";	//default: nosound
-	uint8 value = is_valid_pos( welt, sp, pos, error, !is_first_click(sp) ? start[sp->get_player_nr()] : koord3d::invalid );
+	uint8 value = is_valid_pos( welt, sp, pos, error, !is_first_click() ? start : koord3d::invalid );
 	DBG_MESSAGE("two_click_werkzeug_t::work", "Position %s valid=%d", pos.get_str(), value );
 	if(  value == 0  ) {
 		flags &= ~(WFL_SHIFT | WFL_CTRL);
@@ -974,7 +973,7 @@ const char *two_click_werkzeug_t::work( karte_t *welt, spieler_t *sp, koord3d po
 		return error;
 	}
 
-	if(  is_first_click(sp)  ) {
+	if(  is_first_click()  ) {
 		// work directly if possible and ctrl is NOT pressed
 		if( (value & 1)  &&  !( (value & 2)  &&  is_ctrl_pressed())) {
 			// Work here directly.
@@ -984,13 +983,13 @@ const char *two_click_werkzeug_t::work( karte_t *welt, spieler_t *sp, koord3d po
 		else {
 			// set starting position.
 			DBG_MESSAGE("two_click_werkzeug_t::work", "Setting start to %s", pos.get_str() );
-			start_at( welt, sp, pos );
+			start_at( welt, pos );
 		}
 	}
 	else {
 		if( value & 2 ) {
 			DBG_MESSAGE("two_click_werkzeug_t::work", "Setting end to %s", pos.get_str() );
-			error = do_work( welt, sp, start[sp->get_player_nr()], pos );
+			error = do_work( welt, sp, start, pos );
 		}
 		flags &= ~(WFL_SHIFT | WFL_CTRL);
 		init( welt, sp ); // Do the cleanup stuff after(!) do_work (otherwise start==koord3d::invalid).
@@ -1006,39 +1005,38 @@ const char *two_click_werkzeug_t::move( karte_t *welt, spieler_t *sp, uint16 but
 		return "";
 	}
 
-	const uint8 sp_nr = sp->get_player_nr();
-	if(  start[sp_nr] == pos  ) {
+	if(  start == pos  ) {
 		init( welt, sp );
 	}
 
 	const char *error = NULL;
 
-	if(  start[sp_nr] == koord3d::invalid  ) {
+	if(  start == koord3d::invalid  ) {
 		// start dragging.
-		cleanup( sp, true );
+		cleanup( true );
 
 		uint8 value = is_valid_pos( welt, sp, pos, error, koord3d::invalid );
 		if( error || value == 0 ) {
 			return error;
 		}
 		if( value & 2 ) {
-			start_at( welt, sp, pos );
+			start_at( welt, pos );
 		}
 	}
 	else {
 		// continue dragging.
-		cleanup( sp, false );
+		cleanup( false );
 
-		if( start_marker[sp_nr] ) {
-			start[sp_nr] = start_marker[sp_nr]->get_pos(); // if map was rotated.
+		if( start_marker ) {
+			start = start_marker->get_pos(); // if map was rotated.
 		}
-		uint8 value = is_valid_pos( welt, sp, pos, error, start[sp_nr] );
+		uint8 value = is_valid_pos( welt, sp, pos, error, start );
 		if( error || value == 0 ) {
 			return error;
 		}
 		if( value & 2 ) {
 			display_show_load_pointer( true );
-			mark_tiles( welt, sp, start[sp_nr], pos );
+			mark_tiles( welt, sp, start, pos );
 			display_show_load_pointer( false );
 		}
 	}
@@ -1046,44 +1044,42 @@ const char *two_click_werkzeug_t::move( karte_t *welt, spieler_t *sp, uint16 but
 }
 
 
-void two_click_werkzeug_t::start_at( karte_t *welt, spieler_t* sp, koord3d &new_start )
+void two_click_werkzeug_t::start_at( karte_t *welt, koord3d &new_start )
 {
-	const uint8 sp_nr = sp->get_player_nr();
-	first_click_var[sp_nr] = false;
-	start[sp_nr] = new_start;
+	first_click_var = false;
+	start = new_start;
 	if (is_local_execution()) {
 		welt->show_distance = new_start;
-		start_marker[sp_nr] = new zeiger_t(welt, start[sp_nr], NULL);
-		start_marker[sp_nr]->set_bild( get_marker_image() );
-		grund_t *gr = welt->lookup( start[sp_nr] );
+		start_marker = new zeiger_t(welt, start, NULL);
+		start_marker->set_bild( get_marker_image() );
+		grund_t *gr = welt->lookup( start );
 		if( gr ) {
-			gr->obj_add(start_marker[sp_nr]);
+			gr->obj_add(start_marker);
 		}
 	}
-	DBG_MESSAGE("two_click_werkzeug_t::start_at", "Setting start to %s", start[sp_nr].get_str());
+	DBG_MESSAGE("two_click_werkzeug_t::start_at", "Setting start to %s", start.get_str());
 }
 
 
-void two_click_werkzeug_t::cleanup( spieler_t *sp, bool delete_start_marker )
+void two_click_werkzeug_t::cleanup( bool delete_start_marker )
 {
-	const uint8 sp_nr = sp->get_player_nr();
 	karte_t *welt = spieler_t::get_welt();
 	// delete marker.
-	if(  start_marker[sp_nr]!=NULL  &&  delete_start_marker) {
-		start_marker[sp_nr]->mark_image_dirty( start_marker[sp_nr]->get_bild(), 0 );
-		delete start_marker[sp_nr];
-		start_marker[sp_nr] = NULL;
+	if(  start_marker!=NULL  &&  delete_start_marker) {
+		start_marker->mark_image_dirty( start_marker->get_bild(), 0 );
+		delete start_marker;
+		start_marker = NULL;
 	}
 	// delete old route.
-	while(!marked[sp_nr].empty()) {
-		zeiger_t *z = marked[sp_nr].remove_first();
+	while(!marked.empty()) {
+		zeiger_t *z = marked.remove_first();
 		z->mark_image_dirty( z->get_bild(), 0 );
 		z->mark_image_dirty( z->get_after_bild(), 0 );
 		koord3d pos = z->get_pos();
 		grund_t *gr = welt->lookup( pos );
 		delete z;
 		// Remove dummy ground (placed by wkz_tunnelbau_t and wkz_wegebau_t):
-		if( (gr->get_typ() == grund_t::tunnelboden  ||  gr->get_typ() == grund_t::monorailboden)  &&  gr->get_weg_nr(0) == NULL ) {
+		if( (gr->get_typ() == grund_t::tunnelboden  ||  gr->get_typ() == grund_t::monorailboden)  &&  gr->get_weg_nr(0) == NULL && !gr->get_leitung() ) {
 			welt->access(pos.get_2d())->boden_entfernen(gr);
 			delete gr;
 			assert( !welt->lookup(pos));

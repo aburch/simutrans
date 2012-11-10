@@ -1,0 +1,29 @@
+<title>Nápovìda - pøidat továrnu</title>
+
+<h1><strong>Pøidat továrnu</strong></h1>
+<p>Dialog umo¾òuje rùznì umis»ovat továrny na mapu. Otevøete jen z menu <a href="edittools.txt">editace mapy</a>.</p>
+<p>
+Okno dialogu je rozdìleno do ètyø èástí.
+<br>
+V levém horním rohu se nachází seznam továren.<br>
+V levém dolním rohu se zobrazí obrázek naposledy zvolené továrny<br>
+V pravém horním rohu jsou tlaèítka pro zapnutí/vypntí filtrù jednotlivých druhù továren.<br>
+V pravém dolním rohu (pod tlaèítky) se nachází podrobné informace o vybrané továrnì.<br>
+</p>
+<h1>Seznam továren</h1>
+<p>V seznamu jsou vypsány v¹echny továrny. Obì zálo¾ky obsahují stejné továrny, seznamy se li¹í jen poøadím.</br>
+- <em>Podle jména</em>: Zálo¾ka obsahuje továrny setøídìné podle názvu uvedeného v pøekladu. Pokud není pøeklad dostupný, pou¾ije se identifikátor (ID).<br>
+- <em>Podle ID</em>: Zde jsou továrny øazené podle vnitøního identifikátoru daného objektu.</p>
+<p>Barvy textu mají následující význam:<br>
+- <em>zelený text</em>: Továrna zbo¾í pouze vytváøí, nic není nutno dová¾et.<br>
+- <em>èerný text</em>: Továrna spotøebovává suroviny a produkuje výrobky.<br>
+- <em>modrý text</em>: Továrna je pouze spotøebitelem zbo¾í.<br>
+</p>
+<h1>Volby</h1>
+<p><em>Ignorovat podnebí</em>: Vypne omezení, ve kterých podnebných pásech lze továrnu postavit.</p>
+<p><em>Zaèít roku</em>: V seznamu jsou zobrazeny pouze továrny dostupné v danou dobu.</p>
+<p><em>Zobrazovat Zastaralá</em>: V seznamu jsou zobrazeny i ji¾ zastaralé továrny.</p>
+<p><em>Pouze mìstský prùmysl</em>: Zobrazí se továrny, které lze postavit pouze ve mìstì.</p>
+<p><em>Pouze venkovský prùmysl</em>: Zobrazí se pouze továrny stavìné mimo mìsta. Kdy¾ je zatr¾eno, staví se celý øetìz prùmyslu. To znamená, ¾e kromì zvolené továrny se postaví i její dodavatelé.</p>
+<p><em>Rotace</em>: Jestli¾e má daná továrna umo¾òuje pohled z více úhlù, mù¾ete mezi nimi pøepínat pomocí ¹ipek. Pøepínání ovlivòuje obrázek v levém dolním rohu. Jestli¾e je zobrazen nápis <em>náhodnì</em>, pou¾ije se náhodnì zvolený podled.</p>
+<p><em>Výroba</em>: Zde nastavíte rozsah výroby. Èíslo urèuje poèet vyrobených/spotøebovaných kusù/tun/metrù krychlových za jeden mìsíc.</p>

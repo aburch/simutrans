@@ -4079,12 +4079,12 @@ void stadt_t::check_bau_spezial(bool new_town)
 	if (besch != NULL) {
 		if (simrand(100, "void stadt_t::check_bau_spezial") < (uint)besch->get_chance()) {
 			// baue was immer es ist
-			int rotate = 0;
 			bool is_rotate = besch->get_all_layouts() > 1;
 			koord best_pos = bauplatz_mit_strasse_sucher_t(welt).suche_platz(pos, besch->get_b(), besch->get_h(), besch->get_allowed_climate_bits(), &is_rotate);
 
 			if (best_pos != koord::invalid) {
 				// then built it
+				int rotate = 0;
 				if (besch->get_all_layouts() > 1) {
 					rotate = (simrand(20, "void stadt_t::check_bau_spezial") & 2) + is_rotate;
 				}
@@ -4755,7 +4755,7 @@ bool stadt_t::renoviere_gebaeude(gebaeude_t* gb)
 
 		// exchange building; try to face it to street in front
 		gb->mark_images_dirty();
-		gb->set_tile( h->get_tile(gebaeude_layout[streetdir], 0, 0) );
+		gb->set_tile( h->get_tile(gebaeude_layout[streetdir], 0, 0), true );
 		welt->lookup_kartenboden(k)->calc_bild();
 		update_gebaeude_from_stadt(gb);
 		return_value = true;

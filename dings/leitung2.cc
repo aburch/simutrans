@@ -6,6 +6,10 @@
  */
 
 #include <stdio.h>
+#if MULTI_THREAD>1
+#include <pthread.h>
+static pthread_mutex_t verbinde_mutex = PTHREAD_MUTEX_INITIALIZER;
+#endif
 
 #include "leitung2.h"
 #include "../simdebug.h"
@@ -43,19 +47,40 @@ static const char * measures[] =
 };
 */
 
+/**
+ * returns possible directions for powerline on this tile
+ */
+ribi_t::ribi get_powerline_ribi(grund_t *gr)
+{
+	hang_t::typ slope = gr->get_weg_hang();
+	ribi_t::ribi ribi = (ribi_t::ribi)ribi_t::alle;
+	if (slope == hang_t::flach) {
+		// respect possible directions for bridge and tunnel starts
+		if (gr->ist_karten_boden()  &&  (gr->ist_tunnel()  ||  gr->ist_bruecke())) {
+			ribi = ribi_t::doppelt( ribi_typ( gr->get_grund_hang() ) );
+		}
+	}
+	else {
+		ribi = ribi_t::doppelt( ribi_typ(slope) );
+	}
+	return ribi;
+}
 
 int leitung_t::gimme_neighbours(leitung_t **conn)
 {
 	int count = 0;
 	grund_t *gr_base = welt->lookup(get_pos());
+	ribi_t::ribi ribi = get_powerline_ribi(gr_base);
 	for(int i=0; i<4; i++) {
 		// get next connected tile (if there)
 		grund_t *gr;
 		conn[i] = NULL;
-		if(  gr_base->get_neighbour( gr, invalid_wt, ribi_t::nsow[i] ) ) {
+		if(  (ribi & ribi_t::nsow[i])  &&  gr_base->get_neighbour( gr, invalid_wt, ribi_t::nsow[i] ) ) {
 			leitung_t *lt = gr->get_leitung();
-			if(  lt  ) 
-			{
+			// check that we can connect to the other tile: correct slope,
+			// both ground or both tunnel or both not tunnel
+			bool const ok = (gr->ist_karten_boden()  &&  gr_base->ist_karten_boden())  ||  (gr->ist_tunnel()==gr_base->ist_tunnel());
+			if(  lt  &&  (ribi_t::rueckwaerts(ribi_t::nsow[i]) & get_powerline_ribi(gr))  &&  ok  ) {
 				if(lt->get_besitzer()->allows_access_to(get_besitzer()->get_player_nr()))
 				{
 					conn[i] = lt;
@@ -135,7 +160,9 @@ leitung_t::~leitung_t()
 		if(neighbours==0) {
 			delete net;
 		}
-		spieler_t::add_maintenance(get_besitzer(), -besch->get_wartung());
+		if(!gr->ist_tunnel()) {
+			spieler_t::add_maintenance(get_besitzer(), -besch->get_wartung());
+		}
 	}
 }
 
@@ -239,8 +266,8 @@ void leitung_t::calc_bild()
 		// no valid ground; usually happens during building ...
 		return;
 	}
-	if(gr->ist_bruecke()) {
-		// don't display on a bridge)
+	if(gr->ist_bruecke() || (gr->get_typ()==grund_t::tunnelboden && gr->ist_karten_boden())) {
+		// don't display on a bridge or in a tunnel)
 		set_bild(IMG_LEER);
 		return;
 	}
@@ -361,11 +388,19 @@ void leitung_t::info(cbuffer_t & buf) const
  */
 void leitung_t::laden_abschliessen()
 {
+#if MULTI_THREAD>1
+	pthread_mutex_lock( &verbinde_mutex  );
+#endif
 	verbinde();
 	calc_neighbourhood();
 	const grund_t *gr = welt->lookup(get_pos());
 	assert(gr);
+
 	spieler_t::add_maintenance(get_besitzer(), besch->get_wartung());
+
+#if MULTI_THREAD>1
+	pthread_mutex_unlock( &verbinde_mutex  );
+#endif
 }
 
 
@@ -397,7 +432,6 @@ void leitung_t::rdwr(loadsave_t *file)
 	else 
 	{
 		file->rdwr_long(value);
-		//      net = powernet_t::load_net((powernet_t *) value);
 		set_net(NULL);
 		if(file->get_experimental_version() >= 3)
 		{
@@ -441,7 +475,7 @@ void leitung_t::rdwr(loadsave_t *file)
 						welt->add_missing_paks( bname, karte_t::MISSING_WAY );
 						besch = wegbauer_t::leitung_besch;
 					}
-					dbg->warning("strasse_t::rdwr()", "Unknown powerline %s replaced by %s", bname, besch->get_name() );
+					dbg->warning("leitung_t::rdwr()", "Unknown powerline %s replaced by %s", bname, besch->get_name() );
 				}
 				set_besch(besch);
 			}
@@ -501,13 +535,11 @@ pumpe_t::pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , p
 
 pumpe_t::~pumpe_t()
 {
-	pumpe_list.remove( this );
-	if(fab) 
-	{
+	if(fab) {
 		fab->set_transformer_connected( NULL );
-		
 		fab = NULL;
 	}
+	pumpe_list.remove( this );
 	spieler_t::add_maintenance(get_besitzer(), (sint32)welt->get_settings().cst_maintain_transformer);
 }
 
@@ -549,8 +581,18 @@ void pumpe_t::laden_abschliessen()
 	spieler_t::add_maintenance(get_besitzer(), (sint32)-welt->get_settings().cst_maintain_transformer);
 
 	if(fab==NULL  &&  get_net()) {
-		fab = leitung_t::suche_fab_4(get_pos().get_2d());
-		fab->set_transformer_connected( this );
+		if(welt->lookup(get_pos())->ist_karten_boden()) {
+			// on surface, check around
+			fab = leitung_t::suche_fab_4(get_pos().get_2d());
+		}
+		else {
+			// underground, check directly above
+			fab = fabrik_t::get_fab(welt, get_pos().get_2d());
+		}
+		if(  fab  ) {
+			// only add when factory there
+			fab->set_transformer_connected( this );
+		}
 	}
 	pumpe_list.insert( this );
 
@@ -647,7 +689,6 @@ void senke_t::step(long delta_t)
 	if(fab==NULL && city==NULL) {
 		return;
 	}
-
 	if(delta_t==0) {
 		return;
 	}
@@ -918,7 +959,6 @@ void senke_t::laden_abschliessen()
 	spieler_t::add_maintenance(get_besitzer(), (sint32)-welt->get_settings().cst_maintain_transformer);
 
 	check_industry_connexion();
-
 	senke_list.insert( this );
 	welt->sync_add(this);
 
@@ -930,10 +970,16 @@ void senke_t::check_industry_connexion()
 {
 	if(fab == NULL && city == NULL && get_net()) 
 	{
-		fab = leitung_t::suche_fab_4(get_pos().get_2d());
-		if(fab)
-		{
-			fab->set_transformer_connected(this);
+		if(welt->lookup(get_pos())->ist_karten_boden()) {
+			// on surface, check around
+			fab = leitung_t::suche_fab_4(get_pos().get_2d());
+		}
+		else {
+			// underground, check directly above
+			fab = fabrik_t::get_fab(welt, get_pos().get_2d());
+		}
+		if(  fab  ) {
+			fab->set_transformer_connected( this );
 		}
 	}
 }

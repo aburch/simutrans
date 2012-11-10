@@ -58,7 +58,7 @@ settings_t::settings_t() :
 	// default climate zones
 	set_default_climates( );
 	winter_snowline = 7;	// not mediterran
-	grundwasser = -2*Z_TILE_STEP;            //25-Nov-01        Markus Weber    Added
+	grundwasser = -2;            //25-Nov-01        Markus Weber    Added
 
 	max_mountain_height = 160;                  //can be 0-160.0  01-Dec-01        Markus Weber    Added
 	map_roughness = 0.6;                        //can be 0-1      01-Dec-01        Markus Weber    Added
@@ -216,6 +216,8 @@ settings_t::settings_t() :
 	way_toll_revenue_percentage = 0;
 	seaport_toll_revenue_percentage = 0;
 	airport_toll_revenue_percentage = 0;
+
+	allow_underground_transformers = true;
 
 	// stop buildings
 	cst_multiply_dock=-50000;
@@ -504,7 +506,7 @@ void settings_t::rdwr(loadsave_t *file)
 		file->rdwr_long(show_pax );
 		dummy = grundwasser;
 		file->rdwr_long(dummy );
-		grundwasser = (sint16)(dummy/16)*Z_TILE_STEP;
+		grundwasser = (sint16)(dummy/16);
 		file->rdwr_double(max_mountain_height );
 		file->rdwr_double(map_roughness );
 
@@ -539,13 +541,13 @@ void settings_t::rdwr(loadsave_t *file)
 		}
 		file->rdwr_long(verkehr_level );
 		file->rdwr_long(show_pax );
-		sint32 dummy = grundwasser/Z_TILE_STEP;
+		sint32 dummy = grundwasser;
 		file->rdwr_long(dummy );
 		if(file->get_version() < 99005) {
-			grundwasser = (sint16)(dummy/16)*Z_TILE_STEP;
+			grundwasser = (sint16)(dummy/16);
 		}
 		else {
-			grundwasser = (sint16)dummy*Z_TILE_STEP;
+			grundwasser = (sint16)dummy;
 		}
 		file->rdwr_double(max_mountain_height );
 		file->rdwr_double(map_roughness );
@@ -1319,6 +1321,11 @@ void settings_t::rdwr(loadsave_t *file)
 		karte_t::random_callers.append(strdup(buf));
 
 		translator::init_custom_names(get_name_language_id());
+		if(  file->get_version()>=111004  ) {
+			file->rdwr_bool( allow_underground_transformers );
+		}
+
+		// otherwise the default values of the last one will be used
 	}
 #endif
 }
@@ -1366,7 +1373,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	umgebung_t::straight_way_without_control = contents.get_int("straight_way_without_control", umgebung_t::straight_way_without_control) != 0;
 
-	umgebung_t::verkehrsteilnehmer_info = contents.get_int("pedes_and_car_info", umgebung_t::straight_way_without_control) != 0;
+	umgebung_t::verkehrsteilnehmer_info = contents.get_int("pedes_and_car_info", umgebung_t::verkehrsteilnehmer_info) != 0;
 	umgebung_t::tree_info = contents.get_int("tree_info", umgebung_t::tree_info) != 0;
 	umgebung_t::ground_info = contents.get_int("ground_info", umgebung_t::ground_info) != 0;
 	umgebung_t::townhall_info = contents.get_int("townhall_info", umgebung_t::townhall_info) != 0;
@@ -1389,14 +1396,14 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	umgebung_t::toolbar_max_width = contents.get_int("toolbar_max_width", umgebung_t::toolbar_max_width );
 	umgebung_t::toolbar_max_height = contents.get_int("toolbar_max_height", umgebung_t::toolbar_max_height );
 	umgebung_t::cursor_overlay_color = contents.get_int("cursor_overlay_color", umgebung_t::cursor_overlay_color );
-	umgebung_t::add_player_name_to_message = contents.get_int("add_player_name_to_message", umgebung_t::add_player_name_to_message );
 
 	// display stuff
 	umgebung_t::show_names = contents.get_int("show_names", umgebung_t::show_names );
 	umgebung_t::show_month = contents.get_int("show_month", umgebung_t::show_month );
 	umgebung_t::max_acceleration = contents.get_int("fast_forward", umgebung_t::max_acceleration );
 	umgebung_t::fps = contents.get_int("frames_per_second",umgebung_t::fps );
-	umgebung_t::simple_drawing_tile_size = contents.get_int("simple_drawing_tile_size",umgebung_t::simple_drawing_tile_size );
+	umgebung_t::simple_drawing_default = contents.get_int("simple_drawing_tile_size",umgebung_t::simple_drawing_default );
+	umgebung_t::simple_drawing_fast_forward = contents.get_int("simple_drawing_fast_forward",umgebung_t::simple_drawing_fast_forward );
 	umgebung_t::visualize_schedule = contents.get_int("visualize_schedule",umgebung_t::visualize_schedule )!=0;
 	umgebung_t::show_vehicle_states = contents.get_int("show_vehicle_states",umgebung_t::show_vehicle_states );
 
@@ -1437,6 +1444,9 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	if(  *contents.get("server_admin_pw")  ) {
 		umgebung_t::server_admin_pw = ltrim(contents.get("server_admin_pw"));
 	}
+	if(  *contents.get("nickname")  ) {
+		umgebung_t::nickname = ltrim(contents.get("nickname"));
+	}
 
 	// listen directive is a comma seperated list of IP addresses to listen on
 	if(  *contents.get("listen")  ) {
@@ -1461,6 +1471,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	drive_on_left = contents.get_int("drive_left", drive_on_left );
 	signals_on_left = contents.get_int("signals_on_left", signals_on_left );
+	allow_underground_transformers = contents.get_int( "allow_underground_transformers", allow_underground_transformers )!=0;
 
 	// up to ten rivers are possible
 	for(  int i = 0;  i<10;  i++  ) {

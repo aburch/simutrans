@@ -1,0 +1,25 @@
+<title>Nápovìda - seznamy</title>
+
+<h1><strong>Seznamy</strong></h1>
+
+<p>Menu <em>seznamy</em> je rozcestníkem k dostupným seznamùm. Díky nim máte pøehled.</p>
+<p>Menu otevøete kliknutím na ikonu <em>seznamy</em> v horní èásti obrazovky.</p>
+<p>Menu obsahuje následující polo¾ky:</p>
+
+<p><a href="haltlist.txt">seznam stanic</a>: Seznam v¹ech stanic a zastávek aktuálního hráèe. V seznamu nejsou zahrnuty pøístavy s pouze lodní dopravou (napø. ropné plo¹iny).
+</p>
+<p><a href="linemanagement.txt">správa linek</a>: Seznam v¹ech linek.</p>
+<p><a href="convoi.txt">seznam vozidel</a>: Seznam v¹ech silnièních a ¾eleznièních vozidel, letadel a lodí.
+</p>
+<p>
+<a href="citylist_filter.txt">seznam mìst</a>: Seznam v¹ech mìst.
+</p>
+<p>
+<a href="goods_filter.txt">seznam zbo¾í</a>: Seznam v¹ech dostupných typù pøepravovatelného zbo¾í. Pomù¾e v rozhodování, co se vyplatí pøepravovat.
+</p>
+<p>
+<a href="factorylist_filter.txt">seznam továren</a>: Seznam v¹ech továren na hrací plo¹e.
+</p>
+<p>
+<a href="curiositylist_filter.txt">turistické cíle</a>: V¹echny památky, památníky a jiné turistické zajímavosti.</p>
+<p><a href="labellist_filter.txt">seznam znakù</a>: Seznam v¹ech nápisù umístìných do hry.</p>

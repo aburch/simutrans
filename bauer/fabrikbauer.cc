@@ -480,8 +480,9 @@ fabrik_t* fabrikbauer_t::baue_fabrik(karte_t* welt, koord3d* parent, const fabri
 		}
 		settings_t const& s = welt->get_settings();
 		FOR(vector_tpl<stadt_t*>, const i, distance_stadt) {
-			if (fab->get_target_cities().get_count() >= s.get_factory_worker_maximum_towns()) break;
-			if (fab->get_target_cities().get_count() < s.get_factory_worker_minimum_towns() ||
+			uint32 const ntgt = fab->get_target_cities().get_count();
+			if (ntgt >= s.get_factory_worker_maximum_towns()) break;
+			if (ntgt < s.get_factory_worker_minimum_towns() ||
 					koord_distance(fab->get_pos(), i->get_pos()) < s.get_factory_worker_radius()) {
 				fab->add_target_city(i);
 			}
@@ -847,7 +848,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","failed to built lieferant %s aroun
 		for (slist_tpl<fabs_to_crossconnect_t>::iterator i = factories_to_correct.begin(), end = factories_to_correct.end(); i != end;) {
 			i->demand -= 1;
 			fab->add_lieferziel(i->fab->get_pos().get_2d());
-			(*i).fab->add_supplier(fab->get_pos().get_2d());
+			i->fab->add_supplier(fab->get_pos().get_2d());
 			if (i->demand < 0) {
 				i = factories_to_correct.erase(i);
 			}

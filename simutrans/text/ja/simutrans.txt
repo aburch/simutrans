@@ -1,0 +1,21 @@
+<title>Simutrans</title>
+
+<h1>Simutrans</h1>
+
+Simutransは、鉄道･自動車･船舶･飛行機等で旅客の輸送ルートや産業物資を開拓し利益を上げる、フリーの経営シミュレーションゲームです。
+
+初心者でもとっつきやすく、効率のよい交通システムの構築、都市の発展、混雑の解消、流通ルート開拓による産業の開発など、醍醐味は尽きません。
+海外で開発が続けられているフリーウェア（無料）ですが、製品としても十分通用するほどの完成度の高さは、着実に国内のプレイヤーを増やしています。
+大変楽しめる作品ですので、ぜひ一度プレイされることをお勧めします。Windows・MacOS X・Linux・FreeBSD・BeOS（Haiku OS）・AmigaOS・iPhone(iPod touch)に対応しています。
+　※iPhone(iPod touch)対応は公式ビルドではありません。
+
+<p>
+Simutransについてよりインターネットで見つけることができます：<br>
+<em>http://japanese.simutrans.com/</em><br>
+<em>http://forum.japanese.simutrans.com/</em><br>
+<em>http://forum.simutrans.com</em>.
+</p>
+
+<p>
+　日本語訳「フリーの経営シム"Simutrans"を語るスレ｣の313さん＋囲碁25級
+</p>

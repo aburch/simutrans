@@ -1,0 +1,50 @@
+<title>Programação</title>
+
+<h1><strong>Programação</strong></h1>
+
+<p>
+A <strong>programação</strong> é usada para configurar a rota e a quantidade mínima de mercadorias e passageiros para um <a href="convoiinfo.txt">comboio</a> ou uma <a href="linemanagement.txt">linha</a>.<br>
+Ela lista as <a href="station.txt">paradas</a> (onde veículos recolhem e entregam mercadorias e passageiros) e pontos de passagem (que podem ser usados para direcionar os comboios por um caminho específico caso haja mais de um disponível ou fornecer destinos temporários) com suas coordenadas do mapa.
+</p>
+<p>
+A janela <strong>Programar</strong> abre do botão Programar nas <a href="convoiinfo.txt">Informações do comboio</a> e nos <a href="depot.txt">depósitos</a>.<br>
+Controles para a programação de uma linha abrem dos botões Nova Linha e Atualizar no <a href="linemanagement.txt">Gerenciador de linhas</a> e nos <a href="depot.txt">depósitos</a>.
+</p>
+<p>
+Quando a janela <strong>Programar</strong> é aberta através das informações do comboio, o nome da linha utilizada por ele (se houver) é mostrado no topo da janela.<br>
+<em>Serve</em> <a href="linemanagement.txt"><em>linha:</em></a> clique nos botões em forma de seta nos dois lados do nome da linha para escolher uma linha ou clique na caixa de nome para abrir uma lista suspensa (clique na linha para selecioná-la).<br>
+Clicando na caixa de texto, é possível digitar e alterar o nome da linha.
+</p>
+<p>
+<em>Carga mínima (%):</em> configura a quantidade mínima de mercadorias ou passageiros que o <a href="convoiinfo.txt">comboio</a> deve esperar até prosseguir.
+A porcentagem mostrada se refere à capacidade total do comboio e não a um tipo individual de item carregado.<br>
+O comboio esperará na parada até estar carregado com a porcentagem requerida.<br>
+Para usar: clique em uma parada na lista para selecioná-la (o <em>></em> antes do nome da parada mostra que mesma está selecionada), e use os botões em forma de seta para definir a porcentagem.<br>
+{Dicas: para incluir ou alterar porcentagens para todos os comboios de uma linha, use o botão Atualizar no <a href="linemanagement.txt">Gerenciador de Linhas</a> ou no <a href="depot.txt">depósito</a>. Para incluir ou alterar porcentagens para somente um comboio e não para todos da linha, use o botão Programar nas <a href="convoiinfo.txt">Informações do combio</a> ou no depósito.}
+</p>
+<p>
+Os botões de opção (clique para usar, o botão aparece pressionado quando ativo) incluem:
+</p>
+<p>
+<em>Adicionar:</em> adiciona uma <a href="station.txt">parada</a> onde veículos recolhem e entregam mercadorias e passageiros (veículos aquáticos podem usar qualquer quadro da área de captura de uma doca) ou ponto de passagem na rota.<br>
+Para adicionar: clique na opção para selecioná-la (o cursor mudará para um sinal escrito "HALT"), e clique no ponto desejado na área de jogo (pode ser feito em estradas, trilhos ou água, dependendo do tipo de veículo). A parada ou ponto de passagem agora aparece na <strong>programação</strong>.<br>
+{Dica: veículos não recolhem ou entregam mercadorias e passageiros em pontos de passagem.}
+</p>
+<p>
+<em>Inserir:</em> insere uma <a href="station.txt">parada</a> ou ponto de passagem na rota, antes de uma parada ou ponto de passagem existente.<br>
+Para inserir: clique em uma parada ou ponto de passagem da lista para selecioná-lo (o <em>></em> antes do nome da parada mostra que mesma está selecionada), e clique no botão inserir (o cursor mudará para um sinal escrito "HALT"), e clique no ponto desejado na área de jogo (pode ser feito em estradas, trilhos ou água, dependendo do tipo de veículo).<br>
+A nova parada ou ponto de passagem é inserido na <strong>programação</strong> antes da parada ou ponto de passagem anteriormente selecionado.<br>
+{Dica: veículos não recolhem ou entregam mercadorias e passageiros em pontos de passagem.}
+</p>
+<p>
+<em>Eliminar:</em> essa opção deleta uma <a href="station.txt">parada</a> ou ponto de passagem da rota.<br>
+Clique no botão para ativá-lo, e clique em um item da lista para remover.
+</p>
+<p>
+<em>Espelhar linha:</em> adiciona as <a href="station.txt">paradas</a> e pontos de passagem existentes em ordem reversa na rota. Os valores de <em>Carga mínima (%)</em> também são replicados. Clique no botão para usá-lo: a nova rota aparecerá na <strong>programação</strong>.
+</p>
+<p>
+<em>Promover a</em> <a href="linemanagement.txt"><em>linha:</em></a> (somente disponível quando a janela <strong>Programar</strong> for aberta pelas <a href="convoiinfo.txt">Informações do comboio</a>) cria uma nova linha utilizando a atual programação. A nova linha é identificada por um número e é listada no Gerenciador de Linhas.
+</p>
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008.
+</p>

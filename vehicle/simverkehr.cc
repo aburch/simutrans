@@ -67,22 +67,10 @@ verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt) :
 verkehrsteilnehmer_t::~verkehrsteilnehmer_t()
 {
 	mark_image_dirty( get_bild(), 0 );
-	// first: release crossing
-	grund_t *gr = welt->lookup(get_pos());
-	if(gr  &&  gr->ist_uebergang()) {
-		gr->find<crossing_t>(2)->release_crossing(this);
-	}
-
-
-	// just to be sure we are removed from both lists.
-	if(time_to_life>0) 
-	{
-		welt->sync_remove(this);
-	}
 }
 
 
-verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt, koord3d pos) :
+verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt, koord3d pos, uint16 random) :
 	vehikel_basis_t(welt, pos)
 {
 	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
@@ -93,7 +81,7 @@ verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt, koord3d pos) :
 	ribi_t::ribi liste[4];
 	int count = 0;
 
-	weg_next = simrand(65535, "verkehrsteilnehmer_t::verkehrsteilnehmer_t (weg_next) 1");
+	weg_next = random;
 	hoff = 0;
 
 	// verfügbare ribis in liste eintragen
@@ -102,9 +90,7 @@ verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt, koord3d pos) :
 			liste[count++] = ribi_t::nsow[r];
 		}
 	}
-
-	fahrtrichtung = count ? liste[simrand(count, "verkehrsteilnehmer_t::verkehrsteilnehmer_t (weg_next) 2")] : pick_any(ribi_t::nsow);
-
+	fahrtrichtung = count ? liste[random%count] : ribi_t::nsow[random%4];
 
 	switch(fahrtrichtung) {
 		case ribi_t::nord:
@@ -386,31 +372,45 @@ bool stadtauto_t::list_empty()
 
 stadtauto_t::~stadtauto_t()
 {
-	if(current_list != NULL && !welt->get_is_shutting_down() && current_list->get_count() > 0)
-	{
-		stadtauto_t *tmp = this;
-		if(!current_list->remove(tmp))
-		{
-			DBG_MESSAGE("stadtauto_t", "Failure to remove city car from list!");
-		}
-		else
-		{
-			DBG_MESSAGE("stadtauto_t", "Succeeded in removing city car from list.");
-		}
-	}
-	else
-	{
-		// Just to make sure.
-		if(welt->unassigned_cars.remove(this))
-		{
-			DBG_MESSAGE("stadtauto_t", "Failure to remove city car from list!");
-		}
-		else
-		{
-			DBG_MESSAGE("stadtauto_t", "Succeeded in removing city car from list.");
-		}
-	}
+//<<<<<<< HEAD
+//	if(current_list != NULL && !welt->get_is_shutting_down() && current_list->get_count() > 0)
+//	{
+//		stadtauto_t *tmp = this;
+//		if(!current_list->remove(tmp))
+//		{
+//			DBG_MESSAGE("stadtauto_t", "Failure to remove city car from list!");
+//		}
+//		else
+//		{
+//			DBG_MESSAGE("stadtauto_t", "Succeeded in removing city car from list.");
+//		}
+//	}
+//	else
+//	{
+//		// Just to make sure.
+//		if(welt->unassigned_cars.remove(this))
+//		{
+//			DBG_MESSAGE("stadtauto_t", "Failure to remove city car from list!");
+//		}
+//		else
+//		{
+//			DBG_MESSAGE("stadtauto_t", "Succeeded in removing city car from list.");
+//		}
+//	}
 	//"Buche" = "Books" (Babelfish)
+//=======
+	// first: release crossing
+	grund_t *gr = welt->lookup(get_pos());
+	if(gr  &&  gr->ist_uebergang()) {
+		gr->find<crossing_t>(2)->release_crossing(this);
+	}
+
+	// just to be sure we are removed from this list!
+	if(time_to_life>0) {
+		welt->sync_remove(this);
+	}
+	welt->buche( -1, karte_t::WORLD_CITYCARS );
+//>>>>>>> v111.3
 }
 
 
@@ -426,7 +426,7 @@ stadtauto_t::stadtauto_t(karte_t *welt, loadsave_t *file) :
 
 
 stadtauto_t::stadtauto_t(karte_t* const welt, koord3d const pos, koord const target, slist_tpl<stadtauto_t*>* car_list) :
-	verkehrsteilnehmer_t(welt, pos),
+	verkehrsteilnehmer_t(welt, pos, simrand(65535, "stadtauto_t::stadtauto_t (weg_next)")),
 	besch(liste_timeline.empty() ? 0 : pick_any_weighted(liste_timeline))
 {
 	pos_next_next = koord3d::invalid;
@@ -444,8 +444,6 @@ stadtauto_t::stadtauto_t(karte_t* const welt, koord3d const pos, koord const tar
 }
 
 
-
-
 bool stadtauto_t::sync_step(long delta_t)
 {
 	time_to_life -= delta_t;
@@ -460,7 +458,7 @@ bool stadtauto_t::sync_step(long delta_t)
 		// check only every 1.024 s if stopped
 		if(  (ms_traffic_jam>>10) != (old_ms_traffic_jam>>10)  ) {
 			pos_next_next = koord3d::invalid;
-			if(  hop_check(  )) {
+			if(  hop_check()  ) {
 				ms_traffic_jam = 0;
 				current_speed = 48;
 			}
@@ -758,15 +756,11 @@ void stadtauto_t::betrete_feld()
 
 		//"fussgaenger" = pedestrian (Babelfish)
 		int number = 2;
-		fussgaenger_t::erzeuge_fussgaenger_an(welt, pos_next, number);
-#if 0
-		fussgaenger_t *fg = new fussgaenger_t(welt, pos_next);
-		bool ok = welt->lookup(pos_next)->obj_add(fg) != 0;
-		for(int i=0; i<(fussgaenger_t::count & 3); i++) {
-			fg->sync_step(64*24);
-		}
-		welt->sync_add( fg );
-#endif /* 0 */
+//<<<<<<< HEAD
+//		fussgaenger_t::erzeuge_fussgaenger_an(welt, pos_next, number);
+//=======
+		fussgaenger_t::erzeuge_fussgaenger_an(welt, get_pos(), number);
+//>>>>>>> v111.3
 	}
 #endif /* DESTINATION_CITYCARS */
 	vehikel_basis_t::betrete_feld();
@@ -1125,7 +1119,7 @@ bool stadtauto_t::can_overtake( overtaker_t *other_overtaker, sint32 other_speed
 
 		// start of bridge is one level deeper
 		if(gr->get_weg_yoff()>0)  {
-			check_pos.z += Z_TILE_STEP;
+			check_pos.z ++;
 		}
 
 		// special signs
@@ -1230,7 +1224,7 @@ bool stadtauto_t::can_overtake( overtaker_t *other_overtaker, sint32 other_speed
 
 		// start of bridge is one level deeper
 		if(gr->get_weg_yoff()>0)  {
-			check_pos.z += Z_TILE_STEP;
+			check_pos.z ++;
 		}
 
 		// much cheeper calculation: only go on in the direction of before ...

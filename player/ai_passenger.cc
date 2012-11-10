@@ -210,7 +210,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 			// is there already one harbour next to this one?
 			FOR(connexions_map_single_remote, & iter, *start_connect_hub->get_connexions(0) )
 			{
-				halthandle_t h = iter.key;
+				halthandle_t const h = iter.key;
 				if( h.is_bound() && h->get_station_type()&haltestelle_t::dock  ) 
 				{
 					start_hub = h;
@@ -241,7 +241,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 			// is there already one harbour next to this one?
 			FOR(connexions_map_single_remote, & iter, *end_connect_hub->get_connexions(0) ) 
 			{
-				halthandle_t h = iter.key;
+				halthandle_t const h = iter.key;
 				if( h.is_bound() && h->get_station_type()&haltestelle_t::dock  ) 
 				{
 					start_hub = h;
@@ -478,7 +478,7 @@ halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int r
 		return halthandle_t();
 	}
 	// ok, now we could built it => flatten the land
-	sint8 h = max( welt->get_grundwasser()+Z_TILE_STEP, welt->lookup_kartenboden(pos)->get_hoehe() );
+	sint8 h = max( welt->get_grundwasser()+1, welt->lookup_kartenboden(pos)->get_hoehe() );
 	const koord dx( size.x/2, size.y/2 );
 	for(  sint16 i=0;  i!=size.y+dx.y;  i+=dx.y  ) {
 		for( sint16 j=0;  j!=size.x+dx.x;  j+=dx.x  ) {
@@ -625,7 +625,7 @@ bool ai_passenger_t::create_air_transport_vehikel(const stadt_t *start_stadt, co
 			// is there already one airport next to this town?
 			FOR(connexions_map_single_remote, & iter, *start_connect_hub->get_connexions(0) ) 
 			{
-				halthandle_t h = iter.key;
+				halthandle_t const h = iter.key;
 				if( h.is_bound() && h->get_station_type()&haltestelle_t::airstop  )
 				{
 					start_hub = h;
@@ -656,7 +656,7 @@ bool ai_passenger_t::create_air_transport_vehikel(const stadt_t *start_stadt, co
 			// is there already one airport next to this town?
 			FOR(connexions_map_single_remote, & iter, *end_connect_hub->get_connexions(0) ) 
 			{
-				halthandle_t h = iter.key;
+				halthandle_t const h = iter.key;
 				if( h.is_bound() && h->get_station_type()&haltestelle_t::airstop  ) 
 				{
 					start_hub = h;
@@ -805,7 +805,7 @@ DBG_MESSAGE("ai_passenger_t::create_bus_transport_vehikel()","bus at (%i,%i)",st
 /* now we follow all adjacent streets recursively and mark them
  * if they below to this stop, then we continue
  */
-void ai_passenger_t::walk_city( linehandle_t &line, grund_t *&start, const int limit )
+void ai_passenger_t::walk_city(linehandle_t const line, grund_t* const start, int const limit)
 {
 	//maximum number of stops reached?
 	if(line->get_schedule()->get_count()>=limit)  {
@@ -1231,11 +1231,13 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 		// despite its name: try airplane
 		case NR_BAUE_AIRPORT_ROUTE:
 			// try airline (if we are wealthy enough) ...
-			if(  !air_transport  ||  finance_history_month[1][COST_CASH] < starting_money  ||
-	        !end_stadt  ||  !create_air_transport_vehikel( start_stadt, end_stadt )  ) {
+			if( !air_transport  ||  finance_history_month[1][COST_CASH] < starting_money  ||
+				!end_stadt  ||  !create_air_transport_vehikel( start_stadt, end_stadt )  ) 
+			{
 				state = NR_BAUE_CLEAN_UP;
 			}
-			else {
+			else 
+			{
 				// add two intown routes
 				cover_city_with_bus_route( get_our_hub(start_stadt)->get_basis_pos(), 6);
 				cover_city_with_bus_route( get_our_hub(end_stadt)->get_basis_pos(), 6);

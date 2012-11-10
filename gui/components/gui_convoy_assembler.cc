@@ -407,16 +407,16 @@ void gui_convoy_assembler_t::layout()
 	div_tabbottom.set_groesse(koord(groesse.x,0));
 
 	sint16 ABUTTON_WIDTH=96;
-	sint16 ABUTTON_HEIGHT=14;
+	sint16 AD_BUTTON_HEIGHT=14;
 	lb_veh_action.set_pos(koord(groesse.x-ABUTTON_WIDTH, PANEL_VSTART + get_panel_height() + 4));
 
 	action_selector.set_pos(koord(groesse.x-ABUTTON_WIDTH, PANEL_VSTART + get_panel_height() + 16));
-	action_selector.set_groesse(koord(ABUTTON_WIDTH, ABUTTON_HEIGHT));
+	action_selector.set_groesse(koord(ABUTTON_WIDTH, AD_BUTTON_HEIGHT));
 	action_selector.set_max_size(koord(ABUTTON_WIDTH - 8, LINESPACE*3+2+16));
 	action_selector.set_highlight_color(1);
 
 	upgrade_selector.set_pos(koord(groesse.x-ABUTTON_WIDTH, PANEL_VSTART + get_panel_height() + 34));
-	upgrade_selector.set_groesse(koord(ABUTTON_WIDTH, ABUTTON_HEIGHT));
+	upgrade_selector.set_groesse(koord(ABUTTON_WIDTH, AD_BUTTON_HEIGHT));
 	upgrade_selector.set_max_size(koord(ABUTTON_WIDTH - 8, LINESPACE*2+2+16));
 	upgrade_selector.set_highlight_color(1);
 
@@ -435,7 +435,7 @@ void gui_convoy_assembler_t::layout()
 	lb_livery_selector.set_pos(koord(groesse.x / 4, PANEL_VSTART + get_panel_height() + 4));
 
 	livery_selector.set_pos(koord(groesse.x / 4, PANEL_VSTART + get_panel_height() + 16));
-	livery_selector.set_groesse(koord((groesse.x / 5), ABUTTON_HEIGHT));
+	livery_selector.set_groesse(koord((groesse.x / 5), AD_BUTTON_HEIGHT));
 	livery_selector.set_max_size(koord(ABUTTON_WIDTH + 80, LINESPACE * 8));
 	livery_selector.set_highlight_color(1);
 

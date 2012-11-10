@@ -5,12 +5,10 @@
 #include "openttd/png.h"
 #endif
 #include <setjmp.h>
-
 #include <stdlib.h>
+
+#include "../simmem.h"
 #include "dr_rdpng.h"
-
-
-static int bit_depth, color_type, interlace_type;
 
 
 static void read_png(unsigned char** block, unsigned* width, unsigned* height, FILE* file, const int base_img_size)
@@ -21,8 +19,7 @@ static void read_png(unsigned char** block, unsigned* width, unsigned* height, F
 	unsigned row, x, y;
 	int rowbytes;
 	unsigned char* dst;
-	png_uint_32 png32_dummy;
-	int dummy, color_type;
+	int color_type;
 
 	//png_uint_32 is 64 bit on some architectures!
 	png_uint_32 widthpu32,heightpu32;
@@ -45,9 +42,6 @@ static void read_png(unsigned char** block, unsigned* width, unsigned* height, F
 	if(  setjmp(png_jmpbuf(png_ptr)  )) {
 		printf("read_png: fatal error.\n");
 		png_destroy_read_struct(&png_ptr, &info_ptr, (png_info**)0);
-		/* free pointers before returning, if necessary */
-		free(png_ptr);
-		free(info_ptr);
 		exit(1);
 	}
 #endif
@@ -60,11 +54,8 @@ static void read_png(unsigned char** block, unsigned* width, unsigned* height, F
 	 */
 	png_read_info(png_ptr, info_ptr);
 
-	png_get_IHDR(
-		png_ptr, info_ptr,
-		&widthpu32, &heightpu32, &bit_depth, &color_type,
-		&interlace_type, NULL, NULL
-	);
+	int bit_depth;
+	png_get_IHDR(png_ptr, info_ptr, &widthpu32, &heightpu32, &bit_depth, &color_type, 0, 0, 0);
 	*width = widthpu32;
 	*height = heightpu32;
 
@@ -72,8 +63,6 @@ static void read_png(unsigned char** block, unsigned* width, unsigned* height, F
 		printf("read_png: Invalid image size.\n");
 		exit(1);
 	}
-	// printf("read_png: width=%d, height=%d, bit_depth=%d\n", width, height, bit_depth);
-	// printf("read_png: color_type=%d, interlace_type=%d\n", color_type, interlace_type);
 
 	/* tell libpng to strip 16 bit/color files down to 8 bits/color */
 	png_set_strip_16(png_ptr);
@@ -89,9 +78,7 @@ static void read_png(unsigned char** block, unsigned* width, unsigned* height, F
 	/* Don't output alpha channel */
 	png_set_strip_alpha(png_ptr);
 
-	png_get_IHDR( png_ptr, info_ptr, &png32_dummy, &png32_dummy, &dummy, &color_type, &dummy, &dummy, &dummy );
 	if(  (color_type & PNG_COLOR_MASK_ALPHA) == PNG_COLOR_MASK_ALPHA  ) {
-	//if(  (info_ptr->color_type & PNG_COLOR_MASK_ALPHA) == PNG_COLOR_MASK_ALPHA  ) {
 		printf("WARNING: ignoring alpha channel\n");
 		// author note: It might be that this won't catch files with format
 		// palette + transparency, which is a really rare but possible combination.
@@ -102,9 +89,9 @@ static void read_png(unsigned char** block, unsigned* width, unsigned* height, F
 	/* The easiest way to read the image: */
 
 	rowbytes = png_get_rowbytes(png_ptr, info_ptr) * 3;
-	row_pointers = malloc(*height * sizeof(*row_pointers));
+	row_pointers = MALLOCN(png_byte*, *height);
 
-	row_pointers[0] = malloc(rowbytes * *height * 2);
+	row_pointers[0] = MALLOCN(png_byte, rowbytes * *height * 2);
 
 	for (row = 1; row < *height; row++) {
 		row_pointers[row] = row_pointers[row - 1] + rowbytes * 2;
@@ -115,7 +102,7 @@ static void read_png(unsigned char** block, unsigned* width, unsigned* height, F
 	// we use fixed height here because block is of limited, fixed size
 	// not fixed any more
 
-	*block = realloc(*block, *height * *width * 6);
+	*block = REALLOC(*block, unsigned char, *height * *width * 6);
 
 	// *block = malloc(*height * *width * 6);
 
@@ -140,18 +127,16 @@ static void read_png(unsigned char** block, unsigned* width, unsigned* height, F
 }
 
 
-int load_block(unsigned char** block, unsigned* width, unsigned* height, const char* fname, const int base_img_size)
+bool load_block(unsigned char** block, unsigned* width, unsigned* height, const char* fname, const int base_img_size)
 {
-	FILE* file = fopen(fname, "rb");
-
-	if (file != NULL) {
+	if (FILE* const file = fopen(fname, "rb")) {
 		read_png(block, width, height, file, base_img_size);
 		fclose(file);
+		return true;
 	} else {
 		perror("Error:");
+		return false;
 	}
-
-	return file != NULL;
 }
 
 #ifndef _WIN32
@@ -181,11 +166,8 @@ int write_png( const char *file_name, unsigned char *data, int width, int height
 
 #ifdef PNG_SETJMP_SUPPORTED
 	if(  setjmp( png_jmpbuf(png_ptr) )  ) {
-		printf("read_png: fatal error.\n");
-		png_destroy_read_struct(&png_ptr, &info_ptr, (png_info**)0);
-		/* free pointers before returning, if necessary */
-		free(png_ptr);
-		free(info_ptr);
+		printf("write_png: fatal error.\n");
+		png_destroy_write_struct(&png_ptr, &info_ptr);
 		exit(1);
 	}
 #endif

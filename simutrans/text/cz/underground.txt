@@ -1,0 +1,37 @@
+<title>Nápovìda - tunely a podzemí</title>
+
+<h1>tunely a podzemí</h1>
+
+<p>
+Tunely mù¾eme stavìt dvìma zpùsoby: buï rovné pøímo z povrchu nebo komplikovanìj¹í za pomoci podzemního módu.
+</p>
+<p>
+<it>pøímé tunely</it>
+</p>
+<p>Pøímý tunel postavíte kliknutím na ikonu tunelu a následovným kliknutím na svah kopce, kde má tunel zaèínat. Aby se tunel postavil, musejí být svahy u ústí tunelu správnì ¹ikmé.
+</p>
+<p>
+<it>komplikovanìj¹í tunely</it>
+</p>
+<p>
+Komplikovanìj¹í tunely je nutno stavìt poèástech. Nejprve postavíme stup pod zem. Klikneme na nástroj s tunelem a pak dr¾íme stisknutou sklávesu <a href="keys.txt">[Ctrl]</a> a my¹í klikneme na místo s zamý¹leným poèátetkem tunelu.
+Pak se pøepneme do podzemního modu.
+</p>
+<p>V podzemním modu nebo pøi zobrazení jednotlové vý¹kové vrstvy stavíte podzemní tra» stejným zpùsobem, jako nadzemní, pouze pou¾íváte ikonu tunel.
+</p>
+<p>Tunely mohou stoupat a klesat. Postavte tunel k místu zamý¹leného stoupání/klesání. V menu <a href="slopetools.txt"> úprava terénu</a> kliknìte na upravit svah (to s opìrnou zdí). Pak kliknìte na konec ¾eleznièní trati v tunelu. A máte v tunelu kopec.
+</p>
+<p>
+V tunelu mù¾ete umis»ovat stanice, <a href="signals.txt">semafory</a> a <a href="depot.txt">depo</a> stejným zpùsobem jako na povrchu.
+</p>
+<p>
+<it>podzemní mód(y)</it>
+</p>
+<p>
+Ve høe existují dva zpùsoby, jak zobrazit komunikace pod zemským povrchem.</p>
+<p>
+<em>podzemní mód</em>: Stiskem <a href="keys.txt">klávesy</a> [U] se zobrazí jen terén bez v¹ech budov a stromù. Krom toho se zobrazí v¹echny tunely. To je u¾iteèné, pokud se chcete podívat, co v¹e se nachází pod zemí. Umo¾òuje stavìt tunely pod mìstem, k výstavbì tunelù pod vysokohostkým masivem je vhodnìj¹í pou¾ít zobrazení po vrstvách.</p>
+<p>
+<em>zobrazení po vrstvách</em>: Slou¾í k zobrazení komunikací v jednostlivých vý¹kových vrstvách. Pou¾ijete jej nejen v podzemí ale i pøi stavbì ¾eleznièní trati pod mostem.<br/>
+Najeïte kurzorem <a href="mouse.txt">my¹i</a> na pole v úrovni, kterou chcete zobrazit. Stistnìte <a href="keys.txt">[Ctrl U]</a>.
+</p>

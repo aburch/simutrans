@@ -18,7 +18,7 @@
 #include "../utils/sha1.h"
 #include "../utils/simstring.h"
 
-#include "components/list_button.h"
+
 #include "password_frame.h"
 #include "player_frame_t.h"
 
@@ -36,7 +36,7 @@ password_frame_t::password_frame_t( spieler_t *sp ) :
 		player_name.set_text(player_name_str, lengthof(player_name_str));
 		player_name.add_listener(this);
 		player_name.set_pos(koord(10,4));
-		player_name.set_groesse(koord(DIALOG_WIDTH-10-10, BUTTON_HEIGHT));
+		player_name.set_groesse(koord(DIALOG_WIDTH-10-10, D_BUTTON_HEIGHT));
 		add_komponente(&player_name);
 	}
 	else {
@@ -46,7 +46,7 @@ password_frame_t::password_frame_t( spieler_t *sp ) :
 	}
 
 
-	fnlabel.set_pos (koord(10,4+BUTTON_HEIGHT+6));
+	fnlabel.set_pos (koord(10,4+D_BUTTON_HEIGHT+6));
 	fnlabel.set_text( "Password" );
 	add_komponente(&fnlabel);
 
@@ -54,12 +54,12 @@ password_frame_t::password_frame_t( spieler_t *sp ) :
 	ibuf[0] = 0;
 	password.set_text(ibuf, lengthof(ibuf) );
 	password.add_listener(this);
-	password.set_pos(koord(75,4+BUTTON_HEIGHT+4));
-	password.set_groesse(koord(DIALOG_WIDTH-75-10, BUTTON_HEIGHT));
+	password.set_pos(koord(75,4+D_BUTTON_HEIGHT+4));
+	password.set_groesse(koord(DIALOG_WIDTH-75-10, D_BUTTON_HEIGHT));
 	add_komponente(&password);
 	set_focus( &password );
 
-	set_fenstergroesse(koord(DIALOG_WIDTH, 16+12+2*BUTTON_HEIGHT));
+	set_fenstergroesse(koord(DIALOG_WIDTH, 16+12+2*D_BUTTON_HEIGHT));
 }
 
 

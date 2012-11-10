@@ -11,7 +11,16 @@ public:
 	uint32 ip;
 	uint32 mask;
 
-	net_address_t(uint32 ip_=0, uint32 mask_ = 0xffffffff) : ip(ip_), mask(mask_) {}
+private:
+	char ipstr[16];
+
+	/**
+	 * Generate human readable representation of this IP address
+	 */
+	void init_ipstr();
+
+public:
+	net_address_t(uint32 ip_=0, uint32 mask_ = 0xffffffff);
 
 	net_address_t(const char *);
 
@@ -20,6 +29,12 @@ public:
 	}
 
 	void rdwr(packet_t *packet);
+
+	/**
+	 * Return human readable representation of this IP address
+	 * @author Timothy Baldock <tb@entropy.me.uk>
+	 */
+	const char* get_str () const;
 
 	bool operator==(const net_address_t& other) {
 		return ip==other.ip  &&  mask == other.mask;

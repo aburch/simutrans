@@ -25,7 +25,7 @@
 
 #include "halt_detail.h"
 
-#include "components/list_button.h"
+
 
 
 halt_detail_t::halt_detail_t(halthandle_t halt_) :
@@ -38,14 +38,14 @@ halt_detail_t::halt_detail_t(halthandle_t halt_) :
 
 	// fill buffer with halt detail
 	halt_detail_info();
-	txt_info.set_pos(koord(DIALOG_LEFT,DIALOG_TOP));
+	txt_info.set_pos(koord(D_MARGIN_LEFT,D_MARGIN_TOP));
 
 	scrolly.set_pos(koord(0, 0));
 	scrolly.set_show_scroll_x(true);
 	add_komponente(&scrolly);
 
-	set_fenstergroesse(koord(TOTAL_WIDTH, TITLEBAR_HEIGHT+4+22*(LINESPACE)+scrollbar_t::BAR_SIZE+2));
-	set_min_windowsize(koord(TOTAL_WIDTH, TITLEBAR_HEIGHT+4+3*(LINESPACE)+scrollbar_t::BAR_SIZE+2));
+	set_fenstergroesse(koord(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+4+22*(LINESPACE)+scrollbar_t::BAR_SIZE+2));
+	set_min_windowsize(koord(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+4+3*(LINESPACE)+scrollbar_t::BAR_SIZE+2));
 
 	set_resizemode(diagonal_resize);
 	resize(koord(0,0));
@@ -131,7 +131,7 @@ void halt_detail_t::halt_detail_info()
 	sint16 offset_y = LINESPACE;
 	buf.append(translator::translate("Fabrikanschluss"));
 	buf.append("\n");
-	offset_y += DIALOG_TOP;
+	offset_y += D_MARGIN_TOP;
 
 	if (!fab_list.empty()) {
 		FOR(slist_tpl<fabrik_t*>, const fab, fab_list) {
@@ -139,7 +139,7 @@ void halt_detail_t::halt_detail_info()
 
 			// target button ...
 			button_t *pb = new button_t();
-			pb->init( button_t::posbutton, NULL, koord(DIALOG_LEFT, offset_y) );
+			pb->init( button_t::posbutton, NULL, koord(D_MARGIN_LEFT, offset_y) );
 			pb->set_targetpos( pos );
 			pb->add_listener( this );
 			posbuttons.append( pb );
@@ -202,7 +202,7 @@ void halt_detail_t::halt_detail_info()
 			// Line buttons only if owner ...
 			if (halt->get_welt()->get_active_player()==halt->registered_lines[i]->get_besitzer()) {
 				button_t *b = new button_t();
-				b->init( button_t::posbutton, NULL, koord(DIALOG_LEFT, offset_y) );
+				b->init( button_t::posbutton, NULL, koord(D_MARGIN_LEFT, offset_y) );
 				b->set_targetpos( koord(-1,i) );
 				b->add_listener( this );
 				linebuttons.append( b );
@@ -212,7 +212,7 @@ void halt_detail_t::halt_detail_info()
 			// Line labels with color of player
 			label_names.append( strdup(halt->registered_lines[i]->get_name()) );
 			gui_label_t *l = new gui_label_t( label_names.back(), PLAYER_FLAG|(halt->registered_lines[i]->get_besitzer()->get_player_color1()+0) );
-			l->set_pos( koord(DIALOG_LEFT+BUTTON_HEIGHT+BUTTON_SPACER, offset_y) );
+			l->set_pos( koord(D_MARGIN_LEFT+D_BUTTON_HEIGHT+D_H_SPACE, offset_y) );
 			linelabels.append( l );
 			cont.add_komponente( l );
 			buf.append("\n");
@@ -238,7 +238,7 @@ void halt_detail_t::halt_detail_info()
 		for(  uint32 i=0;  i<halt->registered_convoys.get_count();  ++i  ) {
 			// Convoy buttons
 			button_t *b = new button_t();
-			b->init( button_t::posbutton, NULL, koord(DIALOG_LEFT, offset_y) );
+			b->init( button_t::posbutton, NULL, koord(D_MARGIN_LEFT, offset_y) );
 			b->set_targetpos( koord(-2, i) );
 			b->add_listener( this );
 			convoybuttons.append( b );
@@ -247,7 +247,7 @@ void halt_detail_t::halt_detail_info()
 			// Line labels with color of player
 			label_names.append( strdup(halt->registered_convoys[i]->get_name()) );
 			gui_label_t *l = new gui_label_t( label_names.back(), PLAYER_FLAG|(halt->registered_convoys[i]->get_besitzer()->get_player_color1()+0) );
-			l->set_pos( koord(DIALOG_LEFT+BUTTON_HEIGHT+BUTTON_SPACER, offset_y) );
+			l->set_pos( koord(D_MARGIN_LEFT+D_BUTTON_HEIGHT+D_H_SPACE, offset_y) );
 			convoylabels.append( l );
 			cont.add_komponente( l );
 			buf.append("\n");
@@ -282,7 +282,12 @@ void halt_detail_t::halt_detail_info()
 			buf.append(" · ");
 			const ware_besch_t* info = warenbauer_t::get_info_catg_index(i);
 			// If it is a special freight, we display the name of the good, otherwise the name of the category.
-			buf.append(translator::translate(info->get_catg()==0?info->get_name():info->get_catg_name()));
+			buf.append( translator::translate(info->get_catg()==0?info->get_name():info->get_catg_name()) );
+#if DEBUG>=4
+			if(  halt->is_transfer(i)  ) {
+				buf.append("*");
+			}
+#endif
 			buf.append(":\n");
 			offset_y += LINESPACE;
 
@@ -310,7 +315,7 @@ void halt_detail_t::halt_detail_info()
 
 					// target button ...
 					button_t *pb = new button_t();
-					pb->init( button_t::posbutton, NULL, koord(DIALOG_LEFT, offset_y) );
+					pb->init( button_t::posbutton, NULL, koord(D_MARGIN_LEFT, offset_y) );
 					pb->set_targetpos( a_halt->get_basis_pos() );
 					pb->add_listener( this );
 					posbuttons.append( pb );
@@ -445,10 +450,9 @@ void halt_detail_t::rdwr(loadsave_t *file)
 	if(  file->is_loading()  ) {
 		halt = haltestelle_t::get_welt()->lookup( halt_pos )->get_halt();
 		// now we can open the window ...
-		KOORD_VAL xpos = win_get_posx( this );
-		KOORD_VAL ypos = win_get_posy( this );
+		koord const& pos = win_get_pos(this);
 		halt_detail_t *w = new halt_detail_t(halt);
-		create_win( xpos, ypos, w, w_info, magic_halt_detail+halt.get_id() );
+		create_win(pos.x, pos.y, w, w_info, magic_halt_detail + halt.get_id());
 		w->set_fenstergroesse( gr );
 		w->scrolly.set_scroll_position( xoff, yoff );
 		destroy_win( this );

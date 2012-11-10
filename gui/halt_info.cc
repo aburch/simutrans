@@ -21,7 +21,7 @@
 #include "../dataobj/loadsave.h"
 
 #include "../utils/simstring.h"
-#include "components/list_button.h"
+
 #include "../besch/skin_besch.h"
 
 
@@ -109,7 +109,7 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt) :
 	}
 
 	const sint16 offset_below_viewport = 21 + view.get_groesse().y;
-	const sint16 total_width = 3*(BUTTON_WIDTH + BUTTON_SPACER) + max(BUTTON_WIDTH + 2*BUTTON_SPACER, view.get_groesse().x + 32);
+	const sint16 total_width = D_MARGIN_LEFT + 3*(D_BUTTON_WIDTH + D_H_SPACE) + max( D_BUTTON_WIDTH, view.get_groesse().x ) + D_MARGIN_RIGHT;
 
 	input.set_pos(koord(10,4));
 	tstrncpy(edit_name, halt->get_name(), lengthof(edit_name));
@@ -131,8 +131,8 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt) :
 	for (int cost = 0; cost<MAX_HALT_COST; cost++) {
 		chart.add_curve(cost_type_color[cost], halt->get_finance_history(), MAX_HALT_COST, index_of_haltinfo[cost], MAX_MONTHS, 0, false, true, 0);
 		filterButtons[cost].init(button_t::box_state, cost_type[cost],
-			koord(BUTTON1_X+(BUTTON_WIDTH+BUTTON_SPACER)*(cost%4), view.get_groesse().y+141+(BUTTON_HEIGHT+2)*(cost/4) ),
-			koord(BUTTON_WIDTH, BUTTON_HEIGHT));
+			koord(BUTTON1_X+(D_BUTTON_WIDTH+D_H_SPACE)*(cost%4), view.get_groesse().y+141+(D_BUTTON_HEIGHT+2)*(cost/4) ),
+			koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 		filterButtons[cost].add_listener(this);
 		filterButtons[cost].background = cost_type_color[cost];
 		filterButtons[cost].set_visible(false);
@@ -144,24 +144,24 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt) :
 
 	add_komponente(&sort_label);
 
-	const sint16 yoff = offset_below_viewport+BUTTON_HEIGHT+1-BUTTON_HEIGHT-2;
+	const sint16 yoff = offset_below_viewport+D_BUTTON_HEIGHT+1-D_BUTTON_HEIGHT-2;
 
 	// hsiegeln: added sort_button
-	sort_button.init(button_t::roundbox, sort_text[umgebung_t::default_sortmode],koord(BUTTON1_X, yoff), koord(BUTTON_WIDTH, BUTTON_HEIGHT));
+	sort_button.init(button_t::roundbox, sort_text[umgebung_t::default_sortmode],koord(BUTTON1_X, yoff), koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	sort_button.set_tooltip("Sort waiting list by");
 	sort_button.add_listener(this);
 	add_komponente(&sort_button);
 
-	toggler.init(button_t::roundbox_state, "Chart", koord(BUTTON3_X, yoff), koord(BUTTON_WIDTH, BUTTON_HEIGHT));
+	toggler.init(button_t::roundbox_state, "Chart", koord(BUTTON3_X, yoff), koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	toggler.set_tooltip("Show/hide statistics");
 	toggler.add_listener(this);
 	add_komponente(&toggler);
 
-	button.init(button_t::roundbox, "Details", koord(BUTTON4_X, yoff), koord(BUTTON_WIDTH, BUTTON_HEIGHT));
+	button.init(button_t::roundbox, "Details", koord(BUTTON4_X, yoff), koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	button.add_listener(this);
 	add_komponente(&button);
 
-	scrolly.set_pos(koord(0, offset_below_viewport+BUTTON_HEIGHT+3));
+	scrolly.set_pos(koord(0, offset_below_viewport+D_BUTTON_HEIGHT+3));
 	scrolly.set_show_scroll_x(true);
 	add_komponente(&scrolly);
 
@@ -215,10 +215,10 @@ void halt_info_t::zeichnen(koord pos, koord gr)
 
 		sint16 top = pos.y+36;
 		COLOR_VAL indikatorfarbe = halt->get_status_farbe();
-		display_fillbox_wh_clip(pos.x+10, top+2, INDICATOR_WIDTH, INDICATOR_HEIGHT, indikatorfarbe, true);
+		display_fillbox_wh_clip(pos.x+10, top+2, D_INDICATOR_WIDTH, D_INDICATOR_HEIGHT, indikatorfarbe, true);
 
 		// now what do we accept here?
-		int left = 10+INDICATOR_WIDTH+2;
+		int left = 10+D_INDICATOR_WIDTH+2;
 		if (halt->get_pax_enabled()) {
 			display_color_img(skinverwaltung_t::passagiere->get_bild_nr(0), pos.x+left, top, 0, false, false);
 			left += 10;
@@ -382,7 +382,7 @@ void halt_info_t::set_fenstergroesse(koord groesse)
 
 	scrolly.set_groesse(get_client_windowsize()-scrolly.get_pos());
 
-	const sint16 yoff = scrolly.get_pos().y-BUTTON_HEIGHT-3;
+	const sint16 yoff = scrolly.get_pos().y-D_BUTTON_HEIGHT-3;
 	sort_button.set_pos(koord(BUTTON1_X,yoff));
 	toggler.set_pos(koord(BUTTON3_X,yoff));
 	button.set_pos(koord(BUTTON4_X,yoff));
@@ -435,10 +435,9 @@ void halt_info_t::rdwr(loadsave_t *file)
 	if(  file->is_loading()  ) {
 		halt = welt->lookup( halt_pos )->get_halt();
 		// now we can open the window ...
-		KOORD_VAL xpos = win_get_posx( this );
-		KOORD_VAL ypos = win_get_posy( this );
+		koord const& pos = win_get_pos(this);
 		halt_info_t *w = new halt_info_t(welt,halt);
-		create_win( xpos, ypos, w, w_info, magic_halt_info+halt.get_id() );
+		create_win(pos.x, pos.y, w, w_info, magic_halt_info + halt.get_id());
 		if(  stats  ) {
 			gr.y -= 170;
 		}

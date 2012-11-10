@@ -1,0 +1,37 @@
+<title>Budowa kolei</title>
+
+<h1>Budowa kolei</h1>
+
+<p>
+To okno zawiera narzedzia do budowy torów, sygnalów, tuneli, lokomotywowni, skrzyzowan i stacji.
+Po wybraniu danego narzedzia, obok kursora pojawi sie jego wizerunek.
+</p>
+<p>
+W lewym górnym rogu znajduje sie narzedzie do budowy torów.
+Z jego pomoca mozna budowac tory miedzy dwoma kwadratami.
+Chcac zbudowac tory kliknij na kwadrat poczatkowy - kursor zamieni sie w buldozer - a nastepnie na kwadrat docelowy. Miedzy tymi kwadratami powstana tory (pola miedzy kwadratami powinny byc wolne). Jesli bedziesz chcial przeciac ulice zastosuj skrzyzowanie, most, lub tunel. Jesli nie bedzi polaczenia miedzy kwadratem poczatkowym i koncowym tory nie zostana wybudowane.
+</p>
+<p>
+Nastepna ikona pozwala budowac sygnalizacje kolejowe. Sygnaly pozwalaja ustalic ruch pociagów.
+Dzieki nim dwa pociagi moga poruszac sie po jednym torze.
+Syganal jednokierunkowy nakazuje pociagowi jazde wyznaczonym torem. Sygnaly jednokierunkowe budujemy w ten sposób, ze stawiamy normalny sygnal i klikamy na niego - wtedy zamieni sie w syganl jednokierunkowy. Kolejne kliknieci spowoduje ze zmieni sie kierunek syganalu, a nastepne zamieni sygnal jednokierunkowy w dwukierunkowy (Sygnaly mozna zmieniac przy pomocy ikony 'sygnaly'). Nalezy uwazac aby zle ustawione sygnaly nie zablokowaly ruchu pociagów.
+Aby zbudowac sygnal kliknij lewym przyciskiem myszy na torach w miejscu gdzie ma stanac syganl.
+Sygnaly umieszczane sa na kwadratowym polu. Na jednym polu moze stac tylko jeden sygnal.
+Aby usunac sygnal uzyj narzedzia 'zniszcz'. Po kliknieciu na niepotrzebny sygnal zostanie on zlikwidowany (tory pozostana nienaruszone).
+</p>
+<p>
+Ostatnia ikona zawiera narzedzia do budowy tuneli.
+Tunele sa uzywane do budowy krótkich polaczen przez wysokie góry. Przed skonstruowaniem tunelu najpierw musisz wybudowac tory. Po obu stronach góry w wybranym przez Ciebie miejscu musisz wybudowac zakonczenie torów (koniecznie na tej samej wysokosci po obu stronach!). Nastepnie wybuduj tunel klikjac na narzedzie 'Tunel' i przeciagajac linie pomiedzy utworzonymi zakonczeniami torów.
+</p>
+<p>
+Kolejna ikona sa 'Skrzyzowania'.
+Dzieki 'Skrzyzowaniom' tory moga sie nawzajem przecinac. Skrzyzowania budujemy przez klikniecie na torach w miejscu gdzie chcemy je utworzyc.
+</p>
+<p>
+Nastepnym narzedziem jest 'Lokomotywownia'. W lokomotywowni kupujemy, naprawiamy i sprzedajemy lokomotywy i wagony. Lokomotywnie mozna zbudowac tylko na koncu torów.
+</p>
+<p>
+Ostatnia ikona to 'Stacja'. Stacje uzywane sa do zaladunku/wyladunku towarów i przewozu ludzi. Stacje moaga miec dowolny ksztalt i rozmiar. Na stacjach mozna przechowywac niograniczona liczbe towarów, ale fabryki przyjmuja towary jesli oczekuje mniej niz 1000 jednostek towaru.
+Stacje budujemy na skraju torów, ale nie moga powstac na pochylosciach skrzyzowaniach i zakretach.
+Kazdy segment stacji moze przyjac do 2 wagonów, dlatego upewnij sie czy dany pociag zmiesci sie w calosci na stacji. Wagony nie mieszczace sie na stacji nie moga transportowac towarów/ludzi.
+</p>

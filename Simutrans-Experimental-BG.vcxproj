@@ -127,7 +127,7 @@
       <DisableSpecificWarnings>4200;4800;4311;4996;4554;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;ws2_32.lib</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;zlibstat.lib;wsock32.lib;libbz2.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>libcmt.lib; msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
@@ -412,6 +412,7 @@
     <ClCompile Include="dataobj\loadsave.cc" />
     <ClCompile Include="gui\loadsave_frame.cc" />
     <ClCompile Include="utils\checksum.cc" />
+    <ClCompile Include="utils\csv.cc" />
     <ClCompile Include="utils\float32e8_t.cc" />
     <ClCompile Include="utils\log.cc" />
     <ClCompile Include="boden\wege\maglev.cc" />
@@ -612,6 +613,7 @@
     <ClInclude Include="tpl\debug_helper.h" />
     <ClInclude Include="gui\depot_frame.h" />
     <ClInclude Include="dataobj\dingliste.h" />
+    <ClInclude Include="utils\csv.h" />
     <ClInclude Include="utils\dr_rdgif.h" />
     <ClInclude Include="utils\dr_rdpng.h" />
     <ClInclude Include="utils\dr_rdppm.h" />

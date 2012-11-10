@@ -1,0 +1,49 @@
+<title>Finanzen Hilfe</title>
+
+<h1><strong>Finanzen</strong></h1>
+
+<p>
+Die Finanzen können im Finanzfenster betrachtet werden. Dieses kann durch Drücken von <em>f</em> oder über die <a href="mainmenu2.txt">Hauptmenüleiste</a> geöffnet werden.<br>
+Dort sind die Informationen über die Finanzen zusammengefaßt.
+</p>
+<p>
+Im unteren Teil des Fensters ist eine Grafik, die den Verlauf eines oder mehrer Werte anzeigt. Welche diese anzeigen soll, kannst Du mit den farbigen Schaltflächen darüber auswähln. Du kannst die Ansicht zwischen Jahren und Monaten umschalten.
+</p>
+<p>
+Mit der Schaltfläche <em>Firmensitzbau</em> kann ein Firmensitz gebaut werden. Gibt es bereits einen Firmensitzes, heißt die Schaltfläche <em>Firmensitzumbau</em>. Unterhalb der Schaltfläche wird ein Kartenausschnitt mit dem Standort des Firmensitzes angezeigt.<br>
+Der Firmensitzbau/-umbau steht nur zur Verfügung, wenn das verwendete Pakset Firmensitzgebäude enthält.
+</p>
+<p>
+Die Positionen und Schaltflächen der linken Hälfte sind wie folgt:
+</p>
+<p>
+<em>Einnahmen</em> - Die gesamten Einnahmen aus dem Transport von Passagieren und Gütern.<br>
+<em>Betriebskosten</em> - Die Kosten für den Betrieb aller Fahrzeue. Die Betriebskosten pro gefahrenem Kilometer je Fahrzeugtyp können im <a href="depot.txt">Depot</a> eingesehen werden, für Fahrzeugverbände im <a href="convoiinfo.txt">Fahrzeugfenster</a>.<br>
+<em>Instandhaltung</em> - Die angefallenen Kosten für die Instandhaltung der Infrastruktur. Die Kosten der <em>Instandhaltung pro Monat</em> werden rechts angezeigt und jeweils am letzten des Monats fällig, also dann immer soviel auf dem Konto vorrätig haben!<br>
+<em>Maut</em> - Wenn fahrzeuge auf fremden Wege (zum Beispiel Straßen anderer Spieler) unterwegs sind, kann ein Maut (Wegzoll) anfallen. Dies hängt vom Pakset ab. Je nachdem, ob andere Spieler deine Weg benutzen oder umgekehrt, kann man so Geld verdienen oder muss bezahlen.<br>
+<em>Freileitungen</em> - Der Gweinn durch den Verkauf von Strom.<br>
+<em>Betriebsgewinn</em> - Der operative Gewinn (exkl. Abschreibungen auf Fahrzeuge), also was mit der Transporttätigkeit, Maut, Freileitung an sich verdient wird minus der Betriebkosten und Instandhaltung. Summe aller obigen Positionen.
+</p>
+<p>
+<em>Neue Fahrzeuge</em> - Alle Ausgaben (Einnahmen) für den Kauf (Verkauf) von Fahrzeugen.<br>
+<em>Ausgaben Bau</em> - Hier steht der Betrag, der für den Bau von Schienen, Strassen, Signalen usw. ausgegeben wurde. Auch Abrisskosten zählen zu den Baukosten.<br>
+<em>Bruttogewinn</em> - Die Summe aller Einnahmen (Geldzuflüsse) und Ausgaben (Geldabflüsse), der sogenannte Cash-Flow. Summe aller obigen Positionen.
+<br><br>
+<em>Beförderungen</em> - Die Summe aller Einheiten, die transportiert worden sind.
+</p>
+<p>
+Die Positionen und Schaltflächen der rechten Hälfte sind wie folgt:
+</p>
+<p>
+<em>Kontostand</em> - Der aktuelle Kontostand. Dieses Geld steht zur Verfügung, um zu bauen oder Fahrzeuge und Züge zu kaufen. Der Kontostand steht auch in der Statusleiste unten in der Mitte. Ist der Kontostand negativ erscheint monatlich eine Warnung.<br>
+<em>Fahrzeugwert</em> - Der Wert Deiner Fahrzeugflotte per Ende des letzten Monats.<br>
+<em>Marge</em> - Die erzielte Nettomarge (Betriebsgewinn/Kosten). Je höher diese ist, desto mehr wird aus den angefallenen Kosten herausgeholt. Die Werte werden laufend aktualisiert, sind aber unter dem Monat wegen fehlender Unterhaltskosten zu hoch. Aussagekräftiger sind Zahlen des Vormonats oder Vorjahres. Achtung: Es kann durchaus sinnvoll sein, Linien mit geringer Marge zu betreiben, z.B. um eine Industrie zu versorgen.<br>
+<em>Gesamtvermögen</em> - Die Summe von Kontostand und Fahrzeugwert, also der Firmenwert. Ist das Gesamtvermögen am Ende eines Monats negativ, ist die Firma pleite und das Spiel verloren. Sinkt das Gesamtvermögen unter 10% des Startkapitals, erscheint am Monatsersten einen Warnung.
+</p>
+<p>
+</p>
+<br>
+<h1><strong>Szenario-Spiele</strong></h1>
+<p>
+Bei Szenario-Spielen wird zusätzlich der Szenario-Auftrag und der erreichte Szenario-Status (in %) angezeigt.
+</p>

@@ -1,0 +1,30 @@
+<title>Detalhes da Parada</title>
+
+<h1><strong>Detalhes da Parada</strong></h1>
+
+<p>
+A janela <strong>Detalhes da Parada</strong> providencia mais informações sobre a estação/parada (onde veículos recolhem e entregam mercadorias e passageiros).
+</p>
+<p>
+A janela <strong>Detalhes da Parada</strong> abre do botão <a href="station.txt">Detalhes</a> na janela de Informações das Paradas.
+<br>
+Se todos os itens não estiverem visíveis <a href="mouse.txt">redimensione</a> a janela <strong>Detalhes da Parada</strong> ou use as barras de rolagem para percorrer os itens.
+</p>
+<p>
+As informações listadas incluem:<br>
+<em>Indústrias conectadas:</em> nomes e coordenadas no mapa (em parênteses) das <a href="industry_info.txt">indústrias</a> na área de captura da parada.<br>
+{Dica: use <a href="keys.txt">[v]</a> para mostrar/exibir a área de captura de uma parada.}
+</p>
+<p>
+<em>Indústrias próximas precisam:</em> lista as <a href="goods_filter.txt">mercadorias</a> requeridas pelas <a href="industryinfo.txt">indústrias</a> na área de captura da parada.
+</p>
+<p>
+<em>Linhas que servem esta parada:</em> mostra as <a href="linemanagement.txt">linhas</a> que usam a parada.<br>
+Linhas são listadas pela ordem do código ASCII (letras maiúsculas antes de minúsculas).
+</p>
+<p>
+<em>Paradas conectadas diretamente:</em> lista o nome das paradas que podem ser alcançadas e o tipo de itens (mercadorias e passageiros) que podem ser entregues.<br>
+Paradas são listadas pela ordem do código ASCII (letras maiúsculas antes de minúsculas) pelo tipo de transporte, nome da parada, e tipo de item que pode ser entregue (que também é mostrado por cada parada).
+</p>
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008.
+</p>

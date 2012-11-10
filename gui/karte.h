@@ -2,13 +2,21 @@
 #define gui_karte_h
 
 #include "components/gui_komponente.h"
+#include "../halthandle_t.h"
+#include "../convoihandle_t.h"
+#include "../dataobj/fahrplan.h"
 #include "../tpl/array2d_tpl.h"
+#include "../tpl/vector_tpl.h"
+
+
 
 class karte_t;
 class fabrik_t;
 class grund_t;
 class stadt_t;
+class spieler_t;
 class schedule_t;
+class loadsave_t;
 
 
 #define MAX_MAP_TYPE_LAND 14
@@ -29,60 +37,111 @@ class reliefkarte_t : public gui_komponente_t
 {
 public:
 	enum MAP_MODES {
-		PLAIN    = -1,
-		MAP_TOWN =  0,
-		MAP_PASSENGER,
-		MAP_MAIL,
-		MAP_FREIGHT,
-		MAP_STATUS,
-		MAP_SERVICE,
-		MAP_TRAFFIC,
-		MAP_ORIGIN,
-		MAP_DESTINATION,
-		MAP_WAITING,
-		MAP_TRACKS,
-		MAX_SPEEDLIMIT,
-		MAP_POWERLINES,
-		MAP_TOURIST,
-		MAP_FACTORIES,
-		MAP_DEPOT,
-		MAP_FOREST,
-		MAP_CITYLIMIT,
-		MAP_PAX_DEST,
-		MAP_OWNER,
-		MAX_MAP_BUTTON
+		PLAIN    = 0,
+		MAP_TOWN = 1,
+		MAP_PASSENGER = 1<<1,
+		MAP_MAIL = 1<<2,
+		MAP_FREIGHT = 1<<3,
+		MAP_STATUS = 1<<4,
+		MAP_SERVICE = 1<<5,
+		MAP_TRAFFIC = 1<<6,
+		MAP_ORIGIN = 1<<7,
+		MAP_TRANSFER = 1<<8,
+		MAP_WAITING = 1<<9,
+		MAP_TRACKS = 1<<10,
+		MAX_SPEEDLIMIT = 1<<11,
+		MAP_POWERLINES = 1<<12,
+		MAP_TOURIST = 1<<13,
+		MAP_FACTORIES = 1<<14,
+		MAP_DEPOT = 1<<15,
+		MAP_FOREST = 1<<16,
+		MAP_CITYLIMIT = 1<<17,
+		MAP_PAX_DEST = 1<<18,
+		MAP_OWNER = 1<<19,
+		MAP_LINES = 1<<20,
+		MAP_LEVEL = 1<<21,
+		MAP_WAITCHANGE = 1<<22,
+		MAP_MODE_HALT_FLAGS = (MAP_STATUS|MAP_SERVICE|MAP_ORIGIN|MAP_TRANSFER|MAP_WAITING|MAP_WAITCHANGE),
+		MAP_MODE_FLAGS = (MAP_TOWN|MAP_CITYLIMIT|MAP_STATUS|MAP_SERVICE|MAP_WAITING|MAP_WAITCHANGE|MAP_TRANSFER|MAP_LINES|MAP_FACTORIES|MAP_ORIGIN|MAP_DEPOT|MAP_TOURIST|MAP_PAX_DEST)
 	};
 
 private:
 	static karte_t *welt;
-	array2d_tpl<uint8> *relief;
 
 	reliefkarte_t();
 
 	static reliefkarte_t *single_instance;
 
-	/**
-	* map mode: -1) normal; everything else: special map
-	* @author hsiegeln
-	*/
-	static MAP_MODES mode;
-
-	static const uint8 severity_color[MAX_SEVERITY_COLORS];
-
-	static const uint8 map_type_color[MAX_MAP_TYPE_LAND+MAX_MAP_TYPE_WATER];
-
-	inline void screen_to_karte(koord &) const;
+	// the terrain map
+	array2d_tpl<uint8> *relief;
 
 	void set_relief_color_clip( sint16 x, sint16 y, uint8 color );
 
 	void set_relief_farbe_area(koord k, int areasize, uint8 color);
 
+	// all stuff connected with schedule display
+	class line_segment_t
+	{
+	public:
+		koord start, end;
+		schedule_t *fpl;
+		spieler_t *sp;
+		waytype_t waytype;
+		uint8 colorcount;
+		uint8 start_offset;
+		uint8 end_offset;
+		bool start_diagonal;
+		line_segment_t() {}
+		line_segment_t( koord s, uint8 so, koord e, uint8 eo, schedule_t *f, spieler_t *p, uint8 cc, bool diagonal ) {
+			fpl = f;
+			waytype = f->get_waytype();
+			sp = p;
+			colorcount = cc;
+			start_diagonal = diagonal;
+			if(  s.x<e.x  ||  (s.x==e.x  &&  s.y<e.y)  ) {
+				start = s;
+				end = e;
+				start_offset = so;
+				end_offset = eo;
+			}
+			else {
+				start = e;
+				end = s;
+				start_offset = eo;
+				end_offset = so;
+			}
+		}
+		bool operator == (const line_segment_t & k) const;
+	};
+	// Ordering based on first start then end coordinate
+	class LineSegmentOrdering
+	{
+	public:
+		bool operator()(const reliefkarte_t::line_segment_t& a, const reliefkarte_t::line_segment_t& b) const;
+	};
+	vector_tpl<line_segment_t> schedule_cache;
+	convoihandle_t current_cnv;
+	uint8 fpl_player_nr;
+	uint8 last_schedule_counter;
+	vector_tpl<halthandle_t> stop_cache;
+
+	// adds a schedule to cache
+	void add_to_schedule_cache( convoihandle_t cnv, bool with_waypoints );
+
+	/**
+	 * map mode: -1) normal; everything else: special map
+	 * @author hsiegeln
+	 */
+	static MAP_MODES mode;
+	static MAP_MODES last_mode;
+	static const uint8 severity_color[MAX_SEVERITY_COLORS];
+	static const uint8 map_type_color[MAX_MAP_TYPE_LAND+MAX_MAP_TYPE_WATER];
+
+	inline void screen_to_karte(koord &) const;
+
 	// for passenger destination display
 	const stadt_t *city;
 	unsigned long pax_destinations_last_change;
-
-	const schedule_t *fpl;
-	uint8 fpl_player_nr;
 
 	koord last_world_pos;
 
@@ -95,14 +154,11 @@ private:
 
 	const fabrik_t* draw_fab_connections(uint8 colour, koord pos) const;
 
-	void draw_schedule(const koord pos) const;
-
-	static sint32 max_departed;
-	static sint32 max_arrived;
 	static sint32 max_cargo;
-	static sint32 max_convoi_arrived;
 	static sint32 max_passed;
-	static sint32 max_tourist_ziele;
+
+	// the zoom factors
+	sint16 zoom_out, zoom_in;
 
 	uint16 citycar_speed_average;
 
@@ -113,23 +169,21 @@ public:
 
 	static bool is_visible;
 
-	// the zoom factors
-	sint16 zoom_out, zoom_in;
-
 	// 45 rotated map
 	bool isometric;
 
-	// show/hide schedule of convoi
-	bool is_show_schedule;
-
-	// show/hide factory connections
-	bool is_show_fab;
+	/**
+	 * returns a color based on an amount (high amount/scale -> color shifts from green to red)
+	 * @author hsiegeln
+	 */
+	static uint8 calc_severity_color(sint32 amount, sint32 scale);
 
 	/**
-	* returns a color based on an amount (high amount/scale -> color shifts from green to red)
-	* @author hsiegeln
-	*/
-	static uint8 calc_severity_color(sint32 amount, sint32 scale);
+	 * returns a color based on an amount (high amount/scale -> color shifts from green to red)
+	 * but using log scale
+	 * @author prissi
+	 */
+	static uint8 calc_severity_color_log(sint32 amount, sint32 scale);
 
 	/**
 	* returns a color based on the current high
@@ -180,11 +234,23 @@ public:
 
 	void zeichnen(koord pos);
 
-	void set_current_fpl(const schedule_t *current_fpl, uint8 player_nr) {fpl = current_fpl; fpl_player_nr = player_nr;};
+	void set_current_cnv( convoihandle_t c );
 
 	void set_city( const stadt_t* _city );
 
 	const stadt_t* get_city() const { return city; };
+
+	/**
+	 * @returns true if zoom factors changed
+	 */
+	bool change_zoom_factor(bool magnify);
+
+	void get_zoom_factors(sint16 &zoom_out_, sint16 &zoom_in_) const {
+		zoom_in_ = zoom_in;
+		zoom_out_ = zoom_out;
+	}
+
+	void rdwr(loadsave_t *file);
 };
 
 #endif

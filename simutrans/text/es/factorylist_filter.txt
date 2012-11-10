@@ -1,0 +1,49 @@
+<title>Lista de Fabricas/Industrias</title>
+
+<h1><strong>Lista de Fabricas/Industrias</strong></h1>
+
+<p>
+<strong>Lista de Fabricas/Industrias</strong> muestra informacion acerca de todas las <a href="industry_info.txt">fabricas</a> (suministradoras y consumidoras de mercancias) en la parida actual.
+</p>
+<p>
+Para abrir la <strong>Lista de Fabricas/Industrias</strong>: pulsa en la herramienta de Lista de Fabricas en el icono <a href="list.txt">Administracion de listas</a>.<br>
+{Consejos: Si no todos los elementos son visibles, entonces <a href="mouse.txt">ajusta</a> la ventana de <strong>Lista de Fabricas</strong> o desplaza la lista mediante la lista de desplazamiento.}
+</p>
+<p>
+<em>Ordenado por:</em> tiene opciones que determinan el orden de las Fabricas listadas.<br>
+Pulsa en los botones para para pasar a la siguiente opcion (cambia en nombre del boton de opcion):
+</p>
+<p>
+- <em>Nombre de fabrica</em> ordena alfabeticamente por nombre.<br>
+- <em>Suministro</em> ordena por capacidad de almacenamiento del suministro.<br>
+- <em>Produccion</em> ordena por capacidad de almacenamiento de la produccion.<br>
+- <em>Produccion</em> ordena por produccion.<br>
+- <em>Rating</em> ordena por el color de la barra de estado (mira mas abajo).<br>
+- <em>Potencia</em> ordena por electricidad suministrada.
+</p>
+<p>
+- <em>ascendente</em> / <em>descendente</em> invierte el orden de la lista.
+</p>
+<p>
+Pulsa en un elemento listado en la <strong>Lista de Fabricas</strong> para ver mas <a href="industry_info.txt">informacion</a> acerca de esa Fabrica.
+<br>Los elementos listado para cada Industria incluyen:
+</p>
+<p>
+<em>barra de estado en color: </em> el color indica la operatibilidad de la Industria (tambien se usa en <a href="industry_info.txt">Informacion de la Industria</a>):<br>
+- <em>blanco:</em> no requiere mercancias.<br>
+- <em>amarillo:</em> conectada por transporte, pero la cadena de suministros tiene un pobre suministro.<br>
+- <em>verde:</em> en estado optimo.<br>
+- <em>naranja:</em> operativa pero es necesita mejoras.<br>
+- <em>rojo:</em> operativa pero parte de la cadena de suministros tiene exceso de suministro.
+</p>
+<p>
+<em>El icono rojo de un rayo</em> se muestra si la Fabrica requiere suministro electrico mediante una <a href="special.txt">subestacion transformadora</a>.
+</p>
+<p><em>Nombre de la Fabrica:</em> nombre de la <a href="industry_info.txt">industria</a>.
+</p>
+<p>
+Entre parentesis 3 valores que representan:<br>
+<em>Consumo actual:</em> cantidad de mercancias almacenadas y listas para ser procesadas.<br>
+<em>Produccion actual:</em> cantidad de mercancias preparadas para el transporte.<br>
+<em>Produccion total:</em> indice de produccion de la fabrica (cantidad maxima de mercancias producidas por mes/dia)
+</p>

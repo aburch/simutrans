@@ -525,6 +525,42 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	old_omoney.set_color(get_money_colour(COST_OPERATING_PROFIT, 1));
 	old_interest.set_color(get_money_colour(COST_INTEREST, 1));
 
+	gtmoney.set_text(display_money(COST_CASH, str_buf[14], 0));
+	gtmoney.set_color(get_money_colour(COST_CASH, 0));
+
+	vtmoney.set_text(display_money(COST_ASSETS, str_buf[17], 0));
+	vtmoney.set_color(get_money_colour(COST_ASSETS, 0));
+
+	money.set_text(display_money(COST_NETWEALTH, str_buf[18], 0));
+	money.set_color(get_money_colour(COST_NETWEALTH, 0));
+
+	display_money(COST_MARGIN, str_buf[19], 0);
+	str_buf[19][strlen(str_buf[19])-1] = '%';	// remove cent sign
+	margin.set_text(str_buf[19]);
+	margin.set_color(get_money_colour(COST_MARGIN, 0));
+
+	// warning/success messages
+	if(sp->get_player_nr()==0  &&  sp->get_welt()->get_scenario()->active()) {
+		warn.set_color( COL_BLACK );
+		sprintf( str_buf[15], translator::translate("Scenario complete: %i%%"), sp->get_welt()->get_scenario()->completed(0) );
+	}
+	else if(sp->get_finance_history_year(0, COST_NETWEALTH)<0) {
+		warn.set_color( MONEY_MINUS );
+		tstrncpy(str_buf[15], translator::translate("Company bankrupt"), lengthof(str_buf[15]) );
+	}
+	else if(  sp->get_finance_history_year(0, COST_NETWEALTH)*10 < sp->get_welt()->get_settings().get_starting_money(sp->get_welt()->get_current_month()/12)  ){
+		warn.set_color( MONEY_MINUS );
+		sprintf(str_buf[15], translator::translate("Net wealth near zero"), sp->get_konto_ueberzogen() );
+	}
+	else if(  sp->get_konto_ueberzogen()  ) {
+		warn.set_color( COL_YELLOW );
+		sprintf( str_buf[15], translator::translate("On loan since %i month(s)"), sp->get_konto_ueberzogen() );
+	}
+	else {
+		str_buf[15][0] = '\0';
+	}
+	warn.set_text(str_buf[15]);
+
 	headquarter.disable();
 	if(  sp->get_ai_id()!=spieler_t::HUMAN  ) {
 		headquarter.set_tooltip( "Configure AI setttings" );

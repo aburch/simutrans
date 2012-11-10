@@ -6,7 +6,6 @@
  */
 
 #include <stdio.h>
-#include <string>
 
 #include "../simmem.h"
 #include "../simwin.h"
@@ -19,60 +18,130 @@
 #include "../dataobj/umgebung.h"
 #include "../dataobj/translator.h"
 #include "../player/simplay.h"
+#include "werkzeug_waehler.h"
 
 #include "help_frame.h"
 
 
-void help_frame_t::set_text(const char * buf)
+// opens or tops main helpfile
+void help_frame_t::open_help_on( const char *helpfilename )
 {
-	flow.set_text(buf);
+	if(  help_frame_t *gui = (help_frame_t *)win_get_magic( magic_mainhelp )  ) {
+		top_win( gui );
+		gui->set_helpfile( helpfilename, false );
+	}
+	else {
+		create_win( new help_frame_t( helpfilename ), w_info, magic_mainhelp );
+	}
+}
 
-	flow.set_pos(koord(10, 10));
-	flow.set_groesse(koord(220, 0));
 
-	// try to get the following sizes
-	// y<400 or, if not possible, x<620
-	int last_y = 0;
-	koord curr=flow.get_preferred_size();
-	for( int i=0;  i<10  &&  curr.y>400  &&  curr.y!=last_y;  i++  )
-	{
-		flow.set_groesse(koord(260+i*40, 0));
-		last_y = curr.y;
-		curr = flow.get_preferred_size();
+// just loads a whole help file as one chunk
+static const char *load_text(char const* const filename )
+{
+	std::string file_prefix("text/");
+	std::string fullname = file_prefix + translator::get_lang()->iso + "/" + filename;
+	chdir(umgebung_t::program_dir);
+
+	FILE* file = fopen(fullname.c_str(), "rb");
+	if (!file) {
+		//Check for the 'base' language(ie en from en_gb)
+		file = fopen((file_prefix + translator::get_lang()->iso_base + "/" + filename).c_str(), "rb");
+	}
+	if (!file) {
+		// Hajo: check fallback english
+		file = fopen((file_prefix + "/en/" + filename).c_str(), "rb");
+	}
+	// go back to load/save dir
+	chdir( umgebung_t::user_dir );
+
+	if(file) {
+		fseek(file,0,SEEK_END);
+		long len = ftell(file);
+		if(  len>0  ) {
+			char* const buf = MALLOCN(char, len + 1);
+			fseek( file, 0, SEEK_SET );
+			fread(  buf, 1, len, file);
+			buf[len] = '\0';
+			fclose( file );
+			return buf;
+		}
 	}
 
-	// the second line isn't redundant!!!
-	flow.set_groesse(flow.get_preferred_size());
-	flow.set_groesse(flow.get_preferred_size());
+	return NULL;
+}
 
-	set_name(flow.get_title());
 
-	// set window size
-	curr = flow.get_groesse()+koord(20, 36);
-	if(curr.y>display_get_height()-64) {
-		curr.y = display_get_height()-64;
+void help_frame_t::set_text(const char * buf, bool resize_frame )
+{
+	helptext.set_text(buf);
+	helptext.set_pos( koord(D_MARGIN_LEFT, D_MARGIN_TOP) );
+
+	if(  resize_frame  ) {
+
+		// try to get the following sizes
+		// y<400 or, if not possible, x<620
+		helptext.set_groesse(koord(220, 0));
+		int last_y = 0;
+		koord curr = helptext.get_preferred_size();
+		for(  int i = 0;  i<10  &&  curr.y>400  &&  curr.y!=last_y;  i++  ) {
+			helptext.set_groesse(koord(260+i*40, 0));
+			last_y = curr.y;
+			curr = helptext.get_preferred_size();
+		}
+
+		// the second line isn't redundant!!!
+		helptext.set_groesse(helptext.get_preferred_size());
+		helptext.set_groesse(helptext.get_preferred_size());
+
+		if(  scrolly_generaltext.is_visible()  ) {
+			generaltext.set_pos( koord(D_MARGIN_LEFT, D_MARGIN_TOP) );
+			generaltext.set_groesse( koord( min(180,display_get_width()/3), 0 ) );
+			int generalwidth = min( display_get_width()/3, generaltext.get_preferred_size().x );
+			generaltext.set_groesse( koord( generalwidth, helptext.get_groesse().y ) );
+			generaltext.set_groesse( generaltext.get_preferred_size() );
+			generaltext.set_groesse( generaltext.get_preferred_size() );
+			generaltext.set_groesse( generaltext.get_text_size() );
+		}
+		else {
+			generaltext.set_groesse( koord( 0, 0 ) );
+		}
+
+		// calculate sizes (might not a help but info window, which do not have general text)
+		KOORD_VAL size_x = helptext.get_groesse().x + D_MARGIN_LEFT + D_MARGIN_RIGHT + scrollbar_t::BAR_SIZE;
+//		KOORD_VAL size_y = min( helptext.get_groesse().y, generaltext.get_groesse().y );
+		KOORD_VAL size_y = helptext.get_groesse().y;
+		if(  scrolly_generaltext.is_visible()  ) {
+			size_x += generaltext.get_groesse().x + D_MARGIN_LEFT + D_MARGIN_RIGHT + scrollbar_t::BAR_SIZE;
+		}
+		// set window size
+		if(  size_x > display_get_width()-32  ) {
+			size_x = display_get_width()-32;
+		}
+
+		if(  size_y>display_get_height()-64) {
+			size_y = display_get_height()-64;
+		}
+		set_fenstergroesse( koord( size_x, size_y ) );
+//		resize( koord(0,0) );
 	}
-	set_fenstergroesse( curr );
+
+	// generate title
+	title = "";
+	if(  scrolly_generaltext.is_visible()  ) {
+		title = translator::translate( "Help" );
+		title += " - ";
+	}
+	title += helptext.get_title();
+	set_name( title.c_str() );
+
 	resize( koord(0,0) );
+	set_dirty();
 }
 
 
-help_frame_t::help_frame_t() :
-	gui_frame_t( translator::translate("Help") ),
-	scrolly(&flow)
-{
-	set_text("<title>Unnamed</title><p>No text set</p>");
-	flow.add_listener(this);
-	set_resizemode(diagonal_resize);
-	scrolly.set_show_scroll_x(true);
-	add_komponente(&scrolly);
-	set_min_windowsize(koord(16*4, 16));
-}
-
-
-help_frame_t::help_frame_t(char const* const filename) :
-	gui_frame_t( translator::translate("Help") ),
-	scrolly(&flow)
+// show the help to one topic
+void help_frame_t::set_helpfile(const char *filename, bool resize_frame )
 {
 	// the key help texts are built automagically
 	if (strcmp(filename, "keys.txt") == 0) {
@@ -92,9 +161,11 @@ help_frame_t::help_frame_t(char const* const filename) :
 				default:
 					if (key < 32) {
 						sprintf(str, "%s + %c", translator::translate("[CTRL]"), '@' + key);
-					} else if (key < 256) {
+					}
+					else if (key < 256) {
 						sprintf(str, "%c", key);
-					} else if (key < SIM_KEY_F15) {
+					}
+					else if (key < SIM_KEY_F15) {
 						sprintf(str, "F%i", key - SIM_KEY_F1 + 1);
 					}
 					else {
@@ -106,51 +177,283 @@ help_frame_t::help_frame_t(char const* const filename) :
 			}
 			buf.printf(trad_str, c, i->get_tooltip(sp));
 		}
-		set_text(buf);
+		set_text( buf, resize_frame );
+	}
+	else if(  strcmp( filename, "general.txt" )!=0  ) {
+		// and the actual help text (if not identical)
+		if(  const char *buf = load_text( filename )  ) {
+			set_text( buf, resize_frame );
+			guarded_free( (void *)buf );
+		}
+		else {
+			set_text( "<title>Error</title>Help text not found", resize_frame );
+		}
 	}
 	else {
-		std::string file_prefix("text/");
-		std::string fullname = file_prefix + translator::get_lang()->iso + "/" + filename;
-		chdir(umgebung_t::program_dir);
-
-		FILE* file = fopen(fullname.c_str(), "rb");
-		if (!file) {
-			//Check for the 'base' language(ie en from en_gb)
-			file = fopen((file_prefix + translator::get_lang()->iso_base + "/" + filename).c_str(), "rb");
+		// default text when opening general help
+		if(  const char *buf = load_text( "about.txt" )  ) {
+			set_text( buf, resize_frame );
+			guarded_free( (void *)buf );
 		}
-		if (!file) {
-			// Hajo: check fallback english
-			file = fopen((file_prefix + "/en/" + filename).c_str(), "rb");
+		else if(  const char *buf = load_text( "simutrans.txt" )  ) {
+			set_text( buf, resize_frame );
+			guarded_free( (void *)buf );
 		}
-		// go back to load/save dir
-		chdir( umgebung_t::user_dir );
-
-		bool success=false;
-		if(file) {
-			fseek(file,0,SEEK_END);
-			long len = ftell(file);
-			if(len>0) {
-				char* const buf = MALLOCN(char, len + 1);
-				fseek(file,0,SEEK_SET);
-				fread(buf, 1, len, file);
-				buf[len] = '\0';
-				fclose(file);
-				success = true;
-				set_text(buf);
-				free(buf);
-			}
-		}
-
-		if(!success) {
-			set_text("<title>Error</title>Help text not found");
+		else {
+			set_text( "", resize_frame );
 		}
 	}
+}
+
+
+help_frame_t::help_frame_t() :
+	gui_frame_t( translator::translate("Help") ),
+	scrolly_generaltext(&generaltext),
+	scrolly_helptext(&helptext)
+{
+	set_text("<title>Unnamed</title><p>No text set</p>");
+	helptext.add_listener(this);
+	set_resizemode(diagonal_resize);
+	scrolly_helptext.set_show_scroll_x(true);
+	add_komponente(&scrolly_helptext);
+	// info windows do not show general text
+	scrolly_generaltext.set_visible( false );
+	set_min_windowsize(koord(70, 30));
+}
+
+
+
+enum { missing, native, english };
+
+static FILE *has_helpfile( char const* const filename, int &mode )
+{
+	mode = native;
+	std::string file_prefix("text/");
+	std::string fullname = file_prefix + translator::get_lang()->iso + "/" + filename;
+	chdir(umgebung_t::program_dir);
+
+	FILE* file = fopen(fullname.c_str(), "rb");
+	if(  !file  &&  strcmp(translator::get_lang()->iso,translator::get_lang()->iso_base)  ) {
+		//Check for the 'base' language(ie en from en_gb)
+		file = fopen(  (file_prefix + translator::get_lang()->iso_base + "/" + filename).c_str(), "rb"  );
+	}
+	if(  !file  ) {
+		// Hajo: check fallback english
+		file = fopen((file_prefix + "en/" + filename).c_str(), "rb");
+		mode = english;
+	}
+	// go back to load/save dir
+	chdir( umgebung_t::user_dir );
+	// success?
+	if(  !file  ) {
+		mode = missing;
+	}
+	return file;
+}
+
+
+// extracts the title and ASCII from a string
+static std::string extract_title( const char *htmllines )
+{
+	const uint8 *start = (const uint8 *)strstr( htmllines, "<title>" );
+	const uint8 *end = (const uint8 *)strstr( htmllines, "</title>" );
+	uint8 title_form_html[1024];
+	if(  start  &&  end  &&  (size_t)(end-start)<lengthof(title_form_html)  ) {
+		uint8 *dest = title_form_html;
+		const uint8 *c = start;
+		while(  c < end  ) {
+			if(  *c == '<'  ) {
+				while(  *c  &&  *c++!='>'  ) {
+				}
+				continue;
+			}
+			// skip tabs and newlines
+			if(  *c>=32  ) {
+				*dest++ = *c++;
+			}
+			else {
+				// avoid double spaces
+				if(  dest!=title_form_html  &&  dest[-1]!=' '  ) {
+					*dest++ = ' ';
+				}
+				c++;
+			}
+		}
+		*dest = 0;
+		return (const char *)title_form_html;
+	}
+	return "";
+}
+
+
+static void add_helpfile( cbuffer_t &section, const char *titlename, const char *filename, bool only_native, int indent_level )
+{
+	if(  strempty(filename)  ) {
+		return;
+	}
+	int mode;
+	FILE *file = has_helpfile( filename, mode );
+	if(  (  only_native  &&  mode!=native  )  ||  mode==missing  ) {
+		return;
+	}
+	std::string filetitle;	// just in case as temporary storage ...
+	if(  titlename == NULL  &&  file  ) {
+		// get the title from the helpfile
+		char htmlline[1024];
+		fread( htmlline, lengthof(htmlline)-1, 1, file );
+		filetitle = extract_title( htmlline );
+		if(  filetitle.empty()  ) {
+			// no idea how to generate the right name ...
+			titlename = filename;
+		}
+		else {
+			titlename = filetitle.c_str();
+		}
+	}
+	else {
+		titlename = translator::translate( titlename );
+	}
+	// now build the entry
+	if(  mode != missing  ) {
+		while(  indent_level-- > 0  ) {
+			section.append( "+" );
+		}
+		if(  mode == native  ) {
+			section.printf( "<a href=\"%s\">%s</a><br>\n", filename, titlename );
+		}
+		else if(  mode == english  ) {
+			section.printf( "<a href=\"%s\">%s%s</a><br>\n", filename, "*", titlename );
+		}
+		fclose( file );
+	}
+}
+
+
+help_frame_t::help_frame_t(char const* const filename) :
+	gui_frame_t( translator::translate("Help") ),
+	scrolly_generaltext(&generaltext),
+	scrolly_helptext(&helptext)
+{
+#if 0
+	// load the content list
+	if(  const char *buf = load_text( "general.txt" )  ) {
+		generaltext.set_text( buf );
+		guarded_free( (void *)buf );
+	}
+	else
+#endif
+	{
+		// we now exclusive build out index on the fly
+		slist_tpl<plainstring> already_there;
+		cbuffer_t index_txt;
+
+		cbuffer_t introduction;
+		cbuffer_t usage;
+		cbuffer_t toolbars;
+		cbuffer_t game_start;
+		cbuffer_t how_to_play;
+		cbuffer_t others;
+
+		add_helpfile( introduction, NULL, "simutrans.txt", true, 0 );
+
+		// main usage section
+		{
+			// get title of keyboard help ...
+			std::string kbtitle = extract_title( translator::translate( "<title>Keyboard Help</title>\n<h1><strong>Keyboard Help</strong></h1><p>\n" ) );
+			assert( !kbtitle.empty() );
+			usage.printf( "<a href=\"keys.txt\">%s</a><br>\n", kbtitle.c_str() );
+		}
+		add_helpfile( usage, NULL, "mouse.txt", true, 0 );
+		add_helpfile( usage, NULL, "window.txt", true, 0 );
+
+		// enumerate toolbars
+		bool special = false;
+		add_helpfile( toolbars, NULL, "mainmenu.txt", false, 0 );
+		FOR( vector_tpl<toolbar_t *>, iter, werkzeug_t::toolbar_tool ) {
+			if(  strstart(iter->get_werkzeug_waehler()->get_hilfe_datei(),"list.txt" )  ) {
+				continue;
+			}
+			add_helpfile( toolbars, iter->get_werkzeug_waehler()->get_name(), iter->get_werkzeug_waehler()->get_hilfe_datei(), false, 0 );
+			if(  strstart(iter->get_werkzeug_waehler()->get_hilfe_datei(),"railtools.txt" )  ) {
+				add_helpfile( toolbars, NULL, "bridges.txt", true, 1 );
+				add_helpfile( toolbars, NULL, "signals.txt", true, 1 );
+				add_helpfile( toolbars, "set signal spacing", "signal_spacing.txt", false, 1 );
+			}
+			if(  strstart(iter->get_werkzeug_waehler()->get_hilfe_datei(),"roadtools.txt" )  ) {
+				add_helpfile( toolbars, NULL, "privatesign_info.txt", false, 1 );
+				add_helpfile( toolbars, NULL, "trafficlight_info.txt", false, 1 );
+			}
+			if(  !special  &&  (  strstart(iter->get_werkzeug_waehler()->get_hilfe_datei(),"special.txt" )
+								||  strstart(iter->get_werkzeug_waehler()->get_hilfe_datei(),"edittools.txt" )  )
+				) {
+				special = true;
+				add_helpfile( toolbars, "baum builder", "baum_build.txt", false, 1 );
+				add_helpfile( toolbars, "citybuilding builder", "citybuilding_build.txt", false, 1 );
+				add_helpfile( toolbars, "curiosity builder", "curiosity_build.txt", false, 1 );
+				add_helpfile( toolbars, "factorybuilder", "factory_build.txt", false, 1 );
+			}
+		}
+		add_helpfile( toolbars, NULL, "inspection_tool.txt", true, 0 );
+		add_helpfile( toolbars, NULL, "removal_tool.txt", true, 0 );
+		add_helpfile( toolbars, "LISTTOOLS", "list.txt", false, 0 );
+		add_helpfile( toolbars, NULL, "citylist_filter.txt", false, 1 );
+		add_helpfile( toolbars, NULL, "convoi.txt", false, 1 );
+		add_helpfile( toolbars, NULL, "convoi_filter.txt", false, 2 );
+		add_helpfile( toolbars, NULL, "curiositylist_filter.txt", false, 1 );
+		add_helpfile( toolbars, NULL, "factorylist_filter.txt", false, 1 );
+		add_helpfile( toolbars, NULL, "goods_filter.txt", false, 1 );
+		add_helpfile( toolbars, NULL, "haltlist.txt", false, 1 );
+		add_helpfile( toolbars, NULL, "haltlist_filter.txt", false, 2 );
+		add_helpfile( toolbars, NULL, "labellist_filter.txt", false, 1 );
+
+		add_helpfile( game_start, "Neue Welt", "new_world.txt", false, 0 );
+		add_helpfile( game_start, "Lade Relief", "load_relief.txt", false, 1 );
+		add_helpfile( game_start, "Climate Control", "climates.txt", false, 1 );
+		add_helpfile( game_start, "Setting", "settings.txt", false, 1 );
+		add_helpfile( game_start, "Load game", "load.txt", false, 0 );
+		add_helpfile( game_start, "Load scenario", "scenario.txt", false, 0 );
+		add_helpfile( game_start, "join game", "server.txt", false, 0 );
+		add_helpfile( game_start, "Speichern", "save.txt", false, 0 );
+
+		add_helpfile( how_to_play, "Reliefkarte", "map.txt", false, 0 );
+		add_helpfile( how_to_play, "enlarge map", "enlarge_map.txt", false, 1 );
+		add_helpfile( how_to_play, NULL, "underground.txt", true, 0 );
+		add_helpfile( how_to_play, NULL, "citywindow.txt", true, 0 );
+		add_helpfile( how_to_play, NULL, "depot.txt", false, 0 );
+		add_helpfile( how_to_play, NULL, "convoiinfo.txt", false, 0 );
+		add_helpfile( how_to_play, NULL, "convoidetail.txt", false, 1 );
+		add_helpfile( how_to_play, "Line Management", "linemanagement.txt", false, 0 );
+		add_helpfile( how_to_play, "Fahrplan", "schedule.txt", false, 1 );
+		add_helpfile( how_to_play, NULL, "station.txt", false, 0 );
+		add_helpfile( how_to_play, NULL, "station_details.txt", false, 1 );
+		add_helpfile( how_to_play, NULL, "industry_info.txt", false, 0 );
+		add_helpfile( how_to_play, "Spielerliste", "players.txt", false, 0 );
+		add_helpfile( how_to_play, "Finanzen", "finances.txt", false, 1 );
+		add_helpfile( how_to_play, "Farbe", "color.txt", false, 1 );
+		add_helpfile( how_to_play, "Enter Password", "password.txt", false, 1 );
+
+		add_helpfile( others, "Einstellungen", "options.txt", false, 0 );
+		add_helpfile( others, "Helligk. u. Farben", "display.txt", false, 0 );
+		add_helpfile( others, "Mailbox", "mailbox.txt", false, 0 );
+		add_helpfile( others, "Sound settings", "sound.txt", false, 0 );
+		add_helpfile( others, "Sprachen", "language.txt", false, 0 );
+
+		index_txt.printf( translator::translate("<h1>Index</h1><p>*: only english</p><p>General</p>%s<p>Usage</p>%s<p>Tools</p>%s<p>Start</p>%s<p>How to play</p>%s<p>Others:</p>%s"),
+			(const char *)introduction, (const char *)usage, (const char *)toolbars, (const char *)game_start, (const char *)how_to_play, (const char *)others );
+		generaltext.set_text( index_txt );
+	}
+
+	set_helpfile( filename, true );
 
 	set_resizemode(diagonal_resize);
-	scrolly.set_show_scroll_x(true);
-	add_komponente(&scrolly);
-	flow.add_listener(this);
-	set_min_windowsize(koord(16*4, 16));
+	scrolly_helptext.set_show_scroll_x(true);
+	add_komponente(&scrolly_helptext);
+	helptext.add_listener(this);
+	scrolly_generaltext.set_show_scroll_x(true);
+	add_komponente(&scrolly_generaltext);
+	scrolly_generaltext.set_visible( true );
+	generaltext.add_listener(this);
+	set_min_windowsize(koord(200, 30));
 }
 
 
@@ -161,13 +464,8 @@ help_frame_t::help_frame_t(char const* const filename) :
  */
 bool help_frame_t::action_triggered( gui_action_creator_t *, value_t extra)
 {
-	const char *str = (const char *)(extra.p);
-	uint32 magic = 0;
-	while(*str) {
-		magic += *str++;
-	}
-	magic = (magic % 842) + magic_info_pointer;
-	create_win(new help_frame_t((const char *)(extra.p)), w_info, magic );
+	top_win( this );
+	set_helpfile( (const char *)(extra.p), false );
 	return true;
 }
 
@@ -180,8 +478,21 @@ bool help_frame_t::action_triggered( gui_action_creator_t *, value_t extra)
 void help_frame_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta);
-	scrolly.set_groesse(get_client_windowsize());
-	koord gr = get_client_windowsize() -flow.get_pos() - koord(scrollbar_t::BAR_SIZE, scrollbar_t::BAR_SIZE);
-	flow.set_groesse( gr );
-	flow.set_groesse( flow.get_text_size());
+
+	KOORD_VAL generalwidth = 0;
+	if(  scrolly_generaltext.is_visible()  ) {
+		// do not use more than 1/3 for the general infomations
+		generalwidth = min( display_get_width()/3, generaltext.get_preferred_size().x ) + +D_MARGIN_LEFT+D_MARGIN_RIGHT+scrollbar_t::BAR_SIZE;
+		scrolly_generaltext.set_pos( koord( 0, 0) );
+		scrolly_generaltext.set_groesse( koord( generalwidth, get_client_windowsize().y ) );
+		koord general_gr = scrolly_generaltext.get_groesse() - koord(scrollbar_t::BAR_SIZE+D_MARGIN_RIGHT+D_MARGIN_LEFT, scrollbar_t::BAR_SIZE);
+		generaltext.set_groesse( general_gr );
+		generaltext.set_groesse( generaltext.get_text_size() );
+	}
+
+	scrolly_helptext.set_pos( koord( generalwidth, 0) );
+	scrolly_helptext.set_groesse( get_client_windowsize()-koord(generalwidth,0) );
+	koord helptext_gr = scrolly_helptext.get_groesse() - helptext.get_pos() - koord(scrollbar_t::BAR_SIZE+D_MARGIN_RIGHT+D_MARGIN_LEFT, scrollbar_t::BAR_SIZE );
+	helptext.set_groesse( helptext_gr );
+	helptext.set_groesse( helptext.get_text_size());
 }

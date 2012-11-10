@@ -175,7 +175,7 @@ public:
 	 * Station destruction method.
 	 * @author Hj. Malthaner
 	 */
-	static void destroy(halthandle_t &halt);
+	static void destroy(halthandle_t);
 
 	/**
 	 * destroys all stations
@@ -255,6 +255,8 @@ public:
 
 	void add_control_tower() { control_towers ++; }
 	void remove_control_tower() { if(control_towers > 0) control_towers --; }
+
+	bool is_transfer(const uint8 catg) const { return non_identical_schedules[catg] > 1u; }
 
 private:
 	slist_tpl<tile_t> tiles;

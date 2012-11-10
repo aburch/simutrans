@@ -1,0 +1,50 @@
+<title>Lijst met bezienswaardigheden</title>
+
+<h1><strong>Lijst met bezienswaardigheden</strong></h1>
+
+<p>
+<strong>Lijst met bezienswaardigheden</strong> toont informatie over alle bezienswaardigheden (dit zijn zowel vertrekpunten als bestemmingen voor passagiers en post).
+</p>
+<p>
+Hoe het scherm  <strong>lijst met bezienswaardigheden</strong> te openen: klik op het icoon voor lijst met bezienswaardigheden in het submenu met opties voor het  <a href="list.txt">lijstenbeheer</a>.<br>
+{TIP: indien de bezienswaardigheden in de lijst ten dele zichtbaar zijn,  kun je de  <strong>lijst met bezienswaardigheden</strong><a href="mouse.txt">in grootte wijzigen</a>  of door de lijst scrollen door middel van de schuifbalk.}
+</p>
+<p>
+<em>Gesorteerd op</em> bepaalt de volgorde waarop de bezienswaardigheden worden getoond.<br>
+Klik op de knoppen om door de verschillende mogelijkheden te bladeren (dit zal de naam van de knop wijzigen in de op dat moment actieve sortering):
+</p>
+<p>
+- <em>Naam</em> sorteert alfabetisch op naam.<br>
+- <em>Passagiersaanbod</em> sorteert op het passagiers- en postaanbod dat een attractie genereert.
+</p>
+<p>
+- <em>oplopend</em> / <em>aflopend</em> keert de volgorde van de lijst om.
+</p>
+<p>
+Klik op een bezienswaardigheid in de <strong>lijst met bezienswaardigheden</strong> om meer informatie over de gekozen bezienswaardigheid te zien.<br>
+{TIP: klik op het plaatje in het detail scherm om naar de betreffende bezienswaardigheid op de kaart te gaan.}
+</p>
+<p>
+Informatie welke wordt getoond van iedere bezienswaardigheid bestaat uit:
+</p>
+<p>
+<em>statusbalk</em> kleuren geven een indicatie voor de status van de bezienswaardigheid:<br>
+- <em>geel:</em> heeft geen <a href="station.txt">halte of station</a> waar het passagiers en post verbonden.<br>
+- <em>groen:</em> heeft een station of halte verbonden voor passagiers.<br>
+- <em>blauw:</em> heeft een halte of station verbonden voor post.<br>
+- <em>turquoise:</em> heeft zowel een halte of station voor passagiers als voor post.<br>
+- <em>oranje:</em> een (1) verbonden station of halte is overbezet.<br>
+- <em>rood:</em> alle verbonden stations of haltes zijn overbezet.
+</p>
+<p>
+<em>gebouw icoon</em> geeft aan dat de bezienswaardigheid zich in een <a href="citywindow.txt">stad of dorp</a> bevindt.
+</p>
+<p>
+<em>naam</em> van de bezienswaardigheid.
+</p>
+<p>
+<em>passagiersaanbod</em> geeft tussen haakjes aan hoeveel passagiers en post de bezienswaardigheid genereert (in andere woorden: hoe populair het is).
+</p>
+<p>
+{TIP: Om een optimale service voor passagiers en post te bieden kan het nodig zijn dat er meerdere haltes of stations zijn verbonden met een bezienswaardigheid.}
+</p>

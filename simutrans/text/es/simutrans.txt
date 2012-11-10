@@ -1,0 +1,33 @@
+<title>Simutrans</title>
+
+<h1><strong>Bienvenido a Simutrans...</strong></h1>
+
+<p>
+Eligue uno, entre los miles, de los terrenos de Simutrans. Despues ponte en la piel de un joven emprendedor con algo de dinero de la herencia de tus abuelos: se ambicioso para que se sientan orgullosos, con ansias de crear una exitosa empresa de transportes, tu desafio es crear una empresa prospera.
+</p>
+<p>
+A medida que pasa el tiempo, deberas convertir tu empresa en un imperio del transporte, manteniendo la contabilidad sobre ruedas gracias a la entrega de la carga y a la satisfaccion de los deseos de viajar de millones de pasajeros cada mes.<br>
+Transporta pasajeros, correo y mercancias por tren, carretera, mar e incluso por aire.
+</p>
+<p>
+Cada terreno tiene algo diferente que ofrecer. Echa un vistazo a los alrededores...su futuro esta en tus manos y las de tus competidores.
+</p>
+<p>
+Como comienzo, puede ser mas facil empezar suministrando mercancias a la Central Energetica. Despues, conecta otras fabricas, tal vez usando paradas intermedias donde cargar las mercancias.<br>
+La desventaja de transportar solo mercancias es que los pueblos y ciudades no creceran y no se crearan nuevas industrias.
+</p>
+<p>
+Alternativamente, puedes ir a por el transporte de pasajeros (y correo). Esto es un desafio mayor, ya que los habitantes de este mundo quieren viajar a las localizaciones que ellos han eleguido. <br>
+Algunos necesitan ir a las fabricas para trabajar, otros quieren ir a comprar a centros comerciales en la ciudad principal y otros quieren hacer turismo.
+</p>
+<p>
+Si no les das una conexion a su destino, no viajaran contigo de ninguna forma. Necesitaras  construir redes de transporte. Cuando hayas establecido dichas redes, necesitaras actualizarlas para ajustarlas a la demanda. Asi que planifica un poco antes.<br>
+Si a los pasajeros les gusta tu servicio, las cuidades creceran y se crearan nuevas industrias, y solo asi la economia ira sobre ruedas.
+</p>
+<p>
+Puedes jugar tanto como quieras . Empieza en 1880 y termina en 2050, si lo deseas. En cada epoca tendras disponibles nuevos vehiculos y edificios.<br>
+Juega contra la IA o tu solo. Solo si estas en numeros rojos durante tres meses, llegaras a la bancarrota y el juego terminara.
+</p>
+<p>
+El <strong>Equipo de Simutrans</strong> y la Comunidad de usuarios desean que pases un buen rato aqui en Simutrans...
+</p>

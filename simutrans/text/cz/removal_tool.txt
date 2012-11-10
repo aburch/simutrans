@@ -1,0 +1,27 @@
+<title>Odstranit</title>
+
+
+
+<h1>odstranit</h1>
+
+
+
+<p>Nástroj <em>odstranit</em> pou¾ijte k odstranìní ne¾ádoucích vìcí z jednoho pole.</p>
+
+<p>
+
+Nástroj najdete v <a href="mainmenu.txt">hlavním menu</a> pod ikonou s èrveným køí¾kem nebo buldozerem (pak128).
+
+</p>
+
+<p>
+
+Nástroj vyvoláte té¾ <a kref="keys.txt">klávesou [r]</a>.
+
+</p>
+
+<p>
+
+Nástroj mù¾e být pou¾it i k odstanìní chodcù a mìstských vozidel.
+
+</p>

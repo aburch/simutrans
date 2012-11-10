@@ -14,8 +14,8 @@
 #include "../simworld.h"
 #include "../simskin.h"
 
+#include "gui_frame.h"
 #include "components/gui_button.h"
-#include "components/list_button.h"
 
 #include "../bauer/warenbauer.h"
 #include "../besch/skin_besch.h"
@@ -153,23 +153,18 @@ void factorylist_stats_t::zeichnen(koord offset)
 		recalc_size();
 	}
 
-	for (uint32 i=0; i<fab_list.get_count()  &&  yoff<end; i++) {
+	uint32 sel = line_selected;
+	FORX(vector_tpl<fabrik_t*>, const fab, fab_list, yoff += LINESPACE + 1) {
+		if (yoff >= end) break;
 
 		// skip invisible lines
-		if(yoff<start) {
-			yoff += LINESPACE+1;
-			continue;
-		}
+		if (yoff < start) continue;
 
-		const fabrik_t* fab = fab_list[i];
 		if(fab) {
-			//DBG_DEBUG("factorylist_stats_t()","zeichnen() factory %i",i);
 			unsigned indikatorfarbe = fabrik_t::status_to_color[fab->get_status()];
 
 			buf.clear();
-			//		buf.append(i+1);
-			//		buf.append(".) ");
-			buf.append(fab_list[i]->get_name());
+			buf.append(fab->get_name());
 			buf.append(" (");
 
 			if (!fab->get_eingang().empty()) {
@@ -193,26 +188,25 @@ void factorylist_stats_t::zeichnen(koord offset)
 
 
 			//display_ddd_box_clip(xoff+7, yoff+2, 8, 8, MN_GREY0, MN_GREY4);
-			display_fillbox_wh_clip(xoff+2, yoff+2, INDICATOR_WIDTH, INDICATOR_HEIGHT, indikatorfarbe, true);
+			display_fillbox_wh_clip(xoff+2, yoff+2, D_INDICATOR_WIDTH, D_INDICATOR_HEIGHT, indikatorfarbe, true);
 
 			if(  fab->get_prodfactor_electric()>0  ) {
-				display_color_img(skinverwaltung_t::electricity->get_bild_nr(0), xoff+4+INDICATOR_WIDTH, yoff, 0, false, true);
+				display_color_img(skinverwaltung_t::electricity->get_bild_nr(0), xoff+4+D_INDICATOR_WIDTH, yoff, 0, false, true);
 			}
 			if(  fab->get_prodfactor_pax()>0  ) {
-				display_color_img(skinverwaltung_t::passagiere->get_bild_nr(0), xoff+4+8+INDICATOR_WIDTH, yoff, 0, false, true);
+				display_color_img(skinverwaltung_t::passagiere->get_bild_nr(0), xoff+4+8+D_INDICATOR_WIDTH, yoff, 0, false, true);
 			}
 			if(  fab->get_prodfactor_mail()>0  ) {
-				display_color_img(skinverwaltung_t::post->get_bild_nr(0), xoff+4+18+INDICATOR_WIDTH, yoff, 0, false, true);
+				display_color_img(skinverwaltung_t::post->get_bild_nr(0), xoff+4+18+D_INDICATOR_WIDTH, yoff, 0, false, true);
 			}
 
 			// show text
-			display_proportional_clip(xoff+INDICATOR_WIDTH+6+28,yoff,buf,ALIGN_LEFT,COL_BLACK,true);
+			display_proportional_clip(xoff+D_INDICATOR_WIDTH+6+28,yoff,buf,ALIGN_LEFT,COL_BLACK,true);
 
 			// goto button
-			display_color_img( i!=line_selected ? button_t::arrow_right_normal : button_t::arrow_right_pushed, xoff-14, yoff, 0, false, true);
-
+			image_id const img = sel-- != 0 ? button_t::arrow_right_normal : button_t::arrow_right_pushed;
+			display_color_img(img, xoff-14, yoff, 0, false, true);
 		}
-		yoff += LINESPACE+1;
 	}
 }
 

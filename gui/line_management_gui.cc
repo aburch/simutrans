@@ -7,6 +7,7 @@
 #include "../dataobj/fahrplan.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/loadsave.h"
+#include "../gui/karte.h"
 #include "../simline.h"
 #include "../simwin.h"
 #include "../simwerkz.h"
@@ -19,6 +20,10 @@ line_management_gui_t::line_management_gui_t(linehandle_t line, spieler_t* sp) :
 	fahrplan_gui_t(line->get_schedule()->copy(), sp, convoihandle_t() )
 {
 	this->line = line;
+	// has this line a single running convoi?
+	if(  line->count_convoys() > 0  ) {
+		reliefkarte_t::get_karte()->set_current_cnv( line->get_convoy(0) );
+	}
 	show_line_selector(false);
 }
 
@@ -109,10 +114,9 @@ void line_management_gui_t::rdwr(loadsave_t *file)
 
 		if(  line.is_bound()  &&  old_fpl->matches( welt, line->get_schedule() )  ) {
 			// now we can open the window ...
-			KOORD_VAL xpos = win_get_posx( this );
-			KOORD_VAL ypos = win_get_posy( this );
+			koord const& pos = win_get_pos(this);
 			line_management_gui_t *w = new line_management_gui_t( line, sp );
-			create_win( xpos, ypos, w, w_info, (long)line.get_rep() );
+			create_win(pos.x, pos.y, w, w_info, (long)line.get_rep());
 			w->set_fenstergroesse( gr );
 			w->fpl->copy_from( fpl );
 		}
@@ -127,4 +131,3 @@ void line_management_gui_t::rdwr(loadsave_t *file)
 		destroy_win( this );
 	}
 }
-

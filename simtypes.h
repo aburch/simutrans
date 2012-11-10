@@ -1,6 +1,4 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
  * This file is part of the Simutrans project under the artistic license.
  * (see license.txt)
  */
@@ -128,14 +126,18 @@ typedef unsigned short      uint16;
 #ifndef __BEOS__
 typedef   signed int        sint32;
 #define SINT32_MAX_VALUE	INT_MAX
+#ifndef NO_UINT32_TYPES
 typedef unsigned int        uint32;
-#define UINT32_MAX_VALUE	UINT_MAX
+#define UINT32_MAX_VALUE	UINT_MAX	
+#endif
 #else
 // BeOS: int!=long (even though both 32 bit)
 typedef   signed long       sint32;
 #define SINT32_MAX_VALUE	LONG_MAX
+#ifndef NO_UINT32_TYPES
 typedef unsigned long       uint32;
 #define UINT32_MAX_VALUE	ULONG_MAX	
+#endif
 #endif
 typedef   signed long long  sint64;
 typedef unsigned long long  uint64;

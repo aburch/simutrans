@@ -1,0 +1,15 @@
+<title>Traffic light control</title>
+
+<h1><strong>Traffic light control</strong></h1>
+
+<p>
+You can control the frequency of red and green phases for traffic lights. The numbers you can choose here, is the duration of the green phase in seconds for north/south and east/west directions.
+</p>
+
+<p>
+Since all traffic lights will switch in phase, you can give an extra offset in the third field to realize an unobstructed traffic flow in certain directions through subsequent traffic lights.
+</p>
+
+<p>
+A traffic light is built from the <a href="roadtools.txt">road construction toolbar</a>.
+</p>

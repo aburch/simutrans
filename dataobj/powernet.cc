@@ -6,40 +6,21 @@
  */
 
 #include "../simdebug.h"
-
 #include "powernet.h"
-#include "../tpl/ptrhashtable_tpl.h"
 
-static ptrhashtable_tpl<powernet_t *, powernet_t *> loading_table;
 slist_tpl<powernet_t *> powernet_t::powernet_list;
 
+
+// max capacity = (max<uint32> >> 5) -1, see senke_t::step in dings/leitung2.cc
+uint32 powernet_t::max_capacity = 480000*256; // nicer number for human display (corresponds to 30.000 MW)
 
 
 void powernet_t::neue_karte()
 {
-	loading_table.clear();
-
 	while(!powernet_list.empty()) {
 		powernet_t *net = powernet_list.remove_first();
 		delete net;
 	}
-}
-
-
-
-/**
- * Loads a powernet object or hand back already loaded object
- * @author Hj. Malthaner
- */
-powernet_t *
-powernet_t::load_net(powernet_t *key)
-{
-	powernet_t * result = loading_table.get(key);
-	if(result == 0) {
-		result = new powernet_t ();
-		loading_table.put(key, result);
-	}
-	return result;
 }
 
 
@@ -56,9 +37,6 @@ void powernet_t::step_all(long delta_t)
 powernet_t::powernet_t()
 {
 	powernet_list.insert( this );
-
-	//max_capacity = 524288*256-1; //max allowing dings/leitung2.cc senke_t::sync() power_load calculation in uint32
-	max_capacity = 480000*256; // nicer number for human display
 
 	this_supply = 0;
 	next_supply = 0;

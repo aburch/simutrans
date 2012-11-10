@@ -26,6 +26,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine="cscript.exe revision.jse"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -42,11 +43,13 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				InlineFunctionExpansion="0"
+				FavorSizeOrSpeed="0"
 				AdditionalIncludeDirectories=""
-				PreprocessorDefinitions="NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;DEBUG=3;COLOUR_DEPTH=16"
+				PreprocessorDefinitions="NOMINMAX=1;ZLIB_WINAPI;REVISION_FROM_FILE;LITTLE_ENDIAN;DEBUG=3;COLOUR_DEPTH=16;MULTI_THREAD=4"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
+				RuntimeLibrary="2"
 				StructMemberAlignment="0"
 				BufferSecurityCheck="true"
 				UsePrecompiledHeader="0"
@@ -66,11 +69,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winmm.lib zlibstat.lib advapi32.lib ws2_32.lib libbz2.lib $(NOINHERIT)"
+				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib shell32.lib winmm.lib zlibstat.lib advapi32.lib ws2_32.lib libbz2.lib pthreadVC2.lib $(NOINHERIT)"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories=""
 				IgnoreAllDefaultLibraries="false"
-				IgnoreDefaultLibraryNames="libcmt.lib"
+				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				RandomizedBaseAddress="1"
@@ -82,6 +85,7 @@
 			/>
 			<Tool
 				Name="VCManifestTool"
+				VerboseOutput="true"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -126,12 +130,13 @@
 				Name="VCCLCompilerTool"
 				Optimization="3"
 				InlineFunctionExpansion="0"
+				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories=""
-				PreprocessorDefinitions="NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;NDEBUG;COLOUR_DEPTH=16"
+				PreprocessorDefinitions="NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;DEBUG=3;COLOUR_DEPTH=16;MULTI_THREAD=4"
 				StringPooling="true"
 				ExceptionHandling="1"
 				BasicRuntimeChecks="0"
-				RuntimeLibrary="2"
+				RuntimeLibrary="0"
 				BufferSecurityCheck="false"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -150,10 +155,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winmm.lib zlibstat.lib advapi32.lib ws2_32.lib libbz2.lib $(NOINHERIT)"
+				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib shell32.lib winmm.lib zlibstat.lib advapi32.lib ws2_32.lib libbz2.lib pthreadVC2.lib $(NOINHERIT)"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
-				IgnoreDefaultLibraryNames="libcmt.lib"
+				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -311,6 +316,10 @@
 			</File>
 			<File
 				RelativePath=".\besch\reader\crossing_reader.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\utils\csv.cc"
 				>
 			</File>
 			<File

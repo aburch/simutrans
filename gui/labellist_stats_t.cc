@@ -23,7 +23,7 @@
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
 
-#include "components/list_button.h"
+
 
 
 labellist_stats_t::labellist_stats_t(karte_t* w, labellist::sort_mode_t sortby, bool sortreverse, bool filter) :
@@ -210,18 +210,16 @@ void labellist_stats_t::zeichnen(koord offset)
 
 
 	// changes to loop affecting x_size must be copied to ::recalc_size()
-	for (uint32 i=0; i<labels.get_count()  &&  yoff<end; i++) {
-		const koord pos = labels[i];
+	uint32 sel = line_selected;
+	FORX(vector_tpl<koord>, const& pos, labels, yoff += LINESPACE + 1) {
+		if (yoff >= end) break;
 
 		// skip invisible lines
-		if(yoff<start) {
-			yoff += LINESPACE+1;
-			continue;
-		}
+		if (yoff < start) continue;
 
 		// goto button
-		display_color_img( i!=line_selected ? button_t::arrow_right_normal : button_t::arrow_right_pushed,
-				offset.x+2, yoff, 0, false, true);
+		image_id const img = sel-- != 0 ? button_t::arrow_right_normal : button_t::arrow_right_pushed;
+		display_color_img(img, offset.x + 2, yoff, 0, false, true);
 
 		buf.clear();
 
@@ -241,8 +239,6 @@ void labellist_stats_t::zeichnen(koord offset)
 		if(  px_len>x_size  ) {
 			x_size = px_len;
 		}
-
-		yoff +=LINESPACE+1;
 	}
 
 	const koord gr(max(x_size+10+4,get_groesse().x),labels.get_count()*(LINESPACE+1));

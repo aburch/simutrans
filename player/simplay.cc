@@ -384,6 +384,19 @@ void spieler_t::neuer_monat()
 				{
 					ai_bankrupt();
 				}
+				// tell the current player (even during networkgames)
+				if(  welt->get_active_player_nr()==player_nr  ) {
+					if(  get_finance_history_year(0, COST_NETWEALTH)*10 < welt->get_settings().get_starting_money(welt->get_current_month()/12)  ){
+						// netweath nearly spent (problem!)
+						welt->get_message()->add_message( translator::translate("Net wealth near zero"), koord::invalid, message_t::problems, player_nr, IMG_LEER );
+					}
+					else {
+						// just minus in account (just tell)
+						buf.clear();
+						buf.printf( translator::translate("On loan since %i month(s)"), konto_ueberzogen );
+						welt->get_message()->add_message( buf, koord::invalid, message_t::ai, player_nr, IMG_LEER );
+					}
+				}
 			}
 		}
 		calc_finance_history();
@@ -745,7 +758,7 @@ void spieler_t::ai_bankrupt()
 	for( int y=0;  y<welt->get_groesse_y();  y++  ) {
 		for( int x=0;  x<welt->get_groesse_x();  x++  ) {
 			planquadrat_t *plan = welt->access(x,y);
-			for(  int b=plan->get_boden_count()-1;  b>=0;  b--  ) {
+			for (size_t b = plan->get_boden_count(); b-- != 0;) {
 				grund_t *gr = plan->get_boden_bei(b);
 				// remove tunnel and bridges first
 				if(  gr->get_top()>0  &&  gr->obj_bei(0)->get_besitzer()==this   &&  (gr->ist_bruecke()  ||  gr->ist_tunnel())  ) {
@@ -766,7 +779,7 @@ void spieler_t::ai_bankrupt()
 					}
 				}
 				bool count_signs = false;
-				for(  int i=gr->get_top()-1;  i>=0;  i--  ) {
+				for (size_t i = gr->get_top(); i-- != 0;) {
 					ding_t *dt = gr->obj_bei(i);
 					if(dt->get_besitzer()==this) {
 						switch(dt->get_typ()) {

@@ -1,0 +1,111 @@
+<title>Depot (garage, hangar, remise)</title>
+
+<h1><strong>Depot (garage, hangar, remise) Opties</strong></h1>
+
+<p>
+In dit spel wordt de term depot gebruikt om een garage, remise, hangar of werf aan te duiden. Dit is afhankelijk van het type voertuig dat in het depot wordt geproduceerd. Zo zijn er depots voor wegtransport, railvervoer (treinen, monorails/maglevs en trams), luchtvaart (vliegtuigen en dergelijke) en scheepvaart (schepen en dergelijke). Al deze depots hebben een groot aantal overeenkomsten welke in deze helptekst worden behandeld. <br>
+Een depot wordt gebruikt om voertuigen aan te schaffen en te beheren. Een depot toont alleen voertuigen die ook kunnen bewegen op het type infrastructuur dat is verbonden met het depot: een depot voor treinen dat niet is verbonden met rails met bovenleiding zal geen elektrische treinen tonen. <br>
+Indien de optie <a href="new_world.txt">tijdlijn</a> is ingeschakeld, zal het depot alleen die nieuwe voertuigen tonen die op dat moment in productie zijn. Naar mate de tijd vordert zullen voertuigen worden toegevoegd dan wel worden verwijderd.
+</p>
+<p>
+Gereedschappen om de verschillende types depots te maken zijn beschikbaar in de iconenbalk voor het betreffende type transport: <a href="railtools.txt">Trein remise</a>; <a href="monorailtools.txt">Monorail remise</a>; <a href="tramtools.txt">Tram remise</a>; <a href="roadtools.txt">Garage</a>; <a href="shiptools.txt">Scheepswerf</a>
+; en een <a href="airtools.txt">Hangar</a>.
+</p>
+<p>
+Klik op een depot met de <a href="inspection_tool.txt">Info tool</a> om het scherm met de <strong>Depot opties</strong> te openen. Het scherm geeft informatie over <a href="convoiinfo.txt">Voertuigen</a> en voertuig samenstellingen en de mogelijkheid deze samen te stellen, te beheren en te verkopen.<br>
+De titelbalk van de <strong>Depot opties</strong> geeft aan welk type voertuigen er mee kunnen worden beheerd.
+</p>
+<p>
+Het scherm <strong>Depot opties</strong> kan in  <a href="mouse.txt">grootte worden gewijzigd</a> en door in de titelbalk op het <a href="window.txt">pijltje naar beneden</a> te klikken  (nogmaals op het pijltje naar beneden klikken zal het scherm weer herstellen in de oorspronkelijke grootte).<br>
+De pijltjes naar links en naar rechts zullen naar een vorig of volgend depot van hetzelfde type navigeren en het spelscherm centreren op het geselecteerde depot.
+</p>
+<p>
+Bovenin het <strong>Depot opties</strong> scherm wordt het aantal <a href="convoiinfo.txt">voertuigen</a> getoond dat aanwezig is in het geselecteerde depot, en wanneer een (1) van deze voertuigen is geselecteerd zal ook de naam en de <a href="linemanagement.txt">lijn</a> worden getoond.
+</p>
+<p>
+<a href="convoiinfo.txt"><em>Voertuig</em></a> <em>naam:</em> Klik op de pijltjes links of rechts van de naam om door de aanwezige voertuigen te bladeren.<br>
+Hoe de naam van een voertuig te wijzigen: klik in het veld waar de naam wordt getoond en pas de naam aan. De standaard naamgeving die het spel toepast is de naam van het eerst gekochte voertuig in de samenstelling van het voertuig.
+</p>
+<p>
+Hoe een <a href="linemanagement.txt"><em>lijn</em></a> toe te kennen: gebruik de pijltjes links en rechts om te bladeren in de beschikbare lijnen voor dit type voertuig of klik in het vak met daarin de aanduiding van de lijn (onder de naam van het voertuig) om een scherm met beschikbare lijnen te tonen. Selecteer vervolgens de lijn die je wilt en klik op de knop lijn toewijzen. <br>
+Hoe de <em>naam</em> van een <a href="linemanagement.txt"><em>lijn</em></a> te wijzigen: klik in het vak waar de lijn wordt getoond en toets een nieuwe naam. Standaard wordt de naam Lijn + (nummer van de lijn) toegewezen.
+</p>
+<p>
+<em>Afbeelding van het voertuig:</em> onder de velden voor naam en lijn van het voertuig vind je een afbeelding van het geselecteerde voertuig of samenstelling.<br>
+Beweeg de muis over de afbeelding van het voertuig of de samenstelling om details te zien over het deel van het voertuig waarnaar je wijst. (De details worden getoond onderin het scherm van de <strong>depot opties</strong>).<br>
+Klikken op het deel van het voertuig in de afbeelding zal dat betreffende deel verwijderen uit de samenstelling en deze weer plaatsen in de voorraad van het depot.
+</p>
+<p>
+Onder de afbeelding van het voertuig of de samenstelling staat het aantal delen van het voertuig of de samenstelling vermeld en tevens de benodigde grootte van <a href="station.txt">het station of de halte</a> om het hele voertuig of de samenstelling volledig te kunnen laden en lossen, alsmede de lijn die het voertuig bedient.
+</p>
+<p>
+De knoppen in het <strong>depot opties</strong> hebben de volgende functies (klik om de betreffende optie te selecteren):
+</p>
+<p>
+<em>Starten:</em> het geselecteerde <a href="convoiinfo.txt">voertuig</a> wordt gestart en zal het depot verlaten indien de toegewezen route of dienstregeling kan worden gestart (met andere woorden: indien er een route kan worden gevonden).
+</p>
+<p>
+<a href="schedule.txt"><em>Dienstregeling:</em></a> opent een scherm met de mogelijkheid om een dienstregeling toe te kennen of te wijzigen; tevens is per station of halte aan te geven hoeveel de minimaal aanwezige lading moet zijn om verder te gaan met de volgende <a href="station.txt">halte of station</a> in de dienstregeling.
+</p>
+<p>
+<em>Opheffen:</em> plaatst het geselecteerde <a href="convoiinfo.txt">voertuig</a> in de voorraad van het depot. Het betreffende voertuig zal niet langer een dienstregeling onderhouden.
+</p>
+<p>
+<em>Verkopen:</em> verkoopt het geselecteerde <a href="convoiinfo.txt">voertuig</a>, het kassaldo zal met de <em>restwaarde</em> van het voertuig worden verhoogd.
+</p>
+<p>
+<a href="linemanagement.txt"><em>Nieuwe lijn:</em></a> opent een scherm met de mogelijkheid om een <a href="schedule.txt">lijn</a> te defini-eren en eventueel te bepalen hoeveel lading het voertuig dient te hebben voordat het naar het volgende punt in de lijn vertrekt. Een lijn kan voor meerdere <a href="convoiinfo.txt">voertuigen</a> worden gebruikt.
+</p>
+<p>
+<em>Lijn toewijzen:</em> wijst de geselecteerde <a href="linemanagement.txt">lijn</a> toe aan het geselecteerde voertuig.
+</p>
+<p>
+<a href="linemanagement.txt"><em>Lijn veranderen:</em></a> opent een scherm waarin je de geselecteerde <a href="schedule.txt">lijn</a> kunt wijzigen (zowel de route als de minimale lading bij een halte of station). Dit heeft gevolgen voor alle voertuigen die de lijn bedienen.
+</p>
+<p>
+<em>Kopieren</em>: maakt een kopie van het geselecteerde <a href="convoiinfo.txt"><em>voertuig</em></a> met dezelfde samenstelling en <a href="schedule.txt">dienstregeling</a> of <a href="linemanagement.txt">lijn</a>. Dit zal automatisch het benodigde aankoopbedrag in mindering brengen op het kassaldo.
+</p>
+<p>
+Onder de knoppen is een overzicht van de beschikbare voertuigen met afbeeldingen te zien. Wat er zichtbaar is is afhankelijk van de staat waarin een samen te stellen voertuig zich bevindt en de geselecteerde opties onder de plaatjes. Dit kunnen alle voertuigen zijn, alleen de op dit moment nog in productie zijnde voertuigen of alleen die voertuigen welke relevant zijn voor de reeds geselecteerde voertuigen. Ook wordt er een aantal tabbladen getoond waarop verschillende soorten voertuigen zijn te selecteren. Dit is afhankelijk van het type depot wat wordt getoond. <br>
+<em>afbeeldingen van voertuigen:</em> Voertuigen worden verdeeld in categori-en die kunnen worden benaderd door op de betreffende tabblad te klikken. Tabbladen verdelen de voertuigen in soorten: voertuigen voor de transport van passagiers en post, overige aangedreven voertuigen en aanhangers en opleggers.<br>
+Een getal dat boven het voertuig staat (wit) geeft het aantal eenheden aan dat in voorraad is. Deze kan (kunnen) zonder kosten weer gebruikt worden in een nieuwe  samenstelling.
+</p>
+<p>
+Beweeg de muis over de afbeelding om meer informatie over het betreffende voertuig te krijgen (de volgorde is afhankelijk van het type voertuig):<br>
+<em>Naam:</em> en tussen haakjes het type motor dat wordt gebruikt in geval van aangedreven voertuigen.<br>
+<em>Prijs:</em> aanschafprijs en tussen haakjes de kostprijs per kilometer.<br>
+<em>Vermogen:</em> motorvermogen en maximum snelheid voor aangedreven voertuigen.<br>
+<em>Gewicht:</em> in ton.<br>
+<em>Maximum snelheid:</em> van niet aangedreven voertuigen.<br>
+<em>Capaciteit:</em> hoeveelheid en <a href="goods_filter.txt">soort goederen</a> dat het voertuig maximaal kan vervoeren.<br>
+<em>Geintroduceerd:</em> datum waarop een voertuig beschikbaar kwam indien de <a href="new_world.txt">tijdlijn</a> is geactiveerd.<br>
+<em>Gebouwd tot:</em> datum waarop het voertuig uit productie wordt genomen. (tijdlijn)<br>
+<em>Gemaakt door:</em> de ontwerper van het voertuig in Simutrans.<br>
+<em>Overbrenging:</em> versnelling.<br>
+<em>Verkoopwaarde:</em> het bedrag dat het voertuig op dit moment nog waard is wanneer het wordt verkocht.
+</p>
+<p>
+Klik op het voertuig in het tabblad om deze (afhankelijk van de instelling van de knop rechts onderin het scherm) te kopen of te verkopen. Deze knop schakelt tussen drie opties:
+</p>
+<p>
+<em>Toevoegen:</em> koopt het geselecteerde voertuig en plaatst deze achteraan in de geselecteerde voertuig of samenstelling of indien dit het eerste voertuig is zal dit een nieuw voertuig cre-eren.
+</p>
+<p>
+<em>Invoegen:</em> koopt het geselecteerde voertuig en plaatst deze vooraan in het geselecteerde voertuig of samenstelling.
+</p>
+<p>
+<em>Verkopen:</em> verkoopt het in voorraad zijnde voertuig (deze dient dan wel in voorraad te zijn).
+</p>
+<p>
+<em>gekleurde balken</em> onder de afbeelding van het voertuig geeft aanwijzingen voor volgorde waarin een voertuig moet worden gebruikt en welke voertuigen aan een bestaande samenstelling kunnen worden toegevoegd om een werkende <a href="convoiinfo.txt">voertuig samenstelling</a> te vormen (kleurenbalken kunnen veranderen door een andere instelling van de hiervoor beschreven knop).<br>
+De kleuren betekenen het volgende:<br>
+- <em>groen:</em> voertuig kan worden gebruikt.<br>
+- <em>rood:</em> voertuig kan niet worden gebruikt.<br>
+- <em>geel:</em> voertuig is pas beschikbaar indien er een ander voertuig voor wordt geplaatst.<br>
+- <em>blauw:</em> voertuig kan worden gebruikt maar is inmiddels uit productie genomen.<br>
+{TIP: een voertuig of samenstelling is bruikbaar wanneer er groene balken voor alle eenheden worden getoond. Indien er nog deels een gele balk wordt getoond zal er nog een aanvullend onderdeel moeten worden toegevoegd.}
+</p>
+<p>
+<em>Toon alles:</em> deze optie zorgt ervoor dat alle beschikbare voertuigen worden getoond en niet alleen de relevante voor de reeds geselecteerde samenstelling. De optie is ingeschakeld wanneer de knop is ingedrukt. Nogmaals klikken zal de optie uitzetten.<br>
+<em>Verouderde tonen:</em> indien er wordt gespeeld met de <a href="new_world.txt">tijdlijn</a> ingeschakeld, zullen indien deze optie is gekozen ook de verouderde voertuigen worden getoond welke al uit productie zijn genomen.
+</p>

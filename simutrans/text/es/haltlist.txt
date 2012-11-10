@@ -1,0 +1,62 @@
+<title>Lista de Estaciones</title>
+
+<h1><strong>Lista de Estaciones</strong></h1>
+
+<p>
+<strong>Lista de Estaciones</strong> muestra informacion y tiene controles para filtrar y listar las diferentes <a href="station.txt">Paradas</a> (pero no se incluyen las paradas de vehiculos maritimos), donde los vehiculos cargan y descargan pasajeros y mercancias.
+</p>
+<p>
+Para abrirla: pulsa en la herramienta de Lista de Estaciones dentro de <a href="list.txt">Administracion de Listas</a>. <strong>Lista de Estaciones</strong> tiene cuatro botones de opcion, dos usados para ordenar elementos de la lista y otros dos para aplicar opciones a los elementos seleccionados para mostrar en la lista. Los botones de debajo hay una lista de <a href="station.txt">Paradas</a> que cumplen los criterios establecidos por las opciones de filtrado.<br>
+{Consejos: Si no se ha listado ninguna Parada cambia las opciones de <em>Filtrado</em>. Si no se ven todos los elementos de la lista, entonces <a href="mouse.txt">ajusta</a> la ventana de <strong>Lista de Estaciones</strong> o desplaza la lista con la barra de desplazamiento.}
+</p>
+<p>
+Pulsa en los botones para pasar de una opcion a otra (cambiara el nombre del boton) o abre los controles de Opciones de Filtro:
+</p>
+<p>
+<em>Ordenado por:</em> dos botones de opcion que determinan el orden de las <a href="station.txt">Paradas</a> mostradas en la lista:
+</p>
+<p>
+- <em>Tipo</em> ordena por tipo de vehiculo.<br>
+- <em>sin orden</em> ordena en orden aleatorio.<br>
+- <em>Nombre</em> ordena alfanumericamente (mayusculas antes que minusculas) por el <a href="station.txt">nombre</a> asignado.<br>
+- <em>esperando</em> ordena por cantidad de mercancias y pasajeros presentes en relacion a la capacidad disponible y el servicio de transporte proveido.
+</p>
+<p>
+- <em>ascendente</em> / <em>descendente</em> invierte el orden de la lista.
+</p>
+<p>
+<em>Filtrar:</em> dos botones de opcion, activa/desactiva los criterios de seleccion para listar y controles de acceso para cambiar los criterios.
+</p>
+<p>
+- <em>activar</em> / <em>disactivar</em> pulsa para aplicar los criterios de filtrado.
+</p>
+<p>
+- <a href="haltlist_filter.txt"><em>Opciones</em></a> pulsa para abrir los controles para cambiar los criterios de filtrado
+</p>
+<p>
+Pulsa en un elemento listado en <strong>Lista de Estaciones</strong> para ver mas <a href="station.txt">informacion</a> acerca de esa Parada.<br>
+Los elementos listados para cada Parada incluyen:
+</p>
+<p>
+<em>barra de color de estado:</em> los colores indican la operatibilidad de una <a href="station.txt">Parada</a> en relacion con como de atestada esta. La barra de color se usa tambien en Informacion de la Parada y <a href="linemanagement.txt">Administracion de Listas</a> y es el mismo color mostrado en la barra de color mostrada sobre la Parada:<br>
+- <em>amarillo:</em> sin servicio de transporte.<br>
+- <em>verde:</em> no se necesitan mejoras.<br>
+- <em>naranja:</em> es posible que necesite mejoras.<br>
+- <em>rojo:</em> es recomendable hacer mejoras.<br>
+{Consejos: Usa [!] para mostrar la barra de color sobre la Parada.}
+</p>
+<p>
+<em>nombre</em> que le ha sido asignado
+{Consejos: Tienes la opcion de asignar numeros en el nombre de la Parada a traves del archivo simuconf.tab}.
+</p>
+<p>
+<em>icono de vehiculo</em> indica que tipos de vehiculos se pueden usar en la <a href="station.txt">Parada</a> (tambien se usa en Informacion de la Parada y en Administracion de Listas).<br>
+Los iconos incluyen: bus (para vehiculos de pasajeros por carretera), camion (para vehiculos de mercancias por carretera), tren, barco y avion. Tranvias se indica mediante el icono de bus o tren en el tipo de Parada.
+</p>
+<p>
+<em>icono(s) de carga</em> indica que elementos (pasajeros, mercancias y/o correo) puede gestionar la <a href="station.txt">Parada</a> (tambien se usa en Informacion de la Parada y en Administracion de Listas).<br>
+{Consejos: construyendo las extensiones apropiadas, cambiara la categoria de los elementos que puede gestionar la parada. Las <a href="special.txt">Oficinas Postales</a> pueden construirse junto a Paradas para permitir la gestion de correo}.
+</p>
+<p>
+<em>esperando</em> detalles de las diferentes mercancias y pasajeros en la <a href="station.txt">Parada</a>.
+</p>

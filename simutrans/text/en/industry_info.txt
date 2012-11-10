@@ -1,0 +1,68 @@
+<title>Industry Information</title>
+
+<h1><strong>Industry Information</strong></h1>
+
+<p>
+<strong>Industry Information</strong> shows details about a selected Industry (a supplier or consumer of goods) and allows game-view to be moved to related positions in game-world.
+</p>
+<p>
+Suppliers and consumers of goods link to provide an Industry Supply Chain which terminates in an end-consumer. Some Industry is both a consumer and supplier and lies in the middle of an Industry Supply Chain. If not playing in <a href="new_world.txt">beginners mode</a>, Industry will cease supply if consumer has excess supply.<br>
+Industries may also be a destination for and origin of passengers and mail. Vehicles collect and deliver goods and passengers to an Industry through <a href="station.txt">Stops</a> if the catchment area of the Stop covers any portion of the Industry building and if the Stop can handle the item.
+{Tips: Off-shorestops/Oil rigs/fish farms/catchment area/oil/mail/passengers/not listed in station list}
+</p>
+<p>
+The intial number of Industry Supply Chains can be set in <a href="new_world.txt">Create New World</a>.
+As <a href="citywindow.txt">urban areas</a> grow more industry may appear. New industry appears each time the population of an urban area doubles from about 2000 onwards.<br>
+{Tips: Add Industry to an urban area using <a href="edittools.txt">Build a new market in the nearest city</a> tool in ?Game Edit Tools. Change when new industries are generated in cityrules.tab (industry_increase_every = 0 generates no new industry)}.
+</p>
+<p>
+Click on an Industry in game-view with the <a href="inspection_tool.txt">Inspection Tool</a> or an Industry listed in <a href="factorylist_filter.txt">?Industry List</a> to open <strong>Industry Information</strong>.<br>
+Use <a href="mouse.txt">slider-bar</a> to scroll items if all are not visible.
+</p>
+<p>
+Name of selected Industry is shown in the titlebar of <strong>Industry Information</strong>.<br>
+Other information about selected Industry and options include:
+</p>
+<p>
+Production: maximum rate of goods the Industry will supply (if a supplier) or consume (if it is an end-consumer) in units per ?month/day.<br>
+{Tips: Adding <a href="special.txt">transformer stations</a> and adding supplying electricity to an Industry increases rate of goods produced/consumed}.
+</p>
+<p>
+<em>Industry picture</em> shows a view of Industry building. Click on picture to move game-view to Industry building.
+</p>
+<p>
+<em>status-colour-bar</em> under picture indicates operation of Industry (also used in <a href="factorylist_filter.txt">?Industry List</a>):<br>
+- <em>white:</em> does not require input.<br>
+- <em>yellow:</em> connected by transport, but Industry Supply Chain has poor supply.<br>
+- <em>green:</em> at optimum status.<br>
+- <em>orange:</em> operational but improvements possible.<br>
+- <em>red:</em> operational but part of Industry Supply chain has excess supply.
+</p>
+<p>
+<em>Consumer:</em> lists destinations in Industry Supply Chain for goods produced by selected Industry. <br>
+Destination industries and their map co-ordinates are listed by an arrow-button. Click on arrow-button to move game-view to destination.
+</p>
+<p>
+<em>Suppliers:</em> shows origin of goods in Industry Supply Chain required by selected Industry.<br>
+Supplier industries and their map co-ordinates are listed by an arrow-button. Click on arrow-button to move game-view to supplier.
+</p>
+<p>
+<em>Workers live in:</em> shows in which nearby <a href="citywindow.txt">urban areas</a> employees live. Passengers and mail from these urban areas will need to reach the selected Industry.<br>
+Urban areas and their map co-ordinates are listed by an arrow-button. Click on arrow-button to move game-view to supplier.
+</p>
+<p>
+<em>Passenger level:</em> is the relative popularity as a destination for passengers .<br>
+<em>Mail level:</em> is the relative popularity as a destination for mail.<br>
+{Tips: only one square of an Industry building need fall in the catchement area of a Stop to provide an optimum service for passengers and mail}.
+</p>
+<p>
+<em>Production:</em> gives details on output of Industry.<br>
+Information shown includes: name of item; quantity currently stored by maximum storage capacity for item; <a href="goods_filter.txt">goods category</a>; and percentage level of output compared to input.
+</p>
+<p>
+<em>Consumption:</em> gives details on input of industry.<br>
+Information shown includes: name of item; quantity currently stored by maximum storage capacity for item; <a href="goods_filter.txt">goods category</a>; and percentage level of input compared to output.
+</p>
+<p>
+<a href="station.txt"><em>Stops</em></a> which serve the Industry are listed at the bottom of <strong>Industry Information</strong>.
+</p>

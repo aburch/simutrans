@@ -1,18 +1,20 @@
-/**
- * Contains functions to send & receive files over network
- * .. and to connect to a running simutrans server
- */
 #include "network_file_transfer.h"
 #include "../simdebug.h"
 #include "../simversion.h"
 
-/*
- * Nettool only needs network_receive_file
- */
+#include <string.h>
+#include <errno.h>
+#include "../utils/cbuffer_t.h"
+
 #ifndef NETTOOL
 #include "../simgraph.h"
 #include "../dataobj/translator.h"
 #endif
+#include "../simversion.h"
+
+/*
+ * Functions required by both Simutrans and Nettool
+ */
 
 char const* network_receive_file(SOCKET const s, char const* const save_as, long const length)
 {
@@ -46,7 +48,7 @@ char const* network_receive_file(SOCKET const s, char const* const save_as, long
 			}
 			else {
 				if (i < 0) {
-					dbg->error("network_receive_file", "recv failed with %i", i);
+					dbg->warning("network_receive_file", "recv failed with %i", i);
 				}
 				break;
 			}
@@ -70,6 +72,7 @@ char const* network_receive_file(SOCKET const s, char const* const save_as, long
 
 #include "loadsave.h"
 #include "gameinfo.h"
+#include "umgebung.h"
 #include "../simworld.h"
 #include "../utils/simstring.h"
 
@@ -140,7 +143,7 @@ const char *network_connect(const char *cp, karte_t *world)
 	if(  err==NULL  ) {
 		// want to join
 		{
-			nwc_join_t nwc_join;
+			nwc_join_t nwc_join( umgebung_t::nickname.c_str() );
 			nwc_join.rdwr();
 			if (!nwc_join.send(my_client_socket)) {
 				err = "send of NWC_JOIN failed";
@@ -168,6 +171,9 @@ const char *network_connect(const char *cp, karte_t *world)
 			err = "Server busy";
 			goto end;
 		}
+		// set nickname
+		umgebung_t::nickname = nwj->nickname.c_str();
+
 		network_set_client_id(nwj->client_id);
 		// update map counter
 		// wait for sync command (tolerate some wrong commands)
@@ -228,7 +234,7 @@ const char *network_send_file( uint32 client_id, const char *filename )
 {
 	FILE *fp = fopen(filename,"rb");
 	if (fp == NULL) {
-		dbg->error("network_send_file", "could not open file %s", filename);
+		dbg->warning("network_send_file", "could not open file %s", filename);
 		return "Could not open file";
 	}
 	char buffer[1024];
@@ -363,30 +369,27 @@ const char *network_http_post( const char *address, const char *name, const char
 	return err;
 }
 
-/*
- GET a file from an HTTP server at address (e.g. "www.simutrans.com:80"), relative path name (e.g. "/b/xxx.html")
- and save it to local file localname (e.g. "list.txt")
-*/
-const char *network_download_http( const char *address, const char *name, const char *localname )
+const char *network_http_get ( const char* address, const char* name, cbuffer_t& local )
 {
+	const int REQ_HEADER_LEN = 1024;
 	// open from network
 	const char *err = NULL;
-	SOCKET const my_client_socket = network_open_address(address, err);
-	if ( err==NULL ) {
+	SOCKET const my_client_socket = network_open_address( address, err );
+	if (  err==NULL  ) {
 #ifndef REVISION
 #	define REVISION 0
 #endif
 		const char* format = "GET %s HTTP/1.1\r\n"
 				"User-Agent: Simutrans/r%s\r\n"
 				"Host: %s\r\n\r\n";
-		if ((strlen(format) + strlen(name) + strlen(address) + strlen(QUOTEME(REVISION))) > 4060) {
+		if (  (strlen( format ) + strlen( name ) + strlen( address ) + strlen( QUOTEME(REVISION)) ) > ( REQ_HEADER_LEN - 1 )  ) {
 			// We will get a buffer overwrite here if we continue
 			return "Error: String too long";
 		}
-		char request[1024];
-		int const len = sprintf(request, format, name, QUOTEME(REVISION), address);
+		char request[REQ_HEADER_LEN];
+		int const len = sprintf( request, format, name, QUOTEME(REVISION), address );
 		uint16 dummy;
-		if ( !network_send_data(my_client_socket, request, len, dummy, 250) ) {
+		if (  !network_send_data( my_client_socket, request, len, dummy, 250 )  ) {
 			err = "Server did not respond!";
 		}
 
@@ -395,21 +398,22 @@ const char *network_download_http( const char *address, const char *name, const 
 		unsigned int pos = 0;
 		long length = 0;
 		while(1) {
+			// Receive one character at a time the HTTP headers
 			int i = recv( my_client_socket, &rbuf, 1, 0 );
-			if ( i > 0 ) {
-				if ( rbuf >= 32 && pos < sizeof(line) - 1 ) {
+			if (  i > 0  ) {
+				if (  rbuf >= 32  &&  pos < sizeof(line) - 1  ) {
 					line[pos++] = rbuf;
 				}
-				if ( rbuf == 10 ) {
-					if ( pos == 0 ) {
+				if (  rbuf == 10  ) {
+					if (  pos == 0  ) {
 						// this line was empty => now data will follow
 						break;
 					}
 					line[pos] = 0;
-					DBG_MESSAGE("network_download_http", "received header: %s", line);
+					DBG_MESSAGE( "network_http_get", "received header: %s", line );
 					// Parse out the length tag to get length of content
-					if ( STRNICMP("Content-Length:", line, 15) == 0 ) {
-						length = atol(line + 15);
+					if (  STRNICMP( "Content-Length:", line, 15 ) == 0  ) {
+						length = atol( line + 15 );
 					}
 					pos = 0;
 				}
@@ -418,12 +422,27 @@ const char *network_download_http( const char *address, const char *name, const 
 				break;
 			}
 		}
-		// for a simple query, just pass an empty filename
-		if(  localname  &&  *localname  ) {
-			err = network_receive_file( my_client_socket, localname, length );
+
+		// Make buffer to receive data into
+		char* buffer = new char[length];
+		uint16 bytesreceived = 0;
+
+		if (  !network_receive_data( my_client_socket, buffer, length, bytesreceived, 10000 )  ) {
+			err = "Error: network_receive_data failed!";
 		}
+		else if (  bytesreceived != length  ) {
+			err = "Error: Bytes received does not match length!";
+		}
+		else {
+			local.append( buffer, length );
+		}
+
+		DBG_MESSAGE( "network_http_get", "received data length: %i", local.len() );
+
+		delete [] buffer;
 		network_close_socket( my_client_socket );
 	}
 	return err;
 }
+
 #endif // ifndef NETTOOL

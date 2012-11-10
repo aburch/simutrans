@@ -1,0 +1,10 @@
+<title>Private Way Entrace Gate</title>
+
+<h1><strong>Private Way Entrance Gate</strong></h1>
+
+<p>
+With this dialogue you can exclude all unchecked players from entering your way with their vehicles through this gate. (The public player setting will affect the city cars.) The player, which is allowed to pass, will see an open gate or barrier, and the excluded player will see a closed gate or barrier.
+</p>
+<p>
+This sign is built from one of the way building tool bars (like <a href="railtools.txt">railroad tools</a> or <a href="roadtools.txt">road tools</a>).
+</p>

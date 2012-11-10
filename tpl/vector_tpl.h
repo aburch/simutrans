@@ -223,13 +223,15 @@ template<class T> class vector_tpl
 
 
 		/** removes element, if contained */
-		void remove(const T& elem)
+		bool remove(const T& elem)
 		{
 			for (uint32 i = 0; i < count; i++) {
 				if (data[i] == elem) {
-					return remove_at(i);
+					remove_at(i);
+					return true;
 				}
 			}
+			return false;
 		}
 
 		/** removes element at position */

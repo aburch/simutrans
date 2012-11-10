@@ -5,6 +5,7 @@
 
 #BACKEND = allegro
 #BACKEND = gdi
+#BACKEND = opengl
 #BACKEND = sdl
 #BACKEND = mixer_sdl
 #BACKEND = posix
@@ -31,6 +32,8 @@
 
 #WIN32_CONSOLE = 1 # adds a console for windows debugging
 
+#MULTI_THREAD = 4 # start this many threads for some tasks like updating, map rotation, ...
+
 # Define these as empty strings, if you don't have the respective config program
 #ALLEGRO_CONFIG = allegro-config
 #PNG_CONFIG     = pkg-config libpng
@@ -46,7 +49,6 @@
 #
 # Changing appearance:
 # USE_SOFTPOINTER: emulate mouse pointer (set automatically in Makefile)
-# HALF_HEIGHT: Enables half height tiles (8 pixel instead 16)
 #
 # Useful for debugging:
 # DEBUG_ROUTES: show routing calculation information in minimap

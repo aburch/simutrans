@@ -1,0 +1,22 @@
+<title>Fabrikdetails</title>
+
+<h1><strong>Fabrikfenster</strong></h1>
+
+<p>
+Das <strong>Fabrikfenster</strong> erscheint, sobald auf eine Fabrik geklickt wird. Es enthält verschiedene Informationen über diese Farbik.</p>
+<p>
+Fabriken können Verbraucher,  Produzenten oder verarbeitende Industrie sein. Reine Verbraucher sind zum Beispiel Kraftwerke oder ein Supermarkt, reine Produzenten eine Kohlegrube oder eine Müllhalde; ein Stahlwerk oder eine Raffinerie sind verarbeitende Fabriken.</p>
+<p>
+Unter dem Namensfeld findet sich die akteulle Produktion pro Monat (für 100%). Sind danben Symbole für Passagiere/post/Strom, dann kann die Produktion auch durch Transport von Arbeitern, Post bzw. Elektrizitätsversorgung erhöht werden. (Ist dies momentan der Fall, erschient das jeweilige Symbol auch im Bild der Fabrik rechts daneben.)</p>
+<p>
+Darunter folgen die Warenmengen, die produziert wurden und die Vorräte. Stauen sich produzierte Waren, dann sind alle Abnehmer überfüllt oder es gibt keine Verbindung. Ist das Lager für ankommende Waren überfüllt, dann fordert die Fabrik auch keine neuen Waren mehr an. (Diese Verhalten kann mit dem Eintrag "just_in_time" in der simuconf.tab angepasst werden.)</p>
+<p>
+Da in Simutrans eine Fabrik feste Verträge mit anderen Fabriken hat, sind in dem Dialog als nächstes die Verbraucher aufgelistet. Nur diese nehmen Waren dieser Fabrik an. Ein Klick auf das Dreieck springt zu der jeweiligen Fabrik. Bei reinen Verbrauchern fehlt dieses Feld.</p>
+<p>
+Als nächstes kommen die Lieferanten, die diese Fabrik mit Rohstoffen versorgen. Nur von diesen werden Waren angenommen. Auch hier kann man mit dem Dreieck wieder zu der jeweiligen Fabrik springen.</p>
+<p>
+Darunter findet man die Städte, aus denen die Arbeiter für diese Fabrik kommen mit dem Passagier- und Postaufkommen der Fabrik. Ist die Liste leer, dann sind die Städte zu weit entfernt.</p>
+<p>
+Als letztes findet man noch eine Liste der Stationen, die mit dieser Fabrik verbunden sind.</p>
+<p>
+Rechts unter dem Bild der Fabrik findet man eine Knopf um eine detaillierte Statistik zu der Fabrik zu sehen.

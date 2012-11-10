@@ -16,6 +16,7 @@
 #include "../boden/fundament.h"
 
 #include "../dings/leitung2.h"
+#include "../dings/tunnel.h"
 #include "../dings/zeiger.h"
 
 #include "../gui/karte.h"
@@ -293,7 +294,7 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb ) //gebae
 						if(gb_part->get_tile()->get_besch()==hb) {
 							gb_part->set_fab( NULL );
 							planquadrat_t *plan = welt->access( k+pos.get_2d() );
-							for( int i=plan->get_haltlist_count()-1;  i>=0;  i--  ) {
+							for (size_t i = plan->get_haltlist_count(); i-- != 0;) {
 								halthandle_t halt = plan->get_haltlist()[i];
 								halt->remove_fabriken( fab );
 								plan->remove_from_haltlist( welt, halt );
@@ -347,6 +348,31 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb ) //gebae
 				if(pp) delete pp;
 			}
 		}
+		for(k.x = 0; k.x < size.x;  k.x ++) {
+			for(k.y = 0; k.y < size.y;  k.y ++) {
+				grund_t *gr = welt->lookup(koord3d(k,-1)+pos);
+				if(gr) {
+					senke_t *sk = gr->find<senke_t>();
+					if(sk) {
+						delete sk;
+					}
+					pumpe_t *pp = gr->find<pumpe_t>();
+					if(pp) {
+						delete pp;
+					}
+					// remove tunnelboden
+					if(  gr->ist_im_tunnel()  &&  gr->get_top()<=1  ) {
+						tunnel_t *t = gr->find<tunnel_t>();
+						t->entferne( t->get_besitzer() );
+						delete t;
+						welt->lookup_kartenboden(pos.get_2d())->clear_flag(grund_t::marked);
+						// remove ground
+						welt->access(pos.get_2d())->boden_entfernen(gr);
+						delete gr;
+					}
+				}
+			}
+		}
 		// end clean up transformers
 		welt->rem_fab(fab);
 	}
@@ -367,10 +393,16 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb ) //gebae
 						const koord newk = k+pos.get_2d();
 						sint8 new_hgt;
 						const uint8 new_slope = welt->recalc_natural_slope(newk,new_hgt);
+						// test for ground at new height
 						const grund_t *gr2 = welt->lookup(koord3d(newk,new_hgt));
+						if((gr2 == NULL  ||  gr2 == gr) &&  new_slope!=hang_t::flach) {
+							// and for ground above new sloped tile
+							gr2 = welt->lookup(koord3d(newk, new_hgt+1));
+						}
 						bool ground_recalc = true;
 						if(gr2  &&  gr2!=gr) {
-							// there is another ground below => do not change height, keep foundation
+							// there is another ground below or above
+							// => do not change height, keep foundation
 							welt->access(newk)->kartenboden_setzen( new boden_t(welt, gr->get_pos(), hang_t::flach ) );
 							ground_recalc = false;
 						}
@@ -378,7 +410,7 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb ) //gebae
 							welt->access(newk)->kartenboden_setzen(new wasser_t(welt, koord3d(newk,new_hgt) ) );
 						}
 						else {
-							if(  (gr2==NULL  ||  gr2==gr)  &&  gr->get_grund_hang()==new_slope  ) {
+							if(  gr->get_grund_hang()==new_slope  ) {
 								ground_recalc = false;
 							}
 							welt->access(newk)->kartenboden_setzen(new boden_t(welt, koord3d(newk,new_hgt), new_slope) );
@@ -513,9 +545,7 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int org
 }
 
 
-
-gebaeude_t *
-hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int built_layout, const haus_besch_t *besch, void *param)
+gebaeude_t *hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int built_layout, const haus_besch_t *besch, void *param)
 {
 	uint8 corner_layout = 6;	// assume single building (for more than 4 layouts)
 
@@ -555,7 +585,7 @@ hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int built
 					uint8 layoutbase = gb->get_tile()->get_layout();
 					if((layoutbase & 1) == (layout & 1)) {
 						layoutbase &= 0xb; // clear near bit on neighbour
-						gb->set_tile(gb->get_tile()->get_besch()->get_tile(layoutbase, xy.x, xy.y));
+						gb->set_tile( gb->get_tile()->get_besch()->get_tile(layoutbase, xy.x, xy.y), false );
 					}
 				}
 			}
@@ -579,7 +609,7 @@ hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int built
 					uint8 layoutbase = gb->get_tile()->get_layout();
 					if((layoutbase & 1) == (layout & 1)) {
 						layoutbase &= 0xd; // clear far bit on neighbour
-						gb->set_tile(gb->get_tile()->get_besch()->get_tile(layoutbase, xy.x, xy.y));
+						gb->set_tile( gb->get_tile()->get_besch()->get_tile(layoutbase, xy.x, xy.y), false );
 					}
 				}
 			}

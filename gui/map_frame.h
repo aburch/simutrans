@@ -13,7 +13,7 @@
 #define gui_map_frame_h
 
 #include "gui_frame.h"
-#include "karte.h"
+//#include "karte.h"
 #include "../simwin.h"
 #include "components/gui_scrollpane.h"
 #include "components/action_listener.h"
@@ -23,6 +23,8 @@
 #include "../tpl/stringhashtable_tpl.h"
 
 class karte_t;
+
+#define MAP_MAX_BUTTONS (22)
 
 /**
  * Reliefkartenfenster für Simutrans.
@@ -36,6 +38,7 @@ class map_frame_t :
 	public action_listener_t
 {
 private:
+	static karte_t *welt;
 
 	/**
 	 * This is kind of hack: we know there can only be one map frame
@@ -70,25 +73,20 @@ private:
 
 	gui_scrollpane_t scrolly;
 
-	// buttons
-	static const char map_type[reliefkarte_t::MAX_MAP_BUTTON][64];
-	static const uint8 map_type_color[reliefkarte_t::MAX_MAP_BUTTON];
-	button_t filter_buttons[reliefkarte_t::MAX_MAP_BUTTON];
+	button_t filter_buttons[MAP_MAX_BUTTONS];
 
 	void zoom(bool zoom_out);
 	button_t zoom_buttons[2];
 	gui_label_t zoom_label;
 	button_t b_rotate45;
 
-	button_t	b_show_schedule;
-	button_t	b_show_fab_connections;
-
 	button_t b_show_legend;
 	button_t b_show_scale;
 	button_t b_show_directory;
+	button_t b_overlay_networks;
 	button_t b_filter_factory_list;
 
-	void update_factory_legend(karte_t *welt = NULL);
+	void update_factory_legend();
 	void show_hide_legend(const bool show);
 	void show_hide_scale(const bool show);
 	void show_hide_directory(const bool show);
@@ -113,7 +111,7 @@ public:
 	 * Konstruktor. Erzeugt alle notwendigen Subkomponenten.
 	 * @author Hj. Malthaner
 	 */
-	map_frame_t(karte_t *welt);
+	map_frame_t( karte_t *welt );
 
 	void rdwr( loadsave_t *file );
 

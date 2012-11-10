@@ -1,0 +1,43 @@
+<title>Filtr seznamu stanic</title>
+<h1>Filtr seznamu stanic</h1>
+
+<p>
+<em>Filtr nabízí tyto mo¾nosti:</em>
+</p>
+
+<p>
+<em>1.) Filtrovat jméno:</em><br>
+V seznamu budou zobrazeny pouze stanice, které se jmenují podle zadání.
+</p>
+
+<p>
+<em>2.) Filtrovat typ:</em><br>
+V seznamu budou zobrazena pouze stanice zvoleného typu.
+</p>
+
+<p>
+<em>3.) Speciální filtrování:</em><br>
+V seznamu budou zobrazeny pouze stanice, které nemají spojení nebo jsou pøeplnìné.
+</p>
+
+<p>
+<em>4.) Podle vy¾adovaného prùmyslu:</em><br>
+Seznam zobrazí pouze stanice, které vy¾adují pro prùmysl na který jsou napojeny zvolené komodity. *
+</p>
+
+<p>
+<em>5.) Podle produkovaného prùmyslu:</em><br>
+Seznam zobrazí pouze stanice, které produkují zvolené komodity. *
+</p>
+
+<p>
+<em>*</em> Tlaèítko <strong>v¹e</strong> vybere v¹echny komodity, tlaèítko <strong>nic</strong> naopak v¹echny odvybere. Tlaèítkem <strong>inv</strong> obrátíte aktuální výbìr.
+</p>
+
+<p>
+-><a href="haltlist.txt">Nápovìda pro seznam stanic</a>
+</p>
+
+<p>
+-><a href="about.txt">Informace o pøekladu</a>
+</p>

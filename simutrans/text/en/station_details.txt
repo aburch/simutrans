@@ -1,0 +1,36 @@
+<title>Stop Details</title>
+
+<h1><strong>Stop Details</strong></h1>
+
+<p>
+<strong>Stop Details</strong> provides more information about a Stop (where vehicles pick-up and drop-off goods and passengers).
+</p>
+<p>
+<strong>Stop Details</strong> opens from
+<a href="station.txt">
+Details</a> option-button in Stop Information.
+<br>
+If all items are not visible <a href="mouse.txt">re-size</a> <strong>Stop Details</strong> or use slider-bars to scroll items)
+</p>
+<p>
+Information listed includes:<br>
+<em>Connected factories:</em> names and map co-ordinates (in brackets) of <a href="industry_info.txt">industry</a> in catchment area of Stop.<br>
+{Tips: Use
+<a href="keys.txt">[v]</a> to toggle view of catchment area of stops in game.}
+</p>
+<p>
+<em>Goods needed by nearby industries:</em> types of
+<a href="goods_filter.txt">goods</a> required by <a href="industryinfo.txt">industry</a> in catchment area of Stop.
+</p>
+<p>
+<em>Lines serving this Stop:</em>
+<a href="linemanagement.txt">Lines</a> that use this Stop.<br>
+Lines are listed alphanumerically within ASCII-code order (capital letters before lower case letters).
+</p>
+<p>
+<em>Lineless convoys serving this stops:</em> Convoy not assigned to a line, which stop here.
+</p>
+<p>
+<em>Direct routes from here:</em>lists name of Stops that can be reached without a transfer and type of items (goods and passnegers) that can be delivered.<br>
+Stops are listed alphanumerically within ASCII-code order (capital letters before lower case letters) by ?type of transport, name of Stop, and type of item that can be delivered (which is also shown for each Stop).
+</p>

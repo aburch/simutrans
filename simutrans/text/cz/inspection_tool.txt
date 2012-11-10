@@ -1,0 +1,111 @@
+<title>Inspekèní lupa</title>
+
+<h1><strong>Inspekèní lupa</strong></h1>
+
+<p>
+Nástroj <em>inspekèní lupa</em> se pou¾ívá k otevírání dialogù, k zobrazení informací nebo výbìru z voleb.
+</p>
+<p>
+Nástroj vyberete kliknutím na ikonu se zavìt¹ujícím sklem v hlavním menu nebo stiskem klávesy <a href="keys.txt">[a]</a>. Pokud je nástroj zvolený, kurzor má tvar lupy.
+</p>
+
+<p>{Tip: Kliknete-li inspekèní lupou na zastávku s vlakem, zobrazí se nejprve okno s informacemi o zastávce. Budete-li v¹ak dr¾et klávesu <em>Ctrl</em>, zobrazí se nejprve okno s informacemi o vlaku.}</p>
+<p>
+Poznámka k u¾ití: Vyskytuje-li se na stejné pozici více objektù, které pøi kliknutí inspekèí lupou zobrazí dialog, pak opìtovné kliknutí otevøe dal¹í dialog v poøadí.<br/>
+{Tip: Které dialogu se budou otevírat a které nikoliv lze urèit v <a href="settings.txt">nastavení</a> nebo v souboru simuconf.tab}
+</p>
+<p>
+Kliknutím inspekèní lupou na objekty ve høe otevøe pøíslu¹né dialogy:
+</p>
+<p>
+<em>Depo </em> : Nástojem otevøete <a href="depot.txt">dialog depa</a> slou¾ící k nákupu a správì vozidel.
+</p>
+<p>
+<em>Zastávka/stanice</em>: Otevøe dialog s informacemi o <a href="station.txt">zastávce</a>.
+</p>
+<p>
+<em>Konvoje</em> : Otevøe informace o <a href="convoiinfo.txt">konvoji</a>.
+</p>
+<p>
+<em>Radnice</em> : Otevøe dialog s informacemi o <a href="citywindow.txt">mìstu</a>.<br/>
+{Tip: Volba townhall_info umo¾òuje povolit zobrazení informací té¾ o budovì radnice. viz <a href="settings.txt">nastavení</a> (zálo¾ka v¹eobecné) nebo simuconf.tab}
+</p>
+<p>
+<em>Továrna</em> : Otevøe dialog s informacemi o <a href="industry_info.txt">továrnì</a>.
+</p>
+<p>
+<em>Mìstská budova</em> : Otevøe dialog poskytují informace o mìstské budovì. Dialog obsahuje následující informace:<br>
+- <em>majitel</em>: Obvykle je zde napsáno: <em> bez majitele</em>, pokud budovy koupíte bude zde va¹e jméno.<br/>
+- <em>popisek</em>: Informace o budovì. Pokud budova nemá pøiøazený ¾ádný doplòující popisek, je zobracen nápis  'obytný dùm', 'továrna', nebo 'obchody a kanceláøe'. <br>
+- <em>Obec</em>: Název mìsta/vesnice kam dùm patøí.<br>
+- <em>Vzrùst osob</em>: Relativní obliba u cestujících.<br>
+- <em>Po¹ta</em>: Relativní obliba u po¹ty.<br>
+- <em>dostupné od ~ do ~ </em>: Interval, ve kterém je daná budova dostupná, pokud jste pøi vytváøení mapy zadali volbu <a href="new_world.txt">zaèít roku</a>.<br>
+- <em>Cena</em>: Kolik bude stát koupì nebo odstranìní budovy. <br/>
+- <em>Postavil</em>: Jméno autora, který budovu nakreslil.
+</p>
+<p>
+<em>Pomníky</em> / <a href="curiositylist_filter.txt"><em>Turistické atrakce</em></a>: Otevøe dialog poskytující informace o památce. V titulku je napsáno jestli se jedná o pomník nebo o turistickou atrakci.
+<br>
+- <em>Veøejný majetek</em> znamená, ¾e objekt není vlastnìn hráèovou spoleèností.<br>
+- <em>Popisek</em> poskytuje informace o památce.<br/>
+- <em>Vzrùst osob</em> je relativní obliba mezi cestujícími.<br>
+- <em>Po¹ta</em> je relativní obliba u po¹tovních zásilek.<br>
+- <em>Dostupné od</em>: Odkdy se budova objeví ve høe, pokud hrajete s volbou <a href="new_world.txt">zaèít roku</a>.<br/>
+- <em>postavil</em>: Kdo to pro simutrans nakreslil.
+</p>
+<p>
+<em>Silnice a ¾eleznice</em>: Otevøe dialog poskytující informace o ¾eleznici, silnici, plavebním kanálu ... <br/>
+Pokud se jedná o tramvajovou tra» na silnièním podkladu, okno dialogu obsahuje informace o obou.<br/>
+Informace obsa¾ené v dialogu:<br/>
+- <em>Max. rychlost</em>: Maximální povolená rychlost.<br>
+- <em>(bez masky)</em>: èíslo jeho¾ jednotlivé bity ukazující smìry cesty.<br>
+- <em>(maska)</em>: èíslo, jaho¾ jednotlivé bity ukazují smìr cesty pokud se bere ohled na povolený smìr jízdy.<br/>
+Pozn. ribi nejsou ryby ale zkratka pro Richtungsbits.<br/>
+- <em>elektrifikováno</em>/<em>nelektrifikováno</em> oznamuje, jestli je cesta elektrifikovaná.<br/>
+- <em>souprav za poslední mìsíc</em> poèet <a href="convoiinfo.txt">souprav</a>, které pou¾ily cestu v minulém mìsíci.<br/>
+- <em>rezervován pro</em> oznamuje, ¾e zde nìco pojede.<br/>
+- <em>mapové souøedanice</em> zobrazeny v titulku <a href="window.txt">okna</a>
+</p>
+<p>
+<em>silnièní semafory</em> Otevøe dialog <a href="trafficlight_info.txt">semaforu</a>.
+</p>
+<p>
+<em>¾eleznièní návìstidla</em> Otevøe dialog s <a href="signals.txt">¾eleznièními návìstidly</a>.<br/>
+Informace obsa¾ená v dialogu zahrnuje:<br>
+- <em>smìry</em> bitová maska smìrù.
+</p>
+<p>
+<em>vedení</em>: Kliknutím na <a href="special.txt">elektrické vedení</a> zobrazíte s informacemi o aktuálním stavu sítì:<br/>
+ - <em>jméno majitele sítì</em><br/>
+ - <em>sí»</em>: identifikátor sítì<br/>
+ - <em>kapacita sítì</em>: vìt¹í mno¾ství elektrické energie vám jedna sí» dopravovat nepovolí.<br/>
+ - <em>spotøeba</em>: aktuální spotøeba v síti - poptávané mno¾ství el. enegrie, mù¾e být i vy¹¹í ne¾ mno¾ství dodávané el. energie<br/>
+ - <em>výroba</em>: Mno¾ství aktuálnì vyrábìné elektrické energie.<br/>
+ - <em>aktuální pøenos</em>: aktuálnì dodávané mno¾ství el. energie. <br/>
+ - <em>dodáno % </em>: Kolik % vyrobené el. energie je spotøebováváno</p>
+
+<p>
+<em>trafostanice u elektrárny</em> Otevøe okno s informacemi o právì dodávaném mno¾ství elektrické energie továrnou do sítì.<br>
+- <em>majitel</em><br/>
+- <em>výroba</em></p>
+
+<p>
+<em>trafostanice u továrny</em> Otevøe okno s informacemi o právì dodávaném mno¾ství elektrické energie továrnou do sítì.<br>
+ - <em>sí»</em>: identifikátor sítì elektrické sítì.<br/>
+ - <em>spotøeba</em>: Kolik MW el. energie továrna potøebuje.<br/>
+ - <em>aktuální pøenos</em>: Kolik MW je aktuálnì dodáváno do továrny.<br/>
+ - <em>dodáno % </em>: Kolik procent el. energie po¾adované továrnou je dodáno.<br/>
+</p>
+<p>
+<em>strom</em> otevøe dialog s nápisem 'Strom'. Zobrazené informace zahrnují:<br>
+- <em>název</em> druhu stromu.<br>
+- <em>vìk</em> stromu v rocích a mìsících.<br/>
+{Pozn: musí být povoleno v <a href="settings.txt">nastavení</a> (polo¾ka tree_info). Pokud není povoleno, dialog se stromem se neotevøe.}
+</p>
+<p>
+<em>zemský povrch</em> otevøe okno 'zemì'). Zobrazené informace zahrnují:<br>
+- <em>klimatický pás</em> v závislosti na nadmoøské vý¹ce.<br>
+- <em>mapové souøadnice</em> zobrazené v ditulku okna.<br/>
+Pozn: musí být povoleno v <a href="settings.txt">nastavení</a> (polo¾ka ground_info) .
+</p>

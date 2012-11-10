@@ -1,0 +1,14 @@
+<title>Detaljnih Informacija Stajalista</title>
+
+<h1><strong>Pomoc Detaljnih Informacija Stajalista</strong></h1>
+
+<p>
+<em>Spojene Tvornice:</em> Sve tvornice u podrucju pokrivanja stajalista se prikazuju alfabetski. Podrucja pokrivanja se mogu prikazati koristeci tipku <em>v</em>.
+</p>
+<p>
+<em>Roba potrebna od okolnih industrija:</em> Svi tipovi robe, koje su potrebne od stajalista spojenih tvornica, se prikazuju alfabetski.</p>
+<p>
+<em>Linije koje opsluzuju ovo stajaliste:</em> Sve linije, koje opsluzuju stajaliste, prikazuju se alfabetski. Klik na strelicu otvara <a href="linemanagement.txt">Upravljanje Linijom</a>.</p>
+<p>
+<em>Direktne rute:</em> Sva stajalista se prikazuju, koja se direktno opsluzuju preko linija sa stajalista. Imenu stajalista slijedi u slijedecem retku nakon crtice tip prijevoza. Preko strelice ispred imena stajalista moguce je direktno skociti na to stajaliste.
+</p>

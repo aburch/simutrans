@@ -21,17 +21,6 @@ class loadsave_t;
 class tabfile_t;
 class weg_besch_t;
 
-// these are the only classes, that are allowed to modfy elements from settings_t
-// for all remaing special cases there are the set_...() routines
-class settings_general_stats_t;
-class settings_routing_stats_t;
-class settings_economy_stats_t;
-class settings_costs_stats_t;
-class settings_climates_stats_t;
-class climate_gui_t;
-class welt_gui_t;
-
-
 struct road_timeline_t
 {
 	char name[64];
@@ -70,13 +59,15 @@ public:
 
 class settings_t
 {
-friend class settings_general_stats_t;
-friend class settings_routing_stats_t;
-friend class settings_economy_stats_t;
-friend class settings_costs_stats_t;
-friend class settings_climates_stats_t;
-friend class climate_gui_t;
-friend class welt_gui_t;
+	// these are the only classes, that are allowed to modfy elements from settings_t
+	// for all remaing special cases there are the set_...() routines
+	friend class settings_general_stats_t;
+	friend class settings_routing_stats_t;
+	friend class settings_economy_stats_t;
+	friend class settings_costs_stats_t;
+	friend class settings_climates_stats_t;
+	friend class climate_gui_t;
+	friend class welt_gui_t;
 
 private:
 	sint32 groesse_x, groesse_y;
@@ -449,6 +440,10 @@ private:
 	float32e8_t meters_per_step;
 	float32e8_t steps_per_meter;
 	float32e8_t seconds_per_tick;
+
+	// true if transformers are allowed to built underground
+	bool allow_underground_transformers;
+
 public:
 	/* the big cost section */
 	sint32 maint_building;	// normal building
@@ -936,6 +931,8 @@ public:
 
 	uint8 get_max_elevated_way_building_level() const { return max_elevated_way_building_level; }
 	void set_max_elevated_way_building_level(uint8 value) { max_elevated_way_building_level = value; }
+
+	bool get_allow_underground_transformers() const { return allow_underground_transformers; }
 };
 
 #endif 

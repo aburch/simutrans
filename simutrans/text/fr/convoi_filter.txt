@@ -1,0 +1,48 @@
+<title>Filtres de véhicules</title>
+
+<h1>Filtrage de la liste des véhicules</h1>
+
+<p>Cet écran vous permet de définir des critères de filtrage pour afficher la
+liste de vos véhicules.
+</p>
+
+<p>Les filtres sont organisés en groupe, indiqués en blanc. Vous pouvez activer
+un ou plusieurs groupe de filtre en appuyant sur les boutons associés à chaque groupe.
+</p>
+
+<p>
+<em>Filtre par Nom:</em>
+Ecrivez tout ou partie du nom de véhicule, et appuyez sur le bouton associé
+pour valider le critère.
+</p>
+
+<p>
+<em>Filtre marchandises:</em>
+Sélectionnez les marchandises transportées dans les véhicules que vous souhaitez
+voir affichés, et appuyez sur le bouton associé pour valider le critère.<br>
+Des boutons vous servent à sélectionner l'ensemble des critères marchandise ou
+aucun, ou encore d'inverser votre sélection.
+</p>
+
+<p>
+<em>Filtre par Type:</em>
+Sélectionnez le(s) type(s) de véhicule que vous voulez afficher, et appuyez sur
+le bouton associé pour valider le critère.
+</p>
+
+<p>
+<em>Filtre spécial:</em>
+Choissez ici les critères vous permettant de repérer les véhicules posant problème.
+</p>
+
+<p>
+<em>Important:</em>
+Lorsque vous associez plusieurs critères, les véhicules affichés répondront à au
+moins un critère. ex: filtre par type : Train et bâteau, tous les trains et tous
+les bâteaux.
+</p>
+
+<p>
+Actualisé pour Simutrans 0.83.1.2<br>
+02/01/2003
+</p>

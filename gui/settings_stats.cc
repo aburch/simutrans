@@ -36,7 +36,9 @@ static char const* const version[] =
 	"0.110.7",
 	"0.111.0",
 	"0.111.1",
-	"0.111.2"
+	"0.111.2",
+	"0.111.3",
+	"0.111.4"
 };
 
 static const char *version_ex[] =
@@ -115,7 +117,7 @@ gui_numberinput_t& settings_stats_t::new_numinp(koord pos, sint32 value, sint32 
 	gui_numberinput_t& ni = * new gui_numberinput_t();
 	ni.init(value, min_value, max_value, mode, wrap);
 	ni.set_pos(pos);
-	ni.set_groesse(koord(37+proportional_string_width("0")*max(1,(sint16)(log10((double)(max_value)+1.0)+0.5)), BUTTON_HEIGHT ));
+	ni.set_groesse(koord(37+proportional_string_width("0")*max(1,(sint16)(log10((double)(max_value)+1.0)+0.5)), D_BUTTON_HEIGHT ));
 	numinp.append(&ni);
 	return ni;
 }
@@ -125,7 +127,7 @@ button_t& settings_stats_t::new_button(koord pos, const char *text, bool pressed
 {
 	button_t& bt = * new button_t();
 	bt.init(button_t::square_automatic, text, pos);
-	bt.set_groesse(koord(16 + proportional_string_width(text), BUTTON_HEIGHT));
+	bt.set_groesse(koord(16 + proportional_string_width(text), D_BUTTON_HEIGHT));
 	bt.pressed = pressed;
 	return bt;
 }
@@ -456,22 +458,21 @@ void settings_general_stats_t::init(settings_t const* const sets)
 	INIT_INIT
 	INIT_BOOL( "drive_left", sets->is_drive_left() );
 	INIT_BOOL( "signals_on_left", sets->is_signals_left() );
+	SEPERATOR
 	INIT_NUM( "autosave", umgebung_t::autosave, 0, 12, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "frames_per_second",umgebung_t::fps, 10, 30, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "fast_forward", umgebung_t::max_acceleration, 1, 1000, gui_numberinput_t::AUTOLINEAR, false );
-	INIT_NUM( "simple_drawing_tile_size",umgebung_t::simple_drawing_tile_size, 0, 256, gui_numberinput_t::POWER2, false );
 	SEPERATOR
 	INIT_BOOL( "numbered_stations", sets->get_numbered_stations() );
 	INIT_NUM( "show_names", umgebung_t::show_names, 0, 7, gui_numberinput_t::AUTOLINEAR, true );
 	INIT_NUM( "show_month", umgebung_t::show_month, 0, 8, gui_numberinput_t::AUTOLINEAR, true );
-	INIT_BOOL( "add_player_name_to_message", umgebung_t::add_player_name_to_message );
 	SEPERATOR
 	INIT_NUM( "bits_per_month", sets->get_bits_per_month(), 16, 48, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "use_timeline", sets->get_use_timeline(), 0, 3, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM_NEW( "starting_year", sets->get_starting_year(), 0, 2999, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM_NEW( "starting_month", sets->get_starting_month(), 0, 11, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "show_month", umgebung_t::show_month, 0, 7, gui_numberinput_t::AUTOLINEAR, true );
 	SEPERATOR
-	INIT_NUM( "water_animation_ms", umgebung_t::water_animation, 0, 1000, 25, false );
 	INIT_NUM( "random_grounds_probability", umgebung_t::ground_object_probability, 0, 0x7FFFFFFFul, gui_numberinput_t::POWER2, false );
 	INIT_NUM( "random_wildlife_probability", umgebung_t::moving_object_probability, 0, 0x7FFFFFFFul, gui_numberinput_t::POWER2, false );
 	SEPERATOR
@@ -481,26 +482,10 @@ void settings_general_stats_t::init(settings_t const* const sets)
 	INIT_BOOL( "townhall_info", umgebung_t::townhall_info );
 	INIT_BOOL( "only_single_info", umgebung_t::single_info );
 	SEPERATOR
-	INIT_BOOL( "window_buttons_right", umgebung_t::window_buttons_right );
-	INIT_BOOL( "window_frame_active", umgebung_t::window_frame_active );
-	INIT_NUM( "front_window_bar_color", umgebung_t::front_window_bar_color, 0, 6, gui_numberinput_t::AUTOLINEAR, 0 );
-	INIT_NUM( "front_window_text_color", umgebung_t::front_window_text_color, 208, 240, gui_numberinput_t::AUTOLINEAR, 0 );
-	INIT_NUM( "bottom_window_bar_color", umgebung_t::bottom_window_bar_color, 0, 6, gui_numberinput_t::AUTOLINEAR, 0 );
-	INIT_NUM( "bottom_window_text_color", umgebung_t::bottom_window_text_color, 208, 240, gui_numberinput_t::AUTOLINEAR, 0 );
-	SEPERATOR
-	INIT_BOOL( "show_tooltips", umgebung_t::show_tooltips );
-	INIT_NUM( "tooltip_background_color", umgebung_t::tooltip_color, 0, 255, 1, 0 );
-	INIT_NUM( "tooltip_text_color", umgebung_t::tooltip_textcolor, 0, 255, 1, 0 );
-	INIT_NUM( "tooltip_delay", umgebung_t::tooltip_delay, 0, 10000, gui_numberinput_t::AUTOLINEAR, 0 );
-	INIT_NUM( "tooltip_duration", umgebung_t::tooltip_duration, 0, 30000, gui_numberinput_t::AUTOLINEAR, 0 );
-	SEPERATOR
-	INIT_NUM( "cursor_overlay_color", umgebung_t::cursor_overlay_color, 0, 255, gui_numberinput_t::AUTOLINEAR, 0 );
-	INIT_BOOL( "left_to_right_graphs", umgebung_t::left_to_right_graphs );
 
-	SEPERATOR
 	// combobox for savegame version
 	savegame.set_pos( koord(2,ypos-2) );
-	savegame.set_groesse( koord(70,BUTTON_HEIGHT) );
+	savegame.set_groesse( koord(70,D_BUTTON_HEIGHT) );
 	for(  uint32 i=0;  i<lengthof(version);  i++  ) {
 		savegame.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( version[i]+2, COL_BLACK ) );
 		if(  strcmp(version[i],umgebung_t::savegame_version_str)==0  ) {
@@ -517,7 +502,7 @@ void settings_general_stats_t::init(settings_t const* const sets)
 	SEPERATOR
 	// combobox for Experimental savegame version
 	savegame_ex.set_pos( koord(2,ypos-2) );
-	savegame_ex.set_groesse( koord(70,BUTTON_HEIGHT) );
+	savegame_ex.set_groesse( koord(70,D_BUTTON_HEIGHT) );
 	for(  int i=0;  i<lengthof(version_ex);  i++  ) 
 	{
 		if(i == 0)
@@ -553,21 +538,17 @@ void settings_general_stats_t::read(settings_t* const sets)
 	READ_BOOL_VALUE( sets->signals_on_left );
 
 	READ_NUM_VALUE( umgebung_t::autosave );
-	READ_NUM_VALUE( umgebung_t::fps );
 	READ_NUM_VALUE( umgebung_t::max_acceleration );
-	READ_NUM_VALUE( umgebung_t::simple_drawing_tile_size );
 
 	READ_BOOL_VALUE( sets->numbered_stations );
 	READ_NUM_VALUE( umgebung_t::show_names );
-	READ_NUM_VALUE( umgebung_t::show_month );
-	READ_BOOL_VALUE( umgebung_t::add_player_name_to_message );
 
 	READ_NUM_VALUE( sets->bits_per_month );
 	READ_NUM_VALUE( sets->use_timeline );
 	READ_NUM_VALUE_NEW( sets->starting_year );
 	READ_NUM_VALUE_NEW( sets->starting_month );
+	READ_NUM_VALUE( umgebung_t::show_month );
 
-	READ_NUM_VALUE( umgebung_t::water_animation );
 	READ_NUM_VALUE( umgebung_t::ground_object_probability );
 	READ_NUM_VALUE( umgebung_t::moving_object_probability );
 
@@ -576,6 +557,54 @@ void settings_general_stats_t::read(settings_t* const sets)
 	READ_BOOL_VALUE( umgebung_t::ground_info );
 	READ_BOOL_VALUE( umgebung_t::townhall_info );
 	READ_BOOL_VALUE( umgebung_t::single_info );
+
+	int selected = savegame.get_selection();
+	if(  0 <= selected  &&  (uint32)selected < lengthof(version)  ) {
+		umgebung_t::savegame_version_str = version[ selected ];
+	}
+
+	const int selected_ex = savegame_ex.get_selection();
+	if (0 <= selected_ex  &&  selected_ex < lengthof(version_ex)) {
+		umgebung_t::savegame_ex_version_str = version_ex[ selected_ex ];
+	}
+}
+
+void settings_display_stats_t::init(settings_t const* const)
+{
+	INIT_INIT
+	INIT_NUM( "frames_per_second",umgebung_t::fps, 10, 25, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "simple_drawing_tile_size",umgebung_t::simple_drawing_default, 2, 256, gui_numberinput_t::POWER2, false );
+	INIT_BOOL( "simple_drawing_fast_forward",umgebung_t::simple_drawing_fast_forward );
+	INIT_NUM( "water_animation_ms", umgebung_t::water_animation, 0, 1000, 25, false );
+	SEPERATOR
+	INIT_BOOL( "window_buttons_right", umgebung_t::window_buttons_right );
+	INIT_BOOL( "window_frame_active", umgebung_t::window_frame_active );
+	INIT_NUM( "front_window_bar_color", umgebung_t::front_window_bar_color, 0, 6, gui_numberinput_t::AUTOLINEAR, 0 );
+	INIT_NUM( "front_window_text_color", umgebung_t::front_window_text_color, 208, 240, gui_numberinput_t::AUTOLINEAR, 0 );
+	INIT_NUM( "bottom_window_bar_color", umgebung_t::bottom_window_bar_color, 0, 6, gui_numberinput_t::AUTOLINEAR, 0 );
+	INIT_NUM( "bottom_window_text_color", umgebung_t::bottom_window_text_color, 208, 240, gui_numberinput_t::AUTOLINEAR, 0 );
+	SEPERATOR
+	INIT_BOOL( "show_tooltips", umgebung_t::show_tooltips );
+	INIT_NUM( "tooltip_background_color", umgebung_t::tooltip_color, 0, 255, 1, 0 );
+	INIT_NUM( "tooltip_text_color", umgebung_t::tooltip_textcolor, 0, 255, 1, 0 );
+	INIT_NUM( "tooltip_delay", umgebung_t::tooltip_delay, 0, 10000, gui_numberinput_t::AUTOLINEAR, 0 );
+	INIT_NUM( "tooltip_duration", umgebung_t::tooltip_duration, 0, 30000, gui_numberinput_t::AUTOLINEAR, 0 );
+	SEPERATOR
+	INIT_NUM( "cursor_overlay_color", umgebung_t::cursor_overlay_color, 0, 255, gui_numberinput_t::AUTOLINEAR, 0 );
+	INIT_BOOL( "left_to_right_graphs", umgebung_t::left_to_right_graphs );
+
+	clear_dirty();
+	set_groesse( settings_stats_t::get_groesse() );
+}
+
+void settings_display_stats_t::read(settings_t* const)
+{
+	READ_INIT
+	// all visual stuff
+	READ_NUM_VALUE( umgebung_t::fps );
+	READ_NUM_VALUE( umgebung_t::simple_drawing_default );
+	READ_BOOL_VALUE( umgebung_t::simple_drawing_fast_forward );
+	READ_NUM_VALUE( umgebung_t::water_animation );
 
 	READ_BOOL_VALUE( umgebung_t::window_buttons_right );
 	READ_BOOL_VALUE( umgebung_t::window_frame_active );
@@ -592,18 +621,7 @@ void settings_general_stats_t::read(settings_t* const sets)
 
 	READ_NUM_VALUE( umgebung_t::cursor_overlay_color );
 	READ_BOOL_VALUE( umgebung_t::left_to_right_graphs );
-
-	int selected = savegame.get_selection();
-	if(  0 <= selected  &&  (uint32)selected < lengthof(version)  ) {
-		umgebung_t::savegame_version_str = version[ selected ];
-	}
-
-	const int selected_ex = savegame_ex.get_selection();
-	if (0 <= selected_ex  &&  selected_ex < lengthof(version_ex)) {
-		umgebung_t::savegame_ex_version_str = version_ex[ selected_ex ];
-	}
 }
-
 
 void settings_routing_stats_t::init(settings_t const* const sets)
 {
@@ -671,6 +689,7 @@ void settings_economy_stats_t::init(settings_t const* const sets)
 	INIT_NUM( "industry_increase_every", sets->get_industry_increase_every(), 0, 100000, 100, false );
 	INIT_NUM( "factory_spacing", sets->get_factory_spacing(), 1, 32767, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "electric_promille", sets->get_electric_promille(), 0, 1000, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_BOOL( "allow_underground_transformers", sets->get_allow_underground_transformers() );
 	SEPERATOR
 	INIT_NUM( "passenger_factor",  sets->get_passenger_factor(), 0, 64, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "city_isolation_factor", sets->get_city_isolation_factor(), 1, 20000, 1, false );
@@ -723,6 +742,8 @@ void settings_economy_stats_t::read(settings_t* const sets)
 	READ_NUM_VALUE( sets->industry_increase );
 	READ_NUM_VALUE( sets->factory_spacing );
 	READ_NUM_VALUE( sets->electric_promille );
+	READ_BOOL_VALUE( sets->allow_underground_transformers );
+
 	READ_NUM_VALUE( sets->passenger_factor );
 	READ_NUM_VALUE( sets->city_isolation_factor );
 	READ_NUM_VALUE( sets->factory_worker_radius );

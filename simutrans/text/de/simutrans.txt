@@ -1,0 +1,28 @@
+<title>Über Simutrans</title>
+
+<h1><strong>Simutrans</strong></h1>
+
+<p>
+Versetze Dich in die Situation eines jungen Transportunternehmers. Du startest mit einem geringen, jedoch ausreichenden Grundkapital. Wähle eine der 10'000 verfügbaren Simutrans-Karten oder lade eine Reliefkarte. Die gleiche Ausgangskarte wird sich bei mehrmaligem Laden immer wieder mit einem anderen Szenario generieren. Als Basis der Generierungen dienen Deine getroffenen Grundeinstellungen.
+</p>
+<p>
+Beurteile die angetroffene Situation. Die Entwicklung der kleinen Welt liegt nun in Deiner Hand. Du kannst etwa den einen oder den anderen Industriezweig erschließen, also Fertigungsbetriebe mit den Produkten der vertragsverbundenen Rohstoffproduzenten beliefern. Baue die benötigten Transportverbindungen. Dir stehen Schiene, Straße und Schifffahrt als Verkehrsträger zur Verfügung. Natürlich können Passagiere und Güter zwischen Verkehrsträgern umsteigen bzw. umgeladen werden.
+</p>
+<p>
+Der Vorteil der Strategie des anfänglichen Gütertransportes besteht darin, mit oft wenig Aufwand nach kurzer Zeit die Mittel für kostenträchtigere Vorhaben zur Verfügung zu haben. Der Nachteil soll nicht verschwiegen werden: Die Städte zeigen derzeit keinerlei Wachstum.
+</p>
+<p>
+Eine andere Strategie besteht darin, vom Spielbeginn an das Wachstum der Städte anzuregen. Werden den Stadtbewohnern Beförderungsmöglichkeiten zur Verfügung gestellt, können sie nun ihre Reiselust ausleben. Doch jeder potentielle Reisende interessiert sich unabhängig von Deinen Linienangeboten für ein ganz bestimmtes Reiseziel. Versuche also, so viele Städte wie möglich zu erschließen, sorge für Verbindungen der Städte untereinander. Achte auch auf die Erschließung der öffentlichen Einrichtungen wie Vergnügungseinrichtungen, Ruinen und sagenumwobene Königschlösser. Viele Touristen werden zu den Sehenswürdigkeiten strömen, ohne die Mären und die Legenden, welche um die oft düsteren Gemäuer ranken, je zerstören zu können. Transportiere auch die anfallende Post der Einwohner.
+</p>
+<p>
+Guter Service spricht sich rum. Je mehr Reisende mit deinem Service zufrieden waren und je mehr Post Du befördern konntest, desto zügiger werden die Städte wachsen. Neuer Wohnraum wird gebaut. Komplette Produktionsketten werden aus dem Boden schießen, als bestände die ganze Welt nur aus Maurern und Polieren. Die Betriebe handeln untereinander Abnahmeverträge aus. Für den expansionsbereiten Transportunternehmer und erfahrenen Logisten entwickeln sich ungeahnte Möglichkeiten.
+</p>
+<p>
+Eine gute Wegeplanung wird Dich bei der optimalen Nutzung der Straßen- und Schienennetze unterstützen. Lass nicht mehr Fahrzeuge in einer Linie fahren, als Bedarf besteht. Knauser aber auch nicht. Vermeide nach Kräften Angebotsengpässe im Reiseverkehr. Ein zur Hälfte ausgelastetes Fahrzeug fährt immer noch profitabel.
+</p>
+<p>
+Es besteht keine zeitliche Beschränkung. Spiele, bis Deine gesteckten Ziele auch wirklich erreicht sind. Du kannst mit bis zu 6 KI-Spielern im Kampf um Märkte und Transportaufträge wetteifern. Schnappe anderen Spielern Passagiere und Güter vor der Nase weg. Vielleicht magst Du auch ganz auf KI-Spieler verzichten? Die Entscheidungen liegen bei Dir. Doch verausgab Dich vor allem in der Frühphase Deines aufstrebenden Unternehmens nicht. Auch Transportunternehmern droht der Konkurs, wenn sie Schulden nicht fristgerecht tilgen können.
+</p>
+<p>
+Das <strong>Simutrans-Team</strong> und die nach Kräften mitwirkende Community wünschen Dir viel Langzeitspaß und grauzellen-trainierende Knobelkuren bei der Erkundung und der Erschließung völlig individueller Welten.
+</p>

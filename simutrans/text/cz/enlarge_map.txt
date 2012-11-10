@@ -1,0 +1,11 @@
+<title>Nápovìda - Zmìnit velikost mapy</title>
+<h1><strong>Zmìnit velikost mapy</strong></h1>
+<p>Dialog slou¾í k roz¹íøení ji¾ vytvoøené mapy. </p>
+<p>Mapu lze roz¹íøit smìrem vpravo a smìrem dolu. Pokud chcete mapu roz¹íøit jiným smìrem, otoète ji, zvìt¹ete ji a otoète zpìt.<br>
+Tip: K otoèení pou¾ijte klávesu <a href="keys.txt">R</a>.</p>
+<p>Budoucí velikost mapy lze zadat pomocí klavesnice nebo ¹ipkami na stranách políèka. <br>
+<em>Horní políèko</em> slou¾í k zadání rozmìru zleva doprava, <em>druhé políèko</em> k zadání rozmìru shora dolu.</p>
+<p>Nejvìt¹í ètvercová mapa má delku strany 4096 políèek, nejvìt¹í obdélníková mapa má delku strany 8192 polí (pøi délce krat¹í strany 2048 polí).
+</p>
+<p><em>Poèet mìst</em> je poètem novì vytvoøených mìst.</p>
+<p><em>Medián</em> ovlivòuje poèet obyvatel v novì vytváøených mìstech.</p>

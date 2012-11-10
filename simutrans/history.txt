@@ -1,3 +1,37 @@
+Release of 111.3 (r5772 on 10-Jun-2012):
+	FIX: race condition with multithreads on GDI
+	CHG: savegames will be saved as "_temp.sve" and only renamed after after success to the final name
+	ADD: screen redraw will be now up to 50% faster when needed thanks to multi-threading
+	ADD: hashtables for animations and smoke => much faster adding/removing
+	ADD: (from yorkeiser/prissi) line display in minimap (toggle with show schedule together with pax, mail, freight button) CONTRL will use player colors
+	CNG: Order and function of many minimap buttons rearranged
+	ADD: enable dragging of lower & raise tools in network mode
+	ADD: enable dragging of bridge, tunnel, elevated way tools in network mode
+	ADD: zoomlevel in minimap from -16 to 16
+	ADD: Start paksetdownloaded, when started without paksets
+	FIX: (z9999+) Corrected speedbonus base faktor calculations
+	FIX: (z9999+) Nickname in chat also send to server for reloads
+	FIX: (installer/pakset updater) better finding out if portable installation is needed
+	ADD: change of waiting at stops option in minimap
+	CHG: Withdraw all will not disassemble convois in depots for easier upgrading
+	FIX: route search for runways with oneway signs was broken
+	FIX: main menu was not updated when new modes of transport became available
+	ADD: (kierongreen) powerline tunnels: allow_undergroud_transformers=1 (default) will allow transformers below ground
+	FIX: deleting tunnel ground was booked twice
+	FIX: deleting tunnel ground charged for way on tunnel, which is not charged when building
+	CHG: Only founding a city when account is positive
+	CHG: powerlines will connect in directions a powerline can be build on a tile
+	ADD: threaded (but with graphic errors) tile redraw will by used automatically when fps too low
+
+
+Release of 111.2.2 (r5583 on 20-Mar-2012):
+	CHG: Simutrans help will now always display left the help index and right the actual help => easier navigation and only one window always
+	ADD: nickname for players, enable chat for observers, add messages when players join / change nick / leave
+	FIX: deletion of stops on bridgehead with trams
+	FIX: extended setting of bool was broken
+	FIX: track reservation now saved with game (less deadlocks on load)
+
+
 Release of 111.2.1 (r5434 on 28-Feb-2012): (111.2 had a severe bug with zipped games)
 	ADD: more info on bare ground
 	ADD: show ownership in minimap
@@ -6347,8 +6381,7 @@ You can use this version with the 0.81.35exp base package.
 06/01/01 - CHANGE: Changed a lot of printf calls to calls to the new
                    debug/logging class, rated as "Message", "Warning",
                    "Error" and "Fatal error". Fatal error quit the program
-                   immediately. Please report all "Error" and "Fatal error"
-                   messages to me <hansjoerg.malthaner@gmx.de>
+                   immediately.
 
 05/27/01 - NEW: Added more error detections to the id_handle template
                 (tombstone id checks). This checks should catch about 50% of

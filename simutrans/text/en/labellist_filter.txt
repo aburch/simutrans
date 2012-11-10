@@ -1,0 +1,10 @@
+<title>List of Signs</title>
+
+<h1><strong>List of player signs</strong></h1>
+
+<p>
+Here, all signs on the map are listed.
+<br>
+The option <em>Active player only</em> shows only signs of the active player.
+</p>
+By clicking on a entry, you can edit the text there.

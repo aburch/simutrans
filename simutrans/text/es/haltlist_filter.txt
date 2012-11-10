@@ -1,0 +1,38 @@
+<title>Filtro de la Lista de Estaciones</title>
+
+<h1><strong>Filtro de la Lista de Estaciones</strong></h1>
+
+<p>
+<strong>Filtro de la Lista de Estaciones</strong> tiene opciones que determinan que <a href="station.txt">Paradas</a> (pero no se incluyen las paradas de barcos), donde los vehiculos cargan y descargan pasajeros, se muestran en la <a href="haltlist.txt">Lista de Estaciones</a> .
+</p>
+<p>
+Pulsa en <a href="haltlist.txt">Opciones</a> en la Lista de Estaciones para abrir el <strong>Filtro de la Lista de Estaciones</strong>.
+</p>
+<p>
+Los botones de opcion seleccionan <a href="station.txt">Paradas</a> de la Lista de Estaciones cuando la opcion del filtro esta <a href="haltlist.txt">activa</a>. Solo se muestran las Paradas que cumplen dichos criterios.
+</p>
+<p>
+Pulsa en un boton para seleccionar/deseleccionar criterios de filtrado (el boton se oscurece cuando lo seleccionas):
+</p>
+<p>
+<em>Filtrar nombres:</em> selecciona las <a href="station.txt">Paradas</a> por nombre. Para usarlo: pulsa en el boton para seleccionar, pulsa en la caja de texto y escribe el nombre exacto requerido (distingue entre mayusculas y minusculas).
+</p>
+<p>
+<em>Filtrar tipos:</em> listara las <a href="station.txt">Paradas</a> que tengan al menos uno de los elementos seleccionados. Para usarlo: pulsa en los botones. (Las paradas de barcos no aparecen en la Lista de Paradas)
+</p>
+<p><em>Filtro Especial :</em><br>
+- <em>desbordamiento</em> no esta en uso.<br>
+- <em>sin conexion</em> selecciona las <a href="station.txt">Paradas</a> sin servicio de transporte.
+</p>
+<p>
+<em>Tipo de carga:</em> hace referencia a las <a href="station.txt">Paradas</a> que son el destino final de los elementos seleccionados. Pulsa en el boton junto al nombre para seleccionar los elementos. Usa la <a href="mouse.txt">barra de desplazamiento</a> para desplazar los elementos de la lista. Entre la opciones se incluyen:<br>
+- <em>todo</em> selecciona todos los elementos.<br>
+- <em>nada</em> no selecciona ningun elemento.<br>
+- <em>inv.</em> invierte la seleccion actual de elementos.
+</p>
+<p>
+<em>Produccion:</em> hace referencia a las <a href="station.txt">Paradas</a> que son el origen de los elementos seleccionados. Pulsa en el boton junto al nombre para seleccionar los elementos. Usa la <a href="mouse.txt">barra de desplazamiento</a> para desplazar los elementos de la lista. Entre la opciones se incluyen:<br>
+- <em>todo</em> selecciona todos los elementos.<br>
+- <em>nada</em> no selecciona ningun elemento.<br>
+- <em>inv.</em> invierte la seleccion actual de elementos.
+</p>

@@ -325,9 +325,9 @@ static void win_draw_window_title(const koord pos, const koord gr,
 	// Draw the gadgets and then move left and draw text.
 	flags.gotopos = (welt_pos != koord3d::invalid);
 	int width = display_gadget_boxes( &flags, pos.x+(REVERSE_GADGETS?0:gr.x-20), pos.y, titel_farbe, closing, sticky );
-	int titlewidth = display_proportional_clip( pos.x + (REVERSE_GADGETS?width+4:4), pos.y+(16-large_font_height)/2, text, ALIGN_LEFT, text_farbe, false );
+	int titlewidth = display_proportional_clip( pos.x + (REVERSE_GADGETS?width+4:4), pos.y+(16-LINEASCENT)/2, text, ALIGN_LEFT, text_farbe, false );
 	if(  flags.gotopos  ) {
-		display_proportional_clip( pos.x + (REVERSE_GADGETS?width+4:4)+titlewidth+8, pos.y+(16-large_font_height)/2, welt_pos.get_2d().get_fullstr(), ALIGN_LEFT, text_farbe, false );
+		display_proportional_clip( pos.x + (REVERSE_GADGETS?width+4:4)+titlewidth+8, pos.y+(16-LINEASCENT)/2, welt_pos.get_2d().get_fullstr(), ALIGN_LEFT, text_farbe, false );
 	}
 	POP_CLIP();
 }
@@ -832,7 +832,7 @@ void display_all_win()
 	const sint16 x = get_maus_x();
 	const sint16 y = get_maus_y();
 	tooltip_element = NULL;
-	for(  int i=wins.get_count()-1;  i>=0;  i--  ) {
+	for(  uint32 i = wins.get_count(); i-- != 0;  ) {
 		if(  (!wins[i].rollup  &&  wins[i].gui->getroffen(x-wins[i].pos.x,y-wins[i].pos.y))  ||
 		     (wins[i].rollup  &&  x>=wins[i].pos.x  &&  x<wins[i].pos.x+wins[i].gui->get_fenstergroesse().x  &&  y>=wins[i].pos.y  &&  y<wins[i].pos.y+16)
 		) {
@@ -1076,32 +1076,22 @@ bool win_is_open(gui_frame_t *gui)
 
 
 
-int win_get_posx(gui_frame_t *gui)
+koord const& win_get_pos(gui_frame_t const* const gui)
 {
-	for(  int i=wins.get_count()-1;  i>=0;  i--  ) {
-		if(wins[i].gui == gui) {
-			return wins[i].pos.x;
+	for(  uint32 i = wins.get_count(); i-- != 0;  ) {
+		if(  wins[i].gui == gui  ) {
+			return wins[i].pos;
 		}
 	}
-	return -1;
-}
-
-
-int win_get_posy(gui_frame_t *gui)
-{
-	for(  int i=wins.get_count()-1;  i>=0;  i--  ) {
-		if(wins[i].gui == gui) {
-			return wins[i].pos.y;
-		}
-	}
-	return -1;
+	static koord const bad(-1, -1);
+	return bad;
 }
 
 
 void win_set_pos(gui_frame_t *gui, int x, int y)
 {
-	for(  int i=wins.get_count()-1;  i>=0;  i--  ) {
-		if(wins[i].gui == gui) {
+	for(  uint32 i = wins.get_count(); i-- != 0;  ) {
+		if(  wins[i].gui == gui  ) {
 			wins[i].pos.x = x;
 			wins[i].pos.y = y;
 			const koord gr = wins[i].gui->get_fenstergroesse();
@@ -1164,7 +1154,7 @@ bool check_pos_win(event_t *ev)
 
 	// cursor event only go to top window (but not if rolled up)
 	if(  ev->ev_class == EVENT_KEYBOARD  &&  !wins.empty()  ) {
-		simwin_t&               win  = wins.back();
+		simwin_t &win  = wins.back();
 		if(  !win.rollup  )  {
 			inside_event_handling = win.gui;
 			swallowed = win.gui->infowin_event(ev);
@@ -1252,8 +1242,7 @@ bool check_pos_win(event_t *ev)
 						break;
 					case GADGET_HELP :
 						if (IS_LEFTCLICK(ev)) {
-							create_win(new help_frame_t(wins[i].gui->get_hilfe_datei()), w_info, (long)(wins[i].gui->get_hilfe_datei()) );
-							inside_event_handling = 0;
+							help_frame_t::open_help_on( wins[i].gui->get_hilfe_datei() );
 						}
 						break;
 					case GADGET_PREV:
@@ -1370,12 +1359,13 @@ void win_display_flush(double konto)
 	// display main menu
 	werkzeug_waehler_t *main_menu = werkzeug_t::toolbar_tool[0]->get_werkzeug_waehler();
 	display_set_clip_wh( 0, 0, disp_width, menu_height+1 );
-	display_fillbox_wh(0, 0, disp_width, menu_height, MN_GREY2, false);
+	display_fillbox_wh( 0, 0, disp_width, menu_height, MN_GREY2, false );
 	// .. extra logic to enable tooltips
 	tooltip_element = menu_height > get_maus_y() ? main_menu : NULL;
+	void *old_inside_event_handling = inside_event_handling;
 	inside_event_handling = main_menu;
-	main_menu->zeichnen(koord(0,-16), koord(disp_width,menu_height) );
-	inside_event_handling = NULL;
+	main_menu->zeichnen( koord(0,-16), koord(disp_width,menu_height) );
+	inside_event_handling = old_inside_event_handling;
 
 	// redraw all?
 	if(windows_dirty) {
@@ -1626,23 +1616,7 @@ void win_set_welt(karte_t *welt)
 
 bool win_change_zoom_factor(bool magnify)
 {
-	bool ok = magnify ? zoom_factor_up() : zoom_factor_down();
-	if(ok) {
-		event_t ev;
-
-		ev.ev_class = WINDOW_REZOOM;
-		ev.ev_code = get_tile_raster_width();
-		ev.mx = 0;
-		ev.my = 0;
-		ev.cx = 0;
-		ev.cy = 0;
-		ev.button_state = 0;
-
-		for(  sint32 i=wins.get_count()-1;  i>=0;  i=min(i,(int)wins.get_count())-1  ) {
-			wins[i].gui->infowin_event(&ev);
-		}
-	}
-	return ok;
+	return magnify ? zoom_factor_up() : zoom_factor_down();
 }
 
 

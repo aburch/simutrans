@@ -8,6 +8,7 @@
 
 class cbuffer_t;
 class grund_t;
+class spieler_t;
 class karte_t;
 
 
@@ -150,6 +151,19 @@ public:
 	void set_bidirectional(bool bidirec = true ) { bidirectional = bidirec; }
 	void set_mirrored(bool mir = true ) { mirrored = mir; }
 	void set_same_spacing_shift(bool s = true) { same_spacing_shift = s; }
+
+	/*
+	 * compare this fahrplan with another, ignoring order and exact positions and waypoints
+	 * @author prissi
+	 */
+	bool similar( karte_t *welt, const schedule_t *fpl, const spieler_t *sp );
+
+	/**
+	 * calculates a return way for this schedule
+	 * will add elements 1 to maxi-1 in reverse order to schedule
+	 * @author hsiegeln
+	 */
+	void add_return_way();
 
 	virtual schedule_t* copy() = 0;//{ return new schedule_t(this); }
 

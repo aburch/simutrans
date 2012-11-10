@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hj. Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -17,7 +17,8 @@
 #include "../dataobj/umgebung.h"
 
 /**
- * Bäume in Simutrans.
+ * Simulated trees for Simutrans.
+ *
  * @author Hj. Malthaner
  */
 class baum_t : public ding_t
@@ -25,16 +26,17 @@ class baum_t : public ding_t
 private:
 	static PLAYER_COLOR_VAL outline_color;
 
-	// month of birth
+	/** month of birth */
 	uint16 geburt;
 
-	// type of tree (was 9 but for more compact saves now only 254 different ree types are allowed)
+	/** type of tree (was 9 but for more compact saves now only 254 different ree types are allowed) */
 	uint8 baumtype;
 
 	uint8 season:3;
 
-	// z-offset, max TILE_HEIGHT_STEP ie 4 bits
+	/** z-offset, max TILE_HEIGHT_STEP ie 4 bits */
 	uint8 zoff:4;
+
 	// one bit free ;)
 
 	// static for administration
@@ -54,8 +56,10 @@ private:
 	static uint8 plant_tree_on_coordinate(karte_t *welt, koord pos, const uint8 maximum_count, const uint8 count);
 
 public:
-	// only the load save constructor should be called outside
-	// otherwise I suggest use the plant tree function (see below)
+	/**
+	 * Only the load save constructor should be called outside
+	 * otherwise I suggest use the plant tree function (see below)
+	 */
 	baum_t(karte_t *welt, loadsave_t *file);
 	baum_t(karte_t *welt, koord3d pos);
 	baum_t(karte_t *welt, koord3d pos, uint8 type, sint32 age, uint8 slope );
@@ -67,14 +71,16 @@ public:
 
 	image_id get_bild() const;
 
-	// hide trees eventually with transparency
+	/**
+	 * hide trees eventually with transparency
+	 */
 	PLAYER_COLOR_VAL get_outline_colour() const { return outline_color; }
 	image_id get_outline_bild() const;
 
 	static void recalc_outline_color() { outline_color = (umgebung_t::hide_trees  &&  umgebung_t::hide_with_transparency) ? (TRANSPARENT25_FLAG | OUTLINE_FLAG | COL_BLACK) : 0; }
 
 	/**
-	 * Berechnet Alter und Bild abhängig vom Alter
+	 * Calculates tree image dependent on tree age
 	 * @author Hj. Malthaner
 	 */
 	void calc_bild();

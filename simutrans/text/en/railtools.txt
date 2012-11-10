@@ -1,0 +1,75 @@
+<title>Railroad Tools</title>
+
+<h1><strong>>Railroad/Train/Rail Tools</strong></h1>
+
+<p>
+<strong>Railroad Tools</strong> construct a train transport network. Tools may build: railtrack (and electrify or remove it); bridges; tunnels; signals; depots; station platforms; & extensions. If playing with <a href="new_world.txt">timeline</a>, then as time passes in Simutrans more tool-options may appear.
+</p>
+<p>
+Click train-icon at top of game-view to open toolbar. Hover mouse-cursor over tool-option (after opening or clicking on toolbar) to see name & where appropriate: construction <a href="finances.txt">cost</a>, maintenance cost in brackets, maximum speed limit & maximum length.
+</p>
+<p>
+<strong>?Railroad Tools</strong> include, from left to right:
+</p>
+<p>
+<em>Rail Track:</em> tools build Tracks for rail vehicles between two points. Tracks can only be built on slopes in the direction of the slope & may not find a path across rough terrain, water and obstructions. New Track built, may use existing Track in its path.<br>
+To build Track: click on tool to select Track (changes cursor to Track), then click on game-view for start-point of Track (shows a bulldozer in game-view and map co-ordinates on right of bottom-bar under game-view), & finally click on game-view for end-point for Track.<br>
+{Tips: Different types of Tracks may connect (however not when built by some other <a href="players.txt">players</a>). Use bridges & tunnels to connect tracks across rough terrain, or to avoid obstructions. Use <a href="slopetools.txt"> Landscape tools</a> to change terrain, to enable paths for Track. Use Destroy/Remove to remove individual pieces of Track & some obstructions. Use <a href="keys.txt">[Ctrl]</a> at same time for extra functions. Press [t] to select last Track tool used.}
+</p>
+<p>
+<em>
+Electrify Track:</em> tools electrify Track, bridges and tunnels between two points in game-view, for electric vehicles.<br>
+To electrify Track: click on tool or press [e] (changes cursor to electric-track-icon) to select, then click on Track in game-view for start-point of electrification (places a electric-track-icon in game-view), & finally click on a second point on track, to electrify portion of track up to start-point.<br>
+{Tips: Use Destroy/Remove to change back to non-electric tracks.}
+</p>
+<p>
+<em>Remove Tracks:</em> tool removes Track & electric Track, when no vehicles are present, between two points in game-view (Please note: platforms, signals, tunnels & bridges in path are removed too). Use of tool incurs a <a href="finances.txt">construction cost</a>.<br>
+To remove Track: click on tool (changes cursor to a red-cross); then click on Track (selects deletion-point shown by a red-cross in game-view); & finally click at second point on track, to remove portion up to first deletion-point.<br>
+{Tips: Operate as another player to remove their Tracks.}
+</p>
+<p>
+<em>Rail Bridge:</em> tools build straight bridges, for rail vehicles to pass, between two pieces of Track in game-view. Bridges have a maximum span.<br>
+Tools build bridges from an end of a Track to a suitable place (another Track-end or slightly higher land, within span).<br>
+To build a bridge: click on tool to select (changes cursor to bridge), then click on the end of a Track (start-point of bridge) to build.<br>
+Some obstructions or lack of a suitable place for bridge-ends will prevent bridge being built: place Track at both sides that is to be bridged, & try again.<br>
+{Tips: Use Destroy/Remove to remove bridges (click on bridge-end) & some obstructions to bridge building. Use Track tools to connect bridge-ends to Track.}
+</p>
+<p>
+<em>Rail Tunnel:</em>
+tool builds a straight tunnel, for rail vehicles to pass through land, between two pieces of Track in game-view. Tunnels cannot incline: vehicles enter & leave at the same height.<br>
+The tool builds a tunnel, on an end of Track placed on a slope. To build a tunnel: click on tool (changes cursor to a tunnel), then click on Track-end on slope for the tunnel entrance.<br>
+If a tunnel cannot find a suitable exit (a slope free from obstructions), it will not be built: place Track on both sides that is to be connected, & try again.<br>
+{Tips: Use Landscape tools & Destroy/Remove to create suitable places for tunnel entrances and exits. Use Track tools to connect tunnel-exits to Track.}
+</p>
+
+<p>
+<em>Rail Signals:</em> tools build signals for rail vehicles on a Track in game-view. Signals direct & regulate flow of vehicles on Tracks & bridges, junctions & <a href="station.txt">Stops</a>.<br>
+Two-way & one-way versions of signals can be built. To build a two-way signal on Track: click on tool to select signal (changes cursor to signals); then click on Track. To build a one-way signal: click again at same point, with signals-cursor, to cycle through one-way signals, back to a two-way signal.<br>
+IMPORTANT: Take care not to place one-way signals that prevent vehicles reaching their destination, by default vehicles drive on the right (can be changed in simuconf.tab).<br>
+If you hold the control key when clicking on a signal, the <a href="signal_spacing.txt">multiple signal builder</a> is activated.
+<br>
+- <em>Signals:</em> vehicles proceed only if Track ahead up to next signal or destination in <a href="schedule.txt">Schedule</a> (a <a href="station.txt">Stop</a> or waypoint) is not occupied by another vehicle. In one-way mode vehicles pass in one direction only.<br>
+- <em>RailClose:</em> vehicles do not proceed beyond signal (available in one-way mode only).<br>
+- <em>PreSignals:</em> vehicles proceed if area of Track ahead (either between three consecutive signals or to next destination in <a href="schedule.txt">Schedule</a>) is not occupied by another vehicle. In one-way mode they let vehicles pass in one direction only.<br>
+- <em>ChooseSignals:</em> direct vehicles to an empty station-platform, at a multi-platform Stop: a vehicle passing this signal may use any empty platform at its next destination, and not just the one assigned in its <a href="schedule.txt">schedule</a>. If no empty platform or clear route to next destination is found, then vehicles wait at signal.<br>
+{Tips:  Remove signals with Destroy/Remove. Hold down [Ctrl] to place signals on bridges over lower Tracks.}
+</p>
+<p>
+<em>Train</em> <a href="depot.txt"><em>Depot:</em></a> tool builds a depot for purchasing & managing trains and carriages. Depots have a maintenance cost & are built on the end of Track in game-view.<br>
+To build a train depot: click on tool (changes cursor to a depot), then click on end of track.<br>
+{Tips: Remove depots with Destroy/Remove. Depots show electric vehicles only if on electric track.}
+</p>
+<p>
+<em>?Rail-stops:</em> tools build station-platforms, used by rail vehicles to pick-up and drop-off goods, passengers & mail.<br>
+A station-platform when not built adjacent to an existing <a href="station.txt">Stop</a> will create a new Stop. <br>
+Rail-stops have a maintenance cost & are built on Track (but not at bends and junctions in Track). <br>
+Rail-stops have a catchment area for goods, passengers & mail. Different station-platforms may have different capacities for goods, passengers & mail. In the corner of some tool-options an icon (used in <a href="haltlist.txt">Station List</a> & Stop Information) shows which items the station-platform allows a Stop to handle.<br>
+To build a station-platform: click on tool to select (changes cursor to a platform), then click on Track.<br>
+{Tips: Remove Rail-stops with Destroy/Remove. Extend station-platforms & build multi-platform Stops (by building more platform sections on adjacent track) to accommodate longer and more vehicles, increase capacity & catchment area. Press [v] to show/hide catchment area for goods & passengers in game-view. Hold down [Ctrl] to build on bridges above lower Tracks.}
+</p>
+<p>
+<em>Extensions:</em>tools construct extensions & buildings for <a href="station.txt">Stops</a> which may increase capacity, catchment area and maintenance cost.<br>
+In the corner of some tool-options an icon (also used in Station List & Stop Information) shows which items the extension allows the Stop to handle.<br>
+To build an extension: click on tool to select (changes cursor to extension), then click required position, beside an existing Stop, in game-view. The new extension is now considered to be part of the Stop.<br>
+{Tips: Remove extensions with Destroy/Remove.}
+</p>

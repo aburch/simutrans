@@ -289,7 +289,7 @@ halthandle_t haltestelle_t::create(karte_t *welt, loadsave_t *file)
  * Station destruction method.
  * @author Hj. Malthaner
  */
-void haltestelle_t::destroy(halthandle_t &halt)
+void haltestelle_t::destroy(halthandle_t const halt)
 {
 	// just play safe: restart iterator at zero ...
 	restart_halt_iterator = true;
@@ -507,10 +507,8 @@ haltestelle_t::~haltestelle_t()
 	const uint8 max_categories = warenbauer_t::get_max_catg_index();
 
 	for(uint8 i = 0; i < max_categories; i++) {
-		if(waren[i]) {
-			delete waren[i];
-			waren[i] = NULL;
-		}
+		delete waren[i];
+		waren[i] = NULL;
 	}
 	free( waren );
 	
@@ -540,10 +538,10 @@ void haltestelle_t::rotate90( const sint16 y_size )
 	{
 		if(waren[i]) 
 		{
-			vector_tpl<ware_t> * warray = waren[i];
-			for(int j = warray->get_count() - 1; j >= 0; j--) 
+			vector_tpl<ware_t> & warray = *waren[i];
+			for(size_t j = warray.get_count() - 1; j >= 0; j--) 
 			{
-				ware_t & ware = (*warray)[j];
+				ware_t & ware = warray[j];
 				if(ware.menge > 0) 
 				{
 					koord k = ware.get_zielpos();
@@ -555,7 +553,7 @@ void haltestelle_t::rotate90( const sint16 y_size )
 				else 
 				{
 					// empty => remove
-					(*warray).remove_at( j );
+					warray.remove_at(j);
 				}
 			}
 		}
@@ -701,7 +699,7 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 				int this_distance = 999;
 				FOR(slist_tpl<fabrik_t*>, const f, get_fab_list()) {
 					int distance = koord_distance(f->get_pos().get_2d(), k);
-					if (distance < this_distance) {
+					if(  distance < this_distance  ) {
 						fabs.insert(f);
 						this_distance = distance;
 					}
@@ -915,10 +913,11 @@ void haltestelle_t::request_loading( convoihandle_t cnv )
 		// now iterate over all convois
 		for(  slist_tpl<convoihandle_t>::iterator i = loading_here.begin(), end = loading_here.end();  i != end;  ) 
 		{
-			if(  (*i).is_bound()  &&  ((*i)->get_state()==convoi_t::LOADING || (*i)->get_state()==convoi_t::REVERSING) ) 
+			convoihandle_t const c = *i;
+			if (c.is_bound() && (c->get_state() == convoi_t::LOADING || c->get_state() == convoi_t::REVERSING)) 
 			{
 				// now we load into convoi
-				(*i)->hat_gehalten( self );
+				c->hat_gehalten(self);
 				++i;
 			}
 			else 
@@ -1107,6 +1106,8 @@ void haltestelle_t::neuer_monat()
 		}
 		financial_history[0][j] = 0;
 	}
+	// number of waitung should be constant ...
+	financial_history[0][HALT_WAITING] = financial_history[1][HALT_WAITING];
 }
 
 
@@ -2102,8 +2103,10 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 			// arriving passenger may create pedestrians
 			if(welt->get_settings().get_show_pax()) {
 				int menge = ware.menge;
-				FOR(slist_tpl<tile_t>, const& i, tiles) {
-					if (menge <= 0) break;
+				FOR( slist_tpl<tile_t>, const& i, tiles ) {
+					if (menge <= 0) {
+						break;
+					}
 					menge = erzeuge_fussgaenger(welt, i.grund->get_pos(), menge);
 				}
 				INT_CHECK("simhalt 938");
@@ -2208,15 +2211,15 @@ haltestelle_t::quote_bezeichnung(int quote, convoihandle_t cnv) const
 
 void haltestelle_t::info(cbuffer_t & buf) const
 {
-	buf.printf(
-		translator::translate("Passengers %d %c, %d %c, %d no route, %d too slow"),
-		get_pax_happy(),
-		30,
-		get_pax_unhappy(),
-		31,
-		get_pax_no_route(),
-		get_pax_too_slow()
-		);
+	if(  translator::get_lang()->utf_encoded  ) {
+		utf8 happy[4], unhappy[4];
+		happy[ utf16_to_utf8( 0x263A, happy ) ] = 0;
+		unhappy[ utf16_to_utf8( 0x2639, unhappy ) ] = 0;
+		buf.printf(translator::translate("Passengers %d %s, %d %s, %d no route, %d too slow"), get_pax_happy(), happy, get_pax_unhappy(), unhappy, get_pax_no_route(), get_pax_too_slow());
+	}
+	else {
+		buf.printf(translator::translate("Passengers %d %c, %d %c, %d no route, %d too slow"), get_pax_happy(), 30, get_pax_unhappy(), 31, get_pax_no_route(), get_pax_too_slow());
+	}
 	buf.append("\n\n");
 }
 
@@ -2236,7 +2239,7 @@ void haltestelle_t::get_freight_info(cbuffer_t & buf)
 		for(unsigned i=0; i<warenbauer_t::get_max_catg_index(); i++) {
 			const vector_tpl<ware_t> * warray = waren[i];
 			if(warray) {
-				freight_list_sorter_t::sort_freight(warray, buf, (freight_list_sorter_t::sort_mode_t)sortierung, NULL, "waiting", welt);
+				freight_list_sorter_t::sort_freight(*warray, buf, (freight_list_sorter_t::sort_mode_t)sortierung, NULL, "waiting", welt);
 			}
 		}
 	}
@@ -2851,7 +2854,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 	else
 	{
 		// Earlier versions did not have pax_too_slow
-		for (int j = 0; j < 8 /*MAX_HALT_COST - 1*/; j++) 
+		for (int j = 0; j < 8 /*MAX_HALT_COST*/; j++) 
 		{
 			for (int k = MAX_MONTHS - 1; k >= 0; k--) 
 			{
@@ -3132,8 +3135,7 @@ void haltestelle_t::init_financial_history()
 {
 	for (int j = 0; j<MAX_HALT_COST; j++)
 	{
-		for (int k = MAX_MONTHS-1; k>=0; k--)
-		{
+		for (size_t k = MAX_MONTHS; k-- != 0;) {
 			financial_history[k][j] = 0;
 		}
 	}
@@ -3183,12 +3185,12 @@ void haltestelle_t::recalc_status()
 	if(status_color!=COL_RED  &&  get_ware_enabled()) {
 		const int count = warenbauer_t::get_waren_anzahl();
 		const uint32 max_ware = get_capacity(2);
-		for( int i=2; i+1<count; i++) {
-			const ware_besch_t *wtyp = warenbauer_t::get_info(i+1);
+		for (int i = 3; i < count; ++i) {
+			ware_besch_t const* const wtyp = warenbauer_t::get_info(i);
 			const uint32 ware_sum = get_ware_summe(wtyp);
 			total_sum += ware_sum;
 			if(ware_sum>max_ware) {
-				status_bits |= (ware_sum>max_ware+32  ||  CROWDED) ? 2 : 1;
+				status_bits |= ware_sum > max_ware + 32 || enables & CROWDED ? 2 : 1;
 				overcrowded[wtyp->get_catg_index()/8] |= 1<<(wtyp->get_catg_index()%8);
 			}
 		}
@@ -3403,7 +3405,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 	// first tile => remove name from this tile ...
 	char buf[256];
 	const char* station_name_to_transfer = NULL;
-	if (i == tiles.begin()  &&  (*i).grund->get_name()) {
+	if (i == tiles.begin() && i->grund->get_name()) {
 		tstrncpy(buf, get_name(), lengthof(buf));
 		station_name_to_transfer = buf;
 		set_name(NULL);
@@ -3456,7 +3458,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 	verbinde_fabriken();
 
 	// remove lines eventually
-	for(  int j=registered_lines.get_count()-1;  j>=0;  j--  ) {
+	for (size_t j = registered_lines.get_count(); j-- != 0;) {
 		bool ok=false;
 		FOR(minivec_tpl<linieneintrag_t>, const& k, registered_lines[j]->get_schedule()->eintrag) {
 			if (get_halt(welt, k.pos, registered_lines[j]->get_besitzer()) == self) {
@@ -3471,7 +3473,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 	}
 
 	// Knightly : remove registered lineless convoys as well
-	for(  int j=registered_convoys.get_count()-1;  j>=0;  --j  ) {
+	for (size_t j = registered_convoys.get_count(); j-- != 0;) {
 		bool ok = false;
 		FOR(minivec_tpl<linieneintrag_t>, const& k, registered_convoys[j]->get_schedule()->eintrag) {
 			if (get_halt(welt, k.pos, registered_convoys[j]->get_besitzer()) == self) {

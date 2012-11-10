@@ -10,12 +10,15 @@
 #include "../simgraph.h"
 #include "../simwin.h"
 #include "../utils/simstring.h"
+#include "../utils/cbuffer_t.h"
+#include "../utils/csv.h"
 #include "../simversion.h"
 
-#include "components/list_button.h"
+
 #include "../dataobj/translator.h"
 #include "../dataobj/network.h"
 #include "../dataobj/network_file_transfer.h"
+#include "../dataobj/network_cmd_ingame.h"
 #include "../dataobj/network_cmp_pakset.h"
 #include "../dataobj/umgebung.h"
 #include "../dataobj/pakset_info.h"
@@ -24,100 +27,207 @@
 #include "messagebox.h"
 #include "help_frame.h"
 
-
+static char nick_buf[256];
+char server_frame_t::newserver_name[2048] = "";
 
 server_frame_t::server_frame_t(karte_t* w) :
 	gui_frame_t( translator::translate("Game info") ),
 	welt(w),
-	gi(welt)
+	gi(welt),
+	serverlist( gui_scrolled_list_t::select )
 {
 	update_info();
+	display_map = true;
 
-	sint16 pos_y = 4;
+	const int ww = !umgebung_t::networkmode ? 320 : 280;  // Window width
+	sint16 pos_y = D_MARGIN_TOP;      // Initial location
 
-	// only show serverlist, when not already in network mode
-	if(  !umgebung_t::networkmode  ) {
-		serverlist.set_pos( koord(2,pos_y) );
-		serverlist.set_groesse( koord(236,BUTTON_HEIGHT) );
-		serverlist.add_listener(this);
+	// When in network mode, display only local map info (and nickname changer)
+	// When not in network mode, display server picker
+	if (  !umgebung_t::networkmode  ) {
+		info_list.set_pos( koord( D_MARGIN_LEFT, pos_y ) );
+		info_list.set_text( "Select a server to join:" );
+		add_komponente( &info_list );
+		pos_y += LINESPACE;
+		pos_y += D_V_SPACE;
+
+		// Server listing
+		const int serverlist_height = D_BUTTON_HEIGHT * 6;
+		serverlist.set_pos( koord( D_MARGIN_LEFT, pos_y ) );
+		serverlist.set_groesse( koord( ww - D_MARGIN_LEFT - D_MARGIN_RIGHT, serverlist_height ) );
+		serverlist.add_listener( this );
 		serverlist.set_selection( 0 );
+		serverlist.set_highlight_color( 0 );
 		add_komponente( &serverlist );
-		pos_y += 6+BUTTON_HEIGHT;
 
-		add.init( button_t::box, "add server", koord( 4, pos_y ), koord( 112, BUTTON_HEIGHT) );
-		add.add_listener(this);
 		add_komponente( &add );
 
-		if(  !show_all_rev.pressed  ) {
-			show_all_rev.init( button_t::square_state, "Show all", koord( 124, pos_y+2 ), koord( 112, BUTTON_HEIGHT) );
-			show_all_rev.set_tooltip( "Show even servers with wrong version or pakset" );
-			show_all_rev.add_listener(this);
-			add_komponente( &show_all_rev );
+		pos_y += serverlist_height;
+		pos_y += D_V_SPACE;
+
+		// Show mismatched checkbox
+		if (  !show_mismatched.pressed  ) {
+			show_mismatched.init( button_t::square_state, "Show mismatched", koord( D_MARGIN_LEFT, pos_y ), koord( (ww - D_MARGIN_LEFT - D_H_SPACE - D_MARGIN_RIGHT) / 2, D_BUTTON_HEIGHT) );
+			show_mismatched.set_tooltip( "Show servers where game version or pakset does not match your client" );
+			show_mismatched.add_listener( this );
+			add_komponente( &show_mismatched );
 		}
-		pos_y += BUTTON_HEIGHT+8;
+
+		// Show offline checkbox
+		if (  !show_offline.pressed  ) {
+			show_offline.init( button_t::square_state, "Show offline", koord( D_MARGIN_LEFT + (ww - D_MARGIN_LEFT - D_H_SPACE - D_MARGIN_RIGHT) / 2 + D_H_SPACE, pos_y ), koord( (ww - D_MARGIN_LEFT - D_H_SPACE - D_MARGIN_RIGHT) / 2, D_BUTTON_HEIGHT) );
+			show_offline.set_tooltip( "Show servers that are offline" );
+			show_offline.add_listener( this );
+			add_komponente( &show_offline );
+		}
+
+
+		pos_y += D_BUTTON_HEIGHT;
+		pos_y += D_V_SPACE * 2;                // GUI line goes here
+
+		info_manual.set_pos( koord( D_MARGIN_LEFT, pos_y ) );
+		info_manual.set_text( "Or enter a server manually:" );
+		add_komponente( &info_manual );
+		pos_y += LINESPACE;
+		pos_y += D_V_SPACE;	// TODO less?
+
+		// Add server input/button
+		addinput.set_pos( koord( D_MARGIN_LEFT, pos_y ) );
+		addinput.set_text( newserver_name, sizeof( newserver_name ) );
+		addinput.set_groesse( koord( ww - D_MARGIN_LEFT - D_MARGIN_RIGHT - D_BUTTON_WIDTH - D_H_SPACE, D_BUTTON_HEIGHT ) );
+		addinput.add_listener( this );
+		add_komponente( &addinput );
+
+		add.init( button_t::box, "Query server", koord( ww - D_BUTTON_WIDTH - D_MARGIN_RIGHT, pos_y ), koord( D_BUTTON_WIDTH, D_BUTTON_HEIGHT) );
+		add.add_listener( this );
+
+		pos_y += D_BUTTON_HEIGHT;
+		pos_y += D_V_SPACE * 2;                // GUI line goes here
 	}
 
-	revision.set_pos( koord( 4, pos_y ) );
+	revision.set_pos( koord( D_MARGIN_LEFT, pos_y ) );
 	add_komponente( &revision );
-	show_all_rev.pressed = gi.get_game_engine_revision()==0;
+	show_mismatched.pressed = gi.get_game_engine_revision() == 0;
 
 	pos_y += LINESPACE;
-	pak_version.set_pos( koord( 4, pos_y ) );
+
+	pak_version.set_pos( koord( D_MARGIN_LEFT, pos_y ) );
 	add_komponente( &pak_version );
 
 #if DEBUG>=4
 	pos_y += LINESPACE;
-	pakset_checksum.set_pos( koord( 4, pos_y ) );
+	pakset_checksum.set_pos( koord( D_MARGIN_LEFT, pos_y ) );
 	add_komponente( &pakset_checksum );
 #endif
 
-	pos_y += LINESPACE+8;
-	date.set_pos( koord( 240-4, pos_y ) );
+	pos_y += LINESPACE;
+	pos_y += D_V_SPACE * 2;        // GUI line goes here
+
+	date.set_pos( koord( ww - D_MARGIN_LEFT, pos_y ) );
 	date.set_align( gui_label_t::right );
 	add_komponente( &date );
 
-	pos_y += LINESPACE*8+8;
+	// Leave room for elements added during draw phase (multiline text + map)
+	pos_y += LINESPACE * 8;
 
-	if(  !umgebung_t::networkmode  ) {
-		find_mismatch.init( button_t::box, "find mismatch", koord( 4, pos_y ), koord( 112, BUTTON_HEIGHT) );
-		find_mismatch.add_listener(this);
+	pos_y += D_V_SPACE * 2;        // GUI line goes here
+
+	const int nick_width = 80;
+	nick_label.set_pos( koord( D_MARGIN_LEFT, pos_y ) );
+	nick_label.set_text( "Nickname:" );
+	add_komponente( &nick_label );
+
+	nick.set_pos( koord( D_MARGIN_LEFT + D_H_SPACE + nick_width, pos_y ) );
+	nick.add_listener(this);
+	nick.set_text( nick_buf, lengthof( nick_buf ) );
+	nick.set_groesse( koord( ww - D_MARGIN_LEFT - D_H_SPACE - D_MARGIN_RIGHT - nick_width, D_BUTTON_HEIGHT ) );
+	tstrncpy( nick_buf, umgebung_t::nickname.c_str(), min( lengthof( nick_buf ), umgebung_t::nickname.length() + 1 ) );
+	add_komponente( &nick );
+
+	pos_y += D_BUTTON_HEIGHT;
+
+	if (  !umgebung_t::networkmode  ) {
+		pos_y += D_V_SPACE * 2;                // GUI line goes here
+
+		const int button_width = 112;
+
+		find_mismatch.init( button_t::box, "find mismatch", koord( ww - D_MARGIN_RIGHT - D_H_SPACE - button_width * 2, pos_y ), koord( button_width, D_BUTTON_HEIGHT) );
+		find_mismatch.add_listener( this );
 		add_komponente( &find_mismatch );
 
-		join.init( button_t::box, "join game", koord( 124, pos_y ), koord( 112, BUTTON_HEIGHT) );
-		join.add_listener(this);
+		join.init( button_t::box, "join game", koord( ww - D_MARGIN_RIGHT - button_width, pos_y ), koord( button_width, D_BUTTON_HEIGHT) );
+		join.add_listener( this );
 		add_komponente( &join );
 
 		// only update serverlist, when not already in network mode
 		// otherwise desync to current game may happen
-		if (  show_all_rev.pressed  ) {
-			update_serverlist( 0, NULL );
-		}
-		else {
-			update_serverlist( gi.get_game_engine_revision(), gi.get_pak_name() );
-		}
+		update_serverlist();
 
-		pos_y += 6+BUTTON_HEIGHT;
+		pos_y += D_BUTTON_HEIGHT;
 	}
-	pos_y += 16;
 
-	set_fenstergroesse( koord( 240, pos_y ) );
-	set_min_windowsize( koord( 240, pos_y ) );
+	pos_y += D_MARGIN_BOTTOM;
+	pos_y += D_TITLEBAR_HEIGHT;
+
+	set_fenstergroesse( koord( ww, pos_y ) );
+	set_min_windowsize( koord( ww, pos_y ) );
 	set_resizemode( no_resize );
 }
 
 
-void server_frame_t::update_info()
+void server_frame_t::update_error (const char* errortext)
 {
-	char temp[32];
+	buf.clear();
+	display_map = false;
+	date.set_text( errortext );
+	revision.set_text( "" );
+	pak_version.set_text( "" );
+	join.disable();
+	find_mismatch.disable();
+}
 
+
+void server_frame_t::update_info ()
+{
+
+	display_map = true;
+
+	// Compare with current world to determine status
+	gameinfo_t current( welt );
+	bool engine_match = false;
+	bool pakset_match = false;
+
+	// Zero means do not know => assume match
+	if (  current.get_game_engine_revision() == 0  ||  gi.get_game_engine_revision() == 0  ||  current.get_game_engine_revision() == gi.get_game_engine_revision()  ) {
+		engine_match = true;
+	}
+
+	if (  gi.get_pakset_checksum() == current.get_pakset_checksum()  ) {
+		pakset_match = true;
+		find_mismatch.disable();
+	}
+	else {
+		find_mismatch.enable();
+	}
+
+	// State of join button
+	if (  (serverlist.get_selection() >= 0  ||  custom_valid)  &&  pakset_match  &&  engine_match  ) {
+		join.enable();
+	}
+	else {
+		join.disable();
+	}
+
+	// Update all text fields
+	char temp[32];
 	buf.clear();
 	buf.printf( "%ux%u\n", gi.get_groesse_x(), gi.get_groesse_y() );
-	if(  gi.get_clients()!=255  ) {
-		uint8 player=0, locked = 0;
-		for(  uint8 i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
-			if(  gi.get_player_type(i)&~spieler_t::PASSWORD_PROTECTED  ) {
+	if (  gi.get_clients() != 255  ) {
+		uint8 player = 0, locked = 0;
+		for (  uint8 i = 0;  i < MAX_PLAYER_COUNT;  i++  ) {
+			if (  gi.get_player_type(i)&~spieler_t::PASSWORD_PROTECTED  ) {
 				player ++;
-				if(  gi.get_player_type(i)&spieler_t::PASSWORD_PROTECTED  ) {
+				if (  gi.get_player_type(i)&spieler_t::PASSWORD_PROTECTED  ) {
 					locked ++;
 				}
 			}
@@ -133,50 +243,19 @@ void server_frame_t::update_info()
 	buf.printf( "%s %u\n", translator::translate("Stops"), gi.get_halt_count() );
 
 	revision_buf.clear();
-#if DEBUG==4
+	revision_buf.printf( "%s %u", translator::translate( "Revision:" ), gi.get_game_engine_revision() );
+	revision.set_text( revision_buf );
+	revision.set_color( engine_match ? COL_BLACK : COL_RED );
+
+	pak_version.set_text( gi.get_pak_name() );
+	pak_version.set_color( pakset_match ? COL_BLACK : COL_RED );
+
+#if DEBUG>=4
 	pakset_checksum_buf.clear();
+	pakset_checksum_buf.printf("%s %s",translator::translate( "Pakset checksum:" ), gi.get_pakset_checksum().get_str(8));
+	pakset_checksum.set_text( pakset_checksum_buf );
+	pakset_checksum.set_color( pakset_match ? COL_BLACK : COL_RED );
 #endif
-	find_mismatch.disable();
-	if(  serverlist.get_selection()>=0  ) {
-		// need to compare with our world now
-		gameinfo_t current(welt);
-
-		revision_buf.printf( "%s %u", translator::translate( "Revision:" ), gi.get_game_engine_revision() );
-		revision.set_text( revision_buf );
-		// zero means do not know => assume match
-		revision.set_color( current.get_game_engine_revision()==0  ||  gi.get_game_engine_revision()==0  ||  current.get_game_engine_revision()==gi.get_game_engine_revision() ? COL_BLACK : COL_RED );
-
-		pak_version.set_text( gi.get_pak_name() );
-		// this will be using CRC when implemented
-		pak_version.set_color( gi.get_pakset_checksum() == current.get_pakset_checksum()  ? COL_BLACK : COL_RED );
-
-#if DEBUG>=4
-		pakset_checksum_buf.printf("%s %s",translator::translate( "Pakset checksum:" ), gi.get_pakset_checksum().get_str(8));
-		pakset_checksum.set_color(gi.get_pakset_checksum() == current.get_pakset_checksum() ? COL_BLACK : COL_RED );
-		pakset_checksum.set_text(pakset_checksum_buf);
-#endif
-		if(  revision.get_color()==COL_BLACK  &&  pak_version.get_color()==COL_BLACK  &&  current.get_pakset_checksum()==gi.get_pakset_checksum()  ) {
-			join.enable();
-		}
-		else {
-			join.disable();
-			if(  !(gi.get_pakset_checksum()==current.get_pakset_checksum())  ) {
-				find_mismatch.enable();
-			}
-		}
-	}
-	else {
-		revision_buf.printf( "%s %u", translator::translate( "Revision:" ), gi.get_game_engine_revision() );
-		revision.set_text( revision_buf );
-		revision.set_color( COL_BLACK );
-		pak_version.set_text( gi.get_pak_name() );
-		pak_version.set_color( COL_BLACK );
-#if DEBUG>=4
-		pakset_checksum_buf.printf("%s %s",translator::translate( "Pakset checksum:" ), gi.get_pakset_checksum().get_str(8));
-		pakset_checksum.set_text(pakset_checksum_buf);
-#endif
-		join.disable();
-	}
 
 	time.clear();
 	char const* const month = translator::get_month_name(gi.get_current_month());
@@ -197,228 +276,229 @@ void server_frame_t::update_info()
 			break;
 	}
 	date.set_text( time );
+	set_dirty();
 }
 
 
-/*
-  Takes a pointer to a CSV formatted string to parse
-  And a pointer to a char array to store the result in
-  The pointer to the string will be moved to the end of the parsed field
-*/
-int server_frame_t::parse_csv_field( char **c, char *field, size_t maxlen )
+bool server_frame_t::update_serverlist ()
 {
-	char *n;
-	if (  c == NULL  ||  *c == NULL ) {
-		return -1;
-	}
-	if (  **c == '"'  ) {
-		n = strstr( *c, "\"," );
-		if (  n == NULL  ) {
-			n = strstr( *c, "\"\n" );
-			if (  n == NULL  ) {
-				// Copy everything up to end of string into field buffer
-				tstrncpy( field, *c + 1, min(strlen(*c + 1), maxlen) );
-			}
-			else {
-				// Copy everything up to the EOL (\n) into field buffer
-				tstrncpy( field, *c + 1, min(n - *c, maxlen) );
-			}
-			// Move to end of string
-			*c += strlen( *c );
-		}
-		else {
-			tstrncpy(field, *c + 1, min(n - *c, maxlen));
-			// Move to start of next field
-			*c = n + 2;
-		}
-		dbg->warning( "server_frame_t::parse_csv_field", "Parsed field: '%s'", field );
-	}
-	else {
-		n = strstr( *c, "," );
-		// If n is NULL then this is the last field (no more field seperators)
-		if (  n == NULL  ) {
-			dbg->warning( "server_frame_t::parse_csv_field", "last field" );
-			n = strstr( *c, "\n" );
-			if (  n==NULL  ) {
-				// Copy everything up to end of string into field buffer
-				tstrncpy( field, *c, min(strlen(*c + 1), maxlen) );
-			}
-			else {
-				// Copy everything up to the EOL (\n) into field buffer
-				tstrncpy( field, *c, min(n - *c + 1, maxlen) );
-			}
-			// Move to end of string
-			*c += strlen( *c );
-		}
-		else {
-			tstrncpy( field, *c, min(n - *c + 1, maxlen) );
-			// Move to start of next field
-			*c = n + 1;
-		}
-		dbg->warning( "server_frame_t::parse_csv_field", "Parsed field: '%s'", field );
-	}
-	return 0;
-}
+	// Based on current dialog settings, should we show mismatched servers or not
+	uint revision = 0;
+	const char* pakset = NULL;
 
+	if (  !show_mismatched.pressed  ) {
+		revision = gi.get_game_engine_revision();
+		pakset = gi.get_pak_name();
+	}
 
-bool server_frame_t::update_serverlist( uint revision, const char *pakset )
-{
-	dbg->warning( "server_frame_t::update_serverlist", "called with revision: %i, pakset: %s", revision, pakset );
-	// download list from main server
-	if (  const char *err = network_download_http(ANNOUNCE_SERVER, ANNOUNCE_LIST_URL, SERVER_LIST_FILE)  ) {
-		dbg->warning( "server_frame_t::update_serverlist", "could not download list: %s", err );
+	// Download game listing from listings server into memory
+	cbuffer_t buf;
+
+	if (  const char *err = network_http_get( ANNOUNCE_SERVER, ANNOUNCE_LIST_URL, buf )  ) {
+		dbg->error( "server_frame_t::update_serverlist", "could not download list: %s", err );
 		return false;
 	}
-	// read the list
-	// CSV format
-	// name of server,dnsname.com:12345,4567,pak128 blah blah
-	FILE *fh = fopen( SERVER_LIST_FILE, "r" );
-	if (  fh  ) {
-		serverlist.clear_elements();
-		while (  !feof( fh )  ) {
-			char line[4096];
-			line[0] = '\0';
-			char *d = line;
-			char **c = &d;
-			int ret;
 
-			fgets( line, sizeof( line ), fh );
-			dbg->warning( "server_frame_t::update_serverlist", "parsing line: '%s'", line );
+	// Parse listing into CSV_t object
+	CSV_t csvdata( buf.get_str() );
+	int ret;
 
-			// First field is display name of server
-			char servername[4096];
-			ret = parse_csv_field( c, servername, 4096 );
-			if (  ret > 0  ||  servername[0] == '\0'  ) { continue; }
+	dbg->message( "server_frame_t::update_serverlist", "CSV_t: %s", csvdata.get_str() );
 
-			// Second field is dns name of server (for connection)
-			char serverdns[4096];
-			ret = parse_csv_field( c, serverdns, 4096 );
-			if (  ret > 0  ||  servername[0] == '\0'  ) { continue; }
-			// Strip default port
-			if (  strcmp(serverdns + strlen(serverdns) - 6, ":13353") == 0  ) {
-				dbg->warning( "server_frame_t::update_serverlist", "stripping default port from entry %s", serverdns );
-				serverdns[strlen(serverdns) - 6] = 0;
-			}
+	// For each listing entry, determine if it matches the version supplied to this function
+	do {
+		// First field is display name of server
+		cbuffer_t servername;
+		ret = csvdata.get_next_field( servername );
+		dbg->message( "server_frame_t::update_serverlist", "servername: %s", servername.get_str() );
+		// Skip invalid lines
+		if (  ret <= 0  ) { continue; }
 
-			// Third field is server revision (use for filtering)
-			char serverrevision[100];
-			ret = parse_csv_field( c, serverrevision, 4096 );
-			if (  ret > 0  ||  servername[0] == '\0'  ) { continue; }
-			uint32 serverrev = atol( serverrevision );
-			if (  revision != 0  &&  revision != serverrev  ) {
-				// do not add mismatched servers
-				dbg->warning( "server_frame_t::update_serverlist", "revision %i does not match our revision (%i), skipping", serverrev, revision );
+		// Second field is dns name of server
+		cbuffer_t serverdns;
+		ret = csvdata.get_next_field( serverdns );
+		dbg->message( "server_frame_t::update_serverlist", "serverdns: %s", serverdns.get_str() );
+		if (  ret <= 0  ) { continue; }
+		cbuffer_t serverdns2;
+		// Strip default port
+		if (  strcmp(serverdns.get_str() + strlen(serverdns.get_str()) - 6, ":13353") == 0  ) {
+			dbg->message( "server_frame_t::update_serverlist", "stripping default port from entry %s", serverdns.get_str() );
+			serverdns2.append( serverdns.get_str(), strlen( serverdns.get_str() ) - 6 );
+			serverdns = serverdns2;
+		}
+
+		// Third field is server revision (use for filtering)
+		cbuffer_t serverrevision;
+		ret = csvdata.get_next_field( serverrevision );
+		dbg->message( "server_frame_t::update_serverlist", "serverrevision: %s", serverrevision.get_str() );
+		if (  ret <= 0  ) { continue; }
+		uint32 serverrev = atol( serverrevision.get_str() );
+		if (  revision != 0  &&  revision != serverrev  ) {
+			// do not add mismatched servers
+			dbg->warning( "server_frame_t::update_serverlist", "revision %i does not match our revision (%i), skipping", serverrev, revision );
+			continue;
+		}
+
+		// Fourth field is server pakset (use for filtering)
+		cbuffer_t serverpakset;
+		ret = csvdata.get_next_field( serverpakset );
+		dbg->message( "server_frame_t::update_serverlist", "serverpakset: %s", serverpakset.get_str() );
+		if (  ret <= 0  ) { continue; }
+		// now check pakset match
+		if (  pakset != NULL  ) {
+			if (!strstart(serverpakset.get_str(), pakset)) {
+				dbg->warning( "server_frame_t::update_serverlist", "pakset '%s' does not match our pakset ('%s'), skipping", serverpakset.get_str(), pakset );
 				continue;
 			}
-
-			// Fourth field is server pakset (use for filtering)
-			char serverpakset[4096];
-			ret = parse_csv_field( c, serverpakset, 4096 );
-			if (  ret > 0  ||  servername[0] == '\0'  ) { continue; }
-			// now check pakset match
-			if (  pakset != NULL  ) {
-				if (  strncmp( pakset, serverpakset, strlen( pakset ) )  ) {
-					dbg->warning( "server_frame_t::update_serverlist", "pakset '%s' does not match our pakset ('%s'), skipping", serverpakset, pakset );
-					continue;
-				}
-			}
-
-			char serverentry[4096];
-			// const char *format = "%s (%s)";
-			// sprintf(serverentry, format, servername, serverdns);
-			const char *format = "%s";
-			sprintf( serverentry, format, serverdns );
-
-			// now add entry
-
-			// TODO - Need to decouple the text which is displayed in the listing box from the actual DNS/IP entry which is used to connect to the server in question
-
-			serverlist.append_element( new gui_scrolled_list_t::var_text_scrollitem_t( serverentry, COL_BLUE ) );
-			dbg->warning( "server_frame_t::update_serverlist", "Appended %s to list", serverentry );
 		}
-		// Clean up, remove temp file used for recv. listings
-		fclose( fh );
-		remove( SERVER_LIST_FILE );
-		serverlist.set_selection( -1 );
-	}
-	else {
-		dbg->warning( "server_frame_t::update_serverlist", "could not open list" );
-		return false;
-	}
+
+		// Fifth field is server online/offline status (use for colour-coding)
+		cbuffer_t serverstatus;
+		ret = csvdata.get_next_field( serverstatus );
+		dbg->message( "server_frame_t::update_serverlist", "serverstatus: %s", serverstatus.get_str() );
+
+		uint32 status = 0;
+		if (  ret > 0  ) {
+			status = atol( serverstatus.get_str() );
+		}
+
+		// Only show offline servers if the checkbox is set
+		if (  status == 1  ||  show_offline.pressed  ) {
+			serverlist.append_element( new server_scrollitem_t( servername, serverdns, status, status == 1 ? COL_BLUE : COL_RED ) );
+			dbg->message( "server_frame_t::update_serverlist", "Appended %s (%s) to list", servername.get_str(), serverdns.get_str() );
+		}
+
+	} while ( csvdata.next_line() );
+
+	// Set no default selection
+	serverlist.set_selection( -1 );
+
 	return true;
 }
 
 
-bool server_frame_t::infowin_event(const event_t *ev)
+bool server_frame_t::infowin_event (const event_t *ev)
 {
-	bool swallowed = gui_frame_t::infowin_event( ev );
-	if(  ev->ev_class == EVENT_KEYBOARD  &&  ev->ev_code == SIM_KEY_ENTER  ) {
-		action_triggered( &serverlist, value_t(serverlist.get_selection()) );
-	}
-	return swallowed;
+	return gui_frame_t::infowin_event( ev );
 }
 
 
-bool server_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
+bool server_frame_t::action_triggered (gui_action_creator_t *komp, value_t p)
 {
-	if(  &serverlist == komp  ) {
-		if(  p.i<=-1  ) {
+	// Selection has changed
+	if (  &serverlist == komp  ) {
+		if (  p.i <= -1  ) {
 			join.disable();
 			gi = gameinfo_t(welt);
 			update_info();
 		}
 		else {
 			join.disable();
-			const char *err = network_gameinfo( serverlist.get_element(p.i)->get_text(), &gi );
-			if(  err==NULL  ) {
-				serverlist.get_element(p.i)->set_color( COL_BLACK );
+			if (  ((server_scrollitem_t*)serverlist.get_element( p.i ))->online()  ) {
+				const char *err = network_gameinfo( ((server_scrollitem_t*)serverlist.get_element( p.i ))->get_dns(), &gi );
+				if (  err == NULL  ) {
+					serverlist.get_element( p.i )->set_color( COL_BLACK );
+					update_info();
+				}
+				else {
+					serverlist.get_element( p.i )->set_color( COL_RED );
+					update_error( "Server did not respond!" );
+				}
+			}
+			else {
+				serverlist.get_element( p.i )->set_color( COL_RED );
+				update_error( "Cannot connect to offline server!" );
+			}
+		}
+	}
+	else if (  &add == komp  ||  &addinput ==komp  ) {
+		if (  newserver_name[0] != '\0'  ) {
+			join.disable();
+
+			dbg->warning("action_triggered()", "newserver_name: %s", newserver_name);
+
+			const char *err = network_gameinfo( newserver_name, &gi );
+			if (  err == NULL  ) {
+				custom_valid = true;
 				update_info();
 			}
 			else {
-				serverlist.get_element(p.i)->set_color( COL_RED );
-				buf.clear();
-				date.set_text( "Server did not respond!" );
-				revision.set_text( "" );
-				pak_version.set_text( "" );
+				custom_valid = false;
+				join.disable();
+				update_error( "Server did not respond!" );
+			}
+			serverlist.set_selection( -1 );
+		}
+	}
+	else if (  &show_mismatched == komp  ) {
+		show_mismatched.pressed ^= 1;
+		serverlist.clear_elements();
+		update_serverlist();
+	}
+	else if (  &show_offline == komp  ) {
+		show_offline.pressed ^= 1;
+		serverlist.clear_elements();
+		update_serverlist();
+	}
+	else if (  &nick == komp  ) {
+		char* nickname = nick.get_text();
+		if (  umgebung_t::networkmode  ) {
+			// Only try and change the nick with server if we're in network mode
+			if (  umgebung_t::nickname != nickname  ) {
+				umgebung_t::nickname = nickname;
+				nwc_nick_t* nwc = new nwc_nick_t( nickname );
+				network_send_server( nwc );
 			}
 		}
-		set_dirty();
-	}
-	else if(  &add == komp  ) {
-		serverlist.append_element( new gui_scrolled_list_t::var_text_scrollitem_t( "Enter address", COL_BLUE ) );
-		serverlist.set_selection( serverlist.count_elements()-1 );
-	}
-	else if(  &show_all_rev == komp  ) {
-		show_all_rev.pressed ^= 1;
-		if ( show_all_rev.pressed ) {
-			update_serverlist( 0, NULL );
-		} else {
-			update_serverlist( gi.get_game_engine_revision(), gi.get_pak_name() );
+		else {
+			umgebung_t::nickname = nickname;
 		}
 	}
-	else if(  &join == komp  ) {
-		if(  serverlist.get_selection()==-1  ) {
-			dbg->error( "server_frame_t::action_triggered()", "join pressed without valid selection" );
-			join.disable();
+	else if (  &join == komp  ) {
+		char* nickname = nick.get_text();
+		if (  strlen( nickname ) == 0  ) {
+			// forbid joining?
+		}
+		umgebung_t::nickname = nickname;
+		std::string filename = "net:";
+
+		// Prefer serverlist entry if one is selected
+		if (  serverlist.get_selection() >= 0  ) {
+			filename += ((server_scrollitem_t*)serverlist.get_element(serverlist.get_selection()))->get_dns();
+			destroy_win( this );
+			welt->laden( filename.c_str() );
+		}
+		// If we have a valid custom server entry, connect to that
+		else if (  custom_valid  ) {
+			filename += newserver_name;
+			destroy_win( this );
+			welt->laden( filename.c_str() );
 		}
 		else {
-			std::string filename = "net:";
-			filename += serverlist.get_element(serverlist.get_selection())->get_text();
-			destroy_win(this);
-			welt->laden(filename.c_str());
+			dbg->error( "server_frame_t::action_triggered()", "join pressed without valid selection or custom server entry" );
+			join.disable();
 		}
 	}
-	else if(  &find_mismatch == komp  ) {
-		if (gui_frame_t *info = win_get_magic(magic_pakset_info_t)) {
-			top_win(info);
+	else if (  &find_mismatch == komp  ) {
+		if (  gui_frame_t *info = win_get_magic(magic_pakset_info_t)  ) {
+			top_win( info );
 		}
 		else {
 			std::string msg;
-			network_compare_pakset_with_server(serverlist.get_element(serverlist.get_selection())->get_text(), msg);
-			if(  !msg.empty()  ) {
+			if (  serverlist.get_selection() >= 0  ) {
+				network_compare_pakset_with_server( ((server_scrollitem_t*)serverlist.get_element(serverlist.get_selection()))->get_dns(), msg );
+			}
+			else if (  custom_valid  ) {
+				network_compare_pakset_with_server( newserver_name, msg );
+			}
+			else {
+				dbg->error( "server_frame_t::action_triggered()", "find_mismatch pressed without valid selection or custom server entry" );
+				find_mismatch.disable();
+			}
+			if (  !msg.empty()  ) {
 				help_frame_t *win = new help_frame_t();
-				win->set_text(msg.c_str());
-				create_win(win, w_info, magic_pakset_info_t);
+				win->set_text( msg.c_str() );
+				create_win( win, w_info, magic_pakset_info_t );
 			}
 		}
 	}
@@ -426,35 +506,72 @@ bool server_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 }
 
 
-void server_frame_t::zeichnen(koord pos, koord gr)
+void server_frame_t::zeichnen (koord pos, koord gr)
 {
-	gui_frame_t::zeichnen( pos, gr );
-
-	sint16 pos_y = pos.y+16;
-	if(  !umgebung_t::networkmode  ) {
-		pos_y += 10+BUTTON_HEIGHT*2+4;
-		display_ddd_box_clip( pos.x+4, pos_y, 240-8, 0, MN_GREY0, MN_GREY4);
+	// update nickname if necessary
+	if (  get_focus() != &nick  &&  umgebung_t::nickname != nick_buf  ) {
+		tstrncpy( nick_buf, umgebung_t::nickname.c_str(), min( lengthof( nick_buf ), umgebung_t::nickname.length() + 1 ) );
 	}
 
+	gui_frame_t::zeichnen( pos, gr );
+
+	sint16 pos_y = pos.y + D_TITLEBAR_HEIGHT;
+	pos_y += D_MARGIN_TOP;
+
+	if (  !umgebung_t::networkmode  ) {
+		pos_y += LINESPACE;             // List info text
+		pos_y += D_V_SPACE;             // padding
+		pos_y += D_BUTTON_HEIGHT * 6;   // serverlist gui_scrolled_list_t
+		pos_y += D_V_SPACE;             // padding
+		pos_y += D_BUTTON_HEIGHT;       // show_mismatched + show_offline
+		pos_y += D_V_SPACE;             // padding
+		display_ddd_box_clip( pos.x + D_MARGIN_LEFT, pos_y, gr.x - D_MARGIN_LEFT - D_MARGIN_RIGHT, 0, MN_GREY0, MN_GREY4 );
+		pos_y += D_V_SPACE;             // padding
+		pos_y += LINESPACE;             // Manual connect info text
+		pos_y += D_V_SPACE;             // padding
+		pos_y += D_BUTTON_HEIGHT;       // add server button/textinput
+		pos_y += D_V_SPACE;             // padding
+		display_ddd_box_clip( pos.x + D_MARGIN_LEFT, pos_y, gr.x - D_MARGIN_LEFT - D_MARGIN_RIGHT, 0, MN_GREY0, MN_GREY4 );
+		pos_y += D_V_SPACE;             // padding
+	}
+
+	pos_y += LINESPACE;     // revision + date
+	pos_y += LINESPACE;     // pakset version
+
 #if DEBUG>=4
-	pos_y += LINESPACE;
+	pos_y += LINESPACE;     // pakset_checksum
 #endif
-	pos_y += LINESPACE*2+8;
-	display_ddd_box_clip( pos.x+4, pos_y, 240-8, 0, MN_GREY0, MN_GREY4);
 
-	pos_y += 4;
-	display_multiline_text( pos.x+4, pos_y, buf, COL_BLACK );
+	pos_y += D_V_SPACE;     // padding
+	display_ddd_box_clip( pos.x + D_MARGIN_LEFT, pos_y, gr.x - D_MARGIN_LEFT - D_MARGIN_RIGHT, 0, MN_GREY0, MN_GREY4 );
+	pos_y += D_V_SPACE;     // padding
 
-	pos_y += LINESPACE*8;
 	const koord mapsize( gi.get_map()->get_width(), gi.get_map()->get_height() );
-	display_ddd_box_clip( pos.x+240-7-mapsize.x, pos_y-mapsize.y-3, mapsize.x+2, mapsize.y+2, MN_GREY0,MN_GREY4);
-	display_array_wh( pos.x+240-6-mapsize.x, pos_y-mapsize.y-2, mapsize.x, mapsize.y, gi.get_map()->to_array() );
 
-	if(  !umgebung_t::networkmode  ) {
-		pos_y += 4;
-		display_ddd_box_clip( pos.x+4, pos_y, 240-8, 0, MN_GREY0, MN_GREY4);
+	// Map graphic (offset in 3D border by 1px)
+	if (  display_map  ) {
+		// 3D border around the map graphic
+		display_ddd_box_clip( pos.x + D_MARGIN_LEFT, pos_y, mapsize.x + 2, mapsize.y + 2, MN_GREY0, MN_GREY4 );
+		display_array_wh( pos.x + D_MARGIN_LEFT + 1, pos_y + 1, mapsize.x, mapsize.y, gi.get_map()->to_array() );
+	}
+
+	// Descriptive server text
+	display_multiline_text( pos.x + D_MARGIN_LEFT + 1 + mapsize.x + 2 + D_H_SPACE, pos_y, buf, COL_BLACK );
+
+	pos_y += LINESPACE * 8;   // Spacing for the multiline_text above
+
+	pos_y += D_V_SPACE;
+	display_ddd_box_clip( pos.x + D_MARGIN_LEFT, pos_y, gr.x - D_MARGIN_LEFT - D_MARGIN_RIGHT, 0, MN_GREY0, MN_GREY4 );
+	pos_y += D_V_SPACE;
+	pos_y += D_BUTTON_HEIGHT; // Nick entry
+
+	// Buttons at bottom of dialog
+	if (  !umgebung_t::networkmode  ) {
+		pos_y += D_V_SPACE;
+		display_ddd_box_clip( pos.x + D_MARGIN_LEFT, pos_y, gr.x - D_MARGIN_LEFT - D_MARGIN_RIGHT, 0, MN_GREY0, MN_GREY4 );
+		pos_y += D_V_SPACE;
 
 		// drawing twice, but otherwise it will not overlay image
-		serverlist.zeichnen( pos+koord(0,16) );
+		serverlist.zeichnen( pos + koord( 0, 16 ) );
 	}
 }

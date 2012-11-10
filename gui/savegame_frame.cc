@@ -26,16 +26,12 @@
 #include "../dataobj/translator.h"
 #include "../utils/simstring.h"
 
-#include "components/list_button.h"
+
 #include "savegame_frame.h"
 
 #define DIALOG_WIDTH (488)
 
 
-// we need this trick, with the function pointer.
-// Since during initialisations virtual functions do not work yet
-// in derived classes (since the object in question is not full initialized yet)
-// this functions returns true for files to be added.
 savegame_frame_t::savegame_frame_t(const char *suffix, const char *path, bool only_directories, bool use_table ) :
 	gui_frame_t( translator::translate("Load/Save") ),
 	input(),
@@ -65,12 +61,12 @@ void savegame_frame_t::init(const char *suffix, const char *path)
 	input.set_text(ibuf, 128);
 
 	input.set_pos(koord(75,2));
-	//input.set_groesse(koord(DIALOG_WIDTH-75-scrollbar_t::BAR_SIZE-1, BUTTON_HEIGHT));
+	//input.set_groesse(koord(DIALOG_WIDTH-75-scrollbar_t::BAR_SIZE-1, D_BUTTON_HEIGHT));
 	add_komponente(&input);
 
 	// needs to be scrollable
 	scrolly.set_pos( koord(10,20) );
-	scrolly.set_scroll_amount_y(BUTTON_HEIGHT);
+	scrolly.set_scroll_amount_y(D_BUTTON_HEIGHT);
 	scrolly.set_size_corner(false);
 
 	// The file entries
@@ -78,19 +74,19 @@ void savegame_frame_t::init(const char *suffix, const char *path)
 	file_table.set_groesse( koord( DIALOG_WIDTH-1, 40 ) );
 	file_table.set_grid_width(koord(0,0));
 	file_table.add_listener(this);
-	button_frame.set_groesse( koord(BUTTON_WIDTH, BUTTON_HEIGHT) );
+	button_frame.set_groesse( koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT) );
 
 	add_komponente(&scrolly);
 
 	add_komponente(&divider1);
 
-	savebutton.set_groesse(koord(BUTTON_WIDTH, 14));
+	savebutton.set_groesse(koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	savebutton.set_text("Ok");
 	savebutton.set_typ(button_t::roundbox);
 	savebutton.add_listener(this);
 	add_komponente(&savebutton);
 
-	cancelbutton.set_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
+	cancelbutton.set_groesse(koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	cancelbutton.set_text("Cancel");
 	cancelbutton.set_typ(button_t::roundbox);
 	cancelbutton.add_listener(this);
@@ -98,8 +94,8 @@ void savegame_frame_t::init(const char *suffix, const char *path)
 
 	set_focus( &input );
 
-	set_min_windowsize(koord(2*(BUTTON_WIDTH+scrollbar_t::BAR_SIZE)+BUTTON_SPACER, get_fenstergroesse().y+1));
-	set_fenstergroesse(koord(DIALOG_WIDTH, TITLEBAR_HEIGHT+20+3*BUTTON_HEIGHT+30+1));
+	set_min_windowsize(koord(2*(D_BUTTON_WIDTH+scrollbar_t::BAR_SIZE)+D_H_SPACE, get_fenstergroesse().y+1));
+	set_fenstergroesse(koord(DIALOG_WIDTH, D_TITLEBAR_HEIGHT+20+3*D_BUTTON_HEIGHT+30+1));
 
 	set_resizemode(diagonal_resize);
 	resize(koord(0,0));
@@ -194,13 +190,13 @@ void savegame_frame_t::fill_list()
 			gui_label_t* const label   = i.label;
 
 
-			button1->set_groesse(koord(14, BUTTON_HEIGHT));
+			button1->set_groesse(koord(14, D_BUTTON_HEIGHT));
 			button1->set_text("X");
 			button1->set_pos(koord(5, y));
 			button1->set_tooltip("Delete this file.");
 
 			button2->set_pos(koord(25, y));
-			button2->set_groesse(koord(140, BUTTON_HEIGHT));
+			button2->set_groesse(koord(140, D_BUTTON_HEIGHT));
 
 			label->set_pos(koord(170, y+2));
 
@@ -211,11 +207,11 @@ void savegame_frame_t::fill_list()
 			button_frame.add_komponente(button2);
 			button_frame.add_komponente(label);
 
-			y += BUTTON_HEIGHT;
+			y += D_BUTTON_HEIGHT;
 		}
 		// since width was maybe increased, we only set the heigth.
 		button_frame.set_groesse( koord( get_fenstergroesse().x-1, y ) );
-		set_fenstergroesse(koord(get_fenstergroesse().x, TITLEBAR_HEIGHT+12+y+30+1));
+		set_fenstergroesse(koord(get_fenstergroesse().x, D_TITLEBAR_HEIGHT+12+y+30+1));
 	}
 }
 
@@ -242,7 +238,7 @@ void savegame_frame_t::set_filename(const char *fn)
 {
 	size_t len = strlen(fn);
 	if(len>=4  &&  len-SAVE_PATH_X_LEN-3<128) {
-		if(strncmp(fn,SAVE_PATH_X,SAVE_PATH_X_LEN)==0) {
+		if (strstart(fn, SAVE_PATH_X)) {
 			tstrncpy(ibuf, fn+SAVE_PATH_X_LEN, len-SAVE_PATH_X_LEN-3 );
 		}
 		else {
@@ -271,7 +267,8 @@ void savegame_frame_t::add_file(const char *filename, const char *pak, const boo
 		file_table.add_row( new gui_file_table_row_t( pathname, buttontext ));
 	}
 	else {
-		char * name = new char[strlen(filename)+10];
+		button_t * button = new button_t();
+		char * name = new char [strlen(filename)+10];
 		char * date = new char[strlen(pak)+1];
 
 		strcpy( date, pak );
@@ -279,19 +276,18 @@ void savegame_frame_t::add_file(const char *filename, const char *pak, const boo
 		if(!no_cutting_suffix) {
 			name[strlen(name)-4] = '\0';
 		}
-		button_t * button = new button_t();
 		button->set_no_translate(true);
 		button->set_text(name);	// to avoid translation
 
-		std::string const compare_to = umgebung_t::objfilename.size()>0  ?  umgebung_t::objfilename.substr(0, umgebung_t::objfilename.size()-1 ) + " -"  :  std::string("");
+		std::string const compare_to = !umgebung_t::objfilename.empty() ? umgebung_t::objfilename.substr(0, umgebung_t::objfilename.size() - 1) + " -" : std::string();
 		// sort by date descending:
 		slist_tpl<entry>::iterator i = entries.begin();
 		slist_tpl<entry>::iterator end = entries.end();
-		if(  strncmp( compare_to.c_str(), pak, compare_to.size() )!=0  ) {
+		if (!strstart(pak, compare_to.c_str())) {
 			// skip current ones
 			while(  i != end  ) {
 				// extract palname in same format than in savegames ...
-				if(  strncmp( compare_to.c_str(), i->label->get_text_pointer(), compare_to.size() ) !=0  ) {
+				if (!strstart(i->label->get_text_pointer(), compare_to.c_str())) {
 					break;
 				}
 				++i;
@@ -311,12 +307,13 @@ void savegame_frame_t::add_file(const char *filename, const char *pak, const boo
 					break;
 				}
 				// not our savegame any more => insert
-				if(  strncmp( compare_to.c_str(), i->label->get_text_pointer(), compare_to.size() ) !=0  ) {
+				if (!strstart(i->label->get_text_pointer(), compare_to.c_str())) {
 					break;
 				}
 				++i;
 			}
 		}
+
 		gui_label_t* l = new gui_label_t(NULL);
 		l->set_text_pointer(date);
 		entries.insert(i, entry(button, new button_t, l));
@@ -474,23 +471,22 @@ bool savegame_frame_t::action_triggered( gui_action_creator_t *komp, value_t p)
  */
 void savegame_frame_t::set_fenstergroesse(koord groesse)
 {
-	sint16 width = groesse.x - 10;
-
 	if(groesse.y>display_get_height()-70) 
 	{
 		// too large ...
-		groesse.y = ((display_get_height()-TITLEBAR_HEIGHT-12-30-1)/BUTTON_HEIGHT)*BUTTON_HEIGHT+TITLEBAR_HEIGHT+12+30+1-70;
+		groesse.y = ((display_get_height()-D_TITLEBAR_HEIGHT-12-30-1)/D_BUTTON_HEIGHT)*D_BUTTON_HEIGHT+D_TITLEBAR_HEIGHT+12+30+1-70;
 		// position adjustment will be done automatically ... nice!
 	}
 	gui_frame_t::set_fenstergroesse(groesse);
-	input.set_groesse(koord(width-input.get_pos().x, 14));
+	groesse = get_fenstergroesse();
 
-	sint16 y = 0;
+	const sint32 width = groesse.x - 10;
+	input.set_groesse(koord(width-input.get_pos().x, D_BUTTON_HEIGHT));
+
 	if (use_table)
 	{
-		y = file_table.get_table_height();
 		scrolly.set_groesse( koord(width,groesse.y-40-8) - scrolly.get_pos() );
-		scrolly.set_show_scroll_y(y > scrolly.get_groesse().y);
+		scrolly.set_show_scroll_y(file_table.get_table_height() > scrolly.get_groesse().y);
 		sint32 c = file_table.get_size().get_x();
 		if (c > 0) {
 			c = c > 0 ? 1 : 0;
@@ -503,26 +499,26 @@ void savegame_frame_t::set_fenstergroesse(koord groesse)
 		sint16 y = 0;
 		FOR(slist_tpl<entry>, const& i, entries) {
 			// resize all but delete button
-			if(  i.button->is_visible()  ) {
+			if (i.button->is_visible()) {
 				button_t* const button1 = i.del;
 				button1->set_pos( koord( button1->get_pos().x, y ) );
 				button_t* const button2 = i.button;
 				button2->set_pos( koord( button2->get_pos().x, y ) );
-				button2->set_groesse(koord( groesse.x/2-40, BUTTON_HEIGHT));
+				button2->set_groesse(koord( groesse.x/2-40, D_BUTTON_HEIGHT));
 				i.label->set_pos(koord(groesse.x / 2 - 40 + 30, y + 2));
-				y += BUTTON_HEIGHT;
+				y += D_BUTTON_HEIGHT;
 			}
 		}
 
-	button_frame.set_groesse(koord(groesse.x,y));
-	scrolly.set_groesse(koord(groesse.x,groesse.y-TITLEBAR_HEIGHT-12-30-1));
+		button_frame.set_groesse(koord(groesse.x,y));
+		scrolly.set_groesse(koord(groesse.x,groesse.y-D_TITLEBAR_HEIGHT-12-30-1));
 	}
 
 	divider1.set_pos(koord(4,groesse.y-36));
 	divider1.set_groesse(koord(groesse.x-8-1,0));
 
-	savebutton.set_pos(koord(scrollbar_t::BAR_SIZE,groesse.y-BUTTON_HEIGHT-2-16-1));
-	cancelbutton.set_pos(koord(groesse.x-BUTTON_WIDTH-scrollbar_t::BAR_SIZE,groesse.y-BUTTON_HEIGHT-2-16-1));
+	savebutton.set_pos(koord(scrollbar_t::BAR_SIZE,groesse.y-D_BUTTON_HEIGHT-2-16-1));
+	cancelbutton.set_pos(koord(groesse.x-D_BUTTON_WIDTH-scrollbar_t::BAR_SIZE,groesse.y-D_BUTTON_HEIGHT-2-16-1));
 }
 
 

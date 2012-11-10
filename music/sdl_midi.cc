@@ -10,6 +10,7 @@
 #include <SDL.h>
 #include <SDL_mixer.h>
 
+#include "../simdebug.h"
 #include "../utils/plainstring.h"
 #include "music.h"
 
@@ -43,6 +44,9 @@ int dr_load_midi(const char * filename)
 			if(music) {
 				midi_number = i;
 				midi_filenames[i] = filename;
+			}
+			else {
+				dbg->error( "dr_load_midi()", "Failed to load MIDI %s because %s", filename, Mix_GetError() );
 			}
 			Mix_FreeMusic(music);
 			music = NULL;

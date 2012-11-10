@@ -176,6 +176,11 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	total_distance_traveled = 0;
 	steps_since_last_odometer_increment = 0;
 
+	//distance_since_last_stop = 0;
+	//sum_speed_limit = 0;
+	//maxspeed_average_count = 0;
+	next_reservation_index = 0;
+
 	alte_richtung = ribi_t::keine;
 	next_wolke = 0;
 
@@ -315,12 +320,29 @@ void convoi_t::unreserve_route()
 {
 	// need a route, vehicles, and vehicles must belong to this convoi
 	// (otherwise crash during loading when fahr[0]->convoi is not initialized yet
-	if(  !route.empty()  &&  anz_vehikel>0  &&  fahr[0]->get_convoi() == this) {
+	if(  !route.empty()  &&  anz_vehikel>0  &&  fahr[0]->get_convoi() == this  ) {
 		waggon_t* lok = dynamic_cast<waggon_t*>(fahr[0]);
 		if (lok) {
 			// free all reserved blocks
 			uint16 dummy;
 			lok->block_reserver(get_route(), back()->get_route_index(), dummy, dummy,  100000, false, true);
+		}
+	}
+}
+
+
+/**
+ * unreserves the whole remaining route
+ */
+void convoi_t::reserve_route()
+{
+	if(  !route.empty()  &&  anz_vehikel>0  &&  (is_waiting()  ||  state==DRIVING  ||  state==LEAVING_DEPOT)  ) {
+		for(  int idx = back()->get_route_index();  idx < next_reservation_index  /*&&  idx < route.get_count()*/;  idx++  ) {
+			if(  grund_t *gr = welt->lookup( route.position_bei(idx) )  ) {
+				if(  schiene_t *sch = (schiene_t *)gr->get_weg( front()->get_waytype() )  ) {
+					sch->reserve( self, ribi_typ( route.position_bei(max(1u,idx)-1u), route.position_bei(min(route.get_count()-1u,idx+1u)) ) );
+				}
+			}
 		}
 	}
 }
@@ -3157,7 +3179,7 @@ void convoi_t::rdwr(loadsave_t *file)
 				file->rdwr_longlong(financial_history[k][j]);
 			}
 		}
-		for (int k = MAX_MONTHS-1; k>=0; k--) {
+		for (size_t k = MAX_MONTHS; k-- != 0;) {
 			financial_history[k][CONVOI_DISTANCE] = 0;
 		}
 	}
@@ -3715,8 +3737,14 @@ void convoi_t::rdwr(loadsave_t *file)
 		v.rdwr(file);
 	}
 
+	if(  file->get_version()>=111003  ) {
+		file->rdwr_short( next_stop_index );
+		file->rdwr_short( next_reservation_index );
+	}
+
 	// This must come *after* all the loading/saving.
-	if( file->is_loading() ) {
+	if(  file->is_loading()  ) {
+		reserve_route();
 		recalc_catg_index();
 	}
 }
@@ -3847,7 +3875,7 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 		}
 
 		// show new info
-		freight_list_sorter_t::sort_freight(&total_fracht, buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, &capacity, "loaded", welt);
+		freight_list_sorter_t::sort_freight(total_fracht, buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, &capacity, "loaded", welt);
 	}
 }
 
@@ -4667,7 +4695,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 		if(  grund->get_weg_yoff()==TILE_HEIGHT_STEP  ) 
 		{
 			// start on bridge?
-			pos.z += Z_TILE_STEP;
+			pos.z ++;
 		}
 		while(  grund  &&  grund->get_halt() == halt  ) {
 			station_length += OBJECT_OFFSET_STEPS;
@@ -4995,7 +5023,7 @@ void convoi_t::destroy()
 
 	if(  state == INITIAL  ) {
 		// in depot => not on map
-		for(int i=anz_vehikel-1;  i>=0; i--) {
+		for(  uint8 i = anz_vehikel;  i-- != 0;  ) {
 			fahr[i]->set_flag( ding_t::not_on_map );
 		}
 	}
@@ -5016,13 +5044,13 @@ void convoi_t::destroy()
 	besitzer_p->buche( calc_restwert(), get_pos().get_2d(), COST_NEW_VEHICLE );
 	besitzer_p->buche( -calc_restwert(), COST_ASSETS );
 
-	for(int i=anz_vehikel-1;  i>=0; i--) {
+	for(  uint8 i = anz_vehikel;  i-- != 0;  ) {
 		if(  !fahr[i]->get_flag( ding_t::not_on_map )  ) {
 			// remove from rails/roads/crossings
 			grund_t *gr = welt->lookup(fahr[i]->get_pos());
 			fahr[i]->set_letztes( true );
 			fahr[i]->verlasse_feld();
-			if(gr  &&  gr->ist_uebergang()) {
+			if(  gr  &&  gr->ist_uebergang()  ) {
 				gr->find<crossing_t>()->release_crossing(fahr[i]);
 			}
 			fahr[i]->set_flag( ding_t::not_on_map );
@@ -5107,7 +5135,7 @@ void convoi_t::book(sint64 amount, int cost_type)
 void convoi_t::init_financial_history()
 {
 	for (int j = 0; j<MAX_CONVOI_COST; j++) {
-		for (int k = MAX_MONTHS-1; k>=0; k--) {
+		for (size_t k = MAX_MONTHS; k-- != 0;) {
 			financial_history[k][j] = 0;
 		}
 	}
@@ -5180,7 +5208,8 @@ DBG_DEBUG("convoi_t::unset_line()", "removing old destinations from line=%d, fpl
 	}
 }
 
-// matches two halts; if the pos is not identical, maybe the halt still is
+
+// matches two halts; if the pos is not identical, maybe the halt still is the same
 bool convoi_t::matches_halt( const koord3d pos1, const koord3d pos2 )
 {
 	halthandle_t halt1 = haltestelle_t::get_halt( welt, pos1, besitzer_p );
@@ -5393,6 +5422,20 @@ void convoi_t::set_next_stop_index(uint16 n)
 	   }
    }
 	next_stop_index = n+1;
+}
+
+
+
+/* including this route_index, the route was reserved the laste time
+ * currently only used for tracks
+ */
+void convoi_t::set_next_reservation_index(uint16 n)
+{
+	// stop at station or signals, not at waypoints
+	if(  n==INVALID_INDEX  ) {
+		n = route.get_count()-1;
+	}
+	next_reservation_index = n;
 }
 
 
@@ -5745,8 +5788,15 @@ void convoi_t::set_withdraw(bool new_withdraw)
 	if(  withdraw  &&  (loading_level==0  ||  goods_catg_index.empty())) {
 		// test if convoi in depot and not driving
 		grund_t *gr = welt->lookup( get_pos());
-		if (gr && gr->get_depot()  &&  state == INITIAL) {
+		if(  gr  &&  gr->get_depot()  &&  state == INITIAL  ) {
+#if 1
+			// do not touch line bound convois in depots
+			withdraw = false;
+			no_load = false;
+#else
+			// disassemble also line bound convois in depots
 			gr->get_depot()->disassemble_convoi(self, true);
+#endif
 		}
 		else {
 			self_destruct();

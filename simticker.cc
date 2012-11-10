@@ -12,6 +12,7 @@
 #include "simgraph.h"
 #include "simcolor.h"
 #include "tpl/slist_tpl.h"
+#include "utils/simstring.h"
 
 
 // how much scrolling per call?
@@ -62,7 +63,7 @@ void ticker::add_msg(const char* txt, koord pos, int color)
 
 	if(count < 4) {
 		// Don't repeat messages
-		if (count == 0 || strncmp(txt, list.back().msg, strlen(txt)) != 0) {
+		if (count == 0 || !strstart(list.back().msg, txt)) {
 			node n;
 			int i=0;
 

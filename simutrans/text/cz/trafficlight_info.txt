@@ -1,0 +1,23 @@
+<title>Nápovìda - silnièní semafory</title>
+
+<h1>silnièní semafory</h1>
+
+<p>
+Silnièní semafory slou¾í k øízení dopravy na køi¾ovatkách.
+</p>
+<p>
+Nástroj pro umístìní silnièního semaforu naleznete v menu <a href="roadtools.txt">silnièní dopravy</a>.
+</p>
+<p>
+Okno s nastavením silnièních semaforù získáte kliknutím <a href="inspection_tool.txt">inspekèní lupou</a> na pole se semaforem.
+U semaforù lze nastavit délku fáze pro jednotlivé smìry z èasový posun sepnutí.
+</p>
+<p>
+V <em>prvním poli</em> (zleva) se nachází délka fáze (v sekundách) pro prùjezd severoji¾ním smìrem (z pravého horního rohu do levého dolního rohu).
+</p>
+<p>
+V <em>druhém poli</em> nastavíte délku fáze (v sekundách) pro prùjezd od východu na západ a od západu na východ.
+</p>
+<p>
+V <em>tøetím poli</em> upravíte èasový posuv, v jakém mají semafory spínat, aby byl co nejplynulej¹í prùjezd.
+</p>

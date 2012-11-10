@@ -38,6 +38,8 @@ private:
 	// Bernd Gabriel, Mar 10, 2010: weight limit info
 	uint32 max_weight;
 public:
+	typedef enum { no_route=0, valid_route=1, valid_route_halt_too_short=3 } route_result_t;
+
 	// this class save the nodes during route search
 	class ANode {
 	public:
@@ -67,7 +69,7 @@ public:
 	static void RELEASE_NODES(uint8 nodes_index);
 	static void TERM_NODES();
 
-	static inline uint32 calc_distance( const koord3d p1, const koord3d p2 )
+	static inline uint32 calc_distance( const koord3d &p1, const koord3d &p2 )
 	{
 		return (abs(p1.x-p2.x)+abs(p1.y-p2.y)+abs(p1.z-p2.z)/16);
 	}
@@ -79,10 +81,9 @@ public:
 	void rotate90( sint16 y_size ) { route.rotate90( y_size ); };
 
 
-	bool is_contained(const koord3d k) const { return route.is_contained(k); }
+	bool is_contained(const koord3d &k) const { return route.is_contained(k); }
 
-	uint32 index_of(const koord3d k) const { return (uint32)(route.index_of(k)); }
-
+	uint32 index_of(const koord3d &k) const { return (uint32)(route.index_of(k)); }
 
 	/**
 	 * @return Koordinate an index n
@@ -120,17 +121,13 @@ public:
 	 * fügt k hinten in die route ein
 	 * @author prissi
 	 */
-	inline void append(koord3d k)
-	{
-		route.append(k);
-	}
+	inline void append(koord3d k) { route.append(k); }
 
 	/**
 	 * truncate the route, discarding all tiles beyond the given index
 	 * @author yobbobandana
 	 */
 	void truncate_from(uint16 index);
-
 
 	/**
 	 * removes all tiles from the route
@@ -145,8 +142,8 @@ public:
 	void remove_koord_from(uint32);
 
 	/**
-	 * Appends a straig line from the last koord3d in route to the desired target.
-	 * Will return fals if fails
+	 * Appends a straight line from the last koord3d in route to the desired target.
+	 * Will return false if fails
 	 * @author prissi
 	 */
 	bool append_straight_route( karte_t *w, koord3d );
@@ -161,7 +158,8 @@ public:
 	 * berechnet eine route von start nach ziel.
 	 * @author Hj. Malthaner
 	 */
-	bool calc_route(karte_t *welt, koord3d start, koord3d ziel, fahrer_t *fahr, const sint32 max_speed_kmh, const uint32 weight, sint32 max_tile_len, const uint32 max_cost=0xFFFFFFFF);
+	route_result_t calc_route(karte_t *welt, koord3d start, koord3d ziel, fahrer_t *fahr, const sint32 max_speed_kmh, const uint32 weight, sint32 max_tile_len, const uint32 max_cost=0xFFFFFFFF);
+
 	/**
 	 * Lädt/speichert eine Route
 	 * @author V. Meyer

@@ -1,0 +1,36 @@
+<title>Voertuigen Lijst Filter</title>
+
+<h1><strong>Voertuigen Lijst Filter</strong></h1>
+
+<p>
+<strong>Voertuigen Lijst Filter</strong> biedt mogelijkheden om te bepalen welke <a href="convoiinfo.txt">Voertuigen</a> worden getoond in de <a href="convoi.txt">Voertuigen lijst</a>.
+</p>
+<p>
+Klik op de Instellingen knop in de voertuigen lijst om het <strong>Voertuigen Lijst Filter</strong> te benaderen.
+</p>
+<p>
+De knoppen selecteren voertuigen die worden getoond in de voertuigen lijst als het filter  <a href="convoi.txt">aan</a> is. Alleen voertuigen die aan alle selectie criteria voldoen worden getoond.
+</p>
+<p>
+Klik op een knop om de selectie criteria te activeren of te deactiveren voor het filter:
+</p>
+<p>
+<em>Filter namen:</em> selecteert <a href="convoiinfo.txt">voertuigen</a> door middel van de naam van het voertuig. Hoe te gebruiken: klik op de knop om het filter te activeren, en klik vervolgens in het vak onder Filter namen en toets de naam precies in (hoofdlettergevoelig).
+</p>
+<p>
+<em>Filter type:</em> selecteert voertuigen van het geselecteerde type indien geactiveerd. Hoe te gebruiken: klik op de knop naast Filter type om het filter te selecteren, klik vervolgens op het type transport dat je wilt selecteren: Wegverkeer, Treinen, Schepen en Vliegtuigen.
+</p>
+<p>
+<em>Speciaal filter:</em> selecteert <a href="convoiinfo.txt">voertuigen</a> indien deze voldoen aan de volgende criteria (klik op de knop naast Speciaal filter  om te selecteren, klik vervolgens op):<br>
+- <em>geen route</em> - voertuig kan geen route vinden naar de volgende bestemming.<br>
+- <em>geen planning</em> - voertuigen die geen <a href="schedule.txt">route</a> toegewezen hebben gekregen.<br>
+- <em>geen inkomen</em> - voertuigen die geen winst maken.<br>
+- <em>in een depot</em> - voertuigen die in een <a href="depot.txt">hangar of remise (depot)</a> staan.<br>
+- <em>geen lijn</em> - voertuigen die geen <a href="linemanagement.txt">lijn</a> toegewezen hebben gekregen .
+</p>
+<p>
+<em>Filter goederen:</em> selecteert voertuigen die in staat zijn om de geselecteerde goederen en passagiers te vervoeren. Klik op de knop naast Filter goederen om het filter te selecteren een klik vervolgens op de knop naast de optie van je keuze om te selecteren. Gebruik de <a href="mouse.txt">schuifbalk</a> om te scrollen door de beschikbare goederen in de lijst. Opties bevatten:<br>
+- <em>alles</em> selecteert alles.<br>
+- <em>geen</em> zet alles uit.<br>
+- <em>wissel</em> draait de selectie om.
+</p>

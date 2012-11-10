@@ -69,7 +69,7 @@ bool vehikelbauer_t::speedbonus_init(const std::string &objfilename)
 	tabfile_t bonusconf;
 	// first take user data, then user global data
 	if (!bonusconf.open((objfilename+"config/speedbonus.tab").c_str())) {
-		dbg->error("vehikelbauer_t::speedbonus_init()", "Can't read speedbonus.tab" );
+		dbg->warning("vehikelbauer_t::speedbonus_init()", "Can't read speedbonus.tab" );
 		return false;
 	}
 
@@ -82,7 +82,8 @@ bool vehikelbauer_t::speedbonus_init(const std::string &objfilename)
 	for(  int j=0;  j<8;  j++  ) {
 		int *tracks = contents.get_ints(weg_t::waytype_to_string(j==3?air_wt:(waytype_t)(j+1)));
 		if((tracks[0]&1)==1) {
-			dbg->fatal( "vehikelbauer_t::speedbonus_init()", "Ill formed line in speedbonus.tab\nFormat is year,speed[year,speed]!" );
+			dbg->warning( "vehikelbauer_t::speedbonus_init()", "Ill formed line in speedbonus.tab\nFormat is year,speed[,year,speed]!" );
+			tracks[0]--;
 		}
 		speedbonus[j].resize( tracks[0]/2 );
 		for(  int i=1;  i<tracks[0];  i+=2  ) {
@@ -105,24 +106,25 @@ sint32 vehikelbauer_t::get_speedbonus( sint32 monthyear, waytype_t wt )
 	}
 
 	// ok, now lets see if we have data for this
-	if(speedbonus[typ].get_count()) {
+	vector_tpl<bonus_record_t> const& b = speedbonus[typ];
+	if (!b.empty()) {
 		uint i=0;
-		while(  i<speedbonus[typ].get_count()  &&  monthyear>=speedbonus[typ][i].year  ) {
+		while (i < b.get_count() && monthyear >= b[i].year) {
 			i++;
 		}
-		if(  i==speedbonus[typ].get_count()  ) {
+		if (i == b.get_count()) {
 			// maxspeed already?
-			return speedbonus[typ][i-1].speed;
+			return b[i - 1].speed;
 		}
 		else if(i==0) {
 			// minspeed below
-			return speedbonus[typ][0].speed;
+			return b[0].speed;
 		}
 		else {
 			// interpolate linear
-			const sint32 delta_speed = speedbonus[typ][i].speed - speedbonus[typ][i-1].speed;
-			const sint64 delta_years = speedbonus[typ][i].year - speedbonus[typ][i-1].year;
-			return ( (delta_speed*(monthyear-speedbonus[typ][i-1].year)) / delta_years ) + speedbonus[typ][i-1].speed;
+			sint32 const delta_speed = b[i].speed - b[i - 1].speed;
+			sint32 const delta_years = b[i].year  - b[i - 1].year;
+			return delta_speed * (monthyear - b[i - 1].year) / delta_years + b[i - 1].speed;
 		}
 	}
 	else {

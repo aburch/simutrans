@@ -1,0 +1,12 @@
+<title>Nápovìda - my¹</title>
+
+<h1>My¹</h1>
+
+<p>
+<em>levé tlaèítko</em> slou¾í ke klikání na objekty pomocí <a href="inspection_tool.txt">inspekèní lupy</a>, výstavbì a ve¹kerému ovládání hry.</p>
+
+<p>pøi stisknutém <em>pravém tlaèítku</em> my¹i mù¾ete posouvat s mapou.</p>
+
+<p><em>koleèko my¹i</em> slou¾í k pøiblí¾ení se k terénu nebo k oddálení se od nìj.</p>
+
+<p> Chování my¹i mù¾e být ovlivnìnou stisknutím klávesy [Ctrl]</p>

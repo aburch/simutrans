@@ -2,7 +2,7 @@ CFG ?= default
 -include config.$(CFG)
 
 
-BACKENDS      = allegro gdi sdl mixer_sdl posix
+BACKENDS      = allegro gdi opengl sdl mixer_sdl posix
 COLOUR_DEPTHS = 0 16
 OSTYPES       = amiga beos cygwin freebsd haiku linux mingw mac
 
@@ -20,7 +20,7 @@ endif
 
 
 ifeq ($(OSTYPE),amiga)
-  STD_LIBS ?= -lz -lbz2 -lunix -lpthread -lSDL_mixer -lsmpeg -lvorbisfile -lvorbis -logg
+  STD_LIBS ?= -lz -lbz2 -lunix -lSDL_mixer -lsmpeg -lvorbisfile -lvorbis -logg
   CFLAGS += -mcrt=newlib -DUSE_C -DBIG_ENDIAN -gstabs+
   LDFLAGS += -Bstatic -non_shared
 endif
@@ -30,7 +30,7 @@ ifeq ($(OSTYPE),beos)
 endif
 
 ifeq ($(OSTYPE),haiku)
-  LIBS += -lz -lnetwork -lbz2
+  LIBS += -lz -lnetwork -lbz2 -lbe -llocale
 endif
 
 ifeq ($(OSTYPE),freebsd)
@@ -67,6 +67,7 @@ ifeq ($(OSTYPE),mingw)
       LDFLAGS += -mwindows
     endif
   endif
+  LDFLAGS += -static-libgcc -static-libstdc++
   LIBS += -lmingw32 -lgdi32 -lwinmm -lwsock32 -lz -lbz2
 endif
 
@@ -117,6 +118,18 @@ ifneq ($(PROFILE),)
     CFLAGS  += -fno-inline -fno-schedule-insns
   endif
   LDFLAGS += -pg
+endif
+
+ifneq  ($(MULTI_THREAD),)
+  CFLAGS += -DMULTI_THREAD=$(MULTI_THREAD)
+  ifneq  ($(MULTI_THREAD),1)
+    ifeq ($(OSTYPE),mingw)
+#use lpthreadGC2d for debug alternatively
+      LDFLAGS += -lpthreadGC2
+    else
+      LDFLAGS += -lpthread
+    endif
+  endif
 endif
 
 ifneq ($(WITH_REVISION),)
@@ -367,6 +380,7 @@ SOURCES += unicode.cc
 SOURCES += utils/cbuffer_t.cc
 SOURCES += utils/checksum.cc
 SOURCES += utils/float32e8_t.cc
+SOURCES += utils/csv.cc
 SOURCES += utils/log.cc
 SOURCES += utils/memory_rw.cc
 SOURCES += utils/searchfolder.cc
@@ -441,7 +455,6 @@ ifeq ($(BACKEND),sdl)
       SDL_LDFLAGS += -mconsole
     endif
   endif
-
   CFLAGS += $(SDL_CFLAGS)
   LIBS   += $(SDL_LDFLAGS)
 endif
@@ -467,6 +480,44 @@ ifeq ($(BACKEND),mixer_sdl)
   endif
   CFLAGS += $(SDL_CFLAGS)
   LIBS   += $(SDL_LDFLAGS) -lSDL_mixer
+endif
+
+ifeq ($(BACKEND),opengl)
+  SOURCES += simsys_opengl.cc
+  CFLAGS  += -DUSE_16BIT_DIB
+  ifeq ($(OSTYPE),mac)
+    # Core Audio (Quicktime) base sound system routines
+    SOURCES += sound/core-audio_sound.mm
+    SOURCES += music/core-audio_midi.mm
+    LIBS    += -framework Foundation -framework QTKit
+  else
+    SOURCES  += sound/sdl_sound.cc
+    ifeq ($(findstring $(OSTYPE), cygwin mingw),)
+      SOURCES += music/no_midi.cc
+    else
+      SOURCES += music/w32_midi.cc
+    endif
+  endif
+  ifeq ($(SDL_CONFIG),)
+    SDL_CFLAGS  := -I$(MINGDIR)/include/SDL -Dmain=SDL_main
+    SDL_LDFLAGS := -lmingw32 -lSDLmain -lSDL
+    ifeq  ($(WIN32_CONSOLE),)
+      SDL_LDFLAGS += -mwindows
+    endif
+  else
+    SDL_CFLAGS  := $(shell $(SDL_CONFIG) --cflags)
+    SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
+    ifneq  ($(WIN32_CONSOLE),)
+      SDL_LDFLAGS += -mconsole
+    endif
+  endif
+  CFLAGS += $(SDL_CFLAGS)
+  LIBS   += $(SDL_LDFLAGS)
+  ifeq ($(OSTYPE),mingw)
+    LIBS += -lopengl32
+  else
+    LIBS += -lGL
+  endif
 endif
 
 ifeq ($(BACKEND),posix)

@@ -1,0 +1,28 @@
+<title>Nápovìda - pøidat kuriozitu. </title>
+<h1><strong>Stavba památek</strong></h1>
+<p>Dialog slou¾í k ruènímu pøidání památek do krajiny. Je rozdìlen na ètyøi èásti.</p>
+<p>
+ V levém horním rohu je seznam dostupných budov.<br>
+ Vlevo dole je zobrazen obrázek vybrané budovy.<br>
+ Vpravo nahoøe jsou tlaèítka slou¾ící k roz¹íøení nebo zú¾ení výbìru dostupných památek.<br>
+ Vpravo dole jsou zobrazeny podrobnosti o vybrané budovì.<br></p>
+<h1>Seznam budov</h1>
+<p>
+V seznamu jsou vypsány v¹echny zvlá¹tní budovy a památky, které jsou dostupné podle kritérií nastavených na pravé stanì dialogu (<em>mìstské památky</em>, <em>venkovské památky</em>, <em>památníky</em>).
+Obì zálo¾ky obsahují stejné památky, jen jinak oznaèené.<br>
+ - <em>Podle jména</em>: Zálo¾ka obsahuje budovy setøídìné podle názvu uvedeného v pøekladu. Pokud není pøeklad dostupný, pou¾ije se identifikátor.<br>
+ - <em>Podle ID</em>: Pod touto zálo¾kou jsou budovy øazené podle vnitøního identifikátoru pro daný objekt.</p>
+<p> Budovy jsou rozli¹eny pomocí rozdílné barvy textu:<br>
+ - <em>modrá barva</em>: památky, které lze postavit jen ve mìstì<br>
+ - <em>zelená barva</em>: památky, které lze postavit jen na venkovì<br>
+ - <em>èerná barva</em>: památníky; na ka¾dé mapì mù¾e být jen jeden<br>
+</p>
+<h1>Volby</h1>
+<p>
+ - <em>ignorovat podnebí</em>: Ka¾dá památka má omezení, ve kterých podnebných pásech mù¾e být postavena. Tímto tlaèítkem lze omezení vypnout.<br>
+ - <em>Zaèít roku</em>: Seznam bude obsahovat pouze budovy které jsou ji¾ v daném roce dostuné. V seznamu nebudou budovy, které se objeví v pøí¹tích letech.<br>
+ - <em>Zobrazit zastaralá</em>: V seznamu se zobrazí i budovy v dané dobì pova¾ované ji¾ za zastaralé.<br>
+ - <em>Mìstské památky</em>: Zobrazí v seznamu památky, které lze postavit ve mìstì.<br>
+ - <em>Venkovské památky</em>: Zobrazí v seznamu památky, které lze postavit mimo území mìsta.<br>
+ - <em>památníky</em>: Zobrazí v seznamu památníky (budovy, které mohou být na mapì jen jedenkrát). <br>
+ - <em>rotace</em>: Jestli¾e daná budova umo¾òuje pohled z více úhlù, mù¾ete pomocí ¹ipek mezi nimi pøepínat. Tím se bude mìnit obrázek v levém dolním rohu. Jestli¾e je zobrazen nápis <em>náhodnì</em>, pou¾ije se náhodnì vybraný pohled.</p>

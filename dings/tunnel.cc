@@ -19,6 +19,9 @@
 
 #include "../besch/tunnel_besch.h"
 
+#include "leitung2.h"
+#include "../bauer/wegbauer.h"
+
 #include "tunnel.h"
 
 
@@ -131,7 +134,11 @@ void tunnel_t::laden_abschliessen()
 			weg->set_max_speed(besch->get_topspeed());
 			sp->add_maintenance(-weg->get_besch()->get_wartung());
 		}
-		sp->add_maintenance(besch->get_wartung());
+		leitung_t *lt = gr->get_leitung();
+		if(lt) {
+			spieler_t::add_maintenance( sp, -lt->get_besch()->get_wartung());
+		}
+		spieler_t::add_maintenance( sp,  besch->get_wartung() );
 	}
 }
 
@@ -150,11 +157,13 @@ void tunnel_t::entferne( spieler_t *sp2 )
 		const grund_t *gr = welt->lookup(get_pos());
 		if(gr) {
 			weg_t *weg = gr->get_weg( besch->get_waytype() );
-			weg->set_max_speed( weg->get_besch()->get_topspeed() );
-			weg->set_max_weight( weg->get_besch()->get_max_weight() );
-			weg->add_way_constraints(besch->get_way_constraints());
-			sp->add_maintenance(weg->get_besch()->get_wartung());
-			sp->add_maintenance(-besch->get_wartung() );
+			if(weg)	{
+				weg->set_max_speed( weg->get_besch()->get_topspeed() );
+				weg->set_max_weight( weg->get_besch()->get_max_weight() );
+				weg->add_way_constraints(besch->get_way_constraints());
+				spieler_t::add_maintenance( sp,  weg->get_besch()->get_wartung());
+			}
+			spieler_t::add_maintenance( sp,  -besch->get_wartung() );
 		}
 	}
 	spieler_t::accounting(sp2, -besch->get_preis(), get_pos().get_2d(), COST_CONSTRUCTION );

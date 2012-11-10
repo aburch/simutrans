@@ -1,0 +1,23 @@
+<title>Infomacje o stacjach i przystankach</title>
+<h1>Informacje o stacjach i przystankach</h1>
+
+<p>
+Informacje te zawieraja niezbedne dane o wszystkich stacjach na mapie. Mozliwa jest zmiana nazw stacji.
+</p>
+
+<p>
+U góry okna znajduje sie nazwa stacji, która mozna zmienic klikajac na niej i wpisujac nowa.
+</p>
+
+<p>
+W tym oknie znajdziesz liste towarów i pasazerów danej stacji (ilosc i miejsce docelowe).
+</p>
+
+<p>
+W szczególowych informacjach znajdziesz takie dane jak:
+- dokad nalezy przewozic towary/ludzi ze stacji
+- jakich towarów potrzebuje miejscowy przemysl (co nalezy tu przywozic)
+<br>
+
+<em>Uwaga:</em> Lista uaktualniana w czasie rzeczywistym.
+</p>

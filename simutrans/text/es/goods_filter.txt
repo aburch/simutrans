@@ -1,0 +1,54 @@
+<title>Lista de Mercancias</title>
+
+<h1><strong>Lista de Mercancias</strong></h1>
+
+<p>
+<strong>Lista de Mercancias</strong> contiene informacion de los diferentes elementos que pueden ser transportados en la partida, y tiene controles para cambiar los ingresos recibidos del transporte.
+</p>
+<p>
+Para abrirlo: pulsa en la herramienta Lista de Mercancias en el icono de la <a href="list.txt">Administracion de Listas</a> o presiona la tecla <a href="keys.txt">[G]</a>.
+</p>
+<p>
+La lista de elementos disponibles para transportar en la partida indica: remuneracion recibida, % bonus por velocidad, categoria de la mercancia y tonelaje.<br>
+{Consejos: Si no se puedes ver todos los elementos de la lista, entonces <a href="mouse.txt">ajusta</a> la ventana de la <strong>Lista de Mercancias</strong> o desplaza la lista usando la barra de desplazamiento.}
+</p>
+<p>
+<em>Bonus por velocidad</em>: muestra la velocidad necesaria requerida para los distintos tipos de mercancias, a la que un <a href="convoiinfo.txt">Convoy</a> es capaz de transportar cosas, para recibir un ingreso extra por transporte repido de mercancias y pasajeros (en algunos casos se puede penalizar por demasiada lentitud).<br>
+Si estas jugando con <a href="new_world.txt">cronologia</a>, a medida que pasa el tiempo en Simutrans, la velocidad necesaria requerida cambia con la introduccion de nuevos vehiculos.<br>
+Los botones de flechas ajustan los ingresos recibidos y la velocidad a la que debe ir un Convoy para recibir bonus por velocidad (o incurrir en una penalizacion por demasiada lentitud).
+</p>
+<p>
+<em>Ordenado por:</em> tiene opciones que determinan el orden de los elementos mostrados en la lista.<br>
+Pulsa en los botones de opcion para pasar de una opcion a otra (el nombre del boton cambiara):
+</p>
+<p>
+- <em>sin ordenar</em> ordenado aleatoriamente.<br>
+- <em>por nombre</em> ordenado alfabeticamente.<br>
+- <em>por ingresos</em> ordenado por los ingresos recibidos por transporte de una unidad por cuadricula del juego.<br>
+- <em>por bonus</em> ordena por % de bonus de velocidad (% de ingreso extra si el <a href="convoiinfo.txt">Convoy</a> usado es capaz de ir a la velocidad necesaria requerida para tener derecho a dicho bonus).
+</p>
+<p>
+- <em>ascendente</em> / <em>descendente</em> invierte el orden de la lista.
+</p>
+<p>
+Los detalles listados para cada elemento incluyen:
+</p>
+<p>
+<em>cuadrado de color</em> es el mismo color mostrado en la barra de estado de color de mercancias, en cada <a href="station.txt">Parada</a> para indicar la cantidad de elementos que esperan a ser transportados.<br>
+{Consejos: Usa [!] para mostrar la barra de colores de mercancias sobre una Parada.}
+</p>
+<p>
+<em>ingresos</em> son los ingresos recibidos por transportar una unidad a una distancia de una cuadricula del juego.<br>
+{Consejos: Usa el <a href="new_world.txt">Modo Principiante</a> para incrementar los ingresos un 150% (puedes cambiarlo tambien en el archivo simuconf.tab)}
+</p>
+<p>
+<em>% bonus</em> es el % de ingresos extra recibidos si el <a href="convoiinfo.txt">Convoy</a> usado es capaz de ir a la velocidad necesaria requerida para tener derecho a bonus (en algunos casos se puede incurrir en una penalizacion si el vehiculo es demasiado lento).<br>
+La formula de calculo para los ingresos es compleja y considera la maxima velocidad del Convoy junto con la velocidad media de los vehiculos disponibles,y no la velocidad del vehiculo mostrada durante la partida.
+</p>
+<p>
+<em>tipo de mercancia</em> indica el tipo de vehiculo necesario para el transporte. La carga especial requiere vehiculos especificos.<br>
+{Consejos: La <a href="depot.txt">capacidad</a> de los vehiculos muestra que elementos puede transportar dicho vehiculo}.
+</p>
+<p>
+<em>peso</em> se muestra el peso de una unidad en kilogramos.
+</p>

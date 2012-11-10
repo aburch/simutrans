@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 1997 - 2004 Hansjörg Malthaner
  *
- * Line management
+ * Tool to place trees on the map
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -18,7 +18,7 @@
 #include "../simmenu.h"
 
 #include "../dataobj/translator.h"
-#include "components/list_button.h"
+
 
 #include "../besch/bild_besch.h"
 #include "../besch/grund_besch.h"
@@ -54,7 +54,7 @@ baum_edit_frame_t::baum_edit_frame_t(spieler_t* sp_, karte_t* welt) :
 	baum_tool.id = werkzeug_t::general_tool[WKZ_PLANT_TREE]->id;
 
 	remove_komponente( &bt_obsolete );
-	offset_of_comp -= BUTTON_HEIGHT;
+	offset_of_comp -= D_BUTTON_HEIGHT;
 
 	besch = NULL;
 	baum_tool.set_default_param(NULL);

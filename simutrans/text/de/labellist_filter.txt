@@ -1,0 +1,17 @@
+<title>Markerliste</title>
+
+<h1><strong>Markerliste</strong></h1>
+
+<p>
+In der Markerliste werden alle gesetzten Marker der Karte angezeigt.
+<br>
+Mit der Option <em>nur eigene Marker</em> wird die angezeigte Liste auf die eigenen Marker eingeschränkt.
+</p>
+<p>
+Es stehen 2 Schaltflächen zum sortieren der Liste zur Verfügung.
+Die linke Schaltfläche sortiert nach:
+· <em>Bezeichnung</em>
+· <em>nach Orten</em>
+· <em>Spieler</em>
+Die rechte Schaltfläche sortiert jeweils nach <em>aufsteigend</em> und <em>absteigend</em>.
+</p>

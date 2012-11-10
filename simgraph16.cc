@@ -1,9 +1,6 @@
 /*
- * Copyright 1997, 2001 Hj. Malthaner
- * hansjoerg.malthaner@gmx.de
  * Copyright 2010 Simutrans contributors
  * Available under the Artistic License (see license.txt)
- *
  */
 
 #ifndef COMMAND_LINE_SERVER
@@ -48,6 +45,13 @@
 #   warning "Needs to use slower copy with GCC > 4.2.x"
 #  endif
 # endif
+#endif
+
+#if MULTI_THREAD>1
+#include <pthread.h>
+
+// currently just redrawing/rezooming
+static pthread_mutex_t rezoom_recode_img_mutex;
 #endif
 
 #include "simgraph.h"
@@ -109,8 +113,9 @@ static bool has_unicode = false;
 
 static font_type large_font = { 0, 0, 0, NULL, NULL };
 
-// needed for gui
-int large_font_height = 10;
+// needed for resizing gui
+int large_font_ascent = 9;
+int large_font_total_height = 11;
 
 #define MAX_PLAYER_COUNT (16)
 
@@ -1116,12 +1121,16 @@ static void recode_img_src_target(KOORD_VAL h, PIXVAL *src, PIXVAL *target)
 }
 
 
+
 /**
  * Handles the conversion of an image to the output color
  * @author prissi
  */
 static void recode_normal_img(const unsigned int n)
 {
+#if MULTI_THREAD>1
+	pthread_mutex_lock( &rezoom_recode_img_mutex );
+#endif
 	PIXVAL *src = images[n].zoom_data != NULL ? images[n].zoom_data : images[n].base_data;
 
 	if (images[n].data == NULL) {
@@ -1131,6 +1140,9 @@ static void recode_normal_img(const unsigned int n)
 	activate_player_color( 0, true );
 	recode_img_src_target(images[n].h, src, images[n].data);
 	images[n].recode_flags &= ~FLAG_NORMAL_RECODE;
+#if MULTI_THREAD>1
+	pthread_mutex_unlock( &rezoom_recode_img_mutex );
+#endif
 }
 
 
@@ -1168,15 +1180,22 @@ static void recode_img_src_target_color(KOORD_VAL h, PIXVAL *src, PIXVAL *target
  */
 static void recode_color_img(const unsigned int n, const unsigned char player_nr)
 {
+	// Hajo: may this image be zoomed
+#if MULTI_THREAD>1
+	pthread_mutex_lock( &rezoom_recode_img_mutex );
+#endif
 	PIXVAL *src = images[n].zoom_data != NULL ? images[n].zoom_data : images[n].base_data;
 
 	images[n].player_flags = player_nr;
-	if (images[n].player_data == NULL) {
+	if(  images[n].player_data == NULL  ) {
 		images[n].player_data = MALLOCN(PIXVAL, images[n].len);
 	}
 	// contains now the player color ...
 	activate_player_color( player_nr, true );
 	recode_img_src_target_color(images[n].h, src, images[n].player_data );
+#if MULTI_THREAD>1
+	pthread_mutex_unlock( &rezoom_recode_img_mutex );
+#endif
 }
 
 #endif
@@ -1201,6 +1220,14 @@ static void rezoom_img(const image_id n)
 {
 	// Hajo: may this image be zoomed
 	if (n < anz_images && images[n].base_h > 0) {
+#if MULTI_THREAD>1
+		pthread_mutex_lock( &rezoom_recode_img_mutex );
+		if(  (images[n].recode_flags & FLAG_REZOOM) == 0  ) {
+			// other routine did already the rezooming ...
+			pthread_mutex_unlock( &rezoom_recode_img_mutex );
+			return;
+		}
+#endif
 		// we may need night conversion afterwards
 		images[n].recode_flags &= ~FLAG_REZOOM;
 		images[n].recode_flags |= FLAG_NORMAL_RECODE;
@@ -1244,6 +1271,9 @@ static void rezoom_img(const image_id n)
 				}
 				images[n].len = (uint32)(size_t)(sp-images[n].base_data);
 			}
+#if MULTI_THREAD>1
+			pthread_mutex_unlock( &rezoom_recode_img_mutex );
+#endif
 			return;
 		}
 
@@ -1611,13 +1641,17 @@ static void rezoom_img(const image_id n)
 				assert( images[n].zoom_data  );
 				memcpy( images[n].zoom_data, baseimage, zoom_len );
 			}
-		} else {
+		}
+		else {
 			if (images[n].w <= 0) {
 				// h=0 will be ignored, with w=0 there was an error!
 				printf("WARNING: image%d w=0!\n", n);
 			}
 			images[n].h = 0;
 		}
+#if MULTI_THREAD>1
+		pthread_mutex_unlock( &rezoom_recode_img_mutex );
+#endif
 	}
 }
 
@@ -2619,10 +2653,90 @@ static void pix_outline25_16(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, 
 	}
 }
 
+
 // will kept the actual values
 static blend_proc blend[3];
 static blend_proc blend_recode[3];
 static blend_proc outline[3];
+
+
+/**
+ * blends a rectangular region with a color
+ */
+void display_blend_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, int color, int percent_blend )
+{
+	if(  clip_lr(&xp, &w, clip_rect.x, clip_rect.xx)  &&  clip_lr(&yp, &h, clip_rect.y, clip_rect.yy)  ) {
+
+		const PIXVAL colval = specialcolormap_all_day[color & 0xFF];
+		const PIXVAL alpha = (percent_blend*64)/100;
+
+		switch( alpha ) {
+			case 0:	// nothing to do ...
+				break;
+
+			case 16:
+			case 32:
+			case 48:
+			{
+				// fast blending with 1/4 | 1/2 | 3/4 percentage
+				blend_proc blend = outline[ (alpha>>4) - 1 ];
+
+				for(  KOORD_VAL y=0;  y<h;  y++  ) {
+					blend( textur + xp + (yp+y) * disp_width, NULL, colval, w );
+				}
+			}
+			break;
+
+			case 64:
+				// opaque ...
+				display_fillbox_wh( xp, yp, w, h, color, false );
+				break;
+
+			default:
+				// any percentage blending: SLOW!
+				if(  blend[0] == pix_blend25_15  ) {
+					// 555 BITMAPS
+					const PIXVAL r_src = (colval >> 10) & 0x1F;
+					const PIXVAL g_src = (colval >> 5) & 0x1F;
+					const PIXVAL b_src = colval & 0x1F;
+					for(  ;  h>0;  yp++, h--  ) {
+						PIXVAL *dest = textur + yp*disp_width + xp;
+						const PIXVAL *const end = dest + w;
+						while (dest < end) {
+							const PIXVAL r_dest = (*dest >> 10) & 0x1F;
+							const PIXVAL g_dest = (*dest >> 5) & 0x1F;
+							const PIXVAL b_dest = (*dest & 0x1F);
+							const PIXVAL r = r_dest + ( ( (r_src - r_dest) * alpha ) >> 6 );
+							const PIXVAL g = g_dest + ( ( (g_src - g_dest) * alpha ) >> 6 );
+							const PIXVAL b = b_dest + ( ( (b_src - b_dest) * alpha ) >> 6 );
+							*dest++ = (r << 10) | (g << 5) | b;
+						}
+					}
+				}
+				else {
+					// 565 BITMAPS
+					const PIXVAL r_src = (colval >> 11);
+					const PIXVAL g_src = (colval >> 5) & 0x3F;
+					const PIXVAL b_src = colval & 0x1F;
+					for(  ;  h>0;  yp++, h--  ) {
+						PIXVAL *dest = textur + yp*disp_width + xp;
+						const PIXVAL *const end = dest + w;
+						while (dest < end) {
+							const PIXVAL r_dest = (*dest >> 11);
+							const PIXVAL g_dest = (*dest >> 5) & 0x3F;
+							const PIXVAL b_dest = (*dest & 0x1F);
+							const PIXVAL r = r_dest + ( ( (r_src - r_dest) * alpha ) >> 6 );
+							const PIXVAL g = g_dest + ( ( (g_src - g_dest) * alpha ) >> 6 );
+							const PIXVAL b = b_dest + ( ( (b_src - b_dest) * alpha ) >> 6 );
+							*dest++ = (r << 11) | (g << 5) | b;
+						}
+					}
+				}
+				break;
+		}
+	}
+}
+
 
 static void display_img_blend_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp, int colour, blend_proc p )
 {
@@ -2825,7 +2939,6 @@ void display_base_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const 
 }
 
 
-
 // ----------------- basic painting procedures ----------------
 
 
@@ -3016,7 +3129,8 @@ bool display_load_font(const char* fname)
 		free(large_font.screen_width);
 		free(large_font.char_data);
 		large_font = fnt;
-		large_font_height = large_font.height;
+		large_font_ascent = large_font.height + large_font.descent;
+		large_font_total_height = large_font.height;
 		return true;
 	}
 	else {
@@ -3142,7 +3256,7 @@ unsigned short get_prev_char_with_metrics(const char* &text, const char *const t
 int display_calc_proportional_string_len_width(const char* text, size_t len)
 {
 	const font_type* const fnt = &large_font;
-	unsigned int c, width = 0;
+	unsigned int width = 0;
 	int w;
 
 #ifdef UNICODE_SUPPORT
@@ -3165,7 +3279,8 @@ int display_calc_proportional_string_len_width(const char* text, size_t len)
 	} else {
 #endif
 		uint8 char_width;
-		while (*text!=0  &&  len>0) {
+		unsigned int c;
+		while(  *text != 0  &&  len > 0  ) {
 			c = (unsigned char)*text;
 			if(  c>=fnt->num_chars  ||  (char_width=fnt->screen_width[c])==0  ) {
 				// default width for missing characters
@@ -3413,17 +3528,17 @@ void display_ddd_box(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PLAYE
 void display_outline_proportional(KOORD_VAL xpos, KOORD_VAL ypos, PLAYER_COLOR_VAL text_color, PLAYER_COLOR_VAL shadow_color, const char *text, int dirty)
 {
 	const int flags = ALIGN_LEFT | DT_CLIP | (dirty ? DT_DIRTY : 0);
-	display_text_proportional_len_clip(xpos - 1, ypos - 1 + (12 - large_font_height) / 2, text, flags, shadow_color, -1);
-	display_text_proportional_len_clip(xpos + 1, ypos + 1 + (12 - large_font_height) / 2, text, flags, shadow_color, -1);
-	display_text_proportional_len_clip(xpos, ypos + (12 - large_font_height) / 2, text, flags, text_color, -1);
+	display_text_proportional_len_clip(xpos - 1, ypos - 1 + (12 - large_font_total_height) / 2, text, flags, shadow_color, -1);
+	display_text_proportional_len_clip(xpos + 1, ypos + 1 + (12 - large_font_total_height) / 2, text, flags, shadow_color, -1);
+	display_text_proportional_len_clip(xpos, ypos + (12 - large_font_total_height) / 2, text, flags, text_color, -1);
 }
 
 
 void display_shadow_proportional(KOORD_VAL xpos, KOORD_VAL ypos, PLAYER_COLOR_VAL text_color, PLAYER_COLOR_VAL shadow_color, const char *text, int dirty)
 {
 	const int flags = ALIGN_LEFT | DT_CLIP | (dirty ? DT_DIRTY : 0);
-	display_text_proportional_len_clip(xpos + 1, ypos + 1 + (12 - large_font_height) / 2, text, flags, shadow_color, -1);
-	display_text_proportional_len_clip(xpos, ypos + (12 - large_font_height) / 2, text, flags, text_color, -1);
+	display_text_proportional_len_clip(xpos + 1, ypos + 1 + (12 - large_font_total_height) / 2, text, flags, shadow_color, -1);
+	display_text_proportional_len_clip(xpos, ypos + (12 - large_font_total_height) / 2, text, flags, text_color, -1);
 }
 
 
@@ -3446,7 +3561,7 @@ void display_ddd_box_clip(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, 
 // if width equals zero, take default value
 void display_ddd_proportional(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, KOORD_VAL hgt, PLAYER_COLOR_VAL ddd_farbe, PLAYER_COLOR_VAL text_farbe, const char *text, int dirty)
 {
-	int halfheight = large_font_height / 2 + 1;
+	int halfheight = large_font_total_height / 2 + 1;
 
 	display_fillbox_wh(xpos - 2, ypos - halfheight - hgt - 1, width, 1,              ddd_farbe + 1, dirty);
 	display_fillbox_wh(xpos - 2, ypos - halfheight - hgt,     width, halfheight * 2, ddd_farbe,     dirty);
@@ -3465,7 +3580,7 @@ void display_ddd_proportional(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, K
  */
 void display_ddd_proportional_clip(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, KOORD_VAL hgt, PLAYER_COLOR_VAL ddd_farbe, PLAYER_COLOR_VAL text_farbe, const char *text, int dirty)
 {
-	int halfheight = large_font_height / 2 + 1;
+	int halfheight = large_font_total_height / 2 + 1;
 
 	display_fillbox_wh_clip(xpos - 2, ypos - halfheight - 1 - hgt, width, 1,              ddd_farbe + 1, dirty);
 	display_fillbox_wh_clip(xpos - 2, ypos - halfheight - hgt,     width, halfheight * 2, ddd_farbe,     dirty);
@@ -3474,7 +3589,7 @@ void display_ddd_proportional_clip(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL wid
 	display_vline_wh_clip(xpos - 2,         ypos - halfheight - 1 - hgt, halfheight * 2 + 1, ddd_farbe + 1, dirty);
 	display_vline_wh_clip(xpos + width - 3, ypos - halfheight - 1 - hgt, halfheight * 2 + 1, ddd_farbe - 1, dirty);
 
-	display_text_proportional_len_clip(xpos + 2, ypos - 5 + (12 - large_font_height) / 2, text, ALIGN_LEFT | DT_CLIP, text_farbe, -1);
+	display_text_proportional_len_clip(xpos + 2, ypos - 5 + (12 - large_font_total_height) / 2, text, ALIGN_LEFT | DT_CLIP, text_farbe, -1);
 }
 
 
@@ -3525,7 +3640,9 @@ void display_direct_line(const KOORD_VAL x, const KOORD_VAL y, const KOORD_VAL x
 	const PIXVAL colval = specialcolormap_all_day[color & 0xFF];
 
 	steps = (abs(dx) > abs(dy) ? abs(dx) : abs(dy));
-	if (steps == 0) steps = 1;
+	if (steps == 0) {
+		steps = 1;
+	}
 
 	xs = (dx << 16) / steps;
 	ys = (dy << 16) / steps;
@@ -3537,6 +3654,199 @@ void display_direct_line(const KOORD_VAL x, const KOORD_VAL y, const KOORD_VAL x
 		display_pixel(xp >> 16, yp >> 16, colval);
 		xp += xs;
 		yp += ys;
+	}
+}
+
+
+//taken from function display_direct_line() above, to draw a dotted line: draw=pixels drawn, dontDraw=pixels skipped
+void display_direct_line_dotted(const KOORD_VAL x, const KOORD_VAL y, const KOORD_VAL xx, const KOORD_VAL yy, const KOORD_VAL draw, const KOORD_VAL dontDraw, const PLAYER_COLOR_VAL color)
+{
+	int i, steps;
+	int xp, yp;
+	int xs, ys;
+	int counter=0;
+	bool mustDraw=true;
+
+	const int dx = xx - x;
+	const int dy = yy - y;
+	const PIXVAL colval = specialcolormap_all_day[color & 0xFF];
+
+	steps = (abs(dx) > abs(dy) ? abs(dx) : abs(dy));
+	if (steps == 0) {
+		steps = 1;
+	}
+
+	xs = (dx << 16) / steps;
+	ys = (dy << 16) / steps;
+
+	xp = x << 16;
+	yp = y << 16;
+
+	for(  i = 0;  i <= steps;  i++  ) {
+		counter ++;
+		if(  mustDraw  ) {
+			if(  counter == draw  ) {
+				mustDraw = !mustDraw;
+				counter = 0;
+			}
+		}
+		if(  !mustDraw  ) {
+			if(  counter == dontDraw  ) {
+				mustDraw=!mustDraw;
+				counter=0;
+			}
+		}
+
+		if(  mustDraw  ) {
+			display_pixel( xp >> 16, yp >> 16, colval );
+		}
+		xp += xs;
+		yp += ys;
+	}
+}
+
+
+// bresenham circle (from wikipedia ...)
+void display_circle( KOORD_VAL x0, KOORD_VAL  y0, int radius, const PLAYER_COLOR_VAL color )
+{
+	const PIXVAL colval = specialcolormap_all_day[color & 0xFF];
+	int f = 1 - radius;
+	int ddF_x = 1;
+	int ddF_y = -2 * radius;
+	int x = 0;
+	int y = radius;
+
+	display_pixel( x0, y0 + radius, colval );
+	display_pixel( x0, y0 - radius, colval );
+	display_pixel( x0 + radius, y0, colval );
+	display_pixel( x0 - radius, y0, colval);
+
+	while(x < y) {
+		// ddF_x == 2 * x + 1;
+		// ddF_y == -2 * y;
+		// f == x*x + y*y - radius*radius + 2*x - y + 1;
+		if(f >= 0) {
+			y--;
+			ddF_y += 2;
+			f += ddF_y;
+		}
+
+		x++;
+		ddF_x += 2;
+		f += ddF_x;
+
+		display_pixel( x0 + x, y0 + y, colval );
+		display_pixel( x0 - x, y0 + y, colval );
+		display_pixel( x0 + x, y0 - y, colval );
+		display_pixel( x0 - x, y0 - y, colval );
+		display_pixel( x0 + y, y0 + x, colval );
+		display_pixel( x0 - y, y0 + x, colval );
+		display_pixel( x0 + y, y0 - x, colval );
+		display_pixel( x0 - y, y0 - x, colval );
+	}
+}
+
+
+// bresenham circle (from wikipedia ...)
+void display_filled_circle( KOORD_VAL x0, KOORD_VAL  y0, int radius, const PLAYER_COLOR_VAL color )
+{
+	const PIXVAL colval = specialcolormap_all_day[color & 0xFF];
+	int f = 1 - radius;
+	int ddF_x = 1;
+	int ddF_y = -2 * radius;
+	int x = 0;
+	int y = radius;
+
+	display_fb_internal( x0-radius, y0, radius+radius+1, 1, color, false, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy);
+	display_pixel( x0, y0 + radius, colval );
+	display_pixel( x0, y0 - radius, colval );
+	display_pixel( x0 + radius, y0, colval );
+	display_pixel( x0 - radius, y0, colval);
+
+	while(x < y) {
+		// ddF_x == 2 * x + 1;
+		// ddF_y == -2 * y;
+		// f == x*x + y*y - radius*radius + 2*x - y + 1;
+		if(f >= 0) {
+			y--;
+			ddF_y += 2;
+			f += ddF_y;
+		}
+
+		x++;
+		ddF_x += 2;
+		f += ddF_x;
+
+		display_fb_internal( x0-x, y0+y, x+x, 1, color, false, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy);
+		display_fb_internal( x0-x, y0-y, x+x, 1, color, false, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy);
+
+		display_fb_internal( x0-y, y0+x, y+y, 1, color, false, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy);
+		display_fb_internal( x0-y, y0-x, y+y, 1, color, false, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy);
+	}
+	mark_rect_dirty_wc( x0-radius, y0-radius, x0+radius+1, y0+radius+1 );
+}
+
+
+/**
+ * Print a bezier curve between points A and B
+ * @author yorkeiser
+ * @date  08.04.2012
+ * @Ax,Ay=start coordinate of Bezier curve
+ * @Bx,By=end coordinate of Bezier curve
+ * @ADx,ADy=vector for start direction of curve
+ * @BDx,BDy=vector for end direction of Bezier curve
+ * @colore=color for curve to be drawn
+ * @draw=for dotted lines, how many pixels to be drawn (leave 0 for solid line)
+ * @dontDraw=for dotted lines, how many pixels to not be drawn (leave 0 for solid line)
+ */
+void draw_bezier(KOORD_VAL Ax, KOORD_VAL Ay, KOORD_VAL Bx, KOORD_VAL By, KOORD_VAL ADx, KOORD_VAL ADy, KOORD_VAL BDx, KOORD_VAL BDy, const PLAYER_COLOR_VAL colore, KOORD_VAL draw, KOORD_VAL dontDraw)
+{
+	KOORD_VAL Cx,Cy,Dx,Dy;
+	Cx = Ax + ADx;
+	Cy = Ay + ADy;
+	Dx = Bx + BDx;
+	Dy = By + BDy;
+
+	/*	float a,b,rx,ry,oldx,oldy;
+	for (float t=0.0;t<=1;t+=0.05)
+	{
+		a = t;
+		b = 1.0 - t;
+		if (t>0.0)
+		{
+			oldx=rx;
+			oldy=ry;
+		}
+		rx = Ax*b*b*b + 3*Cx*b*b*a + 3*Dx*b*a*a + Bx*a*a*a;
+		ry = Ay*b*b*b + 3*Cy*b*b*a + 3*Dy*b*a*a + By*a*a*a;
+		if (t>0.0)
+			if (!draw && !dontDraw)
+				display_direct_line(rx,ry,oldx,oldy,colore);
+			else
+				display_direct_line_dotted(rx,ry,oldx,oldy,draw,dontDraw,colore);
+	  }
+*/
+
+	sint32 a, b, rx, ry, oldx, oldy;
+	// fixed point: we cycle between 0 and 32, rather than 0 and 1
+	for(  sint32 t=0;  t<=32;  t++  ) {
+		a = t;
+		b = 32 - t;
+		if(  t > 0  ) {
+			oldx = rx;
+			oldy = ry;
+		}
+		rx = Ax*b*b*b + 3*Cx*b*b*a + 3*Dx*b*a*a + Bx*a*a*a;
+		ry = Ay*b*b*b + 3*Cy*b*b*a + 3*Dy*b*a*a + By*a*a*a;
+		//fixed point: due to cycling between 0 and 32 (2<<5), we divide by 32^3=2>>15 because of cubic interpolation
+		if( t > 0  ) {
+			if(  !draw  &&  !dontDraw  ) {
+				display_direct_line( rx>>15, ry>>15, oldx>>15, oldy>>15, colore );
+			}
+			else {
+				display_direct_line_dotted( rx>>15, ry>>15, oldx>>15, oldy>>15, draw, dontDraw, colore );
+			}
+		}
 	}
 }
 
@@ -3557,7 +3867,7 @@ void display_set_progress_text(const char *t)
 // draws a progress bar and flushes the display
 void display_progress(int part, int total)
 {
-	const int width=disp_width/2;
+	const int width=disp_actual_width/2;
 	part = (part*width)/total;
 
 	dr_prepare_flush();
@@ -3745,10 +4055,12 @@ void simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 	disp_actual_width = width;
 	disp_height = height;
 
+#if MULTI_THREAD>1
+	pthread_mutex_init( &rezoom_recode_img_mutex, NULL );
+#endif
 	// get real width from os-dependent routines
 	disp_width = dr_os_open(width, height, full_screen);
 	if(  disp_width>0  ) {
-
 
 		textur = dr_textur_init();
 
@@ -3838,6 +4150,8 @@ int is_display_init(void)
  */
 void simgraph_exit()
 {
+	dr_os_close();
+
 	guarded_free(tile_dirty);
 	guarded_free(tile_dirty_old);
 	display_free_all_images_above(0);
@@ -3845,8 +4159,9 @@ void simgraph_exit()
 
 	tile_dirty = tile_dirty_old = NULL;
 	images = NULL;
-
-	dr_os_close();
+#if MULTI_THREAD>1
+	pthread_mutex_destroy( &rezoom_recode_img_mutex );
+#endif
 }
 
 
@@ -3882,7 +4197,18 @@ void simgraph_resize(KOORD_VAL w, KOORD_VAL h)
 
 			display_set_clip_wh(0, 0, disp_actual_width, disp_height);
 		}
+		memset(tile_dirty,     255, tile_buffer_length);
+		memset(tile_dirty_old, 255, tile_buffer_length);
 	}
+}
+
+
+/**
+ * Sets a new value for "textur"
+ */
+void reset_textur(void *new_textur)
+{
+	textur=(PIXVAL *)new_textur;
 }
 
 

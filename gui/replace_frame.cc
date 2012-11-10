@@ -40,7 +40,7 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	false : cnv->get_welt()->lookup(cnv->get_vehikel(0)->get_pos())->get_weg(cnv->get_vehikel(0)	->get_waytype())->is_electrified() )
 
 {
-	const uint32 a_button_height = 14;
+	const uint32 a_D_BUTTON_HEIGHT = 14;
 	const uint32 margin = 6;
 	lb_money.set_text_pointer(txt_money);
 	add_komponente(&lb_money);
@@ -86,7 +86,7 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	const weg_t *way = cnv->get_welt()->lookup(lead_vehicle->get_pos())->get_weg(wt);
 	const bool weg_electrified = way == NULL ? false : way->is_electrified();
 	convoy_assembler.set_electrified( weg_electrified );
-	convoy_assembler.set_convoy_tabs_skip(-2*LINESPACE+3*LINESPACE+2*margin+a_button_height);
+	convoy_assembler.set_convoy_tabs_skip(-2*LINESPACE+3*LINESPACE+2*margin+a_D_BUTTON_HEIGHT);
 	convoy_assembler.add_listener(this);
 	if(cnv.is_bound() && cnv->get_replace())
 	{
@@ -194,7 +194,7 @@ void replace_frame_t::layout(koord *gr)
 {
 	const uint32 margin=6;
 	const uint32 a_button_width=96;
-	const uint32 a_button_height=14;
+	const uint32 a_D_BUTTON_HEIGHT=14;
 
 	/**
 	 * Let's calculate the space and min space
@@ -259,22 +259,22 @@ void replace_frame_t::layout(koord *gr)
 
 	uint32 buttons_y=current_y+convoy_assembler.get_convoy_height()-2*LINESPACE+8;
 	uint32 buttons_width=(fgr.x-2*margin)/4;
-	bt_autostart.set_groesse(koord(buttons_width, a_button_height));
-	bt_depot.set_groesse(koord(buttons_width, a_button_height));
-	bt_mark.set_groesse(koord(buttons_width, a_button_height));
-	bt_clear.set_groesse(koord(buttons_width, a_button_height));
+	bt_autostart.set_groesse(koord(buttons_width, a_D_BUTTON_HEIGHT));
+	bt_depot.set_groesse(koord(buttons_width, a_D_BUTTON_HEIGHT));
+	bt_mark.set_groesse(koord(buttons_width, a_D_BUTTON_HEIGHT));
+	bt_clear.set_groesse(koord(buttons_width, a_D_BUTTON_HEIGHT));
 	bt_autostart.set_pos(koord(margin,buttons_y));
 	bt_depot.set_pos(koord(margin+buttons_width,buttons_y));
 	bt_mark.set_pos(koord(margin+(buttons_width*2),buttons_y));
 	bt_clear.set_pos(koord(margin+(buttons_width*3),buttons_y));
 	
-	current_y=buttons_y+a_button_height+margin;
+	current_y=buttons_y+a_D_BUTTON_HEIGHT+margin;
 	lb_money.set_pos(koord(110,current_y));
 	lb_replace_cycle.set_pos(koord(fgr.x-170,current_y));
 	lb_replace.set_pos(koord(fgr.x-166,current_y));
 
 	numinp[state_replace].set_pos( koord( fgr.x-110, current_y ) );
-	numinp[state_replace].set_groesse( koord( 50, a_button_height ) );
+	numinp[state_replace].set_groesse( koord( 50, a_D_BUTTON_HEIGHT ) );
 	lb_n_replace.set_pos( koord( fgr.x-50, current_y ) );
 	current_y+=LINESPACE+2;
 
@@ -283,7 +283,7 @@ void replace_frame_t::layout(koord *gr)
 	bt_allow_using_existing_vehicles.set_pos(koord(margin + (162 *2),current_y));
 	lb_sell.set_pos(koord(fgr.x-166,current_y));
 	numinp[state_sell].set_pos( koord( fgr.x-110, current_y ) );
-	numinp[state_sell].set_groesse( koord( 50, a_button_height ) );
+	numinp[state_sell].set_groesse( koord( 50, a_D_BUTTON_HEIGHT ) );
 	lb_n_sell.set_pos( koord( fgr.x-50, current_y ) );
 	current_y+=LINESPACE+2;
 
@@ -291,7 +291,7 @@ void replace_frame_t::layout(koord *gr)
 	bt_use_home_depot.set_pos(koord(margin + 162,current_y));
 	lb_skip.set_pos(koord(fgr.x-166,current_y));
 	numinp[state_skip].set_pos( koord( fgr.x-110, current_y ) );
-	numinp[state_skip].set_groesse( koord( 50, a_button_height ) );
+	numinp[state_skip].set_groesse( koord( 50, a_D_BUTTON_HEIGHT ) );
 	lb_n_skip.set_pos( koord( fgr.x-50, current_y ) );
 
 	current_y+=LINESPACE+margin;
@@ -319,7 +319,7 @@ void replace_frame_t::update_data()
 	n[1]=0;
 	n[2]=0;
 	money = 0;
-	sint32 base_total_cost = calc_total_cost();
+	sint64 base_total_cost = calc_total_cost();
 	if (replace_line || replace_all) {
 		start_replacing();
 	} else {
@@ -557,11 +557,12 @@ bool replace_frame_t::action_triggered( gui_action_creator_t *komp,value_t /*p*/
 bool replace_frame_t::infowin_event(const event_t *ev)
 {
 	gui_frame_t::infowin_event(ev);
-	if(IS_WINDOW_REZOOM(ev)) {
-		koord gr = get_fenstergroesse();
-		set_fenstergroesse(gr);
-		return true;
-	} else if(ev->ev_class == INFOWIN && ev->ev_code == WIN_OPEN) {
+	//if(IS_WINDOW_REZOOM(ev)) {
+	//	koord gr = get_fenstergroesse();
+	//	set_fenstergroesse(gr);
+	//	return true;
+	//} else 
+	if(ev->ev_class == INFOWIN && ev->ev_code == WIN_OPEN) {
 		convoy_assembler.build_vehicle_lists();
 		update_data();
 		layout(NULL);

@@ -525,7 +525,7 @@ void fabrik_t::set_base_production(sint32 p)
 }
 
 
-fabrik_t *fabrik_t::get_fab(const karte_t *welt, const koord pos)
+fabrik_t *fabrik_t::get_fab(const karte_t *welt, const koord &pos)
 {
 	const grund_t *gr = welt->lookup_kartenboden(pos);
 	if(gr) {
@@ -1264,13 +1264,13 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		else {
 			uint16 nr=0;
 			koord k;
-			uint16 idx;
 			file->rdwr_short(nr);
 			fields.resize(nr);
 			if(  file->get_version()>102002  && file->get_experimental_version() != 7 ) {
 				// each field stores location and a field class index
 				for(  uint16 i=0  ;  i<nr  ;  ++i  ) {
 					k.rdwr(file);
+					uint16 idx;
 					file->rdwr_short(idx);
 					if(  besch==NULL  ||  idx>=besch->get_field_group()->get_field_class_count()  ) {
 						// set class index to 0 if it is out of range
@@ -1375,13 +1375,13 @@ void fabrik_t::smoke() const
 		const koord size = besch->get_haus()->get_groesse(0)-koord(1,1);
 		const uint8 rot = rotate%besch->get_haus()->get_all_layouts();
 		koord ro = rada->get_pos_off(size,rot);
-		grund_t *gr=welt->lookup_kartenboden(pos.get_2d()+ro);
+		grund_t *gr = welt->lookup_kartenboden(pos.get_2d()+ro);
 		// to get same random order on different compilers
-		const sint8 offsetx =  ((rada->get_xy_off(rot).x+simrand(7, "void fabrik_t::smoke() 1")-3)*OBJECT_OFFSET_STEPS)/16;
-		const sint8 offsety =  ((rada->get_xy_off(rot).y+simrand(7, "void fabrik_t::smoke() 2")-3)*OBJECT_OFFSET_STEPS)/16;
+		const sint8 offsetx =  ((rada->get_xy_off(rot).x+sim_async_rand(7)-3)*OBJECT_OFFSET_STEPS)/16;
+		const sint8 offsety =  ((rada->get_xy_off(rot).y+sim_async_rand(7)-3)*OBJECT_OFFSET_STEPS)/16;
 		wolke_t *smoke =  new wolke_t(welt, gr->get_pos(), offsetx, offsety, rada->get_bilder() );
 		gr->obj_add(smoke);
-		welt->sync_add( smoke );
+		welt->sync_way_eyecandy_add( smoke );
 	}
 }
 
@@ -1817,11 +1817,9 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 			// prissi: this way, the halt, that is tried first, will change. 
 			// As a result, if all destinations are empty, it will be spread evenly.
 			const koord lieferziel = lieferziele[(n + index_offset) % lieferziele.get_count()];
-
 			fabrik_t * ziel_fab = get_fab(welt, lieferziel);
-			int vorrat;
 
-			if (ziel_fab && (vorrat = ziel_fab->verbraucht(ausgang[produkt].get_typ())) >= 0) 
+			if (ziel_fab && ziel_fab->verbraucht(ausgang[produkt].get_typ()) >= 0) 
 			{
 				//ware_t ware(ausgang[produkt].get_typ());
 				ware_t ware(ausgang[produkt].get_typ(), halt);
@@ -1894,7 +1892,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 			ware_t most_waiting(ausgang[produkt].get_typ());
 			most_waiting.menge = 0;
 			FOR(vector_tpl<koord>, const& n, lieferziele) {
-				uint32 const amount = (sint32)best_halt->get_ware_fuer_zielpos(ausgang[produkt].get_typ(), n);
+				uint32 const amount = best_halt->get_ware_fuer_zielpos(ausgang[produkt].get_typ(), n);
 				if(  amount > most_waiting.menge  ) {
 					most_waiting.set_zielpos(n);
 					most_waiting.menge = amount;

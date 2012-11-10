@@ -140,21 +140,20 @@ void crossing_logic_t::add_to_crossing( const vehikel_basis_t *v )
 
 // called after passing of the last vehicle (in a convoi)
 // or of a city car; releases the crossing which may switch state
-void
-crossing_logic_t::release_crossing( const vehikel_basis_t *v )
+void crossing_logic_t::release_crossing( const vehikel_basis_t *v )
 {
-	if(v->get_waytype()==besch->get_waytype(0)) {
+	if(  v->get_waytype() == besch->get_waytype(0)  ) {
 		on_way1.remove(v);
-		if(zustand == CROSSING_REQUEST_CLOSE  &&  on_way1.empty()) {
+		if(  zustand == CROSSING_REQUEST_CLOSE  &&  on_way1.empty()  ) {
 			set_state( CROSSING_CLOSED );
 		}
 	}
 	else {
 		on_way2.remove(v);
-		if(  request_close==v  ) {
+		if(  request_close == v  ) {
 			request_close = NULL;
 		}
-		if(on_way2.empty()  &&  request_close==NULL) {
+		if(  on_way2.empty()  &&  request_close == NULL  ) {
 			set_state( CROSSING_OPEN );
 		}
 	}
@@ -163,8 +162,7 @@ crossing_logic_t::release_crossing( const vehikel_basis_t *v )
 
 
 // change state; mark dirty and plays sound
-void
-crossing_logic_t::set_state( crossing_state_t new_state )
+void crossing_logic_t::set_state( crossing_state_t new_state )
 {
 	// play sound (if there and closing)
 	if(new_state==CROSSING_CLOSED  &&  besch->get_sound()>=0  &&  !welt->is_fast_forward()) {

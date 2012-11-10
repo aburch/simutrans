@@ -1,0 +1,56 @@
+<title>Lista das cargas</title>
+
+<h1><strong>Lista das cargas</strong></h1>
+
+<p>
+A lista de <strong>Lista das cargas</strong> contém informações sobre itens variados que podem ser transportados no jogo e tem controles para mudar o lucro recebido do transporte das cargas.
+</p>
+<p>
+Para abrir: clique no botão das Lista das cargas nas <a href="list.txt">Listas</a> ou aperte a tecla <a href="keys.txt">[G]</a>.
+</p>
+<p>
+Uma lista de itens disponíveis para transporte no jogo indica: renda recebida, bônus de velocidade (medido em %), categoria das cargas e peso.<br>
+{Dica: Se os itens na lista são apenas parcialmente visíveis, então <a href="mouse.txt">reajuste o tamanho</a> da janela <strong>Lista das cargas</strong> ou desça a lista usando a barra de rolagem.}
+</p>
+<p>
+<em>Bônus a partir de</em>: mostra a velocidade necessária para os diferentes tipos de transportes, os quais um <a href="convoiinfo.txt">Comboio</a> precisa ser capaz de alcançar para receber renda extra pelo transporte rápido de mercadorias e passageiros (ou em alguns casos uma penalidade em dinheiro, se for muito devagar).<br>
+Se estiver jogando com a <a href="new_world.txt">linha do tempo</a> ativada, com o passar do tempo no Simutrans essas velocidades necessárias mudam com a introdução de novos veículos.<br>
+Os botões-setas ajustam o lucro recebido e a velocidade que o Comboio precisa alcançar para receber o bônus (ou receber uma penalidade caso o Comboio seja muito lento).
+</p>
+<p>
+<em>Classificadas por:</em> oferece opções para determinar a ordem dos itens mostrados na lista.<br>
+Clique nos botões abaixo para escolher uma das opções (a opção ativada no momento tem o seu nome mostrado no botão):
+</p>
+<p>
+- <em>Sem ordem</em> classifica em uma ordem aleatória.<br>
+- <em>Nome</em> classifica em ordem alfabética.<br>
+- <em>Valor</em> classifica pelo lucro recebido pelo transporte de uma unidade das cargas por um quadrado do jogo.<br>
+- <em>Bônus</em> classifica pela porcentagem de bônus de velocidade (a porcentagem de lucro extra recebida se o <a href="convoiinfo.txt">Comboio</a> é capaz de alcançar a velocidade necessária para ter direito a essa porcentagem).
+</p>
+<p>
+- <em>Crescente</em> / <em>Decrescente</em> inverte a ordem na lista.
+</p>
+<p>
+Os detalhes listados para cada item incluem:
+</p>
+<p>
+A <em>cor do quadrado</em> é a mesma cor mostrada nas barras coloridas das cargas na visão do jogo sobre uma <a href="station.txt">Parada</a> para indicar a quantidade de itens que aguardam pelo transporte.<br>
+{Dica: Pressione [!] para ativar ou desativar as barras coloridas das cargas sobre uma Parada na visão do jogo.}
+</p>
+<p>
+O <em>valor</em> é a renda recebida pelo transporte de uma unidade daquela carga por um quadrado do jogo.<br>
+{Dica: Use o <a href="new_world.txt">modo iniciante</a> para aumentar os lucros em 150% (pode ser alterado no simuconf.tab)}
+</p>
+<p>
+A <em>porcentagem</em> é a porcentagem de lucro extra recebido caso o <a href="convoiinfo.txt">Comboio</a> utilizado seja capaz de transportar a carga na velocidade necessária para ganhar o bônus (ou em alguns casos em penalidade, caso o Comboio seja muito lento).<br>
+A fórmula usada para calcular o lucro é muito complexa e considera a velocidade máxima de um Comboio com a média da velocidade máxima dos outros veículos (e não apenas do veículo visto no jogo).
+</p>
+<p>
+A <em>categoria da carga</em> indica o tipo de veículo necessário para o transporte daquela carga. Cargas especiais precisam de veículos específicos.<br>
+{Dica: A <a href="depot.txt">capacidade</a> dos veículos mostra quais itens um veículo pode transportar}.
+</p>
+<p>
+O <em>peso</em> mostrado é de uma unidade da carga em quilogramas.
+</p>
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 07/02/2008.
+</p>

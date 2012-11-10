@@ -1,0 +1,24 @@
+<title>Javak listája</title>
+
+<h1>Javak listája</h1>
+
+<p>
+A különbözõ javaknak különbözõ színe van. Ez nagyon hasznos ha a kis térképet hasunálod. Minden egyes árú egységnek van egy értéke amely úgymond Simucentben van megadva.
+Ez azt jelenti, hogyha az árú a megfelelõ helyre ér, a jövedelmed ennyi centtel lesz több egységenként. Ugyanakkor a sebesség függvényében százalékban véve bónuszcenteket is kapsz.
+A bónusz az alap sebesség és az aktuális sebesség különbségébõl számolódik ki. Részleteket lásd a: <strong>http://128.simutrans.com/graphs.htm</strong> honlapon (angol nyelvû).
+</p>
+<p>
+<em>Rakomány</em> Itt vannak felsorolva a különbözõ javak.
+</p>
+<p>
+<em>Ár:</em> Egyes javak ára Simucentben.
+</p>
+<p>
+<em>Bonusz:</em> Plusz pénz amit az alapsebbességhez viszonytott aktuális sebességbõl számolodik ki.
+</p>
+<p>
+<em>Típus:</em> Az árú típusa.
+</p>
+<p>
+<em>Súly:</em> Egy egység kg-ban vett súlya.
+</p>

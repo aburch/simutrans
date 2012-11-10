@@ -46,6 +46,7 @@
 #define RIGHT_COLUMN_WIDTH (60)
 
 
+
 koord enlarge_map_frame_t::koord_from_rotation(settings_t const* const sets, sint16 const x, sint16 const y, sint16 const w, sint16 const h)
 {
 	koord offset( sets->get_origin_x(), sets->get_origin_y() );
@@ -57,7 +58,6 @@ koord enlarge_map_frame_t::koord_from_rotation(settings_t const* const sets, sin
 		case 3: return offset+koord(h-y,x);
 	}
 }
-
 
 
 enlarge_map_frame_t::enlarge_map_frame_t(spieler_t *, karte_t *w) :
@@ -152,6 +152,11 @@ enlarge_map_frame_t::enlarge_map_frame_t(spieler_t *, karte_t *w) :
 }
 
 
+enlarge_map_frame_t::~enlarge_map_frame_t()
+{
+	delete sets;
+}
+
 
 /**
  * This method is called if an action is triggered
@@ -195,10 +200,6 @@ bool enlarge_map_frame_t::action_triggered( gui_action_creator_t *komp,value_t v
 	}
 	else if(komp==&start_button) {
 		// since soon those are invalid
-		news_img* info_win = new news_img("Vergroessere die Karte\n", skinverwaltung_t::neueweltsymbol->get_bild_nr(0));
-		create_win(200, 100, info_win, w_info, magic_none);
-		// just hide it for the moment ...
-		win_set_pos( this, display_get_width()+2, display_get_height()+2 );
 		intr_refresh_display( true );
 		//Quick and Ugly Hack: we don't want change main umgebung_t
 		uint32 saved_number_of_big_cities = umgebung_t::number_of_big_cities; umgebung_t::number_of_big_cities = number_of_big_cities;
@@ -213,7 +214,6 @@ bool enlarge_map_frame_t::action_triggered( gui_action_creator_t *komp,value_t v
 	}
 	return true;
 }
-
 
 
 void enlarge_map_frame_t::zeichnen(koord pos, koord gr)
@@ -249,7 +249,6 @@ void enlarge_map_frame_t::zeichnen(koord pos, koord gr)
 }
 
 
-
 /**
  * Berechnet Preview-Karte neu. Inititialisiert RNG neu!
  * @author Hj. Malthaner
@@ -281,8 +280,8 @@ void enlarge_map_frame_t::update_preview()
 					color = COL_WHITE;
 				}
 				else {
-					const sint16 height = welt->lookup_hgt( pos )*Z_TILE_STEP;
-					color = reliefkarte_t::calc_hoehe_farbe(height, sets->get_grundwasser()/Z_TILE_STEP);
+					const sint16 height = welt->lookup_hgt( pos );
+					color = reliefkarte_t::calc_hoehe_farbe(height, sets->get_grundwasser());
 				}
 			}
 			else {

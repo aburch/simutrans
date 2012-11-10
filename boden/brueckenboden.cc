@@ -28,7 +28,7 @@ void brueckenboden_t::calc_bild_internal()
 {
 	if(!is_visible()) {
 		if (ist_karten_boden()) {
-			grund_t::calc_back_bild(get_disp_height()/Z_TILE_STEP, 0);
+			grund_t::calc_back_bild(get_disp_height(), 0);
 		}
 		else {
 			clear_back_bild();
@@ -38,7 +38,7 @@ void brueckenboden_t::calc_bild_internal()
 	else {
 		if(ist_karten_boden()) {
 			set_bild( grund_besch_t::get_ground_tile(slope,get_pos().z) );
-			grund_t::calc_back_bild(get_pos().z/Z_TILE_STEP,slope);
+			grund_t::calc_back_bild(get_pos().z,slope);
 			set_flag(draw_as_ding);
 			if(  (get_grund_hang()==hang_t::west  &&  abs(back_bild_nr)>11)  ||  (get_grund_hang()==hang_t::nord  &&  get_back_bild(0)!=IMG_LEER)  ) {
 				// must draw as ding, since there is a slop here nearby

@@ -1,0 +1,32 @@
+<title>Nápovìda - turistické cíle</title>
+<h1><strong>Turistické cíle</strong></h1>
+<p>Seznam <em>turistických cílù</em> obsahuje informace o v¹ech památkách. Památky jsou zdrojem cestujících a po¹ty i jejich cílem.
+</p>
+<p>Dialog otevøete z panelu <a href="list.txt">seznamy</a>.</p>
+<p>
+<em>Øadit podle</em>: Seznamy jsou øazeny podle rùzných kritérií. Zpùsob øazení zmìníte kliknutím na pøíslu¹né tlaèítko.
+</p>
+<p>
+- <em>Jméno</em> Setøídí seznam podle názvu.<br>
+- <em>Vzrùst osob</em> øazeno podle mno¾ství cestujících a po¹ty.
+</p>
+<p>
+- <em>Vzestupnì</em> / <em>sestupnì</em> Pøepíná mezi vzestupným a sestupným øazením seznamu.
+</p>
+<p>Kliknutím text polo¾ky ze seznamu zobrazíte okno s podrobnými informacemi o daném objektu.</p>
+<p>Kliknutím na tlaèítko na zaèátku øádku se pøemístíte k dané památce.</p>
+<p>U ka¾dé památky jsou uvedeny následující informace:</p>
+<p><em>Barevný indikátor</em> znázoròuje dosa¾itelnost.</p>
+<p>
+- <em>¾lutá barva</em>: ve spádovém území se nenachází ¾ádná <a href="station.txt">stanice nebo zastávka</a>.<br>
+- <em>zelená barva</em>: U památky se nachází aspoò jedna zastávka pro cestující.<br>
+- <em>modrá barva</em>: U památky se nachází aspoò jedna zastávka odbavující po¹tu. <br>
+- <em>tyrkysová (svìtle modrozelená) barva</em>: U památky je aspoò jedna zastávka pro cestující a aspoò jedna zastávka pro po¹tu.<br>
+- <em>oran¾ová barva</em>: Zastávka u památky je pøeplnìná. <br>
+- <em>èervená barva</em>: V¹echny zastávky u památky jaou pøeplnìné.
+</p>
+<p><em>Ikona budovy</em> pøed názven památky oznaèuje mìstskou památku.</p>
+<p>
+<em>název</em> památky
+</p>
+<p><em>vzrùst osob</em>: Hodnota v závorkách oznaèuje relativní oblíbenost památky jako cíl cesty pro cestující.</p>

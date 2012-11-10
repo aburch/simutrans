@@ -1,0 +1,56 @@
+<title>Seznam zbo¾í</title>
+
+<h1><strong>Seznam zbo¾í</strong></h1>
+
+<p>
+<strong>Seznam zbo¾í</strong> obsahuje informace o rùzných vìcí, které je mo¾né transportovat po mapì. Dále je mo¾né ovládat výdìlek za jednotlivé zbo¾í.
+</p>
+<p>
+Seznam je dostupný:
+Buï kliknutím na náøadí 'Seznam zbo¾í' ve skupinì <a href="list.txt">Seznamy</a> nebo tlaèením <a href="keys.txt">[G]</a>.
+</p>
+<p>
+Listina pøístupných zbo¾í na transport obsahuje detaily:
+Pøíjem, % bonus za rychlost, kategorie zbo¾í a váhu.<br>
+{Tip: Kdy¾ neni celý text zobrazený, pomù¾e <a href="mouse.txt">zvìt¹ení okna</a> <strong>Seznam zbo¾í</strong> anebo pou¾ití posuvníkù.}
+</p>
+<p>
+<em>Bonus za rychlost:</em> Dostupnost bonusu je závislá na typu vozidla. Listina obsahuje rychlosti, které jsou nutné dosáhnout <a href="convoiinfo.txt">soupravou</a>, aby byl vyplacen zvlá¹tní pøíjem za rychlou dodávku za zbo¾í nebo za cestující (jsou dokonce i pøípady, ¾e je pøíjem odebran za pomalou dodávku).<br>
+Kdy¾ hrajete s <a href="new_world.txt">èasovou osou</a>, Simutrans nutnì upravuje rychlosti kvùli dostupnosti nových, rychlej¹ích vozidlech.<br>
+©ipky naladìjí pøíjmy a rychlosti bonusového systemu.
+</p>
+<p>
+<em>Øadit podle:</em> zmo¾nuje zmìnìní øazení záznamù listiny.<br>
+Kliknìte tlaèítka na zvolení øazení (nápis tlaèítka se zmìní):
+</p>
+<p>
+- <em>Nic</em> netøídí záznam.<br>
+- <em>Podle názvu</em> tøídí jména podle abecedy.<br>
+- <em>Podle pøíjmu</em> tøídí podle vydìlku za transport jednotky zbo¾í o jedno políèko.<br>
+- <em>Podle bonusu</em> tøídi podle % bonusu za rychlost (% dodateèného pøíjmu, kdy¾ pou¾itá <a href="convoiinfo.txt">souprava</a> dosáhne nutnou rychlost pro získání bonusu).
+</p>
+<p>
+- <em>Vzestupnì</em> / <em>Sestupnì</em> mìní poøadí tøízení.
+</p>
+<p>
+Jsou zobrazené detaily pro ka¾dý záznam:
+</p>
+<p>
+<em>Barevný ètverec</em> má stejnou barvu jako hrana nad <a href="station.txt">stanicí</a> ve høe, ukazující pøíjem zbo¾í a èekajicí zbo¾í.<br>
+{Tip: Tisknìte [!] ve høe na støídání hran na pøíjem zbo¾í nad stanicemi.}
+</p>
+<p>
+<em>Pøíjem</em> znamená výdìlek za transport jednotky zbo¾í o jedno políèko.<br>
+{Tip: Hrajte <a href="new_world.txt">zaèáteènický mód</a> na zvý¹ení pøíjmu a¾ do 150% (mù¾ete nastavit v simuconf.tab)}
+</p>
+<p>
+<em>% Bonus</em> je % dodateèného pøíjmu, kdy¾ <a href="convoiinfo.txt">souprava</a> pøekroèí nutnou rychlost na získ rychlostného bonusu.<br>
+Kalkulaèní vzorec na pøíjem je komplexní a bere ohled na maximální rychlost soupravy a srovnává jí s maximalní rychlosti v¹ech dostupnæh vozidel (nejen existujicí ve høe).
+</p>
+<p>
+<em>Kategorie zbo¾í</em> ukazujicí specifikované typy vozidla na transport tohoto zbo¾í.<br>
+{Tip: <a href="depot.txt">Kapacita</a> vozidel naznaèuje, které zbo¾í mohou transportovat.}
+</p>
+<p>
+<em>Hmotnost</em> v kilogramech.
+</p>

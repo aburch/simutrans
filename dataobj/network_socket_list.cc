@@ -2,7 +2,10 @@
 #include "network_cmd.h"
 #include "network_cmd_ingame.h"
 #include "network_packet.h"
+
+#ifndef NETTOOL
 #include "umgebung.h"
+#endif
 
 
 void socket_info_t::reset()
@@ -17,10 +20,12 @@ void socket_info_t::reset()
 			delete p;
 		}
 	}
-	if (is_active()) {
+	if (socket != INVALID_SOCKET) {
 		network_close_socket(socket);
 	}
-	state = inactive;
+	if (state != has_left) {
+		state = inactive;
+	}
 	socket = INVALID_SOCKET;
 	player_unlocked = 0;
 }
@@ -211,6 +216,18 @@ void socket_list_t::add_server( SOCKET sock )
 	}
 	list[i]->socket = sock;
 	change_state(i, socket_info_t::server);
+	if (i==0) {
+#ifndef NETTOOL
+		// set server nickname
+		if (!umgebung_t::nickname.empty()) {
+			list[i]->nickname = umgebung_t::nickname;
+		}
+		else {
+			list[i]->nickname = "Server#0";
+			umgebung_t::nickname = list[i]->nickname;
+		}
+#endif //NETTOOL
+	}
 
 	network_set_socket_nodelay( sock );
 }
@@ -221,7 +238,17 @@ bool socket_list_t::remove_client( SOCKET sock )
 	dbg->message("socket_list_t::remove_client", "remove client socket[%d]", sock);
 	for(uint32 j=0; j<list.get_count(); j++) {
 		if (list[j]->socket == sock) {
-			change_state(j, socket_info_t::inactive);
+
+#ifdef NETTOOL
+			if (list[j]->state == socket_info_t::playing) {
+#else //NETTOOL
+			if (umgebung_t::server  &&  list[j]->state == socket_info_t::playing) {
+#endif //NETTOOL
+				change_state(j, socket_info_t::has_left);
+			}
+			else {
+				change_state(j, socket_info_t::inactive);
+			}
 			list[j]->reset();
 #ifndef NETTOOL
 			// Knightly : remove the corresponding limit set

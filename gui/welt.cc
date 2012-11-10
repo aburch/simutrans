@@ -42,7 +42,7 @@
 
 #include "../simsys.h"
 #include "../utils/simstring.h"
-#include "components/list_button.h"
+
 
 #include "sprachen.h"
 #include "climates.h"
@@ -118,19 +118,19 @@ welt_gui_t::welt_gui_t(karte_t* const welt, settings_t* const sets) :
 	// maps etc.
 	intTopOfButton += 2;
 	random_map.set_pos( koord(10, intTopOfButton) );
-	random_map.set_groesse( koord(RIGHT_ARROW, BUTTON_HEIGHT) );
+	random_map.set_groesse( koord(RIGHT_ARROW, D_BUTTON_HEIGHT) );
 	random_map.set_typ(button_t::roundbox);
 	random_map.add_listener( this );
 	add_komponente( &random_map );
-	intTopOfButton += BUTTON_HEIGHT;
+	intTopOfButton += D_BUTTON_HEIGHT;
 
 	intTopOfButton += 5;
 	load_map.set_pos( koord(10, intTopOfButton) );
-	load_map.set_groesse( koord(RIGHT_ARROW, BUTTON_HEIGHT) );
+	load_map.set_groesse( koord(RIGHT_ARROW, D_BUTTON_HEIGHT) );
 	load_map.set_typ(button_t::roundbox);
 	load_map.add_listener( this );
 	add_komponente( &load_map );
-	intTopOfButton += BUTTON_HEIGHT;
+	intTopOfButton += D_BUTTON_HEIGHT;
 
 	intTopOfButton += 12 + 8;
 
@@ -147,6 +147,21 @@ welt_gui_t::welt_gui_t(karte_t* const welt, settings_t* const sets) :
 	inp_y_size.add_listener(this);
 	add_komponente( &inp_y_size );
 	intTopOfButton += 12;
+
+	// maps etc.
+	intTopOfButton += 5;
+	random_map.set_pos( koord(10, intTopOfButton) );
+	random_map.set_groesse( koord(104, D_BUTTON_HEIGHT) );
+	random_map.set_typ(button_t::roundbox);
+	random_map.add_listener( this );
+	add_komponente( &random_map );
+
+	load_map.set_pos( koord(104+11+30, intTopOfButton) );
+	load_map.set_groesse( koord(104, D_BUTTON_HEIGHT) );
+	load_map.set_typ(button_t::roundbox);
+	load_map.add_listener( this );
+	add_komponente( &load_map );
+	intTopOfButton += D_BUTTON_HEIGHT;
 
 	// city stuff
 	intTopOfButton += 5;
@@ -275,7 +290,7 @@ welt_gui_t::welt_gui_t(karte_t* const welt, settings_t* const sets) :
 	add_komponente( &load_scenario );
 
 	// start game
-	intTopOfButton += 5+BUTTON_HEIGHT;
+	intTopOfButton += 5+D_BUTTON_HEIGHT;
 	start_game.set_pos( koord(10, intTopOfButton) );
 	start_game.set_groesse( koord(104, 14) );
 	start_game.set_typ(button_t::roundbox);
@@ -302,7 +317,7 @@ welt_gui_t::welt_gui_t(karte_t* const welt, settings_t* const sets) :
  */
 bool welt_gui_t::update_from_heightfield(const char *filename)
 {
-	DBG_MESSAGE("welt_gui_t::update_from_heightfield()",filename);
+	DBG_MESSAGE("welt_gui_t::update_from_heightfield()", "%s", filename);
 
 	sint16 w, h;
 	sint8 *h_field=NULL;
@@ -639,8 +654,8 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 	display_proportional_clip(x, y, translator::translate("2WORLD_CHOOSE"), ALIGN_LEFT, COL_BLACK, true);
 	// since the display is done via a textfiled, we have nothing to do
 	y += 12+5;
-	y += BUTTON_HEIGHT+5;	// button
-	y += BUTTON_HEIGHT+5;	// button
+	y += D_BUTTON_HEIGHT+5;	// button
+	y += D_BUTTON_HEIGHT+5;	// button
 
 	const uint sx = sets->get_groesse_x();
 	const uint sy = sets->get_groesse_y();

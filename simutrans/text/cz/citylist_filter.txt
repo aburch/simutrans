@@ -1,0 +1,19 @@
+<title>Nápovìda - seznam mìst</title>
+
+<h1><strong>Seznam mìst</strong></h1>
+
+<p>Seznam mìst obsahuje podrobné údaje statistické údaje o <a href="citywindow.txt">mìstech</a>, poètu obyvatel, budov, pøepravnených cestující, po¹tì apod.</p>
+<p>Seznam mìst otevøeme kliknutím na ikonu <a href="list.txt">Seznamy</a> následovným kliknutím na ikonu <em>Seznam mìst</em>. Seznam mìst lze té¾ otevøít klávesou <a href="keys.txt">[T]</a>.</p>
+
+<p> Èíslo za textem <em>Celkem obyvatel</em> sdìluje celkový poèet obyvatel ve høe. Je to souèet obyvatel v¹ech obcí. Èíslo v závorkách znázoròuje rùst v¹ech mìst.</p>
+
+<p>Vlevo pod textem <em>øadit podle</em> se nachází dvì tlaèítka ovlivòující øazení. První tlaèítko umo¾òuje seøadit mìsta podle názvu, poètu obyvatel nebo pøírùstku obyvatel. Druhým tlaèítkem pøepínáme mezi vzestupným a sestupným øazením.</p>
+<p>Kliknutím na název mìsta zobrazíte okno s podrobnými <a href="citywindow.txt">informacemi o daném mìstì</a>.</p>
+<p>Kliknutím na trojúhelníkovité tlaèítko pøed názvem mìsta se pøemístíte na pozici daného mìsta.</p>
+
+<p> V seznamu mìst jsou tyto polo¾ky: název mìsta, poèet obyvatel a v kulatých závorkách se nachází pøírùstek obyvatel. </p>
+<p> <em>Název mìsta</em> mù¾ete zmìnit v dialogu mìsta. Dialog mìsta otevøete kliknutím na název mìsta nebo na pøíslu¹nou radnici.  </p>
+
+<p><em>Rùst mìsta</em> je zde poèítán jako vá¾ený aritmetický prùmìr pøírùstku obyvatel mìsta za poslední mìsíce s vahami 5,4 a 1 zaokrouhlený na desetiny.</p>
+
+<p>Tlaèítkem <em>Graf</em> zobrazíte graf a pøíslu¹ná tlaèítka umo¾òující zobrazit v grafu odpovídající polo¾ky. Máte na výbìr mezi grafem za posledních 12 mìsícù nebo posledních 12 let.  </p>

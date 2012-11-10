@@ -4,8 +4,17 @@
 #include <stdlib.h>
 #include <string.h>
 
+
+net_address_t::net_address_t(uint32 ip_, uint32 mask_) : ip(ip_), mask(mask_)
+{
+	ipstr[0] = '\0';
+	init_ipstr();
+}
+
+
 net_address_t::net_address_t(const char *text)
 {
+	ipstr[0] = '\0';
 	uint32 offset = 0;
 	ip = 0;
 	mask = 0;
@@ -21,14 +30,30 @@ net_address_t::net_address_t(const char *text)
 			break;
 		}
 	}
-
+	init_ipstr();
 }
+
 
 void net_address_t::rdwr(packet_t *packet)
 {
 	packet->rdwr_long(ip);
 	packet->rdwr_long(mask);
 }
+
+
+void net_address_t::init_ipstr()
+{
+	if (  ipstr[0] == '\0'  ) {
+		sprintf( ipstr, "%i.%i.%i.%i", (ip >> 24) & 255, (ip >> 16) & 255, (ip >> 8) & 255, ip & 255 );
+	}
+}
+
+
+const char* net_address_t::get_str () const
+{
+	return ipstr;
+}
+
 
 void address_list_t::rdwr(packet_t *packet)
 {

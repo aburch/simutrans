@@ -1,0 +1,38 @@
+<title>Station List Filter</title>
+
+<h1><strong>Station List Filter</strong></h1>
+
+<p>
+<strong>Station List Filter</strong> has options to determine which <a href="station.txt">Stops</a> (but not Stops just for water transport vehicles), where vehicles drop-off and pick up passengers, are shown in <a href="haltlist.txt">Station List</a> .
+</p>
+<p>
+Click on <a href="haltlist.txt">Settings</a> in Station List to open <strong>Station List Filter</strong>.
+</p>
+<p>
+Option-buttons select <a href="station.txt">Stops</a> to be listed in Station List when filter option is <a href="haltlist.txt">enabled</a>. Only Stops that fit all criteria set, are listed.
+</p>
+<p>
+Click on a button to select/deselect criteria for filter (button is indented when selected):
+</p>
+<p>
+<em>Filter names:</em> selects <a href="station.txt">Stops</a> by name. To use: click on button to select, then click on name-box and type required name exactly (option is case sensitive).
+</p>
+<p>
+<em>Filter types:</em> will list <a href="station.txt">Stops</a> that have at least one of the following items if selected. To use: click on button(s). (Stops just for water transport vehicles are not listed in Station List)
+</p>
+<p><em>Special filter:</em><br>
+- <em>overflowing</em> ?not in use.<br>
+- <em>no connection</em> selects <a href="station.txt">Stops</a> with no transport service.
+</p>
+<p>
+<em>Goods needed:</em> refers to <a href="station.txt">Stops</a> where selected item(s) end their journey. Click on button next to name to select item(s). Use <a href="mouse.txt">slider-bar</a> to scroll items list. Options include:<br>
+- <em>all</em> selects all items.<br>
+- <em>none</em> no items are selected.<br>
+- <em>inv.</em> inverses current selection of items.
+</p>
+<p>
+<em>Production:</em> refers to <a href="station.txt">Stops</a> where the selected item(s) start their journey. Click on button next to name to select item(s). Use slider-bar to scroll items list. Options include:<br>
+- <em>all</em> selects all items.<br>
+- <em>none</em> no items are selected.<br>
+- <em>inv.</em> inverses current selection of items.
+</p>

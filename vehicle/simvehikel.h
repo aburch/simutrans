@@ -597,11 +597,18 @@ template<> inline vehikel_t* ding_cast<vehikel_t>(ding_t* const d)
  */
 class automobil_t : public vehikel_t
 {
+private:
+	// called internally only from ist_weg_frei()
+	// returns true on success
+	bool choose_route( int &restart_speed, ribi_t::dir richtung, uint16 index );
+
 public:
 	bool ist_befahrbar(const grund_t *bd) const;
 
+protected:
 	bool is_checker;
 
+public:
 	virtual void betrete_feld();
 
 	virtual waytype_t get_waytype() const { return road_wt; }

@@ -135,8 +135,10 @@ static void show_times(karte_t *welt, karte_ansicht_t *view)
 	DBG_MESSAGE("test", "display_color_img(), other AI: %i iterations took %i ms", i, dr_time() - ms);
 
 	ms = dr_time();
-	for (i = 0;  i < 300;  i++)
+	for (i = 0;  i < 300;  i++) {
+		dr_prepare_flush();
 		dr_flush();
+	}
 	DBG_MESSAGE("test", "display_flush_buffer(): %i iterations took %i ms", i, dr_time() - ms);
 
 	ms = dr_time();
@@ -207,8 +209,8 @@ void modal_dialogue( gui_frame_t *gui, long magic, karte_t *welt, bool (*quit)()
 				}
 				if(  ev.ev_class == EVENT_KEYBOARD  &&  ev.ev_code == SIM_KEY_F1  ) {
 					if(  gui_frame_t *win = win_get_top()  ) {
-						if(  win->get_hilfe_datei()!=NULL  ) {
-							create_win(new help_frame_t(win->get_hilfe_datei()), w_info, (long)(win->get_hilfe_datei()) );
+						if(  const char *helpfile = win->get_hilfe_datei()  ) {
+							help_frame_t::open_help_on( helpfile );
 							continue;
 						}
 					}
@@ -240,8 +242,9 @@ void modal_dialogue( gui_frame_t *gui, long magic, karte_t *welt, bool (*quit)()
 		display_fillbox_wh( 0, 0, display_get_width(), display_get_height(), COL_BLACK, true );
 		while(  win_is_open(gui)  &&  !umgebung_t::quit_simutrans  &&  !quit()  ) {
 			// do not move, do not close it!
+			dr_sleep(50);
 			dr_prepare_flush();
-			gui->zeichnen( koord(win_get_posx(gui),win_get_posy(gui)), gui->get_fenstergroesse() );
+			gui->zeichnen(win_get_pos(gui), gui->get_fenstergroesse());
 			dr_flush();
 
 			display_poll_event(&ev);
@@ -249,7 +252,9 @@ void modal_dialogue( gui_frame_t *gui, long magic, karte_t *welt, bool (*quit)()
 				if (ev.ev_code==SYSTEM_RESIZE) {
 					// main window resized
 					simgraph_resize( ev.mx, ev.my );
+					dr_prepare_flush();
 					display_fillbox_wh( 0, 0, ev.mx, ev.my, COL_BLACK, true );
+					dr_flush();
 				}
 				else if (ev.ev_code == SYSTEM_QUIT) {
 					umgebung_t::quit_simutrans = true;
@@ -260,10 +265,11 @@ void modal_dialogue( gui_frame_t *gui, long magic, karte_t *welt, bool (*quit)()
 				// other events
 				check_pos_win(&ev);
 			}
-			dr_sleep(50);
 		}
 		set_pointer(1);
+		dr_prepare_flush();
 		display_fillbox_wh( 0, 0, display_get_width(), display_get_height(), COL_BLACK, true );
+		dr_flush();
 	}
 
 	// just trigger not another following window => wait for button release
@@ -386,7 +392,6 @@ int simu_main(int argc, char** argv)
 			"\n"
 			"  Based on Simutrans 0.84.21.2\n"
 			"  by Hansjörg Malthaner et. al.\n"
-			"  <hansjoerg.malthaner@gmx.de>\n"
 			"---------------------------------------\n"
 			"command line parameters available: \n"
 			" -addons             loads also addons (with -objects)\n"
@@ -658,6 +663,7 @@ int simu_main(int argc, char** argv)
 	DBG_MESSAGE( "Debuglevel","%i", umgebung_t::verbose_debug );
 	DBG_MESSAGE( "program_dir", umgebung_t::program_dir );
 	DBG_MESSAGE( "home_dir", umgebung_t::user_dir );
+	DBG_MESSAGE( "locale", dr_get_locale_string());
 #ifdef DEBUG
 	if (gimme_arg(argc, argv, "-sizes", 0) != NULL) {
 		// show the size of some structures ...
@@ -748,10 +754,21 @@ int simu_main(int argc, char** argv)
 			return 0;
 		}
 		if(  umgebung_t::objfilename.empty()  ) {
-			// nothing to be loaded => exit
-			dr_fatal_notify("*** No pak set found ***\n\nMost likely, you have no pak set installed.\nPlease download and install a pak set (graphics).\n");
-			simgraph_exit();
-			return 0;
+			// try to download missing paks
+			if(  dr_download_pakset( umgebung_t::program_dir, umgebung_t::program_dir == umgebung_t::user_dir )  ) {
+				ask_objfilename();
+				if(  umgebung_t::quit_simutrans  ) {
+					simgraph_exit();
+					return 0;
+				}
+			}
+			// still nothing?
+			if(  umgebung_t::objfilename.empty()  ) {
+				// nothing to be loaded => exit
+				dr_fatal_notify("*** No pak set found ***\n\nMost likely, you have no pak set installed.\nPlease download and install a pak set (graphics).\n");
+				simgraph_exit();
+				return 0;
+			}
 		}
 		show_pointer(0);
 	}
@@ -923,7 +940,7 @@ int simu_main(int argc, char** argv)
 		// try recover with the latest savegame
 		if(  file.rd_open(servername)  ) {
 			// compare pakset (objfilename has trailing path separator, pak_extension not)
-			if(  strncmp( file.get_pak_extension(), umgebung_t::objfilename.c_str(), strlen(file.get_pak_extension() ) )==0  ) {
+			if (strstart(umgebung_t::objfilename.c_str(), file.get_pak_extension())) {
 				// same pak directory - load this
 				loadgame = servername;
 				new_world = false;
@@ -938,8 +955,7 @@ int simu_main(int argc, char** argv)
 		char buffer[256];
 		sprintf(buffer, "%s%sdemo.sve", (const char*)umgebung_t::program_dir, umgebung_t::objfilename.c_str());
 		// access did not work!
-		FILE *f=fopen(buffer,"rb");
-		if(f) {
+		if (FILE* const f = fopen(buffer, "rb")) {
 			// there is a demo game to load
 			loadgame = buffer;
 			fclose(f);
@@ -1120,7 +1136,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	sprachengui_t::init_font_from_lang();
 
 	destroy_all_win(true);
-	if(  !umgebung_t::server  ) {
+	if(  !umgebung_t::networkmode  &&  !umgebung_t::server  ) {
 		welt->get_message()->clear();
 	}
 	while(  !umgebung_t::quit_simutrans  ) {

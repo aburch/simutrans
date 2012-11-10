@@ -34,4 +34,4 @@ distribute
 
 # .. finally delete executable and language files
 rm simutrans/simutrans$simexe
-rm simutrans/text/*.tab
+#rm simutrans/text/*.tab

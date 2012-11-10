@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-int load_block(unsigned char** block, unsigned* width, unsigned* height, const char* fname, const int base_img_size);
+bool load_block(unsigned char** block, unsigned* width, unsigned* height, const char* fname, const int base_img_size);
 
 #ifndef _WIN32
 // output either a 32 (or 16 or 15 bitmap in future ...)

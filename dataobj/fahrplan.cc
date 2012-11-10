@@ -142,9 +142,8 @@ bool schedule_t::append(const grund_t* gr, uint16 ladegrad, uint8 waiting_time_s
 // cleanup a schedule
 void schedule_t::cleanup()
 {
-	if (eintrag.empty()) {
+	if(  eintrag.empty()  ) {
 		return; // nothing to check
-		aktuell = 0;
 	}
 
 	// first and last must not be the same!
@@ -301,11 +300,11 @@ void schedule_t::rotate90( sint16 y_size )
  */
 bool schedule_t::matches(karte_t *welt, const schedule_t *fpl)
 {
-	if(fpl == NULL) {
+	if(  fpl == NULL  ) {
 		return false;
 	}
 	// same pointer => equal!
-	if(this==fpl) {
+	if(  this==fpl  ) {
 		return true;
 	}
 	// different bidirectional or mirrored settings => not equal
@@ -411,6 +410,76 @@ void schedule_t::increment_index(uint8 *index, bool *reversed) const {
 		}
 	}
 }
+
+/**
+ * Ordering based on halt id
+ */
+class HaltIdOrdering
+{
+public:
+	bool operator()(const halthandle_t& a, const halthandle_t& b) const { return a.get_id() < b.get_id(); }
+};
+
+
+/*
+ * compare this fahrplan with another, ignoring order and exact positions and waypoints
+ * @author prissi
+ */
+bool schedule_t::similar( karte_t *welt, const schedule_t *fpl, const spieler_t *sp )
+{
+	if(  fpl == NULL  ) {
+		return false;
+	}
+	// same pointer => equal!
+	if(  this == fpl  ) {
+		return true;
+	}
+	// unequal count => not equal
+	const uint8 min_count = min( fpl->eintrag.get_count(), eintrag.get_count() );
+	if(  min_count == 0  ) {
+		return false;
+	}
+	// now we have to check all entries: So we add all stops to a vector we will iterate over
+	vector_tpl<halthandle_t> halts;
+	for(  uint8 idx = 0;  idx < this->eintrag.get_count();  idx++  ) {
+		koord3d p = this->eintrag[idx].pos;
+		halthandle_t halt = haltestelle_t::get_halt( welt, p, sp );
+		if(  halt.is_bound()  ) {
+			halts.insert_unique_ordered( halt, HaltIdOrdering() );
+		}
+	}
+	vector_tpl<halthandle_t> other_halts;
+	for(  uint8 idx = 0;  idx < fpl->eintrag.get_count();  idx++  ) {
+		koord3d p = fpl->eintrag[idx].pos;
+		halthandle_t halt = haltestelle_t::get_halt( welt, p, sp );
+		if(  halt.is_bound()  ) {
+			other_halts.insert_unique_ordered( halt, HaltIdOrdering() );
+		}
+	}
+	// now compare them
+	if(  other_halts.get_count() != halts.get_count()  ) {
+		return false;
+	}
+	// number of unique halt similar => compare them now
+	for(  uint32 idx = 0;  idx < halts.get_count();  idx++  ) {
+		if(  halts[idx] != other_halts[idx]  ) {
+			return false;
+		}
+	}
+	return true;
+}
+
+
+
+//void schedule_t::add_return_way()
+//{
+//	if(  eintrag.get_count()<127  &&  eintrag.get_count()>1  ) {
+//		for(  uint8 maxi=eintrag.get_count()-2;  maxi>0;  maxi--  ) {
+//			eintrag.append(eintrag[maxi]);
+//		}
+//	}
+//}
+//>>>>>>> v111.3
 
 
 void schedule_t::sprintf_schedule( cbuffer_t &buf ) const

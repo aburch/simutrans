@@ -9,7 +9,7 @@
 
 #include "goods_frame_t.h"
 #include "components/gui_scrollpane.h"
-#include "components/list_button.h"
+
 
 #include "../bauer/warenbauer.h"
 #include "../besch/ware_besch.h"
@@ -73,13 +73,13 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	change_comfort_label(comfort_txt,COL_WHITE,gui_label_t::right),
 	change_catering_label(catering_txt,COL_WHITE,gui_label_t::right),
 	*/
+	welt(wl),
+	goods_stats( wl ),
 	scrolly(&goods_stats)
 {
-	wtype = road_wt;
-	
-	this->goods_frame_t::welt = wl;
-	int y=BUTTON_HEIGHT+4-TITLEBAR_HEIGHT;
-	
+	wtype = road_wt;	
+	int y=D_BUTTON_HEIGHT+4-D_TITLEBAR_HEIGHT;
+
 	speed_bonus[0] = 0;
 	distance_txt[0] = 0;
 	comfort_txt[0] = 0;
@@ -100,40 +100,40 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	add_komponente(&change_catering_label);
 	*/
 
-	//speed_down.init(button_t::repeatarrowleft, "", koord(BUTTON4_X-22, y + 36), koord(10,BUTTON_HEIGHT));
+	//speed_down.init(button_t::repeatarrowleft, "", koord(BUTTON4_X-22, y + 36), koord(10,D_BUTTON_HEIGHT));
 	//speed_down.add_listener(this);
 	//add_komponente(&distance_input);
 
-	//speed_up.init(button_t::repeatarrowright, "", koord(BUTTON4_X+8, y + 36), koord(10,BUTTON_HEIGHT));
+	//speed_up.init(button_t::repeatarrowright, "", koord(BUTTON4_X+8, y + 36), koord(10,D_BUTTON_HEIGHT));
 	//speed_up.add_listener(this);
 	//add_komponente(&speed_up);
 
-	//distance_down.init(button_t::repeatarrowleft, "", koord(BUTTON4_X-22, y), koord(10,BUTTON_HEIGHT));
+	//distance_down.init(button_t::repeatarrowleft, "", koord(BUTTON4_X-22, y), koord(10,D_BUTTON_HEIGHT));
 	//distance_down.add_listener(this);
 	//add_komponente(&distance_down);
 
-	//distance_up.init(button_t::repeatarrowright, "", koord(BUTTON4_X+8, y), koord(10,BUTTON_HEIGHT));
+	//distance_up.init(button_t::repeatarrowright, "", koord(BUTTON4_X+8, y), koord(10,D_BUTTON_HEIGHT));
 	//distance_up.add_listener(this);
 	//add_komponente(&distance_up);
 
-	//comfort_down.init(button_t::repeatarrowleft, "", koord(BUTTON4_X-22, y + 12), koord(10,BUTTON_HEIGHT));
+	//comfort_down.init(button_t::repeatarrowleft, "", koord(BUTTON4_X-22, y + 12), koord(10,D_BUTTON_HEIGHT));
 	//comfort_down.add_listener(this);
 	//add_komponente(&comfort_down);
 
-	//comfort_up.init(button_t::repeatarrowright, "", koord(BUTTON4_X+8, y + 12), koord(10,BUTTON_HEIGHT));
+	//comfort_up.init(button_t::repeatarrowright, "", koord(BUTTON4_X+8, y + 12), koord(10,D_BUTTON_HEIGHT));
 	//comfort_up.add_listener(this);
 	//add_komponente(&comfort_up);
 
-	//catering_down.init(button_t::repeatarrowleft, "", koord(BUTTON4_X-22, y + 24), koord(10,BUTTON_HEIGHT));
+	//catering_down.init(button_t::repeatarrowleft, "", koord(BUTTON4_X-22, y + 24), koord(10,D_BUTTON_HEIGHT));
 	//catering_down.add_listener(this);
 	//add_komponente(&catering_down);
 
-	//catering_up.init(button_t::repeatarrowright, "", koord(BUTTON4_X+8, y + 24), koord(10,BUTTON_HEIGHT));
+	//catering_up.init(button_t::repeatarrowright, "", koord(BUTTON4_X+8, y + 24), koord(10,D_BUTTON_HEIGHT));
 	//catering_up.add_listener(this);
 	//add_komponente(&catering_up);
 
 	distance_input.set_pos(koord(BUTTON4_X-22, y) );
-	distance_input.set_groesse(koord(60, BUTTON_HEIGHT));
+	distance_input.set_groesse(koord(60, D_BUTTON_HEIGHT));
 	distance_input.set_limits( 1, 9999 );
 	distance_input.set_value( distance );
 	distance_input.wrap_mode( false );
@@ -141,7 +141,7 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	add_komponente(&distance_input);
 
 	comfort_input.set_pos(koord(BUTTON4_X-22, y + 12) );
-	comfort_input.set_groesse(koord(60, BUTTON_HEIGHT));
+	comfort_input.set_groesse(koord(60, D_BUTTON_HEIGHT));
 	comfort_input.set_limits( 1, 255 );
 	comfort_input.set_value( comfort );
 	comfort_input.wrap_mode( false );
@@ -149,7 +149,7 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	add_komponente(&comfort_input);
 
 	catering_input.set_pos(koord(BUTTON4_X-22, y + 24) );
-	catering_input.set_groesse(koord(60, BUTTON_HEIGHT));
+	catering_input.set_groesse(koord(60, D_BUTTON_HEIGHT));
 	catering_input.set_limits( 0, 5 );
 	catering_input.set_value( catering_level );
 	catering_input.wrap_mode( false );
@@ -157,7 +157,7 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	add_komponente(&catering_input);
 
 	speed_input.set_pos(koord(BUTTON4_X-22, y + 36) );
-	speed_input.set_groesse(koord(60, BUTTON_HEIGHT));
+	speed_input.set_groesse(koord(60, D_BUTTON_HEIGHT));
 	speed_input.set_limits( -99, 9999 );
 	speed_input.set_value( relative_speed_change - 100 );
 	speed_input.wrap_mode( false );
@@ -178,7 +178,7 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	way_type.set_max_size(koord(96, LINESPACE*2+2+16));
 	way_type.set_highlight_color(1);
 	
-	y=BUTTON_HEIGHT+6+5*LINESPACE + 25;
+	y=D_BUTTON_HEIGHT+6+5*LINESPACE + 25;
 
 	filter_goods_toggle.init(button_t::square_state, "Show only used", koord(BUTTON1_X, y));
 	filter_goods_toggle.set_tooltip(translator::translate("Only show goods which are currently handled by factories"));
@@ -192,15 +192,15 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 
 	y += LINESPACE+1;
 
-	sortedby.init(button_t::roundbox, "", koord(BUTTON1_X, y), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	sortedby.init(button_t::roundbox, "", koord(BUTTON1_X, y), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	sortedby.add_listener(this);
 	add_komponente(&sortedby);
 
-	sorteddir.init(button_t::roundbox, "", koord(BUTTON2_X, y), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	sorteddir.init(button_t::roundbox, "", koord(BUTTON2_X, y), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	sorteddir.add_listener(this);
 	add_komponente(&sorteddir);
 
-	y += BUTTON_HEIGHT+2;
+	y += D_BUTTON_HEIGHT+2;
 
 	scrolly.set_pos(koord(1, y));
 
@@ -226,10 +226,10 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 
 	int h = (warenbauer_t::get_waren_anzahl()+1)*(LINESPACE+1)+y;
 	if(h>450) {
-		h = y+27*(LINESPACE+1)+TITLEBAR_HEIGHT+1;
+		h = y+27*(LINESPACE+1)+D_TITLEBAR_HEIGHT+1;
 	}
-	set_fenstergroesse(koord(TOTAL_WIDTH, h));
-	set_min_windowsize(koord(TOTAL_WIDTH,3*(LINESPACE+1)+TITLEBAR_HEIGHT+y+1));
+	set_fenstergroesse(koord(D_DEFAULT_WIDTH, h));
+	set_min_windowsize(koord(D_DEFAULT_WIDTH,3*(LINESPACE+1)+D_TITLEBAR_HEIGHT+y+1));
 
 	set_resizemode(vertical_resize);
 	resize (koord(0,0));
@@ -324,6 +324,16 @@ bool goods_frame_t::compare_goods(uint16 const a, uint16 const b)
 				}
 
 				order = price[0] - price[1];
+//=======
+//			{
+//				const sint32 grundwert1281 = w1->get_preis() * goods_frame_t::welt->get_settings().get_bonus_basefactor();
+//				const sint32 grundwert_bonus1 = w1->get_preis()*(1000l+(relative_speed_change-100l)*w1->get_speed_bonus());
+//				const sint32 price1 = (grundwert1281>grundwert_bonus1 ? grundwert1281 : grundwert_bonus1);
+//				const sint32 grundwert1282 = w2->get_preis() * goods_frame_t::welt->get_settings().get_bonus_basefactor();
+//				const sint32 grundwert_bonus2 = w2->get_preis()*(1000l+(relative_speed_change-100l)*w2->get_speed_bonus());
+//				const sint32 price2 = (grundwert1282>grundwert_bonus2 ? grundwert1282 : grundwert_bonus2);
+//				order = price1-price2;
+//>>>>>>> v111.3
 			}
 			break;
 		case 3: // sort by speed bonus
@@ -365,7 +375,7 @@ void goods_frame_t::sort_list()
 
 	std::sort(good_list, good_list + n, compare_goods);
 
-	goods_stats.update_goodslist(good_list, relative_speed_change, n, goods_frame_t::tile_distance, goods_frame_t::comfort, goods_frame_t::catering_level, goods_frame_t::welt, wtype);
+	goods_stats.update_goodslist(good_list, relative_speed_change, n, goods_frame_t::tile_distance, goods_frame_t::comfort, goods_frame_t::catering_level, wtype);
 }
 
 
@@ -377,11 +387,7 @@ void goods_frame_t::sort_list()
 void goods_frame_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta);
-
-	//Pre 111.1
-	/*koord groesse = get_fenstergroesse()-koord(0,BUTTON_HEIGHT+4+5*LINESPACE+LINESPACE+1+BUTTON_HEIGHT+2+TITLEBAR_HEIGHT+1+25);*/
-
-	koord groesse = get_fenstergroesse()-scrolly.get_pos()-koord(0,TITLEBAR_HEIGHT+25);
+	koord groesse = get_fenstergroesse()-scrolly.get_pos()-koord(0,D_TITLEBAR_HEIGHT+25);
 	scrolly.set_groesse(groesse);
 }
 
@@ -545,7 +551,7 @@ void goods_frame_t::zeichnen(koord pos, koord gr)
 		(welt->get_average_speed(water_wt)*relative_speed_change)/100,
 		(welt->get_average_speed(air_wt)*relative_speed_change)/100
 	);
-	display_multiline_text(pos.x+11, pos.y+BUTTON_HEIGHT+4, speed_message, COL_WHITE);
+	display_multiline_text(pos.x+11, pos.y+D_BUTTON_HEIGHT+4, speed_message, COL_WHITE);
 
 	speed_message.clear();
 	speed_message.printf(translator::translate("tram %i km/h, monorail %i km/h\nmaglev %i km/h, narrowgauge %i km/h."),
@@ -555,11 +561,11 @@ void goods_frame_t::zeichnen(koord pos, koord gr)
 		(welt->get_average_speed(narrowgauge_wt)*relative_speed_change)/100
 	);
 
-	display_multiline_text(pos.x+11, pos.y+BUTTON_HEIGHT+4+12+5*LINESPACE, speed_message, COL_WHITE);
+	display_multiline_text(pos.x+11, pos.y+D_BUTTON_HEIGHT+4+12+5*LINESPACE, speed_message, COL_WHITE);
 
 	speed_message.clear();
 	speed_message.printf(translator::translate("\n100 km/h = %i tiles/month"),
 		welt->speed_to_tiles_per_month(kmh_to_speed(100))
 	);
-	display_multiline_text(pos.x+11, pos.y+BUTTON_HEIGHT+4+12+6*LINESPACE, speed_message, COL_WHITE);
+	display_multiline_text(pos.x+11, pos.y+D_BUTTON_HEIGHT+4+12+6*LINESPACE, speed_message, COL_WHITE);
 }

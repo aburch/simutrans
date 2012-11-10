@@ -1,0 +1,51 @@
+<title>Detily stanice</title>
+
+
+
+<h1>detaily stanice</h1>
+
+
+
+<p>
+
+Detaily stanice obsahují informace o stanici, které se neve¹ly do <a href="station.txt">dialogu stanice</a>.
+
+</p>
+
+<p>
+
+Okno obsahuje následující informace:
+
+</p>
+
+<p>
+
+<em>Pøipojené továrny</em>: Továrny nacházející se ve spádové oblasti dané stanice
+
+<br/>{Tip: Spádovou oblast zobrazíte klávesou <a href="keys.txt">[v]</a>.}
+
+</p>
+
+<p>
+
+<em>Zbo¾í vy¾adované pro okolní prùmysl</em>: <a href="goods_filter.txt">Zbo¾í</a>, které mù¾ete prostøednictvím této zastávky dová¾et.
+
+</p>
+
+<p>
+
+<em>linky obsluhující tuto stanici</em>: Seznam linek obsluhujících tuto stanici.
+
+</p>
+
+<p>
+
+<em>Vozidla bez zadané linky ...</em>: Pokud pou¾íváte linky, tak by zde nemìlo být nic.
+
+</p>
+
+<p>
+
+<em>Pøeprava odkud, èeho a kam</em>: Seznam zbo¾í dopravovaného z této stanice vèetnì míst kam je dopravováno.
+
+</p>

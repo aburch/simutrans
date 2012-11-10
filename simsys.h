@@ -72,6 +72,9 @@ resolution dr_query_screen_resolution();
 int dr_os_open(int w, int h, int fullscreen);
 void dr_os_close();
 
+// returns the locale; NULL if unknown
+const char *dr_get_locale_string();
+
 void dr_mkdir(char const* path);
 
 /* query home directory */
@@ -137,6 +140,14 @@ void dr_copy(const char *source, size_t length);
  * @author Knightly
  */
 size_t dr_paste(char *target, size_t max_length);
+
+/**
+ * Open a program/starts a script to download pak sets from sourceforge
+ * @param path_to_program : actual simutrans pakfile directory
+ * @param portabel : true if lokal files to be save in simutransdir
+ * @return false, if nothing was downloaded
+ */
+bool dr_download_pakset( const char *path_to_program, bool portable );
 
 int sysmain(int argc, char** argv);
 

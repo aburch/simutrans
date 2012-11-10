@@ -4,11 +4,17 @@
 #include "../simversion.h"
 #include "../simconst.h"
 #include "../simtypes.h"
+#include "../simtools.h"
 #include "../simcolor.h"
 #include "../simmesg.h"
 
 sint8 umgebung_t::pak_tile_height_step = 16;
-sint16 umgebung_t::simple_drawing_tile_size = 24;
+
+bool umgebung_t::simple_drawing = false;
+bool umgebung_t::simple_drawing_fast_forward = true;
+sint16 umgebung_t::simple_drawing_normal = 4;
+sint16 umgebung_t::simple_drawing_default = 24;
+
 char umgebung_t::program_dir[1024];
 const char *umgebung_t::user_dir = 0;
 const char *umgebung_t::savegame_version_str = SAVEGAME_VER_NR;
@@ -37,6 +43,8 @@ long umgebung_t::additional_client_frames_behind = 0;
 long umgebung_t::network_frames_per_step = 4;
 uint32 umgebung_t::server_sync_steps_between_checks = 256;
 bool umgebung_t::pause_server_no_clients = false;
+
+std::string umgebung_t::nickname = "";
 
 // this is explicitely and interactively set by user => we do not touch it in init
 const char *umgebung_t::language_iso = "en";
@@ -79,7 +87,7 @@ bool umgebung_t::window_buttons_right;
 bool umgebung_t::window_frame_active;
 uint8 umgebung_t::verbose_debug;
 uint8 umgebung_t::default_sortmode;
-sint8 umgebung_t::default_mapmode;
+uint32 umgebung_t::default_mapmode;
 uint8 umgebung_t::show_month;
 sint32 umgebung_t::intercity_road_length;
 plainstring umgebung_t::river_type[10];
@@ -113,8 +121,6 @@ bool umgebung_t::left_to_right_graphs = true;
 uint32 umgebung_t::tooltip_delay;
 uint32 umgebung_t::tooltip_duration;
 
-bool umgebung_t::add_player_name_to_message = true;
-
 uint8 umgebung_t::front_window_bar_color;
 uint8 umgebung_t::front_window_text_color;
 uint8 umgebung_t::bottom_window_bar_color;
@@ -142,7 +148,7 @@ void umgebung_t::init()
 
 	/* station stuff */
 	use_transparency_station_coverage = true;
-	station_coverage_show = NOT_SHOWN_COVERAGE;
+	station_coverage_show = 0;
 
 	show_names = 3;
 
@@ -168,16 +174,8 @@ void umgebung_t::init()
 	savegame_version_str = SAVEGAME_VER_NR;
 	savegame_ex_version_str = EXPERIMENTAL_VER_NR;
 
-	/**
-	 * show month in date?
-	 * @author hsiegeln
-	 */
 	show_month = DATE_FMT_US;
 
-	/**
-	 * Max. Länge für initiale Stadtverbindungen
-	 * @author Hj. Malthaner
-	 */
 	intercity_road_length = 200;
 
 	river_types = 0;
@@ -270,7 +268,14 @@ void umgebung_t::rdwr(loadsave_t *file)
 	file->rdwr_bool( single_info );
 
 	file->rdwr_byte( default_sortmode );
-	file->rdwr_byte( default_mapmode );
+	if(  file->get_version()<111004  ) {
+		sint8 mode = log2(umgebung_t::default_mapmode)-1;
+		file->rdwr_byte( mode );
+		umgebung_t::default_mapmode = mode>=0 ? 1 << mode : 0;
+	}
+	else {
+		file->rdwr_long( umgebung_t::default_mapmode );
+	}
 
 	file->rdwr_bool( window_buttons_right );
 	file->rdwr_bool( window_frame_active );
@@ -333,7 +338,8 @@ void umgebung_t::rdwr(loadsave_t *file)
 	}
 
 	if(  file->get_version()>=110000  ) {
-		file->rdwr_bool( add_player_name_to_message );
+		bool dummy = false;
+		file->rdwr_bool(dummy); //was add_player_name_to_message
 		file->rdwr_short( window_snap_distance );
 	}
 	else if(  file->is_loading()  ) {
@@ -352,6 +358,13 @@ void umgebung_t::rdwr(loadsave_t *file)
 
 	if(  file->get_version()>=111002  ) {
 		file->rdwr_bool( visualize_schedule );
+	}
+	if (  file->get_version()>=111003 ) {
+		plainstring str = nickname.c_str();
+		file->rdwr_str(str);
+		if (file->is_loading()) {
+			nickname = str.c_str();
+		}
 	}
 	// server settings are not saved, since the are server specific and could be different on different servers on the save computers
 }

@@ -1,0 +1,79 @@
+<title>Nápovìda - nástroje pro jednokolejku a maglev</title>
+
+
+
+<h1>Nástroje pro jednokolejku/visutou ¾eleznici</h1>
+
+
+
+<p>
+
+Nástroje pro jednokolejku/visutou ¾eleznici slou¾í k výstavbì dopravní sítì pro pøepravu cestujících.
+
+</p>
+
+<p>Pokud jste pøi <a href="new_world.txt">vytváøení mapy</a> zadali volbu <em>zaèít roku</em>, nástroje mohou být do urèitého data nedostupné.</p>
+
+<p>
+
+Menu s nástroji otevøete kliknutím na ikonu oznaèenou <em>nástroje pro jednokolejku/visutou ¾eleznici</em> v <a href="mainmenu.txt">hlavním menu</a>.
+
+</p>
+
+<p>
+
+Podr¾íte-li kurzor <a href="mouse.txt">my¹i</a> na ikonou s nástroji zobrazí se <em>název</em>, <em>cena</em>, <em>(mìsíèní náklady na úrd¾bu)</em> a <em> maximální rychlost</em>.
+
+</p>
+
+<p>
+
+Nástroje obsahují (zleva doprava):
+
+</p>
+
+<p>
+
+<em>pøízemní jednokolejka</em>: Tra» postavíte stejným zpùsobem, jako <a href="railtools.txt">¾eleznici</a>.
+
+</p>
+
+<p><em>visutá jednokolejka</em>: Mù¾e vést i nad domy a silnicemi.
+
+</p>
+
+<p>
+
+<em>návìstidla</em>: Pou¾ití <a href="signals.txt">návìstidel</a> je stejné jako u <a href="railtools.txt">¾eleznice</a> a <a href="tramtools.txt">tramvají</a>.
+
+</p>
+
+<p>
+
+<em>Odstranit visutou dráhu/jednokolejku</em>: Nástroj odstraní tra» visuté dráhy nebo jednokolejky. Pøi odstraòování dejte pozor na jednosmìrné semafory.
+
+</p>
+
+<p>
+
+<em>mosty</em>: <a href="bridges.txt">Mosty</a> slou¾í k pøemostìní údolí a jiných pøeká¾ek.
+
+</p>
+
+<p>
+
+<em>depo</em>: Vozidla pro jednokolejku/visutou dráhu koupíte v <a href="depot.txt">depu</a>. Depo postavíte na konci dráhy.
+
+</p>
+
+<p>
+
+<em>zastávky</em>: Nástroj slou¾í k výstavbì <a href="station.txt">stanic</a>. Kliknìte na nástroj a pak pole s dráhou jednokolejky.
+
+</p>
+
+<p>
+
+<em>základy jednokolejky</em>: Pomocí nástroje postavíte roz¹íøení <a href="station.txt">stanice</a>. Do stanice se vejde více cestujících. Také se zvý¹í náklady na údr¾bu.
+
+</p>

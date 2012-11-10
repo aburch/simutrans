@@ -1,0 +1,40 @@
+<title>Filtro da Lista de Veículos</title>
+
+<h1><strong>Filtro da Lista de Veículos</strong></h1>
+
+<p>
+O <strong>Filtro da Lista de Veículos</strong> tem opções para determinar quais <a href="convoiinfo.txt">Comboios</a> são mostrados na <a href="convoi.txt">Lista de Veículos</a>.
+</p>
+<p>
+Clique em Parâmetros na Lista de Veículos para abrir o <strong>Filtro da Lista de Veículos</strong>.
+
+</p>
+<p>
+Os botões de opções selecionam os Comboios a serem listados na Lista de Veículos quando a opção de filtro está <a href="convoi.txt">ligada</a>. Apenas os Comboios que estão dentro de todos os critérios selecionados são listados.
+</p>
+<p>
+Clique em uma caixa de seleção para selecionar o critério para filtrar (o botão está em baixo-relevo quando selecionado):
+</p>
+<p>
+<em>Filtro por nome:</em> seleciona o <a href="convoiinfo.txt">Comboio</a> pelo nome. Para usar: clique no botão para selecionar, então clique na caixa de texto e digite o nome desejado exatamente (a opção diferencia letras maiúsculas de minúsculas, portanto preste muita atenção quanto a isso).
+</p>
+
+<p>
+<em>Filtro por tipo:</em> listará os Comboios por tipo de transporte se selecionado. Para usá-lo: clique no botão para selecionar, então clique no(s) tipo(s) de transporte: Caminhões, Trens, Barcos e Aviões.
+</p>
+<p>
+<em>Filtro especial:</em> seleciona os <a href="convoiinfo.txt">Comboios</a> a serem listados pelos seguintes critérios (clique no botão para selecionar, então clique):<br>
+- <em>sem rota</em> - não pode encontrar um caminho ao próximo destino.<br>
+- <em>sem programa</em> - sem uma <a href="schedule.txt">rota</a> atribuída.<br>
+- <em>sem renda</em> - os veículos que não estão gerando lucros.<br>
+- <em>em depósito</em> - os veículos que estão em um <a href="depot.txt">depósito</a>.<br>
+- <em>sem linha</em> - sem uma <a href="linemanagement.txt">Linha</a> atribuída.
+</p>
+<p>
+<em>Filtro por carga:</em> seleciona os Comboios pela habilidade para transportar diferentes mercadorias e passageiros. Clique no botão ao lado do nome para selecionar o(s) item(ns). Use a <a href="mouse.txt">barra lateral</a> para ver os item(ns) na lista. As opções incluem:<br>
+- <em>tudo</em> seleciona todos os itens.<br>
+- <em>nada</em> nenhum item é selecionado.<br>
+- <em>inv.</em> inverte a seleção atual de itens.
+</p>
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008.
+</p>

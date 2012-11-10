@@ -251,9 +251,9 @@ void depot_frame_t::layout(koord *gr)
 	*      [new Route][change Route][delete Route]
 	*/
 	int ABUTTON_WIDTH = 128;
-	int ABUTTON_HEIGHT = 14;
+	int AD_BUTTON_HEIGHT = 14;
 	int ACTIONS_WIDTH = 2+4*(ABUTTON_WIDTH+2);
-	int ACTIONS_HEIGHT = ABUTTON_HEIGHT + ABUTTON_HEIGHT; // @author hsiegeln: added "+ ABUTTON_HEIGHT"
+	int ACTIONS_HEIGHT = AD_BUTTON_HEIGHT + AD_BUTTON_HEIGHT; // @author hsiegeln: added "+ AD_BUTTON_HEIGHT"
 	convoy_assembler.set_convoy_tabs_skip(ACTIONS_HEIGHT);
 
 	/*
@@ -326,46 +326,46 @@ void depot_frame_t::layout(koord *gr)
 
 	lb_convoi_value.set_pos(koord(DEPOT_FRAME_WIDTH-10, ASSEMBLER_VSTART + convoy_assembler.get_convoy_image_height()));
 	lb_convoi_line.set_pos(koord(4, ASSEMBLER_VSTART + convoy_assembler.get_convoy_image_height() + LINESPACE * 2));
-	lb_traction_types.set_pos(koord(4, ACTIONS_VSTART + (ABUTTON_HEIGHT * 2)));
+	lb_traction_types.set_pos(koord(4, ACTIONS_VSTART + (AD_BUTTON_HEIGHT * 2)));
  
 
 	/*
 	 * [ACTIONS]
 	 */
 	bt_start.set_pos(koord(2, ACTIONS_VSTART));
-	bt_start.set_groesse(koord(DEPOT_FRAME_WIDTH/4-2, ABUTTON_HEIGHT));
+	bt_start.set_groesse(koord(DEPOT_FRAME_WIDTH/4-2, AD_BUTTON_HEIGHT));
 	bt_start.set_text("Start");
 
 	bt_schedule.set_pos(koord(DEPOT_FRAME_WIDTH/4+2, ACTIONS_VSTART));
-	bt_schedule.set_groesse(koord(DEPOT_FRAME_WIDTH*2/4-DEPOT_FRAME_WIDTH/4-3, ABUTTON_HEIGHT));
+	bt_schedule.set_groesse(koord(DEPOT_FRAME_WIDTH*2/4-DEPOT_FRAME_WIDTH/4-3, AD_BUTTON_HEIGHT));
 	bt_schedule.set_text("Fahrplan");
 
 	bt_destroy.set_pos(koord(DEPOT_FRAME_WIDTH*2/4+1, ACTIONS_VSTART));
-	bt_destroy.set_groesse(koord(DEPOT_FRAME_WIDTH*3/4-DEPOT_FRAME_WIDTH*2/4-2, ABUTTON_HEIGHT));
+	bt_destroy.set_groesse(koord(DEPOT_FRAME_WIDTH*3/4-DEPOT_FRAME_WIDTH*2/4-2, AD_BUTTON_HEIGHT));
 	bt_destroy.set_text("Aufloesen");
 
 	bt_sell.set_pos(koord(DEPOT_FRAME_WIDTH*3/4+1, ACTIONS_VSTART));
-	bt_sell.set_groesse(koord(DEPOT_FRAME_WIDTH-DEPOT_FRAME_WIDTH*3/4-3, ABUTTON_HEIGHT));
+	bt_sell.set_groesse(koord(DEPOT_FRAME_WIDTH-DEPOT_FRAME_WIDTH*3/4-3, AD_BUTTON_HEIGHT));
 	bt_sell.set_text("Verkauf");
 
 	/*
 	 * ACTIONS for new route management buttons
 	 * @author hsiegeln
 	 */
-	bt_new_line.set_pos(koord(2, ACTIONS_VSTART+ABUTTON_HEIGHT));
-	bt_new_line.set_groesse(koord(DEPOT_FRAME_WIDTH/4-2, ABUTTON_HEIGHT));
+	bt_new_line.set_pos(koord(2, ACTIONS_VSTART+AD_BUTTON_HEIGHT));
+	bt_new_line.set_groesse(koord(DEPOT_FRAME_WIDTH/4-2, AD_BUTTON_HEIGHT));
 	bt_new_line.set_text("New Line");
 
-	bt_apply_line.set_pos(koord(DEPOT_FRAME_WIDTH/4+2, ACTIONS_VSTART+ABUTTON_HEIGHT));
-	bt_apply_line.set_groesse(koord(DEPOT_FRAME_WIDTH*2/4-3-DEPOT_FRAME_WIDTH/4, ABUTTON_HEIGHT));
+	bt_apply_line.set_pos(koord(DEPOT_FRAME_WIDTH/4+2, ACTIONS_VSTART+AD_BUTTON_HEIGHT));
+	bt_apply_line.set_groesse(koord(DEPOT_FRAME_WIDTH*2/4-3-DEPOT_FRAME_WIDTH/4, AD_BUTTON_HEIGHT));
 	bt_apply_line.set_text("Apply Line");
 
-	bt_change_line.set_pos(koord(DEPOT_FRAME_WIDTH*2/4+1, ACTIONS_VSTART+ABUTTON_HEIGHT));
-	bt_change_line.set_groesse(koord(DEPOT_FRAME_WIDTH*3/4-2-DEPOT_FRAME_WIDTH*2/4, ABUTTON_HEIGHT));
+	bt_change_line.set_pos(koord(DEPOT_FRAME_WIDTH*2/4+1, ACTIONS_VSTART+AD_BUTTON_HEIGHT));
+	bt_change_line.set_groesse(koord(DEPOT_FRAME_WIDTH*3/4-2-DEPOT_FRAME_WIDTH*2/4, AD_BUTTON_HEIGHT));
 	bt_change_line.set_text("Update Line");
 
-	bt_copy_convoi.set_pos(koord(DEPOT_FRAME_WIDTH*3/4+1, ACTIONS_VSTART+ABUTTON_HEIGHT));
-	bt_copy_convoi.set_groesse(koord(DEPOT_FRAME_WIDTH-DEPOT_FRAME_WIDTH*3/4-3, ABUTTON_HEIGHT));
+	bt_copy_convoi.set_pos(koord(DEPOT_FRAME_WIDTH*3/4+1, ACTIONS_VSTART+AD_BUTTON_HEIGHT));
+	bt_copy_convoi.set_groesse(koord(DEPOT_FRAME_WIDTH-DEPOT_FRAME_WIDTH*3/4-3, AD_BUTTON_HEIGHT));
 	bt_copy_convoi.set_text("Copy Convoi");
 
 	const uint8 margin = 4;
@@ -603,12 +603,11 @@ bool depot_frame_t::infowin_event(const event_t *ev)
 			 * Replace our depot_frame_t with a new at the same position.
 			 * Volker Meyer
 			 */
-			int x = win_get_posx(this);
-			int y = win_get_posy(this);
+			koord const pos = win_get_pos(this);
 			destroy_win( this );
 
 			next_dep->zeige_info();
-			win_set_pos( win_get_magic((long)next_dep), x, y );
+			win_set_pos(win_get_magic((long)next_dep), pos.x, pos.y);
 			get_welt()->change_world_position(next_dep->get_pos());
 		}
 		else {
@@ -617,10 +616,6 @@ bool depot_frame_t::infowin_event(const event_t *ev)
 		}
 
 		return true;
-
-	} else if(IS_WINDOW_REZOOM(ev)) {
-		koord gr = get_fenstergroesse();
-		set_fenstergroesse(gr);
 	} else if(ev->ev_class == INFOWIN && ev->ev_code == WIN_OPEN) {
 		convoy_assembler.build_vehicle_lists();
 		update_data();

@@ -13,7 +13,7 @@
 #include "../simworld.h"
 #include "jump_frame.h"
 #include "components/gui_button.h"
-#include "components/list_button.h"
+
 #include "../dataobj/translator.h"
 
 
@@ -27,19 +27,19 @@ jump_frame_t::jump_frame_t(karte_t *welt) :
 	input.set_text(buf, 62);
 	input.add_listener(this);
 	input.set_pos(koord(10,4));
-	input.set_groesse(koord(BUTTON_WIDTH, 14));
+	input.set_groesse(koord(D_BUTTON_WIDTH, 14));
 	add_komponente(&input);
 
 	divider1.set_pos(koord(10,24));
-	divider1.set_groesse(koord(BUTTON_WIDTH,0));
+	divider1.set_groesse(koord(D_BUTTON_WIDTH,0));
 	add_komponente(&divider1);
 
-	jumpbutton.init( button_t::roundbox, "Jump to", koord(10, 28), koord( BUTTON_WIDTH,BUTTON_HEIGHT ) );
+	jumpbutton.init( button_t::roundbox, "Jump to", koord(10, 28), koord( D_BUTTON_WIDTH,D_BUTTON_HEIGHT ) );
 	jumpbutton.add_listener(this);
 	add_komponente(&jumpbutton);
 
 	set_focus(&input);
-	set_fenstergroesse(koord(BUTTON_WIDTH+20, 62));
+	set_fenstergroesse(koord(D_BUTTON_WIDTH+20, 62));
 }
 
 

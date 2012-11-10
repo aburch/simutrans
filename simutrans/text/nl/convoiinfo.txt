@@ -1,0 +1,97 @@
+<title>Voertuig Informatie</title>
+
+<h1><strong>Voertuig Informatie</strong></h1>
+
+<p>
+<strong>Voertuig informatie</strong> toont informatie over een voertuig (een enkel voertuig of een voertuig samenstelling) dat wordt gebruikt voor het vervoeren van vracht of passagiers.<br>
+In het scherm worden details getoond over de lading van het voertuig en tevens zijn er knoppen voor meer details, er wordt een mogelijkheid geboden het voertuig direct te verkopen, je kunt het voertuig volgen op de kaart, de naam van het voertuig wijzigen en een  <a href="schedule.txt">dienstregeling</a> toewijzen of wijzigen van een voertuig.
+</p>
+
+<p>
+Een voertuig is een samenstelling van minimaal een (1) aangedreven (gemotoriseerd) voertuig en een hoeveelheid aanhangers of wagons.<br>
+Voorbeelden van voertuigen zijn: een span paarden dat een kar trekt; een locomotief met tender en wagons; een bus; een bestelauto; een tram met wagons; een schip of een vliegtuig.<br>
+Voertuigen worden samengesteld en gekocht in een <a href="depot.txt">remise of hangar (depot)</a> van toepassing voor het type voertuig.<br>
+{TIP: Een voertuig samenstelling heeft een maximum aantal voertuigen in een samenstelling: treinen, 24; wegverkeer, 4 .}
+</p>
+<p>
+Klik op een voertuig in het spel met de <a href="inspection_tool.txt">info tool</a> of klik op een voertuig in de <a href="convoi.txt">lijst met voertuigen</a> of <a href="linemanagement.txt">lijnen beheer</a> om het scherm met <strong>voertuig informatie</strong> te activeren.<br>
+De titelbalk van het scherm met <strong>voertuig informatie</strong> toont een uniek ID nummer en een naam van het voertuig (dit is standaard het merk en naam van het eerst gekozen voertuig van de samenstelling in een <a href="depot.txt">remise of hangar (depot)</a>).<br>
+<strong>Voertuig informatie</strong> bestaat uit een vak met een naam; een mini kaart en informatie over het voertuig; knoppen met opties; en een opsomming van de op dat moment door het voertuig getransporteerde goederen of passagiers (indien niet alles zichtbaar is kun je de <a href="mouse.txt">grootte van het scherm wijzigen</a> of de schuifbalken gebruiken om te scrollen).
+</p>
+<p>
+De volgende informatie wordt getoond in de titelbalk en bovenin van het scherm <strong>voertuig informatie</strong> :
+</p>
+<p>
+<em>Intern ID</em>: een uniek ID nummer voor dat voertuig (toegekend wanneer het voertuig wordt gekocht in een  <a href=depot.txt">remise of hangar (depot)</a>).
+</p>
+<p>
+- <em>naam</em>: dit is standaard het merk en naam van het eerst gekozen voertuig van de samenstelling in een <a href="depot.txt">remise of hangar (depot)</a>).<br>
+Klik in het naam vak en toets een nieuwe naam om de toegewezen naam te wijzigen.
+</p>
+<p>
+- <em>snelheid:</em> de huidige snelheid in km/u.<br>
+De maximum snelheid van het voertuig staat tussen haakjes vermeld (dit is de maximum snelheid van het langzaamste voertuig uit de samenstelling).<br>
+De snelheid ten opzichte van de maximum snelheid wordt weergegeven door een groene balk.
+</p>
+<p>
+- <em>Inkomsten:</em> de netto inkomsten die de exploitatie van het voertuig dit kalenderjaar heeft opgeleverd. Verlies wordt voorafgegaan door een - en in het rood weergegeven. <br>
+De kostprijs per kilometer is vermeld tussen haakjes in Hajo valuta per kilometer.
+</p>
+<p>
+- <em>Gewicht:</em> totaal gewicht van het voertuig inclusief lading op dit moment in ton.<br>
+Het gewicht van de lading staat tussen haakjes vermeld.<br>
+Een groene balk geeft aan hoe de werkelijke lading zich verhoudt tot de maximale lading voor het voertuig of samenstelling.<br>
+Een gele balk geeft aan dat het voertuig wacht op lading <a href="schedule.txt">(zie laden t/m)</a>. Dit is in te stellen bij de dienstregeling van het voertuig en is een percentage van de maximale laadcapaciteit van het voertuig. Het voertuig zal niet eerder vertrekken totdat minstens de minimale lading is geladen.<br>
+{TIP: Om laden t/m in te stellen of te wijzigen voor alle voertuigen die dezelfde lijn bedienen, kun je de Lijn veranderen knop in <a href="linemanagement.txt">Lijnenbeheer</a> gebruiken of dezelfde knop in de <a href="depot.txt">remise of hangar (depot)</a>. Om alleen voor een (1) voertuig de laden t/m instelling te wijzigen kun je de knop <em>dienstregeling</em> in het scherm <strong>voertuig informatie</strong> of in de <a href="depot.txt">remise of hangar (depot)</a>.}
+</p>
+<p>
+- <em>Bestemming:</em> De volgende <a href="station.txt">halte</a> of stopplaats volgens de <a href="schedule.txt">dienstregeling</a> van het voertuig.<br>
+De groene balk geeft de relatieve afstand aan die is afgelegd op weg naar de aangegeven bestemming.
+</p>
+<p>
+- <em>Bedient lijn:</em> toont de <a href="linemanagement.txt">lijn</a> die het voertuig bedient indien er een lijn is toegewezen aan het voertuig. Een voertuig kan ook een aparte dienstregeling hebben.
+</p>
+<p>
+- <em>mini kaart</em> toont het voertuig in aktie.<br>
+Klik op de mini kaart om het scherm te centreren rond het voertuig.
+</p>
+<p>
+Klik op de knoppen in het scherm <strong>voertuig informatie</strong> om opties te activeren of een scherm te openen:
+</p>
+<p>
+<a href="schedule.txt"><em>Dienstregeling:</em></a> opent een scherm om de dienstregeling aan te passen of om laden t/m te wijzigen.
+</p>
+<p>
+<em>naar depot:</em> stuurt het voertuig naar een dichtbij gelegen <a href="depot.txt">remise of hangar (depot)</a>. De aanwezige lading zal verloren gaan maar wel geld opbrengen voor het transport naar de remise of hangar.<br>
+Eenmaal in de remise of hangar zal het voertuig de  <a href="schedule.txt">dienstregeling</a> en de toegewezen <a href="linemanagement.txt">lijn</a> behouden.
+</p>
+<p>
+<em>alleen lossen:</em> zorgt ervoor dat er alleen lading wordt gelost en niet geladen.
+</p>
+<p>
+<em>volgen:</em> als deze knop is geactiveerd zal het voertuig gevolgd worden op de kaart. <br>
+ Nogmaals klikken of ergens op de <a href="map.txt">overzichtskaart</a> zal het volgen van het voertuig eindigen<br>
+</p>
+<p>
+<em>Gesorteerd op:</em> sorteert het overzicht van de aanwezige lading.<br>
+Het overziccht toont informatie over de hoeveelheid lading, de capaciteit van het voertuig, soort lading, de bestemming van de lading en het eerste overlaad<a href="station.txt">station</a>.<br>
+De knop krijgt de naam van de actieve sortering. De mogelijkheden zijn:<br>
+ - <em>bestemming:</em> sorteert de lading alfanumeriek op de volgorde van ASCII-code order (hoofdletters voor kleine letters), op de naam van de uiteindelijke bestemming van de lading.<br>
+ - <em>via:</em> sorteert de lading alfanumeriek op de volgorde van ASCII-code order (hoofdletters voor kleine letters), op de naam van het eerste  overlaadstation.<br>
+ - <em>aantal-via:</em> sorteert de lading op hoeveelheid en op het eerste overlaadstation.<br>
+ - <em>aantal:</em> sorteert de lading op hoeveelheid in aflopende volgorde.
+</p>
+<p>
+<em>Grafiek:</em> klik op de knop om de grafiek aan of uit te zetten (knop is ingedrukt wanneer de grafiek zichtbaar is) in het <strong>voertuig informatie</strong> scherm.<br>
+De grafiek toont statistieken over de laatste 12 maanden (x-as) wanneer er een grafiek is geactiveerd door middel van de knoppen onder de grafiek.<br>
+Klik op de knoppen om grafieken aan of uit te zetten. De knop zal zijn ingedrukt wanneer een optie wordt getoond.<br>
+De kleur van de lijn in de grafiek correspondeert met de kleur van de knop voor de grafiek:<br>
+- <em>Vrije capaciteit</em> geeft informatie over onbenutte laadcapaciteit van het voertuig.<br>
+- <em>Vervoerd</em> geeft informatie over de hoeveelheid lading die is vervoerd.<br>
+- <em>Inkomsten</em> de inkomsten die het voertuig heeft gegenereerd.<br>
+- <em>Exploitatiekosten</em> geeft aan hoeveel kosten het voertuig heeft gemaakt.<br>
+- <em>Winst</em> het saldo van de twee bovenstaande waardes.
+</p>
+<p>
+<em>Details</em> opent het <a href="convoidetail.txt">voertuig details</a> scherm met meer informatie en de opties om een voertuig terug te trekken of te verkopen.
+</p>
