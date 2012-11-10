@@ -569,9 +569,8 @@ void SQFuncState::AddInstruction(SQInstruction &i)
             break;
 		case _OP_LINE:
 			if(pi.op == _OP_LINE) {
-				return;
-				//_instructions.pop_back();
-				//_lineinfos.pop_back();
+				_instructions.pop_back();
+				_lineinfos.pop_back();
 			}
 			break;
 		}

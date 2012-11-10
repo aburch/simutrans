@@ -1300,9 +1300,8 @@ SQInteger SQVM::FallBackGet(const SQObjectPtr &self,const SQObjectPtr &key,SQObj
 				return FALLBACK_OK;
 			}
 			else {
-				if(type(_lasterror) != OT_NULL) { //NULL means "clean failure" (not found)
-					//error
 					Pop(2);
+				if(type(_lasterror) != OT_NULL) { //NULL means "clean failure" (not found)
 					return FALLBACK_ERROR;
 				}
 			}

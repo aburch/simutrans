@@ -15,7 +15,9 @@
 #define SETUP_BLOB(v) \
 	SQBlob *self = NULL; \
 	{ if(SQ_FAILED(sq_getinstanceup(v,1,(SQUserPointer*)&self,(SQUserPointer)SQSTD_BLOB_TYPE_TAG))) \
-		return SQ_ERROR; }
+		return sq_throwerror(v,_SC("invalid type tag"));  } \
+	if(!self || !self->IsValid())  \
+		return sq_throwerror(v,_SC("the blob is invalid"));
 
 
 static SQInteger _blob_resize(HSQUIRRELVM v)

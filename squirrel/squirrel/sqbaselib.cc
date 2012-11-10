@@ -975,7 +975,7 @@ static SQInteger thread_call(HSQUIRRELVM v)
 		_thread(o)->Push(_thread(o)->_roottable);
 		for(SQInteger i = 2; i<(nparams+1); i++)
 			sq_move(_thread(o),v,i);
-		if(SQ_SUCCEEDED(sq_call(_thread(o),nparams,SQTrue,SQFalse))) {
+		if(SQ_SUCCEEDED(sq_call(_thread(o),nparams,SQTrue,SQTrue))) {
 			sq_move(v,_thread(o),-1);
 			sq_pop(_thread(o),1);
 			return 1;
