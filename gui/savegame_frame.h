@@ -148,6 +148,11 @@ protected:
 	slist_tpl<dir_entry_t> entries;
 
 	/**
+	 * Internal counter representing the number of sections added to the list
+	 */
+	uint32 num_sections;
+
+	/**
 	 * Callback function that will be executed when the user clicks one of the entries in list
 	 * @author Hansjörg Malthaner
 	 */

@@ -38,7 +38,8 @@ savegame_frame_t::savegame_frame_t(const char *suffix, bool only_directories, co
 	delete_enabled(delete_enabled),
 	input(),
 	fnlabel("Filename"),
-	scrolly(&button_frame)
+	scrolly(&button_frame),
+	num_sections(0)
 {
 
 	fnlabel.set_pos(koord(10, 4));
@@ -135,17 +136,6 @@ void savegame_frame_t::list_filled()
 	// The file entries
 	int y = 0;
 
-	int numheader = 0;
-	FOR(slist_tpl<dir_entry_t>, const& i, entries) {
-		if(  i.type == LI_HEADER  ) {
-			numheader++;
-		}
-		y ++;
-	}
-	if(  numheader==1  ) {
-		entries.remove_first();
-	}
-
 	FOR(slist_tpl<dir_entry_t>, const& i, entries) {
 		button_t*    const button1 = i.del;
 		button_t*    const button2 = i.button;
@@ -154,6 +144,11 @@ void savegame_frame_t::list_filled()
 		if(i.type == LI_HEADER) {
 			label->set_pos(koord(10, y+4));
 			button_frame.add_komponente(label);
+			if(this->num_sections < 2) {
+				// If just 1 section added, we won't print the header, skipping the y increment
+				label->set_visible(false);
+				continue;
+			}
 		}
 		else{
 			button1->set_groesse(koord(14, D_BUTTON_HEIGHT));
@@ -368,15 +363,21 @@ void savegame_frame_t::set_fenstergroesse(koord groesse)
 	input.set_groesse(koord(groesse.x-75-scrollbar_t::BAR_SIZE-1, D_BUTTON_HEIGHT));
 
 	sint16 y = 0;
-	sint16 num_sections = 0;
+	sint16 curr_section = 0;
 
 	FOR(slist_tpl<dir_entry_t>, const& i, entries) {
 		// resize all but delete button
 
-		if(i.type == LI_HEADER) {
+		// header entry, it's only shown if we have more than one
+		if(i.type == LI_HEADER && this->num_sections>1) {
 			i.label->set_pos(koord(10, y+2));
 			y += D_BUTTON_HEIGHT;
-			num_sections++;
+			curr_section++;
+			continue;
+		}
+		if (i.type == LI_HEADER && this->num_sections<2){
+			// skip this header, we don't increment y
+			curr_section++;
 			continue;
 		}
 
@@ -384,7 +385,7 @@ void savegame_frame_t::set_fenstergroesse(koord groesse)
 			button_t* const button1 = i.del;
 			button1->set_pos(koord(button1->get_pos().x, y));
 			// We disable the delete button for extra sections entries
-			if(num_sections > 1  ||  !this->delete_enabled) {
+			if(curr_section > 1  ||  !this->delete_enabled) {
 				button1->set_visible(false);
 			}
 			button_t* const button2 = i.button;
@@ -495,7 +496,8 @@ void savegame_frame_t::add_section(std::string &name){
 	gui_label_t* l = new gui_label_t(NULL, COL_WHITE);
 	l->set_text_pointer(label_text);
 
-	entries.append(dir_entry_t(NULL, NULL, l, LI_HEADER, NULL));
+	this->entries.append(dir_entry_t(NULL, NULL, l, LI_HEADER, NULL));
+	this->num_sections++;
 }
 
 void savegame_frame_t::add_path(const char * path){

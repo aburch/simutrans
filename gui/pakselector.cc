@@ -89,14 +89,14 @@ void pakselector_t::fill_list()
 	// do the search ...
 	savegame_frame_t::fill_list();
 
-	uint32 num_headers = 0;
-
 	int y = 0;
 	FOR(slist_tpl<dir_entry_t>, const& i, entries) {
 
-		if (i.type == LI_HEADER ) {
-			num_headers++;
+		if (i.type == LI_HEADER && this->num_sections > 1) {
 			y += D_BUTTON_HEIGHT;
+			continue;
+		}
+		if (i.type == LI_HEADER && this->num_sections <= 1) {
 			continue;
 		}
 
@@ -119,7 +119,7 @@ void pakselector_t::fill_list()
 	}
 	chdir( umgebung_t::program_dir );
 
-	if(entries.get_count() > num_headers+1) {
+	if(entries.get_count() > this->num_sections+1) {
  		// empty path as more than one pakset is present, user has to choose
 		umgebung_t::objfilename = "";
 	}
@@ -143,8 +143,11 @@ void pakselector_t::set_fenstergroesse(koord groesse)
 	FOR(slist_tpl<dir_entry_t>, const& i, entries) {
 		// resize all but delete button
 
-		if (i.type == LI_HEADER) {
+		if (i.type == LI_HEADER && this->num_sections > 1) {
 			y += D_BUTTON_HEIGHT;
+			continue;
+		}
+		if (i.type == LI_HEADER && this->num_sections <= 1) {
 			continue;
 		}
 
