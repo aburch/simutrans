@@ -1382,7 +1382,7 @@ const char *wkz_marker_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 
 
 // show/repair blocks
-bool wkz_clear_reservation_t::init( karte_t *welt, spieler_t * )
+bool wkz_clear_reservation_t::init( karte_t *welt, spieler_t *sp )
 {
 	if (is_local_execution()) {
 		schiene_t::show_reservations = true;
@@ -1391,7 +1391,7 @@ bool wkz_clear_reservation_t::init( karte_t *welt, spieler_t * )
 	return true;
 }
 
-bool wkz_clear_reservation_t::exit( karte_t *welt, spieler_t * )
+bool wkz_clear_reservation_t::exit( karte_t *welt, spieler_t *sp )
 {
 	if (is_local_execution()) {
 		schiene_t::show_reservations = false;
@@ -1400,15 +1400,31 @@ bool wkz_clear_reservation_t::exit( karte_t *welt, spieler_t * )
 	return true;
 }
 
-const char *wkz_clear_reservation_t::work( karte_t *welt, spieler_t *, koord3d k )
+const char *wkz_clear_reservation_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 {
 	grund_t *gr = welt->lookup(k);
+	const char* err = NULL;
 	if(gr) {
+		
 		for(unsigned wnr=0;  wnr<2;  wnr++  ) {
 
 			schiene_t const* const w = ding_cast<schiene_t>(gr->get_weg_nr(wnr));
+
+			if(w == NULL)
+			{
+				continue;
+			}
+
+			// Does this way belong to the player using the tool?
+			// The public player can use it universally.
+			if(sp->get_player_nr() != 1 && w->get_player_nr() != sp->get_player_nr())
+			{
+				err = "Cannot edit block reservations on another player's way.";
+				continue;
+			}
+
 			// is this a reserved track?
-			if(w!=NULL  &&  w->is_reserved()) {
+			if(w->is_reserved()) {
 				/* now we do a very crude procedure:
 				 * - we search all ways for reservations of this convoi and remove them
 				 * - we set the convoi state to ROUTING_1; it must rereserve its ways then
@@ -1434,7 +1450,7 @@ const char *wkz_clear_reservation_t::work( karte_t *welt, spieler_t *, koord3d k
 			}
 		}
 	}
-	return NULL;
+	return err;
 }
 
 

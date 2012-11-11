@@ -1,0 +1,10 @@
+# Simutranslator settings for Simutrans-Experimental texts
+# Addendum for version 10.13
+#
+# Author: jamespetts
+# Created: November 2012
+#
+obj=program_text
+name=Cannot edit block reservations on another player's way.
+note=Error message shown when trying to use the block reservation on another player's way (the public player is allowed to do this).
+-
