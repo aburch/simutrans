@@ -609,6 +609,7 @@ fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
 
 	delta_sum = 0;
 	delta_menge = 0;
+	menge_remainder = 0;
 	index_offset = 0;
 	total_input = total_output = 0;
 	status = nothing;
@@ -633,6 +634,7 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 
 	delta_sum = 0;
 	delta_menge = 0;
+	menge_remainder = 0;
 	activity_count = 0;
 	currently_producing = false;
 	transformer_connected = false;
@@ -1200,39 +1202,28 @@ void fabrik_t::smoke() const
 }
 
 
-/**
- * calculates the produktion per delta_t; scaled to PRODUCTION_DELTA_T
- * @author Hj. Malthaner - original
- */
-uint32 fabrik_t::produktion(const uint32 produkt, const long delta_t) const
+uint32 fabrik_t::scale_output_production(const uint32 product, uint32 menge) const
 {
-	// default prodfactor = 256 => shift 8, default time = 1024 => shift 10, rest precision
-	const sint64 max = (sint64)prodbase * (sint64)(get_prodfactor());
-	uint32 menge = (uint32)((max >> (18-10+DEFAULT_PRODUCTION_FACTOR_BITS-fabrik_t::precision_bits)) * delta_t / PRODUCTION_DELTA_T);
-	if(  ausgang.get_count() > produkt  ) {
-		// prorate production based upon amount of product in storage
-		// but allow full production rate for storage amounts less than the normal minimum distribution amount (10)
-
-		const uint32 maxi = ausgang[produkt].max;
-		const uint32 actu = ausgang[produkt].menge;
-		if(  actu<maxi  ) {
-			if(  actu >= ((10+1)<<fabrik_t::precision_bits)-1  ) {
-				if(  menge>(0x7FFFFFFFu/maxi)  ) {
-					// avoid overflow
-					menge = (((maxi-actu)>>5)*(menge>>5))/(maxi>>10);
-				}
-				else {
-					// and that is the simple formula
-					menge = (menge*(maxi-actu)) / maxi;
-				}
+	// prorate production based upon amount of product in storage
+	// but allow full production rate for storage amounts less than the normal minimum distribution amount (10)
+	const uint32 maxi = ausgang[product].max;
+	const uint32 actu = ausgang[product].menge;
+	if(  actu<maxi  ) {
+		if(  actu >= ((10+1)<<fabrik_t::precision_bits)-1  ) {
+			if(  menge>(0x7FFFFFFFu/maxi)  ) {
+				// avoid overflow
+				menge = (((maxi-actu)>>5)*(menge>>5))/(maxi>>10);
+			}
+			else {
+				// and that is the simple formula
+				menge = (menge*(maxi-actu)) / maxi;
 			}
 		}
-		else {
-			// overfull? No production
-			menge = 0;
-		}
 	}
-
+	else {
+		// overfull? No production
+		menge = 0;
+	}
 	return menge;
 }
 
@@ -1316,12 +1307,12 @@ sint32 fabrik_t::verbraucht(const ware_besch_t *typ)
 
 void fabrik_t::step(long delta_t)
 {
-	if(delta_t==0) {
+	if(  delta_t==0  ) {
 		return;
 	}
 
 	// produce nothing/consumes nothing ...
-	if (eingang.empty() && ausgang.empty()) {
+	if(  eingang.empty()  &&  ausgang.empty()  ) {
 		// power station? => produce power
 		if(  besch->is_electricity_producer()  ) {
 			currently_producing = true;
@@ -1338,25 +1329,26 @@ void fabrik_t::step(long delta_t)
 			prodfactor_electric = (sint32)( ( (sint64)(besch->get_electric_boost()) * (sint64)power + (sint64)(scaled_electric_amount >> 1) ) / (sint64)scaled_electric_amount );
 		}
 
-		const uint32 ecount = eingang.get_count();
-		uint32 index = 0;
-		uint32 produkt = 0;
+		// calculate the produktion per delta_t; scaled to PRODUCTION_DELTA_T
+		// default prodfactor = 256 => shift 8, default time = 1024 => shift 10, rest precision
+		const uint64 max_prod = (uint64)prodbase * (uint64)(get_prodfactor());
+		const uint64 menge_prod = (max_prod >> (18-10+DEFAULT_PRODUCTION_FACTOR_BITS-fabrik_t::precision_bits)) * (uint64)delta_t + (uint64)menge_remainder;
+		const uint32 menge = (uint32)(menge_prod / (uint64)PRODUCTION_DELTA_T);
+		menge_remainder = (uint32)(menge_prod - (uint64)menge * (uint64)PRODUCTION_DELTA_T);
 
-		currently_producing = false;	// needed for electricity
+		// needed for electricity
+		currently_producing = false;
 		power_demand = 0;
 
-		if (ausgang.empty()) {
+		if(  ausgang.empty()  ) {
 			// consumer only ...
-			uint32 menge = produktion(produkt, delta_t);
-
 			if(  besch->is_electricity_producer()  ) {
 				// power station => start with no production
 				power = 0;
 			}
 
 			// finally consume stock
-			for(  index = 0;  index < ecount;  index++  ) {
-
+			for(  uint32 index = 0;  index < eingang.get_count();  index++  ) {
 				const uint32 vb = besch->get_lieferant(index)->get_verbrauch();
 				const uint32 v = max(1,(menge*vb) >> 8);
 
@@ -1386,61 +1378,60 @@ void fabrik_t::step(long delta_t)
 			// ok, calulate maximum allowed consumption
 			uint32 min_menge = 0x7FFFFFFF;
 			uint32 consumed_menge = 0;
-			for(index = 0; index < ecount; index ++) {
+			for(  uint32 index = 0;  index < eingang.get_count();  index++  ) {
 				// verbrauch fuer eine Einheit des Produktes (in 1/256)
 				const uint32 vb = besch->get_lieferant(index)->get_verbrauch();
 				const uint32 n = eingang[index].menge * 256 / vb;
 
-				if(n<min_menge) {
+				if(  n < min_menge  ) {
 					min_menge = n;    // finde geringsten vorrat
 				}
 			}
 
 			// produces something
-			for (produkt = 0; produkt < ausgang.get_count(); produkt++) {
-				uint32 menge;
+			for(  uint32 product = 0;  product < ausgang.get_count();  product++  ) {
+				uint32 menge_out;
 
-				if(ecount>0) {
+				if(  eingang.get_count() > 0  ) {
 					// calculate production
-					const uint32 p_menge = produktion(produkt, delta_t);
-					menge = p_menge < min_menge ? p_menge : min_menge;  // production smaller than possible due to consumption
-					if(menge>consumed_menge) {
-						consumed_menge = menge;
+					const uint32 p_menge = scale_output_production( product, menge );
+					menge_out = p_menge < min_menge ? p_menge : min_menge;  // production smaller than possible due to consumption
+					if(  menge_out > consumed_menge  ) {
+						consumed_menge = menge_out;
 					}
 				}
 				else {
 					// source producer
-					menge = produktion(produkt, delta_t);
+					menge_out = scale_output_production( product, menge );
 				}
 
-				if (menge>0) {
-					const uint32 pb = besch->get_produkt(produkt)->get_faktor();
+				if(  menge_out > 0  ) {
+					const uint32 pb = besch->get_produkt(product)->get_faktor();
 					// ensure some minimum production
-					const uint32 p = max(1,(menge*pb) >> 8);
+					const uint32 p = max(1,(menge_out*pb) >> 8);
 
 					// produce
-					if (ausgang[produkt].menge < ausgang[produkt].max) {
+					if(  ausgang[product].menge < ausgang[product].max  ) {
 						// to find out, if storage changed
 						delta_menge += p;
-						ausgang[produkt].menge += p;
-						ausgang[produkt].book_stat(p, FAB_GOODS_PRODUCED);
+						ausgang[product].menge += p;
+						ausgang[product].book_stat(p, FAB_GOODS_PRODUCED);
 						// if less than 3/4 filled we neary always consume power
-						currently_producing |= (ausgang[produkt].menge*4 < ausgang[produkt].max*3);
+						currently_producing |= (ausgang[product].menge*4 < ausgang[product].max*3);
 					}
 					else {
-						ausgang[produkt].book_stat(ausgang[produkt].max-1-ausgang[produkt].menge, FAB_GOODS_PRODUCED);
-						ausgang[produkt].menge = ausgang[produkt].max - 1;
+						ausgang[product].book_stat(ausgang[product].max - 1 - ausgang[product].menge, FAB_GOODS_PRODUCED);
+						ausgang[product].menge = ausgang[product].max - 1;
 					}
 				}
 			}
 
 			// and finally consume stock
-			for(index = 0; index<ecount; index ++) {
-
+			for(  uint32 index = 0;  index < eingang.get_count();  index++  ) {
 				const uint32 vb = besch->get_lieferant(index)->get_verbrauch();
 				const uint32 v = (consumed_menge*vb) >> 8;
 
-				if ((uint32)eingang[index].menge > v+1) {
+				if(  (uint32)eingang[index].menge > v + 1  ) {
 					eingang[index].menge -= v;
 					eingang[index].book_stat(v, FAB_GOODS_CONSUMED);
 				}

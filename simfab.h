@@ -113,7 +113,7 @@ public:
 	}
 	void book_weighted_sum_storage(sint64 delta_time);
 
-	sint32 menge;	// in internal untis shifted by precision_bits (see produktion)
+	sint32 menge;	// in internal units shifted by precision_bits (see step)
 	sint32 max;
 };
 
@@ -230,6 +230,9 @@ private:
 	 */
 	sint32 delta_sum;
 	uint32 delta_menge;
+
+	// production remainder when scaled to PRODUCTION_DELTA_T. added back next step to eliminate cumulative error
+	uint32 menge_remainder;
 
 	// Knightly : number of rounds where there is active production or consumption
 	uint8 activity_count;
@@ -355,11 +358,8 @@ private:
 	// create some smoke on the map
 	void smoke() const;
 
-	/**
-	 * increase the amount for a time delta_t scaled to a fixed time PRODUCTION_DELTA_T
-	 * @author Hj. Malthaner - original
-	 */
-	uint32 produktion(uint32 produkt, long delta_t) const;
+	// scales the amount of production based on the amount already in storage
+	uint32 scale_output_production(const uint32 product, uint32 menge) const;
 
 public:
 	fabrik_t(karte_t *welt, loadsave_t *file);
