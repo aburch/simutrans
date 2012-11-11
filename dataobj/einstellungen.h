@@ -444,11 +444,12 @@ private:
 
 	// Whether non-public players are allowed to make stops and ways public.
 	bool allow_making_public;
-
+#ifndef NETTOOL
 	float32e8_t simtime_factor;
 	float32e8_t meters_per_step;
 	float32e8_t steps_per_meter;
 	float32e8_t seconds_per_tick;
+#endif
 public:
 	/* the big cost section */
 	sint32 maint_building;	// normal building
@@ -929,11 +930,12 @@ public:
 
 	bool get_allow_making_public() const { return allow_making_public; }
 
+#ifndef NETTOOL
 	float32e8_t get_simtime_factor() const { return simtime_factor; }
 	float32e8_t meters_to_steps(const float32e8_t &meters) const { return steps_per_meter * meters; }
 	float32e8_t steps_to_meters(const float32e8_t &steps) const { return meters_per_step * steps; }
 	float32e8_t ticks_to_seconds(sint32 delta_t) const { return seconds_per_tick * delta_t; }
-
+#endif
 	uint8 get_max_elevated_way_building_level() const { return max_elevated_way_building_level; }
 	void set_max_elevated_way_building_level(uint8 value) { max_elevated_way_building_level = value; }
 };
