@@ -40,6 +40,7 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	false : cnv->get_welt()->lookup(cnv->get_vehikel(0)->get_pos())->get_weg(cnv->get_vehikel(0)	->get_waytype())->is_electrified() )
 
 {
+	
 	const uint32 a_button_height = 14;
 	const uint32 margin = 6;
 	lb_money.set_text_pointer(txt_money);
@@ -541,7 +542,9 @@ bool replace_frame_t::action_triggered( gui_action_creator_t *komp,value_t /*p*/
 					}
 				}
 			}
+#ifndef DEBUG
 			destroy_win(this);
+#endif
 			copy = false;
 			return true;
 		}
