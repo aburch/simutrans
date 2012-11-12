@@ -21,12 +21,6 @@
 
 #include "savegame_frame.h"
 
-#ifdef _WIN32
-#define NOMINMAX 1
-#include <windows.h>
-#define TRASHBINAVAILABLE 1
-#endif
-
 #define DIALOG_WIDTH (488)
 
 
@@ -154,7 +148,7 @@ void savegame_frame_t::list_filled()
 			button1->set_groesse(koord(14, D_BUTTON_HEIGHT));
 			button1->set_text("X");
 			button1->set_pos(koord(5, y));
-#ifdef TRASHBINAVAILABLE
+#ifdef SIM_SYSTEM_TRASHBINAVAILABLE
 			button1->set_tooltip("Send this file to the system trash bin. SHIFT+CLICK to permanently delete.");
 #else
 			button1->set_tooltip("Delete this file.");
@@ -489,7 +483,14 @@ void savegame_frame_t::add_section(std::string &name){
 	// NOTE: This char buffer will be freed on the destructor
 	char * label_text = new char [1024];
 
-	sprintf(label_text,"Files from %s", name.c_str());
+	size_t path_len = strlen(umgebung_t::program_dir);
+
+	if (strncmp(name.c_str(),umgebung_t::program_dir,path_len) == 0) {
+		sprintf(label_text,"%s %s/%s", translator::translate("Files from: "), translator::translate("SIMUTRANS_DIR"), name.c_str()+path_len);
+	}
+	else {
+		sprintf(label_text,"%s %s/%s", translator::translate("Files from: "), translator::translate("USER_DIR"), name.c_str());
+	}
 
 	cleanup_path(label_text);
 
@@ -513,7 +514,7 @@ void savegame_frame_t::add_path(const char * path){
  */
 bool savegame_frame_t::del_action(const char * fullpath)
 {
-#ifdef _WIN32
+#ifdef SIM_SYSTEM_TRASHBINAVAILABLE
 
 	if (event_get_last_control_shift()&1) {
 		// shift pressed, delete without trash bin
@@ -521,32 +522,8 @@ bool savegame_frame_t::del_action(const char * fullpath)
 		return false;
 	}
 
-	// no shift pressed, use the system trash bin.
-
-	SHFILEOPSTRUCTA  FileOp;
-
-	int len = strlen(fullpath);
-
-	char * wfilename = new char [len+2];
-
-	strcpy(wfilename, fullpath);
-
-	// Double \0 terminated string as required by the function.
-
-	wfilename[len]='\0';
-	wfilename[len+1]='\0';
-
-	ZeroMemory(&FileOp, sizeof(SHFILEOPSTRUCTA));
-
-	FileOp.hwnd = NULL;
-	FileOp.wFunc = FO_DELETE;
-	FileOp.fFlags = FOF_ALLOWUNDO|FOF_NOCONFIRMATION;
-	FileOp.pFrom = wfilename;
-	FileOp.pTo = NULL;
-
-	SHFileOperationA(&FileOp);
-
-	delete wfilename;
+	dr_movetotrash(fullpath);
+	return false;
 
 #else
 	remove(fullpath);

@@ -42,6 +42,41 @@ void dr_mkdir(char const* const path)
 }
 
 
+#ifdef SIM_SYSTEM_TRASHBINAVAILABLE
+bool dr_movetotrash(const char *path) {
+	// We just have a Windows implementation so far
+#ifdef _WIN32
+	SHFILEOPSTRUCTA  FileOp;
+
+	int len = strlen(path);
+
+	char * wfilename = new char [len+2];
+
+	strcpy(wfilename, path);
+
+	// Double \0 terminated string as required by the function.
+
+	wfilename[len]='\0';
+	wfilename[len+1]='\0';
+
+	ZeroMemory(&FileOp, sizeof(SHFILEOPSTRUCTA));
+
+	FileOp.hwnd = NULL;
+	FileOp.wFunc = FO_DELETE;
+	FileOp.fFlags = FOF_ALLOWUNDO|FOF_NOCONFIRMATION;
+	FileOp.pFrom = wfilename;
+	FileOp.pTo = NULL;
+
+	int successful = SHFileOperationA(&FileOp);
+
+	delete wfilename;
+
+	return successful;
+#endif
+
+}
+#endif
+
 char const* dr_query_homedir()
 {
 	static char buffer[PATH_MAX];
