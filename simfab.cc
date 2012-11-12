@@ -1637,7 +1637,6 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 
 	// Auswertung der Ergebnisse
 	if(  !dist_list.empty()  ) {
-
 		distribute_ware_t *best = NULL;
 		FOR(vector_tpl<distribute_ware_t>, & i, dist_list) {
 			// now search route
@@ -1657,8 +1656,8 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 		ware_t       &best_ware = best->ware;
 
 		// now process found route
-
-		menge = min( menge, 9 + best->space_left );
+		const sint32 space_left = welt->get_settings().get_just_in_time() ? best->space_left : (sint32)best_halt->get_capacity(2) - (sint32)best_halt->get_ware_summe(best_ware.get_besch());
+		menge = min( menge, 9 + space_left );
 		// ensure amount is not negative ...
 		if(  menge<0  ) {
 			menge = 0;
@@ -1666,9 +1665,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 		// since it is assigned here to an unsigned variable!
 		best_ware.menge = menge;
 
-		const sint32 space_left = welt->get_settings().get_just_in_time() ? best->space_left : (sint32)best_halt->get_capacity(2) - (sint32)best_halt->get_ware_summe(best_ware.get_besch());
 		if(  space_left<0  ) {
-
 			// find, what is most waiting here from us
 			ware_t most_waiting(ausgang[produkt].get_typ());
 			most_waiting.menge = 0;
@@ -1679,7 +1676,6 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 					most_waiting.menge = amount;
 				}
 			}
-
 
 			//  we will reroute some goods
 			if(  best->amount_waiting==0  &&  most_waiting.menge>0  ) {
@@ -1706,7 +1702,6 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 		best_halt->recalc_status();
 		ausgang[produkt].book_stat(best_ware.menge, FAB_GOODS_DELIVERED);
 	}
-
 }
 
 
