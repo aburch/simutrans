@@ -5785,6 +5785,20 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 			break;
 	}
 
+	if(  cnv->in_depot()  &&  (tool=='g'  ||  tool=='l')  ) {
+		const grund_t *const ground = welt->lookup( cnv->get_home_depot() );
+		if(  ground  ) {
+			const depot_t *const depot = ground->get_depot();
+			if(  depot  ) {
+				depot_frame_t *const frame = dynamic_cast<depot_frame_t *>( win_get_magic( (ptrdiff_t)depot ) );
+				if(  frame  ) {
+					frame->update_data();
+				}
+			}
+		}
+	}
+
+
 	return false;	// no related work tool ...
 }
 
@@ -5904,12 +5918,13 @@ bool wkz_change_line_t::init( karte_t *, spieler_t *sp )
  * 'i' : inserts a vehicle in front (+vehikel_name) uses the oldest
  * 's' : sells a vehikel (+vehikel_name) uses the newest
  * 'r' : removes a vehikel (+number in convoi)
+ * 'R' : removes all vehikels including (+number in convoi) to end
  */
 bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 {
 	char tool=0;
 	koord3d pos = koord3d::invalid;
-	sint16	z;
+	sint16 z;
 	uint16 convoi_id;
 
 	// skip the rest of the command
@@ -5949,12 +5964,24 @@ bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 			// create line schedule window
 			{
 				linehandle_t selected_line = depot->get_besitzer()->simlinemgmt.create_line(depot->get_line_type(),depot->get_besitzer());
-				if (is_local_execution()) {
-					depot->set_selected_line(selected_line);
-					depot_frame_t *depot_frame = dynamic_cast<depot_frame_t *>(win_get_magic( (ptrdiff_t)depot ));
+				depot_frame_t *depot_frame = dynamic_cast<depot_frame_t *>(win_get_magic( (ptrdiff_t)depot ));
+				if(  is_local_execution()  ) {
 					if(  welt->get_active_player()==sp  &&  depot_frame  ) {
-						create_win(new line_management_gui_t(selected_line, depot->get_besitzer()), w_info, (ptrdiff_t)selected_line.get_rep() );
+						create_win( new line_management_gui_t( selected_line, depot->get_besitzer() ), w_info, (ptrdiff_t)selected_line.get_rep() );
 					}
+				}
+
+				if(  depot_frame  ) {
+					if(  is_local_execution()  ) {
+						depot_frame->set_selected_line( selected_line );
+						depot_frame->apply_line();
+					}
+					depot_frame->update_data();
+				}
+
+				schedule_list_gui_t *sl = dynamic_cast<schedule_list_gui_t *>(win_get_magic( magic_line_management_t + sp->get_player_nr() ));
+				if(  sl  ) {
+					sl->update_data( selected_line );
 				}
 				DBG_MESSAGE("depot_frame_t::new_line()","id=%d",selected_line.get_id() );
 			}
@@ -5976,7 +6003,13 @@ bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 		case 'c':
 			// copy this convoi
 			if(  cnv.is_bound()  ) {
-				depot->copy_convoi(cnv);
+				if(  convoihandle_t::is_exhausted()  ) {
+					if(  is_local_execution()  ) {
+						create_win( new news_img("Convoi handles exhausted!"), w_time_delete, magic_none );
+					}
+					return false;
+				}
+				depot->copy_convoi( cnv, is_local_execution() );
 			}
 			break;
 
@@ -5984,7 +6017,8 @@ bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 		case 'i':	// insert a vehicle in front
 		case 's':	// sells a vehicle
 		case 'r': 	// removes a vehicle (assumes a valid depot)
-			if(  tool=='r'  ) {
+		case 'R': 	// removes all vehicles to end (assumes a valid depot)
+			if(  tool=='r'  ||  tool=='R'  ) {
 				// test may fail after double-click on the button:
 				// two remove cmds are sent, only the first will remove, the second should not trigger assertion failure
 				if ( cnv.is_bound() ) {
@@ -6000,11 +6034,14 @@ bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 						}
 					}
 					// now remove the vehicles
-					if(cnv->get_vehikel_anzahl()==nr-start_nr) {
+					if(  cnv->get_vehikel_anzahl()==nr-start_nr  ||  (tool=='R'  &&  start_nr==0)  ) {
 						depot->disassemble_convoi(cnv, false);
 					}
+					else if(  tool=='R'  ) {
+						depot->remove_vehicles_to_end( cnv, start_nr );
+					}
 					else {
-						for( int i=start_nr;  i<nr;  i++  ) {
+						for(  int i=start_nr;  i<nr;  i++  ) {
 							depot->remove_vehicle(cnv, start_nr);
 						}
 					}
@@ -6046,6 +6083,7 @@ bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 					}
 					else {
 						// append/insert into convoi; create one if needed
+						depot->clear_command_pending();
 						if(!cnv.is_bound()) {
 							if(  convoihandle_t::is_exhausted()  ) {
 								if (is_local_execution()) {
@@ -6054,7 +6092,7 @@ bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 								return false;
 							}
 							// create a new convoi
-							cnv = depot->add_convoi();
+							cnv = depot->add_convoi( is_local_execution() );
 							cnv->set_name(new_vehicle_info.front()->get_name());
 						}
 
@@ -6071,7 +6109,7 @@ bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 									// nothing there => we buy it
 									veh = depot->buy_vehicle(vb);
 								}
-								depot->append_vehicle(cnv, veh, tool=='i');
+								depot->append_vehicle( cnv, veh, tool=='i', is_local_execution() );
 							}
 						}
 					}

@@ -21,10 +21,27 @@
 #include "components/gui_button.h"
 #include "components/action_listener.h"
 #include "components/gui_scrollpane.h"
+#include "components/gui_speedbar.h"
 #include "../simtypes.h"
+#include "../utils/cbuffer_t.h"
 
 class depot_t;
 class vehikel_besch_t;
+
+
+class depot_convoi_capacity_t : public gui_container_t
+{
+private:
+	uint32 total_pax;
+	uint32 total_mail;
+	uint32 total_goods;
+public:
+	depot_convoi_capacity_t();
+	void set_totals(uint32 pax, uint32 mail, uint32 goods);
+	void zeichnen(koord offset);
+};
+
+
 /**
  * Depot frame, handles all interaction with a vehicle depot.
  *
@@ -46,13 +63,7 @@ private:
 	 * @author Volker Meyer
 	 * @date  09.06.2003
 	 */
-	int	icnv;
-
-	/**
-	 * The previous convoy being displayed
-	 * @author Knightly
-	 */
-	convoihandle_t prev_cnv;
+	int icnv;
 
 	/* show retired vehicles (same for all depot)
 	* @author prissi
@@ -69,15 +80,24 @@ private:
 	 * @author Volker Meyer
 	 * @date  09.06.2003
 	 */
-	button_t bt_prev;
-	gui_textinput_t inp_name;
 	gui_label_t lb_convois;
-	button_t bt_next;
+	static char new_convoy_text[128];
+	gui_combobox_t convoy_selector;
+
+	button_t line_button;	// goto line ...
 
 	gui_label_t lb_convoi_count;
 	gui_label_t lb_convoi_speed;
+	gui_label_t lb_convoi_cost;
 	gui_label_t lb_convoi_value;
+	gui_label_t lb_convoi_power;
+	gui_label_t lb_convoi_weight;
 	gui_label_t lb_convoi_line;
+
+	depot_convoi_capacity_t cont_convoi_capacity;
+
+	gui_speedbar_t sb_convoi_length;
+	sint32 convoi_length_ok_sb, convoi_length_slower_sb, convoi_length_too_slow_sb, convoi_tile_length_sb, new_vehicle_length_sb;
 
 	button_t bt_start;
 	button_t bt_schedule;
@@ -88,7 +108,7 @@ private:
 	button_t bt_show_all;
 
 	gui_tab_panel_t tabs;
-	gui_divider_t   div_tabbottom;
+	gui_divider_t div_tabbottom;
 
 	gui_label_t lb_veh_action;
 	button_t bt_veh_action;
@@ -123,7 +143,10 @@ private:
 	gui_container_t cont_loks;
 	gui_container_t cont_waggons;
 
-	static char no_line_text[128];
+	static char no_schedule_text[128];
+	static char unique_schedule_text[128];
+	static char new_line_text[128];
+	static char line_seperator[128];
 	gui_combobox_t line_selector;
 
 	gui_combobox_t vehicle_filter;
@@ -131,17 +154,18 @@ private:
 
 	gui_image_t img_bolt;
 
-	linehandle_t selected_line;
+	linehandle_t selected_line, last_selected_line;
 
-	char txt_convois[40];
+	cbuffer_t txt_convois;
 
-	char txt_cnv_name[118];
-	char txt_old_cnv_name[118];
+	cbuffer_t txt_convoi_count;
+	cbuffer_t txt_convoi_value;
+	cbuffer_t txt_convoi_speed;
+	cbuffer_t txt_convoi_cost;
+	cbuffer_t txt_convoi_power;
+	cbuffer_t txt_convoi_weight;
 
-	char txt_convoi_count[120];
-	char txt_convoi_value[80];
-	char txt_convoi_speed[80];
-	char txt_convoi_line[128];
+	KOORD_VAL second_column_x; // x position of the second text column
 
 	enum { va_append, va_insert, va_sell };
 	uint8 veh_action;
@@ -185,7 +209,7 @@ private:
 	void add_to_vehicle_list(const vehikel_besch_t *info);
 
 	// for convoi image
-	void image_from_convoi_list(uint nr);
+	void image_from_convoi_list(uint nr, bool to_end);
 
 	void image_from_storage_list(gui_image_list_t::image_data_t *bild_data);
 
@@ -194,6 +218,8 @@ private:
 public:
 	// the next two are only needed for depot_t update notifications
 	void activate_convoi( convoihandle_t cnv );
+
+	int get_icnv() const { return icnv; }
 
 	/**
 	 * Do the dynamic dialog layout
@@ -209,21 +235,8 @@ public:
 	 */
 	void update_data();
 
-	/**
-	 * Reset convoy name
-	 * @author Knightly
-	 */
-	void reset_convoy_name(convoihandle_t cnv);
-
-	/**
-	 * Rename the convoy
-	 * @author Knightly
-	 */
-	void rename_convoy(convoihandle_t cnv);
-
 	// more general functions ...
 	depot_frame_t(depot_t* depot);
-	~depot_frame_t();
 
 	/**
 	 * Setzt die Fenstergroesse
@@ -278,6 +291,8 @@ public:
 
 	// @author hsiegeln
 	void apply_line();
+
+	void set_selected_line(linehandle_t line) { selected_line = line; }
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };

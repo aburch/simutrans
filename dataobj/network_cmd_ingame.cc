@@ -243,7 +243,7 @@ void nwc_nick_t::server_tools(karte_t *welt, uint32 client_id, uint8 what, const
 	// queue tool for network
 	nwc_tool_t *nwc = new nwc_tool_t(NULL, w, koord3d::invalid, 0, welt->get_map_counter(), true);
 	network_send_server(nwc);
-	// since init always returns false, it is save to delete immediately
+	// since init always returns false, it is safe to delete immediately
 	delete w;
 }
 

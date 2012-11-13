@@ -206,7 +206,7 @@ void stadt_info_t::rename_city()
 			w->set_default_param( buf );
 			karte_t* const welt = stadt->get_welt();
 			welt->set_werkzeug( w, welt->get_spieler(1));
-			// since init always returns false, it is save to delete immediately
+			// since init always returns false, it is safe to delete immediately
 			delete w;
 			// do not trigger this command again
 			tstrncpy(old_name, t, sizeof(old_name));

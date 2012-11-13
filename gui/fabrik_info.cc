@@ -113,7 +113,7 @@ void fabrik_info_t::rename_factory()
 		werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
 		w->set_default_param( buf );
 		welt->set_werkzeug( w, welt->get_spieler(1));
-		// since init always returns false, it is save to delete immediately
+		// since init always returns false, it is safe to delete immediately
 		delete w;
 	}
 }

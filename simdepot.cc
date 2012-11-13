@@ -46,8 +46,9 @@ depot_t::depot_t(karte_t *welt,loadsave_t *file) : gebaeude_t(welt)
 	}
 	all_depots.append(this);
 	selected_filter = VEHICLE_FILTER_RELEVANT;
+	last_selected_line = linehandle_t();
+	command_pending = false;
 }
-
 
 
 depot_t::depot_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_tile_besch_t *t) :
@@ -55,6 +56,8 @@ depot_t::depot_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_tile_besc
 {
 	all_depots.append(this);
 	selected_filter = VEHICLE_FILTER_RELEVANT;
+	last_selected_line = linehandle_t();
+	command_pending = false;
 }
 
 
@@ -110,7 +113,6 @@ depot_t *depot_t::find_depot( koord3d start, const ding_t::typ depot_type, const
 }
 
 
-
 // again needed for server
 void depot_t::call_depot_tool( char tool, convoihandle_t cnv, const char *extra)
 {
@@ -124,10 +126,9 @@ void depot_t::call_depot_tool( char tool, convoihandle_t cnv, const char *extra)
 	}
 	w->set_default_param(buf);
 	welt->set_werkzeug( w, get_besitzer() );
-	// since init always returns false, it is save to delete immediately
+	// since init always returns false, it is safe to delete immediately
 	delete w;
 }
-
 
 
 /* this is called on two occasions:
@@ -188,11 +189,11 @@ vehikel_t* depot_t::buy_vehicle(const vehikel_besch_t* info)
 }
 
 
-void depot_t::append_vehicle(convoihandle_t cnv, vehikel_t* veh, bool infront)
+void depot_t::append_vehicle(convoihandle_t cnv, vehikel_t* veh, bool infront, bool local_execution)
 {
 	/* create  a new convoi, if necessary */
 	if (!cnv.is_bound()) {
-		cnv = add_convoi();
+		cnv = add_convoi( local_execution );
 	}
 	veh->set_pos(get_pos());
 	cnv->add_vehikel(veh, infront);
@@ -202,9 +203,17 @@ void depot_t::append_vehicle(convoihandle_t cnv, vehikel_t* veh, bool infront)
 
 void depot_t::remove_vehicle(convoihandle_t cnv, int ipos)
 {
-	vehikel_t* veh = cnv->remove_vehikel_bei(ipos);
-	if (veh) {
-		vehicles.append(veh);
+	vehikel_t* veh = cnv->remove_vehikel_bei( ipos );
+	if(  veh  ) {
+		vehicles.append( veh );
+	}
+}
+
+
+void depot_t::remove_vehicles_to_end(convoihandle_t cnv, int ipos)
+{
+	while(  vehikel_t* veh = cnv->remove_vehikel_bei( ipos )  ) {
+		vehicles.append( veh );
 	}
 }
 
@@ -236,26 +245,62 @@ vehikel_t* depot_t::find_oldest_newest(const vehikel_besch_t* besch, bool old)
 }
 
 
-
-convoihandle_t depot_t::add_convoi()
+convoihandle_t depot_t::add_convoi(bool local_execution)
 {
 	convoi_t* new_cnv = new convoi_t(get_besitzer());
 	new_cnv->set_home_depot(get_pos());
 	convois.append(new_cnv->self);
 	depot_frame_t *win = dynamic_cast<depot_frame_t *>(win_get_magic( (ptrdiff_t)this ));
-	if(  win  ) {
+	if(  win  &&  local_execution  ) {
 		win->activate_convoi( new_cnv->self );
 	}
 	return new_cnv->self;
 }
 
 
-convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv)
+bool depot_t::check_obsolete_inventory(convoihandle_t cnv)
+{
+	bool ok = true;
+	slist_tpl<vehikel_t*> veh_tmp_list;
+
+	for(  int i = 0;  i < cnv->get_vehikel_anzahl();  i++  ) {
+		const vehikel_besch_t* const vb = cnv->get_vehikel(i)->get_besch();
+		if(  vb  ) {
+			// search storage for matching vehicle
+			vehikel_t* veh = NULL;
+			for(  slist_tpl<vehikel_t*>::iterator i = vehicles.begin();  i != vehicles.end();  ++i  ) {
+				if(  (*i)->get_besch() == vb  ) {
+					// found in storage, remove to temp list while searching for next vehicle
+					veh = *i;
+					vehicles.erase(i);
+					veh_tmp_list.append( veh );
+					break;
+				}
+			}
+			if(  !veh  ) {
+				// need to buy new
+				if(  vb->is_retired( welt->get_timeline_year_month() )  ) {
+					// is obsolete, return false
+					ok = false;
+					break;
+				}
+			}
+		}
+	}
+
+	// put vehicles back into storage
+	vehicles.append_list( veh_tmp_list );
+
+	return ok;
+}
+
+
+convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv, bool local_execution)
 {
 	if(  old_cnv.is_bound()  &&  !convoihandle_t::is_exhausted()  &&
 		old_cnv->get_vehikel_anzahl() > 0  &&  get_waytype() == old_cnv->front()->get_besch()->get_waytype() ) {
 
-		convoihandle_t new_cnv = add_convoi();
+		convoihandle_t new_cnv = add_convoi( false );
 		new_cnv->set_name(old_cnv->get_internal_name());
 		int vehicle_count = old_cnv->get_vehikel_anzahl();
 		for (int i = 0; i<vehicle_count; i++) {
@@ -265,7 +310,7 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv)
 				vehikel_t* oldest_vehicle = get_oldest_vehicle(info);
 				if (oldest_vehicle != NULL) {
 					// append existing vehicle
-					append_vehicle(new_cnv, oldest_vehicle, false);
+					append_vehicle( new_cnv, oldest_vehicle, false, local_execution );
 				}
 				else {
 					// buy new vehicle
@@ -288,7 +333,12 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv)
 		// make this the current selected convoi
 		depot_frame_t *win = dynamic_cast<depot_frame_t *>(win_get_magic( (ptrdiff_t)this ));
 		if(  win  ) {
-			win->activate_convoi( new_cnv );
+			if(  local_execution  ) {
+				win->activate_convoi( new_cnv );
+			}
+			else {
+				win->update_data();
+			}
 		}
 
 		return new_cnv;
@@ -297,14 +347,12 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv)
 }
 
 
-
 bool depot_t::disassemble_convoi(convoihandle_t cnv, bool sell)
 {
-	if(cnv.is_bound()) {
-
-		if(!sell) {
+	if(  cnv.is_bound()  ) {
+		if(  !sell  ) {
 			// store vehicles in depot
-			while (vehikel_t* const v = cnv->remove_vehikel_bei(0)) {
+			while(  vehikel_t* const v = cnv->remove_vehikel_bei(0)  ) {
 				v->loesche_fracht();
 				v->set_erstes(false);
 				v->set_letztes(false);
@@ -313,15 +361,7 @@ bool depot_t::disassemble_convoi(convoihandle_t cnv, bool sell)
 		}
 
 		// remove from depot lists
-		sint32 icnv = (sint32)convois.index_of( cnv );
-		if (convois.remove(cnv)) {
-			// actually removed cnv from depot, here icnv>=0
-			// make another the current selected convoi
-			depot_frame_t *win = dynamic_cast<depot_frame_t *>(win_get_magic( (ptrdiff_t)this ));
-			if(  win  ) {
-				win->activate_convoi( !convois.empty() ? convois.at( min((uint32)icnv, convois.get_count()-1) ) : convoihandle_t() );
-			}
-		}
+		remove_convoi( cnv );
 
 		// and remove from welt
 		cnv->self_destruct();
@@ -374,21 +414,7 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 			cnv->start();
 
 			// remove from depot lists
-			sint32 icnv = (sint32)convois.index_of( cnv );
-			if (convois.remove(cnv)) {
-				// actually removed cnv from depot, here icnv>=0
-				// make another convoi the current selected one
-				depot_frame_t *win = dynamic_cast<depot_frame_t *>(win_get_magic( (ptrdiff_t)this ));
-				if(  win  ) {
-					if (local_execution) {
-						// change state of depot window only for local execution
-						win->activate_convoi( !convois.empty() ? convois.at( min((uint32)icnv, convois.get_count()-1) ) : convoihandle_t() );
-					}
-					else {
-						win->update_data();
-					}
-				}
-			}
+			remove_convoi( cnv );
 
 			return true;
 		}
@@ -410,6 +436,28 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 }
 
 
+void depot_t::remove_convoi( convoihandle_t cnv )
+{
+	depot_frame_t *win = dynamic_cast<depot_frame_t *>(win_get_magic( (ptrdiff_t)this ));
+	if(  win  ) {
+		// get currently selected convoi to restore selection if not removed
+		int icnv = win->get_icnv();
+		convoihandle_t c = icnv > -1 ? get_convoi( icnv ) : convoihandle_t();
+
+		icnv = convois.index_of( cnv );
+		convois.remove( cnv );
+
+		if(  c == cnv  ) {
+			// removing currently selected, select next in list or last instead
+			c = !convois.empty() ? convois.at( min((uint32)icnv, convois.get_count() - 1) ) : convoihandle_t();
+		}
+		win->activate_convoi( c );
+	}
+	else {
+		convois.remove( cnv );
+	}
+}
+
 
 // attention! this will not be used for railway depots! They will be loaded by hand ...
 void depot_t::rdwr(loadsave_t *file)
@@ -423,7 +471,6 @@ void depot_t::rdwr(loadsave_t *file)
 		rdwr_vehikel(vehicles, file);
 	}
 }
-
 
 
 void depot_t::rdwr_vehikel(slist_tpl<vehikel_t *> &list, loadsave_t *file)
@@ -529,26 +576,6 @@ vehikel_t* depot_t::get_oldest_vehicle(const vehikel_besch_t* besch)
 }
 
 
-/**
- * sets/gets the line that was selected the last time in the depot-dialog
- */
-void depot_t::set_selected_line(const linehandle_t sel_line)
-{
-	selected_line = sel_line;
-	depot_frame_t *win = dynamic_cast<depot_frame_t *>(win_get_magic( (ptrdiff_t)this ));
-	if(  win  ) {
-		win->layout(NULL);
-		win->update_data();
-	}
-}
-
-
-linehandle_t depot_t::get_selected_line()
-{
-	return selected_line;
-}
-
-
 void depot_t::update_win()
 {
 	depot_frame_t *depot_frame = dynamic_cast<depot_frame_t *>(win_get_magic( (ptrdiff_t)this ));
@@ -571,6 +598,7 @@ void depot_t::update_all_win()
 		d->update_win();
 	}
 }
+
 
 unsigned bahndepot_t::get_max_convoi_length() const
 {

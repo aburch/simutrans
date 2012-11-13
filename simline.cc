@@ -41,7 +41,7 @@ simline_t::simline_t(karte_t* welt, spieler_t* sp, linetype type)
 	this->fpl = NULL;
 	this->sp = sp;
 	withdraw = false;
-	state_color = COL_YELLOW;
+	state_color = COL_WHITE;
 	create_schedule();
 }
 

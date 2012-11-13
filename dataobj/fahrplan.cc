@@ -257,7 +257,7 @@ bool schedule_t::matches(karte_t *welt, const schedule_t *fpl)
 	}
 	// unequal count => not equal
 	const uint8 min_count = min( fpl->eintrag.get_count(), eintrag.get_count() );
-	if(  min_count==0  &&  fpl->eintrag.get_count()!=eintrag.get_count()  ) {
+	if(  min_count==0  ||  fpl->eintrag.get_count()!=eintrag.get_count()  ) {
 		return false;
 	}
 	// now we have to check all entries ...

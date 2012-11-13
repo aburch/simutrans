@@ -11,13 +11,19 @@ static int cx = -1; // coordinates of last mouse click event
 static int cy = -1; // initialised to "nowhere"
 static int control_shift_state = 0;	// none pressed
 static event_t meta_event(EVENT_NONE);	// Knightly : for storing meta-events like double-clicks and triple-clicks
-
+static unsigned int last_meta_class = EVENT_NONE;
 
 int event_get_last_control_shift(void)
 {
 	// shift = 1
 	// ctrl  = 2
 	return control_shift_state & 0x03;
+}
+
+
+unsigned int last_meta_event_get_class()
+{
+	return last_meta_class;
 }
 
 
@@ -223,9 +229,11 @@ void display_poll_event(event_t* const ev)
 	// Knightly : if there is any pending meta-event, consume it instead of fetching a new event from the system
 	if(  meta_event.ev_class!=EVENT_NONE  ) {
 		*ev = meta_event;
+		last_meta_class = meta_event.ev_class;
 		meta_event.ev_class = EVENT_NONE;
 	}
 	else {
+		last_meta_class = EVENT_NONE;
 		GetEventsNoWait();
 		fill_event(ev);
 		// prepare for next event

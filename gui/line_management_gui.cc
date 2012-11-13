@@ -61,7 +61,7 @@ bool line_management_gui_t::infowin_event(const event_t *ev)
 				fpl->sprintf_schedule( buf );
 				w->set_default_param(buf);
 				line->get_besitzer()->get_welt()->set_werkzeug( w, line->get_besitzer() );
-				// since init always returns false, it is save to delete immediately
+				// since init always returns false, it is safe to delete immediately
 				delete w;
 			}
 		}

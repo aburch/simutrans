@@ -80,7 +80,7 @@ bool label_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 			werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
 			w->set_default_param( buf );
 			welt->set_werkzeug( w, label->get_besitzer() );
-			// since init always returns false, it is save to delete immediately
+			// since init always returns false, it is safe to delete immediately
 			delete w;
 		}
 		destroy_win(this);

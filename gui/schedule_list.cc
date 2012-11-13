@@ -17,6 +17,7 @@
 #include "line_item.h"
 
 #include "../simcolor.h"
+#include "../simdepot.h"
 #include "../simhalt.h"
 #include "../simworld.h"
 #include "../simevent.h"
@@ -376,8 +377,9 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t 
 		buf.printf( "c,0,%i,0,0|%i|", type, type );
 		w->set_default_param(buf);
 		sp->get_welt()->set_werkzeug( w, sp );
-		// since init always returns false, it is save to delete immediately
+		// since init always returns false, it is safe to delete immediately
 		delete w;
+		depot_t::update_all_win();
 	}
 	else if (komp == &bt_delete_line) {
 		if (line.is_bound()) {
@@ -386,8 +388,9 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t 
 			buf.printf( "d,%i", line.get_id() );
 			w->set_default_param(buf);
 			sp->get_welt()->set_werkzeug( w, sp );
-			// since init always returns false, it is save to delete immediately
+			// since init always returns false, it is safe to delete immediately
 			delete w;
+			depot_t::update_all_win();
 		}
 	}
 	else if (komp == &bt_withdraw_line) {
@@ -398,7 +401,7 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t 
 			buf.printf( "w,%i,%i", line.get_id(), bt_withdraw_line.pressed );
 			w->set_default_param(buf);
 			sp->get_welt()->set_werkzeug( w, sp );
-			// since init always returns false, it is save to delete immediately
+			// since init always returns false, it is safe to delete immediately
 			delete w;
 		}
 	}
@@ -480,7 +483,7 @@ void schedule_list_gui_t::rename_line()
 			werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
 			w->set_default_param( buf );
 			sp->get_welt()->set_werkzeug( w, line->get_besitzer() );
-			// since init always returns false, it is save to delete immediately
+			// since init always returns false, it is safe to delete immediately
 			delete w;
 			// do not trigger this command again
 			tstrncpy(old_line_name, t, sizeof(old_line_name));
@@ -491,7 +494,7 @@ void schedule_list_gui_t::rename_line()
 
 void schedule_list_gui_t::zeichnen(koord pos, koord gr)
 {
-	if(  old_line_count!=sp->simlinemgmt.get_line_count()  ) {
+	if(  old_line_count != sp->simlinemgmt.get_line_count()  ) {
 		show_lineinfo( line );
 	}
 	// if search string changed, update line selection
@@ -503,10 +506,10 @@ void schedule_list_gui_t::zeichnen(koord pos, koord gr)
 	gui_frame_t::zeichnen(pos, gr);
 
 	if(  line.is_bound()  ) {
-		if(  !line->get_schedule()->matches(sp->get_welt(), last_schedule)  ||  last_vehicle_count!=line->count_convoys()  ) {
-			update_lineinfo(line);
+		if(  (!line->get_schedule()->empty()  &&  !line->get_schedule()->matches( sp->get_welt(), last_schedule ))  ||  last_vehicle_count != line->count_convoys()  ) {
+			update_lineinfo( line );
 		}
-		PUSH_CLIP(pos.x+1,pos.y+D_TITLEBAR_HEIGHT,gr.x-2,gr.y-D_TITLEBAR_HEIGHT);
+		PUSH_CLIP( pos.x + 1, pos.y + D_TITLEBAR_HEIGHT, gr.x - 2, gr.y - D_TITLEBAR_HEIGHT);
 		display(pos);
 		POP_CLIP();
 	}

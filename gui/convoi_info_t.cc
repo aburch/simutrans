@@ -525,7 +525,7 @@ void convoi_info_t::rename_cnv()
 			werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
 			w->set_default_param( buf );
 			cnv->get_welt()->set_werkzeug( w, cnv->get_besitzer());
-			// since init always returns false, it is save to delete immediately
+			// since init always returns false, it is safe to delete immediately
 			delete w;
 			// do not trigger this command again
 			tstrncpy(old_cnv_name, t, sizeof(old_cnv_name));

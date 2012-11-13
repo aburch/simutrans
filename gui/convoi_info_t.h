@@ -63,7 +63,7 @@ private:
 	button_t details_button;
 	button_t toggler;
 
-	button_t line_button;	// got to line ...
+	button_t line_button;	// goto line ...
 	bool line_bound;
 
 	convoihandle_t cnv;

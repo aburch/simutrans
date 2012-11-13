@@ -273,6 +273,7 @@ SOURCES += gui/convoi_detail_t.cc
 SOURCES += gui/convoi_filter_frame.cc
 SOURCES += gui/convoi_frame.cc
 SOURCES += gui/convoi_info_t.cc
+SOURCES += gui/convoy_item.cc
 SOURCES += gui/curiosity_edit.cc
 SOURCES += gui/curiositylist_frame_t.cc
 SOURCES += gui/curiositylist_stats_t.cc
@@ -386,6 +387,7 @@ SOURCES += simdepot.cc
 SOURCES += simdings.cc
 SOURCES += simevent.cc
 SOURCES += simfab.cc
+SOURCES += simgraph$(COLOUR_DEPTH).cc
 SOURCES += simhalt.cc
 SOURCES += simintr.cc
 SOURCES += simio.cc
@@ -420,8 +422,6 @@ SOURCES += vehicle/movingobj.cc
 SOURCES += vehicle/simpeople.cc
 SOURCES += vehicle/simvehikel.cc
 SOURCES += vehicle/simverkehr.cc
-
-SOURCES += simgraph$(COLOUR_DEPTH).cc
 
 
 ifeq ($(BACKEND),allegro)

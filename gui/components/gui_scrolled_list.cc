@@ -172,7 +172,7 @@ bool gui_scrolled_list_t::infowin_event(const event_t *ev)
 		}
 	}
 
-	// got to next/previous choice
+	// goto next/previous choice
 	if(  ev->ev_class == EVENT_KEYBOARD  &&  (ev->ev_code==SIM_KEY_UP  ||  ev->ev_code==SIM_KEY_DOWN)  ) {
 		int new_selection = (ev->ev_code==SIM_KEY_DOWN) ? min(item_list.get_count()-1, selection+1) : max(0, selection-1);
 		selection = new_selection;

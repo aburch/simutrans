@@ -65,10 +65,7 @@
 #define WAIT_INFINITE 0xFFFFFFFFu
 
 
-
 karte_t *convoi_t::welt = NULL;
-
-
 
 /*
  * Debugging helper - translate state value to human readable name
@@ -496,7 +493,6 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 }
 
 
-
 // since now convoi states go via werkzeug_t
 void convoi_t::call_convoi_tool( const char function, const char *extra ) const
 {
@@ -508,10 +504,9 @@ void convoi_t::call_convoi_tool( const char function, const char *extra ) const
 	}
 	w->set_default_param(param);
 	welt->set_werkzeug( w, get_besitzer() );
-	// since init always returns false, it is save to delete immediately
+	// since init always returns false, it is safe to delete immediately
 	delete w;
 }
-
 
 
 void convoi_t::rotate90( const sint16 y_size )
@@ -532,7 +527,6 @@ void convoi_t::rotate90( const sint16 y_size )
 	}
 	freight_info_resort = true;
 }
-
 
 
 /**
@@ -589,13 +583,12 @@ void convoi_t::set_name(const char *name, bool with_new_id)
 			if(  depot  ) {
 				depot_frame_t *const frame = dynamic_cast<depot_frame_t *>( win_get_magic( (ptrdiff_t)depot ) );
 				if(  frame  ) {
-					frame->reset_convoy_name( self );
+					frame->update_data();
 				}
 			}
 		}
 	}
 }
-
 
 
 // length of convoi (16 is one tile)
@@ -607,7 +600,6 @@ uint32 convoi_t::get_length() const
 	}
 	return len;
 }
-
 
 
 /**
@@ -754,7 +746,6 @@ void convoi_t::calc_acceleration(long delta_t)
 }
 
 
-
 int convoi_t::get_vehicle_at_length(uint16 length)
 {
 	int current_length = 0;
@@ -766,7 +757,6 @@ int convoi_t::get_vehicle_at_length(uint16 length)
 	}
 	return anz_vehikel;
 }
-
 
 
 // moves all vehicles of a convoi
@@ -892,7 +882,6 @@ bool convoi_t::sync_step(long delta_t)
 }
 
 
-
 /**
  * Berechne route von Start- zu Zielkoordinate
  * @author Hanjsörg Malthaner
@@ -936,7 +925,6 @@ bool convoi_t::drive_to()
 }
 
 
-
 /**
  * Ein Fahrzeug hat ein Problem erkannt und erzwingt die
  * Berechnung einer neuen Route
@@ -947,7 +935,6 @@ void convoi_t::suche_neue_route()
 	state = ROUTING_1;
 	wait_lock = 0;
 }
-
 
 
 /**
@@ -1159,12 +1146,10 @@ void convoi_t::step()
 }
 
 
-
 void convoi_t::neues_jahr()
 {
     jahresgewinn = 0;
 }
-
 
 
 void convoi_t::new_month()
@@ -1246,7 +1231,6 @@ void convoi_t::new_month()
 }
 
 
-
 void convoi_t::betrete_depot(depot_t *dep)
 {
 	// first remove reservation, if train is still on track
@@ -1277,7 +1261,6 @@ void convoi_t::betrete_depot(depot_t *dep)
 	maxspeed_average_count = 0;
 	state = INITIAL;
 }
-
 
 
 void convoi_t::start()
@@ -1345,7 +1328,6 @@ void convoi_t::start()
 }
 
 
-
 /* called, when at a destination
  * can be waypoint, depot or a stop
  * called from the first vehikel_t of a convoi */
@@ -1389,7 +1371,6 @@ void convoi_t::ziel_erreicht()
 	}
 	wait_lock = 0;
 }
-
 
 
 /**
@@ -1565,7 +1546,6 @@ void convoi_t::set_erstes_letztes()
 }
 
 
-
 bool convoi_t::set_schedule(schedule_t * f)
 {
 	if(  state==SELF_DESTRUCT  ) {
@@ -1629,7 +1609,6 @@ bool convoi_t::set_schedule(schedule_t * f)
 }
 
 
-
 schedule_t *convoi_t::create_schedule()
 {
 	if(fpl == NULL) {
@@ -1643,7 +1622,6 @@ schedule_t *convoi_t::create_schedule()
 
 	return fpl;
 }
-
 
 
 /* checks, if we go in the same direction;
@@ -1788,7 +1766,6 @@ bool convoi_t::can_go_alte_richtung()
 
 	return true;
 }
-
 
 
 // put the convoi on its way
@@ -2358,7 +2335,6 @@ void convoi_t::info(cbuffer_t & buf) const
 }
 
 
-
 // sort order of convoi
 void convoi_t::set_sortby(uint8 sort_order)
 {
@@ -2367,8 +2343,7 @@ void convoi_t::set_sortby(uint8 sort_order)
 }
 
 
-
-//chaches the last info; resorts only when needed
+// caches the last info; resorts only when needed
 void convoi_t::get_freight_info(cbuffer_t & buf)
 {
 	if(freight_info_resort) {
@@ -2439,7 +2414,6 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 }
 
 
-
 void convoi_t::open_schedule_window( bool show )
 {
 	DBG_MESSAGE("convoi_t::open_schedule_window()","Id = %ld, State = %d, Lock = %d",self.get_id(), state, wait_lock);
@@ -2473,6 +2447,7 @@ void convoi_t::open_schedule_window( bool show )
 	}
 	fpl->eingabe_beginnen();
 }
+
 
 /**
  * Check validity of convoi with respect to vehicle constraints
@@ -2910,10 +2885,20 @@ void convoi_t::init_financial_history()
 sint32 convoi_t::get_running_cost() const
 {
 	sint32 running_cost = 0;
-	for (unsigned i = 0; i<get_vehikel_anzahl(); i++) {
+	for(  unsigned i = 0;  i < get_vehikel_anzahl();  i++  ) {
 		running_cost += fahr[i]->get_betriebskosten();
 	}
 	return running_cost;
+}
+
+
+sint32 convoi_t::get_purchase_cost() const
+{
+	sint32 purchase_cost = 0;
+	for(  unsigned i = 0;  i < get_vehikel_anzahl();  i++  ) {
+		purchase_cost += fahr[i]->get_besch()->get_preis();
+	}
+	return purchase_cost;
 }
 
 
@@ -2942,7 +2927,6 @@ void convoi_t::set_line(linehandle_t org_line)
 	line_update_pending = org_line;
 	check_pending_updates();
 }
-
 
 
 /**
@@ -3150,7 +3134,6 @@ void convoi_t::set_next_stop_index(uint16 n)
 }
 
 
-
 /* including this route_index, the route was reserved the laste time
  * currently only used for tracks
  */
@@ -3162,7 +3145,6 @@ void convoi_t::set_next_reservation_index(uint16 n)
 	}
 	next_reservation_index = n;
 }
-
 
 
 /*
@@ -3193,7 +3175,6 @@ uint8 convoi_t::get_status_color() const
 }
 
 
-
 // returns tiles needed for this convoi
 uint16 convoi_t::get_tile_length() const
 {
@@ -3211,7 +3192,6 @@ uint16 convoi_t::get_tile_length() const
 	uint16 tiles = (carunits + CARUNITS_PER_TILE - 1) / CARUNITS_PER_TILE;
 	return tiles;
 }
-
 
 
 // if withdraw and empty, then self destruct
@@ -3236,7 +3216,6 @@ void convoi_t::set_withdraw(bool new_withdraw)
 		}
 	}
 }
-
 
 
 /**

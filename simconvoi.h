@@ -481,6 +481,11 @@ public:
 	sint32 get_running_cost() const;
 
 	/**
+	 * returns the total new purchase cost for all vehicles in convoy
+	 */
+	sint32 get_purchase_cost() const;
+
+	/**
 	* Constructor for loading from file,
 	* @author Hj. Malthaner
 	*/

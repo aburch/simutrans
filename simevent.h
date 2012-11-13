@@ -190,5 +190,6 @@ void display_get_event(event_t*);
 void change_drag_start(int x, int y);
 
 int event_get_last_control_shift(void);
+unsigned int last_meta_event_get_class();
 
 #endif
