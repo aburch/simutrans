@@ -247,9 +247,9 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 				sprintf(buf, "freightimage[%d][%s]", freight, dir_codes[i]);
 				str = obj.get(buf);
 				if (str.empty()) {
-					printf("*** FATAL ***:\nMissing freightimage[%d][%s]!\n", freight, dir_codes[i]);
+					fprintf( stderr, "*** FATAL ***:\nMissing freightimage[%d][%s]!\n", freight, dir_codes[i]);
 					fflush(NULL);
-					exit(0);
+					exit(1);
 				}
 				freightkeys.at(i).append(str);
 			}
@@ -258,12 +258,12 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 
 	// prissi: added more error checks
 	if (has_8_images && emptykeys.get_count() < 8) {
-		printf("*** FATAL ***:\nMissing images (must be either 4 or 8 directions (but %i found)!)\n", emptykeys.get_count());
-		exit(0);
+		fprintf( stderr, "*** FATAL ***:\nMissing images (must be either 4 or 8 directions (but %i found)!)\n", emptykeys.get_count());
+		exit(1);
 	}
 	if (!freightkeys_old.empty() && emptykeys.get_count() != freightkeys_old.get_count()) {
-		printf("*** FATAL ***:\nMissing freigthimages (must be either 4 or 8 directions (but %i found)!)\n", freightkeys_old.get_count());
-		exit(0);
+		fprintf( stderr, "*** FATAL ***:\nMissing freigthimages (must be either 4 or 8 directions (but %i found)!)\n", freightkeys_old.get_count());
+		exit(1);
 	}
 
 	imagelist_writer_t::instance()->write_obj(fp, node, emptykeys);
@@ -337,8 +337,8 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 			break;
 		}
 		if (str.size() == 0) {
-			printf("*** FATAL ***:\nMissing freightimagetype[%i] for %i freight_images!\n", i, freight_max + 1);
-			exit(0);
+			fprintf( stderr, "*** FATAL ***:\nMissing freightimagetype[%i] for %i freight_images!\n", i, freight_max + 1);
+			exit(1);
 		}
 		xref_writer_t::instance()->write_obj(fp, node, obj_good, str.c_str(), false);
 	}
