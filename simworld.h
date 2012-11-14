@@ -75,6 +75,10 @@ struct checklist_t
 };
 
 
+/// threaded function caller
+typedef void (karte_t::*xy_loop_func)(sint16, sint16, sint16, sint16);
+
+
 /**
  * Die Karte ist der zentrale Bestandteil der Simulation. Sie
  * speichert alle Daten und Objekte.
@@ -477,16 +481,14 @@ private:
 	// The last time when a server announce was performed (in ms)
 	uint32 server_last_announce_time;
 
-	// threaded function caller
-	typedef void (karte_t::*y_loop_func)(sint16,sint16);
-	void world_y_loop(y_loop_func);
-	static void *world_y_loop_thread(void *);
+	void world_xy_loop(xy_loop_func func, bool sync_x_steps);
+	static void *world_xy_loop_thread(void *);
 
 	// loops over plans after load
-	void plans_laden_abschliessen(sint16, sint16);
+	void plans_laden_abschliessen(sint16, sint16, sint16, sint16);
 
 	// updates all images
-	void update_map_intern(sint16, sint16);
+	void update_map_intern(sint16, sint16, sint16, sint16);
 
 public:
 	// Announce server and current state to listserver
@@ -1000,7 +1002,7 @@ public:
 	void set_nosave_warning() { nosave_warning = true; }
 
 	// rotate plans by 90 degrees
-	void rotate90_plans(sint16 y_min, sint16 y_max);
+	void rotate90_plans(sint16 x_min, sint16 x_max, sint16 y_min, sint16 y_max);
 
 	// rotate map view by 90 degrees
 	void rotate90();

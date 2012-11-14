@@ -115,32 +115,51 @@ static std::string last_network_game;
 
 stringhashtable_tpl<karte_t::missing_level_t>missing_pak_names;
 
-typedef void (karte_t::*y_loop_func)(sint16,sint16);
-
 #if MULTI_THREAD>1
 // enable barriers by this
 #define _XOPEN_SOURCE 600
 #include <pthread.h>
+#include <semaphore.h>
 
 // to start a thread
 typedef struct{
 	karte_t *welt;
-	sint16	y_min;
-	sint16	y_max;
-	y_loop_func function;
+	int thread_num;
+	sint16 x_step;
+	sint16 y_min;
+	sint16 y_max;
+	sem_t* wait_for_previous;
+	sem_t* signal_to_next;
+	xy_loop_func function;
 } world_thread_param_t;
 
 
-void *karte_t::world_y_loop_thread( void *ptr )
+void *karte_t::world_xy_loop_thread(void *ptr)
 {
 	world_thread_param_t *param = reinterpret_cast<world_thread_param_t *>(ptr);
-	(param->welt->*(param->function))(param->y_min, param->y_max);
+	sint16 x_min = 0;
+	sint16 x_max = param->x_step;
+
+	while(  x_min < param->welt->cached_groesse_gitter_x  ) {
+		// wait for predecessor to finish its block
+		if(  param->wait_for_previous  ) {
+			sem_wait( param->wait_for_previous );
+		}
+		(param->welt->*(param->function))(x_min, x_max, param->y_min, param->y_max);
+
+		// signal to next thread that we finished one block
+		if(  param->signal_to_next  ) {
+			sem_post( param->signal_to_next );
+		}
+		x_min = x_max;
+		x_max = min(x_max + param->x_step, param->welt->cached_groesse_gitter_x);
+	}
 	return NULL;
 }
 #endif
 
 
-void karte_t::world_y_loop(y_loop_func function)
+void karte_t::world_xy_loop(xy_loop_func function, bool sync_x_steps)
 {
 #if MULTI_THREAD>1
 	set_random_mode( INTERACTIVE_RANDOM ); // do not allow simrand() here!
@@ -150,33 +169,54 @@ void karte_t::world_y_loop(y_loop_func function)
 	/* Initialize and set thread detached attribute */
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
-	// now the paramters
+
+	// semaphores to synchronize progress in x direction
+	sem_t sems[MULTI_THREAD-1];
+
+	// now the parameters
 	world_thread_param_t ka[MULTI_THREAD];
 
-	for(int t=0; t<MULTI_THREAD-1; t++) {
+	for(  int t = 0;  t < MULTI_THREAD;  t++  ) {
+		if(  sync_x_steps  &&  t < MULTI_THREAD - 1  ) {
+			sem_init(&sems[t], 0, 0);
+		}
+
    		ka[t].welt = this;
+   		ka[t].thread_num = t;
+		ka[t].x_step = min(64, cached_groesse_gitter_x/MULTI_THREAD);
 		ka[t].y_min = (t*cached_groesse_gitter_y)/MULTI_THREAD;
 		ka[t].y_max = ((t+1)*cached_groesse_gitter_y)/MULTI_THREAD;
 		ka[t].function = function;
-		if(  pthread_create( &thread[t], &attr, world_y_loop_thread, &ka[t] )  ) {
-			// here some more sophicsticated error handling would be fine ...
+
+		ka[t].wait_for_previous = sync_x_steps  &&  t > 0 ? &sems[t-1] : NULL;
+		ka[t].signal_to_next    = sync_x_steps  &&  t < MULTI_THREAD - 1 ? &sems[t] : NULL;
+
+		if(  t < MULTI_THREAD - 1  ) {
+			if(  pthread_create(&thread[t], &attr, world_xy_loop_thread, &ka[t])  ) {
+				// here some more sophisticated error handling would be fine ...
+			}
 		}
 	}
 	pthread_attr_destroy(&attr);
 
-	// the last we do alone ...
-	(this->*function)( ((MULTI_THREAD-1)*cached_groesse_gitter_y)/MULTI_THREAD, cached_groesse_gitter_y );
+	// the last rows we do ourselves...
+	world_xy_loop_thread(&ka[MULTI_THREAD-1]);
 
 	// return from thread
-	for(int t=0; t<MULTI_THREAD-1; t++) {
+	for(  int t = 0;  t < MULTI_THREAD - 1;  t++  ) {
 		void *status;
 		pthread_join(thread[t], &status);
+
+		if(  sync_x_steps  ) {
+			sem_destroy(&sems[t]);
+		}
 	}
 
 	clear_random_mode( INTERACTIVE_RANDOM ); // do not allow simrand() here!
+
 #else
 	// slow serial way of display
-	(this->*function)( 0, cached_groesse_gitter_y );
+	(this->*function)( 0, cached_groesse_gitter_x, 0, cached_groesse_gitter_y );
 #endif
 }
 
@@ -2541,18 +2581,18 @@ sint8 karte_t::max_hgt(const koord pos) const
 
 planquadrat_t *rotate90_new_plan;
 
-void karte_t::rotate90_plans(sint16 y_min, sint16 y_max)
+void karte_t::rotate90_plans(sint16 x_min, sint16 x_max, sint16 y_min, sint16 y_max)
 {
 	const int LOOP_BLOCK = 64;
-	if(  (loaded_rotation+settings.get_rotation())&1  ) {  // 1 || 3
-		for(  int yy=y_min;  yy<y_max;  yy+=LOOP_BLOCK  ) {
-			for(  int xx=0;  xx<cached_groesse_gitter_x;  xx+=LOOP_BLOCK  ) {
-				for(  int y=yy;  y<min(yy+LOOP_BLOCK,y_max);  y++  ) {
-					for(  int x=xx;  x<min(xx+LOOP_BLOCK,cached_groesse_gitter_x);  x++  ) {
-						const int nr = x+(y*cached_groesse_gitter_x);
-						const int new_nr = (cached_groesse_karte_y-y)+(x*cached_groesse_gitter_y);
+	if(  (loaded_rotation + settings.get_rotation()) & 1  ) {  // 1 || 3
+		for(  int yy = y_min;  yy < y_max;  yy += LOOP_BLOCK  ) {
+			for(  int xx = x_min;  xx < x_max;  xx += LOOP_BLOCK  ) {
+				for(  int y = yy;  y < min(yy + LOOP_BLOCK, y_max);  y++  ) {
+					for(  int x = xx;  x < min(xx + LOOP_BLOCK, x_max);  x++  ) {
+						const int nr = x + (y * cached_groesse_gitter_x);
+						const int new_nr = (cached_groesse_karte_y - y) + (x * cached_groesse_gitter_y);
 						// first rotate everything on the ground(s)
-						for(  uint i=0;  i<plan[nr].get_boden_count();  i++  ) {
+						for(  uint i = 0;  i < plan[nr].get_boden_count();  i++  ) {
 							plan[nr].get_boden_bei(i)->rotate90();
 						}
 						// now: rotate all things on the map
@@ -2564,24 +2604,24 @@ void karte_t::rotate90_plans(sint16 y_min, sint16 y_max)
 	}
 	else {
 		// first: rotate all things on the map
-		for(  int xx=0;  xx<cached_groesse_gitter_x;  xx+=LOOP_BLOCK  ) {
-			for(  int yy=y_min;  yy<y_max;  yy+=LOOP_BLOCK  ) {
-				for(  int x=xx;  x<min(xx+LOOP_BLOCK,cached_groesse_gitter_x);  x++  ) {
-					for(  int y=yy;  y<min(yy+LOOP_BLOCK,y_max);  y++  ) {
-						const int nr = x+(y*cached_groesse_gitter_x);
-						const int new_nr = (cached_groesse_karte_y-y)+(x*cached_groesse_gitter_y);
+		for(  int xx = x_min;  xx < x_max;  xx += LOOP_BLOCK  ) {
+			for(  int yy = y_min;  yy < y_max;  yy += LOOP_BLOCK  ) {
+				for(  int x = xx;  x < min(xx + LOOP_BLOCK, x_max);  x++  ) {
+					for(  int y=yy;  y < min(yy + LOOP_BLOCK, y_max);  y++  ) {
+						const int nr = x + (y * cached_groesse_gitter_x);
+						const int new_nr = (cached_groesse_karte_y - y) + (x * cached_groesse_gitter_y);
 						swap(rotate90_new_plan[new_nr], plan[nr]);
 					}
 				}
 			}
 		}
 		// now rotate everything on the ground(s)
-		for(  int xx=0;  xx<cached_groesse_gitter_x;  xx+=LOOP_BLOCK  ) {
-			for(  int yy=y_min;  yy<y_max;  yy+=LOOP_BLOCK  ) {
-				for(  int x=xx;  x<min(xx+LOOP_BLOCK,cached_groesse_gitter_x);  x++  ) {
-					for(  int y=yy;  y<min(yy+LOOP_BLOCK,y_max);  y++  ) {
-						const int new_nr = (cached_groesse_karte_y-y)+(x*cached_groesse_gitter_y);
-						for(  uint i=0;  i<rotate90_new_plan[new_nr].get_boden_count();  i++  ) {
+		for(  int xx = x_min;  xx < x_max;  xx += LOOP_BLOCK  ) {
+			for(  int yy = y_min;  yy < y_max;  yy += LOOP_BLOCK  ) {
+				for(  int x = xx;  x < min(xx + LOOP_BLOCK, x_max);  x++  ) {
+					for(  int y = yy;  y < min(yy + LOOP_BLOCK, y_max);  y++  ) {
+						const int new_nr = (cached_groesse_karte_y - y) + (x * cached_groesse_gitter_y);
+						for(  uint i = 0;  i < rotate90_new_plan[new_nr].get_boden_count();  i++  ) {
 							rotate90_new_plan[new_nr].get_boden_bei(i)->rotate90();
 						}
 					}
@@ -2612,7 +2652,7 @@ DBG_MESSAGE( "karte_t::rotate90()", "called" );
 	//rotate plans in parallel posix thread ...
 	rotate90_new_plan = new planquadrat_t[cached_groesse_gitter_y*cached_groesse_gitter_x];
 
-	world_y_loop(&karte_t::rotate90_plans);
+	world_xy_loop(&karte_t::rotate90_plans, false);
 
 	grund_t::finish_rotate90();
 
@@ -4737,15 +4777,15 @@ DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 
 uint32 file_version;
 
-void karte_t::plans_laden_abschliessen(sint16 y_min, sint16 y_max)
+void karte_t::plans_laden_abschliessen(sint16 x_min, sint16 x_max, sint16 y_min, sint16 y_max)
 {
-	for( int y=y_min;  y<y_max;  y++  ) {
-		for (int x = 0; x < get_groesse_x(); x++) {
+	for(  int y = y_min;  y < y_max;  y++  ) {
+		for(  int x = x_min; x < x_max;  x++  ) {
 			const planquadrat_t *plan = lookup(koord(x,y));
 			const int boden_count = plan->get_boden_count();
-			for(int schicht=0; schicht<boden_count; schicht++) {
+			for(  int schicht = 0;  schicht < boden_count;  schicht++  ) {
 				grund_t *gr = plan->get_boden_bei(schicht);
-				for(int n=0; n<gr->get_top(); n++) {
+				for(  int n = 0;  n < gr->get_top();  n++  ) {
 					ding_t *d = gr->obj_bei(n);
 					if(d) {
 						d->laden_abschliessen();
@@ -5116,7 +5156,7 @@ DBG_MESSAGE("karte_t::laden()", "messages loaded");
 
 DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_count());
 
-	world_y_loop( &karte_t::plans_laden_abschliessen );
+	world_xy_loop(&karte_t::plans_laden_abschliessen, true);
 
 DBG_MESSAGE("karte_t::laden()", "laden_abschliesen for tiles finished" );
 
@@ -5276,16 +5316,16 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 
 
 // recalcs all ground tiles on the map
-void karte_t::update_map_intern(sint16 y_min, sint16 y_max)
+void karte_t::update_map_intern(sint16 x_min, sint16 x_max, sint16 y_min, sint16 y_max)
 {
-	if(  (loaded_rotation+settings.get_rotation())&1  ) {  // 1 || 3  // ~14% faster loop blocking rotations 1 and 3
+	if(  (loaded_rotation + settings.get_rotation()) & 1  ) {  // 1 || 3  // ~14% faster loop blocking rotations 1 and 3
 		const int LOOP_BLOCK = 128;
-		for(  int xx=0;  xx<cached_groesse_gitter_x;  xx+=LOOP_BLOCK  ) {
-			for(  int yy=y_min;  yy<y_max;  yy+=LOOP_BLOCK  ) {
-				for(  int y=yy;  y<min(yy+LOOP_BLOCK,y_max);  y++  ) {
-					for(  int x=xx;  x<min(xx+LOOP_BLOCK,cached_groesse_gitter_x);  x++  ) {
-						const int nr = y*cached_groesse_gitter_x+x;
-						for(  uint i=0;  i<plan[nr].get_boden_count();  i++  ) {
+		for(  int xx = x_min;  xx < x_max;  xx += LOOP_BLOCK  ) {
+			for(  int yy = y_min;  yy < y_max;  yy += LOOP_BLOCK  ) {
+				for(  int y = yy;  y < min(yy + LOOP_BLOCK, y_max);  y++  ) {
+					for(  int x = xx;  x < min(xx + LOOP_BLOCK, x_max);  x++  ) {
+						const int nr = y * cached_groesse_gitter_x + x;
+						for(  uint i = 0;  i < plan[nr].get_boden_count();  i++  ) {
 							plan[nr].get_boden_bei(i)->calc_bild();
 						}
 					}
@@ -5294,10 +5334,10 @@ void karte_t::update_map_intern(sint16 y_min, sint16 y_max)
 		}
 	}
 	else {
-		for(  int y=y_min;  y<y_max;  y++  ) {
-			for(  int x=0;  x<cached_groesse_gitter_x;  x++  ) {
-				const int nr = y*cached_groesse_gitter_x+x;
-				for(  uint i=0;  i<plan[nr].get_boden_count();  i++  ) {
+		for(  int y = y_min;  y < y_max;  y++  ) {
+			for(  int x = x_min;  x < x_max;  x++  ) {
+				const int nr = y * cached_groesse_gitter_x + x;
+				for(  uint i = 0;  i < plan[nr].get_boden_count();  i++  ) {
 					plan[nr].get_boden_bei(i)->calc_bild();
 				}
 			}
@@ -5310,7 +5350,7 @@ void karte_t::update_map_intern(sint16 y_min, sint16 y_max)
 void karte_t::update_map()
 {
 	DBG_MESSAGE( "karte_t::update_map()", "" );
-	world_y_loop(&karte_t::update_map_intern);
+	world_xy_loop(&karte_t::update_map_intern, true);
 	set_dirty();
 }
 
