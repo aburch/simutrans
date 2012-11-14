@@ -66,7 +66,9 @@
  * This conversion still lives in dings/leitung2.h, not here
  */
 
+#ifndef NETTOOL
 #include "utils/float32e8_t.h"
+#endif
 
 /*
  * Distance units: number of meters per tile.
@@ -154,7 +156,7 @@
 /**
  * Conversion between km/h and m/s
  */
-
+#ifndef NETTOOL
 // scale to convert between km/h and m/s
 static const float32e8_t kmh2ms((uint32) 10, (uint32) 36);
 static const float32e8_t ms2kmh((uint32) 36, (uint32) 10);
@@ -198,7 +200,7 @@ const float32e8_t steps2yards((uint32)1 << YARDS_PER_VEHICLE_STEP_SHIFT);
 #define KMH_MIN 4
 static const sint32 SPEED_MIN = kmh_to_speed(KMH_MIN);
 static const float32e8_t V_MIN = kmh2ms * KMH_MIN;
-
+#endif //ndef NETTOOL
 /*
  * Converts speed (yards per tick) into tiles per month
  */

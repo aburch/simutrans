@@ -39,8 +39,8 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	cnv->get_welt()->lookup(cnv->get_vehikel(0)->get_pos())->get_weg(cnv->get_vehikel(0)->get_waytype()) == NULL ? 
 	false : cnv->get_welt()->lookup(cnv->get_vehikel(0)->get_pos())->get_weg(cnv->get_vehikel(0)	->get_waytype())->is_electrified() )
 
-{
-	const uint32 a_D_BUTTON_HEIGHT = 14;
+{	
+	const uint32 a_button_height = 14;
 	const uint32 margin = 6;
 	lb_money.set_text_pointer(txt_money);
 	add_komponente(&lb_money);
@@ -86,7 +86,7 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	const weg_t *way = cnv->get_welt()->lookup(lead_vehicle->get_pos())->get_weg(wt);
 	const bool weg_electrified = way == NULL ? false : way->is_electrified();
 	convoy_assembler.set_electrified( weg_electrified );
-	convoy_assembler.set_convoy_tabs_skip(-2*LINESPACE+3*LINESPACE+2*margin+a_D_BUTTON_HEIGHT);
+	convoy_assembler.set_convoy_tabs_skip(-2*LINESPACE+3*LINESPACE+2*margin+a_button_height);
 	convoy_assembler.add_listener(this);
 	if(cnv.is_bound() && cnv->get_replace())
 	{
@@ -541,7 +541,14 @@ bool replace_frame_t::action_triggered( gui_action_creator_t *komp,value_t /*p*/
 					}
 				}
 			}
+#ifndef DEBUG
+			// FIXME: Oddly, this line causes crashes in 10.13 and over when
+			// the replace window is closed automatically with "full replace".
+			// The difficulty appears to relate to the objects comprising the
+			// window being destroyed before they have finished being used by
+			// the GUI system leading to access violations.
 			destroy_win(this);
+#endif
 			copy = false;
 			return true;
 		}

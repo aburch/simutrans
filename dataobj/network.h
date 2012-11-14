@@ -1,7 +1,6 @@
 #ifndef sim_network_h
 #define sim_network_h
 
-
 // windows headers
 #ifdef _WIN32
 // must be include before all simutrans stuff!
