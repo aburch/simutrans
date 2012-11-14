@@ -494,79 +494,79 @@ const vehikel_besch_t *vehikelbauer_t::get_best_matching( waytype_t wt, const ui
 	{
 		FOR(slist_tpl<vehikel_besch_t *>, const test_besch, typ_fahrzeuge[GET_WAYTYPE_INDEX(wt)])
 		{
-		if(target_power>0  &&  test_besch->get_leistung()==0) 
-		{
-			continue;
-		}
-
-		// will test for first (prev_veh==NULL) or matching following vehicle
-		if(!test_besch->can_follow(prev_veh)) {
-			continue;
-		}
-
-		// not allowed as last vehicle
-		if(is_last  &&  test_besch->get_nachfolger_count()>0  &&  test_besch->get_nachfolger(0)!=NULL  ) {
-			continue;
-		}
-
-		// not allowed as non-last vehicle
-		if(!is_last  &&  test_besch->get_nachfolger_count()==1  &&  test_besch->get_nachfolger(0)==NULL  ) {
-			continue;
-		}
-
-		// check for wegetype/too new
-		if(test_besch->get_waytype()!=wt  ||  test_besch->is_future(month_now)  ) {
-			continue;
-		}
-
-		// ignore vehicles that need electrification
-		if(test_besch->get_leistung()>0  &&  test_besch->get_engine_type()==vehikel_besch_t::electric) {
-			continue;
-		}
-
-		// likely tender => replace with some engine ...
-		if(target_freight==0  &&  target_weight==0) {
-			if(  test_besch->get_zuladung()!=0  ) {
-				continue;
-			}
-		}
-
-		if(  not_obsolete  &&  test_besch->is_retired(month_now)  ) {
-			// not using vintage cars here!
-			continue;
-		}
-
-		uint32 power = (test_besch->get_leistung()*test_besch->get_gear())/64;
-		if(target_freight) 
-		{
-			// this is either a railcar/trailer or a truck/boat/plane
-			if(  test_besch->get_zuladung()==0  ||  !test_besch->get_ware()->is_interchangeable(target_freight)  ) {
-				continue;
-			}
-
-			sint32 difference=0;	// smaller is better
-			// assign this vehicle, if we have none found one yet, or we found only a too week one
-			if(  besch!=NULL  ) 
+			if(target_power>0  &&  test_besch->get_leistung()==0) 
 			{
-				// it is cheaper to run? (this is most important)
-				difference += (besch->get_zuladung()*1000)/(1+besch->get_running_cost()) < (test_besch->get_zuladung()*1000)/(1+test_besch->get_running_cost()) ? -20 : 20;
-				if(  target_weight>0  ) 
-				{
-					// it is strongere?
-					difference += (besch->get_leistung()*besch->get_gear())/64 < power ? -10 : 10;
+				continue;
+			}
+
+			// will test for first (prev_veh==NULL) or matching following vehicle
+			if(!test_besch->can_follow(prev_veh)) {
+				continue;
+			}
+
+			// not allowed as last vehicle
+			if(is_last  &&  test_besch->get_nachfolger_count()>0  &&  test_besch->get_nachfolger(0)!=NULL  ) {
+				continue;
+			}
+
+			// not allowed as non-last vehicle
+			if(!is_last  &&  test_besch->get_nachfolger_count()==1  &&  test_besch->get_nachfolger(0)==NULL  ) {
+				continue;
+			}
+
+			// check for wegetype/too new
+			if(test_besch->get_waytype()!=wt  ||  test_besch->is_future(month_now)  ) {
+				continue;
+			}
+
+			// ignore vehicles that need electrification
+			if(test_besch->get_leistung()>0  &&  test_besch->get_engine_type()==vehikel_besch_t::electric) {
+				continue;
+			}
+
+			// likely tender => replace with some engine ...
+			if(target_freight==0  &&  target_weight==0) {
+				if(  test_besch->get_zuladung()!=0  ) {
+					continue;
+				}
+			}
+
+			if(  not_obsolete  &&  test_besch->is_retired(month_now)  ) {
+				// not using vintage cars here!
+				continue;
+			}
+
+			uint32 power = (test_besch->get_leistung()*test_besch->get_gear())/64;
+			if(target_freight) 
+			{
+				// this is either a railcar/trailer or a truck/boat/plane
+				if(  test_besch->get_zuladung()==0  ||  !test_besch->get_ware()->is_interchangeable(target_freight)  ) {
+					continue;
 				}
 
 				sint32 difference=0;	// smaller is better
-				// it is faster? (although we support only up to 120km/h for goods)
-				difference += (besch->get_geschw() < test_besch->get_geschw())? -10 : 10;
-				// it is cheaper? (not so important)
-				difference += (besch->get_preis() > test_besch->get_preis())? -5 : 5;
-				// add some malus for obsolete vehicles
-				if(test_besch->is_retired(month_now))
+				// assign this vehicle, if we have none found one yet, or we found only a too week one
+				if(  besch!=NULL  ) 
 				{
-					difference += 5;
+					// it is cheaper to run? (this is most important)
+					difference += (besch->get_zuladung()*1000)/(1+besch->get_running_cost()) < (test_besch->get_zuladung()*1000)/(1+test_besch->get_running_cost()) ? -20 : 20;
+					if(  target_weight>0  ) 
+					{
+						// it is strongere?
+						difference += (besch->get_leistung()*besch->get_gear())/64 < power ? -10 : 10;
+					}
+
+					sint32 difference=0;	// smaller is better
+					// it is faster? (although we support only up to 120km/h for goods)
+					difference += (besch->get_geschw() < test_besch->get_geschw())? -10 : 10;
+					// it is cheaper? (not so important)
+					difference += (besch->get_preis() > test_besch->get_preis())? -5 : 5;
+					// add some malus for obsolete vehicles
+					if(test_besch->is_retired(month_now))
+					{
+						difference += 5;
+					}
 				}
-			}
 				// ok, final check
 				if(  besch==NULL  ||  difference<12    ) 
 				{

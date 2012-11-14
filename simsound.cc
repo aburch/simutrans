@@ -195,7 +195,7 @@ int midi_init(const char *directory)
 		fclose(file);
 	}
 	else {
-		dbg->warning("midi_init()","can't open file 'music.tab' for reading, turning music off.");
+		dbg->warning("midi_init()","can't open file '%s' for reading.", full_path);
 	}
 
 	if(max_midi >= 0) {

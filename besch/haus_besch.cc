@@ -141,13 +141,14 @@ void haus_besch_t::calc_checksum(checksum_t *chk) const
 	chk->input((uint8)allowed_climates);
 	chk->input(intro_date);
 	chk->input(obsolete_date);
+	chk->input(allow_underground);
 	// now check the layout
 	for(uint8 i=0; i<layouts; i++) {
 		sint16 b=get_b(i);
 		for(sint16 x=0; x<b; x++) {
 			sint16 h=get_h(i);
 			for(sint16 y=0; y<h; y++) {
-				if (get_tile(i,x,y)) {
+				if (get_tile(i,x,y)  &&  get_tile(i,x,y)->has_image()) {
 					chk->input((sint16)(x+y+i));
 				}
 			}

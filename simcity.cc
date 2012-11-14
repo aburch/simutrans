@@ -744,7 +744,6 @@ void stadt_t::bewerte_haus(koord k, sint32 rd, const rule_t &regel)
 }
 
 
-
 /**
  * Reads city configuration data
  * @author Hj. Malthaner
@@ -1059,8 +1058,16 @@ private:
 };
 
 
+static bool compare_gebaeude_pos(const gebaeude_t* a, const gebaeude_t* b)
+{
+	const uint32 pos_a = (a->get_pos().y<<16)+a->get_pos().x;
+	const uint32 pos_b = (b->get_pos().y<<16)+b->get_pos().x;
+	return pos_a<pos_b;
+}
+
+
 // this function adds houses to the city house list
-void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb)
+void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb, bool ordered)
 {
 	if (gb != NULL) {
 		const haus_tile_besch_t* tile  = gb->get_tile();
@@ -1077,7 +1084,12 @@ void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb)
 						buildings.remove(add_gb);
 					}
 					else {
-						buildings.append(add_gb, tile->get_besch()->get_level() + 1, 16);
+						if(  ordered  ) {
+							buildings.insert_ordered(add_gb, tile->get_besch()->get_level() + 1, compare_gebaeude_pos, 16);
+						}
+						else {
+							buildings.append(add_gb, tile->get_besch()->get_level() + 1, 16);
+						}
 					}
 					add_gb->set_stadt(this);
 				}
@@ -1092,7 +1104,6 @@ void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb)
 }
 
 
-
 // this function removes houses from the city house list
 void stadt_t::remove_gebaeude_from_stadt(gebaeude_t* gb)
 {
@@ -1102,14 +1113,12 @@ void stadt_t::remove_gebaeude_from_stadt(gebaeude_t* gb)
 }
 
 
-
 // just updates the weight count of this building (after a renovation)
 void stadt_t::update_gebaeude_from_stadt(gebaeude_t* gb)
 {
 	buildings.remove(gb);
 	buildings.append(gb, gb->get_tile()->get_besch()->get_level() + 1, 16);
 }
-
 
 
 void stadt_t::pruefe_grenzen(koord k)
@@ -1235,7 +1244,6 @@ void stadt_t::recalc_city_size()
 		ur.y = welt->get_groesse_y()-1;
 	}
 }
-
 
 
 void stadt_t::init_pax_destinations()
@@ -1467,7 +1475,7 @@ void stadt_t::factory_set_t::resolve_factories()
 stadt_t::~stadt_t()
 {
 	// close info win
-	destroy_win((long)this);
+	destroy_win((ptrdiff_t)this);
 
 	// Empty the list of city cars
 	current_cars.clear();
@@ -1672,7 +1680,6 @@ void stadt_t::calc_internal_passengers()
 
 	adjusted_passenger_routing_local_chance = (welt->get_settings().get_passenger_routing_local_chance() * internal_passenger_percentage) / 100;
 }
-
 
 
 stadt_t::stadt_t(karte_t* wl, loadsave_t* file) :
@@ -2122,7 +2129,6 @@ void stadt_t::laden_abschliessen()
 }
 
 
-
 void stadt_t::rotate90( const sint16 y_size )
 {
 	// rotate town origin
@@ -2241,7 +2247,6 @@ void stadt_t::rotate90( const sint16 y_size )
 	}
 }
 
-
 void stadt_t::set_name(const char *new_name)
 {
 	name = new_name;
@@ -2249,12 +2254,11 @@ void stadt_t::set_name(const char *new_name)
 	if(gr) {
 		gr->set_text( new_name );
 	}
-	stadt_info_t *win = dynamic_cast<stadt_info_t*>(win_get_magic((long)this));
+	stadt_info_t *win = dynamic_cast<stadt_info_t*>(win_get_magic((ptrdiff_t)this));
 	if (win) {
 		win->update_data();
 	}
 }
-
 
 
 /* show city info dialoge
@@ -2262,7 +2266,7 @@ void stadt_t::set_name(const char *new_name)
  */
 void stadt_t::zeige_info(void)
 {
-	create_win( new stadt_info_t(this), w_info, (long)this );
+	create_win( new stadt_info_t(this), w_info, (ptrdiff_t)this );
 }
 
 
@@ -2292,10 +2296,9 @@ void stadt_t::verbinde_fabriken()
 }
 
 
-
 /* change size of city
  * @author prissi */
-void stadt_t::change_size(long delta_citicens)
+void stadt_t::change_size(sint32 delta_citicens)
 {
 	DBG_MESSAGE("stadt_t::change_size()", "%i + %i", bev, delta_citicens);
 	if (delta_citicens > 0) {
@@ -2321,7 +2324,6 @@ void stadt_t::change_size(long delta_citicens)
 	wachstum = 0;
 	DBG_MESSAGE("stadt_t::change_size()", "%i+%i", bev, delta_citicens);
 }
-
 
 
 void stadt_t::step(long delta_t)
@@ -2372,7 +2374,6 @@ void stadt_t::step(long delta_t)
 	city_history_month[0][HIST_BUILDING] = buildings.get_count();
 	city_history_year[0][HIST_BUILDING] = buildings.get_count();
 }
-
 
 
 /* updates the city history
@@ -4018,14 +4019,20 @@ class bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t
 	public:
 		bauplatz_mit_strasse_sucher_t(karte_t* welt) : bauplatz_sucher_t (welt) {}
 
-		// get distance to next factory
+		// get distance to next special building
 		int find_dist_next_special(koord pos) const
 		{
 			const weighted_vector_tpl<gebaeude_t*>& attractions = welt->get_ausflugsziele();
 			int dist = welt->get_groesse_x() * welt->get_groesse_y();
-			FOR(weighted_vector_tpl<gebaeude_t*>, const i, attractions) {
+			FOR(  weighted_vector_tpl<gebaeude_t*>, const i, attractions  ) {
 				int const d = koord_distance(i->get_pos(), pos);
-				if (d < dist) {
+				if(  d < dist  ) {
+					dist = d;
+				}
+			}
+			FOR(  weighted_vector_tpl<stadt_t *>, const city, welt->get_staedte() ) {
+				int const d = koord_distance(city->get_pos(), pos);
+				if(  d < dist  ) {
 					dist = d;
 				}
 			}
@@ -4040,19 +4047,52 @@ class bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t
 
 		virtual bool ist_platz_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const
 		{
-			if (bauplatz_sucher_t::ist_platz_ok(pos, b, h, cl)) {
+			if(  bauplatz_sucher_t::ist_platz_ok(pos, b, h, cl)  ) {
 				// nothing on top like elevated monorails?
 				for (sint16 y = pos.y;  y < pos.y + h; y++) {
 					for (sint16 x = pos.x; x < pos.x + b; x++) {
 						grund_t *gr = welt->lookup_kartenboden(koord(x,y));
-						if(gr->get_leitung()!=NULL  ||  welt->lookup(gr->get_pos()+koord3d(0,0,1))!=NULL) {
+						if(  gr->get_leitung()!=NULL  ||  welt->lookup(gr->get_pos()+koord3d(0,0,1)  )!=NULL) {
 							// something on top (monorail or powerlines)
 							return false;
 						}
 					}
 				}
+				// not direct next to factories or townhalls
+				for (sint16 y = pos.y-1;  y < pos.y + h+1; y++) {
+					if(  grund_t *gr = welt->lookup_kartenboden( koord(pos.x-1,y) )  ) {
+						if(  gebaeude_t *gb=gr->find<gebaeude_t>()  ) {
+							if(  gb->get_haustyp() > 0  &&  gb->get_haustyp() < 8  ) {
+								return false;
+							}
+						}
+					}
+					if(  grund_t *gr = welt->lookup_kartenboden( koord(pos.x+b,y) )  ) {
+						if(  gebaeude_t *gb=gr->find<gebaeude_t>()  ) {
+							if(  gb->get_haustyp() > 0  &&  gb->get_haustyp() < 8  ) {
+								return false;
+							}
+						}
+					}
+				}
+				for (sint16 x = pos.x; x < pos.x + b; x++) {
+					if(  grund_t *gr = welt->lookup_kartenboden( koord(x,pos.y-1) )  ) {
+						if(  gebaeude_t *gb=gr->find<gebaeude_t>()  ) {
+							if(  gb->get_haustyp() > 0  &&  gb->get_haustyp() < 8  ) {
+								return false;
+							}
+						}
+					}
+					if(  grund_t *gr = welt->lookup_kartenboden( koord(x,pos.y+h) )  ) {
+						if(  gebaeude_t *gb=gr->find<gebaeude_t>()  ) {
+							if(  gb->get_haustyp() > 0  &&  gb->get_haustyp() < 8  ) {
+								return false;
+							}
+						}
+					}
+				}
 				// try to built a little away from previous ones
-				if (find_dist_next_special(pos) < b + h + 1) {
+				if (find_dist_next_special(pos) < b + h + welt->get_settings().get_special_building_distance()  ) {
 					return false;
 				}
 				// now check for road connection
@@ -4936,10 +4976,10 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 					return false;
 				}
 				const char *err = NULL;
-				koord3d end = brueckenbauer_t::finde_ende(welt, bd->get_pos(), zv, bridge, err, false);
+				koord3d end = brueckenbauer_t::finde_ende(welt, NULL, bd->get_pos(), zv, bridge, err, false);
 				if (err  ||   koord_distance( k, end.get_2d())>3) {
 					// try to find shortest possible
-					end = brueckenbauer_t::finde_ende(welt, bd->get_pos(), zv, bridge, err, true);
+					end = brueckenbauer_t::finde_ende(welt, NULL, bd->get_pos(), zv, bridge, err, true);
 				}
 				if (err==NULL  &&   koord_distance( k, end.get_2d())<=3) {
 					brueckenbauer_t::baue_bruecke(welt, welt->get_spieler(1), bd->get_pos(), end, zv, bridge, welt->get_city_road());

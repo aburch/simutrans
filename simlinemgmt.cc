@@ -32,7 +32,7 @@ simlinemgmt_t::simlinemgmt_t(karte_t* welt)
 
 simlinemgmt_t::~simlinemgmt_t()
 {
-	destroy_win( (long)this );
+	destroy_win((ptrdiff_t)this);
 	// and delete all lines ...
 	while (!all_managed_lines.empty()) {
 		linehandle_t line = all_managed_lines.back();
@@ -74,21 +74,24 @@ void simlinemgmt_t::delete_line(linehandle_t line)
 void simlinemgmt_t::update_line(linehandle_t line)
 {
 	// when a line is updated, all managed convoys must get the new fahrplan!
-	int count = line->count_convoys();
+	const int count = line->count_convoys();
 	for(int i = 0; i<count; i++) 
 	{
-		line->get_convoy(i)->set_update_line(line);
+		const convoihandle_t cnv = line->get_convoy(i);
+		cnv->set_update_line(line);
 		if(line->get_schedule()->get_count() < 2)
 		{
 			// If a new schedule is incomplete, convoys will
 			// be blocking places unless sent to the depot.
-			line->get_convoy(i)->emergency_go_to_depot();
+			cnv->emergency_go_to_depot();
+		}
+		if(  cnv->in_depot()  ) {
+			cnv->check_pending_updates(); // apply new schedule immediately for convoys in depot
 		}
 	}
 	// finally de/register all stops
 	line->renew_stops();
 }
-
 
 
 void simlinemgmt_t::rdwr(karte_t * welt, loadsave_t *file, spieler_t *sp)

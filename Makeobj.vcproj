@@ -191,7 +191,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\utils\dr_rdpng.c"
+				RelativePath=".\utils\dr_rdpng.cc"
 				>
 			</File>
 			<File

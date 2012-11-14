@@ -20,6 +20,7 @@
 #include "../simlinemgmt.h"
 #include "../vehicle/simvehikel.h"
 #include "../simmenu.h"
+#include "../simskin.h"
 #include "../simtools.h"
 
 #include "../besch/haus_besch.h"
@@ -201,7 +202,7 @@ depot_frame_t::~depot_frame_t()
 
 
 // returns position of depot on the map
-koord3d depot_frame_t::get_weltpos()
+koord3d depot_frame_t::get_weltpos(bool)
 {
 	return depot->get_pos();
 }
@@ -251,9 +252,9 @@ void depot_frame_t::layout(koord *gr)
 	*      [new Route][change Route][delete Route]
 	*/
 	int ABUTTON_WIDTH = 128;
-	int AD_BUTTON_HEIGHT = 14;
+	int ABUTTON_HEIGHT = 14;
 	int ACTIONS_WIDTH = 2+4*(ABUTTON_WIDTH+2);
-	int ACTIONS_HEIGHT = AD_BUTTON_HEIGHT + AD_BUTTON_HEIGHT; // @author hsiegeln: added "+ AD_BUTTON_HEIGHT"
+	int ACTIONS_HEIGHT = ABUTTON_HEIGHT + ABUTTON_HEIGHT; // @author hsiegeln: added "+ ABUTTON_HEIGHT"
 	convoy_assembler.set_convoy_tabs_skip(ACTIONS_HEIGHT);
 
 	/*
@@ -326,46 +327,46 @@ void depot_frame_t::layout(koord *gr)
 
 	lb_convoi_value.set_pos(koord(DEPOT_FRAME_WIDTH-10, ASSEMBLER_VSTART + convoy_assembler.get_convoy_image_height()));
 	lb_convoi_line.set_pos(koord(4, ASSEMBLER_VSTART + convoy_assembler.get_convoy_image_height() + LINESPACE * 2));
-	lb_traction_types.set_pos(koord(4, ACTIONS_VSTART + (AD_BUTTON_HEIGHT * 2)));
+	lb_traction_types.set_pos(koord(4, ACTIONS_VSTART + (ABUTTON_HEIGHT * 2)));
  
 
 	/*
 	 * [ACTIONS]
 	 */
 	bt_start.set_pos(koord(2, ACTIONS_VSTART));
-	bt_start.set_groesse(koord(DEPOT_FRAME_WIDTH/4-2, AD_BUTTON_HEIGHT));
+	bt_start.set_groesse(koord(DEPOT_FRAME_WIDTH/4-2, ABUTTON_HEIGHT));
 	bt_start.set_text("Start");
 
 	bt_schedule.set_pos(koord(DEPOT_FRAME_WIDTH/4+2, ACTIONS_VSTART));
-	bt_schedule.set_groesse(koord(DEPOT_FRAME_WIDTH*2/4-DEPOT_FRAME_WIDTH/4-3, AD_BUTTON_HEIGHT));
+	bt_schedule.set_groesse(koord(DEPOT_FRAME_WIDTH*2/4-DEPOT_FRAME_WIDTH/4-3, ABUTTON_HEIGHT));
 	bt_schedule.set_text("Fahrplan");
 
 	bt_destroy.set_pos(koord(DEPOT_FRAME_WIDTH*2/4+1, ACTIONS_VSTART));
-	bt_destroy.set_groesse(koord(DEPOT_FRAME_WIDTH*3/4-DEPOT_FRAME_WIDTH*2/4-2, AD_BUTTON_HEIGHT));
+	bt_destroy.set_groesse(koord(DEPOT_FRAME_WIDTH*3/4-DEPOT_FRAME_WIDTH*2/4-2, ABUTTON_HEIGHT));
 	bt_destroy.set_text("Aufloesen");
 
 	bt_sell.set_pos(koord(DEPOT_FRAME_WIDTH*3/4+1, ACTIONS_VSTART));
-	bt_sell.set_groesse(koord(DEPOT_FRAME_WIDTH-DEPOT_FRAME_WIDTH*3/4-3, AD_BUTTON_HEIGHT));
-	bt_sell.set_text("Verkauf");
+	bt_sell.set_groesse(koord(DEPOT_FRAME_WIDTH-DEPOT_FRAME_WIDTH*3/4-3, ABUTTON_HEIGHT));
+	bt_sell.set_text("verkaufen");
 
 	/*
 	 * ACTIONS for new route management buttons
 	 * @author hsiegeln
 	 */
-	bt_new_line.set_pos(koord(2, ACTIONS_VSTART+AD_BUTTON_HEIGHT));
-	bt_new_line.set_groesse(koord(DEPOT_FRAME_WIDTH/4-2, AD_BUTTON_HEIGHT));
+	bt_new_line.set_pos(koord(2, ACTIONS_VSTART+ABUTTON_HEIGHT));
+	bt_new_line.set_groesse(koord(DEPOT_FRAME_WIDTH/4-2, ABUTTON_HEIGHT));
 	bt_new_line.set_text("New Line");
 
-	bt_apply_line.set_pos(koord(DEPOT_FRAME_WIDTH/4+2, ACTIONS_VSTART+AD_BUTTON_HEIGHT));
-	bt_apply_line.set_groesse(koord(DEPOT_FRAME_WIDTH*2/4-3-DEPOT_FRAME_WIDTH/4, AD_BUTTON_HEIGHT));
+	bt_apply_line.set_pos(koord(DEPOT_FRAME_WIDTH/4+2, ACTIONS_VSTART+ABUTTON_HEIGHT));
+	bt_apply_line.set_groesse(koord(DEPOT_FRAME_WIDTH*2/4-3-DEPOT_FRAME_WIDTH/4, ABUTTON_HEIGHT));
 	bt_apply_line.set_text("Apply Line");
 
-	bt_change_line.set_pos(koord(DEPOT_FRAME_WIDTH*2/4+1, ACTIONS_VSTART+AD_BUTTON_HEIGHT));
-	bt_change_line.set_groesse(koord(DEPOT_FRAME_WIDTH*3/4-2-DEPOT_FRAME_WIDTH*2/4, AD_BUTTON_HEIGHT));
+	bt_change_line.set_pos(koord(DEPOT_FRAME_WIDTH*2/4+1, ACTIONS_VSTART+ABUTTON_HEIGHT));
+	bt_change_line.set_groesse(koord(DEPOT_FRAME_WIDTH*3/4-2-DEPOT_FRAME_WIDTH*2/4, ABUTTON_HEIGHT));
 	bt_change_line.set_text("Update Line");
 
-	bt_copy_convoi.set_pos(koord(DEPOT_FRAME_WIDTH*3/4+1, ACTIONS_VSTART+AD_BUTTON_HEIGHT));
-	bt_copy_convoi.set_groesse(koord(DEPOT_FRAME_WIDTH-DEPOT_FRAME_WIDTH*3/4-3, AD_BUTTON_HEIGHT));
+	bt_copy_convoi.set_pos(koord(DEPOT_FRAME_WIDTH*3/4+1, ACTIONS_VSTART+ABUTTON_HEIGHT));
+	bt_copy_convoi.set_groesse(koord(DEPOT_FRAME_WIDTH-DEPOT_FRAME_WIDTH*3/4-3, ABUTTON_HEIGHT));
 	bt_copy_convoi.set_text("Copy Convoi");
 
 	const uint8 margin = 4;
@@ -501,7 +502,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 		if(komp == &bt_start) {
 			if(  cnv.is_bound()  ) {
 				//first: close schedule (will update schedule on clients)
-				destroy_win( (long)cnv->get_schedule() );
+				destroy_win( (ptrdiff_t)cnv->get_schedule() );
 				// only then call the tool to start
 				depot->call_depot_tool( 'b', cnv, NULL );
 				update_convoy();
@@ -532,7 +533,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 			return true;
 		} else if(komp == &bt_change_line) {
 			if(selected_line.is_bound()) {
-				create_win(new line_management_gui_t(selected_line, depot->get_besitzer()), w_info, (long)selected_line.get_rep() );
+				create_win(new line_management_gui_t(selected_line, depot->get_besitzer()), w_info, (ptrdiff_t)selected_line.get_rep() );
 			}
 			return true;
 		} else if(komp == &bt_copy_convoi) {
@@ -607,7 +608,7 @@ bool depot_frame_t::infowin_event(const event_t *ev)
 			destroy_win( this );
 
 			next_dep->zeige_info();
-			win_set_pos(win_get_magic((long)next_dep), pos.x, pos.y);
+			win_set_pos(win_get_magic((ptrdiff_t)next_dep), pos.x, pos.y);
 			get_welt()->change_world_position(next_dep->get_pos());
 		}
 		else {
@@ -706,7 +707,14 @@ void depot_frame_t::apply_line()
 		else {
 			// sometimes the user might wish to remove convoy from line
 			// => we clear the schedule completely
-			cnv->call_convoi_tool( 'g', "0|" );
+			schedule_t *dummy = cnv->create_schedule()->copy();
+			dummy->eintrag.clear();
+
+			cbuffer_t buf;
+			dummy->sprintf_schedule(buf);
+			cnv->call_convoi_tool( 'g', (const char*)buf );
+
+			delete dummy;
 		}
 	}
 }
@@ -719,7 +727,7 @@ void depot_frame_t::fahrplaneingabe()
 		// this can happen locally, since any update of the schedule is done during closing window
 		schedule_t *fpl = cnv->create_schedule();
 		assert(fpl!=NULL);
-		gui_frame_t *fplwin = win_get_magic((long)fpl);
+		gui_frame_t *fplwin = win_get_magic((ptrdiff_t)fpl);
 		if(   fplwin==NULL  ) {
 			cnv->open_schedule_window( get_welt()->get_active_player()==cnv->get_besitzer() );
 		}

@@ -127,9 +127,15 @@ public:
 	void recalc_status();
 
 	/**
-	 * Handles changes of schedules and the resulting rerouting
+	 * Handles changes of schedules and the resulting rerouting.
 	 */
 	static void step_all();
+
+	/**
+	 * Resets reconnect_counter.
+	 * The next call to step_all() will start complete reconnecting.
+	 */
+	static void reset_routing();
 
 	/**
 	 * Tries to generate some pedestrians on the sqaure and the
@@ -169,7 +175,7 @@ public:
 	* removes a ground tile from a station, deletes the building and, if last tile, also the halthandle
 	* @author prissi
 	*/
-	static bool remove(karte_t *welt, spieler_t *sp, koord3d pos, const char *&msg);
+	static bool remove(karte_t *welt, spieler_t *sp, koord3d pos);
 
 	/**
 	 * Station destruction method.

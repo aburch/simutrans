@@ -421,12 +421,12 @@ public:
 	/* return friction constant: changes in hill and curves; may even negative downhill *
 	* @author prissi
 	*/
-	inline int get_frictionfactor() const { return current_friction; }
+	inline sint16 get_frictionfactor() const { return current_friction; }
 
-	/* Return total weight including freight*
+	/* Return total weight including freight (in kg!)
 	* @author prissi
 	*/
-	inline int get_gesamtgewicht() const { return sum_weight; }
+	inline uint32 get_gesamtgewicht() const { return sum_weight; }
 
 	// returns speedlimit of ways (and if convoi enters station etc)
 	// the convoi takes care of the max_speed of the vehicle
@@ -436,6 +436,11 @@ public:
 	static sint32 speed_unlimited() {return (std::numeric_limits<sint32>::max)(); }
 
 	const slist_tpl<ware_t> & get_fracht() const { return fracht;}   // liste der gerade transportierten güter
+
+	/**
+	 * Rotate freight target coordinates, has to be called after rotating factories.
+	 */
+	void rotate90_freight_destinations(const sint16 y_size);
 
 	/**
 	* berechnet die gesamtmenge der beförderten waren
@@ -896,7 +901,7 @@ public:
 	virtual image_id get_bild() const {return !is_on_ground() ? IMG_LEER : bild;}
 
 	// image: when flying the shadow, on ground empty
-	virtual PLAYER_COLOR_VAL get_outline_bild() const {return !is_on_ground() ? bild : IMG_LEER;}
+	virtual image_id get_outline_bild() const {return !is_on_ground() ? bild : IMG_LEER;}
 
 	// shadow has black color (when flying)
 	virtual PLAYER_COLOR_VAL get_outline_colour() const {return !is_on_ground() ? TRANSPARENT75_FLAG | OUTLINE_FLAG | COL_BLACK : 0;}

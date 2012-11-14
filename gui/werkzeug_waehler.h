@@ -43,8 +43,6 @@ private:
 	uint16 tool_icon_disp_start;
 	uint16 tool_icon_disp_end;
 
-	koord groesse;
-
 	bool has_prev_next;
 
 	/**

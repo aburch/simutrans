@@ -281,7 +281,7 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 	// force asynchronous recalculation
 	if(fpl) {
 		if(!fpl->ist_abgeschlossen()) { //"is completed" (Google)
-			destroy_win((long)fpl);
+			destroy_win((ptrdiff_t)fpl);
 		}
 	
 		if (!fpl->empty() && !line.is_bound()) 
@@ -604,6 +604,9 @@ void convoi_t::rotate90( const sint16 y_size )
 	if(fpl) {
 		fpl->rotate90( y_size );
 	}
+	for(  int i=0;  i<anz_vehikel;  i++  ) {
+		fahr[i]->rotate90_freight_destinations( y_size );
+	}
 	// eventually correct freight destinations (and remove all stale freight)
 	for(int i = 0; i < anz_vehikel; i++) 
 	{
@@ -666,7 +669,7 @@ void convoi_t::set_name(const char *name, bool with_new_id)
 		if(  ground  ) {
 			const depot_t *const depot = ground->get_depot();
 			if(  depot  ) {
-				depot_frame_t *const frame = dynamic_cast<depot_frame_t *>( win_get_magic( (long)depot ) );
+				depot_frame_t *const frame = dynamic_cast<depot_frame_t *>( win_get_magic( (ptrdiff_t)depot ) );
 				if(  frame  ) {
 					frame->reset_convoy_name( self );
 				}
@@ -2066,7 +2069,7 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_
 		if(v->get_fracht_max() != 0) {
 			const ware_besch_t *ware=v->get_fracht_typ();
 			if(ware!=warenbauer_t::nichts  ) {
-				goods_catg_index.append_unique( ware->get_catg_index(), 1 );
+				goods_catg_index.append_unique( ware->get_catg_index() );
 			}
 		}
 		// check for obsolete
@@ -2266,7 +2269,7 @@ void convoi_t::recalc_catg_index()
 		}
 		const ware_besch_t *ware=get_vehikel(i)->get_fracht_typ();
 		if(ware!=warenbauer_t::nichts  ) {
-			goods_catg_index.append_unique( ware->get_catg_index(), 1 );
+			goods_catg_index.append_unique( ware->get_catg_index() );
 		}
 	}
 	/* since during composition of convois all kinds of composition could happen,
@@ -2353,7 +2356,7 @@ bool convoi_t::set_schedule(schedule_t * f)
 		// destroy a possibly open schedule window
 		//"is completed" (Google)
 		if(  fpl  &&  !fpl->ist_abgeschlossen()  ) {
-			destroy_win((long)fpl);
+			destroy_win((ptrdiff_t)fpl);
 			delete fpl;
 		}
 		fpl = f;
@@ -3761,7 +3764,7 @@ void convoi_t::zeige_info()
 				if(  depot  ) {
 					depot->zeige_info();
 					// try to activate this particular convoy in the depot
-					depot_frame_t *const frame = dynamic_cast<depot_frame_t *>( win_get_magic( (long)depot ) );
+					depot_frame_t *const frame = dynamic_cast<depot_frame_t *>( win_get_magic( (ptrdiff_t)depot ) );
 					if(  frame  ) {
 						frame->activate_convoi(self);
 					}
@@ -3910,7 +3913,7 @@ void convoi_t::open_schedule_window( bool show )
 
 	if(  show  ) {
 		// Fahrplandialog oeffnen
-		create_win( new fahrplan_gui_t(fpl,get_besitzer(),self), w_info, (long)fpl );
+		create_win( new fahrplan_gui_t(fpl,get_besitzer(),self), w_info, (ptrdiff_t)fpl );
 		// TODO: what happens if no client opens the window??
 	}
 	fpl->eingabe_beginnen();
@@ -5030,7 +5033,7 @@ void convoi_t::destroy()
 	state = SELF_DESTRUCT;
 
 	if(fpl!=NULL  &&  !fpl->ist_abgeschlossen()) {
-		destroy_win((long)fpl);
+		destroy_win((ptrdiff_t)fpl);
 	}
 	
 	if(  line.is_bound()  ) {
@@ -5201,10 +5204,11 @@ void convoi_t::set_line(linehandle_t org_line)
 */
 void convoi_t::unset_line()
 {
-	if(line.is_bound()) {
+	if(  line.is_bound()  ) {
 DBG_DEBUG("convoi_t::unset_line()", "removing old destinations from line=%d, fpl=%p",line.get_id(),fpl);
 		line->remove_convoy(self);
 		line = linehandle_t();
+		line_update_pending = linehandle_t();
 	}
 }
 
@@ -6402,4 +6406,18 @@ koordhashtable_tpl<id_pair, average_tpl<uint16> > * const convoi_t::get_average_
 void convoi_t::clear_departures()
 {
 	departures->clear();
+}
+
+sint64 convoi_t::get_stat_converted(int month, int cost_type) const
+{
+	sint64 value = financial_history[month][cost_type];
+	switch(cost_type) {
+		case CONVOI_REVENUE:
+		case CONVOI_OPERATIONS:
+		case CONVOI_PROFIT:
+			value = convert_money(value);
+			break;
+		default: ;
+	}
+	return value;
 }

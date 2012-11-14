@@ -255,8 +255,18 @@ public:
 
 	virtual waytype_t get_wegtyp() const {return track_wt;}
 	virtual ding_t::typ get_typ() const {return bahndepot;}
+	///**
+	// * Parameters to determine layout and behaviour of the depot_frame_t.
+	// * @author Volker Meyer
+	// * @date  09.06.2003
+	// */
+	//int get_x_placement() const {return -25; }
+	//int get_y_placement() const {return -28; }
+	//int get_x_grid() const { return 24; }
+	//int get_y_grid() const { return 24; }
+	//unsigned get_max_convoi_length() const;
+
 	//virtual const char *get_name() const {return "Bahndepot"; }
-	inline unsigned get_max_convoi_length() const;
 };
 
 
@@ -268,7 +278,6 @@ public:
 
 	virtual simline_t::linetype get_line_type() const { return simline_t::tramline; }
 
-	virtual waytype_t get_wegtyp() const {return tram_wt;}
 	virtual ding_t::typ get_typ() const { return tramdepot; }
 	//virtual const char *get_name() const {return "Tramdepot"; }
 };
@@ -281,7 +290,6 @@ public:
 
 	virtual simline_t::linetype get_line_type() const { return simline_t::monorailline; }
 
-	virtual waytype_t get_wegtyp() const {return monorail_wt;}
 	virtual ding_t::typ get_typ() const { return monoraildepot; }
 	//virtual const char *get_name() const {return "Monoraildepot"; }
 };
@@ -294,7 +302,6 @@ public:
 
 	virtual simline_t::linetype get_line_type() const { return simline_t::maglevline; }
 
-	virtual waytype_t get_wegtyp() const {return maglev_wt;}
 	virtual ding_t::typ get_typ() const { return maglevdepot; }
 	//virtual const char *get_name() const {return "Maglevdepot"; }
 };
@@ -307,7 +314,6 @@ public:
 
 	virtual simline_t::linetype get_line_type() const { return simline_t::narrowgaugeline; }
 
-	virtual waytype_t get_wegtyp() const {return narrowgauge_wt;}
 	virtual ding_t::typ get_typ() const { return narrowgaugedepot; }
 	//virtual const char *get_name() const {return "Narrowgaugedepot"; }
 };
@@ -329,6 +335,17 @@ public:
 
 	virtual waytype_t get_wegtyp() const {return road_wt; }
 	ding_t::typ get_typ() const {return strassendepot;}
+	///**
+	// * Parameters to determine layout and behaviour of the depot_frame_t.
+	// * @author Volker Meyer
+	// * @date  09.06.2003
+	// */
+	//int get_x_placement() const { return -20; }
+	//int get_y_placement() const { return -25; }
+	//int get_x_grid() const { return 24; }
+	//int get_y_grid() const { return 24; }
+	//unsigned get_max_convoi_length() const { return 4; }
+
 	//const char *get_name() const {return "Strassendepot";}
 };
 
@@ -350,6 +367,17 @@ public:
 
 	virtual waytype_t get_wegtyp() const {return water_wt; }
 	ding_t::typ get_typ() const {return schiffdepot;}
+	///**
+	// * Parameters to determine layout and behaviour of the depot_frame_t.
+	// * @author Volker Meyer
+	// * @date  09.06.2003
+	// */
+	//int get_x_placement() const { return -1; }
+	//int get_y_placement() const { return -11; }
+	//int get_x_grid() const { return 60; }
+	//int get_y_grid() const { return 46; }
+
+	//unsigned get_max_convoi_length() const { return 4; }
 	//const char *get_name() const {return "Schiffdepot";}
 };
 
@@ -366,6 +394,17 @@ public:
 	virtual simline_t::linetype get_line_type() const { return simline_t::airline; }
 
 	virtual waytype_t get_wegtyp() const { return air_wt; }
+	///**
+	// * Parameters to determine layout and behaviour of the depot_frame_t.
+	// * @author Volker Meyer
+	// * @date  09.06.2003
+	// */
+	//int get_x_placement() const {return -10; }
+	//int get_y_placement() const {return -23; }
+	//int get_x_grid() const { return 36; }
+	//int get_y_grid() const { return 36; }
+	//unsigned get_max_convoi_length() const { return 1; }
+
 	ding_t::typ get_typ() const { return airdepot; }
 	//const char *get_name() const {return "Hangar";}
 };

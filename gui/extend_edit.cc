@@ -9,18 +9,12 @@
 
 #include <stdio.h>
 
-#include "../simcolor.h"
-
 #include "../simworld.h"
 #include "../simevent.h"
-#include "../simgraph.h"
-#include "../simskin.h"
 
 #include "../dataobj/translator.h"
 
 #include "../player/simplay.h"
-
-
 
 #include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"

@@ -8,6 +8,7 @@
 ; inetc
 ; CabDll
 ; untgz
+; ShellLink
 
 
 ; Parameter for functions

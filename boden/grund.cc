@@ -203,7 +203,7 @@ void grund_t::rdwr(loadsave_t *file)
 		file->rdwr_str(text);
 		if(text) {
 			set_text(text);
-			guarded_free((void *)text);
+			guarded_free(const_cast<char *>(text));
 		}
 	}
 
@@ -392,7 +392,7 @@ grund_t::grund_t(karte_t *wl, koord3d pos)
 
 grund_t::~grund_t()
 {
-	destroy_win((long)this);
+	destroy_win((ptrdiff_t)this);
 
 	// remove text from table
 	set_text(NULL);
@@ -509,7 +509,7 @@ void grund_t::zeige_info()
 		}
 	}
 	if(umgebung_t::ground_info  ||  hat_wege()) {
-		create_win(new grund_info_t(this), w_info, (long)this);
+		create_win(new grund_info_t(this), w_info, (ptrdiff_t)this);
 	}
 }
 
@@ -1631,8 +1631,7 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 #endif
 			}
 			if (remove_halt) {
-				const char *fail;
-				if (!haltestelle_t::remove(welt, sp, pos, fail)) {
+				if (!haltestelle_t::remove(welt, sp, pos)) {
 					return false;
 				}
 			}

@@ -43,8 +43,12 @@
 #include "../../besch/roadsign_besch.h"
 
 #include "../../tpl/slist_tpl.h"
-
 #include "../../dings/wayobj.h"
+
+#if MULTI_THREAD>1
+#include <pthread.h>
+static pthread_mutex_t weg_calc_bild_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+#endif
 
 /**
  * Alle instantiierten Wege
@@ -480,12 +484,29 @@ bool weg_t::check_season( const long )
 }
 
 
+#if MULTI_THREAD>1
+void weg_t::lock_mutex()
+{
+	pthread_mutex_lock( &weg_calc_bild_mutex );
+}
+
+
+void weg_t::unlock_mutex()
+{
+	pthread_mutex_unlock( &weg_calc_bild_mutex );
+}
+#endif
+
+
 void weg_t::calc_bild()
 {
 	if(!welt)
 	{
 		return;
 	}
+#if MULTI_THREAD>1
+	pthread_mutex_lock( &weg_calc_bild_mutex );
+#endif
 	grund_t *from = welt->lookup(get_pos());
 	grund_t *to;
 	image_id old_bild = bild;
@@ -494,6 +515,13 @@ void weg_t::calc_bild()
 		// no ground, in tunnel
 		set_bild(IMG_LEER);
 		set_after_bild(IMG_LEER);
+		if(  from==NULL  ) {
+			dbg->error( "weg_t::calc_bild()", "Own way at %s not found!", get_pos().get_str() );
+		}
+#if MULTI_THREAD>1
+		pthread_mutex_unlock( &weg_calc_bild_mutex );
+#endif
+		return;	// otherwise crashing during enlargement
 	}
 	else if(  from->ist_tunnel() &&  from->ist_karten_boden()  &&  (grund_t::underground_mode==grund_t::ugm_none || (grund_t::underground_mode==grund_t::ugm_level && from->get_hoehe()<grund_t::underground_level))  ) {
 		// in tunnel mouth, no underground mode
@@ -502,6 +530,9 @@ void weg_t::calc_bild()
 	}
 	else if(  from->ist_bruecke()  &&  from->obj_bei(0)==this  ) {
 		// first way on a bridge (bruecke_t will set the image)
+#if MULTI_THREAD>1
+		pthread_mutex_unlock( &weg_calc_bild_mutex );
+#endif
 		return;
 	}
 	else {
@@ -557,6 +588,9 @@ void weg_t::calc_bild()
 		mark_image_dirty(old_bild, from->get_weg_yoff());
 		mark_image_dirty(bild, from->get_weg_yoff());
 	}
+#if MULTI_THREAD>1
+	pthread_mutex_unlock( &weg_calc_bild_mutex );
+#endif
 }
 
 // checks, if this way qualifies as diagonal

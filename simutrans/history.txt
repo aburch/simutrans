@@ -1,3 +1,40 @@
+	ADD: transparent chat window in networkmode
+	FIX: underground stations in networkmode
+	ADD: (Markohs) Scenario and heightmap dialogs now support multi-directory
+	ADD: (Markohs) File dialogs deletes now use the trash bin (by default) instead of a permanent delete in Windows platform. SHIFT overrides.
+	FIX: waiting level in schedule dialog works with keys again
+	FIX: convoi list filtering again in working order
+	ADD: hide by default return ticket for rail based transport (enable by simuconf.tab)
+
+
+Release of 112.0: (r6000 on 22-Oct-2012):
+	ADD: (wackdone) screenshots of topmost dialoge window only by CNTRL+screenshot tool click
+	ADD: (wackdone) -pause on command line pauses the loaded game
+	FIX: downgrading of stops using CONTRL works again
+	ADD: scripted scenarios
+	ADD: river algorithm faster and river number automatically scaled with map size
+	CHG: proper support for non-rectangularly shaped factories, no dummy (0,0)-tiles
+	ADD: support for non-rectangular shaped station extensions, attractions, monuments
+	CHG: Allow to connect to channels built by anyone
+	CHG: fieldd can now spawned in larger number than the initial min value
+	CHG: number of factories in new world dialog is now indeed the total number of factories (too many newbe mistakes here)
+	ADD: force a minimum distance between city attractions
+	ADD: Drag stops
+	CHG: reduced memory consumption when compiled with COLOUR_DEPTH=0, no copies of object images kept in memory
+	ADD: ctrl-click with link-factory tool actually removes links between factories
+	ADD: station buildings can be restricted to above/under ground (parameter allow_underground, =0 only above, =1 only under, =2 both/default)
+	CHG: rework scenario directory structure: scenario my_scen is in my_scen/, script file is my_scen/scenario.nut
+
+
+Release of 111.3.1 (r5843 on 31-Jul-2012):
+	ADD: weight in dat fields are in tons but kg can bei give like 1.350
+	CHG: goto / follow convoi functionality via window gadget
+	CHG: no bridges over runways / taxiways
+	ADD: check whether format specifiers of translated strings match those of the master string, start with -debug 2 to get error messages
+	ADD: customize icon of toolbar separator (taken from menu.BarTools or extra menu object)
+	FIX: crash when changing to other programs while in fullscreen with GDI version
+
+
 Release of 111.3 (r5772 on 10-Jun-2012):
 	FIX: race condition with multithreads on GDI
 	CHG: savegames will be saved as "_temp.sve" and only renamed after after success to the final name
@@ -22,6 +59,7 @@ Release of 111.3 (r5772 on 10-Jun-2012):
 	CHG: Only founding a city when account is positive
 	CHG: powerlines will connect in directions a powerline can be build on a tile
 	ADD: threaded (but with graphic errors) tile redraw will by used automatically when fps too low
+	FIX: AI used wrong factories for bulding chains and build too long routes
 
 
 Release of 111.2.2 (r5583 on 20-Mar-2012):

@@ -236,7 +236,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	sint32 station_maintenance = obj.get_int("station_maintenance", 2147483647); //NOTE: Default cannot be set because it depends on a world factor. Must detect this number and put in default if it is found.
 	sint32 station_price = obj.get_int("station_price", 2147483647);
 
-	uint8 allow_underground = obj.get_int("allow_underground", 0);
+	uint8 allow_underground = obj.get_int("allow_underground", 2);
 
 	if(allow_underground > 2)
 	{
@@ -360,7 +360,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		}
 	}
 
-	uint16 version = 0x8006;
+	uint16 version = 0x8007;
 	
 	// This is the overlay flag for Simutrans-Experimental
 	// This sets the *second* highest bit to 1. 

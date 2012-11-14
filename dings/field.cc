@@ -85,7 +85,5 @@ image_id field_t::get_bild() const
 void field_t::zeige_info()
 {
 	// show the info of the corresponding factory
-	grund_t *gr = welt->lookup(fab->get_pos());
-	gebaeude_t* gb = gr->find<gebaeude_t>();
-	gb->zeige_info();
+	fab->zeige_info();
 }

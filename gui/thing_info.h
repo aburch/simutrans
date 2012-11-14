@@ -37,7 +37,9 @@ public:
 
 	ding_t const* get_ding() const { return view.get_ding(); }
 
-	virtual koord3d get_weltpos() { return get_ding()->get_pos(); }
+	virtual koord3d get_weltpos(bool) { return get_ding()->get_pos(); }
+
+	virtual bool is_weltpos();
 
 	/**
 	 * @return the text to display in the info window

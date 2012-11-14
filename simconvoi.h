@@ -1,6 +1,6 @@
 /**
- * Header Datei für dir convoi_t Klasse für Fahrzeugverbände
- * von Hansjörg Malthaner
+ * @file
+ * Contains definition of convoi_t class
  */
 
 #ifndef simconvoi_h
@@ -46,9 +46,7 @@ class ware_t;
 class replace_data_t;
 
 /**
- * Basisklasse für alle Fahrzeugverbände. Convois könnnen über Zeiger
- * oder Handles angesprochen werden. Zeiger sind viel schneller, dafür
- * können Handles geprüft werden, ob das Ziel noch vorhanden ist.
+ * Base class for all vehicle consists. Convoys can be referenced by handles, see halthandle_t.
  *
  * @author Hj. Malthaner
  */
@@ -358,14 +356,16 @@ private:
 	* errechnet beim beladen/fahren.
 	* @author Hj. Malthaner, prissi
 	*/
-	sint32 sum_gewicht;
-	sint32 sum_gesamtgewicht;
+	sint64 sum_gewicht;
+	sint64 sum_gesamtgewicht;
 
 	// cached values
 	// will be recalculated if
 	// recalc_data is true
-	bool recalc_data;
-	sint32 sum_friction_weight;
+	bool recalc_data_front; // true when front vehicle in convoi hops
+	bool recalc_data; // true when any vehicle in convoi hops
+
+	sint64 sum_friction_weight;
 	sint32 speed_limit;
 
 	/**
@@ -701,9 +701,6 @@ private:
 
 public:
 	ding_t::typ get_depot_type() const;
-	
-// updates a line schedule and tries to find the best next station to go
-	void check_pending_updates();	
 
 	/**
 	* Convoi haelt an Haltestelle und setzt quote fuer Fracht
@@ -730,6 +727,9 @@ public:
 	* @author hsiegeln
 	*/
 	void set_line(linehandle_t );
+
+	// updates a line schedule and tries to find the best next station to go
+	void check_pending_updates();
 
 	/* changes the state of a convoi via werkzeug_t; mandatory for networkmode! *
 	 * for list of commands and parameter see werkzeug_t::wkz_change_convoi_t
@@ -870,17 +870,20 @@ public:
 	 * @return total power of this convoi
 	 * @author Hj. Malthaner
 	 */
-	inline uint32 get_sum_leistung() const {return sum_leistung;}
-	//inline uint32 get_power_from_steam() const {return power_from_steam;}
-	//inline uint32 get_power_from_steam_with_gear() const {return power_from_steam_with_gear;}
-	inline sint32 get_min_top_speed() const {return min_top_speed;}
-	inline sint32 get_sum_gewicht() const {return sum_gewicht;}
-	//inline sint32 get_sum_gesamtgewicht() const {return sum_gesamtgewicht;}
+	inline const uint32 & get_sum_leistung() const {return sum_leistung;}
+	inline const sint32 & get_min_top_speed() const {return min_top_speed;}
+
+	/// @returns weight of the convoy's vehicles (excluding freight)
+	inline const sint64 & get_sum_gewicht() const {return sum_gewicht;}
+
+	/// @returns weight of convoy including freight
+	//inline const sint64 & get_sum_gesamtgewicht() const {return sum_gesamtgewicht;}
+
 	/** Get power index in kW multiplied by gear.
 	 * Get effective power in kW by dividing by GEAR_FACTOR, which is 64.
 	 * @author Bernd Gabriel, Nov, 14 2009
 	 */
-	inline sint32 get_power_index() { return sum_gear_und_leistung; }
+	inline const sint32 & get_power_index() { return sum_gear_und_leistung; }
 
 	uint32 get_length() const;
 
@@ -912,12 +915,6 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	void step();
-
-	/**
-	 * Calculates total weight of freight in KG
-	 * @author Hj. Malthaner
-	 */
-	int calc_freight_weight() const;
 
 	/**
 	* setzt einen neuen convoi in fahrt
@@ -1165,6 +1162,7 @@ public:
 	* @author hsiegeln
 	*/
 	sint64 get_finance_history(int month, int cost_type) const { return financial_history[month][cost_type]; }
+	sint64 get_stat_converted(int month, int cost_type) const;
 
 	/**
 	* only purpose currently is to roll financial history

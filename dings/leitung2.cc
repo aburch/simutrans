@@ -9,6 +9,9 @@
 #if MULTI_THREAD>1
 #include <pthread.h>
 static pthread_mutex_t verbinde_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t calc_bild_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t pumpe_list_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t senke_list_mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
 #include "leitung2.h"
@@ -34,18 +37,6 @@ static pthread_mutex_t verbinde_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 #include "../tpl/vector_tpl.h"
 #include "../tpl/weighted_vector_tpl.h"
-
-#define PROD 1000
-
-/*
-static const char * measures[] =
-{
-	"fail",
-	"weak",
-	"good",
-	"strong",
-};
-*/
 
 /**
  * returns possible directions for powerline on this tile
@@ -272,6 +263,7 @@ void leitung_t::calc_bild()
 		return;
 	}
 
+	image_id old_image = get_bild();
 	hang_t::typ hang = gr->get_weg_hang();
 	if(hang != hang_t::flach) {
 		set_bild( besch->get_hang_bild_nr(hang, snow));
@@ -303,6 +295,9 @@ void leitung_t::calc_bild()
 			}
 		}
 	}
+	if (old_image != get_bild()) {
+		mark_image_dirty(old_image,0);
+	}
 }
 
 
@@ -330,6 +325,20 @@ void leitung_t::calc_neighbourhood()
 }
 
 
+void print_power(cbuffer_t & buf, uint64 power_in_kW, const char *fmt_MW, const char *fmt_KW)
+{
+	uint64 power_in_MW = power_in_kW >> POWER_TO_MW;
+	if(power_in_MW)
+	{
+		buf.printf( translator::translate(fmt_MW), (uint) power_in_MW );
+	}
+	else
+	{
+		buf.printf( translator::translate(fmt_KW), (uint) ((power_in_kW * 1000) >> POWER_TO_MW) );
+	}
+}
+
+
 /**
  * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
  * Beobachtungsfenster angezeigt wird.
@@ -339,43 +348,15 @@ void leitung_t::info(cbuffer_t & buf) const
 {
 	ding_t::info(buf);
 
-	uint32 supply = get_net()->get_supply();
-	uint32 demand = get_net()->get_demand();
-	uint32 load = demand>supply ? supply:demand;
+	const uint64 supply = get_net()->get_supply();
+	const uint64 demand = get_net()->get_demand();
+	const uint64 load = demand>supply ? supply:demand;
 
 	buf.printf( translator::translate("Net ID: %u\n"), (unsigned long)get_net() );
-	if(get_net()->get_max_capacity()>>POWER_TO_MW)
-	{
-		buf.printf( translator::translate("Capacity: %u MW\n"), get_net()->get_max_capacity()>>POWER_TO_MW );
-	}
-	else
-	{
-		buf.printf( translator::translate("Capacity: %u KW\n"), (get_net()->get_max_capacity() * 1000)>>POWER_TO_MW );
-	}
-	if(demand>>POWER_TO_MW)
-	{
-		buf.printf( translator::translate("Demand: %u MW\n"), demand>>POWER_TO_MW );
-	}
-	else
-	{
-		buf.printf( translator::translate("Demand: %u KW\n"), (demand * 1000)>>POWER_TO_MW );
-	}
-	if(supply>>POWER_TO_MW)
-	{
-		buf.printf( translator::translate("Generation: %u MW\n"), supply>>POWER_TO_MW );
-	}
-	else
-	{
-		buf.printf( translator::translate("Generation: %u KW\n"), (supply * 1000)>>POWER_TO_MW );
-	}
-	if(load>>POWER_TO_MW)
-	{
-		buf.printf( translator::translate("Act. load: %u MW\n"), load>>POWER_TO_MW );
-	}
-	else
-	{
-		buf.printf( translator::translate("Act. load: %u KW\n"), (load * 1000)>>POWER_TO_MW );
-	}
+	print_power(buf, get_net()->get_max_capacity(), "Capacity: %u MW\n", "Capacity: %u KW\n");
+	print_power(buf, demand, "Demand: %u MW\n", "Demand: %u KW\n");
+	print_power(buf, supply, "Generation: %u MW\n", "Generation: %u KW\n");
+	print_power(buf, load, "Act. load: %u MW\n", "Act. load: %u KW\n");
 	buf.printf( translator::translate("Usage: %u %%"), (100*load)/(supply>0?supply:1) );
 }
 
@@ -389,18 +370,23 @@ void leitung_t::info(cbuffer_t & buf) const
 void leitung_t::laden_abschliessen()
 {
 #if MULTI_THREAD>1
-	pthread_mutex_lock( &verbinde_mutex  );
+	pthread_mutex_lock( &verbinde_mutex );
 #endif
 	verbinde();
+#if MULTI_THREAD>1
+	pthread_mutex_unlock( &verbinde_mutex );
+#endif
+#if MULTI_THREAD>1
+	pthread_mutex_lock( &calc_bild_mutex );
+#endif
 	calc_neighbourhood();
+#if MULTI_THREAD>1
+	pthread_mutex_unlock( &calc_bild_mutex );
+#endif
 	const grund_t *gr = welt->lookup(get_pos());
 	assert(gr);
 
 	spieler_t::add_maintenance(get_besitzer(), besch->get_wartung());
-
-#if MULTI_THREAD>1
-	pthread_mutex_unlock( &verbinde_mutex  );
-#endif
 }
 
 
@@ -580,7 +566,9 @@ void pumpe_t::laden_abschliessen()
 	leitung_t::laden_abschliessen();
 	spieler_t::add_maintenance(get_besitzer(), (sint32)-welt->get_settings().cst_maintain_transformer);
 
-	if(fab==NULL  &&  get_net()) {
+	assert(get_net());
+
+	if(  fab==NULL  ) {
 		if(welt->lookup(get_pos())->ist_karten_boden()) {
 			// on surface, check around
 			fab = leitung_t::suche_fab_4(get_pos().get_2d());
@@ -594,10 +582,21 @@ void pumpe_t::laden_abschliessen()
 			fab->set_transformer_connected( this );
 		}
 	}
+#if MULTI_THREAD>1
+	pthread_mutex_lock( &pumpe_list_mutex );
+#endif
 	pumpe_list.insert( this );
-
+#if MULTI_THREAD>1
+	pthread_mutex_unlock( &pumpe_list_mutex );
+#endif
+#if MULTI_THREAD>1
+	pthread_mutex_lock( &calc_bild_mutex );
+#endif
 	set_bild(skinverwaltung_t::pumpe->get_bild_nr(0));
 	is_crossing = false;
+#if MULTI_THREAD>1
+	pthread_mutex_unlock( &calc_bild_mutex );
+#endif
 }
 
 
@@ -605,8 +604,9 @@ void pumpe_t::info(cbuffer_t & buf) const
 {
 	ding_t::info( buf );
 
-	buf.printf( translator::translate("Net ID: %u\n"), (unsigned long)get_net() );
+	buf.printf( translator::translate("Net ID: %lu\n"), (unsigned long)get_net() );
 	buf.printf( translator::translate("Generation: %u MW\n"), supply>>POWER_TO_MW );
+	buf.printf("\n\n"); // pad for consistent dialog size
 }
 
 
@@ -639,6 +639,7 @@ senke_t::senke_t(karte_t *welt, loadsave_t *file) : leitung_t( welt, koord3d::in
 	last_power_demand = 0;
 	power_load = 0;
 	rdwr( file );
+	welt->sync_add(this);
 }
 
 
@@ -657,6 +658,7 @@ senke_t::senke_t(karte_t *welt, koord3d pos, spieler_t *sp, stadt_t* c) : leitun
 	last_power_demand = 0;
 	power_load = 0;
 	sp->buche(welt->get_settings().cst_transformer, get_pos().get_2d(), COST_CONSTRUCTION);
+	welt->sync_add(this);
 }
 
 
@@ -959,11 +961,19 @@ void senke_t::laden_abschliessen()
 	spieler_t::add_maintenance(get_besitzer(), (sint32)-welt->get_settings().cst_maintain_transformer);
 
 	check_industry_connexion();
+#if MULTI_THREAD>1
+	pthread_mutex_lock( &senke_list_mutex );
+#endif
 	senke_list.insert( this );
-	welt->sync_add(this);
-
+#if MULTI_THREAD>1
+	pthread_mutex_unlock( &senke_list_mutex );
+	pthread_mutex_lock( &calc_bild_mutex );
+#endif
 	set_bild(skinverwaltung_t::senke->get_bild_nr(0));
 	is_crossing = false;
+#if MULTI_THREAD>1
+	pthread_mutex_unlock( &calc_bild_mutex );
+#endif
 }
 
 void senke_t::check_industry_connexion()
@@ -990,22 +1000,8 @@ void senke_t::info(cbuffer_t & buf) const
 	ding_t::info( buf );
 
 	buf.printf( translator::translate("Net ID: %u\n"), (unsigned long)get_net() );
-	if(last_power_demand>>POWER_TO_MW)
-	{
-		buf.printf( translator::translate("Demand: %u MW\n"), last_power_demand>>POWER_TO_MW );
-	}
-	else
-	{
-		buf.printf( translator::translate("Demand: %u KW\n"), (last_power_demand * 1000)>>POWER_TO_MW );
-	}
-	if(power_load>>POWER_TO_MW)
-	{
-		buf.printf( translator::translate("Act. load: %u MW\n"), power_load>>POWER_TO_MW );
-	}
-	else
-	{
-		buf.printf( translator::translate("Act. load: %u KW\n"), (power_load * 1000)>>POWER_TO_MW );
-	}
+	print_power(buf, last_power_demand, "Demand: %u MW\n", "Demand: %u KW\n");
+	print_power(buf, power_load, "Act. load: %u MW\n", "Act. load: %u KW\n");
 	buf.printf( translator::translate("Usage: %u %%"), (100*power_load)/(last_power_demand>0?last_power_demand:1) );
 	if(city)
 	{

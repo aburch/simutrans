@@ -558,14 +558,17 @@ public:
 	uint16 get_zuladung() const { return zuladung; }
 	uint32 get_preis() const { return preis; }
 	sint32 get_geschw() const { return geschw; }
-	uint16 get_gewicht() const { return gewicht; }
+	uint32 get_gewicht() const { return gewicht; }
+	uint16 get_axle_load() const { return axle_load; } /* New Standard - not implemented yet */
 	uint16 get_running_cost() const { return running_cost; }
 	uint16 get_running_cost(karte_t *welt) const; //Overloaded method - includes increase for obsolescence.
 	uint32 get_fixed_cost() const { return fixed_cost; }
 	uint32 get_fixed_cost(karte_t *welt) const;  //Overloaded method - includes increase for obsolescence.
 	uint32 get_adjusted_monthly_fixed_cost(karte_t *welt) const; // includes increase for obsolescence and adjustment for monthly figures
-	uint16 get_axle_load() const { return axle_load; } /* New Standard - not implemented yet */
 	//uint16 get_maintenance() const { return fixed_cost; } /* New Standard - not implemented yet */
+	//uint32 get_leistung() const { return leistung; }
+	//uint16 get_betriebskosten() const { return running_cost; }
+	//uint16 get_maintenance() const { return fixed_cost; }
 	sint8 get_sound() const { return sound; }
 	bool is_bidirectional() const { return bidirectional; }
 	bool get_can_lead_from_rear() const { return can_lead_from_rear; }

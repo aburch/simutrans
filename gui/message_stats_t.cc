@@ -13,10 +13,8 @@
 #include "messagebox.h"
 
 #include "../simgraph.h"
-#include "../simcolor.h"
 #include "../simwin.h"
 #include "../simworld.h"
-#include "../simskin.h"
 
 #include "../dataobj/umgebung.h"
 

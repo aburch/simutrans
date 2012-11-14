@@ -10,6 +10,11 @@
 #include "../besch/writer/root_writer.h"
 #include "../besch/writer/image_writer.h"
 
+// Needed to avoid linking problems
+unsigned long dr_time(void)
+{
+	return 0;
+}
 
 int main(int argc, char* argv[])
 {

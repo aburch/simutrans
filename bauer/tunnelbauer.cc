@@ -10,27 +10,19 @@
 #include "../simdebug.h"
 
 #include "tunnelbauer.h"
-#include "../besch/intro_dates.h"
 
 #include "../gui/karte.h"
 
 #include "../simworld.h"
-#include "../simwin.h"
 #include "../player/simplay.h"
-#include "../simskin.h"
 #include "../simwerkz.h"
-#include "../simevent.h"
 
 #include "../besch/tunnel_besch.h"
 
-#include "../boden/boden.h"
 #include "../boden/tunnelboden.h"
-#include "../boden/wege/schiene.h"
-#include "../boden/wege/monorail.h"
-#include "../boden/wege/kanal.h"
-#include "../boden/wege/strasse.h"
+
+#include "../dataobj/scenario.h"
 #include "../dataobj/umgebung.h"
-#include "../dataobj/koord3d.h"
 
 #include "../dings/tunnel.h"
 #include "../dings/leitung2.h"
@@ -70,35 +62,6 @@ stringhashtable_tpl <tunnel_besch_t *> * tunnelbauer_t::get_all_tunnels()
 {
 	return &tunnel_by_name;
 }
-
-// now we have to convert old tunnel to new ones ...
-bool tunnelbauer_t::laden_erfolgreich()
-{
-	FOR(stringhashtable_tpl<tunnel_besch_t*>, const& i, tunnel_by_name) {
-		tunnel_besch_t* const besch = i.value;
-		if(besch->get_topspeed()==0) {
-			// old style, need to convert
-			if(strcmp(besch->get_name(),"RoadTunnel")==0) {
-				besch->wegtyp = (uint8)road_wt;
-				besch->topspeed = 120;
-				besch->maintenance = 500;
-				besch->preis = 200000;
-				besch->intro_date = DEFAULT_INTRO_DATE*12;
-				besch->obsolete_date = DEFAULT_RETIRE_DATE*12;
-			}
-			else {
-				besch->wegtyp = (uint8)track_wt;
-				besch->topspeed = 280;
-				besch->maintenance = 500;
-				besch->preis = 200000;
-				besch->intro_date = DEFAULT_INTRO_DATE*12;
-				besch->obsolete_date = DEFAULT_RETIRE_DATE*12;
-			}
-		}
-	}
-	return true;
-}
-
 
 const tunnel_besch_t *tunnelbauer_t::get_besch(const char *name)
 {
@@ -150,6 +113,11 @@ static bool compare_tunnels(const tunnel_besch_t* a, const tunnel_besch_t* b)
  */
 void tunnelbauer_t::fill_menu(werkzeug_waehler_t* wzw, const waytype_t wtyp, sint16 /*sound_ok*/, const karte_t* welt)
 {
+	// check if scenario forbids this
+	if (!welt->get_scenario()->is_tool_allowed(welt->get_active_player(), WKZ_TUNNELBAU | GENERAL_TOOL, wtyp)) {
+		return;
+	}
+
 	const uint16 time=welt->get_timeline_year_month();
 	vector_tpl<const tunnel_besch_t*> matching(tunnel_by_name.get_count());
 
@@ -172,7 +140,7 @@ void tunnelbauer_t::fill_menu(werkzeug_waehler_t* wzw, const waytype_t wtyp, sin
 /* now construction stuff */
 
 
-koord3d tunnelbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, waytype_t wegtyp)
+koord3d tunnelbauer_t::finde_ende(karte_t *welt, spieler_t *sp, koord3d pos, koord zv, waytype_t wegtyp, const char** msg)
 {
 	const grund_t *gr;
 	leitung_t *lt;
@@ -186,6 +154,13 @@ koord3d tunnelbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, waytype_
 		// check if ground is below tunnel level
 		gr = welt->lookup_kartenboden(pos.get_2d());
 		if(  gr->get_hoehe() < pos.z  ){
+			return koord3d::invalid;
+		}
+
+		if (const char* err = welt->get_scenario()->is_work_allowed_here(sp, WKZ_TUNNELBAU|GENERAL_TOOL, wegtyp, pos)) {
+			if (msg) {
+				*msg = err;
+			}
 			return koord3d::invalid;
 		}
 
@@ -287,7 +262,11 @@ const char *tunnelbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, const 
 	// Tunnelende suchen
 	koord3d end = koord3d::invalid;
 	if(full_tunnel) {
-		end = finde_ende(welt, gr->get_pos(), zv, wegtyp);
+		const char *err = NULL;
+		end = finde_ende(welt, sp, gr->get_pos(), zv, wegtyp, &err);
+		if (err) {
+			return err;
+		}
 	}
 	else {
 		end = gr->get_pos()+zv;

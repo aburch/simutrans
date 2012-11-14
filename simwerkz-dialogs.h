@@ -69,7 +69,7 @@ public:
 class wkz_optionen_t : public werkzeug_t {
 public:
 	wkz_optionen_t() : werkzeug_t(WKZ_OPTIONEN | DIALOGE_TOOL) {}
-	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("Einstellungsfenster"); }
+	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("Einstellungen aendern"); }
 	bool is_selected(karte_t const*) const OVERRIDE { return win_get_magic(magic_optionen_gui_t); }
 	bool init(karte_t* welt, spieler_t*) OVERRIDE {
 		create_win(240, 120, new optionen_gui_t(welt), w_info, magic_optionen_gui_t);

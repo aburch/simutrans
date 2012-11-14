@@ -327,7 +327,7 @@ void map_frame_t::show_hide_directory(const bool show)
 }
 
 
-bool map_frame_t::action_triggered( gui_action_creator_t *komp, value_t v )
+bool map_frame_t::action_triggered( gui_action_creator_t *komp, value_t)
 {
 	if(komp==&b_show_legend) {
 		show_hide_legend( !b_show_legend.pressed );
@@ -718,7 +718,7 @@ void map_frame_t::rdwr( loadsave_t *file )
 		scrolly.set_scroll_position( xoff, yoff );
 
 		reliefkarte_t::get_karte()->set_mode((reliefkarte_t::MAP_MODES)umgebung_t::default_mapmode);
-		for (int i=0;i<MAP_MAX_BUTTONS;i++) {
+		for (uint i=0;i<MAP_MAX_BUTTONS;i++) {
 			filter_buttons[i].pressed = i==umgebung_t::default_mapmode;
 		}
 		if(  legend_visible!=show_legend_state  ) {

@@ -29,150 +29,172 @@
 
 #define LEFT_ARROW (130)
 #define RIGHT_ARROW (180)
-#define TEXT_RIGHT (165) // 10 are offset in routine ..
+#define TEXT_RIGHT (D_MARGIN_LEFT+165)
+
 
 /**
  * set the climate borders
  * @author prissi
  */
-
 climate_gui_t::climate_gui_t(settings_t* const sets) :
 	gui_frame_t( translator::translate("Climate Control") )
 {
 	this->sets = sets;
 
-	// select map stuff ..
-	int intTopOfButton = 4;
+	sint16 labelnr=0;
 
 	// mountian/water stuff
-	water_level.set_pos(koord(LEFT_ARROW,intTopOfButton) );
-	water_level.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
-	water_level.set_limits( -10, 0 );
-	water_level.set_value( sets->get_grundwasser() );
-	water_level.wrap_mode( false );
+	sint16 y = D_MARGIN_TOP;
+	numberinput_lbl[labelnr].init( "Water level", koord( D_MARGIN_LEFT, y ) );
+	add_komponente( numberinput_lbl+labelnr );
+	labelnr++;
+
+	water_level.init( sets->get_grundwasser(), -10, 0, gui_numberinput_t::AUTOLINEAR, false );
+	water_level.set_pos( koord(LEFT_ARROW,y) );
+	water_level.set_groesse( koord(RIGHT_ARROW-LEFT_ARROW+10, D_BUTTON_HEIGHT) );
 	water_level.add_listener( this );
 	add_komponente( &water_level );
-	intTopOfButton += 12;
+	y += D_BUTTON_HEIGHT;
 
-	mountain_height.set_pos(koord(LEFT_ARROW,intTopOfButton) );
-	mountain_height.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
-	mountain_height.set_limits( 0, 320 );
-	mountain_height.set_increment_mode( 10 );
-	mountain_height.set_value( (int)sets->get_max_mountain_height() );
-	mountain_height.wrap_mode( false );
+	numberinput_lbl[labelnr].init( "Mountain height", koord( D_MARGIN_LEFT, y ) );
+	add_komponente( numberinput_lbl+labelnr );
+	labelnr++;
+
+	mountain_height.init( (int)sets->get_max_mountain_height(), 0, 320, 10, false );
+	mountain_height.set_pos( koord(LEFT_ARROW,y) );
+	mountain_height.set_groesse( koord(RIGHT_ARROW-LEFT_ARROW+10, D_BUTTON_HEIGHT) );
 	mountain_height.add_listener( this );
 	add_komponente( &mountain_height );
-	intTopOfButton += 12;
+	y += D_BUTTON_HEIGHT;
 
-	mountain_roughness.set_pos(koord(LEFT_ARROW,intTopOfButton) );
-	mountain_roughness.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
+	numberinput_lbl[labelnr].init( "Map roughness", koord( D_MARGIN_LEFT, y ) );
+	add_komponente( numberinput_lbl+labelnr );
+	labelnr++;
+
 #ifndef DOUBLE_GROUNDS
-	mountain_roughness.set_limits( -7, 7 );
+	mountain_roughness.init( (int)(sets->get_map_roughness()*20.0 + 0.5)-8, 0, 7, gui_numberinput_t::AUTOLINEAR, false );
 #else
-	mountain_roughness.set_limits( 0, 10 );
+	mountain_roughness.init( (int)(sets->get_map_roughness()*20.0 + 0.5)-8, 0, 10, gui_numberinput_t::AUTOLINEAR, false );
 #endif
-	mountain_roughness.set_value( (int)(sets->get_map_roughness()*20.0 + 0.5)-8 );
-	mountain_roughness.wrap_mode( false );
+	mountain_roughness.set_pos( koord(LEFT_ARROW,y) );
+	mountain_roughness.set_groesse( koord(RIGHT_ARROW-LEFT_ARROW+10, D_BUTTON_HEIGHT) );
 	mountain_roughness.add_listener( this );
 	add_komponente( &mountain_roughness );
-	intTopOfButton += 12;
+	y += D_BUTTON_HEIGHT;
 
-	hilly.init( button_t::square_state, "Hilly landscape", koord(10,intTopOfButton), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT)); // right align
+	hilly.init( button_t::square_state, "Hilly landscape", koord(10, y), koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT)); // right align
 	hilly.pressed=umgebung_t::hilly;
 	hilly.add_listener( this );
 	add_komponente( &hilly );
-	intTopOfButton += 12;
+	y += D_BUTTON_HEIGHT;
 
-	cities_ignore_height.init( button_t::square_state, "Cities ignore height", koord(10,intTopOfButton), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT)); // right align
+	cities_ignore_height.init( button_t::square_state, "Cities ignore height", koord(10, y), koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT)); // right align
 	cities_ignore_height.set_tooltip("Cities will be built all over the terrain, rather than preferring lower ground");
 	cities_ignore_height.pressed=umgebung_t::cities_ignore_height;
 	cities_ignore_height.add_listener( this );
 	add_komponente( &cities_ignore_height );
-	intTopOfButton += 12;
+	y += D_BUTTON_HEIGHT;
 
-	cities_like_water.set_pos(koord(LEFT_ARROW,intTopOfButton) );
-	cities_like_water.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
+	cities_like_water.set_pos(koord(LEFT_ARROW, y) );
+	cities_like_water.set_groesse(koord(RIGHT_ARROW - LEFT_ARROW + 10, D_BUTTON_HEIGHT));
 	cities_like_water.set_limits( 0, 100 );
 	cities_like_water.set_value( (int)(umgebung_t::cities_like_water));
 	cities_like_water.wrap_mode( false );
 	cities_like_water.add_listener( this );
 	add_komponente( &cities_like_water );
-	intTopOfButton += 12;
+	y += D_BUTTON_HEIGHT;
 
 	// summer snowline always starting above highest climate
-	intTopOfButton += 18+5;
+	numberinput_lbl[labelnr].init( "Summer snowline", koord( D_MARGIN_LEFT, y ) );
+	add_komponente( numberinput_lbl+labelnr );
+	labelnr++;
+
+	sprintf( snowline_txt ,"%d", sets->get_climate_borders()[arctic_climate] );
+	summer_snowline.init( NULL, koord( TEXT_RIGHT, y ), COL_WHITE, gui_label_t::right );
+	summer_snowline.set_text_pointer( snowline_txt );
+	add_komponente( &summer_snowline );
+	y += D_BUTTON_HEIGHT+D_V_SPACE;
 
 	// artic starts at maximum end of climate
-	snowline_winter.set_pos(koord(LEFT_ARROW,intTopOfButton) );
-	snowline_winter.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
-	snowline_winter.set_value( sets->get_winter_snowline() );
-	snowline_winter.wrap_mode( false );
+	numberinput_lbl[labelnr].init( "Winter snowline", koord( D_MARGIN_LEFT, y ) );
+	add_komponente( numberinput_lbl+labelnr );
+	labelnr++;
+
+	snowline_winter.init( sets->get_winter_snowline(), 0, 24, gui_numberinput_t::AUTOLINEAR, false );
+	snowline_winter.set_pos( koord(LEFT_ARROW,y) );
+	snowline_winter.set_groesse( koord(RIGHT_ARROW-LEFT_ARROW+10, D_BUTTON_HEIGHT) );
 	snowline_winter.add_listener( this );
 	add_komponente( &snowline_winter );
-	intTopOfButton += 12+5;
+	y += D_BUTTON_HEIGHT+D_V_SPACE;
 
 	// other climate borders ...
 	sint16 arctic = 0;
 	for(  int i=desert_climate-1;  i<=rocky_climate-1;  i++  ) {
 
-		climate_borders_ui[i].set_pos(koord(LEFT_ARROW,intTopOfButton) );
-		climate_borders_ui[i].set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
-		climate_borders_ui[i].set_limits( 0, 24 );
-		climate_borders_ui[i].set_value( sets->get_climate_borders()[i+1] );
-		climate_borders_ui[i].wrap_mode( false );
+		numberinput_lbl[labelnr].init( grund_besch_t::get_climate_name_from_bit((climate)(i+1)), koord( D_MARGIN_LEFT, y ) );
+		add_komponente( numberinput_lbl+labelnr );
+		labelnr++;
+
+		climate_borders_ui[i].init( sets->get_climate_borders()[i+1], 0, 24, gui_numberinput_t::AUTOLINEAR, false );
+		climate_borders_ui[i].set_pos( koord(LEFT_ARROW,y) );
+		climate_borders_ui[i].set_groesse( koord(RIGHT_ARROW-LEFT_ARROW+10, D_BUTTON_HEIGHT) );
 		climate_borders_ui[i].add_listener( this );
 		add_komponente( climate_borders_ui+i );
 		if(sets->get_climate_borders()[i]>arctic) {
 			arctic = sets->get_climate_borders()[i];
 		}
-		intTopOfButton += 12;
+		y += D_BUTTON_HEIGHT;
 	}
 	snowline_winter.set_limits( 0, arctic );
-	intTopOfButton += 5;
+	y += 5;
 
-	no_tree.init( button_t::square_state, "no tree", koord(10,intTopOfButton) ); // right align
+	no_tree.init( button_t::square_state, "no tree", koord(10,y) ); // right align
 	no_tree.pressed = sets->get_no_trees();
 	no_tree.add_listener( this );
 	add_komponente( &no_tree );
-	intTopOfButton += 12+4;
+	y += D_BUTTON_HEIGHT+4;
 
 	hilly.pressed = umgebung_t::hilly;
 
 	cities_ignore_height.pressed = umgebung_t::cities_ignore_height;
 	cities_like_water.set_value( (int)(umgebung_t::cities_like_water));
 
-	river_n.set_pos(koord(LEFT_ARROW,intTopOfButton) );
-	river_n.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
-	river_n.add_listener(this);
-	river_n.set_limits(0,32767);
-	river_n.set_value( sets->get_river_number() );
-	river_n.wrap_mode( false );
-	add_komponente( &river_n );
-	intTopOfButton += 12;
+	// and finally river stuff
+	numberinput_lbl[labelnr].init( "Number of rivers", koord( D_MARGIN_LEFT, y ) );
+	add_komponente( numberinput_lbl+labelnr );
+	labelnr++;
 
-	river_min.set_pos(koord(LEFT_ARROW,intTopOfButton) );
-	river_min.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
-	river_min.set_limits(0,max(16,sets->get_max_river_length())-16);
-	river_min.set_value( sets->get_min_river_length() );
-	river_min.wrap_mode( false );
+	river_n.init( sets->get_river_number(), 0, 1024, gui_numberinput_t::POWER2, false );
+	river_n.set_pos( koord(LEFT_ARROW,y) );
+	river_n.set_groesse( koord(RIGHT_ARROW-LEFT_ARROW+10, D_BUTTON_HEIGHT) );
+	river_n.add_listener(this);
+	add_komponente( &river_n );
+	y += D_BUTTON_HEIGHT;
+
+	numberinput_lbl[labelnr].init( "minimum length of rivers", koord( D_MARGIN_LEFT, y ) );
+	add_komponente( numberinput_lbl+labelnr );
+	labelnr++;
+
+	river_min.init( sets->get_min_river_length(), 0, max(16,sets->get_max_river_length())-16, gui_numberinput_t::AUTOLINEAR, false );
+	river_min.set_pos( koord(LEFT_ARROW,y) );
+	river_min.set_groesse( koord(RIGHT_ARROW-LEFT_ARROW+10, D_BUTTON_HEIGHT) );
 	river_min.add_listener(this);
 	add_komponente( &river_min );
-	intTopOfButton += 12;
+	y += D_BUTTON_HEIGHT;
 
-	river_max.set_pos(koord(LEFT_ARROW,intTopOfButton) );
-	river_max.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
-	river_max.set_limits(sets->get_min_river_length()+16,32767);
-	river_max.set_value( sets->get_max_river_length() );
-	river_max.wrap_mode( false );
+	numberinput_lbl[labelnr].init( "maximum length of rivers", koord( D_MARGIN_LEFT, y ) );
+	add_komponente( numberinput_lbl+labelnr );
+	labelnr++;
+
+	river_max.init( sets->get_max_river_length(), sets->get_min_river_length()+16, 1024, gui_numberinput_t::AUTOLINEAR, false );
+	river_max.set_pos( koord(LEFT_ARROW,y) );
+	river_max.set_groesse( koord(RIGHT_ARROW-LEFT_ARROW+10, D_BUTTON_HEIGHT) );
 	river_max.add_listener(this);
 	add_komponente( &river_max );
-	intTopOfButton += 12;
+	y += D_BUTTON_HEIGHT;
 
-	set_fenstergroesse( koord(RIGHT_ARROW+16, intTopOfButton+4+16) );
+	set_fenstergroesse( koord(RIGHT_ARROW+D_BUTTON_HEIGHT+D_MARGIN_RIGHT, y+D_MARGIN_BOTTOM+D_TITLEBAR_HEIGHT) );
 }
-
-
-
 
 
 /**
@@ -256,56 +278,12 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		}
 		snowline_winter.set_limits( 0, arctic );
 	}
+	sprintf( snowline_txt ,"%d", sets->get_climate_borders()[arctic_climate] );
 	return true;
 }
 
 
-
-
-void climate_gui_t::zeichnen(koord pos, koord gr)
+void climate_gui_t::update_river_number( sint16 new_river_number )
 {
-	gui_frame_t::zeichnen(pos, gr);
-
-	const int x = pos.x+10;
-	int y = pos.y+16+4;
-
-	// water level       18-Nov-01       Markus W. Added
-	display_proportional_clip(x, y, translator::translate("Water level"), ALIGN_LEFT, COL_BLACK, true);
-	y += 12;
-	display_proportional_clip(x, y, translator::translate("Mountain height"), ALIGN_LEFT, COL_BLACK, true);
-	y += 12;
-	display_proportional_clip(x, y, translator::translate("Map roughness"), ALIGN_LEFT, COL_BLACK, true);
-	y += 36;
-	display_proportional_clip(x, y, translator::translate("Cities like water"), ALIGN_LEFT, COL_BLACK, true);
-	y += 12+5;
-
-	// season stuff
-	display_proportional_clip(x, y, translator::translate("Summer snowline"), ALIGN_LEFT, COL_BLACK, true);
-	display_proportional_clip(x+TEXT_RIGHT, y, ntos( sets->get_climate_borders()[arctic_climate], 0) , ALIGN_RIGHT, COL_WHITE, true);     // x = round(roughness * 10)-4  // 0.6 * 10 - 4 = 2    //29-Nov-01     Markus W. Added
-	y += 12+5;
-	display_proportional_clip(x, y, translator::translate("Winter snowline"), ALIGN_LEFT, COL_BLACK, true);
-	y += 12+5;
-
-	// climate borders
-	display_proportional_clip(x, y, translator::translate(grund_besch_t::get_climate_name_from_bit(desert_climate)), ALIGN_LEFT, COL_BLACK, true);
-	y += 12;
-	display_proportional_clip(x, y, translator::translate(grund_besch_t::get_climate_name_from_bit(tropic_climate)), ALIGN_LEFT, COL_BLACK, true);
-	y += 12;
-	display_proportional_clip(x, y, translator::translate(grund_besch_t::get_climate_name_from_bit(mediterran_climate)), ALIGN_LEFT, COL_BLACK, true);
-	y += 12;
-	display_proportional_clip(x, y, translator::translate(grund_besch_t::get_climate_name_from_bit(temperate_climate)), ALIGN_LEFT, COL_BLACK, true);
-	y += 12;
-	display_proportional_clip(x, y, translator::translate(grund_besch_t::get_climate_name_from_bit(tundra_climate)), ALIGN_LEFT, COL_BLACK, true);
-	y += 12;
-	display_proportional_clip(x, y, translator::translate(grund_besch_t::get_climate_name_from_bit(rocky_climate)), ALIGN_LEFT, COL_BLACK, true);
-	y += 12;
-
-	y += 12+5+5;	// no tree
-
-	display_proportional_clip(x, y, translator::translate("Number of rivers"), ALIGN_LEFT, COL_BLACK, true);
-	y += 12;
-	display_proportional_clip(x, y, translator::translate("minimum length of rivers"), ALIGN_LEFT, COL_BLACK, true);
-	y += 12;
-	display_proportional_clip(x, y, translator::translate("maximum length of rivers"), ALIGN_LEFT, COL_BLACK, true);
-	y += 12;
+	river_n.set_value( new_river_number );
 }

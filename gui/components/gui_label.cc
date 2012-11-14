@@ -17,7 +17,7 @@
 #include "../../utils/simstring.h"
 
 
-gui_label_t::gui_label_t(const char* text, int color_, align_t align_) :
+gui_label_t::gui_label_t(const char* text, COLOR_VAL color_, align_t align_) :
 	align(align_),
 	color(color_)
 {

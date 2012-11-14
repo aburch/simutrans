@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansj�rg Malthaner
+ * Copyright (c) 1997 - 2001 Hj. Malthaner
  *
  * This file is part of the Simutrans project under the artistic license.
  */
@@ -257,6 +257,35 @@ void log_t::fatal(const char *who, const char *format, ...)
 	abort();
 }
 
+
+
+void log_t::vmessage(const char *what, const char *who, const char *format, va_list args )
+{
+	if(debuglevel>0) {
+		va_list args2;
+#ifdef __va_copy
+		__va_copy(args2, args);
+#else
+		// HACK: this is undefined behavior but should work ... hopefully ...
+		args2 = args;
+#endif
+		if( log ) {                         /* nur loggen wenn schon ein log */
+			fprintf(log ,"%s: %s:\t", what, who);      /* geoeffnet worden ist */
+			vfprintf(log, format, args);
+			fprintf(log,"\n");
+
+			if( force_flush ) {
+				fflush(log);
+			}
+		}
+		if( tee ) {                         /* nur loggen wenn schon ein log */
+			fprintf(tee,"%s: %s:\t", what, who);      /* geoeffnet worden ist */;
+			vfprintf(tee, format, args2);
+			fprintf(tee,"\n");
+		}
+		va_end(args2);
+	}
+}
 
 
 // create a logfile for log_debug=true

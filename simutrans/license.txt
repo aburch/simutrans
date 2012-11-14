@@ -1,6 +1,6 @@
 This is the simutrans source code.
-(c) 1997-2003 Hans Joerg Malthaner
-(c) since 2004 The Simutrans Team
+(c) 1997-2004 Hj. Malthaner
+(c) since 2005 The Simutrans Team
 
 Simutrans source code is provided by the current simutrans team
 (team64@simutrans.com) as copyright holder under the artistic license.

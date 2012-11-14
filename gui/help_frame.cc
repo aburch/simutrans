@@ -183,7 +183,7 @@ void help_frame_t::set_helpfile(const char *filename, bool resize_frame )
 		// and the actual help text (if not identical)
 		if(  const char *buf = load_text( filename )  ) {
 			set_text( buf, resize_frame );
-			guarded_free( (void *)buf );
+			guarded_free(const_cast<char *>(buf));
 		}
 		else {
 			set_text( "<title>Error</title>Help text not found", resize_frame );
@@ -193,11 +193,11 @@ void help_frame_t::set_helpfile(const char *filename, bool resize_frame )
 		// default text when opening general help
 		if(  const char *buf = load_text( "about.txt" )  ) {
 			set_text( buf, resize_frame );
-			guarded_free( (void *)buf );
+			guarded_free(const_cast<char *>(buf));
 		}
 		else if(  const char *buf = load_text( "simutrans.txt" )  ) {
 			set_text( buf, resize_frame );
-			guarded_free( (void *)buf );
+			guarded_free(const_cast<char *>(buf));
 		}
 		else {
 			set_text( "", resize_frame );
@@ -430,9 +430,10 @@ help_frame_t::help_frame_t(char const* const filename) :
 		add_helpfile( how_to_play, "Spielerliste", "players.txt", false, 0 );
 		add_helpfile( how_to_play, "Finanzen", "finances.txt", false, 1 );
 		add_helpfile( how_to_play, "Farbe", "color.txt", false, 1 );
+//		add_helpfile( how_to_play, "Scenario", "scenario.txt", false, 1 );
 		add_helpfile( how_to_play, "Enter Password", "password.txt", false, 1 );
 
-		add_helpfile( others, "Einstellungen", "options.txt", false, 0 );
+		add_helpfile( others, "Einstellungen aendern", "options.txt", false, 0 );
 		add_helpfile( others, "Helligk. u. Farben", "display.txt", false, 0 );
 		add_helpfile( others, "Mailbox", "mailbox.txt", false, 0 );
 		add_helpfile( others, "Sound settings", "sound.txt", false, 0 );

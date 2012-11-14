@@ -198,7 +198,7 @@ void planquadrat_t::kartenboden_setzen(grund_t *bd)
  */
 void planquadrat_t::boden_ersetzen(grund_t *alt, grund_t *neu)
 {
-	assert(alt!=NULL  &&  neu!=NULL);
+	assert(alt!=NULL  &&  neu!=NULL  &&  !alt->is_halt()  );
 
 	if(ground_size<=1) {
 		assert(data.one==alt  ||  ground_size==0);
@@ -225,7 +225,6 @@ void planquadrat_t::boden_ersetzen(grund_t *alt, grund_t *neu)
 		while(  alt->get_top()>0  ) {
 			neu->obj_add( alt->obj_remove_top() );
 		}
-		// delete old ground
 		delete alt;
 	}
 }

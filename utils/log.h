@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hj. Malthaner
  *
  * This file is part of the Simutrans project under the artistic license.
  * (see license.txt)
@@ -8,6 +8,7 @@
 #ifndef tests_log_h
 #define tests_log_h
 
+#include <stdarg.h>
 #include <stdio.h>
 #include "../simtypes.h"
 
@@ -69,6 +70,11 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	void NORETURN fatal(const char* who, const char* format, ...);
+
+	/**
+	 * writes to log using va_lists
+	 */
+	void vmessage(const char *what, const char *who, const char *format,  va_list args );
 
 
 	void close();

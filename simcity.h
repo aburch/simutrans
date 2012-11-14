@@ -523,8 +523,8 @@ public:
 	// (called when removed by player, or by town)
 	void remove_gebaeude_from_stadt(gebaeude_t *gb);
 
-	// this function adds houses to the city house list
-	void add_gebaeude_to_stadt(const gebaeude_t *gb);
+	// this function adds houses to the city house list. ordered for multithreaded loading
+	void add_gebaeude_to_stadt(const gebaeude_t *gb, bool ordered=false);
 
 	// changes the weight; must be called if there is a new definition (tile) for that house
 	void update_gebaeude_from_stadt(gebaeude_t *gb);
@@ -639,7 +639,7 @@ public:
 
 	/* change size of city
 	* @author prissi */
-	void change_size( long delta_citicens );
+	void change_size( sint32 delta_citicens );
 
 	// when ng is false, no town growth any more
 	void set_citygrowth_yesno( bool ng ) { allow_citygrowth = ng; }

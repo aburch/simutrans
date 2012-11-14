@@ -56,6 +56,11 @@ class koord3d;
 class werkzeug_t;
 
 /**
+ * convert to displayed value
+ */
+inline sint64 convert_money(sint64 value) { return (value + 50) / 100; }
+
+/**
  * play info for simutrans human and AI are derived from this class
  */
 class spieler_t
@@ -89,7 +94,7 @@ protected:
 	 * Monthly maintenance cost
 	 * @author Hj. Malthaner
 	 */
-	sint32 maintenance[MAINT_COUNT];
+	sint64 maintenance[MAINT_COUNT];
 
 	/**
 	 * Die Welt in der gespielt wird.
@@ -234,7 +239,7 @@ public:
 
 	virtual ~spieler_t();
 
-	sint32 get_maintenance(int which) const { return maintenance[which]; }
+	sint64 get_maintenance(int which) const { return maintenance[which]; }
 
 	/**
 	 * Adds some amount to the maintenance costs
@@ -243,31 +248,20 @@ public:
 	 * @author Hj. Malthaner
 	 */
 
-	sint32 add_maintenance(sint32 change)
+	void add_maintenance(sint64 change)
 	{
 		maintenance[MAINT_INFRASTRUCTURE] += change;
-		return maintenance[MAINT_INFRASTRUCTURE];
+		//return maintenance[MAINT_INFRASTRUCTURE];
 	}
 
-	sint32 add_maintenance(sint32 change, int which)
+	void add_maintenance(sint64 change, int which)
 	{
 		maintenance[which] += change;
-		return maintenance[which];
+		//return maintenance[which];
 	}
 
-	static sint32 add_maintenance(spieler_t *sp, sint32 change) {
-		if(sp) {
-			return sp->add_maintenance(change, MAINT_INFRASTRUCTURE);
-		}
-		return 0;
-	}
-
-	static sint32 add_maintenance(spieler_t *sp, sint32 change, int which) {
-		if(sp) {
-			return sp->add_maintenance(change, which);
-		}
-		return 0;
-	}
+	static void add_maintenance(spieler_t *sp, sint32 change);
+	static void add_maintenance(spieler_t *sp, sint32 change, int which);
 
 	// Owen Rudge, finances
 	void buche(sint64 betrag, koord k, player_cost type);
@@ -360,6 +354,7 @@ public:
 	*/
 	sint64 get_finance_history_year(int year, int type) { return finance_history_year[year][type]; }
 	sint64 get_finance_history_month(int month, int type) { return finance_history_month[month][type]; }
+	sint64 get_finance_history_month_converted(int month, int type);
 
 	/**
 	 * Returns pointer to finance history for player

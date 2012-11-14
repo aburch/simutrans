@@ -57,6 +57,7 @@
  */
 
 #define baum_pri (50)
+#define pillar_pri (7)
 
 // priority of moving things: should be smaller than the priority of powerlines
 #define moving_obj_pri (100)
@@ -77,9 +78,9 @@ static uint8 type_to_pri[256]=
 	5, // smoke generator (not used any more)
 	150, 4, 4, // powerlines
 	6, // roadsign
-	6, // pillar
+	pillar_pri, // pillar
 	1, 1, 1, 1, // depots (must be before tunnel!)
-	7, // way objects (electrification)
+	8, // way objects (electrification)
 	0, // ways (always at the top!)
 	9, // label, indicates ownership: insert before trees
 	3, // field (factory extension)
@@ -489,6 +490,15 @@ bool dingliste_t::add(ding_t* ding)
 			for(  ;  i<top;  i++) {
 				baum_t const* const tree = ding_cast<baum_t>(obj.some[i]);
 				if (!tree  ||  compare_trees(ding, tree)) {
+					break;
+				}
+			}
+		}
+		else if (pri == pillar_pri) {
+			// pillars have to be sorted wrt their y-offset, too.
+			for(  ;  i<top;  i++) {
+				pillar_t const* const pillar = ding_cast<pillar_t>(obj.some[i]);
+				if (!pillar  ||  ding->get_yoff()  > pillar->get_yoff() ) {
 					break;
 				}
 			}

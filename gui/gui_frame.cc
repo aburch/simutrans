@@ -15,6 +15,7 @@
 #include "../simcolor.h"
 #include "../simgraph.h"
 #include "../simwin.h"
+#include "../simworld.h"
 #include "../player/simplay.h"
 
 #include "../besch/reader/obj_reader.h"
@@ -52,6 +53,7 @@ gui_frame_t::gui_frame_t(char const* const name, spieler_t const* const sp)
 	owner = sp;
 	container.set_pos(koord(0,D_TITLEBAR_HEIGHT));
 	set_resizemode(no_resize); //25-may-02	markus weber	added
+	opaque = true;
 	dirty = true;
 }
 
@@ -172,20 +174,25 @@ void gui_frame_t::zeichnen(koord pos, koord gr)
 	// draw background
 	PUSH_CLIP(pos.x+1,pos.y+D_TITLEBAR_HEIGHT,gr.x-2,gr.y-D_TITLEBAR_HEIGHT);
 
-	// Hajo: skinned windows code
-	if(skinverwaltung_t::window_skin!=NULL) {
-		const int img = skinverwaltung_t::window_skin->get_bild_nr(0);
+	if(  opaque  ) {
+		// Hajo: skinned windows code
+		if(skinverwaltung_t::window_skin!=NULL) {
+			const int img = skinverwaltung_t::window_skin->get_bild_nr(0);
 
-		for(int j=0; j<gr.y; j+=64) {
-			for(int i=0; i<gr.x; i+=64) {
-				// the background will not trigger a redraw!
-				display_color_img( img, pos.x+1 + i, pos.y+D_TITLEBAR_HEIGHT + j, 0, false, false );
+			for(int j=0; j<gr.y; j+=64) {
+				for(int i=0; i<gr.x; i+=64) {
+					// the background will not trigger a redraw!
+					display_color_img( img, pos.x+1 + i, pos.y+D_TITLEBAR_HEIGHT + j, 0, false, false );
+				}
 			}
+		}
+		else {
+			// empty box
+			display_fillbox_wh( pos.x+1, pos.y+D_TITLEBAR_HEIGHT, gr.x-2, gr.y-D_TITLEBAR_HEIGHT, MN_GREY1, false );
 		}
 	}
 	else {
-		// empty box
-		display_fillbox_wh( pos.x+1, pos.y+D_TITLEBAR_HEIGHT, gr.x-2, gr.y-D_TITLEBAR_HEIGHT, MN_GREY1, false );
+		display_blend_wh( pos.x+1, pos.y+D_TITLEBAR_HEIGHT, gr.x-2, gr.y-D_TITLEBAR_HEIGHT, color_transparent, percent_transparent );
 	}
 
 	// Hajo: left, right

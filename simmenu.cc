@@ -33,6 +33,7 @@
 
 #include "dataobj/umgebung.h"
 #include "dataobj/tabfile.h"
+#include "dataobj/scenario.h"
 
 #include "dings/roadsign.h"
 #include "dings/wayobj.h"
@@ -56,6 +57,19 @@ vector_tpl<werkzeug_t *>werkzeug_t::dialog_tool(DIALOGE_TOOL_COUNT);
 vector_tpl<toolbar_t *>werkzeug_t::toolbar_tool(0);
 
 char werkzeug_t::toolstr[1088];
+
+// separator in toolbars
+class wkz_dummy_t : public werkzeug_t {
+public:
+	wkz_dummy_t() : werkzeug_t(dummy_id) {}
+
+	bool init(karte_t*, spieler_t*) OVERRIDE { return false; }
+	bool is_init_network_save() const OVERRIDE { return true; }
+	bool is_work_network_save() const OVERRIDE { return true; }
+	bool is_move_network_save(spieler_t*) const OVERRIDE { return true; }
+};
+werkzeug_t *werkzeug_t::dummy = new wkz_dummy_t();
+
 
 
 
@@ -100,6 +114,7 @@ werkzeug_t *create_general_tool(int toolnr)
 		case WKZ_SLICED_AND_UNDERGROUND_VIEW: tool = new wkz_show_underground_t(); break;
 		case WKZ_BUY_HOUSE:        tool = new wkz_buy_house_t(); break;
 		case WKZ_CITYROAD:         tool = new wkz_build_cityroad(); break;
+		case WKZ_ERR_MESSAGE_TOOL: tool = new wkz_error_message_t(); break;
 		default:                   dbg->error("create_general_tool()","cannot satisfy request for general_tool[%i]!",toolnr);
 		                           return NULL;
 	}
@@ -313,193 +328,113 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 	tabfileobj_t contents;
 	menuconf.read(contents);
 
-	// ok, first init all tools
+	// structure to hold information for iterating through different tool types
+	struct tool_class_info_t {
+		const char* type;
+		uint16 count;
+		vector_tpl<werkzeug_t *> &tools;
+		const skin_besch_t *icons;
+		const skin_besch_t *cursor;
+		bool with_sound;
+
+	};
+	tool_class_info_t info[] = {
+		{ "general_tool", GENERAL_TOOL_COUNT, general_tool, skinverwaltung_t::werkzeuge_general, skinverwaltung_t::cursor_general, true },
+		{ "simple_tool",  SIMPLE_TOOL_COUNT,  simple_tool,  skinverwaltung_t::werkzeuge_simple,  NULL, false},
+		{ "dialog_tool",  DIALOGE_TOOL_COUNT, dialog_tool,  skinverwaltung_t::werkzeuge_dialoge, NULL, false }
+	};
+
+	// first init all tools
 	DBG_MESSAGE( "werkzeug_t::init_menu()", "Reading general menu" );
-	for(  uint16 i=0;  i<GENERAL_TOOL_COUNT;  i++  ) {
-		char id[256];
-		sprintf( id, "general_tool[%i]", i );
-		const char *str = contents.get( id );
-		/* str should now contain something like 1,2,-1
-		 * first parameter is the image number in "GeneralTools"
-		 * next is the cursor in "GeneralTools"
-		 * final is the sound
-		 * -1 will disable any of them
-		 */
-		werkzeug_t *w = general_tool[i];
-		if(*str  &&  *str!=',') {
-			// ok, first comes icon
-			while(*str==' ') {
-				str++;
-			}
-			uint16 icon = (uint16)atoi(str);
-			if(  icon==0  &&  *str!='0'  ) {
-				// check, if file name ...
-				int i=0;
-				while(  str[i]!=0  &&  str[i]!=','  ) {
-					i++;
-				}
-				const skin_besch_t *s=skinverwaltung_t::get_extra(str,i-1);
-				w->icon = s ? s->get_bild_nr(0) : IMG_LEER;
-			}
-			else {
-				if(  icon>=skinverwaltung_t::werkzeuge_general->get_bild_anzahl()  ) {
-					dbg->fatal( "werkzeug_t::init_menu()", "wrong icon (%i) given for general_tool[%i]", icon, i );
-				}
-				w->icon = skinverwaltung_t::werkzeuge_general->get_bild_nr(icon);
-			}
-			do {
-				str++;
-			} while(*str  &&  *str!=',');
-		}
-		if(*str==',') {
-			// next comes cursor
-			str++;
-			if(*str!=',') {
-				uint16 cursor = (uint16)atoi(str);
-				if(  cursor>=skinverwaltung_t::cursor_general->get_bild_anzahl()  ) {
-					dbg->fatal( "werkzeug_t::init_menu()", "wrong cursor (%i) given for general_tool[%i]", cursor, i );
-				}
-				w->cursor = skinverwaltung_t::cursor_general->get_bild_nr(cursor);
-				do {
+	for(  uint16 t=0; t<3; t++) {
+		for(  uint16 i=0;  i<info[t].count;  i++  ) {
+			char id[256];
+			sprintf( id, "%s[%i]", info[t].type, i );
+			const char *str = contents.get( id );
+			/* Format of str:
+			 * for general tools: icon,cursor,sound,key
+			 *     icon is image number in menu.GeneralTools, cursor image number in cursor.GeneralTools
+			 * for simple and dialog tools: icon,key
+			 *     icon is image number in menu.SimpleTools and menu.DialogeTools
+			 * -1 will disable any of them
+			 */
+			werkzeug_t *w = info[t].tools[i];
+			if(*str  &&  *str!=',') {
+				// ok, first comes icon
+				while(*str==' ') {
 					str++;
-				} while(*str  &&  *str!=',');
-			}
-		}
-		if(*str==',') {
-			// ok_sound
-			str++;
-			if(*str!=',') {
-				int sound = atoi(str);
-				if(  sound>0  ) {
-					w->ok_sound = sound_besch_t::get_compatible_sound_id(sound);
+				}
+				uint16 icon = (uint16)atoi(str);
+				if(  icon==0  &&  *str!='0'  ) {
+					// check, if file name ...
+					int i=0;
+					while(  str[i]!=0  &&  str[i]!=','  ) {
+						i++;
+					}
+					const skin_besch_t *s=skinverwaltung_t::get_extra(str,i-1);
+					w->icon = s ? s->get_bild_nr(0) : IMG_LEER;
+				}
+				else {
+					if(  icon>=info[t].icons->get_bild_anzahl()  ) {
+						dbg->warning( "werkzeug_t::init_menu()", "wrong icon (%i) given for %s[%i]", icon, info[t].type, i );
+					}
+					w->icon = info[t].icons->get_bild_nr(icon);
 				}
 				do {
 					str++;
 				} while(*str  &&  *str!=',');
 			}
-		}
-		if(*str==',') {
-			// key
-			str++;
-			while(*str==' ') {
-				str++;
+			if(info[t].cursor) {
+				if(*str==',') {
+					// next comes cursor
+					str++;
+					if(*str!=',') {
+						uint16 cursor = (uint16)atoi(str);
+						if(  cursor>=info[t].cursor->get_bild_anzahl()  ) {
+							dbg->warning( "werkzeug_t::init_menu()", "wrong cursor (%i) given for %s[%i]", cursor, info[t].type, i );
+						}
+						w->cursor = info[t].cursor->get_bild_nr(cursor);
+						do {
+							str++;
+						} while(*str  &&  *str!=',');
+					}
+				}
 			}
-			if(*str>=' ') {
-				w->command_key = str_to_key(str);
-				char_to_tool.append(w);
+			if(info[t].with_sound) {
+				if(*str==',') {
+					// ok_sound
+					str++;
+					if(*str!=',') {
+						int sound = atoi(str);
+						if(  sound>0  ) {
+							w->ok_sound = sound_besch_t::get_compatible_sound_id(sound);
+						}
+						do {
+							str++;
+						} while(*str  &&  *str!=',');
+					}
+				}
+			}
+			if(*str==',') {
+				// key
+				str++;
+				while(*str==' ') {
+					str++;
+				}
+				if(*str>=' ') {
+					w->command_key = str_to_key(str);
+					char_to_tool.append(w);
+				}
 			}
 		}
 	}
-
-	// now the simple tools
-	DBG_MESSAGE( "werkzeug_t::init_menu()", "Reading simple menu" );
-	for(  uint16 i=0;  i<SIMPLE_TOOL_COUNT;  i++  ) {
-		char id[256];
-		sprintf( id, "simple_tool[%i]", i );
-		const char *str = contents.get( id );
-		werkzeug_t *w = simple_tool[i];
-		/* str should now contain something like 1,2,-1
-		 * first parameter is the image number in "GeneralTools"
-		 * next is the cursor in "GeneralTools"
-		 * final is the sound
-		 * -1 will disable any of them
-		 */
-		if(*str  &&  *str!=',') {
-			// ok, first come icon
-			while(*str==' ') {
-				str++;
-			}
-			uint16 icon = (uint16)atoi(str);
-			if(  icon==0  &&  *str!='0'  ) {
-				// check, if file name ...
-				int i=0;
-				while(  str[i]!=0  &&  str[i]!=','  ) {
-					i++;
-				}
-				const skin_besch_t *s=skinverwaltung_t::get_extra(str,i-1);
-				w->icon = s ? s->get_bild_nr(0) : IMG_LEER;
-			}
-			else {
-				if(  icon>=skinverwaltung_t::werkzeuge_simple->get_bild_anzahl()  ) {
-					dbg->fatal( "werkzeug_t::init_menu()", "wrong icon (%i) given for simple_tool[%i]", icon, i );
-				}
-				w->icon = skinverwaltung_t::werkzeuge_simple->get_bild_nr(icon);
-			}
-			do {
-				str++;
-			} while(*str  &&  *str!=',');
-		}
-		if(*str==',') {
-			// key
-			str++;
-			while(*str==' ') {
-				str++;
-			}
-			if(*str>=' ') {
-				w->command_key = str_to_key(str);
-				char_to_tool.append(w);
-			}
-		}
-	}
-
-	// now the dialoge tools
-	DBG_MESSAGE( "werkzeug_t::init_menu()", "Reading dialoge menu" );
-	for(  uint16 i=0;  i<DIALOGE_TOOL_COUNT;  i++  ) {
-		char id[256];
-		sprintf( id, "dialog_tool[%i]", i );
-		const char *str = contents.get( id );
-		werkzeug_t *w = dialog_tool[i];
-		/* str should now contain something like 1,2,-1
-		 * first parameter is the image number in "GeneralTools"
-		 * next is the cursor in "GeneralTools"
-		 * final is the sound
-		 * -1 will disable any of them
-		 */
-		if(*str  &&  *str!=',') {
-			// ok, first come icon
-			while(*str==' ') {
-				str++;
-			}
-			uint16 icon = (uint16)atoi(str);
-			if(  icon==0  &&  *str!='0'  ) {
-				// check, if file name ...
-				int i=0;
-				while(  str[i]!=0  &&  str[i]!=','  ) {
-					i++;
-				}
-				const skin_besch_t *s=skinverwaltung_t::get_extra(str,i-1);
-				w->icon = s ? s->get_bild_nr(0) : IMG_LEER;
-			}
-			else {
-				if(  icon>=skinverwaltung_t::werkzeuge_dialoge->get_bild_anzahl()  ) {
-					dbg->fatal( "werkzeug_t::init_menu()", "wrong icon (%i) given for dialoge_tool[%i]", icon, i );
-				}
-				w->icon = skinverwaltung_t::werkzeuge_dialoge->get_bild_nr(icon);
-			}
-			do {
-				str++;
-			} while(*str  &&  *str!=',');
-		}
-		if(*str==',') {
-			// key
-			str++;
-			while(*str==' ') {
-				str++;
-			}
-			if(*str>=' ') {
-				w->command_key = str_to_key(str);
-				char_to_tool.append(w);
-			}
-		}
-	}
-
 	// now the toolbar tools
 	DBG_MESSAGE( "werkzeug_t::read_menu()", "Reading toolbars" );
 	// default size
-	koord size( contents.get_int("icon_width",32), contents.get_int("icon_height",32) );
+	umgebung_t::iconsize = koord( contents.get_int("icon_width",32), contents.get_int("icon_height",32) );
 	// first: add main menu
 	toolbar_tool.resize( skinverwaltung_t::werkzeuge_toolbars->get_bild_anzahl() );
-	toolbar_tool.append(new toolbar_t(TOOLBAR_TOOL, "", "", size));
+	toolbar_tool.append(new toolbar_t(TOOLBAR_TOOL, "", "", umgebung_t::iconsize));
 	// now for the rest
 	for(  uint16 i=0;  i<toolbar_tool.get_count();  i++  ) {
 		char id[256];
@@ -516,12 +451,7 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 				// empty entry => toolbar finished ...
 				break;
 			}
-			/* str should now contain something like 1,2,-1
-			 * first parameter is the image number in "GeneralTools"
-			 * next is the cursor in "GeneralTools"
-			 * final is the sound
-			 * -1 will disable any of them
-			 */
+
 			werkzeug_t *addtool = NULL;
 
 			/* first, parse the string; we could have up to four parameters */
@@ -529,11 +459,18 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 			image_id icon = IMG_LEER;
 			const char *key_str = NULL;
 			const char *param_str = NULL;	// in case of toolbars, it will also contain the tooltip
-
-			while(*str!=']'  &&  *str) {
-				str ++;
-			}
-			while(*str==']'  ||  *str==' ') {
+			// parse until next zero-level comma
+			uint level = 0;
+			while(*str) {
+				if (*str == ')') {
+					level++;
+				}
+				else if (*str == '(') {
+					level--;
+				}
+				else if (*str == ','  &&  level == 0) {
+					break;
+				}
 				str++;
 			}
 			// icon
@@ -556,7 +493,8 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 					}
 					else {
 						if(  icon>=skinverwaltung_t::werkzeuge_toolbars->get_bild_anzahl()  ) {
-							dbg->fatal( "werkzeug_t::read_menu()", "wrong icon (%i) given for toolbar_tool[%i][%i]", icon, i, j );
+							dbg->warning( "werkzeug_t::read_menu()", "wrong icon (%i) given for toolbar_tool[%i][%i]", icon, i, j );
+							icon = 0;
 						}
 						icon = skinverwaltung_t::werkzeuge_toolbars->get_bild_nr(icon);
 					}
@@ -585,11 +523,12 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 					param_str = str;
 				}
 			}
+			bool create_tool = icon!=IMG_LEER  ||  key_str  ||  param_str;
 
 			if (char const* const c = strstart(toolname, "general_tool[")) {
 				uint8 toolnr = atoi(c);
 				if(  toolnr<GENERAL_TOOL_COUNT  ) {
-					if(icon!=IMG_LEER  ||  key_str  ||  param_str) {
+					if(create_tool) {
 						// compatibility mode: wkz_cityroad is used for wkz_wegebau with defaultparam 'cityroad'
 						if(  toolnr==WKZ_WEGEBAU  &&  param_str  &&  strcmp(param_str,"city_road")==0) {
 							toolnr = WKZ_CITYROAD;
@@ -599,17 +538,7 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 						addtool = create_general_tool( toolnr );
 						// copy defaults
 						*addtool = *(general_tool[toolnr]);
-						// add specials
-						if(icon!=IMG_LEER) {
-							addtool->icon = icon;
-						}
-						if(key_str!=NULL) {
-							addtool->command_key = str_to_key(key_str);
-							char_to_tool.append(addtool);
-						}
-						if(param_str!=NULL) {
-							addtool->default_param = strdup(param_str);
-						}
+
 						general_tool.append( addtool );
 					}
 					else {
@@ -622,19 +551,9 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 			} else if (char const* const c = strstart(toolname, "simple_tool[")) {
 				uint8 const toolnr = atoi(c);
 				if(  toolnr<SIMPLE_TOOL_COUNT  ) {
-					if(icon!=IMG_LEER  ||  key_str  ||  param_str) {
+					if(create_tool) {
 						addtool = create_simple_tool( toolnr );
 						*addtool = *(simple_tool[toolnr]);
-						if(icon!=IMG_LEER) {
-							addtool->icon = icon;
-						}
-						if(key_str!=NULL) {
-							addtool->command_key = str_to_key(key_str);
-							char_to_tool.append(addtool);
-						}
-						if(param_str!=NULL) {
-							addtool->default_param = strdup(param_str);
-						}
 						simple_tool.append( addtool );
 					}
 					else {
@@ -647,19 +566,9 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 			} else if (char const* const c = strstart(toolname, "dialog_tool[")) {
 				uint8 const toolnr = atoi(c);
 				if(  toolnr<DIALOGE_TOOL_COUNT  ) {
-					if(icon!=IMG_LEER  ||  key_str  ||  param_str) {
+					if(create_tool) {
 						addtool = create_dialog_tool( toolnr );
 						*addtool = *(dialog_tool[toolnr]);
-						if(icon!=IMG_LEER) {
-							addtool->icon = icon;
-						}
-						if(key_str!=NULL) {
-							addtool->command_key = str_to_key(key_str);
-							char_to_tool.append(addtool);
-						}
-						if(param_str!=NULL) {
-							addtool->default_param = strdup(param_str);
-						}
 						dialog_tool.append( addtool );
 					}
 					else {
@@ -674,31 +583,35 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 				assert(toolnr>0);
 				if(toolbar_tool.get_count()==toolnr) {
 					if(param_str==NULL) {
-						dbg->fatal( "werkzeug_t::read_menu()", "Missing parameter for toolbar" );
+						param_str = "Unnamed toolbar";
+						dbg->warning( "werkzeug_t::read_menu()", "Missing title for toolbar[%d]", toolnr);
 					}
 					char *c = strdup(param_str);
 					const char *title = c;
 					c += strcspn(c, ",");
 					if (*c != '\0') *c++ = '\0';
-					toolbar_t* const tb = new toolbar_t(toolbar_tool.get_count() | TOOLBAR_TOOL, title, c, size);
-					if(icon!=IMG_LEER) {
-						tb->icon = icon;
-					}
-					if(key_str!=NULL) {
-						tb->command_key = str_to_key(key_str);
-						char_to_tool.append(tb);
-					}
+					toolbar_t* const tb = new toolbar_t(toolbar_tool.get_count() | TOOLBAR_TOOL, title, c, umgebung_t::iconsize);
 					toolbar_tool.append(tb);
 					addtool = tb;
 				}
 			}
 			else {
 				// make a default tool to add the parameter here
-				addtool = new werkzeug_t(werkzeug_t::dummy_id);
+				addtool = new wkz_dummy_t();
 				addtool->default_param = strdup(toolname);
 				addtool->command_key = 1;
 			}
 			if(addtool) {
+				if(icon!=IMG_LEER) {
+					addtool->icon = icon;
+				}
+				if(key_str!=NULL) {
+					addtool->command_key = str_to_key(key_str);
+					char_to_tool.append(addtool);
+				}
+				if(param_str!=NULL  &&  ((addtool->get_id() & TOOLBAR_TOOL) == 0)) {
+					addtool->default_param = strdup(param_str);
+				}
 				toolbar_tool[i]->append(addtool);
 			}
 		}
@@ -711,8 +624,18 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 void werkzeug_t::update_toolbars(karte_t *welt)
 {
 	// renew toolbar
-	FOR(vector_tpl<toolbar_t*>, const i, toolbar_tool) {
-		i->update(welt, welt->get_active_player());
+	// iterate twice, to get correct icons if a toolbar changes between empty and non-empty
+	for(uint j=0; j<2; j++) {
+		bool change = false;
+		FOR(vector_tpl<toolbar_t*>, const i, toolbar_tool) {
+			bool old_icon_empty = i->get_icon(welt->get_active_player()) == IMG_LEER;
+			i->update(welt, welt->get_active_player());
+			change |= old_icon_empty ^ (i->get_icon(welt->get_active_player()) == IMG_LEER);
+		}
+		if (!change) {
+			// no toolbar changes between empty and non-empty, no need to loop again
+			break;
+		}
 	}
 }
 
@@ -737,24 +660,23 @@ const char *werkzeug_t::check_pos( karte_t *welt, spieler_t *, koord3d pos )
 	return (gr  &&  !gr->is_visible()) ? "" : NULL;
 }
 
+/**
+ * Initializes cursor object: image, y-offset, size of marked area,
+ * has to be called after init().
+ * @param zeiger cursor object
+ */
+void werkzeug_t::init_cursor( zeiger_t *zeiger) const
+{
+	zeiger->set_bild( cursor );
+	zeiger->set_yoff( offset );
+	zeiger->set_area( cursor_area, cursor_centered);
+}
+
 const char *kartenboden_werkzeug_t::check_pos( karte_t *welt, spieler_t *, koord3d pos )
 {
 	grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
 	return (gr  &&  !gr->is_visible()) ? "" : NULL;
 }
-
-// seperator in toolbars
-class wkz_dummy_t : public werkzeug_t {
-public:
-	wkz_dummy_t() : werkzeug_t(dummy_id) {}
-
-	bool init(karte_t*, spieler_t*) OVERRIDE { return false; }
-	bool is_init_network_save() const OVERRIDE { return true; }
-	bool is_work_network_save() const OVERRIDE { return true; }
-	bool is_move_network_save(spieler_t*) const OVERRIDE { return true; }
-};
-
-werkzeug_t *werkzeug_t::dummy = new wkz_dummy_t();
 
 
 
@@ -856,6 +778,10 @@ void toolbar_t::update(karte_t *welt, spieler_t *sp)
 			}
 			if(  create  ) {
 				DBG_DEBUG( "toolbar_t::update()", "add tool %i (param=%s)", w->get_id(), w->get_default_param() );
+			}
+			scenario_t *scen = welt->get_scenario();
+			if(  scen->is_scripted()  &&  !scen->is_tool_allowed(sp, w->get_id(), w->get_waytype())) {
+				continue;
 			}
 			// now add it to the toolbar gui
 			wzw->add_werkzeug( w );

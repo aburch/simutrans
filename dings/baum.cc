@@ -40,8 +40,10 @@ static const uint8 baum_bild_alter[12] =
 
 PLAYER_COLOR_VAL baum_t::outline_color = 0;
 
-// quick lookup of an image, assuming always five seaons and five ages
-// missing images hve just identical entires
+// quick lookup of an image, assuring always five seaons and five ages
+// missing images have just identical entires
+// seasons are: 0=autumn, 1=summer, 2=winter, 3=spring, 4=snow
+// snow image is used if tree is above snow line
 static image_id baumtype_to_bild[256][5*5];
 
 
@@ -171,8 +173,9 @@ bool baum_t::plant_tree_on_coordinate(karte_t * welt, koord pos, const baum_besc
 				}
 			}
 			baum_t *b = new baum_t(welt, gr->get_pos(), besch); //plants the tree
-			if(random_age) {
-				b->geburt = welt->get_current_month() - simrand(400, "baum_t::plant_tree_on_coordinate");
+			if(  random_age  ) {
+				b->geburt = welt->get_current_month() - simrand(703, "baum_t::plant_tree_on_coordinate");
+				b->calc_off( welt->lookup( b->get_pos() )->get_grund_hang() );
 			}
 			gr->obj_add( b );
 			return true; //tree was planted - currently unused value is not checked
@@ -289,13 +292,13 @@ bool baum_t::alles_geladen()
 						use_season = season;
 						// three possibilities
 						if(  seasons<4  ) {
-							// only summer and winter => seaons 2 and 5 with winter image
-							use_season = (season==2  ||  season==5);
+							// only summer and winter => season 4 with winter image
+							use_season = (season==4);
 						}
 						else if(  seasons==4  ) {
-							// all there, but the snowy special image
+							// all there, but the snowy special image missing
 							if(  season==4  ) {
-								// snowy winter graphics (3 or 5)
+								// take spring image (gave best results with pak64, pak.german)
 								use_season = 2;
 							}
 						}
@@ -371,35 +374,16 @@ void baum_t::rotate90()
 // actually calculates onyl the season
 void baum_t::calc_bild()
 {
-	const sint16 seasons = get_besch()->get_seasons();
-
-	season = 0;
-	if(seasons>1) {
-		// two possibilities
-		if(seasons<4) {
-			// only summer and winter
-			season = welt->get_snowline()<=get_pos().z;
-		}
-		else {
-			// summer autumn winter spring
-			season = welt->get_jahreszeit();
-			if(welt->get_snowline()<=get_pos().z) {
-				// change to winter
-				if(seasons==5) {
-					// snowy winter graphics (3 or 5)
-					season = 4;
-				}
-				else {
-					// no special winter graphics
-					season = 2;
-				}
-			}
-			else if(welt->get_snowline()<=get_pos().z+1  &&  season==0) {
-				// snowline crossing in summer
-				// so at least some weeks spring/autumn
-				season = welt->get_last_month() <=5 ? 3 : 1;
-			}
-		}
+	// summer autumn winter spring
+	season = welt->get_jahreszeit();
+	if(welt->get_snowline()<=get_pos().z) {
+		// snowy winter graphics
+		season = 4;
+	}
+	else if(welt->get_snowline()<=get_pos().z+1  &&  season==0) {
+		// snowline crossing in summer
+		// so at least some weeks spring/autumn
+		season = welt->get_last_month() <=5 ? 3 : 1;
 	}
 }
 
@@ -545,7 +529,6 @@ bool baum_t::check_season(long month)
 }
 
 
-
 void baum_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t d( file, "baum_t" );
@@ -612,7 +595,6 @@ void baum_t::zeige_info()
 }
 
 
-
 /**
  * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
  * Beobachtungsfenster angezeigt wird.
@@ -629,7 +611,6 @@ void baum_t::info(cbuffer_t & buf) const
 }
 
 
-
 void baum_t::entferne(spieler_t *sp) //"remove" (Babelfish)
 {
 	spieler_t::accounting(sp, welt->get_settings().cst_remove_tree, get_pos().get_2d(), COST_CONSTRUCTION);
@@ -637,12 +618,10 @@ void baum_t::entferne(spieler_t *sp) //"remove" (Babelfish)
 }
 
 
-
 void *baum_t::operator new(size_t /*s*/)
 {
 	return freelist_t::gimme_node(sizeof(baum_t));
 }
-
 
 
 void baum_t::operator delete(void *p)

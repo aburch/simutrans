@@ -58,7 +58,7 @@ depot_t::depot_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_tile_besc
 
 depot_t::~depot_t()
 {
-	destroy_win((long)this);
+	destroy_win((ptrdiff_t)this);
 	all_depots.remove(this);
 }
 
@@ -169,7 +169,7 @@ void depot_t::convoi_arrived(convoihandle_t acnv, bool fpl_adjust)
 	}
 	// this part stores the convoi in the depot
 	convois.append(acnv);
-	depot_frame_t *depot_frame = dynamic_cast<depot_frame_t *>(win_get_magic( (long)this ));
+	depot_frame_t *depot_frame = dynamic_cast<depot_frame_t *>(win_get_magic( (ptrdiff_t)this ));
 	if(depot_frame) {
 		depot_frame->action_triggered(NULL,(long int)0);
 	}
@@ -180,7 +180,7 @@ void depot_t::convoi_arrived(convoihandle_t acnv, bool fpl_adjust)
 
 void depot_t::zeige_info()
 {
-	create_win( new depot_frame_t(this), w_info, (long)this );
+	create_win( new depot_frame_t(this), w_info, (ptrdiff_t)this );
 }
 
 
@@ -286,7 +286,7 @@ convoihandle_t depot_t::add_convoi()
 	convoi_t* new_cnv = new convoi_t(get_besitzer());
 	new_cnv->set_home_depot(get_pos());
 	convois.append(new_cnv->self);
-	depot_frame_t *win = dynamic_cast<depot_frame_t *>(win_get_magic( (long)this ));
+	depot_frame_t *win = dynamic_cast<depot_frame_t *>(win_get_magic( (ptrdiff_t)this ));
 	if(  win  ) {
 		win->activate_convoi( new_cnv->self );
 	}
@@ -296,9 +296,11 @@ convoihandle_t depot_t::add_convoi()
 
 convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv)
 {
-	if (old_cnv.is_bound()  &&  !convoihandle_t::is_exhausted()) 
-	{
-		convoihandle_t new_cnv;
+	if(  old_cnv.is_bound()  &&  !convoihandle_t::is_exhausted()  &&
+		old_cnv->get_vehikel_anzahl() > 0  &&  get_waytype() == old_cnv->front()->get_besch()->get_waytype() ) {
+
+		convoihandle_t new_cnv = add_convoi();
+		new_cnv->set_name(old_cnv->get_internal_name());
 		int vehicle_count = old_cnv->get_vehikel_anzahl();
 		for (int i = 0; i < vehicle_count; i++) 
 		{
@@ -390,7 +392,7 @@ bool depot_t::disassemble_convoi(convoihandle_t cnv, bool sell)
 		if (convois.remove(cnv)) {
 			// actually removed cnv from depot, here icnv>=0
 			// make another the current selected convoi
-			depot_frame_t *win = dynamic_cast<depot_frame_t *>(win_get_magic( (long)this ));
+			depot_frame_t *win = dynamic_cast<depot_frame_t *>(win_get_magic( (ptrdiff_t)this ));
 			if(  win  ) {
 				win->activate_convoi( !convois.empty() ? convois.at( min((uint32)icnv, convois.get_count()-1) ) : convoihandle_t() );
 			}
@@ -410,7 +412,7 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 	if(cnv.is_bound() &&  cnv->get_schedule()!=NULL) {
 		if(!cnv->get_schedule()->ist_abgeschlossen()) {
 			// close the schedule window
-			destroy_win((long)cnv->get_schedule());
+			destroy_win((ptrdiff_t)cnv->get_schedule());
 		}
 	}
 
@@ -451,7 +453,7 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 			if (convois.remove(cnv)) {
 				// actually removed cnv from depot, here icnv>=0
 				// make another convoi the current selected one
-				depot_frame_t *win = dynamic_cast<depot_frame_t *>(win_get_magic( (long)this ));
+				depot_frame_t *win = dynamic_cast<depot_frame_t *>(win_get_magic( (ptrdiff_t)this ));
 				if(  win  ) {
 					if (local_execution) {
 						// change state of depot window only for local execution
@@ -611,7 +613,7 @@ vehikel_t* depot_t::find_oldest_newest(const vehikel_besch_t* besch, bool old, v
 
 slist_tpl<vehikel_besch_t*> & depot_t::get_vehicle_type()
 {
-	return vehikelbauer_t::get_info(get_wegtyp());
+	return vehikelbauer_t::get_info(get_waytype());
 }
 
 
@@ -636,7 +638,7 @@ vehikel_t* depot_t::get_oldest_vehicle(const vehikel_besch_t* besch)
 void depot_t::set_selected_line(const linehandle_t sel_line)
 {
 	selected_line = sel_line;
-	depot_frame_t *win = dynamic_cast<depot_frame_t *>(win_get_magic( (long)this ));
+	depot_frame_t *win = dynamic_cast<depot_frame_t *>(win_get_magic( (ptrdiff_t)this ));
 	if(  win  ) {
 		win->layout(NULL);
 		win->update_data();
@@ -714,9 +716,4 @@ void depot_t::update_all_win()
 	FOR(slist_tpl<depot_t*>, const d, all_depots) {
 		d->update_win();
 	}
-}
-
-unsigned bahndepot_t::get_max_convoi_length() const
-{
-	return convoi_t::max_rail_vehicle;
 }

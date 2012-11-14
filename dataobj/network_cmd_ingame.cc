@@ -4,9 +4,11 @@
 #include "network_packet.h"
 #include "network_socket_list.h"
 #include "network_cmp_pakset.h"
+#include "network_cmd_scenario.h"
 
 #include "loadsave.h"
 #include "gameinfo.h"
+#include "scenario.h"
 #include "../simtools.h"
 #include "../simmenu.h"
 #include "../simsys.h"
@@ -43,6 +45,9 @@ network_command_t* network_command_t::read_from_packet(packet_t *p)
 		case NWC_SERVICE:     nwc = new nwc_service_t(); break;
 		case NWC_AUTH_PLAYER: nwc = new nwc_auth_player_t(); break;
 		case NWC_CHG_PLAYER:  nwc = new nwc_chg_player_t(); break;
+		case NWC_SCENARIO:    nwc = new nwc_scenario_t(); break;
+		case NWC_SCENARIO_RULES:
+		                      nwc = new nwc_scenario_rules_t(); break;
 		case NWC_ROUTESEARCH: nwc = new nwc_routesearch_t(); break;
 		default:
 			dbg->warning("network_command_t::read_from_socket", "received unknown packet id %d", p->get_id());
@@ -675,7 +680,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 		bool old_restore_UI = umgebung_t::restore_UI;
 		umgebung_t::restore_UI = true;
 
-		welt->speichern(fn, SERVER_SAVEGAME_VER_NR, EXPERIMENTAL_VER_NR, false );
+		welt->speichern( fn, loadsave_t::autosave_mode, SERVER_SAVEGAME_VER_NR, EXPERIMENTAL_VER_NR, false );
 		uint32 old_sync_steps = welt->get_sync_steps();
 		welt->laden( fn );
 		umgebung_t::restore_UI = old_restore_UI;
@@ -718,7 +723,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 		sprintf( fn, "server%d-network.sve", umgebung_t::server );
 		bool old_restore_UI = umgebung_t::restore_UI;
 		umgebung_t::restore_UI = true;
-		welt->speichern(fn, SERVER_SAVEGAME_VER_NR, EXPERIMENTAL_VER_NR, false );
+		welt->speichern( fn, loadsave_t::save_mode, SERVER_SAVEGAME_VER_NR, EXPERIMENTAL_VER_NR, false );
 
 		// ok, now sending game
 		// this sends nwc_game_t
@@ -1036,6 +1041,7 @@ nwc_tool_t::nwc_tool_t(spieler_t *sp, werkzeug_t *wkz, koord3d pos_, uint32 sync
 	pos = pos_;
 	player_nr = sp ? sp->get_player_nr() : -1;
 	wkz_id = wkz->get_id();
+	wt = wkz->get_waytype();
 	const char *dfp = wkz->get_default_param(sp);
 	default_param = dfp ? strdup(dfp) : NULL;
 	init = init_;
@@ -1057,6 +1063,7 @@ nwc_tool_t::nwc_tool_t(const nwc_tool_t &nwt)
 	pos = nwt.pos;
 	player_nr = nwt.player_nr;
 	wkz_id = nwt.wkz_id;
+	wt = nwt.wt;
 	default_param = nwt.default_param ? strdup(nwt.default_param) : NULL;
 	init = nwt.init;
 	tool_client_id = nwt.our_client_id;
@@ -1086,6 +1093,7 @@ void nwc_tool_t::rdwr()
 	sint16 posy = pos.y; packet->rdwr_short(posy); pos.y = posy;
 	sint8  posz = pos.z; packet->rdwr_byte(posz);  pos.z = posz;
 	packet->rdwr_short(wkz_id);
+	packet->rdwr_short(wt);
 	packet->rdwr_str(default_param);
 	packet->rdwr_bool(init);
 	packet->rdwr_long(tool_client_id);
@@ -1126,6 +1134,25 @@ network_broadcast_world_command_t* nwc_tool_t::clone(karte_t *welt)
 			dbg->warning("nwc_tool_t::clone", "wanted to execute(%d) from another world", get_id());
 			return NULL; // indicate failure
 		}
+		// do not open dialog windows across network
+		if (wkz_id & DIALOGE_TOOL) {
+			return NULL; // indicate failure
+		}
+		// check for map editor tools - they need unlocked public player
+		switch( wkz_id ) {
+			case WKZ_CHANGE_CITY_SIZE | GENERAL_TOOL:
+			case WKZ_BUILD_HAUS | GENERAL_TOOL:
+			case WKZ_LAND_CHAIN | GENERAL_TOOL:
+			case WKZ_CITY_CHAIN | GENERAL_TOOL:
+			case WKZ_BUILD_FACTORY | GENERAL_TOOL:
+			case WKZ_LINK_FACTORY | GENERAL_TOOL:
+			case WKZ_ADD_CITYCAR | GENERAL_TOOL:
+			case WKZ_INCREASE_INDUSTRY | SIMPLE_TOOL:
+			case WKZ_STEP_YEAR | SIMPLE_TOOL:
+			case WKZ_FILL_TREES | SIMPLE_TOOL:
+				player_nr = 1;
+			default: ;
+		}
 		if ( player_nr < PLAYER_UNOWNED  &&  !socket_list_t::get_client(our_client_id).is_player_unlocked(player_nr) ) {
 			if (wkz_id == (WKZ_ADD_MESSAGE_TOOL|SIMPLE_TOOL)) {
 				player_nr = PLAYER_UNOWNED;
@@ -1135,6 +1162,28 @@ network_broadcast_world_command_t* nwc_tool_t::clone(karte_t *welt)
 				return NULL; // indicate failure
 			}
 		}
+		// do scenario checks here, send error message back
+		scenario_t *scen = welt->get_scenario();
+		if ( scen->is_scripted() ) {
+			if (!scen->is_tool_allowed(welt->get_spieler(player_nr), wkz_id, wt)) {
+				dbg->warning("nwc_tool_t::clone", "wkz=%d  wt=%d tool not allowed", wkz_id, wt);
+				// TODO return error message ?
+				return NULL;
+			}
+			if (!init) {
+				if (const char *err = scen->is_work_allowed_here(welt->get_spieler(player_nr), wkz_id, wt, pos) ) {
+					nwc_tool_t *nwt = new nwc_tool_t(*this);
+					nwt->wkz_id = WKZ_ERR_MESSAGE_TOOL | GENERAL_TOOL;
+					free( nwt->default_param );
+					nwt->default_param = strdup(err);
+					nwt->last_sync_step = welt->get_last_checklist_sync_step();
+					nwt->last_checklist = welt->get_last_checklist();
+					dbg->warning("nwc_tool_t::clone", "send sync_steps=%d  wkz=%d  error=%s", nwt->get_sync_step(), wkz_id, err);
+					return nwt;
+				}
+			}
+		}
+
 #if 0
 #error "Pause does not reset nwc_join_t::pending_join_client properly. Disabled for now here and in simwerkz.h (wkz_pause_t)"
 		// special care for unpause command
@@ -1199,12 +1248,12 @@ void nwc_tool_t::tool_node_t::set_tool(werkzeug_t *wkz_) {
 }
 
 
-void nwc_tool_t::tool_node_t::client_set_werkzeug(werkzeug_t* &wkz_new, const char* new_param, bool store, karte_t *welt, spieler_t *sp)
+void nwc_tool_t::tool_node_t::client_set_werkzeug(werkzeug_t* &wkz_new, const char* new_param, karte_t *welt, spieler_t *sp)
 {
 	assert(wkz_new);
 	// call init, before calling work
 	wkz_new->set_default_param(new_param);
-	if (wkz_new->init(welt, sp)  ||  store) {
+	if (wkz_new->init(welt, sp)) {
 		// exit old tool
 		if (wkz) {
 			wkz->exit(welt, sp);
@@ -1261,7 +1310,7 @@ void nwc_tool_t::do_command(karte_t *welt)
 				// init command was not sent if wkz->is_init_network_safe() returned true
 				wkz->flags = 0;
 				// init tool and set default_param
-				tool_node->client_set_werkzeug(wkz, default_param, true, welt, sp);
+				tool_node->client_set_werkzeug(wkz, default_param, welt, sp);
 			}
 		}
 
@@ -1280,7 +1329,7 @@ void nwc_tool_t::do_command(karte_t *welt)
 			if(  init  ) {
 				// we should be here only if wkz->init() returns false
 				// no need to change active tool of world
-				tool_node->client_set_werkzeug(wkz, default_param, false, welt, sp);
+				tool_node->client_set_werkzeug(wkz, default_param, welt, sp);
 			}
 			// call WORK
 			else {

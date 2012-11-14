@@ -89,15 +89,9 @@ protected:
 	 */
 	virtual void action(const char *filename);
 
-	/**
-	 * Aktion, die nach X-Knopfdruck gestartet wird.
-	 * @author V. Meyer
-	 */
-	virtual bool del_action(const char *filename);
-
 	// returns extra file info
 	virtual const char *get_info(const char *fname);
-	virtual void add_file(const char *filename, const bool not_cutting_suffix);
+	virtual void add_file(const char *fullpath, const char *filename, const bool not_cutting_suffix);
 
 public:
 	/**
@@ -105,7 +99,7 @@ public:
 	* @return den Dateinamen für die Hilfe, oder NULL
 	* @author Hj. Malthaner
 	*/
-	virtual const char * get_hilfe_datei() const;
+	virtual const char *get_hilfe_datei() const;
 
 	loadsave_frame_t(karte_t *welt, bool do_load);
 

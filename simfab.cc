@@ -16,15 +16,14 @@
 
 #include "simdebug.h"
 #include "simimg.h"
-#include "simmem.h"
 #include "simcolor.h"
+#include "simskin.h"
 #include "boden/grund.h"
 #include "boden/boden.h"
 #include "boden/fundament.h"
 #include "simfab.h"
 #include "simcity.h"
 #include "simhalt.h"
-#include "simskin.h"
 #include "simtools.h"
 #include "simware.h"
 #include "simworld.h"
@@ -45,7 +44,6 @@
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
 
-#include "besch/skin_besch.h"
 #include "besch/fabrik_besch.h"
 #include "bauer/hausbauer.h"
 #include "bauer/warenbauer.h"
@@ -62,6 +60,13 @@
 
 
 static const int FAB_MAX_INPUT = 15000;
+
+/**
+ * Convert internal values to displayed values
+ */
+sint64 convert_goods(sint64 value) { return ( (value + (1<<(fabrik_t::precision_bits-1))) >> fabrik_t::precision_bits ); }
+sint64 convert_power(sint64 value) { return ( value >> POWER_TO_MW ); }
+sint64 convert_boost(sint64 value) { return ( (value * 100 + (DEFAULT_PRODUCTION_FACTOR>>1)) >> DEFAULT_PRODUCTION_FACTOR_BITS ); }
 
 
 /**
@@ -660,7 +665,7 @@ fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
 		// now get rid of construction image
 		for(  sint16 y=0;  y<besch->get_haus()->get_h(rotate);  y++  ) {
 			for(  sint16 x=0;  x<besch->get_haus()->get_b(rotate);  x++  ) {
-				gebaeude_t *gb = welt->lookup_kartenboden( pos.get_2d()+koord(x,y) )->find<gebaeude_t>();
+				gebaeude_t *gb = welt->lookup_kartenboden( pos_origin.get_2d()+koord(x,y) )->find<gebaeude_t>();
 				if(  gb  ) {
 					gb->add_alter(10000);
 				}
@@ -676,6 +681,7 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 	pos(pos_)
 {
 	this->pos.z = welt->max_hgt(pos.get_2d());
+	pos_origin = pos;
 
 	besitzer_p = spieler;
 
@@ -812,7 +818,7 @@ void fabrik_t::delete_all_fields()
 		fields.pop_back();
 	}
 	// destroy chart window, if present
-	destroy_win( (long)this );
+	destroy_win((ptrdiff_t)this);
 }
 
 fabrik_t::~fabrik_t()
@@ -882,13 +888,15 @@ fabrik_t::~fabrik_t()
 void fabrik_t::baue(sint32 rotate, bool build_fields)
 {
 	this->rotate = rotate;
-	pos = welt->lookup_kartenboden(pos.get_2d())->get_pos();
-	hausbauer_t::baue(welt, besitzer_p, pos, rotate, besch->get_haus(), this);
-	pos = welt->lookup_kartenboden(pos.get_2d())->get_pos();
+	pos_origin = welt->lookup_kartenboden(pos_origin.get_2d())->get_pos();
+	gebaeude_t *gb = hausbauer_t::baue(welt, besitzer_p, pos_origin, rotate, besch->get_haus(), this);
+	pos = gb->get_pos();
+	pos_origin.z = pos.z;
+
 	if(besch->get_field_group()) {
 		// if there are fields
-		if(!fields.empty()) {
-			for( uint16 i=0;  i<fields.get_count();  i++  ) {
+		if(  !fields.empty()  ) {
+			for(  uint16 i=0;  i<fields.get_count();  i++   ) {
 				const koord k = fields[i].location;
 				grund_t *gr=welt->lookup_kartenboden(k);
 				if(  gr->ist_natur()  ) {
@@ -904,11 +912,11 @@ void fabrik_t::baue(sint32 rotate, bool build_fields)
 				}
 			}
 		}
-		else {
-			if (build_fields) {
-				// we will start with a certain minimum number
-				while(fields.get_count()<besch->get_field_group()->get_min_fields()  &&  add_random_field(10000u))
-					;
+		else if(  build_fields  ) {
+			// we will start with a minimum number and try to get closer to start_fields
+			const field_group_besch_t& field_group = *besch->get_field_group();
+			const uint16 spawn_fields = field_group.get_min_fields() + simrand( field_group.get_start_fields() - field_group.get_min_fields(), "fabrik_t::baue" );
+			while(  fields.get_count() < spawn_fields  &&  add_random_field(10000u)  ) {
 			}
 		}
 	}
@@ -1079,7 +1087,7 @@ void fabrik_t::set_name(const char *new_name)
 		name = new_name;
 	}
 
-	fabrik_info_t *win = dynamic_cast<fabrik_info_t*>(win_get_magic((long)this));
+	fabrik_info_t *win = dynamic_cast<fabrik_info_t*>(win_get_magic((ptrdiff_t)this));
 	if (win) {
 		win->update_info();
 	}
@@ -1117,8 +1125,8 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 			welt->add_missing_paks( s, karte_t::MISSING_FACTORY );
 		}
 	}
-	pos.rdwr(file);
-
+	pos_origin.rdwr(file);
+	// pos will be assigned after call to hausbauer_t::baue
 	file->rdwr_byte(rotate);
 
 	// now rebuilt information for received goods
@@ -1225,18 +1233,11 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 	file->rdwr_long(anz_lieferziele);
 
 	// connect/save consumer
-	if(file->is_loading()) {
-		koord k;
-		for(int i=0; i<anz_lieferziele; i++) {
-			k.rdwr(file);
-			add_lieferziel(k);
+	for(int i=0; i<anz_lieferziele; i++) {
+		if(file->is_loading()) {
+			lieferziele.append(koord::invalid);
 		}
-	}
-	else {
-		for(int i=0; i<anz_lieferziele; i++) {
-			koord k = lieferziele[i];
-			k.rdwr(file);
-		}
+		lieferziele[i].rdwr(file);
 	}
 
 	// information on fields ...
@@ -1904,7 +1905,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 			//  we will reroute some goods
 			if(  best->amount_waiting==0  &&  most_waiting.menge>0  ) {
 				// remove something from the most waiting goods
-				if(  best_halt->recall_ware( most_waiting, min((sint32)(most_waiting.menge/2), 1 - best->space_left) )  ) {
+				if(  best_halt->recall_ware( most_waiting, min((sint32)(most_waiting.menge/2), 1 - space_left) )  ) {
 					best_ware.menge += most_waiting.menge;
 				}
 				else {
@@ -2256,7 +2257,7 @@ void fabrik_t::recalc_factory_status()
 void fabrik_t::zeige_info()
 {
 	gebaeude_t *gb = welt->lookup(pos)->find<gebaeude_t>();
-	create_win(new fabrik_info_t(this, gb), w_info, (long)gb );
+	create_win(new fabrik_info_t(this, gb), w_info, (ptrdiff_t)this );
 }
 
 
@@ -2399,6 +2400,7 @@ void fabrik_t::laden_abschliessen()
 			fabrik_t * fab2 = fabrik_t::get_fab(welt, lieferziele[i]);
 			if (fab2) {
 				fab2->add_supplier(pos.get_2d());
+				lieferziele[i] = fab2->get_pos().get_2d();
 			}
 			else {
 				// remove this ...
@@ -2421,25 +2423,17 @@ void fabrik_t::laden_abschliessen()
 
 void fabrik_t::rotate90( const sint16 y_size )
 {
-	if(  this!=get_fab( welt, pos.get_2d() )  ){
-		// was not rotated, because tile (0,0) is missing
-		pos.rotate90( y_size );
-		dbg->warning( "fabrik_t::rotate90()","no tile zero form %s at (%s)", get_name(), pos.get_str() );
-	}
 	rotate = (rotate+3)%besch->get_haus()->get_all_layouts();
+	pos_origin.rotate90( y_size );
+	pos_origin.x -= besch->get_haus()->get_b(rotate)-1;
+	pos.rotate90( y_size );
+	dbg->warning("fabrik_t::rotate90", "pos = (%s) pos_org = (%s)", pos.get_str(), pos_origin.get_2d().get_str());
 
 	FOR(vector_tpl<koord>, & i, lieferziele) {
 		i.rotate90(y_size);
-		// on larger factories the target position changed too
-		if (fabrik_t* const fab = get_fab(welt, i)) {
-			i = fab->get_pos().get_2d();
-		}
 	}
 	FOR(vector_tpl<koord>, & i, suppliers) {
 		i.rotate90(y_size);
-		if (fabrik_t* const fab = get_fab(welt, i)) {
-			i = fab->get_pos().get_2d();
-		}
 	}
 	FOR(vector_tpl<field_data_t>, & i, fields) {
 		i.location.rotate90(y_size);
@@ -2462,7 +2456,6 @@ void fabrik_t::rem_supplier(koord pos)
 /** crossconnect everything possible */
 void fabrik_t::add_all_suppliers()
 {
-
 	for(int i=0; i < besch->get_lieferanten(); i++) {
 		const fabrik_lieferant_besch_t *lieferant = besch->get_lieferant(i);
 		const ware_besch_t *ware = lieferant->get_ware();

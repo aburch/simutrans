@@ -13,49 +13,38 @@
 #include "wegbauer.h"
 
 #include "../simworld.h"
-#include "../simgraph.h"
-#include "../simwin.h"
 #include "../simhalt.h"
 #include "../simdepot.h"
-#include "../besch/sound_besch.h"
 #include "../player/simplay.h"
-#include "../simskin.h"
 #include "../simtypes.h"
 
 #include "../boden/boden.h"
 #include "../boden/brueckenboden.h"
-#include "../boden/wege/monorail.h"
-#include "../boden/wege/schiene.h"
-#include "../boden/wege/strasse.h"
-#include "../boden/wege/kanal.h"
 
 #include "../gui/messagebox.h"
 #include "../gui/werkzeug_waehler.h"
 #include "../gui/karte.h"
 
 #include "../besch/bruecke_besch.h"
-#include "../besch/skin_besch.h"
 
+#include "../dataobj/scenario.h"
 #include "../dings/bruecke.h"
-#include "../dings/crossing.h"
 #include "../dings/leitung2.h"
 #include "../dings/pillar.h"
 #include "../dings/signal.h"
+#include "../dataobj/crossing_logic.h"
 
 #include "../tpl/stringhashtable_tpl.h"
 #include "../tpl/vector_tpl.h"
 
 
+/// All bridges hashed by name
 static stringhashtable_tpl<bruecke_besch_t *> bruecken_by_name;
 
 
-/**
- * Registers a new bridge type
- * @author V. Meyer, Hj. Malthaner
- */
 void brueckenbauer_t::register_besch(bruecke_besch_t *besch)
 {
-	// avoid duplicates with same name	// avoid duplicates with same name
+	// avoid duplicates with same name
 	if( const bruecke_besch_t *old_besch = bruecken_by_name.get(besch->get_name()) ) {
 		dbg->warning( "brueckenbauer_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
 		bruecken_by_name.remove(besch->get_name());
@@ -75,12 +64,10 @@ void brueckenbauer_t::register_besch(bruecke_besch_t *besch)
 }
 
 
-
 const bruecke_besch_t *brueckenbauer_t::get_besch(const char *name)
 {
 	return bruecken_by_name.get(name);
 }
-
 
 
 // "successfully load" (Babelfish)
@@ -143,19 +130,25 @@ const bruecke_besch_t *brueckenbauer_t::find_bridge(const waytype_t wtyp, const 
 }
 
 
+/**
+ * Compares the maximum speed of two bridges.
+ * @param a the first bridge.
+ * @param b the second bridge.
+ * @return true, if the speed of the second bridge is greater.
+ */
 static bool compare_bridges(const bruecke_besch_t* a, const bruecke_besch_t* b)
 {
 	return a->get_topspeed() < b->get_topspeed();
 }
 
 
-/**
- * Fill menu with icons of given waytype
- * @author Hj. Malthaner
- */
-
 void brueckenbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, sint16 /*sound_ok*/, const karte_t *welt)
 {
+	// check if scenario forbids this
+	if (!welt->get_scenario()->is_tool_allowed(welt->get_active_player(), WKZ_BRUECKENBAU | GENERAL_TOOL, wtyp)) {
+		return;
+	}
+
 	const uint16 time = welt->get_timeline_year_month();
 	vector_tpl<const bruecke_besch_t*> matching(bruecken_by_name.get_count());
 
@@ -177,17 +170,22 @@ void brueckenbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, s
 }
 
 
-
-koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const bruecke_besch_t *besch, const char *&error_msg, bool ai_bridge, uint32 min_length )
+koord3d brueckenbauer_t::finde_ende(karte_t *welt, spieler_t *sp, koord3d pos, koord zv, const bruecke_besch_t *besch, const char *&error_msg, bool ai_bridge, uint32 min_length )
 {
 	const grund_t *gr1; // on the level of the bridge
 	const grund_t *gr2; // the level under the bridge
+	scenario_t *scen = welt->get_scenario();
 	waytype_t wegtyp = besch->get_waytype();
 	error_msg = NULL;
 	uint16 length = 0;
 	do {
 		length ++;
 		pos = pos + zv;
+
+		// test scenario conditions
+		if ((error_msg = scen->is_work_allowed_here(sp, WKZ_BRUECKENBAU|GENERAL_TOOL, wegtyp, pos)) != NULL) {
+			return koord3d::invalid;
+		}
 
 		// test max length
 		if(besch->get_max_length()>0  &&  length > besch->get_max_length()) {
@@ -317,6 +315,15 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const 
 				}
 			}
 		}
+
+		// no bridges crossing runways
+		if(  grund_t *gr3 = welt->lookup_kartenboden( pos.get_2d() )  ) {
+			if(  gr3->hat_weg(air_wt)  &&  gr3->get_styp(air_wt)==1  ) {
+				// sytem_type==1 is runway
+				break;
+			}
+		}
+
 	} while(  !gr1  &&  // no bridge is crossing
 		(!gr2 || (gr2->get_grund_hang()==hang_t::flach  &&  gr2->get_weg_hang()==hang_t::flach)  ||  gr2->get_hoehe()<pos.z )  &&  // ground stays below bridge
 		(!ai_bridge || length <= welt->get_settings().way_max_bridge_len) // not too long in case of AI
@@ -427,7 +434,7 @@ const char *brueckenbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, cons
 	zv = koord(ribi_t::rueckwaerts(ribi));
 	// search for suitable bridge end tile
 	const char *msg;
-	koord3d end = finde_ende(welt, gr->get_pos(), zv, besch, msg );
+	koord3d end = finde_ende(welt, sp, gr->get_pos(), zv, besch, msg );
 
 	// found something?
 	if(msg!=NULL) {
@@ -456,8 +463,7 @@ DBG_MESSAGE("brueckenbauer_t::baue()", "end not ok");
 		}
 	}
 
-	// Anfang und ende sind geprueft, wir konnen endlich bauen
-	// "Beginning and end are approved, we can finally build" (Google)
+	// Start and end have been checked, we can start to build eventually
 	if(besch->get_waytype()==powerline_wt) {
 		baue_bruecke(welt, sp, gr->get_pos(), end, zv, besch, lt->get_besch() );
 	}
@@ -623,8 +629,6 @@ void brueckenbauer_t::baue_auffahrt(karte_t* welt, spieler_t* sp, koord3d end, k
 }
 
 
-
-
 const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, waytype_t wegtyp)
 {
 	marker_t    marker(welt->get_groesse_x(),welt->get_groesse_y());
@@ -755,8 +759,7 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 			// stops on flag bridges ends with road + track on it
 			// are not correctly deleted if ways are kept
 			if (gr->is_halt()) {
-				const char *fail = NULL;
-				haltestelle_t::remove(welt, sp, gr->get_pos(), fail);
+				haltestelle_t::remove(welt, sp, gr->get_pos());
 			}
 
 			// depots at bridge ends needs to be deleted as well

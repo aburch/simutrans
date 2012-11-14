@@ -56,6 +56,10 @@
 
 karte_t *spieler_t::welt = NULL;
 
+#if MULTI_THREAD>1
+#include <pthread.h>
+static pthread_mutex_t laden_abschl_mutex = PTHREAD_MUTEX_INITIALIZER;
+#endif
 
 /**
  * Encapsulate margin calculation  (Operating_Profit / Income)
@@ -139,7 +143,7 @@ spieler_t::~spieler_t()
 	while(  !messages.empty()  ) {
 		delete messages.remove_first();
 	}
-	destroy_win( (long)this );
+	destroy_win((ptrdiff_t)this);
 }
 
 
@@ -307,7 +311,7 @@ void spieler_t::neuer_monat()
 		buf.printf( translator::translate("Congratulation\nScenario was complete in\n%i months %i years."), time%12, time/12 );
 		create_win(280, 40, new news_img(buf), w_info, magic_none);
 		// disable further messages
-		welt->get_scenario()->init("",welt);
+		welt->get_scenario()->init("", "",welt);
 		return;
 	}
 
@@ -428,6 +432,29 @@ void spieler_t::neuer_monat()
 			// normal level.
 			base_credit_limit = get_base_credit_limit();
 		}
+	}
+
+	// Wartungskosten abziehen
+	calc_finance_history();
+	roll_finance_history_month();
+
+	if(welt->get_last_month()==0) {
+		roll_finance_history_year();
+	}
+
+	// new month has started => recalculate vehicle value
+	calc_assets();
+
+	calc_finance_history();
+
+	simlinemgmt.new_month();
+
+	// subtract maintenance
+	if(  welt->ticks_per_world_month_shift>=18  ) {
+		buche( -((sint64)maintenance) << (welt->ticks_per_world_month_shift-18), COST_MAINTENANCE);
+	}
+	else {
+		buche( -((sint64)maintenance) >> (18-welt->ticks_per_world_month_shift), COST_MAINTENANCE);
 	}
 }
 
@@ -551,6 +578,16 @@ sint64 spieler_t::get_base_credit_limit()
 {
 	return welt->get_settings().get_starting_money(welt->get_current_month() / 12) / 10ll;
 }
+
+sint64 spieler_t::get_finance_history_month_converted(int month, int type)
+{
+	sint64 value = finance_history_month[month][type];
+	if ((COST_CONSTRUCTION <= type  &&  type <= COST_OPERATING_PROFIT)  ||  type == COST_WAY_TOLLS  ||  type ==  COST_POWERLINES) {
+		value = convert_money(value);
+	}
+	return value;
+}
+
 
 void spieler_t::calc_assets()
 {
@@ -795,11 +832,12 @@ void spieler_t::ai_bankrupt()
 							case ding_t::senke:
 							case ding_t::pumpe:
 							case ding_t::wayobj:
+							case ding_t::label:
 								dt->entferne(this);
 								delete dt;
 								break;
 							case ding_t::leitung:
-								if (gr->ist_bruecke()) {
+								if(gr->ist_bruecke()) {
 									add_maintenance( -((leitung_t*)dt)->get_besch()->get_wartung() );
 									// do not remove powerline from bridges
 									dt->set_besitzer( welt->get_spieler(1) );
@@ -819,7 +857,7 @@ void spieler_t::ai_bankrupt()
 									w->set_besitzer( NULL );
 								}
 								else if(w->get_waytype()==road_wt  ||  w->get_waytype()==water_wt) {
-									add_maintenance( -w->get_besch()->get_wartung() );
+									add_maintenance(  -w->get_besch()->get_wartung() );
 									w->set_besitzer( NULL );
 								}
 								else {
@@ -1263,6 +1301,34 @@ void spieler_t::laden_abschliessen()
 }
 
 
+void spieler_t::add_maintenance(spieler_t *sp, sint32 change)
+{
+	if(sp) {
+#if MULTI_THREAD>1
+		pthread_mutex_lock( &laden_abschl_mutex );
+#endif
+		sp->add_maintenance(change);
+#if MULTI_THREAD>1
+		pthread_mutex_unlock( &laden_abschl_mutex );
+#endif
+	}
+}
+
+
+void spieler_t::add_maintenance(spieler_t *sp, sint32 change, int which)
+{
+	if(sp) {
+#if MULTI_THREAD>1
+		pthread_mutex_lock( &laden_abschl_mutex );
+#endif
+		sp->add_maintenance(change, which);
+#if MULTI_THREAD>1
+		pthread_mutex_unlock( &laden_abschl_mutex );
+#endif
+	}
+}
+
+
 void spieler_t::rotate90( const sint16 y_size )
 {
 	simlinemgmt.rotate90( y_size );
@@ -1400,12 +1466,12 @@ sint64 spieler_t::undo()
 		}
 		else {
 			leitung_t* lt = gr->get_leitung();
-			if(lt)
+			if (lt)
 			{
 				cost += lt->get_besch()->get_preis();
 				lt->entferne(NULL);
+				delete lt;
 			}
-			delete lt;
 		}
 	}
 	last_built.clear();

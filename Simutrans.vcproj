@@ -46,7 +46,7 @@
 				InlineFunctionExpansion="0"
 				FavorSizeOrSpeed="0"
 				AdditionalIncludeDirectories=""
-				PreprocessorDefinitions="NOMINMAX=1;ZLIB_WINAPI;REVISION_FROM_FILE;LITTLE_ENDIAN;DEBUG=3;COLOUR_DEPTH=16;MULTI_THREAD=4"
+				PreprocessorDefinitions="NOMINMAX=1;ZLIB_WINAPI;REVISION_FROM_FILE;LITTLE_ENDIAN;DEBUG=3;COLOUR_DEPTH=16;MULTI_THREAD=2"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="2"
@@ -73,7 +73,7 @@
 				LinkIncremental="2"
 				AdditionalLibraryDirectories=""
 				IgnoreAllDefaultLibraries="false"
-				IgnoreDefaultLibraryNames=""
+				IgnoreDefaultLibraryNames="libcmt.lib"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				RandomizedBaseAddress="1"
@@ -215,6 +215,62 @@
 				>
 			</File>
 			<File
+				RelativePath=".\script\api\api_city.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\script\api_class.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\script\api\api_const.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\script\api\api_convoy.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\script\api\api_factory.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\script\api_function.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\script\api\api_goods_desc.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\script\api\api_halt.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\script\api_param.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\script\api\api_player.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\script\api\api_scenario.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\script\api\api_settings.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\script\api\api_tiles.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\script\api\api_world.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\gui\banner.cc"
 				>
 			</File>
@@ -347,11 +403,23 @@
 				>
 			</File>
 			<File
+				RelativePath=".\script\dynamic_string.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\dataobj\einstellungen.cc"
 				>
 			</File>
 			<File
 				RelativePath=".\gui\enlarge_map_frame_t.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\script\api\export_besch.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\script\export_objs.cc"
 				>
 			</File>
 			<File
@@ -424,6 +492,10 @@
 			</File>
 			<File
 				RelativePath=".\dings\gebaeude.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\script\api\get_next.cc"
 				>
 			</File>
 			<File
@@ -723,6 +795,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dataobj\network_cmd_scenario.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\dataobj\network_cmp_pakset.cc"
 				>
 			</File>
@@ -827,11 +903,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gui\scenario_info.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\gui\schedule_list.cc"
 				>
 			</File>
 			<File
 				RelativePath=".\boden\wege\schiene.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\script\script.cc"
 				>
 			</File>
 			<File
@@ -1045,6 +1129,90 @@
 				>
 			</File>
 			<File
+				RelativePath=".\squirrel\sq_extensions.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\squirrel\squirrel\sqapi.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\squirrel\squirrel\sqbaselib.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\squirrel\squirrel\sqclass.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\squirrel\squirrel\sqcompiler.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\squirrel\squirrel\sqdebug.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\squirrel\squirrel\sqfuncstate.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\squirrel\squirrel\sqlexer.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\squirrel\squirrel\sqmem.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\squirrel\squirrel\sqobject.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\squirrel\squirrel\sqstate.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\squirrel\sqstdlib\sqstdaux.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\squirrel\sqstdlib\sqstdblob.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\squirrel\sqstdlib\sqstdio.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\squirrel\sqstdlib\sqstdmath.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\squirrel\sqstdlib\sqstdrex.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\squirrel\sqstdlib\sqstdstream.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\squirrel\sqstdlib\sqstdstring.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\squirrel\sqstdlib\sqstdsystem.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\squirrel\squirrel\sqtable.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\squirrel\squirrel\sqvm.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\gui\stadt_info.cc"
 				>
 			</File>
@@ -1211,6 +1379,18 @@
 				>
 			</File>
 			<File
+				RelativePath=".\script\api\api.h"
+				>
+			</File>
+			<File
+				RelativePath=".\script\api\api_base.h"
+				>
+			</File>
+			<File
+				RelativePath=".\script\api\api_doc.h"
+				>
+			</File>
+			<File
 				RelativePath=".\tpl\array2d_tpl.h"
 				>
 			</File>
@@ -1371,6 +1551,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\script\dynamic_string.h"
+				>
+			</File>
+			<File
 				RelativePath=".\dataobj\einstellungen.h"
 				>
 			</File>
@@ -1456,6 +1640,10 @@
 			</File>
 			<File
 				RelativePath=".\dings\gebaeude.h"
+				>
+			</File>
+			<File
+				RelativePath=".\script\api\get_next.h"
 				>
 			</File>
 			<File
@@ -1823,6 +2011,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dataobj\network_cmd_scenario.h"
+				>
+			</File>
+			<File
 				RelativePath=".\dataobj\network_cmp_pakset.h"
 				>
 			</File>
@@ -1964,6 +2156,10 @@
 			</File>
 			<File
 				RelativePath=".\gui\scenario_frame.h"
+				>
+			</File>
+			<File
+				RelativePath=".\gui\scenario_info.h"
 				>
 			</File>
 			<File
@@ -2208,6 +2404,82 @@
 			</File>
 			<File
 				RelativePath=".\gui\sprachen.h"
+				>
+			</File>
+			<File
+				RelativePath=".\squirrel\sq_extensions.h"
+				>
+			</File>
+			<File
+				RelativePath=".\squirrel\squirrel\sqarray.h"
+				>
+			</File>
+			<File
+				RelativePath=".\squirrel\squirrel\sqclass.h"
+				>
+			</File>
+			<File
+				RelativePath=".\squirrel\squirrel\sqclosure.h"
+				>
+			</File>
+			<File
+				RelativePath=".\squirrel\squirrel\sqcompiler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\squirrel\squirrel\sqfuncproto.h"
+				>
+			</File>
+			<File
+				RelativePath=".\squirrel\squirrel\sqfuncstate.h"
+				>
+			</File>
+			<File
+				RelativePath=".\squirrel\squirrel\sqlexer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\squirrel\squirrel\sqobject.h"
+				>
+			</File>
+			<File
+				RelativePath=".\squirrel\squirrel\sqopcodes.h"
+				>
+			</File>
+			<File
+				RelativePath=".\squirrel\squirrel\sqpcheader.h"
+				>
+			</File>
+			<File
+				RelativePath=".\squirrel\squirrel\sqstate.h"
+				>
+			</File>
+			<File
+				RelativePath=".\squirrel\sqstdlib\sqstdblobimpl.h"
+				>
+			</File>
+			<File
+				RelativePath=".\squirrel\sqstdlib\sqstdstream.h"
+				>
+			</File>
+			<File
+				RelativePath=".\squirrel\squirrel\sqstring.h"
+				>
+			</File>
+			<File
+				RelativePath=".\squirrel\squirrel\sqtable.h"
+				>
+			</File>
+			<File
+				RelativePath=".\squirrel\squirrel\squserdata.h"
+				>
+			</File>
+			<File
+				RelativePath=".\squirrel\squirrel\squtils.h"
+				>
+			</File>
+			<File
+				RelativePath=".\squirrel\squirrel\sqvm.h"
 				>
 			</File>
 			<File

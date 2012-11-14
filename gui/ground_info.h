@@ -37,7 +37,9 @@ protected:
 public:
 	grund_info_t(const grund_t* gr);
 
-	virtual koord3d get_weltpos();
+	virtual koord3d get_weltpos(bool);
+
+	virtual bool is_weltpos();
 
 	void zeichnen(koord pos, koord gr);
 

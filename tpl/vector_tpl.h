@@ -188,7 +188,7 @@ template<class T> class vector_tpl
 		}
 
 		/**
-		 * set length of vector.
+		 * Set length of vector.
 		 * BEWARE: using this function will create default objects, depending on
 		 * the type of the vector
 		 */

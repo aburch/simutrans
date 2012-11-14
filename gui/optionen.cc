@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hj. Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -16,6 +16,7 @@
 #include "../simimg.h"
 #include "../simwin.h"
 #include "../simgraph.h"
+#include "../simsys.h"
 #include "optionen.h"
 #include "display_settings.h"
 #include "sprachen.h"
@@ -24,87 +25,85 @@
 #include "kennfarbe.h"
 #include "sound_frame.h"
 #include "loadsave_frame.h"
+#include "scenario_frame.h"
+#include "scenario_info.h"
+#include "../dataobj/scenario.h"
 #include "../dataobj/translator.h"
+#include "../dataobj/umgebung.h"
+
+#ifdef _MSC_VER
+#include <direct.h>
+#endif
+
+
+const char *option_buttons_text[6] =
+{
+	"Sprache", "Farbe", "Helligk.", "Sound", "Spieler(mz)", "Scenario"
+};
+
+// currently not used yet
+const char *option_buttons_tooltip[6] =
+{
+	"Sprache", "Farbe", "Helligk. u. Farben", "Sound settings", "Spielerliste", "Scenario information"
+};
+
+
+
 
 optionen_gui_t::optionen_gui_t(karte_t *welt) :
-	gui_frame_t( translator::translate("Einstellungen")),
-	txt("Einstellungen aendern")
+	gui_frame_t( translator::translate("Einstellungen aendern"))
 {
 	this->welt = welt;
 
 	// init buttons
-	bt_lang.set_groesse( koord(90, 14) );
-	bt_lang.set_typ(button_t::roundbox);
-	bt_lang.set_pos( koord(11,30) );
-	bt_lang.set_text("Sprache");
-	bt_lang.add_listener(this);
-	add_komponente( &bt_lang );
+	KOORD_VAL row_x = D_MARGIN_LEFT;
+	KOORD_VAL y = D_MARGIN_TOP;
+	for(  int i=0;  i<6;  i++  ) {
+		option_buttons[i].init( button_t::roundbox, option_buttons_text[i], koord( row_x, y ), koord( D_BUTTON_WIDTH, D_BUTTON_HEIGHT ) );
+		option_buttons[i].add_listener(this);
+		add_komponente( option_buttons+i );
+		y += D_BUTTON_HEIGHT+D_V_SPACE;
+	}
+	// only activen when scenarios are active
+	if(  !welt->get_scenario()->active()  ) {
+		option_buttons[5].disable();
+	}
 
-	bt_color.set_groesse( koord(90, 14) );
-	bt_color.set_typ(button_t::roundbox);
-	bt_color.set_pos( koord(11,47) );
-	bt_color.set_text("Farbe");
-	bt_color.add_listener(this);
-	add_komponente( &bt_color );
+	const KOORD_VAL y_max = y-D_V_SPACE+D_MARGIN_BOTTOM;
 
-	bt_display.set_groesse( koord(90, 14) );
-	bt_display.set_typ(button_t::roundbox);
-	bt_display.set_pos( koord(11,64) );
-	bt_display.set_text("Helligk.");
-	bt_display.add_listener(this);
-	add_komponente( &bt_display );
+	// secon row of buttons
+	y = D_MARGIN_TOP;
+	row_x += D_BUTTON_WIDTH+D_H_SPACE;
 
-	bt_sound.set_groesse( koord(90, 14) );
-	bt_sound.set_typ(button_t::roundbox);
-	bt_sound.set_pos( koord(11,81) );
-	bt_sound.set_text("Sound");
-	bt_sound.add_listener(this);
-	add_komponente( &bt_sound );
-
-	bt_player.set_groesse( koord(90, 14) );
-	bt_player.set_typ(button_t::roundbox);
-	bt_player.set_pos( koord(11,98) );
-	bt_player.set_text("Spieler(mz)");
-	bt_player.add_listener(this);
-	add_komponente( &bt_player );
-
-	bt_load.set_groesse( koord(90, 14) );
-	bt_load.set_typ(button_t::roundbox);
-	bt_load.set_pos( koord(112,30) );
-	bt_load.set_text("Laden");
+	bt_load.init( button_t::roundbox, "Load game", koord( row_x, y ), koord( D_BUTTON_WIDTH, D_BUTTON_HEIGHT ) );
 	bt_load.add_listener(this);
 	add_komponente( &bt_load );
+	y += D_BUTTON_HEIGHT+D_V_SPACE;
 
-	bt_save.set_groesse( koord(90, 14) );
-	bt_save.set_typ(button_t::roundbox);
-	bt_save.set_pos( koord(112,47) );
-	bt_save.set_text("Speichern");
+	bt_load_scenario.init( button_t::roundbox, "Load scenario", koord( row_x, y ), koord( D_BUTTON_WIDTH, D_BUTTON_HEIGHT ) );
+	bt_load_scenario.add_listener(this);
+	add_komponente( &bt_load_scenario );
+	y += D_BUTTON_HEIGHT+D_V_SPACE;
+
+	bt_save.init( button_t::roundbox, "Speichern", koord( row_x, y ), koord( D_BUTTON_WIDTH, D_BUTTON_HEIGHT ) );
 	bt_save.add_listener(this);
 	add_komponente( &bt_save );
+	y += D_BUTTON_HEIGHT+D_V_SPACE;
 
-	bt_new.set_groesse( koord(90, 14) );
-	bt_new.set_typ(button_t::roundbox);
-	bt_new.set_pos( koord(112,64) );
-	bt_new.set_text("Neue Karte");
+	seperator.init( koord( row_x, y+D_BUTTON_HEIGHT/2 ), D_BUTTON_WIDTH );
+	add_komponente( &seperator );
+	y += D_BUTTON_HEIGHT+D_V_SPACE;
+
+	bt_new.init( button_t::roundbox, "Neue Karte", koord( row_x, y ), koord( D_BUTTON_WIDTH, D_BUTTON_HEIGHT ) );
 	bt_new.add_listener(this);
 	add_komponente( &bt_new );
+	y += D_BUTTON_HEIGHT+D_V_SPACE;
 
-	// 01-Nov-2001      Markus Weber    Added
-	bt_quit.set_groesse( koord(90, 14) );
-	bt_quit.set_typ(button_t::roundbox);
-	bt_quit.set_pos( koord(112,98) );
-	bt_quit.set_text("Beenden");
+	bt_quit.init( button_t::roundbox, "Beenden", koord( row_x, y ), koord( D_BUTTON_WIDTH, D_BUTTON_HEIGHT ) );
 	bt_quit.add_listener(this);
 	add_komponente( &bt_quit );
 
-	txt.set_pos( koord(10,10) );
-	add_komponente( &txt );
-
-	seperator.set_pos( koord(112, 81+6) );
-	seperator.set_groesse( koord(90,1) );
-	add_komponente( &seperator );
-
-	set_fenstergroesse( koord(213, 98+7+14+16) );
+	set_fenstergroesse( koord( D_MARGIN_LEFT+2*D_BUTTON_WIDTH+D_H_SPACE+D_MARGIN_RIGHT, y_max+D_TITLEBAR_HEIGHT ) );
 }
 
 
@@ -115,24 +114,32 @@ optionen_gui_t::optionen_gui_t(karte_t *welt) :
  */
 bool optionen_gui_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {
-	if(comp==&bt_lang) {
+	if(comp==option_buttons+0) {
 		create_win(new sprachengui_t(), w_info, magic_sprachengui_t);
 	}
-	else if(comp==&bt_color) {
+	else if(comp==option_buttons+1) {
 		create_win(new farbengui_t(welt->get_active_player()), w_info, magic_farbengui_t);
 	}
-	else if(comp==&bt_display) {
+	else if(comp==option_buttons+2) {
 		create_win(new color_gui_t(welt), w_info, magic_color_gui_t);
 	}
-	else if(comp==&bt_sound) {
+	else if(comp==option_buttons+3) {
 		create_win(new sound_frame_t(), w_info, magic_sound_kontroll_t);
 	}
-	else if(comp==&bt_player) {
+	else if(comp==option_buttons+4) {
 		create_win(new ki_kontroll_t(welt), w_info, magic_ki_kontroll_t);
+	}
+	else if(comp==option_buttons+5) {
+		create_win(new scenario_info_t(welt), w_info, magic_scenario_info);
 	}
 	else if(comp==&bt_load) {
 		destroy_win(this);
 		create_win(new loadsave_frame_t(welt, true), w_info, magic_load_t);
+	}
+	else if(comp==&bt_load_scenario) {
+		destroy_win(this);
+		destroy_all_win(true);
+		create_win( new scenario_frame_t(welt), w_info, magic_load_t );
 	}
 	else if(comp==&bt_save) {
 		destroy_win(this);

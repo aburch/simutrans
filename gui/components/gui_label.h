@@ -34,18 +34,26 @@ public:
 		money
 	};
 private:
-	align_t align:4;
+	align_t align;
 
 	/**
 	 * Farbe des Labels
 	 * @author Hansjörg Malthaner
 	 */
-	uint8 color;
+	COLOR_VAL color;
 
 	const char * text;	// only for direct acess of non-translateable things. Do not use!
 
 public:
-	gui_label_t(const char* text=NULL, int color=COL_BLACK, align_t align=left);
+	gui_label_t(const char* text=NULL, COLOR_VAL color=COL_BLACK, align_t align=left);
+
+	// one stop init
+	void init( const char* t, koord p, COLOR_VAL c=COL_BLACK, align_t a=left) {
+		set_pos( p );
+		set_text( t );
+		color = c;
+		align = a;
+	}
 
 	/**
 	 * setzt den Text des Labels
@@ -75,8 +83,8 @@ public:
 	 * Sets the colour of the label
 	 * @author Owen Rudge
 	 */
-	void set_color(int colour) { this->color = colour; }
-	uint8 get_color() const { return color; }
+	void set_color(COLOR_VAL colour) { this->color = colour; }
+	COLOR_VAL get_color() const { return color; }
 
 	/**
 	 * Sets the alignment of the label

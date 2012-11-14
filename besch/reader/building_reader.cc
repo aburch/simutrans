@@ -159,6 +159,11 @@ void building_reader_t::register_obj(obj_besch_t *&data)
 		besch->layouts = l;
 	}
 
+	if(  besch->allow_underground == 255  ) {
+		// only old stops were allowed underground
+		besch->allow_underground = besch->utype==haus_besch_t::generic_stop ? 2 : 0;
+	}
+
 	hausbauer_t::register_besch(besch);
 	DBG_DEBUG("building_reader_t::register_obj", "Loaded '%s'", besch->get_name());
 
@@ -217,10 +222,28 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	// value so that simhalt.cc can detect when they need to be set properly.
 	besch->station_maintenance = 2147483647; 
 	besch->station_price = 2147483647;
-	if(version == 5  ||  version == 6) 
-	{
-		// Versioned node, version 5
-		// animation intergvall in ms added
+	if(version == 7) {
+		// Versioned node, version 7
+		// underground mode added
+		besch->gtyp      = (gebaeude_t::typ)decode_uint8(p);
+		besch->utype     = (haus_besch_t::utyp)decode_uint8(p);
+		besch->level     = decode_uint16(p);
+		besch->extra_data= decode_uint32(p);
+		besch->groesse.x = decode_uint16(p);
+		besch->groesse.y = decode_uint16(p);
+		besch->layouts   = decode_uint8(p);
+		besch->allowed_climates = (climate_bits)decode_uint16(p);
+		besch->enables   = decode_uint8(p);
+		besch->flags     = (haus_besch_t::flag_t)decode_uint8(p);
+		besch->chance    = decode_uint8(p);
+		besch->intro_date    = decode_uint16(p);
+		besch->obsolete_date = decode_uint16(p);
+		besch->animation_time = decode_uint16(p);
+		besch->allow_underground = decode_uint8(p);
+	}
+	else if(version == 5  ||  version==6) {
+		// Versioned node, version 5 or 6  (only level logic is different)
+		// animation intervall in ms added
 		besch->gtyp      = (gebaeude_t::typ)decode_uint8(p);
 		besch->utype     = (haus_besch_t::utyp)decode_uint8(p);
 		besch->level     = decode_uint16(p);
@@ -421,6 +444,10 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		DBG_DEBUG("building_reader_t::read_node()","old station building -> increment level by one to %i", besch->level );
 	}
 
+	if(  version<=6  ) {
+		// only stops were allowed underground
+		besch->allow_underground = 255;
+	}
 
 	if (besch->level == 65535) {
 		besch->level = 0;	// apparently wrong level

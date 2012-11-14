@@ -86,7 +86,7 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	add_komponente(&scrolly);
 
 	set_min_windowsize(koord(total_width, 16+offset_below_viewport+D_BUTTON_HEIGHT+D_MARGIN_TOP+LINESPACE*3+D_MARGIN_BOTTOM+D_TITLEBAR_HEIGHT));
-	gui_frame_t::set_fenstergroesse(koord(D_DEFAULT_WIDTH, scrolly.get_pos().y+fab_info.get_pos().y+fab_info.get_groesse().y+D_TITLEBAR_HEIGHT ));
+	gui_frame_t::set_fenstergroesse(koord(D_DEFAULT_WIDTH, scrolly.get_pos().y+fab_info.get_pos().y+fab_info.get_groesse().y+D_TITLEBAR_HEIGHT+D_MARGIN_BOTTOM ));
 
 	set_resizemode(diagonal_resize);
 	resize(koord(0,0));
@@ -131,7 +131,7 @@ void fabrik_info_t::set_fenstergroesse(koord groesse)
 	input.set_groesse(koord(get_fenstergroesse().x-D_MARGIN_LEFT-D_MARGIN_RIGHT, D_BUTTON_HEIGHT));
 	view.set_pos(koord(get_fenstergroesse().x - view.get_groesse().x - D_MARGIN_RIGHT , D_MARGIN_TOP+D_BUTTON_HEIGHT+D_V_SPACE ));
 
-	scrolly.set_groesse(get_client_windowsize()-scrolly.get_pos());
+	scrolly.set_groesse(get_client_windowsize()-scrolly.get_pos()-koord(0,D_MARGIN_BOTTOM));
 }
 
 
@@ -201,6 +201,13 @@ void fabrik_info_t::zeichnen(koord pos, koord gr)
 }
 
 
+bool fabrik_info_t::is_weltpos()
+{
+	return ( welt->get_x_off() | welt->get_y_off()) == 0  &&
+		welt->get_world_position() == welt->calculate_world_position( get_weltpos(false) );
+}
+
+
 /**
  * This method is called if an action is triggered
  * @author Hj. Malthaner
@@ -236,7 +243,7 @@ bool fabrik_info_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		char key[256];
 		sprintf(key, "factory_%s_details", fab->get_besch()->get_name());
 		frame->set_text(translator::translate(key));
-		create_win(frame, w_info, (long)this);
+		create_win(frame, w_info, (ptrdiff_t)this);
 	}
 	else if(v.i&~1) {
 		koord k = *(const koord *)v.p;
@@ -333,13 +340,13 @@ void gui_fabrik_info_t::zeichnen(koord offset)
 			buf.printf("%i", pax_entry->supply);
 			w = proportional_string_width( buf );
 			display_proportional_clip( xoff+18+(w>21?w-21:0), yoff, buf, ALIGN_RIGHT, COL_BLACK, true );
-			display_color_img(skinverwaltung_t::passagiere->get_bild_nr(0), xoff+20+1+(w>21?w-21:0), yoff, 0, false, false);
+			display_color_img(skinverwaltung_t::passagiere->get_bild_nr(0), xoff+20+1+(w>21?w-21:0), yoff, 0, false, true);
 
 			buf.clear();
 			buf.printf("%i", mail_entry->supply);
 			w = proportional_string_width( buf );
 			display_proportional_clip( xoff+62+(w>21?w-21:0), yoff, buf, ALIGN_RIGHT, COL_BLACK, true );
-			display_color_img(skinverwaltung_t::post->get_bild_nr(0), xoff+64+1+(w>21?w-21:0), yoff, 0, false, false);
+			display_color_img(skinverwaltung_t::post->get_bild_nr(0), xoff+64+1+(w>21?w-21:0), yoff, 0, false, true);
 
 			display_proportional_clip(xoff + 90, yoff, c->get_name(), ALIGN_LEFT, COL_BLACK, true);
 			yoff += LINESPACE;

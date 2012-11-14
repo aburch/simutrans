@@ -5,6 +5,7 @@
 #include "../simtypes.h"
 #include "../simconst.h"
 #include "einstellungen.h"
+#include "koord.h"
 
 #include "../tpl/vector_tpl.h"
 #include "../utils/plainstring.h"
@@ -72,6 +73,8 @@ public:
 
 	/// number of seconds between announcements
 	static sint32 server_announce_interval;
+
+	static uint8 chat_window_transparency;
 
 	/// @} end of Network-related settings
 
@@ -141,6 +144,9 @@ public:
 	/// open only one info window per click on a map-square
 	static bool single_info;
 
+	/// for schedules with rails hide the back ticket button
+	static bool hide_rail_return_ticket;
+
 	/// how to sort destination of goods
 	/// @see freight_list_sorter_t::sort_mode_t
 	static uint8 default_sortmode;
@@ -167,7 +173,7 @@ public:
 
 	static sint16 window_snap_distance;
 
-	//static koord iconsize;
+	static koord iconsize;
 
 	/// customize your tooltips
 	static bool show_tooltips;

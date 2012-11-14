@@ -691,8 +691,10 @@ void settings_economy_stats_t::init(settings_t const* const sets)
 	INIT_NUM( "electric_promille", sets->get_electric_promille(), 0, 1000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_BOOL( "allow_underground_transformers", sets->get_allow_underground_transformers() );
 	SEPERATOR
+
 	INIT_NUM( "passenger_factor",  sets->get_passenger_factor(), 0, 64, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "city_isolation_factor", sets->get_city_isolation_factor(), 1, 20000, 1, false );
+	INIT_NUM( "special_building_distance", sets->get_special_building_distance(), 1, 150, 1, false );
 	INIT_NUM( "factory_worker_radius", sets->get_factory_worker_radius(), 0, 32767, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "factory_worker_minimum_towns", sets->get_factory_worker_minimum_towns(), 0, 32767, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "factory_worker_maximum_towns", sets->get_factory_worker_maximum_towns(), 0, 32767, gui_numberinput_t::AUTOLINEAR, false );
@@ -745,7 +747,7 @@ void settings_economy_stats_t::read(settings_t* const sets)
 	READ_BOOL_VALUE( sets->allow_underground_transformers );
 
 	READ_NUM_VALUE( sets->passenger_factor );
-	READ_NUM_VALUE( sets->city_isolation_factor );
+//	READ_NUM_VALUE( sets->minimum_city_distance );
 	READ_NUM_VALUE( sets->factory_worker_radius );
 	READ_NUM_VALUE( sets->factory_worker_minimum_towns );
 	READ_NUM_VALUE( sets->factory_worker_maximum_towns );
@@ -868,7 +870,7 @@ void settings_climates_stats_t::init(settings_t* const sets)
 	INIT_NUM_NEW( "forest_map_size_divisor", sets->get_forest_map_size_divisor(), 2, 255, 1, false );
 	INIT_NUM_NEW( "forest_count_divisor", sets->get_forest_count_divisor(), 2, 255, 1, false );
 	INIT_NUM_NEW( "forest_inverse_spare_tree_density", sets->get_forest_inverse_spare_tree_density(), 0, 100, 1, false );
-	INIT_NUM_NEW( "max_no_of_trees_on_square", sets->get_max_no_of_trees_on_square(), 1, 6, 1, true );
+	INIT_NUM( "max_no_of_trees_on_square", sets->get_max_no_of_trees_on_square(), 1, 6, 1, true );
 	INIT_NUM_NEW( "tree_climates", sets->get_tree_climates(), 0, 255, 1, false );
 	INIT_NUM_NEW( "no_tree_climates", sets->get_no_tree_climates(), 0, 255, 1, false );
 
@@ -910,7 +912,7 @@ void settings_climates_stats_t::read(settings_t* const sets)
 	READ_NUM_VALUE_NEW( sets->forest_map_size_divisor );
 	READ_NUM_VALUE_NEW( sets->forest_count_divisor );
 	READ_NUM_VALUE_NEW( sets->forest_inverse_spare_tree_density );
-	READ_NUM_VALUE_NEW( sets->max_no_of_trees_on_square );
+	READ_NUM_VALUE( sets->max_no_of_trees_on_square );
 	READ_NUM_VALUE_NEW( sets->tree_climates );
 	READ_NUM_VALUE_NEW( sets->no_tree_climates );
 }

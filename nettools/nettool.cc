@@ -439,7 +439,7 @@ int main(int argc, char* argv[]) {
 
 	// If command requires authentication and password is not set then
 	// ask for password from stdin (interactive)
-	if (commands[cmdindex].needs_auth && password == NULL) {
+	if(  commands[cmdindex].needs_auth  &&  password == NULL  ) {
 		// Read password from stdin
 		// malloc ok here as utility is short-lived so no need to free()
 		password = MALLOCN(char, 256);
@@ -461,7 +461,7 @@ int main(int argc, char* argv[]) {
 	socket_list_t::add_client(socket);
 
 	// If authentication required, perform authentication
-	if (commands[cmdindex].needs_auth) {
+	if(  commands[cmdindex].needs_auth  ) {
 		// try to authenticate us
 		nwc_service_t nwcs;
 		nwcs.flag = nwc_service_t::SRVC_LOGIN_ADMIN;
@@ -472,12 +472,12 @@ int main(int argc, char* argv[]) {
 		}
 		// wait for acknowledgement
 		nwc_service_t *nws = (nwc_service_t*)network_receive_command(NWC_SERVICE);
-		if (nws==NULL || nws->flag != nwc_service_t::SRVC_LOGIN_ADMIN) {
+		if(  nws==NULL  ||  nws->flag != nwc_service_t::SRVC_LOGIN_ADMIN  ) {
 			fprintf(stderr, "Authentication failed!\n");
 			delete nws;
 			return 3;
 		}
-		if (!nws->number) {
+		if(  !nws->number  ) {
 			fprintf(stderr, "Wrong password!\n");
 			delete nws;
 			return 3;

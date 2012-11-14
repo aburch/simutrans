@@ -68,6 +68,7 @@ simline_t::simline_t(karte_t* welt, spieler_t* sp, linetype type, loadsave_t *fi
 	this->welt = welt;
 	this->fpl = NULL;
 	this->sp = sp;
+	withdraw = false;
 	create_schedule();
 	average_journey_times = new koordhashtable_tpl<id_pair, average_tpl<uint16> >;
 	average_journey_times_reverse_circular = NULL;
@@ -656,7 +657,7 @@ void simline_t::recalc_catg_index()
 		withdraw &= cnv.get_withdraw();
 
 		FOR(minivec_tpl<uint8>, const catg_index, cnv.get_goods_catg_index()) {
-			goods_catg_index.append_unique( catg_index, 1 );
+			goods_catg_index.append_unique( catg_index );
 		}
 	}
 	

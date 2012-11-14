@@ -48,6 +48,7 @@ private:
 	double city_density;
 	double industry_density;
 	double attraction_density;
+	double river_density;
 
 	int old_lang;
 

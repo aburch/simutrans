@@ -28,6 +28,7 @@
 
 #include "../simworld.h"
 #include "../simdebug.h"
+#include "../simdepot.h"
 #include "../simunits.h"
 
 #include "../player/simplay.h"
@@ -707,11 +708,14 @@ void vehikel_t::rotate90()
 	alte_fahrtrichtung = ribi_t::rotate90( alte_fahrtrichtung );
 	pos_prev.rotate90( welt->get_groesse_y()-1 );
 	last_stop_pos.rotate90( welt->get_groesse_y()-1 );
+}
+
+
+void vehikel_t::rotate90_freight_destinations(const sint16 y_size)
+{
 	// now rotate the freight
 	FOR(slist_tpl<ware_t>, & tmp, fracht) {
-		koord k = tmp.get_zielpos();
-		k.rotate90( welt->get_groesse_y()-1 );
-		tmp.set_zielpos( k );
+		tmp.rotate90(welt, y_size );
 	}
 }
 
@@ -1862,7 +1866,7 @@ uint16 vehikel_t::beladen(halthandle_t halt, bool overcrowd)
 	{
 		ok = load_freight(halt, overcrowd);
 	}
-	sum_weight = get_fracht_gewicht() + besch->get_gewicht() * 1000UL;
+	sum_weight =  get_fracht_gewicht() + besch->get_gewicht();
 	calc_bild();
 	if(ok)
 	{
@@ -2212,7 +2216,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 		if(besch) {
 			calc_bild();
 			// full weight after loading
-			sum_weight = get_fracht_gewicht() + besch->get_gewicht() * 1000UL;
+			sum_weight =  get_fracht_gewicht() + besch->get_gewicht();
 		}
 		// recalc total freight
 		total_freight = 0;
@@ -3077,7 +3081,7 @@ bool automobil_t::ist_weg_frei(int &restart_speed, bool second_check)
 				if(  test_index == route_index + 1u  ) {
 					// no intersections or crossings, we might be able to overtake this one ...
 					overtaker_t *over = dt->get_overtaker();
-					if(over  &&  !over->is_overtaken()) {
+					if(  over  &&  !over->is_overtaken()  ) {
 						if(  over->is_overtaking()  ) {
 							// otherwise we would stop every time being overtaken
 							return true;
@@ -3088,7 +3092,8 @@ bool automobil_t::ist_weg_frei(int &restart_speed, bool second_check)
 							if(  cnv->can_overtake( ocnv, (ocnv->get_state()==convoi_t::LOADING ? 0 :  ocnv->get_akt_speed()), ocnv->get_length_in_steps()+ocnv->get_vehikel(0)->get_steps())  ) {
 								return true;
 							}
-						} else if (stadtauto_t* const caut = ding_cast<stadtauto_t>(dt)) {
+						}
+						else if(  stadtauto_t* const caut = ding_cast<stadtauto_t>(dt)  ) {
 							if(  cnv->can_overtake(caut, caut->get_besch()->get_geschw(), VEHICLE_STEPS_PER_TILE)  ) {
 								return true;
 							}
@@ -3317,6 +3322,11 @@ bool waggon_t::ist_befahrbar(const grund_t *bd) const
 		return false;
 	}
 
+	if (depot_t *depot = bd->get_depot()) {
+		if (depot->get_waytype() != besch->get_waytype()  ||  depot->get_besitzer() != get_besitzer()) {
+			return false;
+		}
+	}
 	// now check for special signs
 	if(sch->has_sign()) {
 		const roadsign_t* rs = bd->find<roadsign_t>();

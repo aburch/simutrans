@@ -27,7 +27,7 @@ private:
 	int line;
 	sint16 xoff, yoff;
 
-	button_t new_map, load_map, join_map, quit;
+	button_t new_map, load_map, load_scenario, join_map, quit;
 	gui_image_t logo;
 
 	karte_t *welt;

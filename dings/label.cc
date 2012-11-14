@@ -25,12 +25,17 @@
 
 #include "label.h"
 
+#if MULTI_THREAD>1
+#include <pthread.h>
+static pthread_mutex_t add_label_mutex = PTHREAD_MUTEX_INITIALIZER;
+#endif
+
+
 label_t::label_t(karte_t *welt, loadsave_t *file) :
 	ding_t(welt)
 {
 	rdwr(file);
 }
-
 
 
 label_t::label_t(karte_t *welt, koord3d pos, spieler_t *sp, const char *text) :
@@ -48,7 +53,6 @@ label_t::label_t(karte_t *welt, koord3d pos, spieler_t *sp, const char *text) :
 }
 
 
-
 label_t::~label_t()
 {
 	koord k = get_pos().get_2d();
@@ -63,13 +67,17 @@ label_t::~label_t()
 }
 
 
-
 void label_t::laden_abschliessen()
 {
+#if MULTI_THREAD>1
+	pthread_mutex_lock( &add_label_mutex );
+#endif
 	// only now coordinates are known
 	welt->add_label(get_pos().get_2d());
+#if MULTI_THREAD>1
+	pthread_mutex_unlock( &add_label_mutex );
+#endif
 }
-
 
 
 image_id label_t::get_bild() const
@@ -79,9 +87,8 @@ image_id label_t::get_bild() const
 }
 
 
-
 void label_t::zeige_info()
 {
 	label_t* l = this;
-	create_win(new label_info_t(welt, l), w_info, (long)this );
+	create_win(new label_info_t(welt, l), w_info, (ptrdiff_t)this );
 }

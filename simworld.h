@@ -28,6 +28,7 @@
 #include "dataobj/marker.h"
 #include "dataobj/einstellungen.h"
 #include "dataobj/pwd_hash.h"
+#include "dataobj/loadsave.h"
 
 #include "simplan.h"
 
@@ -169,6 +170,9 @@ private:
 	 */
 	bool dirty;
 
+	// the rotation of the map when first loaded
+	uint8 loaded_rotation;
+
 	/**
 	 * fuer softes scrolling
 	 */
@@ -300,24 +304,61 @@ private:
 	karte_ansicht_t *view;
 
 	/**
-	 * Raise tile (x,y): height of each corner is given
+	 * Checks whether the heights of the corners of the tile at (@p x, @p y) can be raised.
+	 * If the desired height of a corner is lower than its current height, this corner is ignored.
+	 * @param x coordinate
+	 * @param y coordinate
+	 * @param keep_water returns false if water tiles would be raised above water
+	 * @param hsw desired height of sw-corner
+	 * @param hse desired height of se-corner
+	 * @param hse desired height of ne-corner
+	 * @param hnw desired height of nw-corner
+	 * @param ctest which directions should be recursively checked (ribi_t style bitmap)
+	 * @returns whether raise_to operation can be performed
 	 */
 	bool can_raise_to(sint16 x, sint16 y, bool keep_water, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, uint8 ctest=15) const;
-	int  raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw);
-	/**
-	 * Raise grid point (x,y), used during map creation/enlargement
-	 */
-	int  raise_to(sint16 x, sint16 y, sint8 h, bool set_slopes);
 
 	/**
-	 * Lower tile (x,y): height of each corner is given
+	 * Raises heights of the corners of the tile at (@p x, @p y).
+	 * @pre can_raise_to should be called before this method.
+	 * @see can_raise_to
+	 * @returns count of full raise operations (4 corners raised one level)
+	 */
+	int  raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw);
+
+	/**
+	 * Checks whether the heights of the corners of the tile at (@p x, @p y) can be lowered.
+	 * If the desired height of a corner is higher than its current height, this corner is ignored.
+	 * @param x coordinate
+	 * @param y coordinate
+	 * @param hsw desired height of sw-corner
+	 * @param hse desired height of se-corner
+	 * @param hse desired height of ne-corner
+	 * @param hnw desired height of nw-corner
+	 * @param ctest which directions should be recursively checked (ribi_t style bitmap)
+	 * @returns whether lower_to operation can be performed
 	 */
 	bool can_lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, uint8 ctest=15) const;
-	int  lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw);
+
 	/**
-	 * Lower grid point (x,y), used during map creation/enlargement
+	 * Lowers heights of the corners of the tile at (@p x, @p y).
+	 * @pre can_lower_to should be called before this method.
+	 * @see can_lower_to
+	 * @returns count of full lower operations (4 corners lowered one level)
 	 */
-	int  lower_to(sint16 x, sint16 y, sint8 h, bool set_slopes);
+	int  lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw);
+
+	/**
+	 * Raise grid point (@p x,@p y). Changes grid_hgts only, used during map creation/enlargement.
+	 * @see clean_up
+	 */
+	void raise_grid_to(sint16 x, sint16 y, sint8 h);
+
+	/**
+	 * Lower grid point (@p x,@p y). Changes grid_hgts only, used during map creation/enlargement.
+	 * @see clean_up
+	 */
+	void lower_grid_to(sint16 x, sint16 y, sint8 h);
 
 	/**
 	 * Die fraktale Erzeugung der Karte ist nicht perfekt.
@@ -555,6 +596,7 @@ public:
 	void update_history();
 
 	scenario_t *get_scenario() const { return scenario; }
+	void set_scenario(scenario_t *s);
 
 	/**
 	* Returns the finance history for player
@@ -594,6 +636,9 @@ public:
 
 	// also take height into account
 	void change_world_position( koord3d ij );
+
+	// converts 3D coord to 2D actually used for main view
+	koord calculate_world_position( koord3d ) const;
 
 	// the koordinates between the screen and a tile may have several offset
 	// this routine caches them
@@ -1080,29 +1125,11 @@ public:
 	bool is_plan_height_changeable(sint16 x, sint16 y) const;
 
 	/**
-	 * Prueft, ob die Hoehe an Gitterkoordinate (x,y)
-	 * erhoeht werden kann.
-	 * @param x x-Gitterkoordinate
-	 * @param y y-Gitterkoordinate
-	 * @author Hj. Malthaner
-	 */
-	bool can_raise(sint16 x,sint16 y) const;
-
-	/**
 	 * Erhoeht die Hoehe an Gitterkoordinate (x,y) um eins.
 	 * @param pos Gitterkoordinate
 	 * @author Hj. Malthaner
 	 */
 	int raise(koord pos);
-
-	/**
-	 * Prueft, ob die Hoehe an Gitterkoordinate (x,y)
-	 * erniedrigt werden kann.
-	 * @param x x-Gitterkoordinate
-	 * @param y y-Gitterkoordinate
-	 * @author Hj. Malthaner
-	 */
-	bool can_lower(sint16 x,sint16 y) const;
 
 	/**
 	 * Erniedrigt die Hoehe an Gitterkoordinate (x,y) um eins.
@@ -1162,7 +1189,7 @@ public:
 	stadt_t * get_city(koord pos) const;
 
 	bool cannot_save() const { return nosave; }
-	void set_nosave() { nosave = true; }
+	void set_nosave() { nosave = true; nosave_warning = true; }
 	void set_nosave_warning() { nosave_warning = true; }
 
 	// rotate plans by 90 degrees
@@ -1258,7 +1285,7 @@ public:
 	 * @param filename name of the file to write
 	 * @author Hj. Malthaner
 	 */
-	void speichern(const char *filename, const char *version, const char *ex_version, bool silent);
+	void speichern(const char *filename, loadsave_t::mode_t savemode, const char *version, const char *ex_version, bool silent);
 
 	/**
 	 * Loads a map from a file

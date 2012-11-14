@@ -96,6 +96,8 @@ public:
 	// substracts cost
 	void entferne(spieler_t *sp);
 
+	const char* ist_entfernbar(const spieler_t *sp) OVERRIDE;
+
 	/**
 	* calculate image after loading
 	* @author prissi

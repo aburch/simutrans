@@ -9,7 +9,6 @@
 #include "../simline.h"
 #include "../simcolor.h"
 #include "../simhalt.h"
-#include "../simskin.h"
 #include "../simworld.h"
 #include "../simmenu.h"
 #include "../simgraph.h"
@@ -194,14 +193,17 @@ cbuffer_t fahrplan_gui_stats_t::buf;
 
 void fahrplan_gui_stats_t::zeichnen(koord offset)
 {
-	if (!fpl) return;
+	if(  !fpl  ) {
+		return;
+	}
 
-	if (fpl->empty()) {
+	if(  fpl->empty()  ) {
 		buf.clear();
 		buf.append(translator::translate("Please click on the map to add\nwaypoints or stops to this\nschedule."));
 		sint16 const width = display_multiline_text(offset.x + 4, offset.y, buf, COL_WHITE);
 		set_groesse(koord(width + 4 + 16, 3 * LINESPACE));
-	} else {
+	}
+	else {
 		int    i     = 0;
 		size_t sel   = fpl->get_aktuell();
 		sint16 width = get_groesse().x - 16;
@@ -225,7 +227,9 @@ void fahrplan_gui_stats_t::zeichnen(koord offset)
 
 			PLAYER_COLOR_VAL const c = sel == 0 ? COL_WHITE : COL_BLACK;
 			sint16           const w = display_proportional_clip(offset.x + 4 + 10, offset.y, buf, ALIGN_LEFT, c, true);
-			if (width < w) width = w;
+			if (width < w) {
+				width = w;
+			}
 
 			// the goto button (right arrow)
 			image_id const img = sel == 0 ? button_t::arrow_right_pushed : button_t::arrow_right_normal;
@@ -295,7 +299,7 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	old_fpl->eingabe_beginnen();
 	fpl = old_fpl->copy();
 	stats.set_fahrplan(fpl);
-	if(!cnv.is_bound()) {
+	if(  !cnv.is_bound()  ) {
 		old_line = new_line = linehandle_t();
 		show_line_selector(false);
 	}
@@ -308,7 +312,7 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	strcpy(no_line, translator::translate("<no line>"));
 
 	sint16 ypos = 0;
-	if (cnv.is_bound()) {
+	if(  cnv.is_bound()  ) {
 		// things, only relevant to convois, like creating/selecting lines
 		lb_line.set_pos(koord(10, ypos+2));
 		add_komponente(&lb_line);
@@ -513,9 +517,9 @@ void fahrplan_gui_t::update_werkzeug(bool set)
 
 void fahrplan_gui_t::update_selection()
 {
-	// update load
-	lb_load.set_color( COL_GREY3 );
+	bt_wait_prev.disable();
 	lb_wait.set_color( COL_GREY3 );
+//<<<<<<< HEAD
 	lb_spacing.set_color( COL_GREY3 );
 	lb_spacing_as_clock.set_color( COL_GREY3 );
 	sprintf(str_spacing_as_clock, "%s", translator::translate("off") );
@@ -523,15 +527,25 @@ void fahrplan_gui_t::update_selection()
 	lb_spacing_shift_as_clock.set_color( COL_GREY3 );
 	sprintf(str_spacing_shift_as_clock, "%s", translator::translate("off") );
 
-	if (!fpl->empty()) {
+//	if (!fpl->empty()) {
+//=======
+	strcpy( str_parts_month, translator::translate("off") );
+	lb_waitlevel.set_color( COL_GREY3 );
+	bt_wait_next.disable();
+
+	if(  !fpl->empty()  ) {
+//>>>>>>> aburch/master
 		fpl->set_aktuell( min(fpl->get_count()-1,fpl->get_aktuell()) );
 		const uint8 aktuell = fpl->get_aktuell();
 		if(  haltestelle_t::get_halt(sp->get_welt(), fpl->eintrag[aktuell].pos, sp).is_bound()  ) {
 			lb_load.set_color( COL_BLACK );
+			numimp_load.enable();
 			numimp_load.set_value( fpl->eintrag[aktuell].ladegrad );
 			numimp_spacing_shift.set_value(fpl->eintrag[aktuell].spacing_shift);
 			if(  fpl->eintrag[aktuell].ladegrad>0  ) {
+				bt_wait_prev.enable();
 				lb_wait.set_color( COL_BLACK );
+//<<<<<<< HEAD
 				lb_spacing.set_color( COL_BLACK );
 				if (fpl->get_spacing() ) {
 					lb_spacing_shift.set_color( COL_BLACK );
@@ -543,6 +557,8 @@ void fahrplan_gui_t::update_selection()
 							fpl->eintrag[aktuell].spacing_shift * welt->ticks_per_world_month/welt->get_settings().get_spacing_shift_divisor()+1
 							);
 				}
+				lb_waitlevel.set_color( COL_WHITE );
+				bt_wait_next.enable();
 			}
 			if(  fpl->eintrag[aktuell].ladegrad>0  &&  fpl->eintrag[aktuell].waiting_time_shift>0  ) {
 				sprintf( str_parts_month, "1/%d",  1<<(16-fpl->eintrag[aktuell].waiting_time_shift) );
@@ -555,8 +571,9 @@ void fahrplan_gui_t::update_selection()
 			}
 		}
 		else {
-			strcpy( str_ladegrad, "0%" );
-			strcpy( str_parts_month, translator::translate("off") );
+			lb_load.set_color( COL_GREY3 );
+			numimp_load.disable();
+			numimp_load.set_value( 0 );
 		}
 	}
 }
@@ -567,23 +584,23 @@ void fahrplan_gui_t::update_selection()
  */
 bool fahrplan_gui_t::infowin_event(const event_t *ev)
 {
-	if ( (ev)->ev_class == EVENT_CLICK  &&  !((ev)->ev_code==MOUSE_WHEELUP  ||  (ev)->ev_code==MOUSE_WHEELDOWN)  &&  !line_selector.getroffen(ev->cx, ev->cy-16))  {//  &&  !scrolly.getroffen(ev->cx, ev->cy+16)) {
+	if( (ev)->ev_class == EVENT_CLICK  &&  !((ev)->ev_code==MOUSE_WHEELUP  ||  (ev)->ev_code==MOUSE_WHEELDOWN)  &&  !line_selector.getroffen(ev->cx, ev->cy-16)  )  {
 
 		// close combo box; we must do it ourselves, since the box does not receive outside events ...
 		line_selector.close_box();
 
-		if(ev->my>=scrolly.get_pos().y+16) {
+		if(  ev->my>=scrolly.get_pos().y+16  ) {
 			// we are now in the multiline region ...
 			const int line = ( ev->my - scrolly.get_pos().y + scrolly.get_scroll_y() - 16)/(LINESPACE+1);
 
-			if(line >= 0 && line < fpl->get_count()) {
-				if(IS_RIGHTCLICK(ev)  ||  ev->mx<16) {
+			if(  line >= 0 && line < fpl->get_count()  ) {
+				if(  IS_RIGHTCLICK(ev)  ||  ev->mx<16  ) {
 					// just center on it
 					sp->get_welt()->change_world_position( fpl->eintrag[line].pos );
 				}
-				else if(ev->mx<scrolly.get_groesse().x-11) {
+				else if(  ev->mx<scrolly.get_groesse().x-11  ) {
 					fpl->set_aktuell( line );
-					if(mode == removing) {
+					if(  mode == removing  ) {
 						stats.highlight_schedule( fpl, false );
 						fpl->remove();
 						action_triggered( &bt_add, value_t() );
@@ -593,7 +610,7 @@ bool fahrplan_gui_t::infowin_event(const event_t *ev)
 			}
 		}
 	}
-	else if(ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE  &&  fpl!=NULL  ) {
+	else if(  ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE  &&  fpl!=NULL  ) {
 
 		for(  int i=0;  i<fpl->get_count();  i++  ) {
 			stats.highlight_schedule( fpl, false );
@@ -603,13 +620,13 @@ bool fahrplan_gui_t::infowin_event(const event_t *ev)
 		fpl->cleanup();
 		fpl->eingabe_abschliessen();
 		// now apply the changes
-		if(cnv.is_bound()) {
+		if(  cnv.is_bound()  ) {
 			// do not send changes if the convoi is about to be deleted
 			if(  cnv->get_state() != convoi_t::SELF_DESTRUCT  ) {
 				// if a line is selected
 				if(  new_line.is_bound()  ) {
 					// if the selected line is different to the convoi's line, apply it
-					if(new_line!=cnv->get_line()) {
+					if(  new_line!=cnv->get_line()  ) {
 						char id[16];
 						sprintf( id, "%i,%i", new_line.get_id(), fpl->get_aktuell() );
 						cnv->call_convoi_tool( 'l', id );
@@ -628,7 +645,7 @@ bool fahrplan_gui_t::infowin_event(const event_t *ev)
 			}
 		}
 	}
-	else if(ev->ev_class == INFOWIN  &&  (ev->ev_code == WIN_TOP  ||  ev->ev_code == WIN_OPEN)  &&  fpl!=NULL  ) {
+	else if(  ev->ev_class == INFOWIN  &&  (ev->ev_code == WIN_TOP  ||  ev->ev_code == WIN_OPEN)  &&  fpl!=NULL  ) {
 		// just to be sure, renew the tools ...
 		update_werkzeug( true );
 	}
@@ -669,7 +686,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 		}
 	}
 	else if(komp == &bt_wait_prev) {
-		if (!fpl->empty()) {
+		if(!fpl->empty()) {
 			sint8& wait = fpl->eintrag[fpl->get_aktuell()].waiting_time_shift;
 			if(wait>7) {
 				wait --;
@@ -684,7 +701,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 		}
 	}
 	else if(komp == &bt_wait_next) {
-		if (!fpl->empty()) {
+		if(!fpl->empty()) {
 			sint8& wait = fpl->eintrag[fpl->get_aktuell()].waiting_time_shift;
 			if(wait==0) {
 				wait = 7;
@@ -745,7 +762,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 			line_selector.set_selection( 0 );
 		}
 	}
-	else if (komp == &bt_promote_to_line) {
+	else if(komp == &bt_promote_to_line) {
 		// update line schedule via tool!
 		werkzeug_t *w = create_tool( WKZ_LINE_TOOL | SIMPLE_TOOL );
 		cbuffer_t buf;
@@ -757,7 +774,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 		delete w;
 	}
 	// recheck lines
-	if (cnv.is_bound()) {
+	if(  cnv.is_bound()  ) {
 		// unequal to line => remove from line ...
 		if(  new_line.is_bound()  &&  !fpl->matches(sp->get_welt(),new_line->get_schedule())  ) {
 			new_line = linehandle_t();
@@ -925,7 +942,7 @@ void fahrplan_gui_t::rdwr(loadsave_t *file)
 			// now we can open the window ...
 			koord const& pos = win_get_pos(this);
 			fahrplan_gui_t *w = new fahrplan_gui_t( cnv->get_schedule(), cnv->get_besitzer(), cnv );
-			create_win(pos.x, pos.y, w, w_info, (long)cnv->get_schedule());
+			create_win(pos.x, pos.y, w, w_info, (ptrdiff_t)cnv->get_schedule());
 			w->set_fenstergroesse( gr );
 			w->fpl->copy_from( fpl );
 			cnv->get_schedule()->eingabe_abschliessen();

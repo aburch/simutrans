@@ -205,6 +205,7 @@ class haus_besch_t : public obj_besch_std_name_t { // Daten für ein ganzes Gebäu
 
 	/**
 	 * Whether this building can or must be built underground.
+	 * Only relevant for stations (generic_stop).
 	 * 0 = cannot be built underground
 	 * 1 = can only be built underground
 	 * 2 = can be built either underground or above ground.
@@ -389,6 +390,9 @@ public:
 	}
 
 	void calc_checksum(checksum_t *chk) const;
+
+	bool can_be_built_underground() const { return allow_underground > 0; }
+	bool can_be_built_aboveground() const { return allow_underground != 1; }
 };
 	
 

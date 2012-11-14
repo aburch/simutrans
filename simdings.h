@@ -272,7 +272,7 @@ public:
 	 * The image, that will be outlined
 	 * @author kierongreen
 	 */
-	virtual PLAYER_COLOR_VAL get_outline_bild() const {return IMG_LEER;}
+	virtual image_id get_outline_bild() const { return IMG_LEER; }
 
 	/**
 	 * Save and Load of object data in one routine

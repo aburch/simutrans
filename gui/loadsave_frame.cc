@@ -77,21 +77,17 @@ void loadsave_frame_t::action(const char *filename)
 		welt->laden(filename);
 	}
 	else {
-		welt->speichern( filename, umgebung_t::savegame_version_str, umgebung_t::savegame_ex_version_str, false );
+		welt->speichern( filename, loadsave_t::save_mode, umgebung_t::savegame_version_str, umgebung_t::savegame_ex_version_str, false );
 		welt->set_dirty();
 		welt->reset_timer();
 	}
 }
 
 
-bool loadsave_frame_t::del_action(const char *filename)
-{
-	remove(filename);
-	return false;
-}
-
-
-loadsave_frame_t::loadsave_frame_t(karte_t *welt, bool do_load) : savegame_frame_t(".sve", NULL, false, true)
+loadsave_frame_t::loadsave_frame_t(karte_t *welt, bool do_load) : savegame_frame_t(".sve", false, NULL, false, true)
+//=======
+//loadsave_frame_t::loadsave_frame_t(karte_t *welt, bool do_load) : savegame_frame_t(".sve",false,"save/")
+//>>>>>>> aburch/master
 {
 	this->welt = welt;
 	this->do_load = do_load;
@@ -142,7 +138,7 @@ loadsave_frame_t::loadsave_frame_t(karte_t *welt, bool do_load) : savegame_frame
  * @return den Dateinamen für die Hilfe, oder NULL
  * @author Hj. Malthaner
  */
-const char * loadsave_frame_t::get_hilfe_datei() const
+const char *loadsave_frame_t::get_hilfe_datei() const
 {
 	return do_load ? "load.txt" : "save.txt";
 }
@@ -163,10 +159,10 @@ void loadsave_frame_t::init(const char * /*suffix*/, const char * /*path*/ )
 }
 
 
-void loadsave_frame_t::add_file(const char *filename, const bool not_cutting_suffix)
+void loadsave_frame_t::add_file(const char *fullpath, const char *filename, const bool not_cutting_suffix)
 {
 	char pathname[1024];
-	sprintf( pathname, "%s%s", get_path(), filename );
+	sprintf( pathname, "%s%s", fullpath ? fullpath : "", filename );
 	char buttontext[1024];
 	strcpy( buttontext, filename );
 	if ( !not_cutting_suffix ) {
@@ -303,10 +299,8 @@ const char *loadsave_frame_t::get_info(const char *fname)
 	date[0] = 0;
 	const char *pak_extension = NULL;
 	// get file information
-	char path[1024];
-	sprintf( path, SAVE_PATH_X "%s", fname );
 	struct stat  sb;
-	if(stat(path, &sb)!=0) {
+	if(stat(fname, &sb)!=0) {
 		// file not found?
 		return date;
 	}
@@ -322,7 +316,7 @@ const char *loadsave_frame_t::get_info(const char *fname)
 	else {
 		// read pak_extension from file
 		loadsave_t test;
-		test.rd_open(path);
+		test.rd_open(fname);
 		// add pak extension
 		pak_extension = test.get_pak_extension();
 
@@ -357,23 +351,25 @@ loadsave_frame_t::~loadsave_frame_t()
 	// save hashtable
 	loadsave_t file;
 	const char *cache_file = SAVE_PATH_X "_cached.xml";
-	file.wr_open(cache_file, loadsave_t::xml, "cache", SAVEGAME_VER_NR, EXPERIMENTAL_VER_NR);
-	const char *text="Automatically generated file. Do not edit. An invalid file may crash the game. Deleting is allowed though.";
-	file.rdwr_str(text);
-	FOR(stringhashtable_tpl<sve_info_t*>, const& i, cached_info) {
-		// save only existing files
-		if (i.value->file_exists) {
-			xml_tag_t t(&file, "save_game_info");
-			char const* filename = i.key;
-			file.rdwr_str(filename);
-			i.value->rdwr(&file);
-		}
-	}
-	// mark end with empty entry
+	if( file.wr_open(cache_file, loadsave_t::xml, "cache", SAVEGAME_VER_NR, EXPERIMENTAL_VER_NR) )
 	{
-		xml_tag_t t(&file, "save_game_info");
-		text = "";
+		const char *text="Automatically generated file. Do not edit. An invalid file may crash the game. Deleting is allowed though.";
 		file.rdwr_str(text);
+		FOR(stringhashtable_tpl<sve_info_t*>, const& i, cached_info) {
+			// save only existing files
+			if (i.value->file_exists) {
+				xml_tag_t t(&file, "save_game_info");
+				char const* filename = i.key;
+				file.rdwr_str(filename);
+				i.value->rdwr(&file);
+			}
+		}
+		// mark end with empty entry
+		{
+			xml_tag_t t(&file, "save_game_info");
+			text = "";
+			file.rdwr_str(text);
+		}
+		file.close();
 	}
-	file.close();
 }

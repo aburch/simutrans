@@ -9,11 +9,8 @@
 
 #include <stdio.h>
 
-#include "../simcolor.h"
 #include "../simtools.h"
 #include "../simworld.h"
-#include "../simgraph.h"
-#include "../simskin.h"
 #include "../simwerkz.h"
 #include "../simmenu.h"
 

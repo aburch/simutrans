@@ -9,9 +9,11 @@
 class plainstring
 {
 	public:
-		plainstring() : str_() {}
+		plainstring() : str_(NULL) {}
 
 		plainstring(char const* const s) : str_(copy_string(s)) {}
+
+		plainstring(const plainstring &other) : str_(copy_string(other.c_str())) {}
 
 		~plainstring() { delete [] str_; }
 

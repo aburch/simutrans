@@ -8,6 +8,8 @@
 #ifndef simwin_h
 #define simwin_h
 
+#include <stddef.h> // for ptrdiff_t
+
 #include "simtypes.h"
 #include "simconst.h"
 #include <stddef.h>
@@ -64,7 +66,8 @@ enum magic_numbers {
 	// player dependent stuff => 16 times present
 	magic_finances_t,
 	magic_convoi_list=magic_finances_t+MAX_PLAYER_COUNT,
-	magic_line_list=magic_convoi_list+MAX_PLAYER_COUNT,
+	magic_convoi_list_filter=magic_convoi_list+MAX_PLAYER_COUNT,
+	magic_line_list=magic_convoi_list_filter+MAX_PLAYER_COUNT,
 	magic_halt_list=magic_line_list+MAX_PLAYER_COUNT,
 	magic_line_management_t=magic_halt_list+MAX_PLAYER_COUNT,
 	magic_ai_options_t=magic_line_management_t+MAX_PLAYER_COUNT,
@@ -76,6 +79,8 @@ enum magic_numbers {
 	magic_goodslist,
 	magic_messageframe,
 	magic_message_options,
+	magic_scenario_frame,
+	magic_scenario_info,
 	magic_edit_factory,
 	magic_edit_attraction,
 	magic_edit_house,
@@ -106,8 +111,8 @@ void init_map_win();
 // windows with a valid id can be saved and restored
 void rdwr_all_win(loadsave_t *file);
 
-int create_win(gui_frame_t*, wintype, long magic);
-int create_win(int x, int y, gui_frame_t*, wintype, long magic);
+int create_win(gui_frame_t*, wintype, ptrdiff_t magic);
+int create_win(int x, int y, gui_frame_t*, wintype, ptrdiff_t magic);
 
 bool check_pos_win(event_t*);
 
@@ -123,7 +128,7 @@ gui_komponente_t *win_get_focus();
 int win_get_open_count();
 
 // returns the window (if open) otherwise zero
-gui_frame_t *win_get_magic(long magic);
+gui_frame_t *win_get_magic(ptrdiff_t magic);
 
 /**
  * Checks ifa window is a top level window
@@ -133,8 +138,10 @@ gui_frame_t *win_get_magic(long magic);
 bool win_is_top(const gui_frame_t *ig);
 
 
-void destroy_win(const gui_frame_t *ig);
-void destroy_win(const long magic);
+// return true if actually window was destroyed (or marked for destruction)
+bool destroy_win(const gui_frame_t *ig);
+bool destroy_win(const ptrdiff_t magic);
+
 void destroy_all_win(bool destroy_sticky);
 
 bool top_win(const gui_frame_t *ig, bool keep_rollup=false  );

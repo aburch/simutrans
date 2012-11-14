@@ -43,7 +43,7 @@ settings_t::settings_t() :
 	/* new setting since version 0.85.01
 	 * @author prissi
 	 */
-	land_industry_chains = 4;
+	factory_count = 12;
 	tourist_attractions = 16;
 
 	anzahl_staedte = 16;
@@ -113,6 +113,8 @@ settings_t::settings_t() :
 
 	industry_increase = 2000;
 	city_isolation_factor = 1;
+
+	special_building_distance = 3;
 
 	factory_worker_percentage = 33;
 	tourist_percentage = 16;
@@ -487,7 +489,7 @@ void settings_t::rdwr(loadsave_t *file)
 		// to be compatible with previous savegames
 		dummy = 0;
 		file->rdwr_long(dummy );	//dummy!
-		land_industry_chains = 6;
+		factory_count = 12;
 		tourist_attractions = 12;
 
 		// now towns
@@ -520,7 +522,7 @@ void settings_t::rdwr(loadsave_t *file)
 		file->rdwr_long(nummer );
 
 		// industries
-		file->rdwr_long(land_industry_chains );
+		file->rdwr_long(factory_count );
 		if(file->get_version()<99018) {
 			uint32 dummy;	// was city chains
 			file->rdwr_long(dummy );
@@ -1325,6 +1327,10 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_bool( allow_underground_transformers );
 		}
 
+		if(  file->get_version()>=111005  ) {
+			file->rdwr_short( special_building_distance );
+		}
+
 		// otherwise the default values of the last one will be used
 	}
 #endif
@@ -1406,6 +1412,9 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	umgebung_t::simple_drawing_fast_forward = contents.get_int("simple_drawing_fast_forward",umgebung_t::simple_drawing_fast_forward );
 	umgebung_t::visualize_schedule = contents.get_int("visualize_schedule",umgebung_t::visualize_schedule )!=0;
 	umgebung_t::show_vehicle_states = contents.get_int("show_vehicle_states",umgebung_t::show_vehicle_states );
+
+	umgebung_t::hide_rail_return_ticket = contents.get_int("hide_rail_return_ticket",umgebung_t::hide_rail_return_ticket );
+	umgebung_t::chat_window_transparency = contents.get_int("chat_transparency",umgebung_t::chat_window_transparency );
 
 	// network stuff
 	umgebung_t::server_frames_ahead = contents.get_int("server_frames_ahead", umgebung_t::server_frames_ahead );
@@ -1603,6 +1612,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	max_route_steps = contents.get_int("max_route_steps", max_route_steps );
 	max_hops = contents.get_int("max_hops", max_hops );
 	max_transfers = contents.get_int("max_transfers", max_transfers );
+
+	special_building_distance = contents.get_int("special_building_distance", special_building_distance );
 	industry_increase = contents.get_int("industry_increase_every", industry_increase );
 	city_isolation_factor = contents.get_int("city_isolation_factor", city_isolation_factor );
 	passenger_factor = contents.get_int("passenger_factor", passenger_factor ); /* this can manipulate the passenger generation */
@@ -2075,6 +2086,22 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 		loadsave_t::set_savemode(loadsave_t::bzip2 );
 	} else if(strcmp(str, "xml_bzip2") == 0) {
 		loadsave_t::set_savemode(loadsave_t::xml_bzip2 );
+	}
+
+	str = contents.get("autosaveformat" );
+	while (*str == ' ') str++;
+	if (strcmp(str, "binary") == 0) {
+		loadsave_t::set_autosavemode(loadsave_t::binary );
+	} else if(strcmp(str, "zipped") == 0) {
+		loadsave_t::set_autosavemode(loadsave_t::zipped );
+	} else if(strcmp(str, "xml") == 0) {
+		loadsave_t::set_autosavemode(loadsave_t::xml );
+	} else if(strcmp(str, "xml_zipped") == 0) {
+		loadsave_t::set_autosavemode(loadsave_t::xml_zipped );
+	} else if(strcmp(str, "bzip2") == 0) {
+		loadsave_t::set_autosavemode(loadsave_t::bzip2 );
+	} else if(strcmp(str, "xml_bzip2") == 0) {
+		loadsave_t::set_autosavemode(loadsave_t::xml_bzip2 );
 	}
 
 	/*

@@ -29,6 +29,10 @@
 # ATTENTION!
 # will be only used if this file is located in the program directory at config/simuconf.tab!
 #singleuser_install = 0
+#
+#
+#
+# Do not delete these comment line! (Needed for installer)
 
 # Automatic loading of paksets. If a path to a pakset is specified below, that pakset
 # will be loaded by default when the game starts. If no pakset is specified, the user
@@ -688,6 +692,10 @@ ground_info = 1
 # (1=on, 0=off)
 townhall_info = 0
 
+# do not show the button to add an inverted schedule for rail based convois
+# (1=hide, 0=show anyway)
+hide_rail_return_ticket = 1
+
 # always open only a single info window for the ground,
 # even if there are more objects on this tile
 #only_single_info = 1
@@ -807,19 +815,6 @@ left_to_right_graphs = 1
 # starting_money[0]=1930,20000000,1
 # starting_money[1]=2030,35000000,1
 
-<<<<<<< HEAD
-=======
-# allow buying obsolete vehicles (=1) in depot
-allow_buying_obsolete_vehicles = 1
-
-# vehicle can loose a part of their value, when the are once used
-# the loss is given in 1/1000th, i.e 300 mean the value will be 70%
-used_vehicle_reduction = 0
-
-# lowest possible income with speedbonus (1000=1) default 125 (=1/8th)
-bonus_basefactor = 125
-
->>>>>>> v111.3
 # if a convoi runs on a way that belongs to another player, toll may
 # be charged. The number given is the percentage of the running cost
 # of the convoi or the way cost (include electrification if needed).
@@ -898,6 +893,18 @@ allow_purhcases_when_insolvent = 0
 # for Experimental compatible paksets).
 
 speed_bonus_multiplier_percent = 70
+
+# Minimum distance of a city attraction to other special buildings
+#special_building_distance = 3
+
+# Max. length of initial intercity road connections
+# If you want to speed up map creation, lower this value.
+# If you want more initial intercity roads, raise this value.
+# If the value is too large then very long bridges might be created.
+# 200 seems to be a good compromise between speed and road number
+# note: this will slow down map creation dramatically!
+#
+#intercity_road_length = 200
 
 # Settings for obsolete vehicles
 #
@@ -1165,29 +1172,11 @@ bits_per_month = 20
 # bzip2 savegames are smaller than zipped but saving/loading takes longer
 saveformat = bzip2
 
+# Alternate format for faster autosaves
+autosaveformat = zipped
+
 # autosave every x months (0=off)
-<<<<<<< HEAD
 autosave = 12
-=======
-autosave = 0
-
-# display (screen/window) width
-# also see readme.txt, -screensize option
-#display_width  = 704
-
-# display (screen/window) height
-# also see readme.txt, -screensize option
-#display_height = 560
-
-# show full screen
-#fullscreen = 0
-
-# maximum size of tool bars (0 = no limit)
-# if more tools than allowed by height,
-# next and prev arrows for scrolling appears
-toolbar_max_width = 0
-toolbar_max_height = 0
->>>>>>> v111.3
 
 # How many frames per second to use? Display may look pretty until 10 or so
 # (depends very much on computer, game complexity and graphics driver)
@@ -1277,11 +1266,10 @@ server_pakurl = http://your.domain/pakset.zip
 server_infurl = http://your.domain/server-info.html
 
 # Pause server when no clients are connected
-<<<<<<< HEAD
 pause_server_no_clients = 1
-=======
-#pause_server_no_clients = 1
 
 # Nickname when joining network games
 #nickname = John Doe
->>>>>>> v111.3
+
+# Chat window transparency (0=off, 25, 50 75 are possible)
+chat_transparency = 75

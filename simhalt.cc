@@ -214,9 +214,8 @@ halthandle_t haltestelle_t::create(karte_t *welt, koord pos, spieler_t *sp)
  * removes a ground tile from a station
  * @author prissi
  */
-bool haltestelle_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, const char *&msg)
+bool haltestelle_t::remove(karte_t *welt, spieler_t *sp, koord3d pos)
 {
-	msg = NULL;
 	grund_t *bd = welt->lookup(pos);
 
 	// wrong ground?
@@ -534,21 +533,13 @@ void haltestelle_t::rotate90( const sint16 y_size )
 
 	// rotate waren destinations
 	// iterate over all different categories
-	for(uint32 i = 0; i < warenbauer_t::get_max_catg_index(); i++) 
-	{
-		if(waren[i]) 
-		{
-			vector_tpl<ware_t> & warray = *waren[i];
-			for(size_t j = warray.get_count() - 1; j >= 0; j--) 
-			{
-				ware_t & ware = warray[j];
-				if(ware.menge > 0) 
-				{
-					koord k = ware.get_zielpos();
-					k.rotate90( y_size );
-					// since we need to point at factory (0,0)
-					fabrik_t *fab = fabrik_t::get_fab( welt, k );
-					ware.set_zielpos( fab ? fab->get_pos().get_2d() : k );
+	for(unsigned i=0; i<warenbauer_t::get_max_catg_index(); i++) {
+		if(waren[i]) {
+			vector_tpl<ware_t>& warray = *waren[i];
+			for (size_t j = warray.get_count(); j-- != 0;) {
+				ware_t& ware = warray[j];
+				if(ware.menge>0) {
+					ware.rotate90(welt, y_size);
 				}
 				else 
 				{
@@ -593,13 +584,13 @@ void haltestelle_t::set_name(const char *new_name)
 		if(gr->get_flag(grund_t::has_text)) {
 			halthandle_t h = all_names.remove(gr->get_text());
 			if(h!=self) {
-				DBG_MESSAGE("haltestelle_t::set_name()","name %s already used!",gr->get_text());
+				DBG_MESSAGE("haltestelle_t::set_name()","removing name %s already used!",gr->get_text());
 			}
 		}
 		if(!gr->find<label_t>()) {
 			gr->set_text( new_name );
 			if(new_name  &&  !all_names.put(gr->get_text(),self)) {
-				DBG_MESSAGE("haltestelle_t::set_name()","name %s already used!",new_name);
+ 				DBG_MESSAGE("haltestelle_t::set_name()","name %s already used!",new_name);
 			}
 		}
 		// Knightly : need to update the title text of the associated halt detail and info dialogs, if present
@@ -778,11 +769,13 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 				const uint32 idx = simrand(street_names.get_count(), "char* haltestelle_t::create_name(koord const k, char const* const typ)");
 
 				buf.clear();
-				buf.printf( street_names[idx], city_name, stop );
-				if(  !all_names.get(buf).is_bound()  ) {
-					return strdup(buf);
+				if (cbuffer_t::check_format_strings("%s %s", street_names[idx])) {
+					buf.printf( street_names[idx], city_name, stop );
+					if(  !all_names.get(buf).is_bound()  ) {
+						return strdup(buf);
+					}
 				}
-				// else remove this entry
+				// remove this entry
 				street_names[idx] = street_names.back();
 				street_names.pop_back();
 			}
@@ -849,14 +842,18 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 				// allow for names without direction
 				uint8 count_s = count_printf_param( base_name );
 				if(count_s==3) {
-					// ok, try this name, if free ...
-					buf.printf( base_name, city_name, dirname, stop );
+					if (cbuffer_t::check_format_strings("%s %s %s", base_name) ) {
+						// ok, try this name, if free ...
+						buf.printf( base_name, city_name, dirname, stop );
+					}
 				}
 				else {
-					// ok, try this name, if free ...
-					buf.printf( base_name, city_name, stop );
+					if (cbuffer_t::check_format_strings("%s %s", base_name) ) {
+						// ok, try this name, if free ...
+						buf.printf( base_name, city_name, stop );
+					}
 				}
-				if(  !all_names.get(buf).is_bound()  ) {
+				if(  buf.len()>0  &&  !all_names.get(buf).is_bound()  ) {
 					return strdup(buf);
 				}
 				buf.clear();
@@ -1069,7 +1066,7 @@ void haltestelle_t::neuer_monat()
 {
 	if(  welt->get_active_player()==besitzer_p  &&  status_color==COL_RED  ) {
 		cbuffer_t buf;
-		buf.printf( translator::translate("!0_STATION_CROWDED"), get_name() );
+		buf.printf( translator::translate("%s\nis crowded."), get_name() );
 		welt->get_message()->add_message(buf, get_basis_pos(),message_t::full, PLAYER_FLAG|besitzer_p->get_player_nr(), IMG_LEER );
 		enables &= (PAX|POST|WARE);
 	}
@@ -3108,9 +3105,27 @@ void haltestelle_t::laden_abschliessen(bool need_recheck_for_walking_distance)
 		}
 	}
 	else {
-		if(!all_names.put(bd->get_text(),self)) {
-			DBG_MESSAGE("haltestelle_t::set_name()","name %s already used!",bd->get_text());
+		const char *current_name = bd->get_text();
+		if(  all_names.get(current_name).is_bound()  ) {
+			// try to get a new name ...
+			const char *new_name;
+			if(  station_type & airstop  ) {
+				new_name = create_name( get_basis_pos(), "Airport" );
+			}
+			else if(  station_type & dock  ) {
+				new_name = create_name( get_basis_pos(), "Dock" );
+			}
+			else if(  station_type & (railstation|monorailstop|maglevstop|narrowgaugestop)  ) {
+				new_name = create_name( get_basis_pos(), "BF" );
+			}
+			else {
+				new_name = create_name( get_basis_pos(), "H" );
+			}
+			dbg->warning("haltestelle_t::set_name()","name already used: \'%s\' -> \'%s\'", current_name, new_name );
+			bd->set_text( new_name );
+			current_name = new_name;
 		}
+		all_names.put( current_name, self );
 	}
 	
 	if(need_recheck_for_walking_distance)

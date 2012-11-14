@@ -122,7 +122,7 @@ void dr_fatal_notify(char const* msg);
  *         in case of error.
  * @author Hj. Malthaner
  */
-int dr_screenshot(const char *filename);
+int dr_screenshot(const char *filename, int x, int y, int w, int h);
 
 /**
  * Copy text to the clipboard

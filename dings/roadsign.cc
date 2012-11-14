@@ -22,6 +22,7 @@
 #include "../boden/wege/strasse.h"
 
 #include "../dataobj/loadsave.h"
+#include "../dataobj/scenario.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/umgebung.h"
 
@@ -59,11 +60,14 @@ roadsign_t::roadsign_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
 	if(  !automatic  ||  besch==NULL  ) {
 		zustand = 0;
 	}
+	// only traffic light need switches
+	if(  automatic  ) {
+		welt->sync_add(this);
+	}
 }
 
 
-
-roadsign_t::roadsign_t(karte_t *welt, spieler_t *sp, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t *besch) :  ding_t(welt, pos)
+roadsign_t::roadsign_t(karte_t *welt, spieler_t *sp, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t *besch) : ding_t(welt, pos)
 {
 	this->besch = besch;
 	this->dir = dir;
@@ -86,8 +90,11 @@ roadsign_t::roadsign_t(karte_t *welt, spieler_t *sp, koord3d pos, ribi_t::ribi d
 	 * however also gate signs need indications
 	 */
 	automatic = (besch->get_bild_anzahl()>4  &&  besch->get_wtyp()==road_wt)  ||  (besch->get_bild_anzahl()>2  &&  besch->is_private_way());
+	// only traffic light need switches
+	if(  automatic  ) {
+		welt->sync_add(this);
+	}
 }
-
 
 
 roadsign_t::~roadsign_t()
@@ -109,7 +116,6 @@ roadsign_t::~roadsign_t()
 		welt->sync_remove(this);
 	}
 }
-
 
 
 void roadsign_t::set_dir(ribi_t::ribi dir)
@@ -148,10 +154,10 @@ DBG_MESSAGE("roadsign_t::set_dir()","ribi %i",dir);
 void roadsign_t::zeige_info()
 {
 	if(  besch->is_private_way()  ) {
-		create_win(new privatesign_info_t(this), w_info, (long)this );
+		create_win(new privatesign_info_t(this), w_info, (ptrdiff_t)this );
 	}
 	else if(  automatic  ) {
-		create_win(new trafficlight_info_t(this), w_info, (long)this );
+		create_win(new trafficlight_info_t(this), w_info, (ptrdiff_t)this );
 	}
 	else {
 		ding_t::zeige_info();
@@ -194,8 +200,7 @@ void roadsign_t::info(cbuffer_t & buf) const
 }
 
 
-
-// coulb be still better aligned for drive_left settings ...
+// could be still better aligned for drive_left settings ...
 void roadsign_t::calc_bild()
 {
 	set_flag(ding_t::dirty);
@@ -550,16 +555,16 @@ void roadsign_t::rdwr(loadsave_t *file)
 		besch = roadsign_t::table.get(bname);
 		if(besch==NULL) {
 			besch = roadsign_t::table.get(translator::compatibility_name(bname));
-			if(besch==NULL) {
+			if(  besch==NULL  ) {
 				dbg->warning("roadsign_t::rwdr", "description %s for roadsign/signal at %d,%d not found! (may be ignored)", bname, get_pos().x, get_pos().y);
 				welt->add_missing_paks( bname, karte_t::MISSING_SIGN );
 			}
 			else {
-				dbg->warning("roadsign_t::rwdr", "roadsign/signal %s at %d,%d rpleaced by %s", bname, get_pos().x, get_pos().y, besch->get_name() );
+				dbg->warning("roadsign_t::rwdr", "roadsign/signal %s at %d,%d replaced by %s", bname, get_pos().x, get_pos().y, besch->get_name() );
 			}
 		}
 		// init ownership of private ways signs
-		if(  file->get_version()<110007  &&  besch->is_private_way()  ) {
+		if(  file->get_version()<110007  &&  besch  &&  besch->is_private_way()  ) {
 			ticks_ns = 0xFD;
 			ticks_ow = 0xFF;
 		}
@@ -589,10 +594,6 @@ void roadsign_t::laden_abschliessen()
 		// after loading restore directions
 		set_dir(dir);
 		gr->get_weg(besch->get_wtyp()!=tram_wt ? besch->get_wtyp() : track_wt)->count_sign();
-	}
-	// only traffic light need switches
-	if(automatic) {
-		welt->sync_add( this );
 	}
 }
 
@@ -669,6 +670,11 @@ bool roadsign_t::register_besch(roadsign_besch_t *besch)
  */
 void roadsign_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 /*sound_ok*/, const karte_t *welt)
 {
+	// check if scenario forbids this
+	if (!welt->get_scenario()->is_tool_allowed(welt->get_active_player(), WKZ_ROADSIGN | GENERAL_TOOL, wtyp)) {
+		return;
+	}
+
 	const uint16 time = welt->get_timeline_year_month();
 
 	vector_tpl<const roadsign_besch_t *>matching;

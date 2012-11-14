@@ -20,6 +20,7 @@
 #include "../simmenu.h"
 #include "../dataobj/network_cmd_ingame.h"
 #include "../dataobj/umgebung.h"
+#include "../dataobj/scenario.h"
 #include "../dataobj/translator.h"
 
 #include "../simwin.h"
@@ -56,8 +57,17 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 
 	const spieler_t* const current_player = welt->get_active_player();
 
-	for(int i=0; i<MAX_PLAYER_COUNT-1; i++) 
-	{
+	// switching active player allowed?
+	bool player_change_allowed = welt->get_settings().get_allow_player_change() || !welt->get_spieler(1)->is_locked();
+	// activate player etc allowed?
+	bool player_tools_allowed = true;
+	// check also scenario rules
+	if (welt->get_scenario()->is_scripted()) {
+		player_tools_allowed = welt->get_scenario()->is_tool_allowed(NULL, WKZ_SWITCH_PLAYER | SIMPLE_TOOL);
+		player_change_allowed &= player_tools_allowed;
+	}
+
+	for(int i=0; i<MAX_PLAYER_COUNT-1; i++) {
 		const spieler_t *const sp = welt->get_spieler(i);
 
 		player_change_to[i].init(button_t::arrowright_state, " ", koord(16+4,6+(i+1)*2*LINESPACE), koord(10,D_BUTTON_HEIGHT));
@@ -66,12 +76,12 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 		if(i>=2) {
 			player_active[i-2].init(button_t::square_state, "", koord(4,6+(i+1)*2*LINESPACE));
 			player_active[i-2].add_listener(this);
-			if(sp  &&  sp->get_ai_id()!=spieler_t::HUMAN) {
+			if(sp  &&  sp->get_ai_id()!=spieler_t::HUMAN  &&  player_tools_allowed) {
 				add_komponente( player_active+i-2 );
 			}
 		}
 
-		if (sp && (welt->get_settings().get_allow_player_change() || !welt->get_spieler(1)->is_locked())) {
+		if (sp  &&  player_change_allowed) {
 			// allow change to human and public
 			add_komponente(player_change_to+i);
 		}
@@ -83,6 +93,7 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 
 		player_select[i].set_pos( koord(34,4+(i+1)*2*LINESPACE) );
 		player_select[i].set_groesse( koord(120,D_BUTTON_HEIGHT) );
+		player_select[i].set_focusable( false );
 		player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("slot empty"), COL_BLACK ) );
 		player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Manual (Human)"), COL_BLACK ) );
 		if(  !welt->get_spieler(1)->is_locked()  ||  !umgebung_t::networkmode  ) {
@@ -101,7 +112,9 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 		}
 		else {
 			// init player selection dialoge
-			add_komponente( player_select+i );
+			if (player_tools_allowed) {
+				add_komponente( player_select+i );
+			}
 			player_get_finances[i].set_visible(false);
 		}
 
@@ -109,7 +122,9 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 		player_lock[i].init(button_t::box, "", koord(160+1,4+(i+1)*2*LINESPACE+1), koord(D_BUTTON_HEIGHT-2,D_BUTTON_HEIGHT-2));
 		player_lock[i].background = sp  &&  sp->is_locked() ? (sp->is_unlock_pending() ? COL_YELLOW : COL_RED) : COL_GREEN;
 		player_lock[i].add_listener(this);
-		add_komponente( player_lock+i );
+		if (player_tools_allowed) {
+			add_komponente( player_lock+i );
+		}
 
 		// Access buttons
 		access_out[i].init(button_t::square_state, "",  koord(190+1,4+(i+1)*2*LINESPACE+1));
@@ -160,7 +175,7 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 	// freeplay mode
 	freeplay.init( button_t::square_state, "freeplay mode", koord(4,2+(MAX_PLAYER_COUNT)*LINESPACE*2) );
 	freeplay.add_listener(this);
-	if (welt->get_spieler(1)->is_locked() || !welt->get_settings().get_allow_player_change()) {
+	if (welt->get_spieler(1)->is_locked() || !welt->get_settings().get_allow_player_change()  ||  !player_tools_allowed) {
 		freeplay.disable();
 	}
 	freeplay.pressed = welt->get_settings().is_freeplay();

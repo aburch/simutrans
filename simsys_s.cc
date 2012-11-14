@@ -82,6 +82,10 @@ static Uint8 hourglass_cursor_mask[] = {
 	0x3F, 0xFE  //   *************
 };
 
+static Uint8 blank_cursor[] = {
+	0x0,
+	0x0,
+};
 
 static SDL_Surface *screen;
 static int width = 16;
@@ -92,6 +96,7 @@ static int sync_blit = 0;
 
 static SDL_Cursor* arrow;
 static SDL_Cursor* hourglass;
+static SDL_Cursor* blank;
 
 
 /*
@@ -187,6 +192,9 @@ int dr_os_open(int w, int const h, int const fullscreen)
 	SDL_ShowCursor(0);
 	arrow = SDL_GetCursor();
 	hourglass = SDL_CreateCursor(hourglass_cursor, hourglass_cursor_mask, 16, 22, 8, 11);
+	blank = SDL_CreateCursor(blank_cursor, blank_cursor, 8, 2, 0, 0);
+
+	SDL_ShowCursor(1);
 
 	display_set_actual_width( w );
 	return w;
@@ -197,8 +205,9 @@ int dr_os_open(int w, int const h, int const fullscreen)
 void dr_os_close()
 {
 	SDL_FreeCursor(hourglass);
-	// Hajo: SDL doc says, screen is freed by SDL_Quit and should not be
-	// freed by the user
+	SDL_FreeCursor(blank);
+	// Hajo: SDL doc says, screen is free'd by SDL_Quit and should not be
+	// free'd by the user
 	// SDL_FreeSurface(screen);
 }
 
@@ -321,10 +330,10 @@ void set_pointer(int loading)
  *         in case of error.
  * @author Hj. Malthaner
  */
-int dr_screenshot(const char *filename)
+int dr_screenshot(const char *filename, int x, int y, int w, int h)
 {
 #ifdef WIN32
-	if(dr_screenshot_png(filename, display_get_width(), height, width, ( unsigned short *)(screen->pixels), screen->format->BitsPerPixel)) {
+	if(  dr_screenshot_png(filename, w, h, width, ((unsigned short *)(screen->pixels))+x+y*width, screen->format->BitsPerPixel )  ) {
 		return 1;
 	}
 #endif
@@ -565,7 +574,8 @@ void GetEventsNoWait(void)
 
 void show_pointer(int yesno)
 {
-	SDL_ShowCursor(yesno != 0);
+	SDL_SetCursor((yesno != 0) ? arrow : blank);
+//	SDL_ShowCursor(yesno != 0);
 }
 
 

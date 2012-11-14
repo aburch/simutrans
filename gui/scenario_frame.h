@@ -10,6 +10,7 @@
 
 
 #include "savegame_frame.h"
+#include "../utils/cbuffer_t.h"
 
 class karte_t;
 
@@ -19,13 +20,14 @@ class scenario_frame_t : public savegame_frame_t
 private:
 	karte_t *welt;
 	bool do_load;
+	cbuffer_t path;
 
 protected:
 	/**
 	 * Aktion, die nach Knopfdruck gestartet wird.
 	 * @author Hansjörg Malthaner
 	 */
-	virtual void action(const char *filename);
+	virtual void action(const char *fullpath);
 
 	/**
 	 * Aktion, die nach X-Knopfdruck gestartet wird.
@@ -36,6 +38,8 @@ protected:
 	// returns extra file info
 	virtual const char *get_info(const char *fname);
 
+	// true, if valid
+	virtual bool check_file( const char *filename, const char *suffix );
 public:
 	/**
 	* Manche Fenster haben einen Hilfetext assoziiert.

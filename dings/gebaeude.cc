@@ -11,7 +11,9 @@
 #if MULTI_THREAD>1
 #include <pthread.h>
 static pthread_mutex_t sync_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t add_to_city_mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
+
 
 #include "../bauer/hausbauer.h"
 #include "../gui/money_frame.h"
@@ -169,14 +171,13 @@ gebaeude_t::~gebaeude_t()
 }
 
 
-
 void gebaeude_t::rotate90()
 {
 	ding_t::rotate90();
 
 	// must or can rotate?
 	const haus_besch_t* const haus_besch = tile->get_besch();
-	if (is_factory || haus_besch->get_all_layouts() > 1 || haus_besch->get_b() * haus_besch->get_h() > 1) {
+	if (haus_besch->get_all_layouts() > 1  ||  haus_besch->get_b() * haus_besch->get_h() > 1) {
 		uint8 layout = tile->get_layout();
 		koord new_offset = tile->get_offset();
 
@@ -200,11 +201,6 @@ void gebaeude_t::rotate90()
 			new_offset = koord(haus_besch->get_h(tile->get_layout()) - 1 - new_offset.y, new_offset.x);
 		}
 
-		// correct factory zero pos
-		if(is_factory  &&  new_offset==koord(0,0)) {
-			ptr.fab->set_pos( get_pos() );
-		}
-
 		// suche a tile exist?
 		if(  haus_besch->get_b(layout) > new_offset.x  &&  haus_besch->get_h(layout) > new_offset.y  ) {
 			const haus_tile_besch_t* const new_tile = haus_besch->get_tile(layout, new_offset.x, new_offset.y);
@@ -217,8 +213,8 @@ void gebaeude_t::rotate90()
 				if(  !is_factory  &&  new_offset!=koord(0,0)  ) {
 					welt->set_nosave_warning();
 				}
-				if(  is_factory  &&  (new_offset!=koord(0,0)  ||  ptr.fab->get_besch()->get_haus()->get_tile(0,0,0)==NULL)  ) {
-					// there are factories without a valid zero tile
+				if(  is_factory  ) {
+					// there are factories with a broken tile
 					// => this map rotation cannot be reloaded!
 					welt->set_nosave();
 				}
@@ -299,27 +295,27 @@ void gebaeude_t::set_tile( const haus_tile_besch_t *new_tile, bool start_with_co
 		if(new_tile->get_phasen()<=1  &&  !zeige_baugrube) {
 			// need to stop animation
 #if MULTI_THREAD>1
-			pthread_mutex_lock( &sync_mutex  );
+			pthread_mutex_lock( &sync_mutex );
 #endif
 			welt->sync_eyecandy_remove(this);
 			sync = false;
 			count = 0;
 #if MULTI_THREAD>1
-			pthread_mutex_unlock( &sync_mutex  );
+			pthread_mutex_unlock( &sync_mutex );
 #endif
 		}
 	}
 	else if(new_tile->get_phasen()>1  ||  zeige_baugrube) {
 		// needs now animation
 #if MULTI_THREAD>1
-		pthread_mutex_lock( &sync_mutex  );
+		pthread_mutex_lock( &sync_mutex );
 #endif
 		count = sim_async_rand(new_tile->get_phasen());
 		anim_time = 0;
 		welt->sync_eyecandy_add(this);
 		sync = true;
 #if MULTI_THREAD>1
-		pthread_mutex_unlock( &sync_mutex  );
+		pthread_mutex_unlock( &sync_mutex );
 #endif
 	}
 	tile = new_tile;
@@ -497,7 +493,7 @@ int gebaeude_t::get_passagier_level() const
 {
 	koord dim = tile->get_besch()->get_groesse();  //("Groesse" = "size")
 	long pax = tile->get_besch()->get_level();
-	if (!is_factory && ptr.stadt != NULL) {
+	if(  !is_factory  &&  ptr.stadt != NULL  ) {
 		// belongs to a city ...
 		return ((pax + 6) >> 2) * welt->get_settings().get_passenger_factor() / 16;
 	}
@@ -509,7 +505,7 @@ int gebaeude_t::get_post_level() const
 {
 	koord dim = tile->get_besch()->get_groesse();
 	long post = tile->get_besch()->get_post_level();
-	if (!is_factory && ptr.stadt != NULL) {
+	if(  !is_factory  &&  ptr.stadt != NULL  ) {
 		return ((post + 5) >> 2) * welt->get_settings().get_passenger_factor() / 16;
 	}
 	return post*dim.x*dim.y;
@@ -590,50 +586,47 @@ gebaeude_t::typ gebaeude_t::get_haustyp() const
 
 void gebaeude_t::zeige_info()
 {
-	// Für die Anzeige ist bei mehrteiliggen Gebäuden immer
-	// das erste laut Layoutreihenfolge zuständig.
-	// Sonst gibt es für eine 2x2-Fabrik bis zu 4 Infofenster.
-	koord k = tile->get_offset();
-	if(k != koord(0, 0)) {
-		grund_t *gr = welt->lookup(get_pos() - k);
-		if(!gr) {
-			gr = welt->lookup_kartenboden(get_pos().get_2d() - k);
-		}
-		gebaeude_t* gb = gr->find<gebaeude_t>();
-		// is the info of the (0,0) tile on multi tile buildings
-		if(gb) {
-			// some version made buildings, that had not tile (0,0)!
-			gb->zeige_info();
-		}
+	if(get_fabrik()) {
+		ptr.fab->zeige_info();
+		return;
 	}
-	else {
-DBG_MESSAGE("gebaeude_t::zeige_info()", "at %d,%d - name is '%s'", get_pos().x, get_pos().y, get_name());
+	int old_count = win_get_open_count();
+	bool special = ist_firmensitz() || ist_rathaus();
 
-		if(get_fabrik()) {
-			ptr.fab->zeige_info();
-		}
-		else if(ist_firmensitz()) {
-			int old_count = win_get_open_count();
-			create_win( new money_frame_t(get_besitzer()), w_info, magic_finances_t+get_besitzer()->get_player_nr() );
-			// already open?
-			if(umgebung_t::townhall_info  &&  old_count==win_get_open_count()) {
-				create_win( new ding_infowin_t(this), w_info, (long)this);
+	if(ist_firmensitz()) {
+		create_win( new money_frame_t(get_besitzer()), w_info, magic_finances_t+get_besitzer()->get_player_nr() );
+	}
+	else if (ist_rathaus()) {
+		welt->suche_naechste_stadt(get_pos().get_2d())->zeige_info();
+	}
+
+	if(!special  ||  (umgebung_t::townhall_info  &&  old_count==win_get_open_count()) ) {
+		// open info window for the first tile of our building (not relying on presence of (0,0) tile)
+		get_first_tile()->ding_t::zeige_info();
+	}
+}
+
+
+gebaeude_t* gebaeude_t::get_first_tile()
+{
+	const haus_besch_t* const haus_besch = tile->get_besch();
+	const uint8 layout = tile->get_layout();
+	koord k;
+	for(k.x=0; k.x<haus_besch->get_b(layout); k.x++) {
+		for(k.y=0; k.y<haus_besch->get_h(layout); k.y++) {
+			const haus_tile_besch_t *tile = haus_besch->get_tile(layout, k.x, k.y);
+			if (tile==NULL  ||  !tile->has_image()) {
+				continue;
 			}
-		}
-		else if(!tile->get_besch()->ist_ohne_info()) {
-			if(ist_rathaus()) {
-				int old_count = win_get_open_count();
-				welt->suche_naechste_stadt(get_pos().get_2d())->zeige_info();
-				// already open?
-				if(umgebung_t::townhall_info  &&  old_count==win_get_open_count()) {
-					create_win( new ding_infowin_t(this), w_info, (long)this);
+			if (grund_t *gr = welt->lookup( get_pos() - get_tile()->get_offset() + k)) {
+				gebaeude_t *gb = gr->find<gebaeude_t>();
+				if (gb  &&  gb->get_tile() == tile) {
+					return gb;
 				}
 			}
-			else {
-				create_win( new ding_infowin_t(this), w_info, (long)this);
-			}
 		}
 	}
+	return this;
 }
 
 
@@ -707,7 +700,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 			buf.printf(translator::translate("Town: %s\n"), ptr.stadt->get_name());
 		}*/
 
-		if( get_tile()->get_besch()->get_utyp() < haus_besch_t::bahnhof ) {
+		if(  get_tile()->get_besch()->get_utyp() < haus_besch_t::bahnhof  ) {
 			buf.printf("%s: %d\n", translator::translate("Passagierrate"), get_passagier_level());
 			buf.printf("%s: %d\n", translator::translate("Postrate"),      get_post_level());
 		}
@@ -940,7 +933,13 @@ void gebaeude_t::laden_abschliessen()
 		if(  tile->get_besch()->is_connected_with_town()  ) {
 			stadt_t *city = (ptr.stadt==NULL) ? welt->suche_naechste_stadt( get_pos().get_2d() ) : ptr.stadt;
 			if(city) {
-				city->add_gebaeude_to_stadt(this);
+#if MULTI_THREAD>1
+				pthread_mutex_lock( &add_to_city_mutex );
+#endif
+				city->add_gebaeude_to_stadt(this, true);
+#if MULTI_THREAD>1
+				pthread_mutex_unlock( &add_to_city_mutex );
+#endif
 			}
 		}
 		else if(  !is_factory  ) {

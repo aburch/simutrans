@@ -42,6 +42,11 @@ public:
 private:
 	int mode;
 	bool saving;
+	bool buffered;
+	unsigned curr_buff;
+	unsigned buf_pos[2];
+	unsigned buf_len[2];
+	char* ls_buf[2];
 	uint32 version;
 	uint32 experimental_version;
 	int ident;		// only for XML formatting
@@ -52,10 +57,10 @@ private:
 	file_descriptors_t *fd;
 
 	// Hajo: putc got a name clash on my system
-	void lsputc(int c);
+	inline void lsputc(int c);
 
 	// Hajo: getc got a name clash on my system
-	int lsgetc();
+	inline int lsgetc();
 	size_t write(const void * buf, size_t len);
 	size_t read(void *buf, size_t len);
 
@@ -65,11 +70,17 @@ private:
 	loadsave_t(const loadsave_t&);
 	loadsave_t& operator=(const loadsave_t&);
 
+	friend void *loadsave_thread( void *ptr );
+
+	int fill_buffer(int buf_num);
+	void flush_buffer(int buf_num);
+
 public:
 	
 	struct combined_version { uint32 version; uint32 experimental_version; };
 
 	static mode_t save_mode;	// default to use for saving
+	static mode_t autosave_mode; // default to use for autosaves and network mode client temp saves
 	static combined_version int_version(const char *version_text, int *mode, char *pak);
 
 	loadsave_t();
@@ -80,12 +91,16 @@ public:
 	const char *close();
 
 	static void set_savemode(mode_t mode) { save_mode = mode; }
+	static void set_autosavemode(mode_t mode) { autosave_mode = mode; }
+
 	/**
 	 * Checks end-of-file
 	 * @author Hj. Malthaner
 	 */
 	bool is_eof();
 
+	void set_buffered(bool enable);
+	unsigned get_buf_pos(int buf_num) const { return buf_pos[buf_num]; }
 	bool is_loading() const { return !saving; }
 	bool is_saving() const { return saving; }
 	bool is_zipped() const { return mode&zipped; }
