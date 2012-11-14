@@ -5555,13 +5555,11 @@ void convoi_t::set_depot_when_empty(bool new_dwe)
  */
 bool convoi_t::go_to_depot(bool show_success, bool use_home_depot)
 {
-	if(fpl->ist_abgeschlossen()) {
-		return false;
-	}
-	/*if (convoi_info_t::route_search_in_progress) 
+	if(!fpl->ist_abgeschlossen()) 
 	{
 		return false;
-	}*/
+	}
+
 	// limit update to certain states that are considered to be safe for fahrplan updates
 	int state = get_state();
 	if(state==convoi_t::FAHRPLANEINGABE) {
