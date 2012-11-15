@@ -4022,19 +4022,23 @@ void convoi_t::laden() //"load" (Babelfish)
 				}
 
 				journey_time = welt->ticks_to_tenths_of_minutes(arrival_time - departures->get(pair.x).departure_time);
-				if(!average_journey_times->is_contained(idp))
 				{
-					average_tpl<uint16> average;
-					average.add(journey_time);
-					average_journey_times->put(idp, average);
-				}
-				else
-				{
-					average_journey_times->access(pair)->add_check_overflow_16(journey_time);
+					average_tpl<uint16> *value = average_journey_times->access(idp);
+					if(!value)
+					{
+						average_tpl<uint16> average;
+						average.add(journey_time);
+						average_journey_times->put(idp, average);
+					}
+					else
+					{
+						value->add_check_overflow_16(journey_time);
+					}
 				}
 				if(line.is_bound())
 				{
-					if(!get_average_journey_times()->is_contained(idp))
+					average_tpl<uint16> *value = get_average_journey_times()->access(idp);
+					if (!value)
 					{
 						average_tpl<uint16> average;
 						average.add(journey_time);
@@ -4042,7 +4046,7 @@ void convoi_t::laden() //"load" (Babelfish)
 					}
 					else
 					{
-						get_average_journey_times()->access(idp)->add_check_overflow_16(journey_time);
+						value->add_check_overflow_16(journey_time);
 					}
 				}
 
