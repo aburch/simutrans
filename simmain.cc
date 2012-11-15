@@ -543,6 +543,8 @@ int simu_main(int argc, char** argv)
 	if(  (gimme_arg(argc, argv, "-freeplay", 0) != NULL)  ) {
 		umgebung_t::default_einstellungen.set_freeplay( true );
 	}
+
+	umgebung_t::verbose_debug = 0;
 	if(  gimme_arg(argc, argv, "-debug", 0) != NULL  ) {
 		const char *s = gimme_arg(argc, argv, "-debug", 1);
 		int level = 4;
