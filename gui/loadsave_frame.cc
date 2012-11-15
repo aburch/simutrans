@@ -84,7 +84,7 @@ void loadsave_frame_t::action(const char *filename)
 }
 
 
-loadsave_frame_t::loadsave_frame_t(karte_t *welt, bool do_load) : savegame_frame_t(".sve", false, NULL, false, true)
+loadsave_frame_t::loadsave_frame_t(karte_t *welt, bool do_load) : savegame_frame_t(".sve", false, "save/", false, true)
 //=======
 //loadsave_frame_t::loadsave_frame_t(karte_t *welt, bool do_load) : savegame_frame_t(".sve",false,"save/")
 //>>>>>>> aburch/master
