@@ -3496,8 +3496,8 @@ void karte_t::recalc_average_speed()
 			}
 		}
 
-		// city road check
-		if (weg_besch_t const* city_road_test = settings.get_city_road_type(get_timeline_year_month())) {
+		// city road (try to use always a timeline)
+		if (weg_besch_t const* city_road_test = settings.get_city_road_type(current_month) {
 			city_road = city_road_test;
 		}
 		else {
