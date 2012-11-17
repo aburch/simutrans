@@ -2776,7 +2776,7 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 		}
 		else if(gb->get_tile()->get_besch()->get_all_layouts()) {
 			// through way
-			allowed_dir = ribi_t::doppelt( ribi_t::layout_to_ribi[gb->get_tile()->get_layout()] );
+			allowed_dir = ribi_t::doppelt( ribi_t::layout_to_ribi[gb->get_tile()->get_layout() & 1] );
 		}
 		else {
 			dbg->error("stadt_t::baue_strasse()", "building on road with not directions at %i,%i?!?", k.x, k.y );
@@ -2831,7 +2831,7 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 						}
 						else if(layouts==2 || layouts==8 || layouts==16) {
 							// through way
-							if((ribi_t::doppelt( ribi_t::layout_to_ribi[gb->get_tile()->get_layout()] )&ribi_t::nsow[r])!=0) {
+							if((ribi_t::doppelt( ribi_t::layout_to_ribi[gb->get_tile()->get_layout() & 1] )&ribi_t::nsow[r])!=0) {
 								// allowed ...
 								connection_roads |= ribi_t::nsow[r];
 							}
