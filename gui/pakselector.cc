@@ -157,9 +157,6 @@ void pakselector_t::fill_list()
 
 void pakselector_t::add_file(const char *fullpath, const char *filename, const bool not_cutting_suffix)
 {
-	char pathname[1024];
-	sprintf( pathname, "%s%s", fullpath ? fullpath : "", filename );
-
 	char buttontext[1024];
 	strcpy( buttontext, filename );
 	if ( !not_cutting_suffix ) {
@@ -172,7 +169,7 @@ void pakselector_t::add_file(const char *fullpath, const char *filename, const b
 		has_addon_dir = chdir( path ) == 0;
 		chdir( umgebung_t::program_dir );
 	}
-	file_table.add_row( new gui_file_table_row_t( pathname, buttontext, has_addon_dir ));
+	file_table.add_row( new gui_file_table_row_t( fullpath, buttontext, has_addon_dir ));
 }
 
 

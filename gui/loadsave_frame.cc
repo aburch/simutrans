@@ -161,14 +161,12 @@ void loadsave_frame_t::init(const char * /*suffix*/, const char * /*path*/ )
 
 void loadsave_frame_t::add_file(const char *fullpath, const char *filename, const bool not_cutting_suffix)
 {
-	char pathname[1024];
-	sprintf( pathname, "%s%s", fullpath ? fullpath : "", filename );
 	char buttontext[1024];
 	strcpy( buttontext, filename );
 	if ( !not_cutting_suffix ) {
 		buttontext[strlen(buttontext)-4] = '\0';
 	}
-	file_table.add_row( new gui_loadsave_table_row_t( pathname, buttontext ));
+	file_table.add_row( new gui_loadsave_table_row_t( fullpath, buttontext ));
 }
 
 

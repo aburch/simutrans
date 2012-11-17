@@ -716,7 +716,7 @@ void savegame_frame_t::fill_list()
 					add_section(path);
 					section_added = true;
 				}
-				add_file(fullname, name, get_info(fullname), not_cutting_extension);
+				add_file(fullname, name, /* get_info(fullname), */ not_cutting_extension);
 			}
 			else{
 				// NOTE: we just free "fullname" memory when add_file is not called. That memory will be
