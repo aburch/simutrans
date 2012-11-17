@@ -101,7 +101,7 @@ savegame_frame_t::~savegame_frame_t()
 			delete i.del;
 		}
 		if(i.info) {
-			delete i.info;
+			delete [] i.info;
 		}
 	}
 
