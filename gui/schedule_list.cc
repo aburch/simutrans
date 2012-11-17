@@ -170,7 +170,7 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t *sp_) :
 
 	// init scrolled list
 	scl.set_pos(koord(0,1));
-	scl.set_groesse(koord(LINE_NAME_COLUMN_WIDTH-4, SCL_HEIGHT-18));
+	scl.set_groesse(koord(LINE_NAME_COLUMN_WIDTH-11-4, SCL_HEIGHT-18));
 	scl.set_highlight_color(sp->get_player_color1()+1);
 	scl.add_listener(this);
 
@@ -185,7 +185,7 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t *sp_) :
 
 	// tab panel
 	tabs.set_pos(koord(11,5));
-	tabs.set_groesse(koord(LINE_NAME_COLUMN_WIDTH-4, SCL_HEIGHT));
+	tabs.set_groesse(koord(LINE_NAME_COLUMN_WIDTH-11-4, SCL_HEIGHT));
 	tabs.add_tab(&scl, translator::translate("All"));
 	max_idx = 0;
 	tabs_to_lineindex[max_idx++] = simline_t::line;
