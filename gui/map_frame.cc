@@ -274,9 +274,9 @@ void map_frame_t::show_hide_legend(const bool show)
 
 	b_overlay_networks.set_visible( show );
 
-	const int col = max( 1, min( (get_fenstergroesse().x-2)/(D_BUTTON_WIDTH+D_H_SPACE), MAP_MAX_BUTTONS ) );
+	const int col = max( 1, min( (get_fenstergroesse().x-D_MARGIN_LEFT-D_MARGIN_RIGHT+D_H_SPACE)/(D_BUTTON_WIDTH+D_H_SPACE), MAP_MAX_BUTTONS ) );
 	const int row = ((MAP_MAX_BUTTONS-1)/col)+1;
-	const int offset_y = (D_BUTTON_HEIGHT+2)*row;
+	const int offset_y = D_BUTTON_HEIGHT + (D_BUTTON_HEIGHT+2)*row + D_V_SPACE;
 	const koord offset = show ? koord(0, offset_y) : koord(0, -offset_y);
 
 	for(  int type=0;  type<MAP_MAX_BUTTONS;  type++  ) {
@@ -295,7 +295,8 @@ void map_frame_t::show_hide_scale(const bool show)
 	b_show_scale.pressed = show;
 	scale_visible = show;
 
-	const koord offset = show ? koord(0, (LINESPACE+4)) : koord(0, -(LINESPACE+4));
+	const sint16 offset_y = LINESPACE + LINESPACE + D_V_SPACE;
+	const koord offset(0, show ? offset_y : -offset_y);
 
 	scrolly.set_pos(scrolly.get_pos() + offset);
 
@@ -555,6 +556,7 @@ void map_frame_t::resize(const koord delta)
 	if(scale_visible) {
 		// plus scale bar
 		offset_y += LINESPACE;
+		offset_y += LINESPACE;
 		offset_y += D_V_SPACE;
 	}
 
@@ -651,6 +653,7 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 			sprintf(scale_text, "%f %s %s", (1000.0 / welt->get_settings().get_meters_per_tile()), translator::translate("tiles"), translator::translate("per 1 km"));
 		}
 		display_proportional(bar_pos.x + 4, bar_pos.y + 16, scale_text, ALIGN_LEFT, COL_BLACK, false);
+		offset_y += LINESPACE;
 		offset_y += LINESPACE;
 		offset_y += D_V_SPACE;
 	}
