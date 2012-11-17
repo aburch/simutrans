@@ -150,21 +150,6 @@ welt_gui_t::welt_gui_t(karte_t* const welt, settings_t* const sets) :
 	add_komponente( &inp_y_size );
 	intTopOfButton += 12;
 
-	// maps etc.
-	intTopOfButton += 5;
-	random_map.set_pos( koord(10, intTopOfButton) );
-	random_map.set_groesse( koord(104, D_BUTTON_HEIGHT) );
-	random_map.set_typ(button_t::roundbox);
-	random_map.add_listener( this );
-	add_komponente( &random_map );
-
-	load_map.set_pos( koord(104+11+30, intTopOfButton) );
-	load_map.set_groesse( koord(104, D_BUTTON_HEIGHT) );
-	load_map.set_typ(button_t::roundbox);
-	load_map.add_listener( this );
-	add_komponente( &load_map );
-	intTopOfButton += D_BUTTON_HEIGHT;
-
 	// city stuff
 	intTopOfButton += 5;
 	inp_number_of_towns.set_pos(koord(RIGHT_COLUMN,intTopOfButton) );
@@ -690,9 +675,6 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 	
 	buf.printf("%s (%ld MByte, %.2f km/%s):", translator::translate("Size"), memory, tile_km, translator::translate("tile"));
 	display_proportional_clip(x, y, buf, ALIGN_LEFT, COL_BLACK, true);
-//	display_proportional_clip(x + LEFT_ARROW - 10, y, translator::translate("Tiles"), ALIGN_LEFT, COL_BLACK, true);
-//	sprintf(buf, "%.2f km/%s", tile_km, translator::translate("tile"));
-//	display_text_proportional_len_clip(x + RIGHT_COLUMN_WIDTH + RIGHT_COLUMN - 10, y, buf, ALIGN_RIGHT | DT_DIRTY | DT_CLIP, COL_BLACK, -1);
 	y += 12;
 
 	display_proportional_clip(x, y, translator::translate("West To East"), ALIGN_LEFT, COL_BLACK, true);
