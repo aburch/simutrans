@@ -190,7 +190,7 @@ void convoi_frame_t::sort_list()
 }
 
 
-void convoi_frame_t::sort_list( char *name, uint16 filter, const slist_tpl<const ware_besch_t *> *wares )
+void convoi_frame_t::sort_list( char *name, uint32 filter, const slist_tpl<const ware_besch_t *> *wares )
 {
 	name_filter = name;
 	waren_filter = wares;
