@@ -82,10 +82,10 @@ bool obj_reader_t::laden_abschliessen()
 
 
 
-bool obj_reader_t::load(const char *liste, const char *message)
+bool obj_reader_t::load(const char *path, const char *message)
 {
 	searchfolder_t find;
-	std::string name = find.complete(liste, "dat");
+	std::string name = find.complete(path, "dat");
 	size_t i;
 	const bool drawing=is_display_init();
 
@@ -122,17 +122,19 @@ bool obj_reader_t::load(const char *liste, const char *message)
 	}
 	else {
 		// Keine dat-file? dann ist liste ein Verzeichnis?
+		// step is a bitmask to decide when it's time to update the progress bar.
+		// It takes the biggest power of 2 less than the number of elements and
+		// divides it in 256 sub-steps at most (the -7 comes from here)
 
-		// with nice progress indicator ...
-		const int max=find.search(liste, "pak");
-		int teilung=-7;
+		const int max = find.search(path, "pak");
+		int step = -7;
 		for(long bit=1;  bit<max;  bit+=bit) {
-			teilung ++;
+			step ++;
 		}
-		if(teilung<0) {
-			teilung = 0;
+		if(step<0) {
+			step = 0;
 		}
-		teilung = (2<<teilung)-1;
+		step = (2<<step)-1;
 
 		if(drawing) {
 			display_set_progress_text(message);
@@ -173,7 +175,7 @@ DBG_MESSAGE("obj_reader_t::load()", "reading from '%s'", name.c_str());
 		uint n = 0;
 		FORX(searchfolder_t, const& i, find, ++n) {
 			read_file(i);
-			if ((n & teilung) == 0 && drawing) {
+			if ((n & step) == 0 && drawing) {
 				display_progress(n, max);
 				// name of the pak
 				if (char const* const copyright = grund_besch_t::ausserhalb->get_copyright()) {
