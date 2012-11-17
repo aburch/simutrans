@@ -24,7 +24,7 @@
 
 // default button sizes
 KOORD_VAL gui_frame_t::gui_button_width = 92;
-KOORD_VAL gui_frame_t::gui_D_BUTTON_HEIGHT = 14;
+KOORD_VAL gui_frame_t::gui_button_height = 14;
 
 // default titlebar height
 KOORD_VAL gui_frame_t::gui_titlebar_height = 16;

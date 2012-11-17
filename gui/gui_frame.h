@@ -32,7 +32,7 @@ class spieler_t;
 
 // default button width (may change with langugae and font)
 #define D_BUTTON_WIDTH (gui_frame_t::gui_button_width)
-#define D_BUTTON_HEIGHT (gui_frame_t::gui_D_BUTTON_HEIGHT)
+#define D_BUTTON_HEIGHT (gui_frame_t::gui_button_height)
 
 // titlebar height
 #define D_TITLEBAR_HEIGHT (gui_frame_t::gui_titlebar_height)
@@ -84,7 +84,7 @@ public:
 
 	// default button sizes
 	static KOORD_VAL gui_button_width;
-	static KOORD_VAL gui_D_BUTTON_HEIGHT;
+	static KOORD_VAL gui_button_height;
 
 	// titlebar height
 	static KOORD_VAL gui_titlebar_height;
