@@ -1,0 +1,9 @@
+# Simutranslator settings for Simutrans-Experimental texts
+# Addendum 2 for version 10.13
+#
+# Author: jamespetts
+# Created: November 2012
+#
+obj=program_text
+name=%s\nCost:     %s\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d%s %s\nWeight: %dt\nTop speed: %dkm/h\nMax. brake force: %dkN\nRolling resistance: %fN\n
+note=Label for the button in the schedule window that determines whether vehicles follow their schedules in reverse order.
