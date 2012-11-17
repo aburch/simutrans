@@ -210,6 +210,7 @@ convoi_frame_t::convoi_frame_t(spieler_t* sp) :
 {
 	name_filter = NULL;
 	filter_flags = 0;
+	filter_is_on = false;
 
 	sort_label.set_pos(koord(BUTTON1_X, 2));
 	add_komponente(&sort_label);
@@ -279,7 +280,7 @@ bool convoi_frame_t::infowin_event(const event_t *ev)
 bool convoi_frame_t::action_triggered( gui_action_creator_t *komp, value_t /* */ )           // 28-Dec-01    Markus Weber    Added
 {
 	if(  komp == &filter_on  ) {
-		filter_is_on = !filter_is_on; // why is ^= true not working???
+		filter_is_on = !filter_is_on;
 		filter_on.set_text( filter_is_on ? "cl_btn_filter_enable" : "cl_btn_filter_disable");
 		sort_list();
 	}
