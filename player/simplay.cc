@@ -302,7 +302,6 @@ void spieler_t::neuer_monat()
 		konto_ueberzogen = 0;
 	}
 
-	// Wartungskosten abziehen
 	calc_finance_history();
 	roll_finance_history_month();
 
