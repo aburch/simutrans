@@ -1136,7 +1136,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 				// Hajo: do final init after world was loaded/created
 				stadt[i]->laden_abschliessen();
 
-				const uint32 citizens = city_population[i];
+				const uint32 citizens = city_population.get_count() < i ? city_population[i] : city_population.get_element(simrand(city_population.get_count() - 1, "void karte_t::distribute_groundobjs_cities"));
 
 				sint32 diff = (original_start_year-game_start)/2;
 				sint32 growth = 32;
