@@ -5270,13 +5270,6 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 		last_month_bev = finance_history_month[1][WORLD_CITICENS];
 	}
 
-#if 0
-	// preserve tick counter ...
-	ticks = ticks % karte_t::ticks_per_world_month;
-	next_month_ticks = karte_t::ticks_per_world_month;
-	letzter_monat %= 12;
-#endif
-
 	// finally: do we run a scenario?
 	if(file->get_version()>=99018) {
 		scenario->rdwr(file);

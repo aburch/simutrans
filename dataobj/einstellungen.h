@@ -153,6 +153,9 @@ private:
 
 	sint16 factory_spacing;
 
+	/*no goods will put in route, when stored>max_storage and goods_in_transit*maximum_intransit_percentage/100>max_storage  */
+	uint16 factory_maximum_intransit_percentage;
+
 	/* prissi: crossconnect all factories (like OTTD and similar games) */
 	bool crossconnect_factories;
 
@@ -486,6 +489,8 @@ public:
 
 	// Knightly : whether factory pax/mail demands are enforced
 	bool get_factory_enforce_demand() const { return factory_enforce_demand; }
+
+	uint16 get_factory_maximum_intransit_percentage() const { return factory_maximum_intransit_percentage; }
 
 	uint32 get_locality_factor(sint16 year) const;
 

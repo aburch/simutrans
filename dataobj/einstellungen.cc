@@ -132,6 +132,8 @@ settings_t::settings_t() :
 
 	factory_enforce_demand = true;
 
+	factory_maximum_intransit_percentage = 0;
+
 	electric_promille = 330;
 
 #ifdef OTTD_LIKE
@@ -718,6 +720,9 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_short( special_building_distance );
 		}
 
+		if(  file->get_version()>=112001  ) {
+			file->rdwr_short( factory_maximum_intransit_percentage );
+		}
 		// otherwise the default values of the last one will be used
 	}
 }
@@ -995,6 +1000,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	factory_worker_maximum_towns = contents.get_int("factory_worker_maximum_towns", factory_worker_maximum_towns );
 	factory_arrival_periods = clamp( contents.get_int("factory_arrival_periods", factory_arrival_periods), 1, 16 );
 	factory_enforce_demand = contents.get_int("factory_enforce_demand", factory_enforce_demand) != 0;
+	factory_maximum_intransit_percentage  = contents.get_int("maximum_intransit_percentage", factory_maximum_intransit_percentage);
+
 	tourist_percentage = contents.get_int("tourist_percentage", tourist_percentage );
 	seperate_halt_capacities = contents.get_int("seperate_halt_capacities", seperate_halt_capacities ) != 0;
 	pay_for_total_distance = contents.get_int("pay_for_total_distance", pay_for_total_distance );

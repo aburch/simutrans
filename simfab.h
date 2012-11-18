@@ -22,6 +22,7 @@
 
 class spieler_t;
 class stadt_t;
+class ware_t;
 
 
 /**
@@ -52,12 +53,13 @@ class stadt_t;
 #define MAX_FAB_REF_LINE            (6)
 
 // statistics for goods
-#define MAX_FAB_GOODS_STAT          (3)
+#define MAX_FAB_GOODS_STAT          (4)
 // common to both input and output goods
 #define FAB_GOODS_STORAGE           (0)
 // input goods
 #define FAB_GOODS_RECEIVED          (1)
-#define FAB_GOODS_CONSUMED          (2)
+#define FAB_GOODS_CONSUMED        (2)
+#define FAB_GOODS_TRANSIT                 (3)
 // output goods
 #define FAB_GOODS_DELIVERED         (1)
 #define FAB_GOODS_PRODUCED          (2)
@@ -94,7 +96,7 @@ public:
 	// Knightly : functions for manipulating goods statistics
 	void init_stats();
 	void roll_stats(sint64 aggregate_weight);
-	void rdwr_stats(loadsave_t *file);
+	void rdwr(loadsave_t *file);
 	const sint64* get_stats() const { return *statistics; }
 	void book_stat(sint64 value, int stat_type) { assert(stat_type<MAX_FAB_GOODS_STAT); statistics[0][stat_type] += value; }
 	void set_stat(sint64 value, int stat_type) { assert(stat_type<MAX_FAB_GOODS_STAT); statistics[0][stat_type] = value; }
@@ -115,6 +117,7 @@ public:
 
 	sint32 menge;	// in internal units shifted by precision_bits (see step)
 	sint32 max;
+	sint32 transit;
 };
 
 
@@ -197,7 +200,7 @@ private:
 	vector_tpl<stadt_t *> target_cities;
 
 	spieler_t *besitzer_p;
-	karte_t *welt;
+	static karte_t *welt;
 
 	const fabrik_besch_t *besch;
 
@@ -338,6 +341,8 @@ private:
 		uint32 get_scaled_demand() const { return scaled_demand; }
 	};
 
+	void update_transit_intern( const ware_t *ware, bool add );
+
 	/**
 	 * Arrival data for calculating pax/mail boost
 	 * @author Knightly
@@ -373,6 +378,9 @@ public:
 	const sint64* get_stats() const { return *statistics; }
 	sint64 get_stat(int month, int stat_type) const { assert(stat_type<MAX_FAB_STAT); return statistics[month][stat_type]; }
 	void book_stat(sint64 value, int stat_type) { assert(stat_type<MAX_FAB_STAT); statistics[0][stat_type] += value; }
+
+
+	static void update_transit( const ware_t *ware, bool add );
 
 	/**
 	 * convert internal units to displayed values
@@ -471,7 +479,8 @@ public:
 	 * 0 wenn Produktionsstopp,
 	 * -1 wenn Ware nicht verarbeitet wird
 	 */
-	sint32 verbraucht(const ware_besch_t *);             // Nimmt fab das an ??
+	sint8 is_needed(const ware_besch_t *);
+
 	sint32 liefere_an(const ware_besch_t *, sint32 menge);
 
 	void step(long delta_t);                  // fabrik muss auch arbeiten

@@ -12,6 +12,7 @@
 #include "player/simplay.h"
 #include "simconvoi.h"
 #include "simhalt.h"
+#include "simfab.h"
 #include "simdepot.h"
 #include "simwin.h"
 #include "simmenu.h"
@@ -1344,7 +1345,7 @@ void convoi_t::ziel_erreicht()
 		// ok, we are entering a depot
 		cbuffer_t buf;
 
-		// we still book the money for the trip; however, the freight will be lost
+		// we still book the money for the trip; however, the freight will be deleted (by the vehicle in the depot itself)
 		calc_gewinn();
 
 		akt_speed = 0;
