@@ -33,7 +33,10 @@ private:
 	 */
 	bool intern_calc_route(karte_t *w, koord3d start, koord3d ziel, fahrer_t *fahr, const sint32 max_kmh, const uint32 max_cost, const uint32 max_weight);
 
-	koord3d_vector_t route;           // Die Koordinaten fuer die Fahrtroute
+protected:
+	koord3d_vector_t route;           // Die Koordinaten fuer die Fahrtroute - "The coordinates for the route" (Google)
+
+private:
 
 	// Bernd Gabriel, Mar 10, 2010: weight limit info
 	uint32 max_weight;
@@ -78,6 +81,7 @@ public:
 
 	void rotate90( sint16 y_size ) { route.rotate90( y_size ); };
 
+	void concatenate_routes(route_t* tail_route);
 
 	bool is_contained(const koord3d k) const { return route.is_contained(k); }
 

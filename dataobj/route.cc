@@ -371,6 +371,22 @@ ribi_t::ribi *get_next_dirs(const koord gr_pos, const koord ziel)
 }
 
 
+void route_t::concatenate_routes(route_t* tail_route)
+{
+	route.resize(route.get_count() + tail_route->route.get_count());
+	ITERATE_PTR(tail_route, i)
+	{
+		if(i == 0)
+		{ 
+			// This is necessary, as otherwise the first tile of the new route
+			// will be the same as the last tile of the old route, causing
+			// disrupted convoy movement. 
+			continue;
+		}
+		route.append(tail_route->route.get_element(i));
+	}
+}
+
 
 bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d start, fahrer_t *fahr, const sint32 max_speed, const uint32 max_cost, const uint32 weight)
 {

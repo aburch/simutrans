@@ -1142,6 +1142,7 @@ bool convoi_t::drive_to()
 	{
 		koord3d start = fahr[0]->get_pos();
 		koord3d ziel = fpl->get_current_eintrag().pos;
+		const bool destination_is_nonreversing_waypoint = !fpl->get_current_eintrag().reverse && !haltestelle_t::get_halt(welt, ziel, get_besitzer()).is_bound();
 
 		// avoid stopping midhalt
 		if(  start==ziel  ) {
@@ -1159,15 +1160,44 @@ bool convoi_t::drive_to()
 			}
 		}
 
-		if(  !calc_route( start, ziel, speed_to_kmh(min_top_speed))  ) {
-			if(  state != NO_ROUTE  ) {
+		bool success = calc_route(start, ziel, speed_to_kmh(min_top_speed));
+
+
+		if(destination_is_nonreversing_waypoint)
+		{
+			// We need to calculate the full route through to the next signal or reversing point
+			// to avoid ignoring signals. 
+			bool new_nonreversing = true;
+			koord3d new_destination;
+			koord3d new_start = ziel;
+
+			while(new_nonreversing && success)
+			{
+				advance_schedule();
+
+				new_destination = fpl->get_current_eintrag().pos;
+				
+				route_t tmp_route;
+				success = fahr[0]->calc_route(new_start, new_destination, speed_to_kmh(min_top_speed), &tmp_route);
+				route.concatenate_routes(&tmp_route);
+				new_nonreversing = !fpl->get_current_eintrag().reverse && !haltestelle_t::get_halt(welt, new_destination, get_besitzer()).is_bound();
+
+				new_start = new_destination;
+			}
+		}
+
+		if(!success)
+		{
+			if(state != NO_ROUTE) 
+			{
 				state = NO_ROUTE;
 				get_besitzer()->bescheid_vehikel_problem( self, ziel );
 			}
 			// wait 25s before next attempt
 			wait_lock = 25000;
 		}
-		else {
+		else
+		{
 			vorfahren();
 			return true;
 		}
