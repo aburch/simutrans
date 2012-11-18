@@ -5671,7 +5671,17 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 		delete shortest_route;
 		delete route;
 	}
-	/*convoi_info_t::route_search_in_progress = false;*/
+	
+	// Third and final try - use home depot
+	if(!b_depot_found)
+	{
+		schedule_t *fpl = get_schedule();
+		koord3d depot_pos;
+		depot_pos = home_depot;
+		fpl->insert(welt->lookup(depot_pos), 0, 0, besitzer_p == welt->get_active_player());
+		fpl->set_aktuell( (fpl->get_aktuell()+fpl->get_count()-1)%fpl->get_count() );
+		b_depot_found = set_schedule(fpl);
+	}
 
 	// show result
 	const char* txt;
