@@ -1937,6 +1937,9 @@
     <None Include="base_texts_experimental_10.13.dat">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="base_texts_experimental_forgotten_items_3.dat">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="simres.rc">

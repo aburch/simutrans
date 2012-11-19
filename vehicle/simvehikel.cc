@@ -3623,7 +3623,8 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 {
 	assert(ist_erstes);
 	uint16 next_signal, next_crossing;
-	if(  cnv->get_state()==convoi_t::CAN_START  ||  cnv->get_state()==convoi_t::CAN_START_ONE_MONTH  ||  cnv->get_state()==convoi_t::CAN_START_TWO_MONTHS  ) {
+	if(  cnv->get_state()==convoi_t::CAN_START  ||  cnv->get_state()==convoi_t::CAN_START_ONE_MONTH  ||  cnv->get_state()==convoi_t::CAN_START_TWO_MONTHS || cnv->get_state()==convoi_t::REVERSING )
+	{
 		// reserve first block at the start until the next signal
 		grund_t *gr = welt->lookup( get_pos() );
 		weg_t *w = gr ? gr->get_weg(get_waytype()) : NULL;
