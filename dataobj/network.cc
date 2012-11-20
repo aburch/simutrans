@@ -639,6 +639,7 @@ void network_send_all(network_command_t* nwc, bool exclude_us )
 		socket_list_t::send_all(nwc, true);
 		if(  !exclude_us  &&  network_server_port  ) {
 			// I am the server
+			nwc->get_packet()->sent_by_server();
 			received_command_queue.append(nwc);
 		}
 		else {
