@@ -235,7 +235,6 @@ bool loadsave_t::rd_open(const char *filename)
 			*s++ = c;
 		}
 		*s = 0;
-		int dummy;
 		combined_version versions = int_version(str, &mode, pak_extension);
 		version = versions.version;
 		experimental_version = versions.experimental_version;
