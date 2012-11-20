@@ -131,7 +131,9 @@ void ware_production_t::roll_stats(sint64 aggregate_weight)
 
 void ware_production_t::rdwr(loadsave_t *file)
 {
-	init_stats();
+	if(  file->is_loading()  ) {
+		init_stats();
+	}
 
 	if(  file->get_version()>112000  ) {
 		for(  int s=0;  s<MAX_FAB_GOODS_STAT;  ++s  ) {
