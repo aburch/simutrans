@@ -1309,10 +1309,20 @@ bool nwc_service_t::execute(karte_t *welt)
 		}
 
 		case SRVC_FORCE_SYNC: {
-			// send sync command
 			const uint32 new_map_counter = welt->generate_new_map_counter();
 			nwc_sync_t *nw_sync = new nwc_sync_t(welt->get_sync_steps() + 1, welt->get_map_counter(), -1, new_map_counter);
-			network_send_all(nw_sync, false);
+
+			if (welt->is_paused()) {
+				if (socket_list_t::get_playing_clients() == 0) {
+					// we can save directly without disturbing clients
+					nw_sync->do_command(welt);
+				}
+				delete nw_sync;
+			}
+			else {
+				// send sync command
+				network_send_all(nw_sync, false);
+			}
 			break;
 		}
 
