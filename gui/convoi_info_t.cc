@@ -108,49 +108,46 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	this->mean_convoi_speed = speed_to_kmh(cnv->get_akt_speed()*4);
 	this->max_convoi_speed = speed_to_kmh(cnv->get_min_top_speed()*4);
 
-	const sint16 offset_below_viewport = max( LINESPACE * 8 + LINESPACE / 4  ,  21 + view.get_groesse().y);
-	const sint16 total_width = 3*(D_BUTTON_WIDTH + D_H_SPACE) + max(D_BUTTON_WIDTH + 2*D_H_SPACE, view.get_groesse().x + 32);
-//=======
-//	const sint16 offset_below_viewport = D_MARGIN_TOP + D_BUTTON_HEIGHT + D_V_SPACE + view.get_groesse().y;
-//	const sint16 total_width = D_MARGIN_LEFT + 3*(D_BUTTON_WIDTH + D_H_SPACE) + max( D_BUTTON_WIDTH, view.get_groesse().x ) + D_MARGIN_RIGHT;
-//>>>>>>> v111.3
-
-	input.set_pos( koord(D_MARGIN_LEFT,D_MARGIN_TOP) );
+	int y = D_MARGIN_TOP;
+	input.set_pos( koord(D_MARGIN_LEFT, y ) );
+	y += D_BUTTON_HEIGHT + D_V_SPACE;
 	reset_cnv_name();
 	input.add_listener(this);
 	add_komponente(&input);
 
 	add_komponente(&view);
 
+	koord dummy(D_MARGIN_LEFT,D_MARGIN_TOP);
+
 	// this convoi doesn't belong to an AI
-	button.init(button_t::roundbox, "Fahrplan", koord(BUTTON1_X,offset_below_viewport), koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	button.init(button_t::roundbox, "Fahrplan", dummy, koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	button.set_tooltip("Alters a schedule.");
 	button.add_listener(this);
 	add_komponente(&button);
 
-	go_home_button.init(button_t::roundbox, "go home", koord(BUTTON2_X,offset_below_viewport), koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	go_home_button.init(button_t::roundbox, "go home", dummy, koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	go_home_button.set_tooltip("Sends the convoi to the last depot it departed from!");
 	go_home_button.add_listener(this);
 	add_komponente(&go_home_button);
 
-	no_load_button.init(button_t::roundbox, "no load", koord(BUTTON3_X,offset_below_viewport), koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	no_load_button.init(button_t::roundbox, "no load", dummy, koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	no_load_button.set_tooltip("No goods are loaded onto this convoi.");
 	no_load_button.add_listener(this);
 	add_komponente(&no_load_button);
 
-	replace_button.init(button_t::roundbox, "Replace", koord(BUTTON3_X,offset_below_viewport-(D_BUTTON_HEIGHT + 5)), koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	replace_button.init(button_t::roundbox, "Replace", dummy, koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	replace_button.set_tooltip("Automatically replace this convoy.");
 	add_komponente(&replace_button);
 	replace_button.add_listener(this);
 
-	follow_button.init(button_t::roundbox_state, "follow me", koord(view.get_pos().x, view.get_groesse().y + 21), koord(view.get_groesse().x, D_BUTTON_HEIGHT));
+	follow_button.init(button_t::roundbox_state, "follow me", dummy, koord(view.get_groesse().x, D_BUTTON_HEIGHT));
 	follow_button.set_tooltip("Follow the convoi on the map.");
 	follow_button.add_listener(this);
 	add_komponente(&follow_button);
 
 	// chart
-	chart.set_pos(koord(88,offset_below_viewport+D_BUTTON_HEIGHT+16));
-	chart.set_groesse(koord(total_width-88-4, 100));
+	//chart.set_pos(koord(88,offset_below_viewport+D_BUTTON_HEIGHT+16));
+	//chart.set_groesse(koord(total_width-88-4, 100));
 	chart.set_dimension(12, 10000);
 	chart.set_visible(false);
 	chart.set_background(MN_GREY1);
@@ -197,31 +194,31 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 
 	add_komponente(&sort_label);
 
-	const sint16 yoff = offset_below_viewport+46-D_BUTTON_HEIGHT-2;
+	//const sint16 yoff = offset_below_viewport+46-D_BUTTON_HEIGHT-2;
 
-	sort_button.init(button_t::roundbox, sort_text[umgebung_t::default_sortmode], koord(BUTTON1_X,yoff), koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	sort_button.init(button_t::roundbox, sort_text[umgebung_t::default_sortmode], dummy, koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	sort_button.set_tooltip("Sort by");
 	sort_button.add_listener(this);
 	add_komponente(&sort_button);
 
-	toggler.init(button_t::roundbox_state, "Chart", koord(BUTTON3_X,yoff), koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	toggler.init(button_t::roundbox_state, "Chart", dummy, koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	toggler.set_tooltip("Show/hide statistics");
 	toggler.add_listener(this);
 	add_komponente(&toggler);
 
-	details_button.init(button_t::roundbox, "Details", koord(BUTTON4_X,yoff), koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	details_button.init(button_t::roundbox, "Details", dummy, koord(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	details_button.set_tooltip("Vehicle details");
 	details_button.add_listener(this);
 	add_komponente(&details_button);
 
-	reverse_button.init(button_t::square_state, "reverse route", koord(BUTTON3_X,yoff-D_BUTTON_HEIGHT), (koord(D_BUTTON_WIDTH*2, D_BUTTON_HEIGHT)));
+	reverse_button.init(button_t::square_state, "reverse route", dummy, (koord(D_BUTTON_WIDTH*2, D_BUTTON_HEIGHT)));
 	reverse_button.add_listener(this);
 	reverse_button.set_tooltip("When this is set, the vehicle will visit stops in reverse order.");
 	reverse_button.pressed = cnv->get_reverse_schedule();
 	add_komponente(&reverse_button);
 
 	text.set_pos( koord(D_H_SPACE,D_V_SPACE) );
-	scrolly.set_pos(koord(0, yoff+D_BUTTON_HEIGHT));
+	scrolly.set_pos(dummy);
 
 	scrolly.set_show_scroll_x(true);
 	add_komponente(&scrolly);
@@ -240,13 +237,14 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	add_komponente(&route_bar);
 
 	// goto line button
-	line_button.init( button_t::posbutton, NULL, koord(D_MARGIN_LEFT, 7* LINESPACE) );
+	line_button.init( button_t::posbutton, NULL, dummy);
 	line_button.set_targetpos( koord(0,0) );
 	line_button.add_listener( this );
 	line_bound = false;
 
 	cnv->set_sortby( umgebung_t::default_sortmode );
 
+	const sint16 total_width = D_MARGIN_LEFT + 3*(D_BUTTON_WIDTH + D_H_SPACE) + max(D_BUTTON_WIDTH, view.get_groesse().x) + D_MARGIN_RIGHT;
 	set_fenstergroesse(koord(total_width, view.get_groesse().y+208+scrollbar_t::BAR_SIZE));
 	set_min_windowsize(koord(total_width, view.get_groesse().y+131+scrollbar_t::BAR_SIZE));
 
@@ -371,9 +369,9 @@ enable_home:
 
 		//indicator
 		{
-			const int pos_x = pos.x + view.get_pos().x;
-			//const int pos_y = pos.y + view.get_pos().y + 64 + 10;
-			const int pos_y = pos.y + 21 + view.get_groesse().y + 8;
+			koord ipos = pos + view.get_pos();
+			koord isize = view.get_groesse();
+			ipos.y += isize.y + 16;
 
 			COLOR_VAL color = COL_BLACK;
 			switch (cnv->get_state())
@@ -390,15 +388,15 @@ enable_home:
 				if (cnv->get_state() == convoi_t::NO_ROUTE) 
 					color = COL_RED;
 			}
-			display_ddd_box_clip(pos_x, pos_y, 64, 8, MN_GREY0, MN_GREY4);
-			display_fillbox_wh_clip(pos_x + 1, pos_y + 1, 126, 6, color, true);
+			display_ddd_box_clip(ipos.x, ipos.y, isize.x, 8, MN_GREY0, MN_GREY4);
+			display_fillbox_wh_clip(ipos.x + 1, ipos.y + 1, isize.x-2, 6, color, true);
 		}
 
 
 		// convoi information
 		static cbuffer_t info_buf;
-		const int pos_x = pos.x + 11;
-		const int pos_y0 = pos.y + 16 + 20;
+		const int pos_x = pos.x + D_MARGIN_LEFT;
+		const int pos_y0 = pos.y + view.get_pos().y + LINESPACE + D_V_SPACE + 2;
 		const char *caption = translator::translate("%s:");
 
 		// Bernd Gabriel, Nov, 14 2009: no longer needed: //use median speed to avoid flickering
@@ -484,11 +482,6 @@ enable_home:
 			const schedule_t *fpl = cnv->get_schedule();
 			fahrplan_gui_t::gimme_short_stop_name(info_buf, cnv->get_welt(), cnv->get_besitzer(), fpl, fpl->get_aktuell(), 34);
 			len += display_proportional_clip(pos_x + len, pos_y, info_buf, ALIGN_LEFT, COL_BLACK, true ) + 5;
-
-			// convoi load indicator
-			const int bar_x = max(11 + len, BUTTON3_X);
-			route_bar.set_pos(koord(bar_x, 22 + 4 * LINESPACE));
-			route_bar.set_groesse(koord(view.get_pos().x - bar_x - 5, 4));
 		}
 
 		/*
@@ -732,27 +725,84 @@ void convoi_info_t::rename_cnv()
 void convoi_info_t::set_fenstergroesse(koord groesse)
 {
 	gui_frame_t::set_fenstergroesse(groesse);
+	const sint16 right = get_fenstergroesse().x - D_MARGIN_RIGHT;
+	const sint16 width = right - D_MARGIN_LEFT;
+	sint16 y = D_MARGIN_TOP;
 
-	input.set_groesse(koord(get_fenstergroesse().x - D_MARGIN_LEFT-D_MARGIN_RIGHT, D_BUTTON_HEIGHT));
+	input.set_groesse(koord(width, D_BUTTON_HEIGHT));
+	y += D_BUTTON_HEIGHT + D_V_SPACE;
+	const sint16 y0 = y + LINESPACE * 6;
+	line_button.set_pos(koord(D_MARGIN_LEFT, y0 - LINESPACE));
 
-	view.set_pos( koord(get_fenstergroesse().x - view.get_groesse().x - D_MARGIN_LEFT, D_MARGIN_TOP+D_BUTTON_HEIGHT+D_V_SPACE ));
-	follow_button.set_pos( view.get_pos() + koord( 0, view.get_groesse().y ) );
+	view.set_pos(koord(right - view.get_groesse().x, y));
+	y += view.get_groesse().y + 8;
 
+	follow_button.set_pos(koord(view.get_pos().x, y));
+
+	bool too_small_for_5_buttons = view.get_pos().x < BUTTON_X(4);
+	if (y0 + D_V_SPACE + D_BUTTON_HEIGHT <= y && too_small_for_5_buttons)
+	{
+		replace_button.set_pos(koord(BUTTON3_X, y - D_V_SPACE - D_BUTTON_HEIGHT));
+	}
+	else
+	{
+		if (too_small_for_5_buttons)
+		{
+			y += D_BUTTON_HEIGHT + D_V_SPACE;
+		}
+		replace_button.set_pos(koord(BUTTON4_X, y));
+	}
+
+	button.set_pos(koord(BUTTON1_X, y));
+	go_home_button.set_pos(koord(BUTTON2_X, y));
+	no_load_button.set_pos(koord(BUTTON3_X, y));
+	y += D_BUTTON_HEIGHT + D_V_SPACE; 
+
+	if (chart.is_visible())
+	{
+		y += LINESPACE;
+		chart.set_pos(koord(88, y));
+		chart.set_groesse(koord(width-176, 100));
+		y += 100 + D_V_SPACE + LINESPACE + D_V_SPACE;
+		int cnt = 0;
+		const int cols = max(1, (width + D_H_SPACE) / (D_BUTTON_WIDTH + D_H_SPACE));
+		for (int btn = 0; btn < convoi_t::MAX_CONVOI_COST; btn++) 
+		{
+			if((btn == convoi_t::MAX_CONVOI_COST - 1) && cnv->get_line().is_bound())
+			{
+				continue;
+			}
+			filterButtons[btn].set_pos(koord(BUTTON_X(cnt % cols), y + BUTTON_Y(cnt/cols))); 
+			++cnt;
+		}
+		const int rows = (cnt - 1) / cols + 1;
+		y += BUTTON_Y(rows);
+	}
+
+	sort_label.set_pos(koord(BUTTON1_X, y));
+	reverse_button.set_pos(koord(BUTTON3_X, y));
+	y += LINESPACE + D_V_SPACE;
+
+	sort_button.set_pos(koord(BUTTON1_X, y));
+	toggler.set_pos(koord(BUTTON3_X, y));
+	details_button.set_pos(koord(BUTTON4_X, y));
+	y += D_BUTTON_HEIGHT + D_V_SPACE; 
+
+	scrolly.set_pos(koord(0, y));
 	scrolly.set_groesse(get_client_windowsize()-scrolly.get_pos());
-	const sint16 yoff = scrolly.get_pos().y-D_BUTTON_HEIGHT-3;
-	sort_button.set_pos(koord(BUTTON1_X,yoff+LINESPACE));
-	toggler.set_pos(koord(BUTTON3_X,yoff+LINESPACE));
-	details_button.set_pos(koord(BUTTON4_X,yoff+LINESPACE));
-	sort_label.set_pos(koord(2,yoff-1));
-	reverse_button.set_pos(koord(BUTTON3_X,yoff-D_BUTTON_HEIGHT+LINESPACE));
 
+	const int pos_y = view.get_pos().y + 4;
 	// convoi speed indicator
-	speed_bar.set_pos(koord(BUTTON3_X,22+0*LINESPACE));
+	speed_bar.set_pos(koord(BUTTON3_X,pos_y+0*LINESPACE));
 	speed_bar.set_groesse(koord(view.get_pos().x - BUTTON3_X - D_INDICATOR_HEIGHT, 4));
 
 	// convoi load indicator
-	filled_bar.set_pos(koord(BUTTON3_X,22+3*LINESPACE));
+	filled_bar.set_pos(koord(BUTTON3_X,pos_y+3*LINESPACE));
 	filled_bar.set_groesse(koord(view.get_pos().x - BUTTON3_X - D_INDICATOR_HEIGHT, 4));
+
+	// convoi load indicator
+	route_bar.set_pos(koord(BUTTON3_X,pos_y+4*LINESPACE));
+	route_bar.set_groesse(koord(view.get_pos().x - BUTTON3_X - D_INDICATOR_HEIGHT, 4));
 }
 
 

@@ -52,6 +52,9 @@ class spieler_t;
 #define BUTTON3_X (D_MARGIN_LEFT+2*(D_BUTTON_WIDTH+D_H_SPACE))
 #define BUTTON4_X (D_MARGIN_LEFT+3*(D_BUTTON_WIDTH+D_H_SPACE))
 
+#define BUTTON_X(col) (D_MARGIN_LEFT+(col)*(D_BUTTON_WIDTH+D_H_SPACE))
+#define BUTTON_Y(row) ((row)*(D_BUTTON_HEIGHT+D_V_SPACE))
+
 // The width of a typical dialoge (either list/covoi/factory) and intial width when it makes sense
 #define D_DEFAULT_WIDTH (D_MARGIN_LEFT+4*D_BUTTON_WIDTH+3*D_H_SPACE+D_MARGIN_RIGHT)
 
