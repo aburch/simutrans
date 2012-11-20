@@ -206,7 +206,6 @@ bool enlarge_map_frame_t::action_triggered( gui_action_creator_t *komp,value_t v
 		welt->enlarge_map(sets, NULL);
 		umgebung_t::number_of_big_cities = saved_number_of_big_cities;
 		umgebung_t::number_of_clusters = saved_number_of_clusters; 		
-		destroy_all_win( true );
 	}
 	else {
 		return false;

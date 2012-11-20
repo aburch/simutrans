@@ -16,7 +16,7 @@
 
 #include "../utils/simstring.h"
 
-#include <zlib.h>
+#include <zlib.h> 
 #include <bzlib.h>
 
 #define INVALID_RDWR_ID (-1)
