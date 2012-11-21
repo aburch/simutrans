@@ -5603,7 +5603,7 @@ const char *wkz_make_stop_public_t::work( karte_t *welt, spieler_t *sp, koord3d 
 	else 
 	{
 		halthandle_t halt = pl->get_halt();
-		if(  !(spieler_t::check_owner(halt->get_besitzer(),sp)  ||  halt->get_besitzer() == public_player)  )
+		if( sp != public_player && !(spieler_t::check_owner(halt->get_besitzer(),sp)  ||  halt->get_besitzer() == public_player)  )
 		{
 			return "Das Feld gehoert\neinem anderen Spieler\n";
 		}
@@ -5613,10 +5613,6 @@ const char *wkz_make_stop_public_t::work( karte_t *welt, spieler_t *sp, koord3d 
 			{
 				return CREDIT_MESSAGE;
 			}
-			else 
-			{
-				halt->make_public_and_join(sp);
- 			}
 		}
 	}
 	return NULL;
