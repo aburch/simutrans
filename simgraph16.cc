@@ -1668,12 +1668,12 @@ static void rezoom_img(const image_id n)
 
 				do {
 					// check length of transparent pixels
-					for (i = 0;  line[x] == 0x73FE  &&  x < newzoomwidth;  i++, x++)
+					for (i = 0;  x < newzoomwidth  &&  line[x] == 0x73FE;  i++, x++)
 						{}
 					// first runlength: transparent pixels
 					*dest++ = i;
 					// copy for non-transparent
-					for (i = 0;  line[x] != 0x73FE  &&  x < newzoomwidth;  i++, x++) {
+					for (i = 0;  x < newzoomwidth  &&  line[x] != 0x73FE;  i++, x++) {
 						dest[i + 1] = line[x];
 					}
 
