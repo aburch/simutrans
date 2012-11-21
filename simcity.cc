@@ -3092,7 +3092,7 @@ void stadt_t::step_passagiere()
 	const planquadrat_t *const plan = welt->lookup(origin_pos);
 	const halthandle_t *const halt_list = plan->get_haltlist();
 
-	minivec_tpl<halthandle_t> start_halts(plan->get_haltlist_count());
+	vector_tpl<halthandle_t> start_halts(plan->get_haltlist_count());
 	for (int h = plan->get_haltlist_count() - 1; h >= 0; h--) 
 	{
 		halthandle_t halt = halt_list[h];
@@ -3654,7 +3654,7 @@ void stadt_t::step_passagiere()
 	else 
 	{
 		// The unhappy passengers will be added to all crowded stops
-		// however, there might be no stop too
+		// however, there might be no stop too. 
 		// NOTE: Because of the conditional statement in the original loop,
 		// reaching this code means that passengers must not be able to use
 		// a private car for this journey.
@@ -3694,8 +3694,11 @@ void stadt_t::step_passagiere()
 		{
 			// If the passengers cannot walk, they will be unhappy.
 
+			// Re-search for start halts, which must be crowded, or else
+			// they would not have been excluded from the first search.
+
 			bool crowded_halts = false;
-			for(  uint h=0;  h<plan->get_haltlist_count(); h++  ) 
+			for (int h = plan->get_haltlist_count() - 1; h >= 0; h--)
 			{
 				halthandle_t halt = halt_list[h];
 				if (halt->is_enabled(wtyp)) 
