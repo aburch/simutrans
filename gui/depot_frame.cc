@@ -50,8 +50,10 @@
 
 
 char depot_frame_t::no_schedule_text[128];     // contains the current translation of "<no schedule set>"
+char depot_frame_t::clear_schedule_text[128];  // contains the current translation of "<clear schedule>"
 char depot_frame_t::unique_schedule_text[128]; // contains the current translation of "<individual schedule>"
 char depot_frame_t::new_line_text[128];        // contains the current translation of "<create new line>"
+char depot_frame_t::promote_to_line_text[128]; // contains the current translation of "<promote to line>"
 char depot_frame_t::line_seperator[128];       // "-----------" between header items and lines
 char depot_frame_t::new_convoy_text[128];      // contains the current translation of "new convoi"
 
@@ -99,11 +101,14 @@ depot_frame_t::depot_frame_t(depot_t* depot) :
 {
 DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->get_max_convoi_length());
 	last_selected_line = depot->get_last_selected_line();
-	strcpy( no_schedule_text, translator::translate("<no schedule set>") );
+
+	strcpy( no_schedule_text,     translator::translate("<no schedule set>") );
+	strcpy( clear_schedule_text,  translator::translate("<clear schedule>") );
 	strcpy( unique_schedule_text, translator::translate("<individual schedule>") );
-	strcpy( new_line_text, translator::translate("<create new line>") );
-	strcpy( line_seperator, translator::translate("--------------------------------") );
-	strcpy( new_convoy_text, translator::translate("new convoi") );
+	strcpy( new_line_text,        translator::translate("<create new line>") );
+	strcpy( promote_to_line_text, translator::translate("<promote to line>") );
+	strcpy( line_seperator,       translator::translate("--------------------------------") );
+	strcpy( new_convoy_text,      translator::translate("new convoi") );
 
 	/*
 	* [SELECT]:
@@ -868,14 +873,22 @@ void depot_frame_t::update_data()
 	// update the line selector
 	line_selector.clear_elements();
 	if(  cnv.is_bound()  &&  cnv->get_schedule()  &&  !cnv->get_schedule()->empty()  ) {
-		line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( unique_schedule_text, COL_BLACK ) );
+		if(  cnv->get_line().is_bound()  ) {
+			line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( clear_schedule_text, COL_BLACK ) );
+			line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( new_line_text, COL_BLACK ) );
+		}
+		else {
+			line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( unique_schedule_text, COL_BLACK ) );
+			line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( promote_to_line_text, COL_BLACK ) );
+		}
 	}
 	else {
 		line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( no_schedule_text, COL_BLACK ) );
+		line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( new_line_text, COL_BLACK ) );
 	}
-	line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( new_line_text, COL_BLACK ) );
+
 	if(  last_selected_line.is_bound()  ) {
-		line_selector.append_element( new line_scrollitem_t(last_selected_line) );
+		line_selector.append_element( new line_scrollitem_t( last_selected_line ) );
 	}
 	else {
 		line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( line_seperator, COL_BLACK ) );
@@ -990,7 +1003,15 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp, value_t p)
 		}
 		else if(  komp == &bt_schedule  ) {
 			if(  line_selector.get_selection() == 1  &&  !line_selector.is_dropped()  ) { // create new line
-				depot->call_depot_tool('l', convoihandle_t(), NULL);
+				// promote existing individual schedule to line
+				cbuffer_t buf;
+				if(  cnv.is_bound()  &&  !selected_line.is_bound()  ) {
+					schedule_t* fpl = cnv->get_schedule();
+					if(  fpl  ) {
+						fpl->sprintf_schedule( buf );
+					}
+				}
+				depot->call_depot_tool('l', convoihandle_t(), buf);
 				return true;
 			}
 			else {
@@ -1059,13 +1080,23 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp, value_t p)
 		else if(  komp == &line_selector  ) {
 			const int selection = p.i;
 			if(  selection == 0  ) { // unique
-				selected_line = linehandle_t();
-				apply_line();
+				if(  selected_line.is_bound()  ) {
+					selected_line = linehandle_t();
+					apply_line();
+				}
 				return true;
 			}
 			else if(  selection == 1  ) { // create new line
 				if(  line_selector.is_dropped()  ) { // but not from next/prev buttons
-					depot->call_depot_tool('l', convoihandle_t(), NULL);
+					// promote existing individual schedule to line
+					cbuffer_t buf;
+					if(  cnv.is_bound()  &&  !selected_line.is_bound()  ) {
+						schedule_t* fpl = cnv->get_schedule();
+						if(  fpl  ) {
+							fpl->sprintf_schedule( buf );
+						}
+					}
+					depot->call_depot_tool('l', convoihandle_t(), buf);
 				}
 				return true;
 			}

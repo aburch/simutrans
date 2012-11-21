@@ -144,8 +144,10 @@ private:
 	gui_container_t cont_waggons;
 
 	static char no_schedule_text[128];
+	static char clear_schedule_text[128];
 	static char unique_schedule_text[128];
 	static char new_line_text[128];
+	static char promote_to_line_text[128];
 	static char line_seperator[128];
 	gui_combobox_t line_selector;
 

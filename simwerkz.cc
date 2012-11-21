@@ -5909,7 +5909,7 @@ bool wkz_change_line_t::init( karte_t *, spieler_t *sp )
 /* Handles all action of convois in depots. Needs a default param:
  * [function],[depot_pos_3d],[convoi_id],addition stuff
  * following simple command exists:
- * 'l' : creates a new line (convoi_id might be invalid)
+ * 'l' : creates a new line (convoi_id might be invalid) (+printf'd initial schedule)
  * 'b' : starts the convoi
  * 'c' : copies this convoi
  * 'd' : dissassembles convoi
@@ -5964,6 +5964,8 @@ bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 			// create line schedule window
 			{
 				linehandle_t selected_line = depot->get_besitzer()->simlinemgmt.create_line(depot->get_line_type(),depot->get_besitzer());
+				selected_line->get_schedule()->sscanf_schedule( p );
+
 				depot_frame_t *depot_frame = dynamic_cast<depot_frame_t *>(win_get_magic( (ptrdiff_t)depot ));
 				if(  is_local_execution()  ) {
 					if(  welt->get_active_player()==sp  &&  depot_frame  ) {
