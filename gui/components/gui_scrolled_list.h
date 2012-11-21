@@ -39,6 +39,7 @@ public:
 		virtual char const* get_text() const = 0;
 		virtual void set_text(char const*) = 0;
 		virtual bool is_valid() { return true; }	//  can be used to indicate invalid entries
+		virtual bool is_editable() { return false; }
 	};
 
 	// editable text
@@ -52,6 +53,8 @@ public:
 		char const* get_text() const OVERRIDE { return text; }
 
 		void set_text(char const *t) OVERRIDE { text = t; }
+
+		bool is_editable() { return true; }
 	};
 
 	// only uses pointer, non-editable

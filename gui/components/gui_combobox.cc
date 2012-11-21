@@ -145,9 +145,12 @@ DBG_MESSAGE("gui_combobox_t::infowin_event()","close");
 	}
 	else {
 		// finally handle textinput
-		event_t ev2 = *ev;
-		translate_event(&ev2, -textinp.get_pos().x, -textinp.get_pos().y);
-		return textinp.infowin_event(ev);
+		gui_scrolled_list_t::scrollitem_t *item = droplist.get_element(droplist.get_selection());
+		if(  item==NULL  ||  item->is_editable()) {
+			event_t ev2 = *ev;
+			translate_event(&ev2, -textinp.get_pos().x, -textinp.get_pos().y);
+			return textinp.infowin_event(ev);
+		}
 	}
 	return true;
 }
@@ -182,7 +185,9 @@ void gui_combobox_t::zeichnen(koord offset)
 		reset_selected_item_name();
 	}
 
-	textinp.display_with_focus( offset, (win_get_focus()==this) );
+	bool with_focus = (win_get_focus()==this)  &&  (item==NULL  ||  item->is_editable());
+
+	textinp.display_with_focus( offset, with_focus);
 
 	if (droplist.is_visible()) {
 		droplist.zeichnen(offset);
@@ -225,7 +230,7 @@ void gui_combobox_t::rename_selected_item()
 {
 	gui_scrolled_list_t::scrollitem_t *item = droplist.get_element(droplist.get_selection());
 	// if name was not changed in the meantime, we can rename it
-	if(  item  &&  item->is_valid()  &&  strncmp(item->get_text(),old_editstr,127)==0  &&  strncmp(item->get_text(),editstr,127)) {
+	if(  item  &&  item->is_valid() &&  item->is_editable() &&  strncmp(item->get_text(),old_editstr,127)==0  &&  strncmp(item->get_text(),editstr,127)) {
 		item->set_text(editstr);
 	}
 }

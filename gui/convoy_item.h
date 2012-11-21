@@ -18,6 +18,7 @@ public:
 	void set_color(COLOR_VAL) OVERRIDE { assert(false); }
 	char const* get_text() const OVERRIDE;
 	void set_text(char const*) OVERRIDE;
+	bool is_editable() { return true; }
 	bool is_valid() OVERRIDE { return cnv.is_bound(); }	//  can be used to indicate invalid entries
 };
 
