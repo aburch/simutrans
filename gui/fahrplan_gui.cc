@@ -204,36 +204,37 @@ void fahrplan_gui_stats_t::zeichnen(koord offset)
 		set_groesse(koord(width + 4 + 16, 3 * LINESPACE));
 	}
 	else {
-		int    i     = 0;
 		size_t sel   = fpl->get_aktuell();
 		sint16 width = get_groesse().x - 16;
-		//FORX(minivec_tpl<linieneintrag_t>, const& e, fpl->eintrag, (--sel, offset.y += LINESPACE + 1)) {
-		//	if (sel == 0) {
-		//		// highlight current entry (width is just wide enough, scrolly will do clipping)
-		//		display_fillbox_wh_clip(offset.x, offset.y - 1, 2048, LINESPACE + 1, sp->get_player_color1() + 1, false);
-		//	}
 
 		for (int i = 0; i < fpl->get_count(); i++) {
-
-			if(  i==fpl->get_aktuell()  ) {
+			PLAYER_COLOR_VAL c;
+			image_id img;
+			int halt_y = offset.y + i * (LINESPACE + 1);
+			if( i == sel ) {
 				// highlight current entry (width is just wide enough, scrolly will do clipping)
-				display_fillbox_wh_clip( offset.x, offset.y + i*(LINESPACE+1)-1, 2048, LINESPACE+1, sp->get_player_color1()+1, false );
+				c = COL_WHITE;
+				img = button_t::arrow_right_pushed;
+				display_fillbox_wh_clip( offset.x, halt_y - 1, 2048, LINESPACE+1, sp->get_player_color1()+1, false );
 			}
+			else
+			{
+				c = COL_BLACK;
+				img = button_t::arrow_right_normal;
+			}
+
+			// the goto button (right arrow)
+			display_color_img(img, offset.x + 2, halt_y, 0, false, true);
 
 			buf.clear();
 			buf.printf( "%i) ", i+1 );
 			bool no_control_tower = fpl->get_waytype() == air_wt && welt->lookup(fpl->eintrag[i].pos)->get_halt().is_bound() && welt->lookup(fpl->eintrag[i].pos)->get_halt()->has_no_control_tower();
 			fahrplan_gui_t::gimme_stop_name(buf, welt, sp, fpl->eintrag[i], no_control_tower);
 
-			PLAYER_COLOR_VAL const c = sel == 0 ? COL_WHITE : COL_BLACK;
-			sint16           const w = display_proportional_clip(offset.x + 4 + 10, offset.y, buf, ALIGN_LEFT, c, true);
+			sint16 const w = display_proportional_clip(offset.x + 4 + 10, halt_y, buf, ALIGN_LEFT, c, true);
 			if (width < w) {
 				width = w;
 			}
-
-			// the goto button (right arrow)
-			image_id const img = sel == 0 ? button_t::arrow_right_pushed : button_t::arrow_right_normal;
-			display_color_img(img, offset.x + 2, offset.y, 0, false, true);
 		}
 		set_groesse(koord(width + 16, fpl->get_count() * (LINESPACE + 1)));
 		highlight_schedule(fpl, true);
@@ -374,7 +375,7 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	}
 	else {
 		sprintf( str_parts_month, "1/%d",  1<<(16-fpl->get_current_eintrag().waiting_time_shift) );
-		sint32 ticks_waiting = welt->ticks_per_world_month >> (16-fpl->get_current_eintrag().waiting_time_shift);
+		sint64 ticks_waiting = welt->ticks_per_world_month >> (16-fpl->get_current_eintrag().waiting_time_shift);
 		welt->sprintf_ticks(str_parts_month_as_clock, sizeof(str_parts_month_as_clock), ticks_waiting + 1);
 	}
 
@@ -562,7 +563,7 @@ void fahrplan_gui_t::update_selection()
 			}
 			if(  fpl->eintrag[aktuell].ladegrad>0  &&  fpl->eintrag[aktuell].waiting_time_shift>0  ) {
 				sprintf( str_parts_month, "1/%d",  1<<(16-fpl->eintrag[aktuell].waiting_time_shift) );
-				sint32 ticks_waiting = welt->ticks_per_world_month >> (16-fpl->get_current_eintrag().waiting_time_shift);
+				sint64 ticks_waiting = welt->ticks_per_world_month >> (16-fpl->get_current_eintrag().waiting_time_shift);
 				welt->sprintf_ticks(str_parts_month_as_clock, sizeof(str_parts_month_as_clock), ticks_waiting + 1);
 			}
 			else {
