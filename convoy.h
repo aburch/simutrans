@@ -130,7 +130,6 @@ struct vehicle_summary_t
 	{
 		// this correction corresponds to the correction in convoi_t::get_tile_length()
 		tiles = (length + (max(8, length_of_last_vehicle) - length_of_last_vehicle) + OBJECT_OFFSET_STEPS - 1) / OBJECT_OFFSET_STEPS;
-		weight *= 1000;
 	}
 };
 
