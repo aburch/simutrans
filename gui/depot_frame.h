@@ -81,7 +81,9 @@ private:
 	 * @date  09.06.2003
 	 */
 	gui_label_t lb_convois;
-	static char new_convoy_text[128];
+
+	/// contains the current translation of "new convoi"
+	const char* new_convoy_text;
 	gui_combobox_t convoy_selector;
 
 	button_t line_button;	// goto line ...
@@ -143,12 +145,19 @@ private:
 	gui_container_t cont_loks;
 	gui_container_t cont_waggons;
 
-	static char no_schedule_text[128];
-	static char clear_schedule_text[128];
-	static char unique_schedule_text[128];
-	static char new_line_text[128];
-	static char promote_to_line_text[128];
-	static char line_seperator[128];
+	/// contains the current translation of "<no schedule set>"
+	const char* no_schedule_text;
+	/// contains the current translation of "<clear schedule>"
+	const char* clear_schedule_text;
+	/// contains the current translation of "<individual schedule>"
+	const char* unique_schedule_text;
+	/// contains the current translation of "<create new line>"
+	const char* new_line_text;
+	/// contains the current translation of "<promote to line>"
+	const char* promote_to_line_text;
+	/// "-----------" between header items and lines
+	const char* line_seperator;
+
 	gui_combobox_t line_selector;
 
 	gui_combobox_t vehicle_filter;

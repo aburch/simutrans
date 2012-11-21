@@ -49,14 +49,6 @@
 #include "../boden/wege/weg.h"
 
 
-char depot_frame_t::no_schedule_text[128];     // contains the current translation of "<no schedule set>"
-char depot_frame_t::clear_schedule_text[128];  // contains the current translation of "<clear schedule>"
-char depot_frame_t::unique_schedule_text[128]; // contains the current translation of "<individual schedule>"
-char depot_frame_t::new_line_text[128];        // contains the current translation of "<create new line>"
-char depot_frame_t::promote_to_line_text[128]; // contains the current translation of "<promote to line>"
-char depot_frame_t::line_seperator[128];       // "-----------" between header items and lines
-char depot_frame_t::new_convoy_text[128];      // contains the current translation of "new convoi"
-
 static const char* engine_type_names[9] =
 {
 	"unknown",
@@ -101,14 +93,13 @@ depot_frame_t::depot_frame_t(depot_t* depot) :
 {
 DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->get_max_convoi_length());
 	last_selected_line = depot->get_last_selected_line();
-
-	strcpy( no_schedule_text,     translator::translate("<no schedule set>") );
-	strcpy( clear_schedule_text,  translator::translate("<clear schedule>") );
-	strcpy( unique_schedule_text, translator::translate("<individual schedule>") );
-	strcpy( new_line_text,        translator::translate("<create new line>") );
-	strcpy( promote_to_line_text, translator::translate("<promote to line>") );
-	strcpy( line_seperator,       translator::translate("--------------------------------") );
-	strcpy( new_convoy_text,      translator::translate("new convoi") );
+	no_schedule_text     = translator::translate("<no schedule set>");
+	clear_schedule_text  = translator::translate("<clear schedule>");
+	unique_schedule_text = translator::translate("<individual schedule>");
+	new_line_text        = translator::translate("<create new line>");
+	line_seperator       = translator::translate("--------------------------------");
+	new_convoy_text      = translator::translate("new convoi");
+	promote_to_line_text = translator::translate("<promote to line>");
 
 	/*
 	* [SELECT]:
@@ -895,7 +886,7 @@ void depot_frame_t::update_data()
 	}
 	line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( line_seperator, COL_BLACK ) );
 	line_selector.set_selection(0);
-	line_selector.set_focusable(false);
+	line_selector.set_focusable(true);
 	selected_line = linehandle_t();
 
 	// check all matching lines
@@ -905,7 +896,6 @@ void depot_frame_t::update_data()
 		line_selector.append_element( new line_scrollitem_t(line) );
 		if(  cnv.is_bound()  &&  line == cnv->get_line()  ) {
 			line_selector.set_selection( line_selector.count_elements() - 1 );
-			line_selector.set_focusable(true);
 			selected_line = line;
 		}
 	}
