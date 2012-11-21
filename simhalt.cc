@@ -235,6 +235,10 @@ DBG_MESSAGE("haltestelle_t::remove()","removing segment from %d,%d,%d", pos.x, p
 			DBG_MESSAGE("haltestelle_t::remove()",  "removing building" );
 			hausbauer_t::remove( welt, sp, gb );
 			bd = NULL;	// no need to recalc image
+			// removing the building could have destroyed this halt already
+			if (!halt.is_bound()){
+				return true;
+			}
 		}
 	}
 
