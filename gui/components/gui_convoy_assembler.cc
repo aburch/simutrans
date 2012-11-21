@@ -1144,7 +1144,7 @@ void gui_convoy_assembler_t::update_data()
 					else
 					{
 						bool found = false;
-						for(int j = 0; j < welt->get_settings().get_livery_schemes()->get_count(); j ++)
+						for(uint32 j = 0; j < welt->get_settings().get_livery_schemes()->get_count(); j ++)
 						{
 							const livery_scheme_t* const new_scheme = welt->get_settings().get_livery_scheme(j);
 							const char* new_livery = new_scheme->get_latest_available_livery(date, vehicles[i]);
