@@ -1603,7 +1603,8 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 
 	if(veh_type) {
 		vehicle_as_potential_convoy_t convoy(*get_welt(), *veh_type);
-		uint16 brake_force = (uint16)(((uint32)convoy.get_braking_force() + 500) / 1000); 
+		uint16 brake_force = (uint16)(((uint32)convoy.get_braking_force() + 500) / 1000); // in kN
+		uint16 weight =	(veh_type->get_gewicht() + 500) / 1000; // in tonnes
 
 		sint32 k = 0;
 
@@ -1654,7 +1655,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 					veh_type->get_leistung(),
 					veh_type->get_tractive_effort(),
 					veh_type->get_geschw(),
-					(veh_type->get_gewicht()+500)/1000,
+					weight,
 					brake_force,
 					veh_type->get_rolling_resistance().to_double() * 1000
 					);
@@ -1671,7 +1672,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 					veh_type->get_leistung(),
 					veh_type->get_tractive_effort(),
 					veh_type->get_geschw(),
-					(veh_type->get_gewicht()+500)/1000,
+					weight,
 					brake_force,
 					veh_type->get_rolling_resistance().to_double() * 1000
 					);
@@ -1721,7 +1722,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 						veh_type->get_ware()->get_catg() == 0 ?
 						translator::translate(veh_type->get_ware()->get_name()) :
 						translator::translate(veh_type->get_ware()->get_catg_name()),
-						(veh_type->get_gewicht()+500)/1000,
+						weight,
 						veh_type->get_geschw(),
 						brake_force,
 						veh_type->get_rolling_resistance().to_double() * 1000
@@ -1743,7 +1744,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 						veh_type->get_ware()->get_catg() == 0 ?
 						translator::translate(veh_type->get_ware()->get_name()) :
 						translator::translate(veh_type->get_ware()->get_catg_name()),
-						(veh_type->get_gewicht()+500)/1000,
+						weight,
 						veh_type->get_geschw(),
 						brake_force,
 						veh_type->get_rolling_resistance().to_double() * 1000
@@ -1767,7 +1768,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 						veh_type->get_ware()->get_catg() == 0 ?
 						translator::translate(veh_type->get_ware()->get_name()) :
 						translator::translate(veh_type->get_ware()->get_catg_name()),
-						veh_type->get_gewicht(),
+						weight,
 						veh_type->get_geschw(),
 						brake_force,
 						veh_type->get_rolling_resistance().to_double() * 1000
@@ -1789,7 +1790,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 						veh_type->get_ware()->get_catg() == 0 ?
 						translator::translate(veh_type->get_ware()->get_name()) :
 						translator::translate(veh_type->get_ware()->get_catg_name()),
-						veh_type->get_gewicht(),
+						weight,
 						veh_type->get_geschw(),
 						brake_force,
 						veh_type->get_rolling_resistance().to_double() * 1000
