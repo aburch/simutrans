@@ -467,9 +467,9 @@ bool translator::load(const string &path_to_pakset)
 		chdir( umgebung_t::program_dir );
 	}
 
-#if DEBUG>=4
-	dump_hashtable(&compatibility);
-#endif
+//#if DEBUG>=4
+//	dump_hashtable(&compatibility);
+//#endif
 
 	// use english if available
 	current_langinfo = get_lang_by_iso("en");

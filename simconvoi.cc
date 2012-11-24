@@ -1196,7 +1196,9 @@ bool convoi_t::drive_to()
 			koord3d new_destination;
 			koord3d new_start = ziel;
 
-			while(new_nonreversing && success)
+			int counter = 0;
+
+			while(new_nonreversing && success && counter < fpl->get_count())
 			{
 				advance_schedule();
 
@@ -1208,6 +1210,8 @@ bool convoi_t::drive_to()
 				new_nonreversing = !fpl->get_current_eintrag().reverse && !haltestelle_t::get_halt(welt, new_destination, get_besitzer()).is_bound();
 
 				new_start = new_destination;
+
+				counter ++;
 			}
 		}
 
