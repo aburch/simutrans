@@ -60,7 +60,7 @@ bool ai_passenger_t::set_active(bool new_state)
 {
 	// only activate, when there are buses available!
 	if(  new_state  ) {
-		new_state = NULL!=vehikelbauer_t::vehikel_search( road_wt, welt->get_timeline_year_month(), 50, 80, warenbauer_t::passagiere, false, false );
+		new_state = NULL!=vehikel_search( road_wt, 50, 80, warenbauer_t::passagiere, false);
 	}
 	return spieler_t::set_active( new_state );
 }
@@ -175,7 +175,7 @@ koord ai_passenger_t::find_harbour_pos(karte_t* welt, const stadt_t *s )
 
 bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, const koord target_pos)
 {
-	const vehikel_besch_t *v_besch = vehikelbauer_t::vehikel_search(water_wt, welt->get_timeline_year_month(), 10, 40, warenbauer_t::passagiere, false, true );
+	const vehikel_besch_t *v_besch = vehikel_search(water_wt, 10, 40, warenbauer_t::passagiere, false);
 	if(v_besch==NULL  ) {
 		// no ship there
 		return false;
@@ -597,7 +597,7 @@ static koord find_airport_pos(karte_t* welt, const stadt_t *s )
  */
 bool ai_passenger_t::create_air_transport_vehikel(const stadt_t *start_stadt, const stadt_t *end_stadt)
 {
-	const vehikel_besch_t *v_besch = vehikelbauer_t::vehikel_search(air_wt, welt->get_timeline_year_month(), 10, 900, warenbauer_t::passagiere, false, true );
+	const vehikel_besch_t *v_besch = vehikel_search(air_wt, 10, 900, warenbauer_t::passagiere, false);
 	if(v_besch==NULL) {
 		// no aircraft there
 		return false;
@@ -892,7 +892,7 @@ void ai_passenger_t::cover_city_with_bus_route(koord start_pos, int number_of_st
 	walk_city( line, start, number_of_stops );
 	line->get_schedule()->eingabe_abschliessen();
 
-	road_vehicle = vehikelbauer_t::vehikel_search( road_wt, welt->get_timeline_year_month(), 1, 50, warenbauer_t::passagiere, false, false );
+	road_vehicle = vehikel_search( road_wt, 1, 50, warenbauer_t::passagiere, false);
 	if( line->get_schedule()->get_count()>1  ) {
 		// success: add a bus to the line
 		vehikel_t* v = vehikelbauer_t::baue(start->get_pos(), this, NULL, road_vehicle);
@@ -1108,7 +1108,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","no suitable hub found");
 		// wait for construction semaphore
 		{
 			// we want the fastest we can get!
-			road_vehicle = vehikelbauer_t::vehikel_search( road_wt, welt->get_timeline_year_month(), 50, 80, warenbauer_t::passagiere, false, false );
+			road_vehicle = vehikel_search( road_wt, 50, 80, warenbauer_t::passagiere, false);
 			if(road_vehicle!=NULL) {
 				// find the best => AI will never survive
 //				road_weg = wegbauer_t::weg_search( road_wt, road_vehicle->get_geschw(), welt->get_timeline_year_month(),weg_t::type_flat );
@@ -1289,7 +1289,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 							// now try to finde new vehicle
 							vehikel_t              const& v       = *line->get_convoy(0)->front();
 							waytype_t              const  wt      = v.get_waytype();
-							vehikel_besch_t const* const  v_besch = vehikelbauer_t::vehikel_search(wt, welt->get_current_month(), 50, welt->get_average_speed(wt), warenbauer_t::passagiere, false, false);
+							vehikel_besch_t const* const  v_besch = vehikelbauer_t::vehikel_search(wt, welt->get_current_month(), 50, welt->get_average_speed(wt), warenbauer_t::passagiere, false, true);
 							if (!v_besch->is_retired(welt->get_current_month()) && v_besch != v.get_besch()) {
 								// there is a newer one ...
 								for(  uint32 new_capacity=0;  capacity>new_capacity;  new_capacity+=v_besch->get_zuladung()) {
@@ -1448,7 +1448,7 @@ void ai_passenger_t::bescheid_vehikel_problem(convoihandle_t cnv,const koord3d z
 
 void ai_passenger_t::laden_abschliessen()
 {
-	road_vehicle = vehikelbauer_t::vehikel_search( road_wt, welt->get_timeline_year_month(), 50, 80, warenbauer_t::passagiere, false, false );
+	road_vehicle = vehikel_search( road_wt, 50, 80, warenbauer_t::passagiere, false);
 	if (road_vehicle == NULL) {
 		// reset state
 		end_stadt = NULL;

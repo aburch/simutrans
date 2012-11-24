@@ -561,3 +561,10 @@ void ai_t::rdwr(loadsave_t *file)
 	file->rdwr_bool( air_transport );
 	file->rdwr_bool( ship_transport );
 }
+
+
+const vehikel_besch_t *ai_t::vehikel_search(waytype_t typ, const uint32 target_power, const sint32 target_speed, const ware_besch_t * target_freight, bool include_electric)
+{
+	bool obsolete_allowed = welt->get_settings().get_allow_buying_obsolete_vehicles();
+	return vehikelbauer_t::vehikel_search(typ, welt->get_timeline_year_month(), target_power, target_speed, target_freight, include_electric, !obsolete_allowed);
+}

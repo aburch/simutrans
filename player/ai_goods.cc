@@ -807,7 +807,7 @@ void ai_goods_t::step()
 		*/
 		case NR_SAMMLE_ROUTEN:
 			if(  get_factory_tree_lowest_missing(root)  ) {
-				if(  start->get_besch()->get_platzierung()!=fabrik_besch_t::Wasser  ||  vehikelbauer_t::vehikel_search( water_wt, welt->get_timeline_year_month(), 0, 10, freight, false, false )!=NULL  ) {
+				if(  start->get_besch()->get_platzierung()!=fabrik_besch_t::Wasser  ||  vehikel_search( water_wt, 0, 10, freight, false)!=NULL  ) {
 					DBG_MESSAGE("ai_goods_t::do_ki", "Consider route from %s (%i,%i) to %s (%i,%i)", start->get_name(), start->get_pos().x, start->get_pos().y, ziel->get_name(), ziel->get_pos().x, ziel->get_pos().y );
 					state = NR_BAUE_ROUTE1;
 				}
@@ -844,15 +844,12 @@ void ai_goods_t::step()
 			sint32 best_rail_speed = 80;// is ok enough for goods, was: min(60+freight->get_speed_bonus()*5, 140 );
 			sint32 best_road_speed = min(60+freight->get_speed_bonus()*5, 130 );
 
-			// obey timeline
-			uint month_now = (welt->use_timeline() ? welt->get_current_month() : 0);
-
 			INT_CHECK("simplay 1265");
 
 			// is rail transport allowed?
 			if(rail_transport) {
 				// any rail car that transport this good (actually this weg_t the largest)
-				rail_vehicle = vehikelbauer_t::vehikel_search( track_wt, month_now, 0, best_rail_speed,  freight, true, false );
+				rail_vehicle = vehikel_search( track_wt, 0, best_rail_speed,  freight, true);
 			}
 			rail_engine = NULL;
 			rail_weg = NULL;
@@ -861,7 +858,7 @@ DBG_MESSAGE("do_ki()","rail vehicle %p",rail_vehicle);
 			// is road transport allowed?
 			if(road_transport) {
 				// any road car that transport this good (actually this returns the largest)
-				road_vehicle = vehikelbauer_t::vehikel_search( road_wt, month_now, 10, best_road_speed, freight, false, false );
+				road_vehicle = vehikel_search( road_wt, 10, best_road_speed, freight, false);
 			}
 			road_weg = NULL;
 DBG_MESSAGE("do_ki()","road vehicle %p",road_vehicle);
@@ -869,7 +866,7 @@ DBG_MESSAGE("do_ki()","road vehicle %p",road_vehicle);
 			ship_vehicle = NULL;
 			if(start->get_besch()->get_platzierung()==fabrik_besch_t::Wasser) {
 				// largest ship available
-				ship_vehicle = vehikelbauer_t::vehikel_search( water_wt, month_now, 0, 20, freight, false, false );
+				ship_vehicle = vehikel_search( water_wt, 0, 20, freight, false);
 			}
 
 			INT_CHECK("simplay 1265");
@@ -896,7 +893,7 @@ DBG_MESSAGE("do_ki()","check railway");
 				// assume the engine weight 100 tons for power needed calcualtion
 				int total_weight = count_rail*( rail_vehicle->get_zuladung()*freight->get_weight_per_unit() + rail_vehicle->get_gewicht() );
 //				long power_needed = (long)(((best_rail_speed*best_rail_speed)/2500.0+1.0)*(100.0+count_rail*(rail_vehicle->get_gewicht()+rail_vehicle->get_zuladung()*freight->get_weight_per_unit()*0.001)));
-				rail_engine = vehikelbauer_t::vehikel_search( track_wt, month_now, total_weight/1000, best_rail_speed, NULL, wayobj_t::default_oberleitung!=NULL, false );
+				rail_engine = vehikel_search( track_wt, total_weight/1000, best_rail_speed, NULL, wayobj_t::default_oberleitung!=NULL);
 				if(  rail_engine!=NULL  ) {
 					best_rail_speed = min(rail_engine->get_geschw(),rail_vehicle->get_geschw());
 					// find cheapest track with that speed (and no monorail/elevated/tram tracks, please)
@@ -1059,11 +1056,9 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 					if(count_rail<org_count_rail) {
 						// rethink engine
 						int best_rail_speed = min(51, rail_vehicle->get_geschw());
-						// obey timeline
-						uint month_now = (welt->use_timeline() ? welt->get_current_month() : 0);
 						// for engine: gues number of cars
 						long power_needed=(long)(((best_rail_speed*best_rail_speed)/2500.0+1.0)*(100.0+count_rail*( (rail_vehicle->get_gewicht()+rail_vehicle->get_zuladung()*freight->get_weight_per_unit())*0.001 )));
-						const vehikel_besch_t *v=vehikelbauer_t::vehikel_search( track_wt, month_now, power_needed, best_rail_speed, NULL, false, false );
+						const vehikel_besch_t *v=vehikel_search( track_wt, power_needed, best_rail_speed, NULL, false);
 						if(v->get_betriebskosten()<rail_engine->get_betriebskosten()) {
 							rail_engine = v;
 						}
