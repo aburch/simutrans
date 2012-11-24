@@ -440,7 +440,12 @@ static void internal_GetEvents(bool const wait)
 		case SDL_KEYDOWN:
 		{
 			unsigned long code;
-			bool   const  numlock = SDL_GetModState() & KMOD_NUM;
+#ifdef _WIN32
+			// SDL doesn't set numlock state correctly on startup. Revert to win32 function as workaround.
+			const bool numlock = (GetKeyState(VK_NUMLOCK) & 1) != 0;
+#else
+			const bool numlock = SDL_GetModState() & KMOD_NUM;
+#endif
 			SDLKey const  sym     = event.key.keysym.sym;
 			switch (sym) {
 				case SDLK_DELETE:   code = 127;                           break;
