@@ -6862,7 +6862,7 @@ bool wkz_access_t::init(karte_t* const welt, spieler_t *sp)
 			}
 		}
 		
-		path_explorer_t::full_instant_refresh();
+		path_explorer_t::refresh_all_categories(false);
 	}
 
 	cbuffer_t message;

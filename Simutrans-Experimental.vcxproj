@@ -179,7 +179,7 @@
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">$(ProjectName)-debug-SDL</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectName)-Debug</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug (network)|Win32'">$(ProjectName)-Debug</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug (command-line server)|Win32'">$(ProjectName)-Debug-Command-Line-Server</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug (command-line server)|Win32'">$(ProjectName)-Debug</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|Win32'">$(ProjectName)-command-line-server</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release (IP v. 4 only)|Win32'">$(ProjectName)-ipv4</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Dr. Memory|Win32'">$(ProjectName)-DrMemory</TargetName>
