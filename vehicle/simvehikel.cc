@@ -1173,7 +1173,7 @@ vehikel_t::vehikel_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp) :
 
 	current_friction = 4;
 	total_freight = 0;
-	sum_weight = besch->get_gewicht() * 1000UL;
+	sum_weight = besch->get_gewicht();
 
 	ist_erstes = ist_letztes = false;
 	check_for_finish = false;

@@ -130,7 +130,6 @@ struct vehicle_summary_t
 	{
 		// this correction corresponds to the correction in convoi_t::get_tile_length()
 		tiles = (length + (max(8, length_of_last_vehicle) - length_of_last_vehicle) + OBJECT_OFFSET_STEPS - 1) / OBJECT_OFFSET_STEPS;
-		weight *= 1000;
 	}
 };
 
@@ -267,6 +266,13 @@ protected:
 	}
 
 	/**
+	 * convert power index into power in W or convert force index into force in N.
+	 * power_index: a value gotten from vehicles (e.g. from get_effective_force_index()/get_effective_power_index()).
+	 * power_factor: the global power factor percentage. Must not be 0!.
+	 */
+	float32e8_t power_index_to_power(const float32e8_t &power_index, sint32 power_factor);
+public:
+	/**
 	 * get braking force in N at given speed in m/s
 	 */
 	inline float32e8_t get_braking_force(/*const float32e8_t &speed*/) 
@@ -288,13 +294,6 @@ protected:
 		return get_power_summary(get_vehicle_summary().max_speed * kmh2ms); 
 	}
 
-	/**
-	 * convert power index into power in W or convert force index into force in N.
-	 * power_index: a value gotten from vehicles (e.g. from get_effective_force_index()/get_effective_power_index()).
-	 * power_factor: the global power factor percentage. Must not be 0!.
-	 */
-	float32e8_t power_index_to_power(const float32e8_t &power_index, sint32 power_factor);
-public:
 	/**
 	 * Update adverse.max_speed. If given speed is less than current adverse.max_speed, then speed becomes the new adverse.max_speed.
 	 */

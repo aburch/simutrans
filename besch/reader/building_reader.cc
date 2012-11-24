@@ -234,6 +234,10 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->layouts   = decode_uint8(p);
 		besch->allowed_climates = (climate_bits)decode_uint16(p);
 		besch->enables   = decode_uint8(p);
+		if(experimental_version < 1 && besch->utype == haus_besch_t::depot)
+		{
+			besch->enables = 255;
+		}
 		besch->flags     = (haus_besch_t::flag_t)decode_uint8(p);
 		besch->chance    = decode_uint8(p);
 		besch->intro_date    = decode_uint16(p);

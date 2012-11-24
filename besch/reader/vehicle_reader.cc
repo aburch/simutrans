@@ -396,7 +396,7 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 	else if (version==10) {
 		// new: weight in kgs
-		besch->preis = decode_uint32(p);
+		besch->base_price = decode_uint32(p);
 		besch->zuladung = decode_uint16(p);
 		besch->min_loading_time = besch->max_loading_time = decode_uint16(p);
 		besch->geschw = decode_uint16(p);

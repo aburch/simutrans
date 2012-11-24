@@ -278,6 +278,7 @@ public:
 
 	virtual simline_t::linetype get_line_type() const { return simline_t::tramline; }
 
+	virtual waytype_t get_wegtyp() const {return tram_wt;}
 	virtual ding_t::typ get_typ() const { return tramdepot; }
 	//virtual const char *get_name() const {return "Tramdepot"; }
 };
@@ -290,6 +291,7 @@ public:
 
 	virtual simline_t::linetype get_line_type() const { return simline_t::monorailline; }
 
+	virtual waytype_t get_wegtyp() const {return monorail_wt;}
 	virtual ding_t::typ get_typ() const { return monoraildepot; }
 	//virtual const char *get_name() const {return "Monoraildepot"; }
 };
@@ -302,6 +304,7 @@ public:
 
 	virtual simline_t::linetype get_line_type() const { return simline_t::maglevline; }
 
+	virtual waytype_t get_wegtyp() const {return maglev_wt;}
 	virtual ding_t::typ get_typ() const { return maglevdepot; }
 	//virtual const char *get_name() const {return "Maglevdepot"; }
 };
@@ -314,6 +317,7 @@ public:
 
 	virtual simline_t::linetype get_line_type() const { return simline_t::narrowgaugeline; }
 
+	virtual waytype_t get_wegtyp() const {return narrowgauge_wt;}
 	virtual ding_t::typ get_typ() const { return narrowgaugedepot; }
 	//virtual const char *get_name() const {return "Narrowgaugedepot"; }
 };
