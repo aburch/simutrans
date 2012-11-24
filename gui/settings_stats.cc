@@ -35,7 +35,9 @@ static char const* const version[] =
 	"0.111.1",
 	"0.111.2",
 	"0.111.3",
-	"0.111.4"
+	"0.111.4",
+	"0.112.0",
+	"0.112.1"
 };
 
 
@@ -70,6 +72,22 @@ bool settings_general_stats_t::action_triggered(gui_action_creator_t *komp, valu
 void settings_general_stats_t::init(settings_t const* const sets)
 {
 	INIT_INIT
+
+	// combobox for savegame version
+	savegame.set_pos( koord(D_MARGIN_LEFT, ypos) );
+	savegame.set_groesse( koord(70, D_BUTTON_HEIGHT) );
+	for(  uint32 i=0;  i<lengthof(version);  i++  ) {
+		savegame.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( version[i]+2, COL_BLACK ) );
+		if(  strcmp(version[i],umgebung_t::savegame_version_str)==0  ) {
+			savegame.set_selection( i );
+		}
+	}
+	savegame.set_focusable( false );
+	add_komponente( &savegame );
+	savegame.add_listener( this );
+	INIT_LB( "savegame version" );
+	label.back()->set_pos( koord( D_MARGIN_LEFT + 70 + 6, label.back()->get_pos().y + 2 ) );
+	SEPERATOR
 	INIT_BOOL( "drive_left", sets->is_drive_left() );
 	INIT_BOOL( "signals_on_left", sets->is_signals_left() );
 	SEPERATOR
@@ -93,22 +111,7 @@ void settings_general_stats_t::init(settings_t const* const sets)
 	INIT_BOOL( "ground_info", umgebung_t::ground_info );
 	INIT_BOOL( "townhall_info", umgebung_t::townhall_info );
 	INIT_BOOL( "only_single_info", umgebung_t::single_info );
-	SEPERATOR
 
-	// combobox for savegame version
-	savegame.set_pos( koord(2,ypos-2) );
-	savegame.set_groesse( koord(70,D_BUTTON_HEIGHT) );
-	for(  uint32 i=0;  i<lengthof(version);  i++  ) {
-		savegame.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( version[i]+2, COL_BLACK ) );
-		if(  strcmp(version[i],umgebung_t::savegame_version_str)==0  ) {
-			savegame.set_selection( i );
-		}
-	}
-	savegame.set_focusable( false );
-	add_komponente( &savegame );
-	savegame.add_listener( this );
-	INIT_LB( "savegame version" );
-	label.back()->set_pos( koord( 76, label.back()->get_pos().y ) );
 	clear_dirty();
 	set_groesse( settings_stats_t::get_groesse() );
 }
@@ -116,6 +119,12 @@ void settings_general_stats_t::init(settings_t const* const sets)
 void settings_general_stats_t::read(settings_t* const sets)
 {
 	READ_INIT
+
+	int selected = savegame.get_selection();
+	if(  0 <= selected  &&  (uint32)selected < lengthof(version)  ) {
+		umgebung_t::savegame_version_str = version[ selected ];
+	}
+
 	READ_BOOL_VALUE( sets->drive_on_left );
 	vehikel_basis_t::set_overtaking_offsets( sets->drive_on_left );
 	READ_BOOL_VALUE( sets->signals_on_left );
@@ -140,11 +149,6 @@ void settings_general_stats_t::read(settings_t* const sets)
 	READ_BOOL_VALUE( umgebung_t::ground_info );
 	READ_BOOL_VALUE( umgebung_t::townhall_info );
 	READ_BOOL_VALUE( umgebung_t::single_info );
-
-	int selected = savegame.get_selection();
-	if(  0 <= selected  &&  (uint32)selected < lengthof(version)  ) {
-		umgebung_t::savegame_version_str = version[ selected ];
-	}
 }
 
 void settings_display_stats_t::init(settings_t const* const)
@@ -264,6 +268,7 @@ void settings_economy_stats_t::init(settings_t const* const sets)
 	SEPERATOR
 
 	INIT_BOOL( "just_in_time", sets->get_just_in_time() );
+	INIT_NUM( "factory_maximum_intransit_percentage", sets->get_factory_maximum_intransit_percentage(), 0, 32767, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_BOOL( "crossconnect_factories", sets->is_crossconnect_factories() );
 	INIT_NUM( "crossconnect_factories_percentage", sets->get_crossconnect_factor(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "industry_increase_every", sets->get_industry_increase_every(), 0, 100000, 100, false );
@@ -341,6 +346,7 @@ void settings_economy_stats_t::read(settings_t* const sets)
 	READ_NUM_VALUE( sets->way_toll_waycost_percentage );
 
 	READ_BOOL_VALUE( sets->just_in_time );
+	READ_NUM_VALUE( sets->factory_maximum_intransit_percentage );
 	READ_BOOL_VALUE( sets->crossconnect_factories );
 	READ_NUM_VALUE( sets->crossconnect_factor );
 	READ_NUM_VALUE( sets->industry_increase );

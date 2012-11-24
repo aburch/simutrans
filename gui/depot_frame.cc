@@ -1495,7 +1495,7 @@ void depot_frame_t::draw_vehicle_info_text(koord pos)
 		}
 
 		n += sprintf( buf + n, "%s %4.1ft\n", translator::translate("Weight:"), veh_type->get_gewicht() / 1000.0 );
-		sprintf( buf + n, "%s %d km/h", translator::translate("Max. speed:"), veh_type->get_geschw() );
+		sprintf( buf + n, "%s %3d km/h", translator::translate("Max. speed:"), veh_type->get_geschw() );
 
 		display_multiline_text( pos.x + D_MARGIN_LEFT, pos.y + tabs.get_pos().y + tabs.get_groesse().y + 31 + LINESPACE + 4, buf,  COL_BLACK);
 
