@@ -2018,38 +2018,6 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 }
 
 
-
-#ifdef USE_QUOTE
-// rating of this place ...
-const char *
-haltestelle_t::quote_bezeichnung(int quote, convoihandle_t cnv) const
-{
-    const char *str = "unbekannt";
-
-    if(quote < 0) {
-	str = translator::translate("miserabel");
-    } else if(quote < 30) {
-	str = translator::translate("schlecht");
-    } else if(quote < 60) {
-	str = translator::translate("durchschnitt");
-    } else if(quote < 90) {
-	str = translator::translate("gut");
-    } else if(quote < 120) {
-	str = translator::translate("sehr gut");
-    } else if(quote < 150) {
-	str = translator::translate("bestens");
-    } else if(quote < 180) {
-	str = translator::translate("excellent");
-    } else {
-	str = translator::translate("spitze");
-    }
-
-    return str;
-}
-#endif
-
-
-
 void haltestelle_t::info(cbuffer_t & buf) const
 {
 	if(  translator::get_lang()->utf_encoded  ) {

@@ -269,11 +269,6 @@ private:
 	/* station flags (most what enabled) */
 	uint8 enables;
 
-#ifdef USE_QUOTE
-	// for station rating
-	const char * quote_bezeichnung(int quote) const;
-#endif
-
 	/**
 	 * versucht die ware mit beriets wartender ware zusammenzufassen
 	 * @author Hj. Malthaner
