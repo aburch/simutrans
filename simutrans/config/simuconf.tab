@@ -174,11 +174,6 @@ crossconnect_factories = 0
 # (100% will give nearly the same results as crossconnect_factories=1)
 crossconnect_factories_percentage = 33
 
-# how much amount in transport is alowed
-# given in percent of factory storage (0=off)
-# should be not too high, otherwise convois will never fully loaded, 25 work well
-maximum_intransit_percentage = 0
-
 # how much is the total electric power available (in relation to total production) in parts per thousand
 electric_promille = 330
 
@@ -187,6 +182,13 @@ allow_underground_transformers = 1
 
 # with this switch on (default), overcrowded factories will not recieve goods any more
 just_in_time = 1
+
+# how much amount in transport is sent before further distribution stops
+# This is only enabled when "just_in_time" is enabled
+# The limit is given in percent of factory storage (0=off)
+# It should be not too low to allow big convois fully loaded at more than one
+# factory (for medium sized maps 500 seems a reasonable number)
+maximum_intransit_percentage = 0
 
 # use beginner mode for new maps (can be switched anyway on the new map dialog)
 first_beginner = 0
