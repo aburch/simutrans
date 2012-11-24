@@ -542,6 +542,10 @@ congestion_density_factor = 16
 # The same applies for other sorts of goods: for example, the speed bonus value for
 # mail is 15. So, with a passenger_max_weight of 2700, mail would wait for 180 
 # minutes before being discarded.
+# 
+# This is also subject to a maximum of thrice the estimated journey time for the
+# whole journey, except where thrice the estimated journty time is less than 1/12th
+# of this value.
 
 passenger_max_wait = 19440
 
