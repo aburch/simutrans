@@ -972,6 +972,7 @@ bool haltestelle_t::reroute_goods(sint16 &units_remaining)
 					search_route_resumable(warray[last_ware_index]);
 					if(  warray[last_ware_index].get_ziel()==halthandle_t()  ) {
 						// remove invalid destinations
+						fabrik_t::update_transit( &warray[last_ware_index], false);
 						warray.remove_at(last_ware_index);
 					}
 					else {
