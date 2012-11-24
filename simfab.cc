@@ -1341,12 +1341,13 @@ sint32 fabrik_t::liefere_an(const ware_besch_t *typ, sint32 menge)
 sint8 fabrik_t::is_needed(const ware_besch_t *typ)
 {
 	FOR(array_tpl<ware_production_t>, const& i, eingang) {
-		if (i.get_typ() == typ) {
-			// true if either overflowing or too much already sent
-			return (i.menge > i.max)  ||  (i.transit*welt->get_settings().get_factory_maximum_intransit_percentage()) > 100*(i.max >> fabrik_t::precision_bits);
+		if(  i.get_typ() == typ  ) {
+			// not needed (false) if overflowing or too much already sent
+			const bool transit_ok = welt->get_settings().get_factory_maximum_intransit_percentage() == 0 ? true : (i.transit * 100) < ((i.max >> fabrik_t::precision_bits) * welt->get_settings().get_factory_maximum_intransit_percentage());
+			return (i.menge < i.max)  &&  transit_ok;
 		}
 	}
-	return -1;  // wird hier nicht verbraucht
+	return -1;  // not needed here
 }
 
 
@@ -1646,7 +1647,6 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 
 		// Über alle Ziele iterieren
 		for(  uint32 n=0;  n<lieferziele.get_count();  n++  ) {
-
 			// prissi: this way, the halt, that is tried first, will change. As a result, if all destinations are empty, it will be spread evenly
 			const koord lieferziel = lieferziele[(n + index_offset) % lieferziele.get_count()];
 			fabrik_t * ziel_fab = get_fab(welt, lieferziel);
@@ -1671,7 +1671,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 						// without production stop when target overflowing, distribute to least overflow target
 						dist_list.insert_ordered( distribute_ware_t( halt, ziel_fab->get_eingang()[w].max, ziel_fab->get_eingang()[w].menge, (sint32)halt->get_ware_fuer_zielpos(ausgang[produkt].get_typ(),ware.get_zielpos()), ware ), distribute_ware_t::compare );
 					}
-					else if(  needed==0  ) {
+					else if(  needed > 0  ) {
 						// we are not overflowing: Station can only store up to a maximum amount of goods per square
 						const sint32 halt_left = (sint32)halt->get_capacity(2) - (sint32)halt->get_ware_summe(ware.get_besch());
 						dist_list.insert_ordered( distribute_ware_t( halt, halt_left, halt->get_capacity(2), (sint32)halt->get_ware_fuer_zielpos(ausgang[produkt].get_typ(),ware.get_zielpos()), ware ), distribute_ware_t::compare );
