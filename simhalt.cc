@@ -442,8 +442,13 @@ haltestelle_t::~haltestelle_t()
 	self.detach();
 
 	for(unsigned i=0; i<warenbauer_t::get_max_catg_index(); i++) {
-		delete waren[i];
-		waren[i] = NULL;
+		if (waren[i]) {
+			FOR(vector_tpl<ware_t>, const &w, *waren[i]) {
+				fabrik_t::update_transit(&w, false);
+			}
+			delete waren[i];
+			waren[i] = NULL;
+		}
 	}
 	free( waren );
 	delete[] connections;
