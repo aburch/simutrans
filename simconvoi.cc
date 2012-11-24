@@ -12,7 +12,6 @@
 #include "player/simplay.h"
 #include "simconvoi.h"
 #include "simhalt.h"
-#include "simfab.h"
 #include "simdepot.h"
 #include "simwin.h"
 #include "simmenu.h"
@@ -2813,6 +2812,7 @@ void convoi_t::destroy()
 			fahr[i]->set_flag( ding_t::not_on_map );
 
 		}
+		fahr[i]->loesche_fracht();
 		fahr[i]->entferne(besitzer_p);
 		delete fahr[i];
 	}
