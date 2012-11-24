@@ -89,12 +89,19 @@ private:
 	// Knightly : statistics for each goods
 	sint64 statistics[MAX_MONTH][MAX_FAB_GOODS_STAT];
 	sint64 weighted_sum_storage;
+
+	/// clears statistics, transit, and weighted_sum_storage
+	void init_stats();
 public:
+	ware_production_t() : type(NULL), menge(0), max(0)
+	{
+		init_stats();
+	}
+
 	const ware_besch_t* get_typ() const { return type; }
 	void set_typ(const ware_besch_t *t) { type=t; }
 
 	// Knightly : functions for manipulating goods statistics
-	void init_stats();
 	void roll_stats(sint64 aggregate_weight);
 	void rdwr(loadsave_t *file);
 	const sint64* get_stats() const { return *statistics; }
@@ -224,8 +231,8 @@ private:
 	sint32 prodfactor_pax;
 	sint32 prodfactor_mail;
 
-	array_tpl<ware_production_t> eingang; //< das einganslagerfeld
-	array_tpl<ware_production_t> ausgang; //< das ausgangslagerfeld
+	array_tpl<ware_production_t> eingang; ///< array for input/consumed goods
+	array_tpl<ware_production_t> ausgang; ///< array for output/produced goods
 
 	/**
 	 * Zeitakkumulator für Produktion

@@ -100,6 +100,7 @@ void ware_production_t::init_stats()
 		}
 	}
 	weighted_sum_storage = 0;
+	transit = 0;
 }
 
 
@@ -696,20 +697,14 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 	eingang.resize( fabesch->get_lieferanten() );
 	for(  int g=0;  g<fabesch->get_lieferanten();  ++g  ) {
 		const fabrik_lieferant_besch_t *const input = fabesch->get_lieferant(g);
-		ware_production_t &ware = eingang[g];
-		ware.set_typ( input->get_ware() );
-		ware.menge = 0;
-		ware.init_stats();
+		eingang[g].set_typ( input->get_ware() );
 	}
 
 	// create output information
 	ausgang.resize( fabesch->get_produkte() );
 	for(  uint g=0;  g<fabesch->get_produkte();  ++g  ) {
 		const fabrik_produkt_besch_t *const product = fabesch->get_produkt(g);
-		ware_production_t &ware = ausgang[g];
-		ware.set_typ( product->get_ware() );
-		ware.menge = 0;
-		ware.init_stats();
+		ausgang[g].set_typ( product->get_ware() );
 	}
 
 	recalc_storage_capacities();
