@@ -363,6 +363,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gui\convoy_item.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\dings\crossing.cc"
 				>
 			</File>
