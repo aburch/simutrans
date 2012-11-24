@@ -156,6 +156,8 @@ public:
 	void laden_abschliessen();
 
 	void calc_bild() {}	// otherwise it will change to leitung
+
+	const fabrik_t* get_factory() const { return fab; }
 };
 
 
@@ -197,6 +199,8 @@ public:
 	void laden_abschliessen();
 
 	void calc_bild() {}	// otherwise it will change to leitung
+
+	const fabrik_t* get_factory() const { return fab; }
 };
 
 
