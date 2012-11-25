@@ -1577,7 +1577,6 @@ public:
 	ware_t ware;             /// goods to be routed to consumer
 	halthandle_t halt;       /// potential start halt
 	sint32 space_left;       /// free space at halt
-	sint32 space_total;      /// total space at halt
 	sint32 amount_waiting;   /// waiting goods at halt for same destination as ware
 private:
 	sint32 ratio_free_space; /// ratio of free space at halt (=0 for overflowing station)
@@ -1587,11 +1586,11 @@ public:
 	{
 		halt = h;
 		space_left = l;
-		space_total = t;
 		amount_waiting = a;
 		ware = w;
 		// ensure overfull stations compare equal allowing tie breaker clause (amount waiting)
-		ratio_free_space = max(space_left,0) / max(space_total>>fabrik_t::precision_bits,1);
+		sint32 space_total = t > 0 ? t : 1;
+		ratio_free_space = space_left > 0 ? ((sint64)space_left << fabrik_t::precision_bits) / space_total : 0;
 	}
 	distribute_ware_t() {}
 
