@@ -476,7 +476,6 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 			if(new_line.is_bound()) {
 				line = new_line;
 				line->add_convoy(self, true);
-				line->add_convoy(self);
 				DBG_DEBUG("convoi_t::laden_abschliessen()","%s registers for %d", name_and_id, line.get_id());
 			}
 			else {
@@ -5729,7 +5728,7 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 	}
 	else if(!b_depot_found && !use_home_depot)
 	{
-		txt = "Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.";
+	txt = "Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.";
 	}
 	if ((!b_depot_found || show_success) && get_besitzer() == welt->get_active_player())
 	{
