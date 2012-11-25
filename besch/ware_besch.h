@@ -202,7 +202,7 @@ public:
 			chk->input(base_values[i].price);
 		}
 		chk->input(catg);
-		chk->input(catg_index);
+		/*chk->input(catg_index);*/
 		chk->input(speed_bonus);
 		chk->input(weight_per_unit);
 	}
