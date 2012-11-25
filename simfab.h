@@ -93,7 +93,7 @@ private:
 	/// clears statistics, transit, and weighted_sum_storage
 	void init_stats();
 public:
-	ware_production_t() : type(NULL), menge(0), max(0)
+	ware_production_t() : type(NULL), menge(0), max(0), index_offset(0)
 	{
 		init_stats();
 	}
@@ -125,6 +125,8 @@ public:
 	sint32 menge;	// in internal units shifted by precision_bits (see step)
 	sint32 max;
 	sint32 transit;
+
+	uint32 index_offset; // used for haltlist and lieferziele searches in verteile_waren to produce round robin results
 };
 
 
@@ -164,9 +166,6 @@ private:
 
 	// Knightly : For accumulating weighted sums for average statistics
 	void book_weighted_sums(sint64 delta_time);
-
-	// used for haltlist and lieferziele searches in verteile_waren to produce round robin results
-	uint32 index_offset;
 
 	/**
 	 * Die möglichen Lieferziele

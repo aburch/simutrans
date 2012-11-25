@@ -659,7 +659,6 @@ fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
 	delta_sum = 0;
 	delta_menge = 0;
 	menge_remainder = 0;
-	index_offset = 0;
 	total_input = total_output = 0;
 	status = nothing;
 	currently_producing = false;
@@ -689,7 +688,6 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 	transformer_connected = false;
 	power = 0;
 	power_demand = 0;
-	index_offset = 0;
 	total_input = total_output = 0;
 	status = nothing;
 
@@ -1626,7 +1624,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 	dist_list.clear();
 
 	// to distribute to all target equally, we use this counter, for the source hald, and target factory, to try first
-	index_offset++;
+	ausgang[produkt].index_offset++;
 
 	/* prissi: distribute goods to factory
 	 * that has not an overflowing input storage
@@ -1638,7 +1636,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 	// ok, first generate list of possible destinations
 	const halthandle_t *haltlist = plan->get_haltlist();
 	for(  unsigned i=0;  i<plan->get_haltlist_count();  i++  ) {
-		halthandle_t halt = haltlist[(i + index_offset) % plan->get_haltlist_count()];
+		halthandle_t halt = haltlist[(i + ausgang[produkt].index_offset) % plan->get_haltlist_count()];
 
 		if(  !halt->get_ware_enabled()  ) {
 			continue;
@@ -1647,7 +1645,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 		// Über alle Ziele iterieren
 		for(  uint32 n=0;  n<lieferziele.get_count();  n++  ) {
 			// prissi: this way, the halt, that is tried first, will change. As a result, if all destinations are empty, it will be spread evenly
-			const koord lieferziel = lieferziele[(n + index_offset) % lieferziele.get_count()];
+			const koord lieferziel = lieferziele[(n + ausgang[produkt].index_offset) % lieferziele.get_count()];
 			fabrik_t * ziel_fab = get_fab(welt, lieferziel);
 
 			if(  ziel_fab  ) {
