@@ -6,6 +6,7 @@
 	FIX: convoi list filtering again in working order
 	ADD: hide by default return ticket for rail based transport (enable by simuconf.tab)
 	ADD: possibliblity to limit the amount of goods in transit (see simuconf.tab)
+	ADD: city attractions and town halls can be defined to be build for more than 65535 citizens
 
 
 Release of 112.0: (r6000 on 22-Oct-2012):

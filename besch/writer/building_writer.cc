@@ -85,7 +85,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 
 	gebaeude_t::typ            gtyp             = gebaeude_t::unbekannt;
 	haus_besch_t::utyp         utype            = haus_besch_t::unbekannt;
-	uint16                     extra_data       = 0;
+	uint32                     extra_data       = 0;
 	climate_bits               allowed_climates = all_but_water_climate; // all but water
 	uint8                      enables          = 0;
 	uint16                     level            = obj.get_int("level", 1) - 1;

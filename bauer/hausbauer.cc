@@ -696,14 +696,24 @@ const haus_besch_t* hausbauer_t::get_random_station(const haus_besch_t::utyp uty
 
 
 
-const haus_besch_t* hausbauer_t::get_special(int bev, haus_besch_t::utyp utype, uint16 time, bool ignore_retire, climate cl)
+const haus_besch_t* hausbauer_t::get_special(uint32 bev, haus_besch_t::utyp utype, uint16 time, bool ignore_retire, climate cl)
 {
 	weighted_vector_tpl<const haus_besch_t *> auswahl(16);
 
-	vector_tpl<const haus_besch_t*> &list = utype == haus_besch_t::rathaus ? rathaeuser : (bev == -1 ? sehenswuerdigkeiten_land : sehenswuerdigkeiten_city);
-	FOR(vector_tpl<haus_besch_t const*>, const besch, list) {
+	vector_tpl<const haus_besch_t*> *list = NULL;
+	switch(utype) {
+		case haus_besch_t::rathaus:
+			list = &rathaeuser;
+			break;
+		case haus_besch_t::attraction_city:
+			list = &sehenswuerdigkeiten_city;
+			break;
+		default:
+			return NULL;
+	}
+	FOR(vector_tpl<haus_besch_t const*>, const besch, *list) {
 		// extra data contains number of inhabitants for building
-		if(bev == -1 || besch->get_extra()==bev) {
+		if(besch->get_extra()==bev) {
 			if(cl==MAX_CLIMATES  ||  besch->is_allowed_climate(cl)) {
 				// ok, now check timeline
 				if(time==0  ||  (besch->get_intro_year_month()<=time  &&  (ignore_retire  ||  besch->get_retire_year_month() > time)  )  ) {
