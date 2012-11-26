@@ -242,6 +242,17 @@ void spieler_t::add_message(koord k, sint32 betrag)
 
 void spieler_t::set_player_color(uint8 col1, uint8 col2)
 {
+	if(kennfarbe1 != col1 && welt->get_spieler(player_nr))
+	{
+		// Only show a change of colour scheme message if the primary colour changes.
+		cbuffer_t message;
+		const char* player_name = welt->get_spieler(player_nr)->get_name();
+		message.printf(player_name);
+		welt->get_message()->add_message(message, koord::invalid, message_t::ai, kennfarbe1);
+		message.clear();
+		message.printf("has changed its colour scheme.");
+		welt->get_message()->add_message(message, koord::invalid, message_t::ai, col1);
+	}
 	kennfarbe1 = col1;
 	kennfarbe2 = col2;
 	display_set_player_color_scheme( player_nr, col1, col2 );

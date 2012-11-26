@@ -976,7 +976,7 @@ void haltestelle_t::step()
 					const uint16 thrice_journey = journey_time * 3;
 					const uint16 min_minutes = base_max_minutes / 12;
 					const uint16 max_minutes = base_max_minutes < thrice_journey ? base_max_minutes : max(thrice_journey, min_minutes);
-					const uint16 waiting_minutes = convoi_t::get_waiting_minutes(welt->get_zeit_ms() - tmp.arrival_time);
+					uint16 waiting_minutes = convoi_t::get_waiting_minutes(welt->get_zeit_ms() - tmp.arrival_time);
 #ifdef DEBUG_SIMRAND_CALLS
 					if (talk && i == 2198)
 						dbg->message("haltestelle_t::step", "%u) check %u of %u minutes: %u %s to \"%s\"", 
@@ -1034,16 +1034,9 @@ void haltestelle_t::step()
 						// before they have got transport, the waiting time registered must be increased
 						// by 4x to reflect an estimate of how long that they would likely have had to
 						// have waited to get transport.
-						uint16 waiting_minutes = convoi_t::get_waiting_minutes(welt->get_zeit_ms() - tmp.arrival_time);
-						if(waiting_minutes == 0 && welt->get_zeit_ms() != tmp.arrival_time)
-						{						
-							waiting_minutes = 4;
-						}
+
 						waiting_minutes *= 4;
-						if(waiting_minutes > 0)
-						{
-							add_waiting_time(waiting_minutes, tmp.get_zwischenziel(), tmp.get_besch()->get_catg_index());
-						}
+						add_waiting_time(waiting_minutes, tmp.get_zwischenziel(), tmp.get_besch()->get_catg_index());
 						
 						// The goods/passengers leave.
 						tmp.menge = 0;

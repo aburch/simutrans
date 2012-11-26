@@ -284,7 +284,7 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t p )
 			sprintf(param,"g%hi,%hi,%hi", welt->get_active_player_nr(), i, access_out[i].pressed);
 			werkzeug_t *w = create_tool( WKZ_ACCESS_TOOL | SIMPLE_TOOL );
 			w->set_default_param(param);
-			sp->get_welt()->set_werkzeug( w, sp );
+			welt->set_werkzeug( w, welt->get_active_player() );
 			// since init always returns false, it is save to delete immediately
 			delete w;
 

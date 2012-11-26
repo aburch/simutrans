@@ -5896,10 +5896,6 @@ const char *wkz_make_stop_public_t::work( karte_t *welt, spieler_t *sp, koord3d 
 		weg_t *w = NULL;
 		//convert a way here, if there is no halt or already public halt
 		if(  const grund_t *gr = welt->lookup(p)  ) {
-			if(  gr->get_typ()==grund_t::brueckenboden  ||  gr->get_grund_hang()!=hang_t::flach  ) {
-				// not making ways public on bridges or slopes
-				return "No suitable ground!";
-			}
 			w = gr->get_weg_nr(0);
 			if(  !(w  &&  (  (w->get_besitzer()==sp)  |  (sp==public_player) )) ) {
 				w = gr->get_weg_nr(1);
@@ -7251,7 +7247,7 @@ bool wkz_access_t::init(karte_t* const welt, spieler_t *sp)
 			}
 		}
 		
-		path_explorer_t::full_instant_refresh();
+		path_explorer_t::refresh_all_categories(false);
 	}
 
 	cbuffer_t message;
