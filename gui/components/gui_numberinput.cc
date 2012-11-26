@@ -35,7 +35,6 @@ gui_numberinput_t::gui_numberinput_t() :
 	set_increment_mode( 1 );
 	wrap_mode( true );
 	b_enabled = true;
-//	set_groesse(get_groesse());
 }
 
 
@@ -45,7 +44,7 @@ void gui_numberinput_t::set_groesse(koord gr)
 	textinp.set_pos( koord( bt_left.get_groesse().x + 2, 0) );
 	textinp.set_groesse( koord( gr.x - bt_left.get_groesse().x - bt_right.get_groesse().x - 6, gr.y) );
 	bt_right.set_pos( koord( gr.x - bt_right.get_groesse().x - 2, (gr.y - bt_right.get_groesse().y) / 2) );
-	//this->groesse = gr;
+
 	gui_komponente_t::groesse = gr;
 }
 
