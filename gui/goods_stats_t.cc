@@ -26,7 +26,7 @@ karte_t *goods_stats_t::welt = NULL;
 goods_stats_t::goods_stats_t( karte_t *wl )
 {
 	welt = wl;
-	set_groesse(koord(BUTTON4_X+D_BUTTON_WIDTH+2,(warenbauer_t::get_waren_anzahl()-1)*(LINESPACE+1)));
+	set_groesse( koord(BUTTON4_X + D_BUTTON_WIDTH + 2, warenbauer_t::get_waren_anzahl() * (LINESPACE+1) ) );
 }
 
 
@@ -35,7 +35,7 @@ void goods_stats_t::update_goodslist( uint16 *g, int b, int l )
 	goodslist = g;
 	bonus = b;
 	listed_goods = l;
-	set_groesse(koord(BUTTON4_X+D_BUTTON_WIDTH+2,max(2,listed_goods-2)*(LINESPACE+1)));
+	set_groesse( koord(BUTTON4_X + D_BUTTON_WIDTH + 2, listed_goods * (LINESPACE+1) ) );
 }
 
 
