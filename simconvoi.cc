@@ -4269,6 +4269,13 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 			average_speed = 1;
 		}
 	}
+
+	if(average_speed > speed_to_kmh(get_min_top_speed()))
+	{
+		dbg->error("sint64 convoi_t::calc_revenue", "Average speed (%i) for %s exceeded maximum speed (%i); falling back to overall average", average_speed, get_name(), get_min_top_speed());
+		journey_minutes = (((distance * 100) / overall_average_speed) * welt->get_settings().get_meters_per_tile()) / 1667;
+		average_speed = overall_average_speed;
+	}
 	
 	const ware_besch_t* goods = ware.get_besch();
 	const sint64 starting_distance = ware.get_origin().is_bound() ? (sint64)shortest_distance(ware.get_origin()->get_basis_pos(), fahr[0]->get_pos().get_2d()) - (sint64)revenue_distance : 0ll;
