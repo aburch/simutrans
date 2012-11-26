@@ -84,11 +84,11 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	update_info();
 
 	scrolly.set_pos(koord(0, offset_below_viewport+D_BUTTON_HEIGHT+D_V_SPACE+6));
-	scrolly.set_show_scroll_x(false);
+	scrolly.set_bottom_margin(true);
 	add_komponente(&scrolly);
 
 	set_min_windowsize(koord(total_width, D_TITLEBAR_HEIGHT+scrolly.get_pos().y+LINESPACE*5+D_MARGIN_BOTTOM));
-	gui_frame_t::set_fenstergroesse(koord(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+scrolly.get_pos().y+fab_info.get_groesse().y+D_MARGIN_BOTTOM ));
+	set_fenstergroesse(koord(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+scrolly.get_pos().y+fab_info.get_groesse().y+D_MARGIN_BOTTOM ));
 
 	set_resizemode(diagonal_resize);
 	resize(koord(0,0));
