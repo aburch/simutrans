@@ -1,0 +1,10 @@
+# Simutranslator settings for Simutrans-Experimental texts
+# Addendum for version 10.15
+#
+# Author: jamespetts
+# Created: November 2012
+#
+obj=program_text
+name=has changed its colour scheme.
+note=Message shown whenever a player changes its primary colour (not activated on change of secondary colour)
+-

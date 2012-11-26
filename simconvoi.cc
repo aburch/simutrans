@@ -476,7 +476,6 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 			if(new_line.is_bound()) {
 				line = new_line;
 				line->add_convoy(self, true);
-				line->add_convoy(self);
 				DBG_DEBUG("convoi_t::laden_abschliessen()","%s registers for %d", name_and_id, line.get_id());
 			}
 			else {
@@ -1142,7 +1141,7 @@ bool convoi_t::drive_to()
 	{
 		koord3d start = fahr[0]->get_pos();
 		koord3d ziel = fpl->get_current_eintrag().pos;
-		const bool destination_is_nonreversing_waypoint = !fpl->get_current_eintrag().reverse && !haltestelle_t::get_halt(welt, ziel, get_besitzer()).is_bound();
+		const bool destination_is_nonreversing_waypoint = !fpl->get_current_eintrag().reverse && !haltestelle_t::get_halt(welt, ziel, get_besitzer()).is_bound() && !welt->lookup(ziel)->get_depot();
 
 		// avoid stopping midhalt
 		if(  start==ziel  ) {
@@ -1171,7 +1170,9 @@ bool convoi_t::drive_to()
 			koord3d new_destination;
 			koord3d new_start = ziel;
 
-			while(new_nonreversing && success)
+			int counter = 0;
+
+			while(new_nonreversing && success && counter < fpl->get_count())
 			{
 				advance_schedule();
 
@@ -1183,6 +1184,8 @@ bool convoi_t::drive_to()
 				new_nonreversing = !fpl->get_current_eintrag().reverse && !haltestelle_t::get_halt(welt, new_destination, get_besitzer()).is_bound();
 
 				new_start = new_destination;
+
+				counter ++;
 			}
 		}
 
@@ -4266,6 +4269,13 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 			average_speed = 1;
 		}
 	}
+
+	if(average_speed > speed_to_kmh(get_min_top_speed()))
+	{
+		dbg->error("sint64 convoi_t::calc_revenue", "Average speed (%i) for %s exceeded maximum speed (%i); falling back to overall average", average_speed, get_name(), get_min_top_speed());
+		journey_minutes = (((distance * 100) / overall_average_speed) * welt->get_settings().get_meters_per_tile()) / 1667;
+		average_speed = overall_average_speed;
+	}
 	
 	const ware_besch_t* goods = ware.get_besch();
 	const sint64 starting_distance = ware.get_origin().is_bound() ? (sint64)shortest_distance(ware.get_origin()->get_basis_pos(), fahr[0]->get_pos().get_2d()) - (sint64)revenue_distance : 0ll;
@@ -5725,7 +5735,7 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 	}
 	else if(!b_depot_found && !use_home_depot)
 	{
-		txt = "Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.";
+	txt = "Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.";
 	}
 	if ((!b_depot_found || show_success) && get_besitzer() == welt->get_active_player())
 	{

@@ -10,6 +10,7 @@
 #include "../dataobj/translator.h"
 #include "components/list_button.h"
 #include "factory_chart.h"
+#include "../dataobj/umgebung.h"
 
 #define CHART_WIDTH (TOTAL_WIDTH-110)
 #define CHART_HEIGHT (70)
@@ -131,6 +132,7 @@ factory_chart_t::factory_chart_t(const fabrik_t *_factory) :
 	goods_chart.set_groesse( koord( CHART_WIDTH, CHART_HEIGHT ) );
 	goods_chart.set_dimension(12, 10000);
 	goods_chart.set_background(MN_GREY1);
+	goods_chart.set_ltr(umgebung_t::left_to_right_graphs);
 	const uint32 input_count = factory->get_eingang().get_count();
 	const uint32 output_count = factory->get_ausgang().get_count();
 	if(  input_count>0  ||  output_count>0  ) {
@@ -189,6 +191,7 @@ factory_chart_t::factory_chart_t(const fabrik_t *_factory) :
 	prod_chart.set_groesse( koord( CHART_WIDTH, CHART_HEIGHT ) );
 	prod_chart.set_dimension(12, 10000);
 	prod_chart.set_background(MN_GREY1);
+	prod_chart.set_ltr(umgebung_t::left_to_right_graphs);
 	for(  int s=0;  s<MAX_FAB_STAT;  ++s  ) {
 		prod_chart.add_curve( prod_color[s], factory->get_stats(), MAX_FAB_STAT, s, MAX_MONTH, false, false, true, 0, prod_convert[s] );
 		prod_buttons[s].init(button_t::box_state, prod_type[s], koord( (BUTTON_SPACER+BUTTON_WIDTH)*button_pos[s].x, offset_below_chart+(BUTTON_SPACER+BUTTON_HEIGHT)*button_pos[s].y), koord(BUTTON_WIDTH, BUTTON_HEIGHT));
