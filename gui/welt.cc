@@ -63,7 +63,7 @@
 #define RIGHT_WIDE_ARROW (235)
 #define TEXT_WIDE_RIGHT (220)
 
-#define RIGHT_COLUMN (185)
+#define RIGHT_COLUMN (190)
 #define RIGHT_COLUMN_WIDTH (60)
 
 #define PREVIEW_SIZE (64) // size of the minimap

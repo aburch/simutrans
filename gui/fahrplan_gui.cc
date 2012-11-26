@@ -297,7 +297,7 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	lb_load.set_pos( koord( 10, ypos+2 ) );
 	add_komponente(&lb_load);
 
-	numimp_load.set_pos( koord( D_BUTTON_WIDTH*2-65, ypos+2 ) );
+	numimp_load.set_pos( koord( D_BUTTON_WIDTH*2-65, ypos ) );
 	numimp_load.set_groesse( koord( 60, D_BUTTON_HEIGHT ) );
 	numimp_load.set_value( fpl->get_current_eintrag().ladegrad );
 	numimp_load.set_limits( 0, 100 );
@@ -326,7 +326,7 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	lb_waitlevel.set_pos( koord( D_BUTTON_WIDTH*2-20, ypos+2 ) );
 	add_komponente(&lb_waitlevel);
 
-	bt_wait_next.set_pos( koord( D_BUTTON_WIDTH*2-15, ypos+2 ) );
+	bt_wait_next.set_pos( koord( D_BUTTON_WIDTH*2-17, ypos+2 ) );
 	bt_wait_next.set_typ(button_t::arrowright);
 	bt_wait_next.add_listener(this);
 	add_komponente(&bt_wait_next);

@@ -77,35 +77,35 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	this->welt = welt;
 
 	// underground slice
-	inp_underground_level.set_pos( koord(RIGHT_WIDTH-10-50, SLICE) );
+	inp_underground_level.set_pos( koord(RIGHT_WIDTH-10-50, SLICE-1) );
 	inp_underground_level.set_groesse( koord( 50, D_BUTTON_HEIGHT-1 ) );
 	inp_underground_level.set_value( grund_t::underground_mode==grund_t::ugm_level ? grund_t::underground_level : welt->get_zeiger()->get_pos().z);
 	inp_underground_level.set_limits(welt->get_grundwasser()-10, 32);
 	inp_underground_level.add_listener(this);
 
 	// brightness
-	brightness.set_pos( koord(RIGHT_WIDTH-10-40,BRIGHTNESS) );
+	brightness.set_pos( koord(RIGHT_WIDTH-10-40,BRIGHTNESS-1) );
 	brightness.set_groesse( koord( 40, D_BUTTON_HEIGHT-1 ) );
 	brightness.set_value( umgebung_t::daynight_level );
 	brightness.set_limits( 0, 9 );
 	brightness.add_listener(this);
 
 	// scrollspeed
-	scrollspeed.set_pos( koord(RIGHT_WIDTH-10-40,SCROLL_SPEED) );
+	scrollspeed.set_pos( koord(RIGHT_WIDTH-10-40,SCROLL_SPEED-1) );
 	scrollspeed.set_groesse( koord( 40, D_BUTTON_HEIGHT-1 ) );
 	scrollspeed.set_value( abs(umgebung_t::scroll_multi) );
 	scrollspeed.set_limits( 1, 9 );
 	scrollspeed.add_listener(this);
 
 	// range to hide under mouse cursor
-	cursor_hide_range.set_pos( koord(RIGHT_WIDTH-10-45,CURSOR_HIDE_RANGE) );
+	cursor_hide_range.set_pos( koord(RIGHT_WIDTH-10-45,CURSOR_HIDE_RANGE-1) );
 	cursor_hide_range.set_groesse( koord( 45, D_BUTTON_HEIGHT-1 ) );
 	cursor_hide_range.set_value(umgebung_t::cursor_hide_range);
 	cursor_hide_range.set_limits( 0, 10 );
 	cursor_hide_range.add_listener(this);
 
 	// traffic density
-	traffic_density.set_pos( koord(RIGHT_WIDTH-10-45,DENS_TRAFFIC) );
+	traffic_density.set_pos( koord(RIGHT_WIDTH-10-45,DENS_TRAFFIC-1) );
 	traffic_density.set_groesse( koord( 45, D_BUTTON_HEIGHT-1 ) );
 	traffic_density.set_value(welt->get_settings().get_verkehr_level());
 	traffic_density.set_limits( 0, 16 );
@@ -144,7 +144,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	// left right for hide messages
 	buttons[12].set_pos( koord(10,HIDE_CITY_HOUSES) );
 	buttons[12].set_typ(button_t::arrowleft);
-	buttons[13].set_pos( koord(RIGHT_WIDTH-10-10,HIDE_CITY_HOUSES) );
+	buttons[13].set_pos( koord(RIGHT_WIDTH-10-10-2,HIDE_CITY_HOUSES) );
 	buttons[13].set_typ(button_t::arrowright);
 
 	buttons[14].set_pos( koord(10,USE_TRANSPARENCY_STATIONS) );
@@ -180,7 +180,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	// left/right for convoi tooltips
 	buttons[0].set_pos( koord(10,CONVOI_TOOLTIPS) );
 	buttons[0].set_typ(button_t::arrowleft);
-	buttons[1].set_pos( koord(RIGHT_WIDTH-10-10,CONVOI_TOOLTIPS) );
+	buttons[1].set_pos( koord(RIGHT_WIDTH-10-10-2,CONVOI_TOOLTIPS) );
 	buttons[1].set_typ(button_t::arrowright);
 
 	//Hide buildings and trees under mouse cursor
@@ -239,13 +239,13 @@ void color_gui_t::set_fenstergroesse(koord groesse)
 {
 	gui_frame_t::set_fenstergroesse(groesse);
 	const sint16 w = groesse.x;
-	inp_underground_level.set_pos( koord(w-10-50, SLICE) );
-	brightness.set_pos( koord(w-10-40,BRIGHTNESS) );
-	scrollspeed.set_pos( koord(w-10-40,SCROLL_SPEED) );
-	traffic_density.set_pos( koord(w-10-45,DENS_TRAFFIC) );
-	cursor_hide_range.set_pos( koord(w-10-45,CURSOR_HIDE_RANGE) );
-	buttons[1].set_pos( koord(w-10-10,CONVOI_TOOLTIPS) );
-	buttons[13].set_pos( koord(w-10-10,HIDE_CITY_HOUSES) );
+	inp_underground_level.set_pos( koord(w-10-50, SLICE-1) );
+	brightness.set_pos( koord(w-10-40,BRIGHTNESS-1) );
+	scrollspeed.set_pos( koord(w-10-40,SCROLL_SPEED-1) );
+	traffic_density.set_pos( koord(w-10-45,DENS_TRAFFIC-1) );
+	cursor_hide_range.set_pos( koord(w-10-45,CURSOR_HIDE_RANGE-1) );
+	buttons[1].set_pos( koord(w-10-10-2,CONVOI_TOOLTIPS) );
+	buttons[13].set_pos( koord(w-10-10-2,HIDE_CITY_HOUSES) );
 }
 
 
@@ -397,10 +397,10 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 
 	// seperator
 	const sint16 w = this->get_fenstergroesse().x;
-	display_ddd_box_clip(x+10, y+SEPERATE1, w-20, 0, MN_GREY0, MN_GREY4);
-	display_ddd_box_clip(x+10, y+SEPERATE2, w-20, 0, MN_GREY0, MN_GREY4);
-	display_ddd_box_clip(x+10, y+SEPERATE3, w-20, 0, MN_GREY0, MN_GREY4);
-	display_ddd_box_clip(x+10, y+SEPERATE4, w-20, 0, MN_GREY0, MN_GREY4);
+	display_ddd_box_clip(x+10, y+SEPERATE1+1, w-20, 0, MN_GREY0, MN_GREY4);
+	display_ddd_box_clip(x+10, y+SEPERATE2+1, w-20, 0, MN_GREY0, MN_GREY4);
+	display_ddd_box_clip(x+10, y+SEPERATE3+1, w-20, 0, MN_GREY0, MN_GREY4);
+	display_ddd_box_clip(x+10, y+SEPERATE4+1, w-20, 0, MN_GREY0, MN_GREY4);
 
 	display_proportional_clip(x+10, y+BRIGHTNESS+1, translator::translate("1LIGHT_CHOOSE"), ALIGN_LEFT, COL_BLACK, true);
 

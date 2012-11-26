@@ -26,7 +26,7 @@ signal_spacing_frame_t::signal_spacing_frame_t(spieler_t *sp_, wkz_roadsign_t* t
 
 	int intTopOfButton = 12;
 
-	signal_label.set_pos( koord(10, intTopOfButton) );
+	signal_label.set_pos( koord(10, intTopOfButton+2) );
 	signal_label.set_groesse(koord(10, 50));
 	add_komponente( &signal_label );
 

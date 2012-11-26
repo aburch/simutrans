@@ -49,7 +49,7 @@ class settings_t;
 	add_komponente( ni );\
 	gui_label_t *lb = new gui_label_t();\
 	lb->set_text_pointer(t);\
-	lb->set_pos( koord( D_MARGIN_LEFT + ni->get_groesse().x + 6, ypos ) );\
+	lb->set_pos( koord( D_MARGIN_LEFT + ni->get_groesse().x + 6, ypos + 2 ) );\
 	label.append( lb );\
 	add_komponente( lb );\
 	ypos += D_BUTTON_HEIGHT;\
@@ -68,7 +68,7 @@ class settings_t;
 	add_komponente( ni );\
 	gui_label_t *lb = new gui_label_t();\
 	lb->set_text_pointer(t);\
-	lb->set_pos( koord( D_MARGIN_LEFT + ni->get_groesse().x + 6, ypos ) );\
+	lb->set_pos( koord( D_MARGIN_LEFT + ni->get_groesse().x + 6, ypos + 2 ) );\
 	label.append( lb );\
 	add_komponente( lb );\
 	ypos += D_BUTTON_HEIGHT;\
