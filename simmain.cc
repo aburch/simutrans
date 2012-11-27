@@ -682,12 +682,12 @@ int simu_main(int argc, char** argv)
 	DBG_MESSAGE( "program_dir", umgebung_t::program_dir );
 	DBG_MESSAGE( "home_dir", umgebung_t::user_dir );
 	DBG_MESSAGE( "locale", dr_get_locale_string());
-//#ifdef DEBUG
+#ifdef DEBUG
 	if (gimme_arg(argc, argv, "-sizes", 0) != NULL) {
 		// show the size of some structures ...
 		show_sizes();
 	}
-//#endif
+#endif
 
 	// prepare skins first
 	obj_reader_t::init();
@@ -1115,7 +1115,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 	welt->set_fast_forward(false);
 	baum_t::recalc_outline_color();
-//#if defined DEBUG || defined PROFILE
+#if defined DEBUG || defined PROFILE
 	// do a render test?
 	if (gimme_arg(argc, argv, "-times", 0) != NULL) {
 		show_times(welt, view);
@@ -1126,7 +1126,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		quit_month = atoi( gimme_arg(argc, argv, "-until", 1) );
 		welt->set_fast_forward(true);
 	}
-//#endif
+#endif
 
 	welt->reset_timer();
 	if(  !umgebung_t::networkmode  &&  !umgebung_t::server  ) {
