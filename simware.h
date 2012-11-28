@@ -9,18 +9,20 @@ class warenbauer_t;
 class karte_t;
 class spieler_t;
 
-/** Eine Klasse zur Verwaltung von Informationen ueber Fracht und Waren */
+/** Class to handle goods packets (and their destinations) */
 class ware_t
 {
 	friend class warenbauer_t;
 
 private:
-	// private lookup table to sppedup
+	/// private lookup table to speedup
 	static const ware_besch_t *index_to_besch[256];
 
 public:
+	/// type of good, used as index into index_to_besch
 	uint32 index: 8;
 
+	/// amount of goods
 	uint32 menge : 23;
 
 	/**
@@ -31,23 +33,27 @@ public:
 
 private:
 	/**
-	 * Koordinate der Zielhaltestelle
+	 * Handle of target station.
 	 * @author Hj. Malthaner
 	 */
 	halthandle_t ziel;
 
 	/**
-	 * Koordinte des nächsten Zwischenstops
+	 * Handle of station, where the packet has to leave convoy.
 	 * @author Hj. Malthaner
 	 */
 	halthandle_t zwischenziel;
 
 	/**
-	 * die engültige Zielposition,
-	 * das ist i.a. nicht die Zielhaltestellenposition
+	 * Target position (factory, etc)
 	 * @author Hj. Malthaner
 	 */
 	koord zielpos;
+
+	/**
+	 * Update target (zielpos) for factory-going goods (after loading or rotating)
+	 */
+	void update_factory_target(karte_t *welt);
 
 public:
 	const halthandle_t &get_ziel() const { return ziel; }
