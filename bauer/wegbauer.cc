@@ -2178,7 +2178,7 @@ void wegbauer_t::baue_schiene()
 				}
 
 				// build tram track over crossing -> remove crossing
-				if(  gr->has_two_ways()  &&  besch->get_styp()==7  ) {
+				if(  gr->has_two_ways()  &&  besch->get_styp()==7  &&  weg->get_besch()->get_styp() != 7  ) {
 					if(  crossing_t *cr = gr->find<crossing_t>(2)  ) {
 						// change to tram track
 						cr->mark_image_dirty( cr->get_bild(), 0);
