@@ -728,8 +728,9 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 			// do not delete the middle of a bridge
 			return false;
 		}
-		if(  w  &&  cr  &&  w->get_waytype()!=road_wt  &&  gr->hat_weg(road_wt)  ) {
-			w = gr->get_weg(road_wt);
+		if(  w  &&  w->get_waytype()==water_wt  ) {
+			// remove the other way first
+			w = NULL;
 		}
 		if(w==NULL  ||  w->ist_entfernbar(sp)!=NULL) {
 			w = gr->get_weg_nr(0);
