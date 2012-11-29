@@ -1008,8 +1008,12 @@ void haltestelle_t::verbinde_fabriken()
 		int const cov = welt->get_settings().get_station_coverage();
 		FOR(vector_tpl<fabrik_t*>, const fab, fabrik_t::sind_da_welche(welt, p - koord(cov, cov), p + koord(cov, cov))) {
 			if(!fab_list.is_contained(fab)) {
-				fab_list.insert(fab);
-				fab->link_halt(self);
+				// water factories can only connect to docks
+				if(  fab->get_besch()->get_platzierung() != fabrik_besch_t::Wasser  ||  (station_type & dock) > 0  ) {
+					// do no link to oil rigs via stations ...
+					fab_list.insert(fab);
+					fab->link_halt(self);
+				}
 			}
 		}
 	}
@@ -2229,6 +2233,118 @@ void haltestelle_t::transfer_goods(halthandle_t halt)
 	}
 }
 
+
+// private helper function for recalc_station_type()
+void haltestelle_t::add_to_station_type( grund_t *gr )
+{
+	// init in any case ...
+	if(  tiles.empty()  ) {
+		capacity[0] = 0;
+		capacity[1] = 0;
+		capacity[2] = 0;
+		enables &= CROWDED;	// clear flags
+		station_type = invalid;
+	}
+
+	const gebaeude_t* gb = gr->find<gebaeude_t>();
+	const haus_besch_t *besch=gb?gb->get_tile()->get_besch():NULL;
+
+	if(  gr->ist_wasser()  &&  gb  ) {
+		// may happend around oil rigs and so on
+		station_type |= dock;
+		// for water factories
+		if(besch) {
+			// enabled the matching types
+			enables |= besch->get_enabled();
+			if (welt->get_settings().is_seperate_halt_capacities()) {
+				if(besch->get_enabled()&1) {
+					capacity[0] += besch->get_level()*32;
+				}
+				if(besch->get_enabled()&2) {
+					capacity[1] += besch->get_level()*32;
+				}
+				if(besch->get_enabled()&4) {
+					capacity[2] += besch->get_level()*32;
+				}
+			}
+			else {
+				// no sperate capacities: sum up all
+				capacity[0] += besch->get_level()*32;
+				capacity[2] = capacity[1] = capacity[0];
+			}
+		}
+		return;
+	}
+
+	if(  besch==NULL  ) {
+		// no besch, but solid gound?!?
+		dbg->error("haltestelle_t::get_station_type()","ground belongs to halt but no besch?");
+		return;
+	}
+
+	// there is only one loading bay ...
+	switch (besch->get_utyp()) {
+		case haus_besch_t::ladebucht:    station_type |= loadingbay;   break;
+		case haus_besch_t::hafen:
+		case haus_besch_t::binnenhafen:  station_type |= dock;         break;
+		case haus_besch_t::bushalt:      station_type |= busstop;      break;
+		case haus_besch_t::airport:      station_type |= airstop;      break;
+		case haus_besch_t::monorailstop: station_type |= monorailstop; break;
+
+		case haus_besch_t::bahnhof:
+			if (gr->hat_weg(monorail_wt)) {
+				station_type |= monorailstop;
+			}
+			else {
+				station_type |= railstation;
+			}
+			break;
+
+		// two ways on ground can only happen for tram tracks on streets, there buses and trams can stop
+		case haus_besch_t::generic_stop:
+			switch (besch->get_extra()) {
+				case road_wt:
+					station_type |= (besch->get_enabled()&3)!=0 ? busstop : loadingbay;
+					if (gr->has_two_ways()) { // tram track on street
+						station_type |= tramstop;
+					}
+					break;
+				case water_wt:       station_type |= dock;            break;
+				case air_wt:         station_type |= airstop;         break;
+				case monorail_wt:    station_type |= monorailstop;    break;
+				case track_wt:       station_type |= railstation;     break;
+				case tram_wt:
+					station_type |= tramstop;
+					if (gr->has_two_ways()) { // tram track on street
+						station_type |= (besch->get_enabled()&3)!=0 ? busstop : loadingbay;
+					}
+					break;
+				case maglev_wt:      station_type |= maglevstop;      break;
+				case narrowgauge_wt: station_type |= narrowgaugestop; break;
+			}
+			break;
+	}
+
+	// enabled the matching types
+	enables |= besch->get_enabled();
+	if (welt->get_settings().is_seperate_halt_capacities()) {
+		if(besch->get_enabled()&1) {
+			capacity[0] += besch->get_level()*32;
+		}
+		if(besch->get_enabled()&2) {
+			capacity[1] += besch->get_level()*32;
+		}
+		if(besch->get_enabled()&4) {
+			capacity[2] += besch->get_level()*32;
+		}
+	}
+	else {
+		// no sperate capacities: sum up all
+		capacity[0] += besch->get_level()*32;
+		capacity[2] = capacity[1] = capacity[0];
+	}
+}
+
 /*
  * recalculated the station type(s)
  * since it iterates over all ground, this is better not done too often, because line management and station list
@@ -2238,116 +2354,17 @@ void haltestelle_t::transfer_goods(halthandle_t halt)
  */
 void haltestelle_t::recalc_station_type()
 {
-	stationtyp new_station_type = invalid;
 	capacity[0] = 0;
 	capacity[1] = 0;
 	capacity[2] = 0;
 	enables &= CROWDED;	// clear flags
+	station_type = invalid;
 
 	// iterate over all tiles
 	FOR(slist_tpl<tile_t>, const& i, tiles) {
 		grund_t* const gr = i.grund;
-		const gebaeude_t* gb = gr->find<gebaeude_t>();
-		const haus_besch_t *besch=gb?gb->get_tile()->get_besch():NULL;
-
-		if(gr->ist_wasser()) {
-			// may happend around oil rigs and so on
-			new_station_type |= dock;
-			// for water factories
-			if(besch) {
-				// enabled the matching types
-				enables |= besch->get_enabled();
-				if (welt->get_settings().is_seperate_halt_capacities()) {
-					if(besch->get_enabled()&1) {
-						capacity[0] += besch->get_level()*32;
-					}
-					if(besch->get_enabled()&2) {
-						capacity[1] += besch->get_level()*32;
-					}
-					if(besch->get_enabled()&4) {
-						capacity[2] += besch->get_level()*32;
-					}
-				}
-				else {
-					// no sperate capacities: sum up all
-					capacity[0] += besch->get_level()*32;
-					capacity[2] = capacity[1] = capacity[0];
-				}
-			}
-			continue;
-		}
-
-		if(besch==NULL) {
-			// no besch, but solid gound?!?
-			dbg->error("haltestelle_t::get_station_type()","ground belongs to halt but no besch?");
-			continue;
-		}
-//if(besch) DBG_DEBUG("haltestelle_t::get_station_type()","besch(%p)=%s",besch,besch->get_name());
-
-		// there is only one loading bay ...
-		switch (besch->get_utyp()) {
-			case haus_besch_t::ladebucht:    new_station_type |= loadingbay;   break;
-			case haus_besch_t::hafen:
-			case haus_besch_t::binnenhafen:  new_station_type |= dock;         break;
-			case haus_besch_t::bushalt:      new_station_type |= busstop;      break;
-			case haus_besch_t::airport:      new_station_type |= airstop;      break;
-			case haus_besch_t::monorailstop: new_station_type |= monorailstop; break;
-
-			case haus_besch_t::bahnhof:
-				if (gr->hat_weg(monorail_wt)) {
-					new_station_type |= monorailstop;
-				} else {
-					new_station_type |= railstation;
-				}
-				break;
-
-			// two ways on ground can only happen for tram tracks on streets, there buses and trams can stop
-			case haus_besch_t::generic_stop:
-				switch (besch->get_extra()) {
-					case road_wt:
-						new_station_type |= (besch->get_enabled()&3)!=0 ? busstop : loadingbay;
-						if (gr->has_two_ways()) { // tram track on street
-							new_station_type |= tramstop;
-						}
-						break;
-					case water_wt:       new_station_type |= dock;            break;
-					case air_wt:         new_station_type |= airstop;         break;
-					case monorail_wt:    new_station_type |= monorailstop;    break;
-					case track_wt:       new_station_type |= railstation;     break;
-					case tram_wt:
-						new_station_type |= tramstop;
-						if (gr->has_two_ways()) { // tram track on street
-							new_station_type |= (besch->get_enabled()&3)!=0 ? busstop : loadingbay;
-						}
-						break;
-					case maglev_wt:      new_station_type |= maglevstop;      break;
-					case narrowgauge_wt: new_station_type |= narrowgaugestop; break;
-				}
-				break;
-			default: break;
-		}
-
-
-		// enabled the matching types
-		enables |= besch->get_enabled();
-		if (welt->get_settings().is_seperate_halt_capacities()) {
-			if(besch->get_enabled()&1) {
-				capacity[0] += besch->get_level()*32;
-			}
-			if(besch->get_enabled()&2) {
-				capacity[1] += besch->get_level()*32;
-			}
-			if(besch->get_enabled()&4) {
-				capacity[2] += besch->get_level()*32;
-			}
-		}
-		else {
-			// no sperate capacities: sum up all
-			capacity[0] += besch->get_level()*32;
-			capacity[2] = capacity[1] = capacity[0];
-		}
+		add_to_station_type( gr );
 	}
-	station_type = new_station_type;
 	recalc_status();
 
 //DBG_DEBUG("haltestelle_t::recalc_station_type()","result=%x, capacity[0]=%i, capacity[1], capacity[2]",new_station_type,capacity[0],capacity[1],capacity[2]);
@@ -2746,13 +2763,14 @@ bool haltestelle_t::add_grund(grund_t *gr)
 	assert(gr!=NULL);
 
 	// neu halt?
-	if (tiles.is_contained(gr)) {
+	if(  tiles.is_contained(gr)  ) {
 		return false;
 	}
 
-	koord pos=gr->get_pos().get_2d();
-	gr->set_halt(self);
-	tiles.append(gr);
+	koord pos = gr->get_pos().get_2d();
+	add_to_station_type( gr );
+	gr->set_halt( self );
+	tiles.append( gr );
 
 	// appends this to the ground
 	// after that, the surrounding ground will know of this station
@@ -2769,14 +2787,8 @@ bool haltestelle_t::add_grund(grund_t *gr)
 	}
 	welt->access(pos)->set_halt(self);
 
-	//DBG_MESSAGE("haltestelle_t::add_grund()","pos %i,%i,%i to %s added.",pos.x,pos.y,pos.z,get_name());
-
-	FOR(vector_tpl<fabrik_t*>, const fab, fabrik_t::sind_da_welche(welt, pos - koord(cov, cov), pos + koord(cov, cov))) {
-		if(!fab_list.is_contained(fab)) {
-			fab_list.insert(fab);
-			fab->link_halt(self);
-		}
-	}
+	// since suddenly other factories may be connect to us too
+	verbinde_fabriken();
 
 	// check if we have to register line(s) and/or lineless convoy(s) which serve this halt
 	vector_tpl<linehandle_t> check_line(0);

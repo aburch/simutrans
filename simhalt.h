@@ -259,6 +259,9 @@ private:
 	 */
 	stationtyp station_type;
 
+	// private helper function for recalc_station_type()
+	void add_to_station_type( grund_t *gr );
+
 	/**
 	 * Reconnect and reroute if counter different from welt->get_schedule_counter()
 	 */

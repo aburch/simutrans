@@ -632,14 +632,14 @@ gebaeude_t *hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d po
 	// remove pointer
 	grund_t *gr = welt->lookup(pos);
 	zeiger_t* zeiger = gr->find<zeiger_t>();
-	if (zeiger) {
+	if(  zeiger  ) {
 		gr->obj_remove(zeiger);
 		zeiger->set_flag(ding_t::not_on_map);
 	}
 
 	gr->obj_add(gb);
 
-	if(station_building.is_contained(besch)  &&  besch->get_utyp()!=haus_besch_t::depot) {
+	if(  station_building.is_contained(besch)  &&  besch->get_utyp()!=haus_besch_t::depot  ) {
 		// is a station/bus stop
 		(*static_cast<halthandle_t *>(param))->add_grund(gr);
 		gr->calc_bild();

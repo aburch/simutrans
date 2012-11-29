@@ -550,8 +550,20 @@ void grund_t::info(cbuffer_t& buf) const
 }
 
 
-void grund_t::set_halt(halthandle_t halt) {
-	if(halt.is_bound()) {
+void grund_t::set_halt(halthandle_t halt)
+{
+	bool add = halt.is_bound();
+	if(  add  ) {
+		// ok, we want to add a stop: first check if it can apply to water
+		if(  get_typ()==wasser  ||  get_pos().z == welt->get_grundwasser()  ) {
+			add = (halt->get_station_type() & haltestelle_t::dock) > 0;
+		}
+		else {
+			add = (halt->get_station_type() & ~haltestelle_t::dock) > 0;
+		}
+	}
+	// teh add or remove halt flag
+	if(  add  ) {
 		flags |= is_halt_flag|dirty;
 	}
 	else {
