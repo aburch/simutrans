@@ -17,8 +17,8 @@
 
 // Beware: SAVEGAME minor is often ahead of version minor when there were patches.
 // ==> These have no direct connection at all!
-#define SIM_SAVE_MINOR      1
-#define SIM_SERVER_MINOR    1
+#define SIM_SAVE_MINOR      0
+#define SIM_SERVER_MINOR    0
 
 #define MAKEOBJ_VERSION "55"
 
