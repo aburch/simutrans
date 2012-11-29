@@ -609,7 +609,7 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 	char buf[16];
 	sint16 zoom_in, zoom_out;
 	reliefkarte_t::get_karte()->get_zoom_factors(zoom_out, zoom_in);
-	sprintf( buf, "%i:%i", zoom_out, zoom_in );
+	sprintf( buf, "%i:%i", zoom_in, zoom_out );
 	int zoomextwidth = display_proportional( pos.x+BUTTON1_X+D_BUTTON_HEIGHT+D_H_SPACE, pos.y+D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT+D_V_SPACE, buf, ALIGN_LEFT, COL_WHITE, true);
 	// move zoom arrow position and label accordingly
 	zoom_buttons[1].set_pos( koord( BUTTON1_X+D_BUTTON_HEIGHT+2*D_H_SPACE+zoomextwidth, zoom_buttons[1].get_pos().y ) );
