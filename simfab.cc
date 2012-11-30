@@ -1104,7 +1104,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		lieferziele[i].rdwr(file);
 	}
 
-	if(  file->get_version()>112001  ) {
+	if(  file->get_version()>=112002  ) {
 		file->rdwr_long( lieferziele_active_last_month );
 	}
 

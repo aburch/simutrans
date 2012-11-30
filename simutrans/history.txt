@@ -9,6 +9,8 @@
 	ADD: city attractions and town halls can be defined to be build for more than 65535 citizens
 	FIX: you will need a dock to connect to an oil rig => no islands or tunnel can be used any more => ships only load at docks
 	ADD: display which factories supplied/recieved goods last month
+	ADD: player without operations can be deleted after x month
+	ADD: player without new buidling/replacing activities can lose password protection
 
 
 Release of 112.0: (r6000 on 22-Oct-2012):
@@ -20,9 +22,10 @@ Release of 112.0: (r6000 on 22-Oct-2012):
 	CHG: proper support for non-rectangularly shaped factories, no dummy (0,0)-tiles
 	ADD: support for non-rectangular shaped station extensions, attractions, monuments
 	CHG: Allow to connect to channels built by anyone
-	CHG: fieldd can now spawned in larger number than the initial min value
+	CHG: fields can now spawned in larger number than the initial min value
 	CHG: number of factories in new world dialog is now indeed the total number of factories (too many newbe mistakes here)
 	ADD: force a minimum distance between city attractions
+	CHG: Bankrupsy check before substracting maintenance
 	ADD: Drag stops
 	CHG: reduced memory consumption when compiled with COLOUR_DEPTH=0, no copies of object images kept in memory
 	ADD: ctrl-click with link-factory tool actually removes links between factories

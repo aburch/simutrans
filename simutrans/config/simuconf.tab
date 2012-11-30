@@ -217,6 +217,12 @@ random_player_colors = 0
 # and there are 0...15 player in the game
 player_color[1] = 1,4
 
+# remove companies without convois after x month (0=off, 6=default)
+remove_dummy_player_months = 6
+
+# remove password of abandoned companies (wihtout any building activity) after x month (0=off default)
+unprotect_abondoned_player_months = 0
+
 # how long is a diagonal (512: faktor 2=1024/512, old way, 724: sqrt(2)=1024/724
 # THIS WILL BE ONLY USED, WHEN THIS FILE IS IN THE pakxyz/config!
 #diagonal_multiplier = 724

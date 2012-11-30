@@ -304,6 +304,10 @@ public:
 	bool default_player_color_random;
 	uint8 default_player_color[MAX_PLAYER_COUNT][2];
 
+	// remove dummy companies and remove password from abandoned companies
+	uint16 remove_dummy_player_months;
+	uint16 unprotect_abondoned_player_months;
+
 public:
 	/**
 	 * If map is read from a heightfield, this is the name of the heightfield.
@@ -531,6 +535,9 @@ public:
 	sint32 get_bonus_basefactor() const { return bonus_basefactor; }
 
 	bool get_allow_underground_transformers() const { return allow_underground_transformers; }
+
+	uint16 get_remove_dummy_player_months() const { return remove_dummy_player_months; }
+	uint16 get_unprotect_abondoned_player_months() const { return unprotect_abondoned_player_months; }
 };
 
 #endif
