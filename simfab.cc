@@ -632,6 +632,7 @@ fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
 	power = 0;
 	power_demand = 0;
 	prodfactor_electric = 0;
+	lieferziele_active_last_month = 0;
 
 	rdwr(file);
 
@@ -1103,6 +1104,10 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		lieferziele[i].rdwr(file);
 	}
 
+	if(  file->get_version()>112001  ) {
+		file->rdwr_long( lieferziele_active_last_month );
+	}
+
 	// information on fields ...
 	if(  file->get_version() > 99009  ) {
 		if(  file->is_saving()  ) {
@@ -1336,7 +1341,7 @@ sint32 fabrik_t::liefere_an(const ware_besch_t *typ, sint32 menge)
 }
 
 
-sint8 fabrik_t::is_needed(const ware_besch_t *typ)
+sint8 fabrik_t::is_needed(const ware_besch_t *typ) const
 {
 	FOR(array_tpl<ware_production_t>, const& i, eingang) {
 		if(  i.get_typ() == typ  ) {
@@ -1347,6 +1352,14 @@ sint8 fabrik_t::is_needed(const ware_besch_t *typ)
 	}
 	return -1;  // not needed here
 }
+
+
+bool fabrik_t::is_active_lieferziel( koord k ) const
+{
+	assert( lieferziele.is_contained(k) );
+	return 0 < ( ( 1 << lieferziele.index_of(k) ) & lieferziele_active_last_month );
+}
+
 
 
 void fabrik_t::step(long delta_t)
@@ -1744,6 +1757,8 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 		best_halt->starte_mit_route(best_ware);
 		best_halt->recalc_status();
 		fabrik_t::update_transit( &best_ware, true );
+		// add as active destination
+		lieferziele_active_last_month |= (1 << lieferziele.index_of(best_ware.get_zielpos()));
 		ausgang[produkt].book_stat(best_ware.menge, FAB_GOODS_DELIVERED);
 	}
 }
@@ -1767,6 +1782,7 @@ void fabrik_t::neuer_monat()
 	FOR(array_tpl<ware_production_t>, & g, ausgang) {
 		g.roll_stats(aggregate_weight);
 	}
+	lieferziele_active_last_month = 0;
 
 	// update statistics
 	for(  int s=0;  s<MAX_FAB_STAT;  ++s  ) {
@@ -2003,7 +2019,12 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 		FOR(vector_tpl<koord>, const& lieferziel, lieferziele) {
 			fabrik_t *fab = get_fab( welt, lieferziel );
 			if(fab) {
-				buf.printf("\n   %s (%d,%d)", translator::translate(fab->get_name()), lieferziel.x, lieferziel.y);
+				if(  is_active_lieferziel(lieferziel)  ) {
+					buf.printf("\n      %s (%d,%d)", translator::translate(fab->get_name()), lieferziel.x, lieferziel.y);
+				}
+				else {
+					buf.printf("\n   %s (%d,%d)", translator::translate(fab->get_name()), lieferziel.x, lieferziel.y);
+				}
 			}
 		}
 	}
@@ -2016,9 +2037,13 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 		buf.append(translator::translate("Suppliers"));
 
 		FOR(vector_tpl<koord>, const& supplier, suppliers) {
-			fabrik_t *fab = get_fab( welt, supplier );
-			if(fab) {
-				buf.printf("\n   %s (%d,%d)", translator::translate(fab->get_name()), supplier.x, supplier.y);
+			if(  fabrik_t *src = get_fab( welt, supplier )  ) {
+				if(  src->is_active_lieferziel(get_pos().get_2d())  ) {
+					buf.printf("\n      %s (%d,%d)", translator::translate(src->get_name()), supplier.x, supplier.y);
+				}
+				else {
+					buf.printf("\n   %s (%d,%d)", translator::translate(src->get_name()), supplier.x, supplier.y);
+				}
 			}
 		}
 	}

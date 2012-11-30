@@ -314,11 +314,27 @@ void gui_fabrik_info_t::zeichnen(koord offset)
 	gui_container_t::zeichnen( offset );
 
 	if(  fab->get_lieferziele().get_count()  ) {
-		yoff += (fab->get_lieferziele().get_count()+2) * LINESPACE;
+		yoff += LINESPACE;
+		FOR(  const vector_tpl<koord>, k, fab->get_lieferziele() ) {
+			if(  fab->is_active_lieferziel(k)  ) {
+				display_color_img(skinverwaltung_t::waren->get_bild_nr(0), xoff, yoff, 0, false, true);
+			}
+			yoff += LINESPACE;
+		}
+		yoff += LINESPACE;
 	}
 
 	if(  fab->get_suppliers().get_count()  ) {
-		yoff += (fab->get_suppliers().get_count()+2) * LINESPACE;
+		yoff += LINESPACE;
+		FOR(  const vector_tpl<koord>, k, fab->get_suppliers() ) {
+			if(  const fabrik_t *src = fabrik_t::get_fab(fab->get_besitzer()->get_welt(),k)  ) {
+				if(  src->is_active_lieferziel(fab->get_pos().get_2d())  ) {
+					display_color_img(skinverwaltung_t::waren->get_bild_nr(0), xoff, yoff, 0, false, true);
+				}
+			}
+			yoff += LINESPACE;
+		}
+		yoff += LINESPACE;
 	}
 
 	const vector_tpl<stadt_t *> &target_cities = fab->get_target_cities();

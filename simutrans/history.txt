@@ -8,6 +8,7 @@
 	ADD: possibliblity to limit the amount of goods in transit (see simuconf.tab)
 	ADD: city attractions and town halls can be defined to be build for more than 65535 citizens
 	FIX: you will need a dock to connect to an oil rig => no islands or tunnel can be used any more => ships only load at docks
+	ADD: display which factories supplied/recieved goods last month
 
 
 Release of 112.0: (r6000 on 22-Oct-2012):

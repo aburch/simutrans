@@ -172,6 +172,7 @@ private:
 	 * @author Hj. Malthaner
 	 */
 	vector_tpl <koord> lieferziele;
+	uint32 lieferziele_active_last_month;
 
 	/**
 	 * suppliers to this factry
@@ -427,6 +428,8 @@ public:
 	void unlink_halt(halthandle_t halt);
 
 	const vector_tpl<koord>& get_lieferziele() const { return lieferziele; }
+	bool is_active_lieferziel( koord k ) const;
+
 	const vector_tpl<koord>& get_suppliers() const { return suppliers; }
 
 	/**
@@ -485,7 +488,7 @@ public:
 	 * 0 wenn Produktionsstopp,
 	 * -1 wenn Ware nicht verarbeitet wird
 	 */
-	sint8 is_needed(const ware_besch_t *);
+	sint8 is_needed(const ware_besch_t *) const;
 
 	sint32 liefere_an(const ware_besch_t *, sint32 menge);
 
