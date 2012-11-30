@@ -256,7 +256,6 @@ void settings_routing_stats_t::read(settings_t* const sets)
 void settings_economy_stats_t::init(settings_t const* const sets)
 {
 	INIT_INIT
-	SEPERATOR
 	INIT_NUM( "remove_dummy_player_months", sets->get_remove_dummy_player_months(), 0, 144, 12, false );
 	INIT_NUM( "unprotect_abondoned_player_months", sets->get_unprotect_abondoned_player_months(), 0, 144, 12, false );
 	SEPERATOR
@@ -335,6 +334,8 @@ void settings_economy_stats_t::read(settings_t* const sets)
 {
 	READ_INIT
 	sint64 start_money_temp;
+	READ_NUM_VALUE( sets->remove_dummy_player_months );
+	READ_NUM_VALUE( sets->unprotect_abondoned_player_months );
 	READ_COST_VALUE( start_money_temp );
 	if(  sets->get_starting_money(sets->get_starting_year())!=start_money_temp  ) {
 		// because this will render the table based values invalid, we do this only when needed

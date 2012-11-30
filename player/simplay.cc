@@ -278,7 +278,7 @@ void spieler_t::neuer_monat()
 			// no assets => nothing to go bankrupt about again
 			else if(  maintenance!=0  ||  finance_history_year[0][COST_ALL_CONVOIS]!=0  ) {
 
-				// for AI, we only declare bankrupt, if total assest are below zero
+				// for AI, we only declare bankrupt, if total assets are below zero
 				if(finance_history_year[0][COST_NETWEALTH]<0) {
 					ai_bankrupt();
 				}
@@ -302,7 +302,7 @@ void spieler_t::neuer_monat()
 		konto_ueberzogen = 0;
 	}
 
-	if(   umgebung_t::networkmode  ) {
+	if(  umgebung_t::networkmode  &&  player_nr>1  &&  !automat  ) {
 		// find out dummy companies (i.e. no vehicle running within x months)
 		if(  welt->get_settings().get_remove_dummy_player_months()  )  {
 			const uint16 months = min( 12,  welt->get_settings().get_remove_dummy_player_months() );
@@ -736,6 +736,8 @@ void spieler_t::ai_bankrupt()
 	}
 
 	automat = false;
+	konto = -1;
+
 	cbuffer_t buf;
 	buf.printf( translator::translate("%s\nwas liquidated."), get_name() );
 	welt->get_message()->add_message( buf, koord::invalid, message_t::ai, PLAYER_FLAG|player_nr );

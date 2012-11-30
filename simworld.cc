@@ -3335,7 +3335,7 @@ void karte_t::neuer_monat()
 	INT_CHECK("simworld 1282");
 
 //	DBG_MESSAGE("karte_t::neuer_monat()","players");
-	if (letzter_monat == 0 && !settings.is_freeplay()) {
+	if(  letzter_monat == 0  &&  !settings.is_freeplay()  ) {
 		// remove all player (but first and second) who went bankrupt during last year
 		for(int i=2; i<MAX_PLAYER_COUNT-1; i++) {
 			if(  spieler[i] != NULL  &&
