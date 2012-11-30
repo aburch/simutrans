@@ -2321,8 +2321,10 @@ void haltestelle_t::add_to_station_type( grund_t *gr )
 					break;
 				case maglev_wt:      station_type |= maglevstop;      break;
 				case narrowgauge_wt: station_type |= narrowgaugestop; break;
+				default: ;
 			}
 			break;
+		default: ;
 	}
 
 	// enabled the matching types
