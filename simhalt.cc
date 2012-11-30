@@ -2365,9 +2365,11 @@ void haltestelle_t::recalc_station_type()
 		grund_t* const gr = i.grund;
 		add_to_station_type( gr );
 	}
+	// and set halt info again
+	FOR(slist_tpl<tile_t>, const& i, tiles) {
+		i.grund->set_halt( self );
+	}
 	recalc_status();
-
-//DBG_DEBUG("haltestelle_t::recalc_station_type()","result=%x, capacity[0]=%i, capacity[1], capacity[2]",new_station_type,capacity[0],capacity[1],capacity[2]);
 }
 
 
@@ -2856,7 +2858,9 @@ bool haltestelle_t::add_grund(grund_t *gr)
 		}
 	}
 
-	assert(welt->lookup(pos)->get_halt() == self  &&  gr->is_halt());
+	if(  welt->lookup(pos)->get_halt() != self  ||  !gr->is_halt()  ) {
+		dbg->error( "haltestelle_t::add_grund()", "no ground added to (%s)", pos.get_str() );
+	}
 	init_pos = tiles.front().grund->get_pos().get_2d();
 	welt->set_schedule_counter();
 

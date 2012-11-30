@@ -555,11 +555,17 @@ void grund_t::set_halt(halthandle_t halt)
 	bool add = halt.is_bound();
 	if(  add  ) {
 		// ok, we want to add a stop: first check if it can apply to water
-		if(  get_typ()==wasser  ||  get_pos().z == welt->get_grundwasser()  ) {
+		if(  get_weg_ribi(water_wt)  ||  ist_wasser()  ||  welt->get_climate(pos.z)==water_climate  ) {
 			add = (halt->get_station_type() & haltestelle_t::dock) > 0;
 		}
 		else {
-			add = (halt->get_station_type() & ~haltestelle_t::dock) > 0;
+			add = halt->get_station_type()==0  ||  (halt->get_station_type() & ~haltestelle_t::dock) > 0;
+			if(  !add  ) {
+				if(  const gebaeude_t* gb = find<gebaeude_t>()  ) {
+					// always allow extensions
+					add = gb->get_tile()->get_besch()->get_utyp() == haus_besch_t::generic_extension;
+				}
+			}
 		}
 	}
 	// teh add or remove halt flag
