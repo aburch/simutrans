@@ -84,10 +84,10 @@ DBG_MESSAGE("event","HOWDY!");
 	// goto next/previous choice
 	if(  ev->ev_class == EVENT_KEYBOARD  &&  (ev->ev_code == SIM_KEY_UP  ||  ev->ev_code == SIM_KEY_DOWN)  ) {
 		if(  ev->ev_code == SIM_KEY_UP  ) {
-			set_selection( droplist.get_selection() > 0 ? droplist.get_selection() - 1 : droplist.get_count() - 1);
+			set_selection( droplist.get_selection() > 0 ? droplist.get_selection() - 1 : wrapping ? droplist.get_count() - 1 : 0 );
 		}
 		else {
-			set_selection( droplist.get_selection() < droplist.get_count() - 1 ? droplist.get_selection() + 1 : 0);
+			set_selection( droplist.get_selection() < droplist.get_count() - 1 ? droplist.get_selection() + 1 : wrapping ? 0 : droplist.get_count() - 1 );
 		}
 		value_t p;
 		p.i = droplist.get_selection();
@@ -208,6 +208,7 @@ void gui_combobox_t::set_selection(int s)
 
 	if (droplist.is_visible()) {
 		// visible? change also offset of scrollbar
+		set_max_size( max_size );
 		droplist.show_selection( s );
 	}
 	else {

@@ -14,12 +14,10 @@
 #include "../../simwin.h"
 
 
-
 int gui_scrolled_list_t::total_vertical_size() const
 {
 	return item_list.get_count() * LINESPACE + 2;
 }
-
 
 
 gui_scrolled_list_t::gui_scrolled_list_t(enum type type) :
@@ -45,14 +43,12 @@ gui_scrolled_list_t::gui_scrolled_list_t(enum type type) :
 }
 
 
-
 bool gui_scrolled_list_t::action_triggered( gui_action_creator_t * /* comp */, value_t extra)
 {
 	// search/replace all offsets with sb.get_offset() is also an option
 	offset = extra.i;
 	return true;
 }
-
 
 
 // set the scrollbar offset, so that the selected itm is visible
@@ -72,7 +68,6 @@ DBG_MESSAGE("gui_scrolled_list_t::show_selection()","sel=%d, offset=%d, groesse.
 		selection = -1;
 	}
 }
-
 
 
 void gui_scrolled_list_t::clear_elements()
@@ -119,7 +114,9 @@ koord gui_scrolled_list_t::request_groesse(koord request)
 	return groesse;
 }
 
-void gui_scrolled_list_t::set_groesse(koord groesse) {
+
+void gui_scrolled_list_t::set_groesse(koord groesse)
+{
 	gui_komponente_t::set_groesse(groesse);
 	adjust_scrollbar();
 }
@@ -181,7 +178,7 @@ bool gui_scrolled_list_t::infowin_event(const event_t *ev)
 		return true;
 	}
 
-	if(sb.getroffen(x, y)  ||  IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev)) {
+	if(  sb.is_visible()  &&  (sb.getroffen(x, y)  ||  IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev))  ) {
 		event_t ev2 = *ev;
 		translate_event(&ev2, -sb.get_pos().x, -sb.get_pos().y);
 		return sb.infowin_event(&ev2);
@@ -189,7 +186,6 @@ bool gui_scrolled_list_t::infowin_event(const event_t *ev)
 
 	return false;
 }
-
 
 
 void gui_scrolled_list_t::zeichnen(koord pos)
