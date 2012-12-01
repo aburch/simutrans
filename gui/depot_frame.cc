@@ -834,17 +834,21 @@ void depot_frame_t::update_data()
 			if(!info->can_lead(veh)  ||  (veh  &&  !veh->can_follow(info))) {
 				img.lcolor = COL_RED;
 				img.rcolor = COL_RED;
-			} else if(!info->can_follow(NULL)) {
+			}
+			else if(!info->can_follow(NULL)) {
 				img.lcolor = COL_YELLOW;
 			}
-		} else if(veh_action == va_append) {
+		}
+		else if(veh_action == va_append) {
 			if(!info->can_follow(veh)  ||  (veh  &&  !veh->can_lead(info))) {
 				img.lcolor = COL_RED;
 				img.rcolor = COL_RED;
-			} else if(!info->can_lead(NULL)) {
+			}
+			else if(!info->can_lead(NULL)) {
 				img.rcolor = COL_YELLOW;
 			}
-		} else if( veh_action == va_sell ) {
+		}
+		else if( veh_action == va_sell ) {
 			img.lcolor = COL_RED;
 			img.rcolor = COL_RED;
 		}
@@ -880,9 +884,6 @@ void depot_frame_t::update_data()
 
 	if(  last_selected_line.is_bound()  ) {
 		line_selector.append_element( new line_scrollitem_t( last_selected_line ) );
-	}
-	else {
-		line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( line_seperator, COL_BLACK ) );
 	}
 	line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( line_seperator, COL_BLACK ) );
 	line_selector.set_selection(0);
@@ -1068,7 +1069,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp, value_t p)
 			icnv = p.i - 1;
 		}
 		else if(  komp == &line_selector  ) {
-			const int selection = p.i;
+			int selection = p.i;
 			if(  selection == 0  ) { // unique
 				if(  selected_line.is_bound()  ) {
 					selected_line = linehandle_t();
@@ -1090,20 +1091,21 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp, value_t p)
 				}
 				return true;
 			}
-			else if(  selection == 2  ) { // last selected line
-				if(  last_selected_line.is_bound()  ) {
+			if(  last_selected_line.is_bound()  ) {
+				if(  selection == 2  ) { // last selected line
 					selected_line = last_selected_line;
 					apply_line();
+					return true;
 				}
-				return true;
+				selection -= 4;
 			}
-			else if(  selection == 3  ) { // seperator
-				return true;
+			else { // skip seperator
+				selection -= 3;
 			}
-			else if(  (uint32)(selection - 4) < (uint32)line_selector.count_elements()  ) {
+			if(  selection >= 0  &&  (uint32)selection < (uint32)line_selector.count_elements()  ) {
 				vector_tpl<linehandle_t> lines;
 				get_line_list( depot, &lines );
-				selected_line = lines[selection - 4];
+				selected_line = lines[selection];
 				depot->set_last_selected_line( selected_line );
 				last_selected_line = selected_line;
 				apply_line();
