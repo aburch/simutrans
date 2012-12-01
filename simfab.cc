@@ -2090,7 +2090,7 @@ void fabrik_t::neuer_monat()
 						// Re-add the fields
 						for(uint16 i = 0; i < adjusted_number_of_fields; i ++)
 						{
-							add_random_field(0);
+							add_random_field(besch->get_field_group()->get_probability());
 						}
 						// Re-set the expansion counter: an upgraded factory may expand further.
 						times_expanded = 0;
