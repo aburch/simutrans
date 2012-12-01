@@ -208,7 +208,6 @@ void gui_combobox_t::set_selection(int s)
 
 	if (droplist.is_visible()) {
 		// visible? change also offset of scrollbar
-		set_max_size( max_size );
 		droplist.show_selection( s );
 	}
 	else {

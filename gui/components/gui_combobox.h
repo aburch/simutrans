@@ -78,7 +78,7 @@ public:
 	 * add element to droplist
 	 * @author hsiegeln
 	 */
-	void append_element( gui_scrolled_list_t::scrollitem_t *item ) { droplist.append_element( item ); }
+	void append_element( gui_scrolled_list_t::scrollitem_t *item ) { droplist.append_element( item ); set_max_size( max_size ); }
 
 	/**
 	 * remove all elements from droplist
