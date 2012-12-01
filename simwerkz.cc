@@ -5943,6 +5943,7 @@ bool wkz_change_line_t::init( karte_t *, spieler_t *sp )
  * following simple command exists:
  * 'l' : creates a new line (convoi_id might be invalid) (+printf'd initial schedule)
  * 'b' : starts the convoi
+ * 'B' : starts all convoys
  * 'c' : copies this convoi
  * 'd' : dissassembles convoi
  * 's' : sells convoi
@@ -5992,50 +5993,48 @@ bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 
 	// ok now do our stuff
 	switch(  tool  ) {
-		case 'l':
-			// create line schedule window
-			{
-				linehandle_t selected_line = depot->get_besitzer()->simlinemgmt.create_line(depot->get_line_type(),depot->get_besitzer());
-				selected_line->get_schedule()->sscanf_schedule( p );
+		case 'l': { // create line schedule window
+			linehandle_t selected_line = depot->get_besitzer()->simlinemgmt.create_line(depot->get_line_type(),depot->get_besitzer());
+			selected_line->get_schedule()->sscanf_schedule( p );
 
-				depot_frame_t *depot_frame = dynamic_cast<depot_frame_t *>(win_get_magic( (ptrdiff_t)depot ));
-				if(  is_local_execution()  ) {
-					if(  welt->get_active_player()==sp  &&  depot_frame  ) {
-						create_win( new line_management_gui_t( selected_line, depot->get_besitzer() ), w_info, (ptrdiff_t)selected_line.get_rep() );
-					}
+			depot_frame_t *depot_frame = dynamic_cast<depot_frame_t *>(win_get_magic( (ptrdiff_t)depot ));
+			if(  is_local_execution()  ) {
+				if(  welt->get_active_player()==sp  &&  depot_frame  ) {
+					create_win( new line_management_gui_t( selected_line, depot->get_besitzer() ), w_info, (ptrdiff_t)selected_line.get_rep() );
 				}
-
-				if(  depot_frame  ) {
-					if(  is_local_execution()  ) {
-						depot_frame->set_selected_line( selected_line );
-						depot_frame->apply_line();
-					}
-					depot_frame->update_data();
-				}
-
-				schedule_list_gui_t *sl = dynamic_cast<schedule_list_gui_t *>(win_get_magic( magic_line_management_t + sp->get_player_nr() ));
-				if(  sl  ) {
-					sl->update_data( selected_line );
-				}
-				DBG_MESSAGE("depot_frame_t::new_line()","id=%d",selected_line.get_id() );
 			}
-			break;
 
-		case 'b':
-			// start a convoi from the depot
+			if(  depot_frame  ) {
+				if(  is_local_execution()  ) {
+					depot_frame->set_selected_line( selected_line );
+					depot_frame->apply_line();
+				}
+				depot_frame->update_data();
+			}
+
+			schedule_list_gui_t *sl = dynamic_cast<schedule_list_gui_t *>(win_get_magic( magic_line_management_t + sp->get_player_nr() ));
+			if(  sl  ) {
+				sl->update_data( selected_line );
+			}
+			DBG_MESSAGE("depot_frame_t::new_line()","id=%d",selected_line.get_id() );
+			break;
+		}
+		case 'b': { // start a convoi from the depot
 			if(  cnv.is_bound()  ) {
 				depot->start_convoi(cnv, is_local_execution());
 			}
 			break;
-
-		case 'd':
-		case 'v':
-			// disassemble/sell convoi
+		}
+		case 'B': { // start all convoys
+			depot->start_all_convoys();
+			break;
+		}
+		case 'd':   // disassemble convoi
+		case 'v': { // sell convoi
 			depot->disassemble_convoi( cnv, tool=='v' );
 			break;
-
-		case 'c':
-			// copy this convoi
+		}
+		case 'c': { // copy this convoi
 			if(  cnv.is_bound()  ) {
 				if(  convoihandle_t::is_exhausted()  ) {
 					if(  is_local_execution()  ) {
@@ -6046,12 +6045,12 @@ bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 				depot->copy_convoi( cnv, is_local_execution() );
 			}
 			break;
-
-		case 'a':	// append a vehicle
-		case 'i':	// insert a vehicle in front
-		case 's':	// sells a vehicle
-		case 'r': 	// removes a vehicle (assumes a valid depot)
-		case 'R': 	// removes all vehicles to end (assumes a valid depot)
+		}
+		case 'a':   // append a vehicle
+		case 'i':   // insert a vehicle in front
+		case 's':   // sells a vehicle
+		case 'r':   // removes a vehicle (assumes a valid depot)
+		case 'R': { // removes all vehicles to end (assumes a valid depot)
 			if(  tool=='r'  ||  tool=='R'  ) {
 				// test may fail after double-click on the button:
 				// two remove cmds are sent, only the first will remove, the second should not trigger assertion failure
@@ -6151,6 +6150,7 @@ bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 			}
 			depot->update_win();
 			break;
+		}
 	}
 	return false;
 }

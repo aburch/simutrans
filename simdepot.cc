@@ -371,6 +371,18 @@ bool depot_t::disassemble_convoi(convoihandle_t cnv, bool sell)
 }
 
 
+bool depot_t::start_all_convoys()
+{
+	uint32 i = 0;
+	while(  i < convois.get_count()  ) {
+		if(  !start_convoi( convois.at(i), false )  ) {
+			i++;
+		}
+	}
+	return (convois.get_count() == 0);
+}
+
+
 bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 {
 	// close schedule window if not yet closed

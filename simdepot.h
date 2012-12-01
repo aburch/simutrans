@@ -108,6 +108,8 @@ public:
 	 */
 	bool start_convoi(convoihandle_t cnv, bool local_execution);
 
+	bool start_all_convoys();
+
 	/**
 	 * Destroy the convoi and put the vehicles in the vehicles list (sell==false),
 	 * or sell all immediately (sell==true).

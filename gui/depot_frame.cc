@@ -989,7 +989,8 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp, value_t p)
 				//first: close schedule (will update schedule on clients)
 				destroy_win( (ptrdiff_t)cnv->get_schedule() );
 				// only then call the tool to start
-				depot->call_depot_tool('b', cnv, NULL);
+				char tool = event_get_last_control_shift() == 2 ? 'B' : 'b'; // start all with CTRL-click
+				depot->call_depot_tool( tool, cnv, NULL);
 			}
 		}
 		else if(  komp == &bt_schedule  ) {
