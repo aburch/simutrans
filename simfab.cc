@@ -2090,7 +2090,7 @@ void fabrik_t::neuer_monat()
 						// Re-add the fields
 						for(uint16 i = 0; i < adjusted_number_of_fields; i ++)
 						{
-							add_random_field(besch->get_field_group()->get_probability());
+							add_random_field(10000u);
 						}
 						// Re-set the expansion counter: an upgraded factory may expand further.
 						times_expanded = 0;
@@ -2109,6 +2109,7 @@ void fabrik_t::neuer_monat()
 				}
 			}
 
+			welt->closed_factories_this_month.append(this);
 			hausbauer_t::remove(welt, welt->get_spieler(1), gb);
 		}
 	}

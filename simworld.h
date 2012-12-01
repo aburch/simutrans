@@ -491,6 +491,8 @@ public:
 	// @author: jamespetts, February 2011
 	uint8 next_private_car_update_month;
 
+	vector_tpl<fabrik_t*> closed_factories_this_month;
+
 	/* reads height data from 8 or 25 bit bmp or ppm files
 	 * @return either pointer to heightfield (use delete [] for it) or NULL
 	 */

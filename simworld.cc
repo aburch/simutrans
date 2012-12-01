@@ -3284,31 +3284,33 @@ void karte_t::neuer_monat()
 	 
 
 //	DBG_MESSAGE("karte_t::neuer_monat()","factories");
-	sint16 number_of_factories = fab_list.get_count();
 	fabrik_t * fab;
 	uint32 total_electric_demand = 1;
 	uint32 electric_productivity = 0;
-	sint16 difference = 0;
+	closed_factories_this_month.clear();
+	uint32 closed_factories_count = 0;
 	FOR(vector_tpl<fabrik_t*>, const fab, fab_list)
 	{
-		fab->neuer_monat();
-		// The number of factories might have diminished,
-		// so must adjust i to prevent out of bounds errors.
-		difference = number_of_factories - fab_list.get_count();
-		if(difference == 0)
+		if(!closed_factories_this_month.is_contained(fab))
 		{
+			fab->neuer_monat();
 			// Check to see whether the factory has closed down - if so, the pointer will be dud.
-			if(fab->get_besch()->is_electricity_producer())
+			if(closed_factories_count == closed_factories_this_month.get_count())
 			{
-				electric_productivity += fab->get_scaled_electric_amount();
-			} 
-			else 
-			{
-				total_electric_demand += fab->get_scaled_electric_amount();
+				if(fab->get_besch()->is_electricity_producer())
+				{
+					electric_productivity += fab->get_scaled_electric_amount();
+				} 
+				else 
+				{
+					total_electric_demand += fab->get_scaled_electric_amount();
+				}
 			}
-			number_of_factories = fab_list.get_count();
+			else
+			{
+				closed_factories_count = closed_factories_this_month.get_count();
+			}
 		}
-		number_of_factories -= difference;
 	}
 
 	// Check to see whether more factories need to be added
@@ -3325,7 +3327,7 @@ void karte_t::neuer_monat()
 	{
 		// Only add one per month, and randomise.
 		const uint32 percentage = ((target_industry_density - actual_industry_density) * 100) / target_industry_density;
-		const uint8 chance = simrand(10000, "void karte_t::neuer_monat()");
+		const uint32 chance = simrand(100, "void karte_t::neuer_monat()");
 		if(chance < percentage)
 		{
 			fabrikbauer_t::increase_industry_density(this, true, true);
