@@ -691,6 +691,7 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 	power_demand = 0;
 	total_input = total_output = 0;
 	status = nothing;
+	lieferziele_active_last_month = 0;
 
 	// create input information
 	eingang.resize( fabesch->get_lieferanten() );
