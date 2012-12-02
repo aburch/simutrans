@@ -18,12 +18,12 @@ private:
 
 public:
 	enum {
-		inactive	= 0, // client disconnected
-		server		= 1, // server socket
-		connected	= 2, // connection established but client does not participate in the game yet
-		playing		= 3, // client actively plays
-		has_left	= 4, // was playing but left
-		admin    	= 5  // admin connection
+		inactive  = 0, // client disconnected
+		server    = 1, // server socket
+		connected = 2, // connection established but client does not participate in the game yet
+		playing   = 3, // client actively plays
+		has_left  = 4, // was playing but left
+		admin     = 5  // admin connection
 	};
 	uint8 state;
 
