@@ -213,6 +213,8 @@ void convoi_info_t::zeichnen(koord pos, koord gr)
 		destroy_win(this);
 	}
 	else {
+		// make titlebar dirty to display the correct coordinates
+		mark_rect_dirty_wc( pos.x, pos.y-16, pos.x+gr.x, pos.y );
 		if(cnv->get_besitzer()==cnv->get_welt()->get_active_player()) {
 			if(  line_bound  &&  !cnv->get_line().is_bound()  ) {
 				remove_komponente( &line_button );
