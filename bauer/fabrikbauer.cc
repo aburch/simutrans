@@ -899,6 +899,10 @@ int fabrikbauer_t::increase_industry_density( karte_t *welt, bool tell_me, bool 
 				{
 					// Check whether the factory's actual suppliers supply any of this product.
 					const fabrik_t* supplier = fabrik_t::get_fab(welt, suppliers[s]);
+					if(!supplier)
+					{
+						continue;
+					}
 					sint32 available_for_consumption = 0;
 					for(int p = 0; p < supplier->get_besch()->get_produkte(); p ++)
 					{

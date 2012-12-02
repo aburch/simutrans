@@ -3320,13 +3320,13 @@ void karte_t::neuer_monat()
 	if(industry_density_proportion == 0 && finance_history_month[0][WORLD_CITICENS] > 0)
 	{
 		// Set the industry density proportion for the first time when the number of citizens is populated.
-		industry_density_proportion = ((sint64)actual_industry_density * 10000ll) / finance_history_month[0][WORLD_CITICENS];
+		industry_density_proportion = (uint32)((sint64)actual_industry_density * 1000000ll) / finance_history_month[0][WORLD_CITICENS];
 	}
 	const uint32 target_industry_density = get_target_industry_density();
 	if(actual_industry_density < target_industry_density)
 	{
-		// Only add one per month, and randomise.
-		const uint32 percentage = ((target_industry_density - actual_industry_density) * 100) / target_industry_density;
+		// Only add one chain per month, and randomise (with a minimum of 8% chance to ensure that any industry deficiency is, on average, remedied in about a year).
+		const uint32 percentage = max((((target_industry_density - actual_industry_density) * 100) / target_industry_density), 8);
 		const uint32 chance = simrand(100, "void karte_t::neuer_monat()");
 		if(chance < percentage)
 		{
@@ -4657,7 +4657,17 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved messages");
 		file->rdwr_double(old_proportion);
 		industry_density_proportion = old_proportion * 10000.0;
 	}
-	else if(file->get_experimental_version() >= 9 && file->get_version() >= 110006)
+	else if(file->get_experimental_version() >= 9 && file->get_version() >= 110006 && file->get_experimental_version() < 11)
+	{
+		// Versions before 10.16 used an excessively low (and therefore inaccurate) integer for the industry density proportion. 
+		// Detect this by checking whether the highest bit is set (it will not be naturally, so will only be set if this is 
+		// 10.16 or higher, and not 11.0 and later, where we can assume that the numbers are correct and can be dealt with simply).
+		uint32 idp = industry_density_proportion;
+
+		idp |= 0x8000;
+		file->rdwr_long(idp);
+	}
+	else if(file->get_experimental_version() >= 11)
 	{
 		file->rdwr_long(industry_density_proportion);
 	}
@@ -5437,7 +5447,17 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 	}
 	else if(file->get_experimental_version() >= 9 && file->get_version() >= 110006)
 	{
-		file->rdwr_long(industry_density_proportion);
+		if(file->get_experimental_version() >= 11)
+		{
+			file->rdwr_long(industry_density_proportion);
+		}
+		else
+		{
+			uint32 idp = 0;
+			file->rdwr_long(idp);
+			idp = (idp & 0x8000) != 0 ? idp & 0x7FFF : idp *= 150;
+			industry_density_proportion = idp;
+		}
 	}
 	else if(file->is_loading())
 	{

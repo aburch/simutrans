@@ -1010,7 +1010,7 @@ public:
 	inline bool ist_markiert(const grund_t* gr) const { return marker.ist_markiert(gr); }
 
 	// Getter/setter methods for maintaining the industry density
-	inline uint32 get_target_industry_density() const { return ((uint32)finance_history_month[0][WORLD_CITICENS] * industry_density_proportion) / 10000; }
+	inline uint32 get_target_industry_density() const { return ((uint32)finance_history_month[0][WORLD_CITICENS] * (sint64)industry_density_proportion) / 1000000ll; }
 	inline uint32 get_actual_industry_density() const { return actual_industry_density; }
 	
 	inline void decrease_actual_industry_density(uint32 value) { actual_industry_density -= value; }
