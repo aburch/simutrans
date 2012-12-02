@@ -1475,8 +1475,12 @@ void wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d z
 			diff = (pos.y>ziel.y) ? ribi_t::nord : ribi_t::sued;
 		}
 		if(bautyp&tunnel_flag) {
-			// ground must be above tunnel
-			ok &= (welt->lookup_kartenboden(pos.get_2d())->get_hoehe() > pos.z);
+			// ground must be above tunnel and below sea
+			grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
+			ok &= (gr->get_hoehe() > pos.z);
+			if (gr->ist_wasser()) {
+				ok = ok && welt->lookup_hgt(pos.get_2d()) > pos.z;
+			}
 
 			// create fake tunnel grounds if needed
 			bool bd_von_new = false, bd_nach_new = false;
