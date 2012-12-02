@@ -3941,6 +3941,7 @@ bool wkz_roadsign_t::calc_route( route_t &verbindung, spieler_t *sp, const koord
 	// get a default vehikel
 	vehikel_besch_t rs_besch( besch->get_wtyp(), 500, vehikel_besch_t::diesel );
 	vehikel_t* test_vehicle = vehikelbauer_t::baue(start, sp, NULL, &rs_besch);
+	test_vehicle->set_flag(ding_t::not_on_map);
 	fahrer_t* test_driver = scenario_checker_t::apply(test_vehicle, sp, this);
 
 	bool can_built;
@@ -3972,7 +3973,7 @@ void wkz_roadsign_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &st
 	}
 	signal_info const& s              = signal[sp->get_player_nr()];
 	uint8       const  signal_density = 2 * s.spacing;      // measured in half tiles (straight track count as 2, diagonal as 1, since sqrt(1/2) = 1/2 ;)
-	uint8              next_signal    = signal_density + 1; // to place a sign asap
+	uint8              next_signal    = 2 * signal_density + 1; // to place a sign asap
 	sint32             cost           = 0;
 	directions.clear();
 	// dummy roadsign to get images for preview
@@ -3983,6 +3984,8 @@ void wkz_roadsign_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &st
 	else {
 		dummy_rs = new roadsign_t(welt, sp, koord3d::invalid, ribi_t::keine, besch);
 	}
+	dummy_rs->set_flag(ding_t::not_on_map);
+
 	bool single_ribi = besch->is_signal_type() || besch->is_single_way() || besch->is_choose_sign();
 	for(  uint16 i = 0;  i < route.get_count();  i++  ) {
 		grund_t* gr = welt->lookup( route.position_bei(i) );
@@ -4004,7 +4007,7 @@ void wkz_roadsign_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &st
 		}
 		// check owner .. other signals...
 		next_signal += ribi_t::ist_gerade(ribi)? 2 : 1;
-		if(  next_signal >= signal_density  /*&&  !ribi_t::ist_einfach(ribi)*/  ) {
+		if(  next_signal >= 2*signal_density  /*&&  !ribi_t::ist_einfach(ribi)*/  ) {
 			// can we place signal here?
 			if (check_pos_intern(welt, sp, route.position_bei(i))==NULL  ||
 					(s.replace_other && rs && !rs->ist_entfernbar(sp))) {
