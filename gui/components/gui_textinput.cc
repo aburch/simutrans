@@ -388,7 +388,7 @@ void gui_textinput_t::display_with_cursor(koord offset, bool cursor_active, bool
 		// Knightly : recalculate scroll offset
 		const KOORD_VAL text_width = proportional_string_width(text);
 		const KOORD_VAL view_width = groesse.x - 3;
-		const KOORD_VAL cursor_offset = proportional_string_len_width(text, head_cursor_pos);
+		const KOORD_VAL cursor_offset = cursor_active ? proportional_string_len_width(text, head_cursor_pos) : 0;
 		if(  text_width<=view_width  ) {
 			// case : text is shorter than displayable width of the text input
 			//			-> the only case where left and right alignments differ
