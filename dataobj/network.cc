@@ -339,6 +339,7 @@ bool network_init_server( int port )
 	if (  !network_initialize()  ) {
 		dbg->fatal( "network_init_server()", "Failed to initialize network!" );
 	}
+	socket_list_t::reset();
 
 #ifdef USE_IP4_ONLY
 
@@ -466,11 +467,8 @@ bool network_init_server( int port )
 
 	network_server_port = port;
 	client_id = 0;
-	clear_command_queue();
-#ifndef NETTOOL
-	nwc_ready_t::clear_map_counters();
-#endif // NETTOOL
 
+	network_reset_server();
 	return true;
 }
 
