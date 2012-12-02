@@ -3348,7 +3348,7 @@ void karte_t::neuer_monat()
 				spieler[i] = 0;
 				// if currently still active => reset to default human
 				if(  i == active_player_nr  ) {
-					i = 0;
+					active_player_nr = 0;
 					active_player = spieler[0];
 				}
 			}
