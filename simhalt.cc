@@ -222,11 +222,6 @@ DBG_DEBUG("haltestelle_t::remove()","remove last");
 DBG_DEBUG("haltestelle_t::remove()","destroy");
 		haltestelle_t::destroy( halt );
 	}
-	else {
-DBG_DEBUG("haltestelle_t::remove()","not last");
-		// acceptance and type may have been changed ... (due to post office/dock/railways station deletion)
-		halt->recalc_station_type();
-	}
 
 	// if building was removed this is false!
 	if(bd) {
@@ -1055,7 +1050,7 @@ sint32 haltestelle_t::rebuild_connections()
 	while(  lines  ||  current_index < registered_convoys.get_count()  ) {
 
 		// Now, collect the "fpl", "owner" and "add_catg_index" from line resp. convoy.
-		if( lines ) {
+		if(  lines  ) {
 			if(  current_index >= registered_lines.get_count()  ) {
 				// We have looped over all lines.
 				lines = false;
@@ -1096,7 +1091,7 @@ sint32 haltestelle_t::rebuild_connections()
 			}
 		}
 
-		if (supported_catg_index.empty()) {
+		if(  supported_catg_index.empty()  ) {
 			// this halt does not support the goods categories handled by the line/lineless convoy
 			continue;
 		}
@@ -1107,12 +1102,12 @@ sint32 haltestelle_t::rebuild_connections()
 		uint16 aggregate_weight = WEIGHT_WAIT;
 		for(  uint8 j=0;  j<fpl->get_count();  ++j  ) {
 
-			halthandle_t current_halt = get_halt(welt, fpl->eintrag[(start_index+j)%fpl->get_count()].pos,owner);
+			halthandle_t current_halt = get_halt(welt, fpl->eintrag[(start_index+j)%fpl->get_count()].pos, owner );
 			if(  !current_halt.is_bound()  ) {
 				// ignore way points
 				continue;
 			}
-			if(  current_halt==self  ) {
+			if(  current_halt == self  ) {
 				// Knightly : check for consecutive halts which precede self halt
 				FOR(minivec_tpl<uint8>, const catg_index, supported_catg_index) {
 					if(  previous_halt[catg_index]!=self  ) {
@@ -1131,7 +1126,7 @@ sint32 haltestelle_t::rebuild_connections()
 			FOR(minivec_tpl<uint8>, const catg_index, supported_catg_index) {
 				if(  current_halt->is_enabled(catg_index)  ) {
 					// Knightly : check for consecutive halts which succeed self halt
-					if(  previous_halt[catg_index]==self  ) {
+					if(  previous_halt[catg_index] == self  ) {
 						consecutive_halts[catg_index].append_unique(current_halt);
 						consecutive_halts_fpl[catg_index].append_unique(current_halt);
 					}
@@ -1147,15 +1142,15 @@ sint32 haltestelle_t::rebuild_connections()
 		}
 
 		FOR(minivec_tpl<uint8>, const catg_index, supported_catg_index) {
-			if (consecutive_halts_fpl[catg_index].get_count() > max_consecutive_halts_fpl[catg_index]) {
+			if(  consecutive_halts_fpl[catg_index].get_count() > max_consecutive_halts_fpl[catg_index]  ) {
 				max_consecutive_halts_fpl[catg_index] = consecutive_halts_fpl[catg_index].get_count();
 			}
 		}
 		connections_searched += fpl->get_count();
 	}
 	for(  uint8 i=0;  i<warenbauer_t::get_max_catg_index();  i++  ){
-		if (!consecutive_halts[i].empty()) {
-			if (consecutive_halts[i].get_count() == max_consecutive_halts_fpl[i]) {
+		if(  !consecutive_halts[i].empty()  ) {
+			if(  consecutive_halts[i].get_count() == max_consecutive_halts_fpl[i]  ) {
 				// one schedule reaches all consecutive halts -> this is not transfer halt
 				serving_schedules[i] = 1u;
 			}
@@ -2773,13 +2768,13 @@ bool haltestelle_t::add_grund(grund_t *gr)
 	if(  get_besitzer()==welt->get_spieler(1)  ) {
 		// must iterate over all players lines ...
 		for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
-			if(welt->get_spieler(i)) {
+			if(  welt->get_spieler(i)  ) {
 				welt->get_spieler(i)->simlinemgmt.get_lines(simline_t::line, &check_line);
-				FOR(vector_tpl<linehandle_t>, const j, check_line) {
+				FOR(  vector_tpl<linehandle_t>, const j, check_line  ) {
 					// only add unknown lines
-					if (!registered_lines.is_contained(j) && j->count_convoys() > 0) {
-						FOR(minivec_tpl<linieneintrag_t>, const& k, j->get_schedule()->eintrag) {
-							if (get_halt(welt, k.pos, j->get_besitzer()) == self) {
+					if(  !registered_lines.is_contained(j)  &&  j->count_convoys() > 0  ) {
+						FOR(  minivec_tpl<linieneintrag_t>, const& k, j->get_schedule()->eintrag  ) {
+							if(  get_halt(welt, k.pos, j->get_besitzer()) == self  ) {
 								registered_lines.append(j);
 								break;
 							}
@@ -2806,11 +2801,11 @@ bool haltestelle_t::add_grund(grund_t *gr)
 	}
 	else {
 		get_besitzer()->simlinemgmt.get_lines(simline_t::line, &check_line);
-		FOR(vector_tpl<linehandle_t>, const j, check_line) {
+		FOR( vector_tpl<linehandle_t>, const j, check_line ) {
 			// only add unknown lines
-			if (!registered_lines.is_contained(j) && j->count_convoys() > 0) {
-					FOR(minivec_tpl<linieneintrag_t>, const& k, j->get_schedule()->eintrag) {
-					if (get_halt(welt, k.pos, get_besitzer()) == self) {
+			if(  !registered_lines.is_contained(j)  &&  j->count_convoys() > 0  ) {
+					FOR( minivec_tpl<linieneintrag_t>, const& k, j->get_schedule()->eintrag ) {
+					if(  get_halt(welt, k.pos, get_besitzer()) == self  ) {
 						registered_lines.append(j);
 						break;
 					}
@@ -2818,13 +2813,13 @@ bool haltestelle_t::add_grund(grund_t *gr)
 			}
 		}
 		// Knightly : iterate over all convoys
-		FOR(vector_tpl<convoihandle_t>, const cnv, welt->convoys()) {
+		FOR( vector_tpl<convoihandle_t>, const cnv, welt->convoys() ) {
 			// only check lineless convoys which have matching ownership and which are not yet registered
 			if(  !cnv->get_line().is_bound()  &&  cnv->get_besitzer()==get_besitzer()  &&  !registered_convoys.is_contained(cnv)  ) {
 				const schedule_t *const fpl = cnv->get_schedule();
 				if(  fpl  ) {
-					FOR(minivec_tpl<linieneintrag_t>, const& k, fpl->eintrag) {
-						if (get_halt(welt, k.pos, get_besitzer()) == self) {
+					FOR(  minivec_tpl<linieneintrag_t>, const& k, fpl->eintrag  ) {
+						if(  get_halt(welt, k.pos, get_besitzer()) == self  ) {
 							registered_convoys.append(cnv);
 							break;
 						}
@@ -2911,14 +2906,17 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 		}
 	}
 
+	// needs to be done, if this was a dock
+	recalc_station_type();
+
 	// factory reach may have been changed ...
 	verbinde_fabriken();
 
 	// remove lines eventually
-	for (size_t j = registered_lines.get_count(); j-- != 0;) {
-		bool ok=false;
-		FOR(minivec_tpl<linieneintrag_t>, const& k, registered_lines[j]->get_schedule()->eintrag) {
-			if (get_halt(welt, k.pos, registered_lines[j]->get_besitzer()) == self) {
+	for(  size_t j = registered_lines.get_count();  j-- != 0;  ) {
+		bool ok = false;
+		FOR(  minivec_tpl<linieneintrag_t>, const& k, registered_lines[j]->get_schedule()->eintrag  ) {
+			if(  get_halt(welt, k.pos, registered_lines[j]->get_besitzer()) == self  ) {
 				ok = true;
 				break;
 			}
@@ -2930,10 +2928,10 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 	}
 
 	// Knightly : remove registered lineless convoys as well
-	for (size_t j = registered_convoys.get_count(); j-- != 0;) {
+	for(  size_t j = registered_convoys.get_count();  j-- != 0;  ) {
 		bool ok = false;
-		FOR(minivec_tpl<linieneintrag_t>, const& k, registered_convoys[j]->get_schedule()->eintrag) {
-			if (get_halt(welt, k.pos, registered_convoys[j]->get_besitzer()) == self) {
+		FOR(  minivec_tpl<linieneintrag_t>, const& k, registered_convoys[j]->get_schedule()->eintrag  ) {
+			if(  get_halt(welt, k.pos, registered_convoys[j]->get_besitzer()) == self  ) {
 				ok = true;
 				break;
 			}
