@@ -535,6 +535,7 @@ void grund_t::info(cbuffer_t& buf) const
 
 	buf.printf("%s\n%s", get_name(), translator::translate(grund_besch_t::get_climate_name_from_bit(welt->get_climate(get_hoehe()))) );
 #if DEBUG >= 3
+	buf.printf("\nflags $%0X", flags );
 	buf.printf("\n\npos: (%s)",pos.get_str());
 	buf.printf("\nslope: %i",get_grund_hang());
 	buf.printf("\nback0: %i",get_back_bild(0)-grund_besch_t::slopes->get_bild(0));
@@ -555,7 +556,7 @@ void grund_t::set_halt(halthandle_t halt)
 	bool add = halt.is_bound();
 	if(  add  ) {
 		// ok, we want to add a stop: first check if it can apply to water
-		if(  get_weg_ribi(water_wt)  ||  ist_wasser()  ||  welt->get_climate(pos.z)==water_climate  ) {
+		if(  get_weg_ribi(water_wt)  ||  ist_wasser()  ||  (welt->get_climate(pos.z)==water_climate  &&  !ist_im_tunnel())  ) {
 			add = (halt->get_station_type() & haltestelle_t::dock) > 0;
 		}
 		else {

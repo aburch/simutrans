@@ -137,14 +137,8 @@ public:
 	 */
 	static int erzeuge_fussgaenger(karte_t *welt, const koord3d pos, int anzahl);
 
-	/* searches for a stop at the given koordinate
-	 * @return halthandle_t(), if nothing found
-	 * @author prissi
-	 */
-	static halthandle_t get_halt(const karte_t *welt, const koord pos, const spieler_t *sp );
-
-	/* since we allow only for a single stop per planquadrat
-	 * this will always return something even if there is not stop some of the ground level
+	/* we allow only for a single stop per planquadrat
+	 * this will only return something if this stop belongs to same player or is public, or is a dock (when on water)
 	 */
 	static halthandle_t get_halt(const karte_t *welt, const koord3d pos, const spieler_t *sp );
 

@@ -114,37 +114,9 @@ void haltestelle_t::step_all()
 }
 
 
-
-halthandle_t haltestelle_t::get_halt(const karte_t *welt, const koord pos, const spieler_t *sp )
-{
-	const planquadrat_t *plan = welt->lookup(pos);
-	if(  plan  ) {
-		if(plan->get_halt().is_bound()  &&  spieler_t::check_owner(sp,plan->get_halt()->get_besitzer())  ) {
-			return plan->get_halt();
-		}
-		// no halt? => we do the water check
-		if(plan->get_kartenboden()->ist_wasser()) {
-			// may catch bus stops close to water ...
-			const uint8 cnt = plan->get_haltlist_count();
-			// first check for own stop
-			for(  uint8 i=0;  i<cnt;  i++  ) {
-				if(  plan->get_haltlist()[i]->get_besitzer()==sp  ) {
-					return plan->get_haltlist()[i];
-				}
-			}
-			// then for public stop
-			for(  uint8 i=0;  i<cnt;  i++  ) {
-				if(  plan->get_haltlist()[i]->get_besitzer()==welt->get_spieler(1)  ) {
-					return plan->get_haltlist()[i];
-				}
-			}
-			// so: nothing found
-		}
-	}
-	return halthandle_t();
-}
-
-
+/* we allow only for a single stop per planquadrat
+ * this will only return something if this stop belongs to same player or is public, or is a dock (when on water)
+ */
 halthandle_t haltestelle_t::get_halt(const karte_t *welt, const koord3d pos, const spieler_t *sp )
 {
 	const grund_t *gr = welt->lookup(pos);
@@ -159,14 +131,16 @@ halthandle_t haltestelle_t::get_halt(const karte_t *welt, const koord3d pos, con
 			const uint8 cnt = plan->get_haltlist_count();
 			// first check for own stop
 			for(  uint8 i=0;  i<cnt;  i++  ) {
-				if(  plan->get_haltlist()[i]->get_besitzer()==sp  ) {
-					return plan->get_haltlist()[i];
+				halthandle_t halt = plan->get_haltlist()[i];
+				if(  halt->get_besitzer()==sp  &&  halt->get_station_type()&dock  ) {
+					return halt;
 				}
 			}
 			// then for public stop
 			for(  uint8 i=0;  i<cnt;  i++  ) {
-				if(  plan->get_haltlist()[i]->get_besitzer()==welt->get_spieler(1)  ) {
-					return plan->get_haltlist()[i];
+				halthandle_t halt = plan->get_haltlist()[i];
+				if(  halt->get_besitzer()==welt->get_spieler(1)  &&  halt->get_station_type()&dock  ) {
+					return halt;
 				}
 			}
 			// so: nothing found
