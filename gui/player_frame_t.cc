@@ -448,6 +448,19 @@ void ki_kontroll_t::zeichnen(koord pos, koord gr)
 				ai_income[i]->set_color( account>=0.0 ? MONEY_PLUS : MONEY_MINUS );
 				ai_income[i]->set_pos( koord(315, 8+(i+1)*2*LINESPACE ) );
 			}
+
+			access_out[i].pressed = welt->get_active_player()->allows_access_to(i);
+			if(access_out[i].pressed && sp)
+			{
+				tooltip_out[i].clear();
+				tooltip_out[i].printf("Withdraw %s's access your ways and stops", sp->get_name());
+			}
+			else if(sp)
+			{
+				tooltip_out[i].clear();
+				tooltip_out[i].printf("Allow %s to access your ways and stops", sp->get_name());
+			}
+
 		}
 		else {
 			account_str[i][0] = 0;

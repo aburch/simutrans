@@ -3802,15 +3802,18 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 
 	if( old_halt.is_bound() ) {
 		gebaeude_t* gb = bd->find<gebaeude_t>();
-		const haus_besch_t *old_besch = gb->get_tile()->get_besch();
-		old_level = old_besch->get_level();
-		if( old_besch->get_level() >= besch->get_level() &&  old_besch->get_station_capacity() > besch->get_station_capacity()) 
+		if(gb)
 		{
-			return "Upgrade must have\na higher level";
+			const haus_besch_t *old_besch = gb->get_tile()->get_besch();
+			old_level = old_besch->get_level();
+			if( old_besch->get_level() >= besch->get_level() &&  old_besch->get_station_capacity() > besch->get_station_capacity()) 
+			{
+				return "Upgrade must have\na higher level";
+			}
+			gb->entferne( NULL );
+			delete gb;
+			halt = old_halt;
 		}
-		gb->entferne( NULL );
-		delete gb;
-		halt = old_halt;
 	}
 	else {
 		halt = suche_nahe_haltestelle(sp,welt,bd->get_pos());

@@ -2013,8 +2013,8 @@ void fabrik_t::neuer_monat()
 		else
 		{
 			uint32 proportion = (difference * 100) / max_difference;
-			proportion *= 25; //Set to percentage value, but take into account fact will be frequently checked (would otherwise be * 100.0F - large change to take into account frequency of checking)
-			const uint32 chance = (simrand(10000000, "void fabrik_t::neuer_monat()"));
+			proportion *= 75; //Set to percentage value, but take into account fact will be frequently checked (would otherwise be * 100 - reduced to take into account frequency of checking)
+			const uint32 chance = (simrand(1000000, "void fabrik_t::neuer_monat()"));
 			if(chance <= proportion)
 			{
 				closedown = true;
@@ -2076,7 +2076,9 @@ void fabrik_t::neuer_monat()
 					if(chance < list_count)
 					{
 						// All the conditions are met: upgrade.
+						const int old_distributionweight = besch->get_gewichtung();
 						const fabrik_besch_t* new_type = upgrade_list[chance];
+						welt->decrease_actual_industry_density(100 / old_distributionweight);
 						uint32 percentage = new_type->get_field_group() ? (new_type->get_field_group()->get_max_fields() * 100) / besch->get_field_group()->get_max_fields() : 0;
 						const uint16 adjusted_number_of_fields = percentage ? (fields.get_count() * percentage) / 100 : 0;
 						delete_all_fields();
@@ -2089,7 +2091,7 @@ void fabrik_t::neuer_monat()
 						// Re-add the fields
 						for(uint16 i = 0; i < adjusted_number_of_fields; i ++)
 						{
-							add_random_field(0);
+							add_random_field(10000u);
 						}
 						// Re-set the expansion counter: an upgraded factory may expand further.
 						times_expanded = 0;
@@ -2101,6 +2103,7 @@ void fabrik_t::neuer_monat()
 						update_prodfactor_pax();
 						update_prodfactor_mail();
 						recalc_demands_at_target_cities();
+						welt->increase_actual_industry_density(100 / new_type->get_gewichtung());
 						sprintf(buf, translator::translate("Industry:\n%s\nhas been upgraded\nto industry:\n%s."), translator::translate(old_name), translator::translate(new_name));
 						welt->get_message()->add_message(buf, pos.get_2d(), message_t::industry, CITY_KI, skinverwaltung_t::neujahrsymbol->get_bild_nr(0));
 						return;
@@ -2108,6 +2111,7 @@ void fabrik_t::neuer_monat()
 				}
 			}
 
+			welt->closed_factories_this_month.append(this);
 			hausbauer_t::remove(welt, welt->get_spieler(1), gb);
 		}
 	}

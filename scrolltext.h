@@ -120,6 +120,7 @@
 " asaphxiix","beta testing",
 " almaf","beta testing",
 " treiskin","beta testing",
+" Sholong","beta testing",
 "","",
 "","",
 "Game Design Assistance:","",
