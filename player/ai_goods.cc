@@ -262,12 +262,12 @@ bool ai_goods_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length 
 				// Any halts here?
 				vector_tpl<koord> halts;
 				FOR(vector_tpl<koord>, const& j, one_more) {
-					halthandle_t const halt = haltestelle_t::get_halt(welt, j, this);
-					if( halt.is_bound() && !halts.is_contained(halt->get_basis_pos()) ) {
+					halthandle_t const halt = get_halt(j);
+					if(  halt.is_bound()  &&  !halts.is_contained(halt->get_basis_pos())  ) {
 						bool halt_connected = halt->get_fab_list().is_contained( fab );
-						FOR(slist_tpl<haltestelle_t::tile_t>, const& i, halt->get_tiles()) {
+						FOR(  slist_tpl<haltestelle_t::tile_t>, const& i, halt->get_tiles()  ) {
 							koord const pos = i.grund->get_pos().get_2d();
-							if( halt_connected || fab_tiles.is_contained(pos) ) {
+							if(  halt_connected  ||  fab_tiles.is_contained(pos)  ) {
 								halts.append_unique( pos );
 							}
 						}
@@ -379,7 +379,9 @@ bool ai_goods_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 
 	// must remove marker
 	grund_t* gr = welt->lookup_kartenboden(platz1);
-	if (gr) gr->obj_loesche_alle(this);
+	if (gr) {
+		gr->obj_loesche_alle(this);
+	}
 	// try to built dock
 	const haus_besch_t* h = hausbauer_t::get_random_station(haus_besch_t::hafen, water_wt, welt->get_timeline_year_month(), haltestelle_t::WARE);
 	if(h==NULL  ||  !call_general_tool(WKZ_STATION, platz1, h->get_name())) {
@@ -387,15 +389,15 @@ bool ai_goods_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 	}
 
 	// sea pos (and not on harbour ... )
-	halthandle_t halt = haltestelle_t::get_halt(welt,platz1,this);
+	halthandle_t halt = haltestelle_t::get_halt(welt,gr->get_pos(),this);
 	koord pos1 = platz1 - koord(gr->get_grund_hang())*h->get_groesse().y;
 	koord best_pos = pos1;
 	uint16 const cov = welt->get_settings().get_station_coverage();
-	for (int y = pos1.y - cov; y <= pos1.y + cov; ++y) {
-		for (int x = pos1.x - cov; x <= pos1.x + cov; ++x) {
+	for(  int y = pos1.y - cov; y <= pos1.y + cov; ++y  ) {
+		for(  int x = pos1.x - cov; x <= pos1.x + cov; ++x  ) {
 			koord p(x,y);
 			// in water, the water tiles have no halt flag!
-			if(welt->ist_in_kartengrenzen(p)  &&  !welt->lookup(p)->get_halt().is_bound()  &&  halt == haltestelle_t::get_halt(welt,p,this)  &&  koord_distance(best_pos,platz2)<koord_distance(p,platz2)  ) {
+			if(  halt == get_halt(p)  &&  koord_distance(best_pos,platz2)<koord_distance(p,platz2)  ) {
 				best_pos = p;
 			}
 		}
@@ -599,10 +601,10 @@ int ai_goods_t::baue_bahnhof(const koord* p, int anz_vehikel)
 	koord pos;
 	for(  pos=t-zv;  pos!=*p;  pos-=zv ) {
 		if(  make_all_bahnhof  ||
-			haltestelle_t::get_halt(welt,pos+koord(-1,-1),this).is_bound()  ||
-			haltestelle_t::get_halt(welt,pos+koord(-1, 1),this).is_bound()  ||
-			haltestelle_t::get_halt(welt,pos+koord( 1,-1),this).is_bound()  ||
-			haltestelle_t::get_halt(welt,pos+koord( 1, 1),this).is_bound()
+			get_halt(pos+koord(-1,-1)).is_bound()  ||
+			get_halt(pos+koord(-1, 1)).is_bound()  ||
+			get_halt(pos+koord( 1,-1)).is_bound()  ||
+			get_halt(pos+koord( 1, 1)).is_bound()
 		) {
 			// start building, if next to an existing station
 			make_all_bahnhof = true;
@@ -612,7 +614,7 @@ int ai_goods_t::baue_bahnhof(const koord* p, int anz_vehikel)
 	}
 	// now add the other squares (going backwards)
 	for(  pos=*p;  pos!=t;  pos+=zv ) {
-		if(  !haltestelle_t::get_halt(welt,pos,this).is_bound()  ) {
+		if(  !get_halt(pos).is_bound()  ) {
 			call_general_tool( WKZ_STATION, pos, besch->get_name() );
 		}
 	}
@@ -1117,8 +1119,8 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 			}
 			if(ship_vehicle) {
 				// only here, if we could built ships but no connection
-				halthandle_t start_halt = haltestelle_t::get_halt(welt,harbour,this);
-				if(start_halt.is_bound()  &&  (start_halt->get_station_type()&haltestelle_t::dock)!=0) {
+				halthandle_t start_halt = get_halt(harbour);
+				if(  start_halt.is_bound()  &&  (start_halt->get_station_type()&haltestelle_t::dock)!=0  ) {
 					// delete all ships on this line
 					vector_tpl<linehandle_t> lines;
 					simlinemgmt.get_lines( simline_t::shipline, &lines );

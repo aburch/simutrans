@@ -94,6 +94,8 @@ public:
 	void clean_marker( koord place, koord size );
 	void set_marker( koord place, koord size );
 
+	halthandle_t get_halt( const koord haltpos ) const;
+
 	/**
 	 * Find the first water tile using line algorithm von Hajo
 	 * start MUST be on land!
