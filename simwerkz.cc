@@ -3973,7 +3973,7 @@ void wkz_roadsign_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &st
 	}
 	signal_info const& s              = signal[sp->get_player_nr()];
 	uint8       const  signal_density = 2 * s.spacing;      // measured in half tiles (straight track count as 2, diagonal as 1, since sqrt(1/2) = 1/2 ;)
-	uint8              next_signal    = 2 * signal_density + 1; // to place a sign asap
+	uint8              next_signal    = signal_density + 1; // to place a sign asap
 	sint32             cost           = 0;
 	directions.clear();
 	// dummy roadsign to get images for preview
@@ -4005,9 +4005,11 @@ void wkz_roadsign_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &st
 		if (rs==NULL) {
 			rs = gr->find<roadsign_t>();
 		}
+
 		// check owner .. other signals...
-		next_signal += ribi_t::ist_gerade(ribi)? 2 : 1;
-		if(  next_signal >= 2*signal_density  /*&&  !ribi_t::ist_einfach(ribi)*/  ) {
+		bool straight = (i == 0)  ||  (i == route.get_count()-1)  ||  ribi_t::ist_gerade(ribi_typ(route.position_bei(i-1), route.position_bei(i+1)));
+		next_signal += straight ? 2 : 1;
+		if(  next_signal >= signal_density  ) {
 			// can we place signal here?
 			if (check_pos_intern(welt, sp, route.position_bei(i))==NULL  ||
 					(s.replace_other && rs && !rs->ist_entfernbar(sp))) {
