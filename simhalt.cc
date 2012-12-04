@@ -489,7 +489,7 @@ void haltestelle_t::set_name(const char *new_name)
 		}
 		if(!gr->find<label_t>()) {
 			gr->set_text( new_name );
-			if(new_name  &&  !all_names.put(gr->get_text(),self)) {
+			if(new_name  &&  all_names.set(gr->get_text(),self).is_bound() ) {
  				DBG_MESSAGE("haltestelle_t::set_name()","name %s already used!",new_name);
 			}
 		}
@@ -2559,7 +2559,7 @@ void haltestelle_t::laden_abschliessen()
 	}
 	else {
 		const char *current_name = bd->get_text();
-		if(  all_names.get(current_name).is_bound()  ) {
+		if(  all_names.get(current_name).is_bound()  &&  fabrik_t::get_fab(welt, get_basis_pos())==NULL  ) {
 			// try to get a new name ...
 			const char *new_name;
 			if(  station_type & airstop  ) {
@@ -2578,7 +2578,7 @@ void haltestelle_t::laden_abschliessen()
 			bd->set_text( new_name );
 			current_name = new_name;
 		}
-		all_names.put( current_name, self );
+		all_names.set( current_name, self );
 	}
 	recalc_status();
 	reconnect_counter = welt->get_schedule_counter()-1;
