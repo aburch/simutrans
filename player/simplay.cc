@@ -248,7 +248,7 @@ void spieler_t::step()
  * wird von welt nach jedem monat aufgerufen
  * @author Hj. Malthaner
  */
-void spieler_t::neuer_monat()
+bool spieler_t::neuer_monat()
 {
 	// since the messages must remain on the screen longer ...
 	static cbuffer_t buf;
@@ -318,6 +318,7 @@ void spieler_t::neuer_monat()
 			if(  no_cnv  ) {
 				ai_bankrupt();
 			}
+			return false; // remove immediately
 		}
 
 		// find out abandoned companies (no activity within x months)
@@ -334,7 +335,7 @@ void spieler_t::neuer_monat()
 				no_cnv = finance_history_year[y][COST_NEW_VEHICLE]==0;
 				no_construction = finance_history_year[y][COST_CONSTRUCTION]==0;
 			}
-			// never cahnge convoi, never build => abandoned
+			// never changed convoi, never built => abandoned
 			if(  no_cnv  ) {
 				pwd_hash.clear();
 				locked = false;
@@ -364,6 +365,7 @@ void spieler_t::neuer_monat()
 	else {
 		buche( -((sint64)maintenance) >> (18-welt->ticks_per_world_month_shift), COST_MAINTENANCE);
 	}
+	return true; // still active
 }
 
 

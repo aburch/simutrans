@@ -266,8 +266,9 @@ public:
 	/**
 	 * Wird von welt nach jedem monat aufgerufen
 	 * @author Hj. Malthaner
+	 * @returns false if player has to be removed (bankrupt/inactive)
 	 */
-	virtual void neuer_monat();
+	virtual bool neuer_monat();
 
 	/**
 	 * Methode fuer jaehrliche Aktionen

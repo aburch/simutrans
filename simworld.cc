@@ -2454,6 +2454,10 @@ bool karte_t::change_player_tool(uint8 cmd, uint8 player_nr, uint16 param, bool 
 			if ( (param != spieler_t::HUMAN  &&  !public_player_unlocked)  ||  param >= spieler_t::MAX_AI) {
 				return false;
 			}
+			// range check, player already existent?
+			if ( player_nr >= PLAYER_UNOWNED  ||   get_spieler(player_nr) ) {
+				return false;
+			}
 			if (exec) {
 				new_spieler( player_nr, param );
 				// activate/deactivate AI immediately
@@ -3334,36 +3338,41 @@ void karte_t::neuer_monat()
 
 	INT_CHECK("simworld 1282");
 
-//	DBG_MESSAGE("karte_t::neuer_monat()","players");
-	if(  letzter_monat == 0  &&  !settings.is_freeplay()  ) {
-		// remove all player (but first and second) who went bankrupt during last year
-		for(int i=2; i<MAX_PLAYER_COUNT-1; i++) {
+
+	// spieler
+	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
+		bool remove_player = false;
+		if(i>=2  &&  letzter_monat == 0  &&  !settings.is_freeplay()  ) {
+			// remove all player (but first and second) who went bankrupt during last year
 			if(  spieler[i] != NULL  &&
 				spieler[i]->get_finance_history_year(0,COST_NETWEALTH)<=0  &&
 				spieler[i]->get_finance_history_year(0,COST_MAINTENANCE)==0  &&
 				spieler[i]->get_maintenance()==0  &&
 				spieler[i]->get_finance_history_year(0,COST_ALL_CONVOIS)==0  )
 			{
-				delete spieler[i];
-				spieler[i] = 0;
-				// if currently still active => reset to default human
-				if(  i == active_player_nr  ) {
-					active_player_nr = 0;
-					active_player = spieler[0];
-				}
+				remove_player = true;
 			}
 		}
-		// update the window
-		ki_kontroll_t* playerwin = (ki_kontroll_t*)win_get_magic(magic_ki_kontroll_t);
-		if (playerwin) {
-			playerwin->update_data();
+
+		if(  spieler[i] != NULL  ) {
+			// if returns false -> remove player
+			remove_player = !spieler[i]->neuer_monat();
+		}
+
+		if (remove_player) {
+			delete spieler[i];
+			spieler[i] = 0;
+			// if currently still active => reset to default human
+			if(  i == active_player_nr  ) {
+				active_player_nr = 0;
+				active_player = spieler[0];
+			}
 		}
 	}
-	// spieler
-	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
-		if(  spieler[i] != NULL  ) {
-			spieler[i]->neuer_monat();
-		}
+	// update the window
+	ki_kontroll_t* playerwin = (ki_kontroll_t*)win_get_magic(magic_ki_kontroll_t);
+	if (playerwin) {
+		playerwin->update_data();
 	}
 
 	INT_CHECK("simworld 1289");
