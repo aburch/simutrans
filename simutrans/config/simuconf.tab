@@ -592,6 +592,9 @@ assume_everywhere_connected_by_road = 0
 
 city_isolation_factor = 32
 
+# Minimum distance of a city attraction to other special buildings
+special_building_distance = 2
+
 # Passengers will walk to their destination if it is close enough, rather than use
 # players' transport or private cars. This parameter defines how close that close
 # enough is. It is expressed in hundreds of meters (or tenths of kilometres), so
@@ -756,6 +759,9 @@ toolbar_max_height = 0
 # if 1, print the company name in front of a message
 add_player_name_to_message = 1
 
+# Chat window transparency (0=off, 25, 50 75 are possible)
+chat_transparency = 75
+
 ##################################w Window settings ##################################
 #
 # show the windows close etc. buttons on the right (like windows 98)
@@ -897,9 +903,6 @@ allow_purhcases_when_insolvent = 0
 # for Experimental compatible paksets).
 
 speed_bonus_multiplier_percent = 70
-
-# Minimum distance of a city attraction to other special buildings
-#special_building_distance = 3
 
 # Max. length of initial intercity road connections
 # If you want to speed up map creation, lower this value.
@@ -1274,6 +1277,3 @@ pause_server_no_clients = 1
 
 # Nickname when joining network games
 #nickname = John Doe
-
-# Chat window transparency (0=off, 25, 50 75 are possible)
-chat_transparency = 75
