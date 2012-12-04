@@ -395,7 +395,7 @@ bool network_init_server( int port )
 			dbg->fatal( "network_init_server()", "Call to getaddrinfo() failed for: \"%s\", error was: \"%s\" - check listen directive in simuconf.tab!", ip.c_str(), gai_strerror(ret) );
 		}
 		else {
-			dbg->message( "Attempting to bind listening sockets for: \"%s\"\n", ip.c_str() );
+			dbg->message( "network_init_server()", "Attempting to bind listening sockets for: \"%s\"\n", ip.c_str() );
 		}
 
 		SOCKET server_socket;
@@ -451,7 +451,7 @@ bool network_init_server( int port )
 				dbg->fatal( "network_init_server()", "Unable to set socket to listen for incoming connections on: \"%s\"", ipstr );
 			}
 
-			dbg->message("Added valid listen socket for address: \"%s\"\n", ipstr);
+			dbg->message( "network_init_server()", "Added valid listen socket for address: \"%s\"\n", ipstr);
 			socket_list_t::add_server( server_socket );
 		}
 		freeaddrinfo( server );
