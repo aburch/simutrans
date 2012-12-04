@@ -393,8 +393,9 @@ bool network_init_server( int port )
 		hints.ai_family = PF_UNSPEC;
 		if (  (ret = getaddrinfo( ip.c_str(), port_nr, &hints, &server )) != 0  ) {
 			dbg->fatal( "network_init_server()", "Call to getaddrinfo() failed for: \"%s\", error was: \"%s\" - check listen directive in simuconf.tab!", ip.c_str(), gai_strerror(ret) );
-		} else {
-			printf( "Attempting to bind listening sockets for: \"%s\"\n", ip.c_str() );
+		}
+		else {
+			dbg->message( "Attempting to bind listening sockets for: \"%s\"\n", ip.c_str() );
 		}
 
 		SOCKET server_socket;
@@ -408,7 +409,8 @@ bool network_init_server( int port )
 			// Correct size for salen parameter of getnameinfo call depends on address family
 			if (  walk->ai_family == AF_INET6  ) {
 				socklen = sizeof(struct sockaddr_in6);
-			} else {
+			}
+			else {
 				socklen = sizeof(struct sockaddr_in);
 			}
 
@@ -423,7 +425,7 @@ bool network_init_server( int port )
 			server_socket = socket( walk->ai_family, walk->ai_socktype, walk->ai_protocol );
 
 			if (  server_socket == INVALID_SOCKET  ) {
-				DBG_MESSAGE( "network_init_server()", "Could not create socket! Error: \"%s\"", strerror(GET_LAST_ERROR()) );
+				dbg->warning( "network_init_server()", "Could not create socket! Error: \"%s\"", strerror(GET_LAST_ERROR()) );
 				continue;
 			}
 
@@ -449,7 +451,7 @@ bool network_init_server( int port )
 				dbg->fatal( "network_init_server()", "Unable to set socket to listen for incoming connections on: \"%s\"", ipstr );
 			}
 
-			printf("Added valid listen socket for address: \"%s\"\n", ipstr);
+			dbg->message("Added valid listen socket for address: \"%s\"\n", ipstr);
 			socket_list_t::add_server( server_socket );
 		}
 		freeaddrinfo( server );
