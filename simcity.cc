@@ -591,10 +591,10 @@ void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb, bool ordered)
 					}
 					else {
 						if(  ordered  ) {
-							buildings.insert_ordered(add_gb, tile->get_besch()->get_level() + 1, compare_gebaeude_pos, 16);
+							buildings.insert_ordered(add_gb, tile->get_besch()->get_level() + 1, compare_gebaeude_pos);
 						}
 						else {
-							buildings.append(add_gb, tile->get_besch()->get_level() + 1, 16);
+							buildings.append(add_gb, tile->get_besch()->get_level() + 1);
 						}
 					}
 					add_gb->set_stadt(this);
@@ -623,7 +623,7 @@ void stadt_t::remove_gebaeude_from_stadt(gebaeude_t* gb)
 void stadt_t::update_gebaeude_from_stadt(gebaeude_t* gb)
 {
 	buildings.remove(gb);
-	buildings.append(gb, gb->get_tile()->get_besch()->get_level() + 1, 16);
+	buildings.append(gb, gb->get_tile()->get_besch()->get_level() + 1);
 }
 
 
@@ -992,7 +992,7 @@ stadt_t::~stadt_t()
 				stadt_t *city = welt->suche_naechste_stadt(gb->get_pos().get_2d());
 				gb->set_stadt( city );
 				if(city) {
-					city->buildings.append(gb,gb->get_passagier_level(),16);
+					city->buildings.append(gb, gb->get_passagier_level());
 				}
 			}
 			else {
@@ -1879,8 +1879,7 @@ void stadt_t::add_target_city(stadt_t *const city)
 {
 	target_cities.append(
 		city,
-		weight_by_distance( city->get_einwohner()+1, shortest_distance( get_center(), city->get_center() ) ),
-		64u
+		weight_by_distance( city->get_einwohner()+1, shortest_distance( get_center(), city->get_center() ) )
 	);
 }
 
@@ -1899,8 +1898,7 @@ void stadt_t::add_target_attraction(gebaeude_t *const attraction)
 	assert( attraction != NULL );
 	target_attractions.append(
 		attraction,
-		weight_by_distance( attraction->get_passagier_level() << 4, shortest_distance( get_center(), attraction->get_pos().get_2d() ) ),
-		64u
+		weight_by_distance( attraction->get_passagier_level() << 4, shortest_distance( get_center(), attraction->get_pos().get_2d() ) )
 	);
 }
 

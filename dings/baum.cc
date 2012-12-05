@@ -282,7 +282,7 @@ bool baum_t::alles_geladen()
 			// add this tree to climates
 			for(  uint8 j=0;  j<MAX_CLIMATES;  j++  ) {
 				if(  baum_typen[typ]->is_allowed_climate((climate)j)  ) {
-					baum_typen_per_climate[j].append(typ, baum_typen[typ]->get_distribution_weight(), /*extend weighted vector if necess by*/ 4 );
+					baum_typen_per_climate[j].append(typ, baum_typen[typ]->get_distribution_weight());
 				}
 			}
 			// create cache images

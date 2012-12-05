@@ -782,7 +782,7 @@ void karte_t::rem_convoi(convoihandle_t const cnv)
 void karte_t::add_stadt(stadt_t *s)
 {
 	settings.set_anzahl_staedte(settings.get_anzahl_staedte() + 1);
-	stadt.append(s, s->get_einwohner(), 64);
+	stadt.append(s, s->get_einwohner());
 
 	// Knightly : add links between this city and other cities as well as attractions
 	FOR(weighted_vector_tpl<stadt_t*>, const c, stadt) {
@@ -954,7 +954,7 @@ void karte_t::create_rivers( sint16 number )
 				last_koord = k;
 				// using h*h as weight would give mountian sources more preferences
 				// on the other hand most rivers do not string near summits ...
-				mountain_tiles.append( k, h, 256 );
+				mountain_tiles.append( k, h );
 			}
 		}
 	}
@@ -2814,7 +2814,7 @@ bool karte_t::rem_fab(fabrik_t *fab)
 void karte_t::add_ausflugsziel(gebaeude_t *gb)
 {
 	assert(gb != NULL);
-	ausflugsziele.append( gb, gb->get_tile()->get_besch()->get_level(), 16 );
+	ausflugsziele.append( gb, gb->get_tile()->get_besch()->get_level() );
 
 	// Knightly : add links between this attraction and all cities
 	FOR(weighted_vector_tpl<stadt_t*>, const c, stadt) {
@@ -4959,7 +4959,7 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 	stadt.resize(settings.get_anzahl_staedte());
 	for (int i = 0; i < settings.get_anzahl_staedte(); ++i) {
 		stadt_t *s = new stadt_t(this, file);
-		stadt.append( s, s->get_einwohner(), 64 );
+		stadt.append( s, s->get_einwohner());
 	}
 
 	DBG_MESSAGE("karte_t::laden()","loading blocks");
@@ -5174,7 +5174,7 @@ DBG_MESSAGE("karte_t::laden()", "laden_abschliesen for tiles finished" );
 	FOR(weighted_vector_tpl<stadt_t*>, const s, stadt) {
 		s->laden_abschliessen();
 		s->recalc_target_cities();
-		new_weighted_stadt.append(s, s->get_einwohner(), 64);
+		new_weighted_stadt.append(s, s->get_einwohner());
 		INT_CHECK("simworld 1278");
 	}
 	swap(stadt, new_weighted_stadt);

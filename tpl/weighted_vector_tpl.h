@@ -136,6 +136,8 @@ template<class T> class weighted_vector_tpl
 
 		/**
 		 * Appends the element at the end of the vector.
+		 * Extend if necessary.
+		 * @author prissi
 		 */
 		bool append(T elem, unsigned long weight)
 		{
@@ -145,32 +147,8 @@ template<class T> class weighted_vector_tpl
 				return false;
 			}
 #endif
-			if (count >= size) {
-				dbg->fatal("weighted_vector_tpl<T>::append()", "capacity %i exceeded.", size);
-				return false;
-			}
-			nodes[count].data   = elem;
-			nodes[count].weight = total_weight;
-			count++;
-			total_weight += weight;
-			return true;
-		}
-
-		/**
-		 * Appends the element at the end of the vector.
-		 * of out of spce, extend with this factor
-		 * @author prissi
-		 */
-		bool append(T elem, unsigned long weight, uint32 extend)
-		{
-#ifdef IGNORE_ZERO_WEIGHT
-			if (weight == 0) {
-				// ignore unused entries ...
-				return false;
-			}
-#endif
-			if (count == size) {
-				resize(count + extend);
+			if(  count == size  ) {
+				resize(size == 0 ? 1 : size * 2);
 			}
 			nodes[count].data   = elem;
 			nodes[count].weight = total_weight;
@@ -187,17 +165,8 @@ template<class T> class weighted_vector_tpl
 			return is_contained(elem) || append(elem, weight);
 		}
 
-		/**
-		 * Checks if element is contained. Appends only new elements.
-		 * extend vector if nessesary
-		 */
-		bool append_unique(T elem, unsigned long weight, uint32 extend)
-		{
-			return is_contained(elem) || append(elem, weight, extend);
-		}
-
 		/** inserts data at a certain pos */
-		bool insert_at(uint32 pos, T elem, unsigned long weight, uint32 extend = 1u)
+		bool insert_at(uint32 pos, T elem, unsigned long weight)
 		{
 #ifdef IGNORE_ZERO_WEIGHT
 			if (weight == 0) {
@@ -207,7 +176,7 @@ template<class T> class weighted_vector_tpl
 #endif
 			if (pos < count) {
 				if(  count==size  ) {
-					resize(size + extend);
+					resize(size == 0 ? 1 : size * 2);
 				}
 				for (uint32 i = count; i > pos; i--) {
 					nodes[i].data   = nodes[i - 1].data;
@@ -219,7 +188,7 @@ template<class T> class weighted_vector_tpl
 				return true;
 			}
 			else {
-				return append(elem, weight, 1);
+				return append(elem, weight);
 			}
 		}
 
@@ -227,10 +196,10 @@ template<class T> class weighted_vector_tpl
 		 * Insert `elem' with respect to ordering.
 		 */
 		template<class StrictWeakOrdering>
-		void insert_ordered(const T& elem, unsigned long weight, StrictWeakOrdering comp, uint32 extend = 1u)
+		void insert_ordered(const T& elem, unsigned long weight, StrictWeakOrdering comp)
 		{
 			if(  count==size  ) {
-				resize(size + extend);
+				resize(size == 0 ? 1 : size * 2);
 			}
 			sint32 high = count, low = -1;
 			while(  high-low>1  ) {
@@ -252,10 +221,10 @@ template<class T> class weighted_vector_tpl
 		 * Otherwise return the address of the element in conflict.
 		 */
 		template<class StrictWeakOrdering>
-		T* insert_unique_ordered(const T& elem, unsigned long weight, StrictWeakOrdering comp, uint32 extend = 1u)
+		T* insert_unique_ordered(const T& elem, unsigned long weight, StrictWeakOrdering comp)
 		{
 			if(  count==size  ) {
-				resize(size + extend);
+				resize(size == 0 ? 1 : size * 2);
 			}
 			sint32 high = count, low = -1;
 			while(  high-low>1  ) {
