@@ -27,9 +27,6 @@ char const* network_receive_file(SOCKET const s, char const* const save_as, long
 		display_set_progress_text(translator::translate("Transferring game ..."));
 		display_progress(0, length);
 	}
-	else {
-		printf("\n");fflush(NULL);
-	}
 #endif
 
 	// good place to show a progress bar

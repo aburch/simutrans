@@ -2493,7 +2493,7 @@ uint8 wkz_wayremover_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord3
 	if(is_scenario()) {
 		error = welt->get_scenario()->is_work_allowed_here(sp, get_id(), wt, pos);
 		if (error) {
-			printf(error);
+			dbg->warning("wkz_wayremover_t::is_valid_pos()", error);
 			return 0;
 		}
 	}
