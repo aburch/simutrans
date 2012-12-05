@@ -2830,7 +2830,7 @@ bool haltestelle_t::add_grund(grund_t *gr)
 	}
 
 	if(  welt->lookup(pos)->get_halt() != self  ||  !gr->is_halt()  ) {
-		dbg->error( "haltestelle_t::add_grund()", "no ground added to (%s)", pos.get_str() );
+		dbg->error( "haltestelle_t::add_grund()", "no ground added to (%s)", gr->get_pos().get_str() );
 	}
 	init_pos = tiles.front().grund->get_pos().get_2d();
 	welt->set_schedule_counter();
