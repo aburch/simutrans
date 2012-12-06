@@ -138,6 +138,22 @@ uint32 simrand(const uint32 max, const char*)
 #endif
 }
 
+/* Generates a random number on [0,max-1] interval with a normal distribution*/
+#ifdef DEBUG_SIMRAND_CALLS
+uint32 simrand_normal(const uint32 max, const char* caller)
+#else
+uint32 simrand_normal(const uint32 max, const char*)
+#endif
+{
+	const uint32 half_max = max / 2;
+#ifdef DEBUG_SIMRAND_CALLS
+	return (simrand(half_max, caller) + simrand(half_max, "simrand_normal"));
+#else
+	return (simrand(half_max, "simrand_normal") + simrand(half_max, "simrand_normal"));
+#endif
+}
+
+
 void clear_random_mode( uint16 mode )
 {
 	random_origin &= ~mode;

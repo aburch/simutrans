@@ -3057,7 +3057,7 @@ void stadt_t::step_passagiere()
 	// "post or generate pax"
 	const ware_besch_t *const wtyp = (simrand(400, "void stadt_t::step_passagiere() (mail or passengers?"))<300 ? warenbauer_t::passagiere : warenbauer_t::post;
 	const city_cost history_type = (wtyp == warenbauer_t::passagiere) ? HIST_PAS_TRANSPORTED : HIST_MAIL_TRANSPORTED;
-	factory_set_t &target_factories = (  wtyp==warenbauer_t::passagiere ? target_factories_pax : target_factories_mail );
+	factory_set_t &target_factories = ( wtyp==warenbauer_t::passagiere ? target_factories_pax : target_factories_mail );
 
 	// restart at first buiulding?
 	if (step_count >= buildings.get_count()) 
@@ -3159,10 +3159,11 @@ void stadt_t::step_passagiere()
 				wtyp != warenbauer_t::passagiere ? 
 				0 : 
 				range == local ? 
-					simrand(max_local_tolerance, "void stadt_t::step_passagiere() (local tolerance?)") + min_local_tolerance : 
+					simrand_normal(max_local_tolerance, "void stadt_t::step_passagiere() (local tolerance?)") + min_local_tolerance : 
 				range == midrange ? 
-					simrand(max_midrange_tolerance, "void stadt_t::step_passagiere() (midrange tolerance?)") + min_midrange_tolerance : 
-				simrand(max_longdistance_tolerance, "void stadt_t::step_passagiere() (longdistance tolerance?)") + min_longdistance_tolerance;
+					simrand_normal(max_midrange_tolerance, "void stadt_t::step_passagiere() (midrange tolerance?)") + min_midrange_tolerance : 
+				/*longdistance*/
+				simrand_normal(max_longdistance_tolerance, "void stadt_t::step_passagiere() (longdistance tolerance?)") + min_longdistance_tolerance;
 			destination destinations[16];
 			for(int destinations_assigned = 0; destinations_assigned <= destination_count; destinations_assigned ++)
 			{				
