@@ -559,17 +559,8 @@ void grund_t::set_halt(halthandle_t halt)
 		if(  get_weg_ribi(water_wt)  ||  ist_wasser()  ||  (welt->get_climate(pos.z)==water_climate  &&  !ist_im_tunnel()  &&  get_typ()!=brueckenboden)  ) {
 			add = (halt->get_station_type() & haltestelle_t::dock) > 0;
 		}
-		else {
-			add = halt->get_station_type()==0  ||  (halt->get_station_type() & ~haltestelle_t::dock) > 0;
-			if(  !add  ) {
-				if(  const gebaeude_t* gb = find<gebaeude_t>()  ) {
-					// always allow extensions
-					add = gb->get_tile()->get_besch()->get_utyp() == haus_besch_t::generic_extension;
-				}
-			}
-		}
 	}
-	// teh add or remove halt flag
+	// then add or remove halt flag
 	if(  add  ) {
 		flags |= is_halt_flag|dirty;
 	}
