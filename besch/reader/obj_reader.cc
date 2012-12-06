@@ -228,7 +228,7 @@ void obj_reader_t::read_file(const char *name)
 			read_nodes(fp, data, 0, version );
 		}
 		else {
-			DBG_DEBUG("obj_reader_t::read_file()","version of '%s' is too old, %d instead of %d", version, COMPILER_VERSION_CODE, name);
+			DBG_DEBUG("obj_reader_t::read_file()","version of '%s' is too old, %d instead of %d", name, version, COMPILER_VERSION_CODE );
 		}
 		fclose(fp);
 	}
