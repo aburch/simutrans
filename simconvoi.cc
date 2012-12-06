@@ -2086,6 +2086,9 @@ void convoi_t::rdwr(loadsave_t *file)
 						gr->find<crossing_t>()->add_to_crossing(v);
 					}
 				}
+				if(  gr->get_top()>253  ) {
+					dbg->warning( "convoi_t::rdwr()", "cannot put vehicle on ground at (%s)", gr->get_pos().get_str() );
+				}
 				gr->obj_add(v);
 				v->clear_flag(ding_t::not_on_map);
 			}
@@ -2550,7 +2553,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 
 	// now find out station length
 	int station_length=0;
-	if(gr->ist_wasser()) {
+	if(  gr->ist_wasser()  ) {
 		// harbour has any size
 		station_length = 24*16;
 	}

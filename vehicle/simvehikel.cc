@@ -3137,6 +3137,10 @@ bool schiff_t::ist_weg_frei(int &restart_speed,bool)
 			cnv->suche_neue_route();
 			return false;
 		}
+		if(  gr->get_top()>251  ) {
+			// too many ships already here ..
+			return false;
+		}
 		weg_t *w = gr->get_weg(water_wt);
 		if(w  &&  w->is_crossing()) {
 			// ok, here is a draw/turnbridge ...

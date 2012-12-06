@@ -426,7 +426,10 @@ void grund_t::rotate90()
 	slope = hang_t::rotate90( slope );
 	// then rotate the things on this tile
 	uint8 trees = 0, offset = 0;
-	for(  int i=0;  i<dinge.get_top();  i++  ) {
+	if(  get_top()==254  ) {
+		dbg->warning( "grund_t::rotate90()", "Too many stuff on (%s)", pos.get_str() );
+	}
+	for(  uint8 i=0;  i<dinge.get_top();  i++  ) {
 		obj_bei(i)->rotate90();
 		if (obj_bei(i)->get_typ() == ding_t::baum) {
 			trees++;

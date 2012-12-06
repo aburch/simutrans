@@ -171,7 +171,7 @@ dingliste_t::~dingliste_t()
 }
 
 
-void dingliste_t::set_capacity(uint8 new_cap)
+void dingliste_t::set_capacity(uint16 new_cap)
 {
 	// DBG_MESSAGE("dingliste_t::set_capacity()", "old cap=%d, new cap=%d", capacity, new_cap);
 
@@ -238,13 +238,13 @@ bool dingliste_t::grow_capacity()
 		set_capacity( 4 );
 		return true;
 	}
-	else if(capacity>=240) {
+	else if(capacity>=254) {
 		// capacity exceeded ... (and no need for THAT many objects here ... )
 		return false;
 	}
 	else {
 		// size exeeded, needs to extent
-		uint8 new_cap = ((uint16)capacity+4)&0x0FC;
+		uint16 new_cap = ((uint16)capacity+4)&0x0FC;
 		set_capacity( new_cap );
 		return true;
 	}
