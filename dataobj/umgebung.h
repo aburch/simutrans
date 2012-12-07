@@ -92,10 +92,6 @@ public:
 	static std::string server_pakurl;
 	/// Link to further information about server
 	static std::string server_infurl;
-	/// Location to load server_info from
-	static std::string server_info_file;
-	/// Information displayed to clients on joining server
-	static std::string server_info;
 
 	/// @} end of Information about server
 

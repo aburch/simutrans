@@ -859,11 +859,9 @@ void vehikel_t::remove_stale_freight()
 		}
 
 		FOR(slist_tpl<ware_t>, const& c, kill_queue) {
-			fabrik_t::update_transit( &c, false );
 			fracht.remove(c);
 		}
 	}
-	sum_weight =  get_fracht_gewicht() + besch->get_gewicht();
 }
 
 
@@ -1326,7 +1324,6 @@ void vehikel_t::loesche_fracht()
 		fabrik_t::update_transit( &w, false );
 	}
 	fracht.clear();
-	sum_weight =  besch->get_gewicht();
 }
 
 

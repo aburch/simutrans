@@ -2113,6 +2113,7 @@ void fabrik_t::rotate90( const sint16 y_size )
 	pos_origin.rotate90( y_size );
 	pos_origin.x -= besch->get_haus()->get_b(rotate)-1;
 	pos.rotate90( y_size );
+	dbg->warning("fabrik_t::rotate90", "pos = (%s) pos_org = (%s)", pos.get_str(), pos_origin.get_2d().get_str());
 
 	FOR(vector_tpl<koord>, & i, lieferziele) {
 		i.rotate90(y_size);

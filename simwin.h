@@ -88,7 +88,6 @@ enum magic_numbers {
 	magic_labellist,
 	magic_station_building_select,
 	magic_server_frame_t,
-	magic_server_info_frame_t,
 	magic_pakset_info_t,
 	magic_schedule_rdwr_dummy,	// only used to save/load schedules
 	magic_line_schedule_rdwr_dummy,	// only used to save/load line schedules

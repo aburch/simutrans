@@ -989,24 +989,6 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		umgebung_t::server_admin_pw = ref_str;
 	}
 
-	// If it exists read in the file containing server information (HTML)
-	chdir(umgebung_t::program_dir);
-	FILE* sinfofile = fopen( umgebung_t::server_info_file.c_str(), "rb" );
-	if (  sinfofile  ) {
-		fseek( sinfofile, 0, SEEK_END );
-		long len = ftell( sinfofile );
-		if (  len > 0  ) {
-			char* const buf = MALLOCN(char, len + 1);
-			fseek( sinfofile, 0, SEEK_SET );
-			fread( buf, 1, len, sinfofile );
-			buf[len] = '\0';
-			umgebung_t::server_info = buf;
-			free( buf );
-			dbg->warning("simmain", "server info read from file: \"%s\"", umgebung_t::server_info_file.c_str());
-		}
-		fclose( sinfofile );
-	}
-
 	chdir(umgebung_t::user_dir);
 
 	// reset random counter to true randomness

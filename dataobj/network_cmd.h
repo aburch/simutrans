@@ -15,7 +15,6 @@ class socket_info_t;
 enum {
 	NWC_INVALID   = 0,
 	NWC_GAMEINFO,
-	NWC_SERVERINFO,
 	NWC_NICK,
 	NWC_CHAT,
 	NWC_JOIN,
