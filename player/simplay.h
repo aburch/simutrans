@@ -107,6 +107,9 @@ protected:
 	// remember the starting money
 	sint64 starting_money;
 
+	// when was the company founded
+	uint16 player_age;
+
 	/**
 	 * Zählt wie viele Monate das Konto schon ueberzogen ist
 	 *

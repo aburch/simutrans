@@ -84,6 +84,7 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 	starting_money = konto;
 
 	konto_ueberzogen = 0;
+	player_age = 0;
 	automat = false;		// Start nicht als automatischer Spieler
 	locked = false;	/* allowe to change anything */
 	unlock_pending = false;
@@ -280,7 +281,7 @@ bool spieler_t::neuer_monat()
 
 				// for AI, we only declare bankrupt, if total assets are below zero
 				if(finance_history_year[0][COST_NETWEALTH]<0) {
-					ai_bankrupt();
+					return false;
 				}
 				// tell the current player (even during networkgames)
 				if(  welt->get_active_player_nr()==player_nr  ) {
@@ -304,11 +305,11 @@ bool spieler_t::neuer_monat()
 
 	if(  umgebung_t::networkmode  &&  player_nr>1  &&  !automat  ) {
 		// find out dummy companies (i.e. no vehicle running within x months)
-		if(  welt->get_settings().get_remove_dummy_player_months()  )  {
+		if(  welt->get_settings().get_remove_dummy_player_months()  &&  player_age >= welt->get_settings().get_remove_dummy_player_months()  )  {
 			const uint16 months = min( 12,  welt->get_settings().get_remove_dummy_player_months() );
 			bool no_cnv = true;
 			for(  uint16 m=0;  m<months  &&  no_cnv;  m++  ) {
-				no_cnv = finance_history_month[m][COST_ALL_CONVOIS]==0;
+				no_cnv = finance_history_month[m][COST_ALL_CONVOIS]==0 && finance_history_month[m][COST_ALL_CONVOIS];
 			}
 			const uint16 years = max( MAX_PLAYER_HISTORY_YEARS,  (welt->get_settings().get_remove_dummy_player_months() - 1) / 12 );
 			for(  uint16 y=0;  y<years  &&  no_cnv;  y++  ) {
@@ -316,13 +317,12 @@ bool spieler_t::neuer_monat()
 			}
 			// never run a convoi => dummy
 			if(  no_cnv  ) {
-				ai_bankrupt();
+				return false; // remove immediately
 			}
-			return false; // remove immediately
 		}
 
 		// find out abandoned companies (no activity within x months)
-		if(  welt->get_settings().get_remove_dummy_player_months()  )  {
+		if(  welt->get_settings().get_unprotect_abondoned_player_months()  &&  player_age >= welt->get_settings().get_unprotect_abondoned_player_months()  )  {
 			const uint16 months = min( 12,  welt->get_settings().get_remove_dummy_player_months() );
 			bool no_cnv = finance_history_month[0][COST_NEW_VEHICLE]==0;
 			bool no_construction = finance_history_month[0][COST_CONSTRUCTION]==0;
@@ -350,6 +350,8 @@ bool spieler_t::neuer_monat()
 	if(welt->get_last_month()==0) {
 		roll_finance_history_year();
 	}
+	// company gets older ...
+	player_age ++;
 
 	// new month has started => recalculate vehicle value
 	calc_assets();
@@ -992,8 +994,13 @@ DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this 
 	}
 
 	// save the name too
-	if(file->get_version()>102003) {
+	if(  file->get_version() > 102003  ) {
 		file->rdwr_str( spieler_name_buf, lengthof(spieler_name_buf) );
+	}
+
+	// save age
+	if(  file->get_version() >= 112002  ) {
+		player_age;
 	}
 }
 

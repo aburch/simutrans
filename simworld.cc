@@ -3359,7 +3359,8 @@ void karte_t::neuer_monat()
 			remove_player = !spieler[i]->neuer_monat();
 		}
 
-		if (remove_player) {
+		if(  remove_player  ) {
+			spieler[i]->ai_bankrupt();
 			delete spieler[i];
 			spieler[i] = 0;
 			// if currently still active => reset to default human
@@ -3371,7 +3372,7 @@ void karte_t::neuer_monat()
 	}
 	// update the window
 	ki_kontroll_t* playerwin = (ki_kontroll_t*)win_get_magic(magic_ki_kontroll_t);
-	if (playerwin) {
+	if(  playerwin  ) {
 		playerwin->update_data();
 	}
 
