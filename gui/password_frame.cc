@@ -72,6 +72,10 @@ password_frame_t::password_frame_t( spieler_t *sp ) :
 bool password_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 {
 	if(komp == &password  &&  (ibuf[0]!=0  ||  p.i == 1)) {
+		if (sp->is_unlock_pending()) {
+			// unlock already pending, do not do everything twice
+			return true;
+		}
 		// Enter-Key pressed
 		// test for matching password to unlock
 		SHA1 sha1;
