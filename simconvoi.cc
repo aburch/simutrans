@@ -480,6 +480,11 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 		}
 		fpl->eingabe_abschliessen();
 	}
+	// remove wrong freight
+	for(unsigned i=0; i<anz_vehikel; i++) {
+		fahr[i]->remove_stale_freight();
+	}
+	calc_loading();
 	// some convois had wrong old direction in them
 	if(  state<DRIVING  ||  state==LOADING  ) {
 		alte_richtung = fahr[0]->get_fahrtrichtung();
@@ -525,6 +530,7 @@ void convoi_t::rotate90( const sint16 y_size )
 	for(  int i=0;  i<anz_vehikel;  i++  ) {
 		fahr[i]->remove_stale_freight();
 	}
+	calc_loading();
 	freight_info_resort = true;
 }
 
@@ -1596,6 +1602,7 @@ bool convoi_t::set_schedule(schedule_t * f)
 	for(unsigned i=0; i<anz_vehikel; i++) {
 		fahr[i]->remove_stale_freight();
 	}
+	calc_loading();
 	freight_info_resort = true;
 
 	// ok, now we have a schedule
@@ -3066,14 +3073,17 @@ void convoi_t::check_pending_updates()
 		}
 
 		if (state != INITIAL) {
+			// remove wrong freight
+			for(uint8 i=0; i<anz_vehikel; i++) {
+				fahr[i]->remove_stale_freight();
+			}
+			calc_loading();
+			freight_info_resort = true;
+
 			if(is_same  ||  is_depot) {
 				/* same destination
-				 * We are already there => remove wrong freight and keep current state
+				 * We are already there => keep current state
 				 */
-				for(uint8 i=0; i<anz_vehikel; i++) {
-					fahr[i]->remove_stale_freight();
-				}
-				freight_info_resort = true;
 			}
 			else {
 				// need re-routing

@@ -18,6 +18,7 @@
 #include "../dataobj/umgebung.h"
 #include "../player/simplay.h"
 #include "../gui/player_frame_t.h"
+#include "../gui/help_frame.h"
 #include "../utils/cbuffer_t.h"
 #include "../utils/csv.h"
 
@@ -33,6 +34,7 @@ network_command_t* network_command_t::read_from_packet(packet_t *p)
 	network_command_t* nwc = NULL;
 	switch (p->get_id()) {
 		case NWC_GAMEINFO:    nwc = new nwc_gameinfo_t(); break;
+		case NWC_SERVERINFO:  nwc = new nwc_serverinfo_t(); break;
 		case NWC_NICK:	      nwc = new nwc_nick_t(); break;
 		case NWC_CHAT:	      nwc = new nwc_chat_t(); break;
 		case NWC_JOIN:	      nwc = new nwc_join_t(); break;
@@ -246,6 +248,30 @@ void nwc_nick_t::server_tools(karte_t *welt, uint32 client_id, uint8 what, const
 	// since init always returns false, it is safe to delete immediately
 	delete w;
 }
+
+
+
+void nwc_serverinfo_t::rdwr()
+{
+	network_command_t::rdwr();
+	packet->rdwr_str( serverinfo );
+
+	dbg->message("nwc_serverinfo_t::rdwr", "rdwr serverinfo=%s", serverinfo.c_str());
+}
+
+bool nwc_serverinfo_t::execute(karte_t*)
+{
+	if (  !umgebung_t::server  ) {
+		// Client, show server info window
+		dbg->warning( "received serverinfo from server: %s", serverinfo );
+		help_frame_t* sinfoframe = new help_frame_t();
+		sinfoframe->set_text( serverinfo.c_str(), false );
+		create_win( sinfoframe, w_info, magic_server_info_frame_t );
+
+	}
+	return true;
+}
+
 
 
 void nwc_chat_t::rdwr()
@@ -762,7 +788,6 @@ void nwc_sync_t::do_command(karte_t *welt)
 				dbg->warning( "nwc_sync_t::do_command", "send of NWC_READY failed" );
 			}
 		}
-		nwc_join_t::pending_join_client = INVALID_SOCKET;
 	}
 	// restore screen coordinates & offsets
 	welt->change_world_position(ij, xoff, yoff);
@@ -772,6 +797,17 @@ void nwc_sync_t::do_command(karte_t *welt)
 		if (spieler_t *sp = welt->get_spieler(i)) {
 			sp->unlock(player_unlocked & (1<<i));
 		}
+	}
+
+	if (  umgebung_t::server  ) {
+		// Send server info to newly joined client
+		if (  umgebung_t::server_info.length() > 0  ) {
+			nwc_serverinfo_t* sinfo = new nwc_serverinfo_t( umgebung_t::server_info.c_str() );
+			sinfo->send( nwc_join_t::pending_join_client );
+			delete sinfo;
+		}
+
+		nwc_join_t::pending_join_client = INVALID_SOCKET;
 	}
 }
 

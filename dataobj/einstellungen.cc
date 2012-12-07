@@ -843,6 +843,9 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	if(  *contents.get("server_infurl")  ) {
 		umgebung_t::server_infurl = ltrim(contents.get("server_infurl"));
 	}
+	if(  *contents.get("server_info_file")  ) {
+		umgebung_t::server_info_file = ltrim(contents.get("server_info_file"));
+	}
 	if(  *contents.get("server_admin_pw")  ) {
 		umgebung_t::server_admin_pw = ltrim(contents.get("server_admin_pw"));
 	}

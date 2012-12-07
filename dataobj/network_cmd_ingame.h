@@ -32,6 +32,21 @@ public:
 };
 
 /**
+ * nwc_serverinfo_t
+ * @from-client: does nothing
+ * @from-server:
+ *      @data html formatted info to display in info window
+ */
+class nwc_serverinfo_t : public network_command_t {
+public:
+	nwc_serverinfo_t( const char* info = NULL) : network_command_t(NWC_SERVERINFO), serverinfo(info) {}
+	virtual bool execute(karte_t *);
+	virtual void rdwr();
+	virtual const char* get_name() { return "nwc_gameinfo_t";}
+	plainstring serverinfo;
+};
+
+/**
  * nwc_nick_t
  * @from-client: client sends new nickname,
  *               server checks if nickname is already taken,

@@ -659,6 +659,10 @@ fast_forward = 50
 # Server info URL (for display on the list server)
 #server_infurl = http://your.domain/server-info.html
 
+# File containing server info (displayed to all clients upon joining)
+# This should be a file containing HTML data
+server_info_file = serverinfo.txt
+
 # Pause server when no clients are connected
 #pause_server_no_clients = 1
 

@@ -34,6 +34,8 @@ std::string umgebung_t::server_comments;
 std::string umgebung_t::server_email;
 std::string umgebung_t::server_pakurl;
 std::string umgebung_t::server_infurl;
+std::string umgebung_t::server_info_file = "server_info.txt";
+std::string umgebung_t::server_info;
 std::string umgebung_t::server_admin_pw;
 vector_tpl<std::string> umgebung_t::listen;
 
