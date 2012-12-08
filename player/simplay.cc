@@ -1000,7 +1000,7 @@ DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this 
 
 	// save age
 	if(  file->get_version() >= 112002  ) {
-		player_age;
+		file->rdwr_short( player_age );
 	}
 }
 
