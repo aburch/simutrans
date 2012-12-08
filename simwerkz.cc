@@ -5724,6 +5724,10 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 		dbg->warning("wkz_change_convoi_t::init", "no convoy with id=%d found", convoi_id);
 		return false;
 	}
+	// ownership check for network games
+	if (cnv.is_bound()  &&  umgebung_t::networkmode  &&  !spieler_t::check_owner(cnv->get_besitzer(), sp)) {
+		return false;
+	}
 
 	// first letter is now the actual command
 	switch(  tool  ) {
@@ -5790,10 +5794,6 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 			break;
 
 		case 'n': // change no_load
-			if(  sp!=welt->get_active_player()  &&  !umgebung_t::networkmode  ) {
-				// pop up error message here!
-				return false;
-			}
 			cnv->set_no_load( !cnv->get_no_load() );
 			if(  !cnv->get_no_load()  ) {
 				cnv->set_withdraw( false );
@@ -5813,10 +5813,6 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 			break;
 
 		case 'w': // change withdraw
-			if(  sp!=welt->get_active_player()  &&  !umgebung_t::networkmode  ) {
-				// pop up error message here!
-				return false;
-			}
 			cnv->set_withdraw( !cnv->get_withdraw() );
 			cnv->set_no_load( cnv->get_withdraw() );
 			break;
@@ -5870,6 +5866,11 @@ bool wkz_change_line_t::init( karte_t *, spieler_t *sp )
 
 	linehandle_t line;
 	line.set_id( line_id );
+
+	// ownership check for network games
+	if (line.is_bound()  &&  umgebung_t::networkmode  && !spieler_t::check_owner(line->get_besitzer(), sp)) {
+		return false;
+	}
 
 	// first letter is now the actual command
 	switch(  tool  ) {
@@ -6169,7 +6170,7 @@ bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
  * 'f' : activates/deactivates freeplay
  * 'c' : change player color
  */
-bool wkz_change_player_t::init( karte_t *welt, spieler_t * )
+bool wkz_change_player_t::init( karte_t *welt, spieler_t *sp)
 {
 	if(  default_param==NULL  ) {
 		dbg->warning( "wkz_change_player_t::init()", "nothing to do!" );
@@ -6187,25 +6188,25 @@ bool wkz_change_player_t::init( karte_t *welt, spieler_t * )
 	}
 	sscanf( p, "%c,%i,%i", &tool, &id, &state );
 
+	spieler_t *player = welt->get_spieler(id);
+
 	// ok now do our stuff
 	switch(  tool  ) {
-		case 'n': // new player with type state
-			dbg->error( "wkz_change_player_t::init()", "deprecated command called" );
-			break;
 		case 'a': // activate/deactivate AI
-			if(welt->get_spieler(id)  &&  welt->get_spieler(id)->get_ai_id()!=spieler_t::HUMAN) {
-				welt->get_spieler(id)->set_active(state);
-				welt->get_settings().set_player_active(id, welt->get_spieler(id)->is_active());
+			if(  player  &&  player->get_ai_id()!=spieler_t::HUMAN  &&  (sp==welt->get_spieler(1)  ||  !umgebung_t::networkmode)  ) {
+				player->set_active(state);
+				welt->get_settings().set_player_active(id, player->is_active());
 			}
 			break;
 		case 'c': // change player color
-			if(  welt->get_spieler(id)  ) {
+			if(  player  &&  player==sp  ) {
 				int c1, c2, dummy;
 				sscanf( p, "%c,%i,%i,%i", &tool, &dummy, &c1, &c2 );
-				welt->get_spieler(id)->set_player_color( c1, c2 );
+				player->set_player_color( c1, c2 );
 			}
 			break;
-		case 'f': // activate/deactivate freeplay
+		case 'n': // WAS: new player with type state
+		case 'f': // WAS: activate/deactivate freeplay
 			dbg->error( "wkz_change_player_t::init()", "deprecated command called" );
 			break;
 	}
@@ -6267,8 +6268,11 @@ bool wkz_change_traffic_light_t::init( karte_t *welt, spieler_t *sp )
  * change city:
  * g[x],[y],[allow_city_growth]
  */
-bool wkz_change_city_t::init( karte_t *welt, spieler_t * )
+bool wkz_change_city_t::init( karte_t *welt, spieler_t *sp )
 {
+	if (sp != welt->get_spieler(1)) {
+		return false;
+	}
 	koord pos;
 	sint16 allow_growth;
 	if(  3!=sscanf( default_param, "g%hi,%hi,%hi", &pos.x, &pos.y, &allow_growth )  ) {
@@ -6342,7 +6346,7 @@ bool wkz_rename_t::init(karte_t* const welt, spieler_t *sp)
 		{
 			halthandle_t halt;
 			halt.set_id( id );
-			if(  halt.is_bound()  ) {
+			if(  halt.is_bound()  &&  (!umgebung_t::networkmode  ||  spieler_t::check_owner(halt->get_besitzer(), sp))  ) {
 				halt->set_name( p );
 				return false;
 			}
@@ -6353,7 +6357,7 @@ bool wkz_rename_t::init(karte_t* const welt, spieler_t *sp)
 		{
 			linehandle_t line;
 			line.set_id( id );
-			if(  line.is_bound()  ) {
+			if(  line.is_bound()  &&  (!umgebung_t::networkmode  ||  spieler_t::check_owner(line->get_besitzer(), sp))  ) {
 				line->set_name( p );
 
 				schedule_list_gui_t *sl = dynamic_cast<schedule_list_gui_t *>(win_get_magic(magic_line_management_t+sp->get_player_nr()));
@@ -6369,7 +6373,7 @@ bool wkz_rename_t::init(karte_t* const welt, spieler_t *sp)
 		{
 			convoihandle_t cnv;
 			cnv.set_id( id );
-			if(  cnv.is_bound()  ) {
+			if(  cnv.is_bound()  &&  (!umgebung_t::networkmode  ||  spieler_t::check_owner(cnv->get_besitzer(), sp))  ) {
 				//  set name without ID
 				cnv->set_name( p, false );
 				return false;
@@ -6379,7 +6383,7 @@ bool wkz_rename_t::init(karte_t* const welt, spieler_t *sp)
 
 		case 't':
 		{
-			if(  id<welt->get_staedte().get_count()  ) {
+			if(  sp == welt->get_spieler(1)  &&   id<welt->get_staedte().get_count()  ) {
 				welt->get_staedte()[id]->set_name( p );
 				return false;
 			}
@@ -6388,31 +6392,38 @@ bool wkz_rename_t::init(karte_t* const welt, spieler_t *sp)
 
 		case 'm':
 			if(  grund_t *gr = welt->lookup(pos)  ) {
-				gr->set_text(p);
+				label_t *label = gr->find<label_t>();
+				if (label  &&  (!umgebung_t::networkmode  ||  spieler_t::check_owner(label->get_besitzer(), sp))  ) {
+					gr->set_text(p);
+				}
 				return false;
 			}
 			break;
 
-		case 'p':
-			if(  welt->get_spieler((uint8)id)  ) {
-				welt->get_spieler((uint8)id)->set_name(p);
+		case 'p': {
+			spieler_t *other = welt->get_spieler((uint8)id);
+			if(  other  &&  other == sp  ) {
+				other->set_name(p);
 				return false;
 			}
+		}
 
 		case 'f':
 		{
-			if(  grund_t *gr = welt->lookup(pos)  ) {
-				if(  gebaeude_t* gb = gr->find<gebaeude_t>()  ) {
-					if (  fabrik_t *fab = gb->get_fabrik()  ) {
-						fab->set_name(p);
-						return false;
+			if(  sp == welt->get_spieler(1)) {
+				if(  grund_t *gr = welt->lookup(pos)  ) {
+					if(  gebaeude_t* gb = gr->find<gebaeude_t>()  ) {
+						if (  fabrik_t *fab = gb->get_fabrik()  ) {
+							fab->set_name(p);
+							return false;
+						}
 					}
 				}
 			}
 		}
 	}
 	// we are only getting here, if we could not process this request
-	dbg->error( "wkz_rename_t::init", "could not perform (%s)", default_param );
+	dbg->warning( "wkz_rename_t::init", "could not perform (%s)", default_param );
 	return false;
 }
 
