@@ -411,6 +411,11 @@ int simu_main(int argc, char** argv)
 			" -lang CODE          starts with specified language\n"
 			" -load FILE[.sve]    loads game in file 'save/FILE.sve'\n"
 			" -log                enables logging to file 'simu.log'\n"
+#ifdef SYSLOG
+			" -syslog             enable logging to syslog\n"
+			"                     mutually exclusive with -log\n"
+			" -tag TAG            sets syslog tag (default 'simutrans')\n"
+#endif
 			" -noaddons           does not load any addon (default)\n"
 			" -nomidi             turns off background music\n"
 			" -nosound            turns off ambient sounds\n"
@@ -502,6 +507,63 @@ int simu_main(int argc, char** argv)
 	}
 	chdir( umgebung_t::user_dir );
 
+
+#ifdef REVISION
+	const char *version = "Simutrans version " VERSION_NUMBER " from " VERSION_DATE " r" QUOTEME(REVISION) "\n";
+#else
+	const char *version = "Simutrans version " VERSION_NUMBER " from " VERSION_DATE "\n";
+#endif
+
+
+	/*** Begin logging set up ***/
+
+#ifdef SYSLOG
+	bool cli_syslog_enabled = (gimme_arg( argc, argv, "-syslog", 0 ) != NULL);
+	const char* cli_syslog_tag = gimme_arg( argc, argv, "-tag", 1 );
+#else //SYSLOG
+	bool cli_syslog_enabled = false;
+	const char* cli_syslog_tag = NULL;
+#endif //SYSLOG
+
+	umgebung_t::verbose_debug = 0;
+	if(  gimme_arg(argc, argv, "-debug", 0) != NULL  ) {
+		const char *s = gimme_arg(argc, argv, "-debug", 1);
+		int level = 4;
+		if(s!=NULL  &&  s[0]>='0'  &&  s[0]<='9'  ) {
+			level = atoi(s);
+		}
+		umgebung_t::verbose_debug = level;
+	}
+
+	if (  cli_syslog_enabled  ) {
+		printf("syslog enabled\n");
+		if (  cli_syslog_tag  ) {
+			printf("Init logging with syslog tag: %s\n", cli_syslog_tag);
+			init_logging( "syslog", true, true, version, cli_syslog_tag );
+		} else {
+			printf("Init logging with default syslog tag\n");
+			init_logging( "syslog", true, true, version, "simutrans" );
+		}
+	} else if (gimme_arg(argc, argv, "-log", 0)) {
+		chdir( umgebung_t::user_dir );
+		char temp_log_name[256];
+		const char *logname = "simu.log";
+		if(  gimme_arg(argc, argv, "-server", 0)  ) {
+			const char *p = gimme_arg(argc, argv, "-server", 1);
+			int portadress = p ? atoi( p ) : 13353;
+			sprintf( temp_log_name, "simu-server%d.log", portadress==0 ? 13353 : portadress );
+			logname = temp_log_name;
+		}
+		init_logging( logname, true, gimme_arg(argc, argv, "-log", 0 ) != NULL, version, NULL );
+	} else if (gimme_arg(argc, argv, "-debug", 0) != NULL) {
+		init_logging( "stderr", true, gimme_arg(argc, argv, "-debug", 0 ) != NULL, version, NULL );
+	} else {
+		init_logging(NULL, false, false, version, NULL);
+	}
+
+	/*** End logging set up ***/
+
+
 	// now read last setting (might be overwritten by the tab-files)
 	loadsave_t file;
 	if(file.rd_open("settings.xml"))  {
@@ -544,16 +606,6 @@ int simu_main(int argc, char** argv)
 		umgebung_t::default_einstellungen.set_freeplay( true );
 	}
 
-	umgebung_t::verbose_debug = 0;
-	if(  gimme_arg(argc, argv, "-debug", 0) != NULL  ) {
-		const char *s = gimme_arg(argc, argv, "-debug", 1);
-		int level = 4;
-		if(s!=NULL  &&  s[0]>='0'  &&  s[0]<='9'  ) {
-			level = atoi(s);
-		}
-		umgebung_t::verbose_debug = level;
-	}
-
 	// now set the desired objectfilename (overide all previous settings)
 	if (gimme_arg(argc, argv, "-objects", 1)) {
 		umgebung_t::objfilename = gimme_arg(argc, argv, "-objects", 1);
@@ -570,27 +622,6 @@ int simu_main(int argc, char** argv)
 		}
 	}
 
-#ifdef REVISION
-	const char *version = "Simutrans version " VERSION_NUMBER " from " VERSION_DATE " r" QUOTEME(REVISION) "\n";
-#else
-	const char *version = "Simutrans version " VERSION_NUMBER " from " VERSION_DATE "\n";
-#endif
-	if (gimme_arg(argc, argv, "-log", 0)) {
-		chdir( umgebung_t::user_dir );
-		char temp_log_name[256];
-		const char *logname = "simu.log";
-		if(  gimme_arg(argc, argv, "-server", 0)  ) {
-			const char *p = gimme_arg(argc, argv, "-server", 1);
-			int portadress = p ? atoi( p ) : 13353;
-			sprintf( temp_log_name, "simu-server%d.log", portadress==0 ? 13353 : portadress );
-			logname = temp_log_name;
-		}
-		init_logging( logname, true, gimme_arg(argc, argv, "-log", 0 ) != NULL, version );
-	} else if (gimme_arg(argc, argv, "-debug", 0) != NULL) {
-		init_logging( "stderr", true, gimme_arg(argc, argv, "-debug", 0 ) != NULL, version );
-	} else {
-		init_logging(NULL, false, false, version);
-	}
 
 	// starting a server?
 	if(  gimme_arg(argc, argv, "-server", 0)  ) {
@@ -689,7 +720,7 @@ int simu_main(int argc, char** argv)
 		}
 	}
 
-	printf("Preparing display ...\n");
+	dbg->important("Preparing display ...");
 	DBG_MESSAGE("simmain", "simgraph_init disp_width=%d, disp_height=%d, fullscreen=%d", disp_width, disp_height, fullscreen);
 	simgraph_init(disp_width, disp_height, fullscreen);
 	DBG_MESSAGE("simmain", ".. results in disp_width=%d, disp_height=%d", display_get_width(), display_get_height());
@@ -727,7 +758,7 @@ int simu_main(int argc, char** argv)
 	if(  simuconf.open(obj_conf.c_str())  ) {
 		sint16 idummy;
 		string dummy;
-		printf("parse_simuconf() at %s: ", obj_conf.c_str());
+		dbg->important("parse_simuconf() at %s: ", obj_conf.c_str());
 		umgebung_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 		pak_diagonal_multiplier = umgebung_t::default_einstellungen.get_pak_diagonal_multiplier();
 		pak_tile_height = TILE_HEIGHT_STEP;
@@ -738,7 +769,7 @@ int simu_main(int argc, char** argv)
 	if (simuconf.open(obj_conf.c_str())) {
 		sint16 idummy;
 		string dummy;
-		printf("parse_simuconf() at %s: ", obj_conf.c_str());
+		dbg->important("parse_simuconf() at %s: ", obj_conf.c_str());
 		umgebung_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 		simuconf.close();
 	}
@@ -759,14 +790,14 @@ int simu_main(int argc, char** argv)
 		sint16 idummy;
 		string dummy;
 		if (simuconf.open(obj_conf.c_str())) {
-			printf("parse_simuconf() at %s: ", obj_conf.c_str());
+			dbg->important("parse_simuconf() at %s: ", obj_conf.c_str());
 			umgebung_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 			simuconf.close();
 		}
 		// and parse user settings again ...
 		obj_conf = string(umgebung_t::user_dir) + "simuconf.tab";
 		if (simuconf.open(obj_conf.c_str())) {
-			printf("parse_simuconf() at %s: ", obj_conf.c_str());
+			dbg->important("parse_simuconf() at %s: ", obj_conf.c_str());
 			umgebung_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 			simuconf.close();
 		}
@@ -783,7 +814,7 @@ int simu_main(int argc, char** argv)
 
 	// just check before loading objects
 	if (!gimme_arg(argc, argv, "-nosound", 0)  &&  dr_init_sound()) {
-		printf("Reading compatibility sound data ...\n");
+		dbg->important("Reading compatibility sound data ...");
 		sound_besch_t::init();
 	}
 	else {
@@ -821,17 +852,17 @@ int simu_main(int argc, char** argv)
 	sprachengui_t::init_font_from_lang();
 	chdir(umgebung_t::program_dir);
 
-	printf("Reading city configuration ...\n");
+	dbg->important("Reading city configuration ...");
 	stadt_t::cityrules_init(umgebung_t::objfilename);
 
-	printf("Reading speedbonus configuration ...\n");
+	dbg->important("Reading speedbonus configuration ...");
 	vehikelbauer_t::speedbonus_init(umgebung_t::objfilename);
 
-	printf("Reading menu configuration ...\n");
+	dbg->important("Reading menu configuration ...");
 	werkzeug_t::init_menu();
 
 	// loading all paks
-	printf("Reading object data from %s...\n", umgebung_t::objfilename.c_str());
+	dbg->important("Reading object data from %s...", umgebung_t::objfilename.c_str());
 	obj_reader_t::load(umgebung_t::objfilename.c_str(), translator::translate("Loading paks ...") );
 	if(  umgebung_t::default_einstellungen.get_with_private_paks()  ) {
 		// try to read addons from private directory
@@ -846,7 +877,7 @@ int simu_main(int argc, char** argv)
 	pakset_info_t::calculate_checksum();
 	pakset_info_t::debug();
 
-	printf("Reading menu configuration ...\n");
+	dbg->important("Reading menu configuration ...");
 	werkzeug_t::read_menu(umgebung_t::objfilename);
 
 	if(  translator::get_language()==-1  ) {
@@ -874,7 +905,7 @@ int simu_main(int argc, char** argv)
 		else {
 			buf.printf( SAVE_PATH_X "%s", searchfolder_t::complete(name, "sve").c_str() );
 		}
-		printf( "loading savegame \"%s\"\n", name );
+		dbg->important( "loading savegame \"%s\"", name );
 		loadgame = buf;
 		new_world = false;
 	}
@@ -930,10 +961,10 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 	// init midi before loading sounds
 	if(  dr_init_midi()  ) {
-		printf("Reading midi data ...\n");
+		dbg->important("Reading midi data ...");
 		if(!midi_init(umgebung_t::user_dir)) {
 			if(!midi_init(umgebung_t::program_dir)) {
-				printf("Midi disabled ...\n");
+				dbg->important("Midi disabled ...");
 			}
 		}
 		if(gimme_arg(argc, argv, "-nomidi", 0)) {
@@ -941,7 +972,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		}
 	}
 	else {
-		printf("Midi disabled ...\n");
+		dbg->important("Midi disabled ...");
 		midi_set_mute(true);
 	}
 
@@ -1089,7 +1120,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		check_midi();
 
 		if(  !umgebung_t::networkmode  &&  new_world  ) {
-			printf( "Show banner ... \n" );
+			dbg->important( "Show banner ... " );
 			ticker::add_msg("Welcome to Simutrans", koord::invalid, PLAYER_FLAG + 1);
 			modal_dialogue( new banner_t(welt), magic_none, welt, never_quit );
 			// only show new world, if no other dialoge is active ...
@@ -1113,7 +1144,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 				break;
 			}
 		}
-		printf( "Running world, pause=%i, fast forward=%i ... \n", welt->is_paused(), welt->is_fast_forward() );
+		dbg->important( "Running world, pause=%i, fast forward=%i ... ", welt->is_paused(), welt->is_fast_forward() );
 		loadgame = ""; // only first time
 
 		// run the loop
@@ -1125,7 +1156,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		welt->set_pause(false);
 		setsimrand(dr_time(), dr_time());
 
-		printf( "World finished ...\n" );
+		dbg->important( "World finished ..." );
 	}
 
 	intr_disable();

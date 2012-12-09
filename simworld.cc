@@ -762,7 +762,7 @@ DBG_MESSAGE("karte_t::destroy()", "attraction list destroyed");
 assert( depot_t::get_depot_list().empty() );
 
 DBG_MESSAGE("karte_t::destroy()", "world destroyed");
-	printf("World destroyed.\n");
+	dbg->important("World destroyed.");
 }
 
 
@@ -1014,7 +1014,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing rivers");
 		create_rivers(settings.get_river_number());
 	}
 
-printf("Creating cities ...\n");
+dbg->important("Creating cities ...");
 DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 	vector_tpl<koord> *pos = stadt_t::random_place(this, new_anzahl_staedte, old_x, old_y);
 
@@ -1087,9 +1087,6 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 							old_progress ++;
 							display_progress(old_progress, max_display_progress);
 						}
-						else {
-							printf("*");fflush(NULL);
-						}
 						not_updated = true;
 					}
 					current_month += diff;
@@ -1100,9 +1097,6 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 				if(is_display_init()) {
 					old_progress ++;
 					display_progress(old_progress, max_display_progress);
-				}
-				else {
-					printf("*");fflush(NULL);
 				}
 			}
 
@@ -1496,7 +1490,7 @@ DBG_DEBUG("karte_t::init()","built timeline");
 
 	nosave_warning = nosave = false;
 
-	printf("Creating factories ...\n");
+	dbg->important("Creating factories ...");
 	fabrikbauer_t::neue_karte(this);
 	// new system ...
 	int const max_display_progress = 16 + settings.get_anzahl_staedte() * 4 + settings.get_factory_count();
@@ -1520,7 +1514,7 @@ DBG_DEBUG("karte_t::init()","built timeline");
 	// tourist attractions
 	fabrikbauer_t::verteile_tourist(this, settings.get_tourist_attractions());
 
-	printf("Preparing startup ...\n");
+	dbg->important("Preparing startup ...");
 	if(zeiger == 0) {
 		zeiger = new zeiger_t(this, koord3d::invalid, NULL );
 	}

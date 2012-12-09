@@ -13,6 +13,7 @@
 	ADD: player without new buidling/replacing activities can lose password protection
 	ADD: logging of ip/nickname of company creators
 	ADD: nettool commands to lock, unlock, remove a company
+	ADD: (Timothy) support for syslog (compile flag -DSYSLOG, command-line option -syslog)
 
 
 Release of 112.0: (r6000 on 22-Oct-2012):
