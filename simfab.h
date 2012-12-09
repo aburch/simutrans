@@ -375,7 +375,7 @@ private:
 
 public:
 	fabrik_t(karte_t *welt, loadsave_t *file);
-	fabrik_t(koord3d pos, spieler_t* sp, const fabrik_besch_t* fabesch);
+	fabrik_t(koord3d pos, spieler_t* sp, const fabrik_besch_t* fabesch, sint32 initial_prod_base);
 	~fabrik_t();
 
 	/**

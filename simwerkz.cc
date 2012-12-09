@@ -4525,18 +4525,19 @@ const char *wkz_build_industries_land_t::work( karte_t *welt, spieler_t *sp, koo
 	}
 
 	if(hat_platz) {
+		// eventually adjust production
+		sint32 initial_prod = -1;
+		if (!strempty(default_param)) {
+			initial_prod = atol(default_param+2)>>(welt->ticks_per_world_month_shift-18);
+		}
+
 		koord3d k = gr->get_pos();
-		int anzahl = fabrikbauer_t::baue_hierarchie(NULL, fab, rotation, &k, welt->get_spieler(1), 10000 );
+		int anzahl = fabrikbauer_t::baue_hierarchie(NULL, fab, initial_prod, rotation, &k, welt->get_spieler(1), 10000 );
 
 		if(anzahl>0) {
 			// at least one factory has been built
 			welt->change_world_position( k );
 			spieler_t::accounting(sp, anzahl * welt->get_settings().cst_multiply_found_industry, k.get_2d(), COST_CONSTRUCTION);
-
-			// eventually adjust production
-			if (!strempty(default_param)) {
-				fabrik_t::get_fab(welt,k.get_2d())->set_base_production( atol(default_param+2)>>(welt->ticks_per_world_month_shift-18) );
-			}
 
 			// crossconnect all?
 			if (welt->get_settings().is_crossconnect_factories()) {
@@ -4592,19 +4593,17 @@ const char *wkz_build_industries_city_t::work( karte_t *welt, spieler_t *sp, koo
 		return "";
 	}
 
-// process ignore climates switch (not possible for chains!)
-//	climate_bits cl = (default_param  &&  default_param[0]=='1') ? ALL_CLIMATES : fab->get_haus()->get_allowed_climate_bits();
+	// eventually adjust production
+	sint32 initial_prod = -1;
+	if (!strempty(default_param)) {
+		initial_prod = atol(default_param+2)>>(welt->ticks_per_world_month_shift-18);
+	}
 
 	k = gr->get_pos();
-	int anzahl = fabrikbauer_t::baue_hierarchie(NULL, fab, false, &k, welt->get_spieler(1), 10000 );
+	int anzahl = fabrikbauer_t::baue_hierarchie(NULL, fab, initial_prod, 0, &k, welt->get_spieler(1), 10000 );
 	if(anzahl>0) {
 		// at least one factory has been built
 		welt->change_world_position( k );
-
-		// eventually adjust production
-		if (!strempty(default_param)) {
-			fabrik_t::get_fab(welt,k.get_2d())->set_base_production( atol(default_param+2)>>(welt->ticks_per_world_month_shift-18) );
-		}
 
 		// crossconnect all?
 		if (welt->get_settings().is_crossconnect_factories()) {
@@ -4689,16 +4688,17 @@ const char *wkz_build_factory_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 	}
 
 	if(hat_platz) {
-		fabrik_t *f = fabrikbauer_t::baue_fabrik(welt, NULL, fab, rotation, gr->get_pos(), welt->get_spieler(1));
+		// eventually adjust production
+		sint32 initial_prod = -1;
+		if (!strempty(default_param)) {
+			initial_prod = atol(default_param+2)>>(welt->ticks_per_world_month_shift-18);
+		}
+
+		fabrik_t *f = fabrikbauer_t::baue_fabrik(welt, NULL, fab, initial_prod, rotation, gr->get_pos(), welt->get_spieler(1));
 		if(f) {
 			// at least one factory has been built
 			welt->change_world_position( k );
 			spieler_t::accounting(sp, welt->get_settings().cst_multiply_found_industry, k.get_2d(), COST_CONSTRUCTION);
-
-			// eventually adjust production
-			if (!strempty(default_param)) {
-				f->set_base_production( max(1,atol(default_param+2)>>(welt->ticks_per_world_month_shift-18)) );
-			}
 
 			// crossconnect all?
 			if (welt->get_settings().is_crossconnect_factories()) {

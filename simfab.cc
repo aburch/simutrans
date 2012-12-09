@@ -667,7 +667,7 @@ fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
 }
 
 
-fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabesch) :
+fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabesch, sint32 initial_prod_base) :
 	besch(fabesch),
 	pos(pos_)
 {
@@ -679,7 +679,12 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 	prodfactor_electric = 0;
 	prodfactor_pax = 0;
 	prodfactor_mail = 0;
-	prodbase = besch->get_produktivitaet() + simrand(besch->get_bereich());
+	if (initial_prod_base < 0) {
+		prodbase = besch->get_produktivitaet() + simrand(besch->get_bereich());
+	}
+	else {
+		prodbase = initial_prod_base;
+	}
 
 	delta_sum = 0;
 	delta_menge = 0;
@@ -778,10 +783,19 @@ void fabrik_t::baue(sint32 rotate, bool build_fields)
 			}
 		}
 		else if(  build_fields  ) {
+			// make sure not to exceed initial prodbase too much
+			sint32 org_prodbase = prodbase;
 			// we will start with a minimum number and try to get closer to start_fields
 			const uint16 spawn_fields = besch->get_field_group()->get_min_fields() + simrand( besch->get_field_group()->get_start_fields()-besch->get_field_group()->get_min_fields() );
 			while(  fields.get_count() < spawn_fields  &&  add_random_field(10000u)  ) {
+				if (fields.get_count() > besch->get_field_group()->get_min_fields()  &&  prodbase >= 2*org_prodbase) {
+					// too much productivity, no more fields needed
+					break;
+				}
 			}
+			sint32 field_prod = prodbase - org_prodbase;
+			// adjust prodbase
+			set_base_production( max(field_prod, org_prodbase) );
 		}
 	}
 }
