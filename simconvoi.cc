@@ -1141,7 +1141,7 @@ bool convoi_t::drive_to()
 	{
 		koord3d start = fahr[0]->get_pos();
 		koord3d ziel = fpl->get_current_eintrag().pos;
-		const bool destination_is_nonreversing_waypoint = !fpl->get_current_eintrag().reverse && !haltestelle_t::get_halt(welt, ziel, get_besitzer()).is_bound() && !welt->lookup(ziel)->get_depot();
+		const bool destination_is_nonreversing_waypoint = !fpl->get_current_eintrag().reverse && !haltestelle_t::get_halt(welt, ziel, get_besitzer()).is_bound() && (!welt->lookup(ziel) || !welt->lookup(ziel)->get_depot());
 
 		// avoid stopping midhalt
 		if(  start==ziel  ) {
