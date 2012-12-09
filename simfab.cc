@@ -2097,13 +2097,19 @@ void fabrik_t::laden_abschliessen()
 		}
 	}
 
-	recalc_storage_capacities();
-	update_scaled_electric_amount();
-	update_scaled_pax_demand();
-	update_scaled_mail_demand();
-	update_prodfactor_pax();
-	update_prodfactor_mail();
-	recalc_demands_at_target_cities();
+	// adjust production base to be at least as large as fields productivity
+	uint32 prodbase_adjust = 1;
+	const field_group_besch_t *fb = besch->get_field_group();
+	if(fb) {
+		for(uint32 i=0; i<fields.get_count(); i++) {
+			const field_class_besch_t *fc = fb->get_field_class( fields[i].field_class_index );
+			if (fc) {
+				prodbase_adjust += fc->get_field_production();
+			}
+		}
+	}
+	// set production, update all production related numbers
+	set_base_production( max(prodbase, prodbase_adjust) );
 }
 
 
