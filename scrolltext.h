@@ -49,6 +49,7 @@
 " Isidoro","vehicle replacement",
 " Hanczar","profiling, fixes",
 " Ansgar","Linux builds, patches",
+" Lefthand","patches",
 " Nathan Samson","patches",
 " Yobbobandana","patches",
 " Carl Baker","patches",
