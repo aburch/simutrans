@@ -3363,10 +3363,17 @@ void karte_t::neuer_monat()
 			spieler[i]->ai_bankrupt();
 			delete spieler[i];
 			spieler[i] = 0;
+			// if default human, create new instace of it (to avoid crashes)
+			if(  i == 0  ) {
+				spieler[0] = new spieler_t( this, 0 );
+			}
 			// if currently still active => reset to default human
 			if(  i == active_player_nr  ) {
 				active_player_nr = 0;
 				active_player = spieler[0];
+				if(  !umgebung_t::server  ) {
+					create_win( display_get_width()/2-128, 40, new news_img("Bankrott:\n\nDu bist bankrott.\n"), w_info, magic_none);
+				}
 			}
 		}
 	}

@@ -508,12 +508,12 @@ void nwc_ready_t::rdwr()
 	checklist.rdwr(packet);
 }
 
+
 void nwc_game_t::rdwr()
 {
 	network_command_t::rdwr();
 	packet->rdwr_long(len);
 }
-
 
 
 void nwc_auth_player_t::rdwr()
@@ -617,12 +617,14 @@ network_world_command_t::network_world_command_t(uint16 id, uint32 sync_step, ui
 	this->map_counter = map_counter;
 }
 
+
 void network_world_command_t::rdwr()
 {
 	network_command_t::rdwr();
 	packet->rdwr_long(sync_step);
 	packet->rdwr_long(map_counter);
 }
+
 
 bool network_world_command_t::execute(karte_t *welt)
 {
@@ -648,12 +650,14 @@ bool network_world_command_t::execute(karte_t *welt)
 	return false;
 }
 
+
 void nwc_sync_t::rdwr()
 {
 	network_world_command_t::rdwr();
 	packet->rdwr_long(client_id);
 	packet->rdwr_long(new_map_counter);
 }
+
 
 // save, load, pause, if server send game
 void nwc_sync_t::do_command(karte_t *welt)
@@ -779,6 +783,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 		}
 	}
 }
+
 
 void nwc_check_t::rdwr()
 {
@@ -964,6 +969,7 @@ void nwc_tool_t::pre_execute()
 		// append to command queue
 		dbg->message("nwc_tool_t::pre_execute", "append sync_step=%d wkz=%d %s", get_sync_step(), wkz_id, init ? "init" : "work");
 }
+
 
 network_broadcast_world_command_t* nwc_tool_t::clone(karte_t *welt)
 {
