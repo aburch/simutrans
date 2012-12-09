@@ -22,6 +22,7 @@
 #include "../simworld.h"
 #include "../simskin.h"
 #include "../dataobj/translator.h"
+#include "../dataobj/umgebung.h"
 #include "../utils/simstring.h"
 
 
@@ -88,7 +89,8 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	add_komponente(&scrolly);
 
 	set_min_windowsize(koord(total_width, D_TITLEBAR_HEIGHT+scrolly.get_pos().y+LINESPACE*5+D_MARGIN_BOTTOM));
-	set_fenstergroesse(koord(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+scrolly.get_pos().y+fab_info.get_groesse().y+D_MARGIN_BOTTOM ));
+	KOORD_VAL y = min( D_TITLEBAR_HEIGHT+scrolly.get_pos().y+fab_info.get_groesse().y+D_MARGIN_BOTTOM,  display_get_height() - umgebung_t::iconsize.y - 16);
+	set_fenstergroesse(koord(D_DEFAULT_WIDTH, y ));
 
 	set_resizemode(diagonal_resize);
 	resize(koord(0,0));
