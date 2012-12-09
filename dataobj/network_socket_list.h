@@ -5,12 +5,40 @@
 #include "network_address.h"
 #include "../tpl/slist_tpl.h"
 #include "../tpl/vector_tpl.h"
-#include <string>
+#include "../utils/plainstring.h"
 
 class network_command_t;
 class packet_t;
 
-class socket_info_t {
+
+/**
+ * Class to store pairs of (address, nickname) for logging and admin purposes.
+ */
+class connection_info_t {
+public:
+	/// address of connection
+	net_address_t address;
+
+	/// client nickname
+	plainstring nickname;
+
+	connection_info_t() : address(), nickname() {}
+
+	connection_info_t(const connection_info_t& other) : address(other.address), nickname(other.nickname) {}
+
+	template<class F> void rdwr(F *packet)
+	{
+		address.rdwr(packet);
+		packet->rdwr_str(nickname);
+	}
+
+	static bool compare(connection_info_t const* a, connection_info_t const* b);
+
+	bool operator==(const connection_info_t& other) const;
+};
+
+
+class socket_info_t : public connection_info_t {
 private:
 	packet_t *packet;
 	slist_tpl<packet_t *> send_queue;
@@ -29,11 +57,7 @@ public:
 
 	SOCKET socket;
 
-	net_address_t address;
-
-	std::string nickname;
-
-	socket_info_t() : packet(0), send_queue(), state(inactive), socket(INVALID_SOCKET), address(), player_unlocked(0) {}
+	socket_info_t() : connection_info_t(), packet(0), send_queue(), state(inactive), socket(INVALID_SOCKET), player_unlocked(0) {}
 
 	~socket_info_t();
 

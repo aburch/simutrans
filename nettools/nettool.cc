@@ -25,6 +25,7 @@
 #include "../simversion.h"
 #include "../utils/simstring.h"
 #include "../utils/fetchopt.h"
+#include "../utils/sha1.h"
 
 
 // dummy implementation
@@ -88,16 +89,74 @@ void echo(bool on) {
 }
 #endif
 
+/**
+ * Sets nwcs.flag = command_id, text to argv[1], number to argv[0].
+ * @returns true upon success
+ */
+bool fill_nwc_service(nwc_service_t &nwcs, uint32 command_id, int argc, char **argv)
+{
+	nwcs.flag = command_id;
+	switch (argc) {
+		case 2: // second argument is a string
+			if (argv[1]) {
+				nwcs.text = strdup( argv[1] );
+			}
 
+		case 1: // first argument is a positive number
+			{
+				int _n = atoi(argv[0]);
+				if (_n >=0) {
+					nwcs.number = _n;
+				}
+				else {
+					return false;
+				}
+			}
+		default: break;
+	}
+	return true;
+}
 
 // Simple commands specify only a command ID to perform an action on the server
-int simple_command(SOCKET socket, uint32 command_id, int, char **) {
+int simple_command(SOCKET socket, uint32 command_id, int argc, char **argv) {
 	nwc_service_t nwcs;
-	nwcs.flag = command_id;
+	if (  !fill_nwc_service(nwcs, command_id, argc, argv)  ) {
+		return 3;
+	}
+
 	if (!nwcs.send(socket)) {
 		fprintf(stderr, "Could not send request!\n");
 		return 2;
 	}
+	return 0;
+}
+
+// Simple command to send command ID to server and receive and print a text buffer
+int simple_gettext_command(SOCKET socket, uint32 command_id, int argc, char **argv) {
+	nwc_service_t nwcs;
+	if (  !fill_nwc_service(nwcs, command_id, argc, argv)  ) {
+		return 3;
+	}
+	if (!nwcs.send(socket)) {
+		fprintf(stderr, "Could not send request!\n");
+		return 2;
+	}
+	nwc_service_t *nws = (nwc_service_t*)network_receive_command(NWC_SERVICE);
+	if (nws==NULL) {
+		return 3;
+	}
+	if (nws->flag != command_id) {
+		delete nws;
+		return 3;
+	}
+
+	if (nws->text) {
+		printf(nws->text);
+	}
+	else {
+		printf("Nothing received.\n");
+	}
+	delete nws;
 	return 0;
 }
 
@@ -268,6 +327,63 @@ int say(SOCKET socket, uint32 command_id, int argc, char **argv) {
 	return 0;
 }
 
+int lock_company(SOCKET socket, uint32, int argc, char **argv)
+{
+	// player number
+	int _n = atoi(argv[0]);
+	if (_n < 0  ||  _n >= 15 /*PLAYER_UNOWNED*/ ) {
+		return 3;
+	}
+	uint8 player_nr = _n;
+	// password source
+	bool pwd_from_cl = strcmp(argv[1], "-F") != 0;
+	if (!pwd_from_cl  &&  argc<3) {
+		return 3;
+	}
+	const char* password = NULL;
+	// password
+	if (pwd_from_cl) {
+		password = argv[1];
+	}
+	else {
+		if (strcmp(argv[2], "-")==0) {
+			// Read password from stdin
+			char* password_in = MALLOCN(char, 256);
+			fprintf(stderr, "Password: ");
+			echo(false);
+			scanf("%255s", password_in);
+			echo(true);
+			printf("\n");
+			password = password_in;
+		}
+		else if (FILE* const fd = fopen(argv[2], "r")) {
+			// malloc ok here as utility is short-lived so no need to free()
+			size_t const size = 256;
+			char* password_in = MALLOCN(char, size);
+			fgets(password_in, size, fd);
+			password_in[strcspn(password_in, "\n")] = '\0';
+			fclose(fd);
+			password = password_in;
+		}
+		else {
+			return 3;
+		}
+	}
+	printf("new password: %s\n",password);
+
+	SHA1 sha1;
+	sha1.Input(password, strlen(password));
+	pwd_hash_t pwd_hash;
+	pwd_hash.set( sha1 );
+	// now send nwc_auth_t command
+	nwc_auth_player_t nwca(player_nr, pwd_hash);
+	if (!nwca.send(socket)) {
+		fprintf(stderr, "Could not send request!\n");
+		return 2;
+	}
+	return 0;
+}
+
 // Print usage and exit
 void usage()
 {
@@ -290,6 +406,22 @@ void usage()
 		"\n"
 		"      clients\n"
 		"        Receive list of playing clients from server\n"
+		"\n"
+		"      companies\n"
+		"        Receive list of running companies from server\n"
+		"\n"
+		"      info-company <company number>\n"
+		"        Show detailed info for company\n"
+		"\n"
+		"      lock-company <company number> <new password>\n"
+		"      lock-company <company number> -F <filename>\n"
+		"        Set password, read from file if specified (use '-' to read from stdin)\n"
+		"\n"
+		"      unlock-company <company number>\n"
+		"        Clear password of company, effectively unlocking it for all clients\n"
+		"\n"
+		"      remove-company <company number>\n"
+		"        Immediately remove company and all its belongings\n"
 		"\n"
 		"      kick-client <client number>\n"
 		"      ban-client  <client number>\n"
@@ -410,7 +542,12 @@ int main(int argc, char* argv[]) {
 		{"unban-ip",    true,  nwc_service_t::SRVC_UNBAN_IP,        1, &unban_ip},
 		{"say",         true,  nwc_service_t::SRVC_ADMIN_MSG,       1, &say},
 		{"shutdown",    true,  nwc_service_t::SRVC_SHUTDOWN,        0, &simple_command},
-		{"force-sync",  true,  nwc_service_t::SRVC_FORCE_SYNC,      0, &simple_command}
+		{"force-sync",  true,  nwc_service_t::SRVC_FORCE_SYNC,      0, &simple_command},
+		{"companies",      true,  nwc_service_t::SRVC_GET_COMPANY_LIST, 0, &simple_gettext_command},
+		{"info-company",   true,  nwc_service_t::SRVC_GET_COMPANY_INFO, 1, &simple_gettext_command},
+		{"unlock-company", true,  nwc_service_t::SRVC_UNLOCK_COMPANY,   1, &simple_command},
+		{"remove-company", true,  nwc_service_t::SRVC_REMOVE_COMPANY,   1, &simple_command},
+		{"lock-company",   true,  nwc_service_t::SRVC_LOCK_COMPANY,     2, &lock_company}
 	};
 	int numcommands = lengthof(commands);
 
@@ -477,11 +614,13 @@ int main(int argc, char* argv[]) {
 			delete nws;
 			return 3;
 		}
-		if(  !nws->number  ) {
+		if(  nws->number == 0  ) {
 			fprintf(stderr, "Wrong password!\n");
 			delete nws;
 			return 3;
 		}
+		network_set_client_id( nws->number );
+		delete nws;
 	}
 
 	// Execute command function and exit with return code

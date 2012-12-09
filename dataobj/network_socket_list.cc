@@ -8,6 +8,20 @@
 #endif
 
 
+bool connection_info_t::compare(connection_info_t const* a, connection_info_t const* b)
+{
+	sint64 diff = (sint64)a->address.get_ip() - (sint64)b->address.get_ip();
+	if (diff == 0) {
+		diff = strcmp(a->nickname.c_str(), b->nickname.c_str());
+	}
+	return diff < 0;
+}
+
+bool connection_info_t::operator==(const connection_info_t& other) const
+{
+	return (address.get_ip() == other.address.get_ip())  &&  ( strcmp(nickname.c_str(), other.nickname.c_str())==0 );
+}
+
 void socket_info_t::reset()
 {
 	if (packet) {
@@ -212,11 +226,11 @@ void socket_list_t::add_server( SOCKET sock )
 #ifndef NETTOOL
 		// set server nickname
 		if (!umgebung_t::nickname.empty()) {
-			list[i]->nickname = umgebung_t::nickname;
+			list[i]->nickname = umgebung_t::nickname.c_str();
 		}
 		else {
 			list[i]->nickname = "Server#0";
-			umgebung_t::nickname = list[i]->nickname;
+			umgebung_t::nickname = list[i]->nickname.c_str();
 		}
 #endif //NETTOOL
 	}

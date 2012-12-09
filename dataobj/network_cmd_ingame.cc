@@ -200,6 +200,16 @@ void nwc_nick_t::server_tools(karte_t *welt, uint32 client_id, uint8 what, const
 			buf.printf(translator::translate("%s now known as %s.", welt->get_settings().get_name_language_id()),
 				   info.nickname.c_str(), nick);
 
+			// record nickname change
+			for(uint8 i=0; i<PLAYER_UNOWNED; i++) {
+				vector_tpl<connection_info_t*> &civ = nwc_chg_player_t::company_active_clients[i];
+				for(uint32 j=0; j<civ.get_count(); j++) {
+					if ( (*civ[j])==info ) {
+						civ[j]->nickname = nick;
+					}
+				}
+			}
+
 			// Log chat message - please don't change order of fields
 			CSV_t csv;
 			csv.add_field( "namechange" );
@@ -516,17 +526,6 @@ void nwc_game_t::rdwr()
 }
 
 
-void nwc_auth_player_t::rdwr()
-{
-	network_command_t::rdwr();
-	for(uint32 i=0; i<20; i++) {
-		packet->rdwr_byte( hash[i] );
-	}
-	packet->rdwr_byte( player_nr );
-	packet->rdwr_short(player_unlocked);
-}
-
-
 bool nwc_auth_player_t::execute(karte_t *welt)
 {
 	dbg->message("nwc_auth_player_t::execute","plnr = %d  unlock = %d  our_client_id = %d", player_nr, player_unlocked, our_client_id);
@@ -535,9 +534,9 @@ bool nwc_auth_player_t::execute(karte_t *welt)
 		// sent to server, and not sent to player playing on server
 		if (socket_list_t::is_valid_client_id(our_client_id)) {
 
-			// player activated for this client?
+			// player activated for this client? or admin connection via nettool?
 			socket_info_t &info = socket_list_t::get_client(our_client_id);
-			if (info.is_player_unlocked(player_nr)) {
+			if (info.is_player_unlocked(player_nr)  ||  info.state == socket_info_t::admin) {
 				dbg->message("nwc_auth_player_t::execute","set pwd for plnr = %d", player_nr);
 
 				// change password
@@ -837,6 +836,12 @@ bool network_broadcast_world_command_t::execute(karte_t *welt)
 }
 
 
+nwc_chg_player_t::~nwc_chg_player_t()
+{
+	delete pending_company_creator;
+}
+
+
 void nwc_chg_player_t::rdwr()
 {
 	network_broadcast_world_command_t::rdwr();
@@ -851,18 +856,54 @@ network_broadcast_world_command_t* nwc_chg_player_t::clone(karte_t *welt)
 	if (!socket_list_t::is_valid_client_id(our_client_id)) {
 		return NULL;
 	}
-	socket_info_t const& info = socket_list_t::get_client(our_client_id); //.is_player_unlocked(player_nr)
+	socket_info_t const& info = socket_list_t::get_client(our_client_id);
 
-	if (welt->change_player_tool(cmd, player_nr, param, info.is_player_unlocked(1), false)) {
-		return new nwc_chg_player_t(get_sync_step(), get_map_counter(), cmd, player_nr, param);
+	if (!welt->change_player_tool(cmd, player_nr, param, info.is_player_unlocked(1), false)) {
+		return NULL;
 	}
-	return NULL;
+	// now create the new command
+	nwc_chg_player_t* nwc = new nwc_chg_player_t(get_sync_step(), get_map_counter(), cmd, player_nr, param);
+
+	// .. and store company_creator if necessary
+	if (cmd == karte_t::new_player) {
+		nwc->pending_company_creator = new connection_info_t(info);
+
+		dbg->warning("nwc_chg_player_t::clone", "pending_company_creator for %d is set to %s/%s", player_nr, info.address.get_str(), info.nickname.c_str());
+	}
+
+	return nwc;
+}
+
+
+connection_info_t* nwc_chg_player_t::company_creator[PLAYER_UNOWNED] = {
+		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+
+vector_tpl<connection_info_t*> nwc_chg_player_t::company_active_clients[PLAYER_UNOWNED];
+
+
+void nwc_chg_player_t::company_removed(uint8 player_nr)
+{
+	// delete history
+	delete company_creator[player_nr];
+	company_creator[player_nr] = NULL;
+	clear_ptr_vector(company_active_clients[player_nr]);
 }
 
 
 void nwc_chg_player_t::do_command(karte_t *welt)
 {
 	welt->change_player_tool(cmd, player_nr, param, true, true);
+
+	// store IP of client who created this company
+	if (umgebung_t::server  &&   cmd == karte_t::new_player  &&  player_nr < lengthof(company_creator)) {
+		company_creator[player_nr] =  pending_company_creator;
+
+		if (pending_company_creator) {
+			dbg->warning("nwc_chg_player_t::clone", "company_creator for %d is set to %s/%s", player_nr,
+					 pending_company_creator->address.get_str(), pending_company_creator->nickname.c_str());
+		}
+		pending_company_creator = NULL; // to prevent deletion in ~nwc_chg_player_t
+	}
 
 	// update the window
 	ki_kontroll_t* playerwin = (ki_kontroll_t*)win_get_magic(magic_ki_kontroll_t);
@@ -998,7 +1039,8 @@ network_broadcast_world_command_t* nwc_tool_t::clone(karte_t *welt)
 				player_nr = 1;
 			default: ;
 		}
-		if ( player_nr < PLAYER_UNOWNED  &&  !socket_list_t::get_client(our_client_id).is_player_unlocked(player_nr) ) {
+		socket_info_t const& info = socket_list_t::get_client(our_client_id);
+		if ( player_nr < PLAYER_UNOWNED  &&  !info.is_player_unlocked(player_nr) ) {
 			if (wkz_id == (WKZ_ADD_MESSAGE_TOOL|SIMPLE_TOOL)) {
 				player_nr = PLAYER_UNOWNED;
 			}
@@ -1007,6 +1049,14 @@ network_broadcast_world_command_t* nwc_tool_t::clone(karte_t *welt)
 				return NULL; // indicate failure
 			}
 		}
+		// log that this client acted as this player
+		if (player_nr < PLAYER_UNOWNED) {
+			connection_info_t *cinfo = new connection_info_t(info);
+			if(nwc_chg_player_t::company_active_clients[player_nr].insert_unique_ordered(cinfo, connection_info_t::compare) != NULL) {
+				delete cinfo; // entry exists already
+			}
+		}
+
 		// do scenario checks here, send error message back
 		scenario_t *scen = welt->get_scenario();
 		if ( scen->is_scripted() ) {
@@ -1230,7 +1280,7 @@ bool nwc_service_t::execute(karte_t *welt)
 			if (ok) {
 				socket_list_t::get_client(sender_id).state = socket_info_t::admin;
 			}
-			nws.number = ok;
+			nws.number = ok ? sender_id : 0;
 			nws.send(packet->get_sender());
 			break;
 		}
@@ -1333,6 +1383,85 @@ bool nwc_service_t::execute(karte_t *welt)
 			else {
 				// send sync command
 				network_send_all(nw_sync, false);
+			}
+			break;
+		}
+
+		case SRVC_GET_COMPANY_LIST:
+		case SRVC_GET_COMPANY_INFO: {
+			bool detailed = flag == SRVC_GET_COMPANY_INFO  &&  number < PLAYER_UNOWNED;
+			uint8 min_index = detailed ? number   : 0;
+			uint8 max_index = detailed ? number+1 : PLAYER_UNOWNED;
+
+			cbuffer_t buf;
+			for (uint8 i=min_index; i<max_index; i++) {
+				if (spieler_t *sp = welt->get_spieler(i)) {
+					buf.printf("Company #%d: %s\n", i, sp->get_name());
+					buf.printf("    Password: %sset\n", sp->access_password_hash().empty() ? "NOT " :"");
+					// print creator information
+					if (i < lengthof(nwc_chg_player_t::company_creator)) {
+						if (connection_info_t const* creator = nwc_chg_player_t::company_creator[i]) {
+							buf.printf("    founded by %s at %s\n", creator->nickname.c_str(), creator->address.get_str());
+						}
+					}
+					// print clients who have this player unlocked
+					for(uint32 j = 0; j < socket_list_t::get_count(); j++) {
+						socket_info_t const& info = socket_list_t::get_client(j);
+						if (info.is_active()  &&  info.is_player_unlocked(i)) {
+							buf.printf("    unlocked for [%d] %s at %s\n", j, info.nickname.c_str(), info.address.get_str());
+						}
+					}
+					// print clients who played for this company
+					for(uint32 j = 0; j < nwc_chg_player_t::company_active_clients[i].get_count(); j++) {
+						if (!detailed  &&  j > 3  &&  nwc_chg_player_t::company_active_clients[i].get_count() > 5) {
+							buf.printf("    .. and %d more.\n", nwc_chg_player_t::company_active_clients[i].get_count()-j);
+							break;
+						}
+						connection_info_t const* info = nwc_chg_player_t::company_active_clients[i][j];
+						if (info) {
+							buf.printf("    played by %s at %s\n", info->nickname.c_str(), info->address.get_str());
+						}
+					}
+				}
+			}
+
+			nwc_service_t nws;
+			nws.flag = flag;
+			nws.text = strdup(buf);
+			if (text  &&  (strlen(text) > MAX_PACKET_LEN - 256)) {
+				text[MAX_PACKET_LEN - 256] = 0;
+			}
+			nws.send(packet->get_sender());
+			break;
+		}
+
+		case SRVC_UNLOCK_COMPANY: {
+			if (number >= PLAYER_UNOWNED) {
+				break; // invalid number
+			}
+			uint8 player_nr = number;
+			// empty password
+			spieler_t *sp = welt->get_spieler(player_nr);
+			if (sp) {
+				sp->access_password_hash().clear();
+				// unlock all clients
+				socket_list_t::unlock_player_all(player_nr, true, packet->get_sender());
+				// unlock player on the server
+				sp->unlock(true, false);
+			}
+			break;
+		}
+
+		case SRVC_REMOVE_COMPANY: {
+			if (number >= PLAYER_UNOWNED) {
+				break; // invalid number
+			}
+
+			nwc_chg_player_t *nwc = new nwc_chg_player_t();
+			nwc->player_nr = number;
+			nwc->cmd = karte_t::delete_player;
+			if (nwc->execute(welt)) {
+				delete nwc;
 			}
 			break;
 		}

@@ -2,13 +2,13 @@
 #define _NETWORK_CMD_INGAME_H_
 
 #include "network_cmd.h"
-#include "pwd_hash.h"
 #include "../simworld.h"
 #include "../tpl/slist_tpl.h"
 #include "../utils/plainstring.h"
 #include "koord3d.h"
 
 class memory_rw_t;
+class connection_info_t;
 class packet_t;
 class spieler_t;
 class werkzeug_t;
@@ -162,31 +162,6 @@ public:
 	uint32 len;
 };
 
-
-/**
- * nwc_auth_player_t
- * @from-client: client sends password hash to unlock player / set player password
- *		 server sends nwc_auth_player_t to sender
- * @from-server:
- *		 information whether players are locked / unlocked
- */
-class nwc_auth_player_t : public network_command_t {
-public:
-	nwc_auth_player_t() : network_command_t(NWC_AUTH_PLAYER), hash(), player_unlocked(0), player_nr(255)  { }
-	nwc_auth_player_t(uint8 nr, const pwd_hash_t& hash_) : network_command_t(NWC_AUTH_PLAYER), hash(hash_), player_unlocked(0), player_nr(nr)  { }
-	virtual bool execute(karte_t *);
-	virtual void rdwr();
-	virtual const char* get_name() { return "nwc_auth_player_t";}
-	pwd_hash_t hash;
-	uint16 player_unlocked;
-	uint8  player_nr;
-
-	/**
-	 * sets unlocked flags for playing at server
-	 */
-	static void init_player_lock_server(karte_t *);
-};
-
 /**
  * commands that have to be executed at a certain sync_step
  */
@@ -293,9 +268,11 @@ private:
  */
 class nwc_chg_player_t : public network_broadcast_world_command_t {
 public:
-	nwc_chg_player_t() : network_broadcast_world_command_t(NWC_CHG_PLAYER, 0, 0) { }
+	nwc_chg_player_t() : network_broadcast_world_command_t(NWC_CHG_PLAYER, 0, 0), pending_company_creator(NULL) { }
 	nwc_chg_player_t(uint32 sync_steps, uint32 map_counter, uint8 cmd_=255, uint8 player_nr_=255, uint16 param_=0)
-	: network_broadcast_world_command_t(NWC_CHG_PLAYER, sync_steps, map_counter), cmd(cmd_), player_nr(player_nr_), param(param_) {};
+	: network_broadcast_world_command_t(NWC_CHG_PLAYER, sync_steps, map_counter), cmd(cmd_), player_nr(player_nr_), param(param_), pending_company_creator(NULL) {};
+	~nwc_chg_player_t();
+
 	virtual void rdwr();
 	virtual void do_command(karte_t*);
 	// do some special checks
@@ -305,6 +282,19 @@ public:
 	uint8 cmd;
 	uint8 player_nr;
 	uint16 param;
+	connection_info_t* pending_company_creator; // this client want to create new company (not sent)
+
+	/// store information about client that created a company
+	static connection_info_t* company_creator[PLAYER_UNOWNED];
+
+	/// store information about clients that played with a company
+	static vector_tpl<connection_info_t*> company_active_clients[PLAYER_UNOWNED];
+
+	/// callback when company was removed
+	static void company_removed(uint8 player_nr);
+private:
+	nwc_chg_player_t(const nwc_chg_player_t&);
+	nwc_chg_player_t& operator=(const nwc_chg_player_t&);
 };
 
 /**

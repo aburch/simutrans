@@ -639,13 +639,14 @@ public:
 	const pwd_hash_t& get_player_password_hash( uint8 player_nr ) const { return player_password_hash[player_nr]; }
 	void clear_player_password_hashes();
 	void rdwr_player_password_hashes(loadsave_t *file);
+	void remove_player(uint8 player_nr);
 
 	/**
-	 * network safe initiation of new players
+	 * network safe initiation of new and deletion of players
 	 */
 	void call_change_player_tool(uint8 cmd, uint8 player_nr, uint16 param);
 
-	enum change_player_tool_cmds { new_player=1, toggle_freeplay=2 };
+	enum change_player_tool_cmds { new_player=1, toggle_freeplay=2, delete_player=3 };
 	/**
 	 * @param exec: if false checks whether execution is allowed
 	 *              if true executes tool

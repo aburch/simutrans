@@ -5,6 +5,7 @@
 #include "../tpl/slist_tpl.h"
 #include "../tpl/vector_tpl.h"
 #include "network.h"
+#include "pwd_hash.h"
 
 class address_list_t;
 class karte_t;
@@ -86,7 +87,6 @@ public:
 
 /**
  * base class for any service commands
- * limited to one execution per 1 minute real-time
  */
 class nwc_service_t : public network_command_t {
 public:
@@ -104,6 +104,11 @@ public:
 		SRVC_ADMIN_MSG       = 8,
 		SRVC_SHUTDOWN        = 9,
 		SRVC_FORCE_SYNC      = 10,
+		SRVC_GET_COMPANY_LIST = 11,
+		SRVC_GET_COMPANY_INFO = 12,
+		SRVC_UNLOCK_COMPANY   = 13,
+		SRVC_REMOVE_COMPANY   = 14,
+		SRVC_LOCK_COMPANY     = 15,
 		SRVC_MAX
 	};
 
@@ -125,6 +130,34 @@ public:
 
 	// static list of execution times
 	static vector_tpl<long> exec_time;
+};
+
+
+/**
+ * nwc_auth_player_t
+ * @from-client: client sends password hash to unlock player / set player password
+ *		 server sends nwc_auth_player_t to sender
+ * @from-server:
+ *		 information whether players are locked / unlocked
+ */
+class nwc_auth_player_t : public network_command_t {
+public:
+	nwc_auth_player_t() : network_command_t(NWC_AUTH_PLAYER), hash(), player_unlocked(0), player_nr(255)  { }
+	nwc_auth_player_t(uint8 nr, const pwd_hash_t& hash_) : network_command_t(NWC_AUTH_PLAYER), hash(hash_), player_unlocked(0), player_nr(nr)  { }
+
+#ifndef NETTOOL
+	virtual bool execute(karte_t *);
+#endif
+	virtual void rdwr();
+	virtual const char* get_name() { return "nwc_auth_player_t";}
+	pwd_hash_t hash;
+	uint16 player_unlocked;
+	uint8  player_nr;
+
+	/**
+	 * sets unlocked flags for playing at server
+	 */
+	static void init_player_lock_server(karte_t *);
 };
 
 #endif

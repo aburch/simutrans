@@ -2479,6 +2479,16 @@ bool karte_t::change_player_tool(uint8 cmd, uint8 player_nr, uint16 param, bool 
 			}
 			return true;
 		}
+		case delete_player: {
+			// range check, player existent?
+			if ( player_nr >= PLAYER_UNOWNED  ||   get_spieler(player_nr)==NULL ) {
+				return false;
+			}
+			if (exec) {
+				remove_player(player_nr);
+			}
+			return true;
+		}
 		// unknown command: delete
 		default: ;
 	}
@@ -3340,8 +3350,7 @@ void karte_t::neuer_monat()
 
 
 	// spieler
-	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
-		bool remove_player = false;
+	for(uint i=0; i<MAX_PLAYER_COUNT; i++) {
 		if(i>=2  &&  letzter_monat == 0  &&  !settings.is_freeplay()  ) {
 			// remove all player (but first and second) who went bankrupt during last year
 			if(  spieler[i] != NULL  &&
@@ -3350,30 +3359,14 @@ void karte_t::neuer_monat()
 				spieler[i]->get_maintenance()==0  &&
 				spieler[i]->get_finance_history_year(0,COST_ALL_CONVOIS)==0  )
 			{
-				remove_player = true;
+				remove_player(i);
 			}
 		}
 
 		if(  spieler[i] != NULL  ) {
 			// if returns false -> remove player
-			remove_player = !spieler[i]->neuer_monat();
-		}
-
-		if(  remove_player  ) {
-			spieler[i]->ai_bankrupt();
-			delete spieler[i];
-			spieler[i] = 0;
-			// if default human, create new instace of it (to avoid crashes)
-			if(  i == 0  ) {
-				spieler[0] = new spieler_t( this, 0 );
-			}
-			// if currently still active => reset to default human
-			if(  i == active_player_nr  ) {
-				active_player_nr = 0;
-				active_player = spieler[0];
-				if(  !umgebung_t::server  ) {
-					create_win( display_get_width()/2-128, 40, new news_img("Bankrott:\n\nDu bist bankrott.\n"), w_info, magic_none);
-				}
+			if (!spieler[i]->neuer_monat()) {
+				remove_player(i);
 			}
 		}
 	}
@@ -5754,6 +5747,29 @@ const char *karte_t::new_spieler(uint8 new_player, uint8 type)
 	}
 	settings.set_player_type(new_player, type);
 	return NULL;
+}
+
+
+void karte_t::remove_player(uint8 player_nr)
+{
+	if ( player_nr!=1  &&  player_nr<PLAYER_UNOWNED  &&  spieler[player_nr]!=NULL) {
+		spieler[player_nr]->ai_bankrupt();
+		delete spieler[player_nr];
+		spieler[player_nr] = 0;
+		nwc_chg_player_t::company_removed(player_nr);
+		// if default human, create new instace of it (to avoid crashes)
+		if(  player_nr == 0  ) {
+			spieler[0] = new spieler_t( this, 0 );
+		}
+		// if currently still active => reset to default human
+		if(  player_nr == active_player_nr  ) {
+			active_player_nr = 0;
+			active_player = spieler[0];
+			if(  !umgebung_t::server  ) {
+				create_win( display_get_width()/2-128, 40, new news_img("Bankrott:\n\nDu bist bankrott.\n"), w_info, magic_none);
+			}
+		}
+	}
 }
 
 

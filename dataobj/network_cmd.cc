@@ -96,6 +96,18 @@ packet_t* network_command_t::copy_packet() const
 	}
 }
 
+
+void nwc_auth_player_t::rdwr()
+{
+	network_command_t::rdwr();
+	for(uint32 i=0; i<20; i++) {
+		packet->rdwr_byte( hash[i] );
+	}
+	packet->rdwr_byte( player_nr );
+	packet->rdwr_short(player_unlocked);
+}
+
+
 nwc_service_t::~nwc_service_t()
 {
 	if (socket_info) {
@@ -121,6 +133,8 @@ void nwc_service_t::rdwr()
 		case SRVC_BAN_IP:
 		case SRVC_UNBAN_IP:
 		case SRVC_ADMIN_MSG:
+		case SRVC_GET_COMPANY_LIST:
+		case SRVC_GET_COMPANY_INFO:
 			packet->rdwr_str(text);
 			break;
 
