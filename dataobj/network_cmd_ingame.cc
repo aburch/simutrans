@@ -11,7 +11,6 @@
 #include "scenario.h"
 #include "../simtools.h"
 #include "../simmenu.h"
-#include "../simsys.h"
 #include "../simversion.h"
 #include "../simwin.h"
 #include "../simmesg.h"
@@ -1249,19 +1248,13 @@ void nwc_tool_t::do_command(karte_t *welt)
 		}
 }
 
-// static list of execution times
-vector_tpl<long> nwc_service_t::exec_time(SRVC_MAX);
 
 extern address_list_t blacklist;
 
 bool nwc_service_t::execute(karte_t *welt)
 {
-	const long time = dr_time();
-	while(exec_time.get_count() <= SRVC_MAX) {
-		exec_time.append(time - 60000);
-	}
-	if (flag>=SRVC_MAX  ||  time - exec_time[flag] < 60000  ||  !umgebung_t::server) {
-		// wrong flag, last execution less than 1min ago, no server
+	if (flag>=SRVC_MAX  ||  !umgebung_t::server) {
+		// wrong flag, no server
 		return true;  // to delete
 	}
 	// check whether admin connection is established

@@ -127,9 +127,6 @@ public:
 	virtual void rdwr();
 
 	virtual const char* get_name() { return "nwc_service_t";}
-
-	// static list of execution times
-	static vector_tpl<long> exec_time;
 };
 
 
