@@ -246,6 +246,8 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	add_komponente(&img_bolt);
 
 	set_resizemode( diagonal_resize );
+
+	depot->clear_command_pending();
 }
 
 
@@ -937,7 +939,7 @@ void depot_frame_t::image_from_storage_list(gui_image_list_t::image_data_t *bild
 		}
 		else {
 			convoihandle_t cnv = depot->get_convoi( icnv );
-			if(  !cnv.is_bound()  ) {
+			if(  !cnv.is_bound()  &&   !depot->get_besitzer()->is_locked()  ) {
 				// adding new convoi, block depot actions until command executed
 				// otherwise in multiplayer it's likely multiple convois get created
 				// rather than one new convoi with multiple vehicles
