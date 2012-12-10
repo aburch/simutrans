@@ -3925,7 +3925,7 @@ stadt_t::destination stadt_t::find_destination(factory_set_t &target_factories, 
 		{
 			const uint32 weight = welt->get_town_list_weight();
 			const uint32 number_of_towns = welt->get_staedte().get_count();
-			uint32 town_step = weight / number_of_towns;
+			uint32 town_step = weight / number_of_towns - 100;
 			uint32 random = simrand(weight, "stadt_t::destination stadt_t::finde_passagier_ziel (town)");
 			uint32 distance = 0;
 			const uint16 max_x = max((origin.x - ur.x), (origin.x - lo.x));
@@ -3937,7 +3937,7 @@ stadt_t::destination stadt_t::find_destination(factory_set_t &target_factories, 
 				zielstadt = welt->get_town_at(random);
 				// Add max_internal_distnace here, as the destination building might be *closer* than the town hall.
 				
-				if(zielstadt == this)
+				if(zielstadt == this && min_distance > 0)
 				{
 					// We still need to check this when the town is the same, as there might be an applicable *minimum* distance here.
 					distance = shortest_distance(origin, zielstadt->get_pos()) + max_internal_distance; 
@@ -3957,6 +3957,13 @@ stadt_t::destination stadt_t::find_destination(factory_set_t &target_factories, 
 				{
 					random = 0;
 				}
+
+				if(i == max_count - 1 && min_distance <= max_internal_distance)
+				{
+					// Last resort for local traffic.
+					zielstadt = this;
+				}
+
 				/*if(i == 16 || i == 32 || i == 64)
 				{
 					// Necessary to modulate the destinations to avoid repeatedly hitting the same towns.
