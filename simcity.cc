@@ -3939,6 +3939,7 @@ stadt_t::destination stadt_t::find_destination(factory_set_t &target_factories, 
 				
 				if(zielstadt == this)
 				{
+					// We still need to check this when the town is the same, as there might be an applicable *minimum* distance here.
 					distance = shortest_distance(origin, zielstadt->get_pos()) + max_internal_distance; 
 				}
 				else
