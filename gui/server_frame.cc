@@ -156,6 +156,7 @@ server_frame_t::server_frame_t(karte_t* w) :
 		add_komponente( &find_mismatch );
 
 		join.init( button_t::box, "join game", koord( ww - D_MARGIN_RIGHT - button_width, pos_y ), koord( button_width, D_BUTTON_HEIGHT) );
+		join.disable();
 		join.add_listener( this );
 		add_komponente( &join );
 
