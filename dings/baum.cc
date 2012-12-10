@@ -552,7 +552,7 @@ void baum_t::rdwr(loadsave_t *file)
 		}
 		else {
 			// replace with random tree
-			baumtype = simrand(baum_typen.get_count());
+			baumtype = random_tree_for_climate_intern( welt->get_climate(pos.z) );
 		}
 	}
 	else {
