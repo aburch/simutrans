@@ -546,10 +546,6 @@ bool nwc_auth_player_t::execute(karte_t *welt)
 					// otherwise lock all
 					socket_list_t::unlock_player_all(player_nr, hash.empty(), our_client_id);
 				}
-				if (our_client_id == 0) {
-					// player on the server: clear unlock_pending flag
-					welt->get_spieler(player_nr)->unlock(true, false);
-				}
 			}
 			else if (player_nr < PLAYER_UNOWNED) {
 				// check password
@@ -559,17 +555,18 @@ bool nwc_auth_player_t::execute(karte_t *welt)
 
 					info.unlock_player(player_nr);
 				}
+			}
 
-				if (our_client_id == 0) {
-					// unlock player on the server and clear unlock_pending flag
-					welt->get_spieler(player_nr)->unlock(info.is_player_unlocked(player_nr), false);
-				}
-				else {
-					// send unlock-info to player on the client (to clear unlock_pending flag)
-					nwc_auth_player_t nwc;
-					nwc.player_unlocked = info.player_unlocked;
-					nwc.send( get_sender());
-				}
+			// report back to client who sent the command
+			if (our_client_id == 0) {
+				// unlock player on the server and clear unlock_pending flag
+				welt->get_spieler(player_nr)->unlock(info.is_player_unlocked(player_nr), false);
+			}
+			else {
+				// send unlock-info to player on the client (to clear unlock_pending flag)
+				nwc_auth_player_t nwc;
+				nwc.player_unlocked = info.player_unlocked;
+				nwc.send( get_sender());
 			}
 		}
 	}
