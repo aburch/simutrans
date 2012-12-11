@@ -61,6 +61,7 @@
 #include "gui/fahrplan_gui.h"
 #include "gui/line_management_gui.h"
 #include "gui/schedule_list.h"
+#include "gui/stadt_info.h"
 
 
 
@@ -469,7 +470,7 @@ void rdwr_all_win(loadsave_t *file)
 					case magic_ki_kontroll_t:  w = new ki_kontroll_t(wl); break;
 					case magic_schedule_rdwr_dummy: w = new fahrplan_gui_t(wl); break;
 					case magic_line_schedule_rdwr_dummy: w = new line_management_gui_t(wl); break;
-
+					case magic_city_info_t:    w = new stadt_info_t(wl); break;
 
 					default:
 						if(  id>=magic_finances_t  &&  id<magic_finances_t+MAX_PLAYER_COUNT  ) {

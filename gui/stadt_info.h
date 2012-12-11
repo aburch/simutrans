@@ -9,6 +9,7 @@
 #define gui_stadt_info_h
 
 #include "../simcity.h"
+#include "../simwin.h"
 
 #include "gui_frame.h"
 #include "components/gui_chart.h"
@@ -93,6 +94,13 @@ public:
 	 * resize window in response to a resize event
 	 */
 	void resize(const koord delta);
+
+	// this contructor is only used during loading
+	stadt_info_t(karte_t *welt);
+
+	void rdwr(loadsave_t *);
+
+	uint32 get_rdwr_id() { return magic_city_info_t; }
 };
 
 #endif
