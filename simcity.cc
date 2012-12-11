@@ -3058,7 +3058,7 @@ void stadt_t::step_passagiere()
 	// "post or generate pax"
 	const ware_besch_t *const wtyp = (simrand(400, "void stadt_t::step_passagiere() (mail or passengers?"))<300 ? warenbauer_t::passagiere : warenbauer_t::post;
 	const city_cost history_type = (wtyp == warenbauer_t::passagiere) ? HIST_PAS_TRANSPORTED : HIST_MAIL_TRANSPORTED;
-	factory_set_t &target_factories = (  wtyp==warenbauer_t::passagiere ? target_factories_pax : target_factories_mail );
+	factory_set_t &target_factories = ( wtyp==warenbauer_t::passagiere ? target_factories_pax : target_factories_mail );
 
 	// restart at first buiulding?
 	if (step_count >= buildings.get_count()) 
@@ -3160,10 +3160,11 @@ void stadt_t::step_passagiere()
 				wtyp != warenbauer_t::passagiere ? 
 				0 : 
 				range == local ? 
-					simrand(max_local_tolerance, "void stadt_t::step_passagiere() (local tolerance?)") + min_local_tolerance : 
+					simrand_normal(max_local_tolerance, "void stadt_t::step_passagiere() (local tolerance?)") + min_local_tolerance : 
 				range == midrange ? 
-					simrand(max_midrange_tolerance, "void stadt_t::step_passagiere() (midrange tolerance?)") + min_midrange_tolerance : 
-				simrand(max_longdistance_tolerance, "void stadt_t::step_passagiere() (longdistance tolerance?)") + min_longdistance_tolerance;
+					simrand_normal(max_midrange_tolerance, "void stadt_t::step_passagiere() (midrange tolerance?)") + min_midrange_tolerance : 
+				/*longdistance*/
+				simrand_normal(max_longdistance_tolerance, "void stadt_t::step_passagiere() (longdistance tolerance?)") + min_longdistance_tolerance;
 			destination destinations[16];
 			for(int destinations_assigned = 0; destinations_assigned <= destination_count; destinations_assigned ++)
 			{				
@@ -3780,7 +3781,7 @@ koord stadt_t::get_zufallspunkt(uint32 min_distance, uint32 max_distance, koord 
 		koord k = koord::invalid;
 		uint32 distance = 0;
 		uint8 counter = 0;
-		while (counter++ < 16 && (k == koord::invalid || distance > max_distance || distance < min_distance))
+		while (counter++ < 24 && (k == koord::invalid || distance > max_distance || distance < min_distance))
 		{
 			gebaeude_t* const gb = pick_any_weighted(buildings);
 			k = gb->get_pos().get_2d();
@@ -3925,7 +3926,7 @@ stadt_t::destination stadt_t::find_destination(factory_set_t &target_factories, 
 		{
 			const uint32 weight = welt->get_town_list_weight();
 			const uint32 number_of_towns = welt->get_staedte().get_count();
-			uint32 town_step = weight / number_of_towns;
+			uint32 town_step = weight / number_of_towns - 100;
 			uint32 random = simrand(weight, "stadt_t::destination stadt_t::finde_passagier_ziel (town)");
 			uint32 distance = 0;
 			const uint16 max_x = max((origin.x - ur.x), (origin.x - lo.x));
@@ -3937,8 +3938,9 @@ stadt_t::destination stadt_t::find_destination(factory_set_t &target_factories, 
 				zielstadt = welt->get_town_at(random);
 				// Add max_internal_distnace here, as the destination building might be *closer* than the town hall.
 				
-				if(zielstadt == this)
+				if(zielstadt == this && min_distance > 0)
 				{
+					// We still need to check this when the town is the same, as there might be an applicable *minimum* distance here.
 					distance = shortest_distance(origin, zielstadt->get_pos()) + max_internal_distance; 
 				}
 				else
@@ -3956,6 +3958,13 @@ stadt_t::destination stadt_t::find_destination(factory_set_t &target_factories, 
 				{
 					random = 0;
 				}
+
+				if(i == max_count - 1 && min_distance <= max_internal_distance)
+				{
+					// Last resort for local traffic.
+					zielstadt = this;
+				}
+
 				/*if(i == 16 || i == 32 || i == 64)
 				{
 					// Necessary to modulate the destinations to avoid repeatedly hitting the same towns.
