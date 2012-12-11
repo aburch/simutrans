@@ -918,11 +918,14 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				case ding_t::baum:
 				{
 					baum_t *b = new baum_t(welt, file);
-					if(!b->get_besch()) {
-						// do not remove from this position, since there will be nothing
-						b->set_flag(ding_t::not_on_map);
-						delete b;
-						b = NULL;
+					if(  !b->get_besch()  ) {
+						// is there a replacement possible
+						if(  !baum_t::random_tree_for_climate( welt->get_climate(current_pos.z) )  ) {
+							// do not remove from map on this position, since there will be nothing
+							b->set_flag(ding_t::not_on_map);
+							delete b;
+							b = NULL;
+						}
 					}
 					else {
 						d = b;

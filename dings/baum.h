@@ -108,6 +108,7 @@ public:
 
 	const baum_besch_t* get_besch() const { return baum_typen[baumtype]; }
 	uint16 get_besch_id() const { return baumtype; }
+
 	uint32 get_age() const;
 
 	// static functions to handle trees
@@ -130,7 +131,7 @@ public:
 
 	static const baum_besch_t *find_tree( const char *tree_name ) { return baum_typen.empty() ? NULL : besch_names.get(tree_name); }
 
-	static int get_anzahl_besch() { return baum_typen.get_count(); }
+	static int get_anzahl_besch() { return baum_typen.get_count()-1; }
 	static int get_anzahl_besch(climate cl);
 
 };
