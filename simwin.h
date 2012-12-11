@@ -92,6 +92,7 @@ enum magic_numbers {
 	magic_schedule_rdwr_dummy,	// only used to save/load schedules
 	magic_line_schedule_rdwr_dummy,	// only used to save/load line schedules
 	magic_convoi_info,
+	magic_factory_info,
 	magic_convoi_detail=magic_convoi_info+65536,
 	magic_halt_info=magic_convoi_detail+65536,
 	magic_halt_detail=magic_halt_info+65536,

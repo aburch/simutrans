@@ -64,6 +64,7 @@
 #include "gui/stadt_info.h"
 #include "gui/message_frame_t.h"
 #include "gui/message_option_t.h"
+#include "gui/fabrik_info.h"
 
 
 
@@ -475,6 +476,7 @@ void rdwr_all_win(loadsave_t *file)
 					case magic_city_info_t:    w = new stadt_info_t(wl); break;
 					case magic_messageframe:   w = new message_frame_t(wl); break;
 					case magic_message_options: w = new message_option_t(wl); break;
+					case magic_factory_info:   w = new fabrik_info_t(wl); break;
 
 					default:
 						if(  id>=magic_finances_t  &&  id<magic_finances_t+MAX_PLAYER_COUNT  ) {

@@ -114,12 +114,28 @@ static const koord label_pos[MAX_PROD_LABEL] =
 
 
 factory_chart_t::factory_chart_t(const fabrik_t *_factory) :
-	factory(_factory),
+	factory(NULL),
 	goods_buttons(NULL),
 	goods_labels(NULL),
 	goods_button_count(0),
 	goods_label_count(0)
 {
+	if(_factory) {
+		set_factory( _factory );
+	}
+}
+
+
+void factory_chart_t::set_factory(const fabrik_t *_factory)
+{
+	if(  factory  ) {
+		delete [] goods_buttons;
+		delete [] goods_labels;
+		goods_button_count = 0;
+		goods_label_count = 0;
+	}
+	factory = _factory;
+
 	const sint16 offset_below_chart = 10 + CHART_HEIGHT + 20;
 	tab_panel.set_pos( koord(0, 0) );
 
@@ -312,4 +328,52 @@ void factory_chart_t::zeichnen(koord pos)
 	prod_ref_line_data[FAB_REF_DEMAND_MAIL] = factory->get_scaled_mail_demand();
 
 	gui_container_t::zeichnen( pos );
+}
+
+
+void factory_chart_t::rdwr( loadsave_t *file )
+{
+	sint16 tabstate;
+	uint32 goods_flag = 0;
+	uint32 prod_flag = 0;
+	uint32 ref_flag = 0;
+	if(  file->is_saving()  ) {
+		tabstate = tab_panel.get_active_tab_index();
+		for(  int b=0;  b<goods_button_count;  b++  ) {
+			goods_flag |= (goods_buttons[b].pressed << b);
+		}
+		for(  int s=0;  s<MAX_FAB_STAT;  ++s  ) {
+			prod_flag |= (prod_buttons[s].pressed << s);
+		}
+		for(  int r=0;  r<MAX_FAB_REF_LINE;  ++r  ) {
+			ref_flag |= (prod_ref_line_buttons[r].pressed << r);
+		}
+	}
+
+	file->rdwr_short( tabstate );
+	file->rdwr_long( goods_flag );
+	file->rdwr_long( prod_flag );
+	file->rdwr_long( ref_flag );
+
+	if(  file->is_loading()  ) {
+		tab_panel.set_active_tab_index( tabstate );
+		for(  int b=0;  b<goods_button_count;  b++  ) {
+			goods_buttons[b].pressed = (goods_flag >> b)&1;
+			if(  goods_buttons[b].pressed  ) {
+				goods_chart.show_curve(b);
+			}
+		}
+		for(  int s=0;  s<MAX_FAB_STAT;  ++s  ) {
+			prod_buttons[s].pressed = (prod_flag >> s)&1;
+			if(  prod_buttons[s].pressed  ) {
+				prod_chart.show_curve(s);
+			}
+		}
+		for(  int r=0;  r<MAX_FAB_REF_LINE;  ++r  ) {
+			prod_ref_line_buttons[r].pressed = (ref_flag >> r)&1;
+			if(  prod_ref_line_buttons[r].pressed  ) {
+				prod_chart.show_line(r);
+			}
+		}
+	}
 }
