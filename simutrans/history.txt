@@ -15,6 +15,7 @@
 	ADD: nettool commands to lock, unlock, remove a company
 	ADD: (Timothy) support for syslog (compile flag -DSYSLOG, command-line option -syslog)
 	ADD: Restore city window on joining
+	ADD: Restore chat window on joining
 
 
 Release of 112.0: (r6000 on 22-Oct-2012):

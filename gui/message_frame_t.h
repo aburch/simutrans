@@ -8,6 +8,7 @@
 #ifndef message_frame_h
 #define message_frame_h
 
+#include "../simwin.h"
 
 #include "gui_frame.h"
 #include "components/gui_button.h"
@@ -53,6 +54,10 @@ public:
 	void resize(const koord delta);
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
+
+	void rdwr(loadsave_t *);
+
+	uint32 get_rdwr_id() { return magic_messageframe; }
 };
 
 #endif

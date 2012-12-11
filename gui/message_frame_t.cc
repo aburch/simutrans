@@ -129,3 +129,25 @@ bool message_frame_t::action_triggered( gui_action_creator_t *komp, value_t v )
 	}
 	return true;
 }
+
+
+void message_frame_t::rdwr(loadsave_t *file)
+{
+	koord gr = get_fenstergroesse();
+	sint32 scroll_x = scrolly.get_scroll_x();
+	sint32 scroll_y = scrolly.get_scroll_y();
+	sint16 tabstate = tabs.get_active_tab_index();
+
+	gr.rdwr( file );
+	file->rdwr_str( ibuf, lengthof(ibuf) );
+	file->rdwr_short( tabstate );
+	file->rdwr_long( scroll_x );
+	file->rdwr_long( scroll_y );
+
+	if(  file->is_loading()  ) {
+		tabs.set_active_tab_index( tabstate );
+		set_fenstergroesse( gr );
+		resize( koord(0,0) );
+		scrolly.set_scroll_position( scroll_x, scroll_y );
+	}
+}
