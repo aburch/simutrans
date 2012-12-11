@@ -272,6 +272,7 @@ void stadt_info_t::zeichnen(koord pos, koord gr)
 	chart.set_seed(c->get_welt()->get_last_year());
 
 	gui_frame_t::zeichnen(pos, gr);
+	set_dirty();
 
 	static cbuffer_t buf;
 	buf.clear();

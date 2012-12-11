@@ -262,6 +262,8 @@ public:
 	// returns true, when the window show the current object already
 	virtual bool is_weltpos() { return false; }
 
+	bool is_dirty() const { return dirty; }
+
 	/**
 	 * Set resize mode
 	 * @author Markus Weber

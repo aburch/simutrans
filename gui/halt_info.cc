@@ -196,6 +196,7 @@ void halt_info_t::zeichnen(koord pos, koord gr)
 		}
 
 		gui_frame_t::zeichnen(pos, gr);
+		set_dirty();
 
 		sint16 top = pos.y+36;
 		COLOR_VAL indikatorfarbe = halt->get_status_farbe();

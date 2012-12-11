@@ -806,6 +806,9 @@ void display_win(int win)
 				wins[win].sticky,
 				komp->is_weltpos(),
 				wins[win].flags );
+		if(  wins[win].gui->is_dirty()  ) {
+//			mark_rect_dirty_wc( wins[win].pos.x, wins[win].pos.y, wins[win].pos.x+gr.x, wins[win].pos.y+16 );
+		}
 	}
 	// mark top window, if requested
 	if(umgebung_t::window_frame_active  &&  (unsigned)win==wins.get_count()-1) {

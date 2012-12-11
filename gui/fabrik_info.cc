@@ -154,6 +154,7 @@ void fabrik_info_t::zeichnen(koord pos, koord gr)
 	fab->info_conn( info_buf );
 
 	gui_frame_t::zeichnen(pos,gr);
+	set_dirty();
 
 	if(  old_size != txt.get_groesse()  ) {
 		update_info();
