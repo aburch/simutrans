@@ -4011,6 +4011,8 @@ void convoi_t::laden() //"load" (Babelfish)
 				// Book the journey times from all origins served by this convoy,
 				// and for which data are available, to this destination.
 
+				bool allow_resetting_line_average = false;
+
 				if(!departures->is_contained(idp.x))
 				{
 					fpl->increment_index(&current_stop, &reverse);
@@ -4063,6 +4065,7 @@ void convoi_t::laden() //"load" (Babelfish)
 							{
 								dbg->message("void convoi_t::laden()", "Possible timetable anomaly detected. Resetting average journey times (convoy).");	
 								average->reset();
+								allow_resetting_line_average = true;
 								goto write_basic;
 							}
 						}
@@ -4115,7 +4118,7 @@ write_basic:
 								{
 									dbg->message("void convoi_t::laden()", "Possible timetable anomaly detected. Skipping inserting journey time (line).");
 								}
-								else if(journey_time < average->get_average() / 2)
+								else if(allow_resetting_line_average && journey_time < average->get_average() / 2)
 								{
 									dbg->message("void convoi_t::laden()", "Possible timetable anomaly detected. Resetting average journey times (line).");	
 									average->reset();
