@@ -3780,7 +3780,7 @@ koord stadt_t::get_zufallspunkt(uint32 min_distance, uint32 max_distance, koord 
 		koord k = koord::invalid;
 		uint32 distance = 0;
 		uint8 counter = 0;
-		while (counter++ < 16 && (k == koord::invalid || distance > max_distance || distance < min_distance))
+		while (counter++ < 24 && (k == koord::invalid || distance > max_distance || distance < min_distance))
 		{
 			gebaeude_t* const gb = pick_any_weighted(buildings);
 			k = gb->get_pos().get_2d();
