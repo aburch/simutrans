@@ -279,20 +279,18 @@ public:
 	//
 	bool is_contained(const key_t key) const
 	{
-	// Code taken from the "put" method.
-
-		const STHT_BAG_COUNTER_T code = get_hash(key);
-		FORT(slist_tpl<node_t>, const& iter, bags[code])
-		{
-			const node_t &node = iter;
-
-			if (hash_t::comp(node.key, key) == 0) 
-			{
-				// Knightly : Same Key Found
+		const slist_tpl<node_t>& bag = bags[get_hash(key)];
+		FORT(slist_tpl<node_t>, const& node, bag) {
+			const int diff = hash_t::comp(node.key, key);
+			if(  diff == 0  ) {
 				return true;
 			}
+			if(  diff > 0  ) {
+				// not contained
+				break;
+			}
 		}
-	return false;
+		return false;
 	}
 
 	// Inserts a new instantiated value - failure, if key exists in table
