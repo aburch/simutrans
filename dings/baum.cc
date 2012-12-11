@@ -257,18 +257,19 @@ static bool compare_baum_besch(const baum_besch_t* a, const baum_besch_t* b)
 
 bool baum_t::alles_geladen()
 {
-	if (besch_names.empty()) {
+	if(  besch_names.empty()  ) {
 		DBG_MESSAGE("baum_t", "No trees found - feature disabled");
 		baum_typen.append( NULL );
 	}
 	else {
 		FOR(stringhashtable_tpl<baum_besch_t const*>, const& i, besch_names) {
 			baum_typen.insert_ordered(i.value, compare_baum_besch);
-			if(  baum_typen.get_count()==254  ) {
-				dbg->error( "baum_t::alles_geladen()", "Maximum tree count exceeded! (max 254 instead of %i)", besch_names.get_count() );
+			if(  baum_typen.get_count()==255  ) {
+				dbg->error( "baum_t::alles_geladen()", "Maximum tree count exceeded! (max 255 instead of %i)", besch_names.get_count() );
 				break;
 			}
 		}
+		baum_typen.append( NULL );
 
 		if (baum_typen_per_climate) {
 			delete [] baum_typen_per_climate;
@@ -278,7 +279,7 @@ bool baum_t::alles_geladen()
 		// clear cache
 		memset( baumtype_to_bild, -1, lengthof(baumtype_to_bild) );
 		// now register all trees for all fitting climates
-		for(  uint32 typ=0;  typ<baum_typen.get_count();  typ++  ) {
+		for(  uint32 typ=0;  typ<baum_typen.get_count()-1;  typ++  ) {
 			// add this tree to climates
 			for(  uint8 j=0;  j<MAX_CLIMATES;  j++  ) {
 				if(  baum_typen[typ]->is_allowed_climate((climate)j)  ) {
@@ -551,8 +552,8 @@ void baum_t::rdwr(loadsave_t *file)
 			baumtype = baum_typen.index_of( besch );
 		}
 		else {
-			// replace with random tree
-			baumtype = random_tree_for_climate_intern( welt->get_climate(get_pos().z) );
+			// not a tree
+			baumtype = baum_typen.get_count()-1;
 		}
 	}
 	else {
@@ -579,6 +580,10 @@ void baum_t::rdwr(loadsave_t *file)
 
 void baum_t::laden_abschliessen()
 {
+	if(  get_besch()==NULL ) {
+		// we checked at loading time that this will not fail!
+		baumtype = random_tree_for_climate_intern( welt->get_climate( get_pos().z ) );
+	}
 	if(get_xoff()==-128) {
 		calc_off(welt->lookup( get_pos())->get_grund_hang());
 	}
