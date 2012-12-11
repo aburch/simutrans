@@ -2167,10 +2167,11 @@ void stadt_t::rotate90( const sint16 y_size )
 	vector_tpl<koord> k_list(connected_cities.get_count());
 	vector_tpl<uint16> f_list(connected_cities.get_count());
 	
-	FOR(connexion_map, const& iter1, connected_cities)
+	for (connexion_map::iterator iter = connected_cities.begin(); iter != connected_cities.end(); )
 	{
-		koord k = iter1.key;
-		uint16 f  = connected_cities.remove(k);
+		koord k = iter->key;
+		uint16 f = iter->value;
+		iter = connected_cities.erase(iter);
 		k.rotate90(y_size);
 		if(connected_cities.is_contained(k))
 		{
@@ -2194,10 +2195,11 @@ void stadt_t::rotate90( const sint16 y_size )
 
 	k_list.clear();
 	f_list.clear();
-	FOR(connexion_map, const& iter2, connected_industries)
+	for (connexion_map::iterator iter = connected_industries.begin(); iter != connected_industries.end(); )
 	{
-		koord k = iter2.key;
-		uint16 f  = connected_industries.remove(k);
+		koord k = iter->key;
+		uint16 f = iter->value;
+		iter = connected_industries.erase(iter);
 		k.rotate90(y_size);
 		if(connected_industries.is_contained(k))
 		{
@@ -2221,10 +2223,11 @@ void stadt_t::rotate90( const sint16 y_size )
 
 	k_list.clear();
 	f_list.clear();
-	FOR(connexion_map, const& iter3, connected_attractions)
+	for (connexion_map::iterator iter = connected_attractions.begin(); iter != connected_attractions.end(); )
 	{
-		koord k = iter3.key;
-		uint16 f  = connected_attractions.remove(k);
+		koord k = iter->key;
+		uint16 f = iter->value;
+		iter = connected_attractions.erase(iter);
 		k.rotate90(y_size);
 		if(connected_attractions.is_contained(k))
 		{
