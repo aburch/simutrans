@@ -461,7 +461,7 @@ bool weg_t::check_season( const long )
 		return true;
 	}
 
-	if(  is_diagonal()  ) {
+	if(  is_diagonal()  && besch->has_diagonal_bild() ) {
 		set_images(image_diagonal, ribi, snow);
 	}
 	else if(  ribi_t::is_threeway(ribi)  &&  besch->has_switch_bild()  ) {
