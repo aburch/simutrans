@@ -671,6 +671,9 @@ public:
 	*/
 	schedule_t * create_schedule();
 
+	// remove wrong freight when schedule changes etc.
+	void check_freight();
+
 	/**
 	* @return Owner of this convoi
 	* @author Hj. Malthaner

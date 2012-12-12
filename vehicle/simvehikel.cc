@@ -838,14 +838,30 @@ void vehikel_t::remove_stale_freight()
 		FOR(slist_tpl<ware_t>, & tmp, fracht) {
 			bool found = false;
 
-			FOR(minivec_tpl<linieneintrag_t>, const& i, cnv->get_schedule()->eintrag) {
-				if (haltestelle_t::get_halt( welt, i.pos, cnv->get_besitzer()) == tmp.get_zwischenziel()) {
-					found = true;
-					break;
+			if(  tmp.get_zwischenziel().is_bound()  ) {
+				// the original halt exists, but does we still go there?
+				FOR(minivec_tpl<linieneintrag_t>, const& i, cnv->get_schedule()->eintrag) {
+					if(  haltestelle_t::get_halt( welt, i.pos, cnv->get_besitzer()) == tmp.get_zwischenziel()  ) {
+						found = true;
+						break;
+					}
+				}
+			}
+			else {
+				// the target halt may have been joined or there is a closer one now, thus our original target is no longer valid
+				FOR(minivec_tpl<linieneintrag_t>, const& i, cnv->get_schedule()->eintrag) {
+					halthandle_t halt = haltestelle_t::get_halt( welt, i.pos, cnv->get_besitzer() );
+					if(  halt.is_bound()  &&  welt->lookup(tmp.get_zielpos())->is_connected(halt)  ) {
+						// ok, lets change here
+						tmp.access_zwischenziel() = halt;
+						tmp.set_ziel( halt );
+						found = true;
+						break;
+					}
 				}
 			}
 
-			if (!found) {
+			if(  !found  ) {
 				kill_queue.insert(tmp);
 			}
 			else {

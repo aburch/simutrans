@@ -1552,6 +1552,17 @@ void convoi_t::set_erstes_letztes()
 }
 
 
+// remove wrong freight when schedule changes etc.
+void convoi_t::check_freight()
+{
+	for(unsigned i=0; i<anz_vehikel; i++) {
+		fahr[i]->remove_stale_freight();
+	}
+	calc_loading();
+	freight_info_resort = true;
+}
+
+
 bool convoi_t::set_schedule(schedule_t * f)
 {
 	if(  state==SELF_DESTRUCT  ) {
@@ -1599,11 +1610,7 @@ bool convoi_t::set_schedule(schedule_t * f)
 	}
 
 	// remove wrong freight
-	for(unsigned i=0; i<anz_vehikel; i++) {
-		fahr[i]->remove_stale_freight();
-	}
-	calc_loading();
-	freight_info_resort = true;
+	check_freight();
 
 	// ok, now we have a schedule
 	if(old_state!=INITIAL) {

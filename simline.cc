@@ -311,6 +311,14 @@ void simline_t::renew_stops()
 }
 
 
+void simline_t::check_freight()
+{
+	FOR(vector_tpl<convoihandle_t>, const i, line_managed_convoys) {
+		i->check_freight();
+	}
+}
+
+
 void simline_t::new_month()
 {
 	recalc_status();

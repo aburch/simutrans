@@ -72,6 +72,10 @@ uint8 haltestelle_t::status_step = 0;
 uint8 haltestelle_t::reconnect_counter = 0;
 
 
+static vector_tpl<convoihandle_t>stale_convois;
+static vector_tpl<linehandle_t>stale_lines;
+
+
 void haltestelle_t::reset_routing()
 {
 	reconnect_counter = welt->get_schedule_counter()-1;
@@ -80,6 +84,21 @@ void haltestelle_t::reset_routing()
 
 void haltestelle_t::step_all()
 {
+	// tell all stale convois to reroute their goods
+	if(  !stale_convois.empty()  ) {
+		convoihandle_t cnv = stale_convois.pop_back();
+		if(  cnv.is_bound()  ) {
+			cnv->check_freight();
+		}
+	}
+	// same for stale lines
+	if(  !stale_lines.empty()  ) {
+		linehandle_t line = stale_lines.pop_back();
+		if(  line.is_bound()  ) {
+			line->check_freight();
+		}
+	}
+
 	static slist_tpl<halthandle_t>::iterator iter( alle_haltestellen.begin() );
 	if (alle_haltestellen.empty()) {
 		return;
@@ -2125,7 +2144,7 @@ void haltestelle_t::make_public_and_join( spieler_t *sp )
 	}
 
 	// set name to name of first public stop
-	if (!joining.empty()) {
+	if(  !joining.empty()  ) {
 		set_name( joining.front()->get_name());
 	}
 
@@ -2134,7 +2153,7 @@ void haltestelle_t::make_public_and_join( spieler_t *sp )
 		halthandle_t halt = joining.remove_first();
 
 		// now with the second stop
-		while(halt.is_bound()  &&  halt!=self) {
+		while(  halt.is_bound()  &&  halt!=self  ) {
 			// add statistics
 			for(  int month=0;  month<MAX_MONTHS;  month++  ) {
 				for(  int type=0;  type<MAX_HALT_COST;  type++  ) {
@@ -2923,6 +2942,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 		}
 		// need removal?
 		if(!ok) {
+			stale_lines.append_unique( registered_lines[j] );
 			registered_lines.remove_at(j);
 		}
 	}
@@ -2938,6 +2958,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 		}
 		// need removal?
 		if(  !ok  ) {
+			stale_convois.append_unique( registered_convoys[j] );
 			registered_convoys.remove_at(j);
 		}
 	}
