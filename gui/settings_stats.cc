@@ -461,12 +461,11 @@ void settings_general_stats_t::init(settings_t const* const sets)
 	INIT_BOOL( "signals_on_left", sets->is_signals_left() );
 	SEPERATOR
 	INIT_NUM( "autosave", umgebung_t::autosave, 0, 12, gui_numberinput_t::AUTOLINEAR, false );
-	INIT_NUM( "frames_per_second",umgebung_t::fps, 10, 30, gui_numberinput_t::AUTOLINEAR, false );
+	//INIT_NUM( "frames_per_second",umgebung_t::fps, 10, 30, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "fast_forward", umgebung_t::max_acceleration, 1, 1000, gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR
 	INIT_BOOL( "numbered_stations", sets->get_numbered_stations() );
 	INIT_NUM( "show_names", umgebung_t::show_names, 0, 7, gui_numberinput_t::AUTOLINEAR, true );
-	INIT_NUM( "show_month", umgebung_t::show_month, 0, 8, gui_numberinput_t::AUTOLINEAR, true );
 	SEPERATOR
 	INIT_NUM( "bits_per_month", sets->get_bits_per_month(), 16, 48, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "use_timeline", sets->get_use_timeline(), 0, 3, gui_numberinput_t::AUTOLINEAR, false );
@@ -707,7 +706,7 @@ void settings_economy_stats_t::init(settings_t const* const sets)
 	INIT_NUM( "passenger_multiplier", sets->get_passenger_multiplier(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "mail_multiplier", sets->get_mail_multiplier(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "goods_multiplier", sets->get_goods_multiplier(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
-//	INIT_NUM( "electricity_multiplier", sets->get_electricity_multiplier(), 0, 10000, 10, false );
+	//INIT_NUM( "electricity_multiplier", sets->get_electricity_multiplier(), 0, 10000, 10, false );
 	SEPERATOR
 	INIT_NUM( "growthfactor_villages", sets->get_growthfactor_small(), 1, 10000, 10, false );
 	INIT_NUM( "growthfactor_cities", sets->get_growthfactor_medium(), 1, 10000, 10, false );
@@ -748,7 +747,8 @@ void settings_economy_stats_t::read(settings_t* const sets)
 	READ_BOOL_VALUE( sets->allow_underground_transformers );
 
 	READ_NUM_VALUE( sets->passenger_factor );
-//	READ_NUM_VALUE( sets->minimum_city_distance );
+	READ_NUM_VALUE( sets->city_isolation_factor );
+	READ_NUM_VALUE( sets->special_building_distance );
 	READ_NUM_VALUE( sets->factory_worker_radius );
 	READ_NUM_VALUE( sets->factory_worker_minimum_towns );
 	READ_NUM_VALUE( sets->factory_worker_maximum_towns );
@@ -759,7 +759,7 @@ void settings_economy_stats_t::read(settings_t* const sets)
 	READ_NUM_VALUE( sets->passenger_multiplier );
 	READ_NUM_VALUE( sets->mail_multiplier );
 	READ_NUM_VALUE( sets->goods_multiplier );
-//	READ_NUM_VALUE( sets->set_electricity_multiplier );
+	//READ_NUM_VALUE( sets->electricity_multiplier );
 	READ_NUM_VALUE( sets->growthfactor_small );
 	READ_NUM_VALUE( sets->growthfactor_medium );
 	READ_NUM_VALUE( sets->growthfactor_large );
