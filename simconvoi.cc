@@ -4057,7 +4057,9 @@ void convoi_t::laden() //"load" (Babelfish)
 				}
 
 				journey_time = welt->ticks_to_tenths_of_minutes(arrival_time - departures->get(pair.x).departure_time);
-				if(!average_journey_times->is_contained(idp))
+				
+				average_tpl<uint16> *average = average_journey_times->access(idp);
+				if(!average)
 				{
 					average_tpl<uint16> average;
 					average.add(journey_time);
@@ -4069,7 +4071,7 @@ void convoi_t::laden() //"load" (Babelfish)
 					// (e.g. - D shaped timetables or multiple branching and re-joining)
 					// and apply a quick and somewhat dirty workaround.
 
-					average_tpl<uint16> *average = average_journey_times->access(pair);
+					
 					if(journey_time > average->get_average() * 2 || journey_time < average->get_average() / 2)
 					{
 						// Anomaly detected - check to see whether this can be caused by odd timetabling.
@@ -4114,7 +4116,8 @@ write_basic:
 				}
 				if(line.is_bound())
 				{
-					if(!get_average_journey_times()->is_contained(idp))
+					average_tpl<uint16> *average = get_average_journey_times()->access(idp);
+					if(!average)
 					{
 						average_tpl<uint16> average;
 						average.add(journey_time);
@@ -4125,8 +4128,7 @@ write_basic:
 						// Check for anomalies as might be created by exotic timetable arrangements 
 						// (e.g. - D shaped timetables or multiple branching and re-joining)
 						// and apply a quick and somewhat dirty workaround.
-
-						average_tpl<uint16> *average = get_average_journey_times()->access(idp);
+	
 						if(journey_time > average->get_average() * 2 || journey_time < average->get_average() / 2)
 						{
 							// Anomaly detected - check to see whether this can be caused by odd timetabling.
