@@ -1830,7 +1830,7 @@ void stadt_t::rdwr(loadsave_t* file)
 		// (they are now separate), so that must be handled differently.
 		for (uint year = 0; year < MAX_CITY_HISTORY_YEARS; year++) 
 		{
-			for (uint hist_type = 0; hist_type < MAX_CITY_HISTORY - 3; hist_type++) 
+			for (uint hist_type = 0; hist_type < 12; hist_type++) 
 			{
 				if(hist_type == HIST_PAS_WALKED)
 				{
@@ -1843,7 +1843,7 @@ void stadt_t::rdwr(loadsave_t* file)
 		}
 		for (uint month = 0; month < MAX_CITY_HISTORY_MONTHS; month++) 
 		{
-			for (uint hist_type = 0; hist_type < MAX_CITY_HISTORY - 3; hist_type++) 
+			for (uint hist_type = 0; hist_type < 12; hist_type++) 
 			{
 				if(hist_type == HIST_PAS_WALKED)
 				{

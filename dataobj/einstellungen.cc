@@ -1300,6 +1300,16 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_byte(max_elevated_way_building_level);
 			file->rdwr_bool(allow_airports_without_control_towers);
 		}
+
+		if(  file->get_version()>=111004  ) {
+			file->rdwr_bool( allow_underground_transformers );
+		}
+
+		if(  file->get_version()>=111005  ) {
+			file->rdwr_short( special_building_distance );
+		}
+
+		// otherwise the default values of the last one will be used
 	}
 
 #ifdef DEBUG_SIMRAND_CALLS
@@ -1323,15 +1333,7 @@ void settings_t::rdwr(loadsave_t *file)
 		karte_t::random_callers.append(strdup(buf));
 
 		translator::init_custom_names(get_name_language_id());
-		if(  file->get_version()>=111004  ) {
-			file->rdwr_bool( allow_underground_transformers );
-		}
 
-		if(  file->get_version()>=111005  ) {
-			file->rdwr_short( special_building_distance );
-		}
-
-		// otherwise the default values of the last one will be used
 	}
 #endif
 }
