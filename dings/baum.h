@@ -107,6 +107,7 @@ public:
 	void operator delete(void *p);
 
 	const baum_besch_t* get_besch() const { return baum_typen[baumtype]; }
+	void set_besch( baum_besch_t *b ) { baumtype = baum_typen.index_of(b); }
 	uint16 get_besch_id() const { return baumtype; }
 
 	uint32 get_age() const;

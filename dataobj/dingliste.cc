@@ -920,7 +920,10 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 					baum_t *b = new baum_t(welt, file);
 					if(  !b->get_besch()  ) {
 						// is there a replacement possible
-						if(  !baum_t::random_tree_for_climate( welt->get_climate(current_pos.z) )  ) {
+						if(  baum_besch_t *besch = baum_t::random_tree_for_climate( welt->get_climate(current_pos.z) )  ) {
+							b->set_besch( besch );
+						}
+						else {
 							// do not remove from map on this position, since there will be nothing
 							b->set_flag(ding_t::not_on_map);
 							delete b;

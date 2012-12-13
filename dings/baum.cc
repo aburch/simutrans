@@ -580,10 +580,6 @@ void baum_t::rdwr(loadsave_t *file)
 
 void baum_t::laden_abschliessen()
 {
-	if(  get_besch()==NULL ) {
-		// we checked at loading time that this will not fail!
-		baumtype = random_tree_for_climate_intern( welt->get_climate( get_pos().z ) );
-	}
 	if(get_xoff()==-128) {
 		calc_off(welt->lookup( get_pos())->get_grund_hang());
 	}
