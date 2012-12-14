@@ -1139,8 +1139,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	}
 
 	// player stuff
-	remove_dummy_player_months = contents.get_int("remove_dummy_player_months", remove_dummy_player_months ) != 0;
-	unprotect_abondoned_player_months = contents.get_int("unprotect_abondoned_player_months", unprotect_abondoned_player_months ) != 0;
+	remove_dummy_player_months = contents.get_int("remove_dummy_player_months", remove_dummy_player_months );
+	unprotect_abondoned_player_months = contents.get_int("unprotect_abondoned_player_months", unprotect_abondoned_player_months );
 	default_player_color_random = contents.get_int("random_player_colors", default_player_color_random ) != 0;
 	for(  int i = 0;  i<MAX_PLAYER_COUNT;  i++  ) {
 		char name[32];
