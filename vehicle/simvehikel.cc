@@ -847,16 +847,28 @@ void vehikel_t::remove_stale_freight()
 					}
 				}
 			}
-			else {
+			if(  !found  ) {
 				// the target halt may have been joined or there is a closer one now, thus our original target is no longer valid
-				FOR(minivec_tpl<linieneintrag_t>, const& i, cnv->get_schedule()->eintrag) {
-					halthandle_t halt = haltestelle_t::get_halt( welt, i.pos, cnv->get_besitzer() );
-					if(  halt.is_bound()  &&  welt->lookup(tmp.get_zielpos())->is_connected(halt)  ) {
-						// ok, lets change here
-						tmp.access_zwischenziel() = halt;
-						tmp.set_ziel( halt );
-						found = true;
-						break;
+				const int offset = cnv->get_schedule()->get_aktuell();
+				const int max_count = cnv->get_schedule()->eintrag.get_count();
+				for(  int i=0;  i<max_count;  i++  ) {
+					// try to unload on next stop
+					halthandle_t halt = haltestelle_t::get_halt( welt, cnv->get_schedule()->eintrag[ (i+offset)%max_count ].pos, cnv->get_besitzer() );
+					if(  halt.is_bound()  ) {
+						// now waypoint
+						if(  welt->lookup(tmp.get_zielpos())->is_connected(halt)  ) {
+							// ok, that is our target: great
+							tmp.access_zwischenziel() = halt;
+							tmp.set_ziel( halt );
+							found = true;
+							break;
+						}
+						if(  halt->is_enabled(tmp.get_index())  ) {
+							// ok, lets change here, since goods are accepted here
+							tmp.access_zwischenziel() = halt;
+							found = true;
+							break;
+						}
 					}
 				}
 			}

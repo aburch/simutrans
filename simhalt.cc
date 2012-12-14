@@ -2534,6 +2534,8 @@ void haltestelle_t::rdwr(loadsave_t *file)
 
 void haltestelle_t::laden_abschliessen()
 {
+	stale_convois.clear();
+	stale_lines.clear();
 	// fix good destination coordinates
 	for(unsigned i=0; i<warenbauer_t::get_max_catg_index(); i++) {
 		if(waren[i]) {

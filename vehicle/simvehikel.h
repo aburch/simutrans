@@ -312,16 +312,8 @@ public:
 
 	void rauche() const;
 
-	/**
-	* Effnet ein neues Beobachtungsfenster fur das Objekt.
-	* @author Hj. Malthaner
-	*/
 	void zeige_info();
 
-	/**
-	* der normale Infotext
-	* @author Hj. Malthaner
-	*/
 	void info(cbuffer_t & buf) const;
 
 	/**
