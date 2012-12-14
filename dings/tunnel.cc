@@ -131,7 +131,19 @@ void tunnel_t::laden_abschliessen()
 
 	if(besch==NULL) {
 		// find a matching besch
-		besch = tunnelbauer_t::find_tunnel(gr->get_weg_nr(0)->get_besch()->get_wtyp(), 450, 0);
+		if (gr->get_weg_nr(0)==NULL) {
+			// no way? underground powerline
+			if (gr->get_leitung()) {
+				besch = tunnelbauer_t::find_tunnel(powerline_wt, 1, 0);
+			}
+			// no tunnel -> use dummy road tunnel
+			if (besch==NULL) {
+				besch = tunnelbauer_t::find_tunnel(road_wt, 1, 0);
+			}
+		}
+		else {
+			besch = tunnelbauer_t::find_tunnel(gr->get_weg_nr(0)->get_besch()->get_wtyp(), 450, 0);
+		}
 	}
 
 	if(sp) {
