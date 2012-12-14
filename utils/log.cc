@@ -261,7 +261,7 @@ void log_t::fatal(const char *who, const char *format, ...)
 	va_start(argptr, format);
 
 	static char formatbuffer[512];
-	sprintf( formatbuffer, "FATAL ERROR: %s\t%s\nAborting program execution ...\n\nFor help with this error or to file a bug report please see the Simutrans forum:\nhttp://forum.simutrans.com\n", who, format );
+	sprintf( formatbuffer, "FATAL ERROR: %s - %s\nAborting program execution ...\n\nFor help with this error or to file a bug report please see the Simutrans forum:\nhttp://forum.simutrans.com\n", who, format );
 
 	static char buffer[8192];
 	int n = sprintf( buffer, formatbuffer, argptr );
