@@ -311,7 +311,7 @@ bool spieler_t::neuer_monat()
 			for(  uint16 m=0;  m<months  &&  no_cnv;  m++  ) {
 				no_cnv = finance_history_month[m][COST_ALL_CONVOIS]==0;
 			}
-			const uint16 years = max( MAX_PLAYER_HISTORY_YEARS,  (welt->get_settings().get_remove_dummy_player_months() - 1) / 12 );
+			const uint16 years = min( MAX_PLAYER_HISTORY_YEARS,  (welt->get_settings().get_remove_dummy_player_months() - 1) / 12 );
 			for(  uint16 y=0;  y<years  &&  no_cnv;  y++  ) {
 				no_cnv = finance_history_year[y][COST_ALL_CONVOIS]==0;
 			}
@@ -330,7 +330,7 @@ bool spieler_t::neuer_monat()
 				no_cnv = finance_history_month[m][COST_NEW_VEHICLE]==0;
 				no_construction = finance_history_month[m][COST_CONSTRUCTION]==0;
 			}
-			const uint16 years = max( MAX_PLAYER_HISTORY_YEARS, (welt->get_settings().get_remove_dummy_player_months() - 1) / 12);
+			const uint16 years = min( MAX_PLAYER_HISTORY_YEARS, (welt->get_settings().get_remove_dummy_player_months() - 1) / 12);
 			for(  uint16 y=0;  y<years  &&  no_cnv  &&  no_construction;  y++  ) {
 				no_cnv = finance_history_year[y][COST_NEW_VEHICLE]==0;
 				no_construction = finance_history_year[y][COST_CONSTRUCTION]==0;
