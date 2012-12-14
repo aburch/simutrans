@@ -309,7 +309,7 @@ bool spieler_t::neuer_monat()
 			const uint16 months = min( 12,  welt->get_settings().get_remove_dummy_player_months() );
 			bool no_cnv = true;
 			for(  uint16 m=0;  m<months  &&  no_cnv;  m++  ) {
-				no_cnv = finance_history_month[m][COST_ALL_CONVOIS]==0 && finance_history_month[m][COST_ALL_CONVOIS];
+				no_cnv = finance_history_month[m][COST_ALL_CONVOIS]==0;
 			}
 			const uint16 years = max( MAX_PLAYER_HISTORY_YEARS,  (welt->get_settings().get_remove_dummy_player_months() - 1) / 12 );
 			for(  uint16 y=0;  y<years  &&  no_cnv;  y++  ) {
