@@ -511,7 +511,6 @@ void depot_frame_t::layout(koord *gr)
 	vehicle_filter.set_pos(koord(D_MARGIN_LEFT + (DEPOT_FRAME_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT) * 3 / 4 + 3, PANEL_VSTART + PANEL_HEIGHT + 2 + D_BUTTON_HEIGHT));
 	vehicle_filter.set_groesse(koord((DEPOT_FRAME_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT) - (DEPOT_FRAME_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT) * 3 / 4 - 3, D_BUTTON_HEIGHT));
 	vehicle_filter.set_max_size(koord(D_BUTTON_WIDTH + 60, LINESPACE * 7));
-	vehicle_filter.set_focusable( false );
 
 	const uint8 margin = 4;
 	img_bolt.set_pos(koord(get_fenstergroesse().x - skinverwaltung_t::electricity->get_bild(0)->get_pic()->w - margin, margin));
@@ -1070,6 +1069,12 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp, value_t p)
 		}
 		else if(  komp == &convoy_selector  ) {
 			icnv = p.i - 1;
+			if(  !depot->get_convoi(icnv).is_bound()  ) {
+				set_focus( NULL );
+			}
+			else {
+				set_focus( (gui_komponente_t *)&convoy_selector );
+			}
 		}
 		else if(  komp == &line_selector  ) {
 			int selection = p.i;
@@ -1078,6 +1083,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp, value_t p)
 					selected_line = linehandle_t();
 					apply_line();
 				}
+				set_focus( NULL );
 				return true;
 			}
 			else if(  selection == 1  ) { // create new line
@@ -1090,6 +1096,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp, value_t p)
 							fpl->sprintf_schedule( buf );
 						}
 					}
+					set_focus( NULL );
 					depot->call_depot_tool('l', convoihandle_t(), buf);
 				}
 				return true;
@@ -1114,6 +1121,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp, value_t p)
 				apply_line();
 				return true;
 			}
+			set_focus( NULL );
 		}
 		else if(  komp == &vehicle_filter  ) {
 			depot->selected_filter = vehicle_filter.get_selection();
@@ -1176,10 +1184,27 @@ bool depot_frame_t::infowin_event(const event_t *ev)
 		return true;
 	}
 	else {
-		if(IS_LEFTCLICK(ev) &&  !line_selector.getroffen(ev->cx, ev->cy-16)) {
-			// close combo box; we must do it ourselves, since the box does not receive outside events ...
-			line_selector.close_box();
+		if(IS_LEFTCLICK(ev)  ) {
+			if(  !convoy_selector.getroffen(ev->cx, ev->cy-16)  &&  convoy_selector.is_dropped()  ) {
+				// close combo box; we must do it ourselves, since the box does not receive outside events ...
+				convoy_selector.close_box();
+			}
+			if(  line_selector.is_dropped()  &&  !line_selector.getroffen(ev->cx, ev->cy-16)  ) {
+				// close combo box; we must do it ourselves, since the box does not receive outside events ...
+				line_selector.close_box();
+				if(  line_selector.get_selection() < last_selected_line.is_bound()+3  &&  get_focus() == &line_selector  ) {
+					set_focus( NULL );
+				}
+			}
+			if(  !vehicle_filter.getroffen(ev->cx, ev->cy-16)  &&  vehicle_filter.is_dropped()  ) {
+				// close combo box; we must do it ourselves, since the box does not receive outside events ...
+				vehicle_filter.close_box();
+			}
 		}
+	}
+
+	if(  get_focus() == &vehicle_filter  &&  !vehicle_filter.is_dropped()  ) {
+		set_focus( NULL );
 	}
 
 	return swallowed;

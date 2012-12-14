@@ -134,14 +134,16 @@ bool gui_container_t::infowin_event(const event_t *ev)
 		const int y = ev->ev_class==EVENT_MOVE ? ev->my : ev->cy;
 
 		slist_tpl<gui_komponente_t *>handle_mouseover;
-		FOR(slist_tpl<gui_komponente_t*>, const komp, komponenten) {
-			if (list_dirty) break;
+		FOR(  slist_tpl<gui_komponente_t*>,  const komp,  komponenten  ) {
+			if(  list_dirty  ) {
+				break;
+			}
 
 			// Hajo: deliver events if
 			// a) The mouse or click coordinates are inside the component
 			// b) The event affects all components, this are WINDOW events
 			if(  komp  ) {
-				if( DOES_WINDOW_CHILDREN_NEED( ev ) ) { // (Mathew Hounsell)
+				if(  DOES_WINDOW_CHILDREN_NEED( ev )  ) { // (Mathew Hounsell)
 					// Hajo: no need to translate the event, it has no valid coordinates either
 					komp->infowin_event(ev);
 				}
@@ -157,8 +159,10 @@ bool gui_container_t::infowin_event(const event_t *ev)
 		/* since the last drawn are overlaid over all others
 		 * the event-handling must go reverse too
 		 */
-		FOR(slist_tpl<gui_komponente_t*>, const komp, handle_mouseover) {
-			if (list_dirty) break;
+		FOR(  slist_tpl<gui_komponente_t*>,  const komp,  handle_mouseover  ) {
+			if (list_dirty) {
+				break;
+			}
 
 			// Hajo: if componet hit, translate coordinates and deliver event
 			event_t ev2 = *ev;
@@ -222,8 +226,8 @@ void gui_container_t::zeichnen(koord offset)
 
 bool gui_container_t::is_focusable()
 {
-	FOR(slist_tpl<gui_komponente_t*>, const c, komponenten) {
-		if (c->is_focusable()) {
+	FOR( slist_tpl<gui_komponente_t*>, const c, komponenten ) {
+		if(  c->is_focusable()  ) {
 			return true;
 		}
 	}

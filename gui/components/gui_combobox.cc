@@ -49,9 +49,9 @@ gui_combobox_t::gui_combobox_t() :
  */
 bool gui_combobox_t::infowin_event(const event_t *ev)
 {
-	if (!droplist.is_visible()) {
+	if(  !droplist.is_visible()  ) {
 DBG_MESSAGE("event","%d,%d",ev->cx, ev->cy);
-		if(bt_prev.getroffen(ev->cx, ev->cy)) {
+		if(  bt_prev.getroffen(ev->cx, ev->cy)  ) {
 DBG_MESSAGE("event","HOWDY!");
 			bt_prev.pressed = IS_LEFT_BUTTON_PRESSED(ev);
 			if(IS_LEFTRELEASE(ev)) {
@@ -63,7 +63,7 @@ DBG_MESSAGE("event","HOWDY!");
 			}
 			return true;
 		}
-		else if(bt_next.getroffen(ev->cx, ev->cy)) {
+		else if(  bt_next.getroffen(ev->cx, ev->cy)  ) {
 			bt_next.pressed = IS_LEFT_BUTTON_PRESSED(ev);
 			if(IS_LEFTRELEASE(ev)) {
 				bt_next.pressed = false;
@@ -95,7 +95,12 @@ DBG_MESSAGE("event","HOWDY!");
 		return true;
 	}
 
-	if(IS_LEFTCLICK(ev) || IS_LEFTDRAG(ev) || IS_LEFTRELEASE(ev)  ) {
+	if(  ev->ev_class == EVENT_KEYBOARD  &&  ev->ev_code == SIM_KEY_ENTER  &&  droplist.is_visible()  ) {
+		// close with enter
+		close_box();
+	}
+
+	if(  IS_LEFTCLICK(ev)  ||  IS_LEFTDRAG(ev)  ||  IS_LEFTRELEASE(ev)  ) {
 
 		if(first_call) {
 			// prepare for selection
@@ -186,7 +191,7 @@ void gui_combobox_t::zeichnen(koord offset)
 
 	textinp.display_with_focus( offset, with_focus);
 
-	if (droplist.is_visible()) {
+	if(  droplist.is_visible()  ) {
 		droplist.zeichnen(offset);
 	}
 	else {
