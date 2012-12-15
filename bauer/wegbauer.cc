@@ -596,21 +596,25 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		return false;
 	}
 
-	if((bautyp&tunnel_flag)==0) {
-		// not jumping to other lanes on bridges
-		if( to->get_typ()==grund_t::brueckenboden ) {
-			weg_t *weg=to->get_weg_nr(0);
-			if(weg && !ribi_t::ist_gerade(weg->get_ribi_unmasked()|ribi_typ(zv))) {
-				return false;
-			}
-		}
-		// Do not switch to tunnel through cliffs!
-		if( from->get_typ() == grund_t::tunnelboden  &&  to->get_typ() != grund_t::tunnelboden  &&  !from->ist_karten_boden() ) {
+	// universal check for bridges: enter bridges in bridge direction
+	if( to->get_typ()==grund_t::brueckenboden ) {
+		weg_t *weg=to->get_weg_nr(0);
+		if(weg && !ribi_t::ist_gerade(weg->get_ribi_unmasked()|ribi_typ(zv))) {
 			return false;
 		}
-		if( to->get_typ()==grund_t::tunnelboden  &&  from->get_typ() != grund_t::tunnelboden   &&  !to->ist_karten_boden() ) {
+	}
+	if( from->get_typ()==grund_t::brueckenboden ) {
+		weg_t *weg=from->get_weg_nr(0);
+		if(weg && !ribi_t::ist_gerade(weg->get_ribi_unmasked()|ribi_typ(zv))) {
 			return false;
 		}
+	}
+	// universal check: do not switch to tunnel through cliffs!
+	if( from->get_typ() == grund_t::tunnelboden  &&  to->get_typ() != grund_t::tunnelboden  &&  !from->ist_karten_boden() ) {
+		return false;
+	}
+	if( to->get_typ()==grund_t::tunnelboden  &&  from->get_typ() != grund_t::tunnelboden   &&  !to->ist_karten_boden() ) {
+		return false;
 	}
 
 	// universal check for crossings
@@ -1475,13 +1479,6 @@ void wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d z
 			diff = (pos.y>ziel.y) ? ribi_t::nord : ribi_t::sued;
 		}
 		if(bautyp&tunnel_flag) {
-			// ground must be above tunnel and below sea
-			grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
-			ok &= (gr->get_hoehe() > pos.z);
-			if (gr->ist_wasser()) {
-				ok = ok && welt->lookup_hgt(pos.get_2d()) > pos.z;
-			}
-
 			// create fake tunnel grounds if needed
 			bool bd_von_new = false, bd_nach_new = false;
 			grund_t *bd_von = welt->lookup(pos);
@@ -1511,15 +1508,12 @@ void wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d z
 			// all other checks are done here (crossings, stations etc)
 			ok = ok && is_allowed_step(bd_von, bd_nach, &dummy_cost);
 
-			// check for last tile
-			if(  ok  &&  bd_nach->get_pos().get_2d()==ziel.get_2d()  ) {
-				// at least tunnel not in the sea
-				const grund_t *gr = welt->lookup_kartenboden(bd_nach->get_pos().get_2d());
-				ok = ok  &&  (!gr->ist_wasser()  ||  min( welt->lookup_hgt(pos.get_2d()+diff), welt->get_grundwasser() ) > pos.z);
-			}
-
 			// advance position
 			pos = bd_nach->get_pos();
+
+			// check new tile: ground must be above tunnel and below sea
+			grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
+			ok = ok  &&  (gr->get_hoehe() > pos.z)  &&  (!gr->ist_wasser()  ||  (welt->lookup_hgt(pos.get_2d()) > pos.z) );
 
 			if (bd_von_new) {
 				delete bd_von;
