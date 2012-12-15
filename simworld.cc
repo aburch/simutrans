@@ -4590,7 +4590,10 @@ bool karte_t::laden(const char *filename)
 
 	DBG_MESSAGE("karte_t::laden", "loading game from '%s'", filename);
 
-	if (strstart(filename, "net:")) {
+	// reloading same game? Remeber pos
+	const koord oldpos = settings.get_filename()[0]>0  &&  strncmp(filename,settings.get_filename(),strlen(settings.get_filename()))==0 ? ij_off : koord::invalid;
+
+	if(  strstart(filename, "net:")  ) {
 		// probably finish network mode?
 		if(  umgebung_t::networkmode  ) {
 			network_core_shutdown();
@@ -4694,6 +4697,10 @@ DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 		else if(  umgebung_t::networkmode  ) {
 			step_mode = PAUSE_FLAG|FIX_RATIO;
 			switch_active_player( last_active_player_nr, true );
+			if(  ist_in_kartengrenzen(oldpos)  ) {
+				// go to position when last disconnected
+				change_world_position( oldpos );
+			}
 		}
 		else {
 			step_mode = NORMAL;
