@@ -57,11 +57,19 @@ class compare_factories
 					break;
 				}
 
-				case factorylist::by_output:
+				case factorylist::by_transit:
 				{
-					int a_out = a->get_ausgang().empty() ? -1 : (int)a->get_total_out();
-					int b_out = b->get_ausgang().empty() ? -1 : (int)b->get_total_out();
-					cmp = a_out - b_out;
+					int a_transit = a->get_eingang().empty() ? -1 : (int)a->get_total_transit();
+					int b_transit = b->get_eingang().empty() ? -1 : (int)b->get_total_transit();
+					cmp = a_transit - b_transit;
+					break;
+				}
+
+				case factorylist::by_available:
+				{
+					int a_in = a->get_eingang().empty() ? -1 : (int)(a->get_total_in()+a->get_total_transit());
+					int b_in = b->get_eingang().empty() ? -1 : (int)(b->get_total_in()+b->get_total_transit());
+					cmp = a_in - b_in;
 					break;
 				}
 
@@ -77,7 +85,9 @@ class compare_factories
 					cmp = a->get_prodfactor_electric() - b->get_prodfactor_electric();
 					break;
 			}
-			if (cmp == 0) cmp = STRICMP(a->get_name(), b->get_name());
+			if (cmp == 0) {
+				cmp = STRICMP(a->get_name(), b->get_name());
+			}
 			return reverse ? cmp > 0 : cmp < 0;
 		}
 
@@ -183,7 +193,7 @@ void factorylist_stats_t::zeichnen(koord offset)
 			buf.append(" (");
 
 			if (!fab->get_eingang().empty()) {
-				buf.append(fab->get_total_in(),0);
+				buf.printf( "%i+%i", fab->get_total_in(), fab->get_total_transit() );
 			}
 			else {
 				buf.append("-");

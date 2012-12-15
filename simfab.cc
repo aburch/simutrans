@@ -660,7 +660,7 @@ fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
 	delta_sum = 0;
 	delta_menge = 0;
 	menge_remainder = 0;
-	total_input = total_output = 0;
+	total_input = total_transit = total_output = 0;
 	status = nothing;
 	currently_producing = false;
 	transformer_connected = false;
@@ -694,7 +694,7 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 	transformer_connected = false;
 	power = 0;
 	power_demand = 0;
-	total_input = total_output = 0;
+	total_input = total_transit = total_output = 0;
 	status = nothing;
 	lieferziele_active_last_month = 0;
 
@@ -1850,28 +1850,30 @@ void fabrik_t::recalc_factory_status()
 
 	// set bits for input
 	warenlager = 0;
+	total_transit = 0;
 	status_ein = FL_WARE_ALLELIMIT;
-	FOR(array_tpl<ware_production_t>, const& j, eingang) {
-		if (j.menge >= j.max) {
+	FOR( array_tpl<ware_production_t>, const& j, eingang ) {
+		if(  j.menge >= j.max  ) {
 			status_ein |= FL_WARE_LIMIT;
 		}
 		else {
 			status_ein &= ~FL_WARE_ALLELIMIT;
 		}
 		warenlager += j.menge;
-		if (j.menge >> fabrik_t::precision_bits == 0) {
+		total_transit += j.transit;
+		if(  (j.menge >> fabrik_t::precision_bits) == 0  ) {
 			status_ein |= FL_WARE_FEHLT_WAS;
 		}
 
 	}
 	warenlager >>= fabrik_t::precision_bits;
-	if(warenlager==0) {
+	if(  warenlager==0  ) {
 		status_ein |= FL_WARE_ALLENULL;
 	}
 	total_input = warenlager;
 
 	// one ware missing, but producing
-	if (status_ein & FL_WARE_FEHLT_WAS && !ausgang.empty() && haltcount > 0) {
+	if(  status_ein & FL_WARE_FEHLT_WAS  &&  !ausgang.empty()  &&  haltcount > 0  ) {
 		status = bad;
 		return;
 	}
@@ -1879,11 +1881,11 @@ void fabrik_t::recalc_factory_status()
 	// set bits for output
 	warenlager = 0;
 	status_aus = FL_WARE_ALLEUEBER75|FL_WARE_ALLENULL;
-	FOR(array_tpl<ware_production_t>, const& j, ausgang) {
-		if (j.menge > 0) {
+	FOR( array_tpl<ware_production_t>, const& j, ausgang ) {
+		if(  j.menge > 0  ) {
 
 			status_aus &= ~FL_WARE_ALLENULL;
-			if (j.menge >= 0.75 * j.max) {
+			if(  j.menge >= 0.75 * j.max  ) {
 				status_aus |= FL_WARE_UEBER75;
 			}
 			else {
@@ -1901,14 +1903,14 @@ void fabrik_t::recalc_factory_status()
 	total_output = warenlager;
 
 	// now calculate status bar
-	if (eingang.empty()) {
+	if(  eingang.empty()  ) {
 		// does not consume anything, should just produce
 
-		if (ausgang.empty()) {
+		if(  ausgang.empty()  ) {
 			// does also not produce anything
 			status = nothing;
 		}
-		else if(status_aus&FL_WARE_ALLEUEBER75  ||  status_aus&FL_WARE_UEBER75) {
+		else if(  status_aus&FL_WARE_ALLEUEBER75  ||  status_aus&FL_WARE_UEBER75  ) {
 			status = inactive;	// not connected?
 			if(haltcount>0) {
 				if(status_aus&FL_WARE_ALLEUEBER75) {
@@ -1922,7 +1924,7 @@ void fabrik_t::recalc_factory_status()
 		else {
 			status = good;
 		}
-	} else if (ausgang.empty()) {
+	} else if(  ausgang.empty()  ) {
 		// nothing to produce
 
 		if(status_ein&FL_WARE_ALLELIMIT) {
