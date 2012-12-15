@@ -1694,7 +1694,9 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 					// else deliver to non-overflown factory
 					if(  !welt->get_settings().get_just_in_time()  ) {
 						// without production stop when target overflowing, distribute to least overflow target
-						dist_list.insert_ordered( distribute_ware_t( halt, ziel_fab->get_eingang()[w].max, ziel_fab->get_eingang()[w].menge, (sint32)halt->get_ware_fuer_zielpos(ausgang[produkt].get_typ(),ware.get_zielpos()), ware ), distribute_ware_t::compare );
+						const sint32 fab_left = ziel_fab->get_eingang()[w].max - ziel_fab->get_eingang()[w].menge;
+						dist_list.insert_ordered( distribute_ware_t( halt, fab_left, ziel_fab->get_eingang()[w].max, (sint32)halt->get_ware_fuer_zielpos(ausgang[produkt].get_typ(),ware.get_zielpos()), ware ), distribute_ware_t::compare );
+
 					}
 					else if(  needed > 0  ) {
 						// we are not overflowing: Station can only store up to a maximum amount of goods per square
