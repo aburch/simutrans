@@ -60,7 +60,7 @@ karte_t *goods_frame_t::welt = NULL;
 goods_frame_t::goods_frame_t(karte_t *wl) :
 	gui_frame_t( translator::translate("gl_title") ),
 	sort_label(translator::translate("hl_txt_sort")),
-	change_speed_label(speed_bonus,COL_WHITE,gui_label_t::right),
+	change_speed_label(NULL,COL_WHITE,gui_label_t::right),
 	goods_stats( wl ),
 	scrolly(&goods_stats)
 {
@@ -68,6 +68,7 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	int y=D_BUTTON_HEIGHT+4-D_TITLEBAR_HEIGHT;
 
 	speed_bonus[0] = 0;
+	change_speed_label.set_text(speed_bonus);
 	change_speed_label.set_pos(koord(BUTTON4_X+5, y));
 	add_komponente(&change_speed_label);
 
