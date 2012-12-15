@@ -855,17 +855,13 @@ void vehikel_t::remove_stale_freight()
 					// try to unload on next stop
 					halthandle_t halt = haltestelle_t::get_halt( welt, cnv->get_schedule()->eintrag[ (i+offset)%max_count ].pos, cnv->get_besitzer() );
 					if(  halt.is_bound()  ) {
-						// now waypoint
-						if(  welt->lookup(tmp.get_zielpos())->is_connected(halt)  ) {
-							// ok, that is our target: great
-							tmp.access_zwischenziel() = halt;
-							tmp.set_ziel( halt );
-							found = true;
-							break;
-						}
 						if(  halt->is_enabled(tmp.get_index())  ) {
 							// ok, lets change here, since goods are accepted here
 							tmp.access_zwischenziel() = halt;
+							if (!tmp.get_ziel().is_bound()) {
+								// set target, to prevent that unload_freight drops cargo
+								tmp.set_ziel( halt );
+							}
 							found = true;
 							break;
 						}
