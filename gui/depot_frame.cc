@@ -1041,12 +1041,10 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp, value_t p)
 		else if(  komp == &bt_obsolete  ) {
 			show_retired_vehicles = (show_retired_vehicles == 0);
 			depot_t::update_all_win();
-			return true;
 		}
 		else if(  komp == &bt_show_all  ) {
 			show_all = (show_all == 0);
 			depot_t::update_all_win();
-			return true;
 		}
 		else if(  komp == &bt_veh_action  ) {
 			if(  veh_action == va_sell  ) {
