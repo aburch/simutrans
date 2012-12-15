@@ -2524,7 +2524,13 @@ void display_base_img(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 
 				} while (*sp);
 				sp++;
 			}
-			display_color_img_wc( sp, x, y, h );
+			// clipping at poly lines?
+			if (number_of_clips>0) {
+				display_img_pc<colored>(h, x, y, sp);
+			}
+			else {
+				display_color_img_wc( sp, x, y, h );
+			}
 		}
 
 	} // number ok
