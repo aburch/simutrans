@@ -52,7 +52,7 @@ void clear_command_queue()
 }
 
 #ifdef _WIN32
-#define RET_ERR_STR { FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM,NULL,WSAGetLastError(),MAKELANGID(LANG_NEUTRAL,SUBLANG_NEUTRAL),err_str,sizeof(err_str),NULL); err = err_str; return INVALID_SOCKET; }
+#define RET_ERR_STR { DWORD errnr = WSAGetLastError(); if( errnr!=0 ) FormatMessageA( FORMAT_MESSAGE_FROM_SYSTEM,NULL,errnr,MAKELANGID(LANG_NEUTRAL,SUBLANG_NEUTRAL),err_str,sizeof(err_str),NULL); err = err_str; return INVALID_SOCKET; }
 #else
 #define RET_ERR_STR { err = err_str; return INVALID_SOCKET; }
 #endif
