@@ -817,9 +817,13 @@ vehikel_t::unload_freight(halthandle_t halt)
 						// Halt overcrowded - discard goods/passengers, and collect no revenue.
 						// Experimetal 7.2 - also calculate a refund.
 
-						if(tmp.get_origin().is_bound())
+						if(tmp.get_origin().is_bound() && get_besitzer()->get_player_cash_int() > 0)
 						{
 							// Cannot refund unless we know the origin.
+							// Also, ought not refund unless the player is solvent. 
+							// Players ought not be put out of business by refunds, as this makes gameplay too unpredictable, 
+							// especially in online games, where joining one player's network to another might lead to a large
+							// influx of passengers which one of the networks cannot cope with.
 							const uint16 distance = shortest_distance(halt->get_basis_pos(), tmp.get_origin()->get_basis_pos());
 
 							// Refund is approximation: 2x distance at standard rate with no adjustments. 
@@ -3729,7 +3733,7 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 		return ok;
 	}
 
-	const sint32 route_steps = brake_steps > 0 ? cnv->get_route_infos().get_element((next_block > 0 ? next_block - 1 : 0)).steps_from_start - cnv->get_route_infos().get_element(route_index).steps_from_start : -1;
+	const sint32 route_steps = brake_steps > 0 && route_index <= route_infos.get_count() - 1 ? cnv->get_route_infos().get_element((next_block > 0 ? next_block - 1 : 0)).steps_from_start - cnv->get_route_infos().get_element(route_index).steps_from_start : -1;
 	if (route_steps <= brake_steps) 
 	{ 	
 		koord3d block_pos=cnv->get_route()->position_bei(next_block);

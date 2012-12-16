@@ -2026,7 +2026,7 @@ sint64 wegbauer_t::calc_costs()
 		if(thing != NULL  &&  thing->get_besitzer() == sp)
 		{
 			// We own this land. Ergo, building a way on it should be cheaper.
-			costs +=welt->get_settings().cst_buy_land;
+			costs += welt->get_settings().cst_buy_land;
 		}
 	}
 
@@ -2121,7 +2121,7 @@ void wegbauer_t::baue_elevated()
 void wegbauer_t::baue_strasse()
 {
 	// only public player or cities (sp==NULL) can build cityroads with sidewalk
-	bool add_sidewalk = build_sidewalk  &&  (sp==NULL  ||  sp->get_player_nr()==1);
+	bool add_sidewalk = build_sidewalk  &&  (sp==NULL  ||  sp->get_player_nr() == 1);
 
 	if(add_sidewalk) {
 		sp = NULL;
@@ -2157,12 +2157,25 @@ void wegbauer_t::baue_strasse()
 				//nothing to be done
 //DBG_MESSAGE("wegbauer_t::baue_strasse()","nothing to do at (%i,%i)",k.x,k.y);
 			}
-			else {
+			else 
+			{
 				// we take ownership => we take care to maintain the roads completely ...
 				spieler_t *s = weg->get_besitzer();
-				spieler_t::add_maintenance(s, -weg->get_besch()->get_wartung());
-				// cost is the more expensive one, so downgrading is between removing and new buidling
-				cost -= max( weg->get_besch()->get_preis(), besch->get_preis() );
+
+				sint32 maint = besch->get_wartung();
+				weg->check_diagonal();
+				if(weg->is_diagonal())
+				{
+					maint *= 10;
+					maint /= 14;
+				}
+				spieler_t::add_maintenance(sp, -maint);
+
+				// The below does not correctly account for the cost of diagonal ways.
+				// spieler_t::add_maintenance(s, -weg->get_besch()->get_wartung());
+
+				// Cost of downgrading is the cost of the inferior way (was previously the higher of the two costs in 10.15 and earlier, from Standard).
+				cost -= besch->get_preis();
 				weg->set_besch(besch);
 				// respect max speed of catenary
 				wayobj_t const* const wo = gr->get_wayobj(besch->get_wtyp());
@@ -2170,24 +2183,29 @@ void wegbauer_t::baue_strasse()
 					weg->set_max_speed( wo->get_besch()->get_topspeed() );
 				}
 				weg->set_gehweg(add_sidewalk);
-				spieler_t::add_maintenance( sp, weg->get_besch()->get_wartung());
-				weg->set_besitzer(sp);
+				if(!welt->get_city(k) || !welt->get_settings().get_towns_adopt_player_roads() || sp->get_player_nr() == 1)
+				{
+					// The town adopts this road as its own, including maintenance costs.
+					weg->set_besitzer(sp);
+					weg->laden_abschliessen();
+				}
 			}
 		}
 		else {
 			// make new way
 			const ding_t* thing = gr->obj_bei(0);
-			if(thing != NULL  &&  thing->get_besitzer() == sp) 
-			{
-				// We own this land. Ergo, building a way on it should be cheaper.
-				cost -=welt->get_settings().cst_buy_land;
-				cost = cost < 0 ? 0 : cost;
-			}
 			strasse_t * str = new strasse_t(welt);
 
 			str->set_besch(besch);
 			str->set_gehweg(add_sidewalk);
-			cost = -gr->neuen_weg_bauen(str, route.get_short_ribi(i), sp)-besch->get_preis();
+			cost = -gr->neuen_weg_bauen(str, route.get_short_ribi(i), sp) - besch->get_preis();
+
+			if(thing != NULL && thing->get_besitzer() == sp) 
+			{
+				// We own this land. Ergo, building a way on it should be cheaper.
+				cost -= welt->get_settings().cst_buy_land;
+				cost = min(0, cost);
+			}
 
 			// prissi: into UNDO-list, so wie can remove it later
 			if(sp!=NULL) {
@@ -2278,12 +2296,7 @@ void wegbauer_t::baue_schiene()
 			else 
 			{
 				const ding_t* thing = gr->obj_bei(0);
-				if(thing != NULL  &&  thing->get_besitzer() == sp) 
-				{
-					// We own this land. Ergo, building a way on it should be cheaper.
-					cost -= welt->get_settings().cst_buy_land;
-					cost = cost < 0 ? 0 : cost;
-				}
+				
 				weg_t* const sch = weg_t::alloc(besch->get_wtyp());
 				sch->set_besch(besch);
 				const wayobj_t* wayobj = gr->get_wayobj(sch->get_waytype());
@@ -2293,6 +2306,13 @@ void wegbauer_t::baue_schiene()
 				}
 
 				cost = -gr->neuen_weg_bauen(sch, ribi, sp)-besch->get_preis();
+
+				if(thing != NULL  &&  thing->get_besitzer() == sp) 
+				{
+					// We own this land. Ergo, building a way on it should be cheaper.
+					cost -= welt->get_settings().cst_buy_land;
+					cost = min(0, cost);
+				}
 
 				// connect canals to sea
 

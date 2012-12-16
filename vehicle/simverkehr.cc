@@ -24,6 +24,8 @@
 #include "../simtypes.h"
 #include "../simcity.h"
 
+#include "../player/simplay.h"
+
 #include "simverkehr.h"
 #ifdef DESTINATION_CITYCARS
 // for final citycar destinations
@@ -608,6 +610,17 @@ bool stadtauto_t::ist_weg_frei(grund_t *gr)
 		return false;
 	}
 
+	const spieler_t *sp = str->get_besitzer();
+
+	if(sp != NULL && sp->get_player_nr() != 1 && !sp->allows_access_to(1) && !welt->get_city(str->get_pos().get_2d()))
+	{
+		// Private cas should have the same restrictions as to the roads on which to travel
+		// as players' vehicles.
+		time_to_life = 0;
+		return false;
+	}
+
+
 	// calculate new direction
 	// are we just turning around?
 	const uint8 this_fahrtrichtung = get_fahrtrichtung();
@@ -921,6 +934,19 @@ bool stadtauto_t::hop_check()
 
 void stadtauto_t::hop()
 {
+	// Check whether this private car should pay a road toll.
+
+	weg_t* way = welt->lookup(get_pos())->get_weg(road_wt);
+	if(way)
+	{
+		spieler_t *sp = way->get_besitzer();
+		if(sp && sp->get_player_nr() != 1)
+		{
+			const sint64 toll = welt->get_settings().get_private_car_toll_per_tile();
+			sp->buche(toll, COST_WAY_TOLLS);
+		}
+	}
+	
 	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
 	grund_t *to = welt->lookup(pos_next);
 	if(to==NULL) {

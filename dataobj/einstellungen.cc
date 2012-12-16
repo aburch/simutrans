@@ -436,6 +436,10 @@ settings_t::settings_t() :
 
 	toll_free_public_roads = false;
 
+	private_car_toll_per_tile = 1;
+
+	towns_adopt_player_roads = true;
+
 	max_elevated_way_building_level = 2;
 
 	city_threshold_size = 1000;
@@ -1282,6 +1286,18 @@ void settings_t::rdwr(loadsave_t *file)
 			}
 		}
 
+		if(file->get_experimental_version() >= 11)
+		{
+			file->rdwr_longlong(private_car_toll_per_tile);
+			file->rdwr_bool(towns_adopt_player_roads);
+		}
+		else if(umgebung_t::networkmode)
+		{
+			// This is necessary to prevent desyncs.
+			private_car_toll_per_tile = 1;
+			towns_adopt_player_roads = true;
+		}
+
 		if(file->get_version()>=111002 && file->get_experimental_version() == 0) 
 		{
 			// Was bonus_basefactor
@@ -1948,6 +1964,10 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	min_wait_airport = contents.get_int("min_wait_airport", min_wait_airport) * 10; // Stored as 10ths of minutes
 
 	toll_free_public_roads = (bool)contents.get_int("toll_free_public_roads", toll_free_public_roads);
+
+	private_car_toll_per_tile = contents.get_int("private_car_toll_per_tile", private_car_toll_per_tile);
+
+	towns_adopt_player_roads = (bool)contents.get_int("towns_adopt_player_roads", towns_adopt_player_roads);
 
 	max_elevated_way_building_level = (uint8)contents.get_int("max_elevated_way_building_level", max_elevated_way_building_level);
 

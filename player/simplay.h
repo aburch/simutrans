@@ -287,6 +287,14 @@ public:
 	double get_konto_als_double() const { return konto / 100.0; }
 
 	/**
+	 * Return the amount of cash that the player has
+	 * in SimuCents. Integer method needed where this
+	 * method is used in non-GUI code in multi-player games.
+	 * @author: jamespetts, December 2012
+	 */
+	sint64 get_player_cash_int() const { return konto; }
+
+	/**
 	 * @return true wenn Konto Überzogen ist
 	 * @author Hj. Malthaner
 	 */
@@ -448,7 +456,7 @@ public:
 	// Check is disapplied to the public service player.
 	inline bool can_afford(sint64 price) const
 	{
-		return player_nr == 1 || (price < (konto + finance_history_month[0][COST_CREDIT_LIMIT]) ||welt->get_settings().insolvent_purchases_allowed() ||welt->get_settings().is_freeplay());
+		return player_nr == 1 || (price < (konto + finance_history_month[0][COST_CREDIT_LIMIT]) || welt->get_settings().insolvent_purchases_allowed() || welt->get_settings().is_freeplay());
 	}
 
 	sint64 get_credit_limit() const { return finance_history_month[0][COST_CREDIT_LIMIT]; }

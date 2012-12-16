@@ -1003,9 +1003,13 @@ void haltestelle_t::step()
 
 						// Experimental 7.2 - if they are discarded, a refund is due.
 
-						if(tmp.get_origin().is_bound())
+						if(tmp.get_origin().is_bound() && get_besitzer()->get_player_cash_int() > 0)
 						{
 							// Cannot refund unless we know the origin.
+							// Also, ought not refund unless the player is solvent. 
+							// Players ought not be put out of business by refunds, as this makes gameplay too unpredictable, 
+							// especially in online games, where joining one player's network to another might lead to a large
+							// influx of passengers which one of the networks cannot cope with.
 							const uint16 distance = shortest_distance(get_basis_pos(), tmp.get_origin()->get_basis_pos());
 							if(distance > 0) // No point in calculating refund if passengers/goods are discarded from their origin stop.
 							{

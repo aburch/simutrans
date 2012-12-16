@@ -1141,7 +1141,7 @@ bool convoi_t::drive_to()
 	{
 		koord3d start = fahr[0]->get_pos();
 		koord3d ziel = fpl->get_current_eintrag().pos;
-		const bool destination_is_nonreversing_waypoint = !fpl->get_current_eintrag().reverse && !haltestelle_t::get_halt(welt, ziel, get_besitzer()).is_bound() && !welt->lookup(ziel)->get_depot();
+		const bool destination_is_nonreversing_waypoint = !fpl->get_current_eintrag().reverse && !haltestelle_t::get_halt(welt, ziel, get_besitzer()).is_bound() && (!welt->lookup(ziel) || !welt->lookup(ziel)->get_depot());
 
 		// avoid stopping midhalt
 		if(  start==ziel  ) {
@@ -4011,6 +4011,8 @@ void convoi_t::laden() //"load" (Babelfish)
 				// Book the journey times from all origins served by this convoy,
 				// and for which data are available, to this destination.
 
+				bool allow_resetting_line_average = false;
+
 				if(!departures->is_contained(idp.x))
 				{
 					fpl->increment_index(&current_stop, &reverse);
@@ -4024,7 +4026,9 @@ void convoi_t::laden() //"load" (Babelfish)
 				}
 
 				journey_time = welt->ticks_to_tenths_of_minutes(arrival_time - departures->get(pair.x).departure_time);
-				if(!average_journey_times->is_contained(idp))
+				
+				average_tpl<uint16> *average = average_journey_times->access(idp);
+				if(!average)
 				{
 					average_tpl<uint16> average;
 					average.add(journey_time);
@@ -4032,11 +4036,57 @@ void convoi_t::laden() //"load" (Babelfish)
 				}
 				else
 				{
-					average_journey_times->access(pair)->add_check_overflow_16(journey_time);
+					// Check for anomalies as might be created by exotic timetable arrangements 
+					// (e.g. - D shaped timetables or multiple branching and re-joining)
+					// and apply a quick and somewhat dirty workaround.
+
+					
+					if(journey_time > average->get_average() * 2 || journey_time < average->get_average() / 2)
+					{
+						// Anomaly detected - check to see whether this can be caused by odd timetabling.
+						// If not, then this must be caused by traffic fluctuations, and should remain.
+						const koord3d pos = gr->get_pos();
+						const uint8 fpl_count = fpl->get_count();
+						uint32 this_stop_count = 0;
+						for(uint8 i = 0; i < fpl_count; i ++)
+						{
+							if(welt->lookup(fpl->eintrag[i].pos)->get_halt().get_id() == idp.x)
+							{
+								this_stop_count ++;
+							}
+						}
+
+						if(this_stop_count >= 2)
+						{
+							// More than one entry - might be a timetable issue.
+							if(journey_time > average->get_average() * 2)
+							{
+								dbg->message("void convoi_t::laden()", "Possible timetable anomaly detected. Skipping inserting journey time (convoy).");
+							}
+							else if(journey_time < average->get_average() / 2)
+							{
+								dbg->message("void convoi_t::laden()", "Possible timetable anomaly detected. Resetting average journey times (convoy).");	
+								average->reset();
+								allow_resetting_line_average = true;
+								goto write_basic;
+							}
+						}
+						else
+						{
+							goto write_basic;
+						}
+
+					}
+					else
+					{
+write_basic:
+						average_journey_times->access(pair)->add_check_overflow_16(journey_time);
+					}
 				}
 				if(line.is_bound())
 				{
-					if(!get_average_journey_times()->is_contained(idp))
+					average_tpl<uint16> *average = get_average_journey_times()->access(idp);
+					if(!average)
 					{
 						average_tpl<uint16> average;
 						average.add(journey_time);
@@ -4044,7 +4094,51 @@ void convoi_t::laden() //"load" (Babelfish)
 					}
 					else
 					{
-						get_average_journey_times()->access(idp)->add_check_overflow_16(journey_time);
+						// Check for anomalies as might be created by exotic timetable arrangements 
+						// (e.g. - D shaped timetables or multiple branching and re-joining)
+						// and apply a quick and somewhat dirty workaround.
+	
+						if(journey_time > average->get_average() * 2 || journey_time < average->get_average() / 2)
+						{
+							// Anomaly detected - check to see whether this can be caused by odd timetabling.
+							// If not, then this must be caused by traffic fluctuations, and should remain.
+							const koord3d pos = gr->get_pos();
+							const uint8 fpl_count = fpl->get_count();
+							uint32 this_stop_count = 0;
+							for(uint8 i = 0; i < fpl_count; i ++)
+							{
+								if(welt->lookup(fpl->eintrag[i].pos)->get_halt().get_id() == idp.x)
+								{
+									this_stop_count ++;
+								}
+							}
+
+							if(this_stop_count >= 2)
+							{
+								// More than one entry - might be a timetable issue.
+								if(journey_time > average->get_average() * 2)
+								{
+									dbg->message("void convoi_t::laden()", "Possible timetable anomaly detected. Skipping inserting journey time (line).");
+								}
+								else if(allow_resetting_line_average && journey_time < average->get_average() / 2)
+								{
+									dbg->message("void convoi_t::laden()", "Possible timetable anomaly detected. Resetting average journey times (line).");	
+									average->reset();
+									goto write_basic_line;
+								}
+							}
+							else
+							{
+								goto write_basic_line;
+							}
+
+						}
+						else
+						{
+write_basic_line:
+
+							get_average_journey_times()->access(idp)->add_check_overflow_16(journey_time);
+						}
 					}
 				}
 
@@ -4272,7 +4366,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 
 	if(average_speed > speed_to_kmh(get_min_top_speed()))
 	{
-		dbg->error("sint64 convoi_t::calc_revenue", "Average speed (%i) for %s exceeded maximum speed (%i); falling back to overall average", average_speed, get_name(), get_min_top_speed());
+		dbg->warning("sint64 convoi_t::calc_revenue", "Average speed (%i) for %s exceeded maximum speed (%i); falling back to overall average", average_speed, get_name(), get_min_top_speed());
 		journey_minutes = (((distance * 100) / overall_average_speed) * welt->get_settings().get_meters_per_tile()) / 1667;
 		average_speed = overall_average_speed;
 	}
