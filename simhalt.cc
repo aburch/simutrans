@@ -1003,7 +1003,7 @@ void haltestelle_t::step()
 
 						// Experimental 7.2 - if they are discarded, a refund is due.
 
-						if(tmp.get_origin().is_bound() && sp->get_player_cash_int() > 0)
+						if(tmp.get_origin().is_bound() && get_besitzer()->get_player_cash_int() > 0)
 						{
 							// Cannot refund unless we know the origin.
 							// Also, ought not refund unless the player is solvent. 

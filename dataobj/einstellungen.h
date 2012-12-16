@@ -262,6 +262,24 @@ private:
 
 	uint8 max_elevated_way_building_level;
 
+	/**
+	 * If players allow access to their roads
+	 * by private cars, they will pay this
+	 * much of a toll for every tile
+	 */
+	sint64 private_car_toll_per_tile;
+
+	/**
+	 * If this is enabled, player roads
+	 * built within city limits will on
+	 * building be classed as unowned so
+	 * that other players may use/modify
+	 * them. This will not affect other 
+	 * ways built outside city limits
+	 * but which subsequently fall within
+	 * them.
+	 */
+	bool towns_adopt_player_roads;
 
 public:
 	//Cornering settings
@@ -929,6 +947,10 @@ public:
 	bool get_toll_free_public_roads() const { return toll_free_public_roads; }
 
 	bool get_allow_making_public() const { return allow_making_public; }
+
+	sint64 get_private_car_toll_per_tile() const { return private_car_toll_per_tile; }
+
+	bool get_towns_adopt_player_roads() const { return towns_adopt_player_roads; }
 
 #ifndef NETTOOL
 	float32e8_t get_simtime_factor() const { return simtime_factor; }

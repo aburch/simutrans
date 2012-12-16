@@ -144,12 +144,6 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 			access_in[i].set_visible(false);
 			access_out[i].set_visible(false);
 		}
-		if(i == 1)
-		{
-			// Public players have no convoys - 
-			// hence, no need for an access out button.
-			access_out[i].set_visible(false);
-		}
 
 		// income label
 		account_str[i][0] = 0;

@@ -278,6 +278,30 @@ seaport_toll_revenue_percentage = 15
 
 toll_free_public_roads = 1
 
+# If a player has allowed access to its roads to the public player, private
+# cars may use those roads. They will pay a toll to do so for every tile.
+# This is the amount (in simucents: 100 = 1 simucredit; 1 = 1 simucent)
+# that the player who owns the road will receive. 
+#
+# NOTE: This value will not be saved with the saved game until the 
+# major version is incremented to 11. In a network game, this value
+# will default to 1.
+
+private_car_toll_per_tile = 1
+
+# If this is set to 1, any road built in a town will be adopted
+# by that town (set to unowned), meaning that the building player
+# will not have to maintain it, but does not have exclusive use
+# of the way, and cannot prevent other players from upgrading/
+# downgrading/removing it. Setting it to 0 will disable this 
+# feature.
+#
+# NOTE: This value will not be saved with the saved game until the 
+# major version is incremented to 11. In a network game, this value
+# will default to 1.
+
+towns_adopt_player_roads = 1
+
 # If this is set to 1, any player may transfer any way tile or stop to the ownership
 # of the public player. If this is set to 0, only the public player may transfer
 # stops and way tiles to public ownership.
@@ -1210,7 +1234,7 @@ server_frames_per_step = 4
 # The server sends after a fixed number of steps some information to the clients.
 # Large values here means: reduced server communication (if that is of importance...)
 # Small values should improve the timing of the clients.
-server_frames_between_checks = 240
+server_frames_between_checks = 16
 
 
 # Automatically announce server on the central server directory (http://servers.experimental.simutrans.org/)

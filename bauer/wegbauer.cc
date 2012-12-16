@@ -2121,7 +2121,7 @@ void wegbauer_t::baue_elevated()
 void wegbauer_t::baue_strasse()
 {
 	// only public player or cities (sp==NULL) can build cityroads with sidewalk
-	bool add_sidewalk = build_sidewalk  &&  (sp==NULL  ||  sp->get_player_nr()==1);
+	bool add_sidewalk = build_sidewalk  &&  (sp==NULL  ||  sp->get_player_nr() == 1);
 
 	if(add_sidewalk) {
 		sp = NULL;
@@ -2157,10 +2157,23 @@ void wegbauer_t::baue_strasse()
 				//nothing to be done
 //DBG_MESSAGE("wegbauer_t::baue_strasse()","nothing to do at (%i,%i)",k.x,k.y);
 			}
-			else {
+			else 
+			{
 				// we take ownership => we take care to maintain the roads completely ...
 				spieler_t *s = weg->get_besitzer();
-				spieler_t::add_maintenance(s, -weg->get_besch()->get_wartung());
+
+				sint32 maint = besch->get_wartung();
+				weg->check_diagonal();
+				if(weg->is_diagonal())
+				{
+					maint *= 10;
+					maint /= 14;
+				}
+				spieler_t::add_maintenance(sp, -maint);
+
+				// The below does not correctly account for the cost of diagonal ways.
+				// spieler_t::add_maintenance(s, -weg->get_besch()->get_wartung());
+
 				// Cost of downgrading is the cost of the inferior way (was previously the higher of the two costs in 10.15 and earlier, from Standard).
 				cost -= besch->get_preis();
 				weg->set_besch(besch);
@@ -2170,8 +2183,12 @@ void wegbauer_t::baue_strasse()
 					weg->set_max_speed( wo->get_besch()->get_topspeed() );
 				}
 				weg->set_gehweg(add_sidewalk);
-				spieler_t::add_maintenance( sp, weg->get_besch()->get_wartung());
-				weg->set_besitzer(sp);
+				if(!welt->get_city(k) || !welt->get_settings().get_towns_adopt_player_roads() || sp->get_player_nr() == 1)
+				{
+					// The town adopts this road as its own, including maintenance costs.
+					weg->set_besitzer(sp);
+					weg->laden_abschliessen();
+				}
 			}
 		}
 		else {
@@ -2181,9 +2198,9 @@ void wegbauer_t::baue_strasse()
 
 			str->set_besch(besch);
 			str->set_gehweg(add_sidewalk);
-			cost = -gr->neuen_weg_bauen(str, route.get_short_ribi(i), sp)-besch->get_preis();
+			cost = -gr->neuen_weg_bauen(str, route.get_short_ribi(i), sp) - besch->get_preis();
 
-			if(thing != NULL &&  thing->get_besitzer() == sp) 
+			if(thing != NULL && thing->get_besitzer() == sp) 
 			{
 				// We own this land. Ergo, building a way on it should be cheaper.
 				cost -= welt->get_settings().cst_buy_land;
