@@ -4050,7 +4050,8 @@ void convoi_t::laden() //"load" (Babelfish)
 						uint32 this_stop_count = 0;
 						for(uint8 i = 0; i < fpl_count; i ++)
 						{
-							if(welt->lookup(fpl->eintrag[i].pos)->get_halt().get_id() == idp.x)
+							const grund_t* gr_2 = welt->lookup(fpl->eintrag[i].pos);
+							if(gr_2 && gr_2->get_halt().get_id() == idp.x)
 							{
 								this_stop_count ++;
 							}
