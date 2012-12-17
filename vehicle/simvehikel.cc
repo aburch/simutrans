@@ -1567,7 +1567,7 @@ sint32 vehikel_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 			case maglev_wt:
 				max_speed_90 = kmh_to_speed(30);
 				max_speed_135 = kmh_to_speed(20);
-				max_speed_180 = kmh_to_speed(4);
+				max_speed_180 = kmh_to_speed(10);
 				break;
 				
 			case tram_wt:
