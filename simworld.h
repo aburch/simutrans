@@ -595,7 +595,11 @@ public:
 	settings_t&       get_settings()       { return settings; }
 
 	// returns current speed bonus
-	sint32 get_average_speed(waytype_t typ) const { return average_speed[ (typ==16 ? 3 : (int)(typ-1)&7 ) ]; }
+	sint32 get_average_speed(waytype_t typ) const 
+	{ 
+		const sint32 return_value = average_speed[ (typ==16 ? 3 : (int)(typ-1)&7 ) ];
+		return return_value > 0 ? return_value : 1;
+	}
 
 	// speed record management
 	sint32 get_record_speed( waytype_t w ) const;
