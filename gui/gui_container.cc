@@ -81,7 +81,7 @@ bool gui_container_t::infowin_event(const event_t *ev)
 		}
 
 		// Knightly : either event not swallowed, or inner container has no focused child component after TAB event
-		if(  !swallowed  ||  (ev->ev_code==9  &&  komp_focus  &&  komp_focus->get_focus()==NULL)  ) {
+		if(  !swallowed  ||  (ev->ev_code==SIM_KEY_TAB  &&  komp_focus  &&  komp_focus->get_focus()==NULL)  ) {
 			if(  ev->ev_code==SIM_KEY_TAB  ) {
 				// TAB: find new focus
 				new_focus = NULL;
