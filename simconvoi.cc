@@ -1186,8 +1186,7 @@ bool convoi_t::drive_to()
 
 		bool success = calc_route(start, ziel, speed_to_kmh(min_top_speed));
 
-
-		if(destination_is_nonreversing_waypoint)
+		if(destination_is_nonreversing_waypoint && fahr[0]->get_waytype() != air_wt)
 		{
 			// We need to calculate the full route through to the next signal or reversing point
 			// to avoid ignoring signals. 
