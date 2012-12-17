@@ -1106,13 +1106,31 @@ const char *wkz_lower_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 const char *wkz_setslope_t::check_pos( karte_t *welt, spieler_t *, koord3d pos)
 {
 	grund_t *gr1 = welt->lookup(pos);
-	if(gr1) {
+	if(gr1) 
+	{
 		// check for underground mode
-		if(  grund_t::underground_mode == grund_t::ugm_all  &&  !gr1->ist_tunnel()  ) {
+		if(  grund_t::underground_mode == grund_t::ugm_all  &&  !gr1->ist_tunnel()  ) 
+		{
 			return "Terraforming not possible\nhere in underground view";
 		}
+
+		if(welt->lookup_hgt(pos.get_2d()) <= welt->get_grundwasser() - 1)
+		{
+			return "Cannot terraform in deep water";
+		}
+
+		for(int n = 0; n < 8; n ++)
+		{
+			const koord p = pos.get_2d().neighbours[n] + pos.get_2d();
+			const sint8 height = welt->lookup_hgt(p);
+			if(height <= (welt->get_grundwasser() - 1))
+			{
+				return "Cannot terraform in deep water";
+			}
+		}
 	}
-	else {
+	else 
+	{
 		return "";
 	}
 	return NULL;
