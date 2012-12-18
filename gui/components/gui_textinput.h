@@ -34,7 +34,6 @@ protected:
 	 */
 	char *text;
 
-
 	/**
 	 * Maximallänge des Stringbuffers
 	 * @author Hj. Malthaner
@@ -68,6 +67,9 @@ protected:
 	uint8 align;
 
 	COLOR_VAL textcol;
+
+	// true if there were changed but no notification was sent yet
+	bool text_dirty;
 
 	/**
 	 * reference time for regulating cursor blinking
