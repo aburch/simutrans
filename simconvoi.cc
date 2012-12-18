@@ -1162,7 +1162,7 @@ bool convoi_t::drive_to()
 		bool success = calc_route(start, ziel, speed_to_kmh(min_top_speed));
 
 
-		if(destination_is_nonreversing_waypoint)
+		if(destination_is_nonreversing_waypoint && fahr[0]->get_waytype() != air_wt)
 		{
 			// We need to calculate the full route through to the next signal or reversing point
 			// to avoid ignoring signals. 
@@ -4050,7 +4050,8 @@ void convoi_t::laden() //"load" (Babelfish)
 						uint32 this_stop_count = 0;
 						for(uint8 i = 0; i < fpl_count; i ++)
 						{
-							if(welt->lookup(fpl->eintrag[i].pos)->get_halt().get_id() == idp.x)
+							const grund_t* gr_2 = welt->lookup(fpl->eintrag[i].pos);
+							if(gr_2 && gr_2->get_halt().get_id() == idp.x)
 							{
 								this_stop_count ++;
 							}
@@ -4107,7 +4108,8 @@ write_basic:
 							uint32 this_stop_count = 0;
 							for(uint8 i = 0; i < fpl_count; i ++)
 							{
-								if(welt->lookup(fpl->eintrag[i].pos)->get_halt().get_id() == idp.x)
+								const grund_t* gr_2 = welt->lookup(fpl->eintrag[i].pos);
+								if(gr_2 && gr_2->get_halt().get_id() == idp.x)
 								{
 									this_stop_count ++;
 								}
