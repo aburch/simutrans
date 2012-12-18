@@ -346,9 +346,11 @@ public:
 
 	void darf_rauchen(bool yesno ) { rauchen = yesno;}
 
-	virtual bool calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route);
+	virtual bool calc_route(koord3d start, koord3d ziel, sint32 max_speed_kmh, route_t* route);
 	uint16 get_route_index() const {return route_index;}
 	const koord3d get_pos_prev() const {return pos_prev;}
+
+    virtual bool reroute(const uint16 reroute_index, const koord3d &ziel);
 
 	/**
 	* gibt das Basisbild zurueck
@@ -847,9 +849,6 @@ private:
 		uint32 &suchen, 
 		route_t &route);
 
-	// BG, 08.08.2012: extracted from ist_weg_frei()
-    bool reroute(const uint16 route_index, const koord3d &ziel);
-
 protected:
 	// jumps to next tile and correct the height ...
 	void hop();
@@ -888,6 +887,9 @@ public:
 	virtual void set_convoi(convoi_t *c);
 
 	bool calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route);
+
+	// BG, 08.08.2012: extracted from ist_weg_frei()
+    bool reroute(const uint16 reroute_index, const koord3d &ziel);
 
 	typ get_typ() const { return aircraft; }
 

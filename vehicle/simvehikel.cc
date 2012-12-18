@@ -1246,7 +1246,17 @@ bool vehikel_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_
 	return route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight(), 0);
 }
 
-
+bool vehikel_t::reroute(const uint16 reroute_index, const koord3d &ziel)
+{
+	route_t xroute;    // new scheduled route from position at reroute_index to ziel
+	bool done = cnv && calc_route(cnv->get_route()->position_bei(reroute_index), ziel, speed_to_kmh(cnv->get_min_top_speed()), &xroute);
+	if (done)
+	{
+		// convoy replaces existing route starting at reroute_index with found route. 
+		cnv->update_route(reroute_index, xroute);
+	}
+	return done;
+}
 
 bool vehikel_t::hop_check()
 {
@@ -3811,7 +3821,10 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 				else
 				{
 					// convoy can pass waypoint without reversing/stopping. Append route to next stop/waypoint
-					fpl->advance();
+					if (reversed)
+						fpl->advance_reverse();
+					else
+						fpl->advance();
 					cnv->update_route(last_index, target_rt);
 					weg_frei = block_reserver( &route, last_index, next_signal, next_crossing, 0, true, false );
 					last_index = route.get_count() - 1;
@@ -4786,7 +4799,7 @@ bool aircraft_t::calc_route_internal(
 
 
 // BG, 08.08.2012: extracted from ist_weg_frei()
-bool aircraft_t::reroute(const uint16 route_index, const koord3d &ziel)
+bool aircraft_t::reroute(const uint16 reroute_index, const koord3d &ziel)
 {
 	// new aircraft state after successful routing:
 	aircraft_t::flight_state xstate = state; 
@@ -4796,27 +4809,30 @@ bool aircraft_t::reroute(const uint16 route_index, const koord3d &ziel)
 	uint32 xtakeoff;   // new route index to takeoff tile at departure airport
 	uint32 xtouchdown; // new scheduled route index to touchdown tile at arrival airport
 	uint32 xsuchen;    // new scheduled route index to end of (required length of) arrival runway. 
-	route_t xroute;    // new scheduled route from start to ziel
+	route_t xroute;    // new scheduled route from position at reroute_index to ziel
 
 	route_t &route = *cnv->get_route();
-	bool done = calc_route_internal(welt, route.position_bei(route_index), ziel, 
+	bool done = calc_route_internal(welt, route.position_bei(reroute_index), ziel, 
 		speed_to_kmh(cnv->get_min_top_speed()), cnv->get_heaviest_vehicle(), 	
 		xstate, xflughoehe, xtarget_height, xrunway_too_short, xtakeoff, xtouchdown, xsuchen, xroute);
 	if (done)
 	{
-		// convoy replaces existing route starting at route_index with found route. 
-		cnv->update_route(route_index, xroute);
+		// convoy replaces existing route starting at reroute_index with found route. 
+		cnv->update_route(reroute_index, xroute);
 		cnv->set_next_stop_index(INVALID_INDEX);
-		state = xstate;
-		flughoehe = xflughoehe;
-		target_height = xtarget_height;
-		runway_too_short = xrunway_too_short;
-		if (takeoff >= route_index)
-			takeoff = xtakeoff != INVALID_INDEX ? route_index + xtakeoff : INVALID_INDEX;
-		if (touchdown >= route_index)
-			touchdown = xtouchdown != INVALID_INDEX ? route_index + xtouchdown : INVALID_INDEX;
-		if (suchen >= route_index)
-			suchen = xsuchen != INVALID_INDEX ? route_index + xsuchen : INVALID_INDEX;
+		if (reroute_index == route_index)
+		{
+			state = xstate;
+			flughoehe = xflughoehe;
+			target_height = xtarget_height;
+			runway_too_short = xrunway_too_short;
+		}
+		if (takeoff >= reroute_index)
+			takeoff = xtakeoff != INVALID_INDEX ? reroute_index + xtakeoff : INVALID_INDEX;
+		if (touchdown >= reroute_index)
+			touchdown = xtouchdown != INVALID_INDEX ? reroute_index + xtouchdown : INVALID_INDEX;
+		if (suchen >= reroute_index)
+			suchen = xsuchen != INVALID_INDEX ? reroute_index + xsuchen : INVALID_INDEX;
 	}
 	return done;
 }
@@ -4942,7 +4958,10 @@ bool aircraft_t::ist_weg_frei( int & restart_speed, bool )
 			fpl->increment_index(&index, &reversed);
 			if (reroute(last_index, fpl->eintrag[index].pos))
 			{
-				fpl->advance();
+				if (reversed)
+					fpl->advance_reverse();
+				else
+					fpl->advance();
 				cnv->set_next_stop_index(INVALID_INDEX);
 				last_index = route.get_count() - 1;
 			}

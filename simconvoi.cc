@@ -1166,7 +1166,6 @@ bool convoi_t::drive_to()
 	{
 		koord3d start = fahr[0]->get_pos();
 		koord3d ziel = fpl->get_current_eintrag().pos;
-		const bool destination_is_nonreversing_waypoint = !fpl->get_current_eintrag().reverse && !haltestelle_t::get_halt(welt, ziel, get_besitzer()).is_bound() && (!welt->lookup(ziel) || !welt->lookup(ziel)->get_depot());
 
 		// avoid stopping midhalt
 		if(  start==ziel  ) {
@@ -1185,32 +1184,35 @@ bool convoi_t::drive_to()
 		}
 
 		bool success = calc_route(start, ziel, speed_to_kmh(min_top_speed));
+		grund_t* gr = welt->lookup(ziel);
+		bool extend_route = gr;
+		switch (fahr[0]->get_waytype())
+		{
+			// convoys of these way types extend their routes in fahr[0]->ist_weg_frei() and thus don't need it here.
+			case air_wt:
+			case track_wt:
+			case monorail_wt:
+			case maglev_wt:
+			case tram_wt:
+			case narrowgauge_wt:
+				extend_route = false;
+		}
 
-
-		if(destination_is_nonreversing_waypoint && fahr[0]->get_waytype() != air_wt)
+		if(extend_route && !gr->get_depot())
 		{
 			// We need to calculate the full route through to the next signal or reversing point
 			// to avoid ignoring signals. 
-			bool new_nonreversing = true;
-			koord3d new_destination;
-			koord3d new_start = ziel;
+			int counter = fpl->get_count();
 
-			int counter = 0;
-
-			while(new_nonreversing && success && counter < fpl->get_count())
+			linieneintrag_t const * schedule_entry = &fpl->get_current_eintrag();
+			while(success && counter--)
 			{
+				if (schedule_entry->reverse || haltestelle_t::get_halt(welt, schedule_entry->pos, get_besitzer()).is_bound())
+					// convoy must stop at current route end.
+					break;
 				advance_schedule();
-
-				new_destination = fpl->get_current_eintrag().pos;
-				
-				route_t tmp_route;
-				success = fahr[0]->calc_route(new_start, new_destination, speed_to_kmh(min_top_speed), &tmp_route);
-				route.concatenate_routes(&tmp_route);
-				new_nonreversing = !fpl->get_current_eintrag().reverse && !haltestelle_t::get_halt(welt, new_destination, get_besitzer()).is_bound();
-
-				new_start = new_destination;
-
-				counter ++;
+				schedule_entry = &fpl->get_current_eintrag();
+				success = fahr[0]->reroute(route.get_count() - 1, schedule_entry->pos);
 			}
 		}
 
