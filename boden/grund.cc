@@ -1519,7 +1519,7 @@ DBG_MESSAGE("grund_t::weg_entfernen()","weg %p",weg);
 			flags &= ~has_way2;
 
 			// reset speed limit/crossing info (maybe altered by crossing)
-			// Not all ways (i.e. with styp==7) will imply crossins, so wie hav to check
+			// Not all ways (i.e. with styp==7) will imply crossings, so we have to check
 			crossing_t* cr = find<crossing_t>(1);
 			if(cr) {
 				dinge.remove(cr);
@@ -1610,7 +1610,7 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 	if(weg) {
 		const koord here = pos.get_2d();
 
-		// stopps
+		// stops
 		if(flags&is_halt_flag  &&  (get_halt()->get_besitzer()==sp  || sp==welt->get_spieler(1))) {
 			bool remove_halt = get_typ()!=boden;
 			// remove only if there is no other way

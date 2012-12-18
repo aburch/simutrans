@@ -800,6 +800,65 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 		}
 		if(w->get_waytype() == road_wt)
 		{
+			const koord pos = gr->get_pos().get_2d();
+			if(welt->get_city(pos) && welt->get_active_player_nr() != 1)
+			{
+				// Players other than the public player cannot delete a road leaving no access to any city building.
+				for(int n = 0; n < 8; n ++)
+				{
+					const koord k = pos.neighbours[n] + pos;
+					const sint8 height = welt->lookup_hgt(k);
+					const koord3d k3(k.x, k.y, height);
+					const grund_t* gr = welt->lookup(k3); 
+					const gebaeude_t* gb = gr ? gr->find<gebaeude_t>() : NULL;
+					if(gb && gb->get_besitzer() == NULL)
+					{
+						// This is a city building - check for other road connexion. 
+						bool unconnected_city_buildings = true;
+						for(int m = 0; m < 8; m ++)
+						{
+							const koord kx = k.neighbours[m] + k;
+							if(kx == pos)
+							{ 
+								// The road being deleted obviously does not count.
+								continue;
+							}
+							const sint8 heightx = welt->lookup_hgt(kx);
+							const koord3d k3x(kx.x, kx.y, heightx);
+							const grund_t* grx = welt->lookup(k3x); 
+							const weg_t* w = grx ? grx->get_weg(road_wt) : NULL;
+							if(w && w->get_ribi() > 2)
+							{
+								// We must check that the road is itself connected to somewhere other
+								// than the road that we are trying to delete.
+								for(int q = 0; q < 4; q ++)
+								{
+									const koord ky = kx.nsow[q] + kx; 
+									if(ky == pos)
+									{ 
+										// The road being deleted obviously does not count.
+										continue;
+									}
+									const sint8 heighty = welt->lookup_hgt(ky);
+									const koord3d k3y(ky.x, ky.y, heighty);
+									const grund_t* gry = welt->lookup(k3y); 
+									const weg_t* wy = gry ? gry->get_weg(road_wt) : NULL;
+									if(wy && wy->get_ribi() > 2)
+									{
+										unconnected_city_buildings = false;
+										break;
+									}
+								}
+							}
+						}
+						if(unconnected_city_buildings)
+						{
+							msg = "Cannot delete a road where to do so would leave a city building unconnected by road.";
+							return false;
+						}
+					}
+				}
+			}
 			welt->set_recheck_road_connexions();
 		}
 
