@@ -1,0 +1,10 @@
+# Simutranslator settings for Simutrans-Experimental texts
+# Addendum for version 10.15
+#
+# Author: jamespetts
+# Created: December 2012
+#
+obj=program_text
+name=Cannot delete a road where to do so would leave a city building unconnected by road.
+note=Error message when a player tries to delete a city road necessary for access for neighbouring buildings.
+-
