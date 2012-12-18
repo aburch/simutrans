@@ -63,6 +63,7 @@ bool gui_textinput_t::remove_selection()
 		do {
 			text[start_pos++] = text[end_pos];
 		} while(  text[end_pos++]!=0  );
+		text_dirty = true;
 		return true;
 	}
 	return false;
