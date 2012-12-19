@@ -73,6 +73,14 @@ class compare_factories
 					break;
 				}
 
+				case factorylist::by_output:
+				{
+					int a_out = a->get_ausgang().empty() ? -1 : (int)a->get_total_out();
+					int b_out = b->get_ausgang().empty() ? -1 : (int)b->get_total_out();
+					cmp = a_out - b_out;
+					break;
+				}
+
 				case factorylist::by_maxprod:
 					cmp = a->get_base_production()*a->get_prodfactor() - b->get_base_production()*b->get_prodfactor();
 					break;
