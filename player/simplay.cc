@@ -306,14 +306,14 @@ bool spieler_t::neuer_monat()
 	if(  umgebung_t::networkmode  &&  player_nr>1  &&  !automat  ) {
 		// find out dummy companies (i.e. no vehicle running within x months)
 		if(  welt->get_settings().get_remove_dummy_player_months()  &&  player_age >= welt->get_settings().get_remove_dummy_player_months()  )  {
-			const uint16 months = min( 12,  welt->get_settings().get_remove_dummy_player_months() );
 			bool no_cnv = true;
-			for(  uint16 m=0;  m<months  &&  no_cnv;  m++  ) {
-				no_cnv = finance_history_month[m][COST_ALL_CONVOIS]==0;
+			const uint16 months = min( 12,  welt->get_settings().get_remove_dummy_player_months() );
+			for(  uint16 m = 0;  m < months  &&  no_cnv;  m++  ) {
+				no_cnv &= finance_history_month[m][COST_ALL_CONVOIS]==0;
 			}
 			const uint16 years = min( MAX_PLAYER_HISTORY_YEARS,  (welt->get_settings().get_remove_dummy_player_months() - 1) / 12 );
-			for(  uint16 y=0;  y<years  &&  no_cnv;  y++  ) {
-				no_cnv = finance_history_year[y][COST_ALL_CONVOIS]==0;
+			for(  uint16 y = 0;  y < years  &&  no_cnv;  y++  ) {
+				no_cnv &= finance_history_year[y][COST_ALL_CONVOIS]==0;
 			}
 			// never run a convoi => dummy
 			if(  no_cnv  ) {
@@ -323,20 +323,17 @@ bool spieler_t::neuer_monat()
 
 		// find out abandoned companies (no activity within x months)
 		if(  welt->get_settings().get_unprotect_abondoned_player_months()  &&  player_age >= welt->get_settings().get_unprotect_abondoned_player_months()  )  {
-			const uint16 months = min( 12,  welt->get_settings().get_remove_dummy_player_months() );
-			bool no_cnv = finance_history_month[0][COST_NEW_VEHICLE]==0;
-			bool no_construction = finance_history_month[0][COST_CONSTRUCTION]==0;
-			for(  uint16 m=1;  m<months  &&  no_cnv  &&  no_construction;  m++  ) {
-				no_cnv = finance_history_month[m][COST_NEW_VEHICLE]==0;
-				no_construction = finance_history_month[m][COST_CONSTRUCTION]==0;
+			bool abandoned = true;
+			const uint16 months = min( 12,  welt->get_settings().get_unprotect_abondoned_player_months() );
+			for(  uint16 m = 0;  m < months  &&  abandoned;  m++  ) {
+				abandoned &= finance_history_month[m][COST_NEW_VEHICLE]==0  &&  finance_history_month[m][COST_CONSTRUCTION]==0;
 			}
-			const uint16 years = min( MAX_PLAYER_HISTORY_YEARS, (welt->get_settings().get_remove_dummy_player_months() - 1) / 12);
-			for(  uint16 y=0;  y<years  &&  no_cnv  &&  no_construction;  y++  ) {
-				no_cnv = finance_history_year[y][COST_NEW_VEHICLE]==0;
-				no_construction = finance_history_year[y][COST_CONSTRUCTION]==0;
+			const uint16 years = min( MAX_PLAYER_HISTORY_YEARS, (welt->get_settings().get_unprotect_abondoned_player_months() - 1) / 12);
+			for(  uint16 y = 0;  y < years  &&  abandoned;  y++  ) {
+				abandoned &= finance_history_year[y][COST_NEW_VEHICLE]==0  &&  finance_history_year[y][COST_CONSTRUCTION]==0;
 			}
 			// never changed convoi, never built => abandoned
-			if(  no_cnv  ) {
+			if(  abandoned  ) {
 				pwd_hash.clear();
 				locked = false;
 				unlock_pending = false;
