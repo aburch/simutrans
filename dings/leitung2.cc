@@ -606,9 +606,9 @@ senke_t::senke_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , p
 
 senke_t::~senke_t()
 {
+	welt->sync_remove( this );
 	if(fab!=NULL) {
 		fab->set_transformer_connected( false );
-		welt->sync_remove( this );
 		fab = NULL;
 	}
 	senke_list.remove( this );
