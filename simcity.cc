@@ -2709,7 +2709,7 @@ void stadt_t::calc_growth()
 	if(bev < s.get_city_threshold_size()) {
 		weight_factor = s.get_growthfactor_small();
 	}
-	else if(bev <s.get_capital_threshold_size()) {
+	else if(bev < s.get_capital_threshold_size()) {
 		weight_factor = s.get_growthfactor_medium();
 	}
 
@@ -2748,7 +2748,7 @@ void stadt_t::step_bau()
 		}
 		bev = 0;
 	}
-	// since we use internall a finer value ...
+	// since we use internally a finer value ...
 	const int growth_step = (wachstum >> 4);
 	wachstum &= 0x0F;
 
@@ -2758,10 +2758,6 @@ void stadt_t::step_bau()
 		bev++; // Hajo: bevoelkerung wachsen lassen
 
 		for (int i = 0; i < 30 && bev * 2 > won + arb + 100; i++) {
-			// For some reason, this does not work: it only builds one
-			// type of old building rather than all types. TODO: Either
-			// fix this, or wait for Prissi to do it properly. 
-			//baue(new_town);
 			baue(false);
 		}
 
@@ -4488,8 +4484,8 @@ void stadt_t::baue_gebaeude(const koord k, bool new_town)
 		// bisher gibt es 2 Sorten Haeuser
 		// arbeit-spendende und wohnung-spendende
 
-		int will_arbeit  = (bev - arb) / 4;  // Nur ein viertel arbeitet
-		int will_wohnung = (bev - won);
+		int will_arbeit  = (bev - arb) / 4;  // Nur ein viertel arbeitet ("Only a quarter of working" - Google translate. "arbeit" = "work")
+		int will_wohnung = (bev - won); // Home
 
 		// der Bauplatz muss bewertet werden
 		int passt_industrie, passt_gewerbe, passt_wohnung;
