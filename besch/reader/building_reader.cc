@@ -421,7 +421,6 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		DBG_DEBUG("building_reader_t::read_node()","old station building -> increment level by one to %i", besch->level );
 	}
 
-
 	if (besch->level == 65535) {
 		besch->level = 0;	// apparently wrong level
 		dbg->warning("building_reader_t::read_node()","level was 65535, intended was probably 0 => changed." );

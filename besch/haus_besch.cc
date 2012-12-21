@@ -50,9 +50,9 @@ uint16 haus_besch_t::get_post_level() const
 {
 	switch (gtyp) {
 		default:
-		case gebaeude_t::wohnung:   return level;
-		case gebaeude_t::gewerbe:   return level * 2;
-		case gebaeude_t::industrie: return level / 2;
+		case gebaeude_t::wohnung:   return level; // Home
+		case gebaeude_t::gewerbe:   return level * 2; // "Trade" (Google Translator)
+		case gebaeude_t::industrie: return level / 2; // Industry
 	}
 }
 
