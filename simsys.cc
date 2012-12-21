@@ -600,8 +600,7 @@ void dr_fatal_notify(char const* const msg)
  */
 bool dr_download_pakset( const char *path_to_program, bool portable )
 {
-//#ifdef _WIN32
-#if 0
+#ifdef _WIN32
 	char param[2048];
 	if(  portable  ) {
 		sprintf( param, "/P /D=%s", path_to_program );
