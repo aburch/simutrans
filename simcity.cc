@@ -2713,7 +2713,7 @@ void stadt_t::calc_growth()
 	if(bev < s.get_city_threshold_size()) {
 		weight_factor = s.get_growthfactor_small();
 	}
-	else if(bev <s.get_capital_threshold_size()) {
+	else if(bev < s.get_capital_threshold_size()) {
 		weight_factor = s.get_growthfactor_medium();
 	}
 
@@ -2752,7 +2752,7 @@ void stadt_t::step_bau()
 		}
 		bev = 0;
 	}
-	// since we use internall a finer value ...
+	// since we use internally a finer value ...
 	const int growth_step = (wachstum >> 4);
 	wachstum &= 0x0F;
 
@@ -2762,10 +2762,6 @@ void stadt_t::step_bau()
 		bev++; // Hajo: bevoelkerung wachsen lassen
 
 		for (int i = 0; i < 30 && bev * 2 > won + arb + 100; i++) {
-			// For some reason, this does not work: it only builds one
-			// type of old building rather than all types. TODO: Either
-			// fix this, or wait for Prissi to do it properly. 
-			//baue(new_town);
 			baue(false);
 		}
 
@@ -3783,8 +3779,12 @@ koord stadt_t::get_zufallspunkt(uint32 min_distance, uint32 max_distance, koord 
 		}
 		koord k = koord::invalid;
 		uint32 distance = 0;
-		uint8 counter = 0;
-		while (counter++ < 24 && (k == koord::invalid || distance > max_distance || distance < min_distance))
+		bool destination_within_range = false;
+		koord nearest_miss = koord::invalid;
+		uint32 nearest_miss_difference =  2147483647; // uint32 max.
+		uint32 difference;
+		//while (counter++ < 24 && (k == koord::invalid || distance > max_distance || distance < min_distance))
+		for(uint32 i = 0; i < 24; i++)
 		{
 			gebaeude_t* const gb = pick_any_weighted(buildings);
 			k = gb->get_pos().get_2d();
@@ -3796,6 +3796,28 @@ koord stadt_t::get_zufallspunkt(uint32 min_distance, uint32 max_distance, koord 
 				k = koord(0, 0);
 			}
 			distance = shortest_distance(k, origin);
+			if(distance <= max_distance && distance >= min_distance)
+			{
+				destination_within_range = true;
+				break;
+			}
+			else if(distance > max_distance)
+			{
+				difference = distance - max_distance;
+			}
+			else // distance < min_distance
+			{
+				difference = min_distance - distance;
+			}
+			if(difference < nearest_miss_difference)
+			{
+				nearest_miss_difference = difference;
+				nearest_miss = k;
+			}
+		}
+		if(!destination_within_range && nearest_miss != koord::invalid)
+		{
+			k = nearest_miss;
 		}
 		return k;
 	}
@@ -3918,11 +3940,17 @@ stadt_t::destination stadt_t::find_destination(factory_set_t &target_factories, 
 	{
 		stadt_t* zielstadt;
 
+		stadt_t* nearest_miss = NULL;
+		bool town_within_range = false;
+		uint32 difference;
+		uint32 nearest_miss_difference =  2147483647; // uint32 max.
+
 		if(max_distance == 0)
 		{
 			// A proportion of local passengers will always travel *within* the town.
 			// This enables the town finding routine to be skipped.
 			zielstadt = this;
+			town_within_range = true;
 		}
 
 		else
@@ -3936,6 +3964,7 @@ stadt_t::destination stadt_t::find_destination(factory_set_t &target_factories, 
 			const uint16 max_y = max((origin.y - ur.y), (origin.y - lo.y));
 			const uint16 max_internal_distance = max(max_x, max_y);
 			const uint8 max_count = 96;
+			
 			for(uint8 i = 0; i < max_count; i ++)
 			{
 				zielstadt = welt->get_town_at(random);
@@ -3953,19 +3982,31 @@ stadt_t::destination stadt_t::find_destination(factory_set_t &target_factories, 
 				
 				if(distance <= max_distance && distance >= min_distance)
 				{
+					town_within_range = true;
 					break;
+				}
+				else
+				{
+					if(distance > max_distance)
+					{
+						difference = distance - max_distance;
+					}
+					else // distance < min_distance
+					{
+						difference = min_distance - distance;
+					}
+					
+					if(difference < nearest_miss_difference)
+					{
+						nearest_miss_difference = difference;
+						nearest_miss = zielstadt;
+					}					
 				}
 
 				random += town_step;
 				if(random > weight)
 				{
 					random = 0;
-				}
-
-				if(i == max_count - 1 && min_distance <= max_internal_distance)
-				{
-					// Last resort for local traffic.
-					zielstadt = this;
 				}
 
 				/*if(i == 16 || i == 32 || i == 64)
@@ -3985,6 +4026,11 @@ stadt_t::destination stadt_t::find_destination(factory_set_t &target_factories, 
 					zielstadt = this;
 				}*/
 			}
+		}
+
+		if(!town_within_range && nearest_miss != NULL)
+		{
+			zielstadt = nearest_miss;
 		}
 
 		// long distance traveller? => then we return
@@ -4531,8 +4577,8 @@ void stadt_t::baue_gebaeude(const koord k, bool new_town)
 		// bisher gibt es 2 Sorten Haeuser
 		// arbeit-spendende und wohnung-spendende
 
-		int will_arbeit  = (bev - arb) / 4;  // Nur ein viertel arbeitet
-		int will_wohnung = (bev - won);
+		int will_arbeit  = (bev - arb) / 4;  // Nur ein viertel arbeitet ("Only a quarter of working" - Google translate. "arbeit" = "work")
+		int will_wohnung = (bev - won); // Home
 
 		// der Bauplatz muss bewertet werden
 		int passt_industrie, passt_gewerbe, passt_wohnung;

@@ -1471,7 +1471,7 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 		}
 
 		// just add the maintenance
-		if(sp && !ist_wasser() && (!welt->get_city(weg->get_pos().get_2d()) || !welt->get_settings().get_towns_adopt_player_roads() || sp->get_player_nr() == 1))
+		if(sp && !ist_wasser() && (weg->get_waytype() != road_wt || (!welt->get_city(weg->get_pos().get_2d()) || !welt->get_settings().get_towns_adopt_player_roads() || sp->get_player_nr() == 1)))
 		{			
 			//sp->add_maintenance( weg->get_besch()->get_wartung());
 			weg->set_besitzer(sp);

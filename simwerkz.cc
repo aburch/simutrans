@@ -4396,8 +4396,9 @@ const char* wkz_roadsign_t::check_pos_intern(karte_t *welt, spieler_t *sp, koord
 			return error;
 		}
 
-		if(  besch->is_private_way()  &&  !ribi_t::ist_gerade(dir)  ) {
-			// only on straight tiles ...
+		if(besch->is_private_way() && ((!ribi_t::ist_gerade(dir) || weg->get_besitzer() != sp) && (sp->get_player_nr() != 1 || weg->get_besitzer() != NULL)))
+		{
+			// Private way signs only on straight tiles, and only on ways belonging to the player building them.
 			return error;
 		}
 
