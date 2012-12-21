@@ -188,7 +188,7 @@ void reliefkarte_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoin
 		}
 	}
 
-	if(  stops > 2  ) {
+	if(  stops > 2 && !fpl->is_mirrored()  ) {
 		// connect to start
 		last_diagonal ^= true;
 		schedule_cache.insert_unique_ordered( line_segment_t( first_stop, first_offset, old_stop, old_offset, fpl, cnv->get_besitzer(), colore, last_diagonal ), LineSegmentOrdering() );
