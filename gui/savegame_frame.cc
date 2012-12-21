@@ -759,7 +759,8 @@ void savegame_frame_t::add_path(const char * path){
  */
 bool savegame_frame_t::del_action(const char * fullpath)
 {
-#ifdef _WIN32
+//#ifdef _WIN32
+# if 0
 
 	if (event_get_last_control_shift()&1) {
 		// shift pressed, delete without trash bin
