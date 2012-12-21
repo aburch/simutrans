@@ -3870,24 +3870,53 @@ bool waggon_t::block_reserver(route_t *route, uint16 start_index, uint16 &next_s
 				next_crossing_index = i;
 			}
 			// check if there is an early platform available to stop at
-			if ( do_early_platform_search ) {
-				if( early_platform_index==INVALID_INDEX ) {
-					if( gr->get_halt().is_bound() && gr->get_halt()==dest_halt ) {
-						if( ribi==ribi_last ) {
+			if ( do_early_platform_search )
+			{
+				if( early_platform_index==INVALID_INDEX ) 
+				{
+					if( gr->get_halt().is_bound() && gr->get_halt()==dest_halt ) 
+					{
+						if( ribi==ribi_last )
+						{
 							platform_size_found++;
-						} else {
+						} 
+						else
+						{
 							platform_size_found = 1;
 						}
-						if( platform_size_found>=platform_size_needed ) {
-							early_platform_index = i;
+						if( platform_size_found>=platform_size_needed )
+						{
+							// Now check to make sure that the actual destination tile is not just a few tiles down the same platform
+							uint16 route_ahead_check = i;
+							koord3d current_pos = pos;
+							while(current_pos != cnv->get_schedule()->get_current_eintrag().pos && haltestelle_t::get_halt(welt, current_pos, cnv->get_besitzer()) == dest_halt && route_ahead_check < route->get_count())
+							{
+								current_pos = route->position_bei(route_ahead_check);
+								route_ahead_check ++;
+							}
+							if(current_pos != cnv->get_schedule()->get_current_eintrag().pos)
+							{
+								early_platform_index = i;
+							}
+							else
+							{
+								platform_size_found = 0;
+								do_early_platform_search = false;
+							}
 						}
-					} else {
+					} 
+					else 
+					{
 						platform_size_found = 0;
 					}
-				} else if( ribi_last==ribi && gr->get_halt().is_bound() && gr->get_halt()==dest_halt ) {
+				} 
+				else if( ribi_last==ribi && gr->get_halt().is_bound() && gr->get_halt()==dest_halt ) 
+				{
 					// a platform was found, but it continues so go on to its end
 					early_platform_index = i;
-				} else {
+				} 
+				else 
+				{
 					// a platform was found, and has ended, thus the last index was fine.
 					sch1->unreserve(cnv->self);
 					success = true;
