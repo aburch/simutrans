@@ -46,7 +46,7 @@
 #		include <unistd.h>
 #		include <arpa/inet.h>
 #		include <netinet/in.h>
-#		include <netinet/typ.h>
+#		include <netinet/tcp.h>
 #	endif
 #   ifdef  __HAIKU__
 #		include <sys/select.h>
