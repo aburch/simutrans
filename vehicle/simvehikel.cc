@@ -3512,14 +3512,16 @@ bool waggon_t::is_weg_frei_longblock_signal( signal_t *sig, uint16 next_block, i
 
 	// now we can use the route seach array
 	// (route until end is already reserved at this point!)
-	uint8 fahrplan_index = cnv->get_schedule()->get_aktuell()+1;
+	route_t& route = *cnv->get_route();
 	route_t target_rt;
+
+	schedule_t *fpl = cnv->get_schedule();
+	uint8 fahrplan_index = fpl->get_aktuell();
+	bool reversed = cnv->get_reverse_schedule();
+	fpl->increment_index(&fahrplan_index, &reversed);
 	koord3d cur_pos = cnv->get_route()->back();
 	uint16 dummy, next_next_signal;
 	bool success = true;
-	if(fahrplan_index >= cnv->get_schedule()->get_count()) {
-		fahrplan_index = 0;
-	}
 	while(  fahrplan_index != cnv->get_schedule()->get_aktuell()  ) {
 		// now search
 		// search for route
@@ -3551,10 +3553,7 @@ bool waggon_t::is_weg_frei_longblock_signal( signal_t *sig, uint16 next_block, i
 		}
 		// prepare for next leg of schedule
 		cur_pos = target_rt.back();
-		fahrplan_index ++;
-		if(fahrplan_index >= cnv->get_schedule()->get_count()) {
-			fahrplan_index = 0;
-		}
+		fpl->increment_index(&fahrplan_index, &reversed);
 	}
 	return true;
 }
@@ -4094,9 +4093,9 @@ bool waggon_t::block_reserver(route_t *route, uint16 start_index, uint16 &next_s
 	if (do_early_platform_search) {
 		// if an early platform was found, stop there
 		if(early_platform_index!=INVALID_INDEX) {
-			next_signal_index = early_platform_index;
+			//next_signal_index = early_platform_index;
 			// directly modify the route
-			route->truncate_from(early_platform_index);
+			route->remove_koord_from(early_platform_index);
 		}
 	}
 	cnv->set_next_reservation_index( i );
