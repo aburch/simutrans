@@ -495,6 +495,9 @@
     <ClCompile Include="simdepot.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="simdings.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="simevent.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -756,9 +759,6 @@
     <ClCompile Include="simsys_w.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="utils\fetchopt.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="dataobj\livery_scheme.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -780,7 +780,136 @@
     <ClCompile Include="dataobj\pwd_hash.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="simdings.cc">
+    <ClCompile Include="utils\fetchopt.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="script\api_class.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="script\api_param.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="script\dynamic_string.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="script\export_objs.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="script\script.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="script\api\api_city.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="script\api\api_const.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="script\api\api_convoy.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="script\api\api_factory.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="script\api\api_goods_desc.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="script\api\api_halt.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="script\api\api_player.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="script\api\api_scenario.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="script\api\api_settings.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="script\api\api_tiles.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="script\api\api_world.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="script\api\export_besch.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="script\api\get_next.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dataobj\network_cmd_scenario.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="squirrel\sq_extensions.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="squirrel\sqstdlib\sqstdaux.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="squirrel\sqstdlib\sqstdblob.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="squirrel\sqstdlib\sqstdio.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="squirrel\sqstdlib\sqstdmath.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="squirrel\sqstdlib\sqstdrex.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="squirrel\sqstdlib\sqstdstream.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="squirrel\sqstdlib\sqstdstring.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="squirrel\sqstdlib\sqstdsystem.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="squirrel\squirrel\sqapi.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="squirrel\squirrel\sqbaselib.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="squirrel\squirrel\sqclass.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="squirrel\squirrel\sqcompiler.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="squirrel\squirrel\sqdebug.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="squirrel\squirrel\sqfuncstate.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="squirrel\squirrel\sqlexer.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="squirrel\squirrel\sqmem.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="squirrel\squirrel\sqobject.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="squirrel\squirrel\sqstate.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="squirrel\squirrel\sqtable.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="squirrel\squirrel\sqvm.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\csv.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="script\api_function.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\scenario_info.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1943,9 +2072,7 @@
     <None Include="base_texts_experimental_10.15.dat">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="base_textes_experimental_10.17.dat">
-      <Filter>Resource Files</Filter>
-    </None>
+    <None Include="base_textes_experimental_10.17.dat" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="simres.rc">
