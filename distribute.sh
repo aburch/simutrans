@@ -6,9 +6,13 @@ if [ $MSYSTEM = MINGW32 ]
   simexe=.exe
   simarchiv=simuwin
   echo "Windows"
+  updatepath="/nsis/"
+  updater="download-paksets.exe"
   else
   simexe=
   simarchiv=simulinux
+  updatepath = "/"
+  updater = "get_pak.sh"
   echo "Linux"
 fi
 
@@ -19,16 +23,17 @@ distribute()
 {
 	# pack all files of the current release
 	FILELISTE=`find simutrans -type f "(" -name "*.tab" -o -name "*.mid" -o -name "*.bdf" -o -name "*.fnt" -o -name "*.txt"  -o -name "*.dll"  -o -name "*.pak" -o  -name "*.nut" ")"`
-	zip -9 $simarchiv.zip $FILELISTE simutrans/simutrans$simexe
+	zip -9 $simarchiv.zip $FILELISTE simutrans/simutrans$simexe simutrans/$updater
 }
 
 # fetch language files
-sh ./get_lang_files.sh
+#sh ./get_lang_files.sh
 
 # now built the archive for distribution
 cd simutrans
 cp ../sim$simexe ./simutrans$simexe
 strip simutrans$simexe
+cp ..$updatepath$updater $updater
 cd ..
 distribute
 

@@ -1,4 +1,4 @@
-Release of 112.1: (r6211 on 23-Dec-2012):
+Release of 112.1: (r6212 on 23-Dec-2012):
 	ADD: transparent chat window in networkmode
 	FIX: underground stations in networkmode
 	ADD: (Markohs) Scenario and heightmap dialogs now support multi-directory
