@@ -4734,7 +4734,7 @@ uint16 convoi_t::calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance, k
 		return 0;
 	}
 
-	const uint16 global_multiplier =welt->get_settings().get_speed_bonus_multiplier_percent();
+	const uint16 global_multiplier = welt->get_settings().get_speed_bonus_multiplier_percent();
 	const uint16 max_distance = w != NULL ? w->get_settings().get_max_bonus_min_distance() : 16;
 	const uint16 multiplier = w != NULL ? w->get_settings().get_max_bonus_multiplier_percent() : 30;
 	
