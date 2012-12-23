@@ -1,3 +1,4 @@
+Release of 112.1: (r6211 on 23-Dec-2012):
 	ADD: transparent chat window in networkmode
 	FIX: underground stations in networkmode
 	ADD: (Markohs) Scenario and heightmap dialogs now support multi-directory
@@ -18,6 +19,7 @@
 	ADD: Restore chat window on joining
 	ADD: Restore factory window on joining
 	FIX: correctly remove stale freight from convois when stops are joined or tiles are deleted
+	FIX: less desyncs when renaming, better processing server queue
 
 
 Release of 112.0: (r6000 on 22-Oct-2012):
