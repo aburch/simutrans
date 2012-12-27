@@ -11,8 +11,8 @@ if [ $MSYSTEM = MINGW32 ]
   else
   simexe=
   simarchiv=simulinux
-  updatepath = "/"
-  updater = "get_pak.sh"
+  updatepath="/"
+  updater="get_pak.sh"
   echo "Linux"
 fi
 
@@ -27,7 +27,7 @@ distribute()
 }
 
 # fetch language files
-#sh ./get_lang_files.sh
+sh ./get_lang_files.sh
 
 # now built the archive for distribution
 cd simutrans
