@@ -271,7 +271,8 @@ void umgebung_t::rdwr(loadsave_t *file)
 
 	if(  file->get_version()<=112000  ) {
 		// set by command-line, it does not make sense to save it.
-		file->rdwr_byte( verbose_debug );
+		uint8 v = verbose_debug;
+		file->rdwr_byte( v );
 	}
 
 	file->rdwr_long( intercity_road_length );
