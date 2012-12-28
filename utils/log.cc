@@ -264,7 +264,7 @@ void log_t::fatal(const char *who, const char *format, ...)
 	sprintf( formatbuffer, "FATAL ERROR: %s - %s\nAborting program execution ...\n\nFor help with this error or to file a bug report please see the Simutrans forum:\nhttp://forum.simutrans.com\n", who, format );
 
 	static char buffer[8192];
-	int n = sprintf( buffer, formatbuffer, argptr );
+	int n = vsprintf( buffer, formatbuffer, argptr );
 
 	if (  log  ) {
 		fputs( buffer, log );
