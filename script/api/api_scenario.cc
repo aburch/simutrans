@@ -112,5 +112,34 @@ void export_scenario(HSQUIRRELVM vm)
 	 */
 	STATIC register_method(vm, &scenario_t::allow_way_tool_rect,  "allow_way_tool_rect");
 
+	/**
+	 * Forbid tool with certain waytype within cubic region on the map.
+	 *
+	 * @param player_nr number of player this rule applies to,
+	 *                  if this is set to player_all then this acts for all players except public player
+	 * @param tool_id id of tool
+	 * @param wt waytype
+	 * @param pos_nw 3d-coordinate of north-western corner of cube
+	 * @param pos_se 3d-coordinate of south-eastern corner of cube
+	 * @param err error message presented to user when trying to apply this tool
+	 * @see tool_ids way_types player_all
+	 * @ingroup post-112-1
+	 */
+	STATIC register_method(vm, &scenario_t::forbid_way_tool_cube, "forbid_way_tool_cube");
+
+	/**
+	 * Allow tool with certain waytype within cubic region on the map.
+	 *
+	 * @param player_nr number of player this rule applies to,
+	 *                  if this is set to player_all then this acts for all players except public player
+	 * @param tool_id id of tool
+	 * @param wt waytype
+	 * @param pos_nw 3d-coordinate of north-western corner of cube
+	 * @param pos_se 3d-coordinate of south-eastern corner of cube
+	 * @see tool_ids way_types player_all
+	 * @ingroup post-112-1
+	 */
+	STATIC register_method(vm, &scenario_t::allow_way_tool_cube,  "allow_way_tool_cube");
+
 	end_class();
 }

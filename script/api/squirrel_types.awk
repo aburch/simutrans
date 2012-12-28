@@ -95,6 +95,8 @@ BEGIN {
 	export_types["::allow_way_tool"] = "void(integer, integer, way_types)"
 	export_types["::forbid_way_tool_rect"] = "void(integer, integer, way_types, coord, coord, string)"
 	export_types["::allow_way_tool_rect"] = "void(integer, integer, way_types, coord, coord)"
+	export_types["::forbid_way_tool_cube"] = "void(integer, integer, way_types, coord3d, coord3d, string)"
+	export_types["::allow_way_tool_cube"] = "void(integer, integer, way_types, coord3d, coord3d)"
 	export_types["settings::get_industry_increase_every"] = "integer()"
 	export_types["settings::set_industry_increase_every"] = "void(integer)"
 	export_types["tile_x::get_halt"] = "halt_x()"

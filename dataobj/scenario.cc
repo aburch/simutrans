@@ -184,8 +184,14 @@ const char* scenario_t::get_forbidden_text()
 			buf.printf(", Waytype = %d", f.waytype);
 		}
 		if (f.type == forbidden_t::forbid_tool_rect) {
-			buf.printf(", Rect = (%s) x ", f.pos_nw.get_str());
-			buf.printf("(%s)", f.pos_se.get_str());
+			if (-128<f.hmin ||  f.hmax<127) {
+				buf.printf(", Cube = (%s,%d) x ", f.pos_nw.get_str(), f.hmin);
+				buf.printf("(%s,%d)", f.pos_se.get_str(), f.hmax);
+			}
+			else {
+				buf.printf(", Rect = (%s) x ", f.pos_nw.get_str());
+				buf.printf("(%s)", f.pos_se.get_str());
+			}
 		}
 		buf.printf("<br>");
 	}
@@ -216,6 +222,7 @@ bool scenario_t::forbidden_t::operator ==(const forbidden_t &other) const
 	if (eq) {
 		switch(type) {
 			case forbid_tool_rect:
+				eq = eq  &&  (hmin == other.hmin)  &&  (hmax == other.hmax);
 				eq = eq  &&  (pos_nw == other.pos_nw);
 				eq = eq  &&  (pos_se == other.pos_se);
 			case forbid_tool:
@@ -356,23 +363,39 @@ void scenario_t::allow_way_tool(uint8 player_nr, uint16 wkz_id, waytype_t wt)
 }
 
 
-void scenario_t::forbid_way_tool_rect(uint8 player_nr, uint16 wkz_id, waytype_t wt, koord pos_nw_0, koord pos_se_0, plainstring err)
+void scenario_t::forbid_way_tool_rect(uint8 player_nr, uint16 wkz_id, waytype_t wt, koord pos_nw, koord pos_se, plainstring err)
+{
+	forbid_way_tool_cube(player_nr, wkz_id, wt, koord3d(pos_nw, -128), koord3d(pos_se, 127), err);
+}
+
+
+void scenario_t::allow_way_tool_rect(uint8 player_nr, uint16 wkz_id, waytype_t wt, koord pos_nw, koord pos_se)
+{
+	allow_way_tool_cube(player_nr, wkz_id, wt, koord3d(pos_nw, -128), koord3d(pos_se, 127));
+}
+
+
+void scenario_t::forbid_way_tool_cube(uint8 player_nr, uint16 wkz_id, waytype_t wt, koord3d pos_nw_0, koord3d pos_se_0, plainstring err)
 {
 	koord pos_nw( min(pos_nw_0.x, pos_se_0.x), min(pos_nw_0.y, pos_se_0.y));
 	koord pos_se( max(pos_nw_0.x, pos_se_0.x), max(pos_nw_0.y, pos_se_0.y));
+	sint8 hmin( min(pos_nw_0.z, pos_se_0.z) );
+	sint8 hmax( max(pos_nw_0.z, pos_se_0.z) );
 
-	forbidden_t *test = new forbidden_t(player_nr, wkz_id, wt, pos_nw, pos_se);
+	forbidden_t *test = new forbidden_t(player_nr, wkz_id, wt, pos_nw, pos_se, hmin, hmax);
 	test->error = err;
 	call_forbid_tool(test, true);
 }
 
 
-void scenario_t::allow_way_tool_rect(uint8 player_nr, uint16 wkz_id, waytype_t wt, koord pos_nw_0, koord pos_se_0)
+void scenario_t::allow_way_tool_cube(uint8 player_nr, uint16 wkz_id, waytype_t wt, koord3d pos_nw_0, koord3d pos_se_0)
 {
 	koord pos_nw( min(pos_nw_0.x, pos_se_0.x), min(pos_nw_0.y, pos_se_0.y));
 	koord pos_se( max(pos_nw_0.x, pos_se_0.x), max(pos_nw_0.y, pos_se_0.y));
+	sint8 hmin( min(pos_nw_0.z, pos_se_0.z) );
+	sint8 hmax( max(pos_nw_0.z, pos_se_0.z) );
 
-	forbidden_t *test = new forbidden_t(player_nr, wkz_id, wt, pos_nw, pos_se);
+	forbidden_t *test = new forbidden_t(player_nr, wkz_id, wt, pos_nw, pos_se, hmin, hmax);
 	call_forbid_tool(test, false);
 }
 
@@ -430,12 +453,16 @@ const char* scenario_t::is_work_allowed_here(spieler_t* sp, uint16 wkz_id, sint1
 		for(uint32 wti = 0; wti<4; wti++) {
 			for(uint32 i = find_first(test); i < forbidden_tools.get_count()  &&  *forbidden_tools[i] <= test; i++) {
 				forbidden_t const& f = *forbidden_tools[i];
+				// check rectangle
 				if (f.pos_nw.x <= pos.x  &&  f.pos_nw.y <= pos.y  &&  pos.x <= f.pos_se.x  &&  pos.y <= f.pos_se.y) {
-					const char* err = f.error.c_str();
-					if (err == NULL) {
-						err = "";
+					// check height
+					if (f.hmin <= pos.z  &&  pos.z <= f.hmax) {
+						const char* err = f.error.c_str();
+						if (err == NULL) {
+							err = "";
+						}
+						return err;
 					}
-					return err;
 				}
 			}
 			// logic to test all possible four cases

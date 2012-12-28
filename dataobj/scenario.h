@@ -90,17 +90,17 @@ private:
 			type(type_), player_nr(player_nr_), toolnr(toolnr_), waytype(waytype_),
 			pos_nw(koord::invalid), pos_se(koord::invalid), hmin(-128), hmax(127), error() {};
 
-		/// constructor: forbid tool for a certain player at certain location
-		forbidden_t(uint8 player_nr_, uint16 toolnr_, sint16 waytype_, koord nw, koord se) :
+		/// constructor: forbid tool for a certain player at certain locations (and heights)
+		forbidden_t(uint8 player_nr_, uint16 toolnr_, sint16 waytype_, koord nw, koord se, sint8 hmin_=-128, sint8 hmax_=127) :
 			type(forbid_tool_rect), player_nr(player_nr_), toolnr(toolnr_), waytype(waytype_),
-			pos_nw(nw), pos_se(se), hmin(-128), hmax(127), error() {};
+			pos_nw(nw), pos_se(se), hmin(hmin_), hmax(hmax_), error() {};
 
 		// copy constructor
 		forbidden_t(const forbidden_t&);
 
 		/**
 		 * @returns if this < other, compares: type, playernr, tool, wt
-		 * DIRTY: (a <= b)  &&  (b < =a)  DOES NOT imply  a == b
+		 * DIRTY: (a <= b)  &&  (b <= a)  DOES NOT imply  a == b
 		 */
 		bool operator <(const forbidden_t &) const;
 
@@ -113,7 +113,7 @@ private:
 
 		/**
 		 * compares everything (including coordinates)
-		 * DIRTY: (a <= b)  &&  (b < =a)  DOES NOT imply  a == b
+		 * DIRTY: (a <= b)  &&  (b <= a)  DOES NOT imply  a == b
 		 */
 		bool operator ==(const forbidden_t &other) const;
 
@@ -335,6 +335,26 @@ public:
 	 * @see forbid_way_tool_rect
 	 */
 	void allow_way_tool_rect(uint8 player_nr, uint16 wkz_id, waytype_t wt, koord pos_nw, koord pos_se);
+
+	/**
+	 * Forbid tool with certain waytype within cubic region on the map.
+	 * @ingroup squirrel-api
+	 *
+	 * @param player_nr number of player this rule applies to,
+	 *                  if this is set to MAX_PLAYER_COUNT then this acts for all players except public player
+	 * @param wkz_id id of tool
+	 * @param wt waytype
+	 * @param pos_nw coordinate of north-western corner of cube
+	 * @param pos_se coordinate of south-eastern corner of cube
+	 * @param err error message presented to user when trying to apply this tool
+	 */
+	void forbid_way_tool_cube(uint8 player_nr, uint16 wkz_id, waytype_t wt, koord3d pos_nw, koord3d pos_se, plainstring err);
+
+	/**
+	 * @ingroup squirrel-api
+	 * @see forbid_way_tool_cube
+	 */
+	void allow_way_tool_cube(uint8 player_nr, uint16 wkz_id, waytype_t wt, koord3d pos_nw, koord3d pos_se);
 
 	/**
 	 * Checks if player can use this tool at all.
