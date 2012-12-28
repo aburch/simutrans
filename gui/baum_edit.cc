@@ -66,7 +66,9 @@ void baum_edit_frame_t::fill_list( bool translate )
 {
 	baumlist.clear();
 	FOR(vector_tpl<baum_besch_t const*>, const i, baum_t::get_all_besch()) {
-		baumlist.insert_ordered(i, compare_baum_besch);
+		if (i) {
+			baumlist.insert_ordered(i, compare_baum_besch);
+		}
 	}
 
 	// now buil scrolled list
