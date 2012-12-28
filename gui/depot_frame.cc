@@ -1235,48 +1235,49 @@ void depot_frame_t::zeichnen(koord pos, koord groesse)
 
 	if(  cnv.is_bound()  ) {
 		if(  cnv->get_vehikel_anzahl()>0  ) {
+
+			for(  unsigned i = 0;  i < cnv->get_vehikel_anzahl();  i++  ) {
+				const vehikel_besch_t *besch = cnv->get_vehikel(i)->get_besch();
+
+				total_power += besch->get_leistung()*besch->get_gear()/64;
+
+				uint32 max_weight = 0;
+				uint32 min_weight = 100000;
+				for(  uint32 j=0;  j<warenbauer_t::get_waren_anzahl();  j++  ) {
+					const ware_besch_t *ware = warenbauer_t::get_info(j);
+
+					if(  besch->get_ware()->get_catg_index() == ware->get_catg_index()  ) {
+						max_weight = max(max_weight, (uint32)ware->get_weight_per_unit());
+						min_weight = min(min_weight, (uint32)ware->get_weight_per_unit());
+					}
+				}
+				total_empty_weight += besch->get_gewicht();
+				total_max_weight += besch->get_gewicht() + max_weight*besch->get_zuladung();
+				total_min_weight += besch->get_gewicht() + min_weight*besch->get_zuladung();
+
+				const ware_besch_t* const ware = besch->get_ware();
+				switch(  ware->get_catg_index()  ) {
+					case warenbauer_t::INDEX_PAS: {
+						total_pax += besch->get_zuladung();
+						break;
+					}
+					case warenbauer_t::INDEX_MAIL: {
+						total_mail += besch->get_zuladung();
+						break;
+					}
+					default: {
+						total_goods += besch->get_zuladung();
+						break;
+					}
+				}
+			}
+
 			sint32 empty_kmh, max_kmh, min_kmh, cnv_min_top_kmh;
 			if(  cnv->front()->get_waytype() == air_wt  ) {
 				// flying aircraft have 0 friction --> speed not limited by power, so just use top_speed
 				empty_kmh = max_kmh = min_kmh = cnv_min_top_kmh = speed_to_kmh( cnv->get_min_top_speed() );
 			}
 			else {
-				for(  unsigned i = 0;  i < cnv->get_vehikel_anzahl();  i++  ) {
-					const vehikel_besch_t *besch = cnv->get_vehikel(i)->get_besch();
-
-					total_power += besch->get_leistung()*besch->get_gear()/64;
-
-					uint32 max_weight = 0;
-					uint32 min_weight = 100000;
-					for(  uint32 j=0;  j<warenbauer_t::get_waren_anzahl();  j++  ) {
-						const ware_besch_t *ware = warenbauer_t::get_info(j);
-
-						if(  besch->get_ware()->get_catg_index() == ware->get_catg_index()  ) {
-							max_weight = max(max_weight, (uint32)ware->get_weight_per_unit());
-							min_weight = min(min_weight, (uint32)ware->get_weight_per_unit());
-						}
-					}
-					total_empty_weight += besch->get_gewicht();
-					total_max_weight += besch->get_gewicht() + max_weight*besch->get_zuladung();
-					total_min_weight += besch->get_gewicht() + min_weight*besch->get_zuladung();
-
-					const ware_besch_t* const ware = besch->get_ware();
-					switch(  ware->get_catg_index()  ) {
-						case warenbauer_t::INDEX_PAS: {
-							total_pax += besch->get_zuladung();
-							break;
-						}
-						case warenbauer_t::INDEX_MAIL: {
-							total_mail += besch->get_zuladung();
-							break;
-						}
-						default: {
-							total_goods += besch->get_zuladung();
-							break;
-						}
-					}
-				}
-
 				cnv_min_top_kmh = speed_to_kmh( cnv->get_min_top_speed() );
 				empty_kmh = total_power <= total_empty_weight/1000 ? 1 : min( cnv_min_top_kmh, sqrt_i32(((total_power<<8)/(total_empty_weight/1000)-(1<<8))<<8)*50 >>8 );
 				max_kmh = total_power <= total_min_weight/1000 ? 1 : min( cnv_min_top_kmh, sqrt_i32(((total_power<<8)/(total_min_weight/1000)-(1<<8))<<8)*50 >>8 );
