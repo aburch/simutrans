@@ -217,8 +217,7 @@ bool scenario_t::forbidden_t::operator ==(const forbidden_t &other) const
 		switch(type) {
 			case forbid_tool_rect:
 				eq = eq  &&  (pos_nw == other.pos_nw);
-//			case forbid_tool_at:
-				eq = eq  &&  (pos_nw == other.pos_nw);
+				eq = eq  &&  (pos_se == other.pos_se);
 			case forbid_tool:
 				eq = eq  &&  (toolnr == other.toolnr);
 				break;
