@@ -132,8 +132,8 @@ static bool passes_filter_special(haltestelle_t const& s)
 
 	if (halt_list_frame_t::get_filter(halt_list_frame_t::ueberfuellt_filter)) {
 		COLOR_VAL const farbe = s.get_status_farbe();
-		if (farbe != COL_RED  &&  farbe != COL_ORANGE) {
-			return false; // not overcrowded
+		if (farbe == COL_RED || farbe == COL_ORANGE) {
+			return true; // overcrowded
 		}
 	}
 
@@ -141,9 +141,10 @@ static bool passes_filter_special(haltestelle_t const& s)
 		for (uint8 i = 0; i < warenbauer_t::get_max_catg_index(); ++i){
 			if (!s.get_connections(i).empty()) return false; // only display stations with NO connection
 		}
+		return true;
 	}
 
-	return true;
+	return false;
 }
 
 
