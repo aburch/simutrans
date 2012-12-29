@@ -63,18 +63,10 @@ inline sint64 convert_money(sint64 value) { return (value + 50) / 100; }
 class spieler_t
 {
 public:
-	enum { MAX_KONTO_VERZUG = 3 };
-
 	enum { EMPTY=0, HUMAN=1, AI_GOODS=2, AI_PASSENGER=3, MAX_AI, PASSWORD_PROTECTED=128 };
 
 protected:
 	char spieler_name_buf[256];
-
-	/*
-	 * holds total number of all halts, ever built
-	 * @author hsiegeln
-	 */
-	sint32 haltcount;
 
 	/**
 	* Finance History - will supercede the finances by Owen Rudge
@@ -296,12 +288,6 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	void halt_remove(halthandle_t halt);
-
-	/**
-	 * Gets haltcount, for naming purposes
-	 * @author hsiegeln
-	 */
-	int get_haltcount() const { return haltcount; }
 
 	/**
 	 * Lädt oder speichert Zustand des Spielers

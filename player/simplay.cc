@@ -115,8 +115,6 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 		}
 	}
 
-	haltcount = 0;
-
 	maintenance = 0;
 
 	welt->get_settings().set_default_player_color(this);
@@ -560,7 +558,6 @@ void spieler_t::halt_add(halthandle_t halt)
 {
 	if(!halt_list.is_contained(halt)) {
 		halt_list.append(halt);
-		haltcount ++;
 	}
 }
 
@@ -753,7 +750,6 @@ void spieler_t::ai_bankrupt()
 void spieler_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t sss( file, "spieler_t" );
-	sint32 halt_count=0;
 
 	file->rdwr_longlong(konto);
 	file->rdwr_long(konto_ueberzogen);
@@ -774,10 +770,15 @@ void spieler_t::rdwr(loadsave_t *file)
 		file->rdwr_byte(kennfarbe1);
 		file->rdwr_byte(kennfarbe2);
 	}
+
+	sint32 halt_count=0;
 	if(file->get_version()<99008) {
 		file->rdwr_long(halt_count);
 	}
-	file->rdwr_long(haltcount);
+	if(file->get_version()<=112002) {
+		sint32 haltcount = 0;
+		file->rdwr_long(haltcount);
+	}
 
 	if (file->get_version() < 84008) {
 		// not so old save game
@@ -912,11 +913,6 @@ void spieler_t::rdwr(loadsave_t *file)
 		koord k(-1,-1);
 		k.rdwr( file );
 		k.rdwr( file );
-	}
-
-	// Hajo: sanity checks
-	if(halt_count < 0  ||  haltcount < 0) {
-		dbg->fatal("spieler_t::rdwr()", "Halt count is out of bounds: %d -> corrupt savegame?", halt_count|haltcount);
 	}
 
 	if(file->is_loading()) {
