@@ -109,8 +109,6 @@ protected:
 	 */
 	sint32 konto_ueberzogen;
 
-	slist_tpl<halthandle_t> halt_list; ///< Liste der Haltestellen
-
 	class income_message_t {
 	public:
 		char str[33];
@@ -270,24 +268,6 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	virtual void neues_jahr() {}
-
-	/**
-	 * Erzeugt eine neue Haltestelle des Spielers an Position pos
-	 * @author Hj. Malthaner
-	 */
-	halthandle_t halt_add(koord pos);
-
-	/**
-	 * needed to transfer ownership
-	 * @author prissi
-	 */
-	void halt_add(halthandle_t h);
-
-	/**
-	 * Entfernt eine Haltestelle des Spielers aus der Liste
-	 * @author Hj. Malthaner
-	 */
-	void halt_remove(halthandle_t halt);
 
 	/**
 	 * Lädt oder speichert Zustand des Spielers

@@ -374,11 +374,6 @@ haltestelle_t::~haltestelle_t()
 		dbg->error("haltestelle_t::~haltestelle_t()", "handle %i found %i times in haltlist!", self.get_id(), i );
 	}
 
-	// do not forget the players list ...
-	if(besitzer_p!=NULL) {
-		besitzer_p->halt_remove(self);
-	}
-
 	// free name
 	set_name(NULL);
 
@@ -2144,9 +2139,7 @@ void haltestelle_t::make_public_and_join( spieler_t *sp )
 		}
 		// transfer ownership
 		spieler_t::accounting( sp, -total_costs*60, get_basis_pos(), COST_CONSTRUCTION);
-		besitzer_p->halt_remove(self);
 		besitzer_p = public_owner;
-		public_owner->halt_add(self);
 	}
 
 	// set name to name of first public stop

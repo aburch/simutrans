@@ -3287,7 +3287,7 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.
 	bool neu = !halt.is_bound();
 
 	if(neu) { // neues dock
-		halt = sp->halt_add(pos);
+		halt = haltestelle_t::create(welt, pos, sp);
 	}
 	hausbauer_t::baue(welt, halt->get_besitzer(), bau_pos, layout, besch, &halt);
 	sint64 costs = welt->get_settings().cst_multiply_dock * besch->get_level();
@@ -3490,7 +3490,7 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 	bool neu = !halt.is_bound();
 
 	if(neu) {
-		halt = sp->halt_add(pos);
+		halt = haltestelle_t::create(welt, pos, sp);
 	}
 	hausbauer_t::neues_gebaeude( welt, halt->get_besitzer(), bd->get_pos(), layout, besch, &halt);
 	halt->recalc_station_type();

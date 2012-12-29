@@ -538,40 +538,6 @@ bool spieler_t::check_owner( const spieler_t *owner, const spieler_t *test )
 }
 
 
-/**
- * Erzeugt eine neue Haltestelle des Spielers an Position pos
- * @author Hj. Malthaner
- */
-halthandle_t spieler_t::halt_add(koord pos)
-{
-	halthandle_t halt = haltestelle_t::create(welt, pos, this);
-	halt_add(halt);
-	return halt;
-}
-
-
-/**
- * Erzeugt eine neue Haltestelle des Spielers an Position pos
- * @author Hj. Malthaner
- */
-void spieler_t::halt_add(halthandle_t halt)
-{
-	if(!halt_list.is_contained(halt)) {
-		halt_list.append(halt);
-	}
-}
-
-
-/**
- * Entfernt eine Haltestelle des Spielers aus der Liste
- * @author Hj. Malthaner
- */
-void spieler_t::halt_remove(halthandle_t halt)
-{
-	halt_list.remove(halt);
-}
-
-
 void spieler_t::ai_bankrupt()
 {
 	DBG_MESSAGE("spieler_t::ai_bankrupt()","Removing convois");
@@ -603,6 +569,14 @@ void spieler_t::ai_bankrupt()
 	headquarter_pos = koord::invalid;
 
 	// remove all stops
+	// first generate list of our stops
+	slist_tpl<halthandle_t> halt_list;
+	FOR(slist_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {
+		if(  halt->get_besitzer()==this  ) {
+			halt_list.append(halt);
+		}
+	}
+	// ... and destroy them
 	while (!halt_list.empty()) {
 		halthandle_t h = halt_list.remove_first();
 		haltestelle_t::destroy( h );
@@ -940,14 +914,7 @@ void spieler_t::rdwr(loadsave_t *file)
 		// halt_count will be zero for newer savegames
 DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this ),halt_count);
 		for(int i=0; i<halt_count; i++) {
-			halthandle_t halt = haltestelle_t::create( welt, file );
-			// it was possible to have stops without ground: do not load them
-			if(halt.is_bound()) {
-				halt_list.insert(halt);
-				if(!halt->existiert_in_welt()) {
-					dbg->warning("spieler_t::rdwr()","empty halt id %i qill be ignored", halt.get_id() );
-				}
-			}
+			haltestelle_t::create( welt, file );
 		}
 		// empty undo buffer
 		init_undo(road_wt,0);

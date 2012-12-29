@@ -412,7 +412,7 @@ fabrik_t* fabrikbauer_t::baue_fabrik(karte_t* welt, koord3d* parent, const fabri
 		koord dim = besch->get_groesse(rotate);
 
 		koord k;
-		halthandle_t halt = welt->get_spieler(1)->halt_add(pos.get_2d());
+		halthandle_t halt = haltestelle_t::create(welt, pos.get_2d(), welt->get_spieler(1));
 		if(halt.is_bound()) {
 
 			for(k.x=pos.x; k.x<pos.x+dim.x; k.x++) {

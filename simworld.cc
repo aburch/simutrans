@@ -5082,10 +5082,7 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 		DBG_MESSAGE("karte_t::laden()","%d halts loaded",halt_count);
 		for(int i=0; i<halt_count; i++) {
 			halthandle_t halt = haltestelle_t::create( this, file );
-			if(halt->existiert_in_welt()) {
-				halt->get_besitzer()->halt_add(halt);
-			}
-			else {
+			if(!halt->existiert_in_welt()) {
 				dbg->warning("karte_t::laden()", "could not restore stop near %i,%i", halt->get_init_pos().x, halt->get_init_pos().y );
 			}
 		}

@@ -364,8 +364,14 @@ bool ai_t::built_update_headquarter()
 				}
 			}
 			// needs new place?
-			if(place==koord::invalid  &&  !halt_list.empty()) {
-				stadt_t *st = welt->suche_naechste_stadt(halt_list.front()->get_basis_pos());
+			if(place==koord::invalid) {
+				stadt_t *st = NULL;
+				FOR(slist_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {
+					if(  halt->get_besitzer()==this  ) {
+						st = welt->suche_naechste_stadt(halt->get_basis_pos());
+						break;
+					}
+				}
 				if(st) {
 					bool is_rotate=besch->get_all_layouts()>1;
 					place = ai_bauplatz_mit_strasse_sucher_t(welt).suche_platz(st->get_pos(), besch->get_b(), besch->get_h(), besch->get_allowed_climate_bits(), &is_rotate);
