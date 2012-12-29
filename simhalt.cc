@@ -552,9 +552,15 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 
 	// this fails only, if there are no towns at all!
 	if(stadt==NULL) {
-		// get a default name
-		buf.printf( translator::translate("land stop %i %s",lang), get_besitzer()->get_haltcount(), stop );
-		return strdup(buf);
+		for(  uint32 i=1;  i<65536;  i++  ) {
+			// get a default name
+			buf.printf( translator::translate("land stop %i %s",lang), i, stop );
+			if(  !all_names.get(buf).is_bound()  ) {
+				return strdup(buf);
+			}
+			buf.clear();
+		}
+		return strdup("Unnamed");
 	}
 
 	// now we have a city
