@@ -5,8 +5,8 @@
  *
  * @section sec_howto How to create a scenario.
  *
- * You first need a @e idea - a vision what a scenario may look like. Then you have
- * to cast these idea into a @e savegame. That is, create the world in which your scenario will live.
+ * You first need an @e idea - a vision what a scenario may look like. Then you have
+ * to cast this idea into a @e savegame. That is, create the world in which your scenario will live.
  * You are the ruler of this toy universe, you are in charge of the rules, which go into the @e script.
  *
  *
@@ -34,7 +34,7 @@
  *
  * All coordinates in the script are with respect to the initial rotation of the map. If a player rotates
  * a map, then all coordinates are translated to the original rotation.
- * This effects the classes @ref coord and coord3d as well as any functions that expect coordinates as input, as
+ * This effects the classes @ref coord and @ref coord3d as well as any functions that expect coordinates as input, as
  * for instance factory_x::factory_x or rules::forbid_way_tool_rect.
  *
  * @section sec_network Network play
@@ -45,19 +45,19 @@
  *
  * @section sec_err Logging and error handling
  * If simutrans is started with '-debug 2', all errors and warnings are logged to standard output (i.e. terminal).
- * If simutrans is started in addition with '-log 1', all the output is written to the file script.log. In particular,
+ * If simutrans is started in addition with '-log', all the output is written to the file script.log. In particular,
  * everything that is print-ed by the script, goes into this file.
  *
  * In case of error, an error window pops up showing the call stack and the values of local variables.
- * You can then repair your script, and the restart the scenario via New Game - Scenario. You do not need to restart
+ * You can then repair your script, and restart the scenario via New Game - Scenario. You do not need to restart
  * simutrans to reload your script.
  *
  * @section sec_rdwr Load-Save support
  * Such support is available of course. If a running scenario is saved, the information about the scenario is saved within the
  * savegame. Upon loading, the scenario is resumed, by calling the function ::resume_game.
  *
- * You can save data in the savegame. In order to do so, you have to keep these data in the global structure ::persistent.
- * This data is saved and loaded.
+ * You can save data in the savegame. In order to do so, you have to keep these data in the global table ::persistent.
+ * This table is saved and loaded.
  *
  * @section sec_dir Recommended directory structure
  *
