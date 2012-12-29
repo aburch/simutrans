@@ -470,7 +470,7 @@ struct command_t {
 
 
 int main(int argc, char* argv[]) {
-	init_logging("stderr", true, true, NULL);
+	init_logging("stderr", true, true, NULL, "nettool");
 
 	// Use Fetchopt to parse option flags
 	Fetchopt_t fetchopt(argc, argv, "hp:P:qs:");
