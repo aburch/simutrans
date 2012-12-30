@@ -243,8 +243,8 @@ bool dingliste_t::grow_capacity()
 		return false;
 	}
 	else {
-		// size exeeded, needs to extent
-		uint16 new_cap = ((uint16)capacity+4)&0x0FC;
+		// size exceeded, extent
+		uint16 new_cap = (uint16)capacity+4;
 		set_capacity( new_cap );
 		return true;
 	}
