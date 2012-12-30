@@ -87,6 +87,7 @@ BEGIN {
 	export_types["player_x::get_transported_goods"] = "array<integer>()"
 	export_types["player_x::get_convoys"] = "array<integer>()"
 	export_types["player_x::get_way_tolls"] = "array<integer>()"
+	export_types["player_x::book_cash"] = "void(integer)"
 	export_types["::translate"] = "string(string)"
 	export_types["::load_language_file"] = "string(string)"
 	export_types["::forbid_tool"] = "void(integer, integer)"

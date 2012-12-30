@@ -13,6 +13,12 @@ template<typename T> T clamp(T v, T l, T u) { return v < l ? l : (v > u ? u :v);
 
 namespace script_api {
 	karte_t *welt;
+
+	SQInteger param<void_t>::push(HSQUIRRELVM, void_t const&)
+	{
+		return 0;
+	}
+
 // integer arguments
 	uint8 param<uint8>::get(HSQUIRRELVM vm, SQInteger index)
 	{
