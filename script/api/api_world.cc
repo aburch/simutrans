@@ -13,13 +13,19 @@ using namespace script_api;
 #define STATIC
 
 // pushes table = { year = , month = }
-SQInteger world_get_time(HSQUIRRELVM vm)
+SQInteger push_time(HSQUIRRELVM vm, uint32 yearmonth)
 {
 	sq_newtableex(vm, 2);
-	uint32 yearmonth = welt->get_current_month();
 	param<uint32>::create_slot(vm, "year",  yearmonth/12);
 	param<uint32>::create_slot(vm, "month", yearmonth%12);
 	return 1;
+}
+
+
+SQInteger world_get_time(HSQUIRRELVM vm)
+{
+	sq_newtableex(vm, 2);
+	return push_time(vm, welt->get_current_month() );
 }
 
 
